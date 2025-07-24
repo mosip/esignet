@@ -88,8 +88,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "IDA-MLC-007",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "IDA-MLC-007"
     }
   ]
 }'
@@ -111,8 +110,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -134,8 +132,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -157,8 +154,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -180,8 +176,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_transaction",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction"
     }
   ]
 }'
@@ -203,8 +198,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_transaction",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction"
     }
   ]
 }'
@@ -226,8 +220,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_transaction_id",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction_id"
     }
   ]
 }'
@@ -249,8 +242,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_transaction_id",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction_id"
     }
   ]
 }'
@@ -272,8 +264,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_transaction",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction"
     }
   ]
 }'
@@ -295,8 +286,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "IDA-MLC-007",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "IDA-MLC-007"
     }
   ]
 }'
@@ -318,8 +308,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_identifier",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_identifier"
     }
   ]
 }'
@@ -341,8 +330,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_identifier",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_identifier"
     }
   ]
 }'
@@ -364,8 +352,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "IDA-MLC-007",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "IDA-MLC-007"
     }
   ]
 }'
@@ -387,8 +374,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "auth_factor_mismatch",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "auth_factor_mismatch"
     }
   ]
 }'
@@ -410,8 +396,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "auth_factor_mismatch",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "auth_factor_mismatch"
     }
   ]
 }'
@@ -433,8 +418,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "auth_factor_mismatch",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "auth_factor_mismatch"
     }
   ]
 }'
@@ -456,8 +440,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "auth_factor_mismatch",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "auth_factor_mismatch"
     }
   ]
 }'
@@ -479,8 +462,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "auth_factor_mismatch",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "auth_factor_mismatch"
     }
   ]
 }'
@@ -502,8 +484,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "IDA-MLC-007",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "IDA-MLC-007"
     }
   ]
 }'
@@ -525,8 +506,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "IDA-MLC-007",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "IDA-MLC-007"
     }
   ]
 }'
@@ -548,8 +528,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "IDA-MLC-007",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "IDA-MLC-007"
     }
   ]
 }'
@@ -571,8 +550,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "IDA-MLC-007",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "IDA-MLC-007"
     }
   ]
 }'
@@ -594,8 +572,7 @@ AuthenticateUser:
       output: '{
       	"errors": [
     {
-      "errorCode": "IDA-MLC-007",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "IDA-MLC-007"
     }
   ]
 }'

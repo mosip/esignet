@@ -13,11 +13,8 @@ definePolicyGroup:
     "requesttime": "$TIMESTAMP$"
   }'
       output: ' {
-      "id": "$IGNORE$",
-        "name": "$IGNORE$",
-        "desc": "$IGNORE$",
         "is_Active": true
-}'
+   }'
 
    Esignet_DefinePolicyGroup_Misp_Valid_Smoke_sid:
       endPoint: /v1/policymanager/policies/group/new
@@ -33,11 +30,8 @@ definePolicyGroup:
     "requesttime": "$TIMESTAMP$"
   }'
       output: ' {
-      "id": "$IGNORE$",
-        "name": "$IGNORE$",
-        "desc": "$IGNORE$",
         "is_Active": true
-}'
+	}'
 
    Esignet_DefinePolicyGroup_in_Valid_Smoke_sid:
       endPoint: /v1/policymanager/policies/group/new
@@ -53,11 +47,8 @@ definePolicyGroup:
     "requesttime": "$TIMESTAMP$"
   }'
       output: ' {
-      "id": "$IGNORE$",
-        "name": "$IGNORE$",
-        "desc": "$IGNORE$",
         "is_Active": true
-    }'
+	}'
    Esignet_DefinePolicyGroup_Valid_Smoke_sid:
       endPoint: /v1/policymanager/policies/group/new
       uniqueIdentifier: Dependent_Idrepo_definePolicyGroup_04
@@ -72,8 +63,5 @@ definePolicyGroup:
     "requesttime": "$TIMESTAMP$"
   }'
       output: ' {
-      "id": "$IGNORE$",
-        "name": "$IGNORE$",
-        "desc": "$IGNORE$",
         "is_Active": true
     }'

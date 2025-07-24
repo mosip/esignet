@@ -47,6 +47,7 @@ const walletConfigKeys = {
   walletLogoUrl: "wallet.logo-url",
   qrCodeDeepLinkURI: "wallet.deep-link-uri",
   appDownloadURI: "wallet.download-uri",
+  walletFooter: "wallet.footer"
 };
 
 const configurationKeys = {

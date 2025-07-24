@@ -25,7 +25,6 @@ CreateOIDCClient:
       	"clientAuthMethods": "private_key_jwt"
 }'
       output: '{
-        "clientId": "$IGNORE$",
     	"status": "ACTIVE"
 }'
 
@@ -55,7 +54,6 @@ CreateOIDCClient:
       	"clientAuthMethods": "private_key_jwt"
 }'
       output: '{
-        "clientId": "$IGNORE$",
     	"status": "ACTIVE"
 }'
 
@@ -87,8 +85,7 @@ CreateOIDCClient:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -121,8 +118,7 @@ CreateOIDCClient:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -209,8 +205,7 @@ CreateOIDCClient:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_client_id",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_client_id"
     }
   ]
 }'
@@ -243,8 +238,7 @@ CreateOIDCClient:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_client_id",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_client_id"
     }
   ]
 }'
@@ -277,8 +271,7 @@ CreateOIDCClient:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_client_name",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_client_name"
     }
   ]
 }'
@@ -311,8 +304,7 @@ CreateOIDCClient:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_client_name",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_client_name"
     }
   ]
 }'
@@ -345,8 +337,7 @@ CreateOIDCClient:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_client_id",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_client_id"
     }
   ]
 }'
@@ -379,8 +370,7 @@ CreateOIDCClient:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_client_id",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_client_id"
     }
   ]
 }'
@@ -413,8 +403,7 @@ CreateOIDCClient:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_client_id",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_client_id"
     }
   ]
 }'
@@ -447,8 +436,7 @@ CreateOIDCClient:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_rp_id",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_rp_id"
     }
   ]
 }'
@@ -481,8 +469,7 @@ CreateOIDCClient:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_rp_id",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_rp_id"
     }
   ]
 }'
@@ -515,8 +502,7 @@ CreateOIDCClient:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_uri",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_uri"
     }
   ]
 }'
@@ -583,8 +569,7 @@ CreateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_redirect_uri",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_redirect_uri"
     }
   ]
 }'
@@ -617,8 +602,7 @@ CreateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_acr",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_acr"
     }
   ]
 }'
@@ -651,8 +635,7 @@ CreateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_acr",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_acr"
     }
   ]
 }'
@@ -685,8 +668,7 @@ CreateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_acr",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_acr"
     }
   ]
 }'
@@ -719,8 +701,7 @@ CreateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_acr",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_acr"
     }
   ]
 }'
@@ -752,8 +733,7 @@ CreateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_public_key",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_public_key"
     }
   ]
 }'
@@ -786,8 +766,7 @@ CreateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_claim",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_claim"
     }
   ]
 }'
@@ -820,8 +799,7 @@ CreateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_grant_type",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_grant_type"
     }
   ]
 }'
@@ -854,8 +832,7 @@ CreateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_grant_type",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_grant_type"
     }
   ]
 }'
@@ -888,8 +865,7 @@ CreateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_grant_type",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_grant_type"
     }
   ]
 }'
@@ -922,8 +898,7 @@ CreateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_grant_type",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_grant_type"
     }
   ]
 }'
@@ -956,8 +931,7 @@ CreateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_client_auth",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_client_auth"
     }
   ]
 }'
@@ -990,8 +964,7 @@ CreateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_client_auth",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_client_auth"
     }
   ]
 }'
@@ -1024,8 +997,7 @@ CreateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_client_auth",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_client_auth"
     }
   ]
 }'
@@ -1058,8 +1030,7 @@ CreateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_client_auth",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_client_auth"
     }
   ]
 }'

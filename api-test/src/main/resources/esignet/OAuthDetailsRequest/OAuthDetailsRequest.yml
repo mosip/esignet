@@ -899,8 +899,7 @@ OAuthDetailsRequest:
       output: '{
        	"errors": [
     {
-      "errorCode": "invalid_client_id",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_client_id"
     }
   ]
 }'
@@ -930,8 +929,7 @@ OAuthDetailsRequest:
       output: '{
        	"errors": [
     {
-      "errorCode": "invalid_client_id",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_client_id"
     }
   ]
 }'
@@ -961,8 +959,7 @@ OAuthDetailsRequest:
       output: '{
        	"errors": [
     {
-      "errorCode": "invalid_client_id",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_client_id"
     }
   ]
 }'
@@ -992,8 +989,7 @@ OAuthDetailsRequest:
       output: '{
        	"errors": [
     {
-      "errorCode": "invalid_client_id",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_client_id"
     }
   ]
 }'
@@ -1023,8 +1019,7 @@ OAuthDetailsRequest:
       output: '{
        	"errors": [
     {
-      "errorCode": "invalid_client_id",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_client_id"
     }
   ]
 }'
@@ -1054,8 +1049,7 @@ OAuthDetailsRequest:
       output: '{
        	"errors": [
     {
-      "errorCode": "invalid_redirect_uri",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_redirect_uri"
     }
   ]
 }'
@@ -1085,8 +1079,7 @@ OAuthDetailsRequest:
       output: '{
        	"errors": [
     {
-      "errorCode": "invalid_redirect_uri",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_redirect_uri"
     }
   ]
 }'
@@ -1116,8 +1109,7 @@ OAuthDetailsRequest:
       output: '{
        	"errors": [
     {
-      "errorCode": "invalid_redirect_uri",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_redirect_uri"
     }
   ]
 }'
@@ -1147,8 +1139,7 @@ OAuthDetailsRequest:
       output: '{
        	"errors": [
     {
-      "errorCode": "invalid_redirect_uri",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_redirect_uri"
     }
   ]
 }'
@@ -1178,8 +1169,7 @@ OAuthDetailsRequest:
       output: '{
        	"errors": [
     {
-      "errorCode": "invalid_response_type",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_response_type"
     }
   ]
 }'
@@ -1209,8 +1199,7 @@ OAuthDetailsRequest:
       output: '{
        	"errors": [
     {
-      "errorCode": "invalid_response_type",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_response_type"
     }
   ]
 }'
@@ -1240,8 +1229,7 @@ OAuthDetailsRequest:
       output: '{
        	"errors": [
     {
-      "errorCode": "invalid_response_type",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_response_type"
     }
   ]
 }'
@@ -1271,8 +1259,7 @@ OAuthDetailsRequest:
       output: '{
        	"errors": [
     {
-      "errorCode": "invalid_response_type",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_response_type"
     }
   ]
 }'
@@ -1302,8 +1289,7 @@ OAuthDetailsRequest:
       output: '{
        	"errors": [
     {
-      "errorCode": "invalid_scope",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_scope"
     }
   ]
 }'
@@ -1333,8 +1319,7 @@ OAuthDetailsRequest:
       output: '{
        	"errors": [
     {
-      "errorCode": "invalid_scope",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_scope"
     }
   ]
 }'
@@ -1364,8 +1349,7 @@ OAuthDetailsRequest:
       output: '{
        	"errors": [
     {
-      "errorCode": "invalid_scope",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_scope"
     }
   ]
 }'
@@ -1395,8 +1379,7 @@ OAuthDetailsRequest:
       output: '{
        	"errors": [
     {
-      "errorCode": "invalid_scope",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_scope"
     }
   ]
 }'
@@ -1426,8 +1409,7 @@ OAuthDetailsRequest:
       output: '{
        	"errors": [
     {
-      "errorCode": "invalid_scope",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_scope"
     }
   ]
 }'
@@ -1827,8 +1809,7 @@ OAuthDetailsRequest:
       output: '{
        	"errors": [
     {
-      "errorCode": "invalid_display",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_display"
     }
   ]
 }'
@@ -1888,8 +1869,7 @@ OAuthDetailsRequest:
       output: '{
        	"errors": [
     {
-      "errorCode": "invalid_display",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_display"
     }
   ]
 }'
@@ -2132,8 +2112,7 @@ OAuthDetailsRequest:
       output: '{
        	"errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -2163,8 +2142,7 @@ OAuthDetailsRequest:
       output: '{
        	"errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -2194,8 +2172,7 @@ OAuthDetailsRequest:
       output: '{
        	"errors": [
     {
-      "errorCode": "invalid_prompt",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_prompt"
     }
   ]
 }'
@@ -2280,8 +2257,7 @@ OAuthDetailsRequest:
       output: '{
        	"errors": [
     {
-      "errorCode": "invalid_prompt",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_prompt"
     }
   ]
 }'
@@ -2311,8 +2287,7 @@ OAuthDetailsRequest:
       output: '{
        	"errors": [
     {
-      "errorCode": "invalid_prompt",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_prompt"
     }
   ]
 }'

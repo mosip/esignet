@@ -81,8 +81,8 @@ export default function ConsentPage() {
 
         window.onbeforeunload = null;
 
-        if (errorCodeObj[errorCode]) {
-          handleRedirection(redirect_uri, errorCodeObj[errorCode]);
+        if (errorCode) {
+          handleRedirection(redirect_uri, errorCodeObj[errorCode] || errorCode);
         } else {
           const { errors } = await authServices.resume(
             transactionId,

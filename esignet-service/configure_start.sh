@@ -57,17 +57,19 @@ if [[ -z "$plugin_name_env" ]]; then
   exit 1
 fi
 
-source_file="$work_dir/plugins/$plugin_name_env"
-echo "Copy plugin $source_file to $loader_path_env"
-# Copy plugin file to the destination loader path
-cp "$source_file" "$loader_path_env"
-# Check if the copy was successful
-if [[ $? -eq 0 ]]; then
-  echo "Plugin file '$source_file' successfully copied to '$loader_path_env'."
-else
-  echo "Error: Failed to copy the plugin."
-  exit 1
-fi
+IFS=',' read -ra plugin_array <<< "$plugin_name_env"
+for plugin_name in "${plugin_array[@]}"; do
+  plugin_name_trimmed=$(echo "$plugin_name" | xargs)  # Trim spaces
+  source_file="$work_dir/plugins/$plugin_name_trimmed"
+  echo "Copying plugin: $source_file to $loader_path_env"
+  if [[ -f "$source_file" ]]; then
+    cp "$source_file" "$loader_path_env"
+    echo "Plugin '$plugin_name_trimmed' copied successfully."
+  else
+    echo "Error: Plugin '$plugin_name_trimmed' not found at '$source_file'."
+    exit 1
+  fi
+done
 
 ## set active profile if not set
 if [[ -z "$active_profile_env" ]]; then

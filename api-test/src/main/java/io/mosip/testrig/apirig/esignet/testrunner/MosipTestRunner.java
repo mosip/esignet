@@ -10,7 +10,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -26,8 +26,8 @@ import com.nimbusds.jose.jwk.RSAKey;
 import io.mosip.testrig.apirig.dataprovider.BiometricDataProvider;
 import io.mosip.testrig.apirig.dbaccess.DBManager;
 import io.mosip.testrig.apirig.esignet.utils.EsignetConfigManager;
+import io.mosip.testrig.apirig.esignet.utils.EsignetConstants;
 import io.mosip.testrig.apirig.esignet.utils.EsignetUtil;
-import io.mosip.testrig.apirig.report.EmailableReport;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.ExtractResource;
 import io.mosip.testrig.apirig.testrunner.HealthChecker;
@@ -60,6 +60,8 @@ public class MosipTestRunner {
 	public static String jarUrl = MosipTestRunner.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 	public static List<String> languageList = new ArrayList<>();
 	public static boolean skipAll = false;
+	
+	public static String pluginName = null;
 
 	/**
 	 * C Main method to start mosip test execution
@@ -84,6 +86,7 @@ public class MosipTestRunner {
 			suiteSetup(getRunType());
 			SkipTestCaseHandler.loadTestcaseToBeSkippedList("testCaseSkippedList.txt");
 			GlobalMethods.setModuleNameAndReCompilePattern(EsignetConfigManager.getproperty("moduleNamePattern"));
+			GlobalMethods.reportCaptchaStatus(GlobalConstants.CAPTCHA_ENABLED, false);
 			setLogLevels();
 
 //			HealthChecker healthcheck = new HealthChecker();
@@ -106,7 +109,7 @@ public class MosipTestRunner {
 				KeycloakUserManager.closeKeycloakInstance();
 				AdminTestUtil.getRequiredField();
 
-				List<String> localLanguageList = new ArrayList<>(BaseTestCase.getLanguageList());
+				BaseTestCase.getLanguageList();
 				AdminTestUtil.getLocationData();
 				
 				
@@ -132,6 +135,10 @@ public class MosipTestRunner {
 					startTestRunner();
 					EsignetUtil.dBCleanup();
 					KeycloakUserManager.removeUser();
+					KeycloakUserManager.removeKeyCloakUser(PartnerRegistration.partnerId);
+					KeycloakUserManager.removeKeyCloakUser(PartnerRegistration.ekycPartnerId);
+					KeycloakUserManager.removeKeyCloakUser(PartnerRegistration.deviceOrganizationName);
+					KeycloakUserManager.removeKeyCloakUser(PartnerRegistration.ftmOrganizationName);
 					KeycloakUserManager.closeKeycloakInstance();
 				}
 
@@ -140,6 +147,13 @@ public class MosipTestRunner {
 				EsignetUtil.getSupportedLanguage();
 				startTestRunner();
 			} else {
+				// Mock ID System
+
+				// In mock ID system also the OTP value is hard coded and not configurable.
+				Map<String, Object> additionalPropertiesMap = new HashMap<String, Object>();
+				additionalPropertiesMap.put(EsignetConstants.USE_PRE_CONFIGURED_OTP_STRING, EsignetConstants.TRUE_STRING);
+				additionalPropertiesMap.put(EsignetConstants.PRE_CONFIGURED_OTP_STRING, EsignetConstants.ALL_ONE_OTP_STRING);
+				EsignetConfigManager.add(additionalPropertiesMap);
 				EsignetUtil.getSupportedLanguage();
 				startTestRunner();
 			}
@@ -196,6 +210,9 @@ public class MosipTestRunner {
 	 * @throws IOException
 	 */
 	public static void startTestRunner() {
+		
+		pluginName = EsignetUtil.getPluginName();
+		
 		File homeDir = null;
 		String os = System.getProperty("os.name");
 		LOGGER.info(os);
@@ -215,7 +232,11 @@ public class MosipTestRunner {
 				List<String> suitefiles = new ArrayList<>();
 
 				if (file.getName().toLowerCase().contains("mastertestsuite")) {
-					BaseTestCase.setReportName(GlobalConstants.ESIGNET);
+					if (pluginName != null) {
+				        BaseTestCase.setReportName(GlobalConstants.ESIGNET + "-" + pluginName);
+				    } else {
+				        BaseTestCase.setReportName(GlobalConstants.ESIGNET);
+				    }
 					suitefiles.add(file.getAbsolutePath());
 					runner.setTestSuites(suitefiles);
 					System.getProperties().setProperty("testng.outpur.dir", "testng-report");

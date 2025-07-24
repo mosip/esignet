@@ -549,24 +549,26 @@ export default function LoginQRCode({
         )}
       </div>
 
-      {/**footer */}
-      <div className="row-span-1 mt-6 mb-2">
-        <div>
-          <p className="text-center text-black-600 font-semibold">
-            {t1("dont_have_wallet", {
-              walletName: walletDetail[walletConfigKeys.walletName],
-            })}
-            &nbsp;
-            <a
-              href={walletDetail[walletConfigKeys.appDownloadURI]}
-              className="wallet-download"
-              id="download_now"
-            >
-              {t1("download_now")}
-            </a>
-          </p>
+      {/* footer */}
+      {walletDetail[walletConfigKeys.walletFooter] && (
+        <div className="row-span-1 mt-6 mb-2">
+          <div>
+            <p className="text-center text-black-600 font-semibold">
+              {t1("dont_have_wallet", {
+                walletName: walletDetail[walletConfigKeys.walletName],
+              })}
+              &nbsp;
+              <a
+                href={walletDetail[walletConfigKeys.appDownloadURI]}
+                className="wallet-download"
+                id="download_now"
+              >
+                {t1("download_now")}
+              </a>
+            </p>
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }

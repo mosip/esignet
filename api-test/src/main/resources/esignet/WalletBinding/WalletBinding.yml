@@ -32,9 +32,7 @@ WalletBinding:
 }'
       output: '{
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -71,9 +69,7 @@ WalletBinding:
 }'
       output: '{
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -110,9 +106,7 @@ WalletBinding:
 }'
       output: '{
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -149,9 +143,7 @@ WalletBinding:
 }'
       output: '{
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -194,9 +186,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -239,9 +229,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -284,9 +272,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -325,14 +311,11 @@ WalletBinding:
       output: '{
        "errors": [
     {
-      "errorCode": "IDA-MLC-009",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "IDA-MLC-009"
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -375,9 +358,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -416,14 +397,11 @@ WalletBinding:
       output: '{
        "errors": [
     {
-      "errorCode": "IDA-MLC-009",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "IDA-MLC-009"
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -466,9 +444,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -510,9 +486,7 @@ WalletBinding:
     }
   ],
        "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -554,9 +528,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -599,9 +571,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -644,9 +614,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -690,9 +658,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -734,9 +700,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -780,9 +744,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -826,9 +788,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -872,9 +832,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -916,9 +874,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -961,9 +917,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -1007,9 +961,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -1052,9 +1004,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -1096,9 +1046,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -1141,9 +1089,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -1186,9 +1132,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -1230,9 +1174,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -1274,9 +1216,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -1319,9 +1259,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -1364,9 +1302,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -1408,9 +1344,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -1453,9 +1387,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -1498,9 +1430,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -1543,9 +1473,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -1588,9 +1516,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -1633,9 +1559,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -1674,14 +1598,11 @@ WalletBinding:
       output: '{
        "errors": [
     {
-      "errorCode": "IDA-MLC-009",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "IDA-MLC-009"
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -1724,9 +1645,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -1765,14 +1684,11 @@ WalletBinding:
       output: '{
        "errors": [
     {
-      "errorCode": "IDA-MLC-009",
-      "errorMessage": "$IGNORE$"
-    }
+      "errorCode": "IDA-MLC-009"
+	}  
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -1815,9 +1731,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -1859,9 +1773,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -1903,9 +1815,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -1948,9 +1858,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -1994,9 +1902,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -2040,9 +1946,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -2084,9 +1988,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -2130,9 +2032,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -2176,9 +2076,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -2222,9 +2120,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -2266,9 +2162,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -2312,9 +2206,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -2358,9 +2250,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -2403,9 +2293,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -2447,9 +2335,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -2492,9 +2378,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -2537,9 +2421,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -2581,9 +2463,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -2625,9 +2505,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -2670,9 +2548,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -2715,9 +2591,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -2759,9 +2633,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -2804,9 +2676,7 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'
 
@@ -2849,8 +2719,6 @@ WalletBinding:
     }
   ],
         "sendOtpResp": {
-           "maskedMobile": "$IGNORE$",
-           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult",
-           "maskedEmail": "$IGNORE$"
+           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        }
 }'

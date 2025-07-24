@@ -24,7 +24,6 @@ UpdateOIDCClient:
       	"clientAuthMethods": "private_key_jwt"
 }'
       output: '{
-        "clientId": "$IGNORE$",
         "status": "ACTIVE"
 }'
 
@@ -53,7 +52,6 @@ UpdateOIDCClient:
       	"clientAuthMethods": "private_key_jwt"
 }'
       output: '{
-        "clientId": "$IGNORE$",
         "status": "ACTIVE"
 }'
 
@@ -84,8 +82,7 @@ UpdateOIDCClient:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -117,8 +114,7 @@ UpdateOIDCClient:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -150,8 +146,7 @@ UpdateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_client_id",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_client_id"
     }
   ]
 }'
@@ -235,8 +230,7 @@ UpdateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_client_id",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_client_id"
     }
   ]
 }'
@@ -268,8 +262,7 @@ UpdateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_client_id",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_client_id"
     }
   ]
 }'
@@ -301,8 +294,7 @@ UpdateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_status",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_status"
     }
   ]
 }'
@@ -334,8 +326,7 @@ UpdateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_uri",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_uri"
     }
   ]
 }'
@@ -367,8 +358,7 @@ UpdateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_uri",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_uri"
     }
   ]
 }'
@@ -400,8 +390,7 @@ UpdateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_redirect_uri",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_redirect_uri"
     }
   ]
 }'
@@ -433,8 +422,7 @@ UpdateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_redirect_uri",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_redirect_uri"
     }
   ]
 }'
@@ -466,8 +454,7 @@ UpdateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_claim",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_claim"
     }
   ]
 }'
@@ -499,8 +486,7 @@ UpdateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_acr",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_acr"
     }
   ]
 }'
@@ -532,8 +518,7 @@ UpdateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_acr",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_acr"
     }
   ]
 }'
@@ -565,8 +550,7 @@ UpdateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_acr",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_acr"
     }
   ]
 }'
@@ -598,8 +582,7 @@ UpdateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_acr",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_acr"
     }
   ]
 }'
@@ -631,8 +614,7 @@ UpdateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_grant_type",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_grant_type"
     }
   ]
 }'
@@ -664,8 +646,7 @@ UpdateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_grant_type",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_grant_type"
     }
   ]
 }'
@@ -697,8 +678,7 @@ UpdateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_grant_type",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_grant_type"
     }
   ]
 }'
@@ -730,8 +710,7 @@ UpdateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_grant_type",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_grant_type"
     }
   ]
 }'
@@ -763,8 +742,7 @@ UpdateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_client_auth",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_client_auth"
     }
   ]
 }'
@@ -796,8 +774,7 @@ UpdateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_client_auth",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_client_auth"
     }
   ]
 }'
@@ -829,8 +806,7 @@ UpdateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_client_auth",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_client_auth"
     }
   ]
 }'
@@ -862,8 +838,7 @@ UpdateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_client_auth",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_client_auth"
     }
   ]
 }'
@@ -895,8 +870,7 @@ UpdateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_client_name",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_client_name"
     }
   ]
 }'
@@ -928,8 +902,7 @@ UpdateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_client_name",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_client_name"
     }
   ]
 }'

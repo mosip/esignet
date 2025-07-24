@@ -28,9 +28,7 @@ AuthenticateUserConsent:
       output: '{
           "consentAction": "CAPTURE",
   "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
-        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
-        "maskedEmail": "$IGNORE$"
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult"
     }
 }'
 
@@ -63,9 +61,7 @@ AuthenticateUserConsent:
       output: '{
           "consentAction": "CAPTURE",
   "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
-        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
-        "maskedEmail": "$IGNORE$"
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult"
     }
 }'
 
@@ -98,9 +94,7 @@ AuthenticateUserConsent:
       output: '{
           "consentAction": "CAPTURE",
   "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
-        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
-        "maskedEmail": "$IGNORE$"
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult"
     }
 }'
 
@@ -133,9 +127,7 @@ AuthenticateUserConsent:
       output: '{
           "consentAction": "CAPTURE",
   "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
-        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
-        "maskedEmail": "$IGNORE$"
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult"
     }
 }'
 
@@ -168,14 +160,11 @@ AuthenticateUserConsent:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_transaction",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction"
     }
   ],
   "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
-        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
-        "maskedEmail": "$IGNORE$"
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult"
     }
 }'
 
@@ -209,14 +198,11 @@ AuthenticateUserConsent:
       output: '{
   "errors": [
     {
-      "errorCode": "IDA-MLC-009",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "IDA-MLC-009"
     }
   ],
   "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
-        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
-        "maskedEmail": "$IGNORE$"
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult"
     }
 }'
 
@@ -249,14 +235,11 @@ AuthenticateUserConsent:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_transaction",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction"
     }
   ],
   "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
-        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
-        "maskedEmail": "$IGNORE$"
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult"
     }
 }'
 
@@ -289,14 +272,11 @@ AuthenticateUserConsent:
       output: '{
   "errors": [
     {
-      "errorCode": "IDA-MLC-009",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "IDA-MLC-009"
     }
   ],
   "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
-        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
-        "maskedEmail": "$IGNORE$"
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult"
     }
 }'
 
@@ -329,9 +309,7 @@ AuthenticateUserConsent:
       output: '{
           "consentAction": "CAPTURE",
   "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
-        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
-        "maskedEmail": "$IGNORE$"
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult"
     }
 }'
 
@@ -364,8 +342,6 @@ AuthenticateUserConsent:
       output: '{
           "consentAction": "CAPTURE",
   "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
-        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
-        "maskedEmail": "$IGNORE$"
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult"
     }
 }'

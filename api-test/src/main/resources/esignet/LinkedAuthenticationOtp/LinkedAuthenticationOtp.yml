@@ -23,7 +23,6 @@ LinkedAuthenticationOtp:
 }'
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }
@@ -53,7 +52,6 @@ LinkedAuthenticationOtp:
 }'
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }
@@ -83,7 +81,6 @@ LinkedAuthenticationOtp:
 }'
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }
@@ -113,7 +110,6 @@ LinkedAuthenticationOtp:
 }'
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }
@@ -143,7 +139,6 @@ LinkedAuthenticationOtp:
 }'
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }
@@ -173,7 +168,6 @@ LinkedAuthenticationOtp:
 }'
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }
@@ -203,7 +197,6 @@ LinkedAuthenticationOtp:
 }'
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }
@@ -233,7 +226,6 @@ LinkedAuthenticationOtp:
 }'
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }
@@ -263,7 +255,6 @@ LinkedAuthenticationOtp:
 }'
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }
@@ -293,7 +284,6 @@ LinkedAuthenticationOtp:
 }'
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }
@@ -323,7 +313,6 @@ LinkedAuthenticationOtp:
 }'
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }
@@ -353,7 +342,6 @@ LinkedAuthenticationOtp:
 }'
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }
@@ -383,7 +371,6 @@ LinkedAuthenticationOtp:
 }'
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }
@@ -413,7 +400,6 @@ LinkedAuthenticationOtp:
 }'
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }
@@ -443,7 +429,6 @@ LinkedAuthenticationOtp:
 }'
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }
@@ -473,7 +458,6 @@ LinkedAuthenticationOtp:
 }'
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }
@@ -503,7 +487,6 @@ LinkedAuthenticationOtp:
 }' 
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }
@@ -533,7 +516,6 @@ LinkedAuthenticationOtp:
 }' 
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }
@@ -563,7 +545,6 @@ LinkedAuthenticationOtp:
 }'
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }
@@ -593,7 +574,6 @@ LinkedAuthenticationOtp:
 }'
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }
@@ -623,7 +603,6 @@ LinkedAuthenticationOtp:
 }'
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }
@@ -653,7 +632,6 @@ LinkedAuthenticationOtp:
 }'
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }
@@ -683,7 +661,6 @@ LinkedAuthenticationOtp:
 }'
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }
@@ -713,7 +690,6 @@ LinkedAuthenticationOtp:
 }'
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }
@@ -743,7 +719,6 @@ LinkedAuthenticationOtp:
 }'
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }
@@ -773,7 +748,6 @@ LinkedAuthenticationOtp:
 }'
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }
@@ -803,7 +777,6 @@ LinkedAuthenticationOtp:
 }'
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }
@@ -833,7 +806,6 @@ LinkedAuthenticationOtp:
 }'
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }
@@ -863,7 +835,6 @@ LinkedAuthenticationOtp:
 }'
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }
@@ -893,7 +864,6 @@ LinkedAuthenticationOtp:
 }'
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }
@@ -923,7 +893,6 @@ LinkedAuthenticationOtp:
 }'
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }
@@ -953,7 +922,6 @@ LinkedAuthenticationOtp:
 }'
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }
@@ -983,7 +951,6 @@ LinkedAuthenticationOtp:
 }'
       output: '{
          "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
         "sendOtpResTemplate":"esignet/LinkedSendOtp/LinkedSendOtpResult",
         "maskedEmail": "XXsXXeXXaXXoXXtXXn@gmail.com"
     }

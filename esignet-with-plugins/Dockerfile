@@ -1,4 +1,4 @@
-FROM mosipid/esignet:1.6.0
+FROM mosipdev/esignet:release-1.6.x-temp
 
 ARG SOURCE
 ARG COMMIT_HASH

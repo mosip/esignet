@@ -61,7 +61,6 @@ KycBioAuth:
       	"kycAuthEndPoint": "/idauthentication/v1/kyc-auth/delegated/$ID:GenerateMispLK_All_Valid_Smoke_sid_licenseKey$​/$ID:PartnerSelfRegistration_Kyc_Valid_Smoke_sid_partnerId$​/$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
 }'
       output: '{
-        "authStatus": "$IGNORE$",
         "kycStatus": true
 }'
 

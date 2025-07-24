@@ -129,8 +129,7 @@ LinkedAuthorizationConsent:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -151,8 +150,7 @@ LinkedAuthorizationConsent:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -173,8 +171,7 @@ LinkedAuthorizationConsent:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -195,8 +192,7 @@ LinkedAuthorizationConsent:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -217,8 +213,7 @@ LinkedAuthorizationConsent:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -239,8 +234,7 @@ LinkedAuthorizationConsent:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_transaction",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction"
     }
   ]
 }'
@@ -261,8 +255,7 @@ LinkedAuthorizationConsent:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_transaction_id",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction_id"
     }
   ]
 }'
@@ -283,8 +276,7 @@ LinkedAuthorizationConsent:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_transaction_id",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction_id"
     }
   ]
 }'
@@ -305,8 +297,7 @@ LinkedAuthorizationConsent:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_transaction_id",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction_id"
     }
   ]
 }'
@@ -328,8 +319,7 @@ LinkedAuthorizationConsent:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_transaction",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction"
     }
   ]
 }'
@@ -351,8 +341,7 @@ LinkedAuthorizationConsent:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_transaction",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction"
     }
   ]
 }'
@@ -375,8 +364,7 @@ LinkedAuthorizationConsent:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_transaction",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction"
     }
   ]
 }'
@@ -399,8 +387,7 @@ LinkedAuthorizationConsent:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_transaction",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction"
     }
   ]
 }'

@@ -27,6 +27,5 @@ CreateOIDCClientV2SunBirdC:
       	"clientNameLang": "MOSIP OIDC Client"
 }'
       output: '{
-        "clientId": "$IGNORE$",
     	"status": "ACTIVE"
 }'

@@ -128,8 +128,7 @@ GetLinkStatus:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -151,8 +150,7 @@ GetLinkStatus:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -174,8 +172,7 @@ GetLinkStatus:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -197,8 +194,7 @@ GetLinkStatus:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -220,8 +216,7 @@ GetLinkStatus:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -243,8 +238,7 @@ GetLinkStatus:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_link_code",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_link_code"
     }
   ]
 }'
@@ -266,8 +260,7 @@ GetLinkStatus:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_link_code",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_link_code"
     }
   ]
 }'
@@ -289,8 +282,7 @@ GetLinkStatus:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_transaction_id",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction_id"
     }
   ]
 }'
@@ -312,8 +304,7 @@ GetLinkStatus:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_transaction_id",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction_id"
     }
   ]
 }'
@@ -335,8 +326,7 @@ GetLinkStatus:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_link_code",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_link_code"
     }
   ]
 }'
@@ -358,8 +348,7 @@ GetLinkStatus:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_transaction_id",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction_id"
     }
   ]
 }'
@@ -381,8 +370,7 @@ GetLinkStatus:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_link_code",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_link_code"
     }
   ]
 }'
@@ -404,8 +392,7 @@ GetLinkStatus:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_link_code",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_link_code"
     }
   ]
 }'
@@ -427,8 +414,7 @@ GetLinkStatus:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_link_code",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_link_code"
     }
   ]
 }'
@@ -450,8 +436,7 @@ GetLinkStatus:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_link_code",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_link_code"
     }
   ]
 }'
@@ -473,8 +458,7 @@ GetLinkStatus:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_link_code",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_link_code"
     }
   ]
 }'
@@ -496,8 +480,7 @@ GetLinkStatus:
       output: '{
       	"errors": [
     {
-      "errorCode": "invalid_link_code",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_link_code"
     }
   ]
 }'

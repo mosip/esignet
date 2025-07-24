@@ -127,8 +127,7 @@ LinkAuthorizationCode:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -150,8 +149,7 @@ LinkAuthorizationCode:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -173,8 +171,7 @@ LinkAuthorizationCode:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -196,8 +193,7 @@ LinkAuthorizationCode:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -219,8 +215,7 @@ LinkAuthorizationCode:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
 }'
@@ -242,8 +237,7 @@ LinkAuthorizationCode:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_link_code",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_link_code"
     }
   ]
 }'
@@ -265,8 +259,7 @@ LinkAuthorizationCode:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_transaction_id",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction_id"
     }
   ]
 }'
@@ -288,8 +281,7 @@ LinkAuthorizationCode:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_transaction_id",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction_id"
     }
   ]
 }'
@@ -311,8 +303,7 @@ LinkAuthorizationCode:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_transaction_id",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_transaction_id"
     }
   ]
 }'
@@ -334,8 +325,7 @@ LinkAuthorizationCode:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_link_code",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_link_code"
     }
   ]
 }'
@@ -357,8 +347,7 @@ LinkAuthorizationCode:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_link_code",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_link_code"
     }
   ]
 }'
@@ -380,8 +369,7 @@ LinkAuthorizationCode:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_link_code",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_link_code"
     }
   ]
 }'
@@ -403,8 +391,7 @@ LinkAuthorizationCode:
       output: '{
   "errors": [
     {
-      "errorCode": "invalid_link_code",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_link_code"
     }
   ]
 }'

@@ -26,7 +26,6 @@ UpdateOIDCClientV2:
       	"clientNameLang": "MOSIP OIDC Client"
 }'
       output: '{
-        "clientId": "$IGNORE$",
         "status": "ACTIVE"
 }'
 
@@ -157,7 +156,6 @@ UpdateOIDCClientV2:
       	"clientAuthMethods": "private_key_jwt"
 }'
       output: '{
-      "clientId": "$IGNORE$",
       "status": "ACTIVE"
 }'
 
@@ -186,6 +184,5 @@ UpdateOIDCClientV2:
       	"clientAuthMethods": "private_key_jwt"
 }'
       output: '{
-       "clientId": "$IGNORE$",
        "status": "ACTIVE"
 }'

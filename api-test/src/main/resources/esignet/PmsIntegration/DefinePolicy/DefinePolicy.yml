@@ -16,9 +16,6 @@ definePolicy:
 	"requesttime": "$TIMESTAMP$"
 }'
       output: ' {
-    "policyGroupName": "$IGNORE$",
-    "name": "$IGNORE$",
-    "desc": "$IGNORE$",
     "is_Active": false
 }'
 
@@ -39,9 +36,6 @@ definePolicy:
 	"requesttime": "$TIMESTAMP$"
 }'
       output: ' {
-    "policyGroupName": "$IGNORE$",
-    "name": "$IGNORE$",
-    "desc": "$IGNORE$",
     "is_Active": false
 }'
 
@@ -62,9 +56,6 @@ definePolicy:
 	"requesttime": "$TIMESTAMP$"
 }'
       output: ' {
-    "policyGroupName": "$IGNORE$",
-    "name": "$IGNORE$",
-    "desc": "$IGNORE$",
     "is_Active": false
 }'
 
@@ -85,9 +76,6 @@ definePolicy:
 	"requesttime": "$TIMESTAMP$"
 }'
       output: ' {
-    "policyGroupName": "$IGNORE$",
-    "name": "$IGNORE$",
-    "desc": "$IGNORE$",
     "is_Active": false
 }'
 
@@ -110,8 +98,7 @@ definePolicy:
       output: ' {
 	  "errors": [
 	    {
-	      "errorCode": "PMS_PV_006",
-	      "message": "$IGNORE$"
+	      "errorCode": "PMS_PV_006"
 	    }
 	  ]
 }'
@@ -135,8 +122,7 @@ definePolicy:
       output: ' {
 	  "errors": [
 	    {
-	      "errorCode": "PMS_PV_006",
-	      "message": "$IGNORE$"
+	      "errorCode": "PMS_PV_006"
 	    }
 	  ]
 }'
@@ -160,8 +146,7 @@ definePolicy:
       output: ' {
 	  "errors": [
 	    {
-	      "errorCode": "PMS_POL_023",
-	      "message": "$IGNORE$"
+	      "errorCode": "PMS_POL_023"
 	    }
 	  ]
 }'
@@ -185,8 +170,7 @@ definePolicy:
       output: ' {
 	  "errors": [
 	    {
-	      "errorCode": "PMS_POL_019",
-	      "message": "$IGNORE$"
+	      "errorCode": "PMS_POL_019"
 	    }
 	  ]
 }'
@@ -208,9 +192,6 @@ definePolicy:
 	"requesttime": "$TIMESTAMP$"
 }'
       output: ' {
-    "policyGroupName": "$IGNORE$",
-    "name": "$IGNORE$",
-    "desc": "$IGNORE$",
     "is_Active": false
 }'
 
@@ -231,9 +212,6 @@ definePolicy:
 	"requesttime": "$TIMESTAMP$"
 }'
       output: ' {
-    "policyGroupName": "$IGNORE$",
-    "name": "$IGNORE$",
-    "desc": "$IGNORE$",
     "is_Active": false
 }'
 
@@ -256,8 +234,7 @@ definePolicy:
       output: ' {
 	  "errors": [
 	    {
-	      "errorCode": "PMS_POL_009",
-	      "message": "$IGNORE$"
+	      "errorCode": "PMS_POL_009"
 	    }
 	  ]
 }'
@@ -279,9 +256,6 @@ definePolicy:
 	"requesttime": "$TIMESTAMP$"
 }'
       output: ' {
-    "policyGroupName": "$IGNORE$",
-    "name": "$IGNORE$",
-    "desc": "$IGNORE$",
     "is_Active": false
 }'
 
@@ -302,9 +276,6 @@ definePolicy:
 	"requesttime": "$TIMESTAMP$"
 }'
       output: ' {
-    "policyGroupName": "$IGNORE$",
-    "name": "$IGNORE$",
-    "desc": "$IGNORE$",
     "is_Active": false
 }'
 
@@ -325,9 +296,6 @@ definePolicy:
 	"requesttime": "$TIMESTAMP$"
 }'
       output: ' {
-    "policyGroupName": "$IGNORE$",
-    "name": "$IGNORE$",
-    "desc": "$IGNORE$",
     "is_Active": false
 }'
 
@@ -348,8 +316,5 @@ definePolicy:
 	"requesttime": "$TIMESTAMP$"
 }'
       output: ' {
-    "policyGroupName": "$IGNORE$",
-    "name": "$IGNORE$",
-    "desc": "$IGNORE$",
     "is_Active": false
 }'

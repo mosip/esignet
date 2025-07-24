@@ -34,9 +34,7 @@ AuthenticateUserNonAuth:
     }
   ],
   "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
-        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
-        "maskedEmail": "$IGNORE$"
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult"
     }
 }'
 
@@ -75,8 +73,6 @@ AuthenticateUserNonAuth:
     }
   ],
   "sendOtpResp":{
-        "maskedMobile": "$IGNORE$",
-        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
-        "maskedEmail": "$IGNORE$"
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult"
     }
 }'

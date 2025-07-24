@@ -121,8 +121,7 @@ LinkTransaction:
       output: '{
       "errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
         
@@ -144,8 +143,7 @@ LinkTransaction:
       output: '{
       "errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
         
@@ -167,8 +165,7 @@ LinkTransaction:
       output: '{
       "errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
         
@@ -184,14 +181,12 @@ LinkTransaction:
       inputTemplate: esignet/LinkTransaction/LinkTransaction
       outputTemplate: esignet/error
       input: '{
-      	"requestTime": "$IGNORE$",
         "linkCode": "$ID:GenerateLinkCode_all_Valid_Smoke_sid_linkCode$"
 }'
       output: '{
       "errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
         
@@ -213,8 +208,7 @@ LinkTransaction:
       output: '{
        "errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
         
@@ -236,8 +230,7 @@ LinkTransaction:
       output: '{
       "errors": [
     {
-      "errorCode": "invalid_request",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_request"
     }
   ]
         
@@ -259,8 +252,7 @@ LinkTransaction:
       output: '{
       "errors": [
     {
-      "errorCode": "invalid_link_code",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_link_code"
     }
   ]
         
@@ -282,8 +274,7 @@ LinkTransaction:
       output: '{
        "errors": [
     {
-      "errorCode": "invalid_link_code",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_link_code"
     }
   ]
         
@@ -305,8 +296,7 @@ LinkTransaction:
       output: '{
       "errors": [
     {
-      "errorCode": "invalid_link_code",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_link_code"
     }
   ]
         
@@ -328,8 +318,7 @@ LinkTransaction:
       output: '{
        "errors": [
     {
-      "errorCode": "invalid_link_code",
-      "errorMessage": "$IGNORE$"
+      "errorCode": "invalid_link_code"
     }
   ]
         
@@ -351,8 +340,7 @@ LinkTransaction:
       output: '{
       "errors": [
     {
-      "errorCode": "invalid_link_code",
-      "errorMessage": "$IGONRE$"
+      "errorCode": "invalid_link_code"
     }
   ]
         
