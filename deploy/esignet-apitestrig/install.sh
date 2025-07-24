@@ -16,13 +16,7 @@ kubectl create ns $NS
 function installing_apitestrig() {
   helm repo update
 
-  echo Copy Configmaps
-  $COPY_UTIL configmap keycloak-host keycloak $NS
-  $COPY_UTIL configmap artifactory-share artifactory $NS
-  $COPY_UTIL configmap config-server-share config-server $NS
-
   echo echo Copy Secrtes
-  $COPY_UTIL secret keycloak-client-secrets keycloak $NS
   $COPY_UTIL secret postgres-postgresql postgres $NS
 
   echo "Delete s3, db, & apitestrig configmap if exists"
@@ -116,7 +110,14 @@ function installing_apitestrig() {
           echo "S3 access key not provided; EXITING;"
           exit 1;
         fi
-        S3_OPTION="--set apitestrig.configmaps.s3.s3-host=$s3_host --set apitestrig.configmaps.s3.s3-user-key=$s3_user_key --set apitestrig.configmaps.s3.s3-region=$s3_region"
+
+        read -p "Please provide S3 secret key: " s3_user_secret
+        if [[ -z $s3_user_secret ]]; then
+          echo "S3 secret key not provided; EXITING;"
+          exit 1;
+        fi
+
+        S3_OPTION="--set apitestrig.configmaps.s3.s3-host=$s3_host --set apitestrig.configmaps.s3.s3-user-key=$s3_user_key --set secrets.s3.s3-user-secret=$s3_user_secret --set apitestrig.configmaps.s3.s3-region=$s3_region"
         push_reports_to_s3="yes"
         config_complete=true
       elif [[ "$ans" == "n" || "$ans" == "N" ]]; then

@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>io.mosip.esignet</groupId>
 		<artifactId>esignet-parent</artifactId>
-		<version>1.6.1-SNAPSHOT</version>
+		<version>1.7.0-SNAPSHOT</version>
 	</parent>
 	
 	<groupId>io.mosip.esignet</groupId>
@@ -24,7 +24,7 @@
 		<jackson.datatype.version>2.9.8</jackson.datatype.version>
 		<fasterxml.jackson.module.jsr310.version>2.15.0</fasterxml.jackson.module.jsr310.version>
 		<fasterxml.jackson.module.afterburner.version>2.15.0</fasterxml.jackson.module.afterburner.version>
-		<kernel.keymanager.version>1.2.1.0</kernel.keymanager.version>
+		<kernel.keymanager.version>1.2.2.0-SNAPSHOT</kernel.keymanager.version>
 		<javassist.version>3.27.0-GA</javassist.version>
 		<junit.version>4.13.2</junit.version>
 		<mockito.version>2.22.0</mockito.version>
@@ -52,6 +52,20 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.security</groupId>
+					<artifactId>spring-security-web</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-beans</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.kafka</groupId>
@@ -84,11 +98,12 @@
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-sleuth</artifactId>
 			<version>2.2.5.RELEASE</version>
-		</dependency>
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.security</groupId>
+					<artifactId>spring-security-crypto</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>javax.xml.bind</groupId>
@@ -165,6 +180,14 @@
 			<classifier>lib</classifier>
 			<exclusions>
 				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-data-jpa</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-security</artifactId>
+				</exclusion>
+				<exclusion>
 					<groupId>org.springframework.cloud</groupId>
 					<artifactId>spring-cloud-starter-sleuth</artifactId>
 				</exclusion>
@@ -172,7 +195,25 @@
 					<groupId>org.springframework.security</groupId>
 					<artifactId>spring-security-test</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>org.postgresql</groupId>
+					<artifactId>postgresql</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.springframework</groupId>
+					<artifactId>spring-beans</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.h2database</groupId>
+					<artifactId>h2</artifactId>
+				</exclusion>
 			</exclusions>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.tomcat.embed/tomcat-embed-core -->
+		<dependency>
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-core</artifactId>
+			<version>9.0.105</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -206,6 +247,11 @@
 			<groupId>commons-validator</groupId>
 			<artifactId>commons-validator</artifactId>
 			<version>1.7</version>
+		</dependency>
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>42.7.5</version>
 		</dependency>
 	</dependencies>
 

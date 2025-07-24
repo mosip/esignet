@@ -18,7 +18,6 @@ import LoginIDOptions from "./LoginIDOptions";
 import InputWithPrefix from "./InputWithPrefix";
 
 let fieldsState = {};
-const langConfig = await langConfigService.getEnLocaleConfiguration();
 
 export default function L1Biometrics({
   param,
@@ -36,6 +35,22 @@ export default function L1Biometrics({
   const { t: t2 } = useTranslation("translation", {
     keyPrefix: i18nKeyPrefix2,
   });
+
+  const [langConfig, setLangConfig] = useState(null);
+
+  useEffect(() => {
+    async function loadLangConfig() {
+      try {
+        const config = await langConfigService.getEnLocaleConfiguration();
+        setLangConfig(config);
+      } catch (e) {
+        console.error("Failed to load lang config", e);
+        setLangConfig({ errors: { otp: {} } }); // Fallback to prevent crashes
+      }
+    }
+
+    loadLangConfig();
+  }, []);
 
   const inputCustomClass =
     "h-10 border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[hsla(0, 0%, 51%)] focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-muted-light-gray shadow-none";
@@ -55,7 +70,6 @@ export default function L1Biometrics({
   });
 
   const [errorBanner, setErrorBanner] = useState(null);
-  const [inputError, setInputError] = useState(null);
   const navigate = useNavigate();
   const [captchaToken, setCaptchaToken] = useState(null);
   const _reCaptchaRef = useRef(null);
@@ -67,9 +81,6 @@ export default function L1Biometrics({
   const [isValid, setIsValid] = useState(false);
   const [isBtnDisabled, setIsBtnDisabled] = useState(true);
   const [prevLanguage, setPrevLanguage] = useState(i18n.language);
-
-  const iso = require("iso-3166-1");
-  const countries = iso.all();
 
   var loginIDs = openIDConnectService.getEsignetConfiguration(
     configurationKeys.loginIdOptions
@@ -130,9 +141,7 @@ export default function L1Biometrics({
     const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
     const trimmedValue = e.target.value.trim();
 
-    let newValue = regex && regex.test(trimmedValue)
-      ? trimmedValue
-      : trimmedValue;
+    let newValue = trimmedValue;
 
     setIndividualId(newValue); // Update state with the visible valid value
 
@@ -213,6 +222,11 @@ export default function L1Biometrics({
   };
 
   const getSBIAuthTransactionId = (oidcTransactionId) => {
+    if (!oidcTransactionId) {
+      console.error("oidcTransactionId is undefined");
+      return "";
+    }
+
     oidcTransactionId = oidcTransactionId.replace(/-|_/gi, "");
 
     let transactionId = "";
@@ -406,9 +420,13 @@ export default function L1Biometrics({
               if the login id option is single, then with secondary heading will pass a object with current id
               if the login id option is multiple, then secondary heading will be passed as it is
             */}
-            {t1(secondaryHeading, loginIDs && loginIDs.length === 1 && {
-              currentID: t1(loginIDs[0].id)
-            })}
+            {t1(
+              secondaryHeading,
+              loginIDs &&
+                loginIDs.length === 1 && {
+                  currentID: t1(loginIDs[0].id),
+                }
+            )}
           </div>
         )}
       </div>

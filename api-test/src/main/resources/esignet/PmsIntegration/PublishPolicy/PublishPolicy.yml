@@ -13,19 +13,11 @@ createPublishPolicy:
 		"requesttime": "$TIMESTAMP$"
 }'
       output: '{
-        "policyGroupName": "$IGNORE$",
-        "policyGroupDesc": "$IGNORE$",
         "policyGroupStatus": "true",
-        "policyName": "$IGNORE$",
-        "policyDesc": "$IGNORE$",
         "policyType": "Auth",
         "status": "PUBLISHED",
         "is_Active": "true",
-        "authType": "bio",
-        "authSubType": "$IGNORE$",
-		"mandatory": "$IGNORE$",
-        "attributeName": "$IGNORE$",
-        "authTokenType": "$IGNORE$"
+        "authType": "bio"
 }'
 
    Esignet_PublishPolicy_Misp_Valid_Smoke:
@@ -35,26 +27,17 @@ createPublishPolicy:
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/PublishPolicy/publishPolicy
-      outputTemplate: esignet/PmsIntegration/PublishPolicy/publishPolicyResult
+      outputTemplate: esignet/PmsIntegration/PublishPolicy/publishPolicyMispResult
       input: '{
 		"policygroupId": "$ID:DefinePolicyGroup_Misp_Valid_Smoke_sid_id$",
 		"policyId": "$ID:DefinePolicy_Misp_Valid_Smoke_sid_id$",
 		"requesttime": "$TIMESTAMP$"
 }'
       output: '{
-        "policyGroupName": "$IGNORE$",
-        "policyGroupDesc": "$IGNORE$",
         "policyGroupStatus": "true",
-        "policyName": "$IGNORE$",
-        "policyDesc": "$IGNORE$",
         "policyType": "MISP",
         "status": "PUBLISHED",
-        "is_Active": "true",
-        "authType": "$IGNORE$",
-        "authSubType": "$IGNORE$",
-		"mandatory": "$IGNORE$",
-        "attributeName": "$IGNORE$",
-        "authTokenType": "$IGNORE$"
+        "is_Active": "true"
 }'
 
    Esignet_PublishPolicy_Valid_Smoke:
@@ -71,19 +54,11 @@ createPublishPolicy:
 		"requesttime": "$TIMESTAMP$"
 }'
       output: '{
-        "policyGroupName": "$IGNORE$",
-        "policyGroupDesc": "$IGNORE$",
         "policyGroupStatus": "true",
-        "policyName": "$IGNORE$",
-        "policyDesc": "$IGNORE$",
         "policyType": "Auth",
         "status": "PUBLISHED",
         "is_Active": "true",
-        "authType": "bio",
-        "authSubType": "$IGNORE$",
-		"mandatory": "$IGNORE$",
-        "attributeName": "$IGNORE$",
-        "authTokenType": "$IGNORE$"
+        "authType": "bio"
 }'
 
    Esignet_PublishPolicy_NonAuth_All_Valid_Smoke:
@@ -93,26 +68,17 @@ createPublishPolicy:
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/PublishPolicy/publishPolicy
-      outputTemplate: esignet/PmsIntegration/PublishPolicy/publishPolicyResult
+      outputTemplate: esignet/PmsIntegration/PublishPolicy/publishPolicyMispResult
       input: '{
 		"policygroupId": "$ID:DefinePolicyGroup_All_Valid_Smoke_sid_id$",
 		"policyId": "$ID:DefinePolicy_NonAuth_All_Valid_Smoke_sid_id$",
 		"requesttime": "$TIMESTAMP$"
 }'
       output: '{
-        "policyGroupName": "$IGNORE$",
-        "policyGroupDesc": "$IGNORE$",
         "policyGroupStatus": "true",
-        "policyName": "$IGNORE$",
-        "policyDesc": "$IGNORE$",
         "policyType": "Auth",
         "status": "PUBLISHED",
-        "is_Active": "true",
-        "authType": "$IGNORE$",
-        "authSubType": "$IGNORE$",
-		"mandatory": "$IGNORE$",
-        "attributeName": "$IGNORE$",
-        "authTokenType": "$IGNORE$"
+        "is_Active": "true"
 }'
 
    Esignet_PublishPolicy_Misp_False_Valid_Smoke:
@@ -122,26 +88,17 @@ createPublishPolicy:
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/PublishPolicy/publishPolicy
-      outputTemplate: esignet/PmsIntegration/PublishPolicy/publishPolicyResult
+      outputTemplate: esignet/PmsIntegration/PublishPolicy/publishPolicyMispResult
       input: '{
 		"policygroupId": "$ID:DefinePolicyGroup_Misp_Valid_Smoke_sid_id$",
 		"policyId": "$ID:DefinePolicy_Misp_False_Valid_Smoke_sid_id$",
 		"requesttime": "$TIMESTAMP$"
 }'
       output: '{
-        "policyGroupName": "$IGNORE$",
-        "policyGroupDesc": "$IGNORE$",
         "policyGroupStatus": "true",
-        "policyName": "$IGNORE$",
-        "policyDesc": "$IGNORE$",
         "policyType": "MISP",
         "status": "PUBLISHED",
-        "is_Active": "true",
-        "authType": "$IGNORE$",
-        "authSubType": "$IGNORE$",
-		"mandatory": "$IGNORE$",
-        "attributeName": "$IGNORE$",
-        "authTokenType": "$IGNORE$"
+        "is_Active": "true"
 }'
 
    Esignet_PublishPolicy_Auth_False_Valid_Smoke:
@@ -158,19 +115,11 @@ createPublishPolicy:
 		"requesttime": "$TIMESTAMP$"
 }'
       output: '{
-        "policyGroupName": "$IGNORE$",
-        "policyGroupDesc": "$IGNORE$",
         "policyGroupStatus": "true",
-        "policyName": "$IGNORE$",
-        "policyDesc": "$IGNORE$",
         "policyType": "Auth",
         "status": "PUBLISHED",
         "is_Active": "true",
-        "authType": "bio",
-        "authSubType": "$IGNORE$",
-		"mandatory": "$IGNORE$",
-        "attributeName": "$IGNORE$",
-        "authTokenType": "$IGNORE$"
+        "authType": "bio"
 }'
 
    Esignet_PublishPolicy_Misp_S2_Valid_Smoke:
@@ -180,26 +129,17 @@ createPublishPolicy:
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/PublishPolicy/publishPolicy
-      outputTemplate: esignet/PmsIntegration/PublishPolicy/publishPolicyResult
+      outputTemplate: esignet/PmsIntegration/PublishPolicy/publishPolicyMispResult
       input: '{
 		"policygroupId": "$ID:DefinePolicyGroup_Misp_Valid_Smoke_sid_id$",
 		"policyId": "$ID:DefinePolicy_Misp_S2_Valid_Smoke_sid_id$",
 		"requesttime": "$TIMESTAMP$"
 }'
       output: '{
-        "policyGroupName": "$IGNORE$",
-        "policyGroupDesc": "$IGNORE$",
         "policyGroupStatus": "true",
-        "policyName": "$IGNORE$",
-        "policyDesc": "$IGNORE$",
         "policyType": "MISP",
         "status": "PUBLISHED",
-        "is_Active": "true",
-        "authType": "$IGNORE$",
-        "authSubType": "$IGNORE$",
-		"mandatory": "$IGNORE$",
-        "attributeName": "$IGNORE$",
-        "authTokenType": "$IGNORE$"
+        "is_Active": "true"
 }'
 
    Esignet_PublishPolicy_Auth_S2_Valid_Smoke:
@@ -216,17 +156,9 @@ createPublishPolicy:
 		"requesttime": "$TIMESTAMP$"
 }'
       output: '{
-        "policyGroupName": "$IGNORE$",
-        "policyGroupDesc": "$IGNORE$",
         "policyGroupStatus": "true",
-        "policyName": "$IGNORE$",
-        "policyDesc": "$IGNORE$",
         "policyType": "Auth",
         "status": "PUBLISHED",
         "is_Active": "true",
-        "authType": "bio",
-        "authSubType": "$IGNORE$",
-		"mandatory": "$IGNORE$",
-        "attributeName": "$IGNORE$",
-        "authTokenType": "$IGNORE$"
+        "authType": "bio"
 }'

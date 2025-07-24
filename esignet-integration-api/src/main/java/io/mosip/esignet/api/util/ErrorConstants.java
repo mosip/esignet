@@ -26,4 +26,5 @@ public class ErrorConstants {
     public static final String INVALID_PURPOSE= "invalid_purpose";
     public static final String KBI_SPEC_NOT_FOUND= "kbi_spec_not_found";
     public static final String KBI_SCHEMA_PARSE_ERROR="kbi_schema_parse_error";
+    public static final String INVALID_REQUEST = "invalid_request";
 }

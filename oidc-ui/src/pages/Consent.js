@@ -1,17 +1,16 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Consent from "../components/Consent";
 import authService from "../services/authService";
 import { Buffer } from "buffer";
 import { useLocation, useSearchParams } from "react-router-dom";
 import openIDConnectService from "../services/openIDConnectService";
 import DefaultError from "../components/DefaultError";
-import sha256 from "crypto-js/sha256";
-import Base64 from "crypto-js/enc-base64";
 import { errorCodeObj } from "../constants/clientConstants";
-import { decodeHash } from "../helpers/utils";
+import { getOauthDetailsHash, decodeHash } from "../helpers/utils";
 
 export default function ConsentPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [isParFlow, setIsParFlow] = useState(true);
   
   const location = useLocation();
 
@@ -33,19 +32,6 @@ export default function ConsentPage() {
   // Initialize URLSearchParams with the search part of the URL object
   const urlInfoParams = new URLSearchParams(urlInfoObj.search);
 
-  // Initialize URLSearchParams with the search part of the current window location
-  const params = new URLSearchParams(window.location.search);
-
-  // Function to get the hash of OAuth details
-  const getOauthDetailsHash = async (value) => {
-    let sha256Hash = sha256(JSON.stringify(value));
-    let hashB64 = Base64.stringify(sha256Hash)
-      .replace(/=+$/, "")
-      .replace(/\+/g, "-")
-      .replace(/\//g, "_");
-    return hashB64;
-  };
-
   const handleRedirection = (redirect_uri, errorCode) => {
     urlInfoParams.set("error", errorCode);
 
@@ -56,6 +42,7 @@ export default function ConsentPage() {
   useEffect(() => {
     if (key && urlInfo && !hasResumed) {
       hasResumed = true;
+      setIsParFlow(false);
       // Parse the hash from the URL info
       const hash = JSON.parse(decodeHash(urlInfo.split("#")[1]));
 
@@ -81,8 +68,8 @@ export default function ConsentPage() {
 
         window.onbeforeunload = null;
 
-        if (errorCodeObj[errorCode]) {
-          handleRedirection(redirect_uri, errorCodeObj[errorCode]);
+        if (errorCode) {
+          handleRedirection(redirect_uri, errorCodeObj[errorCode] || errorCode);
         } else {
           const { errors } = await authServices.resume(
             transactionId,
@@ -130,7 +117,7 @@ export default function ConsentPage() {
   const oidcService = new openIDConnectService(parsedOauth, nonce, state);
 
   return (
-    state && (
+    (state || isParFlow) &&
       <Consent
         backgroundImgPath="images/illustration_one.png"
         authService={new authService(oidcService)}
@@ -138,6 +125,5 @@ export default function ConsentPage() {
         consentAction={consentAction}
         authTime={authTime}
       />
-    )
   );
 }

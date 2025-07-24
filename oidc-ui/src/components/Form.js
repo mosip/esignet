@@ -2,14 +2,17 @@ import { useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import LoadingIndicator from "../common/LoadingIndicator";
-import { configurationKeys } from "../constants/clientConstants";
+import {
+  configurationKeys,
+  challengeFormats,
+  challengeTypes,
+} from "../constants/clientConstants";
 import { LoadingStates as states } from "../constants/states";
 import ErrorBanner from "../common/ErrorBanner";
 import redirectOnError from "../helpers/redirectOnError";
 import langConfigService from "../services/langConfigService";
 import { JsonFormBuilder } from "@anushase/json-form-builder";
-
-const langConfig = await langConfigService.getEnLocaleConfiguration();
+import { encodeString } from "../helpers/utils";
 
 export default function Form({
   authService,
@@ -26,6 +29,22 @@ export default function Form({
   const { t: t2 } = useTranslation("translation", {
     keyPrefix: i18nKeyPrefix2,
   });
+
+  const [langConfig, setLangConfig] = useState(null);
+
+  useEffect(() => {
+    async function loadLangConfig() {
+      try {
+        const config = await langConfigService.getEnLocaleConfiguration();
+        setLangConfig(config);
+      } catch (e) {
+        console.error("Failed to load lang config", e);
+        setLangConfig({ errors: { otp: {} } }); // Fallback to prevent crashes
+      }
+    }
+
+    loadLangConfig();
+  }, []);
 
   const formBuilderRef = useRef(null); // Reference to form instance
   const isSubmitting = useRef(false);
@@ -54,59 +73,6 @@ export default function Form({
 
   useEffect(() => {
     if (JsonFormBuilder && !window.__form_rendered__) {
-      // const formConfig = {
-      //   schema: [
-      //     {
-      //       id: "individualId",
-      //       controlType: "textbox",
-      //       label: { en: "Policy Number" },
-      //       validators: [
-      //         {
-      //           type: "regex",
-      //           validator: "",
-      //           langCode: "en",
-      //           errorCode: "",
-      //         },
-      //       ],
-      //       alignmentGroup: "groupA",
-      //       cssClasses: ["classA", "classB"],
-      //       required: true,
-      //     },
-      //     {
-      //       id: "phoneNumber",
-      //       controlType: "textbox",
-      //       type: "simpleType",
-      //       label: {
-      //         en: "Phone Number",
-      //         km: "លេខទូរស័ព្ទ",
-      //         ar: "رقم التليفون",
-      //       },
-      //       validators: [
-      //         {
-      //           type: "regex",
-      //           validator: "",
-      //           langCode: "en",
-      //           errorCode: "",
-      //         },
-      //       ],
-      //       alignmentGroup: "groupB",
-      //       cssClasses: ["classA", "classB"],
-      //       required: true,
-      //     },
-      //     {
-      //       id: "birthDate",
-      //       controlType: "date",
-      //       type: "date",
-      //       label: { en: "Birth Date", km: "ថ្ងៃខែឆ្នាំកំណើត" },
-      //       alignmentGroup: "groupC",
-      //       cssClasses: ["classA", "classB"],
-      //       required: true,
-      //     },
-      //   ],
-      //   mandatoryLanguages: ["en"],
-      //   optionalLanguages: ["km", "ar"],
-      // };
-
       const formConfig = openIDConnectService.getEsignetConfiguration(
         configurationKeys.authFactorKnowledgeFieldDetails
       );
@@ -149,7 +115,7 @@ export default function Form({
   }, []);
 
   useEffect(() => {
-    formBuilderRef.current?.updateLanguage(i18n.language);
+    formBuilderRef.current?.updateLanguage(i18n.language, t1("login"));
   }, [i18n.language]);
 
   const navigate = useNavigate();
@@ -159,7 +125,6 @@ export default function Form({
     isSubmitting.current = true;
 
     const formData = formBuilderRef.current?.getFormData();
-    console.log("Form Data:", formData); // for dev testing
 
     await authenticateUser(formData);
 
@@ -170,7 +135,7 @@ export default function Form({
   //Handle Login API Integration here
   const authenticateUser = async (formData) => {
     try {
-      const { individualId, recaptchaToken, ...filtered } = formData;
+      const { recaptchaToken, ...filtered } = formData;
       let transactionId = openIDConnectService.getTransactionId();
       let uin =
         formData[
@@ -178,14 +143,14 @@ export default function Form({
             configurationKeys.authFactorKnowledgeIndividualIdField
           )}`
         ];
-      // let uin = formData["individualId"];
-      let challenge = btoa(JSON.stringify(filtered));
-
+      let challenge = encodeString(JSON.stringify(filtered));
+      let challengeType = challengeTypes.kbi;
+      let challengeFormat = challengeFormats.kbi;
       let challengeList = [
         {
-          authFactorType: "KBI",
+          authFactorType: challengeType,
           challenge: challenge,
-          format: "base64url-encoded-json",
+          format: challengeFormat,
         },
       ];
 
@@ -204,7 +169,7 @@ export default function Form({
 
       if (errors != null && errors.length > 0) {
         let errorCodeCondition =
-          langConfig.errors.otp[errors[0].errorCode] !== undefined &&
+          langConfig.errors.kbi[errors[0].errorCode] !== undefined &&
           langConfig.errors.kbi[errors[0].errorCode] !== null;
 
         if (errorCodeCondition) {
@@ -220,6 +185,7 @@ export default function Form({
             show: true,
           });
         }
+        formBuilderRef.current?.updateLanguage(i18n.language, t1("login"));
         return;
       } else {
         setErrorBanner(null);
@@ -242,6 +208,7 @@ export default function Form({
         errorCode: "kbi.auth_failed",
         show: true,
       });
+      formBuilderRef.current?.updateLanguage(i18n.language, t1("login"));
       setStatus(states.ERROR);
     }
   };
@@ -281,7 +248,7 @@ export default function Form({
         </div>
       )}
 
-      <div id="form-container"></div>
+      <div id="form-container" className="kbi_form"></div>
 
       {status === states.LOADING && (
         <div className="mt-2">

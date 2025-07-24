@@ -18,7 +18,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Entity
+@Entity(name = "public_key_registry")
 @IdClass(RegistryId.class)
 @NoArgsConstructor
 @AllArgsConstructor

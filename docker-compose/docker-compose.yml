@@ -17,7 +17,7 @@ services:
     restart: always
 
   mock-identity-system:
-    image: 'mosipdev/mock-identity-system:release-0.10.x'
+    image: 'mosipdev/mock-identity-system:develop'
     user: root
     ports:
       - 8082:8082
@@ -28,11 +28,12 @@ services:
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
       - MOSIP_MOCK_IDA_KYC_TRANSACTION_TIMEOUT_SECS=900
+      - MOSIP_ESIGNET_HOST=localhost:8088
     depends_on:
       - database
 
   esignet:
-    image: 'mosipdev/esignet-with-plugins'
+    image: 'mosipdev/esignet-with-plugins:develop'
     user: root
     ports: 
       - 8088:8088
@@ -40,12 +41,16 @@ services:
       - container_user=mosip
       - active_profile_env=default,local
       - plugin_name_env=esignet-mock-plugin.jar
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/mosip_esignet?currentSchema=esignet
+      - MOSIP_ESIGNET_DATABASE_URL=jdbc:postgresql://database:5432/mosip_esignet?currentSchema=esignet
+      - MOSIP_ESIGNET_DATABASE_USERNAME=postgres
+      - MOSIP_ESIGNET_DATABASE_PASSWORD=postgres
       - MOSIP_ESIGNET_MOCK_DOMAIN_URL=http://mock-identity-system:8082
       - MOSIP_ESIGNET_INTEGRATION_KEY_BINDER=MockKeyBindingWrapperService
       - SPRING_CACHE_TYPE=redis
       - SPRING_REDIS_HOST=redis-server
       - SPRING_REDIS_PASSWORD=
+      - KAFKA_ENABLED=false
+      - SPRING_AUTOCONFIGURE_EXCLUDE=org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
     depends_on:
       - database
       - mock-identity-system

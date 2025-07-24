@@ -47,6 +47,19 @@ public interface AuthorizationService {
     OAuthDetailResponseV2 getOauthDetailsV3(OAuthDetailRequestV3 oAuthDetailRequestV3, HttpServletRequest httpServletRequest) throws EsignetException;
 
     /**
+     * All the query parameters passed in /authorize par request are echoed to this request.
+     * Validated the provided input and match with the par cache.
+     * If all the input parameters pass the validation, starts the transaction.
+     *
+     * @param pushedOAuthDetailRequest
+     * @param httpServletRequest
+     * @return
+     * @throws EsignetException
+     */
+    OAuthDetailResponseV2 getPAROAuthDetails(PushedOAuthDetailRequest pushedOAuthDetailRequest, HttpServletRequest httpServletRequest) throws EsignetException;
+
+
+    /**
      * Request from IDP UI to send OTP to provided individual ID and OTP channel
      * @param otpRequest
      * @return

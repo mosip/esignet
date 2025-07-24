@@ -1,6 +1,4 @@
 import { Buffer } from "buffer";
-import sha256 from "crypto-js/sha256";
-import Base64 from "crypto-js/enc-base64";
 import {
   walletConfigKeys,
   validAuthFactors,
@@ -8,6 +6,7 @@ import {
   modalityIconPath,
   purposeTypeObj,
 } from "../constants/clientConstants";
+import { getOauthDetailsHash as getOauthDetailsHashUtil } from "../helpers/utils"
 
 class openIDConnectService {
   constructor(oAuthDetails, nonce, state) {
@@ -77,13 +76,7 @@ class openIDConnectService {
    * @returns Base64 URL encoded SHA-256 hash of the oauth-details endpoint response.
    */
   getOauthDetailsHash = async () => {
-    let sha256Hash = sha256(JSON.stringify(this.oAuthDetails));
-    let hashB64 = Base64.stringify(sha256Hash);
-    // Remove padding characters
-    hashB64 = hashB64.replace(/=+$/, "");
-    // Replace '+' with '-' and '/' with '_' to convert to base64 URL encoding
-    hashB64 = hashB64.replace(/\+/g, "-").replace(/\//g, "_");
-    return hashB64;
+    return getOauthDetailsHashUtil(this.oAuthDetails);
   };
 
   /**
@@ -111,7 +104,7 @@ class openIDConnectService {
     return {
       label: authFactor[0].type,
       value: authFactor[0],
-      icon: modalityIconPath[authFactor[0].type],
+      icon: authFactor[0].type === "PWD" ? modalityIconPath["PSWD"] : modalityIconPath[authFactor[0].type],
       id: `login_with_${authFactor[0].type.toLowerCase()}`,
     };
   };

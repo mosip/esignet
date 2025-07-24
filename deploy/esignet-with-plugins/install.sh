@@ -162,6 +162,9 @@ EOF
       plugin_name="sunbird-rc-plugin.jar"
       read -p "Provide the URL for Sunbird registry: " sunbird_registry_url
       extra_env_vars_additional+="  - name: \"mosip_esignet_sunbird-rc_registry-get-url\""$'\n'"    value: \"$sunbird_registry_url\""$'\n'
+      extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_AUTH_FACTOR_KBI_REGISTRY_SEARCH_URL\""$'\n'"    value: \"$sunbird_registry_url/api/v1/Insurance/search\""$'\n'
+      extra_env_vars_additional+="  - name: \"mosip_esignet_integration_audit-plugin\""$'\n'"    value: \"LoggerAuditService\""$'\n'
+      extra_env_vars_additional+="  - name: \"mosip_esignet_integration_key-binder\""$'\n'"    value: \"NoOpKeyBinder\""$'\n'
       break
 
     elif [[ "$plugin_no" == "4" ]]; then

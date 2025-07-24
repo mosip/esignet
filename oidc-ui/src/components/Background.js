@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { configurationKeys } from "../constants/clientConstants";
+import { checkConfigProperty } from "../helpers/utils";
 
 export default function Background({
   heading,
@@ -41,14 +42,14 @@ export default function Background({
   };
 
   useEffect(() => {
-    if (clientAdditionalConfig?.[configurationKeys.signupBannerRequired]) {
-      toggleSignupBanner(configurationKeys.signupBannerRequired);
+    if (checkConfigProperty(clientAdditionalConfig, configurationKeys.signupBannerRequired)) {
+      toggleSignupBanner(
+        clientAdditionalConfig[configurationKeys.signupBannerRequired]
+      );
+    } else if (checkConfigProperty(signupConfig, configurationKeys.signupBanner)) {
+      toggleSignupBanner(signupConfig[configurationKeys.signupBanner]);
     } else {
-      if (signupConfig?.[configurationKeys.signupBanner]) {
-        toggleSignupBanner(configurationKeys.signupBanner);
-      } else {
-        setSignupBanner(false);
-      }
+      setSignupBanner(false);
     }
   }, [i18n.language]);
 
@@ -79,7 +80,12 @@ export default function Background({
               className="text-center justify-center title-font sm:text-base text-base mb-3 py-1 font-small"
               id="login-subheader"
             >
-              <Trans i18nKey={i18nKeyPrefix + "." + subheading} defaults={subheading} values={{ clientName: clientName }} components={{ strong: <strong /> }} />
+              <Trans
+                i18nKey={i18nKeyPrefix + "." + subheading}
+                defaults={subheading}
+                values={{ clientName: clientName }}
+                components={{ strong: <strong /> }}
+              />
             </h1>
           )}
         </div>

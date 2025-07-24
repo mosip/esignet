@@ -12,8 +12,6 @@ import redirectOnError from "../helpers/redirectOnError";
 import LoginIDOptions from "./LoginIDOptions";
 import InputWithPrefix from "./InputWithPrefix";
 
-const langConfig = await langConfigService.getEnLocaleConfiguration();
-
 export default function OtpGet({
   param,
   authService,
@@ -30,6 +28,22 @@ export default function OtpGet({
   const { t: t2 } = useTranslation("translation", {
     keyPrefix: i18nKeyPrefix2,
   });
+
+  const [langConfig, setLangConfig] = useState(null);
+
+  useEffect(() => {
+    async function loadLangConfig() {
+      try {
+        const config = await langConfigService.getEnLocaleConfiguration();
+        setLangConfig(config);
+      } catch (e) {
+        console.error("Failed to load lang config", e);
+        setLangConfig({ errors: { otp: {} } }); // Fallback to prevent crashes
+      }
+    }
+
+    loadLangConfig();
+  }, []);
 
   const inputCustomClass =
     "h-10 border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[hsla(0, 0%, 51%)] focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-muted-light-gray shadow-none";
@@ -128,9 +142,7 @@ export default function OtpGet({
     const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
     const trimmedValue = e.target.value.trim();
 
-    let newValue = regex && regex.test(trimmedValue)
-      ? trimmedValue
-      : trimmedValue;
+    let newValue = trimmedValue;
 
     setIndividualId(newValue); // Update state with the visible valid value
 
@@ -198,7 +210,6 @@ export default function OtpGet({
       let postfix = currentLoginID.postfix ? currentLoginID.postfix : "";
 
       let ID = prefix + id + postfix;
-      // let ID = id;
 
       let otpChannels = commaSeparatedChannels.split(",").map((x) => x.trim());
 
@@ -214,6 +225,17 @@ export default function OtpGet({
       const { response, errors } = sendOtpResponse;
 
       if (errors != null && errors.length > 0) {
+        if (errors[0].errorCode === "invalid_transaction") {
+          redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
+          return;
+        }
+        const fieldLabel = currentLoginID?.id ? t1(currentLoginID.id) : "ID";
+        const field =
+          !fieldLabel ||
+          fieldLabel === currentLoginID?.id ||
+          fieldLabel.startsWith("otp.")
+            ? "ID"
+            : fieldLabel;
         let errorCodeCondition =
           langConfig.errors.otp[errors[0].errorCode] !== undefined &&
           langConfig.errors.otp[errors[0].errorCode] !== null;
@@ -222,13 +244,13 @@ export default function OtpGet({
           setErrorBanner({
             errorCode: `otp.${errors[0].errorCode}`,
             show: true,
+            field: field
           });
-        } else if (errors[0].errorCode === "invalid_transaction") {
-          redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
         } else {
           setErrorBanner({
             errorCode: `${errors[0].errorCode}`,
             show: true,
+            field: field
           });
         }
         if (showCaptcha) {
@@ -266,7 +288,9 @@ export default function OtpGet({
         <div className="mb-4">
           <ErrorBanner
             showBanner={errorBanner.show}
-            errorCode={t2(errorBanner.errorCode)}
+            errorCode={t2(errorBanner.errorCode, {
+              field: errorBanner.field,
+            })}
             onCloseHandle={onCloseHandle}
           />
         </div>

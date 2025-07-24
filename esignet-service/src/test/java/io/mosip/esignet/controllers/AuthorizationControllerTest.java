@@ -15,6 +15,7 @@ import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.util.ConsentAction;
 import io.mosip.esignet.api.util.KBIFormHelperService;
 import io.mosip.esignet.core.config.LocalAuthenticationEntryPoint;
+import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.dto.Error;
 import io.mosip.esignet.core.exception.EsignetException;
@@ -1623,6 +1624,61 @@ public class AuthorizationControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.errors").isNotEmpty())
                 .andExpect(jsonPath("$.errors[0].errorCode").value(INVALID_TRANSACTION));
+    }
+
+    @Test
+    public void getPAROAuthDetails_withValidDetails_thenPass() throws Exception {
+        RequestWrapper<PushedOAuthDetailRequest> requestWrapper = new RequestWrapper<>();
+        requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        PushedOAuthDetailRequest request = new PushedOAuthDetailRequest();
+        request.setRequestUri(Constants.PAR_REQUEST_URI_PREFIX+"requestUri");
+        request.setClientId("clientId");
+        requestWrapper.setRequest(request);
+
+        OAuthDetailResponseV2 response = new OAuthDetailResponseV2();
+        response.setTransactionId("transactionId123");
+
+        when(authorizationService.getPAROAuthDetails(Mockito.any(), Mockito.any())).thenReturn(response);
+
+        mockMvc.perform(post("/authorization/par-oauth-details")
+                        .content(objectMapper.writeValueAsString(requestWrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.response.transactionId").value(response.getTransactionId()));
+    }
+
+    @Test
+    public void getPAROAuthDetails_withInvalidRequestUri_thenFail() throws Exception {
+        RequestWrapper<PushedOAuthDetailRequest> requestWrapper = new RequestWrapper<>();
+        requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        PushedOAuthDetailRequest request = new PushedOAuthDetailRequest();
+        request.setRequestUri("requestUri");
+        request.setClientId("clientId");
+        requestWrapper.setRequest(request);
+
+        mockMvc.perform(post("/authorization/par-oauth-details")
+                        .content(objectMapper.writeValueAsString(requestWrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(INVALID_REQUEST));
+    }
+
+    @Test
+    public void getPAROAuthDetails_withoutClientId_thenFail() throws Exception {
+        RequestWrapper<PushedOAuthDetailRequest> requestWrapper = new RequestWrapper<>();
+        requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
+        PushedOAuthDetailRequest request = new PushedOAuthDetailRequest();
+        request.setClientId(null);
+        request.setRequestUri(Constants.PAR_REQUEST_URI_PREFIX+"request_uri");
+        requestWrapper.setRequest(request);
+
+        mockMvc.perform(post("/authorization/par-oauth-details")
+                        .content(objectMapper.writeValueAsString(requestWrapper))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(INVALID_CLIENT_ID));
     }
 
 }

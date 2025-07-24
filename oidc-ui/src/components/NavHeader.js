@@ -7,24 +7,18 @@ import openIDConnectService from "../services/openIDConnectService";
 import authService from "../services/authService";
 import { Buffer } from "buffer";
 import { Detector } from "react-detect-offline";
-
-const config = await configService();
-
-const POLLING_BASE_URL =
-  process.env.NODE_ENV === "development"
-    ? process.env.REACT_APP_ESIGNET_API_URL
-    : window.origin + process.env.REACT_APP_ESIGNET_API_URL;
+import { getPollingConfig } from "../helpers/utils";
 
 export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
   const { t, i18n } = useTranslation("translation", {
     keyPrefix: i18nKeyPrefix,
   });
   const [selectedLang, setSelectedLang] = useState();
+  const [config, setConfig] = useState({});
   const authServices = new authService(openIDConnectService);
   const authorizeQueryParam = "authorize_query_param";
   const ui_locales = "ui_locales";
-  const pollingUrl = POLLING_BASE_URL + "/actuator/health";
-
+  const pollingConfig = getPollingConfig();
   // Decode the authorize query param
   const decodedBase64 = Buffer.from(
     authServices.getAuthorizeQueryParam(),
@@ -62,6 +56,15 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
       }),
     }),
   };
+
+  // ✅ Fetch config asynchronously
+  useEffect(() => {
+    const fetchConfig = async () => {
+      const cfg = await configService();
+      setConfig(cfg || {});
+    };
+    fetchConfig();
+  }, []);
 
   useEffect(() => {
     //Gets fired when changeLanguage got called.
@@ -140,9 +143,10 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
         </div>
         <Detector
           polling={{
-            url: pollingUrl, // Set the polling URL dynamically
-            interval: 10000, // Optional: Check every 5 seconds (default is 5000ms)
-            timeout: 5000,  // Optional: Timeout after 3 seconds (default is 5000ms)
+            url: pollingConfig.url, // Set the polling URL dynamically
+            interval: pollingConfig.interval, // Optional: Check every 10 seconds (default is 10000ms)
+            timeout: pollingConfig.timeout, // Optional: Timeout after 5 seconds (default is 5000ms)
+            enabled: pollingConfig.enabled, // Optional: Enable or disable polling (default is true)
           }}
           render={({ online }) =>
             online && (
@@ -276,7 +280,7 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
                               x2="29"
                               y2="0"
                               stroke="#fff"
-                              stroke-width="1"
+                              strokeWidth="1"
                             />
                           </svg>
                         </DropdownMenu.Arrow>

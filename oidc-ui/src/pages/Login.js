@@ -9,7 +9,6 @@ import localStorageService from "../services/local-storageService";
 import sbiService from "../services/sbiService";
 import Background from "../components/Background";
 import SignInOptions from "../components/SignInOptions";
-import { multipleIdKey, purposeTypeObj, validAuthFactors } from "../constants/clientConstants";
 import linkAuthService from "../services/linkAuthService";
 import LoginQRCode from "../components/LoginQRCode";
 import { useLocation, useSearchParams } from "react-router-dom";
@@ -18,10 +17,23 @@ import openIDConnectService from "../services/openIDConnectService";
 import DefaultError from "../components/DefaultError";
 import Password from "../components/Password";
 import Form from "../components/Form";
-import { purposeTitleKey, purposeSubTitleKey, authLabelKey, configurationKeys } from "../constants/clientConstants";
+import {
+  multipleIdKey,
+  purposeTypeObj,
+  validAuthFactors,
+  purposeTitleKey,
+  purposeSubTitleKey,
+  authLabelKey,
+  configurationKeys,
+} from "../constants/clientConstants";
 import langConfigService from "./../services/langConfigService";
+import IdToken from "../components/IdToken";
 
-function InitiateL1Biometrics(openIDConnectService, backButtonDiv, secondaryHeading) {
+function InitiateL1Biometrics(
+  openIDConnectService,
+  backButtonDiv,
+  secondaryHeading
+) {
   return React.createElement(L1Biometrics, {
     param: generateFieldData(validAuthFactors.BIO, openIDConnectService),
     authService: new authService(openIDConnectService),
@@ -29,7 +41,7 @@ function InitiateL1Biometrics(openIDConnectService, backButtonDiv, secondaryHead
     openIDConnectService: openIDConnectService,
     sbiService: new sbiService(openIDConnectService),
     backButtonDiv: backButtonDiv,
-    secondaryHeading: secondaryHeading
+    secondaryHeading: secondaryHeading,
   });
 }
 
@@ -39,17 +51,21 @@ function InitiatePin(openIDConnectService, backButtonDiv, secondaryHeading) {
     authService: new authService(openIDConnectService),
     openIDConnectService: openIDConnectService,
     backButtonDiv: backButtonDiv,
-    secondaryHeading: secondaryHeading
+    secondaryHeading: secondaryHeading,
   });
 }
 
-function InitiatePassword(openIDConnectService, backButtonDiv, secondaryHeading) {
+function InitiatePassword(
+  openIDConnectService,
+  backButtonDiv,
+  secondaryHeading
+) {
   return React.createElement(Password, {
-    param: generateFieldData(validAuthFactors.PWD, openIDConnectService),
+    param: generateFieldData(validAuthFactors.PSWD, openIDConnectService),
     authService: new authService(openIDConnectService),
     openIDConnectService: openIDConnectService,
     backButtonDiv: backButtonDiv,
-    secondaryHeading: secondaryHeading
+    secondaryHeading: secondaryHeading,
   });
 }
 
@@ -59,7 +75,7 @@ function InitiateOtp(openIDConnectService, backButtonDiv, secondaryHeading) {
     authService: new authService(openIDConnectService),
     openIDConnectService: openIDConnectService,
     backButtonDiv: backButtonDiv,
-    secondaryHeading: secondaryHeading
+    secondaryHeading: secondaryHeading,
   });
 }
 
@@ -69,7 +85,7 @@ function InitiateForm(openIDConnectService, backButtonDiv, secondaryHeading) {
     authService: new authService(openIDConnectService),
     openIDConnectService: openIDConnectService,
     backButtonDiv: backButtonDiv,
-    secondaryHeading: secondaryHeading
+    secondaryHeading: secondaryHeading,
   });
 }
 
@@ -83,17 +99,29 @@ function InitiateSignInOptions(
     openIDConnectService: openIDConnectService,
     handleSignInOptionClick: handleSignInOptionClick,
     icons: icons,
-    authLabel: authLabel
+    authLabel: authLabel,
   });
 }
 
-function InitiateLinkedWallet(authFactor, openIDConnectService, backButtonDiv, secondaryHeading) {
+function InitiateLinkedWallet(
+  authFactor,
+  openIDConnectService,
+  backButtonDiv,
+  secondaryHeading
+) {
   return React.createElement(LoginQRCode, {
     walletDetail: authFactor,
     openIDConnectService: openIDConnectService,
     linkAuthService: new linkAuthService(openIDConnectService),
     backButtonDiv: backButtonDiv,
-    secondaryHeading: secondaryHeading
+    secondaryHeading: secondaryHeading,
+  });
+}
+
+function InitiateIdToken(openIDConnectService) {
+  return React.createElement(IdToken, {
+    authService: new authService(openIDConnectService),
+    openIDConnectService: openIDConnectService,
   });
 }
 
@@ -101,9 +129,17 @@ function InitiateInvalidAuthFactor(errorMsg) {
   return React.createElement(() => <div>{errorMsg}</div>);
 }
 
-function createDynamicLoginElements(authFactor, oidcService, backButtonDiv, secondaryHeading) {
+function createDynamicLoginElements(
+  authFactor,
+  oidcService,
+  backButtonDiv,
+  secondaryHeading
+) {
   const authFactorType = authFactor.type;
-  const tempSecondaryHeading = checkLoginIdOption(oidcService, secondaryHeading);
+  const tempSecondaryHeading = checkLoginIdOption(
+    oidcService,
+    secondaryHeading
+  );
 
   if (typeof authFactorType === "undefined") {
     return InitiateInvalidAuthFactor(
@@ -120,10 +156,14 @@ function createDynamicLoginElements(authFactor, oidcService, backButtonDiv, seco
   }
 
   if (authFactorType === validAuthFactors.BIO) {
-    return InitiateL1Biometrics(oidcService, backButtonDiv, tempSecondaryHeading);
+    return InitiateL1Biometrics(
+      oidcService,
+      backButtonDiv,
+      tempSecondaryHeading
+    );
   }
 
-  if (authFactorType === validAuthFactors.PWD) {
+  if (authFactorType === validAuthFactors.PSWD) {
     return InitiatePassword(oidcService, backButtonDiv, tempSecondaryHeading);
   }
 
@@ -132,7 +172,16 @@ function createDynamicLoginElements(authFactor, oidcService, backButtonDiv, seco
   }
 
   if (authFactorType === validAuthFactors.WLA) {
-    return InitiateLinkedWallet(authFactor, oidcService, backButtonDiv, secondaryHeading);
+    return InitiateLinkedWallet(
+      authFactor,
+      oidcService,
+      backButtonDiv,
+      secondaryHeading
+    );
+  }
+
+  if (authFactorType === validAuthFactors.IDT) {
+    return InitiateIdToken(oidcService);
   }
 
   // default element
@@ -144,16 +193,16 @@ function createDynamicLoginElements(authFactor, oidcService, backButtonDiv, seco
 function checkLoginIdOption(oidcService, secondaryHeading) {
   const loginIds = oidcService.getEsignetConfiguration(
     configurationKeys.loginIdOptions
-  )
+  );
 
   if (loginIds && loginIds.length > 1) {
     return authLabelKey.verify === secondaryHeading
       ? multipleIdKey.verify
       : authLabelKey.link === secondaryHeading
-        ? multipleIdKey.link
-        : multipleIdKey.login;
+      ? multipleIdKey.link
+      : multipleIdKey.login;
   }
-  return secondaryHeading
+  return secondaryHeading;
 }
 
 export default function LoginPage({ i18nKeyPrefix = "header" }) {
@@ -181,99 +230,13 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
   var state = searchParams.get("state");
   var icons;
 
-  useEffect(() => {
-    if (!decodeOAuth) {
-      return;
-    }
-    const initialize = async () => {
-      const langConfig = await langConfigService.getLangCodeMapping();
-      setLangMap(langConfig);
-    }
-    loadComponent();
-    if (firstRender.current) {
-      firstRender.current = false;
-      initialize();
-      return;
-    }
-  }, []);
-
-
-  useEffect(() => {
-    if (langMap) {
-
-      const currLang = i18n.language;
-
-      const currLang2letter = langMap[currLang];
-      let tempPurpose = {
-        heading: '',
-        subheading: '',
-        authLabel: authLabelKey.login
-      };
-
-      if (purposeObj) {
-
-        // if type is none then no need to
-        // check for title and subheading
-        if (purposeObj.type !== purposeTypeObj.none) {
-          tempPurpose.authLabel = authLabelKey[purposeObj.type];
-          // check for title in purpose object
-          if (purposeObj.title) {
-            tempPurpose.heading = (currLang in purposeObj.title)
-              ? purposeObj.title[currLang] : (currLang2letter in purposeObj.title)
-                ? purposeObj.title[currLang2letter] : purposeObj.title['@none'];
-          } else if (purposeObj.type !== purposeTypeObj.none) {
-            tempPurpose.heading = purposeTitleKey[purposeObj.type]
-          } else {
-            tempPurpose.heading = '';
-          }
-
-          // check for subheading in purpose object
-          if (purposeObj.subTitle) {
-            tempPurpose.subheading = (currLang in purposeObj.subTitle)
-              ? purposeObj.subTitle[currLang] : (currLang2letter in purposeObj.subTitle)
-                ? purposeObj.subTitle[currLang2letter] : purposeObj.subTitle['@none'];
-          } else if (purposeObj.type !== purposeTypeObj.none) {
-            tempPurpose.subheading = purposeSubTitleKey[purposeObj.type]
-          } else {
-            tempPurpose.subheading = '';
-          }
-        }
-
-      } else {
-        // if purpose object is not present then default
-        // heading & subheading will be login
-        tempPurpose = {
-          authLabel: authLabelKey.login,
-          heading: purposeTitleKey.login,
-          subheading: purposeSubTitleKey.login,
-        }
-      }
-
-      if (clientNameMap) {
-        const clientName  = (currLang in clientNameMap)
-          ? clientNameMap[currLang] : (currLang2letter in clientNameMap)
-            ? clientNameMap[currLang2letter] : clientNameMap['@none'];
-        setClientName(clientName);
-      }
-      setHeadingDetails({ ...tempPurpose })
-    }
-  }, [purposeObj, clientNameMap, langMap, i18n.language]);
-
-  useEffect(() => {
-    handleBackButtonClick();
-  }, [headingDetails.authLabel]);
-
   let parsedOauth = null;
+  let hasParsingError = false;
 
   try {
     parsedOauth = JSON.parse(decodeOAuth);
   } catch (error) {
-    return (
-      <DefaultError
-        backgroundImgPath="images/illustration_one.png"
-        errorCode={"parsing_error_msg"}
-      />
-    );
+    hasParsingError = true;
   }
 
   const oidcService = new openIDConnectService(parsedOauth, nonce, state);
@@ -281,7 +244,6 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
   const handleSignInOptionClick = (authFactor, icon, secondaryHeading) => {
     icons = icon;
     setAuthFactorType(authFactor.type);
-    //TODO handle multifactor auth
     setCompToShow(
       createDynamicLoginElements(
         authFactor,
@@ -299,7 +261,12 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
   const handleBackButtonClick = () => {
     setAuthFactorType(null);
     setCompToShow(
-      InitiateSignInOptions(handleSignInOptionClick, oidcService, icons, headingDetails.authLabel)
+      InitiateSignInOptions(
+        handleSignInOptionClick,
+        oidcService,
+        icons,
+        headingDetails.authLabel
+      )
     );
   };
 
@@ -312,6 +279,7 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
             onClick={() => handleBackButtonClick()}
             className="back-button-color text-2xl font-semibold justify-left rtl:rotate-180 relative top-[2px]"
           >
+            {/* SVG here */}
             <svg
               width="15"
               height="13"
@@ -345,30 +313,95 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
 
   const loadComponent = () => {
     let oAuthDetailResponse = oidcService.getOAuthDetails();
-    // set dynamic heading according the purpose from oauth details
-    // otherwise default heading will be login
     setPurposeObj(oidcService.getPurpose());
     setClientLogoURL(oAuthDetailResponse?.logoUrl);
     setClientNameMap(oAuthDetailResponse?.clientName);
-    handleBackButtonClick();
+    handleBackButtonClick(); // ✅ now valid
   };
 
-  function checkForIDT(authFactors) {
-    for (const factor of authFactors) {
-      if (Array.isArray(factor)) {
-        if (checkForIDT(factor)) {
-          return true;
-        }
-      } else if (factor.type === "IDT") {
-        return true;
-      }
+  useEffect(() => {
+    if (!decodeOAuth) return;
+
+    const initialize = async () => {
+      const langConfig = await langConfigService.getLangCodeMapping();
+      setLangMap(langConfig);
+    };
+
+    loadComponent();
+    if (firstRender.current) {
+      firstRender.current = false;
+      initialize();
     }
-    return false;
-  }
+  }, []);
+
+  useEffect(() => {
+    if (langMap) {
+      const currLang = i18n.language;
+      const currLang2letter = langMap[currLang];
+      let tempPurpose = {
+        heading: "",
+        subheading: "",
+        authLabel: authLabelKey.login,
+      };
+
+      if (purposeObj) {
+        if (purposeObj.type !== purposeTypeObj.none) {
+          tempPurpose.authLabel = authLabelKey[purposeObj.type];
+          if (purposeObj.title) {
+            tempPurpose.heading =
+              currLang in purposeObj.title
+                ? purposeObj.title[currLang]
+                : currLang2letter in purposeObj.title
+                ? purposeObj.title[currLang2letter]
+                : purposeObj.title["@none"];
+          } else {
+            tempPurpose.heading = purposeTitleKey[purposeObj.type];
+          }
+
+          if (purposeObj.subTitle) {
+            tempPurpose.subheading =
+              currLang in purposeObj.subTitle
+                ? purposeObj.subTitle[currLang]
+                : currLang2letter in purposeObj.subTitle
+                ? purposeObj.subTitle[currLang2letter]
+                : purposeObj.subTitle["@none"];
+          } else {
+            tempPurpose.subheading = purposeSubTitleKey[purposeObj.type];
+          }
+        }
+      } else {
+        tempPurpose = {
+          authLabel: authLabelKey.login,
+          heading: purposeTitleKey.login,
+          subheading: purposeSubTitleKey.login,
+        };
+      }
+
+      if (clientNameMap) {
+        const clientName =
+          currLang in clientNameMap
+            ? clientNameMap[currLang]
+            : currLang2letter in clientNameMap
+            ? clientNameMap[currLang2letter]
+            : clientNameMap["@none"];
+        setClientName(clientName);
+      }
+      setHeadingDetails({ ...tempPurpose });
+    }
+  }, [purposeObj, clientNameMap, langMap, i18n.language]);
+
+  useEffect(() => {
+    handleBackButtonClick(); // ✅ safe now
+  }, [headingDetails.authLabel]);
 
   return (
     <>
-      {!checkForIDT(JSON.parse(decodeOAuth).authFactors) && (
+      {hasParsingError ? (
+        <DefaultError
+          backgroundImgPath="images/illustration_one.png"
+          errorCode={"parsing_error_msg"}
+        />
+      ) : (
         <Background
           heading={t(headingDetails.heading, headingDetails.heading)}
           subheading={headingDetails.subheading}

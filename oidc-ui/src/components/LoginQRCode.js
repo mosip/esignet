@@ -14,7 +14,6 @@ import langConfigService from "../services/langConfigService";
 import redirectOnError from "../helpers/redirectOnError";
 
 var linkAuthTriggered = false;
-const langConfig = await langConfigService.getEnLocaleConfiguration();
 
 export default function LoginQRCode({
   walletDetail,
@@ -36,6 +35,22 @@ export default function LoginQRCode({
     keyPrefix: i18nKeyPrefix2,
   });
 
+  const [langConfig, setLangConfig] = useState(null);
+
+  useEffect(() => {
+    async function loadLangConfig() {
+      try {
+        const config = await langConfigService.getEnLocaleConfiguration();
+        setLangConfig(config);
+      } catch (e) {
+        console.error("Failed to load lang config", e);
+        setLangConfig({ errors: { otp: {} } }); // Fallback to prevent crashes
+      }
+    }
+
+    loadLangConfig();
+  }, []);
+
   const [qr, setQr] = useState("");
   const [status, setStatus] = useState({ state: states.LOADED, msg: "" });
   const [error, setError] = useState(null);
@@ -56,10 +71,9 @@ export default function LoginQRCode({
       configurationKeys.qrCodeBufferInSecs
     ) ?? process.env.REACT_APP_QR_CODE_BUFFER_IN_SEC;
 
-  const qrCodeBuffer =
-    parseInt(qrCodeBufferInSecs) !== "NaN"
-      ? parseInt(qrCodeBufferInSecs)
-      : process.env.REACT_APP_QR_CODE_BUFFER_IN_SEC;
+  const qrCodeBuffer = !isNaN(parseInt(qrCodeBufferInSecs))
+    ? parseInt(qrCodeBufferInSecs)
+    : parseInt(process.env.REACT_APP_QR_CODE_BUFFER_IN_SEC);
 
   const walletLogoURL =
     walletDetail[walletConfigKeys.walletLogoUrl] ??
@@ -549,24 +563,26 @@ export default function LoginQRCode({
         )}
       </div>
 
-      {/**footer */}
-      <div className="row-span-1 mt-6 mb-2">
-        <div>
-          <p className="text-center text-black-600 font-semibold">
-            {t1("dont_have_wallet", {
-              walletName: walletDetail[walletConfigKeys.walletName],
-            })}
-            &nbsp;
-            <a
-              href={walletDetail[walletConfigKeys.appDownloadURI]}
-              className="wallet-download"
-              id="download_now"
-            >
-              {t1("download_now")}
-            </a>
-          </p>
+      {/* footer */}
+      {walletDetail[walletConfigKeys.walletFooter] && (
+        <div className="row-span-1 mt-6 mb-2">
+          <div>
+            <p className="text-center text-black-600 font-semibold">
+              {t1("dont_have_wallet", {
+                walletName: walletDetail[walletConfigKeys.walletName],
+              })}
+              &nbsp;
+              <a
+                href={walletDetail[walletConfigKeys.appDownloadURI]}
+                className="wallet-download"
+                id="download_now"
+              >
+                {t1("download_now")}
+              </a>
+            </p>
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }

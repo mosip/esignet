@@ -47,7 +47,7 @@ const ModalPopup = ({
             <div className="relative transform overflow-hidden rounded-[20px] bg-white text-left shadow-xl transition-all duration-300 ease-out sm:my-8 sm:w-full sm:max-w-[28rem] m-auto">
               {alertIcon && (
                 <div className={alertClassname}>
-                  <img src={alertIcon} data-testid="alert-icon"/>
+                  <img src={alertIcon} data-testid="alert-icon" alt="alert-icon"/>
                 </div>
               )}
               {header && <div className={headerClassname}>{header}</div>}

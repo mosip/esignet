@@ -1,7 +1,11 @@
 import configService from "../services/configService";
 import { validAuthFactors, configurationKeys } from "./clientConstants";
 
-const config = await configService();
+let config = {};
+
+export const initFormConfig = async () => {
+  config = await configService();
+};
 
 const pinFields = [
   {
@@ -18,7 +22,7 @@ const pinFields = [
     prefix: "",
     postfix: "",
     maxLength: "",
-    regex: ""
+    regex: "",
   },
   {
     labelText: "pin_label_text",
@@ -30,7 +34,7 @@ const pinFields = [
     isRequired: true,
     placeholder: "pin_placeholder", //translation key for pin namespace
     errorCode: "invalid_pin",
-    maxLength: ""
+    maxLength: "",
   },
 ];
 
@@ -49,7 +53,7 @@ const passwordFields = [
     prefix: "",
     postfix: "",
     maxLength: "",
-    regex: ""
+    regex: "",
   },
   {
     labelText: "password_label_text",
@@ -62,7 +66,7 @@ const passwordFields = [
     placeholder: "password_placeholder", //translation key for password namespace
     errorCode: "password_not_valid",
     maxLength: "",
-    regex: ""
+    regex: "",
   },
 ];
 
@@ -81,7 +85,7 @@ const otpFields = [
     prefix: "",
     postfix: "",
     maxLength: "",
-    regex: ""
+    regex: "",
   },
 ];
 
@@ -101,7 +105,7 @@ const bioLoginFields = {
       prefix: "",
       postfix: "",
       maxLength: "",
-      regex: ""
+      regex: "",
     },
   ],
 };
@@ -151,54 +155,54 @@ const signupFields = [
 
 const knowledgeFields = {
   policyNumber: {
-    labelText: 'policyNumber_label_text',
-    labelFor: 'Mosip policy',
-    id: 'policyNumber',
-    name: 'policyNumber',
-    type: 'text',
-    format: '',
+    labelText: "policyNumber_label_text",
+    labelFor: "Mosip policy",
+    id: "policyNumber",
+    name: "policyNumber",
+    type: "text",
+    format: "",
     isRequired: true,
-    placeholder: 'policyNumber_placeholder',
-    infoIcon: '',
-    errorCode: 'invalid_policyNumber',
+    placeholder: "policyNumber_placeholder",
+    infoIcon: "",
+    errorCode: "invalid_policyNumber",
     prefix: "",
     postfix: "",
     maxLength: 50,
-    regex: ""
+    regex: "",
   },
   fullName: {
-    labelText: 'fullName_label_text',
-    labelFor: 'Mosip fullname',
-    id: 'fullName',
-    name: 'fullName',
-    type: 'text',
-    format: '',
+    labelText: "fullName_label_text",
+    labelFor: "Mosip fullname",
+    id: "fullName",
+    name: "fullName",
+    type: "text",
+    format: "",
     isRequired: true,
-    placeholder: 'fullName_placeholder',
-    infoIcon: '',
-    errorCode: 'invalid_fullName',
+    placeholder: "fullName_placeholder",
+    infoIcon: "",
+    errorCode: "invalid_fullName",
     prefix: "",
     postfix: "",
     maxLength: 25,
-    regex: ""
+    regex: "",
   },
   dob: {
-    labelText: 'dob_label_text',
-    labelFor: 'Mosip dob',
-    id: 'dob',
-    name: 'dob',
-    type: 'text',
-    format: '',
+    labelText: "dob_label_text",
+    labelFor: "Mosip dob",
+    id: "dob",
+    name: "dob",
+    type: "text",
+    format: "",
     isRequired: true,
-    placeholder: 'dob_placeholder',
-    infoIcon: '',
-    errorCode: 'invalid_dob',
+    placeholder: "dob_placeholder",
+    infoIcon: "",
+    errorCode: "invalid_dob",
     prefix: "",
     postfix: "",
     maxLength: "",
-    regex: ""
-  }
-}
+    regex: "",
+  },
+};
 
 //TODO fetch tablist from oidcDetails response
 const tabList = [
@@ -221,7 +225,7 @@ const tabList = [
     name: "password_tab_name", //translation key for tabs namespace
     icon: "space-shuttle",
     comp: "Password",
-  }
+  },
 ];
 
 const generateFieldData = (fieldName, openIDConnectService) => {
@@ -253,13 +257,12 @@ const generateFieldData = (fieldName, openIDConnectService) => {
 
   const passwordMaxLength =
     openIDConnectService.getEsignetConfiguration(
-      configurationKeys.passwordMaxLength
+      configurationKeys.pswdMaxLength
     ) ?? "";
 
   const passwordRegexValue =
-    openIDConnectService.getEsignetConfiguration(
-      configurationKeys.passwordRegex
-    ) ?? process.env.REACT_APP_PASSWORD_REGEX;
+    openIDConnectService.getEsignetConfiguration(configurationKeys.pswdRegex) ??
+    process.env.REACT_APP_PSWD_REGEX;
 
   const usernameRegexValue =
     openIDConnectService.getEsignetConfiguration(
@@ -271,7 +274,7 @@ const generateFieldData = (fieldName, openIDConnectService) => {
     postfix,
     type: inputType,
     maxLength: userMaxLength,
-    regex: usernameRegexValue
+    regex: usernameRegexValue,
   };
 
   switch (fieldName) {
@@ -288,18 +291,28 @@ const generateFieldData = (fieldName, openIDConnectService) => {
       fieldData = bioLoginFields;
       Object.assign(fieldData.inputFields[0], individualFields);
       break;
-    case validAuthFactors.PWD:
+    case validAuthFactors.PSWD:
       fieldData = passwordFields;
       Object.assign(fieldData[0], individualFields);
       fieldData[1].maxLength = passwordMaxLength;
       fieldData[1].regex = passwordRegexValue;
       break;
     case validAuthFactors.KBI:
-      fieldData = knowledgeFieldList.map((field) => { return { ...knowledgeFields[field.id], ...field } })
+      fieldData = knowledgeFieldList.map((field) => {
+        return { ...knowledgeFields[field.id], ...field };
+      });
       break;
   }
 
   return fieldData;
-}
+};
 
-export { pinFields, otpFields, signupFields, tabList, bioLoginFields, passwordFields, generateFieldData };
+export {
+  pinFields,
+  otpFields,
+  signupFields,
+  tabList,
+  bioLoginFields,
+  passwordFields,
+  generateFieldData,
+};

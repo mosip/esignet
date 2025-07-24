@@ -122,17 +122,17 @@ public class ClientManagementServiceImpl implements ClientManagementService {
     private ClientDetailResponseV2 getClientDetailResponseV2(ClientDetail clientDetail) {
         ClientDetailResponseV2 response = new ClientDetailResponseV2();
         response.setClientId(clientDetail.getId());
-        response.setName(clientDetail.getName());
+        /*response.setName(clientDetail.getName());
         response.setRpId(clientDetail.getRpId());
         response.setLogoUri(clientDetail.getLogoUri());
         response.setRedirectUris(clientDetail.getRedirectUris());
         response.setPublicKey(clientDetail.getPublicKey());
         response.setClaims(clientDetail.getClaims());
-        response.setAcrValues(clientDetail.getAcrValues());
+        response.setAcrValues(clientDetail.getAcrValues());*/
         response.setStatus(clientDetail.getStatus());
-        response.setGrantTypes(clientDetail.getGrantTypes());
+        /*response.setGrantTypes(clientDetail.getGrantTypes());
         response.setClientAuthMethods(clientDetail.getClientAuthMethods());
-        response.setAdditionalConfig(clientDetail.getAdditionalConfig());
+        response.setAdditionalConfig(clientDetail.getAdditionalConfig());*/
         return response;
     }
 
@@ -254,7 +254,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         ClientDetail clientDetail = buildClient(clientDetailCreateRequestV3);
         try {
             clientDetail = clientDetailRepository.save(clientDetail);
-        } catch (ConstraintViolationException cve) {
+        } catch (ConstraintViolationException | DataIntegrityViolationException cve) {
             log.error("Failed to create client details", cve);
             throw new EsignetException(ErrorConstants.DUPLICATE_PUBLIC_KEY);
         }

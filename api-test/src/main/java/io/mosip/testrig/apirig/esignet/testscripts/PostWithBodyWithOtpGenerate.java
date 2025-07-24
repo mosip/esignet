@@ -26,11 +26,12 @@ import io.mosip.testrig.apirig.esignet.utils.EsignetUtil;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.HealthChecker;
 import io.mosip.testrig.apirig.utils.AdminTestException;
-import io.mosip.testrig.apirig.utils.AdminTestUtil;
+//import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;
 import io.mosip.testrig.apirig.utils.ReportUtil;
+import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.restassured.response.Response;
 
 public class PostWithBodyWithOtpGenerate extends EsignetUtil implements ITest {
@@ -79,7 +80,7 @@ public class PostWithBodyWithOtpGenerate extends EsignetUtil implements ITest {
 	 * @throws AdminTestException
 	 */
 	@Test(dataProvider = "testcaselist")
-	public void test(TestCaseDTO testCaseDTO) throws AuthenticationTestException, AdminTestException {
+	public void test(TestCaseDTO testCaseDTO) throws AuthenticationTestException, AdminTestException, SecurityXSSException {
 		testCaseName = testCaseDTO.getTestCaseName();
 		testCaseName = EsignetUtil.isTestCaseValidForExecution(testCaseDTO);
 		if (HealthChecker.signalTerminateExecution) {
@@ -114,8 +115,15 @@ public class PostWithBodyWithOtpGenerate extends EsignetUtil implements ITest {
 		
 		Response otpResponse = null;
 		if (testCaseName.contains("ESignet_WalletBinding")) {
-			otpResponse = postRequestWithCookieAuthHeader(tempUrl + sendOtpEndPoint, inputJson, COOKIENAME,
-					testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
+			if (EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase()
+					.contains("mockauthenticationservice") == true) {
+				inputJson = inputJsonKeyWordHandeler(inputJson, testCaseName);
+				otpResponse = EsignetUtil.postRequestWithCookieAndAuthHeader(tempUrl + sendOtpEndPoint, inputJson,
+						COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
+			} else {
+				otpResponse = postRequestWithCookieAuthHeader(tempUrl + sendOtpEndPoint, inputJson, COOKIENAME,
+						testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
+			}
 		} else {
 			otpResponse = postWithBodyAndCookie(ApplnURI + sendOtpEndPoint, inputJson, COOKIENAME,
 					GlobalConstants.RESIDENT, testCaseDTO.getTestCaseName());
@@ -157,8 +165,15 @@ public class PostWithBodyWithOtpGenerate extends EsignetUtil implements ITest {
 		reqJson = EsignetUtil.inputstringKeyWordHandeler(reqJson, testCaseName);
 
 		if (testCaseName.contains("ESignet_WalletBinding")) {
-			response = postRequestWithCookieAuthHeader(tempUrl + testCaseDTO.getEndPoint(), reqJson, COOKIENAME,
-					testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
+			if (EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase()
+					.contains("mockauthenticationservice") == true) {
+				reqJson = inputJsonKeyWordHandeler(reqJson, testCaseName);
+				response = EsignetUtil.postRequestWithCookieAndAuthHeader(tempUrl + testCaseDTO.getEndPoint(), reqJson,
+						COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
+			} else {
+				response = postRequestWithCookieAuthHeader(tempUrl + testCaseDTO.getEndPoint(), reqJson, COOKIENAME,
+						testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
+			}
 		} else {
 			response = postRequestWithCookieAndHeader(ApplnURI + testCaseDTO.getEndPoint(), reqJson, COOKIENAME,
 					testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), sendEsignetToken);

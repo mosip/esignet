@@ -8,12 +8,14 @@ package io.mosip.esignet.services;
 import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.esignet.core.dto.LinkTransactionMetadata;
 import io.mosip.esignet.core.dto.ApiRateLimit;
+import io.mosip.esignet.core.dto.PushedAuthorizationRequest;
 import io.mosip.esignet.core.exception.DuplicateLinkCodeException;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -25,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 
 import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 
@@ -185,7 +188,20 @@ public class CacheUtilService {
         return oidcTransaction;
     }
 
+    @CachePut(value = Constants.PAR_CACHE, key = "#requestUri")
+    public PushedAuthorizationRequest savePAR(String requestUri, PushedAuthorizationRequest pushedAuthorizationRequest) {
+        return pushedAuthorizationRequest;
+    }
+
     //------------------------------------------------------------------------------------------------------------------
+
+    public PushedAuthorizationRequest getAndEvictPAR(String requestUri) {
+        Cache cache = cacheManager.getCache(Constants.PAR_CACHE);
+        if(Objects.isNull(cache)) return null;
+        PushedAuthorizationRequest par = cache.get(requestUri, PushedAuthorizationRequest.class);
+        cache.evict(requestUri);
+        return par;
+    }
 
     public OIDCTransaction getPreAuthTransaction(String transactionId) {
         return cacheManager.getCache(Constants.PRE_AUTH_SESSION_CACHE).get(transactionId, OIDCTransaction.class); //NOSONAR getCache() will not be returning null here.

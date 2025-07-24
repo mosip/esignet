@@ -11,8 +11,6 @@ import ModalPopup from "../common/ModalPopup";
 import configService from "../services/configService";
 import redirectOnError from "../helpers/redirectOnError";
 
-const config = await configService();
-
 export default function Consent({
   authService,
   consentAction,
@@ -50,7 +48,16 @@ export default function Consent({
   const [cancelPopup, setCancelPopup] = useState(false);
   const [voluntaryClaims, setVoluntaryClaims] = useState([]);
 
-  const slideToggleClass = config["outline_toggle"]
+  const [config, setConfig] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      const result = await configService();
+      setConfig(result);
+    })();
+  }, []);
+
+  const slideToggleClass = config?.outline_toggle
     ? "toggle-outline"
     : "toggle-no-outline";
 
@@ -75,21 +82,6 @@ export default function Consent({
         .voluntaryClaims.filter((item) => !claims.includes(item))
     );
   }, [claims, openIDConnectService]);
-
-  const formatArray = (arr) => {
-    if (arr.length === 0) return "";
-    if (arr.length === 1) return arr[0];
-    if (arr.length === 2) return arr.join(` ${t("and")} `);
-
-    return arr.slice(0, -1).join(", ") + ` ${t("and")} ` + arr[arr.length - 1];
-  };
-
-  const translateClaims = (claims) => {
-    return claims.map((claim) => t(claim));
-  };
-
-  // Format and translate the claims
-  const formattedClaims = formatArray(translateClaims(voluntaryClaims));
 
   const handleScopeChange = (e) => {
     let id = e.target.id;
@@ -347,8 +339,9 @@ export default function Consent({
   const sliderButtonDiv = (item, handleOnchange) => (
     <div>
       <label
-        labelfor={item}
         className="inline-flex relative items-center mb-1 mt-1 cursor-pointer"
+        htmlFor={item}
+        aria-label={item}
       >
         <input
           type="checkbox"
@@ -371,7 +364,11 @@ export default function Consent({
     return (
       <div className="flex items-center justify-center section-background">
         <div className="max-w-md w-full shadow mt-5 rounded loading-indicator px-4 py-4">
-        <LoadingIndicator size="medium" message="redirecting_msg" className="align-loading-center"/>
+          <LoadingIndicator
+            size="medium"
+            message="redirecting_msg"
+            className="align-loading-center"
+          />
         </div>
       </div>
     );
@@ -476,7 +473,6 @@ export default function Consent({
                               onClick={(e) => {
                                 e.preventDefault();
                               }}
-                              role="tooltip"
                             >
                               &#9432;
                             </button>
@@ -516,7 +512,7 @@ export default function Consent({
                                 <div className="flex justify-end">
                                   {claimScope?.required && (
                                     <label
-                                      labelfor={item}
+                                      htmlFor={item}
                                       className="inline-flex text-sm relative items-center mb-1 mt-1 text-gray-400"
                                     >
                                       {t("required")}
@@ -537,7 +533,7 @@ export default function Consent({
               )}
               {voluntaryClaims.length !== 0 && (
                 <div className="no-claims-record-banner">
-                  {t("noRecordClaimsMessage", { claims: formattedClaims })}
+                  {t("noRecordClaimsMessage", { clientName: clientName })}
                 </div>
               )}
               {

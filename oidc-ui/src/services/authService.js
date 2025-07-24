@@ -1,4 +1,3 @@
-import localStorageService from "./local-storageService";
 import { Buffer } from "buffer";
 import { ApiService } from "./api.service";
 
@@ -7,16 +6,14 @@ import {
   AUTHENTICATE,
   OAUTH_DETAIL_V2,
   OAUTH_DETAIL_V3,
+  PAR_OAUTH_DETAIL,
   AUTHCODE,
-  CSRF,
   CLAIM_DETAILS,
   PREPARE_SIGNUP_REDIRECT,
   RESUME,
 } from "./../constants/routes";
 
 const authorizeQueryParam = "authorize_query_param";
-
-const { getCookie } = { ...localStorageService };
 
 class authService {
   constructor(openIDConnectService) {
@@ -50,7 +47,6 @@ class authService {
     let response = await ApiService.post(AUTHENTICATE, request, {
       headers: {
         "Content-Type": "application/json",
-        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
         "oauth-details-hash":
           (await oAuthDetailsHash) ||
           (await this.openIDConnectService.getOauthDetailsHash()),
@@ -89,7 +85,6 @@ class authService {
     let response = await ApiService.post(OAUTH_DETAIL_V2, request, {
       headers: {
         "Content-Type": "application/json",
-        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
       },
     });
     return response.data;
@@ -104,7 +99,25 @@ class authService {
     let response = await ApiService.post(OAUTH_DETAIL_V3, request, {
       headers: {
         "Content-Type": "application/json",
-        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
+      },
+    });
+    return response.data;
+  };
+
+  /**
+   * Triggers /par-oauth-details API on ESIGNET service
+   * @param {Object} params /Contains clientId and requestUri.
+   * @returns {Promise<Object>} /PAROauthDetails API response
+   */
+  post_ParOauthDetails = async (params) => {
+    let request = {
+      requestTime: new Date().toISOString(),
+      request: params,
+    };
+
+    let response = await ApiService.post(PAR_OAUTH_DETAIL, request, {
+      headers: {
+        "Content-Type": "application/json",
       },
     });
     return response.data;
@@ -135,7 +148,6 @@ class authService {
     let response = await ApiService.post(AUTHCODE, request, {
       headers: {
         "Content-Type": "application/json",
-        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
         "oauth-details-hash":
           (await oAuthDetailsHash) ||
           (await this.openIDConnectService.getOauthDetailsHash()),
@@ -172,24 +184,9 @@ class authService {
     let response = await ApiService.post(SEND_OTP, request, {
       headers: {
         "Content-Type": "application/json",
-        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
         "oauth-details-hash":
           await this.openIDConnectService.getOauthDetailsHash(),
         "oauth-details-key": await this.openIDConnectService.getTransactionId(),
-      },
-    });
-    return response.data;
-  };
-
-  /**
-   * Gets triggered for the very first time, before any api call.
-   * Triggers /csrf/token API on esignet service
-   * @returns csrf token.
-   */
-  get_CsrfToken = async () => {
-    let response = await ApiService.get(CSRF, {
-      headers: {
-        "Content-Type": "application/json",
       },
     });
     return response.data;
@@ -246,8 +243,6 @@ class authService {
   getClaimDetails = async () => {
     let response = await ApiService.get(CLAIM_DETAILS, {
       headers: {
-        "Content-Type": "application/json",
-        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
         "oauth-details-hash":
           await this.openIDConnectService.getOauthDetailsHash(),
         "oauth-details-key": await this.openIDConnectService.getTransactionId(),
@@ -268,7 +263,6 @@ class authService {
     let response = await ApiService.post(PREPARE_SIGNUP_REDIRECT, request, {
       headers: {
         "Content-Type": "application/json",
-        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
         "oauth-details-hash":
           await this.openIDConnectService.getOauthDetailsHash(),
         "oauth-details-key": await this.openIDConnectService.getTransactionId(),
@@ -292,7 +286,6 @@ class authService {
 
     const headers = {
       "Content-Type": "application/json",
-      "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
       "oauth-details-hash": oauthDetailsHash,
       "oauth-details-key": oauthDetailsKey,
     };
