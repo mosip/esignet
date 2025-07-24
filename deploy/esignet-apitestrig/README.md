@@ -3,7 +3,7 @@
 ## Introduction
 ApiTestRig will test the working of APIs of the MOSIP modules.
 ## Config Properties
-* For config properties [eSignet signup Apitestrig Readme](https://github.com/mosip/esignet-signup/blob/release-1.2.x/api-test/README.md) to be followed during deployment.
+* For config properties [eSignet Apitestrig Readme](https://github.com/mosip/esignet/blob/release-1.6.x/api-test/README.md) to be followed during deployment.
 ## Install
 * Create a directory for apitestrig on the NFS server at `/srv/nfs/mosip/<sandbox>/apitestrig/`:
 ```
