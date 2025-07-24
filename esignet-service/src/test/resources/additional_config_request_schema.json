@@ -59,6 +59,9 @@
     "consent_expire_in_mins": {
       "type": "number",
       "minimum": 10
+    },
+    "require_pushed_authorization_requests": {
+      "type": "boolean"
     }
   },
   "additionalProperties": false
