@@ -502,3 +502,66 @@ CreateOIDCClient:
     }
   ]
 }'
+   Esignet_CreateOIDCClient_all_forUserInfoJWS_Valid_Smoke_sid:
+      endPoint: /v1/partnermanager/oidc/client
+      uniqueIdentifier: TC_ESignet_CreateOIDCClient_22
+      description: Create OIDC client with all valid details for userinfo
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/OidcClient/OIDCClient
+      outputTemplate: esignet/OidcClient/OIDCClientResult
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_All_Valid_Smoke_sid_id$",
+        "publicKey": "$OIDCJWKKEY7$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "status": "ACTIVE"
+}'
+   Esignet_CreateOIDCClient_all_forUserInfoJWE_Valid_Smoke_sid:
+      endPoint: /v1/partnermanager/oidc/client
+      uniqueIdentifier: TC_ESignet_CreateOIDCClient_23
+      description: Create OIDC client with all valid details for userinfo
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/OidcClient/OIDCClient
+      outputTemplate: esignet/OidcClient/OIDCClientResult
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_All_Valid_Smoke_sid_id$",
+        "publicKey": "$OIDCJWKKEY4$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "status": "ACTIVE"
+}'
+   Esignet_CreateOIDCClient_all_ForJWSUpdatedToJWEInfo_Valid_Smoke_sid:
+      endPoint: /v1/partnermanager/oidc/client
+      uniqueIdentifier: TC_ESignet_CreateOIDCClient_24
+      description: Create OIDC client with all valid details for userinfo
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/OidcClient/OIDCClient
+      outputTemplate: esignet/OidcClient/OIDCClientResult
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_All_Valid_Smoke_sid_id$",
+        "publicKey": "$OIDCJWKKEY6$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "status": "ACTIVE"
+}'
