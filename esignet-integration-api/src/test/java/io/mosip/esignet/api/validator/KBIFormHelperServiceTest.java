@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UtilTest {
+public class KBIFormHelperServiceTest {
 
     @InjectMocks
     private KBIFormHelperService kbiFormHelperService;

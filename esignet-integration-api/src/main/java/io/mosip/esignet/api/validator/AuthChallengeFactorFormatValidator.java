@@ -51,9 +51,6 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
     @Value("${mosip.esignet.authenticator.default.auth-factor.kbi.field-details-url:}")
     private String kbiFormDetailsUrl;
 
-    @Autowired
-    private ResourceLoader resourceLoader;
-
     private JsonNode fieldJson;
 
     @PostConstruct

@@ -147,7 +147,6 @@ public class ValidatorTest {
         ResourceLoader resourceLoader = Mockito.mock(ResourceLoader.class);
 
         ReflectionTestUtils.setField(authChallengeFactorFormatValidator, "objectMapper", objectMapper);
-        ReflectionTestUtils.setField(authChallengeFactorFormatValidator, "resourceLoader", resourceLoader);
         ReflectionTestUtils.setField(authChallengeFactorFormatValidator, "idField", "individualId");
 
         List<Map<String, String>> fieldDetailList = List.of(
