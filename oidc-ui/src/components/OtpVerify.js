@@ -16,8 +16,6 @@ import langConfigService from "../services/langConfigService";
 import redirectOnError from "../helpers/redirectOnError";
 import ReCAPTCHA from "react-google-recaptcha";
 
-const langConfig = await langConfigService.getEnLocaleConfiguration();
-
 export default function OtpVerify({
   param,
   otpResponse,
@@ -33,6 +31,22 @@ export default function OtpVerify({
   const { t: t2 } = useTranslation("translation", {
     keyPrefix: i18nKeyPrefix2,
   });
+
+  const [langConfig, setLangConfig] = useState(null);
+
+  useEffect(() => {
+    async function loadLangConfig() {
+      try {
+        const config = await langConfigService.getEnLocaleConfiguration();
+        setLangConfig(config);
+      } catch (e) {
+        console.error("Failed to load lang config", e);
+        setLangConfig({ errors: { otp: {} } }); // Fallback to prevent crashes
+      }
+    }
+
+    loadLangConfig();
+  }, []);
 
   const fields = param;
   let fieldsState = {};

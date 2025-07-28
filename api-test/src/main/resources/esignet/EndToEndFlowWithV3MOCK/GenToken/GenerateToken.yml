@@ -1,0 +1,61 @@
+GenerateToken:
+   ESignet_GenerateToken_MOCK_uin_Valid_forUserInfo_Smoke_sid:
+      endPoint: $GETENDPOINTFROMWELLKNOWN$
+      uniqueIdentifier: TC_ESignet_GenerateToken_01
+      description: Generate token with all valid details UIN for user info
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/EndToEndFlowWithV3MOCK/GenToken/GenerateToken
+      outputTemplate: esignet/EndToEndFlowWithV3MOCK/GenToken/GenerateTokenResult
+      input: '{
+		  "grant_type": "authorization_code",
+		  "code": "$ID:AuthorizationCode_MOCK_uin_All_Valid_forUserInfo_Smoke_sid_code$",
+		  "client_id": "$ID:CreateOIDCClientV3_MOCK_all_Valid_forUserInfo_Smoke_sid_clientId$",
+		  "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+		  "client_assertion": "$CLIENT_ASSERTION_USER5_JWK$",
+		  "redirect_uri": "$IDPREDIRECTURI$"
+}'
+      output: '{
+   		"token_type": "Bearer" 
+}'
+   ESignet_GenerateToken_MOCK_uin_Valid_forUserInfoJWE_Smoke_sid:
+      endPoint: $GETENDPOINTFROMWELLKNOWN$
+      uniqueIdentifier: TC_ESignet_GenerateToken_02
+      description: Generate token with all valid details UIN for user info JWE
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/EndToEndFlowWithV3MOCK/GenToken/GenerateToken
+      outputTemplate: esignet/EndToEndFlowWithV3MOCK/GenToken/GenerateTokenResult
+      input: '{
+		  "grant_type": "authorization_code",
+		  "code": "$ID:AuthorizationCode_MOCK_uin_All_Valid_forUserInfoJWE_Smoke_sid_code$",
+		  "client_id": "$ID:CreateOIDCClientV3_MOCK_all_Valid_forUserInfoJWE_Smoke_sid_clientId$",
+		  "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+		  "client_assertion": "$CLIENT_ASSERTION_USER8_JWK$",
+		  "redirect_uri": "$IDPREDIRECTURI$"
+}'
+      output: '{
+   		"token_type": "Bearer" 
+}'
+   ESignet_GenerateToken_MOCK_uin_Valid_forUserInfoUpdatedJWE_Smoke_sid:
+      endPoint: $GETENDPOINTFROMWELLKNOWN$
+      uniqueIdentifier: TC_ESignet_GenerateToken_03
+      description: Generate token with all valid details UIN for user info JWE
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/EndToEndFlowWithV3MOCK/GenToken/GenerateToken
+      outputTemplate: esignet/EndToEndFlowWithV3MOCK/GenToken/GenerateTokenResult
+      input: '{
+		  "grant_type": "authorization_code",
+		  "code": "$ID:AuthorizationCode_MOCK_uin_All_Valid_forUserInfoUpdatedJWE_Smoke_sid_code$",
+		  "client_id": "$ID:CreateOIDCClientV3_MOCK_all_Valid_forUserInfoToUpdateClient_Smoke_sid_clientId$",
+		  "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+		  "client_assertion": "$CLIENT_ASSERTION_USER9_JWK$",
+		  "redirect_uri": "$IDPREDIRECTURI$"
+}'
+      output: '{
+   		"token_type": "Bearer" 
+}'

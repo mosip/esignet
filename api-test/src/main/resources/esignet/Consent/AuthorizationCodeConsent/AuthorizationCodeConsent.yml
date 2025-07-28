@@ -70,3 +70,152 @@ AuthorizationCodeConsent:
 }'
       output: '{
 }'
+
+   ESignet_AuthorizationCode_Consent_uin_invalid_AcceptedClaim:
+      endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCodeConsent_01
+      description: AuthorizationCode consent with invalid_AcceptedClaim
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsent
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Consent_all_Valid_authCodeNeg_sid_encodedResp$",
+        "requestTime": "$TIMESTAMP$",
+        "transactionId": "$ID:OAuthDetailsRequest_Consent_all_Valid_authCodeNeg_sid_transactionId$",
+        "acceptedClaims": [{claim: "residenceStatus"}]
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_accepted_claim"
+    }
+  ]
+}'
+
+   ESignet_AuthorizationCode_Consent_uin_AcceptedClaim_without_EssentialClaim:
+      endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCodeConsent_02
+      description: AuthorizationCode consent without_EssentialClaim
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsent
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Consent_all_Valid_authCodeNeg_sid_encodedResp$",
+        "requestTime": "$TIMESTAMP$",
+        "transactionId": "$ID:OAuthDetailsRequest_Consent_all_Valid_authCodeNeg_sid_transactionId$",
+        "acceptedClaims": [{claim: "gender"},{claim: "picture"}]
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_accepted_claim"
+    }
+  ]
+}'
+
+   ESignet_AuthorizationCode_Consent_uin_with_OneessentialClaimAllOptionalClaim:
+      endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCodeConsent_03
+      description: AuthorizationCode with One essential Claim and All OptionalClaim
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsent
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Consent_all_Valid_authCodeNeg_sid_encodedResp$",
+        "requestTime": "$TIMESTAMP$",
+        "transactionId": "$ID:OAuthDetailsRequest_Consent_all_Valid_authCodeNeg_sid_transactionId$",
+        "acceptedClaims": [{claim: "name"},{claim: "picture"},{claim: "gender"}]
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_accepted_claim"
+    }
+  ]
+}'
+
+   ESignet_AuthorizationCode_Consent_uin_withoutEssentialClaim:
+      endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCodeConsent_05
+      description: AuthorizationCode without essential claim if there is requested essential claim
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsent
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Consent_all_Valid_authCodeNeg_sid_encodedResp$",
+        "requestTime": "$TIMESTAMP$",
+        "transactionId": "$ID:OAuthDetailsRequest_Consent_all_Valid_authCodeNeg_sid_transactionId$",
+        "acceptedClaims": []
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_accepted_claim"
+    }
+  ]
+}'
+
+   ESignet_AuthorizationCode_Consent_uin_with_onlyEssentialClain_asAcceptedClaim_sid:
+      endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCodeConsent_04
+      description: AuthorizationCode with onlyEssentialClaim asAcceptedClaim
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsent
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Consent_all_Valid_authCodeNeg_sid_encodedResp$",
+        "requestTime": "$TIMESTAMP$",
+        "transactionId": "$ID:OAuthDetailsRequest_Consent_all_Valid_authCodeNeg_sid_transactionId$",
+        "acceptedClaims": [{claim: "name"},{claim: "email"}]
+}'
+      output: '{
+}'
+
+   ESignet_AuthorizationCode_Consent_uin_withOnly_OptionalClaim_sid:
+      endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCodeConsent_06
+      description: AuthorizationCode with only optional claim
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsent
+      outputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsentResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Consent_all_withOnly_OptionalClaim_sid_encodedResp$",
+        "requestTime": "$TIMESTAMP$",
+        "transactionId": "$ID:OAuthDetailsRequest_Consent_all_withOnly_OptionalClaim_sid_transactionId$",
+        "acceptedClaims": [{claim: "gender"},{claim: "name"}]
+}'
+      output: '{
+}'
+
+   ESignet_AuthorizationCode_Consent_uin_without_acceptedClaimValue_sid:
+      endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCodeConsent_07
+      description: AuthorizationCode by not providing any accepted claims if there is no requested essential claims 
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsent
+      outputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsentResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Consent_all_withOnly_OptionalClaim_user2_sid_encodedResp$",
+        "requestTime": "$TIMESTAMP$",
+        "transactionId": "$ID:OAuthDetailsRequest_Consent_all_withOnly_OptionalClaim_user2_sid_transactionId$",
+        "acceptedClaims": []
+}'
+      output: '{
+}'

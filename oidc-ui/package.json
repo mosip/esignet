@@ -9,6 +9,7 @@
     "@radix-ui/react-popover": "^1.0.7",
     "@tailwindcss/line-clamp": "^0.4.2",
     "@tanstack/react-query": "^5.8.4",
+    "@testing-library/user-event": "^14.6.1",
     "axios": "^1.7.3",
     "buffer": "^6.0.3",
     "cra-template": "1.1.3",
@@ -72,21 +73,20 @@
     },
     "coverageThreshold": {
       "global": {
-        "branches": 75,
-        "functions": 75,
-        "lines": 75,
-        "statements": 75
+        "branches": 80,
+        "functions": 80,
+        "lines": 80,
+        "statements": 80
       }
     },
     "collectCoverageFrom": [
-      "src/common/LoadingIndicator.js",
-      "src/common/ModalPopup.js",
-      "src/common/Popover.js",
-      "src/components/ClaimDetails.js",
-      "src/services/authService.js",
-      "src/services/openIDConnectService.js",
-      "src/components/InputWithPrefix.js",
-      "src/components/LoginIDOptions.js"
+      "src/**/*.{js,jsx}",
+      "!src/**/__tests__/**",
+      "!src/**/?(*.)+(spec|test).[jt]s?(x)",
+      "!src/setupTests.js",
+      "!src/reportWebVitals.js",
+      "!src/index.js",
+      "!src/**/mocks.js"
     ]
   }
 }
