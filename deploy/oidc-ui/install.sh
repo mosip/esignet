@@ -37,7 +37,7 @@ function installing_oidc-ui() {
   fi
 
   NS=esignet
-  CHART_VERSION=1.6.1
+  CHART_VERSION=1.6.1-develop
 
   echo Create $NS namespace
   kubectl create ns $NS || true
