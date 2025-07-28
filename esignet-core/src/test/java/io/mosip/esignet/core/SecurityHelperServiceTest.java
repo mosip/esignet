@@ -17,15 +17,11 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.Assert;
 
 import java.math.BigInteger;
-import java.security.interfaces.RSAPublicKey;
-
-import static org.junit.Assert.assertNotNull;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityHelperServiceTest {
 
     SecurityHelperService securityHelperService = new SecurityHelperService();
-
 
     @Test
     public void test_generateSecureRandomString_thenPass() {
@@ -43,25 +39,19 @@ public class SecurityHelperServiceTest {
 
     @Test
     public void computeJwkThumbprint_withPrivateKey_thenFail() throws Exception {
-        // Provide private key to simulate the private key rejection
-        RSAKey privateRsaKey = new RSAKey.Builder(new TestRSAPublicKey())
-                .privateExponent(Base64URL.encode(BigInteger.TEN)) // Simulate private key
+        Base64URL n = Base64URL.from("0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRXjBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw");
+        Base64URL e = Base64URL.from("AQAB");
+        RSAKey privateRsaKey = new RSAKey.Builder(n, e)
+                .privateExponent(Base64URL.encode(BigInteger.TEN))
                 .build();
+
         try {
             securityHelperService.computeJwkThumbprint(privateRsaKey);
-        }catch (IllegalArgumentException e){
-            org.junit.Assert.assertEquals( ErrorConstants.INVALID_PUBLIC_KEY,e.getMessage());
+            org.junit.Assert.fail();
+        } catch (IllegalArgumentException ex) {
+            org.junit.Assert.assertEquals(ErrorConstants.INVALID_PUBLIC_KEY, ex.getMessage());
         }
     }
-
-    @Test
-    public void computeJwkThumbprint_withValidRSA_thenPass() throws Exception {
-        ReflectionTestUtils.setField(securityHelperService, "objectMapper", new ObjectMapper());
-        RSAKey rsaKey = new RSAKey.Builder(new TestRSAPublicKey()).build();
-        String thumbprint = securityHelperService.computeJwkThumbprint(rsaKey);
-        assertNotNull(thumbprint);
-    }
-
 
     @Test
     public void computeJwkThumbprint_withInvalidRSA_thenFail() throws Exception {
@@ -95,13 +85,19 @@ public class SecurityHelperServiceTest {
         }
     }
 
-    // Minimal RSA public key for testing
-    static class TestRSAPublicKey implements RSAPublicKey {
-        public BigInteger getPublicExponent() { return BigInteger.valueOf(65537); }
-        public BigInteger getModulus() { return new BigInteger("1234567890"); }
-        public String getAlgorithm() { return "RSA"; }
-        public String getFormat() { return "X.509"; }
-        public byte[] getEncoded() { return new byte[0]; }
+    @Test
+    public void computeJwkThumbprint_withValidRSA_thenPass() throws Exception {
+        ReflectionTestUtils.setField(securityHelperService, "objectMapper", new ObjectMapper());
+        RSAKey rsaJwk = new RSAKey.Builder(
+                Base64URL.from("0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRXjBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw"),
+                Base64URL.from("AQAB")
+        ).build();
+
+        String thumbprint = securityHelperService.computeJwkThumbprint(rsaJwk);
+
+        String expectedThumbprint = "NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs";
+
+        org.junit.Assert.assertEquals(expectedThumbprint, thumbprint);
     }
 
 }
