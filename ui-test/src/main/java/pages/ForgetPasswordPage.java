@@ -3,10 +3,12 @@ package pages;
 import java.util.NoSuchElementException;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+
 
 import base.BasePage;
 
@@ -72,7 +74,25 @@ public class ForgetPasswordPage extends BasePage {
 	WebElement fullNameInput;
 
 	@FindBy(xpath = "//p[@id=':r5:-form-item-message']")
-	WebElement fullNameError;	
+	WebElement fullNameError;
+	
+	 @FindBy(xpath = "//div[contains(text(),'Please enter 6-digit OTP received on your number')]")
+	    WebElement otpInstructionText;
+
+	    @FindBy(xpath = "//div[contains(text(),'Enter OTP')]")
+	    WebElement enterOtpHeading;
+
+	    @FindBy(xpath = "//div[@class='font-medium text-muted-dark-gray']")
+	    WebElement partiallyMaskedPhone;
+
+	    @FindBy(xpath = "//div[contains(text(),'You can resend the OTP in')]")
+	    WebElement resendOtpCountdownText;
+
+	    @FindBy(id = "resend-otp-button")
+	    WebElement resendOtpButton;
+	    
+	    @FindBy(xpath = "//div[@class='font-medium text-muted-dark-gray']")
+	    private WebElement maskedPhone;
 
 	
 	public void clickOnLoginWithPassword() {
@@ -188,6 +208,98 @@ public class ForgetPasswordPage extends BasePage {
 	
 	public boolean isContinueButtonEnabled() {
 		return isButtonEnabled(continueButton);
-	}		
+	}
 	
+	public void clockOnContinueButton() {
+		clickOnElement(continueButton);
+	}
+	
+	public void clickOnBackButtonOnForgetPassword() {
+		clickOnElement(backButtonOnForgePassword);	
+		
+	}
+	
+    public boolean isRedirectedToLoginPage() {
+        return isElementVisible(loginWithPassword);
+    }
+    
+    public boolean isOtpInstructionVisible() {
+        return isElementVisible(otpInstructionText);
+    }
+
+    public boolean isEnterOtpHeadingVisible() {
+        return isElementVisible(enterOtpHeading);
+    }
+
+    public boolean isResendOtpCountdownVisible() {
+        return isElementVisible(resendOtpCountdownText);
+    }
+
+    public boolean isResendOtpButtonVisible() {
+        return isElementVisible(resendOtpButton);
+    }
+
+    public String getMaskedPhoneText() {
+        return getText(partiallyMaskedPhone);
+    }
+    
+    public boolean isMaskedPhoneVisible() {
+        return isElementVisible(maskedPhone);
+    }
+
+
+    public int getOtpResendWaitTimeInSeconds() {
+    	String timerText = getText(otpCountdownTimer);
+        String[] parts = timerText.split(":");
+        int minutes = Integer.parseInt(parts[0]);
+        int seconds = Integer.parseInt(parts[1]);
+        return minutes * 60 + seconds;
+    }   
+
+    @FindBy(xpath = "//div[contains(text(),'attempt') or contains(text(),'Attempt')]")
+    private WebElement resendAttemptsText;
+
+    @FindBy(xpath = "//div[contains(text(),'You can resend the OTP in')]/span")
+    private WebElement otpCountdownTimer;
+    
+    @FindBy(xpath = "//button[contains(text(),'Go back to landing page')]")
+    private WebElement landingPageLink;
+   
+    @FindBy(xpath = "//button[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'go back')]")
+    private WebElement btnGoBack;
+
+    public static final By BTN_GO_BACK_LOCATOR = By.xpath("//button[contains(text(),'Go back to landing page')]");
+
+
+
+    public boolean isResendOtpButtonEnabled() {
+        return isButtonEnabled(resendOtpButton);
+    }
+
+    public void clickOnResendOtp() {
+        clickOnElement(resendOtpButton);
+    }
+
+    public String getOtpResendAttemptsText() {
+         return getText(resendAttemptsText);        
+    }
+
+//	public void clickOnLandingPageLink() {
+//		safeClick(btnGoBack);
+//	}
+	
+	public void clickOnLandingPageLink() throws Exception{
+		Thread.sleep(2000); // NOT for production, just for debugging
+		System.out.println("Current Page Title: " + driver.getCurrentUrl());
+		System.out.println("Current Page Title: " + driver.getTitle());
+		System.out.println("Button Displayed: " + btnGoBack.isDisplayed());
+		System.out.println("Button Enabled: " + btnGoBack.isEnabled());
+		System.out.println("Button Text: " + btnGoBack.getText());
+		System.out.println("Page contains element ID: " + driver.getPageSource().contains("landing-page-button"));
+
+
+		safeClickWithRetry(btnGoBack,BTN_GO_BACK_LOCATOR);  // or whatever element you're trying to click
+	}
+ 
+
 }

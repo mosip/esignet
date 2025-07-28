@@ -1,19 +1,14 @@
 package stepdefinitions;
 
-import java.util.List;
-
 import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
 import io.cucumber.java.en.When;
-import io.cucumber.datatable.DataTable;
-import java.util.List;
-import java.util.Map;
 import base.BaseTest;
-import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
-import io.cucumber.java.en.When;
 import pages.ForgetPasswordPage;
 import pages.LoginOptionsPage;
+
+import org.testng.asserts.SoftAssert;
 
 public class ForgetPasswordStepDefinition {
 
@@ -153,26 +148,91 @@ public class ForgetPasswordStepDefinition {
 
 	@Then("user verify full name error message")
 	public void fullname_error_displayed() {
-	  Assert.assertTrue(forgetPasswordPage.isFullNameErrorVisible());
+		Assert.assertTrue(forgetPasswordPage.isFullNameErrorVisible());
 	}
 
-	
 	@Then("user verify full name error message not displayed")
 	public void fullname_error_not_displayed() {
-	    Assert.assertFalse(forgetPasswordPage.isFullNameErrorPresent(),
-	        "Expected no error message, but one was present");
+		Assert.assertFalse(forgetPasswordPage.isFullNameErrorPresent(),
+				"Expected no error message, but one was present");
 	}
-
 
 	@Then("only 30 characters are retained in the fullname field")
 	public void only_30_chars_retained() {
-	  String actual = forgetPasswordPage.getEnteredFullName();
-	  Assert.assertEquals(actual.length(), 30);
+		String actual = forgetPasswordPage.getEnteredFullName();
+		Assert.assertEquals(actual.length(), 30);
 	}
-	
+
 	@Then("user verify continue button is enabled")
 	public void user_verify_continue_button_is_enabled() {
 		Assert.assertTrue(forgetPasswordPage.isContinueButtonEnabled(), "Continue button enabled");
+	}
+
+	@Then("user click on continue button")
+	public void user_click_on_continue_button_is_enabled() {
+		forgetPasswordPage.clockOnContinueButton();
+	}
+
+	@Then("user click on back button")
+	public void user_click_on_back_button() {
+		forgetPasswordPage.clickOnBackButtonOnForgetPassword();
+
+	}
+
+	@Then("user verify browser redirected to login page")
+	public void user_verify_browser_redirected_to_login_page() {
+		Assert.assertTrue(forgetPasswordPage.isRedirectedToLoginPage(), "Not redirected to login page");
+	}
+
+	@Then("user waits for resend OTP button and verifies it's enabled or skipped")
+	public void waitForResendOtpButtonAndValidate() throws InterruptedException {
+		SoftAssert softAssert = new SoftAssert();
+
+		int waitTime = forgetPasswordPage.getOtpResendWaitTimeInSeconds();
+
+		if (waitTime > 60) {
+			softAssert.assertTrue(false,
+					"Wait time exceeds 60 seconds (" + waitTime + "s) — skipping actual test of Resend OTP button.");
+		} else {
+			Thread.sleep(waitTime * 1000L + 1000);
+			boolean enabled = forgetPasswordPage.isResendOtpButtonEnabled();
+			Assert.assertTrue(enabled, "Resend OTP button not enabled after wait.");
+		}
+
+		softAssert.assertAll();
+	}
+
+	SoftAssert softAssert = new SoftAssert();
+
+	@Then("user waits and clicks on resend OTP, then validates {int} out of 3 attempts message")
+	public void userClicksResendOtpAndValidatesAttemptLeft(int expectedAttemptLeft) throws Exception {
+		int waitTime = forgetPasswordPage.getOtpResendWaitTimeInSeconds();
+
+		if (waitTime > 60) {
+			softAssert.assertTrue(false, "Wait time is more than 60s (" + waitTime + "s). Skipping resend attempt.");
+		} else {
+			Thread.sleep((waitTime + 1) * 1000L); // wait with 1s buffer
+			if (forgetPasswordPage.isResendOtpButtonEnabled()) {
+				forgetPasswordPage.clickOnResendOtp();
+
+				Thread.sleep(1500); // short wait for DOM update
+				String attemptText = forgetPasswordPage.getOtpResendAttemptsText();																					
+				System.out.println("Attempt Text: " + attemptText);
+
+				softAssert.assertTrue(attemptText.contains(expectedAttemptLeft + " of 3 attempts left"),
+						"Expected attempt count: " + expectedAttemptLeft + " out of 3 not found.");
+			} else {
+				softAssert.assertTrue(false, "Resend OTP button was not enabled after " + waitTime + "s.");
+			}
+		}
+
+		softAssert.assertAll();
+	}
+
+	@Then("user verify landing page link")
+	public void user_verify_landing_pagelink() throws Exception {
+		Thread.sleep(3000);
+		forgetPasswordPage.clickOnLandingPageLink();
 	}
 
 }
