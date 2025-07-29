@@ -151,3 +151,133 @@ Examples:
   | already registered number | expired_otp | invalid_otp | special_characters | alphabets | alphanumeric_characters | incomplete_otp | valid mobile number |
   | 991678222                 | 111111      | 000000      | @#%&*!             | ABCDEF    | ABC123                  | 12             | 782910667           |
   
+
+@smoke @accountSetupValidation
+Scenario Outline: Completing Registration Process
+  Given click on Sign In with eSignet
+  When user clicks on the Sign-Up with Unified Login hyperlink
+  And user enters "<valid_mobile_number>" in the mobile number text box
+  And user clicks on the Continue button
+  When user enters the complete 6-digit OTP
+  And user clicks on the Verify OTP button
+  And verify user is redirected to the success screen
+  When user click on Continue button in Success Screen
+  Then verify setup account screen is displayed with header Setup Account
+  And verify description Please enter the requested details to complete your registration.
+  And verify a Username field should be visible
+  And verify an option to enter Full Name in Khmer
+  And verify an option to setup Password
+  And verify an option to Confirm Password
+  And verify an option to mask or unmask the entered password
+  And verify an option to view password policy by clicking on the "i" icon
+  And verify an option to check the checkbox to agree to T&C and Privacy Policy
+  And verify it should display Continue button
+
+  Then verify the Username field is auto-filled with the verified mobile number
+  And validate the Username field should be non-editable
+
+  And verify the watermark text in the Full Name in Khmer field it should be as "Enter Full Name in Khmer"
+
+  Then user clicks on Language Selection Option
+  And user selects Khmer from the language dropdown
+  And verify page rendered in selected language
+  When user enters text "<in other language>" in the Full Name in Khmer field
+  And user tabs out from the field
+  Then verify an error message Should be able to enter only Khmer characters is displayed below the field
+
+  Then user clicks on Language Selection Option
+  And user selects English from the language dropdown
+  When user enters text "<more than 30 characters>" in the Full Name in Khmer field
+  Then verify the field restrict the input to 30 characters only
+
+  When user enters text "<only spaces>" in the Full Name in Khmer field
+  And user tabs out from the field
+  Then verify an error message Please enter a valid name. is displayed below the field
+
+  And verify the watermark text in the Password field is "Enter Password"
+
+  When user enters "<invalid password>" in the Password field 
+  And user tabs out from the field
+  Then verify an error message Password does not meet the password policy. displayed below the Password field
+  
+  When user enters "<less than 8 characters>" in the Password field
+  And user tabs out from the field
+  Then verify an error message Password does not meet the password policy. displayed below the Password field
+  
+  When user enters "<more than 20 characters>" in the Password field
+  Then validate the field restrict the input to 20 characters only
+
+  And verify the watermark text in the Confirm Password field is "Enter Password"
+
+  When user enters "<valid password>" in the Password field
+  Then user enters "<different password>" in the Confirm Password field
+  And user tabs out from the field
+  Then verify an inline error message Password and Confirm Password do not match. displayed below Confirm Password field
+
+  Then user enters "<more than 20 character>" in the Confirm Password field
+  And verify the field should restrict the password to 20 characters only
+  
+  Then user enters "<less than 8 character>" in the Confirm Password field
+  And user tabs out from the field
+  Then verify an inline error message Password and Confirm Password do not match. displayed below Confirm Password field
+
+  Then validate the Password field is masked
+  And validate the Confirm Password field is masked
+
+  When user clicks on the unmask icon in the Password field
+  Then validate the Password field is unmasked
+
+  When user clicks on the unmask icon in the Confirm Password field
+  Then validate the Confirm Password field is unmasked
+
+  When user clicks again on the unmask icon in the Password field
+  Then validate the Password field is masked
+
+  When user clicks again on the unmask icon in the Confirm Password field
+  And validate the Confirm Password field is masked
+
+  When user clicks on the "i" icon in the Password field
+  Then verify the tooltip message Use 8 or more characters with a mix of alphabets and at least one number. is displayed
+
+  When user clicks on the "i" icon in the Full Name in Khmer field
+  Then verify the tooltip message Maximum 30 characters allowed with no alphabets or special characters, except space. is displayed
+
+  When user does not check the terms and conditions checkbox
+  Then verify the Continue button will be in disabled state
+
+  Then verify the terms and conditions message
+
+  When user enters text "<special_characters>" in the Full Name in Khmer field
+  And user tabs out from the field
+  Then verify it restricts such input with an error message Full Name has to be in Khmer only.
+
+  When user enters text "<alphanumeric_input>" in the Full Name in Khmer field
+  And user tabs out from the field
+  Then verify it restricts such input with an error message Full Name has to be in Khmer only.
+
+  When user enters text "<numeric_input>" in the Full Name in Khmer field
+  And user tabs out from the field
+  Then verify it restricts such input with an error message Full Name has to be in Khmer only.
+
+  When user clicks on the Terms & Conditions hyperlink
+  Then verify a pop-up window for Terms and Conditions is displayed
+
+  When user closes the Terms and Conditions popup
+  Then verify user is navigated back to the Account Setup screen
+
+  When user clicks on the Privacy policy hyperlink
+  Then verify a pop-up window for Privacy Policy is displayed
+
+  When user closes the privacy policy popup
+  Then verify user is navigated back to the Account Setup screen
+
+  Then verify the Continue button is disabled when mandatory fields are not filled in Account Setup screen
+  
+  When user enters text "<valid name>" in the Full Name in Khmer field
+  And user enters "<valid password>" in the Password field
+  Then verify the Continue button is disabled when only two mandatory fields are filled 
+  
+Examples:
+  | valid_mobile_number | in other language | more than 30 characters       | only spaces | invalid password | less than 8 characters | more than 20 characters          | valid password | different password | more than 20 character         | less than 8 character | special_characters | alphanumeric_input | numeric_input | valid name | valid confirm password |
+  | 782910669           | John Doe          | ប្រសិនបើប្រយោគនេះមានរ៉ាំរ៉ាវហួសពី៣០តួអក្សរ |              | ABCD@#$%         | aBc@1                  | Passwordmorethantwenty@char      | Password@1     | password1          | ConfirmPasswordmorethantwenty  | pass@1                | !@#$%^&            | Abc1234            | 1234567       | សុខសេរី      | Password@1             |
+ 
