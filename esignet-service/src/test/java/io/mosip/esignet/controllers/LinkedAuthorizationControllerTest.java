@@ -16,6 +16,7 @@ import java.util.List;
 import javax.servlet.AsyncEvent;
 import javax.servlet.AsyncListener;
 
+import io.mosip.esignet.api.util.KBIFormHelperService;
 import io.mosip.esignet.core.config.LocalAuthenticationEntryPoint;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.dto.Error;
@@ -66,7 +67,10 @@ public class LinkedAuthorizationControllerTest {
 
     @MockBean
     CacheUtilService cacheUtilService;
-    
+
+    @MockBean
+    private KBIFormHelperService kbiFormHelperService;
+
     @MockBean
     AuditPlugin auditWrapper;
 

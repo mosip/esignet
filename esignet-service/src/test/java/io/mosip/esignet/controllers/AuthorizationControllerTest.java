@@ -13,6 +13,7 @@ import io.mosip.esignet.api.dto.claim.ClaimDetail;
 import io.mosip.esignet.api.dto.claim.ClaimsV2;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.util.ConsentAction;
+import io.mosip.esignet.api.util.KBIFormHelperService;
 import io.mosip.esignet.core.config.LocalAuthenticationEntryPoint;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.dto.*;
@@ -80,6 +81,9 @@ public class AuthorizationControllerTest {
 
     @MockBean
     CacheUtilService cacheUtilService;
+
+    @MockBean
+    private KBIFormHelperService kbiFormHelperService;
 
 
     @MockBean
