@@ -36,7 +36,7 @@ public class SecurityHelperService {
 
     public String computeJwkThumbprint(JWK jwk) throws Exception {
         if (jwk == null) {
-            throw new IllegalArgumentException(ErrorConstants.INVALID_ALGORITHM);
+            throw new IllegalArgumentException(ErrorConstants.INVALID_PUBLIC_KEY);
         }
 
         if (jwk.isPrivate()) {

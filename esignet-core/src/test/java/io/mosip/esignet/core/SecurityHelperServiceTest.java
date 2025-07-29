@@ -33,7 +33,7 @@ public class SecurityHelperServiceTest {
         try {
             securityHelperService.computeJwkThumbprint(null);
         }catch (IllegalArgumentException e){
-            org.junit.Assert.assertEquals( ErrorConstants.INVALID_ALGORITHM,e.getMessage());
+            org.junit.Assert.assertEquals( ErrorConstants.INVALID_PUBLIC_KEY,e.getMessage());
         }
     }
 
@@ -98,6 +98,24 @@ public class SecurityHelperServiceTest {
         String expectedThumbprint = "NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs";
 
         org.junit.Assert.assertEquals(expectedThumbprint, thumbprint);
+    }
+
+    @Test
+    public void computeJwkThumbprint_withValidEC_thenPass() throws Exception {
+        ReflectionTestUtils.setField(securityHelperService, "objectMapper", new ObjectMapper());
+        ECKey ecJwk = ECKey.parse(
+                "{" +
+                        "\"kty\":\"EC\"," +
+                        "\"crv\":\"P-256\"," +
+                        "\"x\":\"CtFRxfPrv4fh4c8gGzBveGvk8VkJIQLwMuEBPh81xnk\"," +
+                        "\"y\":\"uAyPt9YJWwqaaQEYkHS1KIGvzVe3T5NGDqM3Bm4qLUs\"" +
+                        "}"
+        );
+
+        String thumbprint = securityHelperService.computeJwkThumbprint(ecJwk);
+        String expected = "7BWWOB0woOhbkjAvfme5xwdOsehUXM_dZsy8ZLPEvss";
+
+        org.junit.Assert.assertEquals(expected, thumbprint);
     }
 
 }
