@@ -142,6 +142,8 @@ public class MosipTestRunner {
 					}
 					
 					startTestRunner();
+					
+					// Used for generating the test case interdependency JSON file
 					//AdminTestUtil.generateTestCaseInterDependencies(getGlobalResourcePath()
 					//        + "/config/testCaseInterDependency_" + EsignetUtil.getPluginName() + ".json");
 					
@@ -166,6 +168,8 @@ public class MosipTestRunner {
 				 
 
 				startTestRunner();
+				
+				// Used for generating the test case interdependency JSON file
 				//AdminTestUtil.generateTestCaseInterDependencies(getGlobalResourcePath()
 				//        + "/config/testCaseInterDependency_" + EsignetUtil.getPluginName() + ".json");
 			} else {
@@ -185,6 +189,8 @@ public class MosipTestRunner {
 				}
 				
 				startTestRunner();
+				
+				// Used for generating the test case interdependency JSON file
 				//AdminTestUtil.generateTestCaseInterDependencies(getGlobalResourcePath()
 				//        + "/config/testCaseInterDependency_" + EsignetUtil.getPluginName() + ".json");
 			}
