@@ -733,4 +733,40 @@ public class RegistrationPage extends BasePage {
 		return isElementVisible(screenInEnglishLanguage);
 	}
 
+	public String getOtpResendAttemptsText() {
+		return getText(remainingAttemptsMeassage);
+	}
+
+	public int getOtpResendWaitTimeInSeconds() {
+		String timerText = getText(otpCountDownTimer);
+		String[] parts = timerText.split(":");
+		int minutes = Integer.parseInt(parts[0]);
+		int seconds = Integer.parseInt(parts[1]);
+		return minutes * 60 + seconds;
+	}
+
+	public boolean isAccountCreatedSuccessfullyMessageDisplayed() {
+		return isElementVisible(accountCreatedSuccessfullyMessage);
+	}
+
+	public boolean isLoginButtonDisplayed() {
+		return isElementVisible(loginButtonInSuccessScreen);
+	}
+
+	public void clickOnLoginButtonInSuccessScreen() {
+		clickOnElement(loginButtonInSuccessScreen);
+	}
+
+	public boolean isLoginScreenDisplayed() {
+		return isElementVisible(loginScreen);
+	}
+
+	public boolean isOkayButtonDisplayed() {
+		return isElementVisible(loginButtonInSuccessScreen);
+	}
+
+	public void clickOnOkayButtonInSuccessScreen() {
+		clickOnElement(loginButtonInSuccessScreen);
+	}
+
 }
