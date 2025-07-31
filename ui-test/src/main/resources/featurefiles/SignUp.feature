@@ -89,11 +89,17 @@ Scenario Outline: OTP input acceptance and Verify button state
   And user verifies a 3-minute countdown timer is displayed
   And user verifies the Resend OTP option is visible
   And user verifies an option to go back and update the mobile number is be present
+  
+  Then user waits for OTP time to expire and resend button gets enabled
+  And user validates 2 out of 3 attempts message displayed
+  And user validates 1 out of 3 attempts message displayed
+  And user validates 0 out of 3 attempts message displayed
+  Then validate the "Verify" button is disabled
 
   When user clicks the back button on the OTP screen
   Then verify user is redirected back to the Registration screen
 
-  When user enters "<already registered number>" in the mobile number text box
+  When user enters "<registered number>" in the mobile number text box
   And user clicks on the Continue button
   Then verify user is navigated to the OTP screen
 
@@ -148,8 +154,8 @@ Scenario Outline: OTP input acceptance and Verify button state
   And verify a Continue button is displayed
   
 Examples:
-  | already registered number | expired_otp | invalid_otp | special_characters | alphabets | alphanumeric_characters | incomplete_otp | valid mobile number |
-  | 991678222                 | 111111      | 000000      | @#%&*!             | ABCDEF    | ABC123                  | 12             | 782910667           |
+  | already registered number | registered number | expired_otp | invalid_otp | special_characters | alphabets | alphanumeric_characters | incomplete_otp | valid mobile number |
+  | 991678222                 | 991678228         |111111       | 000000      | @#%&*!             | ABCDEF    | ABC123                  | 12             | 879216679           |
   
 
 @smoke @accountSetupValidation
@@ -275,9 +281,103 @@ Scenario Outline: Completing Registration Process
   
   When user enters text "<valid name>" in the Full Name in Khmer field
   And user enters "<valid password>" in the Password field
-  Then verify the Continue button is disabled when only two mandatory fields are filled 
+  Then verify the Continue button is disabled when only two mandatory fields are filled
+  
+  When user enters text "<valid name>" in the Full Name in Khmer field
+  And user enters "<valid password>" in the Password field
+  And user enters "<valid confirm password>" in the Confirm Password field
+  Then verify the Continue button is enabled when all mandatory fields are filled
+  
+  When user clicks on Continue button in Setup Account Page
+  Then verify that success screen should display the message Congratulations! Your account has been created successfully. Please login to proceed.
+  And verify a Login button is displayed
+  
+  When user click on Login button
+  Then verify user is redirected to Login screen of eSignet
   
 Examples:
   | valid_mobile_number | in other language | more than 30 characters       | only spaces | invalid password | less than 8 characters | more than 20 characters          | valid password | different password | more than 20 character         | less than 8 character | special_characters | alphanumeric_input | numeric_input | valid name | valid confirm password |
-  | 782910669           | John Doe          | ប្រសិនបើប្រយោគនេះមានរ៉ាំរ៉ាវហួសពី៣០តួអក្សរ |              | ABCD@#$%         | aBc@1                  | Passwordmorethantwenty@char      | Password@1     | password1          | ConfirmPasswordmorethantwenty  | pass@1                | !@#$%^&            | Abc1234            | 1234567       | សុខសេរី      | Password@1             |
+  | 879216679           | John Doe          | ប្រសិនបើប្រយោគនេះមានរ៉ាំរ៉ាវហួសពី៣០តួអក្សរ |              | ABCD@#$%         | aBc@1                  | Passwordmorethantwenty@char      | Password@1     | password1          | ConfirmPasswordmorethantwenty  | pass@1                | !@#$%^&            | Abc1234            | 1234567       | សុខសេរី      | Password@1             |
+
+
+@smoke @SignUrl
+Scenario Outline: Navigate directly to sign-up portal with incorrect URL
+  Given user directly navigates to sign-up portal URL
+  Then verify the header in the screen
+  And verify the message displayed
+  And verify the reset password button is available
+  And verify the register Button is displayed
+  When user clicks on Register button
+  Then verify user is navigated to the Mobile Number Registration screen 
+  
+  When user enters "<mobile number>" in the mobile number text box
+  And user clicks on the Continue button
+  Then verify user is navigated to the OTP screen
+  When user enters the complete 6-digit OTP
+  And user clicks on the Verify OTP button 
+  
+  Then user click on Continue button in Success Screen
+  
+  When user enters text "<valid_FullName>" in the Full Name in Khmer field
+  When user enters "<valid_password>" in the Password field
+  When user enters "<valid_confirm_password>" in the Confirm Password field
+  And user accepts the Terms and Condition checkbox
+  When user clicks on Continue button in Setup Account Page
+  
+  Then verify that success screen should display the message Congratulations! Your account has been created successfully.Start using your registered number & password with service providers to avail the required services.
+  And verify a Okay button is displayed
+  
+  When user click on Okay button
+  Then verify user is navigated to the Mobile Number Registration screen
+  
+Examples:
+  | mobile number | valid_FullName | valid_password | valid_confirm_password |
+  | 84905078      | ដេបិចកា         | Password@01     | Password@01            |
+  
+  
+@smoke @OtpNotification
+Scenario Outline: Verify the notification when OTP requested
+  Given user opens SMTP portal
+  And navigate back to eSignet portal
+  Given click on Sign In with eSignet
+  When user clicks on the Sign-Up with Unified Login hyperlink
+  And user enters "<Mobile_number>" in the mobile number text box
+  And user clicks on the Continue button
+  And user switches back to SMTP portal
+  Then verify English language notification Use XXXXXX to verify your KhID account. is received for otp requested
+  And switch back to eSignet portal
+  When user enters the complete 6-digit OTP
+  And user clicks on the Verify OTP button
+  And user click on Continue button in Success Screen
+  And user enters text "<valid_FullName>" in the Full Name in Khmer field
+  And user enters "<valid_password>" in the Password field
+  And user enters "<valid_confirm_password>" in the Confirm Password field
+  And user accepts the Terms and Condition checkbox
+  And user clicks on Continue button in Setup Account Page
+  Then user switches back to SMTP portal
+  And verify You successfully registered to KhID account. message is displayed
+  
+  And navigate back to eSignet portal
+  Given click on Sign In with eSignet
+  When user clicks on the Sign-Up with Unified Login hyperlink
+  Then user clicks on Language Selection Option
+  And user selects Khmer from the language dropdown
+  And user enters "<New_Mobile_number>" in the mobile number text box
+  And user clicks on the Continue button
+  And user switches back to SMTP portal
+  Then verify Khmer language notification ប្រើ XXXXXX ដើម្បីផ្ទៀងផ្ទាត់គណនី KhID របស់អ្នក។ is received for otp requested
+  And switch back to eSignet portal
+  When user enters the complete 6-digit OTP
+  And user clicks on the Verify OTP button
+  And user click on Continue button in Success Screen
+  And user enters text "<valid_FullName>" in the Full Name in Khmer field
+  And user enters "<valid_password>" in the Password field
+  And user enters "<valid_confirm_password>" in the Confirm Password field
+  And user accepts the Terms and Condition checkbox
+  And user clicks on Continue button in Setup Account Page
+  Then user switches back to SMTP portal
+  And verify អ្នកបានចុះឈ្មោះគណនី KhID ដោយជោគជ័យ។ is displayed
  
+Examples:
+  | Mobile_number | New_Mobile_number | valid_FullName | valid_password | valid_confirm_password |
+  | 90434072      | 90835093         | ឌីវ្យា             | Pass@1234      | Pass@1234              |

@@ -5,6 +5,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WindowType;
+import org.testng.Assert;
+import org.testng.asserts.SoftAssert;
 
 import base.BasePage;
 import base.BaseTest;
@@ -15,6 +18,7 @@ import io.mosip.testrig.apirig.testrunner.OTPListener;
 import pages.LoginOptionsPage;
 import pages.RegistrationPage;
 import pages.SignUpPage;
+import pages.SmtpPage;
 
 public class SignUpStepDef {
 
@@ -24,6 +28,7 @@ public class SignUpStepDef {
 	BasePage basePage;
 	LoginOptionsPage loginOptionsPage;
 	RegistrationPage registrationPage;
+	SmtpPage smtpPage;
 
 	public SignUpStepDef(BaseTest baseTest) {
 		this.baseTest = baseTest;
@@ -32,6 +37,7 @@ public class SignUpStepDef {
 		basePage = new BasePage(driver);
 		loginOptionsPage = new LoginOptionsPage(driver);
 		registrationPage = new RegistrationPage(driver);
+		smtpPage = new SmtpPage(driver);
 	}
 
 	@Then("verify Sign-Up with Unified Login option should be displayed")
@@ -211,6 +217,43 @@ public class SignUpStepDef {
 	@Then("user verifies an option to go back and update the mobile number is be present")
 	public void verifyBackOptionVisible() {
 		assertTrue(registrationPage.isBackToEditMobileNumberOptionVisible());
+	}
+
+	@Then("user waits for OTP time to expire and resend button gets enabled")
+	public void waitForResendOtpButtonAndValidate() throws InterruptedException {
+		SoftAssert softAssert = new SoftAssert();
+		int waitTime = registrationPage.getOtpResendWaitTimeInSeconds();
+		if (waitTime > 60) {
+			softAssert.assertTrue(false,
+					"Wait time exceeds 60 seconds (" + waitTime + "s) — skipping actual test of Resend OTP button.");
+		} else {
+			Thread.sleep(waitTime * 1000L + 1000);
+			boolean enabled = registrationPage.isResendOtpButtonEnabled();
+			Assert.assertTrue(enabled, "Resend OTP button not enabled after wait.");
+		}
+		softAssert.assertAll();
+	}
+
+	@Then("user validates {int} out of 3 attempts message displayed")
+	public void userClicksResendOtpAndValidatesAttemptLeft(int expectedAttemptLeft) throws Exception {
+		SoftAssert softAssert = new SoftAssert();
+		int waitTime = registrationPage.getOtpResendWaitTimeInSeconds();
+		if (waitTime > 60) {
+			softAssert.assertTrue(false, "Wait time is more than 60s (" + waitTime + "s). Skipping resend attempt.");
+		} else {
+			Thread.sleep((waitTime + 1) * 1000L);
+			if (registrationPage.isResendOtpButtonEnabled()) {
+				registrationPage.clickOnResendOtpButton();
+				Thread.sleep(1500);
+				String attemptText = registrationPage.getOtpResendAttemptsText();
+				System.out.println("Attempt Text: " + attemptText);
+				softAssert.assertTrue(attemptText.contains(expectedAttemptLeft + " of 3 attempts left"),
+						"Expected attempt count: " + expectedAttemptLeft + " out of 3 not found.");
+			} else {
+				softAssert.assertTrue(false, "Resend OTP button was not enabled after " + waitTime + "s.");
+			}
+		}
+		softAssert.assertAll();
 	}
 
 	@When("user clicks the back button on the OTP screen")
@@ -638,6 +681,133 @@ public class SignUpStepDef {
 	public void verifyContinueButtonDisabledWithOnlyTwoFieldsFilled() {
 		boolean isEnabled = registrationPage.isContinueButtonInSetupAccountPageEnabled();
 		assertFalse("Continue button should be disabled when only two mandatory fields are filled", isEnabled);
+	}
+
+	@Then("verify the Continue button is enabled when all mandatory fields are filled")
+	public void verifyContinueButtonEnabledWhenAllMandatoryFieldsFilled() {
+		registrationPage.checkTermsAndConditions();
+		assertTrue(registrationPage.isContinueButtonInSetupAccountPageEnabled());
+	}
+
+	@When("user clicks on Continue button in Setup Account Page")
+	public void userClicksOnContinueButtonInSetpuAccountPage() {
+		registrationPage.clickOnSetupAccountContinueButton();
+	}
+
+	@Then("verify that success screen should display the message Congratulations! Your account has been created successfully. Please login to proceed.")
+	public void verifyThenSuccessMessageDisplayed() {
+		assertTrue(registrationPage.isAccountCreatedSuccessfullyMessageDisplayed());
+	}
+
+	@Then("verify a Login button is displayed")
+	public void verifyLoginButtonIsDisplayed() {
+		assertTrue(registrationPage.isLoginButtonDisplayed());
+	}
+
+	@When("user click on Login button")
+	public void userClicksOnLoginButtonInSuccessScreen() {
+		registrationPage.clickOnLoginButtonInSuccessScreen();
+	}
+
+	@Then("verify user is redirected to Login screen of eSignet")
+	public void verifyUserIsOnLoginPage() {
+		assertTrue(registrationPage.isLoginScreenDisplayed());
+	}
+
+	@Given("user directly navigates to sign-up portal URL")
+	public void user_opens_signup_portal_directly() {
+		signUpPage.navigateToSignupPortal();
+	}
+
+	@Then("verify the header in the screen")
+	public void verifyHeaderInSignUpScreen() {
+		assertTrue(signUpPage.isHeaderInSignUpErrorScreenDisplayed());
+	}
+
+	@Then("verify the message displayed")
+	public void verifyMessageInSignUpScreen() {
+		assertTrue(signUpPage.isMessageInSignUpErrorScreenDisplayed());
+	}
+
+	@Then("verify the reset password button is available")
+	public void validateResetButtonVisible() {
+		assertTrue(signUpPage.isResetPasswordButtonDisplayed());
+	}
+
+	@Then("verify the register Button is displayed")
+	public void validateRegisterButtonDisplayed() {
+		assertTrue(signUpPage.isRegisterButtonDisplayed());
+	}
+
+	@When("user clicks on Register button")
+	public void userClicksOnRegisterButton() {
+		signUpPage.clickOnRegisterButton();
+	}
+
+	@Then("verify that success screen should display the message Congratulations! Your account has been created successfully.Start using your registered number & password with service providers to avail the required services.")
+	public void verifySuccessMessageIsDisplayed() {
+		assertTrue(registrationPage.isAccountCreatedSuccessfullyMessageDisplayed());
+	}
+
+	@Then("verify a Okay button is displayed")
+	public void verifyOkayButtonIsDisplayed() {
+		assertTrue(registrationPage.isOkayButtonDisplayed());
+	}
+
+	@When("user click on Okay button")
+	public void userClicksOnOkayButtonInSuccessScreen() {
+		registrationPage.clickOnOkayButtonInSuccessScreen();
+	}
+
+	String smtpTabHandle;
+	String healthPortalTabHandle;
+
+	@Given("user opens SMTP portal")
+	public void userNavigatesToSmtpPortalUrl() {
+		smtpPage.navigateToSmtpUrl();
+		smtpTabHandle = driver.getWindowHandle();
+	}
+
+	@Then("navigate back to eSignet portal")
+	public void userOpensEsignetPortal() {
+		driver.switchTo().newWindow(WindowType.TAB);
+		smtpPage.navigateToHealthPortalUrl();
+		healthPortalTabHandle = driver.getWindowHandle();
+	}
+
+	@Then("user switches back to SMTP portal")
+	public void userSwitchesBackToSmtp() {
+		driver.switchTo().window(smtpTabHandle);
+	}
+
+	@Then("verify English language notification Use XXXXXX to verify your KhID account. is received for otp requested")
+	public void verifyEnglishNotificationReceived() {
+		assertTrue(smtpPage.isNotificationReceivedInEnglish());
+	}
+
+	@Then("switch back to eSignet portal")
+	public void userSwitchesBackToHealthPortal() {
+		driver.switchTo().window(healthPortalTabHandle);
+	}
+
+	@Then("user accepts the Terms and Condition checkbox")
+	public void userAcceptsTermsAndCondition() {
+		registrationPage.checkTermsAndConditions();
+	}
+
+	@Then("verify You successfully registered to KhID account. message is displayed")
+	public void verifyNotificationForSuccessfullRegistration() {
+		smtpPage.isSuccessfullNotificationReceivedInEnglish();
+	}
+
+	@Then("verify Khmer language notification ប្រើ XXXXXX ដើម្បីផ្ទៀងផ្ទាត់គណនី KhID របស់អ្នក។ is received for otp requested")
+	public void verifyKhmerNotificationReceived() {
+		assertTrue(smtpPage.isNotificationReceivedInKhmer());
+	}
+
+	@Then("verify អ្នកបានចុះឈ្មោះគណនី KhID ដោយជោគជ័យ។ is displayed")
+	public void verifySuccessfullRegistrationNotification() {
+		smtpPage.isSuccessfullNotificationReceivedInKhmer();
 	}
 
 }
