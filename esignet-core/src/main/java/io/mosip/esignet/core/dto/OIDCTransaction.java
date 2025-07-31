@@ -76,4 +76,6 @@ public class OIDCTransaction implements Serializable {
 
     String[] prompt;
     int consentExpireMinutes;
+
+    String dpopJkt;
 }

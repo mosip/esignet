@@ -5,7 +5,6 @@
  */
 package io.mosip.esignet.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -487,6 +486,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oidcTransaction.setUserInfoResponseType(clientDetailDto.getAdditionalConfig(USERINFO_RESPONSE_TYPE,"JWS"));
         oidcTransaction.setPrompt(IdentityProviderUtil.splitAndTrimValue(oauthDetailReqDto.getPrompt(), Constants.SPACE));
         oidcTransaction.setConsentExpireMinutes(clientDetailDto.getAdditionalConfig(CONSENT_EXPIRE_IN_MINS, 0));
+        oidcTransaction.setDpopJkt(oauthDetailReqDto.getDpopJkt());
         return Pair.of(oAuthDetailResponse, oidcTransaction);
     }
 
@@ -615,6 +615,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oAuthDetailRequestV3.setUiLocales(pushedAuthorizationRequest.getUi_locales());
         oAuthDetailRequestV3.setCodeChallenge(pushedAuthorizationRequest.getCode_challenge());
         oAuthDetailRequestV3.setCodeChallengeMethod(pushedAuthorizationRequest.getCode_challenge_method());
+        oAuthDetailRequestV3.setDpopJkt(pushedAuthorizationRequest.getDpop_jkt());
         return oAuthDetailRequestV3;
     }
 

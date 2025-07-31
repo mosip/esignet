@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jwt.SignedJWT;
 import io.mosip.esignet.api.dto.KycExchangeDto;
 import io.mosip.esignet.api.dto.KycExchangeResult;
 import io.mosip.esignet.api.dto.KycSigningCertificateData;
@@ -43,6 +44,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
 import static io.mosip.esignet.api.util.ErrorConstants.DATA_EXCHANGE_FAILED;
+import static io.mosip.esignet.api.util.ErrorConstants.INVALID_REQUEST;
 import static io.mosip.esignet.core.constants.Constants.*;
 
 @Slf4j
@@ -93,13 +95,19 @@ public class OAuthServiceImpl implements OAuthService {
     private int parTTLInSeconds;
 
     @Override
-    public TokenResponse getTokens(TokenRequestV2 tokenRequest,boolean isV2) throws EsignetException {
+    public TokenResponse getTokens(TokenRequestV2 tokenRequest, String dpopHeader, boolean isV2) throws EsignetException {
         String codeHash = authorizationHelperService.getKeyHash(tokenRequest.getCode());
         OIDCTransaction transaction = cacheUtilService.getAuthCodeTransaction(codeHash);
 
         validateRequestParametersWithTransaction(tokenRequest, transaction);
 
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(transaction.getClientId());
+
+        if(clientDetailDto.getAdditionalConfig(ClientDetail.DPOP_CONFIG_KEY, false)) {
+            if(dpopHeader == null) throw new EsignetException(INVALID_REQUEST);
+            transaction.setDpopJkt(validateDpopJktAgainstDpopHeaderAndGetPublicKeyThumbprint(dpopHeader, transaction.getDpopJkt()));
+        }
+
         IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), tokenRequest.getRedirect_uri());
 
         authenticateClient(tokenRequest, clientDetailDto,isV2);
@@ -158,9 +166,13 @@ public class OAuthServiceImpl implements OAuthService {
     }
 
     @Override
-    public PushedAuthorizationResponse authorize(PushedAuthorizationRequest pushedAuthorizationRequest) {
-
+    public PushedAuthorizationResponse authorize(PushedAuthorizationRequest pushedAuthorizationRequest, String dpopHeader) {
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(pushedAuthorizationRequest.getClient_id());
+
+        if(dpopHeader != null) {
+            pushedAuthorizationRequest.setDpop_jkt(validateDpopJktAgainstDpopHeaderAndGetPublicKeyThumbprint(dpopHeader, pushedAuthorizationRequest.getDpop_jkt()));
+        }
+
         log.info("nonce : {} Valid client id found, proceeding to validate redirect URI", pushedAuthorizationRequest.getNonce());
         IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), pushedAuthorizationRequest.getRedirect_uri());
         authorizationHelperService.validateNonce(pushedAuthorizationRequest.getNonce());
@@ -369,5 +381,20 @@ public class OAuthServiceImpl implements OAuthService {
             return verifiedClaim.get("claims").isEmpty() ? null : verifiedClaim;
         }
         return null;
+    }
+
+    private String validateDpopJktAgainstDpopHeaderAndGetPublicKeyThumbprint(String dpopHeader, String dpopJkt) {
+        String thumbprint;
+        try {
+            SignedJWT dpopJwt = SignedJWT.parse(dpopHeader);
+            thumbprint = securityHelperService.computeJwkThumbprint(dpopJwt.getHeader().getJWK());
+        } catch (Exception e) {
+            throw new IllegalStateException("Invalid dpop header - This should be unreachable");
+        }
+        if(dpopJkt != null && !dpopJkt.equals(thumbprint)) {
+            log.error("dpop_jkt in transaction/requestBody does not match with the thumbprint of public key in dpop header");
+            throw new EsignetException(INVALID_REQUEST);
+        }
+        return thumbprint;
     }
 }
