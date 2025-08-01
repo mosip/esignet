@@ -84,7 +84,7 @@ public class OAuthControllerTest {
     @Test
     public void getToken_withValidInput_thenPass() throws Exception {
         TokenResponse tokenResponse = new TokenResponse();
-        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequestV2.class),Mockito.anyBoolean())).thenReturn(tokenResponse);
+        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequestV2.class), Mockito.any(), Mockito.anyBoolean())).thenReturn(tokenResponse);
 
         mockMvc.perform(post("/oauth/token")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
@@ -110,7 +110,7 @@ public class OAuthControllerTest {
 
     @Test
     public void getToken_withInvalidInput_thenFail() throws Exception {
-        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequestV2.class),Mockito.anyBoolean())).thenThrow(InvalidRequestException.class);
+        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequestV2.class), Mockito.any(), Mockito.anyBoolean())).thenThrow(InvalidRequestException.class);
         mockMvc.perform(post("/oauth/token")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE))
                 .andExpect(status().isBadRequest());
@@ -122,7 +122,7 @@ public class OAuthControllerTest {
 
     @Test
     public void getToken_withRuntimeFailure_thenFail() throws Exception {
-        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequestV2.class),Mockito.anyBoolean())).thenThrow(EsignetException.class);
+        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequestV2.class), Mockito.any(), Mockito.anyBoolean())).thenThrow(EsignetException.class);
         mockMvc.perform(post("/oauth/token")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .param("code", "code")
@@ -143,7 +143,7 @@ public class OAuthControllerTest {
                         .param("client_assertion", "client_assertion"))
                 .andExpect(status().isInternalServerError());
 
-        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequestV2.class),Mockito.anyBoolean())).thenThrow(NullPointerException.class);
+        Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequestV2.class), Mockito.any(), Mockito.anyBoolean())).thenThrow(NullPointerException.class);
         mockMvc.perform(post("/oauth/token")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                         .param("code", "code")
@@ -193,7 +193,7 @@ public class OAuthControllerTest {
         mockResponse.setRequest_uri("urn:example:request_uri");
         mockResponse.setExpires_in(3600);
 
-        Mockito.when(oAuthServiceImpl.authorize(Mockito.any(PushedAuthorizationRequest.class))).thenReturn(mockResponse);
+        Mockito.when(oAuthServiceImpl.authorize(Mockito.any(PushedAuthorizationRequest.class), Mockito.any())).thenReturn(mockResponse);
 
         mockMvc.perform(post("/oauth/par")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -303,7 +303,7 @@ public class OAuthControllerTest {
 
         EsignetException ex = new EsignetException("Authorization failed");
 
-        Mockito.when(oAuthServiceImpl.authorize(Mockito.any(PushedAuthorizationRequest.class))).thenThrow(ex);
+        Mockito.when(oAuthServiceImpl.authorize(Mockito.any(PushedAuthorizationRequest.class), Mockito.any())).thenThrow(ex);
 
         mockMvc.perform(post("/oauth/par")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
