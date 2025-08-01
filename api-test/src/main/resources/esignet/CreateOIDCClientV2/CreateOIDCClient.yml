@@ -27,7 +27,6 @@ CreateOIDCClientV2:
       	"clientNameLang": "MOSIP OIDC Client"
 }'
       output: '{
-        "clientId": "$IGNORE$",
     	"status": "ACTIVE"
 }'
 
@@ -162,7 +161,6 @@ CreateOIDCClientV2:
       	"clientAuthMethods": "private_key_jwt"
 }'
       output: '{
-      "clientId": "$IGNORE$",
       "status": "ACTIVE"
 }'
 
@@ -192,6 +190,5 @@ CreateOIDCClientV2:
       	"clientAuthMethods": "private_key_jwt"
 }'
       output: '{
-      "clientId": "$IGNORE$",
       "status": "ACTIVE"
 }'

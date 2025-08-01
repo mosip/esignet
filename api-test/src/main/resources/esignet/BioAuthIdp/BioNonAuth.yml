@@ -39,8 +39,7 @@ BioNonAuth:
       output: '{
 		  "errors": [
 		    {
-		      "errorCode": "auth_factor_mismatch",
-		      "errorMessage": "$IGNORE$"
+		      "errorCode": "auth_factor_mismatch"
 		    }
 		  ]
 }'
@@ -85,8 +84,7 @@ BioNonAuth:
       output: '{
 		  "errors": [
 		    {
-		      "errorCode": "auth_factor_mismatch",
-		      "errorMessage": "$IGNORE$"
+		      "errorCode": "auth_factor_mismatch"
 		    }
 		  ]
 }'
@@ -130,8 +128,7 @@ BioNonAuth:
       output: '{
 		  "errors": [
 		    {
-		      "errorCode": "auth_factor_mismatch",
-		      "errorMessage": "$IGNORE$"
+		      "errorCode": "auth_factor_mismatch"
 		    }
 		  ]
 }'
@@ -175,8 +172,7 @@ BioNonAuth:
       output: '{
 		  "errors": [
 		    {
-		      "errorCode": "auth_factor_mismatch",
-		      "errorMessage": "$IGNORE$"
+		      "errorCode": "auth_factor_mismatch"
 		    }
 		  ]
 }'
@@ -220,8 +216,7 @@ BioNonAuth:
       output: '{
 		  "errors": [
 		    {
-		      "errorCode": "auth_factor_mismatch",
-		      "errorMessage": "$IGNORE$"
+		      "errorCode": "auth_factor_mismatch"
 		    }
 		  ]
 }'
@@ -265,8 +260,7 @@ BioNonAuth:
       output: '{
 		  "errors": [
 		    {
-		      "errorCode": "auth_factor_mismatch",
-		      "errorMessage": "$IGNORE$"
+		      "errorCode": "auth_factor_mismatch"
 		    }
 		  ]
 }'
@@ -310,8 +304,7 @@ BioNonAuth:
       output: '{
 		  "errors": [
 		    {
-		      "errorCode": "auth_factor_mismatch",
-		      "errorMessage": "$IGNORE$"
+		      "errorCode": "auth_factor_mismatch"
 		    }
 		  ]
 }'
@@ -355,8 +348,7 @@ BioNonAuth:
       output: '{
 		  "errors": [
 		    {
-		      "errorCode": "auth_factor_mismatch",
-		      "errorMessage": "$IGNORE$"
+		      "errorCode": "auth_factor_mismatch"
 		    }
 		  ]
 }'
@@ -400,8 +392,7 @@ BioNonAuth:
       output: '{
 		  "errors": [
 		    {
-		      "errorCode": "auth_factor_mismatch",
-		      "errorMessage": "$IGNORE$"
+		      "errorCode": "auth_factor_mismatch"
 		    }
 		  ]
 }'
@@ -445,8 +436,7 @@ BioNonAuth:
       output: '{
 		  "errors": [
 		    {
-		      "errorCode": "auth_factor_mismatch",
-		      "errorMessage": "$IGNORE$"
+		      "errorCode": "auth_factor_mismatch"
 		    }
 		  ]
 }'
@@ -490,8 +480,7 @@ BioNonAuth:
       output: '{
 		  "errors": [
 		    {
-		      "errorCode": "auth_factor_mismatch",
-		      "errorMessage": "$IGNORE$"
+		      "errorCode": "auth_factor_mismatch"
 		    }
 		  ]
 }'
@@ -535,8 +524,7 @@ BioNonAuth:
       output: '{
 		  "errors": [
 		    {
-		      "errorCode": "auth_factor_mismatch",
-		      "errorMessage": "$IGNORE$"
+		      "errorCode": "auth_factor_mismatch"
 		    }
 		  ]
 }'
@@ -581,8 +569,7 @@ BioNonAuth:
       output: '{
 		  "errors": [
 		    {
-		      "errorCode": "auth_factor_mismatch",
-		      "errorMessage": "$IGNORE$"
+		      "errorCode": "auth_factor_mismatch"
 		    }
 		  ]
 }'
@@ -627,8 +614,7 @@ BioNonAuth:
       output: '{
 		  "errors": [
 		    {
-		      "errorCode": "auth_factor_mismatch",
-		      "errorMessage": "$IGNORE$"
+		      "errorCode": "auth_factor_mismatch"
 		    }
 		  ]
 }'
@@ -672,8 +658,7 @@ BioNonAuth:
       output: '{
 		  "errors": [
 		    {
-		      "errorCode": "auth_factor_mismatch",
-		      "errorMessage": "$IGNORE$"
+		      "errorCode": "auth_factor_mismatch"
 		    }
 		  ]
 }'
@@ -717,8 +702,7 @@ BioNonAuth:
       output: '{
 		  "errors": [
 		    {
-		      "errorCode": "auth_factor_mismatch",
-		      "errorMessage": "$IGNORE$"
+		      "errorCode": "auth_factor_mismatch"
 		    }
 		  ]
 }'
@@ -762,8 +746,7 @@ BioNonAuth:
       output: '{
 		  "errors": [
 		    {
-		      "errorCode": "auth_factor_mismatch",
-		      "errorMessage": "$IGNORE$"
+		      "errorCode": "auth_factor_mismatch"
 		    }
 		  ]
 }'
@@ -807,8 +790,7 @@ BioNonAuth:
       output: '{
 		  "errors": [
 		    {
-		      "errorCode": "auth_factor_mismatch",
-		      "errorMessage": "$IGNORE$"
+		      "errorCode": "auth_factor_mismatch"
 		    }
 		  ]
 }'
@@ -852,8 +834,7 @@ BioNonAuth:
       output: '{
 		  "errors": [
 		    {
-		      "errorCode": "auth_factor_mismatch",
-		      "errorMessage": "$IGNORE$"
+		      "errorCode": "auth_factor_mismatch"
 		    }
 		  ]
 }'
@@ -897,8 +878,7 @@ BioNonAuth:
       output: '{
 		  "errors": [
 		    {
-		      "errorCode": "auth_factor_mismatch",
-		      "errorMessage": "$IGNORE$"
+		      "errorCode": "auth_factor_mismatch"
 		    }
 		  ]
 }'
@@ -942,8 +922,7 @@ BioNonAuth:
       output: '{
 		  "errors": [
 		    {
-		      "errorCode": "auth_factor_mismatch",
-		      "errorMessage": "$IGNORE$"
+		      "errorCode": "auth_factor_mismatch"
 		    }
 		  ]
 }'
@@ -987,8 +966,7 @@ BioNonAuth:
       output: '{
 		  "errors": [
 		    {
-		      "errorCode": "auth_factor_mismatch",
-		      "errorMessage": "$IGNORE$"
+		      "errorCode": "auth_factor_mismatch"
 		    }
 		  ]
 }'
@@ -1032,8 +1010,7 @@ BioNonAuth:
       output: '{
 		  "errors": [
 		    {
-		      "errorCode": "auth_factor_mismatch",
-		      "errorMessage": "$IGNORE$"
+		      "errorCode": "auth_factor_mismatch"
 		    }
 		  ]
 }'
@@ -1077,8 +1054,7 @@ BioNonAuth:
       output: '{
 		  "errors": [
 		    {
-		      "errorCode": "auth_factor_mismatch",
-		      "errorMessage": "$IGNORE$"
+		      "errorCode": "auth_factor_mismatch"
 		    }
 		  ]
 }'
