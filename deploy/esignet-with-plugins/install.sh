@@ -7,7 +7,8 @@ if [ $# -ge 1 ] ; then
 fi
 
 NS=esignet
-CHART_VERSION=1.5.0-develop
+SERVICE_NAME=esignet
+CHART_VERSION=0.0.1-develop
 echo Create $NS namespace
 kubectl create ns $NS
 
@@ -122,6 +123,8 @@ EOF
       break
 
     elif [[ "$plugin_no" == "2" ]]; then
+      echo "Setting up dummy values for Esignet MISP license key"
+      kubectl -n $NS create secret generic esignet-misp-onboarder-key --from-literal=mosip-esignet-misp-key='' --dry-run=client -o yaml | kubectl apply -f -
       plugin_name="mosip-identity-plugin.jar"
       declare -A urls=(
         ["MOSIP_ESIGNET_AUTHENTICATOR_IDA_CERT_URL"]="http://mosip-file-server.mosip-file-server/mosip-certs/ida-partner.cer"
@@ -156,6 +159,12 @@ EOF
         value="${user_input:-${urls[$key]}}"
         extra_env_vars_additional+="  - name: \"$key\""$'\n'"    value: \"$value\""$'\n'
       done
+      # Add MISP_KEY from secret
+      extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_MISP_KEY\""$'\n'
+      extra_env_vars_additional+="    valueFrom:"$'\n'
+      extra_env_vars_additional+="      secretKeyRef:"$'\n'
+      extra_env_vars_additional+="        name: esignet-misp-onboarder-key"$'\n'
+      extra_env_vars_additional+="        key: mosip-esignet-misp-key"$'\n'
       break
 
     elif [[ "$plugin_no" == "3" ]]; then
@@ -219,13 +228,13 @@ EOF
 
 
   echo Installing esignet-with-plugins
-  helm -n $NS install esignet mosip/esignet --version $CHART_VERSION  \
+  helm -n $NS install $SERVICE_NAME mosip/esignet --version $CHART_VERSION  \
     $ENABLE_INSECURE $plugin_option \
     $ESIGNET_HELM_ARGS \
     $extra_env_vars_cm_set \
     --set metrics.serviceMonitor.enabled=$servicemonitorflag -f values.yaml --wait
 
-  kubectl -n $NS get deploy -o name | xargs -n1 -t kubectl -n $NS rollout status
+  kubectl -n $NS get deploy $SERVICE_NAME -o name | xargs -n1 -t kubectl -n $NS rollout status
 
   echo Installed esignet-with-plugins service
   return 0

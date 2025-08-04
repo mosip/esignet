@@ -157,18 +157,6 @@ function installing_onboarder() {
    kubectl label ns $NS istio-injection=disabled --overwrite
    helm repo update
 
-   if ! kubectl -n $NS get configmap esignet-onboarder-config >/dev/null 2>&1 || \
-      ! kubectl -n $NS get secret esignet-onboarder-secrets >/dev/null 2>&1; then
-     echo "Copying configmaps and secrets..."
-     COPY_UTIL=../deploy/copy_cm_func.sh
-     $COPY_UTIL configmap keycloak-env-vars keycloak $NS
-     $COPY_UTIL configmap keycloak-host keycloak $NS
-
-     $COPY_UTIL secret keycloak keycloak $NS
-     $COPY_UTIL secret keycloak-client-secrets keycloak $NS
-  fi
-
-
     echo "Onboarding Esignet MISIP partner client"
     helm -n $NS install esignet-misp-onboarder mosip/partner-onboarder \
       $NFS_OPTION \
