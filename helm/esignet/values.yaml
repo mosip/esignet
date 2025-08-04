@@ -309,11 +309,6 @@ extraEnvVars: |
       secretKeyRef:
         name: keycloak-client-secrets
         key: mosip_ida_client_secret
-  - name: MOSIP_ESIGNET_MISP_KEY
-    valueFrom:
-      secretKeyRef:
-        name: esignet-misp-onboarder-key
-        key: mosip-esignet-misp-key
 
 extraEnvVarsAdditional: []
 
