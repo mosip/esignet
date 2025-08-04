@@ -140,6 +140,9 @@ public class TokenServiceImpl implements TokenService {
             payload.put(C_NONCE, cNonce);
             payload.put(C_NONCE_EXPIRES_IN, cNonceExpireSeconds);
         }
+        if(transaction.getDpopJkt() != null) {
+            payload.put("cnf", Map.of("jkt", transaction.getDpopJkt()));
+        }
         return getSignedJWT(Constants.OIDC_SERVICE_APP_ID, payload);
     }
 
