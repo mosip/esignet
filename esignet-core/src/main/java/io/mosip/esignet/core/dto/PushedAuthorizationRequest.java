@@ -68,6 +68,8 @@ public class PushedAuthorizationRequest implements Serializable {
     @Null(message = ErrorConstants.INVALID_REQUEST)
     private String request_uri;
 
+    private String dpop_jkt;
+
     public void setClaims(String claimsJson) {
         if (claimsJson == null || claimsJson.trim().isEmpty()) {
             this.claims = null;
