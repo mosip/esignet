@@ -1,19 +1,22 @@
 package io.mosip.esignet.api.validator;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.AuthChallenge;
 import io.mosip.esignet.api.util.ErrorConstants;
 
+import io.mosip.esignet.api.util.KBIFormHelperService;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.PostConstruct;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.nio.charset.StandardCharsets;
@@ -36,11 +39,30 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private KBIFormHelperService kbiFormHelperService;
+
     @Value("#{${mosip.esignet.authenticator.default.auth-factor.kbi.field-details}}")
     private List<Map<String, String>> fieldDetailList;
 
     @Value("${mosip.esignet.authenticator.default.auth-factor.kbi.individual-id-field}")
     private String idField;
+
+    @Value("${mosip.esignet.authenticator.default.auth-factor.kbi.field-details-url:}")
+    private String kbiFormDetailsUrl;
+
+    private JsonNode fieldJson;
+
+    @PostConstruct
+    public void init() {
+        try {
+            fieldJson = StringUtils.hasText(kbiFormDetailsUrl)
+                    ? kbiFormHelperService.fetchKBIFieldDetailsFromResource(kbiFormDetailsUrl)
+                    : kbiFormHelperService.migrateKBIFieldDetails(fieldDetailList);
+        } catch (Exception e) {
+            log.error("Error loading KBI form details: {}", kbiFormDetailsUrl, e);
+        }
+    }
 
     @Override
     public boolean isValid(AuthChallenge authChallenge, ConstraintValidatorContext context) {
@@ -72,31 +94,55 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
     }
 
     private boolean validateChallenge(String challenge) {
-        byte[] decodedBytes = Base64.getDecoder().decode(challenge);
-        String decodedString = new String(decodedBytes, StandardCharsets.UTF_8);
-        Map<String, String> challengeMap;
         try {
-            challengeMap = objectMapper.readValue(decodedString, new TypeReference<Map<String, String>>() {});
-            return fieldDetailList.stream().allMatch( fieldDetail -> isValid(fieldDetail, challengeMap) );
-        } catch (JsonProcessingException e) {
-            log.error("Failed to parse the input challenge", e);
+            byte[] decodedBytes = Base64.getDecoder().decode(challenge);
+            String decodedString = new String(decodedBytes, StandardCharsets.UTF_8);
+            Map<String, String> challengeMap = objectMapper.readValue(decodedString, new TypeReference<>() {});
+
+            JsonNode schemaArray = fieldJson.path("schema");
+            for (JsonNode fieldNode : schemaArray) {
+                String id = fieldNode.path("id").asText();
+                String controlType = fieldNode.path("controlType").asText("textbox");
+
+                if (("textbox".equalsIgnoreCase(controlType) || "date".equalsIgnoreCase(controlType)) && !id.equals(idField)) {
+                    String value = challengeMap.get(id);
+
+                    if (!StringUtils.hasText(value)) {
+                        log.warn("Validation failed: Missing or empty value for field '{}'", id);
+                        return false;
+                    }
+
+                    JsonNode maxLengthNode = fieldNode.get("maxLength");
+                    if (maxLengthNode != null && maxLengthNode.isInt()) {
+                        int maxLength = maxLengthNode.asInt();
+                        if (value.length() > maxLength) {
+                            log.warn("Validation failed: Value for field '{}' exceeds maxLength {} (actual length: {})", id, maxLength, value.length());
+                            return false;
+                        }
+                    }
+
+                    JsonNode validators = fieldNode.path("validators");
+                    if (validators.isArray()) {
+                        for (JsonNode validatorNode : validators) {
+                            String validatorType = validatorNode.path("type").asText();
+                            String regex = validatorNode.path("validator").asText();
+
+                            if ("regex".equalsIgnoreCase(validatorType) && StringUtils.hasText(regex)) {
+                                if (!Pattern.matches(regex, value)) {
+                                    log.warn("Validation failed: Value '{}' for field '{}' does not match regex '{}'", value, id, regex);
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return true;
+        } catch (Exception e) {
+            log.error("Error validating challenge", e);
             return false;
         }
     }
 
-    private boolean isValid(Map<String, String> fieldDetail, Map<String, String> challengeMap) {
-        if(fieldDetail.get("type").equals("text") && !fieldDetail.get("id").equals(idField)) {
-            String value = challengeMap.get(fieldDetail.get("id"));
-            if(!StringUtils.hasText(value))
-                return false;
-
-            int maxLength = Integer.parseInt(fieldDetail.getOrDefault("maxLength", "50"));
-            if(value.length() > maxLength)
-                return false;
-
-            Pattern pattern = Pattern.compile(fieldDetail.get("regex"));
-            return pattern.matcher(value).matches();
-        }
-        return true;
-    }
 }

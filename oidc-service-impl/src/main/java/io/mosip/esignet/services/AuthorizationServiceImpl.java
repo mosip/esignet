@@ -17,6 +17,7 @@ import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.api.util.ConsentAction;
+import io.mosip.esignet.api.util.KBIFormHelperService;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
@@ -25,22 +26,19 @@ import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.spi.AuthorizationService;
 import io.mosip.esignet.core.spi.ClientManagementService;
 import io.mosip.esignet.core.spi.TokenService;
-import io.mosip.esignet.core.util.AuditHelper;
-import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
-import io.mosip.esignet.core.util.IdentityProviderUtil;
-import io.mosip.esignet.core.util.LinkCodeQueue;
+import io.mosip.esignet.core.util.*;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -124,26 +122,29 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     private String signupIDTokenAudience;
 
     @Value("${mosip.esignet.authenticator.default.auth-factor.kbi.field-details-url}")
-    private String KbiFormDetailsUrl;
+    private String kbiFormDetailsUrl;
+
+    @Value("#{${mosip.esignet.authenticator.default.auth-factor.kbi.field-details}}")
+    private List<Map<String, String>> fieldDetailList;
 
     @Autowired
     private ResourceLoader resourceLoader;
 
+    @Autowired
+    private KBIFormHelperService kbiFormHelperService;
+
     @PostConstruct
     public void init() {
-        if(KbiFormDetailsUrl == null || KbiFormDetailsUrl.isEmpty()) {
-            log.info("No kbi.field-details-url configured for KBI field details. Skipping url load.");
-            return;
-        }
         try {
-            JsonNode fieldDetailsJson = fetchKBIFieldDetailsFromResource(KbiFormDetailsUrl);
-            if (fieldDetailsJson != null) {
-                uiConfigMap.put(KBI_FIELD_DETAILS_CONFIG_KEY, fieldDetailsJson);
-                return;
-            }
-            log.error("*** Empty KBI details from URL: {} ***", KbiFormDetailsUrl);
+            JsonNode fieldDetailsJson = StringUtils.hasText(kbiFormDetailsUrl)
+                    ? kbiFormHelperService.fetchKBIFieldDetailsFromResource(kbiFormDetailsUrl)
+                    : null;
+
+            uiConfigMap.put(KBI_FIELD_DETAILS_CONFIG_KEY,
+                    fieldDetailsJson != null ? fieldDetailsJson : kbiFormHelperService.migrateKBIFieldDetails(fieldDetailList));
+
         } catch (Exception e) {
-            log.error("Error loading form details from URL: {}", KbiFormDetailsUrl, e);
+            log.error("Error loading form details from URL: {}", kbiFormDetailsUrl, e);
         }
     }
 
@@ -316,7 +317,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                 .anyMatch( entry -> entry.getValue().stream()
                         .anyMatch(m ->
                                 (boolean) m.getOrDefault("essential", false) && m.get("verification") != null &&
-                                ((transaction.getClaimMetadata().get(entry.getKey()) == null || transaction.getClaimMetadata().get(entry.getKey()).isEmpty()))));
+                                 ((transaction.getClaimMetadata().get(entry.getKey()) == null || transaction.getClaimMetadata().get(entry.getKey()).isEmpty()))
+                        ));
+                            
         claimDetailResponse.setProfileUpdateRequired(unverifiedEssentialClaimsExists);
         claimDetailResponse.setClaimStatus(list);
 
@@ -575,8 +578,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         }
         return new String(authTransactionIdBytes);
     }
-
-
 
     private JsonNode fetchKBIFieldDetailsFromResource(String url) {
         try (InputStream resp = getResource(url)) {
