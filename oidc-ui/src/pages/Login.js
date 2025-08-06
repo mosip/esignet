@@ -9,7 +9,6 @@ import localStorageService from "../services/local-storageService";
 import sbiService from "../services/sbiService";
 import Background from "../components/Background";
 import SignInOptions from "../components/SignInOptions";
-import { multipleIdKey, purposeTypeObj, validAuthFactors } from "../constants/clientConstants";
 import linkAuthService from "../services/linkAuthService";
 import LoginQRCode from "../components/LoginQRCode";
 import { useLocation, useSearchParams } from "react-router-dom";
