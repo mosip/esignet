@@ -115,13 +115,13 @@ public class PostWithAutogenIdWithOtpGenerate extends EsignetUtil implements ITe
 		sendOtpEndPoint = otpReqJson.getString("sendOtpEndPoint");
 		otpReqJson.remove("sendOtpEndPoint");
 		
-		String input = getJsonFromTemplate(otpReqJson.toString(), sendOtpReqTemplate);
+		String inputStrJson = getJsonFromTemplate(otpReqJson.toString(), sendOtpReqTemplate);
 		
 		Response otpResponse = null;
 		int maxLoopCount = Integer.parseInt(properties.getProperty("uinGenMaxLoopCount"));
 		int currLoopCount = 0;
 		while (currLoopCount < maxLoopCount) {
-			input = EsignetUtil.inputstringKeyWordHandeler(input, testCaseName);
+			String input = inputstringKeyWordHandeler(inputStrJson, testCaseName);
 			if (testCaseName.contains(GlobalConstants.ESIGNET_)) {
 				if (EsignetConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
 					throw new SkipException("esignet is not deployed hence skipping the testcase");
