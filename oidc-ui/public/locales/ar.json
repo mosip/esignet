@@ -49,7 +49,7 @@
       "stay_btn": "يقضي",
       "discontinue_btn": "توقف"
     },
-    "noRecordClaimsMessage": "ليس لدينا حاليًا سجل خاص بك {{claims}}.  {{claims}}.",
+    "noRecordClaimsMessage": "سيتم مشاركة المعلومات التي توافق عليها أعلاه مع تطبيق أو موقع {{clientName}}.",
     "and": "و"
   },
   "l1Biometrics": {
@@ -278,7 +278,7 @@
     "phone_number_verified": "تم التحقق من رقم الهاتف",
     "registration_type": "نوع التسجيل",
     "header": "انتباه",
-    "sub-header": "{{clientName}} يطلب الوصول إلى المعلومات أدناه للمضي قدمًا. ",
+    "sub-header": "يطلب {{clientName}} التحقق من المعلومات أدناه:",
     "verified": "تم التحقق منه",
     "not-verified": "لم يتم التحقق منها",
     "available": "متاح",

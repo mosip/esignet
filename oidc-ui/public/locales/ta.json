@@ -49,7 +49,7 @@
       "stay_btn": "இருங்கள்",
       "discontinue_btn": "நிறுத்து"
     },
-    "noRecordClaimsMessage": "உங்களுடைய பதிவு தற்போது எங்களிடம் இல்லை {{claims}}.  {{claims}}.",
+    "noRecordClaimsMessage": "மேலே நீங்கள் ஒப்புக்கொண்ட தகவல் {{clientName}} பயன்பாடு அல்லது தளத்துடன் பகிரப்படும்.",
     "and": "மற்றும்"
   },
   "l1Biometrics": {
@@ -278,7 +278,7 @@
     "phone_number_verified": "தொலைபேசி எண் சரிபார்க்கப்பட்டது",
     "registration_type": "பதிவு வகை",
     "header": "கவனம்",
-    "sub-header": "{{clientName}} மேலும் தொடர, கீழே உள்ள தகவலுக்கான அணுகலைக் கோருகிறது. ",
+    "sub-header": "{{clientName}} பின்வரும் தகவலைச் சரிபார்க்கக் கோருகிறார்:",
     "verified": "சரிபார்க்கப்பட்டது",
     "not-verified": "சரிபார்க்கப்படவில்லை",
     "available": "கிடைக்கும்",
