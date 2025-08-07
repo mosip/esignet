@@ -249,9 +249,9 @@ export default function Password({
       let postfix = currentLoginID.postfix ? currentLoginID.postfix : "";
 
       let ID = prefix + id + postfix;
-      let challengeType = challengeTypes.pwd;
+      let challengeType = challengeTypes.pswd;
       let challenge = password;
-      let challengeFormat = challengeFormats.pwd;
+      let challengeFormat = challengeFormats.pswd;
 
       let challengeList = [
         {
