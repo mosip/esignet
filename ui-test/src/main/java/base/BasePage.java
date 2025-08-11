@@ -10,12 +10,14 @@ import java.util.List;
 
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
@@ -172,5 +174,54 @@ public class BasePage {
 		} catch (Exception e) {
 			LOGGER.error("Failed to capture screenshot: {}", e.getMessage());
 		}
+	}
+	
+	public void enterTextJS(WebElement element, String text) {
+	    try {
+	        waitForElementVisible(element);
+	        
+	        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center'});", element);
+	        new Actions(driver).moveToElement(element).click().perform();
+	        ((JavascriptExecutor) driver).executeScript("arguments[0].value = '';", element);
+	        
+	        Actions actions = new Actions(driver);
+	        for (char c : text.toCharArray()) {
+	            actions.sendKeys(String.valueOf(c)).pause(Duration.ofMillis(150));
+	        }
+	        actions.perform();
+	        
+	        ((JavascriptExecutor) driver).executeScript(
+	            "arguments[0].dispatchEvent(new Event('input', { bubbles: true }));" +
+	            "arguments[0].dispatchEvent(new Event('change', { bubbles: true }));" +
+	            "arguments[0].blur();",
+	            element
+	        );
+	        
+	        String finalValue = element.getAttribute("value");
+	        if (finalValue == null) {
+	            throw new RuntimeException("Value was rejected by frontend (null).");
+	        }
+	    } 
+	    
+	    catch (Exception e) {
+	    	throw new RuntimeException("Failed to set filedvalue due to UI behavior", e);
+	    }
+	}
+	
+	public String getElementValue(WebElement element) {
+	    waitForElementVisible(element);
+	    return element.getAttribute("value");
+	}
+	
+	public String getElementAttribute(WebElement element, String attribute) {
+	    waitForElementVisible(element);
+	    return element.getAttribute(attribute);
+	}
+	
+	public void clearField(WebElement element) {
+	    waitForElementVisible(element);
+	    element.click();
+	    element.sendKeys(Keys.CONTROL + "a");
+	    element.sendKeys(Keys.DELETE);
 	}
 }

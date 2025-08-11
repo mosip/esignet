@@ -477,3 +477,345 @@ AddIdentity:
       output: '{
   "status":"mock identity data created successfully"
 }'
+   ESignet_AddIdentity_L2_Valid_Parameters_forUserInfo_smoke_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_25
+      description: Add identity for v3 end to end flow
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_forUserInfoJWE_smoke_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_26
+      description: Add identity for v3 end to end flow
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_forUserInfoUpdatedJWE_smoke_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_27
+      description: Add identity for v3 end to end flow
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_consent_authcode_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_28
+      description: Add identity for v3 end to end flow
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_linkedconsent_forAcceptedClaims_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_29
+      description: Add identity for linked consent
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_linkedconsent_forOptionalClaims_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_30
+      description: Add identity for linked consent
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_linkedconsent_forPartialEssentialOptionalClaims_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_31
+      description: Add identity for linked consent
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_linkedconsent_foronlyEssentialClaims_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_32
+      description: Add identity for linked consent
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_linkedconsent_for_null_asEssentialClaims_AcceptedClaim_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_33
+      description: Add identity for linked consent
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_linkedconsent_for_OnlyOptionalClaimAsRequested_AcceptedClaim_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_34
+      description: Add identity for linked consent
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_linkedconsent_for_without_AcceptedClaim_IfOnlyOptionalRequested_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_35
+      description: Add identity for linked consent
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_forInvalidAcceptedClaims_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_36
+      description: Add identity for linked consent
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_OnlyOptionalClaim_IfEssAndOptAsRequestedClaim_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_37
+      description: Add identity for linked consent
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_ForPartialEseentialAndOptionalClaim_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_38
+      description: Add identity for linked consent
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_ForOnlyEssentialclaims_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_39
+      description: Add identity for linked consent
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_forEmptyAsAcceptedClaim_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_40
+      description: Add identity for linked consent
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_forOnlyOptionalClaimIfRequestedOptional_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_41
+      description: Add identity for linked consent
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_forEmptyAcceptedClaimIfRequestedIsOptional_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_42
+      description: Add identity for linked consent
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'

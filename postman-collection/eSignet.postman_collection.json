@@ -222,7 +222,7 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"var token = pm.cookies.get(\"XSRF-TOKEN\")",
+											"var token = pm.response.json().token;",
 											"pm.environment.set(\"csrf_token\", token);"
 										],
 										"type": "text/javascript",
@@ -422,7 +422,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
+									"var token = pm.response.json().token;",
 									"pm.environment.set(\"csrf_token\", token);"
 								],
 								"type": "text/javascript",
@@ -468,9 +468,6 @@
 							"script": {
 								"exec": [
 									"var btoa = require('btoa');",
-									"",
-									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
-									"pm.environment.set(\"csrf_token\", token);",
 									"",
 									"const sortKeysDeep = obj => {",
 									"    if (Array.isArray(obj)) {",
@@ -597,8 +594,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
-									"pm.environment.set(\"csrf_token\", token);"
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -663,9 +659,6 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
-									"pm.environment.set(\"csrf_token\", token);",
-									"",
 									"pm.test(\"Validate code\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData.response.code).not.equals(null);",
@@ -889,7 +882,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
+									"var token = pm.response.json().token;",
 									"pm.environment.set(\"csrf_token\", token);"
 								],
 								"type": "text/javascript",
@@ -1194,8 +1187,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
-									"pm.environment.set(\"csrf_token\", token);"
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -1260,9 +1252,6 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
-									"pm.environment.set(\"csrf_token\", token);",
-									"",
 									"pm.test(\"Validate code\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData.response.code).not.equals(null);",
@@ -1486,7 +1475,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
+									"var token = pm.response.json().token;",
 									"pm.environment.set(\"csrf_token\", token);"
 								],
 								"type": "text/javascript",
@@ -1661,9 +1650,6 @@
 							"script": {
 								"exec": [
 									"var btoa = require('btoa');",
-									"",
-									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
-									"pm.environment.set(\"csrf_token\", token);",
 									"",
 									"const sortKeysDeep = obj => {",
 									"    if (Array.isArray(obj)) {",
@@ -2252,7 +2238,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
+									"var token = pm.response.json().token;",
 									"pm.environment.set(\"csrf_token\", token);"
 								],
 								"type": "text/javascript",
@@ -2298,9 +2284,6 @@
 							"script": {
 								"exec": [
 									"var btoa = require('btoa');",
-									"",
-									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
-									"pm.environment.set(\"csrf_token\", token);",
 									"",
 									"const sortKeysDeep = obj => {",
 									"    if (Array.isArray(obj)) {",
@@ -2428,8 +2411,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
-									"pm.environment.set(\"csrf_token\", token);"
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -2656,9 +2638,6 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"var token = pm.cookies.get(\"XSRF-TOKEN\")",
-									"pm.environment.set(\"csrf_token\", token);",
-									"",
 									"pm.test(\"Validate code\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData.response.code).not.equals(null);",

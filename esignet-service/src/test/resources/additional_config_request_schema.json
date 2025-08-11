@@ -59,6 +59,12 @@
     "consent_expire_in_mins": {
       "type": "number",
       "minimum": 10
+    },
+    "require_pushed_authorization_requests": {
+      "type": "boolean"
+    },
+    "dpop_bound_access_tokens": {
+      "type": "boolean"
     }
   },
   "additionalProperties": false

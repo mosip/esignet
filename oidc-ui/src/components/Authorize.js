@@ -6,7 +6,6 @@ import LoadingIndicator from "../common/LoadingIndicator";
 import { LoadingStates as states } from "../constants/states";
 
 export default function Authorize({ authService }) {
-  const get_CsrfToken = authService.get_CsrfToken;
   const post_OauthDetails_v3 = authService.post_OauthDetails_v3;
   const post_ParOauthDetails = authService.post_ParOauthDetails;
   const buildRedirectParams = authService.buildRedirectParams;
@@ -23,7 +22,6 @@ export default function Authorize({ authService }) {
     const callAuthorize = async () => {
       try {
         setStatus(states.LOADING);
-        await get_CsrfToken();
 
         const handleResponse = async (oAuthDetailsResponse) => {
           setStatus(states.LOADED);

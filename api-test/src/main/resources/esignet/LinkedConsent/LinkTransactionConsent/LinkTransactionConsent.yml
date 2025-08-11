@@ -52,3 +52,129 @@ LinkTransactionConsent:
       output: '{
         
 }'
+
+   ESignet_LinkTransaction_Consent_uin_forAcceptedClaims_sid:
+      endPoint: /v1/esignet/linked-authorization/link-transaction
+      uniqueIdentifier: TC_ESignet_LinkTransactionConsent_04
+      description: Link transaction consent UIN for accepted claims
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkTransaction/LinkTransaction
+      outputTemplate: esignet/LinkTransaction/LinkTransactionResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+        "linkCode": "$ID:GenerateLinkCode_Consent_uin_forAcceptedClaims_sid_linkCode$"
+}'
+      output: '{
+        
+}'
+
+   ESignet_LinkTransaction_Consent_uin_forOptionalClaims_sid:
+      endPoint: /v1/esignet/linked-authorization/link-transaction
+      uniqueIdentifier: TC_ESignet_LinkTransactionConsent_05
+      description: Link transaction consent UIN for optional claims
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkTransaction/LinkTransaction
+      outputTemplate: esignet/LinkTransaction/LinkTransactionResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+        "linkCode": "$ID:GenerateLinkCode_Consent_uin_forOptionalClaim_sid_linkCode$"
+}'
+      output: '{
+        
+}'
+
+   ESignet_LinkTransaction_Consent_uin_forPartialEssentialOptionalClaims_sid:
+      endPoint: /v1/esignet/linked-authorization/link-transaction
+      uniqueIdentifier: TC_ESignet_LinkTransactionConsent_05
+      description: Link transaction consent UIN for optional claims
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkTransaction/LinkTransaction
+      outputTemplate: esignet/LinkTransaction/LinkTransactionResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+        "linkCode": "$ID:GenerateLinkCode_Consent_uin_forPartialEssentialClaim_sid_linkCode$"
+}'
+      output: '{
+        
+}'
+
+   ESignet_LinkTransaction_Consent_uin_forOnlyEssentialClaims_sid:
+      endPoint: /v1/esignet/linked-authorization/link-transaction
+      uniqueIdentifier: TC_ESignet_LinkTransactionConsent_06
+      description: Link transaction consent UIN for Only EssentialClaims
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkTransaction/LinkTransaction
+      outputTemplate: esignet/LinkTransaction/LinkTransactionResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+        "linkCode": "$ID:GenerateLinkCode_Consent_uin_forOnlyEssentialClaim_sid_linkCode$"
+}'
+      output: '{
+        
+}'
+
+   ESignet_LinkTransaction_Consent_uin_forNullAsEssentialClaims_sid:
+      endPoint: /v1/esignet/linked-authorization/link-transaction
+      uniqueIdentifier: TC_ESignet_LinkTransactionConsent_07
+      description: Link transaction consent UIN for Only EssentialClaims
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkTransaction/LinkTransaction
+      outputTemplate: esignet/LinkTransaction/LinkTransactionResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+        "linkCode": "$ID:GenerateLinkCode_Consent_uin_forNullEssentialClaim_sid_linkCode$"
+}'
+      output: '{
+        
+}'
+
+   ESignet_LinkTransaction_Consent_uin_OnlyOptionalClaimAsRequested_AcceptedClaim_sid:
+      endPoint: /v1/esignet/linked-authorization/link-transaction
+      uniqueIdentifier: TC_ESignet_LinkTransactionConsent_08
+      description: Link transaction consent UIN for OnlyOptionalClaimAsRequested
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkTransaction/LinkTransaction
+      outputTemplate: esignet/LinkTransaction/LinkTransactionResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+        "linkCode": "$ID:GenerateLinkCode_Consent_uin_OnlyOptionalClaimAsRequested_AcceptedClaim_sid_linkCode$"
+}'
+      output: '{
+        
+}'
+
+   ESignet_LinkTransaction_Consent_uin_without_AcceptedClaim_IfOnlyOptionalRequested_sid:
+      endPoint: /v1/esignet/linked-authorization/link-transaction
+      uniqueIdentifier: TC_ESignet_LinkTransactionConsent_09
+      description: Link transaction consent UIN without_AcceptedClaim_IfOnlyOptionalRequested
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkTransaction/LinkTransaction
+      outputTemplate: esignet/LinkTransaction/LinkTransactionResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+        "linkCode": "$ID:GenerateLinkCode_Consent_uin_without_AcceptedClaim_IfOnlyOptionalRequested_sid_linkCode$"
+}'
+      output: '{
+        
+}'

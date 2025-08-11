@@ -8,6 +8,7 @@ package io.mosip.esignet.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.mosip.esignet.api.dto.AuthChallenge;
 import io.mosip.esignet.api.dto.SendOtpDto;
 import io.mosip.esignet.api.dto.SendOtpResult;
@@ -181,6 +182,56 @@ public class AuthorizationServiceTest {
         } catch (EsignetException e) {
             Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_REDIRECT_URI));
         }
+    }
+
+    @Test
+    public void getOauthDetails_whenParFlowIsMandated_throwsException_thenFail() throws EsignetException {
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        oauthDetailRequest.setClientId("client-123");
+        oauthDetailRequest.setNonce("nonce");
+        oauthDetailRequest.setRedirectUri("http://localhost:8080/callback");
+
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode additionalConfig = objectMapper.createObjectNode();
+        additionalConfig.put("require_pushed_authorization_requests", true);
+        clientDetail.setAdditionalConfig(additionalConfig);
+        clientDetail.setRedirectUris(Collections.singletonList("http://localhost:8080/callback"));
+
+        when(clientManagementService.getClientDetails("client-123")).thenReturn(clientDetail);
+        try {
+            authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
+            Assert.fail();
+        } catch (EsignetException e) {
+            Assert.assertEquals(ErrorConstants.INVALID_REQUEST, e.getErrorCode());
+        }
+    }
+
+    @Test
+    public void getOauthDetails_whenParIsNotMandated_thenPass() throws EsignetException {
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId("34567");
+        clientDetail.setName(new HashMap<>());
+        clientDetail.getName().put(Constants.NONE_LANG_KEY, "clientName");
+        clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
+        clientDetail.setClaims(null);
+        clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:static-code"));
+        ObjectNode additionalConfig = objectMapper.createObjectNode();
+        additionalConfig.put("require_pushed_authorization_requests", false);
+        clientDetail.setAdditionalConfig(additionalConfig);
+
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        oauthDetailRequest.setClientId("34567");
+        oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
+        oauthDetailRequest.setClaims(null);
+        oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
+        oauthDetailRequest.setNonce("test-nonce");
+
+        when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
+        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
+        when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(new ArrayList<>());
+
+        OAuthDetailResponseV1 oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
+        Assert.assertNotNull(oauthDetailResponse);
     }
 
     @Test
