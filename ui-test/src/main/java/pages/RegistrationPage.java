@@ -15,6 +15,7 @@ import java.time.Duration;
 
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.TimeoutException;
 
 public class RegistrationPage extends BasePage {
 
@@ -202,6 +203,12 @@ public class RegistrationPage extends BasePage {
 
 	@FindBy(xpath = "//h3[@class='text-xl font-semibold text-gray-900 dark:text-gray-900']")
 	private WebElement privacyPolicyPopUp;
+
+	@FindBy(xpath = "//h1[@class='text-center text-2xl font-semibold']")
+	private WebElement accountSetupInProgressMessage;
+
+	@FindBy(xpath = "//p[@class='text-center text-gray-500']")
+	private WebElement inProgressPleaseWaitMessage;
 
 	@FindBy(xpath = "//div[@class='text-center text-lg font-semibold']")
 	private WebElement accountCreatedSuccessfullyMessage;
@@ -737,14 +744,6 @@ public class RegistrationPage extends BasePage {
 		return getText(remainingAttemptsMeassage);
 	}
 
-	public int getOtpResendWaitTimeInSeconds() {
-		String timerText = getText(otpCountDownTimer);
-		String[] parts = timerText.split(":");
-		int minutes = Integer.parseInt(parts[0]);
-		int seconds = Integer.parseInt(parts[1]);
-		return minutes * 60 + seconds;
-	}
-
 	public boolean isAccountCreatedSuccessfullyMessageDisplayed() {
 		return isElementVisible(accountCreatedSuccessfullyMessage);
 	}
@@ -767,6 +766,15 @@ public class RegistrationPage extends BasePage {
 
 	public void clickOnOkayButtonInSuccessScreen() {
 		clickOnElement(loginButtonInSuccessScreen);
+	}
+
+	public boolean isAccountSetupInProgressDisplayed() {
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofMillis(500));
+		try {
+			return wait.until(ExpectedConditions.visibilityOf(accountSetupInProgressMessage)).isDisplayed();
+		} catch (TimeoutException e) {
+			return false;
+		}
 	}
 
 }

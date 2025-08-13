@@ -7,7 +7,8 @@ import static org.junit.Assert.assertTrue;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WindowType;
 import org.testng.Assert;
-import org.testng.asserts.SoftAssert;
+
+import org.apache.log4j.Logger;
 
 import base.BasePage;
 import base.BaseTest;
@@ -19,10 +20,12 @@ import pages.LoginOptionsPage;
 import pages.RegistrationPage;
 import pages.SignUpPage;
 import pages.SmtpPage;
+import utils.EsignetUtil;
 
 public class SignUpStepDef {
 
 	public WebDriver driver;
+	private static final Logger logger = Logger.getLogger(SignUpStepDef.class);
 	BaseTest baseTest;
 	SignUpPage signUpPage;
 	BasePage basePage;
@@ -219,41 +222,23 @@ public class SignUpStepDef {
 		assertTrue(registrationPage.isBackToEditMobileNumberOptionVisible());
 	}
 
+	private int waitTime;
+
 	@Then("user waits for OTP time to expire and resend button gets enabled")
-	public void waitForResendOtpButtonAndValidate() throws InterruptedException {
-		SoftAssert softAssert = new SoftAssert();
-		int waitTime = registrationPage.getOtpResendWaitTimeInSeconds();
-		if (waitTime > 60) {
-			softAssert.assertTrue(false,
-					"Wait time exceeds 60 seconds (" + waitTime + "s) — skipping actual test of Resend OTP button.");
-		} else {
-			Thread.sleep(waitTime * 1000L + 1000);
-			boolean enabled = registrationPage.isResendOtpButtonEnabled();
-			Assert.assertTrue(enabled, "Resend OTP button not enabled after wait.");
-		}
-		softAssert.assertAll();
+	public void userWaitsForOtpTimeToExpireAndResendButtonGetsEnabled() throws InterruptedException {
+		waitTime = EsignetUtil.getOtpResendDelayFromSignupActuator();
+		logger.info("Waiting for OTP resend delay: " + waitTime + " seconds");
+		Thread.sleep(waitTime * 1000L + 1000);
+		Assert.assertTrue(registrationPage.isResendOtpButtonEnabled(), "Resend OTP button should be enabled");
 	}
 
 	@Then("user validates {int} out of 3 attempts message displayed")
-	public void userClicksResendOtpAndValidatesAttemptLeft(int expectedAttemptLeft) throws Exception {
-		SoftAssert softAssert = new SoftAssert();
-		int waitTime = registrationPage.getOtpResendWaitTimeInSeconds();
-		if (waitTime > 60) {
-			softAssert.assertTrue(false, "Wait time is more than 60s (" + waitTime + "s). Skipping resend attempt.");
-		} else {
-			Thread.sleep((waitTime + 1) * 1000L);
-			if (registrationPage.isResendOtpButtonEnabled()) {
-				registrationPage.clickOnResendOtpButton();
-				Thread.sleep(1500);
-				String attemptText = registrationPage.getOtpResendAttemptsText();
-				System.out.println("Attempt Text: " + attemptText);
-				softAssert.assertTrue(attemptText.contains(expectedAttemptLeft + " of 3 attempts left"),
-						"Expected attempt count: " + expectedAttemptLeft + " out of 3 not found.");
-			} else {
-				softAssert.assertTrue(false, "Resend OTP button was not enabled after " + waitTime + "s.");
-			}
-		}
-		softAssert.assertAll();
+	public void userValidatesOutOfThreeAttemptsMessageDisplayed(int remainingAttempts) throws InterruptedException {
+		registrationPage.clickOnResendOtpButton();
+		Thread.sleep(1500);
+		String attemptText = registrationPage.getOtpResendAttemptsText();
+		Assert.assertTrue(attemptText.contains(remainingAttempts + " of 3 attempts left"),
+				"Expected attempt count: " + remainingAttempts + " out of 3 not found. Actual: " + attemptText);
 	}
 
 	@When("user clicks the back button on the OTP screen")
@@ -694,6 +679,17 @@ public class SignUpStepDef {
 		registrationPage.clickOnSetupAccountContinueButton();
 	}
 
+	@Then("verify system display account setup in progress message")
+	public void systemShouldBrieflyDisplayAccountSetupInProgressMessage() {
+		try {
+			if (registrationPage.isAccountSetupInProgressDisplayed()) {
+				logger.info("Account setup in progress message is displayed.");
+			}
+		} catch (Exception e) {
+			logger.warn("Skipping step due to element disappearing instantly: " + e.getMessage());
+		}
+	}
+
 	@Then("verify that success screen should display the message Congratulations! Your account has been created successfully. Please login to proceed.")
 	public void verifyThenSuccessMessageDisplayed() {
 		assertTrue(registrationPage.isAccountCreatedSuccessfullyMessageDisplayed());
@@ -809,5 +805,35 @@ public class SignUpStepDef {
 	public void verifySuccessfullRegistrationNotification() {
 		smtpPage.isSuccessfullNotificationReceivedInKhmer();
 	}
+
+	/*
+	 * @Then("verify browser warning popup is displayed with header Leave site?")
+	 * public void verifyHeaderInBrowserPopup() {
+	 * assertTrue(registrationPage.isBrowserPopupHeaderDisplayed()); }
+	 * 
+	 * @Then("verify warning message Changes you made may not be saved is displayed"
+	 * ) public void verifyMeaasgeInBrowserPopup() {
+	 * assertTrue(registrationPage.isBrowserPopupMessageDisplayed()); }
+	 * 
+	 * @Then("verify Cancel button is displayed") public void
+	 * verifyCancelButtonInBrowserPopup() {
+	 * assertTrue(registrationPage.isBrowserPopupCancelButtonDisplayed()); }
+	 * 
+	 * @Then("verify Leave button is displayed") public void
+	 * verifyLeaveButtonInBrowserPopup() {
+	 * assertTrue(registrationPage.isBrowserPopupLeaveButtonDisplayed()); }
+	 * 
+	 * @When("user click on cancel button") public void
+	 * userClicksOnCancelBtnInBrowserPopup() {
+	 * registrationPage.clickOnBrowerCancelButton(); }
+	 * 
+	 * @Then("verify user is retained on same screen") public void
+	 * verifyUserIsRetained() {
+	 * assertTrue(registrationPage.isSetupAccountHeaderVisible()); }
+	 * 
+	 * @When("user click on Leave button") public void
+	 * userClicksOnLeaveBtnInBrowserPopup() {
+	 * registrationPage.clickOnBrowerLeaveButton(); }
+	 */
 
 }

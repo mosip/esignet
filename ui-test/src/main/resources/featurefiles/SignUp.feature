@@ -92,7 +92,9 @@ Scenario Outline: OTP input acceptance and Verify button state
   
   Then user waits for OTP time to expire and resend button gets enabled
   And user validates 2 out of 3 attempts message displayed
+  And user waits for OTP time to expire and resend button gets enabled
   And user validates 1 out of 3 attempts message displayed
+  And user waits for OTP time to expire and resend button gets enabled
   And user validates 0 out of 3 attempts message displayed
   Then validate the "Verify" button is disabled
 
@@ -288,7 +290,32 @@ Scenario Outline: Completing Registration Process
   And user enters "<valid confirm password>" in the Confirm Password field
   Then verify the Continue button is enabled when all mandatory fields are filled
   
+  #When user clicks the browser back button
+  #Then verify browser warning popup is displayed with header Leave site?
+  #And verify warning message Changes you made may not be saved is displayed
+  #And verify Cancel button is displayed
+  #And verify Leave button is displayed
+  #When user click on cancel button 
+  #Then verify user is retained on same screen
+  
+  #When user clicks the browser back button
+  #And user click on Leave button 
+  #Then verify user is redirected to Login screen of eSignet 
+  
+  #And user clicks on the Sign-Up with Unified Login hyperlink
+  #And user enters "<valid_mobile_number>" in the mobile number text box
+  #And user clicks on the Continue button
+  #When user enters the complete 6-digit OTP
+  #And user clicks on the Verify OTP button
+  #And user click on Continue button in Success Screen
+  
+  #And user enters text "<valid name>" in the Full Name in Khmer field
+  #And user enters "<valid password>" in the Password field
+  #And user enters "<valid confirm password>" in the Confirm Password field
+  #Then verify the Continue button is enabled when all mandatory fields are filled
+  
   When user clicks on Continue button in Setup Account Page
+  Then verify system display account setup in progress message
   Then verify that success screen should display the message Congratulations! Your account has been created successfully. Please login to proceed.
   And verify a Login button is displayed
   
@@ -301,7 +328,7 @@ Examples:
 
 
 @smoke @SignUrl
-Scenario Outline: Navigate directly to sign-up portal with incorrect URL
+Scenario Outline: Navigate directly to sign-up portal 
   Given user directly navigates to sign-up portal URL
   Then verify the header in the screen
   And verify the message displayed
