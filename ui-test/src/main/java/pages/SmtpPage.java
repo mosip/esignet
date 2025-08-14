@@ -21,6 +21,9 @@ public class SmtpPage extends BasePage {
 	@FindBy(xpath = "//p[@class='text-gray-700 mb-2 mr-3 ml-4']")
 	WebElement registrationSuccessfullNotification;
 
+	@FindBy(xpath = "//p[@class='text-gray-700 mb-2 mr-3 ml-4']")
+	WebElement passwordResetSuccessfullNotification;
+
 	public void navigateToSmtpUrl() {
 		driver.get(EsignetConfigManager.getSmtpUrl());
 	}
@@ -47,6 +50,14 @@ public class SmtpPage extends BasePage {
 
 	public boolean isSuccessfullNotificationReceivedInKhmer() {
 		return isElementVisible(registrationSuccessfullNotification);
+	}
+
+	public boolean isPasswordResetSuccessfullNotificationReceivedInEnglish() {
+		return isElementVisible(passwordResetSuccessfullNotification);
+	}
+
+	public boolean isPasswordResetSuccessfullNotificationReceivedInKhmer() {
+		return isElementVisible(passwordResetSuccessfullNotification);
 	}
 
 }
