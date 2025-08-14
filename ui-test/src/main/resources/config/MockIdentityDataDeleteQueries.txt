@@ -1,0 +1,6 @@
+#####  DB queries to be executed to tear down the data used and generated during the test rig run
+
+DELETE FROM mockidentitysystem.mock_identity WHERE individual_id = '+855879216679';
+DELETE FROM mockidentitysystem.mock_identity WHERE individual_id = '+85584905078';
+DELETE FROM mockidentitysystem.mock_identity WHERE individual_id = '+85590434072';
+DELETE FROM mockidentitysystem.mock_identity WHERE individual_id = '+85590835093';
