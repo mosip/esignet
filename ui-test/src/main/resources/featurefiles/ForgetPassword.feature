@@ -1,6 +1,6 @@
 #@smokeAndRegression
-Feature: Esignet Login Options Page
-  This feature file is for verifying the forget password options page
+Feature: Esignet Forgot Password Page
+  This feature file is for verifying the forget password option page
 
   @smoke @forgetPasswordOptionsVerification
   Scenario Outline: Verify the forget password options for phonenumber
