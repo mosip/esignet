@@ -549,7 +549,7 @@
       "send_otp_failed_msg": "Unable to send OTP. Please try again.",
       "invalid_otp_channel": "Invalid OTP Channel Provided.",
       "auth_failed": "OTP authentication failed. Please try again.",
-      "IDA-MLC-018": "Please Enter Valid UIN.",
+      "IDA-MLC-018": "Please Enter Valid {{field}}.",
       "invalid_challenge": "The OTP you entered is not valid. Please enter valid OTP and try again.",
       "invalid_challenge_length": "The OTP you entered is too short or too long. Please verify and try again.",
       "invalid_challenge_format": "The OTP you entered is not valid. Please enter valid OTP and try again."
