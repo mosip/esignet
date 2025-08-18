@@ -41,8 +41,6 @@ function initialising_prerequisites() {
       prompt_for_initialisation "$module" "${prompts[$module]}"
   done
 
-  echo "Setting up dummy values for Esignet MISP license key"
-  kubectl -n $NS create secret generic esignet-misp-onboarder-key --from-literal=mosip-esignet-misp-key='' --dry-run=client -o yaml | kubectl apply -f -
 
   echo "All prerequisite services initialized successfully."
   return 0
