@@ -71,15 +71,15 @@ public class EsignetUtil extends AdminTestUtil {
 	public static void dBCleanup() {
 		DBManager.executeDBQueries(EsignetConfigManager.getKMDbUrl(), EsignetConfigManager.getKMDbUser(),
 				EsignetConfigManager.getKMDbPass(), EsignetConfigManager.getKMDbSchema(),
-				getGlobalResourcePath() + "/" + "config/keyManagerDataDeleteQueriesForEsignet.txt");
+				getGlobalResourcePath() + "/" + "config/keyManagerCertDataDeleteQueries.txt");
 
 		DBManager.executeDBQueries(EsignetConfigManager.getIdaDbUrl(), EsignetConfigManager.getIdaDbUser(),
 				EsignetConfigManager.getPMSDbPass(), EsignetConfigManager.getIdaDbSchema(),
-				getGlobalResourcePath() + "/" + "config/idaDeleteQueriesForEsignet.txt");
+				getGlobalResourcePath() + "/" + "config/idaCertDataDeleteQueries.txt");
 
 		DBManager.executeDBQueries(EsignetConfigManager.getMASTERDbUrl(), EsignetConfigManager.getMasterDbUser(),
 				EsignetConfigManager.getMasterDbPass(), EsignetConfigManager.getMasterDbSchema(),
-				getGlobalResourcePath() + "/" + "config/masterDataDeleteQueriesForEsignet.txt");
+				getGlobalResourcePath() + "/" + "config/masterDataCertDataDeleteQueries.txt");
 
 		DBManager.executeDBQueries(EsignetConfigManager.getPMSDbUrl(), EsignetConfigManager.getPMSDbUser(),
 				EsignetConfigManager.getPMSDbPass(), EsignetConfigManager.getPMSDbSchema(),
