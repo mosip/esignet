@@ -280,7 +280,7 @@ public class OAuthServiceImpl implements OAuthService {
         tokenResponse.setAccess_token(tokenService.getAccessToken(transaction, cNonce));
         tokenResponse.setExpires_in(accessTokenExpireSeconds);
         if(transaction.getDpopJkt() != null) {
-            tokenResponse.setToken_type("DPoP");
+            tokenResponse.setToken_type(DPOP);
         } else {
             tokenResponse.setToken_type(Constants.BEARER);
         }
