@@ -486,7 +486,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oidcTransaction.setUserInfoResponseType(clientDetailDto.getAdditionalConfig(USERINFO_RESPONSE_TYPE,"JWS"));
         oidcTransaction.setPrompt(IdentityProviderUtil.splitAndTrimValue(oauthDetailReqDto.getPrompt(), Constants.SPACE));
         oidcTransaction.setConsentExpireMinutes(clientDetailDto.getAdditionalConfig(CONSENT_EXPIRE_IN_MINS, 0));
-        if (clientDetailDto.getAdditionalConfig(ClientDetail.DPOP_CONFIG_KEY, false)) {
+        if (clientDetailDto.getAdditionalConfig(Constants.DPOP_CONFIG_KEY, false)) {
             oidcTransaction.setDpopJkt(oauthDetailReqDto.getDpopJkt());
         }
         return Pair.of(oAuthDetailResponse, oidcTransaction);

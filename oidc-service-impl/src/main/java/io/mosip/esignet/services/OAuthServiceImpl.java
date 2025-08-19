@@ -103,7 +103,7 @@ public class OAuthServiceImpl implements OAuthService {
 
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(transaction.getClientId());
 
-        if(clientDetailDto.getAdditionalConfig(ClientDetail.DPOP_CONFIG_KEY, false)) {
+        if(clientDetailDto.getAdditionalConfig(Constants.DPOP_CONFIG_KEY, false)) {
             if(dpopHeader == null) throw new EsignetException(INVALID_REQUEST);
             transaction.setDpopJkt(validateDpopJktAgainstDpopHeaderAndGetPublicKeyThumbprint(dpopHeader, transaction.getDpopJkt()));
         }

@@ -49,5 +49,4 @@ public class ClientDetail implements Serializable {
         return defaultValue;
     }
 
-    public static String DPOP_CONFIG_KEY = "dpop_bound_access_tokens";
 }
