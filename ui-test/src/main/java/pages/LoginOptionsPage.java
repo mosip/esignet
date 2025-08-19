@@ -18,9 +18,6 @@ public class LoginOptionsPage extends BasePage {
 
 	@FindBy(xpath = "//img[@class='brand-logo']")
 	WebElement brandLogo;
-	
-	@FindBy(id = "signup-url-button")
-	WebElement signUpWithUnifiedLogin;
 
 	public void clickOnSignInWIthEsignet() {
 		clickOnElement(signInWithEsignet);
@@ -28,14 +25,6 @@ public class LoginOptionsPage extends BasePage {
 
 	public boolean isLogoDisplayed() {
 		return isElementVisible(brandLogo);
-	}
-	
-	public boolean isSignUpWithUnifiedLoginOptionDisplayed() {
-		return isElementVisible(signUpWithUnifiedLogin);
-	}
-	
-	public void clickOnSignUpWithUnifiedLogin() {
-		clickOnElement(signUpWithUnifiedLogin);
 	}
 
 }
