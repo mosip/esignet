@@ -100,7 +100,7 @@ public class OAuthServiceImpl implements OAuthService {
         validateRequestParametersWithTransaction(tokenRequest, transaction);
 
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(transaction.getClientId());
-        IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), tokenRequest.getRedirect_uri());
+        IdentityProviderUtil.validateRedirectURI(Collections.singletonList(transaction.getRedirectUri()), tokenRequest.getRedirect_uri());
 
         authenticateClient(tokenRequest, clientDetailDto,isV2);
 
