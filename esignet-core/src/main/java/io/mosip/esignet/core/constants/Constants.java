@@ -58,7 +58,7 @@ public class Constants {
     // client additionalConfig
     public static final String USERINFO_RESPONSE_TYPE = "userinfo_response_type";
     public static final String CONSENT_EXPIRE_IN_MINS = "consent_expire_in_mins";
-    public static final String DPOP_CONFIG_KEY = "dpop_bound_access_tokens";
+    public static final String DPOP_BOUND_ACCESS_TOKENS = "dpop_bound_access_tokens";
 
     public static final String PAR_REQUEST_URI_PREFIX = "urn:ietf:params:oauth:request_uri:";
 }

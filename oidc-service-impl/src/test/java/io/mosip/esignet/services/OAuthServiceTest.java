@@ -8,6 +8,13 @@ package io.mosip.esignet.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import io.mosip.esignet.api.dto.KycExchangeResult;
 import io.mosip.esignet.api.dto.KycSigningCertificateData;
 import io.mosip.esignet.api.dto.claim.Claims;
@@ -43,6 +50,8 @@ import static io.mosip.esignet.core.constants.Constants.BEARER;
 import static io.mosip.esignet.core.constants.ErrorConstants.*;
 import static io.mosip.esignet.core.spi.OAuthService.JWT_BEARER_TYPE;
 import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.any;
+import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_DPOP_PROOF;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OAuthServiceTest {
@@ -767,6 +776,167 @@ public class OAuthServiceTest {
             Assert.fail();
         } catch (InvalidRequestException ex) {
             Assert.assertEquals(ErrorConstants.INVALID_ASSERTION_TYPE, ex.getMessage());
+        }
+    }
+
+    @Test
+    public void authorize_withValidDpopProof_thenPass() throws Exception {
+        PushedAuthorizationRequest request = new PushedAuthorizationRequest();
+        request.setClient_id("34567");
+        request.setClient_assertion_type("urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
+        request.setClient_assertion("valid-jwt");
+        request.setRedirect_uri("http://localhost:8088/v1/idp");
+        request.setAcr_values("mosip:idp:acr:static-code");
+        request.setNonce("test-nonce");
+
+        RSAKey rsaKey = new RSAKeyGenerator(2048).generate();
+        String thumbprint = "test-thumbprint";
+        SignedJWT dpopJwt = new SignedJWT(
+            new JWSHeader.Builder(JWSAlgorithm.RS256).jwk(rsaKey.toPublicJWK()).build(),
+            new JWTClaimsSet.Builder().build()
+        );
+        dpopJwt.sign(new RSASSASigner(rsaKey));
+
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId("test-client");
+        clientDetail.setPublicKey("public-key");
+        clientDetail.setRedirectUris(List.of("http://localhost:8088/v1/idp"));
+
+        Mockito.when(clientManagementService.getClientDetails("34567")).thenReturn(clientDetail);
+        Mockito.when(securityHelperService.computeJwkThumbprint(any())).thenReturn(thumbprint);
+
+        PushedAuthorizationResponse response = oAuthService.authorize(request, dpopJwt.serialize());
+
+        Assert.assertNotNull(response);
+        Assert.assertNotNull(response.getRequest_uri());
+        Assert.assertEquals(thumbprint, request.getDpop_jkt());
+    }
+
+    @Test
+    public void authorize_withMismatchedDpopJkt_thenFail() throws Exception {
+        PushedAuthorizationRequest request = new PushedAuthorizationRequest();
+        request.setClient_id("34567");
+        request.setClient_assertion_type("urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
+        request.setClient_assertion("valid-jwt");
+        request.setRedirect_uri("http://localhost:8088/v1/idp");
+        request.setNonce("test-nonce");
+        request.setDpop_jkt("different-thumbprint");
+
+        RSAKey rsaKey = new RSAKeyGenerator(2048).generate();
+        String thumbprint = "test-thumbprint";
+        SignedJWT dpopJwt = new SignedJWT(
+            new JWSHeader.Builder(JWSAlgorithm.RS256).jwk(rsaKey.toPublicJWK()).build(),
+            new JWTClaimsSet.Builder().build()
+        );
+        dpopJwt.sign(new RSASSASigner(rsaKey));
+
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId("test-client");
+        clientDetail.setPublicKey("public-key");
+        clientDetail.setRedirectUris(List.of("http://localhost:8088/v1/idp"));
+
+        Mockito.when(clientManagementService.getClientDetails("34567")).thenReturn(clientDetail);
+        Mockito.when(securityHelperService.computeJwkThumbprint(any())).thenReturn(thumbprint);
+
+        try {
+            oAuthService.authorize(request, dpopJwt.serialize());
+            Assert.fail();
+        } catch (EsignetException ex) {
+            Assert.assertEquals(ErrorConstants.INVALID_DPOP_PROOF, ex.getErrorCode());
+        }
+    }
+
+    @Test
+    public void getTokens_withValidDpopProof_thenPass() throws Exception {
+        TokenRequestV2 tokenRequest = new TokenRequestV2();
+        tokenRequest.setCode("test-code");
+        tokenRequest.setClient_id("client-id");
+        tokenRequest.setRedirect_uri("https://test-redirect-uri/test-page");
+        tokenRequest.setClient_assertion_type(JWT_BEARER_TYPE);
+        tokenRequest.setClient_assertion("client-assertion");
+
+        RSAKey rsaKey = new RSAKeyGenerator(2048).generate();
+        String thumbprint = "test-thumbprint";
+        SignedJWT dpopJwt = new SignedJWT(
+            new JWSHeader.Builder(JWSAlgorithm.RS256).jwk(rsaKey.toPublicJWK()).build(),
+            new JWTClaimsSet.Builder().build()
+        );
+        dpopJwt.sign(new RSASSASigner(rsaKey));
+
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
+        oidcTransaction.setClientId("client-id");
+        oidcTransaction.setKycToken("kyc-token");
+        oidcTransaction.setAuthTransactionId("auth-transaction-id");
+        oidcTransaction.setRelyingPartyId("rp-id");
+        oidcTransaction.setRedirectUri("https://test-redirect-uri/test-page");
+        oidcTransaction.setIndividualId("individual-id");
+        oidcTransaction.setDpopJkt(thumbprint);
+        oidcTransaction.setDpopBoundAccessToken(true);
+
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**"));
+        clientDetail.setAdditionalConfig(objectMapper.readTree("{\"dpop_bound_access_tokens\": true}"));
+
+        KycExchangeResult kycExchangeResult = new KycExchangeResult();
+        kycExchangeResult.setEncryptedKyc("encrypted-kyc");
+
+        Mockito.when(authorizationHelperService.getKeyHash(Mockito.anyString())).thenReturn("code-hash");
+        Mockito.when(authorizationHelperService.getIndividualId(oidcTransaction)).thenReturn(oidcTransaction.getIndividualId());
+        ReflectionTestUtils.setField(authorizationHelperService, "secureIndividualId", false);
+        Mockito.when(authenticationWrapper.doKycExchange(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(kycExchangeResult);
+        Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
+        Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
+        Mockito.when(securityHelperService.computeJwkThumbprint(any())).thenReturn(thumbprint);
+        Mockito.when(tokenService.getAccessToken(Mockito.any(), Mockito.any())).thenReturn("test-access-token");
+        Mockito.when(tokenService.getIDToken(Mockito.any())).thenReturn("test-id-token");
+
+        TokenResponse tokenResponse = oAuthService.getTokens(tokenRequest, dpopJwt.serialize(), false);
+        
+        Assert.assertNotNull(tokenResponse);
+        Assert.assertEquals(Constants.DPOP, tokenResponse.getToken_type());
+    }
+
+    @Test
+    public void getTokens_withMismatchedDpopJkt_thenFail() throws Exception {
+        TokenRequestV2 tokenRequest = new TokenRequestV2();
+        tokenRequest.setCode("test-code");
+        tokenRequest.setClient_id("client-id");
+        tokenRequest.setRedirect_uri("https://test-redirect-uri/test-page");
+        tokenRequest.setClient_assertion_type(JWT_BEARER_TYPE);
+        tokenRequest.setClient_assertion("client-assertion");
+
+        RSAKey rsaKey = new RSAKeyGenerator(2048).generate();
+        String thumbprint = "test-thumbprint";
+        String differentThumbprint = "different-thumbprint";
+        SignedJWT dpopJwt = new SignedJWT(
+            new JWSHeader.Builder(JWSAlgorithm.RS256).jwk(rsaKey.toPublicJWK()).build(),
+            new JWTClaimsSet.Builder().build()
+        );
+        dpopJwt.sign(new RSASSASigner(rsaKey));
+
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
+        oidcTransaction.setRelyingPartyId("rp-id");
+        oidcTransaction.setClientId("client-id");
+        oidcTransaction.setKycToken("kyc-token");
+        oidcTransaction.setRedirectUri("https://test-redirect-uri/test-page");
+        oidcTransaction.setDpopJkt(differentThumbprint);
+        oidcTransaction.setDpopBoundAccessToken(true);
+
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**"));
+        clientDetail.setAdditionalConfig(objectMapper.readTree("{\"dpop_bound_access_tokens\": true}"));
+
+        Mockito.when(authorizationHelperService.getKeyHash(Mockito.anyString())).thenReturn("code-hash");
+        ReflectionTestUtils.setField(authorizationHelperService, "secureIndividualId", false);
+        Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
+        Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
+        Mockito.when(securityHelperService.computeJwkThumbprint(any())).thenReturn(thumbprint);
+
+        try {
+            oAuthService.getTokens(tokenRequest, dpopJwt.serialize(), false);
+            Assert.fail();
+        } catch (EsignetException ex) {
+            Assert.assertEquals(INVALID_DPOP_PROOF, ex.getErrorCode());
         }
     }
 

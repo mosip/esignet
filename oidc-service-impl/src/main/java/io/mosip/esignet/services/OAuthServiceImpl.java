@@ -103,7 +103,7 @@ public class OAuthServiceImpl implements OAuthService {
 
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(transaction.getClientId());
 
-        if(clientDetailDto.getAdditionalConfig(Constants.DPOP_CONFIG_KEY, false)) {
+        if(transaction.isDpopBoundAccessToken()) {
             if(dpopHeader == null) throw new EsignetException(INVALID_REQUEST);
             transaction.setDpopJkt(validateDpopJktAgainstDpopHeaderAndGetPublicKeyThumbprint(dpopHeader, transaction.getDpopJkt()));
         }
@@ -388,17 +388,16 @@ public class OAuthServiceImpl implements OAuthService {
     }
 
     private String validateDpopJktAgainstDpopHeaderAndGetPublicKeyThumbprint(String dpopHeader, String dpopJkt) {
-        String thumbprint;
         try {
             SignedJWT dpopJwt = SignedJWT.parse(dpopHeader);
-            thumbprint = securityHelperService.computeJwkThumbprint(dpopJwt.getHeader().getJWK());
+            String thumbprint = securityHelperService.computeJwkThumbprint(dpopJwt.getHeader().getJWK());
+            if(dpopJkt != null && !dpopJkt.equals(thumbprint)) {
+                throw new EsignetException(ErrorConstants.INVALID_DPOP_PROOF);
+            }
+            return thumbprint;
         } catch (Exception e) {
-            throw new IllegalStateException("Invalid dpop header - This should be unreachable");
+            log.error("validateDpopJktAgainstDpopHeaderAndGetPublicKeyThumbprint failed", e);
         }
-        if(dpopJkt != null && !dpopJkt.equals(thumbprint)) {
-            log.error("dpop_jkt in transaction/requestBody does not match with the thumbprint of public key in dpop header");
-            throw new EsignetException(INVALID_REQUEST);
-        }
-        return thumbprint;
+        throw new EsignetException(ErrorConstants.INVALID_DPOP_PROOF);
     }
 }

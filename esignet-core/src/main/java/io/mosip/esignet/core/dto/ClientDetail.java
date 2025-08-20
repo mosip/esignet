@@ -48,5 +48,4 @@ public class ClientDetail implements Serializable {
         }
         return defaultValue;
     }
-
 }

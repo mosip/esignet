@@ -80,6 +80,9 @@ public class TokenServiceImpl implements TokenService {
 
     @Value("${mosip.esignet.client-assertion-jwt.leeway-seconds:5}")
     private int maxClockSkew;
+
+    private final String CNF = "cnf";
+    private final String JKT = "jkt";
     
     private static Set<String> REQUIRED_TOKEN_CLAIMS;
     private static Set<String> REQUIRED_CLIENT_ASSERTION_CLAIMS;
@@ -140,8 +143,8 @@ public class TokenServiceImpl implements TokenService {
             payload.put(C_NONCE, cNonce);
             payload.put(C_NONCE_EXPIRES_IN, cNonceExpireSeconds);
         }
-        if(transaction.getDpopJkt() != null) {
-            payload.put("cnf", Map.of("jkt", transaction.getDpopJkt()));
+        if(transaction.isDpopBoundAccessToken()) {
+            payload.put(CNF, Map.of(JKT, transaction.getDpopJkt()));
         }
         return getSignedJWT(Constants.OIDC_SERVICE_APP_ID, payload);
     }
