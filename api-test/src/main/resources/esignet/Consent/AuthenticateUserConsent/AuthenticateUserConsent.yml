@@ -345,3 +345,102 @@ AuthenticateUserConsent:
         "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult"
     }
 }'
+
+   ESignet_AuthenticateUserIDP_Consent_uin_AuthCode:
+      endPoint: /v1/esignet/authorization/v2/authenticate
+      description: Authenticate user consent with otp and valid details UIN
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/Consent/AuthenticateUserConsent/AuthenticateUserConsent
+      outputTemplate: esignet/Consent/AuthenticateUserConsent/AuthenticateUserConsentResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Consent_all_Valid_authCodeNeg_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_Consent_all_Valid_authCodeNeg_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_L2_Valid_Parameters_consent_authcode_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_L2_Valid_Parameters_consent_authcode_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_Consent_all_Valid_authCodeNeg_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_Consent_all_Valid_authCodeNeg_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_L2_Valid_Parameters_consent_authcode_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+    }'
+      output: '{
+          "consentAction": "CAPTURE",
+  "sendOtpResp":{
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_Consent_uin_AuthCode_OnlyOptionalClaim:
+      endPoint: /v1/esignet/authorization/v2/authenticate
+      description: Authenticate user consent with otp and valid details UIN
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/Consent/AuthenticateUserConsent/AuthenticateUserConsent
+      outputTemplate: esignet/Consent/AuthenticateUserConsent/AuthenticateUserConsentResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Consent_all_withOnly_OptionalClaim_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_Consent_all_withOnly_OptionalClaim_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_L2_Valid_Parameters_consent_authcode_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_L2_Valid_Parameters_consent_authcode_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_Consent_all_withOnly_OptionalClaim_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_Consent_all_withOnly_OptionalClaim_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_L2_Valid_Parameters_consent_authcode_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+    }'
+      output: '{
+          "consentAction": "CAPTURE",
+  "sendOtpResp":{
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_Consent_uin_AuthCode_OnlyOptionalClaim_user2:
+      endPoint: /v1/esignet/authorization/v2/authenticate
+      description: Authenticate user consent with otp and valid details UIN
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/Consent/AuthenticateUserConsent/AuthenticateUserConsent
+      outputTemplate: esignet/Consent/AuthenticateUserConsent/AuthenticateUserConsentResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Consent_all_withOnly_OptionalClaim_user2_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_Consent_all_withOnly_OptionalClaim_user2_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_L2_Valid_Parameters_consent_authcode_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_L2_Valid_Parameters_consent_authcode_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_Consent_all_withOnly_OptionalClaim_user2_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_Consent_all_withOnly_OptionalClaim_user2_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_L2_Valid_Parameters_consent_authcode_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+    }'
+      output: '{
+          "consentAction": "CAPTURE",
+  "sendOtpResp":{
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult"
+    }
+}'

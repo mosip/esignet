@@ -2036,3 +2036,102 @@ AuthenticateUser:
         "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult"
     }
 }'
+
+   ESignet_AuthenticateUserIDP_uin_Otp_for_NegauthCode:
+      endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_55
+      description: Authenticate user with Otp UIN
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/AuthenticateUser/AuthenticateUserResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_all_Valid_for_authCode_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_for_authCode_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Valid_Parameters_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Valid_Parameters_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_all_Valid_for_authCode_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_all_Valid_for_authCode_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_Valid_Parameters_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+    }'
+      output: '{
+  "sendOtpResp":{
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_uin_Otp_for_OnlyOptionalClaim:
+      endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_56
+      description: Authenticate user with Otp UIN
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/AuthenticateUser/AuthenticateUserResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_all_Valid_for_authCode_onlyOptionalClaim_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_for_authCode_onlyOptionalClaim_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Valid_Parameters_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Valid_Parameters_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_all_Valid_for_authCode_onlyOptionalClaim_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_all_Valid_for_authCode_onlyOptionalClaim_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_Valid_Parameters_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+    }'
+      output: '{
+  "sendOtpResp":{
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult"
+    }
+}'
+
+   ESignet_AuthenticateUserIDP_uin_Otp_for_OnlyOptionalClaim_user2:
+      endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_57
+      description: Authenticate user with Otp UIN
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/AuthenticateUser/AuthenticateUserResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_all_Valid_for_authCode_onlyOptionalClaim_user2_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_for_authCode_onlyOptionalClaim_user2_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_Valid_Parameters_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Valid_Parameters_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_all_Valid_for_authCode_onlyOptionalClaim_user2_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_all_Valid_for_authCode_onlyOptionalClaim_user2_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_Valid_Parameters_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+    }'
+      output: '{
+  "sendOtpResp":{
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+    }
+}'

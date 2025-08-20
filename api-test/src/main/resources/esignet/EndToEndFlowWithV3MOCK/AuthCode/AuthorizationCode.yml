@@ -1,0 +1,56 @@
+AuthorizationCode:
+   ESignet_AuthorizationCode_MOCK_uin_All_Valid_forUserInfo_Smoke_sid:
+      endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_01
+      description: Authorization code request for end to end flow
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/EndToEndFlowWithV3MOCK/AuthCode/AuthorizationCode
+      outputTemplate: esignet/EndToEndFlowWithV3MOCK/AuthCode/AuthorizationCodeResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_V3_MOCK_AuthToken_Xsrf_uin_all_Valid_for_userInfo_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_V3_MOCK_AuthToken_Xsrf_uin_all_Valid_for_userInfo_Smoke_sid_transactionId$",
+      	"acceptedClaims": [{claim: "phone_number"},{claim: "email"}]
+}'
+      output: '{
+}'
+   ESignet_AuthorizationCode_MOCK_uin_All_Valid_forUserInfoJWE_Smoke_sid:
+      endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_02
+      description: Authorization code request for end to end flow JWE
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/EndToEndFlowWithV3MOCK/AuthCode/AuthorizationCode
+      outputTemplate: esignet/EndToEndFlowWithV3MOCK/AuthCode/AuthorizationCodeResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_V3_MOCK_AuthToken_Xsrf_uin_all_Valid_for_userInfoJWE_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_V3_MOCK_AuthToken_Xsrf_uin_all_Valid_for_userInfoJWE_Smoke_sid_transactionId$",
+      	"acceptedClaims": [{claim: "phone_number"},{claim: "email"}]
+}'
+      output: '{
+}'
+   ESignet_AuthorizationCode_MOCK_uin_All_Valid_forUserInfoUpdatedJWE_Smoke_sid:
+      endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_03
+      description: Authorization code request for end to end flow JWE
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/EndToEndFlowWithV3MOCK/AuthCode/AuthorizationCode
+      outputTemplate: esignet/EndToEndFlowWithV3MOCK/AuthCode/AuthorizationCodeResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_V3_MOCK_AuthToken_Xsrf_uin_all_Valid_for_userInfoUpdatedClientJWE_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_V3_MOCK_AuthToken_Xsrf_uin_all_Valid_for_userInfoUpdatedClientJWE_Smoke_sid_transactionId$",
+      	"acceptedClaims": [{claim: "phone_number"},{claim: "email"}]
+}'
+      output: '{
+}'
+

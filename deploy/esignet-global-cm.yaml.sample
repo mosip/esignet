@@ -18,3 +18,4 @@ data:
   mosip-esignet-host: esignet.sandbox.xyz.net
   mosip-postgres-host: esignet-postgres.sandbox.xyz.net
   mosip-signup-host: signup.sandbox.xyz.net
+  mosip-smtp-host: smtp.sandbox.xyz.net

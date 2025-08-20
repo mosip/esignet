@@ -60,6 +60,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     private static final String KBI_FIELD_DETAILS_CONFIG_KEY = "auth.factor.kbi.field-details";
 
+    public static final String REQUIRE_PAR= "require_pushed_authorization_requests";
+
     @Autowired
     private ClientManagementService clientManagementService;
 
@@ -150,6 +152,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Override
     public OAuthDetailResponseV1 getOauthDetails(OAuthDetailRequest oauthDetailReqDto) throws EsignetException {
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(oauthDetailReqDto.getClientId());
+        assertPARRequiredIsFalse(clientDetailDto);
         validateRedirectURIAndNonce(oauthDetailReqDto, clientDetailDto);
         OAuthDetailResponseV1 oAuthDetailResponseV1 = new OAuthDetailResponseV1();
         Pair<OAuthDetailResponse, OIDCTransaction> pair = checkAndBuildOIDCTransaction(oauthDetailReqDto, clientDetailDto, oAuthDetailResponseV1);
@@ -165,6 +168,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Override
     public OAuthDetailResponseV2 getOauthDetailsV2(OAuthDetailRequestV2 oauthDetailReqDto) throws EsignetException {
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(oauthDetailReqDto.getClientId());
+        assertPARRequiredIsFalse(clientDetailDto);
         validateRedirectURIAndNonce(oauthDetailReqDto, clientDetailDto);
         OAuthDetailResponseV2 oAuthDetailResponseV2 = new OAuthDetailResponseV2();
         return buildTransactionAndOAuthDetailResponse(oauthDetailReqDto, clientDetailDto, oAuthDetailResponseV2);
@@ -313,9 +317,10 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                 .anyMatch( entry -> entry.getValue().stream()
                         .anyMatch(m ->
                                 (boolean) m.getOrDefault("essential", false) && m.get("verification") != null &&
-                                 ((transaction.getClaimMetadata().get(entry.getKey()) == null || transaction.getClaimMetadata().get(entry.getKey()).isEmpty()))
-                        ));
-                            
+                                ((transaction.getClaimMetadata() == null
+                                        || transaction.getClaimMetadata().get(entry.getKey()) == null
+                                        || transaction.getClaimMetadata().get(entry.getKey()).isEmpty()
+                                        || list.stream().anyMatch(cs -> cs.getClaim().equals(entry.getKey()) && !cs.isVerified())))));
         claimDetailResponse.setProfileUpdateRequired(unverifiedEssentialClaimsExists);
         claimDetailResponse.setClaimStatus(list);
 
@@ -428,6 +433,14 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         log.info("nonce : {} Valid client id found, proceeding to validate redirect URI", oAuthDetailRequest.getNonce());
         IdentityProviderUtil.validateRedirectURI(clientDetail.getRedirectUris(), oAuthDetailRequest.getRedirectUri());
         authorizationHelperService.validateNonce(oAuthDetailRequest.getNonce());
+    }
+
+    private void assertPARRequiredIsFalse(ClientDetail clientDetail) throws EsignetException {
+        boolean isParRequired = clientDetail.getAdditionalConfig(REQUIRE_PAR, false);
+        if (isParRequired) {
+            log.error("Pushed Authorization Request (PAR) flow is mandated for clientId: {}", clientDetail.getId());
+            throw new EsignetException(ErrorConstants.INVALID_REQUEST);
+        }
     }
 
     private Pair<OAuthDetailResponse, OIDCTransaction> checkAndBuildOIDCTransaction(OAuthDetailRequest oauthDetailReqDto,
