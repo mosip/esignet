@@ -279,7 +279,7 @@ public class OAuthServiceImpl implements OAuthService {
         String cNonce = isTransactionVCScoped ? securityHelperService.generateSecureRandomString(20) : null;
         tokenResponse.setAccess_token(tokenService.getAccessToken(transaction, cNonce));
         tokenResponse.setExpires_in(accessTokenExpireSeconds);
-        if(transaction.getDpopJkt() != null) {
+        if(transaction.isDpopBoundAccessToken()) {
             tokenResponse.setToken_type(DPOP);
         } else {
             tokenResponse.setToken_type(Constants.BEARER);
