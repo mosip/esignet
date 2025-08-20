@@ -21,7 +21,6 @@ import io.cucumber.testng.AbstractTestNGCucumberTests;
 import io.cucumber.testng.CucumberOptions;
 import io.cucumber.testng.FeatureWrapper;
 import io.cucumber.testng.PickleWrapper;
-import io.mosip.testrig.apirig.testrunner.OTPListener;
 import utils.BaseTestUtil;
 import utils.EsignetConfigManager;
 import utils.ExtentReportManager;
@@ -88,18 +87,14 @@ public class Runner extends AbstractTestNGCucumberTests {
 	}
 
 	public static void main(String[] args) {
-		OTPListener otpListener = new OTPListener();
 		try {
 			LOGGER.info("** ------------- Esignet UI Automation run started---------------------------- **");
 			EsignetConfigManager.init();
 			ExtentReportManager.initReport();
-			otpListener.run();
 			startTestRunner();
 		} catch (Exception e) {
 			LOGGER.severe("Exception " + e.getMessage());
 		}
-		
-		otpListener.bTerminate = true;
 		System.exit(0);
 	}
 
