@@ -1,6 +1,6 @@
-import React from "react";
-import { useLocation } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+import React from 'react';
+import { useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const NetworkError = () => {
   const location = useLocation();
@@ -44,10 +44,10 @@ const NetworkError = () => {
           />
         </svg>
         <p className="text-[1.5rem] font-semibold text-center mt-[2rem] mb-2">
-          {t("errors.network_error.header")}
+          {t('errors.network_error.header')}
         </p>
         <p className="text-[#7B7B7B] text-center">
-          {t("errors.network_error.subHeader")}
+          {t('errors.network_error.subHeader')}
         </p>
         <button
           type="button"
@@ -55,7 +55,7 @@ const NetworkError = () => {
           onClick={tryAgain}
           id="try_again"
         >
-          {t("errors.network_error.button")}
+          {t('errors.network_error.button')}
         </button>
       </div>
     </div>

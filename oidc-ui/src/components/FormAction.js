@@ -1,15 +1,15 @@
-import { buttonTypes } from "../constants/clientConstants";
+import { buttonTypes } from '../constants/clientConstants';
 
 export default function FormAction({
   handleClick,
-  type = "Button", //valid values: Button, Submit and Reset
+  type = 'Button', //valid values: Button, Submit and Reset
   text,
   disabled = false,
   id,
-  customClassName
+  customClassName,
 }) {
   const className =
-    "flex justify-center w-full font-semibold rounded-md px-5 py-3 text-center border-2 ";
+    'flex justify-center w-full font-semibold rounded-md px-5 py-3 text-center border-2 ';
 
   return (
     <>
@@ -17,7 +17,7 @@ export default function FormAction({
         <button
           type={type}
           value={type}
-          className={className + " primary-button " + customClassName}
+          className={className + ' primary-button ' + customClassName}
           onClick={handleClick}
           disabled={disabled}
           id={id}
@@ -29,7 +29,7 @@ export default function FormAction({
         <button
           type={type}
           value={type}
-          className={className + " primary-button " + customClassName}
+          className={className + ' primary-button ' + customClassName}
           onSubmit={handleClick}
           disabled={disabled}
           id={id}
@@ -41,7 +41,7 @@ export default function FormAction({
         <button
           type={type}
           value={type}
-          className={className + " primary-button " + customClassName}
+          className={className + ' primary-button ' + customClassName}
           onClick={handleClick}
           disabled={disabled}
           id={id}
@@ -53,9 +53,7 @@ export default function FormAction({
         <button
           type={type}
           value={type}
-          className={
-            className + " secondary-button " + customClassName
-          }
+          className={className + ' secondary-button ' + customClassName}
           onClick={handleClick}
           disabled={disabled}
           id={id}
@@ -68,7 +66,7 @@ export default function FormAction({
           type={type}
           value={type}
           className={
-            className + "secondary-button discontinue-button " + customClassName
+            className + 'secondary-button discontinue-button ' + customClassName
           }
           onClick={handleClick}
           disabled={disabled}

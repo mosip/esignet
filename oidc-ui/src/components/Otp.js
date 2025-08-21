@@ -1,12 +1,12 @@
-import { useState } from "react";
-import { useTranslation } from "react-i18next";
-import OtpGet from "./OtpGet";
-import OtpVerify from "./OtpVerify";
-import { configurationKeys } from "../constants/clientConstants";
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import OtpGet from './OtpGet';
+import OtpVerify from './OtpVerify';
+import { configurationKeys } from '../constants/clientConstants';
 
 const OTPStatusEnum = {
-  getOtp: "GETOTP",
-  verifyOtp: "VERIFYOTP",
+  getOtp: 'GETOTP',
+  verifyOtp: 'VERIFYOTP',
 };
 
 export default function Otp({
@@ -15,15 +15,15 @@ export default function Otp({
   openIDConnectService,
   backButtonDiv,
   secondaryHeading,
-  i18nKeyPrefix = "otp",
+  i18nKeyPrefix = 'otp',
 }) {
-  const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
+  const { t } = useTranslation('translation', { keyPrefix: i18nKeyPrefix });
 
   const [otpStatus, setOtpStatus] = useState(OTPStatusEnum.getOtp);
-  const [otpResponse, setOtpResponse] = useState("");
-  const [ID, setId] = useState("");
-  const [currentLoginID, setCurrentLoginID] = useState("");
-  const [selectedCountryOption, setSelectedCountryOption] = useState("");
+  const [otpResponse, setOtpResponse] = useState('');
+  const [ID, setId] = useState('');
+  const [currentLoginID, setCurrentLoginID] = useState('');
+  const [selectedCountryOption, setSelectedCountryOption] = useState('');
 
   const onOtpSent = async (ID, response, loginID, selectedCountry) => {
     setId(ID);
@@ -38,7 +38,7 @@ export default function Otp({
   );
 
   if (!loginIDs || loginIDs.length === 0) {
-    loginIDs = [{ id: "vid" }];
+    loginIDs = [{ id: 'vid' }];
   }
 
   return (
@@ -78,7 +78,7 @@ export default function Otp({
               </svg>
             </button>
             <div className="inline mx-2 font-semibold relative bottom-1 ">
-              {t("enter_otp")}
+              {t('enter_otp')}
             </div>
           </div>
         ) : (
@@ -91,9 +91,13 @@ export default function Otp({
               if the login id option is single, then with secondary heading will pass a object with current id
               if the login id option is multiple, then secondary heading will be passed as it is
             */}
-            {t(secondaryHeading, loginIDs && loginIDs.length === 1 && {
-              currentID: t(loginIDs[0].id)
-            })}
+            {t(
+              secondaryHeading,
+              loginIDs &&
+                loginIDs.length === 1 && {
+                  currentID: t(loginIDs[0].id),
+                }
+            )}
           </div>
         )}
       </div>

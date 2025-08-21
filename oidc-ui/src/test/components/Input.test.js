@@ -1,12 +1,12 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import Input from "../../components/Input";
-import { useTranslation } from "react-i18next";
+import { render, screen, fireEvent } from '@testing-library/react';
+import Input from '../../components/Input';
+import { useTranslation } from 'react-i18next';
 
-jest.mock("react-i18next", () => ({
+jest.mock('react-i18next', () => ({
   useTranslation: jest.fn(),
 }));
 
-describe("Input Component", () => {
+describe('Input Component', () => {
   const mockChangeHandler = jest.fn();
 
   beforeEach(() => {
@@ -16,7 +16,7 @@ describe("Input Component", () => {
     });
   });
 
-  test("renders input with correct attributes and calls handleChange", () => {
+  test('renders input with correct attributes and calls handleChange', () => {
     render(
       <Input
         handleChange={mockChangeHandler}
@@ -32,22 +32,22 @@ describe("Input Component", () => {
       />
     );
 
-    const input = screen.getByPlaceholderText("Test Placeholder");
+    const input = screen.getByPlaceholderText('Test Placeholder');
 
     expect(input).toBeInTheDocument();
-    expect(input).toHaveAttribute("type", "text");
-    expect(input).toHaveAttribute("name", "test-name");
-    expect(input).toHaveAttribute("id", "test-id");
-    expect(input).toHaveAttribute("required");
-    expect(input).toHaveClass("custom-css");
-    expect(input).toHaveAttribute("title", "translated_vid_info");
+    expect(input).toHaveAttribute('type', 'text');
+    expect(input).toHaveAttribute('name', 'test-name');
+    expect(input).toHaveAttribute('id', 'test-id');
+    expect(input).toHaveAttribute('required');
+    expect(input).toHaveClass('custom-css');
+    expect(input).toHaveAttribute('title', 'translated_vid_info');
 
     // simulate input change
-    fireEvent.change(input, { target: { value: "new-value" } });
+    fireEvent.change(input, { target: { value: 'new-value' } });
     expect(mockChangeHandler).toHaveBeenCalled();
   });
 
-  test("uses default tooltip if none provided", () => {
+  test('uses default tooltip if none provided', () => {
     render(
       <Input
         handleChange={mockChangeHandler}
@@ -60,11 +60,11 @@ describe("Input Component", () => {
       />
     );
 
-    const input = screen.getByRole("textbox");
-    expect(input).toHaveAttribute("title", "translated_vid_info");
+    const input = screen.getByRole('textbox');
+    expect(input).toHaveAttribute('title', 'translated_vid_info');
   });
 
-  test("uses custom tooltip message when provided", () => {
+  test('uses custom tooltip message when provided', () => {
     render(
       <Input
         handleChange={mockChangeHandler}
@@ -78,7 +78,7 @@ describe("Input Component", () => {
       />
     );
 
-    const input = screen.getByRole("textbox");
-    expect(input).toHaveAttribute("title", "translated_custom_tooltip");
+    const input = screen.getByRole('textbox');
+    expect(input).toHaveAttribute('title', 'translated_custom_tooltip');
   });
 });

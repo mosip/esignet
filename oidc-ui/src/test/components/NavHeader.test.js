@@ -1,34 +1,34 @@
-import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import NavHeader from "../../components/NavHeader";
+import React from 'react';
+import { render, screen, waitFor } from '@testing-library/react';
+import NavHeader from '../../components/NavHeader';
 
 // Mocks
-jest.mock("react-i18next", () => ({
+jest.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key) => key,
     i18n: {
-      language: "en",
+      language: 'en',
       changeLanguage: jest.fn(),
-      on: jest.fn((event, cb) => cb("fr")), // simulate change to 'fr'
+      on: jest.fn((event, cb) => cb('fr')), // simulate change to 'fr'
     },
   }),
 }));
 
-jest.mock("../../services/authService", () => {
+jest.mock('../../services/authService', () => {
   return {
     __esModule: true,
     default: class {
       constructor() {}
       getAuthorizeQueryParam() {
-        return btoa("ui_locales=en");
+        return btoa('ui_locales=en');
       }
     },
   };
 });
 
-jest.mock("../../services/openIDConnectService", () => ({}));
+jest.mock('../../services/openIDConnectService', () => ({}));
 
-jest.mock("../../services/configService", () => {
+jest.mock('../../services/configService', () => {
   return {
     __esModule: true,
     default: jest.fn(() =>
@@ -40,23 +40,23 @@ jest.mock("../../services/configService", () => {
   };
 });
 
-jest.mock("react-detect-offline", () => ({
+jest.mock('react-detect-offline', () => ({
   Detector: ({ render }) => render({ online: true }),
 }));
 
-jest.mock("../../helpers/utils", () => ({
+jest.mock('../../helpers/utils', () => ({
   getPollingConfig: () => ({
-    url: "https://ping.test",
+    url: 'https://ping.test',
     interval: 10000,
     timeout: 5000,
     enabled: true,
   }),
 }));
 
-describe("NavHeader", () => {
+describe('NavHeader', () => {
   const langOptions = [
-    { value: "en", label: "English" },
-    { value: "fr", label: "Français" },
+    { value: 'en', label: 'English' },
+    { value: 'fr', label: 'Français' },
   ];
 
   beforeEach(() => {
@@ -64,22 +64,22 @@ describe("NavHeader", () => {
     jest.resetModules();
   });
 
-  test("renders header with language dropdown (Select)", async () => {
+  test('renders header with language dropdown (Select)', async () => {
     render(<NavHeader langOptions={langOptions} />);
     await waitFor(() => {
-      expect(screen.getByLabelText("Customise options")).toBeInTheDocument();
+      expect(screen.getByLabelText('Customise options')).toBeInTheDocument();
     });
   });
 
-  test("calls changeLanguage on language change", async () => {
+  test('calls changeLanguage on language change', async () => {
     render(<NavHeader langOptions={langOptions} />);
     await waitFor(() => {
-      expect(screen.getByLabelText("Customise options")).toBeInTheDocument();
+      expect(screen.getByLabelText('Customise options')).toBeInTheDocument();
     });
   });
 
-  test("renders DropdownMenu if outline_dropdown is false", async () => {
-    const configService = require("../../services/configService");
+  test('renders DropdownMenu if outline_dropdown is false', async () => {
+    const configService = require('../../services/configService');
     configService.default.mockImplementationOnce(() =>
       Promise.resolve({
         outline_dropdown: false,
@@ -90,7 +90,7 @@ describe("NavHeader", () => {
     render(<NavHeader langOptions={langOptions} />);
 
     await waitFor(() => {
-      expect(screen.getByText("English")).toBeInTheDocument();
+      expect(screen.getByText('English')).toBeInTheDocument();
     });
   });
 });

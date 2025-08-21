@@ -1,7 +1,7 @@
-import axios from "axios";
-import { configurationKeys } from "../constants/clientConstants";
-import localStorageService from "./local-storageService";
-import * as jose from "jose";
+import axios from 'axios';
+import { configurationKeys } from '../constants/clientConstants';
+import localStorageService from './local-storageService';
+import * as jose from 'jose';
 
 const {
   addDeviceInfos,
@@ -13,22 +13,21 @@ const {
 };
 
 const SBI_DOMAIN_URI = window.origin;
-const purpose = "Auth";
-const certification = "L1";
-const DeviceStatusReady = "Ready";
+const purpose = 'Auth';
+const certification = 'L1';
+const DeviceStatusReady = 'Ready';
 
-const deviceEndPoint = "/device";
-const infoEndPoint = "/info";
-const captureEndPoint = "/capture";
+const deviceEndPoint = '/device';
+const infoEndPoint = '/info';
+const captureEndPoint = '/capture';
 
-const mosip_DiscoverMethod = "MOSIPDISC";
-const mosip_DeviceInfoMethod = "MOSIPDINFO";
-const mosip_CaptureMethod = "CAPTURE";
+const mosip_DiscoverMethod = 'MOSIPDISC';
+const mosip_DeviceInfoMethod = 'MOSIPDINFO';
+const mosip_CaptureMethod = 'CAPTURE';
 
-const FACE_TYPE = "Face";
-const FINGER_TYPE = "Finger";
-const IRIS_TYPE = "Iris";
-
+const FACE_TYPE = 'Face';
+const FINGER_TYPE = 'Finger';
+const IRIS_TYPE = 'Iris';
 
 class sbiService {
   constructor(openIDConnectService) {
@@ -58,8 +57,9 @@ class sbiService {
       process.env.REACT_APP_SBI_ENV;
 
     const captureTimeout =
-      this.getEsignetConfiguration(configurationKeys.sbiCAPTURETimeoutInSeconds) ??
-      process.env.REACT_APP_SBI_CAPTURE_TIMEOUT;
+      this.getEsignetConfiguration(
+        configurationKeys.sbiCAPTURETimeoutInSeconds
+      ) ?? process.env.REACT_APP_SBI_CAPTURE_TIMEOUT;
 
     const irisBioSubtypes =
       this.getEsignetConfiguration(configurationKeys.sbiIrisBioSubtypes) ??
@@ -71,28 +71,36 @@ class sbiService {
 
     let count = 1;
     let requestedScore = 70;
-    let bioSubType = ["UNKNOWN"];
+    let bioSubType = ['UNKNOWN'];
     switch (type) {
       case FACE_TYPE:
-        count = this.getEsignetConfiguration(configurationKeys.sbiFaceCaptureCount) ??
+        count =
+          this.getEsignetConfiguration(configurationKeys.sbiFaceCaptureCount) ??
           process.env.REACT_APP_SBI_FACE_CAPTURE_COUNT;
-        requestedScore = this.getEsignetConfiguration(configurationKeys.sbiFaceCaptureScore) ??
+        requestedScore =
+          this.getEsignetConfiguration(configurationKeys.sbiFaceCaptureScore) ??
           process.env.REACT_APP_SBI_FACE_CAPTURE_SCORE;
         bioSubType = null; //For Face: No bioSubType
         break;
       case FINGER_TYPE:
-        count = this.getEsignetConfiguration(configurationKeys.sbiFingerCaptureCount) ??
-          process.env.REACT_APP_SBI_FINGER_CAPTURE_COUNT;
-        requestedScore = this.getEsignetConfiguration(configurationKeys.sbiFingerCaptureScore) ??
-          process.env.REACT_APP_SBI_FINGER_CAPTURE_SCORE;
-        bioSubType = fingerBioSubtypes.split(",").map((x) => x.trim());
+        count =
+          this.getEsignetConfiguration(
+            configurationKeys.sbiFingerCaptureCount
+          ) ?? process.env.REACT_APP_SBI_FINGER_CAPTURE_COUNT;
+        requestedScore =
+          this.getEsignetConfiguration(
+            configurationKeys.sbiFingerCaptureScore
+          ) ?? process.env.REACT_APP_SBI_FINGER_CAPTURE_SCORE;
+        bioSubType = fingerBioSubtypes.split(',').map((x) => x.trim());
         break;
       case IRIS_TYPE:
-        count = this.getEsignetConfiguration(configurationKeys.sbiIrisCaptureCount) ??
+        count =
+          this.getEsignetConfiguration(configurationKeys.sbiIrisCaptureCount) ??
           process.env.REACT_APP_SBI_IRIS_CAPTURE_COUNT;
-        requestedScore = this.getEsignetConfiguration(configurationKeys.sbiIrisCaptureScore) ??
+        requestedScore =
+          this.getEsignetConfiguration(configurationKeys.sbiIrisCaptureScore) ??
           process.env.REACT_APP_SBI_IRIS_CAPTURE_SCORE;
-        bioSubType = irisBioSubtypes.split(",").map((x) => x.trim());
+        bioSubType = irisBioSubtypes.split(',').map((x) => x.trim());
         break;
     }
 
@@ -112,20 +120,20 @@ class sbiService {
           requestedScore: requestedScore, // from configuration
           deviceId: deviceId, // from discovery
           deviceSubId: 0, //Set as 0, not required for Auth capture.
-          previousHash: "", // empty string
+          previousHash: '', // empty string
         },
       ],
       customOpts: null,
     };
 
-    let endpoint = host + ":" + port + captureEndPoint;
+    let endpoint = host + ':' + port + captureEndPoint;
 
     let response = await axios({
       method: mosip_CaptureMethod,
       url: endpoint,
       data: request,
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       timeout: captureTimeout * 1000,
     });
@@ -149,10 +157,11 @@ class sbiService {
       this.getEsignetConfiguration(configurationKeys.sbiDISCTimeoutInSeconds) ??
       process.env.REACT_APP_SBI_DISC_TIMEOUT;
     const dinfoTimeout =
-      this.getEsignetConfiguration(configurationKeys.sbiDINFOTimeoutInSeconds) ??
-      process.env.REACT_APP_SBI_DINFO_TIMEOUT;
+      this.getEsignetConfiguration(
+        configurationKeys.sbiDINFOTimeoutInSeconds
+      ) ?? process.env.REACT_APP_SBI_DINFO_TIMEOUT;
 
-    let ports = portRange.split("-").map((x) => x.trim());
+    let ports = portRange.split('-').map((x) => x.trim());
 
     let fromPort = ports[0].trim();
     let tillPort = ports[1].trim();
@@ -177,12 +186,13 @@ class sbiService {
 
     let discoverRequestList = [];
     for (let i = fromPort; i <= tillPort; i++) {
-      discoverRequestList.push(discoverRequestBuilder(host, i, discTimeout, dinfoTimeout));
+      discoverRequestList.push(
+        discoverRequestBuilder(host, i, discTimeout, dinfoTimeout)
+      );
     }
 
     return axios.all(discoverRequestList);
   };
-
 }
 
 /**
@@ -193,11 +203,16 @@ class sbiService {
  * @param {int} port port on which SBI is listening to.
  * @returns MOSIPDISC request for the give host and port
  */
-const discoverRequestBuilder = async (host, port, discTimeout, dinfoTimeout) => {
-  let endpoint = host + ":" + port + deviceEndPoint;
+const discoverRequestBuilder = async (
+  host,
+  port,
+  discTimeout,
+  dinfoTimeout
+) => {
+  let endpoint = host + ':' + port + deviceEndPoint;
 
   let request = {
-    type: "Biometric Device",
+    type: 'Biometric Device',
   };
 
   return axios({
@@ -212,7 +227,7 @@ const discoverRequestBuilder = async (host, port, discTimeout, dinfoTimeout) => 
         await mosipdinfo_DeviceInfo(host, port, dinfoTimeout);
       }
     })
-    .catch((error) => {
+    .catch(() => {
       //ignore
     });
 };
@@ -224,8 +239,7 @@ const discoverRequestBuilder = async (host, port, discTimeout, dinfoTimeout) => 
  * @param {int} port port on which SBI is listening to.
  */
 const mosipdinfo_DeviceInfo = async (host, port, dinfoTimeout) => {
-
-  let endpoint = host + ":" + port + infoEndPoint;
+  let endpoint = host + ':' + port + infoEndPoint;
 
   await axios({
     method: mosip_DeviceInfoMethod,
@@ -240,7 +254,7 @@ const mosipdinfo_DeviceInfo = async (host, port, dinfoTimeout) => {
         addDeviceInfos(port, decodedDeviceDetails);
       }
     })
-    .catch((error) => {
+    .catch(() => {
       //ignore
     });
 };
@@ -288,6 +302,5 @@ const decodeJWT = async (signed_jwt) => {
   const data = await new jose.decodeJwt(signed_jwt);
   return data;
 };
-
 
 export default sbiService;

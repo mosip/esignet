@@ -1,22 +1,22 @@
-import React, { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
-import openIDConnectService from "../services/openIDConnectService";
-import authService from "../services/authService";
-import PopoverContainer from "../common/Popover";
-import ModalPopup from "../common/ModalPopup";
-import redirectOnError from "../helpers/redirectOnError";
-import { configurationKeys } from "../constants/clientConstants";
-import LoadingIndicator from "../common/LoadingIndicator";
-import { decodeHash } from "../helpers/utils";
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import openIDConnectService from '../services/openIDConnectService';
+import authService from '../services/authService';
+import PopoverContainer from '../common/Popover';
+import ModalPopup from '../common/ModalPopup';
+import redirectOnError from '../helpers/redirectOnError';
+import { configurationKeys } from '../constants/clientConstants';
+import LoadingIndicator from '../common/LoadingIndicator';
+import { decodeHash } from '../helpers/utils';
 
 const ClaimDetails = ({
-  i18nKeyPrefix1 = "consentDetails",
-  i18nKeyPrefix2 = "errors",
+  i18nKeyPrefix1 = 'consentDetails',
+  i18nKeyPrefix2 = 'errors',
 }) => {
-  const { t: t1, i18n } = useTranslation("translation", {
+  const { t: t1, i18n } = useTranslation('translation', {
     keyPrefix: i18nKeyPrefix1,
   });
-  const { t: t2 } = useTranslation("translation", {
+  const { t: t2 } = useTranslation('translation', {
     keyPrefix: i18nKeyPrefix2,
   });
   const [claimsScopes, setClaimsScopes] = useState([]);
@@ -28,9 +28,9 @@ const ClaimDetails = ({
   const urlObj = new URL(window.location.href);
 
   // Extracting the value of the 'state' and 'nonce' parameter from the URL
-  const state = urlObj.searchParams.get("state");
-  const nonce = urlObj.searchParams.get("nonce");
-  const uiLocales = urlObj.searchParams.get("ui_locales");
+  const state = urlObj.searchParams.get('state');
+  const nonce = urlObj.searchParams.get('nonce');
+  const uiLocales = urlObj.searchParams.get('ui_locales');
 
   // Extracting the hash part of the URL (excluding the # character)
   const code = urlObj.hash.substring(1);
@@ -54,6 +54,11 @@ const ClaimDetails = ({
     configurationKeys.eKYCStepsConfig
   );
 
+  const randomKey = (prefix) => {
+    const timestamp = new Date().getTime();
+    return `${prefix}${timestamp}`;
+  };
+
   const mergeArrays = (arr1, arr2) => {
     return arr2
       .map((item) => {
@@ -71,37 +76,37 @@ const ClaimDetails = ({
   };
 
   const createClaimsTooltip = (label) => {
-    if (label === "essential") {
+    if (label === 'essential') {
       return (
         <div>
           <p className="mb-1">
-            <span className="!font-semibold">{t1("essential_claims")}: </span>
-            {t1("essentialClaimsTooltip")}
+            <span className="!font-semibold">{t1('essential_claims')}: </span>
+            {t1('essentialClaimsTooltip')}
           </p>
           <p className="mb-1">
-            <span className="!font-semibold">{t1("verified_claims")}: </span>
-            {t1("verifiedClaimTooltip")}
+            <span className="!font-semibold">{t1('verified_claims')}: </span>
+            {t1('verifiedClaimTooltip')}
           </p>
           <p className="mb-1">
-            <span className="!font-semibold">{t1("unverified_claims")}: </span>
-            {t1("unverifiedClaimTooltip")}
+            <span className="!font-semibold">{t1('unverified_claims')}: </span>
+            {t1('unverifiedClaimTooltip')}
           </p>
         </div>
       );
-    } else if (label === "voluntary") {
+    } else if (label === 'voluntary') {
       return (
         <div>
           <p className="mb-1">
-            <span className="!font-semibold">{t1("voluntary_claims")}: </span>
-            {t1("voluntaryClaimsTooltip")}
+            <span className="!font-semibold">{t1('voluntary_claims')}: </span>
+            {t1('voluntaryClaimsTooltip')}
           </p>
           <p className="mb-1">
-            <span className="!font-semibold">{t1("verified_claims")}: </span>
-            {t1("verifiedClaimTooltip")}
+            <span className="!font-semibold">{t1('verified_claims')}: </span>
+            {t1('verifiedClaimTooltip')}
           </p>
           <p className="mb-1">
-            <span className="!font-semibold">{t1("unverified_claims")}: </span>
-            {t1("unverifiedClaimTooltip")}
+            <span className="!font-semibold">{t1('unverified_claims')}: </span>
+            {t1('unverifiedClaimTooltip')}
           </p>
         </div>
       );
@@ -118,33 +123,33 @@ const ClaimDetails = ({
 
       const claimsScopes = [
         {
-          label: "essential_claims",
-          type: "claim",
+          label: 'essential_claims',
+          type: 'claim',
           required: true,
           values: mergeArrays(
             response?.claimStatus,
             oAuth_Details.essentialClaims
           ),
-          tooltip: createClaimsTooltip("essential"),
+          tooltip: createClaimsTooltip('essential'),
         },
         {
-          label: "voluntary_claims",
-          type: "claim",
+          label: 'voluntary_claims',
+          type: 'claim',
           required: false,
           values: mergeArrays(
             response?.claimStatus,
             oAuth_Details.voluntaryClaims
           ),
-          tooltip: createClaimsTooltip("voluntary"),
+          tooltip: createClaimsTooltip('voluntary'),
         },
       ];
       if (!response?.profileUpdateRequired) {
         window.onbeforeunload = null;
-        if (response?.consentAction === "CAPTURE") {
+        if (response?.consentAction === 'CAPTURE') {
           window.location.replace(
-            window.location.href.replace("claim-details", "consent")
+            window.location.href.replace('claim-details', 'consent')
           );
-        } else if (response?.consentAction === "NOCAPTURE") {
+        } else if (response?.consentAction === 'NOCAPTURE') {
           const { response: authCodeResponse, errors: authCodeErrors } =
             await authServices.post_AuthCode(transactionId, [], []);
           if (authCodeErrors?.length) {
@@ -162,14 +167,14 @@ const ClaimDetails = ({
         setClaimsScopes(claimsScopes);
       }
     } catch (error) {
-      redirectOnError("authorization_failed_msg", error.message);
+      redirectOnError('authorization_failed_msg', error.message);
     }
   };
 
   useEffect(() => {
     getAllClaimDetails();
-    if (document.getElementById("language_dropdown") !== null) {
-      document.getElementById("language_dropdown").style.display = "none";
+    if (document.getElementById('language_dropdown') !== null) {
+      document.getElementById('language_dropdown').style.display = 'none';
     }
   }, []);
 
@@ -177,15 +182,10 @@ const ClaimDetails = ({
     setProceedDisabled(true);
     window.onbeforeunload = null;
     try {
-      function randomKey(prefix) {
-        const timestamp = new Date().getTime();
-        return `${prefix}${timestamp}`;
-      }
-
-      const key = randomKey("urlInfo");
+      const key = randomKey('urlInfo');
 
       for (let key in localStorage) {
-        if (key.startsWith("urlInfo")) {
+        if (key.startsWith('urlInfo')) {
           localStorage.removeItem(key);
         }
       }
@@ -193,7 +193,7 @@ const ClaimDetails = ({
       localStorage.setItem(
         key,
         window.location.search.substring(1) +
-          "#" +
+          '#' +
           window.location.hash.substring(1)
       );
 
@@ -209,7 +209,7 @@ const ClaimDetails = ({
         );
       }
     } catch (error) {
-      redirectOnError("authorization_failed_msg", error.message);
+      redirectOnError('authorization_failed_msg', error.message);
     } finally {
       setIsLoading(true);
       setProceedDisabled(false);
@@ -226,7 +226,7 @@ const ClaimDetails = ({
 
   // close the modalpopup and redirect to Relying Party landing page
   const handleDiscontinue = () => {
-    redirectOnError("consent_details_rejected", t1("consent_details_rejected"));
+    redirectOnError('consent_details_rejected', t1('consent_details_rejected'));
   };
 
   // buttons for the modalpopup footer
@@ -239,7 +239,7 @@ const ClaimDetails = ({
           className="flex justify-center w-full font-medium rounded-lg text-sm px-5 py-4 text-center border-2 primary-button"
           onClick={handleStay}
         >
-          {t1("stay_btn")}
+          {t1('stay_btn')}
         </button>
       </div>
       <button
@@ -248,17 +248,17 @@ const ClaimDetails = ({
         className="flex justify-center w-full font-medium rounded-lg text-sm px-5 py-4 text-center border-2 secondary-button"
         onClick={handleDiscontinue}
       >
-        {t1("discontinue_btn")}
+        {t1('discontinue_btn')}
       </button>
     </div>
   );
 
   return isPopup ? (
     <ModalPopup
-      header={t1("popup_header")}
+      header={t1('popup_header')}
       headerClassname="relative text-center text-dark font-semibold text-xl text-[#2B3840] mt-9"
-      body={t1("popup_body", {
-        clientName: oAuth_Details?.clientName["@none"],
+      body={t1('popup_body', {
+        clientName: oAuth_Details?.clientName['@none'],
       })}
       bodyClassname="relative pt-3 text-center mx-5"
       footer={footerButtons}
@@ -267,7 +267,7 @@ const ClaimDetails = ({
   ) : claimsScopes.length === 0 || isLoading ? (
     <LoadingIndicator
       size="medium"
-      message={"loading_msg"}
+      message={'loading_msg'}
       className="align-loading-center"
     />
   ) : (
@@ -299,7 +299,7 @@ const ClaimDetails = ({
           <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
             <div className="relative transform overflow-hidden rounded-[20px] bg-white text-left shadow-xl transition-all duration-300 ease-out sm:my-8 sm:w-full sm:max-w-[28rem] w-screen m-auto">
               <div className="flex flex-shrink-0 flex-wrap items-center justify-center rounded-b-md p-4 py-0 my-5">
-                <div className="header my-2">{t1("header")}</div>
+                <div className="header my-2">{t1('header')}</div>
                 <div className="w-full flex my-3 justify-center items-center">
                   <img
                     className="client-logo-size"
@@ -313,12 +313,12 @@ const ClaimDetails = ({
                   />
                   <img
                     className="brand-only-logo client-logo-size"
-                    alt={t1("logo_alt")}
+                    alt={t1('logo_alt')}
                   />
                 </div>
                 <p className="sub-header m-0 mt-1 md:mx-5 md:mb-1 md:mt-3">
-                  {t1("sub-header", {
-                    clientName: oAuth_Details?.clientName["@none"],
+                  {t1('sub-header', {
+                    clientName: oAuth_Details?.clientName['@none'],
                   })}
                 </p>
                 <div className="claims-list mx-0 md:mx-5">
@@ -374,7 +374,7 @@ const ClaimDetails = ({
                                       <label
                                         className={`${
                                           item.available
-                                            ? "text-[#B9B9B9] inline-block"
+                                            ? 'text-[#B9B9B9] inline-block'
                                             : null
                                         }`}
                                       >
@@ -383,11 +383,11 @@ const ClaimDetails = ({
                                         </span>
                                         {item.verified ? (
                                           <em className="text-[#B9B9B9] inline-block">
-                                            ({t1("verified")})
+                                            ({t1('verified')})
                                           </em>
                                         ) : (
                                           <em className="text-[#B9B9B9] inline-block">
-                                            ({t1("not-verified")})
+                                            ({t1('not-verified')})
                                           </em>
                                         )}
                                       </label>
@@ -395,11 +395,11 @@ const ClaimDetails = ({
                                     <div className="flex justify-end">
                                       {item.available ? (
                                         <span className="available-claim">
-                                          {t1("available")}
+                                          {t1('available')}
                                         </span>
                                       ) : (
                                         <span className="not-available-claim">
-                                          {t1("not-available")}
+                                          {t1('not-available')}
                                         </span>
                                       )}
                                     </div>
@@ -413,7 +413,7 @@ const ClaimDetails = ({
                   )}
                 </div>
                 <div className="message mx-0 px-2 mt-2 md:mx-5">
-                  {t1("message")}
+                  {t1('message')}
                 </div>
                 <div className="mx-0 w-full mt-2 md:mx-5">
                   <div className="mb-3">
@@ -424,7 +424,7 @@ const ClaimDetails = ({
                       onClick={handleProceed}
                       disabled={isProceedDisabled}
                     >
-                      {t1("proceed")}
+                      {t1('proceed')}
                     </button>
                   </div>
                   <div className="mt-3">
@@ -435,7 +435,7 @@ const ClaimDetails = ({
                       onClick={handleCancel}
                       disabled={isProceedDisabled}
                     >
-                      {t1("cancel")}
+                      {t1('cancel')}
                     </button>
                   </div>
                 </div>

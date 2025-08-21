@@ -1,23 +1,24 @@
-import React from "react";
-import { render, screen, waitFor } from "@testing-library/react";
-import { BrowserRouter, MemoryRouter, Route, Routes } from "react-router-dom";
-import { AppRouter } from "../../../src/app/AppRouter";
-import * as configServiceModule from "../../../src/services/configService";
-import * as apiService from "../../../src/services/api.service";
+import React from 'react';
+import { render, screen, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import { AppRouter } from '../../../src/app/AppRouter';
+import * as configServiceModule from '../../../src/services/configService';
 
-jest.mock("react-i18next", () => ({
+jest.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key) => key }),
 }));
 
-jest.mock("../../../src/services/api.service", () => ({
+jest.mock('../../../src/services/api.service', () => ({
   setupResponseInterceptor: jest.fn(),
 }));
 
-jest.mock("../../../src/common/LoadingIndicator", () => () => (
-  <div data-testid="loading">Loading...</div>
-));
+jest.mock('../../../src/common/LoadingIndicator', () => {
+  const LoadingIndicator = () => <div data-testid="loading">Loading...</div>;
+  LoadingIndicator.displayName = 'LoadingIndicator';
+  return LoadingIndicator;
+});
 
-jest.mock("../../../src/pages", () => ({
+jest.mock('../../../src/pages', () => ({
   LoginPage: () => <div>LoginPage</div>,
   AuthorizePage: () => <div>AuthorizePage</div>,
   ConsentPage: () => <div>ConsentPage</div>,
@@ -26,79 +27,85 @@ jest.mock("../../../src/pages", () => ({
   PageNotFoundPage: () => <div>PageNotFoundPage</div>,
 }));
 
-jest.mock("../../../src/components/ClaimDetails", () => () => (
-  <div>ClaimDetails</div>
-));
-jest.mock("../../../src/pages/NetworkError", () => () => (
-  <div>NetworkError</div>
-));
-jest.mock("react-detect-offline", () => ({
+jest.mock('../../../src/components/ClaimDetails', () => {
+  const ClaimDetails = () => <div>ClaimDetails</div>;
+  ClaimDetails.displayName = 'ClaimDetails';
+  return ClaimDetails;
+});
+
+jest.mock('../../../src/pages/NetworkError', () => {
+  const NetworkError = () => <div>NetworkError</div>;
+  NetworkError.displayName = 'NetworkError';
+  return NetworkError;
+});
+
+jest.mock('react-detect-offline', () => ({
   Detector: ({ render }) => render({ online: true }),
 }));
 
-jest.mock("../../../src/helpers/utils", () => ({
+jest.mock('../../../src/helpers/utils', () => ({
   getPollingConfig: () => ({
-    url: "/health",
+    url: '/health',
     interval: 10000,
     timeout: 5000,
     enabled: true,
   }),
 }));
 
-describe("AppRouter", () => {
+describe('AppRouter', () => {
   const mockConfig = {
     background_logo: true,
   };
 
   beforeEach(() => {
-    jest.spyOn(configServiceModule, "default").mockResolvedValue(mockConfig);
+    jest.spyOn(configServiceModule, 'default').mockResolvedValue(mockConfig);
   });
 
-  it("renders loading indicator initially", async () => {
+  it('renders loading indicator initially', async () => {
     render(
-      <MemoryRouter initialEntries={["/"]}>
+      <MemoryRouter initialEntries={['/']}>
         <AppRouter />
       </MemoryRouter>
     );
-    expect(screen.getByTestId("loading")).toBeInTheDocument();
+    expect(screen.getByTestId('loading')).toBeInTheDocument();
     await waitFor(() =>
-      expect(screen.queryByTestId("loading")).not.toBeInTheDocument()
+      expect(screen.queryByTestId('loading')).not.toBeInTheDocument()
     );
   });
 
-  it("renders LoginPage for /login route", async () => {
+  it('renders LoginPage for /login route', async () => {
     render(
-      <MemoryRouter initialEntries={["/login"]}>
+      <MemoryRouter initialEntries={['/login']}>
         <AppRouter />
       </MemoryRouter>
     );
-    await screen.findByText("LoginPage");
+    expect(await screen.findByText('LoginPage')).toBeInTheDocument();
   });
 
-  it("renders AuthorizePage for /authorize route", async () => {
+  it('renders AuthorizePage for /authorize route', async () => {
     render(
-      <MemoryRouter initialEntries={["/authorize"]}>
+      <MemoryRouter initialEntries={['/authorize']}>
         <AppRouter />
       </MemoryRouter>
     );
-    await screen.findByText("AuthorizePage");
+    expect(await screen.findByText('AuthorizePage')).toBeInTheDocument();
   });
 
-  it("renders ConsentPage for /consent route", async () => {
+  it('renders ConsentPage for /consent route', async () => {
     render(
-      <MemoryRouter initialEntries={["/consent"]}>
+      <MemoryRouter initialEntries={['/consent']}>
         <AppRouter />
       </MemoryRouter>
     );
-    await screen.findByText("ConsentPage");
+    expect(await screen.findByText('ConsentPage')).toBeInTheDocument();
   });
 
-  it("renders NetworkError for /network-error route", async () => {
+  it('renders NetworkError for /network-error route', async () => {
     render(
-      <MemoryRouter initialEntries={["/network-error"]}>
+      <MemoryRouter initialEntries={['/network-error']}>
         <AppRouter />
       </MemoryRouter>
     );
-    await screen.findByText("NetworkError");
+    expect(await screen.findByText('NetworkError')).toBeInTheDocument();
   });
 });

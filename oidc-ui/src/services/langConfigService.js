@@ -1,5 +1,5 @@
-import axios from "axios";
-import { DEFAULT_CONFIG, ENG_CONFIG } from "../constants/routes";
+import axios from 'axios';
+import { DEFAULT_CONFIG, ENG_CONFIG } from '../constants/routes';
 
 /**
  * fetchs and return the locale configuration stored in public folder
@@ -27,7 +27,7 @@ const getLangCodeMapping = async () => {
 const langConfigService = {
   getLocaleConfiguration,
   getLangCodeMapping,
-  getEnLocaleConfiguration
+  getEnLocaleConfiguration,
 };
 
 export default langConfigService;
