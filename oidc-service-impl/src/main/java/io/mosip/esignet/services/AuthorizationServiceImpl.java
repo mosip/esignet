@@ -5,7 +5,6 @@
  */
 package io.mosip.esignet.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -61,6 +60,8 @@ import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA_256;
 public class AuthorizationServiceImpl implements AuthorizationService {
 
     private static final String KBI_FIELD_DETAILS_CONFIG_KEY = "auth.factor.kbi.field-details";
+
+    public static final String REQUIRE_PAR= "require_pushed_authorization_requests";
 
     @Autowired
     private ClientManagementService clientManagementService;
@@ -149,6 +150,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Override
     public OAuthDetailResponseV1 getOauthDetails(OAuthDetailRequest oauthDetailReqDto) throws EsignetException {
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(oauthDetailReqDto.getClientId());
+        assertPARRequiredIsFalse(clientDetailDto);
         validateRedirectURIAndNonce(oauthDetailReqDto, clientDetailDto);
         OAuthDetailResponseV1 oAuthDetailResponseV1 = new OAuthDetailResponseV1();
         Pair<OAuthDetailResponse, OIDCTransaction> pair = checkAndBuildOIDCTransaction(oauthDetailReqDto, clientDetailDto, oAuthDetailResponseV1);
@@ -164,6 +166,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Override
     public OAuthDetailResponseV2 getOauthDetailsV2(OAuthDetailRequestV2 oauthDetailReqDto) throws EsignetException {
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(oauthDetailReqDto.getClientId());
+        assertPARRequiredIsFalse(clientDetailDto);
         validateRedirectURIAndNonce(oauthDetailReqDto, clientDetailDto);
         OAuthDetailResponseV2 oAuthDetailResponseV2 = new OAuthDetailResponseV2();
         return buildTransactionAndOAuthDetailResponse(oauthDetailReqDto, clientDetailDto, oAuthDetailResponseV2);
@@ -312,7 +315,10 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                 .anyMatch( entry -> entry.getValue().stream()
                         .anyMatch(m ->
                                 (boolean) m.getOrDefault("essential", false) && m.get("verification") != null &&
-                                ((transaction.getClaimMetadata().get(entry.getKey()) == null || transaction.getClaimMetadata().get(entry.getKey()).isEmpty()))));
+                                ((transaction.getClaimMetadata() == null
+                                        || transaction.getClaimMetadata().get(entry.getKey()) == null
+                                        || transaction.getClaimMetadata().get(entry.getKey()).isEmpty()
+                                        || list.stream().anyMatch(cs -> cs.getClaim().equals(entry.getKey()) && !cs.isVerified())))));
         claimDetailResponse.setProfileUpdateRequired(unverifiedEssentialClaimsExists);
         claimDetailResponse.setClaimStatus(list);
 
@@ -427,6 +433,14 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         authorizationHelperService.validateNonce(oAuthDetailRequest.getNonce());
     }
 
+    private void assertPARRequiredIsFalse(ClientDetail clientDetail) throws EsignetException {
+        boolean isParRequired = clientDetail.getAdditionalConfig(REQUIRE_PAR, false);
+        if (isParRequired) {
+            log.error("Pushed Authorization Request (PAR) flow is mandated for clientId: {}", clientDetail.getId());
+            throw new EsignetException(ErrorConstants.INVALID_REQUEST);
+        }
+    }
+
     private Pair<OAuthDetailResponse, OIDCTransaction> checkAndBuildOIDCTransaction(OAuthDetailRequest oauthDetailReqDto,
                                                                                     ClientDetail clientDetailDto, OAuthDetailResponse oAuthDetailResponse) {
         //Resolve the final set of claims based on registered and request parameter.
@@ -475,6 +489,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oidcTransaction.setUserInfoResponseType(clientDetailDto.getAdditionalConfig(USERINFO_RESPONSE_TYPE,"JWS"));
         oidcTransaction.setPrompt(IdentityProviderUtil.splitAndTrimValue(oauthDetailReqDto.getPrompt(), Constants.SPACE));
         oidcTransaction.setConsentExpireMinutes(clientDetailDto.getAdditionalConfig(CONSENT_EXPIRE_IN_MINS, 0));
+        oidcTransaction.setDpopJkt(oauthDetailReqDto.getDpopJkt());
+        oidcTransaction.setDpopBoundAccessToken(clientDetailDto.getAdditionalConfig(Constants.DPOP_BOUND_ACCESS_TOKENS, false));
         return Pair.of(oAuthDetailResponse, oidcTransaction);
     }
 
@@ -603,6 +619,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oAuthDetailRequestV3.setUiLocales(pushedAuthorizationRequest.getUi_locales());
         oAuthDetailRequestV3.setCodeChallenge(pushedAuthorizationRequest.getCode_challenge());
         oAuthDetailRequestV3.setCodeChallengeMethod(pushedAuthorizationRequest.getCode_challenge_method());
+        oAuthDetailRequestV3.setDpopJkt(pushedAuthorizationRequest.getDpop_jkt());
         return oAuthDetailRequestV3;
     }
 

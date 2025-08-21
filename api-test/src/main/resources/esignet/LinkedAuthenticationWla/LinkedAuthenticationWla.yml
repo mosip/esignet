@@ -302,3 +302,353 @@ LinkedAuthenticationWla:
           "sendOtpResTemplate":"esignet/WalletBinding/WalletBindingResult"
        }
 }'
+
+   ESignet_LinkedAuthenticationWla_SCert_InvalidAcceptedClaim_sid:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationWla_07
+      description: Linked AuthenticationWla VID SCert all valid details
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkedAuthenticationWla/LinkedAuthenticationWla
+      outputTemplate: esignet/LinkedAuthenticationWla/LinkedAuthenticationWlaResult
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+      "linkTransactionId": "$ID:LinkTransaction_forInvalidAcceptedClaim_sid_linkTransactionId$",
+      "individualId": "$ID:AddIdentity_L2_Valid_Parameters_forInvalidAcceptedClaims_Pos_UIN$",
+        "authFactorType": "WLA",
+        "challenge": "$WLATOKENCONSENTACCEPTEDCLAIM$",
+        "format": "jwt",
+        "sendOtp":{
+      "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+      "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      "requestTime": "$TIMESTAMP$",
+      "individualId": "$ID:AddIdentity_L2_Valid_Parameters_forInvalidAcceptedClaims_Pos_UIN$",
+      "otpChannels": [{channel: "email"},{channel: "phone"}],
+        "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+        "sendOtpEndPoint": "/v1/esignet/binding/binding-otp",
+      },
+      "validateOtp":{
+          "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+          "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+          "requestTime": "$TIMESTAMP$",
+          "individualId": "$ID:AddIdentity_L2_Valid_Parameters_forInvalidAcceptedClaims_Pos_UIN$",
+          "authFactorType1": "WLA",
+          "format1": "jwt",
+          "authFactorType": "OTP",
+          "challenge": "$ID:AddIdentity_L2_Valid_Parameters_forInvalidAcceptedClaims_Pos_EMAIL$",
+          "format": "alpha-numeric",
+          "publicKey": "$BINDINGCONSENTACCEPTEDCLAIMJWKKEY$",
+          "validateOtpReqTemplate": "esignet/WalletBinding/WalletBinding",
+          "validateOtpEndPoint": "/v1/esignet/binding/wallet-binding"
+      }
+}'
+      output: '{
+         "sendOtpResp":{
+          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
+       },
+       "validateOtpResp":{
+          "sendOtpResTemplate":"esignet/WalletBinding/WalletBindingResult"
+       }
+}'
+
+   ESignet_LinkedAuthenticationWla_withOnlyOptionalClaim_IfEssAndOptAsRequestedClaim_SCert_sid:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationWla_08
+      description: Linked AuthenticationWla VID SCert all valid details
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkedAuthenticationWla/LinkedAuthenticationWla
+      outputTemplate: esignet/LinkedAuthenticationWla/LinkedAuthenticationWlaResult
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+      "linkTransactionId": "$ID:LinkTransaction_withOnlyOptionalClaim_IfEssAndOptAsRequestedClaim_sid_linkTransactionId$",
+      "individualId": "$ID:AddIdentity_L2_Valid_Parameters_OnlyOptionalClaim_IfEssAndOptAsRequestedClaim_Pos_UIN$",
+        "authFactorType": "WLA",
+        "challenge": "$WLATOKENFOROPTIONALUSER1CLAIM$",
+        "format": "jwt",
+        "sendOtp":{
+      "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+      "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      "requestTime": "$TIMESTAMP$",
+      "individualId": "$ID:AddIdentity_L2_Valid_Parameters_OnlyOptionalClaim_IfEssAndOptAsRequestedClaim_Pos_UIN$",
+      "otpChannels": [{channel: "email"},{channel: "phone"}],
+        "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+        "sendOtpEndPoint": "/v1/esignet/binding/binding-otp",
+      },
+      "validateOtp":{
+          "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+          "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+          "requestTime": "$TIMESTAMP$",
+          "individualId": "$ID:AddIdentity_L2_Valid_Parameters_OnlyOptionalClaim_IfEssAndOptAsRequestedClaim_Pos_UIN$",
+          "authFactorType1": "WLA",
+          "format1": "jwt",
+          "authFactorType": "OTP",
+          "challenge": "$ID:AddIdentity_L2_Valid_Parameters_OnlyOptionalClaim_IfEssAndOptAsRequestedClaim_Pos_EMAIL$",
+          "format": "alpha-numeric",
+          "publicKey": "$BINDINGFOROPTIONALUSER1CLAIMJWKKEY$",
+          "validateOtpReqTemplate": "esignet/WalletBinding/WalletBinding",
+          "validateOtpEndPoint": "/v1/esignet/binding/wallet-binding"
+      }
+}'
+      output: '{
+         "sendOtpResp":{
+          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
+       },
+       "validateOtpResp":{
+          "sendOtpResTemplate":"esignet/WalletBinding/WalletBindingResult"
+       }
+}'
+
+   ESignet_LinkedAuthenticationWla_forPartialEseentialAndOptionalClaim_SCert_sid:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationWla_09
+      description: Linked AuthenticationWla VID SCert all valid details
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkedAuthenticationWla/LinkedAuthenticationWla
+      outputTemplate: esignet/LinkedAuthenticationWla/LinkedAuthenticationWlaResult
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+      "linkTransactionId": "$ID:LinkTransaction_forPartialEseentialAndOptionalClaim_sid_linkTransactionId$",
+      "individualId": "$ID:AddIdentity_L2_Valid_Parameters_ForPartialEseentialAndOptionalClaim_Pos_UIN$",
+        "authFactorType": "WLA",
+        "challenge": "$WLATOKENFORPARTIALESSENTIALOPTIONALUSER1CLAIM$",
+        "format": "jwt",
+        "sendOtp":{
+      "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+      "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      "requestTime": "$TIMESTAMP$",
+      "individualId": "$ID:AddIdentity_L2_Valid_Parameters_ForPartialEseentialAndOptionalClaim_Pos_UIN$",
+      "otpChannels": [{channel: "email"},{channel: "phone"}],
+        "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+        "sendOtpEndPoint": "/v1/esignet/binding/binding-otp",
+      },
+      "validateOtp":{
+          "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+          "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+          "requestTime": "$TIMESTAMP$",
+          "individualId": "$ID:AddIdentity_L2_Valid_Parameters_ForPartialEseentialAndOptionalClaim_Pos_UIN$",
+          "authFactorType1": "WLA",
+          "format1": "jwt",
+          "authFactorType": "OTP",
+          "challenge": "$ID:AddIdentity_L2_Valid_Parameters_ForPartialEseentialAndOptionalClaim_Pos_EMAIL$",
+          "format": "alpha-numeric",
+          "publicKey": "$BINDINGFORPARTIALESSENTIALOPTIONALUSER1CLAIMJWKKEY$",
+          "validateOtpReqTemplate": "esignet/WalletBinding/WalletBinding",
+          "validateOtpEndPoint": "/v1/esignet/binding/wallet-binding"
+      }
+}'
+      output: '{
+         "sendOtpResp":{
+          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
+       },
+       "validateOtpResp":{
+          "sendOtpResTemplate":"esignet/WalletBinding/WalletBindingResult"
+       }
+}'
+
+   ESignet_LinkedAuthenticationWla_forOnlyEseentialClaim_SCert_sid:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationWla_10
+      description: Linked AuthenticationWla VID SCert all valid details
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkedAuthenticationWla/LinkedAuthenticationWla
+      outputTemplate: esignet/LinkedAuthenticationWla/LinkedAuthenticationWlaResult
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+      "linkTransactionId": "$ID:LinkTransaction_forOnlyEseentialClaim_sid_linkTransactionId$",
+      "individualId": "$ID:AddIdentity_L2_Valid_Parameters_ForOnlyEssentialclaims_Pos_UIN$",
+        "authFactorType": "WLA",
+        "challenge": "$WLATOKENFORONLYESSENTIALUSER1CLAIM$",
+        "format": "jwt",
+        "sendOtp":{
+      "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+      "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      "requestTime": "$TIMESTAMP$",
+      "individualId": "$ID:AddIdentity_L2_Valid_Parameters_ForOnlyEssentialclaims_Pos_UIN$",
+      "otpChannels": [{channel: "email"},{channel: "phone"}],
+        "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+        "sendOtpEndPoint": "/v1/esignet/binding/binding-otp",
+      },
+      "validateOtp":{
+          "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+          "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+          "requestTime": "$TIMESTAMP$",
+          "individualId": "$ID:AddIdentity_L2_Valid_Parameters_ForOnlyEssentialclaims_Pos_UIN$",
+          "authFactorType1": "WLA",
+          "format1": "jwt",
+          "authFactorType": "OTP",
+          "challenge": "$ID:AddIdentity_L2_Valid_Parameters_ForOnlyEssentialclaims_Pos_EMAIL$",
+          "format": "alpha-numeric",
+          "publicKey": "$BINDINGFORONLYESSENTIALUSER1CLAIMJWKKEY$",
+          "validateOtpReqTemplate": "esignet/WalletBinding/WalletBinding",
+          "validateOtpEndPoint": "/v1/esignet/binding/wallet-binding"
+      }
+}'
+      output: '{
+         "sendOtpResp":{
+          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
+       },
+       "validateOtpResp":{
+          "sendOtpResTemplate":"esignet/WalletBinding/WalletBindingResult"
+       }
+}'
+
+   ESignet_LinkedAuthenticationWla_forEmptyAsAcceptedClaim_EseentialClaim_SCert_sid:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationWla_11
+      description: Linked AuthenticationWla VID SCert all valid details
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkedAuthenticationWla/LinkedAuthenticationWla
+      outputTemplate: esignet/LinkedAuthenticationWla/LinkedAuthenticationWlaResult
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+      "linkTransactionId": "$ID:LinkTransaction_forEmptyAsAcceptedClaim_EseentialClaim_sid_linkTransactionId$",
+      "individualId": "$ID:AddIdentity_L2_Valid_Parameters_forEmptyAsAcceptedClaim_Pos_UIN$",
+        "authFactorType": "WLA",
+        "challenge": "$WLATOKENFORNULLESSENTIALUSER1CLAIM$",
+        "format": "jwt",
+        "sendOtp":{
+      "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+      "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      "requestTime": "$TIMESTAMP$",
+      "individualId": "$ID:AddIdentity_L2_Valid_Parameters_forEmptyAsAcceptedClaim_Pos_UIN$",
+      "otpChannels": [{channel: "email"},{channel: "phone"}],
+        "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+        "sendOtpEndPoint": "/v1/esignet/binding/binding-otp",
+      },
+      "validateOtp":{
+          "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+          "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+          "requestTime": "$TIMESTAMP$",
+          "individualId": "$ID:AddIdentity_L2_Valid_Parameters_forEmptyAsAcceptedClaim_Pos_UIN$",
+          "authFactorType1": "WLA",
+          "format1": "jwt",
+          "authFactorType": "OTP",
+          "challenge": "$ID:AddIdentity_L2_Valid_Parameters_forEmptyAsAcceptedClaim_Pos_EMAIL$",
+          "format": "alpha-numeric",
+          "publicKey": "$BINDINGFORNULLESSENTIALUSER1CLAIMJWKKEY$",
+          "validateOtpReqTemplate": "esignet/WalletBinding/WalletBinding",
+          "validateOtpEndPoint": "/v1/esignet/binding/wallet-binding"
+      }
+}'
+      output: '{
+         "sendOtpResp":{
+          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
+       },
+       "validateOtpResp":{
+          "sendOtpResTemplate":"esignet/WalletBinding/WalletBindingResult"
+       }
+}'
+
+   ESignet_LinkedAuthenticationWla_forOnlyOptionalClaimIfRequestedOptional_SCert_sid:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationWla_12
+      description: Linked AuthenticationWla VID SCert all valid details
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkedAuthenticationWla/LinkedAuthenticationWla
+      outputTemplate: esignet/LinkedAuthenticationWla/LinkedAuthenticationWlaResult
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+      "linkTransactionId": "$ID:LinkTransaction_forOnlyOptionalClaimIfRequestedOptional_sid_linkTransactionId$",
+      "individualId": "$ID:AddIdentity_L2_Valid_Parameters_forOnlyOptionalClaimIfRequestedOptional_Pos_UIN$",
+        "authFactorType": "WLA",
+        "challenge": "$WLATOKENFOROPTIONALACCEPTEDUSER1CLAIM$",
+        "format": "jwt",
+        "sendOtp":{
+      "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+      "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      "requestTime": "$TIMESTAMP$",
+      "individualId": "$ID:AddIdentity_L2_Valid_Parameters_forOnlyOptionalClaimIfRequestedOptional_Pos_UIN$",
+      "otpChannels": [{channel: "email"},{channel: "phone"}],
+        "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+        "sendOtpEndPoint": "/v1/esignet/binding/binding-otp",
+      },
+      "validateOtp":{
+          "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+          "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+          "requestTime": "$TIMESTAMP$",
+          "individualId": "$ID:AddIdentity_L2_Valid_Parameters_forOnlyOptionalClaimIfRequestedOptional_Pos_UIN$",
+          "authFactorType1": "WLA",
+          "format1": "jwt",
+          "authFactorType": "OTP",
+          "challenge": "$ID:AddIdentity_L2_Valid_Parameters_forOnlyOptionalClaimIfRequestedOptional_Pos_EMAIL$",
+          "format": "alpha-numeric",
+          "publicKey": "$BINDINGFOROPTIONALACCEPTEDUSER1CLAIMJWKKEY$",
+          "validateOtpReqTemplate": "esignet/WalletBinding/WalletBinding",
+          "validateOtpEndPoint": "/v1/esignet/binding/wallet-binding"
+      }
+}'
+      output: '{
+         "sendOtpResp":{
+          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
+       },
+       "validateOtpResp":{
+          "sendOtpResTemplate":"esignet/WalletBinding/WalletBindingResult"
+       }
+}'
+
+   ESignet_LinkedAuthenticationWla_forEmptyAcceptedClaimIfRequestedIsOptional_SCert_sid:
+      endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationWla_13
+      description: Linked AuthenticationWla for EmptyAcceptedClaimIfRequestedIsOptional
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkedAuthenticationWla/LinkedAuthenticationWla
+      outputTemplate: esignet/LinkedAuthenticationWla/LinkedAuthenticationWlaResult
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+      "linkTransactionId": "$ID:LinkTransaction_forEmptyAcceptedClaimIfRequestedIsOptional_sid_linkTransactionId$",
+      "individualId": "$ID:AddIdentity_L2_Valid_Parameters_forEmptyAcceptedClaimIfRequestedIsOptional_Pos_UIN$",
+        "authFactorType": "WLA",
+        "challenge": "$WLATOKENFORNULLACCEPTEDUSER1CLAIM$",
+        "format": "jwt",
+        "sendOtp":{
+      "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+      "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      "requestTime": "$TIMESTAMP$",
+      "individualId": "$ID:AddIdentity_L2_Valid_Parameters_forEmptyAcceptedClaimIfRequestedIsOptional_Pos_UIN$",
+      "otpChannels": [{channel: "email"},{channel: "phone"}],
+        "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+        "sendOtpEndPoint": "/v1/esignet/binding/binding-otp",
+      },
+      "validateOtp":{
+          "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+          "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+          "requestTime": "$TIMESTAMP$",
+          "individualId": "$ID:AddIdentity_L2_Valid_Parameters_forEmptyAcceptedClaimIfRequestedIsOptional_Pos_UIN$",
+          "authFactorType1": "WLA",
+          "format1": "jwt",
+          "authFactorType": "OTP",
+          "challenge": "$ID:AddIdentity_L2_Valid_Parameters_forEmptyAcceptedClaimIfRequestedIsOptional_Pos_EMAIL$",
+          "format": "alpha-numeric",
+          "publicKey": "$BINDINGFORNULLACCEPTEDUSER1CLAIMJWKKEY$",
+          "validateOtpReqTemplate": "esignet/WalletBinding/WalletBinding",
+          "validateOtpEndPoint": "/v1/esignet/binding/wallet-binding"
+      }
+}'
+      output: '{
+         "sendOtpResp":{
+          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
+       },
+       "validateOtpResp":{
+          "sendOtpResTemplate":"esignet/WalletBinding/WalletBindingResult"
+       }
+}'

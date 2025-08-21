@@ -204,11 +204,8 @@ const ClaimDetails = ({
       if (errors?.length) {
         redirectOnError(errors[0].errorCode, t2(errors[0].errorCode));
       } else {
-        const encodedIdToken = btoa(
-          `id_token_hint=${response.idToken}&ui_locales=${i18n.language}`
-        );
         window.location.replace(
-          `${eKYCStepsURL}?state=${state}#${encodedIdToken}`
+          `${eKYCStepsURL}?state=${state}&id_token_hint=${response.idToken}&ui_locales=${i18n.language}`
         );
       }
     } catch (error) {

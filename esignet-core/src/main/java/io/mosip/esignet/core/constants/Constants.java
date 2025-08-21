@@ -11,6 +11,7 @@ public class Constants {
     public static final String UTC_DATETIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     public static final String SPACE = " ";
     public static final String BEARER = "Bearer";
+    public static final String DPOP = "DPoP";
     public static final String SCOPE_OPENID= "openid";
 
     public static final String PRE_AUTH_SESSION_CACHE = "preauth";
@@ -53,8 +54,11 @@ public class Constants {
     public static final String VERIFICATION_COMPLETE = "COMPLETED";
     public static final String VERIFIED_CLAIMS = "verified_claims";
     public static final String PAR_CACHE = "par";
+
+    // client additionalConfig
     public static final String USERINFO_RESPONSE_TYPE = "userinfo_response_type";
     public static final String CONSENT_EXPIRE_IN_MINS = "consent_expire_in_mins";
+    public static final String DPOP_BOUND_ACCESS_TOKENS = "dpop_bound_access_tokens";
 
     public static final String PAR_REQUEST_URI_PREFIX = "urn:ietf:params:oauth:request_uri:";
 }

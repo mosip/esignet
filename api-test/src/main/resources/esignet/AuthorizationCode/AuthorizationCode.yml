@@ -763,3 +763,106 @@ AuthorizationCode:
   ]
 }'
 
+   ESignet_AuthorizationCode_uin_acceptedClaims_without_essentialClaim_Neg:
+      endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_33
+      description: Authorization code request without essential claim
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthorizationCode/AuthorizationCode
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_all_Valid_for_authCode_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_for_authCode_sid_transactionId$",
+      	"acceptedClaims": [{claim: "gender"},{claim: "picture"}]
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_accepted_claim"
+    }
+  ]
+}'
+
+   ESignet_AuthorizationCode_uin_acceptedClaims_with_OneessentialClaimAllOptionalClaim_Neg:
+      endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_34
+      description: Authorization code request with essential claim and optional Claims
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthorizationCode/AuthorizationCode
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_all_Valid_for_authCode_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_for_authCode_sid_transactionId$",
+      	"acceptedClaims": [{claim: "name"},{claim: "gender"},{claim: "picture"}]
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_accepted_claim"
+    }
+  ]
+}'
+
+   ESignet_AuthorizationCode_uin_All_Valid_onlyEssentialClaim_sid:
+      endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_35
+      description: Authorization code request with only accepted claim
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthorizationCode/AuthorizationCode
+      outputTemplate: esignet/AuthorizationCode/AuthorizationCodeResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_all_Valid_for_authCode_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_for_authCode_sid_transactionId$",
+      	"acceptedClaims": [{claim: "name"},{claim: "email"}]
+}'
+      output: '{
+}'
+
+   ESignet_AuthorizationCode_uin_All_Valid_onlyOptionalClaim_sid:
+      endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_36
+      description: Authorization code by providing only optional claim provided only optional claims are part of requested claim 
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthorizationCode/AuthorizationCode
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_all_Valid_for_authCode_onlyOptionalClaim_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_for_authCode_onlyOptionalClaim_sid_transactionId$",
+      	"acceptedClaims": [{claim: "gender"},{claim: "name"}]
+}'
+      output: '{
+}'
+
+   ESignet_AuthorizationCode_uin_All_Valid_onlyOptionalClaim_user2_sid:
+      endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_37
+      description: Authorization code by not providing any accepted claims provided there is no requested essential claims 
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthorizationCode/AuthorizationCode
+      outputTemplate: esignet/AuthorizationCode/AuthorizationCodeResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_all_Valid_for_authCode_onlyOptionalClaim_user2_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_for_authCode_onlyOptionalClaim_user2_sid_transactionId$",
+      	"acceptedClaims": []
+}'
+      output: '{
+}'
+
