@@ -1,2 +1,6 @@
 ##### JIRA number;testcase 
-#MOSIP-12456------Mimoto_AddIdentity_Binding_smoke_Pos
+#MOSIP-12456------test_case_name
+ES-2506------ESignet_SendBindingOtp_Vid_Valid_Smoke_sid
+ES-2506------ESignet_WalletBinding_Vid_OTP_Valid_Smoke
+ES-2507------ESignet_BioAuth_Biometric_Face_With_Valid_Vid_Smoke_Pos
+ES-2507------ESignet_BioAuth_Biometric_Face_With_Valid_uin_Smoke_Pos
