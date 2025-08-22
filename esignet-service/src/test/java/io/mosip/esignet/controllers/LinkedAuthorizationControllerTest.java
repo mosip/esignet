@@ -19,6 +19,7 @@ import javax.servlet.AsyncListener;
 import io.mosip.esignet.core.config.LocalAuthenticationEntryPoint;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.dto.Error;
+import io.mosip.esignet.core.util.SecurityHelperService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -72,6 +73,9 @@ public class LinkedAuthorizationControllerTest {
 
     @MockBean
     LocalAuthenticationEntryPoint localAuthenticationEntryPoint;
+
+    @MockBean
+    SecurityHelperService securityHelperService;
 
     @Test
     public void generateLinkCode_withValidRequest_thenPass() throws Exception {

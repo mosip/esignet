@@ -199,9 +199,6 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
         if(ex instanceof NotAuthenticatedException) {
             errorCode = INVALID_AUTH_TOKEN;
         }
-        if(ex instanceof MissingRequestHeaderException) {
-            errorCode = MISSING_HEADER;
-        }
         log.error("Unhandled exception encountered in handler advice", ex);
         MultiValueMap<String, String> headers = new HttpHeaders();
         headers.add("WWW-Authenticate", "error=\""+errorCode+"\"");

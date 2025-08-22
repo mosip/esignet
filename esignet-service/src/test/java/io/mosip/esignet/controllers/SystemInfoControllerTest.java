@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.Optional;
 
 import io.mosip.esignet.core.config.LocalAuthenticationEntryPoint;
+import io.mosip.esignet.core.util.SecurityHelperService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -50,6 +51,9 @@ public class SystemInfoControllerTest {
 
     @MockBean
     LocalAuthenticationEntryPoint localAuthenticationEntryPoint;
+
+    @MockBean
+    SecurityHelperService securityHelperService;
     
     @Test
     public void getCertificate_withValidRequest_thenPass() throws Exception {

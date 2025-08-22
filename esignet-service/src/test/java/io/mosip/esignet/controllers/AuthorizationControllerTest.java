@@ -23,6 +23,7 @@ import io.mosip.esignet.core.spi.AuthorizationService;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
+import io.mosip.esignet.core.util.SecurityHelperService;
 import io.mosip.esignet.services.AuthorizationHelperService;
 import io.mosip.esignet.services.CacheUtilService;
 import org.junit.Assert;
@@ -87,6 +88,9 @@ public class AuthorizationControllerTest {
 
     @MockBean
     LocalAuthenticationEntryPoint localAuthenticationEntryPoint;
+
+    @MockBean
+    SecurityHelperService securityHelperService;
 
 
     @Value("${mosip.esignet.claims.schema.url}")
