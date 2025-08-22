@@ -1,10 +1,10 @@
-import localStorageService from "./local-storageService";
-import { ApiService } from "./api.service";
+import localStorageService from './local-storageService';
+import { ApiService } from './api.service';
 import {
   LINK_AUTHORIZATION_CODE,
   LINK_CODE_GENERATE,
   LINK_STATUS,
-} from "../constants/routes";
+} from '../constants/routes';
 
 const { getCookie } = { ...localStorageService };
 
@@ -28,11 +28,11 @@ class linkAuthService {
 
     let response = await ApiService.post(LINK_CODE_GENERATE, request, {
       headers: {
-        "Content-Type": "application/json",
-        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
-        "oauth-details-hash":
+        'Content-Type': 'application/json',
+        'X-XSRF-TOKEN': getCookie('XSRF-TOKEN'),
+        'oauth-details-hash':
           await this.openIDConnectService.getOauthDetailsHash(),
-        "oauth-details-key": await this.openIDConnectService.getTransactionId(),
+        'oauth-details-key': await this.openIDConnectService.getTransactionId(),
       },
     });
     return response.data;
@@ -55,11 +55,11 @@ class linkAuthService {
 
     let response = await ApiService.post(LINK_STATUS, request, {
       headers: {
-        "Content-Type": "application/json",
-        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
-        "oauth-details-hash":
+        'Content-Type': 'application/json',
+        'X-XSRF-TOKEN': getCookie('XSRF-TOKEN'),
+        'oauth-details-hash':
           await this.openIDConnectService.getOauthDetailsHash(),
-        "oauth-details-key": await this.openIDConnectService.getTransactionId(),
+        'oauth-details-key': await this.openIDConnectService.getTransactionId(),
       },
     });
     return response.data;
@@ -82,11 +82,11 @@ class linkAuthService {
 
     let response = await ApiService.post(LINK_AUTHORIZATION_CODE, request, {
       headers: {
-        "Content-Type": "application/json",
-        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
-        "oauth-details-hash":
+        'Content-Type': 'application/json',
+        'X-XSRF-TOKEN': getCookie('XSRF-TOKEN'),
+        'oauth-details-hash':
           await this.openIDConnectService.getOauthDetailsHash(),
-        "oauth-details-key": await this.openIDConnectService.getTransactionId(),
+        'oauth-details-key': await this.openIDConnectService.getTransactionId(),
       },
     });
     return response.data;

@@ -1,17 +1,15 @@
-import React from "react";
-import { useTranslation } from "react-i18next";
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 export default function Tabs({ color, tabs, block }) {
-  const { t } = useTranslation("tabs");
+  const { t } = useTranslation('tabs');
 
   const [openTab, setOpenTab] = React.useState(0);
   return (
     <>
       <div className="flex flex-wrap">
         <div className="w-full">
-          <ul
-            className="flex mb-0 list-none flex-wrap pt-3 pb-4 flex-row"
-          >
+          <ul className="flex mb-0 list-none flex-wrap pt-3 pb-4 flex-row">
             {tabs.map((tab, index) => (
               <li
                 key={tab.name + index}
@@ -19,12 +17,12 @@ export default function Tabs({ color, tabs, block }) {
               >
                 <a
                   className={
-                    "text-xs font-bold uppercase px-5 py-3 shadow-lg rounded block leading-normal " +
+                    'text-xs font-bold uppercase px-5 py-3 shadow-lg rounded block leading-normal ' +
                     (openTab === index
-                      ? "text-white bg-gradient-to-r from-" +
+                      ? 'text-white bg-gradient-to-r from-' +
                         color +
-                        "-500 to-blue-500 hover:bg-gradient-to-bl"
-                      : "text-" + color + "-600 bg-white")
+                        '-500 to-blue-500 hover:bg-gradient-to-bl'
+                      : 'text-' + color + '-600 bg-white')
                   }
                   onClick={(e) => {
                     e.preventDefault();
@@ -35,7 +33,7 @@ export default function Tabs({ color, tabs, block }) {
                   role="tablist"
                   id={tab.name + index}
                 >
-                  <i className={"fas fa-" + tab.icon + " text-base mr-1"}></i>{" "}
+                  <i className={'fas fa-' + tab.icon + ' text-base mr-1'}></i>{' '}
                   {t(tab.name)}
                 </a>
               </li>
@@ -47,8 +45,8 @@ export default function Tabs({ color, tabs, block }) {
               {tabs.map((tab, index) => (
                 <div
                   key={tab.comp + index}
-                  className={openTab === index ? "block" : "hidden"}
-                  id={"link" + index}
+                  className={openTab === index ? 'block' : 'hidden'}
+                  id={'link' + index}
                 >
                   {block.get(tab.icon)}
                 </div>

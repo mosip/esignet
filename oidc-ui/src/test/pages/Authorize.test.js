@@ -1,21 +1,26 @@
-import React from "react";
-import { render, screen } from "@testing-library/react";
-import AuthorizePage from "../../pages/Authorize";
-import * as AuthServiceModule from "../../services/authService";
+import React from 'react';
+import { render } from '@testing-library/react';
+import AuthorizePage from '../../pages/Authorize';
+import * as AuthServiceModule from '../../services/authService';
 
 // ✅ Correctly mock the default export Authorize
-jest.mock("../../components/Authorize", () => ({
+jest.mock('../../components/Authorize', () => ({
   __esModule: true, // ⬅️ VERY IMPORTANT for default export mocking
   default: jest.fn(() => <div data-testid="authorize-component" />),
 }));
 
-import Authorize from "../../components/Authorize";
+import Authorize from '../../components/Authorize';
 
-describe("AuthorizePage", () => {
-  it("should render Authorize component with authService prop", () => {
-    // Mock the class constructor
-    const AuthServiceMock = jest.fn();
-    AuthServiceModule.default = AuthServiceMock;
+describe('AuthorizePage', () => {
+  it('should render Authorize component with authService prop', () => {
+    // ✅ Create a specific instance for the mock constructor
+    const mockInstance = { foo: 'bar' };
+    const AuthServiceMock = jest.fn(() => mockInstance);
+
+    // ✅ Spy on the default export and replace with our mock
+    jest
+      .spyOn(AuthServiceModule, 'default')
+      .mockImplementation(AuthServiceMock);
 
     render(<AuthorizePage />);
 
@@ -25,7 +30,7 @@ describe("AuthorizePage", () => {
     // Check if mock Authorize was called with correct props
     expect(Authorize).toHaveBeenCalledWith(
       expect.objectContaining({
-        authService: expect.any(AuthServiceMock),
+        authService: mockInstance, // 👈 exact instance returned from mock
       }),
       {}
     );

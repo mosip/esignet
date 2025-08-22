@@ -1,55 +1,60 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import Signup from "../../components/Signup";
-import { signupFields } from "../../constants/formFields";
+import { render, screen, fireEvent } from '@testing-library/react';
+import Signup from '../../components/Signup';
+import { signupFields } from '../../constants/formFields';
 
 // Mock Input and FormAction components
-jest.mock(
-  "../../components/Input",
-  () =>
-    ({
-      handleChange,
-      value,
-      labelText,
-      id,
-      name,
-      type,
-      isRequired,
-      placeholder,
-    }) =>
-      (
-        <div>
-          <label htmlFor={id}>{labelText}</label>
-          <input
-            id={id}
-            name={name}
-            type={type}
-            required={isRequired}
-            placeholder={placeholder}
-            value={value}
-            onChange={handleChange}
-          />
-        </div>
-      )
-);
+jest.mock('../../components/Input', () => {
+  function Input({
+    handleChange,
+    value,
+    labelText,
+    id,
+    name,
+    type,
+    isRequired,
+    placeholder,
+  }) {
+    return (
+      <div>
+        <label htmlFor={id}>{labelText}</label>
+        <input
+          id={id}
+          name={name}
+          type={type}
+          required={isRequired}
+          placeholder={placeholder}
+          value={value}
+          onChange={handleChange}
+        />
+      </div>
+    );
+  }
+  return Input;
+});
 
-jest.mock("../../components/FormAction", () => ({ handleSubmit, text, id }) => (
-  <button id={id} type="submit" onClick={handleSubmit}>
-    {text}
-  </button>
-));
+jest.mock('../../components/FormAction', () => {
+  function FormAction({ handleSubmit, text, id }) {
+    return (
+      <button id={id} type="submit" onClick={handleSubmit}>
+        {text}
+      </button>
+    );
+  }
+  return FormAction;
+});
 
-describe("Signup Component", () => {
-  test("renders all signup fields", () => {
+describe('Signup Component', () => {
+  test('renders all signup fields', () => {
     render(<Signup />);
 
     signupFields.forEach((field) => {
       expect(screen.getByLabelText(field.labelText)).toBeInTheDocument();
     });
 
-    expect(screen.getByRole("button", { name: /signup/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /signup/i })).toBeInTheDocument();
   });
 
-  test("updates input values and submits form", () => {
+  test('updates input values and submits form', () => {
     render(<Signup />);
 
     // Fill out each input field
@@ -60,9 +65,9 @@ describe("Signup Component", () => {
     });
 
     // Spy on console.log for submission
-    const logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+    const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
 
-    const submitBtn = screen.getByRole("button", { name: /signup/i });
+    const submitBtn = screen.getByRole('button', { name: /signup/i });
     fireEvent.click(submitBtn);
 
     const expectedState = {};

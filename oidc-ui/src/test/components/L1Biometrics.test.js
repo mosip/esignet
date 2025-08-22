@@ -1,27 +1,26 @@
 // 🧩 Polyfills for Node.js environment
-global.TextEncoder = require("util").TextEncoder;
-global.TextDecoder = require("util").TextDecoder;
+global.TextEncoder = require('util').TextEncoder;
+global.TextDecoder = require('util').TextDecoder;
 
-import React from "react";
+import React from 'react';
 import {
   render,
   screen,
   act,
   waitFor,
   fireEvent,
-} from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
-import L1Biometrics from "../../components/L1Biometrics";
-import { init, propChange } from "secure-biometric-interface-integrator";
-import langConfigService from "../../services/langConfigService";
-import redirectOnError from "../../helpers/redirectOnError";
+} from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import L1Biometrics from '../../components/L1Biometrics';
+import { init } from 'secure-biometric-interface-integrator';
+import langConfigService from '../../services/langConfigService';
 
 // ✅ Mock i18n
-jest.mock("react-i18next", () => ({
+jest.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key) => key,
     i18n: {
-      language: "en",
+      language: 'en',
       on: jest.fn(),
       off: jest.fn(),
       changeLanguage: jest.fn(),
@@ -30,89 +29,107 @@ jest.mock("react-i18next", () => ({
 }));
 
 // ✅ Mock secure biometric
-jest.mock("secure-biometric-interface-integrator", () => ({
+jest.mock('secure-biometric-interface-integrator', () => ({
   init: jest.fn(),
   propChange: jest.fn(),
 }));
 
 // ✅ Mock subcomponents
-jest.mock(
-  "../../components/InputWithImage",
-  () =>
-    ({ handleChange, blurChange, isInvalid, value, ...props }) =>
-      (
-        <input
-          data-testid={`input-${props.id}`}
-          onChange={handleChange}
-          onBlur={blurChange}
-          value={value || ""}
-          className={isInvalid ? "invalid" : ""}
-        />
-      )
-);
-jest.mock(
-  "../../components/InputWithPrefix",
-  () =>
-    ({
-      currentLoginID,
-      countryCode,
-      selectedCountry,
-      individualId,
-      isBtnDisabled,
-    }) =>
-      (
-        <div data-testid="input-with-prefix">
-          <select
-            data-testid="prefix-select"
-            onChange={(e) => countryCode(e.target.value)}
-          >
-            {currentLoginID.prefixes.map((p) => (
-              <option key={p.label} value={p.label}>
-                {p.label}
-              </option>
-            ))}
-          </select>
-          <input
-            data-testid="prefix-input"
-            onChange={(e) => individualId(e.target.value)}
-            onBlur={() => isBtnDisabled(false)}
-          />
-        </div>
-      )
-);
-jest.mock(
-  "../../common/ErrorBanner",
-  () =>
-    ({ showBanner, errorCode, onCloseHandle }) =>
-      showBanner ? <div data-testid="error-banner">{errorCode}</div> : null
-);
-jest.mock("../../common/LoadingIndicator", () => ({ message }) => (
-  <div data-testid="loading-indicator">{message}</div>
-));
-jest.mock("react-google-recaptcha", () => {
-  const React = require("react");
-  return React.forwardRef(({ onChange }, ref) => (
-    <div data-testid="recaptcha">
+// ✅ Mock InputWithImage
+jest.mock('../../components/InputWithImage', () => {
+  const MockInputWithImage = ({
+    handleChange,
+    blurChange,
+    isInvalid,
+    value,
+    ...props
+  }) => (
+    <input
+      data-testid={`input-${props.id}`}
+      onChange={handleChange}
+      onBlur={blurChange}
+      value={value || ''}
+      className={isInvalid ? 'invalid' : ''}
+    />
+  );
+  MockInputWithImage.displayName = 'MockInputWithImage';
+  return MockInputWithImage;
+});
+
+// ✅ Mock InputWithPrefix
+jest.mock('../../components/InputWithPrefix', () => {
+  const MockInputWithPrefix = ({
+    currentLoginID,
+    countryCode,
+    individualId,
+    isBtnDisabled,
+  }) => (
+    <div data-testid="input-with-prefix">
+      <select
+        data-testid="prefix-select"
+        onChange={(e) => countryCode(e.target.value)}
+      >
+        {currentLoginID.prefixes.map((p) => (
+          <option key={p.label} value={p.label}>
+            {p.label}
+          </option>
+        ))}
+      </select>
+      <input
+        data-testid="prefix-input"
+        onChange={(e) => individualId(e.target.value)}
+        onBlur={() => isBtnDisabled(false)}
+      />
+    </div>
+  );
+  MockInputWithPrefix.displayName = 'MockInputWithPrefix';
+  return MockInputWithPrefix;
+});
+
+// ✅ Mock ErrorBanner
+jest.mock('../../common/ErrorBanner', () => {
+  const MockErrorBanner = ({ showBanner, errorCode }) =>
+    showBanner ? <div data-testid="error-banner">{errorCode}</div> : null;
+  MockErrorBanner.displayName = 'MockErrorBanner';
+  return MockErrorBanner;
+});
+
+// ✅ Mock LoadingIndicator
+jest.mock('../../common/LoadingIndicator', () => {
+  const MockLoadingIndicator = ({ message }) => (
+    <div data-testid="loading-indicator">{message}</div>
+  );
+  MockLoadingIndicator.displayName = 'MockLoadingIndicator';
+  return MockLoadingIndicator;
+});
+
+// ✅ Mock reCAPTCHA
+jest.mock('react-google-recaptcha', () => {
+  const React = require('react');
+  const MockRecaptcha = React.forwardRef(({ onChange }, ref) => (
+    <div data-testid="recaptcha" ref={ref}>
       <button
         data-testid="captcha-button"
-        onClick={() => onChange("captcha-token")}
+        onClick={() => onChange('captcha-token')}
       >
         Complete CAPTCHA
       </button>
     </div>
   ));
+  MockRecaptcha.displayName = 'MockRecaptcha';
+  return MockRecaptcha;
 });
 
 // ✅ Mock LoginIDOptions
-jest.mock("../../components/LoginIDOptions", () => {
-  const React = require("react");
+jest.mock('../../components/LoginIDOptions', () => {
+  const React = require('react');
   return function MockLoginIDOptions({ currentLoginID }) {
     React.useEffect(() => {
       if (currentLoginID) {
         currentLoginID({
-          id: "mock-id",
-          input_label: "Label",
-          input_placeholder: "Placeholder",
+          id: 'mock-id',
+          input_label: 'Label',
+          input_placeholder: 'Placeholder',
           prefixes: [],
         });
       }
@@ -122,62 +139,62 @@ jest.mock("../../components/LoginIDOptions", () => {
 });
 
 // ✅ Mock services
-jest.mock("../../services/langConfigService", () => ({
+jest.mock('../../services/langConfigService', () => ({
   getEnLocaleConfiguration: jest.fn().mockResolvedValue({
     errors: { biometrics: {}, otp: {} },
   }),
 }));
-jest.mock("../../helpers/redirectOnError", () => jest.fn());
+jest.mock('../../helpers/redirectOnError', () => jest.fn());
 
 const mockAuthService = {
   post_AuthenticateUser: jest
     .fn()
     .mockResolvedValue({ response: {}, errors: [] }),
-  buildRedirectParams: jest.fn(() => "?mock=params"),
+  buildRedirectParams: jest.fn(() => '?mock=params'),
 };
 
 const mockOpenIDConnectService = {
-  getTransactionId: jest.fn(() => "mocktxn123"),
-  encodeBase64: jest.fn(() => "encodedBio"),
+  getTransactionId: jest.fn(() => 'mocktxn123'),
+  encodeBase64: jest.fn(() => 'encodedBio'),
   getOAuthDetails: jest.fn(() => ({})),
-  getNonce: jest.fn(() => "nonce123"),
-  getState: jest.fn(() => "state123"),
+  getNonce: jest.fn(() => 'nonce123'),
+  getState: jest.fn(() => 'state123'),
   getEsignetConfiguration: jest.fn((key) => {
     const config = {
       loginIdOptions: [
         {
-          id: "mock-id",
-          input_label: "Label",
-          input_placeholder: "Placeholder",
+          id: 'mock-id',
+          input_label: 'Label',
+          input_placeholder: 'Placeholder',
           prefixes: [],
         },
       ],
-      captchaEnableComponents: "bio",
-      captchaSiteKey: "test-site-key",
-      authTxnIdLength: "10",
-      sbiEnv: "test",
-      sbiCAPTURETimeoutInSeconds: "30",
-      sbiIrisBioSubtypes: "both",
-      sbiFingerBioSubtypes: "all",
-      sbiFaceCaptureCount: "1",
-      sbiFaceCaptureScore: "80",
-      sbiFingerCaptureCount: "2",
-      sbiFingerCaptureScore: "80",
-      sbiIrisCaptureCount: "2",
-      sbiIrisCaptureScore: "80",
-      sbiPortRange: "8000-9000",
-      sbiDISCTimeoutInSeconds: "10",
-      sbiDINFOTimeoutInSeconds: "5",
+      captchaEnableComponents: 'bio',
+      captchaSiteKey: 'test-site-key',
+      authTxnIdLength: '10',
+      sbiEnv: 'test',
+      sbiCAPTURETimeoutInSeconds: '30',
+      sbiIrisBioSubtypes: 'both',
+      sbiFingerBioSubtypes: 'all',
+      sbiFaceCaptureCount: '1',
+      sbiFaceCaptureScore: '80',
+      sbiFingerCaptureCount: '2',
+      sbiFingerCaptureScore: '80',
+      sbiIrisCaptureCount: '2',
+      sbiIrisCaptureScore: '80',
+      sbiPortRange: '8000-9000',
+      sbiDISCTimeoutInSeconds: '10',
+      sbiDINFOTimeoutInSeconds: '5',
     };
-    return config[key] || "";
+    return config[key] || '';
   }),
 };
 
 const mockParam = {
   inputFields: [
     {
-      id: "mock-id",
-      type: "text",
+      id: 'mock-id',
+      type: 'text',
       isRequired: true,
     },
   ],
@@ -188,14 +205,14 @@ const defaultProps = {
   authService: mockAuthService,
   openIDConnectService: mockOpenIDConnectService,
   backButtonDiv: <div>Back</div>,
-  secondaryHeading: "secondary_heading",
+  secondaryHeading: 'secondary_heading',
 };
 
 beforeEach(() => {
   jest.clearAllMocks();
   document.getElementById = jest
     .fn()
-    .mockReturnValue(document.createElement("div"));
+    .mockReturnValue(document.createElement('div'));
 });
 
 afterEach(() => {
@@ -203,7 +220,7 @@ afterEach(() => {
 });
 
 // Test 1: Renders successfully without crashing
-test("renders L1Biometrics component successfully without crashing", async () => {
+test('renders L1Biometrics component successfully without crashing', async () => {
   await act(async () => {
     render(
       <MemoryRouter>
@@ -212,15 +229,15 @@ test("renders L1Biometrics component successfully without crashing", async () =>
     );
   });
 
-  await screen.findByText("Back");
-  await screen.findByText("LoginIDOptions");
+  await screen.findByText('Back');
+  await screen.findByText('LoginIDOptions');
 
-  expect(screen.getByText("Back")).toBeInTheDocument();
-  expect(screen.getByText("LoginIDOptions")).toBeInTheDocument();
+  expect(screen.getByText('Back')).toBeInTheDocument();
+  expect(screen.getByText('LoginIDOptions')).toBeInTheDocument();
 });
 
 // Test 2: Loads language configuration on mount
-test("loads language configuration on component mount", async () => {
+test('loads language configuration on component mount', async () => {
   await act(async () => {
     render(
       <MemoryRouter>
@@ -235,11 +252,11 @@ test("loads language configuration on component mount", async () => {
 });
 
 // Test 3: Handles language configuration failure
-test("handles language configuration failure with fallback", async () => {
+test('handles language configuration failure with fallback', async () => {
   langConfigService.getEnLocaleConfiguration.mockRejectedValueOnce(
-    new Error("Failed")
+    new Error('Failed')
   );
-  jest.spyOn(console, "error").mockImplementation(() => {});
+  jest.spyOn(console, 'error').mockImplementation(() => {});
 
   await act(async () => {
     render(
@@ -251,7 +268,7 @@ test("handles language configuration failure with fallback", async () => {
 
   await waitFor(() => {
     expect(console.error).toHaveBeenCalledWith(
-      "Failed to load lang config",
+      'Failed to load lang config',
       expect.any(Error)
     );
     expect(langConfigService.getEnLocaleConfiguration).toHaveBeenCalled();
@@ -259,7 +276,7 @@ test("handles language configuration failure with fallback", async () => {
 });
 
 // Test 4: Initializes biometric interface on mount
-test("initializes secure biometric interface on first render", async () => {
+test('initializes secure biometric interface on first render', async () => {
   await act(async () => {
     render(
       <MemoryRouter>
@@ -273,7 +290,7 @@ test("initializes secure biometric interface on first render", async () => {
       expect.objectContaining({
         transactionId: expect.any(String),
         sbiEnv: expect.any(Object),
-        langCode: "en",
+        langCode: 'en',
         disable: true,
       })
     );
@@ -281,23 +298,23 @@ test("initializes secure biometric interface on first render", async () => {
 });
 
 // Test 5: Handles input change and validation
-test("handles input change and updates validation state", async () => {
+test('handles input change and updates validation state', async () => {
   const mockLoginID = {
-    id: "mock-id",
-    input_label: "Label",
-    input_placeholder: "Placeholder",
+    id: 'mock-id',
+    input_label: 'Label',
+    input_placeholder: 'Placeholder',
     prefixes: [],
-    maxLength: "10",
-    regex: "^[0-9]+$",
+    maxLength: '10',
+    regex: '^[0-9]+$',
   };
   mockOpenIDConnectService.getEsignetConfiguration.mockImplementation((key) => {
     const config = {
       loginIdOptions: [mockLoginID],
-      captchaEnableComponents: "bio",
-      captchaSiteKey: "test-site-key",
-      authTxnIdLength: "10",
+      captchaEnableComponents: 'bio',
+      captchaSiteKey: 'test-site-key',
+      authTxnIdLength: '10',
     };
-    return config[key] || "";
+    return config[key] || '';
   });
 
   await act(async () => {
@@ -308,11 +325,11 @@ test("handles input change and updates validation state", async () => {
     );
   });
 
-  const input = screen.getByTestId("input-sbi_mock-id");
+  const input = screen.getByTestId('input-sbi_mock-id');
   await act(async () => {
-    fireEvent.change(input, { target: { value: "1234567890" } });
+    fireEvent.change(input, { target: { value: '1234567890' } });
   });
 
-  expect(input).toHaveValue("1234567890");
-  expect(input).not.toHaveClass("invalid");
+  expect(input).toHaveValue('1234567890');
+  expect(input).not.toHaveClass('invalid');
 });

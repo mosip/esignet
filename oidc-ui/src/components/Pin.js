@@ -1,27 +1,27 @@
-import { useState, useEffect, useRef } from "react";
-import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
-import LoadingIndicator from "../common/LoadingIndicator";
+import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import LoadingIndicator from '../common/LoadingIndicator';
 import {
   buttonTypes,
   challengeFormats,
   challengeTypes,
   configurationKeys,
-} from "../constants/clientConstants";
-import { pinFields } from "../constants/formFields";
-import { LoadingStates as states } from "../constants/states";
-import FormAction from "./FormAction";
-import ErrorBanner from "../common/ErrorBanner";
-import langConfigService from "../services/langConfigService";
-import InputWithImage from "./InputWithImage";
-import redirectOnError from "../helpers/redirectOnError";
-import ReCAPTCHA from "react-google-recaptcha";
-import LoginIDOptions from "./LoginIDOptions";
-import InputWithPrefix from "./InputWithPrefix";
+} from '../constants/clientConstants';
+import { pinFields } from '../constants/formFields';
+import { LoadingStates as states } from '../constants/states';
+import FormAction from './FormAction';
+import ErrorBanner from '../common/ErrorBanner';
+import langConfigService from '../services/langConfigService';
+import InputWithImage from './InputWithImage';
+import redirectOnError from '../helpers/redirectOnError';
+import ReCAPTCHA from 'react-google-recaptcha';
+import LoginIDOptions from './LoginIDOptions';
+import InputWithPrefix from './InputWithPrefix';
 
 const fields = pinFields;
 let fieldsState = {};
-fields.forEach((field) => (fieldsState["Pin_" + field.id] = ""));
+fields.forEach((field) => (fieldsState['Pin_' + field.id] = ''));
 
 export default function Pin({
   param,
@@ -29,13 +29,13 @@ export default function Pin({
   openIDConnectService,
   backButtonDiv,
   secondaryHeading,
-  i18nKeyPrefix1 = "pin",
-  i18nKeyPrefix2 = "errors",
+  i18nKeyPrefix1 = 'pin',
+  i18nKeyPrefix2 = 'errors',
 }) {
-  const { t: t1, i18n } = useTranslation("translation", {
+  const { t: t1, i18n } = useTranslation('translation', {
     keyPrefix: i18nKeyPrefix1,
   });
-  const { t: t2 } = useTranslation("translation", {
+  const { t: t2 } = useTranslation('translation', {
     keyPrefix: i18nKeyPrefix2,
   });
 
@@ -47,7 +47,7 @@ export default function Pin({
         const config = await langConfigService.getEnLocaleConfiguration();
         setLangConfig(config);
       } catch (e) {
-        console.error("Failed to load lang config", e);
+        console.error('Failed to load lang config', e);
         setLangConfig({ errors: { otp: {} } }); // Fallback to prevent crashes
       }
     }
@@ -56,7 +56,7 @@ export default function Pin({
   }, []);
 
   const inputCustomClass =
-    "h-10 border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[hsla(0, 0%, 51%)] focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-muted-light-gray shadow-none";
+    'h-10 border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[hsla(0, 0%, 51%)] focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-muted-light-gray shadow-none';
 
   const fields = param;
   const post_AuthenticateUser = authService.post_AuthenticateUser;
@@ -72,7 +72,6 @@ export default function Pin({
   const [currentLoginID, setCurrentLoginID] = useState(null);
   const [countryCode, setCountryCode] = useState(null);
   const [individualId, setIndividualId] = useState(null);
-  const [selectedCountry, setSelectedCountry] = useState(null);
   const [isValid, setIsValid] = useState(false);
   const [isBtnDisabled, setIsBtnDisabled] = useState(true);
   const [prevLanguage, setPrevLanguage] = useState(i18n.language);
@@ -87,11 +86,11 @@ export default function Pin({
     ) ?? process.env.REACT_APP_CAPTCHA_ENABLE;
 
   const captchaEnableComponentsList = captchaEnableComponents
-    .split(",")
+    .split(',')
     .map((x) => x.trim().toLowerCase());
 
   const [showCaptcha, setShowCaptcha] = useState(
-    captchaEnableComponentsList.indexOf("pin") !== -1
+    captchaEnableComponentsList.indexOf('pin') !== -1
   );
 
   const captchaSiteKey =
@@ -125,7 +124,7 @@ export default function Pin({
     onCloseHandle();
     const idProperties = getPropertiesForLoginID(
       currentLoginID,
-      e.target.name.split("_")[1]
+      e.target.name.split('_')[1]
     );
     const maxLength = idProperties.maxLength;
     const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
@@ -134,7 +133,7 @@ export default function Pin({
     let newValue = trimmedValue;
 
     setIndividualId(newValue); // Update state with the visible valid value
-    if (e.target.type === "password") {
+    if (e.target.type === 'password') {
       setPin(e.target.value.trim());
     } else {
       setIndividualId(newValue);
@@ -158,7 +157,7 @@ export default function Pin({
   const handleBlur = (e) => {
     const idProperties = getPropertiesForLoginID(
       currentLoginID,
-      e.target.name.split("_")[1]
+      e.target.name.split('_')[1]
     );
     const maxLength = idProperties.maxLength;
     const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
@@ -180,9 +179,6 @@ export default function Pin({
       setIsValid(false);
       setIsBtnDisabled(true);
       onCloseHandle();
-      if (currentLoginID && currentLoginID.prefixes) {
-        setSelectedCountry(currentLoginID.prefixes[0]);
-      }
     } else {
       setPrevLanguage(i18n.language);
     }
@@ -204,7 +200,7 @@ export default function Pin({
 
   useEffect(() => {
     let loadComponent = async () => {
-      i18n.on("languageChanged", () => {
+      i18n.on('languageChanged', () => {
         if (showCaptcha) {
           //to rerender recaptcha widget on language change
           setShowCaptcha(false);
@@ -238,12 +234,12 @@ export default function Pin({
       let transactionId = openIDConnectService.getTransactionId();
 
       let prefix = currentLoginID.prefixes
-        ? typeof currentLoginID.prefixes === "object"
+        ? typeof currentLoginID.prefixes === 'object'
           ? countryCode
           : currentLoginID.prefixes
-        : "";
+        : '';
       let id = individualId;
-      let postfix = currentLoginID.postfix ? currentLoginID.postfix : "";
+      let postfix = currentLoginID.postfix ? currentLoginID.postfix : '';
 
       let ID = prefix + id + postfix;
       let challengeType = challengeTypes.pin;
@@ -270,7 +266,7 @@ export default function Pin({
 
       const { response, errors } = authenticateResponse;
 
-      if (errors != null && errors.length > 0) {
+      if (errors !== null && errors.length > 0) {
         let errorCodeCondition =
           langConfig.errors.pin[errors[0].errorCode] !== undefined &&
           langConfig.errors.pin[errors[0].errorCode] !== null;
@@ -280,7 +276,7 @@ export default function Pin({
             errorCode: `pin.${errors[0].errorCode}`,
             show: true,
           });
-        } else if (errors[0].errorCode === "invalid_transaction") {
+        } else if (errors[0].errorCode === 'invalid_transaction') {
           redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
         } else {
           setErrorBanner({
@@ -305,13 +301,13 @@ export default function Pin({
           response.consentAction
         );
 
-        navigate(process.env.PUBLIC_URL + "/claim-details" + params, {
+        navigate(process.env.PUBLIC_URL + '/claim-details' + params, {
           replace: true,
         });
       }
     } catch (error) {
       setErrorBanner({
-        errorCode: "authentication_failed_msg",
+        errorCode: 'authentication_failed_msg',
         show: true,
       });
       setStatus(states.ERROR);
@@ -336,9 +332,13 @@ export default function Pin({
               if the login id option is single, then with secondary heading will pass a object with current id
               if the login id option is multiple, then secondary heading will be passed as it is
             */}
-            {t1(secondaryHeading, loginIDs && loginIDs.length === 1 && {
-              currentID: t1(loginIDs[0].id)
-            })}
+            {t1(
+              secondaryHeading,
+              loginIDs &&
+                loginIDs.length === 1 && {
+                  currentID: t1(loginIDs[0].id),
+                }
+            )}
           </div>
         )}
       </div>
@@ -366,9 +366,6 @@ export default function Pin({
                 countryCode={(val) => {
                   setCountryCode(val);
                 }}
-                selectedCountry={(val) => {
-                  setSelectedCountry(val);
-                }}
                 individualId={(val) => {
                   setIndividualId(val);
                 }}
@@ -381,15 +378,15 @@ export default function Pin({
               {fields.map(
                 (field, idx) =>
                   idx === 1 && (
-                    <div className="-space-y-px">
+                    <div className="-space-y-px" key={idx}>
                       <InputWithImage
-                        key={"Pin_" + currentLoginID.id}
+                        key={'Pin_' + currentLoginID.id}
                         handleChange={handlePinChange}
                         blurChange={onBlurChange}
                         labelText={t1(field.labelText)}
-                        labelFor={"Pin_" + currentLoginID.id}
-                        id={"Pin_" + currentLoginID.id}
-                        name={"Pin_" + currentLoginID.id}
+                        labelFor={'Pin_' + currentLoginID.id}
+                        id={'Pin_' + currentLoginID.id}
+                        name={'Pin_' + currentLoginID.id}
                         type={field.type}
                         isRequired={field.isRequired}
                         placeholder={t1(field.placeholder)}
@@ -397,7 +394,7 @@ export default function Pin({
                         errorCode={field.errorCode}
                         maxLength={field.maxLength}
                         regex={field.regex}
-                        value={pin ?? ""}
+                        value={pin ?? ''}
                       />
                     </div>
                   )
@@ -406,21 +403,23 @@ export default function Pin({
           ) : (
             <>
               {fields.map((field, idx) => (
-                <div className="-space-y-px">
+                <div className="-space-y-px" key={idx}>
                   <InputWithImage
-                    key={"Pin_" + currentLoginID.id}
-                    handleChange={
-                      idx === 0 ? handleChange : handlePinChange
-                    }
+                    key={'Pin_' + currentLoginID.id}
+                    handleChange={idx === 0 ? handleChange : handlePinChange}
                     blurChange={idx === 0 ? handleBlur : onBlurChange}
                     labelText={
                       idx === 0
                         ? currentLoginID.input_label
                         : t1(field.labelText)
                     }
-                    labelFor={idx === 0 ? currentLoginID.id : "Pin_" + currentLoginID.id}
-                    id={idx === 0 ? currentLoginID.id : "Pin_" + currentLoginID.id}
-                    name={idx === 0 ? "Pin_" + currentLoginID.id : "pin"}
+                    labelFor={
+                      idx === 0 ? currentLoginID.id : 'Pin_' + currentLoginID.id
+                    }
+                    id={
+                      idx === 0 ? currentLoginID.id : 'Pin_' + currentLoginID.id
+                    }
+                    name={idx === 0 ? 'Pin_' + currentLoginID.id : 'pin'}
                     type={field.type}
                     isRequired={field.isRequired}
                     placeholder={
@@ -432,11 +431,11 @@ export default function Pin({
                     imgPath={null}
                     individualId={individualId}
                     isInvalid={!isValid}
-                    value={idx === 0 ? individualId ?? "" : pin ?? ""}
-                    errorCode={idx === 1 ? field.errorCode : ""}
-                    maxLength={idx === 1 ? field.maxLength : ""}
-                    regex={idx === 1 ? field.regex : ""}
-                    currenti18nPrefix={idx === 0 ? i18nKeyPrefix1 : ""}
+                    value={idx === 0 ? (individualId ?? '') : (pin ?? '')}
+                    errorCode={idx === 1 ? field.errorCode : ''}
+                    maxLength={idx === 1 ? field.maxLength : ''}
+                    regex={idx === 1 ? field.regex : ''}
+                    currenti18nPrefix={idx === 0 ? i18nKeyPrefix1 : ''}
                     idx={idx}
                   />
                 </div>
@@ -456,7 +455,7 @@ export default function Pin({
                 htmlFor="remember-me"
                 className="mx-2 block text-sm text-cyan-900"
               >
-                {t1("remember_me")}
+                {t1('remember_me')}
               </label>
             </div>
           </div>
@@ -474,7 +473,7 @@ export default function Pin({
 
           <FormAction
             type={buttonTypes.submit}
-            text={t1("login")}
+            text={t1('login')}
             id="verify_pin"
             disabled={
               !individualId ||

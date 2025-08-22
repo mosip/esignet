@@ -1,23 +1,23 @@
-import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
-import LoadingIndicator from "../common/LoadingIndicator";
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import LoadingIndicator from '../common/LoadingIndicator';
 import {
   configurationKeys,
   walletConfigKeys,
-} from "../constants/clientConstants";
-import { LoadingStates as states } from "../constants/states";
-import { getAllAuthFactors } from "../services/walletService";
+} from '../constants/clientConstants';
+import { LoadingStates as states } from '../constants/states';
+import { getAllAuthFactors } from '../services/walletService';
 
 export default function SignInOptions({
   openIDConnectService,
   handleSignInOptionClick,
-  i18nKeyPrefix = "signInOption",
+  i18nKeyPrefix = 'signInOption',
   icons,
-  authLabel
+  authLabel,
 }) {
-  const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
+  const { t } = useTranslation('translation', { keyPrefix: i18nKeyPrefix });
 
-  const [status, setStatus] = useState({ state: states.LOADED, msg: "" });
+  const [status, setStatus] = useState({ state: states.LOADED, msg: '' });
   const [singinOptions, setSinginOptions] = useState(null);
   const [showMoreOptions, setShowMoreOptions] = useState(false);
   const [iconsMap, setIconsMap] = useState({}); // To store preloaded SVGs
@@ -28,47 +28,44 @@ export default function SignInOptions({
 
   var walletLogoUrl = walletConfig[0][walletConfigKeys.walletLogoUrl];
 
+  // Function to fetch and apply the background color dynamically
+  const updateLanguageIconBgColor = (svgText) => {
+    // Construct the CSS variable name dynamically
+    const cssVariableName = `--primary-color`;
+
+    // Get the computed style for the body element
+    const bodyStyles = getComputedStyle(document.body);
+
+    // Fetch the value of the custom property
+    const primaryColor = bodyStyles.getPropertyValue(cssVariableName).trim();
+
+    if (primaryColor) {
+      // Apply the color to the stroke and fill attributes of the SVG
+      svgText = svgText.replace(
+        /fill="(?!#fff|white|none)[^"]*"/g,
+        `fill="${primaryColor}"`
+      );
+
+      svgText = svgText.replace(
+        /stroke="(?!#fff|white|none)[^"]*"/g,
+        `stroke="${primaryColor}"`
+      );
+    }
+    return svgText;
+  };
+
   const fetchSvg = async (path) => {
     try {
       const response = await fetch(`/${path}`);
       if (!response.ok) {
-        throw new Error("Failed to fetch SVG");
+        throw new Error('Failed to fetch SVG');
       }
       let svgText = await response.text();
 
-      // Function to fetch and apply the background color dynamically
-      function updateLanguageIconBgColor() {
-        // Construct the CSS variable name dynamically
-        const cssVariableName = `--primary-color`;
-
-        // Get the computed style for the body element
-        const bodyStyles = getComputedStyle(document.body);
-
-        // Fetch the value of the custom property
-        const primaryColor = bodyStyles
-          .getPropertyValue(cssVariableName)
-          .trim();
-
-        if (primaryColor) {
-          // Apply the color to the stroke and fill attributes of the SVG
-          svgText = svgText.replace(
-            /fill="(?!#fff|white|none)[^"]*"/g,
-            `fill="${primaryColor}"`
-          );
-
-          svgText = svgText.replace(
-            /stroke="(?!#fff|white|none)[^"]*"/g,
-            `stroke="${primaryColor}"`
-          );
-        }
-      }
-
       // Call the function to apply the color on page load or dynamically
-      updateLanguageIconBgColor();
-
-      return svgText;
+      return updateLanguageIconBgColor(svgText);
     } catch (error) {
-      return ""; // Return empty string if error occurs
+      return ''; // Return empty string if error occurs
     }
   };
 
@@ -78,8 +75,7 @@ export default function SignInOptions({
         if (option.icon !== walletLogoUrl) {
           const svgContent = await fetchSvg(option.icon);
           return { id: option.id, svgContent };
-        }
-        else return { id: option.id };
+        } else return { id: option.id };
       });
 
       const svgResults = await Promise.all(svgPromises);
@@ -98,28 +94,28 @@ export default function SignInOptions({
         Object.keys(icons)?.length
       ) {
         setIconsMap(icons);
-      } else if (!icons){
+      } else if (!icons) {
         preloadIcons();
       }
     }
 
     if (iconsMap && Object.keys(iconsMap)?.length > 0) {
-      setStatus({ state: states.LOADED, msg: "" });
+      setStatus({ state: states.LOADED, msg: '' });
     } else {
-      setStatus({ state: states.LOADING, msg: "loading_msg" });
+      setStatus({ state: states.LOADING, msg: 'loading_msg' });
     }
   }, [singinOptions]);
-  
+
   useEffect(() => {
     if (iconsMap && Object.keys(iconsMap)?.length > 0) {
-      setStatus({ state: states.LOADED, msg: "" });
+      setStatus({ state: states.LOADED, msg: '' });
     } else {
-      setStatus({ state: states.LOADING, msg: "loading_msg" });
+      setStatus({ state: states.LOADING, msg: 'loading_msg' });
     }
   }, [iconsMap]);
 
   useEffect(() => {
-    setStatus({ state: states.LOADING, msg: "loading_msg" });
+    setStatus({ state: states.LOADING, msg: 'loading_msg' });
 
     let oAuthDetails = openIDConnectService.getOAuthDetails();
     let authFactors = oAuthDetails?.authFactors;
@@ -137,13 +133,13 @@ export default function SignInOptions({
 
     setSinginOptions(loginOptions);
     setShowMoreOptions(loginOptions.length > 4);
-    setStatus({ state: states.LOADED, msg: "" });
+    setStatus({ state: states.LOADED, msg: '' });
   }, []);
 
   return (
     <>
       <h1 className="text-base leading-5 font-sans font-medium my-2">
-        {t("preferred_mode_to_continue")}
+        {t('preferred_mode_to_continue')}
       </h1>
 
       {status.state === states.LOADING && (
@@ -163,10 +159,10 @@ export default function SignInOptions({
                   key={idx}
                   className="w-full flex py-[0.6rem] px-1 my-1 cursor-pointer login-list-box-style overflow-hidden"
                   id={option.id}
-                  onClick={(e) =>
+                  onClick={() =>
                     handleSignInOptionClick(option.value, iconsMap, authLabel)
                   }
-                  onKeyDown={(e) =>
+                  onKeyDown={() =>
                     handleSignInOptionClick(option.value, iconsMap, authLabel)
                   }
                   role="button"
@@ -175,7 +171,7 @@ export default function SignInOptions({
                   {option.icon !== walletLogoUrl ? (
                     <div
                       dangerouslySetInnerHTML={{
-                        __html: iconsMap[option.id] || "",
+                        __html: iconsMap[option.id] || '',
                       }}
                       className="mx-2 relative top-[2.5px] w-6"
                     ></div>
@@ -206,7 +202,7 @@ export default function SignInOptions({
           tabIndex={0}
         >
           <span className="mr-2 rtl:ml-2 more-signin-options">
-            {t("more_ways_to_sign_in")}
+            {t('more_ways_to_sign_in')}
           </span>
           <span>
             <svg

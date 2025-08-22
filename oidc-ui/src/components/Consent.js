@@ -1,24 +1,24 @@
-import i18next from "i18next";
-import { useEffect, useState, useRef } from "react";
-import { useTranslation } from "react-i18next";
-import { Tooltip as ReactTooltip } from "react-tooltip";
-import LoadingIndicator from "../common/LoadingIndicator";
-import { buttonTypes, configurationKeys } from "../constants/clientConstants";
-import { LoadingStates, LoadingStates as states } from "../constants/states";
-import FormAction from "./FormAction";
-import langConfigService from "./../services/langConfigService";
-import ModalPopup from "../common/ModalPopup";
-import configService from "../services/configService";
-import redirectOnError from "../helpers/redirectOnError";
+import i18next from 'i18next';
+import { useEffect, useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Tooltip as ReactTooltip } from 'react-tooltip';
+import LoadingIndicator from '../common/LoadingIndicator';
+import { buttonTypes, configurationKeys } from '../constants/clientConstants';
+import { LoadingStates, LoadingStates as states } from '../constants/states';
+import FormAction from './FormAction';
+import langConfigService from './../services/langConfigService';
+import ModalPopup from '../common/ModalPopup';
+import configService from '../services/configService';
+import redirectOnError from '../helpers/redirectOnError';
 
 export default function Consent({
   authService,
   consentAction,
   authTime,
   openIDConnectService,
-  i18nKeyPrefix = "consent",
+  i18nKeyPrefix = 'consent',
 }) {
-  const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
+  const { t } = useTranslation('translation', { keyPrefix: i18nKeyPrefix });
 
   const post_AuthCode = authService.post_AuthCode;
 
@@ -40,10 +40,10 @@ export default function Consent({
   const [status, setStatus] = useState(states.LOADED);
   const [claims, setClaims] = useState([]);
   const [scope, setScope] = useState([]);
-  const [clientName, setClientName] = useState("");
-  const [clientLogoPath, setClientLogoPath] = useState("");
+  const [clientName, setClientName] = useState('');
+  const [clientLogoPath, setClientLogoPath] = useState('');
   const [claimsScopes, setClaimsScopes] = useState([]);
-  const [langMap, setLangMap] = useState("");
+  const [langMap, setLangMap] = useState('');
   const [timeLeft, setTimeLeft] = useState(null);
   const [cancelPopup, setCancelPopup] = useState(false);
   const [voluntaryClaims, setVoluntaryClaims] = useState([]);
@@ -58,8 +58,8 @@ export default function Consent({
   }, []);
 
   const slideToggleClass = config?.outline_toggle
-    ? "toggle-outline"
-    : "toggle-no-outline";
+    ? 'toggle-outline'
+    : 'toggle-no-outline';
 
   const hasAllElement = (mainArray, subArray) =>
     subArray.every((ele) => mainArray.includes(ele));
@@ -115,7 +115,7 @@ export default function Consent({
 
   const selectUnselectAllScopeClaim = (e, claimScope, main = false) => {
     if (main) {
-      if (claimScope.type === "scope") {
+      if (claimScope.type === 'scope') {
         setScope(
           e.target.checked
             ? union(scope, claimScope?.values)
@@ -129,7 +129,7 @@ export default function Consent({
         );
       }
     } else {
-      if (claimScope.type === "scope") {
+      if (claimScope.type === 'scope') {
         handleScopeChange(e);
       } else {
         handleClaimChange(e);
@@ -157,7 +157,7 @@ export default function Consent({
     };
     claimsScopes.forEach((claimScope) => {
       if (!claimScope?.required) {
-        const data = claimScope.type === "scope" ? scope : claims;
+        const data = claimScope.type === 'scope' ? scope : claims;
         const hasAll = hasAllElement(data, claimScope?.values);
         const diff = difference(claimScope?.values, data);
         const hasNot = diff.length === claimScope.values.length;
@@ -176,7 +176,7 @@ export default function Consent({
     ids.uncheck.claim.forEach((_) => elementChecked(_, false));
   };
 
-  i18next.on("languageChanged", () => {
+  i18next.on('languageChanged', () => {
     setClientMultiLang();
   });
 
@@ -186,7 +186,7 @@ export default function Consent({
     let currentLanguage = localLangMap[i18next.language];
     let clientName =
       oAuthDetails.clientName[currentLanguage] ??
-      oAuthDetails.clientName["@none"];
+      oAuthDetails.clientName['@none'];
     setClientName(clientName);
   };
 
@@ -194,7 +194,7 @@ export default function Consent({
   //2. If consentAction = NoCapture we will directly submit it and return
   useEffect(() => {
     const initialize = async () => {
-      if (consentAction === "NOCAPTURE") {
+      if (consentAction === 'NOCAPTURE') {
         submitConsent([], []);
         return;
       }
@@ -206,27 +206,27 @@ export default function Consent({
 
       let claimsScopes = [];
       claimsScopes.push({
-        label: "authorize_scope",
-        type: "scope",
+        label: 'authorize_scope',
+        type: 'scope',
         required: false,
         values: oAuthDetails?.authorizeScopes,
-        tooltip: "authorize_scope_tooltip",
+        tooltip: 'authorize_scope_tooltip',
       });
 
       claimsScopes.push({
-        label: "essential_claims",
-        type: "claim",
+        label: 'essential_claims',
+        type: 'claim',
         required: true,
         values: oAuthDetails?.essentialClaims,
-        tooltip: "essential_claims_tooltip",
+        tooltip: 'essential_claims_tooltip',
       });
 
       claimsScopes.push({
-        label: "voluntary_claims",
-        type: "claim",
+        label: 'voluntary_claims',
+        type: 'claim',
         required: false,
         values: oAuthDetails?.voluntaryClaims,
-        tooltip: "voluntary_claims_tooltip",
+        tooltip: 'voluntary_claims_tooltip',
       });
 
       setClaimsScopes(claimsScopes);
@@ -254,7 +254,7 @@ export default function Consent({
       let timePassed = currentTime - authTime;
       let tLeft = transactionTimeoutWithBuffer - timePassed;
       if (tLeft <= 0) {
-        redirectOnError("transaction_timeout", t("transaction_timeout"));
+        redirectOnError('transaction_timeout', t('transaction_timeout'));
         return;
       }
       setTimeLeft(tLeft);
@@ -277,8 +277,8 @@ export default function Consent({
   function formatTime(time) {
     const minutes = Math.floor(time / 60)
       .toString()
-      .padStart(2, "0");
-    const seconds = (time % 60).toString().padStart(2, "0");
+      .padStart(2, '0');
+    const seconds = (time % 60).toString().padStart(2, '0');
     return `${minutes}:${seconds}`;
   }
 
@@ -310,30 +310,30 @@ export default function Consent({
 
       const { response, errors } = authCodeResponse;
 
-      if (errors != null && errors.length > 0) {
+      if (errors !== null && errors.length > 0) {
         redirectOnError(
           errors[0].errorCode,
-          i18next.t("errors." + errors[0].errorCode)
+          i18next.t('errors.' + errors[0].errorCode)
         );
         return;
       }
 
-      let params = "?";
+      let params = '?';
 
       if (response.state) {
-        params = params + "state=" + response.state + "&";
+        params = params + 'state=' + response.state + '&';
       }
 
       window.location.replace(
-        response.redirectUri + params + "code=" + response.code
+        response.redirectUri + params + 'code=' + response.code
       );
     } catch (error) {
-      redirectOnError("authorization_failed_msg", error.message);
+      redirectOnError('authorization_failed_msg', error.message);
     }
   };
 
   if (authTime === null) {
-    redirectOnError("invalid_transaction", t("invalid_transaction"));
+    redirectOnError('invalid_transaction', t('invalid_transaction'));
   }
 
   const sliderButtonDiv = (item, handleOnchange) => (
@@ -360,7 +360,7 @@ export default function Consent({
     </div>
   );
 
-  if (consentAction === "NOCAPTURE") {
+  if (consentAction === 'NOCAPTURE') {
     return (
       <div className="flex items-center justify-center section-background">
         <div className="max-w-md w-full shadow mt-5 rounded loading-indicator px-4 py-4">
@@ -381,7 +381,7 @@ export default function Consent({
 
   // close the modalpopup and redirect to Relying Party landing page
   const handleDiscontinue = () => {
-    redirectOnError("consent_request_rejected", t("consent_request_rejected"));
+    redirectOnError('consent_request_rejected', t('consent_request_rejected'));
   };
 
   // buttons for the modalpopup footer
@@ -393,7 +393,7 @@ export default function Consent({
           className="flex justify-center w-full font-medium rounded-lg text-sm px-5 py-4 text-center border-2 primary-button"
           onClick={handleStay}
         >
-          {t("cancelpopup.stay_btn")}
+          {t('cancelpopup.stay_btn')}
         </button>
       </div>
       <button
@@ -401,7 +401,7 @@ export default function Consent({
         className="flex justify-center w-full font-medium rounded-lg text-sm px-5 py-4 text-center border-2 secondary-button"
         onClick={handleDiscontinue}
       >
-        {t("cancelpopup.discontinue_btn")}
+        {t('cancelpopup.discontinue_btn')}
       </button>
     </div>
   );
@@ -415,9 +415,9 @@ export default function Consent({
           <ModalPopup
             alertIcon="images/warning_message_icon.svg"
             alertClassname="flex flex-shrink-0 items-center justify-center rounded-t-md p-4 mt-4"
-            header={t("cancelpopup.confirm_header")}
+            header={t('cancelpopup.confirm_header')}
             headerClassname="relative text-center text-dark font-semibold text-xl text-[#2B3840] mt-4"
-            body={t("cancelpopup.confirm_text")}
+            body={t('cancelpopup.confirm_text')}
             bodyClassname="relative px-4 py-3 text-center"
             footer={footerButtons}
             footerClassname="flex flex-shrink-0 flex-wrap items-center justify-center rounded-b-md p-4 mb-5 mt-3"
@@ -428,10 +428,10 @@ export default function Consent({
             {timeLeft && timeLeft > 0 && status !== LoadingStates.LOADING && (
               <div className="text-center">
                 <p className="text-[#4E4E4E] font-semibold">
-                  {t("transaction_timeout_msg")}
+                  {t('transaction_timeout_msg')}
                 </p>
                 <p className="font-bold text-[#DE7A24]">
-                  {formatTime(timeLeft)}{" "}
+                  {formatTime(timeLeft)}{' '}
                 </p>
               </div>
             )}
@@ -446,13 +446,13 @@ export default function Consent({
               <span className="flex mx-5 alternate-arrow"></span>
               <img
                 className="object-contain brand-only-logo client-logo-size"
-                alt={t("logo_alt")}
+                alt={t('logo_alt')}
               />
             </div>
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div className="flex justify-center mt-[30px]">
                 <b>
-                  {t("consent_request_msg", {
+                  {t('consent_request_msg', {
                     clientName: clientName,
                   })}
                 </b>
@@ -493,17 +493,20 @@ export default function Consent({
 
                       <div className="divide-y">
                         {claimScope?.values?.map((item) => (
-                          <ul className="list-disc marker:text-[#B9B9B9] ml-4 mr-4">
-                            <li key={item}>
+                          <ul
+                            key={item}
+                            className="list-disc marker:text-[#B9B9B9] ml-4 mr-4"
+                          >
+                            <li>
                               <div className="grid grid-cols-2 gap-4">
                                 <div className="flex justify-start relative items-center mb-1 mt-1">
                                   <label
                                     className={`text-sm ${
                                       claimScope?.label ===
-                                        "voluntary_claims" &&
+                                        'voluntary_claims' &&
                                       voluntaryClaims.includes(item)
-                                        ? "text-[#8D8D8DD5]"
-                                        : "text-[#01070DD5]"
+                                        ? 'text-[#8D8D8DD5]'
+                                        : 'text-[#01070DD5]'
                                     }`}
                                   >
                                     {t(item)}
@@ -515,7 +518,7 @@ export default function Consent({
                                       htmlFor={item}
                                       className="inline-flex text-sm relative items-center mb-1 mt-1 text-gray-400"
                                     >
-                                      {t("required")}
+                                      {t('required')}
                                     </label>
                                   )}
                                   {!claimScope?.required &&
@@ -533,7 +536,7 @@ export default function Consent({
               )}
               {voluntaryClaims.length !== 0 && (
                 <div className="no-claims-record-banner">
-                  {t("noRecordClaimsMessage", { clientName: clientName })}
+                  {t('noRecordClaimsMessage', { clientName: clientName })}
                 </div>
               )}
               {
@@ -547,13 +550,13 @@ export default function Consent({
                 <div className="grid gap-y-2">
                   <FormAction
                     type={buttonTypes.button}
-                    text={t("allow")}
+                    text={t('allow')}
                     handleClick={handleSubmit}
                     id="continue"
                   />
                   <FormAction
                     type={buttonTypes.cancel}
-                    text={t("cancel")}
+                    text={t('cancel')}
                     handleClick={handleCancel}
                     id="cancel"
                   />

@@ -1,9 +1,9 @@
-import React from "react";
-import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import ErrorIndicator from "../common/ErrorIndicator";
-import LoadingIndicator from "../common/LoadingIndicator";
-import { LoadingStates as states } from "../constants/states";
+import React from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import ErrorIndicator from '../common/ErrorIndicator';
+import LoadingIndicator from '../common/LoadingIndicator';
+import { LoadingStates as states } from '../constants/states';
 
 export default function Authorize({ authService }) {
   const post_OauthDetails_v3 = authService.post_OauthDetails_v3;
@@ -14,7 +14,7 @@ export default function Authorize({ authService }) {
   const [status, setStatus] = useState(states.LOADING);
   const [oAuthDetailResponse, setOAuthDetailResponse] = useState(null);
   const [error, setError] = useState(null);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   const navigate = useNavigate();
 
@@ -34,8 +34,8 @@ export default function Authorize({ authService }) {
           }
         };
 
-        const clientId = searchParams.get("client_id");
-        const requestUri = searchParams.get("request_uri");
+        const clientId = searchParams.get('client_id');
+        const requestUri = searchParams.get('request_uri');
 
         const isParFlow =
           clientId && requestUri && [...searchParams.keys()].length === 2;
@@ -48,22 +48,22 @@ export default function Authorize({ authService }) {
           const extractParam = (param) => searchParams.get(param);
 
           const request = {
-            nonce: extractParam("nonce"),
-            state: extractParam("state"),
-            clientId: extractParam("client_id"),
-            redirectUri: extractParam("redirect_uri"),
-            responseType: extractParam("response_type"),
-            scope: extractParam("scope"),
-            acrValues: extractParam("acr_values"),
-            claims: extractParam("claims"),
-            claimsLocales: extractParam("claims_locales"),
-            display: extractParam("display"),
-            maxAge: extractParam("max_age"),
-            prompt: extractParam("prompt"),
-            uiLocales: extractParam("ui_locales"),
-            codeChallenge: extractParam("code_challenge"),
-            codeChallengeMethod: extractParam("code_challenge_method"),
-            idTokenHint: extractParam("id_token_hint"),
+            nonce: extractParam('nonce'),
+            state: extractParam('state'),
+            clientId: extractParam('client_id'),
+            redirectUri: extractParam('redirect_uri'),
+            responseType: extractParam('response_type'),
+            scope: extractParam('scope'),
+            acrValues: extractParam('acr_values'),
+            claims: extractParam('claims'),
+            claimsLocales: extractParam('claims_locales'),
+            display: extractParam('display'),
+            maxAge: extractParam('max_age'),
+            prompt: extractParam('prompt'),
+            uiLocales: extractParam('ui_locales'),
+            codeChallenge: extractParam('code_challenge'),
+            codeChallengeMethod: extractParam('code_challenge_method'),
+            idTokenHint: extractParam('id_token_hint'),
           };
 
           let claimsDecoded = null;
@@ -71,7 +71,7 @@ export default function Authorize({ authService }) {
             try {
               claimsDecoded = JSON.parse(decodeURI(request.claims));
             } catch {
-              setError("parsing_error_msg");
+              setError('parsing_error_msg');
               setStatus(states.ERROR);
               return;
             }
@@ -81,7 +81,7 @@ export default function Authorize({ authService }) {
 
           const filteredRequest = Object.fromEntries(
             Object.entries({ ...request, claims: claimsDecoded }).filter(
-              ([_, value]) => value !== null
+              ([, value]) => value !== null
             )
           );
 
@@ -106,8 +106,8 @@ export default function Authorize({ authService }) {
 
   const redirectToLogin = async () => {
     const isParFlow =
-      searchParams.get("client_id") &&
-      searchParams.get("request_uri") &&
+      searchParams.get('client_id') &&
+      searchParams.get('request_uri') &&
       [...searchParams.keys()].length === 2;
 
     if (!oAuthDetailResponse) {
@@ -120,20 +120,20 @@ export default function Authorize({ authService }) {
       return;
     }
 
-    if (errors != null && errors.length > 0) {
+    if (errors !== null && errors.length > 0) {
       return;
     } else {
       try {
-        let nonce = isParFlow ? null : searchParams.get("nonce");
-        let state = isParFlow ? null : searchParams.get("state");
+        let nonce = isParFlow ? null : searchParams.get('nonce');
+        let state = isParFlow ? null : searchParams.get('state');
         let params = buildRedirectParams(nonce, state, response);
 
-        navigate(process.env.PUBLIC_URL + "/login" + params, {
+        navigate(process.env.PUBLIC_URL + '/login' + params, {
           replace: true,
         });
       } catch (error) {
         setOAuthDetailResponse(null);
-        setError("Failed to load");
+        setError('Failed to load');
         setStatus(states.ERROR);
       }
     }
@@ -146,12 +146,12 @@ export default function Authorize({ authService }) {
       el = (
         <LoadingIndicator
           size="medium"
-          message={"loading_msg"}
+          message={'loading_msg'}
           className="align-loading-center"
         />
       );
       break;
-    case states.LOADED:
+    case states.LOADED: {
       if (!oAuthDetailResponse) {
         el = (
           <ErrorIndicator
@@ -164,7 +164,7 @@ export default function Authorize({ authService }) {
 
       const { errors } = oAuthDetailResponse;
 
-      if (errors != null && errors.length > 0) {
+      if (errors !== null && errors.length > 0) {
         el = errors?.map(({ errorCode, errorMessage }, idx) => (
           <div key={idx}>
             <ErrorIndicator errorCode={errorCode} defaultMsg={errorMessage} />
@@ -172,6 +172,7 @@ export default function Authorize({ authService }) {
         ));
       }
       break;
+    }
     case states.ERROR:
       el = <ErrorIndicator errorCode={error} defaultMsg={error} />;
       break;

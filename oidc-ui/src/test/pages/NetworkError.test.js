@@ -1,10 +1,10 @@
-import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
-import NetworkError from "../../pages/NetworkError";
-import { MemoryRouter, useLocation } from "react-router-dom";
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import NetworkError from '../../pages/NetworkError';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 
 // ✅ Mock i18n
-jest.mock("react-i18next", () => ({
+jest.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key) => key,
   }),
@@ -12,17 +12,17 @@ jest.mock("react-i18next", () => ({
 
 // ✅ Mock useLocation
 const mockReplace = jest.fn();
-const mockPath = "/some-retry-path";
+const mockPath = '/some-retry-path';
 
-jest.mock("react-router-dom", () => {
-  const actual = jest.requireActual("react-router-dom");
+jest.mock('react-router-dom', () => {
+  const actual = jest.requireActual('react-router-dom');
   return {
     ...actual,
     useLocation: jest.fn(),
   };
 });
 
-describe("NetworkError", () => {
+describe('NetworkError', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
@@ -37,31 +37,31 @@ describe("NetworkError", () => {
     useLocation.mockReturnValue({ state: { path: mockPath } });
   });
 
-  it("renders all translated texts", () => {
+  it('renders all translated texts', () => {
     render(
       <MemoryRouter>
         <NetworkError />
       </MemoryRouter>
     );
 
-    expect(screen.getByText("errors.network_error.header")).toBeInTheDocument();
+    expect(screen.getByText('errors.network_error.header')).toBeInTheDocument();
     expect(
-      screen.getByText("errors.network_error.subHeader")
+      screen.getByText('errors.network_error.subHeader')
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "errors.network_error.button" })
+      screen.getByRole('button', { name: 'errors.network_error.button' })
     ).toBeInTheDocument();
   });
 
-  it("calls tryAgain correctly on button click", () => {
+  it('calls tryAgain correctly on button click', () => {
     render(
       <MemoryRouter>
         <NetworkError />
       </MemoryRouter>
     );
 
-    const button = screen.getByRole("button", {
-      name: "errors.network_error.button",
+    const button = screen.getByRole('button', {
+      name: 'errors.network_error.button',
     });
 
     fireEvent.click(button);

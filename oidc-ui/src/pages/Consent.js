@@ -1,24 +1,24 @@
-import React, { useEffect } from "react";
-import Consent from "../components/Consent";
-import authService from "../services/authService";
-import { Buffer } from "buffer";
-import { useLocation, useSearchParams } from "react-router-dom";
-import openIDConnectService from "../services/openIDConnectService";
-import DefaultError from "../components/DefaultError";
-import { errorCodeObj } from "../constants/clientConstants";
-import { getOauthDetailsHash, decodeHash } from "../helpers/utils";
+import React, { useEffect } from 'react';
+import Consent from '../components/Consent';
+import authService from '../services/authService';
+import { Buffer } from 'buffer';
+import { useLocation, useSearchParams } from 'react-router-dom';
+import openIDConnectService from '../services/openIDConnectService';
+import DefaultError from '../components/DefaultError';
+import { errorCodeObj } from '../constants/clientConstants';
+import { getOauthDetailsHash, decodeHash } from '../helpers/utils';
 
 export default function ConsentPage() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const location = useLocation();
 
-  let decodeOAuth = Buffer.from(location.hash ?? "", "base64")?.toString();
-  let nonce = searchParams.get("nonce");
-  let state = searchParams.get("state");
-  const consentAction = searchParams.get("consentAction");
-  const authTime = searchParams.get("authenticationTime");
-  const key = searchParams.get("key");
-  const errorCode = searchParams.get("error");
+  let decodeOAuth = Buffer.from(location.hash ?? '', 'base64')?.toString();
+  let nonce = searchParams.get('nonce');
+  let state = searchParams.get('state');
+  const consentAction = searchParams.get('consentAction');
+  const authTime = searchParams.get('authenticationTime');
+  const key = searchParams.get('key');
+  const errorCode = searchParams.get('error');
   const urlInfo = localStorage.getItem(key);
   let hasResumed = false;
 
@@ -31,7 +31,7 @@ export default function ConsentPage() {
   const urlInfoParams = new URLSearchParams(urlInfoObj.search);
 
   const handleRedirection = (redirect_uri, errorCode) => {
-    urlInfoParams.set("error", errorCode);
+    urlInfoParams.set('error', errorCode);
 
     // Redirect to the redirect URI with the error parameters (load the relying party screen)
     window.location.replace(`${redirect_uri}?${urlInfoParams}`);
@@ -41,7 +41,7 @@ export default function ConsentPage() {
     if (key && urlInfo && !hasResumed) {
       hasResumed = true;
       // Parse the hash from the URL info
-      const hash = JSON.parse(decodeHash(urlInfo.split("#")[1]));
+      const hash = JSON.parse(decodeHash(urlInfo.split('#')[1]));
 
       // Destructure the transactionId from the hash
       const { transactionId } = hash;
@@ -53,8 +53,8 @@ export default function ConsentPage() {
         // Initialize the openIDConnectService
         const oidcService = new openIDConnectService(
           hash,
-          urlInfoParams.get("nonce"),
-          urlInfoParams.get("state")
+          urlInfoParams.get('nonce'),
+          urlInfoParams.get('state')
         );
 
         // Get the redirect URI from the openIDConnectService
@@ -76,7 +76,7 @@ export default function ConsentPage() {
           if (!errors.length) {
             // Set the authenticationTime parameter
             urlInfoParams.set(
-              "authenticationTime",
+              'authenticationTime',
               Math.floor(Date.now() / 1000)
             );
 
@@ -106,7 +106,7 @@ export default function ConsentPage() {
     return (
       <DefaultError
         backgroundImgPath="images/illustration_one.png"
-        errorCode={"unauthorized_access"}
+        errorCode={'unauthorized_access'}
       />
     );
   }

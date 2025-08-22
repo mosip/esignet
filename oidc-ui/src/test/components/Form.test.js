@@ -1,28 +1,36 @@
-import React from "react";
-import { render, screen, waitFor } from "@testing-library/react";
-import Form from "../../components/Form";
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import Form from '../../components/Form';
 
 // 🧪 Mock dependencies
-jest.mock("react-i18next", () => ({
+jest.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key) => key,
-    i18n: { language: "eng", on: jest.fn() },
+    i18n: { language: 'eng', on: jest.fn() },
   }),
 }));
 
-jest.mock("react-router-dom", () => ({
+jest.mock('react-router-dom', () => ({
   useNavigate: () => jest.fn(),
 }));
 
-jest.mock("../../common/LoadingIndicator", () => () => <div>Loading...</div>);
+jest.mock('../../common/LoadingIndicator', () => {
+  const MockLoadingIndicator = () => <div>Loading...</div>;
+  MockLoadingIndicator.displayName = 'MockLoadingIndicator';
+  return MockLoadingIndicator;
+});
 
-jest.mock("../../common/ErrorBanner", () => ({ showBanner, errorCode }) => (
-  <div>{showBanner && errorCode}</div>
-));
+jest.mock('../../common/ErrorBanner', () => {
+  const MockErrorBanner = ({ showBanner, errorCode }) => (
+    <div>{showBanner && errorCode}</div>
+  );
+  MockErrorBanner.displayName = 'MockErrorBanner';
+  return MockErrorBanner;
+});
 
-jest.mock("../../helpers/redirectOnError", () => jest.fn());
+jest.mock('../../helpers/redirectOnError', () => jest.fn());
 
-jest.mock("../../services/langConfigService", () => ({
+jest.mock('../../services/langConfigService', () => ({
   getEnLocaleConfiguration: jest.fn().mockResolvedValue({
     errors: { kbi: {} },
   }),
@@ -32,11 +40,11 @@ jest.mock("../../services/langConfigService", () => ({
 const mockRender = jest.fn();
 const mockUpdateLanguage = jest.fn();
 const mockGetFormData = jest.fn(() => ({
-  individualId: "12345",
-  fullName: "John Doe",
+  individualId: '12345',
+  fullName: 'John Doe',
 }));
 
-jest.mock("@anushase/json-form-builder", () => ({
+jest.mock('@anushase/json-form-builder', () => ({
   __esModule: true,
   default: jest.fn().mockImplementation(() => ({
     render: mockRender,
@@ -49,59 +57,59 @@ const mockAuthService = {
   post_AuthenticateUser: jest
     .fn()
     .mockResolvedValue({ response: {}, errors: null }),
-  buildRedirectParams: jest.fn(() => "?mockParams"),
+  buildRedirectParams: jest.fn(() => '?mockParams'),
 };
 
 const mockOpenIDConnectService = {
   getEsignetConfiguration: jest.fn((key) => {
-    if (key === "authFactorKnowledgeFieldDetails") {
+    if (key === 'authFactorKnowledgeFieldDetails') {
       return {
         schema: [
           {
-            id: "individualId",
-            controlType: "textbox",
-            label: { eng: "Policy Number" },
-            placeholder: { eng: "Enter Policy Number" },
+            id: 'individualId',
+            controlType: 'textbox',
+            label: { eng: 'Policy Number' },
+            placeholder: { eng: 'Enter Policy Number' },
             required: true,
-            alignmentGroup: "groupA",
+            alignmentGroup: 'groupA',
           },
           {
-            id: "fullName",
-            controlType: "textbox",
-            label: { eng: "Full Name" },
-            placeholder: { eng: "Enter Full Name" },
+            id: 'fullName',
+            controlType: 'textbox',
+            label: { eng: 'Full Name' },
+            placeholder: { eng: 'Enter Full Name' },
             required: true,
-            alignmentGroup: "groupB",
+            alignmentGroup: 'groupB',
           },
         ],
         errors: {
-          required: { eng: "This field is required" },
+          required: { eng: 'This field is required' },
         },
         language: {
-          mandatory: ["eng"],
-          optional: ["khm"],
-          langCodeMap: { eng: "en", khm: "km" },
+          mandatory: ['eng'],
+          optional: ['khm'],
+          langCodeMap: { eng: 'en', khm: 'km' },
         },
       };
     }
-    if (key === "captchaSiteKey") return "test-site-key";
-    if (key === "captchaEnableComponents") return "kbi";
-    if (key === "authFactorKnowledgeIndividualIdField") return "individualId";
+    if (key === 'captchaSiteKey') return 'test-site-key';
+    if (key === 'captchaEnableComponents') return 'kbi';
+    if (key === 'authFactorKnowledgeIndividualIdField') return 'individualId';
     return undefined;
   }),
-  getTransactionId: jest.fn(() => "txn123"),
-  getNonce: jest.fn(() => "nonce123"),
-  getState: jest.fn(() => "state123"),
+  getTransactionId: jest.fn(() => 'txn123'),
+  getNonce: jest.fn(() => 'nonce123'),
+  getState: jest.fn(() => 'state123'),
   getOAuthDetails: jest.fn(() => ({})),
 };
 
 // 🌍 Set environment before tests
 beforeAll(() => {
-  global.window._env_ = { DEFAULT_LANG: "en" };
+  global.window._env_ = { DEFAULT_LANG: 'en' };
 });
 
-describe("Form Component", () => {
-  it("renders form without errors", async () => {
+describe('Form Component', () => {
+  it('renders form without errors', async () => {
     render(
       <Form
         authService={mockAuthService}
@@ -111,11 +119,11 @@ describe("Form Component", () => {
       />
     );
 
-    expect(await screen.findByText("secondaryHeading")).toBeInTheDocument();
-    expect(document.getElementById("form-container")).toBeInTheDocument();
+    expect(await screen.findByText('secondaryHeading')).toBeInTheDocument();
+    expect(document.getElementById('form-container')).toBeInTheDocument();
   });
 
-  it("renders back button and heading", () => {
+  it('renders back button and heading', () => {
     render(
       <Form
         authService={mockAuthService}
@@ -125,7 +133,7 @@ describe("Form Component", () => {
       />
     );
 
-    expect(screen.getByText("Back")).toBeInTheDocument();
-    expect(screen.getByText("Test Heading")).toBeInTheDocument();
+    expect(screen.getByText('Back')).toBeInTheDocument();
+    expect(screen.getByText('Test Heading')).toBeInTheDocument();
   });
 });

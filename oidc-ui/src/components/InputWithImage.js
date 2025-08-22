@@ -1,9 +1,9 @@
-import { useState, useRef, useLayoutEffect } from "react";
-import { useTranslation } from "react-i18next";
-import PopoverContainer from "../common/Popover";
+import { useState, useRef, useLayoutEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import PopoverContainer from '../common/Popover';
 
 const fixedInputClass =
-  "rounded-md bg-white shadow-lg appearance-none block w-full px-3.5 py-2.5 placeholder-[#A0A8AC] text-gray-900 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 sm:text-sm p-2.5 ltr:pr-10 rtl:pl-10 ";
+  'rounded-md bg-white shadow-lg appearance-none block w-full px-3.5 py-2.5 placeholder-[#A0A8AC] text-gray-900 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 sm:text-sm p-2.5 ltr:pr-10 rtl:pl-10 ';
 
 export default function InputWithImage({
   handleChange,
@@ -18,29 +18,29 @@ export default function InputWithImage({
   placeholder,
   customClass,
   imgPath,
-  tooltipMsg = "vid_info",
+  tooltipMsg = 'vid_info',
   disabled = false,
-  formError = "",
-  passwordShowIcon = "images/password_show.svg",
-  passwordHideIcon = "images/password_hide.svg",
-  infoIcon = "images/info_icon.svg",
-  i18nKeyPrefix1 = "tooltips",
-  i18nKeyPrefix2 = "errors",
+  formError = '',
+  passwordShowIcon = 'images/password_show.svg',
+  passwordHideIcon = 'images/password_hide.svg',
+  infoIcon = 'images/info_icon.svg',
+  i18nKeyPrefix1 = 'tooltips',
+  i18nKeyPrefix2 = 'errors',
   icon,
   prefix,
   errorCode,
-  maxLength = "",
-  regex = "",
+  maxLength = '',
+  regex = '',
   isInvalid,
   individualId,
   currenti18nPrefix,
-  idx
+  idx,
 }) {
-  const { t, i18n } = useTranslation("translation");
-  const { t: t1 } = useTranslation("translation", {
+  const { t, i18n } = useTranslation('translation');
+  const { t: t1 } = useTranslation('translation', {
     keyPrefix: i18nKeyPrefix1,
   });
-  const { t: t2 } = useTranslation("translation", {
+  const { t: t2 } = useTranslation('translation', {
     keyPrefix: i18nKeyPrefix2,
   });
 
@@ -58,12 +58,12 @@ export default function InputWithImage({
 
   const changePasswordState = () => {
     let passwordRef = document.getElementById(id);
-    passwordRef.setAttribute("type", !showPassword ? "text" : "password");
+    passwordRef.setAttribute('type', !showPassword ? 'text' : 'password');
     setShowPassword(!showPassword);
   };
 
   const handleKeyUp = (e) => {
-    setIsCapsLockOn(e.getModifierState("CapsLock"));
+    setIsCapsLockOn(e.getModifierState('CapsLock'));
   };
 
   const handleKeyDown = (e) => {
@@ -75,9 +75,9 @@ export default function InputWithImage({
     const multiKeyChecking = (key, ctrl, maxLength) => {
       if (
         ctrl &&
-        (key === "a" ||
-          key === "c" ||
-          (key === "v" && checkMaxLength(maxLength)))
+        (key === 'a' ||
+          key === 'c' ||
+          (key === 'v' && checkMaxLength(maxLength)))
       ) {
         return true;
       }
@@ -86,22 +86,22 @@ export default function InputWithImage({
 
     // checking max length for the input
     const checkMaxLength = (maxLength) =>
-      maxLength === "" ? true : e.target.value.length < parseInt(maxLength);
+      maxLength === '' ? true : e.target.value.length < parseInt(maxLength);
 
     // testing with all input type
     // with respective regex
     const patternTest = (type, key) => {
-      if (type === "number") {
+      if (type === 'number') {
         // Check if the pressed key is a number
         return /^\d$/.test(key);
       }
-      if (type === "letter") {
+      if (type === 'letter') {
         // Check if the pressed key is a letter (a-zA-Z)
         // Lower & upper case letters a-z
         // Prevent input of other characters
         return /^[a-zA-Z]$/.test(key);
       }
-      if (type === "alpha-numeric") {
+      if (type === 'alpha-numeric') {
         // Check if the pressed key is a number (0-9) or a letter (a-zA-Z)
         // Numpad numbers 0-9
         // Prevent input of other characters
@@ -113,14 +113,14 @@ export default function InputWithImage({
 
     // Allow some special keys like Backspace, Tab, Home, End, Left Arrow, Right Arrow, Delete.
     const allowedKeyCodes = [
-      "Backspace",
-      "Tab",
-      "Control",
-      "End",
-      "Home",
-      "ArrowLeft",
-      "ArrowRight",
-      "Delete",
+      'Backspace',
+      'Tab',
+      'Control',
+      'End',
+      'Home',
+      'ArrowLeft',
+      'ArrowRight',
+      'Delete',
     ];
 
     if (
@@ -139,7 +139,7 @@ export default function InputWithImage({
       }
     }
 
-    setIsCapsLockOn(e.getModifierState("CapsLock"));
+    setIsCapsLockOn(e.getModifierState('CapsLock'));
   };
 
   const onBlurChange = (e) => {
@@ -151,7 +151,7 @@ export default function InputWithImage({
       return { ..._, show: true };
     });
     // checking regex matching for username & password
-    if (currentRegex.test(val) || val === "") {
+    if (currentRegex.test(val) || val === '') {
       // if username or password is matched
       // then remove error from errorBanner
       if (bannerIndex > -1) {
@@ -160,7 +160,7 @@ export default function InputWithImage({
     } else {
       // if username or password is not matched
       // with regex, then add the error
-      if (bannerIndex === -1 && val !== "") {
+      if (bannerIndex === -1 && val !== '') {
         tempBanner.push({
           id,
           errorCode,
@@ -184,8 +184,8 @@ export default function InputWithImage({
             >
               {labelText}
             </label>
-            {id.includes("Password") &&
-              type === "password" &&
+            {id.includes('Password') &&
+              type === 'password' &&
               value &&
               isCapsLockOn && (
                 <small className="caps_lock flex self-center mt-2 w-auto">
@@ -211,7 +211,7 @@ export default function InputWithImage({
                       />
                     </g>
                   </svg>
-                  <span className="items-end">{t1("caps_on")}</span>
+                  <span className="items-end">{t1('caps_on')}</span>
                 </small>
               )}
           </div>
@@ -225,13 +225,13 @@ export default function InputWithImage({
                 />
               }
               content={
-                id.includes("Otp")
-                  ? t1("otp_info")
-                  : id.includes("sbi")
-                  ? t1("bio_info")
-                  : id.includes("Pin")
-                  ? t1("pin_info")
-                  : t1("username_info")
+                id.includes('Otp')
+                  ? t1('otp_info')
+                  : id.includes('sbi')
+                    ? t1('bio_info')
+                    : id.includes('Pin')
+                      ? t1('pin_info')
+                      : t1('username_info')
               }
               position="right"
               contentSize="text-xs"
@@ -250,19 +250,19 @@ export default function InputWithImage({
       </div>
       <div
         className={`relative input-box ${
-          ((isInvalid && individualId?.length > 0 && type !== "password") ||
+          ((isInvalid && individualId?.length > 0 && type !== 'password') ||
             (errorBanner &&
               errorBanner.length > 0 &&
               errorBanner.find((val) => val.id === id))) &&
-          "!border-[#FE6B6B]"
+          '!border-[#FE6B6B]'
         }`}
       >
         {imgPath && (
           <div className="flex absolute inset-y-0 items-center p-3 pointer-events-none ltr:right-0 rtl:left-0 z-[11]">
-            <img className="w-6 h-6" src={imgPath} alt=""/>
+            <img className="w-6 h-6" src={imgPath} alt="" />
           </div>
         )}
-        {prefix && prefix !== "" && <span className="prefix">{prefix}</span>}
+        {prefix && prefix !== '' && <span className="prefix">{prefix}</span>}
         <input
           ref={inputVal}
           disabled={disabled}
@@ -281,7 +281,7 @@ export default function InputWithImage({
           onWheelCapture={(e) => e.target.blur()}
           autoFocus={true}
         />
-        {id.includes("Password") && type === "password" && value && (
+        {id.includes('Password') && type === 'password' && value && (
           <span
             id="password-eye"
             type="button"
@@ -292,9 +292,9 @@ export default function InputWithImage({
             tabIndex={0}
           >
             {showPassword ? (
-              <img className="w-6 h-6" src={passwordShowIcon} alt="close-eye"/>
+              <img className="w-6 h-6" src={passwordShowIcon} alt="close-eye" />
             ) : (
-              <img className="w-6 h-6" src={passwordHideIcon} alt="open-eye"/>
+              <img className="w-6 h-6" src={passwordHideIcon} alt="open-eye" />
             )}
           </span>
         )}
@@ -303,7 +303,7 @@ export default function InputWithImage({
       {((isInvalid && individualId?.length > 0) ||
         (errorBanner && errorBanner.length > 0)) && (
         <small className="text-[#FE6B6B] font-medium flex items-center !mt-1">
-          {type !== "password" ? (
+          {type !== 'password' ? (
             <>
               <span>
                 <img
@@ -316,7 +316,7 @@ export default function InputWithImage({
               <span>{`${t(`${currenti18nPrefix}.invalid_input`, {
                 id: `${t(
                   `${currenti18nPrefix}.${
-                    id.includes("_") ? id.split("_")[1] : id
+                    id.includes('_') ? id.split('_')[1] : id
                   }`
                 )}`,
               })}`}</span>

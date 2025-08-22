@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect } from 'react';
 
 const ModalPopup = ({
   alertIcon,
@@ -11,30 +11,30 @@ const ModalPopup = ({
   footerClassname,
 }) => {
   useEffect(() => {
-    document.body.style.overflow = "hidden";
+    document.body.style.overflow = 'hidden';
     return () => {
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = 'unset';
     };
   });
 
   return (
     <>
       <img
-          className="top_left_bg_logo hidden md:block"
-          alt="top left background"
-        />
-        <img
-          className="bottom_left_bg_logo hidden md:block"
-          alt="bottom left background"
-        />
-        <img
-          className="top_right_bg_logo hidden md:block"
-          alt="top right background"
-        />
-        <img
-          className="bottom_right_bg_logo hidden md:block"
-          alt="bottom right background"
-        />
+        className="top_left_bg_logo hidden md:block"
+        alt="top left background"
+      />
+      <img
+        className="bottom_left_bg_logo hidden md:block"
+        alt="bottom left background"
+      />
+      <img
+        className="top_right_bg_logo hidden md:block"
+        alt="top right background"
+      />
+      <img
+        className="bottom_right_bg_logo hidden md:block"
+        alt="bottom right background"
+      />
       <div
         className="relative z-50"
         aria-labelledby="modal-title"
@@ -47,7 +47,11 @@ const ModalPopup = ({
             <div className="relative transform overflow-hidden rounded-[20px] bg-white text-left shadow-xl transition-all duration-300 ease-out sm:my-8 sm:w-full sm:max-w-[28rem] m-auto">
               {alertIcon && (
                 <div className={alertClassname}>
-                  <img src={alertIcon} data-testid="alert-icon" alt="alert-icon"/>
+                  <img
+                    src={alertIcon}
+                    data-testid="alert-icon"
+                    alt="alert-icon"
+                  />
                 </div>
               )}
               {header && <div className={headerClassname}>{header}</div>}

@@ -1,31 +1,31 @@
-import { useEffect, useRef, useState } from "react";
-import LoadingIndicator from "../common/LoadingIndicator";
-import FormAction from "./FormAction";
-import { LoadingStates as states } from "../constants/states";
-import { useTranslation } from "react-i18next";
-import InputWithImage from "./InputWithImage";
-import { buttonTypes, configurationKeys } from "../constants/clientConstants";
-import ReCAPTCHA from "react-google-recaptcha";
-import ErrorBanner from "../common/ErrorBanner";
-import langConfigService from "../services/langConfigService";
-import redirectOnError from "../helpers/redirectOnError";
-import LoginIDOptions from "./LoginIDOptions";
-import InputWithPrefix from "./InputWithPrefix";
+import { useEffect, useRef, useState } from 'react';
+import LoadingIndicator from '../common/LoadingIndicator';
+import FormAction from './FormAction';
+import { LoadingStates as states } from '../constants/states';
+import { useTranslation } from 'react-i18next';
+import InputWithImage from './InputWithImage';
+import { buttonTypes, configurationKeys } from '../constants/clientConstants';
+import ReCAPTCHA from 'react-google-recaptcha';
+import ErrorBanner from '../common/ErrorBanner';
+import langConfigService from '../services/langConfigService';
+import redirectOnError from '../helpers/redirectOnError';
+import LoginIDOptions from './LoginIDOptions';
+import InputWithPrefix from './InputWithPrefix';
 
 export default function OtpGet({
   param,
   authService,
   openIDConnectService,
   onOtpSent,
-  i18nKeyPrefix1 = "otp",
-  i18nKeyPrefix2 = "errors",
+  i18nKeyPrefix1 = 'otp',
+  i18nKeyPrefix2 = 'errors',
   getCaptchaToken,
 }) {
-  const { t: t1, i18n } = useTranslation("translation", {
+  const { t: t1, i18n } = useTranslation('translation', {
     keyPrefix: i18nKeyPrefix1,
   });
 
-  const { t: t2 } = useTranslation("translation", {
+  const { t: t2 } = useTranslation('translation', {
     keyPrefix: i18nKeyPrefix2,
   });
 
@@ -37,7 +37,7 @@ export default function OtpGet({
         const config = await langConfigService.getEnLocaleConfiguration();
         setLangConfig(config);
       } catch (e) {
-        console.error("Failed to load lang config", e);
+        console.error('Failed to load lang config', e);
         setLangConfig({ errors: { otp: {} } }); // Fallback to prevent crashes
       }
     }
@@ -46,11 +46,11 @@ export default function OtpGet({
   }, []);
 
   const inputCustomClass =
-    "h-10 border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[hsla(0, 0%, 51%)] focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-muted-light-gray shadow-none";
+    'h-10 border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[hsla(0, 0%, 51%)] focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-muted-light-gray shadow-none';
 
   const fields = param;
   let fieldsState = {};
-  fields.forEach((field) => (fieldsState["Otp_" + field.id] = ""));
+  fields.forEach((field) => (fieldsState['Otp_' + field.id] = ''));
 
   const post_SendOtp = authService.post_SendOtp;
 
@@ -65,11 +65,11 @@ export default function OtpGet({
     ) ?? process.env.REACT_APP_CAPTCHA_ENABLE;
 
   const captchaEnableComponentsList = captchaEnableComponents
-    .split(",")
+    .split(',')
     .map((x) => x.trim().toLowerCase());
 
   const [showCaptcha, setShowCaptcha] = useState(
-    captchaEnableComponentsList.indexOf("send-otp") !== -1
+    captchaEnableComponentsList.indexOf('send-otp') !== -1
   );
 
   const captchaSiteKey =
@@ -77,7 +77,7 @@ export default function OtpGet({
       configurationKeys.captchaSiteKey
     ) ?? process.env.REACT_APP_CAPTCHA_SITE_KEY;
 
-  const [status, setStatus] = useState({ state: states.LOADED, msg: "" });
+  const [status, setStatus] = useState({ state: states.LOADED, msg: '' });
   const [errorBanner, setErrorBanner] = useState(null);
 
   const [captchaToken, setCaptchaToken] = useState(null);
@@ -93,7 +93,7 @@ export default function OtpGet({
 
   useEffect(() => {
     let loadComponent = async () => {
-      i18n.on("languageChanged", function (lng) {
+      i18n.on('languageChanged', function () {
         if (showCaptcha) {
           //to rerender recaptcha widget on language change
           setShowCaptcha(false);
@@ -136,7 +136,7 @@ export default function OtpGet({
     onCloseHandle();
     const idProperties = getPropertiesForLoginID(
       currentLoginID,
-      e.target.name.split("_")[1]
+      e.target.name.split('_')[1]
     );
     const maxLength = idProperties.maxLength;
     const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
@@ -164,7 +164,7 @@ export default function OtpGet({
   const handleBlur = (e) => {
     const idProperties = getPropertiesForLoginID(
       currentLoginID,
-      e.target.name.split("_")[1]
+      e.target.name.split('_')[1]
     );
     const maxLength = idProperties.maxLength;
     const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
@@ -202,39 +202,39 @@ export default function OtpGet({
     try {
       let transactionId = openIDConnectService.getTransactionId();
       let prefix = currentLoginID.prefixes
-        ? typeof currentLoginID.prefixes === "object"
+        ? typeof currentLoginID.prefixes === 'object'
           ? countryCode
           : currentLoginID.prefixes
-        : "";
+        : '';
       let id = individualId;
-      let postfix = currentLoginID.postfix ? currentLoginID.postfix : "";
+      let postfix = currentLoginID.postfix ? currentLoginID.postfix : '';
 
       let ID = prefix + id + postfix;
 
-      let otpChannels = commaSeparatedChannels.split(",").map((x) => x.trim());
+      let otpChannels = commaSeparatedChannels.split(',').map((x) => x.trim());
 
-      setStatus({ state: states.LOADING, msg: "sending_otp_msg" });
+      setStatus({ state: states.LOADING, msg: 'sending_otp_msg' });
       const sendOtpResponse = await post_SendOtp(
         transactionId,
         ID,
         otpChannels,
         captchaToken
       );
-      setStatus({ state: states.LOADED, msg: "" });
+      setStatus({ state: states.LOADED, msg: '' });
 
       const { response, errors } = sendOtpResponse;
 
-      if (errors != null && errors.length > 0) {
-        if (errors[0].errorCode === "invalid_transaction") {
+      if (errors !== null && errors.length > 0) {
+        if (errors[0].errorCode === 'invalid_transaction') {
           redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
           return;
         }
-        const fieldLabel = currentLoginID?.id ? t1(currentLoginID.id) : "ID";
+        const fieldLabel = currentLoginID?.id ? t1(currentLoginID.id) : 'ID';
         const field =
           !fieldLabel ||
           fieldLabel === currentLoginID?.id ||
-          fieldLabel.startsWith("otp.")
-            ? "ID"
+          fieldLabel.startsWith('otp.')
+            ? 'ID'
             : fieldLabel;
         let errorCodeCondition =
           langConfig.errors.otp[errors[0].errorCode] !== undefined &&
@@ -244,13 +244,13 @@ export default function OtpGet({
           setErrorBanner({
             errorCode: `otp.${errors[0].errorCode}`,
             show: true,
-            field: field
+            field: field,
           });
         } else {
           setErrorBanner({
             errorCode: `${errors[0].errorCode}`,
             show: true,
-            field: field
+            field: field,
           });
         }
         if (showCaptcha) {
@@ -268,10 +268,10 @@ export default function OtpGet({
       }
     } catch (error) {
       setErrorBanner({
-        errorCode: "otp.send_otp_failed_msg",
+        errorCode: 'otp.send_otp_failed_msg',
         show: true,
       });
-      setStatus({ state: states.ERROR, msg: "" });
+      setStatus({ state: states.ERROR, msg: '' });
       if (showCaptcha) {
         resetCaptcha();
       }
@@ -324,13 +324,13 @@ export default function OtpGet({
             <>
               {fields.map((field) => (
                 <InputWithImage
-                  key={"Otp_" + currentLoginID.id}
+                  key={'Otp_' + currentLoginID.id}
                   handleChange={handleChange}
                   blurChange={handleBlur}
                   labelText={currentLoginID.input_label}
-                  labelFor={"Otp_" + currentLoginID.id}
-                  id={"Otp_" + currentLoginID.id}
-                  name={"Otp_" + currentLoginID.id}
+                  labelFor={'Otp_' + currentLoginID.id}
+                  id={'Otp_' + currentLoginID.id}
+                  name={'Otp_' + currentLoginID.id}
                   type={field.type}
                   placeholder={currentLoginID.input_placeholder}
                   customClass={inputCustomClass}
@@ -338,7 +338,7 @@ export default function OtpGet({
                   errorCode={field.errorCode}
                   individualId={individualId}
                   isInvalid={!isValid}
-                  value={individualId ?? ""}
+                  value={individualId ?? ''}
                   currenti18nPrefix={i18nKeyPrefix1}
                 />
               ))}
@@ -359,7 +359,7 @@ export default function OtpGet({
           <div className="mt-5 mb-2">
             <FormAction
               type={buttonTypes.button}
-              text={t1("get_otp")}
+              text={t1('get_otp')}
               handleClick={sendOTP}
               id="get_otp"
               disabled={

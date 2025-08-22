@@ -1,22 +1,22 @@
-import React, { useEffect, useRef, useState } from "react";
-import Otp from "../components/Otp";
-import Pin from "../components/Pin";
-import { generateFieldData } from "../constants/formFields";
-import L1Biometrics from "../components/L1Biometrics";
-import { useTranslation } from "react-i18next";
-import authService from "../services/authService";
-import localStorageService from "../services/local-storageService";
-import sbiService from "../services/sbiService";
-import Background from "../components/Background";
-import SignInOptions from "../components/SignInOptions";
-import linkAuthService from "../services/linkAuthService";
-import LoginQRCode from "../components/LoginQRCode";
-import { useLocation, useSearchParams } from "react-router-dom";
-import { Buffer } from "buffer";
-import openIDConnectService from "../services/openIDConnectService";
-import DefaultError from "../components/DefaultError";
-import Password from "../components/Password";
-import Form from "../components/Form";
+import React, { useEffect, useRef, useState } from 'react';
+import Otp from '../components/Otp';
+import Pin from '../components/Pin';
+import { generateFieldData } from '../constants/formFields';
+import L1Biometrics from '../components/L1Biometrics';
+import { useTranslation } from 'react-i18next';
+import authService from '../services/authService';
+import localStorageService from '../services/local-storageService';
+import sbiService from '../services/sbiService';
+import Background from '../components/Background';
+import SignInOptions from '../components/SignInOptions';
+import linkAuthService from '../services/linkAuthService';
+import LoginQRCode from '../components/LoginQRCode';
+import { useLocation, useSearchParams } from 'react-router-dom';
+import { Buffer } from 'buffer';
+import openIDConnectService from '../services/openIDConnectService';
+import DefaultError from '../components/DefaultError';
+import Password from '../components/Password';
+import Form from '../components/Form';
 import {
   multipleIdKey,
   purposeTypeObj,
@@ -25,9 +25,9 @@ import {
   purposeSubTitleKey,
   authLabelKey,
   configurationKeys,
-} from "../constants/clientConstants";
-import langConfigService from "./../services/langConfigService";
-import IdToken from "../components/IdToken";
+} from '../constants/clientConstants';
+import langConfigService from './../services/langConfigService';
+import IdToken from '../components/IdToken';
 
 function InitiateL1Biometrics(
   openIDConnectService,
@@ -141,9 +141,9 @@ function createDynamicLoginElements(
     secondaryHeading
   );
 
-  if (typeof authFactorType === "undefined") {
+  if (typeof authFactorType === 'undefined') {
     return InitiateInvalidAuthFactor(
-      "The component " + { authFactorType } + " has not been created yet."
+      'The component ' + { authFactorType } + ' has not been created yet.'
     );
   }
 
@@ -199,21 +199,20 @@ function checkLoginIdOption(oidcService, secondaryHeading) {
     return authLabelKey.verify === secondaryHeading
       ? multipleIdKey.verify
       : authLabelKey.link === secondaryHeading
-      ? multipleIdKey.link
-      : multipleIdKey.login;
+        ? multipleIdKey.link
+        : multipleIdKey.login;
   }
   return secondaryHeading;
 }
 
-export default function LoginPage({ i18nKeyPrefix = "header" }) {
-  const { t, i18n } = useTranslation("translation", {
+export default function LoginPage({ i18nKeyPrefix = 'header' }) {
+  const { t, i18n } = useTranslation('translation', {
     keyPrefix: i18nKeyPrefix,
   });
   const [compToShow, setCompToShow] = useState(null);
   const [clientLogoURL, setClientLogoURL] = useState(null);
   const [clientName, setClientName] = useState(null);
   const [clientNameMap, setClientNameMap] = useState(null);
-  const [authFactorType, setAuthFactorType] = useState(null);
   const [headingDetails, setHeadingDetails] = useState({
     authLabel: authLabelKey.login,
     heading: purposeTitleKey.login,
@@ -225,9 +224,9 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
   const [langMap, setLangMap] = useState(null);
   const firstRender = useRef(true);
 
-  var decodeOAuth = Buffer.from(location.hash ?? "", "base64")?.toString();
-  var nonce = searchParams.get("nonce");
-  var state = searchParams.get("state");
+  var decodeOAuth = Buffer.from(location.hash ?? '', 'base64')?.toString();
+  var nonce = searchParams.get('nonce');
+  var state = searchParams.get('state');
   var icons;
 
   let parsedOauth = null;
@@ -243,7 +242,6 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
 
   const handleSignInOptionClick = (authFactor, icon, secondaryHeading) => {
     icons = icon;
-    setAuthFactorType(authFactor.type);
     setCompToShow(
       createDynamicLoginElements(
         authFactor,
@@ -259,7 +257,6 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
   };
 
   const handleBackButtonClick = () => {
-    setAuthFactorType(null);
     setCompToShow(
       InitiateSignInOptions(
         handleSignInOptionClick,
@@ -339,8 +336,8 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
       const currLang = i18n.language;
       const currLang2letter = langMap[currLang];
       let tempPurpose = {
-        heading: "",
-        subheading: "",
+        heading: '',
+        subheading: '',
         authLabel: authLabelKey.login,
       };
 
@@ -352,8 +349,8 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
               currLang in purposeObj.title
                 ? purposeObj.title[currLang]
                 : currLang2letter in purposeObj.title
-                ? purposeObj.title[currLang2letter]
-                : purposeObj.title["@none"];
+                  ? purposeObj.title[currLang2letter]
+                  : purposeObj.title['@none'];
           } else {
             tempPurpose.heading = purposeTitleKey[purposeObj.type];
           }
@@ -363,8 +360,8 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
               currLang in purposeObj.subTitle
                 ? purposeObj.subTitle[currLang]
                 : currLang2letter in purposeObj.subTitle
-                ? purposeObj.subTitle[currLang2letter]
-                : purposeObj.subTitle["@none"];
+                  ? purposeObj.subTitle[currLang2letter]
+                  : purposeObj.subTitle['@none'];
           } else {
             tempPurpose.subheading = purposeSubTitleKey[purposeObj.type];
           }
@@ -382,8 +379,8 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
           currLang in clientNameMap
             ? clientNameMap[currLang]
             : currLang2letter in clientNameMap
-            ? clientNameMap[currLang2letter]
-            : clientNameMap["@none"];
+              ? clientNameMap[currLang2letter]
+              : clientNameMap['@none'];
         setClientName(clientName);
       }
       setHeadingDetails({ ...tempPurpose });
@@ -399,7 +396,7 @@ export default function LoginPage({ i18nKeyPrefix = "header" }) {
       {hasParsingError ? (
         <DefaultError
           backgroundImgPath="images/illustration_one.png"
-          errorCode={"parsing_error_msg"}
+          errorCode={'parsing_error_msg'}
         />
       ) : (
         <Background

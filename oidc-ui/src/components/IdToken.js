@@ -1,31 +1,31 @@
-import { useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import LoadingIndicator from "../common/LoadingIndicator";
-import { challengeFormats, challengeTypes } from "../constants/clientConstants";
-import redirectOnError from "../helpers/redirectOnError";
-import { useTranslation } from "react-i18next";
-import { getOauthDetailsHash, base64UrlDecode } from "../helpers/utils";
-import { Buffer } from "buffer";
+import { useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import LoadingIndicator from '../common/LoadingIndicator';
+import { challengeFormats, challengeTypes } from '../constants/clientConstants';
+import redirectOnError from '../helpers/redirectOnError';
+import { useTranslation } from 'react-i18next';
+import { getOauthDetailsHash, base64UrlDecode } from '../helpers/utils';
+import { Buffer } from 'buffer';
 
 export default function IdToken({
   authService,
   openIDConnectService,
-  i18nKeyPrefix1 = "errors",
+  i18nKeyPrefix1 = 'errors',
 }) {
-  const { t } = useTranslation("translation", {
+  const { t } = useTranslation('translation', {
     keyPrefix: i18nKeyPrefix1,
   });
   const navigate = useNavigate();
   const post_AuthenticateUser = authService.post_AuthenticateUser;
   const buildRedirectParams = authService.buildRedirectParams;
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   const extractParam = (param) => searchParams.get(param);
 
   const getDataFromCookie = (idTokenHint) => {
-    const uuid = JSON.parse(base64UrlDecode(idTokenHint.split(".")[1])).sub;
+    const uuid = JSON.parse(base64UrlDecode(idTokenHint.split('.')[1])).sub;
 
-    const code = "code";
+    const code = 'code';
 
     return { uuid, code };
   };
@@ -38,11 +38,11 @@ export default function IdToken({
       let challengeFormat = challengeFormats.idt;
       const idtFromAuthorizeQueryParam = (encoded) =>
         new URLSearchParams(
-          decodeURIComponent(Buffer.from(encoded, "base64").toString("utf-8"))
-        ).get("id_token_hint") || null;
+          decodeURIComponent(Buffer.from(encoded, 'base64').toString('utf-8'))
+        ).get('id_token_hint') || null;
 
       const idtHint =
-        extractParam("id_token_hint") ||
+        extractParam('id_token_hint') ||
         idtFromAuthorizeQueryParam(authService.getAuthorizeQueryParam());
 
       const { uuid, code } = getDataFromCookie(idtHint);
@@ -70,7 +70,7 @@ export default function IdToken({
 
       const { response, errors } = authenticateResponse;
 
-      if (errors != null && errors.length > 0) {
+      if (errors !== null && errors.length > 0) {
         redirectOnError(errors[0].errorCode, t(errors[0].errorCode));
       } else {
         let nonce = openIDConnectService.getNonce();
@@ -83,12 +83,12 @@ export default function IdToken({
           response.consentAction
         );
 
-        navigate(process.env.PUBLIC_URL + "/claim-details" + params, {
+        navigate(process.env.PUBLIC_URL + '/claim-details' + params, {
           replace: true,
         });
       }
     } catch (error) {
-      redirectOnError("authorization_failed_msg", error.message);
+      redirectOnError('authorization_failed_msg', error.message);
     }
   };
 

@@ -1,17 +1,17 @@
-import linkAuthService from "../../services/linkAuthService";
-import { ApiService } from "../../services/api.service";
-import localStorageService from "../../services/local-storageService";
+import linkAuthService from '../../services/linkAuthService';
+import { ApiService } from '../../services/api.service';
+import localStorageService from '../../services/local-storageService';
 import {
   LINK_AUTHORIZATION_CODE,
   LINK_CODE_GENERATE,
   LINK_STATUS,
-} from "../../constants/routes"; // Import routes for assertion
+} from '../../constants/routes'; // Import routes for assertion
 
 // Mock the external dependencies
-jest.mock("../../services/api.service");
-jest.mock("../../services/local-storageService");
+jest.mock('../../services/api.service');
+jest.mock('../../services/local-storageService');
 
-describe("linkAuthService", () => {
+describe('linkAuthService', () => {
   let service;
   // Mock the openIDConnectService which is passed into the constructor
   // Ensure these are mock functions that return resolved promises
@@ -26,23 +26,23 @@ describe("linkAuthService", () => {
 
     // Set up return values for each test to ensure isolation
     mockOpenIDConnectService.getOauthDetailsHash.mockResolvedValue(
-      "mockedHash"
+      'mockedHash'
     );
     mockOpenIDConnectService.getTransactionId.mockResolvedValue(
-      "mockedTransactionId"
+      'mockedTransactionId'
     );
-    localStorageService.getCookie.mockReturnValue("mockedXsrfToken");
+    localStorageService.getCookie.mockReturnValue('mockedXsrfToken');
 
     // Instantiate the service AFTER mocks are set up
     service = new linkAuthService(mockOpenIDConnectService);
   });
 
-  describe("post_GenerateLinkCode", () => {
-    it("should successfully generate a link code", async () => {
-      const mockResponseData = { data: "linkCode123" };
+  describe('post_GenerateLinkCode', () => {
+    it('should successfully generate a link code', async () => {
+      const mockResponseData = { data: 'linkCode123' };
       ApiService.post.mockResolvedValue({ data: mockResponseData });
 
-      const transactionId = "mockTxId123";
+      const transactionId = 'mockTxId123';
       const result = await service.post_GenerateLinkCode(transactionId);
 
       // Verify that the async methods on openIDConnectService were called
@@ -64,21 +64,21 @@ describe("linkAuthService", () => {
         }),
         expect.objectContaining({
           headers: {
-            "Content-Type": "application/json",
-            "X-XSRF-TOKEN": "mockedXsrfToken",
+            'Content-Type': 'application/json',
+            'X-XSRF-TOKEN': 'mockedXsrfToken',
             // These should be the resolved values because the service awaits them before passing to ApiService.post
-            "oauth-details-hash": "mockedHash",
-            "oauth-details-key": "mockedTransactionId",
+            'oauth-details-hash': 'mockedHash',
+            'oauth-details-key': 'mockedTransactionId',
           },
         })
       );
       expect(result).toEqual(mockResponseData);
     });
 
-    it("should handle errors when generating a link code", async () => {
-      ApiService.post.mockRejectedValue(new Error("Generate Error"));
-      await expect(service.post_GenerateLinkCode("tx")).rejects.toThrow(
-        "Generate Error"
+    it('should handle errors when generating a link code', async () => {
+      ApiService.post.mockRejectedValue(new Error('Generate Error'));
+      await expect(service.post_GenerateLinkCode('tx')).rejects.toThrow(
+        'Generate Error'
       );
       // Even on error, these should ideally be called before the API call attempt
       expect(
@@ -90,13 +90,13 @@ describe("linkAuthService", () => {
     });
   });
 
-  describe("post_LinkStatus", () => {
-    it("should successfully get link status", async () => {
-      const mockResponseData = { status: "ACTIVE" };
+  describe('post_LinkStatus', () => {
+    it('should successfully get link status', async () => {
+      const mockResponseData = { status: 'ACTIVE' };
       ApiService.post.mockResolvedValue({ data: mockResponseData });
 
-      const transactionId = "mockTxId456";
-      const linkCode = "mockLinkCode789";
+      const transactionId = 'mockTxId456';
+      const linkCode = 'mockLinkCode789';
       const result = await service.post_LinkStatus(transactionId, linkCode);
 
       expect(
@@ -117,20 +117,20 @@ describe("linkAuthService", () => {
         }),
         expect.objectContaining({
           headers: {
-            "Content-Type": "application/json",
-            "X-XSRF-TOKEN": "mockedXsrfToken",
-            "oauth-details-hash": "mockedHash",
-            "oauth-details-key": "mockedTransactionId",
+            'Content-Type': 'application/json',
+            'X-XSRF-TOKEN': 'mockedXsrfToken',
+            'oauth-details-hash': 'mockedHash',
+            'oauth-details-key': 'mockedTransactionId',
           },
         })
       );
       expect(result).toEqual(mockResponseData);
     });
 
-    it("should handle errors when getting link status", async () => {
-      ApiService.post.mockRejectedValue(new Error("Status Error"));
-      await expect(service.post_LinkStatus("tx", "code")).rejects.toThrow(
-        "Status Error"
+    it('should handle errors when getting link status', async () => {
+      ApiService.post.mockRejectedValue(new Error('Status Error'));
+      await expect(service.post_LinkStatus('tx', 'code')).rejects.toThrow(
+        'Status Error'
       );
       expect(
         mockOpenIDConnectService.getOauthDetailsHash
@@ -141,13 +141,13 @@ describe("linkAuthService", () => {
     });
   });
 
-  describe("post_AuthorizationCode", () => {
-    it("should successfully get authorization code", async () => {
-      const mockResponseData = { authCode: "authCodeABC" };
+  describe('post_AuthorizationCode', () => {
+    it('should successfully get authorization code', async () => {
+      const mockResponseData = { authCode: 'authCodeABC' };
       ApiService.post.mockResolvedValue({ data: mockResponseData });
 
-      const transactionId = "mockTxIdABC";
-      const linkedCode = "mockLinkedCodeDEF";
+      const transactionId = 'mockTxIdABC';
+      const linkedCode = 'mockLinkedCodeDEF';
       const result = await service.post_AuthorizationCode(
         transactionId,
         linkedCode
@@ -171,21 +171,21 @@ describe("linkAuthService", () => {
         }),
         expect.objectContaining({
           headers: {
-            "Content-Type": "application/json",
-            "X-XSRF-TOKEN": "mockedXsrfToken",
-            "oauth-details-hash": "mockedHash",
-            "oauth-details-key": "mockedTransactionId",
+            'Content-Type': 'application/json',
+            'X-XSRF-TOKEN': 'mockedXsrfToken',
+            'oauth-details-hash': 'mockedHash',
+            'oauth-details-key': 'mockedTransactionId',
           },
         })
       );
       expect(result).toEqual(mockResponseData);
     });
 
-    it("post_AuthorizationCode should handle errors", async () => {
-      ApiService.post.mockRejectedValue(new Error("Auth Error"));
+    it('post_AuthorizationCode should handle errors', async () => {
+      ApiService.post.mockRejectedValue(new Error('Auth Error'));
       await expect(
-        service.post_AuthorizationCode("tx", "linkedCode")
-      ).rejects.toThrow("Auth Error");
+        service.post_AuthorizationCode('tx', 'linkedCode')
+      ).rejects.toThrow('Auth Error');
       expect(
         mockOpenIDConnectService.getOauthDetailsHash
       ).toHaveBeenCalledTimes(1);
