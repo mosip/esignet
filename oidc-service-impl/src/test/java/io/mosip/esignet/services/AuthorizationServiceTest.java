@@ -16,11 +16,13 @@ import io.mosip.esignet.api.dto.claim.ClaimDetail;
 import io.mosip.esignet.api.dto.claim.Claims;
 import io.mosip.esignet.api.dto.KycAuthResult;
 import io.mosip.esignet.api.dto.claim.ClaimsV2;
+import io.mosip.esignet.api.exception.KBIFormException;
 import io.mosip.esignet.api.exception.KycAuthException;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.api.util.ConsentAction;
 import io.mosip.esignet.api.util.FilterCriteriaMatcher;
+import io.mosip.esignet.api.util.KBIFormHelperService;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
@@ -41,6 +43,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -97,7 +100,15 @@ public class AuthorizationServiceTest {
     @Mock
     CaptchaHelper captchaHelper;
 
+    @Mock
+    ResourceLoader resourceLoader;
+
+    @Mock
+    KBIFormHelperService kbiFormHelperService;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private static final String CONFIG_KEY = "auth.factor.kbi.field-details";
 
 
     @Before
@@ -1778,6 +1789,61 @@ public class AuthorizationServiceTest {
         }catch(EsignetException e){
             Assert.assertEquals("invalid_transaction",e.getErrorCode());
         }
+    }
+
+    @Test
+    public void init_withEmptyJson_fallbackToMigrate_thenPass() throws KBIFormException {
+        ReflectionTestUtils.setField(authorizationServiceImpl, "kbiFormDetailsUrl", "classpath:/test/kbi-field-empty.json");
+
+        List<Map<String, String>> fallbackFields = List.of(
+                Map.of("id", "test", "type", "text", "regex", ".*")
+        );
+        ReflectionTestUtils.setField(authorizationServiceImpl, "fieldDetailList", fallbackFields);
+
+        // Simulate fetch returning null and fallback succeeding
+        when(kbiFormHelperService.fetchKBIFieldDetailsFromResource(anyString())).thenReturn(null);
+        JsonNode fallbackJson = new ObjectMapper().createObjectNode().put("dummy", "value");
+        when(kbiFormHelperService.migrateKBIFieldDetails(fallbackFields)).thenReturn(fallbackJson);
+
+        authorizationServiceImpl.init();
+
+        Map<String, Object> uiConfig = (Map<String, Object>) ReflectionTestUtils.getField(authorizationServiceImpl, "uiConfigMap");
+        Assert.assertNotNull(uiConfig.get(CONFIG_KEY));
+    }
+
+    @Test
+    public void init_withNullUrl_fallbackToMigrate_thenPass() throws KBIFormException {
+        ReflectionTestUtils.setField(authorizationServiceImpl, "kbiFormDetailsUrl", "");
+
+        List<Map<String, String>> fallbackFields = List.of(
+                Map.of("id", "fallback", "type", "text", "regex", ".*")
+        );
+        ReflectionTestUtils.setField(authorizationServiceImpl, "fieldDetailList", fallbackFields);
+
+        JsonNode fallbackJson = new ObjectMapper().createObjectNode().put("dummy", "fallback");
+        when(kbiFormHelperService.migrateKBIFieldDetails(fallbackFields)).thenReturn(fallbackJson);
+
+        authorizationServiceImpl.init();
+
+        Map<String, Object> uiConfig = (Map<String, Object>) ReflectionTestUtils.getField(authorizationServiceImpl, "uiConfigMap");
+        Assert.assertNotNull(uiConfig.get(CONFIG_KEY));
+    }
+
+    @Test
+    public void init_withException_fallbackToMigrate_thenPass() throws KBIFormException {
+        ReflectionTestUtils.setField(authorizationServiceImpl, "kbiFormDetailsUrl", null);
+
+        List<Map<String, String>> fallbackFields = List.of(
+                Map.of("id", "broken", "type", "text", "regex", ".*")
+        );
+        ReflectionTestUtils.setField(authorizationServiceImpl, "fieldDetailList", fallbackFields);
+        JsonNode fallbackJson = new ObjectMapper().createObjectNode().put("fallback", "true");
+        when(kbiFormHelperService.migrateKBIFieldDetails(fallbackFields)).thenReturn(fallbackJson);
+
+        authorizationServiceImpl.init();
+
+        Map<String, Object> uiConfig = (Map<String, Object>) ReflectionTestUtils.getField(authorizationServiceImpl, "uiConfigMap");
+        Assert.assertNotNull(uiConfig.get(CONFIG_KEY));
     }
 
     private OIDCTransaction createIdpTransaction(String[] acrs) {
