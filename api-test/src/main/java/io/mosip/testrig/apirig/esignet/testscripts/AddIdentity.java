@@ -163,7 +163,7 @@ public class AddIdentity extends EsignetUtil implements ITest {
 			inputJson = inputJson.replace("$UIN$", uin);
 			inputJson = inputJson.replace("$RID$", genRid);
 			String phoneNumber = "";
-			String email = testCaseName + "@mosip.net";
+			String email = testCaseName + "_" + generateRandomAlphaNumericString(3) + generateRandomAlphaNumericString(3) + "@mosip.net";
 			if (inputJson.contains("$PHONENUMBERFORIDENTITY$")) {
 				if (!phoneSchemaRegex.isEmpty())
 					try {
