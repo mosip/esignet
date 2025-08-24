@@ -13,6 +13,7 @@ import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.spi.OAuthService;
+import io.mosip.esignet.core.util.SecurityHelperService;
 import io.mosip.esignet.services.AuthorizationHelperService;
 import io.mosip.esignet.services.CacheUtilService;
 import org.junit.Test;
@@ -56,6 +57,10 @@ public class OAuthControllerTest {
 
     @MockBean
     LocalAuthenticationEntryPoint localAuthenticationEntryPoint;
+
+
+    @MockBean
+    SecurityHelperService securityHelperService;
 
     @Test
     public void getAllJwks_thenPass() throws Exception {
