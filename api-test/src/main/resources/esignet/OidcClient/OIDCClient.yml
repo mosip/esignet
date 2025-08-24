@@ -457,7 +457,7 @@ CreateOIDCClient:
       description: Create OIDC client with same publicKey
       role: partner
       restMethod: post
-	  allowedErrorCodes: PMS_IDP_001,PMS_ESI_001
+      allowedErrorCodes: PMS_IDP_001,PMS_ESI_001
       inputTemplate: esignet/OidcClient/OIDCClient
       outputTemplate: esignet/error
       input: '{
