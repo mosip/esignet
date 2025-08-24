@@ -30,7 +30,7 @@ public interface OAuthService {
      * @return
      * @throws EsignetException
      */
-    TokenResponse getTokens(@Valid TokenRequestV2 tokenRequest, boolean isV2) throws EsignetException;
+    TokenResponse getTokens(@Valid TokenRequestV2 tokenRequest, String dpopHeader, boolean isV2) throws EsignetException;
 
     /**
      * API to get list of IdP public keys
@@ -47,8 +47,8 @@ public interface OAuthService {
 
     /**
      * Initiates a Pushed Authorization Request (PAR) to the authorization server.
-     * This method accepts the full set of authorization parameters and returns a request URI that the client can later reference in the authorization endpoint.
+     * This method accepts the full set of authorization parameters and dpop header and returns a request URI that the client can later reference in the authorization endpoint.
      * @return a response containing a request URI and expiration time
      */
-    PushedAuthorizationResponse authorize(PushedAuthorizationRequest pushedAuthorizationRequest);
+    PushedAuthorizationResponse authorize(PushedAuthorizationRequest pushedAuthorizationRequest, String dpopHeader);
 }

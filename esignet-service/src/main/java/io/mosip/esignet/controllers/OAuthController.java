@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.validation.Validator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.services.AuthorizationHelperService;
 import org.springframework.beans.BeanUtils;
@@ -46,11 +47,11 @@ public class OAuthController {
 
     @PostMapping(value = "/token", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
-    public TokenResponse getToken(@Validated @ModelAttribute TokenRequest tokenRequest) {
+    public TokenResponse getToken(@Validated @ModelAttribute TokenRequest tokenRequest, @RequestHeader(value = Constants.DPOP, required = false) String dpopHeader) {
         try {
             TokenRequestV2 tokenRequestV2 = new TokenRequestV2();
             BeanUtils.copyProperties(tokenRequest, tokenRequestV2);  // tokenRequestV2.setCodeVerifier(null);
-            return oAuthService.getTokens(tokenRequestV2, false);
+            return oAuthService.getTokens(tokenRequestV2, dpopHeader, false);
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.GENERATE_TOKEN, ActionStatus.ERROR,
                     AuditHelper.buildAuditDto(authorizationHelperService.getKeyHash(tokenRequest.getCode()), "codeHash", null), ex);
@@ -60,9 +61,9 @@ public class OAuthController {
 
     @PostMapping(value = "/v2/token", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
-    public TokenResponse getTokenV2(@Validated @ModelAttribute TokenRequestV2 tokenRequest) {
+    public TokenResponse getTokenV2(@Validated @ModelAttribute TokenRequestV2 tokenRequest, @RequestHeader(value = Constants.DPOP, required = false) String dpopHeader) {
         try {
-            return oAuthService.getTokens(tokenRequest,true);
+            return oAuthService.getTokens(tokenRequest, dpopHeader, true);
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.GENERATE_TOKEN, ActionStatus.ERROR,
                     AuditHelper.buildAuditDto(authorizationHelperService.getKeyHash(tokenRequest.getCode()),"codeHash", null), ex);
@@ -73,10 +74,10 @@ public class OAuthController {
     @PostMapping(value = "/par", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public PushedAuthorizationResponse authorize(@Validated @ModelAttribute PushedAuthorizationRequest pushedAuthorizationRequest)
+    public PushedAuthorizationResponse authorize(@Validated @ModelAttribute PushedAuthorizationRequest pushedAuthorizationRequest, @RequestHeader(value = Constants.DPOP, required = false) String dpopHeader)
             throws EsignetException {
         try {
-            return oAuthService.authorize(pushedAuthorizationRequest);
+            return oAuthService.authorize(pushedAuthorizationRequest, dpopHeader);
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.PAR_REQUEST, ActionStatus.ERROR,
                     AuditHelper.buildAuditDto(pushedAuthorizationRequest.getClient_id(), "clientId", null), ex);
