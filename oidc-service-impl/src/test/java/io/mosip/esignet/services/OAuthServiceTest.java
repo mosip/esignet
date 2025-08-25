@@ -425,7 +425,7 @@ public class OAuthServiceTest {
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         oidcTransaction.setKycToken("kyc-token");
         oidcTransaction.setClientId("client-id");
-        oidcTransaction.setRedirectUri("https://test-redirect-uri/test/test-page");
+        oidcTransaction.setRedirectUri("https://test-redirect-uri1/**");
         Mockito.when(authorizationHelperService.getKeyHash(Mockito.anyString())).thenReturn("code-hash");
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
 
@@ -435,10 +435,7 @@ public class OAuthServiceTest {
             Assert.assertEquals(INVALID_REDIRECT_URI, ex.getErrorCode());
         }
 
-        ClientDetail clientDetail = new ClientDetail();
-        clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri1/**", "http://test-redirect-uri-2"));
         tokenRequest.setRedirect_uri("https://test-redirect-uri/test/test-page");
-        Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
         try {
             oAuthService.getTokens(tokenRequest, null, false);
         } catch (InvalidRequestException ex) {
