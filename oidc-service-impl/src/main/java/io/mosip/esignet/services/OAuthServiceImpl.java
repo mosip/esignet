@@ -109,8 +109,7 @@ public class OAuthServiceImpl implements OAuthService {
             if(dpopHeader == null) throw new EsignetException(INVALID_REQUEST);
             transaction.setDpopJkt(validateDpopJktAgainstDpopHeaderAndGetPublicKeyThumbprint(dpopHeader, transaction.getDpopJkt()));
         }
-
-        IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), tokenRequest.getRedirect_uri());
+        
         authenticateClient(tokenRequest, clientDetailDto,isV2);
 
         boolean isTransactionVCScoped = isTransactionVCScoped(transaction);
