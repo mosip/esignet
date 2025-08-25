@@ -40,6 +40,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
@@ -94,6 +95,9 @@ public class OAuthServiceImpl implements OAuthService {
     @Value("${mosip.esignet.par.expire-seconds:60}")
     private int parTTLInSeconds;
 
+    @Value("${mosip.esignet.dpop.nonce.validity.period.ms:300000}")
+    private long nonceValidityPeriodMs;
+
     @Override
     public TokenResponse getTokens(TokenRequestV2 tokenRequest, String dpopHeader, boolean isV2) throws EsignetException {
         String codeHash = authorizationHelperService.getKeyHash(tokenRequest.getCode());
@@ -105,6 +109,7 @@ public class OAuthServiceImpl implements OAuthService {
 
         if(transaction.isDpopBoundAccessToken()) {
             if(dpopHeader == null) throw new EsignetException(INVALID_REQUEST);
+            validateAndUpdateDpopServerNonce(dpopHeader, transaction);
             transaction.setDpopJkt(validateDpopJktAgainstDpopHeaderAndGetPublicKeyThumbprint(dpopHeader, transaction.getDpopJkt()));
         }
 
@@ -400,4 +405,46 @@ public class OAuthServiceImpl implements OAuthService {
         }
         throw new EsignetException(ErrorConstants.INVALID_DPOP_PROOF);
     }
+
+    private void validateAndUpdateDpopServerNonce(String dpopHeader, OIDCTransaction transaction) throws EsignetException {
+        String dpopProofNonce = extractNonceFromDpopProof(dpopHeader);
+        long currentTime = System.currentTimeMillis();
+
+        String serverNonce = transaction.getDpopServerNonce();
+        Long serverNonceTTL = transaction.getDpopServerNonceTTL();
+
+        boolean nonceMatches = dpopProofNonce != null && dpopProofNonce.equals(serverNonce);
+        boolean nonceExpired = serverNonceTTL == null || currentTime > serverNonceTTL;
+
+        if (!nonceMatches || nonceExpired) {
+            String newNonce = generateAndStoreNewNonce(transaction, currentTime);
+            throw createUseDpopNonceEsignetException(newNonce);
+        }
+    }
+
+    private String extractNonceFromDpopProof(String dpopHeader) throws EsignetException {
+        try {
+            SignedJWT signedJWT = SignedJWT.parse(dpopHeader);
+            net.minidev.json.JSONObject payload = signedJWT.getPayload().toJSONObject();
+            return (String) payload.get("nonce");
+        } catch (ParseException e) {
+            throw new EsignetException(ErrorConstants.INVALID_DPOP_PROOF);
+        }
+    }
+
+    private String generateAndStoreNewNonce(OIDCTransaction transaction, long currentTime) {
+        String newNonce = IdentityProviderUtil.createTransactionId(null);
+        transaction.setDpopServerNonce(newNonce);
+        transaction.setDpopServerNonceTTL(currentTime + nonceValidityPeriodMs);
+        cacheUtilService.updateTransaction(transaction);
+        return newNonce;
+    }
+
+    private EsignetException createUseDpopNonceEsignetException(String newNonce) {
+        EsignetException ex = new EsignetException(ErrorConstants.USE_DPOP_NONCE,
+                "Authorization server requires nonce in DPoP proof");
+        ex.setDpopNonceHeaderValue(newNonce);
+        return ex;
+    }
+
 }

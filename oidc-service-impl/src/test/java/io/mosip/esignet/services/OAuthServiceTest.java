@@ -855,11 +855,15 @@ public class OAuthServiceTest {
         tokenRequest.setClient_assertion_type(JWT_BEARER_TYPE);
         tokenRequest.setClient_assertion("client-assertion");
 
+        String testNonce = "test-nonce-value";
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .claim("nonce", testNonce)
+                .build();
         RSAKey rsaKey = new RSAKeyGenerator(2048).generate();
         String thumbprint = "test-thumbprint";
         SignedJWT dpopJwt = new SignedJWT(
             new JWSHeader.Builder(JWSAlgorithm.RS256).jwk(rsaKey.toPublicJWK()).build(),
-            new JWTClaimsSet.Builder().build()
+            claimsSet
         );
         dpopJwt.sign(new RSASSASigner(rsaKey));
 
@@ -872,6 +876,8 @@ public class OAuthServiceTest {
         oidcTransaction.setIndividualId("individual-id");
         oidcTransaction.setDpopJkt(thumbprint);
         oidcTransaction.setDpopBoundAccessToken(true);
+        oidcTransaction.setDpopServerNonce(testNonce);
+        oidcTransaction.setDpopServerNonceTTL(System.currentTimeMillis() + 60000L);
 
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**"));
@@ -897,7 +903,7 @@ public class OAuthServiceTest {
     }
 
     @Test
-    public void getTokens_withMismatchedDpopJkt_thenFail() throws Exception {
+    public void getTokens_withoutNonce_thenFail() throws Exception {
         TokenRequestV2 tokenRequest = new TokenRequestV2();
         tokenRequest.setCode("test-code");
         tokenRequest.setClient_id("client-id");
@@ -907,10 +913,161 @@ public class OAuthServiceTest {
 
         RSAKey rsaKey = new RSAKeyGenerator(2048).generate();
         String thumbprint = "test-thumbprint";
+        SignedJWT dpopJwt = new SignedJWT(
+                new JWSHeader.Builder(JWSAlgorithm.RS256).jwk(rsaKey.toPublicJWK()).build(),
+                new JWTClaimsSet.Builder().build()
+        );
+        dpopJwt.sign(new RSASSASigner(rsaKey));
+
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
+        oidcTransaction.setClientId("client-id");
+        oidcTransaction.setKycToken("kyc-token");
+        oidcTransaction.setAuthTransactionId("auth-transaction-id");
+        oidcTransaction.setRelyingPartyId("rp-id");
+        oidcTransaction.setRedirectUri("https://test-redirect-uri/test-page");
+        oidcTransaction.setIndividualId("individual-id");
+        oidcTransaction.setDpopJkt(thumbprint);
+        oidcTransaction.setDpopBoundAccessToken(true);
+
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**"));
+        clientDetail.setAdditionalConfig(objectMapper.readTree("{\"dpop_bound_access_tokens\": true}"));
+
+        KycExchangeResult kycExchangeResult = new KycExchangeResult();
+        kycExchangeResult.setEncryptedKyc("encrypted-kyc");
+
+        Mockito.when(authorizationHelperService.getKeyHash(Mockito.anyString())).thenReturn("code-hash");
+        Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
+        Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
+
+        try {
+            oAuthService.getTokens(tokenRequest, dpopJwt.serialize(), false);
+            Assert.fail();
+        } catch (EsignetException ex) {
+            Assert.assertEquals(USE_DPOP_NONCE, ex.getErrorCode());
+        }
+    }
+
+    @Test
+    public void getTokens_withExpiredNonce_thenFailAndUpdateNonce() throws Exception {
+        TokenRequestV2 tokenRequest = new TokenRequestV2();
+        tokenRequest.setCode("test-code");
+        tokenRequest.setClient_id("client-id");
+        tokenRequest.setRedirect_uri("https://test-redirect-uri/test-page");
+        tokenRequest.setClient_assertion_type(JWT_BEARER_TYPE);
+        tokenRequest.setClient_assertion("client-assertion");
+
+        RSAKey rsaKey = new RSAKeyGenerator(2048).generate();
+        String expiredNonce = "expired-nonce";
+        String thumbprint = "test-thumbprint";
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .claim("nonce", expiredNonce)
+                .build();
+        SignedJWT dpopJwt = new SignedJWT(
+                new JWSHeader.Builder(JWSAlgorithm.RS256).jwk(rsaKey.toPublicJWK()).build(),
+                claimsSet
+        );
+        dpopJwt.sign(new RSASSASigner(rsaKey));
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
+        oidcTransaction.setClientId("client-id");
+        oidcTransaction.setKycToken("kyc-token");
+        oidcTransaction.setAuthTransactionId("auth-transaction-id");
+        oidcTransaction.setRelyingPartyId("rp-id");
+        oidcTransaction.setRedirectUri("https://test-redirect-uri/test-page");
+        oidcTransaction.setIndividualId("individual-id");
+        oidcTransaction.setDpopJkt(thumbprint);
+        oidcTransaction.setDpopBoundAccessToken(true);
+        oidcTransaction.setDpopServerNonce(expiredNonce);
+        oidcTransaction.setDpopServerNonceTTL(System.currentTimeMillis() - 1000L);
+
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**"));
+        clientDetail.setAdditionalConfig(objectMapper.readTree("{\"dpop_bound_access_tokens\": true}"));
+
+        Mockito.when(authorizationHelperService.getKeyHash(Mockito.anyString())).thenReturn("code-hash");
+        Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
+        Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
+
+        try {
+            oAuthService.getTokens(tokenRequest, dpopJwt.serialize(), false);
+            Assert.fail();
+        } catch (EsignetException ex) {
+            Assert.assertEquals(ErrorConstants.USE_DPOP_NONCE, ex.getErrorCode());
+            Assert.assertNotNull(ex.getDpopNonceHeaderValue());
+            Assert.assertNotEquals(expiredNonce, ex.getDpopNonceHeaderValue());
+        }
+    }
+
+    @Test
+    public void getTokens_withMismatchedNonce_thenFail() throws Exception {
+        TokenRequestV2 tokenRequest = new TokenRequestV2();
+        tokenRequest.setCode("test-code");
+        tokenRequest.setClient_id("client-id");
+        tokenRequest.setRedirect_uri("https://test-redirect-uri/test-page");
+        tokenRequest.setClient_assertion_type(JWT_BEARER_TYPE);
+        tokenRequest.setClient_assertion("client-assertion");
+
+        RSAKey rsaKey = new RSAKeyGenerator(2048).generate();
+        String thumbprint = "test-thumbprint";
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .claim("nonce", "different-nonce")
+                .build();
+        SignedJWT dpopJwt = new SignedJWT(
+                new JWSHeader.Builder(JWSAlgorithm.RS256).jwk(rsaKey.toPublicJWK()).build(),
+                claimsSet
+        );
+        dpopJwt.sign(new RSASSASigner(rsaKey));
+
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
+        oidcTransaction.setClientId("client-id");
+        oidcTransaction.setKycToken("kyc-token");
+        oidcTransaction.setAuthTransactionId("auth-transaction-id");
+        oidcTransaction.setRelyingPartyId("rp-id");
+        oidcTransaction.setRedirectUri("https://test-redirect-uri/test-page");
+        oidcTransaction.setIndividualId("individual-id");
+        oidcTransaction.setDpopJkt(thumbprint);
+        oidcTransaction.setDpopBoundAccessToken(true);
+        String storedNonce = "server-nonce";
+        oidcTransaction.setDpopServerNonce(storedNonce);
+        oidcTransaction.setDpopServerNonceTTL(System.currentTimeMillis() + 60000L);
+
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**"));
+        clientDetail.setAdditionalConfig(objectMapper.readTree("{\"dpop_bound_access_tokens\": true}"));
+
+        Mockito.when(authorizationHelperService.getKeyHash(Mockito.anyString())).thenReturn("code-hash");
+        Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
+        Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
+
+        try {
+            oAuthService.getTokens(tokenRequest, dpopJwt.serialize(), false);
+            Assert.fail();
+        } catch (EsignetException ex) {
+            Assert.assertEquals(USE_DPOP_NONCE, ex.getErrorCode());
+        }
+    }
+
+
+    @Test
+    public void getTokens_withMismatchedDpopJkt_thenFail() throws Exception {
+        TokenRequestV2 tokenRequest = new TokenRequestV2();
+        tokenRequest.setCode("test-code");
+        tokenRequest.setClient_id("client-id");
+        tokenRequest.setRedirect_uri("https://test-redirect-uri/test-page");
+        tokenRequest.setClient_assertion_type(JWT_BEARER_TYPE);
+        tokenRequest.setClient_assertion("client-assertion");
+
+        String testNonce = "test-nonce-value";
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .claim("nonce", testNonce)
+                .build();
+
+        RSAKey rsaKey = new RSAKeyGenerator(2048).generate();
+        String thumbprint = "test-thumbprint";
         String differentThumbprint = "different-thumbprint";
         SignedJWT dpopJwt = new SignedJWT(
             new JWSHeader.Builder(JWSAlgorithm.RS256).jwk(rsaKey.toPublicJWK()).build(),
-            new JWTClaimsSet.Builder().build()
+           claimsSet
         );
         dpopJwt.sign(new RSASSASigner(rsaKey));
 
@@ -921,6 +1078,8 @@ public class OAuthServiceTest {
         oidcTransaction.setRedirectUri("https://test-redirect-uri/test-page");
         oidcTransaction.setDpopJkt(differentThumbprint);
         oidcTransaction.setDpopBoundAccessToken(true);
+        oidcTransaction.setDpopServerNonce(testNonce);
+        oidcTransaction.setDpopServerNonceTTL(System.currentTimeMillis() + 60000L);
 
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**"));
