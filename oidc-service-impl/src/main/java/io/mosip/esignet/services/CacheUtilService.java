@@ -193,6 +193,11 @@ public class CacheUtilService {
         return pushedAuthorizationRequest;
     }
 
+    @CachePut(value = Constants.AUTH_CODE_GENERATED_CACHE, key = "#transaction.getCodeHash()")
+    public OIDCTransaction updateTransaction(OIDCTransaction transaction) {
+        return transaction;
+    }
+
     //------------------------------------------------------------------------------------------------------------------
 
     public PushedAuthorizationRequest getAndEvictPAR(String requestUri) {

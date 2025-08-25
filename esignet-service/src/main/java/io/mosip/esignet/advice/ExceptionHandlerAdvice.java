@@ -183,6 +183,13 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
         }
         if(ex instanceof EsignetException) {
             String errorCode = ((EsignetException) ex).getErrorCode();
+            HttpHeaders headers = new HttpHeaders();
+            if (((EsignetException) ex).getDpopNonceHeaderValue() != null) {
+                headers.add("DPoP-Nonce", ((EsignetException) ex).getDpopNonceHeaderValue());
+                headers.add("Access-Control-Expose-Headers", "DPoP-Nonce, WWW-Authenticate");
+                headers.add("Cache-Control", "no-store");
+                return new ResponseEntity<OAuthError>(getErrorRespDto(errorCode, getMessage(errorCode)), headers, HttpStatus.BAD_REQUEST);
+            }
             return new ResponseEntity<OAuthError>(getErrorRespDto(errorCode, getMessage(errorCode)), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         if (ex instanceof BindException) {
