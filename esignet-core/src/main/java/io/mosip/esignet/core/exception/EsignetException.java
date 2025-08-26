@@ -6,6 +6,7 @@
 package io.mosip.esignet.core.exception;
 
 import io.mosip.esignet.core.constants.ErrorConstants;
+import lombok.Getter;
 import lombok.Setter;
 
 public class EsignetException extends RuntimeException {
@@ -13,6 +14,7 @@ public class EsignetException extends RuntimeException {
     private String errorCode;
 
     @Setter
+    @Getter
     private String dpopNonceHeaderValue;
 
     public EsignetException() {
@@ -32,10 +34,6 @@ public class EsignetException extends RuntimeException {
     public EsignetException(String errorCode, String message) {
         super(message);
         this.errorCode = errorCode;
-    }
-
-    public String getDpopNonceHeaderValue() {
-        return dpopNonceHeaderValue;
     }
 
 }
