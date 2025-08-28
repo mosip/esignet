@@ -5,6 +5,7 @@
  */
 package io.mosip.esignet.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -40,6 +41,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -100,19 +102,24 @@ public class OAuthServiceImpl implements OAuthService {
 
     @Override
     public TokenResponse getTokens(TokenRequestV2 tokenRequest, String dpopHeader, boolean isV2) throws EsignetException {
+
         String codeHash = authorizationHelperService.getKeyHash(tokenRequest.getCode());
         OIDCTransaction transaction = cacheUtilService.getAuthCodeTransaction(codeHash);
 
         validateRequestParametersWithTransaction(tokenRequest, transaction);
 
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(transaction.getClientId());
-
-        if(transaction.isDpopBoundAccessToken()) {
-            if(dpopHeader == null) throw new EsignetException(INVALID_REQUEST);
-            validateAndUpdateDpopServerNonce(dpopHeader, transaction);
-            transaction.setDpopJkt(validateDpopJktAgainstDpopHeaderAndGetPublicKeyThumbprint(dpopHeader, transaction.getDpopJkt()));
+        try {
+            if (transaction.isDpopBoundAccessToken()) {
+                if (dpopHeader == null) throw new EsignetException(INVALID_REQUEST);
+                SignedJWT signedJWT = SignedJWT.parse(dpopHeader);
+                transaction.setDpopJkt(validateDpopJktAgainstDpopHeaderAndGetPublicKeyThumbprint(signedJWT, transaction.getDpopJkt()));
+                validateAndUpdateDpopServerNonce(signedJWT, transaction);
+            }
+        }catch (ParseException | IllegalArgumentException | NoSuchAlgorithmException | JsonProcessingException e) {
+            log.error("Failed to parse DPoP header", e);
+            throw new EsignetException(ErrorConstants.INVALID_DPOP_PROOF);
         }
-
         IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), tokenRequest.getRedirect_uri());
 
         authenticateClient(tokenRequest, clientDetailDto,isV2);
@@ -175,7 +182,12 @@ public class OAuthServiceImpl implements OAuthService {
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(pushedAuthorizationRequest.getClient_id());
 
         if(dpopHeader != null) {
-            pushedAuthorizationRequest.setDpop_jkt(validateDpopJktAgainstDpopHeaderAndGetPublicKeyThumbprint(dpopHeader, pushedAuthorizationRequest.getDpop_jkt()));
+            try {
+                pushedAuthorizationRequest.setDpop_jkt(validateDpopJktAgainstDpopHeaderAndGetPublicKeyThumbprint(SignedJWT.parse(dpopHeader), pushedAuthorizationRequest.getDpop_jkt()));
+            } catch (NoSuchAlgorithmException | JsonProcessingException | ParseException e) {
+                log.error("Failed to parse DPoP header", e);
+                throw new EsignetException(ErrorConstants.INVALID_DPOP_PROOF);
+            }
         }
 
         log.info("nonce : {} Valid client id found, proceeding to validate redirect URI", pushedAuthorizationRequest.getNonce());
@@ -392,22 +404,17 @@ public class OAuthServiceImpl implements OAuthService {
         return null;
     }
 
-    private String validateDpopJktAgainstDpopHeaderAndGetPublicKeyThumbprint(String dpopHeader, String dpopJkt) {
-        try {
-            SignedJWT dpopJwt = SignedJWT.parse(dpopHeader);
+    private String validateDpopJktAgainstDpopHeaderAndGetPublicKeyThumbprint(SignedJWT dpopJwt, String dpopJkt) throws IllegalArgumentException, NoSuchAlgorithmException, JsonProcessingException {
             String thumbprint = securityHelperService.computeJwkThumbprint(dpopJwt.getHeader().getJWK());
             if(dpopJkt != null && !dpopJkt.equals(thumbprint)) {
                 throw new EsignetException(ErrorConstants.INVALID_DPOP_PROOF);
             }
             return thumbprint;
-        } catch (Exception e) {
-            log.error("validateDpopJktAgainstDpopHeaderAndGetPublicKeyThumbprint failed", e);
-        }
-        throw new EsignetException(ErrorConstants.INVALID_DPOP_PROOF);
     }
 
-    private void validateAndUpdateDpopServerNonce(String dpopHeader, OIDCTransaction transaction) throws EsignetException {
-        String dpopProofNonce = extractNonceFromDpopProof(dpopHeader);
+    private void validateAndUpdateDpopServerNonce(SignedJWT signedJWT, OIDCTransaction transaction) throws EsignetException {
+        net.minidev.json.JSONObject payload = signedJWT.getPayload().toJSONObject();
+        String dpopProofNonce = (String) payload.get("nonce");
         long currentTime = System.currentTimeMillis();
 
         String serverNonce = transaction.getDpopServerNonce();
@@ -422,21 +429,11 @@ public class OAuthServiceImpl implements OAuthService {
         }
     }
 
-    private String extractNonceFromDpopProof(String dpopHeader) throws EsignetException {
-        try {
-            SignedJWT signedJWT = SignedJWT.parse(dpopHeader);
-            net.minidev.json.JSONObject payload = signedJWT.getPayload().toJSONObject();
-            return (String) payload.get("nonce");
-        } catch (ParseException e) {
-            throw new EsignetException(ErrorConstants.INVALID_DPOP_PROOF);
-        }
-    }
-
     private String generateAndStoreNewNonce(OIDCTransaction transaction, long currentTime) {
         String newNonce = IdentityProviderUtil.createTransactionId(null);
         transaction.setDpopServerNonce(newNonce);
         transaction.setDpopServerNonceTTL(currentTime + nonceValidityPeriodMs);
-        cacheUtilService.updateTransaction(transaction);
+        cacheUtilService.updateAuthCodeGeneratedTransaction(transaction);
         return newNonce;
     }
 

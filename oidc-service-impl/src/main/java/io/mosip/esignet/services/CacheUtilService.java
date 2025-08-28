@@ -194,7 +194,7 @@ public class CacheUtilService {
     }
 
     @CachePut(value = Constants.AUTH_CODE_GENERATED_CACHE, key = "#transaction.getCodeHash()")
-    public OIDCTransaction updateTransaction(OIDCTransaction transaction) {
+    public OIDCTransaction updateAuthCodeGeneratedTransaction(OIDCTransaction transaction) {
         return transaction;
     }
 

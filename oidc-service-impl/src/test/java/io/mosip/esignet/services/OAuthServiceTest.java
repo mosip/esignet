@@ -939,6 +939,7 @@ public class OAuthServiceTest {
         Mockito.when(authorizationHelperService.getKeyHash(Mockito.anyString())).thenReturn("code-hash");
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
         Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
+        Mockito.when(securityHelperService.computeJwkThumbprint(any())).thenReturn(thumbprint);
 
         try {
             oAuthService.getTokens(tokenRequest, dpopJwt.serialize(), false);
@@ -987,6 +988,7 @@ public class OAuthServiceTest {
         Mockito.when(authorizationHelperService.getKeyHash(Mockito.anyString())).thenReturn("code-hash");
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
         Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
+        Mockito.when(securityHelperService.computeJwkThumbprint(any())).thenReturn(thumbprint);
 
         try {
             oAuthService.getTokens(tokenRequest, dpopJwt.serialize(), false);
@@ -1038,6 +1040,7 @@ public class OAuthServiceTest {
         Mockito.when(authorizationHelperService.getKeyHash(Mockito.anyString())).thenReturn("code-hash");
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
         Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
+        Mockito.when(securityHelperService.computeJwkThumbprint(any())).thenReturn(thumbprint);
 
         try {
             oAuthService.getTokens(tokenRequest, dpopJwt.serialize(), false);

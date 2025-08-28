@@ -11,6 +11,7 @@ import lombok.Setter;
 
 public class EsignetException extends RuntimeException {
 
+    @Getter
     private String errorCode;
 
     @Setter
@@ -25,10 +26,6 @@ public class EsignetException extends RuntimeException {
     public EsignetException(String errorCode) {
         super(errorCode);
         this.errorCode = errorCode;
-    }
-
-    public String getErrorCode() {
-        return errorCode;
     }
 
     public EsignetException(String errorCode, String message) {
