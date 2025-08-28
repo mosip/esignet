@@ -1,21 +1,21 @@
-import React, { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import LoadingIndicator from "../common/LoadingIndicator";
+import React, { useEffect, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import LoadingIndicator from '../common/LoadingIndicator';
 import {
   challengeFormats,
   challengeTypes,
   configurationKeys,
-} from "../constants/clientConstants";
-import { LoadingStates as states } from "../constants/states";
-import InputWithImage from "./InputWithImage";
-import { useTranslation } from "react-i18next";
-import { init, propChange } from "secure-biometric-interface-integrator";
-import ErrorBanner from "../common/ErrorBanner";
-import langConfigService from "../services/langConfigService";
-import redirectOnError from "../helpers/redirectOnError";
-import ReCAPTCHA from "react-google-recaptcha";
-import LoginIDOptions from "./LoginIDOptions";
-import InputWithPrefix from "./InputWithPrefix";
+} from '../constants/clientConstants';
+import { LoadingStates as states } from '../constants/states';
+import InputWithImage from './InputWithImage';
+import { useTranslation } from 'react-i18next';
+import { init, propChange } from 'secure-biometric-interface-integrator';
+import ErrorBanner from '../common/ErrorBanner';
+import langConfigService from '../services/langConfigService';
+import redirectOnError from '../helpers/redirectOnError';
+import ReCAPTCHA from 'react-google-recaptcha';
+import LoginIDOptions from './LoginIDOptions';
+import InputWithPrefix from './InputWithPrefix';
 
 let fieldsState = {};
 
@@ -25,14 +25,14 @@ export default function L1Biometrics({
   openIDConnectService,
   backButtonDiv,
   secondaryHeading,
-  i18nKeyPrefix1 = "l1Biometrics",
-  i18nKeyPrefix2 = "errors",
+  i18nKeyPrefix1 = 'l1Biometrics',
+  i18nKeyPrefix2 = 'errors',
 }) {
-  const { t: t1, i18n } = useTranslation("translation", {
+  const { t: t1, i18n } = useTranslation('translation', {
     keyPrefix: i18nKeyPrefix1,
   });
 
-  const { t: t2 } = useTranslation("translation", {
+  const { t: t2 } = useTranslation('translation', {
     keyPrefix: i18nKeyPrefix2,
   });
 
@@ -44,7 +44,7 @@ export default function L1Biometrics({
         const config = await langConfigService.getEnLocaleConfiguration();
         setLangConfig(config);
       } catch (e) {
-        console.error("Failed to load lang config", e);
+        console.error('Failed to load lang config', e);
         setLangConfig({ errors: { otp: {} } }); // Fallback to prevent crashes
       }
     }
@@ -53,7 +53,7 @@ export default function L1Biometrics({
   }, []);
 
   const inputCustomClass =
-    "h-10 border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[hsla(0, 0%, 51%)] focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-muted-light-gray shadow-none";
+    'h-10 border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-[hsla(0, 0%, 51%)] focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-muted-light-gray shadow-none';
 
   const firstRender = useRef(true);
   const transactionId = openIDConnectService.getTransactionId();
@@ -62,11 +62,11 @@ export default function L1Biometrics({
 
   const { post_AuthenticateUser, buildRedirectParams } = authService;
 
-  inputFields.forEach((field) => (fieldsState["sbi_" + field.id] = ""));
+  inputFields.forEach((field) => (fieldsState['sbi_' + field.id] = ''));
 
   const [status, setStatus] = useState({
     state: states.LOADED,
-    msg: "",
+    msg: '',
   });
 
   const [errorBanner, setErrorBanner] = useState(null);
@@ -77,7 +77,6 @@ export default function L1Biometrics({
   const [currentLoginID, setCurrentLoginID] = useState(null);
   const [countryCode, setCountryCode] = useState(null);
   const [individualId, setIndividualId] = useState(null);
-  const [selectedCountry, setSelectedCountry] = useState(null);
   const [isValid, setIsValid] = useState(false);
   const [isBtnDisabled, setIsBtnDisabled] = useState(true);
   const [prevLanguage, setPrevLanguage] = useState(i18n.language);
@@ -92,11 +91,11 @@ export default function L1Biometrics({
     ) ?? process.env.REACT_APP_CAPTCHA_ENABLE;
 
   const captchaEnableComponentsList = captchaEnableComponents
-    .split(",")
+    .split(',')
     .map((x) => x.trim().toLowerCase());
 
   const [showCaptcha, setShowCaptcha] = useState(
-    captchaEnableComponentsList.indexOf("bio") !== -1
+    captchaEnableComponentsList.indexOf('bio') !== -1
   );
 
   const captchaSiteKey =
@@ -135,7 +134,7 @@ export default function L1Biometrics({
     onCloseHandle();
     const idProperties = getPropertiesForLoginID(
       currentLoginID,
-      e.target.name.split("_")[1]
+      e.target.name.split('_')[1]
     );
     const maxLength = idProperties.maxLength;
     const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
@@ -163,7 +162,7 @@ export default function L1Biometrics({
   const handleBlur = (e) => {
     const idProperties = getPropertiesForLoginID(
       currentLoginID,
-      e.target.name.split("_")[1]
+      e.target.name.split('_')[1]
     );
     const maxLength = idProperties.maxLength;
     const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
@@ -179,9 +178,6 @@ export default function L1Biometrics({
       setIsValid(false);
       setIsBtnDisabled(true);
       onCloseHandle();
-      if (currentLoginID && currentLoginID.prefixes) {
-        setSelectedCountry(currentLoginID.prefixes[0]);
-      }
     } else {
       setPrevLanguage(i18n.language);
     }
@@ -192,16 +188,16 @@ export default function L1Biometrics({
    */
   const authenticateBiometricResponse = async (biometricResponse) => {
     setErrorBanner(null);
-    setStatus({ state: states.LOADED, msg: "" });
+    setStatus({ state: states.LOADED, msg: '' });
     const { errorCode } = validateBiometricResponse(biometricResponse);
 
     let prefix = currentLoginID.prefixes
-      ? typeof currentLoginID.prefixes === "object"
+      ? typeof currentLoginID.prefixes === 'object'
         ? countryCode
         : currentLoginID.prefixes
-      : "";
+      : '';
     let id = individualId;
-    let postfix = currentLoginID.postfix ? currentLoginID.postfix : "";
+    let postfix = currentLoginID.postfix ? currentLoginID.postfix : '';
 
     let ID = prefix + id + postfix;
 
@@ -210,11 +206,11 @@ export default function L1Biometrics({
         await Authenticate(
           transactionId,
           ID,
-          openIDConnectService.encodeBase64(biometricResponse["biometrics"])
+          openIDConnectService.encodeBase64(biometricResponse['biometrics'])
         );
       } catch (error) {
         setErrorBanner({
-          errorCode: "authentication_failed_msg",
+          errorCode: 'authentication_failed_msg',
           show: true,
         });
       }
@@ -223,13 +219,13 @@ export default function L1Biometrics({
 
   const getSBIAuthTransactionId = (oidcTransactionId) => {
     if (!oidcTransactionId) {
-      console.error("oidcTransactionId is undefined");
-      return "";
+      console.error('oidcTransactionId is undefined');
+      return '';
     }
 
-    oidcTransactionId = oidcTransactionId.replace(/-|_/gi, "");
+    oidcTransactionId = oidcTransactionId.replace(/-|_/gi, '');
 
-    let transactionId = "";
+    let transactionId = '';
     let pointer = oidcTransactionId.length;
 
     while (transactionId.length !== authTxnIdLength) {
@@ -249,20 +245,20 @@ export default function L1Biometrics({
   const validateBiometricResponse = (response) => {
     if (
       response === null ||
-      response["biometrics"] === null ||
-      response["biometrics"].length === 0
+      response['biometrics'] === null ||
+      response['biometrics'].length === 0
     ) {
-      return { errorCode: "no_response_msg", defaultMsg: null };
+      return { errorCode: 'no_response_msg', defaultMsg: null };
     }
 
-    let biometrics = response["biometrics"];
+    let biometrics = response['biometrics'];
 
     for (let i = 0; i < biometrics.length; i++) {
-      let error = biometrics[i]["error"];
-      if (error !== null && error.errorCode !== "0") {
+      let error = biometrics[i]['error'];
+      if (error !== null && error.errorCode !== '0') {
         return { errorCode: error.errorCode, defaultMsg: error.errorInfo };
       } else {
-        delete biometrics[i]["error"];
+        delete biometrics[i]['error'];
       }
     }
     return { errorCode: null, defaultMsg: null };
@@ -270,7 +266,7 @@ export default function L1Biometrics({
 
   useEffect(() => {
     let loadComponent = async () => {
-      i18n.on("languageChanged", () => {
+      i18n.on('languageChanged', () => {
         if (showCaptcha) {
           //to rerender recaptcha widget on language change
           setShowCaptcha(false);
@@ -304,7 +300,7 @@ export default function L1Biometrics({
 
     setStatus({
       state: states.AUTHENTICATING,
-      msg: "authenticating_msg",
+      msg: 'authenticating_msg',
     });
 
     const authenticateResponse = await post_AuthenticateUser(
@@ -314,11 +310,11 @@ export default function L1Biometrics({
       captchaToken
     );
 
-    setStatus({ state: states.LOADED, msg: "" });
+    setStatus({ state: states.LOADED, msg: '' });
 
     const { response, errors } = authenticateResponse;
 
-    if (errors != null && errors.length > 0) {
+    if (errors !== null && errors.length > 0) {
       let errorCodeCondition =
         langConfig.errors.biometrics[errors[0].errorCode] !== undefined &&
         langConfig.errors.biometrics[errors[0].errorCode] !== null;
@@ -328,7 +324,7 @@ export default function L1Biometrics({
           errorCode: `biometrics.${errors[0].errorCode}`,
           show: true,
         });
-      } else if (errors[0].errorCode === "invalid_transaction") {
+      } else if (errors[0].errorCode === 'invalid_transaction') {
         redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
       } else {
         setErrorBanner({
@@ -351,7 +347,7 @@ export default function L1Biometrics({
         response.consentAction
       );
 
-      navigate(process.env.PUBLIC_URL + "/claim-details" + params, {
+      navigate(process.env.PUBLIC_URL + '/claim-details' + params, {
         replace: true,
       });
     }
@@ -364,24 +360,24 @@ export default function L1Biometrics({
   useEffect(() => {
     let mosipProp = {
       container: document.getElementById(
-        "secure-biometric-interface-integration"
+        'secure-biometric-interface-integration'
       ),
-      buttonLabel: "scan_and_verify",
+      buttonLabel: 'scan_and_verify',
       transactionId: getSBIAuthTransactionId(transactionId),
       sbiEnv: {
-        env: getEsignetConfiguration("sbiEnv"),
-        captureTimeout: getEsignetConfiguration("sbiCAPTURETimeoutInSeconds"),
-        irisBioSubtypes: getEsignetConfiguration("sbiIrisBioSubtypes"),
-        fingerBioSubtypes: getEsignetConfiguration("sbiFingerBioSubtypes"),
-        faceCaptureCount: getEsignetConfiguration("sbiFaceCaptureCount"),
-        faceCaptureScore: getEsignetConfiguration("sbiFaceCaptureScore"),
-        fingerCaptureCount: getEsignetConfiguration("sbiFingerCaptureCount"),
-        fingerCaptureScore: getEsignetConfiguration("sbiFingerCaptureScore"),
-        irisCaptureCount: getEsignetConfiguration("sbiIrisCaptureCount"),
-        irisCaptureScore: getEsignetConfiguration("sbiIrisCaptureScore"),
-        portRange: getEsignetConfiguration("sbiPortRange"),
-        discTimeout: getEsignetConfiguration("sbiDISCTimeoutInSeconds"),
-        dinfoTimeout: getEsignetConfiguration("sbiDINFOTimeoutInSeconds"),
+        env: getEsignetConfiguration('sbiEnv'),
+        captureTimeout: getEsignetConfiguration('sbiCAPTURETimeoutInSeconds'),
+        irisBioSubtypes: getEsignetConfiguration('sbiIrisBioSubtypes'),
+        fingerBioSubtypes: getEsignetConfiguration('sbiFingerBioSubtypes'),
+        faceCaptureCount: getEsignetConfiguration('sbiFaceCaptureCount'),
+        faceCaptureScore: getEsignetConfiguration('sbiFaceCaptureScore'),
+        fingerCaptureCount: getEsignetConfiguration('sbiFingerCaptureCount'),
+        fingerCaptureScore: getEsignetConfiguration('sbiFingerCaptureScore'),
+        irisCaptureCount: getEsignetConfiguration('sbiIrisCaptureCount'),
+        irisCaptureScore: getEsignetConfiguration('sbiIrisCaptureScore'),
+        portRange: getEsignetConfiguration('sbiPortRange'),
+        discTimeout: getEsignetConfiguration('sbiDISCTimeoutInSeconds'),
+        dinfoTimeout: getEsignetConfiguration('sbiDINFOTimeoutInSeconds'),
         domainUri: `${window.origin}`,
       },
       langCode: i18n.language,
@@ -391,7 +387,7 @@ export default function L1Biometrics({
     if (firstRender.current) {
       firstRender.current = false;
       init(mosipProp);
-      i18n.on("languageChanged", () => {
+      i18n.on('languageChanged', () => {
         propChange({ langCode: i18n.language });
       });
       return;
@@ -455,9 +451,6 @@ export default function L1Biometrics({
                   countryCode={(val) => {
                     setCountryCode(val);
                   }}
-                  selectedCountry={(val) => {
-                    setSelectedCountry(val);
-                  }}
                   individualId={(val) => {
                     setIndividualId(val);
                   }}
@@ -469,13 +462,13 @@ export default function L1Biometrics({
               ) : (
                 inputFields.map((field) => (
                   <InputWithImage
-                    key={"sbi_" + currentLoginID.id}
+                    key={'sbi_' + currentLoginID.id}
                     handleChange={handleChange}
                     blurChange={handleBlur}
                     labelText={currentLoginID.input_label}
-                    labelFor={"sbi_" + currentLoginID.id}
-                    id={"sbi_" + currentLoginID.id}
-                    name={"sbi_" + currentLoginID.id}
+                    labelFor={'sbi_' + currentLoginID.id}
+                    id={'sbi_' + currentLoginID.id}
+                    name={'sbi_' + currentLoginID.id}
                     type={field.type}
                     placeholder={currentLoginID.input_placeholder}
                     customClass={inputCustomClass}
@@ -483,7 +476,7 @@ export default function L1Biometrics({
                     tooltipMsg="vid_info"
                     individualId={individualId}
                     isInvalid={!isValid}
-                    value={individualId ?? ""}
+                    value={individualId ?? ''}
                     currenti18nPrefix={i18nKeyPrefix1}
                   />
                 ))

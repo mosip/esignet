@@ -1,12 +1,12 @@
-import { Buffer } from "buffer";
+import { Buffer } from 'buffer';
 import {
   walletConfigKeys,
   validAuthFactors,
   configurationKeys,
   modalityIconPath,
   purposeTypeObj,
-} from "../constants/clientConstants";
-import { getOauthDetailsHash as getOauthDetailsHashUtil } from "../helpers/utils"
+} from '../constants/clientConstants';
+import { getOauthDetailsHash as getOauthDetailsHashUtil } from '../helpers/utils';
 
 class openIDConnectService {
   constructor(oAuthDetails, nonce, state) {
@@ -66,10 +66,10 @@ class openIDConnectService {
    */
   encodeBase64 = (jsonObject) => {
     let objJsonStr = JSON.stringify(jsonObject);
-    let objJsonB64 = Buffer.from(objJsonStr).toString("base64");
+    let objJsonB64 = Buffer.from(objJsonStr).toString('base64');
     return objJsonB64;
   };
-  
+
   /**
    * encodes a jsonObject into base64 string
    * @param {jsonObject} jsonObject
@@ -87,10 +87,10 @@ class openIDConnectService {
   wlaToAuthfactor = (wla) => {
     return {
       label: wla[walletConfigKeys.walletName],
-      value: { ...wla, type: "WLA" },
+      value: { ...wla, type: 'WLA' },
       icon: wla[walletConfigKeys.walletLogoUrl],
       id: `login_with_${wla[walletConfigKeys.walletName]
-        .replace(" ", "_")
+        .replace(' ', '_')
         .toLowerCase()}`,
     };
   };
@@ -104,7 +104,10 @@ class openIDConnectService {
     return {
       label: authFactor[0].type,
       value: authFactor[0],
-      icon: authFactor[0].type === "PWD" ? modalityIconPath["PSWD"] : modalityIconPath[authFactor[0].type],
+      icon:
+        authFactor[0].type === 'PWD'
+          ? modalityIconPath['PSWD']
+          : modalityIconPath[authFactor[0].type],
       id: `login_with_${authFactor[0].type.toLowerCase()}`,
     };
   };
@@ -143,13 +146,18 @@ class openIDConnectService {
       type: purposeTypeObj.login,
       title: null,
       subTitle: null,
-    }
+    };
 
     // getting client additional config object,
     // which may contains purpose object
-    const additionalConfig = this.getEsignetConfiguration(configurationKeys.additionalConfig);
+    const additionalConfig = this.getEsignetConfiguration(
+      configurationKeys.additionalConfig
+    );
 
-    if (additionalConfig?.purpose && this.checkPurposeObjIsNotEmpty(additionalConfig.purpose)) {
+    if (
+      additionalConfig?.purpose &&
+      this.checkPurposeObjIsNotEmpty(additionalConfig.purpose)
+    ) {
       const tempPurpose = additionalConfig.purpose;
       purposeObj.type = tempPurpose.type;
       if (tempPurpose.type === purposeTypeObj.none) {
@@ -157,20 +165,24 @@ class openIDConnectService {
       }
       purposeObj.title = this.checkTitleAndSubTitle(tempPurpose.title);
       purposeObj.subTitle = this.checkTitleAndSubTitle(tempPurpose.subTitle);
-      
     }
 
     return purposeObj;
-  }
+  };
 
   // check purpose object has any of the property,
   // otherwise use deafault purpose object
   checkPurposeObjIsNotEmpty = (purposeObj) => {
-    if (purposeObj && (('title' in purposeObj) || ('subTitle' in purposeObj) || ('type' in purposeObj))) {
+    if (
+      purposeObj &&
+      ('title' in purposeObj ||
+        'subTitle' in purposeObj ||
+        'type' in purposeObj)
+    ) {
       return true;
     }
     return false;
-  }
+  };
 
   // check if title & subtitle is obj or not
   checkTitleAndSubTitle = (dataObj) => {
@@ -178,7 +190,7 @@ class openIDConnectService {
       return null;
     }
     return dataObj;
-  }
+  };
 }
 
 export default openIDConnectService;

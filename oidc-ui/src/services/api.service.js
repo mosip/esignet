@@ -1,9 +1,9 @@
-import axios from "axios";
+import axios from 'axios';
 
-import { CSRF, SOMETHING_WENT_WRONG } from "../constants/routes";
+import { CSRF, SOMETHING_WENT_WRONG } from '../constants/routes';
 
 const API_BASE_URL =
-  process.env.NODE_ENV === "development"
+  process.env.NODE_ENV === 'development'
     ? process.env.REACT_APP_ESIGNET_API_URL
     : window.origin + process.env.REACT_APP_ESIGNET_API_URL;
 
@@ -37,13 +37,13 @@ export const ApiService = axios.create({
 ApiService.interceptors.request.use(
   async (config) => {
     try {
-      if (config.method?.toLowerCase() === "post") {
-        let csrfToken = sessionStorage.getItem("csrfToken");
+      if (config.method?.toLowerCase() === 'post') {
+        let csrfToken = sessionStorage.getItem('csrfToken');
         if (!csrfToken) {
           csrfToken = await get_CsrfToken();
-          if (csrfToken) sessionStorage.setItem("csrfToken", csrfToken);
+          if (csrfToken) sessionStorage.setItem('csrfToken', csrfToken);
         }
-        config.headers["X-XSRF-TOKEN"] = csrfToken;
+        config.headers['X-XSRF-TOKEN'] = csrfToken;
       }
     } catch (error) {
       console.error(error);
@@ -64,7 +64,7 @@ export const setupResponseInterceptor = (navigate) => {
       if (error?.response?.status && allErrorStatusCodes.includes(state.code)) {
         navigate(SOMETHING_WENT_WRONG, { state });
       } else {
-        const message = error?.message || "Unknown error occurred";
+        const message = error?.message || 'Unknown error occurred';
         const rejection = error instanceof Error ? error : new Error(message);
         return Promise.reject(rejection);
       }

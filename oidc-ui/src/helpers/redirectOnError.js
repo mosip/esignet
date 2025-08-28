@@ -1,16 +1,15 @@
-import openIDConnectService from "../services/openIDConnectService";
-import { decodeHash } from "./utils";
+import openIDConnectService from '../services/openIDConnectService';
+import { decodeHash } from './utils';
 
 function redirectOnError(errorCode, errorDescription) {
-
   // Parsing the current URL into a URL object
   const urlObj = new URL(window.location.href);
 
   // Extracting the value of the 'state' parameter from the URL
-  const state = urlObj.searchParams.get("state");
+  const state = urlObj.searchParams.get('state');
 
   // Extracting the value of the 'nonce' parameter from the URL
-  const nonce = urlObj.searchParams.get("nonce");
+  const nonce = urlObj.searchParams.get('nonce');
 
   // Extracting the hash part of the URL (excluding the # character)
   const code = urlObj.hash.substring(1);
@@ -35,13 +34,13 @@ function redirectOnError(errorCode, errorDescription) {
   const params = new URLSearchParams();
 
   // If errorDescription is provided, setting 'error_description' parameter
-  if (errorDescription) params.set("error_description", errorDescription);
+  if (errorDescription) params.set('error_description', errorDescription);
 
   // Setting 'state' parameter
-  params.set("state", state);
-  
+  params.set('state', state);
+
   // Setting 'error' parameter
-  params.set("error", errorCode);
+  params.set('error', errorCode);
 
   // Disabling the beforeunload event handler
   window.onbeforeunload = null;

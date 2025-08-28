@@ -1,12 +1,12 @@
-import { SOMETHING_WENT_WRONG } from "../../constants/routes";
+import { SOMETHING_WENT_WRONG } from '../../constants/routes';
 import {
   setupResponseInterceptor,
   HttpError,
   ApiService,
-} from "../../services/api.service";
+} from '../../services/api.service';
 
 // 🧠 SAFELY mock axios globally, including interceptors and baseURL
-jest.mock("axios", () => {
+jest.mock('axios', () => {
   const interceptors = {
     response: {
       use: jest.fn(),
@@ -18,16 +18,16 @@ jest.mock("axios", () => {
     create: jest.fn(() => ({
       defaults: {
         baseURL:
-          process.env.NODE_ENV === "development"
+          process.env.NODE_ENV === 'development'
             ? process.env.REACT_APP_ESIGNET_API_URL
-            : "http://localhost" + process.env.REACT_APP_ESIGNET_API_URL,
+            : 'http://localhost' + process.env.REACT_APP_ESIGNET_API_URL,
       },
       interceptors,
     })),
   };
 });
 
-describe("ApiService - setupResponseInterceptor", () => {
+describe('ApiService - setupResponseInterceptor', () => {
   let mockNavigate;
   let fulfilledHandler;
   let rejectedHandler;
@@ -44,22 +44,22 @@ describe("ApiService - setupResponseInterceptor", () => {
     rejectedHandler = rejected;
   });
 
-  it("should set correct baseURL", () => {
+  it('should set correct baseURL', () => {
     const expectedBaseUrl =
-      process.env.NODE_ENV === "development"
+      process.env.NODE_ENV === 'development'
         ? process.env.REACT_APP_ESIGNET_API_URL
-        : "http://localhost" + process.env.REACT_APP_ESIGNET_API_URL;
+        : 'http://localhost' + process.env.REACT_APP_ESIGNET_API_URL;
 
     expect(ApiService.defaults.baseURL).toBe(expectedBaseUrl);
   });
 
-  it("should return successful response as-is", () => {
-    const response = { data: "OK" };
+  it('should return successful response as-is', () => {
+    const response = { data: 'OK' };
     const result = fulfilledHandler(response);
     expect(result).toBe(response);
   });
 
-  it("should navigate to error page on known HTTP error", async () => {
+  it('should navigate to error page on known HTTP error', async () => {
     const error = { response: { status: 404 } };
     await rejectedHandler(error);
     expect(mockNavigate).toHaveBeenCalledWith(SOMETHING_WENT_WRONG, {
@@ -67,15 +67,15 @@ describe("ApiService - setupResponseInterceptor", () => {
     });
   });
 
-  it("should construct HttpError properly", () => {
-    const err = new HttpError("Boom", 503);
-    expect(err.message).toBe("Boom");
+  it('should construct HttpError properly', () => {
+    const err = new HttpError('Boom', 503);
+    expect(err.message).toBe('Boom');
     expect(err.code).toBe(503);
   });
 
-  it("should reject but not navigate when status is not in known list", async () => {
-    const error = { response: { status: 999 }, message: "Weird error" };
-    await expect(rejectedHandler(error)).rejects.toThrow("Weird error");
+  it('should reject but not navigate when status is not in known list', async () => {
+    const error = { response: { status: 999 }, message: 'Weird error' };
+    await expect(rejectedHandler(error)).rejects.toThrow('Weird error');
     expect(mockNavigate).not.toHaveBeenCalled();
   });
 });

@@ -1,11 +1,17 @@
-import React from "react";
-import * as Popover from "@radix-ui/react-popover";
+import React from 'react';
+import * as Popover from '@radix-ui/react-popover';
 
-const PopoverContainer = ({child, content, position, contentSize, contentClassName}) => {
+const PopoverContainer = ({
+  child,
+  content,
+  position,
+  contentSize,
+  contentClassName,
+}) => {
   return (
     <Popover.Root>
       <Popover.Trigger asChild className="hover: cursor-pointer">
-          {child}
+        {child}
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Content
@@ -13,10 +19,8 @@ const PopoverContainer = ({child, content, position, contentSize, contentClassNa
           sideOffset={1}
           side={position}
         >
-          <span className={contentSize}>
-            {content}
-          </span>
-          <Popover.Arrow stroke="#BCBCBC" className="fill-[#fff]" height={7}/>
+          <span className={contentSize}>{content}</span>
+          <Popover.Arrow stroke="#BCBCBC" className="fill-[#fff]" height={7} />
         </Popover.Content>
       </Popover.Portal>
     </Popover.Root>

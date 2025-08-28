@@ -1,12 +1,12 @@
-import { useTranslation } from "react-i18next";
-import ErrorIndicator from "../common/ErrorIndicator";
+import { useTranslation } from 'react-i18next';
+import ErrorIndicator from '../common/ErrorIndicator';
 
 export default function DefaultError({
   errorCode,
   backgroundImgPath,
-  i18nKeyPrefix = "errors",
+  i18nKeyPrefix = 'errors',
 }) {
-  const { t } = useTranslation("translation", { keyPrefix: i18nKeyPrefix });
+  const { t } = useTranslation('translation', { keyPrefix: i18nKeyPrefix });
 
   return (
     <>
@@ -15,7 +15,7 @@ export default function DefaultError({
           <div className="flex justify-center lg:mt-32 mt-20 mb:mt-0 lg:w-1/2 md:w-1/2 w-5/6 mb-10 md:mb-0">
             <img
               className="object-contain rtl:scale-x-[-1]"
-              alt={t("backgroud_image_alt")}
+              alt={t('backgroud_image_alt')}
               src={backgroundImgPath}
             />
           </div>

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { Trans, useTranslation } from "react-i18next";
-import { configurationKeys } from "../constants/clientConstants";
-import { checkConfigProperty } from "../helpers/utils";
+import React, { useState, useEffect } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
+import { configurationKeys } from '../constants/clientConstants';
+import { checkConfigProperty } from '../helpers/utils';
 
 export default function Background({
   heading,
@@ -11,14 +11,14 @@ export default function Background({
   component,
   oidcService,
   authService,
-  i18nKeyPrefix = "header",
+  i18nKeyPrefix = 'header',
 }) {
-  const { t, i18n } = useTranslation("translation", {
+  const { t, i18n } = useTranslation('translation', {
     keyPrefix: i18nKeyPrefix,
   });
 
   const [signupBanner, setSignupBanner] = useState(false);
-  const [signupURL, setSignupURL] = useState("");
+  const [signupURL, setSignupURL] = useState('');
 
   let signupConfig = oidcService.getEsignetConfiguration(
     configurationKeys.signupConfig
@@ -33,7 +33,7 @@ export default function Background({
       setSignupBanner(true);
       setSignupURL(
         signupConfig[configurationKeys.signupURL] +
-          "#" +
+          '#' +
           authService.getAuthorizeQueryParam()
       );
     } else {
@@ -42,11 +42,18 @@ export default function Background({
   };
 
   useEffect(() => {
-    if (checkConfigProperty(clientAdditionalConfig, configurationKeys.signupBannerRequired)) {
+    if (
+      checkConfigProperty(
+        clientAdditionalConfig,
+        configurationKeys.signupBannerRequired
+      )
+    ) {
       toggleSignupBanner(
         clientAdditionalConfig[configurationKeys.signupBannerRequired]
       );
-    } else if (checkConfigProperty(signupConfig, configurationKeys.signupBanner)) {
+    } else if (
+      checkConfigProperty(signupConfig, configurationKeys.signupBanner)
+    ) {
       toggleSignupBanner(signupConfig[configurationKeys.signupBanner]);
     } else {
       setSignupBanner(false);
@@ -55,7 +62,7 @@ export default function Background({
 
   // check signup banner is present or not,
   // and padding according to that only
-  const conditionalPadding = signupBanner ? "pt-4" : "py-4";
+  const conditionalPadding = signupBanner ? 'pt-4' : 'py-4';
 
   const handleSignup = () => {
     window.onbeforeunload = null;
@@ -63,7 +70,7 @@ export default function Background({
   return (
     <div
       className={
-        "multipurpose-login-card shadow-sm m-3 !rounded-lg w-auto sm:w-3/6 lg:max-w-sm md:z-10 md:m-auto " +
+        'multipurpose-login-card shadow-sm m-3 !rounded-lg w-auto sm:w-3/6 lg:max-w-sm md:z-10 md:m-auto ' +
         conditionalPadding
       }
     >
@@ -81,7 +88,7 @@ export default function Background({
               id="login-subheader"
             >
               <Trans
-                i18nKey={i18nKeyPrefix + "." + subheading}
+                i18nKey={i18nKeyPrefix + '.' + subheading}
                 defaults={subheading}
                 values={{ clientName: clientName }}
                 components={{ strong: <strong /> }}
@@ -100,7 +107,7 @@ export default function Background({
           <span className="flex mx-5 alternate-arrow"></span>
           <img
             className="object-contain brand-only-logo client-logo-size"
-            alt={t("logo_alt")}
+            alt={t('logo_alt')}
           />
         </div>
         <div className="text-black lg:-mx-5 md:-mx-4 sm:-mx-3 -mx-3 login-card-separator"></div>
@@ -110,7 +117,7 @@ export default function Background({
       {signupBanner && (
         <div className="signup-banner">
           <p className="signup-banner-text" id="no-account">
-            {t("noAccount")}
+            {t('noAccount')}
           </p>
           <a
             className="signup-banner-hyperlink"
@@ -119,7 +126,7 @@ export default function Background({
             target="_self"
             onClick={() => handleSignup()}
           >
-            {t("signup_for_unified_login")}
+            {t('signup_for_unified_login')}
           </a>
         </div>
       )}
