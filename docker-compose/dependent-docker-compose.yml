@@ -34,7 +34,7 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
 
   mock-identity-system:
-    image: 'mosipqa/mock-identity-system:0.11.x'
+    image: 'mosipid/mock-identity-system:0.11.2'
     user: root
     ports:
       - 8082:8082
