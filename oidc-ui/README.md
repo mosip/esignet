@@ -16,19 +16,26 @@ Esignet UI contains the following pages:
 
 - **/login**:
   This is a login page where list of auth factor (OTP / BIO / KBI / PIN / Wallet) will be shown, and user can select any one for Login/Verify/Link purpose.
-  
-  For more details how purpose work check [Login Purpose](../docs/design/esignet-login-purpose.md)
 
-  For more details how multiple login id work check [Login ID Types](../docs/design/loginid-types.md)
+  For more information on how purpose works, see [Login Purpose](../docs/design/esignet-login-purpose.md)
+
+  For more information on how multiple login IDs work, see [Login ID Types](../docs/design/loginid-types.md)
 
 - **/consent**: is a page that prompts the user to provide consent to share one's details from the MOSIP to the relying party. It shows authorize scope that needs to be permitted and, essential and voluntary claims that need to be accepted or rejected.
+
+### KBI form in eSignet
+
+From **v1.7.0**, a **KBI form** can be configured in the properties file and is returned in the `oauth-details` endpoint under `uiConfigs`.
+When eSignet supports **multiple ID systems** in one deployment, each ID system must register its metadata in the eSignet DB (including supported authentication factors).  
+If **KBI** is supported, it must have its own KBI form, returned via `oauth-details` based on the mapped OIDC client.
+
+For more details on how KBI authentication works, see [Dynamic Forms](../docs/design/dynamic-forms.md)
 
 ## Build & run (for developers)
 
 The application runs on PORT=3000 by default.
 
 - Env variables
-
   - REACT_APP_SBI_CAPTURE_TIMEOUT: timeout for sbi capture endpoint
   - REACT_APP_SBI_DINFO_TIMEOUT: timeout for sbi device info endpoint
   - REACT_APP_SBI_DISC_TIMEOUT: timeout for sbi discovery endpoint
@@ -88,22 +95,25 @@ JSON configuration variables (`theme/config.json`)
   $ docker build -t <dockerImageName>:<tag> .
   $ docker run -it -d -p 3000:3000 <dockerImageName>:<tag>
   ```
-  To host oidc ui on a context path: 
+
+  To host oidc ui on a context path:
   1. Remove the location path with `/` in the nignx file and add the location with context path as below.
-    ```
-    location /oidc-ui {
-       alias /usr/share/nginx/oidc-ui;
-       try_files $uri $uri/ /oidc-ui/index.html;
-    }
-    ```
+
+  ```
+  location /oidc-ui {
+     alias /usr/share/nginx/oidc-ui;
+     try_files $uri $uri/ /oidc-ui/index.html;
+  }
+  ```
+
   2. Provide the context path in the evn variable `OIDC_UI_PUBLIC_URL` during docker run.
+
   ```bash
   $ docker build -t <dockerImageName>:<tag> .
   $ docker run -it -d -p 3000:3000 -e OIDC_UI_PUBLIC_URL='oidc-ui' <dockerImageName>:<tag>
 
   # The UI will be hosted on http://<domain>/oidc-ui
   ```
-  
 
 - Build and run on the local system:
   - Update `.env.development` file, add `REACT_APP_ESIGNET_API_URL=<'Complete URL of Esignet Services'>`
