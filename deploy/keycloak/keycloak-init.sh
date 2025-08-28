@@ -7,7 +7,7 @@ if [ $# -ge 1 ] ; then
 fi
 
 NS=esignet
-CHART_VERSION=12.0.1
+CHART_VERSION=0.0.1-develop
 COPY_UTIL=../copy_cm_func.sh
 
 helm repo add mosip https://mosip.github.io/mosip-helm
@@ -34,7 +34,7 @@ $COPY_UTIL secret keycloak keycloak $NS
 echo "creating and adding roles to keycloak pms & mpartner_default_auth clients for ESIGNET"
 kubectl -n $NS delete secret --ignore-not-found=true keycloak-client-secrets
 helm -n $NS delete esignet-keycloak-init
-helm -n $NS install esignet-keycloak-init mosip/keycloak-init \
+helm -n $NS install esignet-keycloak-init mosip/keycloak-init --set image.repository=mosipid/keycloak-init --set image.tag=1.2.0.1 \
   -f keycloak-init-values.yaml \
   --set clientSecrets[0].name="$PMS_CLIENT_SECRET_KEY" \
   --set clientSecrets[0].secret="$PMS_CLIENT_SECRET_VALUE" \
