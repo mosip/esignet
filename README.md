@@ -1,4 +1,4 @@
-[![Maven Package upon a push](https://github.com/mosip/esignet/actions/workflows/push_trigger.yml/badge.svg?branch=develop)](https://github.com/mosip/esignet/actions/workflows/push_trigger.yml)
+[![Maven Package upon a push](https://github.com/mosip/esignet/actions/workflows/push-trigger.yml/badge.svg?branch=develop)](https://github.com/mosip/esignet/actions/workflows/push-trigger.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=mosip_esignet&id=mosip_esignet&metric=alert_status)](https://sonarcloud.io/dashboard?id=mosip_esignet)
 # eSignet Project
 ## Overview
