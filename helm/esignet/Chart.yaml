@@ -2,7 +2,7 @@ apiVersion: v2
 name: esignet
 description: A Helm chart for MOSIP esignet module
 type: application
-version: 1.6.2
+version: 1.6.2-develop
 appVersion: ""
 dependencies:
   - name: common
