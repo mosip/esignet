@@ -421,11 +421,12 @@ public class OAuthServiceTest {
         TokenRequestV2 tokenRequest = new TokenRequestV2();
         tokenRequest.setCode("test-code");
         tokenRequest.setClient_id("client-id");
+        tokenRequest.setRedirect_uri("https://test-redirect-uri/test-page");
 
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         oidcTransaction.setKycToken("kyc-token");
         oidcTransaction.setClientId("client-id");
-        oidcTransaction.setRedirectUri("https://test-redirect-uri1/**");
+        oidcTransaction.setRedirectUri("https://test-redirect-uri/test/test-page");
         Mockito.when(authorizationHelperService.getKeyHash(Mockito.anyString())).thenReturn("code-hash");
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
 
@@ -434,10 +435,25 @@ public class OAuthServiceTest {
         } catch (InvalidRequestException ex) {
             Assert.assertEquals(INVALID_REDIRECT_URI, ex.getErrorCode());
         }
+    }
 
-        tokenRequest.setRedirect_uri("https://test-redirect-uri/test/test-page");
+    @Test
+    public void getTokensV2_withInvalidRedirectUri_thenFail() {
+        TokenRequestV2 tokenRequest = new TokenRequestV2();
+        tokenRequest.setCode("test-code");
+        tokenRequest.setClient_id("client-id");
+        tokenRequest.setRedirect_uri("https://test-redirect-uri/test-page");
+        tokenRequest.setClient_assertion_type(JWT_BEARER_TYPE);
+
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
+        oidcTransaction.setKycToken("kyc-token");
+        oidcTransaction.setClientId("client-id");
+        oidcTransaction.setRedirectUri("https://test-redirect-uri/test/test-page");
+        Mockito.when(authorizationHelperService.getKeyHash(Mockito.anyString())).thenReturn("code-hash");
+        Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
+
         try {
-            oAuthService.getTokens(tokenRequest, null, false);
+            oAuthService.getTokens(tokenRequest, null, true);
         } catch (InvalidRequestException ex) {
             Assert.assertEquals(INVALID_REDIRECT_URI, ex.getErrorCode());
         }
