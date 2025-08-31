@@ -1625,6 +1625,12 @@ public class AuthorizationServiceTest {
 
         ClaimDetailResponse response = authorizationServiceImpl.getClaimDetails("transactionId");
         Assert.assertTrue(response.isProfileUpdateRequired());
+        for(ClaimStatus claimStatus : response.getClaimStatus()) {
+            if (claimStatus.getClaim().equals("name")) {
+                Assert.assertFalse(claimStatus.isAvailable());
+                Assert.assertFalse(claimStatus.isVerified());
+            }
+        }
     }
 
     @Test
@@ -1643,6 +1649,12 @@ public class AuthorizationServiceTest {
 
         ClaimDetailResponse response = authorizationServiceImpl.getClaimDetails("transactionId");
         Assert.assertTrue(response.isProfileUpdateRequired());
+        for(ClaimStatus claimStatus : response.getClaimStatus()) {
+            if (claimStatus.getClaim().equals("email")) {
+                Assert.assertFalse(claimStatus.isAvailable());
+                Assert.assertFalse(claimStatus.isVerified());
+            }
+        }
     }
 
     @Test
@@ -1663,6 +1675,38 @@ public class AuthorizationServiceTest {
 
         ClaimDetailResponse response = authorizationServiceImpl.getClaimDetails("transactionId");
         Assert.assertTrue(response.isProfileUpdateRequired());
+        for(ClaimStatus claimStatus : response.getClaimStatus()) {
+            if (claimStatus.getClaim().equals("phone_number")) {
+                Assert.assertTrue(claimStatus.isAvailable());
+                Assert.assertFalse(claimStatus.isVerified());
+            }
+        }
+    }
+
+    @Test
+    public void getClaimDetails_claimMetadataClaimKeyNull_thenPass() {
+        OIDCTransaction transaction = new OIDCTransaction();
+        Claims resolvedClaims = new Claims();
+        resolvedClaims.setUserinfo(new HashMap<>());
+        Map<String, Object> map = new HashMap<>();
+        map.put("essential", true);
+        map.put("verification", new HashMap<>());
+        resolvedClaims.getUserinfo().put("phone_number", Arrays.asList(map));
+        transaction.setResolvedClaims(resolvedClaims);
+        Map<String, List<JsonNode>> claimMetadata = new HashMap<>();
+        claimMetadata.put("phone_number", null);
+        transaction.setClaimMetadata(claimMetadata);
+        transaction.setConsentAction(ConsentAction.NOCAPTURE);
+        Mockito.when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(transaction);
+
+        ClaimDetailResponse response = authorizationServiceImpl.getClaimDetails("transactionId");
+        Assert.assertTrue(response.isProfileUpdateRequired());
+        for(ClaimStatus claimStatus : response.getClaimStatus()) {
+            if (claimStatus.getClaim().equals("phone_number")) {
+                Assert.assertTrue(claimStatus.isAvailable());
+                Assert.assertFalse(claimStatus.isVerified());
+            }
+        }
     }
 
     @Test
@@ -1691,6 +1735,131 @@ public class AuthorizationServiceTest {
 
         ClaimDetailResponse response = authorizationServiceImpl.getClaimDetails("transactionId");
         Assert.assertTrue(response.isProfileUpdateRequired());
+        for(ClaimStatus claimStatus : response.getClaimStatus()) {
+            if (claimStatus.getClaim().equals("address")) {
+                Assert.assertTrue(claimStatus.isAvailable());
+                Assert.assertFalse(claimStatus.isVerified());
+            }
+        }
+    }
+
+    @Test
+    public void getClaimDetails_verifiedWithDifferentVerificationProcess_thenPass() throws JsonProcessingException {
+        OIDCTransaction transaction = new OIDCTransaction();
+        Claims resolvedClaims = new Claims();
+        resolvedClaims.setUserinfo(new HashMap<>());
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("essential", true);
+
+        Map<String, Object> trustFramework = new HashMap<>();
+        trustFramework.put("value", "ABC TF");
+
+        Map<String, Object> verificationRequested = new HashMap<>();
+        verificationRequested.put("verification_process", "processA");
+        verificationRequested.put("trust_framework", trustFramework);
+        map.put("verification", verificationRequested);
+        resolvedClaims.getUserinfo().put("phone_number", Arrays.asList(map));
+
+        transaction.setResolvedClaims(resolvedClaims);
+        Map<String, List<JsonNode>> claimMetadata = new HashMap<>();
+        claimMetadata.put("phone_number", Collections.singletonList(
+                objectMapper.readTree("{\"verification_process\": \"processB\", \"trust_framework\": {\"value\": \"ABC TF\"}}")
+        ));
+        transaction.setClaimMetadata(claimMetadata);
+        transaction.setConsentAction(ConsentAction.NOCAPTURE);
+
+        Mockito.when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(transaction);
+
+        ClaimDetailResponse response = authorizationServiceImpl.getClaimDetails("transactionId");
+        Assert.assertTrue(response.isProfileUpdateRequired());
+        for (ClaimStatus claimStatus : response.getClaimStatus()) {
+            if (claimStatus.getClaim().equals("phone_number")) {
+                Assert.assertTrue(claimStatus.isAvailable());
+                Assert.assertFalse(claimStatus.isVerified());
+            }
+        }
+    }
+
+    @Test
+    public void getClaimDetails_verifiedWithDifferentAssuranceLevel_thenPass() throws JsonProcessingException {
+        OIDCTransaction transaction = new OIDCTransaction();
+        Claims resolvedClaims = new Claims();
+        resolvedClaims.setUserinfo(new HashMap<>());
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("essential", true);
+
+        Map<String, Object> trustFramework = new HashMap<>();
+        trustFramework.put("value", "ABC TF");
+
+        Map<String, Object> verificationRequested = new HashMap<>();
+        verificationRequested.put("assurance_level", "high");
+        verificationRequested.put("trust_framework", trustFramework);
+        map.put("verification", verificationRequested);
+        resolvedClaims.getUserinfo().put("address", Arrays.asList(map));
+
+        transaction.setResolvedClaims(resolvedClaims);
+        Map<String, List<JsonNode>> claimMetadata = new HashMap<>();
+        claimMetadata.put("address", Collections.singletonList(
+                objectMapper.readTree("{\"assurance_level\": \"medium\", \"trust_framework\": {\"value\": \"ABC TF\"}}")
+        ));
+        transaction.setClaimMetadata(claimMetadata);
+        transaction.setConsentAction(ConsentAction.NOCAPTURE);
+
+        Mockito.when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(transaction);
+
+        ClaimDetailResponse response = authorizationServiceImpl.getClaimDetails("transactionId");
+        Assert.assertTrue(response.isProfileUpdateRequired());
+        for (ClaimStatus claimStatus : response.getClaimStatus()) {
+            if (claimStatus.getClaim().equals("address")) {
+                Assert.assertTrue(claimStatus.isAvailable());
+                Assert.assertFalse(claimStatus.isVerified());
+            }
+        }
+    }
+
+    @Test
+    public void getClaimDetails_verifiedWithDifferentVerificationTime_thenPass() throws JsonProcessingException {
+        OIDCTransaction transaction = new OIDCTransaction();
+        Claims resolvedClaims = new Claims();
+        resolvedClaims.setUserinfo(new HashMap<>());
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("essential", true);
+
+        Map<String, Object> maxAge = new HashMap<>();
+        maxAge.put("value", 3600);
+        Map<String, Object> time = new HashMap<>();
+        time.put("max_age", maxAge);
+
+        Map<String, Object> trustFramework = new HashMap<>();
+        trustFramework.put("value", "ABC TF");
+
+        Map<String, Object> verificationRequested = new HashMap<>();
+        verificationRequested.put("time", time);
+        verificationRequested.put("trust_framework", trustFramework);
+        map.put("verification", verificationRequested);
+        resolvedClaims.getUserinfo().put("email", Arrays.asList(map));
+
+        transaction.setResolvedClaims(resolvedClaims);
+        Map<String, List<JsonNode>> claimMetadata = new HashMap<>();
+        claimMetadata.put("email", Collections.singletonList(
+                objectMapper.readTree("{\"time\": {\"max_age\": {\"value\": 7200}}, \"trust_framework\": {\"value\": \"ABC TF\"}}")
+        ));
+        transaction.setClaimMetadata(claimMetadata);
+        transaction.setConsentAction(ConsentAction.NOCAPTURE);
+
+        Mockito.when(cacheUtilService.getAuthenticatedTransaction(Mockito.anyString())).thenReturn(transaction);
+
+        ClaimDetailResponse response = authorizationServiceImpl.getClaimDetails("transactionId");
+        Assert.assertTrue(response.isProfileUpdateRequired());
+        for (ClaimStatus claimStatus : response.getClaimStatus()) {
+            if (claimStatus.getClaim().equals("email")) {
+                Assert.assertTrue(claimStatus.isAvailable());
+                Assert.assertFalse(claimStatus.isVerified());
+            }
+        }
     }
 
     @Test
