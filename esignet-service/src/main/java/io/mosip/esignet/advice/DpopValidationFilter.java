@@ -8,18 +8,18 @@ import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import com.nimbusds.jwt.proc.BadJWTException;
-import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
+import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.exception.InvalidDPoPHeaderException;
 import io.mosip.esignet.services.CacheUtilService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.filter.OncePerRequestFilter;
+
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -41,7 +41,6 @@ public class DpopValidationFilter extends OncePerRequestFilter {
     private static final long MAX_CLOCK_SKEW_SECONDS = 300L;
 
     private static final Set<String> REQUIRED_CLAIMS = Set.of("htm", "htu", "iat", "jti", "cnf");
-
     private static final Set<String> SUPPORTED_ALGORITHMS = Set.of("ES256", "RS256");
 
     @Autowired
@@ -50,111 +49,78 @@ public class DpopValidationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+
         String uri = request.getRequestURI();
-        if (!(uri.startsWith("/userinfo") || uri.startsWith("/par") || uri.startsWith("/token"))) {
-            // Skip validation for all other requests
-            filterChain.doFilter(request, response);
-            return;
-        }
 
         Enumeration<String> dpopHeaders = request.getHeaders("DPoP");
         List<String> dpopHeaderList = Collections.list(dpopHeaders);
 
-        if (dpopHeaderList.isEmpty()) {
-//            log.error("Missing DPoP header");
-//            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing DPoP header");
-            return;
-        }
         if (dpopHeaderList.size() != 1) {
-            log.error("Multiple DPoP headers present");
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Multiple DPoP headers present");
+            log.warn("DPoP header missing or multiple headers found. Skipping DPoP validation.");
+            // skip DPoP validation for now
+            filterChain.doFilter(request, response);
             return;
         }
 
         String dpopHeader = dpopHeaderList.get(0);
 
         try {
-            if (request.getRequestURI().startsWith("/userinfo")) {
-                validateUserInfoDpop(dpopHeader, request);
-            } else if (request.getRequestURI().startsWith("/par") || request.getRequestURI().startsWith("/token")) {
-                validateParOrTokenDpop(dpopHeader, request);
+            SignedJWT jwt = parseAndValidateHeader(dpopHeader);
+            JWK jwk = jwt.getHeader().getJWK();
+            verifySignature(jwt, jwk);
+            JWTClaimsSet claims = getClaims(jwt);
+            checkRequiredClaims(claims);
+            verifyClaimsBasicValues(claims, request);
+            replayCheck(claims);
+
+            if (uri.endsWith("/userinfo")) {
+                checkCnfJktClaim(claims, jwk);
+                validateAthClaim(claims, request);
+            } else {
+                checkCnfClaimPresent(claims);
             }
-            // else skip or allow through
-           // filterChain.doFilter(request, response);
+
+            filterChain.doFilter(request, response);
         } catch (InvalidDPoPHeaderException ex) {
             log.error("DPoP validation failed: {}", ex.getMessage());
+            setAuthErrorHeader(response, ErrorConstants.INVALID_DPOP_PROOF, ex.getMessage());
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid DPoP proof: " + ex.getMessage());
         } catch (Exception ex) {
             log.error("Unexpected DPoP validation error", ex);
+            setAuthErrorHeader(response, ErrorConstants.INVALID_DPOP_PROOF,ex.getMessage());
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid DPoP proof");
         }
     }
 
-    // Validation for /par and /token endpoints: general validation only
-    private void validateParOrTokenDpop(String dpopJwt, HttpServletRequest request) throws ParseException {
-        SignedJWT jwt = parseAndValidateHeader(dpopJwt);
-
-        JWK jwk = jwt.getHeader().getJWK();
-        verifySignature(jwt, jwk);
-
-        JWTClaimsSet claims = getClaims(jwt);
-
-        checkRequiredClaims(claims);
-
-        verifyClaimsBasicValues(claims, request);
-
-        replayCheck(claims);
-
-        checkCnfClaimPresent(claims);
-    }
-
-    // Validation for /userinfo endpoint: includes ath & cnf with jkt only
-    private void validateUserInfoDpop(String dpopJwt, HttpServletRequest request) throws ParseException {
-        SignedJWT jwt = parseAndValidateHeader(dpopJwt);
-
-        JWK jwk = jwt.getHeader().getJWK();
-        verifySignature(jwt, jwk);
-
-        JWTClaimsSet claims = getClaims(jwt);
-
-        checkRequiredClaims(claims);
-
-        verifyClaimsBasicValues(claims, request);
-
-        replayCheck(claims);
-
-        checkCnfJktClaim(claims, jwk);
-
-        validateAthClaim(claims, request);
+    private void setAuthErrorHeader(HttpServletResponse response, String error, String description) {
+        String headerValue = String.format(
+                "DPoP error=\"%s\", error_description=\"%s\", algs=\"ES256 PS256\"",
+                error, description);
+        response.setHeader("WWW-Authenticate", headerValue);
     }
 
     private SignedJWT parseAndValidateHeader(String dpopJwt) {
         try {
             SignedJWT jwt = SignedJWT.parse(dpopJwt);
-
             JWSHeader header = jwt.getHeader();
-            if (header == null) {
-                throw new InvalidDPoPHeaderException("Missing JWT header");
-            }
-            if (header.getType() == null || !"dpop+jwt".equalsIgnoreCase(header.getType().toString())) {
-                throw new InvalidDPoPHeaderException("Invalid typ header: expected dpop+jwt");
+
+            if (header == null || header.getType() == null || !"dpop+jwt".equalsIgnoreCase(header.getType().toString())) {
+                log.error("Invalid typ header: expected dpop+jwt");
+                throw new InvalidDPoPHeaderException(ErrorConstants.INVALID_DPOP_HEADER);
             }
 
             String alg = header.getAlgorithm() != null ? header.getAlgorithm().getName() : null;
             if (alg == null || "none".equalsIgnoreCase(alg) || !SUPPORTED_ALGORITHMS.contains(alg)) {
-                throw new InvalidDPoPHeaderException("Invalid or unsupported alg header");
+                log.error("Invalid or unsupported alg header");
+                throw new InvalidDPoPHeaderException(ErrorConstants.INVALID_DPOP_HEADER);
             }
 
             JWK jwk = header.getJWK();
-            if (jwk == null) {
-                throw new InvalidDPoPHeaderException("Missing jwk header");
+            if (jwk == null || jwk.isPrivate()) {
+                log.error("Invalid jwk header");
+                throw new InvalidDPoPHeaderException(ErrorConstants.INVALID_DPOP_HEADER);
             }
-            if (jwk.isPrivate()) {
-                throw new InvalidDPoPHeaderException("JWK must not contain private key material");
-            }
-
             return jwt;
-
         } catch (ParseException e) {
             throw new InvalidDPoPHeaderException("Failed to parse DPoP JWT: " + e.getMessage());
         }
@@ -162,19 +128,26 @@ public class DpopValidationFilter extends OncePerRequestFilter {
 
     private void verifySignature(SignedJWT jwt, JWK jwk) {
         try {
-            JWSVerifier verifier;
-            if (jwk instanceof RSAKey) {
-                verifier = new RSASSAVerifier(((RSAKey) jwk).toRSAPublicKey());
-            } else if (jwk instanceof ECKey) {
-                verifier = new ECDSAVerifier((ECKey) jwk);
-            } else {
-                throw new InvalidDPoPHeaderException("Unsupported JWK key type");
-            }
+            JWSVerifier verifier = createVerifier(jwk);
             if (!jwt.verify(verifier)) {
-                throw new InvalidDPoPHeaderException("DPoP JWT signature verification failed");
+                log.error("DPoP JWT signature verification failed");
+                throw new InvalidDPoPHeaderException(ErrorConstants.INVALID_DPOP_HEADER);
             }
         } catch (JOSEException e) {
-            throw new InvalidDPoPHeaderException("DPoP signature verification error: " + e.getMessage());
+            log.error("DPoP signature verification error: {}", e.getMessage());
+            throw new InvalidDPoPHeaderException(ErrorConstants.INVALID_DPOP_HEADER);
+        }
+    }
+
+    private JWSVerifier createVerifier(JWK jwk) throws InvalidDPoPHeaderException, JOSEException {
+        switch (jwk.getKeyType().getValue()) {
+            case "RSA":
+                return new RSASSAVerifier(((RSAKey) jwk).toRSAPublicKey());
+            case "EC":
+                return new ECDSAVerifier((ECKey) jwk);
+            default:
+                log.error("Unsupported JWK key type: {}", jwk.getKeyType());
+                throw new InvalidDPoPHeaderException(ErrorConstants.INVALID_DPOP_HEADER);
         }
     }
 
@@ -189,7 +162,8 @@ public class DpopValidationFilter extends OncePerRequestFilter {
     private void checkRequiredClaims(JWTClaimsSet claims) {
         for (String required : REQUIRED_CLAIMS) {
             if (claims.getClaim(required) == null) {
-                throw new InvalidDPoPHeaderException("Missing required claim: " + required);
+                log.error("Missing required claim: {}", required);
+                throw new InvalidDPoPHeaderException(ErrorConstants.INVALID_DPOP_HEADER);
             }
         }
     }
@@ -197,101 +171,113 @@ public class DpopValidationFilter extends OncePerRequestFilter {
     private void verifyClaimsBasicValues(JWTClaimsSet claims, HttpServletRequest request) throws ParseException {
         String htm = claims.getStringClaim("htm");
         if (!request.getMethod().equalsIgnoreCase(htm)) {
-            throw new InvalidDPoPHeaderException("htm claim does not match HTTP method");
+            log.error("htm claim does not match HTTP method. Expected: {}, Actual: {}", request.getMethod(), htm);
+            throw new InvalidDPoPHeaderException(ErrorConstants.INVALID_DPOP_HEADER);
         }
-
-        // Compare htu URI ignoring query and fragment only, simple exact string without normalization
         String htu = claims.getStringClaim("htu");
         String reqUri;
         try {
-            reqUri = getRequestUriWithoutQuery(request);
+            reqUri = getRequestUriWithoutQueryNormalized(request);
         } catch (URISyntaxException e) {
-            throw new InvalidDPoPHeaderException("Invalid request URI: " + e.getMessage());
+            log.error("Invalid request URI: {}", e.getMessage());
+            throw new InvalidDPoPHeaderException(ErrorConstants.INVALID_DPOP_HEADER);
         }
-
         if (!htu.equals(reqUri)) {
-            throw new InvalidDPoPHeaderException("htu claim does not match request URI");
+            log.error("htu claim does not match request URI. Expected: {}, Actual: {}", reqUri, htu);
+            throw new InvalidDPoPHeaderException(ErrorConstants.INVALID_DPOP_HEADER);
         }
-
         Date iatDate = claims.getIssueTime();
         if (iatDate == null) {
-            throw new InvalidDPoPHeaderException("Missing iat claim");
+            log.error("Missing iat claim");
+            throw new InvalidDPoPHeaderException(ErrorConstants.INVALID_DPOP_HEADER);
         }
         Instant iat = iatDate.toInstant();
         Instant now = Instant.now();
         if (Math.abs(now.getEpochSecond() - iat.getEpochSecond()) > MAX_CLOCK_SKEW_SECONDS) {
-            throw new InvalidDPoPHeaderException("iat claim is outside acceptable window");
+            log.error("iat claim is outside acceptable window. iat: {}, now: {}", iat, now);
+            throw new InvalidDPoPHeaderException(ErrorConstants.INVALID_DPOP_HEADER);
         }
     }
 
     private void replayCheck(JWTClaimsSet claims) {
         String jti = claims.getJWTID();
         if (jti == null || jti.isEmpty()) {
-            throw new InvalidDPoPHeaderException("Missing jti claim");
+            log.error("Missing jti claim");
+            throw new InvalidDPoPHeaderException(ErrorConstants.INVALID_DPOP_HEADER);
         }
         if (cacheUtilService.checkAndMarkJti(jti)) {
-            throw new InvalidDPoPHeaderException("Replay detected for jti: " + jti);
+            log.error("Replay detected for jti: {}", jti);
+            throw new InvalidDPoPHeaderException(ErrorConstants.INVALID_DPOP_HEADER);
         }
     }
 
     private void checkCnfClaimPresent(JWTClaimsSet claims) {
         Object cnf = claims.getClaim("cnf");
         if (cnf == null) {
-            throw new InvalidDPoPHeaderException("Missing cnf claim");
+            log.error("Missing cnf claim");
+            throw new InvalidDPoPHeaderException(ErrorConstants.INVALID_DPOP_HEADER);
         }
     }
 
-    // Userinfo specific: only allow cnf with jkt (thumbprint) validation
     private void checkCnfJktClaim(JWTClaimsSet claims, JWK proofJwk) {
         Object obj = claims.getClaim("cnf");
         if (!(obj instanceof Map)) {
-            throw new InvalidDPoPHeaderException("Invalid cnf claim");
+            log.error("Invalid cnf claim: expected Map but got {}", obj == null ? "null" : obj.getClass().getName());
+            throw new InvalidDPoPHeaderException(ErrorConstants.INVALID_DPOP_HEADER);
         }
         @SuppressWarnings("unchecked")
         Map<String, Object> cnfMap = (Map<String, Object>) obj;
-
         if (!cnfMap.containsKey("jkt")) {
-            throw new InvalidDPoPHeaderException("cnf claim must contain 'jkt' for userinfo");
+            log.error("cnf claim missing 'jkt' key");
+            throw new InvalidDPoPHeaderException(ErrorConstants.INVALID_DPOP_HEADER);
         }
         String jktVal = cnfMap.get("jkt").toString();
-
         try {
             String actualThumbprint = proofJwk.computeThumbprint().toString();
             if (!jktVal.equals(actualThumbprint)) {
-                throw new InvalidDPoPHeaderException("cnf jkt does not match proof key thumbprint");
+                log.error("cnf jkt does not match proof key thumbprint. Expected: {}, Actual: {}", actualThumbprint, jktVal);
+                throw new InvalidDPoPHeaderException(ErrorConstants.INVALID_DPOP_HEADER);
             }
         } catch (JOSEException e) {
-            throw new InvalidDPoPHeaderException("Failed to compute proof key thumbprint: " + e.getMessage());
+            log.error("Failed to compute proof key thumbprint: {}", e.getMessage());
+            throw new InvalidDPoPHeaderException(ErrorConstants.INVALID_DPOP_HEADER);
         }
     }
 
     private void validateAthClaim(JWTClaimsSet claims, HttpServletRequest request) throws ParseException {
         String ath = claims.getStringClaim("ath");
         if (ath == null || ath.isEmpty()) {
-            throw new InvalidDPoPHeaderException("Missing ath claim");
+            log.error("Missing ath claim");
+            throw new InvalidDPoPHeaderException(ErrorConstants.INVALID_DPOP_HEADER);
         }
-
-        // Simple access token extraction from Authorization header (bearer)
         String accessToken = getAccessToken(request);
         if (accessToken == null) {
-            throw new InvalidDPoPHeaderException("Access token required for ath claim validation");
+            log.error("Access token required for ath claim validation but not found");
+            throw new InvalidDPoPHeaderException(ErrorConstants.INVALID_DPOP_HEADER);
         }
-
         try {
             String hash = sha256Base64Url(accessToken);
             if (!ath.equals(hash)) {
-                throw new InvalidDPoPHeaderException("ath claim does not match access token hash");
+                log.error("ath claim does not match access token hash. Expected: {}, Actual: {}", hash, ath);
+                throw new InvalidDPoPHeaderException(ErrorConstants.INVALID_DPOP_HEADER);
             }
         } catch (NoSuchAlgorithmException e) {
-            throw new InvalidDPoPHeaderException("Failed to compute access token hash"+e.getMessage());
+            log.error("Failed to compute access token hash: {}", e.getMessage());
+            throw new InvalidDPoPHeaderException(ErrorConstants.INVALID_DPOP_HEADER);
         }
     }
 
-    private String getRequestUriWithoutQuery(HttpServletRequest request) throws URISyntaxException {
+    private String getRequestUriWithoutQueryNormalized(HttpServletRequest request) throws URISyntaxException {
         URI uri = new URI(request.getRequestURL().toString());
-        // strip query and fragment
         URI noQueryUri = new URI(uri.getScheme(), uri.getAuthority(), uri.getPath(), null, null);
-        return noQueryUri.toString();
+        String normalized = noQueryUri.normalize().toString();
+        URI normalizedUri = new URI(normalized);
+        return new URI(
+                normalizedUri.getScheme().toLowerCase(),
+                normalizedUri.getAuthority().toLowerCase(),
+                normalizedUri.getPath(),
+                null,
+                null).toString();
     }
 
     private String getAccessToken(HttpServletRequest request) {
