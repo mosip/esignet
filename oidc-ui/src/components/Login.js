@@ -1,12 +1,12 @@
-import { useState } from "react";
-import { loginFields } from "../constants/formFields";
-import FormAction from "./FormAction";
-import FormExtra from "./FormExtra";
-import Input from "./Input";
+import { useState } from 'react';
+import { loginFields } from '../constants/formFields';
+import FormAction from './FormAction';
+import FormExtra from './FormExtra';
+import Input from './Input';
 
 const fields = loginFields;
 let fieldsState = {};
-fields.forEach((field) => (fieldsState["login_" + field.id] = ""));
+fields.forEach((field) => (fieldsState['login_' + field.id] = ''));
 
 export default function Login() {
   const [loginState, setLoginState] = useState(fieldsState);
@@ -28,12 +28,12 @@ export default function Login() {
       <div className="-space-y-px">
         {fields.map((field) => (
           <Input
-            key={"login_" + field.id}
+            key={'login_' + field.id}
             handleChange={handleChange}
-            value={loginState["login_" + field.id]}
+            value={loginState['login_' + field.id]}
             labelText={field.labelText}
             labelFor={field.labelFor}
-            id={"login_" + field.id}
+            id={'login_' + field.id}
             name={field.name}
             type={field.type}
             isRequired={field.isRequired}

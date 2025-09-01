@@ -1,6 +1,6 @@
-import axios from "axios";
+import axios from 'axios';
 
-import { CONFIG } from "../constants/routes";
+import { CONFIG } from '../constants/routes';
 
 const configService = async () => {
   const response = await axios.get(CONFIG);

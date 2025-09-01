@@ -1,17 +1,17 @@
-import React, { useEffect, useState, useRef, useLayoutEffect } from "react";
-import ReactCountryFlag from "react-country-flag";
-import { useTranslation } from "react-i18next";
+import React, { useEffect, useState, useRef, useLayoutEffect } from 'react';
+import ReactCountryFlag from 'react-country-flag';
+import { useTranslation } from 'react-i18next';
 
 const InputWithPrefix = (props) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [isValid, setIsValid] = useState(false);
-  const [individualId, setIndividualId] = useState("");
+  const [individualId, setIndividualId] = useState('');
   const { t, i18n } = useTranslation();
   const [prevLanguage, setPrevLanguage] = useState(i18n.language);
   const inputRef = useRef(null);
 
-  const iso = require("iso-3166-1");
+  const iso = require('iso-3166-1');
   const countries = iso.all();
 
   const toggleDropdown = () => {
@@ -19,14 +19,14 @@ const InputWithPrefix = (props) => {
   };
 
   const countryFlagStyles = {
-    width: "1em",
-    height: "1em",
-    objectFit: "cover",
-    borderRadius: "50%",
+    width: '1em',
+    height: '1em',
+    objectFit: 'cover',
+    borderRadius: '50%',
   };
 
   const dropdownDiv = document.getElementById(`${props.login}_login_dropdown`);
-  document.addEventListener("click", (event) => {
+  document.addEventListener('click', (event) => {
     if (!dropdownDiv?.contains(event.target)) {
       setIsDropdownOpen(false);
     } else {
@@ -46,7 +46,6 @@ const InputWithPrefix = (props) => {
       setIsDropdownOpen(false);
       if (props.currentLoginID && props.currentLoginID.prefixes) {
         setSelectedCountry(props.currentLoginID.prefixes[0]);
-        props.selectedCountry(props.currentLoginID.prefixes[0]);
         props.countryCode(props.currentLoginID.prefixes[0].value);
       }
     } else {
@@ -77,7 +76,7 @@ const InputWithPrefix = (props) => {
     setIsValid(true);
     const idProperties = getPropertiesForLoginID(
       props.currentLoginID,
-      e.target.name.split("_")[1]
+      e.target.name.split('_')[1]
     );
     const maxLength = idProperties.maxLength;
     const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
@@ -103,7 +102,7 @@ const InputWithPrefix = (props) => {
   const handleBlur = (e) => {
     const idProperties = getPropertiesForLoginID(
       props.currentLoginID,
-      e.target.name.split("_")[1]
+      e.target.name.split('_')[1]
     );
     const maxLength = idProperties.maxLength;
     const regex = idProperties.regex ? new RegExp(idProperties.regex) : null;
@@ -118,7 +117,6 @@ const InputWithPrefix = (props) => {
     setIsDropdownOpen(false);
     props.isBtnDisabled(true);
     props.countryCode(option.value);
-    props.selectedCountry(option);
     if (selectedCountry.value !== option.value) {
       setIndividualId(null);
       props.isBtnDisabled(true);
@@ -139,7 +137,7 @@ const InputWithPrefix = (props) => {
         </label>
         <div
           className={`flex items-center border rounded-lg md:max-w-md w-full mt-2 relative overflow-visible ${
-            !isValid && individualId?.length > 0 && "border-[#FE6B6B]"
+            !isValid && individualId?.length > 0 && 'border-[#FE6B6B]'
           }`}
         >
           <div
@@ -149,14 +147,14 @@ const InputWithPrefix = (props) => {
             <button
               className="flex flex-col bg-white p-2 text-gray-700 cursor-pointer rounded-lg w-max"
               onClick={
-                typeof props.currentLoginID?.prefixes === "object" &&
+                typeof props.currentLoginID?.prefixes === 'object' &&
                 toggleDropdown
               }
               id={`${props.login}_login_dropdown_button`}
               data-testid="prefix-dropdown-btn"
               type="button"
             >
-              {typeof props.currentLoginID?.prefixes === "object" ? (
+              {typeof props.currentLoginID?.prefixes === 'object' ? (
                 <div className="flex items-center justify-between w-full">
                   <div className="flex items-center">
                     <span className="mr-2 relative bottom-[2px]">
@@ -198,7 +196,7 @@ const InputWithPrefix = (props) => {
 
           {isDropdownOpen &&
             props.currentLoginID?.prefixes?.length > 1 &&
-            typeof props.currentLoginID?.prefixes === "object" && (
+            typeof props.currentLoginID?.prefixes === 'object' && (
               <div className="absolute top-full left-0 rounded-md shadow-lg bg-white z-50 border border-gray-200 max-h-60 overflow-auto inset-auto mt-0 w-max">
                 <div className="py-1 text-gray-700 w-full">
                   {props.currentLoginID?.prefixes.map((option) => (
@@ -207,8 +205,8 @@ const InputWithPrefix = (props) => {
                       id={option.label}
                       className={`flex items-center p-2 cursor-pointer hover:bg-gray-100 w-full pr-[1.65rem] ${
                         option.label === selectedCountry.label
-                          ? "bg-gray-100"
-                          : ""
+                          ? 'bg-gray-100'
+                          : ''
                       }`}
                       onClick={() => handleCountryChange(option)}
                       type="button"
@@ -237,13 +235,13 @@ const InputWithPrefix = (props) => {
             type="text"
             placeholder={props.currentLoginID.input_placeholder}
             className={`w-full px-4 py-2 border border-l-1 border-b-0 border-r-0 border-t-0 outline-none rounded-tr-lg rounded-br-lg ${
-              !isValid && individualId?.length > 0 && "border-[#FE6B6B]"
+              !isValid && individualId?.length > 0 && 'border-[#FE6B6B]'
             }`}
             onChange={handleChange}
             onBlur={handleBlur}
-            id={props.login + "_" + selectedCountry.label}
-            name={props.login + "_" + selectedCountry.label}
-            value={individualId ?? ""}
+            id={props.login + '_' + selectedCountry.label}
+            name={props.login + '_' + selectedCountry.label}
+            value={individualId ?? ''}
           />
         </div>
         {!isValid && individualId?.length > 0 && (

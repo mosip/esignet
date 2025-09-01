@@ -180,3 +180,185 @@ OAuthDetailsRequestLinked:
       output: '{
        
 }'
+
+   ESignet_OAuthDetailsRequest_LinkAuth_InvalidAcceptedClaim_sid:
+      endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestLinked_08
+      description: Oauthdetails request for InvalidAcceptedClaim
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequest
+      outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$",
+      	"scope": "openid resident-service profile",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+	    "prompt": "login",
+	    "acrValues": "mosip:idp:acr:linked-wallet",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+	    "state": "eree2311",
+	    "claimsLocales": "en"
+}'
+      output: '{
+       
+}'
+
+   ESignet_OAuthDetailsRequest_LinkAuth_withOnlyOptionalClaim_IfEssAndOptAsRequestedClaim_sid:
+      endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestLinked_09
+      description: Oauthdetails request for only optional claim if essential and optional claims are requested claims
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequest
+      outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$",
+      	"scope": "openid resident-service profile",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+	    "prompt": "login",
+	    "acrValues": "mosip:idp:acr:linked-wallet",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+	    "state": "eree2311",
+	    "claimsLocales": "en"
+}'
+      output: '{
+       
+}'
+
+   ESignet_OAuthDetailsRequest_LinkAuth_forPartialEseentialAndOptionalClaim_sid:
+      endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestLinked_10
+      description: Oauthdetails request for only Partial Eseential And OptionalClaim
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequest
+      outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$",
+      	"scope": "openid resident-service profile",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+	    "prompt": "login",
+	    "acrValues": "mosip:idp:acr:linked-wallet",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+	    "state": "eree2311",
+	    "claimsLocales": "en"
+}'
+      output: '{
+       
+}'
+
+   ESignet_OAuthDetailsRequest_LinkAuth_forOnlyEseentialClaim_sid:
+      endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestLinked_11
+      description: Oauthdetails request for only essential claim if essential and optional are requested claim
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequest
+      outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$",
+      	"scope": "openid resident-service profile",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+	    "prompt": "login",
+	    "acrValues": "mosip:idp:acr:linked-wallet",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+	    "state": "eree2311",
+	    "claimsLocales": "en"
+}'
+      output: '{
+       
+}'
+
+   ESignet_OAuthDetailsRequest_LinkAuth_forEmptyAsAcceptedClaim_EseentialClaim_sid:
+      endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestLinked_12
+      description: Oauthdetails request for without accepted claim
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequest
+      outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$",
+      	"scope": "openid resident-service profile",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+	    "prompt": "login",
+	    "acrValues": "mosip:idp:acr:linked-wallet",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+	    "state": "eree2311",
+	    "claimsLocales": "en"
+}'
+      output: '{
+       
+}'
+
+   ESignet_OAuthDetailsRequest_LinkAuth_forOnlyOptionalClaimIfRequestedOptional_sid:
+      endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestLinked_13
+      description: Oauthdetails request for for Only Optional Claim If Requested Optional
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestOptionalClaim
+      outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$",
+      	"scope": "openid resident-service profile",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+	    "prompt": "login",
+	    "acrValues": "mosip:idp:acr:linked-wallet",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+	    "state": "eree2311",
+	    "claimsLocales": "en"
+}'
+      output: '{
+       
+}'
+
+   ESignet_OAuthDetailsRequest_LinkAuth_forEmptyAcceptedClaimIfRequestedIsOptional_sid:
+      endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestLinked_14
+      description: Oauthdetails request for EmptyAcceptedClaimIfRequestedIsOptional
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestOptionalClaim
+      outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$",
+      	"scope": "openid resident-service profile",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+	    "prompt": "login",
+	    "acrValues": "mosip:idp:acr:linked-wallet",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+	    "state": "eree2311",
+	    "claimsLocales": "en"
+}'
+      output: '{
+       
+}'

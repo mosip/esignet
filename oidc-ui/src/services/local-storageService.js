@@ -1,5 +1,5 @@
-const device_info_keyname = "deviceInfo";
-const discover_keyname = "discover";
+const device_info_keyname = 'deviceInfo';
+const discover_keyname = 'discover';
 
 /**
  * Clear the cache of discovered devices
@@ -62,13 +62,13 @@ const getDeviceInfos = () => {
 };
 
 /**
- * retrieves cookie from the browser 
+ * retrieves cookie from the browser
  * @param {string} key
  * @returns cookie value
  */
 function getCookie(key) {
-  var b = document.cookie.match("(^|;)\\s*" + key + "\\s*=\\s*([^;]+)");
-  return b ? b.pop() : "";
+  var b = document.cookie.match('(^|;)\\s*' + key + '\\s*=\\s*([^;]+)');
+  return b ? b.pop() : '';
 }
 
 const localStorageService = {
@@ -77,7 +77,7 @@ const localStorageService = {
   clearDeviceInfos: clearDeviceInfos,
   clearDiscoveredDevices: clearDiscoveredDevices,
   addDiscoveredDevices: addDiscoveredDevices,
-  getCookie: getCookie
+  getCookie: getCookie,
 };
 
 export default localStorageService;

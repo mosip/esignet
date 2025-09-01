@@ -693,3 +693,507 @@ AddIdentity:
       output: '{
   "status":"ACTIVATED"
 }'
+   ESignet_AddIdentity_L2_Valid_Parameters_forUserInfo_smoke_Pos:
+      endPoint: /idrepository/v1/identity/
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_25
+      description: Add identity with all valid parameters
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+  "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_L2_Valid_Parameters_forUserInfo_smoke_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_forUserInfoJWE_smoke_Pos:
+      endPoint: /idrepository/v1/identity/
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_26
+      description: Add identity with all valid parameters
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+  "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_L2_Valid_Parameters_forUserInfoJWE_smoke_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_forUserInfoUpdatedJWE_smoke_Pos:
+      endPoint: /idrepository/v1/identity/
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_27
+      description: Add identity with all valid parameters
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+  "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_L2_Valid_Parameters_forUserInfoUpdatedJWE_smoke_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_consent_authcode_Pos:
+      endPoint: /idrepository/v1/identity/
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_28
+      description: Add identity with all valid parameters
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+  "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_L2_Valid_Parameters_consent_authcode_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_linkedconsent_forAcceptedClaims_Pos:
+      endPoint: /idrepository/v1/identity/
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_29
+      description: Add identity with all valid parameters
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+  "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_L2_Valid_Parameters_linkedconsent_forAcceptedClaims_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_linkedconsent_forOptionalClaims_Pos:
+      endPoint: /idrepository/v1/identity/
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_30
+      description: Add identity with all valid parameters
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+  "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_L2_Valid_Parameters_linkedconsent_forOptionalClaims_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_linkedconsent_forPartialEssentialOptionalClaims_Pos:
+      endPoint: /idrepository/v1/identity/
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_31
+      description: Add identity with all valid parameters
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+  "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_L2_Valid_Parameters_linkedconsent_forPartialEssentialOptionalClaims_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_linkedconsent_foronlyEssentialClaims_Pos:
+      endPoint: /idrepository/v1/identity/
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_32
+      description: Add identity with all valid parameters
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+  "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_L2_Valid_Parameters_linkedconsent_foronlyEssentialClaims_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_linkedconsent_for_null_asEssentialClaims_AcceptedClaim_Pos:
+      endPoint: /idrepository/v1/identity/
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_33
+      description: Add identity with all valid parameters
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+  "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_L2_Valid_Parameters_linkedconsent_for_null_asEssentialClaims_AcceptedClaim_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_linkedconsent_for_OnlyOptionalClaimAsRequested_AcceptedClaim_Pos:
+      endPoint: /idrepository/v1/identity/
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_34
+      description: Add identity with all valid parameters
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+  "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_L2_Valid_Parameters_linkedconsent_for_OnlyOptionalClaimAsRequested_AcceptedClaim_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_linkedconsent_for_without_AcceptedClaim_IfOnlyOptionalRequested_Pos:
+      endPoint: /idrepository/v1/identity/
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_35
+      description: Add identity with all valid parameters
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+  "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_L2_Valid_Parameters_linkedconsent_for_without_AcceptedClaim_IfOnlyOptionalRequested_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_forInvalidAcceptedClaims_Pos:
+      endPoint: /idrepository/v1/identity/
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_36
+      description: Add identity with all valid parameters
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+  "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_L2_Valid_Parameters_forInvalidAcceptedClaims_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_OnlyOptionalClaim_IfEssAndOptAsRequestedClaim_Pos:
+      endPoint: /idrepository/v1/identity/
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_37
+      description: Add identity with all valid parameters
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+  "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_L2_Valid_Parameters_OnlyOptionalClaim_IfEssAndOptAsRequestedClaim_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_ForPartialEseentialAndOptionalClaim_Pos:
+      endPoint: /idrepository/v1/identity/
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_38
+      description: Add identity with all valid parameters
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+  "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_L2_Valid_Parameters_ForPartialEseentialAndOptionalClaim_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_ForOnlyEssentialclaims_Pos:
+      endPoint: /idrepository/v1/identity/
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_39
+      description: Add identity with all valid parameters
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+  "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_L2_Valid_Parameters_ForOnlyEssentialclaims_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_forEmptyAsAcceptedClaim_Pos:
+      endPoint: /idrepository/v1/identity/
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_40
+      description: Add identity with all valid parameters
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+  "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_L2_Valid_Parameters_forEmptyAsAcceptedClaim_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_forOnlyOptionalClaimIfRequestedOptional_Pos:
+      endPoint: /idrepository/v1/identity/
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_41
+      description: Add identity with all valid parameters
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+  "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_L2_Valid_Parameters_forOnlyOptionalClaimIfRequestedOptional_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'
+   ESignet_AddIdentity_L2_Valid_Parameters_forEmptyAcceptedClaimIfRequestedIsOptional_Pos:
+      endPoint: /idrepository/v1/identity/
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_42
+      description: Add identity with all valid parameters
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentity/addIdentity_$LANGNUMBER$
+      outputTemplate: esignet/AddIdentity/addIdentityResult
+      input: '{
+  "value": "$BIOVALUE$",
+  "id": "mosip.id.create",
+  "registrationId": "$RID$",
+  "biometricReferenceId": "23452353",
+  "UIN": "$UIN$",
+  "dateOfBirth": "1992/04/15",
+  "postalCode": "14022",
+  "email": "ESignet_AddIdentity_L2_Valid_Parameters_forEmptyAcceptedClaimIfRequestedIsOptional_Pos@mosip.net",
+  "phone": "9876543210",
+  "referenceIdentityNumber": "6789545678878",
+  "version": "v1",
+   "introducerRID": "212124324784879",
+   "introducerUIN": "212124324784879",
+   "category": "individualBiometrics",
+   "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "status":"ACTIVATED"
+}'

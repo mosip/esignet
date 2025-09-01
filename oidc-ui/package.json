@@ -9,6 +9,7 @@
     "@radix-ui/react-popover": "^1.0.7",
     "@tailwindcss/line-clamp": "^0.4.2",
     "@tanstack/react-query": "^5.8.4",
+    "@testing-library/user-event": "^14.6.1",
     "axios": "^1.7.3",
     "buffer": "^6.0.3",
     "cra-template": "1.1.3",
@@ -38,7 +39,9 @@
     "test": "react-scripts test",
     "test:coverage": "react-scripts test --coverage src",
     "eject": "react-scripts eject",
-    "sonar": "sonar-scanner"
+    "sonar": "sonar-scanner",
+    "lint": "eslint src/**/*.{js,jsx}",
+    "lint:fix": "eslint src/**/*.{js,jsx} --fix"
   },
   "eslintConfig": {
     "extends": [
@@ -62,7 +65,12 @@
     "@testing-library/jest-dom": "^6.4.5",
     "@testing-library/react": "^16.0.0",
     "autoprefixer": "^10.4.8",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-jest": "^25.7.0",
+    "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-react": "^7.37.5",
     "postcss": "^8.4.16",
+    "prettier": "^3.6.2",
     "tailwindcss": "^3.1.8",
     "tailwindcss-dir": "^4.0.0"
   },
@@ -72,21 +80,20 @@
     },
     "coverageThreshold": {
       "global": {
-        "branches": 75,
-        "functions": 75,
-        "lines": 75,
-        "statements": 75
+        "branches": 80,
+        "functions": 80,
+        "lines": 80,
+        "statements": 80
       }
     },
     "collectCoverageFrom": [
-      "src/common/LoadingIndicator.js",
-      "src/common/ModalPopup.js",
-      "src/common/Popover.js",
-      "src/components/ClaimDetails.js",
-      "src/services/authService.js",
-      "src/services/openIDConnectService.js",
-      "src/components/InputWithPrefix.js",
-      "src/components/LoginIDOptions.js"
+      "src/**/*.{js,jsx}",
+      "!src/**/__tests__/**",
+      "!src/**/?(*.)+(spec|test).[jt]s?(x)",
+      "!src/setupTests.js",
+      "!src/reportWebVitals.js",
+      "!src/index.js",
+      "!src/**/mocks.js"
     ]
   }
 }

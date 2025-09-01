@@ -1,36 +1,50 @@
-import { useEffect, useState, useRef } from "react";
-import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
-import LoadingIndicator from "../common/LoadingIndicator";
+import { useEffect, useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import LoadingIndicator from '../common/LoadingIndicator';
 import {
   configurationKeys,
   challengeFormats,
   challengeTypes,
-} from "../constants/clientConstants";
-import { LoadingStates as states } from "../constants/states";
-import ErrorBanner from "../common/ErrorBanner";
-import redirectOnError from "../helpers/redirectOnError";
-import langConfigService from "../services/langConfigService";
-import { JsonFormBuilder } from "@anushase/json-form-builder";
-import { encodeString } from "../helpers/utils";
-
-const langConfig = await langConfigService.getEnLocaleConfiguration();
+} from '../constants/clientConstants';
+import { LoadingStates as states } from '../constants/states';
+import ErrorBanner from '../common/ErrorBanner';
+import redirectOnError from '../helpers/redirectOnError';
+import langConfigService from '../services/langConfigService';
+import { JsonFormBuilder } from '@anushase/json-form-builder';
+import { encodeString } from '../helpers/utils';
 
 export default function Form({
   authService,
   openIDConnectService,
   backButtonDiv,
   secondaryHeading,
-  i18nKeyPrefix1 = "Form",
-  i18nKeyPrefix2 = "errors",
+  i18nKeyPrefix1 = 'Form',
+  i18nKeyPrefix2 = 'errors',
 }) {
-  const { t: t1, i18n } = useTranslation("translation", {
+  const { t: t1, i18n } = useTranslation('translation', {
     keyPrefix: i18nKeyPrefix1,
   });
 
-  const { t: t2 } = useTranslation("translation", {
+  const { t: t2 } = useTranslation('translation', {
     keyPrefix: i18nKeyPrefix2,
   });
+
+  const [langConfig, setLangConfig] = useState(null);
+
+  useEffect(() => {
+    async function loadLangConfig() {
+      try {
+        const config = await langConfigService.getEnLocaleConfiguration();
+        setLangConfig(config);
+      } catch (e) {
+        console.error('Failed to load lang config', e);
+        setLangConfig({ errors: { otp: {} } }); // Fallback to prevent crashes
+      }
+    }
+
+    loadLangConfig();
+  }, []);
 
   const formBuilderRef = useRef(null); // Reference to form instance
   const isSubmitting = useRef(false);
@@ -50,11 +64,11 @@ export default function Form({
     ) ?? process.env.REACT_APP_CAPTCHA_ENABLE;
 
   const captchaEnableComponentsList = captchaEnableComponents
-    .split(",")
+    .split(',')
     .map((x) => x.trim().toLowerCase());
 
   const [showCaptcha, setShowCaptcha] = useState(
-    captchaEnableComponentsList.indexOf("kbi") !== -1
+    captchaEnableComponentsList.indexOf('kbi') !== -1
   );
 
   useEffect(() => {
@@ -65,7 +79,7 @@ export default function Form({
 
       const additionalConfig = {
         submitButton: {
-          label: t1("login"),
+          label: t1('login'),
           action: handleSubmit,
         },
         recaptcha: {
@@ -81,32 +95,32 @@ export default function Form({
 
       const form = JsonFormBuilder(
         formConfig,
-        "form-container",
+        'form-container',
         additionalConfig
       );
       form.render();
       formBuilderRef.current = form; // Save the form instance to the ref
       window.__form_rendered__ = true;
     } else if (!JsonFormBuilder) {
-      console.error("JsonFormBuilder not loaded");
+      console.error('JsonFormBuilder not loaded');
     }
 
     // Cleanup on unmount
     return () => {
       window.__form_rendered__ = false;
       formBuilderRef.current = null;
-      const container = document.getElementById("form-container");
-      if (container) container.innerHTML = ""; // optional: clean old content
+      const container = document.getElementById('form-container');
+      if (container) container.innerHTML = ''; // optional: clean old content
     };
   }, []);
 
   useEffect(() => {
-    formBuilderRef.current?.updateLanguage(i18n.language, t1("login"));
+    formBuilderRef.current?.updateLanguage(i18n.language, t1('login'));
   }, [i18n.language]);
 
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async () => {
     if (isSubmitting.current) return; // prevent multiple calls
     isSubmitting.current = true;
 
@@ -153,7 +167,7 @@ export default function Form({
 
       const { response, errors } = authenticateResponse;
 
-      if (errors != null && errors.length > 0) {
+      if (errors !== null && errors.length > 0) {
         let errorCodeCondition =
           langConfig.errors.kbi[errors[0].errorCode] !== undefined &&
           langConfig.errors.kbi[errors[0].errorCode] !== null;
@@ -163,7 +177,7 @@ export default function Form({
             errorCode: `kbi.${errors[0].errorCode}`,
             show: true,
           });
-        } else if (errors[0].errorCode === "invalid_transaction") {
+        } else if (errors[0].errorCode === 'invalid_transaction') {
           redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
         } else {
           setErrorBanner({
@@ -171,7 +185,7 @@ export default function Form({
             show: true,
           });
         }
-        formBuilderRef.current?.updateLanguage(i18n.language, t1("login"));
+        formBuilderRef.current?.updateLanguage(i18n.language, t1('login'));
         return;
       } else {
         setErrorBanner(null);
@@ -185,23 +199,23 @@ export default function Form({
           response.consentAction
         );
 
-        navigate(process.env.PUBLIC_URL + "/claim-details" + params, {
+        navigate(process.env.PUBLIC_URL + '/claim-details' + params, {
           replace: true,
         });
       }
     } catch (error) {
       setErrorBanner({
-        errorCode: "kbi.auth_failed",
+        errorCode: 'kbi.auth_failed',
         show: true,
       });
-      formBuilderRef.current?.updateLanguage(i18n.language, t1("login"));
+      formBuilderRef.current?.updateLanguage(i18n.language, t1('login'));
       setStatus(states.ERROR);
     }
   };
 
   useEffect(() => {
     let loadComponent = async () => {
-      i18n.on("languageChanged", () => {
+      i18n.on('languageChanged', () => {
         if (showCaptcha) {
           setShowCaptcha(true);
         }

@@ -1,6 +1,5 @@
-import localStorageService from "./local-storageService";
-import { Buffer } from "buffer";
-import { ApiService } from "./api.service";
+import { Buffer } from 'buffer';
+import { ApiService } from './api.service';
 
 import {
   SEND_OTP,
@@ -9,15 +8,12 @@ import {
   OAUTH_DETAIL_V3,
   PAR_OAUTH_DETAIL,
   AUTHCODE,
-  CSRF,
   CLAIM_DETAILS,
   PREPARE_SIGNUP_REDIRECT,
   RESUME,
-} from "./../constants/routes";
+} from './../constants/routes';
 
-const authorizeQueryParam = "authorize_query_param";
-
-const { getCookie } = { ...localStorageService };
+const authorizeQueryParam = 'authorize_query_param';
 
 class authService {
   constructor(openIDConnectService) {
@@ -50,12 +46,11 @@ class authService {
     };
     let response = await ApiService.post(AUTHENTICATE, request, {
       headers: {
-        "Content-Type": "application/json",
-        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
-        "oauth-details-hash":
+        'Content-Type': 'application/json',
+        'oauth-details-hash':
           (await oAuthDetailsHash) ||
           (await this.openIDConnectService.getOauthDetailsHash()),
-        "oauth-details-key":
+        'oauth-details-key':
           transactionId || (await this.openIDConnectService.getTransactionId()),
       },
     });
@@ -89,8 +84,7 @@ class authService {
 
     let response = await ApiService.post(OAUTH_DETAIL_V2, request, {
       headers: {
-        "Content-Type": "application/json",
-        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
+        'Content-Type': 'application/json',
       },
     });
     return response.data;
@@ -104,8 +98,7 @@ class authService {
 
     let response = await ApiService.post(OAUTH_DETAIL_V3, request, {
       headers: {
-        "Content-Type": "application/json",
-        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
+        'Content-Type': 'application/json',
       },
     });
     return response.data;
@@ -124,8 +117,7 @@ class authService {
 
     let response = await ApiService.post(PAR_OAUTH_DETAIL, request, {
       headers: {
-        "Content-Type": "application/json",
-        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
+        'Content-Type': 'application/json',
       },
     });
     return response.data;
@@ -155,12 +147,11 @@ class authService {
 
     let response = await ApiService.post(AUTHCODE, request, {
       headers: {
-        "Content-Type": "application/json",
-        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
-        "oauth-details-hash":
+        'Content-Type': 'application/json',
+        'oauth-details-hash':
           (await oAuthDetailsHash) ||
           (await this.openIDConnectService.getOauthDetailsHash()),
-        "oauth-details-key":
+        'oauth-details-key':
           transactionId || (await this.openIDConnectService.getTransactionId()),
       },
     });
@@ -192,25 +183,10 @@ class authService {
 
     let response = await ApiService.post(SEND_OTP, request, {
       headers: {
-        "Content-Type": "application/json",
-        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
-        "oauth-details-hash":
+        'Content-Type': 'application/json',
+        'oauth-details-hash':
           await this.openIDConnectService.getOauthDetailsHash(),
-        "oauth-details-key": await this.openIDConnectService.getTransactionId(),
-      },
-    });
-    return response.data;
-  };
-
-  /**
-   * Gets triggered for the very first time, before any api call.
-   * Triggers /csrf/token API on esignet service
-   * @returns csrf token.
-   */
-  get_CsrfToken = async () => {
-    let response = await ApiService.get(CSRF, {
-      headers: {
-        "Content-Type": "application/json",
+        'oauth-details-key': await this.openIDConnectService.getTransactionId(),
       },
     });
     return response.data;
@@ -221,28 +197,28 @@ class authService {
    * @returns params.
    */
   buildRedirectParams = (nonce, state, oauthReponse, consentAction) => {
-    let params = "?";
+    let params = '?';
     let authenticationTime = Math.floor(new Date().getTime() / 1000);
 
     if (nonce) {
-      params = params + "nonce=" + nonce + "&";
+      params = params + 'nonce=' + nonce + '&';
     }
 
     if (state) {
-      params = params + "state=" + state + "&";
+      params = params + 'state=' + state + '&';
     }
 
     if (consentAction) {
-      params = params + "consentAction=" + consentAction + "&";
-      params = params + "authenticationTime=" + authenticationTime + "&";
+      params = params + 'consentAction=' + consentAction + '&';
+      params = params + 'authenticationTime=' + authenticationTime + '&';
     }
 
     //removing last "&" character
     params = params.substring(0, params.length - 1);
 
     let responseStr = JSON.stringify(oauthReponse);
-    let responseB64 = Buffer.from(responseStr).toString("base64");
-    params = params + "#" + responseB64;
+    let responseB64 = Buffer.from(responseStr).toString('base64');
+    params = params + '#' + responseB64;
     return params;
   };
 
@@ -251,7 +227,7 @@ class authService {
    * @param {string} queryParam
    */
   storeQueryParam = (queryParam) => {
-    const encodedBase64 = Buffer.from(queryParam).toString("base64");
+    const encodedBase64 = Buffer.from(queryParam).toString('base64');
     localStorage.setItem(authorizeQueryParam, encodedBase64);
   };
 
@@ -261,17 +237,15 @@ class authService {
    * @returns {string} encodedAuthorizeQueryParam
    */
   getAuthorizeQueryParam = () => {
-    return localStorage.getItem(authorizeQueryParam) ?? "";
+    return localStorage.getItem(authorizeQueryParam) ?? '';
   };
 
   getClaimDetails = async () => {
     let response = await ApiService.get(CLAIM_DETAILS, {
       headers: {
-        "Content-Type": "application/json",
-        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
-        "oauth-details-hash":
+        'oauth-details-hash':
           await this.openIDConnectService.getOauthDetailsHash(),
-        "oauth-details-key": await this.openIDConnectService.getTransactionId(),
+        'oauth-details-key': await this.openIDConnectService.getTransactionId(),
       },
     });
     return response.data;
@@ -288,11 +262,10 @@ class authService {
 
     let response = await ApiService.post(PREPARE_SIGNUP_REDIRECT, request, {
       headers: {
-        "Content-Type": "application/json",
-        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
-        "oauth-details-hash":
+        'Content-Type': 'application/json',
+        'oauth-details-hash':
           await this.openIDConnectService.getOauthDetailsHash(),
-        "oauth-details-key": await this.openIDConnectService.getTransactionId(),
+        'oauth-details-key': await this.openIDConnectService.getTransactionId(),
       },
     });
     return response.data;
@@ -312,10 +285,9 @@ class authService {
       transactionId || (await this.openIDConnectService.getTransactionId());
 
     const headers = {
-      "Content-Type": "application/json",
-      "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
-      "oauth-details-hash": oauthDetailsHash,
-      "oauth-details-key": oauthDetailsKey,
+      'Content-Type': 'application/json',
+      'oauth-details-hash': oauthDetailsHash,
+      'oauth-details-key': oauthDetailsKey,
     };
 
     const response = await ApiService.post(RESUME, request, { headers });

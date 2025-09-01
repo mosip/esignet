@@ -1,0 +1,43 @@
+GetOidcUserInfo:
+   ESignet_GetOidcUserInfo_MOCK_uin_IdpAccessToken_StatusCode_forJWSInfo_Valid_Smoke:
+      endPoint: /v1/esignet/oidc/userinfo
+      uniqueIdentifier: TC_ESignet_GetOidcUserInfoForV3_01
+      description: Get OIDC user info with all valid details UIN
+      role: resident
+      restMethod: get
+      validityCheckRequired: true
+      inputTemplate: esignet/EndToEndFlowWithV3MOCK/userinfo/GetOidcUserInfo
+      outputTemplate: esignet/EndToEndFlowWithV3MOCK/userinfo/GetOidcUserInfoResult
+      input: '{
+      	"idpAccessToken": "$ID:GenerateToken_MOCK_uin_Valid_forUserInfo_Smoke_sid_access_token$"
+}'
+      output: "200"
+
+   ESignet_GetOidcUserInfo_MOCK_uin_IdpAccessToken_StatusCode_forJWEInfo_Valid_Smoke:
+      endPoint: /v1/esignet/oidc/userinfo
+      uniqueIdentifier: TC_ESignet_GetOidcUserInfoForV3_02
+      description: Get OIDC user info with all valid details UIN
+      role: resident
+      restMethod: get
+      validityCheckRequired: true
+      inputTemplate: esignet/EndToEndFlowWithV3MOCK/userinfo/GetOidcUserInfo
+      outputTemplate: esignet/EndToEndFlowWithV3MOCK/userinfo/GetOidcUserInfoResult
+      input: '{
+      	"idpAccessToken": "$ID:GenerateToken_MOCK_uin_Valid_forUserInfoJWE_Smoke_sid_access_token$"
+}'
+      output: "200"
+
+   ESignet_GetOidcUserInfo_MOCK_uin_IdpAccessToken_StatusCode_toUpdatedJWEInfo_Valid_Smoke:
+      endPoint: /v1/esignet/oidc/userinfo
+      uniqueIdentifier: TC_ESignet_GetOidcUserInfoForV3_03
+      description: Get OIDC user info with all valid details UIN
+      role: resident
+      restMethod: get
+      validityCheckRequired: true
+      inputTemplate: esignet/EndToEndFlowWithV3MOCK/userinfo/GetOidcUserInfo
+      outputTemplate: esignet/EndToEndFlowWithV3MOCK/userinfo/GetOidcUserInfoResult
+      input: '{
+      	"idpAccessToken": "$ID:GenerateToken_MOCK_uin_Valid_forUserInfoUpdatedJWE_Smoke_sid_access_token$"
+}'
+      output: "200"
+

@@ -1,13 +1,13 @@
-import { useTranslation } from "react-i18next";
+import { useTranslation } from 'react-i18next';
 
 const ErrorBanner = ({
   showBanner,
   errorCode,
   onCloseHandle,
-  customClass = "",
+  customClass = '',
   bannerCloseTimer,
 }) => {
-  const { t } = useTranslation("translation");
+  const { t } = useTranslation('translation');
 
   if (bannerCloseTimer) {
     setTimeout(onCloseHandle, bannerCloseTimer * 1000);
@@ -17,7 +17,7 @@ const ErrorBanner = ({
     showBanner && (
       <div
         className={
-          "flex justify-between items-center py-2 px-2 sm:px-5 lg:-mx-5 md:-mx-4 sm:-mx-3 -mx-3 error-banner " +
+          'flex justify-between items-center py-2 px-2 sm:px-5 lg:-mx-5 md:-mx-4 sm:-mx-3 -mx-3 error-banner ' +
           customClass
         }
         id="error-banner"

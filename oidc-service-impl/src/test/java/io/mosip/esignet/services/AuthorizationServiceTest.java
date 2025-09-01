@@ -8,6 +8,7 @@ package io.mosip.esignet.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.mosip.esignet.api.dto.AuthChallenge;
 import io.mosip.esignet.api.dto.SendOtpDto;
 import io.mosip.esignet.api.dto.SendOtpResult;
@@ -15,11 +16,13 @@ import io.mosip.esignet.api.dto.claim.ClaimDetail;
 import io.mosip.esignet.api.dto.claim.Claims;
 import io.mosip.esignet.api.dto.KycAuthResult;
 import io.mosip.esignet.api.dto.claim.ClaimsV2;
+import io.mosip.esignet.api.exception.KBIFormException;
 import io.mosip.esignet.api.exception.KycAuthException;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.api.util.ConsentAction;
 import io.mosip.esignet.api.util.FilterCriteriaMatcher;
+import io.mosip.esignet.api.util.KBIFormHelperService;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
@@ -40,6 +43,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -96,7 +100,15 @@ public class AuthorizationServiceTest {
     @Mock
     CaptchaHelper captchaHelper;
 
+    @Mock
+    ResourceLoader resourceLoader;
+
+    @Mock
+    KBIFormHelperService kbiFormHelperService;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private static final String CONFIG_KEY = "auth.factor.kbi.field-details";
 
 
     @Before
@@ -181,6 +193,56 @@ public class AuthorizationServiceTest {
         } catch (EsignetException e) {
             Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_REDIRECT_URI));
         }
+    }
+
+    @Test
+    public void getOauthDetails_whenParFlowIsMandated_throwsException_thenFail() throws EsignetException {
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        oauthDetailRequest.setClientId("client-123");
+        oauthDetailRequest.setNonce("nonce");
+        oauthDetailRequest.setRedirectUri("http://localhost:8080/callback");
+
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode additionalConfig = objectMapper.createObjectNode();
+        additionalConfig.put("require_pushed_authorization_requests", true);
+        clientDetail.setAdditionalConfig(additionalConfig);
+        clientDetail.setRedirectUris(Collections.singletonList("http://localhost:8080/callback"));
+
+        when(clientManagementService.getClientDetails("client-123")).thenReturn(clientDetail);
+        try {
+            authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
+            Assert.fail();
+        } catch (EsignetException e) {
+            Assert.assertEquals(ErrorConstants.INVALID_REQUEST, e.getErrorCode());
+        }
+    }
+
+    @Test
+    public void getOauthDetails_whenParIsNotMandated_thenPass() throws EsignetException {
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId("34567");
+        clientDetail.setName(new HashMap<>());
+        clientDetail.getName().put(Constants.NONE_LANG_KEY, "clientName");
+        clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png","http://localhost:8088/v1/idp","/v1/idp"));
+        clientDetail.setClaims(null);
+        clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:static-code"));
+        ObjectNode additionalConfig = objectMapper.createObjectNode();
+        additionalConfig.put("require_pushed_authorization_requests", false);
+        clientDetail.setAdditionalConfig(additionalConfig);
+
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        oauthDetailRequest.setClientId("34567");
+        oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
+        oauthDetailRequest.setClaims(null);
+        oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
+        oauthDetailRequest.setNonce("test-nonce");
+
+        when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
+        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
+        when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(new ArrayList<>());
+
+        OAuthDetailResponseV1 oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
+        Assert.assertNotNull(oauthDetailResponse);
     }
 
     @Test
@@ -1727,6 +1789,61 @@ public class AuthorizationServiceTest {
         }catch(EsignetException e){
             Assert.assertEquals("invalid_transaction",e.getErrorCode());
         }
+    }
+
+    @Test
+    public void init_withEmptyJson_fallbackToMigrate_thenPass() throws KBIFormException {
+        ReflectionTestUtils.setField(authorizationServiceImpl, "kbiFormDetailsUrl", "classpath:/test/kbi-field-empty.json");
+
+        List<Map<String, String>> fallbackFields = List.of(
+                Map.of("id", "test", "type", "text", "regex", ".*")
+        );
+        ReflectionTestUtils.setField(authorizationServiceImpl, "fieldDetailList", fallbackFields);
+
+        // Simulate fetch returning null and fallback succeeding
+        when(kbiFormHelperService.fetchKBIFieldDetailsFromResource(anyString())).thenReturn(null);
+        JsonNode fallbackJson = new ObjectMapper().createObjectNode().put("dummy", "value");
+        when(kbiFormHelperService.migrateKBIFieldDetails(fallbackFields)).thenReturn(fallbackJson);
+
+        authorizationServiceImpl.init();
+
+        Map<String, Object> uiConfig = (Map<String, Object>) ReflectionTestUtils.getField(authorizationServiceImpl, "uiConfigMap");
+        Assert.assertNotNull(uiConfig.get(CONFIG_KEY));
+    }
+
+    @Test
+    public void init_withNullUrl_fallbackToMigrate_thenPass() throws KBIFormException {
+        ReflectionTestUtils.setField(authorizationServiceImpl, "kbiFormDetailsUrl", "");
+
+        List<Map<String, String>> fallbackFields = List.of(
+                Map.of("id", "fallback", "type", "text", "regex", ".*")
+        );
+        ReflectionTestUtils.setField(authorizationServiceImpl, "fieldDetailList", fallbackFields);
+
+        JsonNode fallbackJson = new ObjectMapper().createObjectNode().put("dummy", "fallback");
+        when(kbiFormHelperService.migrateKBIFieldDetails(fallbackFields)).thenReturn(fallbackJson);
+
+        authorizationServiceImpl.init();
+
+        Map<String, Object> uiConfig = (Map<String, Object>) ReflectionTestUtils.getField(authorizationServiceImpl, "uiConfigMap");
+        Assert.assertNotNull(uiConfig.get(CONFIG_KEY));
+    }
+
+    @Test
+    public void init_withException_fallbackToMigrate_thenPass() throws KBIFormException {
+        ReflectionTestUtils.setField(authorizationServiceImpl, "kbiFormDetailsUrl", null);
+
+        List<Map<String, String>> fallbackFields = List.of(
+                Map.of("id", "broken", "type", "text", "regex", ".*")
+        );
+        ReflectionTestUtils.setField(authorizationServiceImpl, "fieldDetailList", fallbackFields);
+        JsonNode fallbackJson = new ObjectMapper().createObjectNode().put("fallback", "true");
+        when(kbiFormHelperService.migrateKBIFieldDetails(fallbackFields)).thenReturn(fallbackJson);
+
+        authorizationServiceImpl.init();
+
+        Map<String, Object> uiConfig = (Map<String, Object>) ReflectionTestUtils.getField(authorizationServiceImpl, "uiConfigMap");
+        Assert.assertNotNull(uiConfig.get(CONFIG_KEY));
     }
 
     private OIDCTransaction createIdpTransaction(String[] acrs) {

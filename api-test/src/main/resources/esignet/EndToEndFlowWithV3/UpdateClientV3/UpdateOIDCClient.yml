@@ -1,0 +1,109 @@
+UpdateClientV3:
+  ESignet_UpdateOIDCClientV3_MOSIPID_all_userinfo_Valid_Smoke:
+      endPoint: /v1/esignet/client-mgmt/client/{clientId}
+      uniqueIdentifier: TC_ESignet_UpdateOIDCClientV3_01
+      description: To update OIDC Client V3 with all valid data
+      role: partner
+      restMethod: put
+      inputTemplate: esignet/EndToEndFlowWithV3/UpdateClientV3/UpdateOIDCClient
+      outputTemplate: esignet/EndToEndFlowWithV3/UpdateClientV3/UpdateOIDCClientResult
+      input: '{
+      "requestTime": "$TIMESTAMP$",
+      "status": "ACTIVE",
+      "clientName": "MOSIP OIDC Client",
+      "logoUri": "https://health-services.com/logo.png",
+      "clientId": "$ID:CreateOIDCClient_all_forUserInfoJWS_Valid_Smoke_sid_clientId$",
+      "redirectUris": "$IDPREDIRECTURI$",
+      "userClaims1": "name",
+      "userClaims2": "email",
+      "userClaims3": "gender",
+      "userClaims4": "phone_number",
+      "userClaims5": "birthdate",
+      "authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"},{acrValues: "mosip:idp:acr:biometrics"}],
+      "grantTypes": "authorization_code",
+      "clientAuthMethods": "private_key_jwt",
+      "keyLang1": "$1STLANG$",
+      "clientNameLang": "MOSIP OIDC Client",
+      "userinfo_response_type": "JWS",
+      "purpose_title": "title",
+      "purpose_type": "verify",
+      "purpose_subTitle": "subtitle",
+      "signup_banner_required": true,
+      "forgot_pwd_link_required": true,
+      "consent_expire_in_mins": 30
+}'
+      output: '{
+        "status": "ACTIVE"
+}'
+  ESignet_UpdateOIDCClientV3_MOSIPID_all_userinfoJWE_Valid_Smoke:
+      endPoint: /v1/esignet/client-mgmt/client/{clientId}
+      uniqueIdentifier: TC_ESignet_UpdateOIDCClientV3_02
+      description: To update OIDC Client V3 with all valid data
+      role: partner
+      restMethod: put
+      inputTemplate: esignet/EndToEndFlowWithV3/UpdateClientV3/UpdateOIDCClient
+      outputTemplate: esignet/EndToEndFlowWithV3/UpdateClientV3/UpdateOIDCClientResult
+      input: '{
+      "requestTime": "$TIMESTAMP$",
+      "status": "ACTIVE",
+      "clientName": "MOSIP OIDC Client",
+      "logoUri": "https://health-services.com/logo.png",
+      "clientId": "$ID:CreateOIDCClient_all_forUserInfoJWE_Valid_Smoke_sid_clientId$",
+      "redirectUris": "$IDPREDIRECTURI$",
+      "userClaims1": "name",
+      "userClaims2": "email",
+      "userClaims3": "gender",
+      "userClaims4": "phone_number",
+      "userClaims5": "birthdate",
+      "authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"},{acrValues: "mosip:idp:acr:biometrics"}],
+      "grantTypes": "authorization_code",
+      "clientAuthMethods": "private_key_jwt",
+      "keyLang1": "$1STLANG$",
+      "clientNameLang": "MOSIP OIDC Client",
+      "userinfo_response_type": "JWE",
+      "purpose_title": "title",
+      "purpose_type": "verify",
+      "purpose_subTitle": "subtitle",
+      "signup_banner_required": true,
+      "forgot_pwd_link_required": true,
+      "consent_expire_in_mins": 30
+}'
+      output: '{
+        "status": "ACTIVE"
+}'
+  ESignet_UpdateOIDCClientV3_MOSIPID_all_ForJWSUpdatedToJWEInfo_Valid_Smoke:
+      endPoint: /v1/esignet/client-mgmt/client/{clientId}
+      uniqueIdentifier: TC_ESignet_UpdateOIDCClientV3_03
+      description: To update OIDC Client V3 with all valid data
+      role: partner
+      restMethod: put
+      inputTemplate: esignet/EndToEndFlowWithV3/UpdateClientV3/UpdateOIDCClient
+      outputTemplate: esignet/EndToEndFlowWithV3/UpdateClientV3/UpdateOIDCClientResult
+      input: '{
+      "requestTime": "$TIMESTAMP$",
+      "status": "ACTIVE",
+      "clientName": "MOSIP OIDC Client",
+      "logoUri": "https://health-services.com/logo.png",
+      "clientId": "$ID:CreateOIDCClient_all_ForJWSUpdatedToJWEInfo_Valid_Smoke_sid_clientId$",
+      "redirectUris": "$IDPREDIRECTURI$",
+      "userClaims1": "name",
+      "userClaims2": "email",
+      "userClaims3": "gender",
+      "userClaims4": "phone_number",
+      "userClaims5": "birthdate",
+      "authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"},{acrValues: "mosip:idp:acr:biometrics"}],
+      "grantTypes": "authorization_code",
+      "clientAuthMethods": "private_key_jwt",
+      "keyLang1": "$1STLANG$",
+      "clientNameLang": "MOSIP OIDC Client",
+      "userinfo_response_type": "JWE",
+      "purpose_title": "title",
+      "purpose_type": "verify",
+      "purpose_subTitle": "subtitle",
+      "signup_banner_required": true,
+      "forgot_pwd_link_required": true,
+      "consent_expire_in_mins": 30
+}'
+      output: '{
+        "status": "ACTIVE"
+}'

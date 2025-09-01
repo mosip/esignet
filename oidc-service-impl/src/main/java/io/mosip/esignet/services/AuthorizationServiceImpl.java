@@ -5,7 +5,6 @@
  */
 package io.mosip.esignet.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,6 +16,7 @@ import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.api.util.ConsentAction;
+import io.mosip.esignet.api.util.KBIFormHelperService;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
@@ -25,10 +25,7 @@ import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.spi.AuthorizationService;
 import io.mosip.esignet.core.spi.ClientManagementService;
 import io.mosip.esignet.core.spi.TokenService;
-import io.mosip.esignet.core.util.AuditHelper;
-import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
-import io.mosip.esignet.core.util.IdentityProviderUtil;
-import io.mosip.esignet.core.util.LinkCodeQueue;
+import io.mosip.esignet.core.util.*;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -38,6 +35,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,6 +59,8 @@ import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA_256;
 public class AuthorizationServiceImpl implements AuthorizationService {
 
     private static final String KBI_FIELD_DETAILS_CONFIG_KEY = "auth.factor.kbi.field-details";
+
+    public static final String REQUIRE_PAR= "require_pushed_authorization_requests";
 
     @Autowired
     private ClientManagementService clientManagementService;
@@ -122,26 +122,29 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     private String signupIDTokenAudience;
 
     @Value("${mosip.esignet.authenticator.default.auth-factor.kbi.field-details-url}")
-    private String KbiFormDetailsUrl;
+    private String kbiFormDetailsUrl;
+
+    @Value("#{${mosip.esignet.authenticator.default.auth-factor.kbi.field-details}}")
+    private List<Map<String, String>> fieldDetailList;
 
     @Autowired
     private ResourceLoader resourceLoader;
 
+    @Autowired
+    private KBIFormHelperService kbiFormHelperService;
+
     @PostConstruct
     public void init() {
-        if(KbiFormDetailsUrl == null || KbiFormDetailsUrl.isEmpty()) {
-            log.info("No kbi.field-details-url configured for KBI field details. Skipping url load.");
-            return;
-        }
         try {
-            JsonNode fieldDetailsJson = fetchKBIFieldDetailsFromResource(KbiFormDetailsUrl);
-            if (fieldDetailsJson != null) {
-                uiConfigMap.put(KBI_FIELD_DETAILS_CONFIG_KEY, fieldDetailsJson);
-                return;
-            }
-            log.error("*** Empty KBI details from URL: {} ***", KbiFormDetailsUrl);
+            JsonNode fieldDetailsJson = StringUtils.hasText(kbiFormDetailsUrl)
+                    ? kbiFormHelperService.fetchKBIFieldDetailsFromResource(kbiFormDetailsUrl)
+                    : null;
+
+            uiConfigMap.put(KBI_FIELD_DETAILS_CONFIG_KEY,
+                    fieldDetailsJson != null ? fieldDetailsJson : kbiFormHelperService.migrateKBIFieldDetails(fieldDetailList));
+
         } catch (Exception e) {
-            log.error("Error loading form details from URL: {}", KbiFormDetailsUrl, e);
+            log.error("Error loading form details from URL: {}", kbiFormDetailsUrl, e);
         }
     }
 
@@ -149,6 +152,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Override
     public OAuthDetailResponseV1 getOauthDetails(OAuthDetailRequest oauthDetailReqDto) throws EsignetException {
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(oauthDetailReqDto.getClientId());
+        assertPARRequiredIsFalse(clientDetailDto);
         validateRedirectURIAndNonce(oauthDetailReqDto, clientDetailDto);
         OAuthDetailResponseV1 oAuthDetailResponseV1 = new OAuthDetailResponseV1();
         Pair<OAuthDetailResponse, OIDCTransaction> pair = checkAndBuildOIDCTransaction(oauthDetailReqDto, clientDetailDto, oAuthDetailResponseV1);
@@ -164,6 +168,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Override
     public OAuthDetailResponseV2 getOauthDetailsV2(OAuthDetailRequestV2 oauthDetailReqDto) throws EsignetException {
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(oauthDetailReqDto.getClientId());
+        assertPARRequiredIsFalse(clientDetailDto);
         validateRedirectURIAndNonce(oauthDetailReqDto, clientDetailDto);
         OAuthDetailResponseV2 oAuthDetailResponseV2 = new OAuthDetailResponseV2();
         return buildTransactionAndOAuthDetailResponse(oauthDetailReqDto, clientDetailDto, oAuthDetailResponseV2);
@@ -312,7 +317,10 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                 .anyMatch( entry -> entry.getValue().stream()
                         .anyMatch(m ->
                                 (boolean) m.getOrDefault("essential", false) && m.get("verification") != null &&
-                                ((transaction.getClaimMetadata().get(entry.getKey()) == null || transaction.getClaimMetadata().get(entry.getKey()).isEmpty()))));
+                                ((transaction.getClaimMetadata() == null
+                                        || transaction.getClaimMetadata().get(entry.getKey()) == null
+                                        || transaction.getClaimMetadata().get(entry.getKey()).isEmpty()
+                                        || list.stream().anyMatch(cs -> cs.getClaim().equals(entry.getKey()) && !cs.isVerified())))));
         claimDetailResponse.setProfileUpdateRequired(unverifiedEssentialClaimsExists);
         claimDetailResponse.setClaimStatus(list);
 
@@ -427,6 +435,14 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         authorizationHelperService.validateNonce(oAuthDetailRequest.getNonce());
     }
 
+    private void assertPARRequiredIsFalse(ClientDetail clientDetail) throws EsignetException {
+        boolean isParRequired = clientDetail.getAdditionalConfig(REQUIRE_PAR, false);
+        if (isParRequired) {
+            log.error("Pushed Authorization Request (PAR) flow is mandated for clientId: {}", clientDetail.getId());
+            throw new EsignetException(ErrorConstants.INVALID_REQUEST);
+        }
+    }
+
     private Pair<OAuthDetailResponse, OIDCTransaction> checkAndBuildOIDCTransaction(OAuthDetailRequest oauthDetailReqDto,
                                                                                     ClientDetail clientDetailDto, OAuthDetailResponse oAuthDetailResponse) {
         //Resolve the final set of claims based on registered and request parameter.
@@ -475,6 +491,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oidcTransaction.setUserInfoResponseType(clientDetailDto.getAdditionalConfig(USERINFO_RESPONSE_TYPE,"JWS"));
         oidcTransaction.setPrompt(IdentityProviderUtil.splitAndTrimValue(oauthDetailReqDto.getPrompt(), Constants.SPACE));
         oidcTransaction.setConsentExpireMinutes(clientDetailDto.getAdditionalConfig(CONSENT_EXPIRE_IN_MINS, 0));
+        oidcTransaction.setDpopJkt(oauthDetailReqDto.getDpopJkt());
+        oidcTransaction.setDpopBoundAccessToken(clientDetailDto.getAdditionalConfig(Constants.DPOP_BOUND_ACCESS_TOKENS, false));
         return Pair.of(oAuthDetailResponse, oidcTransaction);
     }
 
@@ -564,8 +582,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         return new String(authTransactionIdBytes);
     }
 
-
-
     private JsonNode fetchKBIFieldDetailsFromResource(String url) {
         try (InputStream resp = getResource(url)) {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -603,6 +619,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oAuthDetailRequestV3.setUiLocales(pushedAuthorizationRequest.getUi_locales());
         oAuthDetailRequestV3.setCodeChallenge(pushedAuthorizationRequest.getCode_challenge());
         oAuthDetailRequestV3.setCodeChallengeMethod(pushedAuthorizationRequest.getCode_challenge_method());
+        oAuthDetailRequestV3.setDpopJkt(pushedAuthorizationRequest.getDpop_jkt());
         return oAuthDetailRequestV3;
     }
 

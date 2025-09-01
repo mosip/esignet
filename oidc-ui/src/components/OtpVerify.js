@@ -1,22 +1,20 @@
-import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import LoadingIndicator from "../common/LoadingIndicator";
-import FormAction from "./FormAction";
-import { LoadingStates as states } from "../constants/states";
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import LoadingIndicator from '../common/LoadingIndicator';
+import FormAction from './FormAction';
+import { LoadingStates as states } from '../constants/states';
 import {
   buttonTypes,
   challengeFormats,
   challengeTypes,
   configurationKeys,
-} from "../constants/clientConstants";
-import { useTranslation } from "react-i18next";
-import PinInput from "react-pin-input";
-import ErrorBanner from "../common/ErrorBanner";
-import langConfigService from "../services/langConfigService";
-import redirectOnError from "../helpers/redirectOnError";
-import ReCAPTCHA from "react-google-recaptcha";
-
-const langConfig = await langConfigService.getEnLocaleConfiguration();
+} from '../constants/clientConstants';
+import { useTranslation } from 'react-i18next';
+import PinInput from 'react-pin-input';
+import ErrorBanner from '../common/ErrorBanner';
+import langConfigService from '../services/langConfigService';
+import redirectOnError from '../helpers/redirectOnError';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 export default function OtpVerify({
   param,
@@ -24,19 +22,35 @@ export default function OtpVerify({
   ID,
   authService,
   openIDConnectService,
-  i18nKeyPrefix1 = "otp",
-  i18nKeyPrefix2 = "errors",
+  i18nKeyPrefix1 = 'otp',
+  i18nKeyPrefix2 = 'errors',
 }) {
-  const { t: t1, i18n } = useTranslation("translation", {
+  const { t: t1, i18n } = useTranslation('translation', {
     keyPrefix: i18nKeyPrefix1,
   });
-  const { t: t2 } = useTranslation("translation", {
+  const { t: t2 } = useTranslation('translation', {
     keyPrefix: i18nKeyPrefix2,
   });
 
+  const [langConfig, setLangConfig] = useState(null);
+
+  useEffect(() => {
+    async function loadLangConfig() {
+      try {
+        const config = await langConfigService.getEnLocaleConfiguration();
+        setLangConfig(config);
+      } catch (e) {
+        console.error('Failed to load lang config', e);
+        setLangConfig({ errors: { otp: {} } }); // Fallback to prevent crashes
+      }
+    }
+
+    loadLangConfig();
+  }, []);
+
   const fields = param;
   let fieldsState = {};
-  fields.forEach((field) => (fieldsState["Otp" + field.id] = ""));
+  fields.forEach((field) => (fieldsState['Otp' + field.id] = ''));
 
   const post_SendOtp = authService.post_SendOtp;
   const post_AuthenticateUser = authService.post_AuthenticateUser;
@@ -55,14 +69,14 @@ export default function OtpVerify({
     process.env.REACT_APP_OTP_LENGTH;
   const otpLength = parseInt(otpLengthValue);
 
-  const [status, setStatus] = useState({ state: states.LOADED, msg: "" });
+  const [status, setStatus] = useState({ state: states.LOADED, msg: '' });
   const [resendOtpCountDown, setResendOtpCountDown] = useState();
   const [showResendOtp, setShowResendOtp] = useState(false);
   const [showTimer, setShowTimer] = useState(false);
   const [timer, setTimer] = useState(null);
-  const [otpValue, setOtpValue] = useState("");
-  const [otpSentEmail, setOtpSentEmail] = useState("");
-  const [otpSentMobile, setOtpSentMobile] = useState("");
+  const [otpValue, setOtpValue] = useState('');
+  const [otpSentEmail, setOtpSentEmail] = useState('');
+  const [otpSentMobile, setOtpSentMobile] = useState('');
   const [errorBanner, setErrorBanner] = useState(null);
 
   const captchaSiteKey =
@@ -76,11 +90,11 @@ export default function OtpVerify({
     ) ?? process.env.REACT_APP_CAPTCHA_ENABLE;
 
   const captchaEnableComponentsList = captchaEnableComponents
-    .split(",")
+    .split(',')
     .map((x) => x.trim().toLowerCase());
 
   const [showCaptcha, setShowCaptcha] = useState(
-    captchaEnableComponentsList.indexOf("send-otp") !== -1
+    captchaEnableComponentsList.indexOf('send-otp') !== -1
   );
   const [captchaToken, setCaptchaToken] = useState(null);
   const _reCaptchaRef = useRef(null);
@@ -116,27 +130,27 @@ export default function OtpVerify({
     try {
       setErrorBanner(null);
       pin.clear();
-      setOtpValue("");
+      setOtpValue('');
 
       let transactionId = openIDConnectService.getTransactionId();
-      let otpChannels = commaSeparatedChannels.split(",").map((x) => x.trim());
+      let otpChannels = commaSeparatedChannels.split(',').map((x) => x.trim());
 
       let id = ID.prefix + ID.id + ID.postfix;
       let tempCaptchaToken = captchaToken;
       setCaptchaToken(null);
 
-      setStatus({ state: states.LOADING, msg: "sending_otp_msg" });
+      setStatus({ state: states.LOADING, msg: 'sending_otp_msg' });
       const sendOtpResponse = await post_SendOtp(
         transactionId,
         id,
         otpChannels,
         tempCaptchaToken
       );
-      setStatus({ state: states.LOADED, msg: "" });
+      setStatus({ state: states.LOADED, msg: '' });
 
       const { response, errors } = sendOtpResponse;
 
-      if (errors != null && errors.length > 0) {
+      if (errors !== null && errors.length > 0) {
         let errorCodeCondition =
           langConfig.errors.otp[errors[0].errorCode] !== undefined &&
           langConfig.errors.otp[errors[0].errorCode] !== null;
@@ -146,7 +160,7 @@ export default function OtpVerify({
             errorCode: `otp.${errors[0].errorCode}`,
             show: true,
           });
-        } else if (errors[0].errorCode === "invalid_transaction") {
+        } else if (errors[0].errorCode === 'invalid_transaction') {
           redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
         } else {
           setErrorBanner({
@@ -163,16 +177,16 @@ export default function OtpVerify({
       }
     } catch (error) {
       setErrorBanner({
-        errorCode: "otp.send_otp_failed_msg",
+        errorCode: 'otp.send_otp_failed_msg',
         show: true,
       });
-      setStatus({ state: states.ERROR, msg: "" });
+      setStatus({ state: states.ERROR, msg: '' });
     }
   };
 
   useEffect(() => {
     let loadComponent = async () => {
-      i18n.on("languageChanged", function (lng) {
+      i18n.on('languageChanged', function () {
         if (showCaptcha) {
           //to rerender recaptcha widget on language change
           setShowCaptcha(false);
@@ -196,7 +210,7 @@ export default function OtpVerify({
   const startTimer = async () => {
     clearInterval(timer);
     setResendOtpCountDown(
-      t1("resend_otp_counter", getMinFromSec(resendOtpTimeout))
+      t1('resend_otp_counter', getMinFromSec(resendOtpTimeout))
     );
     setShowResendOtp(false);
     setShowTimer(true);
@@ -204,7 +218,7 @@ export default function OtpVerify({
     var interval = setInterval(function () {
       timePassed++;
       let timeLeft = resendOtpTimeout - timePassed;
-      setResendOtpCountDown(t1("resend_otp_counter", getMinFromSec(timeLeft)));
+      setResendOtpCountDown(t1('resend_otp_counter', getMinFromSec(timeLeft)));
 
       if (timeLeft === 0) {
         clearInterval(interval);
@@ -217,12 +231,12 @@ export default function OtpVerify({
   };
 
   const getMinFromSec = (seconds) => {
-    let sec = (seconds % 60).toLocaleString("en-US", {
+    let sec = (seconds % 60).toLocaleString('en-US', {
       minimumIntegerDigits: 2,
       useGrouping: false,
     });
 
-    let min = Math.floor(seconds / 60).toLocaleString("en-US", {
+    let min = Math.floor(seconds / 60).toLocaleString('en-US', {
       minimumIntegerDigits: 2,
       useGrouping: false,
     });
@@ -249,17 +263,17 @@ export default function OtpVerify({
 
       let id = ID.prefix + ID.id + ID.postfix;
 
-      setStatus({ state: states.LOADING, msg: "authenticating_msg" });
+      setStatus({ state: states.LOADING, msg: 'authenticating_msg' });
       const authenticateResponse = await post_AuthenticateUser(
         transactionId,
         id,
         challengeList
       );
-      setStatus({ state: states.LOADED, msg: "" });
+      setStatus({ state: states.LOADED, msg: '' });
 
       const { response, errors } = authenticateResponse;
 
-      if (errors != null && errors.length > 0) {
+      if (errors !== null && errors.length > 0) {
         let errorCodeCondition =
           langConfig.errors.otp[errors[0].errorCode] !== undefined &&
           langConfig.errors.otp[errors[0].errorCode] !== null;
@@ -269,7 +283,7 @@ export default function OtpVerify({
             errorCode: `otp.${errors[0].errorCode}`,
             show: true,
           });
-        } else if (errors[0].errorCode === "invalid_transaction") {
+        } else if (errors[0].errorCode === 'invalid_transaction') {
           redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
         } else {
           setErrorBanner({
@@ -290,30 +304,30 @@ export default function OtpVerify({
           response.consentAction
         );
 
-        navigate(process.env.PUBLIC_URL + "/claim-details" + params, {
+        navigate(process.env.PUBLIC_URL + '/claim-details' + params, {
           replace: true,
         });
       }
     } catch (error) {
       setErrorBanner({
-        errorCode: "authentication_failed_msg",
+        errorCode: 'authentication_failed_msg',
         show: true,
       });
-      setStatus({ state: states.ERROR, msg: "" });
+      setStatus({ state: states.ERROR, msg: '' });
     }
   };
 
   let styles = {
-    width: "40px",
-    height: "40px",
-    margin: "0 5px",
-    border: "",
-    borderBottom: "2px solid #0284c7",
-    color: "#0284c7",
+    width: '40px',
+    height: '40px',
+    margin: '0 5px',
+    border: '',
+    borderBottom: '2px solid #0284c7',
+    color: '#0284c7',
   };
 
   if (window.screen.availWidth <= 375) {
-    styles = { ...styles, width: "2em" };
+    styles = { ...styles, width: '2em' };
   }
 
   const onCloseHandle = () => {
@@ -336,25 +350,25 @@ export default function OtpVerify({
             <div className="w-full m-auto text-gray-500 mt-5 mb-1">
               {otpSentMobile && otpSentEmail ? (
                 <>
-                  {t1("otp_sent_msg", {
+                  {t1('otp_sent_msg', {
                     otpLength: otpLength,
                   })}
                   <h6 className="text-black">
                     {otpSentMobile}
-                    <span className="mx-1">{t1("and")}</span>
+                    <span className="mx-1">{t1('and')}</span>
                     {otpSentEmail}
                   </h6>
                 </>
               ) : otpSentMobile ? (
                 <>
-                  {t1("otp_sent_msg", {
+                  {t1('otp_sent_msg', {
                     otpLength: otpLength,
                   })}
                   <h6 className="text-black">{otpSentMobile}</h6>
                 </>
               ) : (
                 <>
-                  {t1("otp_sent_msg", {
+                  {t1('otp_sent_msg', {
                     otpLength: otpLength,
                   })}
                   <h6 className="text-black">{otpSentEmail}</h6>
@@ -371,17 +385,17 @@ export default function OtpVerify({
           <PinInput
             length={otpLength}
             initialValue=""
-            onChange={(value, index) => {
+            onChange={(value) => {
               setOtpValue(value);
             }}
             secret
             secretDelay={1}
             type="numeric"
             inputMode="number"
-            style={{ padding: "5px 0px" }}
+            style={{ padding: '5px 0px' }}
             inputStyle={styles}
-            inputFocusStyle={{ borderBottom: "2px solid #075985" }}
-            onComplete={(value, index) => {
+            inputFocusStyle={{ borderBottom: '2px solid #075985' }}
+            onComplete={(value) => {
               //TO handle case when user pastes OTP
               setOtpValue(value);
             }}
@@ -408,7 +422,7 @@ export default function OtpVerify({
             otpValue.length !== otpLength || status.state === states.LOADING
           }
           type={buttonTypes.submit}
-          text={t1("verify")}
+          text={t1('verify')}
           id="verify_otp"
         />
 
@@ -421,7 +435,7 @@ export default function OtpVerify({
         <div className="my-2">
           <FormAction
             type={buttonTypes.button}
-            text={t1("resend_otp")}
+            text={t1('resend_otp')}
             handleClick={handleSendOtp}
             id="resend_otp"
             disabled={
@@ -430,7 +444,7 @@ export default function OtpVerify({
               status.state === states.LOADING
             }
             customClassName={`!bg-white !border-none !p-0 !w-max !m-auto ${
-              showResendOtp ? "resend_otp" : "!text-gray-400"
+              showResendOtp ? 'resend_otp' : '!text-gray-400'
             }`}
           />
         </div>

@@ -1,13 +1,13 @@
-import { Buffer } from "buffer";
-import sha256 from "crypto-js/sha256";
-import Base64 from "crypto-js/enc-base64";
+import { Buffer } from 'buffer';
+import sha256 from 'crypto-js/sha256';
+import Base64 from 'crypto-js/enc-base64';
 
 const encodeString = (str) => {
-  return Buffer.from(str).toString("base64");
+  return Buffer.from(str).toString('base64');
 };
 
 const decodeHash = (hash) => {
-  return Buffer.from(hash, "base64").toString();
+  return Buffer.from(hash, 'base64').toString();
 };
 
 /**
@@ -24,18 +24,18 @@ const checkConfigProperty = (config, property) => {
   return false;
 };
 
-const sortKeysDeep = obj => {
-    if (Array.isArray(obj)) {
-      return obj.map(sortKeysDeep);
-    } else if (obj !== null && typeof obj === "object") {
-      return Object.keys(obj)
-        .sort()
-        .reduce((result, key) => {
-          result[key] = sortKeysDeep(obj[key]);
-          return result;
-        }, {});
-    }
-    return obj;
+const sortKeysDeep = (obj) => {
+  if (Array.isArray(obj)) {
+    return obj.map(sortKeysDeep);
+  } else if (obj !== null && typeof obj === 'object') {
+    return Object.keys(obj)
+      .sort((a, b) => a.localeCompare(b)) // ✅ locale-aware alphabetical sort
+      .reduce((result, key) => {
+        result[key] = sortKeysDeep(obj[key]);
+        return result;
+      }, {});
+  }
+  return obj;
 };
 
 /**
@@ -45,12 +45,12 @@ const sortKeysDeep = obj => {
  * @returns {Promise<string>} A Promise that resolves to the base64url-encoded hash string.
  */
 const getOauthDetailsHash = async (value) => {
-    let sha256Hash = sha256(JSON.stringify(sortKeysDeep(value)));
-    let hashB64 = Base64.stringify(sha256Hash)
-        .split("=")[0]
-        .replace(/\+/g, "-")
-        .replace(/\//g, "_");
-    return hashB64;
+  let sha256Hash = sha256(JSON.stringify(sortKeysDeep(value)));
+  let hashB64 = Base64.stringify(sha256Hash)
+    .split('=')[0]
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
+  return hashB64;
 };
 
 /**
@@ -61,10 +61,10 @@ const getOauthDetailsHash = async (value) => {
  */
 const base64UrlDecode = (str) => {
   return decodeURIComponent(
-    decodeHash(str.replace(/-/g, "+").replace(/_/g, "/"))
-      .split("")
-      .map((c) => `%${("00" + c.charCodeAt(0).toString(16)).slice(-2)}`)
-      .join("")
+    decodeHash(str.replace(/-/g, '+').replace(/_/g, '/'))
+      .split('')
+      .map((c) => `%${('00' + c.charCodeAt(0).toString(16)).slice(-2)}`)
+      .join('')
   );
 };
 
@@ -79,7 +79,7 @@ const getPollingConfig = () => {
 
   const url =
     POLLING_URL ||
-    (process.env.NODE_ENV === "development"
+    (process.env.NODE_ENV === 'development'
       ? `${process.env.REACT_APP_ESIGNET_API_URL}/actuator/health`
       : `${window.origin}/v1/esignet/actuator/health`);
 
@@ -87,10 +87,18 @@ const getPollingConfig = () => {
   const timeout = parsePositiveInt(POLLING_TIMEOUT, 5000);
 
   const enabled =
-    POLLING_ENABLED === undefined || POLLING_ENABLED === ""
+    POLLING_ENABLED === undefined || POLLING_ENABLED === ''
       ? true
-      : String(POLLING_ENABLED).toLowerCase() === "true";
+      : String(POLLING_ENABLED).toLowerCase() === 'true';
   return { url, interval, timeout, enabled };
 };
 
-export { encodeString, decodeHash, checkConfigProperty, sortKeysDeep, getOauthDetailsHash, base64UrlDecode, getPollingConfig };
+export {
+  encodeString,
+  decodeHash,
+  checkConfigProperty,
+  sortKeysDeep,
+  getOauthDetailsHash,
+  base64UrlDecode,
+  getPollingConfig,
+};

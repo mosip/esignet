@@ -1,29 +1,28 @@
-import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
-import Select from "react-select";
-import configService from "../services/configService";
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import openIDConnectService from "../services/openIDConnectService";
-import authService from "../services/authService";
-import { Buffer } from "buffer";
-import { Detector } from "react-detect-offline";
-import { getPollingConfig } from "../helpers/utils";
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import Select from 'react-select';
+import configService from '../services/configService';
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import openIDConnectService from '../services/openIDConnectService';
+import authService from '../services/authService';
+import { Buffer } from 'buffer';
+import { Detector } from 'react-detect-offline';
+import { getPollingConfig } from '../helpers/utils';
 
-const config = await configService();
-
-export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
-  const { t, i18n } = useTranslation("translation", {
+export default function NavHeader({ langOptions, i18nKeyPrefix = 'header' }) {
+  const { i18n } = useTranslation('translation', {
     keyPrefix: i18nKeyPrefix,
   });
   const [selectedLang, setSelectedLang] = useState();
+  const [config, setConfig] = useState({});
   const authServices = new authService(openIDConnectService);
-  const authorizeQueryParam = "authorize_query_param";
-  const ui_locales = "ui_locales";
+  const authorizeQueryParam = 'authorize_query_param';
+  const ui_locales = 'ui_locales';
   const pollingConfig = getPollingConfig();
   // Decode the authorize query param
   const decodedBase64 = Buffer.from(
     authServices.getAuthorizeQueryParam(),
-    "base64"
+    'base64'
   ).toString();
 
   var urlSearchParams = new URLSearchParams(decodedBase64);
@@ -37,30 +36,39 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
       ...base,
       border: 0,
     }),
-    ...(config["remove_language_indicator_pipe"] && {
+    ...(config['remove_language_indicator_pipe'] && {
       valueContainer: (base) => ({
         ...base,
         padding: 0,
       }),
       indicatorSeparator: (base) => ({
         ...base,
-        display: "none",
+        display: 'none',
       }),
       dropdownIndicator: (base) => ({
         ...base,
-        "padding-left": 0,
-        color: "#140701",
+        'padding-left': 0,
+        color: '#140701',
       }),
       menu: (base) => ({
         ...base,
-        "min-width": "100px",
+        'min-width': '100px',
       }),
     }),
   };
 
+  // ✅ Fetch config asynchronously
+  useEffect(() => {
+    const fetchConfig = async () => {
+      const cfg = await configService();
+      setConfig(cfg || {});
+    };
+    fetchConfig();
+  }, []);
+
   useEffect(() => {
     //Gets fired when changeLanguage got called.
-    i18n.on("languageChanged", function (lng) {
+    i18n.on('languageChanged', function (lng) {
       let language = langOptions.find((option) => {
         return option.value === lng;
       });
@@ -89,7 +97,7 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
       // Encode the string
       var encodedString = urlSearchParams.toString();
 
-      const encodedBase64 = Buffer.from(encodedString).toString("base64");
+      const encodedBase64 = Buffer.from(encodedString).toString('base64');
 
       // Remove the old authorizeQueryParam from the local storage
       localStorage.removeItem(authorizeQueryParam);
@@ -120,9 +128,9 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
   }, [langOptions]);
 
   var dropdownItemClass =
-    "group text-[14px] leading-none flex items-center relative select-none outline-none data-[disabled]:pointer-events-none cursor-pointer py-3 langDropdown";
+    'group text-[14px] leading-none flex items-center relative select-none outline-none data-[disabled]:pointer-events-none cursor-pointer py-3 langDropdown';
 
-  var borderBottomClass = "border-b-[1px]";
+  var borderBottomClass = 'border-b-[1px]';
 
   return (
     <nav
@@ -184,7 +192,7 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
                     </g>
                   </svg>
                 </div>
-                {config["outline_dropdown"] ? (
+                {config['outline_dropdown'] ? (
                   <Select
                     styles={customStyles}
                     isSearchable={false}
@@ -233,8 +241,8 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = "header" }) {
                                   ? `selectedLang ${dropdownItemClass} ${borderBottomClass}`
                                   : `selectedLang ${dropdownItemClass}`
                                 : langOptions.length - 1 !== idx
-                                ? `${dropdownItemClass} ${borderBottomClass}`
-                                : `${dropdownItemClass}`
+                                  ? `${dropdownItemClass} ${borderBottomClass}`
+                                  : `${dropdownItemClass}`
                             }
                             onSelect={() => changeLanguageHandler(key)}
                           >

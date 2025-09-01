@@ -1,0 +1,50 @@
+{
+  "clientId": "{{clientId}}",
+  "requestTime": "{{requestTime}}",
+  "request": {
+    "clientName": "{{clientName}}",
+    "status": "{{status}}",
+    "logoUri": "{{logoUri}}",
+    "redirectUris": [
+      "{{redirectUris}}"
+    ],
+    "userClaims": [
+			"{{userClaims1}}",
+            "{{userClaims2}}",
+            "{{userClaims3}}",
+            "{{userClaims4}}",
+            "{{userClaims5}}"
+    ],
+    "authContextRefs": [
+	      {{#each authContextRefs}}
+	            "{{acrValues}}"
+	          {{#unless @last}},{{/unless}}
+	      	{{/each}}
+    ],
+    "grantTypes": [
+      "{{grantTypes}}"
+    ],
+    "clientAuthMethods": [
+      "{{clientAuthMethods}}"
+    ],
+    	"clientNameLangMap": {
+		      "{{keyLang1}}": "{{clientNameLang}}"
+    	},
+    "additionalConfig": {
+      "userinfo_response_type": "{{userinfo_response_type}}",
+      "purpose": {
+        "title": {
+          "@none": "{{purpose_title}}"
+        },
+        "type": "{{purpose_type}}",
+        "subTitle": {
+          "@none": "{{purpose_subTitle}}",
+          "{{keyLang1}}": "{{subTitleNameLang}}"
+        }
+      },
+      "signup_banner_required": {{signup_banner_required}},
+      "forgot_pwd_link_required": {{forgot_pwd_link_required}},
+      "consent_expire_in_mins": {{consent_expire_in_mins}}
+    }
+  }
+}

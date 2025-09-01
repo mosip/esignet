@@ -1,8 +1,8 @@
 const LoadingStates = {
-  LOADING: "LOADING",
-  LOADED: "LOADED",
-  ERROR: "ERROR",
-  AUTHENTICATING: "AUTHENTICATING",
+  LOADING: 'LOADING',
+  LOADED: 'LOADED',
+  ERROR: 'ERROR',
+  AUTHENTICATING: 'AUTHENTICATING',
 };
 
 export { LoadingStates };

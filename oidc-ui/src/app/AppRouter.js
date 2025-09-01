@@ -1,5 +1,5 @@
-import { Suspense, useEffect, useState } from "react";
-import { Route, Routes, useNavigate, useLocation } from "react-router-dom";
+import { Suspense, useEffect, useState } from 'react';
+import { Route, Routes, useNavigate, useLocation } from 'react-router-dom';
 import {
   LoginPage,
   AuthorizePage,
@@ -7,9 +7,9 @@ import {
   EsignetDetailsPage,
   SomethingWrongPage,
   PageNotFoundPage,
-} from "../pages";
-import { setupResponseInterceptor } from "../services/api.service";
-import { useTranslation } from "react-i18next";
+} from '../pages';
+import { setupResponseInterceptor } from '../services/api.service';
+import { useTranslation } from 'react-i18next';
 import {
   AUTHORIZE,
   CONSENT,
@@ -19,14 +19,13 @@ import {
   ESIGNET_DETAIL,
   CLAIM_DETAIL,
   NETWORK_ERROR,
-} from "../constants/routes";
-import configService from "../services/configService";
-import ClaimDetails from "../components/ClaimDetails";
-import NetworkError from "../pages/NetworkError";
-import { Detector } from "react-detect-offline";
-import { getPollingConfig } from "../helpers/utils";
-
-const config = await configService();
+} from '../constants/routes';
+import configService from '../services/configService';
+import ClaimDetails from '../components/ClaimDetails';
+import NetworkError from '../pages/NetworkError';
+import { Detector } from 'react-detect-offline';
+import { getPollingConfig } from '../helpers/utils';
+import LoadingIndicator from '../common/LoadingIndicator';
 
 const WithSuspense = ({ children }) => (
   <Suspense fallback={<div className="h-screen w-screen bg-neutral-100"></div>}>
@@ -39,7 +38,24 @@ export const AppRouter = () => {
   const location = useLocation();
   const { t } = useTranslation();
   const [currentUrl, setCurrentUrl] = useState(window.location.href);
+  const [config, setConfig] = useState(null); // State to store config
+  const [isLoadingConfig, setIsLoadingConfig] = useState(true);
   const pollingConfig = getPollingConfig();
+
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        const appConfig = await configService();
+        setConfig(appConfig);
+      } catch (error) {
+        console.error('Failed to fetch config:', error);
+        // Consider navigating to an error page or showing an error message
+      } finally {
+        setIsLoadingConfig(false); // Always set to false after fetch attempt
+      }
+    };
+    fetchConfig();
+  }, []); // Run once on component mount
 
   useEffect(() => {
     if (location.pathname !== NETWORK_ERROR) {
@@ -52,24 +68,35 @@ export const AppRouter = () => {
   }, [navigate]);
 
   if (window.location.pathname === CLAIM_DETAIL) {
-    document.body.style.overflow = "hidden";
+    document.body.style.overflow = 'hidden';
   } else {
-    document.body.style.overflow = "unset";
+    document.body.style.overflow = 'unset';
   }
 
   const checkRoute = (currentRoute) =>
     [LOGIN, AUTHORIZE, CONSENT, NETWORK_ERROR].includes(currentRoute);
 
-  // checking the pathname if login, consent, authorize
-  // is present then only show the background
-  // check if background logo is required or not,
-  // create a div according to the config variable
+  // Show a loading state until config is fetched
+  if (isLoadingConfig) {
+    return (
+      <div className="h-screen flex justify-center content-center">
+        <LoadingIndicator
+          size="medium"
+          message={'loading_msg'}
+          className="align-loading-center"
+        />
+      </div>
+    );
+  }
+
+  // Now that config is guaranteed to be loaded (or null if fetching failed but isLoadingConfig is false),
+  // we can safely access its properties, adding null checks where appropriate.
   const backgroundLogoDiv = checkRoute(location.pathname) ? (
-    config["background_logo"] ? (
+    config && config['background_logo'] ? (
       <div className="flex justify-center m-10 lg:mt-20 mb:mt-0 lg:w-1/2 md:w-1/2 md:block sm:w-1/2 sm:block hidden w-5/6 mt-20 mb-10 md:mb-0">
         <img
           className="background-logo object-contain rtl:scale-x-[-1]"
-          alt={t("header.backgroud_image_alt")}
+          alt={t('header.backgroud_image_alt')}
         />
       </div>
     ) : (
@@ -106,7 +133,7 @@ export const AppRouter = () => {
     { route: SOMETHING_WENT_WRONG, component: <SomethingWrongPage /> },
     { route: NETWORK_ERROR, component: <NetworkError /> },
     { route: PAGE_NOT_FOUND, component: <PageNotFoundPage /> },
-    { route: "*", component: <PageNotFoundPage /> },
+    { route: '*', component: <PageNotFoundPage /> },
   ];
 
   return (
@@ -141,7 +168,6 @@ export const AppRouter = () => {
                   element={route.component}
                 />
               ))}
-              {/* <Route component={PageNotFoundPage} /> */}
             </Routes>
           </div>
         </section>
