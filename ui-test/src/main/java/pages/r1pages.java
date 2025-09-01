@@ -76,10 +76,10 @@ public class r1pages extends BasePage {
 
 	@FindBy(xpath = "//div[@class='pincode-input-container']/input")
 	List<WebElement> otpInputFieldsVisible;
-	
+
 	@FindBy(xpath = "//div[@class='pincode-input-container']")
 	WebElement otpInputFields;
-	
+
 	@FindBy(id = "verify-otp-button")
 	WebElement verifyOtpButtonDisplay;
 
@@ -88,15 +88,66 @@ public class r1pages extends BasePage {
 
 	@FindBy(id = "resend-otp-button")
 	WebElement resendOtpButtonDisplay;
-	
+
 	@FindBy(xpath = "//p[@class='truncate text-xs text-destructive']")
 	WebElement otpExpiredErrorDisplay;
-	
+
 	@FindBy(id = "cross_icon")
 	WebElement errorCloseIconDisplay;
-	
+
 	@FindBy(xpath = "//p[@class='w-max rounded-md bg-[#FFF7E5] p-2 px-8 text-center text-sm font-semibold text-[#8B6105]']")
 	WebElement attemptLeftOptionDisplay;
+
+	@FindBy(xpath = "//h1[@class='text-center text-2xl font-semibold']")
+	WebElement successfulScreenDisplay;
+
+	@FindBy(xpath = "//p[@class='text-center text-gray-500']")
+	WebElement massageOnSuccessScreen;
+
+	@FindBy(xpath = "//div[@class='text-center text-gray-500']")
+	WebElement accountHeaderMassageDisplay;
+
+	@FindBy(id = "mobile-number-verified-continue-button")
+	WebElement continueButtonOnSuccessScreenPage;
+
+	@FindBy(id = "mobile-number-verified-continue-button")
+	WebElement onRegistrationPage;
+
+	@FindBy(xpath = "//h3[@class='text-3xl font-medium leading-none tracking-tight']")
+	WebElement setUpAccountHeaderDisplay;
+
+	@FindBy(id = "username")
+	WebElement userNameVisible;
+
+	@FindBy(id = "fullNameInKhmer")
+	WebElement fullNameInKhmerVisible;
+
+	@FindBy(id = "password")
+	WebElement passwordFieldVisible;
+
+	@FindBy(id = "confirmPassword")
+	WebElement confirmPasswordField;
+
+	@FindBy(id = "consent-button")
+	WebElement termsAndConditionCheckBoxVisible;
+
+	@FindBy(id = "account-setup-submit-button")
+	WebElement continueButtonInSetUpAccountPage;
+
+	@FindBy(xpath = "//p[@class='text-center text-gray-500']")
+	WebElement congratulationScreenDisplay;
+
+	@FindBy(id = "success-continue-button")
+	WebElement loginButtonInSuccessPage;
+
+	@FindBy(xpath = "//h1[@class='text-center text-2xl font-semibold']")
+	WebElement signUpFailure;
+
+	@FindBy(xpath = "//p[@class='text-center text-gray-500']")
+	WebElement massageOnSignUpFailedPage;
+
+	@FindBy(id = "signup-failed-okay-button")
+	WebElement okButtonDisplay;
 
 	public boolean isRedirectedToMobileNumberRegistrationPage() {
 		return redirectToRegistration.isDisplayed();
@@ -110,7 +161,7 @@ public class r1pages extends BasePage {
 		return enterMobileNumberTextField.isDisplayed();
 	}
 
-	public boolean isContinueButtonDisplayed() {
+	public boolean isContinueButtonDisplayedInRegistationPage() {
 		return continueButtonDisplayed.isDisplayed();
 	}
 
@@ -144,7 +195,7 @@ public class r1pages extends BasePage {
 	}
 
 	public void userTabsOut() {
-	    enterMobileNumberTextField.sendKeys(Keys.TAB);
+		enterMobileNumberTextField.sendKeys(Keys.TAB);
 	}
 
 	public void enterLessThanEightDigitMobileNumber(String number) {
@@ -171,57 +222,65 @@ public class r1pages extends BasePage {
 	public boolean isContinueButtonEnabled() {
 		return isButtonEnabled(continueButtonDisplayed);
 	}
-	
+
 	public void clickOnBackButton() {
-	    backButtonDisplayed.click();
+		backButtonDisplayed.click();
 	}
-	
+
 	public boolean isPreviousScreenVisible() {
-	    return isElementVisible(loginPageHeaders);
+		return isElementVisible(loginPageHeaders);
 	}
-	
+
 	public void clickContinueButton() {
-	    continueButtonDisplayed.click();
+		continueButtonDisplayed.click();
 	}
-	
+
 	public boolean isOtpPageVisible() {
-	    return otpPageDisplayed.isDisplayed();
+		return otpPageDisplayed.isDisplayed();
 	}
-	
+
 	public boolean isEnterOtpPageDisplayed() {
 		return isElementVisible(otpPageDescriptionDisplay);
 	}
-	
+
 	public boolean isOtpInputFieldVisible() {
-	    return otpInputFields.isDisplayed();
+		return otpInputFields.isDisplayed();
 	}
-	
+
 	public boolean isVerifyOtpButtonVisible() {
-	    return verifyOtpButtonDisplay.isDisplayed();
+		return verifyOtpButtonDisplay.isDisplayed();
 	}
-	
+
+	public boolean checkSuccessfulMessageVisible() {
+		return successfulScreenDisplay.isDisplayed();
+	}
+
 	public boolean isOtpCountDownTimerVisible() {
-	    return otpCountDownTimerDisplayed.isDisplayed();
+		return otpCountDownTimerDisplayed.isDisplayed();
 	}
-	
+
+	public boolean isVerifyOtpButtonEnabled() {
+		return verifyOtpButtonDisplay.isEnabled();
+	}
+
 	public boolean isResendOtpButtonVisible() {
-	    return resendOtpButtonDisplay.isDisplayed();
+		return resendOtpButtonDisplay.isDisplayed();
 	}
-	
+
 	public boolean isBackToEditMobileNumberOptionVisible() {
-	    return isElementVisible(backButtonInReg);
+		return isElementVisible(backButtonInReg);
 	}
-	
+
 	public void clickBackButtonOnOtpScreen() {
-	    backButtonInReg.click();
+		backButtonInReg.click();
 	}
-	
+
 	public void waitUntilOtpExpires() {
-	    int otpExpiry = Integer.parseInt(EsignetConfigManager.getProperty("otp.expiry.seconds", ""));
-	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(otpExpiry));
-	    wait.until(ExpectedConditions.textToBePresentInElement(otpCountDownTimerDisplayed, "00:00"));
+		int otpExpiry = Integer.parseInt(EsignetConfigManager.getProperty("otp.expiry.seconds", ""));
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(otpExpiry));
+		wait.until(ExpectedConditions.textToBePresentInElement(otpCountDownTimerDisplayed, "00:00"));
 	}
-	
+
 	public void enterOtp(String otp) {
 		for (WebElement field : otpInputFieldsVisible) {
 			field.click();
@@ -234,49 +293,158 @@ public class r1pages extends BasePage {
 			field.sendKeys(String.valueOf(otp.charAt(i)));
 		}
 	}
-	
+
 	public void clickOnVerifyOtpButton() {
-        verifyOtpButtonDisplay.click();
-    }
-	
+		verifyOtpButtonDisplay.click();
+	}
+
 	public boolean isOtpExpiredMessageDisplayed() {
 		return isElementVisible(otpExpiredErrorDisplay);
 	}
-	
+
 	public void clickOnErrorCloseIcon() {
 		clickOnElement(errorCloseIconDisplay);
 	}
-	
+
 	public void verifyErrorMessageIsNotDisplayed() {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
-        wait.until(ExpectedConditions.invisibilityOf(otpExpiredErrorDisplay));
-    }
-	
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(2));
+		wait.until(ExpectedConditions.invisibilityOf(otpExpiredErrorDisplay));
+	}
+
 	public void clickOnResendOtpButton() {
 		clickOnElement(resendOtpButtonDisplay);
 	}
-	
+
 	public void checkAttemptLeftInOtpScreen() {
-	    attemptLeftOptionDisplay.isDisplayed();
+		attemptLeftOptionDisplay.isDisplayed();
 	}
-	
+
 	public void userIsOnOtpScreen() {
-        otpPageDisplayed.isDisplayed();
-    }
-	
-	
-	
-	
-	
-	
+		otpPageDisplayed.isDisplayed();
+	}
 
-	
-	
-	
-	
-	
-	
+	public boolean isOtpFieldEmptyOrUnchanged() {
+		String value = getElementValue(otpInputFields);
+		return value == null || value.isEmpty();
+	}
 
+	public boolean isOtpFieldEmptyfterAlphabetEntry() {
+		String value = getElementValue(otpInputFields);
+		return value == null || value.isEmpty();
+	}
 
+	public boolean isOtpFieldsNumericOnly() {
+		for (WebElement field : otpInputFieldsVisible) {
+			String value = getElementValue(field);
+			if (value != null && !value.matches("\\d*")) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public boolean isContinueButtonOnSuccessScreenDisplayed() {
+		return continueButtonOnSuccessScreenPage.isDisplayed();
+	}
+
+	public boolean isMobileNumberVerifiedMessageDisplayed() {
+		return massageOnSuccessScreen.isDisplayed();
+	}
+
+	public boolean isContinueButtonDispOnSuccessPage() {
+		return continueButtonDisplayed.isDisplayed();
+	}
+
+	public void clickContinueButtonOnSuccessScreen() {
+		continueButtonOnSuccessScreenPage.click();
+	}
+
+	public boolean isSetUpAccountHeaderDisplayed() {
+		return setUpAccountHeaderDisplay.isDisplayed();
+	}
+
+	public boolean isAccountHeaderMassageDisplay() {
+		return accountHeaderMassageDisplay.isDisplayed();
+	}
+
+	public boolean isUserNameVisible() {
+		return userNameVisible.isDisplayed();
+	}
+
+	public boolean isFullNameInKhmerVisible() {
+		return fullNameInKhmerVisible.isDisplayed();
+	}
+
+	public boolean isPasswordFieldVisible() {
+		return passwordFieldVisible.isDisplayed();
+	}
+
+	public boolean isConfirmPasswordVisible() {
+		return passwordFieldVisible.isDisplayed();
+	}
+
+	public boolean isTermsAndConditionCheckBoxVisible() {
+		return termsAndConditionCheckBoxVisible.isDisplayed();
+	}
+
+	public boolean isContinueButtonInSetUpAccountPageVisible() {
+		return continueButtonInSetUpAccountPage.isDisplayed();
+	}
+
+	public void enterFullNameInKhmer(String fullNameInKhmer) {
+		fullNameInKhmerVisible.clear();
+		enterTextJS(fullNameInKhmerVisible, fullNameInKhmer);
+	}
+
+	public void enterPassword(String validPassword) {
+		passwordFieldVisible.clear();
+		passwordFieldVisible.sendKeys(validPassword);
+	}
+
+	public void enterPasswordDisplay(String confirmPassword) {
+		confirmPasswordField.clear();
+		confirmPasswordField.sendKeys(confirmPassword);
+	}
+
+	public void clickOnTermsAndConditionCheckBox() {
+		termsAndConditionCheckBoxVisible.click();
+	}
+
+	public boolean continueButtonRemainsEnabled() {
+		return continueButtonInSetUpAccountPage.isEnabled();
+	}
+
+	public void clickOnContinueButtonInSetupAccountPage() {
+		continueButtonInSetUpAccountPage.click();
+	}
+
+	public boolean isCongratulationScreenDisplayed() {
+		return congratulationScreenDisplay.isDisplayed();
+	}
+
+	public void clickOnLoginButtonInSuccessPage() {
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+		try {
+
+			WebElement loginButton = wait.until(ExpectedConditions.elementToBeClickable(loginButtonInSuccessPage));
+			loginButton.click();
+		} catch (Exception e) {
+
+			JavascriptExecutor js = (JavascriptExecutor) driver;
+			js.executeScript("arguments[0].click();", loginButtonInSuccessPage);
+		}
+	}
+
+	public boolean isSignUpFailedHeaderDisplayed() {
+		return signUpFailure.isDisplayed() && signUpFailure.getText().equals("Sign-Up Failed!");
+	}
+
+	public boolean isSignUpFailedMessageDisplayed() {
+		return massageOnSignUpFailedPage.isDisplayed();
+	}
+
+	public boolean isOkButtonDisplayed() {
+		return okButtonDisplay.isDisplayed();
+	}
 
 }
