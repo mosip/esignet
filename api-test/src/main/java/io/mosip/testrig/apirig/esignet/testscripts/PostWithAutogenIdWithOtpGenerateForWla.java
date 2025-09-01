@@ -27,7 +27,6 @@ import io.mosip.testrig.apirig.esignet.utils.EsignetUtil;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.HealthChecker;
 import io.mosip.testrig.apirig.utils.AdminTestException;
-//import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;
@@ -205,18 +204,4 @@ public class PostWithAutogenIdWithOtpGenerateForWla extends EsignetUtil implemen
 		}
 	}
 
-	@AfterClass(alwaysRun = true)
-	public void waittime() {
-		try {
-			if (!testCaseName.contains(GlobalConstants.ESIGNET_)) {
-				logger.info("waiting for" + properties.getProperty("Delaytime")
-						+ " mili secs after VID Generation In RESIDENT SERVICES");
-				Thread.sleep(Long.parseLong(properties.getProperty("Delaytime")));
-			}
-		} catch (Exception e) {
-			logger.error("Exception : " + e.getMessage());
-			Thread.currentThread().interrupt();
-		}
-
-	}
 }

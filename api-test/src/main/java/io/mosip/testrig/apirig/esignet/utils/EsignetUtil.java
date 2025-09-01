@@ -52,7 +52,6 @@ import io.mosip.testrig.apirig.utils.JWKKeyUtil;
 import io.mosip.testrig.apirig.utils.KeycloakUserManager;
 import io.mosip.testrig.apirig.utils.RestClient;
 import io.mosip.testrig.apirig.utils.SkipTestCaseHandler;
-//import io.restassured.RestAssured;
 import io.restassured.response.Response;
 
 public class EsignetUtil extends AdminTestUtil {
@@ -76,15 +75,15 @@ public class EsignetUtil extends AdminTestUtil {
 	public static void dBCleanup() {
 		DBManager.executeDBQueries(EsignetConfigManager.getKMDbUrl(), EsignetConfigManager.getKMDbUser(),
 				EsignetConfigManager.getKMDbPass(), EsignetConfigManager.getKMDbSchema(),
-				getGlobalResourcePath() + "/" + "config/keyManagerDataDeleteQueriesForEsignet.txt");
+				getGlobalResourcePath() + "/" + "config/keyManagerCertDataDeleteQueries.txt");
 
 		DBManager.executeDBQueries(EsignetConfigManager.getIdaDbUrl(), EsignetConfigManager.getIdaDbUser(),
 				EsignetConfigManager.getPMSDbPass(), EsignetConfigManager.getIdaDbSchema(),
-				getGlobalResourcePath() + "/" + "config/idaDeleteQueriesForEsignet.txt");
+				getGlobalResourcePath() + "/" + "config/idaCertDataDeleteQueries.txt");
 
 		DBManager.executeDBQueries(EsignetConfigManager.getMASTERDbUrl(), EsignetConfigManager.getMasterDbUser(),
 				EsignetConfigManager.getMasterDbPass(), EsignetConfigManager.getMasterDbSchema(),
-				getGlobalResourcePath() + "/" + "config/masterDataDeleteQueriesForEsignet.txt");
+				getGlobalResourcePath() + "/" + "config/masterDataCertDataDeleteQueries.txt");
 
 		DBManager.executeDBQueries(EsignetConfigManager.getPMSDbUrl(), EsignetConfigManager.getPMSDbUser(),
 				EsignetConfigManager.getPMSDbPass(), EsignetConfigManager.getPMSDbSchema(),
@@ -224,10 +223,6 @@ public class EsignetUtil extends AdminTestUtil {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 			}
 			
-//			if ((testCaseName.contains("_CreateOIDCClientV3_") || testCaseName.contains("_UpdateOIDCClientV3_"))) {
-//				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
-//			}
-			
 			if ((testCaseName.contains("_CreateOIDCClientV3_MOCK_")
 					|| testCaseName.contains("_UpdateOIDCClientV3_MOCK_")
 					|| testCaseName.contains("_OAuthDetailsRequest_V3_MOCK_")
@@ -238,7 +233,6 @@ public class EsignetUtil extends AdminTestUtil {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 			}
 			 
-
 			JSONArray individualBiometricsArray = new JSONArray(
 					getValueFromAuthActuator("json-property", "individualBiometrics"));
 			String individualBiometrics = individualBiometricsArray.getString(0);
@@ -251,9 +245,6 @@ public class EsignetUtil extends AdminTestUtil {
 
 		} else if (getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("sunbirdrcauthenticationservice")) {
 			// Let run test cases eSignet & Sunbird (for identity)   -- only KBI 
-			
-//			String endpoint = testCaseDTO.getEndPoint();
-			
 			if (testCaseName.contains("SunBird") == false) {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 			}

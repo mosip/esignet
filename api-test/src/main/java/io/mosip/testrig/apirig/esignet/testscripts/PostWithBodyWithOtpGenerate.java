@@ -26,7 +26,6 @@ import io.mosip.testrig.apirig.esignet.utils.EsignetUtil;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.HealthChecker;
 import io.mosip.testrig.apirig.utils.AdminTestException;
-//import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;
@@ -151,16 +150,6 @@ public class PostWithBodyWithOtpGenerate extends EsignetUtil implements ITest {
 				throw new AdminTestException("Failed at otp output validation");
 		}
 
-		if (testCaseName.contains("_eotp")) {
-			try {
-				logger.info("waiting for " + properties.getProperty("expireOtpTime")
-						+ " mili secs to test expire otp case in RESIDENT Service");
-				Thread.sleep(Long.parseLong(properties.getProperty("expireOtpTime")));
-			} catch (NumberFormatException | InterruptedException e) {
-				logger.error(e.getMessage());
-				Thread.currentThread().interrupt();
-			}
-		}
 		String reqJson = getJsonFromTemplate(req.toString(), testCaseDTO.getInputTemplate());
 		reqJson = EsignetUtil.inputstringKeyWordHandeler(reqJson, testCaseName);
 
