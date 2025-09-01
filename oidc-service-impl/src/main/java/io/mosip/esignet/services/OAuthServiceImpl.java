@@ -101,14 +101,14 @@ public class OAuthServiceImpl implements OAuthService {
 
         validateRequestParametersWithTransaction(tokenRequest, transaction);
 
+        IdentityProviderUtil.validateRedirectURI(Collections.singletonList(transaction.getRedirectUri()), tokenRequest.getRedirect_uri());
+
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(transaction.getClientId());
 
         if(transaction.isDpopBoundAccessToken()) {
             if(dpopHeader == null) throw new EsignetException(INVALID_REQUEST);
             transaction.setDpopJkt(validateDpopJktAgainstDpopHeaderAndGetPublicKeyThumbprint(dpopHeader, transaction.getDpopJkt()));
         }
-
-        IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), tokenRequest.getRedirect_uri());
 
         authenticateClient(tokenRequest, clientDetailDto,isV2);
 
