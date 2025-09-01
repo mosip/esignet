@@ -1626,10 +1626,8 @@ public class AuthorizationServiceTest {
         ClaimDetailResponse response = authorizationServiceImpl.getClaimDetails("transactionId");
         Assert.assertTrue(response.isProfileUpdateRequired());
         for(ClaimStatus claimStatus : response.getClaimStatus()) {
-            if (claimStatus.getClaim().equals("name")) {
-                Assert.assertFalse(claimStatus.isAvailable());
-                Assert.assertFalse(claimStatus.isVerified());
-            }
+            Assert.assertFalse(claimStatus.isAvailable());
+            Assert.assertFalse(claimStatus.isVerified());
         }
     }
 
@@ -1650,10 +1648,8 @@ public class AuthorizationServiceTest {
         ClaimDetailResponse response = authorizationServiceImpl.getClaimDetails("transactionId");
         Assert.assertTrue(response.isProfileUpdateRequired());
         for(ClaimStatus claimStatus : response.getClaimStatus()) {
-            if (claimStatus.getClaim().equals("email")) {
-                Assert.assertFalse(claimStatus.isAvailable());
-                Assert.assertFalse(claimStatus.isVerified());
-            }
+            Assert.assertFalse(claimStatus.isAvailable());
+            Assert.assertFalse(claimStatus.isVerified());
         }
     }
 
@@ -1676,10 +1672,8 @@ public class AuthorizationServiceTest {
         ClaimDetailResponse response = authorizationServiceImpl.getClaimDetails("transactionId");
         Assert.assertTrue(response.isProfileUpdateRequired());
         for(ClaimStatus claimStatus : response.getClaimStatus()) {
-            if (claimStatus.getClaim().equals("phone_number")) {
-                Assert.assertTrue(claimStatus.isAvailable());
-                Assert.assertFalse(claimStatus.isVerified());
-            }
+            Assert.assertTrue(claimStatus.isAvailable());
+            Assert.assertFalse(claimStatus.isVerified());
         }
     }
 
@@ -1702,10 +1696,8 @@ public class AuthorizationServiceTest {
         ClaimDetailResponse response = authorizationServiceImpl.getClaimDetails("transactionId");
         Assert.assertTrue(response.isProfileUpdateRequired());
         for(ClaimStatus claimStatus : response.getClaimStatus()) {
-            if (claimStatus.getClaim().equals("phone_number")) {
-                Assert.assertTrue(claimStatus.isAvailable());
-                Assert.assertFalse(claimStatus.isVerified());
-            }
+            Assert.assertTrue(claimStatus.isAvailable());
+            Assert.assertFalse(claimStatus.isVerified());
         }
     }
 
@@ -1727,7 +1719,7 @@ public class AuthorizationServiceTest {
         transaction.setResolvedClaims(resolvedClaims);
         Map<String, List<JsonNode>> claimMetadata = new HashMap<>();
         claimMetadata.put("address", Collections.singletonList(
-                objectMapper.readTree("{\"trust_framework\": {\"value\": \"XYZ TF\"}}")
+                objectMapper.readTree("{\"trust_framework\": \"XYZ TF\"}")
         ));
         transaction.setClaimMetadata(claimMetadata);
         transaction.setConsentAction(ConsentAction.NOCAPTURE);
@@ -1755,8 +1747,11 @@ public class AuthorizationServiceTest {
         Map<String, Object> trustFramework = new HashMap<>();
         trustFramework.put("value", "ABC TF");
 
+        Map<String, Object>  verificationProcess= new HashMap<>();
+        trustFramework.put("value", "processA");
+
         Map<String, Object> verificationRequested = new HashMap<>();
-        verificationRequested.put("verification_process", "processA");
+        verificationRequested.put("verification_process", verificationProcess);
         verificationRequested.put("trust_framework", trustFramework);
         map.put("verification", verificationRequested);
         resolvedClaims.getUserinfo().put("phone_number", Arrays.asList(map));
@@ -1764,7 +1759,7 @@ public class AuthorizationServiceTest {
         transaction.setResolvedClaims(resolvedClaims);
         Map<String, List<JsonNode>> claimMetadata = new HashMap<>();
         claimMetadata.put("phone_number", Collections.singletonList(
-                objectMapper.readTree("{\"verification_process\": \"processB\", \"trust_framework\": {\"value\": \"ABC TF\"}}")
+                objectMapper.readTree("{\"trust_framework\": \"ABC TF\", \"verification_process\": \"processB\"}")
         ));
         transaction.setClaimMetadata(claimMetadata);
         transaction.setConsentAction(ConsentAction.NOCAPTURE);
@@ -1793,8 +1788,11 @@ public class AuthorizationServiceTest {
         Map<String, Object> trustFramework = new HashMap<>();
         trustFramework.put("value", "ABC TF");
 
+        Map<String, Object>  assuranceLevel= new HashMap<>();
+        trustFramework.put("value", "high");
+
         Map<String, Object> verificationRequested = new HashMap<>();
-        verificationRequested.put("assurance_level", "high");
+        verificationRequested.put("assurance_level", assuranceLevel);
         verificationRequested.put("trust_framework", trustFramework);
         map.put("verification", verificationRequested);
         resolvedClaims.getUserinfo().put("address", Arrays.asList(map));
@@ -1802,7 +1800,7 @@ public class AuthorizationServiceTest {
         transaction.setResolvedClaims(resolvedClaims);
         Map<String, List<JsonNode>> claimMetadata = new HashMap<>();
         claimMetadata.put("address", Collections.singletonList(
-                objectMapper.readTree("{\"assurance_level\": \"medium\", \"trust_framework\": {\"value\": \"ABC TF\"}}")
+                objectMapper.readTree("{ \"trust_framework\": \"ABC TF\",\"assurance_level\": \"medium\"}")
         ));
         transaction.setClaimMetadata(claimMetadata);
         transaction.setConsentAction(ConsentAction.NOCAPTURE);
@@ -1828,10 +1826,8 @@ public class AuthorizationServiceTest {
         Map<String, Object> map = new HashMap<>();
         map.put("essential", true);
 
-        Map<String, Object> maxAge = new HashMap<>();
-        maxAge.put("value", 3600);
         Map<String, Object> time = new HashMap<>();
-        time.put("max_age", maxAge);
+        time.put("max_age",3600 );
 
         Map<String, Object> trustFramework = new HashMap<>();
         trustFramework.put("value", "ABC TF");
@@ -1845,7 +1841,7 @@ public class AuthorizationServiceTest {
         transaction.setResolvedClaims(resolvedClaims);
         Map<String, List<JsonNode>> claimMetadata = new HashMap<>();
         claimMetadata.put("email", Collections.singletonList(
-                objectMapper.readTree("{\"time\": {\"max_age\": {\"value\": 7200}}, \"trust_framework\": {\"value\": \"ABC TF\"}}")
+                objectMapper.readTree("{\"trust_framework\": \"ABC TF\",\"time\": {\"max_age\": 7200}}")
         ));
         transaction.setClaimMetadata(claimMetadata);
         transaction.setConsentAction(ConsentAction.NOCAPTURE);
