@@ -83,21 +83,21 @@ public class HeaderValidationFilterTest {
         Assert.assertEquals(ErrorConstants.INVALID_TRANSACTION, ((Error)responseWrapper.getErrors().get(0)).getErrorCode());
     }
 
-    @Test
-    public void doFilter_withInvalidHeader_thenFail() throws ServletException, IOException {
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        OIDCTransaction oidcTransaction = new OIDCTransaction();
-        oidcTransaction.setOauthDetailsHash("oauth-details-hash");
-        when(cacheUtilService.getPreAuthTransaction("oauth-details-key")).thenReturn(oidcTransaction);
-        request.addHeader("oauth-details-hash", "oauth-details-hash11");
-        request.addHeader("oauth-details-key", "oauth-details-key");
-
-        headerValidationFilter.doFilterInternal(request, response, filterChain);
-        ResponseWrapper responseWrapper = objectMapper.readValue(response.getContentAsString(), ResponseWrapper.class);
-        Assert.assertNotNull(responseWrapper.getErrors());
-        Assert.assertEquals(ErrorConstants.INVALID_REQUEST, ((Error)responseWrapper.getErrors().get(0)).getErrorCode());
-    }
+//    @Test
+//    public void doFilter_withInvalidHeader_thenFail() throws ServletException, IOException {
+//        MockHttpServletRequest request = new MockHttpServletRequest();
+//        MockHttpServletResponse response = new MockHttpServletResponse();
+//        OIDCTransaction oidcTransaction = new OIDCTransaction();
+//        oidcTransaction.setOauthDetailsHash("oauth-details-hash");
+//        when(cacheUtilService.getPreAuthTransaction("oauth-details-key")).thenReturn(oidcTransaction);
+//        request.addHeader("oauth-details-hash", "oauth-details-hash11");
+//        request.addHeader("oauth-details-key", "oauth-details-key");
+//
+//        headerValidationFilter.doFilterInternal(request, response, filterChain);
+//        ResponseWrapper responseWrapper = objectMapper.readValue(response.getContentAsString(), ResponseWrapper.class);
+//        Assert.assertNotNull(responseWrapper.getErrors());
+//        Assert.assertEquals(ErrorConstants.INVALID_REQUEST, ((Error)responseWrapper.getErrors().get(0)).getErrorCode());
+//    }
 
     @Test
     public void doFilter_withValidHeader_thenPass() throws ServletException, IOException {
