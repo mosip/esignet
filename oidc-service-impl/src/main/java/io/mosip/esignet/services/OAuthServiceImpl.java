@@ -26,6 +26,7 @@ import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
+import io.mosip.esignet.core.exception.DPoPNonceMissingException;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.spi.*;
@@ -97,8 +98,8 @@ public class OAuthServiceImpl implements OAuthService {
     @Value("${mosip.esignet.par.expire-seconds:60}")
     private int parTTLInSeconds;
 
-    @Value("${mosip.esignet.dpop.nonce.validity.period.ms:300000}")
-    private long nonceValidityPeriodMs;
+    @Value("${mosip.esignet.dpop.nonce.expire.seconds:300}")
+    private long nonceExpirySeconds;
 
     @Override
     public TokenResponse getTokens(TokenRequestV2 tokenRequest, String dpopHeader, boolean isV2) throws EsignetException {
@@ -425,23 +426,16 @@ public class OAuthServiceImpl implements OAuthService {
 
         if (!nonceMatches || nonceExpired) {
             String newNonce = generateAndStoreNewNonce(transaction, currentTime);
-            throw createUseDpopNonceEsignetException(newNonce);
+            throw new DPoPNonceMissingException(newNonce);
         }
     }
 
     private String generateAndStoreNewNonce(OIDCTransaction transaction, long currentTime) {
         String newNonce = IdentityProviderUtil.createTransactionId(null);
         transaction.setDpopServerNonce(newNonce);
-        transaction.setDpopServerNonceTTL(currentTime + nonceValidityPeriodMs);
+        transaction.setDpopServerNonceTTL(currentTime + nonceExpirySeconds * 1000L);
         cacheUtilService.updateAuthCodeGeneratedTransaction(transaction);
         return newNonce;
-    }
-
-    private EsignetException createUseDpopNonceEsignetException(String newNonce) {
-        EsignetException ex = new EsignetException(ErrorConstants.USE_DPOP_NONCE,
-                "Authorization server requires nonce in DPoP proof");
-        ex.setDpopNonceHeaderValue(newNonce);
-        return ex;
     }
 
 }

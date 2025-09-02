@@ -25,6 +25,7 @@ import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
+import io.mosip.esignet.core.exception.DPoPNonceMissingException;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.spi.ClientManagementService;
@@ -944,7 +945,7 @@ public class OAuthServiceTest {
         try {
             oAuthService.getTokens(tokenRequest, dpopJwt.serialize(), false);
             Assert.fail();
-        } catch (EsignetException ex) {
+        } catch (DPoPNonceMissingException ex) {
             Assert.assertEquals(USE_DPOP_NONCE, ex.getErrorCode());
         }
     }
@@ -993,7 +994,7 @@ public class OAuthServiceTest {
         try {
             oAuthService.getTokens(tokenRequest, dpopJwt.serialize(), false);
             Assert.fail();
-        } catch (EsignetException ex) {
+        } catch (DPoPNonceMissingException ex) {
             Assert.assertEquals(ErrorConstants.USE_DPOP_NONCE, ex.getErrorCode());
             Assert.assertNotNull(ex.getDpopNonceHeaderValue());
             Assert.assertNotEquals(expiredNonce, ex.getDpopNonceHeaderValue());
@@ -1045,7 +1046,7 @@ public class OAuthServiceTest {
         try {
             oAuthService.getTokens(tokenRequest, dpopJwt.serialize(), false);
             Assert.fail();
-        } catch (EsignetException ex) {
+        } catch (DPoPNonceMissingException ex) {
             Assert.assertEquals(USE_DPOP_NONCE, ex.getErrorCode());
         }
     }

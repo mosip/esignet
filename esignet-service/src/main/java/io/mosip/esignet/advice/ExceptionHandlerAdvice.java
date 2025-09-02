@@ -8,10 +8,7 @@ package io.mosip.esignet.advice;
 import io.mosip.esignet.core.dto.Error;
 import io.mosip.esignet.core.dto.OAuthError;
 import io.mosip.esignet.core.dto.ResponseWrapper;
-import io.mosip.esignet.core.exception.EsignetException;
-import io.mosip.esignet.core.exception.InvalidClientException;
-import io.mosip.esignet.core.exception.InvalidRequestException;
-import io.mosip.esignet.core.exception.NotAuthenticatedException;
+import io.mosip.esignet.core.exception.*;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.TypeMismatchException;
@@ -181,15 +178,20 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
             String message = "Maximum upload size exceeded. Limit is " + maxUploadSize + " bytes.";
             return new ResponseEntity<OAuthError>(getErrorRespDto(PAYLOAD_TOO_LARGE, message), HttpStatus.PAYLOAD_TOO_LARGE);
         }
-        if(ex instanceof EsignetException) {
-            String errorCode = ((EsignetException) ex).getErrorCode();
+        if (ex instanceof DPoPNonceMissingException) {
+            DPoPNonceMissingException dpopEx = (DPoPNonceMissingException) ex;
+            String errorCode = dpopEx.getErrorCode();
             HttpHeaders headers = new HttpHeaders();
-            if (((EsignetException) ex).getDpopNonceHeaderValue() != null) {
-                headers.add("DPoP-Nonce", ((EsignetException) ex).getDpopNonceHeaderValue());
+            if (dpopEx.getDpopNonceHeaderValue() != null) {
+                headers.add("DPoP-Nonce", dpopEx.getDpopNonceHeaderValue());
                 headers.add("Access-Control-Expose-Headers", "DPoP-Nonce, WWW-Authenticate");
                 headers.add("Cache-Control", "no-store");
                 return new ResponseEntity<OAuthError>(getErrorRespDto(errorCode, getMessage(errorCode)), headers, HttpStatus.BAD_REQUEST);
             }
+            return new ResponseEntity<OAuthError>(getErrorRespDto(errorCode, getMessage(errorCode)), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        if(ex instanceof EsignetException) {
+            String errorCode = ((EsignetException) ex).getErrorCode();
             return new ResponseEntity<OAuthError>(getErrorRespDto(errorCode, getMessage(errorCode)), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         if (ex instanceof BindException) {
