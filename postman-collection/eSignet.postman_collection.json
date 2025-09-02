@@ -1,10 +1,9 @@
 {
 	"info": {
-		"_postman_id": "dce9344b-2d5f-4021-8287-b98529011d29",
+		"_postman_id": "8a60a883-28a8-4816-b0b9-229f7a89191a",
 		"name": "eSignet",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "38896587",
-		"_collection_link": "https://dsfdsfs-3250.postman.co/workspace/MOSIP-ES-DEV~3b539886-ca92-47c5-9be5-ecfe2b48c9d3/collection/38896587-dce9344b-2d5f-4021-8287-b98529011d29?action=share&source=collection_link&creator=38896587"
+		"_exporter_id": "10897321"
 	},
 	"item": [
 		{
@@ -1019,13 +1018,7 @@
 					],
 					"request": {
 						"method": "POST",
-						"header": [
-							{
-								"key": "X-XSRF-TOKEN",
-								"value": "",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"body": {
 							"mode": "urlencoded",
 							"urlencoded": [
@@ -1221,7 +1214,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"individualId\": \"+855{{individual_id}}\",\n        \"otpChannels\" : [\"email\", \"phone\"],\n        \"captchaToken\" : \"dummy\"\n    }\n}",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"individualId\": \"{{individual_id}}\",\n        \"otpChannels\" : [\"email\", \"phone\"],\n        \"captchaToken\" : \"dummy\"\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1285,7 +1278,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"individualId\": \"+855{{individual_id}}\",\n        \"challengeList\" : [\n            {\n                \"authFactorType\" : \"OTP\",\n                \"challenge\" : \"111111\",\n                \"format\" : \"alpha-numeric\"\n            }\n        ]\n    }\n}",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"individualId\": \"{{individual_id}}\",\n        \"challengeList\" : [\n            {\n                \"authFactorType\" : \"OTP\",\n                \"challenge\" : \"111111\",\n                \"format\" : \"alpha-numeric\"\n            }\n        ]\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
