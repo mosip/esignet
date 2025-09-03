@@ -1841,7 +1841,7 @@ public class AuthorizationServiceTest {
         transaction.setResolvedClaims(resolvedClaims);
         Map<String, List<JsonNode>> claimMetadata = new HashMap<>();
         claimMetadata.put("email", Collections.singletonList(
-                objectMapper.readTree("{\"trust_framework\": \"ABC TF\",\"time\": {\"max_age\": 7200}}")
+                objectMapper.readTree("{\"trust_framework\": \"ABC TF\", \"time\": \"2021-06-06T05:32Z\"}")
         ));
         transaction.setClaimMetadata(claimMetadata);
         transaction.setConsentAction(ConsentAction.NOCAPTURE);
