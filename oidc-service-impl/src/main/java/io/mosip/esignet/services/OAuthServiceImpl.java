@@ -425,16 +425,14 @@ public class OAuthServiceImpl implements OAuthService {
         boolean nonceExpired = serverNonceTTL == null || currentTime > serverNonceTTL;
 
         if (!nonceMatches || nonceExpired) {
-            String newNonce = generateAndStoreNewNonce(transaction, currentTime);
+            String newNonce = generateAndStoreNewNonce(transaction.getCodeHash(), currentTime);
             throw new DPoPNonceMissingException(newNonce);
         }
     }
 
-    private String generateAndStoreNewNonce(OIDCTransaction transaction, long currentTime) {
+    private String generateAndStoreNewNonce(String codeHash, long currentTime) {
         String newNonce = IdentityProviderUtil.createTransactionId(null);
-        transaction.setDpopServerNonce(newNonce);
-        transaction.setDpopServerNonceTTL(currentTime + nonceExpirySeconds * 1000L);
-        cacheUtilService.updateAuthCodeGeneratedTransaction(transaction);
+        cacheUtilService.updateNonceInCachedTransaction(codeHash,newNonce,currentTime + nonceExpirySeconds * 1000L);
         return newNonce;
     }
 
