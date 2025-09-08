@@ -109,6 +109,8 @@ public class OAuthServiceImpl implements OAuthService {
 
         validateRequestParametersWithTransaction(tokenRequest, transaction);
 
+        IdentityProviderUtil.validateRedirectURI(Collections.singletonList(transaction.getRedirectUri()), tokenRequest.getRedirect_uri());
+
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(transaction.getClientId());
         try {
             if (transaction.isDpopBoundAccessToken()) {
@@ -121,7 +123,6 @@ public class OAuthServiceImpl implements OAuthService {
             log.error("Failed to parse DPoP header", e);
             throw new EsignetException(ErrorConstants.INVALID_DPOP_PROOF);
         }
-        IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), tokenRequest.getRedirect_uri());
 
         authenticateClient(tokenRequest, clientDetailDto,isV2);
 

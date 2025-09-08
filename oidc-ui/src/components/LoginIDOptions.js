@@ -1,21 +1,21 @@
-import React, { useState, useEffect } from "react";
-import { useTranslation } from "react-i18next";
-import openIDConnectService from "../services/openIDConnectService";
-import { configurationKeys } from "../constants/clientConstants";
-import { decodeHash } from "../helpers/utils";
+import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import openIDConnectService from '../services/openIDConnectService';
+import { configurationKeys } from '../constants/clientConstants';
+import { decodeHash } from '../helpers/utils';
 
 const LoginIDOptions = (props) => {
   const [selectedOption, setSelectedOption] = useState();
-  const { t, i18n } = useTranslation("translation", {
-    keyPrefix: "loginOptions",
+  const { t, i18n } = useTranslation('translation', {
+    keyPrefix: 'loginOptions',
   });
 
   // Parsing the current URL into a URL object
   const urlObj = new URL(window.location.href);
 
   // Extracting the value of the 'state' and 'nonce' parameter from the URL
-  const state = urlObj.searchParams.get("state");
-  const nonce = urlObj.searchParams.get("nonce");
+  const state = urlObj.searchParams.get('state');
+  const nonce = urlObj.searchParams.get('nonce');
 
   // Extracting the hash part of the URL (excluding the # character)
   const code = urlObj.hash.substring(1);
@@ -37,12 +37,12 @@ const LoginIDOptions = (props) => {
   if (!loginIDs || loginIDs.length === 0) {
     loginIDs = [
       {
-        id: "vid",
-        svg: "vid_icon",
-        prefixes: "",
-        postfix: "",
-        maxLength: "",
-        regex: "",
+        id: 'vid',
+        svg: 'vid_icon',
+        prefixes: '',
+        postfix: '',
+        maxLength: '',
+        regex: '',
       },
     ];
   }
@@ -52,7 +52,7 @@ const LoginIDOptions = (props) => {
     try {
       const response = await fetch(`/images/${path}.svg`);
       if (!response.ok) {
-        throw new Error("Failed to fetch SVG");
+        throw new Error('Failed to fetch SVG');
       }
       let svgText = await response.text();
 
@@ -61,7 +61,7 @@ const LoginIDOptions = (props) => {
 
       return svgText;
     } catch (error) {
-      return ""; // Return empty string if error occurs
+      return ''; // Return empty string if error occurs
     }
   };
 
@@ -90,7 +90,7 @@ const LoginIDOptions = (props) => {
     ...option, // Spread existing properties like id, prefix, postfix, etc.
     svg: (
       <div
-        dangerouslySetInnerHTML={{ __html: iconsMap[option.id] || "" }}
+        dangerouslySetInnerHTML={{ __html: iconsMap[option.id] || '' }}
       ></div>
     ), // Modify the svg
     input_label: t(`input.label.${option.id}`), // Add input_label
@@ -121,15 +121,15 @@ const LoginIDOptions = (props) => {
               id={option.id}
               onClick={() => setSelectedOption(option)}
               className={`flex items-center justify-start w-full p-2 rounded-lg border-2 text-left login_id text-[#667085]
-                ${selectedOption.id === option.id ? "selected_login_id" : null}
+                ${selectedOption.id === option.id ? 'selected_login_id' : null}
                 ${
                   options.length % 2 !== 0 &&
                   index === options.length - 1 &&
                   options.length > 1
-                    ? "col-span-2 mx-auto w-1/2"
+                    ? 'col-span-2 mx-auto w-1/2'
                     : options.length === 1
-                    ? "hidden"
-                    : ""
+                      ? 'hidden'
+                      : ''
                 }`}
             >
               <span className="mr-2 relative top-[1px]">{option.svg}</span>

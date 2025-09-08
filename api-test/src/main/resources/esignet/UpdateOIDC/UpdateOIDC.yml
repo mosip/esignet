@@ -25,6 +25,7 @@ UpdateOIDCClient:
       description: Update OIDC client with invalid clientId
       role: partner
       restMethod: put
+      allowedErrorCodes: PMS_IDP_004,PMS_ESI_004
       inputTemplate: esignet/UpdateOIDC/UpdateOIDC
       outputTemplate: esignet/error
       input: '{

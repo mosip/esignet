@@ -1,27 +1,27 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import SignInOptions from "../../components/SignInOptions";
-import { useTranslation } from "react-i18next";
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import SignInOptions from '../../components/SignInOptions';
+import { useTranslation } from 'react-i18next';
 
-jest.mock("react-i18next", () => ({
+jest.mock('react-i18next', () => ({
   useTranslation: jest.fn(),
 }));
 
-jest.mock("../../services/walletService", () => ({
+jest.mock('../../services/walletService', () => ({
   getAllAuthFactors: jest.fn(),
 }));
 
-import { getAllAuthFactors } from "../../services/walletService";
+import { getAllAuthFactors } from '../../services/walletService';
 
 // Simulate global fetch (used in fetchSvg)
 global.fetch = jest.fn();
 
-describe("SignInOptions Component", () => {
-  const walletLogoUrl = "wallet-logo.svg";
+describe('SignInOptions Component', () => {
+  const walletLogoUrl = 'wallet-logo.svg';
 
   const mockOAuthDetails = {
     authFactors: [
-      { id: "otp", value: "otp", label: "otp_label", icon: "otp.svg" },
-      { id: "pin", value: "pin", label: "pin_label", icon: "pin.svg" },
+      { id: 'otp', value: 'otp', label: 'otp_label', icon: 'otp.svg' },
+      { id: 'pin', value: 'pin', label: 'pin_label', icon: 'pin.svg' },
     ],
   };
 
@@ -41,7 +41,7 @@ describe("SignInOptions Component", () => {
     });
   });
 
-  test("renders with provided icons and handles clicks", async () => {
+  test('renders with provided icons and handles clicks', async () => {
     getAllAuthFactors.mockReturnValue(mockOAuthDetails.authFactors);
 
     render(
@@ -49,30 +49,30 @@ describe("SignInOptions Component", () => {
         openIDConnectService={getMockOpenIDConnectService()}
         handleSignInOptionClick={handleSignInOptionClick}
         icons={{
-          otp: "<svg>OTP</svg>",
-          pin: "<svg>PIN</svg>",
+          otp: '<svg>OTP</svg>',
+          pin: '<svg>PIN</svg>',
         }}
         authLabel="auth_method"
       />
     );
 
     expect(
-      await screen.findByText("preferred_mode_to_continue")
+      await screen.findByText('preferred_mode_to_continue')
     ).toBeInTheDocument();
     await waitFor(() => {
-      expect(screen.getByText("OTP")).toBeInTheDocument();
-      expect(screen.getByText("PIN")).toBeInTheDocument();
+      expect(screen.getByText('OTP')).toBeInTheDocument();
+      expect(screen.getByText('PIN')).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByText("OTP"));
+    fireEvent.click(screen.getByText('OTP'));
     expect(handleSignInOptionClick).toHaveBeenCalledWith(
-      "otp",
+      'otp',
       expect.anything(),
-      "auth_method"
+      'auth_method'
     );
   });
 
-  test("handles Enter key press as click", async () => {
+  test('handles Enter key press as click', async () => {
     getAllAuthFactors.mockReturnValue(mockOAuthDetails.authFactors);
 
     render(
@@ -80,26 +80,26 @@ describe("SignInOptions Component", () => {
         openIDConnectService={getMockOpenIDConnectService()}
         handleSignInOptionClick={handleSignInOptionClick}
         icons={{
-          otp: "<svg>OTP</svg>",
-          pin: "<svg>PIN</svg>",
+          otp: '<svg>OTP</svg>',
+          pin: '<svg>PIN</svg>',
         }}
         authLabel="auth_method"
       />
     );
 
-    const pinOption = await screen.findByText("PIN");
-    fireEvent.keyDown(pinOption, { key: "Enter", code: "Enter" });
+    const pinOption = await screen.findByText('PIN');
+    fireEvent.keyDown(pinOption, { key: 'Enter', code: 'Enter' });
 
     expect(handleSignInOptionClick).toHaveBeenCalledWith(
-      "pin",
+      'pin',
       expect.anything(),
-      "auth_method"
+      'auth_method'
     );
   });
 
-  test("auto-clicks sign-in if only one option", async () => {
+  test('auto-clicks sign-in if only one option', async () => {
     getAllAuthFactors.mockReturnValue([
-      { id: "otp", value: "otp", label: "otp_label", icon: "otp.svg" },
+      { id: 'otp', value: 'otp', label: 'otp_label', icon: 'otp.svg' },
     ]);
 
     render(
@@ -112,14 +112,14 @@ describe("SignInOptions Component", () => {
 
     await waitFor(() => {
       expect(handleSignInOptionClick).toHaveBeenCalledWith(
-        "otp",
+        'otp',
         null,
-        "auth_method"
+        'auth_method'
       );
     });
   });
 
-  test("displays more options and toggles hide on click", async () => {
+  test('displays more options and toggles hide on click', async () => {
     const extendedFactors = Array.from({ length: 5 }, (_, i) => ({
       id: `id${i}`,
       value: `value${i}`,
@@ -141,12 +141,12 @@ describe("SignInOptions Component", () => {
       />
     );
 
-    const moreBtn = await screen.findByText("more_ways_to_sign_in");
+    const moreBtn = await screen.findByText('more_ways_to_sign_in');
     expect(moreBtn).toBeInTheDocument();
     fireEvent.click(moreBtn); // click to hide remaining options
   });
 
-  test("gracefully handles fetchSvg failure", async () => {
+  test('gracefully handles fetchSvg failure', async () => {
     getAllAuthFactors.mockReturnValue(mockOAuthDetails.authFactors);
 
     fetch.mockResolvedValueOnce({ ok: false });
@@ -159,13 +159,13 @@ describe("SignInOptions Component", () => {
       />
     );
 
-    await screen.findByText("preferred_mode_to_continue");
+    await screen.findByText('preferred_mode_to_continue');
     await waitFor(() => {
-      expect(screen.queryByText("OTP")).not.toBeInTheDocument(); // fallback empty
+      expect(screen.queryByText('OTP')).not.toBeInTheDocument(); // fallback empty
     });
   });
 
-  test("handles empty auth factors", async () => {
+  test('handles empty auth factors', async () => {
     getAllAuthFactors.mockReturnValue([]);
 
     render(
@@ -177,7 +177,7 @@ describe("SignInOptions Component", () => {
     );
 
     expect(
-      await screen.findByText("preferred_mode_to_continue")
+      await screen.findByText('preferred_mode_to_continue')
     ).toBeInTheDocument();
     expect(handleSignInOptionClick).not.toHaveBeenCalled();
   });

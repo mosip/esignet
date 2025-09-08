@@ -21,6 +21,7 @@ GetOidcClient:
       description: Get OIDC client with invalid clientId
       role: resident
       restMethod: get
+      allowedErrorCodes: PMS_IDP_004,PMS_ESI_004
       inputTemplate: esignet/GetOidcClient/GetOidcClient
       outputTemplate: esignet/error
       input: '{
