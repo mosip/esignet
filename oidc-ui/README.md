@@ -26,10 +26,9 @@ Esignet UI contains the following pages:
 ### KBI form in eSignet
 
 From **v1.7.0**, a **KBI form** can be configured in the properties file and is returned in the `oauth-details` endpoint under `uiConfigs`.
-When eSignet supports **multiple ID systems** in one deployment, each ID system must register its metadata in the eSignet DB (including supported authentication factors).  
 If **KBI** is supported, it must have its own KBI form, returned via `oauth-details` based on the mapped OIDC client.
 
-For more details on how KBI authentication works, see [Dynamic Forms](../docs/design/dynamic-forms.md)
+For more details on how KBI form can be configured, see [Dynamic Forms](../docs/design/dynamic-forms.md)
 
 ## Build & run (for developers)
 
