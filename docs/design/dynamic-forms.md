@@ -123,28 +123,39 @@ The schema consists of the following properties:
 
 ### Field Properties Section (mandatory)
 
-| Property         | Type    | Requirement   | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| ---------------- | ------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `alignmentGroup` | string  | Optional      | Fields with the same alignment group are placed horizontally next to each other in the UI.                                                                                                                                                                                                                                                                                                                                                                                                  |
-| `controlType`    | string  | **Mandatory** | UI control type for rendering. Options: `textbox`, `date`, `dropdown`, `password`, `checkbox`, `phone`, `photo`, `file`.                                                                                                                                                                                                                                                                                                                                                                    |
-| `id`             | string  | **Mandatory** | Unique identifier for the field. Used internally to map the field.                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| `label`          | object  | Optional      | Multilingual field labels. Keys represent language codes (e.g., `eng`, `fra`, `ara`).                                                                                                                                                                                                                                                                                                                                                                                                       |
-| `placeholder`    | object  | Optional      | Multilingual placeholders shown inside input fields before user enters data.                                                                                                                                                                                                                                                                                                                                                                                                                |
-| `required`       | boolean | Optional      | Specifies whether the field is required. If set to `true`, the user must provide a value. If set to `false`, the field can be left empty.                                                                                                                                                                                                                                                                                                                                                   |
-| `type`           | string  | **Mandatory** | Type of data expected. Can be `string` for a single-language input, or `simpleType` for multilingual input where each input ID renders multiple input fields, one for each language.                                                                                                                                                                                                                                                                                                        |
-| `validators`     | array   | Optional      | List of validation rules. Each validator object has the following structure:<br><br> <table><tr><th>Property</th><th>Type</th><th>Requirement</th><th>Description</th></tr><tr><td>`regex`</td><td>string</td><td>**Mandatory**</td><td>Validation pattern</td></tr><tr><td>`error`</td><td>object</td><td>**Mandatory**</td><td>Multilingual error messages</td></tr><tr><td>`langCode`</td><td>string</td><td>Optional</td><td>Language code; if `null`, applies to all</td></tr></table> |
+| Property | Type | Requirement | Description |
+| - | - | - | - |
+| `controlType`    | string | **Mandatory** | UI control type for rendering. Options: `textbox`, `date`, `dropdown`, `password`, `checkbox`, `phone`, `photo`, `fileupload`.|
+| `id` | string  | **Mandatory** | Unique identifier for the field. Used internally to map the field.|
+| `label` | object | **Mandatory** | Multilingual field labels. Keys represent language codes (e.g., `eng`, `fra`, `ara`).|
+| `acceptedFileTypes` | string | Optional | Accepted File types with comma separated value(i.e `image/jpeg,image/jpg,image/png,image/webp,application/pdf`), applicable for controlsType 'photo' or 'fileupload', it will allow only the specified file types to be accepted.|
+| `alignmentGroup` | string | Optional | Fields with the same alignment group are placed horizontally next to each other in the UI.|
+| `capsLockCheck` | boolean | Optional | It enable a caps lock indication in top right corner(or top left corner if in rtl direction).|
+| `cssClasses` | string | Optional | External css class which can be added to the component.|
+| `disabled` | boolean | Optional | By enabling this, it will disable that field. By default it will be `false`.|
+| `info` | object | Optional | It will create an info icon beside the label of the component, to show some info in the tooltip. It will be a multilingual fields and keys represent with language codes.|
+| `placeholder` | object | Optional | Multilingual placeholders shown inside input fields before user enters data.|
+| `prefix` | string[] | Optional | Multiple or single prefix for phone component, so that it can be selected as per the needs, it will work only when controlType is `phone` |
+| `required` | boolean | Optional | Specifies whether the field is required. If set to `true`, the user must provide a value. If set to `false`, the field can be left empty.|
+| `subType` | string | Optional | Specific for controlType `fileupload`, for defining the docType.|
+| `type` | string  | Optional | Type of data expected. Can be `string` for a single-language input, or `simpleType` for multilingual input where each input ID renders multiple input fields, one for each language.|
+| `validators` | array | Optional | List of validation rules. Each validator object has the following structure:<br><br> <table><tr><th>Property</th><th>Type</th><th>Requirement</th><th>Description</th></tr><tr><td>`regex`</td><td>string</td><td>**Mandatory**</td><td>Validation pattern</td></tr><tr><td>`error`</td><td>object</td><td>**Mandatory**</td><td>Multilingual error messages</td></tr><tr><td>`langCode`</td><td>string</td><td>Optional</td><td>Language code; if `null`, applies to all</td></tr></table> |
 
 ### Allowed Values Section (optional)
 
 | Property        | Type   | Description                                                                                                                |
 | --------------- | ------ | -------------------------------------------------------------------------------------------------------------------------- |
-| `allowedValues` | object | Defines predefined options for dropdowns or checkboxes. Keys represent option IDs, and values provide multilingual labels. |
+| `allowedValues` | object | Defines predefined options for dropdowns or checkboxes. Keys represent option IDs, and values provide multilingual labels. Example <pre>{"gender":{"male":{"eng":"Male","fra":"Masculin","ara":"ذكر"},"female":{"eng":"Female","fra":"Féminin","ara":"أنثى"},"other":{"eng":"Other","fra":"Autre","ara":"آخر"}}}</pre>|
+
 
 ### Errors Section (optional)
 
 | Property   | Type   | Description                                              |
 | ---------- | ------ | -------------------------------------------------------- |
 | `required` | object | Defines multilingual error messages for required fields. |
+| `passwordMismatch` | object | Defines multilingual error messages for password mismatch. |
+| `fileNotSupported` | object | Defines multilingual error messages for file not supported. |
+| `fileSizeExceeded` | object | Defines multilingual error messages for file size limit exceeded. |
 
 ### Language Section (mandatory)
 
