@@ -1,146 +1,155 @@
 # Overview
 
-Using dynamic forms instead of hardcoded forms during registration in eSignet signup and also enhancing the KBI form capability.
-Intention is to create an independent UI library to provide this feature. Both forms should follow the same form schema, so that
-the same library could be used in both oidc-ui and signup-ui.
+Using **dynamic forms** instead of hardcoded forms during registration in **eSignet signup**, and also enhancing the **KBI form** capability.
 
-## KBI form in eSignet
+The intention is to create an **independent UI library** to provide this feature. Both forms should follow the same form schema so that the same library could be used in both **oidc-ui** and **signup-ui**.
 
-As of version 1.5.1, a KBI form can be configured in the properties file. The same is returned in the oauth-details endpoint
-under uiConfigs field.
+For more details on how to use the `json-form-builder` library, please refer to the [official documentation](https://github.com/mosip/mosip-sdk/blob/develop/json-form-builder/README.md).
 
-The same will be continued. In the future releases, when eSignet starts supporting `Multiple ID systems` in single deployment then every ID system
-is expected to have its own KBI form. Based on the ID system mapped to the OIDC client, the respective ID systems KBI form will 
-be returned in the oauth-details endpoint response.
+## Form JSON Specification
 
-Note: Assumption with `Multiple ID systems` in single deployment is every ID system will register its metadata in eSignet DB. One such
-metadata is supported auth factors. If KBI is one of them, it is expected to have a KBI form mapped to the respective ID system.
+For reference, see the [MOSIP UI JSON specification](https://docs.mosip.io/1.2.0/id-lifecycle-management/identity-issuance/registration-client/develop/registration-client-ui-specifications#field-spec-json-template).
 
-## Registration form in eSignet signup
+> **Note:** Only the **Field spec JSON template** section from the above link is applicable here.
 
-As of version 1.1.1, eSignet signup Registration form is hardcoded to capture only fullName, phoneNumber and password along with the user
-consent.
+### Supported Attributes
 
-We are enhancing this existing feature to dynamically load the form. Form capable of:
+For **eSignet KBI** and **eSignet signup** forms, only the attributes listed below need to be supported.  
+The schema is compatible with both two-letter (e.g., `en`) and three-letter (e.g., `eng`) language codes.
 
-1. Capture text in multiple languages.
-2. Render predefined values as dropdown / radio-button / checkbox.
-3. Capture a photo using webcam.
-4. Ability to compress the file if exceeds the acceptable size on photo capture.
-5. File uploads with file size, type validations.
-6. Validation of other form fields based on configured regexes.
+### Configuring KBI (Knowledge-Based Input)
 
-We can define form based on the existing MOSIP's UI JSON specification. Also define extra attributes as required.
+KBI can be configured in **eSignet** using the following properties:
 
-### Endpoint to give out the UI spec to render a registration form
+1. MOSIP_ESIGNET_AUTHENTICATOR_DEFAULT_AUTH_FACTOR_KBI_FIELD_DETAILS_URL
 
-`GET https://signup.mosip.net/v1/signup/ui-spec?version=latest`
+   - Description: URL pointing to the raw JSON schema defining the KBI field details.
+   - The schema must include the fields, their types, validation rules, and multilingual labels used for KBI authentication.
+   - Example:
+     `https://example.com/path/to/kbi_schema.json`
 
-## Structure
+2. MOSIP_ESIGNET_AUTHENTICATOR_DEFAULT_AUTH_FACTOR_KBI_INDIVIDUAL_ID_FIELD
+   - Description: The `id` of one of the fields defined in the KBI form schema.
+   - This ensures the system correctly identifies the individual for whom the KBI fields are being captured.
+   - Example:
+     `sampleInputId`
 
-Below is the default MOSIP UI JSON specification, We will NOT be supporting all the field attributes.
+## 📄 Schema Structure
 
-`{
-    "id": "<Unique identifier for the field>",
-    "inputRequired": <true/false -> if false, its not required to take any input from end user>,
-    "type": "<string/simpleType/documentType/biometricsType>",
-    "minimum": <applicable for date control type only in days>,
-    "maximum": <applicable for date control type only in days>,
-    "description": "<Field description>",
-    "label": {
-            "ara": "حقل العينة",
-            "fra": "Exemple de champ",
-            "eng": "Sample Field"
-            },
-    "controlType": "textbox/fileupload/dropdown/checkbox/button/date/ageDate/html/biometrics",
-    "fieldType": "<default/dynamic>",
-    "format": "none",
-    "validators": [{
-            "type": "regex",
-            "validator": "^([0-9]{10,30})$",
-            "arguments": [],
-            "langCode": <if null, its applicable for all languages, else validator expression can be provided for each langCode>,
-            "errorCode" : "UI_100001"
-            }],
-    "fieldCategory": "<pvt/evidence/kyc -> determines sharing and longevity policies applicable>",
-    "alignmentGroup": "<fields belonging to same alignment group are placed horizontally next to eachother>",
-    "visible": {
-            "engine": "MVEL",
-            "expr": "identity.get('ageGroup') == 'INFANT' && (identity.get('introducerRID') == nil || identity.get('introducerRID') == empty)"
-            }, //if its set to null, then the field is always displayed
-    "contactType": null,
-    "group": "<grouping used in update UIN process>",
-    "groupLabel": {
-            "eng" : "Sample group",
-            "ara" : "مجموعة العينة",
-            "fra" : "Groupe d'échantillons"
-            },
-    "changeAction": null,
-    "transliterate": false,
-    "templateName": "<applicable only for html fields>",
-    "fieldLayout": null,
-    "locationHierarchy": null,
-    "conditionalBioAttributes": [{
-            "ageGroup": "INFANT",
-            "process": "ALL",
-            "validationExpr": "face || leftEye",
-            "bioAttributes": [
-            "face",
-            "leftEye"
-            ]
-            }],                
-    "bioAttributes": [ //below are the supported biometric attributes
-            "leftEye",
-            "rightEye",
-            "rightIndex",
-            "rightLittle",
-            "rightRing",
-            "rightMiddle",
-            "leftIndex",
-            "leftLittle",
-            "leftRing",
-            "leftMiddle",
-            "leftThumb",
-            "rightThumb",
-            "face"
-            ],
-    //if requiredOn is defined, its result will take the priority over "required" attribute
-    "required": true,
-    "requiredOn": [{
-            "engine": "MVEL",
-            "expr": "identity.get('ageGroup') == 'INFANT' && (identity.get('introducerRID') == nil || identity.get('introducerRID') == empty)"
-            }],
-    "subType": "<document types / applicant / heirarchy level names>",
-    //If true mandates capture of exception photo on exception marking
-    "exceptionPhotoRequired" : true
-}`
+```json
+{
+  "schema": [
+    {
+      "id": "sampleInputId",
+      "required": true,
+      "type": "string",
+      "label": {
+        "eng": "Sample Field",
+        "ara": "حقل تجريبي",
+        "fra": "Champ d'exemple"
+      },
+      "placeholder": {
+        "eng": "Enter value",
+        "ara": "أدخل القيمة",
+        "fra": "Entrez la valeur"
+      },
+      "controlType": "textbox",
+      "validators": [
+        {
+          "regex": "^[a-zA-Z0-9]+$",
+          "langCode": null,
+          "error": {
+            "eng": "Special characters are not allowed",
+            "ara": "لا يُسمح باستخدام الأحرف الخاصة",
+            "fra": "Les caractères spéciaux ne sont pas autorisés"
+          }
+        }
+      ],
+      "alignmentGroup": "group1"
+    },
+    {
+      "id": "sampleDropdownId",
+      "controlType": "dropdown",
+      "label": {
+        "eng": "Gender",
+        "fra": "Genre",
+        "ara": "جنس"
+      },
+      "required": false,
+      "alignmentGroup": "group2"
+    }
+  ],
+  "allowedValues": {
+    "gender": {
+      "male": {
+        "eng": "Male",
+        "fra": "Masculin",
+        "ara": "ذكر"
+      },
+      "female": {
+        "eng": "Female",
+        "fra": "Féminin",
+        "ara": "أنثى"
+      },
+      "other": {
+        "eng": "Other",
+        "fra": "Autre",
+        "ara": "آخر"
+      }
+    }
+  },
+  "errors": {
+    "required": {
+      "eng": "This field is required",
+      "fra": "Ce champ est obligatoire",
+      "ara": "هذه الخانة مطلوبه"
+    }
+  },
+  "language": {
+    "mandatory": ["eng"],
+    "optional": ["fra", "ara"],
+    "langCodeMap": {
+      "eng": "en",
+      "fra": "fr",
+      "ara": "ar"
+    }
+  }
+}
+```
 
-Only the below attributes are required to be supported in eSignet KBI and eSignet signup registration form:
- 
-`{
-    "id": "<Unique identifier for the field>",
-    "inputRequired": <true/false -> if false, its not required to take any input from end user>,
-    "type": "<string/simpleType/documentType/biometricsType>",
-    "minimum": <applicable for date control type only in days>,
-    "maximum": <applicable for date control type only in days>,
-    "description": "<Field description>",
-    "label": {
-            "ara": "حقل العينة",
-            "fra": "Exemple de champ",
-            "eng": "Sample Field"
-            },
-    "controlType": "textbox/fileupload/dropdown/checkbox/button/date/ageDate/html/biometrics",
-    "validators": [{
-            "type": "regex",
-            "validator": "^([0-9]{10,30})$",
-            "arguments": [],
-            "langCode": <if null, its applicable for all languages, else validator expression can be provided for each langCode>,
-            "errorCode" : "UI_100001"
-            }],
-    "alignmentGroup": "<fields belonging to same alignment group are placed horizontally next to eachother>",
-    "required": true,
-    "requiredOn": [{
-                "engine": "MVEL",
-                "expr": "identity.get('ageGroup') == 'INFANT' && (identity.get('introducerRID') == nil || identity.get('introducerRID') == empty)"
-                }]
-}`
+## 📘 Schema Properties
+
+The schema consists of the following properties:
+
+### Field Properties Section (mandatory)
+
+| Property         | Type    | Requirement   | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| ---------------- | ------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `alignmentGroup` | string  | Optional      | Fields with the same alignment group are placed horizontally next to each other in the UI.                                                                                                                                                                                                                                                                                                                                                                                                  |
+| `controlType`    | string  | **Mandatory** | UI control type for rendering. Options: `textbox`, `date`, `dropdown`, `password`, `checkbox`, `phone`, `photo`, `file`.                                                                                                                                                                                                                                                                                                                                                                    |
+| `id`             | string  | **Mandatory** | Unique identifier for the field. Used internally to map the field.                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `label`          | object  | Optional      | Multilingual field labels. Keys represent language codes (e.g., `eng`, `fra`, `ara`).                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `placeholder`    | object  | Optional      | Multilingual placeholders shown inside input fields before user enters data.                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `required`       | boolean | Optional      | Specifies whether the field is required. If set to `true`, the user must provide a value. If set to `false`, the field can be left empty.                                                                                                                                                                                                                                                                                                                                                   |
+| `type`           | string  | **Mandatory** | Type of data expected. Can be `string` for a single-language input, or `simpleType` for multilingual input where each input ID renders multiple input fields, one for each language.                                                                                                                                                                                                                                                                                                        |
+| `validators`     | array   | Optional      | List of validation rules. Each validator object has the following structure:<br><br> <table><tr><th>Property</th><th>Type</th><th>Requirement</th><th>Description</th></tr><tr><td>`regex`</td><td>string</td><td>**Mandatory**</td><td>Validation pattern</td></tr><tr><td>`error`</td><td>object</td><td>**Mandatory**</td><td>Multilingual error messages</td></tr><tr><td>`langCode`</td><td>string</td><td>Optional</td><td>Language code; if `null`, applies to all</td></tr></table> |
+
+### Allowed Values Section (optional)
+
+| Property        | Type   | Description                                                                                                                |
+| --------------- | ------ | -------------------------------------------------------------------------------------------------------------------------- |
+| `allowedValues` | object | Defines predefined options for dropdowns or checkboxes. Keys represent option IDs, and values provide multilingual labels. |
+
+### Errors Section (optional)
+
+| Property   | Type   | Description                                              |
+| ---------- | ------ | -------------------------------------------------------- |
+| `required` | object | Defines multilingual error messages for required fields. |
+
+### Language Section (mandatory)
+
+| Property      | Type   | Description                                                                               |
+| ------------- | ------ | ----------------------------------------------------------------------------------------- |
+| `mandatory`   | array  | List of mandatory language codes that must be present in the schema.                      |
+| `optional`    | array  | List of optional language codes that may be included if available.                        |
+| `langCodeMap` | object | Bi-directional mapping between 2-letter and 3-letter language codes (e.g., `eng` ↔ `en`). |
