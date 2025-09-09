@@ -53,6 +53,17 @@ KBI can be configured in **eSignet** using the following properties:
         "ara": "أدخل القيمة",
         "fra": "Entrez la valeur"
       },
+      "info": {
+        "eng": "You have to input some text in this field",
+        "ara": "عليك إدخال بعض النصوص في هذا الحقل",
+        "fra": "Vous devez saisir du texte dans ce champ"
+      },
+      "capsLockCheck": {
+        "eng": "Caps lock is on",
+        "ara": "زر Caps lock قيد التشغيل",
+        "fra": "La touche Verr Maj est activée"
+      },
+      "cssClasses": "sample-input-field",
       "controlType": "textbox",
       "validators": [
         {
@@ -77,6 +88,23 @@ KBI can be configured in **eSignet** using the following properties:
       },
       "required": false,
       "alignmentGroup": "group2"
+    },
+    {
+      "id": "samplePhone",
+      "controlType": "phone",
+      "disabled": true,
+      "required": false,
+      "prefix": ["+91"],
+      "label": {
+        "eng": "Phone Number",
+        "ara": "رقم الهاتف",
+        "fra": "Numéro de téléphone"
+      },
+      "placeholder": {
+        "eng": "Enter you phone number",
+        "ara": "أدخل رقم هاتفك",
+        "fra": "Entrez votre numéro de téléphone"
+      }
     }
   ],
   "allowedValues": {
@@ -125,15 +153,15 @@ The schema consists of the following properties:
 
 | Property | Type | Requirement | Description |
 | - | - | - | - |
-| `controlType`    | string | **Mandatory** | UI control type for rendering. Options: `textbox`, `date`, `dropdown`, `password`, `checkbox`, `phone`, `photo`, `fileupload`.|
-| `id` | string  | **Mandatory** | Unique identifier for the field. Used internally to map the field.|
-| `label` | object | **Mandatory** | Multilingual field labels. Keys represent language codes (e.g., `eng`, `fra`, `ara`).|
 | `acceptedFileTypes` | string | Optional | Accepted File types with comma separated value(i.e `image/jpeg,image/jpg,image/png,image/webp,application/pdf`), applicable for controlsType 'photo' or 'fileupload', it will allow only the specified file types to be accepted.|
 | `alignmentGroup` | string | Optional | Fields with the same alignment group are placed horizontally next to each other in the UI.|
 | `capsLockCheck` | boolean | Optional | It enable a caps lock indication in top right corner(or top left corner if in rtl direction).|
+| `controlType`    | string | **Mandatory** | UI control type for rendering. Options: `textbox`, `date`, `dropdown`, `password`, `checkbox`, `phone`, `photo`, `fileupload`.|
 | `cssClasses` | string | Optional | External css class which can be added to the component.|
 | `disabled` | boolean | Optional | By enabling this, it will disable that field. By default it will be `false`.|
+| `id` | string  | **Mandatory** | Unique identifier for the field. Used internally to map the field.|
 | `info` | object | Optional | It will create an info icon beside the label of the component, to show some info in the tooltip. It will be a multilingual fields and keys represent with language codes.|
+| `label` | object | **Mandatory** | Multilingual field labels. Keys represent language codes (e.g., `eng`, `fra`, `ara`).|
 | `placeholder` | object | Optional | Multilingual placeholders shown inside input fields before user enters data.|
 | `prefix` | string[] | Optional | Multiple or single prefix for phone component, so that it can be selected as per the needs, it will work only when controlType is `phone` |
 | `required` | boolean | Optional | Specifies whether the field is required. If set to `true`, the user must provide a value. If set to `false`, the field can be left empty.|
@@ -145,7 +173,7 @@ The schema consists of the following properties:
 
 | Property        | Type   | Description                                                                                                                |
 | --------------- | ------ | -------------------------------------------------------------------------------------------------------------------------- |
-| `allowedValues` | object | Defines predefined options for dropdowns or checkboxes. Keys represent option IDs, and values provide multilingual labels. Example <pre>{"gender":{"male":{"eng":"Male","fra":"Masculin","ara":"ذكر"},"female":{"eng":"Female","fra":"Féminin","ara":"أنثى"},"other":{"eng":"Other","fra":"Autre","ara":"آخر"}}}</pre>|
+| `allowedValues` | object | Defines predefined options for dropdowns or checkboxes. Keys represent option IDs, and values provide multilingual labels.|
 
 
 ### Errors Section (optional)
