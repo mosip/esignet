@@ -83,13 +83,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private static ObjectMapper oAuthMapper;
-    static {
-        oAuthMapper = new ObjectMapper()
-                .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true)
-                .configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
-    }
-
     @Autowired
     private ConsentHelperService consentHelperService;
 
@@ -463,7 +456,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oAuthDetailResponse.setEssentialClaims(claimsMap.get(ESSENTIAL));
         oAuthDetailResponse.setVoluntaryClaims(claimsMap.get(VOLUNTARY));
         oAuthDetailResponse.setAuthorizeScopes(authorizationHelperService.getAuthorizeScopes(oauthDetailReqDto.getScope()));
-        Map<String, Object> config = new HashMap<>(uiConfigMap);
+        TreeMap<String, Object> config = new TreeMap<>(uiConfigMap);
         config.put("clientAdditionalConfig", clientDetailDto.getAdditionalConfig());
         oAuthDetailResponse.setConfigs(config);
         oAuthDetailResponse.setLogoUrl(clientDetailDto.getLogoUri());
@@ -560,8 +553,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     private String getOauthDetailsResponseHash(OAuthDetailResponse oauthDetailResponse) {
         try {
-            String json = oAuthMapper.writeValueAsString(objectMapper.convertValue(oauthDetailResponse, Object.class));
-            log.info("Oauth details json: {}", json);
+            String json = objectMapper.writeValueAsString(objectMapper.convertValue(oauthDetailResponse, Object.class));
             return IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA_256, json);
         } catch (Exception e) {
             log.error("Failed to generate oauth-details-response hash", e);
