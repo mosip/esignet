@@ -297,6 +297,9 @@ export default function Consent({
   const submitConsent = async (acceptedClaims, permittedAuthorizeScopes) => {
     try {
       let transactionId = openIDConnectService.getTransactionId();
+      let issuer = openIDConnectService.getEsignetConfiguration(
+        configurationKeys.issuer
+      );
 
       setStatus(states.LOADING);
 
@@ -318,15 +321,12 @@ export default function Consent({
         return;
       }
 
-      let params = '?';
-
-      if (response.state) {
-        params = params + 'state=' + response.state + '&';
-      }
-
-      window.location.replace(
-        response.redirectUri + params + 'code=' + response.code
-      );
+      const params = new URLSearchParams({
+        ...(response.state && { state: response.state }),
+        code: response.code,
+        iss: issuer,
+      });
+      window.location.replace(`${response.redirectUri}?${params.toString()}`);
     } catch (error) {
       redirectOnError('authorization_failed_msg', error.message);
     }
