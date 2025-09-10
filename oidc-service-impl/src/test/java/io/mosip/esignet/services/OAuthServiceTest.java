@@ -1012,7 +1012,7 @@ public class OAuthServiceTest {
             Assert.assertNotNull(ex.getDpopNonceHeaderValue());
             Assert.assertNotEquals(expiredNonce, ex.getDpopNonceHeaderValue());
             Mockito.verify(cacheUtilService, times(1)).
-                    updateNonceInCachedTransaction(Mockito.anyString(),Mockito.anyString(), Long.valueOf(Mockito.anyString()));
+                    updateNonceInCachedTransaction(Mockito.any(), Mockito.anyString(), Mockito.anyLong());
         }
     }
 
@@ -1065,7 +1065,7 @@ public class OAuthServiceTest {
             Assert.assertEquals(USE_DPOP_NONCE, ex.getErrorCode());
             Assert.assertNotNull(ex.getDpopNonceHeaderValue());
             Mockito.verify(cacheUtilService, times(1)).
-                    updateNonceInCachedTransaction(Mockito.anyString(),Mockito.anyString(), Long.valueOf(Mockito.anyString()));
+                    updateNonceInCachedTransaction(Mockito.any(),Mockito.anyString(), Mockito.anyLong());
         }
     }
 

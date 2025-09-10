@@ -131,7 +131,7 @@ public class OAuthControllerTest {
                 .param("client_id", "client_id")
                 .param("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
                 .param("client_assertion", "client_assertion"))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isBadRequest());
 
         mockMvc.perform(post("/oauth/v2/token")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
@@ -141,7 +141,7 @@ public class OAuthControllerTest {
                         .param("client_id", "client_id")
                         .param("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
                         .param("client_assertion", "client_assertion"))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isBadRequest());
 
         Mockito.when(oAuthServiceImpl.getTokens(Mockito.any(TokenRequestV2.class), Mockito.any(), Mockito.anyBoolean())).thenThrow(NullPointerException.class);
         mockMvc.perform(post("/oauth/token")
@@ -308,7 +308,7 @@ public class OAuthControllerTest {
         mockMvc.perform(post("/oauth/par")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .params(params))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isBadRequest());
     }
 
 }

@@ -119,8 +119,6 @@ public class OAuthServiceImpl implements OAuthService {
             validateAndUpdateDpopServerNonce(dpopHeader, transaction);
         }
 
-        IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), tokenRequest.getRedirect_uri());
-
         authenticateClient(tokenRequest, clientDetailDto,isV2);
 
         boolean isTransactionVCScoped = isTransactionVCScoped(transaction);
