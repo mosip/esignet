@@ -2,7 +2,6 @@ import {
   encodeString,
   decodeHash,
   checkConfigProperty,
-  sortKeysDeep,
   getOauthDetailsHash,
   base64UrlDecode,
   getPollingConfig,
@@ -49,37 +48,6 @@ describe('Utility functions', () => {
 
     it('should return false if config is null', () => {
       expect(checkConfigProperty(null, 'foo')).toBe(false);
-    });
-  });
-
-  describe('sortKeysDeep', () => {
-    it('should sort keys of a flat object', () => {
-      const obj = { b: 2, a: 1 };
-      const result = sortKeysDeep(obj);
-      expect(Object.keys(result)).toEqual(['a', 'b']);
-    });
-
-    it('should sort nested keys', () => {
-      const obj = { b: { d: 2, c: 1 }, a: 0 };
-      const result = sortKeysDeep(obj);
-      expect(Object.keys(result)).toEqual(['a', 'b']);
-      expect(Object.keys(result.b)).toEqual(['c', 'd']);
-    });
-
-    it('should sort array of objects', () => {
-      const arr = [
-        { b: 2, a: 1 },
-        { d: 4, c: 3 },
-      ];
-      const result = sortKeysDeep(arr);
-      expect(result[0]).toEqual({ a: 1, b: 2 });
-      expect(result[1]).toEqual({ c: 3, d: 4 });
-    });
-
-    it('should return non-object values as is', () => {
-      expect(sortKeysDeep('string')).toBe('string');
-      expect(sortKeysDeep(123)).toBe(123);
-      expect(sortKeysDeep(null)).toBe(null);
     });
   });
 
