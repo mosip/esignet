@@ -53,6 +53,7 @@ import static io.mosip.esignet.core.spi.OAuthService.JWT_BEARER_TYPE;
 import static org.mockito.Mockito.mock;
 import static org.mockito.ArgumentMatchers.any;
 import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_DPOP_PROOF;
+import static org.mockito.Mockito.times;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OAuthServiceTest {
@@ -1010,6 +1011,8 @@ public class OAuthServiceTest {
             Assert.assertEquals(ErrorConstants.USE_DPOP_NONCE, ex.getErrorCode());
             Assert.assertNotNull(ex.getDpopNonceHeaderValue());
             Assert.assertNotEquals(expiredNonce, ex.getDpopNonceHeaderValue());
+            Mockito.verify(cacheUtilService, times(1)).
+                    updateNonceInCachedTransaction(Mockito.anyString(),Mockito.anyString(), Long.valueOf(Mockito.anyString()));
         }
     }
 
@@ -1060,6 +1063,9 @@ public class OAuthServiceTest {
             Assert.fail();
         } catch (DPoPNonceMissingException ex) {
             Assert.assertEquals(USE_DPOP_NONCE, ex.getErrorCode());
+            Assert.assertNotNull(ex.getDpopNonceHeaderValue());
+            Mockito.verify(cacheUtilService, times(1)).
+                    updateNonceInCachedTransaction(Mockito.anyString(),Mockito.anyString(), Long.valueOf(Mockito.anyString()));
         }
     }
 

@@ -36,7 +36,7 @@ public class SecurityHelperService {
         return IdentityProviderUtil.generateRandomAlphaNumeric(length);
     }
 
-    public String computeJwkThumbprint(JWK jwk) throws IllegalArgumentException, JsonProcessingException, NoSuchAlgorithmException {
+    public String computeJwkThumbprint(JWK jwk) throws Exception {
         if (jwk == null) {
             throw new IllegalArgumentException(ErrorConstants.INVALID_PUBLIC_KEY);
         }

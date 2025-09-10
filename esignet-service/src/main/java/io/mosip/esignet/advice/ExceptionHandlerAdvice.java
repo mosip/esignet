@@ -159,45 +159,43 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
     }
 
     public ResponseEntity<OAuthError> handleOpenIdConnectControllerExceptions(Exception ex) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Cache-Control", "no-store");
+        headers.add("Pragma","no-cache");
         if(ex instanceof MethodArgumentNotValidException) {
             FieldError fieldError = ((MethodArgumentNotValidException) ex).getBindingResult().getFieldError();
             String message = fieldError != null ? fieldError.getDefaultMessage() : ex.getMessage();
-            return new ResponseEntity<OAuthError>(getErrorRespDto(INVALID_INPUT, message), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<OAuthError>(getErrorRespDto(INVALID_INPUT, message),headers, HttpStatus.BAD_REQUEST);
         }
         if(ex instanceof ConstraintViolationException) {
             Set<ConstraintViolation<?>> violations = ((ConstraintViolationException) ex).getConstraintViolations();
             String message = !violations.isEmpty() ? violations.stream().findFirst().get().getMessage() : ex.getMessage();
-            return new ResponseEntity<OAuthError>(getErrorRespDto(INVALID_INPUT, message), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<OAuthError>(getErrorRespDto(INVALID_INPUT, message),headers, HttpStatus.BAD_REQUEST);
         }
         if(ex instanceof InvalidRequestException) {
             String errorCode = ((EsignetException) ex).getErrorCode();
-            return new ResponseEntity<OAuthError>(getErrorRespDto(errorCode, getMessage(errorCode)), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<OAuthError>(getErrorRespDto(errorCode, getMessage(errorCode)),headers, HttpStatus.BAD_REQUEST);
         }
         if (ex instanceof MaxUploadSizeExceededException) {
             long maxUploadSize = ((MaxUploadSizeExceededException) ex).getMaxUploadSize();
             String message = "Maximum upload size exceeded. Limit is " + maxUploadSize + " bytes.";
-            return new ResponseEntity<OAuthError>(getErrorRespDto(PAYLOAD_TOO_LARGE, message), HttpStatus.PAYLOAD_TOO_LARGE);
+            return new ResponseEntity<OAuthError>(getErrorRespDto(PAYLOAD_TOO_LARGE, message), headers,HttpStatus.PAYLOAD_TOO_LARGE);
         }
         if (ex instanceof DPoPNonceMissingException) {
             DPoPNonceMissingException dpopEx = (DPoPNonceMissingException) ex;
             String errorCode = dpopEx.getErrorCode();
-            HttpHeaders headers = new HttpHeaders();
-            if (dpopEx.getDpopNonceHeaderValue() != null) {
-                headers.add("DPoP-Nonce", dpopEx.getDpopNonceHeaderValue());
-                headers.add("Access-Control-Expose-Headers", "DPoP-Nonce, WWW-Authenticate");
-                headers.add("Cache-Control", "no-store");
-                return new ResponseEntity<OAuthError>(getErrorRespDto(errorCode, getMessage(errorCode)), headers, HttpStatus.BAD_REQUEST);
-            }
-            return new ResponseEntity<OAuthError>(getErrorRespDto(errorCode, getMessage(errorCode)), HttpStatus.INTERNAL_SERVER_ERROR);
+            headers.add("DPoP-Nonce", dpopEx.getDpopNonceHeaderValue());
+            headers.add("Access-Control-Expose-Headers", "DPoP-Nonce, WWW-Authenticate");
+            return new ResponseEntity<OAuthError>(getErrorRespDto(errorCode, getMessage(errorCode)), headers, HttpStatus.BAD_REQUEST);
         }
         if(ex instanceof EsignetException) {
             String errorCode = ((EsignetException) ex).getErrorCode();
-            return new ResponseEntity<OAuthError>(getErrorRespDto(errorCode, getMessage(errorCode)), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<OAuthError>(getErrorRespDto(errorCode, getMessage(errorCode)), headers,HttpStatus.BAD_REQUEST);
         }
         if (ex instanceof BindException) {
             FieldError fieldError = ((BindException) ex).getFieldError();
             String message = fieldError != null ? fieldError.getDefaultMessage() : ex.getMessage();
-            return new ResponseEntity<OAuthError>(getErrorRespDto(message, message), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<OAuthError>(getErrorRespDto(message, message),headers, HttpStatus.BAD_REQUEST);
         }
         log.error("Unhandled exception encountered in handler advice", ex);
         return new ResponseEntity<OAuthError>(getErrorRespDto(UNKNOWN_ERROR, ex.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);

@@ -96,9 +96,9 @@ public class OAuthServiceImpl implements OAuthService {
     private String discoveryIssuerId;
 
     @Value("${mosip.esignet.par.expire-seconds:60}")
-    private int parTTLInSeconds;
+    private int parExpireInSeconds;
 
-    @Value("${mosip.esignet.dpop.nonce.expire.seconds:300}")
+    @Value("${mosip.esignet.dpop.nonce.expire.seconds:15}")
     private long nonceExpirySeconds;
 
     @Override
@@ -112,17 +112,14 @@ public class OAuthServiceImpl implements OAuthService {
         IdentityProviderUtil.validateRedirectURI(Collections.singletonList(transaction.getRedirectUri()), tokenRequest.getRedirect_uri());
 
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(transaction.getClientId());
-        try {
-            if (transaction.isDpopBoundAccessToken()) {
-                if (dpopHeader == null) throw new EsignetException(INVALID_REQUEST);
-                SignedJWT signedJWT = SignedJWT.parse(dpopHeader);
-                transaction.setDpopJkt(validateDpopJktAgainstDpopHeaderAndGetPublicKeyThumbprint(signedJWT, transaction.getDpopJkt()));
-                validateAndUpdateDpopServerNonce(signedJWT, transaction);
-            }
-        }catch (ParseException | IllegalArgumentException | NoSuchAlgorithmException | JsonProcessingException e) {
-            log.error("Failed to parse DPoP header", e);
-            throw new EsignetException(ErrorConstants.INVALID_DPOP_PROOF);
+
+        if (transaction.isDpopBoundAccessToken()) {
+            if (dpopHeader == null) throw new EsignetException(INVALID_REQUEST);
+            transaction.setDpopJkt(validateDpopJktThumbprint(dpopHeader,transaction.getDpopJkt()));
+            validateAndUpdateDpopServerNonce(dpopHeader, transaction);
         }
+
+        IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), tokenRequest.getRedirect_uri());
 
         authenticateClient(tokenRequest, clientDetailDto,isV2);
 
@@ -184,12 +181,7 @@ public class OAuthServiceImpl implements OAuthService {
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(pushedAuthorizationRequest.getClient_id());
 
         if(dpopHeader != null) {
-            try {
-                pushedAuthorizationRequest.setDpop_jkt(validateDpopJktAgainstDpopHeaderAndGetPublicKeyThumbprint(SignedJWT.parse(dpopHeader), pushedAuthorizationRequest.getDpop_jkt()));
-            } catch (NoSuchAlgorithmException | JsonProcessingException | ParseException e) {
-                log.error("Failed to parse DPoP header", e);
-                throw new EsignetException(ErrorConstants.INVALID_DPOP_PROOF);
-            }
+            pushedAuthorizationRequest.setDpop_jkt(validateDpopJktThumbprint(dpopHeader, pushedAuthorizationRequest.getDpop_jkt()));
         }
 
         log.info("nonce : {} Valid client id found, proceeding to validate redirect URI", pushedAuthorizationRequest.getNonce());
@@ -203,7 +195,7 @@ public class OAuthServiceImpl implements OAuthService {
         cacheUtilService.savePAR(requestUriUniqueId, pushedAuthorizationRequest);
         PushedAuthorizationResponse response = new PushedAuthorizationResponse();
         response.setRequest_uri(requestUri);
-        response.setExpires_in(parTTLInSeconds);
+        response.setExpires_in(parExpireInSeconds);
         return response;
     }
 
@@ -406,28 +398,40 @@ public class OAuthServiceImpl implements OAuthService {
         return null;
     }
 
-    private String validateDpopJktAgainstDpopHeaderAndGetPublicKeyThumbprint(SignedJWT dpopJwt, String dpopJkt) throws IllegalArgumentException, NoSuchAlgorithmException, JsonProcessingException {
+    private String validateDpopJktThumbprint(String dpopHeader,String dpopJkt) {
+        try {
+            SignedJWT dpopJwt = SignedJWT.parse(dpopHeader);
             String thumbprint = securityHelperService.computeJwkThumbprint(dpopJwt.getHeader().getJWK());
-            if(dpopJkt != null && !dpopJkt.equals(thumbprint)) {
+            if (dpopJkt != null && !dpopJkt.equals(thumbprint)) {
                 throw new EsignetException(ErrorConstants.INVALID_DPOP_PROOF);
             }
             return thumbprint;
+        } catch (Exception e) {
+            log.error("validateDpopThumbprint failed", e);
+        }
+        throw new EsignetException(ErrorConstants.INVALID_DPOP_PROOF);
     }
 
-    private void validateAndUpdateDpopServerNonce(SignedJWT signedJWT, OIDCTransaction transaction) throws EsignetException {
-        net.minidev.json.JSONObject payload = signedJWT.getPayload().toJSONObject();
-        String dpopProofNonce = (String) payload.get("nonce");
-        long currentTime = System.currentTimeMillis();
+    private void validateAndUpdateDpopServerNonce(String dpopHeader, OIDCTransaction transaction) throws EsignetException {
+        try {
+            SignedJWT dpopJwt = SignedJWT.parse(dpopHeader);
+            net.minidev.json.JSONObject payload = dpopJwt.getPayload().toJSONObject();
+            String dpopProofNonce = (String) payload.get("nonce");
+            long currentTime = System.currentTimeMillis();
 
-        String serverNonce = transaction.getDpopServerNonce();
-        Long serverNonceTTL = transaction.getDpopServerNonceTTL();
+            String serverNonce = transaction.getDpopServerNonce();
+            Long serverNonceTTL = transaction.getDpopServerNonceTTL();
 
-        boolean nonceMatches = dpopProofNonce != null && dpopProofNonce.equals(serverNonce);
-        boolean nonceExpired = serverNonceTTL == null || currentTime > serverNonceTTL;
+            boolean nonceMatches = dpopProofNonce != null && dpopProofNonce.equals(serverNonce);
+            boolean nonceExpired = serverNonceTTL == null || currentTime > serverNonceTTL;
 
-        if (!nonceMatches || nonceExpired) {
-            String newNonce = generateAndStoreNewNonce(transaction.getCodeHash(), currentTime);
-            throw new DPoPNonceMissingException(newNonce);
+            if (!nonceMatches || nonceExpired) {
+                String newNonce = generateAndStoreNewNonce(transaction.getCodeHash(), currentTime);
+                throw new DPoPNonceMissingException(newNonce);
+            }
+        }catch (Exception e) {
+            log.error("validateAndUpdateDpopServerNonce failed", e);
+            throw new DPoPNonceMissingException(ErrorConstants.USE_DPOP_NONCE);
         }
     }
 
