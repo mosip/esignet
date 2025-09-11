@@ -197,30 +197,13 @@ public class CacheUtilService {
      * Check if JTI is used.
      * Returns true if already used (replay detected), false otherwise.
      */
-    @Cacheable(value = Constants.JTI_CACHE, key = "#jti")
-    public boolean isJtiUsed(String jti) {
-        // Cache miss means not used yet -> false
-        return false;
-    }
-
-    /**
-     * Mark JTI as used.
-     * This method will put the JTI in cache with value true.
-     */
-    @CachePut(value = Constants.JTI_CACHE, key = "#jti")
-    public boolean markJtiUsed(String jti) {
-        return true;
-    }
-
-    /**
-     * Convenience method to check and mark JTI in one step.
-     * Returns true if replay detected, false if marked successfully.
-     */
     public boolean checkAndMarkJti(String jti) {
-        if (isJtiUsed(jti)) {
+        Cache jtiCache = cacheManager.getCache(Constants.JTI_CACHE);
+        if (jtiCache.get(jti) != null) {
+            log.error("Replay detected for jti: {}", jti);
             return true;
         }
-        markJtiUsed(jti);
+        jtiCache.put(jti, true);
         return false;
     }
 

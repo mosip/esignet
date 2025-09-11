@@ -7,7 +7,6 @@ import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.*;
 import io.mosip.esignet.core.constants.ErrorConstants;
-import io.mosip.esignet.core.exception.InvalidDPoPHeaderException;
 import io.mosip.esignet.services.CacheUtilService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -19,8 +18,6 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import javax.servlet.FilterChain;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -132,7 +129,7 @@ public class DpopValidationFilterTest {
     }
 
     @Test
-    public void testReplayDetectionReturns401() throws Exception {
+    public void testReplayDetection_thenPass() throws Exception {
         String dpopJwt = createDpopJwtWithAllClaims("GET", "http://localhost/userinfo", accessToken, true);
 
         request.setRequestURI("/userinfo");
@@ -144,32 +141,9 @@ public class DpopValidationFilterTest {
 
         filter.doFilterInternal(request, response, filterChain);
 
-        assertEquals(401, response.getStatus());
+        assertEquals(400, response.getStatus());
         assertTrue(response.getHeader("WWW-Authenticate").contains(ErrorConstants.INVALID_DPOP_PROOF));
         verify(filterChain, never()).doFilter(any(), any());
-    }
-
-    @Test
-    public void testCheckRequiredClaims_missingClaim_throws() throws Exception {
-        JWTClaimsSet claims = new JWTClaimsSet.Builder()
-                .jwtID(UUID.randomUUID().toString())
-                .claim("htm", "GET")
-                .claim("htu", "http://localhost/userinfo")
-                // iat claim omitted on purpose
-                .claim("cnf", Collections.singletonMap("jkt", "someThumbprint"))
-                .build();
-
-        Method method = DpopValidationFilter.class.getDeclaredMethod("checkRequiredClaims", JWTClaimsSet.class);
-        method.setAccessible(true);
-
-        try {
-            method.invoke(filter, claims);
-            fail("Expected InvalidDPoPHeaderException");
-        } catch (InvocationTargetException e) {
-            Throwable cause = e.getCause();
-            assertTrue(cause instanceof InvalidDPoPHeaderException);
-            assertEquals(ErrorConstants.INVALID_DPOP_HEADER, cause.getMessage());
-        }
     }
 
     @Test
@@ -183,7 +157,7 @@ public class DpopValidationFilterTest {
 
         filter.doFilterInternal(request, response, filterChain);
 
-        assertEquals(401, response.getStatus());
+        assertEquals(400, response.getStatus());
         assertTrue(response.getHeader("WWW-Authenticate").contains(ErrorConstants.INVALID_DPOP_PROOF));
         verify(filterChain, never()).doFilter(any(), any());
     }
@@ -199,7 +173,7 @@ public class DpopValidationFilterTest {
 
         filter.doFilterInternal(request, response, filterChain);
 
-        assertEquals(401, response.getStatus());
+        assertEquals(400, response.getStatus());
         assertTrue(response.getHeader("WWW-Authenticate").contains(ErrorConstants.INVALID_DPOP_PROOF));
         verify(filterChain, never()).doFilter(any(), any());
     }
@@ -215,7 +189,7 @@ public class DpopValidationFilterTest {
 
         filter.doFilterInternal(request, response, filterChain);
 
-        assertEquals(401, response.getStatus());
+        assertEquals(400, response.getStatus());
         assertTrue(response.getHeader("WWW-Authenticate").contains(ErrorConstants.INVALID_DPOP_PROOF));
         verify(filterChain, never()).doFilter(any(), any());
     }
