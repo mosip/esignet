@@ -139,7 +139,7 @@ public class OAuthServiceImpl implements OAuthService {
     @Override
     public Map<String, Object> getJwks() {
         AllCertificatesDataResponseDto allCertificatesDataResponseDto = keymanagerService.getAllCertificates(
-                Constants.OIDC_SERVICE_APP_ID, Optional.empty());
+                OIDC_SERVICE_APP_ID, Optional.empty());
         List<Map<String, Object>> jwkList = new ArrayList<>();
         Arrays.stream(allCertificatesDataResponseDto.getAllCertificates()).forEach( dto -> {
             try {
@@ -291,7 +291,7 @@ public class OAuthServiceImpl implements OAuthService {
         if(transaction.isDpopBoundAccessToken()) {
             tokenResponse.setToken_type(DPOP);
         } else {
-            tokenResponse.setToken_type(Constants.BEARER);
+            tokenResponse.setToken_type(BEARER);
         }
         String accessTokenHash = IdentityProviderUtil.generateOIDCAtHash(tokenResponse.getAccess_token());
         transaction.setAHash(accessTokenHash);
@@ -369,7 +369,7 @@ public class OAuthServiceImpl implements OAuthService {
         KycExchangeResult kycExchangeResult = new KycExchangeResult();
         JSONObject payload = new JSONObject();
         payload.put(TokenService.SUB, kycExchangeDto.getIndividualId());
-        kycExchangeResult.setEncryptedKyc(tokenService.getSignedJWT(Constants.OIDC_SERVICE_APP_ID, payload));
+        kycExchangeResult.setEncryptedKyc(tokenService.getSignedJWT(OIDC_SERVICE_APP_ID, payload));
         return kycExchangeResult;
     }
 
@@ -411,26 +411,27 @@ public class OAuthServiceImpl implements OAuthService {
     }
 
     private void validateAndUpdateDpopServerNonce(String dpopHeader, OIDCTransaction transaction) throws EsignetException {
+        String dpopProofNonce = "";
         try {
             SignedJWT dpopJwt = SignedJWT.parse(dpopHeader);
             net.minidev.json.JSONObject payload = dpopJwt.getPayload().toJSONObject();
-            String dpopProofNonce = (String) payload.get("nonce");
-            long currentTime = System.currentTimeMillis();
-
-            String serverNonce = transaction.getDpopServerNonce();
-            Long serverNonceTTL = transaction.getDpopServerNonceTTL();
-
-            boolean nonceMatches = dpopProofNonce != null && dpopProofNonce.equals(serverNonce);
-            boolean nonceExpired = serverNonceTTL == null || currentTime > serverNonceTTL;
-
-            if (!nonceMatches || nonceExpired) {
-                String newNonce = generateAndStoreNewNonce(transaction.getCodeHash(), currentTime);
-                throw new DPoPNonceMissingException(newNonce);
-            }
-        }catch (Exception e) {
+            dpopProofNonce = (String) payload.get("nonce");
+        }catch (ParseException e) {
             log.error("validateAndUpdateDpopServerNonce failed", e);
-            throw new DPoPNonceMissingException(ErrorConstants.USE_DPOP_NONCE);
         }
+        long currentTime = System.currentTimeMillis();
+
+        String serverNonce = transaction.getDpopServerNonce();
+        Long serverNonceTTL = transaction.getDpopServerNonceTTL();
+
+        boolean nonceMatches = dpopProofNonce != null && dpopProofNonce.equals(serverNonce);
+        boolean nonceExpired = serverNonceTTL == null || currentTime > serverNonceTTL;
+
+        if (nonceMatches && !nonceExpired) {
+            return;
+        }
+        String newNonce = generateAndStoreNewNonce(transaction.getCodeHash(), currentTime);
+        throw new DPoPNonceMissingException(newNonce);
     }
 
     private String generateAndStoreNewNonce(String codeHash, long currentTime) {
