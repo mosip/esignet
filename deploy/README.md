@@ -41,8 +41,9 @@
   - Update the **namespace** in the `install.sh` script according to the plugin being deployed.
   - Update the **namespace** and **esignet service name** in the `esignet-with-plugin install.sh` script according to the plugin being deployed.
   - Update the **namespace**, **OIDC service name**, and **esignet service name** in the `oidc-ui install.sh` script according to the plugin being deployed.
+  - Update the **namespace** and **esignet service name** in the `partner-onboarder` install script if these values are changed for the `mosip identity plugin`.
     * Example: Sunbird Plugin Deployment
-      * namespace: esignet-sunbird
+      *  namespace: esignet-sunbird
       *  mosip-esignet-host: esignet-sunbird.sandbox.mosip.net
       *  esignet service name: esignet-sunbird
       *  oidc service name: oidc-ui-sunbird
