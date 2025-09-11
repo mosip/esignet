@@ -8,7 +8,6 @@ if [ $# -ge 1 ] ; then
 fi
 
 ROOT_DIR=`pwd`
-NS=esignet
 
 function prompt_for_initialisation() {
   local module_name=$1

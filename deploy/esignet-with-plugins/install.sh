@@ -7,7 +7,7 @@ if [ $# -ge 1 ] ; then
 fi
 
 NS=esignet
-SERVICE_NAME=esignet
+ESIGNET_SERVICE_NAME=esignet
 CHART_VERSION=0.0.1-develop
 echo Create $NS namespace
 kubectl create ns $NS
@@ -31,10 +31,8 @@ function installing_esignet_with_plugins() {
   helm repo update
 
   COPY_UTIL=../copy_cm_func.sh
-  $COPY_UTIL configmap esignet-softhsm-share softhsm $NS
   $COPY_UTIL configmap postgres-config postgres $NS
   $COPY_UTIL configmap redis-config redis $NS
-  $COPY_UTIL secret esignet-softhsm softhsm $NS
   $COPY_UTIL secret redis redis $NS
 
   while true; do
@@ -228,13 +226,13 @@ EOF
 
 
   echo Installing esignet-with-plugins
-  helm -n $NS install $SERVICE_NAME mosip/esignet --version $CHART_VERSION  \
+  helm -n $NS install $ESIGNET_SERVICE_NAME mosip/esignet --version $CHART_VERSION  \
     $ENABLE_INSECURE $plugin_option \
     $ESIGNET_HELM_ARGS \
     $extra_env_vars_cm_set \
     --set metrics.serviceMonitor.enabled=$servicemonitorflag -f values.yaml --wait
 
-  kubectl -n $NS get deploy $SERVICE_NAME -o name | xargs -n1 -t kubectl -n $NS rollout status
+  kubectl -n $NS get deploy $ESIGNET_SERVICE_NAME -o name | xargs -n1 -t kubectl -n $NS rollout status
 
   echo Installed esignet-with-plugins service
   return 0
