@@ -10,18 +10,19 @@ import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.BadJWTException;
 import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
+import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidDPoPHeaderException;
+import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.services.CacheUtilService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.MessageSource;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -32,9 +33,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.*;
@@ -43,19 +41,23 @@ import java.util.*;
 @ControllerAdvice
 public class DpopValidationFilter extends OncePerRequestFilter {
 
+    @Autowired
+    private CacheUtilService cacheUtilService;
+
     @Value("#{${mosip.esignet.dpop.header-filter.paths-to-validate}}")
     private List<String> pathsToValidate;
 
     @Value("${mosip.esignet.dpop.clock-skew:10}")
     private int maxClockSkewSeconds;
 
-    @Autowired
-    private CacheUtilService cacheUtilService;
+    @Value("#{${mosip.esignet.discovery.key-values}}")
+    private Map<String, Object> discoveryMap;
 
     private static final Set<String> REQUIRED_CLAIMS = Set.of("htm", "htu", "iat", "jti", "cnf");
-    private static final Set<String> SUPPORTED_ALGORITHMS = Set.of("ES256", "RS256");
 
     public static final String ALGO_SHA_256 = "SHA-256";
+
+    public static final String DPOP_PREFIX = "DPoP ";
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
@@ -68,14 +70,17 @@ public class DpopValidationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String uri = request.getRequestURI();
-
-        Enumeration<String> dpopHeaders = request.getHeaders("DPoP");
+        Enumeration<String> dpopHeaders = request.getHeaders(Constants.DPOP);
         List<String> dpopHeaderList = Collections.list(dpopHeaders);
 
         if (dpopHeaderList.isEmpty()) {
-            log.warn("DPoP header missing . Skipping DPoP validation.");
             filterChain.doFilter(request, response);
             return;
+        }
+
+        if (dpopHeaderList.size()>1) {
+            log.warn("Multiple DPoP headers found");
+            throw new InvalidDPoPHeaderException();
         }
 
         String dpopHeader = dpopHeaderList.get(0);
@@ -89,16 +94,16 @@ public class DpopValidationFilter extends OncePerRequestFilter {
             replayCheck(claims);
 
             if (uri.endsWith("/userinfo")) {
-                checkCnfJktClaim(claims, jwk);
                 validateAthClaim(claims, request);
-            } else {
-                checkCnfClaimPresent(claims);
             }
 
             filterChain.doFilter(request, response);
         } catch (InvalidDPoPHeaderException | ParseException ex) {
             log.error("Unexpected DPoP validation error", ex);
             setAuthErrorResponse(response, ErrorConstants.INVALID_DPOP_PROOF, ex.getMessage());
+        } catch (Exception ex) {
+            log.error("Unexpected DPoP validation error", ex);
+            setAuthErrorResponse(response, ErrorConstants.UNKNOWN_ERROR, ex.getMessage());
         }
     }
 
@@ -123,13 +128,15 @@ public class DpopValidationFilter extends OncePerRequestFilter {
             SignedJWT jwt = SignedJWT.parse(dpopJwt);
             JWSHeader header = jwt.getHeader();
 
-            if (header == null || header.getType() == null || !"dpop+jwt".equalsIgnoreCase(header.getType().toString())) {
+            if (header == null || header.getType() == null || !"dpop+jwt".equals(header.getType().toString())) {
                 log.error("Invalid typ header: expected dpop+jwt");
                 throw new InvalidDPoPHeaderException();
             }
 
+            List<String> supportedClaims = (List<String>) discoveryMap.get("dpop_signing_alg_values_supported");
+
             String alg = header.getAlgorithm() != null ? header.getAlgorithm().getName() : null;
-            if (alg == null || "none".equalsIgnoreCase(alg) || !SUPPORTED_ALGORITHMS.contains(alg)) {
+            if (alg == null || !supportedClaims.contains(alg)) {
                 log.error("Invalid or unsupported alg header");
                 throw new InvalidDPoPHeaderException();
             }
@@ -253,18 +260,13 @@ public class DpopValidationFilter extends OncePerRequestFilter {
             throw new InvalidDPoPHeaderException();
         }
         String accessToken = getAccessToken(request);
-        if (accessToken == null) {
-            log.error("Access token required for ath claim validation but not found");
-            throw new InvalidDPoPHeaderException();
-        }
-
         try {
-            String hash = sha256Base64Url(accessToken);
+            String hash = IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA_256,accessToken);
             if (!ath.equals(hash)) {
                 log.error("ath claim does not match access token hash. Expected: {}, Actual: {}", hash, ath);
                 throw new InvalidDPoPHeaderException();
             }
-        } catch (NoSuchAlgorithmException e) {
+        } catch (EsignetException e) {
             log.error("Failed to compute access token hash: {}", e.getMessage());
             throw new InvalidDPoPHeaderException();
         }
@@ -285,15 +287,10 @@ public class DpopValidationFilter extends OncePerRequestFilter {
 
     private String getAccessToken(HttpServletRequest request) {
         String auth = request.getHeader("Authorization");
-        if (auth != null && auth.toLowerCase().startsWith("bearer ")) {
-            return auth.substring(7).trim();
+        if (auth != null && auth.startsWith(DPOP_PREFIX)) {
+            return auth.substring(DPOP_PREFIX.length());
         }
-        return null;
+        throw new InvalidDPoPHeaderException();
     }
 
-    private String sha256Base64Url(String input) throws NoSuchAlgorithmException {
-        MessageDigest digest = MessageDigest.getInstance(ALGO_SHA_256);
-        byte[] hashed = digest.digest(input.getBytes(StandardCharsets.UTF_8));
-        return Base64URL.encode(hashed).toString();
-    }
 }

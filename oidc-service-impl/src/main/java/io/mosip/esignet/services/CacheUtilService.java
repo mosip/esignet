@@ -5,12 +5,14 @@
  */
 package io.mosip.esignet.services;
 
+import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.esignet.core.dto.LinkTransactionMetadata;
 import io.mosip.esignet.core.dto.ApiRateLimit;
 import io.mosip.esignet.core.dto.PushedAuthorizationRequest;
 import io.mosip.esignet.core.exception.DuplicateLinkCodeException;
 import io.mosip.esignet.core.constants.Constants;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -199,6 +201,7 @@ public class CacheUtilService {
      */
     public boolean checkAndMarkJti(String jti) {
         Cache jtiCache = cacheManager.getCache(Constants.JTI_CACHE);
+        if(Objects.isNull(jtiCache)) throw new EsignetException(ErrorConstants.UNKNOWN_ERROR);
         if (jtiCache.get(jti) != null) {
             log.error("Replay detected for jti: {}", jti);
             return true;
