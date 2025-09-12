@@ -79,4 +79,6 @@ public class OIDCTransaction implements Serializable {
 
     boolean dpopBoundAccessToken;
     String dpopJkt;
+    String dpopServerNonce;
+    Long dpopServerNonceTTL;
 }

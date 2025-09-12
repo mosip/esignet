@@ -210,6 +210,15 @@ public class CacheUtilService {
         return false;
     }
 
+    public void updateNonceInCachedTransaction(String codeHash, String newNonce, Long newExpiryTime) {
+        OIDCTransaction transaction = cacheManager.getCache(Constants.AUTH_CODE_GENERATED_CACHE).get(codeHash, OIDCTransaction.class);
+        if (transaction != null) {
+            transaction.setDpopServerNonce(newNonce);
+            transaction.setDpopServerNonceTTL(newExpiryTime);
+            Objects.requireNonNull(cacheManager.getCache(Constants.AUTH_CODE_GENERATED_CACHE)).put(codeHash, transaction);
+        }
+    }
+
     //------------------------------------------------------------------------------------------------------------------
 
     public PushedAuthorizationRequest getAndEvictPAR(String requestUri) {

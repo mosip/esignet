@@ -22,7 +22,7 @@ import java.util.TimeZone;
 @Component
 public class FilterCriteriaMatcher {
 
-    private final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+    private final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mmX");
 
     @Autowired
     private ObjectMapper objectMapper;

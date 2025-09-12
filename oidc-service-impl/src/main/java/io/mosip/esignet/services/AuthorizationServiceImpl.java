@@ -5,10 +5,9 @@
  */
 package io.mosip.esignet.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import io.mosip.esignet.api.dto.claim.*;
 import io.mosip.esignet.api.dto.KycAuthResult;
 import io.mosip.esignet.api.dto.SendOtpResult;
@@ -82,13 +81,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    private static ObjectMapper oAuthMapper;
-    static {
-        oAuthMapper = new ObjectMapper()
-                .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true)
-                .configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
-    }
 
     @Autowired
     private ConsentHelperService consentHelperService;
@@ -464,7 +456,12 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oAuthDetailResponse.setVoluntaryClaims(claimsMap.get(VOLUNTARY));
         oAuthDetailResponse.setAuthorizeScopes(authorizationHelperService.getAuthorizeScopes(oauthDetailReqDto.getScope()));
         Map<String, Object> config = new HashMap<>(uiConfigMap);
-        config.put("clientAdditionalConfig", clientDetailDto.getAdditionalConfig());
+        try {
+            config.put("clientAdditionalConfig", objectMapper.treeToValue(clientDetailDto.getAdditionalConfig(), Object.class));
+        } catch (JsonProcessingException e) {
+            log.error("Additional Config cannot be converted to Object");
+            throw new EsignetException(ErrorConstants.UNKNOWN_ERROR);
+        }
         oAuthDetailResponse.setConfigs(config);
         oAuthDetailResponse.setLogoUrl(clientDetailDto.getLogoUri());
         oAuthDetailResponse.setRedirectUri(oauthDetailReqDto.getRedirectUri());
@@ -560,8 +557,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     private String getOauthDetailsResponseHash(OAuthDetailResponse oauthDetailResponse) {
         try {
-            String json = oAuthMapper.writeValueAsString(objectMapper.convertValue(oauthDetailResponse, Object.class));
-            log.info("Oauth details json: {}", json);
+            String json = objectMapper.writeValueAsString(oauthDetailResponse);
             return IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA_256, json);
         } catch (Exception e) {
             log.error("Failed to generate oauth-details-response hash", e);
