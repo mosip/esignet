@@ -4,9 +4,9 @@ import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.ECDSASigner;
 import com.nimbusds.jose.jwk.*;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
-import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.*;
 import io.mosip.esignet.core.constants.ErrorConstants;
+import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.services.CacheUtilService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -68,14 +68,10 @@ public class DpopValidationFilterTest {
     }
 
     private String createDpopJwtWithAllClaims(String httpMethod, String uri, String accessToken, boolean withAth) throws Exception {
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
         String athHash = null;
         if (withAth) {
-            byte[] hashedToken = digest.digest(accessToken.getBytes(StandardCharsets.UTF_8));
-            athHash = Base64URL.encode(hashedToken).toString();
+            athHash = IdentityProviderUtil.generateB64EncodedHash(IdentityProviderUtil.ALGO_SHA_256, accessToken);
         }
-
-        Base64URL thumbprint = ecJwk.toPublicJWK().computeThumbprint();
 
         JWSHeader.Builder headerBuilder = new JWSHeader.Builder(JWSAlgorithm.ES256)
                 .type(new JOSEObjectType("dpop+jwt"))
@@ -94,8 +90,7 @@ public class DpopValidationFilterTest {
                 .jwtID(UUID.randomUUID().toString())
                 .claim("htm", httpMethod)
                 .claim("htu", htuClaim)
-                .issueTime(Date.from(Instant.now()))
-                .claim("cnf", Collections.singletonMap("jkt", thumbprint.toString()));
+                .issueTime(Date.from(Instant.now()));
 
         if (withAth) {
             claimsBuilder.claim("ath", athHash);

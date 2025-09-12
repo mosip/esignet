@@ -53,7 +53,7 @@ public class DpopValidationFilter extends OncePerRequestFilter {
     @Value("#{${mosip.esignet.discovery.key-values}}")
     private Map<String, Object> discoveryMap;
 
-    private static final Set<String> REQUIRED_CLAIMS = Set.of("htm", "htu", "iat", "jti", "cnf");
+    private static final Set<String> REQUIRED_CLAIMS = Set.of("htm", "htu", "iat", "jti");
 
     public static final String ALGO_SHA_256 = "SHA-256";
 
@@ -190,13 +190,10 @@ public class DpopValidationFilter extends OncePerRequestFilter {
     private void verifyClaimValues(JWTClaimsSet claims, HttpServletRequest request) throws ParseException {
         try {
             String reqUri = getRequestUriWithoutQueryNormalized(request);
-            Instant now = Instant.now();
-            Date iatDate = Date.from(now);
 
             DefaultJWTClaimsVerifier claimsSetVerifier = new DefaultJWTClaimsVerifier(new JWTClaimsSet.Builder()
                     .claim("htm", request.getMethod())
                     .claim("htu", reqUri)
-                    .issueTime(iatDate)
                     .build(), REQUIRED_CLAIMS);
             claimsSetVerifier.setMaxClockSkew(maxClockSkewSeconds);
             claimsSetVerifier.verify(claims);
