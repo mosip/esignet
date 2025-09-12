@@ -6,9 +6,11 @@
 package io.mosip.esignet.core.exception;
 
 import io.mosip.esignet.core.constants.ErrorConstants;
+import lombok.Getter;
 
 public class EsignetException extends RuntimeException {
 
+    @Getter
     private String errorCode;
 
     public EsignetException() {
@@ -21,7 +23,4 @@ public class EsignetException extends RuntimeException {
         this.errorCode = errorCode;
     }
 
-    public String getErrorCode() {
-        return errorCode;
-    }
 }

@@ -5,6 +5,7 @@
  */
 package io.mosip.esignet.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -25,6 +26,7 @@ import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
+import io.mosip.esignet.core.exception.DPoPNonceMissingException;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.spi.*;
@@ -40,6 +42,8 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
@@ -92,10 +96,14 @@ public class OAuthServiceImpl implements OAuthService {
     private String discoveryIssuerId;
 
     @Value("${mosip.esignet.par.expire-seconds:60}")
-    private int parTTLInSeconds;
+    private int parExpireInSeconds;
+
+    @Value("${mosip.esignet.dpop.nonce.expire.seconds:15}")
+    private long nonceExpirySeconds;
 
     @Override
     public TokenResponse getTokens(TokenRequestV2 tokenRequest, String dpopHeader, boolean isV2) throws EsignetException {
+
         String codeHash = authorizationHelperService.getKeyHash(tokenRequest.getCode());
         OIDCTransaction transaction = cacheUtilService.getAuthCodeTransaction(codeHash);
 
@@ -105,9 +113,10 @@ public class OAuthServiceImpl implements OAuthService {
 
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(transaction.getClientId());
 
-        if(transaction.isDpopBoundAccessToken()) {
-            if(dpopHeader == null) throw new EsignetException(INVALID_REQUEST);
-            transaction.setDpopJkt(validateDpopJktAgainstDpopHeaderAndGetPublicKeyThumbprint(dpopHeader, transaction.getDpopJkt()));
+        if (transaction.isDpopBoundAccessToken()) {
+            if (dpopHeader == null) throw new EsignetException(INVALID_REQUEST);
+            transaction.setDpopJkt(validateDpopJktThumbprint(dpopHeader,transaction.getDpopJkt()));
+            validateAndUpdateDpopServerNonce(dpopHeader, transaction);
         }
 
         authenticateClient(tokenRequest, clientDetailDto,isV2);
@@ -130,7 +139,7 @@ public class OAuthServiceImpl implements OAuthService {
     @Override
     public Map<String, Object> getJwks() {
         AllCertificatesDataResponseDto allCertificatesDataResponseDto = keymanagerService.getAllCertificates(
-                Constants.OIDC_SERVICE_APP_ID, Optional.empty());
+                OIDC_SERVICE_APP_ID, Optional.empty());
         List<Map<String, Object>> jwkList = new ArrayList<>();
         Arrays.stream(allCertificatesDataResponseDto.getAllCertificates()).forEach( dto -> {
             try {
@@ -170,7 +179,7 @@ public class OAuthServiceImpl implements OAuthService {
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(pushedAuthorizationRequest.getClient_id());
 
         if(dpopHeader != null) {
-            pushedAuthorizationRequest.setDpop_jkt(validateDpopJktAgainstDpopHeaderAndGetPublicKeyThumbprint(dpopHeader, pushedAuthorizationRequest.getDpop_jkt()));
+            pushedAuthorizationRequest.setDpop_jkt(validateDpopJktThumbprint(dpopHeader, pushedAuthorizationRequest.getDpop_jkt()));
         }
 
         log.info("nonce : {} Valid client id found, proceeding to validate redirect URI", pushedAuthorizationRequest.getNonce());
@@ -184,7 +193,7 @@ public class OAuthServiceImpl implements OAuthService {
         cacheUtilService.savePAR(requestUriUniqueId, pushedAuthorizationRequest);
         PushedAuthorizationResponse response = new PushedAuthorizationResponse();
         response.setRequest_uri(requestUri);
-        response.setExpires_in(parTTLInSeconds);
+        response.setExpires_in(parExpireInSeconds);
         return response;
     }
 
@@ -282,7 +291,7 @@ public class OAuthServiceImpl implements OAuthService {
         if(transaction.isDpopBoundAccessToken()) {
             tokenResponse.setToken_type(DPOP);
         } else {
-            tokenResponse.setToken_type(Constants.BEARER);
+            tokenResponse.setToken_type(BEARER);
         }
         String accessTokenHash = IdentityProviderUtil.generateOIDCAtHash(tokenResponse.getAccess_token());
         transaction.setAHash(accessTokenHash);
@@ -360,7 +369,7 @@ public class OAuthServiceImpl implements OAuthService {
         KycExchangeResult kycExchangeResult = new KycExchangeResult();
         JSONObject payload = new JSONObject();
         payload.put(TokenService.SUB, kycExchangeDto.getIndividualId());
-        kycExchangeResult.setEncryptedKyc(tokenService.getSignedJWT(Constants.OIDC_SERVICE_APP_ID, payload));
+        kycExchangeResult.setEncryptedKyc(tokenService.getSignedJWT(OIDC_SERVICE_APP_ID, payload));
         return kycExchangeResult;
     }
 
@@ -387,17 +396,48 @@ public class OAuthServiceImpl implements OAuthService {
         return null;
     }
 
-    private String validateDpopJktAgainstDpopHeaderAndGetPublicKeyThumbprint(String dpopHeader, String dpopJkt) {
+    private String validateDpopJktThumbprint(String dpopHeader,String dpopJkt) {
         try {
             SignedJWT dpopJwt = SignedJWT.parse(dpopHeader);
             String thumbprint = securityHelperService.computeJwkThumbprint(dpopJwt.getHeader().getJWK());
-            if(dpopJkt != null && !dpopJkt.equals(thumbprint)) {
+            if (dpopJkt != null && !dpopJkt.equals(thumbprint)) {
                 throw new EsignetException(ErrorConstants.INVALID_DPOP_PROOF);
             }
             return thumbprint;
         } catch (Exception e) {
-            log.error("validateDpopJktAgainstDpopHeaderAndGetPublicKeyThumbprint failed", e);
+            log.error("validateDpopThumbprint failed", e);
         }
         throw new EsignetException(ErrorConstants.INVALID_DPOP_PROOF);
     }
+
+    private void validateAndUpdateDpopServerNonce(String dpopHeader, OIDCTransaction transaction) throws EsignetException {
+        String dpopProofNonce = "";
+        try {
+            SignedJWT dpopJwt = SignedJWT.parse(dpopHeader);
+            net.minidev.json.JSONObject payload = dpopJwt.getPayload().toJSONObject();
+            dpopProofNonce = (String) payload.get("nonce");
+        }catch (ParseException e) {
+            log.error("validateAndUpdateDpopServerNonce failed", e);
+        }
+        long currentTime = System.currentTimeMillis();
+
+        String serverNonce = transaction.getDpopServerNonce();
+        Long serverNonceTTL = transaction.getDpopServerNonceTTL();
+
+        boolean nonceMatches = dpopProofNonce != null && dpopProofNonce.equals(serverNonce);
+        boolean nonceExpired = serverNonceTTL == null || currentTime > serverNonceTTL;
+
+        if (nonceMatches && !nonceExpired) {
+            return;
+        }
+        String newNonce = generateAndStoreNewNonce(transaction.getCodeHash(), currentTime);
+        throw new DPoPNonceMissingException(newNonce);
+    }
+
+    private String generateAndStoreNewNonce(String codeHash, long currentTime) {
+        String newNonce = IdentityProviderUtil.createTransactionId(null);
+        cacheUtilService.updateNonceInCachedTransaction(codeHash,newNonce,currentTime + nonceExpirySeconds * 1000L);
+        return newNonce;
+    }
+
 }
