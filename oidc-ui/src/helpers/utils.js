@@ -24,20 +24,6 @@ const checkConfigProperty = (config, property) => {
   return false;
 };
 
-const sortKeysDeep = (obj) => {
-  if (Array.isArray(obj)) {
-    return obj.map(sortKeysDeep);
-  } else if (obj !== null && typeof obj === 'object') {
-    return Object.keys(obj)
-      .sort((a, b) => a.localeCompare(b)) // ✅ locale-aware alphabetical sort
-      .reduce((result, key) => {
-        result[key] = sortKeysDeep(obj[key]);
-        return result;
-      }, {});
-  }
-  return obj;
-};
-
 /**
  * Generates a base64url-encoded SHA-256 hash of the given value.
  *
@@ -45,7 +31,7 @@ const sortKeysDeep = (obj) => {
  * @returns {Promise<string>} A Promise that resolves to the base64url-encoded hash string.
  */
 const getOauthDetailsHash = async (value) => {
-  let sha256Hash = sha256(JSON.stringify(sortKeysDeep(value)));
+  let sha256Hash = sha256(JSON.stringify(value));
   let hashB64 = Base64.stringify(sha256Hash)
     .split('=')[0]
     .replace(/\+/g, '-')
@@ -97,7 +83,6 @@ export {
   encodeString,
   decodeHash,
   checkConfigProperty,
-  sortKeysDeep,
   getOauthDetailsHash,
   base64UrlDecode,
   getPollingConfig,
