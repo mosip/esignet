@@ -5,12 +5,14 @@
  */
 package io.mosip.esignet.services;
 
+import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.esignet.core.dto.LinkTransactionMetadata;
 import io.mosip.esignet.core.dto.ApiRateLimit;
 import io.mosip.esignet.core.dto.PushedAuthorizationRequest;
 import io.mosip.esignet.core.exception.DuplicateLinkCodeException;
 import io.mosip.esignet.core.constants.Constants;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -191,6 +193,21 @@ public class CacheUtilService {
     @CachePut(value = Constants.PAR_CACHE, key = "#requestUri")
     public PushedAuthorizationRequest savePAR(String requestUri, PushedAuthorizationRequest pushedAuthorizationRequest) {
         return pushedAuthorizationRequest;
+    }
+
+    /**
+     * Check if JTI is used.
+     * Returns true if already used (replay detected), false otherwise.
+     */
+    public boolean checkAndMarkJti(String jti) {
+        Cache jtiCache = cacheManager.getCache(Constants.JTI_CACHE);
+        if(Objects.isNull(jtiCache)) throw new EsignetException(ErrorConstants.UNKNOWN_ERROR);
+        if (jtiCache.get(jti) != null) {
+            log.error("Replay detected for jti: {}", jti);
+            return true;
+        }
+        jtiCache.put(jti, true);
+        return false;
     }
 
     public void updateNonceInCachedTransaction(String codeHash, String newNonce, Long newExpiryTime) {
