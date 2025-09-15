@@ -7,10 +7,10 @@ fi
 
 function Restarting_esignet_with_plugins() {
   NS=esignet
-  SERVICE_NAME=esignet
-  kubectl -n $NS rollout restart deploy $SERVICE_NAME
+  ESIGNET_SERVICE_NAME=esignet
+  kubectl -n $NS rollout restart deploy $ESIGNET_SERVICE_NAME
 
-  kubectl -n $NS  get deploy $SERVICE_NAME -o name  |  xargs -n1 -t  kubectl -n $NS rollout status
+  kubectl -n $NS  get deploy $ESIGNET_SERVICE_NAME -o name  |  xargs -n1 -t  kubectl -n $NS rollout status
 
   echo Retarted esignet-with-plugins services
   return 0

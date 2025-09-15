@@ -8,10 +8,10 @@ fi
 
 function Restarting_oidc-ui() {
   NS=esignet
-  SERVICE_NAME=oidc-ui
-  kubectl -n $NS rollout restart deploy $SERVICE_NAME
+  OIDCUI_SERVICE_NAME=oidc-ui
+  kubectl -n $NS rollout restart deploy $OIDCUI_SERVICE_NAME
 
-  kubectl -n $NS  get deploy $SERVICE_NAME -o name |  xargs -n1 -t  kubectl -n $NS rollout status
+  kubectl -n $NS  get deploy $OIDCUI_SERVICE_NAME -o name |  xargs -n1 -t  kubectl -n $NS rollout status
 
   echo Retarted oidc-ui service
   return 0
