@@ -163,7 +163,7 @@ function installing_onboarder() {
       $NFS_OPTION \
       $S3_OPTION \
       --set onboarding.variables.push_reports_to_s3=$push_reports_to_s3 \
-      --set onboarding.configmaps.onboarder-namespace.ns_esigne="$NS"
+      --set onboarding.configmaps.onboarder-namespace.ns_esignet="$NS"
       $ENABLE_INSECURE \
       -f values.yaml \
       $KEYCLOAK_ARGS \
