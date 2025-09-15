@@ -25,13 +25,13 @@ public class OpenIdConnectController {
      * 1. The UserInfo Endpoint MUST accept Access Tokens
      * 2. The UserInfo Endpoint SHOULD support the use of Cross Origin Resource Sharing (CORS) [CORS] and or other methods
      * as appropriate to enable Javascript Clients to access the endpoint.
-     * @param bearerToken
+     * @param accessToken
      * @return
      * @throws EsignetException
      */
     @GetMapping(value = "/userinfo",produces = "application/jwt")
-    public String getUserInfo(@RequestHeader("Authorization") String bearerToken) throws EsignetException {
-        return openIdConnectService.getUserInfo(bearerToken);
+    public String getUserInfo(@RequestHeader("Authorization") String accessToken) throws EsignetException {
+        return openIdConnectService.getUserInfo(accessToken);
     }
     
     @GetMapping("/.well-known/openid-configuration")

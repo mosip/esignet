@@ -1,5 +1,6 @@
 package io.mosip.esignet.advice;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.ECDSASigner;
 import com.nimbusds.jose.jwk.*;
@@ -16,8 +17,11 @@ import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.client.HttpClientErrorException;
 
 import javax.servlet.FilterChain;
+import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -58,13 +62,12 @@ public class DpopValidationFilterTest {
                 .keyID("key1")
                 .generate();
 
-        accessToken = "sampleaccesstoken";
+        accessToken = generateAccessTokenForUserinfo(true);
 
         when(cacheUtilService.checkAndMarkJti(anyString())).thenReturn(false);
-
-        Map<String, Object> supportedAlgorithms = new HashMap<>();
-        supportedAlgorithms.put("dpop_signing_alg_values_supported", Arrays.asList("ES256", "RS256"));
         when(discoveryMap.get("dpop_signing_alg_values_supported")).thenReturn(Arrays.asList("ES256", "RS256"));
+
+        ReflectionTestUtils.setField(filter, "objectMapper", new ObjectMapper());
     }
 
     private String createDpopJwtWithAllClaims(String httpMethod, String uri, String accessToken, boolean withAth) throws Exception {
@@ -106,6 +109,24 @@ public class DpopValidationFilterTest {
 
     private void addAuthorizationHeader(MockHttpServletRequest req, String accessToken) {
         req.addHeader("Authorization", "DPoP " + accessToken);
+    }
+
+    private String generateAccessTokenForUserinfo(boolean addCnfClaim) throws Exception {
+        JWTClaimsSet.Builder claimsBuilder = new JWTClaimsSet.Builder()
+                .subject("test-user")
+                .expirationTime(Date.from(Instant.now().plusSeconds(3600)));
+
+        if (addCnfClaim) {
+            claimsBuilder.claim("cnf", Map.of("jkt", ecJwk.toPublicJWK().computeThumbprint()));
+        }
+
+        SignedJWT signedJWT = new SignedJWT(
+                new JWSHeader.Builder(JWSAlgorithm.ES256).build(),
+                claimsBuilder.build()
+        );
+
+        signedJWT.sign(new ECDSASigner(ecJwk.toECPrivateKey()));
+        return signedJWT.serialize();
     }
 
     @Test
@@ -187,6 +208,49 @@ public class DpopValidationFilterTest {
         assertEquals(400, response.getStatus());
         assertTrue(response.getHeader("WWW-Authenticate").contains(ErrorConstants.INVALID_DPOP_PROOF));
         verify(filterChain, never()).doFilter(any(), any());
+    }
+
+    @Test
+    public void testUserinfoRequestWithoutDpopHeaderAndAccessTokenWithoutCnfClaim_thenPass() throws Exception {
+        String accessTokenWithoutCnf = generateAccessTokenForUserinfo(false);
+
+        request.setRequestURI("/userinfo");
+        request.addHeader("Authorization", "Bearer " + accessTokenWithoutCnf);
+        request.setMethod("GET");
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
+        assertEquals(200, response.getStatus());
+    }
+
+    @Test
+    public void testUserinfoRequestWithoutDpopHeaderAndAccessTokenWithCnfClaim_thenFail() throws Exception {
+        request.setRequestURI("/userinfo");
+        request.addHeader("Authorization", "Bearer " + accessToken);
+        request.setMethod("GET");
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        verify(filterChain, never()).doFilter(request, response);
+        assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());
+        assertTrue(response.getHeader("WWW-Authenticate").contains(ErrorConstants.INVALID_AUTH_TOKEN));
+    }
+
+    @Test
+    public void testUserinfoRequestWithDpopHeaderAndAccessTokenWithoutCnfClaim_thenFail() throws Exception {
+        accessToken = generateAccessTokenForUserinfo(false);
+        String dpopJwt = createDpopJwtWithAllClaims("GET", "http://localhost/userinfo", accessToken, true);
+        request.setRequestURI("/userinfo");
+        request.addHeader("DPoP", dpopJwt);
+        addAuthorizationHeader(request, accessToken);
+        request.setMethod("GET");
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        verify(filterChain, never()).doFilter(request, response);
+        assertEquals(400, response.getStatus());
+        assertTrue(response.getHeader("WWW-Authenticate").contains(ErrorConstants.INVALID_DPOP_PROOF));
     }
 
 }

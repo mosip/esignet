@@ -45,16 +45,7 @@ public class OpenIdConnectServiceImpl implements OpenIdConnectService {
         String accessTokenHash = null;
         OIDCTransaction transaction = null;
         try {
-            if(accessToken == null || accessToken.isBlank())
-                throw new NotAuthenticatedException();
-
             String[] tokenParts = IdentityProviderUtil.splitAndTrimValue(accessToken, Constants.SPACE);
-            if(tokenParts.length <= 1)
-                throw new NotAuthenticatedException();
-
-            if(!Constants.BEARER.equals(tokenParts[0]))
-                throw new NotAuthenticatedException();
-
             accessTokenHash = IdentityProviderUtil.generateOIDCAtHash(tokenParts[1]);
             transaction = cacheUtilService.getUserInfoTransaction(accessTokenHash);
             if(transaction == null)
