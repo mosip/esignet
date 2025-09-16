@@ -41,9 +41,6 @@ public class DpopValidationFilterTest {
     @Mock
     private CacheUtilService cacheUtilService;
 
-    @Mock
-    private Map<String, Object> discoveryMap;
-
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
     private FilterChain filterChain;
@@ -65,12 +62,17 @@ public class DpopValidationFilterTest {
         accessToken = generateAccessTokenForUserinfo(true);
 
         when(cacheUtilService.checkAndMarkJti(anyString())).thenReturn(false);
-        when(discoveryMap.get("dpop_signing_alg_values_supported")).thenReturn(Arrays.asList("ES256", "RS256"));
+        ReflectionTestUtils.setField(filter, "discoveryMap", Map.ofEntries(
+                Map.entry("dpop_signing_alg_values_supported", Arrays.asList("ES256", "RS256")),
+                Map.entry("pushed_authorization_request_endpoint", "http://localhost/oauth/par"),
+                Map.entry("token_endpoint", "http://localhost/oauth/token"),
+                Map.entry("userinfo_endpoint", "http://localhost/userinfo")
+        ));
 
         ReflectionTestUtils.setField(filter, "objectMapper", new ObjectMapper());
     }
 
-    private String createDpopJwtWithAllClaims(String httpMethod, String uri, String accessToken, boolean withAth) throws Exception {
+    private String createDpopJwtWithAllClaims(String httpMethod, String htuClaim, String accessToken, boolean withAth) throws Exception {
         String athHash = null;
         if (withAth) {
             athHash = IdentityProviderUtil.generateB64EncodedHash(IdentityProviderUtil.ALGO_SHA_256, accessToken);
@@ -79,15 +81,6 @@ public class DpopValidationFilterTest {
         JWSHeader.Builder headerBuilder = new JWSHeader.Builder(JWSAlgorithm.ES256)
                 .type(new JOSEObjectType("dpop+jwt"))
                 .jwk(ecJwk.toPublicJWK());
-
-        String normalizedUri = new URI(uri).normalize().toString();
-        String htuClaim = new URI(
-                new URI(normalizedUri).getScheme().toLowerCase(),
-                new URI(normalizedUri).getAuthority().toLowerCase(),
-                new URI(normalizedUri).getPath(),
-                null,
-                null
-        ).toString();
 
         JWTClaimsSet.Builder claimsBuilder = new JWTClaimsSet.Builder()
                 .jwtID(UUID.randomUUID().toString())
@@ -130,7 +123,7 @@ public class DpopValidationFilterTest {
     }
 
     @Test
-    public void testValidDpopHeaderWithUserinfoPathIncludingAthClaim_thenPass() throws Exception {
+    public void testDpopHeader_withUserinfoPathAndAthClaim_thenPass() throws Exception {
         String dpopJwt = createDpopJwtWithAllClaims("GET", "http://localhost/userinfo", accessToken, true);
 
         request.setRequestURI("/userinfo");
@@ -145,7 +138,7 @@ public class DpopValidationFilterTest {
     }
 
     @Test
-    public void testReplayDetection_thenFail() throws Exception {
+    public void testDpopHeader_replayDetection_thenFail() throws Exception {
         String dpopJwt = createDpopJwtWithAllClaims("GET", "http://localhost/userinfo", accessToken, true);
 
         request.setRequestURI("/userinfo");
@@ -163,7 +156,7 @@ public class DpopValidationFilterTest {
     }
 
     @Test
-    public void testMismatchedHttpMethodInHtmClaim_thenFail() throws Exception {
+    public void testDpopHeader_mismatchedHttpMethodInHtmClaim_thenFail() throws Exception {
         String dpopJwt = createDpopJwtWithAllClaims("POST", "http://localhost/userinfo", accessToken, true);
 
         request.setRequestURI("/userinfo");
@@ -179,7 +172,7 @@ public class DpopValidationFilterTest {
     }
 
     @Test
-    public void testMissingAthClaimOnUserinfoPath_thenFail() throws Exception {
+    public void testDpopHeader_withUserinfoPathAndWithoutAthClaim_thenFail() throws Exception {
         String dpopJwt = createDpopJwtWithAllClaims("GET", "http://localhost/userinfo", accessToken, false); // ath missing
 
         request.setRequestURI("/userinfo");
@@ -211,7 +204,7 @@ public class DpopValidationFilterTest {
     }
 
     @Test
-    public void testUserinfoRequestWithoutDpopHeaderAndAccessTokenWithoutCnfClaim_thenPass() throws Exception {
+    public void testDpopHeader_withUserinfoPathAndWithoutDpopHeaderAndCnfClaim_thenPass() throws Exception {
         String accessTokenWithoutCnf = generateAccessTokenForUserinfo(false);
 
         request.setRequestURI("/userinfo");
@@ -225,7 +218,7 @@ public class DpopValidationFilterTest {
     }
 
     @Test
-    public void testUserinfoRequestWithoutDpopHeaderAndAccessTokenWithCnfClaim_thenFail() throws Exception {
+    public void testDpopHeader_withUserinfoPathAndWithoutDpopHeaderAndAccessTokenWithCnfClaim_thenFail() throws Exception {
         request.setRequestURI("/userinfo");
         request.addHeader("Authorization", "Bearer " + accessToken);
         request.setMethod("GET");
@@ -238,7 +231,7 @@ public class DpopValidationFilterTest {
     }
 
     @Test
-    public void testUserinfoRequestWithDpopHeaderAndAccessTokenWithoutCnfClaim_thenFail() throws Exception {
+    public void testDpopHeader_withUserinfoPathAndAccessTokenWithoutCnfClaim_thenFail() throws Exception {
         accessToken = generateAccessTokenForUserinfo(false);
         String dpopJwt = createDpopJwtWithAllClaims("GET", "http://localhost/userinfo", accessToken, true);
         request.setRequestURI("/userinfo");
