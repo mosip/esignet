@@ -324,7 +324,7 @@ export default function Consent({
       const params = new URLSearchParams({
         ...(response.state && { state: response.state }),
         code: response.code,
-        iss: issuer,
+        ...(issuer ? { iss: issuer } : {}), // only add if truthy
       });
       window.location.replace(`${response.redirectUri}?${params.toString()}`);
     } catch (error) {

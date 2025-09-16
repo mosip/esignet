@@ -290,10 +290,10 @@ describe('Consent Component', () => {
     });
   });
 
-  test('sets iss as undefined if getEsignetConfiguration returns nothing', async () => {
+  test('does not set iss if getEsignetConfiguration returns nothing', async () => {
     const noIssuerOIDC = {
       ...mockOIDCService,
-      getEsignetConfiguration: jest.fn(() => undefined),
+      getEsignetConfiguration: jest.fn(() => null),
     };
 
     render(
@@ -311,7 +311,7 @@ describe('Consent Component', () => {
     await waitFor(() => {
       const redirectUrl = window.location.replace.mock.calls[0][0];
       const url = new URL(redirectUrl);
-      expect(url.searchParams.get('iss')).toBe('undefined');
+      expect(url.searchParams.has('iss')).toBe(false);
     });
   });
 });
