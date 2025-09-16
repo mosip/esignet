@@ -10,6 +10,7 @@ import configService from '../../services/configService';
 import langConfigService from '../../services/langConfigService';
 import redirectOnError from '../../helpers/redirectOnError';
 import { useTranslation } from 'react-i18next';
+import { configurationKeys } from '../../constants/clientConstants';
 
 jest.mock('../../services/configService');
 jest.mock('../../services/langConfigService');
@@ -24,30 +25,38 @@ const mockOAuthDetails = {
   voluntaryClaims: ['mobile'],
   clientName: { en: 'Test Client', '@none': 'Default Client' },
   logoUrl: 'test-logo.png',
-};
-
-const mockAuthService = {
-  post_AuthCode: jest.fn().mockResolvedValue({
-    response: {
-      redirectUri: 'http://localhost/callback',
-      code: '123',
-      state: 'abc',
-    },
-    errors: null,
-  }),
+  configs: {
+    issuer: 'http://issuer',
+  },
 };
 
 const mockOIDCService = {
   getOAuthDetails: () => mockOAuthDetails,
   getTransactionId: () => 'txn-123',
-  getEsignetConfiguration: jest.fn((key) =>
-    key === 'consentScreenExpireInSec' ? 120 : 5
-  ),
+  getEsignetConfiguration: jest.fn((key) => {
+    if (key === 'consentScreenExpireInSec') return 120;
+    if (key === 'issuer' || key === configurationKeys.issuer)
+      return 'http://issuer';
+    return undefined;
+  }),
 };
 
 describe('Consent Component', () => {
+  let mockAuthService;
   beforeEach(() => {
     jest.clearAllMocks();
+
+    mockAuthService = {
+      post_AuthCode: jest.fn().mockResolvedValue({
+        response: {
+          redirectUri: 'http://localhost/callback',
+          code: '123',
+          state: 'abc',
+          issuer: 'http://issuer',
+        },
+        errors: null,
+      }),
+    };
 
     configService.mockResolvedValue({ outline_toggle: true });
     langConfigService.getLangCodeMapping.mockResolvedValue({ en: 'en' });
@@ -258,6 +267,51 @@ describe('Consent Component', () => {
     await waitFor(() => {
       expect(mockAuthService.post_AuthCode).toHaveBeenCalled();
       expect(screen.getByText('redirecting_msg')).toBeInTheDocument();
+    });
+  });
+
+  test('calls getEsignetConfiguration with issuer key', async () => {
+    render(
+      <Consent
+        authService={mockAuthService}
+        consentAction="CAPTURE"
+        authTime={Math.floor(Date.now() / 1000)}
+        openIDConnectService={mockOIDCService}
+      />
+    );
+
+    const allowBtn = await screen.findByText('allow');
+    fireEvent.click(allowBtn);
+
+    await waitFor(() => {
+      expect(mockOIDCService.getEsignetConfiguration).toHaveBeenCalledWith(
+        configurationKeys.issuer
+      );
+    });
+  });
+
+  test('does not set iss if getEsignetConfiguration returns nothing', async () => {
+    const noIssuerOIDC = {
+      ...mockOIDCService,
+      getEsignetConfiguration: jest.fn(() => null),
+    };
+
+    render(
+      <Consent
+        authService={mockAuthService}
+        consentAction="CAPTURE"
+        authTime={Math.floor(Date.now() / 1000)}
+        openIDConnectService={noIssuerOIDC}
+      />
+    );
+
+    const allowBtn = await screen.findByText('allow');
+    fireEvent.click(allowBtn);
+
+    await waitFor(() => {
+      const redirectUrl = window.location.replace.mock.calls[0][0];
+      const url = new URL(redirectUrl);
+      expect(url.searchParams.has('iss')).toBe(false);
     });
   });
 });

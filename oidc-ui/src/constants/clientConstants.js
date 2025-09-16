@@ -108,6 +108,7 @@ const configurationKeys = {
   signupBannerRequired: 'signup_banner_required',
   /** @SuppressWarnings("javascript:s2068") */
   forgotPswdLinkRequired: 'forgot_pwd_link_required',
+  issuer: 'issuer',
 };
 
 const modalityIconPath = {
