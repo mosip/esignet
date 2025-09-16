@@ -21,6 +21,7 @@ if [ "$flag" = "n" ]; then
 fi
 
 NS=esignet
+ESIGNET_SERVICE_NAME=esignet
 CHART_VERSION=0.0.1-develop
 
 echo Create $NS namespace
@@ -157,30 +158,19 @@ function installing_onboarder() {
    kubectl label ns $NS istio-injection=disabled --overwrite
    helm repo update
 
-   if ! kubectl -n $NS get configmap esignet-onboarder-config >/dev/null 2>&1 || \
-      ! kubectl -n $NS get secret esignet-onboarder-secrets >/dev/null 2>&1; then
-     echo "Copying configmaps and secrets..."
-     COPY_UTIL=../deploy/copy_cm_func.sh
-     $COPY_UTIL configmap keycloak-env-vars keycloak $NS
-     $COPY_UTIL configmap keycloak-host keycloak $NS
-
-     $COPY_UTIL secret keycloak keycloak $NS
-     $COPY_UTIL secret keycloak-client-secrets keycloak $NS
-  fi
-
-
     echo "Onboarding Esignet MISIP partner client"
     helm -n $NS install esignet-misp-onboarder mosip/partner-onboarder \
       $NFS_OPTION \
       $S3_OPTION \
       --set onboarding.variables.push_reports_to_s3=$push_reports_to_s3 \
+      --set onboarding.configmaps.onboarder-namespace.ns_esignet="$NS"
       $ENABLE_INSECURE \
       -f values.yaml \
       $KEYCLOAK_ARGS \
       --version $CHART_VERSION \
       --wait --wait-for-jobs
     echo "Partner onboarder executed and reports are moved to S3 or NFS please check the same to make sure partner was onboarded sucessfully."
-    kubectl rollout restart deployment -n esignet esignet
+    kubectl rollout restart deployment $ESIGNET_SERVICE_NAME -n $NS
     echo eSignet MISP License Key updated successfully to eSignet.
     return 0
   fi

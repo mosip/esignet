@@ -8,11 +8,12 @@ fi
 
 function Deleting_oidc-ui() {
   NS=esignet
+  OIDCUI_SERVICE_NAME=oidc-ui
   while true; do
       read -p "Are you sure you want to delete oidc ui helm charts?(Y/n) " yn
       if [[ $yn = "Y" ]] || [[ $yn = "y" ]];
         then
-          helm -n $NS delete oidc-ui
+          helm -n $NS delete $OIDCUI_SERVICE_NAME
           break
         else
           break

@@ -8,7 +8,6 @@ if [ $# -ge 1 ] ; then
 fi
 
 ROOT_DIR=`pwd`
-NS=esignet
 
 function prompt_for_initialisation() {
   local module_name=$1
@@ -41,8 +40,6 @@ function initialising_prerequisites() {
       prompt_for_initialisation "$module" "${prompts[$module]}"
   done
 
-  echo "Setting up dummy values for Esignet MISP license key"
-  kubectl -n $NS create secret generic esignet-misp-onboarder-key --from-literal=mosip-esignet-misp-key='' --dry-run=client -o yaml | kubectl apply -f -
 
   echo "All prerequisite services initialized successfully."
   return 0

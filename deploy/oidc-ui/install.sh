@@ -37,7 +37,9 @@ function installing_oidc-ui() {
   fi
 
   NS=esignet
-  CHART_VERSION=1.5.0-develop
+  OIDCUI_SERVICE_NAME=oidc-ui
+  ESIGNET_SERVICE_NAME=esignet
+  CHART_VERSION=0.0.1-develop
 
   echo Create $NS namespace
   kubectl create ns $NS || true
@@ -50,17 +52,20 @@ function installing_oidc-ui() {
 
   COPY_UTIL=../copy_cm_func.sh
 
-  ESIGNET_HOST=$(kubectl -n esignet get cm esignet-global -o jsonpath={.data.mosip-esignet-host})
+  ESIGNET_HOST=$(kubectl -n $NS get cm esignet-global -o jsonpath={.data.mosip-esignet-host})
 
   echo Installing OIDC UI
-  helm -n $NS install oidc-ui mosip/oidc-ui \
+  helm -n $NS install $OIDCUI_SERVICE_NAME mosip/oidc-ui  \
     --version $CHART_VERSION \
     --set istio.hosts[0]=$ESIGNET_HOST \
+    --set oidc_ui.oidc_service_host="$ESIGNET_SERVICE_NAME.$NS" \
+    --set oidc_ui.configmaps.oidc-ui.REACT_APP_API_BASE_URL="http://$ESIGNET_SERVICE_NAME.$NS/v1/esignet" \
+    --set oidc_ui.configmaps.oidc-ui.REACT_APP_SBI_DOMAIN_URI="http://$ESIGNET_SERVICE_NAME.$NS" \
     --set oidc_ui.configmaps.oidc-ui.DEFAULT_THEME="$theme" \
     --set oidc_ui.configmaps.oidc-ui.DEFAULT_LANG="$default_lang" \
     --set oidc_ui.configmaps.oidc-ui.DEFAULT_ID_PROVIDER_NAME="$id_provider_name"
 
-  kubectl -n $NS  get deploy -o name |  xargs -n1 -t  kubectl -n $NS rollout status
+  kubectl -n $NS  get deploy $OIDCUI_SERVICE_NAME -o name |  xargs -n1 -t  kubectl -n $NS rollout status
 
   echo Installed oidc-ui
   return 0

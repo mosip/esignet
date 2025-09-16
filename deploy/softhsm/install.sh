@@ -6,7 +6,7 @@ if [ $# -ge 1 ] ; then
   export KUBECONFIG=$1
 fi
 
-SOFTHSM_NS=softhsm
+SOFTHSM_NS=esignet
 SOFTHSM_CHART_VERSION=12.0.1
 
 function installing_softhsm() {

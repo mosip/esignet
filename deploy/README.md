@@ -31,9 +31,24 @@
      ````
   * Update the domain names in `esignet-global-cm.yaml` correctly for your environment.
   * Create a google recaptcha v2 ("I am not a Robot") from Google with required domain name ex:[sandbox.mosip.net] [Recaptcha Admin](https://www.google.com/recaptcha/about/) and set esignet captcha.
-  * External IAM scope: [TODO]
+  * External IAM scope:
      * If using an external IAM, copy the secrets from the external IAM and create a secret named keycloak-client-secrets in the esignet namespace.
-* Install pre-requisites
+    
+  ### Note: When deploying multiple plugins in the same cluster, a few manual changes are required in the deployment scripts:
+    ##### If you are deploying a single plugin in a cluster, these changes are not required.
+  - Update the **namespace** in the `install-prereq.sh` script according to the plugin being deployed.
+  - Update the **namespace** and **mosip-esignet-host domain** in the `esignet-global.yaml` scripts according to the plugin being deployed.
+  - Update the **namespace** in the `install.sh` script according to the plugin being deployed.
+  - Update the **namespace** and **esignet service name** in the `esignet-with-plugin install.sh` script according to the plugin being deployed.
+  - Update the **namespace**, **OIDC service name**, and **esignet service name** in the `oidc-ui install.sh` script according to the plugin being deployed.
+  - Update the **namespace** and **esignet service name** in the `partner-onboarder` install script if these values are changed for the `mosip identity plugin`.
+    * Example: Sunbird Plugin Deployment
+      *  namespace: esignet-sunbird
+      *  mosip-esignet-host: esignet-sunbird.sandbox.mosip.net
+      *  esignet service name: esignet-sunbird
+      *  oidc service name: oidc-ui-sunbird
+      
+### Install pre-requisites
   ```
   ./install-prereq.sh
   ```
