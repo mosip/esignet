@@ -69,6 +69,10 @@ public class DpopValidationFilter extends OncePerRequestFilter {
     private static final String CNF = "cnf";
     private static final String JKT = "jkt";
 
+    private static final String PAR_ENDPOINT = "pushed_authorization_request_endpoint";
+    private static final String TOKEN_ENDPOINT = "token_endpoint";
+    private static final String USERINFO_ENDPOINT = "userinfo_endpoint";
+
     private enum OAUTH_ENDPOINT {
         PAR,
         TOKEN,
@@ -139,6 +143,7 @@ public class DpopValidationFilter extends OncePerRequestFilter {
             JSONObject cnf = (JSONObject) jwt.getJWTClaimsSet().getClaim(CNF);
             return cnf != null && cnf.get(JKT) != null;
         } catch (ParseException e) {
+            log.error("Failed to parse accessToken: {}", accessToken);
             throw new NotAuthenticatedException();
         }
     }
@@ -151,6 +156,7 @@ public class DpopValidationFilter extends OncePerRequestFilter {
             String jkt = cnf.getAsString(JKT);
             if(!thumbprint.equals(jkt)) throw new InvalidDPoPHeaderException();
         } catch (Exception e) {
+            log.error("cnf claim validation failed");
             throw new InvalidDPoPHeaderException();
         }
     }
@@ -238,12 +244,16 @@ public class DpopValidationFilter extends OncePerRequestFilter {
     private void verifyClaimValues(JWTClaimsSet claims, HttpServletRequest request, OAUTH_ENDPOINT endpoint) {
         try {
             String reqUri;
-            if(OAUTH_ENDPOINT.PAR.equals(endpoint)) {
-                reqUri = discoveryMap.get("pushed_authorization_request_endpoint").toString();
-            } else if(OAUTH_ENDPOINT.TOKEN.equals(endpoint)) {
-                reqUri = discoveryMap.get("token_endpoint").toString();
-            } else {
-                reqUri = discoveryMap.get("userinfo_endpoint").toString();
+            switch (endpoint) {
+                case PAR:
+                    reqUri = discoveryMap.get(PAR_ENDPOINT).toString();
+                    break;
+                case TOKEN:
+                    reqUri = discoveryMap.get(TOKEN_ENDPOINT).toString();
+                    break;
+                default:
+                    reqUri = discoveryMap.get(USERINFO_ENDPOINT).toString();
+                    break;
             }
 
             DefaultJWTClaimsVerifier claimsSetVerifier = new DefaultJWTClaimsVerifier(new JWTClaimsSet.Builder()
