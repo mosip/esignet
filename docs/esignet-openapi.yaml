@@ -2687,8 +2687,6 @@ paths:
       deprecated: true
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: jdr6piq445z1e
   /authorization/v2/authenticate:
     post:
       tags:
@@ -2825,8 +2823,6 @@ paths:
                     errors: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: n527q9bniqfus
   /authorization/v3/authenticate:
     post:
       tags:
@@ -2983,8 +2979,6 @@ paths:
                     errors: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: b5f1xenqhhz3r
   /authorization/auth-code:
     post:
       tags:
@@ -3110,8 +3104,6 @@ paths:
                     errors: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: r97a2rqrtwmh1
   /linked-authorization/link-code:
     post:
       tags:
@@ -3219,8 +3211,6 @@ paths:
                     errors: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: nvrxy2j5q37pj
   /linked-authorization/link-transaction:
     post:
       tags:
@@ -3351,8 +3341,6 @@ paths:
       deprecated: true
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: 2u3l2hz6qqk3n
   /linked-authorization/v2/link-transaction:
     post:
       tags:
@@ -3492,8 +3480,6 @@ paths:
                     errors: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: szzgj9f6vkgn6
   /linked-authorization/link-status:
     post:
       tags:
@@ -3606,8 +3592,6 @@ paths:
                     errors: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: 3upbcxkuqfrku
   /linked-authorization/authenticate:
     post:
       tags:
@@ -3717,8 +3701,6 @@ paths:
       deprecated: true
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: u5nqwu9bxjsy2
   /linked-authorization/v2/authenticate:
     post:
       tags:
@@ -3836,8 +3818,6 @@ paths:
                     errors: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: tbhtyfs29ai1j
   /linked-authorization/consent:
     post:
       tags:
@@ -3932,8 +3912,6 @@ paths:
       deprecated: true
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: f2nao6gcuu4dc
   /linked-authorization/v2/consent:
     post:
       tags:
@@ -4031,8 +4009,6 @@ paths:
                     errors: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: x3q1ff442s0tq
   /linked-authorization/link-auth-code:
     post:
       tags:
@@ -4153,8 +4129,6 @@ paths:
                     errors: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: y88k07iixv1to
   /authorization/claim-details:
     get:
       tags:
@@ -4265,8 +4239,6 @@ paths:
                     errors: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: vueshcjdd1t2u
   /authorization/prepare-signup-redirect:
     post:
       tags:
@@ -4380,8 +4352,6 @@ paths:
               description: uuid=encoded-json
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: xmr15g1t8yjwy
   /authorization/complete-signup-redirect:
     post:
       tags:
@@ -4476,8 +4446,6 @@ paths:
                         errorMessage: string
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: 82d3qg98qt8hh
   /oauth/token:
     post:
       tags:
@@ -4625,8 +4593,6 @@ paths:
                   - error
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: 3nmhx9gi7hjoc
   /oauth/v2/token:
     post:
       tags:
@@ -4652,6 +4618,7 @@ paths:
         **iat**<span style="color:#FF0000">*</span>: Time at which the JWT was issued.</p>
 
         **jti**<span style="color:#FF0000">*</span> (JWT ID): This MUST be unique for each client assertion generated.
+
 
         **Note**: The Client Assertion JWT can contain other Claims. Any Claims used that are not understood WILL be ignored.</p>
       operationId: post-token-v2
@@ -4790,8 +4757,6 @@ paths:
                   - error
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: t3080pfijrgup
   /oidc/userinfo:
     get:
       tags:
@@ -4861,8 +4826,6 @@ paths:
         - Authorization-access_token: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: cexrsjqqka7ql
   /binding/binding-otp:
     post:
       tags:
@@ -4967,8 +4930,6 @@ paths:
         - Authorization-send_binding_otp: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: cdt89mkeav7vg
   /binding/v2/binding-otp:
     post:
       tags:
@@ -5074,8 +5035,6 @@ paths:
         - Authorization-send_binding_otp: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: zon5e2w9p3by7
   /binding/wallet-binding:
     post:
       tags:
@@ -5213,8 +5172,6 @@ paths:
         - Authorization-wallet_binding: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: 5ztbp8gtq103q
   /.well-known/jwks.json:
     get:
       tags:
@@ -5297,8 +5254,6 @@ paths:
                         'n': sY50VCweYJ6XGrxl0kbQNsZTt1XwwmG4KLwph05CleDN3apRZjtXfU5WXJMWz5hYcNHkpGR_DulQAj6OzAxYLfaqfZH4Gw7MyzXq1nwLexUimRR5nxeEgEi6BWRcym4huShnsIFybbN61FVF00ZALlV2Lm9mfKOxC_tQuIMCRa06Jtp4OOmuPSUfFoN9-ZY-6RwEGnI5oBUvKT3yFRuAPAfEF-efZ52OQOVi3TtVVT4RZCiiUTUxC-fySAM36RKJx5wnwgGkkGzyL0wkOivb4-ALreUCBvq-vb9tfKzCUXxXhQZAdKsaAUDEgxzo-Wi5qDCGLA4tfIAyI0lr_w3lxw
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: wo8nsjitkqpcr
   /.well-known/openid-configuration:
     get:
       tags:
@@ -5485,8 +5440,6 @@ paths:
                     request_parameter_supported: false
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: dwg54xrpfgfnl
   /oauth/introspect:
     get:
       tags:
@@ -5541,8 +5494,6 @@ paths:
         - Authorization-Bearer: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: oox9s986nt4n7
 tags:
   - name: Management
     description: Management level API's used for internal use.
@@ -5588,8 +5539,6 @@ components:
         - JWS
         - JWE
       description: The response type for the user info endpoint should be configurable to allow the Relying Party to choose between only signed tokens or signed tokens with encryption.
-      x-stoplight:
-        id: p9r6noi00ck35
     purpose:
       type: object
       description: 'Relying Parties should indicate the purpose of using eSignet (e.g., for login, verification) during registration, allowing for specific customisation.'
@@ -5609,24 +5558,16 @@ components:
           description: 'It will appear in the screen below the title of login page. It will also be multilingual language map and @none when no language map is present, @none is compulsory if you are providing subTitle object.'
       required:
         - type
-      x-stoplight:
-        id: fx1wduchy1jf1
     signup_banner_required:
       type: boolean
       description: Relying Parties should be able to specify whether they require eSignet sign-up. If no signup service is required UI should not have “Sign up with Unified login“ option.
-      x-stoplight:
-        id: 4voskest8v5lo
     forgot_pwd_link_required:
       type: boolean
       description: Relying Parties should be able to specify whether they require eSignet forgot password feature. If it is not required UI should not have “Forgot password“ option
-      x-stoplight:
-        id: pnkzq25eqcpcl
     consent_expire_in_mins:
       type: number
       description: The number of minuets after which a user's given consent will expire.
       minimum: 10
-      x-stoplight:
-        id: ylbn2n37t2lh9
     Claim:
       type: object
       title: Claim
@@ -5669,8 +5610,6 @@ components:
               $ref: '#/components/schemas/ClaimDetail'
             acrs:
               $ref: '#/components/schemas/ClaimDetail'
-      x-stoplight:
-        id: qbpmq9h72qnk2
     ClaimDetail:
       type: object
       title: ClaimDetail
@@ -5695,8 +5634,6 @@ components:
           description: Reason for requesting claim.
           minLength: 3
           maxLength: 300
-      x-stoplight:
-        id: rs2wq04mmwt9j
     VerifiedClaimDetail:
       type: object
       title: VerifiedClaimDetail
@@ -5855,9 +5792,6 @@ components:
 
 
 
-
-
-
                        JSON array representing the checks done in relation to the evidence. When present this array MUST have at least one member. This is applicable only for below evidence types:
                        1. document
                        2. electronic_record
@@ -5936,8 +5870,6 @@ components:
       required:
         - verification
         - claims
-      x-stoplight:
-        id: vuxcbcbn9x1x0
     FilterCriteria:
       type: object
       title: FilterCriteria
@@ -5949,8 +5881,6 @@ components:
           type: array
           items:
             type: string
-      x-stoplight:
-        id: 6vp1032ejcqgk
     EvidenceCheckDetail:
       type: object
       title: EvidenceCheckDetail
@@ -5976,8 +5906,6 @@ components:
               description: when the check was completed.
       required:
         - check_method
-      x-stoplight:
-        id: 98dmyx2n8hlr1
     EvidenceIssuer:
       type: object
       title: EvidenceIssuer
@@ -5995,8 +5923,6 @@ components:
         jurisdiction:
           type: string
           description: 'String containing the name of the region(s)/state(s)/province(s)/municipality(ies) that issuer has jurisdiction over '
-      x-stoplight:
-        id: co9m26416odj6
     ElectronicRecord:
       type: object
       title: ElectronicRecord
@@ -6020,8 +5946,6 @@ components:
               type: number
         source:
           $ref: '#/components/schemas/EvidenceIssuer'
-      x-stoplight:
-        id: lt3e93ltqi6d6
     AuthFactor:
       type: object
       title: AuthFactor
@@ -6045,8 +5969,6 @@ components:
             type: string
       required:
         - type
-      x-stoplight:
-        id: liehepytk5opd
     AuthChallenge:
       type: object
       title: AuthChallenge
@@ -6079,8 +6001,6 @@ components:
         - authFactorType
         - challenge
         - format
-      x-stoplight:
-        id: ie9w1bikfu2nq
     ClaimStatus:
       type: object
       title: ClaimStatus
@@ -6102,5 +6022,3 @@ components:
         - claim
         - available
         - verified
-      x-stoplight:
-        id: huylz3v047988
