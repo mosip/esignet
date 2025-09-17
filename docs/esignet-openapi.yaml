@@ -4470,6 +4470,9 @@ paths:
 
         **iat**<span style="color:#FF0000">*</span>: Time at which the JWT was issued.</p>
 
+        **jti**<span style="color:#FF0000">*</span> (JWT ID): This MUST be unique for each client assertion generated.
+
+
         **Note**: The Client Assertion JWT can contain other Claims. Any Claims used that are not understood WILL be ignored.</p>
       operationId: post-token
       requestBody:
@@ -4613,6 +4616,9 @@ paths:
         **exp**<span style="color:#FF0000">*</span> (Expiration): Time on or after which the ID token MUST NOT be accepted for processing.
 
         **iat**<span style="color:#FF0000">*</span>: Time at which the JWT was issued.</p>
+
+        **jti**<span style="color:#FF0000">*</span> (JWT ID): This MUST be unique for each client assertion generated.
+
 
         **Note**: The Client Assertion JWT can contain other Claims. Any Claims used that are not understood WILL be ignored.</p>
       operationId: post-token-v2
