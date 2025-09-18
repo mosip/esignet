@@ -42,14 +42,9 @@ public class OpenIdConnectServiceTest {
     }
 
     @Test(expected = NotAuthenticatedException.class)
-    public void getUserInfo_withInvalidAccessToken_thenFail() {
-        openIdConnectService.getUserInfo("Bearer1 access-token");
-    }
-
-    @Test(expected = NotAuthenticatedException.class)
     public void getUserInfo_withInvalidTransaction_thenFail() {
         Mockito.when(cacheUtilService.getUserInfoTransaction(Mockito.anyString())).thenReturn(null);
-        openIdConnectService.getUserInfo("Bearer access-token");
+        openIdConnectService.getUserInfo("Bearer access-token", null);
     }
 
     @Test(expected = EsignetException.class)
@@ -58,9 +53,10 @@ public class OpenIdConnectServiceTest {
         oidcTransaction.setClientId("client-id");
         oidcTransaction.setPartnerSpecificUserToken("p-s-u-t");
         oidcTransaction.setEncryptedKyc("encrypted-kyc");
+        oidcTransaction.setDpopBoundAccessToken(false);
         Mockito.when(cacheUtilService.getUserInfoTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
         Mockito.doThrow(EsignetException.class).when(tokenService).verifyAccessToken(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
-        openIdConnectService.getUserInfo("Bearer access-token");
+        openIdConnectService.getUserInfo("Bearer access-token", null);
     }
 
     @Test
@@ -69,8 +65,9 @@ public class OpenIdConnectServiceTest {
         oidcTransaction.setClientId("client-id");
         oidcTransaction.setPartnerSpecificUserToken("p-s-u-t");
         oidcTransaction.setEncryptedKyc("encrypted-kyc");
+        oidcTransaction.setDpopBoundAccessToken(false);
         Mockito.when(cacheUtilService.getUserInfoTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
-        String kyc = openIdConnectService.getUserInfo("Bearer access-token");
+        String kyc = openIdConnectService.getUserInfo("Bearer access-token", null);
         Assert.assertNotNull(kyc);
         Assert.assertEquals("encrypted-kyc", kyc);
     }

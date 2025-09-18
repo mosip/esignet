@@ -15,11 +15,13 @@ import com.nimbusds.jose.proc.JWSVerificationKeySelector;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
+import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTClaimsSetVerifier;
 import io.mosip.esignet.core.dto.OIDCTransaction;
+import io.mosip.esignet.core.exception.DpopNonceMissingException;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.exception.NotAuthenticatedException;
@@ -41,6 +43,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.text.ParseException;
 import java.util.*;
 
 import static io.mosip.esignet.core.constants.Constants.SPACE;
@@ -59,6 +62,9 @@ public class TokenServiceImpl implements TokenService {
 
     @Autowired
     private AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
+
+    @Autowired
+    private CacheUtilService cacheUtilService;
 
     @Value("${mosip.esignet.id-token-expire-seconds:60}")
     private int idTokenExpireSeconds;
@@ -80,6 +86,9 @@ public class TokenServiceImpl implements TokenService {
 
     @Value("${mosip.esignet.client-assertion-jwt.leeway-seconds:5}")
     private int maxClockSkew;
+
+    @Value("${mosip.esignet.dpop.nonce.expire.seconds:15}")
+    private long dpopNonceExpirySeconds;
 
     private final String CNF = "cnf";
     private final String JKT = "jkt";
@@ -225,6 +234,35 @@ public class TokenServiceImpl implements TokenService {
         jwtSignatureRequestDto.setIncludeCertHash(false);
         JWTSignatureResponseDto responseDto = signatureService.jwtSign(jwtSignatureRequestDto);
         return responseDto.getJwtSignedData();
+    }
+
+    @Override
+    public boolean isValidDpopServerNonce(String dpopHeader, OIDCTransaction transaction) {
+        try {
+            SignedJWT dpopJwt = SignedJWT.parse(dpopHeader);
+            net.minidev.json.JSONObject payload = dpopJwt.getPayload().toJSONObject();
+            String dpopProofNonce = (String) payload.get("nonce");
+
+            long currentTime = System.currentTimeMillis();
+
+            String serverNonce = transaction.getDpopServerNonce();
+            Long serverNonceTTL = transaction.getDpopServerNonceTTL();
+
+            boolean nonceMatches = dpopProofNonce != null && dpopProofNonce.equals(serverNonce);
+            boolean nonceExpired = serverNonceTTL == null || currentTime > serverNonceTTL;
+
+            return nonceMatches && !nonceExpired;
+        } catch (ParseException e) {
+            log.error("dpopHeader parsing failed - Should never happen", e);
+            throw new RuntimeException(ErrorConstants.UNKNOWN_ERROR);
+        }
+    }
+
+    @Override
+    public void generateAndStoreNewNonce(String cacheKey, String cacheName) {
+        String newNonce = IdentityProviderUtil.createTransactionId(null);
+        cacheUtilService.updateNonceInCachedTransaction(cacheKey, newNonce, System.currentTimeMillis() + dpopNonceExpirySeconds * 1000L, cacheName);
+        throw new DpopNonceMissingException(newNonce);
     }
 
     private JSONObject buildIDToken(String subject, String audience, int validitySeconds,

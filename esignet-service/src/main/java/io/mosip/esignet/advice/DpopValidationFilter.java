@@ -1,6 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
 package io.mosip.esignet.advice;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nimbusds.jose.JOSEException;
@@ -17,8 +21,7 @@ import com.nimbusds.jwt.proc.BadJWTException;
 import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
-import io.mosip.esignet.core.exception.EsignetException;
-import io.mosip.esignet.core.exception.InvalidDPoPHeaderException;
+import io.mosip.esignet.core.exception.InvalidDpopHeaderException;
 import io.mosip.esignet.core.exception.NotAuthenticatedException;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.services.CacheUtilService;
@@ -33,8 +36,6 @@ import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.*;
 
@@ -93,7 +94,7 @@ public class DpopValidationFilter extends OncePerRequestFilter {
             if(request.getRequestURI().endsWith("/par")) endpoint = OAUTH_ENDPOINT.PAR;
             else if(request.getRequestURI().endsWith("/token")) endpoint = OAUTH_ENDPOINT.TOKEN;
             else if(request.getRequestURI().endsWith("/userinfo")) endpoint = OAUTH_ENDPOINT.USERINFO;
-            else throw new EsignetException(ErrorConstants.UNKNOWN_ERROR);
+            else throw new RuntimeException(ErrorConstants.UNKNOWN_ERROR);
 
             Optional<String> dpopHeader = getDpopHeader(request);
             String authHeader = request.getHeader(AUTH_HEADER);
@@ -105,7 +106,7 @@ public class DpopValidationFilter extends OncePerRequestFilter {
                     }
             );
             filterChain.doFilter(request, response);
-        } catch (InvalidDPoPHeaderException ex) {
+        } catch (InvalidDpopHeaderException ex) {
             log.error("Unexpected DPoP validation error", ex);
             setAuthErrorResponse(response, ErrorConstants.INVALID_DPOP_PROOF, ex.getMessage());
         } catch (NotAuthenticatedException ex) {
@@ -120,7 +121,7 @@ public class DpopValidationFilter extends OncePerRequestFilter {
     private Optional<String> getDpopHeader(HttpServletRequest request) {
         List<String> dpopHeaders = Collections.list(request.getHeaders(Constants.DPOP));
         if(dpopHeaders.isEmpty()) return Optional.empty();
-        if(dpopHeaders.size() > 1) throw new InvalidDPoPHeaderException();
+        if(dpopHeaders.size() > 1) throw new InvalidDpopHeaderException();
         return Optional.of(dpopHeaders.get(0));
     }
 
@@ -154,10 +155,10 @@ public class DpopValidationFilter extends OncePerRequestFilter {
             SignedJWT jwt = SignedJWT.parse(accessToken);
             JSONObject cnf = (JSONObject) jwt.getJWTClaimsSet().getClaim(CNF);
             String jkt = cnf.getAsString(JKT);
-            if(!thumbprint.equals(jkt)) throw new InvalidDPoPHeaderException();
+            if(!thumbprint.equals(jkt)) throw new InvalidDpopHeaderException();
         } catch (Exception e) {
             log.error("cnf claim validation failed");
-            throw new InvalidDPoPHeaderException();
+            throw new InvalidDpopHeaderException();
         }
     }
 
@@ -184,7 +185,7 @@ public class DpopValidationFilter extends OncePerRequestFilter {
 
             if (header == null || header.getType() == null || !"dpop+jwt".equals(header.getType().toString())) {
                 log.error("Invalid typ header: expected dpop+jwt");
-                throw new InvalidDPoPHeaderException();
+                throw new InvalidDpopHeaderException();
             }
 
             List<String> supportedClaims = (List<String>) discoveryMap.get("dpop_signing_alg_values_supported");
@@ -192,18 +193,18 @@ public class DpopValidationFilter extends OncePerRequestFilter {
             String alg = header.getAlgorithm() != null ? header.getAlgorithm().getName() : null;
             if (alg == null || !supportedClaims.contains(alg)) {
                 log.error("Invalid or unsupported alg header");
-                throw new InvalidDPoPHeaderException();
+                throw new InvalidDpopHeaderException();
             }
 
             JWK jwk = header.getJWK();
             if (jwk == null || jwk.isPrivate()) {
                 log.error("Invalid jwk header");
-                throw new InvalidDPoPHeaderException();
+                throw new InvalidDpopHeaderException();
             }
             return jwt;
         } catch (ParseException e) {
             log.error("Failed to parse DPoP JWT: ");
-            throw new InvalidDPoPHeaderException();
+            throw new InvalidDpopHeaderException();
         }
     }
 
@@ -212,15 +213,15 @@ public class DpopValidationFilter extends OncePerRequestFilter {
             JWSVerifier verifier = createVerifier(jwk);
             if (!jwt.verify(verifier)) {
                 log.error("DPoP JWT signature verification failed");
-                throw new InvalidDPoPHeaderException();
+                throw new InvalidDpopHeaderException();
             }
         } catch (JOSEException e) {
             log.error("DPoP signature verification error: {}", e.getMessage());
-            throw new InvalidDPoPHeaderException();
+            throw new InvalidDpopHeaderException();
         }
     }
 
-    private JWSVerifier createVerifier(JWK jwk) throws InvalidDPoPHeaderException, JOSEException {
+    private JWSVerifier createVerifier(JWK jwk) throws InvalidDpopHeaderException, JOSEException {
         switch (jwk.getKeyType().getValue()) {
             case "RSA":
                 return new RSASSAVerifier(((RSAKey) jwk).toRSAPublicKey());
@@ -228,7 +229,7 @@ public class DpopValidationFilter extends OncePerRequestFilter {
                 return new ECDSAVerifier((ECKey) jwk);
             default:
                 log.error("Unsupported JWK key type: {}", jwk.getKeyType());
-                throw new InvalidDPoPHeaderException();
+                throw new InvalidDpopHeaderException();
         }
     }
 
@@ -237,7 +238,7 @@ public class DpopValidationFilter extends OncePerRequestFilter {
             return jwt.getJWTClaimsSet();
         } catch (ParseException e) {
             log.error("Failed to get JWT claims: ");
-            throw new InvalidDPoPHeaderException();
+            throw new InvalidDpopHeaderException();
         }
     }
 
@@ -264,7 +265,7 @@ public class DpopValidationFilter extends OncePerRequestFilter {
             claimsSetVerifier.verify(claims);
         } catch (BadJWTException e) {
             log.error("Invalid request URI: {}", e.getMessage());
-            throw new InvalidDPoPHeaderException();
+            throw new InvalidDpopHeaderException();
         }
 
     }
@@ -273,11 +274,11 @@ public class DpopValidationFilter extends OncePerRequestFilter {
         String jti = claims.getJWTID();
         if (jti == null || jti.isEmpty()) {
             log.error("Missing jti claim");
-            throw new InvalidDPoPHeaderException();
+            throw new InvalidDpopHeaderException();
         }
         if (cacheUtilService.checkAndMarkJti(jti)) {
             log.error("Replay detected for jti: {}", jti);
-            throw new InvalidDPoPHeaderException();
+            throw new InvalidDpopHeaderException();
         }
     }
 
@@ -286,16 +287,16 @@ public class DpopValidationFilter extends OncePerRequestFilter {
             String ath = claims.getStringClaim("ath");
             if (ath == null) {
                 log.error("Missing ath claim");
-                throw new InvalidDPoPHeaderException();
+                throw new InvalidDpopHeaderException();
             }
             String hash = IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA_256,accessToken);
             if (!ath.equals(hash)) {
                 log.error("ath claim does not match access token hash. Expected: {}, Actual: {}", hash, ath);
-                throw new InvalidDPoPHeaderException();
+                throw new InvalidDpopHeaderException();
             }
         } catch (Exception e) {
             log.error("Failed to compute access token hash: {}", e.getMessage());
-            throw new InvalidDPoPHeaderException();
+            throw new InvalidDpopHeaderException();
         }
     }
 

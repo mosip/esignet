@@ -17,7 +17,7 @@ public interface OpenIdConnectService {
      * @return JWT signed with IDP key. Payload is encrypted with registered client's public key.
      * @throws EsignetException
      */
-    String getUserInfo(String accessToken) throws EsignetException;
+    String getUserInfo(String accessToken, String dpopHeader) throws EsignetException;
 
     /**
      * Discovery endpoint, returns all the supported values and host endpoints

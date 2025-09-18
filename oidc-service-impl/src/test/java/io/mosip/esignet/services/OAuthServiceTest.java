@@ -25,7 +25,7 @@ import io.mosip.esignet.api.spi.Authenticator;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
-import io.mosip.esignet.core.exception.DPoPNonceMissingException;
+import io.mosip.esignet.core.exception.DpopNonceMissingException;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.spi.ClientManagementService;
@@ -50,10 +50,10 @@ import static io.mosip.esignet.api.util.ErrorConstants.DATA_EXCHANGE_FAILED;
 import static io.mosip.esignet.core.constants.Constants.BEARER;
 import static io.mosip.esignet.core.constants.ErrorConstants.*;
 import static io.mosip.esignet.core.spi.OAuthService.JWT_BEARER_TYPE;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.ArgumentMatchers.any;
 import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_DPOP_PROOF;
-import static org.mockito.Mockito.times;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OAuthServiceTest {
@@ -954,11 +954,13 @@ public class OAuthServiceTest {
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
         Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
         Mockito.when(securityHelperService.computeJwkThumbprint(any())).thenReturn(thumbprint);
+        Mockito.when(tokenService.isValidDpopServerNonce(anyString(), any())).thenReturn(false);
+        Mockito.doThrow(new DpopNonceMissingException("")).when(tokenService).generateAndStoreNewNonce(anyString(), anyString());
 
         try {
             oAuthService.getTokens(tokenRequest, dpopJwt.serialize(), false);
             Assert.fail();
-        } catch (DPoPNonceMissingException ex) {
+        } catch (DpopNonceMissingException ex) {
             Assert.assertEquals(USE_DPOP_NONCE, ex.getErrorCode());
         }
     }
@@ -1003,16 +1005,16 @@ public class OAuthServiceTest {
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
         Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
         Mockito.when(securityHelperService.computeJwkThumbprint(any())).thenReturn(thumbprint);
+        Mockito.when(tokenService.isValidDpopServerNonce(anyString(), any())).thenReturn(false);
+        Mockito.doThrow(new DpopNonceMissingException("")).when(tokenService).generateAndStoreNewNonce(anyString(), anyString());
 
         try {
             oAuthService.getTokens(tokenRequest, dpopJwt.serialize(), false);
             Assert.fail();
-        } catch (DPoPNonceMissingException ex) {
+        } catch (DpopNonceMissingException ex) {
             Assert.assertEquals(ErrorConstants.USE_DPOP_NONCE, ex.getErrorCode());
             Assert.assertNotNull(ex.getDpopNonceHeaderValue());
             Assert.assertNotEquals(expiredNonce, ex.getDpopNonceHeaderValue());
-            Mockito.verify(cacheUtilService, times(1)).
-                    updateNonceInCachedTransaction(Mockito.any(), Mockito.anyString(), Mockito.anyLong());
         }
     }
 
@@ -1058,14 +1060,16 @@ public class OAuthServiceTest {
         Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
         Mockito.when(securityHelperService.computeJwkThumbprint(any())).thenReturn(thumbprint);
 
+        Mockito.when(tokenService.isValidDpopServerNonce(anyString(), any())).thenReturn(false);
+        Mockito.doThrow(new DpopNonceMissingException("")).when(tokenService).generateAndStoreNewNonce(anyString(), anyString());
+
+
         try {
             oAuthService.getTokens(tokenRequest, dpopJwt.serialize(), false);
             Assert.fail();
-        } catch (DPoPNonceMissingException ex) {
+        } catch (DpopNonceMissingException ex) {
             Assert.assertEquals(USE_DPOP_NONCE, ex.getErrorCode());
             Assert.assertNotNull(ex.getDpopNonceHeaderValue());
-            Mockito.verify(cacheUtilService, times(1)).
-                    updateNonceInCachedTransaction(Mockito.any(),Mockito.anyString(), Mockito.anyLong());
         }
     }
 
