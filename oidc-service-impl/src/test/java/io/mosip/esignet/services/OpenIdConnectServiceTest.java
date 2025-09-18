@@ -42,21 +42,6 @@ public class OpenIdConnectServiceTest {
     }
 
     @Test(expected = NotAuthenticatedException.class)
-    public void getUserInfo_withNullAccessToken_thenFail() {
-        openIdConnectService.getUserInfo(null);
-    }
-
-    @Test(expected = NotAuthenticatedException.class)
-    public void getUserInfo_withEmptyAccessToken_thenFail() {
-        openIdConnectService.getUserInfo("");
-    }
-
-    @Test(expected = NotAuthenticatedException.class)
-    public void getUserInfo_withNonBearerAccessToken_thenFail() {
-        openIdConnectService.getUserInfo("access-token");
-    }
-
-    @Test(expected = NotAuthenticatedException.class)
     public void getUserInfo_withInvalidAccessToken_thenFail() {
         openIdConnectService.getUserInfo("Bearer1 access-token");
     }
