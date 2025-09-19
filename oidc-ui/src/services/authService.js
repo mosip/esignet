@@ -223,6 +223,42 @@ class authService {
   };
 
   /**
+   * Returns parameters for redirecting
+   * @returns params.
+   */
+  buildRedirectParamsV2 = (buildParam) => {
+    let params = '?';
+    let authenticationTime = Math.floor(new Date().getTime() / 1000);
+
+    if (buildParam?.nonce) {
+      params = params + 'nonce=' + buildParam.nonce + '&';
+    }
+
+    if (buildParam?.state) {
+      params = params + 'state=' + buildParam.state + '&';
+    }
+
+    if (buildParam?.ui_locales) {
+      params = params + 'ui_locales=' + buildParam.ui_locales + '&';
+    }
+
+    if (buildParam?.consentAction) {
+      params = params + 'consentAction=' + buildParam.consentAction + '&';
+      params = params + 'authenticationTime=' + authenticationTime + '&';
+    }
+
+    //removing last "&" character
+    params = params.substring(0, params.length - 1);
+
+    if (buildParam?.oauthResponse) {
+      let responseStr = JSON.stringify(buildParam.oauthResponse);
+      let responseB64 = Buffer.from(responseStr).toString('base64');
+      params = params + '#' + responseB64;
+    }
+    return params;
+  };
+
+  /**
    * Set Authroize url's query parameter in local storage in encoded form
    * @param {string} queryParam
    */

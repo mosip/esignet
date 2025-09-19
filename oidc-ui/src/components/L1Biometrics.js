@@ -60,7 +60,8 @@ export default function L1Biometrics({
 
   const inputFields = param.inputFields;
 
-  const { post_AuthenticateUser, buildRedirectParams } = authService;
+  const { post_AuthenticateUser, buildRedirectParamsV2: buildRedirectParams } =
+    authService;
 
   inputFields.forEach((field) => (fieldsState['sbi_' + field.id] = ''));
 
@@ -337,15 +338,13 @@ export default function L1Biometrics({
       }
     } else {
       setErrorBanner(null);
-      let nonce = openIDConnectService.getNonce();
-      let state = openIDConnectService.getState();
-
-      let params = buildRedirectParams(
-        nonce,
-        state,
-        openIDConnectService.getOAuthDetails(),
-        response.consentAction
-      );
+      let params = buildRedirectParams({
+        nonce: openIDConnectService.getNonce(),
+        state: openIDConnectService.getState(),
+        oauthResponse: openIDConnectService.getOAuthDetails(),
+        consentAction: response.consentAction,
+        ui_locales: i18n.language,
+      });
 
       navigate(process.env.PUBLIC_URL + '/claim-details' + params, {
         replace: true,

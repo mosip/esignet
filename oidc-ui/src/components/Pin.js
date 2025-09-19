@@ -60,7 +60,7 @@ export default function Pin({
 
   const fields = param;
   const post_AuthenticateUser = authService.post_AuthenticateUser;
-  const buildRedirectParams = authService.buildRedirectParams;
+  const buildRedirectParams = authService.buildRedirectParamsV2;
 
   const [status, setStatus] = useState(states.LOADED);
   const [errorBanner, setErrorBanner] = useState(null);
@@ -290,16 +290,13 @@ export default function Pin({
         return;
       } else {
         setErrorBanner(null);
-
-        let nonce = openIDConnectService.getNonce();
-        let state = openIDConnectService.getState();
-
-        let params = buildRedirectParams(
-          nonce,
-          state,
-          openIDConnectService.getOAuthDetails(),
-          response.consentAction
-        );
+        let params = buildRedirectParams({
+          nonce: openIDConnectService.getNonce(),
+          state: openIDConnectService.getState(),
+          oauthResponse: openIDConnectService.getOAuthDetails(),
+          consentAction: response.consentAction,
+          ui_locales: i18n.language,
+        });
 
         navigate(process.env.PUBLIC_URL + '/claim-details' + params, {
           replace: true,
