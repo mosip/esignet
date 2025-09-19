@@ -160,8 +160,15 @@ const ClaimDetails = ({
               t2(authCodeErrors[0].errorCode)
             );
           } else {
+            const params = new URLSearchParams({
+              ...(authCodeResponse.state && { state: authCodeResponse.state }),
+              code: authCodeResponse.code,
+              ...(issuer ? { iss: issuer } : {}),
+              ...(uiLocales ? { ui_locales: uiLocales } : {}),
+            });
+
             window.location.replace(
-              `${authCodeResponse.redirectUri}?state=${authCodeResponse.state}&code=${authCodeResponse.code}&iss=${issuer}&ui_locales=${uiLocales}`
+              `${authCodeResponse.redirectUri}?${params.toString()}`
             );
           }
         }
