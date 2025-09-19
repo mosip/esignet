@@ -952,7 +952,6 @@ public class OAuthServiceTest {
 
         Mockito.when(authorizationHelperService.getKeyHash(Mockito.anyString())).thenReturn("code-hash");
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
-        Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
         Mockito.when(securityHelperService.computeJwkThumbprint(any())).thenReturn(thumbprint);
         Mockito.when(tokenService.isValidDpopServerNonce(anyString(), any())).thenReturn(false);
         Mockito.doThrow(new DpopNonceMissingException("")).when(tokenService).generateAndStoreNewNonce(anyString(), anyString());
@@ -1003,7 +1002,6 @@ public class OAuthServiceTest {
 
         Mockito.when(authorizationHelperService.getKeyHash(Mockito.anyString())).thenReturn("code-hash");
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
-        Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
         Mockito.when(securityHelperService.computeJwkThumbprint(any())).thenReturn(thumbprint);
         Mockito.when(tokenService.isValidDpopServerNonce(anyString(), any())).thenReturn(false);
         Mockito.doThrow(new DpopNonceMissingException("")).when(tokenService).generateAndStoreNewNonce(anyString(), anyString());
@@ -1057,7 +1055,6 @@ public class OAuthServiceTest {
 
         Mockito.when(authorizationHelperService.getKeyHash(Mockito.anyString())).thenReturn("code-hash");
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
-        Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
         Mockito.when(securityHelperService.computeJwkThumbprint(any())).thenReturn(thumbprint);
 
         Mockito.when(tokenService.isValidDpopServerNonce(anyString(), any())).thenReturn(false);
@@ -1114,7 +1111,6 @@ public class OAuthServiceTest {
         Mockito.when(authorizationHelperService.getKeyHash(Mockito.anyString())).thenReturn("code-hash");
         ReflectionTestUtils.setField(authorizationHelperService, "secureIndividualId", false);
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
-        Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
         Mockito.when(securityHelperService.computeJwkThumbprint(any())).thenReturn(thumbprint);
 
         try {
