@@ -111,13 +111,14 @@ public class OAuthServiceImpl implements OAuthService {
 
         IdentityProviderUtil.validateRedirectURI(Collections.singletonList(transaction.getRedirectUri()), tokenRequest.getRedirect_uri());
 
-        ClientDetail clientDetailDto = clientManagementService.getClientDetails(transaction.getClientId());
-
-        if (transaction.isDpopBoundAccessToken()) {
+        if (dpopHeader != null || transaction.isDpopBoundAccessToken()) {
             if (dpopHeader == null) throw new EsignetException(INVALID_REQUEST);
             transaction.setDpopJkt(validateDpopJktThumbprint(dpopHeader,transaction.getDpopJkt()));
             validateAndUpdateDpopServerNonce(dpopHeader, transaction);
+            transaction.setDpopBoundAccessToken(true); // enables client to use dpop even if relying party has not mandated the dpop_bound_access_token
         }
+
+        ClientDetail clientDetailDto = clientManagementService.getClientDetails(transaction.getClientId());
 
         authenticateClient(tokenRequest, clientDetailDto,isV2);
 

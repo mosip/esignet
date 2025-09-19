@@ -300,12 +300,14 @@ public class DpopValidationFilter extends OncePerRequestFilter {
     }
 
     public void validateBearerUserinfo(String authHeader) {
-        if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
+        if(authHeader == null) throw new NotAuthenticatedException();
+        String[] parts = authHeader.split(" ");
+        if(parts.length != 2) throw new NotAuthenticatedException();
+        String accessToken = parts[1];
+        if (isDpopBoundAccessToken(accessToken)) {
             throw new NotAuthenticatedException();
         }
-
-        String accessToken = authHeader.substring(BEARER_PREFIX.length());
-        if (isDpopBoundAccessToken(accessToken)) {
+        if (!authHeader.startsWith(BEARER_PREFIX)) {
             throw new NotAuthenticatedException();
         }
     }
