@@ -54,6 +54,8 @@ const ClaimDetails = ({
     configurationKeys.eKYCStepsConfig
   );
 
+  const issuer = oidcService.getEsignetConfiguration(configurationKeys.issuer);
+
   const randomKey = (prefix) => {
     const timestamp = new Date().getTime();
     return `${prefix}${timestamp}`;
@@ -158,8 +160,15 @@ const ClaimDetails = ({
               t2(authCodeErrors[0].errorCode)
             );
           } else {
+            const params = new URLSearchParams({
+              ...(authCodeResponse.state && { state: authCodeResponse.state }),
+              code: authCodeResponse.code,
+              ...(issuer ? { iss: issuer } : {}),
+              ...(uiLocales ? { ui_locales: uiLocales } : {}),
+            });
+
             window.location.replace(
-              `${authCodeResponse.redirectUri}?state=${authCodeResponse.state}&code=${authCodeResponse.code}&ui_locales=${uiLocales}`
+              `${authCodeResponse.redirectUri}?${params.toString()}`
             );
           }
         }
