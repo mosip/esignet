@@ -54,7 +54,7 @@ export default function OtpVerify({
 
   const post_SendOtp = authService.post_SendOtp;
   const post_AuthenticateUser = authService.post_AuthenticateUser;
-  const buildRedirectParams = authService.buildRedirectParams;
+  const buildRedirectParams = authService.buildRedirectParamsV2;
 
   const resendOtpTimeout =
     openIDConnectService.getEsignetConfiguration(
@@ -294,15 +294,13 @@ export default function OtpVerify({
         return;
       } else {
         setErrorBanner(null);
-        let nonce = openIDConnectService.getNonce();
-        let state = openIDConnectService.getState();
-
-        let params = buildRedirectParams(
-          nonce,
-          state,
-          openIDConnectService.getOAuthDetails(),
-          response.consentAction
-        );
+        let params = buildRedirectParams({
+          nonce: openIDConnectService.getNonce(),
+          state: openIDConnectService.getState(),
+          oauthResponse: openIDConnectService.getOAuthDetails(),
+          consentAction: response.consentAction,
+          ui_locales: i18n.language,
+        });
 
         navigate(process.env.PUBLIC_URL + '/claim-details' + params, {
           replace: true,

@@ -12,13 +12,16 @@ export default function IdToken({
   openIDConnectService,
   i18nKeyPrefix1 = 'errors',
 }) {
-  const { t } = useTranslation('translation', {
+  const { t, i18n } = useTranslation('translation', {
     keyPrefix: i18nKeyPrefix1,
   });
   const navigate = useNavigate();
   const post_AuthenticateUser = authService.post_AuthenticateUser;
-  const buildRedirectParams = authService.buildRedirectParams;
+  const buildRedirectParams = authService.buildRedirectParamsV2;
   const [searchParams] = useSearchParams();
+
+  console.log('IdToken component mounted');
+  console.log(searchParams.toString());
 
   const extractParam = (param) => searchParams.get(param);
 
@@ -73,15 +76,13 @@ export default function IdToken({
       if (errors !== null && errors.length > 0) {
         redirectOnError(errors[0].errorCode, t(errors[0].errorCode));
       } else {
-        let nonce = openIDConnectService.getNonce();
-        let state = openIDConnectService.getState();
-
-        let params = buildRedirectParams(
-          nonce,
-          state,
-          openIDConnectService.getOAuthDetails(),
-          response.consentAction
-        );
+        let params = buildRedirectParams({
+          nonce: openIDConnectService.getNonce(),
+          state: openIDConnectService.getState(),
+          oauthResponse: openIDConnectService.getOAuthDetails(),
+          consentAction: response.consentAction,
+          ui_locales: extractParam('ui_locales') ?? i18n.language,
+        });
 
         navigate(process.env.PUBLIC_URL + '/claim-details' + params, {
           replace: true,

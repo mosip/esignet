@@ -8,7 +8,7 @@ import { LoadingStates as states } from '../constants/states';
 export default function Authorize({ authService }) {
   const post_OauthDetails_v3 = authService.post_OauthDetails_v3;
   const post_ParOauthDetails = authService.post_ParOauthDetails;
-  const buildRedirectParams = authService.buildRedirectParams;
+  const buildRedirectParams = authService.buildRedirectParamsV2;
   const storeQueryParam = authService.storeQueryParam;
 
   const [status, setStatus] = useState(states.LOADING);
@@ -124,9 +124,12 @@ export default function Authorize({ authService }) {
       return;
     } else {
       try {
-        let nonce = isParFlow ? null : searchParams.get('nonce');
-        let state = isParFlow ? null : searchParams.get('state');
-        let params = buildRedirectParams(nonce, state, response);
+        let params = buildRedirectParams({
+          nonce: isParFlow ? null : searchParams.get('nonce'),
+          state: isParFlow ? null : searchParams.get('state'),
+          oauthResponse: response,
+          ui_locales: searchParams.get('ui_locales'),
+        });
 
         navigate(process.env.PUBLIC_URL + '/login' + params, {
           replace: true,
