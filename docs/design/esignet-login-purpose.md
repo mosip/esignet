@@ -48,7 +48,7 @@ It is a page that can be loaded with any one of the following components.
 
   If we use the above configuration then it will look like below image:
 
-  ![Esignet Login with purpose](../esignet-login-with-purpose.png "Esignet Login with purpose")
+  ![Esignet Login with purpose](../images/esignet-login-with-purpose.png "Esignet Login with purpose")
 
   Each component allows the user to authenticate in a different way. Each component is mapped to an auth-factor constant.
   For example

@@ -19,8 +19,8 @@ digital realm via plugins.
 
 ## Authorization code flow
 
-![eSignet-design-OIDC-authorize-flow.png](../eSignet-design-OIDC-authorize-flow.png)
+![eSignet-design-OIDC-authorize-flow.png](../images/eSignet-design-OIDC-authorize-flow.png)
 
 ## Authorization code flow using biometric authentication
 
-![esignet-with-bio-auth.png](../esignet-with-bio-auth.png)
+![esignet-with-bio-auth.png](../images/esignet-with-bio-auth.png)

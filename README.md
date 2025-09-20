@@ -16,7 +16,7 @@ This repository contains limited OpenId protocol implementation with:
 
 ## High level overview of eSignet with external systems
 
-![esignet-overview.png](docs/esignet-overview.png)
+![esignet-overview.png](docs/images/esignet-overview.png)
 
 
 eSignet repository contains following:
