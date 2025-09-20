@@ -41,5 +41,5 @@ Option to choose eKYC verification process is supposed to be displayed in the co
 
 # Sequence diagram:
 
-![identity-assurance-flow-drawio.png](../identity-assurance-flow-drawio.png)
+![identity-assurance-flow-drawio.png](../images/identity-assurance-flow-drawio.png)
 

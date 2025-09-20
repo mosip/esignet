@@ -39,7 +39,7 @@ If `mosip.esignet.ui.config.login-id.options` is set to an empty string, `null`,
   
     Here is an image which shows the different login button for different options, by using the above configuration:
 
-   ![Esignet Login Id types](../esignet-login-id-type.png "Esignet Login Id types")
+   ![Esignet Login Id types](../images/esignet-login-id-type.png "Esignet Login Id types")
 
 The password-based authentication system incorporates a functionality allowing users to initiate a password recovery process through a designated `Forgot Password` hyperlink.
 

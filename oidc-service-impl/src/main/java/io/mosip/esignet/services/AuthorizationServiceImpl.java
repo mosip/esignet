@@ -616,6 +616,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oAuthDetailRequestV3.setCodeChallenge(pushedAuthorizationRequest.getCode_challenge());
         oAuthDetailRequestV3.setCodeChallengeMethod(pushedAuthorizationRequest.getCode_challenge_method());
         oAuthDetailRequestV3.setDpopJkt(pushedAuthorizationRequest.getDpop_jkt());
+        oAuthDetailRequestV3.setState(pushedAuthorizationRequest.getState());
+        oAuthDetailRequestV3.setIdTokenHint(pushedAuthorizationRequest.getId_token_hint());
         return oAuthDetailRequestV3;
     }
 
