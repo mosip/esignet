@@ -85,13 +85,13 @@ public class OAuthController {
         }
     }
 
-    @GetMapping("/.well-known/jwks.json")
+    @GetMapping(value= "/.well-known/jwks.json", produces = "application/json")
     @CrossOrigin(origins = "*")
     public Map<String, Object> getAllJwks() {
         return oAuthService.getJwks();
     }
 
-    @GetMapping("/.well-known/oauth-authorization-server")
+    @GetMapping(value= "/.well-known/oauth-authorization-server", produces = "application/json")
     @CrossOrigin(origins = "*")
     public Map<String, Object> getOAuthServerDiscoveryInfo() {
         return oAuthService.getOAuthServerDiscoveryInfo();
