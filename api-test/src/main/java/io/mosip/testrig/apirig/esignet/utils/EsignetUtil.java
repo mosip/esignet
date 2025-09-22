@@ -282,11 +282,6 @@ public class EsignetUtil extends AdminTestUtil {
 		}
 		
 		if (jsonString.contains("$SUNBIRD_SCOPE$")) {
-//			jsonString = replaceKeywordValue(jsonString, "$SUNBIRD_SCOPE$",
-//					getValueFromEsignetActuator(jsonString,
-//							EsignetConstants.MOSIP_ESIGNET_SUPPORTED_CREDENTIAL_SCOPES_LANGUAGE).replace("{'", "")
-//							.replace("'}", ""));
-
 			String scopes = getValueFromEsignetActuator(jsonString,
 					EsignetConstants.MOSIP_ESIGNET_SUPPORTED_CREDENTIAL_SCOPES_LANGUAGE);
 
