@@ -859,7 +859,7 @@
 			]
 		},
 		{
-			"name": "AuthCode PAR flow - OTP login",
+			"name": "FAPI 2.0 AuthCode flow - OTP login",
 			"item": [
 				{
 					"name": "Get CSRF token",
@@ -924,7 +924,64 @@
 									"\r",
 									"const signed_jwt = pmlib.clientAssertPrivateKey(private_key_jwk, pm.environment.get('client_id'), pm.environment.get('par_audience'), exp = 60,  \"RS256\");\r",
 									"\r",
-									"pm.collectionVariables.set(\"par_client_assertion\",signed_jwt);"
+									"pm.collectionVariables.set(\"par_client_assertion\",signed_jwt);\r",
+									"\r",
+									"\r",
+									"// dpop\r",
+									"\r",
+									"async function generateJKT(publicKey) {\r",
+									"    // Create canonical JSON representation for RSA thumbprint\r",
+									"    // For RSA keys, the required members are: e, kty, n (in lexicographic order)\r",
+									"    const thumbprintInput = JSON.stringify({\r",
+									"        \"e\": publicKey.e,\r",
+									"        \"kty\": publicKey.kty,\r",
+									"        \"n\": publicKey.n\r",
+									"    });\r",
+									"\r",
+									"    return pmlib.rs.hextob64u(pmlib.sha256(thumbprintInput));\r",
+									"}\r",
+									"\r",
+									"async function createDPoPProof(privateKey, publicKey) {\r",
+									"    const now = Math.floor(Date.now() / 1000);\r",
+									"    const jti = crypto.randomUUID();\r",
+									"    \r",
+									"    // JWT Header for RSA-256\r",
+									"    const header = {\r",
+									"        \"typ\": \"dpop+jwt\",\r",
+									"        \"alg\": \"RS256\",\r",
+									"        \"jwk\": publicKey\r",
+									"    };\r",
+									"    \r",
+									"    // JWT Payload\r",
+									"    const payload = {\r",
+									"        \"jti\": jti,\r",
+									"        \"htm\": pm.request.method.toUpperCase(),\r",
+									"        \"htu\": `${pm.environment.get(\"url\")}/v1/esignet/oauth/par`,\r",
+									"        \"iat\": now\r",
+									"    };\r",
+									"\r",
+									"    return pmlib.jwtSign(privateKey, payload, header, 60, \"RS256\");\r",
+									"}\r",
+									"\r",
+									"const dpopKeyPair = pmlib.rs.KEYUTIL.generateKeypair(\"RSA\", 2048);\r",
+									"const dpopPrivateKey = pmlib.rs.KEYUTIL.getJWK(dpopKeyPair.prvKeyObj);\r",
+									"const dpopPublicKey = pmlib.rs.KEYUTIL.getJWK(dpopKeyPair.pubKeyObj);\r",
+									"\r",
+									"// Generate JKT for RSA key\r",
+									"const jkt = await generateJKT(dpopPublicKey);\r",
+									"\r",
+									"// Generate DPoP proof with RS256\r",
+									"const dpopProof = await createDPoPProof(dpopPrivateKey, dpopPublicKey);\r",
+									"\r",
+									"pm.request.headers.add({\r",
+									"    key: \"DPoP\",\r",
+									"    value: dpopProof\r",
+									"});\r",
+									"pm.environment.set(\"dpop_jkt\", jkt);\r",
+									"\r",
+									"// Store in environment variables\r",
+									"pm.environment.set(\"dpop_private_key\", JSON.stringify(dpopPrivateKey));\r",
+									"pm.environment.set(\"dpop_public_key\", JSON.stringify(dpopPublicKey));"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -947,13 +1004,7 @@
 					],
 					"request": {
 						"method": "POST",
-						"header": [
-							{
-								"key": "X-XSRF-TOKEN",
-								"value": "{{csrf_token}}",
-								"type": "text"
-							}
-						],
+						"header": [],
 						"body": {
 							"mode": "urlencoded",
 							"urlencoded": [
@@ -1020,6 +1071,11 @@
 								{
 									"key": "client_assertion",
 									"value": "{{par_client_assertion}}",
+									"type": "text"
+								},
+								{
+									"key": "dpop_jkt",
+									"value": "{{dpop_jkt}}",
 									"type": "text"
 								}
 							]
@@ -1297,7 +1353,47 @@
 									"const signed_jwt = pmlib.clientAssertPrivateKey(private_key_jwk, pm.environment.get('client_id'), pm.environment.get('audience'), exp = 60,  \"RS256\");",
 									"",
 									"pm.collectionVariables.set(\"client_assertion\",signed_jwt);",
-									""
+									"",
+									"",
+									"// dpop",
+									"async function createDPoPProof(privateKey, publicKey) {",
+									"    const now = Math.floor(Date.now() / 1000);",
+									"    const jti = crypto.randomUUID();",
+									"    ",
+									"    // JWT Header for RSA-256",
+									"    const header = {",
+									"        \"typ\": \"dpop+jwt\",",
+									"        \"alg\": \"RS256\",",
+									"        \"jwk\": publicKey",
+									"    };",
+									"    ",
+									"    // JWT Payload",
+									"    const payload = {",
+									"        \"jti\": jti,",
+									"        \"htm\": pm.request.method.toUpperCase(),",
+									"        \"htu\": `${pm.environment.get(\"url\")}/v1/esignet/oauth/v2/token`,",
+									"        \"iat\": now",
+									"    };",
+									"",
+									"    const dpopNonce = pm.environment.get(\"dpop_nonce\") || null;",
+									"",
+									"    if(dpopNonce) {",
+									"        payload.nonce = dpopNonce;",
+									"    }",
+									"",
+									"    return pmlib.jwtSign(privateKey, payload, header, 60, \"RS256\");",
+									"}",
+									"",
+									"const dpopPublicKey = JSON.parse(pm.environment.get(\"dpop_public_key\"));",
+									"const dpopPrivateKey = JSON.parse(pm.environment.get(\"dpop_private_key\"));",
+									"",
+									"// Generate DPoP proof with RS256",
+									"const dpopProof = await createDPoPProof(dpopPrivateKey, dpopPublicKey);",
+									"",
+									"pm.request.headers.add({",
+									"    key: \"DPoP\",",
+									"    value: dpopProof",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -1307,6 +1403,18 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"if (pm.response.code === 400 && pm.response.json().error === \"use_dpop_nonce\") {",
+									"    const nonce = pm.response.headers.get(\"DPoP-Nonce\");",
+									"    if (nonce) {",
+									"        pm.environment.set(\"dpop_nonce\", nonce);",
+									"        console.log(\"Saved new DPoP-Nonce:\", nonce);",
+									"    }",
+									"} else if(pm.response.code === 200) {",
+									"    // If successful, clear the nonce so next run starts clean",
+									"    pm.environment.unset(\"dpop_nonce\");",
+									"    console.log(\"Cleared DPoP-Nonce token\");",
+									"}",
+									"",
 									"pm.test(\"Validate Id-token\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData.id_token).not.equals(null);",
@@ -1390,7 +1498,50 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									""
+									"eval(pm.environment.get('pmlib_code'))\r",
+									"\r",
+									"// dpop\r",
+									"async function createDPoPProof(privateKey, publicKey) {\r",
+									"    const now = Math.floor(Date.now() / 1000);\r",
+									"    const jti = crypto.randomUUID();\r",
+									"\r",
+									"    // JWT Header for RSA-256\r",
+									"    const header = {\r",
+									"        \"typ\": \"dpop+jwt\",\r",
+									"        \"alg\": \"RS256\",\r",
+									"        \"jwk\": publicKey\r",
+									"    };\r",
+									"\r",
+									"    const access_token = pm.environment.get(\"access_token\");\r",
+									"\r",
+									"    // JWT Payload\r",
+									"    const payload = {\r",
+									"        \"jti\": jti,\r",
+									"        \"htm\": pm.request.method.toUpperCase(),\r",
+									"        \"htu\": `${pm.environment.get(\"url\")}/v1/esignet/oidc/userinfo`,\r",
+									"        \"iat\": now,\r",
+									"        \"ath\": pmlib.rs.hextob64u(pmlib.sha256(access_token))\r",
+									"    };\r",
+									"\r",
+									"    const dpopNonce = pm.environment.get(\"dpop_nonce\") || null;\r",
+									"\r",
+									"    if (dpopNonce) {\r",
+									"        payload.nonce = dpopNonce;\r",
+									"    }\r",
+									"\r",
+									"    return pmlib.jwtSign(privateKey, payload, header, 60, \"RS256\");\r",
+									"}\r",
+									"\r",
+									"const dpopPublicKey = JSON.parse(pm.environment.get(\"dpop_public_key\"));\r",
+									"const dpopPrivateKey = JSON.parse(pm.environment.get(\"dpop_private_key\"));\r",
+									"\r",
+									"// Generate DPoP proof with RS256\r",
+									"const dpopProof = await createDPoPProof(dpopPrivateKey, dpopPublicKey);\r",
+									"\r",
+									"pm.request.headers.add({\r",
+									"    key: \"DPoP\",\r",
+									"    value: dpopProof\r",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -1400,7 +1551,18 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									""
+									"if (pm.response.code === 401 && pm.response.headers.get(\"WWW-Authenticate\") && \r",
+									"pm.response.headers.get(\"WWW-Authenticate\").includes(\"use_dpop_nonce\")) {\r",
+									"    const nonce = pm.response.headers.get(\"DPoP-Nonce\");\r",
+									"    if (nonce) {\r",
+									"        pm.environment.set(\"dpop_nonce\", nonce);\r",
+									"        console.log(\"Saved new DPoP-Nonce:\", nonce);\r",
+									"    }\r",
+									"} else if(pm.response.code === 200) {\r",
+									"    // If successful, clear the nonce so next run starts clean\r",
+									"    pm.environment.unset(\"dpop_nonce\");\r",
+									"    console.log(\"Cleared DPoP-Nonce userinfo\");\r",
+									"}"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -1409,17 +1571,16 @@
 					],
 					"request": {
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{access_token}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "DPoP {{access_token}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{url}}/v1/esignet/oidc/userinfo",
 							"host": [
