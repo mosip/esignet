@@ -282,10 +282,25 @@ public class EsignetUtil extends AdminTestUtil {
 		}
 		
 		if (jsonString.contains("$SUNBIRD_SCOPE$")) {
-			jsonString = replaceKeywordValue(jsonString, "$SUNBIRD_SCOPE$",
-					getValueFromEsignetActuator(jsonString,
-							EsignetConstants.MOSIP_ESIGNET_SUPPORTED_CREDENTIAL_SCOPES_LANGUAGE).replace("{'", "")
-							.replace("'}", ""));
+			String scopes = getValueFromEsignetActuator(jsonString,
+					EsignetConstants.MOSIP_ESIGNET_SUPPORTED_CREDENTIAL_SCOPES_LANGUAGE);
+
+			// Remove curly braces { } and single quotes '
+			scopes = scopes.replaceAll("[{}']", "");
+
+			// Split by comma into array
+			String[] scopeArray = scopes.split(",");
+
+			// Trim each value
+			for (int i = 0; i < scopeArray.length; i++) {
+				scopeArray[i] = scopeArray[i].trim();
+			}
+
+			// Join back with SPACE (as per OAuth scope convention)
+			String finalScopes = String.join(" ", scopeArray);
+
+			// Replace placeholder
+			jsonString = replaceKeywordValue(jsonString, "$SUNBIRD_SCOPE$", finalScopes);
 		}
 		
 		if (testCaseName.contains("ESignet_GenerateApiKey_")) {
