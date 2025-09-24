@@ -90,11 +90,21 @@ public class DpopValidationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws IOException {
         try {
+            String uri = request.getRequestURI();
+            String lastSegment = uri.substring(uri.lastIndexOf("/")+1);
+
             OAUTH_ENDPOINT endpoint;
-            if(request.getRequestURI().endsWith("/par")) endpoint = OAUTH_ENDPOINT.PAR;
-            else if(request.getRequestURI().endsWith("/token")) endpoint = OAUTH_ENDPOINT.TOKEN;
-            else if(request.getRequestURI().endsWith("/userinfo")) endpoint = OAUTH_ENDPOINT.USERINFO;
-            else throw new RuntimeException(ErrorConstants.UNKNOWN_ERROR);
+            switch (lastSegment) {
+                case "/par":
+                    endpoint = OAUTH_ENDPOINT.PAR;
+                    break;
+                case "/token":
+                    endpoint = OAUTH_ENDPOINT.TOKEN;
+                    break;
+                default:
+                    endpoint = OAUTH_ENDPOINT.USERINFO;
+                    break;
+            }
 
             Optional<String> dpopHeader = getDpopHeader(request);
             String authHeader = request.getHeader(AUTH_HEADER);
