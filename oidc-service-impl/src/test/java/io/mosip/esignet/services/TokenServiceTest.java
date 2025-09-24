@@ -1,10 +1,7 @@
 package io.mosip.esignet.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
@@ -31,6 +28,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -289,6 +287,71 @@ public class TokenServiceTest {
         } catch (EsignetException e) {
             Assert.assertEquals("invalid_token", e.getErrorCode());
         }
+    }
+
+    @Test
+    public void isValidDpopServerNonce_withValidNonce_thenReturnTrue() throws Exception {
+        OIDCTransaction transaction = new OIDCTransaction();
+        String nonce = "validNonce";
+        transaction.setDpopServerNonce(nonce);
+        transaction.setDpopServerNonceTTL(System.currentTimeMillis() + 15*10000);
+        String dpopHeader = createDpopHeader(nonce);
+        Assert.assertTrue(tokenService.isValidDpopServerNonce(dpopHeader, transaction));
+    }
+
+    @Test
+    public void isValidDpopServerNonce_withExpiredNonce_thenReturnFalse() throws Exception {
+        OIDCTransaction transaction = new OIDCTransaction();
+        String nonce = "validNonce";
+        transaction.setDpopServerNonce(nonce);
+        transaction.setDpopServerNonceTTL(System.currentTimeMillis() - 15*10000);
+        String dpopHeader = createDpopHeader(nonce);
+        Assert.assertFalse(tokenService.isValidDpopServerNonce(dpopHeader, transaction));
+    }
+
+    @Test
+    public void isValidDpopServerNonce_withInvalidNonce_thenReturnFalse() throws Exception {
+        OIDCTransaction transaction = new OIDCTransaction();
+        transaction.setDpopServerNonce("validNonce");
+        transaction.setDpopServerNonceTTL(System.currentTimeMillis() + 15*10000);
+        String dpopHeader = createDpopHeader("invalidNonce");
+        Assert.assertFalse(tokenService.isValidDpopServerNonce(dpopHeader, transaction));
+    }
+
+    @Test
+    public void isValidDpopServerNonce_withMissingNonceInPayload_thenReturnFalse() throws Exception {
+        OIDCTransaction transaction = new OIDCTransaction();
+        transaction.setDpopServerNonce("validNonce");
+        transaction.setDpopServerNonceTTL(System.currentTimeMillis() + 15*10000);
+        String dpopHeader = createDpopHeader(null);
+        Assert.assertFalse(tokenService.isValidDpopServerNonce(dpopHeader, transaction));
+    }
+
+    @Test
+    public void isValidDpopServerNonce_withMissingNonceInPayloadAndTransaction_thenReturnFalse() throws Exception {
+        OIDCTransaction transaction = new OIDCTransaction();
+        String dpopHeader = createDpopHeader(null);
+        Assert.assertFalse(tokenService.isValidDpopServerNonce(dpopHeader, transaction));
+    }
+
+    private String createDpopHeader(String nonce) throws Exception {
+        JWSHeader.Builder headerBuilder = new JWSHeader.Builder(JWSAlgorithm.RS256)
+                .type(new JOSEObjectType("dpop+jwt"))
+                .jwk(RSA_JWK.toPublicJWK());
+
+        JWTClaimsSet.Builder claimsBuilder = new JWTClaimsSet.Builder()
+                .issueTime(Date.from(Instant.now()));
+
+        if(nonce != null) {
+            claimsBuilder.claim("nonce", nonce);
+        }
+
+        SignedJWT signedJWT = new SignedJWT(headerBuilder.build(), claimsBuilder.build());
+
+        JWSSigner signer = new RSASSASigner(RSA_JWK);
+        signedJWT.sign(signer);
+
+        return signedJWT.serialize();
     }
 
     private SignatureService getSignatureService() {

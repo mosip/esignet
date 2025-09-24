@@ -21,10 +21,7 @@ import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTClaimsSetVerifier;
 import io.mosip.esignet.core.dto.OIDCTransaction;
-import io.mosip.esignet.core.exception.DpopNonceMissingException;
-import io.mosip.esignet.core.exception.EsignetException;
-import io.mosip.esignet.core.exception.InvalidRequestException;
-import io.mosip.esignet.core.exception.NotAuthenticatedException;
+import io.mosip.esignet.core.exception.*;
 import io.mosip.esignet.core.spi.TokenService;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.constants.Constants;
@@ -254,7 +251,7 @@ public class TokenServiceImpl implements TokenService {
             return nonceMatches && !nonceExpired;
         } catch (ParseException e) {
             log.error("dpopHeader parsing failed - Should never happen", e);
-            throw new RuntimeException(ErrorConstants.UNKNOWN_ERROR);
+            throw new InvalidDpopHeaderException();
         }
     }
 

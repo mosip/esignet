@@ -3,6 +3,7 @@ package io.mosip.esignet.services;
 
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.core.dto.OIDCTransaction;
+import io.mosip.esignet.core.exception.DpopNonceMissingException;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.NotAuthenticatedException;
 import io.mosip.esignet.core.spi.TokenService;
@@ -48,7 +49,7 @@ public class OpenIdConnectServiceTest {
     }
 
     @Test(expected = EsignetException.class)
-    public void getUserInfo_withInValidAccessToken_thenFail() {
+    public void getUserInfo_withInvalidAccessToken_thenFail() {
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         oidcTransaction.setClientId("client-id");
         oidcTransaction.setPartnerSpecificUserToken("p-s-u-t");
@@ -71,4 +72,38 @@ public class OpenIdConnectServiceTest {
         Assert.assertNotNull(kyc);
         Assert.assertEquals("encrypted-kyc", kyc);
     }
+
+    @Test
+    public void getUserInfo_withValidTransactionAndDpopNonce_thenPass() {
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
+        oidcTransaction.setClientId("client-id");
+        oidcTransaction.setPartnerSpecificUserToken("p-s-u-t");
+        oidcTransaction.setEncryptedKyc("encrypted-kyc");
+        oidcTransaction.setDpopBoundAccessToken(true);
+        String dpopHeader = "dpop header";
+        Mockito.when(cacheUtilService.getUserInfoTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
+        Mockito.when(tokenService.isValidDpopServerNonce(dpopHeader, oidcTransaction)).thenReturn(true);
+        String kyc = openIdConnectService.getUserInfo("DPoP access-token", dpopHeader);
+        Assert.assertNotNull(kyc);
+        Assert.assertEquals("encrypted-kyc", kyc);
+    }
+
+    @Test
+    public void getUserInfo_withDpopWithoutNonce_thenFail() throws Exception {
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
+        oidcTransaction.setClientId("client-id");
+        oidcTransaction.setPartnerSpecificUserToken("p-s-u-t");
+        oidcTransaction.setEncryptedKyc("encrypted-kyc");
+        oidcTransaction.setDpopBoundAccessToken(true);
+        Mockito.when(cacheUtilService.getUserInfoTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
+        Mockito.when(tokenService.isValidDpopServerNonce(Mockito.anyString(), Mockito.any())).thenReturn(false);
+        String nonce = "valid-nonce";
+        Mockito.doThrow(new DpopNonceMissingException(nonce)).when(tokenService).generateAndStoreNewNonce(Mockito.anyString(), Mockito.anyString());
+        try {
+            openIdConnectService.getUserInfo("DPoP access-token", "dpop-header");
+        } catch (DpopNonceMissingException ex) {
+            Assert.assertEquals(nonce, ex.getDpopNonceHeaderValue());
+        }
+    }
+
 }
