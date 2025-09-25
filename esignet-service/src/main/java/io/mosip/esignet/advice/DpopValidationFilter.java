@@ -95,10 +95,10 @@ public class DpopValidationFilter extends OncePerRequestFilter {
 
             OAUTH_ENDPOINT endpoint;
             switch (lastSegment) {
-                case "/par":
+                case "par":
                     endpoint = OAUTH_ENDPOINT.PAR;
                     break;
-                case "/token":
+                case "token":
                     endpoint = OAUTH_ENDPOINT.TOKEN;
                     break;
                 default:

@@ -101,6 +101,7 @@ public class OpenIdConnectServiceTest {
         Mockito.doThrow(new DpopNonceMissingException(nonce)).when(tokenService).generateAndStoreNewNonce(Mockito.anyString(), Mockito.anyString());
         try {
             openIdConnectService.getUserInfo("DPoP access-token", "dpop-header");
+            Assert.fail();
         } catch (DpopNonceMissingException ex) {
             Assert.assertEquals(nonce, ex.getDpopNonceHeaderValue());
         }
