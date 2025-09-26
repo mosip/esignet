@@ -144,4 +144,19 @@ public interface TokenService {
      * @return
      */
      String getIDToken(String subject, String audience, int validitySeconds, OIDCTransaction transaction, String nonce);
+
+    /**
+     * Validate dpop nonce claim
+     * @param dpopHeader
+     * @param transaction
+     * @return
+     */
+    boolean isValidDpopServerNonce(String dpopHeader, OIDCTransaction transaction);
+
+    /**
+     * Generate new nonce and store in transaction and throw exception with nonce
+     * @param cacheKey
+     * @param cacheName
+     */
+    void generateAndStoreNewNonce(String cacheKey, String cacheName);
 }

@@ -7,9 +7,9 @@ package io.mosip.esignet.core.exception;
 
 import io.mosip.esignet.core.constants.ErrorConstants;
 
-public class InvalidDPoPHeaderException extends EsignetException {
+public class InvalidDpopHeaderException extends EsignetException {
 
-    public InvalidDPoPHeaderException() {
+    public InvalidDpopHeaderException() {
         super(ErrorConstants.INVALID_DPOP_PROOF);
     }
 }

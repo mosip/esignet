@@ -181,8 +181,8 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
             String message = "Maximum upload size exceeded. Limit is " + maxUploadSize + " bytes.";
             return new ResponseEntity<OAuthError>(getErrorRespDto(PAYLOAD_TOO_LARGE, message), headers,HttpStatus.PAYLOAD_TOO_LARGE);
         }
-        if (ex instanceof DPoPNonceMissingException) {
-            DPoPNonceMissingException dpopEx = (DPoPNonceMissingException) ex;
+        if (ex instanceof DpopNonceMissingException) {
+            DpopNonceMissingException dpopEx = (DpopNonceMissingException) ex;
             String errorCode = dpopEx.getErrorCode();
             headers.add("DPoP-Nonce", dpopEx.getDpopNonceHeaderValue());
             headers.add("Access-Control-Expose-Headers", "DPoP-Nonce, WWW-Authenticate");
@@ -202,6 +202,14 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
     }
 
     private ResponseEntity handleExceptionWithHeader(Exception ex) {
+        MultiValueMap<String, String> headers = new HttpHeaders();
+        if (ex instanceof DpopNonceMissingException) {
+            DpopNonceMissingException dpopEx = (DpopNonceMissingException) ex;
+            headers.add("Access-Control-Expose-Headers", "DPoP-Nonce, WWW-Authenticate");
+            headers.add("WWW-Authenticate", "DPoP error=\""+ USE_DPOP_NONCE +"\"");
+            headers.add("DPoP-Nonce", dpopEx.getDpopNonceHeaderValue());
+            return new ResponseEntity(headers, HttpStatus.UNAUTHORIZED);
+        }
         String errorCode = UNKNOWN_ERROR;
         if(ex instanceof NotAuthenticatedException) {
             errorCode = INVALID_AUTH_TOKEN;
@@ -210,7 +218,6 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
             errorCode = MISSING_HEADER;
         }
         log.error("Unhandled exception encountered in handler advice", ex);
-        MultiValueMap<String, String> headers = new HttpHeaders();
         headers.add("WWW-Authenticate", "error=\""+errorCode+"\"");
         ResponseEntity responseEntity = new ResponseEntity(headers, HttpStatus.UNAUTHORIZED);
         return responseEntity;

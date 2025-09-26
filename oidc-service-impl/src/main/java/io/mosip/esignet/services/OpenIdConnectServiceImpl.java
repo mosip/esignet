@@ -41,7 +41,7 @@ public class OpenIdConnectServiceImpl implements OpenIdConnectService {
 
 
     @Override
-    public String getUserInfo(String accessToken) throws EsignetException {
+    public String getUserInfo(String accessToken, String dpopHeader) throws EsignetException {
         String accessTokenHash = null;
         OIDCTransaction transaction = null;
         try {
@@ -50,6 +50,10 @@ public class OpenIdConnectServiceImpl implements OpenIdConnectService {
             transaction = cacheUtilService.getUserInfoTransaction(accessTokenHash);
             if(transaction == null)
                 throw new NotAuthenticatedException();
+
+            if(transaction.isDpopBoundAccessToken() && !tokenService.isValidDpopServerNonce(dpopHeader, transaction)) {
+                tokenService.generateAndStoreNewNonce(accessTokenHash, Constants.USERINFO_CACHE);
+            }
 
             tokenService.verifyAccessToken(transaction.getClientId(), transaction.getPartnerSpecificUserToken(), tokenParts[1]);
             auditWrapper.logAudit(Action.GET_USERINFO, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(),

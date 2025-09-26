@@ -5,6 +5,7 @@
  */
 package io.mosip.esignet.controllers;
 
+import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.spi.OpenIdConnectService;
 import lombok.extern.slf4j.Slf4j;
@@ -30,8 +31,8 @@ public class OpenIdConnectController {
      * @throws EsignetException
      */
     @GetMapping(value = "/userinfo",produces = "application/jwt")
-    public String getUserInfo(@RequestHeader("Authorization") String accessToken) throws EsignetException {
-        return openIdConnectService.getUserInfo(accessToken);
+    public String getUserInfo(@RequestHeader("Authorization") String accessToken, @RequestHeader(value = Constants.DPOP, required = false) String dpopHeader) throws EsignetException {
+        return openIdConnectService.getUserInfo(accessToken, dpopHeader);
     }
     
     @GetMapping(value = "/.well-known/openid-configuration", produces = "application/json")

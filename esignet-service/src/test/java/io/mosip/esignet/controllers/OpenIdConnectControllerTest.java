@@ -23,6 +23,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Map;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -74,7 +75,7 @@ public class OpenIdConnectControllerTest {
     @Test
     public void getUserinfo_withValidAccessToken_thenPass() throws Exception {
         String output = "encryptedKyc";
-        when(openIdConnectServiceImpl.getUserInfo(anyString())).thenReturn(output);
+        when(openIdConnectServiceImpl.getUserInfo(anyString(), any())).thenReturn(output);
         String expectedHeader = "application/jwt;charset=UTF-8";
 
         mockMvc.perform(get("/oidc/userinfo")
@@ -99,7 +100,7 @@ public class OpenIdConnectControllerTest {
 
     @Test
     public void getUserinfo_withInvalidAccessToken_thenFail() throws Exception {
-        when(openIdConnectServiceImpl.getUserInfo(anyString())).thenThrow(NotAuthenticatedException.class);
+        when(openIdConnectServiceImpl.getUserInfo(anyString(), any())).thenThrow(NotAuthenticatedException.class);
         mockMvc.perform(get("/oidc/userinfo")
                         .header("Authorization", "accessToken"))
                 .andExpect(status().is(401))
@@ -108,7 +109,7 @@ public class OpenIdConnectControllerTest {
 
     @Test
     public void getUserinfo_withRuntimeException_thenFail() throws Exception {
-        when(openIdConnectServiceImpl.getUserInfo(anyString())).thenThrow(NullPointerException.class);
+        when(openIdConnectServiceImpl.getUserInfo(anyString(), any())).thenThrow(NullPointerException.class);
         mockMvc.perform(get("/oidc/userinfo")
                         .header("Authorization", "accessToken"))
                 .andExpect(status().is(401))

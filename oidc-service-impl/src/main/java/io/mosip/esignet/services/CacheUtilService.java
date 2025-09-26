@@ -85,6 +85,8 @@ public class CacheUtilService {
                     condition = "#oidcTransaction.getLinkedCodeHash() != null" )},
             cacheable = {@Cacheable(value = Constants.USERINFO_CACHE, key = "#accessTokenHash")})
     public OIDCTransaction setUserInfoTransaction(String accessTokenHash, OIDCTransaction oidcTransaction) {
+        oidcTransaction.setDpopServerNonce(null);
+        oidcTransaction.setDpopServerNonceTTL(null);
         return oidcTransaction;
     }
 
@@ -210,12 +212,12 @@ public class CacheUtilService {
         return false;
     }
 
-    public void updateNonceInCachedTransaction(String codeHash, String newNonce, Long newExpiryTime) {
-        OIDCTransaction transaction = cacheManager.getCache(Constants.AUTH_CODE_GENERATED_CACHE).get(codeHash, OIDCTransaction.class);
+    public void updateNonceInCachedTransaction(String cacheKey, String newNonce, Long newExpiryTime, String cacheName) {
+        OIDCTransaction transaction = cacheManager.getCache(cacheName).get(cacheKey, OIDCTransaction.class);
         if (transaction != null) {
             transaction.setDpopServerNonce(newNonce);
             transaction.setDpopServerNonceTTL(newExpiryTime);
-            Objects.requireNonNull(cacheManager.getCache(Constants.AUTH_CODE_GENERATED_CACHE)).put(codeHash, transaction);
+            Objects.requireNonNull(cacheManager.getCache(cacheName)).put(cacheKey, transaction);
         }
     }
 

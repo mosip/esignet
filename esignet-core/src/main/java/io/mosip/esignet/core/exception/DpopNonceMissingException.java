@@ -4,7 +4,7 @@ import io.mosip.esignet.core.constants.ErrorConstants;
 import lombok.Getter;
 import lombok.Setter;
 
-public class DPoPNonceMissingException extends EsignetException {
+public class DpopNonceMissingException extends EsignetException {
 
     @Setter
     @Getter
@@ -12,7 +12,7 @@ public class DPoPNonceMissingException extends EsignetException {
 
     private final String message = "Authorization server requires nonce in DPoP proof";
 
-    public DPoPNonceMissingException(String dpopNonceHeaderValue) {
+    public DpopNonceMissingException(String dpopNonceHeaderValue) {
         super(ErrorConstants.USE_DPOP_NONCE);
         this.dpopNonceHeaderValue = dpopNonceHeaderValue;
     }
