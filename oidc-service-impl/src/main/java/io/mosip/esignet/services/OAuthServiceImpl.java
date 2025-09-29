@@ -25,6 +25,7 @@ import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
+import io.mosip.esignet.core.exception.InvalidDpopHeaderException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.spi.*;
 import io.mosip.esignet.core.util.*;
@@ -396,7 +397,7 @@ public class OAuthServiceImpl implements OAuthService {
             SignedJWT dpopJwt = SignedJWT.parse(dpopHeader);
             String thumbprint = securityHelperService.computeJwkThumbprint(dpopJwt.getHeader().getJWK());
             if (dpopJkt != null && !dpopJkt.equals(thumbprint)) {
-                throw new EsignetException(ErrorConstants.INVALID_DPOP_PROOF);
+                throw new InvalidDpopHeaderException();
             }
             return thumbprint;
         } catch (Exception e) {
