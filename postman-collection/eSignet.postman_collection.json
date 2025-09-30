@@ -501,7 +501,6 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"// Load custom PKCE library code from globals (if you saved it in pmlib_code)\r",
 									"eval(pm.globals.get('pmlib_code'));\r",
 									"\r",
 									"// Generate PKCE challenge + verifier\r",
@@ -1865,7 +1864,6 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"// Load custom PKCE library code from globals (if you saved it in pmlib_code)\r",
 									"eval(pm.globals.get('pmlib_code'));\r",
 									"\r",
 									"// Generate PKCE challenge + verifier\r",
@@ -2512,7 +2510,6 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"// Load custom PKCE library code from globals (if you saved it in pmlib_code)\r",
 									"eval(pm.globals.get('pmlib_code'));\r",
 									"\r",
 									"// Generate PKCE challenge + verifier\r",
@@ -2986,11 +2983,6 @@
 								{
 									"key": "client_assertion",
 									"value": "{{client_assertion}}",
-									"type": "text"
-								},
-								{
-									"key": "code_verifier",
-									"value": "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk",
 									"type": "text"
 								},
 								{
