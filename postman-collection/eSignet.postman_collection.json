@@ -496,6 +496,28 @@
 								"type": "text/javascript",
 								"packages": {}
 							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Load custom PKCE library code from globals (if you saved it in pmlib_code)\r",
+									"eval(pm.globals.get('pmlib_code'));\r",
+									"\r",
+									"// Generate PKCE challenge + verifier\r",
+									"const pkce = pmlib.pkceChallenge();\r",
+									"\r",
+									"// Store values in collection variables (so you can use in requests)\r",
+									"pm.collectionVariables.set(\"codeChallenge\", pkce.code_challenge);\r",
+									"pm.collectionVariables.set(\"codeChallengeMethod\", pkce.code_challenge_method);\r",
+									"pm.collectionVariables.set(\"codeVerifier\", pkce.code_verifier);\r",
+									"\r",
+									"// Debug log (optional)\r",
+									"console.log(\"PKCE Generated:\", pkce);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
 						}
 					],
 					"request": {
@@ -508,7 +530,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"clientId\": \"{{client_id}}\",\n        \"scope\": \"{{scope}}\",\n        \"responseType\": \"code\",\n        \"redirectUri\": \"{{redirection_url}}\",\n        \"display\": \"popup\",\n        \"prompt\": \"login\",\n        \"acrValues\": \"mosip:idp:acr:generated-code\",\n        \"claims\": {{claims}},\n        \"nonce\" : \"{{$randomAlphaNumeric}}\",\n        \"state\" : \"{{state}}\",\n        \"claimsLocales\" : \"en\"\n    }\n}",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"clientId\": \"{{client_id}}\",\n        \"scope\": \"{{scope}}\",\n        \"responseType\": \"code\",\n        \"redirectUri\": \"{{redirection_url}}\",\n        \"display\": \"popup\",\n        \"prompt\": \"login\",\n        \"acrValues\": \"mosip:idp:acr:generated-code\",\n        \"claims\": {{claims}},\n        \"nonce\" : \"{{$randomAlphaNumeric}}\",\n        \"state\" : \"{{state}}\",\n        \"claimsLocales\" : \"en\",\n        \"codeChallenge\" : \"{{codeChallenge}}\",\n        \"codeChallengeMethod\" : \"{{codeChallengeMethod}}\"\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -785,6 +807,11 @@
 									"key": "client_assertion",
 									"value": "{{client_assertion}}",
 									"type": "text"
+								},
+								{
+									"key": "code_verifier",
+									"value": "{{codeVerifier}}",
+									"type": "text"
 								}
 							]
 						},
@@ -981,7 +1008,14 @@
 									"\r",
 									"// Store in environment variables\r",
 									"pm.environment.set(\"dpop_private_key\", JSON.stringify(dpopPrivateKey));\r",
-									"pm.environment.set(\"dpop_public_key\", JSON.stringify(dpopPublicKey));"
+									"pm.environment.set(\"dpop_public_key\", JSON.stringify(dpopPublicKey));\r",
+									"\r",
+									"// ---------- PKCE ----------\r",
+									"const pkce = pmlib.pkceChallenge();\r",
+									"pm.collectionVariables.set(\"codeChallenge\", pkce.code_challenge);\r",
+									"pm.collectionVariables.set(\"codeChallengeMethod\", pkce.code_challenge_method);\r",
+									"pm.collectionVariables.set(\"codeVerifier\", pkce.code_verifier);\r",
+									"console.log(\"PKCE Generated:\", pkce);"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -1076,6 +1110,16 @@
 								{
 									"key": "dpop_jkt",
 									"value": "{{dpop_jkt}}",
+									"type": "text"
+								},
+								{
+									"key": "code_challenge",
+									"value": "{{codeChallenge}}",
+									"type": "text"
+								},
+								{
+									"key": "code_challenge_method",
+									"value": "{{codeChallengeMethod}}",
 									"type": "text"
 								}
 							]
@@ -1472,6 +1516,11 @@
 									"key": "client_assertion",
 									"value": "{{client_assertion}}",
 									"type": "text"
+								},
+								{
+									"key": "code_verifier",
+									"value": "{{codeVerifier}}",
+									"type": "text"
 								}
 							]
 						},
@@ -1811,6 +1860,28 @@
 								"type": "text/javascript",
 								"packages": {}
 							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Load custom PKCE library code from globals (if you saved it in pmlib_code)\r",
+									"eval(pm.globals.get('pmlib_code'));\r",
+									"\r",
+									"// Generate PKCE challenge + verifier\r",
+									"const pkce = pmlib.pkceChallenge();\r",
+									"\r",
+									"// Store values in collection variables (so you can use in requests)\r",
+									"pm.collectionVariables.set(\"codeChallenge\", pkce.code_challenge);\r",
+									"pm.collectionVariables.set(\"codeChallengeMethod\", pkce.code_challenge_method);\r",
+									"pm.collectionVariables.set(\"codeVerifier\", pkce.code_verifier);\r",
+									"\r",
+									"// Debug log (optional)\r",
+									"console.log(\"PKCE Generated:\", pkce);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
 						}
 					],
 					"request": {
@@ -1823,7 +1894,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"clientId\": \"{{client_id}}\",\n        \"scope\": \"{{scope}}\",\n        \"responseType\": \"code\",\n        \"redirectUri\": \"{{redirection_url}}\",\n        \"display\": \"popup\",\n        \"prompt\": \"login\",\n        \"acrValues\": \"mosip:idp:acr:linked-wallet\",\n        \"claims\": {{claims}},\n        \"nonce\" : \"{{$randomAlphaNumeric}}\",\n        \"state\" : \"{{state}}\",\n        \"claimsLocales\" : \"en\"\n    }\n}",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"clientId\": \"{{client_id}}\",\n        \"scope\": \"{{scope}}\",\n        \"responseType\": \"code\",\n        \"redirectUri\": \"{{redirection_url}}\",\n        \"display\": \"popup\",\n        \"prompt\": \"login\",\n        \"acrValues\": \"mosip:idp:acr:linked-wallet\",\n        \"claims\": {{claims}},\n        \"nonce\" : \"{{$randomAlphaNumeric}}\",\n        \"state\" : \"{{state}}\",\n        \"claimsLocales\" : \"en\",\n        \"codeChallenge\" : \"{{codeChallenge}}\",\n        \"codeChallengeMethod\" : \"{{codeChallengeMethod}}\"\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2274,6 +2345,11 @@
 									"key": "client_assertion",
 									"value": "{{client_assertion}}",
 									"type": "text"
+								},
+								{
+									"key": "code_verifier",
+									"value": "{{codeVerifier}}",
+									"type": "text"
 								}
 							]
 						},
@@ -2431,6 +2507,28 @@
 								"type": "text/javascript",
 								"packages": {}
 							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Load custom PKCE library code from globals (if you saved it in pmlib_code)\r",
+									"eval(pm.globals.get('pmlib_code'));\r",
+									"\r",
+									"// Generate PKCE challenge + verifier\r",
+									"const pkce = pmlib.pkceChallenge();\r",
+									"\r",
+									"// Store values in collection variables (so you can use in requests)\r",
+									"pm.collectionVariables.set(\"codeChallenge\", pkce.code_challenge);\r",
+									"pm.collectionVariables.set(\"codeChallengeMethod\", pkce.code_challenge_method);\r",
+									"pm.collectionVariables.set(\"codeVerifier\", pkce.code_verifier);\r",
+									"\r",
+									"// Debug log (optional)\r",
+									"console.log(\"PKCE Generated:\", pkce);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
 						}
 					],
 					"request": {
@@ -2444,7 +2542,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"clientId\": \"{{client_id}}\",\n        \"scope\": \"{{scope}}\",\n        \"responseType\": \"code\",\n        \"redirectUri\": \"{{redirection_url}}\",\n        \"display\": \"popup\",\n        \"prompt\": \"login\",\n        \"acrValues\": \"mosip:idp:acr:generated-code\",\n        \"claims\": {{claims_v3}},\n        \"nonce\" : \"{{$randomAlphaNumeric}}\",\n        \"state\" : \"{{state}}\",\n        \"claimsLocales\" : \"en\"\n    }\n}",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"clientId\": \"{{client_id}}\",\n        \"scope\": \"{{scope}}\",\n        \"responseType\": \"code\",\n        \"redirectUri\": \"{{redirection_url}}\",\n        \"display\": \"popup\",\n        \"prompt\": \"login\",\n        \"acrValues\": \"mosip:idp:acr:generated-code\",\n        \"claims\": {{claims_v3}},\n        \"nonce\" : \"{{$randomAlphaNumeric}}\",\n        \"state\" : \"{{state}}\",\n        \"claimsLocales\" : \"en\",\n        \"codeChallenge\" : \"{{codeChallenge}}\",\n        \"codeChallengeMethod\" : \"{{codeChallengeMethod}}\"\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2894,6 +2992,11 @@
 									"key": "code_verifier",
 									"value": "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk",
 									"type": "text"
+								},
+								{
+									"key": "code_verifier",
+									"value": "{{codeVerifier}}",
+									"type": "text"
 								}
 							]
 						},
@@ -3150,6 +3253,18 @@
 			"key": "csrf_token",
 			"value": "08a17840-da3c-4b93-9ab3-83d9b297ac68",
 			"type": "string"
+		},
+		{
+			"key": "codeChallenge",
+			"value": ""
+		},
+		{
+			"key": "codeChallengeMethod",
+			"value": ""
+		},
+		{
+			"key": "codeVerifier",
+			"value": ""
 		}
 	]
 }
