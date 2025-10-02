@@ -127,8 +127,6 @@ public class DpopValidationFilter extends OncePerRequestFilter {
         } catch (NotAuthenticatedException ex) {
             response.setHeader("WWW-Authenticate", "error=\""+ErrorConstants.INVALID_AUTH_TOKEN+"\"");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        } catch (EsignetException ex) {
-
         } catch (Exception ex) {
             log.error("Unexpected DPoP validation error", ex);
             setAuthErrorResponse(response, ErrorConstants.UNKNOWN_ERROR, ex.getMessage(), OAUTH_ENDPOINT.USERINFO.equals(endpoint));

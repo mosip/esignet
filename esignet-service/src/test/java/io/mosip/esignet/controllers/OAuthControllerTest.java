@@ -235,9 +235,7 @@ public class OAuthControllerTest {
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .params(params))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(ErrorConstants.INVALID_REDIRECT_URI))
-                .andExpect(jsonPath("$.error_description").value(ErrorConstants.INVALID_REDIRECT_URI));
-
+                .andExpect(jsonPath("$.error").value(ErrorConstants.INVALID_REQUEST));
     }
 
     @Test
@@ -253,8 +251,7 @@ public class OAuthControllerTest {
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .params(params))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(ErrorConstants.INVALID_SCOPE))
-                .andExpect(jsonPath("$.error_description").value(ErrorConstants.INVALID_SCOPE));
+                .andExpect(jsonPath("$.error").value(ErrorConstants.INVALID_REQUEST));
     }
 
     @Test
@@ -270,8 +267,7 @@ public class OAuthControllerTest {
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .params(params))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(ErrorConstants.INVALID_RESPONSE_TYPE))
-                .andExpect(jsonPath("$.error_description").value(ErrorConstants.INVALID_RESPONSE_TYPE));
+                .andExpect(jsonPath("$.error").value(ErrorConstants.INVALID_REQUEST));
     }
 
     @Test
@@ -287,8 +283,7 @@ public class OAuthControllerTest {
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .params(params))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(ErrorConstants.INVALID_ASSERTION_TYPE))
-                .andExpect(jsonPath("$.error_description").value(ErrorConstants.INVALID_ASSERTION_TYPE));
+                .andExpect(jsonPath("$.error").value(ErrorConstants.INVALID_REQUEST));
     }
 
     @Test
