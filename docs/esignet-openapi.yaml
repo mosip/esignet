@@ -1677,7 +1677,7 @@ paths:
                       type: string
                       description: |-
                         Space separated ACR values, Unknown ACR are ignored. Only registered ACR values will be considered.
-                        if none of the provided acr value is among the registered values, Error response is returned with error code "invalid_acr".
+                        If none of the provided acr value is among the registered values, all the registered ACR's will be considered.
                     claims:
                       $ref: '#/components/schemas/Claim'
                     maxAge:
@@ -1895,7 +1895,7 @@ paths:
                       type: string
                       description: |-
                         Space separated ACR values, Unknown ACR are ignored. Only registered ACR values will be considered.
-                        if none of the provided acr value is among the registered values, Error response is returned with error code "invalid_acr".
+                        If none of the provided acr value is among the registered values, all the registered ACR's will be considered.
                     claims:
                       $ref: '#/components/schemas/Claim'
                     maxAge:
@@ -2136,7 +2136,7 @@ paths:
                       type: string
                       description: |-
                         Space separated ACR values, Unknown ACR are ignored. Only registered ACR values will be considered.
-                        if none of the provided acr value is among the registered values, Error response is returned with error code "invalid_acr".
+                        If none of the provided acr value is among the registered values, all the registered ACR's will be considered.
                     claims:
                       $ref: '#/components/schemas/Claim'
                     maxAge:
@@ -5625,7 +5625,7 @@ paths:
                   type: string
                   description: |-
                     Space separated ACR values, Unknown ACR are ignored. Only registered ACR values will be considered.
-                    if none of the provided acr value is among the registered values, Error response is returned with error code "invalid_acr".
+                    If none of the provided acr value is among the registered values, all the registered ACR's will be considered.
                 claims:
                   $ref: '#/components/schemas/Claim'
                 max_age:
