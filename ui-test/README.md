@@ -1,14 +1,14 @@
-# 🧪 eSignet UI Automation Framework
+# 🧪 Esignet UI Automation Framework
 
 ## 🚀 Overview
 
-This project is a UI automation testing framework for **eSignet**, built using **Cucumber**, **TestNG**, and **Selenium WebDriver**, with support for **BrowserStack** and **parallel execution**.
+This project is a UI automation testing framework for **Esignet**, built using **Cucumber**, **TestNG**, and **Selenium WebDriver**, with support for **BrowserStack** and **parallel execution**.
 
-## 🔍 What is eSignet?
+## 🔍 What is Esignet?
 
-eSignet is a reference identity and authentication platform developed under the [MOSIP](https://www.mosip.io) project. It demonstrates how authentication and consent mechanisms can be implemented for foundational ID systems.
+Esignet is a reference identity and authentication platform developed under the [MOSIP](https://www.mosip.io) project. It demonstrates how authentication and consent mechanisms can be implemented for foundational ID systems.
 
-This framework enables automated testing of eSignet's UI features and flows across multiple browsers and devices to ensure consistent and reliable behavior.
+This framework enables automated testing of Esignet's UI features and flows across multiple browsers and devices to ensure consistent and reliable behavior.
 
 ---
 
@@ -66,7 +66,7 @@ project-root/
 ## 🔧 Configuration (`config.properties`)
 
 ```properties
-baseurl=https://esignet.mosip.io/
+baseurl=<base_environment_url> # e.g., https://healthservices-mock.es-qa1.mosip.net/
 runOnBrowserStack=true/false
 runMultipleBrowsers=true/false
 threadCount=3
@@ -74,6 +74,9 @@ browser=chrome                # Used when runMultipleBrowsers is false
 browsers=chrome,edge          # Used when runMultipleBrowsers is true
 browserstack_username=<your_browserstack_username>
 browserstack_access_key=<your_browserstack_key>
+localeUrl=<locale_base_url> # e.g., https://eSignet-mock.es-qa1.mosip.net/
+runLanguage=eng,khm,hin   # Languages to test, can be single value and comma-separated for more languages
+eSignetbaseurl=<eSignet_base_environment_url> # e.g., https://eSignet-mock.es-qa1.mosip.net/
 ```
 
 ---
@@ -224,6 +227,6 @@ Or configure in runner class:
 
 ## 🧾 References
 
-- [MOSIP Docs – eSignet](https://docs.mosip.io/)
+- [MOSIP Docs – Esignet](https://docs.mosip.io/)
 - [BrowserStack Documentation](https://www.browserstack.com/docs)
 - [Cucumber with TestNG Guide](https://cucumber.io/docs/testng-integration/)

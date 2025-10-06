@@ -19,12 +19,19 @@ public class LoginOptionsPage extends BasePage {
 	@FindBy(xpath = "//img[@class='brand-logo']")
 	WebElement brandLogo;
 
+	@FindBy(id = "login_with_walletname")
+	WebElement loginWithInji;
+
 	public void clickOnSignInWIthEsignet() {
 		clickOnElement(signInWithEsignet);
 	}
 
 	public boolean isLogoDisplayed() {
 		return isElementVisible(brandLogo);
+	}
+
+	public void clickOnLoginWithInji() {
+		clickOnElement(loginWithInji);
 	}
 
 }
