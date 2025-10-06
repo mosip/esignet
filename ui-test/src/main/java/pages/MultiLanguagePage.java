@@ -31,7 +31,6 @@ public class MultiLanguagePage extends BasePage {
     }
 
     public String getLanguageFromCookie() {
-//        return driver.manage().getCookieNamed("i18nextLng").getValue();
         JavascriptExecutor js = (JavascriptExecutor) driver;
         return (String) js.executeScript("return window.localStorage.getItem('i18nextLng');");
     }
