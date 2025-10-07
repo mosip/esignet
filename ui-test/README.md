@@ -66,7 +66,7 @@ project-root/
 ## 🔧 Configuration (`config.properties`)
 
 ```properties
-baseurl=https://esignet.mosip.io/
+baseurl=<base_environment_url> # e.g., https://healthservices-mock.es-qa1.mosip.net/
 runOnBrowserStack=true/false
 runMultipleBrowsers=true/false
 threadCount=3
@@ -74,6 +74,9 @@ browser=chrome                # Used when runMultipleBrowsers is false
 browsers=chrome,edge          # Used when runMultipleBrowsers is true
 browserstack_username=<your_browserstack_username>
 browserstack_access_key=<your_browserstack_key>
+localeUrl=<locale_base_url> # e.g., https://eSignet-mock.es-qa1.mosip.net/
+runLanguage=eng,khm,hin   # Languages to test, can be single value and comma-separated for more languages
+eSignetbaseurl=<eSignet_base_environment_url> # e.g., https://eSignet-mock.es-qa1.mosip.net/
 ```
 
 ---

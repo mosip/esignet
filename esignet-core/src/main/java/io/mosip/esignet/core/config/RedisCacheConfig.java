@@ -18,6 +18,9 @@ public class RedisCacheConfig {
     @Value("#{${mosip.esignet.cache.expire-in-seconds}}")
     private Map<String, Integer> cacheNamesWithTTLMap;
 
+    @Value("${mosip.esignet.cache.keyprefix}")
+    private String keyPrefix;
+
     @Bean
     public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer() {
         return (builder) -> {
@@ -25,8 +28,9 @@ public class RedisCacheConfig {
             cacheNamesWithTTLMap.forEach((cacheName, ttl) -> {
                 configurationMap.put(cacheName, RedisCacheConfiguration
                                 .defaultCacheConfig()
-                                    .disableCachingNullValues()
-                                    .entryTtl(Duration.ofSeconds(ttl)));
+                                .disableCachingNullValues()
+                                .prefixCacheNameWith(keyPrefix+":")
+                                .entryTtl(Duration.ofSeconds(ttl)));
             });
             builder.withInitialCacheConfigurations(configurationMap);
         };
