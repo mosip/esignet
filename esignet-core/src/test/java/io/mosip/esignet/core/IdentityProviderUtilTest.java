@@ -150,12 +150,43 @@ public class IdentityProviderUtilTest {
     }
     
     @Test
-    public void test_getJWKString() {
+    public void test_getJWKString_ValidAndMissingKty() {
     	Assert.assertNotNull(IdentityProviderUtil.getJWKString((Map<String, Object>) generateJWK_RSA().getRequiredParams()));
     	try {
-    		IdentityProviderUtil.getJWKString(new HashMap<String, Object>());
+    		IdentityProviderUtil.getJWKString(new HashMap<String, Object>()); // missing kty
     		Assert.fail();
-        } catch (EsignetException e) {}
+        } catch (EsignetException e) {
+            // Check that the exception message matches the expected error constant
+            Assert.assertEquals(ErrorConstants.INVALID_PUBLIC_KEY, e.getMessage());
+        }
+    }
+
+    @Test
+    public void testGetJWKString_UnsupportedKty() {
+        Map<String, Object> jwkMap = new HashMap<>();
+        jwkMap.put("kty", "OCT"); // Unsupported key type
+
+        try {
+            IdentityProviderUtil.getJWKString(jwkMap);
+            Assert.fail("Expected EsignetException was not thrown");
+        } catch (EsignetException e) {
+            // Check that the exception message matches the expected error constant
+            Assert.assertEquals(ErrorConstants.INVALID_PUBLIC_KEY, e.getMessage());
+        }
+    }
+
+    @Test
+    public void testGetJWKString_RSA() throws Exception {
+        Map<String, Object> jwkMap = generateTestJWK("RSA", 2048);
+        String jwkJson = IdentityProviderUtil.getJWKString(jwkMap);
+        Assert.assertTrue(jwkJson.contains("\"kty\":\"RSA\""));
+    }
+
+    @Test
+    public void testGetJWKString_EC() throws Exception {
+        Map<String, Object> jwkMap = generateTestJWK("EC", 256);
+        String jwkJson = IdentityProviderUtil.getJWKString(jwkMap);
+        Assert.assertTrue(jwkJson.contains("\"kty\":\"EC\""));
     }
     
     @Test
@@ -227,4 +258,47 @@ public class IdentityProviderUtilTest {
 		generator.setSerialNumber(new BigInteger(String.valueOf(System.currentTimeMillis())));
 		return generator.generate(generateJWK_RSA().toRSAKey().toPrivateKey());
 	}
+
+    /**
+     * Generate a Map<String, Object> representing a JWK for testing.
+     *
+     * @param keyType "RSA" or "EC"
+     * @param keySize Key size in bits (e.g., 2048 for RSA, 256 for EC)
+     * @return Map representing the JWK (public portion only)
+     * @throws Exception if key generation fails or unsupported type
+     */
+    private Map<String, Object> generateTestJWK(String keyType, int keySize) {
+        org.jose4j.jwk.JsonWebKey jwk;
+
+        try {
+            switch (keyType.toUpperCase()) {
+                case "RSA":
+                    java.security.KeyPairGenerator rsaGen = java.security.KeyPairGenerator.getInstance("RSA");
+                    rsaGen.initialize(keySize);
+                    jwk = (org.jose4j.jwk.RsaJsonWebKey) org.jose4j.jwk.JsonWebKey.Factory.newJwk(
+                            rsaGen.generateKeyPair().getPublic()
+                    );
+                    break;
+
+                case "EC":
+                    java.security.KeyPairGenerator ecGen = java.security.KeyPairGenerator.getInstance("EC");
+                    ecGen.initialize(keySize);
+                    jwk = new org.jose4j.jwk.EllipticCurveJsonWebKey(
+                            (java.security.interfaces.ECPublicKey) ecGen.generateKeyPair().getPublic()
+                    );
+                    break;
+
+                default:
+                    throw new IllegalArgumentException("Unsupported key type: " + keyType);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to generate test JWK for type: " + keyType, e);
+        }
+
+        Map<String, Object> jwkMap = jwk.toParams(org.jose4j.jwk.JsonWebKey.OutputControlLevel.PUBLIC_ONLY);
+        jwkMap.put("kty", keyType.toUpperCase());
+        return jwkMap;
+    }
+
+
 }
