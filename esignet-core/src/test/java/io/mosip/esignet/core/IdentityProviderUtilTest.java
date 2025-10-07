@@ -273,6 +273,7 @@ public class IdentityProviderUtilTest {
         try {
             switch (keyType.toUpperCase()) {
                 case "RSA":
+                    if (keySize < 2048) keySize = 2048; // enforce safe minimum
                     java.security.KeyPairGenerator rsaGen = java.security.KeyPairGenerator.getInstance("RSA");
                     rsaGen.initialize(keySize);
                     jwk = (org.jose4j.jwk.RsaJsonWebKey) org.jose4j.jwk.JsonWebKey.Factory.newJwk(
