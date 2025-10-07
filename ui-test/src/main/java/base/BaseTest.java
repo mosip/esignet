@@ -44,9 +44,9 @@ public class BaseTest {
 
 	private final String url = EsignetConfigManager.getproperty("baseurl");
 
-	private static int passedCount = 0;
-	private static int failedCount = 0;
-	private static int totalCount = 0;
+	public static int passedCount = 0;
+	public static int failedCount = 0;
+	public static int totalCount = 0;
 	private static ExtentReports extent;
 
 	@Before
@@ -55,8 +55,10 @@ public class BaseTest {
 
 		totalCount++;
 		String browser = BaseTestUtil.getBrowserForScenario(scenario); // Start logging for the scenario
-		ExtentReportManager.createTest(scenario.getName() + " [" + browser + "]");
-		ExtentReportManager.logStep("Scenario Started: " + scenario.getName());
+        String lang = BaseTestUtil.getThreadLocalLanguage();
+        ExtentReportManager.createTest(scenario.getName() + " [" + browser + " | " + lang + "]");
+        ExtentReportManager.logStep("Scenario Started: " + scenario.getName() +
+                " | Browser: " + browser + " | Language: " + lang);
 
 		try {
 			String scenarioBrowser = BaseTestUtil.getBrowserForScenario(scenario);
@@ -140,19 +142,7 @@ public class BaseTest {
 		}
 	}
 
-	@AfterAll
-	public static void afterAllReportUpdation() {
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-			LOGGER.info("Shutdown hook triggered. Uploading report...");
-			if (extent != null) {
-				extent.flush();
-			}
-			pushReportsToS3();
-		}));
-
-	}
-
-	public static WebDriver getDriver() {
+	public WebDriver getDriver() {
 		return driverThreadLocal.get();
 	}
 
@@ -199,19 +189,9 @@ public class BaseTest {
 		}
 	}
 
-	public static void pushReportsToS3() {
-		executeLsCommand(System.getProperty("user.dir") + "/test-output/ExtentReport.html");
-		executeLsCommand(System.getProperty("user.dir") + "/screenshots/");
-
-		try {
-			Thread.sleep(10000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		executeLsCommand(System.getProperty("user.dir") + "/test-output/");
+	public static void pushReportsToS3(String lang) {
 		String timestamp = new SimpleDateFormat("yyyy-MM-dd-HH-mm").format(new Date());
-		String name = getEnvName() + "-" + timestamp + "-T-" + totalCount + "-P-" + passedCount + "-F-" + failedCount
+		String name = getEnvName() + "-" + lang + "-" + timestamp + "-T-" + totalCount + "-P-" + passedCount + "-F-" + failedCount
 				+ ".html";
 		String newFileName = "EsignetUi-" + name;
 		File originalReportFile = new File(System.getProperty("user.dir") + "/test-output/ExtentReport.html");
@@ -224,8 +204,6 @@ public class BaseTest {
 			LOGGER.error("Failed to rename the report file.");
 		}
 
-		executeLsCommand(newReportFile.getAbsolutePath());
-
 		if (EsignetConfigManager.getPushReportsToS3().equalsIgnoreCase("yes")) {
 			S3Adapter s3Adapter = new S3Adapter();
 			boolean isStoreSuccess = false;
@@ -237,43 +215,6 @@ public class BaseTest {
 				LOGGER.error("Error occurred while pushing the object: " + e.getLocalizedMessage());
 				LOGGER.error(e.getMessage());
 			}
-		}
-	}
-
-	private static void executeLsCommand(String directoryPath) {
-		try {
-			String os = System.getProperty("os.name").toLowerCase();
-			Process process;
-
-			if (os.contains("win")) {
-				// Windows command (show all files including hidden)
-				String windowsDirectoryPath = directoryPath.replace("/", File.separator);
-				process = Runtime.getRuntime().exec(new String[] { "cmd.exe", "/c", "dir /a " + windowsDirectoryPath });
-			} else {
-				// Unix-like command (show all files including hidden)
-				process = Runtime.getRuntime().exec(new String[] { "/bin/sh", "-c", "ls -al " + directoryPath });
-			}
-
-			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-			String line;
-			LOGGER.info("--- Directory listing for " + directoryPath + " ---");
-			while ((line = reader.readLine()) != null) {
-				LOGGER.info(line);
-			}
-
-			int exitCode = process.waitFor();
-			if (exitCode != 0) {
-				BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-				String errorLine;
-				System.err.println("--- Directory listing error ---");
-				while ((errorLine = errorReader.readLine()) != null) {
-					System.err.println(errorLine);
-				}
-			}
-			LOGGER.info("--- End directory listing ---");
-
-		} catch (IOException | InterruptedException e) {
-			System.err.println("Error executing directory listing command: " + e.getMessage());
 		}
 	}
 

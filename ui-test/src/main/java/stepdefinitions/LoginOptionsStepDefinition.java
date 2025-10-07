@@ -12,22 +12,20 @@ import pages.LoginOptionsPage;
 public class LoginOptionsStepDefinition {
 
 	public WebDriver driver;
-	BaseTest baseTest;
 	LoginOptionsPage loginOptionsPage;
 
 	public LoginOptionsStepDefinition(BaseTest baseTest) {
-		this.baseTest = baseTest;
-		this.driver = BaseTest.getDriver();
+		this.driver = baseTest.getDriver();
 		loginOptionsPage = new LoginOptionsPage(driver);
 
 	}
 
-	@Given("click on Sign In with eSignet")
+	@Given("Click on Sign In with eSignet")
 	public void clickOnSignInWithEsignet() {
 		loginOptionsPage.clickOnSignInWIthEsignet();
 	}
 
-	@Then("validate that the logo is displayed")
+	@Then("Validate that the logo is displayed")
 	public void validateTheLogo() {
 		assertTrue(loginOptionsPage.isLogoDisplayed());
 	}

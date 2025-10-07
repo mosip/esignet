@@ -24,17 +24,19 @@ public class ExtentReportManager {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ExtentReportManager.class);
 	private static String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 	private static boolean systemInfoAdded = false;
+    private static String currentLang;
 
-	public static void initReport() {
+	public static void initReport(String lang) {
 		if (extent == null) {
+            currentLang = lang;
 			getGitDetails();
-			String reportName = "Test Execution Report";
+			String reportName = "Test Execution Report ---- " + lang;
 			reportName += " ---- Esignet UI Test ---- Report Date: " + currentDate + " ---- Tested Environment: "
 					+ BaseTest.getEnvName() + " ---- Branch Name is: " + gitBranch + " & Commit Id is: " + gitCommitId;
 
 			ExtentHtmlReporter htmlReporter = new ExtentHtmlReporter("test-output/ExtentReport.html");
 			htmlReporter.config().setTheme(Theme.DARK);
-			htmlReporter.config().setDocumentTitle("Automation Report");
+			htmlReporter.config().setDocumentTitle("Automation Report - " + lang);
 			htmlReporter.config().setReportName(reportName);
 
 			extent = new ExtentReports();
@@ -48,6 +50,7 @@ public class ExtentReportManager {
 			LOGGER.info("Adding Git info to report: Branch = " + gitBranch + ", Commit ID = " + gitCommitId);
 			extent.setSystemInfo("Git Branch", gitBranch);
 			extent.setSystemInfo("Git Commit ID", gitCommitId);
+            extent.setSystemInfo("Language", currentLang);
 			systemInfoAdded = true;
 		}
 	}
@@ -55,10 +58,14 @@ public class ExtentReportManager {
 	private static void getGitDetails() {
 		Properties properties = new Properties();
 		try (InputStream is = ExtentReportManager.class.getClassLoader().getResourceAsStream("git.properties")) {
-			properties.load(is);
-			gitBranch = properties.getProperty("git.branch");
-			gitCommitId = properties.getProperty("git.commit.id.abbrev");
-
+            if (is != null) {
+                properties.load(is);
+                gitBranch = properties.getProperty("git.branch");
+                gitCommitId = properties.getProperty("git.commit.id.abbrev");
+            } else {
+                gitBranch = "unknown";
+                gitCommitId = "unknown";
+            }
 		} catch (IOException e) {
 			LOGGER.error("Error getting git branch information: " + e.getMessage());
 		}
@@ -66,7 +73,9 @@ public class ExtentReportManager {
 	}
 
 	public static void createTest(String testName) {
-		test = extent.createTest(testName);
+        if (extent != null) {
+            test = extent.createTest(testName);
+        }
 	}
 
 	public static void logStep(String message) {
@@ -76,9 +85,11 @@ public class ExtentReportManager {
 	}
 
 	public static void flushReport() {
-		if (extent != null) {
-			extent.flush();
-		}
+        if (extent != null) {
+            extent.flush();
+            extent = null; // reset so next lang run re-inits
+            systemInfoAdded = false;
+        }
 	}
 
 	public static ExtentTest getTest() {
