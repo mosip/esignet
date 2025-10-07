@@ -534,15 +534,22 @@
       }
     },
     "userinfo": {
-      "type": "object",
-      "properties": {
-        "verified_claims": {
-          "$ref": "#/$defs/verified_claims"
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "verified_claims": {
+              "$ref": "#/$defs/verified_claims"
+            }
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/simple_element"
+          }
         }
-      },
-      "additionalProperties": {
-        "$ref": "#/$defs/simple_element"
-      }
+      ]
     }
   }
 }
