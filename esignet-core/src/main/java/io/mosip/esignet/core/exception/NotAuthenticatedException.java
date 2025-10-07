@@ -13,7 +13,4 @@ public class NotAuthenticatedException extends EsignetException {
         super(ErrorConstants.INVALID_AUTH_TOKEN);
     }
 
-    public NotAuthenticatedException(String errorCode) {
-        super(errorCode);
-    }
 }

@@ -21,6 +21,8 @@ import com.nimbusds.jwt.proc.BadJWTException;
 import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
+import io.mosip.esignet.core.exception.DpopNotAuthenticatedException;
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidDpopHeaderException;
 import io.mosip.esignet.core.exception.NotAuthenticatedException;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
@@ -89,42 +91,45 @@ public class DpopValidationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws IOException {
+        String uri = request.getRequestURI();
+        String lastSegment = uri.substring(uri.lastIndexOf("/")+1);
+
+        OAUTH_ENDPOINT endpoint;
+        switch (lastSegment) {
+            case "par":
+                endpoint = OAUTH_ENDPOINT.PAR;
+                break;
+            case "token":
+                endpoint = OAUTH_ENDPOINT.TOKEN;
+                break;
+            default:
+                endpoint = OAUTH_ENDPOINT.USERINFO;
+                break;
+        }
+
         try {
-            String uri = request.getRequestURI();
-            String lastSegment = uri.substring(uri.lastIndexOf("/")+1);
-
-            OAUTH_ENDPOINT endpoint;
-            switch (lastSegment) {
-                case "par":
-                    endpoint = OAUTH_ENDPOINT.PAR;
-                    break;
-                case "token":
-                    endpoint = OAUTH_ENDPOINT.TOKEN;
-                    break;
-                default:
-                    endpoint = OAUTH_ENDPOINT.USERINFO;
-                    break;
-            }
-
             Optional<String> dpopHeader = getDpopHeader(request);
-            String authHeader = request.getHeader(AUTH_HEADER);
-
             dpopHeader.ifPresentOrElse(
-                    header -> validateDpopFlow(request, header, endpoint, authHeader),
+                    header -> validateDpopFlow(request, header, endpoint),
                     () -> {
-                        if(OAUTH_ENDPOINT.USERINFO.equals(endpoint)) validateBearerUserinfo(authHeader);
+                        if(OAUTH_ENDPOINT.USERINFO.equals(endpoint)) {
+                            validateBearerUserinfo(request.getHeader(AUTH_HEADER));
+                        }
                     }
             );
             filterChain.doFilter(request, response);
         } catch (InvalidDpopHeaderException ex) {
             log.error("Unexpected DPoP validation error", ex);
-            setAuthErrorResponse(response, ErrorConstants.INVALID_DPOP_PROOF, ex.getMessage());
+            setAuthErrorResponse(response, ErrorConstants.INVALID_DPOP_PROOF, ex.getMessage(), OAUTH_ENDPOINT.USERINFO.equals(endpoint));
+        } catch (DpopNotAuthenticatedException ex) {
+            response.setHeader("WWW-Authenticate", "DPoP error=\""+ErrorConstants.INVALID_AUTH_TOKEN+"\"");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         } catch (NotAuthenticatedException ex) {
             response.setHeader("WWW-Authenticate", "error=\""+ErrorConstants.INVALID_AUTH_TOKEN+"\"");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         } catch (Exception ex) {
             log.error("Unexpected DPoP validation error", ex);
-            setAuthErrorResponse(response, ErrorConstants.UNKNOWN_ERROR, ex.getMessage());
+            setAuthErrorResponse(response, ErrorConstants.UNKNOWN_ERROR, ex.getMessage(), OAUTH_ENDPOINT.USERINFO.equals(endpoint));
         }
     }
 
@@ -135,16 +140,15 @@ public class DpopValidationFilter extends OncePerRequestFilter {
         return Optional.of(dpopHeaders.get(0));
     }
 
-    private void validateDpopFlow(HttpServletRequest request, String dpopHeader, OAUTH_ENDPOINT endpoint, String authHeader) {
+    private void validateDpopFlow(HttpServletRequest request, String dpopHeader, OAUTH_ENDPOINT endpoint) {
         SignedJWT jwt = parseAndValidateHeader(dpopHeader);
-        JWK jwk = jwt.getHeader().getJWK();
-        verifySignature(jwt, jwk);
         JWTClaimsSet claims = getClaims(jwt);
         verifyClaimValues(claims, request, endpoint);
         replayCheck(claims);
 
         if (OAUTH_ENDPOINT.USERINFO.equals(endpoint)) {
-            validateDpopUserinfo(authHeader, claims, jwk);
+            String authHeader = request.getHeader(AUTH_HEADER);
+            validateDpopUserinfo(authHeader, claims, jwt.getHeader().getJWK());
         }
     }
 
@@ -172,20 +176,17 @@ public class DpopValidationFilter extends OncePerRequestFilter {
         }
     }
 
-    private void setAuthErrorResponse(HttpServletResponse response, String error, String description) throws IOException {
+    private void setAuthErrorResponse(HttpServletResponse response, String error, String description, boolean isUserinfo) throws IOException {
         String headerValue = String.format(
                 "DPoP error=\"%s\", error_description=\"%s\", algs=\"ES256 PS256\"",
                 error, description
         );
         response.setHeader("WWW-Authenticate", headerValue);
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        response.setContentType("application/json;charset=UTF-8");
-
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode errorNode = mapper.createObjectNode();
-        errorNode.put("error", error);
-        errorNode.put("error_description", description);
-        response.getWriter().write(mapper.writeValueAsString(errorNode));
+        if(!isUserinfo) {
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write(String.format("{\"error\":\"%s\",\"error_description\":\"%s\"}", error, description));
+        }
     }
 
     private SignedJWT parseAndValidateHeader(String dpopJwt) {
@@ -211,9 +212,10 @@ public class DpopValidationFilter extends OncePerRequestFilter {
                 log.error("Invalid jwk header");
                 throw new InvalidDpopHeaderException();
             }
+            verifySignature(jwt, jwk);
             return jwt;
         } catch (ParseException e) {
-            log.error("Failed to parse DPoP JWT: ");
+            log.error("Failed to parse DPoP JWT", e);
             throw new InvalidDpopHeaderException();
         }
     }
@@ -302,11 +304,13 @@ public class DpopValidationFilter extends OncePerRequestFilter {
             String hash = IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA_256,accessToken);
             if (!ath.equals(hash)) {
                 log.error("ath claim does not match access token hash. Expected: {}, Actual: {}", hash, ath);
-                throw new InvalidDpopHeaderException();
+                throw new DpopNotAuthenticatedException();
             }
-        } catch (Exception e) {
-            log.error("Failed to compute access token hash: {}", e.getMessage());
-            throw new InvalidDpopHeaderException();
+        } catch (InvalidDpopHeaderException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            log.error("Failed to compute access token hash: {}", ex.getMessage());
+            throw new EsignetException(ErrorConstants.UNKNOWN_ERROR);
         }
     }
 
@@ -325,9 +329,8 @@ public class DpopValidationFilter extends OncePerRequestFilter {
 
     public void validateDpopUserinfo(String authHeader, JWTClaimsSet dpopClaims, JWK jwk) {
         if (authHeader == null || !authHeader.startsWith(DPOP_PREFIX)) {
-            throw new NotAuthenticatedException();
+            throw new DpopNotAuthenticatedException();
         }
-
         String accessToken = authHeader.substring(DPOP_PREFIX.length());
         validateAthClaim(dpopClaims, accessToken);
         validateCnfClaim(jwk, accessToken);
