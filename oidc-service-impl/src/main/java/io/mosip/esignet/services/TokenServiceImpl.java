@@ -7,11 +7,14 @@ package io.mosip.esignet.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.jwk.ECKey;
+import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.proc.JWSKeySelector;
 import com.nimbusds.jose.proc.JWSVerificationKeySelector;
+import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
@@ -162,8 +165,13 @@ public class TokenServiceImpl implements TokenService {
 
         try {
 
-            JWSKeySelector keySelector = new JWSVerificationKeySelector(JWSAlgorithm.RS256,
-                    new ImmutableJWKSet(new JWKSet(RSAKey.parse(jwk))));
+            JWK parsedJwk = JWK.parse(jwk);
+            JWSAlgorithm jwsAlgorithm = resolveAlgorithm(parsedJwk);
+
+            JWSKeySelector<SecurityContext> keySelector = new JWSVerificationKeySelector<>(
+                    jwsAlgorithm,
+                    new ImmutableJWKSet<>(new JWKSet(parsedJwk))
+            );
             DefaultJWTClaimsVerifier claimsSetVerifier = new DefaultJWTClaimsVerifier(new JWTClaimsSet.Builder()
                     .audience(Collections.singletonList(audience))
                     .issuer(clientId)
@@ -178,6 +186,20 @@ public class TokenServiceImpl implements TokenService {
         } catch (Exception e) {
             log.error("Failed to verify client assertion", e);
             throw new InvalidRequestException(ErrorConstants.INVALID_ASSERTION);
+        }
+    }
+
+    private JWSAlgorithm resolveAlgorithm(JWK parsedJwk) throws EsignetException {
+        if (parsedJwk instanceof RSAKey) {
+            if ("PS256".equalsIgnoreCase(parsedJwk.getAlgorithm() != null ? parsedJwk.getAlgorithm().getName() : null)) {
+                return JWSAlgorithm.PS256;
+            }
+            return JWSAlgorithm.RS256;
+        } else if (parsedJwk instanceof ECKey) {
+            return JWSAlgorithm.ES256;
+        } else {
+            log.error("Unsupported key type for client assertion verification");
+            throw new EsignetException(ErrorConstants.INVALID_ALGORITHM);
         }
     }
 
