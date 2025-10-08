@@ -733,6 +733,17 @@ public class ValidatorTest {
     }
 
     @Test
+    public void testClaimSchemaValidator_withNullUserInfo_thenPass() {
+        Map<String, ClaimDetail> idTokenMap = new HashMap<>();
+        ClaimDetail claimDetail = new ClaimDetail("claim_value", null, true, "secondary");
+        idTokenMap.put("some_claim", claimDetail);
+        ClaimsV2 claimsV2 = new ClaimsV2();
+        claimsV2.setUserinfo(null);
+        claimsV2.setId_token(idTokenMap);
+        Assert.assertTrue(claimSchemaValidator.isValid(claimsV2, null));
+    }
+
+    @Test
     public void claimSchemaValidator_withTrustFrameWorkAsNull_thenFail() throws IOException {
 
         String address = "{\"essential\":true}";
