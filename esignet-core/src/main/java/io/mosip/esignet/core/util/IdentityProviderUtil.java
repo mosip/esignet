@@ -217,31 +217,22 @@ public class IdentityProviderUtil {
     public static String getJWKString(Map<String, Object> jwk) throws EsignetException {
         try {
             String keyType = (String) jwk.get("kty");
-
             if (keyType == null || keyType.trim().isEmpty()) {
                 log.error("Missing or empty 'kty' field in JWK: {}", jwk);
                 throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
             }
 
             JsonWebKey jsonWebKey;
-
-            switch (keyType.toUpperCase()) {
-                case "RSA":
-                    jsonWebKey = new RsaJsonWebKey(jwk);
-                    break;
-
-                case "EC":
-                    jsonWebKey = new EllipticCurveJsonWebKey(jwk);
-                    break;
-
-                default:
-                    log.error("Unsupported key type '{}' in JWK", keyType);
-                    throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
+            if ("RSA".equalsIgnoreCase(keyType)) {
+                jsonWebKey = new RsaJsonWebKey(jwk);
+            } else if ("EC".equalsIgnoreCase(keyType)) {
+                jsonWebKey = new EllipticCurveJsonWebKey(jwk);
+            } else {
+                log.error("Unsupported key type '{}' in JWK", keyType);
+                throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
             }
 
-            // ✅ Return the full JWK JSON representation
             return jsonWebKey.toJson();
-
         } catch (JoseException e) {
             log.error("Error creating JWK: {}", e.getMessage(), e);
             throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
