@@ -819,3 +819,22 @@ AddIdentity:
       output: '{
   "status":"mock identity data created successfully"
 }'
+   ESignet_AddIdentity_For_PAR_smoke_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_43
+      description: Add identity with all valid parameters for PAR Smoke test cases
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignet/AddIdentityMock/AddIdentity
+      outputTemplate: esignet/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'

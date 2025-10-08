@@ -1,0 +1,17 @@
+PAROauthDetails:
+   ESignet_OAuthDetailsRequest_PAR_AuthToken_Xsrf_all_Valid_Smoke_sid:
+      endPoint: /v1/esignet/authorization/par-oauth-details
+      uniqueIdentifier: TC_ESignet_PAROauthDetails_01
+      description: Validate successful retrieval of OAuth details in PAR flow
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/PAR/PAROauthDetails/PAROauthDetails
+      outputTemplate: esignet/PAR/PAROauthDetails/PAROauthDetailsResult
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "requestUri": "$ID:OauthPar_all_Valid_Smoke_sid_request_uri$",
+       "clientId": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+}'
