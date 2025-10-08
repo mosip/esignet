@@ -191,7 +191,7 @@ public class TokenServiceImpl implements TokenService {
 
     private JWSAlgorithm resolveAlgorithm(JWK parsedJwk) throws EsignetException {
         if (parsedJwk instanceof RSAKey) {
-            if ("PS256".equalsIgnoreCase(parsedJwk.getAlgorithm() != null ? parsedJwk.getAlgorithm().getName() : null)) {
+            if ( parsedJwk.getAlgorithm() != null && "PS256".equalsIgnoreCase(parsedJwk.getAlgorithm().getName()) ){
                 return JWSAlgorithm.PS256;
             }
             return JWSAlgorithm.RS256;
