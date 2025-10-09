@@ -392,7 +392,9 @@ public class TokenServiceTest {
 
             @Override
             public JWTSignatureResponseDto jwsSign(JWSSignatureRequestDto jwsSignRequestDto) {
-                return null;
+                JWTSignatureResponseDto responseDto = new JWTSignatureResponseDto();
+                responseDto.setJwtSignedData(jwsSignRequestDto.getDataToSign());
+                return responseDto;
             }
         };
     }

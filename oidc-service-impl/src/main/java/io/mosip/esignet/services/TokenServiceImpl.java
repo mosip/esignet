@@ -27,10 +27,7 @@ import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
-import io.mosip.kernel.signature.dto.JWTSignatureRequestDto;
-import io.mosip.kernel.signature.dto.JWTSignatureResponseDto;
-import io.mosip.kernel.signature.dto.JWTSignatureVerifyRequestDto;
-import io.mosip.kernel.signature.dto.JWTSignatureVerifyResponseDto;
+import io.mosip.kernel.signature.dto.*;
 import io.mosip.kernel.signature.service.SignatureService;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -222,14 +219,15 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public String getSignedJWT(String applicationId, JSONObject payload) {
-        JWTSignatureRequestDto jwtSignatureRequestDto = new JWTSignatureRequestDto();
-        jwtSignatureRequestDto.setApplicationId(applicationId);
-        jwtSignatureRequestDto.setReferenceId("");
-        jwtSignatureRequestDto.setIncludePayload(true);
-        jwtSignatureRequestDto.setIncludeCertificate(false);
-        jwtSignatureRequestDto.setDataToSign(IdentityProviderUtil.b64Encode(payload.toJSONString()));
-        jwtSignatureRequestDto.setIncludeCertHash(false);
-        JWTSignatureResponseDto responseDto = signatureService.jwtSign(jwtSignatureRequestDto);
+        JWSSignatureRequestDto jwsSignatureRequestDto = new JWSSignatureRequestDto();
+        jwsSignatureRequestDto.setApplicationId(applicationId);
+        jwsSignatureRequestDto.setReferenceId("");
+        jwsSignatureRequestDto.setIncludePayload(true);
+        jwsSignatureRequestDto.setIncludeCertificate(false);
+        jwsSignatureRequestDto.setDataToSign(IdentityProviderUtil.b64Encode(payload.toJSONString()));
+        jwsSignatureRequestDto.setIncludeCertHash(false);
+        jwsSignatureRequestDto.setValidateJson(false);
+        JWTSignatureResponseDto responseDto = signatureService.jwsSign(jwsSignatureRequestDto);
         return responseDto.getJwtSignedData();
     }
 
