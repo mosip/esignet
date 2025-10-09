@@ -525,13 +525,20 @@
   },
   "properties": {
     "id_token": {
-      "type": "object",
-      "additionalProperties": true,
-      "properties": {
-        "verified_claims": {
-          "$ref": "#/$defs/verified_claims"
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "verified_claims": {
+              "$ref": "#/$defs/verified_claims"
+            }
+          }
         }
-      }
+      ]
     },
     "userinfo": {
       "oneOf": [

@@ -5,7 +5,6 @@
  */
 package io.mosip.esignet.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.core.config.LocalAuthenticationEntryPoint;
 import io.mosip.esignet.core.constants.ErrorConstants;
@@ -57,6 +56,8 @@ public class OAuthControllerTest {
     @MockBean
     LocalAuthenticationEntryPoint localAuthenticationEntryPoint;
 
+    private final String clientAssertionType = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
+
     @Test
     public void getAllJwks_thenPass() throws Exception {
         Map<String, Object> sampleResult = new HashMap<>();
@@ -92,7 +93,7 @@ public class OAuthControllerTest {
                         .param("redirect_uri", "https://redirect-uri")
                         .param("grant_type", "authorization_code")
                         .param("client_id", "client_id")
-                        .param("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
+                        .param("client_assertion_type", clientAssertionType)
                         .param("client_assertion", "client_assertion"))
                 .andExpect(status().isOk());
 
@@ -103,7 +104,7 @@ public class OAuthControllerTest {
                         .param("redirect_uri", "https://redirect-uri")
                         .param("grant_type", "authorization_code")
                         .param("client_id", "client_id")
-                        .param("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
+                        .param("client_assertion_type", clientAssertionType)
                         .param("client_assertion", "client_assertion"))
                 .andExpect(status().isOk());
     }
@@ -129,7 +130,7 @@ public class OAuthControllerTest {
                 .param("redirect_uri", "https://redirect-uri")
                 .param("grant_type", "authorization_code")
                 .param("client_id", "client_id")
-                .param("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
+                .param("client_assertion_type", clientAssertionType)
                 .param("client_assertion", "client_assertion"))
                 .andExpect(status().isBadRequest());
 
@@ -139,7 +140,7 @@ public class OAuthControllerTest {
                         .param("redirect_uri", "https://redirect-uri")
                         .param("grant_type", "authorization_code")
                         .param("client_id", "client_id")
-                        .param("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
+                        .param("client_assertion_type", clientAssertionType)
                         .param("client_assertion", "client_assertion"))
                 .andExpect(status().isBadRequest());
 
@@ -150,7 +151,7 @@ public class OAuthControllerTest {
                         .param("redirect_uri", "https://redirect-uri")
                         .param("grant_type", "authorization_code")
                         .param("client_id", "client_id")
-                        .param("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
+                        .param("client_assertion_type", clientAssertionType)
                         .param("client_assertion", "client_assertion"))
                 .andExpect(status().isInternalServerError());
 
@@ -160,7 +161,7 @@ public class OAuthControllerTest {
                         .param("redirect_uri", "https://redirect-uri")
                         .param("grant_type", "authorization_code")
                         .param("client_id", "client_id")
-                        .param("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
+                        .param("client_assertion_type", clientAssertionType)
                         .param("client_assertion", "client_assertion"))
                 .andExpect(status().isInternalServerError());
     }
@@ -183,7 +184,7 @@ public class OAuthControllerTest {
     public void authorize_withValidInput_thenPass() throws Exception {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("client_id", "test-client-id");
-        params.add("client_assertion_type", "assertion-type");
+        params.add("client_assertion_type", clientAssertionType);
         params.add("client_assertion", "assertion");
         params.add("redirect_uri","http://testexample.com");
         params.add("scope","openid");
@@ -205,10 +206,62 @@ public class OAuthControllerTest {
     }
 
     @Test
+    public void authorize_withNullIdTokenAndUserInfo_thenPass() throws Exception {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("client_id", "test-client-id");
+        params.add("client_assertion_type", clientAssertionType);
+        params.add("client_assertion", "assertion");
+        params.add("redirect_uri","http://testexample.com");
+        params.add("scope","openid");
+        params.add("response_type","code");
+        params.add("claims", "{\"id_token\":null, \"userinfo\":null}");
+
+        PushedAuthorizationResponse mockResponse = new PushedAuthorizationResponse();
+        mockResponse.setRequest_uri("urn:example:request_uri");
+        mockResponse.setExpires_in(3600);
+
+        Mockito.when(oAuthServiceImpl.authorize(Mockito.any(PushedAuthorizationRequest.class), Mockito.any())).thenReturn(mockResponse);
+
+        mockMvc.perform(post("/oauth/par")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .params(params))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.request_uri").value("urn:example:request_uri"))
+                .andExpect(jsonPath("$.expires_in").value(3600));
+    }
+
+    @Test
+    public void authorize_withAdditionalFieldsInClaims_thenPass() throws Exception {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("client_id", "test-client-id");
+        params.add("client_assertion_type", clientAssertionType);
+        params.add("client_assertion", "assertion");
+        params.add("redirect_uri","http://testexample.com");
+        params.add("scope","openid");
+        params.add("response_type","code");
+        params.add("claims", "{\"id_token\":null, \"userinfo\":null, \"extra_field\": {\"value\":\"extra_value\"}}");
+
+        PushedAuthorizationResponse mockResponse = new PushedAuthorizationResponse();
+        mockResponse.setRequest_uri("urn:example:request_uri");
+        mockResponse.setExpires_in(3600);
+
+        Mockito.when(oAuthServiceImpl.authorize(Mockito.any(PushedAuthorizationRequest.class), Mockito.any())).thenReturn(mockResponse);
+
+        mockMvc.perform(post("/oauth/par")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .params(params))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.request_uri").value("urn:example:request_uri"))
+                .andExpect(jsonPath("$.expires_in").value(3600));
+    }
+
+    @Test
     public void authorize_withRequestUri_thenFail() throws Exception {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("client_id", "test-client-id");
-        params.add("client_assertion_type", "assertion-type");
+        params.add("client_assertion_type", clientAssertionType);
         params.add("client_assertion", "assertion");
         params.add("redirect_uri", "http://testexample.com");
         params.add("scope", "openid");
@@ -226,7 +279,7 @@ public class OAuthControllerTest {
     public void authorize_withMissingRedirectUri_thenFail() throws Exception {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("client_id", "test-client-id");
-        params.add("client_assertion_type", "assertion-type");
+        params.add("client_assertion_type", clientAssertionType);
         params.add("client_assertion", "assertion");
         params.add("scope", "openid");
         params.add("response_type","code");
@@ -242,7 +295,7 @@ public class OAuthControllerTest {
     public void authorize_withMissingScope_thenFail() throws Exception {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("client_id", "test-client-id");
-        params.add("client_assertion_type", "assertion-type");
+        params.add("client_assertion_type", clientAssertionType);
         params.add("client_assertion", "assertion");
         params.add("redirect_uri", "http://testexample.com");
         params.add("response_type","code");
@@ -251,14 +304,14 @@ public class OAuthControllerTest {
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .params(params))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(ErrorConstants.INVALID_REQUEST));
+                .andExpect(jsonPath("$.error").value(ErrorConstants.INVALID_SCOPE));
     }
 
     @Test
     public void authorize_withMissingResponseType_thenFail() throws Exception {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("client_id", "test-client-id");
-        params.add("client_assertion_type", "assertion-type");
+        params.add("client_assertion_type", clientAssertionType);
         params.add("client_assertion", "assertion");
         params.add("redirect_uri", "http://testexample.com");
         params.add("scope", "openid");
@@ -283,14 +336,14 @@ public class OAuthControllerTest {
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .params(params))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(ErrorConstants.INVALID_REQUEST));
+                .andExpect(jsonPath("$.error").value(ErrorConstants.INVALID_CLIENT));
     }
 
     @Test
     public void authorize_withException_thenFail() throws Exception {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("client_id", "test-client-id");
-        params.add("client_assertion_type", "assertion-type");
+        params.add("client_assertion_type", clientAssertionType);
         params.add("client_assertion", "assertion");
         params.add("redirect_uri","http://testexample.com");
         params.add("scope","openid");

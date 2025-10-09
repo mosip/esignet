@@ -11,8 +11,6 @@ import javax.validation.constraints.Null;
 import java.io.IOException;
 import java.io.Serializable;
 
-import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_CLIENT_ID;
-
 @Data
 public class PushedAuthorizationRequest implements Serializable {
 
@@ -24,7 +22,7 @@ public class PushedAuthorizationRequest implements Serializable {
     @OIDCResponseType
     private String response_type;
 
-    @NotBlank(message = INVALID_CLIENT_ID)
+    @NotBlank(message = ErrorConstants.INVALID_CLIENT_ID)
     private String client_id;
 
     @RedirectURL
@@ -43,7 +41,7 @@ public class PushedAuthorizationRequest implements Serializable {
     private String acr_values;
 
     @Valid
-    @ClaimsSchema(message = ErrorConstants.INVALID_CLAIM)
+    @ClaimsSchema
     private ClaimsV2 claims;
 
     private Integer max_age;
@@ -59,10 +57,10 @@ public class PushedAuthorizationRequest implements Serializable {
 
     private String id_token_hint;
 
-    @NotBlank(message = ErrorConstants.INVALID_ASSERTION_TYPE)
+    @OIDCClientAssertionType
     private String client_assertion_type;
 
-    @NotBlank(message =  ErrorConstants.INVALID_ASSERTION)
+    @NotBlank(message =  ErrorConstants.INVALID_CLIENT)
     private String client_assertion;
 
     @Null(message = ErrorConstants.INVALID_REQUEST)

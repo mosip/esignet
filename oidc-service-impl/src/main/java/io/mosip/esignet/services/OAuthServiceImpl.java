@@ -115,7 +115,8 @@ public class OAuthServiceImpl implements OAuthService {
 
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(transaction.getClientId());
 
-        authenticateClient(tokenRequest, clientDetailDto,isV2);
+        tokenService.verifyClientAssertionToken(clientDetailDto.getId(), clientDetailDto.getPublicKey(), tokenRequest.getClient_assertion(),
+                isV2? (String) oauthServerDiscoveryMap.get("token_endpoint") : discoveryIssuerId+"/oauth/token");
 
         boolean isTransactionVCScoped = isTransactionVCScoped(transaction);
         if(!isTransactionVCScoped) { //if transaction is not VC scoped, only then do KYC exchange
@@ -182,7 +183,7 @@ public class OAuthServiceImpl implements OAuthService {
         IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), pushedAuthorizationRequest.getRedirect_uri());
         authorizationHelperService.validateNonce(pushedAuthorizationRequest.getNonce());
 
-        authenticatePARClient(pushedAuthorizationRequest.getClient_assertion_type(),pushedAuthorizationRequest.getClient_assertion(),clientDetailDto);
+        tokenService.verifyClientAssertionToken(clientDetailDto.getId(), clientDetailDto.getPublicKey(), pushedAuthorizationRequest.getClient_assertion(), (String) oauthServerDiscoveryMap.get("pushed_authorization_request_endpoint"));
 
         String requestUriUniqueId = IdentityProviderUtil.createTransactionId(null);
         String requestUri = PAR_REQUEST_URI_PREFIX + requestUriUniqueId;
@@ -212,7 +213,10 @@ public class OAuthServiceImpl implements OAuthService {
     }
 
     private void validateRequestParametersWithTransaction(TokenRequestV2 tokenRequest, OIDCTransaction transaction) {
-        if(transaction == null || transaction.getKycToken() == null)
+        if(transaction == null)
+            throw new EsignetException(ErrorConstants.INVALID_GRANT);
+
+        if (transaction.getKycToken() == null)
             throw new InvalidRequestException(ErrorConstants.INVALID_TRANSACTION);
 
         if(StringUtils.hasText(tokenRequest.getClient_id()) && !transaction.getClientId().equals(tokenRequest.getClient_id()))
@@ -247,36 +251,6 @@ public class OAuthServiceImpl implements OAuthService {
 
         if(StringUtils.isEmpty(computedChallenge) || !computedChallenge.equals(proofKeyCodeExchange.getCodeChallenge()))
             throw new EsignetException(ErrorConstants.PKCE_FAILED);
-    }
-
-    private void authenticateClient(TokenRequest tokenRequest, ClientDetail clientDetail,boolean isV2) throws EsignetException {
-        switch (tokenRequest.getClient_assertion_type()) {
-            case JWT_BEARER_TYPE:
-                validateJwtClientAssertion(clientDetail.getId(), clientDetail.getPublicKey(), tokenRequest.getClient_assertion(),
-                        isV2? (String) oauthServerDiscoveryMap.get("token_endpoint") :discoveryIssuerId+"/oauth/token");
-                break;
-            default:
-                throw new InvalidRequestException(ErrorConstants.INVALID_ASSERTION_TYPE);
-        }
-    }
-
-    private void authenticatePARClient(String client_assertion_type,String client_assertion, ClientDetail clientDetail) throws EsignetException {
-        switch (client_assertion_type) {
-            case JWT_BEARER_TYPE:
-                validateJwtClientAssertion(clientDetail.getId(), clientDetail.getPublicKey(), client_assertion, discoveryIssuerId+"/oauth/par");
-                break;
-            default:
-                throw new InvalidRequestException(ErrorConstants.INVALID_ASSERTION_TYPE);
-        }
-    }
-
-    private void validateJwtClientAssertion(String clientId, String jwk, String clientAssertion,String audience) throws EsignetException {
-        if(clientAssertion == null || clientAssertion.isBlank())
-            throw new InvalidRequestException(ErrorConstants.INVALID_ASSERTION);
-
-        //verify signature
-        //on valid signature, verify each claims on JWT payload
-        tokenService.verifyClientAssertionToken(clientId, jwk, clientAssertion,audience);
     }
 
     private TokenResponse getTokenResponse(OIDCTransaction transaction, boolean isTransactionVCScoped) {

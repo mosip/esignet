@@ -22,7 +22,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 public @interface OIDCClientAssertionType {
 
-    String message() default ErrorConstants.INVALID_ASSERTION_TYPE;
+//  https://www.rfc-editor.org/rfc/rfc6749#section-5.2
+    String message() default ErrorConstants.INVALID_CLIENT;
 
     Class<?>[] groups() default {};
 
