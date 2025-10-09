@@ -3,7 +3,11 @@ import sha256 from 'crypto-js/sha256';
 import Base64 from 'crypto-js/enc-base64';
 
 const encodeString = (str) => {
-  return Buffer.from(str).toString('base64');
+  return Buffer.from(str)
+    .toString('base64')
+    .replace(/\+/g, '-') // Replace '+' with '-'
+    .replace(/\//g, '_') // Replace '/' with '_'
+    .replace(/=+$/, ''); // Remove '=' padding
 };
 
 const decodeHash = (hash) => {
