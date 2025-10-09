@@ -9,6 +9,7 @@ public class ErrorConstants {
 
     public static final String INVALID_ADDITIONAL_CONFIG="invalid_additional_config";
     public static final String INVALID_REQUEST="invalid_request";
+    public static final String INVALID_CLIENT="invalid_client";
     public static final String INVALID_CLIENT_ID="invalid_client_id";
     public static final String INVALID_CLIENT_NAME="invalid_client_name";
     public static final String INVALID_CLIENT_NAME_MAP_KEY="invalid_language_code";
@@ -18,14 +19,14 @@ public class ErrorConstants {
     public static final String INVALID_RP_ID="invalid_rp_id";
     public static final String INVALID_RESPONSE_TYPE="invalid_response_type";
     public static final String INVALID_GRANT_TYPE="invalid_grant_type";
+    public static final String INVALID_GRANT = "invalid_grant";
+    public static final String UNSUPPORTED_GRANT_TYPE = "unsupported_grant_type";
     public static final String INVALID_SCOPE="invalid_scope";
     public static final String INVALID_REDIRECT_URI="invalid_redirect_uri";
     public static final String INVALID_DISPLAY="invalid_display";
     public static final String INVALID_PROMPT="invalid_prompt";
-    public static final String INVALID_ASSERTION_TYPE="invalid_assertion_type";
     public static final String INVALID_CLIENT_AUTH="invalid_client_auth";
     public static final String INVALID_TRANSACTION="invalid_transaction";
-    public static final String INVALID_ASSERTION="invalid_assertion";
     public static final String INVALID_ACR="invalid_acr";
     public static final String INVALID_AUTH_TOKEN="invalid_token";
     public static final String ACR_AMR_MAPPING_NOT_FOUND="acr_amr_mapping_not_found";
@@ -54,7 +55,6 @@ public class ErrorConstants {
     public static final String INVALID_LINK_CODE = "invalid_link_code";
     public static final String RESPONSE_TIMEOUT = "response_timeout";
     public static final String INVALID_INDIVIDUAL_ID = "invalid_individual_id";
-    public static final String INVALID_AUTH_CHALLENGE = "invalid_auth_challenge";
     public static final String DUPLICATE_PUBLIC_KEY = "duplicate_public_key";
     public static final String INVALID_WLA_TOKEN = "invalid_wla_token";
     public static final String FAILED_TO_CREATE_JWE = "failed_to_create_jwe";
@@ -77,23 +77,12 @@ public class ErrorConstants {
     public static final String INVALID_PKCE_CHALLENGE = "invalid_pkce_challenge";
     public static final String INVALID_PKCE_CODE_VERFIER = "invalid_pkce_code_verifier";
     public static final String PKCE_FAILED = "pkce_failed";
-    public static final String UNSUPPORTED_VC_FORMAT = "unsupported_credential_format";
-    public static final String INVALID_VC_FORMAT = "invalid_vc_format";
-    public static final String INVALID_PROOF = "invalid_proof";
-    public static final String UNSUPPORTED_PROOF_TYPE = "unsupported_proof_type";
-    public static final String UNSUPPORTED_VC_TYPE = "unsupported_credential_type";
-    public static final String VC_ISSUANCE_FAILED = "vc_issuance_failed";
-    public static final String PROOF_HEADER_INVALID_TYP = "proof_header_invalid_typ";
-    public static final String PROOF_HEADER_INVALID_ALG = "proof_header_invalid_alg";
-    public static final String PROOF_HEADER_INVALID_KEY = "proof_header_invalid_key";
-    public static final String PROOF_HEADER_AMBIGUOUS_KEY = "proof_header_ambiguous_key";
     public static final String NO_ATTEMPTS_LEFT = "no_attempts_left";
     public static final String INDIVIDUAL_ID_BLOCKED = "individual_id_blocked";
     public static final String TOO_EARLY_ATTEMPT = "too_early_attempt";
     public static final String INVALID_PATH_FRAGMENT = "invalid_path_fragment";
     public static final String INVALID_VERIFICATION = "invalid_verification";
     public static final String INVALID_VERIFIED_CLAIMS = "invalid_verified_claims";
-    public static final String INVALID_PURPOSE="invalid_purpose";
     public static final String VERIFICATION_INCOMPLETE = "verification_incomplete";
     public static final String PAYLOAD_TOO_LARGE = "payload_too_large";
     public static final String KBI_SPEC_NOT_FOUND= "kbi_spec_not_found";

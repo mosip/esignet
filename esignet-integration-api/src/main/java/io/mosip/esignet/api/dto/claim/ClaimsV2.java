@@ -5,6 +5,7 @@
  */
 package io.mosip.esignet.api.dto.claim;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
 
@@ -12,6 +13,7 @@ import java.io.Serializable;
 import java.util.Map;
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ClaimsV2 implements Serializable {
 
     private static final long serialVersionUID = 1L;

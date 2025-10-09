@@ -48,6 +48,6 @@ public class TokenRequest {
     /**
      * Private key signed JWT
      */
-    @NotBlank(message = ErrorConstants.INVALID_ASSERTION)
+    @NotBlank(message = ErrorConstants.INVALID_CLIENT)
     private String client_assertion;
 }

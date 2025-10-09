@@ -156,9 +156,9 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Override
-    public void verifyClientAssertionToken(String clientId, String jwk, String clientAssertion,String audience) throws EsignetException {
+    public void verifyClientAssertionToken(String clientId, String jwk, String clientAssertion, String audience) throws EsignetException {
         if(clientAssertion == null)
-            throw new EsignetException(ErrorConstants.INVALID_ASSERTION);
+            throw new EsignetException(ErrorConstants.INVALID_CLIENT);
 
         try {
 
@@ -177,7 +177,7 @@ public class TokenServiceImpl implements TokenService {
             jwtProcessor.process(clientAssertion, null); //If invalid throws exception
         } catch (Exception e) {
             log.error("Failed to verify client assertion", e);
-            throw new InvalidRequestException(ErrorConstants.INVALID_ASSERTION);
+            throw new InvalidRequestException(ErrorConstants.INVALID_CLIENT);
         }
     }
 

@@ -6,7 +6,6 @@
 package io.mosip.esignet.core.dto;
 
 import io.mosip.esignet.api.dto.claim.ClaimsV2;
-import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.validator.*;
 import lombok.Data;
 
@@ -71,7 +70,7 @@ public class OAuthDetailRequest {
      * names of the individual Claims being requested as the member names.
      */
     @Valid
-    @ClaimsSchema(message = ErrorConstants.INVALID_CLAIM)
+    @ClaimsSchema
     private ClaimsV2 claims;
 
     /**
