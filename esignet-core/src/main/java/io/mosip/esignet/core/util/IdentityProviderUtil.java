@@ -217,26 +217,22 @@ public class IdentityProviderUtil {
     public static String getJWKString(Map<String, Object> jwk) throws EsignetException {
         try {
             String keyType = (String) jwk.get("kty");
-            if (keyType == null || keyType.trim().isEmpty()) {
-                log.error("Missing or empty 'kty' field in JWK: {}", jwk);
-                throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
-            }
-
-            JsonWebKey jsonWebKey;
-            if ("RSA".equalsIgnoreCase(keyType)) {
-                jsonWebKey = new RsaJsonWebKey(jwk);
-            } else if ("EC".equalsIgnoreCase(keyType)) {
-                jsonWebKey = new EllipticCurveJsonWebKey(jwk);
+            if (keyType != null) {
+                switch (keyType) {
+                    case "RSA":
+                        return new RsaJsonWebKey(jwk).toJson();
+                    case "EC":
+                        return new EllipticCurveJsonWebKey(jwk).toJson();
+                    default:
+                        log.error("Unsupported key type '{}' in JWK", keyType);
+                }
             } else {
-                log.error("Unsupported key type '{}' in JWK", keyType);
-                throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
+                log.error("Missing 'kty' field in JWK: {}", jwk);
             }
-
-            return jsonWebKey.toJson();
         } catch (JoseException e) {
             log.error("Error creating JWK: {}", e.getMessage(), e);
-            throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
         }
+        throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
     }
 
     public static String getCertificateThumbprint(String algorithm, X509Certificate cert) {

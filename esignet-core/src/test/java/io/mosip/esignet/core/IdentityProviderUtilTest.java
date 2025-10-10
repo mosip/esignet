@@ -150,7 +150,7 @@ public class IdentityProviderUtilTest {
     }
     
     @Test
-    public void test_getJWKString_validAndMissingKty_thenFail() {
+    public void test_getJWKString_withValidAndMissingKty_thenFail() {
         Assert.assertNotNull(IdentityProviderUtil.getJWKString((Map<String, Object>) generateJWK_RSA().getRequiredParams()));
         try {
             IdentityProviderUtil.getJWKString(new HashMap<String, Object>()); // missing kty
@@ -161,7 +161,7 @@ public class IdentityProviderUtilTest {
     }
 
     @Test
-    public void test_getJWKString_unsupportedKty_thenFail() {
+    public void test_getJWKString_withUnsupportedKty_thenFail() {
         Map<String, Object> jwkMap = new HashMap<>();
         jwkMap.put("kty", "OCT"); // Unsupported key type
 
@@ -174,7 +174,7 @@ public class IdentityProviderUtilTest {
     }
 
     @Test
-    public void test_getJWKString_RSA_thenPass() throws Exception {
+    public void test_getJWKString_withValidRSAKey_thenPass() throws Exception {
         Map<String, Object> jwkMap = new HashMap<>();
         jwkMap.put("kty", "RSA");
         jwkMap.put("n", "oahUIzUup5kqncCkHk5Zb1pRrLx7e6YtM-9jX1f5e6mHnZFkC2LJUZ0sEh0n5Y5KnQfW9s7d7gK2b8P0EEl0h3ZyHkWzA3YbsgzB4pDxP4RxMZ1I8xD2z3UvfA1zjvKDHz6wEweq4hVJ8nS8GzZJ2E_vb3s");
@@ -185,7 +185,7 @@ public class IdentityProviderUtilTest {
     }
 
     @Test
-    public void test_getJWKString_EC_thenPass() throws Exception {
+    public void test_getJWKString_withValidECKey_thenPass() throws Exception {
         Map<String, Object> jwkMap = new HashMap<>();
         jwkMap.put("kty", "EC");
         jwkMap.put("crv", "P-256");
