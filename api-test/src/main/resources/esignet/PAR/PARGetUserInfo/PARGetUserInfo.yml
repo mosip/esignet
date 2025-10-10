@@ -1,0 +1,14 @@
+PARGetUserInfo:
+   ESignet_GetOidcUserInfo_PAR_UIN_IdpAccessToken_StatusCode_Valid_Smoke:
+      endPoint: /v1/esignet/oidc/userinfo
+      uniqueIdentifier: TC_ESignet_PARGetUserInfo_01
+      description: Get OIDC user info with all valid details UIN
+      role: resident
+      restMethod: get
+      validityCheckRequired: true
+      inputTemplate: esignet/PAR/PARGetUserInfo/PARGetUserInfo
+      outputTemplate: esignet/PAR/PARGetUserInfo/PARGetUserInfoResult
+      input: '{
+      	"idpAccessToken": "$ID:GenerateToken_PAR_Valid_Smoke_sid_access_token$"
+}'
+      output: "200"

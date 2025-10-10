@@ -627,6 +627,17 @@ public class EsignetUtil extends AdminTestUtil {
 			jsonString = replaceKeywordValue(jsonString, "$OIDCJWKKEY$", jwkKey);
 		}
 		
+		if (jsonString.contains("$OIDC_JWK_KEY_PAR$")) {
+			String jwkKey = "";
+			if (getTriggerESignetKeyGenForPAR()) {
+				jwkKey = JWKKeyUtil.generateAndCacheJWKKey(OIDC_JWK_FOR_PAR);
+				setTriggerESignetKeyGenForPAR(false);
+			} else {
+				jwkKey = JWKKeyUtil.getJWKKey(OIDC_JWK_FOR_PAR);
+			}
+			jsonString = replaceKeywordValue(jsonString, "$OIDC_JWK_KEY_PAR$", jwkKey);
+		}
+		
 		if (jsonString.contains("$OIDCJWKKEY2$")) {
 			String jwkKey = "";
 			if (gettriggerESignetKeyGen2()) {
@@ -730,6 +741,36 @@ public class EsignetUtil extends AdminTestUtil {
 			
 			jsonString = replaceKeywordValue(jsonString, "$CLIENT_ASSERTION_JWK$",
 					signJWKKey(clientId, oidcJWKKey1, tempUrl));
+		}
+		
+		if (jsonString.contains("$CLIENT_ASSERTION_PAR_JWT$")) {
+			String oidcJWKKeyString = JWKKeyUtil.getJWKKey(OIDC_JWK_FOR_PAR);
+			logger.info("oidcJWKKeyString =" + oidcJWKKeyString);
+			try {
+				oidc_JWK_Key_For_PAR = RSAKey.parse(oidcJWKKeyString);
+				logger.info("oidc_JWK_Key_For_PAR =" + oidc_JWK_Key_For_PAR);
+			} catch (java.text.ParseException e) {
+				logger.error(e.getMessage());
+			}
+
+			JSONObject root = new JSONObject(jsonString);
+			String clientId = root.optString("client_id", null);
+			String audKey = null;
+
+			if (root.has("aud_key")) {
+				audKey = root.optString("aud_key", null);
+				root.remove("aud_key");
+				jsonString = root.toString();
+			}
+
+			String tempUrl = getValueFromEsignetWellKnownEndPoint(audKey, EsignetConfigManager.getEsignetBaseUrl());
+
+			if (clientId != null) {
+				jsonString = replaceKeywordValue(jsonString, "$CLIENT_ASSERTION_PAR_JWT$",
+						signJWKKey(clientId, oidc_JWK_Key_For_PAR, tempUrl));
+			} else {
+				logger.error("Client ID not found in JSON for $CLIENT_ASSERTION_PAR_JWT$.");
+			}
 		}
 		
 		if (jsonString.contains("$CLIENT_ASSERTION_USER3_JWK$")) {
@@ -1561,6 +1602,7 @@ public class EsignetUtil extends AdminTestUtil {
 	protected static final String OIDCJWK7= "oidcJWK7";
 	protected static final String OIDCJWK8= "oidcJWK8";
 	protected static final String OIDCJWK9= "oidcJWK9";
+	protected static final String OIDC_JWK_FOR_PAR = "oidcJWKForPAR";	
 	
 	protected static RSAKey oidcJWKKey1 = null;
 	protected static RSAKey oidcJWKKey3 = null;
@@ -1570,6 +1612,7 @@ public class EsignetUtil extends AdminTestUtil {
 	protected static RSAKey oidcJWKKey7 = null;
 	protected static RSAKey oidcJWKKey8 = null;
 	protected static RSAKey oidcJWKKey9 = null;
+	protected static RSAKey oidc_JWK_Key_For_PAR = null;
 	
 	protected static boolean triggerESignetKeyGen1 = true;
 	protected static boolean triggerESignetKeyGen2 = true;
@@ -1603,6 +1646,7 @@ public class EsignetUtil extends AdminTestUtil {
 	protected static boolean triggerESignetKeyGen31 = true;
 	protected static boolean triggerESignetKeyGen32 = true;
 	protected static boolean triggerESignetKeyGen33 = true;
+	protected static boolean triggerESignetKeyGenForPAR = true;	
 	
 	
 	private static boolean gettriggerESignetKeyGen3() {
@@ -1684,6 +1728,14 @@ public class EsignetUtil extends AdminTestUtil {
 	private static void settriggerESignetKeyGen1(boolean value) {
 		triggerESignetKeyGen1 = value;
 	}
+	
+	private static boolean getTriggerESignetKeyGenForPAR() {
+		return triggerESignetKeyGenForPAR;
+	}
+	
+	private static void setTriggerESignetKeyGenForPAR(boolean value) {
+		triggerESignetKeyGenForPAR = value;
+	}	
 	
 	private static void settriggerESignetKeyGen2(boolean value) {
 		triggerESignetKeyGen2 = value;
