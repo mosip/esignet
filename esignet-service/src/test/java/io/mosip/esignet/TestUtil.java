@@ -5,6 +5,7 @@
  */
 package io.mosip.esignet;
 
+import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,6 +33,7 @@ public class TestUtil {
                     .privateKey((RSAPrivateKey)keyPair.getPrivate())
                     .keyUse(KeyUse.SIGNATURE)
                     .keyID(UUID.randomUUID().toString())
+                    .algorithm(JWSAlgorithm.RS256)
                     .build();
         } catch (NoSuchAlgorithmException e) {
             log.error("generateJWK_RSA failed", e);

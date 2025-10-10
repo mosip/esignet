@@ -166,8 +166,7 @@ public class TokenServiceImpl implements TokenService {
         try {
 
             JWK parsedJwk = JWK.parse(jwk);
-            JWSAlgorithm jwsAlgorithm = resolveAlgorithm(parsedJwk);
-
+            JWSAlgorithm jwsAlgorithm = JWSAlgorithm.parse(parsedJwk.getAlgorithm().getName());
             JWSKeySelector<SecurityContext> keySelector = new JWSVerificationKeySelector<>(
                     jwsAlgorithm,
                     new ImmutableJWKSet<>(new JWKSet(parsedJwk))
@@ -186,20 +185,6 @@ public class TokenServiceImpl implements TokenService {
         } catch (Exception e) {
             log.error("Failed to verify client assertion", e);
             throw new InvalidRequestException(ErrorConstants.INVALID_ASSERTION);
-        }
-    }
-
-    private JWSAlgorithm resolveAlgorithm(JWK parsedJwk) throws EsignetException {
-        if (parsedJwk instanceof RSAKey) {
-            if ( parsedJwk.getAlgorithm() != null && "PS256".equalsIgnoreCase(parsedJwk.getAlgorithm().getName()) ){
-                return JWSAlgorithm.PS256;
-            }
-            return JWSAlgorithm.RS256;
-        } else if (parsedJwk instanceof ECKey) {
-            return JWSAlgorithm.ES256;
-        } else {
-            log.error("Unsupported key type for client assertion verification");
-            throw new EsignetException(ErrorConstants.INVALID_ALGORITHM);
         }
     }
 
