@@ -226,12 +226,11 @@ public class IdentityProviderUtil {
                     default:
                         log.error("Unsupported key type '{}' in JWK", keyType);
                 }
-            } else {
-                log.error("Missing 'kty' field in JWK: {}", jwk);
             }
         } catch (JoseException e) {
             log.error("Error creating JWK: {}", e.getMessage(), e);
         }
+        log.error("Missing 'kty' field in JWK: {}", jwk);
         throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
     }
 
