@@ -7,11 +7,14 @@ package io.mosip.esignet.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.jwk.ECKey;
+import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.proc.JWSKeySelector;
 import com.nimbusds.jose.proc.JWSVerificationKeySelector;
+import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
@@ -159,8 +162,12 @@ public class TokenServiceImpl implements TokenService {
 
         try {
 
-            JWSKeySelector keySelector = new JWSVerificationKeySelector(JWSAlgorithm.RS256,
-                    new ImmutableJWKSet(new JWKSet(RSAKey.parse(jwk))));
+            JWK parsedJwk = JWK.parse(jwk);
+            JWSAlgorithm jwsAlgorithm = JWSAlgorithm.parse(parsedJwk.getAlgorithm().getName());
+            JWSKeySelector<SecurityContext> keySelector = new JWSVerificationKeySelector<>(
+                    jwsAlgorithm,
+                    new ImmutableJWKSet<>(new JWKSet(parsedJwk))
+            );
             DefaultJWTClaimsVerifier claimsSetVerifier = new DefaultJWTClaimsVerifier(new JWTClaimsSet.Builder()
                     .audience(Collections.singletonList(audience))
                     .issuer(clientId)

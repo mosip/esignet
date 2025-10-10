@@ -2,8 +2,12 @@ package io.mosip.esignet.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.*;
+import com.nimbusds.jose.crypto.ECDSASigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.jwk.Curve;
+import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
@@ -194,6 +198,10 @@ public class TokenServiceTest {
     @Test
     public void verifyClientAssertionToken_withExpiredTokenWithinClockSkew_thenPass() throws JOSEException {
         JWSSigner signer = new RSASSASigner(RSA_JWK.toRSAPrivateKey());
+        RSAKey rsaPublicJWKWithAlg = new RSAKey.Builder(RSA_JWK.toRSAPublicKey())
+                .keyID(RSA_JWK.getKeyID())
+                .algorithm(JWSAlgorithm.RS256)
+                .build();
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject("client-id")
                 .audience("audience")
@@ -204,7 +212,7 @@ public class TokenServiceTest {
                 .build();
         SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
         jwt.sign(signer);
-        tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(),"audience");
+        tokenService.verifyClientAssertionToken("client-id", rsaPublicJWKWithAlg.toPublicJWK().toJSONString(), jwt.serialize(),"audience");
     }
 
     @Test(expected = EsignetException.class)
@@ -225,6 +233,52 @@ public class TokenServiceTest {
     @Test(expected = NotAuthenticatedException.class)
     public void verifyAccessToken_withInvalidToken_thenFail() {
         tokenService.verifyAccessToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), "access_token");
+    }
+
+    @Test
+    public void verifyClientAssertion_withRSAPSSKey_thenPass() throws Exception {
+        RSAKey rsaKey = new RSAKeyGenerator(2048)
+                .algorithm(JWSAlgorithm.PS256)
+                .keyID("rsa-ps256")
+                .generate();
+
+        JWSSigner signer = new RSASSASigner(rsaKey);
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject("client-id")
+                .issuer("client-id")
+                .audience("audience")
+                .issueTime(new Date(123000L))
+                .expirationTime(new Date(System.currentTimeMillis() + 60000))
+                .jwtID(IdentityProviderUtil.createTransactionId(null))
+                .build();
+
+        SignedJWT signedJWT = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.PS256).keyID(rsaKey.getKeyID()).build(), claimsSet);
+        signedJWT.sign(signer);
+
+        tokenService.verifyClientAssertionToken("client-id", rsaKey.toJSONString(), signedJWT.serialize(), "audience");
+    }
+
+    @Test
+    public void verifyClientAssertion_withECKey_thenPass() throws Exception {
+        ECKey ecKey = new ECKeyGenerator(Curve.P_256)
+                .algorithm(JWSAlgorithm.ES256)
+                .keyID("ec-es256")
+                .generate();
+
+        JWSSigner signer = new ECDSASigner(ecKey);
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject("client-id")
+                .issuer("client-id")
+                .audience("audience")
+                .issueTime(new Date(123000L))
+                .expirationTime(new Date(System.currentTimeMillis() + 60000))
+                .jwtID(IdentityProviderUtil.createTransactionId(null))
+                .build();
+
+        SignedJWT signedJWT = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.ES256).keyID(ecKey.getKeyID()).build(), claimsSet);
+        signedJWT.sign(signer);
+
+        tokenService.verifyClientAssertionToken("client-id", ecKey.toJSONString(), signedJWT.serialize(), "audience");
     }
 
     @Test
