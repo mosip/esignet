@@ -33,6 +33,8 @@ import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.jose4j.jwk.RsaJsonWebKey;
+import org.jose4j.jwk.JsonWebKey;
+import org.jose4j.jwk.EllipticCurveJsonWebKey;
 import org.jose4j.keys.X509Util;
 import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
@@ -212,15 +214,25 @@ public class IdentityProviderUtil {
 		return randomBytes;
 	}
 
-	public static String getJWKString(Map<String, Object> jwk) throws EsignetException {
-		try {
-			RsaJsonWebKey jsonWebKey = new RsaJsonWebKey(jwk);
-			return jsonWebKey.toJson();
-		} catch (JoseException e) {
-			log.error(ErrorConstants.INVALID_PUBLIC_KEY, e);
-			throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
-		}
-	}
+    public static String getJWKString(Map<String, Object> jwk) throws EsignetException {
+        try {
+            String keyType = (String) jwk.get("kty");
+            if (keyType != null) {
+                switch (keyType) {
+                    case "RSA":
+                        return new RsaJsonWebKey(jwk).toJson();
+                    case "EC":
+                        return new EllipticCurveJsonWebKey(jwk).toJson();
+                    default:
+                        log.error("Unsupported key type '{}' in JWK", keyType);
+                }
+            }
+        } catch (JoseException e) {
+            log.error("Error creating JWK: {}", e.getMessage(), e);
+        }
+        log.error("Missing 'kty' field in JWK: {}", jwk);
+        throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
+    }
 
     public static String getCertificateThumbprint(String algorithm, X509Certificate cert) {
         try {
