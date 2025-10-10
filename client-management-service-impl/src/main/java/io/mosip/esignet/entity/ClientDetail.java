@@ -63,7 +63,7 @@ public class ClientDetail {
     @Column(name = "status")
     private String status;
 
-    @NotBlank(message = INVALID_GRANT_TYPE)
+    @NotBlank(message = UNSUPPORTED_GRANT_TYPE)
     @Column(name = "grant_types")
     private String grantTypes;
 

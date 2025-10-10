@@ -18,7 +18,6 @@ public class ErrorConstants {
     public static final String INVALID_URI="invalid_uri";
     public static final String INVALID_RP_ID="invalid_rp_id";
     public static final String INVALID_RESPONSE_TYPE="invalid_response_type";
-    public static final String INVALID_GRANT_TYPE="invalid_grant_type";
     public static final String INVALID_GRANT = "invalid_grant";
     public static final String UNSUPPORTED_GRANT_TYPE = "unsupported_grant_type";
     public static final String INVALID_SCOPE="invalid_scope";
