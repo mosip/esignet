@@ -25,7 +25,7 @@ public class TokenRequest {
     /**
      * Authorization code, sent as query param in the client's redirect URI.
      */
-    @NotBlank(message = ErrorConstants.INVALID_AUTH_CODE)
+    @NotBlank(message = ErrorConstants.INVALID_GRANT)
     private String code;
 
     /**
