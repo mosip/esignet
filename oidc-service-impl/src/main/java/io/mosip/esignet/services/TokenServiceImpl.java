@@ -161,9 +161,11 @@ public class TokenServiceImpl implements TokenService {
             throw new EsignetException(ErrorConstants.INVALID_CLIENT);
 
         try {
-
+            SignedJWT signedJWT = SignedJWT.parse(clientAssertion);
+            String alg = signedJWT.getHeader().getAlgorithm().getName();
+            JWSAlgorithm jwsAlgorithm = JWSAlgorithm.parse(alg);
             JWK parsedJwk = JWK.parse(jwk);
-            JWSAlgorithm jwsAlgorithm = JWSAlgorithm.parse(parsedJwk.getAlgorithm().getName());
+
             JWSKeySelector<SecurityContext> keySelector = new JWSVerificationKeySelector<>(
                     jwsAlgorithm,
                     new ImmutableJWKSet<>(new JWKSet(parsedJwk))
