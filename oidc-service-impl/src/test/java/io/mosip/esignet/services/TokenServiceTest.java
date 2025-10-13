@@ -33,9 +33,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
+import java.util.*;
 
 import static io.mosip.esignet.core.spi.TokenService.*;
 
@@ -60,10 +58,13 @@ public class TokenServiceTest {
 
     @Before
     public void setup() {
+        Map<String, Object> mockDiscoveryMap = new HashMap<>();
+        mockDiscoveryMap.put("token_endpoint_auth_signing_alg_values_supported", Arrays.asList("RS256", "PS256","ES256"));
         ReflectionTestUtils.setField(tokenService, "signatureService", getSignatureService());
         ReflectionTestUtils.setField(tokenService, "objectMapper", new ObjectMapper());
         ReflectionTestUtils.setField(tokenService, "issuerId", "test-issuer");
         ReflectionTestUtils.setField(tokenService, "maxClockSkew", 5);
+        ReflectionTestUtils.setField(tokenService,"discoveryMap",mockDiscoveryMap);
     }
 
     @Test
@@ -198,10 +199,6 @@ public class TokenServiceTest {
     @Test
     public void verifyClientAssertionToken_withExpiredTokenWithinClockSkew_thenPass() throws JOSEException {
         JWSSigner signer = new RSASSASigner(RSA_JWK.toRSAPrivateKey());
-        RSAKey rsaPublicJWKWithAlg = new RSAKey.Builder(RSA_JWK.toRSAPublicKey())
-                .keyID(RSA_JWK.getKeyID())
-                .algorithm(JWSAlgorithm.RS256)
-                .build();
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject("client-id")
                 .audience("audience")
@@ -212,7 +209,7 @@ public class TokenServiceTest {
                 .build();
         SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
         jwt.sign(signer);
-        tokenService.verifyClientAssertionToken("client-id", rsaPublicJWKWithAlg.toPublicJWK().toJSONString(), jwt.serialize(),"audience");
+        tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(),"audience");
     }
 
     @Test(expected = EsignetException.class)

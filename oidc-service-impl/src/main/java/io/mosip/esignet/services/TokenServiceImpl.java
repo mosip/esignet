@@ -87,6 +87,9 @@ public class TokenServiceImpl implements TokenService {
     @Value("${mosip.esignet.dpop.nonce.expire.seconds:15}")
     private long dpopNonceExpirySeconds;
 
+    @Value("#{${mosip.esignet.discovery.key-values}}")
+    private Map<String, Object> discoveryMap;
+
     private final String CNF = "cnf";
     private final String JKT = "jkt";
     
@@ -161,8 +164,13 @@ public class TokenServiceImpl implements TokenService {
             throw new EsignetException(ErrorConstants.INVALID_CLIENT);
 
         try {
+            List<String> supportedClaims = (List<String>) discoveryMap.get("token_endpoint_auth_signing_alg_values_supported");
             SignedJWT signedJWT = SignedJWT.parse(clientAssertion);
             String alg = signedJWT.getHeader().getAlgorithm().getName();
+            if (alg == null || !supportedClaims.contains(alg)) {
+                log.error("Invalid or unsupported alg header");
+                throw new EsignetException(ErrorConstants.INVALID_ALGORITHM);
+            }
             JWSAlgorithm jwsAlgorithm = JWSAlgorithm.parse(alg);
             JWK parsedJwk = JWK.parse(jwk);
 
