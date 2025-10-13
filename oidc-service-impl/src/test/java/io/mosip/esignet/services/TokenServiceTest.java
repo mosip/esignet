@@ -32,10 +32,9 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
+import java.util.*;
 
 import static io.mosip.esignet.core.spi.TokenService.*;
 
@@ -60,10 +59,13 @@ public class TokenServiceTest {
 
     @Before
     public void setup() {
+        Map<String, Object> mockDiscoveryMap = new HashMap<>();
+        mockDiscoveryMap.put("token_endpoint_auth_signing_alg_values_supported", Arrays.asList("RS256", "PS256","ES256"));
         ReflectionTestUtils.setField(tokenService, "signatureService", getSignatureService());
         ReflectionTestUtils.setField(tokenService, "objectMapper", new ObjectMapper());
         ReflectionTestUtils.setField(tokenService, "issuerId", "test-issuer");
         ReflectionTestUtils.setField(tokenService, "maxClockSkew", 5);
+        ReflectionTestUtils.setField(tokenService,"discoveryMap",mockDiscoveryMap);
     }
 
     @Test
@@ -198,10 +200,6 @@ public class TokenServiceTest {
     @Test
     public void verifyClientAssertionToken_withExpiredTokenWithinClockSkew_thenPass() throws JOSEException {
         JWSSigner signer = new RSASSASigner(RSA_JWK.toRSAPrivateKey());
-        RSAKey rsaPublicJWKWithAlg = new RSAKey.Builder(RSA_JWK.toRSAPublicKey())
-                .keyID(RSA_JWK.getKeyID())
-                .algorithm(JWSAlgorithm.RS256)
-                .build();
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject("client-id")
                 .audience("audience")
@@ -212,7 +210,7 @@ public class TokenServiceTest {
                 .build();
         SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
         jwt.sign(signer);
-        tokenService.verifyClientAssertionToken("client-id", rsaPublicJWKWithAlg.toPublicJWK().toJSONString(), jwt.serialize(),"audience");
+        tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(),"audience");
     }
 
     @Test(expected = EsignetException.class)
@@ -279,6 +277,47 @@ public class TokenServiceTest {
         signedJWT.sign(signer);
 
         tokenService.verifyClientAssertionToken("client-id", ecKey.toJSONString(), signedJWT.serialize(), "audience");
+    }
+
+    @Test
+    public void verifyAccessToken_withUnsupportedAlg_thenFail() throws JOSEException {
+        JWSSigner signer = new RSASSASigner(RSA_JWK.toRSAPrivateKey());
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject("alice")
+                .audience("audience")
+                .issueTime(new Date(123000L))
+                .expirationTime(new Date(System.currentTimeMillis()))
+                .issuer("test-issuer")
+                .build();
+        SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.PS384), claimsSet);
+        jwt.sign(signer);
+        try {
+            tokenService.verifyClientAssertionToken("client-id",  RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(), "audience");
+            Assert.fail();
+        } catch (InvalidRequestException e) {
+            Assert.assertEquals("invalid_client", e.getErrorCode());
+        }
+    }
+
+    @Test
+    public void verifyAccessToken_withNullAlg_thenFail() {
+        String headerJson = "{\"typ\":\"JWT\"}";
+        String payloadJson = "{"
+                + "\"sub\":\"alice\","
+                + "\"aud\":\"audience\","
+                + "\"iat\":123000,"
+                + "\"exp\":" + (System.currentTimeMillis() / 1000) + ","
+                + "\"iss\":\"test-issuer\""
+                + "}";
+        String encodedHeader = Base64.getUrlEncoder().withoutPadding().encodeToString(headerJson.getBytes(StandardCharsets.UTF_8));
+        String encodedPayload = Base64.getUrlEncoder().withoutPadding().encodeToString(payloadJson.getBytes(StandardCharsets.UTF_8));
+        String malformedJwt = encodedHeader + "." + encodedPayload + "." + "dummySignature";
+        try {
+            tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), malformedJwt, "audience");
+            Assert.fail("Expected InvalidRequestException due to missing 'alg' in header");
+        } catch (InvalidRequestException e) {
+            Assert.assertEquals("invalid_client", e.getErrorCode());
+        }
     }
 
     @Test
