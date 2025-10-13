@@ -169,7 +169,7 @@ public class TokenServiceImpl implements TokenService {
             String alg = signedJWT.getHeader().getAlgorithm().getName();
             if (alg == null || !supportedClaims.contains(alg)) {
                 log.error("Invalid or unsupported alg header");
-                throw new EsignetException(ErrorConstants.INVALID_ALGORITHM);
+                throw new InvalidRequestException(ErrorConstants.INVALID_CLIENT);
             }
             JWSAlgorithm jwsAlgorithm = JWSAlgorithm.parse(alg);
             JWK parsedJwk = JWK.parse(jwk);

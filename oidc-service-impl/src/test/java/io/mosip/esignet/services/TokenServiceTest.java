@@ -32,6 +32,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.*;
 
@@ -276,6 +277,47 @@ public class TokenServiceTest {
         signedJWT.sign(signer);
 
         tokenService.verifyClientAssertionToken("client-id", ecKey.toJSONString(), signedJWT.serialize(), "audience");
+    }
+
+    @Test
+    public void verifyAccessToken_withUnsupportedAlg_thenFail() throws JOSEException {
+        JWSSigner signer = new RSASSASigner(RSA_JWK.toRSAPrivateKey());
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject("alice")
+                .audience("audience")
+                .issueTime(new Date(123000L))
+                .expirationTime(new Date(System.currentTimeMillis()))
+                .issuer("test-issuer")
+                .build();
+        SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.PS384), claimsSet);
+        jwt.sign(signer);
+        try {
+            tokenService.verifyClientAssertionToken("client-id",  RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(), "audience");
+            Assert.fail();
+        } catch (InvalidRequestException e) {
+            Assert.assertEquals("invalid_client", e.getErrorCode());
+        }
+    }
+
+    @Test
+    public void verifyAccessToken_withNullAlg_thenFail() {
+        String headerJson = "{\"typ\":\"JWT\"}";
+        String payloadJson = "{"
+                + "\"sub\":\"alice\","
+                + "\"aud\":\"audience\","
+                + "\"iat\":123000,"
+                + "\"exp\":" + (System.currentTimeMillis() / 1000) + ","
+                + "\"iss\":\"test-issuer\""
+                + "}";
+        String encodedHeader = Base64.getUrlEncoder().withoutPadding().encodeToString(headerJson.getBytes(StandardCharsets.UTF_8));
+        String encodedPayload = Base64.getUrlEncoder().withoutPadding().encodeToString(payloadJson.getBytes(StandardCharsets.UTF_8));
+        String malformedJwt = encodedHeader + "." + encodedPayload + "." + "dummySignature";
+        try {
+            tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), malformedJwt, "audience");
+            Assert.fail("Expected InvalidRequestException due to missing 'alg' in header");
+        } catch (InvalidRequestException e) {
+            Assert.assertEquals("invalid_client", e.getErrorCode());
+        }
     }
 
     @Test
