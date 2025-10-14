@@ -244,6 +244,11 @@ export default function OtpVerify({
     return { min: min, sec: sec };
   };
 
+  const getOtpFieldLabel = (t1) => {
+    const label = t1('otp_label_text');
+    return label && label !== 'otp_label_text' ? label : 'OTP';
+  };
+
   //Handle Login API Integration here
   const authenticateUser = async () => {
     try {
@@ -278,10 +283,13 @@ export default function OtpVerify({
           langConfig.errors.otp[errors[0].errorCode] !== undefined &&
           langConfig.errors.otp[errors[0].errorCode] !== null;
 
+        let fieldLabel = getOtpFieldLabel(t1);
+
         if (errorCodeCondition) {
           setErrorBanner({
             errorCode: `otp.${errors[0].errorCode}`,
             show: true,
+            field: fieldLabel,
           });
         } else if (errors[0].errorCode === 'invalid_transaction') {
           redirectOnError(errors[0].errorCode, t2(`${errors[0].errorCode}`));
@@ -289,6 +297,7 @@ export default function OtpVerify({
           setErrorBanner({
             errorCode: `${errors[0].errorCode}`,
             show: true,
+            field: fieldLabel,
           });
         }
         return;
@@ -337,7 +346,9 @@ export default function OtpVerify({
       {errorBanner !== null && (
         <ErrorBanner
           showBanner={errorBanner.show}
-          errorCode={t2(errorBanner.errorCode)}
+          errorCode={t2(errorBanner.errorCode, {
+            field: errorBanner.field,
+          })}
           onCloseHandle={onCloseHandle}
         />
       )}
