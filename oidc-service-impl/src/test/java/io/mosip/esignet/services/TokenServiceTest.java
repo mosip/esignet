@@ -2,8 +2,12 @@ package io.mosip.esignet.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.*;
+import com.nimbusds.jose.crypto.ECDSASigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.jwk.Curve;
+import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
@@ -28,10 +32,9 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
+import java.util.*;
 
 import static io.mosip.esignet.core.spi.TokenService.*;
 
@@ -56,10 +59,13 @@ public class TokenServiceTest {
 
     @Before
     public void setup() {
+        Map<String, Object> mockDiscoveryMap = new HashMap<>();
+        mockDiscoveryMap.put("token_endpoint_auth_signing_alg_values_supported", Arrays.asList("RS256", "PS256","ES256"));
         ReflectionTestUtils.setField(tokenService, "signatureService", getSignatureService());
         ReflectionTestUtils.setField(tokenService, "objectMapper", new ObjectMapper());
         ReflectionTestUtils.setField(tokenService, "issuerId", "test-issuer");
         ReflectionTestUtils.setField(tokenService, "maxClockSkew", 5);
+        ReflectionTestUtils.setField(tokenService,"discoveryMap",mockDiscoveryMap);
     }
 
     @Test
@@ -228,6 +234,93 @@ public class TokenServiceTest {
     }
 
     @Test
+    public void verifyClientAssertion_withRSAPSSKey_thenPass() throws Exception {
+        RSAKey rsaKey = new RSAKeyGenerator(2048)
+                .algorithm(JWSAlgorithm.PS256)
+                .keyID("rsa-ps256")
+                .generate();
+
+        JWSSigner signer = new RSASSASigner(rsaKey);
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject("client-id")
+                .issuer("client-id")
+                .audience("audience")
+                .issueTime(new Date(123000L))
+                .expirationTime(new Date(System.currentTimeMillis() + 60000))
+                .jwtID(IdentityProviderUtil.createTransactionId(null))
+                .build();
+
+        SignedJWT signedJWT = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.PS256).keyID(rsaKey.getKeyID()).build(), claimsSet);
+        signedJWT.sign(signer);
+
+        tokenService.verifyClientAssertionToken("client-id", rsaKey.toJSONString(), signedJWT.serialize(), "audience");
+    }
+
+    @Test
+    public void verifyClientAssertion_withECKey_thenPass() throws Exception {
+        ECKey ecKey = new ECKeyGenerator(Curve.P_256)
+                .algorithm(JWSAlgorithm.ES256)
+                .keyID("ec-es256")
+                .generate();
+
+        JWSSigner signer = new ECDSASigner(ecKey);
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject("client-id")
+                .issuer("client-id")
+                .audience("audience")
+                .issueTime(new Date(123000L))
+                .expirationTime(new Date(System.currentTimeMillis() + 60000))
+                .jwtID(IdentityProviderUtil.createTransactionId(null))
+                .build();
+
+        SignedJWT signedJWT = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.ES256).keyID(ecKey.getKeyID()).build(), claimsSet);
+        signedJWT.sign(signer);
+
+        tokenService.verifyClientAssertionToken("client-id", ecKey.toJSONString(), signedJWT.serialize(), "audience");
+    }
+
+    @Test
+    public void verifyAccessToken_withUnsupportedAlg_thenFail() throws JOSEException {
+        JWSSigner signer = new RSASSASigner(RSA_JWK.toRSAPrivateKey());
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject("alice")
+                .audience("audience")
+                .issueTime(new Date(123000L))
+                .expirationTime(new Date(System.currentTimeMillis()))
+                .issuer("test-issuer")
+                .build();
+        SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.PS384), claimsSet);
+        jwt.sign(signer);
+        try {
+            tokenService.verifyClientAssertionToken("client-id",  RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(), "audience");
+            Assert.fail();
+        } catch (InvalidRequestException e) {
+            Assert.assertEquals("invalid_client", e.getErrorCode());
+        }
+    }
+
+    @Test
+    public void verifyAccessToken_withNullAlg_thenFail() {
+        String headerJson = "{\"typ\":\"JWT\"}";
+        String payloadJson = "{"
+                + "\"sub\":\"alice\","
+                + "\"aud\":\"audience\","
+                + "\"iat\":123000,"
+                + "\"exp\":" + (System.currentTimeMillis() / 1000) + ","
+                + "\"iss\":\"test-issuer\""
+                + "}";
+        String encodedHeader = Base64.getUrlEncoder().withoutPadding().encodeToString(headerJson.getBytes(StandardCharsets.UTF_8));
+        String encodedPayload = Base64.getUrlEncoder().withoutPadding().encodeToString(payloadJson.getBytes(StandardCharsets.UTF_8));
+        String malformedJwt = encodedHeader + "." + encodedPayload + "." + "dummySignature";
+        try {
+            tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), malformedJwt, "audience");
+            Assert.fail("Expected InvalidRequestException due to missing 'alg' in header");
+        } catch (InvalidRequestException e) {
+            Assert.assertEquals("invalid_client", e.getErrorCode());
+        }
+    }
+
+    @Test
     public void verifyAccessToken_withValidToken_thenPass() throws JOSEException {
         JWSSigner signer = new RSASSASigner(RSA_JWK.toRSAPrivateKey());
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
@@ -392,7 +485,9 @@ public class TokenServiceTest {
 
             @Override
             public JWTSignatureResponseDto jwsSign(JWSSignatureRequestDto jwsSignRequestDto) {
-                return null;
+                JWTSignatureResponseDto responseDto = new JWTSignatureResponseDto();
+                responseDto.setJwtSignedData(jwsSignRequestDto.getDataToSign());
+                return responseDto;
             }
         };
     }

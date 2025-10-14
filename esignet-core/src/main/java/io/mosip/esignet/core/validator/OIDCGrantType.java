@@ -23,7 +23,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 public @interface OIDCGrantType {
 
-    String message() default ErrorConstants.INVALID_GRANT_TYPE;
+    String message() default ErrorConstants.UNSUPPORTED_GRANT_TYPE;
 
     Class<?>[] groups() default {};
 

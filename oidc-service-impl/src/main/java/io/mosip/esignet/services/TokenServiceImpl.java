@@ -7,11 +7,14 @@ package io.mosip.esignet.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.jwk.ECKey;
+import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.proc.JWSKeySelector;
 import com.nimbusds.jose.proc.JWSVerificationKeySelector;
+import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
@@ -27,10 +30,7 @@ import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
-import io.mosip.kernel.signature.dto.JWTSignatureRequestDto;
-import io.mosip.kernel.signature.dto.JWTSignatureResponseDto;
-import io.mosip.kernel.signature.dto.JWTSignatureVerifyRequestDto;
-import io.mosip.kernel.signature.dto.JWTSignatureVerifyResponseDto;
+import io.mosip.kernel.signature.dto.*;
 import io.mosip.kernel.signature.service.SignatureService;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -86,6 +86,9 @@ public class TokenServiceImpl implements TokenService {
 
     @Value("${mosip.esignet.dpop.nonce.expire.seconds:15}")
     private long dpopNonceExpirySeconds;
+
+    @Value("#{${mosip.esignet.discovery.key-values}}")
+    private Map<String, Object> discoveryMap;
 
     private final String CNF = "cnf";
     private final String JKT = "jkt";
@@ -156,14 +159,25 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Override
-    public void verifyClientAssertionToken(String clientId, String jwk, String clientAssertion,String audience) throws EsignetException {
+    public void verifyClientAssertionToken(String clientId, String jwk, String clientAssertion, String audience) throws EsignetException {
         if(clientAssertion == null)
-            throw new EsignetException(ErrorConstants.INVALID_ASSERTION);
+            throw new EsignetException(ErrorConstants.INVALID_CLIENT);
 
         try {
+            List<String> supportedClaims = (List<String>) discoveryMap.get("token_endpoint_auth_signing_alg_values_supported");
+            SignedJWT signedJWT = SignedJWT.parse(clientAssertion);
+            String alg = signedJWT.getHeader().getAlgorithm().getName();
+            if (alg == null || !supportedClaims.contains(alg)) {
+                log.error("Invalid or unsupported alg header");
+                throw new InvalidRequestException(ErrorConstants.INVALID_CLIENT);
+            }
+            JWSAlgorithm jwsAlgorithm = JWSAlgorithm.parse(alg);
+            JWK parsedJwk = JWK.parse(jwk);
 
-            JWSKeySelector keySelector = new JWSVerificationKeySelector(JWSAlgorithm.RS256,
-                    new ImmutableJWKSet(new JWKSet(RSAKey.parse(jwk))));
+            JWSKeySelector<SecurityContext> keySelector = new JWSVerificationKeySelector<>(
+                    jwsAlgorithm,
+                    new ImmutableJWKSet<>(new JWKSet(parsedJwk))
+            );
             DefaultJWTClaimsVerifier claimsSetVerifier = new DefaultJWTClaimsVerifier(new JWTClaimsSet.Builder()
                     .audience(Collections.singletonList(audience))
                     .issuer(clientId)
@@ -177,7 +191,7 @@ public class TokenServiceImpl implements TokenService {
             jwtProcessor.process(clientAssertion, null); //If invalid throws exception
         } catch (Exception e) {
             log.error("Failed to verify client assertion", e);
-            throw new InvalidRequestException(ErrorConstants.INVALID_ASSERTION);
+            throw new InvalidRequestException(ErrorConstants.INVALID_CLIENT);
         }
     }
 
@@ -222,14 +236,16 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public String getSignedJWT(String applicationId, JSONObject payload) {
-        JWTSignatureRequestDto jwtSignatureRequestDto = new JWTSignatureRequestDto();
-        jwtSignatureRequestDto.setApplicationId(applicationId);
-        jwtSignatureRequestDto.setReferenceId("");
-        jwtSignatureRequestDto.setIncludePayload(true);
-        jwtSignatureRequestDto.setIncludeCertificate(false);
-        jwtSignatureRequestDto.setDataToSign(IdentityProviderUtil.b64Encode(payload.toJSONString()));
-        jwtSignatureRequestDto.setIncludeCertHash(false);
-        JWTSignatureResponseDto responseDto = signatureService.jwtSign(jwtSignatureRequestDto);
+        JWSSignatureRequestDto jwsSignatureRequestDto = new JWSSignatureRequestDto();
+        jwsSignatureRequestDto.setApplicationId(applicationId);
+        jwsSignatureRequestDto.setReferenceId("");
+        jwsSignatureRequestDto.setB64JWSHeaderParam(true);//required for payload encoding
+        jwsSignatureRequestDto.setIncludePayload(true);
+        jwsSignatureRequestDto.setIncludeCertificate(false);
+        jwsSignatureRequestDto.setDataToSign(IdentityProviderUtil.b64Encode(payload.toJSONString()));
+        jwsSignatureRequestDto.setIncludeCertHash(false);
+        jwsSignatureRequestDto.setValidateJson(true);
+        JWTSignatureResponseDto responseDto = signatureService.jwsSign(jwsSignatureRequestDto);
         return responseDto.getJwtSignedData();
     }
 

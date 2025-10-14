@@ -90,6 +90,10 @@ public class OAuthServiceTest {
     @Before
     public void setup() {
         ReflectionTestUtils.setField(oAuthService, "objectMapper", objectMapper);
+        ReflectionTestUtils.setField(oAuthService, "oauthServerDiscoveryMap", Map.ofEntries(
+                Map.entry("token_endpoint", "/oauth/v2/token"),
+                Map.entry("pushed_authorization_request_endpoint", "/oauth/par")
+        ));
     }
 
     @Test
@@ -322,9 +326,9 @@ public class OAuthServiceTest {
     public void getTokens_withInvalidAuthCode_thenFail() {
         TokenRequestV2 tokenRequest = new TokenRequestV2();
         try {
-            oAuthService.getTokens(tokenRequest, null,false);
-        } catch (InvalidRequestException ex) {
-            Assert.assertEquals(INVALID_TRANSACTION, ex.getErrorCode());
+            oAuthService.getTokens(tokenRequest, null,true);
+        } catch (EsignetException ex) {
+            Assert.assertEquals(INVALID_GRANT, ex.getErrorCode());
         }
     }
 
@@ -489,38 +493,6 @@ public class OAuthServiceTest {
             oAuthService.getTokens(tokenRequest, null, false);
         } catch (EsignetException ex) {
             Assert.assertEquals(INVALID_PKCE_CODE_VERFIER, ex.getErrorCode());
-        }
-    }
-
-    @Test
-    public void getTokens_withInvalidAssertionType_thenFail() {
-        TokenRequestV2 tokenRequest = new TokenRequestV2();
-        tokenRequest.setCode("test-code");
-        tokenRequest.setClient_id("client-id");
-        tokenRequest.setClient_assertion_type(JWT_BEARER_TYPE+1);
-
-        OIDCTransaction oidcTransaction = new OIDCTransaction();
-        oidcTransaction.setKycToken("kyc-token");
-        oidcTransaction.setClientId("client-id");
-        oidcTransaction.setRedirectUri("https://test-redirect-uri/test/test-page");
-        Mockito.when(authorizationHelperService.getKeyHash(Mockito.anyString())).thenReturn("code-hash");
-        Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
-
-        ClientDetail clientDetail = new ClientDetail();
-        clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**", "http://test-redirect-uri-2"));
-        tokenRequest.setRedirect_uri("https://test-redirect-uri/test/test-page");
-        Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
-        try {
-            oAuthService.getTokens(tokenRequest, null, false);
-        } catch (InvalidRequestException ex) {
-            Assert.assertEquals(INVALID_ASSERTION_TYPE, ex.getErrorCode());
-        }
-
-        tokenRequest.setClient_assertion_type(JWT_BEARER_TYPE);
-        try {
-            oAuthService.getTokens(tokenRequest, null, false);
-        } catch (InvalidRequestException ex) {
-            Assert.assertEquals(INVALID_ASSERTION, ex.getErrorCode());
         }
     }
 
@@ -741,7 +713,6 @@ public class OAuthServiceTest {
 
     @Test
     public void getOAuthServerDiscoveryInfo_test() {
-        ReflectionTestUtils.setField(oAuthService, "oauthServerDiscoveryMap", new HashMap<>());
         Assert.assertNotNull(oAuthService.getOAuthServerDiscoveryInfo());
     }
 
@@ -766,31 +737,6 @@ public class OAuthServiceTest {
 
         Assert.assertNotNull(response);
         Assert.assertNotNull(response.getRequest_uri());
-    }
-
-    @Test
-    public void authorize_withUnsupportedAssertionType_thenFail() {
-        PushedAuthorizationRequest request = new PushedAuthorizationRequest();
-        request.setClient_id("34567");
-        request.setClient_assertion_type("unsupported-type");
-        request.setClient_assertion("dummy");
-        request.setRedirect_uri("http://localhost:8088/v1/idp");
-        request.setScope("openid");
-        request.setNonce("test-nonce");
-
-        ClientDetail clientDetail = new ClientDetail();
-        clientDetail.setId("34567");
-        clientDetail.setPublicKey("dummy-key");
-        clientDetail.setRedirectUris(List.of("http://localhost:8088/v1/idp"));
-
-        Mockito.when(clientManagementService.getClientDetails("34567")).thenReturn(clientDetail);
-
-        try {
-            oAuthService.authorize(request, null);
-            Assert.fail();
-        } catch (InvalidRequestException ex) {
-            Assert.assertEquals(ErrorConstants.INVALID_ASSERTION_TYPE, ex.getMessage());
-        }
     }
 
     @Test

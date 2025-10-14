@@ -53,8 +53,8 @@ public class ClientDetailCreateRequest {
     private List<@NotBlank(message = ErrorConstants.INVALID_REDIRECT_URI)
                  @RedirectURL String> redirectUris;
 
-    @NotNull(message = ErrorConstants.INVALID_GRANT_TYPE)
-    @Size(message = ErrorConstants.INVALID_GRANT_TYPE, min = 1, max=3)
+    @NotNull(message = ErrorConstants.UNSUPPORTED_GRANT_TYPE)
+    @Size(message = ErrorConstants.UNSUPPORTED_GRANT_TYPE, min = 1, max=3)
     private List<@OIDCGrantType String> grantTypes;
 
     @NotNull(message = ErrorConstants.INVALID_CLIENT_AUTH)

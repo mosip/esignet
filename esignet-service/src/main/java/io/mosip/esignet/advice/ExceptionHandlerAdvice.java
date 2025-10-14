@@ -53,6 +53,12 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
     @Autowired
     MessageSource messageSource;
 
+    private final List<String> OAUTH_ERROR_CODES = List.of(
+            INVALID_CLIENT,
+            UNSUPPORTED_GRANT_TYPE,
+            INVALID_SCOPE,
+            INVALID_GRANT
+    );
 
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers,
@@ -163,7 +169,10 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
         headers.add("Cache-Control", "no-store");
         headers.add("Pragma","no-cache");
         if (ex instanceof BindException) {
-            return new ResponseEntity<OAuthError>(getErrorRespDto(INVALID_REQUEST, getMessage(INVALID_REQUEST)), headers, HttpStatus.BAD_REQUEST);
+            String errorCode = ((BindException) ex).getAllErrors().get(0).getDefaultMessage();
+            String responseErrorCode = INVALID_REQUEST;
+            if (OAUTH_ERROR_CODES.contains(errorCode)) responseErrorCode = errorCode;
+            return new ResponseEntity<OAuthError>(getErrorRespDto(responseErrorCode, getMessage(errorCode)), headers, HttpStatus.BAD_REQUEST);
         }
         if(ex instanceof InvalidRequestException) {
             return new ResponseEntity<OAuthError>(getErrorRespDto(INVALID_REQUEST, getMessage(INVALID_REQUEST)),headers, HttpStatus.BAD_REQUEST);

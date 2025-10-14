@@ -41,8 +41,8 @@ public class ClientDetailUpdateRequest {
     @Pattern(regexp = "^(ACTIVE)|(INACTIVE)$", message = ErrorConstants.INVALID_STATUS)
     private String status;
 
-    @NotNull(message = ErrorConstants.INVALID_GRANT_TYPE)
-    @Size(message = ErrorConstants.INVALID_GRANT_TYPE, min = 1, max=3)
+    @NotNull(message = ErrorConstants.UNSUPPORTED_GRANT_TYPE)
+    @Size(message = ErrorConstants.UNSUPPORTED_GRANT_TYPE, min = 1, max=3)
     private List<@OIDCGrantType String> grantTypes;
 
     @NotBlank(message = ErrorConstants.INVALID_CLIENT_NAME)

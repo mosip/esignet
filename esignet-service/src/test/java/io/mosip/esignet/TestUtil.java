@@ -8,7 +8,6 @@ package io.mosip.esignet;
 import com.nimbusds.jose.jwk.*;
 import lombok.extern.slf4j.Slf4j;
 
-import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
