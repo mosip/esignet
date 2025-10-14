@@ -28,6 +28,6 @@ PARAuthenticateUserV3:
     }'
       output: '{
   "sendOtpResp":{
-        "sendOtpResTemplate":"signup/SendOtp/SendOtpResult"
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult"
     }
 }'

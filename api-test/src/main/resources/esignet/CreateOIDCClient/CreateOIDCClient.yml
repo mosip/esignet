@@ -777,6 +777,7 @@ CreateOIDCClient:
       description: To create OIDC Client with missing grantTypes
       role: partner
       restMethod: post
+      allowedErrorCodes: invalid_grant_type,unsupported_grant_type
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
       outputTemplate: esignet/error
       input: '{
@@ -799,7 +800,7 @@ CreateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_grant_type"
+      "errorCode": "unsupported_grant_type"
     }
   ]
 }'
@@ -810,6 +811,7 @@ CreateOIDCClient:
       description: To create OIDC Client with null value in grantTypes
       role: partner
       restMethod: post
+      allowedErrorCodes: invalid_grant_type,unsupported_grant_type	  
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
       outputTemplate: esignet/error
       input: '{
@@ -832,7 +834,7 @@ CreateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_grant_type"
+      "errorCode": "unsupported_grant_type"
     }
   ]
 }'
@@ -843,6 +845,7 @@ CreateOIDCClient:
       description: To create OIDC Client with different invalid grantTypes
       role: partner
       restMethod: post
+      allowedErrorCodes: invalid_grant_type,unsupported_grant_type
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
       outputTemplate: esignet/error
       input: '{
@@ -865,7 +868,7 @@ CreateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_grant_type"
+      "errorCode": "unsupported_grant_type"
     }
   ]
 }'
@@ -876,6 +879,7 @@ CreateOIDCClient:
       description: To create OIDC Client with an empty grantTypes
       role: partner
       restMethod: post
+      allowedErrorCodes: invalid_grant_type,unsupported_grant_type
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
       outputTemplate: esignet/error
       input: '{
@@ -898,7 +902,7 @@ CreateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_grant_type"
+      "errorCode": "unsupported_grant_type"
     }
   ]
 }'

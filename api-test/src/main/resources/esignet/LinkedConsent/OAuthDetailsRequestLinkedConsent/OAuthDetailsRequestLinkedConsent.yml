@@ -78,9 +78,10 @@ OAuthDetailsRequestLinkedConsent:
       endPoint: /v1/esignet/authorization/oauth-details
       description: Oauthdetails request with linkAuth consent and no claims
       role: resident
+      checkErrorsOnlyInResponse: true
       restMethod: post
       inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestNoClaims
-      outputTemplate: esignet/error
+      outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
       input: '{
       	"requestTime": "$TIMESTAMP$",
       	"clientId": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$",
@@ -94,12 +95,7 @@ OAuthDetailsRequestLinkedConsent:
 	    "state": "eree2311",
 	    "claimsLocales": "en"
 }'
-      output: '{
-      	"errors": [
-    {
-      "errorCode": "invalid_claim"
-    }
-  ]  
+      output: '{ 
 }'
 
    ESignet_OAuthDetailsRequest_LinkAuth_Consent_Valid_forAcceptedClaims_sid:

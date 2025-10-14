@@ -31,7 +31,7 @@ PARCreateOIDCClientV3:
       "purpose_subTitle": "subtitle",
       "signup_banner_required": true,
       "forgot_pwd_link_required": true,
-      "consent_expire_in_mins": 30,
+      "consent_expire_in_mins": 120,
       "require_pushed_authorization_requests": true
 }'
     output: '{
