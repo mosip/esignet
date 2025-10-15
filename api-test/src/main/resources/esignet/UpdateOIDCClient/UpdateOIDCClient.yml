@@ -593,7 +593,6 @@ UpdateOIDCClient:
       description: To update OIDC client with invalid grantTypes
       role: partner
       restMethod: put
-      allowedErrorCodes: invalid_grant_type,unsupported_grant_type
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient
       outputTemplate: esignet/error
       input: '{
@@ -626,7 +625,6 @@ UpdateOIDCClient:
       description: To update OIDC client with null grantTypes
       role: partner
       restMethod: put
-      allowedErrorCodes: invalid_grant_type,unsupported_grant_type
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient
       outputTemplate: esignet/error
       input: '{
@@ -648,7 +646,7 @@ UpdateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_grant_type"
+      "errorCode": "unsupported_grant_type"
     }
   ]
 }'
@@ -659,7 +657,6 @@ UpdateOIDCClient:
       description: To update OIDC client with an empty grantTypes
       role: partner
       restMethod: put
-      allowedErrorCodes: invalid_grant_type,unsupported_grant_type
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient
       outputTemplate: esignet/error
       input: '{
@@ -692,7 +689,6 @@ UpdateOIDCClient:
       description: To update OIDC client with missing grantTypes 
       role: partner
       restMethod: put
-      allowedErrorCodes: invalid_grant_type,unsupported_grant_type
       inputTemplate: esignet/UpdateOIDCClient/UpdateOIDCClient
       outputTemplate: esignet/error
       input: '{
@@ -714,7 +710,7 @@ UpdateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_grant_type"
+      "errorCode": "unsupported_grant_type"
     }
   ]
 }'

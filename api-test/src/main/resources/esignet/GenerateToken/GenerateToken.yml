@@ -26,7 +26,6 @@ GenerateToken:
       description: Generate token with invalid ClientId UIN
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_grant,invalid_transaction
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -39,7 +38,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
  }'
  
    ESignet_GenerateToken_uin_Missing_ClientId_Neg:
@@ -48,7 +47,6 @@ GenerateToken:
       description: Generate token without ClientId UIN
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_transaction,invalid_grant
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -61,7 +59,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
  }'
  
    ESignet_GenerateToken_uin_Null_ClientId_Neg:
@@ -70,7 +68,6 @@ GenerateToken:
       description: Generate token with Null in ClientId UIN
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_grant,invalid_transaction
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -83,7 +80,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
  }'
  
    ESignet_GenerateToken_uin_Empty_ClientId_Neg:
@@ -92,7 +89,6 @@ GenerateToken:
       description: Generate token with empty value in ClientId UIN
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_grant,invalid_transaction
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -105,7 +101,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
  }'
 
    ESignet_GenerateToken_uin_Invalid_Grant_type_Neg:
@@ -114,7 +110,6 @@ GenerateToken:
       description: Generate token with invalid grant_type UIN
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_grant_type,unsupported_grant_type
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -157,7 +152,6 @@ GenerateToken:
       description: Generate token with empty grant_type UIN
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_grant_type,unsupported_grant_type
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -170,7 +164,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_grant_type"
+      	"error": "unsupported_grant_type"
  }'
  
    ESignet_GenerateToken_uin_Null_Grant_type_Neg:
@@ -179,7 +173,6 @@ GenerateToken:
       description: Generate token with Null in grant_type UIN
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_grant_type,unsupported_grant_type
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -192,7 +185,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_grant_type"
+      	"error": "unsupported_grant_type"
  }'
  
    ESignet_GenerateToken_uin_SpaceFirst_Grant_type_Neg:
@@ -201,7 +194,6 @@ GenerateToken:
       description: Generate token with space in the beginning of grant_type UIN
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_grant_type,unsupported_grant_type
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -214,7 +206,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_grant_type"
+      	"error": "unsupported_grant_type"
  }'
  
    ESignet_GenerateToken_uin_SpaceLast_Grant_type_Neg:
@@ -223,7 +215,6 @@ GenerateToken:
       description: Generate token with space in the end of grant_type UIN
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_grant_type,unsupported_grant_type
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -236,7 +227,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_grant_type"
+      	"error": "unsupported_grant_type"
  }'
  
    ESignet_GenerateToken_uin_Invalid_Code_Neg:
@@ -245,7 +236,6 @@ GenerateToken:
       description: Generate token with invalid code UIN
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_grant,invalid_transaction
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -258,7 +248,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
  }'
  
    ESignet_GenerateToken_uin_Missing_Code_Neg:
@@ -267,7 +257,6 @@ GenerateToken:
       description: Generate token without code UIN
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_request,invalid_grant
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -280,7 +269,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_request"
+      	"error": "invalid_grant"
  }'
  
    ESignet_GenerateToken_uin_Empty_Code_Neg:
@@ -289,7 +278,6 @@ GenerateToken:
       description: Generate token with empty value in code UIN
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_request,invalid_grant
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -302,7 +290,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_request"
+      	"error": "invalid_grant"
  }'
 
    ESignet_GenerateToken_uin_Null_Code_Neg:
@@ -311,7 +299,6 @@ GenerateToken:
       description: Generate token with Null in code UIN
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_grant,invalid_transaction
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -324,7 +311,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
  }'
  
    ESignet_GenerateToken_uin_Used_Code_Neg:
@@ -333,7 +320,6 @@ GenerateToken:
       description: Generate token with used code UIN
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_grant,invalid_transaction
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -346,7 +332,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
 }'
 
    ESignet_GenerateToken_uin_Invalid_Redirect_uri_Neg:
@@ -355,7 +341,6 @@ GenerateToken:
       description: Generate token with invalid redirect uri UIN
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_grant,invalid_transaction
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -368,7 +353,7 @@ GenerateToken:
 		  "redirect_uri": "https://new-services.com/newprofile"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
 }'
 
    ESignet_GenerateToken_uin_Missing_Redirect_uri_Neg:
@@ -377,7 +362,6 @@ GenerateToken:
       description: Generate token without redirect uri UIN
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_request,invalid_redirect_uri
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -390,7 +374,7 @@ GenerateToken:
 		  "redirect_uri": "$REMOVE$"
 }'
       output: '{
-      	"error": "invalid_redirect_uri"
+      	"error": "invalid_request"
 }'
 
    ESignet_GenerateToken_uin_Empty_Redirect_uri_Neg:
@@ -399,7 +383,6 @@ GenerateToken:
       description: Generate token with empty value in redirect uri UIN
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_request,invalid_redirect_uri
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -412,7 +395,7 @@ GenerateToken:
 		  "redirect_uri": ""
 }'
       output: '{
-      	"error": "invalid_redirect_uri"
+      	"error": "invalid_request"
 }'
 
    ESignet_GenerateToken_uin_Null_Redirect_uri_Neg:
@@ -421,7 +404,6 @@ GenerateToken:
       description: Generate token with Null in redirect uri UIN
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_request,invalid_redirect_uri
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -443,7 +425,6 @@ GenerateToken:
       description: Generate token with incorrect client assertion type UIN
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_client,invalid_assertion_type
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -456,7 +437,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_assertion_type"
+      	"error": "invalid_client"
 }'
 
    ESignet_GenerateToken_uin_Missing_ClientAssertionType_Neg:
@@ -486,7 +467,6 @@ GenerateToken:
       description: Generate token with empty value in client assertion type UIN
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_client,invalid_assertion_type
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -508,7 +488,6 @@ GenerateToken:
       description: Generate token with Null in client assertion type UIN
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_client,invalid_assertion_type
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -521,7 +500,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_assertion_type"
+      	"error": "invalid_client"
 }'
 
    ESignet_GenerateToken_uin_SpaceFirst_ClientAssertionType_Neg:
@@ -530,7 +509,6 @@ GenerateToken:
       description: Generate token with space in the beginning of client assertion type UIN
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_client,invalid_client
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -543,7 +521,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_assertion_type"
+      	"error": "invalid_client"
 }'
 
    ESignet_GenerateToken_uin_SpaceLast_ClientAssertionType_Neg:
@@ -552,7 +530,6 @@ GenerateToken:
       description: Generate token with space in the end of client assertion type UIN
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_client,invalid_assertion_type
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -565,7 +542,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_assertion_type"
+      	"error": "invalid_client"
 }'
 
    ESignet_GenerateToken_uin_Invalid_ClientAssertionType_Neg:
@@ -574,7 +551,6 @@ GenerateToken:
       description: Generate token with invalid client assertion type UIN
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_client,invalid_assertion_type
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -587,7 +563,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_assertion_type"
+      	"error": "invalid_client"
 }'
 
    ESignet_GenerateToken_uin_Invalid_ClientAssertion_Neg:
@@ -596,7 +572,6 @@ GenerateToken:
       description: Generate token with invalid client assertion UIN
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_grant,invalid_transaction
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -609,7 +584,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
 }'
 
    ESignet_GenerateToken_uin_Missing_ClientAssertion_Neg:
@@ -639,7 +614,6 @@ GenerateToken:
       description: Generate token with empty value in client assertion UIN
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_client,invalid_assertion
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -661,7 +635,6 @@ GenerateToken:
       description: Generate token with Null in client assertion UIN
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_grant,invalid_transaction
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -674,7 +647,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
 }'
 
    ESignet_GenerateToken_Vid_Valid_Smoke_sid:
@@ -704,7 +677,6 @@ GenerateToken:
       description: Generate token with invalid ClientId VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_grant,invalid_transaction
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -717,7 +689,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
  }'
  
    ESignet_GenerateToken_Vid_Missing_ClientId_Neg:
@@ -726,7 +698,6 @@ GenerateToken:
       description: Generate token without ClientId VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_transaction,invalid_grant
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -739,7 +710,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
  }'
  
    ESignet_GenerateToken_Vid_Null_ClientId_Neg:
@@ -748,7 +719,6 @@ GenerateToken:
       description: Generate token with Null in ClientId VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_grant,invalid_transaction
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -761,7 +731,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
  }'
  
    ESignet_GenerateToken_Vid_Empty_ClientId_Neg:
@@ -770,7 +740,6 @@ GenerateToken:
       description: Generate token with empty value in ClientId VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_transaction,invalid_grant
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -783,7 +752,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
  }'
 
    ESignet_GenerateToken_Vid_Invalid_Grant_type_Neg:
@@ -792,7 +761,6 @@ GenerateToken:
       description: Generate token with invalid grant_type VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_grant_type,unsupported_grant_type
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -805,7 +773,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_grant_type"
+      	"error": "unsupported_grant_type"
  }'
  
    ESignet_GenerateToken_Vid_Missing_Grant_type_Neg:
@@ -814,7 +782,6 @@ GenerateToken:
       description: Generate token without grant_type VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_grant_type,unsupported_grant_type
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -827,7 +794,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_grant_type"
+      	"error": "unsupported_grant_type"
  }'
  
    ESignet_GenerateToken_Vid_Empty_Grant_type_Neg:
@@ -836,7 +803,6 @@ GenerateToken:
       description: Generate token with empty value in grant_type VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_grant_type,unsupported_grant_type
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -849,7 +815,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_grant_type"
+      	"error": "unsupported_grant_type"
  }'
  
    ESignet_GenerateToken_Vid_Null_Grant_type_Neg:
@@ -858,7 +824,6 @@ GenerateToken:
       description: Generate token with Null in grant_type VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_grant_type,unsupported_grant_type
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -871,7 +836,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_grant_type"
+      	"error": "unsupported_grant_type"
  }'
  
    ESignet_GenerateToken_Vid_SpaceFirst_Grant_type_Neg:
@@ -880,7 +845,6 @@ GenerateToken:
       description: Generate token with space in the beginning of grant_type VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_grant_type,unsupported_grant_type
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -893,7 +857,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_grant_type"
+      	"error": "unsupported_grant_type"
  }'
  
    ESignet_GenerateToken_Vid_SpaceLast_Grant_type_Neg:
@@ -902,7 +866,6 @@ GenerateToken:
       description: Generate token with space in the end of grant_type VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_grant_type,unsupported_grant_type
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -915,7 +878,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_grant_type"
+      	"error": "unsupported_grant_type"
  }'
  
    ESignet_GenerateToken_Vid_Invalid_Code_Neg:
@@ -924,7 +887,6 @@ GenerateToken:
       description: Generate token with invalid code VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_grant,invalid_transaction
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -937,7 +899,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
  }'
  
    ESignet_GenerateToken_Vid_Missing_Code_Neg:
@@ -946,7 +908,6 @@ GenerateToken:
       description: Generate token without code VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_grant,invalid_auth_code
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -959,7 +920,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_auth_code"
+      	"error": "invalid_grant"
  }'
  
    ESignet_GenerateToken_Vid_Empty_Code_Neg:
@@ -968,7 +929,6 @@ GenerateToken:
       description: Generate token with empty value in code VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_grant,invalid_auth_code
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -981,7 +941,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_auth_code"
+      	"error": "invalid_grant"
  }'
 
    ESignet_GenerateToken_Vid_Null_Code_Neg:
@@ -990,7 +950,6 @@ GenerateToken:
       description: Generate token with Null in code VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_grant,invalid_transaction
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -1003,7 +962,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
  }'
  
    ESignet_GenerateToken_Vid_Used_Code_Neg:
@@ -1012,7 +971,6 @@ GenerateToken:
       description: Generate token with used code VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_grant,invalid_transaction
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -1025,7 +983,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
 }'
 
    ESignet_GenerateToken_Vid_Invalid_Redirect_uri_Neg:
@@ -1034,7 +992,6 @@ GenerateToken:
       description: Generate token with invalid redirect uri VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_grant,invalid_transaction
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -1047,7 +1004,7 @@ GenerateToken:
 		  "redirect_uri": "https://new-services.com/newprofile"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
 }'
 
    ESignet_GenerateToken_Vid_Missing_Redirect_uri_Neg:
@@ -1056,7 +1013,6 @@ GenerateToken:
       description: Generate token without redirect uri VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_redirect_uri,invalid_request
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -1069,7 +1025,7 @@ GenerateToken:
 		  "redirect_uri": "$REMOVE$"
 }'
       output: '{
-      	"error": "invalid_redirect_uri"
+      	"error": "invalid_request"
 }'
 
    ESignet_GenerateToken_Vid_Empty_Redirect_uri_Neg:
@@ -1078,7 +1034,6 @@ GenerateToken:
       description: Generate token with empty value in redirect uri VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_redirect_uri,invalid_request
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -1091,7 +1046,7 @@ GenerateToken:
 		  "redirect_uri": ""
 }'
       output: '{
-      	"error": "invalid_redirect_uri"
+      	"error": "invalid_request"
 }'
 
    ESignet_GenerateToken_Vid_Null_Redirect_uri_Neg:
@@ -1100,7 +1055,6 @@ GenerateToken:
       description: Generate token with Null in redirect uri VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_redirect_uri,invalid_request
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -1113,7 +1067,7 @@ GenerateToken:
 		  "redirect_uri": "null"
 }'
       output: '{
-      	"error": "invalid_redirect_uri"
+      	"error": "invalid_request"
 }'
 
    ESignet_GenerateToken_Vid_Incorrect_ClientAssertionType_Neg:
@@ -1122,7 +1076,6 @@ GenerateToken:
       description: Generate token with incorrect ClientAssertionType VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_assertion_type,invalid_client
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -1135,7 +1088,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_assertion_type"
+      	"error": "invalid_client"
 }'
 
    ESignet_GenerateToken_Vid_Missing_ClientAssertionType_Neg:
@@ -1144,7 +1097,6 @@ GenerateToken:
       description: Generate token without ClientAssertionType VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_client,invalid_assertion_type
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -1157,7 +1109,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_assertion_type"
+      	"error": "invalid_client"
 }'
 
    ESignet_GenerateToken_Vid_Empty_ClientAssertionType_Neg:
@@ -1166,7 +1118,6 @@ GenerateToken:
       description: Generate token with empty value in ClientAssertionType VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_client,invalid_assertion_type
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -1179,7 +1130,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_assertion_type"
+      	"error": "invalid_client"
 }'
 
    ESignet_GenerateToken_Vid_Null_ClientAssertionType_Neg:
@@ -1188,7 +1139,6 @@ GenerateToken:
       description: Generate token with Null in ClientAssertionType VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_client,invalid_assertion_type
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -1201,7 +1151,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_assertion_type"
+      	"error": "invalid_client"
 }'
 
    ESignet_GenerateToken_Vid_SpaceFirst_ClientAssertionType_Neg:
@@ -1210,7 +1160,6 @@ GenerateToken:
       description: Generate token with space in the beginning of ClientAssertionType VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_client,invalid_assertion_type
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -1223,7 +1172,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_assertion_type"
+      	"error": "invalid_client"
 }'
 
    ESignet_GenerateToken_Vid_SpaceLast_ClientAssertionType_Neg:
@@ -1232,7 +1181,6 @@ GenerateToken:
       description: Generate token with space in the end of ClientAssertionType VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_client,invalid_assertion_type
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -1245,7 +1193,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_assertion_type"
+      	"error": "invalid_client"
 }'
 
    ESignet_GenerateToken_Vid_Invalid_ClientAssertionType_Neg:
@@ -1254,7 +1202,6 @@ GenerateToken:
       description: Generate token with invalid ClientAssertionType VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_assertion_type,invalid_client
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -1267,7 +1214,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_assertion_type"
+      	"error": "invalid_client"
 }'
 
    ESignet_GenerateToken_Vid_Invalid_ClientAssertion_Neg:
@@ -1276,7 +1223,6 @@ GenerateToken:
       description: Generate token with invalid ClientAssertion VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_grant,invalid_transaction
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -1289,7 +1235,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
 }'
 
    ESignet_GenerateToken_Vid_Missing_ClientAssertion_Neg:
@@ -1298,7 +1244,6 @@ GenerateToken:
       description: Generate token without ClientAssertion VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_client,invalid_transaction
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -1311,7 +1256,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_assertion"
+      	"error": "invalid_client"
 }'
 
    ESignet_GenerateToken_Vid_Empty_ClientAssertion_Neg:
@@ -1320,7 +1265,6 @@ GenerateToken:
       description: Generate token with empty value in ClientAssertion VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_client,invalid_assertion
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -1333,7 +1277,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_assertion"
+      	"error": "invalid_client"
 }'
 
    ESignet_GenerateToken_Vid_Null_ClientAssertion_Neg:
@@ -1342,7 +1286,6 @@ GenerateToken:
       description: Generate token with Null in ClientAssertion VID
       role: resident
       restMethod: post
-      allowedErrorCodes: invalid_grant,invalid_transaction
       validityCheckRequired: true
       inputTemplate: esignet/GenerateToken/GenerateToken
       outputTemplate: esignet/error2
@@ -1355,5 +1298,5 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
 }'

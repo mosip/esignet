@@ -777,7 +777,6 @@ CreateOIDCClient:
       description: To create OIDC Client with missing grantTypes
       role: partner
       restMethod: post
-      allowedErrorCodes: invalid_grant_type,unsupported_grant_type
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
       outputTemplate: esignet/error
       input: '{
@@ -810,8 +809,7 @@ CreateOIDCClient:
       uniqueIdentifier: TC_ESignet_CreateOIDCClient_26
       description: To create OIDC Client with null value in grantTypes
       role: partner
-      restMethod: post
-      allowedErrorCodes: invalid_grant_type,unsupported_grant_type	  
+      restMethod: post	  
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
       outputTemplate: esignet/error
       input: '{
@@ -845,7 +843,6 @@ CreateOIDCClient:
       description: To create OIDC Client with different invalid grantTypes
       role: partner
       restMethod: post
-      allowedErrorCodes: invalid_grant_type,unsupported_grant_type
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
       outputTemplate: esignet/error
       input: '{
@@ -879,7 +876,6 @@ CreateOIDCClient:
       description: To create OIDC Client with an empty grantTypes
       role: partner
       restMethod: post
-      allowedErrorCodes: invalid_grant_type,unsupported_grant_type
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
       outputTemplate: esignet/error
       input: '{
