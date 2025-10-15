@@ -397,7 +397,7 @@ CreateOIDCClient:
       output: '{
         "errors": [
      {
-            "errorCode": "invalid_grant_type"
+            "errorCode": "unsupported_grant_type"
         }
   ]
 }'
@@ -422,7 +422,7 @@ CreateOIDCClient:
       output: '{
         "errors": [
      {
-            "errorCode": "invalid_grant_type"
+            "errorCode": "unsupported_grant_type"
         }
   ]
 }'
@@ -447,7 +447,7 @@ CreateOIDCClient:
       output: '{
         "errors": [
      {
-            "errorCode": "invalid_grant_type"
+            "errorCode": "unsupported_grant_type"
         }
   ]
 }'

@@ -627,7 +627,7 @@
 	</test>
 	<test name="OauthPAR">
 		<parameter name="ymlFile"
-			value="esignet/PAR/OauthPAR/OauthPAR.yml" />
+			value="esignet/PAR/OauthPar/OauthPar.yml" />
 		<classes>
 			<class
 				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded" />

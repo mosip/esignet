@@ -614,7 +614,7 @@ UpdateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_grant_type"
+      "errorCode": "unsupported_grant_type"
     }
   ]
 }'
@@ -646,7 +646,7 @@ UpdateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_grant_type"
+      "errorCode": "unsupported_grant_type"
     }
   ]
 }'
@@ -678,7 +678,7 @@ UpdateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_grant_type"
+      "errorCode": "unsupported_grant_type"
     }
   ]
 }'
@@ -710,7 +710,7 @@ UpdateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_grant_type"
+      "errorCode": "unsupported_grant_type"
     }
   ]
 }'

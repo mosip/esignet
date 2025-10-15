@@ -799,7 +799,7 @@ CreateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_grant_type"
+      "errorCode": "unsupported_grant_type"
     }
   ]
 }'
@@ -809,7 +809,7 @@ CreateOIDCClient:
       uniqueIdentifier: TC_ESignet_CreateOIDCClient_26
       description: To create OIDC Client with null value in grantTypes
       role: partner
-      restMethod: post
+      restMethod: post	  
       inputTemplate: esignet/CreateOIDCClient/CreateOIDCClient
       outputTemplate: esignet/error
       input: '{
@@ -832,7 +832,7 @@ CreateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_grant_type"
+      "errorCode": "unsupported_grant_type"
     }
   ]
 }'
@@ -865,7 +865,7 @@ CreateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_grant_type"
+      "errorCode": "unsupported_grant_type"
     }
   ]
 }'
@@ -898,7 +898,7 @@ CreateOIDCClient:
       output: '{
         "errors": [
     {
-      "errorCode": "invalid_grant_type"
+      "errorCode": "unsupported_grant_type"
     }
   ]
 }'

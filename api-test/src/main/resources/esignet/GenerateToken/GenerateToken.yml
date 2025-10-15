@@ -38,7 +38,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
  }'
  
    ESignet_GenerateToken_uin_Missing_ClientId_Neg:
@@ -59,7 +59,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
  }'
  
    ESignet_GenerateToken_uin_Null_ClientId_Neg:
@@ -80,7 +80,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
  }'
  
    ESignet_GenerateToken_uin_Empty_ClientId_Neg:
@@ -101,7 +101,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
  }'
 
    ESignet_GenerateToken_uin_Invalid_Grant_type_Neg:
@@ -122,7 +122,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_grant_type"
+      	"error": "unsupported_grant_type"
  }'
  
    ESignet_GenerateToken_uin_Missing_Grant_type_Neg:
@@ -143,7 +143,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_grant_type"
+      	"error": "unsupported_grant_type"
  }'
  
    ESignet_GenerateToken_uin_Empty_Grant_type_Neg:
@@ -164,7 +164,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_grant_type"
+      	"error": "unsupported_grant_type"
  }'
  
    ESignet_GenerateToken_uin_Null_Grant_type_Neg:
@@ -185,7 +185,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_grant_type"
+      	"error": "unsupported_grant_type"
  }'
  
    ESignet_GenerateToken_uin_SpaceFirst_Grant_type_Neg:
@@ -206,7 +206,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_grant_type"
+      	"error": "unsupported_grant_type"
  }'
  
    ESignet_GenerateToken_uin_SpaceLast_Grant_type_Neg:
@@ -227,7 +227,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_grant_type"
+      	"error": "unsupported_grant_type"
  }'
  
    ESignet_GenerateToken_uin_Invalid_Code_Neg:
@@ -248,7 +248,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
  }'
  
    ESignet_GenerateToken_uin_Missing_Code_Neg:
@@ -269,7 +269,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_auth_code"
+      	"error": "invalid_grant"
  }'
  
    ESignet_GenerateToken_uin_Empty_Code_Neg:
@@ -290,7 +290,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_auth_code"
+      	"error": "invalid_grant"
  }'
 
    ESignet_GenerateToken_uin_Null_Code_Neg:
@@ -311,7 +311,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
  }'
  
    ESignet_GenerateToken_uin_Used_Code_Neg:
@@ -332,7 +332,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
 }'
 
    ESignet_GenerateToken_uin_Invalid_Redirect_uri_Neg:
@@ -353,7 +353,7 @@ GenerateToken:
 		  "redirect_uri": "https://new-services.com/newprofile"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
 }'
 
    ESignet_GenerateToken_uin_Missing_Redirect_uri_Neg:
@@ -374,7 +374,7 @@ GenerateToken:
 		  "redirect_uri": "$REMOVE$"
 }'
       output: '{
-      	"error": "invalid_redirect_uri"
+      	"error": "invalid_request"
 }'
 
    ESignet_GenerateToken_uin_Empty_Redirect_uri_Neg:
@@ -395,7 +395,7 @@ GenerateToken:
 		  "redirect_uri": ""
 }'
       output: '{
-      	"error": "invalid_redirect_uri"
+      	"error": "invalid_request"
 }'
 
    ESignet_GenerateToken_uin_Null_Redirect_uri_Neg:
@@ -416,7 +416,7 @@ GenerateToken:
 		  "redirect_uri": "null"
 }'
       output: '{
-      	"error": "invalid_redirect_uri"
+      	"error": "invalid_request"
 }'
 
    ESignet_GenerateToken_uin_Incorrect_ClientAssertionType_Neg:
@@ -437,7 +437,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_assertion_type"
+      	"error": "invalid_client"
 }'
 
    ESignet_GenerateToken_uin_Missing_ClientAssertionType_Neg:
@@ -458,7 +458,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_assertion_type"
+      	"error": "invalid_client"
 }'
 
    ESignet_GenerateToken_uin_Empty_ClientAssertionType_Neg:
@@ -479,7 +479,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_assertion_type"
+      	"error": "invalid_client"
 }'
 
    ESignet_GenerateToken_uin_Null_ClientAssertionType_Neg:
@@ -500,7 +500,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_assertion_type"
+      	"error": "invalid_client"
 }'
 
    ESignet_GenerateToken_uin_SpaceFirst_ClientAssertionType_Neg:
@@ -521,7 +521,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_assertion_type"
+      	"error": "invalid_client"
 }'
 
    ESignet_GenerateToken_uin_SpaceLast_ClientAssertionType_Neg:
@@ -542,7 +542,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_assertion_type"
+      	"error": "invalid_client"
 }'
 
    ESignet_GenerateToken_uin_Invalid_ClientAssertionType_Neg:
@@ -563,7 +563,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_assertion_type"
+      	"error": "invalid_client"
 }'
 
    ESignet_GenerateToken_uin_Invalid_ClientAssertion_Neg:
@@ -584,7 +584,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
 }'
 
    ESignet_GenerateToken_uin_Missing_ClientAssertion_Neg:
@@ -605,7 +605,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_assertion"
+      	"error": "invalid_client"
 }'
 
    ESignet_GenerateToken_uin_Empty_ClientAssertion_Neg:
@@ -626,7 +626,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_assertion"
+      	"error": "invalid_client"
 }'
 
    ESignet_GenerateToken_uin_Null_ClientAssertion_Neg:
@@ -647,7 +647,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
 }'
 
    ESignet_GenerateToken_Vid_Valid_Smoke_sid:
@@ -689,7 +689,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
  }'
  
    ESignet_GenerateToken_Vid_Missing_ClientId_Neg:
@@ -710,7 +710,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
  }'
  
    ESignet_GenerateToken_Vid_Null_ClientId_Neg:
@@ -731,7 +731,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
  }'
  
    ESignet_GenerateToken_Vid_Empty_ClientId_Neg:
@@ -752,7 +752,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
  }'
 
    ESignet_GenerateToken_Vid_Invalid_Grant_type_Neg:
@@ -773,7 +773,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_grant_type"
+      	"error": "unsupported_grant_type"
  }'
  
    ESignet_GenerateToken_Vid_Missing_Grant_type_Neg:
@@ -794,7 +794,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_grant_type"
+      	"error": "unsupported_grant_type"
  }'
  
    ESignet_GenerateToken_Vid_Empty_Grant_type_Neg:
@@ -815,7 +815,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_grant_type"
+      	"error": "unsupported_grant_type"
  }'
  
    ESignet_GenerateToken_Vid_Null_Grant_type_Neg:
@@ -836,7 +836,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_grant_type"
+      	"error": "unsupported_grant_type"
  }'
  
    ESignet_GenerateToken_Vid_SpaceFirst_Grant_type_Neg:
@@ -857,7 +857,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_grant_type"
+      	"error": "unsupported_grant_type"
  }'
  
    ESignet_GenerateToken_Vid_SpaceLast_Grant_type_Neg:
@@ -878,7 +878,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_grant_type"
+      	"error": "unsupported_grant_type"
  }'
  
    ESignet_GenerateToken_Vid_Invalid_Code_Neg:
@@ -899,7 +899,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
  }'
  
    ESignet_GenerateToken_Vid_Missing_Code_Neg:
@@ -920,7 +920,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_auth_code"
+      	"error": "invalid_grant"
  }'
  
    ESignet_GenerateToken_Vid_Empty_Code_Neg:
@@ -941,7 +941,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_auth_code"
+      	"error": "invalid_grant"
  }'
 
    ESignet_GenerateToken_Vid_Null_Code_Neg:
@@ -962,7 +962,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
  }'
  
    ESignet_GenerateToken_Vid_Used_Code_Neg:
@@ -983,7 +983,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
 }'
 
    ESignet_GenerateToken_Vid_Invalid_Redirect_uri_Neg:
@@ -1004,7 +1004,7 @@ GenerateToken:
 		  "redirect_uri": "https://new-services.com/newprofile"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
 }'
 
    ESignet_GenerateToken_Vid_Missing_Redirect_uri_Neg:
@@ -1025,7 +1025,7 @@ GenerateToken:
 		  "redirect_uri": "$REMOVE$"
 }'
       output: '{
-      	"error": "invalid_redirect_uri"
+      	"error": "invalid_request"
 }'
 
    ESignet_GenerateToken_Vid_Empty_Redirect_uri_Neg:
@@ -1046,7 +1046,7 @@ GenerateToken:
 		  "redirect_uri": ""
 }'
       output: '{
-      	"error": "invalid_redirect_uri"
+      	"error": "invalid_request"
 }'
 
    ESignet_GenerateToken_Vid_Null_Redirect_uri_Neg:
@@ -1067,7 +1067,7 @@ GenerateToken:
 		  "redirect_uri": "null"
 }'
       output: '{
-      	"error": "invalid_redirect_uri"
+      	"error": "invalid_request"
 }'
 
    ESignet_GenerateToken_Vid_Incorrect_ClientAssertionType_Neg:
@@ -1088,7 +1088,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_assertion_type"
+      	"error": "invalid_client"
 }'
 
    ESignet_GenerateToken_Vid_Missing_ClientAssertionType_Neg:
@@ -1109,7 +1109,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_assertion_type"
+      	"error": "invalid_client"
 }'
 
    ESignet_GenerateToken_Vid_Empty_ClientAssertionType_Neg:
@@ -1130,7 +1130,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_assertion_type"
+      	"error": "invalid_client"
 }'
 
    ESignet_GenerateToken_Vid_Null_ClientAssertionType_Neg:
@@ -1151,7 +1151,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_assertion_type"
+      	"error": "invalid_client"
 }'
 
    ESignet_GenerateToken_Vid_SpaceFirst_ClientAssertionType_Neg:
@@ -1172,7 +1172,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_assertion_type"
+      	"error": "invalid_client"
 }'
 
    ESignet_GenerateToken_Vid_SpaceLast_ClientAssertionType_Neg:
@@ -1193,7 +1193,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_assertion_type"
+      	"error": "invalid_client"
 }'
 
    ESignet_GenerateToken_Vid_Invalid_ClientAssertionType_Neg:
@@ -1214,7 +1214,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_assertion_type"
+      	"error": "invalid_client"
 }'
 
    ESignet_GenerateToken_Vid_Invalid_ClientAssertion_Neg:
@@ -1235,7 +1235,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
 }'
 
    ESignet_GenerateToken_Vid_Missing_ClientAssertion_Neg:
@@ -1256,7 +1256,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_assertion"
+      	"error": "invalid_client"
 }'
 
    ESignet_GenerateToken_Vid_Empty_ClientAssertion_Neg:
@@ -1277,7 +1277,7 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_assertion"
+      	"error": "invalid_client"
 }'
 
    ESignet_GenerateToken_Vid_Null_ClientAssertion_Neg:
@@ -1298,5 +1298,5 @@ GenerateToken:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-      	"error": "invalid_transaction"
+      	"error": "invalid_grant"
 }'
