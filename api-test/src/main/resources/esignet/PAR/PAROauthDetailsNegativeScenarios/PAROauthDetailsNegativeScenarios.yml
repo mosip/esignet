@@ -1,0 +1,121 @@
+PAROauthDetailsNegativeScenarios:
+   ESignet_OauthDetailsNegativeScenarios_PAR_AuthToken_Xsrf_missing_ClientId_Neg:
+      endPoint: /v1/esignet/authorization/par-oauth-details
+      uniqueIdentifier: TC_ESignet_PAROauthDetailsNegativeScenarios_01
+      description: Validate successful retrieval of OAuth details in PAR flow with missing clientId in request parameter
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/PAR/PAROauthDetailsNegativeScenarios/PAROauthDetailsNegativeScenarios
+      outputTemplate: esignet/error
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "requestUri": "$ID:OauthPar_all_Valid_Smoke_sid_request_uri$",
+       "clientId": "$REMOVE$"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_client_id"
+    }
+  ]
+}'
+   ESignet_OauthDetailsNegativeScenarios_PAR_AuthToken_Xsrf_Empty_ClientId_Neg:
+      endPoint: /v1/esignet/authorization/par-oauth-details
+      uniqueIdentifier: TC_ESignet_PAROauthDetailsNegativeScenarios_02
+      description: Validate successful retrieval of OAuth details in PAR flow with Empty clientId in request parameter
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/PAR/PAROauthDetailsNegativeScenarios/PAROauthDetailsNegativeScenarios
+      outputTemplate: esignet/error
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "requestUri": "$ID:OauthPar_all_Valid_Smoke_sid_request_uri$",
+       "clientId": " "
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_client_id"
+    }
+  ]
+}'
+   ESignet_OauthDetailsNegativeScenarios_PAR_AuthToken_Xsrf_invalid_request_method_Neg:
+      endPoint: /v1/esignet/authorization/par-oauth-details
+      uniqueIdentifier: TC_ESignet_PAROauthDetailsNegativeScenarios_03
+      description: Validate successful retrieval of OAuth details in PAR flow with invalid request method
+      role: resident
+      restMethod: put
+      inputTemplate: esignet/PAR/PAROauthDetailsNegativeScenarios/PAROauthDetailsNegativeScenarios
+      outputTemplate: esignet/error
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "requestUri": "$ID:OauthPar_all_Valid_Smoke_sid_request_uri$",
+       "clientId": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_request"
+    }
+  ]
+}'
+   ESignet_OauthDetailsNegativeScenarios_PAR_AuthToken_Xsrf_invalid_requestURI_Neg:
+      endPoint: /v1/esignet/authorization/par-oauth-details
+      uniqueIdentifier: TC_ESignet_PAROauthDetailsNegativeScenarios_04
+      description: Validate successful retrieval of OAuth details in PAR flow with invalid RequestURI in request parameter
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/PAR/PAROauthDetailsNegativeScenarios/PAROauthDetailsNegativeScenarios
+      outputTemplate: esignet/error
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "requestUri": "123456wk31-I0Zx7JRIorYsjfkPB0yQ-4K0tc7LwSzaJ9ft_U",
+       "clientId": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_request"
+    }
+  ]
+}'
+   ESignet_OauthDetailsNegativeScenarios_PAR_AuthToken_Xsrf_without_requestURI_Neg:
+      endPoint: /v1/esignet/authorization/par-oauth-details
+      uniqueIdentifier: TC_ESignet_PAROauthDetailsNegativeScenarios_05
+      description: Validate successful retrieval of OAuth details in PAR flow without RequestURI in request parameter
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/PAR/PAROauthDetailsNegativeScenarios/PAROauthDetailsNegativeScenarios
+      outputTemplate: esignet/error
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "requestUri": "$REMOVE$",
+       "clientId": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_request"
+    }
+  ]
+}'
+   ESignet_OauthDetailsNegativeScenarios_PAR_AuthToken_Xsrf_already_requestURI_Neg:
+      endPoint: /v1/esignet/authorization/par-oauth-details
+      uniqueIdentifier: TC_ESignet_PAROauthDetailsNegativeScenarios_06
+      description: Validate successful retrieval of OAuth details in PAR flow with already used RequestURI in request parameter
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/PAR/PAROauthDetailsNegativeScenarios/PAROauthDetailsNegativeScenarios
+      outputTemplate: esignet/error
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "requestUri": "$ID:OauthPar_all_Valid_Smoke_sid_request_uri$",
+       "clientId": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_request"
+    }
+  ]
+}'
