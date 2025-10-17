@@ -31,9 +31,13 @@ import io.cucumber.plugin.event.PickleStepTestStep;
 import io.cucumber.plugin.event.TestCase;
 import io.cucumber.plugin.event.TestStep;
 import io.mosip.testrig.apirig.utils.S3Adapter;
+import models.Uin;
+import models.Vid;
 import utils.BaseTestUtil;
 import utils.EsignetConfigManager;
 import utils.ExtentReportManager;
+import utils.UINManager;
+import utils.VIDManager;
 
 public class BaseTest {
 
@@ -41,6 +45,8 @@ public class BaseTest {
 
 	private static final ThreadLocal<WebDriver> driverThreadLocal = new ThreadLocal<>();
 	private static final ThreadLocal<JavascriptExecutor> jseThreadLocal = new ThreadLocal<>();
+	private static final ThreadLocal<Uin> threadUin = new ThreadLocal<>();
+	private static final ThreadLocal<Vid> threadVid = new ThreadLocal<>();
 
 	private final String url = EsignetConfigManager.getproperty("baseurl");
 
@@ -55,10 +61,10 @@ public class BaseTest {
 
 		totalCount++;
 		String browser = BaseTestUtil.getBrowserForScenario(scenario); // Start logging for the scenario
-        String lang = BaseTestUtil.getThreadLocalLanguage();
-        ExtentReportManager.createTest(scenario.getName() + " [" + browser + " | " + lang + "]");
-        ExtentReportManager.logStep("Scenario Started: " + scenario.getName() +
-                " | Browser: " + browser + " | Language: " + lang);
+		String lang = BaseTestUtil.getThreadLocalLanguage();
+		ExtentReportManager.createTest(scenario.getName() + " [" + browser + " | " + lang + "]");
+		ExtentReportManager
+				.logStep("Scenario Started: " + scenario.getName() + " | Browser: " + browser + " | Language: " + lang);
 
 		try {
 			String scenarioBrowser = BaseTestUtil.getBrowserForScenario(scenario);
@@ -93,6 +99,18 @@ public class BaseTest {
 			ExtentReportManager.flushReport(); // Flush immediately to ensure it's written
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Before("@NeedsUIN")
+	public void handleUIN(Scenario scenario) throws InterruptedException {
+		Uin uinDetails = UINManager.acquireUIN();
+		threadUin.set(uinDetails);
+	}
+	
+	@Before("@NeedsVID")
+	public void handleVID(Scenario scenario) throws InterruptedException {
+		Vid vidDetails = VIDManager.acquireVID();
+		threadVid.set(vidDetails);
 	}
 
 	@BeforeStep
@@ -191,8 +209,8 @@ public class BaseTest {
 
 	public static void pushReportsToS3(String lang) {
 		String timestamp = new SimpleDateFormat("yyyy-MM-dd-HH-mm").format(new Date());
-		String name = getEnvName() + "-" + lang + "-" + timestamp + "-T-" + totalCount + "-P-" + passedCount + "-F-" + failedCount
-				+ ".html";
+		String name = getEnvName() + "-" + lang + "-" + timestamp + "-T-" + totalCount + "-P-" + passedCount + "-F-"
+				+ failedCount + ".html";
 		String newFileName = "EsignetUi-" + name;
 		File originalReportFile = new File(System.getProperty("user.dir") + "/test-output/ExtentReport.html");
 		File newReportFile = new File(System.getProperty("user.dir") + "/test-output/" + newFileName);
@@ -231,4 +249,21 @@ public class BaseTest {
 
 		return envName;
 	}
+
+	public Uin getUinDetails() {
+		return threadUin.get();
+	}
+
+	public String getUin() {
+		return getUinDetails() != null ? getUinDetails().getUin() : null;
+	}
+
+	public Vid getVidDetails() {
+		return threadVid.get();
+	}
+
+	public String getVid() {
+		return getVidDetails() != null ? getVidDetails().getVid() : null;
+	}
+
 }
