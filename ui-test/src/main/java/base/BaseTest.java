@@ -46,6 +46,7 @@ public class BaseTest extends AdminTestUtil {
 	private static final ThreadLocal<JavascriptExecutor> jseThreadLocal = new ThreadLocal<>();
 	private static final ThreadLocal<Uin> threadUin = new ThreadLocal<>();
 	private static final ThreadLocal<Vid> threadVid = new ThreadLocal<>();
+	private final String url = EsignetConfigManager.getproperty("baseurl");
 
 	public static int passedCount = 0;
 	public static int failedCount = 0;
@@ -116,7 +117,11 @@ public class BaseTest extends AdminTestUtil {
 		Uin uinDetails = UINManager.acquireUIN();
 		threadUin.set(uinDetails);
 	}
+<<<<<<< HEAD
 
+=======
+	
+>>>>>>> e4b7f1d5 (Automated the Tetscases for eSignet-UI)
 	@Before("@NeedsVID")
 	public void handleVID(Scenario scenario) throws InterruptedException {
 		Vid vidDetails = VIDManager.acquireVID();
