@@ -4,16 +4,16 @@ import base.BaseTest;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import org.openqa.selenium.WebDriver;
-import pages.LoginOptionsPage;
+import pages.ConsentPage;
 
 
 public class LoginWithInjiStepDefinition {
 
-    private final LoginOptionsPage loginOptionsPage;
+    private final ConsentPage loginOptionsPage;
 
     public LoginWithInjiStepDefinition(BaseTest baseTest) {
         WebDriver driver = baseTest.getDriver();
-        loginOptionsPage = new LoginOptionsPage(driver);
+        loginOptionsPage = new ConsentPage(driver);
     }
 
     @Then("Click on Login with Inji")

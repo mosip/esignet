@@ -4,7 +4,7 @@ Feature: Multi language scenario's in eSignet
 
   @smoke
   Scenario: Verify the language in browser cookie
-    Given Click on Sign In with eSignet
+    Given click on Sign In with eSignet
     When Click on Language selection option
     And Select the mandatory language
     And Get the cookies
