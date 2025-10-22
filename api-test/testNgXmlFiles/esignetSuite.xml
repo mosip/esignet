@@ -676,6 +676,24 @@
 			<class
 				name="io.mosip.testrig.apirig.esignet.testscripts.GetWithParam" />
 		</classes>
+	</test>
+	<test name="OauthPARNegativeScenarios">
+		<parameter name="ymlFile"
+			value="esignet/PAR/OauthParNegativeScenarios/OauthParNegativeScenarios.yml" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
+		<parameter name="idKeyName" value="request_uri" />				
+		</classes>
+	</test>
+	<test name="PAROauthDetailsNegativeScenarios">
+		<parameter name="ymlFile"
+			value="esignet/PAR/PAROauthDetailsNegativeScenarios/PAROauthDetailsNegativeScenarios.yml" />
+		<parameter name="idKeyName" value="transactionId,encodedResp" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
+		</classes>
 	</test>	
 	<!-- End of end to end v3 with mock flow test cases -->
 

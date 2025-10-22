@@ -1,0 +1,432 @@
+OauthParNegativeScenarios:
+   ESignet_OauthParNegativeScenarios_Missing_Scope_Neg:
+      endPoint: /v1/esignet/oauth/par
+      uniqueIdentifier: TC_ESignet_OauthParNegativeScenarios_01
+      description: Validate successful PAR request with missing Scope paramenter
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/PAR/OauthParNegativeScenarios/OauthParNegativeScenarios
+      outputTemplate: esignet/error2
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "scope": "$REMOVE$",
+       "response_type": "code",
+       "redirect_uri": "$IDPREDIRECTURI$",
+       "display": "popup",
+       "prompt": "login",
+       "acr_values": "mosip:idp:acr:generated-code",
+       "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+       "state": "eree2311",
+       "claim_locales": "en",
+       "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+       "client_assertion": "$CLIENT_ASSERTION_PAR_JWT$",
+       "aud_key": "pushed_authorization_request_endpoint"
+}'
+      output: '{
+            "error": "invalid_scope"
+}'
+   ESignet_OauthParNegativeScenarios_Invalid_Scope_Neg:
+      endPoint: /v1/esignet/oauth/par
+      uniqueIdentifier: TC_ESignet_OauthParNegativeScenarios_02
+      description: Validate successful PAR request with invalid Scope paramenter
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/PAR/OauthParNegativeScenarios/OauthParNegativeScenarios
+      outputTemplate: esignet/error2
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "scope": "7777",
+       "response_type": "code",
+       "redirect_uri": "$IDPREDIRECTURI$",
+       "display": "popup",
+       "prompt": "login",
+       "acr_values": "mosip:idp:acr:generated-code",
+       "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+       "state": "eree2311",
+       "claim_locales": "en",
+       "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+       "client_assertion": "$CLIENT_ASSERTION_PAR_JWT$",
+       "aud_key": "pushed_authorization_request_endpoint"
+}'
+      output: '{
+            "error": "invalid_scope"
+}'
+   ESignet_OauthParNegativeScenarios_Missing_response_type_Neg:
+      endPoint: /v1/esignet/oauth/par
+      uniqueIdentifier: TC_ESignet_OauthParNegativeScenarios_03
+      description: Validate successful PAR request with missing Scope paramenter
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/PAR/OauthParNegativeScenarios/OauthParNegativeScenarios
+      outputTemplate: esignet/error2
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "scope": "openid profile",
+       "response_type": "$REMOVE$",
+       "redirect_uri": "$IDPREDIRECTURI$",
+       "display": "popup",
+       "prompt": "login",
+       "acr_values": "mosip:idp:acr:generated-code",
+       "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+       "state": "eree2311",
+       "claim_locales": "en",
+       "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+       "client_assertion": "$CLIENT_ASSERTION_PAR_JWT$",
+       "aud_key": "pushed_authorization_request_endpoint"
+}'
+      output: '{
+            "error": "invalid_request"
+}'
+   ESignet_OauthParNegativeScenarios_Invalid_response_type_Neg:
+      endPoint: /v1/esignet/oauth/par
+      uniqueIdentifier: TC_ESignet_OauthParNegativeScenarios_04
+      description: Validate successful PAR request with invalid response_type paramenter
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/PAR/OauthParNegativeScenarios/OauthParNegativeScenarios
+      outputTemplate: esignet/error2
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "scope": "openid profile",
+       "response_type": "code123",
+       "redirect_uri": "$IDPREDIRECTURI$",
+       "display": "popup",
+       "prompt": "login",
+       "acr_values": "mosip:idp:acr:generated-code",
+       "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+       "state": "eree2311",
+       "claim_locales": "en",
+       "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+       "client_assertion": "$CLIENT_ASSERTION_PAR_JWT$",
+       "aud_key": "pushed_authorization_request_endpoint"
+}'
+      output: '{
+            "error": "invalid_request"
+}'
+   ESignet_OauthParNegativeScenarios_Missing_client_id_Neg:
+      endPoint: /v1/esignet/oauth/par
+      uniqueIdentifier: TC_ESignet_OauthParNegativeScenarios_05
+      description: Validate successful PAR request with missing client_id paramenter
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/PAR/OauthParNegativeScenarios/OauthParNegativeScenarios
+      outputTemplate: esignet/error2
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "client_id": "$REMOVE$", 
+       "scope": "openid profile",
+       "response_type": "code",
+       "redirect_uri": "$IDPREDIRECTURI$",
+       "display": "popup",
+       "prompt": "login",
+       "acr_values": "mosip:idp:acr:generated-code",
+       "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+       "state": "eree2311",
+       "claim_locales": "en",
+       "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+       "client_assertion": "$CLIENT_ASSERTION_PAR_JWT$",
+       "aud_key": "pushed_authorization_request_endpoint"
+}'
+      output: '{
+            "error": "invalid_request"
+}'
+   ESignet_OauthParNegativeScenarios_Invalid_client_id_Neg:
+      endPoint: /v1/esignet/oauth/par
+      uniqueIdentifier: TC_ESignet_OauthParNegativeScenarios_06
+      description: Validate successful PAR request with invalid client_id paramenter
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/PAR/OauthParNegativeScenarios/OauthParNegativeScenarios
+      outputTemplate: esignet/error2
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "client_id": "esignet99999", 
+       "scope": "openid profile",
+       "response_type": "code",
+       "redirect_uri": "$IDPREDIRECTURI$",
+       "display": "popup",
+       "prompt": "login",
+       "acr_values": "mosip:idp:acr:generated-code",
+       "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+       "state": "eree2311",
+       "claim_locales": "en",
+       "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+       "client_assertion": "$CLIENT_ASSERTION_PAR_JWT$",
+       "aud_key": "pushed_authorization_request_endpoint"
+}'
+      output: '{
+            "error": "invalid_client_id"
+}'
+   ESignet_OauthParNegativeScenarios_Missing_redirect_uri_Neg:
+      endPoint: /v1/esignet/oauth/par
+      uniqueIdentifier: TC_ESignet_OauthParNegativeScenarios_07
+      description: Validate successful PAR request with missing redirect_uri paramenter
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/PAR/OauthParNegativeScenarios/OauthParNegativeScenarios
+      outputTemplate: esignet/error2
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "scope": "openid profile",
+       "response_type": "code",
+       "redirect_uri": "$REMOVE$",
+       "display": "popup",
+       "prompt": "login",
+       "acr_values": "mosip:idp:acr:generated-code",
+       "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+       "state": "eree2311",
+       "claim_locales": "en",
+       "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+       "client_assertion": "$CLIENT_ASSERTION_PAR_JWT$",
+       "aud_key": "pushed_authorization_request_endpoint"
+}'
+      output: '{
+            "error": "invalid_request"
+}'
+   ESignet_OauthParNegativeScenarios_unregistered_redirect_uri_Neg:
+      endPoint: /v1/esignet/oauth/par
+      uniqueIdentifier: TC_ESignet_OauthParNegativeScenarios_08
+      description: Validate successful PAR request with unregistered redirect_uri paramenter
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/PAR/OauthParNegativeScenarios/OauthParNegativeScenarios
+      outputTemplate: esignet/error2
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "scope": "openid profile",
+       "response_type": "code",
+       "redirect_uri": "$IDPREDIRECTURI1234$",
+       "display": "popup",
+       "prompt": "login",
+       "acr_values": "mosip:idp:acr:generated-code",
+       "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+       "state": "eree2311",
+       "claim_locales": "en",
+       "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+       "client_assertion": "$CLIENT_ASSERTION_PAR_JWT$",
+       "aud_key": "pushed_authorization_request_endpoint"
+}'
+      output: '{
+            "error": "invalid_request"
+}'
+   ESignet_OauthParNegativeScenarios_invalid_display_Neg:
+      endPoint: /v1/esignet/oauth/par
+      uniqueIdentifier: TC_ESignet_OauthParNegativeScenarios_09
+      description: Validate successful PAR request with unregistered redirect_uri paramenter
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/PAR/OauthParNegativeScenarios/OauthParNegativeScenarios
+      outputTemplate: esignet/error2
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "scope": "openid profile",
+       "response_type": "code",
+       "redirect_uri": "$IDPREDIRECTURI$",
+       "display": "*",
+       "prompt": "login",
+       "acr_values": "mosip:idp:acr:generated-code",
+       "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+       "state": "eree2311",
+       "claim_locales": "en",
+       "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+       "client_assertion": "$CLIENT_ASSERTION_PAR_JWT$",
+       "aud_key": "pushed_authorization_request_endpoint"
+}'
+      output: '{
+            "error": "invalid_request"
+}'
+   ESignet_OauthParNegativeScenarios_invalid_prompt_Neg:
+      endPoint: /v1/esignet/oauth/par
+      uniqueIdentifier: TC_ESignet_OauthParNegativeScenarios_10
+      description: Validate successful PAR request with unregistered redirect_uri paramenter
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/PAR/OauthParNegativeScenarios/OauthParNegativeScenarios
+      outputTemplate: esignet/error2
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "scope": "openid profile",
+       "response_type": "code",
+       "redirect_uri": "$IDPREDIRECTURI$",
+       "display": "popup",
+       "prompt": "login1234567",
+       "acr_values": "mosip:idp:acr:generated-code",
+       "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+       "state": "eree2311",
+       "claim_locales": "en",
+       "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+       "client_assertion": "$CLIENT_ASSERTION_PAR_JWT$",
+       "aud_key": "pushed_authorization_request_endpoint"
+}'
+      output: '{
+            "error": "invalid_request"
+}'
+   ESignet_OauthParNegativeScenarios_invalid_claim_locales_Neg:
+      endPoint: /v1/esignet/oauth/par
+      uniqueIdentifier: TC_ESignet_OauthParNegativeScenarios_11
+      description: Validate successful PAR request with unregistered redirect_uri paramenter
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/PAR/OauthParNegativeScenarios/OauthParNegativeScenarios
+      outputTemplate: esignet/PAR/OauthPar/OauthParResult
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "scope": "openid profile",
+       "response_type": "code",
+       "redirect_uri": "$IDPREDIRECTURI$",
+       "display": "popup",
+       "prompt": "login",
+       "acr_values": "mosip:idp:acr:generated-code",
+       "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+       "state": "eree2311",
+       "claim_locales": "en1234",
+       "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+       "client_assertion": "$CLIENT_ASSERTION_PAR_JWT$",
+       "aud_key": "pushed_authorization_request_endpoint"
+}'
+      output: '{
+}'
+   ESignet_OauthParNegativeScenarios_invalid_client_assertion_Neg:
+      endPoint: /v1/esignet/oauth/par
+      uniqueIdentifier: TC_ESignet_OauthParNegativeScenarios_12
+      description: Validate successful PAR request with invalid client assertion
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/PAR/OauthParNegativeScenarios/OauthParNegativeScenarios
+      outputTemplate: esignet/error2
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "scope": "openid profile",
+       "response_type": "code",
+       "redirect_uri": "$IDPREDIRECTURI$",
+       "display": "popup",
+       "prompt": "login",
+       "acr_values": "mosip:idp:acr:generated-code",
+       "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+       "state": "eree2311",
+       "claim_locales": "en",
+       "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+       "client_assertion": "$CLIENT_ASSERTION_PAR_JWT12345$",
+       "aud_key": "pushed_authorization_request_endpoint"
+}'
+      output: '{
+            "error": "invalid_request"
+}'
+   ESignet_OauthParNegativeScenarios_invalid_client_assertion_Type_Neg:
+      endPoint: /v1/esignet/oauth/par
+      uniqueIdentifier: TC_ESignet_OauthParNegativeScenarios_13
+      description: Validate successful PAR request with invalid client assertion type
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/PAR/OauthParNegativeScenarios/OauthParNegativeScenarios
+      outputTemplate: esignet/error2
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "scope": "openid profile",
+       "response_type": "code",
+       "redirect_uri": "$IDPREDIRECTURI$",
+       "display": "popup",
+       "prompt": "login",
+       "acr_values": "mosip:idp:acr:generated-code",
+       "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+       "state": "eree2311",
+       "claim_locales": "en",
+       "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bea",
+       "client_assertion": "$CLIENT_ASSERTION_PAR_JWT$",
+       "aud_key": "pushed_authorization_request_endpoint"
+}'
+      output: '{
+            "error": "invalid_client"
+}'
+   ESignet_OauthParNegativeScenarios_missing_Client_assertion_Neg:
+      endPoint: /v1/esignet/oauth/par
+      uniqueIdentifier: TC_ESignet_OauthParNegativeScenarios_14
+      description: Validate successful PAR request with Missing client assertion
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/PAR/OauthParNegativeScenarios/OauthParNegativeScenarios
+      outputTemplate: esignet/error2
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "scope": "openid profile",
+       "response_type": "code",
+       "redirect_uri": "$IDPREDIRECTURI$",
+       "display": "popup",
+       "prompt": "login",
+       "acr_values": "mosip:idp:acr:generated-code",
+       "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+       "state": "eree2311",
+       "claim_locales": "en",
+       "client_assertion_type": "$REMOVE$",
+       "client_assertion": "$CLIENT_ASSERTION_PAR_JWT$",
+       "aud_key": "pushed_authorization_request_endpoint"
+}'
+      output: '{
+            "error": "invalid_client"
+}'
+   ESignet_OauthParNegativeScenarios_malformed_Client_assertion_Neg:
+      endPoint: /v1/esignet/oauth/par
+      uniqueIdentifier: TC_ESignet_OauthParNegativeScenarios_15
+      description: Validate successful PAR request with malformed client assertion
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/PAR/OauthParNegativeScenarios/OauthParNegativeScenarios
+      outputTemplate: esignet/error2
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "scope": "openid profile",
+       "response_type": "code",
+       "redirect_uri": "$IDPREDIRECTURI$",
+       "display": "popup",
+       "prompt": "login",
+       "acr_values": "mosip:idp:acr:generated-code",
+       "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+       "state": "eree2311",
+       "claim_locales": "en",
+       "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+       "client_assertion": "*",
+       "aud_key": "pushed_authorization_request_endpoint"
+}'
+      output: '{
+            "error": "invalid_request"
+}'
+   ESignet_OauthParNegativeScenarios_without_RequestTime_Neg:
+      endPoint: /v1/esignet/oauth/par
+      uniqueIdentifier: TC_ESignet_OauthParNegativeScenarios_16
+      description: Validate successful PAR request without requestTime
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/PAR/OauthParNegativeScenarios/OauthParNegativeScenarios
+      outputTemplate: esignet/PAR/OauthPar/OauthParResult
+      input: '{
+       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "scope": "openid profile",
+       "response_type": "code",
+       "redirect_uri": "$IDPREDIRECTURI$",
+       "display": "popup",
+       "prompt": "login",
+       "acr_values": "mosip:idp:acr:generated-code",
+       "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+       "state": "eree2311",
+       "claim_locales": "en",
+       "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+       "client_assertion": "$CLIENT_ASSERTION_PAR_JWT$",
+       "aud_key": "pushed_authorization_request_endpoint"
+}'
+      output: '{
+}'

@@ -26,3 +26,138 @@ OauthPar:
 }'
       output: '{
 }'
+   ESignet_OauthPar_Empty_State:
+      endPoint: /v1/esignet/oauth/par
+      uniqueIdentifier: TC_ESignet_OauthPar_02
+      description: Validate successful PAR request with missing state
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/PAR/OauthPar/OauthPar
+      outputTemplate: esignet/PAR/OauthPar/OauthParResult
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "scope": "openid profile",
+       "response_type": "code",
+       "redirect_uri": "$IDPREDIRECTURI$",
+       "display": "popup",
+       "prompt": "login",
+       "acr_values": "mosip:idp:acr:generated-code",
+       "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+       "state": "$REMOVE$",
+       "claim_locales": "en",
+       "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+       "client_assertion": "$CLIENT_ASSERTION_PAR_JWT$",
+       "aud_key": "pushed_authorization_request_endpoint"
+}'
+      output: '{
+}'
+   ESignet_OauthPar_Missing_nonce:
+      endPoint: /v1/esignet/oauth/par
+      uniqueIdentifier: TC_ESignet_OauthPar_03
+      description: Validate successful PAR request with missing nonce state
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/PAR/OauthPar/OauthPar
+      outputTemplate: esignet/PAR/OauthPar/OauthParResult
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "scope": "openid profile",
+       "response_type": "code",
+       "redirect_uri": "$IDPREDIRECTURI$",
+       "display": "popup",
+       "prompt": "login",
+       "acr_values": "mosip:idp:acr:generated-code",
+       "nonce": "$REMOVE$",
+       "state": "eree2311",
+       "claim_locales": "en",
+       "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+       "client_assertion": "$CLIENT_ASSERTION_PAR_JWT$",
+       "aud_key": "pushed_authorization_request_endpoint"
+}'
+      output: '{
+}'
+   ESignet_OauthPar_Valid_ASCII_value:
+      endPoint: /v1/esignet/oauth/par
+      uniqueIdentifier: TC_ESignet_OauthPar_04
+      description: Validate successful PAR request with valid ASCII value
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/PAR/OauthPar/OauthPar
+      outputTemplate: esignet/PAR/OauthPar/OauthParResult
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "scope": "openid profile",
+       "response_type": "code",
+       "redirect_uri": "$IDPREDIRECTURI$",
+       "display": "page",
+       "prompt": "login",
+       "acr_values": "mosip:idp:acr:generated-code",
+       "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+       "state": "eree2311",
+       "claim_locales": "en",
+       "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+       "client_assertion": "$CLIENT_ASSERTION_PAR_JWT$",
+       "aud_key": "pushed_authorization_request_endpoint"
+}'
+      output: '{
+}'
+   ESignet_OauthPar_unkown_acr_values:
+      endPoint: /v1/esignet/oauth/par
+      uniqueIdentifier: TC_ESignet_OauthPar_05
+      description: Validate successful PAR request with valid ASCII value
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/PAR/OauthPar/OauthPar
+      outputTemplate: esignet/PAR/OauthPar/OauthParResult
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "scope": "openid profile",
+       "response_type": "code",
+       "redirect_uri": "$IDPREDIRECTURI$",
+       "display": "page",
+       "prompt": "login",
+       "acr_values": "urn:mace:incommon:iap:password",
+       "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+       "state": "eree2311",
+       "claim_locales": "en",
+       "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+       "client_assertion": "$CLIENT_ASSERTION_PAR_JWT$",
+       "aud_key": "pushed_authorization_request_endpoint"
+}'
+      output: '{
+}'
+   ESignet_OauthPar_valid_JWT_values:
+      endPoint: /v1/esignet/oauth/par
+      uniqueIdentifier: TC_ESignet_OauthPar_06
+      description: Validate successful PAR request with valid JWT value
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/PAR/OauthPar/OauthPar
+      outputTemplate: esignet/PAR/OauthPar/OauthParResult
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "scope": "openid profile",
+       "response_type": "code",
+       "redirect_uri": "$IDPREDIRECTURI$",
+       "display": "page",
+       "prompt": "login",
+       "acr_values": "urn:mace:incommon:iap:password",
+       "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+       "state": "eree2311",
+       "claim_locales": "en",
+       "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+       "client_assertion": "$CLIENT_ASSERTION_PAR_JWT$",
+       "aud_key": "pushed_authorization_request_endpoint"
+}'
+      output: '{
+}'
