@@ -189,6 +189,10 @@ public class TokenServiceImpl implements TokenService {
             jwtProcessor.setJWSKeySelector(keySelector);
             jwtProcessor.setJWTClaimsSetVerifier(claimsSetVerifier);
             jwtProcessor.process(clientAssertion, null); //If invalid throws exception
+            String jti = signedJWT.getJWTClaimsSet().getJWTID();
+            if (jti == null || cacheUtilService.checkAndMarkJti(jti)) {
+                throw new EsignetException();
+            }
         } catch (Exception e) {
             log.error("Failed to verify client assertion", e);
             throw new InvalidRequestException(ErrorConstants.INVALID_CLIENT);
