@@ -258,4 +258,41 @@ public class DpopValidationFilterTest {
         assertEquals(200, response.getStatus());
     }
 
+    @Test
+    public void testUserinfoPath_withoutAuthorizationHeader_thenFail() throws Exception {
+        request.setRequestURI("/oidc/userinfo");
+        // No Authorization header added
+        request.setMethod("GET");
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        // Should not call filterChain.doFilter due to error
+        verify(filterChain, never()).doFilter(request, response);
+        assertEquals(401, response.getStatus());
+        String wwwAuthenticate = response.getHeader("WWW-Authenticate");
+        assertNotNull(wwwAuthenticate);
+        assertTrue(wwwAuthenticate.contains("error=\"invalid_token\""));
+    }
+
+    @Test
+    public void testUserinfoPath_withMultipleAuthorizationHeaders_thenFail() throws Exception {
+        String dpopJwt = createDpopJwtWithAllClaims("GET", "http://localhost/oidc/userinfo", accessToken, true);
+
+        request.setRequestURI("/oidc/userinfo");
+        request.addHeader("DPoP", dpopJwt);
+        // Add two Authorization headers
+        addAuthorizationHeader(request, accessToken);
+        addAuthorizationHeader(request, accessToken);
+        request.setMethod("GET");
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        // Should not call filterChain.doFilter due to error
+        verify(filterChain, never()).doFilter(request, response);
+        assertEquals(400, response.getStatus());
+        String wwwAuthenticate = response.getHeader("WWW-Authenticate");
+        assertNotNull(wwwAuthenticate);
+        assertTrue(wwwAuthenticate.contains("error=\"invalid_request\""));
+    }
+
 }
