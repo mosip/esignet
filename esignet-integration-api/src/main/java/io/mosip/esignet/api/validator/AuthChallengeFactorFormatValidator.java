@@ -54,15 +54,7 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
     private JsonNode fieldJson;
 
     @PostConstruct
-    public void init() {
-        try {
-            fieldJson = StringUtils.hasText(kbiFormDetailsUrl)
-                    ? kbiFormHelperService.fetchKBIFieldDetailsFromResource(kbiFormDetailsUrl)
-                    : kbiFormHelperService.migrateKBIFieldDetails(fieldDetailList);
-        } catch (Exception e) {
-            log.error("Error loading KBI form details: {}", kbiFormDetailsUrl, e);
-        }
-    }
+    public void init() {}
 
     @Override
     public boolean isValid(AuthChallenge authChallenge, ConstraintValidatorContext context) {
@@ -99,7 +91,7 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
             String decodedString = new String(decodedBytes, StandardCharsets.UTF_8);
             Map<String, String> challengeMap = objectMapper.readValue(decodedString, new TypeReference<>() {});
 
-            JsonNode schemaArray = fieldJson.path("schema");
+            JsonNode schemaArray = getFieldJson().path("schema");
             for (JsonNode fieldNode : schemaArray) {
                 String id = fieldNode.path("id").asText();
                 String controlType = fieldNode.path("controlType").asText("textbox");
@@ -143,6 +135,17 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
             log.error("Error validating challenge", e);
             return false;
         }
+    }
+
+    private JsonNode getFieldJson() {
+        try {
+            fieldJson = StringUtils.hasText(kbiFormDetailsUrl)
+                    ? kbiFormHelperService.fetchKBIFieldDetailsFromResource(kbiFormDetailsUrl)
+                    : kbiFormHelperService.migrateKBIFieldDetails(fieldDetailList);
+        } catch (Exception e) {
+            log.error("Error loading KBI form details: {}", kbiFormDetailsUrl, e);
+        }
+        return fieldJson;
     }
 
 }

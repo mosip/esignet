@@ -13,8 +13,12 @@ import io.mosip.esignet.api.exception.KBIFormException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.text.WordUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -27,22 +31,45 @@ import java.util.Map;
 @Component
 public class KBIFormHelperService {
 
+    private static final String KBI_SPEC = "kbi_spec";
     @Autowired
     private ResourceLoader resourceLoader;
 
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Value("${mosip.esignet.authenticator.default.auth-factor.kbi.field-details-url}")
+    private String kbiFormDetailsUrl;
+
     /**
      * Reads and parses the JSON schema from a given resource URL.
      */
-    public JsonNode fetchKBIFieldDetailsFromResource(String url) throws KBIFormException {
+    private JsonNode loadSpecFromResource(String url) throws KBIFormException {
         try (InputStream inputStream = getResource(url)) {
             return objectMapper.readTree(inputStream);
         } catch (IOException e) {
             log.error("Error parsing the KBI form details: {}", e.getMessage(), e);
             throw new KBIFormException(ErrorConstants.KBI_SPEC_NOT_FOUND);
         }
+    }
+
+    /**
+     * Fetches KBI spec from cache or loads from resource if not cached.
+     */
+    @Cacheable(value = KBI_SPEC, key = "'latest_kbi_spec'")
+    public JsonNode fetchKBIFieldDetailsFromResource(String url) throws KBIFormException {
+        return loadSpecFromResource(url);
+    }
+
+    /**
+     * Scheduled method to refresh KBI spec in cache.
+     */
+    @Scheduled(fixedRateString = "${mosip.esignet.kbispec.ttl.seconds}000")
+    @CachePut(value = KBI_SPEC, key = "'latest_kbi_spec'")
+    public JsonNode refreshKbiSpecCache() throws KBIFormException {
+        JsonNode spec = loadSpecFromResource(kbiFormDetailsUrl);
+        log.debug("KBI spec refreshed and cached.");
+        return spec;
     }
 
     /**
