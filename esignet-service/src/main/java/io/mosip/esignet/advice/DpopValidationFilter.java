@@ -24,6 +24,7 @@ import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.exception.DpopNotAuthenticatedException;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidDpopHeaderException;
+import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.exception.NotAuthenticatedException;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.services.CacheUtilService;
@@ -108,6 +109,10 @@ public class DpopValidationFilter extends OncePerRequestFilter {
         }
 
         try {
+            if (OAUTH_ENDPOINT.USERINFO.equals(endpoint) && Collections.list(request.getHeaders(AUTH_HEADER)).size() > 1) {
+                throw new InvalidRequestException(ErrorConstants.INVALID_REQUEST);
+            }
+
             Optional<String> dpopHeader = getDpopHeader(request);
             dpopHeader.ifPresentOrElse(
                     header -> validateDpopFlow(request, header, endpoint),
@@ -127,6 +132,9 @@ public class DpopValidationFilter extends OncePerRequestFilter {
         } catch (NotAuthenticatedException ex) {
             response.setHeader("WWW-Authenticate", "error=\""+ErrorConstants.INVALID_AUTH_TOKEN+"\"");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        } catch (InvalidRequestException ex) {
+            response.setHeader("WWW-Authenticate", "error=\""+ErrorConstants.INVALID_REQUEST+"\"");
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         } catch (Exception ex) {
             log.error("Unexpected DPoP validation error", ex);
             setAuthErrorResponse(response, ErrorConstants.UNKNOWN_ERROR, ex.getMessage(), OAUTH_ENDPOINT.USERINFO.equals(endpoint));
@@ -214,7 +222,7 @@ public class DpopValidationFilter extends OncePerRequestFilter {
             }
             verifySignature(jwt, jwk);
             return jwt;
-        } catch (ParseException e) {
+        } catch (ParseException | IllegalArgumentException e) {
             log.error("Failed to parse DPoP JWT", e);
             throw new InvalidDpopHeaderException();
         }
