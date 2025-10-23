@@ -62,17 +62,6 @@ public class KBIFormHelperService {
     }
 
     /**
-     * Scheduled method to refresh KBI spec in cache.
-     */
-    @Scheduled(fixedRateString = "${mosip.esignet.kbispec.ttl.seconds}000")
-    @CachePut(value = KBI_SPEC, key = "'latest_kbi_spec'")
-    public JsonNode refreshKbiSpecCache() throws KBIFormException {
-        JsonNode spec = loadSpecFromResource(kbiFormDetailsUrl);
-        log.debug("KBI spec refreshed and cached.");
-        return spec;
-    }
-
-    /**
      * Loads the input stream of a given resource.
      */
     private InputStream getResource(String url) throws KBIFormException {
