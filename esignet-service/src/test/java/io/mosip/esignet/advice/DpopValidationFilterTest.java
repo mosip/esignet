@@ -5,6 +5,7 @@ import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.ECDSASigner;
 import com.nimbusds.jose.jwk.*;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
+import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.*;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
@@ -196,6 +197,38 @@ public class DpopValidationFilterTest {
         addAuthorizationHeader(request, accessToken);
         request.setMethod("GET");
 
+        filter.doFilterInternal(request, response, filterChain);
+
+        assertEquals(400, response.getStatus());
+        assertTrue(response.getHeader("WWW-Authenticate").contains(ErrorConstants.INVALID_DPOP_PROOF));
+        verify(filterChain, never()).doFilter(any(), any());
+    }
+
+    @Test
+    public void testDpopHeader_withEmptyJwk_thenFail() throws Exception {
+        String headerJson = "{"
+                + "\"alg\":\"ES256\","
+                + "\"typ\":\"dpop+jwt\","
+                + "\"jwk\":{}"
+                + "}";
+        JWTClaimsSet claims = new JWTClaimsSet.Builder()
+                .jwtID(UUID.randomUUID().toString())
+                .claim("htm", "GET")
+                .claim("htu", "http://localhost/oidc/userinfo")
+                .issueTime(Date.from(Instant.now()))
+                .build();
+
+        String claimsJson = claims.toJSONObject().toJSONString();
+
+        String encodedHeader = Base64URL.encode(headerJson).toString();
+        String encodedClaims = Base64URL.encode(claimsJson).toString();
+        String encodedSignature = Base64URL.encode("invalid-signature").toString();
+        String dpopJwt = encodedHeader + "." + encodedClaims + "." + encodedSignature;
+
+        request.setRequestURI("/oidc/userinfo");
+        request.addHeader("DPoP", dpopJwt);
+        addAuthorizationHeader(request, accessToken);
+        request.setMethod("GET");
         filter.doFilterInternal(request, response, filterChain);
 
         assertEquals(400, response.getStatus());
