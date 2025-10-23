@@ -95,7 +95,7 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
 
     private boolean validateChallenge(String challenge) {
         try {
-            byte[] decodedBytes = Base64.getDecoder().decode(challenge);
+            byte[] decodedBytes = Base64.getUrlDecoder().decode(challenge);
             String decodedString = new String(decodedBytes, StandardCharsets.UTF_8);
             Map<String, String> challengeMap = objectMapper.readValue(decodedString, new TypeReference<>() {});
 
@@ -103,12 +103,18 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
             for (JsonNode fieldNode : schemaArray) {
                 String id = fieldNode.path("id").asText();
                 String controlType = fieldNode.path("controlType").asText("textbox");
+                boolean isRequired = fieldNode.path("required").asBoolean(false);
 
                 if (("textbox".equalsIgnoreCase(controlType) || "date".equalsIgnoreCase(controlType)) && !id.equals(idField)) {
                     String value = challengeMap.get(id);
 
                     if (!StringUtils.hasText(value)) {
                         log.warn("Validation failed: Missing or empty value for field '{}'", id);
+                        return false;
+                    }
+
+                    if (isRequired && !StringUtils.hasText(value)) {
+                        log.warn("Validation failed: Required field '{}' is missing or empty", id);
                         return false;
                     }
 

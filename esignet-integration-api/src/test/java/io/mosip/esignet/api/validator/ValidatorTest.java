@@ -19,6 +19,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.validation.ConstraintValidatorContext;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import static org.junit.Assert.assertFalse;
@@ -253,6 +255,35 @@ public class ValidatorTest {
         Mockito.when(environment.getProperty("mosip.esignet.auth-challenge.KBI.format", String.class)).thenReturn("base64url-encoded-json");
         Mockito.when(environment.getProperty("mosip.esignet.auth-challenge.KBI.min-length", Integer.TYPE, 50)).thenReturn(30);
         Mockito.when(environment.getProperty("mosip.esignet.auth-challenge.KBI.max-length", Integer.TYPE, 50)).thenReturn(200);
+        boolean isValid = authChallengeFactorFormatValidator.isValid(authChallenge, constraintValidatorContext);
+        assertFalse(isValid);
+    }
+
+    @Test
+    public void authChallengeFactorFormatValidator_withMissingRequiredField_thenFail() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ReflectionTestUtils.setField(authChallengeFactorFormatValidator, "objectMapper", objectMapper);
+        ReflectionTestUtils.setField(authChallengeFactorFormatValidator, "idField", "individualId");
+
+        List<Map<String, String>> fieldDetailList = List.of(
+                Map.of("id", "individualId", "type", "text", "format", "string", "regex", "^\\d+$", "required", "true"),
+                Map.of("id", "fullName", "type", "text", "format", "", "regex", "^[\\p{L} .'-]+$", "required", "true"),
+                Map.of("id", "dob", "type", "text", "format", "yyyy-MM-dd", "regex", "^(\\d{4})-(\\d{2})-(\\d{2})$", "required", "true")
+        );
+
+        ReflectionTestUtils.setField(authChallengeFactorFormatValidator, "fieldDetailList", fieldDetailList);
+
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setAuthFactorType("KBI");
+        authChallenge.setFormat("base64url-encoded-json");
+        String challengeJson = "{\"dob\":\"2000-07-26\"}";
+        String encodedChallenge = Base64.getUrlEncoder().encodeToString(challengeJson.getBytes(StandardCharsets.UTF_8));
+        authChallenge.setChallenge(encodedChallenge);
+
+        Mockito.when(environment.getProperty("mosip.esignet.auth-challenge.KBI.format", String.class)).thenReturn("base64url-encoded-json");
+        Mockito.when(environment.getProperty("mosip.esignet.auth-challenge.KBI.min-length", Integer.TYPE, 50)).thenReturn(30);
+        Mockito.when(environment.getProperty("mosip.esignet.auth-challenge.KBI.max-length", Integer.TYPE, 50)).thenReturn(200);
+
         boolean isValid = authChallengeFactorFormatValidator.isValid(authChallenge, constraintValidatorContext);
         assertFalse(isValid);
     }
