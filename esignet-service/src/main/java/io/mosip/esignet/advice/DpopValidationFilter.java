@@ -222,7 +222,7 @@ public class DpopValidationFilter extends OncePerRequestFilter {
             }
             verifySignature(jwt, jwk);
             return jwt;
-        } catch (ParseException e) {
+        } catch (ParseException | IllegalArgumentException e) {
             log.error("Failed to parse DPoP JWT", e);
             throw new InvalidDpopHeaderException();
         }
