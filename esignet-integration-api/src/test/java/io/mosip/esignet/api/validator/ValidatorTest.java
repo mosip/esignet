@@ -177,7 +177,6 @@ public class ValidatorTest {
         authChallenge.setFormat("base64url-encoded-json");
         authChallenge.setChallenge("eyJmdWxsTmFtZSI6IkthaWYgU2lkZGlxdWUiLCJkYXRlT2ZCaXJ0aCI6IjIwMDAtMDctMjYifQ");
 
-        authChallengeFactorFormatValidator.init();
         boolean isValid = authChallengeFactorFormatValidator.isValid(authChallenge, constraintValidatorContext);
 
         assertTrue(isValid);
@@ -323,7 +322,6 @@ public class ValidatorTest {
         authChallenge.setFormat("base64url-encoded-json");
         authChallenge.setChallenge("eyJpbmRpdmlkdWFsSWQiOiIrOTExMjMxMjMxMjMiLCJmdWxsTmFtZSI6InNhaSJ9");
 
-        authChallengeFactorFormatValidator.init();
         boolean isValid = authChallengeFactorFormatValidator.isValid(authChallenge, constraintValidatorContext);
 
         assertTrue(isValid);

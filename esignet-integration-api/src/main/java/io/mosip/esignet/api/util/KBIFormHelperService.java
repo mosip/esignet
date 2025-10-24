@@ -13,6 +13,8 @@ import io.mosip.esignet.api.exception.KBIFormException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.text.WordUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
@@ -27,15 +29,21 @@ import java.util.Map;
 @Component
 public class KBIFormHelperService {
 
+    private static final String KBI_SPEC = "kbi_spec";
+
     @Autowired
     private ResourceLoader resourceLoader;
 
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Value("${mosip.esignet.authenticator.default.auth-factor.kbi.field-details-url}")
+    private String kbiFormDetailsUrl;
+
     /**
-     * Reads and parses the JSON schema from a given resource URL.
+     * Fetches KBI spec from cache or loads from resource if not cached.
      */
+    @Cacheable(value = KBI_SPEC, key = "'latest_kbi_spec'")
     public JsonNode fetchKBIFieldDetailsFromResource(String url) throws KBIFormException {
         try (InputStream inputStream = getResource(url)) {
             return objectMapper.readTree(inputStream);

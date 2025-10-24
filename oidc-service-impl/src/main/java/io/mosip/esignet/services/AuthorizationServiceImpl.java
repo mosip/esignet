@@ -125,22 +125,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Autowired
     private KBIFormHelperService kbiFormHelperService;
 
-    @PostConstruct
-    public void init() {
-        try {
-            JsonNode fieldDetailsJson = StringUtils.hasText(kbiFormDetailsUrl)
-                    ? kbiFormHelperService.fetchKBIFieldDetailsFromResource(kbiFormDetailsUrl)
-                    : null;
-
-            uiConfigMap.put(KBI_FIELD_DETAILS_CONFIG_KEY,
-                    fieldDetailsJson != null ? fieldDetailsJson : kbiFormHelperService.migrateKBIFieldDetails(fieldDetailList));
-
-        } catch (Exception e) {
-            log.error("Error loading form details from URL: {}", kbiFormDetailsUrl, e);
-        }
-    }
-
-
     @Override
     public OAuthDetailResponseV1 getOauthDetails(OAuthDetailRequest oauthDetailReqDto) throws EsignetException {
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(oauthDetailReqDto.getClientId());
@@ -455,7 +439,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oAuthDetailResponse.setEssentialClaims(claimsMap.get(ESSENTIAL));
         oAuthDetailResponse.setVoluntaryClaims(claimsMap.get(VOLUNTARY));
         oAuthDetailResponse.setAuthorizeScopes(authorizationHelperService.getAuthorizeScopes(oauthDetailReqDto.getScope()));
-        Map<String, Object> config = new HashMap<>(uiConfigMap);
+        Map<String, Object> config = new HashMap<>(getUIConfig());
         try {
             config.put("clientAdditionalConfig", objectMapper.treeToValue(clientDetailDto.getAdditionalConfig(), Object.class));
         } catch (JsonProcessingException e) {
@@ -491,6 +475,17 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oidcTransaction.setDpopJkt(oauthDetailReqDto.getDpopJkt());
         oidcTransaction.setDpopBoundAccessToken(clientDetailDto.getAdditionalConfig(Constants.DPOP_BOUND_ACCESS_TOKENS, false));
         return Pair.of(oAuthDetailResponse, oidcTransaction);
+    }
+
+    private HashMap<String, Object> getUIConfig() {
+        try {
+            uiConfigMap.put(KBI_FIELD_DETAILS_CONFIG_KEY,StringUtils.hasText(kbiFormDetailsUrl)
+                    ? kbiFormHelperService.fetchKBIFieldDetailsFromResource(kbiFormDetailsUrl)
+                    : kbiFormHelperService.migrateKBIFieldDetails(fieldDetailList));
+        } catch (Exception e) {
+            log.error("Error loading form details from URL: {}", kbiFormDetailsUrl, e);
+        }
+        return uiConfigMap;
     }
 
     private OAuthDetailResponseV2 buildTransactionAndOAuthDetailResponse(OAuthDetailRequestV2 oauthDetailReqDto,
