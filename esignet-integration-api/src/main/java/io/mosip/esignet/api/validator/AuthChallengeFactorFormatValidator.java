@@ -108,11 +108,6 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
                 if (("textbox".equalsIgnoreCase(controlType) || "date".equalsIgnoreCase(controlType)) && !id.equals(idField)) {
                     String value = challengeMap.get(id);
 
-                    if (!StringUtils.hasText(value)) {
-                        log.warn("Validation failed: Missing or empty value for field '{}'", id);
-                        return false;
-                    }
-
                     if (isRequired && !StringUtils.hasText(value)) {
                         log.warn("Validation failed: Required field '{}' is missing or empty", id);
                         return false;
