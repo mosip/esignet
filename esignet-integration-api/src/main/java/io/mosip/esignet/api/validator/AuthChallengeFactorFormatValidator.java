@@ -53,9 +53,6 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
 
     private JsonNode fieldJson;
 
-    @PostConstruct
-    public void init() {}
-
     @Override
     public boolean isValid(AuthChallenge authChallenge, ConstraintValidatorContext context) {
     	String authFactor = authChallenge.getAuthFactorType();

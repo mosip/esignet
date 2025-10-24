@@ -125,10 +125,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Autowired
     private KBIFormHelperService kbiFormHelperService;
 
-    @PostConstruct
-    public void init() {}
-
-
     @Override
     public OAuthDetailResponseV1 getOauthDetails(OAuthDetailRequest oauthDetailReqDto) throws EsignetException {
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(oauthDetailReqDto.getClientId());
@@ -483,13 +479,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     private HashMap<String, Object> getUIConfig() {
         try {
-            JsonNode fieldDetailsJson = StringUtils.hasText(kbiFormDetailsUrl)
+            uiConfigMap.put(KBI_FIELD_DETAILS_CONFIG_KEY,StringUtils.hasText(kbiFormDetailsUrl)
                     ? kbiFormHelperService.fetchKBIFieldDetailsFromResource(kbiFormDetailsUrl)
-                    : null;
-
-            uiConfigMap.put(KBI_FIELD_DETAILS_CONFIG_KEY,
-                    fieldDetailsJson != null ? fieldDetailsJson : kbiFormHelperService.migrateKBIFieldDetails(fieldDetailList));
-
+                    : kbiFormHelperService.migrateKBIFieldDetails(fieldDetailList));
         } catch (Exception e) {
             log.error("Error loading form details from URL: {}", kbiFormDetailsUrl, e);
         }

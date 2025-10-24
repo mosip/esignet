@@ -2054,61 +2054,6 @@ public class AuthorizationServiceTest {
         }
     }
 
-    @Test
-    public void init_withEmptyJson_fallbackToMigrate_thenPass() throws KBIFormException {
-        ReflectionTestUtils.setField(authorizationServiceImpl, "kbiFormDetailsUrl", "classpath:/test/kbi-field-empty.json");
-
-        List<Map<String, String>> fallbackFields = List.of(
-                Map.of("id", "test", "type", "text", "regex", ".*")
-        );
-        ReflectionTestUtils.setField(authorizationServiceImpl, "fieldDetailList", fallbackFields);
-
-        // Simulate fetch returning null and fallback succeeding
-        when(kbiFormHelperService.fetchKBIFieldDetailsFromResource(anyString())).thenReturn(null);
-        JsonNode fallbackJson = new ObjectMapper().createObjectNode().put("dummy", "value");
-        when(kbiFormHelperService.migrateKBIFieldDetails(fallbackFields)).thenReturn(fallbackJson);
-
-        authorizationServiceImpl.init();
-
-        Map<String, Object> uiConfig = (Map<String, Object>) ReflectionTestUtils.getField(authorizationServiceImpl, "uiConfigMap");
-        Assert.assertNotNull(uiConfig.get(CONFIG_KEY));
-    }
-
-    @Test
-    public void init_withNullUrl_fallbackToMigrate_thenPass() throws KBIFormException {
-        ReflectionTestUtils.setField(authorizationServiceImpl, "kbiFormDetailsUrl", "");
-
-        List<Map<String, String>> fallbackFields = List.of(
-                Map.of("id", "fallback", "type", "text", "regex", ".*")
-        );
-        ReflectionTestUtils.setField(authorizationServiceImpl, "fieldDetailList", fallbackFields);
-
-        JsonNode fallbackJson = new ObjectMapper().createObjectNode().put("dummy", "fallback");
-        when(kbiFormHelperService.migrateKBIFieldDetails(fallbackFields)).thenReturn(fallbackJson);
-
-        authorizationServiceImpl.init();
-
-        Map<String, Object> uiConfig = (Map<String, Object>) ReflectionTestUtils.getField(authorizationServiceImpl, "uiConfigMap");
-        Assert.assertNotNull(uiConfig.get(CONFIG_KEY));
-    }
-
-    @Test
-    public void init_withException_fallbackToMigrate_thenPass() throws KBIFormException {
-        ReflectionTestUtils.setField(authorizationServiceImpl, "kbiFormDetailsUrl", null);
-
-        List<Map<String, String>> fallbackFields = List.of(
-                Map.of("id", "broken", "type", "text", "regex", ".*")
-        );
-        ReflectionTestUtils.setField(authorizationServiceImpl, "fieldDetailList", fallbackFields);
-        JsonNode fallbackJson = new ObjectMapper().createObjectNode().put("fallback", "true");
-        when(kbiFormHelperService.migrateKBIFieldDetails(fallbackFields)).thenReturn(fallbackJson);
-
-        authorizationServiceImpl.init();
-
-        Map<String, Object> uiConfig = (Map<String, Object>) ReflectionTestUtils.getField(authorizationServiceImpl, "uiConfigMap");
-        Assert.assertNotNull(uiConfig.get(CONFIG_KEY));
-    }
-
     private OIDCTransaction createIdpTransaction(String[] acrs) {
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         Map<String, Map<String, Object>> idClaims = new HashMap<>();

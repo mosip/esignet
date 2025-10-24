@@ -11,11 +11,9 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableAsync
 @EnableCaching
-@EnableScheduling
 @SpringBootApplication(scanBasePackages = "io.mosip.esignet," +
 		"io.mosip.kernel.crypto," +
 		"io.mosip.kernel.keymanager.hsm," +
