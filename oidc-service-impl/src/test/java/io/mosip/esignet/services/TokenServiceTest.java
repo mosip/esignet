@@ -61,6 +61,7 @@ public class TokenServiceTest {
     public void setup() {
         Map<String, Object> mockDiscoveryMap = new HashMap<>();
         mockDiscoveryMap.put("token_endpoint_auth_signing_alg_values_supported", Arrays.asList("RS256", "PS256","ES256"));
+        mockDiscoveryMap.put("issuer","client-id");
         ReflectionTestUtils.setField(tokenService, "signatureService", getSignatureService());
         ReflectionTestUtils.setField(tokenService, "objectMapper", new ObjectMapper());
         ReflectionTestUtils.setField(tokenService, "issuerId", "test-issuer");
@@ -204,7 +205,7 @@ public class TokenServiceTest {
                 .subject("client-id")
                 .audience("audience")
                 .issueTime(new Date(System.currentTimeMillis()))
-                .expirationTime(new Date(System.currentTimeMillis() - 3000))
+                .expirationTime(new Date(System.currentTimeMillis() + 3000))
                 .issuer("client-id")
                 .jwtID(IdentityProviderUtil.createTransactionId(null))
                 .build();
