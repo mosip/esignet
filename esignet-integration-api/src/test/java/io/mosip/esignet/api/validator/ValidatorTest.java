@@ -322,7 +322,6 @@ public class ValidatorTest {
         authChallenge.setFormat("base64url-encoded-json");
         authChallenge.setChallenge("eyJpbmRpdmlkdWFsSWQiOiIrOTExMjMxMjMxMjMiLCJmdWxsTmFtZSI6InNhaSJ9");
 
-        authChallengeFactorFormatValidator.init();
         boolean isValid = authChallengeFactorFormatValidator.isValid(authChallenge, constraintValidatorContext);
 
         assertTrue(isValid);
