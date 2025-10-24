@@ -194,6 +194,7 @@ public class TokenServiceImpl implements TokenService {
             jwtProcessor.process(clientAssertion, null); //If invalid throws exception
             String jti = signedJWT.getJWTClaimsSet().getJWTID();
             if (uniqueJtiRequired && (jti == null || cacheUtilService.checkAndMarkJti(jti))) {
+                log.error("invalid jti {}", jti);
                 throw new EsignetException();
             }
         } catch (Exception e) {
