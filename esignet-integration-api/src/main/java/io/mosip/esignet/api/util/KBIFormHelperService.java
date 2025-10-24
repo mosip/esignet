@@ -102,6 +102,7 @@ public class KBIFormHelperService {
                 fieldNode.put("id", fieldId);
                 fieldNode.put("controlType", "date".equalsIgnoreCase(type) ? "date" : "textbox");
                 fieldNode.set("label", objectMapper.createObjectNode().put("eng", WordUtils.capitalizeFully(fieldId, '_', '-', '.')));
+                fieldNode.put("required", true);
 
                 ArrayNode validators = objectMapper.createArrayNode();
                 if (regex != null && !regex.isEmpty()) {
