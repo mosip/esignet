@@ -8,15 +8,15 @@ package io.mosip.esignet.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.mosip.esignet.api.dto.AuthChallenge;
+import io.mosip.esignet.api.dto.KycAuthResult;
 import io.mosip.esignet.api.dto.SendOtpDto;
 import io.mosip.esignet.api.dto.SendOtpResult;
 import io.mosip.esignet.api.dto.claim.ClaimDetail;
 import io.mosip.esignet.api.dto.claim.Claims;
-import io.mosip.esignet.api.dto.KycAuthResult;
 import io.mosip.esignet.api.dto.claim.ClaimsV2;
-import io.mosip.esignet.api.exception.KBIFormException;
 import io.mosip.esignet.api.exception.KycAuthException;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.spi.Authenticator;
@@ -24,6 +24,7 @@ import io.mosip.esignet.api.util.ConsentAction;
 import io.mosip.esignet.api.util.FilterCriteriaMatcher;
 import io.mosip.esignet.api.util.KBIFormHelperService;
 import io.mosip.esignet.core.constants.Constants;
+import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidClientException;
@@ -31,7 +32,6 @@ import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.spi.ClientManagementService;
 import io.mosip.esignet.core.spi.TokenService;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
-import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.util.CaptchaHelper;
 import org.junit.Assert;
 import org.junit.Before;
@@ -47,10 +47,10 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.*;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.*;
 
 import static io.mosip.esignet.core.constants.Constants.*;
 import static io.mosip.esignet.core.spi.TokenService.ACR;
@@ -140,6 +140,7 @@ public class AuthorizationServiceTest {
         ReflectionTestUtils.setField(authorizationServiceImpl, "authorizationHelperService", authorizationHelperService);
         ReflectionTestUtils.setField(authorizationServiceImpl,"captchaRequired",Arrays.asList("bio","pwd"));
         ReflectionTestUtils.setField(authorizationServiceImpl, "uiConfigMap", new HashMap<String, Object>());
+        ReflectionTestUtils.setField(authorizationServiceImpl, "kbiFormDetailsUrl", "http://mock-url.com/kbi");
 
         when(environment.getActiveProfiles()).thenReturn(new String[]{"test"});
     }
@@ -2118,5 +2119,85 @@ public class AuthorizationServiceTest {
         }
     }
 
+    @Test
+    public void getOauthDetails_fetchKBIFieldDetailsFromResource_withUIConfig_thenPass() throws Exception {
+        OAuthDetailRequest request = new OAuthDetailRequest();
+        request.setClientId("client123");
+        request.setRedirectUri("https://callback.com");
+        request.setAcrValues("mosip:idp:acr:biometrics mosip:idp:acr:generated-code");
 
+        ClientDetail clientDetail = getClientDetail();
+        ObjectNode mockJsonNode = JsonNodeFactory.instance.objectNode();
+        mockJsonNode.put("field1", "value1");
+
+        when(clientManagementService.getClientDetails("client123")).thenReturn(clientDetail);
+        when(authenticationContextClassRefUtil.getAuthFactors(any())).thenReturn(Collections.emptyList());
+        when(kbiFormHelperService.fetchKBIFieldDetailsFromResource("http://mock-url.com/kbi")).thenReturn(mockJsonNode);
+        OAuthDetailResponseV1 response = authorizationServiceImpl.getOauthDetails(request);
+
+        Assert.assertNotNull(response);
+        Assert.assertEquals("Test Client", response.getClientName());
+
+        verify(kbiFormHelperService).fetchKBIFieldDetailsFromResource("http://mock-url.com/kbi");
+        verify(kbiFormHelperService, never()).migrateKBIFieldDetails(any());
+    }
+
+    @Test
+    public void getOauthDetails_fetchKBIFieldDetailsFromResource_throwsException_thenFail() throws Exception {
+        OAuthDetailRequest request = new OAuthDetailRequest();
+        request.setClientId("client123");
+        request.setRedirectUri("https://callback.com");
+        request.setAcrValues("mosip:idp:acr:biometrics mosip:idp:acr:generated-code");
+
+        ClientDetail clientDetail = getClientDetail();
+
+        when(clientManagementService.getClientDetails("client123")).thenReturn(clientDetail);
+        when(authenticationContextClassRefUtil.getAuthFactors(any())).thenReturn(Collections.emptyList());
+        when(kbiFormHelperService.fetchKBIFieldDetailsFromResource("http://mock-url.com/kbi")).thenThrow
+                (new RuntimeException("Error loading form details from URL"));
+        OAuthDetailResponseV1 response = authorizationServiceImpl.getOauthDetails(request);
+
+        Assert.assertNotNull(response);
+        Assert.assertEquals("Test Client", response.getClientName());
+
+        verify(kbiFormHelperService).fetchKBIFieldDetailsFromResource("http://mock-url.com/kbi");
+        verify(kbiFormHelperService, never()).migrateKBIFieldDetails(any());
+    }
+
+    @Test
+    public void getOauthDetails_migrateKBIFieldDetails_withUIConfig_thenPass() throws Exception {
+        ReflectionTestUtils.setField(authorizationServiceImpl, "kbiFormDetailsUrl", null);
+        OAuthDetailRequest request = new OAuthDetailRequest();
+        request.setClientId("client123");
+        request.setRedirectUri("https://callback.com");
+        request.setAcrValues("mosip:idp:acr:biometrics mosip:idp:acr:generated-code");
+
+        ClientDetail clientDetail = getClientDetail();
+        ObjectNode mockJsonNode = JsonNodeFactory.instance.objectNode();
+        mockJsonNode.put("field1", "value1");
+
+        when(clientManagementService.getClientDetails("client123")).thenReturn(clientDetail);
+        when(authenticationContextClassRefUtil.getAuthFactors(any())).thenReturn(Collections.emptyList());
+        when(kbiFormHelperService.migrateKBIFieldDetails(any())).thenReturn(mockJsonNode);
+
+        OAuthDetailResponseV1 response = authorizationServiceImpl.getOauthDetails(request);
+
+        Assert.assertNotNull(response);
+        Assert.assertEquals("Test Client", response.getClientName());
+
+        verify(kbiFormHelperService, never()).fetchKBIFieldDetailsFromResource(any());
+        verify(kbiFormHelperService).migrateKBIFieldDetails(any());
+    }
+
+    private ClientDetail getClientDetail() {
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId("client123");
+        clientDetail.setRpId("rp123");
+        clientDetail.setLogoUri("https://logo.com/logo.png");
+        clientDetail.setRedirectUris(List.of("https://callback.com"));
+        clientDetail.setName(Map.of(Constants.NONE_LANG_KEY, "Test Client"));
+        clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:generated-code", "mosip:idp:acr:knowledge"));
+        clientDetail.setAdditionalConfig(new ObjectNode(JsonNodeFactory.instance));
+        return clientDetail;
+    }
 }
