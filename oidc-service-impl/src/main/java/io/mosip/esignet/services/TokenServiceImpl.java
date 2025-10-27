@@ -207,9 +207,12 @@ public class TokenServiceImpl implements TokenService {
                 new JwtClaimValidator<Instant>(JwtClaimNames.IAT, iat -> iat != null),
                 new JwtClaimValidator<Instant>(JwtClaimNames.EXP, exp -> exp != null),
                 new JwtClaimValidator<List<String>>(JwtClaimNames.AUD, aud ->
-                        aud != null && (aud.contains(audience) || aud.contains(issuer))
+                        aud != null && aud.stream().anyMatch(a -> a.equals(audience) || a.equals(issuer))
                 ),
-                new JwtClaimValidator<String>(JwtClaimNames.SUB, sub -> clientId.equals(sub))
+                new JwtClaimValidator<String>(JwtClaimNames.SUB, sub -> clientId.equals(sub)),
+                new JwtClaimValidator<String>(JwtClaimNames.JTI, jti ->
+                        jti != null && !jti.trim().isEmpty()
+                )
         );
         decoder.setJwtValidator(validator);
         return decoder;

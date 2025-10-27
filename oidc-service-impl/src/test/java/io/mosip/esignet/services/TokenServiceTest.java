@@ -11,6 +11,7 @@ import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidRequestException;
@@ -213,6 +214,62 @@ public class TokenServiceTest {
         SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
         jwt.sign(signer);
         tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(),"audience");
+    }
+
+    @Test
+    public void verifyClientAssertionToken_withExactAudienceMatch_thenPass() throws JOSEException {
+        long now = System.currentTimeMillis();
+
+        JWSSigner signer = new RSASSASigner(RSA_JWK.toRSAPrivateKey());
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject("client-id")
+                .audience("issuer")
+                .issueTime(new Date(now))
+                .expirationTime(new Date(now+4000))
+                .issuer("client-id")
+                .jwtID(IdentityProviderUtil.createTransactionId(null))
+                .build();
+
+        SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
+        jwt.sign(signer);
+
+        tokenService.verifyClientAssertionToken(
+                "client-id",
+                RSA_JWK.toPublicJWK().toJSONString(),
+                jwt.serialize(),
+                "issuer"
+        );
+    }
+
+    @Test
+    public void verifyClientAssertionToken_withGarbageAudience_thenFail() throws JOSEException {
+        long now = System.currentTimeMillis();
+        ReflectionTestUtils.setField(tokenService, "maxClockSkew", 5);
+
+        JWSSigner signer = new RSASSASigner(RSA_JWK.toRSAPrivateKey());
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject("client-id")
+                .audience("random")
+                .issueTime(new Date(now - 4000))
+                .expirationTime(new Date(now - 3000))
+                .issuer("client-id")
+                .jwtID(IdentityProviderUtil.createTransactionId(null))
+                .build();
+
+        SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
+        jwt.sign(signer);
+
+        try {
+            tokenService.verifyClientAssertionToken(
+                    "client-id",
+                    RSA_JWK.toPublicJWK().toJSONString(),
+                    jwt.serialize(),
+                    "tokenendpoint"
+            );
+            Assert.fail();
+        } catch (InvalidRequestException e) {
+            Assert.assertEquals(ErrorConstants.INVALID_CLIENT, e.getMessage());
+        }
     }
 
     @Test(expected = EsignetException.class)
