@@ -53,17 +53,6 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
 
     private JsonNode fieldJson;
 
-    @PostConstruct
-    public void init() {
-        try {
-            fieldJson = StringUtils.hasText(kbiFormDetailsUrl)
-                    ? kbiFormHelperService.fetchKBIFieldDetailsFromResource(kbiFormDetailsUrl)
-                    : kbiFormHelperService.migrateKBIFieldDetails(fieldDetailList);
-        } catch (Exception e) {
-            log.error("Error loading KBI form details: {}", kbiFormDetailsUrl, e);
-        }
-    }
-
     @Override
     public boolean isValid(AuthChallenge authChallenge, ConstraintValidatorContext context) {
     	String authFactor = authChallenge.getAuthFactorType();
@@ -95,20 +84,21 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
 
     private boolean validateChallenge(String challenge) {
         try {
-            byte[] decodedBytes = Base64.getDecoder().decode(challenge);
+            byte[] decodedBytes = Base64.getUrlDecoder().decode(challenge);
             String decodedString = new String(decodedBytes, StandardCharsets.UTF_8);
             Map<String, String> challengeMap = objectMapper.readValue(decodedString, new TypeReference<>() {});
 
-            JsonNode schemaArray = fieldJson.path("schema");
+            JsonNode schemaArray = getFieldJson().path("schema");
             for (JsonNode fieldNode : schemaArray) {
                 String id = fieldNode.path("id").asText();
                 String controlType = fieldNode.path("controlType").asText("textbox");
+                boolean isRequired = fieldNode.path("required").asBoolean(false);
 
                 if (("textbox".equalsIgnoreCase(controlType) || "date".equalsIgnoreCase(controlType)) && !id.equals(idField)) {
                     String value = challengeMap.get(id);
 
-                    if (!StringUtils.hasText(value)) {
-                        log.warn("Validation failed: Missing or empty value for field '{}'", id);
+                    if (isRequired && !StringUtils.hasText(value)) {
+                        log.warn("Validation failed: Required field '{}' is missing or empty", id);
                         return false;
                     }
 
@@ -143,6 +133,17 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
             log.error("Error validating challenge", e);
             return false;
         }
+    }
+
+    private JsonNode getFieldJson() {
+        try {
+            fieldJson = StringUtils.hasText(kbiFormDetailsUrl)
+                    ? kbiFormHelperService.fetchKBIFieldDetailsFromResource(kbiFormDetailsUrl)
+                    : kbiFormHelperService.migrateKBIFieldDetails(fieldDetailList);
+        } catch (Exception e) {
+            log.error("Error loading KBI form details: {}", kbiFormDetailsUrl, e);
+        }
+        return fieldJson;
     }
 
 }
