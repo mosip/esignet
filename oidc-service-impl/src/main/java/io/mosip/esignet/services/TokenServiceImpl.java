@@ -40,6 +40,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.text.ParseException;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 
 import static io.mosip.esignet.core.constants.Constants.SPACE;
@@ -203,6 +204,8 @@ public class TokenServiceImpl implements TokenService {
         OAuth2TokenValidator<Jwt> validator = new DelegatingOAuth2TokenValidator<>(
                 new JwtTimestampValidator(Duration.ofSeconds(maxClockSkew)),
                 new JwtIssuerValidator(clientId),
+                new JwtClaimValidator<Instant>(JwtClaimNames.IAT, iat -> iat != null),
+                new JwtClaimValidator<Instant>(JwtClaimNames.EXP, exp -> exp != null),
                 new JwtClaimValidator<List<String>>(JwtClaimNames.AUD, aud ->
                         aud != null && (aud.contains(audience) || aud.contains(issuer))
                 ),
