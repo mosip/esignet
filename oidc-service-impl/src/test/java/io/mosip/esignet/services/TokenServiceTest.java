@@ -200,12 +200,13 @@ public class TokenServiceTest {
 
     @Test
     public void verifyClientAssertionToken_withExpiredTokenWithinClockSkew_thenPass() throws JOSEException {
+        long now = System.currentTimeMillis();
         JWSSigner signer = new RSASSASigner(RSA_JWK.toRSAPrivateKey());
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject("client-id")
                 .audience("audience")
-                .issueTime(new Date(System.currentTimeMillis()))
-                .expirationTime(new Date(System.currentTimeMillis() + 3000))
+                .issueTime(new Date(now - 4000))
+                .expirationTime(new Date(now - 3000))
                 .issuer("client-id")
                 .jwtID(IdentityProviderUtil.createTransactionId(null))
                 .build();

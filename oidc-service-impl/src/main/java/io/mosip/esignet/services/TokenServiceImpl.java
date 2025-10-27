@@ -7,13 +7,10 @@ package io.mosip.esignet.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
-import com.nimbusds.jose.proc.JWSKeySelector;
 import com.nimbusds.jose.proc.JWSVerificationKeySelector;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWT;
@@ -36,17 +33,13 @@ import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
-import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
-import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.text.ParseException;
-import java.time.Clock;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.*;
 
 import static io.mosip.esignet.core.constants.Constants.SPACE;
@@ -165,7 +158,7 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Override
-    public void verifyClientAssertionToken(String clientId, String jwkJson, String clientAssertion, String audience) throws EsignetException {
+    public void verifyClientAssertionToken(String clientId, String jwk, String clientAssertion, String audience) throws EsignetException {
         if (clientAssertion == null) {
             throw new EsignetException(ErrorConstants.INVALID_CLIENT);
         }
@@ -182,7 +175,7 @@ public class TokenServiceImpl implements TokenService {
 
             String issuer = (String) discoveryMap.get("issuer");
 
-            NimbusJwtDecoder jwtDecoder = getNimbusJwtDecoderFromJwk(jwkJson, clientId, audience, issuer, maxClockSkew);
+            NimbusJwtDecoder jwtDecoder = getNimbusJwtDecoderFromJwk(jwk, clientId, audience, issuer, maxClockSkew,alg);
             Jwt decodedJwt = jwtDecoder.decode(clientAssertion);
 
             if (!clientId.equals(decodedJwt.getSubject())) {
@@ -195,47 +188,21 @@ public class TokenServiceImpl implements TokenService {
         }
     }
 
-    private NimbusJwtDecoder getNimbusJwtDecoderFromJwk(String jwkJson, String clientId, String audience, String issuer, int maxClockSkew) throws Exception {
+    private NimbusJwtDecoder getNimbusJwtDecoderFromJwk(String jwkJson, String clientId, String audience, String issuer, int maxClockSkew, String alg) throws Exception {
 
         JWK parsedJwk = JWK.parse(jwkJson);
         JWKSet jwkSet = new JWKSet(parsedJwk);
         JWKSource<SecurityContext> jwkSource = new ImmutableJWKSet<>(jwkSet);
 
-
-        JWSAlgorithm jwsAlg = parsedJwk.getAlgorithm() != null
-                ? JWSAlgorithm.parse(parsedJwk.getAlgorithm().getName())
-                : JWSAlgorithm.RS256;
-
+        JWSAlgorithm jwsAlg = JWSAlgorithm.parse(alg);
         DefaultJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
         jwtProcessor.setJWSKeySelector(new JWSVerificationKeySelector<>(jwsAlg, jwkSource));
 
         NimbusJwtDecoder decoder = new NimbusJwtDecoder(jwtProcessor);
 
-        OAuth2TokenValidator<Jwt> customTimestampValidator = new OAuth2TokenValidator<>() {
-            private final Duration skew = Duration.ofSeconds(maxClockSkew);
-
-            @Override
-            public OAuth2TokenValidatorResult validate(Jwt jwt) {
-                Instant now = Instant.now(Clock.systemUTC());
-                Instant exp = jwt.getExpiresAt();
-                Instant iat = jwt.getIssuedAt();
-
-                if (exp == null || exp.isBefore(now.minus(skew))) {
-                    return OAuth2TokenValidatorResult.failure(
-                            new OAuth2Error("invalid_token", "Token has expired", null));
-                }
-
-                if (iat == null || iat.isAfter(now.plus(skew))) {
-                    return OAuth2TokenValidatorResult.failure(
-                            new OAuth2Error("invalid_token", "Token used before issued", null));
-                }
-
-                return OAuth2TokenValidatorResult.success();
-            }
-        };
         OAuth2TokenValidator<Jwt> validator = new DelegatingOAuth2TokenValidator<>(
-                customTimestampValidator,
-                new JwtIssuerValidator(issuer),
+                new JwtTimestampValidator(Duration.ofSeconds(maxClockSkew)),
+                new JwtIssuerValidator(clientId),
                 new JwtClaimValidator<List<String>>(JwtClaimNames.AUD, aud ->
                         aud != null && (aud.contains(audience) || aud.contains(issuer))
                 ),
