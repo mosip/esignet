@@ -814,6 +814,190 @@ public class ValidatorTest {
         Assert.assertFalse(claimSchemaValidator.isValid(claimsV2, null));
     }
 
+    @Test
+    public void claimSchemaValidator_withInvalidVerifiedClaimsType_thenFail() throws IOException {
+        String address = "{\"essential\":true}";
+        String verifiedClaims = "\"invalid_string\"";
+
+        JsonNode addressNode = mapper.readValue(address, JsonNode.class);
+        JsonNode verifiedClaimNode = mapper.readValue(verifiedClaims, JsonNode.class);
+
+        Map<String, JsonNode> userinfoMap = new HashMap<>();
+        userinfoMap.put("address", addressNode);
+        userinfoMap.put("verified_claims", verifiedClaimNode);
+        Map<String, ClaimDetail> idTokenMap = new HashMap<>();
+        idTokenMap.put("some_claim", new ClaimDetail("claim_value", null, true, "secondary"));
+
+        ClaimsV2 claimsV2 = new ClaimsV2();
+        claimsV2.setUserinfo(userinfoMap);
+        claimsV2.setId_token(idTokenMap);
+
+        Assert.assertFalse(claimSchemaValidator.isValid(claimsV2, null));
+    }
+
+    @Test
+    public void claimSchemaValidator_withMissingVerification_thenFail() throws IOException {
+        String address = "{\"essential\":true}";
+        String verifiedClaims = "[{\"claims\":{\"email\":{\"essential\":true}}}]";
+
+        JsonNode addressNode = mapper.readValue(address, JsonNode.class);
+        JsonNode verifiedClaimNode = mapper.readValue(verifiedClaims, JsonNode.class);
+
+        Map<String, JsonNode> userinfoMap = new HashMap<>();
+        userinfoMap.put("address", addressNode);
+        userinfoMap.put("verified_claims", verifiedClaimNode);
+
+        ClaimsV2 claimsV2 = new ClaimsV2();
+        claimsV2.setUserinfo(userinfoMap);
+        claimsV2.setId_token(Map.of("some_claim", new ClaimDetail("claim_value", null, true, "secondary")));
+
+        Assert.assertFalse(claimSchemaValidator.isValid(claimsV2, null));
+    }
+
+    @Test
+    public void claimSchemaValidator_withExtraInvalidField_thenFail() throws IOException {
+        String address = "{\"essential\":true}";
+        String verifiedClaims = "[{\"verification\":{\"trust_framework\":{\"value\":\"pwd\"}},\"claims\":{\"unknown_field\":123}}]";
+
+        JsonNode addressNode = mapper.readValue(address, JsonNode.class);
+        JsonNode verifiedClaimNode = mapper.readValue(verifiedClaims, JsonNode.class);
+
+        Map<String, JsonNode> userinfoMap = new HashMap<>();
+        userinfoMap.put("address", addressNode);
+        userinfoMap.put("verified_claims", verifiedClaimNode);
+
+        ClaimsV2 claimsV2 = new ClaimsV2();
+        claimsV2.setUserinfo(userinfoMap);
+        claimsV2.setId_token(Map.of("some_claim", new ClaimDetail("claim_value", null, true, "secondary")));
+
+        Assert.assertFalse(claimSchemaValidator.isValid(claimsV2, null));
+    }
+
+    @Test
+    public void claimSchemaValidator_withTrustFrameworkAsNumber_thenFail() throws IOException {
+        String address = "{\"essential\":true}";
+        String verifiedClaims = "[{\"verification\":{\"trust_framework\":{\"value\":123}},\"claims\":{\"email\":{\"essential\":true}}}]";
+
+        JsonNode addressNode = mapper.readValue(address, JsonNode.class);
+        JsonNode verifiedClaimNode = mapper.readValue(verifiedClaims, JsonNode.class);
+
+        Map<String, JsonNode> userinfoMap = new HashMap<>();
+        userinfoMap.put("address", addressNode);
+        userinfoMap.put("verified_claims", verifiedClaimNode);
+
+        ClaimsV2 claimsV2 = new ClaimsV2();
+        claimsV2.setUserinfo(userinfoMap);
+        claimsV2.setId_token(Map.of("some_claim", new ClaimDetail("claim_value", null, true, "secondary")));
+
+        Assert.assertFalse(claimSchemaValidator.isValid(claimsV2, null));
+    }
+
+    @Test
+    public void claimSchemaValidator_withMultipleEvidence_thenPass() throws IOException {
+        String verifiedClaims = "[{\"verification\":{\"trust_framework\":{\"value\":\"mosip_ekyc\"},\"evidence\":[{\"type\":{\"value\":\"document\"},\"document_details\":{\"issuer\":{\"name\":{\"value\":\"MOSIP Authority\"}}}}]},\"claims\":{\"given_name\":{\"essential\":true}}}]";
+
+        JsonNode verifiedClaimNode = mapper.readValue(verifiedClaims, JsonNode.class);
+
+        Map<String, JsonNode> userinfoMap = new HashMap<>();
+        userinfoMap.put("verified_claims", verifiedClaimNode);
+
+        ClaimsV2 claimsV2 = new ClaimsV2();
+        claimsV2.setUserinfo(userinfoMap);
+        claimsV2.setId_token(Map.of("some_claim", new ClaimDetail("claim_value", null, true, "secondary")));
+
+        Assert.assertTrue(claimSchemaValidator.isValid(claimsV2, null));
+    }
+
+    @Test
+    public void claimSchemaValidator_withEmptyVerifiedClaimsObject_thenFail() throws IOException {
+        String verifiedClaims = "{}";
+
+        JsonNode verifiedClaimNode = mapper.readValue(verifiedClaims, JsonNode.class);
+
+        Map<String, JsonNode> userinfoMap = new HashMap<>();
+        userinfoMap.put("verified_claims", verifiedClaimNode);
+
+        ClaimsV2 claimsV2 = new ClaimsV2();
+        claimsV2.setUserinfo(userinfoMap);
+        claimsV2.setId_token(Map.of("some_claim", new ClaimDetail("claim_value", null, true, "secondary")));
+
+        Assert.assertFalse(claimSchemaValidator.isValid(claimsV2, null));
+    }
+
+    @Test
+    public void claimSchemaValidator_withEvidenceAsObject_thenFail() throws IOException {
+        String verifiedClaims = "[{\"verification\":{\"trust_framework\":{\"value\":\"mosip_ekyc\"},\"evidence\":{\"type\":{\"value\":\"document\"}}},\"claims\":{\"given_name\":{\"essential\":true}}}]";
+
+        JsonNode verifiedClaimNode = mapper.readValue(verifiedClaims, JsonNode.class);
+        Map<String, JsonNode> userinfoMap = new HashMap<>();
+        userinfoMap.put("verified_claims", verifiedClaimNode);
+
+        ClaimsV2 claimsV2 = new ClaimsV2();
+        claimsV2.setUserinfo(userinfoMap);
+        claimsV2.setId_token(Map.of("some_claim", new ClaimDetail("claim_value", null, true, "secondary")));
+
+        Assert.assertFalse(claimSchemaValidator.isValid(claimsV2, null));
+    }
+
+    @Test
+    public void claimSchemaValidator_withMissingClaims_thenFail() throws IOException {
+        String verifiedClaims = "[{\"verification\":{\"trust_framework\":{\"value\":\"mosip_ekyc\"}}}]";
+
+        JsonNode verifiedClaimNode = mapper.readValue(verifiedClaims, JsonNode.class);
+        Map<String, JsonNode> userinfoMap = Map.of("verified_claims", verifiedClaimNode);
+
+        ClaimsV2 claimsV2 = new ClaimsV2();
+        claimsV2.setUserinfo(userinfoMap);
+        claimsV2.setId_token(Map.of("some_claim", new ClaimDetail("claim_value", null, true, "secondary")));
+
+        Assert.assertFalse(claimSchemaValidator.isValid(claimsV2, null));
+    }
+
+    @Test
+    public void claimSchemaValidator_withInvalidMaxAgeType_thenFail() throws IOException {
+        String verifiedClaims = "[{\"verification\":{\"trust_framework\":{\"value\":\"mosip_ekyc\"},\"time\":{\"max_age\":\"expired\"}},\"claims\":{\"given_name\":{\"essential\":true}}}]";
+
+        JsonNode verifiedClaimNode = mapper.readValue(verifiedClaims, JsonNode.class);
+        Map<String, JsonNode> userinfoMap = Map.of("verified_claims", verifiedClaimNode);
+
+        ClaimsV2 claimsV2 = new ClaimsV2();
+        claimsV2.setUserinfo(userinfoMap);
+        claimsV2.setId_token(Map.of("some_claim", new ClaimDetail("claim_value", null, true, "secondary")));
+
+        Assert.assertFalse(claimSchemaValidator.isValid(claimsV2, null));
+    }
+
+    @Test
+    public void claimSchemaValidator_withMultipleVerifiedClaims_thenPass() throws IOException {
+        String verifiedClaims = "[" +
+                "{\"verification\":{\"trust_framework\":{\"value\":\"pwd\"}},\"claims\":{\"email\":{\"essential\":true}}}," +
+                "{\"verification\":{\"trust_framework\":{\"value\":\"mosip_ekyc\"}},\"claims\":{\"birthdate\":{\"essential\":true}}}" +
+                "]";
+
+        JsonNode verifiedClaimNode = mapper.readValue(verifiedClaims, JsonNode.class);
+        Map<String, JsonNode> userinfoMap = Map.of("verified_claims", verifiedClaimNode);
+
+        ClaimsV2 claimsV2 = new ClaimsV2();
+        claimsV2.setUserinfo(userinfoMap);
+        claimsV2.setId_token(Map.of("some_claim", new ClaimDetail("claim_value", null, true, "secondary")));
+
+        Assert.assertTrue(claimSchemaValidator.isValid(claimsV2, null));
+    }
+
+    @Test
+    public void claimSchemaValidator_withVerifiedClaimsAsNull_thenFail() throws IOException {
+        String verifiedClaims = "null";
+
+        JsonNode verifiedClaimNode = mapper.readValue(verifiedClaims, JsonNode.class);
+        Map<String, JsonNode> userinfoMap = Map.of("verified_claims", verifiedClaimNode);
+
+        ClaimsV2 claimsV2 = new ClaimsV2();
+        claimsV2.setUserinfo(userinfoMap);
+        claimsV2.setId_token(Map.of("some_claim", new ClaimDetail("claim_value", null, true, "secondary")));
+
+        Assert.assertFalse(claimSchemaValidator.isValid(claimsV2, null));
+    }
+
     // =============================ClientAdditionalConfigValidator=============================//
 
     public List<JsonNode> getValidAdditionalConfigs() {
