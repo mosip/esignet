@@ -117,6 +117,9 @@ public class AuthCodeFlowTest {
     public void init() throws Exception {
         createOIDCClient(clientId, clientJWK.toPublicJWK(), replyingPartyId);
         log.info("Successfully create OIDC Client {}", clientId);
+        Map<String, Object> mockDiscoveryMap = new HashMap<>();
+        mockDiscoveryMap.put("token_endpoint_auth_signing_alg_values_supported", Arrays.asList("RS256", "PS256","ES256"));
+        mockDiscoveryMap.put("issuer",clientId);
 
         RedisScriptingCommands redisScriptingCommands = Mockito.mock(RedisScriptingCommands.class);
         RedisConnection redisConnection = Mockito.mock(RedisConnection.class);
@@ -129,6 +132,7 @@ public class AuthCodeFlowTest {
         ReflectionTestUtils.setField(cacheUtilService, "redisConnectionFactory", redisConnectionFactory);
         ReflectionTestUtils.setField(cacheUtilService, "nonceScriptHash", "nonceScriptHash");
         ReflectionTestUtils.setField(cacheUtilService, "nonceValidity", 86400);
+        ReflectionTestUtils.setField(tokenService,"discoveryMap",mockDiscoveryMap);
     }
 
     @Test
