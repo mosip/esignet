@@ -90,6 +90,9 @@ public class TokenServiceImpl implements TokenService {
     @Value("#{${mosip.esignet.discovery.key-values}}")
     private Map<String, Object> discoveryMap;
 
+    @Value("${mosip.esignet.client-assertion.unique.jti.required}")
+    private boolean uniqueJtiRequired;
+
     private final String CNF = "cnf";
     private final String JKT = "jkt";
     
@@ -182,7 +185,11 @@ public class TokenServiceImpl implements TokenService {
             if (!clientId.equals(decodedJwt.getSubject())) {
                 throw new InvalidRequestException(ErrorConstants.INVALID_CLIENT);
             }
-
+            String jti = signedJWT.getJWTClaimsSet().getJWTID();
+            if (uniqueJtiRequired && (jti == null || cacheUtilService.checkAndMarkJti(jti))) {
+                log.error("invalid jti {}", jti);
+                throw new EsignetException();
+            }
         } catch (Exception e) {
             log.error("Failed to verify client assertion", e);
             throw new InvalidRequestException(ErrorConstants.INVALID_CLIENT);

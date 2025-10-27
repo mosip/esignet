@@ -48,6 +48,9 @@ public class TokenServiceTest {
     @Mock
     private AuthenticationContextClassRefUtil authenticationContextClassRefUtil;
 
+    @Mock
+    private CacheUtilService cacheUtilService;
+
     private static final RSAKey RSA_JWK;
 
     static {
@@ -68,6 +71,7 @@ public class TokenServiceTest {
         ReflectionTestUtils.setField(tokenService, "issuerId", "test-issuer");
         ReflectionTestUtils.setField(tokenService, "maxClockSkew", 5);
         ReflectionTestUtils.setField(tokenService,"discoveryMap",mockDiscoveryMap);
+        ReflectionTestUtils.setField(tokenService, "uniqueJtiRequired", true);
     }
 
     @Test
@@ -290,6 +294,29 @@ public class TokenServiceTest {
     @Test(expected = NotAuthenticatedException.class)
     public void verifyAccessToken_withInvalidToken_thenFail() {
         tokenService.verifyAccessToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), "access_token");
+    }
+
+    @Test
+    public void verifyClientAssertion_withDuplicateJTI_thenFail() throws Exception {
+        RSAKey rsaKey = new RSAKeyGenerator(2048)
+                .algorithm(JWSAlgorithm.PS256)
+                .keyID("rsa-ps256")
+                .generate();
+
+        JWSSigner signer = new RSASSASigner(rsaKey);
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject("client-id")
+                .issuer("client-id")
+                .audience("audience")
+                .issueTime(new Date(123000L))
+                .expirationTime(new Date(System.currentTimeMillis() + 60000))
+                .jwtID(IdentityProviderUtil.createTransactionId(null))
+                .build();
+
+        SignedJWT signedJWT = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.PS256).keyID(rsaKey.getKeyID()).build(), claimsSet);
+        signedJWT.sign(signer);
+        Mockito.when(cacheUtilService.checkAndMarkJti(Mockito.anyString())).thenReturn(true);
+        Assert.assertThrows(InvalidRequestException.class, () -> tokenService.verifyClientAssertionToken("client-id", rsaKey.toJSONString(), signedJWT.serialize(), "audience"));
     }
 
     @Test
