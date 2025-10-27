@@ -180,11 +180,7 @@ public class TokenServiceImpl implements TokenService {
             String issuer = (String) discoveryMap.get("issuer");
 
             NimbusJwtDecoder jwtDecoder = getNimbusJwtDecoderFromJwk(jwk, clientId, audience, issuer, maxClockSkew,alg);
-            Jwt decodedJwt = jwtDecoder.decode(clientAssertion);
-
-            if (!clientId.equals(decodedJwt.getSubject())) {
-                throw new InvalidRequestException(ErrorConstants.INVALID_CLIENT);
-            }
+            jwtDecoder.decode(clientAssertion);
             String jti = signedJWT.getJWTClaimsSet().getJWTID();
             if (uniqueJtiRequired && (jti == null || cacheUtilService.checkAndMarkJti(jti))) {
                 log.error("invalid jti {}", jti);
