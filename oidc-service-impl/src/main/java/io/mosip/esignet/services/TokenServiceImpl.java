@@ -7,22 +7,17 @@ package io.mosip.esignet.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
-import com.nimbusds.jose.proc.JWSKeySelector;
+import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.JWSVerificationKeySelector;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
-import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
-import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
-import com.nimbusds.jwt.proc.DefaultJWTProcessor;
-import com.nimbusds.jwt.proc.JWTClaimsSetVerifier;
+import com.nimbusds.jwt.proc.*;
 import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.esignet.core.exception.*;
 import io.mosip.esignet.core.spi.TokenService;
@@ -37,10 +32,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.text.ParseException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 
 import static io.mosip.esignet.core.constants.Constants.SPACE;
@@ -89,6 +89,9 @@ public class TokenServiceImpl implements TokenService {
 
     @Value("#{${mosip.esignet.discovery.key-values}}")
     private Map<String, Object> discoveryMap;
+
+    @Value("${mosip.esignet.client-assertion.unique.jti.required}")
+    private boolean uniqueJtiRequired;
 
     private final String CNF = "cnf";
     private final String JKT = "jkt";
@@ -160,39 +163,62 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public void verifyClientAssertionToken(String clientId, String jwk, String clientAssertion, String audience) throws EsignetException {
-        if(clientAssertion == null)
+        if (clientAssertion == null) {
             throw new EsignetException(ErrorConstants.INVALID_CLIENT);
+        }
 
         try {
-            List<String> supportedClaims = (List<String>) discoveryMap.get("token_endpoint_auth_signing_alg_values_supported");
+            List<String> supportedAlgs = (List<String>) discoveryMap.get("token_endpoint_auth_signing_alg_values_supported");
             SignedJWT signedJWT = SignedJWT.parse(clientAssertion);
             String alg = signedJWT.getHeader().getAlgorithm().getName();
-            if (alg == null || !supportedClaims.contains(alg)) {
-                log.error("Invalid or unsupported alg header");
+
+            if (alg == null || !supportedAlgs.contains(alg)) {
+                log.error("Invalid or unsupported alg header: {}", alg);
                 throw new InvalidRequestException(ErrorConstants.INVALID_CLIENT);
             }
-            JWSAlgorithm jwsAlgorithm = JWSAlgorithm.parse(alg);
-            JWK parsedJwk = JWK.parse(jwk);
 
-            JWSKeySelector<SecurityContext> keySelector = new JWSVerificationKeySelector<>(
-                    jwsAlgorithm,
-                    new ImmutableJWKSet<>(new JWKSet(parsedJwk))
-            );
-            DefaultJWTClaimsVerifier claimsSetVerifier = new DefaultJWTClaimsVerifier(new JWTClaimsSet.Builder()
-                    .audience(Collections.singletonList(audience))
-                    .issuer(clientId)
-                    .subject(clientId)
-                    .build(), REQUIRED_CLIENT_ASSERTION_CLAIMS);
-            claimsSetVerifier.setMaxClockSkew(maxClockSkew);
+            String issuer = (String) discoveryMap.get("issuer");
 
-            ConfigurableJWTProcessor jwtProcessor = new DefaultJWTProcessor();
-            jwtProcessor.setJWSKeySelector(keySelector);
-            jwtProcessor.setJWTClaimsSetVerifier(claimsSetVerifier);
-            jwtProcessor.process(clientAssertion, null); //If invalid throws exception
+            NimbusJwtDecoder jwtDecoder = getNimbusJwtDecoderFromJwk(jwk, clientId, audience, issuer, maxClockSkew,alg);
+            jwtDecoder.decode(clientAssertion);
+            String jti = signedJWT.getJWTClaimsSet().getJWTID();
+            if (uniqueJtiRequired && (jti == null || cacheUtilService.checkAndMarkJti(jti))) {
+                log.error("invalid jti {}", jti);
+                throw new EsignetException();
+            }
         } catch (Exception e) {
             log.error("Failed to verify client assertion", e);
             throw new InvalidRequestException(ErrorConstants.INVALID_CLIENT);
         }
+    }
+
+    private NimbusJwtDecoder getNimbusJwtDecoderFromJwk(String jwkJson, String clientId, String audience, String issuer, int maxClockSkew, String alg) throws Exception {
+
+        JWK parsedJwk = JWK.parse(jwkJson);
+        JWKSet jwkSet = new JWKSet(parsedJwk);
+        JWKSource<SecurityContext> jwkSource = new ImmutableJWKSet<>(jwkSet);
+
+        JWSAlgorithm jwsAlg = JWSAlgorithm.parse(alg);
+        DefaultJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
+        jwtProcessor.setJWSKeySelector(new JWSVerificationKeySelector<>(jwsAlg, jwkSource));
+
+        NimbusJwtDecoder decoder = new NimbusJwtDecoder(jwtProcessor);
+
+        OAuth2TokenValidator<Jwt> validator = new DelegatingOAuth2TokenValidator<>(
+                new JwtTimestampValidator(Duration.ofSeconds(maxClockSkew)),
+                new JwtIssuerValidator(clientId),
+                new JwtClaimValidator<Instant>(JwtClaimNames.IAT, iat -> iat != null),
+                new JwtClaimValidator<Instant>(JwtClaimNames.EXP, exp -> exp != null),
+                new JwtClaimValidator<List<String>>(JwtClaimNames.AUD, aud ->
+                        aud != null && aud.stream().anyMatch(a -> a.equals(audience) || a.equals(issuer))
+                ),
+                new JwtClaimValidator<String>(JwtClaimNames.SUB, sub -> clientId.equals(sub)),
+                new JwtClaimValidator<String>(JwtClaimNames.JTI, jti ->
+                        jti != null && !jti.trim().isEmpty()
+                )
+        );
+        decoder.setJwtValidator(validator);
+        return decoder;
     }
 
     @Override
