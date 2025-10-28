@@ -118,7 +118,8 @@ public class PostWithAutogenIdWithOtpGenerate extends EsignetUtil implements ITe
 		String inputStrJson = getJsonFromTemplate(otpReqJson.toString(), sendOtpReqTemplate);
 
 		Response otpResponse = null;
-		int maxLoopCount = Integer.parseInt(properties.getProperty("uinGenMaxLoopCount"));
+		int maxLoopCount = EsignetConfigManager.getproperty("uinGenMaxLoopCount").isEmpty() ? 20
+				: Integer.parseInt(EsignetConfigManager.getproperty("uinGenMaxLoopCount"));
 		int currLoopCount = 0;
 		while (currLoopCount < maxLoopCount) {
 			String input = inputstringKeyWordHandeler(inputStrJson, testCaseName);
@@ -236,7 +237,8 @@ public class PostWithAutogenIdWithOtpGenerate extends EsignetUtil implements ITe
 					&& EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase()
 							.contains("sunbirdrcauthenticationservice") == false) {
 				if (!testCaseName.contains(GlobalConstants.ESIGNET_)) {
-					long delayTime = Long.parseLong(properties.getProperty("Delaytime"));
+					long delayTime = Long.parseLong(
+							EsignetConfigManager.getproperty("vidGenerationProcessingDelayTimeInMilliSeconds"));
 					logger.info("waiting for " + delayTime + " mili secs after VID Generation In RESIDENT SERVICES");
 					Thread.sleep(delayTime);
 				}
