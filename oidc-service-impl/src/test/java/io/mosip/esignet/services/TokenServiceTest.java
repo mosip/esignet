@@ -171,7 +171,7 @@ public class TokenServiceTest {
         Assert.assertTrue( diff == 120);
     }
 
-    @Test(expected = InvalidRequestException.class)
+    @Test
     public void verifyClientAssertionToken_withExpiredTokenNotWithinClockSkew_thenException() throws JOSEException {
         ReflectionTestUtils.setField(tokenService, "maxClockSkew", 0);
         JWSSigner signer = new RSASSASigner(RSA_JWK.toRSAPrivateKey());
@@ -185,10 +185,11 @@ public class TokenServiceTest {
                 .build();
         SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
         jwt.sign(signer);
-        tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(),"audience");
+        EsignetException ex = Assert.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(),"audience"));
+        Assert.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
     }
 
-    @Test(expected = InvalidRequestException.class)
+    @Test
     public void verifyClientAssertionToken_withTokenWithoutJTI_thenException() throws JOSEException {
         JWSSigner signer = new RSASSASigner(RSA_JWK.toRSAPrivateKey());
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
@@ -200,7 +201,8 @@ public class TokenServiceTest {
                 .build();
         SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
         jwt.sign(signer);
-        tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(),"audience");
+        EsignetException ex = Assert.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(),"audience"));
+        Assert.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
     }
 
     @Test
@@ -248,14 +250,13 @@ public class TokenServiceTest {
     @Test
     public void verifyClientAssertionToken_withGarbageAudience_thenFail() throws JOSEException {
         long now = System.currentTimeMillis();
-        ReflectionTestUtils.setField(tokenService, "maxClockSkew", 5);
 
         JWSSigner signer = new RSASSASigner(RSA_JWK.toRSAPrivateKey());
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject("client-id")
                 .audience("random")
-                .issueTime(new Date(now - 4000))
-                .expirationTime(new Date(now - 3000))
+                .issueTime(new Date(now))
+                .expirationTime(new Date(now + 3000))
                 .issuer("client-id")
                 .jwtID(IdentityProviderUtil.createTransactionId(null))
                 .build();
@@ -263,17 +264,13 @@ public class TokenServiceTest {
         SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
         jwt.sign(signer);
 
-        try {
-            tokenService.verifyClientAssertionToken(
-                    "client-id",
-                    RSA_JWK.toPublicJWK().toJSONString(),
-                    jwt.serialize(),
-                    "tokenendpoint"
-            );
-            Assert.fail();
-        } catch (InvalidRequestException e) {
-            Assert.assertEquals(ErrorConstants.INVALID_CLIENT, e.getMessage());
-        }
+        EsignetException ex = Assert.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken(
+                "client-id",
+                RSA_JWK.toPublicJWK().toJSONString(),
+                jwt.serialize(),
+                "tokenendpoint"
+        ));
+        Assert.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
     }
 
     @Test(expected = EsignetException.class)
@@ -281,9 +278,10 @@ public class TokenServiceTest {
         tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), null,"audience");
     }
 
-    @Test(expected = InvalidRequestException.class)
+    @Test
     public void verifyClientAssertionToken_withInvalidToken_thenFail() {
-        tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), "client-assertion","audience");
+        EsignetException ex = Assert.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), "client-assertion","audience"));
+        Assert.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
     }
 
     @Test(expected = NotAuthenticatedException.class)
@@ -316,7 +314,8 @@ public class TokenServiceTest {
         SignedJWT signedJWT = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.PS256).keyID(rsaKey.getKeyID()).build(), claimsSet);
         signedJWT.sign(signer);
         Mockito.when(cacheUtilService.checkAndMarkJti(Mockito.anyString())).thenReturn(true);
-        Assert.assertThrows(InvalidRequestException.class, () -> tokenService.verifyClientAssertionToken("client-id", rsaKey.toJSONString(), signedJWT.serialize(), "audience"));
+        EsignetException ex = Assert.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken("client-id", rsaKey.toJSONString(), signedJWT.serialize(), "audience"));
+        Assert.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
     }
 
     @Test
@@ -377,12 +376,8 @@ public class TokenServiceTest {
                 .build();
         SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.PS384), claimsSet);
         jwt.sign(signer);
-        try {
-            tokenService.verifyClientAssertionToken("client-id",  RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(), "audience");
-            Assert.fail();
-        } catch (InvalidRequestException e) {
-            Assert.assertEquals("invalid_client", e.getErrorCode());
-        }
+        EsignetException ex = Assert.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken("client-id",  RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(), "audience"));
+        Assert.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
     }
 
     @Test
@@ -398,12 +393,8 @@ public class TokenServiceTest {
         String encodedHeader = Base64.getUrlEncoder().withoutPadding().encodeToString(headerJson.getBytes(StandardCharsets.UTF_8));
         String encodedPayload = Base64.getUrlEncoder().withoutPadding().encodeToString(payloadJson.getBytes(StandardCharsets.UTF_8));
         String malformedJwt = encodedHeader + "." + encodedPayload + "." + "dummySignature";
-        try {
-            tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), malformedJwt, "audience");
-            Assert.fail("Expected InvalidRequestException due to missing 'alg' in header");
-        } catch (InvalidRequestException e) {
-            Assert.assertEquals("invalid_client", e.getErrorCode());
-        }
+        EsignetException ex = Assert.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), malformedJwt, "audience"));
+        Assert.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
     }
 
     @Test

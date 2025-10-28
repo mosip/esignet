@@ -176,7 +176,7 @@ public class IdentityProviderUtil {
             return;
 
         log.error("Invalid redirect URI registered : {}, requested: {}", registeredRedirectUris, requestedRedirectUri);
-        throw new InvalidRequestException(ErrorConstants.INVALID_REDIRECT_URI);
+        throw new EsignetException(ErrorConstants.INVALID_REDIRECT_URI);
     }
 
     public static String createTransactionId(String nonce) throws EsignetException {

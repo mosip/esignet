@@ -217,10 +217,10 @@ public class OAuthServiceImpl implements OAuthService {
             throw new EsignetException(ErrorConstants.INVALID_GRANT);
 
         if (StringUtils.hasText(tokenRequest.getClient_id()) && !transaction.getClientId().equals(tokenRequest.getClient_id()))
-            throw new InvalidRequestException(ErrorConstants.INVALID_CLIENT_ID);
+            throw new EsignetException(ErrorConstants.INVALID_CLIENT_ID);
 
         if (!transaction.getRedirectUri().equals(tokenRequest.getRedirect_uri()))
-            throw new InvalidRequestException(ErrorConstants.INVALID_REDIRECT_URI);
+            throw new EsignetException(ErrorConstants.INVALID_REDIRECT_URI);
 
         validatePKCE(transaction.getProofKeyCodeExchange(), tokenRequest.getCode_verifier());
     }
