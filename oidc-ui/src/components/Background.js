@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { configurationKeys } from '../constants/clientConstants';
 import { checkConfigProperty } from '../helpers/utils';
@@ -10,7 +10,6 @@ export default function Background({
   clientName,
   component,
   oidcService,
-  authService,
   i18nKeyPrefix = 'header',
 }) {
   const { t, i18n } = useTranslation('translation', {
@@ -32,9 +31,7 @@ export default function Background({
     if (exist) {
       setSignupBanner(true);
       setSignupURL(
-        signupConfig[configurationKeys.signupURL] +
-          '#' +
-          authService.getAuthorizeQueryParam()
+        signupConfig[configurationKeys.signupURL] + window.location.hash
       );
     } else {
       setSignupBanner(false);
