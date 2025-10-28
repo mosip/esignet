@@ -174,7 +174,7 @@ public class TokenServiceImpl implements TokenService {
 
             if (alg == null || !supportedAlgs.contains(alg)) {
                 log.error("Invalid or unsupported alg header: {}", alg);
-                throw new InvalidRequestException(ErrorConstants.INVALID_CLIENT);
+                throw new EsignetException(ErrorConstants.INVALID_CLIENT);
             }
 
             String issuer = (String) discoveryMap.get("issuer");
@@ -188,7 +188,7 @@ public class TokenServiceImpl implements TokenService {
             }
         } catch (Exception e) {
             log.error("Failed to verify client assertion", e);
-            throw new InvalidRequestException(ErrorConstants.INVALID_CLIENT);
+            throw new EsignetException(ErrorConstants.INVALID_CLIENT);
         }
     }
 
