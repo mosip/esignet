@@ -226,11 +226,12 @@ public class AddIdentity extends EsignetUtil implements ITest {
 
 		try {
 			if (EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase()
-					.contains("idaauthenticatorimpl") == true && isWaitRequired == true) {
-				logger.info("waiting for " + properties.getProperty("Delaytime")
-						+ " mili secs after UIN Generation In IDREPO");
-				Thread.sleep(Long.parseLong(properties.getProperty("Delaytime")));
-			}
+					.contains("idaauthenticatorimpl") == true && isWaitRequired == true)
+			logger.info(
+					"waiting for " + EsignetConfigManager.getproperty("uinGenerationProcessingDelayTimeInMilliSeconds")
+							+ " mili secs after UIN Generation In IDREPO");
+			Thread.sleep(
+					Long.parseLong(EsignetConfigManager.getproperty("uinGenerationProcessingDelayTimeInMilliSeconds")));
 
 		} catch (Exception e) {
 			logger.error("Exception : " + e.getMessage());
