@@ -2165,6 +2165,29 @@ public class AuthorizationServiceTest {
     }
 
     @Test
+    public void getOauthDetails_migrateKBIFieldDetails_throwsException_thenFail() throws Exception {
+        ReflectionTestUtils.setField(authorizationServiceImpl, "kbiFormDetailsUrl", null);
+        OAuthDetailRequest request = new OAuthDetailRequest();
+        request.setClientId("client123");
+        request.setRedirectUri("https://callback.com");
+        request.setAcrValues("mosip:idp:acr:biometrics mosip:idp:acr:generated-code");
+
+        ClientDetail clientDetail = getClientDetail();
+        when(clientManagementService.getClientDetails("client123")).thenReturn(clientDetail);
+        when(authenticationContextClassRefUtil.getAuthFactors(any())).thenReturn(Collections.emptyList());
+
+        when(kbiFormHelperService.migrateKBIFieldDetails(any()))
+                .thenThrow(new RuntimeException("Error migrating KBI field details"));
+
+        OAuthDetailResponseV1 response = authorizationServiceImpl.getOauthDetails(request);
+        Assert.assertNotNull(response);
+        Assert.assertEquals("Test Client", response.getClientName());
+
+        verify(kbiFormHelperService).migrateKBIFieldDetails(any());
+        verify(kbiFormHelperService, never()).fetchKBIFieldDetailsFromResource(any());
+    }
+
+    @Test
     public void getOauthDetails_migrateKBIFieldDetails_withUIConfig_thenPass() throws Exception {
         ReflectionTestUtils.setField(authorizationServiceImpl, "kbiFormDetailsUrl", null);
         OAuthDetailRequest request = new OAuthDetailRequest();
