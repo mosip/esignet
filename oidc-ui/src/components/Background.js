@@ -31,7 +31,9 @@ export default function Background({
     if (exist) {
       setSignupBanner(true);
       setSignupURL(
-        signupConfig[configurationKeys.signupURL] + window.location.hash
+        signupConfig[configurationKeys.signupURL] +
+          window.location.search +
+          window.location.hash
       );
     } else {
       setSignupBanner(false);
