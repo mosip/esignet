@@ -1,0 +1,6372 @@
+THIRD-PARTY-NOTICES
+===========================================
+This project includes third-party packages that are distributed under various open-source licenses. Below is a list of packages and their associated licenses.
+===========================================
+
+Package: 8398a7/action-slack
+Version: 3.*.*
+License: UNKNOWN
+Homepage: N/A
+
+Package: @adobe/css-tools
+Version: 4.4.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @ampproject/remapping
+Version: 2.2.0
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: @anushase/json-form-builder
+Version: 1.1.6
+License: UNKNOWN
+Homepage: N/A
+
+Package: @apideck/better-ajv-errors
+Version: 0.3.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/code-frame
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/compat-data
+Version: 7.19.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/core
+Version: 7.19.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/eslint-parser
+Version: 7.19.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/generator
+Version: 7.19.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/helper-annotate-as-pure
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/helper-builder-binary-assignment-operator-visitor
+Version: 7.18.9
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/helper-compilation-targets
+Version: 7.19.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/helper-create-class-features-plugin
+Version: 7.19.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/helper-create-regexp-features-plugin
+Version: 7.19.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/helper-define-polyfill-provider
+Version: 0.3.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/helper-environment-visitor
+Version: 7.18.9
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/helper-explode-assignable-expression
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/helper-function-name
+Version: 7.19.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/helper-hoist-variables
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/helper-member-expression-to-functions
+Version: 7.18.9
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/helper-module-imports
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/helper-module-transforms
+Version: 7.19.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/helper-optimise-call-expression
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/helper-plugin-utils
+Version: 7.19.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/helper-remap-async-to-generator
+Version: 7.18.9
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/helper-replace-supers
+Version: 7.19.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/helper-simple-access
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/helper-skip-transparent-expression-wrappers
+Version: 7.18.9
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/helper-split-export-declaration
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/helper-string-parser
+Version: 7.18.10
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/helper-validator-identifier
+Version: 7.19.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/helper-validator-option
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/helper-wrap-function
+Version: 7.19.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/helpers
+Version: 7.19.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/highlight
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/parser
+Version: 7.19.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-bugfix-safari-id-destructuring-collision-in-function-expression
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-bugfix-v8-spread-parameters-in-optional-chaining
+Version: 7.18.9
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-proposal-async-generator-functions
+Version: 7.19.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-proposal-class-properties
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-proposal-class-static-block
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-proposal-decorators
+Version: 7.19.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-proposal-dynamic-import
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-proposal-export-namespace-from
+Version: 7.18.9
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-proposal-json-strings
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-proposal-logical-assignment-operators
+Version: 7.18.9
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-proposal-nullish-coalescing-operator
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-proposal-numeric-separator
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-proposal-object-rest-spread
+Version: 7.18.9
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-proposal-optional-catch-binding
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-proposal-optional-chaining
+Version: 7.18.9
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-proposal-private-methods
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-proposal-private-property-in-object
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-proposal-unicode-property-regex
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-syntax-async-generators
+Version: 7.8.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-syntax-bigint
+Version: 7.8.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-syntax-class-properties
+Version: 7.12.13
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-syntax-class-static-block
+Version: 7.14.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-syntax-decorators
+Version: 7.19.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-syntax-dynamic-import
+Version: 7.8.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-syntax-export-namespace-from
+Version: 7.8.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-syntax-flow
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-syntax-import-assertions
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-syntax-import-meta
+Version: 7.10.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-syntax-json-strings
+Version: 7.8.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-syntax-jsx
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-syntax-logical-assignment-operators
+Version: 7.10.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-syntax-nullish-coalescing-operator
+Version: 7.8.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-syntax-numeric-separator
+Version: 7.10.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-syntax-object-rest-spread
+Version: 7.8.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-syntax-optional-catch-binding
+Version: 7.8.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-syntax-optional-chaining
+Version: 7.8.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-syntax-private-property-in-object
+Version: 7.14.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-syntax-top-level-await
+Version: 7.14.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-syntax-typescript
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-arrow-functions
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-async-to-generator
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-block-scoped-functions
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-block-scoping
+Version: 7.18.9
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-classes
+Version: 7.19.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-computed-properties
+Version: 7.18.9
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-destructuring
+Version: 7.18.13
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-dotall-regex
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-duplicate-keys
+Version: 7.18.9
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-exponentiation-operator
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-flow-strip-types
+Version: 7.19.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-for-of
+Version: 7.18.8
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-function-name
+Version: 7.18.9
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-literals
+Version: 7.18.9
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-member-expression-literals
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-modules-amd
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-modules-commonjs
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-modules-systemjs
+Version: 7.19.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-modules-umd
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-named-capturing-groups-regex
+Version: 7.19.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-new-target
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-object-super
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-parameters
+Version: 7.18.8
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-property-literals
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-react-constant-elements
+Version: 7.18.12
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-react-display-name
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-react-jsx
+Version: 7.19.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-react-jsx-development
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-react-pure-annotations
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-regenerator
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-reserved-words
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-runtime
+Version: 7.19.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-shorthand-properties
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-spread
+Version: 7.19.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-sticky-regex
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-template-literals
+Version: 7.18.9
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-typeof-symbol
+Version: 7.18.9
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-typescript
+Version: 7.19.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-unicode-escapes
+Version: 7.18.10
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/plugin-transform-unicode-regex
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/preset-env
+Version: 7.19.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/preset-modules
+Version: 0.1.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/preset-react
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/preset-typescript
+Version: 7.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/runtime
+Version: 7.22.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/runtime-corejs3
+Version: 7.19.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/template
+Version: 7.18.10
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/traverse
+Version: 7.19.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @babel/types
+Version: 7.19.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @bcoe/v8-coverage
+Version: 0.2.3
+License: ISC AND MIT
+Homepage: N/A
+
+Package: @csstools/normalize.css
+Version: 12.0.0
+License: CC0-1.0
+Homepage: N/A
+
+Package: @csstools/postcss-cascade-layers
+Version: 1.1.1
+License: CC0-1.0
+Homepage: N/A
+
+Package: @csstools/postcss-color-function
+Version: 1.1.1
+License: CC0-1.0
+Homepage: N/A
+
+Package: @csstools/postcss-font-format-keywords
+Version: 1.0.1
+License: CC0-1.0
+Homepage: N/A
+
+Package: @csstools/postcss-hwb-function
+Version: 1.0.2
+License: CC0-1.0
+Homepage: N/A
+
+Package: @csstools/postcss-ic-unit
+Version: 1.0.1
+License: CC0-1.0
+Homepage: N/A
+
+Package: @csstools/postcss-is-pseudo-class
+Version: 2.0.7
+License: CC0-1.0
+Homepage: N/A
+
+Package: @csstools/postcss-nested-calc
+Version: 1.0.0
+License: CC0-1.0
+Homepage: N/A
+
+Package: @csstools/postcss-normalize-display-values
+Version: 1.0.1
+License: CC0-1.0
+Homepage: N/A
+
+Package: @csstools/postcss-oklab-function
+Version: 1.1.1
+License: CC0-1.0
+Homepage: N/A
+
+Package: @csstools/postcss-progressive-custom-properties
+Version: 1.3.0
+License: CC0-1.0
+Homepage: N/A
+
+Package: @csstools/postcss-stepped-value-functions
+Version: 1.0.1
+License: CC0-1.0
+Homepage: N/A
+
+Package: @csstools/postcss-text-decoration-shorthand
+Version: 1.0.0
+License: CC0-1.0
+Homepage: N/A
+
+Package: @csstools/postcss-trigonometric-functions
+Version: 1.0.2
+License: CC0-1.0
+Homepage: N/A
+
+Package: @csstools/postcss-unset-value
+Version: 1.0.2
+License: CC0-1.0
+Homepage: N/A
+
+Package: @csstools/selector-specificity
+Version: 2.0.2
+License: CC0-1.0
+Homepage: N/A
+
+Package: @emotion/babel-plugin
+Version: 11.10.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @emotion/cache
+Version: 11.10.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @emotion/hash
+Version: 0.9.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @emotion/memoize
+Version: 0.8.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @emotion/react
+Version: 11.10.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @emotion/serialize
+Version: 1.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @emotion/sheet
+Version: 1.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @emotion/unitless
+Version: 0.8.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @emotion/use-insertion-effect-with-fallbacks
+Version: 1.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @emotion/utils
+Version: 1.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @emotion/weak-memoize
+Version: 0.3.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @eslint/eslintrc
+Version: 1.3.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @floating-ui/core
+Version: 1.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @floating-ui/dom
+Version: 1.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @floating-ui/react-dom
+Version: 2.0.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @floating-ui/utils
+Version: 0.1.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @fullhuman/postcss-purgecss
+Version: 2.3.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @humanwhocodes/config-array
+Version: 0.10.7
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: @humanwhocodes/gitignore-to-minimatch
+Version: 1.0.2
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: @humanwhocodes/module-importer
+Version: 1.0.1
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: @humanwhocodes/object-schema
+Version: 1.2.1
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: @istanbuljs/load-nyc-config
+Version: 1.1.0
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: @istanbuljs/schema
+Version: 0.1.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @jest/console
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @jest/core
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @jest/environment
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @jest/fake-timers
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @jest/globals
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @jest/reporters
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @jest/schemas
+Version: 28.1.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @jest/source-map
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @jest/test-result
+Version: 28.1.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @jest/test-sequencer
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @jest/transform
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @jest/types
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @jridgewell/gen-mapping
+Version: 0.3.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @jridgewell/resolve-uri
+Version: 3.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @jridgewell/set-array
+Version: 1.1.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @jridgewell/source-map
+Version: 0.3.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @jridgewell/sourcemap-codec
+Version: 1.4.14
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @jridgewell/trace-mapping
+Version: 0.3.18
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @leichtgewicht/ip-codec
+Version: 2.0.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @nicolo-ribaudo/eslint-scope-5-internals
+Version: 5.1.1-v1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @nodelib/fs.scandir
+Version: 2.1.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @nodelib/fs.stat
+Version: 2.0.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @nodelib/fs.walk
+Version: 1.2.8
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @pkgr/core
+Version: 0.2.9
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @pmmmwh/react-refresh-webpack-plugin
+Version: 0.5.7
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @radix-ui/primitive
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @radix-ui/react-arrow
+Version: 1.0.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @radix-ui/react-collection
+Version: 1.0.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @radix-ui/react-compose-refs
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @radix-ui/react-context
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @radix-ui/react-direction
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @radix-ui/react-dismissable-layer
+Version: 1.0.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @radix-ui/react-dropdown-menu
+Version: 2.0.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @radix-ui/react-focus-guards
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @radix-ui/react-focus-scope
+Version: 1.0.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @radix-ui/react-id
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @radix-ui/react-menu
+Version: 2.0.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @radix-ui/react-popover
+Version: 1.0.7
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @radix-ui/react-popper
+Version: 1.1.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @radix-ui/react-portal
+Version: 1.0.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @radix-ui/react-presence
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @radix-ui/react-primitive
+Version: 1.0.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @radix-ui/react-roving-focus
+Version: 1.0.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @radix-ui/react-slot
+Version: 1.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @radix-ui/react-use-callback-ref
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @radix-ui/react-use-controllable-state
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @radix-ui/react-use-escape-keydown
+Version: 1.0.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @radix-ui/react-use-layout-effect
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @radix-ui/react-use-rect
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @radix-ui/react-use-size
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @radix-ui/rect
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @remix-run/router
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @rollup/plugin-babel
+Version: 5.3.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @rollup/plugin-node-resolve
+Version: 11.2.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @rollup/plugin-replace
+Version: 2.4.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @rollup/pluginutils
+Version: 3.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @rushstack/eslint-patch
+Version: 1.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @sinclair/typebox
+Version: 0.24.44
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @sinonjs/commons
+Version: 1.8.3
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: @sinonjs/fake-timers
+Version: 8.1.0
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: @surma/rollup-plugin-off-main-thread
+Version: 2.2.3
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: @svgr/babel-plugin-add-jsx-attribute
+Version: 5.4.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @svgr/babel-plugin-remove-jsx-attribute
+Version: 5.4.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @svgr/babel-plugin-remove-jsx-empty-expression
+Version: 5.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @svgr/babel-plugin-replace-jsx-attribute-value
+Version: 5.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @svgr/babel-plugin-svg-dynamic-title
+Version: 5.4.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @svgr/babel-plugin-svg-em-dimensions
+Version: 5.4.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @svgr/babel-plugin-transform-react-native-svg
+Version: 5.4.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @svgr/babel-plugin-transform-svg-component
+Version: 5.5.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @svgr/babel-preset
+Version: 5.5.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @svgr/core
+Version: 5.5.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @svgr/hast-util-to-babel-ast
+Version: 5.5.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @svgr/plugin-jsx
+Version: 5.5.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @svgr/plugin-svgo
+Version: 5.5.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @svgr/webpack
+Version: 5.5.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @tailwindcss/line-clamp
+Version: 0.4.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @tanstack/query-core
+Version: 5.8.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @tanstack/react-query
+Version: 5.8.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @testing-library/dom
+Version: 10.4.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @testing-library/jest-dom
+Version: 6.6.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @testing-library/react
+Version: 16.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @testing-library/user-event
+Version: 14.6.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @tootallnate/once
+Version: 1.1.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @trysound/sax
+Version: 0.2.0
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: @types/aria-query
+Version: 5.0.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/babel__core
+Version: 7.1.19
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/babel__generator
+Version: 7.6.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/babel__template
+Version: 7.4.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/babel__traverse
+Version: 7.18.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/body-parser
+Version: 1.19.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/bonjour
+Version: 3.5.10
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/connect
+Version: 3.4.35
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/connect-history-api-fallback
+Version: 1.3.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/eslint
+Version: 8.4.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/eslint-scope
+Version: 3.7.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/estree
+Version: 1.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/express
+Version: 4.17.14
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/express-serve-static-core
+Version: 4.17.31
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/graceful-fs
+Version: 4.1.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/html-minifier-terser
+Version: 6.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/http-proxy
+Version: 1.17.9
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/istanbul-lib-coverage
+Version: 2.0.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/istanbul-lib-report
+Version: 3.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/istanbul-reports
+Version: 3.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/json-schema
+Version: 7.0.11
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/json5
+Version: 0.0.29
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/mime
+Version: 3.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/node
+Version: 18.7.23
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/parse-json
+Version: 4.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/prettier
+Version: 2.7.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/prop-types
+Version: 15.7.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/q
+Version: 1.5.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/qs
+Version: 6.9.7
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/range-parser
+Version: 1.2.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/react
+Version: 18.0.21
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/react-transition-group
+Version: 4.4.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/resolve
+Version: 1.17.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/retry
+Version: 0.12.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/scheduler
+Version: 0.16.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/serve-index
+Version: 1.9.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/serve-static
+Version: 1.15.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/sockjs
+Version: 0.3.33
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/stack-utils
+Version: 2.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/trusted-types
+Version: 2.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/ws
+Version: 8.5.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/yargs
+Version: 16.0.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @types/yargs-parser
+Version: 21.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @typescript-eslint/eslint-plugin
+Version: 5.38.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @typescript-eslint/experimental-utils
+Version: 5.38.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @typescript-eslint/parser
+Version: 5.38.1
+License: BSD-2-Clause
+Homepage: https://opensource.org/licenses/BSD-2-Clause
+
+Package: @typescript-eslint/scope-manager
+Version: 5.38.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @typescript-eslint/type-utils
+Version: 5.38.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @typescript-eslint/types
+Version: 5.38.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @typescript-eslint/typescript-estree
+Version: 5.38.1
+License: BSD-2-Clause
+Homepage: https://opensource.org/licenses/BSD-2-Clause
+
+Package: @typescript-eslint/utils
+Version: 5.38.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @typescript-eslint/visitor-keys
+Version: 5.38.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @webassemblyjs/ast
+Version: 1.11.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @webassemblyjs/floating-point-hex-parser
+Version: 1.11.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @webassemblyjs/helper-api-error
+Version: 1.11.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @webassemblyjs/helper-buffer
+Version: 1.11.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @webassemblyjs/helper-numbers
+Version: 1.11.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @webassemblyjs/helper-wasm-bytecode
+Version: 1.11.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @webassemblyjs/helper-wasm-section
+Version: 1.11.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @webassemblyjs/ieee754
+Version: 1.11.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @webassemblyjs/leb128
+Version: 1.11.6
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: @webassemblyjs/utf8
+Version: 1.11.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @webassemblyjs/wasm-edit
+Version: 1.11.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @webassemblyjs/wasm-gen
+Version: 1.11.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @webassemblyjs/wasm-opt
+Version: 1.11.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @webassemblyjs/wasm-parser
+Version: 1.11.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @webassemblyjs/wast-printer
+Version: 1.11.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: @xtuc/ieee754
+Version: 1.2.0
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: @xtuc/long
+Version: 4.2.2
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: abab
+Version: 2.0.6
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: accepts
+Version: 1.3.8
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: acorn
+Version: 7.4.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: acorn-globals
+Version: 6.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: acorn-import-assertions
+Version: 1.9.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: acorn-jsx
+Version: 5.3.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: acorn-node
+Version: 1.8.2
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: acorn-walk
+Version: 7.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: actions/cache
+Version: 4.*.*
+License: UNKNOWN
+Homepage: N/A
+
+Package: actions/checkout
+Version: 3.*.*
+License: UNKNOWN
+Homepage: N/A
+
+Package: actions/setup-java
+Version: 3.*.*
+License: UNKNOWN
+Homepage: N/A
+
+Package: actions/upload-artifact
+Version: 4.*.*
+License: UNKNOWN
+Homepage: N/A
+
+Package: address
+Version: 1.2.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: adjust-sourcemap-loader
+Version: 4.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: agent-base
+Version: 6.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: ajv
+Version: 6.12.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: ajv-formats
+Version: 2.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: ajv-keywords
+Version: 5.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: ansi-escapes
+Version: 4.3.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: ansi-html-community
+Version: 0.0.8
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: ansi-regex
+Version: 5.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: ansi-styles
+Version: 4.3.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: anup-nehe/kattu/.github/workflows/maven-build-browserStack.yml
+Version: develop
+License: UNKNOWN
+Homepage: N/A
+
+Package: anymatch
+Version: 3.1.2
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: arg
+Version: 5.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: argparse
+Version: 2.0.1
+License: Python-2.0
+Homepage: N/A
+
+Package: aria-hidden
+Version: 1.2.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: aria-query
+Version: 5.3.2
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: array-buffer-byte-length
+Version: 1.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: array-flatten
+Version: 1.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: array-includes
+Version: 3.1.9
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: array-union
+Version: 2.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: array.prototype.findlast
+Version: 1.2.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: array.prototype.flat
+Version: 1.3.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: array.prototype.flatmap
+Version: 1.3.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: array.prototype.reduce
+Version: 1.0.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: array.prototype.tosorted
+Version: 1.1.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: arraybuffer.prototype.slice
+Version: 1.0.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: asap
+Version: 2.0.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: ast-types-flow
+Version: 0.0.7
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: async
+Version: 3.2.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: async-function
+Version: 1.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: asynckit
+Version: 0.4.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: at-least-node
+Version: 1.0.0
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: autoprefixer
+Version: 10.4.12
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: available-typed-arrays
+Version: 1.0.7
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: axe-core
+Version: 4.4.3
+License: MPL-2.0
+Homepage: https://www.mozilla.org/en-US/MPL/2.0/
+
+Package: axios
+Version: 1.7.8
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: axobject-query
+Version: 2.2.0
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: babel-jest
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: babel-loader
+Version: 8.2.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: babel-plugin-dynamic-import-node
+Version: 2.3.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: babel-plugin-istanbul
+Version: 6.1.1
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: babel-plugin-jest-hoist
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: babel-plugin-macros
+Version: 3.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: babel-plugin-named-asset-import
+Version: 0.3.8
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: babel-plugin-polyfill-corejs2
+Version: 0.3.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: babel-plugin-polyfill-corejs3
+Version: 0.6.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: babel-plugin-polyfill-regenerator
+Version: 0.4.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: babel-plugin-transform-react-remove-prop-types
+Version: 0.4.24
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: babel-preset-current-node-syntax
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: babel-preset-jest
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: babel-preset-react-app
+Version: 10.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: balanced-match
+Version: 1.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: base64-js
+Version: 1.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: batch
+Version: 0.6.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: bfj
+Version: 7.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: big.js
+Version: 5.2.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: binary-extensions
+Version: 2.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: bluebird
+Version: 3.7.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: body-parser
+Version: 1.20.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: bonjour-service
+Version: 1.0.14
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: boolbase
+Version: 1.0.0
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: brace-expansion
+Version: 1.1.11
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: braces
+Version: 3.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: browser-process-hrtime
+Version: 1.0.0
+License: BSD-2-Clause
+Homepage: https://opensource.org/licenses/BSD-2-Clause
+
+Package: browserslist
+Version: 4.21.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: bser
+Version: 2.1.1
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: buffer
+Version: 6.0.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: buffer-from
+Version: 1.1.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: builtin-modules
+Version: 3.3.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: bytes
+Version: 3.1.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: call-bind
+Version: 1.0.8
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: call-bind-apply-helpers
+Version: 1.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: call-bound
+Version: 1.0.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: callsites
+Version: 3.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: camel-case
+Version: 4.1.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: camelcase
+Version: 6.3.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: camelcase-css
+Version: 2.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: caniuse-api
+Version: 3.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: caniuse-lite
+Version: 1.0.30001414
+License: CC-BY-4.0
+Homepage: N/A
+
+Package: case-sensitive-paths-webpack-plugin
+Version: 2.4.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: chalk
+Version: 4.1.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: char-regex
+Version: 1.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: check-types
+Version: 11.1.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: chokidar
+Version: 3.5.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: chrome-trace-event
+Version: 1.0.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: ci-info
+Version: 3.4.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: cjs-module-lexer
+Version: 1.2.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: classnames
+Version: 2.3.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: clean-css
+Version: 5.3.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: cliui
+Version: 7.0.4
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: co
+Version: 4.6.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: coa
+Version: 2.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: collect-v8-coverage
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: color
+Version: 3.2.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: color-convert
+Version: 2.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: color-name
+Version: 1.1.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: color-string
+Version: 1.9.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: colord
+Version: 2.9.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: colorette
+Version: 2.0.19
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: com.aventstack:extentreports
+Version: 5.1.2
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: com.browserstack:browserstack-java-sdk
+Version: 1.30.9
+License: Apache-2.0 AND BSD-3-Clause AND LicenseRef-scancode-warranty-disclaimer
+Homepage: N/A
+
+Package: com.fasterxml.jackson.core:jackson-annotations
+Version: 2.15.0
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: com.fasterxml.jackson.core:jackson-core
+Version: 2.15.0
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: com.fasterxml.jackson.core:jackson-databind
+Version: 2.15.0
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: com.fasterxml.jackson.datatype:jackson-datatype-jsr310
+Version: 2.15.0
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: com.fasterxml.jackson.module:jackson-module-afterburner
+Version: 2.15.0
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: com.github.rajapandi1234/esignet
+Version: develop
+License: UNKNOWN
+Homepage: N/A
+
+Package: com.google.guava:guava
+Version: 32.0.0-jre
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: com.h2database:h2
+Version: 2.2.220
+License: MPL-2.0 OR EPL-1.0
+Homepage: N/A
+
+Package: com.networknt:json-schema-validator
+Version: 1.5.1
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: combined-stream
+Version: 1.0.8
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: commander
+Version: 2.20.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: common-path-prefix
+Version: 3.0.0
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: common-tags
+Version: 1.8.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: commondir
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: commons-codec:commons-codec
+Version: 1.15
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: commons-validator:commons-validator
+Version: 1.7
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: compressible
+Version: 2.0.18
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: compression
+Version: 1.7.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: concat-map
+Version: 0.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: confusing-browser-globals
+Version: 1.0.11
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: connect-history-api-fallback
+Version: 2.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: content-disposition
+Version: 0.5.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: content-type
+Version: 1.0.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: convert-source-map
+Version: 1.8.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: cookie
+Version: 0.5.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: cookie-signature
+Version: 1.0.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: core-js
+Version: 3.25.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: core-js-compat
+Version: 3.25.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: core-js-pure
+Version: 3.25.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: core-util-is
+Version: 1.0.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: cosmiconfig
+Version: 7.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: cra-template
+Version: 1.1.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: cross-fetch
+Version: 3.1.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: cross-spawn
+Version: 7.0.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: crypto-js
+Version: 4.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: crypto-random-string
+Version: 2.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: css-blank-pseudo
+Version: 3.0.3
+License: CC0-1.0
+Homepage: N/A
+
+Package: css-declaration-sorter
+Version: 6.3.1
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: css-has-pseudo
+Version: 3.0.4
+License: CC0-1.0
+Homepage: N/A
+
+Package: css-loader
+Version: 6.7.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: css-minimizer-webpack-plugin
+Version: 3.4.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: css-prefers-color-scheme
+Version: 6.0.3
+License: CC0-1.0
+Homepage: N/A
+
+Package: css-select
+Version: 4.3.0
+License: BSD-2-Clause
+Homepage: https://opensource.org/licenses/BSD-2-Clause
+
+Package: css-select-base-adapter
+Version: 0.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: css-tree
+Version: 1.1.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: css-unit-converter
+Version: 1.1.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: css-what
+Version: 6.1.0
+License: BSD-2-Clause
+Homepage: https://opensource.org/licenses/BSD-2-Clause
+
+Package: css.escape
+Version: 1.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: cssdb
+Version: 7.0.1
+License: CC0-1.0
+Homepage: N/A
+
+Package: cssesc
+Version: 3.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: cssnano
+Version: 5.1.13
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: cssnano-preset-default
+Version: 5.2.12
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: cssnano-utils
+Version: 3.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: csso
+Version: 4.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: cssom
+Version: 0.3.8
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: cssstyle
+Version: 2.3.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: csstype
+Version: 3.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: damerau-levenshtein
+Version: 1.0.8
+License: BSD-2-Clause
+Homepage: https://opensource.org/licenses/BSD-2-Clause
+
+Package: data-urls
+Version: 2.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: data-view-buffer
+Version: 1.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: data-view-byte-length
+Version: 1.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: data-view-byte-offset
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: debug
+Version: 4.3.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: decamelize
+Version: 1.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: decimal.js
+Version: 10.4.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: dedent
+Version: 0.7.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: deep-is
+Version: 0.1.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: deepmerge
+Version: 4.2.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: default-gateway
+Version: 6.0.3
+License: BSD-2-Clause
+Homepage: https://opensource.org/licenses/BSD-2-Clause
+
+Package: define-data-property
+Version: 1.1.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: define-lazy-prop
+Version: 2.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: define-properties
+Version: 1.2.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: defined
+Version: 1.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: delayed-stream
+Version: 1.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: depd
+Version: 2.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: dequal
+Version: 2.0.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: destroy
+Version: 1.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: detect-newline
+Version: 3.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: detect-node
+Version: 2.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: detect-node-es
+Version: 1.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: detect-port-alt
+Version: 1.1.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: detective
+Version: 5.2.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: didyoumean
+Version: 1.2.2
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: diff-sequences
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: dijkstrajs
+Version: 1.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: dir-glob
+Version: 3.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: dlv
+Version: 1.1.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: dns-equal
+Version: 1.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: dns-packet
+Version: 5.4.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: doctrine
+Version: 2.1.0
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: dom-accessibility-api
+Version: 0.5.16
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: dom-converter
+Version: 0.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: dom-helpers
+Version: 5.2.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: dom-serializer
+Version: 1.4.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: domelementtype
+Version: 1.3.1
+License: BSD-2-Clause
+Homepage: https://opensource.org/licenses/BSD-2-Clause
+
+Package: domexception
+Version: 2.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: domhandler
+Version: 4.3.1
+License: BSD-2-Clause
+Homepage: https://opensource.org/licenses/BSD-2-Clause
+
+Package: domutils
+Version: 1.7.0
+License: BSD-2-Clause
+Homepage: https://opensource.org/licenses/BSD-2-Clause
+
+Package: dot-case
+Version: 3.0.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: dotenv
+Version: 10.0.0
+License: BSD-2-Clause
+Homepage: https://opensource.org/licenses/BSD-2-Clause
+
+Package: dotenv-expand
+Version: 5.1.0
+License: BSD-2-Clause
+Homepage: https://opensource.org/licenses/BSD-2-Clause
+
+Package: dunder-proto
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: duplexer
+Version: 0.1.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: ee-first
+Version: 1.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: ejs
+Version: 3.1.8
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: electron-to-chromium
+Version: 1.4.270
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: emittery
+Version: 0.8.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: emoji-regex
+Version: 9.2.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: emojis-list
+Version: 3.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: encode-utf8
+Version: 1.0.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: encodeurl
+Version: 1.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: enhanced-resolve
+Version: 5.15.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: entities
+Version: 2.2.0
+License: BSD-2-Clause
+Homepage: https://opensource.org/licenses/BSD-2-Clause
+
+Package: error-ex
+Version: 1.3.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: error-stack-parser
+Version: 2.1.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: es-abstract
+Version: 1.24.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: es-array-method-boxes-properly
+Version: 1.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: es-define-property
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: es-errors
+Version: 1.3.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: es-iterator-helpers
+Version: 1.2.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: es-module-lexer
+Version: 1.3.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: es-object-atoms
+Version: 1.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: es-set-tostringtag
+Version: 2.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: es-shim-unscopables
+Version: 1.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: es-to-primitive
+Version: 1.3.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: escalade
+Version: 3.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: escape-html
+Version: 1.0.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: escape-string-regexp
+Version: 2.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: escodegen
+Version: 2.0.0
+License: BSD-2-Clause
+Homepage: https://opensource.org/licenses/BSD-2-Clause
+
+Package: eslint
+Version: 8.24.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: eslint-config-prettier
+Version: 10.1.8
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: eslint-config-react-app
+Version: 7.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: eslint-import-resolver-node
+Version: 0.3.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: eslint-module-utils
+Version: 2.7.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: eslint-plugin-flowtype
+Version: 8.0.3
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: eslint-plugin-import
+Version: 2.26.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: eslint-plugin-jest
+Version: 25.7.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: eslint-plugin-jsx-a11y
+Version: 6.6.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: eslint-plugin-prettier
+Version: 5.5.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: eslint-plugin-react
+Version: 7.37.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: eslint-plugin-react-hooks
+Version: 4.6.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: eslint-plugin-testing-library
+Version: 5.7.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: eslint-scope
+Version: 7.1.1
+License: BSD-2-Clause
+Homepage: https://opensource.org/licenses/BSD-2-Clause
+
+Package: eslint-utils
+Version: 3.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: eslint-visitor-keys
+Version: 3.3.0
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: eslint-webpack-plugin
+Version: 3.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: espree
+Version: 9.4.0
+License: BSD-2-Clause
+Homepage: https://opensource.org/licenses/BSD-2-Clause
+
+Package: esprima
+Version: 4.0.1
+License: BSD-2-Clause AND BSD-3-Clause
+Homepage: N/A
+
+Package: esquery
+Version: 1.4.0
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: esrecurse
+Version: 4.3.0
+License: BSD-2-Clause
+Homepage: https://opensource.org/licenses/BSD-2-Clause
+
+Package: estraverse
+Version: 4.3.0
+License: BSD-2-Clause
+Homepage: https://opensource.org/licenses/BSD-2-Clause
+
+Package: estree-walker
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: esutils
+Version: 2.0.3
+License: BSD-2-Clause
+Homepage: https://opensource.org/licenses/BSD-2-Clause
+
+Package: etag
+Version: 1.8.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: eventemitter3
+Version: 4.0.7
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: events
+Version: 3.3.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: execa
+Version: 5.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: exit
+Version: 0.1.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: expect
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: express
+Version: 4.18.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: fast-deep-equal
+Version: 3.1.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: fast-diff
+Version: 1.3.0
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: fast-glob
+Version: 3.2.12
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: fast-json-stable-stringify
+Version: 2.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: fast-levenshtein
+Version: 2.0.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: fastq
+Version: 1.13.0
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: faye-websocket
+Version: 0.11.4
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: fb-watchman
+Version: 2.0.2
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: file-entry-cache
+Version: 6.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: file-loader
+Version: 6.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: filelist
+Version: 1.0.4
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: filesize
+Version: 8.0.7
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: fill-range
+Version: 7.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: finalhandler
+Version: 1.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: find-cache-dir
+Version: 3.3.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: find-root
+Version: 1.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: find-up
+Version: 4.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: flat-cache
+Version: 3.0.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: flatted
+Version: 3.2.7
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: follow-redirects
+Version: 1.15.9
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: for-each
+Version: 0.3.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: fork-ts-checker-webpack-plugin
+Version: 6.5.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: form-data
+Version: 3.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: forwarded
+Version: 0.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: fraction.js
+Version: 4.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: fresh
+Version: 0.5.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: fs-extra
+Version: 10.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: fs-monkey
+Version: 1.0.3
+License: Unlicense
+Homepage: N/A
+
+Package: fs.realpath
+Version: 1.0.0
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: function-bind
+Version: 1.1.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: function.prototype.name
+Version: 1.1.8
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: functions-have-names
+Version: 1.2.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: gensync
+Version: 1.0.0-beta.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: get-caller-file
+Version: 2.0.5
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: get-intrinsic
+Version: 1.3.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: get-nonce
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: get-own-enumerable-property-symbols
+Version: 3.0.2
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: get-package-type
+Version: 0.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: get-proto
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: get-stream
+Version: 6.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: get-symbol-description
+Version: 1.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: github/codeql-action/analyze
+Version: 3.*.*
+License: UNKNOWN
+Homepage: N/A
+
+Package: github/codeql-action/init
+Version: 3.*.*
+License: UNKNOWN
+Homepage: N/A
+
+Package: glob
+Version: 7.2.3
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: glob-parent
+Version: 5.1.2
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: glob-to-regexp
+Version: 0.4.1
+License: BSD-2-Clause
+Homepage: https://opensource.org/licenses/BSD-2-Clause
+
+Package: global-modules
+Version: 2.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: global-prefix
+Version: 3.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: globals
+Version: 13.17.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: globalthis
+Version: 1.0.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: globby
+Version: 11.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: gopd
+Version: 1.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: graceful-fs
+Version: 4.2.10
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: grapheme-splitter
+Version: 1.0.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: gzip-size
+Version: 6.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: handle-thing
+Version: 2.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: harmony-reflect
+Version: 1.6.2
+License: Apache-2.0 OR MPL-1.1 OR (Apache-2.0 AND MPL-1.1)
+Homepage: N/A
+
+Package: has
+Version: 1.0.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: has-bigints
+Version: 1.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: has-flag
+Version: 4.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: has-property-descriptors
+Version: 1.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: has-proto
+Version: 1.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: has-symbols
+Version: 1.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: has-tostringtag
+Version: 1.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: hasown
+Version: 2.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: he
+Version: 1.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: hoist-non-react-statics
+Version: 3.3.2
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: hoopy
+Version: 0.1.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: hpack.js
+Version: 2.1.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: html-encoding-sniffer
+Version: 2.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: html-entities
+Version: 2.3.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: html-escaper
+Version: 2.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: html-minifier-terser
+Version: 6.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: html-parse-stringify
+Version: 3.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: html-tags
+Version: 3.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: html-webpack-plugin
+Version: 5.5.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: htmlparser2
+Version: 6.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: http-deceiver
+Version: 1.2.7
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: http-errors
+Version: 2.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: http-parser-js
+Version: 0.5.8
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: http-proxy
+Version: 1.18.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: http-proxy-agent
+Version: 4.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: http-proxy-middleware
+Version: 2.0.7
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: https-proxy-agent
+Version: 5.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: human-signals
+Version: 2.1.0
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: i18next
+Version: 21.10.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: i18next-browser-languagedetector
+Version: 7.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: i18next-http-backend
+Version: 2.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: iconv-lite
+Version: 0.6.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: icss-utils
+Version: 5.1.0
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: idb
+Version: 7.1.0
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: identity-obj-proxy
+Version: 3.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: ieee754
+Version: 1.2.1
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: ignore
+Version: 5.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: immer
+Version: 9.0.15
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: import-fresh
+Version: 3.3.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: import-local
+Version: 3.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: imurmurhash
+Version: 0.1.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: indent-string
+Version: 4.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: inflight
+Version: 1.0.6
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: inherits
+Version: 2.0.4
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: ini
+Version: 1.3.8
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: internal-slot
+Version: 1.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: invariant
+Version: 2.2.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: io.cucumber:cucumber-java
+Version: 7.21.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: io.cucumber:cucumber-junit
+Version: 7.21.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: io.cucumber:cucumber-picocontainer
+Version: 7.21.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: io.cucumber:cucumber-testng
+Version: 7.21.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: io.cucumber:gherkin
+Version: 32.0.1
+License: UNKNOWN
+Homepage: N/A
+
+Package: io.cucumber:messages
+Version: 27.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: io.github.bonigarcia:webdrivermanager
+Version: 6.0.1
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: io.micrometer:micrometer-registry-prometheus
+Version: N/A
+License: UNKNOWN
+Homepage: N/A
+
+Package: ipaddr.js
+Version: 1.9.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-array-buffer
+Version: 3.0.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-arrayish
+Version: 0.2.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-async-function
+Version: 2.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-bigint
+Version: 1.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-binary-path
+Version: 2.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-boolean-object
+Version: 1.2.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-callable
+Version: 1.2.7
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-core-module
+Version: 2.16.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-data-view
+Version: 1.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-date-object
+Version: 1.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-docker
+Version: 2.2.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-extglob
+Version: 2.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-finalizationregistry
+Version: 1.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-fullwidth-code-point
+Version: 3.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-generator-fn
+Version: 2.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-generator-function
+Version: 1.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-glob
+Version: 4.0.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-map
+Version: 2.0.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-module
+Version: 1.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-negative-zero
+Version: 2.0.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-number
+Version: 7.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-number-object
+Version: 1.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-obj
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-plain-obj
+Version: 3.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-potential-custom-element-name
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-regex
+Version: 1.2.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-regexp
+Version: 1.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-root
+Version: 2.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-set
+Version: 2.0.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-shared-array-buffer
+Version: 1.0.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-stream
+Version: 2.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-string
+Version: 1.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-symbol
+Version: 1.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-typed-array
+Version: 1.1.15
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-typedarray
+Version: 1.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-weakmap
+Version: 2.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-weakref
+Version: 1.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-weakset
+Version: 2.0.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: is-wsl
+Version: 2.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: isarray
+Version: 1.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: isexe
+Version: 2.0.0
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: iso-3166-1
+Version: 2.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: istanbul-lib-coverage
+Version: 3.2.0
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: istanbul-lib-instrument
+Version: 5.2.0
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: istanbul-lib-report
+Version: 3.0.0
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: istanbul-lib-source-maps
+Version: 4.0.1
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: istanbul-reports
+Version: 3.1.5
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: iterator.prototype
+Version: 1.1.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jake
+Version: 10.8.5
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: javax.xml.bind:jaxb-api
+Version: N/A
+License: UNKNOWN
+Homepage: N/A
+
+Package: jest
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jest-changed-files
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jest-circus
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jest-cli
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jest-config
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jest-diff
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jest-docblock
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jest-each
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jest-environment-jsdom
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jest-environment-node
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jest-get-type
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jest-haste-map
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jest-jasmine2
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jest-leak-detector
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jest-matcher-utils
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jest-message-util
+Version: 28.1.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jest-mock
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jest-pnp-resolver
+Version: 1.2.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jest-regex-util
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jest-resolve
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jest-resolve-dependencies
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jest-runner
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jest-runtime
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jest-serializer
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jest-snapshot
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jest-util
+Version: 28.1.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jest-validate
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jest-watch-typeahead
+Version: 1.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jest-watcher
+Version: 28.1.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jest-worker
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jose
+Version: 4.15.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: js-sdsl
+Version: 4.1.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: js-tokens
+Version: 4.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: js-yaml
+Version: 3.14.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jsdom
+Version: 16.7.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jsesc
+Version: 2.5.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: json-parse-even-better-errors
+Version: 2.3.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: json-schema
+Version: 0.4.0
+License: AFL-2.1 OR BSD-3-Clause OR (AFL-2.1 AND BSD-3-Clause)
+Homepage: N/A
+
+Package: json-schema-traverse
+Version: 1.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: json-stable-stringify-without-jsonify
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: json5
+Version: 2.2.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jsonfile
+Version: 6.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jsonpointer
+Version: 5.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: jsx-ast-utils
+Version: 3.3.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: junit:junit
+Version: 4.13.2
+License: EPL-1.0
+Homepage: https://www.eclipse.org/legal/epl-v10.html
+
+Package: kind-of
+Version: 6.0.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: kleur
+Version: 3.0.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: klona
+Version: 2.0.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: language-subtag-registry
+Version: 0.3.22
+License: CC0-1.0
+Homepage: N/A
+
+Package: language-tags
+Version: 1.0.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: leven
+Version: 3.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: levn
+Version: 0.4.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: lilconfig
+Version: 2.0.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: lines-and-columns
+Version: 1.2.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: loader-runner
+Version: 4.3.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: loader-utils
+Version: 2.0.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: locate-path
+Version: 5.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: lodash
+Version: 4.17.21
+License: CC0-1.0 AND MIT
+Homepage: N/A
+
+Package: lodash.debounce
+Version: 4.0.8
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: lodash.memoize
+Version: 4.1.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: lodash.merge
+Version: 4.6.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: lodash.sortby
+Version: 4.7.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: lodash.uniq
+Version: 4.5.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: loose-envify
+Version: 1.4.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: lower-case
+Version: 2.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: lru-cache
+Version: 6.0.0
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: lz-string
+Version: 1.5.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: magic-string
+Version: 0.25.9
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: make-dir
+Version: 3.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: makeerror
+Version: 1.0.12
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: math-intrinsics
+Version: 1.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: mdn-data
+Version: 2.0.14
+License: CC0-1.0
+Homepage: N/A
+
+Package: media-typer
+Version: 0.3.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: memfs
+Version: 3.4.7
+License: Unlicense
+Homepage: N/A
+
+Package: memoize-one
+Version: 5.2.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: merge-descriptors
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: merge-stream
+Version: 2.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: merge2
+Version: 1.4.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: methods
+Version: 1.1.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: micromatch
+Version: 4.0.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: mime
+Version: 1.6.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: mime-db
+Version: 1.52.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: mime-types
+Version: 2.1.35
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: mimic-fn
+Version: 2.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: min-indent
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: mini-css-extract-plugin
+Version: 2.6.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: minimalistic-assert
+Version: 1.0.1
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: minimatch
+Version: 5.1.0
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: minimist
+Version: 1.2.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: mkdirp
+Version: 0.5.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: ms
+Version: 2.1.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: multicast-dns
+Version: 7.2.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: nanoid
+Version: 3.3.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: natural-compare
+Version: 1.4.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: negotiator
+Version: 0.6.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: neo-async
+Version: 2.6.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: no-case
+Version: 3.0.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: node-emoji
+Version: 1.11.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: node-fetch
+Version: 2.6.7
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: node-forge
+Version: 1.3.1
+License: BSD-3-Clause OR GPL-2.0 OR (BSD-3-Clause AND GPL-2.0)
+Homepage: N/A
+
+Package: node-int64
+Version: 0.4.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: node-releases
+Version: 2.0.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: normalize-path
+Version: 3.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: normalize-range
+Version: 0.1.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: normalize-url
+Version: 6.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: normalize.css
+Version: 8.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: npm-run-path
+Version: 4.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: nth-check
+Version: 2.1.1
+License: BSD-2-Clause
+Homepage: https://opensource.org/licenses/BSD-2-Clause
+
+Package: num2fraction
+Version: 1.2.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: nwsapi
+Version: 2.2.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: object-assign
+Version: 4.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: object-hash
+Version: 2.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: object-inspect
+Version: 1.13.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: object-keys
+Version: 1.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: object.assign
+Version: 4.1.7
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: object.entries
+Version: 1.1.9
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: object.fromentries
+Version: 2.0.8
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: object.getownpropertydescriptors
+Version: 2.1.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: object.values
+Version: 1.2.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: obuf
+Version: 1.1.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: on-finished
+Version: 2.4.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: on-headers
+Version: 1.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: once
+Version: 1.4.0
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: onetime
+Version: 5.1.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: open
+Version: 8.4.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: optionator
+Version: 0.9.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: org.apache.commons:commons-lang3
+Version: N/A
+License: UNKNOWN
+Homepage: N/A
+
+Package: org.apache.maven.plugins:maven-antrun-plugin
+Version: 3.0.0
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: org.apache.maven.plugins:maven-compiler-plugin
+Version: 3.8.0
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: org.apache.maven.plugins:maven-dependency-plugin
+Version: 3.3.0
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: org.apache.maven.plugins:maven-gpg-plugin
+Version: 1.5
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: org.apache.maven.plugins:maven-jar-plugin
+Version: 3.0.2
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: org.apache.maven.plugins:maven-javadoc-plugin
+Version: N/A
+License: UNKNOWN
+Homepage: N/A
+
+Package: org.apache.maven.plugins:maven-shade-plugin
+Version: 3.2.4
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: org.apache.maven.plugins:maven-source-plugin
+Version: 2.2.1
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: org.apache.maven.plugins:maven-surefire-plugin
+Version: 2.22.0
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: org.apache.maven.plugins:maven-war-plugin
+Version: 3.1.0
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: org.apache.pdfbox:pdfbox
+Version: 2.0.31
+License: UNKNOWN
+Homepage: N/A
+
+Package: org.apache.tomcat.embed:tomcat-embed-core
+Version: 9.0.105
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: org.jacoco:jacoco-maven-plugin
+Version: 0.8.5
+License: EPL-2.0
+Homepage: https://www.eclipse.org/legal/epl-2.0/
+
+Package: org.javassist:javassist
+Version: 3.27.0-GA
+License: Apache-2.0 OR LGPL-2.1-or-later OR MPL-1.1
+Homepage: N/A
+
+Package: org.json:json
+Version: 20240303
+License: LicenseRef-scancode-public-domain
+Homepage: N/A
+
+Package: org.mapstruct:mapstruct
+Version: 1.5.5
+License: UNKNOWN
+Homepage: N/A
+
+Package: org.mockito:mockito-core
+Version: 2.22.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: org.postgresql:postgresql
+Version: 42.7.5
+License: BSD-2-Clause
+Homepage: https://opensource.org/licenses/BSD-2-Clause
+
+Package: org.projectlombok:lombok
+Version: 1.18.30
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: org.seleniumhq.selenium:selenium-devtools-v134
+Version: 4.31.0
+License: UNKNOWN
+Homepage: N/A
+
+Package: org.seleniumhq.selenium:selenium-java
+Version: 4.14.1
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: org.sonatype.central:central-publishing-maven-plugin
+Version: 0.7.0
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: org.springdoc:springdoc-openapi-maven-plugin
+Version: 0.2
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: org.springdoc:springdoc-openapi-ui
+Version: 1.8.0
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: org.springframework.boot:spring-boot-maven-plugin
+Version: 2.3.6.RELEASE
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: org.testng:testng
+Version: 7.7.1
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: own-keys
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: p-limit
+Version: 3.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: p-locate
+Version: 4.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: p-retry
+Version: 4.6.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: p-try
+Version: 2.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: param-case
+Version: 3.0.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: parent-module
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: parse-json
+Version: 5.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: parse5
+Version: 6.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: parseurl
+Version: 1.3.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: pascal-case
+Version: 3.1.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: path-exists
+Version: 3.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: path-is-absolute
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: path-key
+Version: 3.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: path-parse
+Version: 1.0.7
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: path-to-regexp
+Version: 0.1.7
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: path-type
+Version: 4.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: performance-now
+Version: 2.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: picocolors
+Version: 0.2.1
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: picomatch
+Version: 2.3.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: pify
+Version: 2.3.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: pirates
+Version: 4.0.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: pkg-dir
+Version: 4.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: pkg-up
+Version: 3.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: pngjs
+Version: 5.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: possible-typed-array-names
+Version: 1.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss
+Version: 7.0.32
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-attribute-case-insensitive
+Version: 5.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-browser-comments
+Version: 4.0.0
+License: CC0-1.0
+Homepage: N/A
+
+Package: postcss-calc
+Version: 8.2.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-clamp
+Version: 4.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-color-functional-notation
+Version: 4.2.4
+License: CC0-1.0
+Homepage: N/A
+
+Package: postcss-color-hex-alpha
+Version: 8.0.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-color-rebeccapurple
+Version: 7.1.1
+License: CC0-1.0
+Homepage: N/A
+
+Package: postcss-colormin
+Version: 5.3.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-convert-values
+Version: 5.1.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-custom-media
+Version: 8.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-custom-properties
+Version: 12.1.9
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-custom-selectors
+Version: 6.0.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-dir-pseudo-class
+Version: 6.0.5
+License: CC0-1.0
+Homepage: N/A
+
+Package: postcss-discard-comments
+Version: 5.1.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-discard-duplicates
+Version: 5.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-discard-empty
+Version: 5.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-discard-overridden
+Version: 5.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-double-position-gradients
+Version: 3.1.2
+License: CC0-1.0
+Homepage: N/A
+
+Package: postcss-env-function
+Version: 4.0.6
+License: CC0-1.0
+Homepage: N/A
+
+Package: postcss-flexbugs-fixes
+Version: 5.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-focus-visible
+Version: 6.0.4
+License: CC0-1.0
+Homepage: N/A
+
+Package: postcss-focus-within
+Version: 5.0.4
+License: CC0-1.0
+Homepage: N/A
+
+Package: postcss-font-variant
+Version: 5.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-functions
+Version: 3.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-gap-properties
+Version: 3.0.5
+License: CC0-1.0
+Homepage: N/A
+
+Package: postcss-image-set-function
+Version: 4.0.7
+License: CC0-1.0
+Homepage: N/A
+
+Package: postcss-import
+Version: 14.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-initial
+Version: 4.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-js
+Version: 4.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-lab-function
+Version: 4.2.1
+License: CC0-1.0
+Homepage: N/A
+
+Package: postcss-load-config
+Version: 3.1.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-loader
+Version: 6.2.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-logical
+Version: 5.0.4
+License: CC0-1.0
+Homepage: N/A
+
+Package: postcss-media-minmax
+Version: 5.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-merge-longhand
+Version: 5.1.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-merge-rules
+Version: 5.1.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-minify-font-values
+Version: 5.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-minify-gradients
+Version: 5.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-minify-params
+Version: 5.1.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-minify-selectors
+Version: 5.2.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-modules-extract-imports
+Version: 3.0.0
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: postcss-modules-local-by-default
+Version: 4.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-modules-scope
+Version: 3.0.0
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: postcss-modules-values
+Version: 4.0.0
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: postcss-nested
+Version: 5.0.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-nesting
+Version: 10.2.0
+License: CC0-1.0
+Homepage: N/A
+
+Package: postcss-normalize
+Version: 10.0.1
+License: CC0-1.0
+Homepage: N/A
+
+Package: postcss-normalize-charset
+Version: 5.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-normalize-display-values
+Version: 5.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-normalize-positions
+Version: 5.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-normalize-repeat-style
+Version: 5.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-normalize-string
+Version: 5.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-normalize-timing-functions
+Version: 5.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-normalize-unicode
+Version: 5.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-normalize-url
+Version: 5.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-normalize-whitespace
+Version: 5.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-opacity-percentage
+Version: 1.1.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-ordered-values
+Version: 5.1.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-overflow-shorthand
+Version: 3.0.4
+License: CC0-1.0
+Homepage: N/A
+
+Package: postcss-page-break
+Version: 3.0.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-place
+Version: 7.0.5
+License: CC0-1.0
+Homepage: N/A
+
+Package: postcss-preset-env
+Version: 7.8.2
+License: CC0-1.0
+Homepage: N/A
+
+Package: postcss-pseudo-class-any-link
+Version: 7.1.6
+License: CC0-1.0
+Homepage: N/A
+
+Package: postcss-reduce-initial
+Version: 5.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-reduce-transforms
+Version: 5.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-replace-overflow-wrap
+Version: 4.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-selector-not
+Version: 6.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-selector-parser
+Version: 6.0.10
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-svgo
+Version: 5.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-unique-selectors
+Version: 5.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: postcss-value-parser
+Version: 3.3.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: prelude-ls
+Version: 1.2.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: prettier
+Version: 3.6.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: prettier-linter-helpers
+Version: 1.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: pretty-bytes
+Version: 5.6.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: pretty-error
+Version: 4.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: pretty-format
+Version: 27.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: pretty-hrtime
+Version: 1.0.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: process-nextick-args
+Version: 2.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: promise
+Version: 8.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: prompts
+Version: 2.4.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: prop-types
+Version: 15.8.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: proxy-addr
+Version: 2.0.7
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: proxy-from-env
+Version: 1.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: psl
+Version: 1.9.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: punycode
+Version: 2.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: purgecss
+Version: 2.3.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: q
+Version: 1.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: qrcode
+Version: 1.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: qs
+Version: 6.10.3
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: querystringify
+Version: 2.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: queue-microtask
+Version: 1.2.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: quick-lru
+Version: 5.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: raf
+Version: 3.4.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: randombytes
+Version: 2.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: range-parser
+Version: 1.2.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: raw-body
+Version: 2.5.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: react
+Version: 18.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: react-app-polyfill
+Version: 3.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: react-async-script
+Version: 1.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: react-country-flag
+Version: 3.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: react-detect-offline
+Version: 2.4.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: react-dev-utils
+Version: 12.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: react-dom
+Version: 18.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: react-error-overlay
+Version: 6.0.11
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: react-google-recaptcha
+Version: 2.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: react-i18next
+Version: 11.18.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: react-is
+Version: 16.13.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: react-pin-input
+Version: 1.3.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: react-refresh
+Version: 0.11.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: react-remove-scroll
+Version: 2.5.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: react-remove-scroll-bar
+Version: 2.3.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: react-router
+Version: 6.4.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: react-router-dom
+Version: 6.4.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: react-scripts
+Version: 5.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: react-select
+Version: 5.4.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: react-style-singleton
+Version: 2.2.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: react-tooltip
+Version: 5.7.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: react-transition-group
+Version: 4.4.5
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: read-cache
+Version: 1.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: readable-stream
+Version: 3.6.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: readdirp
+Version: 3.6.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: recursive-readdir
+Version: 2.2.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: redent
+Version: 3.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: reduce-css-calc
+Version: 2.1.8
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: reflect.getprototypeof
+Version: 1.0.10
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: regenerate
+Version: 1.4.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: regenerate-unicode-properties
+Version: 10.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: regenerator-runtime
+Version: 0.13.11
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: regenerator-transform
+Version: 0.15.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: regex-parser
+Version: 2.2.11
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: regexp.prototype.flags
+Version: 1.5.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: regexpp
+Version: 3.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: regexpu-core
+Version: 5.2.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: regjsgen
+Version: 0.7.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: regjsparser
+Version: 0.9.1
+License: BSD-2-Clause
+Homepage: https://opensource.org/licenses/BSD-2-Clause
+
+Package: relateurl
+Version: 0.2.7
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: renderkid
+Version: 3.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: require-directory
+Version: 2.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: require-from-string
+Version: 2.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: require-main-filename
+Version: 2.0.0
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: requires-port
+Version: 1.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: resolve
+Version: 2.0.0-next.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: resolve-cwd
+Version: 3.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: resolve-from
+Version: 4.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: resolve-url-loader
+Version: 4.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: resolve.exports
+Version: 1.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: retry
+Version: 0.13.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: reusify
+Version: 1.0.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: rimraf
+Version: 3.0.2
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: rollup
+Version: 2.79.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: rollup-plugin-terser
+Version: 7.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: run-parallel
+Version: 1.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: safe-array-concat
+Version: 1.1.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: safe-buffer
+Version: 5.1.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: safe-push-apply
+Version: 1.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: safe-regex-test
+Version: 1.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: safer-buffer
+Version: 2.1.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: sanitize.css
+Version: 13.0.0
+License: CC0-1.0
+Homepage: N/A
+
+Package: sass-loader
+Version: 12.6.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: sax
+Version: 1.2.4
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: saxes
+Version: 5.0.1
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: scheduler
+Version: 0.23.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: schema-utils
+Version: 3.3.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: secure-biometric-interface-integrator
+Version: 0.9.1
+License: MPL-2.0
+Homepage: https://www.mozilla.org/en-US/MPL/2.0/
+
+Package: select-hose
+Version: 2.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: selfsigned
+Version: 2.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: semver
+Version: 6.3.1
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: send
+Version: 0.18.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: serialize-javascript
+Version: 4.0.0
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: serve-index
+Version: 1.9.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: serve-static
+Version: 1.15.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: set-blocking
+Version: 2.0.0
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: set-function-length
+Version: 1.2.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: set-function-name
+Version: 2.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: set-proto
+Version: 1.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: setprototypeof
+Version: 1.1.0
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: shebang-command
+Version: 2.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: shebang-regex
+Version: 3.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: shell-quote
+Version: 1.7.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: side-channel
+Version: 1.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: side-channel-list
+Version: 1.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: side-channel-map
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: side-channel-weakmap
+Version: 1.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: signal-exit
+Version: 3.0.7
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: simple-swizzle
+Version: 0.2.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: sisteransi
+Version: 1.0.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: slash
+Version: 3.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: sockjs
+Version: 0.3.24
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: source-list-map
+Version: 2.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: source-map
+Version: 0.6.1
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: source-map-js
+Version: 1.0.2
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: source-map-loader
+Version: 3.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: source-map-support
+Version: 0.5.21
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: sourcemap-codec
+Version: 1.4.8
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: spdy
+Version: 4.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: spdy-transport
+Version: 3.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: sprintf-js
+Version: 1.0.3
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: stable
+Version: 0.1.8
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: stack-utils
+Version: 2.0.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: stackframe
+Version: 1.3.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: statuses
+Version: 1.5.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: stop-iteration-iterator
+Version: 1.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: string-length
+Version: 4.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: string-natural-compare
+Version: 3.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: string-width
+Version: 4.2.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: string.prototype.matchall
+Version: 4.0.12
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: string.prototype.repeat
+Version: 1.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: string.prototype.trim
+Version: 1.2.10
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: string.prototype.trimend
+Version: 1.0.9
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: string.prototype.trimstart
+Version: 1.0.8
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: string_decoder
+Version: 1.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: stringify-object
+Version: 3.3.0
+License: BSD-2-Clause
+Homepage: https://opensource.org/licenses/BSD-2-Clause
+
+Package: strip-ansi
+Version: 7.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: strip-bom
+Version: 4.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: strip-comments
+Version: 2.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: strip-final-newline
+Version: 2.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: strip-indent
+Version: 3.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: strip-json-comments
+Version: 3.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: style-loader
+Version: 3.3.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: stylehacks
+Version: 5.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: stylis
+Version: 4.0.13
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: supports-color
+Version: 5.5.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: supports-hyperlinks
+Version: 2.3.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: supports-preserve-symlinks-flag
+Version: 1.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: svg-parser
+Version: 2.0.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: svgo
+Version: 1.3.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: symbol-tree
+Version: 3.2.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: synckit
+Version: 0.11.11
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: tailwindcss
+Version: 1.9.6
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: tailwindcss-dir
+Version: 4.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: tapable
+Version: 2.2.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: tech.grasshopper:extentreports-cucumber7-adapter
+Version: 1.14.0
+License: Apache-2.0 AND MIT
+Homepage: N/A
+
+Package: temp-dir
+Version: 2.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: tempy
+Version: 0.6.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: terminal-link
+Version: 2.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: terser
+Version: 5.19.2
+License: BSD-2-Clause
+Homepage: https://opensource.org/licenses/BSD-2-Clause
+
+Package: terser-webpack-plugin
+Version: 5.3.9
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: test-exclude
+Version: 6.0.0
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: text-table
+Version: 0.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: throat
+Version: 6.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: thunky
+Version: 1.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: tmpl
+Version: 1.0.5
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: to-fast-properties
+Version: 2.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: to-regex-range
+Version: 5.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: toidentifier
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: tough-cookie
+Version: 4.1.3
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: tr46
+Version: 2.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: tryer
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: tsconfig-paths
+Version: 3.14.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: tslib
+Version: 1.14.1
+License: 0BSD
+Homepage: N/A
+
+Package: tsutils
+Version: 3.21.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: type-check
+Version: 0.3.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: type-detect
+Version: 4.0.8
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: type-fest
+Version: 0.21.3
+License: CC0-1.0 AND MIT
+Homepage: N/A
+
+Package: type-is
+Version: 1.6.18
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: typed-array-buffer
+Version: 1.0.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: typed-array-byte-length
+Version: 1.0.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: typed-array-byte-offset
+Version: 1.0.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: typed-array-length
+Version: 1.0.7
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: typedarray-to-buffer
+Version: 3.1.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: typescript
+Version: 4.8.4
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: unbox-primitive
+Version: 1.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: unicode-canonical-property-names-ecmascript
+Version: 2.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: unicode-match-property-ecmascript
+Version: 2.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: unicode-match-property-value-ecmascript
+Version: 2.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: unicode-property-aliases-ecmascript
+Version: 2.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: unique-string
+Version: 2.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: universalify
+Version: 2.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: unpipe
+Version: 1.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: unquote
+Version: 1.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: upath
+Version: 1.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: update-browserslist-db
+Version: 1.0.9
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: uri-js
+Version: 4.4.1
+License: BSD-2-Clause AND BSD-2-Clause-Views
+Homepage: N/A
+
+Package: url-parse
+Version: 1.5.10
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: use-callback-ref
+Version: 1.3.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: use-sidecar
+Version: 1.1.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: util-deprecate
+Version: 1.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: util.promisify
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: utila
+Version: 0.4.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: utils-merge
+Version: 1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: uuid
+Version: 8.3.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: v8-to-istanbul
+Version: 8.1.1
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: vary
+Version: 1.1.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: void-elements
+Version: 3.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: w3c-hr-time
+Version: 1.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: w3c-xmlserializer
+Version: 2.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: walker
+Version: 1.0.8
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: watchpack
+Version: 2.4.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: wbuf
+Version: 1.7.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: webidl-conversions
+Version: 6.1.0
+License: BSD-2-Clause
+Homepage: https://opensource.org/licenses/BSD-2-Clause
+
+Package: webpack
+Version: 5.88.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: webpack-dev-middleware
+Version: 5.3.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: webpack-dev-server
+Version: 4.11.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: webpack-manifest-plugin
+Version: 4.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: webpack-sources
+Version: 1.4.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: websocket-driver
+Version: 0.7.4
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: websocket-extensions
+Version: 0.1.4
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: whatwg-encoding
+Version: 1.0.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: whatwg-fetch
+Version: 3.6.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: whatwg-mimetype
+Version: 2.3.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: whatwg-url
+Version: 5.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: which
+Version: 1.3.1
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: which-boxed-primitive
+Version: 1.1.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: which-builtin-type
+Version: 1.2.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: which-collection
+Version: 1.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: which-module
+Version: 2.0.0
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: which-typed-array
+Version: 1.1.19
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: word-wrap
+Version: 1.2.5
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: workbox-background-sync
+Version: 6.5.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: workbox-broadcast-update
+Version: 6.5.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: workbox-build
+Version: 6.5.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: workbox-cacheable-response
+Version: 6.5.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: workbox-core
+Version: 6.5.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: workbox-expiration
+Version: 6.5.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: workbox-google-analytics
+Version: 6.5.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: workbox-navigation-preload
+Version: 6.5.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: workbox-precaching
+Version: 6.5.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: workbox-range-requests
+Version: 6.5.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: workbox-recipes
+Version: 6.5.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: workbox-routing
+Version: 6.5.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: workbox-strategies
+Version: 6.5.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: workbox-streams
+Version: 6.5.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: workbox-sw
+Version: 6.5.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: workbox-webpack-plugin
+Version: 6.5.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: workbox-window
+Version: 6.5.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: wrap-ansi
+Version: 6.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: wrappy
+Version: 1.0.2
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: write-file-atomic
+Version: 3.0.3
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: ws
+Version: 7.5.9
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: xml-name-validator
+Version: 3.0.0
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: xmlchars
+Version: 2.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: xtend
+Version: 4.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: y18n
+Version: 5.0.8
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: yallist
+Version: 4.0.0
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: yaml
+Version: 1.10.2
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: yargs
+Version: 16.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: yargs-parser
+Version: 20.2.9
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: yocto-queue
+Version: 0.1.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+
+Full license texts and additional details for each of the above packages are available in the license/ directory of this repository. Please refer to those files or the original source of each package for complete legal terms and conditions.
