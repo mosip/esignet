@@ -415,11 +415,8 @@ public class OAuthServiceTest {
         Mockito.when(authorizationHelperService.getKeyHash(Mockito.anyString())).thenReturn("code-hash");
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
 
-        try {
-            oAuthService.getTokens(tokenRequest, null,false);
-        } catch (InvalidRequestException ex) {
-            Assert.assertEquals(INVALID_CLIENT_ID, ex.getErrorCode());
-        }
+        EsignetException ex = Assert.assertThrows(EsignetException.class, () -> oAuthService.getTokens(tokenRequest, null,false));
+        Assert.assertEquals(INVALID_CLIENT_ID, ex.getErrorCode());
     }
 
     @Test
@@ -436,11 +433,8 @@ public class OAuthServiceTest {
         Mockito.when(authorizationHelperService.getKeyHash(Mockito.anyString())).thenReturn("code-hash");
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
 
-        try {
-            oAuthService.getTokens(tokenRequest, null, false);
-        } catch (InvalidRequestException ex) {
-            Assert.assertEquals(INVALID_REDIRECT_URI, ex.getErrorCode());
-        }
+        EsignetException ex = Assert.assertThrows(EsignetException.class, () -> oAuthService.getTokens(tokenRequest, null, false));
+        Assert.assertEquals(INVALID_REDIRECT_URI, ex.getErrorCode());
     }
 
     @Test
@@ -457,11 +451,8 @@ public class OAuthServiceTest {
         Mockito.when(authorizationHelperService.getKeyHash(Mockito.anyString())).thenReturn("code-hash");
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
 
-        try {
-            oAuthService.getTokens(tokenRequest, null, true);
-        } catch (InvalidRequestException ex) {
-            Assert.assertEquals(INVALID_REDIRECT_URI, ex.getErrorCode());
-        }
+        EsignetException ex = Assert.assertThrows(EsignetException.class, () -> oAuthService.getTokens(tokenRequest, null, true));
+        Assert.assertEquals(INVALID_REDIRECT_URI, ex.getErrorCode());
     }
 
     @Test

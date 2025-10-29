@@ -53,12 +53,12 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
     @Autowired
     MessageSource messageSource;
 
-    private final List<String> OAUTH_ERROR_CODES = List.of(
+    private final List<String> OAUTH_ERROR_CODES = new ArrayList<>(List.of(
             INVALID_CLIENT,
             UNSUPPORTED_GRANT_TYPE,
             INVALID_SCOPE,
             INVALID_GRANT
-    );
+    ));
 
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers,
@@ -174,9 +174,6 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
             if (OAUTH_ERROR_CODES.contains(errorCode)) responseErrorCode = errorCode;
             return new ResponseEntity<OAuthError>(getErrorRespDto(responseErrorCode, getMessage(errorCode)), headers, HttpStatus.BAD_REQUEST);
         }
-        if(ex instanceof InvalidRequestException) {
-            return new ResponseEntity<OAuthError>(getErrorRespDto(INVALID_REQUEST, getMessage(INVALID_REQUEST)),headers, HttpStatus.BAD_REQUEST);
-        }
         if (ex instanceof MaxUploadSizeExceededException) {
             long maxUploadSize = ((MaxUploadSizeExceededException) ex).getMaxUploadSize();
             String message = "Maximum upload size exceeded. Limit is " + maxUploadSize + " bytes.";
@@ -190,7 +187,9 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
         }
         if(ex instanceof EsignetException) {
             String errorCode = ((EsignetException) ex).getErrorCode();
-            return new ResponseEntity<OAuthError>(getErrorRespDto(errorCode, getMessage(errorCode)), headers,HttpStatus.BAD_REQUEST);
+            String responseErrorCode = INVALID_REQUEST;
+            if (OAUTH_ERROR_CODES.contains(errorCode)) responseErrorCode = errorCode;
+            return new ResponseEntity<OAuthError>(getErrorRespDto(responseErrorCode, getMessage(errorCode)), headers,HttpStatus.BAD_REQUEST);
         }
         log.error("Unhandled exception encountered in handler advice", ex);
         return new ResponseEntity<OAuthError>(getErrorRespDto(UNKNOWN_ERROR, ex.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
