@@ -11,7 +11,7 @@ PAROauthDetails:
       input: '{
        "requestTime": "$TIMESTAMP$",
        "requestUri": "$ID:OauthPar_all_Valid_Smoke_sid_request_uri$",
-       "clientId": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$"
+       "clientId": "$ID:CreateOIDCClientV3PAR_all_Valid_Smoke_sid_clientId$"
 }'
       output: '{
 }'

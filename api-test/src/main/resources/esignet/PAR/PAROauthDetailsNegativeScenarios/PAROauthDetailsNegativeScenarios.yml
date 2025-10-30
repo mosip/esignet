@@ -50,7 +50,7 @@ PAROauthDetailsNegativeScenarios:
       input: '{
        "requestTime": "$TIMESTAMP$",
        "requestUri": "$ID:OauthPar_all_Valid_Smoke_sid_request_uri$",
-       "clientId": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$"
+       "clientId": "$ID:CreateOIDCClientV3PAR_all_Valid_Smoke_sid_clientId$"
 }'
       output: '{
       "errors": [
@@ -70,7 +70,7 @@ PAROauthDetailsNegativeScenarios:
       input: '{
        "requestTime": "$TIMESTAMP$",
        "requestUri": "123456wk31-I0Zx7JRIorYsjfkPB0yQ-4K0tc7LwSzaJ9ft_U",
-       "clientId": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$"
+       "clientId": "$ID:CreateOIDCClientV3PAR_all_Valid_Smoke_sid_clientId$"
 }'
       output: '{
       "errors": [
@@ -90,7 +90,7 @@ PAROauthDetailsNegativeScenarios:
       input: '{
        "requestTime": "$TIMESTAMP$",
        "requestUri": "$REMOVE$",
-       "clientId": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$"
+       "clientId": "$ID:CreateOIDCClientV3PAR_all_Valid_Smoke_sid_clientId$"
 }'
       output: '{
       "errors": [
@@ -110,7 +110,7 @@ PAROauthDetailsNegativeScenarios:
       input: '{
        "requestTime": "$TIMESTAMP$",
        "requestUri": "$ID:OauthPar_all_Valid_Smoke_sid_request_uri$",
-       "clientId": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$"
+       "clientId": "$ID:CreateOIDCClientV3PAR_all_Valid_Smoke_sid_clientId$"
 }'
       output: '{
       "errors": [

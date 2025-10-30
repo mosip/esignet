@@ -10,7 +10,7 @@ OauthPar:
       outputTemplate: esignet/PAR/OauthPar/OauthParResult
       input: '{
        "requestTime": "$TIMESTAMP$",
-       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "client_id": "$ID:CreateOIDCClientV3PAR_all_Valid_Smoke_sid_clientId$", 
        "scope": "openid profile",
        "response_type": "code",
        "redirect_uri": "$IDPREDIRECTURI$",
@@ -37,7 +37,7 @@ OauthPar:
       outputTemplate: esignet/PAR/OauthPar/OauthParResult
       input: '{
        "requestTime": "$TIMESTAMP$",
-       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "client_id": "$ID:CreateOIDCClientV3PAR_all_Valid_Smoke_sid_clientId$", 
        "scope": "openid profile",
        "response_type": "code",
        "redirect_uri": "$IDPREDIRECTURI$",
@@ -64,7 +64,7 @@ OauthPar:
       outputTemplate: esignet/PAR/OauthPar/OauthParResult
       input: '{
        "requestTime": "$TIMESTAMP$",
-       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "client_id": "$ID:CreateOIDCClientV3PAR_all_Valid_Smoke_sid_clientId$", 
        "scope": "openid profile",
        "response_type": "code",
        "redirect_uri": "$IDPREDIRECTURI$",
@@ -91,7 +91,7 @@ OauthPar:
       outputTemplate: esignet/PAR/OauthPar/OauthParResult
       input: '{
        "requestTime": "$TIMESTAMP$",
-       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "client_id": "$ID:CreateOIDCClientV3PAR_all_Valid_Smoke_sid_clientId$", 
        "scope": "openid profile",
        "response_type": "code",
        "redirect_uri": "$IDPREDIRECTURI$",
@@ -118,7 +118,7 @@ OauthPar:
       outputTemplate: esignet/PAR/OauthPar/OauthParResult
       input: '{
        "requestTime": "$TIMESTAMP$",
-       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "client_id": "$ID:CreateOIDCClientV3PAR_all_Valid_Smoke_sid_clientId$", 
        "scope": "openid profile",
        "response_type": "code",
        "redirect_uri": "$IDPREDIRECTURI$",
@@ -145,7 +145,7 @@ OauthPar:
       outputTemplate: esignet/PAR/OauthPar/OauthParResult
       input: '{
        "requestTime": "$TIMESTAMP$",
-       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "client_id": "$ID:CreateOIDCClientV3PAR_all_Valid_Smoke_sid_clientId$", 
        "scope": "openid profile",
        "response_type": "code",
        "redirect_uri": "$IDPREDIRECTURI$",

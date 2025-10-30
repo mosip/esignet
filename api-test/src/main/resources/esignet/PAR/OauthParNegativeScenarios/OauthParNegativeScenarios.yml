@@ -9,7 +9,7 @@ OauthParNegativeScenarios:
       outputTemplate: esignet/error2
       input: '{
        "requestTime": "$TIMESTAMP$",
-       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "client_id": "$ID:CreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
        "scope": "$REMOVE$",
        "response_type": "code",
        "redirect_uri": "$IDPREDIRECTURI$",
@@ -36,7 +36,7 @@ OauthParNegativeScenarios:
       outputTemplate: esignet/error2
       input: '{
        "requestTime": "$TIMESTAMP$",
-       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "client_id": "$ID:CreateOIDCClientV3PAR_all_Valid_Smoke_sid_clientId$", 
        "scope": "7777",
        "response_type": "code",
        "redirect_uri": "$IDPREDIRECTURI$",
@@ -63,7 +63,7 @@ OauthParNegativeScenarios:
       outputTemplate: esignet/error2
       input: '{
        "requestTime": "$TIMESTAMP$",
-       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "client_id": "$ID:CreateOIDCClientV3PAR_all_Valid_Smoke_sid_clientId$", 
        "scope": "openid profile",
        "response_type": "$REMOVE$",
        "redirect_uri": "$IDPREDIRECTURI$",
@@ -90,7 +90,7 @@ OauthParNegativeScenarios:
       outputTemplate: esignet/error2
       input: '{
        "requestTime": "$TIMESTAMP$",
-       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "client_id": "$ID:CreateOIDCClientV3PAR_all_Valid_Smoke_sid_clientId$", 
        "scope": "openid profile",
        "response_type": "code123",
        "redirect_uri": "$IDPREDIRECTURI$",
@@ -159,7 +159,7 @@ OauthParNegativeScenarios:
        "aud_key": "pushed_authorization_request_endpoint"
 }'
       output: '{
-            "error": "invalid_request"
+            "error": "invalid_client_id"
 }'
    ESignet_OauthParNegativeScenarios_Missing_redirect_uri_Neg:
       endPoint: /v1/esignet/oauth/par
@@ -171,7 +171,7 @@ OauthParNegativeScenarios:
       outputTemplate: esignet/error2
       input: '{
        "requestTime": "$TIMESTAMP$",
-       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "client_id": "$ID:CreateOIDCClientV3PAR_all_Valid_Smoke_sid_clientId$", 
        "scope": "openid profile",
        "response_type": "code",
        "redirect_uri": "$REMOVE$",
@@ -198,7 +198,7 @@ OauthParNegativeScenarios:
       outputTemplate: esignet/error2
       input: '{
        "requestTime": "$TIMESTAMP$",
-       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "client_id": "$ID:CreateOIDCClientV3PAR_all_Valid_Smoke_sid_clientId$", 
        "scope": "openid profile",
        "response_type": "code",
        "redirect_uri": "$IDPREDIRECTURI1234$",
@@ -225,7 +225,7 @@ OauthParNegativeScenarios:
       outputTemplate: esignet/error2
       input: '{
        "requestTime": "$TIMESTAMP$",
-       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "client_id": "$ID:CreateOIDCClientV3PAR_all_Valid_Smoke_sid_clientId$", 
        "scope": "openid profile",
        "response_type": "code",
        "redirect_uri": "$IDPREDIRECTURI$",
@@ -252,7 +252,7 @@ OauthParNegativeScenarios:
       outputTemplate: esignet/error2
       input: '{
        "requestTime": "$TIMESTAMP$",
-       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "client_id": "$ID:CreateOIDCClientV3PAR_all_Valid_Smoke_sid_clientId$", 
        "scope": "openid profile",
        "response_type": "code",
        "redirect_uri": "$IDPREDIRECTURI$",
@@ -280,7 +280,7 @@ OauthParNegativeScenarios:
       outputTemplate: esignet/PAR/OauthPar/OauthParResult
       input: '{
        "requestTime": "$TIMESTAMP$",
-       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "client_id": "$ID:CreateOIDCClientV3PAR_all_Valid_Smoke_sid_clientId$", 
        "scope": "openid profile",
        "response_type": "code",
        "redirect_uri": "$IDPREDIRECTURI$",
@@ -306,7 +306,7 @@ OauthParNegativeScenarios:
       outputTemplate: esignet/error2
       input: '{
        "requestTime": "$TIMESTAMP$",
-       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "client_id": "$ID:CreateOIDCClientV3PAR_all_Valid_Smoke_sid_clientId$", 
        "scope": "openid profile",
        "response_type": "code",
        "redirect_uri": "$IDPREDIRECTURI$",
@@ -321,7 +321,7 @@ OauthParNegativeScenarios:
        "aud_key": "pushed_authorization_request_endpoint"
 }'
       output: '{
-            "error": "invalid_client"
+            "error": "invalid_request"
 }'
    ESignet_OauthParNegativeScenarios_invalid_client_assertion_Type_Neg:
       endPoint: /v1/esignet/oauth/par
@@ -333,7 +333,7 @@ OauthParNegativeScenarios:
       outputTemplate: esignet/error2
       input: '{
        "requestTime": "$TIMESTAMP$",
-       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "client_id": "$ID:CreateOIDCClientV3PAR_all_Valid_Smoke_sid_clientId$", 
        "scope": "openid profile",
        "response_type": "code",
        "redirect_uri": "$IDPREDIRECTURI$",
@@ -360,7 +360,7 @@ OauthParNegativeScenarios:
       outputTemplate: esignet/error2
       input: '{
        "requestTime": "$TIMESTAMP$",
-       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "client_id": "$ID:CreateOIDCClientV3PAR_all_Valid_Smoke_sid_clientId$", 
        "scope": "openid profile",
        "response_type": "code",
        "redirect_uri": "$IDPREDIRECTURI$",
@@ -387,7 +387,7 @@ OauthParNegativeScenarios:
       outputTemplate: esignet/error2
       input: '{
        "requestTime": "$TIMESTAMP$",
-       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "client_id": "$ID:CreateOIDCClientV3PAR_all_Valid_Smoke_sid_clientId$", 
        "scope": "openid profile",
        "response_type": "code",
        "redirect_uri": "$IDPREDIRECTURI$",
@@ -402,7 +402,7 @@ OauthParNegativeScenarios:
        "aud_key": "pushed_authorization_request_endpoint"
 }'
       output: '{
-            "error": "invalid_client"
+            "error": "invalid_request"
 }'
    ESignet_OauthParNegativeScenarios_without_RequestTime_Neg:
       endPoint: /v1/esignet/oauth/par
@@ -414,7 +414,7 @@ OauthParNegativeScenarios:
       inputTemplate: esignet/PAR/OauthParNegativeScenarios/OauthParNegativeScenarios
       outputTemplate: esignet/PAR/OauthPar/OauthParResult
       input: '{
-       "client_id": "$ID:PARCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "client_id": "$ID:CreateOIDCClientV3PAR_all_Valid_Smoke_sid_clientId$", 
        "scope": "openid profile",
        "response_type": "code",
        "redirect_uri": "$IDPREDIRECTURI$",
