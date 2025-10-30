@@ -1020,6 +1020,23 @@ public class ValidatorTest {
         Assert.assertTrue(claimSchemaValidator.isValid(claimsV2, null));
     }
 
+    @Test
+    public void claimSchemaValidator_withEmptyUserinfoObjectAndNoIdToken_thenPass() throws IOException {
+        ClaimsV2 claimsV2 = new ClaimsV2();
+        claimsV2.setUserinfo(new HashMap<>());
+
+        Assert.assertTrue(claimSchemaValidator.isValid(claimsV2, null));
+    }
+
+    @Test
+    public void claimSchemaValidator_withEmptyIdTokenObjectAndNoUserinfo_thenPass() {
+        ClaimsV2 claimsV2 = new ClaimsV2();
+        claimsV2.setId_token(new HashMap<>());
+
+        Assert.assertTrue(claimSchemaValidator.isValid(claimsV2, null));
+    }
+
+
     // =============================ClientAdditionalConfigValidator=============================//
 
     public List<JsonNode> getValidAdditionalConfigs() {
