@@ -7,7 +7,6 @@ package io.mosip.esignet.core;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.mosip.esignet.api.dto.claim.ClaimDetail;
 import io.mosip.esignet.api.dto.claim.ClaimsV2;
@@ -996,6 +995,29 @@ public class ValidatorTest {
         claimsV2.setId_token(Map.of("some_claim", new ClaimDetail("claim_value", null, true, "secondary")));
 
         Assert.assertFalse(claimSchemaValidator.isValid(claimsV2, null));
+    }
+
+    @Test
+    public void claimSchemaValidator_withUserInfoAndIdTokenAsNull_thenPass() throws IOException {
+        ClaimsV2 claimsV2 = new ClaimsV2();
+        claimsV2.setUserinfo(null);
+        claimsV2.setId_token(null);
+
+        Assert.assertTrue(claimSchemaValidator.isValid(claimsV2, null));
+    }
+
+    @Test
+    public void claimSchemaValidator_withValidClaimsWithoutVerifiedClaimsAndIdToken_thenPass() throws IOException {
+        String userinfoJson = "{\"given_name\":{\"essential\":true},\"phone_number\":{\"essential\":false},\"email\":{\"essential\":true},\"picture\":{\"essential\":false},\"gender\":{\"essential\":false},\"birthdate\":{\"essential\":false},\"address\":{\"essential\":false}}";
+
+        JsonNode userinfoNode = mapper.readValue(userinfoJson, JsonNode.class);
+        Map<String, JsonNode> userinfoMap = Map.of("userinfo", userinfoNode);
+
+        ClaimsV2 claimsV2 = new ClaimsV2();
+        claimsV2.setUserinfo(userinfoMap);
+        claimsV2.setId_token(null);
+
+        Assert.assertTrue(claimSchemaValidator.isValid(claimsV2, null));
     }
 
     // =============================ClientAdditionalConfigValidator=============================//
