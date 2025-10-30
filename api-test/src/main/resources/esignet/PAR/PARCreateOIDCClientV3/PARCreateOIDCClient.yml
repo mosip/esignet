@@ -1,5 +1,5 @@
 PARCreateOIDCClientV3:
-  ESignet_PARCreateOIDCClientV3_all_Valid_Smoke_sid:
+  ESignet_CreateOIDCClientV3PAR_all_Valid_Smoke_sid:
     endPoint: /v1/esignet/client-mgmt/client
     uniqueIdentifier: TC_ESignet_PARCreateOIDCClientV3_01
     description: Create of OIDC Client V3 with all valid data
