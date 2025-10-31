@@ -110,3 +110,25 @@ test('handleSignup clears onbeforeunload', () => {
   fireEvent.click(signupLink);
   expect(window.onbeforeunload).toBe(null);
 });
+
+test('shows signup banner when enabled in signupConfig', () => {
+  // First check: additionalConfig missing (returns false)
+  utils.checkConfigProperty
+    .mockImplementationOnce(() => false) // clientAdditionalConfig check fails
+    .mockImplementationOnce(() => true); // signupConfig check passes
+
+  defaultProps.oidcService.getEsignetConfiguration.mockImplementation((key) => {
+    if (key === configurationKeys.signupConfig) {
+      return {
+        [configurationKeys.signupBanner]: true,
+        [configurationKeys.signupURL]: 'https://signup-from-config.com',
+      };
+    }
+    return {};
+  });
+
+  render(<Background {...defaultProps} />);
+
+  // Expect banner to appear since signupBanner = true in signupConfig
+  expect(screen.getByText('noAccount')).toBeInTheDocument();
+});

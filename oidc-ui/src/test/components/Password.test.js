@@ -1,30 +1,35 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+} from '@testing-library/react';
 import Password from '../../components/Password';
 import { MemoryRouter } from 'react-router-dom';
 import { configurationKeys } from '../../constants/clientConstants';
 
 // ---------- Mocks ----------
 
-// 🌐 i18n
+// 🌐 i18n (global mock)
+const mockI18n = {
+  language: 'en',
+  on: jest.fn(),
+  off: jest.fn(),
+  changeLanguage: jest.fn(),
+};
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key) => key,
-    i18n: {
-      language: 'en',
-      on: jest.fn(),
-    },
+    i18n: mockI18n,
   }),
 }));
 
 // 🔒 reCAPTCHA
-jest.mock(
-  'react-google-recaptcha',
-  () =>
-    function ReCAPTCHA() {
-      return <div data-testid="recaptcha" />;
-    }
-);
+jest.mock('react-google-recaptcha', () => () => (
+  <div data-testid="recaptcha" />
+));
 
 // 🚫 redirectOnError
 jest.mock('../../helpers/redirectOnError', () => jest.fn());
@@ -44,7 +49,6 @@ jest.mock('react-router-dom', () => ({
 
 // ---------- Globals ----------
 
-// Mock openIDConnectService instance
 const mockOpenIDConnectService = {
   getEsignetConfiguration: jest.fn((key) => {
     const configs = {
@@ -76,7 +80,6 @@ const mockOpenIDConnectService = {
   getAuthorizeQueryParam: () => 'someQuery',
 };
 
-// Mock authService instance
 const mockAuthService = {
   post_AuthenticateUser: jest.fn(() =>
     Promise.resolve({
@@ -88,7 +91,6 @@ const mockAuthService = {
   getAuthorizeQueryParam: jest.fn(() => 'authParam'),
 };
 
-// Mock field input
 const mockFields = [
   {
     id: 'email',
@@ -106,7 +108,6 @@ const mockFields = [
   },
 ];
 
-// Mock back button
 const mockBackButtonDiv = <div>Back</div>;
 
 // ---------- window.location & atob ----------
@@ -121,7 +122,6 @@ beforeAll(() => {
     hash: '#eyJjbGllbnROYW1lIjoiVGVzdCBDbGllbnQiLCJsb2dvVXJsIjoiL2xvZ28ucG5nIiwiY29uZmlncyI6eyJsb2dpbi1pZC5vcHRpb25zIjpbeyJpZCI6ImVtYWlsIiwiaW5wdXRfbGFiZWwiOiJFbWFpbCIsImlucHV0X3BsYWNlaG9sZGVyIjoiRW50ZXIgeW91ciBlbWFpbCIsInByZWZpeGVzIjpbXX1dfX0=',
   };
 
-  // Provide base64-decoded JSON config with .configs.login-id.options
   jest.spyOn(window, 'atob').mockImplementation(() =>
     JSON.stringify({
       clientName: { '@none': 'Test Client' },
@@ -149,7 +149,7 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-// ---------- TEST ----------
+// ---------- TESTS ----------
 
 test('should render the Password component successfully', async () => {
   render(
@@ -164,8 +164,33 @@ test('should render the Password component successfully', async () => {
     </MemoryRouter>
   );
 
-  // Wait for initial render
   expect(await screen.findByText('Back')).toBeInTheDocument();
   expect(await screen.findByText('secondary_heading')).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'login' })).toBeInTheDocument();
+});
+
+test('should call handlePasswordChange when user types password', async () => {
+  render(
+    <MemoryRouter>
+      <Password
+        param={mockFields}
+        authService={mockAuthService}
+        openIDConnectService={mockOpenIDConnectService}
+        backButtonDiv={mockBackButtonDiv}
+        secondaryHeading="secondary_heading"
+      />
+    </MemoryRouter>
+  );
+
+  const passwordInput = await screen.findByPlaceholderText('Password');
+  const loginButton = screen.getByRole('button', { name: 'login' });
+  expect(loginButton).toBeDisabled();
+
+  fireEvent.change(passwordInput, { target: { value: 'MySecurePass123' } });
+
+  await waitFor(() => {
+    expect(passwordInput.value).toBe('MySecurePass123');
+  });
+
+  expect(loginButton).toBeInTheDocument();
 });

@@ -1,4 +1,10 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+} from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Pin from '../../components/Pin';
 import openIDConnectService from '../../services/openIDConnectService';
@@ -6,6 +12,7 @@ import authService from '../../services/authService';
 import { useTranslation } from 'react-i18next';
 import langConfigService from '../../services/langConfigService';
 import { configurationKeys } from '../../constants/clientConstants';
+import redirectOnError from '../../helpers/redirectOnError';
 
 // ---------- Mocks ----------
 jest.mock('../../services/openIDConnectService');
@@ -231,5 +238,24 @@ describe('Pin Component', () => {
     const checkbox = await screen.findByLabelText('remember_me');
     fireEvent.click(checkbox);
     expect(checkbox).toBeChecked();
+  });
+
+  test('Handles input change for non-password field (VID)', async () => {
+    renderComponent();
+
+    // Select input using its id
+    const vidInput = await screen.findByRole('textbox', { name: /vid/i });
+
+    // Trigger a value change (non-password input path)
+    fireEvent.change(vidInput, { target: { value: 'test@example.com' } });
+
+    expect(vidInput.value).toBe('test@example.com');
+
+    // Trigger blur to validate
+    fireEvent.blur(vidInput);
+
+    // Button should still be disabled (PIN and CAPTCHA not yet done)
+    const loginButton = screen.getByRole('button', { name: /login/i });
+    expect(loginButton).toBeDisabled();
   });
 });

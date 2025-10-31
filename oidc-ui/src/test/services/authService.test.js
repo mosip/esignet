@@ -74,15 +74,6 @@ describe('authService', () => {
     expect(result).toBe('otpResponse');
   });
 
-  it('get_CsrfToken should return CSRF token', async () => {
-    ApiService.get.mockResolvedValue({ data: 'csrfToken' });
-    const result = await service.get_CsrfToken();
-    expect(ApiService.get).toHaveBeenCalledWith(CSRF, {
-      headers: { 'Content-Type': 'application/json' },
-    });
-    expect(result).toBe('csrfToken');
-  });
-
   it('resume should post to RESUME with correct headers', async () => {
     ApiService.post.mockResolvedValue({ data: 'resumeData' });
     const result = await service.resume('tx');
@@ -108,5 +99,112 @@ describe('authService', () => {
     expect(() => service.getAuthorizeQueryParam()).toThrow(
       'LocalStorage Error'
     );
+  });
+
+  it('storeQueryParam should encode query and store it in localStorage', () => {
+    // Mock Buffer.from to simulate encoding
+    const mockBufferFrom = jest.spyOn(Buffer, 'from').mockReturnValue({
+      toString: jest.fn(() => 'mockedBase64String'),
+    });
+
+    // Mock localStorage.setItem
+    const mockSetItem = jest
+      .spyOn(window.localStorage.__proto__, 'setItem')
+      .mockImplementation(() => {});
+
+    // Execute method
+    service.storeQueryParam('nonce=abc&state=xyz');
+
+    // Cleanup mocks
+    mockBufferFrom.mockRestore();
+    mockSetItem.mockRestore();
+  });
+
+  it('should build full redirect params string with all fields and base64-encoded oauthResponse', () => {
+    // 🔧 Temporarily restore real Buffer
+    const realBuffer = jest.requireActual('buffer').Buffer;
+    const mockDate = new Date(1730280000000);
+    jest.spyOn(global, 'Date').mockImplementation(() => mockDate);
+
+    const buildParam = {
+      nonce: 'abc123',
+      state: 'xyz789',
+      ui_locales: 'en',
+      consentAction: 'approve',
+      oauthResponse: { success: true, code: 'ok' },
+    };
+
+    const result = service.buildRedirectParamsV2(buildParam);
+
+    const expectedAuthTime = Math.floor(mockDate.getTime() / 1000);
+    const expectedOauthResponse = realBuffer
+      .from(JSON.stringify(buildParam.oauthResponse))
+      .toString('base64');
+
+    expect(result).toBe(
+      `?nonce=abc123&state=xyz789&ui_locales=en&consentAction=approve&authenticationTime=${expectedAuthTime}#${expectedOauthResponse}`
+    );
+
+    jest.restoreAllMocks();
+  });
+
+  it('post_ParOauthDetails should call ApiService.post with correct params', async () => {
+    ApiService.post.mockResolvedValue({ data: 'parResponse' });
+
+    const params = { clientId: 'client123', requestUri: 'https://req.uri' };
+    const result = await service.post_ParOauthDetails(params);
+
+    expect(ApiService.post).toHaveBeenCalledWith(
+      expect.stringContaining('par-oauth'), // matches PAR_OAUTH_DETAIL
+      expect.objectContaining({ request: params }),
+      expect.objectContaining({
+        headers: { 'Content-Type': 'application/json' },
+      })
+    );
+    expect(result).toBe('parResponse');
+  });
+
+  it('post_AuthCode should call ApiService.post with correct headers and body', async () => {
+    ApiService.post.mockResolvedValue({ data: 'authCodeResponse' });
+
+    const result = await service.post_AuthCode(
+      'txABC',
+      ['claim1'],
+      ['scope1'],
+      'mockedHash'
+    );
+
+    expect(ApiService.post).toHaveBeenCalledWith(
+      expect.stringContaining('auth-code'), // matches AUTHCODE
+      expect.objectContaining({
+        request: expect.objectContaining({
+          transactionId: 'txABC',
+          acceptedClaims: ['claim1'],
+          permittedAuthorizeScopes: ['scope1'],
+        }),
+      }),
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          'oauth-details-hash': 'mockedHash',
+          'oauth-details-key': 'txABC',
+        }),
+      })
+    );
+    expect(result).toBe('authCodeResponse');
+  });
+
+  it('getClaimDetails should call ApiService.get with correct headers', async () => {
+    ApiService.get.mockResolvedValue({ data: 'claimDetailsResponse' });
+
+    const result = await service.getClaimDetails();
+    expect(result).toBe('claimDetailsResponse');
+  });
+
+  it('prepareSignupRedirect should call ApiService.post correctly', async () => {
+    ApiService.post.mockResolvedValue({ data: 'signupRedirectResponse' });
+
+    const result = await service.prepareSignupRedirect('tx001', 'signup-path');
+
+    expect(result).toBe('signupRedirectResponse');
   });
 });

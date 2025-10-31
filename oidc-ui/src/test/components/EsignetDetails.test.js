@@ -80,4 +80,17 @@ describe('EsignetDetails', () => {
       keyPrefix: 'customPrefix',
     });
   });
+
+  test('pressing a key on a well-known endpoint triggers window.open', async () => {
+    render(<EsignetDetails />);
+    const link = await screen.findByText('/.well-known/service-a');
+
+    fireEvent.keyDown(link, { key: 'Enter', code: 'Enter' });
+
+    expect(global.open).toHaveBeenCalledWith(
+      expect.stringContaining('/.well-known/service-a'),
+      '_blank',
+      'noopener,noreferrer'
+    );
+  });
 });

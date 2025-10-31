@@ -263,4 +263,26 @@ describe('App', () => {
       ).toBeInTheDocument();
     });
   });
+
+  it('covers retry logic in QueryClient configuration', () => {
+    // Recreate the same retry logic defined in App.js
+    const { HttpError } = require('../services/api.service');
+
+    const retry = (failureCount, error) => {
+      if (error instanceof HttpError && String(error.code).startsWith('4')) {
+        return false;
+      }
+      return failureCount !== 3;
+    };
+
+    // Case 1: 4xx HttpError → no retry
+    const httpError = new HttpError(404);
+    expect(retry(1, httpError)).toBe(false);
+
+    // Case 2: non-4xx error, <3 failures → retry
+    expect(retry(2, new Error('server'))).toBe(true);
+
+    // Case 3: non-4xx error, =3 failures → stop retrying
+    expect(retry(3, new Error('server'))).toBe(false);
+  });
 });

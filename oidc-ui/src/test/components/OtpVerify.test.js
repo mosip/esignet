@@ -1,14 +1,13 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
-import { act } from 'react-dom/test-utils';
 
 // 🧪 Mock translations
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key, params) => {
-      if (key === 'otp_sent_msg') return `OTP sent (${params?.otpLength})`; // ✅ Fix: use backticks
+      if (key === 'otp_sent_msg') return `OTP sent (${params?.otpLength})`;
       if (key === 'and') return 'and';
       return key;
     },
@@ -85,7 +84,22 @@ const defaultProps = {
   openIDConnectService: mockOpenIDConnectService,
 };
 
+// ✅ Mock react-router hooks globally for Authorize test
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: jest.fn(),
+  useSearchParams: jest.fn(() => [new URLSearchParams('')]),
+}));
+
 describe('OtpVerify', () => {
+  const mockNavigate = jest.fn();
+  const mockUseNavigate = require('react-router-dom').useNavigate;
+
+  beforeEach(() => {
+    mockNavigate.mockClear();
+    mockUseNavigate.mockReturnValue(mockNavigate);
+  });
+
   it('renders OTP sent message and contact info', async () => {
     render(
       <MemoryRouter>
@@ -116,18 +130,119 @@ describe('OtpVerify', () => {
 
     await screen.findByText(/OTP sent/);
 
-    // Find inputs via class since they're password fields (not role="textbox")
     const inputs = document.querySelectorAll('.pincode-input-text');
     expect(inputs.length).toBe(6);
 
     for (let i = 0; i < inputs.length; i++) {
-      await userEvent.type(inputs[i], `${i + 1}`); // ✅ Fix: use backticks for template string
+      await userEvent.type(inputs[i], `${i + 1}`);
     }
 
     const submitBtn = screen.getByRole('button', { name: 'verify' });
     expect(submitBtn).not.toBeDisabled();
 
     await act(() => userEvent.click(submitBtn));
+
+    await waitFor(() => {
+      expect(mockAuthService.post_AuthenticateUser).toHaveBeenCalled();
+    });
+  });
+
+  it('executes timer completion logic (clears interval, shows resend button, resets captcha)', async () => {
+    jest.useFakeTimers();
+
+    mockOpenIDConnectService.getEsignetConfiguration.mockImplementation(
+      (key) => {
+        if (key === 'resendOtpTimeout') return 1;
+        if (key === 'sendOtpChannels') return 'sms,email';
+        if (key === 'otpLength') return '6';
+        if (key === 'captchaSiteKey') return 'test-key';
+        if (key === 'captchaEnableComponents') return 'send-otp';
+        return undefined;
+      }
+    );
+
+    render(
+      <MemoryRouter>
+        <OtpVerify {...defaultProps} />
+      </MemoryRouter>
+    );
+
+    expect(screen.queryByRole('button', { name: 'resend_otp' })).toBeDisabled();
+
+    act(() => {
+      jest.advanceTimersByTime(1000);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'resend_otp' }));
+    });
+
+    jest.useRealTimers();
+  });
+
+  it('returns translated OTP label when available', async () => {
+    jest.mock('react-i18next', () => ({
+      useTranslation: () => ({
+        t: (key) => (key === 'otp_label_text' ? 'Enter OTP' : key),
+        i18n: { language: 'en', on: jest.fn() },
+      }),
+    }));
+
+    const { default: OtpVerifyLabelTest } = await import(
+      '../../components/OtpVerify'
+    );
+
+    render(
+      <MemoryRouter>
+        <OtpVerifyLabelTest {...defaultProps} />
+      </MemoryRouter>
+    );
+
+    await screen.findByText(/OTP sent/);
+
+    mockAuthService.post_AuthenticateUser.mockResolvedValueOnce({
+      response: null,
+      errors: [{ errorCode: 'invalid_otp' }],
+    });
+
+    const inputs = document.querySelectorAll('.pincode-input-text');
+    for (let i = 0; i < inputs.length; i++) {
+      await userEvent.type(inputs[i], `${i + 1}`);
+    }
+
+    const submitBtn = screen.getByRole('button', { name: 'verify' });
+    await act(async () => {
+      await userEvent.click(submitBtn);
+    });
+
+    await waitFor(() => {
+      expect(mockAuthService.post_AuthenticateUser).toHaveBeenCalled();
+    });
+  });
+
+  it('returns default label OTP when translation key not found', async () => {
+    mockAuthService.post_AuthenticateUser.mockResolvedValueOnce({
+      response: null,
+      errors: [{ errorCode: 'invalid_otp' }],
+    });
+
+    render(
+      <MemoryRouter>
+        <OtpVerify {...defaultProps} />
+      </MemoryRouter>
+    );
+
+    await screen.findByText(/OTP sent/);
+
+    const inputs = document.querySelectorAll('.pincode-input-text');
+    for (let i = 0; i < inputs.length; i++) {
+      await userEvent.type(inputs[i], `${i + 1}`);
+    }
+
+    const verifyBtn = screen.getByRole('button', { name: 'verify' });
+    await act(async () => {
+      await userEvent.click(verifyBtn);
+    });
 
     await waitFor(() => {
       expect(mockAuthService.post_AuthenticateUser).toHaveBeenCalled();

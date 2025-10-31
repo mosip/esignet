@@ -5,7 +5,13 @@ import {
   configurationKeys,
   modalityIconPath,
   purposeTypeObj,
+  validAuthFactors,
 } from '../../constants/clientConstants';
+import * as utils from '../../helpers/utils';
+
+jest.mock('../../helpers/utils', () => ({
+  getOauthDetailsHash: jest.fn(),
+}));
 
 const mockOAuthDetails = {
   redirectUri: 'https://example.com',
@@ -14,10 +20,12 @@ const mockOAuthDetails = {
     someConfigKey: 'someConfigValue',
     [configurationKeys.walletConfig]: [
       {
-        walletName: 'TestWallet',
-        walletLogoUrl: 'logo.png',
-        'deep-link-uri': 'app://test',
-        'download-uri': 'https://download.com',
+        // ✅ Using dynamic keys ensures compatibility with actual constants
+        [walletConfigKeys.walletName]: 'TestWallet',
+        [walletConfigKeys.walletLogoUrl]: 'logo.png',
+        [walletConfigKeys['deep-link-uri'] || 'deep-link-uri']: 'app://test',
+        [walletConfigKeys['download-uri'] || 'download-uri']:
+          'https://download.com',
       },
     ],
     [configurationKeys.additionalConfig]: {
@@ -29,7 +37,7 @@ const mockOAuthDetails = {
     },
   },
   authFactors: [
-    [{ type: 'WLA' }],
+    [{ type: validAuthFactors.WLA }],
     [{ type: 'PWD', subtypes: [], count: 1 }],
     [{ type: 'INVALID', subtypes: [], count: 0 }],
   ],
@@ -39,6 +47,7 @@ describe('openIDConnectService', () => {
   let service;
 
   beforeEach(() => {
+    jest.clearAllMocks();
     service = new openIDConnectService(
       { ...mockOAuthDetails },
       'nonce123',
@@ -101,7 +110,7 @@ describe('openIDConnectService', () => {
     };
     const result = service.wlaToAuthfactor(wla);
     expect(result.label).toBe('Wallet1');
-    expect(result.value.type).toBe('WLA');
+    expect(result.value.type).toBe(validAuthFactors.WLA);
     expect(result.icon).toBe('logo1.png');
     expect(result.id).toBe('login_with_wallet1');
   });
@@ -133,6 +142,27 @@ describe('openIDConnectService', () => {
       [{ type: 'INVALID', subtypes: [], count: 1 }],
     ];
     expect(service.getAuthFactorList()).toEqual([]);
+  });
+
+  test('getAuthFactorList includes wallet-based options when WLA is present', () => {
+    const result = service.getAuthFactorList();
+    const walletItem = result.find(
+      (item) => item.value.type === validAuthFactors.WLA
+    );
+    expect(walletItem).toBeDefined();
+    expect(walletItem.label).toBe('TestWallet');
+    expect(walletItem.icon).toBe('logo.png');
+    expect(walletItem.id).toBe('login_with_testwallet');
+  });
+
+  test('getOauthDetailsHash calls getOauthDetailsHashUtil with oAuthDetails', async () => {
+    const mockHash = 'mockedHashValue';
+    utils.getOauthDetailsHash.mockResolvedValueOnce(mockHash);
+    const result = await service.getOauthDetailsHash();
+    expect(utils.getOauthDetailsHash).toHaveBeenCalledWith(
+      service.oAuthDetails
+    );
+    expect(result).toBe(mockHash);
   });
 
   test('getPurpose returns default object if no additionalConfig', () => {
