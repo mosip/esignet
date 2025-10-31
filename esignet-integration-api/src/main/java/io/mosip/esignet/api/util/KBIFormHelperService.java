@@ -130,7 +130,20 @@ public class KBIFormHelperService {
 
             ObjectNode finalSchema = objectMapper.createObjectNode();
             finalSchema.set("schema", schemaArray);
-            finalSchema.putArray("mandatoryLanguages").add("eng");
+            ObjectNode languageNode = objectMapper.createObjectNode();
+            languageNode.putArray("mandatory").add("eng");
+            languageNode.putArray("optional").add("khm");
+
+            ObjectNode langCodeMap = objectMapper.createObjectNode();
+            langCodeMap.put("eng", "en");
+            langCodeMap.put("hin", "hi");
+            langCodeMap.put("ara", "ar");
+            langCodeMap.put("kan", "kn");
+            langCodeMap.put("tam", "ta");
+            langCodeMap.put("khm", "km");
+
+            languageNode.set("langCodeMap", langCodeMap);
+            finalSchema.set("language", languageNode);
 
             return finalSchema;
         } catch (Exception e) {
