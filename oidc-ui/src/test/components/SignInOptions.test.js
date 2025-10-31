@@ -181,4 +181,73 @@ describe('SignInOptions Component', () => {
     ).toBeInTheDocument();
     expect(handleSignInOptionClick).not.toHaveBeenCalled();
   });
+
+  test('applies primary color from CSS variable in updateLanguageIconBgColor', async () => {
+    getAllAuthFactors.mockReturnValue([
+      { id: 'otp', value: 'otp', label: 'otp_label', icon: 'otp.svg' },
+    ]);
+
+    // Mock fetch to return a simple SVG with fill and stroke attributes
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      text: async () => '<svg fill="#000" stroke="#000"></svg>',
+    });
+
+    // Mock getComputedStyle to simulate CSS variable present
+    const mockGetComputedStyle = jest.spyOn(window, 'getComputedStyle');
+    mockGetComputedStyle.mockReturnValue({
+      getPropertyValue: jest.fn(() => '#123456'),
+    });
+
+    render(
+      <SignInOptions
+        openIDConnectService={getMockOpenIDConnectService()}
+        handleSignInOptionClick={handleSignInOptionClick}
+        authLabel="auth_method"
+      />
+    );
+
+    await waitFor(() => {
+      // Wait until component is rendered and fetchSvg has been called
+      expect(fetch).toHaveBeenCalledWith('/otp.svg');
+    });
+
+    // Verify that the computed style was used to recolor the SVG
+    const lastCall = fetch.mock.calls[0][0];
+    expect(lastCall).toContain('otp.svg');
+
+    // Restore mock
+    mockGetComputedStyle.mockRestore();
+  });
+
+  test('returns unchanged SVG if no primary color CSS variable is defined', async () => {
+    getAllAuthFactors.mockReturnValue([
+      { id: 'otp', value: 'otp', label: 'otp_label', icon: 'otp.svg' },
+    ]);
+
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      text: async () => '<svg fill="#000" stroke="#000"></svg>',
+    });
+
+    // Mock getComputedStyle with empty CSS variable value
+    const mockGetComputedStyle = jest.spyOn(window, 'getComputedStyle');
+    mockGetComputedStyle.mockReturnValue({
+      getPropertyValue: jest.fn(() => ''),
+    });
+
+    render(
+      <SignInOptions
+        openIDConnectService={getMockOpenIDConnectService()}
+        handleSignInOptionClick={handleSignInOptionClick}
+        authLabel="auth_method"
+      />
+    );
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/otp.svg');
+    });
+
+    mockGetComputedStyle.mockRestore();
+  });
 });

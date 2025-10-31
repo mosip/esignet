@@ -141,4 +141,87 @@ describe('sbiService', () => {
     expect(result).toBeDefined();
     expect(axios.all).toHaveBeenCalled();
   });
+
+  it('capture_Auth handles Face type correctly', async () => {
+    mockOpenIDConnectService.getEsignetConfiguration.mockImplementation(
+      (key) => {
+        const config = {
+          [configurationKeys.sbiEnv]: 'dev',
+          [configurationKeys.sbiCAPTURETimeoutInSeconds]: 2,
+          [configurationKeys.sbiFaceCaptureCount]: 1,
+          [configurationKeys.sbiFaceCaptureScore]: 75,
+        };
+        return config[key];
+      }
+    );
+
+    axios.mockResolvedValue({ data: { success: true } });
+
+    const result = await service.capture_Auth(
+      'http://localhost',
+      4501,
+      'txnFace',
+      '1.0',
+      'Face',
+      'faceDevice123'
+    );
+
+    expect(result).toEqual({ success: true });
+    expect(axios).toHaveBeenCalledWith(
+      expect.objectContaining({
+        method: 'CAPTURE',
+        url: 'http://localhost:4501/capture',
+        data: expect.objectContaining({
+          bio: [
+            expect.objectContaining({
+              type: 'Face',
+              bioSubType: null, // For Face: No bioSubType
+            }),
+          ],
+        }),
+      })
+    );
+  });
+
+  it('capture_Auth handles Finger type correctly', async () => {
+    mockOpenIDConnectService.getEsignetConfiguration.mockImplementation(
+      (key) => {
+        const config = {
+          [configurationKeys.sbiEnv]: 'test',
+          [configurationKeys.sbiCAPTURETimeoutInSeconds]: 3,
+          [configurationKeys.sbiFingerBioSubtypes]: 'LEFT_INDEX,RIGHT_THUMB',
+          [configurationKeys.sbiFingerCaptureCount]: 2,
+          [configurationKeys.sbiFingerCaptureScore]: 90,
+        };
+        return config[key];
+      }
+    );
+
+    axios.mockResolvedValue({ data: { captured: true } });
+
+    const result = await service.capture_Auth(
+      'http://localhost',
+      4502,
+      'txnFinger',
+      '1.0',
+      'Finger',
+      'fingerDevice001'
+    );
+
+    expect(result).toEqual({ captured: true });
+    expect(axios).toHaveBeenCalledWith(
+      expect.objectContaining({
+        method: 'CAPTURE',
+        url: 'http://localhost:4502/capture',
+        data: expect.objectContaining({
+          bio: [
+            expect.objectContaining({
+              type: 'Finger',
+              bioSubType: ['LEFT_INDEX', 'RIGHT_THUMB'], // split + trim check
+            }),
+          ],
+        }),
+      })
+    );
+  });
 });

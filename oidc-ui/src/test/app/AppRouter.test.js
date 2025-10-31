@@ -52,6 +52,8 @@ jest.mock('../../../src/helpers/utils', () => ({
   }),
 }));
 
+jest.spyOn(console, 'error').mockImplementation(() => {}); // silence error log
+
 describe('AppRouter', () => {
   const mockConfig = {
     background_logo: true,
@@ -59,6 +61,11 @@ describe('AppRouter', () => {
 
   beforeEach(() => {
     jest.spyOn(configServiceModule, 'default').mockResolvedValue(mockConfig);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+    document.body.style.overflow = ''; // reset after each test
   });
 
   it('renders loading indicator initially', async () => {
@@ -107,5 +114,24 @@ describe('AppRouter', () => {
       </MemoryRouter>
     );
     expect(await screen.findByText('NetworkError')).toBeInTheDocument();
+  });
+
+  it('calls console.error when configService fails', async () => {
+    jest
+      .spyOn(configServiceModule, 'default')
+      .mockRejectedValueOnce(new Error('network fail'));
+
+    render(
+      <MemoryRouter initialEntries={['/login']}>
+        <AppRouter />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(console.error).toHaveBeenCalledWith(
+        'Failed to fetch config:',
+        expect.any(Error)
+      );
+    });
   });
 });

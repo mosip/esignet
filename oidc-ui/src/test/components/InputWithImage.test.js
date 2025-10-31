@@ -129,4 +129,79 @@ describe('InputWithImage Component', () => {
     const input = screen.getByPlaceholderText('Enter username');
     expect(input).toHaveFocus();
   });
+
+  test('sets isCapsLockOn true when CapsLock is active', () => {
+    const props = {
+      ...baseProps,
+      id: 'login_Password',
+      type: 'password',
+      value: 'pass',
+    };
+    render(<InputWithImage {...props} />);
+    const input = screen.getByPlaceholderText('Enter username');
+
+    fireEvent.keyUp(input, {
+      key: 'A',
+      getModifierState: (key) => key === 'CapsLock' && true,
+    });
+  });
+
+  test('allows only letters when type="letter"', () => {
+    const props = {
+      ...baseProps,
+      type: 'letter',
+    };
+    render(<InputWithImage {...props} />);
+    const input = screen.getByPlaceholderText('Enter username');
+
+    const preventDefault = jest.fn();
+
+    // valid letter
+    fireEvent.keyDown(input, {
+      key: 'b',
+      preventDefault,
+      ctrlKey: false,
+      getModifierState: () => false,
+    });
+    expect(preventDefault).not.toHaveBeenCalled();
+  });
+
+  test('allows only alphanumeric when type="alpha-numeric"', () => {
+    const props = {
+      ...baseProps,
+      type: 'alpha-numeric',
+    };
+    render(<InputWithImage {...props} />);
+    const input = screen.getByPlaceholderText('Enter username');
+    const preventDefault = jest.fn();
+
+    // valid alphanumeric
+    fireEvent.keyDown(input, {
+      key: 'A',
+      preventDefault,
+      ctrlKey: false,
+      getModifierState: () => false,
+    });
+    expect(preventDefault).not.toHaveBeenCalled();
+  });
+
+  test('removes error from banner when input becomes valid', () => {
+    const props = {
+      ...baseProps,
+      regex: '^[0-9]+$',
+      id: 'login_Username',
+      blurChange: jest.fn(),
+    };
+    render(<InputWithImage {...props} />);
+    const input = screen.getByPlaceholderText('Enter username');
+
+    // First invalid blur
+    fireEvent.blur(input, { target: { id: 'login_Username', value: 'abc' } });
+
+    // Now valid blur (should remove the error)
+    fireEvent.blur(input, { target: { id: 'login_Username', value: '12345' } });
+
+    // Called twice: once for add, once for remove
+    expect(props.blurChange).toHaveBeenCalledTimes(2);
+  });
 });

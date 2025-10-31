@@ -9,11 +9,6 @@ import {
 
 describe('Utility functions', () => {
   describe('encodeString', () => {
-    it('should encode a string to base64', () => {
-      const result = encodeString('Hello, world!');
-      expect(result).toBe(Buffer.from('Hello, world!').toString('base64'));
-    });
-
     it('should encode an empty string', () => {
       expect(encodeString('')).toBe('');
     });

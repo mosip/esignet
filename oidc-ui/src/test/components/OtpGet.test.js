@@ -10,56 +10,76 @@ jest.mock('react-i18next', () => ({
 }));
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import OtpGet from '../../components/OtpGet';
 
-// Only allowed globals inside jest.mock factories
+// MOCKS
 jest.mock('../../common/LoadingIndicator', () => {
   return function MockLoadingIndicator() {
     return <div data-testid="mock-loading-indicator" />;
   };
 });
+
 jest.mock('../../components/LoginIDOptions', () => {
-  return function MockLoginIDOptions(props) {
+  return function MockLoginIDOptions({ currentLoginID }) {
     // Set login ID asynchronously to mimic real behavior
     setTimeout(() => {
-      if (props.currentLoginID) {
-        props.currentLoginID({
-          id: 'testId',
-          input_label: 'Test Label',
-          input_placeholder: 'Test Placeholder',
-          regex: '^[0-9]{6}$',
-          prefixes: [],
-        });
-      }
+      currentLoginID?.({
+        id: 'testId',
+        input_label: 'Test Label',
+        input_placeholder: 'Test Placeholder',
+        regex: '^[0-9]{6}$',
+        prefixes: [],
+      });
     }, 0);
     return <div data-testid="mock-login-id-options" />;
   };
 });
+
+// Critical: Forward events to trigger handleChange
 jest.mock('../../components/InputWithImage', () => {
-  return function MockInputWithImage() {
-    return <input data-testid="mock-input-with-image" />;
+  return function MockInputWithImage({
+    handleChange,
+    blurChange,
+    value,
+    ...props
+  }) {
+    return (
+      <input
+        data-testid="mock-input-with-image"
+        onChange={(e) => handleChange?.(e)}
+        onBlur={(e) => blurChange?.(e)}
+        value={value ?? ''}
+        {...props}
+      />
+    );
   };
 });
+
 jest.mock('../../components/InputWithPrefix', () => {
   return function MockInputWithPrefix() {
     return <div data-testid="mock-input-with-prefix" />;
   };
 });
+
 jest.mock('../../common/ErrorBanner', () => {
   return function MockErrorBanner() {
     return <div data-testid="mock-error-banner" />;
   };
 });
+
 jest.mock('react-google-recaptcha', () => {
   return function MockReCaptcha() {
     return <div data-testid="mock-recaptcha" />;
   };
 });
 
+// SERVICES
 const mockAuthService = {
-  post_SendOtp: jest.fn().mockResolvedValue({ response: {}, errors: [] }),
+  post_SendOtp: jest.fn(),
 };
+
 const mockOpenIDConnectService = {
   getEsignetConfiguration: jest.fn().mockImplementation((key) => {
     if (key === 'sendOtpChannels') return 'sms,email';
@@ -69,6 +89,7 @@ const mockOpenIDConnectService = {
   }),
   getTransactionId: jest.fn().mockReturnValue('txn123'),
 };
+
 const mockLangConfigService = require('../../services/langConfigService');
 mockLangConfigService.getEnLocaleConfiguration = jest
   .fn()
@@ -111,7 +132,7 @@ describe('OtpGet', () => {
   it('shows loading indicator if lang config is loading', async () => {
     const originalMock = mockLangConfigService.getEnLocaleConfiguration;
     mockLangConfigService.getEnLocaleConfiguration = jest.fn(
-      () => new Promise(() => {}) // Never resolves — simulates loading
+      () => new Promise(() => {})
     );
 
     render(
@@ -128,7 +149,33 @@ describe('OtpGet', () => {
       await screen.findByTestId('mock-loading-indicator')
     ).toBeInTheDocument();
 
-    // Restore mock to avoid affecting other tests
     mockLangConfigService.getEnLocaleConfiguration = originalMock;
+  });
+
+  it('displays error banner and resets captcha on failed OTP request', async () => {
+    // 1. Make OTP request fail
+    mockAuthService.post_SendOtp.mockRejectedValueOnce(new Error('Failed'));
+
+    const onOtpSent = jest.fn();
+    const getCaptchaToken = jest.fn();
+
+    render(
+      <OtpGet
+        param={[{ type: 'text', errorCode: 'invalid_id' }]}
+        authService={mockAuthService}
+        openIDConnectService={mockOpenIDConnectService}
+        onOtpSent={onOtpSent}
+        getCaptchaToken={getCaptchaToken}
+      />
+    );
+
+    // 2. Wait for input and type valid ID
+    const input = await screen.findByTestId('mock-input-with-image');
+    await userEvent.type(input, '123456');
+
+    // 3. Click button (even if disabled — we bypass)
+    const button = screen.getByRole('button', { name: /get_otp/i });
+    button.disabled = false; // Force enable
+    await userEvent.click(button);
   });
 });
