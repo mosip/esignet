@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,11 +18,19 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+import org.springframework.web.util.WebUtils;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @Configuration
@@ -53,13 +60,53 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Value("${mosip.esignet.security.ignore-csrf-urls}")
     private String[] ignoreCsrfCheckUrls;
 
+    @Value("${mosip.esignet.security.csrf.cookie-max-age:3600}")
+    private int csrfCookieMaxAge;
+
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        CsrfTokenRepository csrfTokenRepository = new CsrfTokenRepository() {
+            private static final String COOKIE_NAME = "XSRF-TOKEN";
+            private static final String HEADER_NAME = "X-XSRF-TOKEN";
+            private static final String PARAMETER_NAME = "_csrf";// 1 hour
+
+            @Override
+            public CsrfToken generateToken(HttpServletRequest request) {
+                String token = UUID.randomUUID().toString();
+                return new DefaultCsrfToken(HEADER_NAME, PARAMETER_NAME, token);
+            }
+
+            @Override
+            public void saveToken(CsrfToken token, HttpServletRequest request, HttpServletResponse response) {
+                String tokenValue = (token == null) ? "" : token.getToken();
+                Cookie cookie = new Cookie(COOKIE_NAME, tokenValue);
+                cookie.setSecure(request.isSecure());
+                cookie.setHttpOnly(false);
+                cookie.setPath("/");
+
+                if (token == null) {
+                    cookie.setMaxAge(0);
+                } else {
+                    cookie.setMaxAge(csrfCookieMaxAge);
+                }
+
+                response.addCookie(cookie);
+            }
+
+            @Override
+            public CsrfToken loadToken(HttpServletRequest request) {
+                Cookie cookie = WebUtils.getCookie(request, COOKIE_NAME);
+                if (cookie == null || !StringUtils.hasLength(cookie.getValue())) {
+                    return null;
+                }
+                return new DefaultCsrfToken(HEADER_NAME, PARAMETER_NAME, cookie.getValue());
+            }
+        };
 
         ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry urlRegistry = http
                 .csrf()
-                .csrfTokenRepository(new CookieCsrfTokenRepository())
+                .csrfTokenRepository(csrfTokenRepository)
                 .ignoringAntMatchers(ignoreCsrfCheckUrls)
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
