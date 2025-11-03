@@ -26,8 +26,10 @@ public class CustomErrorController implements ErrorController {
         ServletWebRequest webRequest = new ServletWebRequest(request);
         Map<String, Object> attrs = errorAttributes.getErrorAttributes(webRequest, ErrorAttributeOptions.defaults());
         int status = (int) attrs.getOrDefault("status", 500);
+        String error = (String) attrs.getOrDefault("error", "Unknown error");
+        String message = (String) attrs.getOrDefault("message", "No message available");
 
-        String response = status == HttpStatus.NOT_FOUND.value() ? "Requested resource not found" : "Internal Server Error";
+        String response = String.format("Error %d: %s - %s", status, error, message);
 
         return ResponseEntity.status(status).body(response);
     }
