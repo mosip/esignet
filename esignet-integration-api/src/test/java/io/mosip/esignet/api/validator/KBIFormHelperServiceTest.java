@@ -116,4 +116,34 @@ public class KBIFormHelperServiceTest {
         }
     }
 
+    @Test
+    public void migrateKBIFieldDetails_withLanguageField_thenPass() throws KBIFormException {
+        List<Map<String, String>> kbiFieldDetails = List.of(
+                Map.of("id", "individualId", "type", "text", "regex", "^\\d{12}$")
+        );
+
+        JsonNode result = kbiFormHelperService.migrateKBIFieldDetails(kbiFieldDetails);
+        Assert.assertNotNull(result);
+        Assert.assertTrue(result.has("language"));
+
+        JsonNode languageNode = result.get("language");
+        Assert.assertTrue(languageNode.has("mandatory"));
+        Assert.assertTrue(languageNode.has("optional"));
+        Assert.assertTrue(languageNode.has("langCodeMap"));
+
+        Assert.assertTrue(languageNode.get("mandatory").isArray());
+        Assert.assertEquals("eng", languageNode.get("mandatory").get(0).asText());
+
+        Assert.assertTrue(languageNode.get("optional").isArray());
+        Assert.assertEquals("khm", languageNode.get("optional").get(0).asText());
+
+        JsonNode langCodeMap = languageNode.get("langCodeMap");
+        Assert.assertEquals("en", langCodeMap.get("eng").asText());
+        Assert.assertEquals("hi", langCodeMap.get("hin").asText());
+        Assert.assertEquals("ar", langCodeMap.get("ara").asText());
+        Assert.assertEquals("kn", langCodeMap.get("kan").asText());
+        Assert.assertEquals("ta", langCodeMap.get("tam").asText());
+        Assert.assertEquals("km", langCodeMap.get("khm").asText());
+    }
+
 }

@@ -141,5 +141,17 @@ describe('Auth field constants and generator', () => {
       expect(result.inputFields[0].maxLength).toBe('');
       expect(result.inputFields[0].regex).toBe('default_username_regex');
     });
+
+    it('returns two fields when auth factor is PIN', () => {
+      const result = generateFieldData(
+        validAuthFactors.PIN,
+        mockOpenIDConnectService
+      );
+
+      // It should have exactly 2 fields (UIN + PIN)
+      expect(result).toHaveLength(2);
+
+      expect(result[0].type).toBe('text');
+    });
   });
 });

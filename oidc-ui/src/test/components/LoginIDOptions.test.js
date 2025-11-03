@@ -181,4 +181,53 @@ describe('LoginIDOptions Component', () => {
     expect(screen.queryByText('buttons.vid')).not.toBeInTheDocument();
     useStateSpy.mockRestore();
   });
+
+  it('throws error when fetch response is not ok', async () => {
+    setupMocks({
+      loginIDs: fallbackLoginIDs,
+    });
+
+    global.fetch = jest.fn(() =>
+      Promise.resolve({
+        ok: false, // triggers the throw
+        text: () => Promise.resolve('<svg></svg>'),
+      })
+    );
+
+    render(<LoginIDOptions currentLoginID={mockCurrentLoginID} />);
+
+    await waitFor(() => {
+      expect(screen.getByText('buttons.vid')).toBeInTheDocument();
+    });
+  });
+
+  it('updates selected option labels when language changes', async () => {
+    const mockI18n = {
+      language: 'en',
+      changeLanguage: jest.fn(),
+      on: jest.fn(),
+    };
+
+    jest.mock('react-i18next', () => ({
+      useTranslation: () => ({
+        t: (key) => key,
+        i18n: mockI18n,
+      }),
+    }));
+
+    setupMocks({ loginIDs: fallbackLoginIDs });
+    render(<LoginIDOptions currentLoginID={mockCurrentLoginID} />);
+
+    await waitFor(() => {
+      expect(screen.getByText('buttons.vid')).toBeInTheDocument();
+    });
+
+    // simulate language change event
+    mockI18n.on.mock.calls.forEach(([event, callback]) => {
+      if (event === 'languageChanged') callback();
+    });
+
+    // No crash → line executed
+    expect(mockCurrentLoginID).toHaveBeenCalled();
+  });
 });

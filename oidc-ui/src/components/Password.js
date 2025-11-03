@@ -96,8 +96,8 @@ export default function Password({
       setForgotPassword(true);
       setForgotPasswordURL(
         forgotPswdConfig[configurationKeys.forgotPswdURL] +
-          '#' +
-          authService.getAuthorizeQueryParam()
+          window.location.search +
+          window.location.hash
       );
     } else {
       setForgotPassword(false);

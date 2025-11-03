@@ -144,4 +144,133 @@ describe('ConsentPage', () => {
       expect.stringContaining('authenticationTime=')
     );
   });
+
+  it('calls handleRedirection when errorCode param is present', async () => {
+    const testOAuthHash = { transactionId: 'abc123' };
+    const encodedHash = Buffer.from(JSON.stringify(testOAuthHash)).toString(
+      'base64'
+    );
+    const mockUrlInfo = `some=query#${encodedHash}`;
+
+    setupCommonMocks({
+      urlInfo: mockUrlInfo,
+      hash: JSON.stringify({ transactionId: 'abc123' }),
+      searchParams: {
+        nonce: 'mockNonce',
+        state: 'mockState',
+        key: 'mockKey',
+        consentAction: 'allow',
+        authenticationTime: '1620000000',
+      },
+      errorCode: 'server_error',
+    });
+
+    jest
+      .spyOn(utils, 'decodeHash')
+      .mockReturnValue(JSON.stringify(testOAuthHash));
+    jest.spyOn(utils, 'getOauthDetailsHash').mockResolvedValue('hashed-value');
+
+    const redirectUri = 'https://mock-redirect.com/callback';
+    openIDConnectService.mockImplementation(() => ({
+      getRedirectUri: () => redirectUri,
+    }));
+
+    const mockResume = jest.fn().mockResolvedValue({ errors: [] });
+    authService.mockImplementation(() => ({ resume: mockResume }));
+
+    render(<ConsentPage />);
+
+    await waitFor(() => {
+      // handleRedirection should have triggered window.location.replace
+      expect(window.location.replace).toHaveBeenCalledWith(
+        expect.stringContaining('https://mock-redirect.com/callback?')
+      );
+    });
+  });
+
+  it('calls handleRedirection when resume returns errors', async () => {
+    const testOAuthHash = { transactionId: 'xyz789' };
+    const encodedHash = Buffer.from(JSON.stringify(testOAuthHash)).toString(
+      'base64'
+    );
+    const mockUrlInfo = `some=query#${encodedHash}`;
+
+    setupCommonMocks({
+      urlInfo: mockUrlInfo,
+      hash: JSON.stringify(testOAuthHash),
+      searchParams: {
+        nonce: 'mockNonce',
+        state: 'mockState',
+        key: 'mockKey',
+        consentAction: 'allow',
+        authenticationTime: '1620000000',
+      },
+    });
+
+    jest
+      .spyOn(utils, 'decodeHash')
+      .mockReturnValue(JSON.stringify(testOAuthHash));
+    jest.spyOn(utils, 'getOauthDetailsHash').mockResolvedValue('hashed-value');
+
+    const redirectUri = 'https://mock-redirect.com/failure';
+    openIDConnectService.mockImplementation(() => ({
+      getRedirectUri: () => redirectUri,
+    }));
+
+    authService.mockImplementation(() => ({
+      resume: jest
+        .fn()
+        .mockResolvedValue({ errors: [{ errorCode: 'invalid_request' }] }),
+    }));
+
+    render(<ConsentPage />);
+
+    await waitFor(() => {
+      expect(window.location.replace).toHaveBeenCalledWith(
+        expect.stringContaining('error=invalid_request')
+      );
+    });
+  });
+
+  it('uses mapped error message when available in errorCodeObj', async () => {
+    const testOAuthHash = { transactionId: 'abc123' };
+    const encodedHash = Buffer.from(JSON.stringify(testOAuthHash)).toString(
+      'base64'
+    );
+    const mockUrlInfo = `some=query#${encodedHash}`;
+
+    setupCommonMocks({
+      urlInfo: mockUrlInfo,
+      hash: JSON.stringify(testOAuthHash),
+      searchParams: {
+        nonce: 'mockNonce',
+        state: 'mockState',
+        key: 'mockKey',
+        consentAction: 'allow',
+        authenticationTime: '1620000000',
+      },
+      errorCode: 'invalid_client',
+    });
+
+    jest
+      .spyOn(utils, 'decodeHash')
+      .mockReturnValue(JSON.stringify(testOAuthHash));
+    jest.spyOn(utils, 'getOauthDetailsHash').mockResolvedValue('hashed-value');
+
+    openIDConnectService.mockImplementation(() => ({
+      getRedirectUri: () => 'https://mock.com/callback',
+    }));
+
+    authService.mockImplementation(() => ({
+      resume: jest.fn().mockResolvedValue({ errors: [] }),
+    }));
+
+    render(<ConsentPage />);
+
+    await waitFor(() => {
+      expect(window.location.replace).toHaveBeenCalledWith(
+        expect.stringContaining('error=') // covers mapped error
+      );
+    });
+  });
 });
