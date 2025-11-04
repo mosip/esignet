@@ -1,4 +1,4 @@
-FROM openjdk:21-slim
+FROM eclipse-temurin:21-jre-alpine
 
 USER root
 
@@ -6,8 +6,8 @@ USER root
 ENV DISPLAY=:99
 
 ### --- Install Google Chrome & chromedriver --- ###
-RUN apt-get update && \
-    apt-get install -y wget curl unzip xvfb libxi6 libgconf-2-4 chromium chromium-driver
+RUN apk -q update && \
+    apk add --no-cache wget curl unzip xvfb libxi chromium chromium-chromedriver bash shadow
 
 # Install kubectl
 RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
