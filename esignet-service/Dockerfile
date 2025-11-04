@@ -1,4 +1,4 @@
-FROM eclipse-temurin:11-jre-alpine
+FROM eclipse-temurin:11-jre-jammy
 
 ARG SOURCE
 ARG COMMIT_HASH
@@ -79,8 +79,8 @@ ADD configure_start.sh configure_start.sh
 COPY ./target/esignet-service-*.jar esignet-service.jar
 
 # install packages and create user
-RUN apk -q update \
-&& apk add -q wget unzip file sudo \
+RUN apt-get -y update \
+&& apt-get install -y --no-install-recommends wget unzip file sudo \
 && groupadd -g ${container_user_gid} ${container_user_group} \
 && useradd -u ${container_user_uid} -g ${container_user_group} -s /bin/sh -m ${container_user} \
 && adduser ${container_user} sudo \
