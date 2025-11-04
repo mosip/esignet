@@ -1,4 +1,4 @@
-FROM openjdk:21-slim
+FROM eclipse-temurin:11-jre-alpine
 
 USER root
 
