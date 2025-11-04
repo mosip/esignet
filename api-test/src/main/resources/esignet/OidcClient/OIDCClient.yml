@@ -588,3 +588,25 @@ CreateOIDCClient:
       output: '{
         "status": "ACTIVE"
 }'
+   Esignet_CreateOIDCClientV3DPOP_all_Valid_Smoke_sid:
+      endPoint: /v1/partnermanager/oidc/client
+      uniqueIdentifier: TC_ESignet_CreateOIDCClient_26
+      description: Create OIDC client with all valid details for MOSIP ID DPOP flow
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/OidcClient/OIDCClientDPOP
+      outputTemplate: esignet/OidcClient/OIDCClientResult
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_All_Valid_Smoke_sid_id$",
+        "publicKey": "$OIDC_JWK_KEY_DPoP$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt",
+        "dpop_bound_access_tokens": true
+}'
+      output: '{
+        "status": "ACTIVE"
+}'

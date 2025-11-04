@@ -694,6 +694,94 @@
 			<class
 				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
+	</test>
+	<test name="DPoPCreateOIDCClientV3">
+		<parameter name="ymlFile"
+			value="esignet/DPoP/DPoPCreateOIDCClientV3/DPoPCreateOIDCClient.yml" />
+		<parameter name="idKeyName" value="clientId" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="OauthDPoP">
+		<parameter name="ymlFile"
+			value="esignet/DPoP/OauthDPoP/OauthDPoP.yml" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
+		<parameter name="idKeyName" value="request_uri" />				
+		</classes>
+	</test>
+	<test name="DPoPOauthDetails">
+		<parameter name="ymlFile"
+			value="esignet/DPoP/DPoPOauthDetails/DPoPOauthDetails.yml" />
+		<parameter name="idKeyName" value="transactionId,encodedResp" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="DPoPAuthenticateUserV3">
+		<parameter name="ymlFile"
+			value="esignet/DPoP/DPoPAuthenticateUserV3/DPoPAuthenticateUserV3.yml" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.PostWithAutogenIdWithOtpGenerate" />
+		</classes>
+	</test>
+	<test name="DPoPAuthorizationCode">
+		<parameter name="ymlFile"
+			value="esignet/DPoP/DPoPAuthorizationCode/DPoPAuthorizationCode.yml" />
+		<parameter name="idKeyName" value="code" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="DPoPGenerateToken">
+		<parameter name="ymlFile"
+			value="esignet/DPoP/DPoPGenerateToken/DPoPGenerateToken.yml" />
+		<parameter name="idKeyName" value="access_token" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
+		</classes>
+	</test>
+	<test name="DPoPGetUserInfo">
+		<parameter name="ymlFile"
+			value="esignet/DPoP/DPoPGetUserInfo/DPoPGetUserInfo.yml" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.GetWithParam" />
+		</classes>
+	</test>
+	<test name="OauthDPoPNegativeScenarios">
+		<parameter name="ymlFile"
+			value="esignet/DPoP/OauthDPoPNegativeScenarios/OauthDPoPNegativeScenarios.yml" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
+		<parameter name="idKeyName" value="request_uri" />				
+		</classes>
+	</test>
+	<test name="DPoPGenerateTokenNegativeScenarios">
+		<parameter name="ymlFile"
+			value="esignet/DPoP/DPoPGenerateTokenNegativeScenarios/DPoPGenerateTokenNegativeScenarios.yml" />
+		<parameter name="idKeyName" value="access_token" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
+		</classes>
+	</test>
+	<test name="DPoPOauthDetailsNegativeScenarios">
+		<parameter name="ymlFile"
+			value="esignet/DPoP/DPoPOauthDetailsNegativeScenarios/DPoPOauthDetailsNegativeScenarios.yml" />
+		<parameter name="idKeyName" value="transactionId,encodedResp" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
+		</classes>
 	</test>	
 	<!-- End of end to end v3 with mock flow test cases -->
 
