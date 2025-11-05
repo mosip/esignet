@@ -235,5 +235,14 @@ CREATE TABLE mockidentitysystem.verified_claim(
     CONSTRAINT pk_verified_claim_id PRIMARY KEY (id)
 );
 
+CREATE TABLE mockidentitysystem.partner_data (
+    partner_id character varying(100) NOT NULL,
+    client_id character varying(100) NOT NULL,
+    public_key text,
+    status character varying(50),
+    cr_dtimes timestamp NOT NULL,
+    CONSTRAINT pk_partner_data_partner_id_client_id PRIMARY KEY (partner_id, client_id)
+);
+
 INSERT INTO mockidentitysystem.KEY_POLICY_DEF(APP_ID,KEY_VALIDITY_DURATION,PRE_EXPIRE_DAYS,ACCESS_ALLOWED,IS_ACTIVE,CR_BY,CR_DTIMES) VALUES('ROOT', 2920, 1125, 'NA', true, 'mosipadmin', now());
 INSERT INTO mockidentitysystem.KEY_POLICY_DEF(APP_ID,KEY_VALIDITY_DURATION,PRE_EXPIRE_DAYS,ACCESS_ALLOWED,IS_ACTIVE,CR_BY,CR_DTIMES) VALUES('MOCK_AUTHENTICATION_SERVICE', 1095, 50, 'NA', true, 'mosipadmin', now());
