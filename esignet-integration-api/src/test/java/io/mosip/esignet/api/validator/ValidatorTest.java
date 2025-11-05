@@ -43,6 +43,9 @@ public class ValidatorTest {
     @Mock
     private ConstraintValidatorContext constraintValidatorContext;
 
+    @Mock
+    private ResourceLoader resourceLoader;
+
     @Before
     public void setUp() {
         ReflectionTestUtils.setField(purposeValidator, "minLength", 3);
@@ -324,6 +327,45 @@ public class ValidatorTest {
 
         boolean isValid = authChallengeFactorFormatValidator.isValid(authChallenge, constraintValidatorContext);
 
+        assertTrue(isValid);
+    }
+
+    @Test
+    public void authChallengeFactorFormatValidator_withMultilingualFullName_thenPass() throws KBIFormException {
+        ReflectionTestUtils.setField(authChallengeFactorFormatValidator, "objectMapper", new ObjectMapper());
+        ReflectionTestUtils.setField(authChallengeFactorFormatValidator, "idField", "individualId");
+
+        List<Map<String, String>> fieldDetailList = List.of(
+                Map.of("id", "individualId", "type", "text", "format", "string", "regex", "^\\+\\d+$"),
+                Map.of("id", "phone", "type", "text", "format", "string", "regex", "^\\+\\d+$"),
+                Map.of("id", "fullName", "type", "text", "format", "", "regex", "^[\\u1780-\\u17FF\\p{L} .'-]+$"),
+                Map.of("id", "dob", "type", "date", "format", "yyyy-MM-dd", "regex", "^(\\d{4})-(\\d{2})-(\\d{2})$")
+        );
+
+        KBIFormHelperService helperService = new KBIFormHelperService();
+        ReflectionTestUtils.setField(helperService, "objectMapper", new ObjectMapper());
+        ReflectionTestUtils.setField(helperService, "resourceLoader", resourceLoader);
+        JsonNode schema = helperService.migrateKBIFieldDetails(fieldDetailList);
+
+        ReflectionTestUtils.setField(authChallengeFactorFormatValidator, "kbiFormHelperService", helperService);
+        ReflectionTestUtils.setField(authChallengeFactorFormatValidator, "fieldJson", schema);
+
+        ReflectionTestUtils.setField(authChallengeFactorFormatValidator, "fieldDetailList", fieldDetailList);
+        ReflectionTestUtils.setField(authChallengeFactorFormatValidator, "environment", environment);
+
+        Mockito.when(environment.getProperty("mosip.esignet.auth-challenge.KBI.format", String.class))
+                .thenReturn("base64url-encoded-json");
+        Mockito.when(environment.getProperty("mosip.esignet.auth-challenge.KBI.min-length", Integer.TYPE, 50))
+                .thenReturn(50);
+        Mockito.when(environment.getProperty("mosip.esignet.auth-challenge.KBI.max-length", Integer.TYPE, 50))
+                .thenReturn(500);
+
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setAuthFactorType("KBI");
+        authChallenge.setFormat("base64url-encoded-json");
+        authChallenge.setChallenge("eyJpbmRpdmlkdWFsSWQiOiIrOTE4Nzk4ODc5ODg3IiwicGhvbmUiOiIrOTE4Nzk4ODc5ODg3IiwiZnVsbE5hbWUiOlt7Imxhbmd1YWdlIjoiZW5nIiwidmFsdWUiOiLhnoXhnpPhnorhnrwifSx7Imxhbmd1YWdlIjoidGFtIiwidmFsdWUiOiLhnoXhnpPhnorhnrwifSx7Imxhbmd1YWdlIjoiaGluIiwidmFsdWUiOiIifSx7Imxhbmd1YWdlIjoia2FuIiwidmFsdWUiOiIifSx7Imxhbmd1YWdlIjoia2htIiwidmFsdWUiOiIifSx7Imxhbmd1YWdlIjoiYXJhIiwidmFsdWUiOiIifV0sImRvYiI6IjIwMjUtMTAtMDEifQ==");
+
+        boolean isValid = authChallengeFactorFormatValidator.isValid(authChallenge, constraintValidatorContext);
         assertTrue(isValid);
     }
 
