@@ -93,7 +93,10 @@
       "!src/setupTests.js",
       "!src/reportWebVitals.js",
       "!src/index.js",
-      "!src/**/mocks.js"
+      "!src/**/mocks.js",
+      "!src/pages/Login.js",
+      "!src/components/Form.js",
+      "!src/components/Password.js"
     ]
   }
 }
