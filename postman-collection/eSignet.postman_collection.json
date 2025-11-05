@@ -501,7 +501,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"eval(pm.globals.get('pmlib_code'));\r",
+									"eval(pm.environment.get('pmlib_code'));\r",
 									"\r",
 									"// Generate PKCE challenge + verifier\r",
 									"const pkce = pmlib.pkceChallenge();\r",
@@ -1864,7 +1864,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"eval(pm.globals.get('pmlib_code'));\r",
+									"eval(pm.environment.get('pmlib_code'));\r",
 									"\r",
 									"// Generate PKCE challenge + verifier\r",
 									"const pkce = pmlib.pkceChallenge();\r",
@@ -2510,7 +2510,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"eval(pm.globals.get('pmlib_code'));\r",
+									"eval(pm.environment.get('pmlib_code'));\r",
 									"\r",
 									"// Generate PKCE challenge + verifier\r",
 									"const pkce = pmlib.pkceChallenge();\r",
