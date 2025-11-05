@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.mosip.esignet</groupId>
 	<artifactId>uitest-esignet</artifactId>
-	<version>1.7.0-SNAPSHOT</version>
+	<version>1.7.1-SNAPSHOT</version>
 
 	<name>uitest-esignet</name>
 	<url>https://github.com/mosip/esignet</url>
