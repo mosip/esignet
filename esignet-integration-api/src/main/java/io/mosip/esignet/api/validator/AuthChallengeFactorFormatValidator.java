@@ -86,7 +86,7 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
         try {
             byte[] decodedBytes = Base64.getUrlDecoder().decode(challenge);
             String decodedString = new String(decodedBytes, StandardCharsets.UTF_8);
-            Map<String, String> challengeMap = objectMapper.readValue(decodedString, new TypeReference<>() {});
+            Map<String, Object> challengeMap = objectMapper.readValue(decodedString, new TypeReference<>() {});
 
             JsonNode schemaArray = getFieldJson().path("schema");
             for (JsonNode fieldNode : schemaArray) {
@@ -95,32 +95,50 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
                 boolean isRequired = fieldNode.path("required").asBoolean(false);
 
                 if (("textbox".equalsIgnoreCase(controlType) || "date".equalsIgnoreCase(controlType)) && !id.equals(idField)) {
-                    String value = challengeMap.get(id);
+                    Object rawValue = challengeMap.get(id);
+                    String value = null;
+
+                    if (rawValue instanceof String) {
+                        value = (String) rawValue;
+                    } else if (rawValue instanceof List) {
+                        try {
+                            List<Map<String, String>> list = objectMapper.convertValue(rawValue, new TypeReference<List<Map<String, String>>>() {});
+                            value = list.stream()
+                                    .map(entry -> entry.getOrDefault("value", ""))
+                                    .filter(StringUtils::hasText)
+                                    .findFirst()
+                                    .orElse("");
+                        } catch (Exception e) {
+                            log.warn("Invalid format for field '{}': expected list of maps", id);
+                            value = "";
+                        }
+                    }
 
                     if (isRequired && !StringUtils.hasText(value)) {
                         log.warn("Validation failed: Required field '{}' is missing or empty", id);
                         return false;
                     }
-
-                    JsonNode maxLengthNode = fieldNode.get("maxLength");
-                    if (maxLengthNode != null && maxLengthNode.isInt()) {
-                        int maxLength = maxLengthNode.asInt();
-                        if (value.length() > maxLength) {
-                            log.warn("Validation failed: Value for field '{}' exceeds maxLength {} (actual length: {})", id, maxLength, value.length());
-                            return false;
+                    if (StringUtils.hasText(value)) {
+                        JsonNode maxLengthNode = fieldNode.get("maxLength");
+                        if (maxLengthNode != null && maxLengthNode.isInt()) {
+                            int maxLength = maxLengthNode.asInt();
+                            if (value.length() > maxLength) {
+                                log.warn("Validation failed: Value for field '{}' exceeds maxLength {} (actual length: {})", id, maxLength, value.length());
+                                return false;
+                            }
                         }
-                    }
 
-                    JsonNode validators = fieldNode.path("validators");
-                    if (validators.isArray()) {
-                        for (JsonNode validatorNode : validators) {
-                            String validatorType = validatorNode.path("type").asText();
-                            String regex = validatorNode.path("validator").asText();
+                        JsonNode validators = fieldNode.path("validators");
+                        if (validators.isArray()) {
+                            for (JsonNode validatorNode : validators) {
+                                String validatorType = validatorNode.path("type").asText();
+                                String regex = validatorNode.path("validator").asText();
 
-                            if ("regex".equalsIgnoreCase(validatorType) && StringUtils.hasText(regex)) {
-                                if (!Pattern.matches(regex, value)) {
-                                    log.warn("Validation failed: Value '{}' for field '{}' does not match regex '{}'", value, id, regex);
-                                    return false;
+                                if ("regex".equalsIgnoreCase(validatorType) && StringUtils.hasText(regex)) {
+                                    if (!Pattern.matches(regex, value)) {
+                                        log.warn("Validation failed: Value '{}' for field '{}' does not match regex '{}'", value, id, regex);
+                                        return false;
+                                    }
                                 }
                             }
                         }
