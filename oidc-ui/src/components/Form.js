@@ -11,7 +11,7 @@ import { LoadingStates as states } from '../constants/states';
 import ErrorBanner from '../common/ErrorBanner';
 import redirectOnError from '../helpers/redirectOnError';
 import langConfigService from '../services/langConfigService';
-import { JsonFormBuilder } from '@anushase/json-form-builder';
+import { JsonFormBuilder } from '@mosip/json-form-builder';
 import { encodeString } from '../helpers/utils';
 
 export default function Form({
