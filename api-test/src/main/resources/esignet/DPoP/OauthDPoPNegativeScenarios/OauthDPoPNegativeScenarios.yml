@@ -61,7 +61,6 @@ OauthDPoPNegativeScenarios:
       description: Validate successful DPoP request with invalid client assertion
       role: resident
       restMethod: post
-      checkErrorsOnlyInResponse: true
       inputTemplate: esignet/DPoP/OauthDPoPNegativeScenarios/OauthDPoPNegativeScenarios
       outputTemplate: esignet/error2
       input: '{
@@ -82,5 +81,5 @@ OauthDPoPNegativeScenarios:
        "dpop_jkt": "$DPOP_JKT$"
 }'
       output: '{
-            "error": "invalid_request"
+            "error": "invalid_client"
 }'

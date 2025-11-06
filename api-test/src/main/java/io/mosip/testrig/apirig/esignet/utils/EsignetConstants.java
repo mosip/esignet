@@ -19,13 +19,9 @@ public class EsignetConstants {
 	public static final String DSL = "dsl";
 	
 	public static final String DPOP_KEY = "dpop_key";
-	
 	public static final String DPOP_VALUE = "dpop_value";
-		
 	public static final String AUTHORIZATION_KEY = "authorization_key";
-	
 	public static final String DPOP_ACCESS_TOKEN = "dpop_access_token";
-	
 	public static final String DPOP_NONCE_STRING = "_dpopNonce";
 	
 }
