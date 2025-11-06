@@ -41,6 +41,8 @@ data:
           proxy_set_header   X-Real-IP $remote_addr;
           proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
           proxy_set_header   X-Forwarded-Host $server_name;
+          add_header Content-Security-Policy "default-src 'none'" always;
+          add_header Referrer-Policy "no-referrer" always;
         }
     
         location /.well-known/jwks.json {
@@ -50,6 +52,8 @@ data:
           proxy_set_header   X-Real-IP $remote_addr;
           proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
           proxy_set_header   X-Forwarded-Host $server_name;
+          add_header Content-Security-Policy "default-src 'none'" always;
+          add_header Referrer-Policy "no-referrer" always;
           types {
             text/plain log cer json txt;
           }
@@ -62,6 +66,8 @@ data:
           proxy_set_header   X-Real-IP $remote_addr;
           proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
           proxy_set_header   X-Forwarded-Host $server_name;
+          add_header Content-Security-Policy "default-src 'none'" always;
+          add_header Referrer-Policy "no-referrer" always;
           types {
             text/plain log cer json txt;
           }
@@ -74,6 +80,8 @@ data:
           proxy_set_header   X-Real-IP $remote_addr;
           proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
           proxy_set_header   X-Forwarded-Host $server_name;
+          add_header Content-Security-Policy "default-src 'none'" always;
+          add_header Referrer-Policy "no-referrer" always;
           types {
             text/plain log cer json txt;
           }
@@ -86,6 +94,8 @@ data:
           proxy_set_header   X-Real-IP $remote_addr;
           proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
           proxy_set_header   X-Forwarded-Host $server_name;
+          add_header Content-Security-Policy "default-src 'none'" always;
+          add_header Referrer-Policy "no-referrer" always;
           types {
             text/plain log cer json txt;
           }
@@ -94,6 +104,13 @@ data:
 
         location / {
           try_files $uri $uri/ /index.html;
+          add_header Content-Security-Policy "
+              default-src 'self';
+              style-src 'self' https://fonts.googleapis.com;
+              font-src 'self' https://fonts.gstatic.com;
+              img-src 'self' https://cdn.jsdelivr.net
+            " always;
+          add_header Referrer-Policy "no-referrer" always;
         }
       }
     }

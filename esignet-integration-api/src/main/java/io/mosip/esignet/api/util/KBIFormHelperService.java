@@ -101,6 +101,7 @@ public class KBIFormHelperService {
                 String fieldId = field.get("id");
                 String type = field.get("type");
                 String regex = field.get("regex");
+                String format = field.getOrDefault("format","yyyy-MM-dd");
 
                 if (fieldId == null || fieldId.trim().isEmpty()) {
                     log.error("Field Id is missing or empty: {}", field);
@@ -109,7 +110,7 @@ public class KBIFormHelperService {
 
                 fieldNode.put("id", fieldId);
                 fieldNode.put("controlType", "date".equalsIgnoreCase(type) ? "date" : "textbox");
-                fieldNode.set("label", objectMapper.createObjectNode().put("eng", WordUtils.capitalizeFully(fieldId, '_', '-', '.')));
+                fieldNode.set("labelName", objectMapper.createObjectNode().put("eng", WordUtils.capitalizeFully(fieldId, '_', '-', '.')));
                 fieldNode.put("required", true);
 
                 ArrayNode validators = objectMapper.createArrayNode();
@@ -123,6 +124,7 @@ public class KBIFormHelperService {
 
                 if ("date".equalsIgnoreCase(type)) {
                     fieldNode.put("type", "date");
+                    fieldNode.put("format", format);
                 }
 
                 schemaArray.add(fieldNode);
@@ -132,15 +134,9 @@ public class KBIFormHelperService {
             finalSchema.set("schema", schemaArray);
             ObjectNode languageNode = objectMapper.createObjectNode();
             languageNode.putArray("mandatory").add("eng");
-            languageNode.putArray("optional").add("khm");
 
             ObjectNode langCodeMap = objectMapper.createObjectNode();
             langCodeMap.put("eng", "en");
-            langCodeMap.put("hin", "hi");
-            langCodeMap.put("ara", "ar");
-            langCodeMap.put("kan", "kn");
-            langCodeMap.put("tam", "ta");
-            langCodeMap.put("khm", "km");
 
             languageNode.set("langCodeMap", langCodeMap);
             finalSchema.set("language", languageNode);
