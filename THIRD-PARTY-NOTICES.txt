@@ -18,8 +18,8 @@ Version: 2.2.0
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
 
-Package: @anushase/json-form-builder
-Version: 1.1.6
+Package: @mosip/json-form-builder
+Version: 0.1.0-beta.0
 License: UNKNOWN
 Homepage: N/A
 
