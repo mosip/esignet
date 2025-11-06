@@ -44,7 +44,7 @@ const mockGetFormData = jest.fn(() => ({
   fullName: 'John Doe',
 }));
 
-jest.mock('@anushase/json-form-builder', () => ({
+jest.mock('@mosip/json-form-builder', () => ({
   __esModule: true,
   default: jest.fn().mockImplementation(() => ({
     render: mockRender,
