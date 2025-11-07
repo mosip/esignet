@@ -22,7 +22,12 @@ function installing_redis() {
   helm repo update
 
   echo Installing redis
-  helm -n $NS install redis bitnami/redis --wait --version $CHART_VERSION
+  helm -n $NS install redis bitnami/redis \
+    --wait \
+    --version $CHART_VERSION \
+    --set image.repository=mosipid/redis \
+    --set image.tag=7.0.5-debian-11-r25 \
+    --set image.pullPolicy=Always
 
   echo Installed redis service
 
