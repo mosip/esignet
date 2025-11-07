@@ -1,0 +1,27 @@
+OAuthDetailsRequestV3WithoutVerifiedClaims:
+   ESignet_OAuthDetailsRequest_Without_VerifiedClaims_V3_AuthToken_Xsrf_Smoke_sid:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_Signup_ESignet_OAuthDetailsRequestV3WithoutVerifiedClaims_01
+      description: Get OAuth details with claims as without Verified Claims
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/OTPAuthFactorFlow/WithoutVerifiedClaims/OAuthDetails/OAuthDetailsRequest
+      outputTemplate: esignet/OTPAuthFactorFlow/WithoutVerifiedClaims/OAuthDetails/OAuthDetailsRequestResult
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:OIDCClientV3_WithoutVerifiedClaims_all_Valid_Smoke_sid_clientId$",
+        "scope": "openid profile",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "login",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "urlInfo1724138417665",
+        "claimsLocales": "en",
+        "uiLocales": "en-US"
+}'
+      output: '{
+       
+}'

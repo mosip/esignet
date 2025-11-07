@@ -1,0 +1,17 @@
+DPoPGetUserInfo:
+   ESignet_GetOidcUserInfo_UIN_Dpop_AccessToken_StatusCode_Valid_Smoke:
+      endPoint: /v1/esignet/oidc/userinfo
+      uniqueIdentifier: TC_ESignet_DPoPGetUserInfo_01
+      description: Get OIDC user info with all valid details UIN
+      role: resident
+      restMethod: get
+      validityCheckRequired: true
+      inputTemplate: esignet/DPoP/DPoPGetUserInfo/DPoPGetUserInfo
+      outputTemplate: esignet/DPoP/DPoPGetUserInfo/DPoPGetUserInfoResult
+      input: '{
+        "dpop_access_token": "$ID:GenerateToken_DPoP_AuthToken_Xsrf_Valid_Smoke_sid_access_token$",
+        "authorization_key": "Authorization",
+        "dpop_key": "DPoP",
+        "dpop_value": "$DPOP_PROOF_WITH_ACCESS_TOKEN$"
+}'
+      output: "200"

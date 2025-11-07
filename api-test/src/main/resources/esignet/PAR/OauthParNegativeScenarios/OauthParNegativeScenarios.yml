@@ -159,7 +159,7 @@ OauthParNegativeScenarios:
        "aud_key": "pushed_authorization_request_endpoint"
 }'
       output: '{
-            "error": "invalid_client_id"
+            "error": "invalid_request"
 }'
    ESignet_OauthParNegativeScenarios_Missing_redirect_uri_Neg:
       endPoint: /v1/esignet/oauth/par
@@ -321,7 +321,7 @@ OauthParNegativeScenarios:
        "aud_key": "pushed_authorization_request_endpoint"
 }'
       output: '{
-            "error": "invalid_request"
+            "error": "invalid_client"
 }'
    ESignet_OauthParNegativeScenarios_invalid_client_assertion_Type_Neg:
       endPoint: /v1/esignet/oauth/par
@@ -402,7 +402,7 @@ OauthParNegativeScenarios:
        "aud_key": "pushed_authorization_request_endpoint"
 }'
       output: '{
-            "error": "invalid_request"
+            "error": "invalid_client"
 }'
    ESignet_OauthParNegativeScenarios_without_RequestTime_Neg:
       endPoint: /v1/esignet/oauth/par

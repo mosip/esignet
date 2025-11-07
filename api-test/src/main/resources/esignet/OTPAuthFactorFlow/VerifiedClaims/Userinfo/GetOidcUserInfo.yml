@@ -1,0 +1,14 @@
+GetOidcUserInfoVerifiedClaims:
+   ESignet_GetOidcUserInfo_IdpAccessToken_StatusCode_for_Verified_Claims_Valid_Smoke:
+      endPoint: /v1/esignet/oidc/userinfo
+      uniqueIdentifier: TC_ESignet_GetOidcUserInfoVerifiedClaims_01
+      description: Get OIDC user info with Verified Claims
+      role: resident
+      restMethod: get
+      validityCheckRequired: true
+      inputTemplate: esignet/OTPAuthFactorFlow/VerifiedClaims/Userinfo/GetOidcUserInfo
+      outputTemplate: esignet/OTPAuthFactorFlow/VerifiedClaims/Userinfo/GetOidcUserInfoResult
+      input: '{
+      	"idpAccessToken": "$ID:GenerateToken_Verified_Claims_Valid_Smoke_sid_access_token$"
+}'
+      output: "200"

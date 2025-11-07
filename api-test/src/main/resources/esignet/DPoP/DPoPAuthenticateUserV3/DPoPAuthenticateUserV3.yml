@@ -1,0 +1,33 @@
+DPoPAuthenticateUserV3:
+   ESignet_DPoPAuthenticateUserV3_AuthToken_Xsrf__uin_Otp_Valid_forUserInfo_Smoke:
+      endPoint: /v1/esignet/authorization/v3/authenticate
+      uniqueIdentifier: TC_ESignet_DPoPAuthenticateUserV3_01
+      description: Verify that the PARAuthenticateUserV3 endpoint authenticates the user successfully with valid credentials
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/DPoP/DPoPAuthenticateUserV3/DPoPAuthenticateUserV3
+      outputTemplate: esignet/DPoP/DPoPAuthenticateUserV3/DPoPAuthenticateUserV3Result
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_DPoP_AuthToken_Xsrf_all_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_DPoP_AuthToken_Xsrf_all_Valid_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_For_DPOP_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_For_DPOP_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_DPoP_AuthToken_Xsrf_all_Valid_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_DPoP_AuthToken_Xsrf_all_Valid_Smoke_sid_transactionId$",
+    "individualId": "$ID:AddIdentity_For_DPOP_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+    }'
+      output: '{
+  "sendOtpResp":{
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult"
+    }
+}'

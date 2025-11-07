@@ -1,0 +1,38 @@
+OIDCClientV3VerifiedClaims:
+  ESignet_OIDCClientV3_VerifiedClaims_all_Valid_Smoke_sid:
+    endPoint: /v1/esignet/client-mgmt/client
+    uniqueIdentifier: TC_ESignet_OIDCClientV3VerifiedClaims_01
+    description: Create OIDC Client with all valid data with Verified Claims
+    role: partner
+    restMethod: post
+    inputTemplate: esignet/OTPAuthFactorFlow/VerifiedClaims/CreateClient/CreateOIDCClient
+    outputTemplate: esignet/OTPAuthFactorFlow/VerifiedClaims/CreateClient/CreateOIDCClientResult
+    input: '{
+      "requestTime": "$TIMESTAMP$",
+      "clientId": "$RANDOMPARTNERID$",
+      "clientName": "MOSIP OIDC Client with Verified Claims",
+      "logoUri": "https://health-services.com/logo.png",
+      "relyingPartyId": "Bharathi-Inc",
+      "redirectUris": "$IDPREDIRECTURI$",
+      "publicKey": "$OIDCJWKKEY10$",
+      "userClaims1": "name",
+      "userClaims2": "email",
+      "userClaims3": "gender",
+      "userClaims4": "phone_number",
+      "userClaims5": "birthdate",
+      "authContextRefs": [{"acrValues": "mosip:idp:acr:static-code"},{"acrValues": "mosip:idp:acr:generated-code"},{"acrValues": "mosip:idp:acr:biometrics"}],
+      "grantTypes": "authorization_code",
+      "clientAuthMethods": "private_key_jwt",
+      "keyLang1": "$1STLANG$",
+      "clientNameLang": "MOSIP OIDC Client with Verified Claims",
+      "userinfo_response_type": "JWS",
+      "purpose_title": "title",
+      "purpose_type": "verify",
+      "purpose_subTitle": "subtitle",
+      "signup_banner_required": true,
+      "forgot_pwd_link_required": true,
+      "consent_expire_in_mins": 30
+}'
+    output: '{
+      "status": "ACTIVE"
+}'
