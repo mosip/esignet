@@ -26,3 +26,12 @@ resources:
   requests:
     cpu: 300m
     memory: 500Mi
+
+      # Wait time (in milliseconds) after UIN generation in IDREPO before proceeding
+      uinGenerationProcessingDelayTimeInMilliSeconds: 90000
+
+      # Wait time (in milliseconds) after VID generation in Resident before proceeding
+      vidGenerationProcessingDelayTimeInMilliSeconds: 90000
+
+      # Maximum number of retry attempts for UIN availability check during OTP generation
+      uinGenMaxLoopCount: 20
