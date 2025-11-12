@@ -29,7 +29,7 @@ import java.util.Map;
 @Component
 public class KBIFormHelperService {
 
-    private static final String KBI_SPEC = "kbi_spec";
+    private static final String KBI_SPEC = "kbispec";
 
     @Autowired
     private ResourceLoader resourceLoader;
