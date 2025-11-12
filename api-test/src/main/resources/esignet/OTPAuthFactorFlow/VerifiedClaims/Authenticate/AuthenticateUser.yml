@@ -1,0 +1,31 @@
+AuthenticateUserV3VerifiedClaims:
+   ESignet_AuthenticateUser_VerifiedClaims_V3_AuthToken_Xsrf__Smoke:
+      endPoint: /v1/esignet/authorization/v3/authenticate
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/OTPAuthFactorFlow/VerifiedClaims/Authenticate/AuthenticateUser
+      outputTemplate: esignet/OTPAuthFactorFlow/VerifiedClaims/Authenticate/AuthenticateUserResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_VerifiedClaims_V3_AuthToken_Xsrf_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_VerifiedClaims_V3_AuthToken_Xsrf_Smoke_sid_transactionId$",
+      	"individualId": "$ID:AddIdentity_For_OTPFlow_VerifiedClaims_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_For_OTPFlow_VerifiedClaims_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "encodedHash": "$ID:OAuthDetailsRequest_VerifiedClaims_V3_AuthToken_Xsrf_Smoke_sid_encodedResp$",
+    "requestTime": "$TIMESTAMP$",
+    "transactionId": "$ID:OAuthDetailsRequest_VerifiedClaims_V3_AuthToken_Xsrf_Smoke_sid_transactionId$",
+    "individualId": "$ID:AddIdentity_For_OTPFlow_VerifiedClaims_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+    }'
+      output: '{
+  "sendOtpResp":{
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult"
+    }
+}'

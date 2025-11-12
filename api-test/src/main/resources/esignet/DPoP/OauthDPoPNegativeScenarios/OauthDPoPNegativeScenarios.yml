@@ -1,0 +1,114 @@
+OauthDPoPNegativeScenarios:
+   ESignet_OautDPoPNegativeScenarios_Invalid_JKT_Neg:
+      endPoint: /v1/esignet/oauth/par
+      uniqueIdentifier: TC_ESignet_OautDPoPNegativeScenarios_01
+      description: Validate successful DPoP request with valid client details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/DPoP/OauthDPoPNegativeScenarios/OauthDPoPNegativeScenarios
+      outputTemplate: esignet/PAR/OauthDPoP/OauthDPoPResult
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "client_id": "$ID:DPoPCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "scope": "openid profile",
+       "response_type": "code",
+       "redirect_uri": "$IDPREDIRECTURI$",
+       "display": "popup",
+       "prompt": "login",
+       "acr_values": "mosip:idp:acr:generated-code",
+       "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+       "state": "eree2311",
+       "claim_locales": "en",
+       "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+       "client_assertion": "$CLIENT_ASSERTION_DPoP_JWT$",
+       "aud_key": "pushed_authorization_request_endpoint",
+       "dpop_jkt": "header_invalid_value"
+}'
+      output: '{
+}'
+   ESignet_OautDPoPNegativeScenarios_without_JKT_Neg:
+      endPoint: /v1/esignet/oauth/par
+      uniqueIdentifier: TC_ESignet_OautDPoPNegativeScenarios_02
+      description: Validate successful DPoP request without dpop_jkt
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/DPoP/OauthDPoPNegativeScenarios/OauthDPoPNegativeScenarios
+      outputTemplate: esignet/PAR/OauthDPoP/OauthDPoPResult
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "client_id": "$ID:DPoPCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "scope": "openid profile",
+       "response_type": "code",
+       "redirect_uri": "$IDPREDIRECTURI$",
+       "display": "popup",
+       "prompt": "login",
+       "acr_values": "mosip:idp:acr:generated-code",
+       "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+       "state": "eree2311",
+       "claim_locales": "en",
+       "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+       "client_assertion": "$CLIENT_ASSERTION_DPoP_JWT$",
+       "aud_key": "pushed_authorization_request_endpoint",
+       "dpop_jkt": "$REMOVE$"
+}'
+      output: '{
+}'
+   ESignet_OautDPoPNegativeScenarios_without_Clientassertion_Neg:
+      endPoint: /v1/esignet/oauth/par
+      uniqueIdentifier: TC_ESignet_OautDPoPNegativeScenarios_03
+      description: Validate successful DPoP request with invalid client assertion
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/DPoP/OauthDPoPNegativeScenarios/OauthDPoPNegativeScenarios
+      outputTemplate: esignet/error2
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "client_id": "$ID:DPoPCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 
+       "scope": "openid profile",
+       "response_type": "code",
+       "redirect_uri": "$IDPREDIRECTURI$",
+       "display": "popup",
+       "prompt": "login",
+       "acr_values": "mosip:idp:acr:generated-code",
+       "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+       "state": "eree2311",
+       "claim_locales": "en",
+       "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+       "client_assertion": "$CLIENT_ASSERTION_DPoP_J$",
+       "aud_key": "pushed_authorization_request_endpoint",
+       "dpop_jkt": "$DPOP_JKT$"
+}'
+      output: '{
+            "error": "invalid_client"
+}'
+   ESignet_OauthDPoPNegativeSceanrios_Invalid_client_Id_Neg:
+      endPoint: /v1/esignet/oauth/par
+      uniqueIdentifier: TC_ESignet_OauthDPoPNegativeSceanrios_04
+      description: Validate successful DPoP request with invalid client ID details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/DPoP/OauthDPoP/OauthDPoP
+      outputTemplate: esignet/error2
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "client_id": "DpopinvalidClientID12345", 
+       "scope": "openid profile",
+       "response_type": "code",
+       "redirect_uri": "$IDPREDIRECTURI$",
+       "display": "popup",
+       "prompt": "login",
+       "acr_values": "mosip:idp:acr:generated-code",
+       "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+       "state": "eree2311",
+       "claim_locales": "en",
+       "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+       "client_assertion": "$CLIENT_ASSERTION_DPoP_JWT$",
+       "aud_key": "pushed_authorization_request_endpoint",
+       "dpop_jkt": "$DPOP_JKT$"
+}'
+      output: '{
+            "error": "invalid_request"
+}'
