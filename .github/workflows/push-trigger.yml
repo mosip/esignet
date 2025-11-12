@@ -50,8 +50,7 @@ detect_changes:
             api_test:
               - 'api-test/**'
             ui_test:
-              - 'ui-test/**'
-              
+              - 'ui-test/**'    
   build_maven_esignet:
   if: ${{ needs.detect_changes.outputs.esignet_service_changed == 'true' }}
     needs: detect_changes
