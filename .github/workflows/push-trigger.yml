@@ -25,34 +25,34 @@ on:
 jobs:
 # Detect which parts of the repo have changed
 detect_changes:
-    name: Detect changed components
-    runs-on: ubuntu-latest
-    outputs:
-      oidc_ui_changed: ${{ steps.filter.outputs.oidc_ui }}
-      esignet_service_changed: ${{ steps.filter.outputs.esignet_service }}
-      api_test_changed: ${{ steps.filter.outputs.api_test }}
-      ui_test_changed: ${{ steps.filter.outputs.ui_test }}
-    steps:
-      - uses: actions/checkout@v4
+   name: Detect changed components
+   runs-on: ubuntu-latest
+   outputs:
+     oidc_ui_changed: ${{ steps.filter.outputs.oidc_ui }}
+     esignet_service_changed: ${{ steps.filter.outputs.esignet_service }}
+     api_test_changed: ${{ steps.filter.outputs.api_test }}
+     ui_test_changed: ${{ steps.filter.outputs.ui_test }}
+   steps:
+     - uses: actions/checkout@v4
 
-      - name: Detect changes
-        id: filter
-        uses: dorny/paths-filter@v3
-        with:
-          filters: |
-            oidc_ui:
-              - 'oidc-ui/**'
-            esignet_service:
-              - 'esignet-service/**'
-              - 'esignet-service-impl/**'
-              - 'esignet-service-lib/**'
-              - 'pom.xml'
-            api_test:
-              - 'api-test/**'
-            ui_test:
-              - 'ui-test/**'    
+     - name: Detect changes
+       id: filter
+       uses: dorny/paths-filter@v3
+       with:
+         filters: |
+           oidc_ui:
+             - 'oidc-ui/**'
+           esignet_service:
+             - 'esignet-service/**'
+             - 'esignet-service-impl/**'
+             - 'esignet-service-lib/**'
+             - 'pom.xml'
+           api_test:
+             - 'api-test/**'
+           ui_test:
+             - 'ui-test/**'
   build_maven_esignet:
-  if: ${{ needs.detect_changes.outputs.esignet_service_changed == 'true' }}
+    if: ${{ needs.detect_changes.outputs.esignet_service_changed == 'true' }}
     needs: detect_changes
     uses: mosip/kattu/.github/workflows/maven-build.yml@master
     with:
@@ -66,7 +66,7 @@ detect_changes:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
       
   build-oidc-ui:
-  if: ${{ needs.detect_changes.outputs.oidc_ui_changed == 'true' }}
+    if: ${{ needs.detect_changes.outputs.oidc_ui_changed == 'true' }}
     needs: detect_changes
     uses: mosip/kattu/.github/workflows/npm-build.yml@develop
     with:
@@ -256,7 +256,7 @@ detect_changes:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   build_maven_apitest_esignet:
-  if: ${{ needs.detect_changes.outputs.api_test_changed == 'true' }}
+    if: ${{ needs.detect_changes.outputs.api_test_changed == 'true' }}
     needs: detect_changes
     uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
     with:
