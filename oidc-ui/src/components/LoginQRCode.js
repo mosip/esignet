@@ -12,6 +12,7 @@ import { LoadingStates as states } from '../constants/states';
 import ErrorBanner from '../common/ErrorBanner';
 import langConfigService from '../services/langConfigService';
 import redirectOnError from '../helpers/redirectOnError';
+import { getImageUrl } from '../constants/imageAssets';
 
 var linkAuthTriggered = false;
 
@@ -99,6 +100,8 @@ export default function LoginQRCode({
       response.expireDateTime
     );
 
+    const normalizedLogoUrl = getImageUrl(logoUrl);
+
     setQrRedirectUrl(text);
 
     const canvas = document.createElement('canvas');
@@ -120,9 +123,9 @@ export default function LoginQRCode({
           });
           return;
         }
-        if (logoUrl) {
+        if (normalizedLogoUrl) {
           const logo = new Image();
-          logo.src = logoUrl;
+          logo.src = normalizedLogoUrl;
           logo.crossOrigin = 'anonymous';
           logo.onload = () => {
             const ctx = canvas.getContext('2d');

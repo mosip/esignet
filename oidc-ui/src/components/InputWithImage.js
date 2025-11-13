@@ -1,6 +1,7 @@
 import { useState, useRef, useLayoutEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import PopoverContainer from '../common/Popover';
+import { IMAGES } from '../constants/imageAssets';
 
 const fixedInputClass =
   'rounded-md bg-white shadow-lg appearance-none block w-full px-3.5 py-2.5 placeholder-[#A0A8AC] text-gray-900 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 sm:text-sm p-2.5 ltr:pr-10 rtl:pl-10 ';
@@ -21,9 +22,9 @@ export default function InputWithImage({
   tooltipMsg = 'vid_info',
   disabled = false,
   formError = '',
-  passwordShowIcon = 'images/password_show.svg',
-  passwordHideIcon = 'images/password_hide.svg',
-  infoIcon = 'images/info_icon.svg',
+  passwordShowIcon = IMAGES.PASSWORD_SHOW,
+  passwordHideIcon = IMAGES.PASSWORD_HIDE,
+  infoIcon = IMAGES.INFO_ICON,
   i18nKeyPrefix1 = 'tooltips',
   i18nKeyPrefix2 = 'errors',
   icon,
@@ -307,7 +308,7 @@ export default function InputWithImage({
             <>
               <span>
                 <img
-                  src="\images\error_icon.svg"
+                  src={IMAGES.ERROR_ICON}
                   alt="error_icon"
                   className="mr-1"
                   width="12px"
@@ -330,7 +331,7 @@ export default function InputWithImage({
                   <>
                     <span>
                       <img
-                        src="\images\error_icon.svg"
+                        src={IMAGES.ERROR_ICON}
                         alt="error_icon"
                         className="mr-1"
                         width="12px"

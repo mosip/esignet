@@ -2,6 +2,7 @@ import './App.css';
 import { BrowserRouter } from 'react-router-dom';
 import NavHeader from './components/NavHeader';
 import langConfigService from './services/langConfigService';
+import { initializeCSSVariables } from './services/cssVariableService';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import LoadingIndicator from './common/LoadingIndicator';
@@ -36,8 +37,11 @@ function App() {
     },
   });
 
-  //Loading rtlLangs
+  //Loading rtlLangs and initializing CSS variables
   useEffect(() => {
+    // Initialize CSS variables early for proper image paths
+    initializeCSSVariables();
+
     const loadLanguages = async () => {
       try {
         const response = await langConfigService.getLocaleConfiguration();

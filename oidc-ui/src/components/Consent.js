@@ -8,6 +8,7 @@ import { LoadingStates, LoadingStates as states } from '../constants/states';
 import FormAction from './FormAction';
 import langConfigService from './../services/langConfigService';
 import ModalPopup from '../common/ModalPopup';
+import { IMAGES } from '../constants/imageAssets';
 import configService from '../services/configService';
 import redirectOnError from '../helpers/redirectOnError';
 
@@ -413,7 +414,7 @@ export default function Consent({
       <>
         {cancelPopup && (
           <ModalPopup
-            alertIcon="images/warning_message_icon.svg"
+            alertIcon={IMAGES.WARNING_MESSAGE_ICON}
             alertClassname="flex flex-shrink-0 items-center justify-center rounded-t-md p-4 mt-4"
             header={t('cancelpopup.confirm_header')}
             headerClassname="relative text-center text-dark font-semibold text-xl text-[#2B3840] mt-4"

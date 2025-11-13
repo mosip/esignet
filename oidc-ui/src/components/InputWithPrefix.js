@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef, useLayoutEffect } from 'react';
 import ReactCountryFlag from 'react-country-flag';
 import { useTranslation } from 'react-i18next';
+import { IMAGES } from '../constants/imageAssets';
 
 const InputWithPrefix = (props) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -178,7 +179,7 @@ const InputWithPrefix = (props) => {
                     <span className="ml-2 relative top-[1.5px]">
                       {/* Dropdown arrow */}
                       <img
-                        src="/images/up_down_arrow_icon.svg"
+                        src={IMAGES.UP_DOWN_ARROW_ICON}
                         alt="up_down_arrow_icon"
                       />
                     </span>
@@ -248,7 +249,7 @@ const InputWithPrefix = (props) => {
           <small className="text-[#FE6B6B] font-medium flex items-center mt-1">
             <span>
               <img
-                src="\images\error_icon.svg"
+                src={IMAGES.ERROR_ICON}
                 alt="error_icon"
                 className="mr-1"
                 width="12px"

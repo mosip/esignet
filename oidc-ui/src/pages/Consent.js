@@ -7,6 +7,7 @@ import openIDConnectService from '../services/openIDConnectService';
 import DefaultError from '../components/DefaultError';
 import { errorCodeObj } from '../constants/clientConstants';
 import { getOauthDetailsHash, decodeHash } from '../helpers/utils';
+import { IMAGES } from '../constants/imageAssets';
 
 export default function ConsentPage() {
   const [searchParams] = useSearchParams();
@@ -105,7 +106,7 @@ export default function ConsentPage() {
   } catch (error) {
     return (
       <DefaultError
-        backgroundImgPath="images/illustration_one.png"
+        backgroundImgPath={IMAGES.ILLUSTRATION_ONE}
         errorCode={'unauthorized_access'}
       />
     );
@@ -117,7 +118,7 @@ export default function ConsentPage() {
     consentAction &&
     authTime && (
       <Consent
-        backgroundImgPath="images/illustration_one.png"
+        backgroundImgPath={IMAGES.ILLUSTRATION_ONE}
         authService={new authService(oidcService)}
         openIDConnectService={oidcService}
         consentAction={consentAction}

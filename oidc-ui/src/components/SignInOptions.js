@@ -7,6 +7,7 @@ import {
 } from '../constants/clientConstants';
 import { LoadingStates as states } from '../constants/states';
 import { getAllAuthFactors } from '../services/walletService';
+import { getImageUrl } from '../constants/imageAssets';
 
 export default function SignInOptions({
   openIDConnectService,
@@ -56,7 +57,8 @@ export default function SignInOptions({
 
   const fetchSvg = async (path) => {
     try {
-      const response = await fetch(`/${path}`);
+      const imgPath = getImageUrl(`/${path}`);
+      const response = await fetch(imgPath);
       if (!response.ok) {
         throw new Error('Failed to fetch SVG');
       }
@@ -178,7 +180,7 @@ export default function SignInOptions({
                   ) : (
                     <img
                       className="mx-2 h-6 w-6 relative left-[2px]"
-                      src={option.icon}
+                      src={getImageUrl(option.icon)}
                       alt={option.id}
                     />
                   )}
