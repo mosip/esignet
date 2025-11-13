@@ -43,8 +43,8 @@ Before setting up the eSignet API Test Rig, ensure the following prerequisites a
    - A code editor is needed to write and execute tests. We recommend using Eclipse for ease of use.
 
 6. **apitest-commons Library**  
-   - Clone the `apitest-commons` repository and build the JAR file by following the [README](https://github.com/mosip/mosip-functional-tests/blob/release-1.3.1/apitest-commons/README.md).
-   - GitHub Repository: [apitest-commons-1.3.1](https://github.com/mosip/mosip-functional-tests/tree/release-1.3.1/apitest-commons).
+   - Clone the `apitest-commons` repository and build the JAR file by following the [README](https://github.com/mosip/mosip-functional-tests/blob/release-1.3.x/apitest-commons/README.md).
+   - GitHub Repository: [apitest-commons-1.3.x](https://github.com/mosip/mosip-functional-tests/tree/release-1.3.x/apitest-commons).
 
 7. **eSignet Repository**  
    - Ensure you have access to the eSignet API repository. The code can be cloned from [the eSignet repo](https://github.com/mosip/esignet).
@@ -100,6 +100,9 @@ These configurations need to be added as part of the eSignet service deployment 
 - **MOSIP_ESIGNET_CAPTCHA_REQUIRED**: (empty)
 - **MOSIP_MOCK_IDA_IDENTITY_SCHEMA_URL**:
     value: classpath:/mock-identity-signup-schema.json
+- **uinGenerationProcessingDelayTimeInMilliSeconds**: 600000
+- **vidGenerationProcessingDelayTimeInMilliSeconds**: 600000
+- **uinGenMaxLoopCount**: 20
 
 These parameters must be included in the eSignet deployment YAML for the API Test Rig to function correctly, independent of which plugin is being used.
 
@@ -156,8 +159,10 @@ To execute the tests using Jar, use the following steps:
 
 2. Run the automation test suite JAR file:
    ```
-   java -jar -Dmodules=esignet -Denv.user=api-internal.<env_name> -Denv.endpoint=<base_env> -Denv.testLevel=smokeAndRegression -jar apitest-esignet-1.6.1-jar-with-dependencies.jar
+   java -jar -Dmodules=esignet -Denv.user=api-internal.<env_name> -Denv.endpoint=<base_env> -Denv.testLevel=smokeAndRegression -jar apitest-esignet-**-jar-with-dependencies.jar
    ```
+   
+NOTE: Replace `**` in the above command with the JAR version currently available in the **target** folder.   
    
 # Using Eclipse IDE
 
@@ -215,7 +220,7 @@ To execute the tests using Eclipse IDE, use the following steps:
 - **env.user**: Replace `<env_name>` with the appropriate environment name (e.g., `dev`, `qa`, etc.).
 - **env.endpoint**: The environment where the application under test is deployed. Replace `<base_env>` with the correct base URL for the environment (e.g., `https://api-internal.<env_name>.mosip.net`).
 - **env.testLevel**: Set this to `smoke` to run only smoke test cases, or `smokeAndRegression` to run both smoke and regression tests.
-- **jar**: Specify the name of the JAR file to execute. The version will change according to the development code version. For example, the current version may look like `apitest-esignet-1.6.1-jar-with-dependencies.jar`.
+- **jar**: Specify the name of the JAR file to execute. The version will change according to the development code version. For example, the current version may look like `apitest-esignet-1.7.0-jar-with-dependencies.jar`.
 
 ### Build and Run Info
 

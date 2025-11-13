@@ -1,0 +1,17 @@
+DPoPOauthDetails:
+   ESignet_OAuthDetailsRequest_DPoP_AuthToken_Xsrf_all_Valid_Smoke_sid:
+      endPoint: /v1/esignet/authorization/par-oauth-details
+      uniqueIdentifier: TC_ESignet_DPoPOauthDetails_01
+      description: Validate successful retrieval of OAuth details in DPoP flow
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/DPoP/DPoPOauthDetails/DPoPOauthDetails
+      outputTemplate: esignet/DPoP/DPoPOauthDetails/DPoPOauthDetailsResult
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "requestUri": "$ID:OauthDPoP_all_Valid_Smoke_sid_request_uri$",
+       "clientId": "$ID:DPoPCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+}'

@@ -1,0 +1,89 @@
+DPoPGenerateTokenInvalidScenarios:
+   ESignet_GenerateToken_DPoP_AuthToken_Xsrf_Invalid_dpopKey_Neg:
+      endPoint: $GETENDPOINTFROMWELLKNOWN$
+      uniqueIdentifier: TC_ESignet_DPoPGenerateTokenInvalidScenarios_01
+      description: Generate token with invalid dpop key
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/DPoP/DPoPGenerateTokenNegativeScenarios/DPoPGenerateTokenNegativeScenarios
+      outputTemplate: esignet/error2
+      input: '{
+        "dpop_key": "DPoP123456",
+        "dpop_value": "$DPOP_PROOF$",
+        "grant_type": "authorization_code",
+        "code": "$ID:AuthorizationCode_DPoP__AuthToken_Xsrf_All_Valid_forUserInfo_Smoke_sid_code$",
+        "client_id": "$ID:DPoPCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$",
+        "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+        "client_assertion": "$CLIENT_ASSERTION_DPoP_JWT$",
+        "redirect_uri": "$IDPREDIRECTURI$",
+        "aud_key": "token_endpoint"
+}'
+      output: '{
+       "error": "invalid_grant"
+}'
+   ESignet_GenerateToken_DPoP_AuthToken_Xsrf_Invalid_dpopvalue_Neg:
+      endPoint: $GETENDPOINTFROMWELLKNOWN$
+      uniqueIdentifier: TC_ESignet_DPoPGenerateTokenInvalidScenarios_02
+      description: Generate token with invalid dpop key
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/DPoP/DPoPGenerateTokenNegativeScenarios/DPoPGenerateTokenNegativeScenarios
+      outputTemplate: esignet/error2
+      input: '{
+        "dpop_key": "DPoP",
+        "dpop_value": "DPOP_PROOF12345",
+        "grant_type": "authorization_code",
+        "code": "$ID:AuthorizationCode_DPoP__AuthToken_Xsrf_All_Valid_forUserInfo_Smoke_sid_code$",
+        "client_id": "$ID:DPoPCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$",
+        "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+        "client_assertion": "$CLIENT_ASSERTION_DPoP_JWT$",
+        "redirect_uri": "$IDPREDIRECTURI$",
+        "aud_key": "token_endpoint"
+}'
+      output: '{
+       "error": "invalid_dpop_proof"
+}'
+   ESignet_GenerateToken_DPoP_AuthToken_Xsrf_Invalid_dpopvalue_Neg:
+      endPoint: $GETENDPOINTFROMWELLKNOWN$
+      uniqueIdentifier: TC_ESignet_DPoPGenerateTokenInvalidScenarios_03
+      description: Generate token without dpop value
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/DPoP/DPoPGenerateTokenNegativeScenarios/DPoPGenerateTokenNegativeScenarios
+      outputTemplate: esignet/error2
+      input: '{
+        "dpop_key": "DPoP",
+        "dpop_value": "$REMOVE$",
+        "grant_type": "authorization_code",
+        "code": "$ID:AuthorizationCode_DPoP__AuthToken_Xsrf_All_Valid_forUserInfo_Smoke_sid_code$",
+        "client_id": "$ID:DPoPCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$",
+        "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+        "client_assertion": "$CLIENT_ASSERTION_DPoP_JWT$",
+        "redirect_uri": "$IDPREDIRECTURI$",
+        "aud_key": "token_endpoint"
+}'
+      output: '{
+       "error": "invalid_dpop_proof"
+}'
+   ESignet_GenerateToken_DPoP_AuthToken_Xsrf_Invalid_dpopvalue_Neg:
+      endPoint: $GETENDPOINTFROMWELLKNOWN$
+      uniqueIdentifier: TC_ESignet_DPoPGenerateTokenInvalidScenarios_04
+      description: Generate token without dpop value
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/DPoP/DPoPGenerateTokenNegativeScenarios/DPoPGenerateTokenNegativeScenarios
+      outputTemplate: esignet/error2
+      input: '{
+        "dpop_key": "DPoP",
+        "dpop_value": "$DPOP_PROOF$",
+        "grant_type": "authorization_code",
+        "code": "$ID:AuthorizationCode_DPoP__AuthToken_Xsrf_All_Valid_forUserInfo_Smoke_sid_code$",
+        "client_id": "$ID:DPoPCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$",
+        "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+        "client_assertion": "$CLIENT_ASSERTION_DPoP_JWT$",
+        "redirect_uri": "$IDPREDIRECTURI$",
+        "aud_key": "token_endpoint"
+}'
+      output: '{
+       "error": "invalid_grant"
+}'

@@ -1,0 +1,139 @@
+CreateOIDCClientV3PublicKeyNegSce:
+  ESignet_CreateOIDCClientV3_Invalid_Public_Key_type_Neg_01:
+    endPoint: /v1/esignet/client-mgmt/client
+    uniqueIdentifier: TC_ESignet_CreateOIDCClientV3PublicKeyNegativeScenarios_01
+    description: Create OIDC Client V3 with invalid public key Key type
+    role: partner
+    restMethod: post
+    inputTemplate: esignet/CreateOIDCClientV3/CreateOIDCClientV3PublicKeyNegSce
+    outputTemplate: esignet/error
+    input: '{
+      "requestTime": "$TIMESTAMP$",
+      "clientId": "$RANDOMPARTNERID$",
+      "clientName": "MOSIP OIDC Client",
+      "logoUri": "https://health-services.com/logo.png",
+      "relyingPartyId": "Bharathi-Inc",
+      "redirectUris": "$IDPREDIRECTURI$",
+      "kty": "XYZ",
+      "e": "AQAB",
+      "use": "sig",
+      "kid": "RXby0U2xrdZcLq_X7U7TR0O646sSEWYsSsxCu8P6YGE",
+      "alg": "RS256",
+      "n": "mfJudo-L9sy-1guqQwjCdg4ZkeR2KKlhId699HXxTSoh1wkFfPwIpq-nnXgvXC5oEj6pwifcwrfbcZiDS-yuaVRzQQ8GWiyZswE3mUzlplti3QlUU_yMt2mA2BtbfAKJ4iNvq24L2cxah7m0IchQEaacetp9NRxXlhqTpmcNunahsaMI7HnHI2D60gpsuC2F8VjtryV5eZDy2jI28UnTlFgaFc7J_UFNObtTIi8OOX5A4xAxPJ8gEceAEPz0zAU8ARzZIGYch7MbqmZN4YMLShoRub6F1a6xT_NBAjkmIhniBBre1goRwLfSFbn2ipnujP_rA-nVKF9Is-x1URLnWQ",
+      "userClaims1": "name",
+      "userClaims2": "email",
+      "userClaims3": "gender",
+      "userClaims4": "phone_number",
+      "userClaims5": "birthdate",
+      "authContextRefs": [{"acrValues": "mosip:idp:acr:static-code"},{"acrValues": "mosip:idp:acr:generated-code"},{"acrValues": "mosip:idp:acr:biometrics"}],
+      "grantTypes": "authorization_code",
+      "clientAuthMethods": "private_key_jwt",
+      "keyLang1": "$1STLANG$",
+      "clientNameLang": "MOSIP OIDC Client",
+      "userinfo_response_type": "JWS",
+      "purpose_title": "title",
+      "purpose_type": "verify",
+      "purpose_subTitle": "subtitle",
+      "signup_banner_required": true,
+      "forgot_pwd_link_required": true,
+      "consent_expire_in_mins": 30
+}'
+    output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_public_key"
+    }
+  ]
+}'
+  ESignet_CreateOIDCClientV3_Empty_Public_Key_type_Neg_02:
+    endPoint: /v1/esignet/client-mgmt/client
+    uniqueIdentifier: TC_ESignet_CreateOIDCClientV3PublicKeyNegativeScenarios_02
+    description: Create OIDC Client V3 with Empty public key Type
+    role: partner
+    restMethod: post
+    inputTemplate: esignet/CreateOIDCClientV3/CreateOIDCClientV3PublicKeyNegSce
+    outputTemplate: esignet/error
+    input: '{
+      "requestTime": "$TIMESTAMP$",
+      "clientId": "$RANDOMPARTNERID$",
+      "clientName": "MOSIP OIDC Client",
+      "logoUri": "https://health-services.com/logo.png",
+      "relyingPartyId": "Bharathi-Inc",
+      "redirectUris": "$IDPREDIRECTURI$",
+      "kty": "$REMOVE$",
+      "e": "AQAB",
+      "use": "sig",
+      "kid": "RXby0U2xrdZcLq_X7U7TR0O646sSEWYsSsxCu8P6YGE",
+      "alg": "RS",
+      "n": "mfJudo-L9sy-1guqQwjCdg4ZkeR2KKlhId699HXxTSoh1wkFfPwIpq-nnXgvXC5oEj6pwifcwrfbcZiDS-yuaVRzQQ8GWiyZswE3mUzlplti3QlUU_yMt2mA2BtbfAKJ4iNvq24L2cxah7m0IchQEaacetp9NRxXlhqTpmcNunahsaMI7HnHI2D60gpsuC2F8VjtryV5eZDy2jI28UnTlFgaFc7J_UFNObtTIi8OOX5A4xAxPJ8gEceAEPz0zAU8ARzZIGYch7MbqmZN4YMLShoRub6F1a6xT_NBAjkmIhniBBre1goRwLfSFbn2ipnujP_rA-nVKF9Is-x1URLnWQ",
+      "userClaims1": "name",
+      "userClaims2": "email",
+      "userClaims3": "gender",
+      "userClaims4": "phone_number",
+      "userClaims5": "birthdate",
+      "authContextRefs": [{"acrValues": "mosip:idp:acr:static-code"},{"acrValues": "mosip:idp:acr:generated-code"},{"acrValues": "mosip:idp:acr:biometrics"}],
+      "grantTypes": "authorization_code",
+      "clientAuthMethods": "private_key_jwt",
+      "keyLang1": "$1STLANG$",
+      "clientNameLang": "MOSIP OIDC Client",
+      "userinfo_response_type": "JWS",
+      "purpose_title": "title",
+      "purpose_type": "verify",
+      "purpose_subTitle": "subtitle",
+      "signup_banner_required": true,
+      "forgot_pwd_link_required": true,
+      "consent_expire_in_mins": 30
+}'
+    output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_public_key"
+    }
+  ]
+}'
+  ESignet_CreateOIDCClientV3_Malformed_Public_Key_type_Neg_03:
+    endPoint: /v1/esignet/client-mgmt/client
+    uniqueIdentifier: TC_ESignet_CreateOIDCClientV3PublicKeyNegativeScenarios_03
+    description: Create OIDC Client V3 with Malformed public key Type
+    role: partner
+    restMethod: post
+    inputTemplate: esignet/CreateOIDCClientV3/CreateOIDCClientV3PublicKeyNegSce
+    outputTemplate: esignet/error
+    input: '{
+      "requestTime": "$TIMESTAMP$",
+      "clientId": "$RANDOMPARTNERID$",
+      "clientName": "MOSIP OIDC Client",
+      "logoUri": "https://health-services.com/logo.png",
+      "relyingPartyId": "Bharathi-Inc",
+      "redirectUris": "$IDPREDIRECTURI$",
+      "kty": "1RSA1",
+      "e": "AQAB",
+      "use": "sig",
+      "kid": "RXby0U2xrdZcLq_X7U7TR0O646sSEWYsSsxCu8P6YGE",
+      "alg": "RS",
+      "n": "mfJudo-L9sy-1guqQwjCdg4ZkeR2KKlhId699HXxTSoh1wkFfPwIpq-nnXgvXC5oEj6pwifcwrfbcZiDS-yuaVRzQQ8GWiyZswE3mUzlplti3QlUU_yMt2mA2BtbfAKJ4iNvq24L2cxah7m0IchQEaacetp9NRxXlhqTpmcNunahsaMI7HnHI2D60gpsuC2F8VjtryV5eZDy2jI28UnTlFgaFc7J_UFNObtTIi8OOX5A4xAxPJ8gEceAEPz0zAU8ARzZIGYch7MbqmZN4YMLShoRub6F1a6xT_NBAjkmIhniBBre1goRwLfSFbn2ipnujP_rA-nVKF9Is-x1URLnWQ",
+      "userClaims1": "name",
+      "userClaims2": "email",
+      "userClaims3": "gender",
+      "userClaims4": "phone_number",
+      "userClaims5": "birthdate",
+      "authContextRefs": [{"acrValues": "mosip:idp:acr:static-code"},{"acrValues": "mosip:idp:acr:generated-code"},{"acrValues": "mosip:idp:acr:biometrics"}],
+      "grantTypes": "authorization_code",
+      "clientAuthMethods": "private_key_jwt",
+      "keyLang1": "$1STLANG$",
+      "clientNameLang": "MOSIP OIDC Client",
+      "userinfo_response_type": "JWS",
+      "purpose_title": "title",
+      "purpose_type": "verify",
+      "purpose_subTitle": "subtitle",
+      "signup_banner_required": true,
+      "forgot_pwd_link_required": true,
+      "consent_expire_in_mins": 30
+}'
+    output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_public_key"
+    }
+  ]
+}'
