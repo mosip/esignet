@@ -7,7 +7,7 @@ if [ $# -ge 1 ] ; then
 fi
 
 NS=esignet
-CHART_VERSION=0.0.1-develop
+CHART_VERSION=1.7.x-develop
 COPY_UTIL=../copy_cm_func.sh
 
 helm repo add mosip https://mosip.github.io/mosip-helm
@@ -27,7 +27,7 @@ MPARTNER_DEFAULT_MOBILE_SECRET_KEY='mpartner_default_mobile_secret'
 MPARTNER_DEFAULT_MOBILE_SECRET_VALUE=$(kubectl -n keycloak get secrets keycloak-client-secrets -o jsonpath={.data.$MPARTNER_DEFAULT_MOBILE_SECRET_KEY} | base64 -d)
 
 echo "Copying keycloak configmaps and secret"
-#$COPY_UTIL configmap keycloak-host keycloak $NS
+$COPY_UTIL configmap keycloak-host keycloak $NS
 $COPY_UTIL configmap keycloak-env-vars keycloak $NS
 $COPY_UTIL secret keycloak keycloak $NS
 

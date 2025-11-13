@@ -14,7 +14,7 @@ set -o errtrace  # trace ERR through 'time command' and other functions
 set -o pipefail  # trace ERR through pipes
 
 NS=esignet
-CHART_VERSION=0.0.1-develop
+CHART_VERSION=12.0.1
 
     echo Create $NS namespace
     kubectl create ns $NS || true
