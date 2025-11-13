@@ -34,7 +34,6 @@ detect_changes:
      ui_test_changed: ${{ steps.filter.outputs.ui_test }}
    steps:
      - uses: actions/checkout@v4
-
      - name: Detect changes
        id: filter
        uses: dorny/paths-filter@v3
@@ -52,7 +51,7 @@ detect_changes:
            ui_test:
              - 'ui-test/**'
   build_maven_esignet:
-    if: ${{ needs.detect_changes.outputs.esignet_service_changed == 'true' }}
+    if: ${{ github.event_name != 'pull_request' || needs.detect_changes.outputs.esignet_service_changed == 'true' }}
     needs: detect_changes
     uses: mosip/kattu/.github/workflows/maven-build.yml@master
     with:
@@ -64,9 +63,9 @@ detect_changes:
       OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-      
+  
   build-oidc-ui:
-    if: ${{ needs.detect_changes.outputs.oidc_ui_changed == 'true' }}
+    if: ${{ github.event_name != 'pull_request' || needs.detect_changes.outputs.oidc_ui_changed == 'true' }}
     needs: detect_changes
     uses: mosip/kattu/.github/workflows/npm-build.yml@develop
     with:
@@ -256,7 +255,7 @@ detect_changes:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   build_maven_apitest_esignet:
-    if: ${{ needs.detect_changes.outputs.api_test_changed == 'true' }}
+    if: ${{ github.event_name != 'pull_request' || needs.detect_changes.outputs.api_test_changed == 'true' }}
     needs: detect_changes
     uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
     with:
@@ -353,7 +352,7 @@ detect_changes:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
       
   build-maven-uitest-esignet:
-      if: ${{ needs.detect_changes.outputs.ui_test_changed == 'true' }}
+      if: ${{ github.event_name != 'pull_request' || needs.detect_changes.outputs.ui_test_changed == 'true' }}
     needs: detect_changes
     uses: anup-nehe/kattu/.github/workflows/maven-build-browserStack.yml@develop
     with:
@@ -361,7 +360,7 @@ detect_changes:
       BUILD_ARTIFACT: uitest-esignet
     secrets:
       BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
-      BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }} 
+      BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
       OSSRH_USER: ${{ secrets.OSSRH_USER }}
       OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
       OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
