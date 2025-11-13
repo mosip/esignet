@@ -21,8 +21,14 @@ function installing_keycloak() {
   helm repo update
 
   echo Installing
-  helm -n $NS install $SERVICE_NAME mosip/keycloak --version "7.1.18" --set image.repository=mosipid/mosip-artemis-keycloak --set image.tag=1.2.0.1 --set image.pullPolicy=Always -f values.yaml --wait
-
+  helm -n $NS install $SERVICE_NAME mosip/keycloak --version "7.1.18" \
+  --set image.repository=mosipid/mosip-artemis-keycloak \
+  --set image.tag=1.2.0.1 \
+  --set image.pullPolicy=Always \
+  --set postgresql.primary.image.repository="mosipid/postgresql" \
+  --set postgresql.primary.image.tag="14.2.0-debian-10-r70" \
+  -f values.yaml --wait
+  
   EXTERNAL_HOST=$(kubectl -n esignet get cm esignet-global -o jsonpath={.data.mosip-iam-external-host})
   echo Install Istio gateway, virtual service
   helm -n $NS install istio-addons chart/istio-addons --set keycloakExternalHost=$EXTERNAL_HOST --set keycloakInternalHost="$SERVICE_NAME.$NS" --set service=$SERVICE_NAME
