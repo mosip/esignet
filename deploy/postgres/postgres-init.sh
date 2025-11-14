@@ -8,7 +8,7 @@ fi
 
 function initialize_db() {
   NS=esignet
-  CHART_VERSION=1.7.x-develop
+  CHART_VERSION=1.7.0-develop
   helm repo update
 
   while true; do

@@ -22,7 +22,7 @@ fi
 
 NS=esignet
 ESIGNET_SERVICE_NAME=esignet
-CHART_VERSION=1.7.x-develop
+CHART_VERSION=1.7.0-develop
 
 echo Create $NS namespace
 kubectl create ns $NS || true

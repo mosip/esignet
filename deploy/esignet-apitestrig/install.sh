@@ -7,7 +7,7 @@ if [ $# -ge 1 ] ; then
 fi
 
 NS=esignet
-CHART_VERSION=1.7.x-develop
+CHART_VERSION=1.7.0-develop
 COPY_UTIL=../copy_cm_func.sh
 
 echo Create $NS namespace
