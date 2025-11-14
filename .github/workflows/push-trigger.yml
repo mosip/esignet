@@ -14,14 +14,8 @@ on:
         type: string
   push:
     branches:
-      - '!release-branch'
-      - master
-      - 1.*
-      - develop
-      - MOSIP*
-      - release*
-      - ES-842
-
+      - "**"
+      
 jobs:
 # Detect which parts of the repo have changed
 detect_changes:
@@ -34,9 +28,9 @@ detect_changes:
      ui_test_changed: ${{ steps.filter.outputs.ui_test }}
    steps:
      - uses: actions/checkout@v4
-     - name: Detect changes
+     
+     - uses: dorny/paths-filter@v3
        id: filter
-       uses: dorny/paths-filter@v3
        with:
          filters: |
            oidc_ui:
@@ -51,7 +45,7 @@ detect_changes:
            ui_test:
              - 'ui-test/**'
   build_maven_esignet:
-    if: ${{ github.event_name != 'pull_request' || needs.detect_changes.outputs.esignet_service_changed == 'true' }}
+    if: ${{ needs.detect_changes.outputs.esignet_service_changed == 'true' || github.event_name == 'release' || github.event_name == 'workflow_dispatch' }}
     needs: detect_changes
     uses: mosip/kattu/.github/workflows/maven-build.yml@master
     with:
@@ -65,7 +59,7 @@ detect_changes:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
   
   build-oidc-ui:
-    if: ${{ github.event_name != 'pull_request' || needs.detect_changes.outputs.oidc_ui_changed == 'true' }}
+    if: ${{ needs.detect_changes.outputs.oidc_ui_changed == 'true' || github.event_name == 'release' || github.event_name == 'workflow_dispatch' }}
     needs: detect_changes
     uses: mosip/kattu/.github/workflows/npm-build.yml@develop
     with:
@@ -255,7 +249,7 @@ detect_changes:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   build_maven_apitest_esignet:
-    if: ${{ github.event_name != 'pull_request' || needs.detect_changes.outputs.api_test_changed == 'true' }}
+    if: ${{ needs.detect_changes.outputs.api_test_changed == 'true' || github.event_name == 'release' || github.event_name == 'workflow_dispatch' }}
     needs: detect_changes
     uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
     with:
@@ -352,7 +346,7 @@ detect_changes:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
       
   build-maven-uitest-esignet:
-      if: ${{ github.event_name != 'pull_request' || needs.detect_changes.outputs.ui_test_changed == 'true' }}
+    if: ${{ needs.detect_changes.outputs.ui_test_changed == 'true' || github.event_name == 'release' || github.event_name == 'workflow_dispatch' }}
     needs: detect_changes
     uses: anup-nehe/kattu/.github/workflows/maven-build-browserStack.yml@develop
     with:
