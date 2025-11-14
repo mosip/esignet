@@ -7,7 +7,7 @@ if [ $# -ge 1 ] ; then
 fi
 
 NS=esignet
-CHART_VERSION=1.7.0-develop
+CHART_VERSION=12.0.2
 COPY_UTIL=../copy_cm_func.sh
 
 helm repo add mosip https://mosip.github.io/mosip-helm
