@@ -153,6 +153,19 @@ public class GetWithParam extends EsignetUtil implements ITest {
 				if (testCaseName.contains("_AuthToken_Xsrf_")) {
 					response = getRequestWithCookieAuthHeaderAndXsrfToken(tempUrl + testCaseDTO.getEndPoint(),
 							inputJson, COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
+				} else if (testCaseName.contains("_Dpop_AccessToken_")) {
+					response = getRequestWithHeaders(tempUrl + testCaseDTO.getEndPoint(), inputJson,
+							testCaseDTO.getTestCaseName());
+					if (testCaseName.toLowerCase().contains("_smoke") && response != null
+							&& response.getStatusCode() == 401 && hasDpopNonce(response)) {
+						logger.info("use_dpop_nonce detected in response for test case: " + testCaseName);
+						saveDpopNonce(response, testCaseName);
+						inputJson = inputstringKeyWordHandeler(
+								getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate()),
+								testCaseName);
+						response = getRequestWithHeaders(tempUrl + testCaseDTO.getEndPoint(), inputJson,
+								testCaseDTO.getTestCaseName());
+					}
 				} else {
 					response = getWithPathParamAndCookie(tempUrl + testCaseDTO.getEndPoint(), inputJson, COOKIENAME,
 							testCaseDTO.getRole(), testCaseDTO.getTestCaseName());

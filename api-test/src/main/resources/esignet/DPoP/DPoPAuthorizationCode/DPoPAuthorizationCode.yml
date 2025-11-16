@@ -1,0 +1,19 @@
+DPoPAuthorizationCode:
+   ESignet_AuthorizationCode_DPoP__AuthToken_Xsrf_All_Valid_forUserInfo_Smoke_sid:
+      endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_01
+      description: Validate successful authorization code generation in PAR flow
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/DPoP/DPoPAuthorizationCode/DPoPAuthorizationCode
+      outputTemplate: esignetDPoP/DPoPAuthorizationCode/DPoPAuthorizationCodeResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_DPoP_AuthToken_Xsrf_all_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_DPoP_AuthToken_Xsrf_all_Valid_Smoke_sid_transactionId$",
+      	"acceptedClaims": [{claim: "phone_number"},{claim: "email"}]
+}'
+      output: '{
+}'

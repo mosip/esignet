@@ -1,0 +1,141 @@
+DPoPOauthDetailsNegativeScenarios:
+   ESignet_OAuthDetailsNegativeScenarios_AuthToken_Xsrf_sid_Invalid_DPOP_Token_Neg:
+      endPoint: /v1/esignet/authorization/par-oauth-details
+      uniqueIdentifier: TC_ESignet_DPoPOauthDetailsNegativeScenarios_01
+      description: Validate successful retrieval of OAuth details in DPOP flow with invalid DPoP token in request
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/DPoP/DPoPOauthDetailsNegativeScenarios/DPoPOauthDetailsNegativeScenarios
+      outputTemplate: esignet/error
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "requestUri": "$ID:OauthDPoP_all_Valid_Smoke_sid_request_uri$",
+       "clientId": "$ID:DPoPCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_request"
+    }
+  ]
+}'
+   ESignet_OAuthDetailsNegativeScenarios_DPoP_AuthToken_Xsrf_sid_missing_ClientId_Neg:
+      endPoint: /v1/esignet/authorization/par-oauth-details
+      uniqueIdentifier: TC_ESignet_DPoPOauthDetailsNegativeScenarios_02
+      description: Validate successful retrieval of OAuth details in DPOP flow with missing clientId in request parameter
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/PAR/PAROauthDetailsNegativeScenarios/PAROauthDetailsNegativeScenarios
+      outputTemplate: esignet/error
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "requestUri": "$ID:OauthDPoP_all_Valid_Smoke_sid_request_uri$",
+       "clientId": "$REMOVE$"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_client_id"
+    }
+  ]
+}'
+   ESignet_OAuthDetailsNegativeScenarios_DPoP_AuthToken_Xsrf_sid_Empty_ClientId_Neg:
+      endPoint: /v1/esignet/authorization/par-oauth-details
+      uniqueIdentifier: TC_ESignet_PAROauthDetailsNegativeScenarios_03
+      description: Validate successful retrieval of OAuth details in DPOP flow with Empty clientId in request parameter
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/PAR/PAROauthDetailsNegativeScenarios/PAROauthDetailsNegativeScenarios
+      outputTemplate: esignet/error
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "requestUri": "$ID:OauthDPoP_all_Valid_Smoke_sid_request_uri$",
+       "clientId": " "
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_client_id"
+    }
+  ]
+}'
+   ESignet_OAuthDetailsNegativeScenarios_DPoP_AuthToken_Xsrf_sid_invalid_request_method_Neg:
+      endPoint: /v1/esignet/authorization/par-oauth-details
+      uniqueIdentifier: TC_ESignet_PAROauthDetailsNegativeScenarios_04
+      description: Validate successful retrieval of OAuth details in DPOP flow with invalid request method
+      role: resident
+      restMethod: put
+      inputTemplate: esignet/PAR/PAROauthDetailsNegativeScenarios/PAROauthDetailsNegativeScenarios
+      outputTemplate: esignet/error
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "requestUri": "$ID:OauthDPoP_all_Valid_Smoke_sid_request_uri$",
+       "clientId": "$ID:DPoPCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_request"
+    }
+  ]
+}'
+   ESignet_OAuthDetailsNegativeScenarios_DPoP_AuthToken_Xsrf_sid_requestURI_Neg:
+      endPoint: /v1/esignet/authorization/par-oauth-details
+      uniqueIdentifier: TC_ESignet_PAROauthDetailsNegativeScenarios_05
+      description: Validate successful retrieval of OAuth details in DPOP flow with invalid RequestURI in request parameter
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/PAR/PAROauthDetailsNegativeScenarios/PAROauthDetailsNegativeScenarios
+      outputTemplate: esignet/error
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "requestUri": "123456wk31-I0Zx7JRIorYsjfkPB0yQ-4K0tc7LwSzaJ9ft_U",
+       "clientId": "$ID:DPoPCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_request"
+    }
+  ]
+}'
+   ESignet_OAuthDetailsNegativeScenarios_DPoP_AuthToken_Xsrf_without_requestURI_Neg:
+      endPoint: /v1/esignet/authorization/par-oauth-details
+      uniqueIdentifier: TC_ESignet_PAROauthDetailsNegativeScenarios_06
+      description: Validate successful retrieval of OAuth details in DPOP flow without RequestURI in request parameter
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/PAR/PAROauthDetailsNegativeScenarios/PAROauthDetailsNegativeScenarios
+      outputTemplate: esignet/error
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "requestUri": "$REMOVE$",
+       "clientId": "$ID:DPoPCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_request"
+    }
+  ]
+}'
+   ESignet_OAuthDetailsNegativeScenarios_DPoP_AuthToken_Xsrf_already_requestURI_Neg:
+      endPoint: /v1/esignet/authorization/par-oauth-details
+      uniqueIdentifier: TC_ESignet_PAROauthDetailsNegativeScenarios_07
+      description: Validate successful retrieval of OAuth details in DPOP flow with already used RequestURI in request parameter
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/PAR/PAROauthDetailsNegativeScenarios/PAROauthDetailsNegativeScenarios
+      outputTemplate: esignet/error
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "requestUri": "$ID:OauthDPoP_all_Valid_Smoke_sid_request_uri$",
+       "clientId": "$ID:DPoPCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_request"
+    }
+  ]
+}'
