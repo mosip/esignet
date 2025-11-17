@@ -44,7 +44,7 @@ detect_changes:
              - 'api-test/**'
            ui_test:
              - 'ui-test/**'
-  build_maven_esignet:
+   build_maven_esignet:
     if: ${{ needs.detect_changes.outputs.esignet_service_changed == 'true' || github.event_name == 'release' || github.event_name == 'workflow_dispatch' }}
     needs: detect_changes
     uses: mosip/kattu/.github/workflows/maven-build.yml@master
@@ -58,7 +58,7 @@ detect_changes:
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
   
-  build-oidc-ui:
+   build-oidc-ui:
     if: ${{ needs.detect_changes.outputs.oidc_ui_changed == 'true' || github.event_name == 'release' || github.event_name == 'workflow_dispatch' }}
     needs: detect_changes
     uses: mosip/kattu/.github/workflows/npm-build.yml@develop
@@ -70,7 +70,7 @@ detect_changes:
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
       
-  check_snapshot_version:
+   check_snapshot_version:
     runs-on: ubuntu-latest
     outputs:
       is_condition: ${{ steps.check_output.outputs.is_condition }}
@@ -129,7 +129,7 @@ detect_changes:
         run: |
           echo "Condition Met: ${{ steps.check_output.outputs.is_condition }}"
 
-  publish_to_nexus:
+   publish_to_nexus:
     if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' }}"
     needs: build_maven_esignet
     uses: mosip/kattu/.github/workflows/maven-publish-to-nexus.yml@master
@@ -143,7 +143,7 @@ detect_changes:
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-  sonar_analysis:
+   sonar_analysis:
     needs: build_maven_esignet
     if: "${{  github.event_name != 'pull_request' }}"
     uses: mosip/kattu/.github/workflows/maven-sonar-analysis.yml@master
@@ -158,7 +158,7 @@ detect_changes:
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-  sonar-analysis-oidc-ui:
+   sonar-analysis-oidc-ui:
     needs: build-oidc-ui
     if: "${{ github.event_name != 'pull_request' }}"
     uses: mosip/kattu/.github/workflows/npm-sonar-analysis.yml@develop
@@ -170,7 +170,7 @@ detect_changes:
       ORG_KEY: ${{ secrets.ORG_KEY }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-  build_dockers:
+   build_dockers:
     needs: build_maven_esignet
     strategy:
       matrix:
@@ -193,7 +193,7 @@ detect_changes:
       RELEASE_DOCKER_HUB: ${{ secrets.RELEASE_DOCKER_HUB }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-  build_maven_esignet_with_plugins:
+   build_maven_esignet_with_plugins:
     uses: mosip/kattu/.github/workflows/maven-build.yml@master
     with:
       SERVICE_LOCATION: ./esignet-with-plugins
@@ -206,7 +206,7 @@ detect_changes:
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-  build_dockers_esignet_with_plugins:
+   build_dockers_esignet_with_plugins:
     needs: [build_maven_esignet_with_plugins, check_snapshot_version, publish_to_nexus]
     if: ${{ needs.check_snapshot_version.outputs.is_condition == 'true' }}
     strategy:
@@ -228,7 +228,7 @@ detect_changes:
       RELEASE_DOCKER_HUB: ${{ secrets.RELEASE_DOCKER_HUB }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-  build_dockers_oidc_ui:
+   build_dockers_oidc_ui:
     strategy:
       matrix:
         include:
@@ -248,7 +248,7 @@ detect_changes:
       RELEASE_DOCKER_HUB: ${{ secrets.RELEASE_DOCKER_HUB }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-  build_maven_apitest_esignet:
+   build_maven_apitest_esignet:
     if: ${{ needs.detect_changes.outputs.api_test_changed == 'true' || github.event_name == 'release' || github.event_name == 'workflow_dispatch' }}
     needs: detect_changes
     uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
@@ -262,7 +262,7 @@ detect_changes:
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-  publish_to_nexus_apitest_esignet:
+   publish_to_nexus_apitest_esignet:
     if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' && github.event_name != 'release' && github.event_name != 'prerelease' && github.event_name != 'publish' }}"
     needs: build_maven_apitest_esignet
     uses: mosip/kattu/.github/workflows/maven-publish-to-nexus.yml@master-java21
@@ -276,7 +276,7 @@ detect_changes:
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-  build_apitest_esignet_local:
+   build_apitest_esignet_local:
     needs: build_maven_apitest_esignet
     runs-on: ubuntu-latest
     env:
@@ -322,7 +322,7 @@ detect_changes:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
         if: failure() # Pick up events even if the job fails or is canceled.
 
-  build_dockers_apitest_esignet:
+   build_dockers_apitest_esignet:
     needs: build_apitest_esignet_local
     strategy:
       matrix:
@@ -345,7 +345,7 @@ detect_changes:
       RELEASE_DOCKER_HUB: ${{ secrets.RELEASE_DOCKER_HUB }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
       
-  build-maven-uitest-esignet:
+   build-maven-uitest-esignet:
     if: ${{ needs.detect_changes.outputs.ui_test_changed == 'true' || github.event_name == 'release' || github.event_name == 'workflow_dispatch' }}
     needs: detect_changes
     uses: anup-nehe/kattu/.github/workflows/maven-build-browserStack.yml@develop
@@ -361,7 +361,7 @@ detect_changes:
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-  build-uitest-esignet-local:
+   build-uitest-esignet-local:
     needs: build-maven-uitest-esignet
     runs-on: ubuntu-latest
     env:
@@ -416,7 +416,7 @@ detect_changes:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
         if: failure() # Pick up events even if the job fails or is canceled.
 
-  build-dockers-uitest-esignet:
+   build-dockers-uitest-esignet:
     needs: build-uitest-esignet-local
     strategy:
       matrix:
