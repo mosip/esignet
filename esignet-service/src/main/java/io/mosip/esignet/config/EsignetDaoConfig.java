@@ -28,7 +28,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaDialect;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.util.StringUtils;
+import org.springframework.util.ObjectUtils;
 
 
 @Slf4j
@@ -47,7 +47,6 @@ public class EsignetDaoConfig {
     private static final String HIBERNATE_CONNECTION_CHAR_SET = "hibernate.connection.charSet";
     private static final String HIBERNATE_FORMAT_SQL = "hibernate.format_sql";
     private static final String HIBERNATE_SHOW_SQL = "hibernate.show_sql";
-    private static final String HIBERNATE_DIALECT = "hibernate.dialect";
     private static final String HIBERNATE_HBM2DDL_AUTO = "hibernate.hbm2ddl.auto";
     private static final String HIBERNATE_NON_CONTEXTUAL_CREATION = "hibernate.jdbc.lob.non_contextual_creation";
     private static final String HIBERNATE_CURRENT_SESSION_CONTEXT = "hibernate.current_session_context_class";
@@ -56,10 +55,8 @@ public class EsignetDaoConfig {
     private static final String TRUE = "true";
     private static final String NONE = "none";
     private static final String JTA = "jta";
-    private static final String HIBERNATE = "hibernate";
     private static final String HIBERNATE_EJB_INTERCEPTOR = "hibernate.ejb.interceptor";
     private static final String EMPTY_INTERCEPTOR = "hibernate.empty.interceptor";
-    private static final String POSTGRESQL_95_DIALECT = "org.hibernate.dialect.PostgreSQL95Dialect";
 
     @Autowired
     private Environment environment;
@@ -89,7 +86,7 @@ public class EsignetDaoConfig {
         hikariConfig.setJdbcUrl(environment.getProperty("mosip.esignet.database.url"));
         hikariConfig.setUsername(environment.getProperty("mosip.esignet.database.username"));
         hikariConfig.setPassword(environment.getProperty("mosip.esignet.database.password"));
-        if(!StringUtils.isEmpty(schema)) {
+        if(!ObjectUtils.isEmpty(schema)) {
             hikariConfig.setSchema(schema);
         }
         hikariConfig.setMaximumPoolSize(maximumPoolSize);
@@ -149,7 +146,6 @@ public class EsignetDaoConfig {
     public Map<String, Object> esignetJpaProperties() {
         HashMap<String, Object> jpaProperties = new HashMap<>();
         getProperty(jpaProperties, HIBERNATE_HBM2DDL_AUTO, NONE);
-        getProperty(jpaProperties, HIBERNATE_DIALECT, POSTGRESQL_95_DIALECT);
         getProperty(jpaProperties, HIBERNATE_SHOW_SQL, FALSE);
         getProperty(jpaProperties, HIBERNATE_FORMAT_SQL, FALSE);
         getProperty(jpaProperties, HIBERNATE_CONNECTION_CHAR_SET, UTF8);

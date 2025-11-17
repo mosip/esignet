@@ -1,4 +1,4 @@
-FROM eclipse-temurin:11-jre-focal
+FROM eclipse-temurin:21-jre-jammy
 
 ARG SOURCE
 ARG COMMIT_HASH

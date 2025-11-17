@@ -8,21 +8,21 @@ import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.esignet.core.dto.ResponseWrapper;
 import io.mosip.esignet.services.CacheUtilService;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.MessageSource;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -30,7 +30,7 @@ import java.util.Arrays;
 import static org.mockito.Mockito.*;
 
 @Slf4j
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class HeaderValidationFilterTest {
 
     @Mock
@@ -47,7 +47,7 @@ public class HeaderValidationFilterTest {
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    @Before
+    @BeforeEach
     public void setUp() {
         ReflectionTestUtils.setField(headerValidationFilter, "pathsToValidate",
                 Arrays.asList("/v1/esignet/authorization/send-otp",
@@ -66,8 +66,8 @@ public class HeaderValidationFilterTest {
         when(cacheUtilService.getPreAuthTransaction(null)).thenReturn(null);
         headerValidationFilter.doFilterInternal(request, response, filterChain);
         ResponseWrapper responseWrapper = objectMapper.readValue(response.getContentAsString(), ResponseWrapper.class);
-        Assert.assertNotNull(responseWrapper.getErrors());
-        Assert.assertEquals(ErrorConstants.INVALID_TRANSACTION, ((Error)responseWrapper.getErrors().get(0)).getErrorCode());
+        Assertions.assertNotNull(responseWrapper.getErrors());
+        Assertions.assertEquals(ErrorConstants.INVALID_TRANSACTION, ((Error) responseWrapper.getErrors().getFirst()).getErrorCode());
     }
 
     @Test
@@ -79,8 +79,8 @@ public class HeaderValidationFilterTest {
         request.addHeader("oauth-details-key", "oauth-details-key");
         headerValidationFilter.doFilterInternal(request, response, filterChain);
         ResponseWrapper responseWrapper = objectMapper.readValue(response.getContentAsString(), ResponseWrapper.class);
-        Assert.assertNotNull(responseWrapper.getErrors());
-        Assert.assertEquals(ErrorConstants.INVALID_TRANSACTION, ((Error)responseWrapper.getErrors().get(0)).getErrorCode());
+        Assertions.assertNotNull(responseWrapper.getErrors());
+        Assertions.assertEquals(ErrorConstants.INVALID_TRANSACTION, ((Error) responseWrapper.getErrors().getFirst()).getErrorCode());
     }
 
     @Test
@@ -95,8 +95,8 @@ public class HeaderValidationFilterTest {
 
         headerValidationFilter.doFilterInternal(request, response, filterChain);
         ResponseWrapper responseWrapper = objectMapper.readValue(response.getContentAsString(), ResponseWrapper.class);
-        Assert.assertNotNull(responseWrapper.getErrors());
-        Assert.assertEquals(ErrorConstants.INVALID_REQUEST, ((Error)responseWrapper.getErrors().get(0)).getErrorCode());
+        Assertions.assertNotNull(responseWrapper.getErrors());
+        Assertions.assertEquals(ErrorConstants.INVALID_REQUEST, ((Error) responseWrapper.getErrors().getFirst()).getErrorCode());
     }
 
     @Test
@@ -174,11 +174,11 @@ public class HeaderValidationFilterTest {
         verify(cacheUtilService, times(1)).saveApiRateLimit("oauth-details-key", apiRateLimit);
 
         ResponseWrapper responseWrapper = objectMapper.readValue(response.getContentAsString(), ResponseWrapper.class);
-        Assert.assertNotNull(responseWrapper.getErrors());
-        Assert.assertEquals(ErrorConstants.NO_ATTEMPTS_LEFT, ((Error)responseWrapper.getErrors().get(0)).getErrorCode());
+        Assertions.assertNotNull(responseWrapper.getErrors());
+        Assertions.assertEquals(ErrorConstants.NO_ATTEMPTS_LEFT, ((Error) responseWrapper.getErrors().getFirst()).getErrorCode());
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void doFilter_exceedInvocationGapLimit_thenFail() throws ServletException, IOException {
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -203,7 +203,7 @@ public class HeaderValidationFilterTest {
         verify(cacheUtilService, times(1)).saveApiRateLimit("oauth-details-key", apiRateLimit);
 
         ResponseWrapper responseWrapper = objectMapper.readValue(response.getContentAsString(), ResponseWrapper.class);
-        Assert.assertNotNull(responseWrapper.getErrors());
-        Assert.assertEquals(ErrorConstants.TOO_EARLY_ATTEMPT, ((Error)responseWrapper.getErrors().get(0)).getErrorCode());
+        Assertions.assertNotNull(responseWrapper.getErrors());
+        Assertions.assertEquals(ErrorConstants.TOO_EARLY_ATTEMPT, ((Error) responseWrapper.getErrors().getFirst()).getErrorCode());
     }
 }

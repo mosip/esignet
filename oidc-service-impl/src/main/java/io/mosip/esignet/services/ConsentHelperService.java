@@ -27,11 +27,10 @@ import io.mosip.esignet.core.spi.PublicKeyRegistryService;
 import io.mosip.esignet.core.util.AuditHelper;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
+import org.springframework.util.ObjectUtils;
 
 import java.security.PublicKey;
 import java.security.cert.Certificate;
@@ -159,14 +158,14 @@ public class ConsentHelperService {
     }
 
     private Object sortObject(Object object) {
-        if(object instanceof Map) {
+        if(object instanceof Map<?, ?> map) {
             Map<String, Object> sortedMap = new TreeMap<>(String::compareToIgnoreCase);
-            ((Map<?, ?>) object).forEach((key, value) -> sortedMap.put((String) key, sortObject(value)));
+            map.forEach((key, value) -> sortedMap.put((String) key, sortObject(value)));
             return sortedMap;
         }
-        else if(object instanceof List) {
-            List<Object> list = new ArrayList<>((List<?>) object);
-            if (!list.isEmpty() && list.get(0) instanceof String) {
+        else if(object instanceof List<?> list1) {
+            List<Object> list = new ArrayList<>(list1);
+            if (!list.isEmpty() && list.getFirst() instanceof String) {
                 Collections.sort(list, (a, b) -> {
                     String strA = a != null ? a.toString() : "";
                     String strB = b != null ? b.toString() : "";
@@ -270,14 +269,17 @@ public class ConsentHelperService {
         payLoadMap.put(ACCEPTED_CLAIMS, acceptedClaims);
         payLoadMap.put(PERMITTED_AUTHORIZED_SCOPES, permittedScopes);
 
-        Payload payload = new Payload(new JSONObject(payLoadMap).toJSONString());
-        StringBuilder sb = new StringBuilder();
-        sb.append(header).append(".").append(payload.toBase64URL()).append(".").append(signature);
-        return sb.toString();
+        Payload payload = null;
+        try {
+            payload = new Payload(objectMapper.writeValueAsString(payLoadMap));
+        } catch (JsonProcessingException e) {
+            throw new EsignetException(ErrorConstants.UNKNOWN_ERROR);
+        }
+        return header + "." + payload.toBase64URL() + "." + signature;
     }
 
     private boolean validateSignatureFormat(String signature) {
-        return (StringUtils.isEmpty(signature) || signature.split("\\.").length!=2) ? false:true;
+        return !ObjectUtils.isEmpty(signature) && signature.split("\\.").length == 2;
     }
 
     private boolean isConsentPrompt(OIDCTransaction transaction) {

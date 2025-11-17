@@ -18,14 +18,14 @@ import io.mosip.esignet.repository.ConsentHistoryRepository;
 import io.mosip.esignet.repository.ConsentRepository;
 import io.mosip.esignet.services.ConsentServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
@@ -35,7 +35,7 @@ import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_CLAIM;
 import static org.mockito.Mockito.doNothing;
 
 @Slf4j
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ConsentServiceImplTest {
 
 
@@ -54,14 +54,14 @@ public class ConsentServiceImplTest {
     @InjectMocks
     ConsentMapperImpl consentMapper;
 
-    @Before
+    @BeforeEach
     public void initialize() {
         ReflectionTestUtils.setField(consentMapper, "objectMapper", new ObjectMapper());
         ReflectionTestUtils.setField(consentService, "consentMapper", consentMapper);
     }
 
     @Test
-    public void getUserConsent_withValidDetails_thenPass() throws Exception{
+    public void getUserConsent_withValidDetails_thenPass() throws Exception {
         ConsentDetail consentDetail = new ConsentDetail();
         consentDetail.setId(UUID.randomUUID());
         consentDetail.setClientId("1234");
@@ -71,16 +71,16 @@ public class ConsentServiceImplTest {
         consentDetail.setExpiredtimes(LocalDateTime.now());
 
         Optional<ConsentDetail> consentOptional = Optional.of(consentDetail);
-        Mockito.when(consentRepository.findByClientIdAndPsuToken(Mockito.anyString(),Mockito.anyString())).thenReturn(consentOptional);
+        Mockito.when(consentRepository.findByClientIdAndPsuToken(Mockito.anyString(), Mockito.anyString())).thenReturn(consentOptional);
 
         UserConsentRequest userConsentRequest = new UserConsentRequest();
         userConsentRequest.setClientId("1234");
         userConsentRequest.setPsuToken("psuValue");
 
         Optional<io.mosip.esignet.core.dto.ConsentDetail> userConsentDto = consentService.getUserConsent(userConsentRequest);
-        Assert.assertNotNull(userConsentDto);
-        Assert.assertEquals("1234", userConsentDto.get().getClientId());
-        Assert.assertEquals("psuValue", userConsentDto.get().getPsuToken());
+        Assertions.assertNotNull(userConsentDto);
+        Assertions.assertEquals("1234", userConsentDto.get().getClientId());
+        Assertions.assertEquals("psuValue", userConsentDto.get().getPsuToken());
 
     }
 
@@ -95,45 +95,45 @@ public class ConsentServiceImplTest {
         consentDetail.setExpiredtimes(LocalDateTime.now());
 
         Optional<ConsentDetail> consentOptional = Optional.of(consentDetail);
-        Mockito.when(consentRepository.findByClientIdAndPsuToken(Mockito.anyString(),Mockito.anyString())).thenReturn(consentOptional);
+        Mockito.when(consentRepository.findByClientIdAndPsuToken(Mockito.anyString(), Mockito.anyString())).thenReturn(consentOptional);
 
         UserConsentRequest userConsentRequest = new UserConsentRequest();
         userConsentRequest.setClientId("1234");
         userConsentRequest.setPsuToken("psuValue");
-        try{
+        try {
             Optional<io.mosip.esignet.core.dto.ConsentDetail> userConsentDto = consentService.getUserConsent(userConsentRequest);
-            Assert.fail();
-        }catch (EsignetException e){
-            Assert.assertTrue(e.getErrorCode().equals(INVALID_CLAIM));
+            Assertions.fail();
+        } catch (EsignetException e) {
+            Assertions.assertTrue(e.getErrorCode().equals(INVALID_CLAIM));
         }
     }
 
     @Test
     public void getUserConsent_withNoClaimsDetails_thenPass() {
 
-        Mockito.when(consentRepository.findByClientIdAndPsuToken(Mockito.anyString(),Mockito.anyString())).thenReturn(Optional.empty());
+        Mockito.when(consentRepository.findByClientIdAndPsuToken(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.empty());
         UserConsentRequest userConsentRequest = new UserConsentRequest();
         userConsentRequest.setClientId("1234");
         userConsentRequest.setPsuToken("psuValue");
 
-            Optional<io.mosip.esignet.core.dto.ConsentDetail> userConsentDto = consentService.getUserConsent(userConsentRequest);
-            Assert.assertEquals(Optional.empty(), userConsentDto);
+        Optional<io.mosip.esignet.core.dto.ConsentDetail> userConsentDto = consentService.getUserConsent(userConsentRequest);
+        Assertions.assertEquals(Optional.empty(), userConsentDto);
     }
 
     @Test
-    public void saveUserConsent_withValidDetails_thenPass() throws Exception{
+    public void saveUserConsent_withValidDetails_thenPass() throws Exception {
         Claims claims = new Claims();
 
         Map<String, List<Map<String, Object>>> userinfo = new HashMap<>();
         Map<String, Map<String, Object>> id_token = new HashMap<>();
         Map<String, Object> userinfoMap = new HashMap<>();
         Map<String, Object> idTokenMap = new HashMap<>();
-        userinfoMap.put("value","value1" );
+        userinfoMap.put("value", "value1");
         userinfoMap.put("values", new String[]{"value1a", "value1b"});
         userinfoMap.put("essential", true);
 
-        idTokenMap.put("value","value2" );
-        idTokenMap.put("values",  new String[]{"value2a", "value2b"});
+        idTokenMap.put("value", "value2");
+        idTokenMap.put("values", new String[]{"value2a", "value2b"});
         idTokenMap.put("essential", false);
 
         userinfo.put("userinfoKey", Arrays.asList(userinfoMap));
@@ -147,7 +147,7 @@ public class ConsentServiceImplTest {
         userConsent.setPsuToken("psuValue");
         userConsent.setClaims(claims);
 
-        Map<String,Boolean> authorizeScopes = Map.of("given_name",true,"email",true);
+        Map<String, Boolean> authorizeScopes = Map.of("given_name", true, "email", true);
         userConsent.setAuthorizationScopes(authorizeScopes);
         userConsent.setExpiredtimes(LocalDateTime.now());
         userConsent.setSignature("signature");
@@ -162,15 +162,15 @@ public class ConsentServiceImplTest {
 
         Mockito.when(consentRepository.save(Mockito.any())).thenReturn(consentDetail);
         Mockito.when(consentHistoryRepository.save(Mockito.any())).thenReturn(new ConsentHistory());
-        Mockito.when(consentRepository.findByClientIdAndPsuToken(Mockito.any(),Mockito.any())).thenReturn(Optional.empty());
+        Mockito.when(consentRepository.findByClientIdAndPsuToken(Mockito.any(), Mockito.any())).thenReturn(Optional.empty());
         io.mosip.esignet.core.dto.ConsentDetail userConsentDtoDetail = consentService.saveUserConsent(userConsent);
-        Assert.assertNotNull(userConsentDtoDetail);
-        Assert.assertEquals("1234", userConsentDtoDetail.getClientId());
+        Assertions.assertNotNull(userConsentDtoDetail);
+        Assertions.assertEquals("1234", userConsentDtoDetail.getClientId());
 
     }
 
     @Test
-    public void saveUserConsent_WhenConsentIsAlreadyPresent_withValidDetails_thenPass() throws Exception{
+    public void saveUserConsent_WhenConsentIsAlreadyPresent_withValidDetails_thenPass() throws Exception {
         Claims claims = new Claims();
 
         Map<String, List<Map<String, Object>>> userinfo = new HashMap<>();
@@ -178,12 +178,12 @@ public class ConsentServiceImplTest {
 
         Map<String, Object> userinfoMap = new HashMap<>();
         Map<String, Object> idTokenMap = new HashMap<>();
-        userinfoMap.put("value","value1" );
+        userinfoMap.put("value", "value1");
         userinfoMap.put("values", new String[]{"value1a", "value1b"});
         userinfoMap.put("essential", true);
 
-        idTokenMap.put("value","value2" );
-        idTokenMap.put("values",  new String[]{"value2a", "value2b"});
+        idTokenMap.put("value", "value2");
+        idTokenMap.put("values", new String[]{"value2a", "value2b"});
         idTokenMap.put("essential", false);
 
         userinfo.put("userinfoKey", Arrays.asList(userinfoMap));
@@ -197,7 +197,7 @@ public class ConsentServiceImplTest {
         userConsent.setPsuToken("psuValue");
         userConsent.setClaims(claims);
 
-        Map<String,Boolean> authorizeScopes = Map.of("given_name",true,"email",true);
+        Map<String, Boolean> authorizeScopes = Map.of("given_name", true, "email", true);
         userConsent.setAuthorizationScopes(authorizeScopes);
         userConsent.setExpiredtimes(LocalDateTime.now());
         userConsent.setSignature("signature");
@@ -212,19 +212,19 @@ public class ConsentServiceImplTest {
 
         Mockito.when(consentRepository.save(Mockito.any())).thenReturn(consentDetail);
         Mockito.when(consentHistoryRepository.save(Mockito.any())).thenReturn(new ConsentHistory());
-        Mockito.when(consentRepository.findByClientIdAndPsuToken(Mockito.any(),Mockito.any())).thenReturn(Optional.of(consentDetail));
-        doNothing().when(consentRepository).deleteByClientIdAndPsuToken(Mockito.any(),Mockito.any());
+        Mockito.when(consentRepository.findByClientIdAndPsuToken(Mockito.any(), Mockito.any())).thenReturn(Optional.of(consentDetail));
+        doNothing().when(consentRepository).deleteByClientIdAndPsuToken(Mockito.any(), Mockito.any());
         io.mosip.esignet.core.dto.ConsentDetail userConsentDtoDetail = consentService.saveUserConsent(userConsent);
-        Assert.assertNotNull(userConsentDtoDetail);
-        Assert.assertEquals("1234", userConsentDtoDetail.getClientId());
+        Assertions.assertNotNull(userConsentDtoDetail);
+        Assertions.assertEquals("1234", userConsentDtoDetail.getClientId());
 
     }
 
     @Test
-    public void deleteConsentByClientIdAndPsuToken_thenPass(){
+    public void deleteConsentByClientIdAndPsuToken_thenPass() {
         String clientId = "test-client-id";
         String psuToken = "test-psu-token";
-        consentService.deleteUserConsent(clientId,psuToken);
+        consentService.deleteUserConsent(clientId, psuToken);
         Mockito.verify(consentRepository).deleteByClientIdAndPsuToken(clientId, psuToken);
     }
 

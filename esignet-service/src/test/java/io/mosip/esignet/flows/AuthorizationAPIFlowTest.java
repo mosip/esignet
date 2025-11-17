@@ -35,14 +35,14 @@ import io.mosip.esignet.repository.ClientDetailRepository;
 import io.mosip.esignet.services.CacheUtilService;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
-import org.junit.*;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -58,12 +58,10 @@ import java.util.*;
 
 import static io.mosip.esignet.api.util.ErrorConstants.AUTH_FAILED;
 import static io.mosip.esignet.core.constants.Constants.UTC_DATETIME_PATTERN;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
-@RunWith(SpringRunner.class)
 @AutoConfigureMockMvc(addFilters = false)
 @Slf4j
 public class AuthorizationAPIFlowTest {
@@ -103,7 +101,7 @@ public class AuthorizationAPIFlowTest {
     private JWK clientJWK = TestUtil.generateJWK_RSA();
     private boolean created = false;
 
-    @Before
+    @BeforeEach
     public void init() {
         ReflectionTestUtils.setField(cacheUtilService, "cacheType", "simple");
     }
@@ -133,10 +131,10 @@ public class AuthorizationAPIFlowTest {
         assertErrorCode(authResponseResponseWrapper, ErrorConstants.INVALID_TRANSACTION);
 
         authResponseResponseWrapper = authenticate(oAuthDetailResponse.getTransactionId());
-        Assert.assertNotNull(authResponseResponseWrapper);
-        Assert.assertNotNull(authResponseResponseWrapper.getResponseTime());
-        Assert.assertNotNull(authResponseResponseWrapper.getResponse());
-        Assert.assertEquals(oAuthDetailResponse.getTransactionId(), authResponseResponseWrapper.getResponse().getTransactionId());
+        Assertions.assertNotNull(authResponseResponseWrapper);
+        Assertions.assertNotNull(authResponseResponseWrapper.getResponseTime());
+        Assertions.assertNotNull(authResponseResponseWrapper.getResponse());
+        Assertions.assertEquals(oAuthDetailResponse.getTransactionId(), authResponseResponseWrapper.getResponse().getTransactionId());
     }
 
     @Test
@@ -144,10 +142,10 @@ public class AuthorizationAPIFlowTest {
         ResponseWrapper<OAuthDetailResponseV1> oAuthDetailResponseWrapper = getOauthDetails(clientId, redirectionUrl, state, nonce);
         OAuthDetailResponseV1 oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
         ResponseWrapper<AuthResponse> authResponseResponseWrapper = authenticate(oAuthDetailResponse.getTransactionId());
-        Assert.assertNotNull(authResponseResponseWrapper);
-        Assert.assertNotNull(authResponseResponseWrapper.getResponseTime());
-        Assert.assertNotNull(authResponseResponseWrapper.getResponse());
-        Assert.assertEquals(oAuthDetailResponse.getTransactionId(), authResponseResponseWrapper.getResponse().getTransactionId());
+        Assertions.assertNotNull(authResponseResponseWrapper);
+        Assertions.assertNotNull(authResponseResponseWrapper.getResponseTime());
+        Assertions.assertNotNull(authResponseResponseWrapper.getResponse());
+        Assertions.assertEquals(oAuthDetailResponse.getTransactionId(), authResponseResponseWrapper.getResponse().getTransactionId());
 
         authResponseResponseWrapper = authenticate(oAuthDetailResponse.getTransactionId());
         assertErrorCode(authResponseResponseWrapper, ErrorConstants.INVALID_TRANSACTION);
@@ -159,19 +157,19 @@ public class AuthorizationAPIFlowTest {
         OAuthDetailResponseV1 oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
 
         ResponseWrapper<AuthResponse> authResponseResponseWrapper = authenticate(oAuthDetailResponse.getTransactionId());
-        Assert.assertNotNull(authResponseResponseWrapper);
-        Assert.assertNotNull(authResponseResponseWrapper.getResponseTime());
-        Assert.assertNotNull(authResponseResponseWrapper.getResponse());
-        Assert.assertEquals(oAuthDetailResponse.getTransactionId(), authResponseResponseWrapper.getResponse().getTransactionId());
+        Assertions.assertNotNull(authResponseResponseWrapper);
+        Assertions.assertNotNull(authResponseResponseWrapper.getResponseTime());
+        Assertions.assertNotNull(authResponseResponseWrapper.getResponse());
+        Assertions.assertEquals(oAuthDetailResponse.getTransactionId(), authResponseResponseWrapper.getResponse().getTransactionId());
 
         ResponseWrapper<AuthCodeResponse> responseWrapper = getAuthCode(oAuthDetailResponse.getTransactionId(), state, nonce);
-        Assert.assertNotNull(responseWrapper);
-        Assert.assertNotNull(responseWrapper.getResponseTime());
-        Assert.assertNotNull(responseWrapper.getResponse());
-        Assert.assertNotNull(responseWrapper.getResponse().getCode());
-        Assert.assertEquals(state, responseWrapper.getResponse().getState());
-        Assert.assertEquals(nonce, responseWrapper.getResponse().getNonce());
-        Assert.assertEquals(redirectionUrl, responseWrapper.getResponse().getRedirectUri());
+        Assertions.assertNotNull(responseWrapper);
+        Assertions.assertNotNull(responseWrapper.getResponseTime());
+        Assertions.assertNotNull(responseWrapper.getResponse());
+        Assertions.assertNotNull(responseWrapper.getResponse().getCode());
+        Assertions.assertEquals(state, responseWrapper.getResponse().getState());
+        Assertions.assertEquals(nonce, responseWrapper.getResponse().getNonce());
+        Assertions.assertEquals(redirectionUrl, responseWrapper.getResponse().getRedirectUri());
     }
 
     @Test
@@ -188,10 +186,10 @@ public class AuthorizationAPIFlowTest {
         OAuthDetailResponseV1 oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
 
         ResponseWrapper<AuthResponse> authResponseResponseWrapper = authenticate(oAuthDetailResponse.getTransactionId());
-        Assert.assertNotNull(authResponseResponseWrapper);
-        Assert.assertNotNull(authResponseResponseWrapper.getResponseTime());
-        Assert.assertNotNull(authResponseResponseWrapper.getResponse());
-        Assert.assertEquals(oAuthDetailResponse.getTransactionId(), authResponseResponseWrapper.getResponse().getTransactionId());
+        Assertions.assertNotNull(authResponseResponseWrapper);
+        Assertions.assertNotNull(authResponseResponseWrapper.getResponseTime());
+        Assertions.assertNotNull(authResponseResponseWrapper.getResponse());
+        Assertions.assertEquals(oAuthDetailResponse.getTransactionId(), authResponseResponseWrapper.getResponse().getTransactionId());
 
         ResponseWrapper<OtpResponse> otpResponseResponseWrapper = sendOtp(authResponseResponseWrapper.getResponse().getTransactionId(),
                 "8267411571");
@@ -204,19 +202,19 @@ public class AuthorizationAPIFlowTest {
         OAuthDetailResponseV1 oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
 
         ResponseWrapper<AuthResponse> authResponseResponseWrapper = authenticate(oAuthDetailResponse.getTransactionId());
-        Assert.assertNotNull(authResponseResponseWrapper);
-        Assert.assertNotNull(authResponseResponseWrapper.getResponseTime());
-        Assert.assertNotNull(authResponseResponseWrapper.getResponse());
-        Assert.assertEquals(oAuthDetailResponse.getTransactionId(), authResponseResponseWrapper.getResponse().getTransactionId());
+        Assertions.assertNotNull(authResponseResponseWrapper);
+        Assertions.assertNotNull(authResponseResponseWrapper.getResponseTime());
+        Assertions.assertNotNull(authResponseResponseWrapper.getResponse());
+        Assertions.assertEquals(oAuthDetailResponse.getTransactionId(), authResponseResponseWrapper.getResponse().getTransactionId());
 
         ResponseWrapper<AuthCodeResponse> responseWrapper = getAuthCode(oAuthDetailResponse.getTransactionId(), state, nonce);
-        Assert.assertNotNull(responseWrapper);
-        Assert.assertNotNull(responseWrapper.getResponseTime());
-        Assert.assertNotNull(responseWrapper.getResponse());
-        Assert.assertNotNull(responseWrapper.getResponse().getCode());
-        Assert.assertEquals(state, responseWrapper.getResponse().getState());
-        Assert.assertEquals(nonce, responseWrapper.getResponse().getNonce());
-        Assert.assertEquals(redirectionUrl, responseWrapper.getResponse().getRedirectUri());
+        Assertions.assertNotNull(responseWrapper);
+        Assertions.assertNotNull(responseWrapper.getResponseTime());
+        Assertions.assertNotNull(responseWrapper.getResponse());
+        Assertions.assertNotNull(responseWrapper.getResponse().getCode());
+        Assertions.assertEquals(state, responseWrapper.getResponse().getState());
+        Assertions.assertEquals(nonce, responseWrapper.getResponse().getNonce());
+        Assertions.assertEquals(redirectionUrl, responseWrapper.getResponse().getRedirectUri());
 
         ResponseWrapper<OtpResponse> otpResponseResponseWrapper = sendOtp(authResponseResponseWrapper.getResponse().getTransactionId(),
                 "8267411571");
@@ -229,10 +227,10 @@ public class AuthorizationAPIFlowTest {
         OAuthDetailResponseV1 oAuthDetailResponse = oAuthDetailResponseWrapper.getResponse();
 
         ResponseWrapper<AuthResponse> authResponseResponseWrapper = authenticate(oAuthDetailResponse.getTransactionId());
-        Assert.assertNotNull(authResponseResponseWrapper);
-        Assert.assertNotNull(authResponseResponseWrapper.getResponseTime());
-        Assert.assertNotNull(authResponseResponseWrapper.getResponse());
-        Assert.assertEquals(oAuthDetailResponse.getTransactionId(), authResponseResponseWrapper.getResponse().getTransactionId());
+        Assertions.assertNotNull(authResponseResponseWrapper);
+        Assertions.assertNotNull(authResponseResponseWrapper.getResponseTime());
+        Assertions.assertNotNull(authResponseResponseWrapper.getResponse());
+        Assertions.assertEquals(oAuthDetailResponse.getTransactionId(), authResponseResponseWrapper.getResponse().getTransactionId());
 
         ResponseWrapper<AuthCodeResponse> responseWrapper = getAuthCodeWithInvalidClaim(oAuthDetailResponse.getTransactionId());
         assertErrorCode(responseWrapper, ErrorConstants.INVALID_ACCEPTED_CLAIM);
@@ -252,18 +250,18 @@ public class AuthorizationAPIFlowTest {
 
         ResponseWrapper<OtpResponse> otpResponseResponseWrapper = sendOtp(oAuthDetailResponse.getTransactionId(),
                 "8267411571");
-        Assert.assertNotNull(otpResponseResponseWrapper);
-        Assert.assertNotNull(otpResponseResponseWrapper.getResponseTime());
-        Assert.assertNotNull(otpResponseResponseWrapper.getResponse());
-        Assert.assertEquals(oAuthDetailResponse.getTransactionId(), otpResponseResponseWrapper.getResponse().getTransactionId());
+        Assertions.assertNotNull(otpResponseResponseWrapper);
+        Assertions.assertNotNull(otpResponseResponseWrapper.getResponseTime());
+        Assertions.assertNotNull(otpResponseResponseWrapper.getResponse());
+        Assertions.assertEquals(oAuthDetailResponse.getTransactionId(), otpResponseResponseWrapper.getResponse().getTransactionId());
     }
 
     private void assertErrorCode(ResponseWrapper responseWrapper, String expectedErrorCode) {
-        Assert.assertNotNull(responseWrapper);
-        Assert.assertNotNull(responseWrapper.getResponseTime());
-        Assert.assertNull(responseWrapper.getResponse());
-        Assert.assertNotNull(responseWrapper.getErrors());
-        Assert.assertEquals(expectedErrorCode, ((Error)responseWrapper.getErrors().get(0)).getErrorCode());
+        Assertions.assertNotNull(responseWrapper);
+        Assertions.assertNotNull(responseWrapper.getResponseTime());
+        Assertions.assertNull(responseWrapper.getResponse());
+        Assertions.assertNotNull(responseWrapper.getErrors());
+        Assertions.assertEquals(expectedErrorCode, ((Error)responseWrapper.getErrors().getFirst()).getErrorCode());
     }
 
     private PrivateKey getRelyingPartyPrivateKey(String relyingPartyId) throws Exception {
@@ -325,7 +323,7 @@ public class AuthorizationAPIFlowTest {
         requestWrapper.setRequest(otpRequest);
 
         MvcResult result = mockMvc.perform(post("/authorization/send-otp")
-                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestWrapper)))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -344,7 +342,7 @@ public class AuthorizationAPIFlowTest {
         wrapper.setRequest(authCodeRequest);
 
         MvcResult result = mockMvc.perform(post("/authorization/auth-code")
-                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(wrapper)))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -363,7 +361,7 @@ public class AuthorizationAPIFlowTest {
         wrapper.setRequest(authCodeRequest);
 
         MvcResult result = mockMvc.perform(post("/authorization/auth-code")
-                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(wrapper)))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -388,7 +386,7 @@ public class AuthorizationAPIFlowTest {
         wrapper.setRequest(kycAuthDto);
 
         MvcResult result = mockMvc.perform(post("/authorization/authenticate")
-                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(wrapper)))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -413,7 +411,7 @@ public class AuthorizationAPIFlowTest {
         wrapper.setRequest(kycAuthDto);
 
         MvcResult result = mockMvc.perform(post("/authorization/authenticate")
-                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(wrapper)))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -465,7 +463,7 @@ public class AuthorizationAPIFlowTest {
 
         MvcResult result = mockMvc.perform(post("/authorization/oauth-details")
                         .param("nonce", nonce).param("state", state)
-                        .contentType(MediaType.APPLICATION_JSON_UTF8)
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andReturn();

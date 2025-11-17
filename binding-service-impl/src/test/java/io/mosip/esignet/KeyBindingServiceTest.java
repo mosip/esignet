@@ -29,15 +29,16 @@ import io.mosip.esignet.services.KeyBindingHelperService;
 import io.mosip.esignet.services.KeyBindingServiceImpl;
 import io.mosip.kernel.keymanagerservice.util.KeymanagerUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
 
@@ -50,373 +51,378 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import static io.mosip.esignet.api.util.ErrorConstants.SEND_OTP_FAILED;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @Slf4j
-@RunWith(MockitoJUnitRunner.class)
+@MockitoSettings(strictness = Strictness.WARN)
+@ExtendWith(MockitoExtension.class)
 public class KeyBindingServiceTest {
 
-	@InjectMocks
-	KeyBindingServiceImpl keyBindingService;
+    @InjectMocks
+    KeyBindingServiceImpl keyBindingService;
 
-	@Mock
-	private PublicKeyRegistryRepository publicKeyRegistryRepository;
+    @Mock
+    private PublicKeyRegistryRepository publicKeyRegistryRepository;
 
-	@Mock
-	KeyBindingHelperService keyBindingHelperService;
+    @Mock
+    KeyBindingHelperService keyBindingHelperService;
 
-	@Mock
-	KeyBinder mockKeyBindingWrapperService;
+    @Mock
+    KeyBinder mockKeyBindingWrapperService;
 
-	@Mock
-	KeymanagerUtil keymanagerUtil;
+    @Mock
+    KeymanagerUtil keymanagerUtil;
 
-	CaptchaHelper captchaHelper;
+    CaptchaHelper captchaHelper;
 
-	@Mock
-	RestTemplate restTemplate;
+    @Mock
+    RestTemplate restTemplate;
 
-	private JWK clientJWK = generateJWK_RSA();
+    private JWK clientJWK = generateJWK_RSA();
 
-	private ObjectMapper objectMapper = new ObjectMapper();
-
-
-	@Before
-	public void setUp() {
-		MockitoAnnotations.initMocks(this);
-		ReflectionTestUtils.setField(keyBindingService, "encryptBindingId", true);
-
-		mockKeyBindingWrapperService = mock(KeyBinder.class);
-		when(mockKeyBindingWrapperService.getSupportedChallengeFormats(Mockito.anyString()))
-				.thenReturn(Arrays.asList("jwt", "alpha-numeric"));
-
-		captchaHelper = new CaptchaHelper(restTemplate, "https://test-api.example.com/v1/captcha/validatecaptcha",
-				"esignet", List.of("binding-otp"));
-
-		ReflectionTestUtils.setField(keyBindingService, "keyBindingWrapper", mockKeyBindingWrapperService);
-
-		keyBindingHelperService = mock(KeyBindingHelperService.class);
-		ReflectionTestUtils.setField(keyBindingHelperService, "saltLength", 10);
-		ReflectionTestUtils.setField(keyBindingHelperService, "publicKeyRegistryRepository", publicKeyRegistryRepository);
-		ReflectionTestUtils.setField(keyBindingHelperService, "keymanagerUtil", keymanagerUtil);
-		ReflectionTestUtils.setField(keyBindingService, "captchaHelper", captchaHelper);
-		ReflectionTestUtils.setField(keyBindingService, "keyBindingHelperService", keyBindingHelperService);
-	}
-
-	@Test
-	public void sendBindingOtp_withValidDetails_thenPass() throws SendOtpException {
-		BindingOtpRequest otpRequest = new BindingOtpRequest();
-		otpRequest.setIndividualId("8267411571");
-		otpRequest.setOtpChannels(Arrays.asList("OTP"));
-
-		SendOtpResult sendOtpResult = new SendOtpResult(null,"", "");
-
-		Map<String, String> headers = new HashMap<>();
-		when(mockKeyBindingWrapperService.sendBindingOtp(anyString(), any(), any())).thenReturn(sendOtpResult);
-
-		BindingOtpResponse otpResponse = keyBindingService.sendBindingOtp(otpRequest, headers);
-		Assert.assertNotNull(otpResponse);
-	}
+    private ObjectMapper objectMapper = new ObjectMapper();
 
 
-	@Test(expected = EsignetException.class)
-	public void sendBindingOtp_withInvalidRequest_thenFail() throws SendOtpException {
-		BindingOtpRequest otpRequest = new BindingOtpRequest();
-		otpRequest.setIndividualId("8267411571");
-		otpRequest.setOtpChannels(Arrays.asList("OTP"));
+    @BeforeEach
+    public void setUp() {
+        ReflectionTestUtils.setField(keyBindingService, "encryptBindingId", true);
 
-		Map<String, String> headers = new HashMap<>();
-		when(mockKeyBindingWrapperService.sendBindingOtp(anyString(), any(), any())).thenThrow(SendOtpException.class);
+        mockKeyBindingWrapperService = mock(KeyBinder.class);
+        when(mockKeyBindingWrapperService.getSupportedChallengeFormats(Mockito.anyString()))
+                .thenReturn(Arrays.asList("jwt", "alpha-numeric"));
 
-		keyBindingService.sendBindingOtp(otpRequest, headers);
-	}
+        captchaHelper = new CaptchaHelper(restTemplate, "https://test-api.example.com/v1/captcha/validatecaptcha",
+                "esignet", List.of("binding-otp"));
+
+        ReflectionTestUtils.setField(keyBindingService, "keyBindingWrapper", mockKeyBindingWrapperService);
+
+        keyBindingHelperService = mock(KeyBindingHelperService.class);
+        ReflectionTestUtils.setField(keyBindingHelperService, "saltLength", 10);
+        ReflectionTestUtils.setField(keyBindingHelperService, "publicKeyRegistryRepository", publicKeyRegistryRepository);
+        ReflectionTestUtils.setField(keyBindingHelperService, "keymanagerUtil", keymanagerUtil);
+        ReflectionTestUtils.setField(keyBindingService, "captchaHelper", captchaHelper);
+        ReflectionTestUtils.setField(keyBindingService, "keyBindingHelperService", keyBindingHelperService);
+    }
+
+    @Test
+    public void sendBindingOtp_withValidDetails_thenPass() throws SendOtpException {
+        BindingOtpRequest otpRequest = new BindingOtpRequest();
+        otpRequest.setIndividualId("8267411571");
+        otpRequest.setOtpChannels(Arrays.asList("OTP"));
+
+        SendOtpResult sendOtpResult = new SendOtpResult(null, "", "");
+
+        Map<String, String> headers = new HashMap<>();
+        when(mockKeyBindingWrapperService.sendBindingOtp(anyString(), any(), any())).thenReturn(sendOtpResult);
+
+        BindingOtpResponse otpResponse = keyBindingService.sendBindingOtp(otpRequest, headers);
+        Assertions.assertNotNull(otpResponse);
+    }
 
 
-	@Test
-	public void sendBindingOtpV2_withInvalidCaptcha_thenFail() throws SendOtpException {
+    @Test
+    public void sendBindingOtp_withInvalidRequest_thenFail() throws SendOtpException {
+        assertThrows(EsignetException.class, () -> {
+            BindingOtpRequest otpRequest = new BindingOtpRequest();
+            otpRequest.setIndividualId("8267411571");
+            otpRequest.setOtpChannels(Arrays.asList("OTP"));
 
-		BindingOtpRequestV2 otpRequest = new BindingOtpRequestV2();
-		otpRequest.setIndividualId("8267411571");
-		otpRequest.setOtpChannels(Arrays.asList("OTP"));
-		otpRequest.setCaptchaToken("qwerty");
+            Map<String, String> headers = new HashMap<>();
+            when(mockKeyBindingWrapperService.sendBindingOtp(anyString(), any(), any())).thenThrow(SendOtpException.class);
 
-		Map<String, String> headers = new HashMap<>();
+            keyBindingService.sendBindingOtp(otpRequest, headers);
+        });
+    }
 
-		try {
-			keyBindingService.sendBindingOtpV2(otpRequest, headers);
-		} catch (EsignetException e) {
-			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_CAPTCHA));
-		}
-	}
 
-	@Test
-	public void sendBindingOtpV2_withEmptyCaptcha_thenFail() throws SendOtpException {
+    @Test
+    public void sendBindingOtpV2_withInvalidCaptcha_thenFail() throws SendOtpException {
 
-		BindingOtpRequestV2 otpRequest = new BindingOtpRequestV2();
-		otpRequest.setIndividualId("8267411571");
-		otpRequest.setOtpChannels(Arrays.asList("OTP"));
-		otpRequest.setCaptchaToken("");
+        BindingOtpRequestV2 otpRequest = new BindingOtpRequestV2();
+        otpRequest.setIndividualId("8267411571");
+        otpRequest.setOtpChannels(Arrays.asList("OTP"));
+        otpRequest.setCaptchaToken("qwerty");
 
-		Map<String, String> headers = new HashMap<>();
+        Map<String, String> headers = new HashMap<>();
 
-		try {
-			keyBindingService.sendBindingOtpV2(otpRequest, headers);
-		} catch (EsignetException e) {
-			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_CAPTCHA));
-		}
-	}
+        try {
+            keyBindingService.sendBindingOtpV2(otpRequest, headers);
+        } catch (EsignetException e) {
+            Assertions.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_CAPTCHA));
+        }
+    }
 
-	@Test
-	public void sendBindingOtp_withNullResponseFromWrapper_thenFail() throws SendOtpException {
-		BindingOtpRequest otpRequest = new BindingOtpRequest();
-		otpRequest.setIndividualId("123456789");
-		otpRequest.setOtpChannels(Arrays.asList("OTP"));
-		when(mockKeyBindingWrapperService.sendBindingOtp(anyString(), any(), any())).thenReturn(null);
+    @Test
+    public void sendBindingOtpV2_withEmptyCaptcha_thenFail() throws SendOtpException {
 
-		try {
-			keyBindingService.sendBindingOtp(otpRequest, new HashMap<>());
-			Assert.fail();
-		} catch (EsignetException e) {
-			Assert.assertTrue(e.getErrorCode().equals(SEND_OTP_FAILED));
-		}
-	}
+        BindingOtpRequestV2 otpRequest = new BindingOtpRequestV2();
+        otpRequest.setIndividualId("8267411571");
+        otpRequest.setOtpChannels(Arrays.asList("OTP"));
+        otpRequest.setCaptchaToken("");
 
-	@Test
-	public void bindWallet_withValidDetails_thenPass() throws EsignetException, KeyBindingException, JsonProcessingException {
-		WalletBindingRequest walletBindingRequest = new WalletBindingRequest();
-		walletBindingRequest.setIndividualId("8267411571");
-		walletBindingRequest.setAuthFactorType("WLA");
-		walletBindingRequest.setFormat("jwt");
-		AuthChallenge authChallenge = new AuthChallenge();
-		authChallenge.setAuthFactorType("OTP");
-		authChallenge.setChallenge("111111");
-		authChallenge.setFormat("alpha-numeric");
-		List<AuthChallenge> authChallengeList = new ArrayList();
-		authChallengeList.add(authChallenge);
-		walletBindingRequest.setChallengeList(authChallengeList);
-		walletBindingRequest
-				.setPublicKey(
-						(Map<String, Object>) objectMapper.readValue(clientJWK.toJSONString(), HashMap.class));
+        Map<String, String> headers = new HashMap<>();
 
-		KeyBindingResult keyBindingResult = new KeyBindingResult();
-		keyBindingResult.setPartnerSpecificUserToken("psutoken123");
-		keyBindingResult.setCertificate("certificate");
-		when(mockKeyBindingWrapperService.doKeyBinding(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any()))
-				.thenReturn(keyBindingResult);
+        try {
+            keyBindingService.sendBindingOtpV2(otpRequest, headers);
+        } catch (EsignetException e) {
+            Assertions.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_CAPTCHA));
+        }
+    }
 
-		PublicKeyRegistry publicKeyRegistry=new PublicKeyRegistry();
-		publicKeyRegistry.setExpiredtimes(LocalDateTime.now());
-		publicKeyRegistry.setIdHash("hCv0zz_jnOkGS17BN1dUOU7tqNri-8XpHokWVQQMfiI");
-		publicKeyRegistry.setPsuToken("psutoken123");
-		publicKeyRegistry.setWalletBindingId("tXOFGPKly4L_9VI8NYvYXJe5ZNrgOIUnfFdLkNKYdTE");
-		when(keyBindingHelperService.storeKeyBindingDetailsInRegistry(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
-				Mockito.anyString(), Mockito.anyString())).thenReturn(publicKeyRegistry);
+    @Test
+    public void sendBindingOtp_withNullResponseFromWrapper_thenFail() throws SendOtpException {
+        BindingOtpRequest otpRequest = new BindingOtpRequest();
+        otpRequest.setIndividualId("123456789");
+        otpRequest.setOtpChannels(Arrays.asList("OTP"));
+        when(mockKeyBindingWrapperService.sendBindingOtp(anyString(), any(), any())).thenReturn(null);
 
-		Assert.assertNotNull(keyBindingService.bindWallet(walletBindingRequest, new HashMap<>()));
-	}
-	
-	@Test(expected = EsignetException.class)
-	public void bindWallet_withInvalidRequest_thenFail() throws EsignetException, KeyBindingException, JsonProcessingException {
-		WalletBindingRequest walletBindingRequest = new WalletBindingRequest();
-		walletBindingRequest.setIndividualId("8267411571");
-		walletBindingRequest.setAuthFactorType("WLA");
-		walletBindingRequest.setFormat("jwt");
-		AuthChallenge authChallenge = new AuthChallenge();
-		authChallenge.setAuthFactorType("OTP");
-		authChallenge.setChallenge("111111");
-		authChallenge.setFormat("alpha-numeric");
-		List<AuthChallenge> authChallengeList = new ArrayList<>();
-		authChallengeList.add(authChallenge);
-		walletBindingRequest.setChallengeList(authChallengeList);
-		walletBindingRequest
-				.setPublicKey(
-						(Map<String, Object>) objectMapper.readValue(clientJWK.toJSONString(), HashMap.class));
+        try {
+            keyBindingService.sendBindingOtp(otpRequest, new HashMap<>());
+            Assertions.fail();
+        } catch (EsignetException e) {
+            Assertions.assertTrue(e.getErrorCode().equals(SEND_OTP_FAILED));
+        }
+    }
 
-		when(mockKeyBindingWrapperService.doKeyBinding(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any()))
-				.thenThrow(KeyBindingException.class);
+    @Test
+    public void bindWallet_withValidDetails_thenPass() throws EsignetException, KeyBindingException, JsonProcessingException {
+        WalletBindingRequest walletBindingRequest = new WalletBindingRequest();
+        walletBindingRequest.setIndividualId("8267411571");
+        walletBindingRequest.setAuthFactorType("WLA");
+        walletBindingRequest.setFormat("jwt");
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setAuthFactorType("OTP");
+        authChallenge.setChallenge("111111");
+        authChallenge.setFormat("alpha-numeric");
+        List<AuthChallenge> authChallengeList = new ArrayList();
+        authChallengeList.add(authChallenge);
+        walletBindingRequest.setChallengeList(authChallengeList);
+        walletBindingRequest
+                .setPublicKey(
+                        (Map<String, Object>) objectMapper.readValue(clientJWK.toJSONString(), HashMap.class));
 
-		keyBindingService.bindWallet(walletBindingRequest, new HashMap<>());
-	}
+        KeyBindingResult keyBindingResult = new KeyBindingResult();
+        keyBindingResult.setPartnerSpecificUserToken("psutoken123");
+        keyBindingResult.setCertificate("certificate");
+        when(mockKeyBindingWrapperService.doKeyBinding(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any()))
+                .thenReturn(keyBindingResult);
 
-	@Test
-	public void bindWallet_withUnsupportedFormat_thenFail() throws EsignetException, JsonProcessingException {
-		WalletBindingRequest walletBindingRequest = new WalletBindingRequest();
-		walletBindingRequest.setIndividualId("8267411571");
-		walletBindingRequest.setAuthFactorType("WLA");
-		walletBindingRequest.setFormat("wt");
+        PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
+        publicKeyRegistry.setExpiredtimes(LocalDateTime.now());
+        publicKeyRegistry.setIdHash("hCv0zz_jnOkGS17BN1dUOU7tqNri-8XpHokWVQQMfiI");
+        publicKeyRegistry.setPsuToken("psutoken123");
+        publicKeyRegistry.setWalletBindingId("tXOFGPKly4L_9VI8NYvYXJe5ZNrgOIUnfFdLkNKYdTE");
+        when(keyBindingHelperService.storeKeyBindingDetailsInRegistry(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
+                Mockito.anyString(), Mockito.anyString())).thenReturn(publicKeyRegistry);
 
-		AuthChallenge authChallenge = new AuthChallenge();
-		authChallenge.setAuthFactorType("OTP");
-		authChallenge.setChallenge("111111");
-		authChallenge.setFormat("alpha-numeric");
-		List<AuthChallenge> authChallengeList = new ArrayList();
-		authChallengeList.add(authChallenge);
-		walletBindingRequest.setChallengeList(authChallengeList);
-		walletBindingRequest.setPublicKey(
-				(Map<String, Object>) objectMapper.readValue(clientJWK.toJSONString(), HashMap.class));
-		try {
-			Assert.assertNotNull(keyBindingService.bindWallet(walletBindingRequest, new HashMap<>()));
-			Assert.fail();
-		} catch (EsignetException e) {
-			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_AUTH_FACTOR_TYPE_OR_CHALLENGE_FORMAT));
-		}
-	}
+        Assertions.assertNotNull(keyBindingService.bindWallet(walletBindingRequest, new HashMap<>()));
+    }
 
-	@Test
-	public void bindWallet_withInvalidAuthChallenge_thenFail() throws EsignetException, JsonProcessingException {
-		WalletBindingRequest walletBindingRequest = new WalletBindingRequest();
-		walletBindingRequest.setIndividualId("8267411571");
-		walletBindingRequest.setAuthFactorType("WLA");
-		walletBindingRequest.setFormat("wt");
+    @Test
+    public void bindWallet_withInvalidRequest_thenFail() throws KeyBindingException, JsonProcessingException {
+        assertThrows(EsignetException.class, () -> {
+            WalletBindingRequest walletBindingRequest = new WalletBindingRequest();
+            walletBindingRequest.setIndividualId("8267411571");
+            walletBindingRequest.setAuthFactorType("WLA");
+            walletBindingRequest.setFormat("jwt");
+            AuthChallenge authChallenge = new AuthChallenge();
+            authChallenge.setAuthFactorType("OTP");
+            authChallenge.setChallenge("111111");
+            authChallenge.setFormat("alpha-numeric");
+            List<AuthChallenge> authChallengeList = new ArrayList<>();
+            authChallengeList.add(authChallenge);
+            walletBindingRequest.setChallengeList(authChallengeList);
+            walletBindingRequest
+                    .setPublicKey(
+                            (Map<String, Object>) objectMapper.readValue(clientJWK.toJSONString(), HashMap.class));
 
-		AuthChallenge authChallenge = new AuthChallenge();
-		authChallenge.setAuthFactorType("OTP");
-		authChallenge.setChallenge("111111");
-		authChallenge.setFormat("alpha");
-		List<AuthChallenge> authChallengeList = new ArrayList();
-		authChallengeList.add(authChallenge);
-		walletBindingRequest.setChallengeList(authChallengeList);
-		walletBindingRequest.setPublicKey(
-				(Map<String, Object>) objectMapper.readValue(clientJWK.toJSONString(), HashMap.class));
-		try {
-			Assert.assertNotNull(keyBindingService.bindWallet(walletBindingRequest, new HashMap<>()));
-			Assert.fail();
-		} catch (EsignetException e) {
-			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_AUTH_FACTOR_TYPE_OR_CHALLENGE_FORMAT));
-		}
-	}
+            when(mockKeyBindingWrapperService.doKeyBinding(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any()))
+                    .thenThrow(KeyBindingException.class);
 
-	@Test
-	public void bindWallet_withInvalidKeyBindingResult_thenFail() throws IOException, EsignetException, KeyBindingException {
-		WalletBindingRequest walletBindingRequest = new WalletBindingRequest();
-		walletBindingRequest.setIndividualId("8267411571");
-		walletBindingRequest.setAuthFactorType("WLA");
-		walletBindingRequest.setFormat("jwt");
-		AuthChallenge authChallenge = new AuthChallenge();
-		authChallenge.setAuthFactorType("OTP");
-		authChallenge.setChallenge("111111");
-		authChallenge.setFormat("alpha-numeric");
-		List<AuthChallenge> authChallengeList = new ArrayList();
-		authChallengeList.add(authChallenge);
-		walletBindingRequest.setChallengeList(authChallengeList);
-		walletBindingRequest.setPublicKey(
-				(Map<String, Object>) objectMapper.readValue(clientJWK.toJSONString(), HashMap.class));
+            keyBindingService.bindWallet(walletBindingRequest, new HashMap<>());
+        });
+    }
 
-		try {
-			Assert.assertNotNull(keyBindingService.bindWallet(walletBindingRequest, new HashMap<>()));
-			Assert.fail();
-		} catch (EsignetException e) {
-			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.KEY_BINDING_FAILED));
-		}
+    @Test
+    public void bindWallet_withUnsupportedFormat_thenFail() throws EsignetException, JsonProcessingException {
+        WalletBindingRequest walletBindingRequest = new WalletBindingRequest();
+        walletBindingRequest.setIndividualId("8267411571");
+        walletBindingRequest.setAuthFactorType("WLA");
+        walletBindingRequest.setFormat("wt");
 
-		KeyBindingResult keyBindingResult = new KeyBindingResult();
-		when(mockKeyBindingWrapperService.doKeyBinding(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any()))
-				.thenReturn(keyBindingResult);
-		try {
-			Assert.assertNotNull(keyBindingService.bindWallet(walletBindingRequest, new HashMap<>()));
-			Assert.fail();
-		} catch (EsignetException e) {
-			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.KEY_BINDING_FAILED));
-		}
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setAuthFactorType("OTP");
+        authChallenge.setChallenge("111111");
+        authChallenge.setFormat("alpha-numeric");
+        List<AuthChallenge> authChallengeList = new ArrayList();
+        authChallengeList.add(authChallenge);
+        walletBindingRequest.setChallengeList(authChallengeList);
+        walletBindingRequest.setPublicKey(
+                (Map<String, Object>) objectMapper.readValue(clientJWK.toJSONString(), HashMap.class));
+        try {
+            Assertions.assertNotNull(keyBindingService.bindWallet(walletBindingRequest, new HashMap<>()));
+            Assertions.fail();
+        } catch (EsignetException e) {
+            Assertions.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_AUTH_FACTOR_TYPE_OR_CHALLENGE_FORMAT));
+        }
+    }
 
-		keyBindingResult = new KeyBindingResult();
-		keyBindingResult.setCertificate("data");
-		when(mockKeyBindingWrapperService.doKeyBinding(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any()))
-				.thenReturn(keyBindingResult);
-		try {
-			Assert.assertNotNull(keyBindingService.bindWallet(walletBindingRequest, new HashMap<>()));
-			Assert.fail();
-		} catch (EsignetException e) {
-			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.KEY_BINDING_FAILED));
-		}
-	}
+    @Test
+    public void bindWallet_withInvalidAuthChallenge_thenFail() throws EsignetException, JsonProcessingException {
+        WalletBindingRequest walletBindingRequest = new WalletBindingRequest();
+        walletBindingRequest.setIndividualId("8267411571");
+        walletBindingRequest.setAuthFactorType("WLA");
+        walletBindingRequest.setFormat("wt");
 
-	@Test
-	public void bindWallet_saveKeyBindingThrowException_thenFail() throws IOException, EsignetException, KeyBindingException {
-		WalletBindingRequest walletBindingRequest = new WalletBindingRequest();
-		walletBindingRequest.setIndividualId("8267411571");
-		walletBindingRequest.setAuthFactorType("WLA");
-		walletBindingRequest.setFormat("jwt");
-		AuthChallenge authChallenge = new AuthChallenge();
-		authChallenge.setAuthFactorType("OTP");
-		authChallenge.setChallenge("111111");
-		authChallenge.setFormat("alpha-numeric");
-		List<AuthChallenge> authChallengeList = new ArrayList();
-		authChallengeList.add(authChallenge);
-		walletBindingRequest.setChallengeList(authChallengeList);
-		walletBindingRequest.setPublicKey(
-				(Map<String, Object>) objectMapper.readValue(clientJWK.toJSONString(), HashMap.class));
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setAuthFactorType("OTP");
+        authChallenge.setChallenge("111111");
+        authChallenge.setFormat("alpha");
+        List<AuthChallenge> authChallengeList = new ArrayList();
+        authChallengeList.add(authChallenge);
+        walletBindingRequest.setChallengeList(authChallengeList);
+        walletBindingRequest.setPublicKey(
+                (Map<String, Object>) objectMapper.readValue(clientJWK.toJSONString(), HashMap.class));
+        try {
+            Assertions.assertNotNull(keyBindingService.bindWallet(walletBindingRequest, new HashMap<>()));
+            Assertions.fail();
+        } catch (EsignetException e) {
+            Assertions.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_AUTH_FACTOR_TYPE_OR_CHALLENGE_FORMAT));
+        }
+    }
 
-		KeyBindingResult keyBindingResult = new KeyBindingResult();
-		keyBindingResult.setCertificate("data");
-		keyBindingResult.setPartnerSpecificUserToken("psut");
-		when(mockKeyBindingWrapperService.doKeyBinding(Mockito.anyString(), Mockito.any(), Mockito.any(),Mockito.anyString(), Mockito.any()))
-				.thenReturn(keyBindingResult);
+    @Test
+    public void bindWallet_withInvalidKeyBindingResult_thenFail() throws IOException, EsignetException, KeyBindingException {
+        WalletBindingRequest walletBindingRequest = new WalletBindingRequest();
+        walletBindingRequest.setIndividualId("8267411571");
+        walletBindingRequest.setAuthFactorType("WLA");
+        walletBindingRequest.setFormat("jwt");
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setAuthFactorType("OTP");
+        authChallenge.setChallenge("111111");
+        authChallenge.setFormat("alpha-numeric");
+        List<AuthChallenge> authChallengeList = new ArrayList();
+        authChallengeList.add(authChallenge);
+        walletBindingRequest.setChallengeList(authChallengeList);
+        walletBindingRequest.setPublicKey(
+                (Map<String, Object>) objectMapper.readValue(clientJWK.toJSONString(), HashMap.class));
 
-		when(keyBindingHelperService.storeKeyBindingDetailsInRegistry(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
-				Mockito.anyString(), Mockito.anyString())).thenThrow(new EsignetException(ErrorConstants.DUPLICATE_PUBLIC_KEY));
+        try {
+            Assertions.assertNotNull(keyBindingService.bindWallet(walletBindingRequest, new HashMap<>()));
+            Assertions.fail();
+        } catch (EsignetException e) {
+            Assertions.assertTrue(e.getErrorCode().equals(ErrorConstants.KEY_BINDING_FAILED));
+        }
 
-		try {
-			Assert.assertNotNull(keyBindingService.bindWallet(walletBindingRequest, new HashMap<>()));
-			Assert.fail();
-		} catch (EsignetException e) {
-			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.DUPLICATE_PUBLIC_KEY));
-		}
-	}
+        KeyBindingResult keyBindingResult = new KeyBindingResult();
+        when(mockKeyBindingWrapperService.doKeyBinding(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any()))
+                .thenReturn(keyBindingResult);
+        try {
+            Assertions.assertNotNull(keyBindingService.bindWallet(walletBindingRequest, new HashMap<>()));
+            Assertions.fail();
+        } catch (EsignetException e) {
+            Assertions.assertTrue(e.getErrorCode().equals(ErrorConstants.KEY_BINDING_FAILED));
+        }
 
-	@Test
-	public void bindWallet_withAlreadyExistingWalletBindingId_thenPass()
-			throws IOException, EsignetException, KeyBindingException {
-		WalletBindingRequest walletBindingRequest = new WalletBindingRequest();
-		walletBindingRequest.setIndividualId("8267411571");
-		walletBindingRequest.setAuthFactorType("WLA");
-		walletBindingRequest.setFormat("jwt");
-		AuthChallenge authChallenge = new AuthChallenge();
-		authChallenge.setAuthFactorType("OTP");
-		authChallenge.setChallenge("111111");
-		authChallenge.setFormat("alpha-numeric");
-		List<AuthChallenge> authChallengeList = new ArrayList();
-		authChallengeList.add(authChallenge);
-		walletBindingRequest.setChallengeList(authChallengeList);
-		walletBindingRequest.setPublicKey(
-				(Map<String, Object>) objectMapper.readValue(clientJWK.toJSONString(), HashMap.class));
+        keyBindingResult = new KeyBindingResult();
+        keyBindingResult.setCertificate("data");
+        when(mockKeyBindingWrapperService.doKeyBinding(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any()))
+                .thenReturn(keyBindingResult);
+        try {
+            Assertions.assertNotNull(keyBindingService.bindWallet(walletBindingRequest, new HashMap<>()));
+            Assertions.fail();
+        } catch (EsignetException e) {
+            Assertions.assertTrue(e.getErrorCode().equals(ErrorConstants.KEY_BINDING_FAILED));
+        }
+    }
 
-		KeyBindingResult keyBindingResult = new KeyBindingResult();
-		keyBindingResult.setCertificate("data");
-		keyBindingResult.setPartnerSpecificUserToken("psut");
-		when(mockKeyBindingWrapperService.doKeyBinding(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any()))
-				.thenReturn(keyBindingResult);
+    @Test
+    public void bindWallet_saveKeyBindingThrowException_thenFail() throws IOException, EsignetException, KeyBindingException {
+        WalletBindingRequest walletBindingRequest = new WalletBindingRequest();
+        walletBindingRequest.setIndividualId("8267411571");
+        walletBindingRequest.setAuthFactorType("WLA");
+        walletBindingRequest.setFormat("jwt");
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setAuthFactorType("OTP");
+        authChallenge.setChallenge("111111");
+        authChallenge.setFormat("alpha-numeric");
+        List<AuthChallenge> authChallengeList = new ArrayList();
+        authChallengeList.add(authChallenge);
+        walletBindingRequest.setChallengeList(authChallengeList);
+        walletBindingRequest.setPublicKey(
+                (Map<String, Object>) objectMapper.readValue(clientJWK.toJSONString(), HashMap.class));
 
-		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
-		publicKeyRegistry.setExpiredtimes(LocalDateTime.now());
-		publicKeyRegistry.setIdHash("hCv0zz_jnOkGS17BN1dUOU7tqNri-8XpHokWVQQMfiI");
-		publicKeyRegistry.setPsuToken("psutoken123");
-		publicKeyRegistry.setWalletBindingId("tXOFGPKly4L_9VI8NYvYXJe5ZNrgOIUnfFdLkNKYdTE");
-		when(keyBindingHelperService.storeKeyBindingDetailsInRegistry(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
-				Mockito.anyString(), Mockito.anyString())).thenReturn(publicKeyRegistry);
+        KeyBindingResult keyBindingResult = new KeyBindingResult();
+        keyBindingResult.setCertificate("data");
+        keyBindingResult.setPartnerSpecificUserToken("psut");
+        when(mockKeyBindingWrapperService.doKeyBinding(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any()))
+                .thenReturn(keyBindingResult);
 
-		Assert.assertNotNull(keyBindingService.bindWallet(walletBindingRequest, new HashMap<>()));
-	}
+        when(keyBindingHelperService.storeKeyBindingDetailsInRegistry(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
+                Mockito.anyString(), Mockito.anyString())).thenThrow(new EsignetException(ErrorConstants.DUPLICATE_PUBLIC_KEY));
 
-	public static JWK generateJWK_RSA() {
-		// Generate the RSA key pair
-		try {
-			KeyPairGenerator gen = KeyPairGenerator.getInstance("RSA");
-			gen.initialize(2048);
-			KeyPair keyPair = gen.generateKeyPair();
-			// Convert public key to JWK format
-			return new RSAKey.Builder((RSAPublicKey)keyPair.getPublic())
-					.privateKey((RSAPrivateKey)keyPair.getPrivate())
-					.keyUse(KeyUse.SIGNATURE)
-					.keyID(UUID.randomUUID().toString())
-					.build();
-		} catch (Exception e) {
-			log.error("generateJWK_RSA failed", e);
-		}
-		return null;
-	}
+        try {
+            Assertions.assertNotNull(keyBindingService.bindWallet(walletBindingRequest, new HashMap<>()));
+            Assertions.fail();
+        } catch (EsignetException e) {
+            Assertions.assertTrue(e.getErrorCode().equals(ErrorConstants.DUPLICATE_PUBLIC_KEY));
+        }
+    }
+
+    @Test
+    public void bindWallet_withAlreadyExistingWalletBindingId_thenPass()
+            throws IOException, EsignetException, KeyBindingException {
+        WalletBindingRequest walletBindingRequest = new WalletBindingRequest();
+        walletBindingRequest.setIndividualId("8267411571");
+        walletBindingRequest.setAuthFactorType("WLA");
+        walletBindingRequest.setFormat("jwt");
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setAuthFactorType("OTP");
+        authChallenge.setChallenge("111111");
+        authChallenge.setFormat("alpha-numeric");
+        List<AuthChallenge> authChallengeList = new ArrayList();
+        authChallengeList.add(authChallenge);
+        walletBindingRequest.setChallengeList(authChallengeList);
+        walletBindingRequest.setPublicKey(
+                (Map<String, Object>) objectMapper.readValue(clientJWK.toJSONString(), HashMap.class));
+
+        KeyBindingResult keyBindingResult = new KeyBindingResult();
+        keyBindingResult.setCertificate("data");
+        keyBindingResult.setPartnerSpecificUserToken("psut");
+        when(mockKeyBindingWrapperService.doKeyBinding(Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any()))
+                .thenReturn(keyBindingResult);
+
+        PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
+        publicKeyRegistry.setExpiredtimes(LocalDateTime.now());
+        publicKeyRegistry.setIdHash("hCv0zz_jnOkGS17BN1dUOU7tqNri-8XpHokWVQQMfiI");
+        publicKeyRegistry.setPsuToken("psutoken123");
+        publicKeyRegistry.setWalletBindingId("tXOFGPKly4L_9VI8NYvYXJe5ZNrgOIUnfFdLkNKYdTE");
+        when(keyBindingHelperService.storeKeyBindingDetailsInRegistry(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),
+                Mockito.anyString(), Mockito.anyString())).thenReturn(publicKeyRegistry);
+
+        Assertions.assertNotNull(keyBindingService.bindWallet(walletBindingRequest, new HashMap<>()));
+    }
+
+    public static JWK generateJWK_RSA() {
+        // Generate the RSA key pair
+        try {
+            KeyPairGenerator gen = KeyPairGenerator.getInstance("RSA");
+            gen.initialize(2048);
+            KeyPair keyPair = gen.generateKeyPair();
+            // Convert public key to JWK format
+            return new RSAKey.Builder((RSAPublicKey) keyPair.getPublic())
+                    .privateKey((RSAPrivateKey) keyPair.getPrivate())
+                    .keyUse(KeyUse.SIGNATURE)
+                    .keyID(UUID.randomUUID().toString())
+                    .build();
+        } catch (Exception e) {
+            log.error("generateJWK_RSA failed", e);
+        }
+        return null;
+    }
 
 }

@@ -22,9 +22,8 @@ import javax.security.auth.x500.X500Principal;
 
 import io.mosip.esignet.core.constants.ErrorConstants;
 import org.bouncycastle.x509.X509V3CertificateGenerator;
-import org.junit.Assert;
-import org.junit.Test;
-
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -56,107 +55,107 @@ public class IdentityProviderUtilTest {
         try {
             IdentityProviderUtil.validateRedirectURI(Arrays.asList("https://api.dev.mosip.net/home/test1"),
                     "https://api.dev.mosip.net/home/test");
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {}
 
         try {
             IdentityProviderUtil.validateRedirectURI(Arrays.asList("https://api.dev.mosip.net/home/test1"),
                     "https://api.dev.mosip.net/home/TEST1");
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {}
 
         try {
             IdentityProviderUtil.validateRedirectURI(Arrays.asList("https://api.dev.mosip.net/home**"),
                     "https://api.dev.mosip.net/home/TEST1");
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {}
 
         try {
             IdentityProviderUtil.validateRedirectURI(Arrays.asList("https://api.dev.mosip.net/*"),
                     "https://api.dev.mosip.net/home/TEST1");
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {}
 
         try {
             IdentityProviderUtil.validateRedirectURI(Arrays.asList("https://api.dev.mosip.net/home/t*"),
                     "https://api.dev.mosip.net/home/TEST1");
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {}
         
         try {
             IdentityProviderUtil.validateRedirectURI(Arrays.asList("test-url"),
                     "https://api.dev.mosip.net/home/TEST1");
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {}
         try {
         IdentityProviderUtil.validateRedirectURI(Arrays.asList("HTTPS://DEV.MOSIP.NET/home"),
                 "https://dev.mosip.net/home");
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {}
     }
     
     @Test
     public void test_dateTime() {
-    	Assert.assertNotNull(IdentityProviderUtil.getUTCDateTime());
-    	Assert.assertNotNull(IdentityProviderUtil.getUTCDateTimeWithNanoSeconds());
-    	Assert.assertTrue(IdentityProviderUtil.getEpochSeconds() > 0);
+    	Assertions.assertNotNull(IdentityProviderUtil.getUTCDateTime());
+    	Assertions.assertNotNull(IdentityProviderUtil.getUTCDateTimeWithNanoSeconds());
+    	Assertions.assertTrue(IdentityProviderUtil.getEpochSeconds() > 0);
     }
     
     @Test
     public void test_splitAndTrimValue() {
-    	Assert.assertTrue(IdentityProviderUtil.splitAndTrimValue("test split", " ").length == 2);
-    	Assert.assertTrue(IdentityProviderUtil.splitAndTrimValue(null, " ").length == 0);
+    	Assertions.assertTrue(IdentityProviderUtil.splitAndTrimValue("test split", " ").length == 2);
+    	Assertions.assertTrue(IdentityProviderUtil.splitAndTrimValue(null, " ").length == 0);
     }
     
     @Test
     public void test_generateHexEncodedHash() {
-    	Assert.assertNotNull(IdentityProviderUtil.generateHexEncodedHash("sha-256", "test-hexencoded-hash"));
+    	Assertions.assertNotNull(IdentityProviderUtil.generateHexEncodedHash("sha-256", "test-hexencoded-hash"));
     	try {
     		IdentityProviderUtil.generateHexEncodedHash("test-algorithm", "test");
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {}
     }
     
     @Test
     public void test_generateB64EncodedHash() {
-    	Assert.assertNotNull(IdentityProviderUtil.generateB64EncodedHash("sha-256", "test-b64-hash"));
+    	Assertions.assertNotNull(IdentityProviderUtil.generateB64EncodedHash("sha-256", "test-b64-hash"));
     	try {
     		IdentityProviderUtil.generateB64EncodedHash("test-algorithm", "test");
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {}
     }
     
     @Test
     public void test_encodeDecode() {
-    	Assert.assertNotNull(IdentityProviderUtil.b64Encode("test-encode-string"));
-    	Assert.assertNotNull(IdentityProviderUtil.b64Encode("test-bytes".getBytes()));
-    	Assert.assertNotNull(IdentityProviderUtil.b64Decode("test-decode-string"));
+    	Assertions.assertNotNull(IdentityProviderUtil.b64Encode("test-encode-string"));
+    	Assertions.assertNotNull(IdentityProviderUtil.b64Encode("test-bytes".getBytes()));
+    	Assertions.assertNotNull(IdentityProviderUtil.b64Decode("test-decode-string"));
     }
     
     @Test
     public void test_generateOIDCAtHash() {
-    	Assert.assertNotNull(IdentityProviderUtil.generateOIDCAtHash("test-access-token"));
+    	Assertions.assertNotNull(IdentityProviderUtil.generateOIDCAtHash("test-access-token"));
     }
     
     @Test
     public void test_createTransactionId() {
-    	Assert.assertNotNull(IdentityProviderUtil.createTransactionId(null));
-    	Assert.assertNotNull(IdentityProviderUtil.createTransactionId(IdentityProviderUtil.getUTCDateTimeWithNanoSeconds()));
+    	Assertions.assertNotNull(IdentityProviderUtil.createTransactionId(null));
+    	Assertions.assertNotNull(IdentityProviderUtil.createTransactionId(IdentityProviderUtil.getUTCDateTimeWithNanoSeconds()));
     }
     
     @Test
     public void test_generateSalt() {
-    	Assert.assertNotNull(IdentityProviderUtil.generateSalt(2048));
+    	Assertions.assertNotNull(IdentityProviderUtil.generateSalt(2048));
     }
     
     @Test
     public void getJWKString_withValidAndMissingKty_thenFail() {
-        Assert.assertNotNull(IdentityProviderUtil.getJWKString((Map<String, Object>) generateJWK_RSA().getRequiredParams()));
+        Assertions.assertNotNull(IdentityProviderUtil.getJWKString((Map<String, Object>) generateJWK_RSA().getRequiredParams()));
         try {
             IdentityProviderUtil.getJWKString(new HashMap<String, Object>()); // missing kty
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {
-            Assert.assertEquals(ErrorConstants.INVALID_PUBLIC_KEY, e.getMessage());
+            Assertions.assertEquals(ErrorConstants.INVALID_PUBLIC_KEY, e.getMessage());
         }
     }
 
@@ -167,9 +166,9 @@ public class IdentityProviderUtilTest {
 
         try {
             IdentityProviderUtil.getJWKString(jwkMap);
-            Assert.fail("Expected EsignetException was not thrown");
+            Assertions.fail("Expected EsignetException was not thrown");
         } catch (EsignetException e) {
-            Assert.assertEquals(ErrorConstants.INVALID_PUBLIC_KEY, e.getMessage());
+            Assertions.assertEquals(ErrorConstants.INVALID_PUBLIC_KEY, e.getMessage());
         }
     }
 
@@ -181,7 +180,7 @@ public class IdentityProviderUtilTest {
         jwkMap.put("e", "AQAB");
 
         String jwkJson = IdentityProviderUtil.getJWKString(jwkMap);
-        Assert.assertTrue(jwkJson.contains("\"kty\":\"RSA\""));
+        Assertions.assertTrue(jwkJson.contains("\"kty\":\"RSA\""));
     }
 
     @Test
@@ -193,46 +192,48 @@ public class IdentityProviderUtilTest {
         jwkMap.put("y", "x_FEzRu9l1tlZRjGZkIvYyC6i76h3C1j6w9kq3fJSNc");
 
         String jwkJson = IdentityProviderUtil.getJWKString(jwkMap);
-        Assert.assertTrue(jwkJson.contains("\"kty\":\"EC\""));
+        Assertions.assertTrue(jwkJson.contains("\"kty\":\"EC\""));
     }
     
     @Test
     public void test_getCertificateThumbprint() throws Exception {
-    	Assert.assertNotNull(IdentityProviderUtil.getCertificateThumbprint("SHA-256", getCertificate()));
+    	Assertions.assertNotNull(IdentityProviderUtil.getCertificateThumbprint("SHA-256", getCertificate()));
     	try {
     		IdentityProviderUtil.getCertificateThumbprint("test", getCertificate());
-    		Assert.fail();
+    		Assertions.fail();
         } catch (EsignetException e) {
-            Assert.assertEquals(e.getMessage(),ErrorConstants.INVALID_ALGORITHM);
+            Assertions.assertEquals(e.getMessage(),ErrorConstants.INVALID_ALGORITHM);
         }
     }
 
     @Test
     public void test_generateThumbprintByCertificate()throws EsignetException{
         String thumbprint="YfRxd-cG6urE1r_Ij7yRwMzt0JHoIadZ-lqkdlE0FYo";
-        String certificateString="-----BEGIN CERTIFICATE-----\n" +
-                "MIICrzCCAZegAwIBAgIGAYohPDZlMA0GCSqGSIb3DQEBCwUAMBMxETAPBgNVBAMT\n" +
-                "CE1vY2stSURBMB4XDTIzMDgyMzAxNDE0OFoXDTIzMDkwMjAxNDE0OFowHjEcMBoG\n" +
-                "A1UEAxMTU2lkZGhhcnRoIEsgTWFuc291cjCCASIwDQYJKoZIhvcNAQEBBQADggEP\n" +
-                "ADCCAQoCggEBANcfMOxGBmCZ0sn/Fr1ZvGE1nl0zOxTdhSPkLxgHpq09minv6HsJ\n" +
-                "Om9Y5FBbPQavSYdliFO/61VlOMnKYpCKXx+Rf/+QCBgx4/Wc57bu3xmNtxl76ARh\n" +
-                "HnRGWEz0UH/JX2mX1XgnHSBMgS8F+ckQuvoA7vN/LTIxXl89OkUyHa7HIylvQpsS\n" +
-                "8bv7qXohaHf6IjbQGbjdSpKlLhNgOtgPWHxQu6nzBqtTR/Ks1S1zutfv8p5gip4F\n" +
-                "vLGQ68Il+Nco6vcvKmYIqBZQyMwMBGxYzwmDFeLMBjMi5LR3Qikj/BaH2aVPX8Zg\n" +
-                "D2TqeUvYzobV8Xc+qV6XnGkQdRNKDBKYGmcCAwEAATANBgkqhkiG9w0BAQsFAAOC\n" +
-                "AQEAo7Tjx59tq1hSv6XaGw2BUnBKPqyGpmHDb9y6VXQXkI2YAZghtDoebeppCnrU\n" +
-                "d5219dwEgM0FoUW3pumMN/rM5NGXljktMp5xhyYU1rbBwvj8mGg9YTv7oUk1IQ0K\n" +
-                "keecYS5ZFmbz0N5CgbitJginXn4HKTPd9CEXYEBtkO7C7Onl0LbnH0g2grVuNGqH\n" +
-                "pD5P6TbGJzwrlnxstOCyCVMmRfVIpQFTygMpNjDQTlsXwWt4ZEf/ZiB2W4zYcDMk\n" +
-                "cXGZv5rZBqX/uuptptN7HhYD45Ir4ZAyNFlZuPusQvxiSm674bCkV3lN6oH0Jw2/\n" +
-                "dHnX5TRuFoits1+jx3cNSBHmjA==\n" +
-                "-----END CERTIFICATE-----\n";
-        Assert.assertEquals(thumbprint,IdentityProviderUtil.generateCertificateThumbprint(certificateString));
+        String certificateString="""
+                -----BEGIN CERTIFICATE-----
+                MIICrzCCAZegAwIBAgIGAYohPDZlMA0GCSqGSIb3DQEBCwUAMBMxETAPBgNVBAMT
+                CE1vY2stSURBMB4XDTIzMDgyMzAxNDE0OFoXDTIzMDkwMjAxNDE0OFowHjEcMBoG
+                A1UEAxMTU2lkZGhhcnRoIEsgTWFuc291cjCCASIwDQYJKoZIhvcNAQEBBQADggEP
+                ADCCAQoCggEBANcfMOxGBmCZ0sn/Fr1ZvGE1nl0zOxTdhSPkLxgHpq09minv6HsJ
+                Om9Y5FBbPQavSYdliFO/61VlOMnKYpCKXx+Rf/+QCBgx4/Wc57bu3xmNtxl76ARh
+                HnRGWEz0UH/JX2mX1XgnHSBMgS8F+ckQuvoA7vN/LTIxXl89OkUyHa7HIylvQpsS
+                8bv7qXohaHf6IjbQGbjdSpKlLhNgOtgPWHxQu6nzBqtTR/Ks1S1zutfv8p5gip4F
+                vLGQ68Il+Nco6vcvKmYIqBZQyMwMBGxYzwmDFeLMBjMi5LR3Qikj/BaH2aVPX8Zg
+                D2TqeUvYzobV8Xc+qV6XnGkQdRNKDBKYGmcCAwEAATANBgkqhkiG9w0BAQsFAAOC
+                AQEAo7Tjx59tq1hSv6XaGw2BUnBKPqyGpmHDb9y6VXQXkI2YAZghtDoebeppCnrU
+                d5219dwEgM0FoUW3pumMN/rM5NGXljktMp5xhyYU1rbBwvj8mGg9YTv7oUk1IQ0K
+                keecYS5ZFmbz0N5CgbitJginXn4HKTPd9CEXYEBtkO7C7Onl0LbnH0g2grVuNGqH
+                pD5P6TbGJzwrlnxstOCyCVMmRfVIpQFTygMpNjDQTlsXwWt4ZEf/ZiB2W4zYcDMk
+                cXGZv5rZBqX/uuptptN7HhYD45Ir4ZAyNFlZuPusQvxiSm674bCkV3lN6oH0Jw2/
+                dHnX5TRuFoits1+jx3cNSBHmjA==
+                -----END CERTIFICATE-----
+                """;
+        Assertions.assertEquals(thumbprint,IdentityProviderUtil.generateCertificateThumbprint(certificateString));
         try {
             IdentityProviderUtil.generateCertificateThumbprint("test");
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {
-            Assert.assertEquals(e.getMessage(),ErrorConstants.INVALID_CERTIFICATE);
+            Assertions.assertEquals(e.getMessage(),ErrorConstants.INVALID_CERTIFICATE);
         }
     }
     

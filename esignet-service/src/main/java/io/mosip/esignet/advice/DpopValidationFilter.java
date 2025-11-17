@@ -6,7 +6,6 @@
 package io.mosip.esignet.advice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSVerifier;
@@ -35,9 +34,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.servlet.FilterChain;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
@@ -95,18 +94,11 @@ public class DpopValidationFilter extends OncePerRequestFilter {
         String uri = request.getRequestURI();
         String lastSegment = uri.substring(uri.lastIndexOf("/")+1);
 
-        OAUTH_ENDPOINT endpoint;
-        switch (lastSegment) {
-            case "par":
-                endpoint = OAUTH_ENDPOINT.PAR;
-                break;
-            case "token":
-                endpoint = OAUTH_ENDPOINT.TOKEN;
-                break;
-            default:
-                endpoint = OAUTH_ENDPOINT.USERINFO;
-                break;
-        }
+        OAUTH_ENDPOINT endpoint = switch (lastSegment) {
+            case "par" -> OAUTH_ENDPOINT.PAR;
+            case "token" -> OAUTH_ENDPOINT.TOKEN;
+            default -> OAUTH_ENDPOINT.USERINFO;
+        };
 
         try {
             if (OAUTH_ENDPOINT.USERINFO.equals(endpoint) && Collections.list(request.getHeaders(AUTH_HEADER)).size() > 1) {
@@ -145,7 +137,7 @@ public class DpopValidationFilter extends OncePerRequestFilter {
         List<String> dpopHeaders = Collections.list(request.getHeaders(Constants.DPOP));
         if(dpopHeaders.isEmpty()) return Optional.empty();
         if(dpopHeaders.size() > 1) throw new InvalidDpopHeaderException();
-        return Optional.of(dpopHeaders.get(0));
+        return Optional.of(dpopHeaders.getFirst());
     }
 
     private void validateDpopFlow(HttpServletRequest request, String dpopHeader, OAUTH_ENDPOINT endpoint) {
@@ -163,8 +155,8 @@ public class DpopValidationFilter extends OncePerRequestFilter {
     private boolean isDpopBoundAccessToken(String accessToken) {
         try {
             SignedJWT jwt = SignedJWT.parse(accessToken);
-            JSONObject cnf = (JSONObject) jwt.getJWTClaimsSet().getClaim(CNF);
-            return cnf != null && cnf.get(JKT) != null;
+            Object cnf = jwt.getJWTClaimsSet().getClaim(CNF);
+            return cnf != null;
         } catch (ParseException e) {
             log.error("Failed to parse accessToken: {}", accessToken);
             throw new NotAuthenticatedException();
@@ -175,8 +167,8 @@ public class DpopValidationFilter extends OncePerRequestFilter {
         try {
             String thumbprint = jwk.computeThumbprint().toString();
             SignedJWT jwt = SignedJWT.parse(accessToken);
-            JSONObject cnf = (JSONObject) jwt.getJWTClaimsSet().getClaim(CNF);
-            String jkt = cnf.getAsString(JKT);
+            Map<String, Object> cnf = (Map<String, Object>) jwt.getJWTClaimsSet().getClaim(CNF);
+            String jkt = (String) cnf.get(JKT);
             if(!thumbprint.equals(jkt)) throw new InvalidDpopHeaderException();
         } catch (Exception e) {
             log.error("cnf claim validation failed");
@@ -185,15 +177,14 @@ public class DpopValidationFilter extends OncePerRequestFilter {
     }
 
     private void setAuthErrorResponse(HttpServletResponse response, String error, String description, boolean isUserinfo) throws IOException {
-        String headerValue = String.format(
-                "DPoP error=\"%s\", error_description=\"%s\", algs=\"ES256 PS256\"",
+        String headerValue = "DPoP error=\"%s\", error_description=\"%s\", algs=\"ES256 PS256\"".formatted(
                 error, description
         );
         response.setHeader("WWW-Authenticate", headerValue);
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         if(!isUserinfo) {
             response.setContentType("application/json;charset=UTF-8");
-            response.getWriter().write(String.format("{\"error\":\"%s\",\"error_description\":\"%s\"}", error, description));
+            response.getWriter().write("{\"error\":\"%s\",\"error_description\":\"%s\"}".formatted(error, description));
         }
     }
 
@@ -264,25 +255,18 @@ public class DpopValidationFilter extends OncePerRequestFilter {
 
     private void verifyClaimValues(JWTClaimsSet claims, HttpServletRequest request, OAUTH_ENDPOINT endpoint) {
         try {
-            String reqUri;
-            switch (endpoint) {
-                case PAR:
-                    reqUri = discoveryMap.get(PAR_ENDPOINT).toString();
-                    break;
-                case TOKEN:
-                    reqUri = discoveryMap.get(TOKEN_ENDPOINT).toString();
-                    break;
-                default:
-                    reqUri = discoveryMap.get(USERINFO_ENDPOINT).toString();
-                    break;
-            }
+            String reqUri = switch (endpoint) {
+                case PAR -> discoveryMap.get(PAR_ENDPOINT).toString();
+                case TOKEN -> discoveryMap.get(TOKEN_ENDPOINT).toString();
+                default -> discoveryMap.get(USERINFO_ENDPOINT).toString();
+            };
 
             DefaultJWTClaimsVerifier claimsSetVerifier = new DefaultJWTClaimsVerifier(new JWTClaimsSet.Builder()
                     .claim("htm", request.getMethod())
                     .claim("htu", reqUri)
                     .build(), REQUIRED_CLAIMS);
             claimsSetVerifier.setMaxClockSkew(maxClockSkewSeconds);
-            claimsSetVerifier.verify(claims);
+            claimsSetVerifier.verify(claims, null);
         } catch (BadJWTException e) {
             log.error("Invalid request URI: {}", e.getMessage());
             throw new InvalidDpopHeaderException();

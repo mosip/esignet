@@ -46,7 +46,7 @@ import com.nimbusds.jose.util.ByteUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
-import javax.xml.bind.DatatypeConverter;
+import jakarta.xml.bind.DatatypeConverter;
 
 import static org.apache.commons.validator.routines.UrlValidator.ALLOW_ALL_SCHEMES;
 import static org.apache.commons.validator.routines.UrlValidator.ALLOW_LOCAL_URLS;
@@ -263,8 +263,7 @@ public class IdentityProviderUtil {
     public static String generateCertificateThumbprint(String cerifacate)
     {
         Object certObj = convertToCertificate(cerifacate);
-        if (certObj instanceof X509Certificate) {
-            X509Certificate certificate = (X509Certificate) certObj;
+        if (certObj instanceof X509Certificate certificate) {
             return X509Util.x5tS256(certificate);
         }
         throw new EsignetException(ErrorConstants.INVALID_CERTIFICATE);

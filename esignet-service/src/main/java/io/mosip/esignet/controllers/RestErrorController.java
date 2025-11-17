@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.ServletWebRequest;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 @RestController
@@ -31,8 +31,4 @@ public class RestErrorController implements ErrorController {
         return new ResponseEntity<>(attrs, HttpStatus.valueOf(status));
     }
 
-    @Override
-    public String getErrorPath() {
-        return null;
-    }
 }

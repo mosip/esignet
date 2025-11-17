@@ -3,8 +3,8 @@ package io.mosip.esignet.api.validator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.StringUtils;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 public class PurposeValidator implements ConstraintValidator<Purpose, String> {
 

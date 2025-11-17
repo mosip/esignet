@@ -1,7 +1,7 @@
 package io.mosip.esignet.core.config;
 
-import brave.Span;
-import brave.Tracer;
+import io.micrometer.tracing.Span;
+import io.micrometer.tracing.Tracer;
 import org.apache.catalina.Valve;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
@@ -10,7 +10,7 @@ import org.apache.tomcat.util.buf.MessageBytes;
 import org.apache.tomcat.util.http.MimeHeaders;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 import java.io.IOException;
 
 @Component
@@ -20,31 +20,28 @@ public class SleuthValve extends ValveBase {
 
     public SleuthValve(Tracer tracer) {
         this.tracer = tracer;
+        setAsyncSupported(true);
     }
 
     @Override
     public void invoke(Request request, Response response) throws IOException, ServletException {
-        enrichWithSleuthHeaderWhenMissing(tracer, request);
+        enrichWithSleuthHeaderWhenMissing(request);
 
         Valve next = getNext();
-        if (null == next) {
-            // no next valve
-            return;
+        if (next != null) {
+            next.invoke(request, response);
         }
-        next.invoke(request, response);
     }
 
-    private static void enrichWithSleuthHeaderWhenMissing(final Tracer tracer, final Request request) {
-        String header = request.getHeader("X-B3-TraceId");
+    private void enrichWithSleuthHeaderWhenMissing(final Request request) {
+        if (request.getHeader("b3") == null && request.getHeader("X-B3-TraceId") == null) {
+            Span span = tracer.nextSpan().name("tomcat-incoming").start();
 
-        if (null == header) {
-            org.apache.coyote.Request coyoteRequest = request.getCoyoteRequest();
-            MimeHeaders mimeHeaders = coyoteRequest.getMimeHeaders();
+            MimeHeaders headers = request.getCoyoteRequest().getMimeHeaders();
+            addHeader(headers, "X-B3-TraceId", span.context().traceId());
+            addHeader(headers, "X-B3-SpanId",  span.context().spanId());
 
-            Span span = tracer.newTrace();
-
-            addHeader(mimeHeaders, "X-B3-TraceId", span.context().traceIdString());
-            addHeader(mimeHeaders, "X-B3-SpanId", span.context().traceIdString());
+            span.end();
         }
     }
 

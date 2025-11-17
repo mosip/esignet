@@ -17,13 +17,13 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.util.MultiValueMap;
-import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -36,11 +36,11 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import java.io.IOException;
 import java.util.*;
 
@@ -62,13 +62,13 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
 
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers,
-                                                                  HttpStatus status, WebRequest request) {
+                                                                  HttpStatusCode status, WebRequest request) {
         return handleExceptions(ex, request);
     }
 
     @Override
     protected ResponseEntity<Object> handleHttpMediaTypeNotAcceptable(
-            HttpMediaTypeNotAcceptableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+            HttpMediaTypeNotAcceptableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         return handleExceptions(ex, request);
     }
 
@@ -76,7 +76,7 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
     protected ResponseEntity<Object> handleMissingServletRequestParameter(
             MissingServletRequestParameterException ex,
             HttpHeaders headers,
-            HttpStatus status,
+            HttpStatusCode status,
             WebRequest request) {
         return handleExceptions(ex, request);
     }
@@ -85,20 +85,14 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex,
             HttpHeaders headers,
-            HttpStatus status,
+            HttpStatusCode status,
             WebRequest request) {
         return handleExceptions(ex, request);
     }
 
     @Override
     protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers,
-                                                        HttpStatus status, WebRequest request) {
-        return handleExceptions(ex, request);
-    }
-
-    @Override
-    protected ResponseEntity<Object> handleBindException(BindException ex, HttpHeaders headers,
-                                                         HttpStatus status, WebRequest request) {
+                                                        HttpStatusCode status, WebRequest request) {
         return handleExceptions(ex, request);
     }
 
@@ -123,16 +117,16 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
 
 
     private ResponseEntity<ResponseWrapper> handleInternalControllerException(Exception ex) {
-        if(ex instanceof MethodArgumentNotValidException) {
+        if(ex instanceof MethodArgumentNotValidException exception) {
             List<Error> errors = new ArrayList<>();
-            for (FieldError error : ((MethodArgumentNotValidException) ex).getBindingResult().getFieldErrors()) {
+            for (FieldError error : exception.getBindingResult().getFieldErrors()) {
                 errors.add(new Error(error.getDefaultMessage(), error.getField() + ": " + error.getDefaultMessage()));
             }
             return new ResponseEntity<ResponseWrapper>(getResponseWrapper(errors), HttpStatus.OK);
         }
-        if(ex instanceof ConstraintViolationException) {
+        if(ex instanceof ConstraintViolationException exception) {
             List<Error> errors = new ArrayList<>();
-            Set<ConstraintViolation<?>> violations = ((ConstraintViolationException) ex).getConstraintViolations();
+            Set<ConstraintViolation<?>> violations = exception.getConstraintViolations();
             for(ConstraintViolation<?> cv : violations) {
                 errors.add(new Error(INVALID_REQUEST,cv.getPropertyPath().toString() + ": " + cv.getMessage()));
             }
@@ -149,8 +143,8 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
         if(ex instanceof InvalidClientException) {
             return new ResponseEntity<ResponseWrapper>(getResponseWrapper(INVALID_CLIENT_ID, getMessage(INVALID_CLIENT_ID)), HttpStatus.OK);
         }
-        if(ex instanceof EsignetException) {
-            String errorCode = ((EsignetException) ex).getErrorCode();
+        if(ex instanceof EsignetException exception) {
+            String errorCode = exception.getErrorCode();
             return new ResponseEntity<ResponseWrapper>(getResponseWrapper(errorCode, getMessage(errorCode)), HttpStatus.OK);
         }
         if(ex instanceof AuthenticationCredentialsNotFoundException) {
@@ -168,25 +162,24 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
         HttpHeaders headers = new HttpHeaders();
         headers.add("Cache-Control", "no-store");
         headers.add("Pragma","no-cache");
-        if (ex instanceof BindException) {
-            String errorCode = ((BindException) ex).getAllErrors().get(0).getDefaultMessage();
+        if (ex instanceof MethodArgumentNotValidException exception) {
+            String errorCode = exception.getAllErrors().getFirst().getDefaultMessage();
             String responseErrorCode = INVALID_REQUEST;
             if (OAUTH_ERROR_CODES.contains(errorCode)) responseErrorCode = errorCode;
             return new ResponseEntity<OAuthError>(getErrorRespDto(responseErrorCode, getMessage(errorCode)), headers, HttpStatus.BAD_REQUEST);
         }
-        if (ex instanceof MaxUploadSizeExceededException) {
-            long maxUploadSize = ((MaxUploadSizeExceededException) ex).getMaxUploadSize();
+        if (ex instanceof MaxUploadSizeExceededException exception) {
+            long maxUploadSize = exception.getMaxUploadSize();
             String message = "Maximum upload size exceeded. Limit is " + maxUploadSize + " bytes.";
             return new ResponseEntity<OAuthError>(getErrorRespDto(PAYLOAD_TOO_LARGE, message), headers,HttpStatus.PAYLOAD_TOO_LARGE);
         }
-        if (ex instanceof DpopNonceMissingException) {
-            DpopNonceMissingException dpopEx = (DpopNonceMissingException) ex;
+        if (ex instanceof DpopNonceMissingException dpopEx) {
             headers.add("DPoP-Nonce", dpopEx.getDpopNonceHeaderValue());
             headers.add("Access-Control-Expose-Headers", "DPoP-Nonce, WWW-Authenticate");
             return new ResponseEntity<OAuthError>(getErrorRespDto(dpopEx.getErrorCode(), dpopEx.getMessage()), headers, HttpStatus.BAD_REQUEST);
         }
-        if(ex instanceof EsignetException) {
-            String errorCode = ((EsignetException) ex).getErrorCode();
+        if(ex instanceof EsignetException exception) {
+            String errorCode = exception.getErrorCode();
             String responseErrorCode = INVALID_REQUEST;
             if (OAUTH_ERROR_CODES.contains(errorCode)) responseErrorCode = errorCode;
             return new ResponseEntity<OAuthError>(getErrorRespDto(responseErrorCode, getMessage(errorCode)), headers,HttpStatus.BAD_REQUEST);
@@ -197,8 +190,7 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
 
     private ResponseEntity handleExceptionWithHeader(Exception ex) {
         MultiValueMap<String, String> headers = new HttpHeaders();
-        if (ex instanceof DpopNonceMissingException) {
-            DpopNonceMissingException dpopEx = (DpopNonceMissingException) ex;
+        if (ex instanceof DpopNonceMissingException dpopEx) {
             headers.add("Access-Control-Expose-Headers", "DPoP-Nonce, WWW-Authenticate");
             headers.add("WWW-Authenticate", "DPoP error=\""+ USE_DPOP_NONCE +"\"");
             headers.add("DPoP-Nonce", dpopEx.getDpopNonceHeaderValue());

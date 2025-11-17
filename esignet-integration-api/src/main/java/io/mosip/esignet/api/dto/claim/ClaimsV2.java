@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Map;
 
@@ -16,6 +17,7 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ClaimsV2 implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     //We cannot use DTO, "data minimization" is one of the important requirement of https://openid.net/specs/openid-connect-4-identity-assurance-1_0.html
