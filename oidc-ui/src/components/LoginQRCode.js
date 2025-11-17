@@ -100,7 +100,7 @@ export default function LoginQRCode({
       response.expireDateTime
     );
 
-    const normalizedLogoUrl = getImageUrl(logoUrl);
+    const normalizedLogoUrl = logoUrl ? getImageUrl(logoUrl) : null;
 
     setQrRedirectUrl(text);
 

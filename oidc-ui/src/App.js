@@ -40,7 +40,11 @@ function App() {
   //Loading rtlLangs and initializing CSS variables
   useEffect(() => {
     // Initialize CSS variables early for proper image paths
-    initializeCSSVariables();
+    try {
+      initializeCSSVariables();
+    } catch (error) {
+      console.error('Failed to initialize CSS variables:', error);
+    }
 
     const loadLanguages = async () => {
       try {
