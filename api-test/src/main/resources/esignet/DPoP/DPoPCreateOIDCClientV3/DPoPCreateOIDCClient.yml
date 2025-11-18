@@ -1,7 +1,7 @@
 DPoPCreateOIDCClientV3:
   ESignet_DPoPCreateOIDCClientV3_all_Valid_Smoke_sid:
     endPoint: /v1/esignet/client-mgmt/client
-    uniqueIdentifier: TC_ESignet_PARCreateOIDCClientV3_01
+    uniqueIdentifier: TC_ESignet_DPoPCreateOIDCClientV3_01
     description: Create of OIDC Client V3 with all valid data
     role: partner
     restMethod: post

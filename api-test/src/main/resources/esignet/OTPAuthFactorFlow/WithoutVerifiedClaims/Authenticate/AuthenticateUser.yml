@@ -19,7 +19,7 @@ AuthenticateUserV3WithoutVerifiedClaims:
     "requestTime": "$TIMESTAMP$",
     "transactionId": "$ID:OAuthDetailsRequest_Without_VerifiedClaims_V3_AuthToken_Xsrf_Smoke_sid_transactionId$",
     "individualId": "$ID:AddIdentity_For_OTPFlow_WithoutVerifiedClaims_smoke_Pos_UIN$",
-    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "otpChannels": [{"channel": "email"},{"channel": "phone"}],
     "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
     "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
     }

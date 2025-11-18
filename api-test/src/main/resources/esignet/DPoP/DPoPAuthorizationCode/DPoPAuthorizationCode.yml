@@ -8,7 +8,7 @@ DPoPAuthorizationCode:
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       inputTemplate: esignet/DPoP/DPoPAuthorizationCode/DPoPAuthorizationCode
-      outputTemplate: esignetDPoP/DPoPAuthorizationCode/DPoPAuthorizationCodeResult
+      outputTemplate: esignet/DPoP/DPoPAuthorizationCode/DPoPAuthorizationCodeResult
       input: '{
         "encodedHash": "$ID:OAuthDetailsRequest_DPoP_AuthToken_Xsrf_all_Valid_Smoke_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",

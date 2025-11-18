@@ -860,7 +860,7 @@ AddIdentity:
    ESignet_AddIdentity_For_OTPFlow_VerifiedClaims_smoke_Pos:
       endPoint: /v1/mock-identity-system/identity
       uniqueIdentifier: Dependent_Idrepo_AddIdentity_45
-      description: Add identity with all valid parameters for PAR Smoke test cases
+      description:  Add identity with all valid parameters for OTP Flow With Verified Claims
       role: idrepo
       restMethod: post
       inputTemplate: esignet/AddIdentityMock/AddIdentity
@@ -879,7 +879,7 @@ AddIdentity:
    ESignet_AddIdentity_For_OTPFlow_WithoutVerifiedClaims_smoke_Pos:
       endPoint: /v1/mock-identity-system/identity
       uniqueIdentifier: Dependent_Idrepo_AddIdentity_46
-      description: Add identity with all valid parameters for DPOP Smoke test cases
+      description:  Add identity with all valid parameters for OTP Flow Without Verified Claims
       role: idrepo
       restMethod: post
       inputTemplate: esignet/AddIdentityMock/AddIdentity

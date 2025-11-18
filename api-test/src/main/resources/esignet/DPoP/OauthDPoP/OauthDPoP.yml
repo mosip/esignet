@@ -7,7 +7,7 @@ OauthDPoP:
       restMethod: post
       checkErrorsOnlyInResponse: true
       inputTemplate: esignet/DPoP/OauthDPoP/OauthDPoP
-      outputTemplate: esignet/PAR/OauthDPoP/OauthDPoPResult
+      outputTemplate: esignet/DPoP/OauthDPoP/OauthDPoPResult
       input: '{
        "requestTime": "$TIMESTAMP$",
        "client_id": "$ID:DPoPCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$", 

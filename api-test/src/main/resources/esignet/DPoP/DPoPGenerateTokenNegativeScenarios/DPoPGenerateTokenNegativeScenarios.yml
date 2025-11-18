@@ -24,7 +24,7 @@ DPoPGenerateTokenInvalidScenarios:
    ESignet_GenerateToken_DPoP_AuthToken_Xsrf_Invalid_dpopvalue_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
       uniqueIdentifier: TC_ESignet_DPoPGenerateTokenInvalidScenarios_02
-      description: Generate token with invalid dpop key
+      description: Generate token with invalid dpop value
       role: resident
       restMethod: post
       inputTemplate: esignet/DPoP/DPoPGenerateTokenNegativeScenarios/DPoPGenerateTokenNegativeScenarios
@@ -43,7 +43,7 @@ DPoPGenerateTokenInvalidScenarios:
       output: '{
        "error": "invalid_dpop_proof"
 }'
-   ESignet_GenerateToken_DPoP_AuthToken_Xsrf_Invalid_dpopvalue_Neg:
+   ESignet_GenerateToken_DPoP_AuthToken_Xsrf_Without_dpopvalue_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
       uniqueIdentifier: TC_ESignet_DPoPGenerateTokenInvalidScenarios_03
       description: Generate token without dpop value
@@ -63,12 +63,12 @@ DPoPGenerateTokenInvalidScenarios:
         "aud_key": "token_endpoint"
 }'
       output: '{
-       "error": "invalid_dpop_proof"
+       "error": "invalid_grant"
 }'
-   ESignet_GenerateToken_DPoP_AuthToken_Xsrf_Invalid_dpopvalue_Neg:
+   ESignet_GenerateToken_DPoP_AuthToken_Xsrf_Invalid_Clinet_Neg:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
       uniqueIdentifier: TC_ESignet_DPoPGenerateTokenInvalidScenarios_04
-      description: Generate token without dpop value
+      description: Generate token invalid client value
       role: resident
       restMethod: post
       inputTemplate: esignet/DPoP/DPoPGenerateTokenNegativeScenarios/DPoPGenerateTokenNegativeScenarios
