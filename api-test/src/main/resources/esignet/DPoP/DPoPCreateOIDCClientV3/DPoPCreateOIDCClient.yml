@@ -2,7 +2,7 @@ DPoPCreateOIDCClientV3:
   ESignet_DPoPCreateOIDCClientV3_all_Valid_Smoke_sid:
     endPoint: /v1/esignet/client-mgmt/client
     uniqueIdentifier: TC_ESignet_DPoPCreateOIDCClientV3_01
-    description: Create of OIDC Client V3 with all valid data
+    description: Create OIDC Client for DPOP flow
     role: partner
     restMethod: post
     inputTemplate: esignet/DPoP/DPoPCreateOIDCClientV3/DPoPCreateOIDCClient
