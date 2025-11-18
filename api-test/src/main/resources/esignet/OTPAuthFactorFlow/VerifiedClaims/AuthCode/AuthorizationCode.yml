@@ -13,7 +13,7 @@ AuthorizationCodeVerifiedClaims:
         "encodedHash": "$ID:OAuthDetailsRequest_VerifiedClaims_V3_AuthToken_Xsrf_Smoke_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_VerifiedClaims_V3_AuthToken_Xsrf_Smoke_sid_transactionId$",
-      	"acceptedClaims": [{claim: "phone_number"},{claim: "email"}]
+      	"acceptedClaims": [{"claim": "phone_number"},{"claim": "email"}]
 }'
       output: '{
 }'

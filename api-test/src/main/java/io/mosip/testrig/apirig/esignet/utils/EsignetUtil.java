@@ -228,15 +228,15 @@ public class EsignetUtil extends AdminTestUtil {
 
 			String endpoint = testCaseDTO.getEndPoint();
 			if (endpoint.contains("/v1/signup/") == true || endpoint.contains("/mock-identity-system/") == true
-					|| ((testCaseName.equals("ESignet_CreateOIDCClient_all_Valid_Smoke_sid")
-							|| testCaseName.equals("ESignet_CreateOIDCClient_Misp_Valid_Smoke_sid")
-							|| testCaseName.equals("ESignet_CreateOIDCClient_NonAuth_all_Valid_Smoke_sid")
-							|| testCaseName.equals("ESignet_CreateOIDCClientV3PAR_all_Valid_Smoke_sid"))
-							|| testCaseName.equals("ESignet_DPoPCreateOIDCClientV3_all_Valid_Smoke_sid"))
-					        || testCaseName.equals("ESignet_OIDCClientV3_VerifiedClaims_all_Valid_Smoke_sid")
-					        || testCaseName.equals("ESignet_OIDCClientV3_WithoutVerifiedClaims_all_Valid_Smoke_sid")
-							&& (endpoint.contains("/v1/esignet/client-mgmt/client")
-							|| endpoint.contains("/v1/esignet/client-mgmt/oauth-client"))) {
+					&& ((testCaseName.equals("ESignet_CreateOIDCClient_all_Valid_Smoke_sid")
+						    || testCaseName.equals("ESignet_CreateOIDCClient_Misp_Valid_Smoke_sid")
+						    || testCaseName.equals("ESignet_CreateOIDCClient_NonAuth_all_Valid_Smoke_sid")
+						    || testCaseName.equals("ESignet_CreateOIDCClientV3PAR_all_Valid_Smoke_sid")
+						    || testCaseName.equals("ESignet_DPoPCreateOIDCClientV3_all_Valid_Smoke_sid")
+						    || testCaseName.equals("ESignet_OIDCClientV3_VerifiedClaims_all_Valid_Smoke_sid")
+						    || testCaseName.equals("ESignet_OIDCClientV3_WithoutVerifiedClaims_all_Valid_Smoke_sid"))
+						    && (endpoint.contains("/v1/esignet/client-mgmt/client")
+						    || endpoint.contains("/v1/esignet/client-mgmt/oauth-client")))) {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 			}
 			
