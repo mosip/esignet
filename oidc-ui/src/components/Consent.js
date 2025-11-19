@@ -8,7 +8,7 @@ import { LoadingStates, LoadingStates as states } from '../constants/states';
 import FormAction from './FormAction';
 import langConfigService from './../services/langConfigService';
 import ModalPopup from '../common/ModalPopup';
-import { IMAGES } from '../constants/imageAssets';
+import IMAGES from '../constants/publicAssets';
 import configService from '../services/configService';
 import redirectOnError from '../helpers/redirectOnError';
 

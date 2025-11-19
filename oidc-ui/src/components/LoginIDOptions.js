@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import openIDConnectService from '../services/openIDConnectService';
 import { configurationKeys } from '../constants/clientConstants';
 import { decodeHash } from '../helpers/utils';
-import { getImageUrl } from '../constants/imageAssets';
+import { PUBLIC_URL } from '../constants/publicAssets';
 
 const LoginIDOptions = (props) => {
   const [selectedOption, setSelectedOption] = useState();
@@ -51,7 +51,7 @@ const LoginIDOptions = (props) => {
   const [iconsMap, setIconsMap] = useState({}); // To store preloaded SVGs
   const fetchSvg = async (path) => {
     try {
-      const response = await fetch(getImageUrl(`/images/${path}.svg`));
+      const response = await fetch(PUBLIC_URL + `/images/${path}.svg`);
       if (!response.ok) {
         throw new Error('Failed to fetch SVG');
       }

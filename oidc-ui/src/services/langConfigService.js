@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { CONFIG_URLS } from '../constants/imageAssets';
+import { CONFIG_URLS } from '../constants/publicAssets';
 
 /**
  * fetchs and return the locale configuration stored in public folder

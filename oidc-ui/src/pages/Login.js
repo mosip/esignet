@@ -13,7 +13,7 @@ import linkAuthService from '../services/linkAuthService';
 import LoginQRCode from '../components/LoginQRCode';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { Buffer } from 'buffer';
-import { IMAGES } from '../constants/imageAssets';
+import IMAGES from '../constants/publicAssets';
 import openIDConnectService from '../services/openIDConnectService';
 import DefaultError from '../components/DefaultError';
 import Password from '../components/Password';

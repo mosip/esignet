@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { IMAGES } from '../constants/imageAssets';
+import IMAGES from '../constants/publicAssets';
 
 export default function PageNotFoundPage({ i18nKeyPrefix = 'errors' }) {
   const { t } = useTranslation('translation', { keyPrefix: i18nKeyPrefix });

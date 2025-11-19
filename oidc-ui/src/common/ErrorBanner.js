@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { IMAGES } from '../constants/imageAssets';
+import IMAGES from '../constants/publicAssets';
 
 const ErrorBanner = ({
   showBanner,

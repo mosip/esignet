@@ -7,7 +7,7 @@ import openIDConnectService from '../services/openIDConnectService';
 import DefaultError from '../components/DefaultError';
 import { errorCodeObj } from '../constants/clientConstants';
 import { getOauthDetailsHash, decodeHash } from '../helpers/utils';
-import { IMAGES } from '../constants/imageAssets';
+import IMAGES from '../constants/publicAssets';
 
 export default function ConsentPage() {
   const [searchParams] = useSearchParams();

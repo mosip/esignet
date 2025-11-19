@@ -8,7 +8,7 @@ import redirectOnError from '../helpers/redirectOnError';
 import { configurationKeys } from '../constants/clientConstants';
 import LoadingIndicator from '../common/LoadingIndicator';
 import { decodeHash } from '../helpers/utils';
-import { IMAGES } from '../constants/imageAssets';
+import IMAGES from '../constants/publicAssets';
 
 const ClaimDetails = ({
   i18nKeyPrefix1 = 'consentDetails',

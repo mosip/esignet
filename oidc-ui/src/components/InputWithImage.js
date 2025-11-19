@@ -1,7 +1,7 @@
 import { useState, useRef, useLayoutEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import PopoverContainer from '../common/Popover';
-import { IMAGES } from '../constants/imageAssets';
+import IMAGES from '../constants/publicAssets';
 
 const fixedInputClass =
   'rounded-md bg-white shadow-lg appearance-none block w-full px-3.5 py-2.5 placeholder-[#A0A8AC] text-gray-900 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 sm:text-sm p-2.5 ltr:pr-10 rtl:pl-10 ';

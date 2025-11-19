@@ -12,7 +12,7 @@ import { LoadingStates as states } from '../constants/states';
 import ErrorBanner from '../common/ErrorBanner';
 import langConfigService from '../services/langConfigService';
 import redirectOnError from '../helpers/redirectOnError';
-import { getImageUrl } from '../constants/imageAssets';
+import { PUBLIC_URL } from '../constants/publicAssets';
 
 var linkAuthTriggered = false;
 
@@ -100,7 +100,7 @@ export default function LoginQRCode({
       response.expireDateTime
     );
 
-    const normalizedLogoUrl = logoUrl ? getImageUrl(logoUrl) : null;
+    const normalizedLogoUrl = logoUrl ? PUBLIC_URL + logoUrl : null;
 
     setQrRedirectUrl(text);
 
