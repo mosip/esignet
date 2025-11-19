@@ -1,7 +1,7 @@
 # APITESTRIG
 
 ## Introduction
-ApiTestRig will test the working of APIs of the MOSIP modules.
+ApiTestRig will test the working of APIs of the esignet modules.
 ## Install
 * Create a directory for apitestrig on the NFS server at `/srv/nfs/mosip/<sandbox>/apitestrig/`:
 ```
