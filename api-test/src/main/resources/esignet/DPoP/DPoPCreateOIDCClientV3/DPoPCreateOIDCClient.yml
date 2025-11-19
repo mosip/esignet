@@ -1,0 +1,39 @@
+DPoPCreateOIDCClientV3:
+  ESignet_DPoPCreateOIDCClientV3_all_Valid_Smoke_sid:
+    endPoint: /v1/esignet/client-mgmt/client
+    uniqueIdentifier: TC_ESignet_DPoPCreateOIDCClientV3_01
+    description: Create OIDC Client for DPOP flow
+    role: partner
+    restMethod: post
+    inputTemplate: esignet/DPoP/DPoPCreateOIDCClientV3/DPoPCreateOIDCClient
+    outputTemplate: esignet/DPoP/DPoPCreateOIDCClientV3/DPoPCreateOIDCClientResult
+    input: '{
+      "requestTime": "$TIMESTAMP$",
+      "clientId": "$RANDOMPARTNERID$",
+      "clientName": "MOSIP DPoP OIDC Client",
+      "logoUri": "https://health-services.com/logo.png",
+      "relyingPartyId": "mock-relying-party-id",
+      "redirectUris": "$IDPREDIRECTURI$",
+      "publicKey": "$OIDC_JWK_KEY_DPoP$",
+      "userClaims1": "name",
+      "userClaims2": "email",
+      "userClaims3": "gender",
+      "userClaims4": "phone_number",
+      "userClaims5": "birthdate",
+      "authContextRefs": [{"acrValues": "mosip:idp:acr:static-code"},{"acrValues": "mosip:idp:acr:generated-code"},{"acrValues": "mosip:idp:acr:biometrics"}],
+      "grantTypes": "authorization_code",
+      "clientAuthMethods": "private_key_jwt",
+      "keyLang1": "$1STLANG$",
+      "clientNameLang": "MOSIP DPoP OIDC Client",
+      "userinfo_response_type": "JWS",
+      "purpose_title": "title",
+      "purpose_type": "verify",
+      "purpose_subTitle": "subtitle",
+      "signup_banner_required": true,
+      "forgot_pwd_link_required": true,
+      "consent_expire_in_mins": 120,
+      "dpop_bound_access_tokens": true
+}'
+    output: '{
+      "status": "ACTIVE"
+}'

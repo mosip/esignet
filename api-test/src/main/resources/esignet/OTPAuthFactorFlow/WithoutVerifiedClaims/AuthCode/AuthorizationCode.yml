@@ -1,0 +1,19 @@
+AuthorizationCodeWithoutVerifiedClaims:
+   ESignet_AuthorizationCode_Without_Verified_Claims_Smoke_sid:
+      endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCodeWithoutVerifiedClaims_01
+      description: Authorization code request for end to end flow
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/OTPAuthFactorFlow/WithoutVerifiedClaims/AuthCode/AuthorizationCode
+      outputTemplate: esignet/OTPAuthFactorFlow/WithoutVerifiedClaims/AuthCode/AuthorizationCodeResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_Without_VerifiedClaims_V3_AuthToken_Xsrf_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_Without_VerifiedClaims_V3_AuthToken_Xsrf_Smoke_sid_transactionId$",
+      	"acceptedClaims": [{"claim": "phone_number"},{"claim": "email"}]
+}'
+      output: '{
+}'

@@ -14,7 +14,7 @@ SendOtp:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
 	    "individualId": "$ID:AddIdentity_Valid_Parameters_smoke_Pos_UIN$",
-	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+	    "otpChannels": [{"channel": "email"},{"channel": "phone"}]
 }'
       output: '{
 }'
@@ -34,7 +34,7 @@ SendOtp:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
 	    "individualId": "$ID:AddIdentity_Valid_Params_WOEmail_smoke_Pos_UIN$",
-	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+	    "otpChannels": [{"channel": "email"},{"channel": "phone"}]
 }'
       output: '{
 }'
@@ -54,7 +54,7 @@ SendOtp:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
 	    "individualId": "$ID:AddIdentity_Valid_Params_WOPhone_smoke_Pos_UIN$",
-	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+	    "otpChannels": [{"channel": "email"},{"channel": "phone"}]
 }'
       output: '{
 }'
@@ -74,7 +74,7 @@ SendOtp:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_SendOtp_Vid_Valid_Smoke_sid_transactionId$",
 	    "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
-	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+	    "otpChannels": [{"channel": "email"},{"channel": "phone"}]
 }'
       output: '{
 }'
@@ -93,7 +93,7 @@ SendOtp:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
 	    "individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
-	    "otpChannels": [{channel: "email"},{channel: "s m s"}]
+	    "otpChannels": [{"channel": "email"},{"channel": "s m s"}]
 }'
       output: '{
       	"errors": [
@@ -117,7 +117,7 @@ SendOtp:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
 	    "individualId": "$ID:Generate_Perpetual_VID_Valid_Smoke_sid_vid$",
-	    "otpChannels": [{channel: "email"},{channel: "s m s"}]
+	    "otpChannels": [{"channel": "email"},{"channel": "s m s"}]
 }'
       output: '{
       	"errors": [
@@ -141,7 +141,7 @@ SendOtp:
       	"requestTime": "2022-11-08T06:35:53",
       	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
 	    "individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
-	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+	    "otpChannels": [{"channel": "email"},{"channel": "phone"}]
 }'
       output: '{
       	"errors": [
@@ -165,7 +165,7 @@ SendOtp:
       	"requestTime": "2022-11-07T06:51:30.195Z",
       	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
 	    "individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
-	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+	    "otpChannels": [{"channel": "email"},{"channel": "phone"}]
 }'
       output: '{
       	"errors": [
@@ -189,7 +189,7 @@ SendOtp:
       	"requestTime": "2033-11-07T06:51:30.195Z",
       	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
 	    "individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
-	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+	    "otpChannels": [{"channel": "email"},{"channel": "phone"}]
 }'
       output: '{
       	"errors": [
@@ -213,7 +213,7 @@ SendOtp:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "transactionId",
 	    "individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
-	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+	    "otpChannels": [{"channel": "email"},{"channel": "phone"}]
 }'
       output: '{
       	"errors": [
@@ -237,7 +237,7 @@ SendOtp:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "4eKDB4GPk6fP8XXEDY7rktwtQF6WiwrOCehT2CwyVT0",
 	    "individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
-	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+	    "otpChannels": [{"channel": "email"},{"channel": "phone"}]
 }'
       output: '{
       	"errors": [
@@ -261,7 +261,7 @@ SendOtp:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$REMOVE$",
 	    "individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
-	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+	    "otpChannels": [{"channel": "email"},{"channel": "phone"}]
 }'
       output: '{
       	"errors": [
@@ -285,7 +285,7 @@ SendOtp:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "",
 	    "individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
-	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+	    "otpChannels": [{"channel": "email"},{"channel": "phone"}]
 }'
       output: '{
       	"errors": [
@@ -309,7 +309,7 @@ SendOtp:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "null",
 	    "individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
-	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+	    "otpChannels": [{"channel": "email"},{"channel": "phone"}]
 }'
       output: '{
       	"errors": [
@@ -334,7 +334,7 @@ SendOtp:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
 	    "individualId": "@@#$#VGH",
-	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+	    "otpChannels": [{"channel": "email"},{"channel": "phone"}]
 }'
       output: '{
         "errors": [
@@ -358,7 +358,7 @@ SendOtp:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
 	    "individualId": "$REMOVE$",
-	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+	    "otpChannels": [{"channel": "email"},{"channel": "phone"}]
 }'
       output: '{
         "errors": [
@@ -382,7 +382,7 @@ SendOtp:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
 	    "individualId": "",
-	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+	    "otpChannels": [{"channel": "email"},{"channel": "phone"}]
 }'
       output: '{
         "errors": [
@@ -407,7 +407,7 @@ SendOtp:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
 	    "individualId": "null",
-	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+	    "otpChannels": [{"channel": "email"},{"channel": "phone"}]
 }'
       output: '{
         "errors": [
@@ -431,7 +431,7 @@ SendOtp:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
 	    "individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
-	    "otpChannels": [{channel: "Random1"},{channel: "Random2"}]
+	    "otpChannels": [{"channel": "Random1"},{"channel": "Random2"}]
 }'
       output: '{
         "errors": [
@@ -455,7 +455,7 @@ SendOtp:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
 	    "individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
-	    "otpChannels": [{channel: "$REMOVE$"},{channel: "$REMOVE$"}]
+	    "otpChannels": [{"channel": "$REMOVE$"},{"channel": "$REMOVE$"}]
 }'
       output: '{
         "errors": [
@@ -479,7 +479,7 @@ SendOtp:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
 	    "individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
-	    "otpChannels": [{channel: ""},{channel: ""}]
+	    "otpChannels": [{"channel": ""},{"channel": ""}]
 }'
       output: '{
         "errors": [
@@ -503,7 +503,7 @@ SendOtp:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
 	    "individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
-	    "otpChannels": [{channel: "null"},{channel: "null"}]
+	    "otpChannels": [{"channel": "null"},{"channel": "null"}]
 }'
       output: '{
         "errors": [
@@ -599,7 +599,7 @@ SendOtp:
       	"requestTime": "2022-11-08T06:35:53",
       	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
 	    "individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
-	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+	    "otpChannels": [{"channel": "email"},{"channel": "phone"}]
 }'
       output: '{
       	"errors": [
@@ -623,7 +623,7 @@ SendOtp:
       	"requestTime": "2022-11-07T06:51:30.195Z",
       	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
 	    "individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
-	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+	    "otpChannels": [{"channel": "email"},{"channel": "phone"}]
 }'
       output: '{
       	"errors": [
@@ -647,7 +647,7 @@ SendOtp:
       	"requestTime": "2033-11-07T06:51:30.195Z",
       	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
 	    "individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
-	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+	    "otpChannels": [{"channel": "email"},{"channel": "phone"}]
 }'
       output: '{
       	"errors": [
@@ -671,7 +671,7 @@ SendOtp:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "transactionId",
 	    "individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
-	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+	    "otpChannels": [{"channel": "email"},{"channel": "phone"}]
 }'
       output: '{
       	"errors": [
@@ -695,7 +695,7 @@ SendOtp:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "4eKDB4GPk6fP8XXEDY7rktwtQF6WiwrOCehT2CwyVT0",
 	    "individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
-	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+	    "otpChannels": [{"channel": "email"},{"channel": "phone"}]
 }'
       output: '{
       	"errors": [
@@ -719,7 +719,7 @@ SendOtp:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$REMOVE$",
 	    "individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
-	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+	    "otpChannels": [{"channel": "email"},{"channel": "phone"}]
 }'
       output: '{
       	"errors": [
@@ -743,7 +743,7 @@ SendOtp:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "",
 	    "individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
-	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+	    "otpChannels": [{"channel": "email"},{"channel": "phone"}]
 }'
       output: '{
       	"errors": [
@@ -767,7 +767,7 @@ SendOtp:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "null",
 	    "individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
-	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+	    "otpChannels": [{"channel": "email"},{"channel": "phone"}]
 }'
       output: '{
       	"errors": [
@@ -791,7 +791,7 @@ SendOtp:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
 	    "individualId": "@@#$#VGH",
-	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+	    "otpChannels": [{"channel": "email"},{"channel": "phone"}]
 }'
       output: '{
         "errors": [
@@ -815,7 +815,7 @@ SendOtp:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
 	    "individualId": "$REMOVE$",
-	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+	    "otpChannels": [{"channel": "email"},{"channel": "phone"}]
 }'
       output: '{
         "errors": [
@@ -839,7 +839,7 @@ SendOtp:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
 	    "individualId": "",
-	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+	    "otpChannels": [{"channel": "email"},{"channel": "phone"}]
 }'
       output: '{
         "errors": [
@@ -863,7 +863,7 @@ SendOtp:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_Other_Valid_Smoke_sid_transactionId$",
 	    "individualId": "null",
-	    "otpChannels": [{channel: "email"},{channel: "phone"}]
+	    "otpChannels": [{"channel": "email"},{"channel": "phone"}]
 }'
       output: '{
         "errors": [
@@ -887,7 +887,7 @@ SendOtp:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
 	    "individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
-	    "otpChannels": [{channel: "Random1"},{channel: "Random2"}]
+	    "otpChannels": [{"channel": "Random1"},{"channel": "Random2"}]
 }'
       output: '{
         "errors": [
@@ -911,7 +911,7 @@ SendOtp:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
 	    "individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
-	    "otpChannels": [{channel: "$REMOVE$"},{channel: "$REMOVE$"}]
+	    "otpChannels": [{"channel": "$REMOVE$"},{"channel": "$REMOVE$"}]
 }'
       output: '{
         "errors": [
@@ -935,7 +935,7 @@ SendOtp:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
 	    "individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
-	    "otpChannels": [{channel: ""},{channel: ""}]
+	    "otpChannels": [{"channel": ""},{"channel": ""}]
 }'
       output: '{
         "errors": [
@@ -959,7 +959,7 @@ SendOtp:
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_all_Valid_Smoke_sid_transactionId$",
 	    "individualId": "$ID:Generate_Perpetual_VID_Invalid_Scen_Valid_Smoke_sid_vid$",
-	    "otpChannels": [{channel: "null"},{channel: "null"}]
+	    "otpChannels": [{"channel": "null"},{"channel": "null"}]
 }'
       output: '{
         "errors": [
