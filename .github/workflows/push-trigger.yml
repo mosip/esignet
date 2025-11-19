@@ -14,7 +14,7 @@ on:
         type: string
   push:
     branches:
-      - '!release-branch'
+      - "**" 
       
 jobs:
   detect_changes:
@@ -26,6 +26,7 @@ jobs:
       automation_changed: ${{ steps.filter.outputs.automation }}
 
     steps:
+      - name: Checkout
       - uses: actions/checkout@v4
       - name: Detect changes by directory
         id: filter
@@ -45,8 +46,8 @@ jobs:
   build_maven_esignet:
     needs: detect_changes
     if: ${{ 
-          (github.event_name == 'push' && github.ref_name != 'release-branch') ||
-          (github.event_name == 'pull_request' && github.base_ref == 'release-branch') ||
+          (github.event_name == 'push' ||
+          startsWith(github.base_ref, 'release-branch') ||
           (github.event_name == 'pull_request' && needs.detect_changes.outputs.service_changed == 'true')}}
     uses: mosip/kattu/.github/workflows/maven-build.yml@master
     with:
@@ -62,8 +63,8 @@ jobs:
   build-oidc-ui:
     needs: detect_changes
     if: ${{ 
-          (github.event_name == 'push' && github.ref_name != 'release-branch') ||
-          (github.event_name == 'pull_request' && github.base_ref == 'release-branch') ||
+          (github.event_name == 'push' ||
+          startsWith(github.base_ref, 'release-branch') ||
           (github.event_name == 'pull_request' && needs.detect_changes.outputs.ui_changed == 'true')}}
     uses: mosip/kattu/.github/workflows/npm-build.yml@develop
     with:
@@ -200,8 +201,8 @@ jobs:
   build_maven_esignet_with_plugins:
     needs: detect_changes
     if: ${{ 
-          (github.event_name == 'push' && github.ref_name != 'release-branch') ||
-          (github.event_name == 'pull_request' && github.base_ref == 'release-branch') ||
+          (github.event_name == 'push' ||
+          startsWith(github.base_ref, 'release-branch') ||
           (github.event_name == 'pull_request' && needs.detect_changes.outputs.service_changed == 'true')}}
     uses: mosip/kattu/.github/workflows/maven-build.yml@master
     with:
@@ -260,8 +261,8 @@ jobs:
   build_maven_apitest_esignet:
     needs: detect_changes
     if: ${{ 
-          (github.event_name == 'push' && github.ref_name != 'release-branch') ||
-          (github.event_name == 'pull_request' && github.base_ref == 'release-branch') ||
+          (github.event_name == 'push' ||
+          startsWith(github.base_ref, 'release-branch') ||
           (github.event_name == 'pull_request' && needs.detect_changes.outputs.automation_changed == 'true')}}
     uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
     with:
@@ -360,8 +361,8 @@ jobs:
   build-maven-uitest-esignet:
     needs: detect_changes
     if: ${{ 
-          (github.event_name == 'push' && github.ref_name != 'release-branch') ||
-          (github.event_name == 'pull_request' && github.base_ref == 'release-branch') ||
+          (github.event_name == 'push' ||
+          startsWith(github.base_ref, 'release-branch') ||
           (github.event_name == 'pull_request' && needs.detect_changes.outputs.automation_changed == 'true')}}
     uses: anup-nehe/kattu/.github/workflows/maven-build-browserStack.yml@develop
     with:
