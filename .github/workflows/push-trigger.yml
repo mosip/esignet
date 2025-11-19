@@ -14,7 +14,13 @@ on:
         type: string
   push:
     branches:
-      - "**" 
+      - '!release-branch'
+      - master
+      - 1.*
+      - develop
+      - MOSIP*
+      - release*
+      - ES-842
       
 jobs:
   detect_changes:
@@ -26,12 +32,14 @@ jobs:
       automation_changed: ${{ steps.filter.outputs.automation }}
 
     steps:
-      - name: Checkout
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Detect changes by directory
         id: filter
         uses: dorny/paths-filter@v3
         with:
+          base: ${{ github.event.pull_request.base.sha }}
           filters: |
             ui:
               - 'oidc-ui/**'
@@ -49,6 +57,8 @@ jobs:
           (github.event_name == 'push' ||
           startsWith(github.base_ref, 'release-branch') ||
           (github.event_name == 'pull_request' && needs.detect_changes.outputs.service_changed == 'true')}}
+    steps:
+      - name: Trigger Esignet Docker Build
     uses: mosip/kattu/.github/workflows/maven-build.yml@master
     with:
       SERVICE_LOCATION: ./
@@ -66,6 +76,8 @@ jobs:
           (github.event_name == 'push' ||
           startsWith(github.base_ref, 'release-branch') ||
           (github.event_name == 'pull_request' && needs.detect_changes.outputs.ui_changed == 'true')}}
+    steps:
+      - name: Trigger OIDC UI Docker Build
     uses: mosip/kattu/.github/workflows/npm-build.yml@develop
     with:
       SERVICE_LOCATION: oidc-ui
@@ -264,6 +276,8 @@ jobs:
           (github.event_name == 'push' ||
           startsWith(github.base_ref, 'release-branch') ||
           (github.event_name == 'pull_request' && needs.detect_changes.outputs.automation_changed == 'true')}}
+    steps:
+      - name: Trigger API-Test Esignet Docker Build
     uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
     with:
       SERVICE_LOCATION: ./api-test
