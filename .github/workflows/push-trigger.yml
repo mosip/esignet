@@ -15,15 +15,39 @@ on:
   push:
     branches:
       - '!release-branch'
-      - master
-      - 1.*
-      - develop
-      - MOSIP*
-      - release*
-      - ES-842
-
+      
 jobs:
+  detect_changes:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    outputs:
+      ui_changed: ${{ steps.filter.outputs.ui }}
+      service_changed: ${{ steps.filter.outputs.service }}
+      automation_changed: ${{ steps.filter.outputs.automation }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Detect changes by directory
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            ui:
+              - 'oidc-ui/**'
+            service:
+              - 'esignet-with-plugins/**'
+              - 'esignet-service/**'
+              - 'esignet-core/**'
+              - 'esignet-integration-api/**'
+            automation:
+              - 'ui-test/**'
+              - 'api-test/**'
   build_maven_esignet:
+    needs: detect_changes
+    if: ${{ 
+          (github.event_name == 'push' && github.ref_name != 'release-branch') ||
+          (github.event_name == 'pull_request' && github.base_ref == 'release-branch') ||
+          (github.event_name == 'pull_request' && needs.detect_changes.outputs.service_changed == 'true')}}
     uses: mosip/kattu/.github/workflows/maven-build.yml@master
     with:
       SERVICE_LOCATION: ./
@@ -36,6 +60,11 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
       
   build-oidc-ui:
+    needs: detect_changes
+    if: ${{ 
+          (github.event_name == 'push' && github.ref_name != 'release-branch') ||
+          (github.event_name == 'pull_request' && github.base_ref == 'release-branch') ||
+          (github.event_name == 'pull_request' && needs.detect_changes.outputs.ui_changed == 'true')}}
     uses: mosip/kattu/.github/workflows/npm-build.yml@develop
     with:
       SERVICE_LOCATION: oidc-ui
@@ -169,6 +198,11 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   build_maven_esignet_with_plugins:
+    needs: detect_changes
+    if: ${{ 
+          (github.event_name == 'push' && github.ref_name != 'release-branch') ||
+          (github.event_name == 'pull_request' && github.base_ref == 'release-branch') ||
+          (github.event_name == 'pull_request' && needs.detect_changes.outputs.service_changed == 'true')}}
     uses: mosip/kattu/.github/workflows/maven-build.yml@master
     with:
       SERVICE_LOCATION: ./esignet-with-plugins
@@ -224,6 +258,11 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   build_maven_apitest_esignet:
+    needs: detect_changes
+    if: ${{ 
+          (github.event_name == 'push' && github.ref_name != 'release-branch') ||
+          (github.event_name == 'pull_request' && github.base_ref == 'release-branch') ||
+          (github.event_name == 'pull_request' && needs.detect_changes.outputs.automation_changed == 'true')}}
     uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
     with:
       SERVICE_LOCATION: ./api-test
@@ -317,8 +356,13 @@ jobs:
       ACTOR_DOCKER_HUB: ${{ secrets.ACTOR_DOCKER_HUB }}
       RELEASE_DOCKER_HUB: ${{ secrets.RELEASE_DOCKER_HUB }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-      
+  
   build-maven-uitest-esignet:
+    needs: detect_changes
+    if: ${{ 
+          (github.event_name == 'push' && github.ref_name != 'release-branch') ||
+          (github.event_name == 'pull_request' && github.base_ref == 'release-branch') ||
+          (github.event_name == 'pull_request' && needs.detect_changes.outputs.automation_changed == 'true')}}
     uses: anup-nehe/kattu/.github/workflows/maven-build-browserStack.yml@develop
     with:
       SERVICE_LOCATION: ./ui-test
