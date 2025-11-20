@@ -5,7 +5,7 @@ export const PUBLIC_URL = process.env.PUBLIC_URL || '';
  * Image Assets Constants
  * Each key represents an image with its static URL path
  */
-export const IMAGES = {
+const IMAGES = {
   BRAND_LOGO: PUBLIC_URL + '/images/brand_logo.png',
   FOOTER_LOGO: PUBLIC_URL + '/images/footer_logo.png',
   LOGO: PUBLIC_URL + '/logo.png',
