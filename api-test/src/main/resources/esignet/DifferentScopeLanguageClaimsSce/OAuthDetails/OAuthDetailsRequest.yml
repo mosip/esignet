@@ -74,7 +74,7 @@ OAuthDetailsDifferentScopeLanguageClaimsSce:
    ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_Scope_Openid_Profile_Languge_Eng_Fra_Valid_Pos:
       endPoint: /v1/esignet/authorization/v3/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_04
-      description: Create Oauthdetails request with scope as openid phone and locales as eng fra
+      description: Create Oauthdetails request with scope as openid profile and locales as eng fra
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -98,7 +98,7 @@ OAuthDetailsDifferentScopeLanguageClaimsSce:
    ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_Scope_Openid_Profile_Languge_FraTm_Valid_Pos:
       endPoint: /v1/esignet/authorization/v3/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_05
-      description: Create Oauthdetails request with scope as openid phone and locales as fra tm
+      description: Create Oauthdetails request with scope as openid profile and locales as fra tm
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -122,7 +122,7 @@ OAuthDetailsDifferentScopeLanguageClaimsSce:
    ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_Scope_Openid_Profile_Languge_FraTmAra_Valid_Pos:
       endPoint: /v1/esignet/authorization/v3/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_06
-      description: Create Oauthdetails request with scope as openid phone and locales as fra tm and ara
+      description: Create Oauthdetails request with scope as openid profile and locales as fra tm and ara
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -266,7 +266,7 @@ OAuthDetailsDifferentScopeLanguageClaimsSce:
    ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_Valid_DOB_Claim_Pos:
       endPoint: /v1/esignet/authorization/v3/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_12
-      description: Create an OAuth details request with name of birth essential true and name essential true
+      description: Create an OAuth details request with date of birth essential true and name essential true
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -551,7 +551,7 @@ OAuthDetailsDifferentScopeLanguageClaimsSce:
    ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_Invalid_VerifiedClaim6_Neg:
       endPoint: /v1/esignet/authorization/v3/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_22
-      description: Verified claims request with eIDAS trust framework manual verification process and max_age set to nul
+      description: Verified claims request with eIDAS trust framework manual verification process and max_age set to null
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -628,7 +628,7 @@ OAuthDetailsDifferentScopeLanguageClaimsSce:
    ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_TFE2_Pos:
       endPoint: /v1/esignet/authorization/v3/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_25
-      description: Create Oauthdetails request with When verified_claims under eIDAS marks phone_number as essential and name as non-essential the system must return verified phone_number while name is optiona
+      description: Create Oauthdetails request with When verified_claims under eIDAS marks phone_number as essential and name as non-essential the system must return verified phone_number while name is optional
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
