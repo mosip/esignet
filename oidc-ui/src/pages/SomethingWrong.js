@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import IMAGES from '../constants/publicAssets';
+import { IMAGES } from '../constants/publicAssets';
 import { useLocation } from 'react-router-dom';
 
 export default function SomethingWrongPage({ i18nKeyPrefix = 'errors' }) {

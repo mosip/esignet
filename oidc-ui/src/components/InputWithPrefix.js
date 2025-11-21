@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useLayoutEffect } from 'react';
 import ReactCountryFlag from 'react-country-flag';
 import { useTranslation } from 'react-i18next';
-import IMAGES from '../constants/publicAssets';
+import { IMAGES } from '../constants/publicAssets';
 
 const InputWithPrefix = (props) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);

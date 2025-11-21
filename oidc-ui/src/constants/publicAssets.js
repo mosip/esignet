@@ -1,5 +1,5 @@
 // PUBLIC_URL constant for direct string concatenation
-export const PUBLIC_URL = process.env.PUBLIC_URL || '';
+const PUBLIC_URL = process.env.PUBLIC_URL || '';
 
 /**
  * Image Assets Constants
@@ -64,7 +64,7 @@ const IMAGES = {
  * CSS Variables for Background Images
  * Used by cssVariablesService to inject dynamic CSS variables
  */
-export const CSS_IMAGE_VARIABLES = {
+const CSS_IMAGE_VARIABLES = {
   '--brand-only-logo-url': PUBLIC_URL + '/logo.png',
   '--brand-logo-url': PUBLIC_URL + '/images/brand_logo.png',
   '--background-logo-url': PUBLIC_URL + '/images/illustration_one.png',
@@ -80,10 +80,10 @@ export const CSS_IMAGE_VARIABLES = {
  * Config and Locale File URLs
  * For services that load configuration files
  */
-export const CONFIG_URLS = {
+const CONFIG_URLS = {
   THEME_CONFIG: PUBLIC_URL + '/theme/config.json',
   LOCALE_CONFIG: PUBLIC_URL + '/locales/default.json',
   ENG_CONFIG: PUBLIC_URL + '/locales/en.json',
 };
 
-export default IMAGES;
+export { PUBLIC_URL, IMAGES, CSS_IMAGE_VARIABLES, CONFIG_URLS };

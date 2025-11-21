@@ -76,9 +76,13 @@ export default function LoginQRCode({
     ? parseInt(qrCodeBufferInSecs)
     : parseInt(process.env.REACT_APP_QR_CODE_BUFFER_IN_SEC);
 
-  const walletLogoURL =
+  let walletLogoURL =
     walletDetail[walletConfigKeys.walletLogoUrl] ??
     process.env.REACT_APP_WALLET_LOGO_URL;
+
+  if (walletLogoURL && !walletLogoURL.startsWith('http')) {
+    walletLogoURL = PUBLIC_URL + walletLogoURL;
+  }
 
   let qrCodeDeepLinkURI =
     walletDetail[walletConfigKeys.qrCodeDeepLinkURI] ??
@@ -99,8 +103,6 @@ export default function LoginQRCode({
       deepLinkParamPlaceholder.linkExpiryDate,
       response.expireDateTime
     );
-
-    const normalizedLogoUrl = logoUrl ? PUBLIC_URL + logoUrl : null;
 
     setQrRedirectUrl(text);
 
@@ -123,9 +125,9 @@ export default function LoginQRCode({
           });
           return;
         }
-        if (normalizedLogoUrl) {
+        if (logoUrl) {
           const logo = new Image();
-          logo.src = normalizedLogoUrl;
+          logo.src = logoUrl;
           logo.crossOrigin = 'anonymous';
           logo.onload = () => {
             const ctx = canvas.getContext('2d');
