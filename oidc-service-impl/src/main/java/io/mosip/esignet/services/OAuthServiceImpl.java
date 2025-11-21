@@ -94,6 +94,13 @@ public class OAuthServiceImpl implements OAuthService {
     @Value("${mosip.esignet.par.expire-seconds:60}")
     private int parExpireInSeconds;
 
+    @Value("#{${mosip.esignet.discovery.key-values}}")
+    private Map<String, Object> discoveryMap;
+
+    private final String PAR_ENDPOINT = "pushed_authorization_request_endpoint";
+    private final String TOKEN_ENDPOINT = "token_endpoint";
+    private final String ISSUER = "issuer";
+
     @Override
     public TokenResponse getTokens(TokenRequestV2 tokenRequest, String dpopHeader, boolean isV2) throws EsignetException {
 
@@ -115,8 +122,13 @@ public class OAuthServiceImpl implements OAuthService {
 
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(transaction.getClientId());
 
-        tokenService.verifyClientAssertionToken(clientDetailDto.getId(), clientDetailDto.getPublicKey(), tokenRequest.getClient_assertion(),
-                isV2? (String) oauthServerDiscoveryMap.get("token_endpoint") : discoveryIssuerId+"/oauth/token");
+        List<String> validAudience;
+        if (isV2) {
+            validAudience = List.of((String) oauthServerDiscoveryMap.get(PAR_ENDPOINT), (String) oauthServerDiscoveryMap.get(TOKEN_ENDPOINT), (String) discoveryMap.get(ISSUER));
+        } else {
+            validAudience = List.of(discoveryIssuerId + "/oauth/token", (String) discoveryMap.get(ISSUER));
+        }
+        tokenService.verifyClientAssertionToken(clientDetailDto.getId(), clientDetailDto.getPublicKey(), tokenRequest.getClient_assertion(), validAudience);
 
         boolean isTransactionVCScoped = isTransactionVCScoped(transaction);
         if(!isTransactionVCScoped) { //if transaction is not VC scoped, only then do KYC exchange
@@ -183,7 +195,9 @@ public class OAuthServiceImpl implements OAuthService {
         IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), pushedAuthorizationRequest.getRedirect_uri());
         authorizationHelperService.validateNonce(pushedAuthorizationRequest.getNonce());
 
-        tokenService.verifyClientAssertionToken(clientDetailDto.getId(), clientDetailDto.getPublicKey(), pushedAuthorizationRequest.getClient_assertion(), (String) oauthServerDiscoveryMap.get("pushed_authorization_request_endpoint"));
+        List<String> validAudience = List.of((String) oauthServerDiscoveryMap.get(PAR_ENDPOINT), (String) oauthServerDiscoveryMap.get(TOKEN_ENDPOINT), (String) discoveryMap.get(ISSUER));
+
+        tokenService.verifyClientAssertionToken(clientDetailDto.getId(), clientDetailDto.getPublicKey(), pushedAuthorizationRequest.getClient_assertion(), validAudience);
 
         String requestUriUniqueId = IdentityProviderUtil.createTransactionId(null);
         String requestUri = PAR_REQUEST_URI_PREFIX + requestUriUniqueId;

@@ -94,6 +94,9 @@ public class OAuthServiceTest {
                 Map.entry("token_endpoint", "/oauth/v2/token"),
                 Map.entry("pushed_authorization_request_endpoint", "/oauth/par")
         ));
+        ReflectionTestUtils.setField(oAuthService, "discoveryMap", Map.ofEntries(
+                Map.entry("issuer", "issuer_endpoint")
+        ));
     }
 
     @Test
