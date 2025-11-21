@@ -103,7 +103,7 @@ public interface TokenService {
      * sub : Subject. This MUST contain the client_id of the OAuth Client.
      * aud : Audience. Value that identifies the Authorization Server as an intended audience.
      * The Authorization Server MUST verify that it is an intended audience for the token.
-     * The Audience SHOULD be the URL of the Authorization Server's Token Endpoint.
+     * The Audience SHOULD be the URL of the Authorization Server's Token/Par/Issuer Endpoint.
      * jti :  JWT ID. A unique identifier for the token, which can be used to prevent reuse of the token.
      * These tokens MUST only be used once, unless conditions for reuse were negotiated between the parties;
      * any such negotiation is beyond the scope of this specification.
