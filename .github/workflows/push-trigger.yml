@@ -50,16 +50,16 @@ jobs:
               - 'esignet-integration-api/**'
             automation:
               - 'ui-test/**'
-              - 'api-test/**'
+              - 'api-test/**'   
   build_maven_esignet:
     needs: detect_changes
     if: ${{ 
-          (github.event_name == 'push' ||
-          startsWith(github.base_ref, 'release-branch') ||
+          github.event_name == 'push' ||
+          startsWith(github.ref, 'refs/heads/release-branch') ||
           (github.event_name == 'pull_request' && needs.detect_changes.outputs.service_changed == 'true')}}
     steps:
       - name: Trigger Esignet Docker Build
-    uses: mosip/kattu/.github/workflows/maven-build.yml@master
+        uses: mosip/kattu/.github/workflows/maven-build.yml@master
     with:
       SERVICE_LOCATION: ./
       BUILD_ARTIFACT: esignet
@@ -69,16 +69,39 @@ jobs:
       OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  build_dockers:
+    needs: build_maven_esignet
+    strategy:
+      matrix:
+        include:
+          - SERVICE_LOCATION: 'esignet-service'
+            SERVICE_NAME: 'esignet'
+            BUILD_ARTIFACT: 'esignet'
+            SQUASH_LAYERS: '14'
+      fail-fast: false
+    name: ${{ matrix.SERVICE_NAME }}
+    uses: mosip/kattu/.github/workflows/docker-build.yml@master
+    with:
+      SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
+      SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
+      BUILD_ARTIFACT: ${{ matrix.BUILD_ARTIFACT }}
+      SQUASH_LAYERS: ${{ matrix.SQUASH_LAYERS }}
+    secrets:
+      DEV_NAMESPACE_DOCKER_HUB: ${{ secrets.DEV_NAMESPACE_DOCKER_HUB }}
+      ACTOR_DOCKER_HUB: ${{ secrets.ACTOR_DOCKER_HUB }}
+      RELEASE_DOCKER_HUB: ${{ secrets.RELEASE_DOCKER_HUB }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}    
       
   build-oidc-ui:
     needs: detect_changes
     if: ${{ 
-          (github.event_name == 'push' ||
-          startsWith(github.base_ref, 'release-branch') ||
+          github.event_name == 'push' ||
+          startsWith(github.ref, 'refs/heads/release-branch') ||
           (github.event_name == 'pull_request' && needs.detect_changes.outputs.ui_changed == 'true')}}
     steps:
       - name: Trigger OIDC UI Docker Build
-    uses: mosip/kattu/.github/workflows/npm-build.yml@develop
+        uses: mosip/kattu/.github/workflows/npm-build.yml@develop
     with:
       SERVICE_LOCATION: oidc-ui
       BUILD_ARTIFACT: oidc
@@ -187,34 +210,11 @@ jobs:
       ORG_KEY: ${{ secrets.ORG_KEY }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-  build_dockers:
-    needs: build_maven_esignet
-    strategy:
-      matrix:
-        include:
-          - SERVICE_LOCATION: 'esignet-service'
-            SERVICE_NAME: 'esignet'
-            BUILD_ARTIFACT: 'esignet'
-            SQUASH_LAYERS: '14'
-      fail-fast: false
-    name: ${{ matrix.SERVICE_NAME }}
-    uses: mosip/kattu/.github/workflows/docker-build.yml@master
-    with:
-      SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
-      SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
-      BUILD_ARTIFACT: ${{ matrix.BUILD_ARTIFACT }}
-      SQUASH_LAYERS: ${{ matrix.SQUASH_LAYERS }}
-    secrets:
-      DEV_NAMESPACE_DOCKER_HUB: ${{ secrets.DEV_NAMESPACE_DOCKER_HUB }}
-      ACTOR_DOCKER_HUB: ${{ secrets.ACTOR_DOCKER_HUB }}
-      RELEASE_DOCKER_HUB: ${{ secrets.RELEASE_DOCKER_HUB }}
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-
   build_maven_esignet_with_plugins:
     needs: detect_changes
     if: ${{ 
-          (github.event_name == 'push' ||
-          startsWith(github.base_ref, 'release-branch') ||
+          github.event_name == 'push' ||
+          startsWith(github.ref, 'refs/heads/release-branch') ||
           (github.event_name == 'pull_request' && needs.detect_changes.outputs.service_changed == 'true')}}
     uses: mosip/kattu/.github/workflows/maven-build.yml@master
     with:
@@ -273,12 +273,12 @@ jobs:
   build_maven_apitest_esignet:
     needs: detect_changes
     if: ${{ 
-          (github.event_name == 'push' ||
-          startsWith(github.base_ref, 'release-branch') ||
+          github.event_name == 'push' ||
+          startsWith(github.ref, 'refs/heads/release-branch') ||
           (github.event_name == 'pull_request' && needs.detect_changes.outputs.automation_changed == 'true')}}
     steps:
       - name: Trigger API-Test Esignet Docker Build
-    uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
+        uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
     with:
       SERVICE_LOCATION: ./api-test
       BUILD_ARTIFACT: apitest-esignet
@@ -375,8 +375,8 @@ jobs:
   build-maven-uitest-esignet:
     needs: detect_changes
     if: ${{ 
-          (github.event_name == 'push' ||
-          startsWith(github.base_ref, 'release-branch') ||
+          github.event_name == 'push' ||
+          startsWith(github.ref, 'refs/heads/release-branch') ||
           (github.event_name == 'pull_request' && needs.detect_changes.outputs.automation_changed == 'true')}}
     uses: anup-nehe/kattu/.github/workflows/maven-build-browserStack.yml@develop
     with:
