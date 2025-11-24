@@ -142,6 +142,29 @@ CREATE TABLE esignet.public_key_registry(
   CONSTRAINT pk_public_key_registry PRIMARY KEY (id_hash, auth_factor)
 );
 
+CREATE TABLE esignet.ca_cert_store(
+	cert_id character varying(36) NOT NULL,
+	cert_subject character varying(500) NOT NULL,
+	cert_issuer character varying(500) NOT NULL,
+	issuer_id character varying(36) NOT NULL,
+	cert_not_before timestamp,
+	cert_not_after timestamp,
+	crl_uri character varying(120),
+	cert_data character varying,
+	cert_thumbprint character varying(100),
+	cert_serial_no character varying(50),
+	partner_domain character varying(36),
+	cr_by character varying(256),
+	cr_dtimes timestamp,
+	upd_by character varying(256),
+	upd_dtimes timestamp,
+	is_deleted boolean DEFAULT FALSE,
+	del_dtimes timestamp,
+	ca_cert_type character varying(25),
+	CONSTRAINT pk_cacs_id PRIMARY KEY (cert_id),
+	CONSTRAINT cert_thumbprint_unique UNIQUE (cert_thumbprint,partner_domain)
+);
+
 
 INSERT INTO esignet.KEY_POLICY_DEF(APP_ID,KEY_VALIDITY_DURATION,PRE_EXPIRE_DAYS,ACCESS_ALLOWED,IS_ACTIVE,CR_BY,CR_DTIMES) VALUES('ROOT', 2920, 1125, 'NA', true, 'mosipadmin', now());
 INSERT INTO esignet.KEY_POLICY_DEF(APP_ID,KEY_VALIDITY_DURATION,PRE_EXPIRE_DAYS,ACCESS_ALLOWED,IS_ACTIVE,CR_BY,CR_DTIMES) VALUES('OIDC_SERVICE', 1095, 50, 'NA', true, 'mosipadmin', now());
@@ -244,7 +267,7 @@ CREATE TABLE mockidentitysystem.partner_data (
     CONSTRAINT pk_partner_data_partner_id_client_id PRIMARY KEY (partner_id, client_id)
 );
 
-CREATE TABLE esignet.ca_cert_store(
+CREATE TABLE mockidentitysystem.ca_cert_store(
 	cert_id character varying(36) NOT NULL,
 	cert_subject character varying(500) NOT NULL,
 	cert_issuer character varying(500) NOT NULL,
