@@ -124,7 +124,7 @@ public class OAuthServiceImpl implements OAuthService {
 
         List<String> validAudience;
         if (isV2) {
-            validAudience = List.of((String) oauthServerDiscoveryMap.get(PAR_ENDPOINT), (String) oauthServerDiscoveryMap.get(TOKEN_ENDPOINT), (String) discoveryMap.get(ISSUER));
+            validAudience = List.of((String) oauthServerDiscoveryMap.get(TOKEN_ENDPOINT), (String) discoveryMap.get(ISSUER));
         } else {
             validAudience = List.of(discoveryIssuerId + "/oauth/token", (String) discoveryMap.get(ISSUER));
         }
