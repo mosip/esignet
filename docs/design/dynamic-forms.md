@@ -4,7 +4,7 @@ Using **dynamic forms** instead of hardcoded forms during registration in **eSig
 
 The intention is to create an **independent UI library** to provide this feature. Both forms should follow the same form schema so that the same library could be used in both **oidc-ui** and **signup-ui**.
 
-For more details on how to use the `json-form-builder` library, please refer to the [official documentation](https://github.com/mosip/mosip-sdk/blob/release-0.10.x/json-form-builder/README.md).
+For more details on how to use the `json-form-builder` library, please refer to the [official documentation](https://github.com/mosip/mosip-sdk/blob/master/json-form-builder/README.md).
 
 ## Form JSON Specification
 

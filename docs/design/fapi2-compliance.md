@@ -97,7 +97,7 @@ as per the [OAuth 2.0 Authorization Server Issuer Identification](https://www.rf
 ## PAR and DPoP support with mock RP:
 
 eSignet mock RP application provides a callback functions to demonstrate the PAR and DPoP features. 
-Refer to the [README](https://github.com/mosip/esignet-mock-services/tree/release-0.12.x/mock-relying-party-ui#api-endpoints) for more details.
+Refer to the [README](https://github.com/mosip/esignet-mock-services/tree/master/mock-relying-party-ui#api-endpoints) for more details.
 
 # Error Handling
 
