@@ -1,6 +1,4 @@
 openapi: 3.1.0
-x-stoplight:
-  id: 7oz4lmhu3pf6b
 info:
   version: '1.0'
   title: eSignet
@@ -254,8 +252,6 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-internal: false
-      x-stoplight:
-        id: ufuc57uqvy8nd
   /client-mgmt/oauth-client:
     post:
       tags:
@@ -487,8 +483,6 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-internal: false
-      x-stoplight:
-        id: fzn9175pquxhd
       deprecated: true
   /client-mgmt/client:
     post:
@@ -630,8 +624,6 @@ paths:
                       description: 'This parameter allow us to configure the required values based on their specific authentication and integration needs, ensuring efficient implementation of eSignet for ID verification/authentication.'
                       properties:
                         userinfo_response_type:
-                          x-stoplight:
-                            id: 6gpkj6mqys6va
                           enum:
                             - JWS
                             - JWE
@@ -640,29 +632,19 @@ paths:
                           $ref: '#/components/schemas/Purpose'
                         signup_banner_required:
                           type: boolean
-                          x-stoplight:
-                            id: 4i1vlnmxu16e4
                           description: Relying Parties should be able to specify whether they require eSignet sign-up. If no signup service is required UI should not have “Sign up with Unified login“ option.
                         forgot_pwd_link_required:
                           type: boolean
-                          x-stoplight:
-                            id: s1pb151yorc5y
                           description: Relying Parties should be able to specify whether they require eSignet forgot password feature. If it is not required UI should not have “Forgot password“ option
                         consent_expire_in_mins:
                           type: number
-                          x-stoplight:
-                            id: peyhsfc3w4ajc
                           minimum: 10
                           description: The number of minuets after which a user's given consent will expire.
                         require_pushed_authorization_requests:
                           type: boolean
-                          x-stoplight:
-                            id: m9d6pmasgvot5
                           description: 'Boolean parameter indicating whether the only means of initiating an authorization request the client is allowed to use is PAR. If omitted, the default value is false.'
                         dpop_bound_access_tokens:
                           type: boolean
-                          x-stoplight:
-                            id: m9d6pmasgvot6
                           description: 'A boolean value specifying whether the client always uses DPoP for token requests. If omitted, the default value is false. If the value is true, the eSignet rejects token request from the client that do not contain the DPoP header.'
             examples:
               example-1:
@@ -774,8 +756,6 @@ paths:
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-internal: false
-      x-stoplight:
-        id: z8gcu89m21n91
   '/client-mgmt/oidc-client/{client_id}':
     put:
       tags:
@@ -973,8 +953,6 @@ paths:
         - Authorization-update_oidc_client: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: twjsfa0yqpyej
   '/client-mgmt/oauth-client/{client_id}':
     put:
       tags:
@@ -1186,8 +1164,6 @@ paths:
         - Authorization-update_oidc_client: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: z27nk9p9gk06g
       deprecated: true
   '/client-mgmt/client/{client_id}':
     put:
@@ -1317,8 +1293,6 @@ paths:
                       description: 'This parameter allow us to configure the required values based on their specific authentication and integration needs, ensuring efficient implementation of eSignet for ID verification/authentication.'
                       properties:
                         userinfo_response_type:
-                          x-stoplight:
-                            id: 6gpkj6mqys6va
                           enum:
                             - JWS
                             - JWE
@@ -1327,29 +1301,19 @@ paths:
                           $ref: '#/components/schemas/Purpose'
                         signup_banner_required:
                           type: boolean
-                          x-stoplight:
-                            id: 4i1vlnmxu16e4
                           description: Relying Parties should be able to specify whether they require eSignet sign-up. If no signup service is required UI should not have “Sign up with Unified login“ option.
                         forgot_pwd_link_required:
                           type: boolean
-                          x-stoplight:
-                            id: s1pb151yorc5y
                           description: Relying Parties should be able to specify whether they require eSignet forgot password feature. If it is not required UI should not have “Forgot password“ option
                         consent_expire_in_mins:
                           type: number
-                          x-stoplight:
-                            id: peyhsfc3w4ajc
                           minimum: 10
                           description: The number of minuets after which a user's given consent will expire.
                         require_pushed_authorization_requests:
                           type: boolean
-                          x-stoplight:
-                            id: m9d6pmasgvot5
                           description: 'Boolean parameter indicating whether the only means of initiating an authorization request the client is allowed to use is PAR. If omitted, the default value is false.'
                         dpop_bound_access_tokens:
                           type: boolean
-                          x-stoplight:
-                            id: m9d6pmasgvot6
                           description: 'A boolean value specifying whether the client always uses DPoP for token requests. If omitted, the default value is false. If the value is true, the eSignet rejects token request from the client that do not contain the DPoP header.'
             examples:
               Example 1:
@@ -1453,8 +1417,6 @@ paths:
         - Authorization-update_oidc_client: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: 40q06fgspxdz2
   /authorize:
     get:
       tags:
@@ -1589,7 +1551,7 @@ paths:
         - schema:
             type: string
           in: query
-          description: 'The request URI corresponding to the pushed authorization request posted. This URI is a single-use reference to the respective request data in the subsequent authorization request.'
+          description: The request URI corresponding to the pushed authorization request posted. This URI is a single-use reference to the respective request data in the subsequent authorization request.
           name: request_uri
       responses:
         '200':
@@ -1599,8 +1561,6 @@ paths:
             Loads JS application, and validates the provided query parameters using oauth-details endpoint.
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: bx55bzakduy97
   /authorization/oauth-details:
     post:
       tags:
@@ -1671,7 +1631,7 @@ paths:
                       type: string
                       description: |-
                         Space separated ACR values, Unknown ACR are ignored. Only registered ACR values will be considered.
-                        if none of the provided acr value is among the registered values, Error response is returned with error code "invalid_acr".
+                        If none of the provided acr value is among the registered values, all the registered ACR's will be considered.
                     claims:
                       $ref: '#/components/schemas/Claim'
                     maxAge:
@@ -1785,7 +1745,6 @@ paths:
                             - invalid_client_id
                             - invalid_redirect_uri
                             - invalid_scope
-                            - invalid_acr
                             - invalid_response_type
                             - invalid_display
                             - invalid_prompt
@@ -1819,8 +1778,6 @@ paths:
       deprecated: true
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: bhi8yst5xtovl
   /authorization/v2/oauth-details:
     post:
       tags:
@@ -1899,7 +1856,7 @@ paths:
                       type: string
                       description: |-
                         Space separated ACR values, Unknown ACR are ignored. Only registered ACR values will be considered.
-                        if none of the provided acr value is among the registered values, Error response is returned with error code "invalid_acr".
+                        If none of the provided acr value is among the registered values, all the registered ACR's will be considered.
                     claims:
                       $ref: '#/components/schemas/Claim'
                     maxAge:
@@ -2061,8 +2018,6 @@ paths:
                       errors: null
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: f8fifvn9td0n1
   /authorization/v3/oauth-details:
     post:
       tags:
@@ -2143,7 +2098,7 @@ paths:
                       type: string
                       description: |-
                         Space separated ACR values, Unknown ACR are ignored. Only registered ACR values will be considered.
-                        if none of the provided acr value is among the registered values, Error response is returned with error code "invalid_acr".
+                        If none of the provided acr value is among the registered values, all the registered ACR's will be considered.
                     claims:
                       $ref: '#/components/schemas/Claim'
                     maxAge:
@@ -2164,8 +2119,6 @@ paths:
                       type: string
                     id_token_hint:
                       type: string
-                      x-stoplight:
-                        id: x4y3fsuxr5crn
                       description: ID Token previously issued by the Authorization Server being passed as a hint about the End-User's current or past authenticated session with the Client.
             examples:
               example-1:
@@ -2312,8 +2265,6 @@ paths:
                       errors: null
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: 5kwsv2k5932g8
   /authorization/send-otp:
     post:
       tags:
@@ -2451,8 +2402,6 @@ paths:
                     errors: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: owaql9khq2ii9
   /linked-authorization/send-otp:
     post:
       tags:
@@ -2565,8 +2514,6 @@ paths:
                     errors: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: b3138thajn9u4
   /authorization/authenticate:
     post:
       tags:
@@ -2695,8 +2642,6 @@ paths:
       deprecated: true
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: xt4n2ff4zogdj
   /authorization/v2/authenticate:
     post:
       tags:
@@ -2833,8 +2778,6 @@ paths:
                     errors: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: 5obwls7xlixv9
   /authorization/v3/authenticate:
     post:
       tags:
@@ -2991,8 +2934,6 @@ paths:
                     errors: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: mgs48hfrem91q
   /authorization/auth-code:
     post:
       tags:
@@ -3118,8 +3059,6 @@ paths:
                     errors: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: ihwzp1k49ndtp
   /linked-authorization/link-code:
     post:
       tags:
@@ -3226,8 +3165,6 @@ paths:
                     errors: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: flzfkwilbocho
   /linked-authorization/link-transaction:
     post:
       tags:
@@ -3357,8 +3294,6 @@ paths:
       deprecated: true
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: 3ee98xoyw0bww
   /linked-authorization/v2/link-transaction:
     post:
       tags:
@@ -3497,8 +3432,6 @@ paths:
                     errors: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: zevye0dm733qx
   /linked-authorization/link-status:
     post:
       tags:
@@ -4156,8 +4089,6 @@ paths:
                     errors: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: 05s8uwy4a3tr6
   /authorization/claim-details:
     get:
       tags:
@@ -4230,17 +4161,11 @@ paths:
                           This field indicates the need to capture user consent or not
                       claimStatus:
                         type: array
-                        x-stoplight:
-                          id: oif0199dpk9ab
                         description: List of resolved claims among the requested claims with their availability and verification status.
                         items:
                           $ref: '#/components/schemas/ClaimStatus'
-                          x-stoplight:
-                            id: mhd9b2hzvhopg
                       profileUpdateRequired:
                         type: boolean
-                        x-stoplight:
-                          id: 3lhkxb4duct19
                         description: 'If true, then some or all of the essential claims are either not available or not verified. Otherwise this field is set to false'
                   errors:
                     type: array
@@ -4274,14 +4199,73 @@ paths:
                     errors: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: fdlzxtdexapsn
-    parameters: []
   /authorization/prepare-signup-redirect:
     post:
-      summary: Prepare signup redirect endpoint
       tags:
         - UI
+      summary: Prepare signup redirect endpoint
+      description: |-
+        **Prerequisite**: 
+        1. User should be authenticated to invoke prepare-signup-redirect endpoint.
+        2. signup-service should be registered as OAUTH client with esignet. And the signup-service's OAuth client id should be configured in this property `mosip.esignet.signup-id-token-audience` and the expire time of the generated ID token depends on below property `mosip.esignet.signup-id-token-expire-seconds`.
+
+
+        **Validations:**
+        1. Validates the input transactionID.
+        2. Validates if the transaction requires profile update.
+
+
+        When this endpoint is invoked, generates the ID-token for "singup-service". and sets the cookie header is also set with cookie name as UUID same as the subject of the ID token ( eg: "d898375b-c883-4408-a9e3-f629f15c1298") and the cookie value is a encoded json: 
+          `{"code" :"secret code to match with the server", "path-fragment": "path to resume after profile update"}`
+
+        ID token payload is as below
+         `{ "iss": "https://esignet.dev.mosip.net", "iat": 1715047546, "exp": 1746583546, "aud": "signup-service-client-id", "sub": "d898375b-c883-4408-a9e3-f629f15c1298" }`
+
+         **Note**: Cookie created expire time should be equal to the expire time if generated ID token.
+      operationId: post-authorization-prepare-signup-redirect
+      parameters:
+        - name: oauth-details-hash
+          in: header
+          description: Base64 encoded SHA-256 hash of the oauth-details endpoint response.
+          required: true
+          schema:
+            type: string
+        - name: oauth-details-key
+          in: header
+          description: Transaction ID
+          required: true
+          schema:
+            type: string
+        - name: X-XSRF-TOKEN
+          in: header
+          description: CSRF token as set in cookie key 'XSRF-TOKEN'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                requestTime:
+                  type: string
+                  description: '<yyyy-MM-dd''T''HH:mm:ss.SSS''Z''>'
+                request:
+                  type: object
+                  properties:
+                    transactionId:
+                      type: string
+                      description: Authenticated OIDC transaction ID.
+                    pathFragment:
+                      type: string
+                      description: Path fragment to resume back the OIDC flow after completing the KYC process in signup portal.
+                  required:
+                    - transactionId
+                    - pathFragment
+              required:
+                - requestTime
+                - request
       responses:
         '200':
           description: OK
@@ -4292,14 +4276,9 @@ paths:
                 properties:
                   responseTime:
                     type: string
-                    x-stoplight:
-                      id: ye5m4j1782j67
                     format: date-time
                   response:
                     type: object
-                    required:
-                      - transactionId
-                      - idToken
                     properties:
                       transactionId:
                         type: string
@@ -4308,8 +4287,9 @@ paths:
                         type: string
                         description: |
                           This field holds the ID token generated for signup service
-                        x-stoplight:
-                          id: qc6p9txqz9v7l
+                    required:
+                      - transactionId
+                      - idToken
                   errors:
                     type: array
                     description: List of Errors in case of request validation / processing failure in eSignet server.
@@ -4330,81 +4310,9 @@ paths:
               schema:
                 type: string
               description: uuid=encoded-json
-      operationId: post-authorization-prepare-signup-redirect
-      x-stoplight:
-        id: d7hwkqd8hta5n
-      parameters:
-        - schema:
-            type: string
-          in: header
-          name: oauth-details-hash
-          description: Base64 encoded SHA-256 hash of the oauth-details endpoint response.
-          required: true
-        - schema:
-            type: string
-          in: header
-          name: oauth-details-key
-          description: Transaction ID
-          required: true
-        - schema:
-            type: string
-          in: header
-          name: X-XSRF-TOKEN
-          description: CSRF token as set in cookie key 'XSRF-TOKEN'
-          required: true
-      description: |-
-        **Prerequisite**: 
-        1. User should be authenticated to invoke prepare-signup-redirect endpoint.
-        2. signup-service should be registered as OAUTH client with esignet. And the signup-service's OAuth client id should be configured in this property `mosip.esignet.signup-id-token-audience` and the expire time of the generated ID token depends on below property `mosip.esignet.signup-id-token-expire-seconds`.
-
-
-        **Validations:**
-        1. Validates the input transactionID.
-        2. Validates if the transaction requires profile update.
-
-
-        When this endpoint is invoked, generates the ID-token for "singup-service". and sets the cookie header is also set with cookie name as UUID same as the subject of the ID token ( eg: "d898375b-c883-4408-a9e3-f629f15c1298") and the cookie value is a encoded json: 
-          `{"code" :"secret code to match with the server", "path-fragment": "path to resume after profile update"}`
-
-        ID token payload is as below
-         `{ "iss": "https://esignet.dev.mosip.net", "iat": 1715047546, "exp": 1746583546, "aud": "signup-service-client-id", "sub": "d898375b-c883-4408-a9e3-f629f15c1298" }`
-
-         **Note**: Cookie created expire time should be equal to the expire time if generated ID token.
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - requestTime
-                - request
-              properties:
-                requestTime:
-                  type: string
-                  x-stoplight:
-                    id: 0kmss6uxxb5t2
-                  format: date-time
-                request:
-                  type: object
-                  x-stoplight:
-                    id: mmd6h6vi7ampp
-                  required:
-                    - transactionId
-                    - pathFragment
-                  properties:
-                    transactionId:
-                      type: string
-                      x-stoplight:
-                        id: t5ue5f4l5hhi5
-                      description: Authenticated OIDC transaction ID.
-                    pathFragment:
-                      type: string
-                      x-stoplight:
-                        id: vb5bzzhuc87ho
-                      description: Path fragment to resume back the OIDC flow after completing the KYC process in signup portal.
-    parameters: []
+      servers:
+        - url: 'https://esignet.collab.mosip.net/v1/esignet'
   /authorization/complete-signup-redirect:
-    parameters: []
     post:
       tags:
         - UI
@@ -4436,21 +4344,21 @@ paths:
           application/json:
             schema:
               type: object
-              required:
-                - requestTime
-                - request
               properties:
                 requestTime:
                   type: string
-                  format: date-time
+                  description: '<yyyy-MM-dd''T''HH:mm:ss.SSS''Z''>'
                 request:
                   type: object
-                  required:
-                    - transactionId
                   properties:
                     transactionId:
                       type: string
                       description: oauth-details transactionId is used until the /token call.
+                  required:
+                    - transactionId
+              required:
+                - requestTime
+                - request
             examples:
               Example 1:
                 value:
@@ -4472,10 +4380,7 @@ paths:
                     description: 'Successful message, or null if failed to deliver OTP.'
                     properties:
                       status:
-                        x-stoplight:
-                          id: hnn4m8lfunl6d
-                        enum:
-                          - COMPLETED
+                        const: COMPLETED
                   errors:
                     type: array
                     description: 'List of Errors in case of request validation / processing failure in Idp server. if failure from IDA, the same error is relayed in this response.'
@@ -4501,8 +4406,6 @@ paths:
                         errorMessage: string
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: flbtdntgp97vt
   /oauth/token:
     post:
       tags:
@@ -4527,7 +4430,7 @@ paths:
 
         **iat**<span style="color:#FF0000">*</span>: Time at which the JWT was issued.</p>
 
-        **jti**<span style="color:#FF0000">*</span>: Random unique string</p>
+        **jti**<span style="color:#FF0000">*</span> (JWT ID): This MUST be unique random string for each client assertion generated.
 
         **Note**: The Client Assertion JWT can contain other Claims. Any Claims used that are not understood WILL be ignored.</p>
       operationId: post-token
@@ -4649,8 +4552,7 @@ paths:
                   - error
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: oq5wdn2tl5b68
+      deprecated: true
   /oauth/v2/token:
     post:
       tags:
@@ -4675,7 +4577,7 @@ paths:
 
         **iat**<span style="color:#FF0000">*</span>: Time at which the JWT was issued.</p>
 
-        **jti**<span style="color:#FF0000">*</span>: Random unique string</p>
+        **jti**<span style="color:#FF0000">*</span> (JWT ID): This MUST be unique for each client assertion generated.
 
         **Note**: The Client Assertion JWT can contain other Claims. Any Claims used that are not understood WILL be ignored.</p>
       operationId: post-token-v2
@@ -4817,8 +4719,6 @@ paths:
                   - error
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: bx4h4esbzst37
     parameters:
       - schema:
           type: string
@@ -4897,8 +4797,6 @@ paths:
         - Authorization-DPoP: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: 6iqtka3aua3f2
     parameters:
       - schema:
           type: string
@@ -5008,8 +4906,7 @@ paths:
         - Authorization-send_binding_otp: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: t315hcecaulyy
+      deprecated: true
   /binding/v2/binding-otp:
     post:
       tags:
@@ -5114,8 +5011,6 @@ paths:
         - Authorization-send_binding_otp: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: xnl3gyq4v4bh4
   /binding/wallet-binding:
     post:
       tags:
@@ -5252,8 +5147,6 @@ paths:
         - Authorization-wallet_binding: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: coqr4q7xd7k3x
   /.well-known/jwks.json:
     get:
       tags:
@@ -5336,8 +5229,6 @@ paths:
                         'n': sY50VCweYJ6XGrxl0kbQNsZTt1XwwmG4KLwph05CleDN3apRZjtXfU5WXJMWz5hYcNHkpGR_DulQAj6OzAxYLfaqfZH4Gw7MyzXq1nwLexUimRR5nxeEgEi6BWRcym4huShnsIFybbN61FVF00ZALlV2Lm9mfKOxC_tQuIMCRa06Jtp4OOmuPSUfFoN9-ZY-6RwEGnI5oBUvKT3yFRuAPAfEF-efZ52OQOVi3TtVVT4RZCiiUTUxC-fySAM36RKJx5wnwgGkkGzyL0wkOivb4-ALreUCBvq-vb9tfKzCUXxXhQZAdKsaAUDEgxzo-Wi5qDCGLA4tfIAyI0lr_w3lxw
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: 4jt4qby3nx2e4
   /.well-known/openid-configuration:
     get:
       tags:
@@ -5550,8 +5441,6 @@ paths:
                       - PS256
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: 0t3znwjii5pcv
   /oauth/introspect:
     get:
       tags:
@@ -5606,8 +5495,6 @@ paths:
         - Authorization-Bearer: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
-      x-stoplight:
-        id: 4m5xw29vz2q9k
   /oauth/par:
     post:
       tags:
@@ -5682,7 +5569,7 @@ paths:
                   type: string
                   description: |-
                     Space separated ACR values, Unknown ACR are ignored. Only registered ACR values will be considered.
-                    if none of the provided acr value is among the registered values, Error response is returned with error code "invalid_acr".
+                    If none of the provided acr value is among the registered values, all the registered ACR's will be considered.
                 claims:
                   $ref: '#/components/schemas/Claim'
                 max_age:
@@ -5756,6 +5643,26 @@ paths:
                   expires_in:
                     type: number
                     description: A JSON number that represents the lifetime of the request URI in seconds as a positive integer.
+              examples:
+                example-1:
+                  value:
+                    request_uri: 'urn:ietf:params:oauth:request_uri:6esc_11ACC5bwc014ltc14eY22c'
+                    expires_in: 10
+        '400':
+          description: Bad Request
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+              description: 'no-cache, no-store'
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                  - errorDescription
+                properties:
                   error:
                     type: string
                     description: 'Error code, available in error response.'
@@ -5771,15 +5678,6 @@ paths:
                   error_description:
                     type: string
                     description: 'Error description, available in error response.'
-              examples:
-                example-1:
-                  value:
-                    request_uri: 'urn:ietf:params:oauth:request_uri:6esc_11ACC5bwc014ltc14eY22c'
-                    expires_in: 10
-                example-2:
-                  value:
-                    error: invalid_request
-                    error_description: invalid_request
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
@@ -5993,7 +5891,7 @@ components:
     Authorization-DPoP:
       type: http
       scheme: DPoP
-      description: 'A DPoP-bound access token is sent using the Authorization request header field with an authentication scheme of DPoP.'
+      description: A DPoP-bound access token is sent using the Authorization request header field with an authentication scheme of DPoP.
     Authorization-add_oidc_client:
       type: http
       description: Valid JWT issued by a trusted IAM system with "**add_oidc_client**" scope.
@@ -6350,6 +6248,8 @@ components:
                     x-stoplight:
                       id: 5q6luh9khretn
                     description: |2-
+
+
 
 
 
