@@ -140,11 +140,11 @@
     "link_code_status": "இணைப்பு குறியீடு நிலை",
     "failed": "உள்நுழைய முடியவில்லை. ",
     "refresh": "QR குறியீட்டைப் புதுப்பிக்கவும்",
-    "open_wallet_app": "திற {{walletName}} ஆப்",
+    "open_wallet_app": "{{walletName}} ஐத் திற",
     "login_with_id": "{{currentID}} மூலம் உள்நுழைக",
     "verify_with_id": "{{currentID}} மூலம் சரிபார்க்கவும்",
     "link_using_id": "{{currentID}} ஐப் பயன்படுத்தி இணைக்கவும்",
-    "wallet_header": "{{walletName}} ஆப்ஸ் மூலம் QR குறியீட்டை ஸ்கேன் செய்யவும்"
+    "wallet_header": "{{walletName}} ஐப் பயன்படுத்தி QR குறியீட்டை ஸ்கேன் செய்யவும்"
   },
   "otp": {
     "sign_in_with_otp": "OTP மூலம் உள்நுழையவும்",
