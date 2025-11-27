@@ -6154,7 +6154,6 @@ components:
           }
         }
 
-
         **NOTE:** eKYC working group has documented some of the predefined values  for trust frameworks, documents, methods, validation methods or verification methods in the below wikipage.
         https://bitbucket.org/openid/ekyc-ida/wiki/identifiers
         Values is NOT restricted to list in the wiki page, This is left to adopters of the technical specification, e.g., implementers, identity schemes, or jurisdictions.
@@ -6247,49 +6246,11 @@ components:
                     type: array
                     x-stoplight:
                       id: 5q6luh9khretn
-                    description: |2-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                       JSON array representing the checks done in relation to the evidence. When present this array MUST have at least one member. This is applicable only for below evidence types:
-                       1. document
-                       2. electronic_record
-                       3. vouch
+                    description: |
+                      JSON array representing the checks done in relation to the evidence. When present this array MUST have at least one member. This is applicable only for below evidence types:
+                      1. document
+                      2. electronic_record
+                      3. vouch
                     items:
                       $ref: '#/components/schemas/EvidenceCheckDetail'
                       x-stoplight:
