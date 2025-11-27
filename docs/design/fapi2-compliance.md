@@ -31,7 +31,7 @@ TTL should be configurable and the expires_in parameter in the response should r
 
 Below Optional features are not implemented in the current version:
 * client authentication parameters in the PAR request header.
-* The request parameter as defined in JAR [RFC9101].
+* The request parameter as defined in JAR [RFC9101](https://www.rfc-editor.org/rfc/rfc9101).
 * API rate limit is left to the infra to handle.
 * Use of non-registered redirect_uri's are not allowed.
 
@@ -45,7 +45,7 @@ Below Optional features are not implemented in the current version:
 # DPoP Support
 
 All the required features as per the [DPoP](https://datatracker.ietf.org/doc/html/rfc9449) are implemented. 
-We support binding of access tokens and authorization codes to DPoP proofs.
+We support binding of access tokens and authorization codes to DPoP proofs. When creating a clientId, the relying party must provide the **dpop_bound_access_tokens** property. This indicates whether DPoP should be enabled or disabled, and the system will enforce validation accordingly.
 
 - DPoP validation filter checks JWT structure, claims, and signature.
 - Validates binding between access token and DPoP proof using `ath` and `cnf` claims.
@@ -53,11 +53,11 @@ We support binding of access tokens and authorization codes to DPoP proofs.
 
 ## Sequence of events for DPoP with Authorization Code Flow
 
-1. User initiates login at the RP (Client) using individual ID.
+1. User initiates login at the RP (Client) using client ID.
 2. Authorization code binding should be done with dpop, by providing either the dpop_jkt query parameter or a DPoP header.
 3. **_with Par:_** Client calls the /par endpoint with the required parameters including dpop_jkt query parameter or a DPoP header.
 4. **_without Par:_** Client calls the /authorize endpoint with the required parameters including dpop_jkt query parameter.
-5. eSignet validates the request, and stores the dopop_jkt in the OIDC transaction cache object. This acts as a binding between the public key thumbprint and the authorization code.
+5. eSignet validates the request, and stores the dpop_jkt in the OIDC transaction cache object. This acts as a binding between the public key thumbprint and the authorization code.
 6. eSignet returns the authorization code to the client after user authentication and consent.
 7. Client makes a call to the /v2/token endpoint with the authorization code and the DPoP header.
 8. eSignet validates the DPoP header and checks the binding between the authorization code and the public key thumbprint if exists.
@@ -97,7 +97,7 @@ as per the [OAuth 2.0 Authorization Server Issuer Identification](https://www.rf
 ## PAR and DPoP support with mock RP:
 
 eSignet mock RP application provides a callback functions to demonstrate the PAR and DPoP features. 
-Refer to the [README](https://github.com/mosip/esignet-mock-services/tree/develop/mock-relying-party-ui#api-endpoints) for more details.
+Refer to the [README](https://github.com/mosip/esignet-mock-services/tree/master/mock-relying-party-ui#api-endpoints) for more details.
 
 # Error Handling
 
