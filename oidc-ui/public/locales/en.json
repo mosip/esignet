@@ -140,11 +140,11 @@
     "link_code_status": "Link Code Status",
     "failed": "Unable to login. Please scan QR code and try again.",
     "refresh": "Refresh QR Code",
-    "open_wallet_app": "Open {{walletName}} App",
+    "open_wallet_app": "Open {{walletName}}",
     "login_with_id": "Login with {{currentID}}",
     "verify_with_id": "Verify with {{currentID}}",
     "link_using_id": "Link using {{currentID}}",
-    "wallet_header": "Scan the QR code with {{walletName}} app"
+    "wallet_header": "Scan the QR code with {{walletName}}"
   },
   "otp": {
     "sign_in_with_otp": "Login with OTP",

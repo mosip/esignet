@@ -140,11 +140,11 @@
     "link_code_status": "حالة رمز الارتباط",
     "failed": "غير قادر على تسجيل الدخول. ",
     "refresh": "تحديث رمز الاستجابة السريعة",
-    "open_wallet_app": "يفتح {{walletName}} برنامج",
+    "open_wallet_app": "افتح {{walletName}}",
     "login_with_id": "تسجيل الدخول باستخدام {{currentID}}",
     "verify_with_id": "تحقق باستخدام {{currentID}}",
     "link_using_id": "الربط باستخدام {{currentID}}",
-    "wallet_header": "امسح رمز QR ضوئيًا باستخدام تطبيق {{walletName}}."
+    "wallet_header": "امسح رمز الاستجابة السريعة باستخدام {{walletName}}"
   },
   "otp": {
     "sign_in_with_otp": "تسجيل الدخول باستخدام OTP",
