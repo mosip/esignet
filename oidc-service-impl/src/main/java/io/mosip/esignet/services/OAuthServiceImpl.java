@@ -97,9 +97,9 @@ public class OAuthServiceImpl implements OAuthService {
     @Value("#{${mosip.esignet.discovery.key-values}}")
     private Map<String, Object> discoveryMap;
 
-    private final String PAR_ENDPOINT = "pushed_authorization_request_endpoint";
-    private final String TOKEN_ENDPOINT = "token_endpoint";
-    private final String ISSUER = "issuer";
+    private static final String PAR_ENDPOINT = "pushed_authorization_request_endpoint";
+    private static final String TOKEN_ENDPOINT = "token_endpoint";
+    private static final String ISSUER = "issuer";
 
     @Override
     public TokenResponse getTokens(TokenRequestV2 tokenRequest, String dpopHeader, boolean isV2) throws EsignetException {
