@@ -11,7 +11,7 @@ function Deleting_All() {
   ROOT_DIR=`pwd`
   SOFTHSM_NS=softhsm
 
-  helm -n $SOFTHSM_NS delete esignet-softhsm
+  helm -n esignet delete esignet-softhsm
 
   declare -a module=("oidc-ui"
                      "esignet"

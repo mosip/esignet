@@ -118,3 +118,9 @@ Update the 'MOSIP_ESIGNET_AUTHENTICATOR_IDA_SECRET_KEY' property with MOSIP IDA 
 ### ESIGNET-APITESTRIG INSTALLATION 
 esignet-apitestrig will test the APIs and the end-to-end functional flow of the eSignet modules.
 [esignet-apitestrig](esignet-apitestrig/README.md)
+
+### UNINSTALLING ESIGNET
+To completely remove eSignet from your Kubernetes environment, run the following commands.
+```
+./delete-all.sh
+```
