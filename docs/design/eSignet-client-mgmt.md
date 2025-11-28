@@ -23,7 +23,11 @@ The following fields are there currently in additionalConfig
 
 **consent_expire_in_mins** - [Documentation](esignet-consent.md)
 
+**require_pushed_authorization_requests**
+: This boolean field is for enforcing Pushed Authorization Requests (PAR) for the client. When set to true, the client must use PAR for authorization requests. Refer to [Pushed Authorization Requests (PAR)](fapi2-compliance.md#pushed-authorization-requests-par) for more details.
 
+**dpop_bound_access_tokens**
+: This boolean field is for enforcing DPoP (Demonstration of Proof-of-Possession) for access tokens. When set to true, the client must use DPoP-bound access tokens to access protected resources. Refer to [DPoP Support](fapi2-compliance.md#dpop-support) for more details.
 
 **Example value for this field**
 
