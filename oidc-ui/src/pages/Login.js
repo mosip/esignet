@@ -13,6 +13,7 @@ import linkAuthService from '../services/linkAuthService';
 import LoginQRCode from '../components/LoginQRCode';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { Buffer } from 'buffer';
+import { IMAGES } from '../constants/publicAssets';
 import openIDConnectService from '../services/openIDConnectService';
 import DefaultError from '../components/DefaultError';
 import Password from '../components/Password';
@@ -395,7 +396,7 @@ export default function LoginPage({ i18nKeyPrefix = 'header' }) {
     <>
       {hasParsingError ? (
         <DefaultError
-          backgroundImgPath="images/illustration_one.png"
+          backgroundImgPath={IMAGES.ILLUSTRATION_ONE}
           errorCode={'parsing_error_msg'}
         />
       ) : (
