@@ -139,6 +139,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         try {
             return objectMapper.writeValueAsString(clientNameMap);
         } catch (JsonProcessingException e) {
+            log.error("Client langmap is not a valid json string", e);
             throw new EsignetException(ErrorConstants.UNKNOWN_ERROR);
         }
     }
