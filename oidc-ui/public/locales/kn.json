@@ -140,11 +140,11 @@
     "link_code_status": "ಲಿಂಕ್ ಕೋಡ್ ಸ್ಥಿತಿ",
     "failed": "ಲಾಗಿನ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ",
     "refresh": "QR ಕೋಡ್ ಅನ್ನು ರಿಫ್ರೆಶ್ ಮಾಡಿ",
-    "open_wallet_app": "ತೆರೆಯಿರಿ {{walletName}} ಅಪ್ಲಿಕೇಶನ್",
+    "open_wallet_app": "{{walletName}} ತೆರೆಯಿರಿ",
     "login_with_id": "{{currentID}} ನೊಂದಿಗೆ ಲಾಗಿನ್ ಮಾಡಿ",
     "verify_with_id": "{{currentID}} ಬಳಸಿ ಪರಿಶೀಲಿಸಿ",
     "link_using_id": "{{currentID}} ಬಳಸಿ ಲಿಂಕ್ ಮಾಡಿ",
-    "wallet_header": "{{walletName}} ಅಪ್ಲಿಕೇಶನ್‌ನೊಂದಿಗೆ QR ಕೋಡ್ ಅನ್ನು ಸ್ಕ್ಯಾನ್ ಮಾಡಿ"
+    "wallet_header": "{{walletName}} ಬಳಸಿ QR ಕೋಡ್ ಸ್ಕ್ಯಾನ್ ಮಾಡಿ"
   },
   "otp": {
     "sign_in_with_otp": "OTP ಯೊಂದಿಗೆ ಲಾಗಿನ್ ಮಾಡಿ",
