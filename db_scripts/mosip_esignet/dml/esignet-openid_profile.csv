@@ -1,0 +1,8 @@
+profile_name,feature
+fapi2.0,PAR
+fapi2.0,DPOP
+fapi2.0,JWE
+nisdsp,PAR
+nisdsp,DPOP
+nisdsp,JWE
+nisdsp,PKCE
