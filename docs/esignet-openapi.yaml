@@ -1439,14 +1439,16 @@ paths:
           schema:
             type: string
             enum:
-              - openid profile
               - openid
               - profile
               - email
               - address
               - phone
               - offline_access
-            default: openid profile
+            examples:
+              - openid profile
+              - openid email
+              - openid
         - name: response_type
           in: query
           description: 'The value set here determines the authorization processing flow. To use the Authorization Code Flow, the value should be configured to "code".'
@@ -5538,21 +5540,34 @@ paths:
                 scope:
                   type: string
                   description: Specifies what access privileges are being requested for Access Tokens. The scopes associated with Access Tokens determine what resources will be available when they are used to access OAuth 2.0 protected endpoints. OpenID Connect requests MUST contain the OpenID scope value.
+                  enum:
+                    - openid
+                    - profile
+                    - email
+                    - address
+                    - phone
+                    - offline_access
                 response_type:
                   type: string
                   description: 'Value that determines the authorization processing flow to be used. When using the Authorization Code Flow, this value is code.'
                   x-stoplight:
                     id: 06op369n6ipx2
+                  enum:
+                    - code
                 client_id:
                   type: string
                   description: OAuth 2.0 Client Identifier valid at the Authorization Server
                   x-stoplight:
                     id: loecaliscjne7
+                  example: 785b806d0e594657b05aabdb30fff8a4
                 redirect_uri:
                   type: string
                   description: Redirection URI to which the response will be sent. This URI MUST exactly match one of the Redirection URI values for the Client pre-registered
                   x-stoplight:
                     id: obnx0myaatag7
+                  examples:
+                    - 'https://relying-party-portal/callback'
+                    - 'app://oauth/redirect'
                 state:
                   type: string
                   description: client state value echoed.
@@ -5565,11 +5580,16 @@ paths:
                 prompt:
                   type: string
                   description: 'Space delimited, case sensitive list of ASCII string values that specifies whether the Authorization Server prompts the End-User for re-authentication and consent.'
+                  examples:
+                    - consent
                 acr_values:
                   type: string
                   description: |-
                     Space separated ACR values, Unknown ACR are ignored. Only registered ACR values will be considered.
                     If none of the provided acr value is among the registered values, all the registered ACR's will be considered.
+                  examples:
+                    - 'mosip:idp:acr:biometrics'
+                    - 'mosip:idp:acr:password mosip:idp:acr:biometrics'
                 claims:
                   $ref: '#/components/schemas/Claim'
                 max_age:
@@ -5605,7 +5625,7 @@ paths:
               example-1:
                 value:
                   client_id: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
-                  scope: openid profile
+                  scope: openid
                   response_type: code
                   redirect_uri: 'https://fastlane.com/homepage'
                   display: popup
