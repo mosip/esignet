@@ -142,12 +142,26 @@ CREATE TABLE esignet.public_key_registry(
   CONSTRAINT pk_public_key_registry PRIMARY KEY (id_hash, auth_factor)
 );
 
+CREATE TABLE esignet.openid_profile (
+    profile_name character varying(100) NOT NULL,
+    feature character varying(100) NOT NULL,
+    CONSTRAINT pk_openid_profile PRIMARY KEY (profile_name, feature)
+);
+
 
 INSERT INTO esignet.KEY_POLICY_DEF(APP_ID,KEY_VALIDITY_DURATION,PRE_EXPIRE_DAYS,ACCESS_ALLOWED,IS_ACTIVE,CR_BY,CR_DTIMES) VALUES('ROOT', 2920, 1125, 'NA', true, 'mosipadmin', now());
 INSERT INTO esignet.KEY_POLICY_DEF(APP_ID,KEY_VALIDITY_DURATION,PRE_EXPIRE_DAYS,ACCESS_ALLOWED,IS_ACTIVE,CR_BY,CR_DTIMES) VALUES('OIDC_SERVICE', 1095, 50, 'NA', true, 'mosipadmin', now());
 INSERT INTO esignet.KEY_POLICY_DEF(APP_ID,KEY_VALIDITY_DURATION,PRE_EXPIRE_DAYS,ACCESS_ALLOWED,IS_ACTIVE,CR_BY,CR_DTIMES) VALUES('OIDC_PARTNER', 1095, 50, 'NA', true, 'mosipadmin', now());
 INSERT INTO esignet.KEY_POLICY_DEF(APP_ID,KEY_VALIDITY_DURATION,PRE_EXPIRE_DAYS,ACCESS_ALLOWED,IS_ACTIVE,CR_BY,CR_DTIMES) VALUES('BINDING_SERVICE', 1095, 50, 'NA', true, 'mosipadmin', now());
 INSERT INTO esignet.KEY_POLICY_DEF(APP_ID,KEY_VALIDITY_DURATION,PRE_EXPIRE_DAYS,ACCESS_ALLOWED,IS_ACTIVE,CR_BY,CR_DTIMES) VALUES('MOCK_BINDING_SERVICE', 1095, 50, 'NA', true, 'mosipadmin', now());
+
+INSERT INTO esignet.openid_profile(profile_name, feature) VALUES ('fapi2.0', 'PAR');
+INSERT INTO esignet.openid_profile(profile_name, feature) VALUES ('fapi2.0', 'DPOP');
+INSERT INTO esignet.openid_profile(profile_name, feature) VALUES ('fapi2.0', 'JWE');
+INSERT INTO esignet.openid_profile(profile_name, feature) VALUES ('nisdsp', 'PAR');
+INSERT INTO esignet.openid_profile(profile_name, feature) VALUES ('nisdsp', 'DPOP');
+INSERT INTO esignet.openid_profile(profile_name, feature) VALUES ('nisdsp', 'JWE');
+INSERT INTO esignet.openid_profile(profile_name, feature) VALUES ('nisdsp', 'PKCE');
 
 
 \c mosip_mockidentitysystem postgres
