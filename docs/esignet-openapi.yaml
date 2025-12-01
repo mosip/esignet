@@ -5698,6 +5698,29 @@ paths:
                   error_description:
                     type: string
                     description: 'Error description, available in error response.'
+        '405':
+          description: Method Not Allowed
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+              description: 'no-cache, no-store'
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                  - errorDescription
+                properties:
+                  error:
+                    type: string
+                    description: 'Error code, available in error response.'
+                    enum:
+                      - method_not_allowed
+                  error_description:
+                    type: string
+                    description: 'Error description, available in error response.'
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
       x-stoplight:
