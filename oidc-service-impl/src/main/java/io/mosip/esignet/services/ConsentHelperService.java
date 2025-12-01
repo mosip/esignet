@@ -163,19 +163,19 @@ public class ConsentHelperService {
             map.forEach((key, value) -> sortedMap.put((String) key, sortObject(value)));
             return sortedMap;
         }
-        else if(object instanceof List<?> list1) {
-            List<Object> list = new ArrayList<>(list1);
-            if (!list.isEmpty() && list.getFirst() instanceof String) {
-                Collections.sort(list, (a, b) -> {
+        else if(object instanceof List<?> list) {
+            List<Object> newList = new ArrayList<>(list);
+            if (!newList.isEmpty() && newList.getFirst() instanceof String) {
+                Collections.sort(newList, (a, b) -> {
                     String strA = a != null ? a.toString() : "";
                     String strB = b != null ? b.toString() : "";
                     return strA.compareToIgnoreCase(strB);
                 });
             }
-            for (int i = 0; i < list.size(); i++) {
-                list.set(i, sortObject(list.get(i)));
+            for (int i = 0; i < newList.size(); i++) {
+                newList.set(i, sortObject(newList.get(i)));
             }
-            return list;
+            return newList;
         }
         return object;
     }

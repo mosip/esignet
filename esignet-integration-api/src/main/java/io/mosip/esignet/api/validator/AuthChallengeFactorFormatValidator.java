@@ -96,8 +96,8 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
                     Object rawValue = challengeMap.get(id);
                     String value = null;
 
-                    if (rawValue instanceof String string) {
-                        value = string;
+                    if (rawValue instanceof String strValue) {
+                        value = strValue;
                     } else if (rawValue instanceof List) {
                         try {
                             List<Map<String, String>> list = objectMapper.convertValue(rawValue, new TypeReference<List<Map<String, String>>>() {});
