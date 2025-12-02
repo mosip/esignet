@@ -266,7 +266,7 @@ OAuthDetailsDifferentScopeLanguageClaimsSce:
    ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_Valid_DOB_Claim_Pos:
       endPoint: /v1/esignet/authorization/v3/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_12
-      description: Create an OAuth details request with date of birth essential true and name essential true
+      description: Create an OAuth request with name and name of birth set as essential but ensure the response includes only name as essential and ignores name of birth.
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
