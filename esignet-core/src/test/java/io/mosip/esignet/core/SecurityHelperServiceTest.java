@@ -10,30 +10,31 @@ import com.nimbusds.jose.jwk.*;
 import com.nimbusds.jose.util.Base64URL;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.util.SecurityHelperService;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.Assert;
 
 import java.math.BigInteger;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SecurityHelperServiceTest {
 
     SecurityHelperService securityHelperService = new SecurityHelperService();
 
     @Test
     public void test_generateSecureRandomString_thenPass() {
-        Assert.notNull(securityHelperService.generateSecureRandomString(20));
+        Assert.notNull(securityHelperService.generateSecureRandomString(20), "must not be null");
     }
 
     @Test
     public void computeJwkThumbprint_withNullKey_thenFail() throws Exception {
         try {
             securityHelperService.computeJwkThumbprint(null);
-        }catch (IllegalArgumentException e){
-            org.junit.Assert.assertEquals( ErrorConstants.INVALID_PUBLIC_KEY,e.getMessage());
+        } catch (IllegalArgumentException e) {
+            Assertions.assertEquals(ErrorConstants.INVALID_PUBLIC_KEY, e.getMessage());
         }
     }
 
@@ -47,9 +48,9 @@ public class SecurityHelperServiceTest {
 
         try {
             securityHelperService.computeJwkThumbprint(privateRsaKey);
-            org.junit.Assert.fail();
+            Assertions.fail();
         } catch (IllegalArgumentException ex) {
-            org.junit.Assert.assertEquals(ErrorConstants.INVALID_PUBLIC_KEY, ex.getMessage());
+            Assertions.assertEquals(ErrorConstants.INVALID_PUBLIC_KEY, ex.getMessage());
         }
     }
 
@@ -58,8 +59,8 @@ public class SecurityHelperServiceTest {
         JWK fakeKey = new OctetSequenceKey.Builder(new Base64URL("AQAB")).build();
         try {
             securityHelperService.computeJwkThumbprint(fakeKey);
-        }catch (IllegalArgumentException e){
-            org.junit.Assert.assertEquals(ErrorConstants.INVALID_PUBLIC_KEY,e.getMessage());
+        } catch (IllegalArgumentException e) {
+            Assertions.assertEquals(ErrorConstants.INVALID_PUBLIC_KEY, e.getMessage());
         }
     }
 
@@ -69,8 +70,8 @@ public class SecurityHelperServiceTest {
         JWK jwk = JWK.parse(octJwkJson);
         try {
             securityHelperService.computeJwkThumbprint(jwk);
-        }catch (IllegalArgumentException e){
-            org.junit.Assert.assertEquals(ErrorConstants.INVALID_PUBLIC_KEY,e.getMessage());
+        } catch (IllegalArgumentException e) {
+            Assertions.assertEquals(ErrorConstants.INVALID_PUBLIC_KEY, e.getMessage());
         }
     }
 
@@ -80,8 +81,8 @@ public class SecurityHelperServiceTest {
         JWK jwk = JWK.parse(unsupportedJwkJson);
         try {
             securityHelperService.computeJwkThumbprint(jwk);
-        }catch (IllegalArgumentException e){
-            org.junit.Assert.assertEquals(ErrorConstants.INVALID_ALGORITHM,e.getMessage());
+        } catch (IllegalArgumentException e) {
+            Assertions.assertEquals(ErrorConstants.INVALID_ALGORITHM, e.getMessage());
         }
     }
 
@@ -97,7 +98,7 @@ public class SecurityHelperServiceTest {
 
         String expectedThumbprint = "NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs";
 
-        org.junit.Assert.assertEquals(expectedThumbprint, thumbprint);
+        Assertions.assertEquals(expectedThumbprint, thumbprint);
     }
 
     @Test
@@ -115,7 +116,7 @@ public class SecurityHelperServiceTest {
         String thumbprint = securityHelperService.computeJwkThumbprint(ecJwk);
         String expected = "7BWWOB0woOhbkjAvfme5xwdOsehUXM_dZsy8ZLPEvss";
 
-        org.junit.Assert.assertEquals(expected, thumbprint);
+        Assertions.assertEquals(expected, thumbprint);
     }
 
 }

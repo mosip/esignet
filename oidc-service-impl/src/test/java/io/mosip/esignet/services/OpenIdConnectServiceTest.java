@@ -11,16 +11,17 @@ import io.mosip.esignet.core.spi.TokenService;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class OpenIdConnectServiceTest {
 
     @InjectMocks
@@ -37,27 +38,31 @@ public class OpenIdConnectServiceTest {
 
     @Test
     public void getOpenIdConfiguration_test() {
-    	Map<String, Object> discoveryMap = new HashMap<>();
-		ReflectionTestUtils.setField(openIdConnectService, "discoveryMap", discoveryMap);
-        Assert.assertNotNull(openIdConnectService.getOpenIdConfiguration());
+        Map<String, Object> discoveryMap = new HashMap<>();
+        ReflectionTestUtils.setField(openIdConnectService, "discoveryMap", discoveryMap);
+        Assertions.assertNotNull(openIdConnectService.getOpenIdConfiguration());
     }
 
-    @Test(expected = NotAuthenticatedException.class)
+    @Test
     public void getUserInfo_withInvalidTransaction_thenFail() {
-        Mockito.when(cacheUtilService.getUserInfoTransaction(Mockito.anyString())).thenReturn(null);
-        openIdConnectService.getUserInfo("Bearer access-token", null);
+        Assertions.assertThrows(NotAuthenticatedException.class, () -> {
+            Mockito.when(cacheUtilService.getUserInfoTransaction(Mockito.anyString())).thenReturn(null);
+            openIdConnectService.getUserInfo("Bearer access-token", null);
+        });
     }
 
-    @Test(expected = EsignetException.class)
+    @Test
     public void getUserInfo_withInvalidAccessToken_thenFail() {
-        OIDCTransaction oidcTransaction = new OIDCTransaction();
-        oidcTransaction.setClientId("client-id");
-        oidcTransaction.setPartnerSpecificUserToken("p-s-u-t");
-        oidcTransaction.setEncryptedKyc("encrypted-kyc");
-        oidcTransaction.setDpopBoundAccessToken(false);
-        Mockito.when(cacheUtilService.getUserInfoTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
-        Mockito.doThrow(EsignetException.class).when(tokenService).verifyAccessToken(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
-        openIdConnectService.getUserInfo("Bearer access-token", null);
+        Assertions.assertThrows(EsignetException.class, () -> {
+            OIDCTransaction oidcTransaction = new OIDCTransaction();
+            oidcTransaction.setClientId("client-id");
+            oidcTransaction.setPartnerSpecificUserToken("p-s-u-t");
+            oidcTransaction.setEncryptedKyc("encrypted-kyc");
+            oidcTransaction.setDpopBoundAccessToken(false);
+            Mockito.when(cacheUtilService.getUserInfoTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
+            Mockito.doThrow(EsignetException.class).when(tokenService).verifyAccessToken(Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
+            openIdConnectService.getUserInfo("Bearer access-token", null);
+        });
     }
 
     @Test
@@ -69,8 +74,8 @@ public class OpenIdConnectServiceTest {
         oidcTransaction.setDpopBoundAccessToken(false);
         Mockito.when(cacheUtilService.getUserInfoTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
         String kyc = openIdConnectService.getUserInfo("Bearer access-token", null);
-        Assert.assertNotNull(kyc);
-        Assert.assertEquals("encrypted-kyc", kyc);
+        Assertions.assertNotNull(kyc);
+        Assertions.assertEquals("encrypted-kyc", kyc);
     }
 
     @Test
@@ -84,8 +89,8 @@ public class OpenIdConnectServiceTest {
         Mockito.when(cacheUtilService.getUserInfoTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
         Mockito.when(tokenService.isValidDpopServerNonce(dpopHeader, oidcTransaction)).thenReturn(true);
         String kyc = openIdConnectService.getUserInfo("DPoP access-token", dpopHeader);
-        Assert.assertNotNull(kyc);
-        Assert.assertEquals("encrypted-kyc", kyc);
+        Assertions.assertNotNull(kyc);
+        Assertions.assertEquals("encrypted-kyc", kyc);
     }
 
     @Test
@@ -101,9 +106,9 @@ public class OpenIdConnectServiceTest {
         Mockito.doThrow(new DpopNonceMissingException(nonce)).when(tokenService).generateAndStoreNewNonce(Mockito.anyString(), Mockito.anyString());
         try {
             openIdConnectService.getUserInfo("DPoP access-token", "dpop-header");
-            Assert.fail();
+            Assertions.fail();
         } catch (DpopNonceMissingException ex) {
-            Assert.assertEquals(nonce, ex.getDpopNonceHeaderValue());
+            Assertions.assertEquals(nonce, ex.getDpopNonceHeaderValue());
         }
     }
 

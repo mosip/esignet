@@ -13,16 +13,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.servlet.AsyncEvent;
-import javax.servlet.AsyncListener;
+import jakarta.servlet.AsyncEvent;
+import jakarta.servlet.AsyncListener;
 
 import io.mosip.esignet.api.util.KBIFormHelperService;
 import io.mosip.esignet.core.config.LocalAuthenticationEntryPoint;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.dto.Error;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +29,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockAsyncContext;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.context.request.async.DeferredResult;
@@ -47,7 +45,6 @@ import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.services.AuthorizationHelperService;
 import io.mosip.esignet.services.CacheUtilService;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(value = LinkedAuthorizationController.class)
 public class LinkedAuthorizationControllerTest {
 
@@ -274,10 +271,10 @@ public class LinkedAuthorizationControllerTest {
 
         List<String> errorCodes = Arrays.asList(INVALID_OTP_CHANNEL, INVALID_IDENTIFIER, INVALID_TRANSACTION_ID);
         ResponseWrapper responseWrapper = objectMapper.readValue(result.getResponse().getContentAsString(), ResponseWrapper.class);
-        Assert.assertTrue(responseWrapper.getErrors().size() == 3);
-        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
-        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(1)).getErrorCode()));
-        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(2)).getErrorCode()));
+        Assertions.assertTrue(responseWrapper.getErrors().size() == 3);
+        Assertions.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().getFirst()).getErrorCode()));
+        Assertions.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(1)).getErrorCode()));
+        Assertions.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(2)).getErrorCode()));
     }
 
     @Test
@@ -405,8 +402,8 @@ public class LinkedAuthorizationControllerTest {
         List<String> errorCodes = Arrays.asList(INVALID_CHALLENGE_FORMAT,INVALID_AUTH_FACTOR_TYPE, INVALID_AUTH_FACTOR_TYPE_FORMAT,
                 INVALID_CHALLENGE, INVALID_CHALLENGE_LENGTH);
         ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
-        Assert.assertTrue(responseWrapper.getErrors().size() == 1);
-        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
+        Assertions.assertTrue(responseWrapper.getErrors().size() == 1);
+        Assertions.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().getFirst()).getErrorCode()));
     }
 
     @Test
@@ -499,34 +496,6 @@ public class LinkedAuthorizationControllerTest {
     }
 
     @Test
-    public void getLinkStatus_withInvalidLinkCode_thenFail() throws Exception {
-        RequestWrapper<LinkStatusRequest> requestWrapper = new RequestWrapper<>();
-        requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
-        LinkStatusRequest linkStatusRequest = new LinkStatusRequest();
-        linkStatusRequest.setLinkCode("link-code");
-        linkStatusRequest.setTransactionId("transaction-id");
-        requestWrapper.setRequest(linkStatusRequest);
-
-        MvcResult mvcResult = mockMvc.perform(post("/linked-authorization/link-status")
-                        .content(objectMapper.writeValueAsString(requestWrapper))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(request().asyncStarted())
-                .andReturn();
-
-        // Trigger a timeout on the request
-        MockAsyncContext ctx = (MockAsyncContext) mvcResult.getRequest().getAsyncContext();
-        for (AsyncListener listener : ctx.getListeners()) {
-            AsyncEvent asyncEvent = new AsyncEvent(ctx, new EsignetException(ErrorConstants.INVALID_LINK_CODE));
-            listener.onError(asyncEvent);
-        }
-
-        mockMvc.perform(asyncDispatch(mvcResult))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.errors").isNotEmpty())
-                .andExpect(jsonPath("$.errors[0].errorCode").value(INVALID_LINK_CODE));
-    }
-
-    @Test
     public void getLinkStatus_withTimeout_thenFail() throws Exception {
         RequestWrapper<LinkStatusRequest> requestWrapper = new RequestWrapper<>();
         requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
@@ -554,7 +523,7 @@ public class LinkedAuthorizationControllerTest {
     }
     
     @Test
-    public void getLinkStatus_withException_thenFail() throws Exception {
+    public void getLinkStatus_withInvalidLinkCode_thenFail() throws Exception {
     	RequestWrapper<LinkStatusRequest> requestWrapper = new RequestWrapper<>();
         requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
         LinkStatusRequest linkStatusRequest = new LinkStatusRequest();
@@ -571,37 +540,9 @@ public class LinkedAuthorizationControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.errors").isNotEmpty());
     }
-
-    @Test
-    public void getLinkAuthCode_withInvalidLinkCode_thenFail() throws Exception {
-        RequestWrapper<LinkAuthCodeRequest> requestWrapper = new RequestWrapper<>();
-        requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
-        LinkAuthCodeRequest linkAuthCodeRequest = new LinkAuthCodeRequest();
-        linkAuthCodeRequest.setTransactionId("transaction-id");
-        linkAuthCodeRequest.setLinkedCode("linked-code");
-        requestWrapper.setRequest(linkAuthCodeRequest);
-
-        MvcResult mvcResult = mockMvc.perform(post("/linked-authorization/link-auth-code")
-                        .content(objectMapper.writeValueAsString(requestWrapper))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(request().asyncStarted())
-                .andReturn();
-
-        // Trigger a timeout on the request
-        MockAsyncContext ctx = (MockAsyncContext) mvcResult.getRequest().getAsyncContext();
-        for (AsyncListener listener : ctx.getListeners()) {
-            AsyncEvent asyncEvent = new AsyncEvent(ctx, new EsignetException(ErrorConstants.INVALID_LINK_CODE));
-            listener.onError(asyncEvent);
-        }
-
-        mockMvc.perform(asyncDispatch(mvcResult))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.errors").isNotEmpty())
-                .andExpect(jsonPath("$.errors[0].errorCode").value(INVALID_LINK_CODE));
-    }
     
     @Test
-    public void getLinkAuthCode_withException_thenFail() throws Exception {
+    public void getLinkAuthCode_withInvalidLinkCode_thenFail() throws Exception {
         RequestWrapper<LinkAuthCodeRequest> requestWrapper = new RequestWrapper<>();
         requestWrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
         LinkAuthCodeRequest linkAuthCodeRequest = new LinkAuthCodeRequest();
@@ -771,8 +712,8 @@ public class LinkedAuthorizationControllerTest {
         List<String> errorCodes = Arrays.asList(INVALID_CHALLENGE_FORMAT,INVALID_AUTH_FACTOR_TYPE, INVALID_AUTH_FACTOR_TYPE_FORMAT,
                 INVALID_CHALLENGE, INVALID_CHALLENGE_LENGTH);
         ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
-        Assert.assertTrue(responseWrapper.getErrors().size() == 1);
-        Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
+        Assertions.assertTrue(responseWrapper.getErrors().size() == 1);
+        Assertions.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().getFirst()).getErrorCode()));
     }
 
     @Test

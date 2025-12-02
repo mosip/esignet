@@ -16,7 +16,7 @@ public interface LinkedAuthorizationService {
      * @param linkCodeRequest
      * @return
      */
-    LinkCodeResponse generateLinkCode(LinkCodeRequest linkCodeRequest) throws EsignetException;;
+    LinkCodeResponse generateLinkCode(LinkCodeRequest linkCodeRequest) throws EsignetException;
 
     /**
      * Starts a linked-transaction for the provided valid and active link-code.

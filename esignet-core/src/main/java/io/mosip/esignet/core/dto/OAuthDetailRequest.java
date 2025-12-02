@@ -9,8 +9,8 @@ import io.mosip.esignet.api.dto.claim.ClaimsV2;
 import io.mosip.esignet.core.validator.*;
 import lombok.Data;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 
 import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_CLIENT_ID;
 

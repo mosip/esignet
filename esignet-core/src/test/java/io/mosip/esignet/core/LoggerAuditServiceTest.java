@@ -4,16 +4,16 @@ import io.mosip.esignet.api.dto.AuditDTO;
 import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.util.LoggerAuditService;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class LoggerAuditServiceTest {
-    
+
     @Mock
     private AuditDTO mockAuditDTO;
 
@@ -27,17 +27,19 @@ public class LoggerAuditServiceTest {
         Throwable throwable = new RuntimeException("Test Exception");
         try {
             loggerAuditService.logAudit(action, status, mockAuditDTO, throwable);
-            Assert.assertTrue(true);
-        }catch(Exception e){
-            Assert.fail();
+            Assertions.assertTrue(true);
+        } catch (Exception e) {
+            Assertions.fail();
         }
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void logAudit_withNullAction_throwsError() {
-        ActionStatus status = ActionStatus.ERROR;
-        Throwable throwable = new RuntimeException("Test Exception");
-        loggerAuditService.logAudit(null, status, mockAuditDTO, throwable);
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            ActionStatus status = ActionStatus.ERROR;
+            Throwable throwable = new RuntimeException("Test Exception");
+            loggerAuditService.logAudit(null, status, mockAuditDTO, throwable);
+        });
     }
 
     @Test
@@ -47,9 +49,9 @@ public class LoggerAuditServiceTest {
         String username = "testUser";
         try {
             loggerAuditService.logAudit(username, action, status, mockAuditDTO, null);
-            Assert.assertTrue(true);
-        }catch(Exception e){
-            Assert.fail();
+            Assertions.assertTrue(true);
+        } catch (Exception e) {
+            Assertions.fail();
         }
     }
 
@@ -60,9 +62,9 @@ public class LoggerAuditServiceTest {
         String username = "testUser";
         try {
             loggerAuditService.logAudit(username, action, status, mockAuditDTO, null);
-            Assert.assertTrue(true);
-        }catch(Exception e){
-            Assert.fail();
+            Assertions.assertTrue(true);
+        } catch (Exception e) {
+            Assertions.fail();
         }
     }
 

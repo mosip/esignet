@@ -92,14 +92,14 @@ public class BindingValidatorServiceImpl implements KeyBindingValidator {
     }
 
     private boolean validateChallenge(String individualId, AuthChallenge authChallenge, Optional<PublicKeyRegistry> publicKeyRegistry) {
-        if(!publicKeyRegistry.isPresent())
+        if(publicKeyRegistry.isEmpty())
             return false;
 
         try {
-            switch (authChallenge.getAuthFactorType()) {
-                case "WLA" : return validateWLAToken(individualId, authChallenge.getChallenge(), authChallenge.getFormat(), publicKeyRegistry.get());
-                default: return false;
-            }
+            return switch (authChallenge.getAuthFactorType()) {
+                case "WLA"  -> validateWLAToken(individualId, authChallenge.getChallenge(), authChallenge.getFormat(), publicKeyRegistry.get());
+                default -> false;
+            };
         } catch (Exception e) {
             log.error("Failed to validate challenge : {}", authChallenge.getAuthFactorType(), e);
         }

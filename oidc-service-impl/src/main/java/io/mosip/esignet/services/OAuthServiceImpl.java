@@ -37,6 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -245,7 +246,7 @@ public class OAuthServiceImpl implements OAuthService {
             return;
         }
 
-        if(StringUtils.isEmpty(codeVerifier)) {
+        if(ObjectUtils.isEmpty(codeVerifier)) {
             log.error("Null or empty code_verifier found in the request");
             throw new EsignetException(ErrorConstants.INVALID_PKCE_CODE_VERFIER);
         }
@@ -260,7 +261,7 @@ public class OAuthServiceImpl implements OAuthService {
                 throw new EsignetException(ErrorConstants.UNSUPPORTED_PKCE_CHALLENGE_METHOD);
         }
 
-        if(StringUtils.isEmpty(computedChallenge) || !computedChallenge.equals(proofKeyCodeExchange.getCodeChallenge()))
+        if(ObjectUtils.isEmpty(computedChallenge) || !computedChallenge.equals(proofKeyCodeExchange.getCodeChallenge()))
             throw new EsignetException(ErrorConstants.PKCE_FAILED);
     }
 

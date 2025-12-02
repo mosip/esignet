@@ -5,11 +5,9 @@
  */
 package io.mosip.esignet.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeType;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
@@ -27,7 +25,6 @@ import io.mosip.esignet.repository.ClientDetailRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
 import org.json.simple.JSONArray;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
@@ -139,8 +136,12 @@ public class ClientManagementServiceImpl implements ClientManagementService {
     private String getClientNameLanguageMapAsJsonString(Map<String, String> clientNameMap, String clientName) {
         if(clientNameMap == null) clientNameMap = new HashMap<>();
         clientNameMap.put(Constants.NONE_LANG_KEY, clientName);
-        JSONObject clientNameObject = new JSONObject(clientNameMap);
-        return clientNameObject.toString();
+        try {
+            return objectMapper.writeValueAsString(clientNameMap);
+        } catch (JsonProcessingException e) {
+            log.error("Client name langmap is not a valid json string", e);
+            throw new EsignetException(ErrorConstants.UNKNOWN_ERROR);
+        }
     }
 
     @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientDetailCreateRequest.getClientId()")
@@ -171,7 +172,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
     @Override
     public ClientDetailResponse updateOIDCClient(String clientId, ClientDetailUpdateRequest clientDetailUpdateRequest) throws EsignetException {
         Optional<ClientDetail> result = clientDetailRepository.findById(clientId);
-        if (!result.isPresent()) {
+        if (result.isEmpty()) {
             log.error("Invalid Client Id : {}", ErrorConstants.INVALID_CLIENT_ID);
             throw new EsignetException(ErrorConstants.INVALID_CLIENT_ID);
         }
@@ -190,7 +191,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
     @Override
     public io.mosip.esignet.core.dto.ClientDetail getClientDetails(String clientId) throws EsignetException {
         Optional<ClientDetail> result = clientDetailRepository.findByIdAndStatus(clientId, CLIENT_ACTIVE_STATUS);
-        if(!result.isPresent())
+        if(result.isEmpty())
             throw new InvalidClientException();
 
         io.mosip.esignet.core.dto.ClientDetail dto = new io.mosip.esignet.core.dto.ClientDetail();
@@ -291,7 +292,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
 
     public ClientDetail buildOAuthClient(String clientId, ClientDetailUpdateRequestV2 clientDetailUpdateRequestV2) {
         Optional<ClientDetail> result = clientDetailRepository.findById(clientId);
-        if (!result.isPresent()) {
+        if (result.isEmpty()) {
             log.error("Invalid Client Id : {}", ErrorConstants.INVALID_CLIENT_ID);
             throw new EsignetException(ErrorConstants.INVALID_CLIENT_ID);
         }

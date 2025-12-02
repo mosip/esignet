@@ -8,6 +8,7 @@ package io.mosip.esignet.core.dto;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
 
+import java.io.Serial;
 import java.util.List;
 import java.io.Serializable;
 import java.util.Map;
@@ -15,6 +16,7 @@ import java.util.Map;
 @Data
 public class ClientDetail implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private String id;

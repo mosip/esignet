@@ -7,6 +7,7 @@ package io.mosip.esignet.api.dto.claim;
 
 import lombok.Data;
 
+import java.io.Serial;
 import java.util.List;
 import java.util.Map;
 import java.io.Serializable;
@@ -17,6 +18,7 @@ import java.io.Serializable;
 @Data
 public class Claims implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
 

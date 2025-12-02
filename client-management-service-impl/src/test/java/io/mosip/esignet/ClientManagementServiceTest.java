@@ -18,15 +18,15 @@ import io.mosip.esignet.entity.ClientDetail;
 import io.mosip.esignet.repository.ClientDetailRepository;
 import io.mosip.esignet.services.ClientManagementServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -38,7 +38,7 @@ import java.util.*;
 import static io.mosip.esignet.core.constants.Constants.CLIENT_ACTIVE_STATUS;
 
 @Slf4j
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ClientManagementServiceTest {
 
     @InjectMocks
@@ -55,7 +55,7 @@ public class ClientManagementServiceTest {
 
     Map<String, Object> PUBLIC_KEY;
 
-    @Before
+    @BeforeEach
     public void Before() {
         PUBLIC_KEY = generateJWK_RSA().toJSONObject();
     }
@@ -79,9 +79,9 @@ public class ClientManagementServiceTest {
         entity.setStatus("active");
         Mockito.when(clientDetailRepository.save(Mockito.any(ClientDetail.class))).thenReturn(entity);
         ClientDetailResponse clientDetailResponse = clientManagementService.createOIDCClient(clientCreateReqDto);
-        Assert.assertNotNull(clientDetailResponse);
-        Assert.assertTrue(clientDetailResponse.getClientId().equals("mock_id_v1"));
-        Assert.assertTrue(clientDetailResponse.getStatus().equals("active"));
+        Assertions.assertNotNull(clientDetailResponse);
+        Assertions.assertTrue(clientDetailResponse.getClientId().equals("mock_id_v1"));
+        Assertions.assertTrue(clientDetailResponse.getStatus().equals("active"));
     }
 
     @Test
@@ -92,7 +92,7 @@ public class ClientManagementServiceTest {
         try {
             clientManagementService.createOIDCClient(clientCreateReqDto);
         } catch (EsignetException ex) {
-            Assert.assertEquals(ex.getErrorCode(), ErrorConstants.DUPLICATE_CLIENT_ID);
+            Assertions.assertEquals(ex.getErrorCode(), ErrorConstants.DUPLICATE_CLIENT_ID);
         }
     }
 
@@ -118,9 +118,9 @@ public class ClientManagementServiceTest {
         entity.setStatus("active");
         Mockito.when(clientDetailRepository.save(Mockito.any(ClientDetail.class))).thenReturn(entity);
         ClientDetailResponse clientDetailResponse = clientManagementService.createOAuthClient(clientCreateV2ReqDto);
-        Assert.assertNotNull(clientDetailResponse);
-        Assert.assertTrue(clientDetailResponse.getClientId().equals("mock_id_v1"));
-        Assert.assertTrue(clientDetailResponse.getStatus().equals("active"));
+        Assertions.assertNotNull(clientDetailResponse);
+        Assertions.assertTrue(clientDetailResponse.getClientId().equals("mock_id_v1"));
+        Assertions.assertTrue(clientDetailResponse.getStatus().equals("active"));
     }
 
     @Test
@@ -131,7 +131,7 @@ public class ClientManagementServiceTest {
         try {
             clientManagementService.createOAuthClient(clientCreateV2ReqDto);
         } catch (EsignetException ex) {
-            Assert.assertEquals(ex.getErrorCode(), ErrorConstants.DUPLICATE_CLIENT_ID);
+            Assertions.assertEquals(ex.getErrorCode(), ErrorConstants.DUPLICATE_CLIENT_ID);
         }
     }
 
@@ -158,9 +158,9 @@ public class ClientManagementServiceTest {
         entity.setStatus("active");
         Mockito.when(clientDetailRepository.save(Mockito.any(ClientDetail.class))).thenReturn(entity);
         ClientDetailResponseV2 clientDetailResponseV2 = clientManagementService.createClient(clientCreateV3ReqDto);
-        Assert.assertNotNull(clientDetailResponseV2);
-        Assert.assertTrue(clientDetailResponseV2.getClientId().equals("mock_id_v1"));
-        Assert.assertTrue(clientDetailResponseV2.getStatus().equals("active"));
+        Assertions.assertNotNull(clientDetailResponseV2);
+        Assertions.assertTrue(clientDetailResponseV2.getClientId().equals("mock_id_v1"));
+        Assertions.assertTrue(clientDetailResponseV2.getStatus().equals("active"));
     }
 
     @Test
@@ -171,7 +171,7 @@ public class ClientManagementServiceTest {
         try {
             clientManagementService.createClient(clientCreateV3ReqDto);
         } catch (EsignetException ex) {
-            Assert.assertEquals(ex.getErrorCode(), ErrorConstants.DUPLICATE_CLIENT_ID);
+            Assertions.assertEquals(ex.getErrorCode(), ErrorConstants.DUPLICATE_CLIENT_ID);
         }
     }
 
@@ -181,7 +181,7 @@ public class ClientManagementServiceTest {
         try {
             clientManagementService.updateOIDCClient("client_id_v1", null);
         } catch (EsignetException ex) {
-            Assert.assertEquals(ex.getErrorCode(), ErrorConstants.INVALID_CLIENT_ID);
+            Assertions.assertEquals(ex.getErrorCode(), ErrorConstants.INVALID_CLIENT_ID);
         }
     }
 
@@ -212,9 +212,9 @@ public class ClientManagementServiceTest {
         entity.setStatus("inactive");
         Mockito.when(clientDetailRepository.save(Mockito.any(ClientDetail.class))).thenReturn(entity);
         ClientDetailResponse clientDetailResponse = clientManagementService.updateOIDCClient("client_id_v1", updateRequest);
-        Assert.assertNotNull(clientDetailResponse);
-        Assert.assertTrue(clientDetailResponse.getClientId().equals("client_id_v1"));
-        Assert.assertTrue(clientDetailResponse.getStatus().equals("inactive"));
+        Assertions.assertNotNull(clientDetailResponse);
+        Assertions.assertTrue(clientDetailResponse.getClientId().equals("client_id_v1"));
+        Assertions.assertTrue(clientDetailResponse.getStatus().equals("inactive"));
     }
 
     @Test
@@ -223,7 +223,7 @@ public class ClientManagementServiceTest {
         try {
             clientManagementService.updateOAuthClient("client_id_v1", null);
         } catch (EsignetException ex) {
-            Assert.assertEquals(ex.getErrorCode(), ErrorConstants.INVALID_CLIENT_ID);
+            Assertions.assertEquals(ex.getErrorCode(), ErrorConstants.INVALID_CLIENT_ID);
         }
     }
 
@@ -255,9 +255,9 @@ public class ClientManagementServiceTest {
         entity.setStatus("inactive");
         Mockito.when(clientDetailRepository.save(Mockito.any(ClientDetail.class))).thenReturn(entity);
         ClientDetailResponse clientDetailResponse = clientManagementService.updateOAuthClient("client_id_v1", updateV2Request);
-        Assert.assertNotNull(clientDetailResponse);
-        Assert.assertTrue(clientDetailResponse.getClientId().equals("client_id_v1"));
-        Assert.assertTrue(clientDetailResponse.getStatus().equals("inactive"));
+        Assertions.assertNotNull(clientDetailResponse);
+        Assertions.assertTrue(clientDetailResponse.getClientId().equals("client_id_v1"));
+        Assertions.assertTrue(clientDetailResponse.getStatus().equals("inactive"));
     }
 
     @Test
@@ -289,9 +289,9 @@ public class ClientManagementServiceTest {
         entity.setStatus("inactive");
         Mockito.when(clientDetailRepository.save(Mockito.any(ClientDetail.class))).thenReturn(entity);
         ClientDetailResponseV2 clientDetailResponseV2 = clientManagementService.updateClient("client_id_v1", updateV3Request);
-        Assert.assertNotNull(clientDetailResponseV2);
-        Assert.assertTrue(clientDetailResponseV2.getClientId().equals("client_id_v1"));
-        Assert.assertTrue(clientDetailResponseV2.getStatus().equals("inactive"));
+        Assertions.assertNotNull(clientDetailResponseV2);
+        Assertions.assertTrue(clientDetailResponseV2.getClientId().equals("client_id_v1"));
+        Assertions.assertTrue(clientDetailResponseV2.getStatus().equals("inactive"));
     }
 
     @Test
@@ -300,7 +300,7 @@ public class ClientManagementServiceTest {
         try {
             clientManagementService.updateClient("client_id_v1", null);
         } catch (EsignetException ex) {
-            Assert.assertEquals(ex.getErrorCode(), ErrorConstants.INVALID_CLIENT_ID);
+            Assertions.assertEquals(ex.getErrorCode(), ErrorConstants.INVALID_CLIENT_ID);
         }
     }
 
@@ -320,7 +320,7 @@ public class ClientManagementServiceTest {
                 .thenReturn(Optional.of(clientDetail));
 
         io.mosip.esignet.core.dto.ClientDetail dto = clientManagementService.getClientDetails("client_id_v1");
-        Assert.assertNotNull(dto);
+        Assertions.assertNotNull(dto);
     }
 
     @Test
@@ -331,7 +331,7 @@ public class ClientManagementServiceTest {
         try {
             clientManagementService.getClientDetails("client_id_v1");
         } catch (EsignetException ex) {
-            Assert.assertEquals(ex.getErrorCode(), ErrorConstants.INVALID_CLIENT_ID);
+            Assertions.assertEquals(ex.getErrorCode(), ErrorConstants.INVALID_CLIENT_ID);
         }
     }
 

@@ -277,7 +277,7 @@ public class TokenServiceImpl implements TokenService {
     public boolean isValidDpopServerNonce(String dpopHeader, OIDCTransaction transaction) {
         try {
             SignedJWT dpopJwt = SignedJWT.parse(dpopHeader);
-            net.minidev.json.JSONObject payload = dpopJwt.getPayload().toJSONObject();
+            Map<String, Object> payload = dpopJwt.getPayload().toJSONObject();
             String dpopProofNonce = (String) payload.get("nonce");
 
             long currentTime = System.currentTimeMillis();
