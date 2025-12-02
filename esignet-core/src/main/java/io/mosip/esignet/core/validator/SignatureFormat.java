@@ -3,7 +3,7 @@ package io.mosip.esignet.core.validator;
 
 import io.mosip.esignet.core.constants.ErrorConstants;
 
-import javax.validation.Constraint;
+import jakarta.validation.Constraint;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

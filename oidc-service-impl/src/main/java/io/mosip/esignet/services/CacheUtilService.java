@@ -38,12 +38,13 @@ import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 @Service
 public class CacheUtilService {
 
-    private static final String NONCE_CHECK_SCRIPT = "if redis.call(\"EXISTS\", KEYS[1]) == 0 then\n" +
-            "    redis.call(\"SETEX\", KEYS[1], tonumber(ARGV[1]), \"1\")\n" +
-            "    return 1\n" +
-            "else\n" +
-            "    return 0\n" +
-            "end";
+    private static final String NONCE_CHECK_SCRIPT = """
+            if redis.call("EXISTS", KEYS[1]) == 0 then
+                redis.call("SETEX", KEYS[1], tonumber(ARGV[1]), "1")
+                return 1
+            else
+                return 0
+            end""";
     private String nonceScriptHash = null;
     private static String NONCE_KEY = "nonce::%s";
 
@@ -115,7 +116,7 @@ public class CacheUtilService {
                 nonceScriptHash = redisConnectionFactory.getConnection().scriptingCommands().scriptLoad(NONCE_CHECK_SCRIPT.getBytes());
             }
             log.info("Running NONCE_CHECK_SCRIPT script: {}", nonceScriptHash);
-            final String key = String.format(NONCE_KEY, nonce);
+            final String key = NONCE_KEY.formatted(nonce);
             return redisConnectionFactory.getConnection().scriptingCommands().evalSha(
                     nonceScriptHash,
                     ReturnType.INTEGER,
@@ -287,6 +288,6 @@ public class CacheUtilService {
     private boolean isScriptNotLoaded(String scriptHash) {
         if(scriptHash == null) return true;
         List<Boolean> scriptExists = redisConnectionFactory.getConnection().scriptingCommands().scriptExists(scriptHash);
-        return scriptExists == null || !scriptExists.get(0);
+        return scriptExists == null || !scriptExists.getFirst();
     }
 }

@@ -7,15 +7,15 @@ package io.mosip.esignet.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.kernel.keymanagerservice.dto.KeyPairGenerateRequestDto;
 import io.mosip.kernel.keymanagerservice.dto.SymmetricKeyGenerateRequestDto;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
@@ -23,7 +23,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.util.StringUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
@@ -46,16 +46,17 @@ public class AppConfig implements ApplicationRunner {
     @Bean
     public ObjectMapper objectMapper() {
         return JsonMapper.builder()
-                .addModule(new AfterburnerModule())
                 .addModule(new JavaTimeModule())
                 .build();
     }
 
     @Bean
     public RestTemplate restTemplate() {
+        PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
+        connectionManager.setMaxTotal(defaultTotalMaxConnection);
+        connectionManager.setDefaultMaxPerRoute(defaultMaxConnectionPerRoute);
         HttpClientBuilder httpClientBuilder = HttpClients.custom()
-                .setMaxConnPerRoute(defaultMaxConnectionPerRoute)
-                .setMaxConnTotal(defaultTotalMaxConnection)
+                .setConnectionManager(connectionManager)
                 .disableCookieManagement();
         HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
         requestFactory.setHttpClient(httpClientBuilder.build());
@@ -67,14 +68,16 @@ public class AppConfig implements ApplicationRunner {
         log.info("===================== IDP_SERVICE ROOT KEY CHECK ========================");
         String objectType = "CSR";
         KeyPairGenerateRequestDto rootKeyRequest = new KeyPairGenerateRequestDto();
+        rootKeyRequest.setReferenceId("");
         rootKeyRequest.setApplicationId(Constants.ROOT_KEY);
         keymanagerService.generateMasterKey(objectType, rootKeyRequest);
         log.info("===================== IDP_SERVICE MASTER KEY CHECK ========================");
         KeyPairGenerateRequestDto masterKeyRequest = new KeyPairGenerateRequestDto();
+        masterKeyRequest.setReferenceId("");
         masterKeyRequest.setApplicationId(Constants.OIDC_SERVICE_APP_ID);
         keymanagerService.generateMasterKey(objectType, masterKeyRequest);
 
-        if(!StringUtils.isEmpty(cacheSecretKeyRefId)) {
+        if(!ObjectUtils.isEmpty(cacheSecretKeyRefId)) {
             SymmetricKeyGenerateRequestDto symmetricKeyGenerateRequestDto = new SymmetricKeyGenerateRequestDto();
             symmetricKeyGenerateRequestDto.setApplicationId(Constants.OIDC_SERVICE_APP_ID);
             symmetricKeyGenerateRequestDto.setReferenceId(cacheSecretKeyRefId);
@@ -85,6 +88,7 @@ public class AppConfig implements ApplicationRunner {
 
         log.info("===================== IDP_PARTNER MASTER KEY CHECK ========================");
         KeyPairGenerateRequestDto partnerMasterKeyRequest = new KeyPairGenerateRequestDto();
+        partnerMasterKeyRequest.setReferenceId("");
         partnerMasterKeyRequest.setApplicationId(Constants.OIDC_PARTNER_APP_ID);
         keymanagerService.generateMasterKey(objectType, partnerMasterKeyRequest);
         log.info("===================== IDP KEY SETUP COMPLETED ========================");

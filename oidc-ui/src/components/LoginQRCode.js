@@ -12,6 +12,7 @@ import { LoadingStates as states } from '../constants/states';
 import ErrorBanner from '../common/ErrorBanner';
 import langConfigService from '../services/langConfigService';
 import redirectOnError from '../helpers/redirectOnError';
+import { PUBLIC_URL } from '../constants/publicAssets';
 
 var linkAuthTriggered = false;
 
@@ -75,9 +76,13 @@ export default function LoginQRCode({
     ? parseInt(qrCodeBufferInSecs)
     : parseInt(process.env.REACT_APP_QR_CODE_BUFFER_IN_SEC);
 
-  const walletLogoURL =
+  let walletLogoURL =
     walletDetail[walletConfigKeys.walletLogoUrl] ??
     process.env.REACT_APP_WALLET_LOGO_URL;
+
+  if (walletLogoURL && !walletLogoURL.startsWith('http')) {
+    walletLogoURL = PUBLIC_URL + walletLogoURL;
+  }
 
   let qrCodeDeepLinkURI =
     walletDetail[walletConfigKeys.qrCodeDeepLinkURI] ??

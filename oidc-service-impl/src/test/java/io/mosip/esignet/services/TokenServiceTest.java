@@ -23,14 +23,14 @@ import io.mosip.kernel.signature.dto.*;
 import io.mosip.kernel.signature.service.SignatureService;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -38,8 +38,9 @@ import java.time.Instant;
 import java.util.*;
 
 import static io.mosip.esignet.core.spi.TokenService.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TokenServiceTest {
 
     @InjectMocks
@@ -61,16 +62,16 @@ public class TokenServiceTest {
         }
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         Map<String, Object> mockDiscoveryMap = new HashMap<>();
-        mockDiscoveryMap.put("token_endpoint_auth_signing_alg_values_supported", Arrays.asList("RS256", "PS256","ES256"));
-        mockDiscoveryMap.put("issuer","client-id");
+        mockDiscoveryMap.put("token_endpoint_auth_signing_alg_values_supported", Arrays.asList("RS256", "PS256", "ES256"));
+        mockDiscoveryMap.put("issuer", "client-id");
         ReflectionTestUtils.setField(tokenService, "signatureService", getSignatureService());
         ReflectionTestUtils.setField(tokenService, "objectMapper", new ObjectMapper());
         ReflectionTestUtils.setField(tokenService, "issuerId", "test-issuer");
         ReflectionTestUtils.setField(tokenService, "maxClockSkew", 5);
-        ReflectionTestUtils.setField(tokenService,"discoveryMap",mockDiscoveryMap);
+        ReflectionTestUtils.setField(tokenService, "discoveryMap", mockDiscoveryMap);
         ReflectionTestUtils.setField(tokenService, "uniqueJtiRequired", true);
     }
 
@@ -87,24 +88,24 @@ public class TokenServiceTest {
         Mockito.when(authenticationContextClassRefUtil.getACRs(Mockito.any())).thenReturn(Arrays.asList("generated-code", "static-code"));
 
         String token = tokenService.getIDToken(transaction);
-        Assert.assertNotNull(token);
+        Assertions.assertNotNull(token);
         JSONObject jsonObject = new JSONObject(new String(IdentityProviderUtil.b64Decode(token)));
-        Assert.assertEquals(transaction.getClientId(), jsonObject.get(AUD));
-        Assert.assertEquals(transaction.getPartnerSpecificUserToken(), jsonObject.get(SUB));
-        Assert.assertEquals(transaction.getAuthTimeInSeconds(), jsonObject.getLong(AUTH_TIME));
-        Assert.assertEquals(transaction.getNonce(), jsonObject.get(NONCE));
-        Assert.assertEquals("generated-code static-code", jsonObject.get(ACR));
-        Assert.assertEquals("test-issuer", jsonObject.get(ISS));
+        Assertions.assertEquals(transaction.getClientId(), jsonObject.get(AUD));
+        Assertions.assertEquals(transaction.getPartnerSpecificUserToken(), jsonObject.get(SUB));
+        Assertions.assertEquals(transaction.getAuthTimeInSeconds(), jsonObject.getLong(AUTH_TIME));
+        Assertions.assertEquals(transaction.getNonce(), jsonObject.get(NONCE));
+        Assertions.assertEquals("generated-code static-code", jsonObject.get(ACR));
+        Assertions.assertEquals("test-issuer", jsonObject.get(ISS));
 
-        token = tokenService.getIDToken("subject", "audience",30, transaction, transaction.getServerNonce());
-        Assert.assertNotNull(token);
+        token = tokenService.getIDToken("subject", "audience", 30, transaction, transaction.getServerNonce());
+        Assertions.assertNotNull(token);
         jsonObject = new JSONObject(new String(IdentityProviderUtil.b64Decode(token)));
-        Assert.assertEquals("audience", jsonObject.get(AUD));
-        Assert.assertEquals("subject", jsonObject.get(SUB));
-        Assert.assertEquals(transaction.getAuthTimeInSeconds(), jsonObject.getLong(AUTH_TIME));
-        Assert.assertEquals(transaction.getServerNonce(), jsonObject.get(NONCE));
-        Assert.assertEquals("generated-code static-code", jsonObject.get(ACR));
-        Assert.assertEquals("test-issuer", jsonObject.get(ISS));
+        Assertions.assertEquals("audience", jsonObject.get(AUD));
+        Assertions.assertEquals("subject", jsonObject.get(SUB));
+        Assertions.assertEquals(transaction.getAuthTimeInSeconds(), jsonObject.getLong(AUTH_TIME));
+        Assertions.assertEquals(transaction.getServerNonce(), jsonObject.get(NONCE));
+        Assertions.assertEquals("generated-code static-code", jsonObject.get(ACR));
+        Assertions.assertEquals("test-issuer", jsonObject.get(ISS));
     }
 
     @Test
@@ -114,12 +115,12 @@ public class TokenServiceTest {
         transaction.setPartnerSpecificUserToken("psut");
         transaction.setPermittedScopes(Arrays.asList("read", "write"));
         String token = tokenService.getAccessToken(transaction, null);
-        Assert.assertNotNull(token);
+        Assertions.assertNotNull(token);
         JSONObject jsonObject = new JSONObject(new String(IdentityProviderUtil.b64Decode(token)));
-        Assert.assertEquals(transaction.getClientId(), jsonObject.get(AUD));
-        Assert.assertEquals(transaction.getPartnerSpecificUserToken(), jsonObject.get(SUB));
-        Assert.assertEquals("read write", jsonObject.get(SCOPE));
-        Assert.assertEquals("test-issuer", jsonObject.get(ISS));
+        Assertions.assertEquals(transaction.getClientId(), jsonObject.get(AUD));
+        Assertions.assertEquals(transaction.getPartnerSpecificUserToken(), jsonObject.get(SUB));
+        Assertions.assertEquals("read write", jsonObject.get(SCOPE));
+        Assertions.assertEquals("test-issuer", jsonObject.get(ISS));
     }
 
     @Test
@@ -129,14 +130,14 @@ public class TokenServiceTest {
         transaction.setPartnerSpecificUserToken("psut");
         transaction.setPermittedScopes(Arrays.asList("read", "write"));
         String token = tokenService.getAccessToken(transaction, "test_cnonce");
-        Assert.assertNotNull(token);
+        Assertions.assertNotNull(token);
         JSONObject jsonObject = new JSONObject(new String(IdentityProviderUtil.b64Decode(token)));
-        Assert.assertEquals(transaction.getClientId(), jsonObject.get(AUD));
-        Assert.assertEquals(transaction.getPartnerSpecificUserToken(), jsonObject.get(SUB));
-        Assert.assertEquals("read write", jsonObject.get(SCOPE));
-        Assert.assertEquals("test-issuer", jsonObject.get(ISS));
-        Assert.assertEquals("test_cnonce", jsonObject.get(C_NONCE));
-        Assert.assertNotNull(jsonObject.get(C_NONCE_EXPIRES_IN));
+        Assertions.assertEquals(transaction.getClientId(), jsonObject.get(AUD));
+        Assertions.assertEquals(transaction.getPartnerSpecificUserToken(), jsonObject.get(SUB));
+        Assertions.assertEquals("read write", jsonObject.get(SCOPE));
+        Assertions.assertEquals("test-issuer", jsonObject.get(ISS));
+        Assertions.assertEquals("test_cnonce", jsonObject.get(C_NONCE));
+        Assertions.assertNotNull(jsonObject.get(C_NONCE_EXPIRES_IN));
     }
 
     @Test
@@ -149,26 +150,26 @@ public class TokenServiceTest {
         //Consent expire is set to 0, equivalent to not set
         transaction.setConsentExpireMinutes(0);
         String token = tokenService.getAccessToken(transaction, null);
-        Assert.assertNotNull(token);
+        Assertions.assertNotNull(token);
         JSONObject jsonObject = new JSONObject(new String(IdentityProviderUtil.b64Decode(token)));
-        Assert.assertTrue( jsonObject.getInt(EXP) > IdentityProviderUtil.getEpochSeconds());
+        Assertions.assertTrue(jsonObject.getInt(EXP) > IdentityProviderUtil.getEpochSeconds());
 
         //consent expire is greater than access token expire datetime
         transaction.setConsentExpireMinutes(2);
         token = tokenService.getAccessToken(transaction, null);
-        Assert.assertNotNull(token);
+        Assertions.assertNotNull(token);
         jsonObject = new JSONObject(new String(IdentityProviderUtil.b64Decode(token)));
         long diff = jsonObject.getInt(EXP) - IdentityProviderUtil.getEpochSeconds();
-        Assert.assertTrue( diff == 60);
+        Assertions.assertTrue(diff == 60);
 
         //consent expire is less than access token expire datetime
         ReflectionTestUtils.setField(tokenService, "accessTokenExpireSeconds", 180);
         transaction.setConsentExpireMinutes(2);
         token = tokenService.getAccessToken(transaction, null);
-        Assert.assertNotNull(token);
+        Assertions.assertNotNull(token);
         jsonObject = new JSONObject(new String(IdentityProviderUtil.b64Decode(token)));
         diff = jsonObject.getInt(EXP) - IdentityProviderUtil.getEpochSeconds();
-        Assert.assertTrue( diff == 120);
+        Assertions.assertTrue(diff == 120);
     }
 
     @Test
@@ -185,8 +186,8 @@ public class TokenServiceTest {
                 .build();
         SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
         jwt.sign(signer);
-        EsignetException ex = Assert.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(),"audience"));
-        Assert.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
+        EsignetException ex = Assertions.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(), List.of("audience")));
+        Assertions.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
     }
 
     @Test
@@ -201,8 +202,8 @@ public class TokenServiceTest {
                 .build();
         SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
         jwt.sign(signer);
-        EsignetException ex = Assert.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(),"audience"));
-        Assert.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
+        EsignetException ex = Assertions.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(), List.of("audience")));
+        Assertions.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
     }
 
     @Test
@@ -219,7 +220,7 @@ public class TokenServiceTest {
                 .build();
         SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
         jwt.sign(signer);
-        tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(),"audience");
+        tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(),List.of("audience"));
     }
 
     @Test
@@ -231,7 +232,7 @@ public class TokenServiceTest {
                 .subject("client-id")
                 .audience("issuer")
                 .issueTime(new Date(now))
-                .expirationTime(new Date(now+4000))
+                .expirationTime(new Date(now + 4000))
                 .issuer("client-id")
                 .jwtID(IdentityProviderUtil.createTransactionId(null))
                 .build();
@@ -243,7 +244,7 @@ public class TokenServiceTest {
                 "client-id",
                 RSA_JWK.toPublicJWK().toJSONString(),
                 jwt.serialize(),
-                "issuer"
+                List.of("issuer")
         );
     }
 
@@ -264,34 +265,37 @@ public class TokenServiceTest {
         SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
         jwt.sign(signer);
 
-        EsignetException ex = Assert.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken(
+        EsignetException ex = Assertions.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken(
                 "client-id",
                 RSA_JWK.toPublicJWK().toJSONString(),
                 jwt.serialize(),
-                "tokenendpoint"
+                List.of("tokenendpoint")
         ));
-        Assert.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
+        Assertions.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
     }
 
-    @Test(expected = EsignetException.class)
+    @Test
     public void verifyClientAssertionToken_withNullAssertion_thenFail() {
-        tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), null,"audience");
+        assertThrows(EsignetException.class, () ->
+                tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), null, List.of("audience")));
     }
 
     @Test
     public void verifyClientAssertionToken_withInvalidToken_thenFail() {
-        EsignetException ex = Assert.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), "client-assertion","audience"));
-        Assert.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
+        EsignetException ex = Assertions.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), "client-assertion", List.of("audience")));
+        Assertions.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
     }
 
-    @Test(expected = NotAuthenticatedException.class)
+    @Test
     public void verifyAccessToken_withNullToken_thenFail() {
-        tokenService.verifyAccessToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), null);
+        assertThrows(NotAuthenticatedException.class, () ->
+                tokenService.verifyAccessToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), null));
     }
 
-    @Test(expected = NotAuthenticatedException.class)
+    @Test
     public void verifyAccessToken_withInvalidToken_thenFail() {
-        tokenService.verifyAccessToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), "access_token");
+        assertThrows(NotAuthenticatedException.class, () ->
+                tokenService.verifyAccessToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), "access_token"));
     }
 
     @Test
@@ -314,8 +318,8 @@ public class TokenServiceTest {
         SignedJWT signedJWT = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.PS256).keyID(rsaKey.getKeyID()).build(), claimsSet);
         signedJWT.sign(signer);
         Mockito.when(cacheUtilService.checkAndMarkJti(Mockito.anyString())).thenReturn(true);
-        EsignetException ex = Assert.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken("client-id", rsaKey.toJSONString(), signedJWT.serialize(), "audience"));
-        Assert.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
+        EsignetException ex = Assertions.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken("client-id", rsaKey.toJSONString(), signedJWT.serialize(), List.of("audience")));
+        Assertions.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
     }
 
     @Test
@@ -338,7 +342,7 @@ public class TokenServiceTest {
         SignedJWT signedJWT = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.PS256).keyID(rsaKey.getKeyID()).build(), claimsSet);
         signedJWT.sign(signer);
 
-        tokenService.verifyClientAssertionToken("client-id", rsaKey.toJSONString(), signedJWT.serialize(), "audience");
+        tokenService.verifyClientAssertionToken("client-id", rsaKey.toJSONString(), signedJWT.serialize(), List.of("audience"));
     }
 
     @Test
@@ -361,7 +365,7 @@ public class TokenServiceTest {
         SignedJWT signedJWT = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.ES256).keyID(ecKey.getKeyID()).build(), claimsSet);
         signedJWT.sign(signer);
 
-        tokenService.verifyClientAssertionToken("client-id", ecKey.toJSONString(), signedJWT.serialize(), "audience");
+        tokenService.verifyClientAssertionToken("client-id", ecKey.toJSONString(), signedJWT.serialize(), List.of("audience"));
     }
 
     @Test
@@ -376,8 +380,8 @@ public class TokenServiceTest {
                 .build();
         SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.PS384), claimsSet);
         jwt.sign(signer);
-        EsignetException ex = Assert.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken("client-id",  RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(), "audience"));
-        Assert.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
+        EsignetException ex = Assertions.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(), List.of("audience")));
+        Assertions.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
     }
 
     @Test
@@ -393,8 +397,8 @@ public class TokenServiceTest {
         String encodedHeader = Base64.getUrlEncoder().withoutPadding().encodeToString(headerJson.getBytes(StandardCharsets.UTF_8));
         String encodedPayload = Base64.getUrlEncoder().withoutPadding().encodeToString(payloadJson.getBytes(StandardCharsets.UTF_8));
         String malformedJwt = encodedHeader + "." + encodedPayload + "." + "dummySignature";
-        EsignetException ex = Assert.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), malformedJwt, "audience"));
-        Assert.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
+        EsignetException ex = Assertions.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), malformedJwt, List.of("audience")));
+        Assertions.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
     }
 
     @Test
@@ -411,20 +415,23 @@ public class TokenServiceTest {
         jwt.sign(signer);
         tokenService.verifyAccessToken("audience", "alice", jwt.serialize());
     }
-    
-    @Test(expected = NotAuthenticatedException.class)
+
+    @Test
     public void verifyAccessToken_withInvalidDataToken_thenFail() {
-        tokenService.verifyAccessToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkJhZWxkdW5nIFVzZXIiLCJpYXQiOjE1MTYyMzkwMjJ9.qH7Zj_m3kY69kxhaQXTa-ivIpytKXXjZc1ZSmapZnGE");
+        assertThrows(NotAuthenticatedException.class, () ->
+                tokenService.verifyAccessToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkJhZWxkdW5nIFVzZXIiLCJpYXQiOjE1MTYyMzkwMjJ9.qH7Zj_m3kY69kxhaQXTa-ivIpytKXXjZc1ZSmapZnGE"));
     }
 
-    @Test(expected = NotAuthenticatedException.class)
+    @Test
     public void verifyIdTokenHint_withNullToken_thenFail() {
-        tokenService.verifyIdToken(null,"client-id");
+        assertThrows(NotAuthenticatedException.class, () ->
+                tokenService.verifyIdToken(null, "client-id"));
     }
 
-    @Test(expected = NotAuthenticatedException.class)
+    @Test
     public void verifyTokenHint_withInvalidToken_thenFail() {
-        tokenService.verifyIdToken("id_token_hint","client-id");
+        assertThrows(NotAuthenticatedException.class, () ->
+                tokenService.verifyIdToken("id_token_hint", "client-id"));
     }
 
     @Test
@@ -441,7 +448,7 @@ public class TokenServiceTest {
         SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
         jwt.sign(signer);
 
-        tokenService.verifyIdToken(jwt.serialize(),"audience");
+        tokenService.verifyIdToken(jwt.serialize(), "audience");
 
         JWTClaimsSet claimsSetWithoutExp = new JWTClaimsSet.Builder()
                 .subject("alice")
@@ -452,10 +459,10 @@ public class TokenServiceTest {
         jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSetWithoutExp);
         jwt.sign(signer);
         try {
-            tokenService.verifyIdToken(jwt.serialize(),"audience");
-            Assert.fail();
+            tokenService.verifyIdToken(jwt.serialize(), "audience");
+            Assertions.fail();
         } catch (EsignetException e) {
-            Assert.assertEquals("invalid_token", e.getErrorCode());
+            Assertions.assertEquals("invalid_token", e.getErrorCode());
         }
     }
 
@@ -464,9 +471,9 @@ public class TokenServiceTest {
         OIDCTransaction transaction = new OIDCTransaction();
         String nonce = "validNonce";
         transaction.setDpopServerNonce(nonce);
-        transaction.setDpopServerNonceTTL(System.currentTimeMillis() + 15*10000);
+        transaction.setDpopServerNonceTTL(System.currentTimeMillis() + 15 * 10000);
         String dpopHeader = createDpopHeader(nonce);
-        Assert.assertTrue(tokenService.isValidDpopServerNonce(dpopHeader, transaction));
+        Assertions.assertTrue(tokenService.isValidDpopServerNonce(dpopHeader, transaction));
     }
 
     @Test
@@ -474,34 +481,34 @@ public class TokenServiceTest {
         OIDCTransaction transaction = new OIDCTransaction();
         String nonce = "validNonce";
         transaction.setDpopServerNonce(nonce);
-        transaction.setDpopServerNonceTTL(System.currentTimeMillis() - 15*10000);
+        transaction.setDpopServerNonceTTL(System.currentTimeMillis() - 15 * 10000);
         String dpopHeader = createDpopHeader(nonce);
-        Assert.assertFalse(tokenService.isValidDpopServerNonce(dpopHeader, transaction));
+        Assertions.assertFalse(tokenService.isValidDpopServerNonce(dpopHeader, transaction));
     }
 
     @Test
     public void isValidDpopServerNonce_withInvalidNonce_thenReturnFalse() throws Exception {
         OIDCTransaction transaction = new OIDCTransaction();
         transaction.setDpopServerNonce("validNonce");
-        transaction.setDpopServerNonceTTL(System.currentTimeMillis() + 15*10000);
+        transaction.setDpopServerNonceTTL(System.currentTimeMillis() + 15 * 10000);
         String dpopHeader = createDpopHeader("invalidNonce");
-        Assert.assertFalse(tokenService.isValidDpopServerNonce(dpopHeader, transaction));
+        Assertions.assertFalse(tokenService.isValidDpopServerNonce(dpopHeader, transaction));
     }
 
     @Test
     public void isValidDpopServerNonce_withMissingNonceInPayload_thenReturnFalse() throws Exception {
         OIDCTransaction transaction = new OIDCTransaction();
         transaction.setDpopServerNonce("validNonce");
-        transaction.setDpopServerNonceTTL(System.currentTimeMillis() + 15*10000);
+        transaction.setDpopServerNonceTTL(System.currentTimeMillis() + 15 * 10000);
         String dpopHeader = createDpopHeader(null);
-        Assert.assertFalse(tokenService.isValidDpopServerNonce(dpopHeader, transaction));
+        Assertions.assertFalse(tokenService.isValidDpopServerNonce(dpopHeader, transaction));
     }
 
     @Test
     public void isValidDpopServerNonce_withMissingNonceInPayloadAndTransaction_thenReturnFalse() throws Exception {
         OIDCTransaction transaction = new OIDCTransaction();
         String dpopHeader = createDpopHeader(null);
-        Assert.assertFalse(tokenService.isValidDpopServerNonce(dpopHeader, transaction));
+        Assertions.assertFalse(tokenService.isValidDpopServerNonce(dpopHeader, transaction));
     }
 
     private String createDpopHeader(String nonce) throws Exception {
@@ -552,7 +559,7 @@ public class TokenServiceTest {
             @Override
             public JWTSignatureVerifyResponseDto jwtVerify(JWTSignatureVerifyRequestDto jwtSignatureVerifyRequestDto) {
                 JWTSignatureVerifyResponseDto jwtSignatureVerifyResponseDto = new JWTSignatureVerifyResponseDto();
-                if(jwtSignatureVerifyRequestDto.getJwtSignatureData()==null) {
+                if(jwtSignatureVerifyRequestDto.getJwtSignatureData() == null) {
                     jwtSignatureVerifyResponseDto.setSignatureValid(false);
                     return jwtSignatureVerifyResponseDto;
                 }
@@ -566,6 +573,22 @@ public class TokenServiceTest {
                 responseDto.setJwtSignedData(jwsSignRequestDto.getDataToSign());
                 return responseDto;
             }
+
+            @Override
+            public JWTSignatureResponseDto jwtSignV2(JWTSignatureRequestDtoV2 jwtSignatureRequestDtoV2) {
+                return null;
+            }
+
+            @Override
+            public JWTSignatureResponseDto jwsSignV2(JWSSignatureRequestDtoV2 jwsSignatureRequestDtoV2) {
+                return null;
+            }
+
+            @Override
+            public JWTSignatureVerifyResponseDto jwtVerifyV2(JWTSignatureVerifyRequestDto jwtSignatureVerifyRequestDto) {
+                return null;
+            }
+
         };
     }
 }

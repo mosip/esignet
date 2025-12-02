@@ -1,9 +1,8 @@
 import axios from 'axios';
-
-import { CONFIG } from '../constants/routes';
+import { CONFIG_URLS } from '../constants/publicAssets';
 
 const configService = async () => {
-  const response = await axios.get(CONFIG);
+  const response = await axios.get(CONFIG_URLS.THEME_CONFIG);
   return response.data;
 };
 

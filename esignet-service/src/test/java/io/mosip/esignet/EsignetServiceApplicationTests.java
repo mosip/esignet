@@ -5,17 +5,13 @@
  */
 package io.mosip.esignet;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 public class EsignetServiceApplicationTests {
 
 	@Test
-	public void test() {
-		EsignetServiceApplication.main(new String[] {});
-		Assert.assertNotNull(EsignetServiceApplication.class);
-	}
+	public void test() {}
 
 }

@@ -9,15 +9,14 @@ import io.mosip.esignet.repository.PublicKeyRegistryRepository;
 import io.mosip.esignet.services.KeyBindingHelperService;
 import io.mosip.kernel.keymanagerservice.util.KeymanagerUtil;
 import org.bouncycastle.x509.X509V3CertificateGenerator;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.security.auth.x500.X500Principal;
@@ -33,26 +32,28 @@ import java.util.UUID;
 
 import static io.mosip.esignet.core.constants.ErrorConstants.DUPLICATE_PUBLIC_KEY;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class KeyBindingHelperServiceTest {
 
-    private static final String certificateString="-----BEGIN CERTIFICATE-----\n" +
-            "MIICrzCCAZegAwIBAgIGAYk++jfeMA0GCSqGSIb3DQEBCwUAMBMxETAPBgNVBAMT\n" +
-            "CE1vY2stSURBMB4XDTIzMDcxMDAzMTUzM1oXDTIzMDcyMDAzMTUzM1owHjEcMBoG\n" +
-            "A1UEAxMTU2lkZGhhcnRoIEsgTWFuc291cjCCASIwDQYJKoZIhvcNAQEBBQADggEP\n" +
-            "ADCCAQoCggEBAJy7TzHJJNkjlnSi87fkUr8NMM9k3UIkoAtAqiH7J4uPG1wcdgQK\n" +
-            "luX1wfhsed7TUnblrZCZXOaxqT2kN1uniC28bekQPkWs/e0Mm8s3r7ncxyTtCMlS\n" +
-            "kSlg6ZFN3bV2m3x893vFx81yOGk534Jc9O9qxouxB7WMHn8ynM9BE8k0VaNXyj2/\n" +
-            "z0E7IXqpei4UDNdTU0avmqYGjw/YTsTdlrwQebwn9clwVvld2ZFV4jdgErTqLJ/Y\n" +
-            "u7wIZmYzL3ib5kf2+tVZhY/MnqsT0Bx+TFatnd2Aout5/Hs2V2HdwSBY6ET6SXVT\n" +
-            "NXKDtH3Sw6AyNPj+jo6l5IARsuOvWioTrfsCAwEAATANBgkqhkiG9w0BAQsFAAOC\n" +
-            "AQEAgOtPRuk9IyrRGOFWyFlwJdqZxqVO+78UAJKJmBiko6xxeezkYqqiAuwcyWFj\n" +
-            "XWmvvcwlTdCyfEnGWRi74r4ma7u0h5O4U3AJxPF0/BKklCF9nabRqtSC9ENPKHpf\n" +
-            "/MAsZF/dQkzQ+k8oqCVKgg/OpgmLGg1dBFvBUOsSUtzp2Mv3GhQO8cjHb32YsS2C\n" +
-            "EL2oRcBvJ0SQ9kmYaZ4Pb08xlbTTWbNtPJDj58w4S5Xs2PFlbJr/Ibe3DZM7nYym\n" +
-            "zfeCZDzlkLcSCpEaFCMdeuZSpmdSrRaJ9gquR+Ix3uYrqKNmd6eVq+yr1F5DXu9e\n" +
-            "c6Ny6Ira8ylf96JLLRfh3b5G4w==\n" +
-            "-----END CERTIFICATE-----\n";
+    private static final String certificateString = """
+            -----BEGIN CERTIFICATE-----
+            MIICrzCCAZegAwIBAgIGAYk++jfeMA0GCSqGSIb3DQEBCwUAMBMxETAPBgNVBAMT
+            CE1vY2stSURBMB4XDTIzMDcxMDAzMTUzM1oXDTIzMDcyMDAzMTUzM1owHjEcMBoG
+            A1UEAxMTU2lkZGhhcnRoIEsgTWFuc291cjCCASIwDQYJKoZIhvcNAQEBBQADggEP
+            ADCCAQoCggEBAJy7TzHJJNkjlnSi87fkUr8NMM9k3UIkoAtAqiH7J4uPG1wcdgQK
+            luX1wfhsed7TUnblrZCZXOaxqT2kN1uniC28bekQPkWs/e0Mm8s3r7ncxyTtCMlS
+            kSlg6ZFN3bV2m3x893vFx81yOGk534Jc9O9qxouxB7WMHn8ynM9BE8k0VaNXyj2/
+            z0E7IXqpei4UDNdTU0avmqYGjw/YTsTdlrwQebwn9clwVvld2ZFV4jdgErTqLJ/Y
+            u7wIZmYzL3ib5kf2+tVZhY/MnqsT0Bx+TFatnd2Aout5/Hs2V2HdwSBY6ET6SXVT
+            NXKDtH3Sw6AyNPj+jo6l5IARsuOvWioTrfsCAwEAATANBgkqhkiG9w0BAQsFAAOC
+            AQEAgOtPRuk9IyrRGOFWyFlwJdqZxqVO+78UAJKJmBiko6xxeezkYqqiAuwcyWFj
+            XWmvvcwlTdCyfEnGWRi74r4ma7u0h5O4U3AJxPF0/BKklCF9nabRqtSC9ENPKHpf
+            /MAsZF/dQkzQ+k8oqCVKgg/OpgmLGg1dBFvBUOsSUtzp2Mv3GhQO8cjHb32YsS2C
+            EL2oRcBvJ0SQ9kmYaZ4Pb08xlbTTWbNtPJDj58w4S5Xs2PFlbJr/Ibe3DZM7nYym
+            zfeCZDzlkLcSCpEaFCMdeuZSpmdSrRaJ9gquR+Ix3uYrqKNmd6eVq+yr1F5DXu9e
+            c6Ny6Ira8ylf96JLLRfh3b5G4w==
+            -----END CERTIFICATE-----
+            """;
 
     @InjectMocks
     private KeyBindingHelperService keyBindingHelperService;
@@ -63,15 +64,14 @@ public class KeyBindingHelperServiceTest {
     @Mock
     private PublicKeyRegistryRepository publicKeyRegistryRepository;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
         ReflectionTestUtils.setField(keyBindingHelperService, "saltLength", 10);
     }
 
     @Test
     public void getIndividualIdHash_withValidValue_thenPass() {
-        Assert.assertNotNull(keyBindingHelperService.getIndividualIdHash("individualId"));
+        Assertions.assertNotNull(keyBindingHelperService.getIndividualIdHash("individualId"));
     }
 
     @Test
@@ -89,7 +89,7 @@ public class KeyBindingHelperServiceTest {
 
         publicKeyRegistry = keyBindingHelperService.storeKeyBindingDetailsInRegistry("individualId", "psut", "publicKey",
                 certificateString, "WLA");
-        Assert.assertNotNull(publicKeyRegistry);
+        Assertions.assertNotNull(publicKeyRegistry);
     }
 
     @Test
@@ -100,9 +100,9 @@ public class KeyBindingHelperServiceTest {
         try {
             keyBindingHelperService.storeKeyBindingDetailsInRegistry("individualId", "psut", "publicKey",
                     "certificate", "WLA");
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {
-            Assert.assertEquals(DUPLICATE_PUBLIC_KEY, e.getErrorCode());
+            Assertions.assertEquals(DUPLICATE_PUBLIC_KEY, e.getErrorCode());
         }
     }
 
@@ -115,7 +115,7 @@ public class KeyBindingHelperServiceTest {
         Mockito.when(publicKeyRegistryRepository.findLatestByPsuTokenAndAuthFactor(Mockito.anyString(),
                 Mockito.anyString())).thenReturn(Optional.empty());
         Mockito.when(publicKeyRegistryRepository.save(Mockito.any(PublicKeyRegistry.class))).thenReturn(new PublicKeyRegistry());
-        Assert.assertNotNull(keyBindingHelperService.storeKeyBindingDetailsInRegistry("individualId", "psut", "publicKey",
+        Assertions.assertNotNull(keyBindingHelperService.storeKeyBindingDetailsInRegistry("individualId", "psut", "publicKey",
                 certificateString, "WLA"));
     }
 
@@ -139,12 +139,13 @@ public class KeyBindingHelperServiceTest {
             gen.initialize(2048);
             KeyPair keyPair = gen.generateKeyPair();
             // Convert public key to JWK format
-            return new RSAKey.Builder((RSAPublicKey)keyPair.getPublic())
-                    .privateKey((RSAPrivateKey)keyPair.getPrivate())
+            return new RSAKey.Builder((RSAPublicKey) keyPair.getPublic())
+                    .privateKey((RSAPrivateKey) keyPair.getPrivate())
                     .keyUse(KeyUse.SIGNATURE)
                     .keyID(UUID.randomUUID().toString())
                     .build();
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
         return null;
     }
 

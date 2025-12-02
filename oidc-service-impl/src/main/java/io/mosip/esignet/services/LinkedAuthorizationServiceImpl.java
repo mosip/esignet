@@ -176,8 +176,8 @@ public class LinkedAuthorizationServiceImpl implements LinkedAuthorizationServic
         linkTransactionResponse.setLogoUrl(clientDetailDto.getLogoUri());
         linkTransactionResponse.setConfigs(uiConfigMap);
 
-        if(linkTransactionResponse instanceof LinkTransactionResponseV2){
-            ((LinkTransactionResponseV2)linkTransactionResponse).setCredentialScopes(transaction.getRequestedCredentialScopes());
+        if(linkTransactionResponse instanceof LinkTransactionResponseV2 linkTransactionResponseV2){
+            linkTransactionResponseV2.setCredentialScopes(transaction.getRequestedCredentialScopes());
         }
 
         //Publish message after successfully linking the transaction

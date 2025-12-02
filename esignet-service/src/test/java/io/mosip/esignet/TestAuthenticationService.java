@@ -41,10 +41,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
-import javax.annotation.PostConstruct;
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import jakarta.annotation.PostConstruct;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
@@ -151,7 +151,7 @@ public class TestAuthenticationService implements Authenticator {
         String psut;
         try {
             psut = IdentityProviderUtil.generateB64EncodedHash(ALGO_SHA3_256,
-                    String.format(PSUT_FORMAT, kycAuthDto.getIndividualId(), relyingPartyId));
+                    PSUT_FORMAT.formatted(kycAuthDto.getIndividualId(), relyingPartyId));
         } catch (Exception e) {
             log.error("Failed to generate PSUT",authMethods, e);
             throw new KycAuthException("mock-ida-006", "Failed to generate Partner specific user token");
@@ -203,7 +203,7 @@ public class TestAuthenticationService implements Authenticator {
 
     private RSAKey getRelyingPartyPublicKey(String relyingPartyId) throws IOException, ParseException {
         if(!relyingPartyPublicKeys.containsKey(relyingPartyId)) {
-            String filename = String.format(POLICY_FILE_NAME_FORMAT, relyingPartyId);
+            String filename = POLICY_FILE_NAME_FORMAT.formatted(relyingPartyId);
             DocumentContext context = JsonPath.parse(new File(policyDir, filename));
             Map<String, String> publicKey = context.read("$.publicKey");
             relyingPartyPublicKeys.put(relyingPartyId,
@@ -272,6 +272,7 @@ public class TestAuthenticationService implements Authenticator {
 
     private void setupMockIDAKey() {
         KeyPairGenerateRequestDto mockIDAMasterKeyRequest = new KeyPairGenerateRequestDto();
+        mockIDAMasterKeyRequest.setReferenceId("");
         mockIDAMasterKeyRequest.setApplicationId(APPLICATION_ID);
         keymanagerService.generateMasterKey("CSR", mockIDAMasterKeyRequest);
         log.info("===================== MOCK_IDA_SERVICES MASTER KEY SETUP COMPLETED ========================");
@@ -280,7 +281,7 @@ public class TestAuthenticationService implements Authenticator {
     @Override
     public SendOtpResult sendOtp(String relyingPartyId, String clientId, SendOtpDto sendOtpDto)
             throws SendOtpException {
-        String filename = String.format(INDIVIDUAL_FILE_NAME_FORMAT, sendOtpDto.getIndividualId());
+        String filename = INDIVIDUAL_FILE_NAME_FORMAT.formatted(sendOtpDto.getIndividualId());
         try {
             if(FileUtils.directoryContains(personaDir, new File(personaDir.getAbsolutePath(), filename))) {
                 DocumentContext context = JsonPath.parse(FileUtils.getFile(personaDir, filename));
@@ -346,7 +347,7 @@ public class TestAuthenticationService implements Authenticator {
     }
 
     private boolean authenticateIndividualWithPin(String individualId, String pin) {
-        String filename = String.format(INDIVIDUAL_FILE_NAME_FORMAT, individualId);
+        String filename = INDIVIDUAL_FILE_NAME_FORMAT.formatted(individualId);
         try {
             DocumentContext context = JsonPath.parse(FileUtils.getFile(personaDir, filename));
             String savedPin = context.read("$.pin", String.class);
@@ -358,7 +359,7 @@ public class TestAuthenticationService implements Authenticator {
     }
 
     private boolean authenticateIndividualWithOTP(String individualId, String OTP) {
-        String filename = String.format(INDIVIDUAL_FILE_NAME_FORMAT, individualId);
+        String filename = INDIVIDUAL_FILE_NAME_FORMAT.formatted(individualId);
         try {
             return FileUtils.directoryContains(personaDir, new File(personaDir.getAbsolutePath(), filename))
                     && OTP.equals("111111");
@@ -369,7 +370,7 @@ public class TestAuthenticationService implements Authenticator {
     }
 
     private boolean authenticateIndividualWithBio(String individualId) {
-        String filename = String.format(INDIVIDUAL_FILE_NAME_FORMAT, individualId);
+        String filename = INDIVIDUAL_FILE_NAME_FORMAT.formatted(individualId);
         try {
             return FileUtils.directoryContains(personaDir, new File(personaDir.getAbsolutePath(), filename));
         } catch (IOException e) {
@@ -381,7 +382,7 @@ public class TestAuthenticationService implements Authenticator {
     private Map<String, Object> buildKycDataBasedOnPolicy(String relyingPartyId, String individualId,
                                                           List<String> claims, String[] locales) {
         Map<String, Object> kyc = new HashMap<>();
-        String persona = String.format(INDIVIDUAL_FILE_NAME_FORMAT, individualId);
+        String persona = INDIVIDUAL_FILE_NAME_FORMAT.formatted(individualId);
         try {
             DocumentContext personaContext = JsonPath.parse(new File(personaDir, persona));
             List<String> allowedAttributes = getPolicyKycAttributes(relyingPartyId);
@@ -432,8 +433,8 @@ public class TestAuthenticationService implements Authenticator {
             String jsonPath = locale == null ? path : path.replace("_LOCALE_",
                     getLocalesMapping(locale, pathInfo.get("defaultLocale")));
             var value = persona.read(jsonPath);
-            if(value instanceof List)
-                return (String) ((List)value).get(0);
+            if(value instanceof List list)
+                return (String) list.getFirst();
             return (String) value;
         } catch (Exception ex) {
             log.error("Failed to get kyc value with path {}", pathInfo, ex);
@@ -453,7 +454,7 @@ public class TestAuthenticationService implements Authenticator {
     }
 
     private List<String> getPolicyKycAttributes(String relyingPartyId) throws IOException {
-        String filename = String.format(POLICY_FILE_NAME_FORMAT, relyingPartyId);
+        String filename = POLICY_FILE_NAME_FORMAT.formatted(relyingPartyId);
         if(!policyContextMap.containsKey(relyingPartyId)) {
             DocumentContext context = JsonPath.parse(new File(policyDir, filename));
             List<String> allowedAttributes = context.read("$.allowedKycAttributes.*.attributeName");

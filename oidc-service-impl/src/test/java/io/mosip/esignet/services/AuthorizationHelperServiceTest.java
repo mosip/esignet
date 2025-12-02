@@ -23,22 +23,21 @@ import io.mosip.esignet.core.util.CaptchaHelper;
 import io.mosip.kernel.core.keymanager.spi.KeyStore;
 import io.mosip.kernel.keymanagerservice.entity.KeyAlias;
 import io.mosip.kernel.keymanagerservice.helper.KeymanagerDBHelper;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -51,7 +50,7 @@ import static io.mosip.kernel.keymanagerservice.constant.KeymanagerConstant.CURR
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AuthorizationHelperServiceTest {
 
     @InjectMocks
@@ -84,11 +83,10 @@ public class AuthorizationHelperServiceTest {
     @Mock
     private HttpServletRequest httpServletRequest;
 
-    ObjectMapper objectMapper=new ObjectMapper();
+    ObjectMapper objectMapper = new ObjectMapper();
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
         Map<String, List<String>> claims = new HashMap<>();
         claims.put("profile", Arrays.asList("given_name", "profile_picture", "name", "phone_number", "email"));
         claims.put("email", Arrays.asList("email", "email_verified"));
@@ -98,28 +96,28 @@ public class AuthorizationHelperServiceTest {
         ReflectionTestUtils.setField(claimsHelperService, "objectMapper", objectMapper);
         ReflectionTestUtils.setField(authorizationHelperService, "claimsHelperService", claimsHelperService);
     }
-    
+
     @Test
     public void validateSendOtpCaptchaToken_withEmptyToken_thenFail() {
         ReflectionTestUtils.setField(authorizationHelperService, "captchaRequired", List.of("send-otp"));
         try {
-        	authorizationHelperService.validateSendOtpCaptchaToken("");
-        } catch(EsignetException e) {
-        	Assert.assertEquals(ErrorConstants.INVALID_CAPTCHA, e.getErrorCode());
+            authorizationHelperService.validateSendOtpCaptchaToken("");
+        } catch (EsignetException e) {
+            Assertions.assertEquals(ErrorConstants.INVALID_CAPTCHA, e.getErrorCode());
         }
     }
-    
+
     @Test
     public void validateSendOtpCaptchaToken_withValidToken_thenFail() {
         ReflectionTestUtils.setField(authorizationHelperService, "captchaRequired", List.of("send-otp"));
         Mockito.when(captchaHelper.validateCaptcha(Mockito.anyString())).thenReturn(false);
         try {
-        	authorizationHelperService.validateSendOtpCaptchaToken("captcha-token");
-        } catch(EsignetException e) {
-        	Assert.assertEquals(ErrorConstants.INVALID_CAPTCHA, e.getErrorCode());
+            authorizationHelperService.validateSendOtpCaptchaToken("captcha-token");
+        } catch (EsignetException e) {
+            Assertions.assertEquals(ErrorConstants.INVALID_CAPTCHA, e.getErrorCode());
         }
     }
-    
+
     @Test
     public void validateSendOtpCaptchaToken_withValidToken_thenPass() {
         ReflectionTestUtils.setField(authorizationHelperService, "captchaRequired", List.of("send-otp"));
@@ -132,9 +130,9 @@ public class AuthorizationHelperServiceTest {
         ReflectionTestUtils.setField(authorizationHelperService, "captchaHelper", null);
         try {
             authorizationHelperService.validateCaptchaToken("captcha-token");
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {
-            Assert.assertEquals(FAILED_TO_VALIDATE_CAPTCHA, e.getErrorCode());
+            Assertions.assertEquals(FAILED_TO_VALIDATE_CAPTCHA, e.getErrorCode());
         }
     }
 
@@ -144,9 +142,9 @@ public class AuthorizationHelperServiceTest {
         Mockito.when(captchaHelper.validateCaptcha(Mockito.anyString())).thenReturn(false);
         try {
             authorizationHelperService.validateCaptchaToken("captcha-token");
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {
-            Assert.assertEquals(ErrorConstants.INVALID_CAPTCHA, e.getErrorCode());
+            Assertions.assertEquals(ErrorConstants.INVALID_CAPTCHA, e.getErrorCode());
         }
     }
 
@@ -163,9 +161,9 @@ public class AuthorizationHelperServiceTest {
         DeferredResult<ResponseWrapper<LinkStatusResponse>> deferredResult = new DeferredResult<>();
         authorizationHelperService.addEntryInLinkStatusDeferredResultMap(linkCodeHash, deferredResult);
         authorizationHelperService.consumeLinkStatus(linkCodeHash);
-        Assert.assertTrue(deferredResult.hasResult());
-        Assert.assertNotNull(((ResponseWrapper<LinkStatusResponse>)deferredResult.getResult()).getResponse());
-        Assert.assertEquals(LINKED_STATUS, ((ResponseWrapper<LinkStatusResponse>)deferredResult.getResult()).getResponse().getLinkStatus());
+        Assertions.assertTrue(deferredResult.hasResult());
+        Assertions.assertNotNull(((ResponseWrapper<LinkStatusResponse>) deferredResult.getResult()).getResponse());
+        Assertions.assertEquals(LINKED_STATUS, ((ResponseWrapper<LinkStatusResponse>) deferredResult.getResult()).getResponse().getLinkStatus());
     }
 
     @Test
@@ -180,12 +178,12 @@ public class AuthorizationHelperServiceTest {
         Mockito.when(cacheUtilService.getConsentedTransaction(linkTransactionId)).thenReturn(oidcTransaction);
 
         authorizationHelperService.consumeLinkAuthCodeStatus(linkTransactionId);
-        Assert.assertTrue(deferredResult.hasResult());
-        Assert.assertNotNull(((ResponseWrapper<LinkAuthCodeResponse>)deferredResult.getResult()).getResponse());
-        Assert.assertNotNull(((ResponseWrapper<LinkAuthCodeResponse>)deferredResult.getResult()).getResponse().getCode());
-        Assert.assertEquals(oidcTransaction.getState(), ((ResponseWrapper<LinkAuthCodeResponse>)deferredResult.getResult()).getResponse().getState());
-        Assert.assertEquals(oidcTransaction.getNonce(), ((ResponseWrapper<LinkAuthCodeResponse>)deferredResult.getResult()).getResponse().getNonce());
-        Assert.assertEquals(oidcTransaction.getRedirectUri(), ((ResponseWrapper<LinkAuthCodeResponse>)deferredResult.getResult()).getResponse().getRedirectUri());
+        Assertions.assertTrue(deferredResult.hasResult());
+        Assertions.assertNotNull(((ResponseWrapper<LinkAuthCodeResponse>) deferredResult.getResult()).getResponse());
+        Assertions.assertNotNull(((ResponseWrapper<LinkAuthCodeResponse>) deferredResult.getResult()).getResponse().getCode());
+        Assertions.assertEquals(oidcTransaction.getState(), ((ResponseWrapper<LinkAuthCodeResponse>) deferredResult.getResult()).getResponse().getState());
+        Assertions.assertEquals(oidcTransaction.getNonce(), ((ResponseWrapper<LinkAuthCodeResponse>) deferredResult.getResult()).getResponse().getNonce());
+        Assertions.assertEquals(oidcTransaction.getRedirectUri(), ((ResponseWrapper<LinkAuthCodeResponse>) deferredResult.getResult()).getResponse().getRedirectUri());
     }
 
     @Test
@@ -201,9 +199,9 @@ public class AuthorizationHelperServiceTest {
 
         try {
             authorizationHelperService.consumeLinkAuthCodeStatus(linkTransactionId);
-            Assert.fail();
+            Assertions.fail();
         } catch (InvalidTransactionException ex) {
-            Assert.assertEquals(ErrorConstants.INVALID_TRANSACTION, ex.getErrorCode());
+            Assertions.assertEquals(ErrorConstants.INVALID_TRANSACTION, ex.getErrorCode());
         }
     }
 
@@ -211,8 +209,8 @@ public class AuthorizationHelperServiceTest {
     public void getAuthorizeScopes_test() {
         ReflectionTestUtils.setField(authorizationHelperService, "authorizeScopes", Arrays.asList("history.read", "uin.update"));
         List<String> result = authorizationHelperService.getAuthorizeScopes("openid uin.update history read");
-        Assert.assertNotNull(result);
-        Assert.assertTrue(Arrays.asList("uin.update").containsAll(result));
+        Assertions.assertNotNull(result);
+        Assertions.assertTrue(Arrays.asList("uin.update").containsAll(result));
     }
 
     @Test
@@ -230,9 +228,9 @@ public class AuthorizationHelperServiceTest {
         kycAuthResult.setPartnerSpecificUserToken("psut");
         Mockito.when(authenticationWrapper.doKycAuth(Mockito.anyString(), Mockito.anyString(), anyBoolean(), any(KycAuthDto.class))).thenReturn(kycAuthResult);
         KycAuthResult result = authorizationHelperService.delegateAuthenticateRequest(transactionId, individualId, challengeList, oidcTransaction);
-        Assert.assertNotNull(result);
-        Assert.assertEquals(kycAuthResult.getKycToken(), result.getKycToken());
-        Assert.assertEquals(kycAuthResult.getPartnerSpecificUserToken(), result.getPartnerSpecificUserToken());
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(kycAuthResult.getKycToken(), result.getKycToken());
+        Assertions.assertEquals(kycAuthResult.getPartnerSpecificUserToken(), result.getPartnerSpecificUserToken());
     }
 
     @Test
@@ -249,18 +247,18 @@ public class AuthorizationHelperServiceTest {
         Mockito.when(authenticationWrapper.doKycAuth(Mockito.anyString(), Mockito.anyString(), anyBoolean(), any(KycAuthDto.class))).thenReturn(null);
         try {
             authorizationHelperService.delegateAuthenticateRequest(transactionId, individualId, challengeList, oidcTransaction);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {
-            Assert.assertEquals(AUTH_FAILED, e.getErrorCode());
+            Assertions.assertEquals(AUTH_FAILED, e.getErrorCode());
         }
 
         KycAuthResult result = new KycAuthResult();
         Mockito.when(authenticationWrapper.doKycAuth(Mockito.anyString(), Mockito.anyString(), anyBoolean(), any(KycAuthDto.class))).thenReturn(result);
         try {
             authorizationHelperService.delegateAuthenticateRequest(transactionId, individualId, challengeList, oidcTransaction);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {
-            Assert.assertEquals(AUTH_FAILED, e.getErrorCode());
+            Assertions.assertEquals(AUTH_FAILED, e.getErrorCode());
         }
 
         result.setPartnerSpecificUserToken("PSUT");
@@ -268,9 +266,9 @@ public class AuthorizationHelperServiceTest {
         Mockito.when(authenticationWrapper.doKycAuth(Mockito.anyString(), Mockito.anyString(), anyBoolean(), any(KycAuthDto.class))).thenReturn(result);
         try {
             authorizationHelperService.delegateAuthenticateRequest(transactionId, individualId, challengeList, oidcTransaction);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {
-            Assert.assertEquals(AUTH_FAILED, e.getErrorCode());
+            Assertions.assertEquals(AUTH_FAILED, e.getErrorCode());
         }
 
         result.setPartnerSpecificUserToken(null);
@@ -278,9 +276,9 @@ public class AuthorizationHelperServiceTest {
         Mockito.when(authenticationWrapper.doKycAuth(Mockito.anyString(), Mockito.anyString(), anyBoolean(), any(KycAuthDto.class))).thenReturn(result);
         try {
             authorizationHelperService.delegateAuthenticateRequest(transactionId, individualId, challengeList, oidcTransaction);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {
-            Assert.assertEquals(AUTH_FAILED, e.getErrorCode());
+            Assertions.assertEquals(AUTH_FAILED, e.getErrorCode());
         }
     }
 
@@ -295,11 +293,11 @@ public class AuthorizationHelperServiceTest {
         oidcTransaction.setAuthTransactionId("auth-transaction-id");
         oidcTransaction.setResolvedClaims(new Claims());
         Mockito.when(authenticationWrapper.doKycAuth(Mockito.anyString(), Mockito.anyString(), anyBoolean(), any(KycAuthDto.class))).thenThrow(KycAuthException.class);
-        try{
+        try {
             authorizationHelperService.delegateAuthenticateRequest(transactionId, individualId, challengeList, oidcTransaction);
-            Assert.fail();
-        }catch (EsignetException e) {
-            Assert.assertEquals(null,e.getErrorCode());
+            Assertions.fail();
+        } catch (EsignetException e) {
+            Assertions.assertEquals(null, e.getErrorCode());
         }
     }
 
@@ -315,9 +313,9 @@ public class AuthorizationHelperServiceTest {
         oidcTransaction.setRequestedAuthorizeScopes(Arrays.asList());
         try {
             authorizationHelperService.validatePermittedScopes(oidcTransaction, Arrays.asList("send-otp"));
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {
-            Assert.assertEquals(INVALID_PERMITTED_SCOPE, e.getErrorCode());
+            Assertions.assertEquals(INVALID_PERMITTED_SCOPE, e.getErrorCode());
         }
     }
 
@@ -327,9 +325,9 @@ public class AuthorizationHelperServiceTest {
         oidcTransaction.setRequestedAuthorizeScopes(Arrays.asList("resident_read", "resident_update"));
         try {
             authorizationHelperService.validatePermittedScopes(oidcTransaction, Arrays.asList("send-otp"));
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException e) {
-            Assert.assertEquals(INVALID_PERMITTED_SCOPE, e.getErrorCode());
+            Assertions.assertEquals(INVALID_PERMITTED_SCOPE, e.getErrorCode());
         }
     }
 
@@ -345,8 +343,8 @@ public class AuthorizationHelperServiceTest {
         SendOtpResult sendOtpResult = new SendOtpResult(oidcTransaction.getAuthTransactionId(), "masked-email", "masked-mobile");
         Mockito.when(authenticationWrapper.sendOtp(Mockito.anyString(), Mockito.anyString(), any(SendOtpDto.class))).thenReturn(sendOtpResult);
         SendOtpResult result = authorizationHelperService.delegateSendOtpRequest(otpRequest, oidcTransaction);
-        Assert.assertEquals(sendOtpResult.getMaskedMobile(), result.getMaskedMobile());
-        Assert.assertEquals(sendOtpResult.getMaskedEmail(), result.getMaskedEmail());
+        Assertions.assertEquals(sendOtpResult.getMaskedMobile(), result.getMaskedMobile());
+        Assertions.assertEquals(sendOtpResult.getMaskedEmail(), result.getMaskedEmail());
     }
 
     @Test
@@ -363,9 +361,9 @@ public class AuthorizationHelperServiceTest {
 
         try {
             authorizationHelperService.delegateSendOtpRequest(otpRequest, oidcTransaction);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException ex) {
-            Assert.assertEquals(SEND_OTP_FAILED, ex.getErrorCode());
+            Assertions.assertEquals(SEND_OTP_FAILED, ex.getErrorCode());
         }
     }
 
@@ -382,9 +380,9 @@ public class AuthorizationHelperServiceTest {
         Mockito.when(authenticationWrapper.sendOtp(Mockito.anyString(), Mockito.anyString(), any(SendOtpDto.class))).thenThrow(SendOtpException.class);
         try {
             authorizationHelperService.delegateSendOtpRequest(otpRequest, oidcTransaction);
-            Assert.fail();
-        }catch(EsignetException e){
-            Assert.assertEquals(null,e.getErrorCode());
+            Assertions.fail();
+        } catch (EsignetException e) {
+            Assertions.assertEquals(null, e.getErrorCode());
         }
     }
 
@@ -393,7 +391,7 @@ public class AuthorizationHelperServiceTest {
         Claims resolvedClaims = new Claims();
         resolvedClaims.setId_token(new HashMap<>());
         Map<String, Object> map = new HashMap<>();
-        map.put("values", new String [] {"generated-code", "static-code"});
+        map.put("values", new String []{"generated-code", "static-code"});
         resolvedClaims.getId_token().put(ACR, map);
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         oidcTransaction.setResolvedClaims(resolvedClaims);
@@ -413,8 +411,8 @@ public class AuthorizationHelperServiceTest {
         Mockito.when(authenticationContextClassRefUtil.getAuthFactors(any(String[].class))).thenReturn(list);
 
         Set<List<AuthenticationFactor>> result = authorizationHelperService.getProvidedAuthFactors(oidcTransaction, challengeList);
-        Assert.assertTrue(result.size() == 1);
-        Assert.assertTrue(result.stream().allMatch( l -> l.size() == 1 && l.get(0).getType().equalsIgnoreCase("otp")));
+        Assertions.assertTrue(result.size() == 1);
+        Assertions.assertTrue(result.stream().allMatch(l -> l.size() == 1 && l.getFirst().getType().equalsIgnoreCase("otp")));
     }
 
     @Test
@@ -422,7 +420,7 @@ public class AuthorizationHelperServiceTest {
         Claims resolvedClaims = new Claims();
         resolvedClaims.setId_token(new HashMap<>());
         Map<String, Object> map = new HashMap<>();
-        map.put("values", new String [] {"generated-code", "static-code"});
+        map.put("values", new String []{"generated-code", "static-code"});
         resolvedClaims.getId_token().put(ACR, map);
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         oidcTransaction.setResolvedClaims(resolvedClaims);
@@ -443,9 +441,9 @@ public class AuthorizationHelperServiceTest {
 
         try {
             authorizationHelperService.getProvidedAuthFactors(oidcTransaction, challengeList);
-            Assert.fail();
+            Assertions.fail();
         } catch (EsignetException ex) {
-            Assert.assertEquals(AUTH_FACTOR_MISMATCH, ex.getErrorCode());
+            Assertions.assertEquals(AUTH_FACTOR_MISMATCH, ex.getErrorCode());
         }
     }
 
@@ -468,11 +466,11 @@ public class AuthorizationHelperServiceTest {
         String individualId = "individual-id";
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         authorizationHelperService.setIndividualId(individualId, oidcTransaction);
-        Assert.assertNotNull(oidcTransaction.getIndividualId());
-        Assert.assertNotEquals(individualId, oidcTransaction.getIndividualId());
+        Assertions.assertNotNull(oidcTransaction.getIndividualId());
+        Assertions.assertNotEquals(individualId, oidcTransaction.getIndividualId());
 
         String result = authorizationHelperService.getIndividualId(oidcTransaction);
-        Assert.assertEquals(individualId, result);
+        Assertions.assertEquals(individualId, result);
     }
 
     @Test
@@ -481,9 +479,9 @@ public class AuthorizationHelperServiceTest {
         String individualId = "individual-id";
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         authorizationHelperService.setIndividualId(individualId, oidcTransaction);
-        Assert.assertNull(oidcTransaction.getIndividualId());
+        Assertions.assertNull(oidcTransaction.getIndividualId());
         String result = authorizationHelperService.getIndividualId(oidcTransaction);
-        Assert.assertNull(individualId, result);
+        Assertions.assertNull(result, individualId);
     }
 
     @Test
@@ -493,14 +491,14 @@ public class AuthorizationHelperServiceTest {
         String individualId = "individual-id";
         OIDCTransaction oidcTransaction = new OIDCTransaction();
         authorizationHelperService.setIndividualId(individualId, oidcTransaction);
-        Assert.assertEquals(individualId, oidcTransaction.getIndividualId());
+        Assertions.assertEquals(individualId, oidcTransaction.getIndividualId());
         String result = authorizationHelperService.getIndividualId(oidcTransaction);
-        Assert.assertEquals(individualId, result);
+        Assertions.assertEquals(individualId, result);
     }
 
     @Test
-    public void testHandleInternalAuthenticateRequest_ValidDetails_thenPass(){
-        ReflectionTestUtils.setField(authorizationHelperService, "objectMapper",objectMapper);
+    public void testHandleInternalAuthenticateRequest_ValidDetails_thenPass() {
+        ReflectionTestUtils.setField(authorizationHelperService, "objectMapper", objectMapper);
 
         AuthChallenge authChallenge = new AuthChallenge();
         authChallenge.setChallenge("eyJ0b2tlbiI6ImV5SmhiR2NpT2lKSVV6STFOaUo5LmV5SnpkV0lpT2lKemRXSnFaV04wSWl3aWJtOXVZMlVpT2lKelpYSjJaWEl0Ym05dVkyVWlmUS5CcU5FWF82YUhIc0J2MDVzc0ZqaXVjZ0dzQTZYSW1RWUxWaDZseXFXMXM0In0=");
@@ -520,15 +518,15 @@ public class AuthorizationHelperServiceTest {
 
         KycAuthResult result = authorizationHelperService.handleInternalAuthenticateRequest(authChallenge, "subject", transaction, httpServletRequest);
 
-        Assert.assertNotNull(result);
-        Assert.assertEquals("subject", result.getKycToken());
-        Assert.assertEquals("subject", result.getPartnerSpecificUserToken());
-        Assert.assertEquals("individualId", transaction.getIndividualId());
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals("subject", result.getKycToken());
+        Assertions.assertEquals("subject", result.getPartnerSpecificUserToken());
+        Assertions.assertEquals("individualId", transaction.getIndividualId());
     }
 
     @Test
-    public void testHandleInternalAuthenticateRequest_InvalidIndividualId_thenFail(){
-        ReflectionTestUtils.setField(authorizationHelperService, "objectMapper",objectMapper);
+    public void testHandleInternalAuthenticateRequest_InvalidIndividualId_thenFail() {
+        ReflectionTestUtils.setField(authorizationHelperService, "objectMapper", objectMapper);
 
         AuthChallenge authChallenge = new AuthChallenge();
         authChallenge.setChallenge("eyJ0b2tlbiI6ImV5SmhiR2NpT2lKSVV6STFOaUo5LmV5SnpkV0lpT2lKemRXSnFaV04wSW4wLjl0MG5GMkNtVWZaeTlCYlA3cjM4bElhSlJSeTNaSk41MnBRNlpLSl9qVWMifQ==");
@@ -536,11 +534,11 @@ public class AuthorizationHelperServiceTest {
         transaction.setIndividualId("individualId");
         Mockito.doNothing().when(tokenService).verifyIdToken(any(), any());
 
-        try{
+        try {
             authorizationHelperService.handleInternalAuthenticateRequest(authChallenge,
                     "invalid_individualId", transaction, httpServletRequest);
-        }catch(EsignetException e){
-            Assert.assertEquals(INVALID_INDIVIDUAL_ID,e.getErrorCode());
+        } catch (EsignetException e) {
+            Assertions.assertEquals(INVALID_INDIVIDUAL_ID, e.getErrorCode());
         }
     }
 
@@ -551,11 +549,11 @@ public class AuthorizationHelperServiceTest {
         authChallenge.setChallenge("base64encodedchallenge");
         OIDCTransaction transaction = new OIDCTransaction();
         HttpServletRequest httpServletRequest = Mockito.mock(HttpServletRequest.class);
-        try{
+        try {
             authorizationHelperService.handleInternalAuthenticateRequest(authChallenge, "individualId", transaction, httpServletRequest);
-            Assert.fail();
-        }catch(EsignetException e){
-            Assert.assertEquals("auth_failed",e.getErrorCode());
+            Assertions.fail();
+        } catch (EsignetException e) {
+            Assertions.assertEquals("auth_failed", e.getErrorCode());
         }
     }
 
@@ -566,10 +564,10 @@ public class AuthorizationHelperServiceTest {
         OIDCTransaction transaction = new OIDCTransaction();
         try {
             authorizationHelperService.handleInternalAuthenticateRequest(authChallenge, "individualId", transaction, httpServletRequest);
-            Assert.fail();
-        }catch(EsignetException e)
+            Assertions.fail();
+        } catch (EsignetException e)
         {
-            Assert.assertEquals("auth_failed",e.getErrorCode());
+            Assertions.assertEquals("auth_failed", e.getErrorCode());
         }
     }
 }

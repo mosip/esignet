@@ -32,19 +32,19 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.data.util.Pair;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import javax.crypto.Cipher;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.NotNull;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.NotNull;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.time.LocalDateTime;
@@ -214,8 +214,8 @@ public class AuthorizationHelperService {
             throw new EsignetException(e.getErrorCode());
         }
 
-        if(kycAuthResult == null || (StringUtils.isEmpty(kycAuthResult.getKycToken()) ||
-                StringUtils.isEmpty(kycAuthResult.getPartnerSpecificUserToken()))) {
+        if(kycAuthResult == null || (ObjectUtils.isEmpty(kycAuthResult.getKycToken()) ||
+                ObjectUtils.isEmpty(kycAuthResult.getPartnerSpecificUserToken()))) {
             log.error("** authenticationWrapper : {} returned empty tokens received **", authenticationWrapper);
             throw new EsignetException(AUTH_FAILED);
         }
@@ -414,7 +414,7 @@ public class AuthorizationHelperService {
         Map<String, List<KeyAlias>> keyAliasMap = dbHelper.getKeyAliases(keyAppId, keyRefId, LocalDateTime.now(ZoneOffset.UTC));
         List<KeyAlias> currentKeyAliases = keyAliasMap.get(KeymanagerConstant.CURRENTKEYALIAS);
         if (!currentKeyAliases.isEmpty() && currentKeyAliases.size() == 1) {
-            return currentKeyAliases.get(0).getAlias();
+            return currentKeyAliases.getFirst().getAlias();
         }
         log.error("CurrentKeyAlias is not unique. KeyAlias count: {}", currentKeyAliases.size());
         throw new EsignetException(NO_UNIQUE_ALIAS);
@@ -424,12 +424,12 @@ public class AuthorizationHelperService {
         try {
             String[] jwtParts = idTokenHint.split("\\.");
             if (jwtParts.length == 3) {
-                String payload = new String(Base64.getDecoder().decode(jwtParts[1]));
-                JSONObject payloadJson = new JSONObject(payload);
-                String audience = payloadJson.getString(TokenService.AUD);
+                String payloadString = new String(Base64.getDecoder().decode(jwtParts[1]));
+                JsonNode payload = objectMapper.readTree(payloadString);
+                String audience = payload.get(TokenService.AUD).textValue();
                 if(!signupIDTokenAudience.equals(audience) || !signupIDTokenAudience.equals(clientId))
                     throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
-                return Pair.of(payloadJson.getString(TokenService.SUB), payloadJson.getString(TokenService.NONCE));
+                return Pair.of(payload.get(TokenService.SUB).textValue(), payload.get(TokenService.NONCE).textValue());
             }
         } catch (Exception e) {
             log.error("Failed to parse the given IDTokenHint as JWT", e);

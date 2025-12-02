@@ -21,13 +21,11 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
-
+import org.springframework.util.ObjectUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -56,7 +54,7 @@ public class AuthenticationContextClassRefUtil {
     private String mappingJson;
 
     private String getMappingJson() throws IOException {
-        if(StringUtils.isEmpty(mappingJson)) {
+        if(ObjectUtils.isEmpty(mappingJson)) {
             log.info("Fetching AMR-ACR mapping json from : {}", mappingFilePath);
             Resource resource = resourceLoader.getResource(mappingFilePath);
             mappingJson = IOUtils.toString(resource.getInputStream(), StandardCharsets.UTF_8);

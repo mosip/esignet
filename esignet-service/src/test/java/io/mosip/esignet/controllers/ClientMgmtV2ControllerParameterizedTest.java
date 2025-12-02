@@ -62,7 +62,7 @@ public class ClientMgmtV2ControllerParameterizedTest {
 
         if (clientDetailCreateRequestV3 != null) {
             ResultActions createResultActions = mockMvc.perform(post("/client-mgmt/client")
-                    .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .contentType(MediaType.APPLICATION_JSON)
                     .content(getRequestWrapper(clientDetailCreateRequestV3)));
             evaluateResultActions(createResultActions, clientDetailCreateRequestV3.getClientId(),
                     Constants.CLIENT_ACTIVE_STATUS, errorCode);
@@ -70,7 +70,7 @@ public class ClientMgmtV2ControllerParameterizedTest {
 
         if (clientDetailUpdateRequestV3 != null) {
             ResultActions updateResultActions = mockMvc.perform(put("/client-mgmt/client/" + clientIdQueryParam)
-                    .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .contentType(MediaType.APPLICATION_JSON)
                     .content(getRequestWrapper(clientDetailUpdateRequestV3)));
             evaluateResultActions(updateResultActions, clientIdQueryParam,
                     clientDetailUpdateRequestV3.getStatus(), errorCode);

@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 @ConditionalOnProperty(value = "spring.cache.type", havingValue = "simple")
 @Configuration
-public class SimpleCacheConfig extends CachingConfigurerSupport {
+public class SimpleCacheConfig {
 
     @Value("${mosip.esignet.cache.names}")
     private List<String> cacheNames;
@@ -36,7 +36,6 @@ public class SimpleCacheConfig extends CachingConfigurerSupport {
 
 
     @Bean
-    @Override
     public CacheManager cacheManager() {
         SimpleCacheManager cacheManager = new SimpleCacheManager();
         List<Cache> caches = new ArrayList<>();

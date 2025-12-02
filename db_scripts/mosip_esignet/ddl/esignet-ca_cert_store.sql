@@ -1,10 +1,12 @@
 -- This Source Code Form is subject to the terms of the Mozilla PublicAdd commentMore actions
 -- License, v. 2.0. If a copy of the MPL was not distributed with this
 -- file, You can obtain one at https://mozilla.org/MPL/2.0/.
+-- -------------------------------------------------------------------------------------------------
+-- Database Name: mosip_esignet
+-- Table Name : ca_cert_store
+-- Purpose    : CA Certificate Store Table
 
-\c mosip_esignet
-
-CREATE TABLE IF NOT EXISTS ca_cert_store(
+CREATE TABLE ca_cert_store(
 	cert_id character varying(36) NOT NULL,
 	cert_subject character varying(500) NOT NULL,
 	cert_issuer character varying(500) NOT NULL,

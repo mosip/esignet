@@ -162,7 +162,7 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Override
-    public void verifyClientAssertionToken(String clientId, String jwk, String clientAssertion, String audience) throws EsignetException {
+    public void verifyClientAssertionToken(String clientId, String jwk, String clientAssertion, List<String> audience) throws EsignetException {
         if (clientAssertion == null) {
             throw new EsignetException(ErrorConstants.INVALID_CLIENT);
         }
@@ -177,9 +177,7 @@ public class TokenServiceImpl implements TokenService {
                 throw new EsignetException(ErrorConstants.INVALID_CLIENT);
             }
 
-            String issuer = (String) discoveryMap.get("issuer");
-
-            NimbusJwtDecoder jwtDecoder = getNimbusJwtDecoderFromJwk(jwk, clientId, audience, issuer, maxClockSkew,alg);
+            NimbusJwtDecoder jwtDecoder = getNimbusJwtDecoderFromJwk(jwk, clientId, audience, maxClockSkew, alg);
             jwtDecoder.decode(clientAssertion);
             String jti = signedJWT.getJWTClaimsSet().getJWTID();
             if (uniqueJtiRequired && (jti == null || cacheUtilService.checkAndMarkJti(jti))) {
@@ -192,7 +190,7 @@ public class TokenServiceImpl implements TokenService {
         }
     }
 
-    private NimbusJwtDecoder getNimbusJwtDecoderFromJwk(String jwkJson, String clientId, String audience, String issuer, int maxClockSkew, String alg) throws Exception {
+    private NimbusJwtDecoder getNimbusJwtDecoderFromJwk(String jwkJson, String clientId, List<String> audience, int maxClockSkew, String alg) throws Exception {
 
         JWK parsedJwk = JWK.parse(jwkJson);
         JWKSet jwkSet = new JWKSet(parsedJwk);
@@ -207,12 +205,12 @@ public class TokenServiceImpl implements TokenService {
         OAuth2TokenValidator<Jwt> validator = new DelegatingOAuth2TokenValidator<>(
                 new JwtTimestampValidator(Duration.ofSeconds(maxClockSkew)),
                 new JwtIssuerValidator(clientId),
-                new JwtClaimValidator<Instant>(JwtClaimNames.IAT, iat -> iat != null),
-                new JwtClaimValidator<Instant>(JwtClaimNames.EXP, exp -> exp != null),
+                new JwtClaimValidator<Instant>(JwtClaimNames.IAT, Objects::nonNull),
+                new JwtClaimValidator<Instant>(JwtClaimNames.EXP, Objects::nonNull),
                 new JwtClaimValidator<List<String>>(JwtClaimNames.AUD, aud ->
-                        aud != null && aud.stream().anyMatch(a -> a.equals(audience) || a.equals(issuer))
+                        aud != null && aud.stream().anyMatch(audience::contains)
                 ),
-                new JwtClaimValidator<String>(JwtClaimNames.SUB, sub -> clientId.equals(sub)),
+                new JwtClaimValidator<String>(JwtClaimNames.SUB, clientId::equals),
                 new JwtClaimValidator<String>(JwtClaimNames.JTI, jti ->
                         jti != null && !jti.trim().isEmpty()
                 )
@@ -279,7 +277,7 @@ public class TokenServiceImpl implements TokenService {
     public boolean isValidDpopServerNonce(String dpopHeader, OIDCTransaction transaction) {
         try {
             SignedJWT dpopJwt = SignedJWT.parse(dpopHeader);
-            net.minidev.json.JSONObject payload = dpopJwt.getPayload().toJSONObject();
+            Map<String, Object> payload = dpopJwt.getPayload().toJSONObject();
             String dpopProofNonce = (String) payload.get("nonce");
 
             long currentTime = System.currentTimeMillis();

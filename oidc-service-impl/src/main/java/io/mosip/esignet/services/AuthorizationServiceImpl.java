@@ -41,10 +41,10 @@ import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import javax.annotation.PostConstruct;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.UUID;
 
@@ -376,8 +376,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                 authRequest.getChallengeList());
 
         KycAuthResult kycAuthResult;
-        if(authRequest.getChallengeList().size() == 1 && authRequest.getChallengeList().get(0).getAuthFactorType().equals("IDT")) {
-            kycAuthResult = authorizationHelperService.handleInternalAuthenticateRequest(authRequest.getChallengeList().get(0),authRequest.getIndividualId(), transaction,
+        if(authRequest.getChallengeList().size() == 1 && authRequest.getChallengeList().getFirst().getAuthFactorType().equals("IDT")) {
+            kycAuthResult = authorizationHelperService.handleInternalAuthenticateRequest(authRequest.getChallengeList().getFirst(),authRequest.getIndividualId(), transaction,
                     httpServletRequest);
             transaction.setInternalAuthSuccess(true);
         }

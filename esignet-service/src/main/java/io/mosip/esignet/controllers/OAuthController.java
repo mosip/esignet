@@ -6,8 +6,8 @@
 package io.mosip.esignet.controllers;
 
 import java.util.Map;
-import javax.validation.Valid;
-import javax.validation.Validator;
+import jakarta.validation.Valid;
+import jakarta.validation.Validator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.core.constants.Constants;

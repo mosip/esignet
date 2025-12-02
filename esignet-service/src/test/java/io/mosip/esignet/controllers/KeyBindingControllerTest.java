@@ -20,16 +20,14 @@ import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.spi.KeyBindingService;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.services.CacheUtilService;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -47,7 +45,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(value = KeyBindingController.class)
 public class KeyBindingControllerTest {
 
@@ -328,9 +325,9 @@ public class KeyBindingControllerTest {
 	@Test
 	public void bindWallet_withAuthChallengeEmptyFactorAndEmptyChallenge_thenFail() throws Exception {
 		WalletBindingRequest walletBindingRequest = getWalletBindingRequest();
-		walletBindingRequest.getChallengeList().get(0).setChallenge("");
-		walletBindingRequest.getChallengeList().get(0).setAuthFactorType("");
-		walletBindingRequest.getChallengeList().get(0).setFormat("");
+		walletBindingRequest.getChallengeList().getFirst().setChallenge("");
+		walletBindingRequest.getChallengeList().getFirst().setAuthFactorType("");
+		walletBindingRequest.getChallengeList().getFirst().setFormat("");
 		RequestWrapper wrapper = new RequestWrapper<>();
 		wrapper.setRequestTime(IdentityProviderUtil.getUTCDateTime());
 		wrapper.setRequest(walletBindingRequest);
@@ -343,8 +340,8 @@ public class KeyBindingControllerTest {
 		List<String> errorCodes = Arrays.asList(INVALID_CHALLENGE_FORMAT,INVALID_AUTH_FACTOR_TYPE, INVALID_AUTH_FACTOR_TYPE_FORMAT,
 				INVALID_CHALLENGE, INVALID_CHALLENGE_LENGTH);
 		ResponseWrapper responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), ResponseWrapper.class);
-		Assert.assertTrue(responseWrapper.getErrors().size() == 1);
-		Assert.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().get(0)).getErrorCode()));
+		Assertions.assertTrue(responseWrapper.getErrors().size() == 1);
+		Assertions.assertTrue(errorCodes.contains(((Error)responseWrapper.getErrors().getFirst()).getErrorCode()));
 	}
 
 	/*@Test

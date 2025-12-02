@@ -12,13 +12,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import javax.annotation.PostConstruct;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
@@ -56,7 +54,7 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
     @Override
     public boolean isValid(AuthChallenge authChallenge, ConstraintValidatorContext context) {
     	String authFactor = authChallenge.getAuthFactorType();
-        String format = environment.getProperty(String.format(FORMAT_KEY_PREFIX, authFactor),
+        String format = environment.getProperty(FORMAT_KEY_PREFIX.formatted(authFactor),
                 String.class);
         if( !StringUtils.hasText(authFactor) || !StringUtils.hasText(format) || !authChallenge.getAuthFactorType().equals(authFactor.toUpperCase()) ) {
         	context.disableDefaultConstraintViolation();
@@ -68,8 +66,8 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
 			context.buildConstraintViolationWithTemplate(ErrorConstants.INVALID_CHALLENGE_FORMAT).addConstraintViolation();
         	return false;
         }
-        int min = environment.getProperty(String.format(MIN_LENGTH_KEY_PREFIX, authFactor), Integer.TYPE, 50);
-        int max = environment.getProperty(String.format(MAX_LENGTH_KEY_PREFIX, authFactor), Integer.TYPE, 50);
+        int min = environment.getProperty(MIN_LENGTH_KEY_PREFIX.formatted(authFactor), Integer.TYPE, 50);
+        int max = environment.getProperty(MAX_LENGTH_KEY_PREFIX.formatted(authFactor), Integer.TYPE, 50);
         String challenge = authChallenge.getChallenge();
         int length = StringUtils.hasText(challenge) ? challenge.length() : 0;
         if (!(length >= min && length <= max)) {
@@ -98,8 +96,8 @@ public class AuthChallengeFactorFormatValidator implements ConstraintValidator<A
                     Object rawValue = challengeMap.get(id);
                     String value = null;
 
-                    if (rawValue instanceof String) {
-                        value = (String) rawValue;
+                    if (rawValue instanceof String strValue) {
+                        value = strValue;
                     } else if (rawValue instanceof List) {
                         try {
                             List<Map<String, String>> list = objectMapper.convertValue(rawValue, new TypeReference<List<Map<String, String>>>() {});

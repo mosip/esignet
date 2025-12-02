@@ -11,29 +11,29 @@ import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.services.CacheUtilService;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.*;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.web.client.HttpClientErrorException;
 
-import javax.servlet.FilterChain;
-import javax.servlet.http.HttpServletResponse;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletResponse;
 import java.time.Instant;
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @Slf4j
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.WARN)
 public class DpopValidationFilterTest {
 
     @InjectMocks
@@ -48,9 +48,8 @@ public class DpopValidationFilterTest {
     private ECKey ecJwk;
     private String accessToken;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
-        MockitoAnnotations.initMocks(this);
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
         filterChain = mock(FilterChain.class);
@@ -111,7 +110,7 @@ public class DpopValidationFilterTest {
                 .expirationTime(Date.from(Instant.now().plusSeconds(3600)));
 
         if (addCnfClaim) {
-            claimsBuilder.claim("cnf", Map.of("jkt", ecJwk.toPublicJWK().computeThumbprint()));
+            claimsBuilder.claim("cnf", Map.of("jkt", ecJwk.toPublicJWK().computeThumbprint().toString()));
         }
 
         SignedJWT signedJWT = new SignedJWT(
@@ -218,7 +217,7 @@ public class DpopValidationFilterTest {
                 .issueTime(Date.from(Instant.now()))
                 .build();
 
-        String claimsJson = claims.toJSONObject().toJSONString();
+        String claimsJson = claims.toPayload().toString();
 
         String encodedHeader = Base64URL.encode(headerJson).toString();
         String encodedClaims = Base64URL.encode(claimsJson).toString();
