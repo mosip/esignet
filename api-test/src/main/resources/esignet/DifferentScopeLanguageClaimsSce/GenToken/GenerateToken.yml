@@ -1,0 +1,21 @@
+GenerateTokenDifferentScopeLanguageClaimsSce: 
+   ESignet_GenerateToken_AuthToken_Xsrf_Scope_Smoke_sid:
+      endPoint: $GETENDPOINTFROMWELLKNOWN$
+      uniqueIdentifier: TC_ESignet_GenerateTokenDifferentScopeLanguageClaimsSce_01
+      description: Generate token with all valid details UIN for user info different scope language claims sce
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/DifferentScopeLanguageClaimsSce/GenToken/GenerateToken
+      outputTemplate: esignet/DifferentScopeLanguageClaimsSce/GenToken/GenerateTokenResult
+      input: '{
+		  "grant_type": "authorization_code",
+		  "code": "$ID:AuthorizationCode_AuthToken_Xsrf_forDifferentScopeLanguageClaimsSce_Smoke_sid_code$",
+		  "client_id": "$ID:OIDCClient_DifferentScopeLanguageClaimsSce_sid_clientId$",
+		  "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+		  "client_assertion": "$CLIENT_ASSERTION_USER12_JWK$",
+		  "redirect_uri": "$IDPREDIRECTURI$"
+}'
+      output: '{
+   		"token_type": "Bearer" 
+}'

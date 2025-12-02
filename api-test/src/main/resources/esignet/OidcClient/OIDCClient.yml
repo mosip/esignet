@@ -652,3 +652,24 @@ CreateOIDCClient:
       output: '{
         "status": "ACTIVE"
 }'
+   Esignet_OIDCClient_DifferentScopeLanguageClaimsSce_sid:
+      endPoint: /v1/partnermanager/oidc/client
+      uniqueIdentifier: TC_ESignet_CreateOIDCClient_29
+      description: Create OIDC client with all valid details for different scope language claims
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/OidcClient/OIDCClient
+      outputTemplate: esignet/OidcClient/OIDCClientResult
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_All_Valid_Smoke_sid_id$",
+        "publicKey": "$OIDCJWKKEY12$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "status": "ACTIVE"
+}'

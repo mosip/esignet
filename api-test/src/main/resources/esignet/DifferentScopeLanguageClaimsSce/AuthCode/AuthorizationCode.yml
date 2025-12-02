@@ -1,0 +1,19 @@
+AuthorizationCodeDifferentScopeLanguageClaimsSce:
+   ESignet_AuthorizationCode_AuthToken_Xsrf_forDifferentScopeLanguageClaimsSce_Smoke_sid:
+      endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCodeDifferentScopeLanguageClaimsSce_01
+      description: Authorization code request for Different Scope Language Claims Sce
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/DifferentScopeLanguageClaimsSce/AuthCode/AuthorizationCode
+      outputTemplate: esignet/DifferentScopeLanguageClaimsSce/AuthCode/AuthorizationCodeResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_DifferScope_V3_AuthToken_Xsrf_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_DifferScope_V3_AuthToken_Xsrf_Smoke_sid_transactionId$",
+      	"acceptedClaims": [{"claim": "phone_number"},{"claim": "email"}]
+}'
+      output: '{
+}'

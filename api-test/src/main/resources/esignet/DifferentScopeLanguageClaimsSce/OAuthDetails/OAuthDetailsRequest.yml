@@ -1,0 +1,709 @@
+OAuthDetailsDifferentScopeLanguageClaimsSce:
+   ESignet_OAuthDetailsRequest_DifferScope_V3_AuthToken_Xsrf_Smoke_sid:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_01
+      description: Create Oauthdetails request with scope as openid email phone
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsRequest
+      outputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsRequestResult
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:OIDCClient_DifferentScopeLanguageClaimsSce_sid_clientId$",
+        "scope": "openid email phone",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "login",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "eree2311",
+        "claimsLocales": "en"
+}'
+      output: '{
+}'
+   ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_Scope_Openid_Email_Phone_Profile_Valid_Pos:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_02
+      description: Create Oauthdetails request with scope as openid Email phone profile
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsRequest
+      outputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsRequestResult
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:OIDCClient_DifferentScopeLanguageClaimsSce_sid_clientId$",
+        "scope": "openid email phone profile",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "login",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "eree2311",
+        "claimsLocales": "en"
+}'
+      output: '{
+}'
+   ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_Scope_Openid_Phone_Valid_Pos:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_03
+      description: Create Oauthdetails request with scope as openid phone
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsRequest
+      outputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsRequestResult
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:OIDCClient_DifferentScopeLanguageClaimsSce_sid_clientId$",
+        "scope": "openid phone",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "login",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "eree2311",
+        "claimsLocales": "en"
+}'
+      output: '{
+}'
+   ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_Scope_Openid_Profile_Languge_Eng_Fra_Valid_Pos:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_04
+      description: Create Oauthdetails request with scope as openid profile and locales as eng fra
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsRequest
+      outputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsRequestResult
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:OIDCClient_DifferentScopeLanguageClaimsSce_sid_clientId$",
+        "scope": "openid profile",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "login",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "eree2311",
+        "claimsLocales": "en fr"
+}'
+      output: '{
+}'
+   ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_Scope_Openid_Profile_Languge_FraTm_Valid_Pos:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_05
+      description: Create Oauthdetails request with scope as openid profile and locales as fra tm
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsRequest
+      outputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsRequestResult
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:OIDCClient_DifferentScopeLanguageClaimsSce_sid_clientId$",
+        "scope": "openid profile",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "login",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "eree2311",
+        "claimsLocales": "fr tm"
+}'
+      output: '{
+}'
+   ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_Scope_Openid_Profile_Languge_FraTmAra_Valid_Pos:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_06
+      description: Create Oauthdetails request with scope as openid profile and locales as fra tm and ara
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsRequest
+      outputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsRequestResult
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:OIDCClient_DifferentScopeLanguageClaimsSce_sid_clientId$",
+        "scope": "openid profile",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "login",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "eree2311",
+        "claimsLocales": "fr tm ara"
+}'
+      output: '{
+}'
+   ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_EmptyClaim_Pos:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_07
+      description: Create an OAuth details request with an empty claims and expect essentialClaims to be an empty array
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsEmptyClaim
+      outputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsRequestResult
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:OIDCClient_DifferentScopeLanguageClaimsSce_sid_clientId$",
+        "scope": "openid",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "login",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "eree2311",
+        "claimsLocales": "en"
+}'
+      output: '{
+}'
+   ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_EmptyUserInfoClaim_Pos:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_08
+      description: Create an OAuth details request with an empty user info claims and expect essentialClaims to be an empty array
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsEmptyUserInfo
+      outputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsRequestResult
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:OIDCClient_DifferentScopeLanguageClaimsSce_sid_clientId$",
+        "scope": "openid",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "login",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "eree2311",
+        "claimsLocales": "en"
+}'
+      output: '{
+}'
+   ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_Null_IDTokenClaim_Pos:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_09
+      description: Create an OAuth details request with an Null id token claim and expect essentialClaims to be an empty array
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsNullIDToken
+      outputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsRequestResult
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:OIDCClient_DifferentScopeLanguageClaimsSce_sid_clientId$",
+        "scope": "openid",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "login",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "eree2311",
+        "claimsLocales": "en"
+}'
+      output: '{
+}'
+   ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_Dummy_Claim_Pos:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_10
+      description: Create an OAuth details request with dummuy value claim and expect essential and voluntary claims to be an empty array
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsDummyClaim
+      outputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsRequestResult
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:OIDCClient_DifferentScopeLanguageClaimsSce_sid_clientId$",
+        "scope": "openid",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "login",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "eree2311",
+        "claimsLocales": "en"
+}'
+      output: '{
+}'
+   ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_Valid_VolEss_Claim_Pos:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_11
+      description: Create an OAuth details request with phone number essential true and name essential false
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsPhNumEss
+      outputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsRequestResult
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:OIDCClient_DifferentScopeLanguageClaimsSce_sid_clientId$",
+        "scope": "openid",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "login",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "eree2311",
+        "claimsLocales": "en"
+}'
+      output: '{
+}'
+   ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_Valid_DOB_Claim_Pos:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_12
+      description: Create an OAuth details request with date of birth essential true and name essential true
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsDOBClaim
+      outputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsRequestResult
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:OIDCClient_DifferentScopeLanguageClaimsSce_sid_clientId$",
+        "scope": "openid",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "login",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "eree2311",
+        "claimsLocales": "en"
+}'
+      output: '{
+}'
+   ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_Verified_claims_Null_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_13
+      description: Create an OAuth details request with verified claims null
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsVFClaimsNull
+      outputTemplate: esignet/error
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:OIDCClient_DifferentScopeLanguageClaimsSce_sid_clientId$",
+        "scope": "openid",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "login",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "eree2311",
+        "claimsLocales": "en"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "invalid_claim"
+    }
+  ]
+}'
+   ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_Verified_claims_Empty_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_14
+      description: Create an OAuth details request with verified claims Empty
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsVFClaimsEmpty
+      outputTemplate: esignet/error
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:OIDCClient_DifferentScopeLanguageClaimsSce_sid_clientId$",
+        "scope": "openid",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "login",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "eree2311",
+        "claimsLocales": "en"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "invalid_claim"
+    }
+  ]
+}'
+   ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_Verification_Set_ToNull_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_15
+      description: Create an OAuth details request with verification set to null and expect the system to return the required verified name and phone number
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsVFSNull
+      outputTemplate: esignet/error
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:OIDCClient_DifferentScopeLanguageClaimsSce_sid_clientId$",
+        "scope": "openid",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "login",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "eree2311",
+        "claimsLocales": "en"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "invalid_claim"
+    }
+  ]
+}'
+   ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_Verification_Set_ToEmpty_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_16
+      description: Create an OAuth details request with verification set to Empty and expect the system to return the required verified name and phone number
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsVFSEmpty
+      outputTemplate: esignet/error
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:OIDCClient_DifferentScopeLanguageClaimsSce_sid_clientId$",
+        "scope": "openid",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "login",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "eree2311",
+        "claimsLocales": "en"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "invalid_claim"
+    }
+  ]
+}'
+   ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_Invalid_VerifiedClaim1_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_17
+      description: Create an OAuth details request verified claims specifies eIDAS as the trust framework but the claims object is null
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsVFClaimInvalid1
+      outputTemplate: esignet/error
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:OIDCClient_DifferentScopeLanguageClaimsSce_sid_clientId$",
+        "scope": "openid",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "login",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "eree2311",
+        "claimsLocales": "en"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "invalid_verified_claims"
+    }
+  ]
+}'
+   ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_Invalid_VerifiedClaim2_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_18
+      description: Create an OAuth details request verified claims specifies eIDAS as the trust framework but the claims object is empty
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsVFClaimInvalid2
+      outputTemplate: esignet/error
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:OIDCClient_DifferentScopeLanguageClaimsSce_sid_clientId$",
+        "scope": "openid",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "login",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "eree2311",
+        "claimsLocales": "en"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "invalid_claim"
+    }
+  ]
+}'
+   ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_Invalid_VerifiedClaim3_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_19
+      description: Verified claims request with empty trust framework and essential claims
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsVFClaimInvalid3
+      outputTemplate: esignet/error
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:OIDCClient_DifferentScopeLanguageClaimsSce_sid_clientId$",
+        "scope": "openid",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "login",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "eree2311",
+        "claimsLocales": "en"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "invalid_claim"
+    }
+  ]
+}'
+   ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_Invalid_VerifiedClaim4_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_20
+      description: Verified claims request with blank trust framework and essential claims
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsVFClaimInvalid4
+      outputTemplate: esignet/error
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:OIDCClient_DifferentScopeLanguageClaimsSce_sid_clientId$",
+        "scope": "openid",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "login",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "eree2311",
+        "claimsLocales": "en"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "invalid_claim"
+    }
+  ]
+}'
+   ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_Invalid_VerifiedClaim5_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_21
+      description: Verified claims request with eIDAS trust framework and manual_verification process for essential name and phone_number
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsVFClaimInvalid5
+      outputTemplate: esignet/error
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:OIDCClient_DifferentScopeLanguageClaimsSce_sid_clientId$",
+        "scope": "openid",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "login",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "eree2311",
+        "claimsLocales": "en"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "invalid_claim"
+    }
+  ]
+}'
+   ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_Invalid_VerifiedClaim6_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_22
+      description: Verified claims request with eIDAS trust framework manual verification process and max_age set to null
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsVFClaimInvalid6
+      outputTemplate: esignet/error
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:OIDCClient_DifferentScopeLanguageClaimsSce_sid_clientId$",
+        "scope": "openid",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "login",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "eree2311",
+        "claimsLocales": "en"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "invalid_claim"
+    }
+  ]
+}'
+   ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_ClaimLocale_Blank_Pos:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_23
+      description: Create Oauthdetails request with claimsLocales as blank
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsLocaleBlank
+      outputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsRequestResult
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:OIDCClient_DifferentScopeLanguageClaimsSce_sid_clientId$",
+        "scope": "openid",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "login",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "eree2311",
+        "claimsLocales": ""
+}'
+      output: '{
+}'
+   ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_TFE_Pos:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_24
+      description: Create Oauthdetails request with eIDAS trust framework null phone_number and non-essential name
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsTFE
+      outputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsRequestResult
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:OIDCClient_DifferentScopeLanguageClaimsSce_sid_clientId$",
+        "scope": "openid",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "login",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "eree2311",
+        "claimsLocales": "en"
+}'
+      output: '{
+}'
+   ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_TFE2_Pos:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_25
+      description: Create Oauthdetails request with When verified_claims under eIDAS marks phone_number as essential and name as non-essential the system must return verified phone_number while name is optional
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsTFE2
+      outputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsRequestResult
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:OIDCClient_DifferentScopeLanguageClaimsSce_sid_clientId$",
+        "scope": "openid",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "login",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "eree2311",
+        "claimsLocales": "en"
+}'
+      output: '{
+}'
+   ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_NumericClaim_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_26
+      description: Create Oauthdetails request with claims values as numeric
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsNumClaim
+      outputTemplate: esignet/error
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:OIDCClient_DifferentScopeLanguageClaimsSce_sid_clientId$",
+        "scope": "openid",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "login",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "eree2311",
+        "claimsLocales": "en"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "unknown_error"
+    }
+  ]
+}'
+   ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_EmptyStringClaim_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_27
+      description: Create Oauthdetails request with claims values as Empty string claim
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsEmpClaim
+      outputTemplate: esignet/error
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:OIDCClient_DifferentScopeLanguageClaimsSce_sid_clientId$",
+        "scope": "openid",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "login",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "eree2311",
+        "claimsLocales": "en"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "unknown_error"
+    }
+  ]
+}'
