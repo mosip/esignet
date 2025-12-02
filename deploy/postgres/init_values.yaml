@@ -13,7 +13,7 @@ databases:
         key: postgres-password
     dml: 1
     repoUrl: https://github.com/mosip/esignet.git
-    branch: release-1.7.x
+    branch: v1.7.0
 
   mosip_master:
     enabled: false
