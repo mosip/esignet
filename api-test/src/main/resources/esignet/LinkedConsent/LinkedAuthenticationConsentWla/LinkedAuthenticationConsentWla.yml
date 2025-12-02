@@ -1,6 +1,7 @@
 LinkedAuthenticationConsentWla:
    ESignet_LinkedAuthenticationWla_Consentuin_SCert_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/v2/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationWlaV2_01
       description: LinkedAuthenticationWla consent UIN SCert with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -51,6 +52,7 @@ LinkedAuthenticationConsentWla:
 
    ESignet_LinkedAuthenticationWla_ConsentVid_SCert_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/v2/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationWlaV2_02
       description: LinkedAuthenticationWla consent VID SCert with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -101,6 +103,7 @@ LinkedAuthenticationConsentWla:
 
    ESignet_LinkedAuthenticationWla_Consent_EmptyClaim_uin_SCert_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/v2/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationWlaV2_03
       description: LinkedAuthenticationWla consent UIN with empty claim
       role: resident
       checkErrorsOnlyInResponse: true
@@ -151,6 +154,7 @@ LinkedAuthenticationConsentWla:
 
    ESignet_LinkedAuthenticationWla_Consent_forAcceptedClaims_SCert_sid:
       endPoint: /v1/esignet/linked-authorization/v2/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationWlaV2_04
       description: LinkedAuthenticationWla consent UIN SCert with all valid details for accepted claims
       role: resident
       checkErrorsOnlyInResponse: true
@@ -201,6 +205,7 @@ LinkedAuthenticationConsentWla:
 
    ESignet_LinkedAuthenticationWla_Consent_forOptionalClaims_SCert_sid:
       endPoint: /v1/esignet/linked-authorization/v2/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationWlaV2_05
       description: LinkedAuthenticationWla consent UIN SCert with all valid details for optional claims
       role: resident
       checkErrorsOnlyInResponse: true
@@ -251,6 +256,7 @@ LinkedAuthenticationConsentWla:
 
    ESignet_LinkedAuthenticationWla_Consent_forPartialEssentialOptionalClaims_SCert_sid:
       endPoint: /v1/esignet/linked-authorization/v2/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationWlaV2_06
       description: LinkedAuthenticationWla consent UIN SCert with all valid details for PartialEssential OptionalClaims
       role: resident
       checkErrorsOnlyInResponse: true
@@ -301,6 +307,7 @@ LinkedAuthenticationConsentWla:
 
    ESignet_LinkedAuthenticationWla_Consent_forOnlyEssentialClaims_SCert_sid:
       endPoint: /v1/esignet/linked-authorization/v2/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationWlaV2_07
       description: LinkedAuthenticationWla consent UIN SCert with all valid details for only essential Claims
       role: resident
       checkErrorsOnlyInResponse: true
@@ -351,6 +358,7 @@ LinkedAuthenticationConsentWla:
 
    ESignet_LinkedAuthenticationWla_Consent_forNullAsEssentialClaims_SCert_sid:
       endPoint: /v1/esignet/linked-authorization/v2/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationWlaV2_08
       description: LinkedAuthenticationWla consent UIN SCert with all valid details for NullAsEssentialClaims
       role: resident
       checkErrorsOnlyInResponse: true
@@ -401,6 +409,7 @@ LinkedAuthenticationConsentWla:
 
    ESignet_LinkedAuthenticationWla_Consent_forOnlyOptionalClaimAsRequested_SCert_sid:
       endPoint: /v1/esignet/linked-authorization/v2/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationWlaV2_09
       description: LinkedAuthenticationWla consent UIN SCert with all valid details for forOnlyOptionalClaimAsRequested
       role: resident
       checkErrorsOnlyInResponse: true
@@ -451,6 +460,7 @@ LinkedAuthenticationConsentWla:
 
    ESignet_LinkedAuthenticationWla_Consent_without_AcceptedClaim_IfOnlyOptionalRequested_SCert_sid:
       endPoint: /v1/esignet/linked-authorization/v2/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationWlaV2_10
       description: LinkedAuthenticationWla consent UIN SCert with all valid details without_AcceptedClaim_IfOnlyOptionalRequested
       role: resident
       checkErrorsOnlyInResponse: true
@@ -491,6 +501,62 @@ LinkedAuthenticationConsentWla:
 }'
       output: '{
          "consentAction": "CAPTURE",
+         "sendOtpResp":{
+          "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
+       },
+       "validateOtpResp":{
+          "sendOtpResTemplate":"esignet/WalletBinding/WalletBindingResult"
+       }
+}'
+
+   ESignet_LinkedAuthenticationWla_InvalidChallenge_Neg:
+      endPoint: /v1/esignet/linked-authorization/v2/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationWlaV2_11
+      description: LinkedAuthenticationWla consent with invalid challenge Negative test case
+      role: resident
+      checkErrorsOnlyInResponse: true
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/LinkedAuthenticationWla/LinkedAuthenticationWla
+      outputTemplate: esignet/error
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+      "linkTransactionId": "$ID:LinkTransaction_Consent_uin_forOnlyEssentialClaims_sid_linkTransactionId$",
+      "individualId": "$ID:AddIdentity_Linked_Consent_smoke_Pos_UIN$",
+        "authFactorType": "WLA",
+        "challenge": "123456",
+        "format": "jwt",
+        "sendOtp":{
+      "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+      "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+      "requestTime": "$TIMESTAMP$",
+      "individualId": "$ID:AddIdentity_Linked_Consent_smoke_Pos_UIN$",
+      "otpChannels": [{channel: "email"},{channel: "phone"}],
+        "sendOtpReqTemplate": "esignet/SendBindingOtp/SendBindingOtp",
+        "sendOtpEndPoint": "/v1/esignet/binding/binding-otp",
+      },
+      "validateOtp":{
+          "apiKey": "$ID:GenerateApiKey_Valid_Smoke_sid_apiKey$",
+          "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+          "requestTime": "$TIMESTAMP$",
+          "individualId": "$ID:AddIdentity_Linked_Consent_smoke_Pos_UIN$",
+          "authFactorType1": "WLA",
+          "format1": "jwt",
+          "authFactorType": "OTP",
+          "challenge": "$ID:AddIdentity_Linked_Consent_smoke_Pos_EMAIL$",
+          "format": "alpha-numeric",
+          "publicKey": "$BINDINGCONSENTJWKKEY$",
+          "validateOtpReqTemplate": "esignet/WalletBinding/WalletBinding",
+          "validateOtpEndPoint": "/v1/esignet/binding/wallet-binding"
+      }
+}'
+      output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_challenge",
+      "errorMessage": "request.challengeList[0]: invalid_challenge"
+    }
+  ],
          "sendOtpResp":{
           "sendOtpResTemplate":"esignet/SendBindingOtp/SendBindingOtpResult"
        },
