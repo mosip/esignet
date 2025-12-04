@@ -5990,13 +5990,15 @@ components:
             individual_id:
               $ref: '#/components/schemas/ClaimDetail'
             verified_claims:
-              type: array
-              x-stoplight:
-                id: hv9p69214uhf2
-              items:
-                $ref: '#/components/schemas/VerifiedClaimDetail'
-                x-stoplight:
-                  id: 15ypbmicw15jx
+              oneOf:
+                - type: array
+                  x-stoplight:
+                   id: hv9p69214uhf2
+                  items:
+                   $ref: '#/components/schemas/VerifiedClaimDetail'
+                   x-stoplight:
+                   id: 15ypbmicw15jx
+                - $ref: '#/components/schemas/VerifiedClaimDetail'
         id_token:
           type: object
           properties:
