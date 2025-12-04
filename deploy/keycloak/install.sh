@@ -25,8 +25,8 @@ function installing_keycloak() {
   --set image.repository=mosipid/mosip-artemis-keycloak \
   --set image.tag=1.2.0.1 \
   --set image.pullPolicy=Always \
-  --set postgresql.primary.image.repository="mosipid/postgresql" \
-  --set postgresql.primary.image.tag="14.2.0-debian-10-r70" \
+  --set postgresql.image.repository="mosipid/postgresql" \
+  --set postgresql.image.tag="14.2.0-debian-10-r70" \
   -f values.yaml --wait
 
   EXTERNAL_HOST=$(kubectl -n esignet get cm esignet-global -o jsonpath={.data.mosip-iam-external-host})
