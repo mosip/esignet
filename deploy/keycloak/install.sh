@@ -8,6 +8,7 @@ if [ $# -ge 1 ]; then
 fi
 NS=keycloak
 SERVICE_NAME=keycloak
+ISTIO_ADDONS_CHART_VERSION=0.0.1-develop
 
 echo Creating $NS namespace
 kubectl create ns $NS
