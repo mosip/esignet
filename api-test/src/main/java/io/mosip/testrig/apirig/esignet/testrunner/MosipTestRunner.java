@@ -130,7 +130,11 @@ public class MosipTestRunner {
 				AdminTestUtil.createAndPublishPolicyForKyc();
 				ekycPartnerKeyURL = PartnerRegistration.generateAndGetEkycPartnerKeyUrl();
 
+				BaseTestCase.domain=".mosip.net";
+				
 				BiometricDataProvider.generateBiometricTestData("Registration");
+				
+				BaseTestCase.domain = System.getProperty("env.endpoint", "localhost").replaceFirst("^https?://", "").replaceAll("/$", "");
 
 				if (partnerKeyURL.isEmpty() || ekycPartnerKeyURL.isEmpty()) {
 					LOGGER.error("partnerKeyURL is null");
