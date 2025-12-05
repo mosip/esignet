@@ -14,9 +14,16 @@ chmod 777 /srv/nfs/mosip/<sandbox>/onboarder
 ```
 * Add the following entry to the /etc/exports file:
 ```
-/srv/nfs/mosip/<sandbox>/onboarder *(ro,sync,no_root_squash,no_all_squash,insecure,subtree_check)
+/srv/nfs/mosip/<sandbox>/onboarder *(rw,sync,no_root_squash,no_all_squash,insecure,subtree_check)
 ```
-
+* Apply export command
+```
+sudo exportfs -rav
+```
+* Restart the nfs-server
+```
+sudo systemctl restart nfs-kernel-server
+```
 * Set `values.yaml` to run onboarder for specific modules.
 * run `./install.sh`.
 ```
