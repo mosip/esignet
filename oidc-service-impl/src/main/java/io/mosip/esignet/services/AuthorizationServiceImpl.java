@@ -23,6 +23,7 @@ import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.spi.AuthorizationService;
 import io.mosip.esignet.core.spi.ClientManagementService;
+import io.mosip.esignet.core.spi.OpenIdProfileService;
 import io.mosip.esignet.core.spi.TokenService;
 import io.mosip.esignet.core.util.*;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +42,6 @@ import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -49,6 +49,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.UUID;
 
 import static io.mosip.esignet.core.constants.Constants.*;
+import static io.mosip.esignet.core.constants.Constants.REQUIRE_PAR;
 import static io.mosip.esignet.core.spi.TokenService.ACR;
 import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA_256;
@@ -63,6 +64,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Autowired
     private ClientManagementService clientManagementService;
+
+    @Autowired
+    OpenIdProfileService openIdProfileService;
 
     @Autowired
     private CacheUtilService cacheUtilService;
@@ -125,13 +129,17 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Autowired
     private KBIFormHelperService kbiFormHelperService;
 
+    @Value("${mosip.esignet.openid.profile:fapi2.0}")
+    private String openidProfile;
+
     @Override
     public OAuthDetailResponseV1 getOauthDetails(OAuthDetailRequest oauthDetailReqDto) throws EsignetException {
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(oauthDetailReqDto.getClientId());
-        assertPARRequiredIsFalse(clientDetailDto);
+        List<String> features = openIdProfileService.getFeaturesByProfileName(openidProfile);
+        assertPARRequiredIsFalse(clientDetailDto, features);
         validateRedirectURIAndNonce(oauthDetailReqDto, clientDetailDto);
         OAuthDetailResponseV1 oAuthDetailResponseV1 = new OAuthDetailResponseV1();
-        Pair<OAuthDetailResponse, OIDCTransaction> pair = checkAndBuildOIDCTransaction(oauthDetailReqDto, clientDetailDto, oAuthDetailResponseV1);
+        Pair<OAuthDetailResponse, OIDCTransaction> pair = checkAndBuildOIDCTransaction(oauthDetailReqDto, clientDetailDto, oAuthDetailResponseV1, features);
         oAuthDetailResponseV1 = (OAuthDetailResponseV1) pair.getFirst();
         oAuthDetailResponseV1.setClientName(clientDetailDto.getName().get(Constants.NONE_LANG_KEY));
         pair.getSecond().setOauthDetailsHash(getOauthDetailsResponseHash(oAuthDetailResponseV1));
@@ -144,10 +152,11 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Override
     public OAuthDetailResponseV2 getOauthDetailsV2(OAuthDetailRequestV2 oauthDetailReqDto) throws EsignetException {
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(oauthDetailReqDto.getClientId());
-        assertPARRequiredIsFalse(clientDetailDto);
+        List<String> features = openIdProfileService.getFeaturesByProfileName(openidProfile);
+        assertPARRequiredIsFalse(clientDetailDto, features);
         validateRedirectURIAndNonce(oauthDetailReqDto, clientDetailDto);
         OAuthDetailResponseV2 oAuthDetailResponseV2 = new OAuthDetailResponseV2();
-        return buildTransactionAndOAuthDetailResponse(oauthDetailReqDto, clientDetailDto, oAuthDetailResponseV2);
+        return buildTransactionAndOAuthDetailResponse(oauthDetailReqDto, clientDetailDto, oAuthDetailResponseV2, features);
     }
 
     @Override
@@ -172,8 +181,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         OAuthDetailRequestV3 oAuthDetailRequestV3 = mapPushedAuthorizationRequestToOAuthDetailsRequest(pushedAuthorizationRequest);
         handleIdTokenHint(oAuthDetailRequestV3, httpServletRequest);
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(oAuthDetailRequestV3.getClientId());
+        List<String> features = openIdProfileService.getFeaturesByProfileName(openidProfile);
         OAuthDetailResponseV2 oAuthDetailResponseV2 = new OAuthDetailResponseV2();
-        return buildTransactionAndOAuthDetailResponse(oAuthDetailRequestV3, clientDetailDto, oAuthDetailResponseV2);
+        return buildTransactionAndOAuthDetailResponse(oAuthDetailRequestV3, clientDetailDto, oAuthDetailResponseV2, features);
     }
 
     @Override
@@ -411,8 +421,11 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         authorizationHelperService.validateNonce(oAuthDetailRequest.getNonce());
     }
 
-    private void assertPARRequiredIsFalse(ClientDetail clientDetail) throws EsignetException {
-        boolean isParRequired = clientDetail.getAdditionalConfig(REQUIRE_PAR, false);
+    private void assertPARRequiredIsFalse(ClientDetail clientDetail, List<String> features) throws EsignetException {
+        boolean isParRequired = (openidProfile == null || NONE.equalsIgnoreCase(openidProfile))
+                ? clientDetail.getAdditionalConfig(REQUIRE_PAR, false)
+                : ((FAPI2.equalsIgnoreCase(openidProfile) || NISDSP.equalsIgnoreCase(openidProfile))
+                && features.contains("PAR"));
         if (isParRequired) {
             log.error("Pushed Authorization Request (PAR) flow is mandated for clientId: {}", clientDetail.getId());
             throw new EsignetException(ErrorConstants.INVALID_REQUEST);
@@ -420,7 +433,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
     private Pair<OAuthDetailResponse, OIDCTransaction> checkAndBuildOIDCTransaction(OAuthDetailRequest oauthDetailReqDto,
-                                                                                    ClientDetail clientDetailDto, OAuthDetailResponse oAuthDetailResponse) {
+                                                                                    ClientDetail clientDetailDto, OAuthDetailResponse oAuthDetailResponse, List<String> features) {
         //Resolve the final set of claims based on registered and request parameter.
         Claims resolvedClaims = claimsHelperService.resolveRequestedClaims(oauthDetailReqDto, clientDetailDto);
         //Resolve and set ACR claim
@@ -469,11 +482,10 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oidcTransaction.setRequestedCredentialScopes(authorizationHelperService.getCredentialScopes(oauthDetailReqDto.getScope()));
         oidcTransaction.setInternalAuthSuccess(false);
         oidcTransaction.setRequestedClaimDetails(oauthDetailReqDto.getClaims()!=null? oauthDetailReqDto.getClaims().getUserinfo() : null);
-        oidcTransaction.setUserInfoResponseType(clientDetailDto.getAdditionalConfig(USERINFO_RESPONSE_TYPE,"JWS"));
         oidcTransaction.setPrompt(IdentityProviderUtil.splitAndTrimValue(oauthDetailReqDto.getPrompt(), Constants.SPACE));
         oidcTransaction.setConsentExpireMinutes(clientDetailDto.getAdditionalConfig(CONSENT_EXPIRE_IN_MINS, 0));
         oidcTransaction.setDpopJkt(oauthDetailReqDto.getDpopJkt());
-        oidcTransaction.setDpopBoundAccessToken(clientDetailDto.getAdditionalConfig(Constants.DPOP_BOUND_ACCESS_TOKENS, false));
+        setAdditionalConfigInOidcTransaction(oidcTransaction, clientDetailDto, features);
         return Pair.of(oAuthDetailResponse, oidcTransaction);
     }
 
@@ -489,9 +501,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
     private OAuthDetailResponseV2 buildTransactionAndOAuthDetailResponse(OAuthDetailRequestV2 oauthDetailReqDto,
-                                                                         ClientDetail clientDetailDto, OAuthDetailResponseV2 oAuthDetailResponseV2) {
+                                                                         ClientDetail clientDetailDto, OAuthDetailResponseV2 oAuthDetailResponseV2, List<String> features) {
 
-        Pair<OAuthDetailResponse, OIDCTransaction> pair = checkAndBuildOIDCTransaction(oauthDetailReqDto, clientDetailDto, oAuthDetailResponseV2);
+        Pair<OAuthDetailResponse, OIDCTransaction> pair = checkAndBuildOIDCTransaction(oauthDetailReqDto, clientDetailDto, oAuthDetailResponseV2, features);
         oAuthDetailResponseV2 = (OAuthDetailResponseV2) pair.getFirst();
         oAuthDetailResponseV2.setClientName(clientDetailDto.getName());
 
@@ -631,4 +643,35 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         }
     }
 
+    /**
+     * Set additional config in OIDC transaction based on openid profile and client additional config
+     * @param oidcTransaction  {@link OIDCTransaction}
+     * @param clientDetailDto  {@link ClientDetail}
+     * @param features {@link List<String>}
+     */
+    private void setAdditionalConfigInOidcTransaction(OIDCTransaction oidcTransaction, ClientDetail clientDetailDto, List<String> features) {
+        boolean par = features.contains("PAR");
+        boolean dpop = features.contains("DPOP");
+        boolean jwe = features.contains("JWE");
+        boolean pkce = features.contains("PKCE");
+
+        boolean isFapi = FAPI2.equalsIgnoreCase(openidProfile);
+        boolean isNisdsp = NISDSP.equalsIgnoreCase(openidProfile);
+
+        if (openidProfile == null || NONE.equalsIgnoreCase(openidProfile)) {
+            oidcTransaction.setUserInfoResponseType(clientDetailDto.getAdditionalConfig(USERINFO_RESPONSE_TYPE,"JWS"));
+            oidcTransaction.setDpopBoundAccessToken(clientDetailDto.getAdditionalConfig(DPOP_BOUND_ACCESS_TOKENS, false));
+            oidcTransaction.setRequirePushedAuthorizationRequests(clientDetailDto.getAdditionalConfig(REQUIRE_PAR, false));
+            oidcTransaction.setRequirePKCE(clientDetailDto.getAdditionalConfig(REQUIRE_PKCE, false));
+        } else {
+            if (isFapi || isNisdsp) {
+                oidcTransaction.setUserInfoResponseType(jwe ? "JWE" : "JWS");
+                oidcTransaction.setDpopBoundAccessToken(dpop);
+                oidcTransaction.setRequirePushedAuthorizationRequests(par);
+            }
+            if (isNisdsp) {
+                oidcTransaction.setRequirePKCE(pkce);
+            }
+        }
+    }
 }

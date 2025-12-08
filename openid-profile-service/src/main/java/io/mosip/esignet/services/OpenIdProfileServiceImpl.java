@@ -5,10 +5,12 @@
  */
 package io.mosip.esignet.services;
 
+import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.entity.OpenIdProfile;
 import io.mosip.esignet.repository.OpenIdProfileRepository;
 import io.mosip.esignet.core.spi.OpenIdProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +18,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class OpenIdProfileServiceImpl implements OpenIdProfileService {
+
+    private static final String FEATURES = "features";
 
     @Autowired
     OpenIdProfileRepository openIdProfileRepository;
@@ -26,8 +30,13 @@ public class OpenIdProfileServiceImpl implements OpenIdProfileService {
      * @return list of features associated with the profile
      */
     @Override
+    @Cacheable(value = FEATURES, key = "'latest_features'")
     public List<String> getFeaturesByProfileName(String profileName) {
-        return openIdProfileRepository.findByProfileName(profileName)
+        List<OpenIdProfile> profiles = openIdProfileRepository.findByProfileName(profileName);
+        if (profiles == null || profiles.isEmpty()) {
+            throw new EsignetException("No features found for openid profile: " + profileName);
+        }
+        return profiles
                 .stream()
                 .map(OpenIdProfile::getFeature)
                 .collect(Collectors.toList());

@@ -6,7 +6,6 @@
 package io.mosip.esignet.core.spi;
 
 import io.mosip.esignet.core.exception.EsignetException;
-
 import java.util.List;
 
 public interface OpenIdProfileService {
@@ -16,5 +15,5 @@ public interface OpenIdProfileService {
      * @param profileName name of the profile - fapi2.0. nisdsp, gov, none etc
      * @return list of features associated with the profile
      */
-    List<String> getFeaturesByProfileName(String profileName) throws EsignetException;;
+    List<String> getFeaturesByProfileName(String profileName) throws EsignetException;
 }

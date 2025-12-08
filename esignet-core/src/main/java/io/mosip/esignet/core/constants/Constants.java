@@ -62,4 +62,13 @@ public class Constants {
 
     public static final String PAR_REQUEST_URI_PREFIX = "urn:ietf:params:oauth:request_uri:";
     public static final String JTI_CACHE = "jti";
+
+    public static final String REQUIRE_PKCE = "require_pkce";
+    public static final String REQUIRE_PAR= "require_pushed_authorization_requests";
+
+    //OpenId profile names
+    public static final String FAPI2= "fapi2.0";
+    public static final String NISDSP= "nisdsp";
+    public static final String NONE= "none";
+
 }

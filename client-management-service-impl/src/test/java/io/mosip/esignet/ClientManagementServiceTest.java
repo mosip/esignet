@@ -14,6 +14,7 @@ import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.constants.ErrorConstants;
+import io.mosip.esignet.core.spi.OpenIdProfileService;
 import io.mosip.esignet.entity.ClientDetail;
 import io.mosip.esignet.repository.ClientDetailRepository;
 import io.mosip.esignet.services.ClientManagementServiceImpl;
@@ -27,6 +28,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -43,6 +45,9 @@ public class ClientManagementServiceTest {
 
     @InjectMocks
     ClientManagementServiceImpl clientManagementService;
+
+    @Mock
+    OpenIdProfileService openIdProfileService;
 
     @Mock
     ClientDetailRepository clientDetailRepository;
@@ -353,4 +358,99 @@ public class ClientManagementServiceTest {
         return null;
     }
 
+    @Test
+    public void createClientV3_withProfileFeatures_appliesAdditionalConfig() {
+        ReflectionTestUtils.setField(clientManagementService, "openIdProfileService", openIdProfileService);
+        ReflectionTestUtils.setField(clientManagementService, "openidProfile", "fapi2.0");
+
+        Mockito.when(openIdProfileService.getFeaturesByProfileName("fapi2.0"))
+                .thenReturn(Arrays.asList("PAR", "DPOP", "JWE", "PKCE"));
+
+        ClientDetailCreateRequestV3 req = new ClientDetailCreateRequestV3();
+        Map<String, String> clientnameLangMap = new HashMap<>();
+        clientnameLangMap.put("eng", "client_name_v1");
+        req.setClientId("mock_id_v1");
+        req.setClientName("client_name_v1");
+        req.setClientNameLangMap(clientnameLangMap);
+        req.setLogoUri("http://service.com/logo.png");
+        req.setPublicKey(PUBLIC_KEY);
+        req.setRedirectUris(Arrays.asList("http://service.com/home"));
+        req.setUserClaims(Arrays.asList("given_name"));
+        req.setAuthContextRefs(Arrays.asList("mosip:idp:acr:static-code"));
+        req.setRelyingPartyId("RELYING_PARTY_ID");
+        req.setGrantTypes(Arrays.asList("authorization_code"));
+        req.setClientAuthMethods(Arrays.asList("private_key_jwt"));
+        req.setAdditionalConfig(objectMapper.valueToTree(getAdditionalConfig()));
+
+        ClientDetail entity = new ClientDetail();
+        entity.setId("mock_id_v1");
+        entity.setStatus("active");
+        Mockito.when(clientDetailRepository.save(Mockito.any(ClientDetail.class))).thenReturn(entity);
+
+        ClientDetailResponseV2 response = clientManagementService.createClient(req);
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals("mock_id_v1", response.getClientId());
+        Assertions.assertEquals("active", response.getStatus());
+    }
+
+    @Test
+    public void updateClientV3_withProfileFeatures_appliesAdditionalConfig() throws EsignetException {
+        ReflectionTestUtils.setField(clientManagementService, "openIdProfileService", openIdProfileService);
+        ReflectionTestUtils.setField(clientManagementService, "openidProfile", "fapi2.0");
+
+        Mockito.when(openIdProfileService.getFeaturesByProfileName("fapi2.0"))
+                .thenReturn(Arrays.asList("PAR", "DPOP", "JWE", "PKCE"));
+
+        ClientDetail clientDetail = getClientDetail();
+        Mockito.when(clientDetailRepository.findById("client_id_v1")).thenReturn(Optional.of(clientDetail));
+
+        ClientDetailUpdateRequestV3 updateV3Request = new ClientDetailUpdateRequestV3();
+        updateV3Request.setClientNameLangMap(new HashMap<>());
+        updateV3Request.setClientName("client_name_v1");
+        updateV3Request.setLogoUri("http://service.com/logo.png");
+        updateV3Request.setRedirectUris(Arrays.asList("http://service.com/home"));
+        updateV3Request.setUserClaims(Arrays.asList("given_name"));
+        updateV3Request.setAuthContextRefs(Arrays.asList("mosip:idp:acr:static-code"));
+        updateV3Request.setGrantTypes(Arrays.asList("authorization_code"));
+        updateV3Request.setClientAuthMethods(Arrays.asList("private_key_jwt"));
+        updateV3Request.setAdditionalConfig(objectMapper.valueToTree(getAdditionalConfig()));
+
+        ClientDetail entity = new ClientDetail();
+        entity.setId("client_id_v1");
+        entity.setStatus("inactive");
+        Mockito.when(clientDetailRepository.save(Mockito.any(ClientDetail.class))).thenReturn(entity);
+
+        ClientDetailResponseV2 response = clientManagementService.updateClient("client_id_v1", updateV3Request);
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals("client_id_v1", response.getClientId());
+        Assertions.assertEquals("inactive", response.getStatus());
+    }
+
+    private static ClientDetail getClientDetail() {
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setName("client_id_v1");
+        clientDetail.setId("client_id_v1");
+        clientDetail.setLogoUri("http://service.com/logo.png");
+        clientDetail.setClaims("[\"given_name\", \"birthdate\"]");
+        clientDetail.setAcrValues("[\"mosip:idp:acr:static-code\"]");
+        clientDetail.setClientAuthMethods("[\"private_key_jwt\"]");
+        clientDetail.setGrantTypes("[\"authorization_code\"]");
+        clientDetail.setRedirectUris("[\"https://service.com/home\",\"https://service.com/dashboard\", \"v1/idp\"]");
+        return clientDetail;
+    }
+
+    private Map<String, Object> getAdditionalConfig() {
+        Map<String, Object> additionalConfig = new HashMap<>();
+        additionalConfig.put("userinfo_response_type", "JWS");
+        Map<String, Object> purpose = new HashMap<>();
+        purpose.put("type", "verify");
+        additionalConfig.put("purpose", purpose);
+        additionalConfig.put("signup_banner_required", true);
+        additionalConfig.put("forgot_pwd_link_required", true);
+        additionalConfig.put("consent_expire_in_mins", 20);
+        additionalConfig.put("require_pushed_authorization_requests", true);
+        additionalConfig.put("dpop_bound_access_tokens", true);
+        additionalConfig.put("require_pkce", true);
+        return additionalConfig;
+    }
 }

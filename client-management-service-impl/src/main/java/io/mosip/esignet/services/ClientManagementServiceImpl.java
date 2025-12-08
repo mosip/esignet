@@ -7,6 +7,7 @@ package io.mosip.esignet.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.api.util.Action;
@@ -18,6 +19,7 @@ import io.mosip.esignet.core.dto.ClientDetailCreateRequestV2;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidClientException;
 import io.mosip.esignet.core.spi.ClientManagementService;
+import io.mosip.esignet.core.spi.OpenIdProfileService;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.core.util.AuditHelper;
 import io.mosip.esignet.entity.ClientDetail;
@@ -37,7 +39,12 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 
-import static io.mosip.esignet.core.constants.Constants.CLIENT_ACTIVE_STATUS;
+import static io.mosip.esignet.core.constants.Constants.*;
+import static io.mosip.esignet.core.constants.Constants.DPOP_BOUND_ACCESS_TOKENS;
+import static io.mosip.esignet.core.constants.Constants.NISDSP;
+import static io.mosip.esignet.core.constants.Constants.REQUIRE_PAR;
+import static io.mosip.esignet.core.constants.Constants.REQUIRE_PKCE;
+import static io.mosip.esignet.core.constants.Constants.USERINFO_RESPONSE_TYPE;
 
 @Slf4j
 @Service
@@ -47,6 +54,9 @@ public class ClientManagementServiceImpl implements ClientManagementService {
     ClientDetailRepository clientDetailRepository;
 
     @Autowired
+    OpenIdProfileService openIdProfileService;
+
+    @Autowired
     ObjectMapper objectMapper;
 
     @Autowired
@@ -54,6 +64,9 @@ public class ClientManagementServiceImpl implements ClientManagementService {
     
     @Value("${mosip.esignet.audit.claim-name:preferred_username}")
     private String claimName;
+
+    @Value("${mosip.esignet.openid.profile:fapi2.0}")
+    private String openidProfile;
 
     private List<String> NULL = Collections.singletonList(null);
 
@@ -308,14 +321,84 @@ public class ClientManagementServiceImpl implements ClientManagementService {
 
     public ClientDetail buildClient(ClientDetailCreateRequestV3 clientDetailCreateRequestV3) {
         ClientDetail clientDetail = buildOAuthClient(clientDetailCreateRequestV3);
-        clientDetail.setAdditionalConfig(clientDetailCreateRequestV3.getAdditionalConfig());
+        setAdditionalConfig(clientDetailCreateRequestV3, clientDetail);
         return clientDetail;
     }
 
     public ClientDetail buildClient(String clientId, ClientDetailUpdateRequestV3 clientDetailUpdateRequestV3) {
         ClientDetail clientDetail = buildOAuthClient(clientId, clientDetailUpdateRequestV3);
-        clientDetail.setAdditionalConfig(clientDetailUpdateRequestV3.getAdditionalConfig());
+        setAdditionalConfig(clientDetailUpdateRequestV3, clientDetail);
         return clientDetail;
     }
 
+    /**
+     * Set additional config parameters based on openid profile
+     * @param clientDetailCreateRequestV3 {@link ClientDetailCreateRequestV3}
+     * @param clientDetail {@link ClientDetail}
+     */
+    private void setAdditionalConfig(ClientDetailCreateRequestV3 clientDetailCreateRequestV3, ClientDetail clientDetail) {
+        try {
+            JsonNode additionalConfigNode = objectMapper.valueToTree(clientDetailCreateRequestV3.getAdditionalConfig());
+            updateAdditionalConfig(clientDetail, additionalConfigNode);
+        } catch (Exception e) {
+            log.error("Error while setting fapiCompatibility to additional config", e);
+        }
+    }
+
+    /**
+     * Set additional config parameters based on openid profile
+     * @param clientDetailUpdateRequestV3 {@link ClientDetailUpdateRequestV3}
+     * @param clientDetail {@link ClientDetail}
+     */
+    private void setAdditionalConfig(ClientDetailUpdateRequestV3 clientDetailUpdateRequestV3, ClientDetail clientDetail) {
+        try {
+            JsonNode additionalConfigNode = objectMapper.valueToTree(clientDetailUpdateRequestV3.getAdditionalConfig());
+            updateAdditionalConfig(clientDetail, additionalConfigNode);
+        } catch (Exception e) {
+            log.error("Error while setting fapiCompatibility to additional config", e);
+        }
+    }
+
+    /**
+     * Update additional config JsonNode with profile specific features
+     * @param clientDetail {@link ClientDetail}
+     * @param additionalConfigNode {@link JsonNode}
+     */
+    private void updateAdditionalConfig(ClientDetail clientDetail, JsonNode additionalConfigNode) {
+        Map<String, Object> additionalConfigMap =
+                objectMapper.convertValue(additionalConfigNode, new TypeReference<>() {
+                });
+        applyProfileFeatures(additionalConfigMap, openidProfile);
+        JsonNode updatedConfigNode = objectMapper.valueToTree(additionalConfigMap);
+        clientDetail.setAdditionalConfig(updatedConfigNode);
+    }
+
+    /**
+     * Apply profile specific features to additional config
+     * @param additionalConfigMap Map<String, Object> which holds additional config
+     * @param openidProfile openid profile name from application properties
+     */
+    private void applyProfileFeatures(Map<String, Object> additionalConfigMap, String openidProfile) {
+        if (openidProfile == null || NONE.equalsIgnoreCase(openidProfile)) {
+            return;
+        }
+
+        List<String> features = openIdProfileService.getFeaturesByProfileName(openidProfile);
+        boolean par = features.contains("PAR");
+        boolean dpop = features.contains("DPOP");
+        boolean jwe = features.contains("JWE");
+        boolean pkce = features.contains("PKCE");
+
+        boolean isFapi = FAPI2.equalsIgnoreCase(openidProfile);
+        boolean isNisdsp = NISDSP.equalsIgnoreCase(openidProfile);
+
+        if (isFapi || isNisdsp) {
+            additionalConfigMap.put(REQUIRE_PAR, par);
+            additionalConfigMap.put(DPOP_BOUND_ACCESS_TOKENS, dpop);
+            additionalConfigMap.put(USERINFO_RESPONSE_TYPE, jwe ? "JWE" : "JWS");
+        }
+        if (isNisdsp) {
+            additionalConfigMap.put(REQUIRE_PKCE, pkce);
+        }
+    }
 }
