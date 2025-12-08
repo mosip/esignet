@@ -10,6 +10,8 @@ import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.NotAuthenticatedException;
 import org.json.simple.JSONObject;
 
+import java.util.List;
+
 public interface TokenService {
 
     String ISS = "iss";
@@ -101,14 +103,14 @@ public interface TokenService {
      * sub : Subject. This MUST contain the client_id of the OAuth Client.
      * aud : Audience. Value that identifies the Authorization Server as an intended audience.
      * The Authorization Server MUST verify that it is an intended audience for the token.
-     * The Audience SHOULD be the URL of the Authorization Server's Token Endpoint.
+     * The Audience SHOULD be the URL of the Authorization Server's Token/Par/Issuer Endpoint.
      * jti :  JWT ID. A unique identifier for the token, which can be used to prevent reuse of the token.
      * These tokens MUST only be used once, unless conditions for reuse were negotiated between the parties;
      * any such negotiation is beyond the scope of this specification.
      * exp : Expiration time on or after which the ID Token MUST NOT be accepted for processing.
      * iat : OPTIONAL. Time at which the JWT was issued.
      */
-     void verifyClientAssertionToken(String clientId, String jwk, String clientAssertion,String audience) throws EsignetException;
+     void verifyClientAssertionToken(String clientId, String jwk, String clientAssertion, List<String> audience) throws EsignetException;
 
     /**
      * Verifies access token signature and also the claims with expected values

@@ -185,7 +185,7 @@ public class TokenServiceTest {
                 .build();
         SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
         jwt.sign(signer);
-        EsignetException ex = Assert.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(),"audience"));
+        EsignetException ex = Assert.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(),List.of("audience")));
         Assert.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
     }
 
@@ -201,7 +201,7 @@ public class TokenServiceTest {
                 .build();
         SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
         jwt.sign(signer);
-        EsignetException ex = Assert.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(),"audience"));
+        EsignetException ex = Assert.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(),List.of("audience")));
         Assert.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
     }
 
@@ -219,7 +219,7 @@ public class TokenServiceTest {
                 .build();
         SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
         jwt.sign(signer);
-        tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(),"audience");
+        tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(),List.of("audience"));
     }
 
     @Test
@@ -243,7 +243,7 @@ public class TokenServiceTest {
                 "client-id",
                 RSA_JWK.toPublicJWK().toJSONString(),
                 jwt.serialize(),
-                "issuer"
+                List.of("issuer")
         );
     }
 
@@ -268,19 +268,19 @@ public class TokenServiceTest {
                 "client-id",
                 RSA_JWK.toPublicJWK().toJSONString(),
                 jwt.serialize(),
-                "tokenendpoint"
+                List.of("tokenendpoint")
         ));
         Assert.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
     }
 
     @Test(expected = EsignetException.class)
     public void verifyClientAssertionToken_withNullAssertion_thenFail() {
-        tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), null,"audience");
+        tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), null,List.of("audience"));
     }
 
     @Test
     public void verifyClientAssertionToken_withInvalidToken_thenFail() {
-        EsignetException ex = Assert.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), "client-assertion","audience"));
+        EsignetException ex = Assert.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), "client-assertion",List.of("audience")));
         Assert.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
     }
 
@@ -314,7 +314,7 @@ public class TokenServiceTest {
         SignedJWT signedJWT = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.PS256).keyID(rsaKey.getKeyID()).build(), claimsSet);
         signedJWT.sign(signer);
         Mockito.when(cacheUtilService.checkAndMarkJti(Mockito.anyString())).thenReturn(true);
-        EsignetException ex = Assert.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken("client-id", rsaKey.toJSONString(), signedJWT.serialize(), "audience"));
+        EsignetException ex = Assert.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken("client-id", rsaKey.toJSONString(), signedJWT.serialize(), List.of("audience")));
         Assert.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
     }
 
@@ -338,7 +338,7 @@ public class TokenServiceTest {
         SignedJWT signedJWT = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.PS256).keyID(rsaKey.getKeyID()).build(), claimsSet);
         signedJWT.sign(signer);
 
-        tokenService.verifyClientAssertionToken("client-id", rsaKey.toJSONString(), signedJWT.serialize(), "audience");
+        tokenService.verifyClientAssertionToken("client-id", rsaKey.toJSONString(), signedJWT.serialize(), List.of("audience"));
     }
 
     @Test
@@ -361,7 +361,7 @@ public class TokenServiceTest {
         SignedJWT signedJWT = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.ES256).keyID(ecKey.getKeyID()).build(), claimsSet);
         signedJWT.sign(signer);
 
-        tokenService.verifyClientAssertionToken("client-id", ecKey.toJSONString(), signedJWT.serialize(), "audience");
+        tokenService.verifyClientAssertionToken("client-id", ecKey.toJSONString(), signedJWT.serialize(), List.of("audience"));
     }
 
     @Test
@@ -376,7 +376,7 @@ public class TokenServiceTest {
                 .build();
         SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.PS384), claimsSet);
         jwt.sign(signer);
-        EsignetException ex = Assert.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken("client-id",  RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(), "audience"));
+        EsignetException ex = Assert.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken("client-id",  RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(), List.of("audience")));
         Assert.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
     }
 
@@ -393,7 +393,7 @@ public class TokenServiceTest {
         String encodedHeader = Base64.getUrlEncoder().withoutPadding().encodeToString(headerJson.getBytes(StandardCharsets.UTF_8));
         String encodedPayload = Base64.getUrlEncoder().withoutPadding().encodeToString(payloadJson.getBytes(StandardCharsets.UTF_8));
         String malformedJwt = encodedHeader + "." + encodedPayload + "." + "dummySignature";
-        EsignetException ex = Assert.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), malformedJwt, "audience"));
+        EsignetException ex = Assert.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), malformedJwt, List.of("audience")));
         Assert.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
     }
 
