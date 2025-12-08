@@ -9,10 +9,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Data
-@Entity(name = "openid_profile")
+@Entity
+@Table(name = "openid_profile")
 @NoArgsConstructor
 @AllArgsConstructor
 @IdClass(OpenIdProfileId.class)
