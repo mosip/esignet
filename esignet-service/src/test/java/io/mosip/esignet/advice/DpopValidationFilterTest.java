@@ -263,6 +263,21 @@ public class DpopValidationFilterTest {
     }
 
     @Test
+    public void testDpopHeader_withUserinfoPathDpopHeaderAndWithoutAuthHeader_thenFail() throws Exception {
+        String dpopJwt = createDpopJwtWithAllClaims("GET", "http://localhost/oidc/userinfo", accessToken, true);
+
+        request.setRequestURI("/oidc/userinfo");
+        request.addHeader("DPoP", dpopJwt);
+        request.setMethod("GET");
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        verify(filterChain, never()).doFilter(request, response);
+        assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());
+        assertTrue(response.getHeader("WWW-Authenticate").contains(ErrorConstants.INVALID_AUTH_TOKEN));
+    }
+
+    @Test
     public void testDpopHeader_withUserinfoPathAndAccessTokenWithoutCnfClaim_thenFail() throws Exception {
         accessToken = generateAccessTokenForUserinfo(false);
         String dpopJwt = createDpopJwtWithAllClaims("GET", "http://localhost/oidc/userinfo", accessToken, true);

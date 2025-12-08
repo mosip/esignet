@@ -19,12 +19,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.FieldError;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
@@ -34,6 +36,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import jakarta.servlet.ServletException;
@@ -42,6 +45,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.io.IOException;
+import java.net.URI;
 import java.util.*;
 
 import static io.mosip.esignet.core.constants.ErrorConstants.*;
@@ -88,6 +92,14 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
             HttpStatusCode status,
             WebRequest request) {
         return handleExceptions(ex, request);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        var detail = ErrorResponse.builder(ex, ProblemDetail.forStatus(status))
+                .instance(URI.create(""))
+                .build().getBody();
+        return ResponseEntity.status(status).body(detail);
     }
 
     @Override
