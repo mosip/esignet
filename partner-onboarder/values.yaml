@@ -42,7 +42,7 @@ onboarding:
   #    existingClaim: ""
   #    mountDir: /home/mosip/reports
   #    nfs:
-  #      path: /srv/nfs/mosip/<sadbox>/onboarder
+  #      path: /srv/nfs/mosip/<sandbox>/onboarder
   #      server: <nfs host>
 
 extraEnvVarsCM: []
