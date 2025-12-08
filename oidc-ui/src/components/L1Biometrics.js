@@ -9,7 +9,7 @@ import {
 import { LoadingStates as states } from '../constants/states';
 import InputWithImage from './InputWithImage';
 import { useTranslation } from 'react-i18next';
-import { init, propChange } from 'secure-biometric-interface-integrator';
+import { init, propChange } from '@mosip/secure-biometric-interface-integrator';
 import ErrorBanner from '../common/ErrorBanner';
 import langConfigService from '../services/langConfigService';
 import redirectOnError from '../helpers/redirectOnError';
