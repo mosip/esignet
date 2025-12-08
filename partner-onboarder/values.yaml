@@ -2,6 +2,7 @@
 #  registry: docker.io
 #  repository: mosipdev/partner-onboarder
 #  tag: develop
+
 resources:
   limits:
     cpu: 500m
@@ -15,32 +16,34 @@ onboarding:
     - name: esignet
       enabled: true
 
+  # If you want to override configmaps or secrets, uncomment and modify.
+  # configmaps:
+  #   s3:
+  #     s3-host: 'http://minio.minio:9000'
+  #     s3-user-key: 'admin'
+  #     s3-region: ''
+  #
+  #   onboarder-namespace:
+  #     ns_mimoto: mimoto
+  #     ns_esignet: esignet
+  #     ns_signup: signup
+  #
+  # secrets:
+  #   s3:
+  #     s3-user-secret: 'password'
+
+  #volumes:
+  #  reports:
+  #    name: onboarder-reports
+  #    storageClass: nfs-csi
+  #    accessModes:
+  #      - ReadWriteMany
+  #    size: 10Mi
+  #    existingClaim: ""
+  #    mountDir: /home/mosip/reports
+  #    nfs:
+  #      path: /srv/nfs/mosip/<sadbox>/onboarder
+  #      server: <nfs host>
+
 extraEnvVarsCM: []
 extraEnvVarsSecret: []
-#  configmaps:
-#    s3:
-#      s3-host: 'http://minio.minio:9000'
-#      s3-user-key: 'admin'
-#      s3-region: ''
-#    onboarder-namespace:
-#      ns_mimoto: mimoto
-#      ns_esignet: esignet
-#      ns_signup: signup
-#  secrets:
-#    s3:
-#      s3-user-secret: 'password'
-#  volumes:
-#    reports:
-#      name: onboarder-reports
-#      storageClass: nfs-client
-#      accessModes:
-#        - ReadWriteMany
-#      size: 10Mi
-#      existingClaim:
-#      # Dir where config and keys are written inside container
-#      mountDir: /home/mosip/reports
-#      nfs:
-#        path: "/srv/nfs/sandbox/onboarding"  # Dir within the nfs server where config repo is cloned/maintained locally.
-#        server: "nfs-server"  # Ip address of nfs server.
-#  variables:
-#    push_reports_to_s3: true
