@@ -1,3 +1,8 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
 package io.mosip.esignet.api.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -32,7 +37,7 @@ public class FilterCriteriaMatcherTest {
     }
 
     @Test
-    void testDoMatch_ValueEquals() {
+    void testDoMatch_WhenSingleValueEqualsStoredValue() {
         Map<String, Object> filter = new HashMap<>();
         FilterCriteria criteria = new FilterCriteria();
         criteria.setValue("expectedValue");
@@ -42,7 +47,7 @@ public class FilterCriteriaMatcherTest {
     }
 
     @Test
-    void testDoMatch_ValuesContains() {
+    void testDoMatch_WhenStoredValueIsInValuesList() {
         Map<String, Object> filter = new HashMap<>();
         FilterCriteria criteria = new FilterCriteria();
         criteria.setValues(Collections.singletonList("expectedValue"));
