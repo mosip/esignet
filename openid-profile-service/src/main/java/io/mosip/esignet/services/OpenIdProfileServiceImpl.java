@@ -30,7 +30,7 @@ public class OpenIdProfileServiceImpl implements OpenIdProfileService {
      * @return list of features associated with the profile
      */
     @Override
-    @Cacheable(value = FEATURES, key = "'latest_features'")
+    @Cacheable(value = FEATURES, key = "#profileName")
     public List<String> getFeaturesByProfileName(String profileName) {
         List<OpenIdProfile> profiles = openIdProfileRepository.findByProfileName(profileName);
         if (profiles == null || profiles.isEmpty()) {
