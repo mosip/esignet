@@ -650,22 +650,22 @@ public class AuthorizationServiceImpl implements AuthorizationService {
      * @param features {@link List<String>}
      */
     private void setAdditionalConfigInOidcTransaction(OIDCTransaction oidcTransaction, ClientDetail clientDetailDto, List<String> features) {
-        boolean par = features.contains("PAR");
-        boolean dpop = features.contains("DPOP");
-        boolean jwe = features.contains("JWE");
-        boolean pkce = features.contains("PKCE");
+        boolean par = features.contains(FEATURE_PAR);
+        boolean dpop = features.contains(FEATURE_DPOP);
+        boolean jwe = features.contains(FEATURE_JWE);
+        boolean pkce = features.contains(FEATURE_PKCE);
 
         boolean isFapi = FAPI2.equalsIgnoreCase(openidProfile);
         boolean isNisdsp = NISDSP.equalsIgnoreCase(openidProfile);
 
         if (openidProfile == null || NONE.equalsIgnoreCase(openidProfile)) {
-            oidcTransaction.setUserInfoResponseType(clientDetailDto.getAdditionalConfig(USERINFO_RESPONSE_TYPE,"JWS"));
+            oidcTransaction.setUserInfoResponseType(clientDetailDto.getAdditionalConfig(USERINFO_RESPONSE_TYPE,FEATURE_JWS));
             oidcTransaction.setDpopBoundAccessToken(clientDetailDto.getAdditionalConfig(DPOP_BOUND_ACCESS_TOKENS, false));
             oidcTransaction.setRequirePushedAuthorizationRequests(clientDetailDto.getAdditionalConfig(REQUIRE_PAR, false));
             oidcTransaction.setRequirePKCE(clientDetailDto.getAdditionalConfig(REQUIRE_PKCE, false));
         } else {
             if (isFapi || isNisdsp) {
-                oidcTransaction.setUserInfoResponseType(jwe ? "JWE" : "JWS");
+                oidcTransaction.setUserInfoResponseType(jwe ? FEATURE_JWE : FEATURE_JWS);
                 oidcTransaction.setDpopBoundAccessToken(dpop);
                 oidcTransaction.setRequirePushedAuthorizationRequests(par);
             }
