@@ -359,7 +359,7 @@ public class ClientManagementServiceTest {
     }
 
     @Test
-    public void createClientV3_withProfileFeatures_appliesAdditionalConfig() {
+    public void createClientV3_withProfileFeatures_appliesAdditionalConfig_thenPass() {
         ReflectionTestUtils.setField(clientManagementService, "openIdProfileService", openIdProfileService);
         ReflectionTestUtils.setField(clientManagementService, "openidProfile", "fapi2.0");
 
@@ -394,7 +394,7 @@ public class ClientManagementServiceTest {
     }
 
     @Test
-    public void updateClientV3_withProfileFeatures_appliesAdditionalConfig() throws EsignetException {
+    public void updateClientV3_withProfileFeatures_appliesAdditionalConfig_thenPass() throws EsignetException {
         ReflectionTestUtils.setField(clientManagementService, "openIdProfileService", openIdProfileService);
         ReflectionTestUtils.setField(clientManagementService, "openidProfile", "fapi2.0");
 

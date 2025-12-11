@@ -5,7 +5,6 @@
  */
 package io.mosip.esignet.entity;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,8 +26,6 @@ public class OpenIdProfileId implements Serializable {
         this.profileName = profileName;
         this.feature = feature;
     }
-
-    // equals and hashCode
 
     @Override
     public boolean equals(Object o) {

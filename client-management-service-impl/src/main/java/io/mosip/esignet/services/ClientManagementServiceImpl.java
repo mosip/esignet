@@ -321,56 +321,31 @@ public class ClientManagementServiceImpl implements ClientManagementService {
 
     public ClientDetail buildClient(ClientDetailCreateRequestV3 clientDetailCreateRequestV3) {
         ClientDetail clientDetail = buildOAuthClient(clientDetailCreateRequestV3);
-        setAdditionalConfig(clientDetailCreateRequestV3, clientDetail);
+        setAdditionalConfig(clientDetailCreateRequestV3.getAdditionalConfig(), clientDetail);
         return clientDetail;
     }
 
     public ClientDetail buildClient(String clientId, ClientDetailUpdateRequestV3 clientDetailUpdateRequestV3) {
         ClientDetail clientDetail = buildOAuthClient(clientId, clientDetailUpdateRequestV3);
-        setAdditionalConfig(clientDetailUpdateRequestV3, clientDetail);
+        setAdditionalConfig(clientDetailUpdateRequestV3.getAdditionalConfig(), clientDetail);
         return clientDetail;
     }
 
     /**
      * Set additional config parameters based on openid profile
-     * @param clientDetailCreateRequestV3 {@link ClientDetailCreateRequestV3}
+     * @param additionalConfig {@link JsonNode}
      * @param clientDetail {@link ClientDetail}
      */
-    private void setAdditionalConfig(ClientDetailCreateRequestV3 clientDetailCreateRequestV3, ClientDetail clientDetail) {
+    private void setAdditionalConfig(JsonNode additionalConfig, ClientDetail clientDetail) {
         try {
-            JsonNode additionalConfigNode = objectMapper.valueToTree(clientDetailCreateRequestV3.getAdditionalConfig());
-            updateAdditionalConfig(clientDetail, additionalConfigNode);
+            Map<String, Object> additionalConfigMap = objectMapper.convertValue(additionalConfig, new TypeReference<>() {
+                    });
+            applyProfileFeatures(additionalConfigMap, openidProfile);
+            JsonNode updatedConfigNode = objectMapper.valueToTree(additionalConfigMap);
+            clientDetail.setAdditionalConfig(updatedConfigNode);
         } catch (Exception e) {
             log.error("Error while setting fapiCompatibility to additional config", e);
         }
-    }
-
-    /**
-     * Set additional config parameters based on openid profile
-     * @param clientDetailUpdateRequestV3 {@link ClientDetailUpdateRequestV3}
-     * @param clientDetail {@link ClientDetail}
-     */
-    private void setAdditionalConfig(ClientDetailUpdateRequestV3 clientDetailUpdateRequestV3, ClientDetail clientDetail) {
-        try {
-            JsonNode additionalConfigNode = objectMapper.valueToTree(clientDetailUpdateRequestV3.getAdditionalConfig());
-            updateAdditionalConfig(clientDetail, additionalConfigNode);
-        } catch (Exception e) {
-            log.error("Error while setting fapiCompatibility to additional config", e);
-        }
-    }
-
-    /**
-     * Update additional config JsonNode with profile specific features
-     * @param clientDetail {@link ClientDetail}
-     * @param additionalConfigNode {@link JsonNode}
-     */
-    private void updateAdditionalConfig(ClientDetail clientDetail, JsonNode additionalConfigNode) {
-        Map<String, Object> additionalConfigMap =
-                objectMapper.convertValue(additionalConfigNode, new TypeReference<>() {
-                });
-        applyProfileFeatures(additionalConfigMap, openidProfile);
-        JsonNode updatedConfigNode = objectMapper.valueToTree(additionalConfigMap);
-        clientDetail.setAdditionalConfig(updatedConfigNode);
     }
 
     /**
