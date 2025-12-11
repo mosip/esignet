@@ -234,7 +234,8 @@ public class EsignetUtil extends AdminTestUtil {
 						    || testCaseName.equals("ESignet_CreateOIDCClientV3PAR_all_Valid_Smoke_sid")
 						    || testCaseName.equals("ESignet_DPoPCreateOIDCClientV3_all_Valid_Smoke_sid")
 						    || testCaseName.equals("ESignet_OIDCClientV3_VerifiedClaims_all_Valid_Smoke_sid")
-						    || testCaseName.equals("ESignet_OIDCClientV3_WithoutVerifiedClaims_all_Valid_Smoke_sid"))
+						    || testCaseName.equals("ESignet_OIDCClientV3_WithoutVerifiedClaims_all_Valid_Smoke_sid")
+						    || testCaseName.equals("ESignet_OIDCClient_DifferentScopeLanguageClaimsSce_sid"))
 						    && (endpoint.contains("/v1/esignet/client-mgmt/client")
 						    || endpoint.contains("/v1/esignet/client-mgmt/oauth-client")))) {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
@@ -1086,6 +1087,24 @@ public class EsignetUtil extends AdminTestUtil {
 			}
 			jsonString = replaceKeywordValue(jsonString, "$CLIENT_ASSERTION_USER11_JWK$",
 					signJWKKeyForMock(clientId, oidcJWKKey11));
+		}		
+		
+		if (jsonString.contains("$CLIENT_ASSERTION_USER12_JWK$")) {
+			String oidcJWKKeyString = JWKKeyUtil.getJWKKey(OIDCJWK12);
+			logger.info("oidcJWKKeyString =" + oidcJWKKeyString);
+			try {
+				oidcJWKKey12 = RSAKey.parse(oidcJWKKeyString);
+				logger.info("oidcJWKKey12 =" + oidcJWKKey12);
+			} catch (java.text.ParseException e) {
+				logger.error(e.getMessage());
+			}
+			JSONObject request = new JSONObject(jsonString);
+			String clientId = null;
+			if (request.has("client_id")) {
+				clientId = request.get("client_id").toString();
+			}
+			jsonString = replaceKeywordValue(jsonString, "$CLIENT_ASSERTION_USER12_JWK$",
+					signJWKKeyForMock(clientId, oidcJWKKey12));
 		}		
 		
 		if (jsonString.contains("$WLATOKEN$")) {
