@@ -28,6 +28,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.validation.FieldError;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -96,10 +97,12 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
 
     @Override
     protected ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        var detail = ErrorResponse.builder(ex, ProblemDetail.forStatus(status))
-                .instance(URI.create(""))
-                .build().getBody();
-        return ResponseEntity.status(status).body(detail);
+        return handle404And405Exception(ex, status);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        return handle404And405Exception(ex, status);
     }
 
     @Override
@@ -256,5 +259,12 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
             log.error("Message not found in the i18n bundle", ex);
         }
         return errorCode;
+    }
+
+    private ResponseEntity<Object> handle404And405Exception(Exception ex, HttpStatusCode status) {
+        ErrorResponse errorResponse = ErrorResponse.builder(ex, ProblemDetail.forStatusAndDetail(status, ex.getMessage()))
+                .instance(URI.create(""))
+                .build();
+        return ResponseEntity.of(errorResponse.getBody()).headers(errorResponse.getHeaders()).build();
     }
 }
