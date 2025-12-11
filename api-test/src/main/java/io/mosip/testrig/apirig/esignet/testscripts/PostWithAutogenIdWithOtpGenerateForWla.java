@@ -82,6 +82,9 @@ public class PostWithAutogenIdWithOtpGenerateForWla extends EsignetUtil implemen
 	public void test(TestCaseDTO testCaseDTO) throws AdminTestException, SecurityXSSException {
 		testCaseName = testCaseDTO.getTestCaseName();
 		testCaseName = EsignetUtil.isTestCaseValidForExecution(testCaseDTO);
+		if(testCaseDTO.getTestCaseName().contains("ESignet_LinkedAuthenticationWla_Consent_EmptyClaim_uin_SCert_all_Valid_Smoke_sid")) {
+			System.out.println("Debug");
+		}
 		if (HealthChecker.signalTerminateExecution) {
 			throw new SkipException(
 					GlobalConstants.TARGET_ENV_HEALTH_CHECK_FAILED + HealthChecker.healthCheckFailureMapS);

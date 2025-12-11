@@ -91,6 +91,9 @@ public class SimplePostForAutoGenId extends EsignetUtil implements ITest {
 			throws AuthenticationTestException, AdminTestException, NoSuchAlgorithmException, SecurityXSSException {
 		testCaseName = testCaseDTO.getTestCaseName();
 		testCaseName = EsignetUtil.isTestCaseValidForExecution(testCaseDTO);
+		if(testCaseDTO.getTestCaseName().contains("ESignet_SunBirdR_CreatePolicy_NOAUTH_Valid_Smoke_Sid")) {
+			System.out.println("Debug");
+		}
 		if (HealthChecker.signalTerminateExecution) {
 			throw new SkipException(
 					GlobalConstants.TARGET_ENV_HEALTH_CHECK_FAILED + HealthChecker.healthCheckFailureMapS);

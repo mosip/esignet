@@ -86,6 +86,9 @@ public class SimplePostForAutoGenIdForUrlEncoded extends EsignetUtil implements 
 			throws AuthenticationTestException, AdminTestException, NoSuchAlgorithmException, SecurityXSSException{
 		testCaseName = testCaseDTO.getTestCaseName();
 		testCaseName = EsignetUtil.isTestCaseValidForExecution(testCaseDTO);
+		if(testCaseDTO.getTestCaseName().contains("ESignet_GenerateToken_LinkedConsent_uin_Valid_Smoke_sid")) {
+			System.out.println("debug");
+		}
 		if (HealthChecker.signalTerminateExecution) {
 			throw new SkipException(
 					GlobalConstants.TARGET_ENV_HEALTH_CHECK_FAILED + HealthChecker.healthCheckFailureMapS);
@@ -149,7 +152,7 @@ public class SimplePostForAutoGenIdForUrlEncoded extends EsignetUtil implements 
 				}
 				String endPoint = tempUrl + testCaseDTO.getEndPoint();
 				if (testCaseDTO.getEndPoint().contains("$GETENDPOINTFROMWELLKNOWN$")
-						&& BaseTestCase.currentModule.equalsIgnoreCase("esignet")) {
+						&& BaseTestCase.currentModule.contains("esignet")) {
 					endPoint = EsignetUtil.getValueFromEsignetWellKnownEndPoint("token_endpoint",
 							EsignetConfigManager.getEsignetBaseUrl());
 				}
