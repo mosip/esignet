@@ -336,7 +336,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
      * @param additionalConfig {@link JsonNode}
      * @param clientDetail {@link ClientDetail}
      */
-    private void setAdditionalConfig(JsonNode additionalConfig, ClientDetail clientDetail) {
+    private void setAdditionalConfig(JsonNode additionalConfig, ClientDetail clientDetail) throws EsignetException{
         try {
             Map<String, Object> additionalConfigMap = objectMapper.convertValue(additionalConfig, new TypeReference<>() {
                     });
@@ -344,7 +344,8 @@ public class ClientManagementServiceImpl implements ClientManagementService {
             JsonNode updatedConfigNode = objectMapper.valueToTree(additionalConfigMap);
             clientDetail.setAdditionalConfig(updatedConfigNode);
         } catch (Exception e) {
-            log.error("Error while setting fapiCompatibility to additional config", e);
+            log.error("Error while setting openid profile supported features to additional config", e);
+            throw new EsignetException(ErrorConstants.INVALID_ADDITIONAL_CONFIG);
         }
     }
 
@@ -359,10 +360,14 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         }
 
         List<String> features = openIdProfileService.getFeaturesByProfileName(openidProfile);
-        boolean par = features.contains("PAR");
-        boolean dpop = features.contains("DPOP");
-        boolean jwe = features.contains("JWE");
-        boolean pkce = features.contains("PKCE");
+        if(features==null){
+            log.error("No supported features for the profile: {}", openidProfile);
+            return;
+        }
+        boolean par = features.contains(FEATURE_PAR);
+        boolean dpop = features.contains(FEATURE_DPOP);
+        boolean jwe = features.contains(FEATURE_JWE);
+        boolean pkce = features.contains(FEATURE_PKCE);
 
         boolean isFapi = FAPI2.equalsIgnoreCase(openidProfile);
         boolean isNisdsp = NISDSP.equalsIgnoreCase(openidProfile);
@@ -370,7 +375,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         if (isFapi || isNisdsp) {
             additionalConfigMap.put(REQUIRE_PAR, par);
             additionalConfigMap.put(DPOP_BOUND_ACCESS_TOKENS, dpop);
-            additionalConfigMap.put(USERINFO_RESPONSE_TYPE, jwe ? "JWE" : "JWS");
+            additionalConfigMap.put(USERINFO_RESPONSE_TYPE, jwe ? FEATURE_JWE : FEATURE_JWS);
         }
         if (isNisdsp) {
             additionalConfigMap.put(REQUIRE_PKCE, pkce);

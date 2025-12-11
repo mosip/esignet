@@ -6,6 +6,7 @@
 package io.mosip.esignet;
 
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.KeyUse;
@@ -23,10 +24,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.Spy;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -385,12 +383,19 @@ public class ClientManagementServiceTest {
         ClientDetail entity = new ClientDetail();
         entity.setId("mock_id_v1");
         entity.setStatus("active");
-        Mockito.when(clientDetailRepository.save(Mockito.any(ClientDetail.class))).thenReturn(entity);
+        ArgumentCaptor<ClientDetail> captor = ArgumentCaptor.forClass(ClientDetail.class);
+        Mockito.when(clientDetailRepository.save(captor.capture())).thenReturn(entity);
 
         ClientDetailResponseV2 response = clientManagementService.createClient(req);
         Assertions.assertNotNull(response);
         Assertions.assertEquals("mock_id_v1", response.getClientId());
         Assertions.assertEquals("active", response.getStatus());
+
+        ClientDetail savedClient = captor.getValue();
+        Map<String, Object> savedConfig = objectMapper.convertValue(savedClient.getAdditionalConfig(), new TypeReference<Map<String, Object>>() {});
+        Assertions.assertTrue((Boolean) savedConfig.get("require_pushed_authorization_requests"), "PAR should be enabled for fapi2.0");
+        Assertions.assertTrue((Boolean) savedConfig.get("dpop_bound_access_tokens"), "DPOP should be enabled for fapi2.0");
+        Assertions.assertEquals("JWE", savedConfig.get("userinfo_response_type"), "JWE should be set for fapi2.0");
     }
 
     @Test
@@ -418,12 +423,19 @@ public class ClientManagementServiceTest {
         ClientDetail entity = new ClientDetail();
         entity.setId("client_id_v1");
         entity.setStatus("inactive");
-        Mockito.when(clientDetailRepository.save(Mockito.any(ClientDetail.class))).thenReturn(entity);
+        ArgumentCaptor<ClientDetail> captor = ArgumentCaptor.forClass(ClientDetail.class);
+        Mockito.when(clientDetailRepository.save(captor.capture())).thenReturn(entity);
 
         ClientDetailResponseV2 response = clientManagementService.updateClient("client_id_v1", updateV3Request);
         Assertions.assertNotNull(response);
         Assertions.assertEquals("client_id_v1", response.getClientId());
         Assertions.assertEquals("inactive", response.getStatus());
+
+        ClientDetail savedClient = captor.getValue();
+        Map<String, Object> savedConfig = objectMapper.convertValue(savedClient.getAdditionalConfig(), new TypeReference<Map<String, Object>>() {});
+        Assertions.assertTrue((Boolean) savedConfig.get("require_pushed_authorization_requests"), "PAR should be enabled for fapi2.0");
+        Assertions.assertTrue((Boolean) savedConfig.get("dpop_bound_access_tokens"), "DPOP should be enabled for fapi2.0");
+        Assertions.assertEquals("JWE", savedConfig.get("userinfo_response_type"), "JWE should be set for fapi2.0");
     }
 
     private static ClientDetail getClientDetail() {

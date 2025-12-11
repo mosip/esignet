@@ -71,4 +71,9 @@ public class Constants {
     public static final String NISDSP= "nisdsp";
     public static final String NONE= "none";
 
+    public static final String FEATURE_PAR= "PAR";
+    public static final String FEATURE_DPOP= "DPOP";
+    public static final String FEATURE_JWE= "JWE";
+    public static final String FEATURE_PKCE= "PKCE";
+    public static final String FEATURE_JWS= "JWS";
 }
