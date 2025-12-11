@@ -60,8 +60,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     private static final String KBI_FIELD_DETAILS_CONFIG_KEY = "auth.factor.kbi.field-details";
 
-    public static final String REQUIRE_PAR= "require_pushed_authorization_requests";
-
     @Autowired
     private ClientManagementService clientManagementService;
 
