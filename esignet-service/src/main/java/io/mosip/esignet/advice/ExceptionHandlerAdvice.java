@@ -102,7 +102,11 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
 
     @Override
     protected ResponseEntity handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        String pathInfo = ((ServletWebRequest)request).getRequest().getPathInfo();
+        ServletWebRequest servletWebRequest = (ServletWebRequest) request;
+        String pathInfo = servletWebRequest.getRequest().getPathInfo();
+        if (pathInfo == null) {
+            pathInfo = servletWebRequest.getRequest().getRequestURI();
+        }
         if(pathInfo.startsWith("/oidc/userinfo")) {
             return handleExceptionWithHeader(ex);
         }
@@ -121,16 +125,18 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
     @ExceptionHandler(value = { Exception.class, RuntimeException.class, MissingRequestHeaderException.class })
     public ResponseEntity handleExceptions(Exception ex, WebRequest request) {
         log.error("Unhandled exception encountered in handler advice", ex);
-        String pathInfo = ((ServletWebRequest)request).getRequest().getPathInfo();
+        ServletWebRequest servletWebRequest = (ServletWebRequest) request;
+        String pathInfo = servletWebRequest.getRequest().getPathInfo();
 
-        boolean isInternalAPI = pathInfo != null && (pathInfo.startsWith("/authorization") ||
-                pathInfo.startsWith("/client-mgmt/"));
-
-        if(!isInternalAPI && pathInfo.startsWith("/oidc/userinfo")) {
+        if (pathInfo == null) {
+            pathInfo = servletWebRequest.getRequest().getRequestURI();
+        }
+        
+        if(pathInfo.startsWith("/oidc/userinfo")) {
             return handleExceptionWithHeader(ex);
         }
 
-        if(!isInternalAPI && pathInfo.startsWith("/oauth/")) {
+        if(pathInfo.startsWith("/oauth/")) {
             return handleOpenIdConnectControllerExceptions(ex);
         }
 
