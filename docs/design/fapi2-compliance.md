@@ -63,7 +63,7 @@ We support binding of access tokens and authorization codes to DPoP proofs.
 4. **_without Par:_** Client calls the /authorize endpoint with the required parameters including dpop_jkt query parameter.
 5. eSignet validates the request, and stores the dpop_jkt in the OIDC transaction cache object. This acts as a binding between the public key thumbprint and the authorization code.
 6. eSignet returns the authorization code to the client after user authentication and consent.
-7. The Client makes a call to the /v2/token endpoint with the authorization code and the DPoP header.
+7. The Client makes a call to the /oauth/v2/token endpoint with the authorization code and the DPoP header.
 8. eSignet validates the DPoP header and checks the binding between the authorization code and the public key thumbprint if exists.
 9. If the binding check fails, eSignet rejects the request even when **dpop_bound_access_tokens** is set to false.
 10. If the DPoP header is missing or binding check fails, eSignet rejects the request if **dpop_bound_access_tokens** is set to true for the client.

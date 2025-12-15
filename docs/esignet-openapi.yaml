@@ -6393,7 +6393,7 @@ components:
               $ref: '#/components/schemas/ClaimDetail'
               x-stoplight:
                 id: kia24gddr7x4f
-            birthDate:
+            birthdate:
               $ref: '#/components/schemas/ClaimDetail'
               x-stoplight:
                 id: 2qhojqimhh30o
