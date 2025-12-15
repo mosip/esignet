@@ -37,7 +37,7 @@ public class FilterCriteriaMatcherTest {
     }
 
     @Test
-    void testDoMatch_WhenSingleValueEqualsStoredValue() {
+    void testDoMatch_WhenSingleValueEqualsStoredValue_returnTrue() {
         Map<String, Object> filter = new HashMap<>();
         FilterCriteria criteria = new FilterCriteria();
         criteria.setValue("expectedValue");
@@ -47,7 +47,7 @@ public class FilterCriteriaMatcherTest {
     }
 
     @Test
-    void testDoMatch_WhenStoredValueIsInValuesList() {
+    void testDoMatch_WhenStoredValueIsInValuesList_returnTrue() {
         Map<String, Object> filter = new HashMap<>();
         FilterCriteria criteria = new FilterCriteria();
         criteria.setValues(Collections.singletonList("expectedValue"));
@@ -57,7 +57,7 @@ public class FilterCriteriaMatcherTest {
     }
 
     @Test
-    void testDoMatch_MaxAgeValid() {
+    void testDoMatch_MaxAgeValid_returnTrue() {
         Map<String, Object> filter = new HashMap<>();
         FilterCriteria criteria = new FilterCriteria();
         criteria.setMax_age(1000000); // Large enough to be valid
@@ -68,7 +68,7 @@ public class FilterCriteriaMatcherTest {
     }
 
     @Test
-    void testDoMatch_NullFilterValue() {
+    void testDoMatch_NullFilterValue_returnTrue() {
         Map<String, Object> filter = new HashMap<>();
         filter.put(KEY, null);
         JsonNode storedVerificationDetail = objectMapper.createObjectNode();
@@ -76,7 +76,7 @@ public class FilterCriteriaMatcherTest {
     }
 
     @Test
-    void testDoMatch_StoredValueNull() {
+    void testDoMatch_StoredValueNull_returnFalse() {
         Map<String, Object> filter = new HashMap<>();
         FilterCriteria criteria = new FilterCriteria();
         criteria.setValue("expectedValue");
@@ -86,7 +86,7 @@ public class FilterCriteriaMatcherTest {
     }
 
     @Test
-    void testDoMatch_InvalidDateFormat() {
+    void testDoMatch_InvalidDateFormat_returnFalse() {
         Map<String, Object> filter = new HashMap<>();
         FilterCriteria criteria = new FilterCriteria();
         criteria.setMax_age(1000);

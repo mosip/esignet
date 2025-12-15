@@ -101,7 +101,14 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
     }
 
     @Override
-    protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+    protected ResponseEntity handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        String pathInfo = ((ServletWebRequest)request).getRequest().getPathInfo();
+        if(pathInfo.startsWith("/oidc/userinfo")) {
+            return handleExceptionWithHeader(ex);
+        }
+        if(pathInfo.startsWith("/oauth/")) {
+            return handleOpenIdConnectControllerExceptions(ex);
+        }
         return handle404And405Exception(ex, status);
     }
 
@@ -199,29 +206,40 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
             if (OAUTH_ERROR_CODES.contains(errorCode)) responseErrorCode = errorCode;
             return new ResponseEntity<OAuthError>(getErrorRespDto(responseErrorCode, getMessage(errorCode)), headers,HttpStatus.BAD_REQUEST);
         }
+        if(ex instanceof HttpRequestMethodNotSupportedException) {
+            return new ResponseEntity<OAuthError>(getErrorRespDto(INVALID_REQUEST, getMessage(HttpStatus.METHOD_NOT_ALLOWED.getReasonPhrase())), headers, HttpStatus.METHOD_NOT_ALLOWED.value());
+        }
         log.error("Unhandled exception encountered in handler advice", ex);
         return new ResponseEntity<OAuthError>(getErrorRespDto(UNKNOWN_ERROR, ex.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    private ResponseEntity handleExceptionWithHeader(Exception ex) {
+    private ResponseEntity<Void> handleExceptionWithHeader(Exception ex) {
         MultiValueMap<String, String> headers = new HttpHeaders();
         if (ex instanceof DpopNonceMissingException dpopEx) {
             headers.add("Access-Control-Expose-Headers", "DPoP-Nonce, WWW-Authenticate");
             headers.add("WWW-Authenticate", "DPoP error=\""+ USE_DPOP_NONCE +"\"");
             headers.add("DPoP-Nonce", dpopEx.getDpopNonceHeaderValue());
-            return new ResponseEntity(headers, HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(headers, HttpStatus.UNAUTHORIZED);
         }
+        HttpStatusCode statusCode = HttpStatus.UNAUTHORIZED;
         String errorCode = UNKNOWN_ERROR;
-        if(ex instanceof NotAuthenticatedException) {
-            errorCode = INVALID_AUTH_TOKEN;
-        }
-        if(ex instanceof MissingRequestHeaderException) {
-            errorCode = MISSING_HEADER;
+        switch (ex) {
+            case NotAuthenticatedException exception -> errorCode = INVALID_AUTH_TOKEN;
+            case MissingRequestHeaderException exception -> errorCode = MISSING_HEADER;
+            case HttpRequestMethodNotSupportedException exception -> {
+                statusCode = exception.getStatusCode();
+                errorCode = HttpStatus.METHOD_NOT_ALLOWED.getReasonPhrase();
+            }
+            case HttpMediaTypeNotAcceptableException exception -> {
+                statusCode = exception.getStatusCode();
+                errorCode = HttpStatus.NOT_ACCEPTABLE.getReasonPhrase();
+            }
+            default -> {
+            }
         }
         log.error("Unhandled exception encountered in handler advice", ex);
         headers.add("WWW-Authenticate", "error=\""+errorCode+"\"");
-        ResponseEntity responseEntity = new ResponseEntity(headers, HttpStatus.UNAUTHORIZED);
-        return responseEntity;
+        return new ResponseEntity<>(headers, statusCode);
     }
 
     private OAuthError getErrorRespDto(String errorCode, String errorMessage) {

@@ -10,7 +10,7 @@ import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
 @Slf4j
-@Converter(autoApply = true)
+@Converter
 public class ClientAdditionalConfigConverter implements AttributeConverter<JsonNode, String> {
 
     ObjectMapper objectMapper = new ObjectMapper();
