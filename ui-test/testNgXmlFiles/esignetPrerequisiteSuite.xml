@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+
+<suite name="Esignet Pre-requisite API Test">
+
+	<test name="Adding Identity">
+		<parameter name="ymlFile" value="esignetUI/AddIdentity/AddIdentity.yml" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignetUI.testscripts.AddIdentity" />
+		</classes>
+	</test>
+
+	<test name="AddIdentityMock">
+		<parameter name="ymlFile"
+			value="esignetUI/AddIdentityMock/AddIdentity.yml" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignetUI.testscripts.AddIdentity" />
+		</classes>
+	</test>
+
+	<test name="CreatePolicyGroup">
+		<parameter name="ymlFile"
+			value="esignetUI/PmsIntegration/DefinePolicyGroup/DefinePolicyGroup.yml" />
+		<parameter name="idKeyName" value="id,name" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignetUI.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+
+	<test name="DefinePolicy">
+		<parameter name="ymlFile"
+			value="esignetUI/PmsIntegration/DefinePolicy/DefinePolicy.yml" />
+		<parameter name="idKeyName" value="id,name" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignetUI.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+
+	<test name="PublishPolicy">
+		<parameter name="ymlFile"
+			value="esignetUI/PmsIntegration/PublishPolicy/PublishPolicy.yml" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignetUI.testscripts.PostWithOnlyPathParam" />
+		</classes>
+	</test>
+
+	<test name="CreatePartner">
+		<parameter name="ymlFile"
+			value="esignetUI/PmsIntegration/CreatePartner/CreatePartner.yml" />
+		<parameter name="idKeyName" value="partnerId" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignetUI.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+
+	<test name="UploadCACertificate">
+		<parameter name="ymlFile"
+			value="esignetUI/PmsIntegration/UploadCertificate/UploadCertificate.yml" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignetUI.testscripts.SimplePost" />
+		</classes>
+	</test>
+
+	<test name="UploadPartnerCertificate">
+		<parameter name="ymlFile"
+			value="esignetUI/PmsIntegration/UploadCert/UploadCert.yml" />
+		<parameter name="idKeyName" value="signedCertificateData" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignetUI.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+
+	<test name="RequestAPIKeyForAuthPartner">
+		<parameter name="ymlFile"
+			value="esignetUI/PmsIntegration/RequestAPIKey/RequestAPIKey.yml" />
+		<parameter name="idKeyName" value="mappingkey" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignetUI.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+
+	<test name="ApproveAPIKey">
+		<parameter name="ymlFile"
+			value="esignetUI/PmsIntegration/ApproveAPIKey/ApproveAPIKey.yml" />
+		<parameter name="pathParams" value="mappingkey" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignetUI.testscripts.PutWithPathParamsAndBody" />
+		</classes>
+	</test>
+
+	<test name="OIDCClient">
+		<parameter name="ymlFile"
+			value="esignetUI/OidcClient/OIDCClient.yml" />
+		<parameter name="idKeyName" value="clientId" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignetUI.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	
+	<test name="OIDCClientV3MOCK">
+		<parameter name="ymlFile"
+			value="esignetUI/CreateClient/CreateOIDCClient.yml" />
+		<parameter name="idKeyName" value="clientId" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignetUI.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	
+	<test name="OauthPAR">
+		<parameter name="ymlFile"
+			value="esignetUI/PAR/OauthPar/OauthPar.yml" />
+			<parameter name="idKeyName" value="request_uri" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignetUI.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
+		<parameter name="idKeyName" value="request_uri" />				
+		</classes>
+	</test>
+</suite>

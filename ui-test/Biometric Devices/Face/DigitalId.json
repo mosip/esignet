@@ -1,0 +1,10 @@
+{
+	"serialNo":"2345678901",
+   	"make":"MOSIP",
+   	"model":"FACE01",
+   	"type":"Face",
+   	"deviceSubType":"Full face",
+   	"deviceProvider":"MOSIP",
+   	"deviceProviderId":"MOSIP.PROXY.SBI",
+   	"dateTime":""
+}

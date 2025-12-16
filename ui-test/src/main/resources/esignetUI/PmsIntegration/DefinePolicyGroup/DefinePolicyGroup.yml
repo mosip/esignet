@@ -1,0 +1,17 @@
+definePolicyGroup:
+   EsignetUI_DefinePolicyGroup_All_Valid_Smoke_sid:
+      endPoint: /v1/policymanager/policies/group/new
+      uniqueIdentifier: Dependent_Idrepo_definePolicyGroup_01
+      description: Define policy group with all valid parameters
+      role: partner
+      restMethod: post
+      inputTemplate: esignetUI/PmsIntegration/DefinePolicyGroup/definePolicyGroup
+      outputTemplate: esignetUI/PmsIntegration/DefinePolicyGroup/definePolicyGroupResult
+      input: '{
+    "desc": "$POLICYGROUPDESC$",
+    "name": "$POLICYGROUPNAME$",
+    "requesttime": "$TIMESTAMP$"
+  }'
+      output: ' {
+        "is_Active": true
+   }'

@@ -6,6 +6,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
 
 import org.openqa.selenium.Alert;
@@ -16,11 +17,13 @@ import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import utils.ClaimsParser;
 import utils.EsignetConfigManager;
 import utils.WaitUtil;
 
@@ -172,5 +175,72 @@ public class BasePage {
 		} catch (Exception e) {
 			LOGGER.error("Failed to capture screenshot: {}", e.getMessage());
 		}
+	}
+	
+	public void enterTextJS(WebElement element, String text) {
+		try {
+			waitForElementVisible(element);
+
+			((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center'});", element);
+			new Actions(driver).moveToElement(element).click().perform();
+			((JavascriptExecutor) driver).executeScript("arguments[0].value = '';", element);
+
+			Actions actions = new Actions(driver);
+			for (char c : text.toCharArray()) {
+				actions.sendKeys(String.valueOf(c)).pause(Duration.ofMillis(150));
+			}
+			actions.perform();
+
+			((JavascriptExecutor) driver)
+					.executeScript("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));"
+							+ "arguments[0].dispatchEvent(new Event('change', { bubbles: true }));"
+							+ "arguments[0].blur();", element);
+
+			String finalValue = element.getAttribute("value");
+			if (finalValue == null) {
+				throw new RuntimeException("Value was rejected by frontend (null).");
+			}
+		}
+
+		catch (Exception e) {
+			throw new RuntimeException("Failed to set filedvalue due to UI behavior", e);
+		}
+	}
+
+	public String getElementAttribute(WebElement element, String attribute) {
+		waitForElementVisible(element);
+		return element.getAttribute(attribute);
+	}
+
+	public String authorizeUrl;
+
+	public String getAuthorizeUrl() {
+		return authorizeUrl;
+	}
+
+	public void setAuthorizeUrl(String url) {
+		this.authorizeUrl = url;
+		ClaimsParser.parseFromUrl(url);
+	}
+
+	public List<String> getClaims(String type) {
+		if (authorizeUrl == null) {
+			System.out.println("Authorize URL not set.");
+			return Collections.emptyList();
+		}
+
+		if ("mandatory".equalsIgnoreCase(type)) {
+			return ClaimsParser.getMandatoryClaims();
+		} else {
+			return ClaimsParser.getVoluntaryClaims();
+		}
+	}
+
+	public List<String> getAuthFactors() {
+		return ClaimsParser.getAuthFactors();
+	}
+
+	public String getDefaultLanguage() {
+		return ClaimsParser.mapLangToName(ClaimsParser.getDefaultLanguage());
 	}
 }

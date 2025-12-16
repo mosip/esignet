@@ -10,6 +10,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import base.BaseTest;
+import constants.ESignetConstants;
+
 import org.junit.runner.RunWith;
 import org.testng.TestNG;
 import org.testng.annotations.DataProvider;
@@ -22,8 +24,23 @@ import io.cucumber.testng.AbstractTestNGCucumberTests;
 import io.cucumber.testng.CucumberOptions;
 import io.cucumber.testng.FeatureWrapper;
 import io.cucumber.testng.PickleWrapper;
+import io.mosip.testrig.apirig.dataprovider.BiometricDataProvider;
+import io.mosip.testrig.apirig.testrunner.BaseTestCase;
+import io.mosip.testrig.apirig.testrunner.ExtractResource;
+import io.mosip.testrig.apirig.testrunner.HealthChecker;
+import io.mosip.testrig.apirig.testrunner.OTPListener;
+import io.mosip.testrig.apirig.utils.AdminTestUtil;
+import io.mosip.testrig.apirig.utils.AuthTestsUtil;
+import io.mosip.testrig.apirig.utils.CertsUtil;
+import io.mosip.testrig.apirig.utils.JWKKeyUtil;
+import io.mosip.testrig.apirig.utils.KeyCloakUserAndAPIKeyGeneration;
+import io.mosip.testrig.apirig.utils.KeycloakUserManager;
+import io.mosip.testrig.apirig.utils.MispPartnerAndLicenseKeyGeneration;
+import io.mosip.testrig.apirig.utils.OutputValidationUtil;
+import io.mosip.testrig.apirig.utils.PartnerRegistration;
 import utils.BaseTestUtil;
 import utils.EsignetConfigManager;
+import utils.EsignetUtil;
 import utils.ExtentReportManager;
 import utils.LanguageUtil;
 
@@ -40,6 +57,9 @@ import utils.LanguageUtil;
 )
 public class Runner extends AbstractTestNGCucumberTests {
     private static final Logger LOGGER = Logger.getLogger(BaseTestUtil.class.getName());
+    private static String cachedPath = null;
+    public static String jarUrl = Runner.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+    public static boolean skipAll = false;
 
     @Override
     @DataProvider(parallel = true, name = "scenarios")
@@ -92,10 +112,45 @@ public class Runner extends AbstractTestNGCucumberTests {
     }
 
     public static void main(String[] args) {
+    	OTPListener otpListener = new OTPListener();
         try {
             LOGGER.info("** ------------- Esignet UI Automation run started---------------------------- **");
+            
+            BaseTestCase.setRunContext(getRunType(), jarUrl);
+			ExtractResource.removeOldMosipTestTestResource();
+			if (getRunType().equalsIgnoreCase("JAR")) {
+				ExtractResource.extractCommonResourceFromJar();
+			} else {
+				ExtractResource.copyCommonResources();
+			}
+            
+            AdminTestUtil.init();
             EsignetConfigManager.init();
+            EsignetUtil.getPluginName();
+			suiteSetup(getRunType());
+			setLogLevels();
 
+			if (EsignetUtil.pluginName.equals("mosipid")) {
+				KeycloakUserManager.removeUser();
+				KeycloakUserManager.createUsers();
+				KeycloakUserManager.closeKeycloakInstance();
+				AdminTestUtil.getRequiredField();
+
+				// Generate device certificates to be consumed by Mock-MDS
+				PartnerRegistration.deleteCertificates();
+				AdminTestUtil.createAndPublishPolicy();
+				AdminTestUtil.createEditAndPublishPolicy();
+				PartnerRegistration.deviceGeneration();
+				otpListener.run();
+
+				// Generating biometric details with mock MDS
+				BiometricDataProvider.generateBiometricTestData("Registration");
+			}
+
+			else if (EsignetUtil.pluginName.equals("mock")) {
+				EsignetUtil.getSupportedLanguage();
+			}
+			
             List<String> languages = new ArrayList<>();
             String runLang = EsignetConfigManager.getproperty("runLanguage");
 
@@ -125,12 +180,33 @@ public class Runner extends AbstractTestNGCucumberTests {
                 ExtentReportManager.flushReport();
                 BaseTest.pushReportsToS3(lang);
             }
+			updateFeaturesPath();
+			//startTestRunner();
 
         } catch (Exception e) {
             LOGGER.severe("Exception " + e.getMessage());
         }
+        otpListener.bTerminate = true;
+        
+        if (EsignetUtil.pluginName.equals("mosipid")) {
+			KeycloakUserManager.removeUser();
+        }
+        
         System.exit(0);
     }
+    
+    public static void suiteSetup(String runType) {
+		BaseTestCase.initialize();
+		LOGGER.info("Done with BeforeSuite and test case setup! su TEST EXECUTION!\n\n");
+
+		if (!runType.equalsIgnoreCase("JAR")) {
+			AuthTestsUtil.removeOldMosipTempTestResource();
+		}
+		
+		BaseTestCase.currentModule = ESignetConstants.ESIGNETUI_MODULENAME;
+		BaseTestCase.certsForModule = ESignetConstants.ESIGNETUI_MODULENAME;
+		AdminTestUtil.copymoduleSpecificAndConfigFile(ESignetConstants.ESIGNETUI_MODULENAME);
+	}
 
     public static void startTestRunner() {
         File homeDir = null;
@@ -149,9 +225,10 @@ public class Runner extends AbstractTestNGCucumberTests {
         File[] files = homeDir.listFiles();
         if (files != null) {
             for (File file : files) {
-                if (file.getName().toLowerCase().contains("testng") && file.getName().endsWith(".xml")) {
                     TestNG runner = new TestNG();
                     List<String> suitefiles = new ArrayList<>();
+					if (file.getName().toLowerCase().contains("mastertestsuite")) {
+					BaseTestCase.setReportName("esignet");
                     suitefiles.add(file.getAbsolutePath());
 
                     runner.setTestSuites(suitefiles);
@@ -196,4 +273,52 @@ public class Runner extends AbstractTestNGCucumberTests {
         BaseTest.passedCount = 0;
         BaseTest.failedCount = 0;
     }
+    
+    public static String getGlobalResourcePath() {
+		if (cachedPath != null) {
+			return cachedPath;
+		}
+
+		String path = null;
+		if (getRunType().equalsIgnoreCase("JAR")) {
+			path = new File(jarUrl).getParentFile().getAbsolutePath() + "/MosipTestResource/MosipTemporaryTestResource";
+		} else if (getRunType().equalsIgnoreCase("IDE")) {
+			path = new File(Runner.class.getClassLoader().getResource("").getPath()).getAbsolutePath()
+					+ "/MosipTestResource/MosipTemporaryTestResource";
+			if (path.contains(ESignetConstants.TESTCLASSES))
+				path = path.replace(ESignetConstants.TESTCLASSES, "classes");
+		}
+
+		if (path != null) {
+			cachedPath = path;
+			return path;
+		} else {
+			return "Global Resource File Path Not Found";
+		}
+	}
+
+
+	public static String getResourcePath() {
+		return getGlobalResourcePath();
+	}
+    
+    private static void setLogLevels() {
+		AdminTestUtil.setLogLevel();
+		OutputValidationUtil.setLogLevel();
+		PartnerRegistration.setLogLevel();
+		KeyCloakUserAndAPIKeyGeneration.setLogLevel();
+		MispPartnerAndLicenseKeyGeneration.setLogLevel();
+		JWKKeyUtil.setLogLevel();
+		CertsUtil.setLogLevel();
+	}
+    
+    public static void updateFeaturesPath() {
+		File homeDir = null;
+	    String os = System.getProperty("os.name").toLowerCase();
+	    if (os.contains("windows")) {
+	        System.setProperty("cucumber.features", "src\\test\\resources\\featurefiles\\");
+	    } else {
+	        System.setProperty("cucumber.features", "/home/mosip/featurefiles/");
+	    }
+	} 
 }
