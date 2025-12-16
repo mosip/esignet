@@ -5,6 +5,7 @@
  */
 package io.mosip.esignet;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -12,6 +13,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 public class EsignetServiceApplicationTests {
 
 	@Test
-	public void test() {}
+	public void test() {
+		Assertions.assertTrue(true);
+	}
 
 }

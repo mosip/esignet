@@ -10,7 +10,7 @@ import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
 @Slf4j
-@Converter(autoApply = true)
+@Converter
 public class ClientAdditionalConfigConverter implements AttributeConverter<JsonNode, String> {
 
     ObjectMapper objectMapper = new ObjectMapper();
@@ -18,12 +18,7 @@ public class ClientAdditionalConfigConverter implements AttributeConverter<JsonN
     @Override
     public String convertToDatabaseColumn(JsonNode attribute) {
         if(attribute == null || attribute.isNull()) return null;
-        try {
-            return objectMapper.writeValueAsString(attribute);
-        } catch (JsonProcessingException e) {
-            log.error("Failed to parse client additionalConfig", e);
-            throw new InvalidClientException();
-        }
+        return attribute.toString();
     }
 
     @Override
