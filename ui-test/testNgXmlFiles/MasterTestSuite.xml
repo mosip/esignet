@@ -5,6 +5,5 @@
 	<suite-files>
 		<suite-file path="esignetPrerequisiteSuite.xml" />
 		<suite-file path="TestNg.xml" />
-		<suite-file path="esignetPostrequisiteSuite.xml" />
 	</suite-files>
 </suite>
