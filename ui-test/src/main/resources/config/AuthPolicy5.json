@@ -1,0 +1,8 @@
+{
+    "desc":"desc mosip auth policy",
+    "name":"mosip auth policy 2345678",
+    "policyGroupName":"mosip auth policy group 2345678",
+    "policyType":"Auth",
+    "version": "1.0",
+    "policies": {}
+  }

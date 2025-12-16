@@ -1,0 +1,17 @@
+{
+	"deviceId":"4",
+   	"deviceStatus":"Ready",
+   	"certification":"L0",
+   	"serviceVersion":"0.9.5",
+   	"deviceSubId":[
+   		"0"
+	],
+   	"callbackId":"",
+   	"digitalId":"",
+  	"deviceCode": "b692b595-3523-slap-99fc-bd76e35f290f",
+   	"specVersion":[
+   		"0.9.5"
+	],
+   	"purpose":"", 
+   	"error":null
+}

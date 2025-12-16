@@ -1,0 +1,17 @@
+ApproveAPIKey:
+   EsignetUI_ApproveRejectPartnerAPIKeyReq_All_Valid_Smoke:
+      endPoint: /v1/partnermanager/partners/policy/{mappingkey}
+      uniqueIdentifier: Dependent_Idrepo_ApproveAPIKey_01
+      description: Approve or Reject partner Api key request all valid details
+      role: partner
+      restMethod: put
+      inputTemplate: esignetUI/PmsIntegration/ApproveAPIKey/approveAPIKey
+      outputTemplate: esignetUI/PmsIntegration/ApproveAPIKey/approveAPIKeyResult
+      input: '{
+      "status": "Approved",
+      "mappingkey": "$ID:SubmitPartnerApiKeyRequest_Rejection_All_Valid_Smoke_sid_mappingkey$",
+	  "requesttime": "$TIMESTAMP$"
+  }'
+      output: '{
+        "response": "Policy mapping approved successfully"
+}'

@@ -1,0 +1,28 @@
+OauthPar:
+   ESignetUI_OauthPar_all_Valid_Smoke_sid:
+      endPoint: /v1/esignet/oauth/par
+      uniqueIdentifier: TC_ESignet_OauthPar_01
+      description: Validate successful PAR request with valid client details
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignetUI/PAR/OauthPar/OauthPar
+      outputTemplate: esignetUI/PAR/OauthPar/OauthParResult
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "client_id": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$", 
+       "scope": "openid profile",
+       "response_type": "code",
+       "redirect_uri": "$ESIGNET_REDIRECT_URI$",
+       "display": "popup",
+       "prompt": "login",
+       "acr_values": "mosip:idp:acr:generated-code mosip:idp:acr:biometrics mosip:idp:acr:linked-wallet mosip:idp:acr:password",
+       "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+       "state": "eree2311",
+       "claim_locales": "en",
+       "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+       "client_assertion": "$CLIENT_ASSERTION_PAR_JWT$",
+       "aud_key": "pushed_authorization_request_endpoint"
+}'
+      output: '{
+}'

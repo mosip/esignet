@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class LanguageUtil {
 
-    private static final Map<String, String> languagesMap = new HashMap<>();
+    public static final Map<String, String> languagesMap = new HashMap<>();
     private static final Map<String, String> langCodeMappingMap = new HashMap<>();
     public static List<String> supportedLanguages = new ArrayList<>();
     private static final Logger logger = Logger.getLogger(LanguageUtil.class);

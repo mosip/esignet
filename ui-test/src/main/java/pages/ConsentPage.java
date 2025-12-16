@@ -161,7 +161,7 @@ public class ConsentPage extends BasePage {
 	@FindBy(xpath = "//button[contains(@class,'flex items-center px-4')]")
 	WebElement profileDropdown;
 
-	@FindBy(xpath = "(//div[@class='divide-y'])[1]/ul/li")
+	@FindBy(xpath = "(//div[@class='divide-y'])[1]//li//div[contains(@class,'justify-start')]//label")
 	List<WebElement> mandatoryClaimsElements;
 
 	@FindBy(xpath = "(//div[@class='divide-y'])[2]/ul/li")
@@ -175,6 +175,12 @@ public class ConsentPage extends BasePage {
 
 	@FindBy(id = "continue")
 	WebElement allowButtonInConsentScreen;
+	
+	@FindBy(xpath = "//p[@class='font-bold text-[#DE7A24]']")
+	WebElement consentTimer;
+	
+	@FindBy(xpath = "//div[@role='menuitem']")
+	List<WebElement> languageDropdownItems;
 
 	public void clickOnSignInWIthEsignet() {
 		clickOnElement(signInWithEsignet);
@@ -421,24 +427,18 @@ public class ConsentPage extends BasePage {
 	}
 
 	public List<String> getDisplayedMandatoryClaims() {
-		List<String> claims = new ArrayList<>();
-		String localizedRequired = ResourceBundleLoader.get("consent.required").trim().toLowerCase();
-
-		for (WebElement element : mandatoryClaimsElements) {
-			String text = element.getText().trim().toLowerCase();
-			if (text.contains(localizedRequired)) {
-				text = text.replace(localizedRequired, "").trim();
-			}
-
-			claims.add(text);
-		}
-		return claims;
+	    List<String> claims = new ArrayList<>();
+	    for (WebElement element : mandatoryClaimsElements) {
+	        String text = element.getText().trim();
+	        claims.add(text);
+	    }
+	    return claims;
 	}
 
 	public List<String> getDisplayedVoluntaryClaims() {
 		List<String> claims = new ArrayList<>();
 		for (WebElement element : voluntaryClaimsElements) {
-			claims.add(element.getText().trim().toLowerCase());
+			claims.add(element.getText().trim());
 		}
 		return claims;
 	}
@@ -487,7 +487,7 @@ public class ConsentPage extends BasePage {
 	}
 
 	public void waitUntilLivenessCheckCompletes() {
-		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(50));
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(80));
 		wait.until(ExpectedConditions.visibilityOf(allowButtonInConsentScreen));
 	}
 
@@ -496,6 +496,25 @@ public class ConsentPage extends BasePage {
 		WebElement stableElement = wait
 				.until(ExpectedConditions.refreshed(ExpectedConditions.elementToBeClickable(element)));
 		stableElement.click();
+	}
+	
+	public int getConsentTimerSeconds() {
+	    String timerValue = consentTimer.getText().trim();
+	    String secondsPart = timerValue.split(":")[1];
+	    int seconds = Integer.parseInt(secondsPart);
+	    return seconds;
+	}
+	
+	public List<String> getDisplayedLanguages() {
+		List<String> displayedLangs = new ArrayList<>();
+		for (WebElement element : languageDropdownItems) {
+			displayedLangs.add(element.getText().trim());
+		}
+		return displayedLangs;
+	}
+	
+	public WebElement getSignInWithEsignetButton() {
+	    return signInWithEsignet;
 	}
 
 }

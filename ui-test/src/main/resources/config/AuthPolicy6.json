@@ -1,0 +1,41 @@
+{
+      "allowedAuthTypes": [
+        {
+          "authSubType": "IRIS",
+          "authType": "bio",
+          "mandatory": true
+        },
+        {
+          "authSubType": "FINGER",
+          "authType": "bio",
+          "mandatory": true
+        },
+        {
+          "authSubType": "FACE",
+          "authType": "bio",
+          "mandatory": true
+        },
+        {
+           "authSubType": "",
+           "authType": "otp-request",
+           "mandatory": false
+        },       
+        {
+          "authSubType": "",
+          "authType": "kyc",
+          "mandatory": false
+        },
+        {
+          "authSubType": "",
+          "authType": "demo",
+          "mandatory": false
+        }         
+      ],
+      "kycLanguages": [
+                "ara",
+				"eng"
+				],
+      "allowedKycAttributes": [
+      ],
+     "authTokenType": "partner"      
+    }
