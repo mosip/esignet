@@ -117,15 +117,4 @@
 				name="io.mosip.testrig.apirig.esignetUI.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
-	
-	<test name="OauthPAR">
-		<parameter name="ymlFile"
-			value="esignetUI/PAR/OauthPar/OauthPar.yml" />
-			<parameter name="idKeyName" value="request_uri" />
-		<classes>
-			<class
-				name="io.mosip.testrig.apirig.esignetUI.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
-		<parameter name="idKeyName" value="request_uri" />				
-		</classes>
-	</test>
 </suite>

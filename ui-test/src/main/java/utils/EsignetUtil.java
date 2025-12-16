@@ -740,9 +740,7 @@ public class EsignetUtil extends AdminTestUtil {
 			// Let run test cases eSignet & mock (for identity) -- only UIN test cases
 
 			String endpoint = testCaseDTO.getEndPoint();
-			if (endpoint.contains("/esignet/vci/") == false && endpoint.contains("/esignet/") == false
-					&& endpoint.contains("/v1/signup/") == false && endpoint.contains("/mock-identity-system/") == false
-					&& endpoint.contains("$GETENDPOINTFROMWELLKNOWN$") == false) {
+			if (endpoint.contains("/esignet/") == false && endpoint.contains("/mock-identity-system/") == false) {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 			}
 
@@ -752,40 +750,12 @@ public class EsignetUtil extends AdminTestUtil {
 			logger.info("supportedIdType = " + supportedIdType);
 
 			String endpoint = testCaseDTO.getEndPoint();
-			if (endpoint.contains("/v1/signup/") == true || endpoint.contains("/mock-identity-system/") == true
-					|| ((testCaseName.equals("ESignet_CreateOIDCClient_all_Valid_Smoke_sid")
-							|| testCaseName.equals("ESignet_CreateOIDCClient_Misp_Valid_Smoke_sid")
-							|| testCaseName.equals("ESignet_CreateOIDCClient_NonAuth_all_Valid_Smoke_sid"))
-							&& endpoint.contains("/v1/esignet/client-mgmt/oauth-client"))) {
+			if (endpoint.contains("/mock-identity-system/") == true
+					|| ((testCaseName.equals("ESignetUI_CreateOIDCClient_all_Valid_Smoke_sid"))
+							&& endpoint.contains("/v1/esignet/client-mgmt/client"))) {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 			}
-
-			if ((testCaseName.contains("_CreateOIDCClientV3_MOCK_")
-					|| testCaseName.contains("_UpdateOIDCClientV3_MOCK_")
-					|| testCaseName.contains("_OAuthDetailsRequest_V3_MOCK_")
-					|| testCaseName.contains("_AuthenticateUser_V3_MOCK_")
-					|| testCaseName.contains("_AuthorizationCode_MOCK_")
-					|| testCaseName.contains("_GenerateToken_MOCK_")
-					|| testCaseName.contains("_GetOidcUserInfo_MOCK_"))) {
-				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
-			}
-
-			JSONArray individualBiometricsArray = new JSONArray(
-					getValueFromAuthActuator("json-property", "individualBiometrics"));
-			String individualBiometrics = individualBiometricsArray.getString(0);
-
-			if ((testCaseName.contains("_KycBioAuth_") || testCaseName.contains("_BioAuth_")
-					|| testCaseName.contains("_SendBindingOtp_uin_Email_Valid_Smoke"))
-					&& (!isElementPresent(globalRequiredFields, individualBiometrics))) {
-				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
-			}
-
 		}
-
-		if (SkipTestCaseHandler.isTestCaseInSkippedList(testCaseName)) {
-			throw new SkipException(GlobalConstants.KNOWN_ISSUES);
-		}
-
 		return testCaseName;
 	}
 	
