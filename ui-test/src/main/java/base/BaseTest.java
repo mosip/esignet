@@ -117,11 +117,7 @@ public class BaseTest extends AdminTestUtil {
 		Uin uinDetails = UINManager.acquireUIN();
 		threadUin.set(uinDetails);
 	}
-<<<<<<< HEAD
 
-=======
-	
->>>>>>> e4b7f1d5 (Automated the Tetscases for eSignet-UI)
 	@Before("@NeedsVID")
 	public void handleVID(Scenario scenario) throws InterruptedException {
 		Vid vidDetails = VIDManager.acquireVID();
