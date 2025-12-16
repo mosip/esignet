@@ -1,27 +1,26 @@
 name: Maven Package upon a push
 
 on:
-  release:
-    types: [published]
-  pull_request:
-    types: [opened, reopened, synchronize]
-  workflow_dispatch:
-    inputs:
-      message:
-        description: 'Message for manually triggering'
-        required: false
-        default: 'Triggered for Updates'
-        type: string
   push:
     branches:
-      - '!release-branch'
       - master
       - 1.*
       - develop
       - MOSIP*
       - release*
       - ES-842
-      
+pull_request:
+    types: [opened, reopened, synchronize]
+workflow_dispatch:
+  release:
+    types: [published]
+      inputs:
+        message:
+        description: 'Message for manually triggering'
+        required: false
+        default: 'Triggered for Updates'
+        type: string
+       
 jobs:
   detect_changes:
     runs-on: ubuntu-latest
@@ -53,13 +52,12 @@ jobs:
               - 'api-test/**'   
   build_maven_esignet:
     needs: detect_changes
-    if: ${{ 
-          github.event_name == 'push' ||
-          startsWith(github.ref, 'refs/heads/release-branch') ||
-          (github.event_name == 'pull_request' && needs.detect_changes.outputs.service_changed == 'true')}}
-    steps:
-      - name: Trigger Esignet Docker Build
-        uses: mosip/kattu/.github/workflows/maven-build.yml@master
+    if: >
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' &&
+       (startsWith(github.base_ref, 'release') ||
+        needs.detect_changes.outputs.service_changed == 'true'))
+    uses: mosip/kattu/.github/workflows/maven-build.yml@master
     with:
       SERVICE_LOCATION: ./
       BUILD_ARTIFACT: esignet
@@ -95,13 +93,12 @@ jobs:
       
   build-oidc-ui:
     needs: detect_changes
-    if: ${{ 
-          github.event_name == 'push' ||
-          startsWith(github.ref, 'refs/heads/release-branch') ||
-          (github.event_name == 'pull_request' && needs.detect_changes.outputs.ui_changed == 'true')}}
-    steps:
-      - name: Trigger OIDC UI Docker Build
-        uses: mosip/kattu/.github/workflows/npm-build.yml@develop
+    if: >
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' &&
+       (startsWith(github.base_ref, 'release') ||
+        needs.detect_changes.outputs.service_changed == 'true'))
+    uses: mosip/kattu/.github/workflows/npm-build.yml@develop
     with:
       SERVICE_LOCATION: oidc-ui
       BUILD_ARTIFACT: oidc
@@ -212,10 +209,11 @@ jobs:
 
   build_maven_esignet_with_plugins:
     needs: detect_changes
-    if: ${{ 
-          github.event_name == 'push' ||
-          startsWith(github.ref, 'refs/heads/release-branch') ||
-          (github.event_name == 'pull_request' && needs.detect_changes.outputs.service_changed == 'true')}}
+    if: >
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' &&
+       (startsWith(github.base_ref, 'release') ||
+        needs.detect_changes.outputs.service_changed == 'true'))
     uses: mosip/kattu/.github/workflows/maven-build.yml@master
     with:
       SERVICE_LOCATION: ./esignet-with-plugins
@@ -272,13 +270,12 @@ jobs:
 
   build_maven_apitest_esignet:
     needs: detect_changes
-    if: ${{ 
-          github.event_name == 'push' ||
-          startsWith(github.ref, 'refs/heads/release-branch') ||
-          (github.event_name == 'pull_request' && needs.detect_changes.outputs.automation_changed == 'true')}}
-    steps:
-      - name: Trigger API-Test Esignet Docker Build
-        uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
+    if: >
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' &&
+       (startsWith(github.base_ref, 'release') ||
+        needs.detect_changes.outputs.service_changed == 'true'))
+    uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
     with:
       SERVICE_LOCATION: ./api-test
       BUILD_ARTIFACT: apitest-esignet
@@ -374,10 +371,11 @@ jobs:
   
   build-maven-uitest-esignet:
     needs: detect_changes
-    if: ${{ 
-          github.event_name == 'push' ||
-          startsWith(github.ref, 'refs/heads/release-branch') ||
-          (github.event_name == 'pull_request' && needs.detect_changes.outputs.automation_changed == 'true')}}
+    if: >
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' &&
+       (startsWith(github.base_ref, 'release') ||
+        needs.detect_changes.outputs.service_changed == 'true'))
     uses: anup-nehe/kattu/.github/workflows/maven-build-browserStack.yml@develop
     with:
       SERVICE_LOCATION: ./ui-test
