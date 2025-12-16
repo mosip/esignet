@@ -6,10 +6,11 @@ import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.ServletWebRequest;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 @RestController
@@ -21,7 +22,7 @@ public class RestErrorController implements ErrorController {
         this.errorAttributes = errorAttributes;
     }
 
-    @RequestMapping("/error")
+    @RequestMapping(value = "/error", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT})
     public ResponseEntity<Map<String, Object>> handleError(HttpServletRequest request) {
         ServletWebRequest webRequest = new ServletWebRequest(request);
         Map<String, Object> attrs = errorAttributes.getErrorAttributes(webRequest, ErrorAttributeOptions.defaults());
@@ -31,8 +32,4 @@ public class RestErrorController implements ErrorController {
         return new ResponseEntity<>(attrs, HttpStatus.valueOf(status));
     }
 
-    @Override
-    public String getErrorPath() {
-        return null;
-    }
 }

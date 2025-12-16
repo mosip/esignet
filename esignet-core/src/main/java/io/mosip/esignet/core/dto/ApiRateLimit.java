@@ -7,12 +7,14 @@ package io.mosip.esignet.core.dto;
 
 import lombok.Data;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Data
 public class ApiRateLimit implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     ConcurrentHashMap<Integer, Integer> count = new ConcurrentHashMap<>();

@@ -12,7 +12,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.URL;
 
-import javax.validation.constraints.*;
+import jakarta.validation.constraints.*;
 import java.util.List;
 
 @Data
@@ -38,7 +38,7 @@ public class ClientDetailUpdateRequest {
     private List<@AuthContextRef String> authContextRefs;
 
     @NotNull(message = ErrorConstants.INVALID_STATUS)
-    @Pattern(regexp = "^(ACTIVE)|(INACTIVE)$", message = ErrorConstants.INVALID_STATUS)
+    @Pattern(regexp = "^(ACTIVE|INACTIVE)$", message = ErrorConstants.INVALID_STATUS)
     private String status;
 
     @NotNull(message = ErrorConstants.UNSUPPORTED_GRANT_TYPE)

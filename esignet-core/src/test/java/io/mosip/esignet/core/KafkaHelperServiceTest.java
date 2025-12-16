@@ -7,34 +7,47 @@ package io.mosip.esignet.core;
 
 import java.io.IOException;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import io.mosip.esignet.core.util.KafkaHelperService;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class KafkaHelperServiceTest {
-	
-	KafkaHelperService kafkaHelperService = new KafkaHelperService();
-	
-	@Mock
-	KafkaTemplate<String,String> kafkaTemplate;
-	
-	@Before
+
+    @InjectMocks
+    KafkaHelperService kafkaHelperService;
+
+    @Mock
+    KafkaTemplate<String, String> kafkaTemplate;
+
+    @BeforeEach
     public void setup() throws IOException {
-        ReflectionTestUtils.setField(kafkaHelperService, "kafkaTemplate", kafkaTemplate);
-	}
-	
-	@Test
-	public void test_publish_withValidValues_thenPass() {
-		Assert.assertNotNull(kafkaTemplate);
-		kafkaHelperService.publish("test-topic", "test-message");
-	}
+        ReflectionTestUtils.setField(kafkaHelperService, "kafkaEnabled", true);
+    }
+
+    @Test
+    public void test_publish_withValidValues_thenPass() {
+        Mockito.when(kafkaTemplate.send("test-topic", "test-message")).thenReturn(null);
+        Assertions.assertDoesNotThrow(() -> {
+            kafkaHelperService.publish("test-topic", "test-message");
+        });
+    }
+
+    @Test
+    public void test_publish_withKafkaNotEnabled_thenPass() {
+        ReflectionTestUtils.setField(kafkaHelperService, "kafkaEnabled", false);
+        Assertions.assertDoesNotThrow(() -> {
+            kafkaHelperService.publish("test-topic", "test-message");
+        });
+    }
 
 }

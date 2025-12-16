@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.function.Consumer;
@@ -230,8 +230,8 @@ public class LinkedAuthorizationController {
                 ResponseWrapper responseWrapper = new ResponseWrapper();
                 responseWrapper.setResponseTime(IdentityProviderUtil.getUTCDateTime());
                 responseWrapper.setErrors(new ArrayList<>());
-                if(throwable instanceof EsignetException) {
-                    String errorCode = ((EsignetException) throwable).getErrorCode();
+                if(throwable instanceof EsignetException exception) {
+                    String errorCode = exception.getErrorCode();
                     responseWrapper.getErrors().add(new Error(errorCode, messageSource.getMessage(errorCode, null, Locale.getDefault())));
                 } else
                     responseWrapper.getErrors().add(new Error(ErrorConstants.UNKNOWN_ERROR,

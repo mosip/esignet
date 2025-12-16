@@ -8,6 +8,7 @@ import redirectOnError from '../helpers/redirectOnError';
 import { configurationKeys } from '../constants/clientConstants';
 import LoadingIndicator from '../common/LoadingIndicator';
 import { decodeHash } from '../helpers/utils';
+import { IMAGES } from '../constants/publicAssets';
 
 const ClaimDetails = ({
   i18nKeyPrefix1 = 'consentDetails',
@@ -317,7 +318,7 @@ const ClaimDetails = ({
                   />
                   <img
                     className="h-5 mx-5"
-                    src="/images/sync_alt_black.svg"
+                    src={IMAGES.SYNC_ALT_BLACK}
                     alt="sync_alt"
                   />
                   <img

@@ -151,8 +151,6 @@ public class MosipTestRunner {
 					KeycloakUserManager.removeUser();
 					KeycloakUserManager.removeKeyCloakUser(PartnerRegistration.partnerId);
 					KeycloakUserManager.removeKeyCloakUser(PartnerRegistration.ekycPartnerId);
-					KeycloakUserManager.removeKeyCloakUser(PartnerRegistration.deviceOrganizationName);
-					KeycloakUserManager.removeKeyCloakUser(PartnerRegistration.ftmOrganizationName);
 					KeycloakUserManager.closeKeycloakInstance();
 				}
 

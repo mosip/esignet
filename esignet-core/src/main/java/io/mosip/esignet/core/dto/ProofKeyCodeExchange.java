@@ -5,8 +5,9 @@ import io.mosip.esignet.core.exception.EsignetException;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.StringUtils;
+import org.springframework.util.ObjectUtils;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 import static io.mosip.esignet.core.constants.Constants.S256;
@@ -20,6 +21,7 @@ import static io.mosip.esignet.core.constants.Constants.S256;
 @Setter
 public class ProofKeyCodeExchange implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private String codeChallenge;
@@ -31,7 +33,7 @@ public class ProofKeyCodeExchange implements Serializable {
         if(codeChallengeMethod == null || codeChallenge == null)
             return null;
 
-        if(StringUtils.isEmpty(codeChallenge))
+        if(ObjectUtils.isEmpty(codeChallenge))
             throw new EsignetException(ErrorConstants.INVALID_PKCE_CHALLENGE);
 
         switch (codeChallengeMethod) {

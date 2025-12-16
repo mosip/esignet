@@ -37,6 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -94,6 +95,13 @@ public class OAuthServiceImpl implements OAuthService {
     @Value("${mosip.esignet.par.expire-seconds:60}")
     private int parExpireInSeconds;
 
+    @Value("#{${mosip.esignet.discovery.key-values}}")
+    private Map<String, Object> discoveryMap;
+
+    private static final String PAR_ENDPOINT = "pushed_authorization_request_endpoint";
+    private static final String TOKEN_ENDPOINT = "token_endpoint";
+    private static final String ISSUER = "issuer";
+
     @Override
     public TokenResponse getTokens(TokenRequestV2 tokenRequest, String dpopHeader, boolean isV2) throws EsignetException {
 
@@ -115,8 +123,13 @@ public class OAuthServiceImpl implements OAuthService {
 
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(transaction.getClientId());
 
-        tokenService.verifyClientAssertionToken(clientDetailDto.getId(), clientDetailDto.getPublicKey(), tokenRequest.getClient_assertion(),
-                isV2? (String) oauthServerDiscoveryMap.get("token_endpoint") : discoveryIssuerId+"/oauth/token");
+        List<String> validAudience;
+        if (isV2) {
+            validAudience = List.of((String) oauthServerDiscoveryMap.get(TOKEN_ENDPOINT), (String) discoveryMap.get(ISSUER));
+        } else {
+            validAudience = List.of(discoveryIssuerId + "/oauth/token", (String) discoveryMap.get(ISSUER));
+        }
+        tokenService.verifyClientAssertionToken(clientDetailDto.getId(), clientDetailDto.getPublicKey(), tokenRequest.getClient_assertion(), validAudience);
 
         boolean isTransactionVCScoped = isTransactionVCScoped(transaction);
         if(!isTransactionVCScoped) { //if transaction is not VC scoped, only then do KYC exchange
@@ -183,7 +196,9 @@ public class OAuthServiceImpl implements OAuthService {
         IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), pushedAuthorizationRequest.getRedirect_uri());
         authorizationHelperService.validateNonce(pushedAuthorizationRequest.getNonce());
 
-        tokenService.verifyClientAssertionToken(clientDetailDto.getId(), clientDetailDto.getPublicKey(), pushedAuthorizationRequest.getClient_assertion(), (String) oauthServerDiscoveryMap.get("pushed_authorization_request_endpoint"));
+        List<String> validAudience = List.of((String) oauthServerDiscoveryMap.get(PAR_ENDPOINT), (String) oauthServerDiscoveryMap.get(TOKEN_ENDPOINT), (String) discoveryMap.get(ISSUER));
+
+        tokenService.verifyClientAssertionToken(clientDetailDto.getId(), clientDetailDto.getPublicKey(), pushedAuthorizationRequest.getClient_assertion(), validAudience);
 
         String requestUriUniqueId = IdentityProviderUtil.createTransactionId(null);
         String requestUri = PAR_REQUEST_URI_PREFIX + requestUriUniqueId;
@@ -231,7 +246,7 @@ public class OAuthServiceImpl implements OAuthService {
             return;
         }
 
-        if(StringUtils.isEmpty(codeVerifier)) {
+        if(ObjectUtils.isEmpty(codeVerifier)) {
             log.error("Null or empty code_verifier found in the request");
             throw new EsignetException(ErrorConstants.INVALID_PKCE_CODE_VERFIER);
         }
@@ -246,7 +261,7 @@ public class OAuthServiceImpl implements OAuthService {
                 throw new EsignetException(ErrorConstants.UNSUPPORTED_PKCE_CHALLENGE_METHOD);
         }
 
-        if(StringUtils.isEmpty(computedChallenge) || !computedChallenge.equals(proofKeyCodeExchange.getCodeChallenge()))
+        if(ObjectUtils.isEmpty(computedChallenge) || !computedChallenge.equals(proofKeyCodeExchange.getCodeChallenge()))
             throw new EsignetException(ErrorConstants.PKCE_FAILED);
     }
 

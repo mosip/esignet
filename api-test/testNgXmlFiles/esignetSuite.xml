@@ -896,6 +896,58 @@
 				name="io.mosip.testrig.apirig.esignet.testscripts.GetWithParam" />
 		</classes>
 	</test>
+	<test name="OIDCClientDifferentScopeLanguageClaimsSce">
+		<parameter name="ymlFile"
+			value="esignet/DifferentScopeLanguageClaimsSce/CreateClient/CreateOIDCClient.yml" />
+		<parameter name="idKeyName" value="clientId" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="OAuthDetailsDifferentScopeLanguageClaimsSce">
+		<parameter name="ymlFile"
+			value="esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsRequest.yml" />
+		<parameter name="idKeyName" value="transactionId,encodedResp" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="AuthenticateUserDifferentScopeLanguageClaimsSce">
+		<parameter name="ymlFile"
+			value="esignet/DifferentScopeLanguageClaimsSce/Authenticate/AuthenticateUser.yml" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.PostWithAutogenIdWithOtpGenerate" />
+		</classes>
+	</test>
+	<test name="AuthorizeCodeDifferentScopeLanguageClaimsSce">
+		<parameter name="ymlFile"
+			value="esignet/DifferentScopeLanguageClaimsSce/AuthCode/AuthorizationCode.yml" />
+		<parameter name="idKeyName" value="code" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="GenerateTokenDifferentScopeLanguageClaimsSce">
+		<parameter name="ymlFile"
+			value="esignet/DifferentScopeLanguageClaimsSce/GenToken/GenerateToken.yml" />
+		<parameter name="idKeyName" value="access_token" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
+		</classes>
+	</test>
+	<test name="UserInfoDifferentScopeLanguageClaimsSce">
+		<parameter name="ymlFile"
+			value="esignet/DifferentScopeLanguageClaimsSce/Userinfo/GetOidcUserInfo.yml" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.GetWithParam" />
+		</classes>
+	</test>
 	<!-- End of end to end v3 with mock flow test cases -->
 
 </suite>

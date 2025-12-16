@@ -8,6 +8,7 @@ import { LoadingStates, LoadingStates as states } from '../constants/states';
 import FormAction from './FormAction';
 import langConfigService from './../services/langConfigService';
 import ModalPopup from '../common/ModalPopup';
+import { IMAGES } from '../constants/publicAssets';
 import configService from '../services/configService';
 import redirectOnError from '../helpers/redirectOnError';
 
@@ -413,7 +414,7 @@ export default function Consent({
       <>
         {cancelPopup && (
           <ModalPopup
-            alertIcon="images/warning_message_icon.svg"
+            alertIcon={IMAGES.WARNING_MESSAGE_ICON}
             alertClassname="flex flex-shrink-0 items-center justify-center rounded-t-md p-4 mt-4"
             header={t('cancelpopup.confirm_header')}
             headerClassname="relative text-center text-dark font-semibold text-xl text-[#2B3840] mt-4"
@@ -424,13 +425,13 @@ export default function Consent({
           />
         )}
         <div className="multipurpose-login-card shadow w-full md:w-3/6 md:z-10 lg:max-w-sm m-0 md:m-auto">
-          <div className="bg-[#FFF9F0] rounded-t-lg top-0 left-0 right-0 p-2">
+          <div className="consent-timer-banner rounded-t-sm top-0 left-0 right-0 p-2">
             {timeLeft && timeLeft > 0 && status !== LoadingStates.LOADING && (
               <div className="text-center">
                 <p className="text-[#4E4E4E] font-semibold">
                   {t('transaction_timeout_msg')}
                 </p>
-                <p className="font-bold text-[#DE7A24]">
+                <p className="font-bold consent-timer-text">
                   {formatTime(timeLeft)}{' '}
                 </p>
               </div>
@@ -439,7 +440,7 @@ export default function Consent({
           <div className="flex flex-col flex-grow lg:px-5 md:px-4 sm:px-3 px-3 pb-4">
             <div className="w-full flex mt-9 justify-center items-center">
               <img
-                className="object-contain client-logo-size"
+                className="object-contain client-logo-size client-logo-shadow rounded-[25px] border-[0.1px] border-white"
                 src={clientLogoPath}
                 alt={clientName}
               />

@@ -6,7 +6,7 @@
     <parent>
         <groupId>io.mosip.esignet</groupId>
         <artifactId>esignet-parent</artifactId>
-        <version>1.7.1-SNAPSHOT</version>
+        <version>1.8.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>oidc-service-impl</artifactId>
@@ -14,9 +14,6 @@
     <version>${project.parent.version}</version>
 
     <properties>
-        <java.version>11</java.version>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <esignet.core.version>${project.version}</esignet.core.version>
     </properties>
@@ -26,6 +23,11 @@
             <groupId>io.mosip.esignet</groupId>
             <artifactId>esignet-core</artifactId>
             <version>${esignet.core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

@@ -12,22 +12,15 @@ import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.services.ClientManagementServiceImpl;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestContextManager;
-import org.springframework.test.context.junit4.rules.SpringClassRule;
-import org.springframework.test.context.junit4.rules.SpringMethodRule;
-import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -40,23 +33,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static io.mosip.esignet.core.constants.Constants.UTC_DATETIME_PATTERN;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(Parameterized.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 public class ClientMgmtControllerParameterizedTest {
-
-    @ClassRule
-    public static final SpringClassRule SPRING_CLASS_RULE = new SpringClassRule();
-
-    @Rule
-    public final SpringMethodRule springMethodRule = new SpringMethodRule();
 
     @Autowired
     private WebApplicationContext wac;
@@ -81,7 +65,7 @@ public class ClientMgmtControllerParameterizedTest {
     private String errorCode;
     private String title;
 
-    public ClientMgmtControllerParameterizedTest(String title, ClientDetailCreateRequestV2 clientDetailCreateRequestV2,
+    public void initClientMgmtControllerParameterizedTest(String title, ClientDetailCreateRequestV2 clientDetailCreateRequestV2,
                                                  ClientDetailUpdateRequestV2 clientDetailUpdateRequestV2,
                                                  String clientIdQueryParam,
                                                  String errorCode) {
@@ -210,23 +194,24 @@ public class ClientMgmtControllerParameterizedTest {
                     Arrays.asList("private_key_jwt"),new HashMap<String,String>(){{put("eng", "clientname");}}), null, null, null}
     };
 
-    @Parameterized.Parameters(name = "Test {0}")
     public static Collection<Object[]> data() {
         return Arrays.asList(TEST_CASES);
     }
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         this.testContextManager = new TestContextManager(getClass());
         this.testContextManager.prepareTestInstance(this);
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
     }
 
-    @Test
-    public void testClientManagementEndpoints() throws Exception {
+    @MethodSource("data")
+    @ParameterizedTest(name = "Test {0}")
+    public void testClientManagementEndpoints(String title, ClientDetailCreateRequestV2 clientDetailCreateRequestV2, ClientDetailUpdateRequestV2 clientDetailUpdateRequestV2, String clientIdQueryParam, String errorCode) throws Exception {
+        initClientMgmtControllerParameterizedTest(title, clientDetailCreateRequestV2, clientDetailUpdateRequestV2, clientIdQueryParam, errorCode);
         if(this.clientDetailCreateRequestV2 != null) {
             ResultActions createResultActions = mockMvc.perform(post("/client-mgmt/oauth-client")
-                            .contentType(MediaType.APPLICATION_JSON_UTF8)
+                            .contentType(MediaType.APPLICATION_JSON)
                             .content(getRequestWrapper(this.clientDetailCreateRequestV2)));
             evaluateResultActions(createResultActions, this.clientDetailCreateRequestV2.getClientId(),
                     Constants.CLIENT_ACTIVE_STATUS, this.errorCode);
@@ -234,7 +219,7 @@ public class ClientMgmtControllerParameterizedTest {
 
         if(this.clientDetailUpdateRequestV2 != null) {
            ResultActions updateResultActions = mockMvc.perform(put("/client-mgmt/oauth-client/"+this.clientIdQueryParam)
-                    .contentType(MediaType.APPLICATION_JSON_UTF8)
+                    .contentType(MediaType.APPLICATION_JSON)
                     .content(getRequestWrapper(this.clientDetailUpdateRequestV2)));
             evaluateResultActions(updateResultActions, this.clientIdQueryParam,
                     this.clientDetailUpdateRequestV2.getStatus(), this.errorCode);

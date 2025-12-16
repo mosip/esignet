@@ -17,15 +17,18 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.util.MultiValueMap;
-import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -34,14 +37,16 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import java.io.IOException;
+import java.net.URI;
 import java.util.*;
 
 import static io.mosip.esignet.core.constants.ErrorConstants.*;
@@ -62,13 +67,13 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
 
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers,
-                                                                  HttpStatus status, WebRequest request) {
+                                                                  HttpStatusCode status, WebRequest request) {
         return handleExceptions(ex, request);
     }
 
     @Override
     protected ResponseEntity<Object> handleHttpMediaTypeNotAcceptable(
-            HttpMediaTypeNotAcceptableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+            HttpMediaTypeNotAcceptableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         return handleExceptions(ex, request);
     }
 
@@ -76,7 +81,7 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
     protected ResponseEntity<Object> handleMissingServletRequestParameter(
             MissingServletRequestParameterException ex,
             HttpHeaders headers,
-            HttpStatus status,
+            HttpStatusCode status,
             WebRequest request) {
         return handleExceptions(ex, request);
     }
@@ -85,36 +90,53 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex,
             HttpHeaders headers,
-            HttpStatus status,
+            HttpStatusCode status,
             WebRequest request) {
         return handleExceptions(ex, request);
     }
 
     @Override
-    protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers,
-                                                        HttpStatus status, WebRequest request) {
-        return handleExceptions(ex, request);
+    protected ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        return handle404And405Exception(ex, status);
     }
 
     @Override
-    protected ResponseEntity<Object> handleBindException(BindException ex, HttpHeaders headers,
-                                                         HttpStatus status, WebRequest request) {
+    protected ResponseEntity handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        ServletWebRequest servletWebRequest = (ServletWebRequest) request;
+        String pathInfo = servletWebRequest.getRequest().getPathInfo();
+        if (pathInfo == null) {
+            pathInfo = servletWebRequest.getRequest().getRequestURI();
+        }
+        if(pathInfo.startsWith("/oidc/userinfo")) {
+            return handleExceptionWithHeader(ex);
+        }
+        if(pathInfo.startsWith("/oauth/")) {
+            return handleOpenIdConnectControllerExceptions(ex);
+        }
+        return handle404And405Exception(ex, status);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers,
+                                                        HttpStatusCode status, WebRequest request) {
         return handleExceptions(ex, request);
     }
 
     @ExceptionHandler(value = { Exception.class, RuntimeException.class, MissingRequestHeaderException.class })
     public ResponseEntity handleExceptions(Exception ex, WebRequest request) {
         log.error("Unhandled exception encountered in handler advice", ex);
-        String pathInfo = ((ServletWebRequest)request).getRequest().getPathInfo();
+        ServletWebRequest servletWebRequest = (ServletWebRequest) request;
+        String pathInfo = servletWebRequest.getRequest().getPathInfo();
 
-        boolean isInternalAPI = pathInfo != null && (pathInfo.startsWith("/authorization") ||
-                pathInfo.startsWith("/client-mgmt/"));
-
-        if(!isInternalAPI && pathInfo.startsWith("/oidc/userinfo")) {
+        if (pathInfo == null) {
+            pathInfo = servletWebRequest.getRequest().getRequestURI();
+        }
+        
+        if(pathInfo.startsWith("/oidc/userinfo")) {
             return handleExceptionWithHeader(ex);
         }
 
-        if(!isInternalAPI && pathInfo.startsWith("/oauth/")) {
+        if(pathInfo.startsWith("/oauth/")) {
             return handleOpenIdConnectControllerExceptions(ex);
         }
 
@@ -123,16 +145,16 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
 
 
     private ResponseEntity<ResponseWrapper> handleInternalControllerException(Exception ex) {
-        if(ex instanceof MethodArgumentNotValidException) {
+        if(ex instanceof MethodArgumentNotValidException exception) {
             List<Error> errors = new ArrayList<>();
-            for (FieldError error : ((MethodArgumentNotValidException) ex).getBindingResult().getFieldErrors()) {
+            for (FieldError error : exception.getBindingResult().getFieldErrors()) {
                 errors.add(new Error(error.getDefaultMessage(), error.getField() + ": " + error.getDefaultMessage()));
             }
             return new ResponseEntity<ResponseWrapper>(getResponseWrapper(errors), HttpStatus.OK);
         }
-        if(ex instanceof ConstraintViolationException) {
+        if(ex instanceof ConstraintViolationException exception) {
             List<Error> errors = new ArrayList<>();
-            Set<ConstraintViolation<?>> violations = ((ConstraintViolationException) ex).getConstraintViolations();
+            Set<ConstraintViolation<?>> violations = exception.getConstraintViolations();
             for(ConstraintViolation<?> cv : violations) {
                 errors.add(new Error(INVALID_REQUEST,cv.getPropertyPath().toString() + ": " + cv.getMessage()));
             }
@@ -149,8 +171,8 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
         if(ex instanceof InvalidClientException) {
             return new ResponseEntity<ResponseWrapper>(getResponseWrapper(INVALID_CLIENT_ID, getMessage(INVALID_CLIENT_ID)), HttpStatus.OK);
         }
-        if(ex instanceof EsignetException) {
-            String errorCode = ((EsignetException) ex).getErrorCode();
+        if(ex instanceof EsignetException exception) {
+            String errorCode = exception.getErrorCode();
             return new ResponseEntity<ResponseWrapper>(getResponseWrapper(errorCode, getMessage(errorCode)), HttpStatus.OK);
         }
         if(ex instanceof AuthenticationCredentialsNotFoundException) {
@@ -168,53 +190,62 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
         HttpHeaders headers = new HttpHeaders();
         headers.add("Cache-Control", "no-store");
         headers.add("Pragma","no-cache");
-        if (ex instanceof BindException) {
-            String errorCode = ((BindException) ex).getAllErrors().get(0).getDefaultMessage();
+        if (ex instanceof MethodArgumentNotValidException exception) {
+            String errorCode = exception.getAllErrors().getFirst().getDefaultMessage();
             String responseErrorCode = INVALID_REQUEST;
             if (OAUTH_ERROR_CODES.contains(errorCode)) responseErrorCode = errorCode;
             return new ResponseEntity<OAuthError>(getErrorRespDto(responseErrorCode, getMessage(errorCode)), headers, HttpStatus.BAD_REQUEST);
         }
-        if (ex instanceof MaxUploadSizeExceededException) {
-            long maxUploadSize = ((MaxUploadSizeExceededException) ex).getMaxUploadSize();
+        if (ex instanceof MaxUploadSizeExceededException exception) {
+            long maxUploadSize = exception.getMaxUploadSize();
             String message = "Maximum upload size exceeded. Limit is " + maxUploadSize + " bytes.";
             return new ResponseEntity<OAuthError>(getErrorRespDto(PAYLOAD_TOO_LARGE, message), headers,HttpStatus.PAYLOAD_TOO_LARGE);
         }
-        if (ex instanceof DpopNonceMissingException) {
-            DpopNonceMissingException dpopEx = (DpopNonceMissingException) ex;
+        if (ex instanceof DpopNonceMissingException dpopEx) {
             headers.add("DPoP-Nonce", dpopEx.getDpopNonceHeaderValue());
             headers.add("Access-Control-Expose-Headers", "DPoP-Nonce, WWW-Authenticate");
             return new ResponseEntity<OAuthError>(getErrorRespDto(dpopEx.getErrorCode(), dpopEx.getMessage()), headers, HttpStatus.BAD_REQUEST);
         }
-        if(ex instanceof EsignetException) {
-            String errorCode = ((EsignetException) ex).getErrorCode();
+        if(ex instanceof EsignetException exception) {
+            String errorCode = exception.getErrorCode();
             String responseErrorCode = INVALID_REQUEST;
             if (OAUTH_ERROR_CODES.contains(errorCode)) responseErrorCode = errorCode;
             return new ResponseEntity<OAuthError>(getErrorRespDto(responseErrorCode, getMessage(errorCode)), headers,HttpStatus.BAD_REQUEST);
+        }
+        if(ex instanceof HttpRequestMethodNotSupportedException) {
+            return new ResponseEntity<OAuthError>(getErrorRespDto(INVALID_REQUEST, getMessage(HttpStatus.METHOD_NOT_ALLOWED.getReasonPhrase())), headers, HttpStatus.METHOD_NOT_ALLOWED.value());
         }
         log.error("Unhandled exception encountered in handler advice", ex);
         return new ResponseEntity<OAuthError>(getErrorRespDto(UNKNOWN_ERROR, ex.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    private ResponseEntity handleExceptionWithHeader(Exception ex) {
+    private ResponseEntity<Void> handleExceptionWithHeader(Exception ex) {
         MultiValueMap<String, String> headers = new HttpHeaders();
-        if (ex instanceof DpopNonceMissingException) {
-            DpopNonceMissingException dpopEx = (DpopNonceMissingException) ex;
+        if (ex instanceof DpopNonceMissingException dpopEx) {
             headers.add("Access-Control-Expose-Headers", "DPoP-Nonce, WWW-Authenticate");
             headers.add("WWW-Authenticate", "DPoP error=\""+ USE_DPOP_NONCE +"\"");
             headers.add("DPoP-Nonce", dpopEx.getDpopNonceHeaderValue());
-            return new ResponseEntity(headers, HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(headers, HttpStatus.UNAUTHORIZED);
         }
+        HttpStatusCode statusCode = HttpStatus.UNAUTHORIZED;
         String errorCode = UNKNOWN_ERROR;
-        if(ex instanceof NotAuthenticatedException) {
-            errorCode = INVALID_AUTH_TOKEN;
-        }
-        if(ex instanceof MissingRequestHeaderException) {
-            errorCode = MISSING_HEADER;
+        switch (ex) {
+            case NotAuthenticatedException exception -> errorCode = INVALID_AUTH_TOKEN;
+            case MissingRequestHeaderException exception -> errorCode = MISSING_HEADER;
+            case HttpRequestMethodNotSupportedException exception -> {
+                statusCode = exception.getStatusCode();
+                errorCode = HttpStatus.METHOD_NOT_ALLOWED.getReasonPhrase();
+            }
+            case HttpMediaTypeNotAcceptableException exception -> {
+                statusCode = exception.getStatusCode();
+                errorCode = HttpStatus.NOT_ACCEPTABLE.getReasonPhrase();
+            }
+            default -> {
+            }
         }
         log.error("Unhandled exception encountered in handler advice", ex);
         headers.add("WWW-Authenticate", "error=\""+errorCode+"\"");
-        ResponseEntity responseEntity = new ResponseEntity(headers, HttpStatus.UNAUTHORIZED);
-        return responseEntity;
+        return new ResponseEntity<>(headers, statusCode);
     }
 
     private OAuthError getErrorRespDto(String errorCode, String errorMessage) {
@@ -252,5 +283,12 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
             log.error("Message not found in the i18n bundle", ex);
         }
         return errorCode;
+    }
+
+    private ResponseEntity<Object> handle404And405Exception(Exception ex, HttpStatusCode status) {
+        ErrorResponse errorResponse = ErrorResponse.builder(ex, ProblemDetail.forStatusAndDetail(status, ex.getMessage()))
+                .instance(URI.create(""))
+                .build();
+        return ResponseEntity.of(errorResponse.getBody()).headers(errorResponse.getHeaders()).build();
     }
 }

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { IMAGES } from '../constants/publicAssets';
 
 export default function PageNotFoundPage({ i18nKeyPrefix = 'errors' }) {
   const { t } = useTranslation('translation', { keyPrefix: i18nKeyPrefix });
@@ -11,7 +12,7 @@ export default function PageNotFoundPage({ i18nKeyPrefix = 'errors' }) {
     >
       <img
         className="mx-auto my-0"
-        src="images/under_construction.svg"
+        src={IMAGES.UNDER_CONSTRUCTION}
         alt="page_not_found"
       />
       <div className="error-page-header">{t('page_not_exist')}</div>

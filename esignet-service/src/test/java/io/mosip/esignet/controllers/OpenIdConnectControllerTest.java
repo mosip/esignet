@@ -11,14 +11,12 @@ import io.mosip.esignet.core.exception.NotAuthenticatedException;
 import io.mosip.esignet.core.spi.OpenIdConnectService;
 import io.mosip.esignet.core.spi.TokenService;
 import io.mosip.esignet.services.CacheUtilService;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Map;
@@ -30,7 +28,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(value = OpenIdConnectController.class)
 public class OpenIdConnectControllerTest {
 

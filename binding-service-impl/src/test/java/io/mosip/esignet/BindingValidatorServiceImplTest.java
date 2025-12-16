@@ -1,5 +1,6 @@
 package io.mosip.esignet;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
@@ -18,14 +19,13 @@ import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.x509.X509V3CertificateGenerator;
 import org.jose4j.jws.JsonWebSignature;
 import org.json.simple.JSONObject;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.security.auth.x500.X500Principal;
@@ -36,6 +36,7 @@ import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Map;
 
 import static io.mosip.esignet.KeyBindingServiceTest.generateJWK_RSA;
 import static org.mockito.ArgumentMatchers.any;
@@ -43,28 +44,29 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class BindingValidatorServiceImplTest {
 
     @InjectMocks
-	BindingValidatorServiceImpl bindingValidatorServiceImpl;
+    BindingValidatorServiceImpl bindingValidatorServiceImpl;
 
     @Mock
     private PublicKeyRegistryRepository publicKeyRegistryRepository;
 
     @Mock
-	KeyBindingHelperService keyBindingHelperService;
+    KeyBindingHelperService keyBindingHelperService;
 
     @Mock
     KeymanagerUtil keymanagerUtil;
+
+    ObjectMapper objectMapper = new ObjectMapper();
 
     private JWK clientJWK = generateJWK_RSA();
 
     private String audienceId = "esignet-binding";
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
         ReflectionTestUtils.setField(bindingValidatorServiceImpl, "bindingAudienceId", audienceId);
 
         keyBindingHelperService = mock(KeyBindingHelperService.class);
@@ -72,121 +74,121 @@ public class BindingValidatorServiceImplTest {
         ReflectionTestUtils.setField(keyBindingHelperService, "publicKeyRegistryRepository", publicKeyRegistryRepository);
         ReflectionTestUtils.setField(keyBindingHelperService, "keymanagerUtil", keymanagerUtil);
 
-		when(keyBindingHelperService.getIndividualIdHash(anyString())).thenReturn("id-hash");
+        when(keyBindingHelperService.getIndividualIdHash(anyString())).thenReturn("id-hash");
         ReflectionTestUtils.setField(bindingValidatorServiceImpl, "keyBindingHelperService", keyBindingHelperService);
-		ReflectionTestUtils.setField(bindingValidatorServiceImpl, "keymanagerUtil", keymanagerUtil);
+        ReflectionTestUtils.setField(bindingValidatorServiceImpl, "keymanagerUtil", keymanagerUtil);
     }
 
     @Test
-	public void validateBinding_withValidDetails_thenPass() throws Exception {
-		String transactionId = "909422113";
-		String individualId  = "8267411571";
-		AuthChallenge authChallenge = new AuthChallenge();
-		authChallenge.setAuthFactorType("WLA");
-		authChallenge.setFormat("jwt");
+    public void validateBinding_withValidDetails_thenPass() throws Exception {
+        String transactionId = "909422113";
+        String individualId = "8267411571";
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setAuthFactorType("WLA");
+        authChallenge.setFormat("jwt");
 
-		X509Certificate certificate = getCertificate(clientJWK);
-		String wlaToken = signJwt(individualId, certificate, true);
-		authChallenge.setChallenge(wlaToken);
+        X509Certificate certificate = getCertificate(clientJWK);
+        String wlaToken = signJwt(individualId, certificate, true);
+        authChallenge.setChallenge(wlaToken);
 
-		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry("id-hash", "WLA", "test-psu-token", clientJWK.toJSONString(),
-				LocalDateTime.now().plusDays(4), "test-binding-id", "test-public-key-hash","thumbprint",
-				getPemData(certificate), LocalDateTime.now());
-		when(publicKeyRegistryRepository.findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan(anyString(), any(), any()))
-				.thenReturn(Arrays.asList(publicKeyRegistry));
-		when(keymanagerUtil.convertToCertificate(anyString())).thenReturn(certificate);
+        PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry("id-hash", "WLA", "test-psu-token", clientJWK.toJSONString(),
+                LocalDateTime.now().plusDays(4), "test-binding-id", "test-public-key-hash", "thumbprint",
+                getPemData(certificate), LocalDateTime.now());
+        when(publicKeyRegistryRepository.findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan(anyString(), any(), any()))
+                .thenReturn(Arrays.asList(publicKeyRegistry));
+        when(keymanagerUtil.convertToCertificate(anyString())).thenReturn(certificate);
 
-		BindingAuthResult bindingAuthResult = bindingValidatorServiceImpl.validateBindingAuth(transactionId, individualId, Arrays.asList(authChallenge));
-		Assert.assertEquals(bindingAuthResult.getTransactionId(), transactionId);
-	}
+        BindingAuthResult bindingAuthResult = bindingValidatorServiceImpl.validateBindingAuth(transactionId, individualId, Arrays.asList(authChallenge));
+        Assertions.assertEquals(bindingAuthResult.getTransactionId(), transactionId);
+    }
 
-	@Test
-	public void validateBinding_withInvalidSha256Thumbprint_thenFail() throws Exception {
-		String transactionId = "909422113";
-		String individualId  = "8267411571";
-		AuthChallenge authChallenge = new AuthChallenge();
-		authChallenge.setAuthFactorType("WLA");
-		authChallenge.setFormat("jwt");
+    @Test
+    public void validateBinding_withInvalidSha256Thumbprint_thenFail() throws Exception {
+        String transactionId = "909422113";
+        String individualId = "8267411571";
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setAuthFactorType("WLA");
+        authChallenge.setFormat("jwt");
 
-		X509Certificate certificate = getCertificate(clientJWK);
-		String wlaToken = signJwt(individualId, certificate, true);
-		JWT jwt = JWTParser.parse(wlaToken);
-		net.minidev.json.JSONObject headerJson = jwt.getHeader().toJSONObject();
-		headerJson.put("x5t#S256", "test-header");
-		String[] chunks = wlaToken.split("\\.");
-		authChallenge.setChallenge(IdentityProviderUtil.b64Encode(headerJson.toJSONString())+"."+chunks[1]+"."+chunks[2]);
+        X509Certificate certificate = getCertificate(clientJWK);
+        String wlaToken = signJwt(individualId, certificate, true);
+        JWT jwt = JWTParser.parse(wlaToken);
+        Map<String, Object> headers = jwt.getHeader().toJSONObject();
+        headers.put("x5t#S256", "test-header");
+        String[] chunks = wlaToken.split("\\.");
+        authChallenge.setChallenge(IdentityProviderUtil.b64Encode(objectMapper.writeValueAsString(headers)) + "." + chunks[1] + "." + chunks[2]);
 
-		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry("id-hash", "WLA", "test-psu-token", clientJWK.toJSONString(),
-				LocalDateTime.now().plusDays(4), "test-binding-id", "test-public-key-hash","thumbprint",
-				getPemData(certificate), LocalDateTime.now());
-		when(publicKeyRegistryRepository.findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan(anyString(), any(), any()))
-				.thenReturn(Arrays.asList(publicKeyRegistry));
-		when(keymanagerUtil.convertToCertificate(anyString())).thenReturn(certificate);
+        PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry("id-hash", "WLA", "test-psu-token", clientJWK.toJSONString(),
+                LocalDateTime.now().plusDays(4), "test-binding-id", "test-public-key-hash", "thumbprint",
+                getPemData(certificate), LocalDateTime.now());
+        when(publicKeyRegistryRepository.findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan(anyString(), any(), any()))
+                .thenReturn(Arrays.asList(publicKeyRegistry));
+        when(keymanagerUtil.convertToCertificate(anyString())).thenReturn(certificate);
 
-		try {
-			bindingValidatorServiceImpl.validateBindingAuth(transactionId, individualId, Arrays.asList(authChallenge));
-			Assert.fail();
-		} catch (KycAuthException e) {
-			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_CHALLENGE));
-		}
-	}
+        try {
+            bindingValidatorServiceImpl.validateBindingAuth(transactionId, individualId, Arrays.asList(authChallenge));
+            Assertions.fail();
+        } catch (KycAuthException e) {
+            Assertions.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_CHALLENGE));
+        }
+    }
 
-	@Test
-	public void validateBinding_withoutSha256Thumbprint_thenFail() throws Exception {
-		String transactionId = "909422113";
-		String individualId  = "8267411571";
-		AuthChallenge authChallenge = new AuthChallenge();
-		authChallenge.setAuthFactorType("WLA");
-		authChallenge.setFormat("jwt");
+    @Test
+    public void validateBinding_withoutSha256Thumbprint_thenFail() throws Exception {
+        String transactionId = "909422113";
+        String individualId = "8267411571";
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setAuthFactorType("WLA");
+        authChallenge.setFormat("jwt");
 
-		X509Certificate certificate = getCertificate(clientJWK);
-		String wlaToken = signJwt(individualId, certificate, false);
-		authChallenge.setChallenge(wlaToken);
+        X509Certificate certificate = getCertificate(clientJWK);
+        String wlaToken = signJwt(individualId, certificate, false);
+        authChallenge.setChallenge(wlaToken);
 
-		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry("id-hash", "WLA", "test-psu-token", clientJWK.toJSONString(),
-				LocalDateTime.now().plusDays(4), "test-binding-id", "test-public-key-hash","thumbprint",
-				getPemData(certificate), LocalDateTime.now());
-		when(publicKeyRegistryRepository.findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan(anyString(), any(), any()))
-				.thenReturn(Arrays.asList(publicKeyRegistry));
-		when(keymanagerUtil.convertToCertificate(anyString())).thenReturn(certificate);
+        PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry("id-hash", "WLA", "test-psu-token", clientJWK.toJSONString(),
+                LocalDateTime.now().plusDays(4), "test-binding-id", "test-public-key-hash", "thumbprint",
+                getPemData(certificate), LocalDateTime.now());
+        when(publicKeyRegistryRepository.findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan(anyString(), any(), any()))
+                .thenReturn(Arrays.asList(publicKeyRegistry));
+        when(keymanagerUtil.convertToCertificate(anyString())).thenReturn(certificate);
 
-		try {
-			bindingValidatorServiceImpl.validateBindingAuth(transactionId, individualId, Arrays.asList(authChallenge));
-			Assert.fail();
-		} catch (KycAuthException e) {
-			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_CHALLENGE));
-		}
-	}
+        try {
+            bindingValidatorServiceImpl.validateBindingAuth(transactionId, individualId, Arrays.asList(authChallenge));
+            Assertions.fail();
+        } catch (KycAuthException e) {
+            Assertions.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_CHALLENGE));
+        }
+    }
 
-	@Test
-	public void validateBinding_withUnBoundId_thenFail() throws EsignetException {
-		when(publicKeyRegistryRepository.findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan(anyString(), any(), any())).thenReturn(Arrays.asList());
+    @Test
+    public void validateBinding_withUnBoundId_thenFail() throws EsignetException {
+        when(publicKeyRegistryRepository.findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan(anyString(), any(), any())).thenReturn(Arrays.asList());
 
-		String transactionId = "909422113";
-		String individualId  = "8267411571";
-		AuthChallenge authChallenge = new AuthChallenge();
-		authChallenge.setAuthFactorType("WLA");
-		authChallenge.setFormat("jwt");
-		authChallenge.setChallenge("wlaToken");
+        String transactionId = "909422113";
+        String individualId = "8267411571";
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setAuthFactorType("WLA");
+        authChallenge.setFormat("jwt");
+        authChallenge.setChallenge("wlaToken");
 
-		try {
-			bindingValidatorServiceImpl.validateBindingAuth(transactionId, individualId, Arrays.asList(authChallenge));
-			Assert.fail();
-		} catch (KycAuthException e) {
-			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.KEY_BINDING_NOT_FOUND));
-		}
-	}
+        try {
+            bindingValidatorServiceImpl.validateBindingAuth(transactionId, individualId, Arrays.asList(authChallenge));
+            Assertions.fail();
+        } catch (KycAuthException e) {
+            Assertions.assertTrue(e.getErrorCode().equals(ErrorConstants.KEY_BINDING_NOT_FOUND));
+        }
+    }
 
-	@Test
-	public void validateBinding_withUnBoundAuthFactors_thenFail() throws EsignetException {
-		PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry("id-hash", "WLA", "test-psu-token", clientJWK.toJSONString(),
-				LocalDateTime.now().plusDays(4), "test-binding-id", "test-public-key-hash","thumbprint",
-				"certificate", LocalDateTime.now());
-		when(publicKeyRegistryRepository.findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan(anyString(), any(), any())).thenReturn(Arrays.asList(publicKeyRegistry));
+    @Test
+    public void validateBinding_withUnBoundAuthFactors_thenFail() throws EsignetException {
+        PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry("id-hash", "WLA", "test-psu-token", clientJWK.toJSONString(),
+                LocalDateTime.now().plusDays(4), "test-binding-id", "test-public-key-hash", "thumbprint",
+                "certificate", LocalDateTime.now());
+        when(publicKeyRegistryRepository.findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan(anyString(), any(), any())).thenReturn(Arrays.asList(publicKeyRegistry));
 
-		String transactionId = "909422113";
-		String individualId  = "8267411571";
-		AuthChallenge authChallengeWLA = new AuthChallenge();
+        String transactionId = "909422113";
+        String individualId = "8267411571";
+        AuthChallenge authChallengeWLA = new AuthChallenge();
         authChallengeWLA.setAuthFactorType("WLA");
         authChallengeWLA.setFormat("jwt");
         authChallengeWLA.setChallenge("wlaToken");
@@ -195,75 +197,75 @@ public class BindingValidatorServiceImplTest {
         authChallengeHWA.setFormat("jwt");
         authChallengeHWA.setChallenge("hlaToken");
 
-		try {
-			bindingValidatorServiceImpl.validateBindingAuth(transactionId, individualId, Arrays.asList(authChallengeWLA, authChallengeHWA));
-			Assert.fail();
-		} catch (KycAuthException e) {
-			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.UNBOUND_AUTH_FACTOR));
-		}
-	}
+        try {
+            bindingValidatorServiceImpl.validateBindingAuth(transactionId, individualId, Arrays.asList(authChallengeWLA, authChallengeHWA));
+            Assertions.fail();
+        } catch (KycAuthException e) {
+            Assertions.assertTrue(e.getErrorCode().equals(ErrorConstants.UNBOUND_AUTH_FACTOR));
+        }
+    }
 
-	@Test
-	public void validateBinding_withInvalidChallenge_thenFail() throws EsignetException {
+    @Test
+    public void validateBinding_withInvalidChallenge_thenFail() throws EsignetException {
         PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry("id-hash", "WLA", "test-psu-token", clientJWK.toJSONString(),
-                LocalDateTime.now().plusDays(4), "test-binding-id", "test-public-key-hash","certificate",
+                LocalDateTime.now().plusDays(4), "test-binding-id", "test-public-key-hash", "certificate",
                 "certificate", LocalDateTime.now());
         when(publicKeyRegistryRepository.findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan(anyString(), any(), any())).thenReturn(Arrays.asList(publicKeyRegistry));
 
-		String transactionId = "909422113";
-		String individualId  = "8267411571";
-		AuthChallenge authChallenge = new AuthChallenge();
-		authChallenge.setAuthFactorType("WLA");
-		authChallenge.setFormat("jwt");
-		authChallenge.setChallenge("wlaToken");
+        String transactionId = "909422113";
+        String individualId = "8267411571";
+        AuthChallenge authChallenge = new AuthChallenge();
+        authChallenge.setAuthFactorType("WLA");
+        authChallenge.setFormat("jwt");
+        authChallenge.setChallenge("wlaToken");
 
-		try {
-			bindingValidatorServiceImpl.validateBindingAuth(transactionId, individualId, Arrays.asList(authChallenge));
-			Assert.fail();
-		} catch (KycAuthException e) {
-			Assert.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_CHALLENGE));
-		}
-	}
+        try {
+            bindingValidatorServiceImpl.validateBindingAuth(transactionId, individualId, Arrays.asList(authChallenge));
+            Assertions.fail();
+        } catch (KycAuthException e) {
+            Assertions.assertTrue(e.getErrorCode().equals(ErrorConstants.INVALID_CHALLENGE));
+        }
+    }
 
-	private X509Certificate getCertificate(JWK jwk) throws Exception {
-		X509V3CertificateGenerator generator = new X509V3CertificateGenerator();
-		X500Principal dnName = new X500Principal("CN=Test");
-		generator.setSubjectDN(dnName);
-		generator.setIssuerDN(dnName); // use the same
-		generator.setNotBefore(new Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000));
-		generator.setNotAfter(new Date(System.currentTimeMillis() + 2 * 365 * 24 * 60 * 60 * 1000));
-		generator.setPublicKey(jwk.toRSAKey().toPublicKey());
-		generator.setSignatureAlgorithm("SHA256WITHRSA");
-		generator.setSerialNumber(new BigInteger(String.valueOf(System.currentTimeMillis())));
-		return generator.generate(jwk.toRSAKey().toPrivateKey());
-	}
+    private X509Certificate getCertificate(JWK jwk) throws Exception {
+        X509V3CertificateGenerator generator = new X509V3CertificateGenerator();
+        X500Principal dnName = new X500Principal("CN=Test");
+        generator.setSubjectDN(dnName);
+        generator.setIssuerDN(dnName); // use the same
+        generator.setNotBefore(new Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000));
+        generator.setNotAfter(new Date(System.currentTimeMillis() + 2 * 365 * 24 * 60 * 60 * 1000));
+        generator.setPublicKey(jwk.toRSAKey().toPublicKey());
+        generator.setSignatureAlgorithm("SHA256WITHRSA");
+        generator.setSerialNumber(new BigInteger(String.valueOf(System.currentTimeMillis())));
+        return generator.generate(jwk.toRSAKey().toPrivateKey());
+    }
 
-	private String signJwt(String individualId, X509Certificate certificate, boolean addSha256Thumbprint) throws Exception {
-		JSONObject payload = new JSONObject();
-		payload.put("iss", "test-app");
-		payload.put("aud", audienceId);
-		payload.put("sub", individualId);
-		payload.put("iat", IdentityProviderUtil.getEpochSeconds());
-		payload.put("exp", IdentityProviderUtil.getEpochSeconds()+3600);
+    private String signJwt(String individualId, X509Certificate certificate, boolean addSha256Thumbprint) throws Exception {
+        JSONObject payload = new JSONObject();
+        payload.put("iss", "test-app");
+        payload.put("aud", audienceId);
+        payload.put("sub", individualId);
+        payload.put("iat", IdentityProviderUtil.getEpochSeconds());
+        payload.put("exp", IdentityProviderUtil.getEpochSeconds() + 3600);
 
-		JsonWebSignature jwSign = new JsonWebSignature();
-		jwSign.setKeyIdHeaderValue(certificate.getSerialNumber().toString(10));
-		if(addSha256Thumbprint) {
-			jwSign.setX509CertSha256ThumbprintHeaderValue(certificate);
-		}
-		jwSign.setPayload(payload.toJSONString());
-		jwSign.setAlgorithmHeaderValue("RS256");
-		jwSign.setKey(clientJWK.toRSAKey().toPrivateKey());
-		jwSign.setDoKeyValidation(false);
-		return jwSign.getCompactSerialization();
-	}
+        JsonWebSignature jwSign = new JsonWebSignature();
+        jwSign.setKeyIdHeaderValue(certificate.getSerialNumber().toString(10));
+        if(addSha256Thumbprint) {
+            jwSign.setX509CertSha256ThumbprintHeaderValue(certificate);
+        }
+        jwSign.setPayload(payload.toJSONString());
+        jwSign.setAlgorithmHeaderValue("RS256");
+        jwSign.setKey(clientJWK.toRSAKey().toPrivateKey());
+        jwSign.setDoKeyValidation(false);
+        return jwSign.getCompactSerialization();
+    }
 
-	private String getPemData(Object anyObject) throws IOException {
-		StringWriter stringWriter = new StringWriter();
-		try (JcaPEMWriter pemWriter = new JcaPEMWriter(stringWriter)) {
-			pemWriter.writeObject(anyObject);
-			pemWriter.flush();
-			return stringWriter.toString();
-		}
-	}
+    private String getPemData(Object anyObject) throws IOException {
+        StringWriter stringWriter = new StringWriter();
+        try (JcaPEMWriter pemWriter = new JcaPEMWriter(stringWriter)) {
+            pemWriter.writeObject(anyObject);
+            pemWriter.flush();
+            return stringWriter.toString();
+        }
+    }
 }
