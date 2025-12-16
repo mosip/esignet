@@ -338,8 +338,8 @@ public class ClientManagementServiceImpl implements ClientManagementService {
      */
     private void setAdditionalConfig(JsonNode additionalConfig, ClientDetail clientDetail) throws EsignetException{
         try {
-            Map<String, Object> additionalConfigMap = objectMapper.convertValue(additionalConfig, new TypeReference<>() {
-                    });
+            Map<String, Object> additionalConfigMap = additionalConfig == null ? new HashMap<>()
+                    : objectMapper.convertValue(additionalConfig, new TypeReference<>() {});
             applyProfileFeatures(additionalConfigMap, openidProfile);
             JsonNode updatedConfigNode = objectMapper.valueToTree(additionalConfigMap);
             clientDetail.setAdditionalConfig(updatedConfigNode);
