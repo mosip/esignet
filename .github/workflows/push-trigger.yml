@@ -9,17 +9,18 @@ on:
       - MOSIP*
       - release*
       - ES-842
-pull_request:
+  pull_request:
     types: [opened, reopened, synchronize]
-workflow_dispatch:
-  release:
-    types: [published]
-      inputs:
+  workflow_dispatch:
+    inputs:
         message:
         description: 'Message for manually triggering'
         required: false
         default: 'Triggered for Updates'
         type: string
+  release:
+    types: [published]
+      
        
 jobs:
   detect_changes:
@@ -78,7 +79,7 @@ jobs:
             BUILD_ARTIFACT: 'esignet'
             SQUASH_LAYERS: '14'
       fail-fast: false
-    name: ${{ matrix.SERVICE_NAME }}
+    name: esignet / build-dockers
     uses: mosip/kattu/.github/workflows/docker-build.yml@master
     with:
       SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
@@ -256,7 +257,7 @@ jobs:
             SERVICE_NAME: 'oidc-ui'
             SQUASH_LAYERS: '13'
       fail-fast: false
-    name: ${{ matrix.SERVICE_NAME }}
+    name: oidc-ui / build-dockers
     uses: mosip/kattu/.github/workflows/docker-build.yml@master
     with:
       SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
@@ -356,7 +357,7 @@ jobs:
             BUILD_ARTIFACT: 'apitest-esignet-local'
             ONLY_DOCKER: true
       fail-fast: false
-    name: ${{ matrix.SERVICE_NAME }}
+    name: apitest-esignet / build-dockers
     uses: mosip/kattu/.github/workflows/docker-build.yml@master-java21
     with:
       SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
