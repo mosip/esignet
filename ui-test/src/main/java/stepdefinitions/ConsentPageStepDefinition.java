@@ -13,23 +13,23 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.apache.log4j.Logger;
 
+import org.apache.log4j.Logger;
+import org.json.JSONObject;
 import org.junit.Assert;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.WindowType;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import base.BaseTest;
-import org.json.JSONObject;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import pages.ConsentPage;
 import utils.ClaimsParser;
+import utils.EsignetConfigManager;
 import utils.EsignetUtil;
 import utils.EsignetUtil.RegisteredDetails;
 import utils.LanguageUtil;
