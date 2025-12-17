@@ -2,7 +2,6 @@ package io.mosip.testrig.apirig.esignetUI.testscripts;
 
 import java.lang.reflect.Field;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +13,6 @@ import org.testng.ITest;
 import org.testng.ITestContext;
 import org.testng.ITestResult;
 import org.testng.Reporter;
-import org.testng.SkipException;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -22,21 +20,18 @@ import org.testng.annotations.Test;
 import org.testng.internal.BaseTestMethod;
 import org.testng.internal.TestResult;
 
+import constants.ESignetConstants;
 import io.mosip.testrig.apirig.dto.OutputValidationDto;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
-import utils.EsignetConfigManager;
-import constants.ESignetConstants;
-import utils.EsignetUtil;
-import io.mosip.testrig.apirig.testrunner.BaseTestCase;
-import io.mosip.testrig.apirig.testrunner.HealthChecker;
 import io.mosip.testrig.apirig.utils.AdminTestException;
-import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;
 import io.mosip.testrig.apirig.utils.ReportUtil;
 import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.restassured.response.Response;
+import utils.EsignetConfigManager;
+import utils.EsignetUtil;
 
 public class SimplePostForAutoGenId extends EsignetUtil implements ITest {
 	private static final Logger logger = Logger.getLogger(SimplePostForAutoGenId.class);
@@ -91,18 +86,7 @@ public class SimplePostForAutoGenId extends EsignetUtil implements ITest {
 			throws AuthenticationTestException, AdminTestException, NoSuchAlgorithmException, SecurityXSSException {
 		testCaseName = testCaseDTO.getTestCaseName();
 		testCaseName = EsignetUtil.isTestCaseValidForExecution(testCaseDTO);
-		if (HealthChecker.signalTerminateExecution) {
-			throw new SkipException(
-					GlobalConstants.TARGET_ENV_HEALTH_CHECK_FAILED + HealthChecker.healthCheckFailureMapS);
-		}
-		if (testCaseDTO.getTestCaseName().contains("VID") || testCaseDTO.getTestCaseName().contains("Vid")) {
-			if (!BaseTestCase.getSupportedIdTypesValue().contains("VID")
-					&& !BaseTestCase.getSupportedIdTypesValue().contains("vid")) {
-				throw new SkipException(GlobalConstants.VID_FEATURE_NOT_SUPPORTED);
-			}
-		}
 
-		String[] templateFields = testCaseDTO.getTemplateFields();
 		String inputJson = getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate());
 
 		if (testCaseName.contains(ESignetConstants.ESIGNET_STRING)) {

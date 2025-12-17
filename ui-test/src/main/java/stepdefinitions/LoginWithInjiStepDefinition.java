@@ -1,9 +1,9 @@
 package stepdefinitions;
 
-import base.BaseTest;
-import io.cucumber.java.en.Given;
-import io.cucumber.java.en.Then;
 import org.openqa.selenium.WebDriver;
+
+import base.BaseTest;
+import io.cucumber.java.en.Then;
 import pages.ConsentPage;
 
 

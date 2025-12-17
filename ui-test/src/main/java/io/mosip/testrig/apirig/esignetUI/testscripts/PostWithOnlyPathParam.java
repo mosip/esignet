@@ -1,19 +1,16 @@
 package io.mosip.testrig.apirig.esignetUI.testscripts;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.json.JSONObject;
 import org.testng.ITest;
 import org.testng.ITestContext;
 import org.testng.ITestResult;
 import org.testng.Reporter;
-import org.testng.SkipException;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -23,18 +20,15 @@ import org.testng.internal.TestResult;
 
 import io.mosip.testrig.apirig.dto.OutputValidationDto;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
-import utils.EsignetConfigManager;
-import utils.EsignetUtil;
-import io.mosip.testrig.apirig.testrunner.BaseTestCase;
-import io.mosip.testrig.apirig.testrunner.HealthChecker;
 import io.mosip.testrig.apirig.utils.AdminTestException;
-import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;
 import io.mosip.testrig.apirig.utils.ReportUtil;
 import io.mosip.testrig.apirig.utils.SecurityXSSException;
 import io.restassured.response.Response;
+import utils.EsignetConfigManager;
+import utils.EsignetUtil;
 
 public class PostWithOnlyPathParam extends EsignetUtil implements ITest {
 	private static final Logger logger = Logger.getLogger(PostWithOnlyPathParam.class);
@@ -81,67 +75,36 @@ public class PostWithOnlyPathParam extends EsignetUtil implements ITest {
 	 * @throws AdminTestException
 	 */
 	@Test(dataProvider = "testcaselist")
-	public void test(TestCaseDTO testCaseDTO) throws AuthenticationTestException, AdminTestException, SecurityXSSException {
+	public void test(TestCaseDTO testCaseDTO)
+			throws AuthenticationTestException, AdminTestException, SecurityXSSException {
 		testCaseName = testCaseDTO.getTestCaseName();
 		testCaseName = EsignetUtil.isTestCaseValidForExecution(testCaseDTO);
-		String[] templateFields = testCaseDTO.getTemplateFields();
-		if (HealthChecker.signalTerminateExecution) {
-			throw new SkipException(
-					GlobalConstants.TARGET_ENV_HEALTH_CHECK_FAILED + HealthChecker.healthCheckFailureMapS);
+
+		String inputJson = getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate());
+		inputJson = EsignetUtil.inputstringKeyWordHandeler(inputJson, testCaseName);
+
+		response = postWithOnlyPathParamAndCookie(ApplnURI + testCaseDTO.getEndPoint(), inputJson, COOKIENAME,
+				testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), sendEsignetToken);
+
+		Map<String, List<OutputValidationDto>> ouputValid = null;
+		if (testCaseName.contains("_StatusCode")) {
+
+			OutputValidationDto customResponse = customStatusCodeResponse(String.valueOf(response.getStatusCode()),
+					testCaseDTO.getOutput());
+
+			ouputValid = new HashMap<>();
+			ouputValid.put(GlobalConstants.EXPECTED_VS_ACTUAL, List.of(customResponse));
+		} else {
+			ouputValid = OutputValidationUtil.doJsonOutputValidation(response.asString(),
+					getJsonFromTemplate(testCaseDTO.getOutput(), testCaseDTO.getOutputTemplate()), testCaseDTO,
+					response.getStatusCode());
 		}
 
-		if (testCaseDTO.getTestCaseName().contains("VID") || testCaseDTO.getTestCaseName().contains("Vid")) {
-			if (!BaseTestCase.getSupportedIdTypesValue().contains("VID")
-					&& !BaseTestCase.getSupportedIdTypesValue().contains("vid")) {
-				throw new SkipException(GlobalConstants.VID_FEATURE_NOT_SUPPORTED);
-			}
-		}
+		Reporter.log(ReportUtil.getOutputValidationReport(ouputValid));
 
-		if (testCaseDTO.getTemplateFields() != null && templateFields.length > 0) {
-			ArrayList<JSONObject> inputtestCases = AdminTestUtil.getInputTestCase(testCaseDTO);
-			ArrayList<JSONObject> outputtestcase = AdminTestUtil.getOutputTestCase(testCaseDTO);
-			for (int i = 0; i < languageList.size(); i++) {
-				response = postWithOnlyPathParamAndCookie(ApplnURI + testCaseDTO.getEndPoint(),
-						getJsonFromTemplate(inputtestCases.get(i).toString(), testCaseDTO.getInputTemplate()),
-						COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
+		if (!OutputValidationUtil.publishOutputResult(ouputValid))
+			throw new AdminTestException("Failed at output validation");
 
-				Map<String, List<OutputValidationDto>> ouputValid = OutputValidationUtil.doJsonOutputValidation(
-						response.asString(),
-						getJsonFromTemplate(outputtestcase.get(i).toString(), testCaseDTO.getOutputTemplate()),
-						testCaseDTO, response.getStatusCode());
-				Reporter.log(ReportUtil.getOutputValidationReport(ouputValid));
-
-				if (!OutputValidationUtil.publishOutputResult(ouputValid))
-					throw new AdminTestException("Failed at output validation");
-			}
-		}
-
-		else {
-			String inputJson = getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate());
-			inputJson = EsignetUtil.inputstringKeyWordHandeler(inputJson, testCaseName);
-
-			response = postWithOnlyPathParamAndCookie(ApplnURI + testCaseDTO.getEndPoint(), inputJson, COOKIENAME,
-					testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), sendEsignetToken);
-
-			Map<String, List<OutputValidationDto>> ouputValid = null;
-			if (testCaseName.contains("_StatusCode")) {
-
-				OutputValidationDto customResponse = customStatusCodeResponse(String.valueOf(response.getStatusCode()),
-						testCaseDTO.getOutput());
-
-				ouputValid = new HashMap<>();
-				ouputValid.put(GlobalConstants.EXPECTED_VS_ACTUAL, List.of(customResponse));
-			} else {
-				ouputValid = OutputValidationUtil.doJsonOutputValidation(response.asString(),
-						getJsonFromTemplate(testCaseDTO.getOutput(), testCaseDTO.getOutputTemplate()), testCaseDTO,
-						response.getStatusCode());
-			}
-
-			Reporter.log(ReportUtil.getOutputValidationReport(ouputValid));
-
-			if (!OutputValidationUtil.publishOutputResult(ouputValid))
-				throw new AdminTestException("Failed at output validation");
-		}
 	}
 
 	/**

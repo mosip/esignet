@@ -1,42 +1,21 @@
 package utils;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
+
+import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import javax.ws.rs.core.MediaType;
-
-import io.mosip.testrig.apirig.dto.TestCaseDTO;
-import utils.EsignetConfigManager;
-import runners.Runner;
-import io.mosip.testrig.apirig.testrunner.BaseTestCase;
-import io.mosip.testrig.apirig.utils.AdminTestUtil;
-import io.mosip.testrig.apirig.utils.CertsUtil;
-import io.mosip.testrig.apirig.utils.GlobalConstants;
-import io.mosip.testrig.apirig.utils.GlobalMethods;
-import io.mosip.testrig.apirig.utils.JWKKeyUtil;
-import io.mosip.testrig.apirig.utils.RestClient;
-import io.mosip.testrig.apirig.utils.SecurityXSSException;
-import io.mosip.testrig.apirig.utils.SkipTestCaseHandler;
-import io.restassured.response.Response;
-import constants.ESignetConstants;
-import constants.UiConstants;
-
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.devtools.DevTools;
@@ -47,7 +26,6 @@ import org.testng.SkipException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.javafaker.Faker;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;
@@ -56,17 +34,24 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
-import java.util.Optional;
+import constants.ESignetConstants;
+import constants.UiConstants;
+import io.mosip.testrig.apirig.dto.TestCaseDTO;
+import io.mosip.testrig.apirig.testrunner.BaseTestCase;
+import io.mosip.testrig.apirig.utils.AdminTestUtil;
+import io.mosip.testrig.apirig.utils.GlobalConstants;
+import io.mosip.testrig.apirig.utils.GlobalMethods;
+import io.mosip.testrig.apirig.utils.JWKKeyUtil;
+import io.mosip.testrig.apirig.utils.RestClient;
+import io.mosip.testrig.apirig.utils.SecurityXSSException;
+import io.restassured.response.Response;
+import runners.Runner;
 
 public class EsignetUtil extends AdminTestUtil {
 
 	private static final Logger logger = Logger.getLogger(EsignetUtil.class);
 	public static String pluginName = null;
 	public static JSONArray signupActiveProfiles = null;
-	private static Faker faker = new Faker();
-	private static String fullNameForSunBirdR = generateFullNameForSunBirdR();
-	private static String dobForSunBirdR = generateDobForSunBirdR();
-	private static String policyNumberForSunBirdR = generateRandomNumberString(9);
 	
 	private static final String TOKEN_URL = EsignetConfigManager.getproperty("keycloak-external-url")
 			+ EsignetConfigManager.getproperty("keycloakAuthTokenEndPoint");
@@ -78,11 +63,18 @@ public class EsignetUtil extends AdminTestUtil {
 	
 	private static String partnerCookie = null;
     private static String mobileAuthCookie = null;
-    protected static boolean triggerESignetJwkKeyGen = true;
     protected static boolean triggerESignetKeyGenForPAR = true;
-    protected static final String OIDCJWK = "oidcJWK";
     protected static final String OIDC_JWK_FOR_PAR = "oidcJWKForPAR";
     protected static RSAKey oidc_JWK_Key_For_PAR = null;
+    
+    static String display = "popup";
+	static String responseType = "code";
+	static String client_assertion_type = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
+	static String claim_locales = "en";
+	static String scope = "openid profile";
+	static String state = "eree2311";
+	static String prompt = "login";
+	static String aud_key = "pushed_authorization_request_endpoint";
     
     private static Response sendPostRequest(String url, Map<String, String> params) {
 		try {
@@ -496,18 +488,6 @@ public class EsignetUtil extends AdminTestUtil {
 		}
 	}
 
-	public static String generateFullNameForSunBirdR() {
-		return faker.name().fullName();
-	}
-	
-	private static boolean getTriggerESignetJwkKeyGen() {
-		return triggerESignetJwkKeyGen;
-	}
-	
-	private static void setTriggerESignetJwkKeyGen(boolean value) {
-		triggerESignetJwkKeyGen = value;
-	}
-	
 	private static boolean getTriggerESignetKeyGenForPAR() {
 		return triggerESignetKeyGenForPAR;
 	}
@@ -516,13 +496,6 @@ public class EsignetUtil extends AdminTestUtil {
 		triggerESignetKeyGenForPAR = value;
 	}
 
-	public static String generateDobForSunBirdR() {
-		Faker faker = new Faker();
-		LocalDate dob = faker.date().birthday().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-		return dob.format(formatter);
-	}
-	
 	public static void getSupportedLanguage() {
 
 		if (EsignetConfigManager.getproperty("esignetSupportedLanguage") != null) {
@@ -533,20 +506,6 @@ public class EsignetUtil extends AdminTestUtil {
 		}
 	}
 
-	public static TestCaseDTO changeContextURLByFlag(TestCaseDTO testCaseDTO) {
-		if (!(System.getenv("useOldContextURL") == null) && !(System.getenv("useOldContextURL").isBlank())
-				&& System.getenv("useOldContextURL").equalsIgnoreCase("true")) {
-			if (testCaseDTO.getEndPoint().contains("/v1/mimoto/")) {
-				testCaseDTO.setEndPoint(testCaseDTO.getEndPoint().replace("/v1/mimoto/", "/residentmobileapp/"));
-			}
-			if (testCaseDTO.getInput().contains("/v1/mimoto/")) {
-				testCaseDTO.setInput(testCaseDTO.getInput().replace("/v1/mimoto/", "/residentmobileapp/"));
-			}
-		}
-
-		return testCaseDTO;
-	}
-
 	public static String inputstringKeyWordHandeler(String jsonString, String testCaseName) {
 		if (jsonString.contains("$ID:")) {
 			jsonString = replaceIdWithAutogeneratedId(jsonString, "$ID:");
@@ -554,18 +513,6 @@ public class EsignetUtil extends AdminTestUtil {
 
 		if (jsonString.contains(GlobalConstants.TIMESTAMP)) {
 			jsonString = replaceKeywordWithValue(jsonString, GlobalConstants.TIMESTAMP, generateCurrentUTCTimeStamp());
-		}
-
-		if (jsonString.contains("$POLICYNUMBERFORSUNBIRDRC$")) {
-			jsonString = replaceKeywordWithValue(jsonString, "$POLICYNUMBERFORSUNBIRDRC$", policyNumberForSunBirdR);
-		}
-
-		if (jsonString.contains("$FULLNAMEFORSUNBIRDRC$")) {
-			jsonString = replaceKeywordWithValue(jsonString, "$FULLNAMEFORSUNBIRDRC$", fullNameForSunBirdR);
-		}
-
-		if (jsonString.contains("$DOBFORSUNBIRDRC$")) {
-			jsonString = replaceKeywordWithValue(jsonString, "$DOBFORSUNBIRDRC$", dobForSunBirdR);
 		}
 		
 		if (jsonString.contains("$UNIQUENONCEVALUEFORESIGNET$")) {
@@ -601,17 +548,6 @@ public class EsignetUtil extends AdminTestUtil {
 			} else {
 				logger.error("Client ID not found in JSON for $CLIENT_ASSERTION_PAR_JWT$.");
 			}
-		}
-		
-		if (jsonString.contains("$OIDC_JWK_KEY$")) {
-			String jwkKey = "";
-			if (getTriggerESignetJwkKeyGen()) {
-				jwkKey = JWKKeyUtil.generateAndCacheJWKKey(OIDCJWK);
-				setTriggerESignetJwkKeyGen(false);
-			} else {
-				jwkKey = JWKKeyUtil.getJWKKey(OIDCJWK);
-			}
-			jsonString = replaceKeywordWithValue(jsonString, "$OIDC_JWK_KEY$", jwkKey);
 		}
 		
 		if (jsonString.contains("$OIDC_JWK_KEY_PAR$")) {
@@ -796,75 +732,6 @@ public class EsignetUtil extends AdminTestUtil {
         }
     }
 	
-	public static Response putWithPathParamsAndBodyAndBearerToken(String url, String jsonInput, String cookieName, String role,
-			String testCaseName, String pathParams) {
-		Response response = null;
-		logger.info("inputJson is::" + jsonInput);
-		JSONObject req = new JSONObject(jsonInput);
-		logger.info(GlobalConstants.REQ_STR + req);
-		HashMap<String, String> pathParamsMap = new HashMap<>();
-		String[] params = pathParams.split(",");
-		for (String param : params) {
-			logger.info("param is::" + param);
-			if (req.has(param)) {
-				logger.info(GlobalConstants.REQ_STR + req);
-				pathParamsMap.put(param, req.get(param).toString());
-				req.remove(param);
-			} else
-				logger.error(GlobalConstants.ERROR_STRING_2 + param + GlobalConstants.IN_STRING + jsonInput);
-		}
-		if (testCaseName.contains("Invalid_Token")) {
-			token = "xyz";
-		} else {
-			token = getAuthTokenByRole(role);
-		}
-		logger.info(GlobalConstants.PUT_REQ_STRING + url);
-		GlobalMethods.reportRequest(null, req.toString(), url);
-		try {
-			response = RestClient.putWithPathParamsBodyAndBearerToken(url, pathParamsMap, req.toString(),
-					MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, cookieName, token);
-			GlobalMethods.reportResponse(response.getHeaders().asList().toString(), url, response);
-			return response;
-		} catch (Exception e) {
-			logger.error(GlobalConstants.EXCEPTION_STRING_2 + e);
-			return response;
-		}
-	}
-	
-	public static Response postRequestWithCookieAndAuthHeader(String url, String jsonInput, String cookieName, String role,
-			String testCaseName) {
-		Response response = null;
-		token = getAuthTokenByRole(role);
-		String apiKey = null;
-		String partnerId = null;
-		JSONObject req = new JSONObject(jsonInput);
-		apiKey = req.getString(GlobalConstants.APIKEY);
-		req.remove(GlobalConstants.APIKEY);
-		partnerId = req.getString(GlobalConstants.PARTNERID);
-		req.remove(GlobalConstants.PARTNERID);
-
-		HashMap<String, String> headers = new HashMap<>();
-		headers.put("PARTNER-API-KEY", apiKey);
-		headers.put("PARTNER-ID", partnerId);
-		headers.put(cookieName, "Bearer " + token);
-		jsonInput = req.toString();
-		if (BaseTestCase.currentModule.equals(GlobalConstants.ESIGNET)) {
-			jsonInput = smtpOtpHandler(jsonInput, testCaseName);
-		}
-
-		logger.info(GlobalConstants.POST_REQ_URL + url);
-		GlobalMethods.reportRequest(headers.toString(), jsonInput, url);
-		try {
-			response = RestClient.postRequestWithMultipleHeadersWithoutCookie(url, jsonInput,
-					MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, headers);
-			GlobalMethods.reportResponse(response.getHeaders().asList().toString(), url, response);
-			return response;
-		} catch (Exception e) {
-			logger.error(GlobalConstants.EXCEPTION_STRING_2 + e);
-			return response;
-		}
-	}
-	
 	public static Response postWithBodyAndBearerToken(String url, String jsonInput, String cookieName,
 			String role, String testCaseName, String idKeyName) {
 		Response response = null;
@@ -917,15 +784,6 @@ public class EsignetUtil extends AdminTestUtil {
 			return response;
 		}
 	}
-	
-	static String display = "popup";
-	static String responseType = "code";
-	static String client_assertion_type = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
-	static String claim_locales = "en";
-	static String scope = "openid profile";
-	static String state = "eree2311";
-	static String prompt = "login";
-	static String aud_key = "pushed_authorization_request_endpoint";
 	
 	public static String generateParRequestUri() throws SecurityXSSException, JsonProcessingException {
 
