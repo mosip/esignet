@@ -39,7 +39,7 @@ jobs:
         id: filter
         uses: dorny/paths-filter@v3
         with:
-          base: ${{ github.event.pull_request.base.sha }}
+          base: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
           filters: |
             ui:
               - 'oidc-ui/**'
@@ -98,7 +98,7 @@ jobs:
       github.event_name == 'push' ||
       (github.event_name == 'pull_request' &&
        (startsWith(github.base_ref, 'release') ||
-        needs.detect_changes.outputs.service_changed == 'true'))
+        needs.detect_changes.outputs.ui_changed == 'true'))
     uses: mosip/kattu/.github/workflows/npm-build.yml@develop
     with:
       SERVICE_LOCATION: oidc-ui
