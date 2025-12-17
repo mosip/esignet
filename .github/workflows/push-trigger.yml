@@ -250,6 +250,11 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   build_dockers_oidc_ui:
+    needs: build-oidc-ui
+    if: >
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' &&
+       needs.detect_changes.outputs.ui_changed == 'true')
     strategy:
       matrix:
         include:
