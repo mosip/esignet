@@ -9,9 +9,6 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import base.BaseTest;
-import constants.ESignetConstants;
-
 import org.junit.runner.RunWith;
 import org.testng.TestNG;
 import org.testng.annotations.DataProvider;
@@ -19,6 +16,8 @@ import org.testng.annotations.Test;
 
 import com.aventstack.extentreports.service.ExtentService;
 
+import base.BaseTest;
+import constants.ESignetConstants;
 import io.cucumber.junit.Cucumber;
 import io.cucumber.testng.AbstractTestNGCucumberTests;
 import io.cucumber.testng.CucumberOptions;
@@ -27,7 +26,6 @@ import io.cucumber.testng.PickleWrapper;
 import io.mosip.testrig.apirig.dataprovider.BiometricDataProvider;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.ExtractResource;
-import io.mosip.testrig.apirig.testrunner.HealthChecker;
 import io.mosip.testrig.apirig.testrunner.OTPListener;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.AuthTestsUtil;
