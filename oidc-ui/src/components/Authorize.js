@@ -105,9 +105,7 @@ export default function Authorize({ authService }) {
 
   const redirectToLogin = async () => {
     const isParFlow =
-      searchParams.get('client_id') &&
-      searchParams.get('request_uri') &&
-      [...searchParams.keys()].length === 2;
+      searchParams.get('client_id') && searchParams.get('request_uri');
 
     if (!oAuthDetailResponse) {
       return;
