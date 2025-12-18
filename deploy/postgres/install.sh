@@ -47,7 +47,7 @@ function installing_postgres() {
   echo Installing  Postgres
   helm -n $NS install postgres bitnami/postgresql --version 13.1.5 \
   -f values.yaml \
-  --set image.repository=mosipid/postgresql \
+  --set image.repository=mosipqa/postgresql \
   --set image.tag=14.2.0-debian-10-r70 \
   --set image.pullPolicy=Always \
   --wait
