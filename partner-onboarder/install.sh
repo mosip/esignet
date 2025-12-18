@@ -22,7 +22,7 @@ fi
 
 NS=esignet
 ESIGNET_SERVICE_NAME=esignet
-CHART_VERSION=0.0.1-develop
+CHART_VERSION=1.3.0-beta.2-develop
 
 echo Create $NS namespace
 kubectl create ns $NS || true
@@ -163,7 +163,7 @@ function installing_onboarder() {
       $NFS_OPTION \
       $S3_OPTION \
       --set onboarding.variables.push_reports_to_s3=$push_reports_to_s3 \
-      --set onboarding.configmaps.onboarder-namespace.ns_esignet="$NS"
+      --set onboarding.configmaps.onboarder-namespace.ns_esignet="$NS" \
       $ENABLE_INSECURE \
       -f values.yaml \
       $KEYCLOAK_ARGS \

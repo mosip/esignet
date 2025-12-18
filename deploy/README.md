@@ -114,3 +114,13 @@ Below section related to configuring IDA is not tested. Still it can be tried ou
 Onboard eSignet as MISP partner in MOSIP PMS using our onboarder script
 We should override properties defined [here](https://github.com/mosip/esignet-plugins/blob/release-1.3.x/mosip-identity-plugin/src/main/resources/application.properties)  if there is any change in the MOSIP IDA domain names.
 Update the 'MOSIP_ESIGNET_AUTHENTICATOR_IDA_SECRET_KEY' property with MOSIP IDA keycloak client secret.
+
+### ESIGNET-APITESTRIG INSTALLATION
+esignet-apitestrig will test the APIs and the end-to-end functional flow of the eSignet modules.
+[esignet-apitestrig](esignet-apitestrig/README.md)
+
+### UNINSTALLING ESIGNET
+To completely remove eSignet from your Kubernetes environment, run the following commands.
+```
+./delete-all.sh
+```
