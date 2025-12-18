@@ -27,6 +27,12 @@ CREATE TABLE IF NOT EXISTS ca_cert_store(
 	CONSTRAINT cert_thumbprint_unique UNIQUE (cert_thumbprint,partner_domain)
 );
 
+CREATE TABLE openid_profile (
+    profile_name character varying(100) NOT NULL,
+    feature character varying(100) NOT NULL,
+    CONSTRAINT pk_openid_profile PRIMARY KEY (profile_name, feature)
+);
+
 COMMENT ON TABLE ca_cert_store IS 'Certificate Authority Certificate Store: Store details of all the certificate provided by certificate authority which will be used by MOSIP';
 COMMENT ON COLUMN ca_cert_store.cert_id IS 'Certificate ID: Unique ID (UUID) will be generated and assigned to the uploaded CA/Sub-CA certificate';
 COMMENT ON COLUMN ca_cert_store.cert_subject IS 'Certificate Subject: Subject DN of the certificate';
@@ -46,3 +52,7 @@ COMMENT ON COLUMN ca_cert_store.upd_dtimes IS 'Updated DateTimestamp : Date and 
 COMMENT ON COLUMN ca_cert_store.is_deleted IS 'IS_Deleted : Flag to mark whether the record is Soft deleted.';
 COMMENT ON COLUMN ca_cert_store.del_dtimes IS 'Deleted DateTimestamp : Date and Timestamp when the record is soft deleted with is_deleted=TRUE';
 COMMENT ON COLUMN ca_cert_store.ca_cert_type IS 'CA Certificate Type : Indicates if the certificate is a ROOT or INTERMEDIATE CA certificate';
+
+COMMENT ON TABLE openid_profile IS 'Static table for global configuration: profile name and feature mapping.';
+COMMENT ON COLUMN openid_profile.profile_name IS 'Profile name for configuration.';
+COMMENT ON COLUMN openid_profile.feature IS 'Feature enabled for the profile.';

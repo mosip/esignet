@@ -75,7 +75,13 @@
 			<artifactId>consent-service-impl</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>io.mosip.esignet</groupId>
+            <artifactId>openid-profile-service</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>

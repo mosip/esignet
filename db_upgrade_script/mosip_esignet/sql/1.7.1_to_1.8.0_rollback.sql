@@ -5,3 +5,5 @@
 \c mosip_esignet
 
 DROP TABLE IF EXISTS ca_cert_store;
+
+DROP TABLE IF EXISTS openid_profile;
