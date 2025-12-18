@@ -61,24 +61,9 @@ public class EsignetConfigManager extends io.mosip.testrig.apirig.utils.ConfigMa
 			return 10;
 		}
 	}
-	
-	public static String getHealthPortalUrl() {
-		return getProperty("baseurl", "");
-	}
 
-	public static String getSmtpUrl() {
-		return getProperty("smtpUrl", "");
-	}
-	
-	public static String getResourceBundleUrl() {
-		return getProperty("resourceBundleUrl", "");
-	}
-	public static String getLocaleUrl() {
-		return getProperty("localeUrl", "");
-	}
-	
 	public static String getSignuplUrl() {
 		return getProperty("signupUrl", "");
 	}
-	
+
 }

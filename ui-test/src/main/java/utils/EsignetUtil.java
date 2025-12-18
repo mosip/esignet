@@ -52,7 +52,7 @@ public class EsignetUtil extends AdminTestUtil {
 	private static final Logger logger = Logger.getLogger(EsignetUtil.class);
 	public static String pluginName = null;
 	public static JSONArray signupActiveProfiles = null;
-	
+
 	private static final String TOKEN_URL = EsignetConfigManager.getproperty("keycloak-external-url")
 			+ EsignetConfigManager.getproperty("keycloakAuthTokenEndPoint");
 	private static final String GRANT_TYPE = "client_credentials";
@@ -60,14 +60,14 @@ public class EsignetUtil extends AdminTestUtil {
 	private static final String CLIENT_SECRET = "client_secret";
 	private static final String GRANT_TYPE_KEY = "grant_type";
 	private static final String ACCESS_TOKEN = "access_token";
-	
+
 	private static String partnerCookie = null;
-    private static String mobileAuthCookie = null;
-    protected static boolean triggerESignetKeyGenForPAR = true;
-    protected static final String OIDC_JWK_FOR_PAR = "oidcJWKForPAR";
-    protected static RSAKey oidc_JWK_Key_For_PAR = null;
-    
-    static String display = "popup";
+	private static String mobileAuthCookie = null;
+	protected static boolean triggerESignetKeyGenForPAR = true;
+	protected static final String OIDC_JWK_FOR_PAR = "oidcJWKForPAR";
+	protected static RSAKey oidc_JWK_Key_For_PAR = null;
+
+	static String display = "popup";
 	static String responseType = "code";
 	static String client_assertion_type = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
 	static String claim_locales = "en";
@@ -75,8 +75,8 @@ public class EsignetUtil extends AdminTestUtil {
 	static String state = "eree2311";
 	static String prompt = "login";
 	static String aud_key = "pushed_authorization_request_endpoint";
-    
-    private static Response sendPostRequest(String url, Map<String, String> params) {
+
+	private static Response sendPostRequest(String url, Map<String, String> params) {
 		try {
 			return RestClient.postRequestWithFormDataBody(url, params);
 		} catch (Exception e) {
@@ -123,14 +123,13 @@ public class EsignetUtil extends AdminTestUtil {
 		else
 			logger.setLevel(Level.ERROR);
 	}
-	
+
 	public static String getPluginName() {
 		if (pluginName != null)
 			return pluginName;
 		pluginName = EsignetConfigManager.getproperty("pluginToExecute");
 		return pluginName;
 	}
-	
 
 	public static JSONArray signupActuatorResponseArray = null;
 
@@ -491,7 +490,7 @@ public class EsignetUtil extends AdminTestUtil {
 	private static boolean getTriggerESignetKeyGenForPAR() {
 		return triggerESignetKeyGenForPAR;
 	}
-	
+
 	private static void setTriggerESignetKeyGenForPAR(boolean value) {
 		triggerESignetKeyGenForPAR = value;
 	}
@@ -499,8 +498,10 @@ public class EsignetUtil extends AdminTestUtil {
 	public static void getSupportedLanguage() {
 
 		if (EsignetConfigManager.getproperty("esignetSupportedLanguage") != null) {
-			BaseTestCase.languageList.add(EsignetConfigManager.getproperty(ESignetConstants.ESIGNET_SUPPORTED_LANGUAGE));
-			logger.info("Supported Language = " + EsignetConfigManager.getproperty(ESignetConstants.ESIGNET_SUPPORTED_LANGUAGE));
+			BaseTestCase.languageList
+					.add(EsignetConfigManager.getproperty(ESignetConstants.ESIGNET_SUPPORTED_LANGUAGE));
+			logger.info("Supported Language = "
+					+ EsignetConfigManager.getproperty(ESignetConstants.ESIGNET_SUPPORTED_LANGUAGE));
 		} else {
 			logger.error("Language not found");
 		}
@@ -514,12 +515,12 @@ public class EsignetUtil extends AdminTestUtil {
 		if (jsonString.contains(GlobalConstants.TIMESTAMP)) {
 			jsonString = replaceKeywordWithValue(jsonString, GlobalConstants.TIMESTAMP, generateCurrentUTCTimeStamp());
 		}
-		
+
 		if (jsonString.contains("$UNIQUENONCEVALUEFORESIGNET$")) {
 			jsonString = replaceKeywordWithValue(jsonString, "$UNIQUENONCEVALUEFORESIGNET$",
 					String.valueOf(Calendar.getInstance().getTimeInMillis()));
 		}
-		
+
 		if (jsonString.contains("$CLIENT_ASSERTION_PAR_JWT$")) {
 			String oidcJWKKeyString = JWKKeyUtil.getJWKKey(OIDC_JWK_FOR_PAR);
 			logger.info("oidcJWKKeyString =" + oidcJWKKeyString);
@@ -549,7 +550,7 @@ public class EsignetUtil extends AdminTestUtil {
 				logger.error("Client ID not found in JSON for $CLIENT_ASSERTION_PAR_JWT$.");
 			}
 		}
-		
+
 		if (jsonString.contains("$OIDC_JWK_KEY_PAR$")) {
 			String jwkKey = "";
 			if (getTriggerESignetKeyGenForPAR()) {
@@ -560,7 +561,7 @@ public class EsignetUtil extends AdminTestUtil {
 			}
 			jsonString = replaceKeywordWithValue(jsonString, "$OIDC_JWK_KEY_PAR$", jwkKey);
 		}
-		
+
 		if (jsonString.contains("$ESIGNET_REDIRECT_URI$")) {
 			jsonString = replaceKeywordWithValue(jsonString, "$ESIGNET_REDIRECT_URI$",
 					EsignetConfigManager.getproperty("baseurl") + "userprofile");
@@ -569,7 +570,7 @@ public class EsignetUtil extends AdminTestUtil {
 		return jsonString;
 
 	}
-	
+
 	public static String getValueFromEsignetWellKnownEndPoint(String key, String baseURL) {
 		String url = baseURL + EsignetConfigManager.getproperty("esignetWellKnownEndPoint");
 		Response response = null;
@@ -585,7 +586,7 @@ public class EsignetUtil extends AdminTestUtil {
 		}
 		return responseJson.getString(key);
 	}
-	
+
 	public static String signJWKKey(String clientId, RSAKey jwkKey, String tempUrl) {
 		int idTokenExpirySecs = Integer
 				.parseInt(getValueFromEsignetActuator(EsignetConfigManager.getEsignetActuatorPropertySection(),
@@ -597,14 +598,11 @@ public class EsignetUtil extends AdminTestUtil {
 
 			Date currentTime = new Date();
 
-			// Create a Calendar instance to manipulate time
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(currentTime);
 
-			// Add one hour to the current time
-			calendar.add(Calendar.HOUR_OF_DAY, (idTokenExpirySecs / 3600)); // Adding one hour
+			calendar.add(Calendar.HOUR_OF_DAY, (idTokenExpirySecs / 3600));
 
-			// Get the updated expiration time
 			Date expirationTime = calendar.getTime();
 
 			JWTClaimsSet claimsSet = new JWTClaimsSet.Builder().subject(clientId).audience(tempUrl).issuer(clientId)
@@ -657,8 +655,6 @@ public class EsignetUtil extends AdminTestUtil {
 
 		addTestCaseDetailsToMap(modifiedTestCaseName, testCaseDTO.getUniqueIdentifier());
 
-		// When the captcha is enabled we cannot execute the test case as we can not
-		// generate the captcha token
 		if (isCaptchaEnabled() == true) {
 			GlobalMethods.reportCaptchaStatus(GlobalConstants.CAPTCHA_ENABLED, true);
 			throw new SkipException(GlobalConstants.CAPTCHA_ENABLED_MESSAGE);
@@ -669,11 +665,7 @@ public class EsignetUtil extends AdminTestUtil {
 		}
 
 		if (pluginName.equals("mock")) {
-			// TO DO - need to conform whether esignet distinguishes between UIN and VID.
-			// BAsed on that need to remove VID test case from YAML.
 			BaseTestCase.setSupportedIdTypes(Arrays.asList("UIN"));
-
-			// Let run test cases eSignet & mock (for identity) -- only UIN test cases
 
 			String endpoint = testCaseDTO.getEndPoint();
 			if (endpoint.contains("/esignet/") == false && endpoint.contains("/mock-identity-system/") == false) {
@@ -694,46 +686,49 @@ public class EsignetUtil extends AdminTestUtil {
 		}
 		return testCaseName;
 	}
-	
+
 	public static String getAuthTokenFromKeyCloak(String clientId, String clientSecret) {
-        Map<String, String> params = new HashMap<>();
-        params.put(CLIENT_ID, clientId);
-        params.put(CLIENT_SECRET, clientSecret);
-        params.put(GRANT_TYPE_KEY, GRANT_TYPE);
+		Map<String, String> params = new HashMap<>();
+		params.put(CLIENT_ID, clientId);
+		params.put(CLIENT_SECRET, clientSecret);
+		params.put(GRANT_TYPE_KEY, GRANT_TYPE);
 
-        Response response = sendPostRequest(TOKEN_URL, params);
+		Response response = sendPostRequest(TOKEN_URL, params);
 
-        if (response == null) {
-            return "";
-        }
-        logger.info(response.getBody().asString());
+		if (response == null) {
+			return "";
+		}
+		logger.info(response.getBody().asString());
 
-        JSONObject responseJson = new JSONObject(response.getBody().asString());
-        return responseJson.optString(ACCESS_TOKEN, "");
-    }
-    
+		JSONObject responseJson = new JSONObject(response.getBody().asString());
+		return responseJson.optString(ACCESS_TOKEN, "");
+	}
+
 	public static String getAuthTokenByRole(String role) {
-        if (role == null) return "";
+		if (role == null)
+			return "";
 
-        String roleLowerCase = role.toLowerCase();
-        switch (roleLowerCase) {
-            case "partner":
-                if (!AdminTestUtil.isValidToken(partnerCookie)) {
-                    partnerCookie = getAuthTokenFromKeyCloak(EsignetConfigManager.getPmsClientId(), EsignetConfigManager.getPmsClientSecret());
-                }
-                return partnerCookie;
-            case "mobileauth":
-                if (!AdminTestUtil.isValidToken(mobileAuthCookie)) {
-                    mobileAuthCookie = getAuthTokenFromKeyCloak(EsignetConfigManager.getMPartnerMobileClientId(), EsignetConfigManager.getMPartnerMobileClientSecret());
-                }
-                return mobileAuthCookie;
-            default:
-                return "";
-        }
-    }
-	
-	public static Response postWithBodyAndBearerToken(String url, String jsonInput, String cookieName,
-			String role, String testCaseName, String idKeyName) {
+		String roleLowerCase = role.toLowerCase();
+		switch (roleLowerCase) {
+		case "partner":
+			if (!AdminTestUtil.isValidToken(partnerCookie)) {
+				partnerCookie = getAuthTokenFromKeyCloak(EsignetConfigManager.getPmsClientId(),
+						EsignetConfigManager.getPmsClientSecret());
+			}
+			return partnerCookie;
+		case "mobileauth":
+			if (!AdminTestUtil.isValidToken(mobileAuthCookie)) {
+				mobileAuthCookie = getAuthTokenFromKeyCloak(EsignetConfigManager.getMPartnerMobileClientId(),
+						EsignetConfigManager.getMPartnerMobileClientSecret());
+			}
+			return mobileAuthCookie;
+		default:
+			return "";
+		}
+	}
+
+	public static Response postWithBodyAndBearerToken(String url, String jsonInput, String cookieName, String role,
+			String testCaseName, String idKeyName) {
 		Response response = null;
 		if (testCaseName.contains("Invalid_Token")) {
 			token = "xyz";
@@ -755,8 +750,9 @@ public class EsignetUtil extends AdminTestUtil {
 			return response;
 		}
 	}
-	
-	protected static Response postWithBodyAndCookieForAutoGeneratedIdForUrlEncoded(String url, String jsonInput) throws SecurityXSSException {
+
+	protected static Response postWithBodyAndCookieForAutoGeneratedIdForUrlEncoded(String url, String jsonInput)
+			throws SecurityXSSException {
 		Response response = null;
 		jsonInput = inputstringKeyWordHandeler(jsonInput, "");
 		ObjectMapper mapper = new ObjectMapper();
@@ -767,7 +763,6 @@ public class EsignetUtil extends AdminTestUtil {
 			logger.info(jsonInput);
 			GlobalMethods.reportRequest(null, jsonInput, url);
 			response = RestClient.postRequestWithFormDataBody(url, map);
-			// check if X-XSS-Protection is enabled or not
 			GlobalMethods.checkXSSProtectionHeader(response, url);
 			GlobalMethods.reportResponse(response.getHeaders().asList().toString(), url, response);
 
@@ -784,7 +779,7 @@ public class EsignetUtil extends AdminTestUtil {
 			return response;
 		}
 	}
-	
+
 	public static String generateParRequestUri() throws SecurityXSSException, JsonProcessingException {
 
 		String baseUrl = EsignetConfigManager.getproperty("eSignetbaseurl");
@@ -807,14 +802,12 @@ public class EsignetUtil extends AdminTestUtil {
 		requestBody.put("state", state);
 		requestBody.put("client_assertion", "$CLIENT_ASSERTION_PAR_JWT$");
 		requestBody.put("prompt", prompt);
-		requestBody.put("aud_key",aud_key);
+		requestBody.put("aud_key", aud_key);
 
-		Response response = postWithBodyAndCookieForAutoGeneratedIdForUrlEncoded(parUrl,
-				requestBody.toString());
+		Response response = postWithBodyAndCookieForAutoGeneratedIdForUrlEncoded(parUrl, requestBody.toString());
 
 		JSONObject responseJson = new JSONObject(response.asString());
 		return responseJson.getString("request_uri");
 	}
-
 
 }
