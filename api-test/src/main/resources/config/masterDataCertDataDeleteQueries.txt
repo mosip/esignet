@@ -4,5 +4,5 @@ delete from master.ca_cert_store WHERE cert_subject LIKE '%O=${currentModule}_pi
 delete from master.ca_cert_store WHERE cert_subject LIKE '%O=${currentModule}_ekyc_pid%'
 delete from master.ca_cert_store WHERE cert_subject LIKE '%O=${currentModule}_device_pid%'
 delete from master.ca_cert_store WHERE cert_subject LIKE '%O=${currentModule}_ftm_pid%'
-delete from master.ca_cert_store WHERE cert_subject LIKE '%O=partnernameforautomationesi%'
-delete from master.ca_cert_store WHERE cert_subject LIKE '%O=partnernameforesignet%'
+delete from master.ca_cert_store WHERE cert_subject LIKE '%O=${currentModule}-partnernameforautomationesi%'
+delete from master.ca_cert_store WHERE cert_subject LIKE '%O=${currentModule}-partnernameforesignet%'
