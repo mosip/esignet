@@ -4,7 +4,7 @@ Using **dynamic forms** instead of hardcoded forms during registration in **eSig
 
 The intention is to create an **independent UI library** to provide this feature. Both forms should follow the same form schema so that the same library could be used in both **oidc-ui** and **signup-ui**.
 
-For more details on how to use the `json-form-builder` library, please refer to the [official documentation](https://github.com/mosip/mosip-sdk/blob/develop/json-form-builder/README.md).
+For more details on how to use the `json-form-builder` library, please refer to the [official documentation](https://github.com/mosip/mosip-sdk/blob/master/json-form-builder/README.md).
 
 ## Form JSON Specification
 
@@ -43,7 +43,7 @@ KBI can be configured in **eSignet** using the following properties:
       "id": "sampleInputId",
       "required": true,
       "type": "string",
-      "label": {
+      "labelName": {
         "eng": "Sample Field",
         "ara": "حقل تجريبي",
         "fra": "Champ d'exemple"
@@ -81,7 +81,7 @@ KBI can be configured in **eSignet** using the following properties:
     {
       "id": "gender",
       "controlType": "dropdown",
-      "label": {
+      "labelName": {
         "eng": "Gender",
         "fra": "Genre",
         "ara": "جنس"
@@ -95,7 +95,7 @@ KBI can be configured in **eSignet** using the following properties:
       "disabled": true,
       "required": false,
       "prefix": ["+91"],
-      "label": {
+      "labelName": {
         "eng": "Phone Number",
         "ara": "رقم الهاتف",
         "fra": "Numéro de téléphone"
@@ -126,11 +126,18 @@ KBI can be configured in **eSignet** using the following properties:
       }
     }
   },
-  "errors": {
-    "required": {
-      "eng": "This field is required",
-      "fra": "Ce champ est obligatoire",
-      "ara": "هذه الخانة مطلوبه"
+  "i18nValues": {
+    "errors": {
+      "required": {
+        "eng": "This field is required",
+        "fra": "Ce champ est obligatoire",
+        "ara": "هذه الخانة مطلوبه"
+      },
+      "capsLock": {
+        "eng": "Caps Lock is enabled",
+        "fra": "Verr Maj est activé",
+        "ara": "تم تفعيل مفتاح الحروف الكبيرة"
+      }
     }
   },
   "language": {
@@ -153,19 +160,17 @@ The schema consists of the following properties:
 
 | Property            | Type     | Requirement   | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | ------------------- | -------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `acceptedFileTypes` | string   | Optional      | Accepted File types with comma separated value(i.e `image/jpeg,image/jpg,image/png,image/webp,application/pdf`), applicable for controlsType 'photo' or 'fileupload', it will allow only the specified file types to be accepted.                                                                                                                                                                                                                                                           |
 | `alignmentGroup`    | string   | Optional      | Fields with the same alignment group are placed horizontally next to each other in the UI.                                                                                                                                                                                                                                                                                                                                                                                                  |
 | `capsLockCheck`     | boolean  | Optional      | It enable a caps lock indication in top right corner(or top left corner if in rtl direction).                                                                                                                                                                                                                                                                                                                                                                                               |
-| `controlType`       | string   | **Mandatory** | UI control type for rendering. Options: `textbox`, `date`, `dropdown`, `password`, `checkbox`, `phone`, `photo`, `fileupload`.                                                                                                                                                                                                                                                                                                                                                              |
+| `controlType`       | string   | **Mandatory** | UI control type for rendering. Options: `textbox`, `date`, `dropdown`, `password`, `checkbox`, `phone`, `photo`.                                                                                                                                                                                                                                                                                                                                                              |
 | `cssClasses`        | string   | Optional      | External css class which can be added to the component.                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | `disabled`          | boolean  | Optional      | By enabling this, it will disable that field. By default it will be `false`.                                                                                                                                                                                                                                                                                                                                                                                                                |
 | `id`                | string   | **Mandatory** | Unique identifier for the field. Used internally to map the field.                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | `info`              | object   | Optional      | It will create an info icon beside the label of the component, to show some info in the tooltip. It will be a multilingual fields and keys represent with language codes.                                                                                                                                                                                                                                                                                                                   |
-| `label`             | object   | **Mandatory** | Multilingual field labels. Keys represent language codes (e.g., `eng`, `fra`, `ara`).                                                                                                                                                                                                                                                                                                                                                                                                       |
+| `labelName`             | object   | **Mandatory** | Multilingual field labels. Keys represent language codes (e.g., `eng`, `fra`, `ara`).                                                                                                                                                                                                                                                                                                                                                                                                       |
 | `placeholder`       | object   | Optional      | Multilingual placeholders shown inside input fields before user enters data.                                                                                                                                                                                                                                                                                                                                                                                                                |
 | `prefix`            | string[] | Optional      | Multiple or single prefix for phone component, so that it can be selected as per the needs, it will work only when controlType is `phone`                                                                                                                                                                                                                                                                                                                                                   |
 | `required`          | boolean  | Optional      | Specifies whether the field is required. If set to `true`, the user must provide a value. If set to `false`, the field can be left empty.                                                                                                                                                                                                                                                                                                                                                   |
-| `subType`           | string   | Optional      | Specific for controlType `fileupload`, for defining the docType.                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `type`              | string   | Optional      | Type of data expected. Can be `string` for a single-language input, or `simpleType` for multilingual input where each input ID renders multiple input fields, one for each language.                                                                                                                                                                                                                                                                                                        |
 | `validators`        | array    | Optional      | List of validation rules. Each validator object has the following structure:<br><br> <table><tr><th>Property</th><th>Type</th><th>Requirement</th><th>Description</th></tr><tr><td>`regex`</td><td>string</td><td>**Mandatory**</td><td>Validation pattern</td></tr><tr><td>`error`</td><td>object</td><td>**Mandatory**</td><td>Multilingual error messages</td></tr><tr><td>`langCode`</td><td>string</td><td>Optional</td><td>Language code; if `null`, applies to all</td></tr></table> |
 
@@ -175,14 +180,17 @@ The schema consists of the following properties:
 | --------------- | ------ | -------------------------------------------------------------------------------------------------------------------------- |
 | `allowedValues` | object | Defines predefined options for dropdowns or checkboxes. Keys represent option IDs, and values provide multilingual labels. |
 
-### Errors Section (optional)
+### i18nValues Section (optional)
+#### It contains errors, additional labels & placeholders
+Errors Section
 
 | Property           | Type   | Description                                                       |
 | ------------------ | ------ | ----------------------------------------------------------------- |
 | `required`         | object | Defines multilingual error messages for required fields.          |
 | `passwordMismatch` | object | Defines multilingual error messages for password mismatch.        |
-| `fileNotSupported` | object | Defines multilingual error messages for file not supported.       |
-| `fileSizeExceeded` | object | Defines multilingual error messages for file size limit exceeded. |
+| `capsLock` | object | Defines multilingual error messages for caps lock enabled.       |
+
+
 
 ### Language Section (mandatory)
 
