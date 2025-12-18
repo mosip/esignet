@@ -33,7 +33,7 @@ services:
       - database
 
   esignet:
-    image: 'mosipdev/esignet-with-plugins:release-1.7.x'
+    image: 'mosipqa/esignet-with-plugins:1.7.x'
     user: root
     ports: 
       - 8088:8088
@@ -57,7 +57,7 @@ services:
       - redis
 
   esignet-ui:
-    image: 'mosipdev/oidc-ui:release-1.7.x'
+    image: 'mosipqa/oidc-ui:1.7.x'
     user: root
     ports:
       - 3000:3000
