@@ -1,5 +1,5 @@
 #!/bin/bash
-# Installs esignet helm chart
+# Installs esignet helm chart version
 ## Usage: ./install.sh [kubeconfig]
 
 if [ $# -ge 1 ] ; then
