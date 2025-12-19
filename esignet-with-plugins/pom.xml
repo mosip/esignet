@@ -8,11 +8,11 @@
 	<parent>
 		<groupId>io.mosip.esignet</groupId>
 		<artifactId>esignet-parent</artifactId>
-		<version>1.7.1-SNAPSHOT</version>
+		<version>1.7.1</version>
 	</parent>
 
 	<artifactId>esignet-with-plugins</artifactId>
-	<version>1.7.1-SNAPSHOT</version>
+	<version>1.7.1</version>
 	<name>esignet-with-plugins</name>
 	<packaging>pom</packaging>
 	<description> Project of MOSIP e-Signet with Plugins</description>
