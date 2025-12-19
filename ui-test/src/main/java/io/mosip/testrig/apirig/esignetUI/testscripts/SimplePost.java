@@ -88,33 +88,33 @@ public class SimplePost extends EsignetUtil implements ITest {
 		String tempUrl = EsignetConfigManager.getEsignetBaseUrl();
 		if (testCaseName.contains(ESignetConstants.ESIGNET_STRING)) {
 
-			inputJson = EsignetUtil.inputstringKeyWordHandeler(inputJson, testCaseName);
+			inputJson = EsignetUtil.inputstringKeyWordHandler(inputJson, testCaseName);
 
 			response = postRequestWithCookieAuthHeaderAndXsrfToken(tempUrl + testCaseDTO.getEndPoint(), inputJson,
 					COOKIENAME, testCaseDTO.getTestCaseName());
 
 		} else {
-			inputJson = EsignetUtil.inputstringKeyWordHandeler(inputJson, testCaseName);
+			inputJson = EsignetUtil.inputstringKeyWordHandler(inputJson, testCaseName);
 			response = postWithBodyAndCookie(ApplnURI + testCaseDTO.getEndPoint(), inputJson, auditLogCheck, COOKIENAME,
 					testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), sendEsignetToken);
 		}
-		Map<String, List<OutputValidationDto>> ouputValid = null;
+		Map<String, List<OutputValidationDto>> outputValid = null;
 		if (testCaseName.contains("_StatusCode")) {
 
 			OutputValidationDto customResponse = customStatusCodeResponse(String.valueOf(response.getStatusCode()),
 					testCaseDTO.getOutput());
 
-			ouputValid = new HashMap<>();
-			ouputValid.put(GlobalConstants.EXPECTED_VS_ACTUAL, List.of(customResponse));
+			outputValid = new HashMap<>();
+			outputValid.put(GlobalConstants.EXPECTED_VS_ACTUAL, List.of(customResponse));
 		} else {
-			ouputValid = OutputValidationUtil.doJsonOutputValidation(response.asString(),
+			outputValid = OutputValidationUtil.doJsonOutputValidation(response.asString(),
 					getJsonFromTemplate(testCaseDTO.getOutput(), testCaseDTO.getOutputTemplate()), testCaseDTO,
 					response.getStatusCode());
 		}
 
-		Reporter.log(ReportUtil.getOutputValidationReport(ouputValid));
+		Reporter.log(ReportUtil.getOutputValidationReport(outputValid));
 
-		if (!OutputValidationUtil.publishOutputResult(ouputValid)) {
+		if (!OutputValidationUtil.publishOutputResult(outputValid)) {
 			throw new AdminTestException("Failed at otp output validation");
 		}
 

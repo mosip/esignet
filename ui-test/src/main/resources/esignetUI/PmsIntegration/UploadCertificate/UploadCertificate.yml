@@ -2,7 +2,7 @@ uploadCACert:
    EsignetUI_UploadCACertificate_All_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
       uniqueIdentifier: Dependent_Idrepo_uploadCACert_01
-      description: upload CACertificate with all valid details
+      description: upload intermediate Certificate with all valid details
       role: partner
       restMethod: post
       inputTemplate: esignetUI/PmsIntegration/UploadCertificate/uploadCertificate
@@ -18,7 +18,7 @@ uploadCACert:
    EsignetUI_UploadCInterCertificate_All_Valid_Smoke:
       endPoint: /v1/partnermanager/partners/certificate/ca/upload
       uniqueIdentifier: Dependent_Idrepo_uploadCACert_02
-      description: upload CACertificate with all valid details
+      description: upload intermediate Certificate with all valid details
       role: partner
       restMethod: post
       inputTemplate: esignetUI/PmsIntegration/UploadCertificate/uploadCertificate

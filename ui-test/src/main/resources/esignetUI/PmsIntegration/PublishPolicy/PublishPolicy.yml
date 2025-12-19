@@ -1,7 +1,7 @@
 createPublishPolicy:
    EsignetUI_PublishPolicy_All_Valid_Smoke:
       endPoint: /v1/policymanager/policies/{policyId}/group/{policygroupId}/publish
-      uniqueIdentifier: Dependent_Idrepo_createPublishPolicy_01
+      uniqueIdentifier: Dependent_Pms_createPublishPolicy_01
       description: Publish policy with all valid details
       role: partner
       restMethod: post

@@ -19,7 +19,7 @@ public class UiConstants {
 
 	public static final String DOT_PROPERTIES_STRING = ".properties";
 
-	public static final String SIGNUP_BASE_URL = EsignetConfigManager.getSignuplUrl();
+	public static final String SIGNUP_BASE_URL = EsignetConfigManager.getSignupUrl();
 
 	public static final String SIGNUP_ACTUATOR_URL = SIGNUP_BASE_URL
 			+ EsignetConfigManager.getproperty(SIGNUP_ACTUATOR_ENDPOINT_KEYWORD);
