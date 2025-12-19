@@ -84,7 +84,7 @@ public class SimplePostForAutoGenIdForUrlEncoded extends EsignetUtil implements 
 		String inputJson = getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate());
 		String outputJson = getJsonFromTemplate(testCaseDTO.getOutput(), testCaseDTO.getOutputTemplate());
 
-		String jsonInput = inputJsonKeyWordHandeler(EsignetUtil.inputstringKeyWordHandeler(inputJson, testCaseName),
+		String jsonInput = inputJsonKeyWordHandeler(EsignetUtil.inputstringKeyWordHandler(inputJson, testCaseName),
 				testCaseName);
 
 		if (testCaseName.contains(ESignetConstants.ESIGNET_STRING)) {
@@ -98,10 +98,10 @@ public class SimplePostForAutoGenIdForUrlEncoded extends EsignetUtil implements 
 					jsonInput, testCaseDTO.getTestCaseName(), idKeyName);
 		}
 
-		Map<String, List<OutputValidationDto>> ouputValid = OutputValidationUtil
+		Map<String, List<OutputValidationDto>> outputValid = OutputValidationUtil
 				.doJsonOutputValidation(response.asString(), outputJson, testCaseDTO, response.getStatusCode());
-		Reporter.log(ReportUtil.getOutputValidationReport(ouputValid));
-		if (!OutputValidationUtil.publishOutputResult(ouputValid))
+		Reporter.log(ReportUtil.getOutputValidationReport(outputValid));
+		if (!OutputValidationUtil.publishOutputResult(outputValid))
 			throw new AdminTestException("Failed at output validation");
 
 	}

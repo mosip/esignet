@@ -12,7 +12,7 @@ public class SignUpStepDef {
 	SignUpPage signUpPage;
 
 	public SignUpStepDef(BaseTest baseTest) {
-		WebDriver driver = baseTest.getDriver();
+		this.driver = baseTest.getDriver();
 		signUpPage = new SignUpPage(driver);
 	}
 

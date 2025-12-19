@@ -95,7 +95,7 @@ public class AddIdentity extends EsignetUtil implements ITest {
 
 			String inputJson = getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate());
 
-			inputJson = EsignetUtil.inputstringKeyWordHandeler(inputJson, testCaseName);
+			inputJson = EsignetUtil.inputstringKeyWordHandler(inputJson, testCaseName);
 
 			if (inputJson.contains("$RANDOMINDIVIDUALIDFORMOCKIDENTITY$")) {
 				inputJson = replaceKeywordWithValue(inputJson, "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$", individualIDStr);
@@ -155,7 +155,7 @@ public class AddIdentity extends EsignetUtil implements ITest {
 				inputJson = replaceKeywordWithValue(inputJson, "$EMAILVALUE$", email);
 			}
 
-			inputJson = EsignetUtil.inputstringKeyWordHandeler(inputJson, testCaseName);
+			inputJson = EsignetUtil.inputstringKeyWordHandler(inputJson, testCaseName);
 
 			response = postWithBodyAndCookie(ApplnURI + testCaseDTO.getEndPoint(), inputJson, COOKIENAME,
 					testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
@@ -168,12 +168,12 @@ public class AddIdentity extends EsignetUtil implements ITest {
 			}
 		}
 
-		Map<String, List<OutputValidationDto>> ouputValid = OutputValidationUtil.doJsonOutputValidation(
+		Map<String, List<OutputValidationDto>> outputValid = OutputValidationUtil.doJsonOutputValidation(
 				response.asString(), getJsonFromTemplate(testCaseDTO.getOutput(), testCaseDTO.getOutputTemplate()),
 				testCaseDTO, response.getStatusCode());
-		Reporter.log(ReportUtil.getOutputValidationReport(ouputValid));
+		Reporter.log(ReportUtil.getOutputValidationReport(outputValid));
 
-		if (!OutputValidationUtil.publishOutputResult(ouputValid))
+		if (!OutputValidationUtil.publishOutputResult(outputValid))
 			throw new AdminTestException("Failed at output validation");
 
 	}
