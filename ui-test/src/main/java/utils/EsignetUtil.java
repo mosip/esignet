@@ -271,11 +271,26 @@ public class EsignetUtil extends AdminTestUtil {
 		String regex = getValueFromSignupActuator("applicationConfig: [classpath:/application-default.properties]",
 				"mosip.signup.identifier.regex");
 
-		String digitRange = regex.substring(regex.indexOf('{') + 1, regex.indexOf('}'));
+		if (regex == null || regex.isEmpty()) {
+			logger.error("Mobile number regex not found in configuration");
+			throw new IllegalStateException("mosip.signup.identifier.regex is not configured");
+		}
+
+		int startIdx = regex.indexOf('{');
+		int endIdx = regex.indexOf('}');
+		if (startIdx == -1 || endIdx == -1 || startIdx >= endIdx) {
+			logger.error("Invalid regex format: " + regex);
+			throw new IllegalArgumentException("Regex must contain {min,max} pattern");
+		}
+
+		String digitRange = regex.substring(startIdx + 1, endIdx);
 		String[] parts = digitRange.split(",");
+		if (parts.length != 2) {
+			throw new IllegalArgumentException("Regex digit range must be in format {min,max}");
+		}
+
 		int min = Integer.parseInt(parts[0].trim());
 		int max = Integer.parseInt(parts[1].trim());
-
 		int length = min + new Random().nextInt(max - min + 1);
 
 		StringBuilder number = new StringBuilder();
