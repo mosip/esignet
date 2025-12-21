@@ -630,6 +630,10 @@ public class EsignetUtil extends AdminTestUtil {
 	}
 
 	public static JSONObject getOauthDetailsBody() {
+		if (driver == null) {
+			logger.error("WebDriver not initialized. Call startDriverWithNetwork() or setDriver() first.");
+			return null;
+		}
 		LogEntries logs = driver.manage().logs().get("performance");
 
 		for (LogEntry log : logs) {
