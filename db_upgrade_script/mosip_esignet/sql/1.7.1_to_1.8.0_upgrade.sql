@@ -4,45 +4,142 @@
 
 \c mosip_esignet
 
-CREATE TABLE IF NOT EXISTS ca_cert_store(
-	cert_id character varying(36) NOT NULL,
-	cert_subject character varying(500) NOT NULL,
-	cert_issuer character varying(500) NOT NULL,
-	issuer_id character varying(36) NOT NULL,
+DO $$
+BEGIN
+
+CREATE TABLE ca_cert_store(
+	cert_id varchar(36) NOT NULL,
+	cert_subject varchar(500) NOT NULL,
+	cert_issuer varchar(500) NOT NULL,
+	issuer_id varchar(36) NOT NULL,
 	cert_not_before timestamp,
 	cert_not_after timestamp,
-	crl_uri character varying(120),
-	cert_data character varying,
-	cert_thumbprint character varying(100),
-	cert_serial_no character varying(50),
-	partner_domain character varying(36),
-	cr_by character varying(256),
+	crl_uri varchar(120),
+	cert_data varchar(4000),
+	cert_thumbprint varchar(100),
+	cert_serial_no varchar(50),
+	partner_domain varchar(36),
+	cr_by varchar(256),
 	cr_dtimes timestamp,
-	upd_by character varying(256),
+	upd_by varchar(256),
 	upd_dtimes timestamp,
 	is_deleted boolean DEFAULT FALSE,
 	del_dtimes timestamp,
-	ca_cert_type character varying(25),
+	ca_cert_type varchar(25),
 	CONSTRAINT pk_cacs_id PRIMARY KEY (cert_id),
 	CONSTRAINT cert_thumbprint_unique UNIQUE (cert_thumbprint,partner_domain)
 );
 
-COMMENT ON TABLE ca_cert_store IS 'Certificate Authority Certificate Store: Store details of all the certificate provided by certificate authority which will be used by MOSIP';
-COMMENT ON COLUMN ca_cert_store.cert_id IS 'Certificate ID: Unique ID (UUID) will be generated and assigned to the uploaded CA/Sub-CA certificate';
-COMMENT ON COLUMN ca_cert_store.cert_subject IS 'Certificate Subject: Subject DN of the certificate';
-COMMENT ON COLUMN ca_cert_store.cert_issuer IS 'Certificate Issuer: Issuer DN of the certificate';
-COMMENT ON COLUMN ca_cert_store.issuer_id IS 'Issuer UUID of the certificate. (Issuer certificate should be available in the DB)';
-COMMENT ON COLUMN ca_cert_store.cert_not_before IS 'Certificate Start Date: Certificate Interval - Validity Start Date & Time';
-COMMENT ON COLUMN ca_cert_store.cert_not_after IS 'Certificate Validity end Date: Certificate Interval - Validity End Date & Time';
-COMMENT ON COLUMN ca_cert_store.crl_uri IS 'CRL URL: CRL URI of the issuer.';
-COMMENT ON COLUMN ca_cert_store.cert_data IS 'Certificate Data: PEM Encoded actual certificate data.';
-COMMENT ON COLUMN ca_cert_store.cert_thumbprint IS 'Certificate Thumb Print: SHA1 generated certificate thumbprint.';
-COMMENT ON COLUMN ca_cert_store.cert_serial_no IS 'Certificate Serial No: Serial Number of the certificate.';
-COMMENT ON COLUMN ca_cert_store.partner_domain IS 'Partner Domain : To add Partner Domain in CA/Sub-CA certificate chain';
-COMMENT ON COLUMN ca_cert_store.cr_by IS 'Created By : ID or name of the user who create / insert record';
-COMMENT ON COLUMN ca_cert_store.cr_dtimes IS 'Created DateTimestamp : Date and Timestamp when the record is created/inserted';
-COMMENT ON COLUMN ca_cert_store.upd_by IS 'Updated By : ID or name of the user who update the record with new values';
-COMMENT ON COLUMN ca_cert_store.upd_dtimes IS 'Updated DateTimestamp : Date and Timestamp when any of the fields in the record is updated with new values.';
-COMMENT ON COLUMN ca_cert_store.is_deleted IS 'IS_Deleted : Flag to mark whether the record is Soft deleted.';
-COMMENT ON COLUMN ca_cert_store.del_dtimes IS 'Deleted DateTimestamp : Date and Timestamp when the record is soft deleted with is_deleted=TRUE';
-COMMENT ON COLUMN ca_cert_store.ca_cert_type IS 'CA Certificate Type : Indicates if the certificate is a ROOT or INTERMEDIATE CA certificate';
+
+-- Client Detail migration
+
+-- Create a function to compute SHA-256 hash for public key
+CREATE OR REPLACE FUNCTION compute_public_key_hash(jwk_data jsonb)
+RETURNS varchar AS $_func$
+DECLARE
+    key_type varchar;
+    data_to_hash varchar;
+    n_value varchar;
+    x_value varchar;
+    y_value varchar;
+BEGIN
+    key_type := jwk_data->>'kty';
+
+    IF key_type IS NULL THEN
+        RAISE EXCEPTION 'Missing kty field in JWK';
+    END IF;
+
+    -- Compute hash based on key type
+    IF key_type = 'RSA' THEN
+        n_value := jwk_data->>'n';
+        IF n_value IS NULL THEN
+            RAISE EXCEPTION 'Missing n field in RSA JWK';
+        END IF;
+        data_to_hash := n_value;
+    ELSIF key_type = 'EC' THEN
+        x_value := jwk_data->>'x';
+        y_value := jwk_data->>'y';
+        IF x_value IS NULL OR y_value IS NULL THEN
+            RAISE EXCEPTION 'Missing x or y field in EC JWK';
+        END IF;
+        data_to_hash := x_value || y_value;
+    ELSE
+        RAISE EXCEPTION 'Unsupported key type: %', key_type;
+    END IF;
+
+    RETURN encode(sha256(data_to_hash::bytea), 'hex');
+END;
+$_func$ LANGUAGE plpgsql;
+
+DROP INDEX IF EXISTS unique_n_value;
+
+-- Add and backfill public_key_hash
+ALTER TABLE client_detail ADD COLUMN IF NOT EXISTS public_key_hash varchar(128);
+
+UPDATE client_detail
+SET public_key_hash = compute_public_key_hash(public_key::jsonb)
+WHERE public_key_hash IS NULL AND public_key IS NOT NULL;
+
+-- Add unique constraint on public_key_hash
+ALTER TABLE client_detail ADD CONSTRAINT uk_clntdtl_public_key_hash UNIQUE (public_key_hash);
+
+-- Migrate public_key from jsonb to varchar(1024)
+ALTER TABLE client_detail
+    ALTER COLUMN public_key TYPE varchar(1024)
+    USING public_key::text;
+
+-- Enforce NOT NULL constraints for public_key and public_key_hash
+ALTER TABLE client_detail ALTER COLUMN public_key SET NOT NULL;
+ALTER TABLE client_detail ALTER COLUMN public_key_hash SET NOT NULL;
+
+-- Align other columns to target lengths and nullability
+ALTER TABLE client_detail ALTER COLUMN redirect_uris TYPE varchar(2048);
+ALTER TABLE client_detail ALTER COLUMN claims TYPE varchar(2048);
+ALTER TABLE client_detail ALTER COLUMN acr_values TYPE varchar(1024);
+ALTER TABLE client_detail ALTER COLUMN grant_types TYPE varchar(512);
+ALTER TABLE client_detail ALTER COLUMN auth_methods TYPE varchar(512);
+
+-- Migrate additional_config from jsonb to varchar(2048)
+ALTER TABLE client_detail
+    ALTER COLUMN additional_config TYPE varchar(2048)
+    USING additional_config::text;
+
+-- Drop helper function
+DROP FUNCTION IF EXISTS compute_public_key_hash(jsonb);
+
+-- Consent Detail migration
+
+ALTER TABLE consent_detail ALTER COLUMN id TYPE varchar(36);
+ALTER TABLE consent_detail ALTER COLUMN client_id TYPE varchar(256);
+ALTER TABLE consent_detail ALTER COLUMN psu_token TYPE varchar(256);
+ALTER TABLE consent_detail ALTER COLUMN claims TYPE varchar(1024);
+ALTER TABLE consent_detail ALTER COLUMN authorization_scopes TYPE varchar(1024);
+ALTER TABLE consent_detail ALTER COLUMN signature TYPE varchar(1024);
+ALTER TABLE consent_detail ALTER COLUMN hash TYPE varchar(1024);
+ALTER TABLE consent_detail ALTER COLUMN accepted_claims TYPE varchar(1024);
+ALTER TABLE consent_detail ALTER COLUMN permitted_scopes TYPE varchar(1024);
+
+-- Consent History migration
+
+ALTER TABLE consent_history ALTER COLUMN id TYPE varchar(36);
+ALTER TABLE consent_history ALTER COLUMN client_id TYPE varchar(256);
+ALTER TABLE consent_history ALTER COLUMN psu_token TYPE varchar(256);
+ALTER TABLE consent_history ALTER COLUMN claims TYPE varchar(1024);
+ALTER TABLE consent_history ALTER COLUMN authorization_scopes TYPE varchar(512);
+ALTER TABLE consent_history ALTER COLUMN signature TYPE varchar(1024);
+ALTER TABLE consent_history ALTER COLUMN hash TYPE varchar(1024);
+ALTER TABLE consent_history ALTER COLUMN accepted_claims TYPE varchar(1024);
+ALTER TABLE consent_history ALTER COLUMN permitted_scopes TYPE varchar(1024);
+
+-- Key Store migration
+
+ALTER TABLE key_store ALTER COLUMN certificate_data TYPE varchar(4000);
+
+-- Public Key Registry migration
+
+ALTER TABLE public_key_registry ALTER COLUMN public_key TYPE varchar(2500);
+ALTER TABLE public_key_registry ALTER COLUMN certificate TYPE varchar(4000);
+ALTER TABLE public_key_registry ALTER COLUMN thumbprint TYPE varchar(128);
+
+END;
+$$;

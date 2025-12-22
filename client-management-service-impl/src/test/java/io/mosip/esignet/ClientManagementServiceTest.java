@@ -14,6 +14,7 @@ import io.mosip.esignet.api.spi.AuditPlugin;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.constants.ErrorConstants;
+import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.entity.ClientDetail;
 import io.mosip.esignet.repository.ClientDetailRepository;
 import io.mosip.esignet.services.ClientManagementServiceImpl;
@@ -52,6 +53,9 @@ public class ClientManagementServiceTest {
 
     @Mock
     AuditPlugin auditWrapper;
+
+    @Mock
+    IdentityProviderUtil identityProviderUtil;
 
     Map<String, Object> PUBLIC_KEY;
 

@@ -9,9 +9,9 @@ import io.mosip.esignet.entity.ConsentDetail;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;
-import java.util.UUID;
+
 @Repository
-public interface ConsentRepository extends JpaRepository<ConsentDetail, UUID> {
+public interface ConsentRepository extends JpaRepository<ConsentDetail, String> {
       boolean existsByClientIdAndPsuToken(String clientId, String psuToken);
       Optional<ConsentDetail> findByClientIdAndPsuToken(String clientId, String psuToken);
       void deleteByClientIdAndPsuToken(String clientId, String psuToken);
