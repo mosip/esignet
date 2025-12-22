@@ -11,11 +11,10 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @Data
 public class ConsentDetail {
-    private UUID id;
+    private String id;
     private String clientId;
     private String psuToken;
     private Claims claims;

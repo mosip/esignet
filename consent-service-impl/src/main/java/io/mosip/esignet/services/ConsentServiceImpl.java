@@ -28,6 +28,7 @@ import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -77,10 +78,12 @@ public class ConsentServiceImpl implements ConsentService {
         LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
         //convert ConsentRequest to Entity
         ConsentHistory consentHistory = consentMapper.toConsentHistoryEntity(userConsent);
+        consentHistory.setId(UUID.randomUUID().toString());
         consentHistory.setCreatedtimes(now);
         consentHistoryRepository.save(consentHistory);
 
         io.mosip.esignet.entity.ConsentDetail consentDetail = consentMapper.toEntity(userConsent);
+        consentDetail.setId(UUID.randomUUID().toString());
         consentDetail.setCreatedtimes(now);
 
         ConsentDetail consentDetailDto = consentMapper.toDto(consentRepository.save(consentDetail));

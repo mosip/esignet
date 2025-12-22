@@ -13,7 +13,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.Objects;
-import java.util.UUID;
 
 import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_CLAIM;
 import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_CLIENT_ID;
@@ -23,10 +22,9 @@ import static io.mosip.esignet.core.constants.ErrorConstants.INVALID_CLIENT_ID;
 @Entity(name="consent_history")
 public class ConsentHistory {
 
-
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    @Column(name = "id")
+    private String id;
 
     @NotNull(message = INVALID_CLIENT_ID)
     @Column(name = "client_id")
@@ -76,11 +74,11 @@ public class ConsentHistory {
         return getClass().hashCode();
     }
 
-    public UUID getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(String id) {
         this.id = id;
     }
 
