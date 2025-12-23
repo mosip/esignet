@@ -353,7 +353,7 @@ jobs:
         if: failure() # Pick up events even if the job fails or is canceled.
 
   build_dockers_apitest_esignet:
-    needs: build_apitest_esignet_local
+    needs: [build_apitest_esignet_local, detect_changes]
     if: >
       github.event_name == 'push' ||
       (github.event_name == 'pull_request' &&
