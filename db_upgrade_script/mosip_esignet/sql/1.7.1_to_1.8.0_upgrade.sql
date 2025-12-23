@@ -7,7 +7,7 @@
 DO $$
 BEGIN
 
-CREATE TABLE ca_cert_store(
+CREATE TABLE IF NOT EXISTS ca_cert_store(
 	cert_id varchar(36) NOT NULL,
 	cert_subject varchar(500) NOT NULL,
 	cert_issuer varchar(500) NOT NULL,
@@ -88,8 +88,6 @@ ALTER TABLE client_detail
     ALTER COLUMN public_key TYPE varchar(1024)
     USING public_key::text;
 
--- Enforce NOT NULL constraints for public_key and public_key_hash
-ALTER TABLE client_detail ALTER COLUMN public_key SET NOT NULL;
 ALTER TABLE client_detail ALTER COLUMN public_key_hash SET NOT NULL;
 
 -- Align other columns to target lengths and nullability
@@ -125,7 +123,7 @@ ALTER TABLE consent_history ALTER COLUMN id TYPE varchar(36);
 ALTER TABLE consent_history ALTER COLUMN client_id TYPE varchar(256);
 ALTER TABLE consent_history ALTER COLUMN psu_token TYPE varchar(256);
 ALTER TABLE consent_history ALTER COLUMN claims TYPE varchar(1024);
-ALTER TABLE consent_history ALTER COLUMN authorization_scopes TYPE varchar(512);
+ALTER TABLE consent_history ALTER COLUMN authorization_scopes TYPE varchar(1024);
 ALTER TABLE consent_history ALTER COLUMN signature TYPE varchar(1024);
 ALTER TABLE consent_history ALTER COLUMN hash TYPE varchar(1024);
 ALTER TABLE consent_history ALTER COLUMN accepted_claims TYPE varchar(1024);

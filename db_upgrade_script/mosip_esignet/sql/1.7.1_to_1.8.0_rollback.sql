@@ -8,7 +8,7 @@ DO $$
 BEGIN
 
 -- 1. Drop table created in 1.8.0
-DROP TABLE ca_cert_store;
+DROP TABLE IF EXISTS ca_cert_store;
 
 -- 2. Revert client_detail changes
 
