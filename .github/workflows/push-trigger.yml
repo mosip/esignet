@@ -354,6 +354,10 @@ jobs:
 
   build_dockers_apitest_esignet:
     needs: build_apitest_esignet_local
+    if: >
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' &&
+       needs.detect_changes.outputs.automation_changed == 'true')
     strategy:
       matrix:
         include:
