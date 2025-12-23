@@ -52,7 +52,7 @@ public class KeyBindingHelperService {
         X509Certificate certificate = (X509Certificate)keymanagerUtil.convertToCertificate(certificateData);
         LocalDateTime expireDTimes = certificate.getNotAfter().toInstant().atZone(ZoneOffset.UTC).toLocalDateTime();
         //same individual can be bound to different public keys each with different auth-factor-type.
-        Optional<PublicKeyRegistry> optionalPublicKeyRegistry = publicKeyRegistryRepository.findLatestByPsuTokenAndAuthFactor(partnerSpecificUserToken, authFactor);
+        Optional<PublicKeyRegistry> optionalPublicKeyRegistry = publicKeyRegistryRepository.findFirstByPsuTokenAndAuthFactorOrderByExpiredtimesDesc(partnerSpecificUserToken, authFactor);
         String walletBindingId = null;
         //Entry exists, consider to use same wallet-binding-id. Only update public-key & expireDT
         if (optionalPublicKeyRegistry.isPresent()) {

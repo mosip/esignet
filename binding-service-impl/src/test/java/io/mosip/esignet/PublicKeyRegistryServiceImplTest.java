@@ -32,7 +32,7 @@ public class PublicKeyRegistryServiceImplTest {
         publicKeyRegistry.setThumbprint("thumbprint");
         publicKeyRegistry.setPublicKeyHash("hase");
         publicKeyRegistry.setCertificate("cert");
-        Mockito.when(publicKeyRegistryRepository.findLatestByPsuTokenAndAuthFactor(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.of(publicKeyRegistry));
+        Mockito.when(publicKeyRegistryRepository.findFirstByPsuTokenAndAuthFactorOrderByExpiredtimesDesc(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.of(publicKeyRegistry));
 
         Optional<io.mosip.esignet.core.dto.PublicKeyRegistry> publicKeyRegistryOptional = publicKeyRegistryService.findLatestPublicKeyByPsuTokenAndAuthFactor(Mockito.anyString(), Mockito.anyString());
         Assertions.assertEquals(publicKeyRegistryOptional.get().getPublicKey(), publicKeyRegistry.getPublicKey());
@@ -41,7 +41,7 @@ public class PublicKeyRegistryServiceImplTest {
 
     @Test
     public void findLatestPublicKeyByPsuTokenAndAuthFactor_WithInValidDetail_ThenFail() {
-        Mockito.when(publicKeyRegistryRepository.findLatestByPsuTokenAndAuthFactor(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.empty());
+        Mockito.when(publicKeyRegistryRepository.findFirstByPsuTokenAndAuthFactorOrderByExpiredtimesDesc(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.empty());
 
         Optional<io.mosip.esignet.core.dto.PublicKeyRegistry> publicKeyRegistryOptional = publicKeyRegistryService.findLatestPublicKeyByPsuTokenAndAuthFactor(Mockito.anyString(), Mockito.anyString());
         Assertions.assertEquals(Optional.empty(), publicKeyRegistryOptional);

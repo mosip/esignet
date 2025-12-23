@@ -25,7 +25,7 @@ public class PublicKeyRegistryServiceImpl implements PublicKeyRegistryService {
 
     @Override
     public Optional<PublicKeyRegistry> findLatestPublicKeyByPsuTokenAndAuthFactor(String psuToken, String authFactor) {
-        Optional<io.mosip.esignet.entity.PublicKeyRegistry> optionalPublicKeyRegistry = publicKeyRegistryRepository.findLatestByPsuTokenAndAuthFactor(psuToken,authFactor);
+        Optional<io.mosip.esignet.entity.PublicKeyRegistry> optionalPublicKeyRegistry = publicKeyRegistryRepository.findFirstByPsuTokenAndAuthFactorOrderByExpiredtimesDesc(psuToken,authFactor);
         if(optionalPublicKeyRegistry.isPresent()) {
             PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
             publicKeyRegistry.setPublicKey(optionalPublicKeyRegistry.get().getPublicKey());
