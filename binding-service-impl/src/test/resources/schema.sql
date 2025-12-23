@@ -1,4 +1,4 @@
-CREATE TABLE public_key_registry(
+CREATE TABLE IF NOT EXISTS public_key_registry(
     id_hash varchar(100) NOT NULL,
     auth_factor varchar(25) NOT NULL,
 	psu_token varchar(256) NOT NULL,

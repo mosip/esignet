@@ -18,7 +18,7 @@ CREATE TABLE consent_history (
     client_id VARCHAR(256) NOT NULL,
     psu_token VARCHAR(256) NOT NULL,
     claims VARCHAR(1024) NOT NULL,
-    authorization_scopes VARCHAR(512) NOT NULL,
+    authorization_scopes VARCHAR(1024) NOT NULL,
     cr_dtimes TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     expire_dtimes TIMESTAMP,
     signature VARCHAR(1024),

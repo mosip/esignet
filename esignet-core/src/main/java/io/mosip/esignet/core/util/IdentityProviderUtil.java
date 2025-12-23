@@ -234,7 +234,7 @@ public class IdentityProviderUtil {
         } catch (JoseException e) {
             log.error("Error creating JWK: {}", e.getMessage(), e);
         }
-        log.error("Missing 'kty' field in JWK: {}", jwk);
+        log.error("Missing 'kty' field in JWK");
         throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
     }
 
@@ -246,7 +246,7 @@ public class IdentityProviderUtil {
     public String computePublicKeyHash(Map<String, Object> jwk) throws EsignetException {
         String keyType = (String) jwk.get("kty");
         if (keyType == null) {
-            log.error("Missing 'kty' field in JWK: {}", jwk);
+            log.error("Missing 'kty' field in JWK");
             throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
         }
 

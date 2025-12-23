@@ -82,32 +82,12 @@ CREATE TABLE  IF NOT EXISTS key_store(
     CONSTRAINT pk_keystr_id PRIMARY KEY (id)
 );
 
-CREATE TABLE  IF NOT EXISTS client_detail(
-    id varchar(100) NOT NULL,
-    name varchar(600) NOT NULL,
-    rp_id varchar(100) NOT NULL,
-    logo_uri varchar(2048) NOT NULL,
-    redirect_uris varchar(2048) NOT NULL,
-    claims varchar(2048) NOT NULL,
-    acr_values varchar(1024) NOT NULL,
-    public_key varchar(1024) NOT NULL,
-    public_key_hash varchar(128) NOT NULL,
-    grant_types varchar(512) NOT NULL,
-    auth_methods varchar(512) NOT NULL,
-    status varchar(20) NOT NULL,
-    additional_config varchar(2048),
-    cr_dtimes timestamp NOT NULL,
-    upd_dtimes timestamp,
-    CONSTRAINT pk_clntdtl_id PRIMARY KEY (id),
-    CONSTRAINT uk_clntdtl_public_key_hash UNIQUE (public_key_hash)
-);
-
 CREATE TABLE  IF NOT EXISTS consent_history (
     id varchar(36) NOT NULL,
     client_id VARCHAR(256) NOT NULL,
     psu_token VARCHAR(256) NOT NULL,
     claims VARCHAR(1024) NOT NULL,
-    authorization_scopes VARCHAR(512) NOT NULL,
+    authorization_scopes VARCHAR(1024) NOT NULL,
     cr_dtimes TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     expire_dtimes TIMESTAMP,
     signature VARCHAR(1024),
