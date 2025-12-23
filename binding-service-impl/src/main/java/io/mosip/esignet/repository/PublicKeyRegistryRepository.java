@@ -22,8 +22,7 @@ public interface PublicKeyRegistryRepository extends JpaRepository<PublicKeyRegi
 
 	List<PublicKeyRegistry> findByIdHashAndAuthFactorInAndExpiredtimesGreaterThan(String idHash, Set<String> authFactor, LocalDateTime currentDateTime);
 
-	@Query(value = "SELECT * FROM public_key_registry WHERE psu_token= :psuToken and auth_factor= :authFactor ORDER BY expire_dtimes DESC LIMIT 1", nativeQuery = true)
-	Optional<PublicKeyRegistry> findLatestByPsuTokenAndAuthFactor(String psuToken, String authFactor);
+	Optional<PublicKeyRegistry> findFirstByPsuTokenAndAuthFactorOrderByExpiredtimesDesc(String psuToken, String authFactor);
 
     Optional<PublicKeyRegistry> findOptionalByPublicKeyHashAndPsuTokenNot(String publicKeyHash, String psuToken);
 
