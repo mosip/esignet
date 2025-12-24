@@ -51,6 +51,9 @@ public class ClientManagementServiceImpl implements ClientManagementService {
 
     @Autowired
     AuditPlugin auditWrapper;
+
+    @Autowired
+    IdentityProviderUtil identityProviderUtil;
     
     @Value("${mosip.esignet.audit.claim-name:preferred_username}")
     private String claimName;
@@ -61,6 +64,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId(clientDetailCreateRequest.getClientId());
         clientDetail.setPublicKey(IdentityProviderUtil.getJWKString(clientDetailCreateRequest.getPublicKey()));
+        clientDetail.setPublicKeyHash(identityProviderUtil.computePublicKeyHash(clientDetailCreateRequest.getPublicKey()));
         clientDetail.setName(clientDetailCreateRequest.getClientName());
         clientDetail.setRpId(clientDetailCreateRequest.getRelyingPartyId());
         clientDetail.setLogoUri(clientDetailCreateRequest.getLogoUri());

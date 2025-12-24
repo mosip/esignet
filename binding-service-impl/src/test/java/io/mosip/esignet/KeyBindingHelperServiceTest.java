@@ -83,7 +83,7 @@ public class KeyBindingHelperServiceTest {
         PublicKeyRegistry publicKeyRegistry = new PublicKeyRegistry();
         publicKeyRegistry.setWalletBindingId("wallet-binding-id");
         publicKeyRegistry.setCertificate(certificateString);
-        Mockito.when(publicKeyRegistryRepository.findLatestByPsuTokenAndAuthFactor(Mockito.anyString(),
+        Mockito.when(publicKeyRegistryRepository.findFirstByPsuTokenAndAuthFactorOrderByExpiredtimesDesc(Mockito.anyString(),
                 Mockito.anyString())).thenReturn(Optional.of(publicKeyRegistry));
         Mockito.when(publicKeyRegistryRepository.save(Mockito.any(PublicKeyRegistry.class))).thenReturn(publicKeyRegistry);
 
@@ -112,7 +112,7 @@ public class KeyBindingHelperServiceTest {
         Mockito.when(publicKeyRegistryRepository
                 .findOptionalByPublicKeyHashAndPsuTokenNot(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.empty());
         Mockito.when(keymanagerUtil.convertToCertificate(Mockito.anyString())).thenReturn(certificate);
-        Mockito.when(publicKeyRegistryRepository.findLatestByPsuTokenAndAuthFactor(Mockito.anyString(),
+        Mockito.when(publicKeyRegistryRepository.findFirstByPsuTokenAndAuthFactorOrderByExpiredtimesDesc(Mockito.anyString(),
                 Mockito.anyString())).thenReturn(Optional.empty());
         Mockito.when(publicKeyRegistryRepository.save(Mockito.any(PublicKeyRegistry.class))).thenReturn(new PublicKeyRegistry());
         Assertions.assertNotNull(keyBindingHelperService.storeKeyBindingDetailsInRegistry("individualId", "psut", "publicKey",
