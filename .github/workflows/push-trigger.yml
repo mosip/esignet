@@ -25,7 +25,7 @@ on:
 jobs:
   detect_changes:
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
     outputs:
       ui_changed: ${{ steps.filter.outputs.ui }}
       service_changed: ${{ steps.filter.outputs.service }}
@@ -250,7 +250,7 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   build_dockers_oidc_ui:
-    needs: build-oidc-ui
+    needs: [build-oidc-ui, detect_changes]
     if: >
       github.event_name == 'push' ||
       (github.event_name == 'pull_request' &&
