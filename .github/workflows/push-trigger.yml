@@ -362,7 +362,7 @@ jobs:
       matrix:
         include:
           - SERVICE_LOCATION: 'api-test'
-            SERVICE_NAME: 'apitest-esignet'
+            SERVICE_NAME: ${{ matrix.SERVICE_NAME }}'
             BUILD_ARTIFACT: 'apitest-esignet-local'
             ONLY_DOCKER: true
       fail-fast: false
