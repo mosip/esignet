@@ -37,8 +37,7 @@ export default function Authorize({ authService }) {
         const clientId = searchParams.get('client_id');
         const requestUri = searchParams.get('request_uri');
 
-        const isParFlow =
-          clientId && requestUri && [...searchParams.keys()].length === 2;
+        const isParFlow = clientId && requestUri;
 
         if (isParFlow) {
           storeQueryParam(searchParams.toString());
@@ -106,9 +105,7 @@ export default function Authorize({ authService }) {
 
   const redirectToLogin = async () => {
     const isParFlow =
-      searchParams.get('client_id') &&
-      searchParams.get('request_uri') &&
-      [...searchParams.keys()].length === 2;
+      searchParams.get('client_id') && searchParams.get('request_uri');
 
     if (!oAuthDetailResponse) {
       return;
