@@ -1,0 +1,21 @@
+createPublishPolicy:
+   EsignetUI_PublishPolicy_All_Valid_Smoke:
+      endPoint: /v1/policymanager/policies/{policyId}/group/{policygroupId}/publish
+      uniqueIdentifier: Dependent_Pms_createPublishPolicy_01
+      description: Publish policy with all valid details
+      role: partner
+      restMethod: post
+      inputTemplate: esignetUI/PmsIntegration/PublishPolicy/publishPolicy
+      outputTemplate: esignetUI/PmsIntegration/PublishPolicy/publishPolicyResult
+      input: '{
+		"policygroupId": "$ID:DefinePolicyGroup_All_Valid_Smoke_sid_id$",
+		"policyId": "$ID:DefinePolicy_All_Valid_Smoke_sid_id$",
+		"requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+        "policyGroupStatus": "true",
+        "policyType": "Auth",
+        "status": "PUBLISHED",
+        "is_Active": "true",
+        "authType": "bio"
+}'

@@ -1,0 +1,10 @@
+{
+	"serialNo":"1234567890",
+   	"make":"MOSIP",
+   	"model":"SLAP01",
+   	"type":"Finger",
+   	"deviceSubType":"Slap",
+   	"deviceProvider":"MOSIP",
+   	"deviceProviderId":"MOSIP.PROXY.SBI",
+   	"dateTime":""
+}

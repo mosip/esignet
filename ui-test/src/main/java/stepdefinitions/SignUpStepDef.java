@@ -1,4 +1,3 @@
-
 package stepdefinitions;
 
 import org.openqa.selenium.WebDriver;
@@ -13,8 +12,8 @@ public class SignUpStepDef {
 	SignUpPage signUpPage;
 
 	public SignUpStepDef(BaseTest baseTest) {
-        WebDriver driver = baseTest.getDriver();
-        signUpPage = new SignUpPage(driver);
+		this.driver = baseTest.getDriver();
+		signUpPage = new SignUpPage(driver);
 	}
 
 	@Then("click on signup link")

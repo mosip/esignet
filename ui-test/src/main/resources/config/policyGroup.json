@@ -1,0 +1,10 @@
+{
+  "id": "string",
+  "metadata": {},
+  "request": {
+    "desc":"desc mosip auth policy group",
+    "name":"mosip auth policy group 2345678"
+  },
+  "requesttime": "2022-09-07T04:23:38.117Z",
+  "version": "string"
+}

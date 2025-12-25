@@ -1,9 +1,5 @@
 package utils;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.log4j.Logger;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -13,9 +9,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class LanguageUtil {
 
-    private static final Map<String, String> languagesMap = new HashMap<>();
+    public static final Map<String, String> languagesMap = new HashMap<>();
     private static final Map<String, String> langCodeMappingMap = new HashMap<>();
     public static List<String> supportedLanguages = new ArrayList<>();
     private static final Logger logger = Logger.getLogger(LanguageUtil.class);
