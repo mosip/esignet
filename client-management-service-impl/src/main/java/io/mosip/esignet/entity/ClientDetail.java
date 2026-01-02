@@ -59,7 +59,7 @@ public class ClientDetail {
     @Column(name = "acr_values")
     private String acrValues;
 
-    @Pattern(regexp = "^(ACTIVE)|(INACTIVE)$")
+    @Pattern(regexp = "^(ACTIVE|INACTIVE)$")
     @Column(name = "status")
     private String status;
 

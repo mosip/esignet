@@ -46,7 +46,7 @@ export default function EsignetDetails({ i18nKeyPrefix = 'esignetDetails' }) {
       </div>
       <div className="w-full flex justify-center">
         {status.state === states.LOADED && details && (
-          <div className={'w-3/4 h-min shadow-lg rounded bg-[#F8F8F8]'}>
+          <div className={'w-3/4 h-min shadow-md rounded bg-[#F8F8F8]'}>
             <div className="py-3">
               <div className="divide-y-2 gap-2">
                 {details.map((detail) => (

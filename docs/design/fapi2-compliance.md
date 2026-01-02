@@ -31,13 +31,13 @@ TTL should be configurable and the expires_in parameter in the response should r
 
 Below Optional features are not implemented in the current version:
 * client authentication parameters in the PAR request header.
-* The request parameter as defined in JAR [RFC9101].
+* The request parameter as defined in JAR [RFC9101](https://www.rfc-editor.org/rfc/rfc9101).
 * API rate limit is left to the infra to handle.
 * Use of non-registered redirect_uri's are not allowed.
 
 ## Client Configuration:
 
-**require_pushed_authorization_requests** property in the client configuration should be set to true to enforce PAR.
+**Require_pushed_authorization_requests** property in the client configuration should be set to true to enforce PAR. By default, it is set to false.
 
 ## Sequence diagram:
 ![par-flow.png](../images/par-flow.png)
@@ -45,21 +45,25 @@ Below Optional features are not implemented in the current version:
 # DPoP Support
 
 All the required features as per the [DPoP](https://datatracker.ietf.org/doc/html/rfc9449) are implemented. 
-We support binding of access tokens and authorization codes to DPoP proofs.
+We support binding of access tokens and authorization codes to DPoP proofs. 
 
 - DPoP validation filter checks JWT structure, claims, and signature.
 - Validates binding between access token and DPoP proof using `ath` and `cnf` claims.
-- Returns RFC-compliant error responses for invalid DPoP proofs.
+- Returns **RFC**-compliant error responses for invalid DPoP proofs.
+
+## Client Configuration:
+
+**dpop_bound_access_tokens** property in the client configuration should be set to true to enforce DPoP. By default, it is set to false.
 
 ## Sequence of events for DPoP with Authorization Code Flow
 
-1. User initiates login at the RP (Client) using individual ID.
-2. Authorization code binding should be done with dpop, by providing either the dpop_jkt query parameter or a DPoP header.
+1. User initiates login at the RP (Client) using client ID.
+2. Authorization code binding can be done with dpop, by providing either the dpop_jkt query parameter or a DPoP header.
 3. **_with Par:_** Client calls the /par endpoint with the required parameters including dpop_jkt query parameter or a DPoP header.
 4. **_without Par:_** Client calls the /authorize endpoint with the required parameters including dpop_jkt query parameter.
-5. eSignet validates the request, and stores the dopop_jkt in the OIDC transaction cache object. This acts as a binding between the public key thumbprint and the authorization code.
+5. eSignet validates the request, and stores the dpop_jkt in the OIDC transaction cache object. This acts as a binding between the public key thumbprint and the authorization code.
 6. eSignet returns the authorization code to the client after user authentication and consent.
-7. Client makes a call to the /v2/token endpoint with the authorization code and the DPoP header.
+7. The Client makes a call to the /v2/token endpoint with the authorization code and the DPoP header.
 8. eSignet validates the DPoP header and checks the binding between the authorization code and the public key thumbprint if exists.
 9. If the binding check fails, eSignet rejects the request even when **dpop_bound_access_tokens** is set to false.
 10. If the DPoP header is missing or binding check fails, eSignet rejects the request if **dpop_bound_access_tokens** is set to true for the client.
@@ -71,10 +75,6 @@ We support binding of access tokens and authorization codes to DPoP proofs.
 14. Client uses the dpop bound access token to call the /userinfo endpoint with a DPoP header.
 15. eSignet validates the DPoP header and the binding between the access token and the public key thumbprint.
 16. eSignet returns the user information to the client.
-
-## Client Configuration:
-
-**dpop_bound_access_tokens** property in the client configuration should be set to true to enforce DPoP.
 
 ## Sequence diagram DPoP with PAR:
 
@@ -97,12 +97,17 @@ as per the [OAuth 2.0 Authorization Server Issuer Identification](https://www.rf
 ## PAR and DPoP support with mock RP:
 
 eSignet mock RP application provides a callback functions to demonstrate the PAR and DPoP features. 
-Refer to the [README](https://github.com/mosip/esignet-mock-services/tree/develop/mock-relying-party-ui#api-endpoints) for more details.
+Refer to the [README](https://github.com/mosip/esignet-mock-services/tree/master/mock-relying-party-ui#api-endpoints) for more details.
 
 # Error Handling
 
 - Returns standardized error codes and descriptions.
 - Does not leak sensitive information in error responses.
+
+## Future Improvements
+
+- Global flags to enable/disable PAR and DPoP features across all clients.
+- Enforcement of OpenId security profiles like FAPI2 at the server level.
 
 # References
 

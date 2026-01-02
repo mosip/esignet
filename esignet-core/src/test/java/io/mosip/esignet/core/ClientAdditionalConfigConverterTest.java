@@ -1,5 +1,8 @@
 package io.mosip.esignet.core;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.core.exception.InvalidClientException;
 import io.mosip.esignet.core.util.ClientAdditionalConfigConverter;
 import org.junit.jupiter.api.Assertions;
@@ -10,6 +13,8 @@ public class ClientAdditionalConfigConverterTest {
 
     private ClientAdditionalConfigConverter converter;
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     @BeforeEach
     void setUp() {
         converter = new ClientAdditionalConfigConverter();
@@ -18,6 +23,15 @@ public class ClientAdditionalConfigConverterTest {
     @Test
     public void convertToDatabaseColumn_NullMap_ReturnsNull() {
         Assertions.assertNull(converter.convertToDatabaseColumn(null));
+    }
+
+    @Test
+    public void convertToDatabaseColumn_ValidJsonNode_ReturnsString() throws JsonProcessingException {
+        String jsonString = "{\"key\":\"value\"}";
+        JsonNode jsonNode = objectMapper.readTree(jsonString);
+
+        String result = converter.convertToDatabaseColumn(jsonNode);
+        Assertions.assertEquals(jsonString, result);
     }
 
     @Test

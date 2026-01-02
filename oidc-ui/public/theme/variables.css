@@ -1,148 +1,6 @@
+/* Default theme variables */
 :root {
-  --primary-color: #1262C9;
-  --login-card-box-color: #BCC0C7;
-  --login-card-box-hover-color: var(--primary-color);
-  --login-card-box-focus-color: var(--primary-color);
-  --login-background: #f7f9fd;
-  --language-icon-color: #FFFFFF;
-  --language-icon-bg-color:  var(--primary-color);
-  --login-background-min-height: calc(100vh - 102px) !important;
-  --brand-only-logo-url: url("/logo.png");
-  --brand-logo-url: url("/images/brand_logo.png");
-  --background-logo-url: url("/images/illustration_one.png");
-  --footer-brand-logo-url: url("/images/footer_logo.png");
-  --primary-button-color: #FFFFFF;
-  --primary-button-bg-color: var(--primary-color);
-  --primary-button-border-color: var(--primary-color);
-  --primary-button-hover-color: #FFFFFF;
-  --primary-button-hover-bg-color: #0549b6;
-  --primary-button-hover-border-color: #0549b6;
-  --primary-button-disable-color: #94A3B8;
-  --primary-button-disable-bg-color: #FFFFFF;
-  --primary-button-disable-border-color: #94A3B8;
-  --secondary-button-color: #111827;
-  --secondary-button-bg-color: #ffffff;
-  --secondary-button-border-color: #ffffff;
-  --secondary-button-hover-color: #111827;
-  --secondary-button-hover-bg-color: #ffffff;
-  --secondary-button-hover-border-color: #ffffff;
-  --secondary-button-disable-color: #ffffff;
-  --secondary-button-disable-bg-color: #cbcbcb;
-  --secondary-button-disable-border-color: #cbcbcb;
-  --loading-indicator-ring-color: #3182CE;
-  --loading-indicator-bg-color: transparent;
-  --loading-indicator-font-color: #000000;
-  --qrcode-border-color: var(--primary-color);
-  --info-icon-color: #0686F0;
-  --toggle-button-inactive-bg-color: #FFFFFF;
-  --toggle-button-inactive-border-color: #D8D8D8;
-  --toggle-button-active-bg-color: #FFFFFF;
-  --toggle-button-active-border-color: var(--primary-color);
-  --toggle-button-inactive-ball-color: #A7A8A9;
-  --toggle-button-inactive-ball-border-color: #A7A8A9;
-  --toggle-button-active-ball-color: var(--primary-color);
-  --toggle-button-active-ball-border-color: var(--primary-color);
-  --toggle-button-ring-color: var(--primary-color);
-  --header-height: 55px;
-  --footer-height: 47px;
-  --signup-banner-background-color: #eaf5ff;
-  --signup-banner-bottom-radius: 5px;
-  --signup-banner-padding-top: 20px;
-  --signup-banner-padding-bottom: 20px;
-  --signup-banner-margin-top: 16px;
-  --signup-banner-signup-url-color: var(--primary-color);
-  --signup-banner-signup-url-color-hover: #2F8EA3;
-  --signup-banner-signup-url-color-focus: #2F8EA3;
-  --signup-banner-font: normal normal normal 15px/19px Roboto;
-  --multipurpose-login-card-border-radius: 20px;
-  --multipurpose-login-card-background-color: #FFFFFF;
-  --top-left-bg-logo-url: url("/images/top_left_bg_logo.svg");
-  --bottom-right-bg-logo-url: url("/images/bottom_right_bg_logo.svg");
-  --bottom-left-bg-logo-display: none;
-  --top-right-bg-logo-display: none;
-  --top-left-bg-width: 14rem;
-  --top-left-bg-height: 14rem;
-  --top-left-bg-position-top: 10px;
-  --top-left-bg-position-left: 10px;
-  --bottom-left-bg-width: 14rem;
-  --bottom-left-bg-height: 14rem;
-  --bottom-left-bg-position-bottom: 10px;
-  --bottom-left-bg-position-left: 10px;
-  --top-right-bg-width: 14rem;
-  --top-right-bg-height: 14rem;
-  --top-right-bg-position-top: 10px;
-  --top-right-bg-position-right: 10px;
-  --bottom-right-bg-width: 17rem;
-  --bottom-right-bg-height: 17rem;
-  --bottom-right-bg-position-bottom: 10px;
-  --bottom-right-bg-position-right: 10px;
-  --login-client-logo-image-height: 3.25rem;
-  --login-client-logo-image-width: 3.25rem;
-  --login-alternate-arrow: "\21CB";
-  --login-alternate-arrow-size: 1.5rem;
-  --login-text-color: #000000;
-  --login-card-separator: linear-gradient(0deg, #FFFBF7 0%, #FFFFFF 100%);
-  --login-card-separator-height: 1px;
-  --footer-text-color: #898989;
-  --footer-text-size: 14px;
-  --language-check-icon-color: var(--primary-color);
-  --forgot-password-color: var(--primary-color);
-  --forgot-password-font-size: small;
-  --forgot-password-width: max-content;
-  --forgot-password-margin-top: 0.5rem;
-  --forgot-password-margin-bottom: 0.5rem;
-  --password-google-reCaptcha-margin-top: 3rem;
-  --password-google-reCaptcha-margin-bottom: 1rem;
-  --navbar-position: relative;
-  --navbar-zIndex: 1;
-  --navbar-box-shadow: 0px 2px 5px #0000001A;
-  --back-button-color: var(--primary-color);
-  --more-signin-options-color: var(--primary-color);
-  --arrow-down-color: var(--primary-color);
-  --primary-button-border-radius: 5px;
-  --consent-details-header-font: normal normal 600 24px/29px Roboto;
-  --consent-details-header-color: #2b3840;
-  --consent-details-subheader-font: normal normal bold 16px/21px Roboto;
-  --consent-details-subheader-color: #2c2c2c;
-  --consent-details-infoIcon-fill: var(--primary-color);
-  --consent-details-infoIcon-stroke: var(--primary-color);
-  --consent-details-available-font: normal normal medium 14px/17px Helvetica Neue;
-  --consent-details-available-color: #76ac6d;
-  --consent-details-unavailable-font: normal normal medium 14px/16px Helvetica Neue;
-  --consent-details-unavailable-color: #707070;
-  --consent-details-message-color: var(--primary-color);
-  --consent-details-message-background: #fff9f0 0% 0% no-repeat padding-box;
-  --otp-pin-input-width: 40px;
-  --otp-pin-input-height: 40px;
-  --otp-pin-input-margin: 0 5px;
-  --otp-pin-input-color: var(--primary-color);
-  --otp-pin-input-border-bottom: 2px solid var(--primary-color);
-  --checkbox-color: var(--primary-color);
-  --wallet-download-text-color: var(--primary-color);
-  --no-record-banner-background: #fff9f0 0% 0% no-repeat padding-box;
-  --no-record-banner-border-radius: 10px;
-  --no-record-banner-font: normal normal normal 13px/18px Roboto;
-  --no-record-banner-color: var(--primary-color);
-  --no-record-banner-padding: 1em 1.5em;
-  --selected_login_id_border_color: var(--primary-color);
-  --selected_login_id_color: var(--primary-color);
-  --login_id_hover_border_color: var(--primary-color);
-  --login_id_hover_color: var(--primary-color);
-  --selected_login_id_focus_color: var(--primary-color);
-  --selected_login_id_focus_outline_color: var(--primary-color);
-  --qr_code_title_color:  #696969;
-  --resend_otp_button_color: var(--primary-color);
-  --login-client-logo-image-shadow: 0px 4px 15px 2px #1262C94D;
-  --caps-lock-text-color: #2D86BA;
-  --login-header-text-color: rgb(0, 0, 0);
-  --login-subheader-text-color: #838383;
-  --selected-lang-text-color: var(--primary-color);
-  --border-button-text-color: var(--primary-color);
-  --border-button-border-color: var(--primary-color);
-}
-
-[class="orange"] {
-  --primary-color: #eb6f2d;
+  --primary-color: #1262c9;
   --login-card-box-color: #bcc0c7;
   --login-card-box-hover-color: var(--primary-color);
   --login-card-box-focus-color: var(--primary-color);
@@ -150,23 +8,35 @@
   --language-icon-color: #ffffff;
   --language-icon-bg-color: var(--primary-color);
   --login-background-min-height: calc(100vh - 102px) !important;
-  --brand-only-logo-url: url("/logo.png");
-  --brand-logo-url: url("/images/brand_logo.png");
-  --background-logo-url: url("/images/illustration_one.png");
-  --footer-brand-logo-url: url("/images/footer_logo.png");
+  --brand-only-logo-url: url('/logo.png');
+  --brand-logo-url: url('/images/brand_logo.png');
+  --background-logo-url: url('/images/illustration_one.png');
+  --footer-brand-logo-url: url('/images/footer_logo.png');
   --primary-button-color: #ffffff;
   --primary-button-bg-color: var(--primary-color);
   --primary-button-border-color: var(--primary-color);
   --primary-button-hover-color: #ffffff;
-  --primary-button-hover-bg-color: var(--primary-color);
-  --primary-button-hover-border-color: var(--primary-color);
-  --primary-button-disable-color: #ffffff;
-  --primary-button-disable-bg-color: #cbcbcb;
-  --primary-button-disable-border-color: #cbcbcb;
+  --primary-button-hover-bg-color: color-mix(
+    in srgb,
+    var(--primary-color) 95%,
+    black 25%
+  );
+  --primary-button-hover-border-color: color-mix(
+    in srgb,
+    var(--primary-color) 95%,
+    black 25%
+  );
+  --primary-button-disable-color: #94a3b8;
+  --primary-button-disable-bg-color: #ffffff;
+  --primary-button-disable-border-color: #94a3b8;
   --secondary-button-color: var(--primary-color);
   --secondary-button-bg-color: #ffffff;
   --secondary-button-border-color: #ffffff;
-  --secondary-button-hover-color: var(--primary-color);
+  --secondary-button-hover-color: color-mix(
+    in srgb,
+    var(--primary-color) 95%,
+    black 25%
+  );
   --secondary-button-hover-bg-color: #ffffff;
   --secondary-button-hover-border-color: #ffffff;
   --secondary-button-disable-color: #ffffff;
@@ -179,28 +49,36 @@
   --info-icon-color: var(--primary-color);
   --toggle-button-inactive-bg-color: #ffffff;
   --toggle-button-inactive-border-color: #d8d8d8;
-  --toggle-button-active-bg-color: #ffdecc;
-  --toggle-button-active-border-color: #ffffff;
-  --toggle-button-inactive-ball-color: #cbcbcb;
-  --toggle-button-inactive-ball-border-color: #cbcbcb;
+  --toggle-button-active-bg-color: #ffffff;
+  --toggle-button-active-border-color: var(--primary-color);
+  --toggle-button-inactive-ball-color: #a7a8a9;
+  --toggle-button-inactive-ball-border-color: #a7a8a9;
   --toggle-button-active-ball-color: var(--primary-color);
   --toggle-button-active-ball-border-color: var(--primary-color);
   --toggle-button-ring-color: var(--primary-color);
   --header-height: 55px;
   --footer-height: 47px;
-  --signup-banner-background-color: #fff6f2;
+  --signup-banner-background-color: color-mix(
+    in srgb,
+    var(--primary-color) 10%,
+    white
+  );
   --signup-banner-bottom-radius: 5px;
   --signup-banner-padding-top: 20px;
   --signup-banner-padding-bottom: 20px;
   --signup-banner-margin-top: 16px;
   --signup-banner-signup-url-color: var(--primary-color);
-  --signup-banner-signup-url-color-hover: var(--primary-color);
+  --signup-banner-signup-url-color-hover: color-mix(
+    in srgb,
+    var(--primary-color) 95%,
+    black 25%
+  );
   --signup-banner-signup-url-color-focus: var(--primary-color);
   --signup-banner-font: normal normal normal 15px/19px Roboto;
   --multipurpose-login-card-border-radius: 10px;
   --multipurpose-login-card-background-color: #ffffff;
-  --top-left-bg-logo-url: url("/images/top_left_bg_logo.svg");
-  --bottom-right-bg-logo-url: url("/images/bottom_right_bg_logo.svg");
+  --top-left-bg-logo-url: url('/images/top_left_bg_logo.svg');
+  --bottom-right-bg-logo-url: url('/images/bottom_right_bg_logo.svg');
   --bottom-left-bg-logo-display: none;
   --top-right-bg-logo-display: none;
   --top-left-bg-width: 14rem;
@@ -221,10 +99,10 @@
   --bottom-right-bg-position-right: 10px;
   --login-client-logo-image-height: 3.25rem;
   --login-client-logo-image-width: 3.25rem;
-  --login-alternate-arrow: "\21C4";
+  --login-alternate-arrow: '\21CB';
   --login-alternate-arrow-size: 1.5rem;
   --login-text-color: #000000;
-  --login-card-separator: linear-gradient(0deg, #FFFBF7 0%, #FFFFFF 100%);
+  --login-card-separator: linear-gradient(0deg, #fffbf7 0%, #ffffff 100%);
   --login-card-separator-height: 1px;
   --footer-text-color: #898989;
   --footer-text-size: 14px;
@@ -249,161 +127,18 @@
   --consent-details-subheader-color: #2c2c2c;
   --consent-details-infoIcon-fill: var(--primary-color);
   --consent-details-infoIcon-stroke: var(--primary-color);
-  --consent-details-available-font: normal normal medium 14px/17px Helvetica Neue;
+  --consent-details-available-font: normal normal medium 14px/17px Helvetica
+    Neue;
   --consent-details-available-color: #76ac6d;
-  --consent-details-unavailable-font: normal normal medium 14px/16px Helvetica Neue;
-  --consent-details-unavailable-color: #707070;
-  --consent-details-message-color: #de7a24;
-  --consent-details-message-background: #fff9f0 0% 0% no-repeat padding-box;
-  --otp-pin-input-width: 40px;
-  --otp-pin-input-height: 40px;
-  --otp-pin-input-margin: 0 5px;
-  --otp-pin-input-color: var(--primary-color);
-  --otp-pin-input-border-bottom: 2px solid var(--primary-color);
-  --checkbox-color: var(--primary-color);
-  --wallet-download-text-color: var(--primary-color);
-  --no-record-banner-background: #fff9f0 0% 0% no-repeat padding-box;
-  --no-record-banner-border-radius: 10px;
-  --no-record-banner-font: normal normal normal 13px/18px Roboto;
-  --no-record-banner-color: #de7a24;
-  --no-record-banner-padding: 1em 1.5em;
-  --selected_login_id_border_color: var(--primary-color);
-  --selected_login_id_color: var(--primary-color);
-  --login_id_hover_border_color: var(--primary-color);
-  --login_id_hover_color: var(--primary-color);
-  --selected_login_id_focus_color: var(--primary-color);
-  --selected_login_id_focus_outline_color: var(--primary-color);
-  --qr_code_title_color:  #696969;
-  --resend_otp_button_color: var(--primary-color);
-  --login-client-logo-image-shadow: 0px 4px 15px 2px #EB6F2D4D;
-  --caps-lock-text-color: #2D86BA;
-  --login-header-text-color: rgb(0, 0, 0);
-  --login-subheader-text-color: #838383;
-  --selected-lang-text-color: var(--primary-color);
-  --border-button-text-color: var(--primary-color);
-  --border-button-border-color: var(--primary-color);
-}
-
-[class="green"] {
-  --primary-color: #32CD32;
-  --login-card-box-color: #bcc0c7;
-  --login-card-box-hover-color: var(--primary-color);
-  --login-card-box-focus-color: var(--primary-color);
-  --login-background: #f7f9fd;
-  --login-background-image: url("/images/section-bg.png");
-  --language-icon-color: #ffffff;
-  --language-icon-bg-color: var(--primary-color);
-  --login-background-min-height: calc(100vh - 102px) !important;
-  --brand-only-logo-url: url("/logo.png");
-  --brand-logo-url: url("/images/brand_logo.png");
-  --background-logo-url: url("/images/illustration_one.png");
-  --footer-brand-logo-url: url("/images/footer_logo.png");
-  --primary-button-color: #ffffff;
-  --primary-button-bg-color: var(--primary-color);
-  --primary-button-border-color: var(--primary-color);
-  --primary-button-hover-color: #ffffff;
-  --primary-button-hover-bg-color: var(--primary-color);
-  --primary-button-hover-border-color: var(--primary-color);
-  --primary-button-disable-color: #ffffff;
-  --primary-button-disable-bg-color: #cbcbcb;
-  --primary-button-disable-border-color: #cbcbcb;
-  --secondary-button-color: green;
-  --secondary-button-bg-color: #ffffff;
-  --secondary-button-border-color: #ffffff;
-  --secondary-button-hover-color: green;
-  --secondary-button-hover-bg-color: #ffffff;
-  --secondary-button-hover-border-color: #ffffff;
-  --secondary-button-disable-color: #ffffff;
-  --secondary-button-disable-bg-color: #cbcbcb;
-  --secondary-button-disable-border-color: #cbcbcb;
-  --loading-indicator-ring-color: var(--primary-color);
-  --loading-indicator-bg-color: transparent;
-  --loading-indicator-font-color: #000000;
-  --qrcode-border-color: var(--primary-color);
-  --info-icon-color: var(--primary-color);
-  --toggle-button-inactive-bg-color: #ffffff;
-  --toggle-button-inactive-border-color: #d8d8d8;
-  --toggle-button-active-bg-color: #ffdecc;
-  --toggle-button-active-border-color: #ffffff;
-  --toggle-button-inactive-ball-color: #cbcbcb;
-  --toggle-button-inactive-ball-border-color: #cbcbcb;
-  --toggle-button-active-ball-color: var(--primary-color);
-  --toggle-button-active-ball-border-color: var(--primary-color);
-  --toggle-button-ring-color: var(--primary-color);
-  --header-height: 55px;
-  --footer-height: 47px;
-  --signup-banner-background-color: #98FB98;
-  --signup-banner-bottom-radius: 5px;
-  --signup-banner-padding-top: 20px;
-  --signup-banner-padding-bottom: 20px;
-  --signup-banner-margin-top: 16px;
-  --signup-banner-signup-url-color: green;
-  --signup-banner-signup-url-color-hover: var(--primary-color);
-  --signup-banner-signup-url-color-focus: var(--primary-color);
-  --signup-banner-font: normal normal normal 15px/19px Roboto;
-  --multipurpose-login-card-border-radius: 20px;
-  --multipurpose-login-card-background-color: #ffffff;
-  --top-left-bg-logo-url: url("/images/top_left_bg_logo.svg");
-  --top-left-bg-logo-display: block;
-  --bottom-left-bg-logo-url: url("/images/top_left_bg_logo.svg");
-  --bottom-left-bg-logo-display: none;
-  --top-right-bg-logo-url: url("/images/top_left_bg_logo.svg");
-  --top-right-bg-logo-display: none;
-  --bottom-right-bg-logo-url: url("/images/bottom_right_bg_logo.svg");
-  --bottom-right-bg-logo-display: block;
-  --top-left-bg-width: 14rem;
-  --top-left-bg-height: 14rem;
-  --top-left-bg-position-top: 10px;
-  --top-left-bg-position-left: 10px;
-  --bottom-left-bg-width: 14rem;
-  --bottom-left-bg-height: 14rem;
-  --bottom-left-bg-position-bottom: 10px;
-  --bottom-left-bg-position-left: 10px;
-  --top-right-bg-width: 14rem;
-  --top-right-bg-height: 14rem;
-  --top-right-bg-position-top: 10px;
-  --top-right-bg-position-right: 10px;
-  --bottom-right-bg-width: 17rem;
-  --bottom-right-bg-height: 17rem;
-  --bottom-right-bg-position-bottom: 10px;
-  --bottom-right-bg-position-right: 10px;
-  --login-client-logo-image-height: 3.25rem;
-  --login-client-logo-image-width: 3.25rem;
-  --login-alternate-arrow: "\21C4";
-  --login-alternate-arrow-size: 1.5rem;
-  --login-text-color: #000000;
-  --login-card-separator: linear-gradient(0deg, #ffffff 0%, #f7fcff 100%);
-  --login-card-separator-height: 1px;
-  --footer-text-color: #898989;
-  --footer-text-size: 14px;
-  --footer-bg-color: #ffffff;
-  --language-check-icon-color: var(--primary-color);
-  --forgot-password-color: var(--primary-color);
-  --forgot-password-font-size: small;
-  --forgot-password-width: max-content;
-  --forgot-password-margin-top: 0.5rem;
-  --forgot-password-margin-bottom: 0.5rem;
-  --password-google-reCaptcha-margin-top: 3rem;
-  --password-google-reCaptcha-margin-bottom: 1rem;
-  --navbar-position: relative;
-  --navbar-zIndex: 1;
-  --navbar-box-shadow: 0px 2px 5px #0000001a;
-  --back-button-color: var(--primary-color);
-  --more-signin-options-color: var(--primary-color);
-  --arrow-down-color: var(--primary-color);
-  --primary-button-border-radius: 8px;
-  --consent-details-header-font: normal normal 600 24px/29px Roboto;
-  --consent-details-header-color: var(--primary-color);
-  --consent-details-subheader-font: normal normal bold 16px/21px Roboto;
-  --consent-details-subheader-color: #2c2c2c;
-  --consent-details-infoIcon-fill: var(--primary-color);
-  --consent-details-infoIcon-stroke: var(--primary-color);
-  --consent-details-available-font: normal normal medium 14px/17px Helvetica Neue;
-  --consent-details-available-color: #76ac6d;
-  --consent-details-unavailable-font: normal normal medium 14px/16px Helvetica Neue;
+  --consent-details-unavailable-font: normal normal medium 14px/16px Helvetica
+    Neue;
   --consent-details-unavailable-color: #707070;
   --consent-details-message-color: var(--primary-color);
-  --consent-details-message-background: #fff9f0 0% 0% no-repeat padding-box;
+  --consent-details-message-background: color-mix(
+    in srgb,
+    var(--primary-color) 5%,
+    white
+  );
   --otp-pin-input-width: 40px;
   --otp-pin-input-height: 40px;
   --otp-pin-input-margin: 0 5px;
@@ -411,7 +146,11 @@
   --otp-pin-input-border-bottom: 2px solid var(--primary-color);
   --checkbox-color: var(--primary-color);
   --wallet-download-text-color: var(--primary-color);
-  --no-record-banner-background: #fff9f0 0% 0% no-repeat padding-box;
+  --no-record-banner-background: color-mix(
+    in srgb,
+    var(--primary-color) 5%,
+    white
+  );
   --no-record-banner-border-radius: 10px;
   --no-record-banner-font: normal normal normal 13px/18px Roboto;
   --no-record-banner-color: var(--primary-color);
@@ -422,13 +161,28 @@
   --login_id_hover_color: var(--primary-color);
   --selected_login_id_focus_color: var(--primary-color);
   --selected_login_id_focus_outline_color: var(--primary-color);
-  --qr_code_title_color:  #696969;
+  --qr_code_title_color: #696969;
   --resend_otp_button_color: var(--primary-color);
-  --login-client-logo-image-shadow: 0px 4px 15px 2px #32CD324D;
-  --caps-lock-text-color: #2D86BA;
+  --login-client-logo-image-shadow: 0px 4px 15px 2px
+    color-mix(in srgb, var(--primary-color) 30%, transparent);
+  --caps-lock-text-color: #2d86ba;
   --login-header-text-color: rgb(0, 0, 0);
   --login-subheader-text-color: #838383;
   --selected-lang-text-color: var(--primary-color);
   --border-button-text-color: var(--primary-color);
   --border-button-border-color: var(--primary-color);
+  --consent-timer-text-color: var(--primary-color);
+  --consent-banner-background-color: color-mix(
+    in srgb,
+    var(--primary-color) 5%,
+    white
+  );
+  --consent-banner-border-radius: 10px;
 }
+
+/* example theme to override default variables
+[class='brown'] {
+  --primary-color: #eb6f2d;
+  --bottom-left-bg-logo-url: url('/images/top_left_bg_logo.svg');
+  --bottom-left-bg-logo-display: block;
+} */

@@ -38,7 +38,7 @@ public class ClientDetailUpdateRequest {
     private List<@AuthContextRef String> authContextRefs;
 
     @NotNull(message = ErrorConstants.INVALID_STATUS)
-    @Pattern(regexp = "^(ACTIVE)|(INACTIVE)$", message = ErrorConstants.INVALID_STATUS)
+    @Pattern(regexp = "^(ACTIVE|INACTIVE)$", message = ErrorConstants.INVALID_STATUS)
     private String status;
 
     @NotNull(message = ErrorConstants.UNSUPPORTED_GRANT_TYPE)
