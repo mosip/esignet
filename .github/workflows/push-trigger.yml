@@ -58,7 +58,7 @@ jobs:
       (github.event_name == 'pull_request' &&
        (startsWith(github.base_ref, 'release') ||
         needs.detect_changes.outputs.service_changed == 'true'))
-    uses: mosip/kattu/.github/workflows/maven-build.yml@master
+    uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
     with:
       SERVICE_LOCATION: ./
       BUILD_ARTIFACT: esignet
@@ -80,7 +80,7 @@ jobs:
             SQUASH_LAYERS: '14'
       fail-fast: false
     name: esignet / build-dockers
-    uses: mosip/kattu/.github/workflows/docker-build.yml@master
+    uses: mosip/kattu/.github/workflows/docker-build.yml@master-java21
     with:
       SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
       SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
@@ -215,7 +215,7 @@ jobs:
       (github.event_name == 'pull_request' &&
        (startsWith(github.base_ref, 'release') ||
         needs.detect_changes.outputs.service_changed == 'true'))
-    uses: mosip/kattu/.github/workflows/maven-build.yml@master
+    uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
     with:
       SERVICE_LOCATION: ./esignet-with-plugins
       BUILD_ARTIFACT: esignet-with-plugins
