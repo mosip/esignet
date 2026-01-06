@@ -14,15 +14,15 @@ import java.util.Objects;
 
 @Setter
 @Getter
-public class OpenIdProfileId implements Serializable {
+public class ServerProfileId implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
     private String profileName;
     private String feature;
 
-    public OpenIdProfileId() {}
+    public ServerProfileId() {}
 
-    public OpenIdProfileId(String profileName, String feature) {
+    public ServerProfileId(String profileName, String feature) {
         this.profileName = profileName;
         this.feature = feature;
     }
@@ -30,8 +30,8 @@ public class OpenIdProfileId implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof OpenIdProfileId)) return false;
-        OpenIdProfileId that = (OpenIdProfileId) o;
+        if (!(o instanceof ServerProfileId)) return false;
+        ServerProfileId that = (ServerProfileId) o;
         return Objects.equals(profileName, that.profileName) &&
                 Objects.equals(feature, that.feature);
     }

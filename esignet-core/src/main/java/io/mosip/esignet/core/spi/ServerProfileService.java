@@ -8,7 +8,7 @@ package io.mosip.esignet.core.spi;
 import io.mosip.esignet.core.exception.EsignetException;
 import java.util.List;
 
-public interface OpenIdProfileService {
+public interface ServerProfileService {
 
     /**
      * Get the features associated with the profile

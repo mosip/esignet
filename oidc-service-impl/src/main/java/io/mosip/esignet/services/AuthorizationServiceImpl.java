@@ -23,7 +23,6 @@ import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.spi.AuthorizationService;
 import io.mosip.esignet.core.spi.ClientManagementService;
-import io.mosip.esignet.core.spi.OpenIdProfileService;
 import io.mosip.esignet.core.spi.TokenService;
 import io.mosip.esignet.core.util.*;
 import lombok.extern.slf4j.Slf4j;
@@ -62,9 +61,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     @Autowired
     private ClientManagementService clientManagementService;
-
-    @Autowired
-    OpenIdProfileService openIdProfileService;
 
     @Autowired
     private CacheUtilService cacheUtilService;
@@ -127,13 +123,13 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Autowired
     private KBIFormHelperService kbiFormHelperService;
 
-    @Value("${mosip.esignet.openid.profile:fapi2.0}")
+    @Value("${mosip.esignet.server.profile:fapi2.0}")
     private String openidProfile;
 
     @Override
     public OAuthDetailResponseV1 getOauthDetails(OAuthDetailRequest oauthDetailReqDto) throws EsignetException {
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(oauthDetailReqDto.getClientId());
-        List<String> features = openIdProfileService.getFeaturesByProfileName(openidProfile);
+        List<String> features = authorizationHelperService.getFeaturesByProfileName(openidProfile);
         assertPARRequiredIsFalse(clientDetailDto, features);
         validateRedirectURIAndNonce(oauthDetailReqDto, clientDetailDto);
         OAuthDetailResponseV1 oAuthDetailResponseV1 = new OAuthDetailResponseV1();
@@ -150,7 +146,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Override
     public OAuthDetailResponseV2 getOauthDetailsV2(OAuthDetailRequestV2 oauthDetailReqDto) throws EsignetException {
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(oauthDetailReqDto.getClientId());
-        List<String> features = openIdProfileService.getFeaturesByProfileName(openidProfile);
+        List<String> features = authorizationHelperService.getFeaturesByProfileName(openidProfile);
         assertPARRequiredIsFalse(clientDetailDto, features);
         validateRedirectURIAndNonce(oauthDetailReqDto, clientDetailDto);
         OAuthDetailResponseV2 oAuthDetailResponseV2 = new OAuthDetailResponseV2();
@@ -179,7 +175,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         OAuthDetailRequestV3 oAuthDetailRequestV3 = mapPushedAuthorizationRequestToOAuthDetailsRequest(pushedAuthorizationRequest);
         handleIdTokenHint(oAuthDetailRequestV3, httpServletRequest);
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(oAuthDetailRequestV3.getClientId());
-        List<String> features = openIdProfileService.getFeaturesByProfileName(openidProfile);
+        List<String> features = authorizationHelperService.getFeaturesByProfileName(openidProfile);
         OAuthDetailResponseV2 oAuthDetailResponseV2 = new OAuthDetailResponseV2();
         return buildTransactionAndOAuthDetailResponse(oAuthDetailRequestV3, clientDetailDto, oAuthDetailResponseV2, features);
     }
@@ -648,28 +644,39 @@ public class AuthorizationServiceImpl implements AuthorizationService {
      * @param features {@link List<String>}
      */
     private void setAdditionalConfigInOidcTransaction(OIDCTransaction oidcTransaction, ClientDetail clientDetailDto, List<String> features) {
-        boolean par = features.contains(FEATURE_PAR);
-        boolean dpop = features.contains(FEATURE_DPOP);
-        boolean jwe = features.contains(FEATURE_JWE);
-        boolean pkce = features.contains(FEATURE_PKCE);
+        // Defensive: treat null features as empty to avoid NPE
+        final List<String> featureList = (features == null) ? java.util.Collections.emptyList() : features;
 
-        boolean isFapi = FAPI2.equalsIgnoreCase(openidProfile);
-        boolean isNisdsp = NISDSP.equalsIgnoreCase(openidProfile);
+        final boolean parEnabled   = featureList.contains(FEATURE_PAR);
+        final boolean dpopEnabled  = featureList.contains(FEATURE_DPOP);
+        final boolean jweEnabled   = featureList.contains(FEATURE_JWE);
+        final boolean pkceEnabled  = featureList.contains(FEATURE_PKCE);
 
-        if (openidProfile == null || NONE.equalsIgnoreCase(openidProfile)) {
-            oidcTransaction.setUserInfoResponseType(clientDetailDto.getAdditionalConfig(USERINFO_RESPONSE_TYPE,FEATURE_JWS));
-            oidcTransaction.setDpopBoundAccessToken(clientDetailDto.getAdditionalConfig(DPOP_BOUND_ACCESS_TOKENS, false));
-            oidcTransaction.setRequirePushedAuthorizationRequests(clientDetailDto.getAdditionalConfig(REQUIRE_PAR, false));
-            oidcTransaction.setRequirePKCE(clientDetailDto.getAdditionalConfig(REQUIRE_PKCE, false));
-        } else {
-            if (isFapi || isNisdsp) {
-                oidcTransaction.setUserInfoResponseType(jwe ? FEATURE_JWE : FEATURE_JWS);
-                oidcTransaction.setDpopBoundAccessToken(dpop);
-                oidcTransaction.setRequirePushedAuthorizationRequests(par);
-            }
-            if (isNisdsp) {
-                oidcTransaction.setRequirePKCE(pkce);
-            }
-        }
+        // Resolve configuration values once
+        final boolean useClientDefaults = (openidProfile == null) || "NONE".equalsIgnoreCase(openidProfile);
+
+        final boolean requirePAR = useClientDefaults
+                ? clientDetailDto.getAdditionalConfig(REQUIRE_PAR, false)
+                : parEnabled;
+
+        final boolean dpopBoundAccessToken = useClientDefaults
+                ? clientDetailDto.getAdditionalConfig(DPOP_BOUND_ACCESS_TOKENS, false)
+                : dpopEnabled;
+
+        final boolean requirePKCE = useClientDefaults
+                ? clientDetailDto.getAdditionalConfig(REQUIRE_PKCE, false)
+                : pkceEnabled;
+
+        // For userInfoResponseType, if defaults are used, pull from config; else prefer JWE when present, fallback to JWS.
+        final String userInfoResponseType = useClientDefaults
+                ? clientDetailDto.getAdditionalConfig(USERINFO_RESPONSE_TYPE, FEATURE_JWS)
+                : (jweEnabled ? FEATURE_JWE : FEATURE_JWS);
+
+        // Apply resolved values in one pass
+        oidcTransaction.setRequirePushedAuthorizationRequests(requirePAR);
+        oidcTransaction.setDpopBoundAccessToken(dpopBoundAccessToken);
+        oidcTransaction.setRequirePKCE(requirePKCE);
+        oidcTransaction.setUserInfoResponseType(userInfoResponseType);
     }
+
 }

@@ -16,8 +16,8 @@ import jakarta.persistence.*;
 @Table(name = "openid_profile")
 @NoArgsConstructor
 @AllArgsConstructor
-@IdClass(OpenIdProfileId.class)
-public class OpenIdProfile {
+@IdClass(ServerProfileId.class)
+public class ServerProfile {
     @Id
     @Column(name = "profile_name", length = 100, nullable = false)
     private String profileName;
