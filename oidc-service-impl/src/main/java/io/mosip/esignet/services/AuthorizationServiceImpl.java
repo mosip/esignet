@@ -419,7 +419,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         boolean isParRequired = (openidProfile == null || NONE.equalsIgnoreCase(openidProfile))
                 ? clientDetail.getAdditionalConfig(REQUIRE_PAR, false)
                 : ((FAPI2.equalsIgnoreCase(openidProfile) || NISDSP.equalsIgnoreCase(openidProfile))
-                && features.contains("PAR"));
+                && features.contains(FEATURE_PAR));
         if (isParRequired) {
             log.error("Pushed Authorization Request (PAR) flow is mandated for clientId: {}", clientDetail.getId());
             throw new EsignetException(ErrorConstants.INVALID_REQUEST);
@@ -653,7 +653,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         final boolean pkceEnabled  = featureList.contains(FEATURE_PKCE);
 
         // Resolve configuration values once
-        final boolean useClientDefaults = (openidProfile == null) || "NONE".equalsIgnoreCase(openidProfile);
+        final boolean useClientDefaults = (openidProfile == null) || NONE.equalsIgnoreCase(openidProfile);
 
         final boolean requirePAR = useClientDefaults
                 ? clientDetailDto.getAdditionalConfig(REQUIRE_PAR, false)
