@@ -95,8 +95,6 @@ public class EsignetDaoConfig {
         hikariConfig.setIdleTimeout(idleTimeout);
         hikariConfig.setMinimumIdle(minimumIdle);
 
-        hikariConfig.addDataSourceProperty("stringtype", "unspecified");
-
         return new HikariDataSource(hikariConfig);
     }
 

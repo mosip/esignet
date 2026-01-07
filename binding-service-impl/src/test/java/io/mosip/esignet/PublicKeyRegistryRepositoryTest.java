@@ -299,10 +299,10 @@ public class PublicKeyRegistryRepositoryTest {
 		publicKeyRegistry = publicKeyRegistryRepository.save(publicKeyRegistry);
 		Assertions.assertNotNull(publicKeyRegistry);
 
-		Optional<PublicKeyRegistry> result = publicKeyRegistryRepository.findLatestByPsuTokenAndAuthFactor(psu_token, "WLA");
+		Optional<PublicKeyRegistry> result = publicKeyRegistryRepository.findFirstByPsuTokenAndAuthFactorOrderByExpiredtimesDesc(psu_token, "WLA");
 		Assertions.assertTrue(result.isPresent());
 
-		result = publicKeyRegistryRepository.findLatestByPsuTokenAndAuthFactor(psu_token+" ", "WLA");
+		result = publicKeyRegistryRepository.findFirstByPsuTokenAndAuthFactorOrderByExpiredtimesDesc(psu_token+" ", "WLA");
 		Assertions.assertFalse(result.isPresent());
 	}
 

@@ -14,31 +14,29 @@
 -- ------------------------------------------------------------------------------------------
 
 -- object: public_key_registry.public_key_registry | type: TABLE --
--- DROP TABLE IF EXISTS public_key_registry.public_key_registry CASCADE;
+
 CREATE TABLE public_key_registry(
-    id_hash character varying(100) NOT NULL,
-    auth_factor character varying(25) NOT NULL,
-	psu_token character varying(256) NOT NULL,
-	public_key character varying NOT NULL,
+    id_hash varchar(100) NOT NULL,
+    auth_factor varchar(25) NOT NULL,
+	psu_token varchar(256) NOT NULL,
+	public_key varchar(2500) NOT NULL,
 	expire_dtimes timestamp NOT NULL,
-	wallet_binding_id character varying(256) NOT NULL,
-	public_key_hash character varying(100) NOT NULL,
-	certificate character varying NOT NULL,
+	wallet_binding_id varchar(256) NOT NULL,
+	public_key_hash varchar(100) NOT NULL,
+	certificate varchar(4000) NOT NULL,
 	cr_dtimes timestamp NOT NULL,
-	thumbprint character varying NOT NULL,
+	thumbprint varchar(128) NOT NULL,
 	CONSTRAINT pk_public_key_registry PRIMARY KEY (id_hash, auth_factor)
 );
 
-COMMENT ON TABLE public_key_registry IS 'Contains id_hash and their respective PSU Tokens,public keys and wallet binding ids.';
-
-COMMENT ON COLUMN public_key_registry.id_hash IS 'Contains Id hash.';
-COMMENT ON COLUMN public_key_registry.psu_token IS 'PSU Token: Partner Specific User Token.';
-COMMENT ON COLUMN public_key_registry.public_key IS 'Public Key: Used to validate JWT signature and encrypt Wallet Binding Id.';
-COMMENT ON COLUMN public_key_registry.expire_dtimes IS 'Expiry DateTimestamp : Date and Timestamp of the expiry of the binding entry.';
-COMMENT ON COLUMN public_key_registry.wallet_binding_id IS 'Wallet Binding Id: hash of PSU  Token and salt.';
-COMMENT ON COLUMN public_key_registry.public_key_hash IS 'Public Key Hash: Hash of  Public Key.';
-COMMENT ON COLUMN public_key_registry.auth_factor IS 'Supported auth factor type.';
-COMMENT ON COLUMN public_key_registry.certificate IS 'Signed certificate';
-COMMENT ON COLUMN public_key_registry.cr_dtimes IS 'Created DateTimestamp : Date and Timestamp when the record is created/inserted.';
-COMMENT ON COLUMN public_key_registry.thumbprint IS 'Thumbprint generated from the certificate'
--- ddl-end --
+-- COMMENT ON TABLE public_key_registry IS 'Contains id_hash and their respective PSU Tokens,public keys and wallet binding ids.';
+-- COMMENT ON COLUMN public_key_registry.id_hash IS 'Contains Id hash.';
+-- COMMENT ON COLUMN public_key_registry.psu_token IS 'PSU Token: Partner Specific User Token.';
+-- COMMENT ON COLUMN public_key_registry.public_key IS 'Public Key: Used to validate JWT signature and encrypt Wallet Binding Id.';
+-- COMMENT ON COLUMN public_key_registry.expire_dtimes IS 'Expiry DateTimestamp : Date and Timestamp of the expiry of the binding entry.';
+-- COMMENT ON COLUMN public_key_registry.wallet_binding_id IS 'Wallet Binding Id: hash of PSU  Token and salt.';
+-- COMMENT ON COLUMN public_key_registry.public_key_hash IS 'Public Key Hash: Hash of  Public Key.';
+-- COMMENT ON COLUMN public_key_registry.auth_factor IS 'Supported auth factor type.';
+-- COMMENT ON COLUMN public_key_registry.certificate IS 'Signed certificate';
+-- COMMENT ON COLUMN public_key_registry.cr_dtimes IS 'Created DateTimestamp : Date and Timestamp when the record is created/inserted.';
+-- COMMENT ON COLUMN public_key_registry.thumbprint IS 'Thumbprint generated from the certificate'

@@ -48,8 +48,12 @@ public class ClientDetail {
     private String redirectUris;
 
     @NotBlank(message = INVALID_PUBLIC_KEY)
-    @Column(name = "public_key", columnDefinition = "jsonb")
+    @Column(name = "public_key")
     private String publicKey;
+
+    @NotBlank(message = INVALID_PUBLIC_KEY)
+    @Column(name = "public_key_hash")
+    private String publicKeyHash;
 
     @NotBlank(message = INVALID_CLAIM)
     @Column(name = "claims")
@@ -78,6 +82,6 @@ public class ClientDetail {
     private LocalDateTime updatedtimes;
 
     @Convert(converter = ClientAdditionalConfigConverter.class)
-    @Column(name = "additional_config", columnDefinition = "jsonb")
+    @Column(name = "additional_config", columnDefinition = "varchar")
     private JsonNode additionalConfig;
 }

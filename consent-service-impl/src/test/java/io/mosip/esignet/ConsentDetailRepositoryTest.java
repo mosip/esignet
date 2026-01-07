@@ -15,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import jakarta.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 @DataJpaTest
 public class ConsentDetailRepositoryTest {
@@ -27,6 +28,7 @@ public class ConsentDetailRepositoryTest {
 
         ConsentDetail consentDetail =new ConsentDetail();
         LocalDateTime date = LocalDateTime.of(2019, 12, 12, 12, 12, 12);
+        consentDetail.setId(UUID.randomUUID().toString());
         consentDetail.setClientId("123");
         consentDetail.setPsuToken("abc");
         consentDetail.setClaims("claims");
@@ -54,6 +56,7 @@ public class ConsentDetailRepositoryTest {
 
         ConsentDetail consentDetail = new ConsentDetail();
         LocalDateTime date = LocalDateTime.of(2019, 12, 12, 12, 12, 12);
+        consentDetail.setId(UUID.randomUUID().toString());
         consentDetail.setClientId(null);
         consentDetail.setPsuToken("abc");
         consentDetail.setClaims("claims");
@@ -76,6 +79,7 @@ public class ConsentDetailRepositoryTest {
 
         ConsentDetail consentDetail = new ConsentDetail();
         LocalDateTime date = LocalDateTime.of(2019, 12, 12, 12, 12, 12);
+        consentDetail.setId(UUID.randomUUID().toString());
         consentDetail.setClientId("123");
         consentDetail.setPsuToken(null);
         consentDetail.setClaims("claims");
@@ -98,6 +102,7 @@ public class ConsentDetailRepositoryTest {
 
         ConsentDetail consentDetail = new ConsentDetail();
         LocalDateTime date = LocalDateTime.of(2019, 12, 12, 12, 12, 12);
+        consentDetail.setId(UUID.randomUUID().toString());
         consentDetail.setClientId("123");
         consentDetail.setPsuToken("abc");
         consentDetail.setClaims(null);
@@ -120,6 +125,7 @@ public class ConsentDetailRepositoryTest {
 
         ConsentDetail consentDetail = new ConsentDetail();
         LocalDateTime date = LocalDateTime.of(2019, 12, 12, 12, 12, 12);
+        consentDetail.setId(UUID.randomUUID().toString());
         consentDetail.setClientId("123");
         consentDetail.setPsuToken("abc");
         consentDetail.setClaims("claims");
@@ -141,6 +147,7 @@ public class ConsentDetailRepositoryTest {
     public void createConsent_withNullCreatedtimes_thenFail() {
 
         ConsentDetail consentDetail = new ConsentDetail();
+        consentDetail.setId(UUID.randomUUID().toString());
         consentDetail.setClientId("123");
         consentDetail.setPsuToken("abc");
         consentDetail.setClaims("claims");
@@ -163,6 +170,7 @@ public class ConsentDetailRepositoryTest {
 
         ConsentDetail consentDetail =new ConsentDetail();
         LocalDateTime date = LocalDateTime.of(2019, 12, 12, 12, 12, 12);
+        consentDetail.setId(UUID.randomUUID().toString());
         consentDetail.setClientId("123");
         consentDetail.setPsuToken("abc");
         consentDetail.setClaims("claims");
