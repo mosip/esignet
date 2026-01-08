@@ -16,6 +16,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import jakarta.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 
 @DataJpaTest
@@ -33,6 +34,7 @@ public class ClientDetailRepositoryTest {
         clientDetail.setStatus("ACTIVE");
         clientDetail.setRedirectUris("[\"https://clientapp.com/home\",\"https://clientapp.com/home2\"]");
         clientDetail.setPublicKey("DUMMY PEM CERT");
+        clientDetail.setPublicKeyHash(UUID.randomUUID().toString());
         clientDetail.setRpId("RP01");
         clientDetail.setClaims("[]");
         clientDetail.setAcrValues("[]");
@@ -64,6 +66,7 @@ public class ClientDetailRepositoryTest {
         clientDetail.setStatus("ACTIVE");
         clientDetail.setRedirectUris("[]");
         clientDetail.setPublicKey("DUMMY PEM CERT");
+        clientDetail.setPublicKeyHash(UUID.randomUUID().toString());
         clientDetail.setRpId("RP01");
         clientDetail.setClaims("[]");
         clientDetail.setAcrValues("[]");
@@ -89,6 +92,7 @@ public class ClientDetailRepositoryTest {
         clientDetail.setStatus("ACTIVE");
         clientDetail.setRedirectUris("[]");
         clientDetail.setPublicKey("");
+        clientDetail.setPublicKeyHash(UUID.randomUUID().toString());
         clientDetail.setRpId("RP01");
         clientDetail.setClaims("[]");
         clientDetail.setAcrValues("[]");
@@ -114,6 +118,7 @@ public class ClientDetailRepositoryTest {
         clientDetail.setStatus("ACTIVE");
         clientDetail.setRedirectUris("[]");
         clientDetail.setPublicKey(null);
+        clientDetail.setPublicKeyHash(UUID.randomUUID().toString());
         clientDetail.setRpId("RP01");
         clientDetail.setClaims("[]");
         clientDetail.setAcrValues("[]");
@@ -139,6 +144,7 @@ public class ClientDetailRepositoryTest {
         clientDetail.setStatus("ACTIVE");
         clientDetail.setRedirectUris("[]");
         clientDetail.setPublicKey("DUMMY PEM CERT");
+        clientDetail.setPublicKeyHash(UUID.randomUUID().toString());
         clientDetail.setRpId("RP01");
         clientDetail.setClaims("[]");
         clientDetail.setAcrValues("[]");
@@ -164,6 +170,7 @@ public class ClientDetailRepositoryTest {
         clientDetail.setStatus("ACTIVE");
         clientDetail.setRedirectUris("[]");
         clientDetail.setPublicKey("DUMMY PEM CERT");
+        clientDetail.setPublicKeyHash(UUID.randomUUID().toString());
         clientDetail.setRpId(" ");
         clientDetail.setClaims("[]");
         clientDetail.setAcrValues("[]");
@@ -189,6 +196,7 @@ public class ClientDetailRepositoryTest {
         clientDetail.setStatus("ACTIVE");
         clientDetail.setRedirectUris(" ");
         clientDetail.setPublicKey("DUMMY PEM CERT");
+        clientDetail.setPublicKeyHash(UUID.randomUUID().toString());
         clientDetail.setRpId("RP_ID");
         clientDetail.setClaims("[]");
         clientDetail.setAcrValues("[]");
@@ -214,6 +222,7 @@ public class ClientDetailRepositoryTest {
         clientDetail.setStatus("");
         clientDetail.setRedirectUris("[]]");
         clientDetail.setPublicKey("DUMMY PEM CERT");
+        clientDetail.setPublicKeyHash(UUID.randomUUID().toString());
         clientDetail.setRpId("RP_ID");
         clientDetail.setClaims("[]");
         clientDetail.setAcrValues("[]");
@@ -239,6 +248,7 @@ public class ClientDetailRepositoryTest {
         clientDetail.setStatus(null);
         clientDetail.setRedirectUris("[]]");
         clientDetail.setPublicKey("DUMMY PEM CERT");
+        clientDetail.setPublicKeyHash(UUID.randomUUID().toString());
         clientDetail.setRpId("RP_ID");
         clientDetail.setClaims("[]");
         clientDetail.setAcrValues("[]");
@@ -263,6 +273,7 @@ public class ClientDetailRepositoryTest {
         clientDetail.setStatus("active");
         clientDetail.setRedirectUris("[]]");
         clientDetail.setPublicKey("DUMMY PEM CERT");
+        clientDetail.setPublicKeyHash(UUID.randomUUID().toString());
         clientDetail.setRpId("RP_ID");
         clientDetail.setClaims("[]");
         clientDetail.setAcrValues("[]");

@@ -27,20 +27,20 @@ import java.util.concurrent.ThreadLocalRandom;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.exception.EsignetException;
-import io.mosip.esignet.core.exception.InvalidRequestException;
 import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.jose4j.jwk.RsaJsonWebKey;
-import org.jose4j.jwk.JsonWebKey;
 import org.jose4j.jwk.EllipticCurveJsonWebKey;
 import org.jose4j.keys.X509Util;
 import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
+import org.springframework.stereotype.Component;
 
 import com.nimbusds.jose.util.ByteUtils;
 
@@ -52,7 +52,11 @@ import static org.apache.commons.validator.routines.UrlValidator.ALLOW_ALL_SCHEM
 import static org.apache.commons.validator.routines.UrlValidator.ALLOW_LOCAL_URLS;
 
 @Slf4j
+@Component
 public class IdentityProviderUtil {
+
+    @Value("#{${mosip.esignet.public-key-hash.fields}}")
+    private Map<String, List<String>> publicKeyHashFields;
 
     private static final Logger logger = LoggerFactory.getLogger(IdentityProviderUtil.class);
     public static final String ALGO_SHA3_256 = "SHA3-256";
@@ -230,8 +234,52 @@ public class IdentityProviderUtil {
         } catch (JoseException e) {
             log.error("Error creating JWK: {}", e.getMessage(), e);
         }
-        log.error("Missing 'kty' field in JWK: {}", jwk);
+        log.error("Missing 'kty' field in JWK");
         throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
+    }
+
+    /**
+     * Computes SHA-256 hash of public key based on key type
+     * For RSA keys: hash of 'n' field
+     * For EC keys: hash of 'x' and 'y' fields concatenated
+     */
+    public String computePublicKeyHash(Map<String, Object> jwk) throws EsignetException {
+        String keyType = (String) jwk.get("kty");
+        if (keyType == null) {
+            log.error("Missing 'kty' field in JWK");
+            throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
+        }
+
+        String dataToHash = switch (keyType) {
+            case "RSA" -> {
+                List<String> hashFields = publicKeyHashFields.get("RSA");
+                yield String.join("", hashFields.stream().map(field -> {
+                    String fieldValue = (String) jwk.get(field);
+                    if (fieldValue == null) {
+                        log.error("Missing '{}' field in RSA JWK", field);
+                        throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
+                    }
+                    return fieldValue;
+                }).toList());
+            }
+            case "EC" -> {
+                List<String> hashFields = publicKeyHashFields.get("EC");
+                yield String.join("", hashFields.stream().map(field -> {
+                    String fieldValue = (String) jwk.get(field);
+                    if (fieldValue == null) {
+                        log.error("Missing '{}' field in EC JWK", field);
+                        throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
+                    }
+                    return fieldValue;
+                }).toList());
+            }
+            default -> {
+                log.error("Unsupported key type '{}' in JWK", keyType);
+                throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
+            }
+        };
+
+        return generateHexEncodedHash(ALGO_SHA_256, dataToHash);
     }
 
     public static String getCertificateThumbprint(String algorithm, X509Certificate cert) {

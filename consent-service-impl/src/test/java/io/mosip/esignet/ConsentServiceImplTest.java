@@ -63,7 +63,7 @@ public class ConsentServiceImplTest {
     @Test
     public void getUserConsent_withValidDetails_thenPass() throws Exception {
         ConsentDetail consentDetail = new ConsentDetail();
-        consentDetail.setId(UUID.randomUUID());
+        consentDetail.setId(UUID.randomUUID().toString());
         consentDetail.setClientId("1234");
         consentDetail.setClaims("{\"userinfo\":{\"given_name\":[{\"essential\":true}],\"phone_number\":null,\"email\":[{\"essential\":true}],\"picture\":[{\"essential\":false}],\"gender\":[{\"essential\":false}]},\"id_token\":{}}");
         consentDetail.setCreatedtimes(LocalDateTime.now());
@@ -87,7 +87,7 @@ public class ConsentServiceImplTest {
     @Test
     public void getUserConsent_withInValidClaimsDetails_thenFail() {
         ConsentDetail consentDetail = new ConsentDetail();
-        consentDetail.setId(UUID.randomUUID());
+        consentDetail.setId(UUID.randomUUID().toString());
         consentDetail.setClientId("1234");
         consentDetail.setCreatedtimes(LocalDateTime.now());
         consentDetail.setClaims("claims");
@@ -153,7 +153,7 @@ public class ConsentServiceImplTest {
         userConsent.setSignature("signature");
 
         ConsentDetail consentDetail = new ConsentDetail();
-        consentDetail.setId(UUID.randomUUID());
+        consentDetail.setId(UUID.randomUUID().toString());
         consentDetail.setClientId("1234");
         consentDetail.setClaims("{\"userinfo\":{\"given_name\":[{\"essential\":true}],\"phone_number\":null,\"email\":[{\"essential\":true}],\"picture\":[{\"essential\":false}],\"gender\":[{\"essential\":false}]},\"id_token\":{}}");
         consentDetail.setCreatedtimes(LocalDateTime.now());
@@ -203,7 +203,7 @@ public class ConsentServiceImplTest {
         userConsent.setSignature("signature");
 
         ConsentDetail consentDetail = new ConsentDetail();
-        consentDetail.setId(UUID.randomUUID());
+        consentDetail.setId(UUID.randomUUID().toString());
         consentDetail.setClientId("1234");
         consentDetail.setClaims("{\"userinfo\":{\"given_name\":[{\"essential\":true}],\"phone_number\":null,\"email\":[{\"essential\":true}],\"picture\":[{\"essential\":false}],\"gender\":[{\"essential\":false}]},\"id_token\":{}}");
         consentDetail.setCreatedtimes(LocalDateTime.now());
