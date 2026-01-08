@@ -112,7 +112,9 @@ public class OAuthServiceImpl implements OAuthService {
 
         IdentityProviderUtil.validateRedirectURI(Collections.singletonList(transaction.getRedirectUri()), tokenRequest.getRedirect_uri());
 
-        if (dpopHeader != null || transaction.isDpopBoundAccessToken()) {
+        if (dpopHeader != null || (Boolean.parseBoolean((transaction.getAdditionalConfigMap() != null
+                ? transaction.getAdditionalConfigMap().get(DPOP_BOUND_ACCESS_TOKENS)
+                : null)))) {
             if (dpopHeader == null) throw new EsignetException(INVALID_REQUEST);
             transaction.setDpopJkt(validateDpopJktThumbprint(dpopHeader,transaction.getDpopJkt()));
             if(!tokenService.isValidDpopServerNonce(dpopHeader, transaction)) {
@@ -270,7 +272,9 @@ public class OAuthServiceImpl implements OAuthService {
         String cNonce = isTransactionVCScoped ? securityHelperService.generateSecureRandomString(20) : null;
         tokenResponse.setAccess_token(tokenService.getAccessToken(transaction, cNonce));
         tokenResponse.setExpires_in(accessTokenExpireSeconds);
-        if(transaction.isDpopBoundAccessToken()) {
+        if(Boolean.parseBoolean((transaction.getAdditionalConfigMap() != null
+                ? transaction.getAdditionalConfigMap().get(DPOP_BOUND_ACCESS_TOKENS)
+                : null))) {
             tokenResponse.setToken_type(DPOP);
         } else {
             tokenResponse.setToken_type(BEARER);
@@ -322,7 +326,9 @@ public class OAuthServiceImpl implements OAuthService {
                 }
             }
             kycExchangeDto.setAcceptedClaimDetails(acceptedClaimDetails);
-            kycExchangeDto.setUserInfoResponseType(transaction.getUserInfoResponseType());
+            kycExchangeDto.setUserInfoResponseType(transaction.getAdditionalConfigMap() != null
+                    ? transaction.getAdditionalConfigMap().get("dpop_bound_access_tokens")
+                    : null);
 
             if(transaction.isInternalAuthSuccess()) {
                 log.info("Internal kyc exchange is invoked as the transaction is marked as internal auth success");

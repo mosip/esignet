@@ -9,4 +9,4 @@ TRUNCATE TABLE esignet.openid_profile CASCADE;
 -- Insert OpenID profile table
 -- Ensure the CSV `esignet-openid_profile.csv` has columns in this exact order:
 -- profile_name, feature
-\COPY esignet.openid_profile (profile_name, feature) FROM './dml/esignet-openid_profile.csv' DELIMITER ',' HEADER CSV;
+\COPY esignet.openid_profile (profile_name, feature, additional_config_key) FROM './dml/esignet-openid_profile.csv' DELIMITER ',' HEADER CSV;

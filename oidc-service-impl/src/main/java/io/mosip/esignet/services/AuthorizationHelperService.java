@@ -457,16 +457,14 @@ public class AuthorizationHelperService {
     /**
      * Get the features associated with the profile
      * @param profileName name of the profile - fapi2.0. nisdsp, gov, none etc
-     * @return list of features associated with the profile
+     * @return map of features associated with the profile
      */
-    public List<String> getFeaturesByProfileName(String profileName) {
+    public Map<String, String> getFeaturesByProfileName(String profileName) {
         List<ServerProfile> profiles = serverProfileRepository.findByProfileName(profileName);
         if (profiles == null || profiles.isEmpty()) {
             throw new EsignetException("No features found for openid profile: " + profileName);
         }
-        return profiles
-                .stream()
-                .map(ServerProfile::getFeature)
-                .collect(Collectors.toList());
+        return profiles.stream()
+                .collect(Collectors.toMap(ServerProfile::getAdditionalConfigKey, ServerProfile::getFeature));
     }
 }

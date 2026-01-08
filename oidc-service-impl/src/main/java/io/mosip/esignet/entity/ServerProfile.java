@@ -26,4 +26,7 @@ public class ServerProfile {
     @Column(name = "feature", length = 100, nullable = false)
     private String feature;
 
+    @Column(name = "additional_config_key", length = 200, nullable = false)
+    private String additionalConfigKey;
+
 }

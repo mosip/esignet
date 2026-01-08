@@ -27,9 +27,10 @@ CREATE TABLE IF NOT EXISTS ca_cert_store(
 	CONSTRAINT cert_thumbprint_unique UNIQUE (cert_thumbprint,partner_domain)
 );
 
-CREATE TABLE openid_profile (
-    profile_name character varying(100) NOT NULL,
-    feature character varying(100) NOT NULL,
+CREATE TABLE IF NOT EXISTS openid_profile (
+    profile_name VARCHAR(100) NOT NULL,
+    feature VARCHAR(100) NOT NULL,
+    additional_config_key VARCHAR(200) NOT NULL,
     CONSTRAINT pk_openid_profile PRIMARY KEY (profile_name, feature)
 );
 
@@ -56,3 +57,7 @@ COMMENT ON COLUMN ca_cert_store.ca_cert_type IS 'CA Certificate Type : Indicates
 COMMENT ON TABLE openid_profile IS 'Static table for global configuration: profile name and feature mapping.';
 COMMENT ON COLUMN openid_profile.profile_name IS 'Profile name for configuration.';
 COMMENT ON COLUMN openid_profile.feature IS 'Feature enabled for the profile.';
+
+INSERT INTO esignet.openid_profile(profile_name, feature, additional_config_key) VALUES ('fapi2.0', 'PAR', 'require_pushed_authorization_requests');
+INSERT INTO esignet.openid_profile(profile_name, feature, additional_config_key) VALUES ('fapi2.0', 'DPOP', 'dpop_bound_access_tokens');
+INSERT INTO esignet.openid_profile(profile_name, feature, additional_config_key) VALUES ('fapi2.0', 'JWE', 'userinfo_response_type');

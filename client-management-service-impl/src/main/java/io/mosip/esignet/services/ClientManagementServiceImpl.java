@@ -55,9 +55,6 @@ public class ClientManagementServiceImpl implements ClientManagementService {
     @Value("${mosip.esignet.audit.claim-name:preferred_username}")
     private String claimName;
 
-    @Value("${mosip.esignet.server.profile:fapi2.0}")
-    private String openidProfile;
-
     private List<String> NULL = Collections.singletonList(null);
 
     private ClientDetail buildClientDetailEntity(ClientDetailCreateRequest clientDetailCreateRequest) {

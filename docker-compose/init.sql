@@ -165,12 +165,12 @@ CREATE TABLE esignet.ca_cert_store(
 	CONSTRAINT cert_thumbprint_unique UNIQUE (cert_thumbprint,partner_domain)
 );
 
-CREATE TABLE esignet.openid_profile (
-    profile_name character varying(100) NOT NULL,
-    feature character varying(100) NOT NULL,
+CREATE TABLE IF NOT EXISTS esignet.openid_profile (
+    profile_name VARCHAR(100) NOT NULL,
+    feature VARCHAR(100) NOT NULL,
+    additional_config_key VARCHAR(200) NOT NULL,
     CONSTRAINT pk_openid_profile PRIMARY KEY (profile_name, feature)
 );
-
 
 INSERT INTO esignet.KEY_POLICY_DEF(APP_ID,KEY_VALIDITY_DURATION,PRE_EXPIRE_DAYS,ACCESS_ALLOWED,IS_ACTIVE,CR_BY,CR_DTIMES) VALUES('ROOT', 2920, 1125, 'NA', true, 'mosipadmin', now());
 INSERT INTO esignet.KEY_POLICY_DEF(APP_ID,KEY_VALIDITY_DURATION,PRE_EXPIRE_DAYS,ACCESS_ALLOWED,IS_ACTIVE,CR_BY,CR_DTIMES) VALUES('OIDC_SERVICE', 1095, 50, 'NA', true, 'mosipadmin', now());
@@ -178,13 +178,9 @@ INSERT INTO esignet.KEY_POLICY_DEF(APP_ID,KEY_VALIDITY_DURATION,PRE_EXPIRE_DAYS,
 INSERT INTO esignet.KEY_POLICY_DEF(APP_ID,KEY_VALIDITY_DURATION,PRE_EXPIRE_DAYS,ACCESS_ALLOWED,IS_ACTIVE,CR_BY,CR_DTIMES) VALUES('BINDING_SERVICE', 1095, 50, 'NA', true, 'mosipadmin', now());
 INSERT INTO esignet.KEY_POLICY_DEF(APP_ID,KEY_VALIDITY_DURATION,PRE_EXPIRE_DAYS,ACCESS_ALLOWED,IS_ACTIVE,CR_BY,CR_DTIMES) VALUES('MOCK_BINDING_SERVICE', 1095, 50, 'NA', true, 'mosipadmin', now());
 
-INSERT INTO esignet.openid_profile(profile_name, feature) VALUES ('fapi2.0', 'PAR');
-INSERT INTO esignet.openid_profile(profile_name, feature) VALUES ('fapi2.0', 'DPOP');
-INSERT INTO esignet.openid_profile(profile_name, feature) VALUES ('fapi2.0', 'JWE');
-INSERT INTO esignet.openid_profile(profile_name, feature) VALUES ('nisdsp', 'PAR');
-INSERT INTO esignet.openid_profile(profile_name, feature) VALUES ('nisdsp', 'DPOP');
-INSERT INTO esignet.openid_profile(profile_name, feature) VALUES ('nisdsp', 'JWE');
-INSERT INTO esignet.openid_profile(profile_name, feature) VALUES ('nisdsp', 'PKCE');
+INSERT INTO esignet.openid_profile(profile_name, feature, additional_config_key) VALUES ('fapi2.0', 'PAR', 'require_pushed_authorization_requests');
+INSERT INTO esignet.openid_profile(profile_name, feature, additional_config_key) VALUES ('fapi2.0', 'DPOP', 'dpop_bound_access_tokens');
+INSERT INTO esignet.openid_profile(profile_name, feature, additional_config_key) VALUES ('fapi2.0', 'JWE', 'userinfo_response_type');
 
 
 \c mosip_mockidentitysystem postgres

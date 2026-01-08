@@ -591,10 +591,10 @@ public class AuthorizationHelperServiceTest {
         when(serverProfileRepository.findByProfileName("profileA"))
                 .thenReturn(Arrays.asList(profile1, profile2));
 
-        List<String> features = authorizationHelperService.getFeaturesByProfileName("profileA");
+        Map<String, String> features = authorizationHelperService.getFeaturesByProfileName("profileA");
         assertEquals(2, features.size());
-        assertTrue(features.contains("feature1"));
-        assertTrue(features.contains("feature2"));
+        assertTrue(features.containsKey("feature1"));
+        assertTrue(features.containsKey("feature2"));
     }
 
     @Test
