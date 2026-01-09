@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS openid_profile (
     CONSTRAINT pk_openid_profile PRIMARY KEY (profile_name, feature)
 );
 
-COMMENT ON TABLE openid_profile IS 'Static table for global configuration: profile name and feature mapping.';
-COMMENT ON COLUMN openid_profile.profile_name IS 'Profile name for configuration.';
-COMMENT ON COLUMN openid_profile.feature IS 'Feature enabled for the profile.';
-COMMENT ON COLUMN openid_profile.additional_config_key IS 'Additional config key name for the feature.';
+-- COMMENT ON TABLE openid_profile IS 'Static table for global configuration: profile name and feature mapping.';
+-- COMMENT ON COLUMN openid_profile.profile_name IS 'Profile name for configuration.';
+-- COMMENT ON COLUMN openid_profile.feature IS 'Feature enabled for the profile.';
+-- COMMENT ON COLUMN openid_profile.additional_config_key IS 'Additional config key name for the feature.';
