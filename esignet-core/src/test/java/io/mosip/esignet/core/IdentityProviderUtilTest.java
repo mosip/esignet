@@ -184,6 +184,18 @@ public class IdentityProviderUtilTest {
     }
 
     @Test
+    public void getJWKString_withValidFullRSAKey_thenPass() throws Exception {
+        Map<String, Object> jwkMap = new HashMap<>();
+        jwkMap.put("kty", "RSA");
+        jwkMap.put("n", "oahUIzUup5kqncCkHk5Zb1pRrLx7e6YtM-9jX1f5e6mHnZFkC2LJUZ0sEh0n5Y5KnQfW9s7d7gK2b8P0EEl0h3ZyHkWzA3YbsgzB4pDxP4RxMZ1I8xD2z3UvfA1zjvKDHz6wEweq4hVJ8nS8GzZJ2E_vb3s");
+        jwkMap.put("e", "AQAB");
+        jwkMap.put("alg", "RS256");
+        jwkMap.put("use", "sig");
+        String jwkJson = IdentityProviderUtil.getJWKString(jwkMap);
+        Assertions.assertTrue(jwkJson.contains("\"kty\":\"RSA\""));
+    }
+
+    @Test
     public void getJWKString_withValidECKey_thenPass() throws Exception {
         Map<String, Object> jwkMap = new HashMap<>();
         jwkMap.put("kty", "EC");

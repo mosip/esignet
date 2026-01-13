@@ -16,14 +16,10 @@ import java.security.cert.*;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
+import com.nimbusds.jose.JWSAlgorithm;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.exception.EsignetException;
@@ -69,12 +65,16 @@ public class IdentityProviderUtil {
     private static Base64.Decoder urlSafeDecoder;
     private static PathMatcher pathMatcher;
     private static UrlValidator urlValidator;
+    private static final Set<String> RSA_ALGORITHMS;
+    private static final Set<String> EC_ALGORITHMS;
 
     static {
         urlSafeEncoder = Base64.getUrlEncoder().withoutPadding();
         urlSafeDecoder = Base64.getUrlDecoder();
         pathMatcher = new AntPathMatcher();
         urlValidator = new UrlValidator(ALLOW_ALL_SCHEMES+ALLOW_LOCAL_URLS);
+        RSA_ALGORITHMS = Set.of(JWSAlgorithm.RS256.getName(), JWSAlgorithm.PS256.getName());
+        EC_ALGORITHMS = Set.of(JWSAlgorithm.ES256.getName(), JWSAlgorithm.ES384.getName(), JWSAlgorithm.ES512.getName());
     }
 
     /**
@@ -219,23 +219,46 @@ public class IdentityProviderUtil {
 	}
 
     public static String getJWKString(Map<String, Object> jwk) throws EsignetException {
+        String keyType = (String) jwk.get("kty");
+        String use = (String) jwk.get("use");
+        String alg = (String) jwk.get("alg");
+
+        if (keyType == null) {
+            throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
+        }
+
         try {
-            String keyType = (String) jwk.get("kty");
-            if (keyType != null) {
-                switch (keyType) {
-                    case "RSA":
-                        return new RsaJsonWebKey(jwk).toJson();
-                    case "EC":
-                        return new EllipticCurveJsonWebKey(jwk).toJson();
-                    default:
-                        log.error("Unsupported key type '{}' in JWK", keyType);
+            // custom validations are necessary as RSAPublicKey and ECPublicKey classes do not validate 'use' and 'alg' fields
+            if (alg != null) {
+                if ("RSA".equals(keyType) && !RSA_ALGORITHMS.contains(alg)) {
+                    throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
+                }
+                if ("EC".equals(keyType) && !EC_ALGORITHMS.contains(alg)) {
+                    throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
+                }
+            }
+            if (use != null && !"sig".equals(use)) {
+                throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
+            }
+            switch (keyType) {
+                case "RSA" -> {
+                    if (jwk.get("e") != null && !jwk.get("e").equals("AQAB")) {
+                        throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
+                    }
+                    return new RsaJsonWebKey(jwk).toJson();
+                }
+                case "EC" -> {
+                    return new EllipticCurveJsonWebKey(jwk).toJson();
+                }
+                default -> {
+                    log.error("Unsupported key type '{}' in JWK", keyType);
+                    throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
                 }
             }
         } catch (JoseException e) {
             log.error("Error creating JWK: {}", e.getMessage(), e);
+            throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
         }
-        log.error("Missing 'kty' field in JWK");
-        throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
     }
 
     /**
