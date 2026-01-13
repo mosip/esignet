@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState, useRef } from 'react';
 import { Route, Routes, useNavigate, useLocation } from 'react-router-dom';
 import {
   LoginPage,
@@ -40,6 +40,9 @@ export const AppRouter = () => {
   const [currentUrl, setCurrentUrl] = useState(window.location.href);
   const [config, setConfig] = useState(null); // State to store config
   const [isLoadingConfig, setIsLoadingConfig] = useState(true);
+  const [isOnline, setIsOnline] = useState(true);
+  const hasNavigatedToErrorRef = useRef(false);
+  const onlineStatusRef = useRef(true); // Track online status to avoid state updates during render
   const pollingConfig = getPollingConfig();
 
   useEffect(() => {
@@ -57,11 +60,41 @@ export const AppRouter = () => {
     fetchConfig();
   }, []); // Run once on component mount
 
+  // Sync online status from Detector to state safely using useEffect
+  useEffect(() => {
+    if (onlineStatusRef.current !== isOnline) {
+      setIsOnline(onlineStatusRef.current);
+    }
+  }, [onlineStatusRef.current]);
+
   useEffect(() => {
     if (location.pathname !== NETWORK_ERROR) {
       setCurrentUrl(window.location.href);
+      // Reset the navigation flag when user navigates away from network error page
+      hasNavigatedToErrorRef.current = false;
     }
   }, [location.pathname]);
+
+  // Handle offline detection and navigation
+  useEffect(() => {
+    if (
+      !isOnline &&
+      location.pathname !== NETWORK_ERROR &&
+      !hasNavigatedToErrorRef.current
+    ) {
+      hasNavigatedToErrorRef.current = true;
+      navigate(NETWORK_ERROR, {
+        state: {
+          path: currentUrl,
+        },
+        replace: true,
+      });
+    }
+    // Reset flag when back online
+    else if (isOnline && hasNavigatedToErrorRef.current) {
+      hasNavigatedToErrorRef.current = false;
+    }
+  }, [isOnline, location.pathname, navigate, currentUrl]);
 
   useEffect(() => {
     setupResponseInterceptor(navigate);
@@ -149,12 +182,10 @@ export const AppRouter = () => {
                 enabled: pollingConfig.enabled, // Optional: Enable or disable polling (default is true)
               }}
               render={({ online }) => {
-                if (!online) {
-                  navigate(NETWORK_ERROR, {
-                    state: {
-                      path: currentUrl,
-                    },
-                  });
+                if (online !== onlineStatusRef.current) {
+                  onlineStatusRef.current = online;
+                  // Trigger re-render by scheduling state update for next tick
+                  setTimeout(() => setIsOnline(online), 0);
                 }
               }}
             />
