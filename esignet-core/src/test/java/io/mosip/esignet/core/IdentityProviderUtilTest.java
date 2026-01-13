@@ -184,7 +184,7 @@ public class IdentityProviderUtilTest {
     }
 
     @Test
-    public void getJWKString_withValidFullRSAKey_thenPass() throws Exception {
+    public void getJWKString_withValidFullRSAKey_thenPass() {
         Map<String, Object> jwkMap = new HashMap<>();
         jwkMap.put("kty", "RSA");
         jwkMap.put("n", "oahUIzUup5kqncCkHk5Zb1pRrLx7e6YtM-9jX1f5e6mHnZFkC2LJUZ0sEh0n5Y5KnQfW9s7d7gK2b8P0EEl0h3ZyHkWzA3YbsgzB4pDxP4RxMZ1I8xD2z3UvfA1zjvKDHz6wEweq4hVJ8nS8GzZJ2E_vb3s");
@@ -193,6 +193,44 @@ public class IdentityProviderUtilTest {
         jwkMap.put("use", "sig");
         String jwkJson = IdentityProviderUtil.getJWKString(jwkMap);
         Assertions.assertTrue(jwkJson.contains("\"kty\":\"RSA\""));
+    }
+
+    @Test
+    public void getJWKString_withInvalidAlgForRSA_thenFail() {
+        Map<String, Object> jwkMap = new HashMap<>();
+        jwkMap.put("kty", "RSA");
+        jwkMap.put("n", "oahUIzUup5kqncCkHk5Zb1pRrLx7e6YtM-9jX1f5e6mHnZFkC2LJUZ0sEh0n5Y5KnQfW9s7d7gK2b8P0EEl0h3ZyHkWzA3YbsgzB4pDxP4RxMZ1I8xD2z3UvfA1zjvKDHz6wEweq4hVJ8nS8GzZJ2E_vb3s");
+        jwkMap.put("e", "AQAB");
+        jwkMap.put("alg", "ES256");
+
+        EsignetException ex = Assertions.assertThrows(EsignetException.class,
+                () -> IdentityProviderUtil.getJWKString(jwkMap));
+        Assertions.assertEquals(ErrorConstants.INVALID_PUBLIC_KEY, ex.getMessage());
+    }
+
+    @Test
+    public void getJWKString_withInvalidUse_thenFail() {
+        Map<String, Object> jwkMap = new HashMap<>();
+        jwkMap.put("kty", "RSA");
+        jwkMap.put("n", "oahUIzUup5kqncCkHk5Zb1pRrLx7e6YtM-9jX1f5e6mHnZFkC2LJUZ0sEh0n5Y5KnQfW9s7d7gK2b8P0EEl0h3ZyHkWzA3YbsgzB4pDxP4RxMZ1I8xD2z3UvfA1zjvKDHz6wEweq4hVJ8nS8GzZJ2E_vb3s");
+        jwkMap.put("e", "AQAB");
+        jwkMap.put("use", "enc");
+
+        EsignetException ex = Assertions.assertThrows(EsignetException.class,
+                () -> IdentityProviderUtil.getJWKString(jwkMap));
+        Assertions.assertEquals(ErrorConstants.INVALID_PUBLIC_KEY, ex.getMessage());
+    }
+
+    @Test
+    public void getJWKString_withInvalidRSAExponent_thenFail() {
+        Map<String, Object> jwkMap = new HashMap<>();
+        jwkMap.put("kty", "RSA");
+        jwkMap.put("n", "oahUIzUup5kqncCkHk5Zb1pRrLx7e6YtM-9jX1f5e6mHnZFkC2LJUZ0sEh0n5Y5KnQfW9s7d7gK2b8P0EEl0h3ZyHkWzA3YbsgzB4pDxP4RxMZ1I8xD2z3UvfA1zjvKDHz6wEweq4hVJ8nS8GzZJ2E_vb3s");
+        jwkMap.put("e", "Aw");
+
+        EsignetException ex = Assertions.assertThrows(EsignetException.class,
+                () -> IdentityProviderUtil.getJWKString(jwkMap));
+        Assertions.assertEquals(ErrorConstants.INVALID_PUBLIC_KEY, ex.getMessage());
     }
 
     @Test
