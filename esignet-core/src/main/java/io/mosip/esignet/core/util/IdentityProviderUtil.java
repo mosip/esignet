@@ -265,49 +265,6 @@ public class IdentityProviderUtil {
         }
     }
 
-    public static String getJWKStringQ(Map<String, Object> jwk) throws EsignetException {
-        String keyType = (String) jwk.get("kty");
-        String use = (String) jwk.get("use");
-        String alg = (String) jwk.get("alg");
-
-        if (keyType == null) {
-            throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
-        }
-
-        try {
-            // custom validations are necessary as RSAPublicKey and ECPublicKey classes do not validate 'use' and 'alg' fields
-            if (alg != null) {
-                if ("RSA".equals(keyType) && !RSA_ALGORITHMS.contains(alg)) {
-                    throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
-                }
-                if ("EC".equals(keyType) && !EC_ALGORITHMS.contains(alg)) {
-                    throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
-                }
-            }
-            if (use != null && !"sig".equals(use)) {
-                throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
-            }
-            switch (keyType) {
-                case "RSA" -> {
-                    if (jwk.get("e") != null && !jwk.get("e").equals("AQAB")) {
-                        throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
-                    }
-                    return new RsaJsonWebKey(jwk).toJson();
-                }
-                case "EC" -> {
-                    return new EllipticCurveJsonWebKey(jwk).toJson();
-                }
-                default -> {
-                    log.error("Unsupported key type '{}' in JWK", keyType);
-                    throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
-                }
-            }
-        } catch (JoseException e) {
-            log.error("Error creating JWK: {}", e.getMessage(), e);
-            throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
-        }
-    }
-
     /**
      * Computes SHA-256 hash of public key based on key type
      * For RSA keys: hash of 'n' field
