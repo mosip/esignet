@@ -87,7 +87,7 @@ export const AppRouter = () => {
     else if (isOnline && hasNavigatedToErrorRef.current) {
       hasNavigatedToErrorRef.current = false;
     }
-  }, [isOnline, location.pathname]);
+  }, [isOnline, location.pathname, currentUrl, navigate]);
 
   useEffect(() => {
     setupResponseInterceptor(navigate);
