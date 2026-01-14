@@ -218,7 +218,54 @@ public class IdentityProviderUtil {
 		return randomBytes;
 	}
 
+    /**
+     * get JWK string from JWK map
+     * @param jwk Map<String,Object>
+     * @return jwkString
+     */
     public static String getJWKString(Map<String, Object> jwk) throws EsignetException {
+        String keyType = (String) jwk.get("kty");
+        String use = (String) jwk.get("use");
+        String alg = (String) jwk.get("alg");
+
+        if (keyType == null) {
+            throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
+        }
+
+        try {
+            String jwkString = switch (keyType) {
+                case "RSA" -> {
+                    if (jwk.get("e") != null && !jwk.get("e").equals("AQAB")) {
+                        throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
+                    }
+                    yield new RsaJsonWebKey(jwk).toJson();
+                }
+                case "EC" -> new EllipticCurveJsonWebKey(jwk).toJson();
+                default -> {
+                    log.error("Unsupported key type '{}' in JWK", keyType);
+                    throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
+                }
+            };
+            // Validate alg and use fields as RSAPublicKey and ECPublicKey classes do not validate these fields
+            if (alg != null) {
+                if ("RSA".equals(keyType) && !RSA_ALGORITHMS.contains(alg)) {
+                    throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
+                }
+                if ("EC".equals(keyType) && !EC_ALGORITHMS.contains(alg)) {
+                    throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
+                }
+            }
+            if (use != null && !"sig".equals(use)) {
+                throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
+            }
+            return jwkString;
+        } catch (JoseException e) {
+            log.error("Error creating JWK: {}", e.getMessage(), e);
+            throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
+        }
+    }
+
+    public static String getJWKStringQ(Map<String, Object> jwk) throws EsignetException {
         String keyType = (String) jwk.get("kty");
         String use = (String) jwk.get("use");
         String alg = (String) jwk.get("alg");
