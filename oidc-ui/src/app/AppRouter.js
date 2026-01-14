@@ -60,13 +60,6 @@ export const AppRouter = () => {
     fetchConfig();
   }, []); // Run once on component mount
 
-  // Sync online status from Detector to state safely using useEffect
-  useEffect(() => {
-    if (onlineStatusRef.current !== isOnline) {
-      setIsOnline(onlineStatusRef.current);
-    }
-  }, [onlineStatusRef.current]);
-
   useEffect(() => {
     if (location.pathname !== NETWORK_ERROR) {
       setCurrentUrl(window.location.href);
@@ -94,7 +87,7 @@ export const AppRouter = () => {
     else if (isOnline && hasNavigatedToErrorRef.current) {
       hasNavigatedToErrorRef.current = false;
     }
-  }, [isOnline, location.pathname, navigate, currentUrl]);
+  }, [isOnline, location.pathname]);
 
   useEffect(() => {
     setupResponseInterceptor(navigate);
