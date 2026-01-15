@@ -234,12 +234,7 @@ public class IdentityProviderUtil {
 
         try {
             String jwkString = switch (keyType) {
-                case "RSA" -> {
-                    if (jwk.get("e") != null && !jwk.get("e").equals("AQAB")) {
-                        throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
-                    }
-                    yield new RsaJsonWebKey(jwk).toJson();
-                }
+                case "RSA" -> new RsaJsonWebKey(jwk).toJson();
                 case "EC" -> new EllipticCurveJsonWebKey(jwk).toJson();
                 default -> {
                     log.error("Unsupported key type '{}' in JWK", keyType);
