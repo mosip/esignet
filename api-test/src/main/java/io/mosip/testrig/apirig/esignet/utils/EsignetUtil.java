@@ -228,7 +228,7 @@ public class EsignetUtil extends AdminTestUtil {
 
 			String endpoint = testCaseDTO.getEndPoint();
 			if (endpoint.contains("/v1/signup/") == true || endpoint.contains("/mock-identity-system/") == true
-					&& ((testCaseName.equals("ESignet_CreateOIDCClient_all_Valid_Smoke_sid")
+					|| ((testCaseName.equals("ESignet_CreateOIDCClient_all_Valid_Smoke_sid")
 						    || testCaseName.equals("ESignet_CreateOIDCClient_Misp_Valid_Smoke_sid")
 						    || testCaseName.equals("ESignet_CreateOIDCClient_NonAuth_all_Valid_Smoke_sid")
 						    || testCaseName.equals("ESignet_CreateOIDCClientV3PAR_all_Valid_Smoke_sid")
@@ -2239,7 +2239,7 @@ public class EsignetUtil extends AdminTestUtil {
 		headers.put("PARTNER-ID", partnerId);
 		headers.put(cookieName, "Bearer " + token);
 		jsonInput = req.toString();
-		if (BaseTestCase.currentModule.equals(GlobalConstants.ESIGNET)) {
+		if (BaseTestCase.currentModule.contains(GlobalConstants.ESIGNET)) {
 			jsonInput = smtpOtpHandler(jsonInput, testCaseName);
 		}
 
@@ -2339,7 +2339,7 @@ public class EsignetUtil extends AdminTestUtil {
 		headers.put("PARTNER-ID", partnerId);
 		headers.put(cookieName, "Bearer " + token);
 		inputJson = req.toString();
-		if (BaseTestCase.currentModule.equals(GlobalConstants.ESIGNET)) {
+		if (BaseTestCase.currentModule.contains(GlobalConstants.ESIGNET)) {
 			inputJson = smtpOtpHandler(inputJson, testCaseName);
 		}
 		logger.info(GlobalConstants.POST_REQ_URL + url);
