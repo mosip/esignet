@@ -224,7 +224,7 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   build_maven_apitest_esignet:
-    uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21-java21
+    uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
     with:
       SERVICE_LOCATION: ./api-test
       BUILD_ARTIFACT: apitest-esignet
