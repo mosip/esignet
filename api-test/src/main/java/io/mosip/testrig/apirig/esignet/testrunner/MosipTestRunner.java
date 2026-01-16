@@ -216,9 +216,10 @@ public class MosipTestRunner {
 		if (!runType.equalsIgnoreCase("JAR")) {
 			AuthTestsUtil.removeOldMosipTempTestResource();
 		}
-		BaseTestCase.currentModule = GlobalConstants.ESIGNET;
-		BaseTestCase.certsForModule = GlobalConstants.ESIGNET;
 		AdminTestUtil.initiateesignetTest();
+		BaseTestCase.currentModule = BaseTestCase.runContext + GlobalConstants.ESIGNET;
+		BaseTestCase.certsForModule = BaseTestCase.currentModule;
+		BaseTestCase.initializePMSDetails();
 		BaseTestCase.otpListener = new OTPListener();
 		BaseTestCase.otpListener.run();
 	}
