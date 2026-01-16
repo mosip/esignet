@@ -180,7 +180,7 @@ INSERT INTO esignet.KEY_POLICY_DEF(APP_ID,KEY_VALIDITY_DURATION,PRE_EXPIRE_DAYS,
 
 INSERT INTO esignet.openid_profile(profile_name, feature, additional_config_key) VALUES ('fapi2.0', 'PAR', 'require_pushed_authorization_requests');
 INSERT INTO esignet.openid_profile(profile_name, feature, additional_config_key) VALUES ('fapi2.0', 'DPOP', 'dpop_bound_access_tokens');
-INSERT INTO esignet.openid_profile(profile_name, feature, additional_config_key) VALUES ('fapi2.0', 'JWE', 'userinfo_response_type');
+INSERT INTO esignet.openid_profile(profile_name, feature, additional_config_key) VALUES ('fapi2.0', 'PKCE', 'require_pkce');
 
 
 \c mosip_mockidentitysystem postgres
