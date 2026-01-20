@@ -43,7 +43,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
-import static io.mosip.esignet.core.constants.Constants.DPOP_BOUND_ACCESS_TOKENS;
 import static io.mosip.esignet.core.constants.Constants.SPACE;
 
 @Slf4j
@@ -156,9 +155,7 @@ public class TokenServiceImpl implements TokenService {
             payload.put(C_NONCE, cNonce);
             payload.put(C_NONCE_EXPIRES_IN, cNonceExpireSeconds);
         }
-        if (Boolean.parseBoolean((transaction.getAdditionalConfigMap() != null
-                ? transaction.getAdditionalConfigMap().get(DPOP_BOUND_ACCESS_TOKENS)
-                : null))) {
+        if (transaction.isDpopBoundAccessToken()) {
             payload.put(CNF, Map.of(JKT, transaction.getDpopJkt()));
         }
         return getSignedJWT(Constants.OIDC_SERVICE_APP_ID, payload);

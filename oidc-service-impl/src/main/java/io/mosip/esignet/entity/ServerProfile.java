@@ -13,7 +13,7 @@ import jakarta.persistence.*;
 
 @Data
 @Entity
-@Table(name = "openid_profile")
+@Table(name = "server_profile")
 @NoArgsConstructor
 @AllArgsConstructor
 @IdClass(ServerProfileId.class)

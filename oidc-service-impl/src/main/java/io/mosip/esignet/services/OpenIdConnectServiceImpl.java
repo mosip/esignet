@@ -23,8 +23,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
-import static io.mosip.esignet.core.constants.Constants.DPOP_BOUND_ACCESS_TOKENS;
-
 @Slf4j
 @Service
 public class OpenIdConnectServiceImpl implements OpenIdConnectService {
@@ -53,9 +51,7 @@ public class OpenIdConnectServiceImpl implements OpenIdConnectService {
             if(transaction == null)
                 throw new NotAuthenticatedException();
 
-            if((Boolean.parseBoolean((transaction.getAdditionalConfigMap() != null
-                    ? transaction.getAdditionalConfigMap().get(DPOP_BOUND_ACCESS_TOKENS)
-                    : null))) && !tokenService.isValidDpopServerNonce(dpopHeader, transaction)) {
+            if(transaction.isDpopBoundAccessToken()  && !tokenService.isValidDpopServerNonce(dpopHeader, transaction)) {
                 tokenService.generateAndStoreNewNonce(accessTokenHash, Constants.USERINFO_CACHE);
             }
 

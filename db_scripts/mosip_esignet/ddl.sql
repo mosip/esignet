@@ -8,4 +8,4 @@
 \ir ddl/esignet-consent.sql
 \ir ddl/esignet-consent_history.sql
 \ir ddl/esignet-ca_cert_store.sql
-\ir ddl/esignet-openid_profile.sql
+\ir ddl/esignet-server_profile.sql

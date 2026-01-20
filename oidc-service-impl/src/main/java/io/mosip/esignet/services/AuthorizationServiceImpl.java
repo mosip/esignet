@@ -671,6 +671,11 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                 }
             }
             oidcTransaction.setAdditionalConfigMap(additionalConfigMap);
+
+            oidcTransaction.setRequirePushedAuthorizationRequests(oidcTransaction.getAdditionalConfigMap().containsKey(REQUIRE_PAR));
+            oidcTransaction.setDpopBoundAccessToken(oidcTransaction.getAdditionalConfigMap().containsKey(DPOP_BOUND_ACCESS_TOKENS));
+            oidcTransaction.setRequirePKCE(oidcTransaction.getAdditionalConfigMap().containsKey(REQUIRE_PKCE));
+            oidcTransaction.setUserInfoResponseType(oidcTransaction.getAdditionalConfigMap().get(USERINFO_RESPONSE_TYPE));
         }
     }
 
