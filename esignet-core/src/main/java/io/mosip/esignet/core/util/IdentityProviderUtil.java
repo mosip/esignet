@@ -19,7 +19,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
-import com.nimbusds.jose.JWSAlgorithm;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.exception.EsignetException;
@@ -65,16 +64,12 @@ public class IdentityProviderUtil {
     private static Base64.Decoder urlSafeDecoder;
     private static PathMatcher pathMatcher;
     private static UrlValidator urlValidator;
-    private static final Set<String> RSA_ALGORITHMS;
-    private static final Set<String> EC_ALGORITHMS;
 
     static {
         urlSafeEncoder = Base64.getUrlEncoder().withoutPadding();
         urlSafeDecoder = Base64.getUrlDecoder();
         pathMatcher = new AntPathMatcher();
         urlValidator = new UrlValidator(ALLOW_ALL_SCHEMES+ALLOW_LOCAL_URLS);
-        RSA_ALGORITHMS = Set.of(JWSAlgorithm.RS256.getName(), JWSAlgorithm.PS256.getName());
-        EC_ALGORITHMS = Set.of(JWSAlgorithm.ES256.getName(), JWSAlgorithm.ES384.getName(), JWSAlgorithm.ES512.getName());
     }
 
     /**
@@ -228,7 +223,7 @@ public class IdentityProviderUtil {
         String use = (String) jwk.get("use");
         String alg = (String) jwk.get("alg");
 
-        if (keyType == null) {
+        if (keyType == null || alg==null || use==null) {
             throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
         }
 
@@ -242,15 +237,7 @@ public class IdentityProviderUtil {
                 }
             };
             // Validate alg and use fields as RSAPublicKey and ECPublicKey classes do not validate these fields
-            if (alg != null) {
-                if ("RSA".equals(keyType) && !RSA_ALGORITHMS.contains(alg)) {
-                    throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
-                }
-                if ("EC".equals(keyType) && !EC_ALGORITHMS.contains(alg)) {
-                    throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
-                }
-            }
-            if (use != null && !"sig".equals(use)) {
+            if (alg.isEmpty() || use.isEmpty()) {
                 throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
             }
             return jwkString;
