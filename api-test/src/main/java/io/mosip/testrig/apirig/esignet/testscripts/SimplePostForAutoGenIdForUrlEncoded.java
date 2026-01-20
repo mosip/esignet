@@ -149,7 +149,7 @@ public class SimplePostForAutoGenIdForUrlEncoded extends EsignetUtil implements 
 				}
 				String endPoint = tempUrl + testCaseDTO.getEndPoint();
 				if (testCaseDTO.getEndPoint().contains("$GETENDPOINTFROMWELLKNOWN$")
-						&& BaseTestCase.currentModule.equalsIgnoreCase("esignet")) {
+						&& BaseTestCase.currentModule.contains("esignet")) {
 					endPoint = EsignetUtil.getValueFromEsignetWellKnownEndPoint("token_endpoint",
 							EsignetConfigManager.getEsignetBaseUrl());
 				}

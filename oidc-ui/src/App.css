@@ -647,6 +647,14 @@ nav {
         margin-top: 0.25em;
         margin-bottom: 0.25em;
       }
+
+      .calendar-icon {
+        top: 48% !important;
+      }
+
+      .real-date-input {
+        padding: 0 !important;
+      }
     }
 
     .checkbox-container {
@@ -658,7 +666,7 @@ nav {
       align-items: center;
       width: 100%;
       margin: 0.25em 0 0.4em;
-      padding: 0.5em 2.5em 0.5em 0.75em;
+      padding: 0.65em 1em;
       border: 1.5px solid #e5e7eb;
       border-radius: 0.5em;
       background-color: #fff;
@@ -753,7 +761,6 @@ nav {
   .form-button {
     width: 100%;
     padding: 0.75em;
-    border: 1px solid var(--primary-button-border-color);
     border-radius: var(--primary-button-border-radius);
     font-weight: 500;
     color: var(--primary-button-color);

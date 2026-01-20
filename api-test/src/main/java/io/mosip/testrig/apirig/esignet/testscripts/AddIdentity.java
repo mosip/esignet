@@ -28,6 +28,7 @@ import io.mosip.testrig.apirig.dto.OutputValidationDto;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.esignet.utils.EsignetConfigManager;
 import io.mosip.testrig.apirig.esignet.utils.EsignetUtil;
+import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.HealthChecker;
 import io.mosip.testrig.apirig.testrunner.JsonPrecondtion;
 import io.mosip.testrig.apirig.utils.AdminTestException;
@@ -97,7 +98,7 @@ public class AddIdentity extends EsignetUtil implements ITest {
 		if (testCaseDTO.getEndPoint().contains("mock-identity-system")) {
 			String individualIDStr = String.valueOf(Calendar.getInstance().getTimeInMillis());
 			String phoneStr = "+91" + generateRandomNumberString(10);
-			String emailStr = testCaseName + "@mosip.net";
+			String emailStr = testCaseName + "_" + BaseTestCase.runContext + "@mosip.net";
 			String passWordStr = properties.getProperty("passwordForAddIdentity");
 			String url = ApplnURI.replace("-internal", "") + testCaseDTO.getEndPoint();
 
@@ -163,7 +164,7 @@ public class AddIdentity extends EsignetUtil implements ITest {
 			inputJson = inputJson.replace("$UIN$", uin);
 			inputJson = inputJson.replace("$RID$", genRid);
 			String phoneNumber = "";
-			String email = testCaseName + "_" + generateRandomAlphaNumericString(3) + generateRandomAlphaNumericString(3) + "@mosip.net";
+			String email = testCaseName + "_" + generateRandomAlphaNumericString(3) + generateRandomAlphaNumericString(3)+ "_" + BaseTestCase.runContext + "@mosip.net";
 			if (inputJson.contains("$PHONENUMBERFORIDENTITY$")) {
 				if (!phoneSchemaRegex.isEmpty())
 					try {
