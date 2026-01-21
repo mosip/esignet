@@ -15,11 +15,8 @@ public class ClientDetailUpdateRequestV3 extends ClientDetailUpdateRequestV2 {
     @ClientAdditionalConfig
     private JsonNode additionalConfig;
 
-    private Map<String, Object> encPublicKey;
-
-    public ClientDetailUpdateRequestV3(String logUri, List<String> redirectUris, List<String> userClaims, List<String> authContextRefs, String status, List<String> grantTypes, String clientName, List<String> clientAuthMethods, Map<String, String> clientNameLangMap, JsonNode additionalConfig, Map<String, Object> encPublicKey) {
+    public ClientDetailUpdateRequestV3(String logUri, List<String> redirectUris, List<String> userClaims, List<String> authContextRefs, String status, List<String> grantTypes, String clientName, List<String> clientAuthMethods, Map<String, String> clientNameLangMap, JsonNode additionalConfig) {
         super(logUri, redirectUris, userClaims, authContextRefs, status, grantTypes, clientName, clientAuthMethods, clientNameLangMap);
         this.additionalConfig = additionalConfig;
-        this.encPublicKey = encPublicKey;
     }
 }

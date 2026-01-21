@@ -325,10 +325,6 @@ public class ClientManagementServiceImpl implements ClientManagementService {
     public ClientDetail buildClient(String clientId, ClientDetailUpdateRequestV3 clientDetailUpdateRequestV3) {
         ClientDetail clientDetail = buildOAuthClient(clientId, clientDetailUpdateRequestV3);
         clientDetail.setAdditionalConfig(clientDetailUpdateRequestV3.getAdditionalConfig());
-        if (clientDetailUpdateRequestV3.getEncPublicKey() != null && !clientDetailUpdateRequestV3.getEncPublicKey().isEmpty()) {
-            clientDetail.setEncPublicKey(IdentityProviderUtil.getJWKString(clientDetailUpdateRequestV3.getEncPublicKey()));
-            clientDetail.setEncPublicKeyHash(identityProviderUtil.computePublicKeyHash(clientDetailUpdateRequestV3.getEncPublicKey()));
-        }
         return clientDetail;
     }
 
