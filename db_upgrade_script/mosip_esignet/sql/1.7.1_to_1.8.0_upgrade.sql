@@ -102,6 +102,10 @@ ALTER TABLE client_detail
     ALTER COLUMN additional_config TYPE varchar(2048)
     USING additional_config::text;
 
+-- Add enc_public_key and enc_public_key_hash columns to store encryption public key and computed hash in JWK format
+ALTER TABLE client_detail ADD COLUMN IF NOT EXISTS enc_public_key varchar(1024);
+ALTER TABLE client_detail ADD COLUMN IF NOT EXISTS enc_public_key_hash varchar(128);
+
 -- Drop helper function
 DROP FUNCTION IF EXISTS compute_public_key_hash(jsonb);
 
@@ -138,6 +142,9 @@ ALTER TABLE key_store ALTER COLUMN certificate_data TYPE varchar(4000);
 ALTER TABLE public_key_registry ALTER COLUMN public_key TYPE varchar(2500);
 ALTER TABLE public_key_registry ALTER COLUMN certificate TYPE varchar(4000);
 ALTER TABLE public_key_registry ALTER COLUMN thumbprint TYPE varchar(128);
+
+
+
 
 END;
 $$;

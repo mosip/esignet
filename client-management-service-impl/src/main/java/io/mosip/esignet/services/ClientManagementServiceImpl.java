@@ -211,6 +211,8 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         dto.setLogoUri(result.get().getLogoUri());
         dto.setStatus(result.get().getStatus());
         dto.setPublicKey(result.get().getPublicKey());
+        dto.setEncPublicKey(result.get().getEncPublicKey());
+        dto.setEncPublicKeyHash(result.get().getEncPublicKeyHash());
         dto.setAdditionalConfig(result.get().getAdditionalConfig());
         TypeReference<List<String>> typeReference = new TypeReference<List<String>>() {};
         try {
@@ -313,12 +315,20 @@ public class ClientManagementServiceImpl implements ClientManagementService {
     public ClientDetail buildClient(ClientDetailCreateRequestV3 clientDetailCreateRequestV3) {
         ClientDetail clientDetail = buildOAuthClient(clientDetailCreateRequestV3);
         clientDetail.setAdditionalConfig(clientDetailCreateRequestV3.getAdditionalConfig());
+        if (clientDetailCreateRequestV3.getEncPublicKey() != null && !clientDetailCreateRequestV3.getEncPublicKey().isEmpty()) {
+            clientDetail.setEncPublicKey(IdentityProviderUtil.getJWKString(clientDetailCreateRequestV3.getEncPublicKey()));
+            clientDetail.setEncPublicKeyHash(identityProviderUtil.computePublicKeyHash(clientDetailCreateRequestV3.getEncPublicKey()));
+        }
         return clientDetail;
     }
 
     public ClientDetail buildClient(String clientId, ClientDetailUpdateRequestV3 clientDetailUpdateRequestV3) {
         ClientDetail clientDetail = buildOAuthClient(clientId, clientDetailUpdateRequestV3);
         clientDetail.setAdditionalConfig(clientDetailUpdateRequestV3.getAdditionalConfig());
+        if (clientDetailUpdateRequestV3.getEncPublicKey() != null && !clientDetailUpdateRequestV3.getEncPublicKey().isEmpty()) {
+            clientDetail.setEncPublicKey(IdentityProviderUtil.getJWKString(clientDetailUpdateRequestV3.getEncPublicKey()));
+            clientDetail.setEncPublicKeyHash(identityProviderUtil.computePublicKeyHash(clientDetailUpdateRequestV3.getEncPublicKey()));
+        }
         return clientDetail;
     }
 
