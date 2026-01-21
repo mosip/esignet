@@ -125,14 +125,14 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     private KBIFormHelperService kbiFormHelperService;
 
     @Value("${mosip.esignet.server.profile:none}")
-    private String openidProfile;
+    private String serverProfile;
 
     @Override
     public OAuthDetailResponseV1 getOauthDetails(OAuthDetailRequest oauthDetailReqDto) throws EsignetException {
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(oauthDetailReqDto.getClientId());
         Map<String, String> features = null;
-        if (openidProfile != null && !NONE.equalsIgnoreCase(openidProfile)) {
-            features = authorizationHelperService.getFeaturesByProfileName(openidProfile);
+        if (serverProfile != null && !NONE.equalsIgnoreCase(serverProfile)) {
+            features = authorizationHelperService.getFeaturesByProfileName(serverProfile);
         }
         assertPARRequiredIsFalse(clientDetailDto, features);
         validateRedirectURIAndNonce(oauthDetailReqDto, clientDetailDto);
@@ -151,8 +151,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     public OAuthDetailResponseV2 getOauthDetailsV2(OAuthDetailRequestV2 oauthDetailReqDto) throws EsignetException {
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(oauthDetailReqDto.getClientId());
         Map<String, String> features = null;
-        if (openidProfile != null && !NONE.equalsIgnoreCase(openidProfile)) {
-            features = authorizationHelperService.getFeaturesByProfileName(openidProfile);
+        if (serverProfile != null && !NONE.equalsIgnoreCase(serverProfile)) {
+            features = authorizationHelperService.getFeaturesByProfileName(serverProfile);
         }
         assertPARRequiredIsFalse(clientDetailDto, features);
         validateRedirectURIAndNonce(oauthDetailReqDto, clientDetailDto);
@@ -183,8 +183,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         handleIdTokenHint(oAuthDetailRequestV3, httpServletRequest);
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(oAuthDetailRequestV3.getClientId());
         Map<String, String> features = null;
-        if (openidProfile != null && !NONE.equalsIgnoreCase(openidProfile)) {
-            features = authorizationHelperService.getFeaturesByProfileName(openidProfile);
+        if (serverProfile != null && !NONE.equalsIgnoreCase(serverProfile)) {
+            features = authorizationHelperService.getFeaturesByProfileName(serverProfile);
         }
         OAuthDetailResponseV2 oAuthDetailResponseV2 = new OAuthDetailResponseV2();
         return buildTransactionAndOAuthDetailResponse(oAuthDetailRequestV3, clientDetailDto, oAuthDetailResponseV2, features);
@@ -426,7 +426,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
     private void assertPARRequiredIsFalse(ClientDetail clientDetail, Map<String, String> features) throws EsignetException {
-        boolean isParRequired = (openidProfile == null || NONE.equalsIgnoreCase(openidProfile))
+        boolean isParRequired = (serverProfile == null || NONE.equalsIgnoreCase(serverProfile))
                 ? clientDetail.getAdditionalConfig(REQUIRE_PAR, false)
                 : (features!=null && features.containsKey(REQUIRE_PAR));
         if (isParRequired) {

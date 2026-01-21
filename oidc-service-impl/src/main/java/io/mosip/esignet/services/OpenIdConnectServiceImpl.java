@@ -51,7 +51,7 @@ public class OpenIdConnectServiceImpl implements OpenIdConnectService {
             if(transaction == null)
                 throw new NotAuthenticatedException();
 
-            if(transaction.isDpopBoundAccessToken()  && !tokenService.isValidDpopServerNonce(dpopHeader, transaction)) {
+            if(transaction.isDpopBoundAccessToken() && !tokenService.isValidDpopServerNonce(dpopHeader, transaction)) {
                 tokenService.generateAndStoreNewNonce(accessTokenHash, Constants.USERINFO_CACHE);
             }
 
