@@ -7,6 +7,7 @@ package io.mosip.esignet;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jose.Algorithm;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -349,6 +350,7 @@ public class ClientManagementServiceTest {
             return new RSAKey.Builder((RSAPublicKey)keyPair.getPublic())
                     .privateKey((RSAPrivateKey)keyPair.getPrivate())
                     .keyUse(KeyUse.SIGNATURE)
+                    .algorithm(new Algorithm("RS256"))
                     .keyID(UUID.randomUUID().toString())
                     .build();
         } catch (NoSuchAlgorithmException e) {

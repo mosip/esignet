@@ -16,12 +16,7 @@ import java.security.cert.*;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 import io.mosip.esignet.core.constants.Constants;
@@ -218,24 +213,38 @@ public class IdentityProviderUtil {
 		return randomBytes;
 	}
 
+    /**
+     * get JWK string from JWK map
+     * @param jwk Map<String,Object>
+     * @return jwkString
+     */
     public static String getJWKString(Map<String, Object> jwk) throws EsignetException {
+        String keyType = (String) jwk.get("kty");
+        String use = (String) jwk.get("use");
+        String alg = (String) jwk.get("alg");
+
+        if (keyType == null || alg==null || use==null) {
+            throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
+        }
+
         try {
-            String keyType = (String) jwk.get("kty");
-            if (keyType != null) {
-                switch (keyType) {
-                    case "RSA":
-                        return new RsaJsonWebKey(jwk).toJson();
-                    case "EC":
-                        return new EllipticCurveJsonWebKey(jwk).toJson();
-                    default:
-                        log.error("Unsupported key type '{}' in JWK", keyType);
+            String jwkString = switch (keyType) {
+                case "RSA" -> new RsaJsonWebKey(jwk).toJson();
+                case "EC" -> new EllipticCurveJsonWebKey(jwk).toJson();
+                default -> {
+                    log.error("Unsupported key type '{}' in JWK", keyType);
+                    throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
                 }
+            };
+            // Validate alg and use fields as RSAPublicKey and ECPublicKey classes do not validate these fields
+            if (alg.isEmpty() || use.isEmpty()) {
+                throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
             }
+            return jwkString;
         } catch (JoseException e) {
             log.error("Error creating JWK: {}", e.getMessage(), e);
+            throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
         }
-        log.error("Missing 'kty' field in JWK");
-        throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
     }
 
     /**
