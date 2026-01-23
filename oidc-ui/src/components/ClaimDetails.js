@@ -347,7 +347,7 @@ const ClaimDetails = ({
                                       width="16"
                                       height="16"
                                       viewBox="0 0 18.5 18.5"
-                                      className="mx-1 mt-[2px] w-[15px] h-[14px] inline relative bottom-[2px]"
+                                      className="mx-1 mt-[2px] w-[16px] h-[15px] inline relative bottom-[2px]"
                                     >
                                       <g
                                         id="info_FILL0_wght400_GRAD0_opsz48"
