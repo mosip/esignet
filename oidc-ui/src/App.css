@@ -176,19 +176,6 @@ body {
   right: 2px;
 }
 
-[dir='rtl'] .kbi_form {
-  input[type='date'] {
-    display: flex;
-    justify-content: end;
-    background-position: right 0.75em center !important;
-    padding: 0.5em 2.25em 0.5em 1em !important;
-  }
-
-  .input_box {
-    padding: 0.5em 0.75em 0.5em 1em !important;
-  }
-}
-
 .footer-brand-logo {
   content: var(--footer-brand-logo-url);
   height: 25px;
@@ -666,8 +653,8 @@ nav {
       align-items: center;
       width: 100%;
       margin: 0.25em 0 0.4em;
-      padding: 0.65em 1em;
-      border: 1.5px solid #e5e7eb;
+      padding: 0.65em;
+      border: 1.5px solid #e5e7eb !important;
       border-radius: 0.5em;
       background-color: #fff;
       overflow: hidden;
