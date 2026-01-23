@@ -657,9 +657,10 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
         Map<String, Object> existingAdditionalConfigs = objectMapper.convertValue(clientDetailDto.getAdditionalConfig(), new TypeReference<>() {});
         Map<String, String> resultMap = new HashMap<>();
-        existingAdditionalConfigs.forEach((key, value) -> resultMap.put(key, value.toString()));
-        oidcTransaction.setAdditionalConfigMap(resultMap);
-
+        if( existingAdditionalConfigs != null) {
+            existingAdditionalConfigs.forEach((key, value) -> resultMap.put(key, value.toString()));
+            oidcTransaction.setAdditionalConfigMap(resultMap);
+        }
         if(features!=null && !features.isEmpty()) {
             Map<String, String> additionalConfigMap = oidcTransaction.getAdditionalConfigMap();
             log.info("Setting additional config in OIDC transaction based on openid profile features: {}", featureMap);
@@ -671,7 +672,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
                 }
             }
             oidcTransaction.setAdditionalConfigMap(additionalConfigMap);
-
+        }
+        // if profile is set get it from overridden map or get it from existing configs
+        if(oidcTransaction.getAdditionalConfigMap()!=null){
             oidcTransaction.setRequirePushedAuthorizationRequests(oidcTransaction.getAdditionalConfigMap().containsKey(REQUIRE_PAR));
             oidcTransaction.setDpopBoundAccessToken(oidcTransaction.getAdditionalConfigMap().containsKey(DPOP_BOUND_ACCESS_TOKENS));
             oidcTransaction.setRequirePKCE(oidcTransaction.getAdditionalConfigMap().containsKey(REQUIRE_PKCE));

@@ -587,14 +587,18 @@ public class AuthorizationHelperServiceTest {
         ServerProfile profile1 = mock(ServerProfile.class);
         ServerProfile profile2 = mock(ServerProfile.class);
         when(profile1.getFeature()).thenReturn("feature1");
+        when(profile1.getAdditionalConfigKey()).thenReturn("configKey1");
         when(profile2.getFeature()).thenReturn("feature2");
+        when(profile2.getAdditionalConfigKey()).thenReturn("configKey2");
         when(serverProfileRepository.findByProfileName("profileA"))
                 .thenReturn(Arrays.asList(profile1, profile2));
 
         Map<String, String> features = authorizationHelperService.getFeaturesByProfileName("profileA");
         assertEquals(2, features.size());
-        assertTrue(features.containsKey("feature1"));
-        assertTrue(features.containsKey("feature2"));
+        assertTrue(features.containsKey("configKey1"));
+        assertTrue(features.containsKey("configKey2"));
+        assertEquals("feature1", features.get("configKey1"));
+        assertEquals("feature2", features.get("configKey2"));
     }
 
     @Test
