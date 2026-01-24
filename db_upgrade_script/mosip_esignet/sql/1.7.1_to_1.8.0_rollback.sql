@@ -64,5 +64,7 @@ ALTER TABLE public_key_registry ALTER COLUMN public_key TYPE varchar;
 ALTER TABLE public_key_registry ALTER COLUMN certificate TYPE varchar;
 ALTER TABLE public_key_registry ALTER COLUMN thumbprint TYPE varchar;
 
+DROP TABLE IF EXISTS server_profile;
+
 END;
 $$;

@@ -24,6 +24,8 @@ import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.spi.TokenService;
 import io.mosip.esignet.core.util.*;
+import io.mosip.esignet.entity.ServerProfile;
+import io.mosip.esignet.repository.ServerProfileRepository;
 import io.mosip.kernel.core.keymanager.spi.KeyStore;
 import io.mosip.kernel.keymanagerservice.constant.KeymanagerConstant;
 import io.mosip.kernel.keymanagerservice.entity.KeyAlias;
@@ -128,6 +130,9 @@ public class AuthorizationHelperService {
 
     @Value("${mosip.esignet.signup-id-token-audience}")
     private String signupIDTokenAudience;
+
+    @Autowired
+    ServerProfileRepository serverProfileRepository;
 
     protected void validateSendOtpCaptchaToken(String captchaToken) {
         if(!captchaRequired.contains("send-otp")) {
@@ -447,5 +452,19 @@ public class AuthorizationHelperService {
 
     private boolean isLocalEnvironment() {
         return Arrays.stream(environment.getActiveProfiles()).anyMatch(env -> env.equalsIgnoreCase("local"));
+    }
+
+    /**
+     * Get the features associated with the profile
+     * @param profileName name of the profile - fapi2.0. nisdsp, gov, none etc
+     * @return map of features associated with the profile
+     */
+    public Map<String, String> getFeaturesByProfileName(String profileName) {
+        List<ServerProfile> profiles = serverProfileRepository.findByProfileName(profileName);
+        if (profiles == null || profiles.isEmpty()) {
+            throw new EsignetException("No features found for openid profile: " + profileName);
+        }
+        return profiles.stream()
+                .collect(Collectors.toMap(ServerProfile::getAdditionalConfigKey, ServerProfile::getFeature));
     }
 }

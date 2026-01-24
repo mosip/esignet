@@ -26,7 +26,6 @@ import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidDpopHeaderException;
-import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.spi.*;
 import io.mosip.esignet.core.util.*;
 import io.mosip.kernel.keymanagerservice.dto.AllCertificatesDataResponseDto;

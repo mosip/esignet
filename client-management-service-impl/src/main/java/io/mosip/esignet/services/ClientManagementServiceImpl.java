@@ -37,7 +37,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 
-import static io.mosip.esignet.core.constants.Constants.CLIENT_ACTIVE_STATUS;
+import static io.mosip.esignet.core.constants.Constants.*;
 
 @Slf4j
 @Service
@@ -321,5 +321,4 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         clientDetail.setAdditionalConfig(clientDetailUpdateRequestV3.getAdditionalConfig());
         return clientDetail;
     }
-
 }
