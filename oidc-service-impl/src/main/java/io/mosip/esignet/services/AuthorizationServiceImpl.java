@@ -6,7 +6,6 @@
 package io.mosip.esignet.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.claim.*;
@@ -60,12 +59,40 @@ public class AuthorizationServiceImpl implements AuthorizationService {
 
     private static final String KBI_FIELD_DETAILS_CONFIG_KEY = "auth.factor.kbi.field-details";
 
+    @Value("#{${mosip.esignet.ui.config.key-values}}")
+    private HashMap<String, Object> uiConfigMap;
+
+    @Value("${mosip.esignet.auth-txn-id-length:10}")
+    private int authTransactionIdLength;
+
+    //Number of times generate-link-code could be invoked per transaction
+    @Value("${mosip.esignet.generate-link-code.limit-per-transaction:10}")
+    private int linkCodeLimitPerTransaction;
+
+    @Value("${mosip.esignet.credential.scope.auto-permit:true}")
+    private boolean autoPermitCredentialScopes;
+
+    @Value("#{'${mosip.esignet.captcha.required}'.split(',')}")
+    private List<String> captchaRequired;
+
+    @Value("${mosip.esignet.signup-id-token-expire-seconds:60}")
+    private int signupIDTokenValidity;
+
+    @Value("${mosip.esignet.signup-id-token-audience}")
+    private String signupIDTokenAudience;
+
+    @Value("${mosip.esignet.authenticator.default.auth-factor.kbi.field-details-url}")
+    private String kbiFormDetailsUrl;
+
+    @Value("#{${mosip.esignet.authenticator.default.auth-factor.kbi.field-details}}")
+    private List<Map<String, String>> fieldDetailList;
+
     @Autowired
     private ClientManagementService clientManagementService;
 
     @Autowired
     private CacheUtilService cacheUtilService;
-    
+
     @Autowired
     private TokenService tokenService;
 
@@ -87,57 +114,23 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Autowired
     private ClaimsHelperService claimsHelperService;
 
-    @Value("#{${mosip.esignet.ui.config.key-values}}")
-    private HashMap<String, Object> uiConfigMap;
-
-    @Value("${mosip.esignet.auth-txn-id-length:10}")
-    private int authTransactionIdLength;
-
-    //Number of times generate-link-code could be invoked per transaction
-    @Value("${mosip.esignet.generate-link-code.limit-per-transaction:10}")
-    private int linkCodeLimitPerTransaction;
-
-    @Value("${mosip.esignet.credential.scope.auto-permit:true}")
-    private boolean autoPermitCredentialScopes;
-
-    @Value("${mosip.esignet.credential.mandate-pkce:true}")
-    private boolean mandatePKCEForVC;
-
-    @Value("#{'${mosip.esignet.captcha.required}'.split(',')}")
-    private List<String> captchaRequired;
-
-    @Value("${mosip.esignet.signup-id-token-expire-seconds:60}")
-    private int signupIDTokenValidity;
-
-    @Value("${mosip.esignet.signup-id-token-audience}")
-    private String signupIDTokenAudience;
-
-    @Value("${mosip.esignet.authenticator.default.auth-factor.kbi.field-details-url}")
-    private String kbiFormDetailsUrl;
-
-    @Value("#{${mosip.esignet.authenticator.default.auth-factor.kbi.field-details}}")
-    private List<Map<String, String>> fieldDetailList;
-
     @Autowired
     private ResourceLoader resourceLoader;
 
     @Autowired
     private KBIFormHelperService kbiFormHelperService;
 
-    @Value("${mosip.esignet.server.profile:none}")
-    private String serverProfile;
+    @Autowired
+    private ServerProfile serverProfile;
+
 
     @Override
     public OAuthDetailResponseV1 getOauthDetails(OAuthDetailRequest oauthDetailReqDto) throws EsignetException {
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(oauthDetailReqDto.getClientId());
-        Map<String, String> features = null;
-        if (serverProfile != null && !NONE.equalsIgnoreCase(serverProfile)) {
-            features = authorizationHelperService.getFeaturesByProfileName(serverProfile);
-        }
-        assertPARRequiredIsFalse(clientDetailDto, features);
+        assertPARRequiredIsFalse(clientDetailDto);
         validateRedirectURIAndNonce(oauthDetailReqDto, clientDetailDto);
         OAuthDetailResponseV1 oAuthDetailResponseV1 = new OAuthDetailResponseV1();
-        Pair<OAuthDetailResponse, OIDCTransaction> pair = checkAndBuildOIDCTransaction(oauthDetailReqDto, clientDetailDto, oAuthDetailResponseV1, features);
+        Pair<OAuthDetailResponse, OIDCTransaction> pair = checkAndBuildOIDCTransaction(oauthDetailReqDto, clientDetailDto, oAuthDetailResponseV1);
         oAuthDetailResponseV1 = (OAuthDetailResponseV1) pair.getFirst();
         oAuthDetailResponseV1.setClientName(clientDetailDto.getName().get(NONE_LANG_KEY));
         pair.getSecond().setOauthDetailsHash(getOauthDetailsResponseHash(oAuthDetailResponseV1));
@@ -150,14 +143,10 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     @Override
     public OAuthDetailResponseV2 getOauthDetailsV2(OAuthDetailRequestV2 oauthDetailReqDto) throws EsignetException {
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(oauthDetailReqDto.getClientId());
-        Map<String, String> features = null;
-        if (serverProfile != null && !NONE.equalsIgnoreCase(serverProfile)) {
-            features = authorizationHelperService.getFeaturesByProfileName(serverProfile);
-        }
-        assertPARRequiredIsFalse(clientDetailDto, features);
+        assertPARRequiredIsFalse(clientDetailDto);
         validateRedirectURIAndNonce(oauthDetailReqDto, clientDetailDto);
         OAuthDetailResponseV2 oAuthDetailResponseV2 = new OAuthDetailResponseV2();
-        return buildTransactionAndOAuthDetailResponse(oauthDetailReqDto, clientDetailDto, oAuthDetailResponseV2, features);
+        return buildTransactionAndOAuthDetailResponse(oauthDetailReqDto, clientDetailDto, oAuthDetailResponseV2);
     }
 
     @Override
@@ -182,12 +171,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         OAuthDetailRequestV3 oAuthDetailRequestV3 = mapPushedAuthorizationRequestToOAuthDetailsRequest(pushedAuthorizationRequest);
         handleIdTokenHint(oAuthDetailRequestV3, httpServletRequest);
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(oAuthDetailRequestV3.getClientId());
-        Map<String, String> features = null;
-        if (serverProfile != null && !NONE.equalsIgnoreCase(serverProfile)) {
-            features = authorizationHelperService.getFeaturesByProfileName(serverProfile);
-        }
         OAuthDetailResponseV2 oAuthDetailResponseV2 = new OAuthDetailResponseV2();
-        return buildTransactionAndOAuthDetailResponse(oAuthDetailRequestV3, clientDetailDto, oAuthDetailResponseV2, features);
+        return buildTransactionAndOAuthDetailResponse(oAuthDetailRequestV3, clientDetailDto, oAuthDetailResponseV2);
     }
 
     @Override
@@ -425,18 +410,15 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         authorizationHelperService.validateNonce(oAuthDetailRequest.getNonce());
     }
 
-    private void assertPARRequiredIsFalse(ClientDetail clientDetail, Map<String, String> features) throws EsignetException {
-        boolean isParRequired = (serverProfile == null || NONE.equalsIgnoreCase(serverProfile))
-                ? clientDetail.getAdditionalConfig(REQUIRE_PAR, false)
-                : (features!=null && features.containsKey(REQUIRE_PAR));
-        if (isParRequired) {
+    private void assertPARRequiredIsFalse(ClientDetail clientDetail) throws EsignetException {
+        if (serverProfile.getFeatureMap().containsKey(REQUIRE_PAR) || clientDetail.getAdditionalConfig(REQUIRE_PAR, false)) {
             log.error("Pushed Authorization Request (PAR) flow is mandated for clientId: {}", clientDetail.getId());
             throw new EsignetException(ErrorConstants.INVALID_REQUEST);
         }
     }
 
     private Pair<OAuthDetailResponse, OIDCTransaction> checkAndBuildOIDCTransaction(OAuthDetailRequest oauthDetailReqDto,
-                                                                                    ClientDetail clientDetailDto, OAuthDetailResponse oAuthDetailResponse, Map<String, String> features) {
+                                                                                    ClientDetail clientDetailDto, OAuthDetailResponse oAuthDetailResponse) {
         //Resolve the final set of claims based on registered and request parameter.
         Claims resolvedClaims = claimsHelperService.resolveRequestedClaims(oauthDetailReqDto, clientDetailDto);
         //Resolve and set ACR claim
@@ -488,7 +470,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oidcTransaction.setPrompt(IdentityProviderUtil.splitAndTrimValue(oauthDetailReqDto.getPrompt(), Constants.SPACE));
         oidcTransaction.setConsentExpireMinutes(clientDetailDto.getAdditionalConfig(CONSENT_EXPIRE_IN_MINS, 0));
         oidcTransaction.setDpopJkt(oauthDetailReqDto.getDpopJkt());
-        setAdditionalConfigInOidcTransaction(oidcTransaction, clientDetailDto, features);
+        setFeatureFlags(oidcTransaction, clientDetailDto);
         return Pair.of(oAuthDetailResponse, oidcTransaction);
     }
 
@@ -504,9 +486,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
     private OAuthDetailResponseV2 buildTransactionAndOAuthDetailResponse(OAuthDetailRequestV2 oauthDetailReqDto,
-                                                                         ClientDetail clientDetailDto, OAuthDetailResponseV2 oAuthDetailResponseV2, Map<String, String> features) {
+                                                                         ClientDetail clientDetailDto, OAuthDetailResponseV2 oAuthDetailResponseV2) {
 
-        Pair<OAuthDetailResponse, OIDCTransaction> pair = checkAndBuildOIDCTransaction(oauthDetailReqDto, clientDetailDto, oAuthDetailResponseV2, features);
+        Pair<OAuthDetailResponse, OIDCTransaction> pair = checkAndBuildOIDCTransaction(oauthDetailReqDto, clientDetailDto, oAuthDetailResponseV2);
         oAuthDetailResponseV2 = (OAuthDetailResponseV2) pair.getFirst();
         oAuthDetailResponseV2.setClientName(clientDetailDto.getName());
 
@@ -521,10 +503,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         oidcTransaction.setProofKeyCodeExchange(ProofKeyCodeExchange.getInstance(oauthDetailReqDto.getCodeChallenge(),
                 oauthDetailReqDto.getCodeChallengeMethod()));
 
-        if(mandatePKCEForVC && CollectionUtils.isNotEmpty(oidcTransaction.getRequestedCredentialScopes()) &&
-                oidcTransaction.getProofKeyCodeExchange() == null) {
-            log.error("PKCE is mandated for VC scoped transactions");
-            throw new EsignetException(ErrorConstants.INVALID_PKCE_CHALLENGE);
+        if(oidcTransaction.isRequirePKCE() && oidcTransaction.getProofKeyCodeExchange() == null) {
+            log.error("PKCE is mandated for {}, but code challenge is not present in the request", clientDetailDto.getId());
+            throw new EsignetException(ErrorConstants.USE_PKCE);
         }
 
         cacheUtilService.setTransaction(oAuthDetailResponseV2.getTransactionId(), pair.getSecond());
@@ -647,39 +628,29 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
     /**
-     * Set additional config in OIDC transaction based on openid profile and client additional config
+     * Set additional config in OIDC transaction based on configured server profile and client additional config.
+     * Priority is given to server profile config
+     * Second priority is given to client additional config
+     * Otherwise the default value is set to all the available features
      * @param oidcTransaction  {@link OIDCTransaction}
-     * @param clientDetailDto  {@link ClientDetail}
-     * @param features {@link List<String>}
+     * @param clientDetail  {@link ClientDetail}
      */
-    private void setAdditionalConfigInOidcTransaction(OIDCTransaction oidcTransaction, ClientDetail clientDetailDto, Map<String, String> features) {
-        final Map<String, String> featureMap = (features == null) ? Map.of() : features;
+    void setFeatureFlags(OIDCTransaction oidcTransaction, ClientDetail clientDetail) {
+        oidcTransaction.setRequirePushedAuthorizationRequests(serverProfile.getFeatureMap().containsKey(REQUIRE_PAR)
+                || clientDetail.getAdditionalConfig(REQUIRE_PAR, false));
+        oidcTransaction.setDpopBoundAccessToken(serverProfile.getFeatureMap().containsKey(DPOP_BOUND_ACCESS_TOKENS)
+                || clientDetail.getAdditionalConfig(DPOP_BOUND_ACCESS_TOKENS, false));
+        oidcTransaction.setRequirePKCE(serverProfile.getFeatureMap().containsKey(REQUIRE_PKCE)
+                || clientDetail.getAdditionalConfig(REQUIRE_PKCE, false));
+        oidcTransaction.setUserInfoResponseType(serverProfile.getFeatureMap().containsKey(USERINFO_RESPONSE_TYPE) ?
+                serverProfile.getFeatureMap().get(USERINFO_RESPONSE_TYPE) :
+                clientDetail.getAdditionalConfig(USERINFO_RESPONSE_TYPE, "JWS"));
 
-        Map<String, Object> existingAdditionalConfigs = objectMapper.convertValue(clientDetailDto.getAdditionalConfig(), new TypeReference<>() {});
-        Map<String, String> resultMap = new HashMap<>();
-        if( existingAdditionalConfigs != null) {
-            existingAdditionalConfigs.forEach((key, value) -> resultMap.put(key, value.toString()));
-        }
-        oidcTransaction.setAdditionalConfigMap(resultMap);
-        Map<String, String> additionalConfigMap = oidcTransaction.getAdditionalConfigMap();
-        if(features!=null && !features.isEmpty()) {
-            log.info("Setting additional config in OIDC transaction based on openid profile features: {}", featureMap);
-            for (String key : featureMap.keySet()) {
-                if (USERINFO_RESPONSE_TYPE.equals(key)) {
-                    additionalConfigMap.put(key, featureMap.get(key));
-                } else {
-                    additionalConfigMap.put(key, "true");
-                }
-            }
-            oidcTransaction.setAdditionalConfigMap(additionalConfigMap);
-        }
-        // if profile is set get it from overridden map or get it from existing configs
-        if(additionalConfigMap!=null && !additionalConfigMap.isEmpty()) {
-            oidcTransaction.setRequirePushedAuthorizationRequests(additionalConfigMap.containsKey(REQUIRE_PAR));
-            oidcTransaction.setDpopBoundAccessToken(additionalConfigMap.containsKey(DPOP_BOUND_ACCESS_TOKENS));
-            oidcTransaction.setRequirePKCE(additionalConfigMap.containsKey(REQUIRE_PKCE));
-            oidcTransaction.setUserInfoResponseType(additionalConfigMap.get(USERINFO_RESPONSE_TYPE));
-        }
+        log.debug("Feature flags set in OIDC transaction -> PAR : {}, DPoP : {}, PKCE : {}, RespType : {}",
+                oidcTransaction.isRequirePushedAuthorizationRequests(),
+                oidcTransaction.isDpopBoundAccessToken(),
+                oidcTransaction.isRequirePKCE(),
+                oidcTransaction.getUserInfoResponseType());
     }
 
 }

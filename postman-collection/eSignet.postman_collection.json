@@ -271,6 +271,8 @@
 											"kp = pmlib.rs.KEYUTIL.generateKeypair(\"RSA\", 2048);",
 											"privateKey_jwk = pmlib.rs.KEYUTIL.getJWK(kp.prvKeyObj);",
 											"publicKey_jwk = pmlib.rs.KEYUTIL.getJWK(kp.pubKeyObj);",
+											"publicKey_jwk.alg = \"RS256\"; // Or your preferred algorithm",
+											"publicKey_jwk.use = \"sig\";   // Usually 'sig' for JWTs",
 											"",
 											"// Get the public key in PEM format",
 											"const publicKeyPem = pmlib.rs.KEYUTIL.getPEM(kp.pubKeyObj, \"PKCS8PUB\");",

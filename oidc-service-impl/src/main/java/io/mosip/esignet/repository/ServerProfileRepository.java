@@ -7,12 +7,10 @@ package io.mosip.esignet.repository;
 
 import io.mosip.esignet.entity.ServerProfile;
 import io.mosip.esignet.entity.ServerProfileId;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
 public interface ServerProfileRepository extends JpaRepository<ServerProfile, ServerProfileId> {
-    @Cacheable(value = "serverprofile", key = "#profileName")
     List<ServerProfile> findByProfileName(String profileName);
 }
