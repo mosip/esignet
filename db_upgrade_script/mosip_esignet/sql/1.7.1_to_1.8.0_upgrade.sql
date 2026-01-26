@@ -143,8 +143,16 @@ ALTER TABLE public_key_registry ALTER COLUMN public_key TYPE varchar(2500);
 ALTER TABLE public_key_registry ALTER COLUMN certificate TYPE varchar(4000);
 ALTER TABLE public_key_registry ALTER COLUMN thumbprint TYPE varchar(128);
 
+CREATE TABLE IF NOT EXISTS server_profile (
+    profile_name VARCHAR(100) NOT NULL,
+    feature VARCHAR(100) NOT NULL,
+    additional_config_key VARCHAR(200) NOT NULL,
+    CONSTRAINT pk_server_profile PRIMARY KEY (profile_name, feature)
+);
 
-
+INSERT INTO esignet.server_profile(profile_name, feature, additional_config_key) VALUES ('fapi2.0', 'PAR', 'require_pushed_authorization_requests');
+INSERT INTO esignet.server_profile(profile_name, feature, additional_config_key) VALUES ('fapi2.0', 'DPOP', 'dpop_bound_access_tokens');
+INSERT INTO esignet.server_profile(profile_name, feature, additional_config_key) VALUES ('fapi2.0', 'PKCE', 'require_pkce');
 
 END;
 $$;

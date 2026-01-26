@@ -79,7 +79,10 @@ public class OIDCTransaction implements Serializable {
     String[] prompt;
     int consentExpireMinutes;
 
+    boolean requirePushedAuthorizationRequests;
     boolean dpopBoundAccessToken;
+    boolean requirePKCE;
+    Map<String, String> additionalConfigMap;
     String dpopJkt;
     String dpopServerNonce;
     Long dpopServerNonceTTL;

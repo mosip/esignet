@@ -65,6 +65,9 @@
     },
     "dpop_bound_access_tokens": {
       "type": "boolean"
+    },
+    "require_pkce": {
+      "type": "boolean"
     }
   },
   "additionalProperties": false

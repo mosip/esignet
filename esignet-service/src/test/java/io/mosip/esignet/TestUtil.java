@@ -5,6 +5,7 @@
  */
 package io.mosip.esignet;
 
+import com.nimbusds.jose.Algorithm;
 import com.nimbusds.jose.jwk.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,6 +31,7 @@ public class TestUtil {
             return new RSAKey.Builder((RSAPublicKey)keyPair.getPublic())
                     .privateKey((RSAPrivateKey)keyPair.getPrivate())
                     .keyUse(KeyUse.SIGNATURE)
+                    .algorithm(new Algorithm("RS256"))
                     .keyID(UUID.randomUUID().toString())
                     .build();
         } catch (NoSuchAlgorithmException e) {

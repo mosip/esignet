@@ -75,7 +75,7 @@
 			<artifactId>consent-service-impl</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-	</dependencies>
+    </dependencies>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
