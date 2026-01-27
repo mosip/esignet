@@ -231,13 +231,10 @@ public class IdentityProviderUtil {
             String jwkString = switch (keyType) {
                 case "RSA" -> new RsaJsonWebKey(jwk).toJson();
                 case "EC" -> new EllipticCurveJsonWebKey(jwk).toJson();
-                default -> {
-                    log.error("Unsupported key type '{}' in JWK", keyType);
-                    throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
-                }
+                default -> throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
             };
             // Validate alg and use fields as RSAPublicKey and ECPublicKey classes do not validate these fields
-            if (alg.isEmpty() || use.isEmpty()) {
+            if ((alg != null && alg.isBlank()) || (use != null && use.isBlank())) {
                 throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
             }
             return jwkString;
