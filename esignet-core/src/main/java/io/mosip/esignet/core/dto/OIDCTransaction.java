@@ -72,18 +72,20 @@ public class OIDCTransaction implements Serializable {
     Map<String, List<JsonNode>> claimMetadata;
     Map<String, JsonNode> requestedClaimDetails;
 
+    //Shared flags between signup and eSignet services
     String verificationStatus;
     String verificationErrorCode;
-    String userInfoResponseType;
 
     String[] prompt;
     int consentExpireMinutes;
 
-    boolean requirePushedAuthorizationRequests;
-    boolean dpopBoundAccessToken;
-    boolean requirePKCE;
-    Map<String, String> additionalConfigMap;
     String dpopJkt;
     String dpopServerNonce;
     Long dpopServerNonceTTL;
+
+    //Feature flags
+    boolean requirePushedAuthorizationRequests;
+    boolean dpopBoundAccessToken;
+    boolean requirePKCE;
+    String userInfoResponseType;
 }

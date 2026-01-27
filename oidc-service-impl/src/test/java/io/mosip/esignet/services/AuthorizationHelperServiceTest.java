@@ -20,8 +20,6 @@ import io.mosip.esignet.core.exception.InvalidTransactionException;
 import io.mosip.esignet.core.spi.TokenService;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.util.CaptchaHelper;
-import io.mosip.esignet.entity.ServerProfile;
-import io.mosip.esignet.repository.ServerProfileRepository;
 import io.mosip.kernel.core.keymanager.spi.KeyStore;
 import io.mosip.kernel.keymanagerservice.entity.KeyAlias;
 import io.mosip.kernel.keymanagerservice.helper.KeymanagerDBHelper;
@@ -89,9 +87,6 @@ public class AuthorizationHelperServiceTest {
 
     @Mock
     private HttpServletRequest httpServletRequest;
-
-    @Mock
-    private ServerProfileRepository serverProfileRepository;
 
     ObjectMapper objectMapper = new ObjectMapper();
 
@@ -580,44 +575,5 @@ public class AuthorizationHelperServiceTest {
         {
             Assertions.assertEquals("auth_failed", e.getErrorCode());
         }
-    }
-
-    @Test
-    void getFeaturesByProfileName_thenPass() {
-        ServerProfile profile1 = mock(ServerProfile.class);
-        ServerProfile profile2 = mock(ServerProfile.class);
-        when(profile1.getFeature()).thenReturn("feature1");
-        when(profile1.getAdditionalConfigKey()).thenReturn("configKey1");
-        when(profile2.getFeature()).thenReturn("feature2");
-        when(profile2.getAdditionalConfigKey()).thenReturn("configKey2");
-        when(serverProfileRepository.findByProfileName("profileA"))
-                .thenReturn(Arrays.asList(profile1, profile2));
-
-        Map<String, String> features = authorizationHelperService.getFeaturesByProfileName("profileA");
-        assertEquals(2, features.size());
-        assertTrue(features.containsKey("configKey1"));
-        assertTrue(features.containsKey("configKey2"));
-        assertEquals("feature1", features.get("configKey1"));
-        assertEquals("feature2", features.get("configKey2"));
-    }
-
-    @Test
-    void getFeaturesByProfileName_thenThrowException() {
-        when(serverProfileRepository.findByProfileName("nonexistent"))
-                .thenReturn(Collections.emptyList());
-
-        EsignetException ex = assertThrows(EsignetException.class, () ->
-                authorizationHelperService.getFeaturesByProfileName("nonexistent"));
-        assertTrue(ex.getMessage().contains("No features found for openid profile: nonexistent"));
-    }
-
-    @Test
-    void getFeaturesByProfileName_whenNull_thenThrowException() {
-        when(serverProfileRepository.findByProfileName(null))
-                .thenReturn(Collections.emptyList());
-
-        EsignetException ex = assertThrows(EsignetException.class, () ->
-                authorizationHelperService.getFeaturesByProfileName(null));
-        assertTrue(ex.getMessage().contains("No features found for openid profile: null"));
     }
 }

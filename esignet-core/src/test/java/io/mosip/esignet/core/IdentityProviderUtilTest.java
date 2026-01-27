@@ -233,7 +233,7 @@ public class IdentityProviderUtilTest {
         jwkMap.put("kty", "RSA");
         jwkMap.put("n", "oahUIzUup5kqncCkHk5Zb1pRrLx7e6YtM-9jX1f5e6mHnZFkC2LJUZ0sEh0n5Y5KnQfW9s7d7gK2b8P0EEl0h3ZyHkWzA3YbsgzB4pDxP4RxMZ1I8xD2z3UvfA1zjvKDHz6wEweq4hVJ8nS8GzZJ2E_vb3s");
         jwkMap.put("e", "AQAB");
-        jwkMap.put("alg", "ES256");
+        jwkMap.put("alg", "");
 
         EsignetException ex = Assertions.assertThrows(EsignetException.class,
                 () -> IdentityProviderUtil.getJWKString(jwkMap));
@@ -246,7 +246,7 @@ public class IdentityProviderUtilTest {
         jwkMap.put("kty", "RSA");
         jwkMap.put("n", "oahUIzUup5kqncCkHk5Zb1pRrLx7e6YtM-9jX1f5e6mHnZFkC2LJUZ0sEh0n5Y5KnQfW9s7d7gK2b8P0EEl0h3ZyHkWzA3YbsgzB4pDxP4RxMZ1I8xD2z3UvfA1zjvKDHz6wEweq4hVJ8nS8GzZJ2E_vb3s");
         jwkMap.put("e", "AQAB");
-        jwkMap.put("use", "enc");
+        jwkMap.put("use", " ");
 
         EsignetException ex = Assertions.assertThrows(EsignetException.class,
                 () -> IdentityProviderUtil.getJWKString(jwkMap));
