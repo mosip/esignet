@@ -211,8 +211,9 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         dto.setLogoUri(result.get().getLogoUri());
         dto.setStatus(result.get().getStatus());
         dto.setPublicKey(result.get().getPublicKey());
-        dto.setEncPublicKey(result.get().getEncPublicKey());
-        dto.setEncPublicKeyHash(result.get().getEncPublicKeyHash());
+        if(result.get().getEncPublicKey()!=null){
+            dto.setEncPublicKey(result.get().getEncPublicKey());
+        }
         dto.setAdditionalConfig(result.get().getAdditionalConfig());
         TypeReference<List<String>> typeReference = new TypeReference<List<String>>() {};
         try {
@@ -315,10 +316,6 @@ public class ClientManagementServiceImpl implements ClientManagementService {
     public ClientDetail buildClient(ClientDetailCreateRequestV3 clientDetailCreateRequestV3) {
         ClientDetail clientDetail = buildOAuthClient(clientDetailCreateRequestV3);
         clientDetail.setAdditionalConfig(clientDetailCreateRequestV3.getAdditionalConfig());
-        if (clientDetailCreateRequestV3.getEncPublicKey() != null && !clientDetailCreateRequestV3.getEncPublicKey().isEmpty()) {
-            clientDetail.setEncPublicKey(IdentityProviderUtil.getJWKString(clientDetailCreateRequestV3.getEncPublicKey()));
-            clientDetail.setEncPublicKeyHash(identityProviderUtil.computePublicKeyHash(clientDetailCreateRequestV3.getEncPublicKey()));
-        }
         return clientDetail;
     }
 
