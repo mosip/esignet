@@ -9,6 +9,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.mosip.esignet.core.constants.Constants;
+import io.mosip.esignet.core.dto.ServerProfile;
+import io.mosip.esignet.core.exception.EsignetException;
+import io.mosip.esignet.repository.ServerProfileRepository;
 import io.mosip.kernel.keymanagerservice.dto.KeyPairGenerateRequestDto;
 import io.mosip.kernel.keymanagerservice.dto.SymmetricKeyGenerateRequestDto;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
@@ -26,6 +29,10 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 @Configuration
 @Slf4j
 public class AppConfig implements ApplicationRunner {
@@ -40,8 +47,14 @@ public class AppConfig implements ApplicationRunner {
     @Value("${mosip.esignet.cache.security.secretkey.reference-id}")
     private String cacheSecretKeyRefId;
 
+    @Value("${mosip.esignet.server.profile:none}")
+    private String serverProfile;
+
     @Autowired
     private KeymanagerService keymanagerService;
+
+    @Autowired
+    private ServerProfileRepository serverProfileRepository;
 
     @Bean
     public ObjectMapper objectMapper() {
@@ -61,6 +74,34 @@ public class AppConfig implements ApplicationRunner {
         HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
         requestFactory.setHttpClient(httpClientBuilder.build());
         return new RestTemplate(requestFactory);
+    }
+
+
+    /**
+     * Get the features associated with the profile
+     * name of the profile - fapi2.0. nisdsp, gov, none, etc.
+     */
+    @Bean
+    public ServerProfile serverProfile() throws EsignetException {
+        ServerProfile profile = new ServerProfile();
+        profile.setName(serverProfile);
+        final Map<String, String> profileDataMap = new HashMap<>();
+        profile.setFeatureMap(profileDataMap);
+
+        if("none".equalsIgnoreCase(serverProfile)) {
+            return profile;
+        }
+
+        List<io.mosip.esignet.entity.ServerProfile> profiles = serverProfileRepository.findByProfileName(serverProfile);
+        if (profiles == null || profiles.isEmpty()) {
+            log.error("**** No features found for the configured server profile: {} ****", serverProfile);
+            throw new EsignetException("INVALID_SERVER_PROFILE");
+        }
+
+        for (io.mosip.esignet.entity.ServerProfile serverProfileEntity : profiles) {
+            profileDataMap.put(serverProfileEntity.getAdditionalConfigKey(), serverProfileEntity.getFeature());
+        }
+        return profile;
     }
 
     @Override

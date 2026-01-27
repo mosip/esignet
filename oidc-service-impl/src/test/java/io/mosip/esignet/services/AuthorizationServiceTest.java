@@ -8,6 +8,7 @@ package io.mosip.esignet.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.mosip.esignet.api.dto.AuthChallenge;
@@ -43,6 +44,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.mockito.verification.VerificationMode;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -109,6 +111,9 @@ public class AuthorizationServiceTest {
 
     @Mock
     KBIFormHelperService kbiFormHelperService;
+
+    @Mock
+    private ServerProfile serverProfile;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -919,6 +924,9 @@ public class AuthorizationServiceTest {
         clientDetail.setRedirectUris(Arrays.asList("https://localshot:3044/logo.png", "http://localhost:8088/v1/idp", "/v1/idp"));
         clientDetail.setClaims(Arrays.asList("email", "given_name"));
         clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:generated-code", "mosip:idp:acr:wallet"));
+        ObjectNode additionalConfig = objectMapper.createObjectNode();
+        additionalConfig.put(REQUIRE_PKCE, true);
+        clientDetail.setAdditionalConfig(additionalConfig);
 
         OAuthDetailRequestV2 oauthDetailRequest = new OAuthDetailRequestV2();
         oauthDetailRequest.setClientId("34567");
@@ -941,11 +949,10 @@ public class AuthorizationServiceTest {
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:wallet"})).thenReturn(authFactors);
 
         try {
-            ReflectionTestUtils.setField(authorizationServiceImpl, "mandatePKCEForVC", true);
             authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
             Assertions.fail();
         } catch (EsignetException e) {
-            Assertions.assertEquals(ErrorConstants.INVALID_PKCE_CHALLENGE, e.getErrorCode());
+            Assertions.assertEquals(ErrorConstants.USE_PKCE, e.getErrorCode());
         }
     }
 
@@ -2217,6 +2224,131 @@ public class AuthorizationServiceTest {
 
         verify(kbiFormHelperService, never()).fetchKBIFieldDetailsFromResource(any());
         verify(kbiFormHelperService).migrateKBIFieldDetails(any());
+    }
+
+    @Test
+    void setFeatureFlags_withServerProfileFeaturesEnabled_shouldSetFlagsCorrectly() {
+        Map<String, String> featureMap = Map.of(
+                REQUIRE_PAR, "PAR",
+                DPOP_BOUND_ACCESS_TOKENS, "DPOP",
+                REQUIRE_PKCE, "PKCE",
+                USERINFO_RESPONSE_TYPE, "JWE"
+        );
+        when(serverProfile.getFeatureMap()).thenReturn(featureMap);
+
+        ClientDetail clientDetail = getClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.put(REQUIRE_PAR, true);
+        clientConfig.put(DPOP_BOUND_ACCESS_TOKENS, true);
+        clientConfig.put(REQUIRE_PKCE, true);
+        clientConfig.put(USERINFO_RESPONSE_TYPE, "JWT");
+        clientDetail.setAdditionalConfig(clientConfig);
+        when(clientManagementService.getClientDetails(anyString())).thenReturn(clientDetail);
+
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
+        authorizationServiceImpl.setFeatureFlags(oidcTransaction, clientDetail);
+
+        Assertions.assertTrue(oidcTransaction.isRequirePushedAuthorizationRequests());
+        Assertions.assertTrue(oidcTransaction.isDpopBoundAccessToken());
+        Assertions.assertTrue(oidcTransaction.isRequirePKCE());
+        Assertions.assertEquals("JWE", oidcTransaction.getUserInfoResponseType());
+    }
+
+    @Test
+    void setFeatureFlags_withClientAdditionalConfigEnabled_shouldOverrideServerProfile() {
+        Map<String, String> featureMap = Map.of();
+        when(serverProfile.getFeatureMap()).thenReturn(featureMap);
+
+        ClientDetail clientDetail = getClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.put(REQUIRE_PAR, true);
+        clientConfig.put(DPOP_BOUND_ACCESS_TOKENS, true);
+        clientConfig.put(REQUIRE_PKCE, true);
+        clientConfig.put(USERINFO_RESPONSE_TYPE, "JWT");
+        clientDetail.setAdditionalConfig(clientConfig);
+        when(clientManagementService.getClientDetails(anyString())).thenReturn(clientDetail);
+
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
+        authorizationServiceImpl.setFeatureFlags(oidcTransaction, clientDetail);
+
+        Assertions.assertTrue(oidcTransaction.isRequirePushedAuthorizationRequests());
+        Assertions.assertTrue(oidcTransaction.isDpopBoundAccessToken());
+        Assertions.assertTrue(oidcTransaction.isRequirePKCE());
+        Assertions.assertEquals("JWT", oidcTransaction.getUserInfoResponseType());
+    }
+
+    @Test
+    void setFeatureFlags_withNoFeaturesEnabled_shouldSetDefaultValues() {
+        Map<String, String> featureMap = Map.of();
+        when(serverProfile.getFeatureMap()).thenReturn(featureMap);
+
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
+
+        ClientDetail clientDetail = getClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.put(REQUIRE_PAR, false);
+        clientConfig.put(REQUIRE_PKCE, false);
+        clientDetail.setAdditionalConfig(clientConfig);
+        when(clientManagementService.getClientDetails(anyString())).thenReturn(clientDetail);
+
+        authorizationServiceImpl.setFeatureFlags(oidcTransaction, clientDetail);
+
+        Assertions.assertFalse(oidcTransaction.isRequirePushedAuthorizationRequests());
+        Assertions.assertFalse(oidcTransaction.isDpopBoundAccessToken());
+        Assertions.assertFalse(oidcTransaction.isRequirePKCE());
+        Assertions.assertEquals("JWS", oidcTransaction.getUserInfoResponseType());
+    }
+
+    @Test
+    void getOauthDetails_withPAREnabledInProfile_shouldMandatePAR() {
+        OAuthDetailRequest request = new OAuthDetailRequest();
+        request.setClientId("client123");
+        request.setRedirectUri("https://callback.com");
+        request.setAcrValues("mosip:idp:acr:biometrics mosip:idp:acr:generated-code");
+
+        ClientDetail clientDetail = mock(ClientDetail.class);
+        ObjectNode clientConfig = mock(ObjectNode.class);
+        when(clientDetail.getAdditionalConfig()).thenReturn(clientConfig);
+        when(clientManagementService.getClientDetails("client123")).thenReturn(clientDetail);
+        when(authenticationContextClassRefUtil.getAuthFactors(any())).thenReturn(Collections.emptyList());
+
+        Map<String, String> featureMap = Map.of(
+                REQUIRE_PAR, "PAR"
+        );
+        when(serverProfile.getFeatureMap()).thenReturn(featureMap);
+
+        try {
+            authorizationServiceImpl.getOauthDetails(request);
+        } catch (EsignetException e) {
+            Assertions.assertEquals(ErrorConstants.INVALID_REQUEST, e.getErrorCode());
+        }
+
+        verify(serverProfile, atMostOnce()).getFeatureMap();
+        verify(clientDetail, never()).getAdditionalConfig();
+    }
+
+    @Test
+    void getOauthDetails_withPARDisabledInProfileAndEnabledInClientConfig_shouldMandatePAR() {
+        OAuthDetailRequest request = new OAuthDetailRequest();
+        request.setClientId("client123");
+        request.setRedirectUri("https://callback.com");
+        request.setAcrValues("mosip:idp:acr:biometrics mosip:idp:acr:generated-code");
+
+        ClientDetail clientDetail = mock(ClientDetail.class);
+        when(clientDetail.getAdditionalConfig(REQUIRE_PAR, false)).thenReturn(true);
+        when(clientManagementService.getClientDetails("client123")).thenReturn(clientDetail);
+
+        Map<String, String> featureMap = Map.of();
+        when(serverProfile.getFeatureMap()).thenReturn(featureMap);
+
+        try {
+            authorizationServiceImpl.getOauthDetails(request);
+        } catch (EsignetException e) {
+            Assertions.assertEquals(ErrorConstants.INVALID_REQUEST, e.getErrorCode());
+        }
+
+        verify(serverProfile, atMostOnce()).getFeatureMap();
+        verify(clientDetail, atMostOnce()).getAdditionalConfig();
     }
 
     private ClientDetail getClientDetail() {
