@@ -223,7 +223,7 @@ public class IdentityProviderUtil {
         String use = (String) jwk.get("use");
         String alg = (String) jwk.get("alg");
 
-        if (keyType == null || alg==null || use==null) {
+        if (keyType == null) {
             throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
         }
 
