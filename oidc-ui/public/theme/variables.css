@@ -1,25 +1,25 @@
 :root {
-  --primary-color: #1262C9;
-  --login-card-box-color: #BCC0C7;
+  --primary-color: #1262c9;
+  --login-card-box-color: #bcc0c7;
   --login-card-box-hover-color: var(--primary-color);
   --login-card-box-focus-color: var(--primary-color);
   --login-background: #f7f9fd;
-  --language-icon-color: #FFFFFF;
-  --language-icon-bg-color:  var(--primary-color);
+  --language-icon-color: #ffffff;
+  --language-icon-bg-color: var(--primary-color);
   --login-background-min-height: calc(100vh - 102px) !important;
   --brand-only-logo-url: url("/logo.png");
   --brand-logo-url: url("/images/brand_logo.png");
   --background-logo-url: url("/images/illustration_one.png");
   --footer-brand-logo-url: url("/images/footer_logo.png");
-  --primary-button-color: #FFFFFF;
+  --primary-button-color: #ffffff;
   --primary-button-bg-color: var(--primary-color);
   --primary-button-border-color: var(--primary-color);
-  --primary-button-hover-color: #FFFFFF;
+  --primary-button-hover-color: #ffffff;
   --primary-button-hover-bg-color: #0549b6;
   --primary-button-hover-border-color: #0549b6;
-  --primary-button-disable-color: #94A3B8;
-  --primary-button-disable-bg-color: #FFFFFF;
-  --primary-button-disable-border-color: #94A3B8;
+  --primary-button-disable-color: #94a3b8;
+  --primary-button-disable-bg-color: #ffffff;
+  --primary-button-disable-border-color: #94a3b8;
   --secondary-button-color: #111827;
   --secondary-button-bg-color: #ffffff;
   --secondary-button-border-color: #ffffff;
@@ -29,17 +29,17 @@
   --secondary-button-disable-color: #ffffff;
   --secondary-button-disable-bg-color: #cbcbcb;
   --secondary-button-disable-border-color: #cbcbcb;
-  --loading-indicator-ring-color: #3182CE;
+  --loading-indicator-ring-color: #3182ce;
   --loading-indicator-bg-color: transparent;
   --loading-indicator-font-color: #000000;
   --qrcode-border-color: var(--primary-color);
-  --info-icon-color: #0686F0;
-  --toggle-button-inactive-bg-color: #FFFFFF;
-  --toggle-button-inactive-border-color: #D8D8D8;
-  --toggle-button-active-bg-color: #FFFFFF;
+  --info-icon-color: #0686f0;
+  --toggle-button-inactive-bg-color: #ffffff;
+  --toggle-button-inactive-border-color: #d8d8d8;
+  --toggle-button-active-bg-color: #ffffff;
   --toggle-button-active-border-color: var(--primary-color);
-  --toggle-button-inactive-ball-color: #A7A8A9;
-  --toggle-button-inactive-ball-border-color: #A7A8A9;
+  --toggle-button-inactive-ball-color: #a7a8a9;
+  --toggle-button-inactive-ball-border-color: #a7a8a9;
   --toggle-button-active-ball-color: var(--primary-color);
   --toggle-button-active-ball-border-color: var(--primary-color);
   --toggle-button-ring-color: var(--primary-color);
@@ -51,11 +51,11 @@
   --signup-banner-padding-bottom: 20px;
   --signup-banner-margin-top: 16px;
   --signup-banner-signup-url-color: var(--primary-color);
-  --signup-banner-signup-url-color-hover: #2F8EA3;
-  --signup-banner-signup-url-color-focus: #2F8EA3;
+  --signup-banner-signup-url-color-hover: #2f8ea3;
+  --signup-banner-signup-url-color-focus: #2f8ea3;
   --signup-banner-font: normal normal normal 15px/19px Roboto;
   --multipurpose-login-card-border-radius: 20px;
-  --multipurpose-login-card-background-color: #FFFFFF;
+  --multipurpose-login-card-background-color: #ffffff;
   --top-left-bg-logo-url: url("/images/top_left_bg_logo.svg");
   --bottom-right-bg-logo-url: url("/images/bottom_right_bg_logo.svg");
   --bottom-left-bg-logo-display: none;
@@ -81,7 +81,7 @@
   --login-alternate-arrow: "\21CB";
   --login-alternate-arrow-size: 1.5rem;
   --login-text-color: #000000;
-  --login-card-separator: linear-gradient(0deg, #FFFBF7 0%, #FFFFFF 100%);
+  --login-card-separator: linear-gradient(0deg, #fffbf7 0%, #ffffff 100%);
   --login-card-separator-height: 1px;
   --footer-text-color: #898989;
   --footer-text-size: 14px;
@@ -94,7 +94,7 @@
   --password-google-reCaptcha-margin-bottom: 1rem;
   --navbar-position: relative;
   --navbar-zIndex: 1;
-  --navbar-box-shadow: 0px 2px 5px #0000001A;
+  --navbar-box-shadow: 0px 2px 5px #0000001a;
   --back-button-color: var(--primary-color);
   --more-signin-options-color: var(--primary-color);
   --arrow-down-color: var(--primary-color);
@@ -105,9 +105,11 @@
   --consent-details-subheader-color: #2c2c2c;
   --consent-details-infoIcon-fill: var(--primary-color);
   --consent-details-infoIcon-stroke: var(--primary-color);
-  --consent-details-available-font: normal normal medium 14px/17px Helvetica Neue;
+  --consent-details-available-font: normal normal medium 14px/17px Helvetica
+    Neue;
   --consent-details-available-color: #76ac6d;
-  --consent-details-unavailable-font: normal normal medium 14px/16px Helvetica Neue;
+  --consent-details-unavailable-font: normal normal medium 14px/16px Helvetica
+    Neue;
   --consent-details-unavailable-color: #707070;
   --consent-details-message-color: var(--primary-color);
   --consent-details-message-background: #fff9f0 0% 0% no-repeat padding-box;
@@ -129,10 +131,10 @@
   --login_id_hover_color: var(--primary-color);
   --selected_login_id_focus_color: var(--primary-color);
   --selected_login_id_focus_outline_color: var(--primary-color);
-  --qr_code_title_color:  #696969;
+  --qr_code_title_color: #696969;
   --resend_otp_button_color: var(--primary-color);
-  --login-client-logo-image-shadow: 0px 4px 15px 2px #1262C94D;
-  --caps-lock-text-color: #2D86BA;
+  --login-client-logo-image-shadow: 0px 4px 15px 2px #1262c94d;
+  --caps-lock-text-color: #2d86ba;
   --login-header-text-color: rgb(0, 0, 0);
   --login-subheader-text-color: #838383;
   --selected-lang-text-color: var(--primary-color);
@@ -195,7 +197,7 @@
   --signup-banner-signup-url-color: var(--primary-color);
   --signup-banner-signup-url-color-hover: var(--primary-color);
   --signup-banner-signup-url-color-focus: var(--primary-color);
-  --signup-banner-font: normal normal normal 15px/19px Roboto;
+  --signup-banner-font: normal normal 400 15px/19px "Montserrat", sans-serif;
   --multipurpose-login-card-border-radius: 10px;
   --multipurpose-login-card-background-color: #ffffff;
   --top-left-bg-logo-url: url("/images/top_left_bg_logo.svg");
@@ -223,7 +225,7 @@
   --login-alternate-arrow: "\21C4";
   --login-alternate-arrow-size: 1.5rem;
   --login-text-color: #000000;
-  --login-card-separator: linear-gradient(0deg, #FFFBF7 0%, #FFFFFF 100%);
+  --login-card-separator: linear-gradient(0deg, #fffbf7 0%, #ffffff 100%);
   --login-card-separator-height: 1px;
   --footer-text-color: #898989;
   --footer-text-size: 14px;
@@ -241,15 +243,19 @@
   --more-signin-options-color: var(--primary-color);
   --arrow-down-color: var(--primary-color);
   --primary-button-border-radius: 8px;
-  --consent-details-header-font: normal normal 600 24px/29px Roboto;
+  --consent-details-header-font:
+    normal normal 600 24px/29px "Montserrat", sans-serif;
   --consent-details-header-color: #2b3840;
-  --consent-details-subheader-font: normal normal bold 16px/21px Roboto;
+  --consent-details-subheader-font:
+    normal normal 700 16px/21px "Montserrat", sans-serif;
   --consent-details-subheader-color: #2c2c2c;
   --consent-details-infoIcon-fill: var(--primary-color);
   --consent-details-infoIcon-stroke: var(--primary-color);
-  --consent-details-available-font: normal normal medium 14px/17px Helvetica Neue;
+  --consent-details-available-font:
+    normal normal 500 14px/17px "Montserrat", sans-serif;
   --consent-details-available-color: #76ac6d;
-  --consent-details-unavailable-font: normal normal medium 14px/16px Helvetica Neue;
+  --consent-details-unavailable-font:
+    normal normal 500 14px/16px "Montserrat", sans-serif;
   --consent-details-unavailable-color: #707070;
   --consent-details-message-color: #de7a24;
   --consent-details-message-background: #fff9f0 0% 0% no-repeat padding-box;
@@ -262,7 +268,7 @@
   --wallet-download-text-color: var(--primary-color);
   --no-record-banner-background: #fff9f0 0% 0% no-repeat padding-box;
   --no-record-banner-border-radius: 10px;
-  --no-record-banner-font: normal normal normal 13px/18px Roboto;
+  --no-record-banner-font: normal normal 400 13px/18px "Montserrat", sans-serif;
   --no-record-banner-color: #de7a24;
   --no-record-banner-padding: 1em 1.5em;
   --selected_login_id_border_color: var(--primary-color);
@@ -271,10 +277,10 @@
   --login_id_hover_color: var(--primary-color);
   --selected_login_id_focus_color: var(--primary-color);
   --selected_login_id_focus_outline_color: var(--primary-color);
-  --qr_code_title_color:  #696969;
+  --qr_code_title_color: #696969;
   --resend_otp_button_color: var(--primary-color);
-  --login-client-logo-image-shadow: 0px 4px 15px 2px #EB6F2D4D;
-  --caps-lock-text-color: #2D86BA;
+  --login-client-logo-image-shadow: 0px 4px 15px 2px #eb6f2d4d;
+  --caps-lock-text-color: #2d86ba;
   --login-header-text-color: rgb(0, 0, 0);
   --login-subheader-text-color: #838383;
   --selected-lang-text-color: var(--primary-color);
@@ -283,7 +289,7 @@
 }
 
 [class="green"] {
-  --primary-color: #32CD32;
+  --primary-color: #32cd32;
   --login-card-box-color: #bcc0c7;
   --login-card-box-hover-color: var(--primary-color);
   --login-card-box-focus-color: var(--primary-color);
@@ -330,7 +336,7 @@
   --toggle-button-ring-color: var(--primary-color);
   --header-height: 55px;
   --footer-height: 47px;
-  --signup-banner-background-color: #98FB98;
+  --signup-banner-background-color: #98fb98;
   --signup-banner-bottom-radius: 5px;
   --signup-banner-padding-top: 20px;
   --signup-banner-padding-bottom: 20px;
@@ -395,9 +401,11 @@
   --consent-details-subheader-color: #2c2c2c;
   --consent-details-infoIcon-fill: var(--primary-color);
   --consent-details-infoIcon-stroke: var(--primary-color);
-  --consent-details-available-font: normal normal medium 14px/17px Helvetica Neue;
+  --consent-details-available-font: normal normal medium 14px/17px Helvetica
+    Neue;
   --consent-details-available-color: #76ac6d;
-  --consent-details-unavailable-font: normal normal medium 14px/16px Helvetica Neue;
+  --consent-details-unavailable-font: normal normal medium 14px/16px Helvetica
+    Neue;
   --consent-details-unavailable-color: #707070;
   --consent-details-message-color: var(--primary-color);
   --consent-details-message-background: #fff9f0 0% 0% no-repeat padding-box;
@@ -419,10 +427,10 @@
   --login_id_hover_color: var(--primary-color);
   --selected_login_id_focus_color: var(--primary-color);
   --selected_login_id_focus_outline_color: var(--primary-color);
-  --qr_code_title_color:  #696969;
+  --qr_code_title_color: #696969;
   --resend_otp_button_color: var(--primary-color);
-  --login-client-logo-image-shadow: 0px 4px 15px 2px #32CD324D;
-  --caps-lock-text-color: #2D86BA;
+  --login-client-logo-image-shadow: 0px 4px 15px 2px #32cd324d;
+  --caps-lock-text-color: #2d86ba;
   --login-header-text-color: rgb(0, 0, 0);
   --login-subheader-text-color: #838383;
   --selected-lang-text-color: var(--primary-color);
