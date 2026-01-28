@@ -74,7 +74,7 @@
     black 25%
   );
   --signup-banner-signup-url-color-focus: var(--primary-color);
-  --signup-banner-font: normal normal normal 15px/19px Roboto;
+  --signup-banner-font: normal normal 400 15px/19px 'Montserrat', sans-serif;
   --multipurpose-login-card-border-radius: 10px;
   --multipurpose-login-card-background-color: #ffffff;
   --top-left-bg-logo-url: url('/images/top_left_bg_logo.svg');
@@ -121,17 +121,19 @@
   --more-signin-options-color: var(--primary-color);
   --arrow-down-color: var(--primary-color);
   --primary-button-border-radius: 8px;
-  --consent-details-header-font: normal normal 600 24px/29px Roboto;
+  --consent-details-header-font:
+    normal normal 600 24px/29px 'Montserrat', sans-serif;
   --consent-details-header-color: #2b3840;
-  --consent-details-subheader-font: normal normal bold 16px/21px Roboto;
+  --consent-details-subheader-font:
+    normal normal 700 16px/21px 'Montserrat', sans-serif;
   --consent-details-subheader-color: #2c2c2c;
   --consent-details-infoIcon-fill: var(--primary-color);
   --consent-details-infoIcon-stroke: var(--primary-color);
-  --consent-details-available-font: normal normal medium 14px/17px Helvetica
-    Neue;
+  --consent-details-available-font:
+    normal normal 500 14px/17px 'Montserrat', sans-serif;
   --consent-details-available-color: #76ac6d;
-  --consent-details-unavailable-font: normal normal medium 14px/16px Helvetica
-    Neue;
+  --consent-details-unavailable-font:
+    normal normal 500 14px/16px 'Montserrat', sans-serif;
   --consent-details-unavailable-color: #707070;
   --consent-details-message-color: var(--primary-color);
   --consent-details-message-background: color-mix(
@@ -152,7 +154,7 @@
     white
   );
   --no-record-banner-border-radius: 10px;
-  --no-record-banner-font: normal normal normal 13px/18px Roboto;
+  --no-record-banner-font: normal normal 400 13px/18px 'Montserrat', sans-serif;
   --no-record-banner-color: var(--primary-color);
   --no-record-banner-padding: 1em 1.5em;
   --selected_login_id_border_color: var(--primary-color);
