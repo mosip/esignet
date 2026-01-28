@@ -159,11 +159,6 @@ public class ClientManagementController {
 
     /**
      * PATCH endpoint to partially update client details.
-     * Only provided fields will be updated. Special handling for enc_public_key:
-     * - When set/updated: validates format and computes enc_public_key_hash
-     * - When explicitly set to null: clears both enc_public_key and enc_public_key_hash
-     * - When not present in request: leaves both fields unchanged
-     *
      * @param clientId The client ID to update (immutable)
      * @param requestWrapper The patch request containing fields to update
      * @return Response with clientId and status

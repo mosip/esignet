@@ -327,8 +327,6 @@ public class ClientManagementServiceImpl implements ClientManagementService {
 
     /**
      * Build client detail entity for PATCH update operation.
-     * Only non-null fields from the patch request will be applied.
-     *
      * @param clientId The client ID to update
      * @param patchRequest The patch request containing fields to update
      * @return Updated ClientDetail entity

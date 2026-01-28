@@ -372,7 +372,7 @@ public class ClientManagementServiceTest {
 
         try {
             clientManagementService.patchClient("non_existing_client", patchRequest);
-            Assertions.fail("Should have thrown EsignetException");
+            Assertions.fail();
         } catch (EsignetException ex) {
             Assertions.assertEquals(ErrorConstants.INVALID_CLIENT_ID, ex.getErrorCode());
         }
@@ -399,7 +399,6 @@ public class ClientManagementServiceTest {
         Assertions.assertNotNull(response);
         Assertions.assertEquals("client_id_v1", response.getClientId());
 
-        // Verify that identityProviderUtil.computePublicKeyHash was called
         Mockito.verify(identityProviderUtil, Mockito.times(1)).computePublicKeyHash(Mockito.any());
     }
 
@@ -409,7 +408,7 @@ public class ClientManagementServiceTest {
         Mockito.when(clientDetailRepository.findById("client_id_v1")).thenReturn(Optional.of(clientDetail));
 
         ClientDetailPatchRequest patchRequest = new ClientDetailPatchRequest();
-        patchRequest.setEncPublicKey(new HashMap<>()); // Empty map
+        patchRequest.setEncPublicKey(new HashMap<>());
 
         ClientDetail savedEntity = new ClientDetail();
         savedEntity.setId("client_id_v1");
@@ -419,7 +418,6 @@ public class ClientManagementServiceTest {
         ClientDetailResponse response = clientManagementService.patchClient("client_id_v1", patchRequest);
 
         Assertions.assertNotNull(response);
-        // Verify that identityProviderUtil.computePublicKeyHash was NOT called (since encPublicKey was empty)
         Mockito.verify(identityProviderUtil, Mockito.never()).computePublicKeyHash(Mockito.any());
     }
 
@@ -438,7 +436,6 @@ public class ClientManagementServiceTest {
         ClientDetailResponse response = clientManagementService.patchClient("client_id_v1", patchRequest);
 
         Assertions.assertNotNull(response);
-        // Verify that identityProviderUtil.computePublicKeyHash was NOT called
         Mockito.verify(identityProviderUtil, Mockito.never()).computePublicKeyHash(Mockito.any());
     }
 
@@ -476,7 +473,6 @@ public class ClientManagementServiceTest {
 
         ClientDetailPatchRequest patchRequest = new ClientDetailPatchRequest();
         patchRequest.setLogoUri("http://service.com/updated_logo.png");
-        // All other fields are null - should not be updated
 
         ClientDetail savedEntity = new ClientDetail();
         savedEntity.setId("client_id_v1");
