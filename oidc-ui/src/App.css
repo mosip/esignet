@@ -224,7 +224,7 @@ select {
 .signup-banner-hyperlink {
   font-weight: 700;
   color: var(--signup-banner-signup-url-color);
-  font-family: Roboto, sans-serif !important;
+  font-family: Roboto, sans-serif;
   letter-spacing: 0.5px;
 }
 
@@ -571,7 +571,7 @@ input[type='number'] {
 
 [data-radix-popper-content-wrapper] {
   z-index: 50 !important;
-  font-family: Roboto, sans-serif !important;
+  font-family: Roboto, sans-serif;
 }
 
 .selected_login_id {
@@ -617,7 +617,7 @@ input[type='number'] {
 }
 
 nav {
-  font-family: Roboto, sans-serif !important;
+  font-family: Roboto, sans-serif;
 }
 
 .selectedLang,
