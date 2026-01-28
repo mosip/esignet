@@ -7,8 +7,8 @@ UserInfoConsentNoCapture:
       restMethod: get
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
-      inputTemplate: esignet/OTPAuthFactorFlow/ConsentNoCapture/UserinfoConsentNoCapture/UserInfoConsentNoCapture
-      outputTemplate: esignet/OTPAuthFactorFlow/ConsentNoCapture/UserinfoConsentNoCapture/UserInfoConsentNoCaptureResult
+      inputTemplate: esignet/OTPAuthFactorFlow/ConsentNoCapture/UserInfoConsentNoCapture/UserInfoConsentNoCapture
+      outputTemplate: esignet/OTPAuthFactorFlow/ConsentNoCapture/UserInfoConsentNoCapture/UserInfoConsentNoCaptureResult
       input: '{
       	"idpAccessToken": "$ID:GenerateToken_ConsentNoCapture_Valid_Smoke_sid_access_token$"
 }'
