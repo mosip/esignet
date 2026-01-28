@@ -84,4 +84,19 @@ public interface ClientManagementService {
      */
     ClientDetailResponse updateOAuthClient(String clientId, ClientDetailUpdateRequestV2 clientDetailUpdateRequestV2) throws EsignetException;
 
+    /**
+     * API to partially update (PATCH) registered relying party client.
+     *
+     * Only provided fields will be updated. Supports special handling for enc_public_key:
+     * - When set/updated: validates format and computes enc_public_key_hash
+     * - When explicitly set to null: clears both enc_public_key and enc_public_key_hash
+     * - When not present in request: leaves both fields unchanged
+     *
+     * @param clientId The client ID to update (immutable)
+     * @param clientDetailPatchRequest The patch request containing fields to update
+     * @return ClientDetailResponse with clientId and status
+     * @throws EsignetException if client not found or validation fails
+     */
+    ClientDetailResponse patchClient(String clientId, ClientDetailPatchRequest clientDetailPatchRequest) throws EsignetException;
+
 }

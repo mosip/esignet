@@ -274,6 +274,10 @@
 											"publicKey_jwk.alg = \"RS256\"; // Or your preferred algorithm",
 											"publicKey_jwk.use = \"sig\";   // Usually 'sig' for JWTs",
 											"",
+											"// Add alg and use values to client public key",
+											"publicKey_jwk.alg = \"RS256\";",
+											"publicKey_jwk.use = \"sig\";",
+											"",
 											"// Get the public key in PEM format",
 											"const publicKeyPem = pmlib.rs.KEYUTIL.getPEM(kp.pubKeyObj, \"PKCS8PUB\");",
 											"// Convert the PEM format to a simple Base64 string (removing PEM headers)",
@@ -350,6 +354,73 @@
 								"body": {
 									"mode": "raw",
 									"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"logoUri\": \"{{$randomImageUrl}}\",\n        \"redirectUris\": [\n               \"{{redirection_url}}\",\n             \"io.mosip.residentapp://oauth\",\n             \"http://localhost:5000/**\",\n             \"http://localhost:3000/registration/*\"\n        ],\n        \"userClaims\": [\n            \"name\",\n            \"email\",\n            \"gender\",\n            \"phone_number\",\n            \"birthdate\",\n            \"picture\",\n            \"address\"\n        ],\n        \"authContextRefs\": [\n            \"mosip:idp:acr:generated-code\",\n            \"mosip:idp:acr:password\",\n            \"mosip:idp:acr:linked-wallet\",\n            \"mosip:idp:acr:biometrics\",\n            \"mosip:idp:acr:static-code\"\n        ],\n        \"status\": \"ACTIVE\",\n        \"grantTypes\": [\n            \"authorization_code\"\n        ],\n        \"clientName\": \"{{$randomCompanyName}}\",\n        \"clientAuthMethods\": [\n            \"private_key_jwt\"\n        ],\n        \"additionalConfig\": {\n            \"userinfo_response_type\": \"JWS\",\n            \"purpose\": {\n                \"type\": \"verify\",\n                \"title\": {\n                    \"@none\": \"title\"\n                },\n                \"subTitle\": {\n                    \"@none\": \"subtitle\"\n                }\n            },\n            \"signup_banner_required\": true,\n            \"forgot_pwd_link_required\": true,\n            \"consent_expire_in_mins\": 20\n        }\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/v1/esignet/client-mgmt/client/{{client_id}}",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"v1",
+										"esignet",
+										"client-mgmt",
+										"client",
+										"{{client_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Patch OIDC client",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"eval(pm.environment.get('pmlib_code'))",
+											"",
+											"// Generate encryption key pair for encPublicKey only if not already available",
+											"const existingEncPublicKey = pm.environment.get(\"encryption_public_key\");",
+											"if (!existingEncPublicKey || existingEncPublicKey === '' || existingEncPublicKey === 'null' || existingEncPublicKey === '{}') {",
+											"    enc_kp = pmlib.rs.KEYUTIL.generateKeypair(\"RSA\", 2048);",
+											"    enc_privateKey_jwk = pmlib.rs.KEYUTIL.getJWK(enc_kp.prvKeyObj);",
+											"    enc_publicKey_jwk = pmlib.rs.KEYUTIL.getJWK(enc_kp.pubKeyObj);",
+											"",
+											"    // Add alg and use values to encryption public key",
+											"    enc_publicKey_jwk.alg = \"RSA-OAEP-256\";",
+											"    enc_publicKey_jwk.use = \"enc\";",
+											"",
+											"    // Set the encryption keys in environment",
+											"    pm.environment.set(\"encryption_private_key\", JSON.stringify(enc_privateKey_jwk));",
+											"    pm.environment.set(\"encryption_public_key\", JSON.stringify(enc_publicKey_jwk));",
+											"}"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "X-XSRF-TOKEN",
+										"value": "{{csrf_token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"clientName\": \"{{$randomCompanyName}}\",\n        \"logoUri\": \"{{$randomImageUrl}}\",\n        \"redirectUris\": [\n            \"{{redirection_url}}\",\n            \"io.mosip.residentapp://oauth\",\n            \"http://localhost:5000/**\",\n            \"http://localhost:3000/registration/*\"\n        ],\n        \"userClaims\": [\n            \"name\",\n            \"email\",\n            \"gender\",\n            \"phone_number\",\n            \"birthdate\",\n            \"picture\",\n            \"address\"\n        ],\n        \"authContextRefs\": [\n            \"mosip:idp:acr:generated-code\",\n            \"mosip:idp:acr:password\",\n            \"mosip:idp:acr:linked-wallet\",\n            \"mosip:idp:acr:biometrics\",\n            \"mosip:idp:acr:static-code\"\n        ],\n        \"status\": \"ACTIVE\",\n        \"grantTypes\": [\n            \"authorization_code\"\n        ],\n        \"clientAuthMethods\": [\n            \"private_key_jwt\"\n        ],\n        \"additionalConfig\": {\n            \"userinfo_response_type\": \"JWS\",\n            \"purpose\": {\n                \"type\": \"verify\",\n                \"title\": {\n                    \"@none\": \"title\"\n                },\n                \"subTitle\": {\n                    \"@none\": \"subtitle\"\n                }\n            },\n            \"signup_banner_required\": true,\n            \"forgot_pwd_link_required\": true,\n            \"consent_expire_in_mins\": 20,\n            \"require_pushed_authorization_requests\": false,\n            \"dpop_bound_access_tokens\": false,\n            \"require_pkce\": true\n        },\n        \"encPublicKey\": {{encryption_public_key}}\n    }\n}",
 									"options": {
 										"raw": {
 											"language": "json"

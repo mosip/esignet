@@ -157,4 +157,30 @@ public class ClientManagementController {
         return response;
     }
 
+    /**
+     * PATCH endpoint to partially update client details.
+     * Only provided fields will be updated. Special handling for enc_public_key:
+     * - When set/updated: validates format and computes enc_public_key_hash
+     * - When explicitly set to null: clears both enc_public_key and enc_public_key_hash
+     * - When not present in request: leaves both fields unchanged
+     *
+     * @param clientId The client ID to update (immutable)
+     * @param requestWrapper The patch request containing fields to update
+     * @return Response with clientId and status
+     */
+    @PatchMapping(value = "/client-mgmt/client/{client_id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseWrapper<ClientDetailResponse> patchClient(@Valid @PathVariable("client_id") String clientId,
+                                                               @Valid @RequestBody RequestWrapper<ClientDetailPatchRequest> requestWrapper) {
+        ResponseWrapper<ClientDetailResponse> response = new ResponseWrapper<>();
+        try {
+            response.setResponse(clientManagementService.patchClient(clientId, requestWrapper.getRequest()));
+        } catch (EsignetException ex) {
+            auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
+                    Action.OAUTH_CLIENT_PATCH, ActionStatus.ERROR, AuditHelper.buildAuditDto(clientId), ex);
+            throw ex;
+        }
+        response.setResponseTime(IdentityProviderUtil.getUTCDateTime());
+        return response;
+    }
+
 }

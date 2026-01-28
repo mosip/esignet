@@ -1417,6 +1417,200 @@ paths:
         - Authorization-update_oidc_client: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
+    patch:
+      tags:
+        - Management
+      summary: Partially Update OAuth/OIDC Client Endpoint
+      description: |-
+        API to partially update existing OAuth/Open ID Connect (OIDC) client. Only provided fields will be updated.
+        
+        **Special handling for enc_public_key:**
+        - When set/updated: validates format and computes enc_public_key_hash
+        - When explicitly set to null: clears both enc_public_key and enc_public_key_hash
+        - When not present in request: leaves both fields unchanged
+
+        **Authentication and authorization** is based on a valid JWT issued by a trusted IAM system including "**update_oidc_client**" scope.
+      operationId: patch-client-client_id
+      parameters:
+        - name: client_id
+          in: path
+          description: Client Identifier
+          required: true
+          schema:
+            type: string
+            examples:
+              - WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
+      requestBody:
+        description: Partial update request - only include fields to update
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - requestTime
+                - request
+              properties:
+                requestTime:
+                  type: string
+                  description: Current date and time when the request is sent
+                request:
+                  type: object
+                  description: All fields are optional. Only provided fields will be updated.
+                  properties:
+                    clientName:
+                      type: string
+                      description: Name of the OAuth/OIDC client.
+                      minLength: 1
+                      maxLength: 256
+                    clientNameLangMap:
+                      type: object
+                      description: Client name in different languages.
+                    status:
+                      type: string
+                      enum:
+                        - ACTIVE
+                        - INACTIVE
+                      description: Status of the Client.
+                    logoUri:
+                      type: string
+                      description: Relying party logo URI.
+                      format: uri
+                    redirectUris:
+                      type: array
+                      description: Valid list of callback URIs.
+                      minItems: 1
+                      items:
+                        type: string
+                        format: uri
+                    userClaims:
+                      type: array
+                      description: Allowed user info claims.
+                      items:
+                        type: string
+                    authContextRefs:
+                      type: array
+                      description: Authentication Context Class Reference values.
+                      items:
+                        type: string
+                    grantTypes:
+                      type: array
+                      description: Form of Authorization Grant.
+                      items:
+                        type: string
+                    clientAuthMethods:
+                      type: array
+                      description: Auth method supported for token endpoint.
+                      items:
+                        type: string
+                    additionalConfig:
+                      type: object
+                      description: Additional configuration for the client.
+                    encPublicKey:
+                      type: object
+                      nullable: true
+                      description: |-
+                        Encryption public key in JWK format.
+                        - Set to a valid JWK object to update
+                        - Set to null to clear the encryption key
+                        - Omit to leave unchanged
+                      properties:
+                        kty:
+                          type: string
+                          description: Key type (RSA or EC)
+                        n:
+                          type: string
+                          description: RSA modulus (for RSA keys)
+                        e:
+                          type: string
+                          description: RSA exponent (for RSA keys)
+                        use:
+                          type: string
+                          description: Key use (enc for encryption)
+                        alg:
+                          type: string
+                          description: Algorithm
+                        kid:
+                          type: string
+                          description: Key ID
+            examples:
+              Update Status Only:
+                value:
+                  requestTime: '2024-01-15T10:30:00.000Z'
+                  request:
+                    status: INACTIVE
+              Update Encryption Key:
+                value:
+                  requestTime: '2024-01-15T10:30:00.000Z'
+                  request:
+                    encPublicKey:
+                      kty: RSA
+                      n: 0vx7agoebGcQSuuPiLJXZptN...
+                      e: AQAB
+                      use: enc
+                      alg: RSA-OAEP-256
+                      kid: enc-key-1
+              Clear Encryption Key:
+                value:
+                  requestTime: '2024-01-15T10:30:00.000Z'
+                  request:
+                    encPublicKey: null
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  responseTime:
+                    type: string
+                    description: Date and time when the response is generated
+                  response:
+                    type: object
+                    properties:
+                      clientId:
+                        type: string
+                        description: Client identifier.
+                      status:
+                        type: string
+                        enum:
+                          - ACTIVE
+                          - INACTIVE
+                    required:
+                      - clientId
+                  errors:
+                    type: array
+                    description: List of Errors in case of request validation / processing failure.
+                    items:
+                      type: object
+                      properties:
+                        errorCode:
+                          type: string
+                          enum:
+                            - invalid_client_id
+                            - invalid_client_name
+                            - invalid_claim
+                            - invalid_acr
+                            - invalid_uri
+                            - invalid_redirect_uri
+                            - invalid_grant_type
+                            - invalid_client_auth
+                            - invalid_public_key
+                            - invalid_additional_config
+                        errorMessage:
+                          type: string
+              examples:
+                Success:
+                  value:
+                    responseTime: '2024-01-15T10:30:05.000Z'
+                    response:
+                      clientId: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
+                      status: ACTIVE
+                    errors: []
+      security:
+        - Authorization-update_oidc_client: []
+      servers:
+        - url: 'https://esignet.collab.mosip.net/v1/esignet'
   /authorize:
     get:
       tags:
