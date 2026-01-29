@@ -14,7 +14,6 @@ import com.nimbusds.jwt.SignedJWT;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.esignet.core.exception.EsignetException;
-import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.exception.NotAuthenticatedException;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.util.IdentityProviderUtil;

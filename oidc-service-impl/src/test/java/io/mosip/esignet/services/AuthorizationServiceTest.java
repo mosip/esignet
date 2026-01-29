@@ -2362,4 +2362,416 @@ public class AuthorizationServiceTest {
         clientDetail.setAdditionalConfig(new ObjectNode(JsonNodeFactory.instance));
         return clientDetail;
     }
+
+    @Test
+    void getAdditionalConfig_withNullAdditionalConfig_shouldReturnDefaultValue() {
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setAdditionalConfig(null);
+
+        boolean boolResult = clientDetail.getAdditionalConfig("key", false);
+        String stringResult = clientDetail.getAdditionalConfig("key", "default");
+        int intResult = clientDetail.getAdditionalConfig("key", 10);
+        long longResult = clientDetail.getAdditionalConfig("key", 100L);
+        double doubleResult = clientDetail.getAdditionalConfig("key", 1.5);
+
+        Assertions.assertFalse(boolResult);
+        Assertions.assertEquals("default", stringResult);
+        Assertions.assertEquals(10, intResult);
+        Assertions.assertEquals(100L, longResult);
+        Assertions.assertEquals(1.5, doubleResult);
+    }
+
+    @Test
+    void getAdditionalConfig_withNullKey_shouldReturnDefaultValue() {
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.put("someKey", "someValue");
+        clientDetail.setAdditionalConfig(clientConfig);
+
+        String result = clientDetail.getAdditionalConfig(null, "default");
+
+        Assertions.assertEquals("default", result);
+    }
+
+    @Test
+    void getAdditionalConfig_withMissingKey_shouldReturnDefaultValue() {
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.put("existingKey", "value");
+        clientDetail.setAdditionalConfig(clientConfig);
+
+        String result = clientDetail.getAdditionalConfig("nonExistingKey", "default");
+
+        Assertions.assertEquals("default", result);
+    }
+
+    // String type tests
+    @Test
+    void getAdditionalConfig_withStringKey_andTextualValue_shouldReturnConfiguredValue() {
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.put("stringKey", "configuredValue");
+        clientDetail.setAdditionalConfig(clientConfig);
+
+        String result = clientDetail.getAdditionalConfig("stringKey", "default");
+
+        Assertions.assertEquals("configuredValue", result);
+    }
+
+    @Test
+    void getAdditionalConfig_withStringKey_andEmptyValue_shouldReturnEmptyString() {
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.put("stringKey", "");
+        clientDetail.setAdditionalConfig(clientConfig);
+
+        String result = clientDetail.getAdditionalConfig("stringKey", "default");
+
+        Assertions.assertEquals("", result);
+    }
+
+    @Test
+    void getAdditionalConfig_withStringKey_andNonTextualValue_shouldReturnDefaultValue() {
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.put("stringKey", 12345);
+        clientDetail.setAdditionalConfig(clientConfig);
+
+        String result = clientDetail.getAdditionalConfig("stringKey", "default");
+
+        Assertions.assertEquals("default", result);
+    }
+
+    // Integer type tests
+    @Test
+    void getAdditionalConfig_withIntegerKey_andIntValue_shouldReturnConfiguredValue() {
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.put("intKey", 42);
+        clientDetail.setAdditionalConfig(clientConfig);
+
+        int result = clientDetail.getAdditionalConfig("intKey", 0);
+
+        Assertions.assertEquals(42, result);
+    }
+
+    @Test
+    void getAdditionalConfig_withIntegerKey_andZeroValue_shouldReturnZero() {
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.put("intKey", 0);
+        clientDetail.setAdditionalConfig(clientConfig);
+
+        int result = clientDetail.getAdditionalConfig("intKey", 10);
+
+        Assertions.assertEquals(0, result);
+    }
+
+    @Test
+    void getAdditionalConfig_withIntegerKey_andNegativeValue_shouldReturnNegativeValue() {
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.put("intKey", -5);
+        clientDetail.setAdditionalConfig(clientConfig);
+
+        int result = clientDetail.getAdditionalConfig("intKey", 10);
+
+        Assertions.assertEquals(-5, result);
+    }
+
+    @Test
+    void getAdditionalConfig_withIntegerKey_andNonIntValue_shouldReturnDefaultValue() {
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.put("intKey", "not-an-integer");
+        clientDetail.setAdditionalConfig(clientConfig);
+
+        int result = clientDetail.getAdditionalConfig("intKey", 10);
+
+        Assertions.assertEquals(10, result);
+    }
+
+    // Long type tests
+    @Test
+    void getAdditionalConfig_withLongKey_andLongValue_shouldReturnConfiguredValue() {
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.put("longKey", 9999999999L);
+        clientDetail.setAdditionalConfig(clientConfig);
+
+        long result = clientDetail.getAdditionalConfig("longKey", 0L);
+
+        Assertions.assertEquals(9999999999L, result);
+    }
+
+    @Test
+    void getAdditionalConfig_withLongKey_andZeroValue_shouldReturnZero() {
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.put("longKey", 0L);
+        clientDetail.setAdditionalConfig(clientConfig);
+
+        long result = clientDetail.getAdditionalConfig("longKey", 100L);
+
+        Assertions.assertEquals(0L, result);
+    }
+
+    @Test
+    void getAdditionalConfig_withLongKey_andNegativeValue_shouldReturnNegativeValue() {
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.put("longKey", -9999999999L);
+        clientDetail.setAdditionalConfig(clientConfig);
+
+        long result = clientDetail.getAdditionalConfig("longKey", 100L);
+
+        Assertions.assertEquals(-9999999999L, result);
+    }
+
+    @Test
+    void getAdditionalConfig_withLongKey_andNonLongValue_shouldReturnDefaultValue() {
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.put("longKey", "not-a-long");
+        clientDetail.setAdditionalConfig(clientConfig);
+
+        long result = clientDetail.getAdditionalConfig("longKey", 100L);
+
+        Assertions.assertEquals(100L, result);
+    }
+
+    // Double type tests
+    @Test
+    void getAdditionalConfig_withDoubleKey_andDoubleValue_shouldReturnConfiguredValue() {
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.put("doubleKey", 3.14159);
+        clientDetail.setAdditionalConfig(clientConfig);
+
+        double result = clientDetail.getAdditionalConfig("doubleKey", 0.0);
+
+        Assertions.assertEquals(3.14159, result);
+    }
+
+    @Test
+    void getAdditionalConfig_withDoubleKey_andZeroValue_shouldReturnZero() {
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.put("doubleKey", 0.0);
+        clientDetail.setAdditionalConfig(clientConfig);
+
+        double result = clientDetail.getAdditionalConfig("doubleKey", 1.5);
+
+        Assertions.assertEquals(0.0, result);
+    }
+
+    @Test
+    void getAdditionalConfig_withDoubleKey_andNegativeValue_shouldReturnNegativeValue() {
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.put("doubleKey", -2.5);
+        clientDetail.setAdditionalConfig(clientConfig);
+
+        double result = clientDetail.getAdditionalConfig("doubleKey", 1.0);
+
+        Assertions.assertEquals(-2.5, result);
+    }
+
+    @Test
+    void getAdditionalConfig_withDoubleKey_andNonDoubleValue_shouldReturnDefaultValue() {
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.put("doubleKey", "not-a-double");
+        clientDetail.setAdditionalConfig(clientConfig);
+
+        double result = clientDetail.getAdditionalConfig("doubleKey", 1.5);
+
+        Assertions.assertEquals(1.5, result);
+    }
+
+    // Boolean type tests
+    @Test
+    void getAdditionalConfig_withBooleanKey_andTrueValue_shouldReturnTrue() {
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.put("boolKey", true);
+        clientDetail.setAdditionalConfig(clientConfig);
+
+        boolean result = clientDetail.getAdditionalConfig("boolKey", false);
+
+        Assertions.assertTrue(result);
+    }
+
+    @Test
+    void getAdditionalConfig_withBooleanKey_andFalseValue_shouldReturnFalse() {
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.put("boolKey", false);
+        clientDetail.setAdditionalConfig(clientConfig);
+
+        boolean result = clientDetail.getAdditionalConfig("boolKey", true);
+
+        Assertions.assertFalse(result);
+    }
+
+    @Test
+    void getAdditionalConfig_withBooleanKey_andNonBooleanValue_shouldReturnDefaultValue() {
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.put("boolKey", "not-a-boolean");
+        clientDetail.setAdditionalConfig(clientConfig);
+
+        boolean result = clientDetail.getAdditionalConfig("boolKey", false);
+
+        Assertions.assertFalse(result);
+    }
+
+    // Null value tests
+    @Test
+    void getAdditionalConfig_withNullValueForBooleanKey_shouldReturnDefaultValue() {
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.putNull("boolKey");
+        clientDetail.setAdditionalConfig(clientConfig);
+
+        boolean result = clientDetail.getAdditionalConfig("boolKey", true);
+
+        Assertions.assertTrue(result);
+    }
+
+    @Test
+    void getAdditionalConfig_withNullValueForStringKey_shouldReturnDefaultValue() {
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.putNull("stringKey");
+        clientDetail.setAdditionalConfig(clientConfig);
+
+        String result = clientDetail.getAdditionalConfig("stringKey", "default");
+
+        Assertions.assertEquals("default", result);
+    }
+
+    @Test
+    void getAdditionalConfig_withNullValueForIntegerKey_shouldReturnDefaultValue() {
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.putNull("intKey");
+        clientDetail.setAdditionalConfig(clientConfig);
+
+        int result = clientDetail.getAdditionalConfig("intKey", 10);
+
+        Assertions.assertEquals(10, result);
+    }
+
+    @Test
+    void getAdditionalConfig_withNullValueForLongKey_shouldReturnDefaultValue() {
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.putNull("longKey");
+        clientDetail.setAdditionalConfig(clientConfig);
+
+        long result = clientDetail.getAdditionalConfig("longKey", 100L);
+
+        Assertions.assertEquals(100L, result);
+    }
+
+    @Test
+    void getAdditionalConfig_withNullValueForDoubleKey_shouldReturnDefaultValue() {
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.putNull("doubleKey");
+        clientDetail.setAdditionalConfig(clientConfig);
+
+        double result = clientDetail.getAdditionalConfig("doubleKey", 1.5);
+
+        Assertions.assertEquals(1.5, result);
+    }
+
+    // Complex node type tests
+    @Test
+    void getAdditionalConfig_withObjectNodeValue_shouldReturnDefaultValue() {
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        ObjectNode nestedNode = JsonNodeFactory.instance.objectNode();
+        nestedNode.put("nested", "value");
+        clientConfig.set("objectKey", nestedNode);
+        clientDetail.setAdditionalConfig(clientConfig);
+
+        boolean boolResult = clientDetail.getAdditionalConfig("objectKey", false);
+        String stringResult = clientDetail.getAdditionalConfig("objectKey", "default");
+        int intResult = clientDetail.getAdditionalConfig("objectKey", 10);
+
+        Assertions.assertFalse(boolResult);
+        Assertions.assertEquals("default", stringResult);
+        Assertions.assertEquals(10, intResult);
+    }
+
+    @Test
+    void getAdditionalConfig_withArrayNodeValue_shouldReturnDefaultValue() {
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.putArray("arrayKey").add("value1").add("value2");
+        clientDetail.setAdditionalConfig(clientConfig);
+
+        boolean boolResult = clientDetail.getAdditionalConfig("arrayKey", false);
+        String stringResult = clientDetail.getAdditionalConfig("arrayKey", "default");
+        int intResult = clientDetail.getAdditionalConfig("arrayKey", 10);
+
+        Assertions.assertFalse(boolResult);
+        Assertions.assertEquals("default", stringResult);
+        Assertions.assertEquals(10, intResult);
+    }
+
+    // Unsupported type test - falls through to final return
+    @Test
+    void getAdditionalConfig_withUnsupportedDefaultType_shouldReturnDefaultValue() {
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.put("key", "value");
+        clientDetail.setAdditionalConfig(clientConfig);
+
+        // Using Float which is not explicitly handled
+        Float result = clientDetail.getAdditionalConfig("key", 1.0f);
+
+        Assertions.assertEquals(1.0f, result);
+    }
+
+    // Type mismatch tests
+    @Test
+    void getAdditionalConfig_withIntValueForLongKey_shouldReturnDefaultValue() {
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.put("longKey", 42); // int value, not long
+        clientDetail.setAdditionalConfig(clientConfig);
+
+        long result = clientDetail.getAdditionalConfig("longKey", 100L);
+
+        // Note: Jackson may treat small ints as ints, not longs
+        Assertions.assertEquals(100L, result);
+    }
+
+    @Test
+    void getAdditionalConfig_withBooleanValueForStringKey_shouldReturnDefaultValue() {
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.put("stringKey", true);
+        clientDetail.setAdditionalConfig(clientConfig);
+
+        String result = clientDetail.getAdditionalConfig("stringKey", "default");
+
+        Assertions.assertEquals("default", result);
+    }
+
+    @Test
+    void getAdditionalConfig_withIntValueForDoubleKey_shouldReturnDefaultValue() {
+        ClientDetail clientDetail = new ClientDetail();
+        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+        clientConfig.put("doubleKey", 42); // int, not double
+        clientDetail.setAdditionalConfig(clientConfig);
+
+        double result = clientDetail.getAdditionalConfig("doubleKey", 1.5);
+
+        // Jackson's isDouble() returns false for int values
+        Assertions.assertEquals(1.5, result);
+    }
 }

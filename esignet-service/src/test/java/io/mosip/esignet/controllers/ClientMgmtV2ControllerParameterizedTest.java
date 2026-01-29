@@ -3,6 +3,7 @@ package io.mosip.esignet.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.mosip.esignet.TestUtil;
 import io.mosip.esignet.core.constants.Constants;
@@ -11,6 +12,8 @@ import io.mosip.esignet.core.dto.ClientDetailCreateRequestV3;
 import io.mosip.esignet.core.dto.ClientDetailUpdateRequestV3;
 import io.mosip.esignet.core.dto.RequestWrapper;
 import lombok.AllArgsConstructor;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -412,5 +415,65 @@ public class ClientMgmtV2ControllerParameterizedTest {
         configList.add(config);
 
         return configList;
+    }
+
+    @Test
+    void clientDetailCreateRequestV3_constructorWithAllParameters_shouldSetAllFields() {
+        Map<String, Object> publicKey = TestUtil.generateJWK_RSA().toPublicJWK().toJSONObject();
+        ObjectNode additionalConfig = JsonNodeFactory.instance.objectNode();
+        additionalConfig.put("userinfo_response_type", "JWS");
+        Map<String, String> clientNameLangMap = new HashMap<>();
+        clientNameLangMap.put("eng", "Test Client");
+
+        ClientDetailCreateRequestV3 request = new ClientDetailCreateRequestV3(
+                "client-id",
+                "client-name",
+                publicKey,
+                "rp-id",
+                Arrays.asList("given_name", "birthdate"),
+                Arrays.asList("mosip:idp:acr:static-code"),
+                "https://logo-url/png",
+                Arrays.asList("https://redirect-url/callback"),
+                Arrays.asList("authorization_code"),
+                Arrays.asList("private_key_jwt"),
+                clientNameLangMap,
+                additionalConfig
+        );
+
+        Assertions.assertEquals("client-id", request.getClientId());
+        Assertions.assertEquals("client-name", request.getClientName());
+        Assertions.assertEquals(publicKey, request.getPublicKey());
+        Assertions.assertEquals("rp-id", request.getRelyingPartyId());
+        Assertions.assertEquals(Arrays.asList("given_name", "birthdate"), request.getUserClaims());
+        Assertions.assertEquals(Arrays.asList("mosip:idp:acr:static-code"), request.getAuthContextRefs());
+        Assertions.assertEquals("https://logo-url/png", request.getLogoUri());
+        Assertions.assertEquals(Arrays.asList("https://redirect-url/callback"), request.getRedirectUris());
+        Assertions.assertEquals(Arrays.asList("authorization_code"), request.getGrantTypes());
+        Assertions.assertEquals(Arrays.asList("private_key_jwt"), request.getClientAuthMethods());
+        Assertions.assertEquals(clientNameLangMap, request.getClientNameLangMap());
+        Assertions.assertEquals(additionalConfig, request.getAdditionalConfig());
+    }
+
+    @Test
+    void clientDetailCreateRequestV3_constructorWithNullAdditionalConfig_shouldSetNullAdditionalConfig() {
+        Map<String, Object> publicKey = TestUtil.generateJWK_RSA().toPublicJWK().toJSONObject();
+
+        ClientDetailCreateRequestV3 request = new ClientDetailCreateRequestV3(
+                "client-id",
+                "client-name",
+                publicKey,
+                "rp-id",
+                Arrays.asList("given_name"),
+                Arrays.asList("mosip:idp:acr:static-code"),
+                "https://logo-url/png",
+                Arrays.asList("https://redirect-url/callback"),
+                Arrays.asList("authorization_code"),
+                Arrays.asList("private_key_jwt"),
+                null,
+                null
+        );
+
+        Assertions.assertNull(request.getAdditionalConfig());
+        Assertions.assertNull(request.getClientNameLangMap());
     }
 }

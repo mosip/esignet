@@ -8,6 +8,7 @@ import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.*;
 import io.mosip.esignet.core.constants.ErrorConstants;
+import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.services.CacheUtilService;
 import lombok.extern.slf4j.Slf4j;
@@ -136,6 +137,8 @@ public class DpopValidationFilterTest {
         verify(filterChain).doFilter(request, response);
         assertEquals(200, response.getStatus());
     }
+
+
 
     @Test
     public void testDpopHeader_replayDetection_thenFail() throws Exception {
@@ -340,6 +343,16 @@ public class DpopValidationFilterTest {
         String wwwAuthenticate = response.getHeader("WWW-Authenticate");
         assertNotNull(wwwAuthenticate);
         assertTrue(wwwAuthenticate.contains("error=\"invalid_request\""));
+    }
+
+    @Test
+    public void testInvalidRequestException_constructorAndGetErrorCode() {
+        String errorCode = ErrorConstants.INVALID_REQUEST;
+        InvalidRequestException exception = new InvalidRequestException(errorCode);
+
+        assertNotNull(exception);
+        assertEquals(errorCode, exception.getErrorCode());
+        assertEquals(errorCode, exception.getMessage());
     }
 
 }
