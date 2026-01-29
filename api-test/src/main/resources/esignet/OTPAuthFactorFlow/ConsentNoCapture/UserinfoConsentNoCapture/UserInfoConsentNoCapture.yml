@@ -5,6 +5,7 @@ UserInfoConsentNoCapture:
       description: Get OIDC user info with Verified Claims
       role: resident
       restMethod: get
+      checkErrorsOnlyInResponse: true
       validityCheckRequired: true
       inputTemplate: esignet/OTPAuthFactorFlow/ConsentNoCapture/UserInfoConsentNoCapture/UserInfoConsentNoCapture
       outputTemplate: esignet/OTPAuthFactorFlow/ConsentNoCapture/UserInfoConsentNoCapture/UserInfoConsentNoCaptureResult
