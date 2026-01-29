@@ -1,0 +1,40 @@
+{
+    "requestTime": "{{requestTime}}",
+    "request": {
+        "clientId": "{{clientId}}",
+        "scope": "{{scope}}",
+        "responseType": "{{responseType}}",
+        "redirectUri": "{{redirectUri}}",
+        "display": "{{display}}",
+        "prompt": "{{prompt}}",
+        "acrValues": "{{acrValues}}",
+        "claims": {
+	    	"userinfo": {
+	        	"name": {
+	            	"essential": false
+	        	},
+	        	"phone_number": {
+	            	"essential": true
+	        	},
+	        	"verified_claims": [
+	            	{
+	                	"verification": {
+	                    	"trust_framework": null,
+	                    	"time": null
+	                	},
+	                	"claims": {
+	                    	"email": {
+	                        	"essential": true
+	                    	}
+	                	}
+	            	}
+	        	]
+	    	},
+	    	"id_token": {}
+		},
+        "nonce" : "{{nonce}}",
+        "state" : "{{state}}",
+        "claimsLocales" : "{{claimsLocales}}",
+        "uiLocales" : "{{uiLocales}}"
+    }
+}

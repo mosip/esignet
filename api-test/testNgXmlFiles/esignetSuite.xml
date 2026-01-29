@@ -948,6 +948,49 @@
 				name="io.mosip.testrig.apirig.esignet.testscripts.GetWithParam" />
 		</classes>
 	</test>
+	<test name="OAuthConsentNoCapture">
+		<parameter name="ymlFile"
+			value="esignet/OTPAuthFactorFlow/ConsentNoCapture/OAuthConsentNoCapture/OAuthConsentNoCapture.yml" />
+		<parameter name="idKeyName" value="transactionId,encodedResp" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="AuthenticateConsentNoCapture">
+		<parameter name="ymlFile"
+			value="esignet/OTPAuthFactorFlow/ConsentNoCapture/AuthenticateConsentNoCapture/AuthenticateConsentNoCapture.yml" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.PostWithAutogenIdWithOtpGenerate" />
+		</classes>
+	</test>
+	<test name="AuthorizeCodeConsentNoCapture">
+		<parameter name="ymlFile"
+			value="esignet/OTPAuthFactorFlow/ConsentNoCapture/AuthCodeConsentNoCapture/AuthCodeConsentNoCapture.yml" />
+		<parameter name="idKeyName" value="code" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="GenerateTokenConsentNoCapture">
+		<parameter name="ymlFile"
+			value="esignet/OTPAuthFactorFlow/ConsentNoCapture/GenTokenConsentNoCapture/GenTokenConsentNoCapture.yml" />
+		<parameter name="idKeyName" value="access_token" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
+		</classes>
+	</test>
+	<test name="UserInfoConsentNoCapture">
+		<parameter name="ymlFile"
+			value="esignet/OTPAuthFactorFlow/ConsentNoCapture/UserInfoConsentNoCapture/UserInfoConsentNoCapture.yml" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.GetWithParam" />
+		</classes>
+	</test>	
 	<!-- End of end to end v3 with mock flow test cases -->
 
 </suite>

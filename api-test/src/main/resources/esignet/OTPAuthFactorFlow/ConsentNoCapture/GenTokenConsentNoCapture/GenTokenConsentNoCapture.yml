@@ -1,0 +1,21 @@
+GenTokenConsentNoCapture:
+   ESignet_GenerateToken_ConsentNoCapture_Valid_Smoke_sid:
+      endPoint: $GETENDPOINTFROMWELLKNOWN$
+      uniqueIdentifier: TC_ESignet_GenTokenConsentNoCapture_01
+      description: Generate token with all valid details UIN for user info
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      inputTemplate: esignet/OTPAuthFactorFlow/ConsentNoCapture/GenTokenConsentNoCapture/GenTokenConsentNoCapture
+      outputTemplate: esignet/OTPAuthFactorFlow/ConsentNoCapture/GenTokenConsentNoCapture/GenTokenConsentNoCaptureResult
+      input: '{
+		  "grant_type": "authorization_code",
+		  "code": "$ID:AuthorizationCode_ConsentNoCapture_Smoke_sid_code$",
+		  "client_id": "$ID:OIDCClientV3_VerifiedClaims_all_Valid_Smoke_sid_clientId$",
+		  "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+		  "client_assertion": "$CLIENT_ASSERTION_USER10_JWK$",
+		  "redirect_uri": "$IDPREDIRECTURI$"
+}'
+      output: '{
+   		"token_type": "Bearer" 
+}'
