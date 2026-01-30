@@ -128,6 +128,12 @@ public class BaseTest extends AdminTestUtil {
 		String stepName = getStepName(scenario);
 		ExtentCucumberAdapter.getCurrentStep().log(Status.INFO, "➡️ Step Started: " + stepName);
 	}
+	
+	@After
+	public void clearUinVid() {
+		threadUin.remove();
+		threadVid.remove();
+	}
 
 	@AfterStep
 	public void afterStep(Scenario scenario) {
