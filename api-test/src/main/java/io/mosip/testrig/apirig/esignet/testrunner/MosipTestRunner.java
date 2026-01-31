@@ -102,6 +102,7 @@ public class MosipTestRunner {
 //			Thread trigger = new Thread(healthcheck);
 //			trigger.start();
 			
+			AdminTestUtil.fetchAndStoreCsrfToken();
 
 			if (EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("mockauthenticationservice") == false
 					&& EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("sunbirdrcauthenticationservice") == false) {				
@@ -141,8 +142,6 @@ public class MosipTestRunner {
 						EsignetUtil.testCasesInRunScope = DependencyResolver.getDependencies(testCasesToExecuteString);
 					}
 					
-				AdminTestUtil.fetchAndStoreCsrfToken();
-					
 					startTestRunner();
 					
 					// Used for generating the test case interdependency JSON file
@@ -166,8 +165,6 @@ public class MosipTestRunner {
 					EsignetUtil.testCasesInRunScope = DependencyResolver.getDependencies(testCasesToExecuteString);
 				}
 				 
-				AdminTestUtil.fetchAndStoreCsrfToken();
-				
 				startTestRunner();
 				
 				// Used for generating the test case interdependency JSON file
@@ -188,8 +185,6 @@ public class MosipTestRunner {
 				if (!testCasesToExecuteString.isBlank()) {
 					EsignetUtil.testCasesInRunScope = DependencyResolver.getDependencies(testCasesToExecuteString);
 				}
-				
-				AdminTestUtil.fetchAndStoreCsrfToken();
 				
 				startTestRunner();
 				

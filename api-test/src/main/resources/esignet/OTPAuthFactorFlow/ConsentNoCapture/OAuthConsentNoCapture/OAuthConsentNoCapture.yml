@@ -2,7 +2,7 @@ OAuthConsentNoCapture:
    ESignet_OAuthDetailsRequest_NoCapture_AuthToken_Xsrf_Smoke_sid:
       endPoint: /v1/esignet/authorization/v3/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequestConsentNoCapture_01
-      description: Get OAuth details with same claims same Client ID
+      description: Verify OAuth details retrieval for Consent No Capture flow using the same claims and Client ID with valid auth token and XSRF token
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true

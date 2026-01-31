@@ -2,6 +2,7 @@ AuthenticateConsentNoCapture:
    ESignet_AuthenticateConsentNoCapture_AuthToken_Xsrf__Smoke:
       endPoint: /v1/esignet/authorization/v3/authenticate
       uniqueIdentifier: TC_ESignet_AuthenticateConsentNoCapture_01
+      description: Authenticate user using OTP for Consent No Capture flow and initiate OTP delivery across configured channels
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
