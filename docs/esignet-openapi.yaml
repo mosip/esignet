@@ -1465,6 +1465,10 @@ paths:
                     clientNameLangMap:
                       type: object
                       description: Client name in different languages.
+                      additionalProperties:
+                        type: string
+                        minLength: 1
+                        maxLength: 50
                     status:
                       type: string
                       enum:
@@ -1479,29 +1483,67 @@ paths:
                       type: array
                       description: Valid list of callback URIs.
                       minItems: 1
+                      maxItems: 5
+                      uniqueItems: true
                       items:
                         type: string
                         format: uri
                     userClaims:
                       type: array
-                      description: Allowed user info claims.
+                      description: Allowed user info claims that can be requested by OIDC client.
+                      minItems: 1
+                      maxItems: 30
+                      uniqueItems: true
                       items:
                         type: string
+                        enum:
+                          - name
+                          - given_name
+                          - middle_name
+                          - preferred_username
+                          - nickname
+                          - gender
+                          - birthdate
+                          - email
+                          - phone_number
+                          - picture
+                          - address
                     authContextRefs:
                       type: array
                       description: Authentication Context Class Reference values.
+                      minItems: 1
+                      maxItems: 30
+                      uniqueItems: true
                       items:
                         type: string
+                        enum:
+                          - 'mosip:idp:acr:static-code'
+                          - 'mosip:idp:acr:generated-code'
+                          - 'mosip:idp:acr:linked-wallet'
+                          - 'mosip:idp:acr:biometrics'
+                          - 'mosip:idp:acr:knowledge'
+                          - 'mosip:idp:acr:password'
+                          - 'mosip:idp:acr:id-token'
                     grantTypes:
                       type: array
-                      description: Form of Authorization Grant.
+                      description: Form of Authorization Grant presented to token endpoint.
+                      minItems: 1
+                      maxItems: 3
+                      uniqueItems: true
                       items:
                         type: string
+                        enum:
+                          - authorization_code
                     clientAuthMethods:
                       type: array
-                      description: Auth method supported for token endpoint.
+                      description: Auth method supported for token endpoint. At present only "private_key_jwt" is supported.
+                      minItems: 1
+                      maxItems: 3
+                      uniqueItems: true
                       items:
                         type: string
+                        enum:
+                          - private_key_jwt
                     additionalConfig:
                       type: object
                       description: Additional configuration for the client.
@@ -1509,7 +1551,7 @@ paths:
                       type: object
                       nullable: true
                       description: |-
-                        Encryption public key in JWK format.
+                        Encryption public key in JWK format for userinfo JWE encryption.
                         - Set to a valid JWK object to update
                         - Set to null to clear the encryption key
                         - Omit to leave unchanged
@@ -1517,21 +1559,33 @@ paths:
                         kty:
                           type: string
                           description: Key type (RSA or EC)
+                          enum:
+                            - RSA
+                            - EC
                         n:
                           type: string
                           description: RSA modulus (for RSA keys)
                         e:
                           type: string
                           description: RSA exponent (for RSA keys)
+                          enum:
+                            - AQAB
                         use:
                           type: string
                           description: Key use (enc for encryption)
+                          enum:
+                            - enc
                         alg:
                           type: string
-                          description: Algorithm
+                          description: Algorithm for key management
+                          enum:
+                            - RSA-OAEP-256
+                            - RSA-OAEP
                         kid:
                           type: string
                           description: Key ID
+                      required:
+                        - kty
             examples:
               Update Status Only:
                 value:
