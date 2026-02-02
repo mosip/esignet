@@ -1,0 +1,20 @@
+AuthCodeConsentNoCapture:
+   ESignet_AuthorizationCode_ConsentNoCapture_Smoke_sid:
+      endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCodeVerifiedClaims_01
+      description: Authorization code request for end to end flow
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      additionalDependencies: TC_ESignet_AuthenticateUserV3VerifiedClaims_01
+      inputTemplate: esignet/OTPAuthFactorFlow/ConsentNoCapture/AuthCodeConsentNoCapture/AuthCodeConsentNoCapture
+      outputTemplate: esignet/OTPAuthFactorFlow/ConsentNoCapture/AuthCodeConsentNoCapture/AuthCodeConsentNoCaptureResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_NoCapture_AuthToken_Xsrf_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_NoCapture_AuthToken_Xsrf_Smoke_sid_transactionId$",
+      	"acceptedClaims": [{"claim": "phone_number"},{"claim": "email"}]
+}'
+      output: '{
+}'
