@@ -105,8 +105,8 @@ public class SimplePostForAutoGenId extends EsignetUtil implements ITest {
 		String[] templateFields = testCaseDTO.getTemplateFields();
 		String inputJson = "";
 
-		if ((BaseTestCase.currentModule.equals(GlobalConstants.MASTERDATA)
-				|| BaseTestCase.currentModule.equals(EsignetConstants.DSL))
+		if ((BaseTestCase.currentModule.contains(GlobalConstants.MASTERDATA)
+				|| BaseTestCase.currentModule.contains(EsignetConstants.DSL))
 				&& testCaseName.startsWith("Esignet_CreateOIDCClient")) {
 			inputJson = testCaseDTO.getInput();
 		} else {
