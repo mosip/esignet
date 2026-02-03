@@ -312,7 +312,8 @@ public class TokenServiceImpl implements TokenService {
         payload.put(IAT, issueTime);
         payload.put(EXP, issueTime + getTokenExpireSeconds(transaction, validitySeconds));
         payload.put(AUTH_TIME, transaction.getAuthTimeInSeconds());
-        payload.put(NONCE, nonce == null ? transaction.getNonce() : nonce);
+        if (nonce == null) nonce = transaction.getNonce();
+        if (nonce != null) payload.put(NONCE, nonce);
         List<String> acrs = authenticationContextClassRefUtil.getACRs(transaction.getProvidedAuthFactors());
         payload.put(ACR, String.join(SPACE, acrs));
         return payload;
