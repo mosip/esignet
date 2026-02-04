@@ -37,7 +37,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 
-import static io.mosip.esignet.core.constants.Constants.CLIENT_ACTIVE_STATUS;
+import static io.mosip.esignet.core.constants.Constants.*;
 
 @Slf4j
 @Service
@@ -211,9 +211,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         dto.setLogoUri(result.get().getLogoUri());
         dto.setStatus(result.get().getStatus());
         dto.setPublicKey(result.get().getPublicKey());
-        if(result.get().getEncPublicKey()!=null){
-            dto.setEncPublicKey(result.get().getEncPublicKey());
-        }
+        dto.setEncPublicKey(result.get().getEncPublicKey());
         dto.setAdditionalConfig(result.get().getAdditionalConfig());
         TypeReference<List<String>> typeReference = new TypeReference<List<String>>() {};
         try {
