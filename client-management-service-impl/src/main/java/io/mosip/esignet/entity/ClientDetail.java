@@ -55,6 +55,12 @@ public class ClientDetail {
     @Column(name = "public_key_hash")
     private String publicKeyHash;
 
+    @Column(name = "enc_public_key")
+    private String encPublicKey;
+
+    @Column(name = "enc_public_key_hash")
+    private String encPublicKeyHash;
+
     @NotBlank(message = INVALID_CLAIM)
     @Column(name = "claims")
     private String claims;
