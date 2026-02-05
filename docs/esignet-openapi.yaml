@@ -1424,7 +1424,7 @@ paths:
       description: |-
         API to partially update existing OAuth/Open ID Connect (OIDC) client. Only provided fields will be updated.
         
-        **Special handling for enc_public_key:**
+        **Special handling for encPublicKey:**
         - When set/updated: validates format and computes enc_public_key_hash
         - When explicitly set to null: clears both enc_public_key and enc_public_key_hash
         - When not present in request: leaves both fields unchanged
