@@ -84,4 +84,13 @@ public interface ClientManagementService {
      */
     ClientDetailResponse updateOAuthClient(String clientId, ClientDetailUpdateRequestV2 clientDetailUpdateRequestV2) throws EsignetException;
 
+    /**
+     * API to partially update (PATCH) registered relying party client.
+     * @param clientId The client ID to update (immutable)
+     * @param clientDetailPatchRequest The patch request containing fields to update
+     * @return ClientDetailResponse with clientId and status
+     * @throws EsignetException if client not found or validation fails
+     */
+    ClientDetailResponse patchClient(String clientId, ClientDetailPatchRequest clientDetailPatchRequest) throws EsignetException;
+
 }
