@@ -403,22 +403,18 @@ public class ClientManagementServiceTest {
     }
 
     @Test
-    public void patchClient_withEmptyEncPublicKey_thenNoChange() throws EsignetException {
+    public void patchClient_withEmptyEncPublicKey_thenFail() {
         ClientDetail clientDetail = createMockClientDetail("client_id_v1");
         Mockito.when(clientDetailRepository.findById("client_id_v1")).thenReturn(Optional.of(clientDetail));
 
         ClientDetailPatchRequest patchRequest = new ClientDetailPatchRequest();
-        patchRequest.setEncPublicKey(new HashMap<>());
+        patchRequest.setEncPublicKey(new HashMap<>()); // Empty map - should throw exception
 
-        ClientDetail savedEntity = new ClientDetail();
-        savedEntity.setId("client_id_v1");
-        savedEntity.setStatus("ACTIVE");
-        Mockito.when(clientDetailRepository.save(Mockito.any(ClientDetail.class))).thenReturn(savedEntity);
+        EsignetException exception = Assertions.assertThrows(EsignetException.class, () ->
+                clientManagementService.patchClient("client_id_v1", patchRequest)
+        );
 
-        ClientDetailResponse response = clientManagementService.patchClient("client_id_v1", patchRequest);
-
-        Assertions.assertNotNull(response);
-        Mockito.verify(identityProviderUtil, Mockito.never()).computePublicKeyHash(Mockito.any());
+        Assertions.assertEquals(ErrorConstants.INVALID_PUBLIC_KEY, exception.getErrorCode());
     }
 
     @Test
