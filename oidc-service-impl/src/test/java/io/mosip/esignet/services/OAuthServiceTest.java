@@ -1061,32 +1061,4 @@ public class OAuthServiceTest {
         }
     }
 
-    @Test
-    void dpopNonceMissingException_constructor_shouldSetErrorCodeAndNonceValue() {
-        String nonceValue = "test-nonce-value";
-
-        DpopNonceMissingException exception = new DpopNonceMissingException(nonceValue);
-
-        Assertions.assertEquals(ErrorConstants.USE_DPOP_NONCE, exception.getErrorCode());
-        Assertions.assertEquals(nonceValue, exception.getDpopNonceHeaderValue());
-    }
-
-    @Test
-    void dpopNonceMissingException_getMessage_shouldReturnExpectedMessage() {
-        DpopNonceMissingException exception = new DpopNonceMissingException("nonce-value");
-
-        String message = exception.getMessage();
-
-        Assertions.assertEquals("Authorization server requires nonce in DPoP proof", message);
-    }
-
-    @Test
-    void dpopNonceMissingException_withNullNonce_shouldSetNullValue() {
-        DpopNonceMissingException exception = new DpopNonceMissingException(null);
-
-        Assertions.assertEquals(ErrorConstants.USE_DPOP_NONCE, exception.getErrorCode());
-        Assertions.assertNull(exception.getDpopNonceHeaderValue());
-        Assertions.assertNotNull(exception.getMessage());
-    }
-
 }

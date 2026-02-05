@@ -5,17 +5,12 @@
  */
 package io.mosip.esignet.core.exception;
 
+import io.mosip.esignet.core.constants.ErrorConstants;
+
 public class InvalidRequestException extends EsignetException {
 
-    private String errorCode;
-
-    public InvalidRequestException(String errorCode) {
-        super(errorCode);
-        this.errorCode = errorCode;
-    }
-
-    public String getErrorCode() {
-        return errorCode;
+    public InvalidRequestException() {
+        super(ErrorConstants.INVALID_REQUEST);
     }
 
 }

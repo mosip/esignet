@@ -101,7 +101,7 @@ public class DpopValidationFilter extends OncePerRequestFilter {
 
         try {
             if (OAUTH_ENDPOINT.USERINFO.equals(endpoint) && Collections.list(request.getHeaders(AUTH_HEADER)).size() > 1) {
-                throw new InvalidRequestException(ErrorConstants.INVALID_REQUEST);
+                throw new InvalidRequestException();
             }
 
             Optional<String> dpopHeader = getDpopHeader(request);

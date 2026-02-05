@@ -344,15 +344,4 @@ public class DpopValidationFilterTest {
         assertNotNull(wwwAuthenticate);
         assertTrue(wwwAuthenticate.contains("error=\"invalid_request\""));
     }
-
-    @Test
-    public void testInvalidRequestException_constructorAndGetErrorCode() {
-        String errorCode = ErrorConstants.INVALID_REQUEST;
-        InvalidRequestException exception = new InvalidRequestException(errorCode);
-
-        assertNotNull(exception);
-        assertEquals(errorCode, exception.getErrorCode());
-        assertEquals(errorCode, exception.getMessage());
-    }
-
 }
