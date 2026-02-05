@@ -377,9 +377,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
             String existingName = clientDetail.getName();
             Map<String, String> existingNameMap = new HashMap<>();
             try {
-                if (existingName != null) {
-                    existingNameMap = objectMapper.readValue(existingName, new TypeReference<Map<String, String>>() {});
-                }
+                existingNameMap = objectMapper.readValue(existingName, new TypeReference<>() {});
             } catch (Exception e) {
                 log.warn("Failed to parse existing client name as JSON, using empty map");
             }
@@ -400,8 +398,13 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         }
 
         // Handle enc_public_key update - only if provided and not empty
-        if (patchRequest.getEncPublicKey() != null && !patchRequest.getEncPublicKey().isEmpty()) {
-            clientDetail.setEncPublicKey(IdentityProviderUtil.getJWKString(patchRequest.getEncPublicKey()));
+        if (patchRequest.getEncPublicKey() != null) {
+            try {
+                clientDetail.setEncPublicKey(IdentityProviderUtil.getJWKString(patchRequest.getEncPublicKey()));
+            } catch (EsignetException e) {
+                log.error("Invalid encryption public key",e);
+                throw e;
+            }
             clientDetail.setEncPublicKeyHash(identityProviderUtil.computePublicKeyHash(patchRequest.getEncPublicKey()));
         }
 

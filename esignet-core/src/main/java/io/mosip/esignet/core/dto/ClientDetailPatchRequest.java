@@ -20,7 +20,6 @@ import java.util.Map;
 /**
  * DTO for PATCH client request. Independent class with all updatable fields.
  * All fields are optional - only provided fields will be updated.
- * Null fields indicate "do not update this field".
  * Note: Client ID is immutable and cannot be updated.
  */
 @Data
@@ -32,7 +31,8 @@ public class ClientDetailPatchRequest {
     private String logoUri;
 
     @Size(message = ErrorConstants.INVALID_REDIRECT_URI, min = 1, max = 5)
-    private List<@RedirectURL String> redirectUris;
+    private List<@NotBlank(message = ErrorConstants.INVALID_REDIRECT_URI)
+    @RedirectURL String> redirectUris;
 
     @Size(message = ErrorConstants.INVALID_CLAIM, min = 1, max = 30)
     private List<@OIDCClaim String> userClaims;
@@ -53,7 +53,8 @@ public class ClientDetailPatchRequest {
     private List<@OIDCClientAuth String> clientAuthMethods;
 
     private Map<@ClientNameLang String,
-            @Size(max = 50, message = ErrorConstants.INVALID_CLIENT_NAME_LENGTH) String> clientNameLangMap;
+            @NotBlank(message = ErrorConstants.INVALID_CLIENT_NAME_MAP_VALUE) @Size(max = 50,
+                    message = ErrorConstants.INVALID_CLIENT_NAME_LENGTH) String> clientNameLangMap;
 
     @ClientAdditionalConfig
     private JsonNode additionalConfig;
