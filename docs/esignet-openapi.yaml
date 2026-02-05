@@ -1581,6 +1581,7 @@ paths:
                         - Set to null to clear the encryption key
                         - Omit to leave unchanged
                       oneOf:
+                        - type: 'null'
                         - title: RSA Encryption Key
                           type: object
                           description: RSA public key for encryption
