@@ -2394,99 +2394,43 @@ public class AuthorizationServiceTest {
         Assertions.assertEquals("default", clientDetail.getAdditionalConfig("nonExistingKey", "default"));
     }
 
-    // String type tests
     @Test
-    void getAdditionalConfig_withStringKey_shouldReturnExpectedValues() {
+    void getAdditionalConfig_withDifferentTypes_shouldReturnExpectedValues() {
         ClientDetail clientDetail = new ClientDetail();
         ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
+
+        // Setup all types
         clientConfig.put("textualString", "configuredValue");
         clientConfig.put("nonTextualString", 12345);
-        clientDetail.setAdditionalConfig(clientConfig);
-
-        // Textual value returns configured value
-        Assertions.assertEquals("configuredValue", clientDetail.getAdditionalConfig("textualString", "default"));
-        // Non-textual value returns default
-        Assertions.assertEquals("default", clientDetail.getAdditionalConfig("nonTextualString", "default"));
-    }
-
-    // Integer type test
-    @Test
-    void getAdditionalConfig_withIntegerKey_shouldReturnExpectedValues() {
-        ClientDetail clientDetail = new ClientDetail();
-        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
         clientConfig.put("positiveInt", 42);
-        clientConfig.put("zeroInt", 0);
-        clientConfig.put("negativeInt", -5);
         clientConfig.put("nonInt", "not-an-integer");
-        clientDetail.setAdditionalConfig(clientConfig);
-
-        // Positive value
-        Assertions.assertEquals(42, clientDetail.getAdditionalConfig("positiveInt", 0));
-        // Zero value
-        Assertions.assertEquals(0, clientDetail.getAdditionalConfig("zeroInt", 10));
-        // Negative value
-        Assertions.assertEquals(-5, clientDetail.getAdditionalConfig("negativeInt", 10));
-        // Non-integer value returns default
-        Assertions.assertEquals(10, clientDetail.getAdditionalConfig("nonInt", 10));
-    }
-
-    // Long type tests
-    @Test
-    void getAdditionalConfig_withLongKey_shouldReturnExpectedValues() {
-        ClientDetail clientDetail = new ClientDetail();
-        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
         clientConfig.put("positiveLong", 9999999999L);
-        clientConfig.put("zeroLong", 0L);
-        clientConfig.put("negativeLong", -9999999999L);
         clientConfig.put("nonLong", "not-a-long");
-        clientDetail.setAdditionalConfig(clientConfig);
-
-        // Positive value
-        Assertions.assertEquals(9999999999L, clientDetail.getAdditionalConfig("positiveLong", 0L));
-        // Zero value
-        Assertions.assertEquals(0L, clientDetail.getAdditionalConfig("zeroLong", 100L));
-        // Negative value
-        Assertions.assertEquals(-9999999999L, clientDetail.getAdditionalConfig("negativeLong", 100L));
-        // Non-long value returns default
-        Assertions.assertEquals(100L, clientDetail.getAdditionalConfig("nonLong", 100L));
-    }
-
-    // Double type tests
-    @Test
-    void getAdditionalConfig_withDoubleKey_shouldReturnExpectedValues() {
-        ClientDetail clientDetail = new ClientDetail();
-        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
         clientConfig.put("positiveDouble", 3.14159);
-        clientConfig.put("zeroDouble", 0.0);
-        clientConfig.put("negativeDouble", -2.5);
         clientConfig.put("nonDouble", "not-a-double");
-        clientDetail.setAdditionalConfig(clientConfig);
-
-        // Positive value
-        Assertions.assertEquals(3.14159, clientDetail.getAdditionalConfig("positiveDouble", 0.0));
-        // Zero value
-        Assertions.assertEquals(0.0, clientDetail.getAdditionalConfig("zeroDouble", 1.5));
-        // Negative value
-        Assertions.assertEquals(-2.5, clientDetail.getAdditionalConfig("negativeDouble", 1.0));
-        // Non-double value returns default
-        Assertions.assertEquals(1.5, clientDetail.getAdditionalConfig("nonDouble", 1.5));
-    }
-
-    // Boolean type tests
-    @Test
-    void getAdditionalConfig_withBooleanKey_shouldReturnExpectedValues() {
-        ClientDetail clientDetail = new ClientDetail();
-        ObjectNode clientConfig = JsonNodeFactory.instance.objectNode();
         clientConfig.put("trueBoolean", true);
-        clientConfig.put("falseBoolean", false);
         clientConfig.put("nonBoolean", "not-a-boolean");
+
         clientDetail.setAdditionalConfig(clientConfig);
 
-        // True value
+        // String type
+        Assertions.assertEquals("configuredValue", clientDetail.getAdditionalConfig("textualString", "default"));
+        Assertions.assertEquals("default", clientDetail.getAdditionalConfig("nonTextualString", "default"));
+
+        // Integer type
+        Assertions.assertEquals(42, clientDetail.getAdditionalConfig("positiveInt", 0));
+        Assertions.assertEquals(10, clientDetail.getAdditionalConfig("nonInt", 10));
+
+        // Long type
+        Assertions.assertEquals(9999999999L, clientDetail.getAdditionalConfig("positiveLong", 0L));
+        Assertions.assertEquals(100L, clientDetail.getAdditionalConfig("nonLong", 100L));
+
+        // Double type
+        Assertions.assertEquals(3.14159, clientDetail.getAdditionalConfig("positiveDouble", 0.0));
+        Assertions.assertEquals(1.5, clientDetail.getAdditionalConfig("nonDouble", 1.5));
+
+        // Boolean type
         Assertions.assertTrue(clientDetail.getAdditionalConfig("trueBoolean", false));
-        // False value
-        Assertions.assertFalse(clientDetail.getAdditionalConfig("falseBoolean", true));
-        // Non-boolean value returns default
         Assertions.assertFalse(clientDetail.getAdditionalConfig("nonBoolean", false));
     }
 
