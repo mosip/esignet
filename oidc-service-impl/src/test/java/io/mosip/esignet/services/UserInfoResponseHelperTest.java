@@ -35,7 +35,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -78,8 +77,6 @@ public class UserInfoResponseHelperTest {
         ObjectNode additionalConfig = objectMapper.createObjectNode();
         additionalConfig.put("userinfo_response_type", "JWS");
         clientDetail.setAdditionalConfig(additionalConfig);
-
-        ReflectionTestUtils.setField(userInfoResponseHelper, "certificateSignAlgorithm", "SHA256withRSA");
     }
 
 
@@ -179,6 +176,56 @@ public class UserInfoResponseHelperTest {
 
         OIDCTransaction transaction = new OIDCTransaction();
         transaction.setEncryptedKyc(base64Json);
+        transaction.setClientId("test-client-id");
+        transaction.setUserInfoResponseType("JWE");
+
+        Mockito.when(tokenService.getSignedJWT(Mockito.anyString(), Mockito.any()))
+                .thenReturn(createTestJws());
+        Mockito.when(clientManagementService.getClientDetails("test-client-id")).thenReturn(clientDetail);
+
+        JWTCipherResponseDto jweResponse = new JWTCipherResponseDto();
+        jweResponse.setData(mockJwe);
+        Mockito.when(cryptomanagerService.jwtEncrypt(Mockito.any())).thenReturn(jweResponse);
+
+        String result = userInfoResponseHelper.processUserInfoResponse(transaction);
+
+        Assertions.assertNotNull(result);
+        String[] segments = result.split("\\.");
+        Assertions.assertEquals(5, segments.length, "Result should be JWE with 5 segments");
+
+        Mockito.verify(tokenService, Mockito.times(1)).getSignedJWT(Mockito.anyString(), Mockito.any());
+    }
+
+    @Test
+    public void processUserInfoResponse_withRawJsonAndJWSConfig_thenPass() throws Exception {
+        // Raw JSON (not base64 encoded)
+        String rawJson = "{\"sub\":\"user123\",\"name\":\"Test User\"}";
+
+        OIDCTransaction transaction = new OIDCTransaction();
+        transaction.setEncryptedKyc(rawJson);
+        transaction.setClientId("test-client-id");
+        transaction.setUserInfoResponseType("JWS");
+
+        Mockito.when(tokenService.getSignedJWT(Mockito.anyString(), Mockito.any()))
+                .thenReturn(createTestJws());
+
+        String result = userInfoResponseHelper.processUserInfoResponse(transaction);
+
+        Assertions.assertNotNull(result);
+        String[] segments = result.split("\\.");
+        Assertions.assertEquals(3, segments.length, "Result should be JWS with 3 segments");
+
+        Mockito.verify(tokenService, Mockito.times(1)).getSignedJWT(Mockito.anyString(), Mockito.any());
+    }
+
+    @Test
+    public void processUserInfoResponse_withRawJsonAndJWEConfig_thenPass() throws Exception {
+        // Raw JSON (not base64 encoded)
+        String rawJson = "{\"sub\":\"user123\",\"name\":\"Test User\"}";
+        String mockJwe = "header.encrypted_key.iv.ciphertext.auth_tag";
+
+        OIDCTransaction transaction = new OIDCTransaction();
+        transaction.setEncryptedKyc(rawJson);
         transaction.setClientId("test-client-id");
         transaction.setUserInfoResponseType("JWE");
 

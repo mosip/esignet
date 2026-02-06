@@ -19,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jose4j.jwk.PublicJsonWebKey;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.math.BigInteger;
@@ -28,6 +27,10 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.ECPublicKey;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.ECParameterSpec;
+import java.security.spec.RSAKeyGenParameterSpec;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
@@ -62,9 +65,6 @@ public class UserInfoResponseHelper {
 
     @Autowired
     private ClientManagementService clientManagementService;
-
-    @Value("${mosip.kernel.certificate.sign.algorithm}")
-    private String certificateSignAlgorithm;
 
     private static final String LINE_SEPARATOR = System.lineSeparator();
 
@@ -109,16 +109,34 @@ public class UserInfoResponseHelper {
 
     /**
      * Sign the payload using the same key used for ID/Access tokens.
+     * Accepts both raw JSON and base64/base64url encoded JSON payloads.
+     * @param payload The payload to sign - can be raw JSON string or base64/base64url encoded JSON
+     * @return Signed JWT (JWS) string
      */
-    private String signPayload(String base64EncodedPayload) {
+    private String signPayload(String payload) {
         try {
-            String decodedPayload = decodeBase64UrlOrBase64(base64EncodedPayload);
-            return tokenService.getSignedJWT(OIDC_SERVICE_APP_ID,
-                    new JSONObject(objectMapper.readValue(decodedPayload, Map.class)));
+            Map<String, Object> payloadMap = parsePayloadToMap(payload);
+            return tokenService.getSignedJWT(OIDC_SERVICE_APP_ID, new JSONObject(payloadMap));
         } catch (Exception e) {
             log.error("Failed to sign payload", e);
             throw new EsignetException(DATA_EXCHANGE_FAILED);
         }
+    }
+
+    /**
+     * Parse payload to Map - first tries to parse as raw JSON, then falls back to base64 decoding.
+     * @param payload The payload string (raw JSON or base64/base64url encoded)
+     * @return Parsed payload as Map
+     */
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> parsePayloadToMap(String payload) throws Exception {
+        try {
+            return objectMapper.readValue(payload, Map.class);
+        } catch (Exception jsonParseException) {
+            log.debug("Input is not raw JSON, attempting base64 decoding");
+        }
+        String decodedPayload = decodeBase64UrlOrBase64(payload);
+        return objectMapper.readValue(decodedPayload, Map.class);
     }
 
     /**
@@ -202,6 +220,7 @@ public class UserInfoResponseHelper {
     /**
      * Generate a self-signed X.509 certificate for the given public key.
      * Uses BouncyCastle for certificate generation. Supports both RSA and EC keys.
+     * The signing algorithm is selected based on the key type.
      */
     private X509Certificate generateSelfSignedCertificate(PublicKey publicKey) throws Exception {
         long now = System.currentTimeMillis();
@@ -210,13 +229,21 @@ public class UserInfoResponseHelper {
 
         String algorithm = publicKey.getAlgorithm();
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(algorithm);
+        String signingAlgorithm;
 
-        // Initialize key pair generator based on algorithm type
+        // Initialize key pair generator and select signing algorithm based on key type
         if ("RSA".equals(algorithm)) {
-            keyPairGenerator.initialize(2048);
+            RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
+            int keySize = rsaPublicKey.getModulus().bitLength();
+            keyPairGenerator.initialize(new RSAKeyGenParameterSpec(keySize, RSAKeyGenParameterSpec.F4));
+            signingAlgorithm = "SHA256withRSA";
         } else if ("EC".equals(algorithm)) {
-            keyPairGenerator.initialize(256); // P-256 curve
+            ECPublicKey ecPublicKey = (ECPublicKey) publicKey;
+            ECParameterSpec ecParams = ecPublicKey.getParams();
+            keyPairGenerator.initialize(ecParams);
+            signingAlgorithm = "SHA256withECDSA";
         } else {
+            log.error("Unsupported key algorithm: {}", algorithm);
             throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
         }
 
@@ -228,7 +255,7 @@ public class UserInfoResponseHelper {
         X509v3CertificateBuilder certBuilder = new JcaX509v3CertificateBuilder(
                 issuer, serialNumber, startDate, endDate, issuer, publicKey);
 
-        ContentSigner signer = new JcaContentSignerBuilder(certificateSignAlgorithm).build(tempKeyPair.getPrivate());
+        ContentSigner signer = new JcaContentSignerBuilder(signingAlgorithm).build(tempKeyPair.getPrivate());
 
         X509CertificateHolder certHolder = certBuilder.build(signer);
         return new JcaX509CertificateConverter().getCertificate(certHolder);
