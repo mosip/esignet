@@ -72,7 +72,10 @@ public class UserInfoResponseHelperTest {
         clientDetail = new ClientDetail();
         clientDetail.setId("test-client-id");
 
-        clientDetail.setEncPublicKey(rsaJsonWebKey.toJson());
+        // Set both encPublicKey and encPublicKeyCert (certificate is used by UserInfoResponseHelper)
+        String jwkJson = rsaJsonWebKey.toJson();
+        clientDetail.setEncPublicKey(jwkJson);
+        clientDetail.setEncPublicKeyCert(io.mosip.esignet.core.util.IdentityProviderUtil.generateCertificatePemFromJwk(jwkJson));
 
         ObjectNode additionalConfig = objectMapper.createObjectNode();
         additionalConfig.put("userinfo_response_type", "JWS");
@@ -197,8 +200,8 @@ public class UserInfoResponseHelperTest {
     }
 
     @Test
-    public void processUserInfoResponse_withRawJsonAndJWSConfig_thenPass() throws Exception {
-        // Raw JSON (not base64 encoded)
+    public void processUserInfoResponse_withRawJsonAndJWSConfig_thenFail() {
+        // Raw JSON (not base64 encoded) - should fail as we expect base64 encoded payload
         String rawJson = "{\"sub\":\"user123\",\"name\":\"Test User\"}";
 
         OIDCTransaction transaction = new OIDCTransaction();
@@ -206,44 +209,28 @@ public class UserInfoResponseHelperTest {
         transaction.setClientId("test-client-id");
         transaction.setUserInfoResponseType("JWS");
 
-        Mockito.when(tokenService.getSignedJWT(Mockito.anyString(), Mockito.any()))
-                .thenReturn(createTestJws());
+        EsignetException exception = Assertions.assertThrows(EsignetException.class, () ->
+                userInfoResponseHelper.processUserInfoResponse(transaction)
+        );
 
-        String result = userInfoResponseHelper.processUserInfoResponse(transaction);
-
-        Assertions.assertNotNull(result);
-        String[] segments = result.split("\\.");
-        Assertions.assertEquals(3, segments.length, "Result should be JWS with 3 segments");
-
-        Mockito.verify(tokenService, Mockito.times(1)).getSignedJWT(Mockito.anyString(), Mockito.any());
+        Assertions.assertEquals(DATA_EXCHANGE_FAILED, exception.getErrorCode());
     }
 
     @Test
-    public void processUserInfoResponse_withRawJsonAndJWEConfig_thenPass() throws Exception {
-        // Raw JSON (not base64 encoded)
+    public void processUserInfoResponse_withRawJsonAndJWEConfig_thenFail() {
+        // Raw JSON (not base64 encoded) - should fail as we expect base64 encoded payload
         String rawJson = "{\"sub\":\"user123\",\"name\":\"Test User\"}";
-        String mockJwe = "header.encrypted_key.iv.ciphertext.auth_tag";
 
         OIDCTransaction transaction = new OIDCTransaction();
         transaction.setEncryptedKyc(rawJson);
         transaction.setClientId("test-client-id");
         transaction.setUserInfoResponseType("JWE");
 
-        Mockito.when(tokenService.getSignedJWT(Mockito.anyString(), Mockito.any()))
-                .thenReturn(createTestJws());
-        Mockito.when(clientManagementService.getClientDetails("test-client-id")).thenReturn(clientDetail);
+        EsignetException exception = Assertions.assertThrows(EsignetException.class, () ->
+                userInfoResponseHelper.processUserInfoResponse(transaction)
+        );
 
-        JWTCipherResponseDto jweResponse = new JWTCipherResponseDto();
-        jweResponse.setData(mockJwe);
-        Mockito.when(cryptomanagerService.jwtEncrypt(Mockito.any())).thenReturn(jweResponse);
-
-        String result = userInfoResponseHelper.processUserInfoResponse(transaction);
-
-        Assertions.assertNotNull(result);
-        String[] segments = result.split("\\.");
-        Assertions.assertEquals(5, segments.length, "Result should be JWE with 5 segments");
-
-        Mockito.verify(tokenService, Mockito.times(1)).getSignedJWT(Mockito.anyString(), Mockito.any());
+        Assertions.assertEquals(DATA_EXCHANGE_FAILED, exception.getErrorCode());
     }
 
 
@@ -290,8 +277,8 @@ public class UserInfoResponseHelperTest {
     }
 
     @Test
-    public void processUserInfoResponse_withJWSInputAndJWEConfigButNoEncKey_thenFail() {
-        clientDetail.setEncPublicKey(null);
+    public void processUserInfoResponse_withJWSInputAndJWEConfigButNoEncKeyCert_thenFail() {
+        clientDetail.setEncPublicKeyCert(null);
 
         String jws = createTestJws();
 
@@ -310,8 +297,8 @@ public class UserInfoResponseHelperTest {
     }
 
     @Test
-    public void processUserInfoResponse_withJWSInputAndJWEConfigButEmptyEncKey_thenFail() {
-        clientDetail.setEncPublicKey("");
+    public void processUserInfoResponse_withJWSInputAndJWEConfigButEmptyEncKeyCert_thenFail() {
+        clientDetail.setEncPublicKeyCert("");
 
         String jws = createTestJws();
 
@@ -330,8 +317,8 @@ public class UserInfoResponseHelperTest {
     }
 
     @Test
-    public void processUserInfoResponse_withJWSInputAndJWEConfigButInvalidEncKey_thenFail() {
-        clientDetail.setEncPublicKey("invalid-key-format");
+    public void processUserInfoResponse_withJWSInputAndJWEConfigButInvalidEncKeyCert_thenFail() {
+        clientDetail.setEncPublicKeyCert("invalid-cert-format");
 
         String jws = createTestJws();
 
@@ -341,12 +328,14 @@ public class UserInfoResponseHelperTest {
         transaction.setUserInfoResponseType("JWE");
 
         Mockito.when(clientManagementService.getClientDetails("test-client-id")).thenReturn(clientDetail);
+        Mockito.when(cryptomanagerService.jwtEncrypt(Mockito.any())).thenThrow(new RuntimeException("Invalid certificate"));
 
         EsignetException exception = Assertions.assertThrows(EsignetException.class, () ->
             userInfoResponseHelper.processUserInfoResponse(transaction)
         );
 
-        Assertions.assertEquals(ErrorConstants.INVALID_PUBLIC_KEY, exception.getErrorCode());
+        // Invalid cert format causes encryption to fail, which is caught and thrown as DATA_EXCHANGE_FAILED
+        Assertions.assertEquals(DATA_EXCHANGE_FAILED, exception.getErrorCode());
     }
 
     @Test

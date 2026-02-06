@@ -27,6 +27,7 @@ public class ClientDetail implements Serializable {
     private String publicKey;
     private String encPublicKey;
     private String encPublicKeyHash;
+    private String encPublicKeyCert;
     private List<String> claims;
     private List<String> acrValues;
     private String status;
