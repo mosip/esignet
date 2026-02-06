@@ -360,13 +360,12 @@ public class IdentityProviderUtil {
             // Convert certificate to PEM format
             String base64Cert = Base64.getEncoder().encodeToString(certificate.getEncoded());
             StringBuilder pemBuilder = new StringBuilder();
-            String lineSeparator = System.lineSeparator();
-            pemBuilder.append("-----BEGIN CERTIFICATE-----").append(lineSeparator);
+            pemBuilder.append("-----BEGIN CERTIFICATE-----").append("\n");
 
             int index = 0;
             while (index < base64Cert.length()) {
                 int endIndex = Math.min(index + 64, base64Cert.length());
-                pemBuilder.append(base64Cert, index, endIndex).append(lineSeparator);
+                pemBuilder.append(base64Cert, index, endIndex).append("\n");
                 index = endIndex;
             }
 
