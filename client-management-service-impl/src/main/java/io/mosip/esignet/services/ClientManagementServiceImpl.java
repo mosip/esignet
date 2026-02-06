@@ -212,6 +212,7 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         dto.setStatus(result.get().getStatus());
         dto.setPublicKey(result.get().getPublicKey());
         dto.setEncPublicKey(result.get().getEncPublicKey());
+        dto.setEncPublicKeyCert(result.get().getEncPublicKeyCert());
         dto.setAdditionalConfig(result.get().getAdditionalConfig());
         TypeReference<List<String>> typeReference = new TypeReference<List<String>>() {};
         try {
@@ -397,15 +398,17 @@ public class ClientManagementServiceImpl implements ClientManagementService {
             clientDetail.setAdditionalConfig(patchRequest.getAdditionalConfig());
         }
 
-        // Handle enc_public_key update - only if provided and not empty
+        // Handle enc_public_key update - only if provided
         if (patchRequest.getEncPublicKey() != null) {
             try {
-                clientDetail.setEncPublicKey(IdentityProviderUtil.getJWKString(patchRequest.getEncPublicKey()));
+                String jwkString = IdentityProviderUtil.getJWKString(patchRequest.getEncPublicKey());
+                clientDetail.setEncPublicKey(jwkString);
+                clientDetail.setEncPublicKeyHash(identityProviderUtil.computePublicKeyHash(patchRequest.getEncPublicKey()));
+                clientDetail.setEncPublicKeyCert(IdentityProviderUtil.generateCertificatePemFromJwk(jwkString));
             } catch (EsignetException e) {
-                log.error("Invalid encryption public key",e);
+                log.error("Invalid encryption public key", e);
                 throw e;
             }
-            clientDetail.setEncPublicKeyHash(identityProviderUtil.computePublicKeyHash(patchRequest.getEncPublicKey()));
         }
 
         clientDetail.setUpdatedtimes(LocalDateTime.now(ZoneId.of("UTC")));

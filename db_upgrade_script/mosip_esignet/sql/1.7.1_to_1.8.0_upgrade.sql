@@ -105,6 +105,8 @@ ALTER TABLE client_detail
 -- Add enc_public_key and enc_public_key_hash columns to store encryption public key and computed hash in JWK format
 ALTER TABLE client_detail ADD COLUMN IF NOT EXISTS enc_public_key varchar(1024);
 ALTER TABLE client_detail ADD COLUMN IF NOT EXISTS enc_public_key_hash varchar(128);
+-- Add enc_public_key_cert column to store pre-generated PEM certificate for encryption public key
+ALTER TABLE client_detail ADD COLUMN IF NOT EXISTS enc_public_key_cert varchar(4000);
 
 -- Drop helper function
 DROP FUNCTION IF EXISTS compute_public_key_hash(jsonb);

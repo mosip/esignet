@@ -36,6 +36,9 @@ public class OpenIdConnectServiceTest {
     @Mock
     private AuditPlugin auditWrapper;
 
+    @Mock
+    private UserInfoResponseHelper userInfoResponseHelper;
+
     @Test
     public void getOpenIdConfiguration_test() {
         Map<String, Object> discoveryMap = new HashMap<>();
@@ -73,9 +76,14 @@ public class OpenIdConnectServiceTest {
         oidcTransaction.setEncryptedKyc("encrypted-kyc");
         oidcTransaction.setDpopBoundAccessToken(false);
         Mockito.when(cacheUtilService.getUserInfoTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
+        Mockito.when(userInfoResponseHelper.processUserInfoResponse(Mockito.any(OIDCTransaction.class)))
+                .thenReturn("processed-kyc");
         String kyc = openIdConnectService.getUserInfo("Bearer access-token", null);
         Assertions.assertNotNull(kyc);
-        Assertions.assertEquals("encrypted-kyc", kyc);
+        Assertions.assertEquals("processed-kyc", kyc);
+
+        Mockito.verify(userInfoResponseHelper, Mockito.times(1))
+                .processUserInfoResponse(Mockito.any(OIDCTransaction.class));
     }
 
     @Test
@@ -88,9 +96,11 @@ public class OpenIdConnectServiceTest {
         String dpopHeader = "dpop header";
         Mockito.when(cacheUtilService.getUserInfoTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
         Mockito.when(tokenService.isValidDpopServerNonce(dpopHeader, oidcTransaction)).thenReturn(true);
+        Mockito.when(userInfoResponseHelper.processUserInfoResponse(Mockito.any(OIDCTransaction.class)))
+                .thenReturn("processed-kyc");
         String kyc = openIdConnectService.getUserInfo("DPoP access-token", dpopHeader);
         Assertions.assertNotNull(kyc);
-        Assertions.assertEquals("encrypted-kyc", kyc);
+        Assertions.assertEquals("processed-kyc", kyc);
     }
 
     @Test

@@ -302,6 +302,7 @@ public class ClientDetailRepositoryTest {
         clientDetail.setPublicKeyHash(UUID.randomUUID().toString());
         clientDetail.setEncPublicKey("DUMMY ENC PUBLIC KEY");
         clientDetail.setEncPublicKeyHash(UUID.randomUUID().toString());
+        clientDetail.setEncPublicKeyCert("DUMMY ENC PUBLIC KEY CERT");
         clientDetail.setRpId("RP02");
         clientDetail.setClaims("[]");
         clientDetail.setAcrValues("[]");
@@ -315,7 +316,9 @@ public class ClientDetailRepositoryTest {
         Assertions.assertTrue(result.isPresent());
         Assertions.assertNotNull(result.get().getEncPublicKey());
         Assertions.assertNotNull(result.get().getEncPublicKeyHash());
+        Assertions.assertNotNull(result.get().getEncPublicKeyCert());
         Assertions.assertEquals("DUMMY ENC PUBLIC KEY", result.get().getEncPublicKey());
+        Assertions.assertEquals("DUMMY ENC PUBLIC KEY CERT", result.get().getEncPublicKeyCert());
     }
 
     @Test
@@ -328,7 +331,7 @@ public class ClientDetailRepositoryTest {
         clientDetail.setRedirectUris("[\"https://clientapp.com/home\"]");
         clientDetail.setPublicKey("DUMMY PEM CERT");
         clientDetail.setPublicKeyHash(UUID.randomUUID().toString());
-        // encPublicKey and encPublicKeyHash are null (optional fields)
+        // encPublicKey, encPublicKeyHash and encPublicKeyCert are null (optional fields)
         clientDetail.setRpId("RP03");
         clientDetail.setClaims("[]");
         clientDetail.setAcrValues("[]");
@@ -342,6 +345,7 @@ public class ClientDetailRepositoryTest {
         Assertions.assertTrue(result.isPresent());
         Assertions.assertNull(result.get().getEncPublicKey());
         Assertions.assertNull(result.get().getEncPublicKeyHash());
+        Assertions.assertNull(result.get().getEncPublicKeyCert());
     }
 
     @Test
@@ -364,16 +368,20 @@ public class ClientDetailRepositoryTest {
         clientDetail = clientDetailRepository.saveAndFlush(clientDetail);
         Assertions.assertNotNull(clientDetail);
         Assertions.assertNull(clientDetail.getEncPublicKey());
+        Assertions.assertNull(clientDetail.getEncPublicKeyCert());
 
         // Now update with enc keys
         clientDetail.setEncPublicKey("UPDATED ENC PUBLIC KEY");
         clientDetail.setEncPublicKeyHash(UUID.randomUUID().toString());
+        clientDetail.setEncPublicKeyCert("UPDATED ENC PUBLIC KEY CERT");
         clientDetail.setUpdatedtimes(LocalDateTime.now());
         clientDetail = clientDetailRepository.saveAndFlush(clientDetail);
 
         Optional<ClientDetail> result = clientDetailRepository.findById("C04");
         Assertions.assertTrue(result.isPresent());
         Assertions.assertNotNull(result.get().getEncPublicKey());
+        Assertions.assertNotNull(result.get().getEncPublicKeyCert());
         Assertions.assertEquals("UPDATED ENC PUBLIC KEY", result.get().getEncPublicKey());
+        Assertions.assertEquals("UPDATED ENC PUBLIC KEY CERT", result.get().getEncPublicKeyCert());
     }
 }

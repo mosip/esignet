@@ -19,7 +19,7 @@
 	<description>e-Signet Core Library</description>
 	
 	<properties>
-		<kernel.keymanager.version>1.3.0-beta.4</kernel.keymanager.version>
+		<kernel.keymanager.version>1.3.0</kernel.keymanager.version>
 		<javassist.version>3.27.0-GA</javassist.version>
 		<lombok.version>1.18.42</lombok.version>
 	</properties>
