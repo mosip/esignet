@@ -117,7 +117,7 @@
 				name="io.mosip.testrig.apirig.esignetUI.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
-
+	
 	<test name="CreateVID">
 		<parameter name="ymlFile" value="esignetUI/CreateVID/CreateVid.yml" />
 		<parameter name="idKeyName" value="VID" />

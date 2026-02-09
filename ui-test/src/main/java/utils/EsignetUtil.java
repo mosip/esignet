@@ -839,7 +839,6 @@ public class EsignetUtil extends AdminTestUtil {
 		}
 		pluginName = getValueFromEsignetActuator(ESignetConstants.CLASS_PATH_APPLICATION_PROPERTIES,
 				"mosip.esignet.integration.authenticator");
-
 		return pluginName;
 	}
 
