@@ -832,5 +832,15 @@ public class EsignetUtil extends AdminTestUtil {
 
 		return responseJson.getString("request_uri");
 	}
+	
+	public static String getIdentityPluginNameFromEsignetActuator() {
+		if (pluginName != null && !pluginName.isBlank()) {
+			return pluginName;
+		}
+		pluginName = getValueFromEsignetActuator(ESignetConstants.CLASS_PATH_APPLICATION_PROPERTIES,
+				"mosip.esignet.integration.authenticator");
+
+		return pluginName;
+	}
 
 }

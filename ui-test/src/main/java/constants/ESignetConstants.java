@@ -10,4 +10,5 @@ public class ESignetConstants {
 	public static final String ESIGNET_STRING = "ESignetUI_";
 	public static final String DPOP_KEY = "dpop_key";
 	public static final String DPOP_VALUE = "dpop_value";
+	public static final String CLASS_PATH_APPLICATION_PROPERTIES = "classpath:/application.properties";
 }
