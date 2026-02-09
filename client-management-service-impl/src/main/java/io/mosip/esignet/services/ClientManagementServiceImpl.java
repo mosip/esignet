@@ -211,6 +211,8 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         dto.setLogoUri(result.get().getLogoUri());
         dto.setStatus(result.get().getStatus());
         dto.setPublicKey(result.get().getPublicKey());
+        dto.setEncPublicKey(result.get().getEncPublicKey());
+        dto.setEncPublicKeyCert(result.get().getEncPublicKeyCert());
         dto.setAdditionalConfig(result.get().getAdditionalConfig());
         TypeReference<List<String>> typeReference = new TypeReference<List<String>>() {};
         try {
@@ -321,4 +323,108 @@ public class ClientManagementServiceImpl implements ClientManagementService {
         clientDetail.setAdditionalConfig(clientDetailUpdateRequestV3.getAdditionalConfig());
         return clientDetail;
     }
+
+    /**
+     * Build client detail entity for PATCH update operation.
+     * @param clientId The client ID to update
+     * @param patchRequest The patch request containing fields to update
+     * @return Updated ClientDetail entity
+     */
+    public ClientDetail buildClient(String clientId, ClientDetailPatchRequest patchRequest) {
+        Optional<ClientDetail> result = clientDetailRepository.findById(clientId);
+        if (result.isEmpty()) {
+            log.error("Invalid Client Id : {}", ErrorConstants.INVALID_CLIENT_ID);
+            throw new EsignetException(ErrorConstants.INVALID_CLIENT_ID);
+        }
+
+        ClientDetail clientDetail = result.get();
+
+        // Apply partial updates - only non-null fields
+        if (patchRequest.getLogoUri() != null) {
+            clientDetail.setLogoUri(patchRequest.getLogoUri());
+        }
+
+        if (patchRequest.getRedirectUris() != null) {
+            patchRequest.getRedirectUris().removeAll(NULL);
+            clientDetail.setRedirectUris(JSONArray.toJSONString(patchRequest.getRedirectUris()));
+        }
+
+        if (patchRequest.getUserClaims() != null) {
+            patchRequest.getUserClaims().removeAll(NULL);
+            clientDetail.setClaims(JSONArray.toJSONString(patchRequest.getUserClaims()));
+        }
+
+        if (patchRequest.getAuthContextRefs() != null) {
+            patchRequest.getAuthContextRefs().removeAll(NULL);
+            clientDetail.setAcrValues(JSONArray.toJSONString(patchRequest.getAuthContextRefs()));
+        }
+
+        if (patchRequest.getStatus() != null) {
+            clientDetail.setStatus(patchRequest.getStatus());
+        }
+
+        if (patchRequest.getGrantTypes() != null) {
+            patchRequest.getGrantTypes().removeAll(NULL);
+            clientDetail.setGrantTypes(JSONArray.toJSONString(patchRequest.getGrantTypes()));
+        }
+
+        if (patchRequest.getClientAuthMethods() != null) {
+            patchRequest.getClientAuthMethods().removeAll(NULL);
+            clientDetail.setClientAuthMethods(JSONArray.toJSONString(patchRequest.getClientAuthMethods()));
+        }
+
+        // Handle client name update
+        if (patchRequest.getClientName() != null || patchRequest.getClientNameLangMap() != null) {
+            String existingName = clientDetail.getName();
+            Map<String, String> existingNameMap = new HashMap<>();
+            try {
+                existingNameMap = objectMapper.readValue(existingName, new TypeReference<>() {});
+            } catch (Exception e) {
+                log.warn("Failed to parse existing client name as JSON, using empty map");
+            }
+
+            String clientName = patchRequest.getClientName() != null ?
+                    patchRequest.getClientName() :
+                    existingNameMap.getOrDefault(Constants.NONE_LANG_KEY, "");
+
+            Map<String, String> clientNameLangMap = patchRequest.getClientNameLangMap() != null ?
+                    patchRequest.getClientNameLangMap() :
+                    existingNameMap;
+
+            clientDetail.setName(getClientNameLanguageMapAsJsonString(clientNameLangMap, clientName));
+        }
+
+        if (patchRequest.getAdditionalConfig() != null) {
+            clientDetail.setAdditionalConfig(patchRequest.getAdditionalConfig());
+        }
+
+        // Handle enc_public_key update - only if provided
+        if (patchRequest.getEncPublicKey() != null) {
+            try {
+                String jwkString = IdentityProviderUtil.getJWKString(patchRequest.getEncPublicKey());
+                clientDetail.setEncPublicKey(jwkString);
+                clientDetail.setEncPublicKeyHash(identityProviderUtil.computePublicKeyHash(patchRequest.getEncPublicKey()));
+                clientDetail.setEncPublicKeyCert(IdentityProviderUtil.generateCertificatePemFromJwk(jwkString));
+            } catch (EsignetException e) {
+                log.error("Invalid encryption public key", e);
+                throw e;
+            }
+        }
+
+        clientDetail.setUpdatedtimes(LocalDateTime.now(ZoneId.of("UTC")));
+        return clientDetail;
+    }
+
+    @CacheEvict(value = Constants.CLIENT_DETAIL_CACHE, key = "#clientId")
+    @Override
+    public ClientDetailResponse patchClient(String clientId, ClientDetailPatchRequest patchRequest) throws EsignetException {
+        ClientDetail clientDetail = buildClient(clientId, patchRequest);
+        clientDetail = clientDetailRepository.save(clientDetail);
+
+        auditWrapper.logAudit(AuditHelper.getClaimValue(SecurityContextHolder.getContext(), claimName),
+                Action.OAUTH_CLIENT_PATCH, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(clientId), null);
+
+        return getClientDetailResponse(clientDetail);
+    }
 }
+

@@ -8,24 +8,41 @@ package io.mosip.esignet.core.util;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.cert.*;
+import java.security.interfaces.ECPublicKey;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.ECParameterSpec;
+import java.security.spec.RSAKeyGenParameterSpec;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.exception.EsignetException;
 import org.apache.commons.codec.binary.Hex;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cert.X509v3CertificateBuilder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
+import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.apache.commons.validator.routines.UrlValidator;
+import org.jose4j.jwk.PublicJsonWebKey;
 import org.jose4j.jwk.RsaJsonWebKey;
 import org.jose4j.jwk.EllipticCurveJsonWebKey;
 import org.jose4j.keys.X509Util;
@@ -321,5 +338,88 @@ public class IdentityProviderUtil {
             return X509Util.x5tS256(certificate);
         }
         throw new EsignetException(ErrorConstants.INVALID_CERTIFICATE);
+    }
+
+    /**
+     * Generate a self-signed X.509 certificate PEM from a JWK (JSON Web Key).
+     * This is used to pre-generate the certificate for encryption public keys during client registration.
+     * @param jwkJson The JWK in JSON string format
+     * @return X.509 certificate in PEM format
+     */
+    @SuppressWarnings("unchecked")
+    public static String generateCertificatePemFromJwk(String jwkJson) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> jwkMap = mapper.readValue(jwkJson, Map.class);
+            PublicJsonWebKey jsonWebKey = PublicJsonWebKey.Factory.newPublicJwk(jwkMap);
+            PublicKey publicKey = jsonWebKey.getPublicKey();
+
+            // Generate a self-signed X.509 certificate
+            X509Certificate certificate = generateSelfSignedCertificate(publicKey);
+
+            // Convert certificate to PEM format
+            String base64Cert = Base64.getEncoder().encodeToString(certificate.getEncoded());
+            StringBuilder pemBuilder = new StringBuilder();
+            pemBuilder.append("-----BEGIN CERTIFICATE-----").append("\n");
+
+            int index = 0;
+            while (index < base64Cert.length()) {
+                int endIndex = Math.min(index + 64, base64Cert.length());
+                pemBuilder.append(base64Cert, index, endIndex).append("\n");
+                index = endIndex;
+            }
+
+            pemBuilder.append("-----END CERTIFICATE-----");
+
+            log.debug("Generated self-signed certificate PEM from JWK successfully");
+            return pemBuilder.toString();
+        } catch (Exception e) {
+            log.error("Failed to generate certificate PEM from JWK: {}", e.getMessage(), e);
+            throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
+        }
+    }
+
+    /**
+     * Generate a self-signed X.509 certificate for the given public key.
+     * Supports both RSA and EC keys. The signing algorithm is selected based on the key type.
+     */
+    private static X509Certificate generateSelfSignedCertificate(PublicKey publicKey) throws Exception {
+        long now = System.currentTimeMillis();
+        Date startDate = new Date(now);
+        Date endDate = new Date(now + 365L * 24 * 60 * 60 * 1000);
+
+        String algorithm = publicKey.getAlgorithm();
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(algorithm);
+        String signingAlgorithm;
+
+        // Initialize key pair generator and select signing algorithm based on key type
+        if ("RSA".equals(algorithm)) {
+            RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
+            int keySize = rsaPublicKey.getModulus().bitLength();
+            keyPairGenerator.initialize(new RSAKeyGenParameterSpec(keySize, RSAKeyGenParameterSpec.F4));
+            signingAlgorithm = "SHA256withRSA";
+        } else if ("EC".equals(algorithm)) {
+            ECPublicKey ecPublicKey = (ECPublicKey) publicKey;
+            ECParameterSpec ecParams = ecPublicKey.getParams();
+            keyPairGenerator.initialize(ecParams);
+            signingAlgorithm = "SHA256withECDSA";
+        } else {
+            log.error("Unsupported key algorithm: {}", algorithm);
+            throw new EsignetException(ErrorConstants.INVALID_PUBLIC_KEY);
+        }
+
+        KeyPair tempKeyPair = keyPairGenerator.generateKeyPair();
+
+        X500Name issuer = new X500Name("CN=eSignet Encryption Certificate");
+        BigInteger serialNumber = BigInteger.valueOf(now);
+
+        X509v3CertificateBuilder certBuilder = new JcaX509v3CertificateBuilder(
+                issuer, serialNumber, startDate, endDate, issuer, publicKey);
+
+        ContentSigner signer = new JcaContentSignerBuilder(signingAlgorithm)
+                .build(tempKeyPair.getPrivate());
+
+        X509CertificateHolder certHolder = certBuilder.build(signer);
+        return new JcaX509CertificateConverter().getCertificate(certHolder);
     }
 }

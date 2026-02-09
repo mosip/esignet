@@ -34,6 +34,15 @@ ALTER TABLE client_detail
     ALTER COLUMN additional_config TYPE jsonb
     USING additional_config::jsonb;
 
+-- Drop enc_public_key_cert column
+ALTER TABLE client_detail DROP COLUMN IF EXISTS enc_public_key_cert;
+
+-- Drop enc_public_key_hash column
+ALTER TABLE client_detail DROP COLUMN IF EXISTS enc_public_key_hash;
+
+-- Drop enc_public_key column
+ALTER TABLE client_detail DROP COLUMN IF EXISTS enc_public_key;
+
 -- 3. Revert consent_detail column type changes
 ALTER TABLE consent_detail ALTER COLUMN id TYPE uuid USING id::uuid;
 ALTER TABLE consent_detail ALTER COLUMN client_id TYPE varchar;

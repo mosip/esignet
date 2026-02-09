@@ -5,6 +5,7 @@ public enum Action {
     OIDC_CLIENT_UPDATE("client-mgmt-service"),
     OAUTH_CLIENT_CREATE("client-mgmt-service"),
     OAUTH_CLIENT_UPDATE("client-mgmt-service"),
+    OAUTH_CLIENT_PATCH("client-mgmt-service"),
     GET_OAUTH_DETAILS("esignet-service"),
     GET_PAR_OAUTH_DETAILS("esignet-service"),
     TRANSACTION_STARTED("esignet-service"),

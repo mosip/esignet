@@ -36,6 +36,9 @@ public class OpenIdConnectServiceImpl implements OpenIdConnectService {
     @Autowired
     private AuditPlugin auditWrapper;
 
+    @Autowired
+    private UserInfoResponseHelper userInfoResponseHelper;
+
     @Value("#{${mosip.esignet.discovery.key-values}}")
     private Map<String, Object> discoveryMap;
 
@@ -56,9 +59,12 @@ public class OpenIdConnectServiceImpl implements OpenIdConnectService {
             }
 
             tokenService.verifyAccessToken(transaction.getClientId(), transaction.getPartnerSpecificUserToken(), tokenParts[1]);
+
+            String processedResponse = userInfoResponseHelper.processUserInfoResponse(transaction);
+
             auditWrapper.logAudit(Action.GET_USERINFO, ActionStatus.SUCCESS, AuditHelper.buildAuditDto(transaction.getTransactionId(),
                     transaction), null);
-            return transaction.getEncryptedKyc();
+            return processedResponse;
 
         } catch (EsignetException ex) {
             auditWrapper.logAudit(Action.GET_USERINFO, ActionStatus.ERROR, AuditHelper.buildAuditDto(accessTokenHash,

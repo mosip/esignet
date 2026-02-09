@@ -1417,6 +1417,343 @@ paths:
         - Authorization-update_oidc_client: []
       servers:
         - url: 'https://esignet.collab.mosip.net/v1/esignet'
+    patch:
+      tags:
+        - Management
+      summary: Partially Update OAuth/OIDC Client Endpoint
+      description: |-
+        API to partially update existing OAuth/Open ID Connect (OIDC) client. Only provided fields will be updated.
+        
+        **Special handling for encPublicKey:**
+        - When set/updated: validates format and computes enc_public_key_hash
+        - When explicitly set to null: clears both enc_public_key and enc_public_key_hash
+        - When not present in request: leaves both fields unchanged
+
+        **Authentication and authorization** is based on a valid JWT issued by a trusted IAM system including "**update_oidc_client**" scope.
+      operationId: patch-client-client_id
+      parameters:
+        - name: client_id
+          in: path
+          description: Client Identifier
+          required: true
+          schema:
+            type: string
+            examples:
+              - WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
+      requestBody:
+        description: Partial update request - only include fields to update
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - requestTime
+                - request
+              properties:
+                requestTime:
+                  type: string
+                  description: Current date and time when the request is sent
+                request:
+                  type: object
+                  description: All fields are optional. Only provided fields will be updated.
+                  properties:
+                    clientName:
+                      type: string
+                      description: Name of the OAuth/OIDC client.
+                      minLength: 1
+                      maxLength: 256
+                    clientNameLangMap:
+                      type: object
+                      description: Client name in different languages.
+                      additionalProperties:
+                        type: string
+                        minLength: 1
+                        maxLength: 50
+                    status:
+                      type: string
+                      enum:
+                        - ACTIVE
+                        - INACTIVE
+                      description: Status of the Client.
+                    logoUri:
+                      type: string
+                      description: Relying party logo URI.
+                      format: uri
+                    redirectUris:
+                      type: array
+                      description: Valid list of callback URIs.
+                      minItems: 1
+                      maxItems: 5
+                      uniqueItems: true
+                      items:
+                        type: string
+                        format: uri
+                    userClaims:
+                      type: array
+                      description: Allowed user info claims that can be requested by OIDC client.
+                      minItems: 1
+                      maxItems: 30
+                      uniqueItems: true
+                      items:
+                        type: string
+                        enum:
+                          - name
+                          - given_name
+                          - middle_name
+                          - preferred_username
+                          - nickname
+                          - gender
+                          - birthdate
+                          - email
+                          - phone_number
+                          - picture
+                          - address
+                    authContextRefs:
+                      type: array
+                      description: Authentication Context Class Reference values.
+                      minItems: 1
+                      maxItems: 30
+                      uniqueItems: true
+                      items:
+                        type: string
+                        enum:
+                          - 'mosip:idp:acr:static-code'
+                          - 'mosip:idp:acr:generated-code'
+                          - 'mosip:idp:acr:linked-wallet'
+                          - 'mosip:idp:acr:biometrics'
+                          - 'mosip:idp:acr:knowledge'
+                          - 'mosip:idp:acr:password'
+                          - 'mosip:idp:acr:id-token'
+                    grantTypes:
+                      type: array
+                      description: Form of Authorization Grant presented to token endpoint.
+                      minItems: 1
+                      maxItems: 3
+                      uniqueItems: true
+                      items:
+                        type: string
+                        enum:
+                          - authorization_code
+                    clientAuthMethods:
+                      type: array
+                      description: Auth method supported for token endpoint. At present only "private_key_jwt" is supported.
+                      minItems: 1
+                      maxItems: 3
+                      uniqueItems: true
+                      items:
+                        type: string
+                        enum:
+                          - private_key_jwt
+                    additionalConfig:
+                      type: object
+                      description: 'This parameter allow us to configure the required values based on their specific authentication and integration needs, ensuring efficient implementation of eSignet for ID verification/authentication.'
+                      properties:
+                        userinfo_response_type:
+                          type: string
+                          enum:
+                            - JWS
+                            - JWE
+                          description: The response type for the user info endpoint should be configurable to allow the Relying Party to choose between only signed tokens or signed tokens with encryption.
+                        purpose:
+                          $ref: '#/components/schemas/Purpose'
+                        signup_banner_required:
+                          type: boolean
+                          description: Relying Parties should be able to specify whether they require eSignet sign-up. If no signup service is required UI should not have "Sign up with Unified login" option.
+                        forgot_pwd_link_required:
+                          type: boolean
+                          description: Relying Parties should be able to specify whether they require eSignet forgot password feature. If it is not required UI should not have "Forgot password" option.
+                        consent_expire_in_mins:
+                          type: number
+                          minimum: 10
+                          description: The number of minutes after which a user's given consent will expire.
+                        require_pushed_authorization_requests:
+                          type: boolean
+                          description: 'Boolean parameter indicating whether the only means of initiating an authorization request the client is allowed to use is PAR. If omitted, the default value is false.'
+                        dpop_bound_access_tokens:
+                          type: boolean
+                          description: 'A boolean value specifying whether the client always uses DPoP for token requests. If omitted, the default value is false. If the value is true, the eSignet rejects token request from the client that do not contain the DPoP header.'
+                    encPublicKey:
+                      type: object
+                      nullable: true
+                      description: |-
+                        Encryption public key in JWK format for userinfo JWE encryption.
+                        - Set to a valid JWK object to update
+                        - Set to null to clear the encryption key
+                        - Omit to leave unchanged
+                      oneOf:
+                        - type: 'null'
+                        - title: RSA Encryption Key
+                          type: object
+                          description: RSA public key for encryption
+                          properties:
+                            kty:
+                              type: string
+                              description: Key type (RSA)
+                              enum:
+                                - RSA
+                            n:
+                              type: string
+                              description: RSA modulus (Base64URL encoded)
+                              minLength: 1
+                            e:
+                              type: string
+                              description: RSA exponent
+                              enum:
+                                - AQAB
+                            use:
+                              type: string
+                              description: Key use (enc for encryption)
+                              enum:
+                                - enc
+                            alg:
+                              type: string
+                              description: Algorithm for key management
+                              enum:
+                                - RSA-OAEP-256
+                                - RSA-OAEP
+                            kid:
+                              type: string
+                              description: Key ID
+                          required:
+                            - kty
+                            - n
+                            - e
+                        - title: EC Encryption Key
+                          type: object
+                          description: Elliptic Curve public key for encryption
+                          properties:
+                            kty:
+                              type: string
+                              description: Key type (EC)
+                              enum:
+                                - EC
+                            crv:
+                              type: string
+                              description: Curve name
+                              enum:
+                                - P-256
+                                - P-384
+                                - P-521
+                            x:
+                              type: string
+                              description: X coordinate (Base64URL encoded)
+                              minLength: 1
+                            y:
+                              type: string
+                              description: Y coordinate (Base64URL encoded)
+                              minLength: 1
+                            use:
+                              type: string
+                              description: Key use (enc for encryption)
+                              enum:
+                                - enc
+                            alg:
+                              type: string
+                              description: Algorithm for key management
+                              enum:
+                                - ECDH-ES
+                                - ECDH-ES+A128KW
+                                - ECDH-ES+A192KW
+                                - ECDH-ES+A256KW
+                            kid:
+                              type: string
+                              description: Key ID
+                          required:
+                            - kty
+                            - crv
+                            - x
+                            - y
+            examples:
+              Update Status Only:
+                value:
+                  requestTime: '2024-01-15T10:30:00.000Z'
+                  request:
+                    status: INACTIVE
+              Update RSA Encryption Key:
+                value:
+                  requestTime: '2024-01-15T10:30:00.000Z'
+                  request:
+                    encPublicKey:
+                      kty: RSA
+                      n: 0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRXjBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw
+                      e: AQAB
+                      use: enc
+                      alg: RSA-OAEP-256
+                      kid: enc-key-rsa-1
+              Update EC Encryption Key:
+                value:
+                  requestTime: '2024-01-15T10:30:00.000Z'
+                  request:
+                    encPublicKey:
+                      kty: EC
+                      crv: P-256
+                      x: WbbkPq9chKwjFGa9U7CmEEIb3FJ0yHEaGrMsC3E6iKA
+                      y: 8NKNqnR7v29K7NsMFhV9C0e-RYlBN0tA7qhwj4ZjxpU
+                      use: enc
+                      alg: ECDH-ES+A256KW
+                      kid: enc-key-ec-1
+              Clear Encryption Key:
+                value:
+                  requestTime: '2024-01-15T10:30:00.000Z'
+                  request:
+                    encPublicKey: null
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  responseTime:
+                    type: string
+                    description: Date and time when the response is generated
+                  response:
+                    type: object
+                    properties:
+                      clientId:
+                        type: string
+                        description: Client identifier.
+                      status:
+                        type: string
+                        enum:
+                          - ACTIVE
+                          - INACTIVE
+                    required:
+                      - clientId
+                  errors:
+                    type: array
+                    description: List of Errors in case of request validation / processing failure.
+                    items:
+                      type: object
+                      properties:
+                        errorCode:
+                          type: string
+                          enum:
+                            - invalid_client_id
+                            - invalid_client_name
+                            - invalid_claim
+                            - invalid_acr
+                            - invalid_uri
+                            - invalid_redirect_uri
+                            - invalid_grant_type
+                            - invalid_client_auth
+                            - invalid_public_key
+                            - invalid_additional_config
+                        errorMessage:
+                          type: string
+              examples:
+                Success:
+                  value:
+                    responseTime: '2024-01-15T10:30:05.000Z'
+                    response:
+                      clientId: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
+                      status: ACTIVE
+                    errors: []
+      security:
+        - Authorization-update_oidc_client: []
+      servers:
+        - url: 'https://esignet.collab.mosip.net/v1/esignet'
   /authorize:
     get:
       tags:

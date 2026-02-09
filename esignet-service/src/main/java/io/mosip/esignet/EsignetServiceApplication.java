@@ -18,6 +18,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 		"io.mosip.kernel.crypto," +
 		"io.mosip.kernel.core.logger.config," +
 		"io.mosip.kernel.keymanager.hsm," +
+		"io.mosip.kernel.cryptomanager.service," +
 		"io.mosip.kernel.cryptomanager.util," +
 		"io.mosip.kernel.keymanagerservice.helper," +
 		"io.mosip.kernel.keymanagerservice.service," +

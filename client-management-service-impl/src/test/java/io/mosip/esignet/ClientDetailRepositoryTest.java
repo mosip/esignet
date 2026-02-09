@@ -289,4 +289,99 @@ public class ClientDetailRepositoryTest {
         }
         Assertions.fail();
     }
+
+    @Test
+    public void createClientDetail_withEncPublicKey_thenPass() {
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId("C02");
+        clientDetail.setName("Client-02");
+        clientDetail.setLogoUri("https://clienapp.com/logo.png");
+        clientDetail.setStatus("ACTIVE");
+        clientDetail.setRedirectUris("[\"https://clientapp.com/home\"]");
+        clientDetail.setPublicKey("DUMMY PEM CERT");
+        clientDetail.setPublicKeyHash(UUID.randomUUID().toString());
+        clientDetail.setEncPublicKey("DUMMY ENC PUBLIC KEY");
+        clientDetail.setEncPublicKeyHash(UUID.randomUUID().toString());
+        clientDetail.setEncPublicKeyCert("DUMMY ENC PUBLIC KEY CERT");
+        clientDetail.setRpId("RP02");
+        clientDetail.setClaims("[]");
+        clientDetail.setAcrValues("[]");
+        clientDetail.setGrantTypes("[\"authorization_code\"]");
+        clientDetail.setClientAuthMethods("[\"private_key_jwt\"]");
+        clientDetail.setCreatedtimes(LocalDateTime.now());
+        clientDetail = clientDetailRepository.saveAndFlush(clientDetail);
+        Assertions.assertNotNull(clientDetail);
+
+        Optional<ClientDetail> result = clientDetailRepository.findById("C02");
+        Assertions.assertTrue(result.isPresent());
+        Assertions.assertNotNull(result.get().getEncPublicKey());
+        Assertions.assertNotNull(result.get().getEncPublicKeyHash());
+        Assertions.assertNotNull(result.get().getEncPublicKeyCert());
+        Assertions.assertEquals("DUMMY ENC PUBLIC KEY", result.get().getEncPublicKey());
+        Assertions.assertEquals("DUMMY ENC PUBLIC KEY CERT", result.get().getEncPublicKeyCert());
+    }
+
+    @Test
+    public void createClientDetail_withNullEncPublicKey_thenPass() {
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId("C03");
+        clientDetail.setName("Client-03");
+        clientDetail.setLogoUri("https://clienapp.com/logo.png");
+        clientDetail.setStatus("ACTIVE");
+        clientDetail.setRedirectUris("[\"https://clientapp.com/home\"]");
+        clientDetail.setPublicKey("DUMMY PEM CERT");
+        clientDetail.setPublicKeyHash(UUID.randomUUID().toString());
+        // encPublicKey, encPublicKeyHash and encPublicKeyCert are null (optional fields)
+        clientDetail.setRpId("RP03");
+        clientDetail.setClaims("[]");
+        clientDetail.setAcrValues("[]");
+        clientDetail.setGrantTypes("[\"authorization_code\"]");
+        clientDetail.setClientAuthMethods("[\"private_key_jwt\"]");
+        clientDetail.setCreatedtimes(LocalDateTime.now());
+        clientDetail = clientDetailRepository.saveAndFlush(clientDetail);
+        Assertions.assertNotNull(clientDetail);
+
+        Optional<ClientDetail> result = clientDetailRepository.findById("C03");
+        Assertions.assertTrue(result.isPresent());
+        Assertions.assertNull(result.get().getEncPublicKey());
+        Assertions.assertNull(result.get().getEncPublicKeyHash());
+        Assertions.assertNull(result.get().getEncPublicKeyCert());
+    }
+
+    @Test
+    public void updateClientDetail_withEncPublicKey_thenPass() {
+        // First create a client without enc keys
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId("C04");
+        clientDetail.setName("Client-04");
+        clientDetail.setLogoUri("https://clienapp.com/logo.png");
+        clientDetail.setStatus("ACTIVE");
+        clientDetail.setRedirectUris("[\"https://clientapp.com/home\"]");
+        clientDetail.setPublicKey("DUMMY PEM CERT");
+        clientDetail.setPublicKeyHash(UUID.randomUUID().toString());
+        clientDetail.setRpId("RP04");
+        clientDetail.setClaims("[]");
+        clientDetail.setAcrValues("[]");
+        clientDetail.setGrantTypes("[\"authorization_code\"]");
+        clientDetail.setClientAuthMethods("[\"private_key_jwt\"]");
+        clientDetail.setCreatedtimes(LocalDateTime.now());
+        clientDetail = clientDetailRepository.saveAndFlush(clientDetail);
+        Assertions.assertNotNull(clientDetail);
+        Assertions.assertNull(clientDetail.getEncPublicKey());
+        Assertions.assertNull(clientDetail.getEncPublicKeyCert());
+
+        // Now update with enc keys
+        clientDetail.setEncPublicKey("UPDATED ENC PUBLIC KEY");
+        clientDetail.setEncPublicKeyHash(UUID.randomUUID().toString());
+        clientDetail.setEncPublicKeyCert("UPDATED ENC PUBLIC KEY CERT");
+        clientDetail.setUpdatedtimes(LocalDateTime.now());
+        clientDetail = clientDetailRepository.saveAndFlush(clientDetail);
+
+        Optional<ClientDetail> result = clientDetailRepository.findById("C04");
+        Assertions.assertTrue(result.isPresent());
+        Assertions.assertNotNull(result.get().getEncPublicKey());
+        Assertions.assertNotNull(result.get().getEncPublicKeyCert());
+        Assertions.assertEquals("UPDATED ENC PUBLIC KEY", result.get().getEncPublicKey());
+        Assertions.assertEquals("UPDATED ENC PUBLIC KEY CERT", result.get().getEncPublicKeyCert());
+    }
 }
