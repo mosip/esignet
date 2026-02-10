@@ -1,7 +1,6 @@
 {
   "consent": {
     "authorization_failed_msg": "Unable to authorize. Please check details & try again.",
-    "consent_request_rejected": "Consent Request Rejected",
     "access_denied": "Consent Denied",
     "consent_request_msg": "{{clientName}} is requesting access to the following: ",
     "transaction_timeout_msg": "Please take appropriate action in",

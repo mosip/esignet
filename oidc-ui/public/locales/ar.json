@@ -1,7 +1,6 @@
 {
   "consent": {
     "authorization_failed_msg": "غير قادر على التفويض. يرجى التحقق من التفاصيل والمحاولة مرة أخرى.",
-    "consent_request_rejected": "تم رفض طلب الموافقة",
     "access_denied": "تم رفض الموافقة",
     "consent_request_msg": "{{clientName}} يطلب الوصول إلى ما يلي: ",
     "transaction_timeout_msg": "يرجى اتخاذ الإجراء المناسب في",

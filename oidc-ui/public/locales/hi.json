@@ -1,7 +1,6 @@
 {
   "consent": {
     "authorization_failed_msg": "अधिकृत करने में असमर्थ. कृपया विवरण जांचें और पुनः प्रयास करें।",
-    "consent_request_rejected": "सहमति अनुरोध अस्वीकृत",
     "access_denied": "सहमति अस्वीकृत",
     "consent_request_msg": "{{clientName}} निम्नलिखित तक पहुंच का अनुरोध कर रहा है: ",
     "transaction_timeout_msg": "कृपया उचित कार्यवाही करें",
