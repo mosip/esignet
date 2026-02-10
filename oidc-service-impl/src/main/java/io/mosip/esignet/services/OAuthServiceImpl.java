@@ -247,7 +247,7 @@ public class OAuthServiceImpl implements OAuthService {
 
         if(ObjectUtils.isEmpty(codeVerifier)) {
             log.error("Null or empty code_verifier found in the request");
-            throw new EsignetException(ErrorConstants.INVALID_PKCE_CODE_VERFIER);
+            throw new EsignetException(ErrorConstants.INVALID_GRANT);
         }
 
         String computedChallenge;
@@ -260,8 +260,10 @@ public class OAuthServiceImpl implements OAuthService {
                 throw new EsignetException(ErrorConstants.UNSUPPORTED_PKCE_CHALLENGE_METHOD);
         }
 
-        if(ObjectUtils.isEmpty(computedChallenge) || !computedChallenge.equals(proofKeyCodeExchange.getCodeChallenge()))
-            throw new EsignetException(ErrorConstants.PKCE_FAILED);
+        if(ObjectUtils.isEmpty(computedChallenge) || !computedChallenge.equals(proofKeyCodeExchange.getCodeChallenge())) {
+            log.error("PKCE validation failed, code_verifier did not match with code_challenge");
+            throw new EsignetException(ErrorConstants.INVALID_GRANT);
+        }
     }
 
     private TokenResponse getTokenResponse(OIDCTransaction transaction, boolean isTransactionVCScoped) {

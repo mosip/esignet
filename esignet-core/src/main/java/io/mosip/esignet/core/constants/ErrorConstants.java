@@ -46,7 +46,6 @@ public class ErrorConstants {
     public static final String INVALID_AUTH_FACTOR_TYPE="invalid_auth_factor_type";
     public static final String INVALID_CHALLENGE="invalid_challenge";
     public static final String INVALID_STATUS = "invalid_status";
-    public static final String INVALID_AUTH_CODE = "invalid_auth_code";
     public static final String INVALID_ID_TOKEN_HINT= "invalid_id_token_hint";
     public static final String AUTH_FACTOR_MISMATCH = "auth_factor_mismatch";
     public static final String UNSUPPORTED_ID_FORMAT = "unsupported_id_format";
@@ -74,8 +73,6 @@ public class ErrorConstants {
     public static final String INVALID_AUTH_FACTOR_TYPE_OR_CHALLENGE_FORMAT = "invalid_auth_factor_type_or_challenge_format";
     public static final String UNSUPPORTED_PKCE_CHALLENGE_METHOD = "unsupported_pkce_challenge_method";
     public static final String INVALID_PKCE_CHALLENGE = "invalid_pkce_challenge";
-    public static final String INVALID_PKCE_CODE_VERFIER = "invalid_pkce_code_verifier";
-    public static final String PKCE_FAILED = "pkce_failed";
     public static final String NO_ATTEMPTS_LEFT = "no_attempts_left";
     public static final String INDIVIDUAL_ID_BLOCKED = "individual_id_blocked";
     public static final String TOO_EARLY_ATTEMPT = "too_early_attempt";
