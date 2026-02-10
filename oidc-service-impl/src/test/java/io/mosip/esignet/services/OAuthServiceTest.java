@@ -486,7 +486,7 @@ public class OAuthServiceTest {
         try {
             oAuthService.getTokens(tokenRequest, null, false);
         } catch (EsignetException ex) {
-            Assertions.assertEquals(INVALID_PKCE_CODE_VERFIER, ex.getErrorCode());
+            Assertions.assertEquals(INVALID_GRANT, ex.getErrorCode());
         }
     }
 
@@ -628,7 +628,7 @@ public class OAuthServiceTest {
             oAuthService.getTokens(tokenRequest, null, true);
             Assertions.fail();
         } catch (EsignetException ex) {
-            Assertions.assertEquals(PKCE_FAILED, ex.getErrorCode());
+            Assertions.assertEquals(INVALID_GRANT, ex.getErrorCode());
         }
     }
 

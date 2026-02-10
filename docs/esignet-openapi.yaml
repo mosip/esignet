@@ -5046,10 +5046,9 @@ paths:
                       - invalid_input
                       - unknown_error
                       - invalid_request
+                      - invalid_grant
                       - invalid_assertion_type
-                      - invalid_pkce_code_verifier
                       - unsupported_pkce_challenge_method
-                      - pkce_failed
                       - invalid_dpop_proof
                       - use_dpop_nonce
                     description: The error code.
