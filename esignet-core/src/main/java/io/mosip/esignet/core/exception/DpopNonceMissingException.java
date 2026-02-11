@@ -10,16 +10,11 @@ public class DpopNonceMissingException extends EsignetException {
     @Getter
     private String dpopNonceHeaderValue;
 
+    @Getter
     private final String message = "Authorization server requires nonce in DPoP proof";
 
     public DpopNonceMissingException(String dpopNonceHeaderValue) {
         super(ErrorConstants.USE_DPOP_NONCE);
         this.dpopNonceHeaderValue = dpopNonceHeaderValue;
     }
-
-    @Override
-    public String getMessage() {
-        return message;
-    }
-
 }

@@ -2,7 +2,7 @@ GenTokenConsentNoCapture:
    ESignet_GenerateToken_ConsentNoCapture_Valid_Smoke_sid:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
       uniqueIdentifier: TC_ESignet_GenTokenConsentNoCapture_01
-      description: Generate token with all valid details UIN for user info
+      description: Verify successful token generation for Consent No Capture flow using authorization code grant
       role: resident
       restMethod: post
       validityCheckRequired: true

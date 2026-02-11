@@ -983,6 +983,15 @@
 				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
 		</classes>
 	</test>
+	<test name="GenerateTokenConsentNoCaptureNegTC">
+		<parameter name="ymlFile"
+			value="esignet/OTPAuthFactorFlow/ConsentNoCapture/GenTokenConsentNoCaptureNegTC/GenTokenConsentNoCaptureNegTC.yml" />
+		<parameter name="idKeyName" value="access_token" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
+		</classes>
+	</test>	
 	<test name="UserInfoConsentNoCapture">
 		<parameter name="ymlFile"
 			value="esignet/OTPAuthFactorFlow/ConsentNoCapture/UserInfoConsentNoCapture/UserInfoConsentNoCapture.yml" />
@@ -990,7 +999,8 @@
 			<class
 				name="io.mosip.testrig.apirig.esignet.testscripts.GetWithParam" />
 		</classes>
-	</test>	
+	</test>
+	
 	<!-- End of end to end v3 with mock flow test cases -->
 
 </suite>
