@@ -1,6 +1,7 @@
 {
   "consent": {
     "authorization_failed_msg": "غير قادر على التفويض. يرجى التحقق من التفاصيل والمحاولة مرة أخرى.",
+    "consent_request_rejected": "تم رفض طلب الموافقة",
     "access_denied": "تم رفض الموافقة",
     "consent_request_msg": "{{clientName}} يطلب الوصول إلى ما يلي: ",
     "transaction_timeout_msg": "يرجى اتخاذ الإجراء المناسب في",
@@ -72,7 +73,7 @@
     "link_using_id": "الربط باستخدام {{currentID}}",
     "login_with_id_multiple": "اختر هوية مفضلة لتسجيل الدخول",
     "verify_with_id_multiple": "اختر هوية مفضلة للتحقق",
-    "link_using_id_multiple": "اختر هوية مفضلة للربط",  
+    "link_using_id_multiple": "اختر هوية مفضلة للربط",
     "multiple_login_ids": "حدد خيار معرف تسجيل الدخول"
   },
   "pin": {

@@ -1,6 +1,7 @@
 {
   "consent": {
     "authorization_failed_msg": "មិនអាចអនុញ្ញាត។ សូមពិនិត្យមើលព័ត៌មានលម្អិត ហើយព្យាយាមម្តងទៀត។",
+    "consent_request_rejected": "សំណើការយល់ព្រមត្រូវបានបដិសេធ",
     "access_denied": "ការយល់ព្រមត្រូវបានបដិសេធ",
     "consent_request_msg": "{{clientName}} កំពុងស្នើសុំសិទ្ធិចូលប្រើដូចខាងក្រោម៖ ",
     "transaction_timeout_msg": "សូមចាត់វិធានការសមស្របនៅក្នុង",
