@@ -27,7 +27,6 @@ import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
 import io.mosip.esignet.core.exception.DpopNonceMissingException;
 import io.mosip.esignet.core.exception.EsignetException;
-import io.mosip.esignet.core.exception.InvalidRequestException;
 import io.mosip.esignet.core.spi.ClientManagementService;
 import io.mosip.esignet.core.spi.TokenService;
 import io.mosip.esignet.core.util.SecurityHelperService;

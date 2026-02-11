@@ -28,7 +28,6 @@ import io.mosip.esignet.core.exception.NotAuthenticatedException;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.services.CacheUtilService;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -102,7 +101,7 @@ public class DpopValidationFilter extends OncePerRequestFilter {
 
         try {
             if (OAUTH_ENDPOINT.USERINFO.equals(endpoint) && Collections.list(request.getHeaders(AUTH_HEADER)).size() > 1) {
-                throw new InvalidRequestException(ErrorConstants.INVALID_REQUEST);
+                throw new InvalidRequestException();
             }
 
             Optional<String> dpopHeader = getDpopHeader(request);
