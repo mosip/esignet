@@ -2,7 +2,7 @@ AuthCodeConsentNoCapture:
    ESignet_AuthorizationCode_ConsentNoCapture_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
       uniqueIdentifier: TC_ESignet_AuthorizationCodeVerifiedClaims_01
-      description: Authorization code request for end to end flow
+      description: Validate successful authorization code generation for Consent No Capture flow using verified claims in an end to end OAuth flow
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
