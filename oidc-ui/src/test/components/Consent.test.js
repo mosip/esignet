@@ -460,8 +460,8 @@ describe('Consent Component', () => {
     // ✅ This covers redirectOnError()
     await waitFor(() => {
       expect(redirectOnError).toHaveBeenCalledWith(
-        'consent_request_rejected',
-        'consent_request_rejected'
+        'access_denied',
+        'access_denied'
       );
     });
   });

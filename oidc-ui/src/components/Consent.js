@@ -382,7 +382,7 @@ export default function Consent({
 
   // close the modalpopup and redirect to Relying Party landing page
   const handleDiscontinue = () => {
-    redirectOnError('consent_request_rejected', t('consent_request_rejected'));
+    redirectOnError('access_denied', t('access_denied'));
   };
 
   // buttons for the modalpopup footer
