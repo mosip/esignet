@@ -2,6 +2,7 @@
   "consent": {
     "authorization_failed_msg": "அங்கீகரிக்க முடியவில்லை. விவரங்களைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்.",
     "consent_request_rejected": "ஒப்புதல் கோரிக்கை நிராகரிக்கப்பட்டது",
+    "access_denied": "ஒப்புதலை மறுக்கப்பட்டது",
     "consent_request_msg": "{{clientName}} பின்வரும் அணுகலைக் கோருகிறது: ",
     "transaction_timeout_msg": "தயவு செய்து உரிய நடவடிக்கை எடுக்கவும்",
     "transaction_timeout": "பரிவர்த்தனை நேரம் முடிந்தது. ",
