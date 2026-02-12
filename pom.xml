@@ -89,6 +89,20 @@
 		<spring.boot.version>3.2.3</spring.boot.version>
 
 		<sonar.exclusions>**/dto/**,**/entity/**,**/exception/**,**/spi/**,**/advice/**,**/config/**,**/constants/**</sonar.exclusions>
+		<sonar.coverage.exclusions>
+      		**/config,
+      		**/dao/**,
+      		**/dto/**,
+      		**/entity/**,
+      		**/exception.java,
+      		**/*Constants.java,
+      		**/*Status.java,
+      		**/*Application.java,
+      		**/*HandlerAdvice.java,
+      		**/*Utils.java,
+      		**/*ConsentAction.java,
+      		**/*EvidenceType.java,
+    	</sonar.coverage.exclusions>
 		<sonar.cpd.exclusions>**/dto/**,**/entity/**,**/config/**</sonar.cpd.exclusions>
 	</properties>
 
