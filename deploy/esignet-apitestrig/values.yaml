@@ -2,8 +2,8 @@ modules:
   esignet:
     enabled: true
     image:
-      repository: mosipdev/apitest-esignet
-      tag: develop
+      repository: mosipqa/apitest-esignet
+      tag: 1.8.x
       pullPolicy: Always
 
 extraEnvVarsCM:
