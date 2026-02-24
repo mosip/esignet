@@ -777,6 +777,10 @@ nav {
   }
 }
 
+.react-tooltip {
+  z-index: 9999 !important;
+}
+
 @media screen and (max-width: 768px) {
   .section-background .top_left_bg_logo,
   .section-background .top_right_bg_logo,
