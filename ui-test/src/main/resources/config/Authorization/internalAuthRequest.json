@@ -1,0 +1,13 @@
+{
+  "id": "string",
+  "version": "string",
+  "requesttime": "2022-01-13T06:07:20.554Z",
+  "metadata": {},
+  "request": {
+    "userName": "110005",
+    "password": "mosip",
+    "appId": "admin",
+    "clientId": "mosip-admin-client",
+    "clientSecret": "xyz123"
+  }
+}

@@ -1,0 +1,33 @@
+uploadCACert:
+   EsignetUI_UploadCACertificate_All_Valid_Smoke:
+      endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      uniqueIdentifier: Dependent_Idrepo_uploadCACert_01
+      description: upload intermediate Certificate with all valid details
+      role: partner
+      restMethod: post
+      inputTemplate: esignetUI/PmsIntegration/UploadCertificate/uploadCertificate
+      outputTemplate: esignetUI/PmsIntegration/UploadCertificate/uploadCertificateResult
+      input: '{
+    "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+    "certificateData": "$CACERT$",
+    "requesttime": "$TIMESTAMP$"
+  }'
+      output: ' {
+    "status": "Upload Success."
+}'
+   EsignetUI_UploadCInterCertificate_All_Valid_Smoke:
+      endPoint: /v1/partnermanager/partners/certificate/ca/upload
+      uniqueIdentifier: Dependent_Idrepo_uploadCACert_02
+      description: upload intermediate Certificate with all valid details
+      role: partner
+      restMethod: post
+      inputTemplate: esignetUI/PmsIntegration/UploadCertificate/uploadCertificate
+      outputTemplate: esignetUI/PmsIntegration/UploadCertificate/uploadCertificateResult
+      input: '{
+    "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+    "certificateData": "$INTERCERT$",
+    "requesttime": "$TIMESTAMP$"
+  }'
+      output: ' {
+    "status": "Upload Success."
+}'

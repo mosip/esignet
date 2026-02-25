@@ -1,0 +1,20 @@
+AddIdentityMock:
+   ESignetUI_AddIdentity_Valid_Parameters_smoke_Pos:
+      endPoint: /v1/mock-identity-system/identity
+      uniqueIdentifier: Dependent_Idrepo_AddIdentity_01
+      description: Add identity with all valid parameters
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignetUI/AddIdentityMock/AddIdentity
+      outputTemplate: esignetUI/AddIdentityMock/addIdentityResult
+      input: '{
+	  "requesttime": "$TIMESTAMP$",
+	  "individualId": "$RANDOMINDIVIDUALIDFORMOCKIDENTITY$",
+	  "pin": "545411",
+	  "email": "$EMAILIDFORMOCKIDENTITY$",
+	  "password": "$PASSWORDFORMOCKIDENTITY$",
+	  "phone": "$PHONEFORMOCKIDENTITY$"
+}'
+      output: '{
+  "status":"mock identity data created successfully"
+}'

@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.lang3.StringUtils;
@@ -22,6 +23,8 @@ import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.logging.LogType;
+import org.openqa.selenium.logging.LoggingPreferences;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.safari.SafariDriver;
@@ -33,7 +36,7 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 public class BaseTestUtil {
 	private static final Logger LOGGER = Logger.getLogger(BaseTestUtil.class.getName());
 	private static final ThreadLocal<String> scenarioBrowserThreadLocal = new ThreadLocal<>();
-    private static final ThreadLocal<String> threadLocalLanguage = new ThreadLocal<>();
+	private static final ThreadLocal<String> threadLocalLanguage = new ThreadLocal<>();
 
 	public static URI getBrowserStackUrl() {
 		String accessKey = StringUtils.isBlank(EsignetConfigManager.getproperty("browserstack_access_key"))
@@ -82,9 +85,33 @@ public class BaseTestUtil {
 			bsOptions.put("projectName", "MOSIP ESignet UI Test");
 			caps.setCapability("bstack:options", bsOptions);
 
+			if (browser.equalsIgnoreCase("chrome")) {
+				ChromeOptions chromeOptions = new ChromeOptions();
+				chromeOptions.addArguments("--use-fake-ui-for-media-stream"); // auto allow camera
+				chromeOptions.addArguments("--use-fake-device-for-media-stream");
+
+				caps.setCapability(ChromeOptions.CAPABILITY, chromeOptions);
+			}
+
+			else if (browser.equalsIgnoreCase("firefox")) {
+				FirefoxOptions firefoxOptions = new FirefoxOptions();
+				firefoxOptions.addPreference("media.navigator.streams.fake", true);
+				firefoxOptions.addPreference("media.navigator.permission.disabled", true);
+				caps.setCapability(FirefoxOptions.FIREFOX_OPTIONS, firefoxOptions);
+			}
+
+			else if (browser.equalsIgnoreCase("edge")) {
+				EdgeOptions edgeOptions = new EdgeOptions();
+				edgeOptions.addArguments("--use-fake-ui-for-media-stream");
+				edgeOptions.addArguments("--use-fake-device-for-media-stream");
+				caps.setCapability(EdgeOptions.CAPABILITY, edgeOptions);
+			}
+
+			else if (browser.equalsIgnoreCase("safari")) {
+				LOGGER.info("Note: Safari does not support auto-allow camera via options.");
+			}
 			capsList.add(caps);
 		}
-
 		return capsList;
 	}
 
@@ -104,15 +131,30 @@ public class BaseTestUtil {
 	public static WebDriver getLocalWebDriverInstance(String browser) throws IOException {
 		browser = browser.toLowerCase();
 		boolean isHeadless = Boolean.parseBoolean(EsignetConfigManager.getproperty("headless"));
-		boolean isMobile = Boolean.parseBoolean(EsignetConfigManager.getproperty("mobileEmulation"));
-		String deviceName = EsignetConfigManager.getproperty("mobileDevice");
-
+		boolean isMobile = Boolean.parseBoolean(
+				System.getProperty("mobileEmulation", EsignetConfigManager.getproperty("mobileEmulation")));
+		String deviceName = System.getProperty("mobileDevice", EsignetConfigManager.getproperty("mobileDevice"));
 		WebDriver driver;
 
 		switch (browser) {
 		case "chrome":
 			WebDriverManager.chromedriver().setup();
 			ChromeOptions chromeOptions = new ChromeOptions();
+			LoggingPreferences logPrefs = new LoggingPreferences();
+			logPrefs.enable(LogType.PERFORMANCE, Level.ALL);
+			chromeOptions.setCapability("goog:loggingPrefs", logPrefs);
+
+			chromeOptions.addArguments("--use-fake-ui-for-media-stream"); // auto-allow camera
+			chromeOptions.addArguments("--use-fake-device-for-media-stream");
+			chromeOptions.addArguments("--enable-media-stream");
+
+			Map<String, Object> prefs = new HashMap<>();
+			Map<String, Object> profile = new HashMap<>();
+			Map<String, Object> contentSettings = new HashMap<>();
+			contentSettings.put("media_stream_camera", 1);
+			profile.put("managed_default_content_settings", contentSettings);
+			prefs.put("profile", profile);
+			chromeOptions.setExperimentalOption("prefs", prefs);
 
 			// Enable mobile emulation if requested
 			if (isMobile) {
@@ -143,6 +185,9 @@ public class BaseTestUtil {
 		case "firefox":
 			WebDriverManager.firefoxdriver().setup();
 			FirefoxOptions firefoxOptions = new FirefoxOptions();
+			firefoxOptions.addPreference("media.navigator.streams.fake", true);
+			firefoxOptions.addPreference("media.navigator.permission.disabled", true);
+
 			if (isHeadless)
 				firefoxOptions.addArguments("--headless");
 			driver = new FirefoxDriver(firefoxOptions);
@@ -151,6 +196,11 @@ public class BaseTestUtil {
 		case "edge":
 			WebDriverManager.edgedriver().setup();
 			EdgeOptions edgeOptions = new EdgeOptions();
+
+			edgeOptions.addArguments("--use-fake-ui-for-media-stream");
+			edgeOptions.addArguments("--use-fake-device-for-media-stream");
+			edgeOptions.addArguments("--enable-media-stream");
+
 			if (isHeadless)
 				edgeOptions.addArguments("--headless=new");
 			driver = new EdgeDriver(edgeOptions);
@@ -158,6 +208,7 @@ public class BaseTestUtil {
 
 		case "safari":
 			driver = new SafariDriver();
+			LOGGER.info("Safari doesn’t support auto camera permissions via code");
 			break;
 
 		default:
@@ -192,12 +243,12 @@ public class BaseTestUtil {
 		return scenarioBrowserThreadLocal.get();
 	}
 
-    public static void setThreadLocalLanguage(String lang) {
-        threadLocalLanguage.set(lang);
-    }
+	public static void setThreadLocalLanguage(String lang) {
+		threadLocalLanguage.set(lang);
+	}
 
-    public static String getThreadLocalLanguage() {
-        return threadLocalLanguage.get();
-    }
+	public static String getThreadLocalLanguage() {
+		return threadLocalLanguage.get();
+	}
 
 }

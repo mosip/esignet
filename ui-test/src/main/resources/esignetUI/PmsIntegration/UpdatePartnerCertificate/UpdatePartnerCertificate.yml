@@ -1,0 +1,17 @@
+updatePartnerCertificate:
+   ESignetUI_updatePartnerCertificate_StatusCode_AuthDemoUrl_All_Valid_Smoke:
+      endPoint: /v1/identity/updatePartnerCertificate
+      uniqueIdentifier: Dependent_Idrepo_updatePartnerCertificate_01
+      description: Update partner certificate statusCode AuthDemoUrl all valid details
+      role: partner
+      restMethod: post
+      inputTemplate: esignetUI/PmsIntegration/UpdatePartnerCertificate/updatePartnerCertificate
+      outputTemplate: esignetUI/PmsIntegration/UpdatePartnerCertificate/updatePartnerCertificateResult
+      input: '{
+    "certData": "$ID:UploadPartnerCert_Misp_Valid_Smoke_sid_signedCertificateData$",
+    "partnerType": "MISP",
+    "partnerName": "$ID:PartnerSelfRegistration_Misp_Valid_Smoke_sid_partnerId$",
+    "keyFileNameByPartnerName": "true",
+    "moduleName": "esignet"
+  }'
+      output: "200"

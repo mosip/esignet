@@ -3,10 +3,10 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.mosip.esignet</groupId>
   <artifactId>uitest-esignet</artifactId>
-  <name>ui-test-esignet</name>
+  <name>uitest-esignet</name>
   <version>1.6.0-SNAPSHOT</version>
   <description>UI test automation project for MOSIP eSignet</description>
-  <url>https://github.com/mosip/uitest-esignet</url>
+  <url>https://github.com/mosip/esignet</url>
   <developers>
     <developer>
       <name>Mosip</name>

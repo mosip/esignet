@@ -1,0 +1,128 @@
+package io.mosip.testrig.apirig.esignetUI.testscripts;
+
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.testng.ITest;
+import org.testng.ITestContext;
+import org.testng.ITestResult;
+import org.testng.Reporter;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+import org.testng.internal.BaseTestMethod;
+import org.testng.internal.TestResult;
+
+import io.mosip.testrig.apirig.dto.OutputValidationDto;
+import io.mosip.testrig.apirig.dto.TestCaseDTO;
+import io.mosip.testrig.apirig.utils.AdminTestException;
+import io.mosip.testrig.apirig.utils.AuthenticationTestException;
+import io.mosip.testrig.apirig.utils.GlobalConstants;
+import io.mosip.testrig.apirig.utils.OutputValidationUtil;
+import io.mosip.testrig.apirig.utils.ReportUtil;
+import io.mosip.testrig.apirig.utils.SecurityXSSException;
+import io.restassured.response.Response;
+import utils.EsignetConfigManager;
+import utils.EsignetUtil;
+
+public class PutWithPathParamsAndBody extends EsignetUtil implements ITest {
+	private static final Logger logger = Logger.getLogger(PutWithPathParamsAndBody.class);
+	protected String testCaseName = "";
+	String pathParams = null;
+	public Response response = null;
+
+	@BeforeClass
+	public static void setLogLevel() {
+		if (EsignetConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
+
+	/**
+	 * get current testcaseName
+	 */
+	@Override
+	public String getTestName() {
+		return testCaseName;
+	}
+
+	/**
+	 * Data provider class provides test case list
+	 * 
+	 * @return object of data provider
+	 */
+	@DataProvider(name = "testcaselist")
+	public Object[] getTestCaseList(ITestContext context) {
+		String ymlFile = context.getCurrentXmlTest().getLocalParameters().get("ymlFile");
+		pathParams = context.getCurrentXmlTest().getLocalParameters().get("pathParams");
+		logger.info("Started executing yml: " + ymlFile);
+		return getYmlTestData(ymlFile);
+	}
+
+	/**
+	 * Test method for OTP Generation execution
+	 * 
+	 * @param objTestParameters
+	 * @param testScenario
+	 * @param testcaseName
+	 * @throws AuthenticationTestException
+	 * @throws AdminTestException
+	 */
+	@Test(dataProvider = "testcaselist")
+	public void test(TestCaseDTO testCaseDTO)
+			throws AuthenticationTestException, AdminTestException, SecurityXSSException {
+		testCaseName = testCaseDTO.getTestCaseName();
+		testCaseName = EsignetUtil.isTestCaseValidForExecution(testCaseDTO);
+
+		String inputJson = getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate());
+
+		inputJson = EsignetUtil.inputstringKeyWordHandler(inputJson, testCaseName);
+
+		response = putWithPathParamsBodyAndCookie(ApplnURI + testCaseDTO.getEndPoint(), inputJson, COOKIENAME,
+				testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), pathParams);
+		Map<String, List<OutputValidationDto>> outputValid = null;
+		if (testCaseName.contains("_StatusCode")) {
+
+			OutputValidationDto customResponse = customStatusCodeResponse(String.valueOf(response.getStatusCode()),
+					testCaseDTO.getOutput());
+
+			outputValid = new HashMap<>();
+			outputValid.put(GlobalConstants.EXPECTED_VS_ACTUAL, List.of(customResponse));
+		} else {
+			outputValid = OutputValidationUtil.doJsonOutputValidation(response.asString(),
+					getJsonFromTemplate(testCaseDTO.getOutput(), testCaseDTO.getOutputTemplate()), testCaseDTO,
+					response.getStatusCode());
+		}
+		Reporter.log(ReportUtil.getOutputValidationReport(outputValid));
+
+		if (!OutputValidationUtil.publishOutputResult(outputValid))
+			throw new AdminTestException("Failed at output validation");
+
+	}
+
+	/**
+	 * The method ser current test name to result
+	 * 
+	 * @param result
+	 */
+	@AfterMethod(alwaysRun = true)
+	public void setResultTestName(ITestResult result) {
+		try {
+			Field method = TestResult.class.getDeclaredField("m_method");
+			method.setAccessible(true);
+			method.set(result, result.getMethod().clone());
+			BaseTestMethod baseTestMethod = (BaseTestMethod) result.getMethod();
+			Field f = baseTestMethod.getClass().getSuperclass().getDeclaredField("m_methodName");
+			f.setAccessible(true);
+			f.set(baseTestMethod, testCaseName);
+		} catch (Exception e) {
+			Reporter.log("Exception : " + e.getMessage());
+		}
+	}
+}

@@ -61,4 +61,9 @@ public class EsignetConfigManager extends io.mosip.testrig.apirig.utils.ConfigMa
 			return 10;
 		}
 	}
+
+	public static String getSignupUrl() {
+		return getProperty("signupUrl", "");
+	}
+
 }
