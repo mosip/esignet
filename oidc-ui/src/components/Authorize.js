@@ -1,6 +1,6 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router';
 import ErrorIndicator from '../common/ErrorIndicator';
 import LoadingIndicator from '../common/LoadingIndicator';
 import { LoadingStates as states } from '../constants/states';

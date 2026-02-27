@@ -1,5 +1,5 @@
 import { Suspense, useEffect, useState, useRef } from 'react';
-import { Route, Routes, useNavigate, useLocation } from 'react-router-dom';
+import { Route, Routes, useNavigate, useLocation } from 'react-router';
 import {
   LoginPage,
   AuthorizePage,

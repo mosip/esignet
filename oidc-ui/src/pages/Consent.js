@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import Consent from '../components/Consent';
 import authService from '../services/authService';
 import { Buffer } from 'buffer';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router';
 import openIDConnectService from '../services/openIDConnectService';
 import DefaultError from '../components/DefaultError';
 import { errorCodeObj } from '../constants/clientConstants';
