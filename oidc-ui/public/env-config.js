@@ -8,4 +8,5 @@ window._env_ = {
   DEFAULT_ID_PROVIDER_NAME: 'eSignet',
   DEFAULT_FONT_URL:
     'https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap',
+  POLLING_URL: 'https://localhost:8090/health/readiness'
 };
