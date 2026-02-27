@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@asgardeo/react": "^0.13.2",
     "@craco/craco": "^7.1.0",
     "@emotion/react": "^11.14.0",
     "@radix-ui/react-dropdown-menu": "^2.1.16",

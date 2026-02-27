@@ -4,6 +4,7 @@ import App from './App';
 import './i18n';
 import 'react-tooltip/dist/react-tooltip.css';
 import { StrictMode } from 'react';
+import { AsgardeoProvider } from '@asgardeo/react';
 
 // Central fallback constant (avoid duplication in JS/CSS)
 const DEFAULT_PRIMARY_COLOR = '#1262C9';
@@ -38,6 +39,8 @@ const container = document.getElementById('root');
 const root = createRoot(container);
 root.render(
   <StrictMode>
-    <App />
+    <AsgardeoProvider baseUrl="https://localhost:8090" platform="AsgardeoV2">
+      <App />
+    </AsgardeoProvider>
   </StrictMode>
 );

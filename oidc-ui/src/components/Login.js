@@ -1,3 +1,9 @@
+import { SignIn } from '@asgardeo/react';
+
 export default function Login() {
-  return <div>Login Page</div>;
+  return (
+    <>
+      <SignIn />
+    </>
+  );
 }
