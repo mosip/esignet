@@ -1,18 +1,11 @@
-import {
-  render,
-  screen,
-  fireEvent,
-  waitFor,
-  act,
-} from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router';
 import Pin from '../../components/Pin';
 import openIDConnectService from '../../services/openIDConnectService';
 import authService from '../../services/authService';
 import { useTranslation } from 'react-i18next';
 import langConfigService from '../../services/langConfigService';
 import { configurationKeys } from '../../constants/clientConstants';
-import redirectOnError from '../../helpers/redirectOnError';
 
 // ---------- Mocks ----------
 jest.mock('../../services/openIDConnectService');

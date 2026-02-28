@@ -1,9 +1,9 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App';
 import './i18n';
 import 'react-tooltip/dist/react-tooltip.css';
+import { StrictMode } from 'react';
 
 // Central fallback constant (avoid duplication in JS/CSS)
 const DEFAULT_PRIMARY_COLOR = '#1262C9';
@@ -34,8 +34,10 @@ function applyTheme() {
 
 applyTheme(); // Run before rendering
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
+const container = document.getElementById('root');
+const root = createRoot(container);
+root.render(
+  <StrictMode>
     <App />
-  </React.StrictMode>
+  </StrictMode>
 );

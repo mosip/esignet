@@ -1,11 +1,10 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { MemoryRouter, useLocation } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router';
 import SomethingWrongPage from '../../pages/SomethingWrong';
 
-// ✅ Mock react-router-dom's useLocation
-jest.mock('react-router-dom', () => {
-  const originalModule = jest.requireActual('react-router-dom');
+// ✅ Mock react-router's useLocation
+jest.mock('react-router', () => {
+  const originalModule = jest.requireActual('react-router');
   return {
     ...originalModule,
     useLocation: jest.fn(),

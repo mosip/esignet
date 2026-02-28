@@ -1,6 +1,5 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 import LoginPage from '../../pages/Login';
 
 // Mock TextEncoder and TextDecoder
@@ -8,7 +7,7 @@ global.TextEncoder = require('util').TextEncoder;
 global.TextDecoder = require('util').TextDecoder;
 
 // Mock secure-biometric-interface-integrator
-jest.mock('secure-biometric-interface-integrator', () => ({
+jest.mock('@mosip/secure-biometric-interface-integrator', () => ({
   init: jest.fn(),
   propChange: jest.fn(),
 }));

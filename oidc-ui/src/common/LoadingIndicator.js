@@ -17,7 +17,7 @@ const dynamicSize = {
 
 const LoadingIndicator = ({
   message,
-  size,
+  size = 'medium',
   msgParam,
   i18nKeyPrefix = 'loadingMsgs',
   className,
@@ -54,10 +54,6 @@ const LoadingIndicator = ({
       </div>
     </>
   );
-};
-
-LoadingIndicator.defaultProps = {
-  size: 'medium',
 };
 
 export default LoadingIndicator;

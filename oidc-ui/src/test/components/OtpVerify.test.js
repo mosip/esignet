@@ -1,6 +1,5 @@
-import React from 'react';
 import { render, screen, waitFor, act } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 import userEvent from '@testing-library/user-event';
 
 // 🧪 Mock translations
@@ -85,15 +84,15 @@ const defaultProps = {
 };
 
 // ✅ Mock react-router hooks globally for Authorize test
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: jest.fn(),
   useSearchParams: jest.fn(() => [new URLSearchParams('')]),
 }));
 
 describe('OtpVerify', () => {
   const mockNavigate = jest.fn();
-  const mockUseNavigate = require('react-router-dom').useNavigate;
+  const mockUseNavigate = require('react-router').useNavigate;
 
   beforeEach(() => {
     mockNavigate.mockClear();
@@ -188,9 +187,8 @@ describe('OtpVerify', () => {
       }),
     }));
 
-    const { default: OtpVerifyLabelTest } = await import(
-      '../../components/OtpVerify'
-    );
+    const { default: OtpVerifyLabelTest } =
+      await import('../../components/OtpVerify');
 
     render(
       <MemoryRouter>

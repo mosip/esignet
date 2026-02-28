@@ -48,8 +48,8 @@ jest.mock('buffer', () => ({
   },
 }));
 
-jest.mock('react-router-dom', () => {
-  const actual = jest.requireActual('react-router-dom');
+jest.mock('react-router', () => {
+  const actual = jest.requireActual('react-router');
   const mockValidJwt = [
     'header',
     btoa(JSON.stringify({ sub: 'mocked-uuid' })),
@@ -71,10 +71,9 @@ jest.mock('react-router-dom', () => {
 });
 
 // --- Imports ---
-import React from 'react';
 import { render } from '@testing-library/react';
 import IdToken from '../../components/IdToken';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 
 describe('IdToken Component', () => {
   beforeEach(() => {

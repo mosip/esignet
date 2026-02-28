@@ -1,5 +1,5 @@
 import './App.css';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter } from 'react-router';
 import NavHeader from './components/NavHeader';
 import langConfigService from './services/langConfigService';
 import { initializeCSSVariables } from './services/cssVariableService';

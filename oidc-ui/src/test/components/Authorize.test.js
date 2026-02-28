@@ -1,6 +1,5 @@
-import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router';
 import Authorize from '../../components/Authorize';
 
 // Mocks
@@ -10,8 +9,8 @@ const mockBuildRedirectParams = jest.fn();
 const mockStoreQueryParam = jest.fn();
 const mockNavigate = jest.fn();
 
-jest.mock('react-router-dom', () => {
-  const actual = jest.requireActual('react-router-dom');
+jest.mock('react-router', () => {
+  const actual = jest.requireActual('react-router');
   return {
     ...actual,
     useNavigate: () => mockNavigate,

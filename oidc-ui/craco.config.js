@@ -11,14 +11,17 @@ module.exports = {
         },
       });
 
-      // 2. Add the Fallbacks (The Crypto/Process error)
-      webpackConfig.resolve.fallback = {
-        ...webpackConfig.resolve.fallback,
-        "crypto": require.resolve("crypto-browserify"),
-        "stream": require.resolve("stream-browserify"),
-        "vm": require.resolve("vm-browserify"),
-        "buffer": require.resolve("buffer"),
-        "process": require.resolve("process/browser.js"), // Added .js here
+      // 2. Add the Fallbacks and Aliases inside RESOLVE
+      webpackConfig.resolve = {
+        ...webpackConfig.resolve,
+        fallback: {
+          ...webpackConfig.resolve.fallback,
+          crypto: require.resolve('crypto-browserify'),
+          stream: require.resolve('stream-browserify'),
+          vm: require.resolve('vm-browserify'),
+          buffer: require.resolve('buffer'),
+          process: require.resolve('process/browser.js'),
+        },
       };
 
       // 3. Global Plugins
