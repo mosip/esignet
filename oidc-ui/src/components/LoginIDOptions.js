@@ -112,7 +112,7 @@ const LoginIDOptions = (props) => {
 
   useEffect(() => {
     props.currentLoginID(selectedOption);
-  }, [selectedOption]);
+  }, [selectedOption, props.currentLoginID]);
 
   return (
     selectedOption && (
