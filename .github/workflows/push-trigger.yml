@@ -41,6 +41,7 @@ jobs:
       SERVICE_LOCATION: oidc-ui
       BUILD_ARTIFACT: oidc
       NPM_BUILD_TYPE: BOB
+      NODE_VERSION: '18'
       ZIP_DIR: build
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
