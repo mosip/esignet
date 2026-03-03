@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { IMAGES } from '../constants/publicAssets';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 
 export default function SomethingWrongPage({ i18nKeyPrefix = 'errors' }) {
   const { t } = useTranslation('translation', { keyPrefix: i18nKeyPrefix });

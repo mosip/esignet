@@ -1,7 +1,6 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import NetworkError from '../../pages/NetworkError';
-import { MemoryRouter, useLocation } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router';
 
 // ✅ Mock i18n
 jest.mock('react-i18next', () => ({
@@ -14,8 +13,8 @@ jest.mock('react-i18next', () => ({
 const mockReplace = jest.fn();
 const mockPath = '/some-retry-path';
 
-jest.mock('react-router-dom', () => {
-  const actual = jest.requireActual('react-router-dom');
+jest.mock('react-router', () => {
+  const actual = jest.requireActual('react-router');
   return {
     ...actual,
     useLocation: jest.fn(),

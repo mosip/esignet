@@ -1,12 +1,11 @@
-import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import ConsentPage from '../../pages/Consent';
 import authService from '../../services/authService';
 import openIDConnectService from '../../services/openIDConnectService';
 import * as utils from '../../helpers/utils';
 
-// Mock react-router-dom
-jest.mock('react-router-dom', () => ({
+// Mock react-router
+jest.mock('react-router', () => ({
   useLocation: jest.fn(),
   useSearchParams: jest.fn(),
 }));
@@ -58,12 +57,12 @@ describe('ConsentPage', () => {
   } = {}) => {
     // Mock useLocation
     const hashEncoded = Buffer.from(hash).toString('base64');
-    require('react-router-dom').useLocation.mockReturnValue({
+    require('react-router').useLocation.mockReturnValue({
       hash: hashEncoded,
     });
 
     // Mock useSearchParams
-    require('react-router-dom').useSearchParams.mockReturnValue([
+    require('react-router').useSearchParams.mockReturnValue([
       {
         get: (key) => {
           if (key === 'nonce') return searchParams.nonce || 'mockNonce';
