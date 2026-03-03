@@ -451,7 +451,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_Empty_individualId_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
-      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_15
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_33
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication

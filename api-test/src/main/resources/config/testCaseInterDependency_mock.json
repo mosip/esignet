@@ -1860,6 +1860,10 @@
         "TC_ESignet_DPoPCreateOIDCClientV3_01",
         "TC_ESignet_DPoPAuthorizationCode_01"
     ],
+    "TC_ESignet_AuthorizationCodeConsent_11": [
+        "TC_ESignet_AuthenticateUserConsent_12",
+        "TC_ESignet_OAuthDetailsRequestConsent_10"
+    ],
     "TC_ESignet_DPoPGenerateTokenInvalidScenarios_02": [
         "TC_ESignet_DPoPCreateOIDCClientV3_01",
         "TC_ESignet_DPoPAuthorizationCode_01"
@@ -1918,9 +1922,7 @@
     "TC_ESignet_OAuthDetailsRequestV3VerifiedClaims_01": ["TC_ESignet_OIDCClientV3VerifiedClaims_01"],
     "TC_ESignet_AuthorizationCodeConsent_06": [
         "TC_ESignet_AuthenticateUserConsent_11",
-        "TC_ESignet_OAuthDetailsRequestConsent_08",
-        "TC_ESignet_AuthenticateUserConsent_12",
-        "TC_ESignet_OAuthDetailsRequestConsent_10"
+        "TC_ESignet_OAuthDetailsRequestConsent_08"
     ],
     "TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_27": ["TC_ESignet_DifferentScopeLanguageClaimsSce_OIDCClientV3_01"],
     "TC_ESignet_AuthorizationCodeConsent_03": [

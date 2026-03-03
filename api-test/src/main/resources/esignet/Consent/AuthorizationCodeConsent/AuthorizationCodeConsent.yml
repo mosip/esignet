@@ -197,7 +197,7 @@ AuthorizationCodeConsent:
 
    ESignet_AuthorizationCode_Consent_uin_withOnly_OptionalClaim_sid:
       endPoint: /v1/esignet/authorization/auth-code
-      uniqueIdentifier: TC_ESignet_AuthorizationCodeConsent_06
+      uniqueIdentifier: TC_ESignet_AuthorizationCodeConsent_11
       description: AuthorizationCode with only optional claim
       role: resident
       checkErrorsOnlyInResponse: true
