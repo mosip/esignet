@@ -31,7 +31,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.testng.SkipException;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.javafaker.Faker;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -235,8 +238,11 @@ public class EsignetUtil extends AdminTestUtil {
 						    || testCaseName.equals("ESignet_DPoPCreateOIDCClientV3_all_Valid_Smoke_sid")
 						    || testCaseName.equals("ESignet_OIDCClientV3_VerifiedClaims_all_Valid_Smoke_sid")
 						    || testCaseName.equals("ESignet_OIDCClientV3_WithoutVerifiedClaims_all_Valid_Smoke_sid")
-						    || testCaseName.equals("ESignet_OIDCClient_DifferentScopeLanguageClaimsSce_sid"))
+						    || testCaseName.equals("ESignet_OIDCClient_DifferentScopeLanguageClaimsSce_sid")
+						    || testCaseName.equals("ESignet_PatchOIDCClient_MOCK_all_Valid_forUserInfoJWE_Smoke_sid")
+						    || testCaseName.equals("ESignet_PatchOIDCClient_MOCK_all_Valid_forUserInfoUpdateJWE_Smoke_sid"))
 						    && (endpoint.contains("/v1/esignet/client-mgmt/client")
+						    || endpoint.contains("/v1/esignet/client-mgmt/client/{clientId}")	
 						    || endpoint.contains("/v1/esignet/client-mgmt/oauth-client")))) {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 			}
@@ -287,6 +293,12 @@ public class EsignetUtil extends AdminTestUtil {
 			throw new SkipException(GlobalConstants.KNOWN_ISSUES);
 		}
 
+		// Handle extra workflow dependencies
+		if (testCaseDTO != null && testCaseDTO.getAdditionalDependencies() != null
+				&& AdminTestUtil.generateDependency == true) {
+			addAdditionalDependencies(testCaseDTO);
+		}
+		
 		return testCaseName;
 	}
 	
@@ -847,6 +859,28 @@ public class EsignetUtil extends AdminTestUtil {
 			}
 			jsonString = replaceKeywordValue(jsonString, "$OIDCJWKKEY12$", jwkKey);
 		}		
+		
+		if (jsonString.contains("$OIDCJWKKEY13$")) {
+			String jwkKey = "";
+			if (gettriggerESignetKeyGen37()) {
+				jwkKey = JWKKeyUtil.generateAndCacheEncJWKKey(OIDCJWK13);
+				settriggerESignetKeyGen37(false);
+			} else {
+				jwkKey = JWKKeyUtil.getJWKKey(OIDCJWK13);
+			}
+			jsonString = replaceKeywordValue(jsonString, "$OIDCJWKKEY13$", jwkKey);
+		}
+		
+		if (jsonString.contains("$OIDCJWKKEY14$")) {
+			String jwkKey = "";
+			if (gettriggerESignetKeyGen38()) {
+				jwkKey = JWKKeyUtil.generateAndCacheEncJWKKey(OIDCJWK14);
+				settriggerESignetKeyGen38(false);
+			} else {
+				jwkKey = JWKKeyUtil.getJWKKey(OIDCJWK14);
+			}
+			jsonString = replaceKeywordValue(jsonString, "$OIDCJWKKEY14$", jwkKey);
+		}
 		
 		if (jsonString.contains("$CLIENT_ASSERTION_JWK$")) {
 			String oidcJWKKeyString = JWKKeyUtil.getJWKKey(OIDCJWK1);
@@ -1815,6 +1849,8 @@ public class EsignetUtil extends AdminTestUtil {
 	protected static final String OIDCJWK10= "oidcJWK10";
 	protected static final String OIDCJWK11= "oidcJWK11";
 	protected static final String OIDCJWK12= "oidcJWK12";
+	protected static final String OIDCJWK13= "oidcJWK13";
+	protected static final String OIDCJWK14= "oidcJWK14";
 	protected static final String OIDC_JWK_FOR_PAR = "oidcJWKForPAR";
 	protected static final String OIDC_JWK_FOR_DPoP = "oidcJWKForDPoP";	
 	
@@ -1829,6 +1865,8 @@ public class EsignetUtil extends AdminTestUtil {
 	protected static RSAKey oidcJWKKey10= null;
 	protected static RSAKey oidcJWKKey11= null;
 	protected static RSAKey oidcJWKKey12= null;
+	protected static RSAKey oidcJWKKey13= null;
+	protected static RSAKey oidcJWKKey14= null;
 	protected static RSAKey oidc_JWK_Key_For_PAR = null;
 	protected static RSAKey oidc_JWK_Key_For_DPoP = null;
 	
@@ -1867,6 +1905,8 @@ public class EsignetUtil extends AdminTestUtil {
 	protected static boolean triggerESignetKeyGen34 = true;
 	protected static boolean triggerESignetKeyGen35 = true;
 	protected static boolean triggerESignetKeyGen36 = true;
+	protected static boolean triggerESignetKeyGen37 = true;
+	protected static boolean triggerESignetKeyGen38 = true;
 	protected static boolean triggerESignetKeyGenForPAR = true;
 	protected static boolean triggerESignetKeyGenForDPoP = true;	
 	
@@ -2163,7 +2203,23 @@ public class EsignetUtil extends AdminTestUtil {
 	
 	private static boolean gettriggerESignetKeyGen36() {
 		return triggerESignetKeyGen36;
-	}		
+	}
+	
+	private static void settriggerESignetKeyGen37(boolean value) {
+		triggerESignetKeyGen37 = value;
+	}
+	
+	private static boolean gettriggerESignetKeyGen37() {
+		return triggerESignetKeyGen37;
+	}
+	
+	private static void settriggerESignetKeyGen38(boolean value) {
+		triggerESignetKeyGen38 = value;
+	}
+	
+	private static boolean gettriggerESignetKeyGen38() {
+		return triggerESignetKeyGen38;
+	}
 	
 	private static final String TOKEN_URL = EsignetConfigManager.getproperty("keycloak-external-url")
 			+ EsignetConfigManager.getproperty("keycloakAuthTokenEndPoint");
@@ -2588,5 +2644,90 @@ public class EsignetUtil extends AdminTestUtil {
 		}
 		return response;
 	}
+	
+	
+	
+	protected Response patchWithPathParamsBodyHeaderWithBearerToken(String url, String jsonInput, String cookieName, String role,
+			String testCaseName, String pathParams) throws SecurityXSSException {
+		Response response = null;
+		String inputJson = inputJsonKeyWordHandeler(jsonInput, testCaseName);
+		JSONObject req = new JSONObject(inputJson);
+		HashMap<String, String> pathParamsMap = new HashMap<>();
+		String[] params = pathParams.split(",");
+		for (String param : params) {
+			if (req.has(param)) {
+				pathParamsMap.put(param, req.get(param).toString());
+				req.remove(param);
+			} else
+				logger.error(GlobalConstants.ERROR_STRING_2 + param + GlobalConstants.IN_STRING + inputJson);
+		}
+
+		token = getAuthTokenByRole(role);
+
+		logger.info(GlobalConstants.PUT_REQ_STRING + url);
+		GlobalMethods.reportRequest(null, req.toString(), url);
+		try {
+			response = RestClient.patchWithPathParamsBodyHeaderWithBearerToken(url, pathParamsMap, req.toString(),
+					MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, cookieName, token);
+            // check if X-XSS-Protection is enabled or not
+			GlobalMethods.checkXSSProtectionHeader(response, url);
+			GlobalMethods.reportResponse(response.getHeaders().asList().toString(), url, response);
+			return response;
+		} catch (SecurityXSSException se) {
+			String responseHeadersString = (response == null) ? "No response"
+					: response.getHeaders().asList().toString();
+			String errorMessageString = "XSS check failed for URL: " + url + "\nHeaders: " + responseHeadersString
+					+ "\nError: " + se.getMessage();
+			logger.error(errorMessageString, se);
+			throw se;
+		} catch (Exception e) {
+			logger.error(GlobalConstants.EXCEPTION_STRING_2 + e);
+			return response;
+		}
+	}
+	
+	public static String decodeBase64Url(String value) {
+		try {
+			byte[] decodedBytes = Base64.getUrlDecoder().decode(value);
+			return new String(decodedBytes, StandardCharsets.UTF_8);
+		} catch (Exception e) {
+			logger.error("Error decoding Base64Url: " + value, e);
+			return null;
+		}
+	}
+
+
+	public static String decodeAndCombineJwt(String jwtString) {
+		try {
+
+			if (jwtString == null || jwtString.isEmpty()) {
+				logger.error("JWT string is empty");
+				return null;
+			}
+
+			DecodedJWT jwt = JWT.decode(jwtString);
+
+			String headerJson = decodeBase64Url(jwt.getHeader());
+			String payloadJson = decodeBase64Url(jwt.getPayload());
+
+			if (headerJson == null || payloadJson == null) {
+				logger.error("Failed to decode JWT parts");
+				return null;
+			}
+
+			ObjectMapper mapper = new ObjectMapper();
+			ObjectNode combinedJson = mapper.createObjectNode();
+
+			combinedJson.set("header", mapper.readTree(headerJson));
+			combinedJson.set("payload", mapper.readTree(payloadJson));
+
+			return mapper.writeValueAsString(combinedJson);
+
+		} catch (Exception e) {
+			logger.error("Error decoding JWT: " + e.getMessage(), e);
+			return null;
+		}
+	}
+
     
 }

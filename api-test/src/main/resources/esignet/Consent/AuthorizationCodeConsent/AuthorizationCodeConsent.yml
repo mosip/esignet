@@ -1,11 +1,13 @@
 AuthorizationCodeConsent:
    ESignet_AuthorizationCode_Consent_uin_Claim2_All_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCodeConsent_01
       description: AuthorizationCode consent with claim2 and all valid details UIN
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_AuthenticateUserConsent_02
       inputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsent
       outputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsentResult
       input: '{
@@ -19,11 +21,13 @@ AuthorizationCodeConsent:
 
    ESignet_AuthorizationCode_Consent_Vid_Claim2_All_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCodeConsent_02
       description: AuthorizationCode consent with claim2 and all valid details VID
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_AuthenticateUserConsent_04
       inputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsent
       outputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsentResult
       input: '{
@@ -37,11 +41,13 @@ AuthorizationCodeConsent:
 
    ESignet_AuthorizationCode_Consent_uin_All_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCodeConsent_03
       description: AuthorizationCode consent with all valid details UIN
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_AuthenticateUserConsent_01
       inputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsent
       outputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsentResult
       input: '{
@@ -55,11 +61,13 @@ AuthorizationCodeConsent:
 
    ESignet_AuthorizationCode_Consent_Vid_All_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCodeConsent_04
       description: AuthorizationCode consent with all valid details VID
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_AuthenticateUserConsent_03
       inputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsent
       outputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsentResult
       input: '{
@@ -73,11 +81,12 @@ AuthorizationCodeConsent:
 
    ESignet_AuthorizationCode_Consent_uin_invalid_AcceptedClaim:
       endPoint: /v1/esignet/authorization/auth-code
-      uniqueIdentifier: TC_ESignet_AuthorizationCodeConsent_01
+      uniqueIdentifier: TC_ESignet_AuthorizationCodeConsent_05
       description: AuthorizationCode consent with invalid_AcceptedClaim
       role: resident
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_AuthenticateUserConsent_11
       inputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsent
       outputTemplate: esignet/error
       input: '{
@@ -96,11 +105,12 @@ AuthorizationCodeConsent:
 
    ESignet_AuthorizationCode_Consent_uin_AcceptedClaim_without_EssentialClaim:
       endPoint: /v1/esignet/authorization/auth-code
-      uniqueIdentifier: TC_ESignet_AuthorizationCodeConsent_02
+      uniqueIdentifier: TC_ESignet_AuthorizationCodeConsent_06
       description: AuthorizationCode consent without_EssentialClaim
       role: resident
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_AuthenticateUserConsent_11
       inputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsent
       outputTemplate: esignet/error
       input: '{
@@ -119,11 +129,12 @@ AuthorizationCodeConsent:
 
    ESignet_AuthorizationCode_Consent_uin_with_OneessentialClaimAllOptionalClaim:
       endPoint: /v1/esignet/authorization/auth-code
-      uniqueIdentifier: TC_ESignet_AuthorizationCodeConsent_03
+      uniqueIdentifier: TC_ESignet_AuthorizationCodeConsent_07
       description: AuthorizationCode with One essential Claim and All OptionalClaim
       role: resident
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_AuthenticateUserConsent_11
       inputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsent
       outputTemplate: esignet/error
       input: '{
@@ -142,11 +153,12 @@ AuthorizationCodeConsent:
 
    ESignet_AuthorizationCode_Consent_uin_withoutEssentialClaim:
       endPoint: /v1/esignet/authorization/auth-code
-      uniqueIdentifier: TC_ESignet_AuthorizationCodeConsent_05
+      uniqueIdentifier: TC_ESignet_AuthorizationCodeConsent_08
       description: AuthorizationCode without essential claim if there is requested essential claim
       role: resident
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_AuthenticateUserConsent_11
       inputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsent
       outputTemplate: esignet/error
       input: '{
@@ -165,12 +177,13 @@ AuthorizationCodeConsent:
 
    ESignet_AuthorizationCode_Consent_uin_with_onlyEssentialClain_asAcceptedClaim_sid:
       endPoint: /v1/esignet/authorization/auth-code
-      uniqueIdentifier: TC_ESignet_AuthorizationCodeConsent_04
+      uniqueIdentifier: TC_ESignet_AuthorizationCodeConsent_09
       description: AuthorizationCode with onlyEssentialClaim asAcceptedClaim
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_AuthenticateUserConsent_11
       inputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsent
       outputTemplate: esignet/error
       input: '{
@@ -190,6 +203,7 @@ AuthorizationCodeConsent:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_AuthenticateUserConsent_12
       inputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsent
       outputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsentResult
       input: '{
@@ -203,12 +217,13 @@ AuthorizationCodeConsent:
 
    ESignet_AuthorizationCode_Consent_uin_without_acceptedClaimValue_sid:
       endPoint: /v1/esignet/authorization/auth-code
-      uniqueIdentifier: TC_ESignet_AuthorizationCodeConsent_07
+      uniqueIdentifier: TC_ESignet_AuthorizationCodeConsent_10
       description: AuthorizationCode by not providing any accepted claims if there is no requested essential claims 
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_AuthenticateUserConsent_13
       inputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsent
       outputTemplate: esignet/Consent/AuthorizationCodeConsent/AuthorizationCodeConsentResult
       input: '{

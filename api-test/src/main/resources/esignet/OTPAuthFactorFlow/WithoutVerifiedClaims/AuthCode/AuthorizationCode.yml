@@ -7,6 +7,7 @@ AuthorizationCodeWithoutVerifiedClaims:
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_AuthenticateUserV3_WithoutVerifiedClaims_01
       inputTemplate: esignet/OTPAuthFactorFlow/WithoutVerifiedClaims/AuthCode/AuthorizationCode
       outputTemplate: esignet/OTPAuthFactorFlow/WithoutVerifiedClaims/AuthCode/AuthorizationCodeResult
       input: '{

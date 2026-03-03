@@ -1,6 +1,7 @@
 AuthenticateUserVCINegTC:
    ESignet_AuthenticateUserVCI_uin_Otp_NegAuthCodeScen1_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserVCINegTC_01
       description: Authenticate user VCI with Otp and valid details for negative authcode scenario1
       role: resident
       restMethod: post
@@ -33,6 +34,7 @@ AuthenticateUserVCINegTC:
 
    ESignet_AuthenticateUserVCI_uin_Otp_NegAuthCodeScen2_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserVCINegTC_02
       description: Authenticate user VCI with Otp and valid details for negative authcode scenario2
       role: resident
       restMethod: post
@@ -65,6 +67,7 @@ AuthenticateUserVCINegTC:
 
    ESignet_AuthenticateUserVCI_uin_Otp_NegAuthCodeScen3_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserVCINegTC_03
       description: Authenticate user VCI with Otp and valid details for negative authcode scenario3
       role: resident
       restMethod: post
@@ -97,6 +100,7 @@ AuthenticateUserVCINegTC:
 
    ESignet_AuthenticateUserVCI_uin_Otp_NegAuthCodeScen4_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserVCINegTC_04
       description: Authenticate user VCI with Otp and valid details for negative authcode scenario4
       role: resident
       restMethod: post
@@ -129,6 +133,7 @@ AuthenticateUserVCINegTC:
 
    ESignet_AuthenticateUserVCI_uin_Otp_Diff_Scope_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserVCINegTC_05
       description: Authenticate user VCI with Otp and valid details for different scope
       role: resident
       restMethod: post
@@ -161,6 +166,7 @@ AuthenticateUserVCINegTC:
 
    ESignet_AuthenticateUserVCI_uin_Otp_NegTokenScen1_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserVCINegTC_06
       description: Authenticate user VCI with Otp and valid details for negative token scenario1
       role: resident
       restMethod: post
@@ -193,6 +199,7 @@ AuthenticateUserVCINegTC:
 
    ESignet_AuthenticateUserVCI_uin_Otp_NegTokenScen2_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserVCINegTC_07
       description: Authenticate user VCI with Otp and valid details for negative token scenario2
       role: resident
       restMethod: post
@@ -225,6 +232,7 @@ AuthenticateUserVCINegTC:
 
    ESignet_AuthenticateUserVCI_uin_Otp_NegTokenScen3_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserVCINegTC_08
       description: Authenticate user VCI with Otp and valid details for negative token scenario3
       role: resident
       restMethod: post
@@ -257,6 +265,7 @@ AuthenticateUserVCINegTC:
 
    ESignet_AuthenticateUserVCI_uin_Otp_Hash_CodeChallenge_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserVCINegTC_09
       description: Authenticate user VCI with Otp and hash code challenge valid details 
       role: resident
       restMethod: post
@@ -289,6 +298,7 @@ AuthenticateUserVCINegTC:
 
    ESignet_AuthenticateUserVCI_uin_Otp_NegCredScen1_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserVCINegTC_10
       description: Authenticate user VCI with Otp and valid details for negative credential scenario1
       role: resident
       restMethod: post
@@ -321,6 +331,7 @@ AuthenticateUserVCINegTC:
 
    ESignet_AuthenticateUserVCI_uin_Otp_NegCredScen2_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserVCINegTC_11
       description: Authenticate user VCI with Otp and valid details for negative credential scenario2
       role: resident
       restMethod: post
@@ -353,6 +364,7 @@ AuthenticateUserVCINegTC:
 
    ESignet_AuthenticateUserVCI_uin_Otp_NegCredScen3_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserVCINegTC_12
       description: Authenticate user VCI with Otp and valid details for negative credential scenario3
       role: resident
       restMethod: post
@@ -385,6 +397,7 @@ AuthenticateUserVCINegTC:
 
    ESignet_AuthenticateUserVCI_uin_Otp_NegCredScen4_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserVCINegTC_13
       description: Authenticate user VCI with Otp and valid details for negative credential scenario4
       role: resident
       restMethod: post
@@ -417,6 +430,7 @@ AuthenticateUserVCINegTC:
 
    ESignet_AuthenticateUserVCI_uin_Otp_NegCredScen5_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserVCINegTC_14
       description: Authenticate user VCI with Otp and valid details for negative credential scenario5
       role: resident
       restMethod: post
@@ -449,6 +463,7 @@ AuthenticateUserVCINegTC:
 
    ESignet_AuthenticateUserVCI_uin_Otp_NegCredScen6_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserVCINegTC_15
       description: Authenticate user VCI with Otp and valid details for negative credential scenario6
       role: resident
       restMethod: post
@@ -481,6 +496,7 @@ AuthenticateUserVCINegTC:
 
    ESignet_AuthenticateUserVCI_uin_Otp_NegCredScen7_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserVCINegTC_16
       description: Authenticate user VCI with Otp and valid details for negative credential scenario7
       role: resident
       restMethod: post
@@ -513,6 +529,7 @@ AuthenticateUserVCINegTC:
 
    ESignet_AuthenticateUserVCI_uin_Otp_NegCredScen8_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserVCINegTC_17
       description: Authenticate user VCI with Otp and valid details for negative credential scenario8
       role: resident
       restMethod: post
@@ -545,6 +562,7 @@ AuthenticateUserVCINegTC:
 
    ESignet_AuthenticateUserVCI_uin_Otp_NegCredScen9_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserVCINegTC_18
       description: Authenticate user VCI with Otp and valid details for negative credential scenario9
       role: resident
       restMethod: post
@@ -577,6 +595,7 @@ AuthenticateUserVCINegTC:
 
    ESignet_AuthenticateUserVCI_uin_Otp_NegAuthCodeScen5_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserVCINegTC_19
       description: Authenticate user VCI with Otp and valid details for negative authcode scenario5
       role: resident
       restMethod: post
@@ -609,6 +628,7 @@ AuthenticateUserVCINegTC:
 
    ESignet_AuthenticateUserVCI_uin_Otp_NegAuthCodeScen6_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserVCINegTC_20
       description: Authenticate user VCI with Otp and valid details for negative authcode scenario6
       role: resident
       restMethod: post
@@ -641,6 +661,7 @@ AuthenticateUserVCINegTC:
 
    ESignet_AuthenticateUserVCI_uin_Otp_NegAuthCodeScen7_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserVCINegTC_21
       description: Authenticate user VCI with Otp and valid details for negative authcode scenario7
       role: resident
       restMethod: post

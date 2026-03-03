@@ -1,6 +1,7 @@
 AuthenticateUserVCI:
    ESignet_AuthenticateUserVCI_uin_Otp_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserVCI_01
       description: Authenticate User for VCI request with Otp using all valid details UIN
       role: resident
       restMethod: post
@@ -33,6 +34,7 @@ AuthenticateUserVCI:
 
    ESignet_AuthenticateUserVCI_uin_Otp_1stLang_Valid_Smoke:
       endPoint: /v1/esignet/authorization/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserVCI_02
       description: Authenticate User for VCI request with Otp using 1st mandatory language and all valid details UIN
       role: resident
       restMethod: post

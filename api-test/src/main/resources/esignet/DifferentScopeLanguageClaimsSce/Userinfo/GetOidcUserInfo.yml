@@ -1,5 +1,5 @@
 GetOidcUserInfoDifferentScopeLanguageClaims:
-   ESignet_GetOidcUserInfo_IdpAccessToken_StatusCode_Scope_Valid_Smoke:
+   ESignet_GetOidcUserInfo_IdpAccessToken_GetUserInfoJWS_Scope_Valid:
       endPoint: /v1/esignet/oidc/userinfo
       uniqueIdentifier: TC_ESignet_GetOidcUserInfoForDifferentScopeLanguageClaims_01
       description: Get OIDC user info with all valid details UIN for Different Scope Language Claims Sce
@@ -9,6 +9,8 @@ GetOidcUserInfoDifferentScopeLanguageClaims:
       inputTemplate: esignet/DifferentScopeLanguageClaimsSce/Userinfo/GetOidcUserInfo
       outputTemplate: esignet/DifferentScopeLanguageClaimsSce/Userinfo/GetOidcUserInfoResult
       input: '{
-        "idpAccessToken": "$ID:GenerateToken_AuthToken_Xsrf_Scope_Smoke_sid_access_token$"
+        "idpAccessToken": "$ID:GenerateToken_AuthToken_Xsrf_Scope_sid_access_token$"
 }'
-      output: "200"
+      output: '{
+        "aud": "$ID:OIDCClient_DifferentScopeLanguageClaimsSce_sid_clientId$"
+}'

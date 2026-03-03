@@ -1,12 +1,13 @@
 LinkAuthorizationConsent:
    ESignet_LinkedAuthorizationConsent_Consent_uin_All_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/v2/consent
-      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_01
+      uniqueIdentifier: TC_ESignet_LinkedAuthConsent_01
       description: Linked Authorization conset UIN with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkedAuthenticationWlaV2_01
       inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
       outputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsentResult
       input: '{
@@ -21,12 +22,13 @@ LinkAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Consent_Vid_All_Valid_Smoke_sid:
       endPoint: /v1/esignet/linked-authorization/v2/consent
-      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_02
+      uniqueIdentifier: TC_ESignet_LinkedAuthConsent_02
       description: Linked Authorization conset VID with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkedAuthenticationWlaV2_02
       inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
       outputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsentResult
       input: '{
@@ -41,11 +43,12 @@ LinkAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Consent_forAcceptedClaim:
       endPoint: /v1/esignet/linked-authorization/v2/consent
-      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_03
+      uniqueIdentifier: TC_ESignet_LinkedAuthConsent_03
       description: Linked Authorization conset UIN with all valid details for accepted claims
       role: resident
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkedAuthenticationWlaV2_04
       inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
       outputTemplate: esignet/error
       input: '{
@@ -64,11 +67,12 @@ LinkAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Consent_forOptionalClaim:
       endPoint: /v1/esignet/linked-authorization/v2/consent
-      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_04
+      uniqueIdentifier: TC_ESignet_LinkedAuthConsent_04
       description: Linked Authorization conset UIN with all valid details for Optional claims
       role: resident
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkedAuthenticationWlaV2_05
       inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
       outputTemplate: esignet/error
       input: '{
@@ -87,11 +91,12 @@ LinkAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Consent_forPartialEssentialOptionalClaim:
       endPoint: /v1/esignet/linked-authorization/v2/consent
-      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_05
+      uniqueIdentifier: TC_ESignet_LinkedAuthConsent_05
       description: Linked Authorization conset UIN with all valid details for PartialEssential OptionalClaim
       role: resident
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkedAuthenticationWlaV2_06
       inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
       outputTemplate: esignet/error
       input: '{
@@ -110,12 +115,13 @@ LinkAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Consent_forOnlyEssentialClaim_sid:
       endPoint: /v1/esignet/linked-authorization/v2/consent
-      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_06
+      uniqueIdentifier: TC_ESignet_LinkedAuthConsent_06
       description: Linked Authorization conset UIN with all valid details for OnlyEssentialClaim
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkedAuthenticationWlaV2_07
       inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
       outputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsentResult
       input: '{
@@ -130,11 +136,12 @@ LinkAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Consent_forNullAsEssentialClaim:
       endPoint: /v1/esignet/linked-authorization/v2/consent
-      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_07
+      uniqueIdentifier: TC_ESignet_LinkedAuthConsent_07
       description: Linked Authorization conset UIN with all valid details for Null As accepted claims
       role: resident
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkedAuthenticationWlaV2_08
       inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
       outputTemplate: esignet/error
       input: '{
@@ -153,12 +160,13 @@ LinkAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Consent_forOnlyOptionalClaimAsRequested_AcceptedClaim_sid:
       endPoint: /v1/esignet/linked-authorization/v2/consent
-      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_08
+      uniqueIdentifier: TC_ESignet_LinkedAuthConsent_08
       description: Linked Authorization conset UIN with all valid details for OnlyOptionalClaimAsRequested
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkedAuthenticationWlaV2_09
       inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
       outputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsentResult
       input: '{
@@ -173,12 +181,13 @@ LinkAuthorizationConsent:
 
    ESignet_LinkedAuthorizationConsent_Consent_without_AcceptedClaim_IfOnlyOptionalRequested_sid:
       endPoint: /v1/esignet/linked-authorization/v2/consent
-      uniqueIdentifier: TC_ESignet_LinkedAuthorizationConsent_09
+      uniqueIdentifier: TC_ESignet_LinkedAuthConsent_09
       description: Linked Authorization conset UIN with all valid details without_AcceptedClaim_IfOnlyOptionalRequested
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkedAuthenticationWlaV2_10
       inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
       outputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsentResult
       input: '{

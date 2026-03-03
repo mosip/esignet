@@ -1,10 +1,12 @@
 OAuthDetailsRequestConsent:
    ESignet_OAuthDetailsRequest_Consent_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestConsent_01
       description: Oauthdetails request for consent with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01
       inputTemplate: esignet/Consent/OAuthDetailsRequestConsent/OAuthDetailsRequestConsent
       outputTemplate: esignet/Consent/OAuthDetailsRequestConsent/OAuthDetailsRequestConsentResult
       input: '{
@@ -26,10 +28,12 @@ OAuthDetailsRequestConsent:
 
    ESignet_OAuthDetailsRequest_Consent_Claim2_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestConsent_02
       description: Oauthdetails request for consent with claim2 and all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01
       inputTemplate: esignet/Consent/OAuthDetailsRequestConsent/OAuthDetailsRequestConsentNewClaim
       outputTemplate: esignet/Consent/OAuthDetailsRequestConsent/OAuthDetailsRequestConsentResult
       input: '{
@@ -51,10 +55,12 @@ OAuthDetailsRequestConsent:
 
    ESignet_OAuthDetailsRequest_Consent_Invalid_Scen_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestConsent_03
       description: Oauthdetails request for consent with invalid scen
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01
       inputTemplate: esignet/Consent/OAuthDetailsRequestConsent/OAuthDetailsRequestConsent
       outputTemplate: esignet/Consent/OAuthDetailsRequestConsent/OAuthDetailsRequestConsentResult
       input: '{
@@ -76,10 +82,12 @@ OAuthDetailsRequestConsent:
 
    ESignet_OAuthDetailsRequest_Consent_Vid_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestConsent_04
       description: Oauthdetails request for consent with all valid details VID
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01
       inputTemplate: esignet/Consent/OAuthDetailsRequestConsent/OAuthDetailsRequestConsent
       outputTemplate: esignet/Consent/OAuthDetailsRequestConsent/OAuthDetailsRequestConsentResult
       input: '{
@@ -101,10 +109,12 @@ OAuthDetailsRequestConsent:
 
    ESignet_OAuthDetailsRequest_Consent_Vid_Claim2_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestConsent_05
       description: Oauthdetails request for consent with claim2 and all valid details VID
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01
       inputTemplate: esignet/Consent/OAuthDetailsRequestConsent/OAuthDetailsRequestConsentNewClaim
       outputTemplate: esignet/Consent/OAuthDetailsRequestConsent/OAuthDetailsRequestConsentResult
       input: '{
@@ -126,6 +136,7 @@ OAuthDetailsRequestConsent:
 
    ESignet_OAuthDetailsRequest_Consent_User2_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestConsent_06
       description: Oauthdetails request for user2 with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
@@ -151,6 +162,7 @@ OAuthDetailsRequestConsent:
 
    ESignet_OAuthDetailsRequest_Consent_Vid_User2_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestConsent_07
       description: Oauthdetails request for user2 with all valid details VID
       role: resident
       checkErrorsOnlyInResponse: true
@@ -176,10 +188,12 @@ OAuthDetailsRequestConsent:
 
    ESignet_OAuthDetailsRequest_Consent_all_Valid_authCodeNeg_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestConsent_08
       description: Oauthdetails request for consent with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01
       inputTemplate: esignet/Consent/OAuthDetailsRequestConsent/OAuthDetailsRequestConsent
       outputTemplate: esignet/Consent/OAuthDetailsRequestConsent/OAuthDetailsRequestConsentResult
       input: '{
@@ -201,10 +215,12 @@ OAuthDetailsRequestConsent:
 
    ESignet_OAuthDetailsRequest_Consent_all_withOnly_OptionalClaim_user2_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestConsent_09
       description: Oauthdetails request for consent with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01
       inputTemplate: esignet/Consent/OAuthDetailsRequestConsent/OAuthDetailsRequestConsentOptionalClaim
       outputTemplate: esignet/Consent/OAuthDetailsRequestConsent/OAuthDetailsRequestConsentResult
       input: '{
@@ -226,10 +242,12 @@ OAuthDetailsRequestConsent:
 
    ESignet_OAuthDetailsRequest_Consent_all_withOnly_OptionalClaim_sid:
       endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestConsent_10
       description: Oauthdetails request for consent with all valid details
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01
       inputTemplate: esignet/Consent/OAuthDetailsRequestConsent/OAuthDetailsRequestConsentOptionalClaim
       outputTemplate: esignet/Consent/OAuthDetailsRequestConsent/OAuthDetailsRequestConsentResult
       input: '{

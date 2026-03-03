@@ -582,6 +582,15 @@
 				name="io.mosip.testrig.apirig.esignet.testscripts.PutWithPathParamsAndBody" />
 		</classes>
 	</test>
+	<test name="PatchOIDCClientV3MOCK">
+		<parameter name="ymlFile"
+			value="esignet/PatchOIDCClient/PatchOIDCClient.yml" />
+		<parameter name="pathParams" value="clientId" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.PatchWithPathParamsAndBody" />
+		</classes>
+	</test>
 	<test name="OAuthDetailsRequestV3MOCK">
 		<parameter name="ymlFile"
 			value="esignet/EndToEndFlowWithV3MOCK/OAuthDetails/OAuthDetailsRequest.yml" />

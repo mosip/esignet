@@ -21,6 +21,9 @@ import org.testng.annotations.Test;
 import org.testng.internal.BaseTestMethod;
 import org.testng.internal.TestResult;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
+
 import io.mosip.testrig.apirig.dto.OutputValidationDto;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.esignet.utils.EsignetConfigManager;
@@ -31,6 +34,7 @@ import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
+import io.mosip.testrig.apirig.utils.GlobalMethods;
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;
 import io.mosip.testrig.apirig.utils.ReportUtil;
 import io.mosip.testrig.apirig.utils.SecurityXSSException;
@@ -176,8 +180,58 @@ public class SimplePostForAutoGenIdForUrlEncoded extends EsignetUtil implements 
 						jsonInput, testCaseDTO.getTestCaseName(), idKeyName);
 			}
 
-			Map<String, List<OutputValidationDto>> ouputValid = OutputValidationUtil
-					.doJsonOutputValidation(response.asString(), outputJson, testCaseDTO, response.getStatusCode());
+			String responseBody = response.asString();
+
+			Map<String, List<OutputValidationDto>> ouputValid = null;
+
+			if (testCaseName.contains("_IdTokenJWS_")) {
+
+			    if (responseBody == null || responseBody.isEmpty()) {
+			        throw new AdminTestException("Response body is empty");
+			    }
+
+			    JSONObject jsonResponse = new JSONObject(responseBody);
+
+			    List<String> tokens = new ArrayList<>();
+
+			    if (jsonResponse.has("id_token")) {
+			        tokens.add(jsonResponse.getString("id_token"));
+			    }
+
+			    if (jsonResponse.has("access_token")) {
+			        tokens.add(jsonResponse.getString("access_token"));
+			    }
+
+			    if (tokens.isEmpty()) {
+			        throw new AdminTestException("No token found in response");
+			    }
+
+			    for (String token : tokens) {
+
+			        String finalJsonString = EsignetUtil.decodeAndCombineJwt(token);
+
+			        if (finalJsonString == null) {
+			            throw new AdminTestException("Failed to decode token");
+			        }
+
+			        DecodedJWT jwt = JWT.decode(token);
+
+			        String headerJson = EsignetUtil.decodeBase64Url(jwt.getHeader());
+			        String payloadJson = EsignetUtil.decodeBase64Url(jwt.getPayload());
+
+			        GlobalMethods.reportResponse(headerJson, null, payloadJson, true);
+
+			        ouputValid = OutputValidationUtil.doJsonOutputValidation(
+			                finalJsonString, outputJson, testCaseDTO, response.getStatusCode());
+			    }
+			}
+			else {
+
+				ouputValid = OutputValidationUtil.doJsonOutputValidation(responseBody, outputJson, testCaseDTO,
+						response.getStatusCode());
+			}
+
+
 			Reporter.log(ReportUtil.getOutputValidationReport(ouputValid));
 			if (!OutputValidationUtil.publishOutputResult(ouputValid))
 				throw new AdminTestException("Failed at output validation");
