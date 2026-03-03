@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import LoadingIndicator from '../common/LoadingIndicator';
 import FormAction from './FormAction';
 import { LoadingStates as states } from '../constants/states';
@@ -10,7 +10,7 @@ import {
   configurationKeys,
 } from '../constants/clientConstants';
 import { useTranslation } from 'react-i18next';
-import PinInput from 'react-pin-input';
+import { OTPInput, REGEXP_ONLY_DIGITS } from 'input-otp';
 import ErrorBanner from '../common/ErrorBanner';
 import langConfigService from '../services/langConfigService';
 import redirectOnError from '../helpers/redirectOnError';
@@ -341,6 +341,26 @@ export default function OtpVerify({
     setErrorBanner(null);
   };
 
+  const FakeCaret = () => {
+    return (
+      <div className="absolute pointer-events-none inset-0 flex items-center justify-center animate-caret-blink">
+        <div className="w-px h-8 bg-[#0284c7]" />
+      </div>
+    );
+  };
+
+  const Slot = ({ char, hasFakeCaret }) => (
+    <div
+      className="relative w-10 h-14 text-[2rem]
+        flex items-center justify-center
+        transition-all duration-300 text-[#0284c7]"
+      style={styles}
+    >
+      {char ? '●' : ''}
+      {hasFakeCaret && <FakeCaret />}
+    </div>
+  );
+
   return (
     <>
       {errorBanner !== null && (
@@ -391,27 +411,25 @@ export default function OtpVerify({
           className="space-y-px flex justify-center mb-6"
           id="otp_verify_input"
         >
-          <PinInput
-            length={otpLength}
-            initialValue=""
-            onChange={(value) => {
-              setOtpValue(value);
-            }}
-            secret
-            secretDelay={1}
-            type="numeric"
-            inputMode="number"
-            style={{ padding: '5px 0px' }}
-            inputStyle={styles}
-            inputFocusStyle={{ borderBottom: '2px solid #075985' }}
-            onComplete={(value) => {
-              //TO handle case when user pastes OTP
-              setOtpValue(value);
-            }}
-            autoSelect={true}
-            ref={(n) => (pin = n)}
+          <OTPInput
+            autoFocus
+            maxLength={otpLength}
+            containerClassName="group flex items-center has-[:disabled]:opacity-30"
+            inputMode="numeric"
+            pattern={REGEXP_ONLY_DIGITS}
+            value={otpValue}
+            onChange={setOtpValue}
+            onComplete={setOtpValue}
             disabled={status.state === states.LOADING}
-            focus={true}
+            render={({ slots }) => (
+              <>
+                <div className="flex">
+                  {slots.map((slot, idx) => (
+                    <Slot key={idx} {...slot} />
+                  ))}
+                </div>
+              </>
+            )}
           />
         </div>
 

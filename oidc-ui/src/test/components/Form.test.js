@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import Form from '../../components/Form';
 
@@ -10,7 +9,8 @@ jest.mock('react-i18next', () => ({
   }),
 }));
 
-jest.mock('react-router-dom', () => ({
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: () => jest.fn(),
 }));
 

@@ -2,7 +2,6 @@
 global.TextEncoder = require('util').TextEncoder;
 global.TextDecoder = require('util').TextDecoder;
 
-import React from 'react';
 import {
   render,
   screen,
@@ -10,9 +9,9 @@ import {
   waitFor,
   fireEvent,
 } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 import L1Biometrics from '../../components/L1Biometrics';
-import { init } from 'secure-biometric-interface-integrator';
+import { init } from '@mosip/secure-biometric-interface-integrator';
 import langConfigService from '../../services/langConfigService';
 
 // ✅ Mock i18n
@@ -28,10 +27,11 @@ jest.mock('react-i18next', () => ({
   }),
 }));
 
-// ✅ Mock secure biometric
-jest.mock('secure-biometric-interface-integrator', () => ({
+// ✅ Correct Mock with @mosip scope
+jest.mock('@mosip/secure-biometric-interface-integrator', () => ({
   init: jest.fn(),
   propChange: jest.fn(),
+  // Add any other functions your component calls from this library
 }));
 
 // ✅ Mock subcomponents
@@ -105,8 +105,7 @@ jest.mock('../../common/LoadingIndicator', () => {
 
 // ✅ Mock reCAPTCHA
 jest.mock('react-google-recaptcha', () => {
-  const React = require('react');
-  const MockRecaptcha = React.forwardRef(({ onChange }, ref) => (
+  const MockRecaptcha = ({ onChange }, ref) => (
     <div data-testid="recaptcha" ref={ref}>
       <button
         data-testid="captcha-button"
@@ -115,7 +114,7 @@ jest.mock('react-google-recaptcha', () => {
         Complete CAPTCHA
       </button>
     </div>
-  ));
+  );
   MockRecaptcha.displayName = 'MockRecaptcha';
   return MockRecaptcha;
 });

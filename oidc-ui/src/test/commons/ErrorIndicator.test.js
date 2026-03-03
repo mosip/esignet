@@ -1,14 +1,14 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import ErrorIndicator from '../../common/ErrorIndicator';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router';
 
 // Mocks
 jest.mock('react-i18next', () => ({
   useTranslation: jest.fn(),
 }));
-jest.mock('react-router-dom', () => ({
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useLocation: jest.fn(),
   useSearchParams: jest.fn(),
 }));

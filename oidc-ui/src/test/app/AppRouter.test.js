@@ -1,6 +1,5 @@
-import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 import { AppRouter } from '../../../src/app/AppRouter';
 import * as configServiceModule from '../../../src/services/configService';
 

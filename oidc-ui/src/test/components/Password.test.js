@@ -1,13 +1,6 @@
-import React from 'react';
-import {
-  render,
-  screen,
-  fireEvent,
-  waitFor,
-  act,
-} from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Password from '../../components/Password';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 import { configurationKeys } from '../../constants/clientConstants';
 
 // ---------- Mocks ----------
@@ -42,8 +35,8 @@ jest.mock('../../services/langConfigService', () => ({
 }));
 
 // 📍 useNavigate
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useNavigate: () => jest.fn(),
 }));
 

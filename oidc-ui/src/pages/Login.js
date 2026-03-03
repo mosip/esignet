@@ -11,7 +11,7 @@ import Background from '../components/Background';
 import SignInOptions from '../components/SignInOptions';
 import linkAuthService from '../services/linkAuthService';
 import LoginQRCode from '../components/LoginQRCode';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router';
 import { Buffer } from 'buffer';
 import { IMAGES } from '../constants/publicAssets';
 import openIDConnectService from '../services/openIDConnectService';

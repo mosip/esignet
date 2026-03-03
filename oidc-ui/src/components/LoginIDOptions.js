@@ -110,7 +110,9 @@ const LoginIDOptions = (props) => {
     });
   }, [i18n.language]);
 
-  props.currentLoginID(selectedOption);
+  useEffect(() => {
+    props.currentLoginID(selectedOption);
+  }, [selectedOption, props.currentLoginID]);
 
   return (
     selectedOption && (

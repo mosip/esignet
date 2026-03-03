@@ -15,7 +15,7 @@ describe('PageNotFoundPage', () => {
 
     const image = screen.getByAltText('page_not_found');
     expect(image).toBeInTheDocument();
-    expect(image).toHaveAttribute('src', 'images/under_construction.svg');
+    expect(image).toHaveAttribute('src', '/images/under_construction.svg');
 
     expect(screen.getByText('errors.page_not_exist')).toBeInTheDocument();
   });

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router';
 import LoadingIndicator from '../common/LoadingIndicator';
 import { challengeFormats, challengeTypes } from '../constants/clientConstants';
 import redirectOnError from '../helpers/redirectOnError';
