@@ -174,7 +174,7 @@ public class TokenServiceImpl implements TokenService {
 
             if (alg == null || !supportedAlgs.contains(alg)) {
                 log.error("Invalid or unsupported alg header: {}", alg);
-                throw new EsignetException(ErrorConstants.INVALID_CLIENT);
+                throw new EsignetException();
             }
 
             NimbusJwtDecoder jwtDecoder = getNimbusJwtDecoderFromJwk(jwk, clientId, audience, maxClockSkew, alg);
@@ -186,7 +186,7 @@ public class TokenServiceImpl implements TokenService {
             }
         } catch (Exception e) {
             log.error("Failed to verify client assertion", e);
-            throw new EsignetException(ErrorConstants.INVALID_CLIENT);
+            throw new EsignetException(ErrorConstants.INVALID_GRANT);
         }
     }
 
