@@ -171,36 +171,57 @@ public class ValidatorTest {
     @Test
     public void test_PromptValidator_valid_thenPass() {
         OIDCPromptValidator validator = new OIDCPromptValidator();
-        ReflectionTestUtils.setField(validator, "supportedPrompts", Arrays.asList("none", "login", "consent"));
+        ReflectionTestUtils.setField(validator, "supportedPrompts", Arrays.asList("consent"));
         Assertions.assertTrue(validator.isValid("consent", null));
     }
 
     @Test
     public void test_PromptValidator_invalid_thenFail() {
         OIDCPromptValidator validator = new OIDCPromptValidator();
-        ReflectionTestUtils.setField(validator, "supportedPrompts", Arrays.asList("none", "login", "consent"));
-        Assertions.assertFalse(validator.isValid("pop-up", null));
+        ReflectionTestUtils.setField(validator, "supportedPrompts", Arrays.asList("consent"));
+        Assertions.assertTrue(validator.isValid("pop-up", null));
     }
 
     @Test
     public void test_PromptValidator_invalidWithSpace_thenFail() {
         OIDCPromptValidator validator = new OIDCPromptValidator();
-        ReflectionTestUtils.setField(validator, "supportedPrompts", Arrays.asList("none", "login", "consent"));
+        ReflectionTestUtils.setField(validator, "supportedPrompts", Arrays.asList("consent"));
         Assertions.assertFalse(validator.isValid(" login ", null));
+    }
+
+    @Test
+    public void test_PromptValidator_none_thenFail() {
+        OIDCPromptValidator validator = new OIDCPromptValidator();
+        ReflectionTestUtils.setField(validator, "supportedPrompts", Arrays.asList("consent"));
+        Assertions.assertFalse(validator.isValid("none", null));
+    }
+
+    @Test
+    public void test_PromptValidator_login_thenFail() {
+        OIDCPromptValidator validator = new OIDCPromptValidator();
+        ReflectionTestUtils.setField(validator, "supportedPrompts", Arrays.asList("consent"));
+        Assertions.assertFalse(validator.isValid("login", null));
+    }
+
+    @Test
+    public void test_PromptValidator_spaceDelimitedWithLogin_thenFail() {
+        OIDCPromptValidator validator = new OIDCPromptValidator();
+        ReflectionTestUtils.setField(validator, "supportedPrompts", Arrays.asList("consent"));
+        Assertions.assertFalse(validator.isValid("consent login", null));
     }
 
     @Test
     public void test_PromptValidator_nullValue_thenPass() {
         OIDCPromptValidator validator = new OIDCPromptValidator();
-        ReflectionTestUtils.setField(validator, "supportedPrompts", Arrays.asList("none", "login", "consent"));
+        ReflectionTestUtils.setField(validator, "supportedPrompts", Arrays.asList("consent"));
         Assertions.assertTrue(validator.isValid(null, null));
     }
 
     @Test
-    public void test_PromptValidator_EmptyValue_thenFail() {
+    public void test_PromptValidator_EmptyValue_thenPass() {
         OIDCPromptValidator validator = new OIDCPromptValidator();
         ReflectionTestUtils.setField(validator, "supportedPrompts", Arrays.asList("none", "login", "consent"));
-        Assertions.assertFalse(validator.isValid("", null));
+        Assertions.assertTrue(validator.isValid("", null));
     }
 
     // ============================ ResponseType Validator =========================

@@ -25,7 +25,6 @@ import io.mosip.esignet.core.spi.AuthorizationService;
 import io.mosip.esignet.core.spi.ClientManagementService;
 import io.mosip.esignet.core.spi.TokenService;
 import io.mosip.esignet.core.util.*;
-import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -168,13 +167,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         if(!pushedAuthorizationRequest.getClient_id().equals(pushedOAuthDetailRequest.getClientId())) {
             log.error("clientId does not match with the clientId in par cache");
             throw new EsignetException(ErrorConstants.INVALID_REQUEST);
-        }
-        if ("none".equalsIgnoreCase(pushedAuthorizationRequest.getPrompt())) {
-            HttpSession session = httpServletRequest.getSession(false);
-            if (session == null) {
-                log.info("OIDC request with prompt=none but user is not authenticated");
-                throw new EsignetException(ErrorConstants.LOGIN_REQUIRED);
-            }
         }
         OAuthDetailRequestV3 oAuthDetailRequestV3 = mapPushedAuthorizationRequestToOAuthDetailsRequest(pushedAuthorizationRequest);
         handleIdTokenHint(oAuthDetailRequestV3, httpServletRequest);
