@@ -935,3 +935,7 @@ input[type='password']::-ms-clear {
     --radius: var(--radius-font-size);
   }
 }
+
+.asgardeo-card {
+  min-width: auto !important;
+}

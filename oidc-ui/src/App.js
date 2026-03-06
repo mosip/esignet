@@ -77,10 +77,6 @@ function App() {
     };
 
     loadLanguages();
-
-    window.onbeforeunload = function () {
-      return true;
-    };
   }, []);
 
   const changeLanguage = (loadLang) => {
