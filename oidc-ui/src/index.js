@@ -37,9 +37,18 @@ applyTheme(); // Run before rendering
 
 const container = document.getElementById('root');
 const root = createRoot(container);
+
+// getting applicationId from query param to pass it to AsgardeoProvider
+const applicationId = new URL(window.location.href).searchParams.get(
+  'applicationId'
+);
 root.render(
   <StrictMode>
-    <AsgardeoProvider baseUrl="https://localhost:8090" platform="AsgardeoV2">
+    <AsgardeoProvider
+      baseUrl="https://localhost:8090"
+      platform="AsgardeoV2"
+      applicationId={applicationId}
+    >
       <App />
     </AsgardeoProvider>
   </StrictMode>
