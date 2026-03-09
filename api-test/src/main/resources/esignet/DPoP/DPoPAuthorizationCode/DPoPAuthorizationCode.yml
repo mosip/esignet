@@ -1,12 +1,13 @@
 DPoPAuthorizationCode:
    ESignet_AuthorizationCode_DPoP__AuthToken_Xsrf_All_Valid_forUserInfo_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
-      uniqueIdentifier: TC_ESignet_AuthorizationCode_01
+      uniqueIdentifier: TC_ESignet_DPoPAuthorizationCode_01
       description: Validate successful authorization code generation in PAR flow
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_DPoPAuthenticateUserV3_01
       inputTemplate: esignet/DPoP/DPoPAuthorizationCode/DPoPAuthorizationCode
       outputTemplate: esignet/DPoP/DPoPAuthorizationCode/DPoPAuthorizationCodeResult
       input: '{

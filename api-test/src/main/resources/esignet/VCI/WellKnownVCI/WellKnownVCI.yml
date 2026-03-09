@@ -1,6 +1,7 @@
 WellKnownVCI:
    ESignet_WellKnownVCI_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/vci/.well-known/openid-credential-issuer
+      uniqueIdentifier: TC_ESignet_WellKnownVCI_01
       description: To verify the well known VCI with all valid data
       role: resident
       restMethod: get

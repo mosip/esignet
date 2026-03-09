@@ -1,5 +1,5 @@
 OAuthDetailsDifferentScopeLanguageClaimsSce:
-   ESignet_OAuthDetailsRequest_DifferScope_V3_AuthToken_Xsrf_Smoke_sid:
+   ESignet_OAuthDetailsRequest_DifferScope_V3_AuthToken_Xsrf_sid:
       endPoint: /v1/esignet/authorization/v3/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_01
       description: Create Oauthdetails request with scope as openid email phone

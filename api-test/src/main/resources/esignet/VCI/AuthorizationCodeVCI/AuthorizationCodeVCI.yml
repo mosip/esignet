@@ -1,6 +1,7 @@
 AuthorizationCodeVCI:
    ESignet_AuthorizationCode_VCI_uin_All_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCodeVCI_01
       description: Authorization code request for VCI with all valid details UIN
       role: resident
       restMethod: post
@@ -18,6 +19,7 @@ AuthorizationCodeVCI:
 
    ESignet_AuthorizationCode_VCI_uin_All_1stLang_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_AuthorizationCodeVCI_02
       description: Authorization code request for VCI with 1st mandatory language and all valid details UIN
       role: resident
       restMethod: post

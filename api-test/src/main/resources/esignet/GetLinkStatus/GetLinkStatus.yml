@@ -6,6 +6,7 @@ GetLinkStatus:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkTransaction_01
       inputTemplate: esignet/GetLinkStatus/GetLinkStatus
       outputTemplate: esignet/GetLinkStatus/GetLinkStatusResult
       input: '{
@@ -24,6 +25,7 @@ GetLinkStatus:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkTransaction_02
       inputTemplate: esignet/GetLinkStatus/GetLinkStatus
       outputTemplate: esignet/GetLinkStatus/GetLinkStatusResult
       input: '{
@@ -43,6 +45,7 @@ GetLinkStatus:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkTransaction_03
       inputTemplate: esignet/GetLinkStatus/GetLinkStatus
       outputTemplate: esignet/GetLinkStatus/GetLinkStatusResult
       input: '{
@@ -62,6 +65,7 @@ GetLinkStatus:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkTransaction_04
       inputTemplate: esignet/GetLinkStatus/GetLinkStatus
       outputTemplate: esignet/GetLinkStatus/GetLinkStatusResult
       input: '{
@@ -81,6 +85,7 @@ GetLinkStatus:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkTransaction_05
       inputTemplate: esignet/GetLinkStatus/GetLinkStatus
       outputTemplate: esignet/GetLinkStatus/GetLinkStatusResult
       input: '{
@@ -100,6 +105,7 @@ GetLinkStatus:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkTransaction_06
       inputTemplate: esignet/GetLinkStatus/GetLinkStatus
       outputTemplate: esignet/GetLinkStatus/GetLinkStatusResult
       input: '{
@@ -118,6 +124,7 @@ GetLinkStatus:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkTransaction_01
       inputTemplate: esignet/GetLinkStatus/GetLinkStatus
       outputTemplate: esignet/error
       input: '{
@@ -140,6 +147,7 @@ GetLinkStatus:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkTransaction_01
       inputTemplate: esignet/GetLinkStatus/GetLinkStatus
       outputTemplate: esignet/error
       input: '{
@@ -162,6 +170,7 @@ GetLinkStatus:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkTransaction_01
       inputTemplate: esignet/GetLinkStatus/GetLinkStatus
       outputTemplate: esignet/error
       input: '{
@@ -184,6 +193,7 @@ GetLinkStatus:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkTransaction_01
       inputTemplate: esignet/GetLinkStatus/GetLinkStatus
       outputTemplate: esignet/error
       input: '{
@@ -206,6 +216,7 @@ GetLinkStatus:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkTransaction_01
       inputTemplate: esignet/GetLinkStatus/GetLinkStatus
       outputTemplate: esignet/error
       input: '{
@@ -228,6 +239,7 @@ GetLinkStatus:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkTransaction_01
       inputTemplate: esignet/GetLinkStatus/GetLinkStatus
       outputTemplate: esignet/error
       input: '{
@@ -250,6 +262,7 @@ GetLinkStatus:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkTransaction_01
       inputTemplate: esignet/GetLinkStatus/GetLinkStatus
       outputTemplate: esignet/error
       input: '{
@@ -272,6 +285,7 @@ GetLinkStatus:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkTransaction_01
       inputTemplate: esignet/GetLinkStatus/GetLinkStatus
       outputTemplate: esignet/error
       input: '{
@@ -294,6 +308,7 @@ GetLinkStatus:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkTransaction_01
       inputTemplate: esignet/GetLinkStatus/GetLinkStatus
       outputTemplate: esignet/error
       input: '{
@@ -316,6 +331,7 @@ GetLinkStatus:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkTransaction_01
       inputTemplate: esignet/GetLinkStatus/GetLinkStatus
       outputTemplate: esignet/error
       input: '{
@@ -338,6 +354,7 @@ GetLinkStatus:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkTransaction_01
       inputTemplate: esignet/GetLinkStatus/GetLinkStatus
       outputTemplate: esignet/error
       input: '{

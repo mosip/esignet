@@ -5,6 +5,7 @@ DeactivatePolicy:
       description: Deactivate policy after published
       role: partner
       restMethod: patch
+      additionalDependencies: Dependent_Idrepo_createPublishPolicy_04
       inputTemplate: esignet/PmsIntegration/DeactivatePolicy/DeactivatePolicy
       outputTemplate: esignet/error
       input: '{

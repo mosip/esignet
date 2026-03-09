@@ -31,7 +31,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.testng.SkipException;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.javafaker.Faker;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -235,8 +238,11 @@ public class EsignetUtil extends AdminTestUtil {
 						    || testCaseName.equals("ESignet_DPoPCreateOIDCClientV3_all_Valid_Smoke_sid")
 						    || testCaseName.equals("ESignet_OIDCClientV3_VerifiedClaims_all_Valid_Smoke_sid")
 						    || testCaseName.equals("ESignet_OIDCClientV3_WithoutVerifiedClaims_all_Valid_Smoke_sid")
-						    || testCaseName.equals("ESignet_OIDCClient_DifferentScopeLanguageClaimsSce_sid"))
+						    || testCaseName.equals("ESignet_OIDCClient_DifferentScopeLanguageClaimsSce_sid")
+						    || testCaseName.equals("ESignet_PartialUpdateOIDCClient_MOCK_all_Valid_forUserInfoJWE_Smoke_sid")
+						    || testCaseName.equals("ESignet_PartialUpdateOIDCClient_MOCK_all_Valid_forUserInfoUpdateJWE_Smoke_sid"))
 						    && (endpoint.contains("/v1/esignet/client-mgmt/client")
+						    || endpoint.contains("/v1/esignet/client-mgmt/client/{clientId}")	
 						    || endpoint.contains("/v1/esignet/client-mgmt/oauth-client")))) {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 			}
@@ -287,6 +293,12 @@ public class EsignetUtil extends AdminTestUtil {
 			throw new SkipException(GlobalConstants.KNOWN_ISSUES);
 		}
 
+		// Handle extra workflow dependencies
+		if (testCaseDTO != null && testCaseDTO.getAdditionalDependencies() != null
+				&& AdminTestUtil.generateDependency == true) {
+			addAdditionalDependencies(testCaseDTO);
+		}
+		
 		return testCaseName;
 	}
 	
@@ -847,6 +859,28 @@ public class EsignetUtil extends AdminTestUtil {
 			}
 			jsonString = replaceKeywordValue(jsonString, "$OIDCJWKKEY12$", jwkKey);
 		}		
+		
+		if (jsonString.contains("$OIDCJWKKEY13$")) {
+			String jwkKey = "";
+			if (gettriggerESignetKeyGen37()) {
+				jwkKey = JWKKeyUtil.generateAndCacheEncJWKKey(OIDCJWK13);
+				settriggerESignetKeyGen37(false);
+			} else {
+				jwkKey = JWKKeyUtil.getJWKKey(OIDCJWK13);
+			}
+			jsonString = replaceKeywordValue(jsonString, "$OIDCJWKKEY13$", jwkKey);
+		}
+		
+		if (jsonString.contains("$OIDCJWKKEY14$")) {
+			String jwkKey = "";
+			if (gettriggerESignetKeyGen38()) {
+				jwkKey = JWKKeyUtil.generateAndCacheEncJWKKey(OIDCJWK14);
+				settriggerESignetKeyGen38(false);
+			} else {
+				jwkKey = JWKKeyUtil.getJWKKey(OIDCJWK14);
+			}
+			jsonString = replaceKeywordValue(jsonString, "$OIDCJWKKEY14$", jwkKey);
+		}
 		
 		if (jsonString.contains("$CLIENT_ASSERTION_JWK$")) {
 			String oidcJWKKeyString = JWKKeyUtil.getJWKKey(OIDCJWK1);
@@ -1815,6 +1849,8 @@ public class EsignetUtil extends AdminTestUtil {
 	protected static final String OIDCJWK10= "oidcJWK10";
 	protected static final String OIDCJWK11= "oidcJWK11";
 	protected static final String OIDCJWK12= "oidcJWK12";
+	protected static final String OIDCJWK13= "oidcJWK13";
+	protected static final String OIDCJWK14= "oidcJWK14";
 	protected static final String OIDC_JWK_FOR_PAR = "oidcJWKForPAR";
 	protected static final String OIDC_JWK_FOR_DPoP = "oidcJWKForDPoP";	
 	
@@ -1829,6 +1865,8 @@ public class EsignetUtil extends AdminTestUtil {
 	protected static RSAKey oidcJWKKey10= null;
 	protected static RSAKey oidcJWKKey11= null;
 	protected static RSAKey oidcJWKKey12= null;
+	protected static RSAKey oidcJWKKey13= null;
+	protected static RSAKey oidcJWKKey14= null;
 	protected static RSAKey oidc_JWK_Key_For_PAR = null;
 	protected static RSAKey oidc_JWK_Key_For_DPoP = null;
 	
@@ -1867,6 +1905,8 @@ public class EsignetUtil extends AdminTestUtil {
 	protected static boolean triggerESignetKeyGen34 = true;
 	protected static boolean triggerESignetKeyGen35 = true;
 	protected static boolean triggerESignetKeyGen36 = true;
+	protected static boolean triggerESignetKeyGen37 = true;
+	protected static boolean triggerESignetKeyGen38 = true;
 	protected static boolean triggerESignetKeyGenForPAR = true;
 	protected static boolean triggerESignetKeyGenForDPoP = true;	
 	
@@ -2163,69 +2203,29 @@ public class EsignetUtil extends AdminTestUtil {
 	
 	private static boolean gettriggerESignetKeyGen36() {
 		return triggerESignetKeyGen36;
-	}		
-	
-	private static final String TOKEN_URL = EsignetConfigManager.getproperty("keycloak-external-url")
-			+ EsignetConfigManager.getproperty("keycloakAuthTokenEndPoint");
-	private static final String GRANT_TYPE = "client_credentials";
-	private static final String CLIENT_ID = "client_id";
-	private static final String CLIENT_SECRET = "client_secret";
-	private static final String GRANT_TYPE_KEY = "grant_type";
-	private static final String ACCESS_TOKEN = "access_token";
-
-    private static String partnerCookie = null;
-    private static String mobileAuthCookie = null;
-	
-	private static Response sendPostRequest(String url, Map<String, String> params) {
-		try {
-			return RestClient.postRequestWithFormDataBody(url, params);
-		} catch (Exception e) {
-			logger.error("Error sending POST request to URL: " + url, e);
-			return null;
-		}
 	}
 	
-    public static String getAuthTokenFromKeyCloak(String clientId, String clientSecret) {
-        Map<String, String> params = new HashMap<>();
-        params.put(CLIENT_ID, clientId);
-        params.put(CLIENT_SECRET, clientSecret);
-        params.put(GRANT_TYPE_KEY, GRANT_TYPE);
-
-        Response response = sendPostRequest(TOKEN_URL, params);
-
-        if (response == null) {
-            return "";
-        }
-        logger.info(response.getBody().asString());
-
-        JSONObject responseJson = new JSONObject(response.getBody().asString());
-        return responseJson.optString(ACCESS_TOKEN, "");
-    }
-    
-    public static String getAuthTokenByRole(String role) {
-        if (role == null) return "";
-
-        String roleLowerCase = role.toLowerCase();
-        switch (roleLowerCase) {
-            case "partner":
-                if (!AdminTestUtil.isValidToken(partnerCookie)) {
-                    partnerCookie = getAuthTokenFromKeyCloak(EsignetConfigManager.getPmsClientId(), EsignetConfigManager.getPmsClientSecret());
-                }
-                return partnerCookie;
-            case "mobileauth":
-                if (!AdminTestUtil.isValidToken(mobileAuthCookie)) {
-                    mobileAuthCookie = getAuthTokenFromKeyCloak(EsignetConfigManager.getMPartnerMobileClientId(), EsignetConfigManager.getMPartnerMobileClientSecret());
-                }
-                return mobileAuthCookie;
-            default:
-                return "";
-        }
-    }
+	private static void settriggerESignetKeyGen37(boolean value) {
+		triggerESignetKeyGen37 = value;
+	}
+	
+	private static boolean gettriggerESignetKeyGen37() {
+		return triggerESignetKeyGen37;
+	}
+	
+	private static void settriggerESignetKeyGen38(boolean value) {
+		triggerESignetKeyGen38 = value;
+	}
+	
+	private static boolean gettriggerESignetKeyGen38() {
+		return triggerESignetKeyGen38;
+	}
+	
 
 	public static Response postRequestWithCookieAndAuthHeader(String url, String jsonInput, String cookieName, String role,
 			String testCaseName) {
 		Response response = null;
-		token = getAuthTokenByRole(role);
+		token = kernelAuthLib.getAuthTokenByRole(role);
 		String apiKey = null;
 		String partnerId = null;
 		JSONObject req = new JSONObject(jsonInput);
@@ -2264,7 +2264,7 @@ public class EsignetUtil extends AdminTestUtil {
 		} else if (testCaseName.contains("NOAUTH")) {
 			token = "";
 		} else {
-			token = getAuthTokenByRole(role);
+			token = kernelAuthLib.getAuthTokenByRole(role);
 		}
 		logger.info(GlobalConstants.POST_REQ_URL + url);
 		GlobalMethods.reportRequest(null, jsonInput, url);
@@ -2300,7 +2300,7 @@ public class EsignetUtil extends AdminTestUtil {
 		if (testCaseName.contains("Invalid_Token")) {
 			token = "xyz";
 		} else {
-			token = getAuthTokenByRole(role);
+			token = kernelAuthLib.getAuthTokenByRole(role);
 		}
 		logger.info(GlobalConstants.PUT_REQ_STRING + url);
 		GlobalMethods.reportRequest(null, req.toString(), url);
@@ -2322,7 +2322,7 @@ public class EsignetUtil extends AdminTestUtil {
 		token = "";
 		if (EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase()
 				.contains("mockauthenticationservice") == true) {
-			token = getAuthTokenByRole(role);
+			token = kernelAuthLib.getAuthTokenByRole(role);
 		}else {
 			token = kernelAuthLib.getTokenByRole(role);
 		}
@@ -2588,5 +2588,30 @@ public class EsignetUtil extends AdminTestUtil {
 		}
 		return response;
 	}
-    
+	
+	public static List<String> extractTokensFromResponse(String responseBody) throws AdminTestException {
+
+		if (responseBody == null || responseBody.isEmpty()) {
+			throw new AdminTestException("Response body is empty");
+		}
+
+		JSONObject jsonResponse = new JSONObject(responseBody);
+
+		List<String> tokens = new ArrayList<>();
+
+		if (jsonResponse.has("id_token")) {
+			tokens.add(jsonResponse.getString("id_token"));
+		}
+
+		if (jsonResponse.has("access_token")) {
+			tokens.add(jsonResponse.getString("access_token"));
+		}
+
+		if (tokens.isEmpty()) {
+			throw new AdminTestException("No token found in response");
+		}
+
+		return tokens;
+	}
+	
 }

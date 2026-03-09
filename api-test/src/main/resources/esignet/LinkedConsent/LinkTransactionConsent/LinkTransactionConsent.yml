@@ -91,7 +91,7 @@ LinkTransactionConsent:
 
    ESignet_LinkTransaction_Consent_uin_forPartialEssentialOptionalClaims_sid:
       endPoint: /v1/esignet/linked-authorization/link-transaction
-      uniqueIdentifier: TC_ESignet_LinkTransactionConsent_05
+      uniqueIdentifier: TC_ESignet_LinkTransactionConsent_06
       description: Link transaction consent UIN for optional claims
       role: resident
       checkErrorsOnlyInResponse: true
@@ -109,7 +109,7 @@ LinkTransactionConsent:
 
    ESignet_LinkTransaction_Consent_uin_forOnlyEssentialClaims_sid:
       endPoint: /v1/esignet/linked-authorization/link-transaction
-      uniqueIdentifier: TC_ESignet_LinkTransactionConsent_06
+      uniqueIdentifier: TC_ESignet_LinkTransactionConsent_07
       description: Link transaction consent UIN for Only EssentialClaims
       role: resident
       checkErrorsOnlyInResponse: true
@@ -127,7 +127,7 @@ LinkTransactionConsent:
 
    ESignet_LinkTransaction_Consent_uin_forNullAsEssentialClaims_sid:
       endPoint: /v1/esignet/linked-authorization/link-transaction
-      uniqueIdentifier: TC_ESignet_LinkTransactionConsent_07
+      uniqueIdentifier: TC_ESignet_LinkTransactionConsent_08
       description: Link transaction consent UIN for Only EssentialClaims
       role: resident
       checkErrorsOnlyInResponse: true
@@ -145,7 +145,7 @@ LinkTransactionConsent:
 
    ESignet_LinkTransaction_Consent_uin_OnlyOptionalClaimAsRequested_AcceptedClaim_sid:
       endPoint: /v1/esignet/linked-authorization/link-transaction
-      uniqueIdentifier: TC_ESignet_LinkTransactionConsent_08
+      uniqueIdentifier: TC_ESignet_LinkTransactionConsent_09
       description: Link transaction consent UIN for OnlyOptionalClaimAsRequested
       role: resident
       checkErrorsOnlyInResponse: true
@@ -163,7 +163,7 @@ LinkTransactionConsent:
 
    ESignet_LinkTransaction_Consent_uin_without_AcceptedClaim_IfOnlyOptionalRequested_sid:
       endPoint: /v1/esignet/linked-authorization/link-transaction
-      uniqueIdentifier: TC_ESignet_LinkTransactionConsent_09
+      uniqueIdentifier: TC_ESignet_LinkTransactionConsent_10
       description: Link transaction consent UIN without_AcceptedClaim_IfOnlyOptionalRequested
       role: resident
       checkErrorsOnlyInResponse: true

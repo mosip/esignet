@@ -1,7 +1,7 @@
 OIDCClientV3:
   ESignet_CreateOIDCClientV3_MOCK_all_Valid_forUserInfo_Smoke_sid:
     endPoint: /v1/esignet/client-mgmt/client
-    uniqueIdentifier: TC_ESignet_OIDCClientV3_01
+    uniqueIdentifier: TC_ESignet_OIDCClientV3_E2EMock_01
     description: To create OIDC Client V3 with all valid data with JWS
     role: partner
     restMethod: post
@@ -38,7 +38,7 @@ OIDCClientV3:
 }'
   ESignet_CreateOIDCClientV3_MOCK_all_Valid_forUserInfoJWE_Smoke_sid:
     endPoint: /v1/esignet/client-mgmt/client
-    uniqueIdentifier: TC_ESignet_OIDCClientV3_02
+    uniqueIdentifier: TC_ESignet_OIDCClientV3_E2EMock_02
     description: To create OIDC Client V3 with all valid data with JWE
     role: partner
     restMethod: post
@@ -75,7 +75,7 @@ OIDCClientV3:
 }'
   ESignet_CreateOIDCClientV3_MOCK_all_Valid_forUserInfoToUpdateClient_Smoke_sid:
     endPoint: /v1/esignet/client-mgmt/client
-    uniqueIdentifier: TC_ESignet_OIDCClientV3_03
+    uniqueIdentifier: TC_ESignet_OIDCClientV3_E2EMock_03
     description: To create OIDC Client V3 with all valid data with JWS
     role: partner
     restMethod: post
