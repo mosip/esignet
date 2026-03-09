@@ -116,6 +116,8 @@ public class LoginOptionsPage extends BasePage {
 		map.put("OTP", loginWithOtpBtn);
 		map.put("BIO", loginWithBiometricBtn);
 		map.put("WLA", loginWithInjiBtn);
+		map.put("PIN", loginWithPinBtn);
+		map.put("KBI", loginWithKbiBtn);
 		return map;
 	}
 
