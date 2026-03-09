@@ -232,6 +232,7 @@ public class ConsentStepDefinition {
 	@When("if user deselect one of the Voluntary Claims")
 	public void userDeselectOneVoluntaryClaim() throws Exception {
 		List<String> voluntaryClaims = consentPage.getClaims("voluntary");
+		assertFalse("Voluntary claims were not loaded for this scenario", voluntaryClaims.isEmpty());
 		if (!voluntaryClaims.isEmpty()) {
 			String firstClaim = voluntaryClaims.get(0);
 			consentPage.toggleVoluntaryClaim(firstClaim, false);
@@ -263,6 +264,7 @@ public class ConsentStepDefinition {
 	@Then("if user manually deselects all sub-toggles,verify master toggle also gets disabled")
 	public void verifyDeselectingVoluntaryClaimManually() throws Exception {
 		List<String> voluntaryClaims = consentPage.getClaims("voluntary");
+		assertFalse("Voluntary claims were not loaded for this scenario", voluntaryClaims.isEmpty());
 		for (String claim : voluntaryClaims) {
 			consentPage.toggleVoluntaryClaim(claim, false);
 		}
@@ -272,6 +274,7 @@ public class ConsentStepDefinition {
 	@When("user enables only one of the Voluntary Claims toggle")
 	public void userEnablesOneVoluntaryClaim() throws Exception {
 		List<String> voluntaryClaims = consentPage.getClaims("voluntary");
+		assertFalse("Voluntary claims were not loaded for this scenario", voluntaryClaims.isEmpty());
 		if (!voluntaryClaims.isEmpty()) {
 			String firstClaim = voluntaryClaims.get(0);
 			consentPage.toggleVoluntaryClaim(firstClaim, true);
@@ -288,6 +291,7 @@ public class ConsentStepDefinition {
 	@When("user enables all the voluntary claims sub-toggle manually")
 	public void userEnablesAllSubToggles() throws Exception {
 		List<String> voluntaryClaims = consentPage.getClaims("voluntary");
+		assertFalse("Voluntary claims were not loaded for this scenario", voluntaryClaims.isEmpty());
 		selectedVoluntaryClaims.clear();
 
 		for (String claim : voluntaryClaims) {

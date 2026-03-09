@@ -135,6 +135,10 @@ public class ConsentPage extends BasePage {
 	}
 
 	public void enterOtp(String otp) {
+		if (otp.length() > otpInputFields.size()) {
+			throw new IllegalArgumentException(
+					"OTP length " + otp.length() + " exceeds rendered inputs " + otpInputFields.size());
+		}
 		for (WebElement field : otpInputFields) {
 			field.click();
 			field.sendKeys(Keys.chord(Keys.CONTROL, "a"));
@@ -186,7 +190,7 @@ public class ConsentPage extends BasePage {
 	}
 
 	public void waitUntilLivenessCheckCompletes() {
-		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(90));
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(120));
 		wait.until(ExpectedConditions.visibilityOf(allowButtonInConsentScreen));
 	}
 

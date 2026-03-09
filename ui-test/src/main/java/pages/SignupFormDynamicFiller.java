@@ -130,7 +130,7 @@ public class SignupFormDynamicFiller {
 
 			if ("date".equalsIgnoreCase(controlType)) {
 				String dob = EsignetUtil.getRandomDOB().replace("-", "/");
-				WebElement visibleDob = driver.findElement(By.id("dob"));
+				WebElement visibleDob = element;
 				JavascriptExecutor js = (JavascriptExecutor) driver;
 				js.executeScript("arguments[0].removeAttribute('readonly')", visibleDob);
 				js.executeScript("arguments[0].value=arguments[1];", visibleDob, dob);

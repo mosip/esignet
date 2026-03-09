@@ -112,10 +112,10 @@ public class LoginOptionsPage extends BasePage {
 
 	public Map<String, WebElement> getAcrToElementMap() {
 		Map<String, WebElement> map = new HashMap<>();
-		map.put("mosip:idp:acr:password", loginWithPasswordBtn);
-		map.put("mosip:idp:acr:generated-code", loginWithOtpBtn);
-		map.put("mosip:idp:acr:biometrics", loginWithBiometricBtn);
-		map.put("mosip:idp:acr:linked-wallet", loginWithInjiBtn);
+		map.put("PWD", loginWithPasswordBtn);
+		map.put("OTP", loginWithOtpBtn);
+		map.put("BIO", loginWithBiometricBtn);
+		map.put("WLA", loginWithInjiBtn);
 		return map;
 	}
 

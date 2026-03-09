@@ -113,4 +113,28 @@ public class ClaimsUtil {
 		}
 		return factors;
 	}
+
+	public static String normalizeFactor(String factor) {
+
+		switch (factor) {
+		case "OTP":
+		case "mosip:idp:acr:generated-code":
+			return "OTP";
+
+		case "BIO":
+		case "mosip:idp:acr:biometrics":
+			return "BIO";
+
+		case "WLA":
+		case "mosip:idp:acr:linked-wallet":
+			return "WLA";
+
+		case "PWD":
+		case "mosip:idp:acr:password":
+			return "PWD";
+
+		default:
+			return factor;
+		}
+	}
 }

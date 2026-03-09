@@ -72,13 +72,13 @@ public class LoginOptionsStepDefinition {
 
 	@When("user selects {string} from the language dropdown")
 	public void userSelectsLanguage(String language) {
-	    loginOptionsPage.clickOnLanguageDropdown();
-	    loginOptionsPage.selectLanguage(language);
+		loginOptionsPage.clickOnLanguageDropdown();
+		loginOptionsPage.selectLanguage(language);
 	}
 
 	@Then("verify the UI is displayed in selected language {string}")
 	public void verifyUILanguage(String text) {
-	    assertTrue(loginOptionsPage.isUILanguageChanged(text));
+		assertTrue(loginOptionsPage.isUILanguageChanged(text));
 	}
 
 	@Then("authentication screen should show login options based on acr_values from url")
@@ -88,10 +88,10 @@ public class LoginOptionsStepDefinition {
 		Map<String, WebElement> factorMap = loginOptionsPage.getAcrToElementMap();
 
 		for (String factor : authFactors) {
-			WebElement element = factorMap.get(factor);
-			if (element != null) {
-				assertTrue("Option not visible for " + factor, element.isDisplayed());
-			}
+			String normalizedFactor = ClaimsUtil.normalizeFactor(factor);
+			WebElement element = factorMap.get(normalizedFactor);
+			Assert.assertNotNull("No UI mapping found for factor: " + factor, element);
+			assertTrue("Option not visible for " + factor, element.isDisplayed());
 		}
 	}
 }
