@@ -1,0 +1,23 @@
+{
+      "userinfo":{
+         "name":{
+            "essential":false
+         },
+         "phone_number":{
+            "essential":true
+         },
+         "verified_claims":[
+            {
+               "verification":{
+                  "trust_framework":null,
+                  "time":null
+               },
+               "claims":{
+                  "email":{
+                     "essential":true
+                  },
+               }
+            }
+         ]
+      }
+   }

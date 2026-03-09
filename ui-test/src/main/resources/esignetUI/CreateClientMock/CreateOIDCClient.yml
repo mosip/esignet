@@ -5,8 +5,8 @@ OIDCClientV3:
     description: To create OIDC Client V3 with all valid data with JWS
     role: partner
     restMethod: post
-    inputTemplate: esignetUI/CreateClient/CreateOIDCClient
-    outputTemplate: esignetUI/CreateClient/CreateOIDCClientResult
+    inputTemplate: esignetUI/CreateClientMock/CreateOIDCClient
+    outputTemplate: esignetUI/CreateClientMock/CreateOIDCClientResult
     input: '{
       "requestTime": "$TIMESTAMP$",
       "clientId": "$RANDOMPARTNERID$",

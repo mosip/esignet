@@ -20,7 +20,7 @@ public class ResourceBundleLoader {
 	private static String loadedLanguage = "";
 
 	public static String get(String key) {
-		String currentLang = System.getProperty("currentRunLanguage", "en");
+		String currentLang = System.getProperty("currentRunLanguage", "eng");
 		if (!loaded || !currentLang.equalsIgnoreCase(loadedLanguage)) {
 			synchronized (ResourceBundleLoader.class) {
 				if (!loaded || !currentLang.equalsIgnoreCase(loadedLanguage)) {
@@ -37,7 +37,7 @@ public class ResourceBundleLoader {
 		try {
 			resourceBundleMap.clear();
 			String twoLetterCode = LanguageUtil.getIsoLanguageCode(currentLang);
-			String url = EsignetConfigManager.getproperty("localeUrl") + "/locales/" + twoLetterCode + ".json";
+			String url = EsignetConfigManager.getproperty("baseurl") + "/locales/" + twoLetterCode + ".json";
 
 			String jsonContent = downloadJson(url);
 			Map<String, Object> nestedMap = new ObjectMapper().readValue(jsonContent, new TypeReference<>() {
