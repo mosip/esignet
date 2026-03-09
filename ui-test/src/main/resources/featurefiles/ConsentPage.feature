@@ -3,7 +3,7 @@ Feature: Esignet Consent Page
   This feature file is for verifying the Consent page  
 
  @smoke @registrationProcess
-  Scenario Outline: Verify user is completes registration process
+  Scenario: Verify user completes registration process
     Given user directly navigates to sign-up portal URL
     And user clicks on Register button
     Then user enters mobile_number in the mobile number field
@@ -21,7 +21,7 @@ Feature: Esignet Consent Page
    When Click on Language selection option
    And Select the mandatory language
    And user click on Login with Otp
-   Then user enters Registered moblie number into the mobile number field
+   Then user enters Registered mobile number into the mobile number field
    And user click on get otp button
    When user enters the "<correct Otp>"
    And click on verify Otp button

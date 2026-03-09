@@ -15,7 +15,7 @@
                "claims":{
                   "email":{
                      "essential":true
-                  },
+                  }
                }
             }
          ]

@@ -75,6 +75,9 @@ public class SignUpPage extends BasePage {
 	}
 
 	public void enterOtp(String otp) {
+		if (otp.length() > otpInputFields.size()) {
+			throw new IllegalArgumentException("OTP length exceeds available input fields");
+		}
 		for (int i = 0; i < otp.length(); i++) {
 			WebElement field = otpInputFields.get(i);
 			field.click();

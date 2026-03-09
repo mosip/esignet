@@ -37,6 +37,10 @@ public class ResourceBundleLoader {
 		try {
 			resourceBundleMap.clear();
 			String twoLetterCode = LanguageUtil.getIsoLanguageCode(currentLang);
+			if (twoLetterCode == null) {
+				logger.warn("No ISO mapping found for language: " + currentLang + ", falling back to: " + currentLang);
+				twoLetterCode = currentLang;
+			}
 			String url = EsignetConfigManager.getproperty("baseurl") + "/locales/" + twoLetterCode + ".json";
 
 			String jsonContent = downloadJson(url);

@@ -126,13 +126,10 @@ public class LoginOptionsPage extends BasePage {
 		langOption.click();
 	}
 
-	public boolean isUILanguageChanged(String language) {
-		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-		if (language.equalsIgnoreCase("Hindi")) {
-			wait.until(ExpectedConditions.textToBePresentInElement(loginButton, "लॉगिन"));
-			return loginButton.getText().contains("लॉगिन");
-		}
-		return false;
+	public boolean isUILanguageChanged(String text) {
+	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+	    wait.until(ExpectedConditions.textToBePresentInElement(loginButton, text));
+	    return loginButton.getText().contains(text);
 	}
 
 }

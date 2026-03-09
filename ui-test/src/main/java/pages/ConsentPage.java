@@ -2,9 +2,7 @@ package pages;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
@@ -17,6 +15,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import base.BasePage;
+import utils.ClaimsUtil;
 
 public class ConsentPage extends BasePage {
 
@@ -24,19 +23,19 @@ public class ConsentPage extends BasePage {
 		super(driver);
 		PageFactory.initElements(driver, this);
 	}
-	
+
 	@FindBy(id = "login_with_otp")
 	WebElement loginWithOtpBtn;
 
 	@FindBy(id = "language_selection")
 	WebElement languageSelection;
-	
+
 	@FindBy(id = "Otp_IND")
 	WebElement mobileNumberField;
-	
+
 	@FindBy(id = "get_otp")
 	WebElement getOtpButton;
-	
+
 	@FindBy(xpath = "//div[@class='pincode-input-container']/input")
 	List<WebElement> otpInputFields;
 
@@ -69,10 +68,10 @@ public class ConsentPage extends BasePage {
 
 	@FindBy(id = "language_selection")
 	WebElement languageDropdown;
-	
+
 	@FindBy(id = "ar2")
 	WebElement arabicLanguage;
-	
+
 	@FindBy(xpath = "//div[@class='h-screen']")
 	WebElement rootContainer;
 
@@ -87,34 +86,34 @@ public class ConsentPage extends BasePage {
 
 	@FindBy(xpath = "//input[@id='voluntary_claims']")
 	WebElement voluntaryClaimsMasterCheckbox;
-	
+
 	@FindBy(xpath = "(//div[@class='divide-y'])[1]//li//div[contains(@class,'justify-start')]//label")
 	List<WebElement> mandatoryClaimsElements;
 
 	@FindBy(xpath = "(//div[@class='divide-y'])[2]/ul/li")
 	List<WebElement> voluntaryClaimsElements;
-	
+
 	@FindBy(xpath = "//button[@id='essential_claims_tooltip']/following::div[@class='divide-y'][1]//label")
 	private List<WebElement> essentialClaims;
 
 	@FindBy(xpath = "//button[@id='voluntary_claims_tooltip']/following::div[@class='divide-y'][1]//label")
 	private List<WebElement> voluntaryClaims;
-	
+
 	@FindBy(id = "continue")
 	WebElement allowButtonInConsentScreen;
-	
+
 	@FindBy(xpath = "//p[@class='font-bold consent-timer-text']")
 	WebElement consentTimer;
-	
+
 	@FindBy(xpath = "//div[@role='menuitem']")
 	List<WebElement> languageDropdownItems;
-	
+
 	@FindBy(id = "continue")
 	WebElement allowButton;
-	
+
 	@FindBy(xpath = "//div[@class=' css-1dimb5e-singleValue']")
 	WebElement selectedLanguageDropdown;
-	
+
 	@FindBy(xpath = "//button[contains(@class,'flex items-center px-4')]")
 	WebElement profileDropdown;
 
@@ -134,6 +133,7 @@ public class ConsentPage extends BasePage {
 	public String getCurrentLanguage() {
 		return languageSelection.getText().trim();
 	}
+
 	public void enterOtp(String otp) {
 		for (WebElement field : otpInputFields) {
 			field.click();
@@ -146,11 +146,11 @@ public class ConsentPage extends BasePage {
 			field.sendKeys(String.valueOf(otp.charAt(i)));
 		}
 	}
-	
+
 	public void clickOnVerifyButton() {
 		clickOnElement(verifyOtpBtn);
 	}
-	
+
 	public boolean isOnAttentionScreen() {
 		return proceedToAttentionScreen.isDisplayed();
 	}
@@ -196,7 +196,7 @@ public class ConsentPage extends BasePage {
 				.until(ExpectedConditions.refreshed(ExpectedConditions.elementToBeClickable(element)));
 		stableElement.click();
 	}
-	
+
 	public boolean isConsentScreenVisible() {
 		return isElementVisible(allowButton);
 	}
@@ -215,33 +215,16 @@ public class ConsentPage extends BasePage {
 
 	public void enableVoluntaryClaimsMasterToggle() {
 		if (!voluntaryClaimsMasterToggle.isSelected()) {
-			voluntaryClaimsMasterToggle.click();
+			clickOnElement(voluntaryClaimsMasterToggle);
 		}
 	}
 
 	public void disableVoluntaryClaimsMasterToggle() {
-		voluntaryClaimsMasterToggle.click();
+		clickOnElement(voluntaryClaimsMasterToggle);
 	}
 
 	public boolean isVoluntaryClaimsMasterToggleSelected() {
 		return voluntaryClaimsMasterCheckbox.isSelected();
-	}
-	
-	public List<String> getDisplayedMandatoryClaims() {
-	    List<String> claims = new ArrayList<>();
-	    for (WebElement element : mandatoryClaimsElements) {
-	        String text = element.getText().trim();
-	        claims.add(text);
-	    }
-	    return claims;
-	}
-
-	public List<String> getDisplayedVoluntaryClaims() {
-		List<String> claims = new ArrayList<>();
-		for (WebElement element : voluntaryClaimsElements) {
-			claims.add(element.getText().trim());
-		}
-		return claims;
 	}
 
 	public String getVoluntaryClaimsTooltipText() {
@@ -254,7 +237,7 @@ public class ConsentPage extends BasePage {
 	}
 
 	public void toggleVoluntaryClaim(String claimName, boolean enable) {
-		String normalized = claimName.equalsIgnoreCase("fullname") ? "name" : claimName;
+		String normalized = ClaimsUtil.normalizeClaim(claimName);
 		By labelLocator = By.xpath("//label[@for='" + normalized + "']");
 		By inputLocator = By.id(normalized);
 		WebElement label = driver.findElement(labelLocator);
@@ -295,20 +278,20 @@ public class ConsentPage extends BasePage {
 	}
 
 	public int getConsentTimerSeconds() {
-	    String timerValue = consentTimer.getText().trim();
-	    String secondsPart = timerValue.split(":")[1];
-	    int seconds = Integer.parseInt(secondsPart);
-	    return seconds;
+		String timerValue = consentTimer.getText().trim();
+		String secondsPart = timerValue.split(":")[1];
+		int seconds = Integer.parseInt(secondsPart);
+		return seconds;
 	}
-	
+
 	public String getSelectedLanguageFromDropdown() {
 		return selectedLanguageDropdown.getText().trim();
 	}
-	
+
 	public void clickOnProfileDropdown() {
 		clickOnElement(profileDropdown);
 	}
-	
+
 	public List<String> getDisplayedClaims() {
 		List<String> claims = new ArrayList<>();
 		List<WebElement> claimElements = driver.findElements(By.xpath("//a[contains(@class,'px-4 py-2 text-sm')]"));
@@ -322,6 +305,5 @@ public class ConsentPage extends BasePage {
 
 		return claims;
 	}
-
 
 }

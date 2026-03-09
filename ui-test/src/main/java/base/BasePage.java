@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.JavascriptExecutor;
@@ -198,8 +199,9 @@ public class BasePage {
 							+ "arguments[0].blur();", element);
 
 			String finalValue = element.getAttribute("value");
-			if (finalValue == null) {
-				throw new RuntimeException("Value was rejected by frontend (null).");
+			if (!Objects.equals(finalValue, text)) {
+				throw new RuntimeException(
+						"Field value mismatch. Expected '" + text + "' but found '" + finalValue + "'.");
 			}
 		}
 

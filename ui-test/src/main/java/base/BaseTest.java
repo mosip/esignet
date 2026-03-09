@@ -46,7 +46,6 @@ public class BaseTest extends AdminTestUtil {
 	private static final ThreadLocal<JavascriptExecutor> jseThreadLocal = new ThreadLocal<>();
 	private static final ThreadLocal<Uin> threadUin = new ThreadLocal<>();
 	private static final ThreadLocal<Vid> threadVid = new ThreadLocal<>();
-	private final String url = EsignetConfigManager.getproperty("baseurl");
 
 	public static int passedCount = 0;
 	public static int failedCount = 0;

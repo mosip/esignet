@@ -4,9 +4,7 @@ import org.apache.log4j.Logger;
 import org.openqa.selenium.*;
 import org.openqa.selenium.remote.LocalFileDetector;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 import utils.EsignetUtil;
 import utils.EsignetUtil.RegisteredDetails;
@@ -16,7 +14,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -151,6 +148,7 @@ public class SignupFormDynamicFiller {
 
 				element.clear();
 				element.sendKeys(value);
+				continue;
 			}
 
 			if ("radio".equalsIgnoreCase(controlType)) {

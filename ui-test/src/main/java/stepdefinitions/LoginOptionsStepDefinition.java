@@ -43,6 +43,7 @@ public class LoginOptionsStepDefinition {
 	public void userCapturesAuhtorizeUrl() throws Exception {
 		new WebDriverWait(driver, Duration.ofSeconds(10)).until(ExpectedConditions.urlContains("#"));
 		String currentUrl = driver.getCurrentUrl();
+		this.authorizeUrl = currentUrl;
 		loginOptionsPage.setAuthorizeUrl(currentUrl);
 	}
 
@@ -71,13 +72,13 @@ public class LoginOptionsStepDefinition {
 
 	@When("user selects {string} from the language dropdown")
 	public void userSelectsLanguage(String language) {
-		loginOptionsPage.clickOnLanguageDropdown();
-		loginOptionsPage.selectLanguage(language);
+	    loginOptionsPage.clickOnLanguageDropdown();
+	    loginOptionsPage.selectLanguage(language);
 	}
 
-	@Then("verify the UI is displayed in {string} language")
-	public void verifyUILanguage(String language) {
-		assertTrue(loginOptionsPage.isUILanguageChanged(language));
+	@Then("verify the UI is displayed in selected language {string}")
+	public void verifyUILanguage(String text) {
+	    assertTrue(loginOptionsPage.isUILanguageChanged(text));
 	}
 
 	@Then("authentication screen should show login options based on acr_values from url")

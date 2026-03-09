@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Assert;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -24,15 +23,13 @@ import pages.ConsentPage;
 import pages.LoginOptionsPage;
 import pages.SignUpPage;
 import pages.SignupFormDynamicFiller;
-import utils.ClaimsUtil;
 import utils.EsignetUtil;
 import utils.EsignetUtil.RegisteredDetails;
-import utils.ResourceBundleLoader;
 
 public class ConsentStepDefinition {
 
 	public WebDriver driver;
-	private static final Logger logger = Logger.getLogger(EsignetUtil.class);
+	private static final Logger logger = Logger.getLogger(ConsentStepDefinition.class);
 	LoginOptionsPage loginOptionsPage;
 	SignUpPage signUpPage;
 	SignupFormDynamicFiller formFiller;
@@ -108,7 +105,7 @@ public class ConsentStepDefinition {
 		consentPage.clickOnLoginWithOtp();
 	}
 
-	@Then("user enters Registered moblie number into the mobile number field")
+	@Then("user enters Registered mobile number into the mobile number field")
 	public void userEntersRegisteredMobileNumber() {
 		String registeredNumber = RegisteredDetails.getMobileNumber();
 		consentPage.enterRegisteredMobileNumber(registeredNumber);
@@ -307,12 +304,7 @@ public class ConsentStepDefinition {
 	@Then("verify the timer starts from 55sec in the consent page via Otp login")
 	public void verifyConsentPageTimer() {
 		int seconds = consentPage.getConsentTimerSeconds();
-
-		if (seconds >= 54 && seconds <= 56) {
-			logger.info("Timer started correctly around 55 seconds");
-		} else {
-			logger.warn("Timer did not start at 55 seconds, it started at: " + seconds);
-		}
+		assertTrue("Timer should start around 55 seconds, but was: " + seconds, +seconds >= 54 && seconds <= 56);
 	}
 
 	@Then("refresh the browser tab and verify timer continue with leftover seconds")
@@ -325,10 +317,7 @@ public class ConsentStepDefinition {
 		int afterRefresh = consentPage.getConsentTimerSeconds();
 		logger.info("Timer after refresh: " + afterRefresh + " seconds");
 
-		if (afterRefresh <= beforeRefresh && (beforeRefresh - afterRefresh) <= 2) {
-			logger.info("Timer persisted correctly after refresh");
-		} else {
-			logger.warn("Timer got reset or invalid after refresh");
-		}
+		assertTrue("Timer should persist after refresh within 2 seconds tolerance",
+				+afterRefresh <= beforeRefresh && (beforeRefresh - afterRefresh) <= 2);
 	}
 }
