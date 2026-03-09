@@ -54,6 +54,7 @@ public class LoginOptionsStepDefinition {
 
 	@Then("verify multiple options for login is available")
 	public void verifyMultipleLoginOptions() {
+		ClaimsUtil.parseFromUrl(authorizeUrl);
 		List<String> authFactors = ClaimsUtil.getAuthFactors();
 		Assert.assertTrue("Expected multiple login options, but found: " + authFactors.size(), authFactors.size() > 1);
 	}
