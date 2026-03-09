@@ -186,51 +186,33 @@ public class SimplePostForAutoGenIdForUrlEncoded extends EsignetUtil implements 
 
 			if (testCaseName.contains("_IdTokenJWS_")) {
 
-			    if (responseBody == null || responseBody.isEmpty()) {
-			        throw new AdminTestException("Response body is empty");
-			    }
+				List<String> tokens = EsignetUtil.extractTokensFromResponse(responseBody);
 
-			    JSONObject jsonResponse = new JSONObject(responseBody);
+				for (String token : tokens) {
 
-			    List<String> tokens = new ArrayList<>();
+					String finalJsonString = AdminTestUtil.decodeAndCombineJwt(token);
 
-			    if (jsonResponse.has("id_token")) {
-			        tokens.add(jsonResponse.getString("id_token"));
-			    }
+					if (finalJsonString == null) {
+						throw new AdminTestException("Failed to decode token");
+					}
 
-			    if (jsonResponse.has("access_token")) {
-			        tokens.add(jsonResponse.getString("access_token"));
-			    }
+					DecodedJWT jwt = JWT.decode(token);
 
-			    if (tokens.isEmpty()) {
-			        throw new AdminTestException("No token found in response");
-			    }
+					String headerJson = AdminTestUtil.decodeBase64Url(jwt.getHeader());
+					String payloadJson = AdminTestUtil.decodeBase64Url(jwt.getPayload());
 
-			    for (String token : tokens) {
+					GlobalMethods.reportResponse(headerJson, null, payloadJson, true);
 
-			        String finalJsonString = EsignetUtil.decodeAndCombineJwt(token);
-
-			        if (finalJsonString == null) {
-			            throw new AdminTestException("Failed to decode token");
-			        }
-
-			        DecodedJWT jwt = JWT.decode(token);
-
-			        String headerJson = EsignetUtil.decodeBase64Url(jwt.getHeader());
-			        String payloadJson = EsignetUtil.decodeBase64Url(jwt.getPayload());
-
-			        GlobalMethods.reportResponse(headerJson, null, payloadJson, true);
-
-			        ouputValid = OutputValidationUtil.doJsonOutputValidation(
-			                finalJsonString, outputJson, testCaseDTO, response.getStatusCode());
-			    }
+					ouputValid = OutputValidationUtil.doJsonOutputValidation(finalJsonString, outputJson, testCaseDTO,
+							response.getStatusCode());
+				}
 			}
+
 			else {
 
 				ouputValid = OutputValidationUtil.doJsonOutputValidation(responseBody, outputJson, testCaseDTO,
 						response.getStatusCode());
 			}
-
 
 			Reporter.log(ReportUtil.getOutputValidationReport(ouputValid));
 			if (!OutputValidationUtil.publishOutputResult(ouputValid))

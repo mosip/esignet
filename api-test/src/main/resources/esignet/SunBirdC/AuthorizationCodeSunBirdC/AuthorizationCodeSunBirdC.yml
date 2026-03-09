@@ -7,6 +7,7 @@ AuthorizationCodeSunBirdC:
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_AuthenticateUserSunBirdC_01
       inputTemplate: esignet/SunBirdC/AuthorizationCodeSunBirdC/AuthorizationCodeSunBirdC
       outputTemplate: esignet/SunBirdC/AuthorizationCodeSunBirdC/AuthorizationCodeSunBirdCResult
       input: '{

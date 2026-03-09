@@ -239,8 +239,8 @@ public class EsignetUtil extends AdminTestUtil {
 						    || testCaseName.equals("ESignet_OIDCClientV3_VerifiedClaims_all_Valid_Smoke_sid")
 						    || testCaseName.equals("ESignet_OIDCClientV3_WithoutVerifiedClaims_all_Valid_Smoke_sid")
 						    || testCaseName.equals("ESignet_OIDCClient_DifferentScopeLanguageClaimsSce_sid")
-						    || testCaseName.equals("ESignet_PatchOIDCClient_MOCK_all_Valid_forUserInfoJWE_Smoke_sid")
-						    || testCaseName.equals("ESignet_PatchOIDCClient_MOCK_all_Valid_forUserInfoUpdateJWE_Smoke_sid"))
+						    || testCaseName.equals("ESignet_PartialUpdateOIDCClient_MOCK_all_Valid_forUserInfoJWE_Smoke_sid")
+						    || testCaseName.equals("ESignet_PartialUpdateOIDCClient_MOCK_all_Valid_forUserInfoUpdateJWE_Smoke_sid"))
 						    && (endpoint.contains("/v1/esignet/client-mgmt/client")
 						    || endpoint.contains("/v1/esignet/client-mgmt/client/{clientId}")	
 						    || endpoint.contains("/v1/esignet/client-mgmt/oauth-client")))) {
@@ -2221,67 +2221,11 @@ public class EsignetUtil extends AdminTestUtil {
 		return triggerESignetKeyGen38;
 	}
 	
-	private static final String TOKEN_URL = EsignetConfigManager.getproperty("keycloak-external-url")
-			+ EsignetConfigManager.getproperty("keycloakAuthTokenEndPoint");
-	private static final String GRANT_TYPE = "client_credentials";
-	private static final String CLIENT_ID = "client_id";
-	private static final String CLIENT_SECRET = "client_secret";
-	private static final String GRANT_TYPE_KEY = "grant_type";
-	private static final String ACCESS_TOKEN = "access_token";
-
-    private static String partnerCookie = null;
-    private static String mobileAuthCookie = null;
-	
-	private static Response sendPostRequest(String url, Map<String, String> params) {
-		try {
-			return RestClient.postRequestWithFormDataBody(url, params);
-		} catch (Exception e) {
-			logger.error("Error sending POST request to URL: " + url, e);
-			return null;
-		}
-	}
-	
-    public static String getAuthTokenFromKeyCloak(String clientId, String clientSecret) {
-        Map<String, String> params = new HashMap<>();
-        params.put(CLIENT_ID, clientId);
-        params.put(CLIENT_SECRET, clientSecret);
-        params.put(GRANT_TYPE_KEY, GRANT_TYPE);
-
-        Response response = sendPostRequest(TOKEN_URL, params);
-
-        if (response == null) {
-            return "";
-        }
-        logger.info(response.getBody().asString());
-
-        JSONObject responseJson = new JSONObject(response.getBody().asString());
-        return responseJson.optString(ACCESS_TOKEN, "");
-    }
-    
-    public static String getAuthTokenByRole(String role) {
-        if (role == null) return "";
-
-        String roleLowerCase = role.toLowerCase();
-        switch (roleLowerCase) {
-            case "partner":
-                if (!AdminTestUtil.isValidToken(partnerCookie)) {
-                    partnerCookie = getAuthTokenFromKeyCloak(EsignetConfigManager.getPmsClientId(), EsignetConfigManager.getPmsClientSecret());
-                }
-                return partnerCookie;
-            case "mobileauth":
-                if (!AdminTestUtil.isValidToken(mobileAuthCookie)) {
-                    mobileAuthCookie = getAuthTokenFromKeyCloak(EsignetConfigManager.getMPartnerMobileClientId(), EsignetConfigManager.getMPartnerMobileClientSecret());
-                }
-                return mobileAuthCookie;
-            default:
-                return "";
-        }
-    }
 
 	public static Response postRequestWithCookieAndAuthHeader(String url, String jsonInput, String cookieName, String role,
 			String testCaseName) {
 		Response response = null;
-		token = getAuthTokenByRole(role);
+		token = kernelAuthLib.getAuthTokenByRole(role);
 		String apiKey = null;
 		String partnerId = null;
 		JSONObject req = new JSONObject(jsonInput);
@@ -2320,7 +2264,7 @@ public class EsignetUtil extends AdminTestUtil {
 		} else if (testCaseName.contains("NOAUTH")) {
 			token = "";
 		} else {
-			token = getAuthTokenByRole(role);
+			token = kernelAuthLib.getAuthTokenByRole(role);
 		}
 		logger.info(GlobalConstants.POST_REQ_URL + url);
 		GlobalMethods.reportRequest(null, jsonInput, url);
@@ -2356,7 +2300,7 @@ public class EsignetUtil extends AdminTestUtil {
 		if (testCaseName.contains("Invalid_Token")) {
 			token = "xyz";
 		} else {
-			token = getAuthTokenByRole(role);
+			token = kernelAuthLib.getAuthTokenByRole(role);
 		}
 		logger.info(GlobalConstants.PUT_REQ_STRING + url);
 		GlobalMethods.reportRequest(null, req.toString(), url);
@@ -2378,7 +2322,7 @@ public class EsignetUtil extends AdminTestUtil {
 		token = "";
 		if (EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase()
 				.contains("mockauthenticationservice") == true) {
-			token = getAuthTokenByRole(role);
+			token = kernelAuthLib.getAuthTokenByRole(role);
 		}else {
 			token = kernelAuthLib.getTokenByRole(role);
 		}
@@ -2645,89 +2589,29 @@ public class EsignetUtil extends AdminTestUtil {
 		return response;
 	}
 	
-	
-	
-	protected Response patchWithPathParamsBodyHeaderWithBearerToken(String url, String jsonInput, String cookieName, String role,
-			String testCaseName, String pathParams) throws SecurityXSSException {
-		Response response = null;
-		String inputJson = inputJsonKeyWordHandeler(jsonInput, testCaseName);
-		JSONObject req = new JSONObject(inputJson);
-		HashMap<String, String> pathParamsMap = new HashMap<>();
-		String[] params = pathParams.split(",");
-		for (String param : params) {
-			if (req.has(param)) {
-				pathParamsMap.put(param, req.get(param).toString());
-				req.remove(param);
-			} else
-				logger.error(GlobalConstants.ERROR_STRING_2 + param + GlobalConstants.IN_STRING + inputJson);
+	public static List<String> extractTokensFromResponse(String responseBody) throws AdminTestException {
+
+		if (responseBody == null || responseBody.isEmpty()) {
+			throw new AdminTestException("Response body is empty");
 		}
 
-		token = getAuthTokenByRole(role);
+		JSONObject jsonResponse = new JSONObject(responseBody);
 
-		logger.info(GlobalConstants.PUT_REQ_STRING + url);
-		GlobalMethods.reportRequest(null, req.toString(), url);
-		try {
-			response = RestClient.patchWithPathParamsBodyHeaderWithBearerToken(url, pathParamsMap, req.toString(),
-					MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, cookieName, token);
-            // check if X-XSS-Protection is enabled or not
-			GlobalMethods.checkXSSProtectionHeader(response, url);
-			GlobalMethods.reportResponse(response.getHeaders().asList().toString(), url, response);
-			return response;
-		} catch (SecurityXSSException se) {
-			String responseHeadersString = (response == null) ? "No response"
-					: response.getHeaders().asList().toString();
-			String errorMessageString = "XSS check failed for URL: " + url + "\nHeaders: " + responseHeadersString
-					+ "\nError: " + se.getMessage();
-			logger.error(errorMessageString, se);
-			throw se;
-		} catch (Exception e) {
-			logger.error(GlobalConstants.EXCEPTION_STRING_2 + e);
-			return response;
+		List<String> tokens = new ArrayList<>();
+
+		if (jsonResponse.has("id_token")) {
+			tokens.add(jsonResponse.getString("id_token"));
 		}
+
+		if (jsonResponse.has("access_token")) {
+			tokens.add(jsonResponse.getString("access_token"));
+		}
+
+		if (tokens.isEmpty()) {
+			throw new AdminTestException("No token found in response");
+		}
+
+		return tokens;
 	}
 	
-	public static String decodeBase64Url(String value) {
-		try {
-			byte[] decodedBytes = Base64.getUrlDecoder().decode(value);
-			return new String(decodedBytes, StandardCharsets.UTF_8);
-		} catch (Exception e) {
-			logger.error("Error decoding Base64Url: " + value, e);
-			return null;
-		}
-	}
-
-
-	public static String decodeAndCombineJwt(String jwtString) {
-		try {
-
-			if (jwtString == null || jwtString.isEmpty()) {
-				logger.error("JWT string is empty");
-				return null;
-			}
-
-			DecodedJWT jwt = JWT.decode(jwtString);
-
-			String headerJson = decodeBase64Url(jwt.getHeader());
-			String payloadJson = decodeBase64Url(jwt.getPayload());
-
-			if (headerJson == null || payloadJson == null) {
-				logger.error("Failed to decode JWT parts");
-				return null;
-			}
-
-			ObjectMapper mapper = new ObjectMapper();
-			ObjectNode combinedJson = mapper.createObjectNode();
-
-			combinedJson.set("header", mapper.readTree(headerJson));
-			combinedJson.set("payload", mapper.readTree(payloadJson));
-
-			return mapper.writeValueAsString(combinedJson);
-
-		} catch (Exception e) {
-			logger.error("Error decoding JWT: " + e.getMessage(), e);
-			return null;
-		}
-	}
-
-    
 }

@@ -201,15 +201,15 @@ public class GetWithParam extends EsignetUtil implements ITest {
 					throw new AdminTestException("Response body is empty");
 				}
 
-				String finalJsonString = EsignetUtil.decodeAndCombineJwt(responseBody);
+				String finalJsonString = AdminTestUtil.decodeAndCombineJwt(responseBody);
 
 				if (finalJsonString == null) {
 					throw new AdminTestException("Failed to decode JWS response");
 				}
 
 				DecodedJWT jwt = JWT.decode(responseBody);
-				String headerJson = EsignetUtil.decodeBase64Url(jwt.getHeader());
-				String payloadJson = EsignetUtil.decodeBase64Url(jwt.getPayload());
+				String headerJson = AdminTestUtil.decodeBase64Url(jwt.getHeader());
+				String payloadJson = AdminTestUtil.decodeBase64Url(jwt.getPayload());
 
 				GlobalMethods.reportResponse(headerJson, null, payloadJson, true);
 

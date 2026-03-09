@@ -4,7 +4,8 @@ RequestAPIKeyForAuthPartner:
       uniqueIdentifier: Dependent_Idrepo_RequestAPIKeyForAuthPartner_01
       description: Submit partner Api Key request rejection all valid details
       role: partner
-      restMethod: post 
+      restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01,Dependent_Idrepo_createPublishPolicy_01
       inputTemplate: esignet/PmsIntegration/RequestAPIKey/requestApiKey
       outputTemplate: esignet/PmsIntegration/RequestAPIKey/requestAPIKeyResult
       input: '{
@@ -21,7 +22,8 @@ RequestAPIKeyForAuthPartner:
       uniqueIdentifier: Dependent_Idrepo_RequestAPIKeyForAuthPartner_02
       description: Submit partner Api Key request rejection Misp valid details
       role: partner
-      restMethod: post 
+      restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_02,Dependent_Idrepo_createPublishPolicy_02
       inputTemplate: esignet/PmsIntegration/RequestAPIKey/requestApiKey
       outputTemplate: esignet/PmsIntegration/RequestAPIKey/requestAPIKeyResult
       input: '{
@@ -38,7 +40,8 @@ RequestAPIKeyForAuthPartner:
       uniqueIdentifier: Dependent_Idrepo_RequestAPIKeyForAuthPartner_03
       description: Submit partner Api Key request Kyc rejection all valid details
       role: partner
-      restMethod: post 
+      restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_03,Dependent_Idrepo_createPublishPolicy_03
       inputTemplate: esignet/PmsIntegration/RequestAPIKey/requestApiKey
       outputTemplate: esignet/PmsIntegration/RequestAPIKey/requestAPIKeyResult
       input: '{
@@ -55,7 +58,8 @@ RequestAPIKeyForAuthPartner:
       uniqueIdentifier: Dependent_Idrepo_RequestAPIKeyForAuthPartner_04
       description: Submit partner Api Key request rejection NonAuth all valid details
       role: partner
-      restMethod: post 
+      restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_04,Dependent_Idrepo_createPublishPolicy_04
       inputTemplate: esignet/PmsIntegration/RequestAPIKey/requestApiKey
       outputTemplate: esignet/PmsIntegration/RequestAPIKey/requestAPIKeyResult
       input: '{
@@ -72,7 +76,8 @@ RequestAPIKeyForAuthPartner:
       uniqueIdentifier: Dependent_Idrepo_RequestAPIKeyForAuthPartner_05
       description: Submit partner Api Key request rejection Misp false valid details
       role: partner
-      restMethod: post 
+      restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_05,Dependent_Idrepo_createPublishPolicy_05
       inputTemplate: esignet/PmsIntegration/RequestAPIKey/requestApiKey
       outputTemplate: esignet/PmsIntegration/RequestAPIKey/requestAPIKeyResult
       input: '{
@@ -89,7 +94,8 @@ RequestAPIKeyForAuthPartner:
       uniqueIdentifier: Dependent_Idrepo_RequestAPIKeyForAuthPartner_06
       description: Submit partner Api Key request rejection Auth false valid details
       role: partner
-      restMethod: post 
+      restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_06,Dependent_Idrepo_createPublishPolicy_06
       inputTemplate: esignet/PmsIntegration/RequestAPIKey/requestApiKey
       outputTemplate: esignet/PmsIntegration/RequestAPIKey/requestAPIKeyResult
       input: '{

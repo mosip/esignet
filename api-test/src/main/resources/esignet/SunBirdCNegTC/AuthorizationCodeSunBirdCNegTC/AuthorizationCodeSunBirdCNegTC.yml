@@ -7,6 +7,7 @@ AuthorizationCodeSunBirdCNegTC:
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_AuthenticateUserSunBirdCNegTC_34
       inputTemplate: esignet/SunBirdCNegTC/AuthorizationCodeSunBirdCNegTC/AuthorizationCodeSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/AuthorizationCodeSunBirdCNegTC/AuthorizationCodeSunBirdCNegTCResult
       input: '{
@@ -26,6 +27,7 @@ AuthorizationCodeSunBirdCNegTC:
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_AuthenticateUserSunBirdCNegTC_35
       inputTemplate: esignet/SunBirdCNegTC/AuthorizationCodeSunBirdCNegTC/AuthorizationCodeSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/AuthorizationCodeSunBirdCNegTC/AuthorizationCodeSunBirdCNegTCResult
       input: '{
@@ -45,6 +47,7 @@ AuthorizationCodeSunBirdCNegTC:
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_AuthenticateUserSunBirdCNegTC_36
       inputTemplate: esignet/SunBirdCNegTC/AuthorizationCodeSunBirdCNegTC/AuthorizationCodeSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/AuthorizationCodeSunBirdCNegTC/AuthorizationCodeSunBirdCNegTCResult
       input: '{
@@ -64,6 +67,7 @@ AuthorizationCodeSunBirdCNegTC:
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_AuthenticateUserSunBirdCNegTC_37
       inputTemplate: esignet/SunBirdCNegTC/AuthorizationCodeSunBirdCNegTC/AuthorizationCodeSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/AuthorizationCodeSunBirdCNegTC/AuthorizationCodeSunBirdCNegTCResult
       input: '{
@@ -83,6 +87,7 @@ AuthorizationCodeSunBirdCNegTC:
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_AuthenticateUserSunBirdCNegTC_38
       inputTemplate: esignet/SunBirdCNegTC/AuthorizationCodeSunBirdCNegTC/AuthorizationCodeSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
@@ -107,6 +112,7 @@ AuthorizationCodeSunBirdCNegTC:
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_AuthenticateUserSunBirdCNegTC_39
       inputTemplate: esignet/SunBirdCNegTC/AuthorizationCodeSunBirdCNegTC/AuthorizationCodeSunBirdCNegTC
       outputTemplate: esignet/error
       input: '{
@@ -131,6 +137,7 @@ AuthorizationCodeSunBirdCNegTC:
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_AuthenticateUserSunBirdCNegTC_40
       inputTemplate: esignet/SunBirdCNegTC/AuthorizationCodeSunBirdCNegTC/AuthorizationCodeSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/AuthorizationCodeSunBirdCNegTC/AuthorizationCodeSunBirdCNegTCResult
       input: '{
@@ -150,6 +157,7 @@ AuthorizationCodeSunBirdCNegTC:
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_AuthenticateUserSunBirdCNegTC_41 
       inputTemplate: esignet/SunBirdCNegTC/AuthorizationCodeSunBirdCNegTC/AuthorizationCodeSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/AuthorizationCodeSunBirdCNegTC/AuthorizationCodeSunBirdCNegTCResult
       input: '{
@@ -169,6 +177,7 @@ AuthorizationCodeSunBirdCNegTC:
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_AuthenticateUserSunBirdCNegTC_05
       inputTemplate: esignet/SunBirdCNegTC/AuthorizationCodeSunBirdCNegTC/AuthorizationCodeSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/AuthorizationCodeSunBirdCNegTC/AuthorizationCodeSunBirdCNegTCResult
       input: '{

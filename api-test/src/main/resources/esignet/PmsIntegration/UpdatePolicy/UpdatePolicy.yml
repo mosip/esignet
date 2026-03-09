@@ -5,6 +5,7 @@ UpdatePolicy:
       description: Update policy after published
       role: partner
       restMethod: put
+      additionalDependencies: Dependent_Idrepo_createPublishPolicy_01
       inputTemplate: esignet/PmsIntegration/UpdatePolicy/UpdatePolicy
       outputTemplate: esignet/error
       input: '{

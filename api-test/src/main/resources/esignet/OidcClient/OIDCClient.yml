@@ -5,6 +5,7 @@ CreateOIDCClient:
       description: Create OIDC client with all valid details
       role: partner
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
       inputTemplate: esignet/OidcClient/OIDCClient
       outputTemplate: esignet/OidcClient/OIDCClientResult
       input: '{
@@ -27,6 +28,7 @@ CreateOIDCClient:
       description: Create OIDC client NonAuth all valid details
       role: partner
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_04, Dependent_Idrepo_createPublishPolicy_04, Dependent_Idrepo_RequestAPIKeyForAuthPartner_04, Dependent_Idrepo_ApproveAPIKey_04
       inputTemplate: esignet/OidcClient/OIDCClient
       outputTemplate: esignet/OidcClient/OIDCClientResult
       input: '{
@@ -49,6 +51,7 @@ CreateOIDCClient:
       description: Create OIDC client Misp valid details
       role: partner
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_03, Dependent_Idrepo_GenerateApiKey_02, Dependent_Idrepo_RequestAPIKeyForAuthPartner_03,Dependent_Idrepo_ApproveAPIKey_03
       inputTemplate: esignet/OidcClient/OIDCClient
       outputTemplate: esignet/OidcClient/OIDCClientResult
       input: '{
@@ -71,6 +74,7 @@ CreateOIDCClient:
       description: Create OIDC client Auth false valid details
       role: partner
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_06, Dependent_Idrepo_RequestAPIKeyForAuthPartner_06,Dependent_Idrepo_ApproveAPIKey_06
       inputTemplate: esignet/OidcClient/OIDCClient
       outputTemplate: esignet/OidcClient/OIDCClientResult
       input: '{
@@ -93,6 +97,7 @@ CreateOIDCClient:
       description: Create OIDC client Auth S2 valid details
       role: partner
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_08
       inputTemplate: esignet/OidcClient/OIDCClient
       outputTemplate: esignet/error
       input: '{
@@ -120,6 +125,7 @@ CreateOIDCClient:
       description: Create OIDC client with invalid logoUri
       role: partner
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
       inputTemplate: esignet/OidcClient/OIDCClient
       outputTemplate: esignet/error
       input: '{
@@ -173,6 +179,7 @@ CreateOIDCClient:
       description: Create OIDC client with null oidc
       role: partner
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
       inputTemplate: esignet/OidcClient/OIDCClient
       outputTemplate: esignet/error
       input: '{
@@ -200,6 +207,7 @@ CreateOIDCClient:
       description: Create OIDC client with null policy
       role: partner
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
       inputTemplate: esignet/OidcClient/OIDCClient
       outputTemplate: esignet/error
       input: '{
@@ -227,6 +235,7 @@ CreateOIDCClient:
       description: Create OIDC client with invalid policy
       role: partner
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
       inputTemplate: esignet/OidcClient/OIDCClient
       outputTemplate: esignet/error
       input: '{
@@ -307,6 +316,7 @@ CreateOIDCClient:
       description: Create OIDC client with maximum character in logouri
       role: partner
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
       inputTemplate: esignet/OidcClient/OIDCClient
       outputTemplate: esignet/error
       input: '{
@@ -333,6 +343,7 @@ CreateOIDCClient:
       description: Create OIDC client without redirecturi
       role: partner
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
       inputTemplate: esignet/OidcClient/OIDCClient
       outputTemplate: esignet/error
       input: '{
@@ -357,6 +368,7 @@ CreateOIDCClient:
       description: Create OIDC client with invalid clientAuthMethods
       role: partner
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
       inputTemplate: esignet/OidcClient/OIDCClient
       outputTemplate: esignet/error
       input: '{
@@ -382,6 +394,7 @@ CreateOIDCClient:
       description: Create OIDC client with empty grantTypes
       role: partner
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
       inputTemplate: esignet/OidcClient/OIDCClient
       outputTemplate: esignet/error
       input: '{
@@ -407,6 +420,7 @@ CreateOIDCClient:
       description: Create OIDC client with null grantTypes
       role: partner
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
       inputTemplate: esignet/OidcClient/OIDCClient
       outputTemplate: esignet/error
       input: '{
@@ -432,6 +446,7 @@ CreateOIDCClient:
       description: Create OIDC client with invalid grantTypes
       role: partner
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
       inputTemplate: esignet/OidcClient/OIDCClient
       outputTemplate: esignet/error
       input: '{
@@ -457,6 +472,7 @@ CreateOIDCClient:
       description: Create OIDC client with same publicKey
       role: partner
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
       allowedErrorCodes: PMS_IDP_001,PMS_ESI_001
       inputTemplate: esignet/OidcClient/OIDCClient
       outputTemplate: esignet/error
@@ -509,6 +525,7 @@ CreateOIDCClient:
       description: Create OIDC client with all valid details for userinfo
       role: partner
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
       inputTemplate: esignet/OidcClient/OIDCClient
       outputTemplate: esignet/OidcClient/OIDCClientResult
       input: '{
@@ -530,6 +547,7 @@ CreateOIDCClient:
       description: Create OIDC client with all valid details for userinfo
       role: partner
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
       inputTemplate: esignet/OidcClient/OIDCClient
       outputTemplate: esignet/OidcClient/OIDCClientResult
       input: '{
@@ -551,6 +569,7 @@ CreateOIDCClient:
       description: Create OIDC client with all valid details for userinfo
       role: partner
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
       inputTemplate: esignet/OidcClient/OIDCClient
       outputTemplate: esignet/OidcClient/OIDCClientResult
       input: '{
@@ -572,6 +591,7 @@ CreateOIDCClient:
       description: Create OIDC client with all valid details for MOSIP ID PAR flow
       role: partner
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
       inputTemplate: esignet/OidcClient/OIDCClientPAR
       outputTemplate: esignet/OidcClient/OIDCClientResult
       input: '{
@@ -594,6 +614,7 @@ CreateOIDCClient:
       description: Create OIDC client with all valid details for MOSIP ID DPOP flow
       role: partner
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
       inputTemplate: esignet/OidcClient/OIDCClientDPOP
       outputTemplate: esignet/OidcClient/OIDCClientResult
       input: '{
@@ -616,6 +637,7 @@ CreateOIDCClient:
       description: Create OIDC client with all valid details for verified claims
       role: partner
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
       inputTemplate: esignet/OidcClient/OIDCClient
       outputTemplate: esignet/OidcClient/OIDCClientResult
       input: '{
@@ -637,6 +659,7 @@ CreateOIDCClient:
       description: Create OIDC client with all valid details for without verified claims
       role: partner
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
       inputTemplate: esignet/OidcClient/OIDCClient
       outputTemplate: esignet/OidcClient/OIDCClientResult
       input: '{
@@ -658,6 +681,7 @@ CreateOIDCClient:
       description: Create OIDC client with all valid details for different scope language claims
       role: partner
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
       inputTemplate: esignet/OidcClient/OIDCClient
       outputTemplate: esignet/OidcClient/OIDCClientResult
       input: '{

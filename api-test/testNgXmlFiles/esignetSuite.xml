@@ -582,9 +582,9 @@
 				name="io.mosip.testrig.apirig.esignet.testscripts.PutWithPathParamsAndBody" />
 		</classes>
 	</test>
-	<test name="PatchOIDCClientV3MOCK">
+	<test name="PartialUpdateOIDCClient">
 		<parameter name="ymlFile"
-			value="esignet/PatchOIDCClient/PatchOIDCClient.yml" />
+			value="esignet/PartialUpdateOIDCClient/PartialUpdateOIDCClient.yml" />
 		<parameter name="pathParams" value="clientId" />
 		<classes>
 			<class

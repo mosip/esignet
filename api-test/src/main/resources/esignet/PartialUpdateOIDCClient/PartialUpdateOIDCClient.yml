@@ -1,12 +1,12 @@
-PatchOIDCClient:
-  ESignet_PatchOIDCClient_MOCK_all_Valid_forUserInfoJWE_Smoke_sid:
+PartialUpdateOIDCClient:
+  ESignet_PartialUpdateOIDCClient_MOCK_all_Valid_forUserInfoJWE_Smoke_sid:
     endPoint: /v1/esignet/client-mgmt/client/{clientId}
     uniqueIdentifier: TC_ESignet_PatchOIDCClient_01
-    description: Update existing OIDC client with Patch endpoint for valid encryption JWK to enable JWE based UserInfo responses
+    description: Partial Update OIDCClient with Patch endpoint for valid encryption JWK to enable JWE based UserInfo responses
     role: partner
     restMethod: patch
-    inputTemplate: esignet/PatchOIDCClient/PatchOIDCClient
-    outputTemplate: esignet/PatchOIDCClient/PatchOIDCClientResult
+    inputTemplate: esignet/PartialUpdateOIDCClient/PartialUpdateOIDCClient
+    outputTemplate: esignet/PartialUpdateOIDCClient/PartialUpdateOIDCClientResult
     input: '{
       "requestTime": "$TIMESTAMP$",
       "clientId": "$ID:CreateOIDCClientV3_MOCK_all_Valid_forUserInfoJWE_Smoke_sid_clientId$",
@@ -15,14 +15,14 @@ PatchOIDCClient:
     output: '{
       "status": "ACTIVE"
 }'
-  ESignet_PatchOIDCClient_MOCK_all_Valid_forUserInfoUpdateJWE_Smoke_sid:
+  ESignet_PartialUpdateOIDCClient_MOCK_all_Valid_forUserInfoUpdateJWE_Smoke_sid:
     endPoint: /v1/esignet/client-mgmt/client/{clientId}
     uniqueIdentifier: TC_ESignet_PatchOIDCClient_02
-    description: Update OIDC client encryption public key for updated JWE UserInfo support in V3 MOCK flow
+    description: Partial Update OIDCClient with encryption public key for updated JWE UserInfo support in V3 MOCK flow
     role: partner
     restMethod: patch
-    inputTemplate: esignet/PatchOIDCClient/PatchOIDCClient
-    outputTemplate: esignet/PatchOIDCClient/PatchOIDCClientResult
+    inputTemplate: esignet/PartialUpdateOIDCClient/PartialUpdateOIDCClient
+    outputTemplate: esignet/PartialUpdateOIDCClient/PartialUpdateOIDCClientResult
     input: '{
       "requestTime": "$TIMESTAMP$",
       "clientId": "$ID:CreateOIDCClientV3_MOCK_all_Valid_forUserInfoToUpdateClient_Smoke_sid_clientId$",

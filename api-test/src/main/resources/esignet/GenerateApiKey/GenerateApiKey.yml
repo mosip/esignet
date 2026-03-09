@@ -6,6 +6,7 @@ GenerateApiKey:
       role: esignetpartner
       checkErrorsOnlyInResponse: true
       restMethod: patch
+      additionalDependencies: Dependent_Idrepo_RequestAPIKeyForAuthPartner_01
       inputTemplate: esignet/GenerateApiKey/GenerateApiKey
       outputTemplate: esignet/GenerateApiKey/GenerateApiKeyResult
       input: '{
@@ -23,6 +24,7 @@ GenerateApiKey:
       role: esignetpartnerkyc
       checkErrorsOnlyInResponse: true
       restMethod: patch
+      additionalDependencies: Dependent_Idrepo_RequestAPIKeyForAuthPartner_03
       inputTemplate: esignet/GenerateApiKey/GenerateApiKey
       outputTemplate: esignet/GenerateApiKey/GenerateApiKeyResult
       input: '{
