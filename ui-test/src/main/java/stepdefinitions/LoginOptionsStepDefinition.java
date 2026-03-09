@@ -61,6 +61,7 @@ public class LoginOptionsStepDefinition {
 	@Then("verify more ways to signIn option is available")
 	public void verifyMoreWaysToSignInOption() {
 		List<String> authFactors = ClaimsUtil.getAuthFactors();
+		Assert.assertFalse("No auth factors were parsed from the authorize URL", authFactors.isEmpty());
 		boolean isMoreOptionsDisplayed = loginOptionsPage.isMoreWaysToSignInOptionDisplayed();
 
 		if (authFactors.size() > 4) {

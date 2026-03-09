@@ -70,7 +70,7 @@ public class SignupFormDynamicFiller {
 			}
 
 			if ("checkbox".equalsIgnoreCase(controlType)) {
-				if (!element.isSelected()) {
+				if (element.isDisplayed() && element.isEnabled() && !element.isSelected()) {
 					((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center'});",
 							element);
 					((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);

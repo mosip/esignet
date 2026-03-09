@@ -75,9 +75,6 @@ public class ConsentPage extends BasePage {
 	@FindBy(xpath = "//div[@class='h-screen']")
 	WebElement rootContainer;
 
-	@FindBy(xpath = "//div[@class='divide-y']/ul")
-	List<WebElement> voluntaryClaimItems;
-
 	@FindBy(xpath = "//label[@for='voluntary_claims']")
 	WebElement voluntaryClaimsMasterToggle;
 
@@ -206,7 +203,7 @@ public class ConsentPage extends BasePage {
 	}
 
 	public boolean isVoluntaryClaimsMasterToggleVisible() {
-		return voluntaryClaimItems.size() > 1 && isElementVisible(voluntaryClaimsMasterToggle);
+		return voluntaryClaimsElements.size() > 1 && isElementVisible(voluntaryClaimsMasterToggle);
 	}
 
 	public WebElement getVoluntaryClaimsMasterToggle() {
