@@ -25,7 +25,7 @@ public class ConsentPage extends BasePage {
 	}
 
 	@FindBy(id = "login_with_otp")
-	WebElement loginWithOtpBtn;
+	WebElement loginWithOtpButton;
 
 	@FindBy(id = "language_selection")
 	WebElement languageSelection;
@@ -40,7 +40,7 @@ public class ConsentPage extends BasePage {
 	List<WebElement> otpInputFields;
 
 	@FindBy(id = "verify_otp")
-	WebElement verifyOtpBtn;
+	WebElement verifyOtpButton;
 
 	@FindBy(id = "navbar-header")
 	WebElement proceedToAttentionScreen;
@@ -55,7 +55,7 @@ public class ConsentPage extends BasePage {
 	WebElement eKycServiceProvider;
 
 	@FindBy(id = "proceed-preview-button")
-	WebElement proceedBtnInServiceProviderPage;
+	WebElement proceedButtonInServiceProviderPage;
 
 	@FindBy(id = "consent-button")
 	WebElement termsAndConditionCheckBox;
@@ -115,7 +115,7 @@ public class ConsentPage extends BasePage {
 	WebElement profileDropdown;
 
 	public void clickOnLoginWithOtp() {
-		clickOnElement(loginWithOtpBtn);
+		clickOnElement(loginWithOtpButton);
 	}
 
 	public void enterRegisteredMobileNumber(String number) {
@@ -149,7 +149,7 @@ public class ConsentPage extends BasePage {
 	}
 
 	public void clickOnVerifyButton() {
-		clickOnElement(verifyOtpBtn);
+		clickOnElement(verifyOtpButton);
 	}
 
 	public boolean isOnAttentionScreen() {
@@ -169,7 +169,7 @@ public class ConsentPage extends BasePage {
 	}
 
 	public void clickOnProceedButtonInServiceProviderPage() {
-		clickOnElement(proceedBtnInServiceProviderPage);
+		clickOnElement(proceedButtonInServiceProviderPage);
 	}
 
 	public void checkTermsAndCondition() {
