@@ -183,24 +183,31 @@ public class ValidatorTest {
     }
 
     @Test
-    public void test_PromptValidator_invalidWithSpace_thenFail() {
+    public void test_PromptValidator_WithSpace_thenFail() {
         OIDCPromptValidator validator = new OIDCPromptValidator();
         ReflectionTestUtils.setField(validator, "supportedPrompts", Arrays.asList("consent"));
         Assertions.assertFalse(validator.isValid(" login ", null));
     }
 
     @Test
-    public void test_PromptValidator_none_thenFail() {
+    public void test_PromptValidator_Withnone_thenFail() {
         OIDCPromptValidator validator = new OIDCPromptValidator();
         ReflectionTestUtils.setField(validator, "supportedPrompts", Arrays.asList("consent"));
         Assertions.assertFalse(validator.isValid("none", null));
     }
 
     @Test
-    public void test_PromptValidator_login_thenFail() {
+    public void test_PromptValidator_Withlogin_thenFail() {
         OIDCPromptValidator validator = new OIDCPromptValidator();
         ReflectionTestUtils.setField(validator, "supportedPrompts", Arrays.asList("consent"));
         Assertions.assertFalse(validator.isValid("login", null));
+    }
+
+    @Test
+    public void test_PromptValidator_withSelectAccount_thenPass() {
+        OIDCPromptValidator validator = new OIDCPromptValidator();
+        ReflectionTestUtils.setField(validator, "supportedPrompts", Arrays.asList("consent"));
+        Assertions.assertTrue(validator.isValid("select_account", null));
     }
 
     @Test
