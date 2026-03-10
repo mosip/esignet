@@ -229,12 +229,7 @@ public class ConsentPage extends BasePage {
 	}
 
 	public String getVoluntaryClaimsTooltipText() {
-		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-		WebElement icon = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("voluntary_claims_tooltip")));
-		new Actions(driver).moveToElement(icon).perform();
-		WebElement tooltip = wait.until(
-				ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[contains(@class,'react-tooltip')]")));
-		return tooltip.getText();
+		return getTooltipText(By.id("voluntary_claims_tooltip"), By.xpath("//div[contains(@class,'react-tooltip')]"));
 	}
 
 	public void toggleVoluntaryClaim(String claimName, boolean enable) {

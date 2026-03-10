@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Objects;
 
 import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoAlertPresentException;
@@ -254,6 +255,16 @@ public class BasePage {
 		} catch (Exception e) {
 			return false;
 		}
+	}
+	
+	public String getTooltipText(By iconLocator, By tooltipLocator) {
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+
+		WebElement icon = wait.until(ExpectedConditions.visibilityOfElementLocated(iconLocator));
+		new Actions(driver).moveToElement(icon).perform();
+
+		WebElement tooltip = wait.until(ExpectedConditions.visibilityOfElementLocated(tooltipLocator));
+		return tooltip.getText();
 	}
 
 }
