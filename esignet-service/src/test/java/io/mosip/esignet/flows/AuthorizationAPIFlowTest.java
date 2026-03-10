@@ -426,7 +426,7 @@ public class AuthorizationAPIFlowTest {
         oAuthDetailRequest.setClientId(clientId);
         oAuthDetailRequest.setRedirectUri(redirectionUrl);
         oAuthDetailRequest.setAcrValues("level0 mosip:idp:acr:static-code");
-        oAuthDetailRequest.setPrompt("login");
+        oAuthDetailRequest.setPrompt("consent");
         oAuthDetailRequest.setDisplay("popup");
         oAuthDetailRequest.setScope("openid profile");
         oAuthDetailRequest.setResponseType("code");
