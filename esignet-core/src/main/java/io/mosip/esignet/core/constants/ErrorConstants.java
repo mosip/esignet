@@ -85,4 +85,5 @@ public class ErrorConstants {
     public static final String INVALID_DPOP_PROOF = "invalid_dpop_proof";
     public static final String USE_DPOP_NONCE = "use_dpop_nonce";
     public static final String USE_PKCE = "use_pkce";
+    public static final String LOGIN_REQUIRED = "login_required";
 }

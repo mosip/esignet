@@ -66,4 +66,5 @@ public class Constants {
     public static final String REQUIRE_PAR= "require_pushed_authorization_requests";
     public static final String REQUIRE_PKCE= "require_pkce";
     public static final String NONE= "none";
+    public static final String LOGIN = "login";
 }

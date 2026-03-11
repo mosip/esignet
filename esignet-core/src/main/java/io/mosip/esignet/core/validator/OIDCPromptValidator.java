@@ -5,9 +5,9 @@
  */
 package io.mosip.esignet.core.validator;
 
+import io.mosip.esignet.core.constants.Constants;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.List;
@@ -20,9 +20,19 @@ public class OIDCPromptValidator implements ConstraintValidator<OIDCPrompt, Stri
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
-        if(value == null)
+        if (value == null || value.trim().isEmpty())
             return true; // As this is OPTIONAL parameter
 
-        return supportedPrompts.contains(value);
+        // Split by space and trim each token
+        String[] promptTokens = value.trim().split("\\s+");
+
+        // reject if any token is none/login
+        for (String token : promptTokens) {
+            if (Constants.NONE.equals(token) || Constants.LOGIN.equals(token)) {
+                return false; // → login_required
+            }
+        }
+
+        return true;
     }
 }
