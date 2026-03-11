@@ -6,7 +6,7 @@ OAuthDetailsRequestLinked:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
-      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01
+      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01, TC_ESignet_CreateOIDCClient_MOSIPID_01
       inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequest
       outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
       input: '{
@@ -33,7 +33,7 @@ OAuthDetailsRequestLinked:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
-      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01
+      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01, TC_ESignet_CreateOIDCClient_MOSIPID_01
       inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequest
       outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
       input: '{
@@ -112,7 +112,7 @@ OAuthDetailsRequestLinked:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
-      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01
+      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01, TC_ESignet_CreateOIDCClient_MOSIPID_01
       inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequest
       outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
       input: '{
@@ -139,7 +139,7 @@ OAuthDetailsRequestLinked:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
-      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01
+      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01, TC_ESignet_CreateOIDCClient_MOSIPID_01
       inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequest
       outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
       input: '{
@@ -166,7 +166,7 @@ OAuthDetailsRequestLinked:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
-      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01
+      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01, TC_ESignet_CreateOIDCClient_MOSIPID_01
       inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequest
       outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
       input: '{
@@ -193,7 +193,7 @@ OAuthDetailsRequestLinked:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
-      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01
+      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01, TC_ESignet_CreateOIDCClient_MOSIPID_01
       inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequest
       outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
       input: '{
@@ -220,7 +220,7 @@ OAuthDetailsRequestLinked:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
-      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01
+      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01, TC_ESignet_CreateOIDCClient_MOSIPID_01
       inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequest
       outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
       input: '{
@@ -247,7 +247,7 @@ OAuthDetailsRequestLinked:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
-      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01
+      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01, TC_ESignet_CreateOIDCClient_MOSIPID_01
       inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequest
       outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
       input: '{
@@ -274,7 +274,7 @@ OAuthDetailsRequestLinked:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
-      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01
+      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01, TC_ESignet_CreateOIDCClient_MOSIPID_01
       inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequest
       outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
       input: '{
@@ -301,7 +301,7 @@ OAuthDetailsRequestLinked:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
-      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01
+      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01, TC_ESignet_CreateOIDCClient_MOSIPID_01
       inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequest
       outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
       input: '{
@@ -328,7 +328,7 @@ OAuthDetailsRequestLinked:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
-      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01
+      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01, TC_ESignet_CreateOIDCClient_MOSIPID_01
       inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestOptionalClaim
       outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
       input: '{
@@ -355,7 +355,7 @@ OAuthDetailsRequestLinked:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
-      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01
+      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01, TC_ESignet_CreateOIDCClient_MOSIPID_01
       inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestOptionalClaim
       outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
       input: '{
