@@ -1,4 +1,3 @@
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { IMAGES } from '../constants/publicAssets';
 import { useLocation } from 'react-router';

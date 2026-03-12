@@ -42,14 +42,19 @@ const root = createRoot(container);
 const applicationId = new URL(window.location.href).searchParams.get(
   'applicationId'
 );
+
 root.render(
   <StrictMode>
-    <AsgardeoProvider
-      baseUrl="https://localhost:8090"
-      platform="AsgardeoV2"
-      applicationId={applicationId}
-    >
+    {applicationId ? (
+      <AsgardeoProvider
+        baseUrl="https://localhost:8090"
+        platform="AsgardeoV2"
+        applicationId={applicationId}
+      >
+        <App />
+      </AsgardeoProvider>
+    ) : (
       <App />
-    </AsgardeoProvider>
+    )}
   </StrictMode>
 );
