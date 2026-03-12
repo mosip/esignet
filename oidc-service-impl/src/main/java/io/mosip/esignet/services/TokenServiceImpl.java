@@ -192,8 +192,8 @@ public class TokenServiceImpl implements TokenService {
             }
         } catch (Exception e) {
             log.error("Failed to verify client assertion", e);
-            if (e instanceof EsignetException) {
-                throw (EsignetException) e;
+            if (e instanceof EsignetException esignetException) {
+                throw esignetException;
             }
             throw new EsignetException(ErrorConstants.INVALID_CLIENT);
         }
