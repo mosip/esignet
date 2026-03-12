@@ -90,4 +90,13 @@ public class OAuthDetailRequest {
      * Thumbrint of public key created for this transaction by RP for DPoP support.
      */
     private String dpopJkt;
+
+    /**
+     * Optional
+     */
+    private String request;
+    /**
+     * Optional
+     */
+    private String requestUri;
 }
