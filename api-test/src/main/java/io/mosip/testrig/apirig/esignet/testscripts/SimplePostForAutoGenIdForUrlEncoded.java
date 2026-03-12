@@ -21,6 +21,9 @@ import org.testng.annotations.Test;
 import org.testng.internal.BaseTestMethod;
 import org.testng.internal.TestResult;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
+
 import io.mosip.testrig.apirig.dto.OutputValidationDto;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.esignet.utils.EsignetConfigManager;
@@ -31,6 +34,7 @@ import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
+import io.mosip.testrig.apirig.utils.GlobalMethods;
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;
 import io.mosip.testrig.apirig.utils.ReportUtil;
 import io.mosip.testrig.apirig.utils.SecurityXSSException;
@@ -176,8 +180,40 @@ public class SimplePostForAutoGenIdForUrlEncoded extends EsignetUtil implements 
 						jsonInput, testCaseDTO.getTestCaseName(), idKeyName);
 			}
 
-			Map<String, List<OutputValidationDto>> ouputValid = OutputValidationUtil
-					.doJsonOutputValidation(response.asString(), outputJson, testCaseDTO, response.getStatusCode());
+			String responseBody = response.asString();
+
+			Map<String, List<OutputValidationDto>> ouputValid = null;
+
+			if (testCaseName.contains("_IdTokenJWS_")) {
+
+				List<String> tokens = EsignetUtil.extractTokensFromResponse(responseBody);
+
+				for (String token : tokens) {
+
+					String finalJsonString = AdminTestUtil.decodeAndCombineJwt(token);
+
+					if (finalJsonString == null) {
+						throw new AdminTestException("Failed to decode token");
+					}
+
+					DecodedJWT jwt = JWT.decode(token);
+
+					String headerJson = AdminTestUtil.decodeBase64Url(jwt.getHeader());
+					String payloadJson = AdminTestUtil.decodeBase64Url(jwt.getPayload());
+
+					GlobalMethods.reportResponse(headerJson, null, payloadJson, true);
+
+					ouputValid = OutputValidationUtil.doJsonOutputValidation(finalJsonString, outputJson, testCaseDTO,
+							response.getStatusCode());
+				}
+			}
+
+			else {
+
+				ouputValid = OutputValidationUtil.doJsonOutputValidation(responseBody, outputJson, testCaseDTO,
+						response.getStatusCode());
+			}
+
 			Reporter.log(ReportUtil.getOutputValidationReport(ouputValid));
 			if (!OutputValidationUtil.publishOutputResult(ouputValid))
 				throw new AdminTestException("Failed at output validation");
@@ -192,16 +228,6 @@ public class SimplePostForAutoGenIdForUrlEncoded extends EsignetUtil implements 
 	 */
 	@AfterMethod(alwaysRun = true)
 	public void setResultTestName(ITestResult result) {
-		try {
-			Field method = TestResult.class.getDeclaredField("m_method");
-			method.setAccessible(true);
-			method.set(result, result.getMethod().clone());
-			BaseTestMethod baseTestMethod = (BaseTestMethod) result.getMethod();
-			Field f = baseTestMethod.getClass().getSuperclass().getDeclaredField("m_methodName");
-			f.setAccessible(true);
-			f.set(baseTestMethod, testCaseName);
-		} catch (Exception e) {
-			Reporter.log("Exception : " + e.getMessage());
-		}
+		result.setAttribute("TestCaseName", testCaseName);
 	}
 }

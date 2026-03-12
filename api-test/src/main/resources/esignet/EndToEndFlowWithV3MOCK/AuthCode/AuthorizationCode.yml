@@ -1,12 +1,13 @@
 AuthorizationCode:
    ESignet_AuthorizationCode_MOCK_uin_All_Valid_forUserInfo_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
-      uniqueIdentifier: TC_ESignet_AuthorizationCode_01
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_E2EMock_01
       description: Authorization code request for end to end flow
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_AuthenticateUserV3_E2EMock_01
       inputTemplate: esignet/EndToEndFlowWithV3MOCK/AuthCode/AuthorizationCode
       outputTemplate: esignet/EndToEndFlowWithV3MOCK/AuthCode/AuthorizationCodeResult
       input: '{
@@ -19,12 +20,13 @@ AuthorizationCode:
 }'
    ESignet_AuthorizationCode_MOCK_uin_All_Valid_forUserInfoJWE_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
-      uniqueIdentifier: TC_ESignet_AuthorizationCode_02
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_E2EMock_02
       description: Authorization code request for end to end flow JWE
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_AuthenticateUserV3_E2EMock_02
       inputTemplate: esignet/EndToEndFlowWithV3MOCK/AuthCode/AuthorizationCode
       outputTemplate: esignet/EndToEndFlowWithV3MOCK/AuthCode/AuthorizationCodeResult
       input: '{
@@ -37,12 +39,13 @@ AuthorizationCode:
 }'
    ESignet_AuthorizationCode_MOCK_uin_All_Valid_forUserInfoUpdatedJWE_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
-      uniqueIdentifier: TC_ESignet_AuthorizationCode_03
+      uniqueIdentifier: TC_ESignet_AuthorizationCode_E2EMock_03
       description: Authorization code request for end to end flow JWE
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_AuthenticateUserV3_E2EMock_03
       inputTemplate: esignet/EndToEndFlowWithV3MOCK/AuthCode/AuthorizationCode
       outputTemplate: esignet/EndToEndFlowWithV3MOCK/AuthCode/AuthorizationCodeResult
       input: '{

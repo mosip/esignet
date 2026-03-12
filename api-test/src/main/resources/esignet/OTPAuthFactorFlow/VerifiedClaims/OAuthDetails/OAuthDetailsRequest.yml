@@ -1,7 +1,7 @@
 OAuthDetailsRequestV3VerifiedClaims:
    ESignet_OAuthDetailsRequest_VerifiedClaims_V3_AuthToken_Xsrf_Smoke_sid:
       endPoint: /v1/esignet/authorization/v3/oauth-details
-      uniqueIdentifier: TC_Signup_ESignet_OAuthDetailsRequestV3VerifiedClaims_01
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestV3VerifiedClaims_01
       description: Get OAuth details with claims as with Verified Claims
       role: resident
       restMethod: post

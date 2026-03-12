@@ -6,6 +6,7 @@ uploadPartnerCert:
       role: partner
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadCACert_01,Dependent_Idrepo_uploadCACert_02
       inputTemplate: esignet/PmsIntegration/UploadCert/uploadCert
       outputTemplate: esignet/PmsIntegration/UploadCert/uploadCertResult
       input: '{
@@ -23,6 +24,7 @@ uploadPartnerCert:
       role: partner
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadCACert_03,Dependent_Idrepo_uploadCACert_04
       inputTemplate: esignet/PmsIntegration/UploadCert/uploadCert
       outputTemplate: esignet/PmsIntegration/UploadCert/uploadCertResult
       input: '{
@@ -40,6 +42,7 @@ uploadPartnerCert:
       role: partner
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadCACert_05,Dependent_Idrepo_uploadCACert_06
       inputTemplate: esignet/PmsIntegration/UploadCert/uploadCert
       outputTemplate: esignet/PmsIntegration/UploadCert/uploadCertResult
       input: '{
@@ -57,6 +60,7 @@ uploadPartnerCert:
       role: partner
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadCACert_07,Dependent_Idrepo_uploadCACert_08
       inputTemplate: esignet/PmsIntegration/UploadCert/uploadCert
       outputTemplate: esignet/PmsIntegration/UploadCert/uploadCertResult
       input: '{
@@ -74,6 +78,7 @@ uploadPartnerCert:
       role: partner
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadCACert_09,Dependent_Idrepo_uploadCACert_10
       inputTemplate: esignet/PmsIntegration/UploadCert/uploadCert
       outputTemplate: esignet/PmsIntegration/UploadCert/uploadCertResult
       input: '{
@@ -91,6 +96,7 @@ uploadPartnerCert:
       role: partner
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadCACert_11,Dependent_Idrepo_uploadCACert_12
       inputTemplate: esignet/PmsIntegration/UploadCert/uploadCert
       outputTemplate: esignet/PmsIntegration/UploadCert/uploadCertResult
       input: '{
@@ -108,6 +114,7 @@ uploadPartnerCert:
       role: partner
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadCACert_13,Dependent_Idrepo_uploadCACert_14
       inputTemplate: esignet/PmsIntegration/UploadCert/uploadCert
       outputTemplate: esignet/PmsIntegration/UploadCert/uploadCertResult
       input: '{
@@ -125,6 +132,7 @@ uploadPartnerCert:
       role: partner
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadCACert_15,Dependent_Idrepo_uploadCACert_16
       inputTemplate: esignet/PmsIntegration/UploadCert/uploadCert
       outputTemplate: esignet/PmsIntegration/UploadCert/uploadCertResult
       input: '{

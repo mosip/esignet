@@ -1,5 +1,5 @@
 GetOidcUserInfoLinked:
-   ESignet_GetOidcUserInfo_Linked_uin_IdpAccessToken_StatusCode_Valid_Smoke_sid:
+   ESignet_GetOidcUserInfo_Linked_uin_IdpAccessToken_GetUserInfoJWS_Valid_Smoke_sid:
       endPoint: /v1/esignet/oidc/userinfo
       uniqueIdentifier: TC_ESignet_GetOidcUserInfoLinked_01
       description: Get OIDC user info linked UIN with all valid details
@@ -11,9 +11,10 @@ GetOidcUserInfoLinked:
       input: '{
       	"idpAccessToken": "$ID:GenerateToken_Linked_uin_Valid_Smoke_sid_access_token$"
 }'
-      output: "200"
-      
-   ESignet_GetOidcUserInfo_Linked_Vid_IdpAccessToken_StatusCode_Valid_Smoke_sid:
+      output: '{
+        "aud": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$"
+}'
+   ESignet_GetOidcUserInfo_Linked_Vid_IdpAccessToken_GetUserInfoJWS_Valid_Smoke_sid:
       endPoint: /v1/esignet/oidc/userinfo
       uniqueIdentifier: TC_ESignet_GetOidcUserInfoLinked_02
       description: Get OIDC user info linked VID with all valid details
@@ -25,9 +26,10 @@ GetOidcUserInfoLinked:
       input: '{
       	"idpAccessToken": "$ID:GenerateToken_Linked_Vid_Valid_Smoke_sid_access_token$"
 }'
-      output: "200"
-      
-   ESignet_GetOidcUserInfo_Linked_uin_IdpAccessToken_StatusCode_SameClaim_Valid_Smoke_sid:
+      output: '{
+        "aud": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$"
+}'
+   ESignet_GetOidcUserInfo_Linked_uin_IdpAccessToken_GetUserInfoJWS_SameClaim_Valid_Smoke_sid:
       endPoint: /v1/esignet/oidc/userinfo
       uniqueIdentifier: TC_ESignet_GetOidcUserInfoLinked_03
       description: Get OIDC user info linked UIN with same claim and all valid details
@@ -39,9 +41,10 @@ GetOidcUserInfoLinked:
       input: '{
       	"idpAccessToken": "$ID:GenerateToken_Linked_uin_SameClaim_all_Valid_Smoke_sid_access_token$"
 }'
-      output: "200"
-      
-   ESignet_GetOidcUserInfo_Linked_Vid_IdpAccessToken_StatusCode_SameClaim_Valid_Smoke_sid:
+      output: '{
+        "aud": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$"
+}'
+   ESignet_GetOidcUserInfo_Linked_Vid_IdpAccessToken_GetUserInfoJWS_SameClaim_Valid_Smoke_sid:
       endPoint: /v1/esignet/oidc/userinfo
       uniqueIdentifier: TC_ESignet_GetOidcUserInfoLinked_04
       description: Get OIDC user info linked VID with same claim and all valid details
@@ -53,9 +56,10 @@ GetOidcUserInfoLinked:
       input: '{
       	"idpAccessToken": "$ID:GenerateToken_Linked_Vid_SameClaim_all_Valid_Smoke_sid_access_token$"
 }'
-      output: "200"
-      
-   ESignet_GetOidcUserInfo_Linked_uin_IdpAccessToken_StatusCode_User2_Valid_Smoke_sid:
+      output: '{
+        "aud": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$"
+}'
+   ESignet_GetOidcUserInfo_Linked_uin_IdpAccessToken_GetUserInfoJWS_User2_Valid_Smoke_sid:
       endPoint: /v1/esignet/oidc/userinfo
       uniqueIdentifier: TC_ESignet_GetOidcUserInfoLinked_05
       description: Get OIDC user info linked UIN for user2 with all valid details
@@ -67,9 +71,10 @@ GetOidcUserInfoLinked:
       input: '{
       	"idpAccessToken": "$ID:GenerateToken_Linked_uin_User2_all_Valid_Smoke_sid_access_token$"
 }'
-      output: "200"
-      
-   ESignet_GetOidcUserInfo_Linked_Vid_IdpAccessToken_StatusCode_User2_Valid_Smoke_sid:
+      output: '{
+        "aud": "$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'
+   ESignet_GetOidcUserInfo_Linked_Vid_IdpAccessToken_GetUserInfoJWS_User2_Valid_Smoke_sid:
       endPoint: /v1/esignet/oidc/userinfo
       uniqueIdentifier: TC_ESignet_GetOidcUserInfoLinked_06
       description: Get OIDC user info linked VID for user2 with all valid details
@@ -81,4 +86,6 @@ GetOidcUserInfoLinked:
       input: '{
       	"idpAccessToken": "$ID:GenerateToken_Linked_Vid_User2_all_Valid_Smoke_sid_access_token$"
 }'
-      output: "200"
+      output: '{
+        "aud": "$ID:CreateOIDCClient_Misp_Valid_Smoke_sid_clientId$"
+}'

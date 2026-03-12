@@ -1,5 +1,5 @@
 GetOidcUserInfoWithoutVerifiedClaims:
-   ESignet_GetOidcUserInfo_IdpAccessToken_StatusCode_Without_Verified_Claims_Valid_Smoke:
+   ESignet_GetOidcUserInfo_IdpAccessToken_GetUserInfoJWS_Without_Verified_Claims_Valid_Smoke:
       endPoint: /v1/esignet/oidc/userinfo
       uniqueIdentifier: TC_ESignet_GetOidcUserInfoWithoutVerifiedClaims_01
       description: Get OIDC user info without Verified Claims
@@ -9,6 +9,8 @@ GetOidcUserInfoWithoutVerifiedClaims:
       inputTemplate: esignet/OTPAuthFactorFlow/WithoutVerifiedClaims/Userinfo/GetOidcUserInfo
       outputTemplate: esignet/OTPAuthFactorFlow/WithoutVerifiedClaims/Userinfo/GetOidcUserInfoResult
       input: '{
-      	"idpAccessToken": "$ID:GenerateToken_Without_Verified_Claims_Valid_Smoke_sid_access_token$"
+      	"idpAccessToken": "$ID:GenerateToken_Without_Verified_Claims_Valid_IdTokenJWS_Smoke_sid_access_token$"
 }'
-      output: "200"
+      output: '{
+        "aud": "$ID:OIDCClientV3_WithoutVerifiedClaims_all_Valid_Smoke_sid_clientId$"
+}'

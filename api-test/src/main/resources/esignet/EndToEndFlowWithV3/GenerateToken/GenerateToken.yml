@@ -1,7 +1,7 @@
 GenerateToken:
    ESignet_GenerateToken_MOSIPID_uin_Valid_forUserInfo_Smoke_sid:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-      uniqueIdentifier: TC_ESignet_GenerateToken_01
+      uniqueIdentifier: TC_ESignet_GenerateToken_E2E_01
       description: Generate token with all valid details UIN for user info
       role: resident
       restMethod: post
@@ -21,7 +21,7 @@ GenerateToken:
 }'
    ESignet_GenerateToken_MOSIPID_uin_Valid_forUserInfoJWE_Smoke_sid:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-      uniqueIdentifier: TC_ESignet_GenerateToken_02
+      uniqueIdentifier: TC_ESignet_GenerateToken_E2E_02
       description: Generate token with all valid details UIN for user info
       role: resident
       restMethod: post
@@ -41,7 +41,7 @@ GenerateToken:
 }'
    ESignet_GenerateToken_MOSIPID_uin_Valid_ForJWSUpdatedToJWEInfo_Smoke_sid:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-      uniqueIdentifier: TC_ESignet_GenerateToken_03
+      uniqueIdentifier: TC_ESignet_GenerateToken_E2E_03
       description: Generate token with all valid details UIN for user info
       role: resident
       restMethod: post

@@ -7,6 +7,7 @@ LinkedAuthorizationConsent:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkedAuthenticationWla_01
       inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
       outputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsentResult
       input: '{
@@ -27,6 +28,7 @@ LinkedAuthorizationConsent:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkedAuthenticationWla_02
       inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
       outputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsentResult
       input: '{
@@ -47,6 +49,7 @@ LinkedAuthorizationConsent:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkedAuthenticationWla_03
       inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
       outputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsentResult
       input: '{
@@ -66,6 +69,7 @@ LinkedAuthorizationConsent:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkedAuthenticationWla_04
       inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
       outputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsentResult
       input: '{
@@ -84,6 +88,7 @@ LinkedAuthorizationConsent:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkedAuthenticationWla_05
       inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
       outputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsentResult
       input: '{
@@ -102,6 +107,7 @@ LinkedAuthorizationConsent:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkedAuthenticationWla_06
       inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
       outputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsentResult
       input: '{
@@ -119,6 +125,7 @@ LinkedAuthorizationConsent:
       description: Linked authorization consent with invalid requestTime
       role: resident
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkedAuthenticationWla_05
       inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
       outputTemplate: esignet/error
       input: '{
@@ -139,6 +146,7 @@ LinkedAuthorizationConsent:
       description: Linked authorization consent with past value in requestTime
       role: resident
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkedAuthenticationWla_05
       inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
       outputTemplate: esignet/error
       input: '{
@@ -159,6 +167,7 @@ LinkedAuthorizationConsent:
       description: Linked authorization consent with future value in requestTime
       role: resident
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkedAuthenticationWla_05
       inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
       outputTemplate: esignet/error
       input: '{
@@ -179,6 +188,7 @@ LinkedAuthorizationConsent:
       description: Linked authorization consent with only space in requestTime
       role: resident
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkedAuthenticationWla_05
       inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
       outputTemplate: esignet/error
       input: '{
@@ -199,6 +209,7 @@ LinkedAuthorizationConsent:
       description: Linked authorization consent with empty value in requestTime
       role: resident
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkedAuthenticationWla_05
       inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
       outputTemplate: esignet/error
       input: '{
@@ -299,6 +310,7 @@ LinkedAuthorizationConsent:
       description: Linked authorization consent with invalid accepted claims
       role: resident
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkedAuthenticationWla_05
       inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
       outputTemplate: esignet/error
       input: '{
@@ -321,6 +333,7 @@ LinkedAuthorizationConsent:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkedAuthenticationWla_05
       inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
       outputTemplate: esignet/error
       input: '{
@@ -343,6 +356,7 @@ LinkedAuthorizationConsent:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkedAuthenticationWla_05
       inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
       outputTemplate: esignet/error
       input: '{
@@ -366,6 +380,7 @@ LinkedAuthorizationConsent:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkedAuthenticationWla_05
       inputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsent
       outputTemplate: esignet/error
       input: '{
@@ -389,6 +404,7 @@ LinkedAuthorizationConsent:
       role: resident
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkedAuthenticationWla_07
       inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
       outputTemplate: esignet/error
       input: '{
@@ -412,6 +428,7 @@ LinkedAuthorizationConsent:
       role: resident
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkedAuthenticationWla_08
       inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
       outputTemplate: esignet/error
       input: '{
@@ -435,6 +452,7 @@ LinkedAuthorizationConsent:
       role: resident
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkedAuthenticationWla_09
       inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
       outputTemplate: esignet/error
       input: '{
@@ -459,6 +477,7 @@ LinkedAuthorizationConsent:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkedAuthenticationWla_10
       inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
       outputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsentResult
       input: '{
@@ -478,6 +497,7 @@ LinkedAuthorizationConsent:
       role: resident
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkedAuthenticationWla_11
       inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
       outputTemplate: esignet/error
       input: '{
@@ -502,6 +522,7 @@ LinkedAuthorizationConsent:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkedAuthenticationWla_12
       inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
       outputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsentResult
       input: '{
@@ -522,6 +543,7 @@ LinkedAuthorizationConsent:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkedAuthenticationWla_13
       inputTemplate: esignet/LinkedConsent/LinkAuthorizationConsent/LinkAuthorizationConsent
       outputTemplate: esignet/LinkedAuthorizationConsent/LinkedAuthorizationConsentResult
       input: '{
