@@ -174,7 +174,13 @@ public class TokenServiceImpl implements TokenService {
 
             if (alg == null || !supportedAlgs.contains(alg)) {
                 log.error("Invalid or unsupported alg header: {}", alg);
-                throw new EsignetException();
+                throw new EsignetException(ErrorConstants.INVALID_CLIENT);
+            }
+
+            String sub = signedJWT.getJWTClaimsSet().getSubject();
+            if (sub == null || !sub.equals(clientId)) {
+                log.error("Client assertion sub '{}' does not match clientId '{}'", sub, clientId);
+                throw new EsignetException(ErrorConstants.INVALID_GRANT);
             }
 
             NimbusJwtDecoder jwtDecoder = getNimbusJwtDecoderFromJwk(jwk, clientId, audience, maxClockSkew, alg);
@@ -182,11 +188,14 @@ public class TokenServiceImpl implements TokenService {
             String jti = signedJWT.getJWTClaimsSet().getJWTID();
             if (uniqueJtiRequired && (jti == null || cacheUtilService.checkAndMarkJti(jti))) {
                 log.error("invalid jti {}", jti);
-                throw new EsignetException();
+                throw new EsignetException(ErrorConstants.INVALID_CLIENT);
             }
         } catch (Exception e) {
             log.error("Failed to verify client assertion", e);
-            throw new EsignetException(ErrorConstants.INVALID_GRANT);
+            if (e instanceof EsignetException) {
+                throw (EsignetException) e;
+            }
+            throw new EsignetException(ErrorConstants.INVALID_CLIENT);
         }
     }
 
