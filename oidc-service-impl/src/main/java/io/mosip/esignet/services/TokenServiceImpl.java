@@ -190,11 +190,10 @@ public class TokenServiceImpl implements TokenService {
                 log.error("invalid jti {}", jti);
                 throw new EsignetException(ErrorConstants.INVALID_CLIENT);
             }
+        } catch (EsignetException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Failed to verify client assertion", e);
-            if (e instanceof EsignetException esignetException) {
-                throw esignetException;
-            }
             throw new EsignetException(ErrorConstants.INVALID_CLIENT);
         }
     }
