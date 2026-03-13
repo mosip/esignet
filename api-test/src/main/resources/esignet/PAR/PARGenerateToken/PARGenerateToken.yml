@@ -1,5 +1,5 @@
 PARGenerateToken:
-   ESignet_GenerateToken_PAR_Valid_Smoke_sid:
+   ESignet_GenerateToken_PAR_Valid_IdTokenJWS_Smoke_sid:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
       uniqueIdentifier: TC_ESignet_PARGenerateToken_01
       description: Generate token with all valid details UIN for user info
@@ -18,4 +18,5 @@ PARGenerateToken:
 		  "aud_key": "token_endpoint"
 }'
       output: '{
+        "aud": "$ID:CreateOIDCClientV3PAR_all_Valid_Smoke_sid_clientId$"
 }'

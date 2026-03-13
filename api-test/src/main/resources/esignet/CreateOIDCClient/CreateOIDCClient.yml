@@ -1,5 +1,5 @@
 CreateOIDCClient:
-   ESignet_CreateOIDCClient_all_Valid_Smoke_sid:
+   ESignet_CreateOIDCClient_WhenAllInputsValid_Smoke_sid:
       endPoint: /v1/esignet/client-mgmt/oidc-client
       uniqueIdentifier: TC_ESignet_CreateOIDCClient_01
       description: To create OIDC Client with all valid data

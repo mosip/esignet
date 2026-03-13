@@ -95,11 +95,18 @@ public class PatchWithPathParamsAndBody extends EsignetUtil implements ITest {
 
 		testCaseDTO = AdminTestUtil.filterHbs(testCaseDTO);
 		String inputJson = filterInputHbs(testCaseDTO);
-		
+
 		inputJson = EsignetUtil.inputstringKeyWordHandeler(inputJson, testCaseName);
 
-		response = patchWithPathParamsBodyAndCookie(ApplnURI + testCaseDTO.getEndPoint(), inputJson, COOKIENAME,
-				testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), pathParams);
+		if (testCaseName.contains("ESignet_")) {
+			String tempUrl = EsignetConfigManager.getEsignetBaseUrl();
+
+			response = patchWithPathParamsBodyHeaderWithBearerToken(tempUrl + testCaseDTO.getEndPoint(), inputJson, COOKIENAME,
+					testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), pathParams);
+		} else {
+			response = patchWithPathParamsBodyAndCookie(ApplnURI + testCaseDTO.getEndPoint(), inputJson, COOKIENAME,
+					testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), pathParams);
+		}
 
 		Map<String, List<OutputValidationDto>> ouputValid = OutputValidationUtil.doJsonOutputValidation(
 				response.asString(), getJsonFromTemplate(testCaseDTO.getOutput(), testCaseDTO.getOutputTemplate()),
@@ -131,16 +138,6 @@ public class PatchWithPathParamsAndBody extends EsignetUtil implements ITest {
 	 */
 	@AfterMethod(alwaysRun = true)
 	public void setResultTestName(ITestResult result) {
-		try {
-			Field method = TestResult.class.getDeclaredField("m_method");
-			method.setAccessible(true);
-			method.set(result, result.getMethod().clone());
-			BaseTestMethod baseTestMethod = (BaseTestMethod) result.getMethod();
-			Field f = baseTestMethod.getClass().getSuperclass().getDeclaredField("m_methodName");
-			f.setAccessible(true);
-			f.set(baseTestMethod, testCaseName);
-		} catch (Exception e) {
-			Reporter.log("Exception : " + e.getMessage());
-		}
+		result.setAttribute("TestCaseName", testCaseName);
 	}
 }

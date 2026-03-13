@@ -1,7 +1,7 @@
 UpdateClientV3:
   ESignet_UpdateOIDCClientV3_MOSIPID_all_userinfo_Valid_Smoke:
       endPoint: /v1/esignet/client-mgmt/client/{clientId}
-      uniqueIdentifier: TC_ESignet_UpdateOIDCClientV3_01
+      uniqueIdentifier: TC_ESignet_UpdateOIDCClientV3_E2E_01
       description: To update OIDC Client V3 with all valid data
       role: partner
       restMethod: put
@@ -37,7 +37,7 @@ UpdateClientV3:
 }'
   ESignet_UpdateOIDCClientV3_MOSIPID_all_userinfoJWE_Valid_Smoke:
       endPoint: /v1/esignet/client-mgmt/client/{clientId}
-      uniqueIdentifier: TC_ESignet_UpdateOIDCClientV3_02
+      uniqueIdentifier: TC_ESignet_UpdateOIDCClientV3_E2E_02
       description: To update OIDC Client V3 with all valid data
       role: partner
       restMethod: put
@@ -73,7 +73,7 @@ UpdateClientV3:
 }'
   ESignet_UpdateOIDCClientV3_MOSIPID_all_ForJWSUpdatedToJWEInfo_Valid_Smoke:
       endPoint: /v1/esignet/client-mgmt/client/{clientId}
-      uniqueIdentifier: TC_ESignet_UpdateOIDCClientV3_03
+      uniqueIdentifier: TC_ESignet_UpdateOIDCClientV3_E2E_03
       description: To update OIDC Client V3 with all valid data
       role: partner
       restMethod: put

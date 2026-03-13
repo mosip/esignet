@@ -7,6 +7,7 @@ LinkAuthorizationCode:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkedAuthorizationConsent_01
       inputTemplate: esignet/LinkAuthorizationCode/LinkAuthorizationCode
       outputTemplate: esignet/LinkAuthorizationCode/LinkAuthorizationCodeResult
       input: '{
@@ -25,6 +26,7 @@ LinkAuthorizationCode:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkedAuthorizationConsent_02
       inputTemplate: esignet/LinkAuthorizationCode/LinkAuthorizationCode
       outputTemplate: esignet/LinkAuthorizationCode/LinkAuthorizationCodeResult
       input: '{
@@ -44,6 +46,7 @@ LinkAuthorizationCode:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkedAuthorizationConsent_03
       inputTemplate: esignet/LinkAuthorizationCode/LinkAuthorizationCode
       outputTemplate: esignet/LinkAuthorizationCode/LinkAuthorizationCodeResult
       input: '{
@@ -63,6 +66,7 @@ LinkAuthorizationCode:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkedAuthorizationConsent_04
       inputTemplate: esignet/LinkAuthorizationCode/LinkAuthorizationCode
       outputTemplate: esignet/LinkAuthorizationCode/LinkAuthorizationCodeResult
       input: '{
@@ -81,6 +85,7 @@ LinkAuthorizationCode:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkedAuthorizationConsent_05
       inputTemplate: esignet/LinkAuthorizationCode/LinkAuthorizationCode
       outputTemplate: esignet/LinkAuthorizationCode/LinkAuthorizationCodeResult
       input: '{
@@ -99,6 +104,7 @@ LinkAuthorizationCode:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkedAuthorizationConsent_06
       inputTemplate: esignet/LinkAuthorizationCode/LinkAuthorizationCode
       outputTemplate: esignet/LinkAuthorizationCode/LinkAuthorizationCodeResult
       input: '{
@@ -117,6 +123,7 @@ LinkAuthorizationCode:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkedAuthorizationConsent_05
       inputTemplate: esignet/LinkAuthorizationCode/LinkAuthorizationCode
       outputTemplate: esignet/error
       input: '{
@@ -139,6 +146,7 @@ LinkAuthorizationCode:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkedAuthorizationConsent_05
       inputTemplate: esignet/LinkAuthorizationCode/LinkAuthorizationCode
       outputTemplate: esignet/error
       input: '{
@@ -161,6 +169,7 @@ LinkAuthorizationCode:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkedAuthorizationConsent_05
       inputTemplate: esignet/LinkAuthorizationCode/LinkAuthorizationCode
       outputTemplate: esignet/error
       input: '{
@@ -183,6 +192,7 @@ LinkAuthorizationCode:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkedAuthorizationConsent_05
       inputTemplate: esignet/LinkAuthorizationCode/LinkAuthorizationCode
       outputTemplate: esignet/error
       input: '{
@@ -205,6 +215,7 @@ LinkAuthorizationCode:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkedAuthorizationConsent_05
       inputTemplate: esignet/LinkAuthorizationCode/LinkAuthorizationCode
       outputTemplate: esignet/error
       input: '{
@@ -227,6 +238,7 @@ LinkAuthorizationCode:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkedAuthorizationConsent_05
       inputTemplate: esignet/LinkAuthorizationCode/LinkAuthorizationCode
       outputTemplate: esignet/error
       input: '{
@@ -249,6 +261,7 @@ LinkAuthorizationCode:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkedAuthorizationConsent_05
       inputTemplate: esignet/LinkAuthorizationCode/LinkAuthorizationCode
       outputTemplate: esignet/error
       input: '{
@@ -271,6 +284,7 @@ LinkAuthorizationCode:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkedAuthorizationConsent_05
       inputTemplate: esignet/LinkAuthorizationCode/LinkAuthorizationCode
       outputTemplate: esignet/error
       input: '{
@@ -293,6 +307,7 @@ LinkAuthorizationCode:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkedAuthorizationConsent_05
       inputTemplate: esignet/LinkAuthorizationCode/LinkAuthorizationCode
       outputTemplate: esignet/error
       input: '{
@@ -315,6 +330,7 @@ LinkAuthorizationCode:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkedAuthorizationConsent_05
       inputTemplate: esignet/LinkAuthorizationCode/LinkAuthorizationCode
       outputTemplate: esignet/error
       input: '{
@@ -337,6 +353,7 @@ LinkAuthorizationCode:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkedAuthorizationConsent_05
       inputTemplate: esignet/LinkAuthorizationCode/LinkAuthorizationCode
       outputTemplate: esignet/error
       input: '{
@@ -359,6 +376,7 @@ LinkAuthorizationCode:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkedAuthorizationConsent_05
       inputTemplate: esignet/LinkAuthorizationCode/LinkAuthorizationCode
       outputTemplate: esignet/error
       input: '{
@@ -381,6 +399,7 @@ LinkAuthorizationCode:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkedAuthorizationConsent_05
       inputTemplate: esignet/LinkAuthorizationCode/LinkAuthorizationCode
       outputTemplate: esignet/error
       input: '{

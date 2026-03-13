@@ -7,6 +7,7 @@ LinkedAuthenticationConsentWla:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_GetLinkStatusConsent_01
       inputTemplate: esignet/LinkedAuthenticationWla/LinkedAuthenticationWla
       outputTemplate: esignet/LinkedConsent/LinkedAuthenticationConsentWla/LinkedAuthenticationConsentWlaResult
       input: '{
@@ -58,6 +59,7 @@ LinkedAuthenticationConsentWla:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_GetLinkStatusConsent_02
       inputTemplate: esignet/LinkedAuthenticationWla/LinkedAuthenticationWla
       outputTemplate: esignet/LinkedConsent/LinkedAuthenticationConsentWla/LinkedAuthenticationConsentWlaResult
       input: '{
@@ -109,6 +111,7 @@ LinkedAuthenticationConsentWla:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_GetLinkStatusConsent_03
       inputTemplate: esignet/LinkedAuthenticationWla/LinkedAuthenticationWla
       outputTemplate: esignet/LinkedConsent/LinkedAuthenticationConsentWla/LinkedAuthenticationConsentWlaResult
       input: '{
@@ -160,6 +163,7 @@ LinkedAuthenticationConsentWla:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_GetLinkStatusConsent_04
       inputTemplate: esignet/LinkedAuthenticationWla/LinkedAuthenticationWla
       outputTemplate: esignet/LinkedConsent/LinkedAuthenticationConsentWla/LinkedAuthenticationConsentWlaResult
       input: '{
@@ -211,6 +215,7 @@ LinkedAuthenticationConsentWla:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_GetLinkStatusConsent_05
       inputTemplate: esignet/LinkedAuthenticationWla/LinkedAuthenticationWla
       outputTemplate: esignet/LinkedConsent/LinkedAuthenticationConsentWla/LinkedAuthenticationConsentWlaResult
       input: '{
@@ -262,6 +267,7 @@ LinkedAuthenticationConsentWla:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_GetLinkStatusConsent_06
       inputTemplate: esignet/LinkedAuthenticationWla/LinkedAuthenticationWla
       outputTemplate: esignet/LinkedConsent/LinkedAuthenticationConsentWla/LinkedAuthenticationConsentWlaResult
       input: '{
@@ -313,6 +319,7 @@ LinkedAuthenticationConsentWla:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_GetLinkStatusConsent_07
       inputTemplate: esignet/LinkedAuthenticationWla/LinkedAuthenticationWla
       outputTemplate: esignet/LinkedConsent/LinkedAuthenticationConsentWla/LinkedAuthenticationConsentWlaResult
       input: '{
@@ -364,6 +371,7 @@ LinkedAuthenticationConsentWla:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_GetLinkStatusConsent_08
       inputTemplate: esignet/LinkedAuthenticationWla/LinkedAuthenticationWla
       outputTemplate: esignet/LinkedConsent/LinkedAuthenticationConsentWla/LinkedAuthenticationConsentWlaResult
       input: '{
@@ -415,6 +423,7 @@ LinkedAuthenticationConsentWla:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_GetLinkStatusConsent_09
       inputTemplate: esignet/LinkedAuthenticationWla/LinkedAuthenticationWla
       outputTemplate: esignet/LinkedConsent/LinkedAuthenticationConsentWla/LinkedAuthenticationConsentWlaResult
       input: '{
@@ -466,6 +475,7 @@ LinkedAuthenticationConsentWla:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_GetLinkStatusConsent_10
       inputTemplate: esignet/LinkedAuthenticationWla/LinkedAuthenticationWla
       outputTemplate: esignet/LinkedConsent/LinkedAuthenticationConsentWla/LinkedAuthenticationConsentWlaResult
       input: '{

@@ -29,6 +29,7 @@ import io.mosip.testrig.apirig.testrunner.HealthChecker;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
+import io.mosip.testrig.apirig.utils.NotificationListener;
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;
 import io.mosip.testrig.apirig.utils.ReportUtil;
 import io.mosip.testrig.apirig.utils.SecurityXSSException;
@@ -114,7 +115,6 @@ public class PostWithAutogenIdWithOtpGenerate extends EsignetUtil implements ITe
 		otpReqJson.remove("sendOtpReqTemplate");
 		sendOtpEndPoint = otpReqJson.getString("sendOtpEndPoint");
 		otpReqJson.remove("sendOtpEndPoint");
-
 		String inputStrJson = getJsonFromTemplate(otpReqJson.toString(), sendOtpReqTemplate);
 
 		Response otpResponse = null;
@@ -123,12 +123,13 @@ public class PostWithAutogenIdWithOtpGenerate extends EsignetUtil implements ITe
 		int currLoopCount = 0;
 		while (currLoopCount < maxLoopCount) {
 			String input = inputstringKeyWordHandeler(inputStrJson, testCaseName);
+			NotificationListener.markRequestStart();
 			if (testCaseName.contains(GlobalConstants.ESIGNET_)) {
 				if (EsignetConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
 					throw new SkipException("esignet is not deployed hence skipping the testcase");
 				}
 				String tempUrl = EsignetConfigManager.getEsignetBaseUrl();
-
+				
 				if (testCaseDTO.getEndPoint().contains("/signup/"))
 					tempUrl = EsignetConfigManager.getSignupBaseUrl();
 				otpResponse = postRequestWithCookieAuthHeaderAndXsrfToken(tempUrl + sendOtpEndPoint, input, COOKIENAME,
@@ -216,17 +217,9 @@ public class PostWithAutogenIdWithOtpGenerate extends EsignetUtil implements ITe
 	 */
 	@AfterMethod(alwaysRun = true)
 	public void setResultTestName(ITestResult result) {
-		try {
-			Field method = TestResult.class.getDeclaredField("m_method");
-			method.setAccessible(true);
-			method.set(result, result.getMethod().clone());
-			BaseTestMethod baseTestMethod = (BaseTestMethod) result.getMethod();
-			Field f = baseTestMethod.getClass().getSuperclass().getDeclaredField("m_methodName");
-			f.setAccessible(true);
-			f.set(baseTestMethod, testCaseName);
-		} catch (Exception e) {
-			Reporter.log("Exception : " + e.getMessage());
-		}
+		result.setAttribute("TestCaseName", testCaseName);
+		// Always cleanup watermark
+		NotificationListener.markRequestRemove();
 	}
 
 	@AfterClass(alwaysRun = true)

@@ -1,7 +1,7 @@
 OAuthDetailsRequestV3:
    ESignet_OAuthDetailsRequest_V3_MOCK_AuthToken_Xsrf_uin_all_Valid_for_userInfo_Smoke_sid:
       endPoint: /v1/esignet/authorization/v3/oauth-details
-      uniqueIdentifier: TC_Signup_ESignet_OAuthDetailsRequestV3_Prerequisite
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestV3_Prerequisite_E2EMock_01
       description: Get OAuth details with claims as prerequisite
       role: resident
       restMethod: post
@@ -27,7 +27,7 @@ OAuthDetailsRequestV3:
 }'
    ESignet_OAuthDetailsRequest_V3_MOCK_AuthToken_Xsrf_uin_all_Valid_for_userInfoJWE_Smoke_sid:
       endPoint: /v1/esignet/authorization/v3/oauth-details
-      uniqueIdentifier: TC_Signup_ESignet_OAuthDetailsRequestV3_Prerequisite
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestV3_Prerequisite_E2EMock_02
       description: Get OAuth details with claims as prerequisite
       role: resident
       restMethod: post
@@ -53,7 +53,7 @@ OAuthDetailsRequestV3:
 }'
    ESignet_OAuthDetailsRequest_V3_MOCK_AuthToken_Xsrf_uin_all_Valid_for_userInfoUpdatedClientJWE_Smoke_sid:
       endPoint: /v1/esignet/authorization/v3/oauth-details
-      uniqueIdentifier: TC_Signup_ESignet_OAuthDetailsRequestV3_Prerequisite
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequestV3_Prerequisite_E2EMock_03
       description: Get OAuth details with claims as prerequisite
       role: resident
       restMethod: post

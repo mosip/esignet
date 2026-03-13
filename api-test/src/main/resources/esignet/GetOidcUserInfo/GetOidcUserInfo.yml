@@ -1,5 +1,5 @@
 GetOidcUserInfo:
-   ESignet_GetOidcUserInfo_uin_IdpAccessToken_StatusCode_Valid_Smoke_sid:
+   ESignet_GetOidcUserInfo_uin_IdpAccessToken_GetUserInfoJWS_Valid_Smoke_sid:
       endPoint: /v1/esignet/oidc/userinfo
       uniqueIdentifier: TC_ESignet_GetOidcUserInfo_01
       description: Get OIDC user info with all valid details UIN
@@ -7,13 +7,14 @@ GetOidcUserInfo:
       restMethod: get
       validityCheckRequired: true
       inputTemplate: esignet/GetOidcUserInfo/GetOidcUserInfo
-      outputTemplate: esignet/GetOidcUserInfo/GetOidcUserInfoResult
+      outputTemplate: esignet/GetOidcUserInfo/GetOidcUserInfoTokenValidationResult
       input: '{
       	"idpAccessToken": "$ID:GenerateToken_uin_Valid_Smoke_sid_access_token$"
 }'
-      output: "200"
-
-   ESignet_GetOidcUserInfo_Vid_IdpAccessToken_StatusCode_Valid_Smoke_sid:
+      output: '{
+        "aud": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$"
+}'
+   ESignet_GetOidcUserInfo_Vid_IdpAccessToken_GetUserInfoJWS_Valid_Smoke_sid:
       endPoint: /v1/esignet/oidc/userinfo
       uniqueIdentifier: TC_ESignet_GetOidcUserInfo_02
       description: Get OIDC user info with all valid details VID
@@ -21,12 +22,13 @@ GetOidcUserInfo:
       restMethod: get
       validityCheckRequired: true
       inputTemplate: esignet/GetOidcUserInfo/GetOidcUserInfo
-      outputTemplate: esignet/GetOidcUserInfo/GetOidcUserInfoResult
+      outputTemplate: esignet/GetOidcUserInfo/GetOidcUserInfoTokenValidationResult
       input: '{
       	"idpAccessToken": "$ID:GenerateToken_Vid_Valid_Smoke_sid_access_token$"
 }'
-      output: "200"
-
+      output: '{
+        "aud": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$"
+}'
    ESignet_GetOidcUserInfo_uin_IdpAccessToken_StatusCode_Invalid_Token_Neg:
       endPoint: /v1/esignet/oidc/userinfo
       uniqueIdentifier: TC_ESignet_GetOidcUserInfo_03

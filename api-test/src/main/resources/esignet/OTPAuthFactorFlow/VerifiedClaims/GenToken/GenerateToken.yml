@@ -1,7 +1,7 @@
 GenerateTokenVerifiedClaims:
-   ESignet_GenerateToken_Verified_Claims_Valid_Smoke_sid:
+   ESignet_GenerateToken_Verified_Claims_Valid_IdTokenJWS_Smoke_sid:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
-      uniqueIdentifier: TC_ESignet_GenerateToken_01
+      uniqueIdentifier: TC_ESignet_GenerateTokenVerifiedClaims_01
       description: Generate token with all valid details UIN for user info
       role: resident
       restMethod: post
@@ -17,5 +17,5 @@ GenerateTokenVerifiedClaims:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-   		"token_type": "Bearer" 
+        "aud": "$ID:OIDCClientV3_VerifiedClaims_all_Valid_Smoke_sid_clientId$"
 }'
