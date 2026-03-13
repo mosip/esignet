@@ -87,5 +87,4 @@ public class ErrorConstants {
     public static final String USE_PKCE = "use_pkce";
     public static final String LOGIN_REQUIRED = "login_required";
     public static final String REQUEST_NOT_SUPPORTED = "request_not_supported";
-    public static final String REQUEST_URI_NOT_SUPPORTED = "request_uri_not_supported";
 }

@@ -62,9 +62,7 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
             INVALID_CLIENT,
             UNSUPPORTED_GRANT_TYPE,
             INVALID_SCOPE,
-            INVALID_GRANT,
-            REQUEST_NOT_SUPPORTED,
-            REQUEST_URI_NOT_SUPPORTED
+            INVALID_GRANT
     ));
 
     @Override

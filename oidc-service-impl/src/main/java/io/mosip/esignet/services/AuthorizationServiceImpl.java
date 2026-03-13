@@ -153,8 +153,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     public OAuthDetailResponseV2 getOauthDetailsV3(OAuthDetailRequestV3 oauthDetailReqDto, HttpServletRequest httpServletRequest) throws EsignetException {
         //id_token_hint is an optional parameter, if provided then it is expected to be a valid JWT
         handleIdTokenHint(oauthDetailReqDto, httpServletRequest);
-        //request and request_url parameters are not supported, if they are present in the request then throw error
-        validateRequestAndRequestURIParams(oauthDetailReqDto);
         return getOauthDetailsV2(oauthDetailReqDto);
     }
 
@@ -416,17 +414,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         if (serverProfile.getFeatureMap().containsKey(REQUIRE_PAR) || clientDetail.getAdditionalConfig(REQUIRE_PAR, false)) {
             log.error("Pushed Authorization Request (PAR) flow is mandated for clientId: {}", clientDetail.getId());
             throw new EsignetException(ErrorConstants.INVALID_REQUEST);
-        }
-    }
-
-    private void validateRequestAndRequestURIParams(OAuthDetailRequestV3 oAuthDetailRequestV3) throws EsignetException {
-        if (StringUtils.hasText(oAuthDetailRequestV3.getRequest())) {
-            log.error("request parameter is not supported");
-            throw new EsignetException(ErrorConstants.REQUEST_NOT_SUPPORTED);
-        }
-        if (StringUtils.hasText(oAuthDetailRequestV3.getRequestUri())) {
-            log.error("request_uri parameter is not supported");
-            throw new EsignetException(ErrorConstants.REQUEST_URI_NOT_SUPPORTED);
         }
     }
 

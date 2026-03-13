@@ -64,7 +64,6 @@ export default function Authorize({ authService }) {
             codeChallengeMethod: extractParam('code_challenge_method'),
             idTokenHint: extractParam('id_token_hint'),
             request:extractParam('request')
-            requestUri:extractParam('request_uri')
           };
 
           let claimsDecoded = null;
