@@ -7,6 +7,7 @@ AuthorizationCode:
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_AuthUserV3_E2E_01
       inputTemplate: esignet/EndToEndFlowWithV3/AuthorizeCode/AuthorizationCode
       outputTemplate: esignet/EndToEndFlowWithV3/AuthorizeCode/AuthorizationCodeResult
       input: '{
@@ -25,6 +26,7 @@ AuthorizationCode:
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_AuthUserV3_E2E_02
       inputTemplate: esignet/EndToEndFlowWithV3/AuthorizeCode/AuthorizationCode
       outputTemplate: esignet/EndToEndFlowWithV3/AuthorizeCode/AuthorizationCodeResult
       input: '{
@@ -43,6 +45,7 @@ AuthorizationCode:
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_AuthUserV3_E2E_03
       inputTemplate: esignet/EndToEndFlowWithV3/AuthorizeCode/AuthorizationCode
       outputTemplate: esignet/EndToEndFlowWithV3/AuthorizeCode/AuthorizationCodeResult
       input: '{
