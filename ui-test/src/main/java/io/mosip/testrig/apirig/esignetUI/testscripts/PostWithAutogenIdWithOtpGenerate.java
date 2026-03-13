@@ -248,6 +248,5 @@ public class PostWithAutogenIdWithOtpGenerate extends EsignetUtil implements ITe
 			logger.error("Exception : " + e.getMessage());
 			Thread.currentThread().interrupt();
 		}
-
 	}
 }
