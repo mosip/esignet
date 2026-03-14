@@ -1,6 +1,7 @@
 AuthenticateUserConsent:
    ESignet_AuthenticateUserIDP_Consent_uin_Otp_Valid_Smoke:
       endPoint: /v1/esignet/authorization/v2/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserConsent_01
       description: Authenticate user consent with otp and valid details UIN
       role: resident
       restMethod: post
@@ -34,6 +35,7 @@ AuthenticateUserConsent:
 
    ESignet_AuthenticateUserIDP_Consent_uin_Otp_Claim2_Valid_Smoke:
       endPoint: /v1/esignet/authorization/v2/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserConsent_02
       description: Authenticate user consent with otp for claim2 valid details UIN
       role: resident
       restMethod: post
@@ -67,6 +69,7 @@ AuthenticateUserConsent:
 
    ESignet_AuthenticateUserIDP_Consent_Vid_Otp_Valid_Smoke:
       endPoint: /v1/esignet/authorization/v2/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserConsent_03
       description: Authenticate user consent with otp and valid details VID
       role: resident
       restMethod: post
@@ -100,6 +103,7 @@ AuthenticateUserConsent:
 
    ESignet_AuthenticateUserIDP_Consent_Vid_Otp_Claim2_Valid_Smoke:
       endPoint: /v1/esignet/authorization/v2/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserConsent_04
       description: Authenticate user consent with otp for claim2 valid details VID
       role: resident
       restMethod: post
@@ -133,6 +137,7 @@ AuthenticateUserConsent:
 
    ESignet_AuthenticateUserIDP_Consent_uin_Otp_Invalid_TransactionId_Neg:
       endPoint: /v1/esignet/authorization/v2/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserConsent_05
       description: Authenticate user consent Otp with invalid transactionId UIN
       role: resident
       restMethod: post
@@ -170,6 +175,7 @@ AuthenticateUserConsent:
 
    ESignet_AuthenticateUserIDP_Consent_uin_Otp_Invalid_IndividualId_Neg:
       endPoint: /v1/esignet/authorization/v2/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserConsent_06
       description: Authenticate user consent Otp with invalid individualId UIN
       role: resident
       restMethod: post
@@ -208,6 +214,7 @@ AuthenticateUserConsent:
 
    ESignet_AuthenticateUserIDP_Consent_Vid_Otp_Invalid_TransactionId_Neg:
       endPoint: /v1/esignet/authorization/v2/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserConsent_07
       description: Authenticate user consent Otp with invalid transactionId VID
       role: resident
       restMethod: post
@@ -245,6 +252,7 @@ AuthenticateUserConsent:
 
    ESignet_AuthenticateUserIDP_Consent_Vid_Otp_Invalid_IndividualId_Neg:
       endPoint: /v1/esignet/authorization/v2/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserConsent_08
       description: Authenticate user consent Otp with invalid individualId VID
       role: resident
       checkErrorsOnlyInResponse: true
@@ -282,6 +290,7 @@ AuthenticateUserConsent:
 
    ESignet_AuthenticateUserIDP_Consent_uin_User2_Otp_Valid_Smoke:
       endPoint: /v1/esignet/authorization/v2/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserConsent_09
       description: Authenticate user consent Otp for User2 with valid details UIN
       role: resident
       restMethod: post
@@ -315,6 +324,7 @@ AuthenticateUserConsent:
 
    ESignet_AuthenticateUserIDP_Consent_Vid_User2_Otp_Valid_Smoke:
       endPoint: /v1/esignet/authorization/v2/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserConsent_10
       description: Authenticate user consent Otp for User2 with valid details UIN
       role: resident
       checkErrorsOnlyInResponse: true
@@ -348,6 +358,7 @@ AuthenticateUserConsent:
 
    ESignet_AuthenticateUserIDP_Consent_uin_AuthCode:
       endPoint: /v1/esignet/authorization/v2/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserConsent_11
       description: Authenticate user consent with otp and valid details UIN
       role: resident
       restMethod: post
@@ -381,6 +392,7 @@ AuthenticateUserConsent:
 
    ESignet_AuthenticateUserIDP_Consent_uin_AuthCode_OnlyOptionalClaim:
       endPoint: /v1/esignet/authorization/v2/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserConsent_12
       description: Authenticate user consent with otp and valid details UIN
       role: resident
       restMethod: post
@@ -414,6 +426,7 @@ AuthenticateUserConsent:
 
    ESignet_AuthenticateUserIDP_Consent_uin_AuthCode_OnlyOptionalClaim_user2:
       endPoint: /v1/esignet/authorization/v2/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserConsent_13
       description: Authenticate user consent with otp and valid details UIN
       role: resident
       restMethod: post

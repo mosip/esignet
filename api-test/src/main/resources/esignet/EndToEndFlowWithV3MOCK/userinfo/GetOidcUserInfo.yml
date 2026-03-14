@@ -1,7 +1,7 @@
 GetOidcUserInfo:
    ESignet_GetOidcUserInfo_MOCK_uin_IdpAccessToken_StatusCode_forJWSInfo_Valid_Smoke:
       endPoint: /v1/esignet/oidc/userinfo
-      uniqueIdentifier: TC_ESignet_GetOidcUserInfoForV3_01
+      uniqueIdentifier: TC_ESignet_GetOidcUserInfoForV3_E2EMock_01
       description: Get OIDC user info with all valid details UIN
       role: resident
       restMethod: get
@@ -15,11 +15,12 @@ GetOidcUserInfo:
 
    ESignet_GetOidcUserInfo_MOCK_uin_IdpAccessToken_StatusCode_forJWEInfo_Valid_Smoke:
       endPoint: /v1/esignet/oidc/userinfo
-      uniqueIdentifier: TC_ESignet_GetOidcUserInfoForV3_02
+      uniqueIdentifier: TC_ESignet_GetOidcUserInfoForV3_E2EMock_02
       description: Get OIDC user info with all valid details UIN
       role: resident
       restMethod: get
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_PatchOIDCClient_01
       inputTemplate: esignet/EndToEndFlowWithV3MOCK/userinfo/GetOidcUserInfo
       outputTemplate: esignet/EndToEndFlowWithV3MOCK/userinfo/GetOidcUserInfoResult
       input: '{
@@ -29,11 +30,12 @@ GetOidcUserInfo:
 
    ESignet_GetOidcUserInfo_MOCK_uin_IdpAccessToken_StatusCode_toUpdatedJWEInfo_Valid_Smoke:
       endPoint: /v1/esignet/oidc/userinfo
-      uniqueIdentifier: TC_ESignet_GetOidcUserInfoForV3_03
+      uniqueIdentifier: TC_ESignet_GetOidcUserInfoForV3_E2EMock_03
       description: Get OIDC user info with all valid details UIN
       role: resident
       restMethod: get
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_PatchOIDCClient_02
       inputTemplate: esignet/EndToEndFlowWithV3MOCK/userinfo/GetOidcUserInfo
       outputTemplate: esignet/EndToEndFlowWithV3MOCK/userinfo/GetOidcUserInfoResult
       input: '{

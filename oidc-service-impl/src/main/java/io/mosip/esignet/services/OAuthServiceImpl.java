@@ -231,7 +231,7 @@ public class OAuthServiceImpl implements OAuthService {
             throw new EsignetException(ErrorConstants.INVALID_GRANT);
 
         if (StringUtils.hasText(tokenRequest.getClient_id()) && !transaction.getClientId().equals(tokenRequest.getClient_id()))
-            throw new EsignetException(ErrorConstants.INVALID_CLIENT_ID);
+            throw new EsignetException(ErrorConstants.INVALID_CLIENT);
 
         if (!transaction.getRedirectUri().equals(tokenRequest.getRedirect_uri()))
             throw new EsignetException(ErrorConstants.INVALID_REDIRECT_URI);

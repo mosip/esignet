@@ -6,23 +6,21 @@
 package io.mosip.esignet.core.validator;
 
 import io.mosip.esignet.core.constants.ErrorConstants;
-
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
-
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-@Target({ FIELD })
+@Target({FIELD})
 @Retention(RUNTIME)
 @Constraint(validatedBy = OIDCPromptValidator.class)
 @Documented
 public @interface OIDCPrompt {
 
-    String message() default ErrorConstants.INVALID_PROMPT;
+    String message() default ErrorConstants.LOGIN_REQUIRED;
 
     Class<?>[] groups() default {};
 

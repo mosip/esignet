@@ -1,5 +1,5 @@
 GenTokenConsentNoCapture:
-   ESignet_GenerateToken_ConsentNoCapture_Valid_Smoke_sid:
+   ESignet_GenerateToken_ConsentNoCapture_IdTokenJWS_Valid_Smoke_sid:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
       uniqueIdentifier: TC_ESignet_GenTokenConsentNoCapture_01
       description: Verify successful token generation for Consent No Capture flow using authorization code grant
@@ -17,5 +17,5 @@ GenTokenConsentNoCapture:
 		  "redirect_uri": "$IDPREDIRECTURI$"
 }'
       output: '{
-   		"token_type": "Bearer" 
+        "aud": "$ID:OIDCClientV3_VerifiedClaims_all_Valid_Smoke_sid_clientId$"
 }'

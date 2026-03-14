@@ -1,7 +1,7 @@
 UpdateClientV3:
   ESignet_UpdateOIDCClientV3_MOCK_all_Valid_Smoke:
       endPoint: /v1/esignet/client-mgmt/client/{clientId}
-      uniqueIdentifier: TC_ESignet_UpdateOIDCClientV3_01
+      uniqueIdentifier: TC_ESignet_UpdateOIDCClientV3_E2EMock_01
       description: To update OIDC Client V3 with all valid data
       role: partner
       restMethod: put

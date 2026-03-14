@@ -95,11 +95,18 @@ public class PatchWithPathParamsAndBody extends EsignetUtil implements ITest {
 
 		testCaseDTO = AdminTestUtil.filterHbs(testCaseDTO);
 		String inputJson = filterInputHbs(testCaseDTO);
-		
+
 		inputJson = EsignetUtil.inputstringKeyWordHandeler(inputJson, testCaseName);
 
-		response = patchWithPathParamsBodyAndCookie(ApplnURI + testCaseDTO.getEndPoint(), inputJson, COOKIENAME,
-				testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), pathParams);
+		if (testCaseName.contains("ESignet_")) {
+			String tempUrl = EsignetConfigManager.getEsignetBaseUrl();
+
+			response = patchWithPathParamsBodyHeaderWithBearerToken(tempUrl + testCaseDTO.getEndPoint(), inputJson, COOKIENAME,
+					testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), pathParams);
+		} else {
+			response = patchWithPathParamsBodyAndCookie(ApplnURI + testCaseDTO.getEndPoint(), inputJson, COOKIENAME,
+					testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), pathParams);
+		}
 
 		Map<String, List<OutputValidationDto>> ouputValid = OutputValidationUtil.doJsonOutputValidation(
 				response.asString(), getJsonFromTemplate(testCaseDTO.getOutput(), testCaseDTO.getOutputTemplate()),

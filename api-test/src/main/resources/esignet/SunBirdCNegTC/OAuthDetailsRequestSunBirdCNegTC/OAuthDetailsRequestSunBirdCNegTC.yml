@@ -6,6 +6,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_CreatePolicySunBirdR_01
       inputTemplate: esignet/SunBirdC/OAuthDetailsRequestSunBirdC/OAuthDetailsRequestSunBirdC
       outputTemplate: esignet/SunBirdC/OAuthDetailsRequestSunBirdC/OAuthDetailsRequestSunBirdCResult
       input: '{
@@ -33,6 +34,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_CreatePolicySunBirdR_01
       inputTemplate: esignet/SunBirdC/OAuthDetailsRequestSunBirdC/OAuthDetailsRequestSunBirdC
       outputTemplate: esignet/error
       input: '{
@@ -64,6 +66,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_CreatePolicySunBirdR_01
       inputTemplate: esignet/SunBirdC/OAuthDetailsRequestSunBirdC/OAuthDetailsRequestSunBirdC
       outputTemplate: esignet/error
       input: '{
@@ -96,6 +99,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_CreatePolicySunBirdR_01
       inputTemplate: esignet/SunBirdC/OAuthDetailsRequestSunBirdC/OAuthDetailsRequestSunBirdC
       outputTemplate: esignet/error
       input: '{
@@ -127,6 +131,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_CreatePolicySunBirdR_01
       inputTemplate: esignet/SunBirdC/OAuthDetailsRequestSunBirdC/OAuthDetailsRequestSunBirdC
       outputTemplate: esignet/SunBirdC/OAuthDetailsRequestSunBirdC/OAuthDetailsRequestSunBirdCResult
       input: '{
@@ -154,6 +159,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_CreatePolicySunBirdR_01
       inputTemplate: esignet/SunBirdC/OAuthDetailsRequestSunBirdC/OAuthDetailsRequestSunBirdC
       outputTemplate: esignet/SunBirdC/OAuthDetailsRequestSunBirdC/OAuthDetailsRequestSunBirdCResult
       input: '{
@@ -180,6 +186,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_CreatePolicySunBirdR_01
       inputTemplate: esignet/SunBirdC/OAuthDetailsRequestSunBirdC/OAuthDetailsRequestSunBirdC
       outputTemplate: esignet/SunBirdC/OAuthDetailsRequestSunBirdC/OAuthDetailsRequestSunBirdCResult
       input: '{
@@ -207,6 +214,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_CreatePolicySunBirdR_01
       inputTemplate: esignet/SunBirdC/OAuthDetailsRequestSunBirdC/OAuthDetailsRequestSunBirdC
       outputTemplate: esignet/error
       input: '{
@@ -239,6 +247,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       restMethod: post
       allowedErrorCodes: unsupported_pkce_challenge_method,invalid_pkce_challenge
       checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_CreatePolicySunBirdR_01
       inputTemplate: esignet/SunBirdC/OAuthDetailsRequestSunBirdC/OAuthDetailsRequestSunBirdC
       outputTemplate: esignet/error
       input: '{
@@ -270,6 +279,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_CreatePolicySunBirdR_01
       inputTemplate: esignet/SunBirdC/OAuthDetailsRequestSunBirdC/OAuthDetailsRequestSunBirdC
       outputTemplate: esignet/SunBirdC/OAuthDetailsRequestSunBirdC/OAuthDetailsRequestSunBirdCResult
       input: '{
@@ -297,6 +307,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_CreatePolicySunBirdR_01
       inputTemplate: esignet/SunBirdC/OAuthDetailsRequestSunBirdC/OAuthDetailsRequestSunBirdC
       outputTemplate: esignet/error
       input: '{
@@ -328,6 +339,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_CreatePolicySunBirdR_01
       inputTemplate: esignet/SunBirdC/OAuthDetailsRequestSunBirdC/OAuthDetailsRequestSunBirdC
       outputTemplate: esignet/error
       input: '{
@@ -359,6 +371,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_CreatePolicySunBirdR_01
       inputTemplate: esignet/SunBirdC/OAuthDetailsRequestSunBirdC/OAuthDetailsRequestSunBirdC
       outputTemplate: esignet/error
       input: '{
@@ -391,6 +404,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_CreatePolicySunBirdR_01
       inputTemplate: esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTCResult
       input: '{
@@ -419,6 +433,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_CreatePolicySunBirdR_01
       inputTemplate: esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTCResult
       input: '{
@@ -447,6 +462,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_CreatePolicySunBirdR_01
       inputTemplate: esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTCResult
       input: '{
@@ -475,6 +491,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_CreatePolicySunBirdR_01
       inputTemplate: esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTCResult
       input: '{
@@ -503,6 +520,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_CreatePolicySunBirdR_01
       inputTemplate: esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTCResult
       input: '{
@@ -531,6 +549,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_CreatePolicySunBirdR_01
       inputTemplate: esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTCResult
       input: '{
@@ -559,6 +578,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_CreatePolicySunBirdR_01
       inputTemplate: esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTCResult
       input: '{
@@ -587,6 +607,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_CreatePolicySunBirdR_01
       inputTemplate: esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTCResult
       input: '{
@@ -615,6 +636,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_CreatePolicySunBirdR_01
       inputTemplate: esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTCResult
       input: '{
@@ -643,6 +665,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_CreatePolicySunBirdR_01
       inputTemplate: esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTCResult
       input: '{
@@ -671,6 +694,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_CreatePolicySunBirdR_01
       inputTemplate: esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTCResult
       input: '{
@@ -699,6 +723,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_CreatePolicySunBirdR_01
       inputTemplate: esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTCResult
       input: '{
@@ -727,6 +752,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_CreatePolicySunBirdR_01
       inputTemplate: esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTCResult
       input: '{
@@ -755,6 +781,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_CreatePolicySunBirdR_01
       inputTemplate: esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTCResult
       input: '{
@@ -783,6 +810,7 @@ OAuthDetailsRequestSunBirdCNegTC:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_CreatePolicySunBirdR_01
       inputTemplate: esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC
       outputTemplate: esignet/SunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTC/OAuthDetailsRequestSunBirdCNegTCResult
       input: '{

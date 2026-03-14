@@ -7,7 +7,7 @@ AuthCodeConsentNoCapture:
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
-      additionalDependencies: TC_ESignet_AuthenticateUserV3VerifiedClaims_01
+      additionalDependencies: TC_ESignet_AuthenticateConsentNoCapture_01
       inputTemplate: esignet/OTPAuthFactorFlow/ConsentNoCapture/AuthCodeConsentNoCapture/AuthCodeConsentNoCapture
       outputTemplate: esignet/OTPAuthFactorFlow/ConsentNoCapture/AuthCodeConsentNoCapture/AuthCodeConsentNoCaptureResult
       input: '{
