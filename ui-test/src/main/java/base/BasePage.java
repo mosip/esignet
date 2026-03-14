@@ -136,8 +136,8 @@ public class BasePage {
 		if (isElementVisible(element, stepDesc)) {
 			element.clear();
 			element.sendKeys(text);
-			logStep(stepDesc + " - Entered text: '" + text + "'", element);
-			LOGGER.info("Entering text: {}", text);
+			logStep(stepDesc, element);
+			LOGGER.info("Entered text into {}", describeElement(element));
 		}
 	}
 
@@ -235,15 +235,15 @@ public class BasePage {
 	public void jsClick(WebElement element, String stepDesc) {
 		try {
 			waitForElementVisible(element);
-			logStep(stepDesc + " - Scrolled to Element", element);
-			LOGGER.info("Scrolling to element: {}", element);
+			logStep(stepDesc + " - Attempting click", element);
+			LOGGER.info("Clicking element: {}", element);
 			element.click();
 		} catch (Exception e) {
 			LOGGER.warn("Normal click failed, using JavaScript click.");
 			JavascriptExecutor js = (JavascriptExecutor) driver;
 			js.executeScript("arguments[0].click();", element);
-			LOGGER.warn("Normal click failed, using JavaScript click.");
-			ExtentReportManager.getTest().log(Status.WARNING, "Element not visible: " + describeElement(element));
+			ExtentReportManager.getTest().log(Status.INFO,
+					stepDesc + " - Fell back to JavaScript click for " + describeElement(element));
 		}
 	}
 

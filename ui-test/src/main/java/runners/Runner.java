@@ -274,6 +274,7 @@ public class Runner extends AbstractTestNGCucumberTests {
 		BaseTest.totalCount = 0;
 		BaseTest.passedCount = 0;
 		BaseTest.failedCount = 0;
+		BaseTest.knownIssueCount = 0;
 	}
 
 	public static String getGlobalResourcePath() {
@@ -328,10 +329,12 @@ public class Runner extends AbstractTestNGCucumberTests {
 	}
 
 	private static void loadKnownIssues() {
-
-		try (BufferedReader br = new BufferedReader(
-				new InputStreamReader(Runner.class.getClassLoader().getResourceAsStream("config/Known_Issues.txt"),
-						StandardCharsets.UTF_8))) {
+		InputStream knownIssuesStream = Runner.class.getClassLoader().getResourceAsStream("config/Known_Issues.txt");
+		if (knownIssuesStream == null) {
+			LOGGER.warning("Known issues file not found in classpath: config/Known_Issues.txt");
+			return;
+		}
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(knownIssuesStream, StandardCharsets.UTF_8))) {
 
 			String line;
 			while ((line = br.readLine()) != null) {

@@ -58,6 +58,7 @@ public class BaseTest extends AdminTestUtil {
 	public static int passedCount = 0;
 	public static int failedCount = 0;
 	public static int totalCount = 0;
+	public static int knownIssueCount = 0;
 
 	@Before
 	public void beforeAll(Scenario scenario) {
@@ -221,8 +222,12 @@ public class BaseTest extends AdminTestUtil {
 				// Use scenario name + failed step (fallback to scenario name if step unknown)
 				String failedStepName = scenario.getName().replaceAll("[^a-zA-Z0-9]", "_");
 
-				// Attach single screenshot
-				ScreenshotUtil.attachScreenshot(driver, failedStepName);
+				// Attach single screenshot when a driver exists
+				if (driver != null) {
+					ScreenshotUtil.attachScreenshot(driver, failedStepName);
+				} else {
+					ExtentReportManager.getTest().warning("Screenshot skipped because WebDriver was not initialized.");
+				}
 
 				ExtentReportManager.getTest().fail("❌ Scenario Failed: " + scenario.getName());
 
