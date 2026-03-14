@@ -63,9 +63,12 @@ public class BaseTest extends AdminTestUtil {
 	@Before
 	public void beforeAll(Scenario scenario) {
 		LOGGER.info("Initializing WebDriver...");
-		
+
 		if (runners.Runner.knownIssues.containsKey(scenario.getName())) {
 			String bugId = runners.Runner.knownIssues.get(scenario.getName());
+			String browser = BaseTestUtil.getBrowserForScenario(scenario);
+			String lang = BaseTestUtil.getThreadLocalLanguage();
+			ExtentReportManager.createTest(scenario.getName() + " [" + browser + " | " + lang + "]");
 			LOGGER.info("Skipping Known Issue Scenario: " + scenario.getName() + " | Bug: " + bugId);
 			isKnownIssueScenario.set(true);
 			throw new SkipException("Known Issue - Skipped: " + scenario.getName() + " | " + bugId);
@@ -238,7 +241,6 @@ public class BaseTest extends AdminTestUtil {
 				String bugUrl = "https://mosip.atlassian.net/browse/" + bugId;
 
 				ExtentReportManager.incrementKnownIssue();
-				ExtentReportManager.createTest(scenario.getName());
 				ExtentReportManager.getTest().skip(
 						"🟠 Skipped due to Known Issue → <a href='" + bugUrl + "' target='_blank'>" + bugId + "</a>");
 

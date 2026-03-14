@@ -145,6 +145,7 @@ public class BasePage {
 		try {
 			LOGGER.info("Refreshing browser");
 			driver.navigate().refresh();
+			ExtentReportManager.getTest().log(Status.INFO, stepDesc);
 		} catch (Exception e) {
 			LOGGER.error("Failed to refresh browser", e);
 			ExtentReportManager.getTest().log(Status.WARNING,
@@ -157,6 +158,7 @@ public class BasePage {
 		try {
 			LOGGER.info("Navigating back");
 			driver.navigate().back();
+			ExtentReportManager.getTest().log(Status.INFO, stepDesc);
 		} catch (Exception e) {
 			LOGGER.error("Failed to navigate back", e);
 			ExtentReportManager.getTest().log(Status.WARNING,
@@ -172,9 +174,9 @@ public class BasePage {
 	public void uploadFile(WebElement element, String filePath, String stepDesc) {
 		String absolutePath = Paths.get(System.getProperty("user.dir"), filePath).toString();
 		waitForElementVisible(element);
+		element.sendKeys(absolutePath);
 		logStep(stepDesc + " - uploaded file: '" + absolutePath + "'", element);
 		LOGGER.info("Uploading file: {}", absolutePath);
-		element.sendKeys(absolutePath);
 	}
 
 	public void verifyHomePageLinks(List<WebElement> links) {
