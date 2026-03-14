@@ -26,8 +26,10 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.aventstack.extentreports.Status;
 import utils.ClaimsUtil;
 import utils.EsignetConfigManager;
+import utils.ExtentReportManager;
 import utils.WaitUtil;
 
 public class BasePage {
@@ -38,60 +40,139 @@ public class BasePage {
 		this.driver = driver;
 	}
 
+	private void logStep(String description, WebElement element) {
+		ExtentReportManager.getTest().log(Status.INFO,
+				description + "<details><summary>Locator Details</summary><pre>" + element + "</pre></details>");
+	}
+
+	private void logStep(String description, By locator) {
+		ExtentReportManager.getTest().log(Status.INFO, description + "<details><summary>Locator Details</summary><pre>"
+				+ formatLocator(locator) + "</pre></details>");
+	}
+
+	private String formatLocator(By locator) {
+		String locatorStr = locator.toString();
+		if (locatorStr.contains(": ")) {
+			String[] parts = locatorStr.split(": ", 2);
+			String method = parts[0].replace("By.", "");
+			String value = parts[1];
+			return "By." + method + "(\"" + value + "\")";
+		}
+		return locatorStr;
+	}
+
+	private String describeElement(WebElement element) {
+		try {
+			String contentDesc = element.getAttribute("content-desc");
+			String id = element.getAttribute("resource-id");
+			String text = element.getText();
+			if (contentDesc != null && !contentDesc.isEmpty()) {
+				return "\"" + contentDesc + "\"";
+			} else if (text != null && !text.isEmpty()) {
+				return "\"" + text + "\"";
+			} else if (id != null && !id.isEmpty()) {
+				return "\"" + id.substring(id.lastIndexOf("/") + 1) + "\""; // just the id name
+			} else {
+				return "[Unnamed element]";
+			}
+		} catch (Exception e) {
+			return "[Element details unavailable]";
+		}
+	}
+
 	public void waitForElementVisible(WebElement element) {
 		WaitUtil.waitForVisibility(driver, element);
 	}
 
-	public void clickOnElement(WebElement element) {
-		waitForElementVisible(element);
-		LOGGER.info("Clicking on element: {}", element);
-		element.click();
-	}
-
-	public boolean isElementVisible(WebElement element) {
+	public void clickOnElement(WebElement element, String stepDesc) {
 		try {
 			waitForElementVisible(element);
+
+			element.click();
+			logStep(stepDesc, element);
+			LOGGER.info("Clicking on element: {}", element);
+		} catch (Exception e) {
+
+			ExtentReportManager.getTest().log(Status.FAIL, "Failed to click on element: " + describeElement(element));
+			throw e;
+		}
+	}
+
+	public boolean isElementVisible(WebElement element, String stepDesc) {
+		try {
+			waitForElementVisible(element);
+			logStep(stepDesc + " - Verified visibility", element);
 			return element.isDisplayed();
 		} catch (NoSuchElementException e) {
 			LOGGER.warn("Element not visible: {}", element);
+			ExtentReportManager.getTest().log(Status.WARNING, "Element not visible: " + describeElement(element));
 			return false;
 		}
 	}
 
-	public String getText(WebElement element) {
+	public String getText(WebElement element, String stepDesc) {
 		waitForElementVisible(element);
 		String text = element.getText();
+		logStep(stepDesc + " - Verified Text", element);
 		LOGGER.info("Retrieved text: {}", text);
 		return text;
 	}
 
-	public boolean isButtonEnabled(WebElement element) {
-		waitForElementVisible(element);
-		boolean enabled = element.isEnabled();
-		LOGGER.info("Button enabled status: {}", enabled);
-		return enabled;
+	public boolean isButtonEnabled(WebElement element, String stepDesc) {
+		try {
+			waitForElementVisible(element);
+			boolean enabled = element.isEnabled();
+			logStep(stepDesc + " - Verified Button", element);
+			LOGGER.info("Button enabled status: {}", enabled);
+			return enabled;
+		} catch (NoSuchElementException e) {
+			LOGGER.warn("Element not visible: {}", element);
+			ExtentReportManager.getTest().log(Status.WARNING, "Element not visible: " + describeElement(element));
+			return false;
+		}
 	}
 
-	public void enterText(WebElement element, String text) {
-		waitForElementVisible(element);
-		element.clear();
-		LOGGER.info("Entering text: {}", text);
-		element.sendKeys(text);
+	public void enterText(WebElement element, String text, String stepDesc) {
+		if (isElementVisible(element, stepDesc)) {
+			element.clear();
+			element.sendKeys(text);
+			logStep(stepDesc + " - Entered text: '" + text + "'", element);
+			LOGGER.info("Entering text: {}", text);
+		}
 	}
 
-	public void refreshBrowser() {
-		LOGGER.info("Refreshing browser");
-		driver.navigate().refresh();
+	public void refreshBrowser(String stepDesc) {
+		try {
+			LOGGER.info("Refreshing browser");
+			driver.navigate().refresh();
+		} catch (Exception e) {
+			LOGGER.error("Failed to refresh browser", e);
+			ExtentReportManager.getTest().log(Status.WARNING,
+					stepDesc + " - Failed to refresh browser: " + e.getMessage());
+			throw e;
+		}
+	}
+
+	public void browserBackButton(String stepDesc) {
+		try {
+			LOGGER.info("Navigating back");
+			driver.navigate().back();
+		} catch (Exception e) {
+			LOGGER.error("Failed to navigate back", e);
+			ExtentReportManager.getTest().log(Status.WARNING,
+					stepDesc + " - Failed to navigate back: " + e.getMessage());
+			throw e;
+		}
 	}
 
 	public void browserBackButton() {
-		LOGGER.info("Navigating back");
 		driver.navigate().back();
 	}
 
-	public void uploadFile(WebElement element, String filePath) {
+	public void uploadFile(WebElement element, String filePath, String stepDesc) {
 		String absolutePath = Paths.get(System.getProperty("user.dir"), filePath).toString();
 		waitForElementVisible(element);
+		logStep(stepDesc + " - uploaded file: '" + absolutePath + "'", element);
 		LOGGER.info("Uploading file: {}", absolutePath);
 		element.sendKeys(absolutePath);
 	}
@@ -144,20 +225,25 @@ public class BasePage {
 		}
 	}
 
-	public void scrollToElement(WebElement element) {
+	public void scrollToElement(WebElement element, String stepDesc) {
 		JavascriptExecutor js = (JavascriptExecutor) driver;
+		logStep(stepDesc + " - Scrolled to Element", element);
 		LOGGER.info("Scrolling to element: {}", element);
 		js.executeScript("arguments[0].scrollIntoView(true);", element);
 	}
 
-	public void jsClick(WebElement element) {
+	public void jsClick(WebElement element, String stepDesc) {
 		try {
 			waitForElementVisible(element);
+			logStep(stepDesc + " - Scrolled to Element", element);
+			LOGGER.info("Scrolling to element: {}", element);
 			element.click();
 		} catch (Exception e) {
 			LOGGER.warn("Normal click failed, using JavaScript click.");
 			JavascriptExecutor js = (JavascriptExecutor) driver;
 			js.executeScript("arguments[0].click();", element);
+			LOGGER.warn("Normal click failed, using JavaScript click.");
+			ExtentReportManager.getTest().log(Status.WARNING, "Element not visible: " + describeElement(element));
 		}
 	}
 
@@ -256,7 +342,7 @@ public class BasePage {
 			return false;
 		}
 	}
-	
+
 	public String getTooltipText(By iconLocator, By tooltipLocator) {
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
 

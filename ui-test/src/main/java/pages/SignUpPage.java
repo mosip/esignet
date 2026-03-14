@@ -55,7 +55,7 @@ public class SignUpPage extends BasePage {
 	WebElement accountCreatedSuccessfullyMessage;
 
 	public void clickOnSignUp() {
-		clickOnElement(signUp);
+		clickOnElement(signUp,"Clicked on signup button");
 	}
 
 	public void navigateToSignupPortal() {
@@ -63,15 +63,15 @@ public class SignUpPage extends BasePage {
 	}
 
 	public void clickOnRegisterButton() {
-		clickOnElement(registerButton);
+		clickOnElement(registerButton,"Clicked on register button");
 	}
 
 	public void enterMobileNumber(String number) {
-		enterText(enterMobileNumberField, number);
+		enterText(enterMobileNumberField, number,"Entered the mobile number");
 	}
 
 	public void clickOnContinueButton() {
-		clickOnElement(continueButton);
+		clickOnElement(continueButton,"Clicked on continue button");
 	}
 
 	public void enterOtp(String otp) {
@@ -86,30 +86,30 @@ public class SignUpPage extends BasePage {
 	}
 
 	public void clickOnVerifyOtpButton() {
-		clickOnElement(verifyOtpButton);
+		clickOnElement(verifyOtpButton,"Clicked on verify otp button");
 	}
 
 	public void clickOnContinueButtonInSucessScreen() {
-		clickOnElement(continueButtonInSuccessPage);
+		clickOnElement(continueButtonInSuccessPage,"Clicked on continue button in success screen");
 	}
 
 	public void clickOnUploadPhoto() {
-		clickOnElement(uploadPhoto);
+		clickOnElement(uploadPhoto,"Clicked on upload photo section");
 	}
 
 	public void clickOnCaptureButton() {
 		new Actions(driver).pause(Duration.ofSeconds(1)).perform();
-		clickOnElement(captureButton);
+		clickOnElement(captureButton,"Clicked on Capture button");
 	}
 
 	public void clickOnSetupAccountContinueButton() {
-		clickOnElement(setupContinueButton);
+		clickOnElement(setupContinueButton,"Clicked on continue button in account setup screen");
 	}
 
 	public boolean isAccountCreatedSuccessfullyMessageDisplayed() {
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(50));
 		wait.until(ExpectedConditions.visibilityOf(accountCreatedSuccessfullyMessage));
-		return isElementVisible(accountCreatedSuccessfullyMessage);
+		return isElementVisible(accountCreatedSuccessfullyMessage,"Verified account created successfully message displayed");
 	}
 
 }

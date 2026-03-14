@@ -115,16 +115,16 @@ public class ConsentPage extends BasePage {
 	WebElement profileDropdown;
 
 	public void clickOnLoginWithOtp() {
-		clickOnElement(loginWithOtpButton);
+		clickOnElement(loginWithOtpButton,"Clicked on login with Otp button");
 	}
 
 	public void enterRegisteredMobileNumber(String number) {
 		mobileNumberField.clear();
-		enterText(mobileNumberField, number);
+		enterText(mobileNumberField, number,"Entered registered mobile number");
 	}
 
 	public void clickOnGetOtp() {
-		clickOnElement(getOtpButton);
+		clickOnElement(getOtpButton,"Clicked on get otp button");
 	}
 
 	public String getCurrentLanguage() {
@@ -149,7 +149,7 @@ public class ConsentPage extends BasePage {
 	}
 
 	public void clickOnVerifyButton() {
-		clickOnElement(verifyOtpButton);
+		clickOnElement(verifyOtpButton,"Clicked on verify otp button");
 	}
 
 	public boolean isOnAttentionScreen() {
@@ -157,29 +157,29 @@ public class ConsentPage extends BasePage {
 	}
 
 	public void clickOnProceedButtonInAttentionPage() {
-		clickOnElement(proceedButtonInAttentionPage);
+		clickOnElement(proceedButtonInAttentionPage,"Clicked on Procced button in attention screen");
 	}
 
 	public void clickOnProceedButton() {
-		clickOnElement(proceedButton);
+		clickOnElement(proceedButton,"Clicked on proceed button");
 	}
 
 	public void clickOnMockIdentifyVerifier() {
-		clickOnElement(eKycServiceProvider);
+		clickOnElement(eKycServiceProvider,"Selected the ekyc provider");
 	}
 
 	public void clickOnProceedButtonInServiceProviderPage() {
-		clickOnElement(proceedButtonInServiceProviderPage);
+		clickOnElement(proceedButtonInServiceProviderPage,"clicked on proceed button in ekyc screen");
 	}
 
 	public void checkTermsAndCondition() {
 		if (!termsAndConditionCheckBox.isSelected()) {
-			clickOnElement(termsAndConditionCheckBox);
+			clickOnElement(termsAndConditionCheckBox,"Selected the terms and condition checkbox");
 		}
 	}
 
 	public void clickOnProceedButtonInTermsAndConditionPage() {
-		clickOnElement(proceedBtnInTandCPage);
+		clickOnElement(proceedBtnInTandCPage,"Clicked on proceed button in terms and condition screen");
 	}
 
 	public void clickOnProceedButtonInCameraPreviewPage() {
@@ -199,11 +199,11 @@ public class ConsentPage extends BasePage {
 	}
 
 	public boolean isConsentScreenVisible() {
-		return isElementVisible(allowButton);
+		return isElementVisible(allowButton,"Verified is navigated to consent scrren");
 	}
 
 	public boolean isVoluntaryClaimsMasterToggleVisible() {
-		return voluntaryClaimsElements.size() > 1 && isElementVisible(voluntaryClaimsMasterToggle);
+		return voluntaryClaimsElements.size() > 1 && isElementVisible(voluntaryClaimsMasterToggle,"Verified voluntary claims master toggle button");
 	}
 
 	public WebElement getVoluntaryClaimsMasterToggle() {
@@ -216,12 +216,12 @@ public class ConsentPage extends BasePage {
 
 	public void enableVoluntaryClaimsMasterToggle() {
 		if (!voluntaryClaimsMasterToggle.isSelected()) {
-			clickOnElement(voluntaryClaimsMasterToggle);
+			clickOnElement(voluntaryClaimsMasterToggle,"Enabled the voluntary claims master toggle button");
 		}
 	}
 
 	public void disableVoluntaryClaimsMasterToggle() {
-		clickOnElement(voluntaryClaimsMasterToggle);
+		clickOnElement(voluntaryClaimsMasterToggle,"Disabled the voluntary claims master toggle button ");
 	}
 
 	public boolean isVoluntaryClaimsMasterToggleSelected() {
@@ -252,19 +252,19 @@ public class ConsentPage extends BasePage {
 	}
 
 	public void clickOnAllowBtnInConsentScreen() {
-		clickOnElement(allowButtonInConsentScreen);
+		clickOnElement(allowButtonInConsentScreen,"Clicked on allow button in consent screen");
 	}
 
 	public boolean isLanguageDropdownDisplayed() {
-		return isElementVisible(languageDropdown);
+		return isElementVisible(languageDropdown,"Verified language dropdown is visible");
 	}
 
 	public void clickOnLanguageDropdown() {
-		clickOnElement(languageDropdown);
+		clickOnElement(languageDropdown,"Clicked on language dropdown");
 	}
 
 	public void clickOnArabicLanguage() {
-		clickOnElement(arabicLanguage);
+		clickOnElement(arabicLanguage,"Selected arabic language from dropdown");
 	}
 
 	public String getPageDirection() {
@@ -285,7 +285,7 @@ public class ConsentPage extends BasePage {
 	}
 
 	public void clickOnProfileDropdown() {
-		clickOnElement(profileDropdown);
+		clickOnElement(profileDropdown,"Clicked on profile dropdown");
 	}
 
 	public List<String> getDisplayedClaims() {

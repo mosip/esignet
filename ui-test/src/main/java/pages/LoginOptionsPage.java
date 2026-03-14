@@ -60,39 +60,39 @@ public class LoginOptionsPage extends BasePage {
 	List<WebElement> moreWaysToSignIn;
 
 	public boolean isLogoDisplayed() {
-		return isElementVisible(brandLogo);
+		return isElementVisible(brandLogo,"Verified is logo displayed");
 	}
 
 	public void clickOnLoginWithInji() {
-		clickOnElement(loginWithInji);
+		clickOnElement(loginWithInji,"Clicked on login with inji");
 	}
 
 	public boolean isLanguageDropdownDisplayed() {
-		return isElementVisible(languageDropdown);
+		return isElementVisible(languageDropdown,"Verified language dropdown is visible");
 	}
 
 	public void clickOnLanguageDropdown() {
-		clickOnElement(languageDropdown);
+		clickOnElement(languageDropdown,"Clicked on language dropdown");
 	}
 
 	public void clickOnHindiLanguage() {
-		clickOnElement(hindiLanguage);
+		clickOnElement(hindiLanguage,"Selected hindi language from dropdown");
 	}
 
 	public boolean isSelectedLanguageDisplayed() {
-		return isElementVisible(loginWithOtpBtn);
+		return isElementVisible(loginWithOtpBtn,"Verified selected language displayed");
 	}
 
 	public boolean isLoginWithBiometicDisplayed() {
-		return isElementVisible(loginWithBiometricBtn);
+		return isElementVisible(loginWithBiometricBtn,"Verified login with biometric button is displayed");
 	}
 
 	public boolean isLoginWithInjiDisplayed() {
-		return isElementVisible(loginWithInjiBtn);
+		return isElementVisible(loginWithInjiBtn,"Verified login with inji button is displayed");
 	}
 
 	public boolean isLoginWithPasswordDisplayed() {
-		return isElementVisible(loginWithPasswordBtn);
+		return isElementVisible(loginWithPasswordBtn,"Verified login with password button is displayed");
 	}
 
 	public List<WebElement> getLoginOptions() {

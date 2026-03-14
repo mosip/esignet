@@ -22,13 +22,13 @@ public class MultiLanguagePage extends BasePage {
     WebElement languageSelection;
 
     public void clickOnLanguageSelection() {
-        clickOnElement(languageSelection);
+        clickOnElement(languageSelection,"Clicked on language selection option");
     }
 
     public void clickOnLanguage() {
         String langCode = BaseTestUtil.getThreadLocalLanguage();
         WebElement language = driver.findElement(By.xpath("//div[text()='" + LanguageUtil.getDisplayName(langCode) +"']"));
-        clickOnElement(language);
+        clickOnElement(language,"Selected the given language");
     }
 
     public String getLanguageFromCookie() {
