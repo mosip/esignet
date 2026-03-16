@@ -15,9 +15,8 @@ public class LoginWithInjiStepDefinition {
         WebDriver driver = baseTest.getDriver();
         loginOptionsPage = new LoginOptionsPage(driver);
     }
-
-    @Then("Click on Login with Inji")
-    public void clickOnLoginWithInji() {
-        loginOptionsPage.clickOnLoginWithInji();
-    }
+	/*
+	 * @Then("Click on Login with Inji") public void clickOnLoginWithInji() {
+	 * loginOptionsPage.clickOnLoginWithInji(); }
+	 */
 }

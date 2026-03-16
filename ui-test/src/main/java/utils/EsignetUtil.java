@@ -1,13 +1,20 @@
 package utils;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 import javax.ws.rs.core.MediaType;
 
@@ -66,6 +73,7 @@ public class EsignetUtil extends AdminTestUtil {
 	protected static boolean triggerESignetKeyGenForPAR = true;
 	protected static final String OIDC_JWK_FOR_PAR = "oidcJWKForPAR";
 	protected static RSAKey oidc_JWK_Key_For_PAR = null;
+	protected static final String CLAIMS_REQUEST = "config/claims.json";
 
 	private static final String display = "popup";
 	private static final String responseType = "code";
@@ -271,36 +279,17 @@ public class EsignetUtil extends AdminTestUtil {
 		String regex = getValueFromSignupActuator("applicationConfig: [classpath:/application-default.properties]",
 				"mosip.signup.identifier.regex");
 
-		if (regex == null || regex.isEmpty()) {
-			logger.error("Mobile number regex not found in configuration");
-			throw new IllegalStateException("mosip.signup.identifier.regex is not configured");
+		String phoneNumber = "";
+		try {
+			phoneNumber = AdminTestUtil.genStringAsperRegex(regex);
+		} catch (Exception e) {
+			logger.info("Phone Number is not generated with regex: " + e);
 		}
 
-		int startIdx = regex.indexOf('{');
-		int endIdx = regex.indexOf('}');
-		if (startIdx == -1 || endIdx == -1 || startIdx >= endIdx) {
-			logger.error("Invalid regex format: " + regex);
-			throw new IllegalArgumentException("Regex must contain {min,max} pattern");
-		}
+		String countryCode = regex.substring(regex.indexOf('\\') + 1, regex.indexOf('['));
+		phoneNumber = phoneNumber.replace(countryCode, "");
 
-		String digitRange = regex.substring(startIdx + 1, endIdx);
-		String[] parts = digitRange.split(",");
-		if (parts.length != 2) {
-			throw new IllegalArgumentException("Regex digit range must be in format {min,max}");
-		}
-
-		int min = Integer.parseInt(parts[0].trim());
-		int max = Integer.parseInt(parts[1].trim());
-		int length = min + new Random().nextInt(max - min + 1);
-
-		StringBuilder number = new StringBuilder();
-		number.append(new Random().nextInt(9) + 1);
-
-		for (int i = 1; i < length; i++) {
-			number.append(new Random().nextInt(10));
-		}
-
-		return number.toString();
+		return phoneNumber;
 	}
 
 	public static String getPasswordPattern() {
@@ -389,13 +378,34 @@ public class EsignetUtil extends AdminTestUtil {
 						if (validators == null)
 							continue;
 
+						List<String> regexList = new ArrayList<>();
+
 						for (int j = 0; j < validators.length(); j++) {
 							JSONObject validator = validators.getJSONObject(j);
-							if (langCode.equals(validator.optString("langCode"))) {
+
+							if (validator.has("langCode")) {
+								if (langCode.equalsIgnoreCase(validator.optString("langCode"))) {
+									String regex = validator.optString("regex", null);
+									if (regex != null && !regex.isEmpty()) {
+										logger.info("Regex for " + fieldId + " in " + langCode + ": " + regex);
+										return regex;
+									}
+								}
+							} else {
 								String regex = validator.optString("regex", null);
-								logger.info("Regex for " + fieldId + " in " + langCode + ": " + regex);
-								return regex;
+								if (regex != null && !regex.isEmpty()) {
+									regexList.add(regex);
+								}
 							}
+						}
+						if (!regexList.isEmpty()) {
+							StringBuilder combined = new StringBuilder();
+							for (String r : regexList) {
+								combined.append("(?=").append(r).append(")");
+							}
+							String combinedRegex = combined.append(".*").toString();
+							logger.info("Combined Regex for " + fieldId + ": " + combinedRegex);
+							return combinedRegex;
 						}
 					}
 				}
@@ -485,9 +495,11 @@ public class EsignetUtil extends AdminTestUtil {
 		return name.toString();
 	}
 
-	public static class RegisteredDetails {
+	public class RegisteredDetails {
 
 		private static String registeredMobileNumber;
+		private static String registeredFullName;
+		private static String registeredPassword;
 
 		public static String getMobileNumber() {
 			return registeredMobileNumber;
@@ -496,6 +508,151 @@ public class EsignetUtil extends AdminTestUtil {
 		public static void setMobileNumber(String mobileNumber) {
 			registeredMobileNumber = mobileNumber;
 		}
+
+		public static String getPassword() {
+			return registeredPassword;
+		}
+
+		public static void setPassword(String password) {
+			registeredPassword = password;
+		}
+
+		public static String getFullName() {
+			return registeredFullName;
+		}
+
+		public static void setFullName(String reisteredFullName) {
+			registeredFullName = reisteredFullName;
+		}
+	}
+
+	public static String getRegexForField(String fieldId) {
+		return getRegexForField(fieldId, "en");
+	}
+
+	public static JSONArray getSignupSchemaArray() {
+		JSONObject resp = null;
+		try {
+			resp = getSignupUISpecResponse().optJSONObject("response");
+		} catch (Exception e) {
+			return new JSONArray();
+		}
+		if (resp != null && resp.has("schema")) {
+			return resp.optJSONArray("schema");
+		}
+		return new JSONArray();
+	}
+
+	public static String generateEmailFromRegex(String regex) {
+		if (regex == null || regex.isEmpty()) {
+			return "user" + System.currentTimeMillis() + "@example.com";
+		}
+
+		String localChars;
+		if (regex.contains("A-Z") && regex.contains("a-z")) {
+			localChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-";
+		} else if (regex.contains("a-z")) {
+			localChars = "abcdefghijklmnopqrstuvwxyz0123456789._-";
+		} else if (regex.contains("A-Z")) {
+			localChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-";
+		} else {
+			localChars = "abcdefghijklmnopqrstuvwxyz0123456789";
+		}
+
+		Random random = new Random();
+		int localLength = 6 + random.nextInt(5);
+		StringBuilder localPart = new StringBuilder();
+		for (int i = 0; i < localLength; i++) {
+			localPart.append(localChars.charAt(random.nextInt(localChars.length())));
+		}
+
+		String[] domains = { "gmail.com", "yahoo.com", "outlook.com", "example.com" };
+		String domain = domains[random.nextInt(domains.length)];
+
+		String email = localPart + "@" + domain;
+
+		return email;
+	}
+
+	public static String generateValueFromRegex(String regex) {
+		if (regex == null || regex.isEmpty()) {
+			return "defaultValue";
+		}
+
+		Random random = new Random();
+
+		StringBuilder chars = new StringBuilder();
+		if (regex.contains("A-Z"))
+			chars.append("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+		if (regex.contains("a-z"))
+			chars.append("abcdefghijklmnopqrstuvwxyz");
+		if (regex.contains("0-9") || regex.contains("\\d"))
+			chars.append("0123456789");
+
+		if (chars.length() == 0) {
+			chars.append("abcdefghijklmnopqrstuvwxyz");
+		}
+
+		int min = 8, max = 8;
+		if (regex.contains("{") && regex.contains("}")) {
+			String range = regex.substring(regex.indexOf('{') + 1, regex.indexOf('}'));
+			String[] parts = range.split(",");
+			try {
+				if (parts.length == 2) {
+					min = Integer.parseInt(parts[0].trim());
+					max = Integer.parseInt(parts[1].trim());
+				} else {
+					min = max = Integer.parseInt(parts[0].trim());
+				}
+			} catch (NumberFormatException ignored) {
+			}
+		}
+
+		int length = min + random.nextInt(Math.max(1, max - min + 1));
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < length; i++) {
+			sb.append(chars.charAt(random.nextInt(chars.length())));
+		}
+
+		return sb.toString();
+	}
+
+	public static Map<String, Map<String, Object>> getUiSpecFields() {
+		Map<String, Map<String, Object>> fieldsMap = new LinkedHashMap<>();
+
+		JSONObject response = getSignupUISpecResponse().optJSONObject("response");
+		if (response == null)
+			return fieldsMap;
+
+		JSONArray schema = response.optJSONArray("schema");
+		if (schema == null)
+			return fieldsMap;
+
+		for (int i = 0; i < schema.length(); i++) {
+			JSONObject field = schema.optJSONObject(i);
+			if (field == null)
+				continue;
+
+			String fieldId = field.optString("id", null);
+			if (fieldId != null) {
+				Map<String, Object> fieldDetails = field.toMap();
+				fieldsMap.put(fieldId, fieldDetails);
+			}
+		}
+
+		return fieldsMap;
+	}
+
+	public static String getRandomDOB() {
+		LocalDate today = LocalDate.now();
+		LocalDate earliest = today.minusYears(120);
+		long daysRange = ChronoUnit.DAYS.between(earliest, today);
+
+		long randomDays = ThreadLocalRandom.current().nextLong(daysRange);
+		LocalDate dob = earliest.plusDays(randomDays);
+
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+		return dob.format(formatter);
 	}
 
 	private static boolean getTriggerESignetKeyGenForPAR() {
@@ -798,6 +955,7 @@ public class EsignetUtil extends AdminTestUtil {
 		String baseUrl = EsignetConfigManager.getproperty("eSignetbaseurl");
 		String parUrl = baseUrl + "/v1/esignet/oauth/par";
 
+		org.json.simple.JSONObject claimRequest = getRequestJson(CLAIMS_REQUEST);
 		JSONObject requestBody = new JSONObject();
 
 		requestBody.put("display", display);
@@ -808,6 +966,7 @@ public class EsignetUtil extends AdminTestUtil {
 		requestBody.put("requestTime", "$TIMESTAMP$");
 		requestBody.put("client_assertion_type", client_assertion_type);
 		requestBody.put("claim_locales", claim_locales);
+		requestBody.put("claims", claimRequest.toString());
 		requestBody.put("scope", scope);
 		requestBody.put("acr_values",
 				"mosip:idp:acr:generated-code mosip:idp:acr:biometrics mosip:idp:acr:linked-wallet mosip:idp:acr:password");
@@ -832,14 +991,13 @@ public class EsignetUtil extends AdminTestUtil {
 
 		return responseJson.getString("request_uri");
 	}
-	
+
 	public static String getIdentityPluginNameFromEsignetActuator() {
 		if (pluginName != null && !pluginName.isBlank()) {
 			return pluginName;
 		}
 		pluginName = getValueFromEsignetActuator(ESignetConstants.CLASS_PATH_APPLICATION_PROPERTIES,
 				"mosip.esignet.integration.authenticator");
-
 		return pluginName;
 	}
 

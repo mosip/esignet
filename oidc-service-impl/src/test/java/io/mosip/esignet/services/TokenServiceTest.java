@@ -422,6 +422,80 @@ public class TokenServiceTest {
     }
 
     @Test
+    public void verifyClientAssertion_withNullSubject_thenFail() throws Exception {
+        RSAKey rsaKey = new RSAKeyGenerator(2048)
+                .algorithm(JWSAlgorithm.RS256)
+                .keyID("rsa-rs256")
+                .generate();
+
+        JWSSigner signer = new RSASSASigner(rsaKey);
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .issuer("client-id")
+                .audience("audience")
+                .issueTime(new Date(123000L))
+                .expirationTime(new Date(System.currentTimeMillis() + 60000))
+                .jwtID(IdentityProviderUtil.createTransactionId(null))
+                .build();
+
+        SignedJWT signedJWT = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(rsaKey.getKeyID()).build(), claimsSet);
+        signedJWT.sign(signer);
+
+        EsignetException ex = Assertions.assertThrows(EsignetException.class, () ->
+                tokenService.verifyClientAssertionToken("client-id", rsaKey.toPublicJWK().toJSONString(), signedJWT.serialize(), List.of("audience")));
+        Assertions.assertEquals(ErrorConstants.INVALID_GRANT, ex.getErrorCode());
+    }
+
+    @Test
+    public void verifyClientAssertion_withMismatchedSubject_thenFail() throws Exception {
+        RSAKey rsaKey = new RSAKeyGenerator(2048)
+                .algorithm(JWSAlgorithm.RS256)
+                .keyID("rsa-rs256")
+                .generate();
+
+        JWSSigner signer = new RSASSASigner(rsaKey);
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject("different-client-id")
+                .issuer("client-id")
+                .audience("audience")
+                .issueTime(new Date(123000L))
+                .expirationTime(new Date(System.currentTimeMillis() + 60000))
+                .jwtID(IdentityProviderUtil.createTransactionId(null))
+                .build();
+
+        SignedJWT signedJWT = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(rsaKey.getKeyID()).build(), claimsSet);
+        signedJWT.sign(signer);
+
+        EsignetException ex = Assertions.assertThrows(EsignetException.class, () ->
+                tokenService.verifyClientAssertionToken("client-id", rsaKey.toPublicJWK().toJSONString(), signedJWT.serialize(), List.of("audience")));
+        Assertions.assertEquals(ErrorConstants.INVALID_GRANT, ex.getErrorCode());
+    }
+
+    @Test
+    public void verifyClientAssertion_withEmptySubject_thenFail() throws Exception {
+        RSAKey rsaKey = new RSAKeyGenerator(2048)
+                .algorithm(JWSAlgorithm.RS256)
+                .keyID("rsa-rs256")
+                .generate();
+
+        JWSSigner signer = new RSASSASigner(rsaKey);
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject("")
+                .issuer("client-id")
+                .audience("audience")
+                .issueTime(new Date(123000L))
+                .expirationTime(new Date(System.currentTimeMillis() + 60000))
+                .jwtID(IdentityProviderUtil.createTransactionId(null))
+                .build();
+
+        SignedJWT signedJWT = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(rsaKey.getKeyID()).build(), claimsSet);
+        signedJWT.sign(signer);
+
+        EsignetException ex = Assertions.assertThrows(EsignetException.class, () ->
+                tokenService.verifyClientAssertionToken("client-id", rsaKey.toPublicJWK().toJSONString(), signedJWT.serialize(), List.of("audience")));
+        Assertions.assertEquals(ErrorConstants.INVALID_GRANT, ex.getErrorCode());
+    }
+
+    @Test
     public void verifyIdTokenHint_withNullToken_thenFail() {
         assertThrows(NotAuthenticatedException.class, () ->
                 tokenService.verifyIdToken(null, "client-id"));

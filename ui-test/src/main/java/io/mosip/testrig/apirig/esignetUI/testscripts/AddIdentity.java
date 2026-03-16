@@ -214,6 +214,5 @@ public class AddIdentity extends EsignetUtil implements ITest {
 			logger.error("Exception : " + e.getMessage());
 			Thread.currentThread().interrupt();
 		}
-
 	}
 }

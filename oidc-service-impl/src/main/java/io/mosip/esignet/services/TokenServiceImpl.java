@@ -177,13 +177,21 @@ public class TokenServiceImpl implements TokenService {
                 throw new EsignetException(ErrorConstants.INVALID_CLIENT);
             }
 
+            String sub = signedJWT.getJWTClaimsSet().getSubject();
+            if (sub == null || !sub.equals(clientId)) {
+                log.error("Client assertion sub '{}' does not match clientId '{}'", sub, clientId);
+                throw new EsignetException(ErrorConstants.INVALID_GRANT);
+            }
+
             NimbusJwtDecoder jwtDecoder = getNimbusJwtDecoderFromJwk(jwk, clientId, audience, maxClockSkew, alg);
             jwtDecoder.decode(clientAssertion);
             String jti = signedJWT.getJWTClaimsSet().getJWTID();
             if (uniqueJtiRequired && (jti == null || cacheUtilService.checkAndMarkJti(jti))) {
                 log.error("invalid jti {}", jti);
-                throw new EsignetException();
+                throw new EsignetException(ErrorConstants.INVALID_CLIENT);
             }
+        } catch (EsignetException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Failed to verify client assertion", e);
             throw new EsignetException(ErrorConstants.INVALID_CLIENT);
