@@ -243,9 +243,15 @@ public class BasePage {
 		} catch (Exception e) {
 			LOGGER.warn("Normal click failed, using JavaScript click.");
 			JavascriptExecutor js = (JavascriptExecutor) driver;
-			js.executeScript("arguments[0].click();", element);
-			ExtentReportManager.getTest().log(Status.INFO,
-					stepDesc + " - Fell back to JavaScript click for " + describeElement(element));
+			try {
+				js.executeScript("arguments[0].click();", element);
+				ExtentReportManager.getTest().log(Status.INFO,
+						stepDesc + " - Fell back to JavaScript click for " + describeElement(element));
+			} catch (Exception jsEx) {
+				ExtentReportManager.getTest().log(Status.FAIL,
+						stepDesc + " - JavaScript click fallback failed for " + describeElement(element));
+				throw jsEx;
+			}
 		}
 	}
 
