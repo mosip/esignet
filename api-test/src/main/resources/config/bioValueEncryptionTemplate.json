@@ -1,0 +1,14 @@
+{
+  "id": "string",
+  "metadata": {},
+  "request": {
+    "aad": "VGhpcyBpcyBzYW1wbGUgYWFk",
+    "applicationId": "IDA",
+    "data": "string",
+    "referenceId": "IDA-FIR",
+    "salt": "LA7YcvP9DdLIVI5CwFt1SQ",
+    "timeStamp": "$TIMESTAMP$"
+  },
+  "requesttime": "$TIMESTAMP$",
+  "version": "string"
+}
