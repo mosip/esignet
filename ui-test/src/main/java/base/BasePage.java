@@ -167,10 +167,6 @@ public class BasePage {
 		}
 	}
 
-	public void browserBackButton() {
-		driver.navigate().back();
-	}
-
 	public void uploadFile(WebElement element, String filePath, String stepDesc) {
 		String absolutePath = Paths.get(System.getProperty("user.dir"), filePath).toString();
 		waitForElementVisible(element);
