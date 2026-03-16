@@ -229,9 +229,9 @@ public class BasePage {
 
 	public void scrollToElement(WebElement element, String stepDesc) {
 		JavascriptExecutor js = (JavascriptExecutor) driver;
-		logStep(stepDesc + " - Scrolled to Element", element);
 		LOGGER.info("Scrolling to element: {}", element);
 		js.executeScript("arguments[0].scrollIntoView(true);", element);
+		logStep(stepDesc + " - Scrolled to Element", element);
 	}
 
 	public void jsClick(WebElement element, String stepDesc) {
