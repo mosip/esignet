@@ -78,5 +78,61 @@ class AppConfigTest {
         assertEquals(1, result.getFeatureMap().size());
         assertEquals("PKCE", result.getFeatureMap().get("require_pkce"));
     }
+
+    @Test
+    void serverProfile_InvalidFeature_ThrowsException() {
+        ReflectionTestUtils.setField(appConfig, "serverProfile", "fapi2.0");
+        io.mosip.esignet.entity.ServerProfile profileEntity = new io.mosip.esignet.entity.ServerProfile();
+        profileEntity.setAdditionalConfigKey("require_pkce");
+        profileEntity.setFeature("INVALID_FEATURE");
+        when(serverProfileRepository.findByProfileName("fapi2.0"))
+                .thenReturn(Collections.singletonList(profileEntity));
+
+        EsignetException exception = assertThrows(EsignetException.class, () -> appConfig.serverProfile());
+        assertEquals("INVALID_SERVER_PROFILE", exception.getMessage());
+    }
+
+    @Test
+    void serverProfile_InvalidAdditionalConfigKey_ThrowsException() {
+        ReflectionTestUtils.setField(appConfig, "serverProfile", "fapi2.0");
+        io.mosip.esignet.entity.ServerProfile profileEntity = new io.mosip.esignet.entity.ServerProfile();
+        profileEntity.setAdditionalConfigKey("invalid_config_key");
+        profileEntity.setFeature("DPOP");
+        when(serverProfileRepository.findByProfileName("fapi2.0"))
+                .thenReturn(Collections.singletonList(profileEntity));
+
+        EsignetException exception = assertThrows(EsignetException.class, () -> appConfig.serverProfile());
+        assertEquals("INVALID_SERVER_PROFILE", exception.getMessage());
+    }
+
+    @Test
+    void serverProfile_ValidFapi20Profile_ReturnsProfileWithAllFeatures() throws EsignetException {
+        ReflectionTestUtils.setField(appConfig, "serverProfile", "fapi2.0");
+
+        io.mosip.esignet.entity.ServerProfile dpopProfile = new io.mosip.esignet.entity.ServerProfile();
+        dpopProfile.setAdditionalConfigKey("dpop_bound_access_tokens");
+        dpopProfile.setFeature("DPOP");
+
+        io.mosip.esignet.entity.ServerProfile parProfile = new io.mosip.esignet.entity.ServerProfile();
+        parProfile.setAdditionalConfigKey("require_pushed_authorization_requests");
+        parProfile.setFeature("PAR");
+
+        io.mosip.esignet.entity.ServerProfile pkceProfile = new io.mosip.esignet.entity.ServerProfile();
+        pkceProfile.setAdditionalConfigKey("require_pkce");
+        pkceProfile.setFeature("PKCE");
+
+        when(serverProfileRepository.findByProfileName("fapi2.0"))
+                .thenReturn(java.util.Arrays.asList(dpopProfile, parProfile, pkceProfile));
+
+        ServerProfile result = appConfig.serverProfile();
+
+        assertNotNull(result);
+        assertEquals("fapi2.0", result.getName());
+        assertEquals(3, result.getFeatureMap().size());
+        assertEquals("DPOP", result.getFeatureMap().get("dpop_bound_access_tokens"));
+        assertEquals("PAR", result.getFeatureMap().get("require_pushed_authorization_requests"));
+        assertEquals("PKCE", result.getFeatureMap().get("require_pkce"));
+    }
+
 }
 

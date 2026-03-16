@@ -37,6 +37,14 @@ import java.util.Map;
 @Slf4j
 public class AppConfig implements ApplicationRunner {
 
+    private static final List<String> SERVER_PROFILE_FEATURES = List.of("PAR", "DPOP", "PKCE", "JWE");
+    private static final List<String> SERVER_PROFILE_ADDITIONAL_CONFIG_KEYS = List.of(
+            "dpop_bound_access_tokens",
+            "require_pkce",
+            "user_info_response_type",
+            "require_pushed_authorization_requests"
+    );
+
 
     @Value("${mosip.esignet.default.httpclient.connections.max.per.host:20}")
     private int defaultMaxConnectionPerRoute;
@@ -99,7 +107,20 @@ public class AppConfig implements ApplicationRunner {
         }
 
         for (io.mosip.esignet.entity.ServerProfile serverProfileEntity : profiles) {
-            profileDataMap.put(serverProfileEntity.getAdditionalConfigKey(), serverProfileEntity.getFeature());
+            String feature = serverProfileEntity.getFeature();
+            String additionalConfigKey = serverProfileEntity.getAdditionalConfigKey();
+
+            if (!SERVER_PROFILE_FEATURES.contains(feature.toUpperCase())) {
+                log.error("Invalid feature '{}' in ServerProfile. Valid features are: {}", feature, SERVER_PROFILE_FEATURES);
+                throw new EsignetException("INVALID_SERVER_PROFILE");
+            }
+            if (!SERVER_PROFILE_ADDITIONAL_CONFIG_KEYS.contains(additionalConfigKey)) {
+                log.error("Invalid additionalConfigKey '{}' in ServerProfile. Valid keys are: {}",
+                        additionalConfigKey, SERVER_PROFILE_ADDITIONAL_CONFIG_KEYS);
+                throw new EsignetException("INVALID_SERVER_PROFILE");
+            }
+
+            profileDataMap.put(additionalConfigKey, feature);
         }
         return profile;
     }
