@@ -311,10 +311,10 @@ public class BaseTest extends AdminTestUtil {
 	}
 
 	public static void pushReportsToS3(String lang) {
-		executeLsCommand(System.getProperty("user.dir") + "/test-output/ExtentReport.html");
-		executeLsCommand(System.getProperty("user.dir") + "/screenshots/");
+		//executeLsCommand(System.getProperty("user.dir") + "/test-output/ExtentReport.html");
+		//executeLsCommand(System.getProperty("user.dir") + "/screenshots/");
 
-		executeLsCommand(System.getProperty("user.dir") + "/test-output/");
+		//executeLsCommand(System.getProperty("user.dir") + "/test-output/");
 		String timestamp = new SimpleDateFormat("yyyy-MM-dd-HH-mm").format(new Date());
 		String name = getEnvName() + "-" + lang + "-" + timestamp + "-T-" + ExtentReportManager.getTotalCount() + "-P-"
 				+ ExtentReportManager.getPassedCount() + "-F-" + ExtentReportManager.getFailedCount() + "-S-"
@@ -330,7 +330,7 @@ public class BaseTest extends AdminTestUtil {
 			LOGGER.error("Failed to rename the report file.");
 		}
 
-		executeLsCommand(newReportFile.getAbsolutePath());
+		//executeLsCommand(newReportFile.getAbsolutePath());
 
 		if (EsignetConfigManager.getPushReportsToS3().equalsIgnoreCase("yes")) {
 			S3Adapter s3Adapter = new S3Adapter();
@@ -346,42 +346,44 @@ public class BaseTest extends AdminTestUtil {
 		}
 	}
 
-	private static void executeLsCommand(String directoryPath) {
-		try {
-			String os = System.getProperty("os.name").toLowerCase();
-			Process process;
-
-			if (os.contains("win")) {
-				// Windows command (show all files including hidden)
-				String windowsDirectoryPath = directoryPath.replace("/", File.separator);
-				process = Runtime.getRuntime().exec(new String[] { "cmd.exe", "/c", "dir /a " + windowsDirectoryPath });
-			} else {
-				// Unix-like command (show all files including hidden)
-				process = Runtime.getRuntime().exec(new String[] { "/bin/sh", "-c", "ls -al " + directoryPath });
-			}
-
-			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-			String line;
-			LOGGER.info("--- Directory listing for " + directoryPath + " ---");
-			while ((line = reader.readLine()) != null) {
-				LOGGER.info(line);
-			}
-
-			int exitCode = process.waitFor();
-			if (exitCode != 0) {
-				BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-				String errorLine;
-				LOGGER.info("--- Directory listing error ---");
-				while ((errorLine = errorReader.readLine()) != null) {
-					System.err.println(errorLine);
-				}
-			}
-			LOGGER.info("--- End directory listing ---");
-
-		} catch (IOException | InterruptedException e) {
-			System.err.println("Error executing directory listing command: " + e.getMessage());
-		}
-	}
+//  This is not required so commented it for now will remove this once tested in Rancher
+	
+//	private static void executeLsCommand(String directoryPath) {
+//		try {
+//			String os = System.getProperty("os.name").toLowerCase();
+//			Process process;
+//
+//			if (os.contains("win")) {
+//				// Windows command (show all files including hidden)
+//				String windowsDirectoryPath = directoryPath.replace("/", File.separator);
+//				process = Runtime.getRuntime().exec(new String[] { "cmd.exe", "/c", "dir /a " + windowsDirectoryPath });
+//			} else {
+//				// Unix-like command (show all files including hidden)
+//				process = Runtime.getRuntime().exec(new String[] { "/bin/sh", "-c", "ls -al " + directoryPath });
+//			}
+//
+//			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+//			String line;
+//			LOGGER.info("--- Directory listing for " + directoryPath + " ---");
+//			while ((line = reader.readLine()) != null) {
+//				LOGGER.info(line);
+//			}
+//
+//			int exitCode = process.waitFor();
+//			if (exitCode != 0) {
+//				BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+//				String errorLine;
+//				LOGGER.info("--- Directory listing error ---");
+//				while ((errorLine = errorReader.readLine()) != null) {
+//					System.err.println(errorLine);
+//				}
+//			}
+//			LOGGER.info("--- End directory listing ---");
+//
+//		} catch (IOException | InterruptedException e) {
+//			System.err.println("Error executing directory listing command: " + e.getMessage());
+//		}
+//	}
 
 	public static String getEnvName() {
 		String baseUrl = EsignetConfigManager.getproperty("baseurl");
