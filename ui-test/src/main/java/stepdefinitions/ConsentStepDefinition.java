@@ -336,7 +336,7 @@ public class ConsentStepDefinition {
 
 	@Then("user verify the list of essential claims are present")
 	public void verifyTheEssentialClaimsList() {
-		assertTrue("The list of essential claims are not displayed",consentPage.isEssentialClaimsListDisplayed());
+		assertTrue("No essential claims were rendered on the consent screen",consentPage.isEssentialClaimsListDisplayed());
 	}
 
 	@Then("user verify the action message in consent screen")
