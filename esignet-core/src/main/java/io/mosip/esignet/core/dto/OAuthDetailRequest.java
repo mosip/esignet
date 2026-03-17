@@ -95,6 +95,7 @@ public class OAuthDetailRequest {
 
     /**
      * Optional
+     * The `request` parameter is not supported in this implementation.
      */
     @Null(message = ErrorConstants.REQUEST_NOT_SUPPORTED)
     private String request;
