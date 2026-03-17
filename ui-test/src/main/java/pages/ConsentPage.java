@@ -118,7 +118,7 @@ public class ConsentPage extends BasePage {
 	WebElement essentialClaimsList;
 
 	@FindBy(xpath = "//p[@class='text-[#4E4E4E] font-semibold']")
-	private WebElement actionMessage;
+	WebElement actionMessage;
 
 	public void clickOnLoginWithOtp() {
 		clickOnElement(loginWithOtpButton, "Clicked on login with Otp button");
@@ -325,5 +325,5 @@ public class ConsentPage extends BasePage {
 	public boolean isTimerDisplayed() {
 		return isElementVisible(consentTimer);
 	}
-	
+
 }
