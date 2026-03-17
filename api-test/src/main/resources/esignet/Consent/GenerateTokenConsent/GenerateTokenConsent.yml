@@ -1,6 +1,7 @@
 GenerateTokenConsent:
    ESignet_GenerateToken_Consent_uin_Claim2_Valid_Smoke_sid:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
+      uniqueIdentifier: TC_ESignet_GenerateTokenConsent_01
       description: Generate token consent with claim2 and valid details UIN
       role: resident
       restMethod: post
@@ -21,6 +22,7 @@ GenerateTokenConsent:
 
    ESignet_GenerateToken_Consent_Vid_Claim2_Valid_Smoke_sid:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
+      uniqueIdentifier: TC_ESignet_GenerateTokenConsent_02
       description: Generate token consent with claim2 and valid details VID
       role: resident
       restMethod: post
@@ -41,6 +43,7 @@ GenerateTokenConsent:
 
    ESignet_GenerateToken_Consent_uin_Valid_Smoke_sid:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
+      uniqueIdentifier: TC_ESignet_GenerateTokenConsent_03
       description: Generate token consent with valid details UIN
       role: resident
       restMethod: post
@@ -61,6 +64,7 @@ GenerateTokenConsent:
 
    ESignet_GenerateToken_Consent_Vid_Valid_Smoke_sid:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
+      uniqueIdentifier: TC_ESignet_GenerateTokenConsent_04
       description: Generate token consent with valid details VID
       role: resident
       restMethod: post

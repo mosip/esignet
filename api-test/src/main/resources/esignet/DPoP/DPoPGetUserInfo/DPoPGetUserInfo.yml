@@ -1,5 +1,5 @@
 DPoPGetUserInfo:
-   ESignet_GetOidcUserInfo_UIN_Dpop_AccessToken_StatusCode_Valid_Smoke:
+   ESignet_GetOidcUserInfo_UIN_Dpop_AccessToken_GetUserInfoJWS_Valid_Smoke:
       endPoint: /v1/esignet/oidc/userinfo
       uniqueIdentifier: TC_ESignet_DPoPGetUserInfo_01
       description: Get OIDC user info with all valid details UIN
@@ -14,4 +14,6 @@ DPoPGetUserInfo:
         "dpop_key": "DPoP",
         "dpop_value": "$DPOP_PROOF_WITH_ACCESS_TOKEN$"
 }'
-      output: "200"
+      output: '{
+        "aud": "$ID:DPoPCreateOIDCClientV3_all_Valid_Smoke_sid_clientId$"
+}'

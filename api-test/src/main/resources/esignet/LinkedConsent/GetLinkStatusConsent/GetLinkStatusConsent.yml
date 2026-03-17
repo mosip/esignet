@@ -7,6 +7,7 @@ GetLinkStatusConsent:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkTransactionConsent_01
       inputTemplate: esignet/GetLinkStatus/GetLinkStatus
       outputTemplate: esignet/GetLinkStatus/GetLinkStatusResult
       input: '{
@@ -25,6 +26,7 @@ GetLinkStatusConsent:
       role: resident
       checkErrorsOnlyInResponse: true
       restMethod: post
+      additionalDependencies: TC_ESignet_LinkTransactionConsent_02
       validityCheckRequired: true
       inputTemplate: esignet/GetLinkStatus/GetLinkStatus
       outputTemplate: esignet/GetLinkStatus/GetLinkStatusResult
@@ -45,6 +47,7 @@ GetLinkStatusConsent:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkTransactionConsent_03
       inputTemplate: esignet/GetLinkStatus/GetLinkStatus
       outputTemplate: esignet/GetLinkStatus/GetLinkStatusResult
       input: '{
@@ -64,6 +67,7 @@ GetLinkStatusConsent:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkTransactionConsent_04
       inputTemplate: esignet/GetLinkStatus/GetLinkStatus
       outputTemplate: esignet/GetLinkStatus/GetLinkStatusResult
       input: '{
@@ -83,6 +87,7 @@ GetLinkStatusConsent:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkTransactionConsent_05
       inputTemplate: esignet/GetLinkStatus/GetLinkStatus
       outputTemplate: esignet/GetLinkStatus/GetLinkStatusResult
       input: '{
@@ -102,6 +107,7 @@ GetLinkStatusConsent:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkTransactionConsent_06
       inputTemplate: esignet/GetLinkStatus/GetLinkStatus
       outputTemplate: esignet/GetLinkStatus/GetLinkStatusResult
       input: '{
@@ -121,6 +127,7 @@ GetLinkStatusConsent:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkTransactionConsent_07
       inputTemplate: esignet/GetLinkStatus/GetLinkStatus
       outputTemplate: esignet/GetLinkStatus/GetLinkStatusResult
       input: '{
@@ -140,6 +147,7 @@ GetLinkStatusConsent:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkTransactionConsent_08
       inputTemplate: esignet/GetLinkStatus/GetLinkStatus
       outputTemplate: esignet/GetLinkStatus/GetLinkStatusResult
       input: '{
@@ -159,6 +167,7 @@ GetLinkStatusConsent:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkTransactionConsent_09
       inputTemplate: esignet/GetLinkStatus/GetLinkStatus
       outputTemplate: esignet/GetLinkStatus/GetLinkStatusResult
       input: '{
@@ -178,6 +187,7 @@ GetLinkStatusConsent:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkTransactionConsent_10
       inputTemplate: esignet/GetLinkStatus/GetLinkStatus
       outputTemplate: esignet/GetLinkStatus/GetLinkStatusResult
       input: '{

@@ -1,12 +1,13 @@
 AuthorizationCode:
    ESignet_AuthorizationCode_MOSIPID_uin_All_Valid_forUserInfo_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
-      uniqueIdentifier: TC_ESignet_AuthorizationCode_01
+      uniqueIdentifier: TC_ESignet_AuthCode_E2E_01
       description: Authorization code request for end to end flow
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_AuthUserV3_E2E_01
       inputTemplate: esignet/EndToEndFlowWithV3/AuthorizeCode/AuthorizationCode
       outputTemplate: esignet/EndToEndFlowWithV3/AuthorizeCode/AuthorizationCodeResult
       input: '{
@@ -19,12 +20,13 @@ AuthorizationCode:
 }'
    ESignet_AuthorizationCode_MOSIPID_uin_All_Valid_forUserInfoJWE_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
-      uniqueIdentifier: TC_ESignet_AuthorizationCode_02
+      uniqueIdentifier: TC_ESignet_AuthCode_E2E_02
       description: Authorization code request for end to end flow
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_AuthUserV3_E2E_02
       inputTemplate: esignet/EndToEndFlowWithV3/AuthorizeCode/AuthorizationCode
       outputTemplate: esignet/EndToEndFlowWithV3/AuthorizeCode/AuthorizationCodeResult
       input: '{
@@ -37,12 +39,13 @@ AuthorizationCode:
 }'
    ESignet_AuthorizationCode_MOSIPID_uin_All_Valid_ForJWSUpdatedToJWEInfo_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
-      uniqueIdentifier: TC_ESignet_AuthorizationCode_03
+      uniqueIdentifier: TC_ESignet_AuthCode_E2E_03
       description: Authorization code request for end to end flow
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_AuthUserV3_E2E_03
       inputTemplate: esignet/EndToEndFlowWithV3/AuthorizeCode/AuthorizationCode
       outputTemplate: esignet/EndToEndFlowWithV3/AuthorizeCode/AuthorizationCodeResult
       input: '{

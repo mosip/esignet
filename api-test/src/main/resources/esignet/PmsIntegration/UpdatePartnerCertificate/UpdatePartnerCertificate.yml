@@ -5,6 +5,7 @@ updatePartnerCertificate:
       description: Update partner certificate statusCode AuthDemoUrl all valid details
       role: partner
       restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadCACert_03,Dependent_Idrepo_uploadCACert_04
       inputTemplate: esignet/PmsIntegration/UpdatePartnerCertificate/updatePartnerCertificate
       outputTemplate: esignet/PmsIntegration/UpdatePartnerCertificate/updatePartnerCertificateResult
       input: '{

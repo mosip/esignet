@@ -1,6 +1,7 @@
 LinkedAuthenticationOtp:
    ESignet_LinkedAuthentication_Otp_all_Valid_Smoke:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_01
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
@@ -30,6 +31,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_Invalid_RequestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_02
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
@@ -59,6 +61,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_RequestTime_PastValue_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_03
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
@@ -88,6 +91,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_RequestTime_FutureValue_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_04
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
@@ -117,6 +121,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_Missing_RequestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_05
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
@@ -146,6 +151,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_Space_Val_RequestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_06
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
@@ -175,6 +181,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_Empty_RequestTime_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_07
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
@@ -204,6 +211,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_Invalid_linkTransactionId_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_08
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
@@ -233,6 +241,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_Missing_linkTransactionId_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_09
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
@@ -262,6 +271,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_Empty_linkTransactionId_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_10
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
@@ -291,6 +301,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_Space_val_linkTransactionId_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_11
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
@@ -320,6 +331,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_Null_linkTransactionId_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_12
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
@@ -349,6 +361,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_Expired_linkTransactionId_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_13
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
@@ -378,6 +391,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_Invalid_individualId_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_14
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
@@ -407,6 +421,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_Missing_individualId_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_15
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
@@ -436,6 +451,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_Empty_individualId_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_33
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
@@ -465,6 +481,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_Space_Val_individualId_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_16
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
@@ -494,6 +511,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_Null_individualId_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_17
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
@@ -523,6 +541,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_Invalid_authFactorType_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_18
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
@@ -552,6 +571,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_Empty_authFactorType_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_19
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
@@ -581,6 +601,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_Space_authFactorType_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_20
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
@@ -610,6 +631,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_Missing_authFactorType_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_21
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
@@ -639,6 +661,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_null_authFactorType_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_22
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
@@ -668,6 +691,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_Invalid_challenge_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_23
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
@@ -697,6 +721,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_Empty_challenge_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_24
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
@@ -726,6 +751,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_Space_val_challenge_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_25
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
@@ -755,6 +781,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_Missing_challenge_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_26
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
@@ -784,6 +811,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_Null_challenge_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_27
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
@@ -813,6 +841,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_Invalid_Format_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_28
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
@@ -842,6 +871,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_Empty_Format_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_29
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
@@ -871,6 +901,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_Space_Val_Format_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_30
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
@@ -900,6 +931,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_Missing_Format_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_31
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication
@@ -929,6 +961,7 @@ LinkedAuthenticationOtp:
 
    ESignet_LinkedAuthentication_Otp_Null_Format_Neg:
       endPoint: /v1/esignet/linked-authorization/authenticate
+      uniqueIdentifier: TC_ESignet_LinkedAuthenticationOtp_32
       role: resident
       restMethod: post
       inputTemplate: esignet/LinkedAuthentication/LinkedAuthentication

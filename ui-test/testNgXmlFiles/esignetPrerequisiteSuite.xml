@@ -110,7 +110,7 @@
 	
 	<test name="OIDCClientV3MOCK">
 		<parameter name="ymlFile"
-			value="esignetUI/CreateClient/CreateOIDCClient.yml" />
+				value="esignetUI/CreateClientMock/CreateOIDCClient.yml" />
 		<parameter name="idKeyName" value="clientId" />
 		<classes>
 			<class

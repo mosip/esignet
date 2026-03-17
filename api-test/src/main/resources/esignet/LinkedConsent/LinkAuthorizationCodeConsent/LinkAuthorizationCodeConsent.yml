@@ -7,6 +7,7 @@ LinkAuthorizationCodeConsent:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkedAuthConsent_01
       inputTemplate: esignet/LinkAuthorizationCode/LinkAuthorizationCode
       outputTemplate: esignet/LinkAuthorizationCode/LinkAuthorizationCodeResult
       input: '{
@@ -26,6 +27,7 @@ LinkAuthorizationCodeConsent:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkedAuthConsent_02
       inputTemplate: esignet/LinkAuthorizationCode/LinkAuthorizationCode
       outputTemplate: esignet/LinkAuthorizationCode/LinkAuthorizationCodeResult
       input: '{

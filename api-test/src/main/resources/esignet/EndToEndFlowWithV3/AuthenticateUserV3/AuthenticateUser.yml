@@ -1,6 +1,7 @@
 AuthenticateUserV3:
    ESignet_AuthenticateUser_V3_MOSIPID_AuthToken_Xsrf__uin_Otp_Valid_forUserInfo_Smoke:
       endPoint: /v1/esignet/authorization/v3/authenticate
+      uniqueIdentifier: TC_ESignet_AuthUserV3_E2E_01
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -31,6 +32,7 @@ AuthenticateUserV3:
 }'
    ESignet_AuthenticateUser_V3_MOSIPID_AuthToken_Xsrf__uin_Otp_Valid_forUserInfoJWE_Smoke:
       endPoint: /v1/esignet/authorization/v3/authenticate
+      uniqueIdentifier: TC_ESignet_AuthUserV3_E2E_02
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -61,6 +63,7 @@ AuthenticateUserV3:
 }'
    ESignet_AuthenticateUser_V3_MOSIPID_AuthToken_Xsrf__uin_Otp_Valid_ForJWSUpdatedToJWEInfo_Smoke:
       endPoint: /v1/esignet/authorization/v3/authenticate
+      uniqueIdentifier: TC_ESignet_AuthUserV3_E2E_03
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true

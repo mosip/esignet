@@ -1,6 +1,7 @@
 GetOidcUserInfoConsent:
-   ESignet_GetOidcUserInfo_Consent_uin_IdpAccessToken_StatusCode_Claim2_Valid_Smoke_sid:
+   ESignet_GetOidcUserInfo_Consent_uin_IdpAccessToken_GetUserInfoJWS_Claim2_Valid_Smoke_sid:
       endPoint: /v1/esignet/oidc/userinfo
+      uniqueIdentifier: TC_ESignet_GetOidcUserInfoConsent_01
       description: Get OIDC user info consent with claim2 and valid details UIN
       role: resident
       restMethod: get
@@ -10,10 +11,12 @@ GetOidcUserInfoConsent:
       input: '{
       	"idpAccessToken": "$ID:GenerateToken_Consent_uin_Claim2_Valid_Smoke_sid_access_token$"
 }'
-      output: "200"
-      
-   ESignet_GetOidcUserInfo_Consent_Vid_IdpAccessToken_StatusCode_Claim2_Valid_Smoke_sid:
+      output: '{
+        "aud": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$"
+}'
+   ESignet_GetOidcUserInfo_Consent_Vid_IdpAccessToken_GetUserInfoJWS_Claim2_Valid_Smoke_sid:
       endPoint: /v1/esignet/oidc/userinfo
+      uniqueIdentifier: TC_ESignet_GetOidcUserInfoConsent_02
       description: Get OIDC user info consent with claim2 and valid details VID
       role: resident
       restMethod: get
@@ -23,10 +26,12 @@ GetOidcUserInfoConsent:
       input: '{
       	"idpAccessToken": "$ID:GenerateToken_Consent_Vid_Claim2_Valid_Smoke_sid_access_token$"
 }'
-      output: "200"
-
-   ESignet_GetOidcUserInfo_Consent_uin_IdpAccessToken_StatusCode_Valid_Smoke_sid:
+      output: '{
+        "aud": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$"
+}'
+   ESignet_GetOidcUserInfo_Consent_uin_IdpAccessToken_GetUserInfoJWS_Valid_Smoke_sid:
       endPoint: /v1/esignet/oidc/userinfo
+      uniqueIdentifier: TC_ESignet_GetOidcUserInfoConsent_03
       description: Get OIDC user info consent with all valid details UIN
       role: resident
       restMethod: get
@@ -36,10 +41,12 @@ GetOidcUserInfoConsent:
       input: '{
       	"idpAccessToken": "$ID:GenerateToken_Consent_uin_Valid_Smoke_sid_access_token$"
 }'
-      output: "200"
-      
-   ESignet_GetOidcUserInfo_Consent_Vid_IdpAccessToken_StatusCode_Valid_Smoke_sid:
+      output: '{
+        "aud": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$"
+}'
+   ESignet_GetOidcUserInfo_Consent_Vid_IdpAccessToken_GetUserInfoJWS_Valid_Smoke_sid:
       endPoint: /v1/esignet/oidc/userinfo
+      uniqueIdentifier: TC_ESignet_GetOidcUserInfoConsent_04
       description: Get OIDC user info consent with all valid details VID
       role: resident
       restMethod: get
@@ -49,4 +56,6 @@ GetOidcUserInfoConsent:
       input: '{
       	"idpAccessToken": "$ID:GenerateToken_Consent_Vid_Valid_Smoke_sid_access_token$"
 }'
-      output: "200"
+      output: '{
+        "aud": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$"
+}'

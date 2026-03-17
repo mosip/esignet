@@ -1,6 +1,7 @@
 AuthenticateUserV3WithoutVerifiedClaims:
    ESignet_AuthenticateUser_Without_VerifiedClaims_V3_AuthToken_Xsrf__Smoke:
       endPoint: /v1/esignet/authorization/v3/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUserV3_WithoutVerifiedClaims_01
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true

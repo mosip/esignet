@@ -1,12 +1,13 @@
 PARAuthorizationCode:
    ESignet_AuthorizationCode_PAR__AuthToken_Xsrf_All_Valid_forUserInfo_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
-      uniqueIdentifier: TC_ESignet_AuthorizationCode_01
+      uniqueIdentifier: TC_ESignet_PARAuthorizationCode_01
       description: Validate successful authorization code generation in PAR flow
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_PARAuthenticateUserV3_01
       inputTemplate: esignet/PAR/PARAuthorizationCode/PARAuthorizationCode
       outputTemplate: esignet/PAR/PARAuthorizationCode/PARAuthorizationCodeResult
       input: '{

@@ -138,7 +138,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
         oauthDetailRequest.setScope("openid profile");
         oauthDetailRequest.setDisplay("page");
-        oauthDetailRequest.setPrompt("login");
+        oauthDetailRequest.setPrompt("consent");
 
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
@@ -165,7 +165,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setRedirectUri(" ");
         oauthDetailRequest.setScope("openid profile");
         oauthDetailRequest.setDisplay("page");
-        oauthDetailRequest.setPrompt("login");
+        oauthDetailRequest.setPrompt("consent");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
         oauthDetailRequest.setClaims(claimsV2);
@@ -190,7 +190,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setScope("openid profile");
         oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code level2");
         oauthDetailRequest.setDisplay("page");
-        oauthDetailRequest.setPrompt("login");
+        oauthDetailRequest.setPrompt("consent");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
         oauthDetailRequest.setClaims(claimsV2);
@@ -219,7 +219,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setScope("openid profile");
         oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
         oauthDetailRequest.setDisplay("none");
-        oauthDetailRequest.setPrompt("login");
+        oauthDetailRequest.setPrompt("consent");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
         oauthDetailRequest.setClaims(claimsV2);
@@ -237,7 +237,7 @@ public class AuthorizationControllerTest {
     }
 
     @Test
-    public void getOauthDetails_withInvalidPrompt_returnErrorResponse() throws Exception {
+    public void getOauthDetails_withInvalidPrompt_returnSuccessResponse() throws Exception {
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
@@ -253,12 +253,16 @@ public class AuthorizationControllerTest {
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(oauthDetailRequest);
 
+        OAuthDetailResponseV1 oauthDetailResponse = new OAuthDetailResponseV1();
+        oauthDetailResponse.setTransactionId("qwertyId");
+        when(authorizationService.getOauthDetails(oauthDetailRequest)).thenReturn(oauthDetailResponse);
+
         mockMvc.perform(post("/authorization/oauth-details")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.errors").isNotEmpty())
-                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_PROMPT));
+                .andExpect(jsonPath("$.errors").isEmpty())
+                .andExpect(jsonPath("$.response.transactionId").value("qwertyId"));
     }
 
     @Test
@@ -269,7 +273,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setScope("openid profile");
         oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
         oauthDetailRequest.setDisplay("page");
-        oauthDetailRequest.setPrompt("none");
+        oauthDetailRequest.setPrompt("consent");
         oauthDetailRequest.setResponseType("implicit");
         oauthDetailRequest.setNonce("23424234TY");
         oauthDetailRequest.setClaims(claimsV2);
@@ -294,7 +298,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setScope("openid");
         oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
         oauthDetailRequest.setDisplay("page");
-        oauthDetailRequest.setPrompt("login");
+        oauthDetailRequest.setPrompt("consent");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
         oauthDetailRequest.setClaims(claimsV2);
@@ -322,7 +326,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setScope("profile");
         oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
         oauthDetailRequest.setDisplay("page");
-        oauthDetailRequest.setPrompt("login");
+        oauthDetailRequest.setPrompt("consent");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
         oauthDetailRequest.setClaims(claimsV2);
@@ -347,7 +351,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setScope("profile openid");
         oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
         oauthDetailRequest.setDisplay("page");
-        oauthDetailRequest.setPrompt("login");
+        oauthDetailRequest.setPrompt("consent");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
         oauthDetailRequest.setClaims(claimsV2);
@@ -375,7 +379,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setScope("resident-service");
         oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
         oauthDetailRequest.setDisplay("page");
-        oauthDetailRequest.setPrompt("login");
+        oauthDetailRequest.setPrompt("consent");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
         oauthDetailRequest.setClaims(claimsV2);
@@ -403,7 +407,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setScope("openid resident-service");
         oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
         oauthDetailRequest.setDisplay("page");
-        oauthDetailRequest.setPrompt("login");
+        oauthDetailRequest.setPrompt("consent");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
         oauthDetailRequest.setClaims(claimsV2);
@@ -446,7 +450,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
         oauthDetailRequest.setScope("openid profile");
         oauthDetailRequest.setDisplay("page");
-        oauthDetailRequest.setPrompt("login");
+        oauthDetailRequest.setPrompt("consent");
 
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
@@ -482,7 +486,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setRedirectUri(" ");
         oauthDetailRequest.setScope("openid profile");
         oauthDetailRequest.setDisplay("page");
-        oauthDetailRequest.setPrompt("login");
+        oauthDetailRequest.setPrompt("consent");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
         oauthDetailRequest.setClaims(claimsV2);
@@ -514,7 +518,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setScope("openid profile");
         oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code level2");
         oauthDetailRequest.setDisplay("page");
-        oauthDetailRequest.setPrompt("login");
+        oauthDetailRequest.setPrompt("consent");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
         oauthDetailRequest.setClaims(claimsV2);
@@ -549,7 +553,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setScope("openid profile");
         oauthDetailRequest.setDisplay("page");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
-        oauthDetailRequest.setPrompt("login");
+        oauthDetailRequest.setPrompt("consent");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
         oauthDetailRequest.setCodeChallenge("123");
@@ -582,7 +586,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setScope("openid profile");
         oauthDetailRequest.setDisplay("page");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
-        oauthDetailRequest.setPrompt("login");
+        oauthDetailRequest.setPrompt("consent");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
         oauthDetailRequest.setCodeChallenge("123");
@@ -617,7 +621,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setScope("openid profile");
         oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
         oauthDetailRequest.setDisplay("none");
-        oauthDetailRequest.setPrompt("login");
+        oauthDetailRequest.setPrompt("consent");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
         oauthDetailRequest.setClaims(claimsV2);
@@ -642,7 +646,7 @@ public class AuthorizationControllerTest {
     }
 
     @Test
-    public void getOauthDetailsV2_withInvalidPrompt_returnErrorResponse() throws Exception {
+    public void getOauthDetailsV2_withInvalidPrompt_returnSuccessResponse() throws Exception {
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("12345");
         oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
@@ -658,19 +662,24 @@ public class AuthorizationControllerTest {
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(oauthDetailRequest);
 
+        OAuthDetailResponseV2 oauthDetailResponseV2 = new OAuthDetailResponseV2();
+        oauthDetailResponseV2.setTransactionId("qwertyId");
+        when(authorizationService.getOauthDetailsV2(Mockito.any())).thenReturn(oauthDetailResponseV2);
+
         mockMvc.perform(post("/authorization/v2/oauth-details")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.errors").isNotEmpty())
-                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_PROMPT));
+                .andExpect(jsonPath("$.errors").isEmpty())
+                .andExpect(jsonPath("$.response.transactionId").value("qwertyId"));
 
+        when(authorizationService.getOauthDetailsV3(Mockito.any(), Mockito.any())).thenReturn(oauthDetailResponseV2);
         mockMvc.perform(post("/authorization/v3/oauth-details")
                         .content(objectMapper.writeValueAsString(wrapper))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.errors").isNotEmpty())
-                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.INVALID_PROMPT));
+                .andExpect(jsonPath("$.errors").isEmpty())
+                .andExpect(jsonPath("$.response.transactionId").value("qwertyId"));
     }
 
     @Test
@@ -681,7 +690,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setScope("openid profile");
         oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
         oauthDetailRequest.setDisplay("page");
-        oauthDetailRequest.setPrompt("none");
+        oauthDetailRequest.setPrompt("consent");
         oauthDetailRequest.setResponseType("implicit");
         oauthDetailRequest.setNonce("23424234TY");
         oauthDetailRequest.setClaims(claimsV2);
@@ -713,7 +722,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setScope("openid");
         oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
         oauthDetailRequest.setDisplay("page");
-        oauthDetailRequest.setPrompt("login");
+        oauthDetailRequest.setPrompt("consent");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
         oauthDetailRequest.setClaims(claimsV2);
@@ -748,7 +757,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setScope("profile");
         oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
         oauthDetailRequest.setDisplay("page");
-        oauthDetailRequest.setPrompt("login");
+        oauthDetailRequest.setPrompt("consent");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
         oauthDetailRequest.setClaims(claimsV2);
@@ -780,7 +789,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setScope("profile openid");
         oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
         oauthDetailRequest.setDisplay("page");
-        oauthDetailRequest.setPrompt("login");
+        oauthDetailRequest.setPrompt("consent");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
         oauthDetailRequest.setClaims(claimsV2);
@@ -815,7 +824,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setScope("resident-service");
         oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
         oauthDetailRequest.setDisplay("page");
-        oauthDetailRequest.setPrompt("login");
+        oauthDetailRequest.setPrompt("consent");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
         oauthDetailRequest.setClaims(claimsV2);
@@ -850,7 +859,7 @@ public class AuthorizationControllerTest {
         oauthDetailRequest.setScope("openid resident-service");
         oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
         oauthDetailRequest.setDisplay("page");
-        oauthDetailRequest.setPrompt("login");
+        oauthDetailRequest.setPrompt("consent");
         oauthDetailRequest.setResponseType("code");
         oauthDetailRequest.setNonce("23424234TY");
         oauthDetailRequest.setClaims(claimsV2);

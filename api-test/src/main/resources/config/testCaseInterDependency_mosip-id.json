@@ -1,4 +1,1369 @@
 {
+    "TC_ESignet_Generate_Token_34": ["TC_ESignet_AuthorizationCode_17"],
+    "TC_ESignet_Generate_Token_33": ["TC_ESignet_AuthorizationCode_17"],
+    "TC_ESignet_Generate_Token_32": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_17"
+    ],
+    "TC_ESignet_Generate_Token_31": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_01"
+    ],
+    "TC_ESignet_Generate_Token_38": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_17"
+    ],
+    "TC_ESignet_Generate_Token_37": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_17"
+    ],
+    "TC_ESignet_Generate_Token_36": ["TC_ESignet_AuthorizationCode_17"],
+    "TC_ESignet_AuthorizationCodeSunBirdC_01": ["TC_ESignet_AuthenticateUserSunBirdC_01"],
+    "TC_ESignet_Generate_Token_35": ["TC_ESignet_AuthorizationCode_17"],
+    "TC_ESignet_Generate_Token_39": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_17"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_53": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_52": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_51": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_50": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_57": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_56": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_55": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_54": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_Generate_Token_30": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_59": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_58": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_Generate_Token_23": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_01"
+    ],
+    "TC_ESignet_Generate_Token_22": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_01"
+    ],
+    "TC_ESignet_Generate_Token_21": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_01"
+    ],
+    "TC_ESignet_Generate_Token_20": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_01"
+    ],
+    "TC_ESignet_Generate_Token_27": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_01"
+    ],
+    "TC_ESignet_Generate_Token_26": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_01"
+    ],
+    "TC_ESignet_Generate_Token_25": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_01"
+    ],
+    "TC_ESignet_Generate_Token_24": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_01"
+    ],
+    "TC_ESignet_Generate_Token_29": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_01"
+    ],
+    "TC_ESignet_Generate_Token_28": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_60": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_64": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_63": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_62": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_61": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_68": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_67": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_AuthenticateUserV3VerifiedClaims_01": [
+        "TC_ESignet_OAuthDetailsRequestV3VerifiedClaims_01",
+        "Dependent_Idrepo_AddIdentity_45"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_66": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_65": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_69": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_Generate_Token_56": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_17"
+    ],
+    "TC_ESignet_Generate_Token_55": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_17"
+    ],
+    "TC_ESignet_Generate_Token_54": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_17"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_29": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_Generate_Token_53": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_17"
+    ],
+    "TC_ESignet_Generate_Token_59": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_17"
+    ],
+    "TC_ESignet_Generate_Token_58": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_17"
+    ],
+    "TC_ESignet_Generate_Token_57": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_17"
+    ],
+    "TC_ESignet_PARGetUserInfo_01": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_24",
+        "TC_ESignet_PARGenerateToken_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_31": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_30": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_34": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_33": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_32": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_Generate_Token_52": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_17"
+    ],
+    "TC_ESignet_Generate_Token_51": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_17"
+    ],
+    "TC_ESignet_Generate_Token_50": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_17"
+    ],
+    "TC_ESignet_Generate_Token_45": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_Generate_Token_44": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_Generate_Token_43": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_Generate_Token_42": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_17"
+    ],
+    "TC_ESignet_Generate_Token_49": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_17"
+    ],
+    "TC_ESignet_Generate_Token_48": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_17"
+    ],
+    "TC_ESignet_Generate_Token_47": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_17"
+    ],
+    "TC_ESignet_Generate_Token_46": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_OAuthDetailsRequest_42": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_41": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_40": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_46": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_45": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_44": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_43": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_Generate_Token_41": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_17"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_49": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_Generate_Token_40": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_17"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_48": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_47": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequestConsent_10": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequestLinkedConsent_01": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequestLinkedConsent_02": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequestLinkedConsent_03": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequestLinkedConsent_08": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequestLinkedConsent_09": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequestLinkedConsent_04": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequestLinkedConsent_05": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequestLinkedConsent_06": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequestLinkedConsent_07": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequestConsent_01": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequestConsent_02": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequestConsent_03": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequestConsent_04": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequestLinkedConsent_11": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequestConsent_05": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequestConsent_06": ["TC_ESignet_CreateOIDCClient_MOSIPID_03"],
+    "TC_ESignet_OAuthDetailsRequestConsent_07": ["TC_ESignet_CreateOIDCClient_MOSIPID_03"],
+    "TC_ESignet_OAuthDetailsRequestConsent_08": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequestConsent_09": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequestLinkedConsent_10": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_Generate_Token_62": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_17"
+    ],
+    "TC_ESignet_Generate_Token_61": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_17"
+    ],
+    "TC_ESignet_Generate_Token_60": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_17"
+    ],
+    "TC_ESignet_GenerateTokenDifferentScopeLanguageClaimsSce_01": [
+        "TC_ESignet_AuthorizationCodeDifferentScopeLanguageClaimsSce_01",
+        "TC_ESignet_CreateOIDCClient_MOSIPID_28"
+    ],
+    "TC_ESignet_UpdateOIDC_Client_01": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_OAuthDetailsRequest_71": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_70": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_75": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_74": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_73": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_72": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_78": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_77": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_GetOidcUserInfoLinkedConsent_01": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_GenerateTokenLinkedConsent_01"
+    ],
+    "TC_ESignet_GetOidcUserInfoLinkedConsent_02": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_GenerateTokenLinkedConsent_02"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_82": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_81": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_80": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_86": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_85": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_84": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_83": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_89": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_88": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_87": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_10": ["TC_ESignet_CreatePolicySunBirdR_01"],
+    "TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_14": ["TC_ESignet_CreatePolicySunBirdR_01"],
+    "TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_13": ["TC_ESignet_CreatePolicySunBirdR_01"],
+    "TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_12": ["TC_ESignet_CreatePolicySunBirdR_01"],
+    "TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_11": ["TC_ESignet_CreatePolicySunBirdR_01"],
+    "TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_18": ["TC_ESignet_CreatePolicySunBirdR_01"],
+    "TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_17": ["TC_ESignet_CreatePolicySunBirdR_01"],
+    "TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_16": ["TC_ESignet_CreatePolicySunBirdR_01"],
+    "TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_15": ["TC_ESignet_CreatePolicySunBirdR_01"],
+    "TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_19": ["TC_ESignet_CreatePolicySunBirdR_01"],
+    "TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_21": ["TC_ESignet_CreatePolicySunBirdR_01"],
+    "TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_20": ["TC_ESignet_CreatePolicySunBirdR_01"],
+    "TC_ESignet_AuthenticateUserDifferentScopeLanguage_01": [
+        "Dependent_Idrepo_AddIdentity_47",
+        "TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_25": ["TC_ESignet_CreatePolicySunBirdR_01"],
+    "TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_24": ["TC_ESignet_CreatePolicySunBirdR_01"],
+    "TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_23": ["TC_ESignet_CreatePolicySunBirdR_01"],
+    "TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_22": ["TC_ESignet_CreatePolicySunBirdR_01"],
+    "TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_28": ["TC_ESignet_CreatePolicySunBirdR_01"],
+    "TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_27": ["TC_ESignet_CreatePolicySunBirdR_01"],
+    "TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_26": ["TC_ESignet_CreatePolicySunBirdR_01"],
+    "TC_ESignet_AuthenticateUserNonAuth_02": [
+        "Dependent_Idrepo_AddIdentity_07",
+        "Dependent_Idrepo_GenerateVID_01",
+        "TC_ESignet_OAuthDetailsRequestNonAuth_02"
+    ],
+    "TC_ESignet_AuthenticateUserNonAuth_01": [
+        "Dependent_Idrepo_AddIdentity_01",
+        "TC_ESignet_OAuthDetailsRequestNonAuth_01"
+    ],
+    "TC_ESignet_DPoPAuthenticateUserV3_01": [
+        "TC_ESignet_DPoPOauthDetails_01",
+        "Dependent_Idrepo_AddIdentity_44"
+    ],
+    "TC_ESignet_OautDPoPNegativeScenarios_02": ["TC_ESignet_CreateOIDCClient_MOSIPID_25"],
+    "TC_ESignet_OautDPoPNegativeScenarios_01": ["TC_ESignet_CreateOIDCClient_MOSIPID_25"],
+    "TC_Signup_ESignet_OAuthDetailsRequestV3WithoutVerifiedClaims_01": ["TC_ESignet_CreateOIDCClient_MOSIPID_27"],
+    "TC_ESignet_OautDPoPNegativeScenarios_03": ["TC_ESignet_CreateOIDCClient_MOSIPID_25"],
+    "TC_ESignet_GenerateLinkCodeConsent_09": ["TC_ESignet_OAuthDetailsRequestLinkedConsent_11"],
+    "Dependent_Idrepo_createPublishPolicy_06": [
+        "Dependent_Idrepo_definePolicyGroup_02",
+        "Dependent_Idrepo_definePolicy_13"
+    ],
+    "TC_ESignet_GenerateLinkCodeConsent_07": ["TC_ESignet_OAuthDetailsRequestLinkedConsent_09"],
+    "Dependent_Idrepo_createPublishPolicy_07": [
+        "Dependent_Idrepo_definePolicyGroup_02",
+        "Dependent_Idrepo_definePolicy_14"
+    ],
+    "TC_ESignet_GenerateLinkCodeConsent_08": ["TC_ESignet_OAuthDetailsRequestLinkedConsent_10"],
+    "Dependent_Idrepo_createPublishPolicy_04": [
+        "Dependent_Idrepo_definePolicyGroup_01",
+        "Dependent_Idrepo_definePolicy_04"
+    ],
+    "TC_ESignet_GenerateLinkCodeConsent_05": [
+        "TC_ESignet_OAuthDetailsRequestLinkedConsent_06",
+        "TC_ESignet_OAuthDetailsRequestLinkedConsent_07"
+    ],
+    "Dependent_Idrepo_createPublishPolicy_05": [
+        "Dependent_Idrepo_definePolicyGroup_02",
+        "Dependent_Idrepo_definePolicy_12"
+    ],
+    "TC_ESignet_GenerateLinkCodeConsent_06": ["TC_ESignet_OAuthDetailsRequestLinkedConsent_08"],
+    "TC_ESignet_GenerateLinkCodeConsent_03": ["TC_ESignet_OAuthDetailsRequestLinkedConsent_03"],
+    "TC_ESignet_GenerateLinkCodeConsent_04": ["TC_ESignet_OAuthDetailsRequestLinkedConsent_05"],
+    "Dependent_Idrepo_createPublishPolicy_08": [
+        "Dependent_Idrepo_definePolicyGroup_02",
+        "Dependent_Idrepo_definePolicy_15"
+    ],
+    "TC_ESignet_GenerateLinkCodeConsent_01": ["TC_ESignet_OAuthDetailsRequestLinkedConsent_01"],
+    "TC_ESignet_GenerateLinkCodeConsent_02": ["TC_ESignet_OAuthDetailsRequestLinkedConsent_02"],
+    "Dependent_Idrepo_createPublishPolicy_02": [
+        "Dependent_Idrepo_definePolicyGroup_02",
+        "Dependent_Idrepo_definePolicy_02"
+    ],
+    "TC_ESignet_GenerateTokenLinkedConsent_01": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_LinkAuthorizationCodeConsent_01"
+    ],
+    "TC_ESignet_AuthenticateUserV3_WithoutVerifiedClaims_01": [
+        "Dependent_Idrepo_AddIdentity_46",
+        "TC_Signup_ESignet_OAuthDetailsRequestV3WithoutVerifiedClaims_01"
+    ],
+    "Dependent_Idrepo_createPublishPolicy_03": [
+        "Dependent_Idrepo_definePolicyGroup_02",
+        "Dependent_Idrepo_definePolicy_03"
+    ],
+    "Dependent_Idrepo_createPublishPolicy_01": [
+        "Dependent_Idrepo_definePolicyGroup_01",
+        "Dependent_Idrepo_definePolicy_01"
+    ],
+    "TC_ESignet_GenerateTokenLinkedConsent_02": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_LinkAuthorizationCodeConsent_02"
+    ],
+    "Dependent_Idrepo_createPartnerSelfRegistration_02": ["Dependent_Idrepo_definePolicyGroup_02"],
+    "Dependent_Idrepo_createPartnerSelfRegistration_03": ["Dependent_Idrepo_definePolicyGroup_02"],
+    "Dependent_Idrepo_createPartnerSelfRegistration_01": ["Dependent_Idrepo_definePolicyGroup_01"],
+    "Dependent_Idrepo_createPartnerSelfRegistration_06": ["Dependent_Idrepo_definePolicyGroup_02"],
+    "Dependent_Idrepo_createPartnerSelfRegistration_07": ["Dependent_Idrepo_definePolicyGroup_02"],
+    "Dependent_Idrepo_createPartnerSelfRegistration_04": ["Dependent_Idrepo_definePolicyGroup_01"],
+    "Dependent_Idrepo_createPartnerSelfRegistration_05": ["Dependent_Idrepo_definePolicyGroup_02"],
+    "Dependent_Idrepo_createPartnerSelfRegistration_08": ["Dependent_Idrepo_definePolicyGroup_02"],
+    "TC_ESignet_Generate_Token_12": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_Generate_Token_11": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_01"
+    ],
+    "TC_ESignet_Generate_Token_10": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_01"
+    ],
+    "TC_ESignet_Generate_Token_16": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_01"
+    ],
+    "TC_ESignet_Generate_Token_15": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_Generate_Token_14": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_Generate_Token_13": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_Generate_Token_19": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_01"
+    ],
+    "TC_ESignet_Generate_Token_18": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_01"
+    ],
+    "TC_ESignet_Generate_Token_17": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_01"
+    ],
+    "TC_ESignet_Generate_Token_01": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_01"
+    ],
+    "TC_ESignet_Generate_Token_05": ["TC_ESignet_AuthorizationCode_01"],
+    "TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_03": ["TC_ESignet_CreatePolicySunBirdR_01"],
+    "TC_ESignet_Generate_Token_04": ["TC_ESignet_AuthorizationCode_01"],
+    "TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_02": ["TC_ESignet_CreatePolicySunBirdR_01"],
+    "TC_ESignet_Generate_Token_03": ["TC_ESignet_AuthorizationCode_01"],
+    "TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_01": ["TC_ESignet_CreatePolicySunBirdR_01"],
+    "TC_ESignet_Generate_Token_02": ["TC_ESignet_AuthorizationCode_01"],
+    "TC_ESignet_Generate_Token_09": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_07": ["TC_ESignet_CreatePolicySunBirdR_01"],
+    "TC_ESignet_Generate_Token_08": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_06": ["TC_ESignet_CreatePolicySunBirdR_01"],
+    "TC_ESignet_Generate_Token_07": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_05": ["TC_ESignet_CreatePolicySunBirdR_01"],
+    "TC_ESignet_Generate_Token_06": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCode_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_04": ["TC_ESignet_CreatePolicySunBirdR_01"],
+    "TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_09": ["TC_ESignet_CreatePolicySunBirdR_01"],
+    "TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_08": ["TC_ESignet_CreatePolicySunBirdR_01"],
+    "TC_ESignet_AuthorizationCodeWithoutVerifiedClaims_01": [
+        "TC_ESignet_AuthenticateUserV3_WithoutVerifiedClaims_01",
+        "TC_Signup_ESignet_OAuthDetailsRequestV3WithoutVerifiedClaims_01"
+    ],
+    "TC_ESignet_GetOidcUserInfoForV3_E2E_01": ["TC_ESignet_GenerateToken_E2E_01"],
+    "TC_ESignet_GetOidcUserInfoForV3_E2E_03": ["TC_ESignet_GenerateToken_E2E_03"],
+    "TC_ESignet_GetOidcUserInfoForV3_E2E_02": ["TC_ESignet_GenerateToken_E2E_02"],
+    "TC_ESignet_OAuthDetailsRequestSunBirdC_01": ["TC_ESignet_CreatePolicySunBirdR_01"],
+    "TC_ESignet_LinkedAuthConsent_07": [
+        "TC_ESignet_LinkTransactionConsent_08",
+        "TC_ESignet_LinkedAuthenticationWlaV2_08"
+    ],
+    "TC_ESignet_BioNonAuth_22": [
+        "Dependent_Idrepo_GenerateVID_04",
+        "TC_ESignet_OAuthDetailsRequestNonAuth_22"
+    ],
+    "TC_ESignet_LinkedAuthConsent_06": [
+        "TC_ESignet_LinkTransactionConsent_07",
+        "TC_ESignet_LinkedAuthenticationWlaV2_07"
+    ],
+    "TC_ESignet_BioNonAuth_23": [
+        "Dependent_Idrepo_GenerateVID_04",
+        "TC_ESignet_OAuthDetailsRequestNonAuth_24"
+    ],
+    "TC_ESignet_LinkedAuthConsent_05": [
+        "TC_ESignet_LinkTransactionConsent_06",
+        "TC_ESignet_LinkedAuthenticationWlaV2_06"
+    ],
+    "TC_ESignet_BioNonAuth_24": [
+        "Dependent_Idrepo_GenerateVID_04",
+        "TC_ESignet_OAuthDetailsRequestNonAuth_26"
+    ],
+    "TC_ESignet_LinkedAuthConsent_04": [
+        "TC_ESignet_LinkTransactionConsent_05",
+        "TC_ESignet_LinkedAuthenticationWlaV2_05"
+    ],
+    "Dependent_Idrepo_definePolicy_10": ["Dependent_Idrepo_definePolicyGroup_02"],
+    "TC_ESignet_GenTokenConsentNoCapture_01": [
+        "TC_ESignet_AuthorizationCodeVerifiedClaims_01",
+        "TC_ESignet_CreateOIDCClient_MOSIPID_26"
+    ],
+    "TC_ESignet_LinkedAuthConsent_09": [
+        "TC_ESignet_LinkedAuthenticationWlaV2_10",
+        "TC_ESignet_LinkTransactionConsent_10"
+    ],
+    "TC_ESignet_BioNonAuth_20": [
+        "Dependent_Idrepo_GenerateVID_04",
+        "TC_ESignet_OAuthDetailsRequestNonAuth_18"
+    ],
+    "TC_ESignet_LinkedAuthConsent_08": [
+        "TC_ESignet_LinkTransactionConsent_09",
+        "TC_ESignet_LinkedAuthenticationWlaV2_09"
+    ],
+    "TC_ESignet_BioNonAuth_21": [
+        "Dependent_Idrepo_GenerateVID_04",
+        "TC_ESignet_OAuthDetailsRequestNonAuth_20"
+    ],
+    "TC_ESignet_CreateOIDCClient_MOSIPID_28": [
+        "Dependent_Idrepo_RequestAPIKeyForAuthPartner_01",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_ApproveAPIKey_01",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "Dependent_Idrepo_definePolicy_01",
+        "Dependent_Idrepo_uploadPartnerCert_01"
+    ],
+    "TC_ESignet_LinkedAuthConsent_03": [
+        "TC_ESignet_LinkedAuthenticationWlaV2_04",
+        "TC_ESignet_LinkTransactionConsent_04"
+    ],
+    "TC_ESignet_CreateOIDCClient_MOSIPID_27": [
+        "Dependent_Idrepo_RequestAPIKeyForAuthPartner_01",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_ApproveAPIKey_01",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "Dependent_Idrepo_definePolicy_01",
+        "Dependent_Idrepo_uploadPartnerCert_01"
+    ],
+    "TC_ESignet_LinkedAuthConsent_02": [
+        "TC_ESignet_LinkedAuthenticationWlaV2_02",
+        "TC_ESignet_LinkTransactionConsent_02"
+    ],
+    "TC_ESignet_CreateOIDCClient_MOSIPID_26": [
+        "Dependent_Idrepo_RequestAPIKeyForAuthPartner_01",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_ApproveAPIKey_01",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "Dependent_Idrepo_definePolicy_01",
+        "Dependent_Idrepo_uploadPartnerCert_01"
+    ],
+    "TC_ESignet_LinkedAuthConsent_01": [
+        "TC_ESignet_LinkedAuthenticationWlaV2_01",
+        "TC_ESignet_LinkTransactionConsent_01"
+    ],
+    "TC_ESignet_CreateOIDCClient_MOSIPID_25": [
+        "Dependent_Idrepo_RequestAPIKeyForAuthPartner_01",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_ApproveAPIKey_01",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "Dependent_Idrepo_definePolicy_01",
+        "Dependent_Idrepo_uploadPartnerCert_01"
+    ],
+    "TC_ESignet_CreateOIDCClient_MOSIPID_24": [
+        "Dependent_Idrepo_RequestAPIKeyForAuthPartner_01",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_ApproveAPIKey_01",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "Dependent_Idrepo_definePolicy_01",
+        "Dependent_Idrepo_uploadPartnerCert_01"
+    ],
+    "TC_ESignet_CreateOIDCClient_MOSIPID_23": [
+        "Dependent_Idrepo_RequestAPIKeyForAuthPartner_01",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_ApproveAPIKey_01",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "Dependent_Idrepo_definePolicy_01",
+        "Dependent_Idrepo_uploadPartnerCert_01"
+    ],
+    "Dependent_Idrepo_definePolicy_09": ["Dependent_Idrepo_definePolicyGroup_02"],
+    "TC_ESignet_CreateOIDCClient_MOSIPID_22": [
+        "Dependent_Idrepo_RequestAPIKeyForAuthPartner_01",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_ApproveAPIKey_01",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "Dependent_Idrepo_definePolicy_01",
+        "Dependent_Idrepo_uploadPartnerCert_01"
+    ],
+    "TC_ESignet_CreateOIDCClient_MOSIPID_21": [
+        "Dependent_Idrepo_RequestAPIKeyForAuthPartner_01",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_ApproveAPIKey_01",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "Dependent_Idrepo_definePolicy_01",
+        "Dependent_Idrepo_uploadPartnerCert_01"
+    ],
+    "TC_ESignet_CreateOIDCClient_MOSIPID_20": ["Dependent_Idrepo_definePolicy_01"],
+    "Dependent_Idrepo_definePolicy_03": ["Dependent_Idrepo_definePolicyGroup_02"],
+    "Dependent_Idrepo_definePolicy_02": ["Dependent_Idrepo_definePolicyGroup_02"],
+    "Dependent_Idrepo_definePolicy_01": ["Dependent_Idrepo_definePolicyGroup_01"],
+    "Dependent_Idrepo_definePolicy_07": ["Dependent_Idrepo_definePolicyGroup_02"],
+    "Dependent_Idrepo_definePolicy_06": ["Dependent_Idrepo_definePolicyGroup_02"],
+    "Dependent_Idrepo_definePolicy_05": ["Dependent_Idrepo_definePolicyGroup_02"],
+    "Dependent_Idrepo_definePolicy_04": ["Dependent_Idrepo_definePolicyGroup_01"],
+    "TC_ESignet_BioNonAuth_11": [
+        "Dependent_Idrepo_AddIdentity_14",
+        "TC_ESignet_OAuthDetailsRequestNonAuth_23"
+    ],
+    "TC_ESignet_BioNonAuth_12": [
+        "Dependent_Idrepo_AddIdentity_14",
+        "TC_ESignet_OAuthDetailsRequestNonAuth_25"
+    ],
+    "TC_ESignet_BioNonAuth_13": [
+        "Dependent_Idrepo_GenerateVID_04",
+        "TC_ESignet_OAuthDetailsRequestNonAuth_04"
+    ],
+    "TC_ESignet_BioNonAuth_14": [
+        "Dependent_Idrepo_GenerateVID_04",
+        "TC_ESignet_OAuthDetailsRequestNonAuth_06"
+    ],
+    "TC_ESignet_BioNonAuth_10": [
+        "Dependent_Idrepo_AddIdentity_14",
+        "TC_ESignet_OAuthDetailsRequestNonAuth_21"
+    ],
+    "TC_ESignet_BioNonAuth_19": [
+        "Dependent_Idrepo_GenerateVID_04",
+        "TC_ESignet_OAuthDetailsRequestNonAuth_16"
+    ],
+    "TC_ESignet_GenerateTokenVerifiedClaims_01": [
+        "TC_ESignet_AuthorizationCodeVerifiedClaims_01",
+        "TC_ESignet_CreateOIDCClient_MOSIPID_26"
+    ],
+    "TC_ESignet_BioNonAuth_15": [
+        "Dependent_Idrepo_GenerateVID_04",
+        "TC_ESignet_OAuthDetailsRequestNonAuth_08"
+    ],
+    "TC_ESignet_BioNonAuth_16": [
+        "Dependent_Idrepo_GenerateVID_04",
+        "TC_ESignet_OAuthDetailsRequestNonAuth_10"
+    ],
+    "TC_ESignet_BioNonAuth_17": [
+        "Dependent_Idrepo_GenerateVID_04",
+        "TC_ESignet_OAuthDetailsRequestNonAuth_12"
+    ],
+    "TC_ESignet_BioNonAuth_18": [
+        "Dependent_Idrepo_GenerateVID_04",
+        "TC_ESignet_OAuthDetailsRequestNonAuth_14"
+    ],
+    "Dependent_Idrepo_definePolicy_14": ["Dependent_Idrepo_definePolicyGroup_02"],
+    "Dependent_Idrepo_definePolicy_13": ["Dependent_Idrepo_definePolicyGroup_02"],
+    "TC_ESignet_UserInfoConsentNoCapture_01": [
+        "TC_ESignet_GenTokenConsentNoCapture_01",
+        "TC_ESignet_CreateOIDCClient_MOSIPID_26"
+    ],
+    "Dependent_Idrepo_definePolicy_12": ["Dependent_Idrepo_definePolicyGroup_02"],
+    "Dependent_Idrepo_definePolicy_11": ["Dependent_Idrepo_definePolicyGroup_02"],
+    "Dependent_Idrepo_definePolicy_15": ["Dependent_Idrepo_definePolicyGroup_02"],
+    "TC_ESignet_BioNonAuth_01": [
+        "Dependent_Idrepo_AddIdentity_14",
+        "TC_ESignet_OAuthDetailsRequestNonAuth_03"
+    ],
+    "TC_ESignet_BioNonAuth_02": [
+        "Dependent_Idrepo_AddIdentity_14",
+        "TC_ESignet_OAuthDetailsRequestNonAuth_05"
+    ],
+    "TC_ESignet_BioNonAuth_03": [
+        "Dependent_Idrepo_AddIdentity_14",
+        "TC_ESignet_OAuthDetailsRequestNonAuth_07"
+    ],
+    "TC_ESignet_BioNonAuth_08": [
+        "Dependent_Idrepo_AddIdentity_14",
+        "TC_ESignet_OAuthDetailsRequestNonAuth_17"
+    ],
+    "TC_ESignet_CreateOIDCClient_MOSIPID_09": [
+        "Dependent_Idrepo_RequestAPIKeyForAuthPartner_01",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_ApproveAPIKey_01",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "Dependent_Idrepo_uploadPartnerCert_01"
+    ],
+    "TC_ESignet_BioNonAuth_09": [
+        "Dependent_Idrepo_AddIdentity_14",
+        "TC_ESignet_OAuthDetailsRequestNonAuth_19"
+    ],
+    "TC_ESignet_CreateOIDCClient_MOSIPID_08": [
+        "Dependent_Idrepo_RequestAPIKeyForAuthPartner_01",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_ApproveAPIKey_01",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "Dependent_Idrepo_definePolicy_01",
+        "Dependent_Idrepo_uploadPartnerCert_01"
+    ],
+    "TC_ESignet_CreateOIDCClient_MOSIPID_07": ["Dependent_Idrepo_definePolicy_01"],
+    "TC_ESignet_CreateOIDCClient_MOSIPID_06": [
+        "Dependent_Idrepo_RequestAPIKeyForAuthPartner_01",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_ApproveAPIKey_01",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "Dependent_Idrepo_definePolicy_01",
+        "Dependent_Idrepo_uploadPartnerCert_01"
+    ],
+    "TC_ESignet_BioNonAuth_04": [
+        "Dependent_Idrepo_AddIdentity_14",
+        "TC_ESignet_OAuthDetailsRequestNonAuth_09"
+    ],
+    "TC_ESignet_CreateOIDCClient_MOSIPID_05": [
+        "Dependent_Idrepo_uploadPartnerCert_08",
+        "Dependent_Idrepo_createPartnerSelfRegistration_08",
+        "Dependent_Idrepo_definePolicy_15"
+    ],
+    "TC_ESignet_BioNonAuth_05": [
+        "Dependent_Idrepo_AddIdentity_14",
+        "TC_ESignet_OAuthDetailsRequestNonAuth_11"
+    ],
+    "TC_ESignet_CreateOIDCClient_MOSIPID_04": [
+        "Dependent_Idrepo_ApproveAPIKey_06",
+        "Dependent_Idrepo_createPartnerSelfRegistration_06",
+        "Dependent_Idrepo_uploadPartnerCert_06",
+        "Dependent_Idrepo_RequestAPIKeyForAuthPartner_06",
+        "Dependent_Idrepo_definePolicy_13"
+    ],
+    "TC_ESignet_BioNonAuth_06": [
+        "Dependent_Idrepo_AddIdentity_14",
+        "TC_ESignet_OAuthDetailsRequestNonAuth_13"
+    ],
+    "TC_ESignet_CreateOIDCClient_MOSIPID_03": [
+        "Dependent_Idrepo_createPartnerSelfRegistration_03",
+        "Dependent_Idrepo_uploadPartnerCert_03",
+        "Dependent_Idrepo_ApproveAPIKey_03",
+        "Dependent_Idrepo_definePolicy_03",
+        "Dependent_Idrepo_GenerateApiKey_02",
+        "Dependent_Idrepo_RequestAPIKeyForAuthPartner_03"
+    ],
+    "TC_ESignet_BioNonAuth_07": [
+        "Dependent_Idrepo_AddIdentity_14",
+        "TC_ESignet_OAuthDetailsRequestNonAuth_15"
+    ],
+    "TC_ESignet_CreateOIDCClient_MOSIPID_02": [
+        "Dependent_Idrepo_uploadPartnerCert_04",
+        "Dependent_Idrepo_ApproveAPIKey_04",
+        "Dependent_Idrepo_createPartnerSelfRegistration_04",
+        "Dependent_Idrepo_createPublishPolicy_04",
+        "Dependent_Idrepo_RequestAPIKeyForAuthPartner_04",
+        "Dependent_Idrepo_definePolicy_04"
+    ],
+    "TC_ESignet_CreateOIDCClient_MOSIPID_01": [
+        "Dependent_Idrepo_RequestAPIKeyForAuthPartner_01",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_ApproveAPIKey_01",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "Dependent_Idrepo_definePolicy_01",
+        "Dependent_Idrepo_uploadPartnerCert_01"
+    ],
+    "TC_ESignet_GenTokenConsentNoCaptureNegTC_02": [
+        "TC_ESignet_AuthorizationCodeVerifiedClaims_01",
+        "TC_ESignet_CreateOIDCClient_MOSIPID_26"
+    ],
+    "TC_ESignet_GenTokenConsentNoCaptureNegTC_01": [
+        "TC_ESignet_AuthorizationCodeVerifiedClaims_01",
+        "TC_ESignet_CreateOIDCClient_MOSIPID_26"
+    ],
+    "TC_ESignet_CreateOIDCClient_MOSIPID_19": [
+        "Dependent_Idrepo_RequestAPIKeyForAuthPartner_01",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_ApproveAPIKey_01",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "Dependent_Idrepo_definePolicy_01",
+        "Dependent_Idrepo_uploadPartnerCert_01"
+    ],
+    "TC_ESignet_CreateOIDCClient_MOSIPID_18": [
+        "Dependent_Idrepo_RequestAPIKeyForAuthPartner_01",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_ApproveAPIKey_01",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "Dependent_Idrepo_definePolicy_01",
+        "Dependent_Idrepo_uploadPartnerCert_01"
+    ],
+    "TC_ESignet_CreateOIDCClient_MOSIPID_17": [
+        "Dependent_Idrepo_RequestAPIKeyForAuthPartner_01",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_ApproveAPIKey_01",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "Dependent_Idrepo_definePolicy_01",
+        "Dependent_Idrepo_uploadPartnerCert_01"
+    ],
+    "TC_ESignet_CreateOIDCClient_MOSIPID_16": [
+        "Dependent_Idrepo_RequestAPIKeyForAuthPartner_01",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_ApproveAPIKey_01",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "Dependent_Idrepo_definePolicy_01",
+        "Dependent_Idrepo_uploadPartnerCert_01"
+    ],
+    "TC_ESignet_CreateOIDCClient_MOSIPID_15": [
+        "Dependent_Idrepo_RequestAPIKeyForAuthPartner_01",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_ApproveAPIKey_01",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "Dependent_Idrepo_definePolicy_01",
+        "Dependent_Idrepo_uploadPartnerCert_01"
+    ],
+    "TC_ESignet_CreateOIDCClient_MOSIPID_14": [
+        "Dependent_Idrepo_RequestAPIKeyForAuthPartner_01",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_ApproveAPIKey_01",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "Dependent_Idrepo_definePolicy_01",
+        "Dependent_Idrepo_uploadPartnerCert_01"
+    ],
+    "TC_ESignet_CreateOIDCClient_MOSIPID_13": [
+        "Dependent_Idrepo_RequestAPIKeyForAuthPartner_01",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_ApproveAPIKey_01",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "Dependent_Idrepo_definePolicy_01",
+        "Dependent_Idrepo_uploadPartnerCert_01"
+    ],
+    "TC_ESignet_CreateOIDCClient_MOSIPID_12": ["Dependent_Idrepo_definePolicy_01"],
+    "TC_ESignet_CreateOIDCClient_MOSIPID_11": ["Dependent_Idrepo_definePolicy_01"],
+    "TC_ESignet_CreateOIDCClient_MOSIPID_10": [
+        "Dependent_Idrepo_RequestAPIKeyForAuthPartner_01",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_ApproveAPIKey_01",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "Dependent_Idrepo_uploadPartnerCert_01"
+    ],
+    "TC_ESignet_OauthParNegativeScenarios_07": ["TC_ESignet_CreateOIDCClient_MOSIPID_24"],
+    "TC_ESignet_OauthParNegativeScenarios_08": ["TC_ESignet_CreateOIDCClient_MOSIPID_24"],
+    "TC_ESignet_OauthParNegativeScenarios_09": ["TC_ESignet_CreateOIDCClient_MOSIPID_24"],
+    "TC_ESignet_OauthParNegativeScenarios_10": ["TC_ESignet_CreateOIDCClient_MOSIPID_24"],
+    "TC_ESignet_OauthParNegativeScenarios_11": ["TC_ESignet_CreateOIDCClient_MOSIPID_24"],
+    "TC_ESignet_OauthPar_05": ["TC_ESignet_CreateOIDCClient_MOSIPID_24"],
+    "TC_ESignet_OauthParNegativeScenarios_12": ["TC_ESignet_CreateOIDCClient_MOSIPID_24"],
+    "TC_ESignet_OauthPar_06": ["TC_ESignet_CreateOIDCClient_MOSIPID_24"],
+    "TC_ESignet_OauthParNegativeScenarios_13": ["TC_ESignet_CreateOIDCClient_MOSIPID_24"],
+    "TC_ESignet_OauthPar_03": ["TC_ESignet_CreateOIDCClient_MOSIPID_24"],
+    "TC_ESignet_OauthParNegativeScenarios_14": ["TC_ESignet_CreateOIDCClient_MOSIPID_24"],
+    "TC_ESignet_OauthPar_04": ["TC_ESignet_CreateOIDCClient_MOSIPID_24"],
+    "TC_ESignet_OauthParNegativeScenarios_15": ["TC_ESignet_CreateOIDCClient_MOSIPID_24"],
+    "TC_ESignet_OauthPar_01": ["TC_ESignet_CreateOIDCClient_MOSIPID_24"],
+    "TC_ESignet_OauthParNegativeScenarios_16": ["TC_ESignet_CreateOIDCClient_MOSIPID_24"],
+    "TC_ESignet_OauthPar_02": ["TC_ESignet_CreateOIDCClient_MOSIPID_24"],
+    "TC_ESignet_LinkTransaction_04": ["TC_ESignet_GenerateLinkCode_04"],
+    "TC_ESignet_LinkTransaction_03": ["TC_ESignet_GenerateLinkCode_03"],
+    "TC_ESignet_LinkTransaction_06": ["TC_ESignet_GenerateLinkCode_06"],
+    "TC_ESignet_LinkTransaction_05": ["TC_ESignet_GenerateLinkCode_05"],
+    "TC_ESignet_LinkTransaction_02": ["TC_ESignet_GenerateLinkCode_02"],
+    "TC_ESignet_LinkTransaction_01": ["TC_ESignet_GenerateLinkCode_01"],
+    "Dependent_Idrepo_RequestAPIKeyForAuthPartner_01": [
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_createPublishPolicy_01",
+        "Dependent_Idrepo_definePolicy_01",
+        "Dependent_Idrepo_uploadPartnerCert_01"
+    ],
+    "Dependent_Idrepo_RequestAPIKeyForAuthPartner_06": [
+        "Dependent_Idrepo_createPartnerSelfRegistration_06",
+        "Dependent_Idrepo_uploadPartnerCert_06",
+        "Dependent_Idrepo_createPublishPolicy_06",
+        "Dependent_Idrepo_definePolicy_13"
+    ],
+    "Dependent_Idrepo_RequestAPIKeyForAuthPartner_03": [
+        "Dependent_Idrepo_createPartnerSelfRegistration_03",
+        "Dependent_Idrepo_uploadPartnerCert_03",
+        "Dependent_Idrepo_createPublishPolicy_03",
+        "Dependent_Idrepo_definePolicy_03"
+    ],
+    "TC_ESignet_LinkTransaction_11": ["TC_ESignet_GenerateLinkCode_01"],
+    "Dependent_Idrepo_RequestAPIKeyForAuthPartner_02": [
+        "Dependent_Idrepo_createPartnerSelfRegistration_02",
+        "Dependent_Idrepo_uploadPartnerCert_02",
+        "Dependent_Idrepo_createPublishPolicy_02",
+        "Dependent_Idrepo_definePolicy_02"
+    ],
+    "TC_ESignet_LinkTransaction_10": ["TC_ESignet_GenerateLinkCode_01"],
+    "Dependent_Idrepo_RequestAPIKeyForAuthPartner_05": [
+        "Dependent_Idrepo_uploadPartnerCert_05",
+        "Dependent_Idrepo_createPartnerSelfRegistration_05",
+        "Dependent_Idrepo_definePolicy_12",
+        "Dependent_Idrepo_createPublishPolicy_05"
+    ],
+    "Dependent_Idrepo_RequestAPIKeyForAuthPartner_04": [
+        "Dependent_Idrepo_uploadPartnerCert_04",
+        "Dependent_Idrepo_createPartnerSelfRegistration_04",
+        "Dependent_Idrepo_createPublishPolicy_04",
+        "Dependent_Idrepo_definePolicy_04"
+    ],
+    "TC_ESignet_LinkTransaction_12": ["TC_ESignet_GenerateLinkCode_01"],
+    "TC_ESignet_LinkTransaction_08": ["TC_ESignet_GenerateLinkCode_01"],
+    "TC_ESignet_LinkTransaction_07": ["TC_ESignet_GenerateLinkCode_01"],
+    "TC_ESignet_LinkTransaction_09": ["TC_ESignet_GenerateLinkCode_01"],
+    "TC_ESignet_LinkTransaction_20": ["TC_ESignet_GenerateLinkCode_19"],
+    "TC_ESignet_GetOidcUserInfoConsent_01": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_GenerateTokenConsent_01"
+    ],
+    "TC_ESignet_GetOidcUserInfoConsent_02": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_GenerateTokenConsent_02"
+    ],
+    "TC_ESignet_GetOidcUserInfoConsent_03": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_GenerateTokenConsent_03"
+    ],
+    "TC_ESignet_GetOidcUserInfoConsent_04": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_GenerateTokenConsent_04"
+    ],
+    "TC_ESignet_LinkTransaction_22": ["TC_ESignet_GenerateLinkCode_21"],
+    "TC_ESignet_LinkTransaction_21": ["TC_ESignet_GenerateLinkCode_20"],
+    "TC_ESignet_LinkTransaction_24": ["TC_ESignet_GenerateLinkCode_23"],
+    "TC_ESignet_LinkTransaction_23": ["TC_ESignet_GenerateLinkCode_22"],
+    "TC_ESignet_SendBindingOtp_04": [
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "Dependent_Idrepo_AddIdentity_06"
+    ],
+    "TC_ESignet_SendBindingOtp_03": [
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_AddIdentity_05",
+        "Dependent_Idrepo_GenerateApiKey_01"
+    ],
+    "TC_ESignet_SendBindingOtp_02": [
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "Dependent_Idrepo_GenerateVID_01"
+    ],
+    "TC_ESignet_SendBindingOtp_01": [
+        "Dependent_Idrepo_AddIdentity_04",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01"
+    ],
+    "TC_ESignet_LinkTransaction_19": ["TC_ESignet_GenerateLinkCode_18"],
+    "TC_ESignet_LinkTransaction_18": ["TC_ESignet_GenerateLinkCode_17"],
+    "TC_ESignet_SendBindingOtp_09": [
+        "Dependent_Idrepo_AddIdentity_04",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01"
+    ],
+    "TC_ESignet_SendBindingOtp_08": [
+        "Dependent_Idrepo_AddIdentity_04",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01"
+    ],
+    "TC_ESignet_SendBindingOtp_07": [
+        "Dependent_Idrepo_AddIdentity_04",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01"
+    ],
+    "TC_ESignet_SendBindingOtp_06": [
+        "Dependent_Idrepo_AddIdentity_04",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01"
+    ],
+    "TC_ESignet_SendBindingOtp_05": [
+        "Dependent_Idrepo_AddIdentity_04",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01"
+    ],
+    "TC_ESignet_GenerateTokenLinked_01": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_LinkAuthorizationCode_05"
+    ],
+    "TC_ESignet_GenerateTokenLinked_03": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_LinkAuthorizationCode_01"
+    ],
+    "TC_ESignet_GenerateTokenLinked_02": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_LinkAuthorizationCode_06"
+    ],
+    "TC_ESignet_GenerateTokenLinked_05": [
+        "TC_ESignet_LinkAuthorizationCode_03",
+        "TC_ESignet_CreateOIDCClient_MOSIPID_03"
+    ],
+    "TC_ESignet_GenerateTokenLinked_04": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_LinkAuthorizationCode_02"
+    ],
+    "TC_ESignet_GenerateTokenLinked_06": [
+        "TC_ESignet_LinkAuthorizationCode_04",
+        "TC_ESignet_CreateOIDCClient_MOSIPID_03"
+    ],
+    "TC_ESignet_SendBindingOtp_15": [
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01"
+    ],
+    "TC_ESignet_SendBindingOtp_14": [
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01"
+    ],
+    "TC_ESignet_SendBindingOtp_13": [
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_AddIdentity_05",
+        "Dependent_Idrepo_GenerateApiKey_01"
+    ],
+    "TC_ESignet_SendBindingOtp_12": [
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "Dependent_Idrepo_AddIdentity_06"
+    ],
+    "TC_ESignet_SendBindingOtp_11": [
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01"
+    ],
+    "TC_ESignet_SendBindingOtp_10": [
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01"
+    ],
+    "TC_ESignet_SendBindingOtp_19": [
+        "Dependent_Idrepo_AddIdentity_04",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01"
+    ],
+    "TC_ESignet_SendBindingOtp_18": [
+        "Dependent_Idrepo_AddIdentity_04",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01"
+    ],
+    "TC_ESignet_SendBindingOtp_17": [
+        "Dependent_Idrepo_AddIdentity_04",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01"
+    ],
+    "TC_ESignet_SendBindingOtp_16": [
+        "Dependent_Idrepo_AddIdentity_04",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01"
+    ],
+    "Dependent_Idrepo_ApproveAPIKey_06": ["Dependent_Idrepo_RequestAPIKeyForAuthPartner_06"],
+    "Dependent_Idrepo_ApproveAPIKey_05": ["Dependent_Idrepo_RequestAPIKeyForAuthPartner_05"],
+    "Dependent_Idrepo_ApproveAPIKey_04": ["Dependent_Idrepo_RequestAPIKeyForAuthPartner_04"],
+    "Dependent_Idrepo_ApproveAPIKey_03": ["Dependent_Idrepo_RequestAPIKeyForAuthPartner_03"],
+    "Dependent_Idrepo_ApproveAPIKey_02": ["Dependent_Idrepo_RequestAPIKeyForAuthPartner_02"],
+    "Dependent_Idrepo_ApproveAPIKey_01": ["Dependent_Idrepo_RequestAPIKeyForAuthPartner_01"],
+    "TC_ESignet_SendBindingOtp_26": [
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01"
+    ],
+    "TC_ESignet_SendBindingOtp_25": [
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01"
+    ],
+    "TC_ESignet_SendBindingOtp_24": [
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "Dependent_Idrepo_GenerateVID_01"
+    ],
+    "TC_ESignet_SendBindingOtp_23": [
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "Dependent_Idrepo_GenerateVID_01"
+    ],
+    "TC_ESignet_SendBindingOtp_22": [
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "Dependent_Idrepo_GenerateVID_01"
+    ],
+    "TC_ESignet_SendBindingOtp_21": [
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "Dependent_Idrepo_GenerateVID_01"
+    ],
+    "TC_ESignet_SendBindingOtp_20": [
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "Dependent_Idrepo_GenerateVID_01"
+    ],
+    "TC_ESignet_AuthorizationCodeVerifiedClaims_01": [
+        "TC_ESignet_OAuthDetailsRequestConsentNoCapture_01",
+        "TC_ESignet_OAuthDetailsRequestV3VerifiedClaims_01",
+        "TC_ESignet_AuthenticateUserV3VerifiedClaims_01",
+        "TC_ESignet_AuthenticateConsentNoCapture_01"
+    ],
+    "TC_ESignet_SendBindingOtp_29": [
+        "Dependent_Idrepo_AddIdentity_04",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01"
+    ],
+    "TC_ESignet_SendBindingOtp_28": [
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01"
+    ],
+    "TC_ESignet_SendBindingOtp_27": [
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01"
+    ],
+    "TC_ESignet_DPoPOauthDetails_01": [
+        "TC_ESignet_OauthDPoP_01",
+        "TC_ESignet_CreateOIDCClient_MOSIPID_25"
+    ],
+    "TC_ESignet_SendBindingOtp_32": [
+        "Dependent_Idrepo_AddIdentity_04",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01"
+    ],
+    "TC_ESignet_SendBindingOtp_31": [
+        "Dependent_Idrepo_AddIdentity_04",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01"
+    ],
+    "TC_ESignet_SendBindingOtp_30": [
+        "Dependent_Idrepo_AddIdentity_04",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01"
+    ],
+    "TC_ESignet_DPoPAuthorizationCode_01": [
+        "TC_ESignet_DPoPOauthDetails_01",
+        "TC_ESignet_DPoPAuthenticateUserV3_01"
+    ],
+    "TC_ESignet_OauthParNegativeScenarios_01": ["TC_ESignet_CreateOIDCClientV3_01"],
+    "TC_ESignet_OauthParNegativeScenarios_02": ["TC_ESignet_CreateOIDCClient_MOSIPID_24"],
+    "TC_ESignet_OauthParNegativeScenarios_03": ["TC_ESignet_CreateOIDCClient_MOSIPID_24"],
+    "TC_ESignet_OauthParNegativeScenarios_04": ["TC_ESignet_CreateOIDCClient_MOSIPID_24"],
+    "TC_ESignet_UpdateOIDCClientV3_E2E_01": ["TC_ESignet_CreateOIDCClient_MOSIPID_21"],
+    "TC_ESignet_AuthUserV3_E2E_02": [
+        "Dependent_Idrepo_AddIdentity_26",
+        "TC_ESignet_OAuthDetailsRequestV3_Prerequisite_02"
+    ],
+    "TC_ESignet_AuthUserV3_E2E_03": [
+        "Dependent_Idrepo_AddIdentity_27",
+        "TC_ESignet_OAuthDetailsRequestV3_Prerequisite_03"
+    ],
+    "TC_ESignet_AuthUserV3_E2E_01": [
+        "Dependent_Idrepo_AddIdentity_25",
+        "TC_ESignet_OAuthDetailsRequestV3_Prerequisite_01"
+    ],
+    "TC_ESignet_UpdateOIDCClientV3_E2E_02": ["TC_ESignet_CreateOIDCClient_MOSIPID_22"],
+    "TC_ESignet_UpdateOIDCClientV3_E2E_03": ["TC_ESignet_CreateOIDCClient_MOSIPID_23"],
+    "TC_ESignet_DPoPGenerateTokenInvalidScenarios_04": [
+        "TC_ESignet_DPoPAuthorizationCode_01",
+        "TC_ESignet_CreateOIDCClient_MOSIPID_25"
+    ],
+    "TC_ESignet_AuthorizationCodeConsent_10": [
+        "TC_ESignet_OAuthDetailsRequestConsent_09",
+        "TC_ESignet_AuthenticateUserConsent_13"
+    ],
+    "TC_ESignet_DPoPGenerateTokenInvalidScenarios_03": [
+        "TC_ESignet_DPoPAuthorizationCode_01",
+        "TC_ESignet_CreateOIDCClient_MOSIPID_25"
+    ],
+    "TC_ESignet_AuthorizationCodeConsent_11": [
+        "TC_ESignet_AuthenticateUserConsent_12",
+        "TC_ESignet_OAuthDetailsRequestConsent_10"
+    ],
+    "TC_ESignet_DPoPGenerateTokenInvalidScenarios_02": [
+        "TC_ESignet_DPoPAuthorizationCode_01",
+        "TC_ESignet_CreateOIDCClient_MOSIPID_25"
+    ],
+    "TC_ESignet_DPoPGenerateTokenInvalidScenarios_01": [
+        "TC_ESignet_DPoPAuthorizationCode_01",
+        "TC_ESignet_CreateOIDCClient_MOSIPID_25"
+    ],
+    "TC_ESignet_UpdateOIDCClientV2_06": ["TC_ESignet_CreateOIDCClientV2_01"],
+    "TC_ESignet_UpdateOIDCClientV2_05": ["TC_ESignet_CreateOIDCClientV2_01"],
+    "TC_ESignet_UpdateOIDCClientV2_04": ["TC_ESignet_CreateOIDCClientV2_01"],
+    "TC_ESignet_UpdateOIDCClientV2_03": ["TC_ESignet_CreateOIDCClientV2_01"],
+    "TC_ESignet_UpdateOIDCClientV2_02": ["TC_ESignet_CreateOIDCClientV2_01"],
+    "TC_ESignet_UpdateOIDCClientV2_01": ["TC_ESignet_CreateOIDCClientV2_01"],
+    "TC_ESignet_PARGenerateToken_01": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_24",
+        "TC_ESignet_PARAuthorizationCode_01"
+    ],
+    "TC_ESignet_AuthorizationCodeConsent_01": [
+        "TC_ESignet_AuthenticateUserConsent_02",
+        "TC_ESignet_OAuthDetailsRequestConsent_02"
+    ],
+    "TC_ESignet_AuthorizationCodeConsent_02": [
+        "TC_ESignet_OAuthDetailsRequestConsent_05",
+        "TC_ESignet_AuthenticateUserConsent_04"
+    ],
+    "TC_ESignet_AuthorizationCodeConsent_09": [
+        "TC_ESignet_AuthenticateUserConsent_11",
+        "TC_ESignet_OAuthDetailsRequestConsent_08"
+    ],
+    "TC_ESignet_AuthorizationCodeConsent_07": [
+        "TC_ESignet_AuthenticateUserConsent_11",
+        "TC_ESignet_OAuthDetailsRequestConsent_08"
+    ],
+    "TC_ESignet_AuthorizationCodeConsent_08": [
+        "TC_ESignet_AuthenticateUserConsent_11",
+        "TC_ESignet_OAuthDetailsRequestConsent_08"
+    ],
+    "TC_ESignet_AuthorizationCodeConsent_05": [
+        "TC_ESignet_AuthenticateUserConsent_11",
+        "TC_ESignet_OAuthDetailsRequestConsent_08"
+    ],
+    "TC_ESignet_AuthorizationCodeConsent_06": [
+        "TC_ESignet_AuthenticateUserConsent_11",
+        "TC_ESignet_OAuthDetailsRequestConsent_08"
+    ],
+    "TC_ESignet_AuthorizationCodeConsent_03": [
+        "TC_ESignet_AuthenticateUserConsent_01",
+        "TC_ESignet_OAuthDetailsRequestConsent_01"
+    ],
+    "TC_ESignet_AuthorizationCodeConsent_04": [
+        "TC_ESignet_AuthenticateUserConsent_03",
+        "TC_ESignet_OAuthDetailsRequestConsent_04"
+    ],
     "TC_ESignet_WalletBinding_12": [
         "Dependent_Idrepo_AddIdentity_04",
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
@@ -6,7 +1371,8 @@
     ],
     "TC_ESignet_GetLinkStatus_02": [
         "TC_ESignet_GenerateLinkCode_02",
-        "TC_ESignet_OAuthDetailsRequestLinked_02"
+        "TC_ESignet_OAuthDetailsRequestLinked_02",
+        "TC_ESignet_LinkTransaction_02"
     ],
     "TC_ESignet_WalletBinding_13": [
         "Dependent_Idrepo_AddIdentity_04",
@@ -15,7 +1381,8 @@
     ],
     "TC_ESignet_GetLinkStatus_01": [
         "TC_ESignet_GenerateLinkCode_01",
-        "TC_ESignet_OAuthDetailsRequestLinked_01"
+        "TC_ESignet_OAuthDetailsRequestLinked_01",
+        "TC_ESignet_LinkTransaction_01"
     ],
     "TC_ESignet_WalletBinding_10": [
         "Dependent_Idrepo_AddIdentity_04",
@@ -24,6 +1391,7 @@
     ],
     "TC_ESignet_GetLinkStatus_04": [
         "TC_ESignet_OAuthDetailsRequestLinked_04",
+        "TC_ESignet_LinkTransaction_04",
         "TC_ESignet_GenerateLinkCode_04"
     ],
     "TC_ESignet_WalletBinding_11": [
@@ -33,6 +1401,7 @@
     ],
     "TC_ESignet_GetLinkStatus_03": [
         "TC_ESignet_OAuthDetailsRequestLinked_03",
+        "TC_ESignet_LinkTransaction_03",
         "TC_ESignet_GenerateLinkCode_03"
     ],
     "TC_ESignet_WalletBinding_16": [
@@ -55,27 +1424,27 @@
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
         "Dependent_Idrepo_GenerateApiKey_01"
     ],
+    "TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_24": ["TC_ESignet_CreateOIDCClient_MOSIPID_28"],
+    "TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_23": ["TC_ESignet_CreateOIDCClient_MOSIPID_28"],
     "TC_ESignet_WalletBinding_18": [
         "Dependent_Idrepo_AddIdentity_04",
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
         "Dependent_Idrepo_GenerateApiKey_01"
     ],
+    "TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_22": ["TC_ESignet_CreateOIDCClient_MOSIPID_28"],
     "TC_ESignet_WalletBinding_19": [
         "Dependent_Idrepo_AddIdentity_04",
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
         "Dependent_Idrepo_GenerateApiKey_01"
     ],
-    "TC_ESignet_OAuthDetailsRequest_53": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_52": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_51": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_50": ["TC_ESignet_CreateOIDCClient_01"],
-    "ESignet_OAuthDetailsRequest_LinkAuth_Consent_vid_Valid_Smoke_sid": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_57": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_56": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_55": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_54": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_59": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_58": ["TC_ESignet_CreateOIDCClient_01"],
+    "TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_21": ["TC_ESignet_CreateOIDCClient_MOSIPID_28"],
+    "TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_20": ["TC_ESignet_CreateOIDCClient_MOSIPID_28"],
+    "TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_19": ["TC_ESignet_CreateOIDCClient_MOSIPID_28"],
+    "TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_18": ["TC_ESignet_CreateOIDCClient_MOSIPID_28"],
+    "TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_17": ["TC_ESignet_CreateOIDCClient_MOSIPID_28"],
+    "TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_16": ["TC_ESignet_CreateOIDCClient_MOSIPID_28"],
+    "TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_15": ["TC_ESignet_CreateOIDCClient_MOSIPID_28"],
+    "TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_14": ["TC_ESignet_CreateOIDCClient_MOSIPID_28"],
     "TC_ESignet_WalletBinding_23": [
         "Dependent_Idrepo_AddIdentity_04",
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
@@ -91,6 +1460,7 @@
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
         "Dependent_Idrepo_GenerateApiKey_01"
     ],
+    "TC_ESignet_OAuthDetailsRequestConsentNoCapture_01": ["TC_ESignet_CreateOIDCClient_MOSIPID_26"],
     "TC_ESignet_WalletBinding_22": [
         "Dependent_Idrepo_AddIdentity_04",
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
@@ -116,26 +1486,27 @@
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
         "Dependent_Idrepo_GenerateApiKey_01"
     ],
+    "TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_13": ["TC_ESignet_CreateOIDCClient_MOSIPID_28"],
+    "TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_12": ["TC_ESignet_CreateOIDCClient_MOSIPID_28"],
     "TC_ESignet_WalletBinding_29": [
         "Dependent_Idrepo_AddIdentity_04",
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
         "Dependent_Idrepo_GenerateApiKey_01"
     ],
-    "TC_ESignet_OAuthDetailsRequest_60": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_64": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_63": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_62": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_61": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_68": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_67": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_66": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_65": ["TC_ESignet_CreateOIDCClient_01"],
+    "TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_11": ["TC_ESignet_CreateOIDCClient_MOSIPID_28"],
+    "TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_10": ["TC_ESignet_CreateOIDCClient_MOSIPID_28"],
+    "TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_09": ["TC_ESignet_CreateOIDCClient_MOSIPID_28"],
+    "TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_08": ["TC_ESignet_CreateOIDCClient_MOSIPID_28"],
+    "TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_07": ["TC_ESignet_CreateOIDCClient_MOSIPID_28"],
+    "TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_06": ["TC_ESignet_CreateOIDCClient_MOSIPID_28"],
+    "TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_05": ["TC_ESignet_CreateOIDCClient_MOSIPID_28"],
+    "TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_04": ["TC_ESignet_CreateOIDCClient_MOSIPID_28"],
+    "TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_03": ["TC_ESignet_CreateOIDCClient_MOSIPID_28"],
     "TC_ESignet_WalletBinding_20": [
         "Dependent_Idrepo_AddIdentity_04",
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
         "Dependent_Idrepo_GenerateApiKey_01"
     ],
-    "TC_ESignet_OAuthDetailsRequest_69": ["TC_ESignet_CreateOIDCClient_01"],
     "TC_ESignet_WalletBinding_34": [
         "Dependent_Idrepo_AddIdentity_04",
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
@@ -157,7 +1528,6 @@
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
         "Dependent_Idrepo_GenerateApiKey_01"
     ],
-    "TC_ESignet_OAuthDetailsRequest_29": ["TC_ESignet_CreateOIDCClient_01"],
     "TC_ESignet_WalletBinding_38": [
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
         "Dependent_Idrepo_GenerateApiKey_01",
@@ -182,13 +1552,12 @@
         "Dependent_Idrepo_AddIdentity_07",
         "Dependent_Idrepo_GenerateVID_01"
     ],
-    "ESignet_GetOidcUserInfo_Consent_Vid_IdpAccessToken_StatusCode_Valid_Smoke_sid": ["ESignet_GenerateToken_Consent_Vid_Valid_Smoke_sid"],
-    "TC_ESignet_OAuthDetailsRequest_31": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_30": ["TC_ESignet_CreateOIDCClient_01"],
-    "Esignet_UpdateOIDC_all_Valid_Smoke": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_34": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_33": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_32": ["TC_ESignet_CreateOIDCClient_01"],
+    "TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_02": ["TC_ESignet_CreateOIDCClient_MOSIPID_28"],
+    "TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_01": ["TC_ESignet_CreateOIDCClient_MOSIPID_28"],
+    "TC_ESignet_AuthorizationCodeDifferentScopeLanguageClaimsSce_01": [
+        "TC_ESignet_AuthenticateUserDifferentScopeLanguage_01",
+        "TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_01"
+    ],
     "TC_ESignet_WalletBinding_30": [
         "Dependent_Idrepo_AddIdentity_04",
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
@@ -198,6 +1567,18 @@
         "Dependent_Idrepo_AddIdentity_04",
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
         "Dependent_Idrepo_GenerateApiKey_01"
+    ],
+    "TC_ESignet_AuthCode_E2E_03": [
+        "TC_ESignet_AuthUserV3_E2E_03",
+        "TC_ESignet_OAuthDetailsRequestV3_Prerequisite_03"
+    ],
+    "TC_ESignet_AuthCode_E2E_02": [
+        "TC_ESignet_OAuthDetailsRequestV3_Prerequisite_02",
+        "TC_ESignet_AuthUserV3_E2E_02"
+    ],
+    "TC_ESignet_AuthCode_E2E_01": [
+        "TC_ESignet_OAuthDetailsRequestV3_Prerequisite_01",
+        "TC_ESignet_AuthUserV3_E2E_01"
     ],
     "TC_ESignet_WalletBinding_45": [
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
@@ -238,13 +1619,6 @@
         "Dependent_Idrepo_GenerateApiKey_01",
         "Dependent_Idrepo_GenerateVID_01"
     ],
-    "TC_ESignet_OAuthDetailsRequest_42": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_41": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_40": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_46": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_45": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_44": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_43": ["TC_ESignet_CreateOIDCClient_01"],
     "TC_ESignet_WalletBinding_41": [
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
         "Dependent_Idrepo_GenerateApiKey_01",
@@ -257,15 +1631,16 @@
         "Dependent_Idrepo_AddIdentity_07",
         "Dependent_Idrepo_GenerateVID_01"
     ],
-    "TC_ESignet_OAuthDetailsRequest_49": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_48": ["TC_ESignet_CreateOIDCClient_01"],
     "TC_ESignet_WalletBinding_40": [
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
         "Dependent_Idrepo_GenerateApiKey_01",
         "Dependent_Idrepo_AddIdentity_07",
         "Dependent_Idrepo_GenerateVID_01"
     ],
-    "TC_ESignet_OAuthDetailsRequest_47": ["TC_ESignet_CreateOIDCClient_01"],
+    "TC_ESignet_GenerateTokenWithoutVerifiedClaims_01": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_27",
+        "TC_ESignet_AuthorizationCodeWithoutVerifiedClaims_01"
+    ],
     "Dependent_Idrepo_uploadCACert_07": ["Dependent_Idrepo_createPartnerSelfRegistration_04"],
     "Dependent_Idrepo_uploadCACert_06": ["Dependent_Idrepo_createPartnerSelfRegistration_03"],
     "Dependent_Idrepo_uploadCACert_09": ["Dependent_Idrepo_createPartnerSelfRegistration_05"],
@@ -275,53 +1650,74 @@
     "Dependent_Idrepo_uploadCACert_02": ["Dependent_Idrepo_createPartnerSelfRegistration_01"],
     "Dependent_Idrepo_uploadCACert_05": ["Dependent_Idrepo_createPartnerSelfRegistration_03"],
     "Dependent_Idrepo_uploadCACert_04": ["Dependent_Idrepo_createPartnerSelfRegistration_02"],
-    "ESignet_GenerateToken_LinkedConsent_uin_Valid_Smoke_sid": [
-        "TC_ESignet_LinkAuthorizationCodeConsent_01",
-        "TC_ESignet_CreateOIDCClient_01"
+    "TC_ESignet_DPoPGetUserInfo_01": [
+        "TC_ESignet_DPoPGenerateToken_01",
+        "TC_ESignet_CreateOIDCClient_MOSIPID_25"
     ],
     "Dependent_Idrepo_GenerateApiKey_01": [
+        "Dependent_Idrepo_RequestAPIKeyForAuthPartner_01",
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_ApproveAPIKey_01",
         "Dependent_Idrepo_definePolicy_01"
     ],
     "Dependent_Idrepo_GenerateApiKey_02": [
         "Dependent_Idrepo_createPartnerSelfRegistration_03",
-        "Dependent_Idrepo_definePolicy_03"
+        "Dependent_Idrepo_ApproveAPIKey_03",
+        "Dependent_Idrepo_definePolicy_03",
+        "Dependent_Idrepo_RequestAPIKeyForAuthPartner_03"
     ],
-    "ESignet_OAuthDetailsRequest_Consent_Vid_User2_all_Valid_Smoke_sid": ["TC_ESignet_CreateOIDCClient_03"],
-    "TC_ESignet_GetOidcUserInfoLinked_06": ["TC_ESignet_GenerateTokenLinked_06"],
+    "TC_ESignet_GetOidcUserInfoLinked_06": [
+        "TC_ESignet_GenerateTokenLinked_06",
+        "TC_ESignet_CreateOIDCClient_MOSIPID_03"
+    ],
     "TC_ESignet_GetLinkStatus_23": ["TC_ESignet_OAuthDetailsRequestLinked_07"],
-    "TC_ESignet_GetOidcUserInfoLinked_04": ["TC_ESignet_GenerateTokenLinked_04"],
-    "TC_ESignet_GetOidcUserInfoLinked_05": ["TC_ESignet_GenerateTokenLinked_05"],
+    "TC_ESignet_GetOidcUserInfoLinked_04": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_GenerateTokenLinked_04"
+    ],
+    "TC_ESignet_GetOidcUserInfoLinked_05": [
+        "TC_ESignet_GenerateTokenLinked_05",
+        "TC_ESignet_CreateOIDCClient_MOSIPID_03"
+    ],
     "TC_ESignet_GetLinkStatus_20": ["TC_ESignet_OAuthDetailsRequestLinked_07"],
     "TC_ESignet_GetLinkStatus_22": ["TC_ESignet_OAuthDetailsRequestLinked_07"],
     "TC_ESignet_GetLinkStatus_21": ["TC_ESignet_OAuthDetailsRequestLinked_07"],
-    "TC_ESignet_OAuthDetailsRequest_71": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_70": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_75": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_74": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_73": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_72": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_78": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_77": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_GetLinkStatus_17": ["TC_ESignet_GenerateLinkCode_01"],
-    "TC_ESignet_GetLinkStatus_16": ["TC_ESignet_GenerateLinkCode_01"],
+    "TC_ESignet_GetLinkStatus_17": [
+        "TC_ESignet_GenerateLinkCode_01",
+        "TC_ESignet_LinkTransaction_01"
+    ],
+    "TC_ESignet_GetLinkStatus_16": [
+        "TC_ESignet_GenerateLinkCode_01",
+        "TC_ESignet_LinkTransaction_01"
+    ],
     "TC_ESignet_GetLinkStatus_19": ["TC_ESignet_OAuthDetailsRequestLinked_07"],
-    "ESignet_AuthorizationCode_Consent_uin_All_Valid_Smoke_sid": ["ESignet_OAuthDetailsRequest_Consent_all_Valid_Smoke_sid"],
     "TC_ESignet_GetLinkStatus_18": ["TC_ESignet_OAuthDetailsRequestLinked_07"],
     "TC_ESignet_WalletBinding_01": [
         "Dependent_Idrepo_AddIdentity_04",
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
         "Dependent_Idrepo_GenerateApiKey_01"
     ],
-    "TC_ESignet_GetLinkStatus_13": ["TC_ESignet_GenerateLinkCode_01"],
+    "TC_ESignet_GetLinkStatus_13": [
+        "TC_ESignet_GenerateLinkCode_01",
+        "TC_ESignet_LinkTransaction_01"
+    ],
     "TC_ESignet_WalletBinding_02": [
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
         "Dependent_Idrepo_GenerateApiKey_01",
         "Dependent_Idrepo_AddIdentity_06"
     ],
-    "TC_ESignet_GetLinkStatus_12": ["TC_ESignet_GenerateLinkCode_01"],
-    "TC_ESignet_GetLinkStatus_15": ["TC_ESignet_GenerateLinkCode_01"],
-    "TC_ESignet_GetLinkStatus_14": ["TC_ESignet_GenerateLinkCode_01"],
+    "TC_ESignet_GetLinkStatus_12": [
+        "TC_ESignet_GenerateLinkCode_01",
+        "TC_ESignet_LinkTransaction_01"
+    ],
+    "TC_ESignet_GetLinkStatus_15": [
+        "TC_ESignet_GenerateLinkCode_01",
+        "TC_ESignet_LinkTransaction_01"
+    ],
+    "TC_ESignet_GetLinkStatus_14": [
+        "TC_ESignet_GenerateLinkCode_01",
+        "TC_ESignet_LinkTransaction_01"
+    ],
     "TC_ESignet_WalletBinding_05": [
         "Dependent_Idrepo_AddIdentity_04",
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
@@ -339,7 +1735,8 @@
     ],
     "TC_ESignet_GetLinkStatus_11": [
         "TC_ESignet_OAuthDetailsRequestLinked_07",
-        "TC_ESignet_GenerateLinkCode_01"
+        "TC_ESignet_GenerateLinkCode_01",
+        "TC_ESignet_LinkTransaction_01"
     ],
     "TC_ESignet_WalletBinding_04": [
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
@@ -349,67 +1746,68 @@
     ],
     "TC_ESignet_GetLinkStatus_10": [
         "TC_ESignet_OAuthDetailsRequestLinked_07",
-        "TC_ESignet_GenerateLinkCode_01"
+        "TC_ESignet_GenerateLinkCode_01",
+        "TC_ESignet_LinkTransaction_01"
     ],
     "TC_ESignet_WalletBinding_09": [
         "Dependent_Idrepo_AddIdentity_04",
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
         "Dependent_Idrepo_GenerateApiKey_01"
     ],
-    "TC_ESignet_GetOidcUserInfoLinkedConsent_01": ["ESignet_GenerateToken_LinkedConsent_uin_Valid_Smoke_sid"],
     "TC_ESignet_WalletBinding_07": [
         "Dependent_Idrepo_AddIdentity_04",
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
         "Dependent_Idrepo_GenerateApiKey_01"
     ],
-    "TC_ESignet_GetOidcUserInfoLinkedConsent_02": ["ESignet_GenerateToken_LinkedConsent_Vid_Valid_Smoke_sid"],
     "TC_ESignet_WalletBinding_08": [
         "Dependent_Idrepo_AddIdentity_04",
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
         "Dependent_Idrepo_GenerateApiKey_01"
     ],
     "Dependent_Idrepo_uploadCACert_10": ["Dependent_Idrepo_createPartnerSelfRegistration_05"],
-    "TC_ESignet_OAuthDetailsRequest_82": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_81": ["TC_ESignet_CreateOIDCClient_01"],
     "Dependent_Idrepo_uploadCACert_12": ["Dependent_Idrepo_createPartnerSelfRegistration_06"],
-    "TC_ESignet_OAuthDetailsRequest_80": ["TC_ESignet_CreateOIDCClient_01"],
     "Dependent_Idrepo_uploadCACert_11": ["Dependent_Idrepo_createPartnerSelfRegistration_06"],
     "Dependent_Idrepo_uploadCACert_14": ["Dependent_Idrepo_createPartnerSelfRegistration_07"],
-    "ESignet_AuthorizationCode_Consent_Vid_All_Valid_Smoke_sid": ["ESignet_OAuthDetailsRequest_Consent_Vid_all_Valid_Smoke_sid"],
-    "TC_ESignet_OAuthDetailsRequest_86": ["TC_ESignet_CreateOIDCClient_01"],
     "Dependent_Idrepo_uploadCACert_13": ["Dependent_Idrepo_createPartnerSelfRegistration_07"],
-    "TC_ESignet_OAuthDetailsRequest_85": ["TC_ESignet_CreateOIDCClient_01"],
     "Dependent_Idrepo_uploadCACert_16": ["Dependent_Idrepo_createPartnerSelfRegistration_08"],
-    "TC_ESignet_OAuthDetailsRequest_84": ["TC_ESignet_CreateOIDCClient_01"],
     "Dependent_Idrepo_uploadCACert_15": ["Dependent_Idrepo_createPartnerSelfRegistration_08"],
-    "TC_ESignet_OAuthDetailsRequest_83": ["TC_ESignet_CreateOIDCClient_01"],
     "TC_ESignet_GetLinkStatus_09": [
         "TC_ESignet_OAuthDetailsRequestLinked_07",
-        "TC_ESignet_GenerateLinkCode_01"
-    ],
-    "ESignet_GenerateToken_Consent_uin_Claim2_Valid_Smoke_sid": [
-        "ESignet_AuthorizationCode_Consent_uin_Claim2_All_Valid_Smoke_sid",
-        "TC_ESignet_CreateOIDCClient_01"
+        "TC_ESignet_GenerateLinkCode_01",
+        "TC_ESignet_LinkTransaction_01"
     ],
     "TC_ESignet_GetLinkStatus_06": [
         "TC_ESignet_OAuthDetailsRequestLinked_06",
+        "TC_ESignet_LinkTransaction_06",
         "TC_ESignet_GenerateLinkCode_06"
     ],
-    "TC_ESignet_GetOidcUserInfoLinked_02": ["TC_ESignet_GenerateTokenLinked_02"],
+    "TC_ESignet_GetOidcUserInfoLinked_02": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_GenerateTokenLinked_02"
+    ],
     "TC_ESignet_GetLinkStatus_05": [
         "TC_ESignet_OAuthDetailsRequestLinked_05",
+        "TC_ESignet_LinkTransaction_05",
         "TC_ESignet_GenerateLinkCode_05"
     ],
-    "TC_ESignet_GetOidcUserInfoLinked_03": ["TC_ESignet_GenerateTokenLinked_03"],
+    "TC_ESignet_GetOidcUserInfoLinked_03": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_GenerateTokenLinked_03"
+    ],
     "TC_ESignet_GetLinkStatus_08": [
         "TC_ESignet_OAuthDetailsRequestLinked_07",
-        "TC_ESignet_GenerateLinkCode_01"
+        "TC_ESignet_GenerateLinkCode_01",
+        "TC_ESignet_LinkTransaction_01"
     ],
     "TC_ESignet_GetLinkStatus_07": [
         "TC_ESignet_OAuthDetailsRequestLinked_07",
-        "TC_ESignet_GenerateLinkCode_01"
+        "TC_ESignet_GenerateLinkCode_01",
+        "TC_ESignet_LinkTransaction_01"
     ],
-    "TC_ESignet_GetOidcUserInfoLinked_01": ["TC_ESignet_GenerateTokenLinked_01"],
+    "TC_ESignet_GetOidcUserInfoLinked_01": [
+        "TC_ESignet_GenerateTokenLinked_01",
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01"
+    ],
     "TC_ESignet_AuthenticateUser_17": [
         "Dependent_Idrepo_AddIdentity_03",
         "TC_ESignet_OAuthDetailsRequest_08"
@@ -448,11 +1846,6 @@
         "Dependent_Idrepo_AddIdentity_03",
         "TC_ESignet_OAuthDetailsRequest_08"
     ],
-    "ESignet_AuthenticateUserIDP_Consent_uin_User2_Otp_Valid_Smoke": [
-        "Dependent_Idrepo_AddIdentity_16",
-        "ESignet_OAuthDetailsRequest_Consent_User2_all_Valid_Smoke_sid"
-    ],
-    "ESignet_OAuthDetailsRequest_LinkAuth_Consent_EmptyClaim_Valid_Smoke_sid": ["TC_ESignet_CreateOIDCClient_01"],
     "TC_ESignet_AuthenticateUser_19": [
         "Dependent_Idrepo_AddIdentity_03",
         "TC_ESignet_OAuthDetailsRequest_08"
@@ -461,7 +1854,6 @@
         "Dependent_Idrepo_AddIdentity_03",
         "TC_ESignet_OAuthDetailsRequest_08"
     ],
-    "ESignet_GetOidcUserInfo_Consent_uin_IdpAccessToken_StatusCode_Claim2_Valid_Smoke_sid": ["ESignet_GenerateToken_Consent_uin_Claim2_Valid_Smoke_sid"],
     "TC_ESignet_SendOtp_27": [
         "Dependent_Idrepo_GenerateVID_09",
         "TC_ESignet_OAuthDetailsRequest_01"
@@ -486,7 +1878,6 @@
         "Dependent_Idrepo_AddIdentity_03",
         "TC_ESignet_OAuthDetailsRequest_01"
     ],
-    "ESignet_AuthorizationCode_Consent_Vid_Claim2_All_Valid_Smoke_sid": ["ESignet_OAuthDetailsRequest_Consent_Vid_Claim2_all_Valid_Smoke_sid"],
     "TC_ESignet_SendOtp_22": [
         "Dependent_Idrepo_AddIdentity_03",
         "TC_ESignet_OAuthDetailsRequest_01"
@@ -533,6 +1924,10 @@
         "Dependent_Idrepo_GenerateVID_09",
         "TC_ESignet_OAuthDetailsRequest_01"
     ],
+    "TC_ESignet_GetOidcUserInfoForDifferentScopeLanguageClaims_01": [
+        "TC_ESignet_GenerateTokenDifferentScopeLanguageClaimsSce_01",
+        "TC_ESignet_CreateOIDCClient_MOSIPID_28"
+    ],
     "TC_ESignet_AuthenticateUser_09": [
         "Dependent_Idrepo_AddIdentity_03",
         "TC_ESignet_OAuthDetailsRequest_08"
@@ -552,29 +1947,77 @@
         "Dependent_Idrepo_GenerateVID_09",
         "TC_ESignet_OAuthDetailsRequest_01"
     ],
-    "TC_ESignet_AuthorizationCode_04": ["TC_ESignet_OAuthDetailsRequest_01"],
-    "TC_ESignet_AuthorizationCode_03": ["TC_ESignet_OAuthDetailsRequest_01"],
-    "TC_ESignet_AuthorizationCode_02": ["TC_ESignet_OAuthDetailsRequest_01"],
-    "TC_ESignet_AuthorizationCode_01": ["TC_ESignet_OAuthDetailsRequest_01"],
-    "TC_ESignet_AuthorizationCode_08": ["TC_ESignet_OAuthDetailsRequest_02"],
-    "TC_ESignet_AuthorizationCode_07": ["TC_ESignet_OAuthDetailsRequest_02"],
-    "TC_ESignet_AuthorizationCode_06": ["TC_ESignet_OAuthDetailsRequest_01"],
-    "TC_ESignet_AuthorizationCode_05": ["TC_ESignet_OAuthDetailsRequest_01"],
+    "TC_ESignet_AuthorizationCode_04": [
+        "TC_ESignet_AuthenticateUser_01",
+        "TC_ESignet_OAuthDetailsRequest_01"
+    ],
+    "TC_ESignet_AuthorizationCode_03": [
+        "TC_ESignet_AuthenticateUser_01",
+        "TC_ESignet_OAuthDetailsRequest_01"
+    ],
+    "TC_ESignet_AuthorizationCode_02": [
+        "TC_ESignet_AuthenticateUser_01",
+        "TC_ESignet_OAuthDetailsRequest_01"
+    ],
+    "TC_ESignet_AuthorizationCode_01": [
+        "TC_ESignet_AuthenticateUser_01",
+        "TC_ESignet_OAuthDetailsRequest_01"
+    ],
+    "TC_ESignet_AuthorizationCode_08": [
+        "TC_ESignet_AuthenticateUser_02",
+        "TC_ESignet_OAuthDetailsRequest_02"
+    ],
+    "TC_ESignet_AuthorizationCode_07": [
+        "TC_ESignet_AuthenticateUser_02",
+        "TC_ESignet_OAuthDetailsRequest_02"
+    ],
+    "TC_ESignet_AuthorizationCode_06": [
+        "TC_ESignet_AuthenticateUser_01",
+        "TC_ESignet_OAuthDetailsRequest_01"
+    ],
+    "TC_ESignet_AuthorizationCode_05": [
+        "TC_ESignet_AuthenticateUser_01",
+        "TC_ESignet_OAuthDetailsRequest_01"
+    ],
     "TC_ESignet_SendOtp_38": [
         "Dependent_Idrepo_GenerateVID_09",
         "TC_ESignet_OAuthDetailsRequest_01"
     ],
+    "TC_ESignet_LinkedAuthenticationWla_13": [
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_AddIdentity_42",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "TC_ESignet_LinkTransaction_24"
+    ],
     "TC_ESignet_SendOtp_37": ["TC_ESignet_OAuthDetailsRequest_08"],
     "TC_ESignet_SendOtp_36": ["TC_ESignet_OAuthDetailsRequest_01"],
     "TC_ESignet_SendOtp_35": ["TC_ESignet_OAuthDetailsRequest_01"],
+    "TC_ESignet_LinkedAuthenticationWla_10": [
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "Dependent_Idrepo_AddIdentity_39",
+        "TC_ESignet_LinkTransaction_21"
+    ],
     "TC_ESignet_SendOtp_34": ["TC_ESignet_OAuthDetailsRequest_08"],
     "TC_ESignet_SendOtp_33": [
         "Dependent_Idrepo_GenerateVID_09",
         "TC_ESignet_OAuthDetailsRequest_01"
     ],
+    "TC_ESignet_LinkedAuthenticationWla_12": [
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "Dependent_Idrepo_AddIdentity_41",
+        "TC_ESignet_LinkTransaction_23"
+    ],
     "TC_ESignet_SendOtp_32": [
         "Dependent_Idrepo_GenerateVID_09",
         "TC_ESignet_OAuthDetailsRequest_01"
+    ],
+    "TC_ESignet_LinkedAuthenticationWla_11": [
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "Dependent_Idrepo_AddIdentity_40",
+        "TC_ESignet_LinkTransaction_22"
     ],
     "TC_ESignet_SendOtp_31": [
         "Dependent_Idrepo_GenerateVID_09",
@@ -605,23 +2048,10 @@
         "Dependent_Idrepo_AddIdentity_03",
         "Dependent_Idrepo_GenerateVID_09"
     ],
-    "TC_ESignet_AuthenticateUserNonAuth_02": [
-        "Dependent_Idrepo_AddIdentity_07",
-        "Dependent_Idrepo_GenerateVID_01",
-        "TC_ESignet_OAuthDetailsRequestNonAuth_02"
-    ],
     "TC_ESignet_AuthenticateUser_34": [
         "TC_ESignet_OAuthDetailsRequest_09",
         "Dependent_Idrepo_AddIdentity_03",
         "Dependent_Idrepo_GenerateVID_09"
-    ],
-    "TC_ESignet_AuthenticateUserNonAuth_01": [
-        "Dependent_Idrepo_AddIdentity_01",
-        "TC_ESignet_OAuthDetailsRequestNonAuth_01"
-    ],
-    "ESignet_GenerateToken_Consent_uin_Valid_Smoke_sid": [
-        "TC_ESignet_CreateOIDCClient_01",
-        "ESignet_AuthorizationCode_Consent_uin_All_Valid_Smoke_sid"
     ],
     "TC_ESignet_AuthenticateUser_33": [
         "TC_ESignet_OAuthDetailsRequest_09",
@@ -717,62 +2147,62 @@
         "Dependent_Idrepo_AddIdentity_03",
         "TC_ESignet_OAuthDetailsRequest_08"
     ],
-    "ESignet_GetOidcUserInfo_Consent_uin_IdpAccessToken_StatusCode_Valid_Smoke_sid": ["ESignet_GenerateToken_Consent_uin_Valid_Smoke_sid"],
+    "TC_ESignet_AuthenticateUser_57": [
+        "Dependent_Idrepo_AddIdentity_01",
+        "TC_ESignet_OAuthDetailsRequest_89"
+    ],
+    "TC_ESignet_AuthenticateUser_56": [
+        "Dependent_Idrepo_AddIdentity_01",
+        "TC_ESignet_OAuthDetailsRequest_88"
+    ],
+    "TC_ESignet_AuthenticateUser_55": [
+        "Dependent_Idrepo_AddIdentity_01",
+        "TC_ESignet_OAuthDetailsRequest_87"
+    ],
     "TC_ESignet_AuthenticateUser_54": [
         "TC_ESignet_OAuthDetailsRequest_09",
         "Dependent_Idrepo_GenerateVID_09"
     ],
-    "Dependent_Idrepo_createPublishPolicy_06": [
-        "Dependent_Idrepo_definePolicyGroup_02",
-        "Dependent_Idrepo_definePolicy_13"
+    "TC_ESignet_AuthorizationCode_37": [
+        "TC_ESignet_AuthenticateUser_57",
+        "TC_ESignet_OAuthDetailsRequest_89"
     ],
-    "Dependent_Idrepo_createPublishPolicy_07": [
-        "Dependent_Idrepo_definePolicyGroup_02",
-        "Dependent_Idrepo_definePolicy_14"
+    "TC_ESignet_AuthorizationCode_36": [
+        "TC_ESignet_AuthenticateUser_56",
+        "TC_ESignet_OAuthDetailsRequest_88"
     ],
-    "Dependent_Idrepo_createPublishPolicy_04": [
-        "Dependent_Idrepo_definePolicyGroup_01",
-        "Dependent_Idrepo_definePolicy_04"
+    "TC_ESignet_AuthorizationCode_35": [
+        "TC_ESignet_AuthenticateUser_55",
+        "TC_ESignet_OAuthDetailsRequest_87"
     ],
-    "Dependent_Idrepo_createPublishPolicy_05": [
-        "Dependent_Idrepo_definePolicyGroup_02",
-        "Dependent_Idrepo_definePolicy_12"
+    "TC_ESignet_AuthorizationCode_34": [
+        "TC_ESignet_AuthenticateUser_55",
+        "TC_ESignet_OAuthDetailsRequest_87"
     ],
-    "TC_ESignet_GenerateLinkCodeConsent_03": ["ESignet_OAuthDetailsRequest_LinkAuth_Consent_EmptyClaim_Valid_Smoke_sid"],
-    "Dependent_Idrepo_createPublishPolicy_08": [
-        "Dependent_Idrepo_definePolicyGroup_02",
-        "Dependent_Idrepo_definePolicy_15"
+    "TC_ESignet_PARAuthorizationCode_01": [
+        "TC_ESignet_PARAuthenticateUserV3_01",
+        "TC_ESignet_PAROauthDetails_01"
     ],
-    "TC_ESignet_GenerateLinkCodeConsent_01": ["ESignet_OAuthDetailsRequest_LinkAuth_Consent_Valid_Smoke_sid"],
-    "ESignet_LinkedAuthenticationWla_Consentuin_SCert_all_Valid_Smoke_sid": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_AddIdentity_10",
-        "Dependent_Idrepo_GenerateApiKey_01",
-        "TC_ESignet_LinkTransactionConsent_01"
+    "TC_ESignet_PAROauthDetails_01": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_24",
+        "TC_ESignet_OauthPar_01"
     ],
-    "ESignet_GenerateToken_LinkedConsent_Vid_Valid_Smoke_sid": [
-        "TC_ESignet_LinkAuthorizationCodeConsent_02",
-        "TC_ESignet_CreateOIDCClient_01"
+    "TC_ESignet_AuthorizationCode_33": [
+        "TC_ESignet_AuthenticateUser_55",
+        "TC_ESignet_OAuthDetailsRequest_87"
     ],
-    "TC_ESignet_GenerateLinkCodeConsent_02": ["ESignet_OAuthDetailsRequest_LinkAuth_Consent_vid_Valid_Smoke_sid"],
-    "Dependent_Idrepo_createPublishPolicy_02": [
-        "Dependent_Idrepo_definePolicyGroup_02",
-        "Dependent_Idrepo_definePolicy_02"
+    "TC_ESignet_AuthorizationCode_32": [
+        "TC_ESignet_OAuthDetailsRequest_08",
+        "TC_ESignet_AuthenticateUser_31"
     ],
-    "Dependent_Idrepo_createPublishPolicy_03": [
-        "Dependent_Idrepo_definePolicyGroup_02",
-        "Dependent_Idrepo_definePolicy_03"
+    "TC_ESignet_AuthorizationCode_31": [
+        "TC_ESignet_OAuthDetailsRequest_08",
+        "TC_ESignet_AuthenticateUser_31"
     ],
-    "Dependent_Idrepo_createPublishPolicy_01": [
-        "Dependent_Idrepo_definePolicyGroup_01",
-        "Dependent_Idrepo_definePolicy_01"
+    "TC_ESignet_AuthorizationCode_30": [
+        "TC_ESignet_OAuthDetailsRequest_08",
+        "TC_ESignet_AuthenticateUser_31"
     ],
-    "ESignet_OAuthDetailsRequest_Consent_Vid_Claim2_all_Valid_Smoke_sid": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_AuthorizationCode_32": ["TC_ESignet_OAuthDetailsRequest_08"],
-    "TC_ESignet_AuthorizationCode_31": ["TC_ESignet_OAuthDetailsRequest_08"],
-    "TC_ESignet_AuthorizationCode_30": ["TC_ESignet_OAuthDetailsRequest_08"],
-    "Dependent_Idrepo_createPartnerSelfRegistration_02": ["Dependent_Idrepo_definePolicyGroup_02"],
-    "Dependent_Idrepo_createPartnerSelfRegistration_03": ["Dependent_Idrepo_definePolicyGroup_02"],
     "TC_ESignet_AuthenticateUser_49": [
         "TC_ESignet_OAuthDetailsRequest_09",
         "Dependent_Idrepo_AddIdentity_03",
@@ -783,46 +2213,41 @@
         "Dependent_Idrepo_AddIdentity_03",
         "Dependent_Idrepo_GenerateVID_09"
     ],
-    "Dependent_Idrepo_createPartnerSelfRegistration_01": ["Dependent_Idrepo_definePolicyGroup_01"],
     "TC_ESignet_AuthenticateUser_47": [
         "TC_ESignet_OAuthDetailsRequest_09",
         "Dependent_Idrepo_AddIdentity_03",
         "Dependent_Idrepo_GenerateVID_09"
     ],
-    "Dependent_Idrepo_createPartnerSelfRegistration_06": ["Dependent_Idrepo_definePolicyGroup_02"],
     "TC_ESignet_AuthenticateUser_46": [
         "TC_ESignet_OAuthDetailsRequest_09",
         "Dependent_Idrepo_AddIdentity_03",
         "Dependent_Idrepo_GenerateVID_09"
     ],
-    "Dependent_Idrepo_createPartnerSelfRegistration_07": ["Dependent_Idrepo_definePolicyGroup_02"],
-    "ESignet_LinkedAuthenticationWla_Consent_EmptyClaim_uin_SCert_all_Valid_Smoke_sid": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_AddIdentity_10",
-        "Dependent_Idrepo_GenerateApiKey_01",
-        "TC_ESignet_LinkTransactionConsent_03"
-    ],
+    "TC_ESignet_OAuthDetailsRequestV3_Prerequisite_02": ["TC_ESignet_CreateOIDCClient_MOSIPID_22"],
+    "TC_ESignet_DPoPOauthDetailsNegativeScenarios_02": ["TC_ESignet_OauthDPoP_01"],
     "TC_ESignet_AuthenticateUser_45": [
         "TC_ESignet_OAuthDetailsRequest_09",
         "Dependent_Idrepo_AddIdentity_03",
         "Dependent_Idrepo_GenerateVID_09"
     ],
-    "Dependent_Idrepo_createPartnerSelfRegistration_04": ["Dependent_Idrepo_definePolicyGroup_01"],
+    "TC_ESignet_OAuthDetailsRequestV3_Prerequisite_01": ["TC_ESignet_CreateOIDCClient_MOSIPID_21"],
+    "TC_ESignet_DPoPOauthDetailsNegativeScenarios_01": [
+        "TC_ESignet_OauthDPoP_01",
+        "TC_ESignet_CreateOIDCClient_MOSIPID_25"
+    ],
     "TC_ESignet_AuthenticateUser_44": [
         "TC_ESignet_OAuthDetailsRequest_09",
         "Dependent_Idrepo_AddIdentity_03",
         "Dependent_Idrepo_GenerateVID_09"
     ],
     "TC_ESignet_OAuthDetailsRequestV2_01": ["TC_ESignet_CreateOIDCClientV2_01"],
-    "Dependent_Idrepo_createPartnerSelfRegistration_05": ["Dependent_Idrepo_definePolicyGroup_02"],
     "TC_ESignet_AuthenticateUser_43": [
         "TC_ESignet_OAuthDetailsRequest_09",
         "Dependent_Idrepo_AddIdentity_03",
         "Dependent_Idrepo_GenerateVID_09"
     ],
     "TC_ESignet_OAuthDetailsRequestV2_02": ["TC_ESignet_CreateOIDCClientV2_01"],
-    "Dependent_Idrepo_createPartnerSelfRegistration_08": ["Dependent_Idrepo_definePolicyGroup_02"],
-    "TC_ESignet_GetOidcClient_01": ["TC_ESignet_CreateOIDCClient_01"],
+    "TC_ESignet_GetOidcClient_01": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
     "TC_ESignet_AuthenticateUser_53": [
         "TC_ESignet_OAuthDetailsRequest_09",
         "Dependent_Idrepo_GenerateVID_09"
@@ -839,21 +2264,37 @@
         "TC_ESignet_OAuthDetailsRequest_09",
         "Dependent_Idrepo_GenerateVID_09"
     ],
-    "ESignet_AuthenticateUserIDP_Consent_Vid_Otp_Claim2_Valid_Smoke": [
-        "Dependent_Idrepo_AddIdentity_17",
-        "ESignet_OAuthDetailsRequest_Consent_Vid_Claim2_all_Valid_Smoke_sid",
-        "Dependent_Idrepo_GenerateVID_12"
+    "TC_ESignet_OAuthDetailsRequestV3_Prerequisite_03": ["TC_ESignet_CreateOIDCClient_MOSIPID_23"],
+    "TC_ESignet_AuthorizationCode_09": [
+        "TC_ESignet_AuthenticateUser_02",
+        "TC_ESignet_OAuthDetailsRequest_02"
     ],
-    "TC_ESignet_AuthorizationCode_09": ["TC_ESignet_OAuthDetailsRequest_02"],
-    "ESignet_GenerateToken_Consent_Vid_Claim2_Valid_Smoke_sid": [
-        "TC_ESignet_CreateOIDCClient_01",
-        "ESignet_AuthorizationCode_Consent_Vid_Claim2_All_Valid_Smoke_sid"
+    "TC_ESignet_AuthorizationCode_15": [
+        "TC_ESignet_OAuthDetailsRequest_08",
+        "TC_ESignet_AuthenticateUser_31"
     ],
-    "TC_ESignet_AuthorizationCode_15": ["TC_ESignet_OAuthDetailsRequest_08"],
-    "TC_ESignet_AuthorizationCode_14": ["TC_ESignet_OAuthDetailsRequest_08"],
-    "TC_ESignet_AuthorizationCode_13": ["TC_ESignet_OAuthDetailsRequest_01"],
-    "TC_ESignet_AuthorizationCode_12": ["TC_ESignet_OAuthDetailsRequest_01"],
-    "TC_ESignet_AuthorizationCode_19": ["TC_ESignet_OAuthDetailsRequest_05"],
+    "TC_ESignet_AuthorizationCode_14": [
+        "TC_ESignet_OAuthDetailsRequest_08",
+        "TC_ESignet_AuthenticateUser_31"
+    ],
+    "TC_ESignet_AuthorizationCode_13": [
+        "TC_ESignet_AuthenticateUser_01",
+        "TC_ESignet_OAuthDetailsRequest_01"
+    ],
+    "TC_ESignet_AuthorizationCode_12": [
+        "TC_ESignet_AuthenticateUser_01",
+        "TC_ESignet_OAuthDetailsRequest_01"
+    ],
+    "TC_ESignet_LinkedAuthenticationWla_07": [
+        "Dependent_Idrepo_AddIdentity_36",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "TC_ESignet_LinkTransaction_18",
+        "Dependent_Idrepo_GenerateApiKey_01"
+    ],
+    "TC_ESignet_AuthorizationCode_19": [
+        "TC_ESignet_AuthenticateUser_05",
+        "TC_ESignet_OAuthDetailsRequest_05"
+    ],
     "TC_ESignet_LinkedAuthenticationWla_06": [
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
         "Dependent_Idrepo_GenerateVID_08",
@@ -861,9 +2302,30 @@
         "TC_ESignet_LinkTransaction_02",
         "Dependent_Idrepo_AddIdentity_09"
     ],
-    "TC_ESignet_AuthorizationCode_18": ["TC_ESignet_OAuthDetailsRequest_05"],
-    "TC_ESignet_AuthorizationCode_17": ["TC_ESignet_OAuthDetailsRequest_05"],
-    "TC_ESignet_AuthorizationCode_16": ["TC_ESignet_OAuthDetailsRequest_08"],
+    "TC_ESignet_AuthorizationCode_18": [
+        "TC_ESignet_AuthenticateUser_05",
+        "TC_ESignet_OAuthDetailsRequest_05"
+    ],
+    "TC_ESignet_LinkedAuthenticationWla_09": [
+        "TC_ESignet_LinkTransaction_20",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_AddIdentity_38",
+        "Dependent_Idrepo_GenerateApiKey_01"
+    ],
+    "TC_ESignet_AuthorizationCode_17": [
+        "TC_ESignet_AuthenticateUser_05",
+        "TC_ESignet_OAuthDetailsRequest_05"
+    ],
+    "TC_ESignet_LinkedAuthenticationWla_08": [
+        "Dependent_Idrepo_AddIdentity_37",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "TC_ESignet_LinkTransaction_19",
+        "Dependent_Idrepo_GenerateApiKey_01"
+    ],
+    "TC_ESignet_AuthorizationCode_16": [
+        "TC_ESignet_OAuthDetailsRequest_08",
+        "TC_ESignet_AuthenticateUser_31"
+    ],
     "TC_ESignet_LinkedAuthenticationWla_03": [
         "Dependent_Idrepo_createPartnerSelfRegistration_03",
         "Dependent_Idrepo_AddIdentity_11",
@@ -910,8 +2372,14 @@
         "Dependent_Idrepo_AddIdentity_01",
         "TC_ESignet_OAuthDetailsRequest_01"
     ],
-    "TC_ESignet_AuthorizationCode_11": ["TC_ESignet_OAuthDetailsRequest_34"],
-    "TC_ESignet_AuthorizationCode_10": ["TC_ESignet_OAuthDetailsRequest_01"],
+    "TC_ESignet_AuthorizationCode_11": [
+        "TC_ESignet_AuthenticateUser_32",
+        "TC_ESignet_OAuthDetailsRequest_34"
+    ],
+    "TC_ESignet_AuthorizationCode_10": [
+        "TC_ESignet_AuthenticateUser_01",
+        "TC_ESignet_OAuthDetailsRequest_01"
+    ],
     "TC_ESignet_LinkedAuthenticationWla_01": [
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
         "Dependent_Idrepo_AddIdentity_10",
@@ -934,13 +2402,34 @@
         "TC_ESignet_OAuthDetailsRequest_01",
         "Dependent_Idrepo_GenerateVID_01"
     ],
-    "TC_ESignet_AuthorizationCode_26": ["TC_ESignet_OAuthDetailsRequest_05"],
-    "TC_ESignet_AuthorizationCode_25": ["TC_ESignet_OAuthDetailsRequest_03"],
-    "TC_ESignet_AuthorizationCode_24": ["TC_ESignet_OAuthDetailsRequest_03"],
-    "TC_ESignet_AuthorizationCode_23": ["TC_ESignet_OAuthDetailsRequest_03"],
-    "TC_ESignet_AuthorizationCode_29": ["TC_ESignet_OAuthDetailsRequest_05"],
-    "TC_ESignet_AuthorizationCode_28": ["TC_ESignet_OAuthDetailsRequest_05"],
-    "TC_ESignet_AuthorizationCode_27": ["TC_ESignet_OAuthDetailsRequest_34"],
+    "TC_ESignet_AuthorizationCode_26": [
+        "TC_ESignet_AuthenticateUser_05",
+        "TC_ESignet_OAuthDetailsRequest_05"
+    ],
+    "TC_ESignet_AuthorizationCode_25": [
+        "TC_ESignet_AuthenticateUser_04",
+        "TC_ESignet_OAuthDetailsRequest_03"
+    ],
+    "TC_ESignet_AuthorizationCode_24": [
+        "TC_ESignet_AuthenticateUser_04",
+        "TC_ESignet_OAuthDetailsRequest_03"
+    ],
+    "TC_ESignet_AuthorizationCode_23": [
+        "TC_ESignet_AuthenticateUser_04",
+        "TC_ESignet_OAuthDetailsRequest_03"
+    ],
+    "TC_ESignet_AuthorizationCode_29": [
+        "TC_ESignet_AuthenticateUser_05",
+        "TC_ESignet_OAuthDetailsRequest_05"
+    ],
+    "TC_ESignet_AuthorizationCode_28": [
+        "TC_ESignet_AuthenticateUser_05",
+        "TC_ESignet_OAuthDetailsRequest_05"
+    ],
+    "TC_ESignet_AuthorizationCode_27": [
+        "TC_ESignet_AuthenticateUser_32",
+        "TC_ESignet_OAuthDetailsRequest_34"
+    ],
     "TC_ESignet_SendOtp_16": ["TC_ESignet_OAuthDetailsRequest_01"],
     "TC_ESignet_SendOtp_15": ["TC_ESignet_OAuthDetailsRequest_08"],
     "TC_ESignet_SendOtp_14": [
@@ -955,44 +2444,40 @@
         "Dependent_Idrepo_AddIdentity_03",
         "TC_ESignet_OAuthDetailsRequest_01"
     ],
-    "TC_ESignet_AuthorizationCode_22": ["TC_ESignet_OAuthDetailsRequest_05"],
+    "TC_ESignet_AuthorizationCode_22": [
+        "TC_ESignet_AuthenticateUser_05",
+        "TC_ESignet_OAuthDetailsRequest_05"
+    ],
     "TC_ESignet_SendOtp_11": [
         "Dependent_Idrepo_AddIdentity_03",
         "TC_ESignet_OAuthDetailsRequest_01"
     ],
-    "TC_ESignet_AuthorizationCode_21": ["TC_ESignet_OAuthDetailsRequest_05"],
+    "TC_ESignet_AuthorizationCode_21": [
+        "TC_ESignet_AuthenticateUser_05",
+        "TC_ESignet_OAuthDetailsRequest_05"
+    ],
     "TC_ESignet_SendOtp_10": [
         "Dependent_Idrepo_AddIdentity_03",
         "TC_ESignet_OAuthDetailsRequest_01"
     ],
-    "TC_ESignet_AuthorizationCode_20": ["TC_ESignet_OAuthDetailsRequest_05"],
-    "TC_ESignet_BioNonAuth_22": [
-        "Dependent_Idrepo_GenerateVID_04",
-        "TC_ESignet_OAuthDetailsRequestNonAuth_22"
+    "TC_ESignet_AuthorizationCode_20": [
+        "TC_ESignet_AuthenticateUser_05",
+        "TC_ESignet_OAuthDetailsRequest_05"
     ],
     "TC_ESignet_BioAuth_07": [
         "Dependent_Idrepo_AddIdentity_14",
         "TC_ESignet_OAuthDetailsRequest_15"
     ],
-    "TC_ESignet_BioNonAuth_23": [
-        "Dependent_Idrepo_GenerateVID_04",
-        "TC_ESignet_OAuthDetailsRequestNonAuth_24"
-    ],
     "TC_ESignet_BioAuth_08": [
         "Dependent_Idrepo_AddIdentity_14",
         "TC_ESignet_OAuthDetailsRequest_16"
     ],
-    "TC_ESignet_OAuthDetailsRequestNonAuth_21": ["TC_ESignet_CreateOIDCClient_02"],
-    "TC_ESignet_BioNonAuth_24": [
-        "Dependent_Idrepo_GenerateVID_04",
-        "TC_ESignet_OAuthDetailsRequestNonAuth_26"
-    ],
+    "TC_ESignet_OAuthDetailsRequestNonAuth_21": ["TC_ESignet_CreateOIDCClient_MOSIPID_02"],
     "TC_ESignet_BioAuth_09": [
         "Dependent_Idrepo_AddIdentity_14",
         "TC_ESignet_OAuthDetailsRequest_17"
     ],
-    "TC_ESignet_OAuthDetailsRequestNonAuth_20": ["TC_ESignet_CreateOIDCClient_02"],
-    "Dependent_Idrepo_definePolicy_10": ["Dependent_Idrepo_definePolicyGroup_02"],
+    "TC_ESignet_OAuthDetailsRequestNonAuth_20": ["TC_ESignet_CreateOIDCClient_MOSIPID_02"],
     "TC_ESignet_BioAuth_03": [
         "Dependent_Idrepo_AddIdentity_14",
         "TC_ESignet_OAuthDetailsRequest_11"
@@ -1001,17 +2486,9 @@
         "Dependent_Idrepo_AddIdentity_14",
         "TC_ESignet_OAuthDetailsRequest_12"
     ],
-    "TC_ESignet_BioNonAuth_20": [
-        "Dependent_Idrepo_GenerateVID_04",
-        "TC_ESignet_OAuthDetailsRequestNonAuth_18"
-    ],
     "TC_ESignet_BioAuth_05": [
         "Dependent_Idrepo_AddIdentity_14",
         "TC_ESignet_OAuthDetailsRequest_13"
-    ],
-    "TC_ESignet_BioNonAuth_21": [
-        "Dependent_Idrepo_GenerateVID_04",
-        "TC_ESignet_OAuthDetailsRequestNonAuth_20"
     ],
     "TC_ESignet_BioAuth_06": [
         "Dependent_Idrepo_AddIdentity_14",
@@ -1019,659 +2496,531 @@
     ],
     "TC_ESignet_LinkedAuthorizationConsent_01": [
         "TC_ESignet_LinkTransaction_05",
-        "TC_ESignet_LinkTransactionConsent_01"
+        "TC_ESignet_LinkedAuthenticationWla_01"
     ],
-    "ESignet_OAuthDetailsRequest_Consent_Claim2_all_Valid_Smoke_sid": ["TC_ESignet_CreateOIDCClient_01"],
     "TC_ESignet_LinkedAuthorizationConsent_02": [
-        "TC_ESignet_LinkTransaction_06",
-        "TC_ESignet_LinkTransactionConsent_02"
+        "TC_ESignet_LinkedAuthenticationWla_02",
+        "TC_ESignet_LinkTransaction_06"
     ],
-    "TC_ESignet_LinkedAuthorizationConsent_03": ["TC_ESignet_LinkTransaction_03"],
-    "TC_ESignet_LinkedAuthorizationConsent_04": ["TC_ESignet_LinkTransaction_04"],
-    "TC_ESignet_LinkedAuthorizationConsent_05": ["TC_ESignet_LinkTransaction_01"],
-    "TC_ESignet_LinkedAuthorizationConsent_06": ["TC_ESignet_LinkTransaction_02"],
-    "TC_ESignet_LinkedAuthorizationConsent_07": ["TC_ESignet_LinkTransaction_01"],
-    "TC_ESignet_LinkedAuthorizationConsent_08": ["TC_ESignet_LinkTransaction_01"],
-    "TC_ESignet_LinkedAuthorizationConsent_09": ["TC_ESignet_LinkTransaction_01"],
-    "Dependent_Idrepo_definePolicy_09": ["Dependent_Idrepo_definePolicyGroup_02"],
-    "Dependent_Idrepo_definePolicy_03": ["Dependent_Idrepo_definePolicyGroup_02"],
-    "Dependent_Idrepo_definePolicy_02": ["Dependent_Idrepo_definePolicyGroup_02"],
-    "TC_ESignet_OAuthDetailsRequestNonAuth_26": ["TC_ESignet_CreateOIDCClient_02"],
-    "Dependent_Idrepo_definePolicy_01": ["Dependent_Idrepo_definePolicyGroup_01"],
+    "TC_ESignet_LinkedAuthorizationConsent_03": [
+        "TC_ESignet_LinkedAuthenticationWla_03",
+        "TC_ESignet_LinkTransaction_03"
+    ],
+    "TC_ESignet_LinkedAuthorizationConsent_04": [
+        "TC_ESignet_LinkTransaction_04",
+        "TC_ESignet_LinkedAuthenticationWla_04"
+    ],
+    "TC_ESignet_LinkedAuthorizationConsent_05": [
+        "TC_ESignet_LinkedAuthenticationWla_05",
+        "TC_ESignet_LinkTransaction_01"
+    ],
+    "TC_ESignet_LinkedAuthorizationConsent_06": [
+        "TC_ESignet_LinkedAuthenticationWla_06",
+        "TC_ESignet_LinkTransaction_02"
+    ],
+    "TC_ESignet_LinkedAuthorizationConsent_07": [
+        "TC_ESignet_LinkedAuthenticationWla_05",
+        "TC_ESignet_LinkTransaction_01"
+    ],
+    "TC_ESignet_LinkedAuthorizationConsent_08": [
+        "TC_ESignet_LinkedAuthenticationWla_05",
+        "TC_ESignet_LinkTransaction_01"
+    ],
+    "TC_ESignet_LinkedAuthorizationConsent_09": [
+        "TC_ESignet_LinkedAuthenticationWla_05",
+        "TC_ESignet_LinkTransaction_01"
+    ],
+    "TC_ESignet_LinkedAuthenticationWlaV2_11": [
+        "TC_ESignet_LinkTransactionConsent_07",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_AddIdentity_10",
+        "Dependent_Idrepo_GenerateApiKey_01"
+    ],
+    "TC_ESignet_LinkedAuthenticationWlaV2_10": [
+        "Dependent_Idrepo_AddIdentity_35",
+        "TC_ESignet_GetLinkStatusConsent_10",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "TC_ESignet_LinkTransactionConsent_10"
+    ],
+    "TC_ESignet_OAuthDetailsRequestNonAuth_26": ["TC_ESignet_CreateOIDCClient_MOSIPID_02"],
     "TC_ESignet_BioAuth_01": [
         "Dependent_Idrepo_AddIdentity_14",
         "TC_ESignet_OAuthDetailsRequest_21"
     ],
-    "ESignet_OAuthDetailsRequest_Consent_User2_all_Valid_Smoke_sid": ["TC_ESignet_CreateOIDCClient_03"],
     "TC_ESignet_BioAuth_02": [
         "Dependent_Idrepo_AddIdentity_14",
         "TC_ESignet_OAuthDetailsRequest_10"
     ],
-    "Dependent_Idrepo_definePolicy_07": ["Dependent_Idrepo_definePolicyGroup_02"],
-    "TC_ESignet_OAuthDetailsRequestNonAuth_23": ["TC_ESignet_CreateOIDCClient_02"],
-    "Dependent_Idrepo_definePolicy_06": ["Dependent_Idrepo_definePolicyGroup_02"],
-    "TC_ESignet_OAuthDetailsRequestNonAuth_22": ["TC_ESignet_CreateOIDCClient_02"],
-    "Dependent_Idrepo_definePolicy_05": ["Dependent_Idrepo_definePolicyGroup_02"],
-    "TC_ESignet_OAuthDetailsRequestNonAuth_25": ["TC_ESignet_CreateOIDCClient_02"],
-    "Dependent_Idrepo_definePolicy_04": ["Dependent_Idrepo_definePolicyGroup_01"],
-    "TC_ESignet_OAuthDetailsRequestNonAuth_24": ["TC_ESignet_CreateOIDCClient_02"],
-    "TC_ESignet_BioNonAuth_11": [
-        "Dependent_Idrepo_AddIdentity_14",
-        "TC_ESignet_OAuthDetailsRequestNonAuth_23"
+    "TC_ESignet_OAuthDetailsRequestNonAuth_23": ["TC_ESignet_CreateOIDCClient_MOSIPID_02"],
+    "TC_ESignet_OAuthDetailsRequestNonAuth_22": ["TC_ESignet_CreateOIDCClient_MOSIPID_02"],
+    "TC_ESignet_OAuthDetailsRequestNonAuth_25": ["TC_ESignet_CreateOIDCClient_MOSIPID_02"],
+    "TC_ESignet_OAuthDetailsRequestNonAuth_24": ["TC_ESignet_CreateOIDCClient_MOSIPID_02"],
+    "TC_ESignet_OAuthDetailsRequestNonAuth_10": ["TC_ESignet_CreateOIDCClient_MOSIPID_02"],
+    "TC_ESignet_PARAuthenticateUserV3_01": [
+        "Dependent_Idrepo_AddIdentity_43",
+        "TC_ESignet_PAROauthDetails_01"
     ],
-    "TC_ESignet_BioNonAuth_12": [
-        "Dependent_Idrepo_AddIdentity_14",
-        "TC_ESignet_OAuthDetailsRequestNonAuth_25"
+    "TC_ESignet_LinkedAuthenticationWlaV2_01": [
+        "TC_ESignet_GetLinkStatusConsent_01",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_AddIdentity_10",
+        "Dependent_Idrepo_GenerateApiKey_01",
+        "TC_ESignet_LinkTransactionConsent_01"
     ],
-    "TC_ESignet_OAuthDetailsRequestNonAuth_10": ["TC_ESignet_CreateOIDCClient_02"],
-    "TC_ESignet_BioNonAuth_13": [
-        "Dependent_Idrepo_GenerateVID_04",
-        "TC_ESignet_OAuthDetailsRequestNonAuth_04"
+    "TC_ESignet_OAuthDetailsRequestNonAuth_19": ["TC_ESignet_CreateOIDCClient_MOSIPID_02"],
+    "TC_ESignet_DPoPGenerateToken_01": [
+        "TC_ESignet_DPoPAuthorizationCode_01",
+        "TC_ESignet_CreateOIDCClient_MOSIPID_25"
     ],
-    "TC_ESignet_BioNonAuth_14": [
-        "Dependent_Idrepo_GenerateVID_04",
-        "TC_ESignet_OAuthDetailsRequestNonAuth_06"
-    ],
-    "TC_ESignet_BioNonAuth_10": [
-        "Dependent_Idrepo_AddIdentity_14",
-        "TC_ESignet_OAuthDetailsRequestNonAuth_21"
-    ],
-    "TC_ESignet_BioNonAuth_19": [
-        "Dependent_Idrepo_GenerateVID_04",
-        "TC_ESignet_OAuthDetailsRequestNonAuth_16"
-    ],
-    "TC_ESignet_BioNonAuth_15": [
-        "Dependent_Idrepo_GenerateVID_04",
-        "TC_ESignet_OAuthDetailsRequestNonAuth_08"
-    ],
-    "TC_ESignet_BioNonAuth_16": [
-        "Dependent_Idrepo_GenerateVID_04",
-        "TC_ESignet_OAuthDetailsRequestNonAuth_10"
-    ],
-    "TC_ESignet_BioNonAuth_17": [
-        "Dependent_Idrepo_GenerateVID_04",
-        "TC_ESignet_OAuthDetailsRequestNonAuth_12"
-    ],
-    "TC_ESignet_BioNonAuth_18": [
-        "Dependent_Idrepo_GenerateVID_04",
-        "TC_ESignet_OAuthDetailsRequestNonAuth_14"
-    ],
-    "TC_ESignet_OAuthDetailsRequestNonAuth_19": ["TC_ESignet_CreateOIDCClient_02"],
     "Dependent_Idrepo_DeactivatePolicy_01": [
         "Dependent_Idrepo_definePolicyGroup_01",
+        "Dependent_Idrepo_createPublishPolicy_04",
         "Dependent_Idrepo_definePolicy_04"
     ],
-    "ESignet_GetOidcUserInfo_Consent_Vid_IdpAccessToken_StatusCode_Claim2_Valid_Smoke_sid": ["ESignet_GenerateToken_Consent_Vid_Claim2_Valid_Smoke_sid"],
-    "Dependent_Idrepo_definePolicy_14": ["Dependent_Idrepo_definePolicyGroup_02"],
-    "TC_ESignet_OAuthDetailsRequestNonAuth_16": ["TC_ESignet_CreateOIDCClient_02"],
-    "Dependent_Idrepo_definePolicy_13": ["Dependent_Idrepo_definePolicyGroup_02"],
-    "TC_ESignet_OAuthDetailsRequestNonAuth_15": ["TC_ESignet_CreateOIDCClient_02"],
-    "Dependent_Idrepo_definePolicy_12": ["Dependent_Idrepo_definePolicyGroup_02"],
-    "TC_ESignet_OAuthDetailsRequestNonAuth_18": ["TC_ESignet_CreateOIDCClient_02"],
-    "Dependent_Idrepo_definePolicy_11": ["Dependent_Idrepo_definePolicyGroup_02"],
-    "TC_ESignet_OAuthDetailsRequestNonAuth_17": ["TC_ESignet_CreateOIDCClient_02"],
-    "ESignet_AuthenticateUserIDP_Consent_Vid_Otp_Invalid_TransactionId_Neg": [
-        "Dependent_Idrepo_AddIdentity_17",
-        "ESignet_OAuthDetailsRequest_Consent_Invalid_Scen_Smoke_sid",
-        "Dependent_Idrepo_GenerateVID_12"
-    ],
-    "TC_ESignet_OAuthDetailsRequestNonAuth_12": ["TC_ESignet_CreateOIDCClient_02"],
-    "TC_ESignet_OAuthDetailsRequestNonAuth_11": ["TC_ESignet_CreateOIDCClient_02"],
-    "TC_ESignet_OAuthDetailsRequestNonAuth_14": ["TC_ESignet_CreateOIDCClient_02"],
-    "Dependent_Idrepo_definePolicy_15": ["Dependent_Idrepo_definePolicyGroup_02"],
-    "TC_ESignet_OAuthDetailsRequestNonAuth_13": ["TC_ESignet_CreateOIDCClient_02"],
-    "TC_ESignet_OAuthDetailsRequestLinked_07": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequestLinked_06": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_BioNonAuth_01": [
-        "Dependent_Idrepo_AddIdentity_14",
-        "TC_ESignet_OAuthDetailsRequestNonAuth_03"
-    ],
-    "TC_ESignet_OAuthDetailsRequestLinked_05": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_BioNonAuth_02": [
-        "Dependent_Idrepo_AddIdentity_14",
-        "TC_ESignet_OAuthDetailsRequestNonAuth_05"
-    ],
-    "TC_ESignet_OAuthDetailsRequestLinked_04": ["TC_ESignet_CreateOIDCClient_03"],
-    "TC_ESignet_BioNonAuth_03": [
-        "Dependent_Idrepo_AddIdentity_14",
-        "TC_ESignet_OAuthDetailsRequestNonAuth_07"
-    ],
-    "TC_ESignet_OAuthDetailsRequestLinked_03": ["TC_ESignet_CreateOIDCClient_03"],
-    "TC_ESignet_OAuthDetailsRequestLinked_02": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequestLinked_01": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_BioNonAuth_08": [
-        "Dependent_Idrepo_AddIdentity_14",
-        "TC_ESignet_OAuthDetailsRequestNonAuth_17"
-    ],
-    "TC_ESignet_BioNonAuth_09": [
-        "Dependent_Idrepo_AddIdentity_14",
-        "TC_ESignet_OAuthDetailsRequestNonAuth_19"
-    ],
-    "ESignet_OAuthDetailsRequest_Consent_Vid_all_Valid_Smoke_sid": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_BioNonAuth_04": [
-        "Dependent_Idrepo_AddIdentity_14",
-        "TC_ESignet_OAuthDetailsRequestNonAuth_09"
-    ],
-    "TC_ESignet_BioNonAuth_05": [
-        "Dependent_Idrepo_AddIdentity_14",
-        "TC_ESignet_OAuthDetailsRequestNonAuth_11"
-    ],
-    "TC_ESignet_BioNonAuth_06": [
-        "Dependent_Idrepo_AddIdentity_14",
-        "TC_ESignet_OAuthDetailsRequestNonAuth_13"
-    ],
-    "TC_ESignet_BioNonAuth_07": [
-        "Dependent_Idrepo_AddIdentity_14",
-        "TC_ESignet_OAuthDetailsRequestNonAuth_15"
-    ],
-    "TC_ESignet_OAuthDetailsRequestNonAuth_09": ["TC_ESignet_CreateOIDCClient_02"],
-    "TC_ESignet_OAuthDetailsRequestNonAuth_08": ["TC_ESignet_CreateOIDCClient_02"],
-    "TC_ESignet_OAuthDetailsRequestNonAuth_05": ["TC_ESignet_CreateOIDCClient_02"],
-    "TC_ESignet_OAuthDetailsRequestNonAuth_04": ["TC_ESignet_CreateOIDCClient_02"],
-    "TC_ESignet_OAuthDetailsRequestNonAuth_07": ["TC_ESignet_CreateOIDCClient_02"],
-    "TC_ESignet_OAuthDetailsRequestNonAuth_06": ["TC_ESignet_CreateOIDCClient_02"],
-    "TC_ESignet_OAuthDetailsRequestNonAuth_01": ["TC_ESignet_CreateOIDCClient_02"],
-    "ESignet_AuthenticateUserIDP_Consent_uin_Otp_Invalid_TransactionId_Neg": [
-        "Dependent_Idrepo_AddIdentity_16",
-        "ESignet_OAuthDetailsRequest_Consent_Invalid_Scen_Smoke_sid"
-    ],
-    "TC_ESignet_OAuthDetailsRequestNonAuth_03": ["TC_ESignet_CreateOIDCClient_02"],
-    "TC_ESignet_OAuthDetailsRequestNonAuth_02": ["TC_ESignet_CreateOIDCClient_02"],
-    "ESignet_AuthenticateUserIDP_Consent_uin_Otp_Claim2_Valid_Smoke": [
-        "Dependent_Idrepo_AddIdentity_16",
-        "ESignet_OAuthDetailsRequest_Consent_Claim2_all_Valid_Smoke_sid"
-    ],
-    "ESignet_OAuthDetailsRequest_LinkAuth_Consent_Valid_Smoke_sid": ["TC_ESignet_CreateOIDCClient_01"],
-    "Dependent_Idrepo_GenerateMispLK_02": ["Dependent_Idrepo_createPartnerSelfRegistration_05"],
-    "Dependent_Idrepo_GenerateMispLK_03": ["Dependent_Idrepo_createPartnerSelfRegistration_07"],
-    "Dependent_Idrepo_GenerateMispLK_01": ["Dependent_Idrepo_createPartnerSelfRegistration_02"],
-    "TC_ESignet_UpdateOIDCClient_25": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_UpdateOIDCClient_24": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_UpdateOIDCClient_23": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_UpdateOIDCClient_22": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_UpdateOIDCClient_21": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_UpdateOIDCClient_20": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_UpdateOIDCClient_29": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_UpdateOIDCClient_28": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_UpdateOIDCClient_27": ["TC_ESignet_CreateOIDCClient_01"],
-    "Dependent_Idrepo_updatePartnerCertificate_01": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_02",
-        "Dependent_Idrepo_uploadPartnerCert_02"
-    ],
-    "TC_ESignet_UpdateOIDCClient_26": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_LinkTransaction_04": ["TC_ESignet_GenerateLinkCode_04"],
-    "TC_ESignet_LinkTransaction_03": ["TC_ESignet_GenerateLinkCode_03"],
-    "TC_ESignet_LinkTransaction_06": ["TC_ESignet_GenerateLinkCode_06"],
-    "TC_ESignet_LinkTransaction_05": ["TC_ESignet_GenerateLinkCode_05"],
-    "TC_ESignet_LinkTransaction_02": ["TC_ESignet_GenerateLinkCode_02"],
-    "TC_ESignet_LinkTransaction_01": ["TC_ESignet_GenerateLinkCode_01"],
-    "Dependent_Idrepo_RequestAPIKeyForAuthPartner_01": [
+    "TC_ESignet_LinkedAuthenticationWlaV2_05": [
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_definePolicy_01"
-    ],
-    "ESignet_OAuthDetailsRequest_LinkAuth_Consent_NoClaim_Neg": ["TC_ESignet_CreateOIDCClient_01"],
-    "Dependent_Idrepo_RequestAPIKeyForAuthPartner_06": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_06",
-        "Dependent_Idrepo_definePolicy_13"
-    ],
-    "Dependent_Idrepo_RequestAPIKeyForAuthPartner_03": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_03",
-        "Dependent_Idrepo_definePolicy_03"
-    ],
-    "TC_ESignet_LinkTransaction_11": ["TC_ESignet_GenerateLinkCode_01"],
-    "Dependent_Idrepo_RequestAPIKeyForAuthPartner_02": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_02",
-        "Dependent_Idrepo_definePolicy_02"
-    ],
-    "TC_ESignet_LinkTransaction_10": ["TC_ESignet_GenerateLinkCode_01"],
-    "Dependent_Idrepo_RequestAPIKeyForAuthPartner_05": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_05",
-        "Dependent_Idrepo_definePolicy_12"
-    ],
-    "Dependent_Idrepo_RequestAPIKeyForAuthPartner_04": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_04",
-        "Dependent_Idrepo_definePolicy_04"
-    ],
-    "TC_ESignet_LinkTransaction_12": ["TC_ESignet_GenerateLinkCode_01"],
-    "TC_ESignet_UpdateOIDCClient_03": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_UpdateOIDCClient_02": ["TC_ESignet_CreateOIDCClient_02"],
-    "TC_ESignet_UpdateOIDCClient_01": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_LinkTransaction_08": ["TC_ESignet_GenerateLinkCode_01"],
-    "TC_ESignet_LinkTransaction_07": ["TC_ESignet_GenerateLinkCode_01"],
-    "TC_ESignet_LinkTransaction_09": ["TC_ESignet_GenerateLinkCode_01"],
-    "TC_ESignet_UpdateOIDCClient_07": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_UpdateOIDCClient_06": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_UpdateOIDCClient_04": ["TC_ESignet_CreateOIDCClient_01"],
-    "ESignet_AuthorizationCode_Consent_uin_Claim2_All_Valid_Smoke_sid": ["ESignet_OAuthDetailsRequest_Consent_Claim2_all_Valid_Smoke_sid"],
-    "TC_ESignet_LinkedAuthorizationConsent_10": ["TC_ESignet_LinkTransaction_01"],
-    "TC_ESignet_LinkedAuthorizationConsent_11": ["TC_ESignet_LinkTransaction_01"],
-    "TC_ESignet_LinkedAuthorizationConsent_16": ["TC_ESignet_LinkTransaction_01"],
-    "TC_ESignet_LinkedAuthorizationConsent_17": ["TC_ESignet_LinkTransaction_01"],
-    "TC_ESignet_LinkedAuthorizationConsent_18": ["TC_ESignet_LinkTransaction_01"],
-    "TC_ESignet_LinkedAuthorizationConsent_19": ["TC_ESignet_LinkTransaction_01"],
-    "TC_ESignet_SendBindingOtp_04": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "TC_ESignet_LinkTransactionConsent_05",
+        "TC_ESignet_GetLinkStatusConsent_05",
         "Dependent_Idrepo_GenerateApiKey_01",
-        "Dependent_Idrepo_AddIdentity_06"
+        "Dependent_Idrepo_AddIdentity_30"
     ],
-    "TC_ESignet_UpdateOIDCClient_14": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_SendBindingOtp_03": [
+    "TC_ESignet_OAuthDetailsRequestNonAuth_16": ["TC_ESignet_CreateOIDCClient_MOSIPID_02"],
+    "TC_ESignet_LinkedAuthenticationWlaV2_04": [
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_AddIdentity_05",
-        "Dependent_Idrepo_GenerateApiKey_01"
-    ],
-    "TC_ESignet_UpdateOIDCClient_13": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_SendBindingOtp_02": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "TC_ESignet_GetLinkStatusConsent_04",
         "Dependent_Idrepo_GenerateApiKey_01",
-        "Dependent_Idrepo_GenerateVID_01"
+        "TC_ESignet_LinkTransactionConsent_04",
+        "Dependent_Idrepo_AddIdentity_29"
     ],
-    "TC_ESignet_UpdateOIDCClient_12": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_SendBindingOtp_01": [
-        "Dependent_Idrepo_AddIdentity_04",
+    "TC_ESignet_OAuthDetailsRequestNonAuth_15": ["TC_ESignet_CreateOIDCClient_MOSIPID_02"],
+    "TC_ESignet_LinkedAuthenticationWlaV2_03": [
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_GenerateApiKey_01"
-    ],
-    "TC_ESignet_UpdateOIDCClient_11": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_UpdateOIDCClient_10": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_SendBindingOtp_09": [
-        "Dependent_Idrepo_AddIdentity_04",
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_GenerateApiKey_01"
-    ],
-    "ESignet_AuthenticateUserIDP_Consent_Vid_User2_Otp_Valid_Smoke": [
-        "Dependent_Idrepo_AddIdentity_17",
-        "Dependent_Idrepo_GenerateVID_12",
-        "ESignet_OAuthDetailsRequest_Consent_Vid_User2_all_Valid_Smoke_sid"
-    ],
-    "TC_ESignet_UpdateOIDCClient_19": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_SendBindingOtp_08": [
-        "Dependent_Idrepo_AddIdentity_04",
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_GenerateApiKey_01"
-    ],
-    "TC_ESignet_UpdateOIDCClient_18": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_SendBindingOtp_07": [
-        "Dependent_Idrepo_AddIdentity_04",
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_GenerateApiKey_01"
-    ],
-    "TC_ESignet_UpdateOIDCClient_17": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_SendBindingOtp_06": [
-        "Dependent_Idrepo_AddIdentity_04",
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_GenerateApiKey_01"
-    ],
-    "TC_ESignet_UpdateOIDCClient_16": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_SendBindingOtp_05": [
-        "Dependent_Idrepo_AddIdentity_04",
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_GenerateApiKey_01"
-    ],
-    "TC_ESignet_UpdateOIDCClient_15": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_GenerateTokenLinked_01": [
-        "TC_ESignet_CreateOIDCClient_01",
-        "TC_ESignet_LinkAuthorizationCode_05"
-    ],
-    "TC_ESignet_GenerateTokenLinked_03": [
-        "TC_ESignet_CreateOIDCClient_01",
-        "TC_ESignet_LinkAuthorizationCode_01"
-    ],
-    "Dependent_Idrepo_UpdatePolicy_01": [
-        "Dependent_Idrepo_definePolicyGroup_01",
-        "Dependent_Idrepo_definePolicy_01"
-    ],
-    "TC_ESignet_GenerateTokenLinked_02": [
-        "TC_ESignet_LinkAuthorizationCode_06",
-        "TC_ESignet_CreateOIDCClient_01"
-    ],
-    "TC_ESignet_GenerateTokenLinked_05": [
-        "TC_ESignet_LinkAuthorizationCode_03",
-        "TC_ESignet_CreateOIDCClient_03"
-    ],
-    "TC_ESignet_LinkAuthorizationCode_09": [
-        "TC_ESignet_GenerateLinkCode_01",
-        "TC_ESignet_OAuthDetailsRequestLinked_01"
-    ],
-    "TC_ESignet_GenerateTokenLinked_04": [
-        "TC_ESignet_CreateOIDCClient_01",
-        "TC_ESignet_LinkAuthorizationCode_02"
-    ],
-    "TC_ESignet_LinkAuthorizationCode_08": [
-        "TC_ESignet_GenerateLinkCode_01",
-        "TC_ESignet_OAuthDetailsRequestLinked_01"
-    ],
-    "TC_ESignet_LinkAuthorizationCode_07": [
-        "TC_ESignet_GenerateLinkCode_01",
-        "TC_ESignet_OAuthDetailsRequestLinked_01"
-    ],
-    "TC_ESignet_GenerateTokenLinked_06": [
-        "TC_ESignet_LinkAuthorizationCode_04",
-        "TC_ESignet_CreateOIDCClient_03"
-    ],
-    "TC_ESignet_LinkAuthorizationCode_06": [
-        "TC_ESignet_GenerateLinkCode_02",
-        "TC_ESignet_OAuthDetailsRequestLinked_02"
-    ],
-    "TC_ESignet_LinkAuthorizationCode_05": [
-        "TC_ESignet_GenerateLinkCode_01",
-        "TC_ESignet_OAuthDetailsRequestLinked_01"
-    ],
-    "TC_ESignet_LinkAuthorizationCode_04": [
-        "TC_ESignet_OAuthDetailsRequestLinked_04",
-        "TC_ESignet_GenerateLinkCode_04"
-    ],
-    "TC_ESignet_LinkAuthorizationCode_03": [
-        "TC_ESignet_OAuthDetailsRequestLinked_03",
-        "TC_ESignet_GenerateLinkCode_03"
-    ],
-    "TC_ESignet_LinkAuthorizationCode_02": [
-        "TC_ESignet_OAuthDetailsRequestLinked_06",
-        "TC_ESignet_GenerateLinkCode_06"
-    ],
-    "TC_ESignet_LinkAuthorizationCode_01": [
-        "TC_ESignet_OAuthDetailsRequestLinked_05",
-        "TC_ESignet_GenerateLinkCode_05"
-    ],
-    "TC_ESignet_GenerateToken_09": [
-        "TC_ESignet_AuthorizationCode_01",
-        "TC_ESignet_CreateOIDCClient_01"
-    ],
-    "TC_ESignet_GenerateToken_08": [
-        "TC_ESignet_AuthorizationCode_01",
-        "TC_ESignet_CreateOIDCClient_01"
-    ],
-    "TC_ESignet_GenerateToken_07": [
-        "TC_ESignet_AuthorizationCode_01",
-        "TC_ESignet_CreateOIDCClient_01"
-    ],
-    "TC_ESignet_SendBindingOtp_15": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_GenerateApiKey_01"
-    ],
-    "TC_ESignet_GenerateToken_17": [
-        "TC_ESignet_AuthorizationCode_01",
-        "TC_ESignet_CreateOIDCClient_01"
-    ],
-    "TC_ESignet_SendBindingOtp_14": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_GenerateApiKey_01"
-    ],
-    "TC_ESignet_GenerateToken_16": [
-        "TC_ESignet_AuthorizationCode_01",
-        "TC_ESignet_CreateOIDCClient_01"
-    ],
-    "TC_ESignet_SendBindingOtp_13": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_AddIdentity_05",
-        "Dependent_Idrepo_GenerateApiKey_01"
-    ],
-    "TC_ESignet_GenerateToken_15": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_SendBindingOtp_12": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "TC_ESignet_GetLinkStatusConsent_03",
+        "Dependent_Idrepo_AddIdentity_10",
         "Dependent_Idrepo_GenerateApiKey_01",
-        "Dependent_Idrepo_AddIdentity_06"
+        "TC_ESignet_LinkTransactionConsent_03"
     ],
-    "TC_ESignet_GenerateToken_14": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_SendBindingOtp_11": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_GenerateApiKey_01"
-    ],
-    "TC_ESignet_GenerateToken_13": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_SendBindingOtp_10": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_GenerateApiKey_01"
-    ],
-    "TC_ESignet_GenerateToken_12": ["TC_ESignet_CreateOIDCClient_01"],
-    "ESignet_GenerateToken_Consent_Vid_Valid_Smoke_sid": [
-        "ESignet_AuthorizationCode_Consent_Vid_All_Valid_Smoke_sid",
-        "TC_ESignet_CreateOIDCClient_01"
-    ],
-    "TC_ESignet_GenerateToken_11": [
-        "TC_ESignet_AuthorizationCode_01",
-        "TC_ESignet_CreateOIDCClient_01"
-    ],
-    "TC_ESignet_GenerateToken_10": [
-        "TC_ESignet_AuthorizationCode_01",
-        "TC_ESignet_CreateOIDCClient_01"
-    ],
-    "ESignet_AuthenticateUserIDP_Consent_Vid_Otp_Invalid_IndividualId_Neg": [
-        "Dependent_Idrepo_AddIdentity_17",
-        "ESignet_OAuthDetailsRequest_Consent_Invalid_Scen_Smoke_sid",
-        "Dependent_Idrepo_GenerateVID_12"
-    ],
-    "TC_ESignet_SendBindingOtp_19": [
-        "Dependent_Idrepo_AddIdentity_04",
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_GenerateApiKey_01"
-    ],
-    "TC_ESignet_SendBindingOtp_18": [
-        "Dependent_Idrepo_AddIdentity_04",
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_GenerateApiKey_01"
-    ],
-    "TC_ESignet_SendBindingOtp_17": [
-        "Dependent_Idrepo_AddIdentity_04",
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_GenerateApiKey_01"
-    ],
-    "TC_ESignet_SendBindingOtp_16": [
-        "Dependent_Idrepo_AddIdentity_04",
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_GenerateApiKey_01"
-    ],
-    "Dependent_Idrepo_ApproveAPIKey_06": ["Dependent_Idrepo_RequestAPIKeyForAuthPartner_06"],
-    "Dependent_Idrepo_ApproveAPIKey_05": ["Dependent_Idrepo_RequestAPIKeyForAuthPartner_05"],
-    "Dependent_Idrepo_ApproveAPIKey_04": ["Dependent_Idrepo_RequestAPIKeyForAuthPartner_04"],
-    "Dependent_Idrepo_ApproveAPIKey_03": ["Dependent_Idrepo_RequestAPIKeyForAuthPartner_03"],
-    "Dependent_Idrepo_ApproveAPIKey_02": ["Dependent_Idrepo_RequestAPIKeyForAuthPartner_02"],
-    "TC_ESignet_LinkAuthorizationCode_19": ["TC_ESignet_OAuthDetailsRequestLinked_01"],
-    "Dependent_Idrepo_ApproveAPIKey_01": ["Dependent_Idrepo_RequestAPIKeyForAuthPartner_01"],
-    "TC_ESignet_LinkAuthorizationCode_18": ["TC_ESignet_OAuthDetailsRequestLinked_01"],
-    "TC_ESignet_LinkAuthorizationCode_17": ["TC_ESignet_OAuthDetailsRequestLinked_01"],
-    "TC_ESignet_LinkAuthorizationCode_16": ["TC_ESignet_OAuthDetailsRequestLinked_01"],
-    "TC_ESignet_LinkAuthorizationCode_15": ["TC_ESignet_GenerateLinkCode_01"],
-    "TC_ESignet_LinkAuthorizationCode_14": ["TC_ESignet_GenerateLinkCode_01"],
-    "TC_ESignet_LinkAuthorizationCode_13": ["TC_ESignet_GenerateLinkCode_01"],
-    "TC_ESignet_LinkAuthorizationCode_12": ["TC_ESignet_GenerateLinkCode_01"],
-    "TC_ESignet_LinkAuthorizationCode_11": [
-        "TC_ESignet_GenerateLinkCode_01",
-        "TC_ESignet_OAuthDetailsRequestLinked_01"
-    ],
-    "TC_ESignet_GenerateToken_19": [
-        "TC_ESignet_AuthorizationCode_01",
-        "TC_ESignet_CreateOIDCClient_01"
-    ],
-    "TC_ESignet_LinkAuthorizationCode_10": [
-        "TC_ESignet_GenerateLinkCode_01",
-        "TC_ESignet_OAuthDetailsRequestLinked_01"
-    ],
-    "TC_ESignet_GenerateToken_18": [
-        "TC_ESignet_AuthorizationCode_01",
-        "TC_ESignet_CreateOIDCClient_01"
-    ],
-    "TC_ESignet_SendBindingOtp_26": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_GenerateApiKey_01"
-    ],
-    "ESignet_LinkedAuthenticationWla_ConsentVid_SCert_all_Valid_Smoke_sid": [
+    "TC_ESignet_OAuthDetailsRequestNonAuth_18": ["TC_ESignet_CreateOIDCClient_MOSIPID_02"],
+    "TC_ESignet_LinkedAuthenticationWlaV2_02": [
+        "TC_ESignet_GetLinkStatusConsent_02",
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
         "Dependent_Idrepo_AddIdentity_12",
         "Dependent_Idrepo_GenerateApiKey_01",
         "TC_ESignet_LinkTransactionConsent_02",
         "Dependent_Idrepo_GenerateVID_13"
     ],
-    "TC_ESignet_GenerateToken_28": [
-        "TC_ESignet_AuthorizationCode_01",
-        "TC_ESignet_CreateOIDCClient_01"
-    ],
-    "TC_ESignet_SendBindingOtp_25": [
+    "TC_ESignet_OAuthDetailsRequestNonAuth_17": ["TC_ESignet_CreateOIDCClient_MOSIPID_02"],
+    "TC_ESignet_LinkedAuthenticationWlaV2_09": [
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_GenerateApiKey_01"
-    ],
-    "TC_ESignet_GenerateToken_27": [
-        "TC_ESignet_AuthorizationCode_01",
-        "TC_ESignet_CreateOIDCClient_01"
-    ],
-    "TC_ESignet_SendBindingOtp_24": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_AddIdentity_34",
+        "TC_ESignet_LinkTransactionConsent_09",
         "Dependent_Idrepo_GenerateApiKey_01",
-        "Dependent_Idrepo_GenerateVID_01"
+        "TC_ESignet_GetLinkStatusConsent_09"
     ],
-    "TC_ESignet_GenerateToken_26": [
-        "TC_ESignet_AuthorizationCode_01",
-        "TC_ESignet_CreateOIDCClient_01"
-    ],
-    "TC_ESignet_SendBindingOtp_23": [
+    "TC_ESignet_OAuthDetailsRequestNonAuth_12": ["TC_ESignet_CreateOIDCClient_MOSIPID_02"],
+    "TC_ESignet_LinkedAuthenticationWlaV2_08": [
+        "TC_ESignet_LinkTransactionConsent_08",
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_AddIdentity_33",
+        "TC_ESignet_GetLinkStatusConsent_08",
+        "Dependent_Idrepo_GenerateApiKey_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequestNonAuth_11": ["TC_ESignet_CreateOIDCClient_MOSIPID_02"],
+    "TC_ESignet_LinkedAuthenticationWlaV2_07": [
+        "TC_ESignet_LinkTransactionConsent_07",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_AddIdentity_32",
         "Dependent_Idrepo_GenerateApiKey_01",
-        "Dependent_Idrepo_GenerateVID_01"
+        "TC_ESignet_GetLinkStatusConsent_07"
     ],
-    "TC_ESignet_GenerateToken_25": [
-        "TC_ESignet_AuthorizationCode_01",
-        "TC_ESignet_CreateOIDCClient_01"
-    ],
-    "TC_ESignet_SendBindingOtp_22": [
+    "TC_ESignet_OAuthDetailsRequestNonAuth_14": ["TC_ESignet_CreateOIDCClient_MOSIPID_02"],
+    "TC_ESignet_LinkedAuthenticationWlaV2_06": [
+        "TC_ESignet_LinkTransactionConsent_06",
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_GenerateApiKey_01",
-        "Dependent_Idrepo_GenerateVID_01"
-    ],
-    "TC_ESignet_GenerateToken_24": [
-        "TC_ESignet_AuthorizationCode_01",
-        "TC_ESignet_CreateOIDCClient_01"
-    ],
-    "TC_ESignet_SendBindingOtp_21": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_GenerateApiKey_01",
-        "Dependent_Idrepo_GenerateVID_01"
-    ],
-    "TC_ESignet_GenerateToken_23": [
-        "TC_ESignet_AuthorizationCode_01",
-        "TC_ESignet_CreateOIDCClient_01"
-    ],
-    "TC_ESignet_SendBindingOtp_20": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_GenerateApiKey_01",
-        "Dependent_Idrepo_GenerateVID_01"
-    ],
-    "TC_ESignet_GenerateToken_22": [
-        "TC_ESignet_AuthorizationCode_01",
-        "TC_ESignet_CreateOIDCClient_01"
-    ],
-    "TC_ESignet_GenerateToken_21": [
-        "TC_ESignet_AuthorizationCode_01",
-        "TC_ESignet_CreateOIDCClient_01"
-    ],
-    "TC_ESignet_GenerateToken_20": [
-        "TC_ESignet_AuthorizationCode_01",
-        "TC_ESignet_CreateOIDCClient_01"
-    ],
-    "TC_ESignet_SendBindingOtp_29": [
-        "Dependent_Idrepo_AddIdentity_04",
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_AddIdentity_31",
+        "TC_ESignet_GetLinkStatusConsent_06",
         "Dependent_Idrepo_GenerateApiKey_01"
     ],
-    "TC_ESignet_SendBindingOtp_28": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_GenerateApiKey_01"
+    "TC_ESignet_OAuthDetailsRequestNonAuth_13": ["TC_ESignet_CreateOIDCClient_MOSIPID_02"],
+    "TC_ESignet_OAuthDetailsRequestLinked_07": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
     ],
-    "TC_ESignet_SendBindingOtp_27": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_GenerateApiKey_01"
+    "TC_ESignet_OAuthDetailsRequestLinked_06": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
     ],
-    "TC_ESignet_CreateOIDCClient_09": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_definePolicy_01"
+    "TC_ESignet_OAuthDetailsRequestLinked_05": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
     ],
-    "TC_ESignet_CreateOIDCClient_07": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_definePolicy_01"
+    "TC_ESignet_OAuthDetailsRequestLinked_04": ["TC_ESignet_CreateOIDCClient_MOSIPID_03"],
+    "TC_ESignet_OAuthDetailsRequestLinked_03": ["TC_ESignet_CreateOIDCClient_MOSIPID_03"],
+    "TC_ESignet_OAuthDetailsRequestLinked_02": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
     ],
-    "TC_ESignet_CreateOIDCClient_08": ["Dependent_Idrepo_definePolicy_01"],
-    "TC_ESignet_SendBindingOtp_32": [
-        "Dependent_Idrepo_AddIdentity_04",
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_GenerateApiKey_01"
+    "TC_ESignet_OAuthDetailsRequestLinked_01": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
     ],
-    "TC_ESignet_SendBindingOtp_31": [
-        "Dependent_Idrepo_AddIdentity_04",
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_GenerateApiKey_01"
+    "TC_ESignet_OAuthDetailsRequestLinked_09": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
     ],
-    "TC_ESignet_SendBindingOtp_30": [
-        "Dependent_Idrepo_AddIdentity_04",
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_GenerateApiKey_01"
+    "TC_ESignet_OAuthDetailsRequestLinked_08": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
     ],
-    "TC_ESignet_CreateOIDCClient_01": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_definePolicy_01"
+    "TC_ESignet_OAuthDetailsRequestNonAuth_09": ["TC_ESignet_CreateOIDCClient_MOSIPID_02"],
+    "TC_ESignet_OAuthDetailsRequestNonAuth_08": ["TC_ESignet_CreateOIDCClient_MOSIPID_02"],
+    "TC_ESignet_OAuthDetailsRequestLinked_10": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
     ],
-    "TC_ESignet_CreateOIDCClient_02": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_04",
-        "Dependent_Idrepo_definePolicy_04"
+    "TC_ESignet_OAuthDetailsRequestNonAuth_05": ["TC_ESignet_CreateOIDCClient_MOSIPID_02"],
+    "TC_ESignet_OAuthDetailsRequestNonAuth_04": ["TC_ESignet_CreateOIDCClient_MOSIPID_02"],
+    "TC_ESignet_OAuthDetailsRequestNonAuth_07": ["TC_ESignet_CreateOIDCClient_MOSIPID_02"],
+    "TC_ESignet_OAuthDetailsRequestNonAuth_06": ["TC_ESignet_CreateOIDCClient_MOSIPID_02"],
+    "TC_ESignet_OAuthDetailsRequestNonAuth_01": ["TC_ESignet_CreateOIDCClient_MOSIPID_02"],
+    "TC_ESignet_OAuthDetailsRequestNonAuth_03": ["TC_ESignet_CreateOIDCClient_MOSIPID_02"],
+    "TC_ESignet_OAuthDetailsRequestNonAuth_02": ["TC_ESignet_CreateOIDCClient_MOSIPID_02"],
+    "Dependent_Idrepo_GenerateMispLK_02": ["Dependent_Idrepo_createPartnerSelfRegistration_05"],
+    "Dependent_Idrepo_GenerateMispLK_03": ["Dependent_Idrepo_createPartnerSelfRegistration_07"],
+    "Dependent_Idrepo_GenerateMispLK_01": ["Dependent_Idrepo_createPartnerSelfRegistration_02"],
+    "TC_ESignet_GetPolicySunBirdR_01": ["TC_ESignet_CreatePolicySunBirdR_01"],
+    "TC_ESignet_UpdateOIDCClient_25": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_UpdateOIDCClient_24": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_UpdateOIDCClient_23": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_UpdateOIDCClient_22": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_UpdateOIDCClient_21": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_UpdateOIDCClient_20": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_UpdateOIDCClient_29": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_UpdateOIDCClient_28": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_UpdateOIDCClient_27": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "Dependent_Idrepo_updatePartnerCertificate_01": [
+        "Dependent_Idrepo_createPartnerSelfRegistration_02",
+        "Dependent_Idrepo_uploadPartnerCert_02",
+        "Dependent_Idrepo_uploadCACert_03",
+        "Dependent_Idrepo_uploadCACert_04"
     ],
-    "TC_ESignet_CreateOIDCClient_05": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_08",
-        "Dependent_Idrepo_definePolicy_15"
+    "TC_ESignet_UpdateOIDCClient_26": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_OAuthDetailsRequestLinked_14": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
     ],
-    "TC_ESignet_CreateOIDCClient_03": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_03",
-        "Dependent_Idrepo_definePolicy_03"
+    "TC_ESignet_OAuthDetailsRequestLinked_13": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
     ],
-    "TC_ESignet_CreateOIDCClient_04": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_06",
-        "Dependent_Idrepo_definePolicy_13"
+    "TC_ESignet_OAuthDetailsRequestLinked_12": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
     ],
-    "TC_ESignet_CreateOIDCClient_20": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_definePolicy_01"
+    "TC_ESignet_OAuthDetailsRequestLinked_11": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
     ],
-    "TC_ESignet_GenerateToken_06": [
-        "TC_ESignet_AuthorizationCode_01",
-        "TC_ESignet_CreateOIDCClient_01"
+    "TC_ESignet_LinkedAuthorizationConsent_20": [
+        "TC_ESignet_LinkedAuthenticationWla_07",
+        "TC_ESignet_LinkTransaction_18"
     ],
-    "ESignet_AuthenticateUserIDP_Consent_Vid_Otp_Valid_Smoke": [
-        "ESignet_OAuthDetailsRequest_Consent_Vid_all_Valid_Smoke_sid",
+    "TC_ESignet_LinkedAuthorizationConsent_21": [
+        "TC_ESignet_LinkTransaction_19",
+        "TC_ESignet_LinkedAuthenticationWla_08"
+    ],
+    "TC_ESignet_LinkedAuthorizationConsent_22": [
+        "TC_ESignet_LinkTransaction_20",
+        "TC_ESignet_LinkedAuthenticationWla_09"
+    ],
+    "TC_ESignet_LinkedAuthorizationConsent_23": [
+        "TC_ESignet_LinkedAuthenticationWla_10",
+        "TC_ESignet_LinkTransaction_21"
+    ],
+    "TC_ESignet_LinkedAuthorizationConsent_24": [
+        "TC_ESignet_LinkTransaction_22",
+        "TC_ESignet_LinkedAuthenticationWla_11"
+    ],
+    "TC_ESignet_LinkedAuthorizationConsent_25": [
+        "TC_ESignet_LinkedAuthenticationWla_12",
+        "TC_ESignet_LinkTransaction_23"
+    ],
+    "TC_ESignet_LinkedAuthorizationConsent_26": [
+        "TC_ESignet_LinkedAuthenticationWla_13",
+        "TC_ESignet_LinkTransaction_24"
+    ],
+    "TC_ESignet_UpdateOIDCClient_03": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_UpdateOIDCClient_02": ["TC_ESignet_CreateOIDCClient_02"],
+    "TC_ESignet_UpdateOIDCClient_01": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_UpdateOIDCClient_07": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_UpdateOIDCClient_06": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_UpdateOIDCClient_04": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_LinkedAuthorizationConsent_10": [
+        "TC_ESignet_LinkedAuthenticationWla_05",
+        "TC_ESignet_LinkTransaction_01"
+    ],
+    "TC_ESignet_LinkedAuthorizationConsent_11": [
+        "TC_ESignet_LinkedAuthenticationWla_05",
+        "TC_ESignet_LinkTransaction_01"
+    ],
+    "TC_ESignet_LinkedAuthorizationConsent_16": [
+        "TC_ESignet_LinkedAuthenticationWla_05",
+        "TC_ESignet_LinkTransaction_01"
+    ],
+    "TC_ESignet_LinkedAuthorizationConsent_17": [
+        "TC_ESignet_LinkedAuthenticationWla_05",
+        "TC_ESignet_LinkTransaction_01"
+    ],
+    "TC_ESignet_LinkedAuthorizationConsent_18": [
+        "TC_ESignet_LinkedAuthenticationWla_05",
+        "TC_ESignet_LinkTransaction_01"
+    ],
+    "TC_ESignet_LinkedAuthorizationConsent_19": [
+        "TC_ESignet_LinkedAuthenticationWla_05",
+        "TC_ESignet_LinkTransaction_01"
+    ],
+    "TC_ESignet_UpdateOIDCClient_14": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_UpdateOIDCClient_13": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_UpdateOIDCClient_12": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_UpdateOIDCClient_11": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_UpdateOIDCClient_10": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_UpdateOIDCClient_19": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_UpdateOIDCClient_18": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_UpdateOIDCClient_17": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_UpdateOIDCClient_16": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_UpdateOIDCClient_15": ["TC_ESignet_CreateOIDCClient_MOSIPID_01"],
+    "TC_ESignet_AuthenticateUserConsent_11": [
+        "TC_ESignet_OAuthDetailsRequestConsent_08",
+        "Dependent_Idrepo_AddIdentity_28"
+    ],
+    "TC_ESignet_AuthenticateUserConsent_10": [
+        "TC_ESignet_OAuthDetailsRequestConsent_07",
         "Dependent_Idrepo_AddIdentity_17",
         "Dependent_Idrepo_GenerateVID_12"
     ],
-    "TC_ESignet_GenerateToken_05": ["TC_ESignet_AuthorizationCode_01"],
-    "TC_ESignet_CreateOIDCClient_18": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+    "Dependent_Idrepo_UpdatePolicy_01": [
+        "Dependent_Idrepo_definePolicyGroup_01",
+        "Dependent_Idrepo_createPublishPolicy_01",
         "Dependent_Idrepo_definePolicy_01"
     ],
-    "TC_ESignet_GenerateToken_04": ["TC_ESignet_AuthorizationCode_01"],
-    "TC_ESignet_CreateOIDCClient_19": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_definePolicy_01"
+    "TC_ESignet_LinkAuthorizationCode_09": [
+        "TC_ESignet_GenerateLinkCode_01",
+        "TC_ESignet_OAuthDetailsRequestLinked_01",
+        "TC_ESignet_LinkedAuthorizationConsent_05"
     ],
-    "TC_ESignet_GenerateToken_03": ["TC_ESignet_AuthorizationCode_01"],
-    "TC_ESignet_GenerateToken_02": ["TC_ESignet_AuthorizationCode_01"],
-    "TC_ESignet_GenerateToken_01": [
-        "TC_ESignet_AuthorizationCode_01",
-        "TC_ESignet_CreateOIDCClient_01"
+    "TC_ESignet_LinkAuthorizationCode_08": [
+        "TC_ESignet_GenerateLinkCode_01",
+        "TC_ESignet_OAuthDetailsRequestLinked_01",
+        "TC_ESignet_LinkedAuthorizationConsent_05"
     ],
-    "TC_ESignet_CreateOIDCClient_12": ["Dependent_Idrepo_definePolicy_01"],
-    "TC_ESignet_CreateOIDCClient_13": ["Dependent_Idrepo_definePolicy_01"],
-    "TC_ESignet_CreateOIDCClient_10": ["Dependent_Idrepo_createPartnerSelfRegistration_01"],
-    "TC_ESignet_CreateOIDCClient_11": ["Dependent_Idrepo_createPartnerSelfRegistration_01"],
-    "TC_ESignet_CreateOIDCClient_16": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_definePolicy_01"
+    "TC_ESignet_AuthenticateUserConsent_13": [
+        "TC_ESignet_OAuthDetailsRequestConsent_09",
+        "Dependent_Idrepo_AddIdentity_28"
     ],
-    "TC_ESignet_CreateOIDCClient_17": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_definePolicy_01"
+    "TC_ESignet_LinkAuthorizationCode_07": [
+        "TC_ESignet_GenerateLinkCode_01",
+        "TC_ESignet_OAuthDetailsRequestLinked_01",
+        "TC_ESignet_LinkedAuthorizationConsent_05"
     ],
-    "TC_ESignet_CreateOIDCClient_14": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_definePolicy_01"
+    "TC_ESignet_AuthenticateUserConsent_12": [
+        "TC_ESignet_OAuthDetailsRequestConsent_10",
+        "Dependent_Idrepo_AddIdentity_28"
     ],
-    "TC_ESignet_CreateOIDCClient_15": [
-        "Dependent_Idrepo_createPartnerSelfRegistration_01",
-        "Dependent_Idrepo_definePolicy_01"
+    "TC_ESignet_LinkAuthorizationCode_06": [
+        "TC_ESignet_GenerateLinkCode_02",
+        "TC_ESignet_OAuthDetailsRequestLinked_02",
+        "TC_ESignet_LinkedAuthorizationConsent_06"
     ],
+    "TC_ESignet_LinkAuthorizationCode_05": [
+        "TC_ESignet_GenerateLinkCode_01",
+        "TC_ESignet_OAuthDetailsRequestLinked_01",
+        "TC_ESignet_LinkedAuthorizationConsent_05"
+    ],
+    "TC_ESignet_LinkAuthorizationCode_04": [
+        "TC_ESignet_OAuthDetailsRequestLinked_04",
+        "TC_ESignet_LinkedAuthorizationConsent_04",
+        "TC_ESignet_GenerateLinkCode_04"
+    ],
+    "TC_ESignet_LinkAuthorizationCode_03": [
+        "TC_ESignet_OAuthDetailsRequestLinked_03",
+        "TC_ESignet_LinkedAuthorizationConsent_03",
+        "TC_ESignet_GenerateLinkCode_03"
+    ],
+    "TC_ESignet_LinkAuthorizationCode_02": [
+        "TC_ESignet_OAuthDetailsRequestLinked_06",
+        "TC_ESignet_LinkedAuthorizationConsent_02",
+        "TC_ESignet_GenerateLinkCode_06"
+    ],
+    "TC_ESignet_LinkAuthorizationCode_01": [
+        "TC_ESignet_OAuthDetailsRequestLinked_05",
+        "TC_ESignet_LinkedAuthorizationConsent_01",
+        "TC_ESignet_GenerateLinkCode_05"
+    ],
+    "TC_ESignet_GenerateToken_E2E_01": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_21",
+        "TC_ESignet_AuthCode_E2E_01"
+    ],
+    "TC_ESignet_GenerateToken_E2E_03": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_23",
+        "TC_ESignet_AuthCode_E2E_03"
+    ],
+    "TC_ESignet_GenerateToken_E2E_02": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_22",
+        "TC_ESignet_AuthCode_E2E_02"
+    ],
+    "TC_ESignet_AuthenticateUserConsent_04": [
+        "TC_ESignet_OAuthDetailsRequestConsent_05",
+        "Dependent_Idrepo_AddIdentity_17",
+        "Dependent_Idrepo_GenerateVID_12"
+    ],
+    "TC_ESignet_AuthenticateUserConsent_03": [
+        "Dependent_Idrepo_AddIdentity_17",
+        "Dependent_Idrepo_GenerateVID_12",
+        "TC_ESignet_OAuthDetailsRequestConsent_04"
+    ],
+    "TC_ESignet_LinkAuthorizationCode_19": [
+        "TC_ESignet_OAuthDetailsRequestLinked_01",
+        "TC_ESignet_LinkedAuthorizationConsent_05"
+    ],
+    "TC_ESignet_AuthenticateUserConsent_02": [
+        "Dependent_Idrepo_AddIdentity_16",
+        "TC_ESignet_OAuthDetailsRequestConsent_02"
+    ],
+    "TC_ESignet_LinkAuthorizationCode_18": [
+        "TC_ESignet_OAuthDetailsRequestLinked_01",
+        "TC_ESignet_LinkedAuthorizationConsent_05"
+    ],
+    "TC_ESignet_AuthenticateUserConsent_01": [
+        "Dependent_Idrepo_AddIdentity_16",
+        "TC_ESignet_OAuthDetailsRequestConsent_01"
+    ],
+    "TC_ESignet_LinkAuthorizationCode_17": [
+        "TC_ESignet_OAuthDetailsRequestLinked_01",
+        "TC_ESignet_LinkedAuthorizationConsent_05"
+    ],
+    "TC_ESignet_AuthenticateUserConsent_08": [
+        "Dependent_Idrepo_AddIdentity_17",
+        "TC_ESignet_OAuthDetailsRequestConsent_03",
+        "Dependent_Idrepo_GenerateVID_12"
+    ],
+    "TC_ESignet_LinkAuthorizationCode_16": [
+        "TC_ESignet_OAuthDetailsRequestLinked_01",
+        "TC_ESignet_LinkedAuthorizationConsent_05"
+    ],
+    "TC_ESignet_AuthenticateUserConsent_07": [
+        "Dependent_Idrepo_AddIdentity_17",
+        "TC_ESignet_OAuthDetailsRequestConsent_03",
+        "Dependent_Idrepo_GenerateVID_12"
+    ],
+    "TC_ESignet_LinkAuthorizationCode_15": [
+        "TC_ESignet_GenerateLinkCode_01",
+        "TC_ESignet_LinkedAuthorizationConsent_05"
+    ],
+    "TC_ESignet_AuthenticateUserConsent_06": [
+        "Dependent_Idrepo_AddIdentity_16",
+        "TC_ESignet_OAuthDetailsRequestConsent_03"
+    ],
+    "TC_ESignet_LinkAuthorizationCode_14": [
+        "TC_ESignet_GenerateLinkCode_01",
+        "TC_ESignet_LinkedAuthorizationConsent_05"
+    ],
+    "TC_ESignet_AuthenticateUserConsent_05": [
+        "Dependent_Idrepo_AddIdentity_16",
+        "TC_ESignet_OAuthDetailsRequestConsent_03"
+    ],
+    "TC_ESignet_LinkAuthorizationCode_13": [
+        "TC_ESignet_GenerateLinkCode_01",
+        "TC_ESignet_LinkedAuthorizationConsent_05"
+    ],
+    "TC_ESignet_LinkAuthorizationCode_12": [
+        "TC_ESignet_GenerateLinkCode_01",
+        "TC_ESignet_LinkedAuthorizationConsent_05"
+    ],
+    "TC_ESignet_LinkAuthorizationCode_11": [
+        "TC_ESignet_GenerateLinkCode_01",
+        "TC_ESignet_OAuthDetailsRequestLinked_01",
+        "TC_ESignet_LinkedAuthorizationConsent_05"
+    ],
+    "TC_ESignet_LinkAuthorizationCode_10": [
+        "TC_ESignet_GenerateLinkCode_01",
+        "TC_ESignet_OAuthDetailsRequestLinked_01",
+        "TC_ESignet_LinkedAuthorizationConsent_05"
+    ],
+    "TC_ESignet_AuthenticateUserConsent_09": [
+        "TC_ESignet_OAuthDetailsRequestConsent_06",
+        "Dependent_Idrepo_AddIdentity_16"
+    ],
+    "TC_ESignet_UpdateOIDCClientV3_28": ["TC_ESignet_CreateOIDCClientV3_01"],
+    "TC_ESignet_UpdateOIDCClientV3_27": ["TC_ESignet_CreateOIDCClientV3_01"],
+    "TC_ESignet_UpdateOIDCClientV3_26": ["TC_ESignet_CreateOIDCClientV3_01"],
+    "TC_ESignet_UpdateOIDCClientV3_25": ["TC_ESignet_CreateOIDCClientV3_01"],
+    "TC_ESignet_UpdateOIDCClientV3_24": ["TC_ESignet_CreateOIDCClientV3_01"],
+    "TC_ESignet_UpdateOIDCClientV3_23": ["TC_ESignet_CreateOIDCClientV3_01"],
+    "TC_ESignet_UpdateOIDCClientV3_22": ["TC_ESignet_CreateOIDCClientV3_01"],
+    "TC_ESignet_PAROauthDetailsNegativeScenarios_03": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_24",
+        "TC_ESignet_OauthPar_01",
+        "TC_ESignet_OauthDPoP_01"
+    ],
+    "TC_ESignet_UpdateOIDCClientV3_21": ["TC_ESignet_CreateOIDCClientV3_01"],
+    "TC_ESignet_PAROauthDetailsNegativeScenarios_04": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_24",
+        "TC_ESignet_OauthDPoP_01",
+        "TC_ESignet_CreateOIDCClient_MOSIPID_25"
+    ],
+    "TC_ESignet_UpdateOIDCClientV3_20": ["TC_ESignet_CreateOIDCClientV3_01"],
+    "TC_ESignet_PAROauthDetailsNegativeScenarios_01": ["TC_ESignet_OauthPar_01"],
+    "TC_ESignet_PAROauthDetailsNegativeScenarios_02": ["TC_ESignet_OauthPar_01"],
+    "TC_ESignet_PAROauthDetailsNegativeScenarios_07": [
+        "TC_ESignet_OauthDPoP_01",
+        "TC_ESignet_CreateOIDCClient_MOSIPID_25"
+    ],
+    "TC_ESignet_PAROauthDetailsNegativeScenarios_05": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_24",
+        "TC_ESignet_CreateOIDCClient_MOSIPID_25"
+    ],
+    "TC_ESignet_PAROauthDetailsNegativeScenarios_06": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_24",
+        "TC_ESignet_OauthPar_01",
+        "TC_ESignet_CreateOIDCClient_MOSIPID_25"
+    ],
+    "TC_ESignet_GetOidcUserInfoVerifiedClaims_01": [
+        "TC_ESignet_GenerateTokenVerifiedClaims_01",
+        "TC_ESignet_CreateOIDCClient_MOSIPID_26"
+    ],
+    "TC_ESignet_SearchPolicySunBirdR_01": ["TC_ESignet_GetPolicySunBirdR_01"],
+    "TC_ESignet_UpdateOIDCClientV3_09": ["TC_ESignet_CreateOIDCClientV3_01"],
+    "TC_ESignet_UpdateOIDCClientV3_19": ["TC_ESignet_CreateOIDCClientV3_01"],
+    "TC_ESignet_UpdateOIDCClientV3_18": ["TC_ESignet_CreateOIDCClientV3_01"],
+    "TC_ESignet_UpdateOIDCClientV3_17": ["TC_ESignet_CreateOIDCClientV3_01"],
+    "TC_ESignet_GetOidcUserInfoWithoutVerifiedClaims_01": [
+        "TC_ESignet_GenerateTokenWithoutVerifiedClaims_01",
+        "TC_ESignet_CreateOIDCClient_MOSIPID_27"
+    ],
+    "TC_ESignet_UpdateOIDCClientV3_16": ["TC_ESignet_CreateOIDCClientV3_01"],
+    "TC_ESignet_UpdateOIDCClientV3_15": ["TC_ESignet_CreateOIDCClientV3_01"],
+    "TC_ESignet_UpdateOIDCClientV3_14": ["TC_ESignet_CreateOIDCClientV3_01"],
+    "TC_ESignet_UpdateOIDCClientV3_13": ["TC_ESignet_CreateOIDCClientV3_01"],
+    "TC_ESignet_UpdateOIDCClientV3_12": ["TC_ESignet_CreateOIDCClientV3_01"],
+    "TC_ESignet_UpdateOIDCClientV3_11": ["TC_ESignet_CreateOIDCClientV3_01"],
+    "TC_ESignet_UpdateOIDCClientV3_10": ["TC_ESignet_CreateOIDCClientV3_01"],
+    "TC_ESignet_AuthorizationCodeSunBirdCNegTC_01": ["TC_ESignet_AuthenticateUserSunBirdCNegTC_34"],
+    "TC_ESignet_AuthorizationCodeSunBirdCNegTC_08": ["TC_ESignet_AuthenticateUserSunBirdCNegTC_41"],
+    "TC_ESignet_AuthorizationCodeSunBirdCNegTC_09": ["TC_ESignet_AuthenticateUserSunBirdCNegTC_05"],
+    "TC_ESignet_AuthorizationCodeSunBirdCNegTC_06": ["TC_ESignet_AuthenticateUserSunBirdCNegTC_39"],
+    "TC_ESignet_AuthorizationCodeSunBirdCNegTC_07": ["TC_ESignet_AuthenticateUserSunBirdCNegTC_40"],
+    "TC_ESignet_AuthorizationCodeSunBirdCNegTC_04": ["TC_ESignet_AuthenticateUserSunBirdCNegTC_37"],
+    "TC_ESignet_AuthorizationCodeSunBirdCNegTC_05": ["TC_ESignet_AuthenticateUserSunBirdCNegTC_38"],
+    "TC_ESignet_AuthorizationCodeSunBirdCNegTC_02": ["TC_ESignet_AuthenticateUserSunBirdCNegTC_35"],
+    "TC_ESignet_AuthorizationCodeSunBirdCNegTC_03": ["TC_ESignet_AuthenticateUserSunBirdCNegTC_36"],
+    "TC_ESignet_UpdateOIDCClientV3_08": ["TC_ESignet_CreateOIDCClientV3_01"],
+    "TC_ESignet_UpdateOIDCClientV3_07": ["TC_ESignet_CreateOIDCClientV3_01"],
+    "TC_ESignet_UpdateOIDCClientV3_06": ["TC_ESignet_CreateOIDCClientV3_01"],
+    "TC_ESignet_UpdateOIDCClientV3_05": ["TC_ESignet_CreateOIDCClientV3_01"],
+    "TC_ESignet_UpdateOIDCClientV3_04": ["TC_ESignet_CreateOIDCClientV3_01"],
+    "TC_ESignet_UpdateOIDCClientV3_03": ["TC_ESignet_CreateOIDCClientV3_01"],
+    "TC_ESignet_UpdateOIDCClientV3_01": ["TC_ESignet_CreateOIDCClientV3_01"],
     "Dependent_Idrepo_GenerateVID_03": ["Dependent_Idrepo_AddIdentity_07"],
     "TC_ESignet_WalletBinding_56": [
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
@@ -1680,7 +3029,10 @@
         "Dependent_Idrepo_GenerateVID_01"
     ],
     "TC_ESignet_GenerateLinkCode_11": ["TC_ESignet_OAuthDetailsRequestLinked_07"],
-    "TC_ESignet_GetOidcUserInfo_01": ["TC_ESignet_GenerateToken_01"],
+    "TC_ESignet_GetOidcUserInfo_01": [
+        "TC_ESignet_Generate_Token_01",
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01"
+    ],
     "Dependent_Idrepo_GenerateVID_04": ["Dependent_Idrepo_AddIdentity_08"],
     "TC_ESignet_WalletBinding_57": [
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
@@ -1689,8 +3041,14 @@
         "Dependent_Idrepo_GenerateVID_01"
     ],
     "TC_ESignet_GenerateLinkCode_10": ["TC_ESignet_OAuthDetailsRequestLinked_07"],
-    "TC_ESignet_OAuthDetailsRequest_09": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_GetOidcUserInfo_02": ["TC_ESignet_GenerateToken_32"],
+    "TC_ESignet_OAuthDetailsRequest_09": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_GetOidcUserInfo_02": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_Generate_Token_32"
+    ],
     "Dependent_Idrepo_GenerateVID_05": ["Dependent_Idrepo_AddIdentity_08"],
     "TC_ESignet_WalletBinding_54": [
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
@@ -1698,7 +3056,10 @@
         "Dependent_Idrepo_AddIdentity_07",
         "Dependent_Idrepo_GenerateVID_01"
     ],
-    "TC_ESignet_OAuthDetailsRequest_08": ["TC_ESignet_CreateOIDCClient_01"],
+    "TC_ESignet_OAuthDetailsRequest_08": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
     "Dependent_Idrepo_GenerateVID_06": ["Dependent_Idrepo_AddIdentity_08"],
     "TC_ESignet_WalletBinding_55": [
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
@@ -1706,7 +3067,10 @@
         "Dependent_Idrepo_AddIdentity_07",
         "Dependent_Idrepo_GenerateVID_01"
     ],
-    "TC_ESignet_OAuthDetailsRequest_07": ["TC_ESignet_CreateOIDCClient_01"],
+    "TC_ESignet_OAuthDetailsRequest_07": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
     "Dependent_Idrepo_GenerateVID_07": ["Dependent_Idrepo_AddIdentity_15"],
     "Dependent_Idrepo_GenerateVID_08": ["Dependent_Idrepo_AddIdentity_09"],
     "Dependent_Idrepo_GenerateVID_09": ["Dependent_Idrepo_AddIdentity_03"],
@@ -1722,67 +3086,80 @@
         "Dependent_Idrepo_AddIdentity_07",
         "Dependent_Idrepo_GenerateVID_01"
     ],
+    "TC_ESignet_GetLinkStatusConsent_08": [
+        "TC_ESignet_LinkTransactionConsent_08",
+        "TC_ESignet_GenerateLinkCodeConsent_07",
+        "TC_ESignet_OAuthDetailsRequestLinkedConsent_09"
+    ],
+    "TC_ESignet_GenerateLinkCode_19": ["TC_ESignet_OAuthDetailsRequestLinked_10"],
+    "TC_ESignet_GetLinkStatusConsent_07": [
+        "TC_ESignet_LinkTransactionConsent_07",
+        "TC_ESignet_OAuthDetailsRequestLinkedConsent_08",
+        "TC_ESignet_GenerateLinkCodeConsent_06"
+    ],
+    "TC_ESignet_GenerateLinkCode_18": ["TC_ESignet_OAuthDetailsRequestLinked_09"],
+    "TC_ESignet_GetLinkStatusConsent_09": [
+        "TC_ESignet_LinkTransactionConsent_09",
+        "TC_ESignet_OAuthDetailsRequestLinkedConsent_10",
+        "TC_ESignet_GenerateLinkCodeConsent_08"
+    ],
+    "TC_ESignet_LinkTransactionConsent_04": ["TC_ESignet_GenerateLinkCodeConsent_04"],
     "TC_ESignet_LinkTransactionConsent_03": ["TC_ESignet_GenerateLinkCodeConsent_03"],
     "Dependent_Idrepo_GenerateVID_01": ["Dependent_Idrepo_AddIdentity_07"],
     "TC_ESignet_LinkTransactionConsent_02": ["TC_ESignet_GenerateLinkCodeConsent_02"],
+    "TC_ESignet_GenerateLinkCode_17": ["TC_ESignet_OAuthDetailsRequestLinked_08"],
     "Dependent_Idrepo_GenerateVID_02": ["Dependent_Idrepo_AddIdentity_07"],
     "TC_ESignet_LinkTransactionConsent_01": ["TC_ESignet_GenerateLinkCodeConsent_01"],
+    "TC_ESignet_LinkTransactionConsent_08": ["TC_ESignet_GenerateLinkCodeConsent_07"],
+    "TC_ESignet_LinkTransactionConsent_07": ["TC_ESignet_GenerateLinkCodeConsent_06"],
+    "TC_ESignet_LinkTransactionConsent_06": ["TC_ESignet_GenerateLinkCodeConsent_05"],
     "TC_ESignet_GetLinkStatusConsent_02": [
-        "ESignet_OAuthDetailsRequest_LinkAuth_Consent_vid_Valid_Smoke_sid",
+        "TC_ESignet_OAuthDetailsRequestLinkedConsent_02",
+        "TC_ESignet_LinkTransactionConsent_02",
         "TC_ESignet_GenerateLinkCodeConsent_02"
     ],
-    "TC_ESignet_GenerateToken_59": [
-        "TC_ESignet_AuthorizationCode_17",
-        "TC_ESignet_CreateOIDCClient_01"
-    ],
+    "TC_ESignet_LinkTransactionConsent_05": ["TC_ESignet_GenerateLinkCodeConsent_05"],
     "TC_ESignet_GetLinkStatusConsent_01": [
-        "ESignet_OAuthDetailsRequest_LinkAuth_Consent_Valid_Smoke_sid",
-        "TC_ESignet_GenerateLinkCodeConsent_01"
+        "TC_ESignet_OAuthDetailsRequestLinkedConsent_01",
+        "TC_ESignet_GenerateLinkCodeConsent_01",
+        "TC_ESignet_LinkTransactionConsent_01"
     ],
-    "TC_ESignet_GenerateToken_58": [
-        "TC_ESignet_AuthorizationCode_17",
-        "TC_ESignet_CreateOIDCClient_01"
-    ],
-    "TC_ESignet_GenerateToken_57": [
-        "TC_ESignet_AuthorizationCode_17",
-        "TC_ESignet_CreateOIDCClient_01"
+    "TC_ESignet_GetLinkStatusConsent_04": [
+        "TC_ESignet_LinkTransactionConsent_04",
+        "TC_ESignet_OAuthDetailsRequestLinkedConsent_05",
+        "TC_ESignet_GenerateLinkCodeConsent_04"
     ],
     "TC_ESignet_GetLinkStatusConsent_03": [
-        "ESignet_OAuthDetailsRequest_LinkAuth_Consent_EmptyClaim_Valid_Smoke_sid",
-        "TC_ESignet_GenerateLinkCodeConsent_03"
+        "TC_ESignet_OAuthDetailsRequestLinkedConsent_03",
+        "TC_ESignet_GenerateLinkCodeConsent_03",
+        "TC_ESignet_LinkTransactionConsent_03"
     ],
-    "TC_ESignet_GenerateToken_56": [
-        "TC_ESignet_AuthorizationCode_17",
-        "TC_ESignet_CreateOIDCClient_01"
+    "TC_ESignet_GetLinkStatusConsent_06": [
+        "TC_ESignet_LinkTransactionConsent_06",
+        "TC_ESignet_GenerateLinkCodeConsent_05",
+        "TC_ESignet_OAuthDetailsRequestLinkedConsent_07"
     ],
-    "TC_ESignet_GenerateToken_55": [
-        "TC_ESignet_AuthorizationCode_17",
-        "TC_ESignet_CreateOIDCClient_01"
+    "TC_ESignet_LinkTransactionConsent_09": ["TC_ESignet_GenerateLinkCodeConsent_08"],
+    "TC_ESignet_GetLinkStatusConsent_05": [
+        "TC_ESignet_LinkTransactionConsent_05",
+        "TC_ESignet_GenerateLinkCodeConsent_05",
+        "TC_ESignet_OAuthDetailsRequestLinkedConsent_06"
     ],
-    "TC_ESignet_GenerateToken_54": [
-        "TC_ESignet_AuthorizationCode_17",
-        "TC_ESignet_CreateOIDCClient_01"
+    "TC_ESignet_OAuthDetailsRequest_13": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
     ],
-    "TC_ESignet_OAuthDetailsRequest_13": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_GenerateToken_53": [
-        "TC_ESignet_AuthorizationCode_17",
-        "TC_ESignet_CreateOIDCClient_01"
+    "TC_ESignet_OAuthDetailsRequest_12": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
     ],
-    "TC_ESignet_OAuthDetailsRequest_12": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_GenerateToken_52": [
-        "TC_ESignet_AuthorizationCode_17",
-        "TC_ESignet_CreateOIDCClient_01"
+    "TC_ESignet_OAuthDetailsRequest_11": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
     ],
-    "TC_ESignet_CreateOIDCClient_21": ["Dependent_Idrepo_definePolicy_01"],
-    "TC_ESignet_OAuthDetailsRequest_11": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_GenerateToken_51": [
-        "TC_ESignet_AuthorizationCode_17",
-        "TC_ESignet_CreateOIDCClient_01"
-    ],
-    "TC_ESignet_OAuthDetailsRequest_10": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_GenerateToken_50": [
-        "TC_ESignet_AuthorizationCode_17",
-        "TC_ESignet_CreateOIDCClient_01"
+    "TC_ESignet_OAuthDetailsRequest_10": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
     ],
     "TC_ESignet_WalletBinding_52": [
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
@@ -1790,64 +3167,105 @@
         "Dependent_Idrepo_AddIdentity_07",
         "Dependent_Idrepo_GenerateVID_01"
     ],
-    "TC_ESignet_OAuthDetailsRequest_17": ["TC_ESignet_CreateOIDCClient_01"],
+    "TC_ESignet_OAuthDetailsRequest_17": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
     "TC_ESignet_WalletBinding_53": [
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
         "Dependent_Idrepo_GenerateApiKey_01",
         "Dependent_Idrepo_AddIdentity_07",
         "Dependent_Idrepo_GenerateVID_01"
     ],
-    "TC_ESignet_OAuthDetailsRequest_16": ["TC_ESignet_CreateOIDCClient_01"],
+    "TC_ESignet_OAuthDetailsRequest_16": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
     "TC_ESignet_WalletBinding_50": [
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
         "Dependent_Idrepo_GenerateApiKey_01",
         "Dependent_Idrepo_GenerateVID_01"
     ],
-    "ESignet_OAuthDetailsRequest_Consent_Invalid_Scen_Smoke_sid": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_15": ["TC_ESignet_CreateOIDCClient_01"],
+    "TC_ESignet_OAuthDetailsRequest_15": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
     "TC_ESignet_WalletBinding_51": [
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
         "Dependent_Idrepo_GenerateApiKey_01",
         "Dependent_Idrepo_AddIdentity_07",
         "Dependent_Idrepo_GenerateVID_01"
     ],
-    "TC_ESignet_OAuthDetailsRequest_14": ["TC_ESignet_CreateOIDCClient_01"],
+    "TC_ESignet_OAuthDetailsRequest_14": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
     "Dependent_Idrepo_GenerateVID_14": ["Dependent_Idrepo_AddIdentity_13"],
+    "TC_ESignet_GenerateLinkCode_22": ["TC_ESignet_OAuthDetailsRequestLinked_13"],
     "Dependent_Idrepo_GenerateVID_15": ["Dependent_Idrepo_AddIdentity_18"],
+    "TC_ESignet_GenerateLinkCode_21": ["TC_ESignet_OAuthDetailsRequestLinked_12"],
     "Dependent_Idrepo_GenerateVID_16": ["Dependent_Idrepo_AddIdentity_21"],
-    "TC_ESignet_OAuthDetailsRequest_19": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_18": ["TC_ESignet_CreateOIDCClient_01"],
+    "TC_ESignet_OAuthDetailsRequest_19": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_GenerateLinkCode_23": ["TC_ESignet_OAuthDetailsRequestLinked_14"],
+    "TC_ESignet_OAuthDetailsRequest_18": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_GenerateLinkCode_20": ["TC_ESignet_OAuthDetailsRequestLinked_11"],
+    "TC_ESignet_GenerateTokenConsent_04": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCodeConsent_04"
+    ],
+    "TC_ESignet_LinkTransactionConsent_10": ["TC_ESignet_GenerateLinkCodeConsent_09"],
+    "TC_ESignet_GenerateTokenConsent_03": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCodeConsent_03"
+    ],
+    "TC_ESignet_GenerateTokenConsent_02": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCodeConsent_02"
+    ],
+    "TC_ESignet_GenerateTokenConsent_01": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_AuthorizationCodeConsent_01"
+    ],
     "Dependent_Idrepo_GenerateVID_10": ["Dependent_Idrepo_AddIdentity_03"],
     "Dependent_Idrepo_GenerateVID_11": ["Dependent_Idrepo_AddIdentity_03"],
     "Dependent_Idrepo_GenerateVID_12": ["Dependent_Idrepo_AddIdentity_17"],
-    "ESignet_AuthenticateUserIDP_Consent_uin_Otp_Invalid_IndividualId_Neg": [
-        "Dependent_Idrepo_AddIdentity_16",
-        "ESignet_OAuthDetailsRequest_Consent_Invalid_Scen_Smoke_sid"
-    ],
     "Dependent_Idrepo_GenerateVID_13": ["Dependent_Idrepo_AddIdentity_12"],
-    "ESignet_OAuthDetailsRequest_Consent_all_Valid_Smoke_sid": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_20": ["TC_ESignet_CreateOIDCClient_01"],
-    "ESignet_AuthenticateUserIDP_Consent_uin_Otp_Valid_Smoke": [
-        "ESignet_OAuthDetailsRequest_Consent_all_Valid_Smoke_sid",
-        "Dependent_Idrepo_AddIdentity_16"
+    "TC_ESignet_GetLinkStatusConsent_10": [
+        "TC_ESignet_OAuthDetailsRequestLinkedConsent_11",
+        "TC_ESignet_GenerateLinkCodeConsent_09",
+        "TC_ESignet_LinkTransactionConsent_10"
     ],
-    "TC_ESignet_OAuthDetailsRequest_24": ["TC_ESignet_CreateOIDCClient_01"],
+    "TC_ESignet_OAuthDetailsRequest_20": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_24": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
     "TC_ESignet_WalletBinding_60": [
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
         "Dependent_Idrepo_GenerateApiKey_01",
         "Dependent_Idrepo_AddIdentity_07",
         "Dependent_Idrepo_GenerateVID_01"
     ],
-    "TC_ESignet_OAuthDetailsRequest_23": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_22": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_GenerateToken_62": [
-        "TC_ESignet_AuthorizationCode_17",
-        "TC_ESignet_CreateOIDCClient_01"
+    "TC_ESignet_OAuthDetailsRequest_23": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
     ],
-    "TC_ESignet_OAuthDetailsRequest_21": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_GenerateToken_61": [
-        "TC_ESignet_AuthorizationCode_17",
-        "TC_ESignet_CreateOIDCClient_01"
+    "TC_ESignet_OAuthDetailsRequest_22": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_21": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
     ],
     "TC_ESignet_WalletBinding_63": [
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
@@ -1855,10 +3273,9 @@
         "Dependent_Idrepo_AddIdentity_07",
         "Dependent_Idrepo_GenerateVID_01"
     ],
-    "TC_ESignet_OAuthDetailsRequest_28": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_GenerateToken_60": [
-        "TC_ESignet_AuthorizationCode_17",
-        "TC_ESignet_CreateOIDCClient_01"
+    "TC_ESignet_OAuthDetailsRequest_28": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
     ],
     "TC_ESignet_WalletBinding_64": [
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
@@ -1866,74 +3283,48 @@
         "Dependent_Idrepo_AddIdentity_07",
         "Dependent_Idrepo_GenerateVID_01"
     ],
-    "TC_ESignet_OAuthDetailsRequest_27": ["TC_ESignet_CreateOIDCClient_01"],
+    "TC_ESignet_OAuthDetailsRequest_27": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
     "TC_ESignet_WalletBinding_61": [
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
         "Dependent_Idrepo_GenerateApiKey_01",
         "Dependent_Idrepo_AddIdentity_07",
         "Dependent_Idrepo_GenerateVID_01"
     ],
-    "TC_ESignet_OAuthDetailsRequest_26": ["TC_ESignet_CreateOIDCClient_01"],
+    "TC_ESignet_OAuthDetailsRequest_26": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
     "TC_ESignet_WalletBinding_62": [
         "Dependent_Idrepo_createPartnerSelfRegistration_01",
         "Dependent_Idrepo_GenerateApiKey_01",
         "Dependent_Idrepo_AddIdentity_07",
         "Dependent_Idrepo_GenerateVID_01"
     ],
-    "TC_ESignet_OAuthDetailsRequest_25": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_GenerateToken_29": [
-        "TC_ESignet_AuthorizationCode_01",
-        "TC_ESignet_CreateOIDCClient_01"
+    "TC_ESignet_OAuthDetailsRequest_25": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
     ],
-    "TC_ESignet_GenerateToken_39": [
-        "TC_ESignet_AuthorizationCode_17",
-        "TC_ESignet_CreateOIDCClient_01"
-    ],
-    "TC_ESignet_GenerateToken_38": [
-        "TC_ESignet_AuthorizationCode_17",
-        "TC_ESignet_CreateOIDCClient_01"
-    ],
-    "TC_ESignet_UpdateOIDCClientV2_06": ["TC_ESignet_CreateOIDCClientV2_01"],
-    "TC_ESignet_GenerateToken_37": [
-        "TC_ESignet_AuthorizationCode_17",
-        "TC_ESignet_CreateOIDCClient_01"
-    ],
-    "TC_ESignet_UpdateOIDCClientV2_05": ["TC_ESignet_CreateOIDCClientV2_01"],
-    "TC_ESignet_GenerateToken_36": ["TC_ESignet_AuthorizationCode_17"],
-    "TC_ESignet_UpdateOIDCClientV2_04": ["TC_ESignet_CreateOIDCClientV2_01"],
+    "TC_ESignet_OauthDPoP_01": ["TC_ESignet_CreateOIDCClient_MOSIPID_25"],
     "TC_ESignet_LinkAuthorizationCodeConsent_02": [
-        "ESignet_OAuthDetailsRequest_LinkAuth_Consent_vid_Valid_Smoke_sid",
+        "TC_ESignet_OAuthDetailsRequestLinkedConsent_02",
+        "TC_ESignet_LinkedAuthConsent_02",
         "TC_ESignet_GenerateLinkCodeConsent_02"
     ],
-    "TC_ESignet_GenerateToken_35": ["TC_ESignet_AuthorizationCode_17"],
-    "TC_ESignet_UpdateOIDCClientV2_03": ["TC_ESignet_CreateOIDCClientV2_01"],
     "TC_ESignet_LinkAuthorizationCodeConsent_01": [
-        "ESignet_OAuthDetailsRequest_LinkAuth_Consent_Valid_Smoke_sid",
+        "TC_ESignet_OAuthDetailsRequestLinkedConsent_01",
+        "TC_ESignet_LinkedAuthConsent_01",
         "TC_ESignet_GenerateLinkCodeConsent_01"
-    ],
-    "TC_ESignet_GenerateToken_34": ["TC_ESignet_AuthorizationCode_17"],
-    "TC_ESignet_UpdateOIDCClientV2_02": ["TC_ESignet_CreateOIDCClientV2_01"],
-    "TC_ESignet_GenerateToken_33": ["TC_ESignet_AuthorizationCode_17"],
-    "TC_ESignet_UpdateOIDCClientV2_01": ["TC_ESignet_CreateOIDCClientV2_01"],
-    "TC_ESignet_GenerateToken_32": [
-        "TC_ESignet_AuthorizationCode_17",
-        "TC_ESignet_CreateOIDCClient_01"
     ],
     "TC_ESignet_BioAuth_21": [
         "Dependent_Idrepo_GenerateVID_04",
         "TC_ESignet_OAuthDetailsRequest_30"
     ],
-    "TC_ESignet_GenerateToken_31": [
-        "TC_ESignet_AuthorizationCode_01",
-        "TC_ESignet_CreateOIDCClient_01"
-    ],
     "TC_ESignet_BioAuth_22": [
         "Dependent_Idrepo_GenerateVID_04",
         "TC_ESignet_OAuthDetailsRequest_31"
-    ],
-    "TC_ESignet_GenerateToken_30": [
-        "TC_ESignet_AuthorizationCode_01",
-        "TC_ESignet_CreateOIDCClient_01"
     ],
     "TC_ESignet_BioAuth_23": [
         "Dependent_Idrepo_GenerateVID_04",
@@ -1976,66 +3367,96 @@
     "TC_ESignet_GenerateLinkCode_08": ["TC_ESignet_OAuthDetailsRequestLinked_07"],
     "TC_ESignet_GenerateLinkCode_07": ["TC_ESignet_OAuthDetailsRequestLinked_07"],
     "TC_ESignet_GenerateLinkCode_09": ["TC_ESignet_OAuthDetailsRequestLinked_07"],
+    "TC_ESignet_AuthenticateConsentNoCapture_01": [
+        "TC_ESignet_OAuthDetailsRequestConsentNoCapture_01",
+        "Dependent_Idrepo_AddIdentity_45"
+    ],
     "TC_ESignet_GenerateLinkCode_04": ["TC_ESignet_OAuthDetailsRequestLinked_04"],
     "TC_ESignet_GenerateLinkCode_03": ["TC_ESignet_OAuthDetailsRequestLinked_03"],
     "TC_ESignet_GenerateLinkCode_06": ["TC_ESignet_OAuthDetailsRequestLinked_06"],
     "TC_ESignet_GenerateLinkCode_05": ["TC_ESignet_OAuthDetailsRequestLinked_05"],
-    "Dependent_Idrepo_uploadPartnerCert_05": ["Dependent_Idrepo_createPartnerSelfRegistration_05"],
-    "Dependent_Idrepo_uploadPartnerCert_04": ["Dependent_Idrepo_createPartnerSelfRegistration_04"],
-    "TC_ESignet_GenerateToken_49": [
-        "TC_ESignet_AuthorizationCode_17",
-        "TC_ESignet_CreateOIDCClient_01"
+    "Dependent_Idrepo_uploadPartnerCert_05": [
+        "Dependent_Idrepo_uploadCACert_10",
+        "Dependent_Idrepo_createPartnerSelfRegistration_05",
+        "Dependent_Idrepo_uploadCACert_09"
     ],
-    "Dependent_Idrepo_uploadPartnerCert_03": ["Dependent_Idrepo_createPartnerSelfRegistration_03"],
-    "TC_ESignet_GenerateToken_48": [
-        "TC_ESignet_AuthorizationCode_17",
-        "TC_ESignet_CreateOIDCClient_01"
+    "Dependent_Idrepo_uploadPartnerCert_04": [
+        "Dependent_Idrepo_createPartnerSelfRegistration_04",
+        "Dependent_Idrepo_uploadCACert_07",
+        "Dependent_Idrepo_uploadCACert_08"
     ],
-    "Dependent_Idrepo_uploadPartnerCert_02": ["Dependent_Idrepo_createPartnerSelfRegistration_02"],
-    "TC_ESignet_GenerateToken_47": [
-        "TC_ESignet_AuthorizationCode_17",
-        "TC_ESignet_CreateOIDCClient_01"
+    "Dependent_Idrepo_uploadPartnerCert_03": [
+        "Dependent_Idrepo_createPartnerSelfRegistration_03",
+        "Dependent_Idrepo_uploadCACert_05",
+        "Dependent_Idrepo_uploadCACert_06"
     ],
-    "TC_ESignet_GenerateToken_46": ["TC_ESignet_CreateOIDCClient_01"],
-    "Dependent_Idrepo_uploadPartnerCert_08": ["Dependent_Idrepo_createPartnerSelfRegistration_08"],
-    "TC_ESignet_GenerateToken_45": ["TC_ESignet_CreateOIDCClient_01"],
-    "Dependent_Idrepo_uploadPartnerCert_07": ["Dependent_Idrepo_createPartnerSelfRegistration_07"],
-    "TC_ESignet_GenerateToken_44": ["TC_ESignet_CreateOIDCClient_01"],
-    "Dependent_Idrepo_uploadPartnerCert_06": ["Dependent_Idrepo_createPartnerSelfRegistration_06"],
-    "TC_ESignet_GenerateToken_43": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_02": ["TC_ESignet_CreateOIDCClient_01"],
+    "Dependent_Idrepo_uploadPartnerCert_02": [
+        "Dependent_Idrepo_createPartnerSelfRegistration_02",
+        "Dependent_Idrepo_uploadCACert_03",
+        "Dependent_Idrepo_uploadCACert_04"
+    ],
+    "TC_ESignet_OAuthDetailsRequestV3VerifiedClaims_01": ["TC_ESignet_CreateOIDCClient_MOSIPID_26"],
+    "Dependent_Idrepo_uploadPartnerCert_08": [
+        "Dependent_Idrepo_uploadCACert_16",
+        "Dependent_Idrepo_uploadCACert_15",
+        "Dependent_Idrepo_createPartnerSelfRegistration_08"
+    ],
+    "TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_27": ["TC_ESignet_CreateOIDCClient_MOSIPID_28"],
+    "Dependent_Idrepo_uploadPartnerCert_07": [
+        "Dependent_Idrepo_uploadCACert_14",
+        "Dependent_Idrepo_uploadCACert_13",
+        "Dependent_Idrepo_createPartnerSelfRegistration_07"
+    ],
+    "TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_26": ["TC_ESignet_CreateOIDCClient_MOSIPID_28"],
+    "Dependent_Idrepo_uploadPartnerCert_06": [
+        "Dependent_Idrepo_uploadCACert_12",
+        "Dependent_Idrepo_uploadCACert_11",
+        "Dependent_Idrepo_createPartnerSelfRegistration_06"
+    ],
+    "TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_25": ["TC_ESignet_CreateOIDCClient_MOSIPID_28"],
+    "TC_ESignet_OAuthDetailsRequest_02": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
     "TC_ESignet_BioAuth_10": [
         "Dependent_Idrepo_AddIdentity_14",
         "TC_ESignet_OAuthDetailsRequest_18"
     ],
-    "TC_ESignet_GenerateToken_42": [
-        "TC_ESignet_AuthorizationCode_17",
-        "TC_ESignet_CreateOIDCClient_01"
+    "TC_ESignet_OAuthDetailsRequest_01": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
     ],
-    "TC_ESignet_OAuthDetailsRequest_01": ["TC_ESignet_CreateOIDCClient_01"],
     "TC_ESignet_BioAuth_11": [
         "Dependent_Idrepo_AddIdentity_14",
         "TC_ESignet_OAuthDetailsRequest_19"
-    ],
-    "TC_ESignet_GenerateToken_41": [
-        "TC_ESignet_AuthorizationCode_17",
-        "TC_ESignet_CreateOIDCClient_01"
     ],
     "TC_ESignet_BioAuth_12": [
         "Dependent_Idrepo_AddIdentity_14",
         "TC_ESignet_OAuthDetailsRequest_20"
     ],
-    "TC_ESignet_GenerateToken_40": [
-        "TC_ESignet_AuthorizationCode_17",
-        "TC_ESignet_CreateOIDCClient_01"
-    ],
     "TC_ESignet_BioAuth_13": [
         "Dependent_Idrepo_GenerateVID_04",
         "TC_ESignet_OAuthDetailsRequest_22"
     ],
-    "Dependent_Idrepo_uploadPartnerCert_01": ["Dependent_Idrepo_createPartnerSelfRegistration_01"],
-    "TC_ESignet_OAuthDetailsRequest_06": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_05": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_04": ["TC_ESignet_CreateOIDCClient_01"],
-    "TC_ESignet_OAuthDetailsRequest_03": ["TC_ESignet_CreateOIDCClient_01"]
+    "Dependent_Idrepo_uploadPartnerCert_01": [
+        "Dependent_Idrepo_uploadCACert_01",
+        "Dependent_Idrepo_createPartnerSelfRegistration_01",
+        "Dependent_Idrepo_uploadCACert_02"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_06": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_05": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_04": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
+    "TC_ESignet_OAuthDetailsRequest_03": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ]
 }

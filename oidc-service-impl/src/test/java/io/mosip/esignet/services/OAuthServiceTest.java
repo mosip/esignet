@@ -418,7 +418,7 @@ public class OAuthServiceTest {
         Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
 
         EsignetException ex = Assertions.assertThrows(EsignetException.class, () -> oAuthService.getTokens(tokenRequest, null, false));
-        Assertions.assertEquals(INVALID_CLIENT_ID, ex.getErrorCode());
+        Assertions.assertEquals(INVALID_CLIENT, ex.getErrorCode());
     }
 
     @Test

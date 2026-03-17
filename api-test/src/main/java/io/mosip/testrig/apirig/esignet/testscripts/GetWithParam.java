@@ -21,6 +21,9 @@ import org.testng.annotations.Test;
 import org.testng.internal.BaseTestMethod;
 import org.testng.internal.TestResult;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
+
 import io.mosip.testrig.apirig.dto.OutputValidationDto;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.esignet.utils.EsignetConfigManager;
@@ -31,6 +34,7 @@ import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
+import io.mosip.testrig.apirig.utils.GlobalMethods;
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;
 import io.mosip.testrig.apirig.utils.ReportUtil;
 import io.mosip.testrig.apirig.utils.SecurityXSSException;
@@ -175,17 +179,46 @@ public class GetWithParam extends EsignetUtil implements ITest {
 				response = getWithPathParamAndCookie(ApplnURI + testCaseDTO.getEndPoint(), inputJson, auditLogCheck,
 						COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), sendEsignetToken);
 			}
+			
+			String responseBody = response.asString();
 			Map<String, List<OutputValidationDto>> ouputValid = null;
+
+			String outputJson = getJsonFromTemplate(testCaseDTO.getOutput(), testCaseDTO.getOutputTemplate());
+
+			if (outputJson != null) {
+				outputJson = EsignetUtil.inputstringKeyWordHandeler(outputJson, testCaseName);
+			}
+
 			if (testCaseName.contains("_StatusCode")) {
 
 				OutputValidationDto customResponse = customStatusCodeResponse(String.valueOf(response.getStatusCode()),
 						testCaseDTO.getOutput());
-
 				ouputValid = new HashMap<>();
 				ouputValid.put(GlobalConstants.EXPECTED_VS_ACTUAL, List.of(customResponse));
+			} else if (testCaseName.contains("_GetUserInfoJWS_")) {
+
+				if (responseBody == null || responseBody.isEmpty()) {
+					throw new AdminTestException("Response body is empty");
+				}
+
+				String finalJsonString = AdminTestUtil.decodeAndCombineJwt(responseBody);
+
+				if (finalJsonString == null) {
+					throw new AdminTestException("Failed to decode JWS response");
+				}
+
+				DecodedJWT jwt = JWT.decode(responseBody);
+				String headerJson = AdminTestUtil.decodeBase64Url(jwt.getHeader());
+				String payloadJson = AdminTestUtil.decodeBase64Url(jwt.getPayload());
+
+				GlobalMethods.reportResponse(headerJson, null, payloadJson, true);
+
+				ouputValid = OutputValidationUtil.doJsonOutputValidation(finalJsonString, outputJson, testCaseDTO,
+						response.getStatusCode());
+
 			} else {
-				ouputValid = OutputValidationUtil.doJsonOutputValidation(response.asString(),
-						getJsonFromTemplate(testCaseDTO.getOutput(), testCaseDTO.getOutputTemplate()), testCaseDTO,
+
+				ouputValid = OutputValidationUtil.doJsonOutputValidation(response.asString(), outputJson, testCaseDTO,
 						response.getStatusCode());
 			}
 

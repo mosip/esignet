@@ -1,5 +1,5 @@
 GetOidcUserInfoLinkedConsent:
-   ESignet_GetOidcUserInfo_LinkedConsent_uin_IdpAccessToken_StatusCode_Valid_Smoke_sid:
+   ESignet_GetOidcUserInfo_LinkedConsent_uin_IdpAccessToken_GetUserInfoJWS_Valid_Smoke_sid:
       endPoint: /v1/esignet/oidc/userinfo
       uniqueIdentifier: TC_ESignet_GetOidcUserInfoLinkedConsent_01
       description: Get OIDC user info for linked consent UIN with all valid details
@@ -11,9 +11,10 @@ GetOidcUserInfoLinkedConsent:
       input: '{
       	"idpAccessToken": "$ID:GenerateToken_LinkedConsent_uin_Valid_Smoke_sid_access_token$"
 }'
-      output: "200"
-      
-   ESignet_GetOidcUserInfo_LinkedConsent_Vid_IdpAccessToken_StatusCode_Valid_Smoke_sid:
+      output: '{
+        "aud": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$"
+}'
+   ESignet_GetOidcUserInfo_LinkedConsent_Vid_IdpAccessToken_GetUserInfoJWS_Valid_Smoke_sid:
       endPoint: /v1/esignet/oidc/userinfo
       uniqueIdentifier: TC_ESignet_GetOidcUserInfoLinkedConsent_02
       description: Get OIDC user info for linked consent VID with all valid details
@@ -25,4 +26,6 @@ GetOidcUserInfoLinkedConsent:
       input: '{
       	"idpAccessToken": "$ID:GenerateToken_LinkedConsent_Vid_Valid_Smoke_sid_access_token$"
 }'
-      output: "200"
+      output: '{
+        "aud": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$"
+}'
