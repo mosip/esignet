@@ -94,7 +94,6 @@ public class OAuthDetailRequest {
     private String dpopJkt;
 
     /**
-     * Optional
      * The `request` parameter is not supported in this implementation.
      */
     @Null(message = ErrorConstants.REQUEST_NOT_SUPPORTED)
