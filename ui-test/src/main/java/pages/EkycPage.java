@@ -18,34 +18,34 @@ public class EkycPage extends BasePage {
 	WebElement ekycProcessStepsScreenLabel;
 
 	@FindBy(id = "step-label-0")
-	WebElement step1Title;
+	WebElement eKycStep1Title;
 
 	@FindBy(id = "step-description-0")
-	WebElement step1Subtitle;
+	WebElement eKycStep1Subtitle;
 
 	@FindBy(id = "step-label-1")
-	WebElement step2Title;
+	WebElement eKycStep2Title;
 
 	@FindBy(id = "step-description-1")
-	WebElement step2Subtitle;
+	WebElement eKycStep2Subtitle;
 	
 	public boolean isEkycProcessStepsScreenLabelDisplayed() {
 		return isElementVisible(ekycProcessStepsScreenLabel);
 	}
 
-	public boolean isVerifyStep1TitleChooseEkycProvider() {
-		return isElementVisible(step1Title);
+	public boolean isEkycStep1TitleChooseEkycProvider() {
+		return isElementVisible(eKycStep1Title);
 	}
 
-	public boolean isVerifyStep1Subtitle() {
-		return isElementVisible(step1Subtitle);
+	public boolean isEkycStep1Subtitle() {
+		return isElementVisible(eKycStep1Subtitle);
 	}
 
-	public boolean isVerifyStep2TitleChooseEkycProvider() {
-		return isElementVisible(step2Title);
+	public boolean isEkycStep2TitleTermsAndConditions() {
+		return isElementVisible(eKycStep2Title);
 	}
 
-	public boolean isVerifyStep2Subtitle() {
-		return isElementVisible(step2Subtitle);
+	public boolean isEkycStep2Subtitle() {
+		return isElementVisible(eKycStep2Subtitle);
 	}
 }

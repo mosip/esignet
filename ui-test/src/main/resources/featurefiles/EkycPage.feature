@@ -2,7 +2,7 @@
 Feature: Esignet eKyc Page
   This feature file is for verifying the eKyc page  
 
-  @smoke @eKYCOptionsPageVerification
+  @smoke @eKycStepsPageVerification
   Scenario Outline: Verify eKYC process steps screen content
    When Click on Language selection option
    And Select the mandatory language
@@ -17,7 +17,7 @@ Feature: Esignet eKyc Page
    Then Verify user navigate to eKYC Process Steps screen
    And Verify the title of step 1 is Choose an eKYC provider
    And Verify that the subtitle of step 1 is displayed in eKYC Process Steps screen
-   And Verify the title of step 2 is Choose an eKYC provider
+   And Verify the title of step 2 is Terms And Conditions
    And Verify that the subtitle of step 2 is displayed in eKYC Process Steps screen
 
 Examples:
