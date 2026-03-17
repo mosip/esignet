@@ -92,7 +92,7 @@ Examples:
    And verify user is navigated to consent screen
    
    Then user verify the header of essential claims
-   And verify list of voluntary claims are present 
+   And verify list of essential claims are present 
    
    And user verify the action message in consent screen
    And user verify the timer is displayed in consent screen

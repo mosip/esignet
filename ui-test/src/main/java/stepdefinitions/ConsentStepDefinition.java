@@ -334,7 +334,7 @@ public class ConsentStepDefinition {
 		assertTrue(consentPage.isEssentialClaimsHeaderDisplayed());
 	}
 
-	@Then("verify list of voluntary claims are present")
+	@Then("verify list of essential claims are present")
 	public void verifyTheEssentialClaimsList() {
 		assertTrue(consentPage.isEssentialClaimsListDisplayed());
 	}
