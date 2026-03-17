@@ -1,4 +1,4 @@
-#@smokeAndRegression
+@smokeAndRegression
 Feature: Esignet eKyc Page
   This feature file is for verifying the eKyc page  
 
@@ -14,11 +14,11 @@ Feature: Esignet eKyc Page
    
    Then verify consent should ask user to proceed in attention page
    And clicks on proceed button in attention page
-   Then Verify user navigate to eKYC Process Steps screen
-   And Verify the title of step 1 is Choose an eKYC provider
-   And Verify that the subtitle of step 1 is displayed in eKYC Process Steps screen
-   And Verify the title of step 2 is Terms And Conditions
-   And Verify that the subtitle of step 2 is displayed in eKYC Process Steps screen
+   Then verify user navigate to eKYC Process Steps screen
+   And user verify the title of step 1 is Choose an eKYC provider
+   And user verify that the subtitle of step 1 is displayed in eKYC Process Steps screen
+   And user verify the title of step 2 is Terms And Conditions
+   And user verify that the subtitle of step 2 is displayed in eKYC Process Steps screen
 
 Examples:
   | correct Otp  |

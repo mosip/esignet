@@ -28,24 +28,24 @@ public class EkycPage extends BasePage {
 
 	@FindBy(id = "step-description-1")
 	WebElement eKycStep2Subtitle;
-	
+
 	public boolean isEkycProcessStepsScreenLabelDisplayed() {
 		return isElementVisible(ekycProcessStepsScreenLabel);
 	}
 
-	public boolean isEkycStep1TitleChooseEkycProvider() {
+	public boolean isEkycStep1TitleChooseEkycProviderDisplayed() {
 		return isElementVisible(eKycStep1Title);
 	}
 
-	public boolean isEkycStep1Subtitle() {
+	public boolean isEkycStep1SubtitleDisplayed() {
 		return isElementVisible(eKycStep1Subtitle);
 	}
 
-	public boolean isEkycStep2TitleTermsAndConditions() {
+	public boolean isEkycStep2TitleTermsAndConditionsDisplayed() {
 		return isElementVisible(eKycStep2Title);
 	}
 
-	public boolean isEkycStep2Subtitle() {
+	public boolean isEkycStep2SubtitleDisplayed() {
 		return isElementVisible(eKycStep2Subtitle);
 	}
 }
