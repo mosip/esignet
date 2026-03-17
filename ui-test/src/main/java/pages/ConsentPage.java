@@ -193,7 +193,7 @@ public class ConsentPage extends BasePage {
 	}
 
 	public void waitUntilLivenessCheckCompletes() {
-		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(200));
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(120));
 		wait.until(ExpectedConditions.visibilityOf(allowButtonInConsentScreen));
 	}
 
