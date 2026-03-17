@@ -328,4 +328,25 @@ public class ConsentStepDefinition {
 		Assert.assertTrue(afterRefresh <= beforeRefresh && (beforeRefresh - afterRefresh) <= 2,
 				"Timer should persist after refresh within 2 seconds tolerance");
 	}
+
+	@Then("user verify the header of essential claims")
+	public void verifyTheEssentialClaimsHeader() {
+		assertTrue(consentPage.isEssentialClaimsHeaderDisplayed());
+	}
+
+	@Then("verify list of voluntary claims are present")
+	public void verifyTheEssentialClaimsList() {
+		assertTrue(consentPage.isEssentialClaimsListDisplayed());
+	}
+
+	@Then("user verify the action message in consent screen")
+	public void verifyTheActionMessage() {
+		assertTrue(consentPage.isActionMessageDisplayed());
+	}
+
+	@Then("user verify the timer is displayed in consent screen")
+	public void verifyTheTimerInConsentScreen() {
+		assertTrue(consentPage.isTimerDisplayed());
+	}
+
 }

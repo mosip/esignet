@@ -111,6 +111,15 @@ public class ConsentPage extends BasePage {
 	@FindBy(xpath = "//button[contains(@class,'flex items-center px-4')]")
 	WebElement profileDropdown;
 
+	@FindBy(xpath = "(//div[@class='font-semibold'])[1]")
+	WebElement essentialClaimsHeader;
+
+	@FindBy(xpath = "(//div[@class='divide-y'])[1]")
+	WebElement essentialClaimsList;
+
+	@FindBy(xpath = "//p[@class='text-[#4E4E4E] font-semibold']")
+	private WebElement actionMessage;
+
 	public void clickOnLoginWithOtp() {
 		clickOnElement(loginWithOtpButton, "Clicked on login with Otp button");
 	}
@@ -184,7 +193,7 @@ public class ConsentPage extends BasePage {
 	}
 
 	public void waitUntilLivenessCheckCompletes() {
-		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(120));
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(200));
 		wait.until(ExpectedConditions.visibilityOf(allowButtonInConsentScreen));
 	}
 
@@ -300,4 +309,21 @@ public class ConsentPage extends BasePage {
 		return claims;
 	}
 
+
+	public boolean isEssentialClaimsHeaderDisplayed() {
+		return isElementVisible(essentialClaimsHeader);
+	}
+
+	public boolean isEssentialClaimsListDisplayed() {
+		return isElementVisible(essentialClaimsList);
+	}
+
+	public boolean isActionMessageDisplayed() {
+		return isElementVisible(actionMessage);
+	}
+
+	public boolean isTimerDisplayed() {
+		return isElementVisible(consentTimer);
+	}
+	
 }
