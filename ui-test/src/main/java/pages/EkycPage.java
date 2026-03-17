@@ -40,22 +40,22 @@ public class EkycPage extends BasePage {
 	WebElement step2Subtitle;
 	
 	public boolean isEkycProcessStepsScreenLabelDisplayed() {
-		return isElementDisplayed(ekycProcessStepsScreenLabel);
+		return isElementVisible(ekycProcessStepsScreenLabel);
 	}
 
 	public boolean isVerifyStep1TitleChooseEkycProvider() {
-		return isElementDisplayed(step1Title);
+		return isElementVisible(step1Title);
 	}
 
 	public boolean isVerifyStep1Subtitle() {
-		return isElementDisplayed(step1Subtitle);
+		return isElementVisible(step1Subtitle);
 	}
 
 	public boolean isVerifyStep2TitleChooseEkycProvider() {
-		return isElementDisplayed(step2Title);
+		return isElementVisible(step2Title);
 	}
 
 	public boolean isVerifyStep2Subtitle() {
-		return isElementDisplayed(step2Subtitle);
+		return isElementVisible(step2Subtitle);
 	}
 }

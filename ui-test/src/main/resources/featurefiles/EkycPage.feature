@@ -3,7 +3,7 @@ Feature: Esignet eKyc Page
   This feature file is for verifying the eKyc page  
 
   @smoke @eKYCOptionsPageVerification
-  Scenario Outline: Verifying Toggle button in consent screen
+  Scenario Outline: Verify eKYC process steps screen content
    When Click on Language selection option
    And Select the mandatory language
    And user click on Login with Otp
