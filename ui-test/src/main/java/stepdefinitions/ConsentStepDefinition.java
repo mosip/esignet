@@ -312,7 +312,7 @@ public class ConsentStepDefinition {
 	@Then("verify the timer starts from 55sec in the consent page via Otp login")
 	public void verifyConsentPageTimer() {
 		int seconds = consentPage.getConsentTimerSeconds();
-		Assert.assertTrue(+seconds >= 54 && seconds <= 56, "Timer should start around 55 seconds, but was: " + seconds);
+		Assert.assertTrue(seconds >= 54 && seconds <= 56, "Timer should start around 55 seconds, but was: " + seconds);
 	}
 
 	@Then("refresh the browser tab and verify timer continue with leftover seconds")
@@ -325,7 +325,7 @@ public class ConsentStepDefinition {
 		int afterRefresh = consentPage.getConsentTimerSeconds();
 		logger.info("Timer after refresh: " + afterRefresh + " seconds");
 
-		Assert.assertTrue(+afterRefresh <= beforeRefresh && (beforeRefresh - afterRefresh) <= 2,
+		Assert.assertTrue(afterRefresh <= beforeRefresh && (beforeRefresh - afterRefresh) <= 2,
 				"Timer should persist after refresh within 2 seconds tolerance");
 	}
 }
