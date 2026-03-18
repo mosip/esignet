@@ -331,22 +331,24 @@ public class ConsentStepDefinition {
 
 	@Then("user verify the header of essential claims")
 	public void verifyTheEssentialClaimsHeader() {
-		assertTrue("The header of the essential is not displayed",consentPage.isEssentialClaimsHeaderDisplayed());
+		Assert.assertTrue(consentPage.isEssentialClaimsHeaderDisplayed(),
+				"The header of the essential is not displayed");
 	}
 
 	@Then("user verify the list of essential claims are present")
 	public void verifyTheEssentialClaimsList() {
-		assertTrue("No essential claims were rendered on the consent screen",consentPage.isEssentialClaimsListDisplayed());
+		Assert.assertTrue(consentPage.isEssentialClaimsListDisplayed(),
+				"No essential claims were rendered on the consent screen");
 	}
 
 	@Then("user verify the action message in consent screen")
 	public void verifyTheActionMessage() {
-		assertTrue("The action message in the consent screen is not displayed",consentPage.isActionMessageDisplayed());
+		Assert.assertTrue(consentPage.isActionMessageDisplayed(),
+				"The action message in the consent screen is not displayed");
 	}
 
 	@Then("user verify the timer is displayed in consent screen")
 	public void verifyTheTimerInConsentScreen() {
-		assertTrue("The timer is not displayed in the consent screen",consentPage.isTimerDisplayed());
+		Assert.assertTrue(consentPage.isTimerDisplayed(), "The timer is not displayed in the consent screen");
 	}
-
 }
