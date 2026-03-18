@@ -18,8 +18,8 @@ Feature: Esignet Consent Page
   @smoke @ToggleButtonInConsentPage
   Scenario Outline: Verifying Toggle button in consent screen
    Given user captures the authorize url
-   When Click on Language selection option
-   And Select the mandatory language
+   When click on Language selection option
+   And select the mandatory language
    And user click on Login with Otp
    Then user enters Registered mobile number into the mobile number field
    And user click on get otp button
@@ -42,8 +42,8 @@ Feature: Esignet Consent Page
    And user clicks on language dropdown button
    And user selects arabic language
    Then verify screen is displayed in RTL format
-   When Click on Language selection option
-   And Select the mandatory language
+   When click on Language selection option
+   And select the mandatory language
    And verify the tooltip message for Voluntary Claims info icon
    Then verify essential claims are listed separately
    And verify voluntary claims are listed separately
