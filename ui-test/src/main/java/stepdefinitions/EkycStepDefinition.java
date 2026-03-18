@@ -1,6 +1,6 @@
 package stepdefinitions;
 
-import static org.junit.Assert.assertTrue;
+import org.testng.Assert;
 
 import org.openqa.selenium.WebDriver;
 import org.apache.log4j.Logger;
@@ -22,27 +22,26 @@ public class EkycStepDefinition {
 
 	@Then("verify user navigate to eKYC Process Steps screen")
 	public void verifyUserNavigateToEKycProcessStepsScreen() {
-		assertTrue("User didn't navigated to eKYC Process Steps screen",
-				ekycPage.isEkycProcessStepsScreenLabelDisplayed());
+		Assert.assertTrue(ekycPage.isEkycProcessStepsScreenLabelDisplayed(), "User didn't navigated to eKYC Process Steps screen");
 	}
 
 	@Then("user verify the title of step 1 is Choose an eKYC provider")
 	public void userVerifyTitleOfStep1IsChooseEkycProvider() {
-		assertTrue("Title of the ekyc step 1 not displayed", ekycPage.isEkycStep1TitleChooseEkycProviderDisplayed());
+		Assert.assertTrue(ekycPage.isEkycStep1TitleChooseEkycProviderDisplayed(), "Title of the ekyc step 1 not displayed");
 	}
 
 	@Then("user verify that the subtitle of step 1 is displayed in eKYC Process Steps screen")
 	public void userVerifyTheSubtitleOfStep1() {
-		assertTrue("Subtitle of the ekyc step 1 not displayed", ekycPage.isEkycStep1SubtitleDisplayed());
+		Assert.assertTrue(ekycPage.isEkycStep1SubtitleDisplayed(), "Subtitle of the ekyc step 1 not displayed");
 	}
 
 	@Then("user verify the title of step 2 is Terms And Conditions")
 	public void userVerifyTitleOfStep2IsTermsAndConditions() {
-		assertTrue("Title of the ekyc step 2 not displayed", ekycPage.isEkycStep2TitleTermsAndConditionsDisplayed());
+		Assert.assertTrue(ekycPage.isEkycStep2TitleTermsAndConditionsDisplayed(), "Title of the ekyc step 2 not displayed");
 	}
 
 	@Then("user verify that the subtitle of step 2 is displayed in eKYC Process Steps screen")
 	public void userVerifyTheSubtitleOfStep2() {
-		assertTrue("Subtitle of the ekyc step 2 not displayed", ekycPage.isEkycStep2SubtitleDisplayed());
+		Assert.assertTrue(ekycPage.isEkycStep2SubtitleDisplayed(), "Subtitle of the ekyc step 2 not displayed");
 	}
 }
