@@ -291,6 +291,33 @@ public class AuthorizationControllerTest {
     }
 
     @Test
+    public void getOauthDetails_withRequestParameter_returnErrorResponse() throws Exception {
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        oauthDetailRequest.setClientId("12345");
+        oauthDetailRequest.setRedirectUri("https://localhost:9090/v1/idp");
+        oauthDetailRequest.setScope("openid profile");
+        oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
+        oauthDetailRequest.setDisplay("page");
+        oauthDetailRequest.setPrompt("consent");
+        oauthDetailRequest.setResponseType("code");
+        oauthDetailRequest.setNonce("23424234TY");
+        oauthDetailRequest.setClaims(claimsV2);
+        oauthDetailRequest.setRequest("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."); // Setting request parameter
+
+        ZonedDateTime requestTime = ZonedDateTime.now(ZoneOffset.UTC);
+        RequestWrapper wrapper = new RequestWrapper<>();
+        wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
+        wrapper.setRequest(oauthDetailRequest);
+
+        mockMvc.perform(post("/authorization/oauth-details")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(wrapper)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.errors").isNotEmpty())
+                .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.REQUEST_NOT_SUPPORTED));
+    }
+
+    @Test
     public void getOauthDetails_withOnlyOpenIdScope_returnSuccessResponse() throws Exception {
         OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
         oauthDetailRequest.setClientId("12345");
