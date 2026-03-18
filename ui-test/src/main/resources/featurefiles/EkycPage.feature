@@ -4,8 +4,8 @@ Feature: Esignet eKyc Page
 
   @smoke @eKycStepsPageVerification
   Scenario Outline: Verify eKYC process steps screen content
-   When Click on Language selection option
-   And Select the mandatory language
+   When click on Language selection option
+   And select the mandatory language
    And user click on Login with Otp
    Then user enters Registered mobile number into the mobile number field
    And user click on get otp button
@@ -19,7 +19,7 @@ Feature: Esignet eKyc Page
    And user verify that the subtitle of step 1 is displayed in eKYC Process Steps screen
    And user verify the title of step 2 is Terms And Conditions
    And user verify that the subtitle of step 2 is displayed in eKYC Process Steps screen
-
+   
 Examples:
   | correct Otp  |
   | 111111       |
