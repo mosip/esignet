@@ -21,6 +21,7 @@ import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
@@ -38,6 +39,7 @@ public class BasePage {
 
 	public BasePage(WebDriver driver) {
 		this.driver = driver;
+		PageFactory.initElements(driver, this);
 	}
 
 	private void logStep(String description, WebElement element) {
