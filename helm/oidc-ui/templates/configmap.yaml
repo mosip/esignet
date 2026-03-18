@@ -106,9 +106,12 @@ data:
           try_files $uri $uri/ /index.html;
           add_header Content-Security-Policy "
               default-src 'self';
-              style-src 'self' https://fonts.googleapis.com;
+              style-src 'self' https://fonts.googleapis.com 'unsafe-inline';
               font-src 'self' https://fonts.gstatic.com;
-              img-src 'self' https://cdn.jsdelivr.net
+              img-src 'self' data: https://cdn.jsdelivr.net;
+              script-src 'self' https://www.google.com  https://www.gstatic.com;
+              frame-src https://www.google.com;
+              connect-src 'self' http://127.0.0.1:*;
             " always;
           add_header Referrer-Policy "no-referrer" always;
         }
