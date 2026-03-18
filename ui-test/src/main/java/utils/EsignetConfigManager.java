@@ -66,4 +66,7 @@ public class EsignetConfigManager extends io.mosip.testrig.apirig.utils.ConfigMa
 		return getProperty("signupUrl", "");
 	}
 
+	public static String getDocker() {
+		return getProperty("runDocker", "");
+	}
 }
