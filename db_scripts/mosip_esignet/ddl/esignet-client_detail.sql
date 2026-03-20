@@ -27,6 +27,7 @@ CREATE TABLE client_detail(
 	public_key_hash varchar(128) NOT NULL,
 	enc_public_key varchar(1024),
 	enc_public_key_hash varchar(128),
+	enc_public_key_cert varchar(4000),
 	grant_types varchar(512) NOT NULL,
 	auth_methods varchar(512) NOT NULL,
 	status varchar(20) NOT NULL,
@@ -46,6 +47,9 @@ CREATE TABLE client_detail(
 -- COMMENT ON COLUMN client_detail.status IS 'Client status: Allowed values - ACTIVE / INACTIVE.';
 -- COMMENT ON COLUMN client_detail.public_key IS 'Public key: JWK format.';
 -- COMMENT ON COLUMN client_detail.public_key_hash IS 'Public key hash: SHA-256 hash of some fields of the public key for unique public key check.';
+-- COMMENT ON COLUMN client_detail.enc_public_key IS 'Encryption Public key: JWK format of the encryption public key for encryption of userinfo response.';
+-- COMMENT ON COLUMN client_detail.enc_public_key_hash IS 'Encryption Public key hash: SHA-256 hash of some fields of the encryption public key for unique encryption public key check.';
+-- COMMENT ON COLUMN client_detail.enc_public_key_cert IS 'Encryption Public key certificate: PEM format of the encryption public key as crypto-manager service requires the encryption key as a certificate.';
 -- COMMENT ON COLUMN client_detail.grant_types IS 'Grant Types: Allowed grant types for the client, comma separated string.';
 -- COMMENT ON COLUMN client_detail.auth_methods IS 'Client Auth methods: Allowed token endpoint authentication methods, comma separated string.';
 -- COMMENT ON COLUMN client_detail.claims IS 'Requested Claims: claims json as per policy defined for relying party, comma separated string.';
