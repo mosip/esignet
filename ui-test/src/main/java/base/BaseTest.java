@@ -26,7 +26,9 @@ import com.aventstack.extentreports.Status;
 import com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter;
 
 import io.cucumber.java.After;
+import io.cucumber.java.AfterAll;
 import io.cucumber.java.Before;
+import io.cucumber.java.BeforeAll;
 import io.cucumber.java.BeforeStep;
 import io.cucumber.java.Scenario;
 import io.cucumber.plugin.event.PickleStepTestStep;
@@ -38,6 +40,7 @@ import io.mosip.testrig.apirig.utils.S3Adapter;
 import models.Uin;
 import models.Vid;
 import utils.BaseTestUtil;
+import utils.BrowserStackLocalManager;
 import utils.EsignetConfigManager;
 import utils.EsignetUtil;
 import utils.ExtentReportManager;
@@ -59,6 +62,20 @@ public class BaseTest extends AdminTestUtil {
 	public static int failedCount = 0;
 	public static int totalCount = 0;
 	public static int knownIssueCount = 0;
+
+	@BeforeAll
+	public static void beforeAll() {
+		boolean runOnBrowserStack = Boolean.parseBoolean(EsignetConfigManager.getproperty("runOnBrowserStack"));
+
+		if (runOnBrowserStack) {
+			try {
+				BrowserStackLocalManager.start();
+				LOGGER.info("BrowserStack Local (WireGuard) started");
+			} catch (Exception e) {
+				throw new RuntimeException("Failed to start BrowserStack Local", e);
+			}
+		}
+	}
 
 	@Before
 	public void beforeAll(Scenario scenario) {
@@ -147,7 +164,7 @@ public class BaseTest extends AdminTestUtil {
 		String stepName = getStepName(scenario);
 		ExtentCucumberAdapter.getCurrentStep().log(Status.INFO, "➡️ Step Started: " + stepName);
 	}
-	
+
 	@After
 	public void clearUinVid() {
 		threadUin.remove();
@@ -204,6 +221,7 @@ public class BaseTest extends AdminTestUtil {
 						ExtentReportManager.getTest()
 								.info("<a href='" + videoUrl + "' target='_blank'>Click here to view only Video</a>");
 					}
+					BrowserStackLocalManager.stop();
 
 				} else {
 					ExtentReportManager.getTest().warning(
@@ -271,7 +289,21 @@ public class BaseTest extends AdminTestUtil {
 			}
 		}
 	}
-	
+
+	@AfterAll
+	public static void afterAll() {
+		boolean runOnBrowserStack = Boolean.parseBoolean(EsignetConfigManager.getproperty("runOnBrowserStack"));
+
+		if (runOnBrowserStack) {
+			try {
+				BrowserStackLocalManager.stop();
+				LOGGER.info("BrowserStack Local (WireGuard) stopped");
+			} catch (Exception e) {
+				LOGGER.error("Error stopping BrowserStack Local", e);
+			}
+		}
+	}
+
 	public static WebDriver getDriver() {
 		return driverThreadLocal.get();
 	}
@@ -311,10 +343,11 @@ public class BaseTest extends AdminTestUtil {
 	}
 
 	public static void pushReportsToS3(String lang) {
-		//executeLsCommand(System.getProperty("user.dir") + "/test-output/ExtentReport.html");
-		//executeLsCommand(System.getProperty("user.dir") + "/screenshots/");
+		// executeLsCommand(System.getProperty("user.dir") +
+		// "/test-output/ExtentReport.html");
+		// executeLsCommand(System.getProperty("user.dir") + "/screenshots/");
 
-		//executeLsCommand(System.getProperty("user.dir") + "/test-output/");
+		// executeLsCommand(System.getProperty("user.dir") + "/test-output/");
 		String timestamp = new SimpleDateFormat("yyyy-MM-dd-HH-mm").format(new Date());
 		String name = getEnvName() + "-" + lang + "-" + timestamp + "-T-" + ExtentReportManager.getTotalCount() + "-P-"
 				+ ExtentReportManager.getPassedCount() + "-F-" + ExtentReportManager.getFailedCount() + "-S-"
@@ -330,7 +363,7 @@ public class BaseTest extends AdminTestUtil {
 			LOGGER.error("Failed to rename the report file.");
 		}
 
-		//executeLsCommand(newReportFile.getAbsolutePath());
+		// executeLsCommand(newReportFile.getAbsolutePath());
 
 		if (EsignetConfigManager.getPushReportsToS3().equalsIgnoreCase("yes")) {
 			S3Adapter s3Adapter = new S3Adapter();
@@ -347,7 +380,7 @@ public class BaseTest extends AdminTestUtil {
 	}
 
 //  This is not required so commented it for now will remove this once tested in Rancher
-	
+
 //	private static void executeLsCommand(String directoryPath) {
 //		try {
 //			String os = System.getProperty("os.name").toLowerCase();

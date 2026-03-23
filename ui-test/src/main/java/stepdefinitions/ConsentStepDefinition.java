@@ -2,7 +2,7 @@ package stepdefinitions;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.testng.Assert;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -94,7 +94,8 @@ public class ConsentStepDefinition {
 
 	@Then("verify that success screen is displayed")
 	public void verifyThenSuccessMessageDisplayed() {
-		assertTrue(signUpPage.isAccountCreatedSuccessfullyMessageDisplayed());
+		Assert.assertTrue(signUpPage.isAccountCreatedSuccessfullyMessageDisplayed(),
+				"Success message is not displayed");
 	}
 
 	private String expectedDefaultLang;
@@ -128,7 +129,7 @@ public class ConsentStepDefinition {
 
 	@Then("verify consent should ask user to proceed in attention page")
 	public void userGoesToAttentionScreen() {
-		assertTrue(consentPage.isOnAttentionScreen());
+		Assert.assertTrue(consentPage.isOnAttentionScreen(), "User didn't navigated to attention page");
 	}
 
 	@Then("clicks on proceed button in attention page")
@@ -173,7 +174,7 @@ public class ConsentStepDefinition {
 
 	@Then("verify user is navigated to consent screen")
 	public void verifyUserIsOnConsentScreen() {
-		assertTrue(consentPage.isConsentScreenVisible());
+		Assert.assertTrue(consentPage.isConsentScreenVisible(), "User didn't navigated to consent screen");
 	}
 
 	@Then("user clicks on language dropdown button")
@@ -200,17 +201,18 @@ public class ConsentStepDefinition {
 
 	@Then("verify essential claims are listed separately")
 	public void verifyEssentialClaimsAreListedSeparately() {
-		assertTrue(consentPage.areEssentialClaimsPresent());
+		Assert.assertTrue(consentPage.areEssentialClaimsPresent(), "Essential claims list were not present");
 	}
 
 	@Then("verify voluntary claims are listed separately")
 	public void verifyVoluntaryClaimsAreListedSeparately() {
-		assertTrue(consentPage.areVoluntaryClaimsPresent());
+		Assert.assertTrue(consentPage.areVoluntaryClaimsPresent(), "Voluntary claims list are not present");
 	}
 
 	@Then("verify master toggle should be visible for Voluntary Claims if multiple claims are present")
 	public void verifyVoluntaryClaimsMasterToggleVisible() {
-		assertTrue(consentPage.isVoluntaryClaimsMasterToggleVisible());
+		Assert.assertTrue(consentPage.isVoluntaryClaimsMasterToggleVisible(),
+				"Master toggle button for voluntary claims is not visisble");
 	}
 
 	@Then("verify all toggle buttons for Voluntary Claims are disabled by default")
@@ -225,7 +227,7 @@ public class ConsentStepDefinition {
 	public void enableMasterToggleForVoluntaryClaims() {
 		consentPage.enableVoluntaryClaimsMasterToggle();
 		for (WebElement subToggle : consentPage.getVoluntaryClaimsSubToggles()) {
-			assertTrue(subToggle.isSelected());
+			Assert.assertTrue(subToggle.isSelected(), "Sub toggle button did not selected");
 		}
 	}
 
@@ -241,7 +243,8 @@ public class ConsentStepDefinition {
 
 	@Then("verify remaining Voluntary Claims stays selected along with master toggle")
 	public void verifyRemainingVoluntaryClaim() {
-		assertTrue(consentPage.isVoluntaryClaimsMasterToggleSelected());
+		Assert.assertTrue(consentPage.isVoluntaryClaimsMasterToggleSelected(),
+				"Voluntary claims master toggle is not selected");
 
 		int notSelected = 0;
 
@@ -302,13 +305,14 @@ public class ConsentStepDefinition {
 
 	@Then("verify that the master toggle is enabled automatically")
 	public void verifyMasterToggleIsEnabled() {
-		assertTrue(consentPage.isVoluntaryClaimsMasterToggleSelected());
+		Assert.assertTrue(consentPage.isVoluntaryClaimsMasterToggleSelected(),
+				"Voluntary claims master toggle is not enabled");
 	}
 
 	@Then("verify the timer starts from 55sec in the consent page via Otp login")
 	public void verifyConsentPageTimer() {
 		int seconds = consentPage.getConsentTimerSeconds();
-		assertTrue("Timer should start around 55 seconds, but was: " + seconds, +seconds >= 54 && seconds <= 56);
+		Assert.assertTrue(seconds >= 54 && seconds <= 56, "Timer should start around 55 seconds, but was: " + seconds);
 	}
 
 	@Then("refresh the browser tab and verify timer continue with leftover seconds")
@@ -321,7 +325,7 @@ public class ConsentStepDefinition {
 		int afterRefresh = consentPage.getConsentTimerSeconds();
 		logger.info("Timer after refresh: " + afterRefresh + " seconds");
 
-		assertTrue("Timer should persist after refresh within 2 seconds tolerance",
-				+afterRefresh <= beforeRefresh && (beforeRefresh - afterRefresh) <= 2);
+		Assert.assertTrue(afterRefresh <= beforeRefresh && (beforeRefresh - afterRefresh) <= 2,
+				"Timer should persist after refresh within 2 seconds tolerance");
 	}
 }

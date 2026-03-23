@@ -5,7 +5,6 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
 
 import base.BasePage;
 import utils.BaseTestUtil;
@@ -15,7 +14,6 @@ public class MultiLanguagePage extends BasePage {
 
     public MultiLanguagePage(WebDriver driver) {
         super(driver);
-        PageFactory.initElements(driver, this);
     }
 
     @FindBy(id = "language_selection")

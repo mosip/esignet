@@ -23,23 +23,23 @@ public class MultiLanguageStepDef {
         multiLanguagePage = new MultiLanguagePage(driver);
     }
 
-    @When("Click on Language selection option")
+    @When("click on Language selection option")
     public void clickOnLanguageSelection() {
         multiLanguagePage.clickOnLanguageSelection();
     }
 
-    @When("Select the mandatory language")
+    @When("select the mandatory language")
     public void selectTheLanguage() {
         multiLanguagePage.clickOnLanguage();
     }
 
-    @When("Get the cookies")
+    @When("get the cookies")
     public void getTheCookies() {
         languageCookieValue = multiLanguagePage.getLanguageFromCookie();
         logger.info("Language value: " + (languageCookieValue != null ? languageCookieValue : "Not found"));
     }
 
-    @Then("Validate the language in cookie")
+    @Then("validate the language in cookie")
     public void validateTheLanguageInCookie() {
         Assert.assertNotNull(languageCookieValue, "Language cookie should not be null");
         Assert.assertEquals(languageCookieValue, LanguageUtil.getIsoLanguageCode(BaseTestUtil.getThreadLocalLanguage()), "Language code should be Displayed");
