@@ -50,7 +50,8 @@ public class LoginOptionsStepDefinition {
 
 	@Then("verify dropdown language selection is present")
 	public void verifyLanguageDropdown() {
-		Assert.assertTrue(loginOptionsPage.isLanguageDropdownDisplayed(),"Language dropdown is not displayed on the esignet page");
+		Assert.assertTrue(loginOptionsPage.isLanguageDropdownDisplayed(),
+				"Language dropdown is not displayed on the esignet page");
 	}
 
 	@Then("verify multiple options for login is available")
@@ -67,7 +68,7 @@ public class LoginOptionsStepDefinition {
 		boolean isMoreOptionsDisplayed = loginOptionsPage.isMoreWaysToSignInOptionDisplayed();
 
 		if (authFactors.size() > 4) {
-			Assert.assertTrue(isMoreOptionsDisplayed);
+			Assert.assertTrue(isMoreOptionsDisplayed, "Multiple options were not displayed");
 		} else {
 			assertFalse(isMoreOptionsDisplayed);
 		}
@@ -81,7 +82,8 @@ public class LoginOptionsStepDefinition {
 
 	@Then("verify the UI is displayed in selected language {string}")
 	public void verifyUILanguage(String text) {
-		Assert.assertTrue(loginOptionsPage.isUILanguageChanged(text),"UI language did not change to expected language");
+		Assert.assertTrue(loginOptionsPage.isUILanguageChanged(text),
+				"UI language did not change to expected language");
 	}
 
 	@Then("authentication screen should show login options based on acr_values from url")
