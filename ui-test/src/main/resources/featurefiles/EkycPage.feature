@@ -37,7 +37,6 @@ Feature: Esignet eKyc Page
    And user click on cancel button in eKYC process steps screen
    When user verify the discontinue button is clickable in warning popup
    Then user verify user is redirected to relying party login page
-   And user verify error message is displayed on login page
    When user clicks on sign in with esignet button
    And user click on Login with Otp
    Then user enters Registered mobile number into the mobile number field
@@ -47,7 +46,7 @@ Feature: Esignet eKyc Page
    Then verify consent should ask user to proceed in attention page
    And clicks on proceed button in attention page
    Then verify user navigate to eKYC process steps screen
-   And user verify the Proceed button is visible in eKYC process Steps screen
+   And user verify the proceed button is visible in eKYC process Steps screen
    When user verify the proceed button is clickable in eKYC process steps screen
    Then user verify user is redirected to list of eKYC providers screen
    

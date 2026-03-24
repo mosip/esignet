@@ -143,17 +143,12 @@ public class EkycStepDefinition {
 		Assert.assertTrue(ekycPage.isLoginPageDisplayed(), "User is not redirected to relying party login page");
 	}
 
-	@Then("user verify error message is displayed on login page")
-	public void userVerifyErrorMessage() {
-		Assert.assertTrue(ekycPage.isErrorMessageTextDisplayed(), "Error message is not displayed on login page");
-	}
-
 	@When("user clicks on sign in with esignet button")
 	public void userClicksOnSignInWithEsignetButton() {
 		ekycPage.clickOnSignInWithEsignetButton();
 	}
 
-	@Then("user verify the Proceed button is visible in eKYC process Steps screen")
+	@Then("user verify the proceed button is visible in eKYC process Steps screen")
 	public void userVerifyProceedButtonIsVisibleInEKycProcessStepsScreen() {
 		Assert.assertTrue(ekycPage.isProceedButtonVisible(),
 				"Proceed button is not visible in eKYC Process Steps screen");

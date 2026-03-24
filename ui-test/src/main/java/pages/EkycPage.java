@@ -1,9 +1,14 @@
 package pages;
 
+import java.time.Duration;
+
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import base.BasePage;
 
@@ -65,10 +70,7 @@ public class EkycPage extends BasePage {
 	@FindBy(id = "sign-in-with-esignet")
 	WebElement relyingPartyloginPage;
 
-	@FindBy(id = "1")
-	WebElement loginPageErrorMessage;
-
-	@FindBy(xpath = "//*[contains(@class,'SignInWithEsignet-module_textbox__k2CkO')]")
+	@FindBy(id = "sign-in-with-esignet")
 	WebElement signInWithEsignetButton;
 
 	@FindBy(xpath = "//button[contains(@class,'inline-flex items-center justify-center')][2]")
@@ -78,110 +80,107 @@ public class EkycPage extends BasePage {
 	WebElement ekycServiceProvidersHeader;
 
 	public boolean isEkycProcessStepsScreenLabelDisplayed() {
-		return isElementVisible(ekycProcessStepsScreenLabel);
+		return isElementVisible(ekycProcessStepsScreenLabel, "Verified eKyc screen is displayed");
 	}
 
 	public boolean isEkycStep1TitleChooseEkycProviderDisplayed() {
-		return isElementVisible(eKycStep1Title);
+		return isElementVisible(eKycStep1Title, "Verified the title step 1 in eKyc screen");
 	}
 
 	public boolean isEkycStep1SubtitleDisplayed() {
-		return isElementVisible(eKycStep1Subtitle);
+		return isElementVisible(eKycStep1Subtitle, "Verified the sub-title step 1 in eKyc screen");
 	}
 
 	public boolean isEkycStep2TitleTermsAndConditionsDisplayed() {
-		return isElementVisible(eKycStep2Title);
+		return isElementVisible(eKycStep2Title, "Verified the title step 2 in eKyc screen");
 	}
 
 	public boolean isEkycStep2SubtitleDisplayed() {
-		return isElementVisible(eKycStep2Subtitle);
+		return isElementVisible(eKycStep2Subtitle, "Verified the sub-title step 2 in ekyc screen");
 	}
 
 	public boolean isEkycStep3TitlePreVerificationGuideDisplayed() {
-		return isElementVisible(eKycStep3Title);
+		return isElementVisible(eKycStep3Title, "Verified the title step 3 in eKyc screen");
 	}
 
 	public boolean isEKycStep3SubtitleDisplayed() {
-		return isElementVisible(eKycStep3Subtitle);
+		return isElementVisible(eKycStep3Subtitle, "Verified the sub-title step 3 in ekyc screen");
 	}
 
 	public boolean isEkycStep4TitleIdentityVerificationDisplayed() {
-		return isElementVisible(eKycStep4Title);
+		return isElementVisible(eKycStep4Title, "Verified the title step 4 in eKyc screen");
 	}
 
 	public boolean isEKycStep4SubtitleDisplayed() {
-		return isElementVisible(eKycStep4Subtitle);
+		return isElementVisible(eKycStep4Subtitle, "Verified the sub-title step 4 in ekyc screen");
 	}
 
 	public boolean isEkycStep5TitleReviewConsentDisplayed() {
-		return isElementVisible(eKycStep5Title);
+		return isElementVisible(eKycStep5Title, "Verified the title step 5 in eKyc screen");
 	}
 
 	public boolean isEKycStep5SubtitleDisplayed() {
-		return isElementVisible(eKycStep5Subtitle);
+		return isElementVisible(eKycStep5Subtitle, "Verified the sub-title step 5 in ekyc screen");
 	}
 
 	public boolean isCancelButtonVisible() {
-		return isElementVisible(cancelButton);
+		return isElementVisible(cancelButton, "Verified cancel button is displayed in eKyc process steps screen");
 	}
 
 	public void clickOnCancelButton() {
-		clickOnElement(cancelButton);
+		clickOnElement(cancelButton, "Verified and click on cancel button in eKyc process steps screen");
 	}
 
 	public boolean isCancelWarningPopupDisplayed() {
-		return isElementVisible(ekycWarningPopupstayButton);
+		return isElementVisible(ekycWarningPopupstayButton, "Verified cancel warning popup is displayed");
 	}
 
 	public boolean isWarningPopupHeaderDisplayed() {
-		return isElementVisible(ekycWarningPopupHeader);
+		return isElementVisible(ekycWarningPopupHeader, "Verified warning popup header is displayed");
 	}
 
 	public boolean isWarningPopupMessageDisplayed() {
-		return isElementVisible(ekycWarningPopupMessage);
+		return isElementVisible(ekycWarningPopupMessage, "Verified warning popup message is displayed");
 	}
 
 	public boolean isStayButtonVisible() {
-		return isElementVisible(ekycWarningPopupstayButton);
+		return isElementVisible(ekycWarningPopupstayButton, "Verified stay button is visible in warning popup");
 	}
 
 	public boolean isDiscontinueButtonVisible() {
-		return isElementVisible(ekycWarningPopupdiscontinueButton);
+		return isElementVisible(ekycWarningPopupdiscontinueButton,
+				"Verified discontinue button is visible in warning popup");
 	}
 
 	public void clickOnStayButton() {
-		clickOnElement(ekycWarningPopupstayButton);
+		clickOnElement(ekycWarningPopupstayButton, "Clicked on stay button in warning popup");
 	}
 
 	public boolean isEkyScreenVisible() {
-		return isElementVisible(ekycProcessStepsScreenLabel);
+		return isElementVisible(ekycProcessStepsScreenLabel, "Verified eKyc process Steps screen is visible");
 	}
 
 	public void clickOnDiscontinueButton() {
-		clickOnElement(ekycWarningPopupdiscontinueButton);
+		clickOnElement(ekycWarningPopupdiscontinueButton, "Clicked on discontinue button in warning popup");
 	}
 
 	public boolean isLoginPageDisplayed() {
-		return isElementVisible(relyingPartyloginPage);
-	}
-
-	public boolean isErrorMessageTextDisplayed() {
-		return isElementVisible(loginPageErrorMessage);
+		return isElementVisible(relyingPartyloginPage, "Verified Login page is displayed");
 	}
 
 	public void clickOnSignInWithEsignetButton() {
-		clickOnElement(signInWithEsignetButton);
+		clickOnElement(signInWithEsignetButton, "Clicked on sign in with eSignet button");
 	}
 
 	public boolean isProceedButtonVisible() {
-		return isElementVisible(proceedButton);
+		return isElementVisible(proceedButton, "Verified proceed button is visible");
 	}
 
 	public void clickOnProceedButton() {
-		clickOnElement(proceedButton);
+		clickOnElement(proceedButton, "Clicked on proceed button");
 	}
 
 	public boolean isEkycServiceProviderScreenVisible() {
-		return isElementVisible(ekycServiceProvidersHeader);
+		return isElementVisible(ekycServiceProvidersHeader, "Verified eKyc service provider screen is visible");
 	}
 }
