@@ -19,7 +19,7 @@ Feature: Esignet Login Options Page
    | हिंदी        | लॉगिन    |
    
   @mobile @mobileViewFeatures
-  Scenario Outline: Verifying the UI in mobile view
+  Scenario: Verifying the UI in mobile view
    When user triggers the authorization endpoint, the response should have status code 200 and contain valid HTML with JS content
    Given user captures the authorize url
    And click on Language selection option

@@ -16,7 +16,7 @@ Feature: Esignet Consent Page
     And verify that success screen is displayed
   
   @smoke @ToggleButtonInConsentPage
-  Scenario Outline: Verifying Toggle button in consent screen
+  Scenario: Verifying Toggle button in consent screen
    Given user captures the authorize url
    When click on Language selection option
    And select the mandatory language

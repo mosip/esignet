@@ -3,7 +3,7 @@ Feature: Esignet eKyc Page
   This feature file is for verifying the eKyc page  
 
   @smoke @eKycStepsPageVerification
-  Scenario Outline: Verify eKYC process steps screen content
+  Scenario: Verify eKYC process steps screen content
    When click on Language selection option
    And select the mandatory language
    And user click on Login with Otp
