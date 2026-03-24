@@ -106,7 +106,7 @@ class AppConfigTest {
     }
 
     @Test
-    void serverProfile_ValidFapi20Profile_ReturnsProfileWithAllFeatures() throws EsignetException {
+    void serverProfile_ValidFapi2Profile_ReturnsProfileWithAllFeatures() throws EsignetException {
         ReflectionTestUtils.setField(appConfig, "serverProfile", "fapi2.0");
 
         io.mosip.esignet.entity.ServerProfile dpopProfile = new io.mosip.esignet.entity.ServerProfile();
