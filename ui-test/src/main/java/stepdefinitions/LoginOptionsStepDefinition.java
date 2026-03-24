@@ -111,28 +111,33 @@ public class LoginOptionsStepDefinition {
 
 	@When("user triggers the authorization endpoint, the response should have status code 200 and contain valid HTML with JS content")
 	public void triggerAuthorizationEndpoint() throws IOException {
-		String authorizeUrl = driver.getCurrentUrl();
 
-		URI uri = URI.create(authorizeUrl);
-		HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
-		connection.setRequestMethod("GET");
+	    // Get base URL without fragment (# part)
+	    String currentUrl = driver.getCurrentUrl();
+	    String baseUrl = currentUrl.split("#")[0];
 
-		int statusCode = connection.getResponseCode();
-		Assert.assertEquals(200, statusCode);
+	    URI uri = URI.create(baseUrl);
+	    HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
+	    connection.setRequestMethod("GET");
 
-		BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-		StringBuilder response = new StringBuilder();
-		String line;
-		while ((line = reader.readLine()) != null) {
-			response.append(line);
-		}
-		reader.close();
+	    int statusCode = connection.getResponseCode();
+	    Assert.assertEquals(statusCode, 200, "Expected status code 200");
 
-		String html = response.toString();
-		Assert.assertTrue(html.contains("<html"));
-		Assert.assertTrue(html.contains("<script"));
+	    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+	    StringBuilder response = new StringBuilder();
+	    String line;
+
+	    while ((line = reader.readLine()) != null) {
+	        response.append(line);
+	    }
+	    reader.close();
+
+	    String html = response.toString();
+
+	    Assert.assertTrue(html.contains("<html"), "HTML tag not found");
+	    Assert.assertTrue(html.contains("<script"), "Script tag not found");
 	}
-
+	
 	@Then("user verifies the behavior after resizing the browser window to different dimensions")
 	public void userResizesBrowserWindowToDifferentDimensions() {
 		int[][] screenSizes = { { 1920, 1080 }, { 1366, 768 }, { 768, 1024 }, { 414, 896 } };
@@ -154,8 +159,8 @@ public class LoginOptionsStepDefinition {
 		Assert.assertTrue(esignetButton.getRect().getX() >= 0, "eSignet button misaligned or offscreen");
 	}
 
-	@Then("user views the portal on multiple mobile screen sizes")
-	public void userViewsPortalOnDifferentMobileSizes() {
+	@Then("user views the portal on multiple screen sizes")
+	public void userViewsPortalOnDifferentScreenSizes() {
 		int[][] mobileSizes = { { 360, 640 }, { 390, 844 }, { 412, 915 } };
 
 		for (int[] size : mobileSizes) {

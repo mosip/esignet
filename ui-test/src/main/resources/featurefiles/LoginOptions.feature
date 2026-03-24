@@ -24,7 +24,7 @@ Feature: Esignet Login Options Page
    Given user captures the authorize url
    And click on Language selection option
    And select the mandatory language
-   Then user views the portal on multiple mobile screen sizes
+   Then user views the portal on multiple screen sizes
    And user verifies the behavior after resizing the browser window to different dimensions
    And user verify the otp button remain visible and aligned after resizing
    Then verify dropdown language selection is present
