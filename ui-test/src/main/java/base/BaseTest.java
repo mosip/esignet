@@ -312,6 +312,9 @@ public class BaseTest extends AdminTestUtil {
 	@Before(value = "@mobile", order = 1)
 	public void enableMobileMode(Scenario scenario) {
 		String mobileDevice = EsignetConfigManager.getproperty("mobileDevice");
+		if (mobileDevice == null || mobileDevice.isBlank()) {
+			throw new IllegalStateException("mobileDevice property must be configured for `@mobile` scenarios");
+		}
 		isMobileMode.set(true);
 		mobileDeviceName.set(mobileDevice);
 		LOGGER.info("Mobile emulation enabled for scenario: " + scenario.getName() + " using device: " + mobileDevice);

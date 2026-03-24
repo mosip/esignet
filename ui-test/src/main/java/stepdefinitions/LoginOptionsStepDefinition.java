@@ -111,33 +111,31 @@ public class LoginOptionsStepDefinition {
 
 	@When("user triggers the authorization endpoint, the response should have status code 200 and contain valid HTML with JS content")
 	public void triggerAuthorizationEndpoint() throws IOException {
+		String currentUrl = driver.getCurrentUrl();
+		String baseUrl = currentUrl.split("#")[0];
 
-	    // Get base URL without fragment (# part)
-	    String currentUrl = driver.getCurrentUrl();
-	    String baseUrl = currentUrl.split("#")[0];
+		URI uri = URI.create(baseUrl);
+		HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
+		connection.setRequestMethod("GET");
 
-	    URI uri = URI.create(baseUrl);
-	    HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
-	    connection.setRequestMethod("GET");
+		int statusCode = connection.getResponseCode();
+		Assert.assertEquals(statusCode, 200, "Expected status code 200");
 
-	    int statusCode = connection.getResponseCode();
-	    Assert.assertEquals(statusCode, 200, "Expected status code 200");
+		BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+		StringBuilder response = new StringBuilder();
+		String line;
 
-	    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-	    StringBuilder response = new StringBuilder();
-	    String line;
+		while ((line = reader.readLine()) != null) {
+			response.append(line);
+		}
+		reader.close();
 
-	    while ((line = reader.readLine()) != null) {
-	        response.append(line);
-	    }
-	    reader.close();
+		String html = response.toString();
 
-	    String html = response.toString();
-
-	    Assert.assertTrue(html.contains("<html"), "HTML tag not found");
-	    Assert.assertTrue(html.contains("<script"), "Script tag not found");
+		Assert.assertTrue(html.contains("<html"), "HTML tag not found");
+		Assert.assertTrue(html.contains("<script"), "Script tag not found");
 	}
-	
+
 	@Then("user verifies the behavior after resizing the browser window to different dimensions")
 	public void userResizesBrowserWindowToDifferentDimensions() {
 		int[][] screenSizes = { { 1920, 1080 }, { 1366, 768 }, { 768, 1024 }, { 414, 896 } };
