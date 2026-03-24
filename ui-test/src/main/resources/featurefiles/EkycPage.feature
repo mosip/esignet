@@ -9,7 +9,7 @@ Feature: Esignet eKyc Page
    And user click on Login with Otp
    Then user enters Registered mobile number into the mobile number field
    And user click on get otp button
-   When user enters the "<correct Otp>"
+   When user enters the correct otp
    And click on verify Otp button
    
    Then verify consent should ask user to proceed in attention page
@@ -19,8 +19,3 @@ Feature: Esignet eKyc Page
    And user verify that the subtitle of step 1 is displayed in eKYC Process Steps screen
    And user verify the title of step 2 is Terms And Conditions
    And user verify that the subtitle of step 2 is displayed in eKYC Process Steps screen
-   
-Examples:
-  | correct Otp  |
-  | 111111       |
-    

@@ -5,10 +5,17 @@ import static org.junit.Assert.assertNotNull;
 
 import org.testng.Assert;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URI;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -18,6 +25,7 @@ import base.BaseTest;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import pages.ConsentPage;
 import pages.LoginOptionsPage;
 import pages.SignUpPage;
 import pages.SignupFormDynamicFiller;
@@ -26,6 +34,7 @@ import utils.ClaimsUtil;
 public class LoginOptionsStepDefinition {
 
 	public WebDriver driver;
+	private static final Logger logger = Logger.getLogger(LoginOptionsStepDefinition.class);
 	LoginOptionsPage loginOptionsPage;
 	SignUpPage signUpPage;
 	SignupFormDynamicFiller formFiller;
@@ -99,4 +108,60 @@ public class LoginOptionsStepDefinition {
 			Assert.assertTrue(element.isDisplayed(), "Option not visible for " + factor);
 		}
 	}
+
+	@When("user triggers the authorization endpoint, the response should have status code 200 and contain valid HTML with JS content")
+	public void triggerAuthorizationEndpoint() throws IOException {
+		String authorizeUrl = driver.getCurrentUrl();
+
+		URI uri = URI.create(authorizeUrl);
+		HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
+		connection.setRequestMethod("GET");
+
+		int statusCode = connection.getResponseCode();
+		Assert.assertEquals(200, statusCode);
+
+		BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+		StringBuilder response = new StringBuilder();
+		String line;
+		while ((line = reader.readLine()) != null) {
+			response.append(line);
+		}
+		reader.close();
+
+		String html = response.toString();
+		Assert.assertTrue(html.contains("<html"));
+		Assert.assertTrue(html.contains("<script"));
+	}
+
+	@Then("user verifies the behavior after resizing the browser window to different dimensions")
+	public void userResizesBrowserWindowToDifferentDimensions() {
+		int[][] screenSizes = { { 1920, 1080 }, { 1366, 768 }, { 768, 1024 }, { 414, 896 } };
+
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+
+		for (int[] size : screenSizes) {
+			driver.manage().window().setSize(new Dimension(size[0], size[1]));
+			wait.until(ExpectedConditions.visibilityOf(loginOptionsPage.getLoginWithOtpButton()));
+			logger.info("Resized to: " + size[0] + "x" + size[1]);
+		}
+	}
+
+	@Then("user verify the otp button remain visible and aligned after resizing")
+	public void verifyOtpButtonResponsiveness() {
+		WebElement esignetButton = loginOptionsPage.getLoginWithOtpButton();
+		Assert.assertTrue(esignetButton.isDisplayed(), "eSignet button not visible after resizing");
+		Assert.assertTrue(esignetButton.getRect().getWidth() > 0, "eSignet button width collapsed");
+		Assert.assertTrue(esignetButton.getRect().getX() >= 0, "eSignet button misaligned or offscreen");
+	}
+
+	@Then("user views the portal on multiple mobile screen sizes")
+	public void userViewsPortalOnDifferentMobileSizes() {
+		int[][] mobileSizes = { { 360, 640 }, { 390, 844 }, { 412, 915 } };
+
+		for (int[] size : mobileSizes) {
+			driver.manage().window().setSize(new Dimension(size[0], size[1]));
+			logger.info("Testing layout at resolution: " + size[0] + "x" + size[1]);
+		}
+	}
+
 }

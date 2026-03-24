@@ -23,7 +23,7 @@ Feature: Esignet Consent Page
    And user click on Login with Otp
    Then user enters Registered mobile number into the mobile number field
    And user click on get otp button
-   When user enters the "<correct Otp>"
+   When user enters the correct otp
    And click on verify Otp button
    
    Then verify consent should ask user to proceed in attention page
@@ -64,8 +64,4 @@ Feature: Esignet Consent Page
    
    When user enables all the voluntary claims sub-toggle manually
    Then verify that the master toggle is enabled automatically
-
-Examples:
-  | correct Otp  |
-  | 111111       |
     

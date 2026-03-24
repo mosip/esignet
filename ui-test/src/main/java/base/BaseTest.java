@@ -303,6 +303,21 @@ public class BaseTest extends AdminTestUtil {
 			}
 		}
 	}
+	
+	@Before("@mobile")
+	public void enableMobileMode(Scenario scenario) {
+		String mobileDevice = EsignetConfigManager.getproperty("mobileDevice");
+		System.setProperty("mobileEmulation", "true");
+		System.setProperty("mobileDevice", mobileDevice);
+		LOGGER.info("Mobile emulation enabled for scenario: " + scenario.getName() + " using device: " + mobileDevice);
+	}
+
+	@After("@mobile")
+	public void disableMobileMode() {
+		System.clearProperty("mobileEmulation");
+		System.clearProperty("mobileDevice");
+		LOGGER.info("Mobile emulation disabled for next scenarios");
+	}
 
 	public static WebDriver getDriver() {
 		return driverThreadLocal.get();

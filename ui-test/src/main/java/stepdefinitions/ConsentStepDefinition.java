@@ -14,6 +14,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.apache.log4j.Logger;
 
+import base.BasePage;
 import base.BaseTest;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -117,9 +118,9 @@ public class ConsentStepDefinition {
 		consentPage.clickOnGetOtp();
 	}
 
-	@Then("user enters the {string}")
-	public void userEnterOtp(String otp) {
-		consentPage.enterOtp(otp);
+	@Then("user enters the correct otp")
+	public void userEnterCorrectOtp() {
+		consentPage.enterOtp(BasePage.getOtp());
 	}
 
 	@Then("click on verify Otp button")
