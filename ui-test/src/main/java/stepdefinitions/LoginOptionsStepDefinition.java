@@ -1,13 +1,14 @@
 package stepdefinitions;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
+
+import org.testng.Assert;
 
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Assert;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -49,24 +50,25 @@ public class LoginOptionsStepDefinition {
 
 	@Then("verify dropdown language selection is present")
 	public void verifyLanguageDropdown() {
-		assertTrue(loginOptionsPage.isLanguageDropdownDisplayed());
+		Assert.assertTrue(loginOptionsPage.isLanguageDropdownDisplayed(),
+				"Language dropdown is not displayed on the esignet page");
 	}
 
 	@Then("verify multiple options for login is available")
 	public void verifyMultipleLoginOptions() {
 		ClaimsUtil.parseFromUrl(authorizeUrl);
 		List<String> authFactors = ClaimsUtil.getAuthFactors();
-		Assert.assertTrue("Expected multiple login options, but found: " + authFactors.size(), authFactors.size() > 1);
+		Assert.assertTrue(authFactors.size() > 1, "Expected multiple login options, but found: " + authFactors.size());
 	}
 
 	@Then("verify more ways to signIn option is available")
 	public void verifyMoreWaysToSignInOption() {
 		List<String> authFactors = ClaimsUtil.getAuthFactors();
-		Assert.assertFalse("No auth factors were parsed from the authorize URL", authFactors.isEmpty());
+		Assert.assertFalse(authFactors.isEmpty(), "No auth factors were parsed from the authorize URL");
 		boolean isMoreOptionsDisplayed = loginOptionsPage.isMoreWaysToSignInOptionDisplayed();
 
 		if (authFactors.size() > 4) {
-			assertTrue(isMoreOptionsDisplayed);
+			Assert.assertTrue(isMoreOptionsDisplayed, "Multiple options were not displayed");
 		} else {
 			assertFalse(isMoreOptionsDisplayed);
 		}
@@ -80,7 +82,8 @@ public class LoginOptionsStepDefinition {
 
 	@Then("verify the UI is displayed in selected language {string}")
 	public void verifyUILanguage(String text) {
-		assertTrue(loginOptionsPage.isUILanguageChanged(text));
+		Assert.assertTrue(loginOptionsPage.isUILanguageChanged(text),
+				"UI language did not change to expected language");
 	}
 
 	@Then("authentication screen should show login options based on acr_values from url")
@@ -92,8 +95,8 @@ public class LoginOptionsStepDefinition {
 		for (String factor : authFactors) {
 			String normalizedFactor = ClaimsUtil.normalizeFactor(factor);
 			WebElement element = factorMap.get(normalizedFactor);
-			Assert.assertNotNull("No UI mapping found for factor: " + factor, element);
-			assertTrue("Option not visible for " + factor, element.isDisplayed());
+			assertNotNull("No UI mapping found for factor: " + factor, element);
+			Assert.assertTrue(element.isDisplayed(), "Option not visible for " + factor);
 		}
 	}
 }

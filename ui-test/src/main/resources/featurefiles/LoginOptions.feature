@@ -11,8 +11,8 @@ Feature: Esignet Login Options Page
    And verify more ways to signIn option is available
    When user selects "<other lang>" from the language dropdown
    Then verify the UI is displayed in selected language "<text>"
-   When Click on Language selection option
-   And Select the mandatory language
+   When click on Language selection option
+   And select the mandatory language
    
   Examples:
    | other lang | text   |
