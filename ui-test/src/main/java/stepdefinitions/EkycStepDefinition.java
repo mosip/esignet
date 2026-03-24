@@ -57,7 +57,7 @@ public class EkycStepDefinition {
 
 	@Then("user verify that the subtitle of step 3 is displayed in eKYC process steps screen")
 	public void userVerifyTheSubtitleOfStep3() {
-		Assert.assertTrue(ekycPage.isEKycStep3SubtitleDisplayed(), "Subtitle of the ekyc step 3 not displayed");
+		Assert.assertTrue(ekycPage.isEkycStep3SubtitleDisplayed(), "Subtitle of the ekyc step 3 not displayed");
 	}
 
 	@Then("user verify the title of step 4 is identity verification")
@@ -68,7 +68,7 @@ public class EkycStepDefinition {
 
 	@Then("user verify that the subtitle of step 4 is displayed in eKYC process steps screen")
 	public void userVerifyTheSubtitleOfStep4() {
-		Assert.assertTrue(ekycPage.isEKycStep4SubtitleDisplayed(), "Subtitle of the ekyc step 4 not displayed");
+		Assert.assertTrue(ekycPage.isEkycStep4SubtitleDisplayed(), "Subtitle of the ekyc step 4 not displayed");
 	}
 
 	@Then("user verify the title of step 5 is review consent")
@@ -78,7 +78,7 @@ public class EkycStepDefinition {
 
 	@Then("user verify that the subtitle of step 5 is displayed in eKYC process steps screen")
 	public void userVerifyTheSubtitleOfStep5() {
-		Assert.assertTrue(ekycPage.isEKycStep5SubtitleDisplayed(), "Subtitle of the ekyc step 5 not displayed");
+		Assert.assertTrue(ekycPage.isEkycStep5SubtitleDisplayed(), "Subtitle of the ekyc step 5 not displayed");
 	}
 
 	@Then("user verify the cancel button is visible in eKYC process steps screen")
@@ -96,12 +96,6 @@ public class EkycStepDefinition {
 	public void userVerifyWarningPopupDisplayed() {
 		Assert.assertTrue(ekycPage.isCancelWarningPopupDisplayed(),
 				"Warning popup is not displayed after clicking Cancel button");
-	}
-	
-	@Then("user verify warning popup disappeared")
-	public void userVerifyWarningPopupDisappeared() {
-		Assert.assertFalse(ekycPage.isCancelWarningPopupDisplayed(),
-				"Warning popup is not disappeared after clicking stay button");
 	}
 
 	@Then("user verify the header is attention in warning popup")
@@ -127,6 +121,12 @@ public class EkycStepDefinition {
 	@When("user verify the stay button is clickable in warning popup")
 	public void userClicksOnStayButtonInWarningPopup() {
 		ekycPage.clickOnStayButton();
+	}
+
+	@Then("user verify warning popup disappeared")
+	public void userVerifyWarningPopupDisappeared() {
+		Assert.assertFalse(ekycPage.isCancelWarningPopupDisplayed(),
+				"Warning popup is not disappeared after clicking stay button");
 	}
 
 	@Then("verify user is redirected back to ekycScreen")
