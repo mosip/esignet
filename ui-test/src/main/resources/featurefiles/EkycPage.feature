@@ -33,6 +33,7 @@ Feature: Esignet eKyc Page
    And user verify the stay button is visible in warning popup
    And user verify the discontinue button is visible in warning popup
    When user verify the stay button is clickable in warning popup
+   And user verify warning popup disappeared
    Then verify user is redirected back to ekycScreen
    And user click on cancel button in eKYC process steps screen
    When user verify the discontinue button is clickable in warning popup

@@ -1,14 +1,9 @@
 package pages;
 
-import java.time.Duration;
-
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 import base.BasePage;
 
@@ -52,7 +47,7 @@ public class EkycPage extends BasePage {
 	@FindBy(id = "step-description-4")
 	WebElement eKycStep5Subtitle;
 
-	@FindBy(xpath = "//button[contains(@class,'inline-flex items-center justify-center')][1]")
+	@FindBy(xpath = "(//button[contains(`@class`,'inline-flex items-center justify-center')])[1]")
 	WebElement cancelButton;
 
 	@FindBy(xpath = "//h2[@class='font-semibold flex flex-col items-center justify-center gap-y-4 text-[1.5em]']")
@@ -73,7 +68,7 @@ public class EkycPage extends BasePage {
 	@FindBy(id = "sign-in-with-esignet")
 	WebElement signInWithEsignetButton;
 
-	@FindBy(xpath = "//button[contains(@class,'inline-flex items-center justify-center')][2]")
+	@FindBy(xpath = "(//button[contains(`@class`,'inline-flex items-center justify-center')])[2]")
 	WebElement proceedButton;
 
 	@FindBy(id = "kyc-provider-header")

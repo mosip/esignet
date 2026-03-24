@@ -97,6 +97,12 @@ public class EkycStepDefinition {
 		Assert.assertTrue(ekycPage.isCancelWarningPopupDisplayed(),
 				"Warning popup is not displayed after clicking Cancel button");
 	}
+	
+	@Then("user verify warning popup disappeared")
+	public void userVerifyWarningPopupDisappeared() {
+		Assert.assertFalse(ekycPage.isCancelWarningPopupDisplayed(),
+				"Warning popup is not disappeared after clicking stay button");
+	}
 
 	@Then("user verify the header is attention in warning popup")
 	public void userVerifyWarningPopupHeaderDisplayed() {
