@@ -133,59 +133,138 @@ export default function NavHeader({ langOptions, i18nKeyPrefix = 'header' }) {
 
   var borderBottomClass = 'border-b-[1px]';
 
+  const CustomizedDrodpdownItem = (arr, onSelectChanges) => {
+    if (arr.length === 0) {
+      return null;
+    }
+    const hasCode = arr[0].hasOwn('code');
+    return arr.map((key, idx) => {
+      const mainId = hasCode ? key.code : key.value;
+
+      return (
+        <DropdownMenu.Item
+          id={mainId + idx}
+          key={mainId}
+          className={`
+          ${dropdownItemClass} 
+          ${i18n.language === mainId ? 'selectedLang' : ''} 
+          ${idx !== arr.length - 1 ? borderBottomClass : ''}
+        `.trim()}
+          onSelect={() => onSelectChanges(hasCode ? key.code : key)}
+        >
+          {hasCode ? key.displayName || mainId : key.label}
+          {!hasCode && (
+            <div className="ml-auto">
+              {i18n.language === mainId && (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="lucide lucide-check relative top-[1px] checkIcon"
+                >
+                  <path d="M20 6 9 17l-5-5" />
+                </svg>
+              )}
+            </div>
+          )}
+        </DropdownMenu.Item>
+      );
+    });
+  };
+
+  const CustomizeDropdownTrigger = ({ label, disabled = false }) => (
+    <DropdownMenu.Trigger asChild>
+      <span
+        className="inline-flex items-center justify-center bg-white outline-none hover:cursor-pointer"
+        aria-label="Customise options"
+        id="language_selection"
+        aria-disabled={disabled}
+      >
+        {label}
+        <svg
+          width="11"
+          height="7"
+          viewBox="0 0 11 7"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="mx-[5px] relative top-[1px]"
+        >
+          <path
+            d="M6.32475 6.11822C6.27602 6.1693 6.21679 6.21007 6.1508 6.23797C6.08481 6.26587 6.01351 6.28027 5.94142 6.28027C5.86934 6.28027 5.79803 6.26587 5.73205 6.23797C5.66606 6.21007 5.60682 6.1693 5.5581 6.11822L1.01957 1.35833C0.950664 1.28692 0.904963 1.19771 0.888077 1.10166C0.871191 1.00562 0.883855 0.906926 0.924515 0.817707C0.965175 0.728487 1.03206 0.652628 1.11695 0.599448C1.20184 0.546268 1.30105 0.518082 1.40237 0.518354L10.4794 0.518354C10.5804 0.518247 10.6793 0.546417 10.7639 0.599424C10.8486 0.652431 10.9153 0.727982 10.956 0.816849C10.9967 0.905717 11.0096 1.00406 10.9932 1.09986C10.9767 1.19566 10.9316 1.28478 10.8633 1.35633L6.32475 6.11822Z"
+            className="language-icon-bg-color"
+          />
+        </svg>
+      </span>
+    </DropdownMenu.Trigger>
+  );
+
   const LanguageSelection = () => {
+    // getting applicationId from query param to pass it to AsgardeoProvider
+    const applicationId = new URL(window.location.href).searchParams.get(
+      'applicationId'
+    );
+
+    if (!applicationId) {
+      return (
+        <DropdownMenu.Root>
+          <CustomizeDropdownTrigger label={selectedLang?.label} />
+          <DropdownMenu.Portal>
+            <DropdownMenu.Content
+              className="min-w-[220px] bg-white rounded-md shadow-sm will-change-[opacity,transform] data-[side=top]:animate-slideDownAndFade data-[side=right]:animate-slideLeftAndFade data-[side=bottom]:animate-slideUpAndFade data-[side=left]:animate-slideRightAndFade px-3 py-1 border border-[#BCBCBC] outline-0 relative top-[-0.5rem]"
+              sideOffset={5}
+            >
+              <CustomizedDrodpdownItem
+                arr={langOptions}
+                onSelectChanges={changeLanguageHandler}
+              />
+              <DropdownMenu.Arrow asChild>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 30 10"
+                  stroke="#BCBCBC"
+                  height={7}
+                >
+                  <polygon points="0,0 30,0 15,10" fill="#fff" />
+                  <line
+                    x1="1"
+                    y1="0"
+                    x2="29"
+                    y2="0"
+                    stroke="#fff"
+                    strokeWidth="1"
+                  />
+                </svg>
+              </DropdownMenu.Arrow>
+            </DropdownMenu.Content>
+          </DropdownMenu.Portal>
+        </DropdownMenu.Root>
+      );
+    }
+
     return (
       <LanguageSwitcher>
         {({ languages, currentLanguage, onLanguageChange, isLoading }) => {
           const current = languages.find((l) => l.code === currentLanguage);
           return (
             <DropdownMenu.Root>
-              <DropdownMenu.Trigger asChild>
-                <span
-                  className="inline-flex items-center justify-center bg-white outline-none hover:cursor-pointer"
-                  aria-label="Customise options"
-                  id="language_selection"
-                  aria-disabled={isLoading}
-                >
-                  {current?.displayName || currentLanguage}
-                  <svg
-                    width="11"
-                    height="7"
-                    viewBox="0 0 11 7"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="mx-[5px] relative top-[1px]"
-                  >
-                    <path
-                      d="M6.32475 6.11822C6.27602 6.1693 6.21679 6.21007 6.1508 6.23797C6.08481 6.26587 6.01351 6.28027 5.94142 6.28027C5.86934 6.28027 5.79803 6.26587 5.73205 6.23797C5.66606 6.21007 5.60682 6.1693 5.5581 6.11822L1.01957 1.35833C0.950664 1.28692 0.904963 1.19771 0.888077 1.10166C0.871191 1.00562 0.883855 0.906926 0.924515 0.817707C0.965175 0.728487 1.03206 0.652628 1.11695 0.599448C1.20184 0.546268 1.30105 0.518082 1.40237 0.518354L10.4794 0.518354C10.5804 0.518247 10.6793 0.546417 10.7639 0.599424C10.8486 0.652431 10.9153 0.727982 10.956 0.816849C10.9967 0.905717 11.0096 1.00406 10.9932 1.09986C10.9767 1.19566 10.9316 1.28478 10.8633 1.35633L6.32475 6.11822Z"
-                      className="language-icon-bg-color"
-                    />
-                  </svg>
-                </span>
-              </DropdownMenu.Trigger>
+              <CustomizeDropdownTrigger
+                label={current?.displayName || currentLanguage}
+                disabled={isLoading}
+              />
               <DropdownMenu.Portal>
                 <DropdownMenu.Content
                   className="min-w-[220px] bg-white rounded-md shadow-sm will-change-[opacity,transform] data-[side=top]:animate-slideDownAndFade data-[side=right]:animate-slideLeftAndFade data-[side=bottom]:animate-slideUpAndFade data-[side=left]:animate-slideRightAndFade px-3 py-1 border border-[#BCBCBC] outline-0 relative top-[-0.5rem]"
                   sideOffset={5}
                 >
-                  {languages.map((lang, idx) => (
-                    <DropdownMenu.Item
-                      id={lang.code + idx}
-                      key={lang.code}
-                      className={
-                        i18n.language === lang.code
-                          ? langOptions.length - 1 !== idx
-                            ? `selectedLang ${dropdownItemClass} ${borderBottomClass}`
-                            : `selectedLang ${dropdownItemClass}`
-                          : langOptions.length - 1 !== idx
-                            ? `${dropdownItemClass} ${borderBottomClass}`
-                            : `${dropdownItemClass}`
-                      }
-                      onSelect={() => onLanguageChange(lang.code)}
-                    >
-                      {lang.displayName || lang.code}
-                    </DropdownMenu.Item>
-                  ))}
+                  <CustomizedDrodpdownItem
+                    arr={languages}
+                    onSelectChanges={onLanguageChange}
+                  />
                   <DropdownMenu.Arrow asChild>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
