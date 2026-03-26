@@ -309,21 +309,20 @@ public class ConsentPage extends BasePage {
 		return claims;
 	}
 
-
 	public boolean isEssentialClaimsHeaderDisplayed() {
-		return isElementVisible(essentialClaimsHeader);
+		return isElementVisible(essentialClaimsHeader, "Verified essential claims header is visible");
 	}
 
 	public boolean isEssentialClaimsListDisplayed() {
-		return isElementVisible(essentialClaimsList);
+		return isElementVisible(essentialClaimsList, "Verified essential claims list is visible");
 	}
 
 	public boolean isActionMessageDisplayed() {
-		return isElementVisible(actionMessage);
+		return isElementVisible(actionMessage, "Verified action message is displayed");
 	}
 
 	public boolean isTimerDisplayed() {
-		return isElementVisible(consentTimer);
+		return isElementVisible(consentTimer, "Verified timer is displayed");
 	}
 
 }
