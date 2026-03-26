@@ -442,7 +442,7 @@ public class TokenServiceTest {
 
         EsignetException ex = Assertions.assertThrows(EsignetException.class, () ->
                 tokenService.verifyClientAssertionToken("client-id", rsaKey.toPublicJWK().toJSONString(), signedJWT.serialize(), List.of("audience")));
-        Assertions.assertEquals(ErrorConstants.INVALID_GRANT, ex.getErrorCode());
+        Assertions.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
     }
 
     @Test

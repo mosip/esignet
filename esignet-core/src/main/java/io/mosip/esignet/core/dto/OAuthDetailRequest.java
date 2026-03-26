@@ -6,7 +6,9 @@
 package io.mosip.esignet.core.dto;
 
 import io.mosip.esignet.api.dto.claim.ClaimsV2;
+import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.validator.*;
+import jakarta.validation.constraints.Null;
 import lombok.Data;
 
 import jakarta.validation.Valid;
@@ -90,4 +92,10 @@ public class OAuthDetailRequest {
      * Thumbrint of public key created for this transaction by RP for DPoP support.
      */
     private String dpopJkt;
+
+    /**
+     * The `request` parameter is not supported in this implementation.
+     */
+    @Null(message = ErrorConstants.REQUEST_NOT_SUPPORTED)
+    private String request;
 }

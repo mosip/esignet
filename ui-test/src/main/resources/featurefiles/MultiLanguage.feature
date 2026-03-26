@@ -4,7 +4,7 @@ Feature: Multi language scenario's in eSignet
 
   @smoke
   Scenario: Verify the language in browser cookie
-    When Click on Language selection option
-    And Select the mandatory language
-    And Get the cookies
-    Then Validate the language in cookie
+    When click on Language selection option
+    And select the mandatory language
+    And get the cookies
+    Then validate the language in cookie

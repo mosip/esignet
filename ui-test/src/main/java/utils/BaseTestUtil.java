@@ -1,5 +1,6 @@
 package utils;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -83,6 +84,8 @@ public class BaseTestUtil {
 			bsOptions.put("os", EsignetConfigManager.getproperty("browserStackOs"));
 			bsOptions.put("osVersion", EsignetConfigManager.getproperty("osVersion"));
 			bsOptions.put("projectName", "MOSIP ESignet UI Test");
+			bsOptions.put("local", true);
+			bsOptions.put("sessionName", "ESignet-" + Thread.currentThread().getId());
 			caps.setCapability("bstack:options", bsOptions);
 
 			if (browser.equalsIgnoreCase("chrome")) {
@@ -138,7 +141,23 @@ public class BaseTestUtil {
 
 		switch (browser) {
 		case "chrome":
-			WebDriverManager.chromedriver().setup();
+			if (System.getProperty("os.name").equalsIgnoreCase("Linux")
+					&& "yes".equalsIgnoreCase(EsignetConfigManager.getDocker())) {
+				String chromedriverPath = EsignetConfigManager.getProperty("chromeDriverPath", "/usr/bin/chromedriver");
+
+				File driverFile = new File(chromedriverPath);
+
+				if (!driverFile.exists() || !driverFile.canExecute()) {
+					throw new RuntimeException("Invalid ChromeDriver path configured: " + chromedriverPath
+							+ ". Ensure ChromeDriver exists and is executable.");
+				}
+
+				System.setProperty("webdriver.chrome.driver", chromedriverPath);
+
+			} else {
+				WebDriverManager.chromedriver().setup();
+			}
+
 			ChromeOptions chromeOptions = new ChromeOptions();
 			LoggingPreferences logPrefs = new LoggingPreferences();
 			logPrefs.enable(LogType.PERFORMANCE, Level.ALL);

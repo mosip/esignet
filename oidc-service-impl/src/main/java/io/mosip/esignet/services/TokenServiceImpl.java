@@ -178,7 +178,12 @@ public class TokenServiceImpl implements TokenService {
             }
 
             String sub = signedJWT.getJWTClaimsSet().getSubject();
-            if (sub == null || !sub.equals(clientId)) {
+            if (sub == null) {
+                log.error("Client assertion sub is null for clientId '{}'", clientId);
+                throw new EsignetException(ErrorConstants.INVALID_CLIENT);
+            }
+
+            if (!sub.equals(clientId)) {
                 log.error("Client assertion sub '{}' does not match clientId '{}'", sub, clientId);
                 throw new EsignetException(ErrorConstants.INVALID_GRANT);
             }

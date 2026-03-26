@@ -1,11 +1,16 @@
 package runners;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -58,6 +63,7 @@ public class Runner extends AbstractTestNGCucumberTests {
 	private static String cachedPath = null;
 	public static String jarUrl = Runner.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 	public static boolean skipAll = false;
+	public static Map<String, String> knownIssues = new ConcurrentHashMap<>();
 
 	@Override
 	@DataProvider(parallel = true, name = "scenarios")
@@ -268,6 +274,7 @@ public class Runner extends AbstractTestNGCucumberTests {
 		BaseTest.totalCount = 0;
 		BaseTest.passedCount = 0;
 		BaseTest.failedCount = 0;
+		BaseTest.knownIssueCount = 0;
 	}
 
 	public static String getGlobalResourcePath() {
@@ -314,6 +321,44 @@ public class Runner extends AbstractTestNGCucumberTests {
 			System.setProperty("cucumber.features", "src\\test\\resources\\featurefiles\\");
 		} else {
 			System.setProperty("cucumber.features", "/home/mosip/featurefiles/");
+		}
+	}
+	
+	static {
+		loadKnownIssues();
+	}
+
+	private static void loadKnownIssues() {
+		InputStream knownIssuesStream = Runner.class.getClassLoader().getResourceAsStream("config/Known_Issues.txt");
+		if (knownIssuesStream == null) {
+			LOGGER.warning("Known issues file not found in classpath: config/Known_Issues.txt");
+			return;
+		}
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(knownIssuesStream, StandardCharsets.UTF_8))) {
+
+			String line;
+			while ((line = br.readLine()) != null) {
+
+				line = line.trim();
+
+				if (line.isEmpty() || line.startsWith("#") || !line.contains("------")) {
+					continue;
+				}
+
+				String[] parts = line.split("------", 2);
+
+				if (parts.length == 2) {
+					String bugId = parts[0].trim();
+					String scenarioName = parts[1].trim().replaceAll("\\s+", " ");
+
+					knownIssues.put(scenarioName, bugId);
+				}
+			}
+
+			LOGGER.info("Known Issues Loaded: " + knownIssues);
+
+		} catch (Exception e) {
+			LOGGER.warning("Error reading Known_Issues.txt: " + e.getMessage());
 		}
 	}
 }
