@@ -14,7 +14,7 @@ Feature: Esignet Consent Page
     And user fills the signup form using UI specification
     And user clicks on Continue button in Setup Account Page
     And verify that success screen is displayed
-  
+    
   @smoke @ToggleButtonInConsentPage
   Scenario Outline: Verifying Toggle button in consent screen
    Given user captures the authorize url
@@ -69,3 +69,34 @@ Examples:
   | correct Otp  |
   | 111111       |
     
+  @smoke @Consentscreen
+  Scenario Outline: Verifying Consent Screen changes to handle unavailable voluntary claims
+   Given user captures the authorize url
+   When Click on Language selection option
+   And Select the mandatory language
+   And user click on Login with Otp
+   Then user enters Registered mobile number into the mobile number field
+   And user click on get otp button
+   When user enters the "<correct Otp>"
+   And click on verify Otp button
+   
+   Then verify consent should ask user to proceed in attention page
+   And clicks on proceed button in attention page
+   And clicks on proceed button in next page
+   Then select the e-kyc verification provider
+   And clicks on proceed button in e-kyc verification provider page
+   And user select the check box in terms and condition page
+   And user clicks on proceed button in terms and condition page
+   And user clicks on proceed button in camera preview page
+   And user is navigated to consent screen once liveness check completes
+   And verify user is navigated to consent screen
+   
+   Then user verify the header of essential claims
+   And user verify the list of essential claims are present 
+   
+   And user verify the action message in consent screen
+   And user verify the timer is displayed in consent screen
+  
+Examples:
+  | correct Otp  |
+  | 111111       |
