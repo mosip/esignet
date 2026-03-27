@@ -57,6 +57,8 @@ public class BaseTest extends AdminTestUtil {
 	private static final ThreadLocal<Uin> threadUin = new ThreadLocal<>();
 	private static final ThreadLocal<Vid> threadVid = new ThreadLocal<>();
 	private static final ThreadLocal<Boolean> isKnownIssueScenario = new ThreadLocal<>();
+	public static final ThreadLocal<Boolean> isMobileMode = new ThreadLocal<>();
+	private static final ThreadLocal<String> mobileDeviceName = new ThreadLocal<>();
 
 	public static int passedCount = 0;
 	public static int failedCount = 0;
@@ -77,8 +79,11 @@ public class BaseTest extends AdminTestUtil {
 		}
 	}
 
-	@Before
+	@Before(order = 2)
 	public void beforeAll(Scenario scenario) {
+		if (isMobileMode.get() == null) {
+			isMobileMode.set(false);
+		}
 		LOGGER.info("Initializing WebDriver...");
 
 		if (runners.Runner.knownIssues.containsKey(scenario.getName())) {
@@ -304,6 +309,24 @@ public class BaseTest extends AdminTestUtil {
 		}
 	}
 
+	@Before(value = "@mobile", order = 1)
+	public void enableMobileMode(Scenario scenario) {
+		String mobileDevice = EsignetConfigManager.getproperty("mobileDevice");
+		if (mobileDevice == null || mobileDevice.isBlank()) {
+			throw new IllegalStateException("mobileDevice property must be configured for `@mobile` scenarios");
+		}
+		isMobileMode.set(true);
+		mobileDeviceName.set(mobileDevice);
+		LOGGER.info("Mobile emulation enabled for scenario: " + scenario.getName() + " using device: " + mobileDevice);
+	}
+
+	@After("@mobile")
+	public void disableMobileMode() {
+		isMobileMode.remove();
+		mobileDeviceName.remove();
+		LOGGER.info("Mobile emulation disabled for next scenarios");
+	}
+
 	public static WebDriver getDriver() {
 		return driverThreadLocal.get();
 	}
@@ -321,7 +344,8 @@ public class BaseTest extends AdminTestUtil {
 	private WebDriver setupLocalDriver(Scenario scenario, boolean isMulti, boolean tagPresent, String browser)
 			throws IOException {
 		LOGGER.info("Running scenario on local browser" + (isMulti ? " (multi)" : "") + ": " + browser);
-		return BaseTestUtil.getLocalWebDriverInstance(browser);
+		return BaseTestUtil.getLocalWebDriverInstance(browser, Boolean.TRUE.equals(isMobileMode.get()),
+				mobileDeviceName.get());
 	}
 
 	private String getStepName(Scenario scenario) {

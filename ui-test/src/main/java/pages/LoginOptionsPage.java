@@ -131,5 +131,9 @@ public class LoginOptionsPage extends BasePage {
 	    wait.until(ExpectedConditions.textToBePresentInElement(loginButton, text));
 	    return loginButton.getText().contains(text);
 	}
+	
+	public WebElement getLoginWithOtpButton() {
+		return loginWithOtpBtn;
+	}
 
 }

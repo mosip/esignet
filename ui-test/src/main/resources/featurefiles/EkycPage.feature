@@ -3,22 +3,22 @@ Feature: Esignet eKyc Page
   This feature file is for verifying the eKyc page  
 
   @smoke @eKycStepsPageVerification
-  Scenario Outline: Verify eKYC process steps screen content
+  Scenario: Verify eKYC process steps screen content
    When click on Language selection option
    And select the mandatory language
    And user click on Login with Otp
    Then user enters Registered mobile number into the mobile number field
    And user click on get otp button
-   When user enters the "<correct Otp>"
+   When user enters the correct otp
    And click on verify Otp button
    
    Then verify consent should ask user to proceed in attention page
    And clicks on proceed button in attention page
    Then verify user navigate to eKYC process steps screen
-   And user verify the title of step 1 is choose an eKYC provider
-   And user verify that the subtitle of step 1 is displayed in eKYC process steps screen
-   And user verify the title of step 2 is terms and conditions
-   And user verify that the subtitle of step 2 is displayed in eKYC process steps screen
+   And user verify the title of step 1 is choose an eKYC provider
+   And user verify that the subtitle of step 1 is displayed in eKYC process steps screen
+   And user verify the title of step 2 is terms and conditions
+   And user verify that the subtitle of step 2 is displayed in eKYC process steps screen
    And user verify the title of step 3 is pre verification guide
    And user verify that the subtitle of step 3 is displayed in eKYC process steps screen
    And user verify the title of step 4 is identity verification
@@ -42,7 +42,7 @@ Feature: Esignet eKyc Page
    And user click on Login with Otp
    Then user enters Registered mobile number into the mobile number field
    And user click on get otp button
-   When user enters the "<correct Otp>"
+   When user enters the correct otp
    And click on verify Otp button
    Then verify consent should ask user to proceed in attention page
    And clicks on proceed button in attention page
@@ -50,7 +50,3 @@ Feature: Esignet eKyc Page
    And user verify the proceed button is visible in eKYC process Steps screen
    When user verify the proceed button is clickable in eKYC process steps screen
    Then user verify user is redirected to list of eKYC providers screen
-   
-Examples:
-  | correct Otp  |
-  | 111111       |

@@ -359,4 +359,9 @@ public class BasePage {
 		return tooltip.getText();
 	}
 
+	public static String getOtp() {
+		String otp = "111111";
+		return otp;
+	}
+
 }

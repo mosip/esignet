@@ -17,4 +17,22 @@ Feature: Esignet Login Options Page
   Examples:
    | other lang | text   |
    | हिंदी        | लॉगिन    |
+   
+  @mobile @mobileViewFeatures
+  Scenario: Verifying the UI in mobile view
+   When user triggers the authorization endpoint, the response should have status code 200 and contain valid HTML with JS content
+   Given user captures the authorize url
+   And click on Language selection option
+   And select the mandatory language
+   Then user views the portal on multiple screen sizes
+   And user verifies the behavior after resizing the browser window to different dimensions
+   And user verify the otp button remain visible and aligned after resizing
+   Then verify dropdown language selection is present
+   And verify multiple options for login is available
+   And verify more ways to signIn option is available
+   And user click on Login with Otp
+   Then user enters Registered mobile number into the mobile number field
+   And user click on get otp button
+   When user enters the correct otp
+   And click on verify Otp button
   

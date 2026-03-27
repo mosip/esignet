@@ -131,12 +131,10 @@ public class BaseTestUtil {
 		return new RemoteWebDriver(remoteUrl, caps);
 	}
 
-	public static WebDriver getLocalWebDriverInstance(String browser) throws IOException {
+	public static WebDriver getLocalWebDriverInstance(String browser, boolean isMobile, String deviceName)
+			throws IOException {
 		browser = browser.toLowerCase();
 		boolean isHeadless = Boolean.parseBoolean(EsignetConfigManager.getproperty("headless"));
-		boolean isMobile = Boolean.parseBoolean(
-				System.getProperty("mobileEmulation", EsignetConfigManager.getproperty("mobileEmulation")));
-		String deviceName = System.getProperty("mobileDevice", EsignetConfigManager.getproperty("mobileDevice"));
 		WebDriver driver;
 
 		switch (browser) {
