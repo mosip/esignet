@@ -14,11 +14,11 @@ Feature: Esignet eKyc Page
    
    Then verify consent should ask user to proceed in attention page
    And clicks on proceed button in attention page
-   Then verify user navigate to eKYC Process Steps screen
-   And user verify the title of step 1 is Choose an eKYC provider
-   And user verify that the subtitle of step 1 is displayed in eKYC Process Steps screen
-   And user verify the title of step 2 is Terms And Conditions
-   And user verify that the subtitle of step 2 is displayed in eKYC Process Steps screen
+   Then verify user navigate to eKYC process steps screen
+   And user verify the title of step 1 is choose an eKYC provider
+   And user verify that the subtitle of step 1 is displayed in eKYC process steps screen
+   And user verify the title of step 2 is terms and conditions
+   And user verify that the subtitle of step 2 is displayed in eKYC process steps screen
    And user verify the title of step 3 is pre verification guide
    And user verify that the subtitle of step 3 is displayed in eKYC process steps screen
    And user verify the title of step 4 is identity verification
