@@ -111,6 +111,15 @@ public class ConsentPage extends BasePage {
 	@FindBy(xpath = "//button[contains(@class,'flex items-center px-4')]")
 	WebElement profileDropdown;
 
+	@FindBy(xpath = "(//div[@class='font-semibold'])[1]")
+	WebElement essentialClaimsHeader;
+
+	@FindBy(xpath = "(//div[@class='divide-y'])[1]")
+	WebElement essentialClaimsList;
+
+	@FindBy(xpath = "//p[@class='text-[#4E4E4E] font-semibold']")
+	WebElement actionMessage;
+
 	public void clickOnLoginWithOtp() {
 		clickOnElement(loginWithOtpButton, "Clicked on login with Otp button");
 	}
@@ -298,6 +307,22 @@ public class ConsentPage extends BasePage {
 		}
 
 		return claims;
+	}
+
+	public boolean isEssentialClaimsHeaderDisplayed() {
+		return isElementVisible(essentialClaimsHeader, "Verified essential claims header is visible");
+	}
+
+	public boolean isEssentialClaimsListDisplayed() {
+		return isElementVisible(essentialClaimsList, "Verified essential claims list is visible");
+	}
+
+	public boolean isActionMessageDisplayed() {
+		return isElementVisible(actionMessage, "Verified action message is displayed");
+	}
+
+	public boolean isTimerDisplayed() {
+		return isElementVisible(consentTimer, "Verified timer is displayed");
 	}
 
 }
