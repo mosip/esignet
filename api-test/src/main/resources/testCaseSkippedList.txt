@@ -1,2 +1,21 @@
 ##### JIRA number;testcase 
-#MOSIP-12456------test_case_name
+ES-2947------ESignet_GetOidcUserInfo_LinkedConsent_uin_IdpAccessToken_GetUserInfoJWS_Valid_Smoke_sid
+ES-2947------ESignet_GetOidcUserInfo_LinkedConsent_Vid_IdpAccessToken_GetUserInfoJWS_Valid_Smoke_sid
+ES-2947------ESignet_GetOidcUserInfo_Linked_uin_IdpAccessToken_GetUserInfoJWS_Valid_Smoke_sid
+ES-2947------ESignet_GetOidcUserInfo_Linked_Vid_IdpAccessToken_GetUserInfoJWS_Valid_Smoke_sid
+ES-2947------ESignet_GetOidcUserInfo_Linked_uin_IdpAccessToken_GetUserInfoJWS_SameClaim_Valid_Smoke_sid
+ES-2947------ESignet_GetOidcUserInfo_Linked_Vid_IdpAccessToken_GetUserInfoJWS_SameClaim_Valid_Smoke_sid
+ES-2947------ESignet_GetOidcUserInfo_Linked_uin_IdpAccessToken_GetUserInfoJWS_User2_Valid_Smoke_sid
+ES-2947------ESignet_GetOidcUserInfo_Linked_Vid_IdpAccessToken_GetUserInfoJWS_User2_Valid_Smoke_sid
+ES-2947------ESignet_GetOidcUserInfo_Consent_uin_IdpAccessToken_GetUserInfoJWS_Claim2_Valid_Smoke_sid
+ES-2947------ESignet_GetOidcUserInfo_Consent_Vid_IdpAccessToken_GetUserInfoJWS_Claim2_Valid_Smoke_sid
+ES-2947------ESignet_GetOidcUserInfo_Consent_uin_IdpAccessToken_GetUserInfoJWS_Valid_Smoke_sid
+ES-2947------ESignet_GetOidcUserInfo_Consent_Vid_IdpAccessToken_GetUserInfoJWS_Valid_Smoke_sid
+ES-2947------ESignet_GetOidcUserInfo_uin_IdpAccessToken_GetUserInfoJWS_Valid_Smoke_sid
+ES-2947------ESignet_GetOidcUserInfo_Vid_IdpAccessToken_GetUserInfoJWS_Valid_Smoke_sid
+ES-2947------ESignet_GetOidcUserInfo_PAR_UIN_IdpAccessToken_GetUserInfoJWS_Valid_Smoke
+ES-2947------ESignet_GetOidcUserInfo_UIN_Dpop_AccessToken_GetUserInfoJWS_Valid_Smoke
+ES-2947------ESignet_GetOidcUserInfo_IdpAccessToken_GetUserInfoJWS_Verified_Claims_Valid_Smoke
+ES-2947------ESignet_GetOidcUserInfo_IdpAccessToken_GetUserInfoJWS_Without_Verified_Claims_Valid_Smoke
+ES-2947------ESignet_GetOidcUserInfo_IdpAccessToken_GetUserInfoJWS_Scope_Valid
+ES-2947------ESignet_UserInfoConsentNoCapture_IdpAccessToken_GetUserInfoJWS_Verified_Claims_Valid_Smoke
