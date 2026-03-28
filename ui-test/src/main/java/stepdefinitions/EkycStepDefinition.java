@@ -235,7 +235,7 @@ public class EkycStepDefinition {
 
 	@Then("user verify the discontinue button is visible in warning popup in list of eKYC providers screen")
 	public void userVerifyEkycProvidersDiscontinueButtonVisible() {
-		Assert.assertTrue(ekycPage.isDiscontinueButtonVisible(), "Discountinue button is not visible in warning popup");
+		Assert.assertTrue(ekycPage.isDiscontinueButtonVisible(), "Discontinue button is not visible in warning popup");
 	}
 
 	@When("user verify the stay button is clickable in warning popup in list of eKYC providers screen")
