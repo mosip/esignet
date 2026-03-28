@@ -125,7 +125,7 @@ public class EkycStepDefinition {
 
 	@Then("user verify warning popup disappeared")
 	public void userVerifyWarningPopupDisappeared() {
-		Assert.assertFalse(ekycPage.isCancelWarningPopupDisplayed(),
+		Assert.assertTrue(ekycPage.isEkycProcessStepsScreenLabelDisplayed(),
 				"Warning popup is not disappeared after clicking stay button");
 	}
 
@@ -219,7 +219,8 @@ public class EkycStepDefinition {
 
 	@Then("user verify the header in warning popup in list of eKYC providers screen")
 	public void userVerifyEkycProvidersWarningPopupHeaderDisplayed() {
-		Assert.assertTrue(ekycPage.isEkycProviderWarningPopupHeaderDisplayed(), "Warning popup header is not displayed");
+		Assert.assertTrue(ekycPage.isEkycProviderWarningPopupHeaderDisplayed(),
+				"Warning popup header is not displayed");
 	}
 
 	@Then("user verify the message displayed in warning popup in list of eKYC providers screen")
@@ -262,6 +263,100 @@ public class EkycStepDefinition {
 	public void userVerifyRedirectedToEkycTermsAndConditionScreen() {
 		Assert.assertTrue(ekycPage.isEkycTermsAndConditionsScreenVisible(),
 				"User is not redirected to terms and conditions screen after clicking Proceed");
+	}
+
+	@Then("user verify the header title displayed in terms and conditions screen")
+	public void userVerifyTermsAndConditionHeaderDisplayed() {
+		Assert.assertTrue(ekycPage.isTermsAndConditionHeaderTitleDisplayed(), "Header is not displayed");
+	}
+
+	@Then("user verify the sub header message displayed in terms and conditions screen")
+	public void userVerifyTermsAndConditionSubHeaderDisplayed() {
+		Assert.assertTrue(ekycPage.isTermsAndConditionSubHeaderTitleDisplayed(), "Sub header message is not displayed");
+	}
+
+	@Then("user verify the content displayed in terms and conditions screen")
+	public void userVerifyTermsAndConditionContentDisplayed() {
+		Assert.assertTrue(ekycPage.isTermsAndConditionContentDisplayed(), "Content message is not displayed");
+	}
+
+	@Then("user verify content body text frame has scrollbar enabled in terms and conditions screen")
+	public void userVerifyTermsAndCoditionContentScrollBarIsDisabled() {
+		Assert.assertTrue(ekycPage.isTermaAndConditionContentScrollBarEnabled(),
+				"Terms and conditions content body text frame scroll bar is enabled");
+	}
+
+	@Then("user verify checkbox is not selected by default in terms and conditions screen")
+	public void userVerifyCheckboxNotSelectedByDefault() {
+		Assert.assertTrue(ekycPage.isTermsCheckboxNotSelected(),
+				"Terms and Conditions checkbox is selected by default");
+	}
+
+	@Then("user verify terms and conditions checkbox is clickable in terms and conditions screen")
+	public void userClicksOnCheckBoxInTermsAndConditonScreen() {
+		ekycPage.clickOnTermsAndConditionCheckBox();
+	}
+
+	@Then("user click on checkbox in terms and conditions screen")
+	public void userClicksOnCheckBox() {
+		ekycPage.clickOnTermsAndConditionCheckBox();
+	}
+
+	@Then("user verify the text beside checkbox message displayed in terms and conditions screen")
+	public void userVerifyTermsCheckboxTextDisplayed() {
+		Assert.assertTrue(ekycPage.isTermsCheckboxTextDisplayed(),
+				"Text beside checkbox is not displayed in terms and conditions screen");
+	}
+
+	@Then("user verify the cancel button is visible in terms and conditions screen")
+	public void userVerifyCancelButtonVisibleInTermsAndCondition() {
+		Assert.assertTrue(ekycPage.isCancelButtonInTermsAndConditionScreenVisible(),
+				"Cancel button is not visible in terms and conditions screen");
+	}
+
+	@Then("user verify the cancel button is clickable in terms and conditions screen")
+	public void userClicksOnCancelButtonInTermsAndConditionScreen() {
+		ekycPage.clickOnCancelButtonInTermsAndConditionScreen();
+	}
+
+	@Then("user verify warning popup is displayed on clicking cancel button in terms and conditions screen")
+	public void userVerifyTermsWarningPopupDisplayed() {
+		Assert.assertTrue(ekycPage.isEkycTermsAndConditionWarningPopupDisplayed(),
+				"Warning popup is not displayed after clicking Cancel button");
+	}
+
+	@When("user verify the stay button is clickable in warning popup in terms and conditions screen")
+	public void userClicksOnStayButtonInEkyTermsAndConditionWarningPopup() {
+		ekycPage.clickOnStayButton();
+	}
+
+	@When("user verify the discontinue button is clickable in warning popup in terms and conditions screen")
+	public void userClicksOnDiscontinueButtonInTermsWarningPopup() {
+		ekycPage.clickOnDiscontinueButton();
+	}
+
+	@Then("user verify proceed button is disabled when no check box is selected in terms and condition screen")
+	public void userVerifyTermsProceedButtonIsDisabled() {
+		Assert.assertFalse(ekycPage.isTermsProceedButtonEnabled(),
+				"Proceed button is enabled without selecting an checkbox in terms and condition screen");
+	}
+
+	@Then("user verify the proceed button is displayed in terms and condition screen")
+	public void userVerifyTermsProceedButtonDisplayed() {
+		Assert.assertTrue(ekycPage.isEkycTermsAndConditionProceedButtonDisplayed(),
+				"Proceed button is not visible in terms and condition screen");
+	}
+
+	@Then("user verify the proceed button is enabled after selecting check box in terms and conditions screen")
+	public void userVerifyProceedButtonIsEnabled() {
+		Assert.assertTrue(ekycPage.isTermsProceedButtonEnabled(),
+				"Proceed button is enabled without selecting an check box in terms and condition screen");
+	}
+
+	@Then("verify user is redirected back to terms and conditions screen")
+	public void verifyUserIsRedirectedBackToTermsAndConditionScreen() {
+		Assert.assertTrue(ekycPage.isEkyTermsAndConditionScreenVisible(),
+				"User is not redirected back to eKYC terms and condition screen");
 	}
 
 }
