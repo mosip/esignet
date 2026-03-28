@@ -289,7 +289,9 @@ public class EsignetUtil extends AdminTestUtil {
 			}
 		}
 
-		if (SkipTestCaseHandler.isTestCaseInSkippedList(testCaseName)) {
+		if (getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("idaauthenticatorimpl")
+				&& SkipTestCaseHandler.isTestCaseInSkippedList(testCaseName)) {
+
 			throw new SkipException(GlobalConstants.KNOWN_ISSUES);
 		}
 
