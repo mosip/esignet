@@ -219,7 +219,7 @@ public class EkycPage extends BasePage {
 
 	public boolean isProceedButtonNotClickable() {
 		return !isButtonEnabled(proceedButtonEnabled,
-				"Proceed button is disabled and cannot be clicked without selecting an eKYC provider");
+				"Verified proceed button is not clickable in eKYC service provider screen");
 	}
 
 	public boolean isCancelButtonInEkycProviderScreenVisible() {
@@ -251,7 +251,7 @@ public class EkycPage extends BasePage {
 		clickOnElement(cancelButton, "Clicked on cancel button on eKyc screen");
 	}
 
-	public void clickOnSpecificProviderNameButton() {
+	public void clickOnSpecificProviderName() {
 		clickOnElement(ekycProvidersFoundationalId1, "Clicked on specific provider name button");
 	}
 

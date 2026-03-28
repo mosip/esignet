@@ -197,7 +197,7 @@ public class EkycStepDefinition {
 	@Then("user verify disabled proceed button is not clickable in list of eKYC providers screen")
 	public void userVerifyProceedButtonNotClickable() {
 		Assert.assertTrue(ekycPage.isProceedButtonNotClickable(),
-				"Proceed button is not clickable without selecting an eKYC provider in eKYC service provider screen");
+				"Proceed button is clickable without selecting an eKYC provider in eKYC service provider screen");
 	}
 
 	@Then("user verify the cancel button is visible in the list of eKYC providers screen")
@@ -249,8 +249,8 @@ public class EkycStepDefinition {
 	}
 
 	@Then("user verify the specific eKYC provider names is clickable in list of eKYC providers screen")
-	public void userClicksOnSpecificProviderNameButtonInEkycProviderScreen() {
-		ekycPage.clickOnSpecificProviderNameButton();
+	public void userClicksOnSpecificProviderNameInEkycProviderScreen() {
+		ekycPage.clickOnSpecificProviderName();
 	}
 
 	@Then("user verify the proceed button is clickable in list of eKYC providers screen")
