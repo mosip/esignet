@@ -213,18 +213,18 @@ public class EkycStepDefinition {
 
 	@Then("user verify warning popup is displayed on clicking cancel button in list of eKYC providers screen")
 	public void userVerifyCancelWarningPopupDisplayed() {
-		Assert.assertTrue(ekycPage.isEycProviderCancelWarningPopupDisplayed(),
+		Assert.assertTrue(ekycPage.isEkycProviderCancelWarningPopupDisplayed(),
 				"Warning popup is not displayed after clicking Cancel button");
 	}
 
 	@Then("user verify the header in warning popup in list of eKYC providers screen")
 	public void userVerifyEkycProvidersWarningPopupHeaderDisplayed() {
-		Assert.assertTrue(ekycPage.isEycProviderWarningPopupHeaderDisplayed(), "Warning popup header is not displayed");
+		Assert.assertTrue(ekycPage.isEkycProviderWarningPopupHeaderDisplayed(), "Warning popup header is not displayed");
 	}
 
 	@Then("user verify the message displayed in warning popup in list of eKYC providers screen")
 	public void userVerifyEkycProvidersWarningPopupMessageDisplayed() {
-		Assert.assertTrue(ekycPage.isEycProviderWarningPopupMessageDisplayed(),
+		Assert.assertTrue(ekycPage.isEkycProviderWarningPopupMessageDisplayed(),
 				"Warning popup message is not displayed");
 	}
 
@@ -261,7 +261,7 @@ public class EkycStepDefinition {
 	@Then("user verify user is redirected to terms and conditions screen")
 	public void userVerifyRedirectedToEkycTermsAndConditionScreen() {
 		Assert.assertTrue(ekycPage.isEkycTermsAndConditionsScreenVisible(),
-				"User is not redirected to terms and coditions screen after clicking Proceed");
+				"User is not redirected to terms and conditions screen after clicking Proceed");
 	}
 
 }

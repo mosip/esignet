@@ -213,7 +213,7 @@ public class EkycPage extends BasePage {
 
 	public boolean isProceedButtonEnabled() {
 		return isButtonEnabled(proceedButtonEnabled,
-				"Verified Proceed button is disabled in eKYC service provider screen");
+				"Verified Proceed button is enabled  in eKYC service provider screen");
 
 	}
 
@@ -231,15 +231,15 @@ public class EkycPage extends BasePage {
 		clickOnElement(ekycProviderCancelButton, "Clicked on cancel button in the list of eKyc providers screen");
 	}
 
-	public boolean isEycProviderCancelWarningPopupDisplayed() {
+	public boolean isEkycProviderCancelWarningPopupDisplayed() {
 		return isElementVisible(ekycProviderWarningPopup, "Verified cancel warning popup is displayed");
 	}
 
-	public boolean isEycProviderWarningPopupHeaderDisplayed() {
+	public boolean isEkycProviderWarningPopupHeaderDisplayed() {
 		return isElementVisible(ekycProviderWarningPopup, "Verified warning popup header is displayed");
 	}
 
-	public boolean isEycProviderWarningPopupMessageDisplayed() {
+	public boolean isEkycProviderWarningPopupMessageDisplayed() {
 		return isElementVisible(ekycProviderWarningMessagePopup, "Verified warning popup message is displayed");
 	}
 
