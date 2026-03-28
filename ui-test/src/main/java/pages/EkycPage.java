@@ -74,6 +74,30 @@ public class EkycPage extends BasePage {
 	@FindBy(id = "kyc-provider-header")
 	WebElement ekycServiceProvidersHeader;
 
+	@FindBy(xpath = "(//h3[contains(@class,'kyc-box-header mt-2.5')])[1]")
+	WebElement ekycProvidersFoundationalId1;
+
+	@FindBy(xpath = "(//h3[contains(@class,'kyc-box-header mt-2.5')])[2]")
+	WebElement ekycProvidersFoundationalId2;
+
+	@FindBy(id = "proceed-preview-button")
+	WebElement proceedButtonEnabled;
+
+	@FindBy(id = "cancel-preview-button")
+	WebElement ekycProviderCancelButton;
+
+	@FindBy(xpath = "//h2[@class='font-semibold flex flex-col items-center justify-center gap-y-4 text-[1.5em]']")
+	WebElement ekycProviderWarningPopup;
+
+	@FindBy(xpath = "//p[@class='text-center text-muted-dark-gray text-md']")
+	WebElement ekycProviderWarningMessagePopup;
+
+	@FindBy(id = "proceed-preview-button")
+	WebElement ekycProviderProceedButton;
+
+	@FindBy(id = "tnc-header")
+	WebElement ekycTermsAndConditionsHeader;
+
 	public boolean isEkycProcessStepsScreenLabelDisplayed() {
 		return isElementVisible(ekycProcessStepsScreenLabel, "Verified eKyc screen is displayed");
 	}
@@ -118,14 +142,6 @@ public class EkycPage extends BasePage {
 		return isElementVisible(eKycStep5Subtitle, "Verified the sub-title of step 5 in ekyc screen");
 	}
 
-	public boolean isCancelButtonVisible() {
-		return isElementVisible(cancelButton, "Verified cancel button is displayed in eKyc process steps screen");
-	}
-
-	public void clickOnCancelButton() {
-		clickOnElement(cancelButton, "Clicked on cancel button in eKyc process steps screen");
-	}
-
 	public boolean isCancelWarningPopupDisplayed() {
 		return isElementVisible(ekycWarningPopupStayButton, "Verified cancel warning popup is displayed");
 	}
@@ -152,7 +168,7 @@ public class EkycPage extends BasePage {
 	}
 
 	public boolean isEkyScreenVisible() {
-		return isElementVisible(ekycProcessStepsScreenLabel, "Verified eKyc process Steps screen is visible");
+		return isElementVisible(ekycProcessStepsScreenLabel, "Verified eKyc process steps screen is visible");
 	}
 
 	public void clickOnDiscontinueButton() {
@@ -178,4 +194,73 @@ public class EkycPage extends BasePage {
 	public boolean isEkycServiceProviderScreenVisible() {
 		return isElementVisible(ekycServiceProvidersHeader, "Verified eKyc service provider screen is visible");
 	}
+
+	public boolean isEkycProviderHeaderTitleDisplayed() {
+		return isElementVisible(ekycServiceProvidersHeader, "Verified header title in eKYC service provider screen");
+	}
+
+	public boolean isEkycSpecificProviderNameDisplayed() {
+		return isElementVisible(ekycProvidersFoundationalId1,
+				"Verified specific provider name in eKYC service provider screen");
+	}
+
+	public boolean isEkycProviderFoundationalIdsDisplayed() {
+		return isElementVisible(ekycProvidersFoundationalId1,
+				"Verified provider foundational ID 1 in eKyc service provider screen")
+				&& isElementVisible(ekycProvidersFoundationalId2,
+						"Verified provider foundational ID 2 in eKyc service provider screen");
+	}
+
+	public boolean isProceedButtonEnabled() {
+		return isButtonEnabled(proceedButtonEnabled,
+				"Verified Proceed button is disabled in eKYC service provider screen");
+
+	}
+
+	public boolean isProceedButtonNotClickable() {
+		return !isButtonEnabled(proceedButtonEnabled,
+				"Proceed button is disabled and cannot be clicked without selecting an eKYC provider");
+	}
+
+	public boolean isCancelButtonInEkycProviderScreenVisible() {
+		return isElementVisible(ekycProviderCancelButton,
+				"Verified cancel button is displayed in list of eKyc provider screen");
+	}
+
+	public void clickOnCancelButtonInEkycProviderScreen() {
+		clickOnElement(ekycProviderCancelButton, "Clicked on cancel button in the list of eKyc providers screen");
+	}
+
+	public boolean isEycProviderCancelWarningPopupDisplayed() {
+		return isElementVisible(ekycProviderWarningPopup, "Verified cancel warning popup is displayed");
+	}
+
+	public boolean isEycProviderWarningPopupHeaderDisplayed() {
+		return isElementVisible(ekycProviderWarningPopup, "Verified warning popup header is displayed");
+	}
+
+	public boolean isEycProviderWarningPopupMessageDisplayed() {
+		return isElementVisible(ekycProviderWarningMessagePopup, "Verified warning popup message is displayed");
+	}
+
+	public boolean isCancelButtonVisible() {
+		return isElementVisible(cancelButton, "Verified cancel button is visible on eKyc screen");
+	}
+
+	public void clickOnCancelButton() {
+		clickOnElement(cancelButton, "Clicked on cancel button on eKyc screen");
+	}
+
+	public void clickOnSpecificProviderNameButton() {
+		clickOnElement(ekycProvidersFoundationalId1, "Clicked on specific provider name button");
+	}
+
+	public void clickOnProceedButtonInEkycProviderScreen() {
+		clickOnElement(ekycProviderProceedButton, "Clicked on proceed button");
+	}
+
+	public boolean isEkycTermsAndConditionsScreenVisible() {
+		return isElementVisible(ekycTermsAndConditionsHeader, "Verified eKyc terms and conditions screen is visible");
+	}
+
 }
