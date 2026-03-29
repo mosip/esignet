@@ -165,7 +165,7 @@ public class InvalidUrlStepDefinition extends AdminTestUtil {
 	public void userRelaunchesEsignetUrl() {
 		if (BasePage.authorizeUrl == null) {
 		}
-		
+
 		driver.get(BasePage.authorizeUrl);
 	}
 
@@ -231,6 +231,9 @@ public class InvalidUrlStepDefinition extends AdminTestUtil {
 	public void userModifiesSignupValue() {
 		String currentUrl = driver.getCurrentUrl();
 		int lastIndex = currentUrl.lastIndexOf("/signup");
+		if (lastIndex < 0) {
+			throw new IllegalStateException("Expected '/signup' in URL, but got: " + currentUrl);
+		}
 		String modifiedUrl = currentUrl.substring(0, lastIndex) + "/invalid"
 				+ currentUrl.substring(lastIndex + "/signup".length());
 		driver.get(modifiedUrl);
@@ -247,6 +250,9 @@ public class InvalidUrlStepDefinition extends AdminTestUtil {
 	public void userRemoveSignupValue() {
 		String currentUrl = driver.getCurrentUrl();
 		int lastIndex = currentUrl.lastIndexOf("/signup");
+		if (lastIndex < 0) {
+			throw new IllegalStateException("Expected '/signup' in URL, but got: " + currentUrl);
+		}
 		String modifiedUrl = currentUrl.substring(0, lastIndex) + currentUrl.substring(lastIndex + "/signup".length());
 		driver.get(modifiedUrl);
 	}
