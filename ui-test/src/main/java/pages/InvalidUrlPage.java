@@ -74,7 +74,7 @@ public class InvalidUrlPage extends BasePage {
 		return isElementVisible(resetPasswordButton, "Verified reset password button is displayed");
 	}
 
-	public boolean isRegisterButtonvisible() {
+	public boolean isRegisterButtonVisible() {
 		return isElementVisible(registerButton, "Verified register button is displayed");
 	}
 

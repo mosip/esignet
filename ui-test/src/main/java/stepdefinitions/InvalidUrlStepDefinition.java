@@ -239,7 +239,7 @@ public class InvalidUrlStepDefinition extends AdminTestUtil {
 	public void userVerifyErrorScreen() {
 		Assert.assertTrue(invalidUrlPage.isPageNotExistErrorScreenDisplayed(), "Error screen did not displayed");
 		Assert.assertTrue(invalidUrlPage.isResetPasswordButtonVisible(), "Reset password button did not displayed");
-		Assert.assertTrue(invalidUrlPage.isRegisterButtonvisible(), "Register button did not displayed");
+		Assert.assertTrue(invalidUrlPage.isRegisterButtonVisible(), "Register button did not displayed");
 	}
 
 	@When("user remove the signup value in signup url")
