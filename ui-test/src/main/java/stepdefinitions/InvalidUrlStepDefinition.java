@@ -35,6 +35,9 @@ public class InvalidUrlStepDefinition extends AdminTestUtil {
 
 	@When("user modifies domain in the esignet url")
 	public void userModifiesDomainInUrl() {
+		if (BasePage.authorizeUrl == null) {
+			throw new IllegalStateException("authorizeUrl is not set");
+		}
 		String invalidUrl = BasePage.authorizeUrl.replaceFirst("://[^/]+", "://invalid.mosip.net");
 		try {
 			driver.get(invalidUrl);
@@ -75,6 +78,9 @@ public class InvalidUrlStepDefinition extends AdminTestUtil {
 
 	@When("user modify the nonce value in esignet url")
 	public void userModifyNonceValue() {
+		if (BasePage.authorizeUrl == null) {
+			throw new IllegalStateException("authorizeUrl is not set");
+		}
 		String modifiedUrl = BasePage.authorizeUrl.replace("#", "?nonce=invalid123#");
 		driver.get(modifiedUrl);
 	}
@@ -99,18 +105,27 @@ public class InvalidUrlStepDefinition extends AdminTestUtil {
 
 	@When("user modify the state value in esignet url")
 	public void userModifyStateValue() {
+		if (BasePage.authorizeUrl == null) {
+			throw new IllegalStateException("authorizeUrl is not set");
+		}
 		String modifiedUrl = BasePage.authorizeUrl.replace("state", "invalid");
 		driver.get(modifiedUrl);
 	}
 
 	@When("user modify the login value in esignet url")
 	public void userModifyLoginValue() {
+		if (BasePage.authorizeUrl == null) {
+			throw new IllegalStateException("authorizeUrl is not set");
+		}
 		String modifiedUrl = BasePage.authorizeUrl.replace("/login", "/invalid");
 		driver.get(modifiedUrl);
 	}
 
 	@When("user remove the login value in esignet url")
-	public void userRemoveNonceValue() {
+	public void userRemoveLoginValue() {
+		if (BasePage.authorizeUrl == null) {
+			throw new IllegalStateException("authorizeUrl is not set");
+		}
 		String modifiedUrl = BasePage.authorizeUrl.replace("login", " ");
 		driver.get(modifiedUrl);
 	}
@@ -222,8 +237,8 @@ public class InvalidUrlStepDefinition extends AdminTestUtil {
 
 	@Then("verify error screen along with reset password button and register button is displayed")
 	public void userVerifyErrorScreen() {
-		Assert.assertTrue(invalidUrlPage.isPageNotExistErrorScrenDisplayed(), "Error screen did not displayed");
-		Assert.assertTrue(invalidUrlPage.isRessetPasswordButtonVisible(), "Reset password button did not displayed");
+		Assert.assertTrue(invalidUrlPage.isPageNotExistErrorScreenDisplayed(), "Error screen did not displayed");
+		Assert.assertTrue(invalidUrlPage.isResetPasswordButtonVisible(), "Reset password button did not displayed");
 		Assert.assertTrue(invalidUrlPage.isRegisterButtonvisible(), "Register button did not displayed");
 	}
 
@@ -257,7 +272,7 @@ public class InvalidUrlStepDefinition extends AdminTestUtil {
 	@When("user navigates to something went wrong page")
 	public void userNavigatesToErrorPage() {
 		String baseSignupUrl = EsignetConfigManager.getSignupUrl();
-		String modifiedUrl = baseSignupUrl + "/something-went-wrong";
+		String modifiedUrl = baseSignupUrl + "something-went-wrong";
 		driver.get(modifiedUrl);
 	}
 

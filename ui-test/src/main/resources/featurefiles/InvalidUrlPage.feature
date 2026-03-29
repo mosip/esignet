@@ -74,7 +74,6 @@ Examples:
    And verify error screen along with reset password button and register button is displayed
    When user navigates to something went wrong page
    Then verify something went wrong our experts are working hard to make things working again error message displayed
-   And user directly navigates to sign-up portal URL
    When user remove the something went wrong value in signup url
    And verify error screen along with reset password button and register button is displayed
    

@@ -66,11 +66,11 @@ public class InvalidUrlPage extends BasePage {
 				"Verified page looking for does not exist error is displayed");
 	}
 
-	public boolean isPageNotExistErrorScrenDisplayed() {
+	public boolean isPageNotExistErrorScreenDisplayed() {
 		return isElementVisible(pageNotExistError, "Verified page not exist error is displayed");
 	}
 
-	public boolean isRessetPasswordButtonVisible() {
+	public boolean isResetPasswordButtonVisible() {
 		return isElementVisible(resetPasswordButton, "Verified reset password button is displayed");
 	}
 
