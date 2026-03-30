@@ -3,7 +3,7 @@ Feature: Esignet Video Preview Page
   This feature file is for verifying the Video Preview page  
   
   @smoke @VideoPreviewPage
-  Scenario Outline: Verifying PreVerification Guide And Video Preview Page
+  Scenario: Verifying PreVerification Guide And Video Preview Page
    When click on Language selection option
    And select the mandatory language
    And user click on Login with Otp

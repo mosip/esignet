@@ -42,11 +42,11 @@ public class VideoPreviewPage extends BasePage {
 	private WebElement listOfInstructions;
 
 	public boolean isOnKeyInformationScreen() {
-		return keyInformation.isDisplayed();
+		return isElementVisible(keyInformation, "Verified keyinformation is visible");
 	}
 
 	public boolean isHeaderDisplayedOnScreen() {
-		return keyInformation.isDisplayed();
+		return isElementVisible(keyInformation, "Verified keyinformation header is visible");
 	}
 
 	public boolean isCancelButtonDisplayed() {
@@ -58,7 +58,7 @@ public class VideoPreviewPage extends BasePage {
 	}
 
 	public boolean isProceedButtonEnabled() {
-		return isButtonEnabled(proceedButton, "Verified cancel button is enabled");
+		return isButtonEnabled(proceedButton, "Verified proceed button is enabled");
 	}
 
 	public void clickOnProceedButton() {
@@ -73,7 +73,7 @@ public class VideoPreviewPage extends BasePage {
 	}
 
 	public void clickOnCancelButton() {
-		clickOnElement(cancelButton, "Clicked on canecl button");
+		clickOnElement(cancelButton, "Clicked on cancel button");
 	}
 
 	public boolean isAttentionPopupDisplayed() {
