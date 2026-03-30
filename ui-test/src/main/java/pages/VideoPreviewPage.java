@@ -4,14 +4,12 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.PageFactory;
 import base.BasePage;
 
 public class VideoPreviewPage extends BasePage {
 
 	public VideoPreviewPage(WebDriver driver) {
 		super(driver);
-		PageFactory.initElements(driver, this);
 	}
 
 	@FindBy(id = "video-preview-header")
@@ -24,7 +22,7 @@ public class VideoPreviewPage extends BasePage {
 	WebElement proceedButton;
 
 	@FindBy(xpath = "//div[contains(@class,'scrollable-div')]")
-	private WebElement instructionContainer;
+	private WebElement scrollOption;
 
 	@FindBy(id = "stay-button")
 	WebElement stayButton;
@@ -33,20 +31,23 @@ public class VideoPreviewPage extends BasePage {
 	WebElement discontinueButton;
 
 	@FindBy(xpath = "//div[contains(@class,'video-message')]")
-	private WebElement loadingText;
+	WebElement loadingScreenMessage;
 
 	@FindBy(id = "sign-in-with-esignet")
-	WebElement signWithEsignetButton;
+	WebElement signInWithEsignetButton;
 
 	@FindBy(xpath = "//span[contains(@class,'video-preview-content')]")
-	private WebElement listOfInstructions;
+	WebElement listOfInstructions;
 
-	public boolean isOnKeyInformationScreen() {
-		return isElementVisible(keyInformation, "Verified keyinformation is visible");
+	@FindBy(xpath = "//div[@role='alertdialog']//h2[contains(@class,'font-semibold')]")
+	WebElement attentionWarningPopup;
+
+	public boolean isVideoPreviewScreenDisplayed() {
+		return isElementVisible(keyInformation, "Verified video preview screen is visible");
 	}
 
-	public boolean isHeaderDisplayedOnScreen() {
-		return isElementVisible(keyInformation, "Verified keyinformation header is visible");
+	public boolean isKeyInformationHeaderDisplayed() {
+		return isElementVisible(keyInformation, "Verified keyInformation header is visible");
 	}
 
 	public boolean isCancelButtonDisplayed() {
@@ -61,43 +62,35 @@ public class VideoPreviewPage extends BasePage {
 		return isButtonEnabled(proceedButton, "Verified proceed button is enabled");
 	}
 
-	public void clickOnProceedButton() {
-		clickOnElement(proceedButton, "Clicked on proceed button");
-	}
-
-	public boolean isScrollPresent() {
-		JavascriptExecutor js = (JavascriptExecutor) driver;
-		Long scrollHeight = (Long) js.executeScript("return arguments[0].scrollHeight;", instructionContainer);
-		Long clientHeight = (Long) js.executeScript("return arguments[0].clientHeight;", instructionContainer);
-		return scrollHeight > clientHeight;
+	public boolean isScrollOptionPresent() {
+		return isElementVisible(scrollOption, "Verified scroll option is visible");
 	}
 
 	public void clickOnCancelButton() {
 		clickOnElement(cancelButton, "Clicked on cancel button");
 	}
 
-	public boolean isAttentionPopupDisplayed() {
-		return isElementVisible(instructionContainer, "Verified attention popup is visible");
+	public boolean isAttentionWarningPopupDisplayed() {
+		return isElementVisible(attentionWarningPopup, "Verified attention warning popup is visible");
 	}
 
-	public void clickOnStayButton() {
-		clickOnElement(stayButton, "Clicked on stay button");
+	public void clickOnStayButtonInAttentionWarningPopup() {
+		clickOnElement(stayButton, "Clicked on stay button in attention warning popup");
 	}
 
-	public void clickOnDiscontinueButton() {
-		clickOnElement(discontinueButton, "Clicked on discontinue button");
+	public void clickOnDiscontinueButtonInAttentionWarningPopup() {
+		clickOnElement(discontinueButton, "Clicked on discontinue button in attention warning popup");
 	}
 
-	public boolean isLoadingMessageDisplayed() {
-		return isElementVisible(loadingText, "Verified loading message is visible");
+	public boolean isLoadingScreenMessageDisplayed() {
+		return isElementVisible(loadingScreenMessage, "Verified loading screen message is visible");
 	}
 
-	public void clickOnSignWithEsignetButton() {
-		clickOnElement(signWithEsignetButton, "Clicked on sign with esignet button");
+	public void clickOnSignInWithEsignetButton() {
+		clickOnElement(signInWithEsignetButton, "Clicked on sign in with esignet button");
 	}
 
 	public boolean isListOfInstructionsDisplayed() {
 		return isElementVisible(listOfInstructions, "Verified list of instructions is visible");
 	}
-
 }
