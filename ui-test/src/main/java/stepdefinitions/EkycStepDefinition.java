@@ -281,9 +281,9 @@ public class EkycStepDefinition {
 	}
 
 	@Then("user verify content body text frame has scrollbar enabled in terms and conditions screen")
-	public void userVerifyTermsAndCoditionContentScrollBarIsDisabled() {
-		Assert.assertTrue(ekycPage.isTermaAndConditionContentScrollBarEnabled(),
-				"Terms and conditions content body text frame scroll bar is enabled");
+	public void userVerifyTermsAndConditionContentScrollBarIsEnabled() {
+		Assert.assertTrue(ekycPage.isTermsAndConditionContentScrollBarVisible(),
+				"Terms and conditions content body text frame scroll bar is visible");
 	}
 
 	@Then("user verify checkbox is not selected by default in terms and conditions screen")
@@ -350,12 +350,12 @@ public class EkycStepDefinition {
 	@Then("user verify the proceed button is enabled after selecting check box in terms and conditions screen")
 	public void userVerifyProceedButtonIsEnabled() {
 		Assert.assertTrue(ekycPage.isTermsProceedButtonEnabled(),
-				"Proceed button is enabled without selecting an check box in terms and condition screen");
+				"Proceed button is not enabled after selecting the checkbox in terms and condition screen");
 	}
 
 	@Then("verify user is redirected back to terms and conditions screen")
 	public void verifyUserIsRedirectedBackToTermsAndConditionScreen() {
-		Assert.assertTrue(ekycPage.isEkyTermsAndConditionScreenVisible(),
+		Assert.assertTrue(ekycPage.isEkycTermsAndConditionScreenVisible(),
 				"User is not redirected back to eKYC terms and condition screen");
 	}
 

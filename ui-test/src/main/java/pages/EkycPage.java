@@ -301,9 +301,9 @@ public class EkycPage extends BasePage {
 				"Verified content message in terms and condition screen");
 	}
 
-	public boolean isTermaAndConditionContentScrollBarEnabled() {
-		return isButtonEnabled(ekycTermsAndConditionsContentScrollBar,
-				"Verified content scroll bar is enabled in terms and condition screen");
+	public boolean isTermsAndConditionContentScrollBarVisible() {
+		return isElementVisible(ekycTermsAndConditionsContentScrollBar,
+				"Verified content scroll bar is visible in terms and condition screen");
 
 	}
 
@@ -344,7 +344,7 @@ public class EkycPage extends BasePage {
 
 	}
 
-	public boolean isEkyTermsAndConditionScreenVisible() {
+	public boolean isEkycTermsAndConditionScreenVisible() {
 		return isElementVisible(ekycTermsAndConditionsHeader, "Verified eKyc terms and condition screen is visible");
 	}
 
