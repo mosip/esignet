@@ -11,7 +11,7 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(true);
   let searchParams = null;
   const navigate = useNavigate();
-  const heading = meta?.heading || 'Sign in to your account';
+  const heading = meta?.heading || 'Login using eSignet';
   const subheading = meta?.subHeading || 'This is a subheading';
   const clientName = meta?.application?.name || '';
   const clientLogoPath = meta?.application?.logo_url || '';
@@ -66,7 +66,8 @@ export default function Login() {
                   className="text-center justify-center title-font sm:text-base text-base mb-3 py-1 font-small"
                   id="login-subheader"
                 >
-                  {clientName}
+                  <strong>{clientName}</strong> is requesting authentication for
+                  login
                 </h1>
               )}
             </div>
