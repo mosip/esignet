@@ -68,8 +68,8 @@ Feature: Esignet Consent Page
   @smoke @Consentscreen
   Scenario: Verifying Consent Screen changes to handle unavailable voluntary claims
    Given user captures the authorize url
-   When Click on Language selection option
-   And Select the mandatory language
+   When click on Language selection option
+   And select the mandatory language
    And user click on Login with Otp
    Then user enters Registered mobile number into the mobile number field
    And user click on get otp button
