@@ -292,11 +292,6 @@ public class EkycStepDefinition {
 				"Terms and Conditions checkbox is selected by default");
 	}
 
-	@Then("user verify terms and conditions checkbox is clickable in terms and conditions screen")
-	public void userClicksOnCheckBoxInTermsAndConditonScreen() {
-		ekycPage.clickOnTermsAndConditionCheckBox();
-	}
-
 	@Then("user click on checkbox in terms and conditions screen")
 	public void userClicksOnCheckBox() {
 		ekycPage.clickOnTermsAndConditionCheckBox();

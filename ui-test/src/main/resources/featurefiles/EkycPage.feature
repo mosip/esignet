@@ -122,7 +122,6 @@ Feature: Esignet eKyc Page
    And user verify content body text frame has scrollbar enabled in terms and conditions screen
    And user verify checkbox is not selected by default in terms and conditions screen
    And user verify proceed button is disabled when no check box is selected in terms and condition screen
-   And user verify terms and conditions checkbox is clickable in terms and conditions screen
    And user click on checkbox in terms and conditions screen
    And user verify the cancel button is visible in terms and conditions screen
    And user verify the cancel button is clickable in terms and conditions screen
