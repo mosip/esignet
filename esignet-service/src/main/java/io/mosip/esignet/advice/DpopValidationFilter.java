@@ -14,9 +14,9 @@ import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import com.nimbusds.jwt.proc.BadJWTException;
 import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
@@ -36,8 +36,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.web.util.UriComponentsBuilder;
+
 import java.io.IOException;
+import java.net.URI;
 import java.text.ParseException;
+import java.time.Instant;
 import java.util.*;
 
 @Slf4j
@@ -56,6 +60,9 @@ public class DpopValidationFilter extends OncePerRequestFilter {
     @Value("${mosip.esignet.dpop.clock-skew:10}")
     private int maxClockSkewSeconds;
 
+    @Value("${mosip.esignet.dpop.iat.max-age-seconds}")
+    private int maxDPOPIatAgeSeconds;
+
     @Value("#{${mosip.esignet.discovery.key-values}}")
     private Map<String, Object> discoveryMap;
 
@@ -70,6 +77,9 @@ public class DpopValidationFilter extends OncePerRequestFilter {
 
     private static final String CNF = "cnf";
     private static final String JKT = "jkt";
+
+    private static final String HTU = "htu";
+    private static final String HTM = "htm";
 
     private static final String PAR_ENDPOINT = "pushed_authorization_request_endpoint";
     private static final String TOKEN_ENDPOINT = "token_endpoint";
@@ -260,14 +270,40 @@ public class DpopValidationFilter extends OncePerRequestFilter {
                 default -> discoveryMap.get(USERINFO_ENDPOINT).toString();
             };
 
-            DefaultJWTClaimsVerifier claimsSetVerifier = new DefaultJWTClaimsVerifier(new JWTClaimsSet.Builder()
-                    .claim("htm", request.getMethod())
-                    .claim("htu", reqUri)
+            DefaultJWTClaimsVerifier<SecurityContext> claimsSetVerifier = new DefaultJWTClaimsVerifier<>(new JWTClaimsSet.Builder()
+                    .claim(HTM, request.getMethod())
                     .build(), REQUIRED_CLAIMS);
             claimsSetVerifier.setMaxClockSkew(maxClockSkewSeconds);
             claimsSetVerifier.verify(claims, null);
-        } catch (BadJWTException e) {
-            log.error("Invalid request URI: {}", e.getMessage());
+
+            // htu claim validation
+            String htuClaim = claims.getStringClaim(HTU);
+            if (htuClaim == null) {
+                log.error("Missing htu claim");
+                throw new InvalidDpopHeaderException();
+            }
+            UriComponentsBuilder builder = UriComponentsBuilder.fromUri(new URI(htuClaim));
+            builder.replaceQuery(null);
+            builder.fragment(null);
+            String htuWithoutQueryAndFragment = builder.build().toUriString();
+            if (!reqUri.equals(htuWithoutQueryAndFragment)) {
+                log.error("htu claim does not match request URI. Expected: {}, Actual: {}", reqUri, htuWithoutQueryAndFragment);
+                throw new InvalidDpopHeaderException();
+            }
+
+            // iat claim validation
+            Date iat = claims.getIssueTime();
+            if (iat == null) {
+                log.error("Missing iat claim");
+                throw new InvalidDpopHeaderException();
+            }
+            if (iat.toInstant().isAfter(Instant.now().plusSeconds(maxClockSkewSeconds)) || iat.toInstant().isBefore(Instant.now().minusSeconds(maxDPOPIatAgeSeconds+maxClockSkewSeconds))) {
+                log.error("iat claim is in the future or too far in the past");
+                throw new InvalidDpopHeaderException();
+            }
+
+        } catch (Exception e) {
+            log.error("DPOP jwt claim validation failed", e);
             throw new InvalidDpopHeaderException();
         }
 
