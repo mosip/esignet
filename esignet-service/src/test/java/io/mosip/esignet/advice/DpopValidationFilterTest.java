@@ -70,6 +70,8 @@ public class DpopValidationFilterTest {
         ));
 
         ReflectionTestUtils.setField(filter, "objectMapper", new ObjectMapper());
+        ReflectionTestUtils.setField(filter, "maxClockSkewSeconds", 10);
+        ReflectionTestUtils.setField(filter, "maxDPOPIatAgeSeconds", 60);
     }
 
     private String createDpopJwtWithAllClaims(String httpMethod, String htuClaim, String accessToken, boolean withAth) throws Exception {
@@ -204,6 +206,21 @@ public class DpopValidationFilterTest {
     }
 
     @Test
+    public void testHtuClaimWithQueryParamsAndFragment_thenPass() throws Exception {
+        String dpopJwt = createDpopJwtWithAllClaims("GET", "http://localhost/oidc/userinfo?q1=abc&q2=xyz#frag", accessToken, true);
+
+        request.setRequestURI("/oidc/userinfo");
+        request.addHeader("DPoP", dpopJwt);
+        addAuthorizationHeader(request, accessToken);
+        request.setMethod("GET");
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
+        assertEquals(200, response.getStatus());
+    }
+
+    @Test
     public void testDpopHeader_withEmptyJwk_thenFail() throws Exception {
         String headerJson = "{"
                 + "\"alg\":\"ES256\","
@@ -319,6 +336,49 @@ public class DpopValidationFilterTest {
         String wwwAuthenticate = response.getHeader("WWW-Authenticate");
         assertNotNull(wwwAuthenticate);
         assertTrue(wwwAuthenticate.contains("error=\"invalid_token\""));
+    }
+
+    @Test
+    public void testDpopHeader_withIatOutsideTimeLimit_thenFail() throws Exception {
+        String athHash = IdentityProviderUtil.generateB64EncodedHash(IdentityProviderUtil.ALGO_SHA_256, accessToken);
+        JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.ES256)
+                .type(new JOSEObjectType("dpop+jwt"))
+                .jwk(ecJwk.toPublicJWK())
+                .build();
+        JWTClaimsSet claims = new JWTClaimsSet.Builder()
+                .jwtID(UUID.randomUUID().toString())
+                .claim("htm", "GET")
+                .claim("htu", "http://localhost/oidc/userinfo")
+                .claim("ath", athHash)
+                .issueTime(Date.from(Instant.now().plusSeconds(20))) // iat in the future beyond clock skew
+                .build();
+        SignedJWT signedJWT = new SignedJWT(header, claims);
+        signedJWT.sign(new ECDSASigner(ecJwk.toECPrivateKey()));
+        String dpopJwt = signedJWT.serialize();
+
+        request.setRequestURI("/oidc/userinfo");
+        request.addHeader("DPoP", dpopJwt);
+        addAuthorizationHeader(request, accessToken);
+        request.setMethod("GET");
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        assertEquals(400, response.getStatus());
+        assertTrue(response.getHeader("WWW-Authenticate").contains(ErrorConstants.INVALID_DPOP_PROOF));
+        verify(filterChain, never()).doFilter(any(), any());
+
+        claims = new JWTClaimsSet.Builder(claims).issueTime(Date.from(Instant.now().minusSeconds(80))).build();
+        signedJWT = new SignedJWT(header, claims);
+        signedJWT.sign(new ECDSASigner(ecJwk.toECPrivateKey()));
+        dpopJwt = signedJWT.serialize();
+
+        request.removeHeader("DPoP");
+        request.addHeader("DPoP", dpopJwt);
+        filter.doFilterInternal(request, response, filterChain);
+
+        assertEquals(400, response.getStatus());
+        assertTrue(response.getHeader("WWW-Authenticate").contains(ErrorConstants.INVALID_DPOP_PROOF));
+        verify(filterChain, never()).doFilter(any(), any());
     }
 
     @Test

@@ -1,6 +1,5 @@
 package io.mosip.testrig.apirig.esignet.testscripts;
 
-import java.lang.reflect.Field;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -21,8 +20,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.testng.internal.BaseTestMethod;
-import org.testng.internal.TestResult;
 
 import io.mosip.testrig.apirig.dto.OutputValidationDto;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;

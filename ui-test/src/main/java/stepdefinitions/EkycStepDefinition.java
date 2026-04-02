@@ -157,7 +157,7 @@ public class EkycStepDefinition {
 	@Then("user verify the proceed button is visible in eKYC process Steps screen")
 	public void userVerifyProceedButtonIsVisibleInEKycProcessStepsScreen() {
 		Assert.assertTrue(ekycPage.isProceedButtonVisible(),
-				"Proceed button is not visible in eKYC Process Steps screen");
+				"Proceed button is not visible in eKYC process steps screen");
 	}
 
 	@When("user verify the proceed button is clickable in eKYC process steps screen")
@@ -168,6 +168,100 @@ public class EkycStepDefinition {
 	@Then("user verify user is redirected to list of eKYC providers screen")
 	public void userVerifyRedirectedToEkycServicesProvidersScreen() {
 		Assert.assertTrue(ekycPage.isEkycServiceProviderScreenVisible(),
-				"User is not redirected to List of eKYC Service Providers screen after clicking Proceed");
+				"User is not redirected to list of eKYC service providers screen after clicking proceed");
 	}
+
+	@Then("user verify the header title in list of eKYC providers screen")
+	public void userVerifyHeaderTitleInEkycProvidersScreen() {
+		Assert.assertTrue(ekycPage.isEkycProviderHeaderTitleDisplayed(),
+				"Header title mismatch in eKYC providers screen");
+	}
+
+	@Then("user verify the specific eKYC provider names are visible in list of eKYC providers screen")
+	public void userVerifyEkycProviderName() {
+		Assert.assertTrue(ekycPage.isEkycSpecificProviderNameDisplayed(), "eKYC provider names are not displayed");
+	}
+
+	@Then("user verify foundational ID one and ID two are displayed in list of eKYC providers screen")
+	public void userVerifyFoundationalIdsDisplayed() {
+		Assert.assertTrue(ekycPage.isEkycProviderFoundationalIdsDisplayed(),
+				"Foundational IDs are not displayed in eKYC service provider screen");
+	}
+
+	@Then("user verify proceed button is disabled when no eKYC provider is selected in list of eKYC providers screen")
+	public void userVerifyProceedButtonIsDisabled() {
+		Assert.assertFalse(ekycPage.isProceedButtonEnabled(),
+				"Proceed button is enabled without selecting an eKYC provider in eKYC service provider screen");
+	}
+
+	@Then("user verify disabled proceed button is not clickable in list of eKYC providers screen")
+	public void userVerifyProceedButtonNotClickable() {
+		Assert.assertTrue(ekycPage.isProceedButtonNotClickable(),
+				"Proceed button is clickable without selecting an eKYC provider in eKYC service provider screen");
+	}
+
+	@Then("user verify the cancel button is visible in the list of eKYC providers screen")
+	public void userVerifyCancelButtonVisibleInListOfEkycProviders() {
+		Assert.assertTrue(ekycPage.isCancelButtonInEkycProviderScreenVisible(),
+				"Cancel button is not visible in eKYC providers screen");
+	}
+
+	@Then("user verify the cancel button is clickable in the list of eKYC providers screen")
+	public void userClicksOnCancelButtonInListOfEkycProvidersScreen() {
+		ekycPage.clickOnCancelButtonInEkycProviderScreen();
+	}
+
+	@Then("user verify warning popup is displayed on clicking cancel button in list of eKYC providers screen")
+	public void userVerifyCancelWarningPopupDisplayed() {
+		Assert.assertTrue(ekycPage.isEkycProviderCancelWarningPopupDisplayed(),
+				"Warning popup is not displayed after clicking Cancel button");
+	}
+
+	@Then("user verify the header in warning popup in list of eKYC providers screen")
+	public void userVerifyEkycProvidersWarningPopupHeaderDisplayed() {
+		Assert.assertTrue(ekycPage.isEkycProviderWarningPopupHeaderDisplayed(), "Warning popup header is not displayed");
+	}
+
+	@Then("user verify the message displayed in warning popup in list of eKYC providers screen")
+	public void userVerifyEkycProvidersWarningPopupMessageDisplayed() {
+		Assert.assertTrue(ekycPage.isEkycProviderWarningPopupMessageDisplayed(),
+				"Warning popup message is not displayed");
+	}
+
+	@Then("user verify the stay button is visible in warning popup in list of eKYC providers screen")
+	public void userVerifyEkycProvidersStayButtonVisible() {
+		Assert.assertTrue(ekycPage.isStayButtonVisible(), "Stay button is not visible in warning popup");
+	}
+
+	@Then("user verify the discontinue button is visible in warning popup in list of eKYC providers screen")
+	public void userVerifyEkycProvidersDiscontinueButtonVisible() {
+		Assert.assertTrue(ekycPage.isDiscontinueButtonVisible(), "Discontinue button is not visible in warning popup");
+	}
+
+	@When("user verify the stay button is clickable in warning popup in list of eKYC providers screen")
+	public void userClicksOnStayButtonInEkycProvidersWarningPopup() {
+		ekycPage.clickOnStayButton();
+	}
+
+	@When("user verify the discontinue button is clickable in warning popup in list of eKYC providers screen")
+	public void userClicksOnDiscontinueButtonInEkycProvidersWarningPopup() {
+		ekycPage.clickOnDiscontinueButton();
+	}
+
+	@Then("user verify the specific eKYC provider names is clickable in list of eKYC providers screen")
+	public void userClicksOnSpecificProviderNameInEkycProviderScreen() {
+		ekycPage.clickOnSpecificProviderName();
+	}
+
+	@Then("user verify the proceed button is clickable in list of eKYC providers screen")
+	public void userClicksOnProceedButtonInListOfEkycProvidersScreen() {
+		ekycPage.clickOnProceedButtonInEkycProviderScreen();
+	}
+
+	@Then("user verify user is redirected to terms and conditions screen")
+	public void userVerifyRedirectedToEkycTermsAndConditionScreen() {
+		Assert.assertTrue(ekycPage.isEkycTermsAndConditionsScreenVisible(),
+				"User is not redirected to terms and conditions screen after clicking Proceed");
+	}
+
 }
