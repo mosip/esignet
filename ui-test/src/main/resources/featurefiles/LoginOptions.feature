@@ -38,7 +38,7 @@ Feature: Esignet Login Options Page
    
    
    @smoke @supportOfPrefixAndPostfix
-  Scenario: Verifying support for multiple pre fix and post fix type for the individual ID
+  Scenario: Verifying support for multiple prefix and postfix type for the individual ID
    When click on Language selection option
    And select the mandatory language
    And user click on Login with Otp
