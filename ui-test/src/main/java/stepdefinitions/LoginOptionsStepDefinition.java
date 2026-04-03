@@ -30,6 +30,7 @@ import pages.LoginOptionsPage;
 import pages.SignUpPage;
 import pages.SignupFormDynamicFiller;
 import utils.ClaimsUtil;
+import utils.EsignetUtil.RegisteredDetails;
 
 public class LoginOptionsStepDefinition {
 
@@ -165,6 +166,160 @@ public class LoginOptionsStepDefinition {
 			driver.manage().window().setSize(new Dimension(size[0], size[1]));
 			logger.info("Testing layout at resolution: " + size[0] + "x" + size[1]);
 		}
+	}
+
+	@Then("verify mobile number option is present for authentication")
+	public void verifyMobileNumberOptionForAuthentication() {
+		Assert.assertTrue(loginOptionsPage.isMobileNumberOptionDisplayed(),
+				"Verified mobile number option is not displayed for authentication");
+	}
+
+	@Then("verify nrc id option is present for authentication")
+	public void verifyNrcIdOptionForAuthentication() {
+		Assert.assertTrue(loginOptionsPage.isNrcIdOptionDisplayed(),
+				"Verified nrc id option is not displayed for authentication");
+	}
+
+	@Then("verify vid option is present for authentication")
+	public void verifyVidOptionForAuthentication() {
+		Assert.assertTrue(loginOptionsPage.isVidOptionDisplayed(),
+				"Verified vid option is not displayed for authentication");
+	}
+
+	@Then("verify email option is present for authentication")
+	public void verifyEmailOptionForAuthentication() {
+		Assert.assertTrue(loginOptionsPage.isEmailOptionDisplayed(),
+				"Verified email option is not displayed for authentication");
+	}
+
+	@Then("verify back button is present in authentication screen")
+	public void verifyBackButtonIsVisibleInAuthenticationScreen() {
+		Assert.assertTrue(loginOptionsPage.isBackButtonDisplayed(),
+				"Verified back button is not visible for return to Select a preferred mode");
+	}
+
+	@Then("clicks on back button in authentication screen page")
+	public void clicksOnBackButtonInAuthenticationScreen() {
+		loginOptionsPage.clickOnBackButton();
+	}
+
+	@Then("clicks on login with biometric button in login screen page")
+	public void clicksOnLoginWithBiometricButtonInLoginScreen() {
+		loginOptionsPage.clickOnLoginWithBiometric();
+	}
+
+	@Then("clicks on login with password button in login screen page")
+	public void clicksOnLoginWithPasswordButtonInLoginScreen() {
+		loginOptionsPage.clickOnLoginWithPassword();
+	}
+
+	@Then("verify get otp button is disabled in authentication screen")
+	public void verifyGetOtpButtonDisabledInAuthenticationScreen() {
+		Assert.assertFalse(loginOptionsPage.isGetOtpButtonEnabled(), "Verified get otp button is enabled");
+	}
+
+	@Then("verify mobile number selected for authentication")
+	public void verifyMobileNumberSelectedForAuthentication() {
+		Assert.assertTrue(loginOptionsPage.isMobileNumberSelected(),
+				"Verified mobile number not seleted in authentication screen");
+	}
+
+	@Then("verify khm country prefix displayed for mobile number")
+	public void verifyKhmCountryPrefixDisplayedForMobileNumber() {
+		Assert.assertTrue(loginOptionsPage.isKhmCountryCodePrefixDisplayed(),
+				"Verified mobile number not seleted in authentication screen");
+	}
+
+	@Then("verify ind country prefix displayed for mobile number")
+	public void verifyIndCountryPrefixDisplayedForMobileNumber() {
+		Assert.assertTrue(loginOptionsPage.isIndCountryCodePrefixDisplayed(),
+				"Verified mobile number not seleted in authentication screen");
+	}
+
+	@Then("clicks on prefix number button in authentication screen page")
+	public void clicksOnPrefixNumberButtonInAuthenticationScreen() {
+		loginOptionsPage.clickOnPrefixNumberFieldButton();
+	}
+
+	@Then("clicks on ind country code prefix in authentication screen page")
+	public void clicksOnIndCountryCodePrefixInAuthenticationScreen() {
+		loginOptionsPage.clickOnIndCountryCodePrefix();
+	}
+
+	@Then("clicks on khm country code prefix in authentication screen page")
+	public void clicksOnKhmCountryCodePrefixInAuthenticationScreen() {
+		loginOptionsPage.clickOnKhmCountryCodePrefix();
+	}
+
+	@Then("verify get otp button is enabled in authentication screen")
+	public void verifyGetOtpButtonEnabledInAuthenticationScreen() {
+		Assert.assertTrue(loginOptionsPage.isGetOtpButtonEnabled(), "Verified get otp button is not enabled");
+	}
+
+	@Then("verify user navigate to verify otp screen")
+	public void verifyOtpInputFieldIsDisplayed() {
+		Assert.assertTrue(loginOptionsPage.isOtpInputFieldIsDisplayed(), "Verified otp input field is displayed");
+	}
+
+	@Then("verify user navigate to Attention screen")
+	public void verifyAttentionScreenIsDisplayed() {
+		Assert.assertTrue(loginOptionsPage.isAttentionScreenIsDisplayed(), "Verified attention screen is displayed");
+	}
+
+	@Then("clicks on cancel button in attention consent screen page")
+	public void clicksOnCancelButtonInAttentionConsentScreen() {
+		loginOptionsPage.clickOnAttentionCancelButton();
+	}
+
+	@Then("clicks on discontinue button in attention screen page")
+	public void clicksOnDiscontinueButtonInAttentionScreen() {
+		loginOptionsPage.clickOnAttentionDiscontinueButton();
+	}
+
+	@Then("clicks on vid option button in authentication screen page")
+	public void clicksOnVidOptionButtonInAuthenticationScreen() {
+		loginOptionsPage.clickOnVidOptionButton();
+	}
+
+	@When("user enters invalid vid into vid field")
+	public void userEntersInvalidVid() {
+		loginOptionsPage.enterVid("8957093658024750");
+	}
+
+	@Then("verify user should get invalid individual id error message in authentication screen")
+	public void verifyInvalidIndividualIdErrorMessageIsDisplayed() {
+		Assert.assertTrue(loginOptionsPage.isInvalidIndividualIdErrorMessageIsDisplayed(),
+				"Verified invalid individual id error message is not displayed");
+	}
+
+	@When("user enters special characters into vid field")
+	public void userEntersSpecialCharactersInVidField() {
+		loginOptionsPage.enterVid("&*&%#@%)");
+	}
+
+	@When("user enters only space into vid field")
+	public void userEntersOnlySpaceInVidField() {
+		loginOptionsPage.enterVid("    ");
+	}
+
+	@Then("clicks on email option button in authentication screen page")
+	public void clicksOnEmailOptionButtonInAuthenticationScreen() {
+		loginOptionsPage.clickOnEmailOptionButton();
+	}
+
+	@When("user enters invalid email into email field")
+	public void userEntersInvalidEmailId() {
+		loginOptionsPage.enterEmail("abcd@gmail.com");
+	}
+
+	@When("user enters special characters into email field")
+	public void userEntersSpecialCharactersInEmailField() {
+		loginOptionsPage.enterEmail("&*&%#@%)");
+	}
+
+	@When("user enters only space into email field")
+	public void userEntersOnlySpaceInEmailField() {
+		loginOptionsPage.enterEmail("    ");
 	}
 
 }
