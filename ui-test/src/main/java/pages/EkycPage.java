@@ -287,11 +287,11 @@ public class EkycPage extends BasePage {
 		return isElementVisible(ekycTermsAndConditionsHeader, "Verified eKyc terms and conditions screen is visible");
 	}
 
-	public boolean isTermsAndConditionHeaderTitleDisplayed() {
-		return isElementVisible(ekycTermsAndConditionsHeader, "Verified header title in terms and condition screen");
+	public boolean isTermsAndConditionHeaderDisplayed() {
+		return isElementVisible(ekycTermsAndConditionsHeader, "Verified header in terms and condition screen");
 	}
 
-	public boolean isTermsAndConditionSubHeaderTitleDisplayed() {
+	public boolean isTermsAndConditionSubHeaderDisplayed() {
 		return isElementVisible(ekycTermsAndConditionsSubHeader,
 				"Verified sub header message in terms and condition screen");
 	}
@@ -304,10 +304,9 @@ public class EkycPage extends BasePage {
 	public boolean isTermsAndConditionContentScrollBarVisible() {
 		return isElementVisible(ekycTermsAndConditionsContentScrollBar,
 				"Verified content scroll bar is visible in terms and condition screen");
-
 	}
 
-	public boolean isTermsCheckboxNotSelected() {
+	public boolean isTermsAndConditionCheckboxNotSelected() {
 		return !ekycTermsAndConditionsCheckbox.isSelected() && isElementVisible(ekycTermsAndConditionsCheckbox,
 				"Verified terms and conditions checkbox is not selected by default");
 	}
@@ -341,7 +340,6 @@ public class EkycPage extends BasePage {
 	public boolean isTermsProceedButtonEnabled() {
 		return isButtonEnabled(eKycTermsAndConditionsProceedButton,
 				"Verified Proceed button is enabled in terms and conditions screen");
-
 	}
 
 	public boolean isEkycTermsAndConditionScreenVisible() {

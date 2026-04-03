@@ -99,7 +99,7 @@ Feature: Esignet eKyc Page
    Then user verify user is redirected to terms and conditions screen
 
  @smoke @TermsAndConditionsScreen
- Scenario: Verify terms and conditions screen
+ Scenario: Verify eKyc policy terms and conditions screen
    When click on Language selection option
    And select the mandatory language
    And user click on Login with Otp
@@ -115,7 +115,7 @@ Feature: Esignet eKyc Page
    And user verify the specific eKYC provider names is clickable in list of eKYC providers screen
    And user verify the proceed button is clickable in list of eKYC providers screen
    Then user verify user is redirected to terms and conditions screen
-   And user verify the header title displayed in terms and conditions screen
+   And user verify the header displayed in terms and conditions screen
    And user verify the sub header message displayed in terms and conditions screen
    And user verify the content displayed in terms and conditions screen
    And user verify the text beside checkbox message displayed in terms and conditions screen

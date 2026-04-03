@@ -265,14 +265,14 @@ public class EkycStepDefinition {
 				"User is not redirected to terms and conditions screen after clicking Proceed");
 	}
 
-	@Then("user verify the header title displayed in terms and conditions screen")
+	@Then("user verify the header displayed in terms and conditions screen")
 	public void userVerifyTermsAndConditionHeaderDisplayed() {
-		Assert.assertTrue(ekycPage.isTermsAndConditionHeaderTitleDisplayed(), "Header is not displayed");
+		Assert.assertTrue(ekycPage.isTermsAndConditionHeaderDisplayed(), "Header is not displayed");
 	}
 
 	@Then("user verify the sub header message displayed in terms and conditions screen")
 	public void userVerifyTermsAndConditionSubHeaderDisplayed() {
-		Assert.assertTrue(ekycPage.isTermsAndConditionSubHeaderTitleDisplayed(), "Sub header message is not displayed");
+		Assert.assertTrue(ekycPage.isTermsAndConditionSubHeaderDisplayed(), "Sub header message is not displayed");
 	}
 
 	@Then("user verify the content displayed in terms and conditions screen")
@@ -288,7 +288,7 @@ public class EkycStepDefinition {
 
 	@Then("user verify checkbox is not selected by default in terms and conditions screen")
 	public void userVerifyCheckboxNotSelectedByDefault() {
-		Assert.assertTrue(ekycPage.isTermsCheckboxNotSelected(),
+		Assert.assertTrue(ekycPage.isTermsAndConditionCheckboxNotSelected(),
 				"Terms and Conditions checkbox is selected by default");
 	}
 
