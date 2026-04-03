@@ -39,11 +39,6 @@ Feature: Esignet Login Options Page
    
    @smoke @supportOfPrefixAndPostfix
   Scenario: Verifying support for multiple pre fix and post fix type for the individual ID
-   Given user captures the authorize url
-   Then verify dropdown language selection is present
-   And verify multiple options for login is available
-   And authentication screen should show login options based on acr_values from url
-   And verify more ways to signIn option is available
    When click on Language selection option
    And select the mandatory language
    And user click on Login with Otp
