@@ -356,12 +356,12 @@ public class ConsentStepDefinition {
 	@Then("verify the otp verification button is disabled on the verification screen")
 	public void verifyOtpVerificationButtonIsDisabled() {
 		Assert.assertFalse(consentPage.isVerifyOtpButtonEnabled(),
-				"Verified otp verification button is not enabled");
+				"Verified otp verification button is enabled");
 	}
 	
 	@Then("verify the otp verification button is enabled on the verification screen")
 	public void verifyOtpVerificationButtonIsEnabled() {
 		Assert.assertTrue(consentPage.isVerifyOtpButtonEnabled(),
-				"Verified otp verification button is enabled");
+				"Verified otp verification button is not enabled");
 	}
 }

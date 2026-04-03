@@ -38,7 +38,7 @@ Feature: Esignet Login Options Page
    
    
    @smoke @supportOfPrefixAndPostfix
-  Scenario Outline: Verifying support for multiple pre fix and post fix type for the individual ID
+  Scenario: Verifying support for multiple pre fix and post fix type for the individual ID
    Given user captures the authorize url
    Then verify dropdown language selection is present
    And verify multiple options for login is available
