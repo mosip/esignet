@@ -120,6 +120,54 @@ public class ConsentPage extends BasePage {
 	@FindBy(xpath = "//p[@class='text-[#4E4E4E] font-semibold']")
 	WebElement actionMessage;
 
+	@FindBy(xpath = "//div[@class='header my-2']")
+	WebElement headerInConsentUpdateProfileScreen;
+
+	@FindBy(xpath = "//p[@class='sub-header m-0 mt-1 md:mx-5 md:mb-1 md:mt-3']")
+	WebElement subHeaderInConsentUpdateProfileScreen;
+
+	@FindBy(xpath = "(//div[@class='font-semibold mb-1'])[1]")
+	WebElement essentialClaimHeaderInConsentUpdateProfileScreen;
+
+	@FindBy(xpath = "(//div[@class='font-semibold mb-1'])[2]")
+	WebElement voluntaryClaimHeaderInConsentUpdateProfileScreen;
+
+	@FindBy(xpath = "(//*[name()='svg' and contains(@class,'cursor-pointer')])[1]")
+	WebElement essentialInfoIconInConsentUpdateProfileScreen;
+
+	@FindBy(xpath = "(//*[name()='svg' and contains(@class,'cursor-pointer')])[2]")
+	WebElement voluntaryInfoIconInConsentUpdateProfileScreen;
+
+	@FindBy(id = "cancel-button")
+	WebElement cancelButtonInConsentUpdateProfileScreen;
+
+	@FindBy(xpath = "(//div[@class='divide-y'])[2]")
+	WebElement voluntaryClaimsList;
+
+	@FindBy(xpath = "//span[@class='available-claim']")
+	WebElement availableClaimsStatus;
+
+	@FindBy(xpath = "//span[@class='not-available-claim']")
+	WebElement notAvailableClaimStatus;
+
+	@FindBy(xpath = "(//p[@class='mb-1'])[1]")
+	WebElement infoIconMeassage;
+
+	@FindBy(xpath = "//div[@class='message mx-0 px-2 mt-2 md:mx-5']")
+	WebElement messageAboveProceedBtn;
+
+	@FindBy(xpath = "//div[@class='relative text-center text-dark font-semibold text-xl text-[#2B3840] mt-9']")
+	WebElement attentionHeaderInWarningPopup;
+
+	@FindBy(xpath = "//p[@class='text-base text-[#707070]']")
+	WebElement subHeaderInWarningPopup;
+
+	@FindBy(id = "stay-button")
+	WebElement stayButtonInConsentUpdateProfileScreen;
+
+	@FindBy(id = "discontinue-button")
+	WebElement discontinueButtonInConsentUpdateProfileScreen;
+
 	public void clickOnLoginWithOtp() {
 		clickOnElement(loginWithOtpButton, "Clicked on login with Otp button");
 	}
@@ -329,4 +377,113 @@ public class ConsentPage extends BasePage {
 		return isButtonEnabled(verifyOtpButton, "Verified otp verification button is enabled");
 	}
 
+	public boolean isHeaderInConsentUpdateProfileScreenVisible() {
+		return isElementVisible(headerInConsentUpdateProfileScreen, "Verified header in consent update profile screen");
+	}
+
+	public boolean isSubHeaderInConsentUpdateProfileScreenVisible() {
+		return isElementVisible(subHeaderInConsentUpdateProfileScreen,
+				"Verified sub header in consent update profile screen");
+	}
+
+	public boolean isEssentialClaimsHeaderInConsentUpdateProfileScreenVisible() {
+		return isElementVisible(essentialClaimHeaderInConsentUpdateProfileScreen,
+				"Verified essential claims header in consent update profile screen");
+	}
+
+	public boolean isVoluntaryClaimsHeaderInConsentUpdateProfileScreenVisible() {
+		return isElementVisible(voluntaryClaimHeaderInConsentUpdateProfileScreen,
+				"Verified voluntary claims header in consent update profile screen");
+	}
+
+	public boolean isInfoIconInConsentUpdateProfileScreenVisible() {
+		return isElementVisible(essentialInfoIconInConsentUpdateProfileScreen,
+				"Verified info icon in consent update profile screen");
+	}
+
+	public boolean isProceedButtonInConsentUpdateProfileScreenVisible() {
+		return isElementVisible(proceedButtonInAttentionPage,
+				"Verified procced button in consent update profile screen");
+	}
+
+	public boolean isCancelButtonInConsentUpdateProfileScreenVisible() {
+		return isElementVisible(cancelButtonInConsentUpdateProfileScreen,
+				"Verified cancel button in consent update profile screen");
+	}
+
+	public boolean isEssentialClaimListInConsentUpdateProfileScreenVisible() {
+		return isElementVisible(essentialClaimsList, "Verified essential claim list in consent update profile screen");
+	}
+
+	public boolean isVoluntaryClaimListInConsentUpdateProfileScreenVisible() {
+		return isElementVisible(voluntaryClaimsList, "Verified voluntary claim list in consent update profile screen");
+	}
+
+	public boolean isAvailableClaimStausDisplayed() {
+		return isElementVisible(availableClaimsStatus,
+				"Verified available claim status in consent update profile screen");
+	}
+
+	public boolean isNotAvailableClaimStausDisplayed() {
+		return isElementVisible(notAvailableClaimStatus,
+				"Verified not available claim status in consent update profile screen");
+	}
+
+	public void clickOnEssentialInfoIcon() {
+		clickOnElement(essentialInfoIconInConsentUpdateProfileScreen,
+				"Clicked on Info icon in consent update profile screen");
+	}
+
+	public void clickOnVoluntaryInfoIcon() {
+		clickOnElement(voluntaryInfoIconInConsentUpdateProfileScreen,
+				"Clicked on Info icon in consent update profile screen");
+	}
+
+	public void clickOnAttentionHeader() {
+		clickOnElement(headerInConsentUpdateProfileScreen, "Clicked on header in consent update profile screen");
+	}
+
+	public boolean isEssentialClaimInformationDisplayed() {
+		return isElementVisible(infoIconMeassage, "Verified essential claim information is displayed");
+	}
+
+	public boolean isVoluntaryClaimInformationDisplayed() {
+		return isElementVisible(infoIconMeassage, "Verified voluntary claim information is displayed");
+	}
+
+	public boolean isMessageAboveProceedButtonDisplayed() {
+		return isElementVisible(messageAboveProceedBtn,
+				"Verified message above the proceed button in consent update profile screen");
+	}
+
+	public void clickOnCancelButtonInUpdateProfilePage() {
+		clickOnElement(cancelButtonInConsentUpdateProfileScreen,
+				"Clicked on cancel button in consent update profile screen");
+	}
+
+	public boolean isAttentionWarningPopupDisplayed() {
+		return isElementVisible(attentionHeaderInWarningPopup, "Verified header in warning popup");
+	}
+
+	public boolean isSubHeaderInWarningPopupDisplayed() {
+		return isElementVisible(subHeaderInWarningPopup, "Verified sub header in warning popup");
+	}
+
+	public boolean isStayButtonInWaninPopupScreenDisplayed() {
+		return isElementVisible(stayButtonInConsentUpdateProfileScreen,
+				"Verified stay button in warning popup is displayed");
+	}
+
+	public void clickOnStayButton() {
+		clickOnElement(stayButtonInConsentUpdateProfileScreen, "Clicked on stay button");
+	}
+
+	public boolean isDiscontinueButtonInWaninPopupScreenDisplayed() {
+		return isElementVisible(discontinueButtonInConsentUpdateProfileScreen,
+				"Verified discontinue button in warning popup is displayed");
+	}
+
+	public void clickOnDiscontinueButton() {
+		clickOnElement(discontinueButtonInConsentUpdateProfileScreen, "Clicked on discontinue button");
+	}
 }
