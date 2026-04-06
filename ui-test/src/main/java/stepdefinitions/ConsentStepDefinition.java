@@ -470,13 +470,13 @@ public class ConsentStepDefinition {
 
 	@Then("verify stay button is available in the warning popup")
 	public void verifyStayButtonInWarningPopupAvailable() {
-		Assert.assertTrue(consentPage.isStayButtonInWaninPopupScreenDisplayed(),
+		Assert.assertTrue(consentPage.isStayButtonInWarningPopupScreenDisplayed(),
 				"Stay button in warning popup is not displayed");
 	}
 
 	@Then("verify discontinue button is available in the warning popup")
 	public void verifyDiscontinueButtonInWarningPopupAvailable() {
-		Assert.assertTrue(consentPage.isDiscontinueButtonInWaninPopupScreenDisplayed(),
+		Assert.assertTrue(consentPage.isDiscontinueButtonInWarningPopupScreenDisplayed(),
 				"Discontinue button warning popup is not displayed");
 	}
 
