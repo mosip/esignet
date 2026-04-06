@@ -469,7 +469,7 @@ public class ConsentPage extends BasePage {
 		return isElementVisible(subHeaderInWarningPopup, "Verified sub header in warning popup");
 	}
 
-	public boolean isStayButtonInWaninPopupScreenDisplayed() {
+	public boolean isStayButtonInWarningPopupScreenDisplayed() {
 		return isElementVisible(stayButtonInConsentUpdateProfileScreen,
 				"Verified stay button in warning popup is displayed");
 	}
@@ -478,7 +478,7 @@ public class ConsentPage extends BasePage {
 		clickOnElement(stayButtonInConsentUpdateProfileScreen, "Clicked on stay button");
 	}
 
-	public boolean isDiscontinueButtonInWaninPopupScreenDisplayed() {
+	public boolean isDiscontinueButtonInWarningPopupScreenDisplayed() {
 		return isElementVisible(discontinueButtonInConsentUpdateProfileScreen,
 				"Verified discontinue button in warning popup is displayed");
 	}
