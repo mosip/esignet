@@ -103,8 +103,6 @@ These configurations need to be added as part of the eSignet service deployment 
 - **uinGenerationProcessingDelayTimeInMilliSeconds**: 600000
 - **vidGenerationProcessingDelayTimeInMilliSeconds**: 600000
 - **uinGenMaxLoopCount**: 20
-- Automation scripts rely on **MOSIP_SIGNUP_IDENTIFIER_REGEX** for input validation during signup flows.
-Ensure that **MOSIP_SIGNUP_IDENTIFIER_REGEX** is explicitly defined in the configuration.
 
 These parameters must be included in the eSignet deployment YAML for the API Test Rig to function correctly, independent of which plugin is being used.
 
