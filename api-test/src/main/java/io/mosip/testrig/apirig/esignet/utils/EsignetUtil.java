@@ -2792,7 +2792,7 @@ public class EsignetUtil extends AdminTestUtil {
 				throw new Exception("Unable to decrypt JWE. No matching private key found for kid: " + kid);
 			}
 
-			System.out.println("✅ Decrypted payload: " + decrypted);
+			System.out.println("Decrypted payload: " + decrypted);
 
 			// Check if decrypted content is a signed JWT (3 parts: header.payload.signature)
 			if (decrypted.split("\\.").length == 3) {

@@ -60,7 +60,7 @@ OauthFAPINegTC:
 }'
       output: '{
 }'
-   ESignet_OauthFAPINegTC_Invaid_client_assertion_Neg:
+   ESignet_OauthFAPINegTC_Invalid_client_assertion_Neg:
       endPoint: /v1/esignet/oauth/par
       uniqueIdentifier: TC_ESignet_Oauth_FAPI_NegTC_03
       description: Validate FAPI request with invalid client assertion

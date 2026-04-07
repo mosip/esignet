@@ -1,7 +1,7 @@
 FAPIAuthenticateUser:
    ESignet_FAPIAuthenticateUser_AuthToken_Xsrf__uin_Otp_Valid_forUserInfo_Smoke:
       endPoint: /v1/esignet/authorization/v3/authenticate
-      uniqueIdentifier: TC_ESignet_FAPIAuthenticateUserV3_01
+      uniqueIdentifier: TC_ESignet_FAPI_AuthenticateUserV3_01
       description: Verify that the PARAuthenticateUserV3 endpoint authenticates the user successfully with valid credentials
       role: resident
       restMethod: post
@@ -21,7 +21,7 @@ FAPIAuthenticateUser:
     "requestTime": "$TIMESTAMP$",
     "transactionId": "$ID:OAuthDetailsRequest_FAPI_AuthToken_Xsrf_all_Valid_Smoke_sid_transactionId$",
     "individualId": "$ID:AddIdentity_For_FAPI_smoke_Pos_UIN$",
-    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "otpChannels": [{"channel": "email"},{"channel": "phone"}],
     "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
     "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
     }
