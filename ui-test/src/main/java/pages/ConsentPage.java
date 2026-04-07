@@ -324,5 +324,9 @@ public class ConsentPage extends BasePage {
 	public boolean isTimerDisplayed() {
 		return isElementVisible(consentTimer, "Verified timer is displayed");
 	}
+	
+	public boolean isVerifyOtpButtonEnabled() {
+		return isButtonEnabled(verifyOtpButton, "Verified otp verification button is enabled");
+	}
 
 }
