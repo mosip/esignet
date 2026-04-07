@@ -352,4 +352,16 @@ public class ConsentStepDefinition {
 	public void verifyTheTimerInConsentScreen() {
 		Assert.assertTrue(consentPage.isTimerDisplayed(), "The timer is not displayed in the consent screen");
 	}
+	
+	@Then("verify the otp verification button is disabled on the verification screen")
+	public void verifyOtpVerificationButtonIsDisabled() {
+		Assert.assertFalse(consentPage.isVerifyOtpButtonEnabled(),
+				"Otp verification button is enabled");
+	}
+	
+	@Then("verify the otp verification button is enabled on the verification screen")
+	public void verifyOtpVerificationButtonIsEnabled() {
+		Assert.assertTrue(consentPage.isVerifyOtpButtonEnabled(),
+				"Otp verification button is not enabled");
+	}
 }
