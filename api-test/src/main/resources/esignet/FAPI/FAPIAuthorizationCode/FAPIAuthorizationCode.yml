@@ -1,0 +1,20 @@
+FAPIAuthorizationCode:
+   ESignet_AuthorizationCode_FAPI__AuthToken_Xsrf_All_Valid_forUserInfo_Smoke_sid:
+      endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_FAPIAuthorizationCode_01
+      description: Validate successful authorization code generation in PAR flow
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      additionalDependencies: TC_ESignet_FAPI_AuthorizationCode_01
+      inputTemplate: esignet/FAPI/FAPIAuthorizationCode/FAPIAuthorizationCode
+      outputTemplate: esignet/FAPI/FAPIAuthorizationCode/FAPIAuthorizationCodeResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_FAPI_AuthToken_Xsrf_all_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_FAPI_AuthToken_Xsrf_all_Valid_Smoke_sid_transactionId$",
+      	"acceptedClaims": [{"claim": "phone_number"},{"claim": "email"}]
+}'
+      output: '{
+}'

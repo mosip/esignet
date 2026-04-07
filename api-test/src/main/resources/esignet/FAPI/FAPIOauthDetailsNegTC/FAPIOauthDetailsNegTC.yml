@@ -1,0 +1,21 @@
+FAPIOauthDetailsNegTC:
+   ESignet_OAuthDetailsRequest_Missing_code_challenge_code_method_Neg:
+      endPoint: /v1/esignet/authorization/par-oauth-details
+      uniqueIdentifier: TC_ESignet_FAPI_OauthDetails_NegTC_01
+      description: Validate FAPI flow where the OAuth PAR request omits code challenge and code challenge method expecting a require pkce error in the PAR OAuth details endpoint
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/FAPI/FAPIOauthDetails/FAPIOauthDetails
+      outputTemplate: esignet/error
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "requestUri": "$ID:OauthFAPINegTC_Missing_code_challenge_Neg_sid_request_uri$",
+       "clientId": "$ID:CreateOIDCClientFAPI_all_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "use_pkce"
+    }
+  ]
+}'
