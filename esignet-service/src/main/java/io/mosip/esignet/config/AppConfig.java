@@ -41,7 +41,7 @@ public class AppConfig implements ApplicationRunner {
     private static final List<String> SERVER_PROFILE_ADDITIONAL_CONFIG_KEYS = List.of(
             "dpop_bound_access_tokens",
             "require_pkce",
-            "user_info_response_type",
+            "userinfo_response_type",
             "require_pushed_authorization_requests"
     );
 
