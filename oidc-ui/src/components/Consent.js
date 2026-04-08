@@ -327,7 +327,12 @@ export default function Consent({
         code: response.code,
         ...(issuer ? { iss: issuer } : {}), // only add if truthy
       });
-      window.location.replace(`${response.redirectUri}?${params.toString()}`);
+      const separator = response.redirectUri.includes('?') ? '&' : '?';
+
+      // Redirect using the correct separator
+      window.location.replace(
+        `${response.redirectUri}${separator}${params.toString()}`
+      );
     } catch (error) {
       redirectOnError('authorization_failed_msg', error.message);
     }
