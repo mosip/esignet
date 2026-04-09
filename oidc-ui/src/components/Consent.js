@@ -327,12 +327,9 @@ export default function Consent({
         code: response.code,
         ...(issuer ? { iss: issuer } : {}), // only add if truthy
       });
-      const separator = response.redirectUri.includes('?') ? '&' : '?';
-
-      // Redirect using the correct separator
-      window.location.replace(
-        `${response.redirectUri}${separator}${params.toString()}`
-      );
+      const url = new URL(response.redirectUri);
+      params.forEach((value, key) => url.searchParams.set(key, value));
+      window.location.replace(url.toString());
     } catch (error) {
       redirectOnError('authorization_failed_msg', error.message);
     }
