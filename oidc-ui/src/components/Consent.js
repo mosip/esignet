@@ -327,7 +327,9 @@ export default function Consent({
         code: response.code,
         ...(issuer ? { iss: issuer } : {}), // only add if truthy
       });
-      window.location.replace(`${response.redirectUri}?${params.toString()}`);
+      const url = new URL(response.redirectUri);
+      params.forEach((value, key) => url.searchParams.set(key, value));
+      window.location.replace(url.toString());
     } catch (error) {
       redirectOnError('authorization_failed_msg', error.message);
     }
