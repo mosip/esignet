@@ -123,7 +123,7 @@ Feature: Esignet Consent Page
    Then verify warning popup with header attention is displayed
    And verify the sub header in warning popup is displayed
    And verify stay button is available in the warning popup
-   And verify discontinue button is available in the warning popup
+   And verify discontinue button is available in the warning popup screen
    When user click on stay button in warning popup
    Then verify user is navigated to consent to profile update screen
    And user click on cancel button in consent update to profile screen

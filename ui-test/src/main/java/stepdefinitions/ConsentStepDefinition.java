@@ -474,7 +474,7 @@ public class ConsentStepDefinition {
 				"Stay button in warning popup is not displayed");
 	}
 
-	@Then("verify discontinue button is available in the warning popup")
+	@Then("verify discontinue button is available in the warning popup screen")
 	public void verifyDiscontinueButtonInWarningPopupAvailable() {
 		Assert.assertTrue(consentPage.isDiscontinueButtonInWarningPopupScreenDisplayed(),
 				"Discontinue button warning popup is not displayed");
