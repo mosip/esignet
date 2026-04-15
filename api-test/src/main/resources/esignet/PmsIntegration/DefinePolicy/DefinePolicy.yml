@@ -318,3 +318,132 @@ definePolicy:
       output: ' {
     "is_Active": false
 }'
+
+   Esignet_DefinePolicy_For_DataShare_sid:
+      endPoint: /v1/policymanager/policies
+      uniqueIdentifier: Dependent_Idrepo_definePolicy_16
+      description: Define policy with all valid details
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/DefinePolicy/defineDataSharePolicy
+      outputTemplate: esignet/PmsIntegration/DefinePolicy/definePolicyResult
+      input: '{
+    "desc": "$DATASHAREPOLICYDESC$",
+    "name": "$DATASHAREPOLICYNAME$",
+    "policyId": "$RUNCONTEXT$MDSP",
+    "policyGroupName": "$ID:DefinePolicyGroup_For_DataShare_Policy_Sid_name$",
+    "policyType": "DataShare",
+    "format":"extraction",
+    "typeOfShare": "Data Share",
+    "validForInMinutes": "30",
+    "transactionsAllowed": "2",
+    "encryptionType": "Partner Based",
+    "shareDomain": "datashare-service",
+    "source": "Packet Manager",
+    "attributeName":"biometrics",
+    "version": "1.0",
+    "requesttime": "$TIMESTAMP$"
+}'
+      output: ' {
+    "is_Active": false
+}'
+
+   Esignet_DefinePolicy_Which_For_Not_Approval_sid:
+      endPoint: /v1/policymanager/policies
+      uniqueIdentifier: Dependent_Idrepo_definePolicy_17
+      description: Define policy with all valid details for not approval
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/DefinePolicy/definePolicy
+      outputTemplate: esignet/PmsIntegration/DefinePolicy/definePolicyResult
+      input: '{
+	"desc": "$RUNCONTEXT$-authPolicy1descForAutomation",
+	"name": "$RUNCONTEXT$-authPolicy1nameForAutomation",
+	"policyGroupName": "$ID:DefinePolicyGroup_All_Valid_Smoke_sid_name$",
+	"policyType": "Auth",
+	"version": "1.0",
+	"requesttime": "$TIMESTAMP$"
+}'
+      output: ' {
+    "is_Active": false
+}'
+
+   Esignet_DefinePolicy_For_AuthPartner_sid:
+      endPoint: /v1/policymanager/policies
+      uniqueIdentifier: Dependent_Idrepo_definePolicy_18
+      description: Define policy with all valid details for Auth Partner
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/DefinePolicy/definePolicy
+      outputTemplate: esignet/PmsIntegration/DefinePolicy/definePolicyResult
+      input: '{
+	"desc": "$RUNCONTEXT$-authPolicy2descForAutomation",
+	"name": "$RUNCONTEXT$-authPolicy2nameForAutomation",
+	"policyGroupName": "$ID:DefinePolicyGroup_All_Valid_Smoke_sid_name$",
+	"policyType": "Auth",
+	"version": "1.0",
+	"requesttime": "$TIMESTAMP$"
+}'
+      output: ' {
+    "is_Active": false
+}'
+
+   Esignet_DefinePolicy_WithOut_FullName_Email_Gender_sid:
+      endPoint: /v1/policymanager/policies
+      uniqueIdentifier: Dependent_Idrepo_definePolicy_19
+      description: Define policy without fullname, email and gender
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/DefinePolicy/definePolicy2
+      outputTemplate: esignet/PmsIntegration/DefinePolicy/definePolicyResult
+      input: '{
+	"desc": "$RUNCONTEXT$-$POLICYDESC$",
+	"name": "$RUNCONTEXT$-$POLICYNAME$",
+	"policyGroupName": "$ID:DefinePolicyGroup_All_Valid_Smoke_sid_name$",
+	"policyType": "Auth",
+	"version": "1.0",
+	"requesttime": "$TIMESTAMP$"
+}'
+      output: ' {
+    "is_Active": false
+}'
+
+   Esignet_DefinePolicy_WithOut_AllowedAuthTypes_sid:
+      endPoint: /v1/policymanager/policies
+      uniqueIdentifier: Dependent_Idrepo_definePolicy_20
+      description: Define policy without AllowedAuthTypes
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/DefinePolicy/definePolicy3
+      outputTemplate: esignet/PmsIntegration/DefinePolicy/definePolicyResult
+      input: '{
+	"desc": "$RUNCONTEXT$-$POLICYDESC1$",
+	"name": "$RUNCONTEXT$-$POLICYNAME1$",
+	"policyGroupName": "$ID:DefinePolicyGroup_All_Valid_Smoke_sid_name$",
+	"policyType": "Auth",
+	"version": "1.0",
+	"requesttime": "$TIMESTAMP$"
+}'
+      output: ' {
+    "is_Active": false
+}'
+
+   Esignet_DefinePolicy_WithOut_AllowedKycAttributes_sid:
+      endPoint: /v1/policymanager/policies
+      uniqueIdentifier: Dependent_Idrepo_definePolicy_21
+      description: Define policy without AllowedKycAttributes
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/DefinePolicy/definePolicy4
+      outputTemplate: esignet/PmsIntegration/DefinePolicy/definePolicyResult
+      input: '{
+	"desc": "$RUNCONTEXT$-desc$POLICYDESC1$",
+	"name": "$RUNCONTEXT$-$RANDOMPOLICYNAME$",
+	"policyGroupName": "$ID:DefinePolicyGroup_All_Valid_Smoke_sid_name$",
+	"policyType": "Auth",
+	"version": "1.0",
+	"requesttime": "$TIMESTAMP$"
+}'
+      output: ' {
+    "is_Active": false
+}'
