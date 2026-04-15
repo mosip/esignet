@@ -111,6 +111,25 @@
 			<class name="io.mosip.testrig.apirig.esignet.testscripts.PutWithPathParamsAndBody" />
 		</classes>
 	</test>
+	<test name="partnerPolicyMapping">
+		<parameter name="ymlFile"
+			value="esignet/PmsIntegration/PartnerPolicyMapping/partnerPolicyMapping.yml" />
+		<parameter name="idKeyName" value="mappingkey" />
+		<parameter name="pathParams" value="partnerId" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.PostWithBodyAndPathParams" />
+		</classes>
+	</test>
+	<test name="ApprovePartnerPolicyMapping">
+		<parameter name="ymlFile"
+			value="esignet/PmsIntegration/ApprovePartnerPolicyMapping/ApproveMappingKey.yml" />
+		<parameter name="pathParams" value="mappingkey" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.PutWithPathParamsAndBody" />
+		</classes>
+	</test>
 	<test name="UpdatePolicy">
 		<parameter name="ymlFile"
 			value="esignet/PmsIntegration/UpdatePolicy/UpdatePolicy.yml" />

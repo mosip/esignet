@@ -1,0 +1,55 @@
+partnerPolicyMapping:
+   Esignet_partnerPolicyMapping_All_Valid_Smoke_sid:
+      endPoint: /v1/partnermanager/partners/{partnerId}/policy/map
+      uniqueIdentifier: TC_PMS_PartnerPolicyMapping_01 
+      description: Validate that partner policy mappings are retrieved successfully for all valid entries
+      role: partner
+      checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_PMS_createPartnerSelfRegistration_01  
+      restMethod: post 
+      inputTemplate: esignet/PmsIntegration/PartnerPolicyMapping/partnerPolicyMapping
+      outputTemplate: esignet/PmsIntegration/PartnerPolicyMapping/partnerPolicyMappingResult
+      input: '{
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "policyName": "$ID:DefinePolicy_For_AuthPartner_sid_name$",
+        "useCaseDescription": "Need to submit the payment",
+		"requesttime": "$TIMESTAMP$"
+    }'
+      output: '{
+    }'
+   Esignet_partnerPolicyMapping_For_Policy_WithOut_FullName_Email_Gender_sid:
+      endPoint: /v1/partnermanager/partners/{partnerId}/policy/map
+      uniqueIdentifier: TC_PMS_PartnerPolicyMapping_02
+      description: Validate that partner policy mappings are retrieved successfully for all valid entries
+      role: partner
+      checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_PMS_createPartnerSelfRegistration_01  
+      restMethod: post 
+      inputTemplate: esignet/PmsIntegration/PartnerPolicyMapping/partnerPolicyMapping
+      outputTemplate: esignet/PmsIntegration/PartnerPolicyMapping/partnerPolicyMappingResult
+      input: '{
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "policyName": "$ID:DefinePolicy_WithOut_FullName_Email_Gender_sid_name$",
+        "useCaseDescription": "Need to submit the payment",
+        "requesttime": "$TIMESTAMP$"
+    }'
+      output: '{
+    }'
+   Esignet_partnerPolicyMapping_For_Policy_WithOut_AllowedAuthTypes_sid:
+      endPoint: /v1/partnermanager/partners/{partnerId}/policy/map
+      uniqueIdentifier: TC_PMS_PartnerPolicyMapping_03
+      description: Validate that partner policy mappings are retrieved successfully for all valid entries
+      role: partner
+      checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_PMS_createPartnerSelfRegistration_01  
+      restMethod: post 
+      inputTemplate: esignet/PmsIntegration/PartnerPolicyMapping/partnerPolicyMapping
+      outputTemplate: esignet/PmsIntegration/PartnerPolicyMapping/partnerPolicyMappingResult
+      input: '{
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "policyName": "$ID:DefinePolicy_WithOut_AllowedAuthTypes_sid_name$",
+        "useCaseDescription": "Need to submit the payment",
+        "requesttime": "$TIMESTAMP$"
+    }'
+      output: '{
+    }'
