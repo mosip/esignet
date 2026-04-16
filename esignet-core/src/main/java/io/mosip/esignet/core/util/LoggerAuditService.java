@@ -17,13 +17,13 @@ import jakarta.validation.constraints.NotNull;
 @Slf4j
 public class LoggerAuditService implements AuditPlugin {
 
-    @Async
+    @Async("auditTaskExecutor")
     @Override
     public void logAudit(@NotNull Action action, @NotNull ActionStatus status, @NotNull AuditDTO auditDTO, Throwable t) {
         audit(null, action, status, auditDTO, t);
     }
 
-    @Async
+    @Async("auditTaskExecutor")
     @Override
     public void logAudit(String username, Action action, ActionStatus status, AuditDTO auditDTO, Throwable t) {
         audit(username, action, status, auditDTO, t);
