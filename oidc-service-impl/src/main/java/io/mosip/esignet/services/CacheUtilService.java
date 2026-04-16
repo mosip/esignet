@@ -23,6 +23,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.ReturnType;
 import org.springframework.stereotype.Service;
@@ -111,13 +112,13 @@ public class CacheUtilService {
         if("simple".equalsIgnoreCase(cacheType))
             return 1L;
 
-        if (redisConnectionFactory.getConnection() != null) {
-            if (isScriptNotLoaded(nonceScriptHash)) {
-                nonceScriptHash = redisConnectionFactory.getConnection().scriptingCommands().scriptLoad(NONCE_CHECK_SCRIPT.getBytes());
+        try (RedisConnection connection = redisConnectionFactory.getConnection()) {
+            if (isScriptNotLoaded(connection, nonceScriptHash)) {
+                nonceScriptHash = connection.scriptingCommands().scriptLoad(NONCE_CHECK_SCRIPT.getBytes());
             }
             log.info("Running NONCE_CHECK_SCRIPT script: {}", nonceScriptHash);
             final String key = NONCE_KEY.formatted(nonce);
-            return redisConnectionFactory.getConnection().scriptingCommands().evalSha(
+            return connection.scriptingCommands().evalSha(
                     nonceScriptHash,
                     ReturnType.INTEGER,
                     1,  // Number of keys
@@ -125,7 +126,6 @@ public class CacheUtilService {
                     String.valueOf(nonceValidity).getBytes(StandardCharsets.UTF_8) // ttl
             );
         }
-        return 0;
     }
 
     //---------------------------------------------- Linked authorization ----------------------------------------------
@@ -285,9 +285,9 @@ public class CacheUtilService {
         return cacheManager.getCache(Constants.SHARED_IDV_RESULT).get(transactionId, String.class); //NOSONAR getCache() will not be returning null here.
     }
 
-    private boolean isScriptNotLoaded(String scriptHash) {
+    private boolean isScriptNotLoaded(RedisConnection connection, String scriptHash) {
         if(scriptHash == null) return true;
-        List<Boolean> scriptExists = redisConnectionFactory.getConnection().scriptingCommands().scriptExists(scriptHash);
+        List<Boolean> scriptExists = connection.scriptingCommands().scriptExists(scriptHash);
         return scriptExists == null || !scriptExists.getFirst();
     }
 }
