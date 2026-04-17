@@ -125,6 +125,9 @@ public class CacheUtilService {
                     key.getBytes(), // The Redis hash name (key)
                     String.valueOf(nonceValidity).getBytes(StandardCharsets.UTF_8) // ttl
             );
+        } catch (Exception e) {
+            log.error("Redis nonce check failed, rejecting nonce: {}", nonceScriptHash);
+            return 0L;
         }
     }
 

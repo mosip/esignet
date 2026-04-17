@@ -210,10 +210,9 @@ public class CacheUtilServiceTest {
         when(redisScriptingCommands.scriptLoad(any(byte[].class)))
                 .thenThrow(new RuntimeException("Redis unavailable"));
 
-        Assertions.assertThrows(RuntimeException.class, () ->
-                cacheUtilService.checkNonce("fail-nonce")
-        );
+        long result = cacheUtilService.checkNonce("fail-nonce");
 
+        Assertions.assertEquals(0L, result);
         verify(redisConnection).close();
     }
 
