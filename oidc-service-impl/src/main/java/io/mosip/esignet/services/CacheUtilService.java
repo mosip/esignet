@@ -126,7 +126,7 @@ public class CacheUtilService {
                     String.valueOf(nonceValidity).getBytes(StandardCharsets.UTF_8) // ttl
             );
         } catch (Exception e) {
-            log.error("Redis nonce check failed, rejecting nonce. {}",e.getMessage());
+            log.error("Redis nonce check failed, rejecting nonce. {}", e);
             return 0L;
         }
     }
