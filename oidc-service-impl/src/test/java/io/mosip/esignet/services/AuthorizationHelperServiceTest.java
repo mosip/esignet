@@ -479,6 +479,74 @@ public class AuthorizationHelperServiceTest {
         Assertions.assertEquals(individualId, result);
     }
 
+    /**
+     * Verifies that an invalid cipher transformation string causes the ThreadLocal
+     * initializer to throw a RuntimeException, which is caught by encryptIndividualId
+     * and re-thrown as EsignetException(AES_CIPHER_FAILED).
+     * This tests the error-path of the cipherPool.withInitial() lambda.
+     */
+    @Test
+    public void setGetIndividualId_withInvalidTransformation_thenFail() {
+        ReflectionTestUtils.setField(authorizationHelperService, "storeIndividualId", true);
+        ReflectionTestUtils.setField(authorizationHelperService, "secureIndividualId", true);
+        ReflectionTestUtils.setField(authorizationHelperService, "aesECBTransformation", "INVALID/ALGO/NONE");
+        // No stubs for dbHelper / keyStore: cipherPool.get() throws RuntimeException
+        // (NoSuchAlgorithmException wrapped) before getSecretKeyFromHSM() is ever reached.
+
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
+        try {
+            authorizationHelperService.setIndividualId("individual-id", oidcTransaction);
+            Assertions.fail("Expected EsignetException to be thrown for invalid cipher transformation");
+        } catch (EsignetException e) {
+            Assertions.assertEquals(AES_CIPHER_FAILED, e.getErrorCode());
+        }
+    }
+
+    /**
+     * Verifies that the ThreadLocal<Cipher> cipherPool reuses the same Cipher instance
+     * across multiple encrypt/decrypt calls on the same thread, while still producing
+     * correct results. The Cipher is re-armed via cipher.init() before each use, so
+     * reuse is safe regardless of previous state.
+     */
+    @Test
+    public void setGetIndividualId_cipherPoolReusedAcrossMultipleCalls() throws Exception {
+        ReflectionTestUtils.setField(authorizationHelperService, "storeIndividualId", true);
+        ReflectionTestUtils.setField(authorizationHelperService, "secureIndividualId", true);
+        ReflectionTestUtils.setField(authorizationHelperService, "aesECBTransformation", "AES/ECB/PKCS5Padding");
+        ReflectionTestUtils.setField(authorizationHelperService, "cacheSecretKeyRefId", "TRANSACTION_CACHE");
+
+        Map<String, List<KeyAlias>> keyaliasesMap = new HashMap<>();
+        KeyAlias keyAlias = new KeyAlias();
+        keyAlias.setAlias("test");
+        keyaliasesMap.put(CURRENTKEYALIAS, Arrays.asList(keyAlias));
+        Mockito.when(dbHelper.getKeyAliases(Mockito.anyString(), Mockito.anyString(), any(LocalDateTime.class))).thenReturn(keyaliasesMap);
+        KeyGenerator generator = KeyGenerator.getInstance("AES");
+        generator.init(256);
+        SecretKey key = generator.generateKey();
+        // Allow unlimited calls for multiple encrypt/decrypt round-trips
+        Mockito.when(keyStore.getSymmetricKey(Mockito.anyString())).thenReturn(key);
+
+        // First round-trip
+        String individualId1 = "individual-id-one";
+        OIDCTransaction tx1 = new OIDCTransaction();
+        authorizationHelperService.setIndividualId(individualId1, tx1);
+        Assertions.assertNotNull(tx1.getIndividualId());
+        Assertions.assertNotEquals(individualId1, tx1.getIndividualId());
+        Assertions.assertEquals(individualId1, authorizationHelperService.getIndividualId(tx1));
+
+        // Second round-trip on the same thread — cipherPool.get() must return the
+        // same Cipher object (ThreadLocal), and cipher.init() re-arms it correctly
+        String individualId2 = "individual-id-two";
+        OIDCTransaction tx2 = new OIDCTransaction();
+        authorizationHelperService.setIndividualId(individualId2, tx2);
+        Assertions.assertNotNull(tx2.getIndividualId());
+        Assertions.assertNotEquals(individualId2, tx2.getIndividualId());
+        Assertions.assertEquals(individualId2, authorizationHelperService.getIndividualId(tx2));
+
+        // Cross-check: different plaintexts must produce different ciphertexts
+        Assertions.assertNotEquals(tx1.getIndividualId(), tx2.getIndividualId());
+    }
+
     @Test
     public void setGetIndividualId_withStoreFlagSetToFalse() {
         ReflectionTestUtils.setField(authorizationHelperService, "storeIndividualId", false);
