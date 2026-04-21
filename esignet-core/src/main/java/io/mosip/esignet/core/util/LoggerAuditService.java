@@ -7,6 +7,7 @@ import io.mosip.esignet.api.util.ActionStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import java.util.Map;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
@@ -41,6 +42,7 @@ public class LoggerAuditService implements AuditPlugin {
     }
 
     public void audit(String username, Action action, ActionStatus status, AuditDTO auditDTO, Throwable t) {
+        Map<String, String> originalMdc = MDC.getCopyOfContextMap();
         addAuditDetailsToMDC(auditDTO);
         try {
             if(t != null) {
@@ -56,7 +58,11 @@ public class LoggerAuditService implements AuditPlugin {
                     log.info(username != null ? "Sessionuser: " +username+ "with action: " +action.name() : action.name());
             }
         } finally {
-            MDC.clear();
+            if (originalMdc != null) {
+                MDC.setContextMap(originalMdc);
+            } else {
+                MDC.clear();
+            }
         }
     }
 }
