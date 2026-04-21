@@ -318,6 +318,7 @@ public class AuthorizationControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.errors").isNotEmpty())
                 .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.REQUEST_NOT_SUPPORTED));
+        Mockito.verify(authorizationService).getOauthDetails(Mockito.any());
 
         // Mock service for v3 endpoint
         when(authorizationService.getOauthDetailsV3(Mockito.any(), Mockito.any())).thenThrow(new EsignetException(ErrorConstants.REQUEST_NOT_SUPPORTED));
@@ -328,7 +329,7 @@ public class AuthorizationControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.errors").isNotEmpty())
                 .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.REQUEST_NOT_SUPPORTED));
-
+        Mockito.verify(authorizationService).getOauthDetailsV3(Mockito.any(), Mockito.any());
     }
 
     @Test
