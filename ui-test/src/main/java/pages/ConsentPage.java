@@ -168,6 +168,18 @@ public class ConsentPage extends BasePage {
 	@FindBy(id = "discontinue-button")
 	WebElement discontinueButtonInConsentUpdateProfileScreen;
 
+	@FindBy(id = "login-header")
+	WebElement loginTitle;
+
+	@FindBy(id = "login-subheader")
+	WebElement loginSubTitle;
+
+	@FindBy(xpath = "//h1[@class='text-base leading-5 font-sans font-medium my-2']")
+	WebElement selectPreferredModeHeader;
+
+	@FindBy(xpath = "//div[@class='inline mx-2 font-semibold my-3']")
+	WebElement selectPreferredIdHeader;
+
 	public void clickOnLoginWithOtp() {
 		clickOnElement(loginWithOtpButton, "Clicked on login with Otp button");
 	}
@@ -486,4 +498,33 @@ public class ConsentPage extends BasePage {
 	public void clickOnDiscontinueButton() {
 		clickOnElement(discontinueButtonInConsentUpdateProfileScreen, "Clicked on discontinue button");
 	}
+
+	public boolean isLoginWithOtpDisplayed(String expectedText) {
+		return loginWithOtpButton.isDisplayed() && loginWithOtpButton.getText().trim().startsWith(expectedText);
+	}
+
+	public boolean isLoginTitleDisplayed() {
+		return isElementDisplayed(loginTitle);
+	}
+
+	public boolean isLoginSubTitleDisplayed() {
+		return isElementDisplayed(loginSubTitle);
+	}
+
+	public String getLoginTitleText() {
+		return loginTitle.getText().trim();
+	}
+
+	public String getLoginSubTitleText() {
+		return loginSubTitle.getText().trim();
+	}
+
+	public String getSelectPreferredModeHeaderText() {
+		return selectPreferredModeHeader.getText().trim();
+	}
+
+	public String getSelectPreferredIdHeaderText() {
+		return selectPreferredIdHeader.getText().trim();
+	}
+
 }

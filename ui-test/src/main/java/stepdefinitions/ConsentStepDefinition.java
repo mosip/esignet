@@ -24,8 +24,11 @@ import pages.ConsentPage;
 import pages.LoginOptionsPage;
 import pages.SignUpPage;
 import pages.SignupFormDynamicFiller;
+import utils.BaseTestUtil;
+import utils.ClaimsUtil;
 import utils.EsignetUtil;
 import utils.EsignetUtil.RegisteredDetails;
+import utils.ResourceBundleLoader;
 
 public class ConsentStepDefinition {
 
@@ -352,19 +355,17 @@ public class ConsentStepDefinition {
 	public void verifyTheTimerInConsentScreen() {
 		Assert.assertTrue(consentPage.isTimerDisplayed(), "The timer is not displayed in the consent screen");
 	}
-	
+
 	@Then("verify the otp verification button is disabled on the verification screen")
 	public void verifyOtpVerificationButtonIsDisabled() {
-		Assert.assertFalse(consentPage.isVerifyOtpButtonEnabled(),
-				"Otp verification button is enabled");
+		Assert.assertFalse(consentPage.isVerifyOtpButtonEnabled(), "Otp verification button is enabled");
 	}
-	
+
 	@Then("verify the otp verification button is enabled on the verification screen")
 	public void verifyOtpVerificationButtonIsEnabled() {
-		Assert.assertTrue(consentPage.isVerifyOtpButtonEnabled(),
-				"Otp verification button is not enabled");
+		Assert.assertTrue(consentPage.isVerifyOtpButtonEnabled(), "Otp verification button is not enabled");
 	}
-	
+
 	@Then("verify the header Attention in the consent to profile update screen")
 	public void verifyHeaderInConsentProfileUpdateScreenDisplayed() {
 		Assert.assertTrue(consentPage.isHeaderInConsentUpdateProfileScreenVisible(),
@@ -439,7 +440,7 @@ public class ConsentStepDefinition {
 	public void userClickOnVoluntaryInfoIcon() {
 		consentPage.clickOnVoluntaryInfoIcon();
 	}
-	
+
 	@Then("verify the voluntary claim information displayed on clicking the info icon")
 	public void verifyVoluntaryClaimInfoInConsentProfileUpdateScreenDisplayed() {
 		Assert.assertTrue(consentPage.isVoluntaryClaimInformationDisplayed(),
@@ -488,5 +489,107 @@ public class ConsentStepDefinition {
 	@When("user click on discontinue button in warning popup screen")
 	public void userClickDiscontinueButtonInWarningPopup() {
 		consentPage.clickOnDiscontinueButton();
+	}
+
+	@When("user creates the client with purpose type login")
+	public void userCreateClientIdPurposeLogin() {
+		// Purpose is already handled via scenario tags in BaseTest
+	}
+
+	@Then("all auth factors should start with login")
+	public void verifyLoginPurposeReflectedInUI() {
+		String expectedText = ResourceBundleLoader.getPrefixText("otp.login_with_id");
+		Assert.assertTrue(consentPage.isLoginWithOtpDisplayed(expectedText),
+				"Expected text not displayed: " + expectedText);
+	}
+
+	@When("user creates the client with purpose type link")
+	public void userCreateClientIdPurposeLink() {
+		// Purpose is already handled via scenario tags in BaseTest
+	}
+
+	@Then("all auth factors should start with link")
+	public void verifyLinkPurposeReflectedInUI() {
+		String expectedText = ResourceBundleLoader.getPrefixText("otp.link_using_id");
+		Assert.assertTrue(consentPage.isLoginWithOtpDisplayed(expectedText),
+				"Expected text not displayed: " + expectedText);
+	}
+
+	@When("user creates the client with purpose type verify")
+	public void userCreateClientIdPurposeVerify() {
+		// Purpose is already handled via scenario tags in BaseTest
+	}
+
+	@Then("all auth factors should start with verify")
+	public void validateVerifyPurposeReflectedInUI() {
+		String expectedText = ResourceBundleLoader.getPrefixText("otp.verify_with_id");
+		Assert.assertTrue(consentPage.isLoginWithOtpDisplayed(expectedText),
+				"Expected text not displayed: " + expectedText);
+	}
+
+	@When("user creates the client with purpose type none")
+	public void userCreateClientIdPurposeNone() {
+		// Purpose is already handled via scenario tags in BaseTest
+	}
+
+	@Then("verify no title or subtitle should be displayed")
+	public void verifyTitleNotDisplayed() {
+		Assert.assertFalse(consentPage.isLoginTitleDisplayed(), "Title is displayed when purpose is none");
+		Assert.assertFalse(consentPage.isLoginSubTitleDisplayed(), "Subtitle is displayed when purpose is none");
+	}
+
+	@Then("verify title and subtitle should be displayed as per text given during client creation")
+	public void verifyDefaultLoginTitleAndSubtitle() {
+		Assert.assertTrue(consentPage.getLoginTitleText().equals("Verify using eSignet"));
+		Assert.assertTrue(consentPage.getLoginSubTitleText().contains("is requesting authentication for verification"));
+	}
+
+	@When("user creates the client with null title and subtitle values")
+	public void userCreateClientIdWithNullTitle() {
+		// Title is already handled via scenario tags in BaseTest
+	}
+
+	@When("user creates the client with empty title and subtitle values")
+	public void userCreateClientIdWithEmptyTitle() {
+		// Title is already handled via scenario tags in BaseTest
+	}
+
+	@Then("verify select preferred mode text is displayed")
+	public void verifySelectPreferredModeText() {
+		String expectedText = ResourceBundleLoader.get("signInOption.preferred_mode_to_continue");
+		Assert.assertEquals(consentPage.getSelectPreferredModeHeaderText(), expectedText, "Expected text mismatch");
+	}
+
+	@Then("verify select preferred ID text based on purpose type when more than one auth factor is present")
+	public void verifySelectPreferredIdHeaderText() {
+		List<String> authFactors = ClaimsUtil.getAuthFactors();
+		Assert.assertFalse(authFactors.isEmpty(), "No auth factors were parsed from the authorize URL");
+
+		if (authFactors.size() > 1) {
+			String expectedText = ResourceBundleLoader.get("otp.login_with_id_multiple");
+			Assert.assertEquals(consentPage.getSelectPreferredIdHeaderText(), expectedText, "Expected text mismatch");
+		}
+	}
+
+	@When("user creates the client with single auth factor")
+	public void userCreateClientIdWithSingleAuthFactor() {
+		// It is already handled via scenario tags in BaseTest
+	}
+
+	@Then("verify select ID type text based on purpose type when one auth factor is displayed")
+	public void verifySelectIdTypeHeaderText() {
+		List<String> authFactors = ClaimsUtil.getAuthFactors();
+		Assert.assertFalse(authFactors.isEmpty(), "No auth factors were parsed from the authorize URL");
+
+		if (authFactors.size() == 1) {
+			String expectedText = ResourceBundleLoader.get("otp.login_with_id_multiple");
+			Assert.assertEquals(consentPage.getSelectPreferredIdHeaderText(), expectedText, "Expected text mismatch");
+		}
+	}
+
+	@Then("verify select preferred ID text based on purpose type is displayed")
+	public void verifySelectPreferredIdHeaderTextDisplayed() {
+		String expectedText = ResourceBundleLoader.get("otp.login_with_id_multiple");
+		Assert.assertEquals(consentPage.getSelectPreferredIdHeaderText(), expectedText, "Expected text mismatch");
 	}
 }
