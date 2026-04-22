@@ -26,12 +26,14 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadPoolExecutor;
 
 @Configuration
 @Slf4j
@@ -51,6 +53,21 @@ public class AppConfig implements ApplicationRunner {
 
     @Value("${mosip.esignet.default.httpclient.connections.max:100}")
     private int defaultTotalMaxConnection;
+
+    @Value("${mosip.esignet.audit.executor.core-pool-size:5}")
+    private int auditExecutorCorePoolSize;
+
+    @Value("${mosip.esignet.audit.executor.max-pool-size:20}")
+    private int auditExecutorMaxPoolSize;
+
+    @Value("${mosip.esignet.audit.executor.queue-capacity:500}")
+    private int auditExecutorQueueCapacity;
+
+    @Value("${mosip.esignet.audit.executor.keep-alive-seconds:60}")
+    private int auditExecutorKeepAliveSeconds;
+
+    @Value("${mosip.esignet.audit.executor.thread-name-prefix:audit-}")
+    private String auditExecutorThreadNamePrefix;
 
     @Value("${mosip.esignet.cache.security.secretkey.reference-id}")
     private String cacheSecretKeyRefId;
@@ -84,6 +101,18 @@ public class AppConfig implements ApplicationRunner {
         return new RestTemplate(requestFactory);
     }
 
+    @Bean("auditTaskExecutor")
+    public ThreadPoolTaskExecutor auditTaskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(auditExecutorCorePoolSize);
+        executor.setMaxPoolSize(auditExecutorMaxPoolSize);
+        executor.setQueueCapacity(auditExecutorQueueCapacity);
+        executor.setThreadNamePrefix(auditExecutorThreadNamePrefix);
+        executor.setKeepAliveSeconds(auditExecutorKeepAliveSeconds);
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        executor.initialize();
+        return executor;
+    }
 
     /**
      * Get the features associated with the profile
