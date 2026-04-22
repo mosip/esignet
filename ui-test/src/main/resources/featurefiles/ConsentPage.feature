@@ -122,12 +122,12 @@ Feature: Esignet Consent Page
     
   @smoke @NoPurpose
   Scenario: Verify eSignet UI falls back to login when client is created without purpose field
-    When user creates the client with purpose type none
+    When user creates the client without purpose field
     Then all auth factors should start with login
 	
   @smoke @NoTitleAndSubTitle
-  Scenario: Verifying title and subtitle are not displayed when purpose title and subtitle values are empty
-    When user creates the client with empty title and subtitle values
+  Scenario: Verifying title and subtitle are not displayed when purpose title and subtitle values are null
+    When user creates the client with null title and subtitle values
     Then verify no title or subtitle should be displayed
 
   @smoke @EmptyTitleAndSubTitle

@@ -77,6 +77,9 @@ public class ResourceBundleLoader {
 
 	public static String getPrefixText(String key) {
 		String value = get(key);
+		if (value != null && value.startsWith("!!MISSING_KEY:")) {
+			throw new IllegalStateException("Resource bundle missing key: " + key);
+		}
 		return value.split("\\{\\{currentID\\}\\}")[0].trim();
 	}
 }

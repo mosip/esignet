@@ -13,7 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
 
@@ -88,12 +90,6 @@ public class EsignetUtil extends AdminTestUtil {
 	protected static final String OIDC_JWK_FOR_PAR_EMPTY_TITLE = "oidcJWKForPAREmptyTitle";
 	protected static final String OIDC_JWK_FOR_PAR_SINGLE_ACR_VALUE = "oidcJWKForPARSingleAcrValue";
 	protected static RSAKey oidc_JWK_Key_For_PAR = null;
-	protected static RSAKey oidc_JWK_Key_For_PAR_Purpose_Login = null;
-	protected static RSAKey oidc_JWK_Key_For_PAR_Purpose_Link = null;
-	protected static RSAKey oidc_JWK_Key_For_PAR_Purpose_None = null;
-	protected static RSAKey oidc_JWK_Key_For_PAR_No_Purpose = null;
-	protected static RSAKey oidc_JWK_Key_For_PAR_No_Title = null;
-	protected static RSAKey oidc_JWK_Key_For_PAR_Acr_Value = null;
 	protected static final String CLAIMS_REQUEST = "config/claims.json";
 
 	private static final String display = "popup";
@@ -766,60 +762,52 @@ public class EsignetUtil extends AdminTestUtil {
 					String.valueOf(Calendar.getInstance().getTimeInMillis()));
 		}
 
-		jsonString = processClientAssertion(jsonString, "$CLIENT_ASSERTION_PAR_JWT$", OIDC_JWK_FOR_PAR, "PAR error");
+		jsonString = processClientAssertion(jsonString, "$CLIENT_ASSERTION_PAR_JWT$", OIDC_JWK_FOR_PAR);
 
-		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR$", OIDC_JWK_FOR_PAR, getTriggerESignetKeyGenForPAR(),
-				EsignetUtil::setTriggerESignetKeyGenForPAR);
+		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR$", OIDC_JWK_FOR_PAR);
 
 		// PURPOSE_LOGIN
 		jsonString = processClientAssertion(jsonString, "$CLIENT_ASSERTION_PAR_JWT_PURPOSE_LOGIN$",
-				OIDC_JWK_FOR_PAR_PURPOSE_LOGIN, "LOGIN error");
+				OIDC_JWK_FOR_PAR_PURPOSE_LOGIN);
 
-		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_PURPOSE_LOGIN$", OIDC_JWK_FOR_PAR_PURPOSE_LOGIN,
-				getTriggerESignetKeyGenForPARPurposeLogin(), EsignetUtil::setTriggerESignetKeyGenForPARPurposeLogin);
+		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_PURPOSE_LOGIN$", OIDC_JWK_FOR_PAR_PURPOSE_LOGIN);
 
 		// PURPOSE_LINK
 		jsonString = processClientAssertion(jsonString, "$CLIENT_ASSERTION_PAR_JWT_PURPOSE_LINK$",
-				OIDC_JWK_FOR_PAR_PURPOSE_LINK, "LINK error");
+				OIDC_JWK_FOR_PAR_PURPOSE_LINK);
 
-		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_PURPOSE_LINK$", OIDC_JWK_FOR_PAR_PURPOSE_LINK,
-				getTriggerESignetKeyGenForPARPurposeLink(), EsignetUtil::setTriggerESignetKeyGenForPARPurposeLink);
+		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_PURPOSE_LINK$", OIDC_JWK_FOR_PAR_PURPOSE_LINK);
 
 		// PURPOSE_NONE
 		jsonString = processClientAssertion(jsonString, "$CLIENT_ASSERTION_PAR_JWT_PURPOSE_NONE$",
-				OIDC_JWK_FOR_PAR_PURPOSE_NONE, "NONE error");
+				OIDC_JWK_FOR_PAR_PURPOSE_NONE);
 
-		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_PURPOSE_NONE$", OIDC_JWK_FOR_PAR_PURPOSE_NONE,
-				getTriggerESignetKeyGenForPARPurposeNone(), EsignetUtil::setTriggerESignetKeyGenForPARPurposeNone);
+		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_PURPOSE_NONE$", OIDC_JWK_FOR_PAR_PURPOSE_NONE);
 
 		// NO PURPOSE
 		jsonString = processClientAssertion(jsonString, "$CLIENT_ASSERTION_PAR_JWT_NO_PURPOSE$",
-				OIDC_JWK_FOR_PAR_NO_PURPOSE, "Purpose error");
+				OIDC_JWK_FOR_PAR_NO_PURPOSE);
 
-		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_NO_PURPOSE$", OIDC_JWK_FOR_PAR_NO_PURPOSE,
-				getTriggerESignetKeyGenForPARNoPurpose(), EsignetUtil::setTriggerESignetKeyGenForPARNoPurpose);
+		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_NO_PURPOSE$", OIDC_JWK_FOR_PAR_NO_PURPOSE);
 
 		// NO TITLE
 		jsonString = processClientAssertion(jsonString, "$CLIENT_ASSERTION_PAR_JWT_NO_TITLE$",
-				OIDC_JWK_FOR_PAR_NO_TITLE, "Title error");
+				OIDC_JWK_FOR_PAR_NO_TITLE);
 
-		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_NO_TITLE$", OIDC_JWK_FOR_PAR_NO_TITLE,
-				getTriggerESignetKeyGenForPARNoTitle(), EsignetUtil::setTriggerESignetKeyGenForPARNoTitle);
+		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_NO_TITLE$", OIDC_JWK_FOR_PAR_NO_TITLE);
 
 		// EMPTY TITLE
 		jsonString = processClientAssertion(jsonString, "$CLIENT_ASSERTION_PAR_JWT_EMPTY_TITLE$",
-				OIDC_JWK_FOR_PAR_EMPTY_TITLE, "Title error");
+				OIDC_JWK_FOR_PAR_EMPTY_TITLE);
 
-		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_EMPTY_TITLE$", OIDC_JWK_FOR_PAR_EMPTY_TITLE,
-				getTriggerESignetKeyGenForPAREmptyTitle(), EsignetUtil::setTriggerESignetKeyGenForPAREmptyTitle);
+		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_EMPTY_TITLE$", OIDC_JWK_FOR_PAR_EMPTY_TITLE);
 
 		// SINGLE AUTH FACTOR
 		jsonString = processClientAssertion(jsonString, "$CLIENT_ASSERTION_PAR_JWT_SINGLE_ACR_VALUE$",
-				OIDC_JWK_FOR_PAR_SINGLE_ACR_VALUE, "ACR error");
+				OIDC_JWK_FOR_PAR_SINGLE_ACR_VALUE);
 
-		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_SINGLE_ACR_VALUE$", OIDC_JWK_FOR_PAR_SINGLE_ACR_VALUE,
-				getTriggerESignetKeyGenForPARSingleAcrValue(),
-				EsignetUtil::setTriggerESignetKeyGenForPARSingleAcrValue);
+		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_SINGLE_ACR_VALUE$",
+				OIDC_JWK_FOR_PAR_SINGLE_ACR_VALUE);
 
 		if (jsonString.contains("$ESIGNET_REDIRECT_URI$")) {
 			jsonString = replaceKeywordWithValue(jsonString, "$ESIGNET_REDIRECT_URI$",
@@ -830,8 +818,7 @@ public class EsignetUtil extends AdminTestUtil {
 
 	}
 
-	private static String processClientAssertion(String jsonString, String placeholder, String jwkKeyName,
-			String errorMessage) {
+	private static String processClientAssertion(String jsonString, String placeholder, String jwkKeyName) {
 
 		if (jsonString.contains(placeholder)) {
 
@@ -841,7 +828,8 @@ public class EsignetUtil extends AdminTestUtil {
 			try {
 				rsaKey = RSAKey.parse(keyString);
 			} catch (Exception e) {
-				throw new RuntimeException(errorMessage, e);
+				throw new RuntimeException(
+						"Failed to parse JWK for placeholder " + placeholder + " (key=" + jwkKeyName + ")", e);
 			}
 
 			JSONObject root = new JSONObject(jsonString);
@@ -864,25 +852,14 @@ public class EsignetUtil extends AdminTestUtil {
 		return jsonString;
 	}
 
-	private static String processJWKKey(String jsonString, String placeholder, String jwkKeyName, boolean trigger,
-			Consumer<Boolean> setter) {
+	private static final Set<String> generatedJwkKeys = ConcurrentHashMap.newKeySet();
 
-		if (jsonString.contains(placeholder)) {
-
-			String jwkKey;
-
-			if (trigger) {
-				jwkKey = JWKKeyUtil.generateAndCacheJWKKey(jwkKeyName);
-				setter.accept(false);
-			} else {
-				jwkKey = JWKKeyUtil.getJWKKey(jwkKeyName);
-			}
-
-			jsonString = replaceKeywordWithValue(jsonString, placeholder, jwkKey);
-		}
-
-		return jsonString;
-
+	private static String processJWKKey(String jsonString, String placeholder, String jwkKeyName) {
+		if (!jsonString.contains(placeholder))
+			return jsonString;
+		String jwkKey = generatedJwkKeys.add(jwkKeyName) ? JWKKeyUtil.generateAndCacheJWKKey(jwkKeyName)
+				: JWKKeyUtil.getJWKKey(jwkKeyName);
+		return replaceKeywordWithValue(jsonString, placeholder, jwkKey);
 	}
 
 	public static String getValueFromEsignetWellKnownEndPoint(String key, String baseURL) {

@@ -101,8 +101,8 @@ OIDCClientV3:
       "clientNameLang": "MOSIP OIDC Client",
       "userinfo_response_type": "JWS",
 	  "purpose_title": "Link using eSignet",
-	  "purpose_type": "link",
-	  "purpose_subTitle": "{{clientName}} is requesting authentication to link your account",
+      "purpose_type": "link",
+      "purpose_subTitle": "{{clientName}} is requesting authentication to link your account",
       "signup_banner_required": true,
       "forgot_pwd_link_required": true,
       "consent_expire_in_mins": 30

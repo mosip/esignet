@@ -342,7 +342,7 @@ public class ConsentPage extends BasePage {
 	}
 
 	public boolean isLoginWithOtpDisplayed(String expectedText) {
-		return loginWithOtpButton.isDisplayed() && loginWithOtpButton.getText().trim().startsWith(expectedText);
+		return isElementDisplayed(loginWithOtpButton) && loginWithOtpButton.getText().trim().startsWith(expectedText);
 	}
 
 	public boolean isLoginTitleDisplayed() {

@@ -377,6 +377,11 @@ public class ConsentStepDefinition {
 		Assert.assertTrue(consentPage.isLoginWithOtpDisplayed(expectedText),
 				"Expected text not displayed: " + expectedText);
 	}
+	
+	@When("user creates the client without purpose field")
+	public void userCreateClientIdWithoutPurpose() {
+		// Purpose is already handled via scenario tags in BaseTest
+	}
 
 	@When("user creates the client with purpose type link")
 	public void userCreateClientIdPurposeLink() {
@@ -409,8 +414,8 @@ public class ConsentStepDefinition {
 
 	@Then("verify no title or subtitle should be displayed")
 	public void verifyTitleNotDisplayed() {
-		Assert.assertFalse(consentPage.isLoginTitleDisplayed(), "Title is displayed when purpose is none");
-		Assert.assertFalse(consentPage.isLoginSubTitleDisplayed(), "Subtitle is displayed when purpose is none");
+		Assert.assertFalse(consentPage.isLoginTitleDisplayed(), "Title is displayed");
+		Assert.assertFalse(consentPage.isLoginSubTitleDisplayed(), "Subtitle is displayed");
 	}
 
 	@Then("verify title and subtitle should be displayed as per text given during client creation")
@@ -440,10 +445,9 @@ public class ConsentStepDefinition {
 		List<String> authFactors = ClaimsUtil.getAuthFactors();
 		Assert.assertFalse(authFactors.isEmpty(), "No auth factors were parsed from the authorize URL");
 
-		if (authFactors.size() > 1) {
-			String expectedText = ResourceBundleLoader.get("otp.login_with_id_multiple");
-			Assert.assertEquals(consentPage.getSelectPreferredIdHeaderText(), expectedText, "Expected text mismatch");
-		}
+		Assert.assertTrue(authFactors.size() > 1, "Expected multiple auth factors, got " + authFactors.size());
+		String expectedText = ResourceBundleLoader.get("otp.login_with_id_multiple");
+		Assert.assertEquals(consentPage.getSelectPreferredIdHeaderText(), expectedText, "Expected text mismatch");
 	}
 
 	@When("user creates the client with single auth factor")
@@ -456,10 +460,9 @@ public class ConsentStepDefinition {
 		List<String> authFactors = ClaimsUtil.getAuthFactors();
 		Assert.assertFalse(authFactors.isEmpty(), "No auth factors were parsed from the authorize URL");
 
-		if (authFactors.size() == 1) {
-			String expectedText = ResourceBundleLoader.get("otp.login_with_id_multiple");
-			Assert.assertEquals(consentPage.getSelectPreferredIdHeaderText(), expectedText, "Expected text mismatch");
-		}
+		Assert.assertTrue(authFactors.size() == 1, "Expected multiple auth factors, got " + authFactors.size());
+		String expectedText = ResourceBundleLoader.get("otp.login_with_id_multiple");
+		Assert.assertEquals(consentPage.getSelectPreferredIdHeaderText(), expectedText, "Expected text mismatch");
 	}
 
 	@Then("verify select preferred ID text based on purpose type is displayed")
