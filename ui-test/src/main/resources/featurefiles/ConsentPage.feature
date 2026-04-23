@@ -140,3 +140,47 @@ Feature: Esignet Consent Page
    When user creates the client with single auth factor
    Given user captures the authorize url
    And verify select ID type text based on purpose type when one auth factor is displayed
+  @smoke @ConsentToUpdateProfile
+  Scenario: Verifying user consent to proceed with profile update
+   Given user captures the authorize url
+   When click on Language selection option
+   And select the mandatory language
+   And user click on Login with Otp
+   Then user enters Registered mobile number into the mobile number field
+   And user click on get otp button
+   When user enters the correct otp
+   And click on verify Otp button
+   Then verify user is navigated to consent to profile update screen
+   And verify the header Attention in the consent to profile update screen
+   And verify the sub header in the consent to profile update screen
+   And verify the essential claim header in consent to update profile screen
+   And verify info icon is available in consent to update profile screen
+   And verify proceed button is visible in consent to update profile screen
+   And verify cancel button is visible in consent to update profile screen
+   And user verify the essential claims list
+   And user verify the voluntary claims list
+   And user click on essential claim info icon
+   And verify the essential claim information displayed on clicking the info icon
+   And user tab outside the info icon
+   And user click on voluntary claim info icon
+   And verify the voluntary claim information displayed on clicking the info icon
+   And user tab outside the info icon
+   And verify the message click on proceed to begin with the verification process is displayed below
+   When user click on cancel button in consent update to profile screen
+   Then verify warning popup with header attention is displayed
+   And verify the sub header in warning popup is displayed
+   And verify stay button is available in the warning popup
+   And verify discontinue button is available in the warning popup screen
+   When user click on stay button in warning popup
+   Then verify user is navigated to consent to profile update screen
+   And user click on cancel button in consent update to profile screen
+   When user click on discontinue button in warning popup screen
+   Then user verify user is redirected to relying party login page
+   When user clicks on sign in with esignet button
+   And user click on Login with Otp
+   Then user enters Registered mobile number into the mobile number field
+   And user click on get otp button
+   When user enters the correct otp
+   And click on verify Otp button
+   And clicks on proceed button in attention page
+   Then verify user navigate to eKYC process steps screen

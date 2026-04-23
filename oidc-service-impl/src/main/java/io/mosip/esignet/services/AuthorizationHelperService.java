@@ -42,6 +42,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import javax.crypto.Cipher;
+import java.security.NoSuchAlgorithmException;
+import javax.crypto.NoSuchPaddingException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.NotNull;
@@ -128,6 +130,16 @@ public class AuthorizationHelperService {
 
     @Value("${mosip.esignet.signup-id-token-audience}")
     private String signupIDTokenAudience;
+
+    private final ThreadLocal<Cipher> cipherPool = ThreadLocal.withInitial(() -> {
+        try {
+            return Cipher.getInstance(aesECBTransformation);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+            throw new RuntimeException(
+                "Failed to initialise Cipher for transformation: "
+                + aesECBTransformation, e);
+        }
+    });
 
 
     protected void validateSendOtpCaptchaToken(String captchaToken) {
@@ -381,7 +393,7 @@ public class AuthorizationHelperService {
 
     private String encryptIndividualId(String individualId) {
         try {
-            Cipher cipher = Cipher.getInstance(aesECBTransformation);
+            Cipher cipher = cipherPool.get();
             byte[] secretDataBytes = individualId.getBytes(StandardCharsets.UTF_8);
             cipher.init(Cipher.ENCRYPT_MODE, getSecretKeyFromHSM());
             return IdentityProviderUtil.b64Encode(cipher.doFinal(secretDataBytes, 0, secretDataBytes.length));
@@ -393,7 +405,7 @@ public class AuthorizationHelperService {
 
     private String decryptIndividualId(String encryptedIndividualId) {
         try {
-            Cipher cipher = Cipher.getInstance(aesECBTransformation);
+            Cipher cipher = cipherPool.get();
             byte[] decodedBytes = IdentityProviderUtil.b64Decode(encryptedIndividualId);
             cipher.init(Cipher.DECRYPT_MODE, getSecretKeyFromHSM());
             return new String(cipher.doFinal(decodedBytes, 0, decodedBytes.length));
