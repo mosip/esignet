@@ -5,6 +5,7 @@ import java.security.MessageDigest;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,9 +13,21 @@ import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.lang.reflect.Method;
+
+import com.mifmif.common.regex.Generex;
 
 import javax.ws.rs.core.MediaType;
 
@@ -52,6 +65,7 @@ import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.CertsUtil;
+import io.mosip.testrig.apirig.utils.ConfigManager;
 import io.mosip.testrig.apirig.utils.EncryptionDecrptionUtil;
 import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.GlobalMethods;
@@ -70,6 +84,7 @@ public class EsignetUtil extends AdminTestUtil {
 	private static String fullNameForSunBirdR = generateFullNameForSunBirdR();
 	private static String dobForSunBirdR = generateDobForSunBirdR();
 	private static String policyNumberForSunBirdR = generateRandomNumberString(9);
+	private static JSONObject identitySchemaJson = null;
 	
 	public static List<String> testCasesInRunScope = new ArrayList<>();
 	
@@ -396,19 +411,13 @@ public class EsignetUtil extends AdminTestUtil {
 					jwkKeyString = JWKKeyUtil.getJWKKey(OIDC_JWK_FOR_DPoP);
 				}
 
-				logger.info("Using JWK for testCase: " + testCaseName);
-				logger.info("oidcJWKKeyString = " + jwkKeyString);
-
 				RSAKey dpopKey = RSAKey.parse(jwkKeyString);
-				logger.info("dpopKey = " + dpopKey);
-
 				String jkt = generateJKT(dpopKey);
-				logger.info("DPoP JKT: " + jkt);
 
 				jsonString = replaceKeywordValue(jsonString, "$DPOP_JKT$", jkt);
 
 			} catch (Exception e) {
-				logger.error("Error while generating DPoP JKT: " + e.getMessage(), e);
+				throw new RuntimeException("Error while generating DPoP JKT", e);
 			}
 		}
 		
@@ -2826,5 +2835,330 @@ public class EsignetUtil extends AdminTestUtil {
 		else {
 			throw new Exception("Invalid JWT format");
 		}
+	}
+	
+	public static String generateDynamicIdentityRequest(String schemaStr, String testCaseName) {
+		try {
+			JSONObject fullSchema = new JSONObject(schemaStr);
+			JSONObject schemaResponse = fullSchema.getJSONObject(EsignetConstants.RESPONSE);
+
+			JSONObject identity = (JSONObject) processSchema(schemaResponse, fullSchema, EsignetConstants.REQUEST, null,
+					true, testCaseName);
+
+			return new JSONObject().put(EsignetConstants.REQUEST, identity)
+					.put(EsignetConstants.REQUEST_TIME, "$TIMESTAMP$").toString();
+
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to generate dynamic request", e);
+		}
+	}
+	
+	private static Object processSchema(JSONObject schema, JSONObject root,
+			String field, String parentField, boolean required, String testCaseName) {
+
+		schema = resolveSchema(schema, root);
+
+		String type = schema.optString("type", "string");
+
+		if (schema.has("type") && schema.get("type") instanceof JSONArray) {
+			JSONArray types = schema.getJSONArray("type");
+			for (int i = 0; i < types.length(); i++) {
+				if ("array".equals(types.getString(i))) {
+					type = "array";
+					break;
+				}
+			}
+		}
+
+		switch (type) {
+
+		case "object":
+			JSONObject obj = new JSONObject();
+			JSONObject props = schema.optJSONObject("properties");
+			JSONArray req = schema.optJSONArray("required");
+
+			if (props != null) {
+				for (String key : props.keySet()) {
+					boolean isReq = req != null && req.toList().contains(key);
+
+					obj.put(key, processSchema(props.getJSONObject(key), root, key, key, isReq, testCaseName));
+				}
+			}
+			return obj;
+
+		case "array":
+			JSONArray arr = new JSONArray();
+			JSONObject items = schema.optJSONObject("items");
+
+			if (items == null && schema.has("allOf")) {
+				JSONArray allOf = schema.getJSONArray("allOf");
+				items = allOf.getJSONObject(allOf.length() - 1);
+			}
+
+			if (items == null)
+				return arr;
+
+			items = resolveSchema(items, root);
+			JSONObject propsArr = items.optJSONObject("properties");
+
+			if (propsArr != null && propsArr.has("language") && propsArr.has("value")) {
+
+				JSONArray langArr = new JSONArray();
+
+				JSONObject row = new JSONObject();
+				row.put("language", "eng");
+
+				String keyToUse = resolveKey(field, parentField);
+
+				String propValue = null;
+
+				if (!"phone".equalsIgnoreCase(keyToUse) && !"individualId".equalsIgnoreCase(keyToUse)) {
+
+					propValue = VALUE_MAP.getProperty(keyToUse);
+
+					if (propValue == null) {
+						propValue = VALUE_MAP.getProperty(keyToUse.toLowerCase());
+					}
+				}
+
+				Object val;
+
+				if (propValue != null && !propValue.trim().isEmpty()) {
+					val = propValue;
+					System.out.println("PROPERTY USED: " + keyToUse + " = " + val);
+				} else {
+					val = generateValue(propsArr.getJSONObject("value"), keyToUse, testCaseName);
+					System.out.println("FALLBACK USED: " + keyToUse);
+				}
+
+				row.put("value", val);
+				langArr.put(row);
+
+				return langArr;
+			}
+
+			arr.put(processSchema(items, root, field, parentField, true, testCaseName));
+			return arr;
+
+		default:
+
+		    String keyToUse = resolveKey(field, parentField);
+
+		    Object override = getOverrideValue(keyToUse, schema, testCaseName);
+		    if (override != null) {
+		        System.out.println("OVERRIDE USED: " + keyToUse + " = " + override);
+		        return override;
+		    }
+
+		    String propValue = null;
+
+		    if (!"phone".equalsIgnoreCase(keyToUse) &&
+		        !"individualId".equalsIgnoreCase(keyToUse)) {
+
+		        propValue = VALUE_MAP.getProperty(keyToUse);
+
+		        if (propValue == null) {
+		            propValue = VALUE_MAP.getProperty(keyToUse.toLowerCase());
+		        }
+		    }
+
+		    if (propValue != null && !propValue.trim().isEmpty()) {
+		        System.out.println("PROPERTY USED: " + keyToUse + " = " + propValue);
+		        return propValue;
+		    }
+
+		    System.out.println("ALLBACK USED: " + keyToUse);
+
+		    return generateValue(schema, keyToUse, testCaseName);
+		}
+	}
+			
+			
+	
+	private static Object generateValue(JSONObject schema, String field, String testCaseName) {
+
+	    if ("email".equalsIgnoreCase(field)) {
+	        return testCaseName + "@mosip.net";
+	    }
+
+	    if (!"phone".equalsIgnoreCase(field) && !"individualId".equalsIgnoreCase(field)) {
+
+	    	String propValue = VALUE_MAP.getProperty(field);
+	        if (propValue == null) {
+	        	propValue = VALUE_MAP.getProperty(field.toLowerCase());
+	        }
+
+	        if (propValue != null && !propValue.trim().isEmpty()) {
+	            return propValue;
+	        }
+	    }
+
+	    if (schema.has("pattern")) {
+	        try {
+	            String pattern = schema.getString("pattern")
+	                    .replaceAll("\\(\\?=.*?\\)", "");
+	            return genStringAsperRegex(pattern);
+	        } catch (Exception ignored) {}
+	    }
+
+	    if (schema.has("enum")) {
+	        JSONArray arr = schema.getJSONArray("enum");
+	        return arr.get(0);
+	    }
+
+	    return "Test_" + field;
+	}
+	
+	private static JSONObject resolveSchema(JSONObject schema, JSONObject root) {
+
+	    JSONObject result = new JSONObject();
+
+	    JSONObject effectiveRoot = root.has("response") ? root.getJSONObject("response") : root;
+
+	    if (schema.has("$ref")) {
+	        String ref = schema.getString("$ref");
+
+	        Object current = effectiveRoot;
+	        for (String part : ref.substring(2).split("/")) {
+	            current = ((JSONObject) current).get(part);
+	        }
+	        result = merge(result, (JSONObject) current);
+	    }
+
+	    if (schema.has("allOf")) {
+	        JSONArray arr = schema.getJSONArray("allOf");
+	        for (int i = 0; i < arr.length(); i++) {
+	            result = merge(result, resolveSchema(arr.getJSONObject(i), effectiveRoot));
+	        }
+	    }
+
+	    JSONObject copy = new JSONObject(schema.toString());
+	    copy.remove("$ref");
+	    copy.remove("allOf");
+
+	    return merge(result, copy);
+	}
+	
+	private static JSONObject merge(JSONObject base, JSONObject override) {
+
+		JSONObject result = new JSONObject(base.toString());
+
+		for (String key : override.keySet()) {
+			Object val = override.get(key);
+
+			if (result.has(key) && result.get(key) instanceof JSONObject && val instanceof JSONObject) {
+				result.put(key, merge(result.getJSONObject(key), (JSONObject) val));
+			} else {
+				result.put(key, val);
+			}
+		}
+		return result;
+	}
+	private static final Random RANDOM = new Random();
+
+	private static Object getOverrideValue(String field, String testCaseName) {
+	    if ("email".equalsIgnoreCase(field)) {
+	        return testCaseName + "@mosip.net";
+	    }
+	    return null;
+	}
+
+	private static String generateDynamicNumber(JSONObject schema) {
+	    int min = schema.optInt("minLength", 10);
+	    int max = schema.optInt("maxLength", min);
+
+	    int len = (max > min) ? RANDOM.nextInt(max - min + 1) + min : min;
+
+	    StringBuilder sb = new StringBuilder();
+	    for (int i = 0; i < len; i++) {
+	        sb.append(RANDOM.nextInt(10));
+	    }
+	    return sb.toString();
+	}
+	
+	public static String getEsignetIdentitySchema() {
+
+		try {
+
+			String url = ConfigManager.getproperty("baseUrl")
+					+ ConfigManager.getproperty("mockIdentityIdentitySchemaEndpoint");
+
+			Response response = RestClient.getRequest(url, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
+
+			return response.asString();
+
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to fetch schema", e);
+		}
+	}
+	
+	public void extractAndStoreEsignetIdentityDetails(String testCaseName, String requestBody) {
+
+		try {
+			JSONObject root = new JSONObject(requestBody);
+			JSONObject request = root.getJSONObject("request");
+
+			String individualId = request.optString("individualId", null);
+			String email = request.optString("email", null);
+			String password = request.optString("password", null);
+			String phone = request.optString("phone", null);
+
+			if (individualId != null && !individualId.isEmpty()) {
+				writeAutoGeneratedId(testCaseName, "UIN", individualId);
+			}
+
+			if (email != null && !email.isEmpty()) {
+				writeAutoGeneratedId(testCaseName, "EMAIL", email);
+			}
+
+			if (password != null && !password.isEmpty()) {
+				writeAutoGeneratedId(testCaseName, "PASSWORD", password);
+			}
+
+			if (phone != null && !phone.isEmpty()) {
+				writeAutoGeneratedId(testCaseName, "PHONE", phone);
+			}
+
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to extract identity details", e);
+		}
+	}
+	
+	private static final Properties VALUE_MAP = new Properties();
+
+	static {
+		try (InputStream is = Thread.currentThread().getContextClassLoader()
+				.getResourceAsStream("config/valueMapping.properties")) {
+
+			if (is == null) {
+				throw new RuntimeException("valueMapping.properties NOT FOUND in classpath");
+			}
+
+			VALUE_MAP.load(is);
+
+			System.out.println("LOADED PROPERTIES: " + VALUE_MAP);
+
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to load properties", e);
+		}
+	}
+	
+	private static String resolveKey(String field, String parentField) {
+
+		if ("value".equalsIgnoreCase(field) || "items".equalsIgnoreCase(field) || "request".equalsIgnoreCase(field)) {
+			return parentField;
+		}
+		return field;
+	}
+	
+	private static Object getOverrideValue(String field, JSONObject schema, String testCaseName) {
+
+		String f = field.toLowerCase();
+
+		if (f.equals("email")) {
+			return testCaseName + "@mosip.net";
+		}
+
+		return null;
 	}
 }
