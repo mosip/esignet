@@ -1,9 +1,9 @@
 @smokeAndRegression
 Feature: Esignet eKyc Page
   This feature file is for verifying the eKyc page  
-
-  @smoke @eKycStepsPageVerification
-  Scenario: Verify eKYC process steps screen content
+  
+ @smoke @eKycStepsPageVerification
+ Scenario: Verify eKYC process steps screen content
    When click on Language selection option
    And select the mandatory language
    And user click on Login with Otp
@@ -97,3 +97,57 @@ Feature: Esignet eKyc Page
    And user verify the specific eKYC provider names is clickable in list of eKYC providers screen
    And user verify the proceed button is clickable in list of eKYC providers screen
    Then user verify user is redirected to terms and conditions screen
+
+ @smoke @TermsAndConditionsScreen
+ Scenario: Verify eKyc policy terms and conditions screen
+   When click on Language selection option
+   And select the mandatory language
+   And user click on Login with Otp
+   Then user enters Registered mobile number into the mobile number field
+   And user click on get otp button
+   When user enters the correct otp
+   And click on verify Otp button
+   Then verify consent should ask user to proceed in attention page
+   And clicks on proceed button in attention page
+   Then verify user navigate to eKYC process steps screen
+   When user verify the proceed button is clickable in eKYC process steps screen
+   Then user verify user is redirected to list of eKYC providers screen
+   And user verify the specific eKYC provider names is clickable in list of eKYC providers screen
+   And user verify the proceed button is clickable in list of eKYC providers screen
+   Then user verify user is redirected to terms and conditions screen
+   And user verify the header displayed in terms and conditions screen
+   And user verify the sub header message displayed in terms and conditions screen
+   And user verify the content displayed in terms and conditions screen
+   And user verify the text beside checkbox message displayed in terms and conditions screen
+   And user verify content body text frame has scrollbar enabled in terms and conditions screen
+   And user verify checkbox is not selected by default in terms and conditions screen
+   And user verify proceed button is disabled when no check box is selected in terms and condition screen
+   And user click on checkbox in terms and conditions screen
+   And user verify the cancel button is visible in terms and conditions screen
+   And user verify the cancel button is clickable in terms and conditions screen
+   Then user verify warning popup is displayed on clicking cancel button in terms and conditions screen
+   When user verify the stay button is clickable in warning popup in terms and conditions screen
+   And user verify warning popup disappeared
+   Then verify user is redirected back to terms and conditions screen
+   And user verify the cancel button is clickable in terms and conditions screen
+   When user verify the discontinue button is clickable in warning popup in terms and conditions screen
+   Then user verify user is redirected to relying party login page
+   When user clicks on sign in with esignet button
+   And user click on Login with Otp
+   Then user enters Registered mobile number into the mobile number field
+   And user click on get otp button
+   When user enters the correct otp
+   And click on verify Otp button
+   Then verify consent should ask user to proceed in attention page
+   And clicks on proceed button in attention page
+   Then verify user navigate to eKYC process steps screen
+   When user verify the proceed button is clickable in eKYC process steps screen
+   Then user verify user is redirected to list of eKYC providers screen
+   And user verify the specific eKYC provider names is clickable in list of eKYC providers screen
+   And user verify the proceed button is clickable in list of eKYC providers screen
+   Then user verify user is redirected to terms and conditions screen
+   And user click on checkbox in terms and conditions screen
+   And user verify the proceed button is enabled after selecting check box in terms and conditions screen
+   And user verify the proceed button is displayed in terms and condition screen
+   And user clicks on proceed button in terms and condition page
+   Then verify user should be navigated to video preview screen page

@@ -26,16 +26,26 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadPoolExecutor;
 
 @Configuration
 @Slf4j
 public class AppConfig implements ApplicationRunner {
+
+    private static final List<String> SERVER_PROFILE_FEATURES = List.of("PAR", "DPOP", "PKCE", "JWE");
+    private static final List<String> SERVER_PROFILE_ADDITIONAL_CONFIG_KEYS = List.of(
+            "dpop_bound_access_tokens",
+            "require_pkce",
+            "userinfo_response_type",
+            "require_pushed_authorization_requests"
+    );
 
 
     @Value("${mosip.esignet.default.httpclient.connections.max.per.host:20}")
@@ -43,6 +53,21 @@ public class AppConfig implements ApplicationRunner {
 
     @Value("${mosip.esignet.default.httpclient.connections.max:100}")
     private int defaultTotalMaxConnection;
+
+    @Value("${mosip.esignet.audit.executor.core-pool-size:5}")
+    private int auditExecutorCorePoolSize;
+
+    @Value("${mosip.esignet.audit.executor.max-pool-size:20}")
+    private int auditExecutorMaxPoolSize;
+
+    @Value("${mosip.esignet.audit.executor.queue-capacity:500}")
+    private int auditExecutorQueueCapacity;
+
+    @Value("${mosip.esignet.audit.executor.keep-alive-seconds:60}")
+    private int auditExecutorKeepAliveSeconds;
+
+    @Value("${mosip.esignet.audit.executor.thread-name-prefix:audit-}")
+    private String auditExecutorThreadNamePrefix;
 
     @Value("${mosip.esignet.cache.security.secretkey.reference-id}")
     private String cacheSecretKeyRefId;
@@ -76,6 +101,18 @@ public class AppConfig implements ApplicationRunner {
         return new RestTemplate(requestFactory);
     }
 
+    @Bean("auditTaskExecutor")
+    public ThreadPoolTaskExecutor auditTaskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(auditExecutorCorePoolSize);
+        executor.setMaxPoolSize(auditExecutorMaxPoolSize);
+        executor.setQueueCapacity(auditExecutorQueueCapacity);
+        executor.setThreadNamePrefix(auditExecutorThreadNamePrefix);
+        executor.setKeepAliveSeconds(auditExecutorKeepAliveSeconds);
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        executor.initialize();
+        return executor;
+    }
 
     /**
      * Get the features associated with the profile
@@ -99,7 +136,20 @@ public class AppConfig implements ApplicationRunner {
         }
 
         for (io.mosip.esignet.entity.ServerProfile serverProfileEntity : profiles) {
-            profileDataMap.put(serverProfileEntity.getAdditionalConfigKey(), serverProfileEntity.getFeature());
+            String feature = serverProfileEntity.getFeature();
+            String additionalConfigKey = serverProfileEntity.getAdditionalConfigKey();
+
+            if (!SERVER_PROFILE_FEATURES.contains(feature.toUpperCase())) {
+                log.error("Invalid feature '{}' in ServerProfile. Valid features are: {}", feature, SERVER_PROFILE_FEATURES);
+                throw new EsignetException("INVALID_SERVER_PROFILE");
+            }
+            if (!SERVER_PROFILE_ADDITIONAL_CONFIG_KEYS.contains(additionalConfigKey)) {
+                log.error("Invalid additionalConfigKey '{}' in ServerProfile. Valid keys are: {}",
+                        additionalConfigKey, SERVER_PROFILE_ADDITIONAL_CONFIG_KEYS);
+                throw new EsignetException("INVALID_SERVER_PROFILE");
+            }
+
+            profileDataMap.put(additionalConfigKey, feature);
         }
         return profile;
     }

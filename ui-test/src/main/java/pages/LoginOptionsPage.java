@@ -57,40 +57,100 @@ public class LoginOptionsPage extends BasePage {
 	@FindBy(id = "show-more-options")
 	List<WebElement> moreWaysToSignIn;
 
+	@FindBy(id = "mobile")
+	WebElement mobileNumberOption;
+
+	@FindBy(id = "nrc")
+	WebElement nrcIdOption;
+
+	@FindBy(id = "vid")
+	WebElement vidOption;
+
+	@FindBy(id = "email")
+	WebElement emailOption;
+
+	@FindBy(id = "back-button")
+	WebElement backButton;
+
+	@FindBy(id = "login-header")
+	WebElement loginHeader;
+
+	@FindBy(id = "login-subheader")
+	WebElement loginSubHeader;
+
+	@FindBy(xpath = "//div[contains(@class,'font-semibold') and contains(@class,'mx-2')]")
+	WebElement selectPreferredIdHeader;
+
+	@FindBy(id = "get_otp")
+	WebElement getOtpButton;
+
+	@FindBy(xpath = "//button[@id='mobile' and contains(@class,'selected_login_id')]")
+	WebElement mobileSelected;
+
+	@FindBy(id = "Otp_login_dropdown_button")
+	WebElement prefixNumberField;
+
+	@FindBy(id = "KHM")
+	WebElement khmCountryCode;
+
+	@FindBy(id = "IND")
+	WebElement indCountryCode;
+
+	@FindBy(id = "otp_verify_input")
+	WebElement otpInputField;
+
+	@FindBy(xpath = "//div[contains(@class,'header my-2')]")
+	WebElement attentionScreen;
+
+	@FindBy(id = "cancel-button")
+	WebElement attentionCancelButton;
+
+	@FindBy(id = "discontinue-button")
+	WebElement attentionDiscontinueButton;
+
+	@FindBy(id = "Otp_vid")
+	WebElement vidField;
+
+	@FindBy(id = "error-banner-message")
+	WebElement invalidIndividualIdErrorMessage;
+
+	@FindBy(id = "Otp_email")
+	WebElement emailField;
+
 	public boolean isLogoDisplayed() {
-		return isElementVisible(brandLogo,"Verified is logo displayed");
+		return isElementVisible(brandLogo, "Verified is logo displayed");
 	}
 
 	public void clickOnLoginWithInji() {
-		clickOnElement(loginWithInji,"Clicked on login with inji");
+		clickOnElement(loginWithInji, "Clicked on login with inji");
 	}
 
 	public boolean isLanguageDropdownDisplayed() {
-		return isElementVisible(languageDropdown,"Verified language dropdown is visible");
+		return isElementVisible(languageDropdown, "Verified language dropdown is visible");
 	}
 
 	public void clickOnLanguageDropdown() {
-		clickOnElement(languageDropdown,"Clicked on language dropdown");
+		clickOnElement(languageDropdown, "Clicked on language dropdown");
 	}
 
 	public void clickOnHindiLanguage() {
-		clickOnElement(hindiLanguage,"Selected hindi language from dropdown");
+		clickOnElement(hindiLanguage, "Selected hindi language from dropdown");
 	}
 
 	public boolean isSelectedLanguageDisplayed() {
-		return isElementVisible(loginWithOtpBtn,"Verified selected language displayed");
+		return isElementVisible(loginWithOtpBtn, "Verified selected language displayed");
 	}
 
 	public boolean isLoginWithBiometicDisplayed() {
-		return isElementVisible(loginWithBiometricBtn,"Verified login with biometric button is displayed");
+		return isElementVisible(loginWithBiometricBtn, "Verified login with biometric button is displayed");
 	}
 
 	public boolean isLoginWithInjiDisplayed() {
-		return isElementVisible(loginWithInjiBtn,"Verified login with inji button is displayed");
+		return isElementVisible(loginWithInjiBtn, "Verified login with inji button is displayed");
 	}
 
 	public boolean isLoginWithPasswordDisplayed() {
-		return isElementVisible(loginWithPasswordBtn,"Verified login with password button is displayed");
+		return isElementVisible(loginWithPasswordBtn, "Verified login with password button is displayed");
 	}
 
 	public List<WebElement> getLoginOptions() {
@@ -127,13 +187,112 @@ public class LoginOptionsPage extends BasePage {
 	}
 
 	public boolean isUILanguageChanged(String text) {
-	    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-	    wait.until(ExpectedConditions.textToBePresentInElement(loginButton, text));
-	    return loginButton.getText().contains(text);
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+		wait.until(ExpectedConditions.textToBePresentInElement(loginButton, text));
+		return loginButton.getText().contains(text);
 	}
-	
+
 	public WebElement getLoginWithOtpButton() {
 		return loginWithOtpBtn;
+	}
+
+	public boolean isMobileNumberOptionDisplayed() {
+		return isElementVisible(mobileNumberOption, "Verified mobile number option is displayed for authentication");
+	}
+
+	public boolean isNrcIdOptionDisplayed() {
+		return isElementVisible(nrcIdOption, "Verified nrc option is displayed for authentication");
+	}
+
+	public boolean isVidOptionDisplayed() {
+		return isElementVisible(vidOption, "Verified vid option is displayed for authentication");
+	}
+
+	public boolean isEmailOptionDisplayed() {
+		return isElementVisible(emailOption, "Verified email option is displayed for authentication");
+	}
+
+	public boolean isBackButtonDisplayed() {
+		return isElementVisible(backButton, "Verified back button is visible for return to Select a preferred mode");
+	}
+
+	public void clickOnBackButton() {
+		clickOnElement(backButton, "Clicked on back button");
+	}
+
+	public void clickOnLoginWithBiometric() {
+		clickOnElement(loginWithBiometricBtn, "Clicked on login with biometrics");
+	}
+
+	public void clickOnLoginWithPassword() {
+		clickOnElement(loginWithPasswordBtn, "Clicked on login with password");
+	}
+
+	public boolean isGetOtpButtonEnabled() {
+		return isButtonEnabled(getOtpButton, "Verified get otp button is enabled");
+	}
+
+	public boolean isMobileNumberSelected() {
+		return isElementVisible(mobileSelected, "Verified mobile number seleted in authentication screen");
+	}
+
+	public boolean isKhmCountryCodePrefixDisplayed() {
+		return isElementVisible(khmCountryCode, "Verified khm country code prefix is displayed");
+	}
+
+	public boolean isIndCountryCodePrefixDisplayed() {
+		return isElementVisible(indCountryCode, "Verified ind country code prefix is displayed");
+	}
+
+	public void clickOnPrefixNumberFieldButton() {
+		clickOnElement(prefixNumberField, "Clicked on Prefix Number Field button");
+	}
+
+	public void clickOnIndCountryCodePrefix() {
+		clickOnElement(indCountryCode, "Clicked on ind country code prefix button");
+	}
+
+	public void clickOnKhmCountryCodePrefix() {
+		clickOnElement(khmCountryCode, "Clicked on khm country code prefix button");
+	}
+
+	public boolean isOtpInputFieldIsDisplayed() {
+		return isElementVisible(otpInputField, "Verified otp input field is displayed");
+	}
+
+	public boolean isAttentionScreenIsDisplayed() {
+		return isElementVisible(attentionScreen, "Verified attention screen is displayed");
+	}
+
+	public void clickOnAttentionCancelButton() {
+		clickOnElement(attentionCancelButton, "Clicked on attention cancel button");
+	}
+
+	public void clickOnAttentionDiscontinueButton() {
+		clickOnElement(attentionDiscontinueButton, "Clicked on attention discontinue button");
+	}
+
+	public void clickOnVidOptionButton() {
+		clickOnElement(vidOption, "Clicked on vid option button");
+	}
+
+	public boolean isInvalidIndividualIdErrorMessageIsDisplayed() {
+		return isElementVisible(invalidIndividualIdErrorMessage,
+				"Verified invalid individual id error message is displayed");
+	}
+
+	public void enterVid(String vid) {
+		vidField.clear();
+		enterText(vidField, vid, "Entered vid in vid field");
+	}
+
+	public void clickOnEmailOptionButton() {
+		clickOnElement(emailOption, "Clicked on email option button");
+	}
+
+	public void enterEmail(String email) {
+		emailField.clear();
+		enterText(emailField, email, "Entered email in email field");
 	}
 
 }

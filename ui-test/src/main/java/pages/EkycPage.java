@@ -98,6 +98,30 @@ public class EkycPage extends BasePage {
 	@FindBy(id = "tnc-header")
 	WebElement ekycTermsAndConditionsHeader;
 
+	@FindBy(id = "tnc-sub-header")
+	WebElement ekycTermsAndConditionsSubHeader;
+
+	@FindBy(id = "tnc-content")
+	WebElement ekycTermsAndConditionsContent;
+
+	@FindBy(xpath = "//div[@class='scrollable-div tnc-content flex text-justify sm:py-0 sm:ps-0']")
+	WebElement ekycTermsAndConditionsContentScrollBar;
+
+	@FindBy(id = "consent-button")
+	WebElement ekycTermsAndConditionsCheckbox;
+
+	@FindBy(xpath = "//p[@class='tnc-consent-text ml-2']")
+	WebElement eKycTermsCheckboxText;
+
+	@FindBy(id = "cancel-tnc-button")
+	WebElement eKycTermsAndConditionsCancelButton;
+
+	@FindBy(id = "stay-button")
+	WebElement eKycTermsAndConditionsStayButton;
+
+	@FindBy(id = "proceed-tnc-button")
+	WebElement eKycTermsAndConditionsProceedButton;
+
 	public boolean isEkycProcessStepsScreenLabelDisplayed() {
 		return isElementVisible(ekycProcessStepsScreenLabel, "Verified eKyc screen is displayed");
 	}
@@ -261,6 +285,65 @@ public class EkycPage extends BasePage {
 
 	public boolean isEkycTermsAndConditionsScreenVisible() {
 		return isElementVisible(ekycTermsAndConditionsHeader, "Verified eKyc terms and conditions screen is visible");
+	}
+
+	public boolean isTermsAndConditionHeaderDisplayed() {
+		return isElementVisible(ekycTermsAndConditionsHeader, "Verified header in terms and condition screen");
+	}
+
+	public boolean isTermsAndConditionSubHeaderDisplayed() {
+		return isElementVisible(ekycTermsAndConditionsSubHeader,
+				"Verified sub header message in terms and condition screen");
+	}
+
+	public boolean isTermsAndConditionContentDisplayed() {
+		return isElementVisible(ekycTermsAndConditionsContent,
+				"Verified content message in terms and condition screen");
+	}
+
+	public boolean isTermsAndConditionContentScrollBarVisible() {
+		return isElementVisible(ekycTermsAndConditionsContentScrollBar,
+				"Verified content scroll bar is visible in terms and condition screen");
+	}
+
+	public boolean isTermsAndConditionCheckboxNotSelected() {
+		return !ekycTermsAndConditionsCheckbox.isSelected() && isElementVisible(ekycTermsAndConditionsCheckbox,
+				"Verified terms and conditions checkbox is not selected by default");
+	}
+
+	public void clickOnTermsAndConditionCheckBox() {
+		clickOnElement(ekycTermsAndConditionsCheckbox, "Clicked on terms and conditions checkbox");
+	}
+
+	public boolean isTermsCheckboxTextDisplayed() {
+		return isElementVisible(eKycTermsCheckboxText,
+				"Verified text beside terms and conditions checkbox is displayed");
+	}
+
+	public boolean isCancelButtonInTermsAndConditionScreenVisible() {
+		return isElementVisible(eKycTermsAndConditionsCancelButton,
+				"Verified cancel button is displayed in terms and conditions screen");
+	}
+
+	public void clickOnCancelButtonInTermsAndConditionScreen() {
+		clickOnElement(eKycTermsAndConditionsCancelButton, "Clicked on cancel button on terms and condition screen");
+	}
+
+	public boolean isEkycTermsAndConditionWarningPopupDisplayed() {
+		return isElementVisible(eKycTermsAndConditionsStayButton, "Verified cancel warning popup is displayed");
+	}
+
+	public boolean isEkycTermsAndConditionProceedButtonDisplayed() {
+		return isElementVisible(eKycTermsAndConditionsProceedButton, "Verified proceed button is displayed");
+	}
+
+	public boolean isTermsProceedButtonEnabled() {
+		return isButtonEnabled(eKycTermsAndConditionsProceedButton,
+				"Verified Proceed button is enabled in terms and conditions screen");
+	}
+
+	public boolean isEkycTermsAndConditionScreenVisible() {
+		return isElementVisible(ekycTermsAndConditionsHeader, "Verified eKyc terms and condition screen is visible");
 	}
 
 }
