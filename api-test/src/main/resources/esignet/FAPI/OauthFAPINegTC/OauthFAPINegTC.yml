@@ -5,7 +5,6 @@ OauthFAPINegTC:
       description: Validate FAPI request with invalid code challenge method parameter
       role: resident
       restMethod: post
-      checkErrorsOnlyInResponse: true
       inputTemplate: esignet/FAPI/OauthFAPI/OauthFAPI
       outputTemplate: esignet/error2
       input: '{
@@ -66,7 +65,6 @@ OauthFAPINegTC:
       description: Validate FAPI request with invalid client assertion
       role: resident
       restMethod: post
-      checkErrorsOnlyInResponse: true
       inputTemplate: esignet/FAPI/OauthFAPI/OauthFAPI
       outputTemplate: esignet/error2
       input: '{

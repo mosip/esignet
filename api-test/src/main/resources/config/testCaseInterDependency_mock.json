@@ -787,7 +787,8 @@
     ],
     "TC_ESignet_LinkedAuthenticationWla_03": [
         "Dependent_Idrepo_AddIdentity_11",
-        "Dependent_Idrepo_AddIdentity_01"
+        "Dependent_Idrepo_AddIdentity_01",
+		"TC_ESignet_LinkTransaction_03"
     ],
     "TC_ESignet_SendOtp_05": [
         "Dependent_Idrepo_AddIdentity_03",

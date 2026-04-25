@@ -939,10 +939,10 @@ public class EsignetUtil extends AdminTestUtil {
 			String jwkKey;
 			if (existingKey == null || existingKey.isBlank()) {
 				jwkKey = JWKKeyUtil.generateAndCacheJWKKey(OIDCJWK13);
-				System.out.println("Generated JWK13 (ENC KEY)");
+				logger.debug("Generated JWK13 (ENC KEY)");
 			} else {
 				jwkKey = existingKey;
-				System.out.println("Reusing JWK13 (ENC KEY)");
+				logger.debug("Reusing JWK13 (ENC KEY)");
 			}
 			jsonString = replaceKeywordValue(jsonString, "$OIDCJWKKEY13$", jwkKey);
 		}
@@ -2765,7 +2765,7 @@ public class EsignetUtil extends AdminTestUtil {
 			JWEObject jweObject = JWEObject.parse(token);
 
 			String kid = jweObject.getHeader().getKeyID();
-			System.out.println(" Incoming JWE kid: " + kid);
+			logger.debug(" Incoming JWE kid: " + kid);
 
 			// Try decryption using all known JWK keys since kid from JWE header
 			String[] keys = { OIDCJWK8, OIDCJWK9, OIDCJWK13, OIDCJWK14 };
@@ -2790,7 +2790,7 @@ public class EsignetUtil extends AdminTestUtil {
 
 					decrypted = tempJwe.getPayload().toString();
 
-					System.out.println("Decryption success using key: " + keyName);
+					logger.debug("Decryption success using key: " + keyName);
 					break;
 
 				} catch (Exception e) {
@@ -2801,7 +2801,7 @@ public class EsignetUtil extends AdminTestUtil {
 				throw new Exception("Unable to decrypt JWE. No matching private key found for kid: " + kid);
 			}
 
-			System.out.println("Decrypted payload: " + decrypted);
+			logger.debug("Decrypted payload: " + decrypted);
 
 			// Check if decrypted content is a signed JWT (3 parts: header.payload.signature)
 			if (decrypted.split("\\.").length == 3) {
@@ -2925,10 +2925,10 @@ public class EsignetUtil extends AdminTestUtil {
 
 				if (propValue != null && !propValue.trim().isEmpty()) {
 					val = propValue;
-					System.out.println("PROPERTY USED: " + keyToUse + " = " + val);
+					logger.debug("PROPERTY USED: " + keyToUse + " = " + val);
 				} else {
 					val = generateValue(propsArr.getJSONObject("value"), keyToUse, testCaseName);
-					System.out.println("FALLBACK USED: " + keyToUse);
+					logger.debug("FALLBACK USED: " + keyToUse);
 				}
 
 				row.put("value", val);
@@ -2944,9 +2944,9 @@ public class EsignetUtil extends AdminTestUtil {
 
 		    String keyToUse = resolveKey(field, parentField);
 
-		    Object override = getOverrideValue(keyToUse, schema, testCaseName);
+		    Object override = getOverrideValue(keyToUse, testCaseName);
 		    if (override != null) {
-		        System.out.println("OVERRIDE USED: " + keyToUse + " = " + override);
+		    	logger.debug("OVERRIDE USED: " + keyToUse + " = " + override);
 		        return override;
 		    }
 
@@ -2963,18 +2963,16 @@ public class EsignetUtil extends AdminTestUtil {
 		    }
 
 		    if (propValue != null && !propValue.trim().isEmpty()) {
-		        System.out.println("PROPERTY USED: " + keyToUse + " = " + propValue);
+		    	logger.debug("PROPERTY USED: " + keyToUse + " = " + propValue);
 		        return propValue;
 		    }
 
-		    System.out.println("ALLBACK USED: " + keyToUse);
+		    logger.debug("FALLBACK USED: " + keyToUse);
 
 		    return generateValue(schema, keyToUse, testCaseName);
 		}
 	}
 			
-			
-	
 	private static Object generateValue(JSONObject schema, String field, String testCaseName) {
 
 	    if ("email".equalsIgnoreCase(field)) {
@@ -3054,38 +3052,36 @@ public class EsignetUtil extends AdminTestUtil {
 		}
 		return result;
 	}
-	private static final Random RANDOM = new Random();
 
 	private static Object getOverrideValue(String field, String testCaseName) {
-	    if ("email".equalsIgnoreCase(field)) {
-	        return testCaseName + "@mosip.net";
-	    }
-	    return null;
+		if ("email".equalsIgnoreCase(field)) {
+			return testCaseName + "@mosip.net";
+		}
+		return null;
 	}
 
-	private static String generateDynamicNumber(JSONObject schema) {
-	    int min = schema.optInt("minLength", 10);
-	    int max = schema.optInt("maxLength", min);
-
-	    int len = (max > min) ? RANDOM.nextInt(max - min + 1) + min : min;
-
-	    StringBuilder sb = new StringBuilder();
-	    for (int i = 0; i < len; i++) {
-	        sb.append(RANDOM.nextInt(10));
-	    }
-	    return sb.toString();
-	}
-	
 	public static String getEsignetIdentitySchema() {
 
 		try {
 
-			String url = ConfigManager.getproperty("baseUrl")
-					+ ConfigManager.getproperty("mockIdentityIdentitySchemaEndpoint");
+			if (identitySchemaJson != null) {
+				return identitySchemaJson.toString();
+			}
+
+			String baseUrl = ConfigManager.getproperty("baseUrl");
+			String endpoint = ConfigManager.getproperty("mockIdentityIdentitySchemaEndpoint");
+
+			if (baseUrl == null || endpoint == null) {
+				throw new RuntimeException("Missing baseUrl or schema endpoint");
+			}
+
+			String url = baseUrl + endpoint;
 
 			Response response = RestClient.getRequest(url, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
 
-			return response.asString();
+			identitySchemaJson = new JSONObject(response.asString());
+
+			return identitySchemaJson.toString();
 
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to fetch schema", e);
@@ -3136,7 +3132,7 @@ public class EsignetUtil extends AdminTestUtil {
 
 			VALUE_MAP.load(is);
 
-			System.out.println("LOADED PROPERTIES: " + VALUE_MAP);
+			logger.debug("Loaded " + VALUE_MAP.size() + " entries from valueMapping.properties");
 
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to load properties", e);
@@ -3151,14 +3147,4 @@ public class EsignetUtil extends AdminTestUtil {
 		return field;
 	}
 	
-	private static Object getOverrideValue(String field, JSONObject schema, String testCaseName) {
-
-		String f = field.toLowerCase();
-
-		if (f.equals("email")) {
-			return testCaseName + "@mosip.net";
-		}
-
-		return null;
-	}
 }
