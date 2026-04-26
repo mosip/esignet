@@ -38,7 +38,5 @@ public class EsignetConstants {
 	public static final String LANGUAGE = "language";
 	public static final String VALUE = "value";
 
-	/** 1x1 transparent PNG (base64) */
-	public static final String MINIMAL_PNG_BASE64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+lmWQAAAAASUVORK5CYII=";
 	
 }
