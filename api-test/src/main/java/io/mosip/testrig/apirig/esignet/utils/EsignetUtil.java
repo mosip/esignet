@@ -2924,6 +2924,13 @@ public class EsignetUtil extends AdminTestUtil {
 				Object val;
 
 				if (propValue != null && !propValue.trim().isEmpty()) {
+
+					if ("fullname".equalsIgnoreCase(keyToUse) || "givenname".equalsIgnoreCase(keyToUse)
+							|| "familyname".equalsIgnoreCase(keyToUse)) {
+
+						propValue = propValue.replaceAll("[^a-zA-Z\\s]", "");
+					}
+
 					val = propValue;
 					logger.debug("PROPERTY USED: " + keyToUse + " = " + val);
 				} else {
@@ -2942,69 +2949,75 @@ public class EsignetUtil extends AdminTestUtil {
 
 		default:
 
-		    String keyToUse = resolveKey(field, parentField);
+			String keyToUse = resolveKey(field, parentField);
 
-		    Object override = getOverrideValue(keyToUse, testCaseName);
-		    if (override != null) {
-		    	logger.debug("OVERRIDE USED: " + keyToUse + " = " + override);
-		        return override;
-		    }
+			Object override = getOverrideValue(keyToUse, testCaseName);
+			if (override != null) {
+				logger.debug("OVERRIDE USED: " + keyToUse + " = " + override);
+				return override;
+			}
 
-		    String propValue = null;
+			String propValue = null;
 
-		    if (!"phone".equalsIgnoreCase(keyToUse) &&
-		        !"individualId".equalsIgnoreCase(keyToUse)) {
+			if (!"phone".equalsIgnoreCase(keyToUse) && !"individualId".equalsIgnoreCase(keyToUse)) {
 
-		        propValue = VALUE_MAP.getProperty(keyToUse);
+				propValue = VALUE_MAP.getProperty(keyToUse);
 
-		        if (propValue == null) {
-		            propValue = VALUE_MAP.getProperty(keyToUse.toLowerCase());
-		        }
-		    }
+				if (propValue == null) {
+					propValue = VALUE_MAP.getProperty(keyToUse.toLowerCase());
+				}
+			}
 
-		    if (propValue != null && !propValue.trim().isEmpty()) {
-		    	logger.debug("PROPERTY USED: " + keyToUse + " = " + propValue);
-		        return propValue;
-		    }
+			if (propValue != null && !propValue.trim().isEmpty()) {
+				logger.debug("PROPERTY USED: " + keyToUse + " = " + propValue);
+				return propValue;
+			}
 
-		    logger.debug("FALLBACK USED: " + keyToUse);
+			logger.debug("FALLBACK USED: " + keyToUse);
 
-		    return generateValue(schema, keyToUse, testCaseName);
+			return generateValue(schema, keyToUse, testCaseName);
 		}
 	}
 			
 	private static Object generateValue(JSONObject schema, String field, String testCaseName) {
 
-	    if ("email".equalsIgnoreCase(field)) {
-	        return testCaseName + "@mosip.net";
-	    }
+		if ("email".equalsIgnoreCase(field)) {
+			return testCaseName + "@mosip.net";
+		}
 
-	    if (!"phone".equalsIgnoreCase(field) && !"individualId".equalsIgnoreCase(field)) {
+		if (!"phone".equalsIgnoreCase(field) && !"individualId".equalsIgnoreCase(field)) {
 
-	    	String propValue = VALUE_MAP.getProperty(field);
-	        if (propValue == null) {
-	        	propValue = VALUE_MAP.getProperty(field.toLowerCase());
-	        }
+			String propValue = VALUE_MAP.getProperty(field);
+			if (propValue == null) {
+				propValue = VALUE_MAP.getProperty(field.toLowerCase());
+			}
 
-	        if (propValue != null && !propValue.trim().isEmpty()) {
-	            return propValue;
-	        }
-	    }
+			if (propValue != null && !propValue.trim().isEmpty()) {
 
-	    if (schema.has("pattern")) {
-	        try {
-	            String pattern = schema.getString("pattern")
-	                    .replaceAll("\\(\\?=.*?\\)", "");
-	            return genStringAsperRegex(pattern);
-	        } catch (Exception ignored) {}
-	    }
+				if ("fullname".equalsIgnoreCase(field) || "givenname".equalsIgnoreCase(field)
+						|| "familyname".equalsIgnoreCase(field)) {
 
-	    if (schema.has("enum")) {
-	        JSONArray arr = schema.getJSONArray("enum");
-	        return arr.get(0);
-	    }
+					propValue = propValue.replaceAll("[^a-zA-Z\\s]", "");
+				}
 
-	    return "Test_" + field;
+				return propValue;
+			}
+		}
+
+		if (schema.has("pattern")) {
+			try {
+				String pattern = schema.getString("pattern").replaceAll("\\(\\?=.*?\\)", ""); // remove lookaheads
+				return genStringAsperRegex(pattern);
+			} catch (Exception ignored) {
+			}
+		}
+
+		if (schema.has("enum")) {
+			JSONArray arr = schema.getJSONArray("enum");
+			return arr.get(0);
+		}
+
+		return "Test_" + field;
 	}
 	
 	private static JSONObject resolveSchema(JSONObject schema, JSONObject root) {

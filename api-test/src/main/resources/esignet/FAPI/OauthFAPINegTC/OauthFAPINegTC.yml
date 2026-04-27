@@ -2,7 +2,7 @@ OauthFAPINegTC:
    ESignet_OauthFAPI_Invalid_Code_Challenge_Neg:
       endPoint: /v1/esignet/oauth/par
       uniqueIdentifier: TC_ESignet_Oauth_FAPI_NegTC_01
-      description: Validate FAPI request with invalid code challenge method parameter
+      description: Verify that the PAR endpoint rejects requests with an invalid code challenge method and returns an invalid request error
       role: resident
       restMethod: post
       inputTemplate: esignet/FAPI/OauthFAPI/OauthFAPI
@@ -29,10 +29,10 @@ OauthFAPINegTC:
       output: '{
             "error": "invalid_request"
 }'
-   ESignet_OauthFAPINegTC_Missing_code_challenge_Neg_sid:
+   ESignet_OauthFAPINegTC_Missing_code_challenge_ForNeg_sid:
       endPoint: /v1/esignet/oauth/par
       uniqueIdentifier: TC_ESignet_Oauth_FAPI_NegTC_02
-      description: Validate FAPI request with missing code challenge method and code challenge
+      description: Verify that the PAR endpoint rejects requests missing both code_challenge and code challenge method returning an error indicating PKCE is required
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -62,7 +62,7 @@ OauthFAPINegTC:
    ESignet_OauthFAPINegTC_Invalid_client_assertion_Neg:
       endPoint: /v1/esignet/oauth/par
       uniqueIdentifier: TC_ESignet_Oauth_FAPI_NegTC_03
-      description: Validate FAPI request with invalid client assertion
+      description: Verify that the PAR endpoint rejects requests with an invalid client assertion and returns an invalid client error
       role: resident
       restMethod: post
       inputTemplate: esignet/FAPI/OauthFAPI/OauthFAPI

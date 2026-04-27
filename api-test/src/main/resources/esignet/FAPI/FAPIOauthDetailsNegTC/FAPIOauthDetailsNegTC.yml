@@ -9,7 +9,7 @@ FAPIOauthDetailsNegTC:
       outputTemplate: esignet/error
       input: '{
        "requestTime": "$TIMESTAMP$",
-       "requestUri": "$ID:OauthFAPINegTC_Missing_code_challenge_Neg_sid_request_uri$",
+       "requestUri": "$ID:OauthFAPINegTC_Missing_code_challenge_ForNeg_sid_request_uri$",
        "clientId": "$ID:CreateOIDCClientFAPI_all_Valid_Smoke_sid_clientId$"
 }'
       output: '{
