@@ -116,7 +116,7 @@ public class CacheUtilService {
             if (isScriptNotLoaded(connection, nonceScriptHash)) {
                 nonceScriptHash = connection.scriptingCommands().scriptLoad(NONCE_CHECK_SCRIPT.getBytes());
             }
-            log.info("Running NONCE_CHECK_SCRIPT script: {}", nonceScriptHash);
+            log.debug("Running NONCE_CHECK_SCRIPT script: {}", nonceScriptHash);
             final String key = NONCE_KEY.formatted(nonce);
             return connection.scriptingCommands().evalSha(
                     nonceScriptHash,

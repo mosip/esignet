@@ -55,7 +55,7 @@ public class LoggerAuditService implements AuditPlugin {
                     log.error(action.name());
                     break;
                 default:
-                    log.info(username != null ? "Sessionuser: " +username+ "with action: " +action.name() : action.name());
+                    log.info("Sessionuser: {} with action: {}", username, action.name());
             }
         } finally {
             if (originalMdc != null) {
