@@ -42,7 +42,22 @@ export default function Authorize({ authService }) {
             ) {
               const baseRedirectUri = extractParam('redirect_uri');
 
-              const url = new URL(baseRedirectUri);
+              if (!baseRedirectUri) {
+                setOAuthDetailResponse(null);
+                setError('invalid_redirect_uri');
+                setStatus(states.ERROR);
+                return;
+              }
+
+              let url;
+              try {
+                url = new URL(baseRedirectUri);
+              } catch {
+                setOAuthDetailResponse(null);
+                setError('invalid_redirect_uri');
+                setStatus(states.ERROR);
+                return;
+              }
 
               url.searchParams.set(
                 'error',
@@ -52,9 +67,11 @@ export default function Authorize({ authService }) {
                 'error_description',
                 oAuthDetailsResponse.errors[0].errorMessage
               );
+              window.onbeforeunload = null;
               url.searchParams.set('state', extractParam('state'));
 
               window.location.replace(url.toString());
+              return;
             }
 
             setOAuthDetailResponse(null);
