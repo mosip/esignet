@@ -61,10 +61,12 @@ Extract version and release date automatically:
 ```bash
 # Try to extract version from release branch name
 # e.g. release/1.3.0 → 1.3.0, v1.3.0-rc1 → 1.3.0-rc1
-echo "<release_branch>" | grep -oP '[\d]+\.[\d]+\.[\d]+[\w.-]*'
+echo "<release_branch>" | sed -nE 's/.*([0-9]+\.[0-9]+\.[0-9]+[a-zA-Z0-9._-]*).*/\1/p'
 
-# Release date = today
-date +"%Y-%m-%d"
+```bash
+# Release date = today in "1st January, 2026" format
+date +"%d %b, %Y" | sed 's/^0//' | sed 's/ 0/ /'
+```
 
 # Previous version = base tag (strip leading 'v' if present)
 echo "<base_tag>" | sed 's/^v//'
