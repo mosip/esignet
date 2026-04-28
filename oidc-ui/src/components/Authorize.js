@@ -15,6 +15,7 @@ export default function Authorize({ authService }) {
   const [oAuthDetailResponse, setOAuthDetailResponse] = useState(null);
   const [error, setError] = useState(null);
   const [searchParams] = useSearchParams();
+  const extractParam = (param) => searchParams.get(param);
 
   const navigate = useNavigate();
 
@@ -28,6 +29,34 @@ export default function Authorize({ authService }) {
           if (oAuthDetailsResponse.errors.length === 0) {
             setOAuthDetailResponse(oAuthDetailsResponse);
           } else {
+            let errorCodesThatRedirects = [
+              'login_required',
+              'request_not_supported',
+            ];
+
+            if (
+              oAuthDetailsResponse &&
+              errorCodesThatRedirects.includes(
+                oAuthDetailsResponse.errors[0].errorCode
+              )
+            ) {
+              const baseRedirectUri = extractParam('redirect_uri');
+
+              const url = new URL(baseRedirectUri);
+
+              url.searchParams.set(
+                'error',
+                oAuthDetailsResponse.errors[0].errorCode
+              );
+              url.searchParams.set(
+                'error_description',
+                oAuthDetailsResponse.errors[0].errorMessage
+              );
+              url.searchParams.set('state', extractParam('state'));
+
+              window.location.replace(url.toString());
+            }
+
             setOAuthDetailResponse(null);
             setError(oAuthDetailsResponse.errors[0].errorCode);
             setStatus(states.ERROR);
@@ -44,8 +73,6 @@ export default function Authorize({ authService }) {
           const payload = { clientId, requestUri };
           await post_ParOauthDetails(payload).then(handleResponse);
         } else {
-          const extractParam = (param) => searchParams.get(param);
-
           const request = {
             nonce: extractParam('nonce'),
             state: extractParam('state'),
