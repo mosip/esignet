@@ -1,0 +1,19 @@
+FAPIGetUserInfo:
+   ESignet_GetOidcUserInfo_FAPI_UIN_Dpop_AccessToken_GetUserInfoJWS_Valid_Smoke:
+      endPoint: /v1/esignet/oidc/userinfo
+      uniqueIdentifier: TC_ESignet_FAPI_GetUserInfo_01
+      description: Get OIDC user info with all valid details UIN
+      role: resident
+      restMethod: get
+      validityCheckRequired: true
+      inputTemplate: esignet/FAPI/FAPIGetUserInfo/FAPIGetUserInfo
+      outputTemplate: esignet/FAPI/FAPIGetUserInfo/FAPIGetUserInfoResult
+      input: '{
+        "dpop_access_token": "$ID:GenerateToken_FAPI_DPoP_AuthToken_Xsrf_Valid_Smoke_sid_access_token$",
+        "authorization_key": "Authorization",
+        "dpop_key": "DPoP",
+        "dpop_value": "$DPOP_PROOF_WITH_ACCESS_TOKEN$"
+}'
+      output: '{
+        "aud": "$ID:CreateOIDCClientFAPI_all_Valid_Smoke_sid_clientId$"
+}'

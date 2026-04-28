@@ -430,3 +430,30 @@ OauthParNegativeScenarios:
 }'
       output: '{
 }'
+   ESignet_OauthParNegativeScenarios_Unknown_acr_values_Neg:
+      endPoint: /v1/esignet/oauth/par
+      uniqueIdentifier: TC_ESignet_OauthParNegativeScenarios_17
+      description: Validate PAR request handling of ACR values where unknown ACRs are ignored and only registered ACRs are considered If none match all registered ACRs are applied
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/PAR/OauthParNegativeScenarios/OauthParNegativeScenarios
+      outputTemplate: esignet/PAR/OauthPar/OauthParResult
+      input: '{
+       "requestTime": "$TIMESTAMP$",     
+       "client_id": "$ID:CreateOIDCClientV3PAR_all_Valid_Smoke_sid_clientId$", 
+       "scope": "openid profile",
+       "response_type": "code",
+       "redirect_uri": "$IDPREDIRECTURI$",
+       "display": "popup",
+       "prompt": "login",
+       "acr_values": "mosip12345",
+       "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+       "state": "eree2311",
+       "claim_locales": "en",
+       "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+       "client_assertion": "$CLIENT_ASSERTION_PAR_JWT$",
+       "aud_key": "pushed_authorization_request_endpoint"
+}'
+      output: '{
+}'
