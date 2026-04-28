@@ -68,8 +68,10 @@ export default function Authorize({ authService }) {
                 oAuthDetailsResponse.errors[0].errorMessage
               );
               window.onbeforeunload = null;
-              url.searchParams.set('state', extractParam('state'));
-
+              const state = extractParam('state');
+              if (state !== null) {
+                url.searchParams.set('state', state);
+              }
               window.location.replace(url.toString());
               return;
             }
