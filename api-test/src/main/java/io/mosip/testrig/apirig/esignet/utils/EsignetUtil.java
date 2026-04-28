@@ -3081,15 +3081,8 @@ public class EsignetUtil extends AdminTestUtil {
 				return identitySchemaJson.toString();
 			}
 
-			String baseUrl = ConfigManager.getproperty("baseUrl");
 			String endpoint = ConfigManager.getproperty("mockIdentityIdentitySchemaEndpoint");
-
-			if (baseUrl == null || endpoint == null) {
-				throw new RuntimeException("Missing baseUrl or schema endpoint");
-			}
-
-			String url = baseUrl + endpoint;
-
+			String url = BaseTestCase.ApplnURI + endpoint;
 			Response response = RestClient.getRequest(url, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
 
 			identitySchemaJson = new JSONObject(response.asString());
