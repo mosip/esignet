@@ -85,7 +85,7 @@ public class IdentityProviderUtil {
     private static Base64.Decoder urlSafeDecoder;
     private static PathMatcher pathMatcher;
     private static UrlValidator urlValidator;
-    private static ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
+    private static final ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
 
     static {
         urlSafeEncoder = Base64.getUrlEncoder().withoutPadding();
