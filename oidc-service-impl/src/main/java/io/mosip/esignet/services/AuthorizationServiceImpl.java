@@ -569,26 +569,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         return new String(authTransactionIdBytes);
     }
 
-    private JsonNode fetchKBIFieldDetailsFromResource(String url) {
-        try (InputStream resp = getResource(url)) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            return objectMapper.readTree(resp);
-        } catch (IOException e) {
-            log.error("Error parsing the KBI form details: {}", e.getMessage(), e);
-        }
-        throw new EsignetException(ErrorConstants.KBI_SPEC_NOT_FOUND);
-    }
-
-    private InputStream getResource(String url) {
-        try {
-            Resource resource = resourceLoader.getResource(url);
-            return resource.getInputStream();
-        } catch (IOException e) {
-            log.error("Failed to read resource from : {}", url, e);
-            throw new EsignetException(ErrorConstants.KBI_SPEC_NOT_FOUND);
-        }
-    }
-
     private OAuthDetailRequestV3 mapPushedAuthorizationRequestToOAuthDetailsRequest(PushedAuthorizationRequest pushedAuthorizationRequest) {
         OAuthDetailRequestV3 oAuthDetailRequestV3 = new OAuthDetailRequestV3();
         oAuthDetailRequestV3.setClientId(pushedAuthorizationRequest.getClient_id());

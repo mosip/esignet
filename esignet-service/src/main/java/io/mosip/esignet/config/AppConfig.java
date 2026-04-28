@@ -16,9 +16,13 @@ import io.mosip.kernel.keymanagerservice.dto.KeyPairGenerateRequestDto;
 import io.mosip.kernel.keymanagerservice.dto.SymmetricKeyGenerateRequestDto;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
@@ -53,6 +57,15 @@ public class AppConfig implements ApplicationRunner {
 
     @Value("${mosip.esignet.default.httpclient.connections.max:100}")
     private int defaultTotalMaxConnection;
+
+    @Value("${mosip.esignet.default.httpclient.connection.timeout:5000}")
+    private long defaultConnectionTimeout;
+
+    @Value("${mosip.esignet.default.httpclient.socket.timeout:10000}")
+    private long defaultSocketTimeout;
+
+    @Value("${mosip.esignet.default.httpclient.connection.idle.timeout:30}")
+    private long defaultIdleTimeout;
 
     @Value("${mosip.esignet.audit.executor.core-pool-size:5}")
     private int auditExecutorCorePoolSize;
@@ -93,9 +106,15 @@ public class AppConfig implements ApplicationRunner {
         PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
         connectionManager.setMaxTotal(defaultTotalMaxConnection);
         connectionManager.setDefaultMaxPerRoute(defaultMaxConnectionPerRoute);
+        ConnectionConfig connectionConfig = ConnectionConfig.custom()
+                .setConnectTimeout(Timeout.ofSeconds(defaultConnectionTimeout))
+                .setSocketTimeout(Timeout.ofSeconds(defaultSocketTimeout))
+                .build();
+        connectionManager.setDefaultConnectionConfig(connectionConfig);
         HttpClientBuilder httpClientBuilder = HttpClients.custom()
                 .setConnectionManager(connectionManager)
-                .disableCookieManagement();
+                .disableCookieManagement()
+                .evictIdleConnections(TimeValue.ofSeconds(defaultIdleTimeout));
         HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
         requestFactory.setHttpClient(httpClientBuilder.build());
         return new RestTemplate(requestFactory);

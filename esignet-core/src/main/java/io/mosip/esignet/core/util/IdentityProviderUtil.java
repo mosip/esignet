@@ -28,6 +28,9 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.exception.EsignetException;
@@ -49,6 +52,7 @@ import org.jose4j.keys.X509Util;
 import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
@@ -81,6 +85,7 @@ public class IdentityProviderUtil {
     private static Base64.Decoder urlSafeDecoder;
     private static PathMatcher pathMatcher;
     private static UrlValidator urlValidator;
+    private static ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
 
     static {
         urlSafeEncoder = Base64.getUrlEncoder().withoutPadding();
@@ -349,8 +354,7 @@ public class IdentityProviderUtil {
     @SuppressWarnings("unchecked")
     public static String generateCertificatePemFromJwk(String jwkJson) {
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            Map<String, Object> jwkMap = mapper.readValue(jwkJson, Map.class);
+            Map<String, Object> jwkMap = objectMapper.readValue(jwkJson, Map.class);
             PublicJsonWebKey jsonWebKey = PublicJsonWebKey.Factory.newPublicJwk(jwkMap);
             PublicKey publicKey = jsonWebKey.getPublicKey();
 
@@ -421,5 +425,9 @@ public class IdentityProviderUtil {
 
         X509CertificateHolder certHolder = certBuilder.build(signer);
         return new JcaX509CertificateConverter().getCertificate(certHolder);
+    }
+
+    public static ObjectMapper getObjectMapper() {
+        return objectMapper;
     }
 }
