@@ -19,3 +19,4 @@ ES-2947------ESignet_GetOidcUserInfo_IdpAccessToken_GetUserInfoJWS_Verified_Clai
 ES-2947------ESignet_GetOidcUserInfo_IdpAccessToken_GetUserInfoJWS_Without_Verified_Claims_Valid_Smoke
 ES-2947------ESignet_GetOidcUserInfo_IdpAccessToken_GetUserInfoJWS_Scope_Valid
 ES-2947------ESignet_UserInfoConsentNoCapture_IdpAccessToken_GetUserInfoJWS_Verified_Claims_Valid_Smoke
+ES-2988------ESignet_OAuthDetailsRequest_Missing_code_challenge_code_method_Neg
