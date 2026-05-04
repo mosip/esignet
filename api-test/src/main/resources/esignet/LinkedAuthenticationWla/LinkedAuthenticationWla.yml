@@ -109,6 +109,7 @@ LinkedAuthenticationWla:
       checkErrorsOnlyInResponse: true
       restMethod: post
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_LinkTransaction_03
       inputTemplate: esignet/LinkedAuthenticationWla/LinkedAuthenticationWla
       outputTemplate: esignet/LinkedConsent/LinkedAuthenticationConsentWla/LinkedAuthenticationConsentWlaResult
       input: '{
