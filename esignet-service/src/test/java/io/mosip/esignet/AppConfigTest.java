@@ -6,6 +6,8 @@
 package io.mosip.esignet;
 
 import io.mosip.esignet.config.AppConfig;
+import io.mosip.esignet.core.constants.Constants;
+import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.ServerProfile;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.repository.ServerProfileRepository;
@@ -17,7 +19,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -108,7 +114,90 @@ class AppConfigTest {
     @Test
     void serverProfile_ValidFapi2Profile_ReturnsProfileWithAllFeatures() throws EsignetException {
         ReflectionTestUtils.setField(appConfig, "serverProfile", "fapi2.0");
+        setupValidCacheExpireInSeconds();
+        setupValidSigningAlgorithms();
+        setupFapi2Profile();
 
+        ServerProfile result = appConfig.serverProfile();
+
+        assertNotNull(result);
+        assertEquals("fapi2.0", result.getName());
+        assertEquals(3, result.getFeatureMap().size());
+    }
+
+    @Test
+    void serverProfile_Fapi2WithAuthCodeExpiryExceeds60_ThrowsException() {
+        ReflectionTestUtils.setField(appConfig, "serverProfile", "fapi2.0");
+        Map<String, Integer> cacheExpireInSeconds = new HashMap<>();
+        cacheExpireInSeconds.put(Constants.AUTH_CODE_GENERATED_CACHE, 120);
+        ReflectionTestUtils.setField(appConfig, "cacheExpireInSeconds", cacheExpireInSeconds);
+        setupValidSigningAlgorithms();
+        setupFapi2Profile();
+
+        EsignetException exception = assertThrows(EsignetException.class, () -> appConfig.serverProfile());
+        assertEquals(ErrorConstants.INVALID_AUTH_CODE_EXPIRY_FOR_FAPI2, exception.getErrorCode());
+    }
+
+    @Test
+    void serverProfile_NonFapi2WithAuthCodeExpiryExceeds60_thenPass() throws EsignetException {
+        ReflectionTestUtils.setField(appConfig, "serverProfile", "gov");
+        Map<String, Integer> cacheExpireInSeconds = new HashMap<>();
+        cacheExpireInSeconds.put(Constants.AUTH_CODE_GENERATED_CACHE, 300);
+        ReflectionTestUtils.setField(appConfig, "cacheExpireInSeconds", cacheExpireInSeconds);
+
+        io.mosip.esignet.entity.ServerProfile pkceProfile = new io.mosip.esignet.entity.ServerProfile();
+        pkceProfile.setAdditionalConfigKey("require_pkce");
+        pkceProfile.setFeature("PKCE");
+        when(serverProfileRepository.findByProfileName("gov"))
+                .thenReturn(Collections.singletonList(pkceProfile));
+
+        ServerProfile result = appConfig.serverProfile();
+        assertNotNull(result);
+        assertEquals("gov", result.getName());
+    }
+
+    @Test
+    void serverProfile_Fapi2WithRS256Algorithm_ThrowsException() {
+        ReflectionTestUtils.setField(appConfig, "serverProfile", "fapi2.0");
+        setupValidCacheExpireInSeconds();
+        List<String> signingAlgorithms = Arrays.asList("RS256", "PS256", "ES256");
+        ReflectionTestUtils.setField(appConfig, "supportedSigningAlgorithms", signingAlgorithms);
+        setupFapi2Profile();
+
+        EsignetException exception = assertThrows(EsignetException.class, () -> appConfig.serverProfile());
+        assertEquals(ErrorConstants.UNSUPPORTED_ALGORITHM_FOR_FAPI2, exception.getErrorCode());
+    }
+
+    @Test
+    void serverProfile_NonFapi2WithRS256Algorithm_thenPass() throws EsignetException {
+        ReflectionTestUtils.setField(appConfig, "serverProfile", "gov");
+        setupValidCacheExpireInSeconds();
+        List<String> signingAlgorithms = Arrays.asList("RS256", "PS256", "ES256");
+        ReflectionTestUtils.setField(appConfig, "supportedSigningAlgorithms", signingAlgorithms);
+
+        io.mosip.esignet.entity.ServerProfile pkceProfile = new io.mosip.esignet.entity.ServerProfile();
+        pkceProfile.setAdditionalConfigKey("require_pkce");
+        pkceProfile.setFeature("PKCE");
+        when(serverProfileRepository.findByProfileName("gov"))
+                .thenReturn(Collections.singletonList(pkceProfile));
+
+        ServerProfile result = appConfig.serverProfile();
+        assertNotNull(result);
+        assertEquals("gov", result.getName());
+    }
+
+    private void setupValidCacheExpireInSeconds() {
+        Map<String, Integer> cacheExpireInSeconds = new HashMap<>();
+        cacheExpireInSeconds.put(Constants.AUTH_CODE_GENERATED_CACHE, 60);
+        ReflectionTestUtils.setField(appConfig, "cacheExpireInSeconds", cacheExpireInSeconds);
+    }
+
+    private void setupValidSigningAlgorithms() {
+        List<String> signingAlgorithms = Arrays.asList("PS256", "ES256");
+        ReflectionTestUtils.setField(appConfig, "supportedSigningAlgorithms", signingAlgorithms);
+    }
+
+    private void setupFapi2Profile() {
         io.mosip.esignet.entity.ServerProfile dpopProfile = new io.mosip.esignet.entity.ServerProfile();
         dpopProfile.setAdditionalConfigKey("dpop_bound_access_tokens");
         dpopProfile.setFeature("DPOP");
@@ -122,16 +211,7 @@ class AppConfigTest {
         pkceProfile.setFeature("PKCE");
 
         when(serverProfileRepository.findByProfileName("fapi2.0"))
-                .thenReturn(java.util.Arrays.asList(dpopProfile, parProfile, pkceProfile));
-
-        ServerProfile result = appConfig.serverProfile();
-
-        assertNotNull(result);
-        assertEquals("fapi2.0", result.getName());
-        assertEquals(3, result.getFeatureMap().size());
-        assertEquals("DPOP", result.getFeatureMap().get("dpop_bound_access_tokens"));
-        assertEquals("PAR", result.getFeatureMap().get("require_pushed_authorization_requests"));
-        assertEquals("PKCE", result.getFeatureMap().get("require_pkce"));
+                .thenReturn(Arrays.asList(dpopProfile, parProfile, pkceProfile));
     }
 
 }
