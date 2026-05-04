@@ -71,4 +71,5 @@ public class Constants {
     // FAPI 2.0 compliance constants
     public static final String FAPI2_PROFILE = "fapi2.0";
     public static final int FAPI2_MAX_AUTH_CODE_EXPIRY_SECONDS = 60;
+    public static final String RS256_ALGORITHM = "RS256";
 }

@@ -102,6 +102,9 @@ public class AppConfig implements ApplicationRunner {
     @Value("#{${mosip.esignet.cache.expire-in-seconds}}")
     private Map<String, Integer> cacheExpireInSeconds;
 
+    @Value("#{${mosip.esignet.supported.client.auth.signing.algorithms}}")
+    private List<String> supportedSigningAlgorithms;
+
     @Autowired
     private KeymanagerService keymanagerService;
 
@@ -191,7 +194,9 @@ public class AppConfig implements ApplicationRunner {
             profileDataMap.put(additionalConfigKey, feature);
         }
 
+        // Validate FAPI 2.0 specific constraints
         validateFAPI2AuthCodeExpiry();
+        validateFAPI2SigningAlgorithms();
 
         return profile;
     }
@@ -245,6 +250,26 @@ public class AppConfig implements ApplicationRunner {
             log.info("FAPI 2.0 authorization code expiry validation passed. Configured expiry: {} seconds", authCodeExpiry);
         } else {
             log.info("Server profile is '{}', skipping FAPI 2.0 auth code expiry validation", serverProfile);
+        }
+    }
+
+    /**
+     * Validates that RS256 algorithm is not supported for FAPI 2.0 profile.
+     * As per FAPI 2.0 Security Profile compliance, RS256 algorithm should not be used
+     * for client authentication signing.
+     * @throws EsignetException if RS256 is found in supported signing algorithms for FAPI 2.0 profile
+     */
+    private void validateFAPI2SigningAlgorithms() throws EsignetException {
+        if (Constants.FAPI2_PROFILE.equalsIgnoreCase(serverProfile)) {
+            if (supportedSigningAlgorithms != null && supportedSigningAlgorithms.contains(Constants.RS256_ALGORITHM)) {
+                log.error("FAPI 2.0 profile does not support {} algorithm for client authentication signing. " +
+                                "Please remove {} from 'mosip.esignet.supported.client.auth.signing.algorithms' configuration.",
+                        Constants.RS256_ALGORITHM, Constants.RS256_ALGORITHM);
+                throw new EsignetException(ErrorConstants.UNSUPPORTED_ALGORITHM_FOR_FAPI2);
+            }
+            log.info("FAPI 2.0 signing algorithm validation passed. Configured algorithms: {}", supportedSigningAlgorithms);
+        } else {
+            log.info("Server profile is '{}', skipping FAPI 2.0 signing algorithm validation", serverProfile);
         }
     }
 }
