@@ -67,4 +67,8 @@ public class Constants {
     public static final String REQUIRE_PKCE= "require_pkce";
     public static final String NONE= "none";
     public static final String LOGIN = "login";
+
+    // FAPI 2.0 compliance constants
+    public static final String FAPI2_PROFILE = "fapi2.0";
+    public static final int FAPI2_MAX_AUTH_CODE_EXPIRY_SECONDS = 60;
 }

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.mosip.esignet.core.constants.Constants;
+import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.ServerProfile;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.repository.ServerProfileRepository;
@@ -74,6 +75,9 @@ public class AppConfig implements ApplicationRunner {
 
     @Value("${mosip.esignet.server.profile:none}")
     private String serverProfile;
+
+    @Value("#{${mosip.esignet.cache.expire-in-seconds}}")
+    private Map<String, Integer> cacheExpireInSeconds;
 
     @Autowired
     private KeymanagerService keymanagerService;
@@ -151,6 +155,9 @@ public class AppConfig implements ApplicationRunner {
 
             profileDataMap.put(additionalConfigKey, feature);
         }
+
+        validateFAPI2AuthCodeExpiry();
+
         return profile;
     }
 
@@ -183,5 +190,26 @@ public class AppConfig implements ApplicationRunner {
         partnerMasterKeyRequest.setApplicationId(Constants.OIDC_PARTNER_APP_ID);
         keymanagerService.generateMasterKey(objectType, partnerMasterKeyRequest);
         log.info("===================== IDP KEY SETUP COMPLETED ========================");
+    }
+
+    /**
+     * Validates that the authorization code expiry does not exceed 60 seconds for FAPI 2.0 profile.
+     * As per FAPI 2.0 Security Profile compliance, the authorization code must expire within 60 seconds.
+     * @throws EsignetException if the auth code expiry exceeds the FAPI 2.0 limit
+     */
+    private void validateFAPI2AuthCodeExpiry() throws EsignetException {
+        log.info("===================== FAPI 2.0 COMPLIANCE CHECK ========================");
+        if (Constants.FAPI2_PROFILE.equalsIgnoreCase(serverProfile)) {
+            Integer authCodeExpiry = cacheExpireInSeconds.get(Constants.AUTH_CODE_GENERATED_CACHE);
+            if (authCodeExpiry != null && authCodeExpiry > Constants.FAPI2_MAX_AUTH_CODE_EXPIRY_SECONDS) {
+                log.error("FAPI 2.0 profile requires authorization code expiry to be at most {} seconds, " +
+                                "but configured value is {} seconds for cache '{}'",
+                        Constants.FAPI2_MAX_AUTH_CODE_EXPIRY_SECONDS, authCodeExpiry, Constants.AUTH_CODE_GENERATED_CACHE);
+                throw new EsignetException(ErrorConstants.INVALID_AUTH_CODE_EXPIRY_FOR_FAPI2);
+            }
+            log.info("FAPI 2.0 authorization code expiry validation passed. Configured expiry: {} seconds", authCodeExpiry);
+        } else {
+            log.info("Server profile is '{}', skipping FAPI 2.0 auth code expiry validation", serverProfile);
+        }
     }
 }
