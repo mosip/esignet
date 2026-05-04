@@ -139,6 +139,18 @@ class AppConfigTest {
     }
 
     @Test
+    void serverProfile_Fapi2WithNullAuthCodeExpiry_ThrowsException() {
+        ReflectionTestUtils.setField(appConfig, "serverProfile", "fapi2.0");
+        Map<String, Integer> cacheExpireInSeconds = new HashMap<>();
+        ReflectionTestUtils.setField(appConfig, "cacheExpireInSeconds", cacheExpireInSeconds);
+        setupValidSigningAlgorithms();
+        setupFapi2Profile();
+
+        EsignetException exception = assertThrows(EsignetException.class, () -> appConfig.serverProfile());
+        assertEquals(ErrorConstants.INVALID_AUTH_CODE_EXPIRY_FOR_FAPI2, exception.getErrorCode());
+    }
+
+    @Test
     void serverProfile_NonFapi2WithAuthCodeExpiryExceeds60_thenPass() throws EsignetException {
         ReflectionTestUtils.setField(appConfig, "serverProfile", "gov");
         Map<String, Integer> cacheExpireInSeconds = new HashMap<>();
