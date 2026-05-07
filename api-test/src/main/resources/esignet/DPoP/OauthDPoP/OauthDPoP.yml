@@ -15,7 +15,7 @@ OauthDPoP:
        "response_type": "code",
        "redirect_uri": "$IDPREDIRECTURI$",
        "display": "popup",
-       "prompt": "login",
+       "prompt": "consent",
        "acr_values": "mosip:idp:acr:generated-code",
        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
        "state": "eree2311",

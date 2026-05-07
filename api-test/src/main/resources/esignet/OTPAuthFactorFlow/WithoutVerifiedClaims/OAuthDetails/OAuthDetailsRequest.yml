@@ -15,7 +15,7 @@ OAuthDetailsRequestV3WithoutVerifiedClaims:
         "responseType": "code",
         "redirectUri": "$IDPREDIRECTURI$",
         "display": "popup",
-        "prompt": "login",
+        "prompt": "consent",
         "acrValues": "mosip:idp:acr:generated-code",
         "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
         "state": "urlInfo1724138417665",
