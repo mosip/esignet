@@ -246,7 +246,7 @@ public class AppConfig implements ApplicationRunner {
                         "but no value found for cache '{}'", Constants.AUTH_CODE_GENERATED_CACHE);
                 throw new EsignetException(ErrorConstants.INVALID_AUTH_CODE_EXPIRY_FOR_FAPI2);
             }
-            if (authCodeExpiry > Constants.FAPI2_MAX_AUTH_CODE_EXPIRY_SECONDS) {
+            if (authCodeExpiry <= 0 || authCodeExpiry > Constants.FAPI2_MAX_AUTH_CODE_EXPIRY_SECONDS) {
                 log.error("FAPI 2.0 profile requires authorization code expiry to be at most {} seconds, " +
                                 "but configured value is {} seconds for cache '{}'",
                         Constants.FAPI2_MAX_AUTH_CODE_EXPIRY_SECONDS, authCodeExpiry, Constants.AUTH_CODE_GENERATED_CACHE);
