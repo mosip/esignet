@@ -428,12 +428,10 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         // As per OIDC spec, if prompt is anything other than 'consent', return login_required error to RP
         String prompt = oauthDetailReqDto.getPrompt();
         if (prompt != null && !prompt.trim().isEmpty()) {
-            String[] promptTokens = prompt.trim().split("\\s+");
-            for (String token : promptTokens) {
-                if (Constants.NONE.equals(token) || Constants.LOGIN.equals(token)) {
-                    log.error("'prompt' parameter contains unsupported value: {}", token);
-                    throw new EsignetException(ErrorConstants.LOGIN_REQUIRED);
-                }
+            List<String> promptTokens = Arrays.asList(prompt.trim().split("\\s+"));
+            if (promptTokens.contains(Constants.NONE) || promptTokens.contains(Constants.LOGIN)) {
+                log.error("'prompt' parameter contains unsupported value: {}", prompt);
+                throw new EsignetException(ErrorConstants.LOGIN_REQUIRED);
             }
         }
 
