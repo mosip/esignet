@@ -240,6 +240,10 @@ public class AppConfig implements ApplicationRunner {
     private void validateFAPI2AuthCodeExpiry() throws EsignetException {
         log.info("===================== FAPI 2.0 COMPLIANCE CHECK ========================");
         if (Constants.FAPI2_PROFILE.equalsIgnoreCase(serverProfile)) {
+            if (cacheExpireInSeconds == null) {
+                log.error("FAPI 2.0 profile requires cache expiry configuration map 'mosip.esignet.cache.expire-in-seconds'");
+                throw new EsignetException(ErrorConstants.INVALID_AUTH_CODE_EXPIRY_FOR_FAPI2);
+            }
             Integer authCodeExpiry = cacheExpireInSeconds.get(Constants.AUTH_CODE_GENERATED_CACHE);
             if (authCodeExpiry == null) {
                 log.error("FAPI 2.0 profile requires authorization code expiry to be configured, " +
