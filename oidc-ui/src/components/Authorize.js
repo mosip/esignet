@@ -42,15 +42,13 @@ export default function Authorize({ authService }) {
             ) {
               const baseRedirectUri = extractParam('redirect_uri');
 
-              if (!baseRedirectUri) {
-                setOAuthDetailResponse(null);
-                setError('invalid_redirect_uri');
-                setStatus(states.ERROR);
-                return;
-              }
-
               let url;
+
               try {
+                if (!baseRedirectUri) {
+                  throw new Error('Missing redirect URI');
+                }
+
                 url = new URL(baseRedirectUri);
               } catch {
                 setOAuthDetailResponse(null);
