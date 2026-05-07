@@ -2,6 +2,7 @@ package io.mosip.esignet.core.dto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.api.dto.claim.ClaimsV2;
 import io.mosip.esignet.core.constants.ErrorConstants;
+import io.mosip.esignet.core.util.IdentityProviderUtil;
 import io.mosip.esignet.core.validator.*;
 import lombok.Data;
 
@@ -76,8 +77,7 @@ public class PushedAuthorizationRequest implements Serializable {
             return;
         }
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            this.claims = mapper.readValue(claimsJson, ClaimsV2.class);
+            this.claims = IdentityProviderUtil.getObjectMapper().readValue(claimsJson, ClaimsV2.class);
         } catch (IOException e) {
             throw new IllegalArgumentException(ErrorConstants.INVALID_CLAIM, e);
         }

@@ -22,6 +22,16 @@ import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.dto.LinkTransactionMetadata;
 import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.esignet.core.exception.DuplicateLinkCodeException;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisScriptingCommands;
+import org.springframework.data.redis.connection.ReturnType;
+import org.springframework.test.util.ReflectionTestUtils;
+
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class CacheUtilServiceTest {
@@ -34,6 +44,15 @@ public class CacheUtilServiceTest {
 
     @Mock
     private CacheManager cacheManager;
+
+    @Mock
+    private RedisConnectionFactory redisConnectionFactory;
+
+    @Mock
+    private RedisConnection redisConnection;
+
+    @Mock
+    private RedisScriptingCommands redisScriptingCommands;
 
     @Test
     public void test_OIDCTransaction_cache() {
@@ -105,6 +124,115 @@ public class CacheUtilServiceTest {
 
             cacheUtilService.setLinkCodeGenerated("1234", linkTransactionMetadata);
         });
+    }
+
+    // -------------------------------- checkNonce() tests --------------------------------
+
+    @Test
+    public void checkNonce_simpleCacheType_returnsOneWithoutRedis() {
+        ReflectionTestUtils.setField(cacheUtilService, "cacheType", "simple");
+
+        long result = cacheUtilService.checkNonce("test-nonce");
+
+        Assertions.assertEquals(1L, result);
+        verifyNoInteractions(redisConnectionFactory);
+    }
+
+    @Test
+    public void checkNonce_scriptAlreadyLoaded_reusesHashAndClosesConnection() {
+        ReflectionTestUtils.setField(cacheUtilService, "cacheType", "redis");
+        ReflectionTestUtils.setField(cacheUtilService, "nonceValidity", 86400);
+        ReflectionTestUtils.setField(cacheUtilService, "nonceScriptHash", "existing-sha");
+
+        when(redisConnectionFactory.getConnection()).thenReturn(redisConnection);
+        when(redisConnection.scriptingCommands()).thenReturn(redisScriptingCommands);
+        when(redisScriptingCommands.scriptExists("existing-sha")).thenReturn(List.of(true));
+        when(redisScriptingCommands.evalSha(eq("existing-sha"), eq(ReturnType.INTEGER), eq(1),
+                any(byte[].class), any(byte[].class))).thenReturn(1L);
+
+        long result = cacheUtilService.checkNonce("test-nonce");
+
+        Assertions.assertEquals(1L, result);
+        verify(redisScriptingCommands, never()).scriptLoad(any(byte[].class));
+        verify(redisConnection).close();
+    }
+
+    @Test
+    public void checkNonce_scriptNotLoaded_loadsScriptAndClosesConnection() {
+        ReflectionTestUtils.setField(cacheUtilService, "cacheType", "redis");
+        ReflectionTestUtils.setField(cacheUtilService, "nonceValidity", 86400);
+        ReflectionTestUtils.setField(cacheUtilService, "nonceScriptHash", null);
+
+        String newHash = "new-sha-hash";
+        when(redisConnectionFactory.getConnection()).thenReturn(redisConnection);
+        when(redisConnection.scriptingCommands()).thenReturn(redisScriptingCommands);
+        when(redisScriptingCommands.scriptLoad(any(byte[].class))).thenReturn(newHash);
+        when(redisScriptingCommands.evalSha(eq(newHash), eq(ReturnType.INTEGER), eq(1),
+                any(byte[].class), any(byte[].class))).thenReturn(0L);
+
+        long result = cacheUtilService.checkNonce("unique-nonce");
+
+        Assertions.assertEquals(0L, result);
+        verify(redisScriptingCommands).scriptLoad(any(byte[].class));
+        Assertions.assertEquals(newHash, ReflectionTestUtils.getField(cacheUtilService, "nonceScriptHash"));
+        verify(redisConnection).close();
+    }
+
+    @Test
+    public void checkNonce_scriptExistsReturnsFalse_reloadsScriptAndClosesConnection() {
+        ReflectionTestUtils.setField(cacheUtilService, "cacheType", "redis");
+        ReflectionTestUtils.setField(cacheUtilService, "nonceValidity", 86400);
+        ReflectionTestUtils.setField(cacheUtilService, "nonceScriptHash", "stale-sha");
+
+        String reloadedHash = "reloaded-sha";
+        when(redisConnectionFactory.getConnection()).thenReturn(redisConnection);
+        when(redisConnection.scriptingCommands()).thenReturn(redisScriptingCommands);
+        when(redisScriptingCommands.scriptExists("stale-sha")).thenReturn(List.of(false));
+        when(redisScriptingCommands.scriptLoad(any(byte[].class))).thenReturn(reloadedHash);
+        when(redisScriptingCommands.evalSha(eq(reloadedHash), eq(ReturnType.INTEGER), eq(1),
+                any(byte[].class), any(byte[].class))).thenReturn(1L);
+
+        long result = cacheUtilService.checkNonce("another-nonce");
+
+        Assertions.assertEquals(1L, result);
+        verify(redisScriptingCommands).scriptLoad(any(byte[].class));
+        verify(redisConnection).close();
+    }
+
+    @Test
+    public void checkNonce_redisThrowsException_connectionStillClosed() {
+        ReflectionTestUtils.setField(cacheUtilService, "cacheType", "redis");
+        ReflectionTestUtils.setField(cacheUtilService, "nonceValidity", 86400);
+        ReflectionTestUtils.setField(cacheUtilService, "nonceScriptHash", null);
+
+        when(redisConnectionFactory.getConnection()).thenReturn(redisConnection);
+        when(redisConnection.scriptingCommands()).thenReturn(redisScriptingCommands);
+        when(redisScriptingCommands.scriptLoad(any(byte[].class)))
+                .thenThrow(new RuntimeException("Redis unavailable"));
+
+        long result = cacheUtilService.checkNonce("fail-nonce");
+
+        Assertions.assertEquals(0L, result);
+        verify(redisConnection).close();
+    }
+
+    @Test
+    public void checkNonce_singleConnectionUsedForAllOperations() {
+        ReflectionTestUtils.setField(cacheUtilService, "cacheType", "redis");
+        ReflectionTestUtils.setField(cacheUtilService, "nonceValidity", 86400);
+        ReflectionTestUtils.setField(cacheUtilService, "nonceScriptHash", null);
+
+        String hash = "test-sha";
+        when(redisConnectionFactory.getConnection()).thenReturn(redisConnection);
+        when(redisConnection.scriptingCommands()).thenReturn(redisScriptingCommands);
+        when(redisScriptingCommands.scriptLoad(any(byte[].class))).thenReturn(hash);
+        when(redisScriptingCommands.evalSha(eq(hash), eq(ReturnType.INTEGER), eq(1),
+                any(byte[].class), any(byte[].class))).thenReturn(1L);
+
+        cacheUtilService.checkNonce("nonce-123");
+
+        verify(redisConnectionFactory, times(1)).getConnection();
+        verify(redisConnection).close();
     }
 
 }

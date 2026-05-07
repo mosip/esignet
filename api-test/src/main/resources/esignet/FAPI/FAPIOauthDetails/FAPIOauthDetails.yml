@@ -1,0 +1,17 @@
+FAPIOauthDetails:
+   ESignet_OAuthDetailsRequest_FAPI_AuthToken_Xsrf_all_Valid_Smoke_sid:
+      endPoint: /v1/esignet/authorization/par-oauth-details
+      uniqueIdentifier: TC_ESignet_FAPI_OauthDetails_01
+      description: Validate successful retrieval of OAuth details in FAPI flow
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/FAPI/FAPIOauthDetails/FAPIOauthDetails
+      outputTemplate: esignet/FAPI/FAPIOauthDetails/FAPIOauthDetailsResult
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "requestUri": "$ID:OauthFAPI_all_Valid_Smoke_sid_request_uri$",
+       "clientId": "$ID:CreateOIDCClientFAPI_all_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+}'
