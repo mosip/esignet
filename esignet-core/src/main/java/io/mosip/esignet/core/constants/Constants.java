@@ -5,6 +5,8 @@
  */
 package io.mosip.esignet.core.constants;
 
+import java.util.Set;
+
 public class Constants {
 
     public static final String CLIENT_ACTIVE_STATUS = "ACTIVE";
@@ -72,4 +74,5 @@ public class Constants {
     public static final String FAPI2_PROFILE = "fapi2.0";
     public static final int FAPI2_MAX_AUTH_CODE_EXPIRY_SECONDS = 60;
     public static final String RS256_ALGORITHM = "RS256";
+    public static final Set<String> FAPI2_ALLOWED_SIGNING_ALGORITHMS = Set.of("PS256", "ES256", "EdDSA");
 }

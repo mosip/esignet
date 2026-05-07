@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.stream.Collectors;
 
 @Configuration
 @Slf4j
@@ -270,10 +271,17 @@ public class AppConfig implements ApplicationRunner {
      */
     private void validateFAPI2SigningAlgorithms() throws EsignetException {
         if (Constants.FAPI2_PROFILE.equalsIgnoreCase(serverProfile)) {
-            if (supportedSigningAlgorithms != null && supportedSigningAlgorithms.contains(Constants.RS256_ALGORITHM)) {
-                log.error("FAPI 2.0 profile does not support {} algorithm for client authentication signing. " +
-                                "Please remove {} from 'mosip.esignet.supported.client.auth.signing.algorithms' configuration.",
-                        Constants.RS256_ALGORITHM, Constants.RS256_ALGORITHM);
+            if (supportedSigningAlgorithms == null || supportedSigningAlgorithms.isEmpty()) {
+                log.error("FAPI 2.0 profile requires at least one supported signing algorithm, but none are configured.");
+                throw new EsignetException(ErrorConstants.UNSUPPORTED_ALGORITHM_FOR_FAPI2);
+            }
+            List<String> disallowedAlgorithms = supportedSigningAlgorithms.stream()
+                    .filter(alg -> !Constants.FAPI2_ALLOWED_SIGNING_ALGORITHMS.contains(alg))
+                    .collect(Collectors.toList());
+            if (!disallowedAlgorithms.isEmpty()) {
+                log.error("FAPI 2.0 profile only allows {} algorithms for signing. " +
+                                "Disallowed algorithms found in configuration: {}",
+                        Constants.FAPI2_ALLOWED_SIGNING_ALGORITHMS, disallowedAlgorithms);
                 throw new EsignetException(ErrorConstants.UNSUPPORTED_ALGORITHM_FOR_FAPI2);
             }
             log.info("FAPI 2.0 signing algorithm validation passed. Configured algorithms: {}", supportedSigningAlgorithms);
