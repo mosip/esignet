@@ -104,6 +104,51 @@ Refer to the [README](https://github.com/mosip/esignet-mock-services/tree/master
 - Returns standardized error codes and descriptions.
 - Does not leak sensitive information in error responses.
 
+# FAPI 2.0 Configuration Details
+
+To enable FAPI 2.0 Security Profile compliance, the following configurations must be set in `application-default.properties`:
+
+## Server Profile
+
+Set the server profile to `fapi2.0` to enable FAPI 2.0 specific validations:
+
+```properties
+mosip.esignet.server.profile=fapi2.0
+```
+
+## Authorization Code Expiry
+
+FAPI 2.0 requires that authorization codes expire within 60 seconds. The default configuration is:
+
+```properties
+# Cache expire in seconds for authcodegenerated
+'authcodegenerated': 60
+```
+
+This is configured in `mosip.esignet.cache.expire-in-seconds` property map.
+
+**Note:** When `mosip.esignet.server.profile=fapi2.0`, the application will validate that the authorization code expiry does not exceed 60 seconds and will fail to start if misconfigured.
+
+## Signing Algorithms
+
+FAPI 2.0 Security Profile only supports PS256 and ES256 algorithms. RS256 is **NOT** supported in FAPI 2.0.
+
+```properties
+## Type of the client authentication algorithms for the token endpoint
+## Note: For FAPI 2.0 Security Profile compliance, use only PS256 and ES256. RS256 is not supported in FAPI 2.0.
+mosip.esignet.supported.client.auth.signing.algorithms={'PS256','ES256'}
+```
+
+**Note:** When `mosip.esignet.server.profile=fapi2.0`, the application will validate that RS256 is not included in the supported signing algorithms and will fail to start if RS256 is configured.
+
+## Summary of FAPI 2.0 Required Configurations
+
+| Configuration | FAPI 2.0 Requirement | Property |
+|---------------|---------------------|----------|
+| Server Profile | `fapi2.0` | `mosip.esignet.server.profile` |
+| Auth Code Expiry | ≤ 60 seconds | `mosip.esignet.cache.expire-in-seconds` (authcodegenerated) |
+| Signing Algorithms | PS256, ES256 only (no RS256) | `mosip.esignet.supported.client.auth.signing.algorithms` |
+
 ## Future Improvements
 
 - Global flags to enable/disable PAR and DPoP features across all clients.
