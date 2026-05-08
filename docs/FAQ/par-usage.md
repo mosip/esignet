@@ -60,12 +60,34 @@ The PAR flow in eSignet follows the sequence below:
 3. The callback calls eSignet's `/par` endpoint with this payload.
 4. eSignet validates the payload and returns a `request_uri` to the RP backend.
 5. The callback returns control to the RP UI, which redirects the browser to eSignet's `/authorize` endpoint with `client_id` and `request_uri` only.
-6. eSignet looks up the stored request, validates it, and returns the OAuth details response.
+6. eSignet looks up the stored request by `request_uri` and enforces **Client ID Binding**: the `client_id` query parameter on the `/authorize` call **must match** the `client_id` that authenticated at the original `/par` call (per [RFC 9126 §4](https://www.rfc-editor.org/rfc/rfc9126#section-4)). A mismatch is rejected outright — this prevents one client from "borrowing" another client's pushed request via a leaked or guessed `request_uri`. On match, eSignet returns the OAuth details response.
 7. On successful validation, eSignet generates a new transaction ID for the session.
 8. On unsuccessful validation, eSignet returns an error which the RP portal must surface to the user.
 9. eSignet authenticates the user, captures consent, and returns an authorization code to the RP redirect URI.
 10. The RP exchanges the authorization code for an access token at the token endpoint.
 11. The RP calls `/userinfo` with the access token to retrieve user data.
+
+### Discovery
+
+eSignet advertises the PAR endpoint in its OIDC discovery document, available at:
+
+```
+GET /.well-known/openid-configuration
+```
+
+Per [RFC 9126 §5](https://www.rfc-editor.org/rfc/rfc9126#section-5), the `pushed_authorization_request_endpoint` metadata parameter is included in the response, e.g.:
+
+```json
+{
+  "issuer": "https://esignet.example.com",
+  "authorization_endpoint": "https://esignet.example.com/authorize",
+  "token_endpoint": "https://esignet.example.com/v2/token",
+  "pushed_authorization_request_endpoint": "https://esignet.example.com/par",
+  ...
+}
+```
+
+Clients **should** resolve the PAR endpoint URL via discovery rather than hard-coding it, so that it tracks deployment-specific URLs and any future endpoint changes.
 
 ### The `request_uri` mechanism
 
@@ -181,6 +203,8 @@ After completing the configuration:
 | `/par` rejects the `redirect_uri`             | The `redirect_uri` is not pre-registered for the client                   | Register the exact `redirect_uri` in `client_detail`. Non-registered redirect URIs are not permitted                   |
 | Mock RP callback times out                    | PAR endpoint slow to respond, or `PAR_CALLBACK_TIMEOUT` too low           | Increase `PAR_CALLBACK_TIMEOUT` (default `5000` ms), and check eSignet backend health                                  |
 | `expires_in` does not match expected TTL      | Server property not picked up                                             | Verify `mosip.esignet.par.expire-seconds` is set in the active `application.properties` and restart eSignet            |
+| `/par` returns `invalid_scope` where `invalid_request` was expected (FAPI conformance) | Parameter-validation failures at `/par` being reported with the more specific OAuth 2.0 error code `invalid_scope` instead of `invalid_request` | Per [RFC 9126 §2.3](https://www.rfc-editor.org/rfc/rfc9126#section-2.3), parameter-level validation failures at the PAR endpoint should surface as `invalid_request`. Confirm the eSignet release in use returns `invalid_request` for these cases — earlier releases had bugs returning `invalid_scope`, which fail FAPI conformance suites |
+| `/authorize` rejects with a `client_id` mismatch | The `client_id` on the `/authorize` call does not match the one that authenticated at `/par` (Client ID Binding violation) | Use the **same** `client_id` on both `/par` and the subsequent `/authorize` call. Do not pass a different `client_id` even if both are registered in eSignet |
 
 ---
 

@@ -67,18 +67,77 @@ eSignet supports DPoP-binding of both **authorization codes** and **access token
 
 5. The client calls `/v2/token` with the authorization code and a `DPoP` header containing a freshly signed proof JWT.
 6. eSignet validates the DPoP header and, if a binding was recorded in Phase 1, verifies that the proof's public-key thumbprint matches the stored `dpop_jkt`.
-   - If the binding check fails, the request is rejected **even when `dpop_bound_access_tokens` is `false`** for the client.
-   - If `dpop_bound_access_tokens` is `true` and the DPoP header is missing or the binding check fails, the request is rejected.
+    - If the binding check fails, the request is rejected **even when `dpop_bound_access_tokens` is `false`** for the client.
+    - If `dpop_bound_access_tokens` is `true` and the DPoP header is missing or the binding check fails, the request is rejected.
+    - If the authorization code was DPoP-bound at Phase 1, attempting to exchange it using the `Bearer` scheme (or with no DPoP proof at all) is **always rejected**, regardless of whether `dpop_bound_access_tokens` is `true` or `false`. Once a code is bound, the binding is non-optional.
 7. **Nonce handshake:** eSignet always rejects the first token request and responds with a `dpop_nonce` header. The client must retry the token request with a new DPoP proof JWT that includes the `nonce` claim.
 8. On success, eSignet returns an access token with:
-   - `token_type` set to `DPoP`
-   - a `cnf.jkt` claim (confirmation method) holding the public-key thumbprint the token is bound to.
+    - `token_type` set to `DPoP`
+    - a `cnf.jkt` claim (confirmation method) holding the public-key thumbprint the token is bound to.
 
 ### Phase 3 — Use the DPoP-bound access token
 
 9. The client calls `/userinfo` with the access token and a fresh `DPoP` header for that request.
 10. eSignet's DPoP validation filter checks the proof's JWT structure, claims, and signature, and verifies the binding between the access token (`cnf.jkt`) and the proof's public-key thumbprint, including the access-token hash claim (`ath`).
 11. On success, eSignet returns the user information. On failure, an RFC-compliant DPoP error response is returned.
+
+> Like the token endpoint, eSignet may challenge a `/userinfo` request with a `DPoP-Nonce` response header (RFC 9449 §8). When this happens, the client must retry with a new DPoP proof JWT that includes the returned `nonce` claim. Clients should treat the nonce dance as possible on **any** DPoP-protected endpoint, not just `/v2/token`.
+
+### Phase 4 — Refresh a DPoP-bound token (when refresh tokens are issued)
+
+Per [RFC 9449 §5](https://datatracker.ietf.org/doc/html/rfc9449#section-5), refresh tokens issued in a DPoP flow are bound to the same public key as the access token they were issued with. When the deployment issues refresh tokens to a DPoP-bound client:
+
+12. The client calls `/v2/token` with `grant_type=refresh_token`, the refresh token, and a fresh `DPoP` header signed with the **same key pair** used at Phase 1.
+13. eSignet verifies the proof, the binding to the refresh token, and the nonce (re-applying the nonce handshake if challenged).
+14. eSignet returns a new DPoP-bound access token. Any newly issued refresh token is bound to the same key.
+
+> Refresh-token issuance depends on the grant types and scope policies configured for the client. Confirm with your eSignet deployment whether refresh tokens are issued for the relevant client before relying on Phase 4.
+
+### DPoP Proof JWT — required claims and rules
+
+A DPoP proof is a JWT created and signed by the client for **each** request. eSignet validates it per [RFC 9449 §4](https://datatracker.ietf.org/doc/html/rfc9449#section-4), with the following specifics:
+
+| Claim / Header | Required at      | Notes                                                                                                                                                                  |
+|----------------|------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `typ` (header) | always           | Must be `dpop+jwt`.                                                                                                                                                    |
+| `alg` (header) | always           | Asymmetric signing algorithm (e.g., `ES256`, `RS256`). Symmetric algorithms are rejected.                                                                              |
+| `jwk` (header) | always           | The public key the proof is signed with, in JWK form.                                                                                                                  |
+| `htm`          | always           | HTTP method of the request, e.g. `POST`, `GET`.                                                                                                                        |
+| `htu`          | always           | HTTP target URI **without query string or fragment**. For a call to `https://<domain>/userinfo?claims=email`, `htu` must be `https://<domain>/userinfo`.               |
+| `iat`          | always           | Issued-at time. eSignet allows a clock-skew window of approximately **±60 seconds**; proofs older or further in the future are rejected.                               |
+| `jti`          | always           | Unique identifier for the proof; used by eSignet to prevent replay.                                                                                                    |
+| `nonce`        | when challenged  | Echo the value returned by eSignet in the most recent `DPoP-Nonce` response header.                                                                                    |
+| `ath`          | resource calls   | Base64url-encoded SHA-256 hash of the **ASCII string representation of the access token** (RFC 9449 §4.2). Required on `/userinfo` and any other DPoP-protected resource call. |
+
+#### Example DPoP proof for a `/userinfo` call
+
+Header (decoded):
+
+```json
+{
+  "typ": "dpop+jwt",
+  "alg": "ES256",
+  "jwk": {
+    "kty": "EC",
+    "crv": "P-256",
+    "x": "l8tFrhx-34tV3hRICRDY9zCkDlpBhF42UQUfWVAWBFs",
+    "y": "9VE4jf_Ok_o64zbTTlcuNJajHmt6v9TDVrU0CdvGRDA"
+  }
+}
+```
+
+Payload (decoded):
+
+```json
+{
+  "jti": "e1j3V_bKic8-LAEB",
+  "htm": "GET",
+  "htu": "https://esignet.example.com/userinfo",
+  "iat": 1562262618,
+  "ath": "fUHyO2r2Z3DZ53EsNrWBb0xWXoaNy59IiKCAqksmQEo",
+  "nonce": "eyJ7S_zG.eyJIYW5kc"
+}
+```
 
 ## Sequence diagram DPoP with PAR:
 
@@ -96,7 +155,6 @@ eSignet supports DPoP-binding of both **authorization codes** and **access token
 - The relying party (client) is registered in the `client_detail` table.
 - The client has generated a **DPoP key pair** (separate from the client authentication key, by convention) and can produce signed DPoP proof JWTs per RFC 9449 §4.
 - The client is prepared to handle the **mandatory nonce handshake** at the token endpoint (re-issue the request with `nonce` after the first `dpop_nonce` response).
-
 ---
 
 ## Configuration
@@ -145,8 +203,8 @@ After completing the configuration:
 1. Initiate a login from the relying party portal by clicking **Sign in with eSignet**.
 
 2. Confirm the public-key thumbprint reaches eSignet at the start of the flow:
-   - **With PAR:** the `/par` request body or `DPoP` header carries `dpop_jkt`.
-   - **Without PAR:** the front-channel `/authorize` URL carries a `dpop_jkt` query parameter.
+    - **With PAR:** the `/par` request body or `DPoP` header carries `dpop_jkt`.
+    - **Without PAR:** the front-channel `/authorize` URL carries a `dpop_jkt` query parameter.
 
 3. After consent, the client receives an authorization code and calls `/v2/token`. The **first** call is expected to fail with a DPoP-nonce challenge:
 
@@ -179,7 +237,11 @@ After completing the configuration:
    }
    ```
 
-5. Call `/userinfo` with `Authorization: DPoP <access_token>` and a fresh `DPoP` header for that request. The proof's `ath` claim must be the SHA-256 hash of the access token. eSignet should return the userinfo payload.
+5. Call `/userinfo` with `Authorization: DPoP <access_token>` and a fresh `DPoP` header for that request. Two important details to verify in the proof:
+    - The `ath` claim is the **base64url-encoded SHA-256 hash of the ASCII string representation of the access token** (RFC 9449 §4.2) — not the hash of any decoded form.
+    - The `htu` claim is the request URI **without** any query string or fragment. A call to `/userinfo?claims=email` must have an `htu` of `https://<domain>/userinfo`.
+
+   eSignet may also respond to the **first** `/userinfo` call with a `DPoP-Nonce` challenge; in that case, retry with a new proof that includes the `nonce` claim. On success, eSignet returns the userinfo payload.
 
 6. (For enforced clients) Verify that any token or userinfo request **without** a valid DPoP header is rejected.
 
@@ -196,6 +258,7 @@ After completing the configuration:
 | DPoP not enforced for a client that should require it                    | `dpop_bound_access_tokens` is `false`                                                                   | Set the property to `true` in the `client_detail` configuration for that client                                                |
 | Mock RP UI does not provide a DPoP thumbprint                            | `DPOP_CALLBACK_NAME` is missing or set to a value other than `get_dpop_jkt`                            | Set the env var exactly to `get_dpop_jkt`. The value is hardcoded and not configurable                                          |
 | DPoP proof rejected as invalid                                           | Malformed JWT, invalid signature, missing required claims, or expired `iat`                             | Validate the proof against RFC 9449 §4: required header (`typ=dpop+jwt`, `alg`, `jwk`) and claims (`htm`, `htu`, `iat`, `jti`)  |
+| Server responds with `invalid_dpop_proof`                                | Generic JWT-validation failure: bad signature, wrong `htm`, `htu` containing query string, `iat` outside the ±60 s skew window, replayed `jti`, or `ath` mismatch on resource calls | Re-generate a fresh proof per request. Check `htu` is the bare URI (no query/fragment), `iat` is current, the `jti` is unique, and `ath` is the base64url SHA-256 of the ASCII access token string |
 
 ---
 
@@ -203,6 +266,6 @@ After completing the configuration:
 
 - DPoP and PAR are independent feature flags but compose cleanly. FAPI 2.0 conformance generally requires **both**.
 - Per the eSignet roadmap, the following items are planned but **not yet available**:
-  - Global server-level flags to enable/disable DPoP across all clients (currently per-client via `dpop_bound_access_tokens`).
-  - Server-level enforcement of OpenID security profiles such as FAPI 2.0.
+    - Global server-level flags to enable/disable DPoP across all clients (currently per-client via `dpop_bound_access_tokens`).
+    - Server-level enforcement of OpenID security profiles such as FAPI 2.0.
 - Error responses from the DPoP validation filter follow the RFC 9449 error format and intentionally do not leak sensitive information about the cause of failure.
