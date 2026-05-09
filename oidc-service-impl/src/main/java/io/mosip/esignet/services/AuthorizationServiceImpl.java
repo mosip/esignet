@@ -429,7 +429,7 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         String prompt = oauthDetailReqDto.getPrompt();
         if (prompt != null && !prompt.trim().isEmpty()) {
             List<String> promptTokens = Arrays.asList(prompt.trim().split("\\s+"));
-            if (promptTokens.contains(Constants.NONE) || promptTokens.contains(Constants.LOGIN)) {
+            if (promptTokens.contains(Constants.NONE) || promptTokens.contains(Constants.LOGIN) || promptTokens.contains(Constants.SELECT_ACCOUNT)) {
                 log.error("'prompt' parameter contains unsupported value: {}", prompt);
                 throw new EsignetException(ErrorConstants.LOGIN_REQUIRED);
             }
