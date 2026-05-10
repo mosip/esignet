@@ -309,12 +309,19 @@ public class AuthorizationControllerTest {
         wrapper.setRequestTime(requestTime.format(DateTimeFormatter.ofPattern(UTC_DATETIME_PATTERN)));
         wrapper.setRequest(oauthDetailRequest);
 
+        // Mock service to throw exception as validation is now in service layer
+        when(authorizationService.getOauthDetails(Mockito.any())).thenThrow(new EsignetException(ErrorConstants.REQUEST_NOT_SUPPORTED));
+
         mockMvc.perform(post("/authorization/oauth-details")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(wrapper)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.errors").isNotEmpty())
                 .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.REQUEST_NOT_SUPPORTED));
+        Mockito.verify(authorizationService).getOauthDetails(Mockito.any());
+
+        // Mock service for v3 endpoint
+        when(authorizationService.getOauthDetailsV3(Mockito.any(), Mockito.any())).thenThrow(new EsignetException(ErrorConstants.REQUEST_NOT_SUPPORTED));
 
         mockMvc.perform(post("/authorization/v3/oauth-details")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -322,7 +329,7 @@ public class AuthorizationControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.errors").isNotEmpty())
                 .andExpect(jsonPath("$.errors[0].errorCode").value(ErrorConstants.REQUEST_NOT_SUPPORTED));
-
+        Mockito.verify(authorizationService).getOauthDetailsV3(Mockito.any(), Mockito.any());
     }
 
     @Test

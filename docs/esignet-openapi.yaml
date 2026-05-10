@@ -2087,6 +2087,8 @@ paths:
                             - invalid_response_type
                             - invalid_display
                             - invalid_prompt
+                            - login_required
+                            - request_not_supported
                         errorMessage:
                           type: string
               examples:
@@ -2324,6 +2326,8 @@ paths:
                             - unsupported_pkce_challenge_method
                             - invalid_pkce_challenge
                             - use_pkce
+                            - login_required
+                            - request_not_supported
                         errorMessage:
                           type: string
               examples:
@@ -2572,6 +2576,8 @@ paths:
                             - invalid_request
                             - invalid_id_token_hint
                             - use_pkce
+                            - login_required
+                            - request_not_supported
                         errorMessage:
                           type: string
               examples:
