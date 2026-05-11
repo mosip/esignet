@@ -144,7 +144,7 @@ mosip.esignet.server.profile=fapi2.0
 mosip.esignet.supported.client.auth.signing.algorithms={'PS256','ES256'}
 ```
 
-**Note:** When `mosip.esignet.server.profile=fapi2.0`, the application will validate that RS256 is not included in the supported signing algorithms and will fail to start if RS256 is configured.
+**Note:** When `mosip.esignet.server.profile=fapi2.0` is used, operators must ensure that RS256 is removed from `mosip.esignet.supported.client.auth.signing.algorithms`. The application does not automatically enforce this at startup — it is an operator/deployment responsibility to keep the configuration FAPI 2.0 compliant.
 
 ## Summary of FAPI 2.0 Required Configurations
 
