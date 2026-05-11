@@ -129,13 +129,18 @@ This is configured in `mosip.esignet.cache.expire-in-seconds` property map.
 
 **Note:** When `mosip.esignet.server.profile=fapi2.0`, the application will validate that the authorization code expiry does not exceed 60 seconds and will fail to start if misconfigured.
 
-## Signing Algorithms
+## Client Authentication Signing Algorithms
 
-FAPI 2.0 Security Profile only supports PS256 and ES256 algorithms. RS256 is **NOT** supported in FAPI 2.0.
+The property **mosip.esignet.supported.client.auth.signing.algorithms** in `application-default.properties` controls the JWS algorithms accepted at the token endpoint for `private_key_jwt` client authentication.
 
+- **Default value:** `{'RS256','PS256','ES256'}` — supports non-FAPI deployments for backward compatibility.
+- **FAPI 2.0 compliance:** FAPI 2.0 Security Profile only supports **PS256** and **ES256**. **RS256 is NOT supported in FAPI 2.0.** When `mosip.esignet.server.profile=fapi2.0` is enabled, configure this property to **only** `{'PS256','ES256'}`; leaving RS256 in the list will cause fail-fast startup / FAPI compliance validation failures.
+
+Example (FAPI 2.0):
 ```properties
 ## Type of the client authentication algorithms for the token endpoint
 ## Note: For FAPI 2.0 Security Profile compliance, use only PS256 and ES256. RS256 is not supported in FAPI 2.0.
+mosip.esignet.server.profile=fapi2.0
 mosip.esignet.supported.client.auth.signing.algorithms={'PS256','ES256'}
 ```
 
