@@ -241,7 +241,7 @@ updateStrategy:
 ##     value: "bar"
 ##
 
-extraEnvVars: |
+extraEnvVars:
   - name: KEYCLOAK_EXTERNAL_URL
     valueFrom:
       configMapKeyRef:
@@ -294,16 +294,6 @@ extraEnvVars: |
       secretKeyRef:
         name: esignet-softhsm
         key: security-pin
-  - name: MOSIP_ESIGNET_HOST
-    valueFrom:
-      configMapKeyRef:
-        name: esignet-global
-        key: mosip-esignet-host
-  - name: MOSIP_SIGNUP_HOST
-    valueFrom:
-      configMapKeyRef:
-        name: esignet-global
-        key: mosip-signup-host
   - name: MOSIP_IDA_CLIENT_SECRET
     valueFrom:
       secretKeyRef:
@@ -361,9 +351,8 @@ initContainers:
     env:
       - name: ENABLE_INSECURE
         value: "true"
-    envFrom:
-      - configMapRef:
-          name: esignet-global
+      - name: mosip-api-internal-host
+        value: ""
     image: docker.io/openjdk:11-jre
     imagePullPolicy: Always
     name: cacerts
@@ -533,3 +522,5 @@ springConfigNameEnv:
 activeProfileEnv:
 pluginNameEnv: esignet-mock-plugin.jar
 pluginUrlEnv:
+
+domainConfig: {}
