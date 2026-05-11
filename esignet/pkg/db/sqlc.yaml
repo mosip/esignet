@@ -1,0 +1,52 @@
+version: "2"
+
+sql:
+  - engine: "postgresql"
+    queries: "./queries"
+    schema: "./migrations"
+    gen:
+      go:
+        package: "sqlc"
+        out: "./sqlc"
+        sql_package: "pgx/v5"
+        emit_json_tags: true
+        json_tags_case_style: camel
+        emit_interface: true
+        emit_prepared_queries: true
+        initialisms: ["id", "uuid", "cvv", "ip"]
+        overrides:
+          - db_type: "pg_catalog.int4"
+            nullable: true
+            go_type:
+              import: "github.com/aarondl/null/v9"
+              type: "Int32"
+          - db_type: "pg_catalog.timestamptz"
+            nullable: true
+            go_type:
+              import: "github.com/aarondl/null/v9"
+              type: "Time"
+          - db_type: "pg_catalog.varchar"
+            nullable: true
+            go_type:
+              import: "github.com/aarondl/null/v9"
+              type: "String"
+          - db_type: "text"
+            nullable: true
+            go_type:
+              import: "github.com/aarondl/null/v9"
+              type: "String"
+          - db_type: "pg_catalog.int2"
+            nullable: true
+            go_type:
+              import: "github.com/aarondl/null/v9"
+              type: "Int16"
+          - db_type: "pg_catalog.int4"
+            nullable: true
+            go_type:
+              import: "github.com/aarondl/null/v9"
+              type: "Int32"
+          - db_type: "pg_catalog.int8"
+            nullable: true
+            go_type:
+              import: "github.com/aarondl/null/v9"
+              type: "Int64"
