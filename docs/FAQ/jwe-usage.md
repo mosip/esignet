@@ -10,8 +10,8 @@ Encrypt userinfo responses in eSignet using JWE ([RFC 7516](https://datatracker.
 - [How It Works](#how-it-works)
 - [Prerequisites](#prerequisites)
 - [Configuration](#configuration)
-  - [1. Set Encryption Public Key](#1-set-encryption-public-key)
-  - [2. Enable JWE Response Type](#2-enable-jwe-response-type)
+  - [1. Set Encryption Public Key and Enable JWE Response Type](#1-set-encryption-public-key-and-enable-jwe-response-type)
+  - [2. (Optional) Enable JWE via Server Profile](#2-optional-enable-jwe-via-server-profile)
   - [3. Configure the Relying Party](#3-configure-the-relying-party)
 - [Verification](#verification)
 - [Troubleshooting](#troubleshooting)
@@ -26,13 +26,13 @@ With **JWE** enabled, the userinfo payload is encrypted using the relying party'
 
 **Default behavior (JWS):**
 
-```
+```text
 Client --> /userinfo --> JWS (signed, readable by anyone)
 ```
 
 **With JWE enabled:**
 
-```
+```text
 Client --> /userinfo --> JWE (signed + encrypted, only relying party can decrypt)
 ```
 
@@ -63,7 +63,7 @@ Client --> /userinfo --> JWE (signed + encrypted, only relying party can decrypt
 
 Update the client configuration via the client management API:
 
-```
+```http
 PUT /v1/esignet/client-mgmt/client/{{client_id}}
 ```
 
@@ -122,7 +122,8 @@ After completing the configuration:
 2. Exchange the authorization code for tokens.
 3. Call the `/userinfo` endpoint with the access token.
 4. Confirm the response is a JWE token (five base64url-encoded segments separated by dots):
-   ```
+
+   ```text
    eyJhbGciOi...eyJlbmMiOi...IV...ciphertext...tag
    ```
 5. Decrypt the JWE using the relying party's private key and verify the userinfo payload.

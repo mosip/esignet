@@ -30,13 +30,13 @@ A standard OAuth 2.0 / OIDC access token is a **bearer token**: anyone who prese
 
 **Default behavior (bearer):**
 
-```
+```text
 Client --> Authorization: Bearer <token>     (anyone with token can use it)
 ```
 
 **With DPoP enabled:**
 
-```
+```text
 Client --> Authorization: DPoP <token>
            DPoP: <signed proof JWT>          (only holder of the private key can use it)
 ```
@@ -65,21 +65,21 @@ eSignet supports DPoP-binding of both **authorization codes** and **access token
 
 ### Phase 2 — Exchange the code for a DPoP-bound access token
 
-5. The client calls `/v2/token` with the authorization code and a `DPoP` header containing a freshly signed proof JWT.
-6. eSignet validates the DPoP header and, if a binding was recorded in Phase 1, verifies that the proof's public-key thumbprint matches the stored `dpop_jkt`.
+1. The client calls `/v2/token` with the authorization code and a `DPoP` header containing a freshly signed proof JWT.
+2. eSignet validates the DPoP header and, if a binding was recorded in Phase 1, verifies that the proof's public-key thumbprint matches the stored `dpop_jkt`.
     - If the binding check fails, the request is rejected **even when `dpop_bound_access_tokens` is `false`** for the client.
     - If `dpop_bound_access_tokens` is `true` and the DPoP header is missing or the binding check fails, the request is rejected.
     - If the authorization code was DPoP-bound at Phase 1, attempting to exchange it using the `Bearer` scheme (or with no DPoP proof at all) is **always rejected**, regardless of whether `dpop_bound_access_tokens` is `true` or `false`. Once a code is bound, the binding is non-optional.
-7. **Nonce handshake:** eSignet always rejects the first token request and responds with a `dpop_nonce` header. The client must retry the token request with a new DPoP proof JWT that includes the `nonce` claim.
-8. On success, eSignet returns an access token with:
+3. **Nonce handshake:** eSignet always rejects the first token request and responds with a `dpop_nonce` header. The client must retry the token request with a new DPoP proof JWT that includes the `nonce` claim.
+4. On success, eSignet returns an access token with:
     - `token_type` set to `DPoP`
     - a `cnf.jkt` claim (confirmation method) holding the public-key thumbprint the token is bound to.
 
 ### Phase 3 — Use the DPoP-bound access token
 
-9. The client calls `/userinfo` with the access token and a fresh `DPoP` header for that request.
-10. eSignet's DPoP validation filter checks the proof's JWT structure, claims, and signature, and verifies the binding between the access token (`cnf.jkt`) and the proof's public-key thumbprint, including the access-token hash claim (`ath`).
-11. On success, eSignet returns the user information. On failure, an RFC-compliant DPoP error response is returned.
+1. The client calls `/userinfo` with the access token and a fresh `DPoP` header for that request.
+2. eSignet's DPoP validation filter checks the proof's JWT structure, claims, and signature, and verifies the binding between the access token (`cnf.jkt`) and the proof's public-key thumbprint, including the access-token hash claim (`ath`).
+3. On success, eSignet returns the user information. On failure, an RFC-compliant DPoP error response is returned.
 
 > Like the token endpoint, eSignet may challenge a `/userinfo` request with a `DPoP-Nonce` response header (RFC 9449 §8). When this happens, the client must retry with a new DPoP proof JWT that includes the returned `nonce` claim. Clients should treat the nonce dance as possible on **any** DPoP-protected endpoint, not just `/v2/token`.
 
@@ -87,9 +87,9 @@ eSignet supports DPoP-binding of both **authorization codes** and **access token
 
 Per [RFC 9449 §5](https://datatracker.ietf.org/doc/html/rfc9449#section-5), refresh tokens issued in a DPoP flow are bound to the same public key as the access token they were issued with. When the deployment issues refresh tokens to a DPoP-bound client:
 
-12. The client calls `/v2/token` with `grant_type=refresh_token`, the refresh token, and a fresh `DPoP` header signed with the **same key pair** used at Phase 1.
-13. eSignet verifies the proof, the binding to the refresh token, and the nonce (re-applying the nonce handshake if challenged).
-14. eSignet returns a new DPoP-bound access token. Any newly issued refresh token is bound to the same key.
+1. The client calls `/v2/token` with `grant_type=refresh_token`, the refresh token, and a fresh `DPoP` header signed with the **same key pair** used at Phase 1.
+2. eSignet verifies the proof, the binding to the refresh token, and the nonce (re-applying the nonce handshake if challenged).
+3. eSignet returns a new DPoP-bound access token. Any newly issued refresh token is bound to the same key.
 
 > Refresh-token issuance depends on the grant types and scope policies configured for the client. Confirm with your eSignet deployment whether refresh tokens are issued for the relevant client before relying on Phase 4.
 
@@ -208,7 +208,7 @@ After completing the configuration:
 
 3. After consent, the client receives an authorization code and calls `/v2/token`. The **first** call is expected to fail with a DPoP-nonce challenge:
 
-   ```
+   ```http
    HTTP/1.1 400 Bad Request
    DPoP-Nonce: eyJ7S_zG.eyJIYW5kc...
    {

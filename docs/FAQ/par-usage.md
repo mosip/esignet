@@ -12,7 +12,7 @@ Push authorization request parameters to eSignet through a secured back-channel 
 - [Configuration](#configuration)
   - [1. Server-Side Properties](#1-server-side-properties)
   - [2. Client Registration](#2-client-registration)
-  - [3. Configure the Relying Party (Mock RP)](#3-configure-the-relying-party-mock-rp)
+  - [3. Configure the Relying Party](#3-configure-the-relying-party)
 - [Verification](#verification)
 - [Troubleshooting](#troubleshooting)
 - [Limitations](#limitations)
@@ -31,13 +31,13 @@ In a traditional OIDC authorization request, all parameters (`client_id`, `scope
 
 **Default behavior (no PAR):**
 
-```
+```text
 Client --> /authorize?client_id=...&scope=...&redirect_uri=... (all params in URL)
 ```
 
 **With PAR:**
 
-```
+```text
 Client --> POST /par (authenticated, full request in body) --> request_uri
 Client --> /authorize?client_id=...&request_uri=urn:ietf:params:oauth:request_uri:...
 ```
@@ -93,13 +93,14 @@ Clients **should** resolve the PAR endpoint URL via discovery rather than hard-c
 
 The `request_uri` returned by `/par` has the following format:
 
-```
+```text
 urn:ietf:params:oauth:request_uri:<secure random alphanumeric string, max length 25>
 ```
 
 Validated request parameters are stored in the **`par` cache** keyed by `request_uri`. Cache entries are written with a TTL, and the `expires_in` value returned in the PAR response always matches this TTL. Once the entry expires (or is consumed by a successful `/authorize` call), the `request_uri` is no longer usable.
 
 ## Sequence diagram:
+
 ![par-flow.png](../images/par-flow.png)
 
 ---
@@ -182,7 +183,7 @@ After completing the configuration:
 
 3. Confirm the subsequent browser redirect to `/authorize` carries only `client_id` and `request_uri` — not the full set of authorization parameters:
 
-   ```
+   ```text
    GET /authorize?client_id=healthservices&request_uri=urn:ietf:params:oauth:request_uri:Xq8vN2pK7mR4tY9wL3sA1bC5d
    ```
 
