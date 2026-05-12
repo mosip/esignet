@@ -1,1 +1,0 @@
-# e-Signet Core Library
