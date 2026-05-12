@@ -15,6 +15,7 @@ export default function Authorize({ authService }) {
   const [oAuthDetailResponse, setOAuthDetailResponse] = useState(null);
   const [error, setError] = useState(null);
   const [searchParams] = useSearchParams();
+  const extractParam = (param) => searchParams.get(param);
 
   const navigate = useNavigate();
 
@@ -28,6 +29,51 @@ export default function Authorize({ authService }) {
           if (oAuthDetailsResponse.errors.length === 0) {
             setOAuthDetailResponse(oAuthDetailsResponse);
           } else {
+            let errorCodesThatRedirects = [
+              'login_required',
+              'request_not_supported',
+            ];
+
+            if (
+              oAuthDetailsResponse &&
+              errorCodesThatRedirects.includes(
+                oAuthDetailsResponse.errors[0].errorCode
+              )
+            ) {
+              const baseRedirectUri = extractParam('redirect_uri');
+
+              let url;
+
+              try {
+                if (!baseRedirectUri) {
+                  throw new Error('Missing redirect URI');
+                }
+
+                url = new URL(baseRedirectUri);
+              } catch {
+                setOAuthDetailResponse(null);
+                setError('invalid_redirect_uri');
+                setStatus(states.ERROR);
+                return;
+              }
+
+              url.searchParams.set(
+                'error',
+                oAuthDetailsResponse.errors[0].errorCode
+              );
+              url.searchParams.set(
+                'error_description',
+                oAuthDetailsResponse.errors[0].errorMessage
+              );
+              window.onbeforeunload = null;
+              const state = extractParam('state');
+              if (state !== null) {
+                url.searchParams.set('state', state);
+              }
+              window.location.replace(url.toString());
+              return;
+            }
+
             setOAuthDetailResponse(null);
             setError(oAuthDetailsResponse.errors[0].errorCode);
             setStatus(states.ERROR);
@@ -44,8 +90,6 @@ export default function Authorize({ authService }) {
           const payload = { clientId, requestUri };
           await post_ParOauthDetails(payload).then(handleResponse);
         } else {
-          const extractParam = (param) => searchParams.get(param);
-
           const request = {
             nonce: extractParam('nonce'),
             state: extractParam('state'),
