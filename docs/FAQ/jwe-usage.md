@@ -91,7 +91,7 @@ For `mock-relying-party-service`, set these environment variables or properties:
 | `JWE_USERINFO_PRIVATE_KEY` | Base64-encoded encryption private key (pair of the public key in Step 1) | `MIIEvQIBADANBgkqh...` |
 | `USERINFO_RESPONSE_TYPE`   | Response type flag                                        | `JWE`                            |
 
-> **Note:** This configuration is specific to eSignet's mock relying party. Production relying parties should implement decryption according to their own architecture, using the private key that corresponds to the public key registered with eSignet.
+> **Note:** This configuration is specific to eSignet's mock relying party. These values can be set as OS/container environment variables (e.g., `JWE_USERINFO_PRIVATE_KEY=...` or via Kubernetes `env` entries) or in the service's configuration file (`application.properties` / `application.yml`). Production relying parties should implement decryption according to their own architecture, using the private key that corresponds to the public key registered with eSignet.
 
 ---
 
