@@ -131,7 +131,22 @@ mosip.esignet.par.expire-seconds=60
 
 ### 2. Client Registration
 
-To **enforce** PAR for a specific client (i.e., reject any direct `/authorize` calls that do not use a `request_uri`), set the following in the client configuration:
+To **enforce** PAR for a specific client (i.e., reject any direct `/authorize` calls that do not use a `request_uri`), set the following in the client configuration via the client management API:
+
+```http
+PUT /v1/esignet/client-mgmt/client/{{client_id}}
+```
+
+```json
+{
+  "requestTime": "{{currentTime}}",
+  "request": {
+    "additionalConfig": {
+      "require_pushed_authorization_requests": true
+    }
+  }
+}
+```
 
 | Property                                  | Description                                                | Default |
 |-------------------------------------------|------------------------------------------------------------|---------|
