@@ -1,6 +1,8 @@
 # DPoP (Demonstration of Proof-of-Possession) in eSignet OIDC
 
-Bind access tokens and authorization codes to a client-held key pair using DPoP ([RFC 9449](https://datatracker.ietf.org/doc/html/rfc9449)), so that a stolen token cannot be replayed by an attacker who does not also possess the private key. Required by the [FAPI 2.0 Baseline Profile](https://openid.net/specs/fapi-2_0-baseline.html).
+DPoP is an OAuth 2.0 extension defined in [RFC 9449](https://datatracker.ietf.org/doc/html/rfc9449) that proves a client possesses a private key when presenting an access token, preventing stolen tokens from being replayed by unauthorized parties.
+
+eSignet uses DPoP to bind access tokens and authorization codes to a client-held key pair, so that a stolen token cannot be replayed by an attacker who does not also possess the private key. This is required by the [FAPI 2.0 Baseline Profile](https://openid.net/specs/fapi-2_0-baseline.html).
 
 ---
 
@@ -161,7 +163,22 @@ Payload (decoded):
 
 ### 1. Client Registration
 
-To **enforce** DPoP for a specific client, set the following property in the client configuration:
+To **enforce** DPoP for a specific client, set `dpop_bound_access_tokens` to `true` in the `additionalConfig` via the client management API:
+
+```http
+PUT /v1/esignet/client-mgmt/client/{{client_id}}
+```
+
+```json
+{
+  "requestTime": "{{currentTime}}",
+  "request": {
+    "additionalConfig": {
+      "dpop_bound_access_tokens": true
+    }
+  }
+}
+```
 
 | Property                      | Description                                                                                                                                               | Default |
 |-------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|---------|

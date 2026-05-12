@@ -11,8 +11,7 @@ Encrypt userinfo responses in eSignet using JWE ([RFC 7516](https://datatracker.
 - [Prerequisites](#prerequisites)
 - [Configuration](#configuration)
   - [1. Set Encryption Public Key and Enable JWE Response Type](#1-set-encryption-public-key-and-enable-jwe-response-type)
-  - [2. (Optional) Enable JWE via Server Profile](#2-optional-enable-jwe-via-server-profile)
-  - [3. Configure the Relying Party](#3-configure-the-relying-party)
+  - [2. Configure the Relying Party](#2-configure-the-relying-party)
 - [Verification](#verification)
 - [Troubleshooting](#troubleshooting)
 
@@ -22,7 +21,7 @@ Encrypt userinfo responses in eSignet using JWE ([RFC 7516](https://datatracker.
 
 By default, eSignet's `/userinfo` endpoint returns a **JWS** (JSON Web Signature) response. While JWS ensures integrity, it can be decoded by anyone — the payload is base64-encoded, not encrypted.
 
-With **JWE** enabled, the userinfo payload is encrypted using the relying party's public key before being returned. Only the relying party, which holds the corresponding private key, can decrypt it.
+With **JWE** enabled, the userinfo payload is encrypted using the relying party's encryption public key before being returned. Only the relying party, which holds the corresponding encryption private key, can decrypt it.
 
 **Default behavior (JWS):**
 
@@ -83,25 +82,7 @@ PUT /v1/esignet/client-mgmt/client/{{client_id}}
 
 > Do **not** confuse `enc_public_key` (for encryption) with `public_key` (for signature verification). They serve different purposes and should be different keys.
 
-### 2. (Optional) Enable JWE via Server Profile
-
-Alternatively, instead of setting `userinfo_response_type` in the API request above, you can enable it globally via a server profile:
-
-1. Set the server profile in `deployment.yaml` or `application-default.properties`:
-
-   ```properties
-   MOSIP_ESIGNET_SERVER_PROFILE=enc
-   ```
-
-2. Add a record in the `server_profile` table:
-
-   | Column                  | Value                    |
-   |-------------------------|--------------------------|
-   | `profile_name`          | `enc`                    |
-   | `feature`               | `JWE`                    |
-   | `additional_config_key` | `userinfo_response_type` |
-
-### 3. Configure the Relying Party
+### 2. Configure the Relying Party
 
 For `mock-relying-party-service`, set these environment variables or properties:
 
@@ -110,7 +91,7 @@ For `mock-relying-party-service`, set these environment variables or properties:
 | `JWE_USERINFO_PRIVATE_KEY` | Base64-encoded encryption private key (pair of the public key in Step 1) | `MIIEvQIBADANBgkqh...` |
 | `USERINFO_RESPONSE_TYPE`   | Response type flag                                        | `JWE`                            |
 
-> **Note:** This configuration is specific to eSignet's mock relying party. Production relying parties should implement decryption according to their own architecture, using the private key that corresponds to the public key registered with eSignet.
+> **Note:** This configuration is specific to eSignet's mock relying party. These values can be set as container environment variables (e.g., `JWE_USERINFO_PRIVATE_KEY=...` or via Kubernetes/Rancher `env` entries) or in the service's configuration file (`application.properties` / `application.yml`). Production relying parties should implement decryption according to their own architecture, using the private key that corresponds to the public key registered with eSignet.
 
 ---
 
@@ -134,7 +115,6 @@ After completing the configuration:
 
 | Problem                          | Possible Cause              | Solution                                                                          |
 |----------------------------------|-----------------------------|-----------------------------------------------------------------------------------|
-| Userinfo still returns JWS       | `userinfo_response_type` not set to `JWE` | Verify `additional_config` in `client_detail` or the `server_profile` record |
+| Userinfo still returns JWS       | `userinfo_response_type` not set to `JWE` | Verify `additional_config` in `client_detail` includes `"userinfo_response_type": "JWE"` |
 | Decryption fails on relying party | Key mismatch               | Ensure `JWE_USERINFO_PRIVATE_KEY` is the private key paired with `enc_public_key`  |
 | `enc_public_key` column is empty | Key not configured          | Set the relying party's encryption public key in `client_detail`                   |
-| Server profile not applied       | Profile name mismatch       | Verify `MOSIP_ESIGNET_SERVER_PROFILE` matches `profile_name` in `server_profile`   |
