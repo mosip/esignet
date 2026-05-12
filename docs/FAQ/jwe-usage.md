@@ -21,7 +21,7 @@ Encrypt userinfo responses in eSignet using JWE ([RFC 7516](https://datatracker.
 
 By default, eSignet's `/userinfo` endpoint returns a **JWS** (JSON Web Signature) response. While JWS ensures integrity, it can be decoded by anyone — the payload is base64-encoded, not encrypted.
 
-With **JWE** enabled, the userinfo payload is encrypted using the relying party's public key before being returned. Only the relying party, which holds the corresponding private key, can decrypt it.
+With **JWE** enabled, the userinfo payload is encrypted using the relying party's encryption public key before being returned. Only the relying party, which holds the corresponding encryption private key, can decrypt it.
 
 **Default behavior (JWS):**
 
@@ -91,7 +91,7 @@ For `mock-relying-party-service`, set these environment variables or properties:
 | `JWE_USERINFO_PRIVATE_KEY` | Base64-encoded encryption private key (pair of the public key in Step 1) | `MIIEvQIBADANBgkqh...` |
 | `USERINFO_RESPONSE_TYPE`   | Response type flag                                        | `JWE`                            |
 
-> **Note:** This configuration is specific to eSignet's mock relying party. These values can be set as OS/container environment variables (e.g., `JWE_USERINFO_PRIVATE_KEY=...` or via Kubernetes `env` entries) or in the service's configuration file (`application.properties` / `application.yml`). Production relying parties should implement decryption according to their own architecture, using the private key that corresponds to the public key registered with eSignet.
+> **Note:** This configuration is specific to eSignet's mock relying party. These values can be set as container environment variables (e.g., `JWE_USERINFO_PRIVATE_KEY=...` or via Kubernetes/Rancher `env` entries) or in the service's configuration file (`application.properties` / `application.yml`). Production relying parties should implement decryption according to their own architecture, using the private key that corresponds to the public key registered with eSignet.
 
 ---
 
