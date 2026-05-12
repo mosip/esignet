@@ -352,7 +352,7 @@ initContainers:
       - name: ENABLE_INSECURE
         value: "true"
       - name: mosip-api-internal-host
-        value: ""
+        value: '{{ index .Values.domainConfig "MOSIP_API_INTERNAL_HOST" | default "" }}'
     image: docker.io/openjdk:11-jre
     imagePullPolicy: Always
     name: cacerts
