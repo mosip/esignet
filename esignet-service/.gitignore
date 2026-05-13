@@ -1,0 +1,84 @@
+# ── Go binaries & build output ────────────────────────────────────────────────
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+/bin/
+
+# Test binaries (built with `go test -c`)
+*.test
+
+# Code coverage & profiling artifacts
+*.out
+*.coverprofile
+profile.cov
+coverage.*
+cpu.prof
+mem.prof
+trace.out
+
+# Go workspace files (local multi-module setups)
+go.work
+go.work.sum
+
+# Dependency vendor directory (uncomment if vendoring)
+# vendor/
+
+# ── Environment & secrets ─────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.cert
+*.p12
+
+# ── OS artifacts ──────────────────────────────────────────────────────────────
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# ── Editor & IDE ──────────────────────────────────────────────────────────────
+# JetBrains (GoLand, IntelliJ)
+.idea/
+*.iml
+*.iws
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Vim / Neovim
+*.swp
+*.swo
+[._]*.un~
+Session.vim
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+
+# ── Docker ────────────────────────────────────────────────────────────────────
+# Keep compose.yaml and Dockerfile tracked; ignore local override files
+compose.override.yaml
+docker-compose.override.yml
+
+# ── Misc tooling ──────────────────────────────────────────────────────────────
+# golangci-lint cache
+.golangci-lint-cache/
+
+# Air (live-reload tool)
+tmp/
