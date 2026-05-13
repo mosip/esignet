@@ -60,8 +60,62 @@ function prompt_for_input() {
 
 function installing_prerequisites() {
 
-  echo "Creating esignet-global configmap in esignet namespace"
-  kubectl -n $NS apply -f esignet-global-cm.yaml
+  echo "Provide domain values (press Enter to accept sandbox defaults)"
+  MOSIP_API_HOST=${MOSIP_API_HOST:-}
+  if [ -z "$MOSIP_API_HOST" ]; then
+    read -p "mosip-api-host [api.sandbox.xyz.net]: " MOSIP_API_HOST
+    MOSIP_API_HOST=${MOSIP_API_HOST:-api.sandbox.xyz.net}
+  fi
+  export MOSIP_API_HOST
+
+  MOSIP_API_INTERNAL_HOST=${MOSIP_API_INTERNAL_HOST:-}
+  if [ -z "$MOSIP_API_INTERNAL_HOST" ]; then
+    read -p "mosip-api-internal-host [api-internal.sandbox.xyz.net]: " MOSIP_API_INTERNAL_HOST
+    MOSIP_API_INTERNAL_HOST=${MOSIP_API_INTERNAL_HOST:-api-internal.sandbox.xyz.net}
+  fi
+  export MOSIP_API_INTERNAL_HOST
+
+  MOSIP_IAM_EXTERNAL_HOST=${MOSIP_IAM_EXTERNAL_HOST:-}
+  if [ -z "$MOSIP_IAM_EXTERNAL_HOST" ]; then
+    read -p "mosip-iam-external-host [iam.sandbox.xyz.net]: " MOSIP_IAM_EXTERNAL_HOST
+    MOSIP_IAM_EXTERNAL_HOST=${MOSIP_IAM_EXTERNAL_HOST:-iam.sandbox.xyz.net}
+  fi
+  export MOSIP_IAM_EXTERNAL_HOST
+
+  MOSIP_KAFKA_HOST=${MOSIP_KAFKA_HOST:-}
+  if [ -z "$MOSIP_KAFKA_HOST" ]; then
+    read -p "mosip-kafka-host [kafka.sandbox.xyz.net]: " MOSIP_KAFKA_HOST
+    MOSIP_KAFKA_HOST=${MOSIP_KAFKA_HOST:-kafka.sandbox.xyz.net}
+  fi
+  export MOSIP_KAFKA_HOST
+
+  MOSIP_ESIGNET_HOST=${MOSIP_ESIGNET_HOST:-}
+  if [ -z "$MOSIP_ESIGNET_HOST" ]; then
+    read -p "mosip-esignet-host [esignet.sandbox.xyz.net]: " MOSIP_ESIGNET_HOST
+    MOSIP_ESIGNET_HOST=${MOSIP_ESIGNET_HOST:-esignet.sandbox.xyz.net}
+  fi
+  export MOSIP_ESIGNET_HOST
+
+  MOSIP_POSTGRES_HOST=${MOSIP_POSTGRES_HOST:-}
+  if [ -z "$MOSIP_POSTGRES_HOST" ]; then
+    read -p "mosip-postgres-host [esignet-postgres.sandbox.xyz.net]: " MOSIP_POSTGRES_HOST
+    MOSIP_POSTGRES_HOST=${MOSIP_POSTGRES_HOST:-esignet-postgres.sandbox.xyz.net}
+  fi
+  export MOSIP_POSTGRES_HOST
+
+  MOSIP_SIGNUP_HOST=${MOSIP_SIGNUP_HOST:-}
+  if [ -z "$MOSIP_SIGNUP_HOST" ]; then
+    read -p "mosip-signup-host [signup.sandbox.xyz.net]: " MOSIP_SIGNUP_HOST
+    MOSIP_SIGNUP_HOST=${MOSIP_SIGNUP_HOST:-signup.sandbox.xyz.net}
+  fi
+  export MOSIP_SIGNUP_HOST
+
+  MOSIP_SMTP_HOST=${MOSIP_SMTP_HOST:-}
+  if [ -z "$MOSIP_SMTP_HOST" ]; then
+    read -p "mosip-smtp-host [smtp.sandbox.xyz.net]: " MOSIP_SMTP_HOST
+    MOSIP_SMTP_HOST=${MOSIP_SMTP_HOST:-smtp.sandbox.xyz.net}
+  fi
+  export MOSIP_SMTP_HOST
 
   declare -a modules=("istio-gateway" "postgres" "kafka" "redis" "hsm" "captcha" "apiaccesscontrol")
   declare -A prompts=(
