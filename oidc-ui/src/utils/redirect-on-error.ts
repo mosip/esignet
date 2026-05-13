@@ -25,6 +25,24 @@ export function redirectOnError(
   const redirectUri = oauthDetails.redirectUri;
   if (!redirectUri) return;
 
+  // Validate redirect URI origin to prevent open-redirect attacks
+  let redirectUrl: URL;
+  try {
+    redirectUrl = new URL(redirectUri);
+  } catch {
+    console.error('Invalid redirect URI:', redirectUri);
+    return;
+  }
+
+  if (redirectUrl.origin !== window.location.origin) {
+    console.error(
+      'Redirect URI origin mismatch: expected %s, got %s',
+      window.location.origin,
+      redirectUrl.origin,
+    );
+    return;
+  }
+
   const params = new URLSearchParams();
   if (errorDescription) params.set('error_description', errorDescription);
   params.set('state', state);

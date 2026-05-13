@@ -55,7 +55,7 @@ window._env_ = {
   DEFAULT_LANG: 'en',
   DEFAULT_WELLKNOWN: '<encoded JSON array of well-known endpoints>',
   DEFAULT_THEME: '',
-  DEFAULT_FEVICON: 'favicon.ico',
+  DEFAULT_FAVICON: 'favicon.ico',
   DEFAULT_TITLE: 'eSignet',
   DEFAULT_ID_PROVIDER_NAME: 'eSignet',
   DEFAULT_FONT_URL: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap',
@@ -121,7 +121,7 @@ RTL languages are automatically detected and the `dir` attribute is set accordin
 
 ## Project Structure
 
-```
+```text
 oidc-ui/
 ├── index.html                # Entry HTML
 ├── vite.config.ts            # Vite + Tailwind + Vitest config

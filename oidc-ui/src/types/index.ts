@@ -11,17 +11,6 @@ export interface ThemeConfig {
   [key: string]: boolean;
 }
 
-export interface LocaleConfig {
-  languages_2Letters: Record<string, string>;
-  rtlLanguages: string[];
-  langCodeMapping: Record<string, string>;
-}
-
-export interface LangOption {
-  value: string;
-  label: string;
-}
-
 export interface PollingConfig {
   url: string;
   interval: number;

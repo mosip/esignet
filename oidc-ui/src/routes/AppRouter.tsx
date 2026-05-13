@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect, useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import LoadingIndicator from "../components/LoadingIndicator";
 import {
   LOGIN,
@@ -7,7 +7,6 @@ import {
   SOMETHING_WENT_WRONG,
   NETWORK_ERROR,
 } from "../constants/routes";
-import { t } from "i18next";
 import { fetchThemeConfig } from "../services/config.service";
 import { getPollingConfig } from "../utils/parsing";
 import type { ThemeConfig } from "../types";
@@ -20,8 +19,10 @@ const NetworkErrorPage = lazy(() => import("../pages/NetworkErrorPage"));
 const PageNotFoundPage = lazy(() => import("../pages/PageNotFoundPage"));
 
 export default function AppRouter() {
-  const [config, setConfig] = useState<ThemeConfig | null>(null); // State to store config
+  const [config, setConfig] = useState<ThemeConfig | null>(null);
   const [isLoadingConfig, setIsLoadingConfig] = useState(true);
+  const location = useLocation();
+  const navigate = useNavigate();
   const pollingConfig = getPollingConfig();
 
   useEffect(() => {
@@ -62,7 +63,7 @@ export default function AppRouter() {
       <div className="flex justify-center m-10 lg:mt-20 mb:mt-0 lg:w-1/2 md:w-1/2 md:block sm:w-1/2 sm:block hidden w-5/6 mt-20 mb-10 md:mb-0">
         <img
           className="background-logo object-contain rtl:scale-x-[-1]"
-          alt={t("header.backgroud_image_alt")}
+          alt="background"
         />
       </div>
     ) : (
@@ -101,12 +102,16 @@ export default function AppRouter() {
           <div className="container justify-center flex mx-auto sm:flex-row flex-col">
             <Detector
               polling={{
-                url: pollingConfig.url, // Set the polling URL dynamically
-                interval: pollingConfig.interval, // Optional: Check every 10 seconds (default is 10000ms)
-                timeout: pollingConfig.timeout, // Optional: Timeout after 5 seconds (default is 5000ms)
-                // enabled: pollingConfig.enabled, // Optional: Enable or disable polling (default is true)
+                url: pollingConfig.url,
+                interval: pollingConfig.interval,
+                timeout: pollingConfig.timeout,
               }}
-              render={() => {console.log("render working"); return null;}} // Don't render anything when online
+              render={({ online }) => {
+                if (!online && location.pathname !== NETWORK_ERROR) {
+                  navigate(NETWORK_ERROR, { state: { path: location.pathname } });
+                }
+                return null;
+              }}
             />
             {backgroundLogoDiv}
 

@@ -5,12 +5,13 @@ describe('redirectOnError', () => {
   const originalLocation = window.location;
 
   beforeEach(() => {
-    // Mock window.location
+    // Use same-origin redirect URI to pass origin validation
     Object.defineProperty(window, 'location', {
       value: {
         ...originalLocation,
+        origin: 'http://localhost:3000',
         href: 'http://localhost:3000/login?state=abc&nonce=xyz#' +
-          btoa(JSON.stringify({ redirectUri: 'http://example.com/callback' })),
+          btoa(JSON.stringify({ redirectUri: 'http://localhost:3000/callback' })),
         replace: vi.fn(),
       },
       writable: true,
@@ -30,7 +31,7 @@ describe('redirectOnError', () => {
 
     expect(window.location.replace).toHaveBeenCalledTimes(1);
     const url = (window.location.replace as ReturnType<typeof vi.fn>).mock.calls[0][0] as string;
-    expect(url).toContain('http://example.com/callback?');
+    expect(url).toContain('http://localhost:3000/callback?');
     expect(url).toContain('error=access_denied');
     expect(url).toContain('error_description=User+denied');
     expect(url).toContain('state=abc');
@@ -49,8 +50,15 @@ describe('redirectOnError', () => {
 
   it('does nothing when state is missing', () => {
     window.location.href = 'http://localhost:3000/login?nonce=xyz#' +
-      btoa(JSON.stringify({ redirectUri: 'http://example.com/callback' }));
+      btoa(JSON.stringify({ redirectUri: 'http://localhost:3000/callback' }));
     redirectOnError('error_code');
+    expect(window.location.replace).not.toHaveBeenCalled();
+  });
+
+  it('blocks redirect to a different origin', () => {
+    window.location.href = 'http://localhost:3000/login?state=abc&nonce=xyz#' +
+      btoa(JSON.stringify({ redirectUri: 'http://evil.com/steal' }));
+    redirectOnError('access_denied');
     expect(window.location.replace).not.toHaveBeenCalled();
   });
 });

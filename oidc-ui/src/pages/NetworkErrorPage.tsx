@@ -1,8 +1,6 @@
-import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 
 export default function NetworkErrorPage() {
-  const { t } = useTranslation();
   const location = useLocation();
 
   const tryAgain = () => {
@@ -44,13 +42,10 @@ export default function NetworkErrorPage() {
           />
         </svg>
         <p className="text-[1.5rem] font-semibold text-center mt-[2rem] mb-2">
-          {t('errors.network_error.header', 'No Internet Connection')}
+          No Internet Connection
         </p>
         <p className="text-[#7B7B7B] text-center">
-          {t(
-            'errors.network_error.subHeader',
-            'Please check your network connection and try again.',
-          )}
+          Please check your network connection and try again.
         </p>
         <button
           type="button"
@@ -58,7 +53,7 @@ export default function NetworkErrorPage() {
           onClick={tryAgain}
           id="try_again"
         >
-          {t('errors.network_error.button', 'Try Again')}
+          Try Again
         </button>
       </div>
     </div>

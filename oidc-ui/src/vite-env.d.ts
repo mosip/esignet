@@ -4,7 +4,7 @@ interface EnvConfig {
   DEFAULT_LANG: string;
   DEFAULT_WELLKNOWN: string;
   DEFAULT_THEME: string;
-  DEFAULT_FEVICON: string;
+  DEFAULT_FAVICON: string;
   DEFAULT_TITLE: string;
   DEFAULT_ID_PROVIDER_NAME: string;
   DEFAULT_FONT_URL: string;

@@ -8,11 +8,12 @@ export async function sha256Base64Url(value: unknown): Promise<string> {
   const hashArray = new Uint8Array(hashBuffer);
 
   // Convert to base64
-  const base64 = btoa(String.fromCharCode(...hashArray));
+  const binary = Array.from(hashArray, (byte) => String.fromCharCode(byte)).join('');
+  const base64 = btoa(binary);
 
   // Convert to base64url
   return base64
-    .split('=')[0]
+    .replace(/=+$/, '')
     .replace(/\+/g, '-')
     .replace(/\//g, '_');
 }

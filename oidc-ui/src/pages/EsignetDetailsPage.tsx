@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { LoadingStates } from '../constants/states';
 import type { LoadingState } from '../constants/states';
 
@@ -10,9 +9,6 @@ interface WellKnownDetail {
 }
 
 export default function EsignetDetailsPage() {
-  const { t } = useTranslation('translation', {
-    keyPrefix: 'esignetDetails',
-  });
   const [status, setStatus] = useState<LoadingState>(LoadingStates.LOADING);
   const [details, setDetails] = useState<WellKnownDetail[]>([]);
 
@@ -47,7 +43,7 @@ export default function EsignetDetailsPage() {
       </div>
       <div className="w-full">
         <h1 className="flex justify-center title-font sm:text-3xl text-3xl mb-16 font-medium text-gray-900">
-          {t('esignet_details_heading', 'eSignet Details')}
+          eSignet Details
         </h1>
       </div>
       <div className="w-full flex justify-center">

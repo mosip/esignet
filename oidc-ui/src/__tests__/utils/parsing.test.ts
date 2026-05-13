@@ -60,7 +60,7 @@ describe('parsing utilities', () => {
         DEFAULT_LANG: 'en',
         DEFAULT_WELLKNOWN: '',
         DEFAULT_THEME: '',
-        DEFAULT_FEVICON: 'favicon.ico',
+        DEFAULT_FAVICON: 'favicon.ico',
         DEFAULT_TITLE: 'eSignet',
         DEFAULT_ID_PROVIDER_NAME: 'eSignet',
         DEFAULT_FONT_URL: '',

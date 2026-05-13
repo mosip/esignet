@@ -8,13 +8,6 @@ vi.mock('../../services/config.service', () => ({
   fetchThemeConfig: (...args: unknown[]) => mockFetchThemeConfig(...args),
 }));
 
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string) => key,
-    i18n: { language: 'en', changeLanguage: vi.fn() },
-  }),
-}));
-
 describe('Footer', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -31,7 +24,7 @@ describe('Footer', () => {
     mockFetchThemeConfig.mockResolvedValue({ footer: true });
     render(<Footer />);
     await waitFor(() => {
-      expect(screen.getByText('powered_by')).toBeDefined();
+      expect(screen.getByText('Powered by')).toBeDefined();
     });
   });
 

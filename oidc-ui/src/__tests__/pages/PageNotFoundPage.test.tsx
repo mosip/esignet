@@ -1,13 +1,6 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import PageNotFoundPage from '../../pages/PageNotFoundPage';
-
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string, fallback: string) => fallback || key,
-    i18n: { language: 'en', changeLanguage: vi.fn() },
-  }),
-}));
 
 describe('PageNotFoundPage', () => {
   it('renders the under construction image', () => {

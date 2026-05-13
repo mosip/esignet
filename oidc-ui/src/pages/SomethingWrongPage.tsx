@@ -1,9 +1,7 @@
-import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { IMAGES } from '../constants/public-assets';
 
 export default function SomethingWrongPage() {
-  const { t } = useTranslation('translation', { keyPrefix: 'errors' });
   const location = useLocation();
   const statusCode =
     (location.state as { code?: number } | null)?.code ?? 'unknown';
@@ -16,13 +14,10 @@ export default function SomethingWrongPage() {
         alt="something_went_wrong"
       />
       <div className="error-page-header">
-        {t(`statusCodeHeader.${statusCode}`, 'Something went wrong')}
+        Something went wrong ({statusCode})
       </div>
       <div className="error-page-detail">
-        {t(
-          `statusCodeSubHeader.${statusCode}`,
-          'An unexpected error occurred. Please try again later.',
-        )}
+        An unexpected error occurred. Please try again later.
       </div>
     </div>
   );

@@ -1,10 +1,6 @@
-import { useTranslation } from 'react-i18next';
-
 interface LoadingIndicatorProps {
   message?: string;
   size?: 'small' | 'medium' | 'large';
-  msgParam?: Record<string, string>;
-  i18nKeyPrefix?: string;
   className?: string;
 }
 
@@ -17,12 +13,8 @@ const sizeMap = {
 export default function LoadingIndicator({
   message,
   size = 'medium',
-  msgParam,
-  i18nKeyPrefix = 'loadingMsgs',
   className,
 }: LoadingIndicatorProps) {
-  const { t } = useTranslation('translation', { keyPrefix: i18nKeyPrefix });
-
   return (
     <div
       role="status"
@@ -31,7 +23,7 @@ export default function LoadingIndicator({
       <svg
         style={sizeMap[size]}
         aria-hidden="true"
-        className="mr-2 rtl:ml-2 w-8 h-8 text-gray-200 animate-spin dark:text-gray-300"
+        className="mr-2 w-8 h-8 text-gray-200 animate-spin dark:text-gray-300"
         viewBox="0 0 100 101"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -46,7 +38,7 @@ export default function LoadingIndicator({
         />
       </svg>
       <span className="sr-only">Loading...</span>
-      {message && t(message, msgParam ?? {})}
+      {message && <span>{message}</span>}
     </div>
   );
 }
