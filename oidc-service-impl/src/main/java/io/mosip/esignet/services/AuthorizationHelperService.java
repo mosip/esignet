@@ -434,20 +434,52 @@ public class AuthorizationHelperService {
     }
 
     protected Pair<String,String> validateAndGetSubjectAndNonce(String clientId, String idTokenHint) {
-        try {
-            String[] jwtParts = idTokenHint.split("\\.");
-            if (jwtParts.length == 3) {
-                String payloadString = new String(Base64.getDecoder().decode(jwtParts[1]));
-                JsonNode payload = objectMapper.readTree(payloadString);
-                String audience = payload.get(TokenService.AUD).textValue();
-                if(!signupIDTokenAudience.equals(audience) || !signupIDTokenAudience.equals(clientId))
-                    throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
-                return Pair.of(payload.get(TokenService.SUB).textValue(), payload.get(TokenService.NONCE).textValue());
-            }
-        } catch (Exception e) {
-            log.error("Failed to parse the given IDTokenHint as JWT", e);
+        // SECURITY: Fail closed on any null/blank input.
+        if (idTokenHint == null || idTokenHint.isBlank()) {
+            throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
         }
-        throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
+
+        // SECURITY: The id_token_hint MUST be an id_token previously issued by this eSignet
+        // instance. Verify the JWT signature, issuer, expiry and audience BEFORE trusting any
+        // claim value (sub, nonce, etc.). Without this, an attacker could forge a JWT-like
+        // string with arbitrary 'sub' / 'aud' / 'nonce' values and bypass the signup
+        // continuation trust boundary as long as a cookie with the same name as the chosen
+        // 'sub' exists on the domain.
+        try {
+            // 1) Cryptographic + standard claims verification (issuer, exp, aud == signupIDTokenAudience).
+            tokenService.verifyIdToken(idTokenHint, signupIDTokenAudience);
+        } catch (Exception e) {
+            log.error("id_token_hint signature/claims verification failed", e);
+            throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
+        }
+
+        // 2) Only after cryptographic validation passes do we parse the JWT to read claims.
+        try {
+            JWT jwt = JWTParser.parse(idTokenHint);
+            String audience = jwt.getJWTClaimsSet().getAudience() != null && !jwt.getJWTClaimsSet().getAudience().isEmpty()
+                    ? jwt.getJWTClaimsSet().getAudience().getFirst()
+                    : null;
+
+            // Defence-in-depth: re-check audience binding and that the caller's clientId is
+            // the expected signup audience. verifyIdToken above already validates 'aud', this
+            // extra check guards against any future divergence.
+            if (!signupIDTokenAudience.equals(audience) || !signupIDTokenAudience.equals(clientId)) {
+                throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
+            }
+
+            String sub = jwt.getJWTClaimsSet().getSubject();
+            String nonce = jwt.getJWTClaimsSet().getStringClaim(TokenService.NONCE);
+            // Fail closed on any missing/blank required claim.
+            if (sub == null || sub.isBlank() || nonce == null || nonce.isBlank()) {
+                throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
+            }
+            return Pair.of(sub, nonce);
+        } catch (EsignetException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Failed to parse the (already signature-verified) id_token_hint", e);
+            throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
+        }
     }
 
     protected void validateNonce(String nonce) {
