@@ -135,6 +135,7 @@ The property **mosip.esignet.supported.client.auth.signing.algorithms** in `appl
 - **FAPI 2.0 compliance:** FAPI 2.0 Security Profile only supports **PS256** and **ES256**. **RS256 is NOT supported in FAPI 2.0.** When `mosip.esignet.server.profile=fapi2.0` is enabled, configure this property to **only** `{'PS256','ES256'}`
 
 Example (FAPI 2.0):
+
 ```properties
 ## Type of the client authentication algorithms for the token endpoint
 ## Note: For FAPI 2.0 Security Profile compliance, use only PS256 and ES256. RS256 is not supported in FAPI 2.0.
