@@ -23,7 +23,7 @@ type mockPool struct {
 }
 
 func (m *mockPool) Ping(_ context.Context) error { return m.pingErr }
-func (m *mockPool) Close()                        { m.closed = true }
+func (m *mockPool) Close()                       { m.closed = true }
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 

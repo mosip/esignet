@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"context"
 	"log/slog"
 	"testing"
 )
@@ -34,11 +35,11 @@ func TestNew_LevelsAndFormats(t *testing.T) {
 			if log == nil {
 				t.Fatal("New() returned nil")
 			}
-			if !log.Enabled(nil, tc.wantLevel) {
+			if !log.Enabled(context.TODO(), tc.wantLevel) {
 				t.Errorf("New(%q,%q): level %v should be enabled", tc.level, tc.format, tc.wantLevel)
 			}
 			// One level above the minimum should also be enabled.
-			if tc.wantLevel < slog.LevelError && !log.Enabled(nil, tc.wantLevel+4) {
+			if tc.wantLevel < slog.LevelError && !log.Enabled(context.TODO(), tc.wantLevel+4) {
 				t.Errorf("New(%q,%q): next level should be enabled too", tc.level, tc.format)
 			}
 		})

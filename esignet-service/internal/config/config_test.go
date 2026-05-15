@@ -1,9 +1,18 @@
 package config
 
 import (
+	"os"
 	"testing"
 	"time"
 )
+
+func TestMain(m *testing.M) {
+	// Load() reads the real process environment. Start from an empty slate so
+	// default and override tests stay deterministic under developer shells / CI
+	// (e.g. LOG_LEVEL=debug, PORT=..., SERVER_PORT=...).
+	os.Clearenv()
+	os.Exit(m.Run())
+}
 
 func TestLoad_Defaults(t *testing.T) {
 	t.Setenv("DATABASE_URL", "postgres://user:pass@localhost:5432/db?sslmode=disable")
@@ -40,8 +49,8 @@ func TestLoad_Defaults(t *testing.T) {
 	if cfg.Redis.PoolSize != 10 {
 		t.Errorf("Redis.PoolSize = %d, want 10", cfg.Redis.PoolSize)
 	}
-	if cfg.Log.Level != "debug" {
-		t.Errorf("Log.Level = %q, want debug", cfg.Log.Level)
+	if cfg.Log.Level != "info" {
+		t.Errorf("Log.Level = %q, want info", cfg.Log.Level)
 	}
 	if cfg.Log.Format != "json" {
 		t.Errorf("Log.Format = %q, want json", cfg.Log.Format)

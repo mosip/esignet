@@ -1,3 +1,4 @@
+// Package config defines runtime configuration loaded from environment variables.
 package config
 
 import (
@@ -15,6 +16,14 @@ type Config struct {
 	Postgres PostgresConfig
 	Redis    RedisConfig
 	Log      LogConfig
+	// Thunder is optional: when Home is non-empty, HTTP uses ThunderID OAuth + flow
+	// (see github.com/thunder-id/thunderid/pkg/embed) instead of the standalone chi stack.
+	Thunder ThunderConfig
+}
+
+// ThunderConfig points at a Thunder server deployment directory (THUNDER_HOME).
+type ThunderConfig struct {
+	Home string `envconfig:"THUNDER_HOME"`
 }
 
 // ServerConfig controls the HTTP server.

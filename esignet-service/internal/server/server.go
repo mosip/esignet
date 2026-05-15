@@ -36,10 +36,10 @@ func New(cfg config.ServerConfig, deps Dependencies, log *slog.Logger) *Server {
 	r := chi.NewRouter()
 
 	// ── Middleware stack (applied to every request) ─────────────────────────
-	r.Use(middleware.RequestID)             // inject/echo X-Request-ID
-	r.Use(middleware.Logger(log))           // structured access log
-	r.Use(middleware.Recoverer(log))        // panic → 500 + stack log
-	r.Use(chimw.StripSlashes)               // /health/ → /health
+	r.Use(middleware.RequestID)            // inject/echo X-Request-ID
+	r.Use(middleware.Logger(log))          // structured access log
+	r.Use(middleware.Recoverer(log))       // panic → 500 + stack log
+	r.Use(chimw.StripSlashes)              // /health/ → /health
 	r.Use(chimw.Compress(5))               // gzip response bodies
 	r.Use(chimw.Timeout(cfg.WriteTimeout)) // per-request deadline
 

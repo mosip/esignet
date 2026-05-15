@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/redis/go-redis/v9"
 	"github.com/mosip/esignet/internal/config"
+	"github.com/redis/go-redis/v9"
 )
 
 // Redis wraps a go-redis Client.

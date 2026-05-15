@@ -22,7 +22,7 @@ func withRequestID(ctx context.Context, id string) context.Context {
 
 func TestRequestID_GeneratesID(t *testing.T) {
 	var capturedID string
-	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	next := http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 		capturedID, _ = r.Context().Value(RequestIDKey).(string)
 	})
 
@@ -42,7 +42,7 @@ func TestRequestID_GeneratesID(t *testing.T) {
 func TestRequestID_HonoursInboundHeader(t *testing.T) {
 	const existingID = "my-upstream-id"
 	var capturedID string
-	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	next := http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 		capturedID, _ = r.Context().Value(RequestIDKey).(string)
 	})
 
@@ -62,7 +62,7 @@ func TestRequestID_HonoursInboundHeader(t *testing.T) {
 // ── Logger ────────────────────────────────────────────────────────────────────
 
 func TestLogger_LogsRequest(t *testing.T) {
-	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	next := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusCreated)
 		_, _ = w.Write([]byte("hello"))
 	})
@@ -96,7 +96,7 @@ func TestLogger_WithRequestIDInContext(t *testing.T) {
 // ── Recoverer ─────────────────────────────────────────────────────────────────
 
 func TestRecoverer_CatchesPanic(t *testing.T) {
-	panicking := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+	panicking := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {
 		panic("test panic")
 	})
 
@@ -114,7 +114,7 @@ func TestRecoverer_CatchesPanic(t *testing.T) {
 }
 
 func TestRecoverer_CatchesPanic_WithRequestID(t *testing.T) {
-	panicking := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+	panicking := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {
 		panic("panic with request id")
 	})
 
