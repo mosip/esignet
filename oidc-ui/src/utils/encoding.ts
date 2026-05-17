@@ -12,6 +12,15 @@ export function encodeBase64Url(str: string): string {
 }
 
 /**
+ * Encodes a string to standard base64.
+ */
+export function encodeBase64(str: string): string {
+  const bytes = new TextEncoder().encode(str);
+  const binary = Array.from(bytes, (byte) => String.fromCharCode(byte)).join('');
+  return btoa(binary);
+}
+
+/**
  * Decodes a base64-encoded string back to UTF-8.
  */
 export function decodeBase64(hash: string): string {

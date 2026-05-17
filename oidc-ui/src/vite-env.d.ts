@@ -1,5 +1,7 @@
 /// <reference types="vite/client" />
 
+declare module '@mosip/secure-biometric-interface-integrator';
+
 interface EnvConfig {
   DEFAULT_LANG: string;
   DEFAULT_WELLKNOWN: string;
