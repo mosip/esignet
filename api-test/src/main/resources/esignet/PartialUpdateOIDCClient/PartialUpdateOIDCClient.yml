@@ -33,10 +33,10 @@ PartialUpdateOIDCClient:
     output: '{
       "status": "ACTIVE"
 }'
-  ESignet_PartialUpdateOIDCClient_MOCK_Invlalid_alg_value_Neg:
+  ESignet_PartialUpdateOIDCClient_MOCK_Invlalid_alg_invalid_Public_key_values_value_Neg:
     endPoint: /v1/esignet/client-mgmt/client/{clientId}
     uniqueIdentifier: TC_ESignet_PatchOIDCClient_03
-    description: Partial Update OIDC Client with invalid alg value in encryption public key during JWE UserInfo configuration update in V3 MOCK flow and verify that the request fails with invalid public_key error
+    description: Partial Update OIDC Client with invalid public keys values in encryption public key during JWE UserInfo configuration update in V3 MOCK flow and verify that the request fails with invalid public_key error
     role: partner
     restMethod: patch
     additionalDependencies: TC_ESignet_OIDCClientV3_E2EMock_02
