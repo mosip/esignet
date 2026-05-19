@@ -704,7 +704,7 @@ CreateOIDCClient:
       role: partner
       restMethod: post
       additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
-      inputTemplate: esignet/OidcClient/OIDCClientDPOP
+      inputTemplate: esignet/OidcClient/OIDCClientFAPI
       outputTemplate: esignet/OidcClient/OIDCClientResult
       input: '{
         "name": "$RANDOMID$",
@@ -715,6 +715,33 @@ CreateOIDCClient:
         "redirectUris": "$IDPREDIRECTURI$",
         "grantTypes": "authorization_code",
         "clientAuthMethods": "private_key_jwt",
+        "userinfo_response_type": "JWE",
+        "require_pushed_authorization_requests": true,
+        "dpop_bound_access_tokens": true,
+        "require_pkce": true
+}'
+      output: '{
+        "status": "ACTIVE"
+}'
+   Esignet_CreateOIDCClientFAPI_all_Valid_forUserInfoJWE_Smoke_sid:
+      endPoint: /v1/partnermanager/oidc/client
+      uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_30
+      description: Create OIDC client with all valid details for MOSIP ID FAPI JWE userinfo flow
+      role: partner
+      restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
+      inputTemplate: esignet/OidcClient/OIDCClientFAPI
+      outputTemplate: esignet/OidcClient/OIDCClientResult
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_All_Valid_Smoke_sid_id$",
+        "publicKey": "$OIDC_JWK_KEY_FAPI_JWE$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt",
+        "userinfo_response_type": "JWE",
         "require_pushed_authorization_requests": true,
         "dpop_bound_access_tokens": true,
         "require_pkce": true
