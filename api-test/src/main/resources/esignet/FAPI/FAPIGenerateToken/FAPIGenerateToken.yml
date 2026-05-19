@@ -29,6 +29,7 @@ FAPIGenerateToken:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_FAPI_AuthorizationCode_02
       inputTemplate: esignet/FAPI/FAPIGenerateToken/FAPIGenerateToken
       outputTemplate: esignet/FAPI/FAPIGenerateToken/FAPIGenerateTokenResult
       input: '{

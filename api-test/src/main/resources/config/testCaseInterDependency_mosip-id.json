@@ -639,9 +639,18 @@
         "TC_ESignet_AuthenticateUserV3_WithoutVerifiedClaims_01",
         "TC_Signup_ESignet_OAuthDetailsRequestV3WithoutVerifiedClaims_01"
     ],
-    "TC_ESignet_GetOidcUserInfoForV3_E2E_01": ["TC_ESignet_GenerateToken_E2E_01"],
-    "TC_ESignet_GetOidcUserInfoForV3_E2E_03": ["TC_ESignet_GenerateToken_E2E_03"],
-    "TC_ESignet_GetOidcUserInfoForV3_E2E_02": ["TC_ESignet_GenerateToken_E2E_02"],
+    "TC_ESignet_GetOidcUserInfoForV3_E2E_01": [
+        "TC_ESignet_GenerateToken_E2E_01",
+        "TC_ESignet_UpdateOIDCClientV3_E2E_01"
+    ],
+    "TC_ESignet_GetOidcUserInfoForV3_E2E_03": [
+        "TC_ESignet_GenerateToken_E2E_03",
+        "TC_ESignet_UpdateOIDCClientV3_E2E_03"
+    ],
+    "TC_ESignet_GetOidcUserInfoForV3_E2E_02": [
+        "TC_ESignet_GenerateToken_E2E_02",
+        "TC_ESignet_UpdateOIDCClientV3_E2E_02"
+    ],
     "TC_ESignet_OAuthDetailsRequestSunBirdC_01": ["TC_ESignet_CreatePolicySunBirdR_01"],
     "TC_ESignet_LinkedAuthConsent_07": [
         "TC_ESignet_LinkTransactionConsent_08",
@@ -1887,6 +1896,10 @@
         "Dependent_Idrepo_AddIdentity_48",
         "TC_ESignet_FAPI_OauthDetails_01"
     ],
+    "TC_ESignet_FAPI_AuthenticateUserV3_02": [
+        "Dependent_Idrepo_AddIdentity_48",
+        "TC_ESignet_FAPI_OauthDetails_forUserInfoJWE_01"
+    ],
     "TC_ESignet_SendOtp_27": [
         "Dependent_Idrepo_GenerateVID_09",
         "TC_ESignet_OAuthDetailsRequest_01"
@@ -2256,14 +2269,20 @@
         "Dependent_Idrepo_AddIdentity_03",
         "Dependent_Idrepo_GenerateVID_09"
     ],
-    "TC_ESignet_OAuthDetailsRequestV3_Prerequisite_02": ["TC_ESignet_CreateOIDCClient_MOSIPID_22"],
+    "TC_ESignet_OAuthDetailsRequestV3_Prerequisite_02": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_22",
+        "TC_ESignet_UpdateOIDCClientV3_E2E_02"
+    ],
     "TC_ESignet_DPoPOauthDetailsNegativeScenarios_02": ["TC_ESignet_OauthDPoP_01"],
     "TC_ESignet_AuthenticateUser_45": [
         "TC_ESignet_OAuthDetailsRequest_09",
         "Dependent_Idrepo_AddIdentity_03",
         "Dependent_Idrepo_GenerateVID_09"
     ],
-    "TC_ESignet_OAuthDetailsRequestV3_Prerequisite_01": ["TC_ESignet_CreateOIDCClient_MOSIPID_21"],
+    "TC_ESignet_OAuthDetailsRequestV3_Prerequisite_01": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_21",
+        "TC_ESignet_UpdateOIDCClientV3_E2E_01"
+    ],
     "TC_ESignet_DPoPOauthDetailsNegativeScenarios_01": [
         "TC_ESignet_OauthDPoP_01",
         "TC_ESignet_CreateOIDCClient_MOSIPID_25"
@@ -2297,7 +2316,10 @@
         "TC_ESignet_OAuthDetailsRequest_09",
         "Dependent_Idrepo_GenerateVID_09"
     ],
-    "TC_ESignet_OAuthDetailsRequestV3_Prerequisite_03": ["TC_ESignet_CreateOIDCClient_MOSIPID_23"],
+    "TC_ESignet_OAuthDetailsRequestV3_Prerequisite_03": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_23",
+        "TC_ESignet_UpdateOIDCClientV3_E2E_03"
+    ],
     "TC_ESignet_AuthorizationCode_09": [
         "TC_ESignet_AuthenticateUser_02",
         "TC_ESignet_OAuthDetailsRequest_02"
@@ -2906,6 +2928,28 @@
         "TC_ESignet_CreateOIDCClient_MOSIPID_29",
         "TC_ESignet_FAPI_GenerateToken_01"
     ],
+    "TC_ESignet_FAPI_GetUserInfo_02": [
+        "TC_ESignet_FAPI_GenerateToken_forUserInfoJWE_01",
+        "TC_ESignet_FAPI_CreateOIDCClient_02",
+        "TC_ESignet_FAPI_PartialUpdateOIDCClient_01"
+    ],
+    "TC_ESignet_FAPI_GenerateToken_forUserInfoJWE_01": [
+        "TC_ESignet_FAPI_CreateOIDCClient_02",
+        "TC_ESignet_FAPI_AuthorizationCode_02"
+    ],
+    "TC_ESignet_FAPI_OauthDetails_forUserInfoJWE_01": [
+        "TC_ESignet_Oauth_FAPI_forUserInfoJWE_01",
+        "TC_ESignet_FAPI_CreateOIDCClient_02"
+    ],
+    "TC_ESignet_FAPI_AuthorizationCode_02": [
+        "TC_ESignet_FAPI_OauthDetails_forUserInfoJWE_01",
+        "TC_ESignet_FAPI_AuthenticateUserV3_02"
+    ],
+    "TC_ESignet_Oauth_FAPI_forUserInfoJWE_01": [
+        "TC_ESignet_FAPI_CreateOIDCClient_02",
+        "TC_ESignet_FAPI_PartialUpdateOIDCClient_01"
+    ],
+    "TC_ESignet_FAPI_PartialUpdateOIDCClient_01": ["TC_ESignet_FAPI_CreateOIDCClient_02"],
     "TC_ESignet_AuthenticateUserConsent_04": [
         "TC_ESignet_OAuthDetailsRequestConsent_05",
         "Dependent_Idrepo_AddIdentity_17",

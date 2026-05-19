@@ -39,6 +39,7 @@ FAPIAuthenticateUser:
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
+      additionalDependencies: TC_ESignet_FAPI_OauthDetails_forUserInfoJWE_01
       inputTemplate: esignet/FAPI/FAPIAuthenticateUser/FAPIAuthenticateUser
       outputTemplate: esignet/FAPI/FAPIAuthenticateUser/FAPIAuthenticateUserResult
       input: '{

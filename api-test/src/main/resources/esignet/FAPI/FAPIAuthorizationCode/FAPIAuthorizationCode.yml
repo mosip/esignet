@@ -26,7 +26,7 @@ FAPIAuthorizationCode:
       restMethod: post
       checkErrorsOnlyInResponse: true
       validityCheckRequired: true
-      additionalDependencies: TC_ESignet_FAPI_AuthenticateUser_forUserInfoJWE_01
+      additionalDependencies: TC_ESignet_FAPI_AuthenticateUserV3_02
       inputTemplate: esignet/FAPI/FAPIAuthorizationCode/FAPIAuthorizationCode
       outputTemplate: esignet/FAPI/FAPIAuthorizationCode/FAPIAuthorizationCodeResult
       input: '{
