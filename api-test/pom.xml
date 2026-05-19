@@ -59,7 +59,7 @@
 		<maven.shade.plugin.version>3.2.4</maven.shade.plugin.version>
 		<maven.antrun.plugin.version>3.0.0</maven.antrun.plugin.version>
 		<maven.source.plugin.version>2.2.1</maven.source.plugin.version>
-
+<central.publishing.maven.plugin.version>0.7.0</central.publishing.maven.plugin.version>
 		<git.commit.id.plugin.version>3.0.1</git.commit.id.plugin.version>
 		<fileName>apitest-esignet-1.8.0-SNAPSHOT-jar-with-dependencies</fileName>
 	</properties>
