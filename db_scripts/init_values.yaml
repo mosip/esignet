@@ -3,7 +3,7 @@ dbUserPasswords:
 
 databases:
   mosip_esignet:
-    enabled: false
+    enabled: true
     scriptsDir: mosip_esignet      # fixed - must match db_scripts/ folder in repo
     dbName: mosip_esignet          # customize e.g. mosip_esignet02
     dbUser: esignetuser            # customize e.g. esignetuser02
