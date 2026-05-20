@@ -22,3 +22,27 @@ FAPIGenerateToken:
 }'
       output: '{
 }'
+   ESignet_GenerateToken_FAPI_DPoP_AuthToken_Xsrf_Valid_forUserInfoJWE_Smoke_sid:
+      endPoint: $GETENDPOINTFROMWELLKNOWN$
+      uniqueIdentifier: TC_ESignet_FAPI_GenerateToken_forUserInfoJWE_01
+      description: Generate token for FAPI JWE userinfo flow
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_FAPI_AuthorizationCode_02
+      inputTemplate: esignet/FAPI/FAPIGenerateToken/FAPIGenerateToken
+      outputTemplate: esignet/FAPI/FAPIGenerateToken/FAPIGenerateTokenResult
+      input: '{
+        "dpop_key": "DPoP",
+        "dpop_value": "$DPOP_PROOF$",
+        "grant_type": "authorization_code",
+        "code": "$ID:AuthorizationCode_FAPI__AuthToken_Xsrf_All_Valid_forUserInfoJWE_Smoke_sid_code$",
+        "client_id": "$ID:CreateOIDCClientFAPI_all_Valid_forUserInfoJWE_Smoke_sid_clientId$",
+        "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+        "client_assertion": "$CLIENT_ASSERTION_FAPI_JWE_JWT$",
+        "redirect_uri": "$IDPREDIRECTURI$",
+        "aud_key": "token_endpoint",
+        "code_verifier": "$CODE_VERIFIER$"
+}'
+      output: '{
+}'

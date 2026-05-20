@@ -2,7 +2,7 @@ FAPIAuthorizationCode:
    ESignet_AuthorizationCode_FAPI__AuthToken_Xsrf_All_Valid_forUserInfo_Smoke_sid:
       endPoint: /v1/esignet/authorization/auth-code
       uniqueIdentifier: TC_ESignet_FAPI_AuthorizationCode_01
-      description: Validate successful authorization code generation in PAR flow
+      description: Generate authorization code in FAPI PAR flow with valid AuthToken and XSRF token
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -14,6 +14,25 @@ FAPIAuthorizationCode:
         "encodedHash": "$ID:OAuthDetailsRequest_FAPI_AuthToken_Xsrf_all_Valid_Smoke_sid_encodedResp$",
       	"requestTime": "$TIMESTAMP$",
       	"transactionId": "$ID:OAuthDetailsRequest_FAPI_AuthToken_Xsrf_all_Valid_Smoke_sid_transactionId$",
+      	"acceptedClaims": [{"claim": "phone_number"},{"claim": "email"}]
+}'
+      output: '{
+}'
+   ESignet_AuthorizationCode_FAPI__AuthToken_Xsrf_All_Valid_forUserInfoJWE_Smoke_sid:
+      endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_FAPI_AuthorizationCode_02
+      description: Generate authorization code for FAPI JWE UserInfo flow with valid AuthToken and XSRF token
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      additionalDependencies: TC_ESignet_FAPI_AuthenticateUserV3_02
+      inputTemplate: esignet/FAPI/FAPIAuthorizationCode/FAPIAuthorizationCode
+      outputTemplate: esignet/FAPI/FAPIAuthorizationCode/FAPIAuthorizationCodeResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_FAPI_AuthToken_Xsrf_all_Valid_forUserInfoJWE_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_FAPI_AuthToken_Xsrf_all_Valid_forUserInfoJWE_Smoke_sid_transactionId$",
       	"acceptedClaims": [{"claim": "phone_number"},{"claim": "email"}]
 }'
       output: '{

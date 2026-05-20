@@ -83,7 +83,7 @@ OAuthDetailsRequest:
    ESignet_OAuthDetailsRequest_Consent_2nd_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/oauth-details
       uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_04
-      description: Oauthdetails request consent 2nd with all valid details
+      description: OAuth details request without prompt consent, where user consent is stored during initial authentication and ConsentAction is returned as NOCAPTURE for subsequent authentication with the same user identifier
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -97,7 +97,6 @@ OAuthDetailsRequest:
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
-	    "prompt": "consent",
 	    "acrValues": "mosip:idp:acr:generated-code",
 	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",

@@ -249,7 +249,14 @@ public class EsignetUtil extends AdminTestUtil {
 						    || testCaseName.equals("ESignet_OIDCClient_DifferentScopeLanguageClaimsSce_sid")
 						    || testCaseName.equals("ESignet_PartialUpdateOIDCClient_MOCK_all_Valid_forUserInfoJWE_Smoke_sid")
 						    || testCaseName.equals("ESignet_PartialUpdateOIDCClient_MOCK_all_Valid_forUserInfoUpdateJWE_Smoke_sid")
-						    || testCaseName.equals("ESignet_CreateOIDCClientFAPI_all_Valid_Smoke_sid"))
+						    || testCaseName.equals("ESignet_PartialUpdateOIDCClient_MOCK_Invlalid_alg_value_Neg")
+						    || testCaseName.equals("ESignet_PartialUpdateOIDCClient_MOCK_Invlalid_ClientID_Neg")
+						    || testCaseName.equals("ESignet_PartialUpdateOIDCClient_MOCK_Missing_kid_value_Neg")
+						    || testCaseName.equals("ESignet_PartialUpdateOIDCClient_MOCK_Duplicate_EncKey_forUserInfoUpdateJWE_Neg")
+						    || testCaseName.equals("ESignet_PartialUpdateOIDCClient_MOCK_Different_Encryption_alg_value_Pos")
+						    || testCaseName.equals("ESignet_CreateOIDCClientFAPI_all_Valid_Smoke_sid")
+						    || testCaseName.equals("ESignet_CreateOIDCClientFAPI_all_Valid_forUserInfoJWE_Smoke_sid")
+						    || testCaseName.equals("ESignet_FAPIPartialUpdateOIDCClient_all_Valid_forUserInfoJWE_Smoke_sid"))
 						    && (endpoint.contains("/v1/esignet/client-mgmt/client")
 						    || endpoint.contains("/v1/esignet/client-mgmt/client/{clientId}")	
 						    || endpoint.contains("/v1/esignet/client-mgmt/oauth-client")))) {
@@ -406,7 +413,7 @@ public class EsignetUtil extends AdminTestUtil {
 				String jwkKeyString;
 
 				if (testCaseName != null && testCaseName.toUpperCase().contains("FAPI")) {
-					jwkKeyString = JWKKeyUtil.getJWKKey(OIDC_JWK_FOR_FAPI);
+					jwkKeyString = JWKKeyUtil.getJWKKey(getFapiJwkKeyName(testCaseName));
 				} else {
 					jwkKeyString = JWKKeyUtil.getJWKKey(OIDC_JWK_FOR_DPoP);
 				}
@@ -426,7 +433,7 @@ public class EsignetUtil extends AdminTestUtil {
 		        String jwkKeyString;
 
 		        if (testCaseName != null && testCaseName.toUpperCase().contains("FAPI")) {
-		            jwkKeyString = JWKKeyUtil.getJWKKey(OIDC_JWK_FOR_FAPI);
+		            jwkKeyString = JWKKeyUtil.getJWKKey(getFapiJwkKeyName(testCaseName));
 		        } else {
 		            jwkKeyString = JWKKeyUtil.getJWKKey(OIDC_JWK_FOR_DPoP);
 		        }
@@ -453,7 +460,7 @@ public class EsignetUtil extends AdminTestUtil {
 				String jwkKeyString;
 
 				if (testCaseName != null && testCaseName.toUpperCase().contains("FAPI")) {
-					jwkKeyString = JWKKeyUtil.getJWKKey(OIDC_JWK_FOR_FAPI);
+					jwkKeyString = JWKKeyUtil.getJWKKey(getFapiJwkKeyName(testCaseName));
 				} else {
 					jwkKeyString = JWKKeyUtil.getJWKKey(OIDC_JWK_FOR_DPoP);
 				}
@@ -806,6 +813,17 @@ public class EsignetUtil extends AdminTestUtil {
 			jsonString = replaceKeywordValue(jsonString, "$OIDC_JWK_KEY_DPoP$", jwkKey);
 		}
 		
+		if (jsonString.contains("$OIDC_JWK_KEY_FAPI_JWE$")) {
+			String jwkKey = "";
+			if (getTriggerESignetKeyGenForFAPIJWE()) {
+				jwkKey = JWKKeyUtil.generateAndCacheJWKKey(OIDC_JWK_FOR_FAPI_JWE);
+				setTriggerESignetKeyGenForFAPIJWE(false);
+			} else {
+				jwkKey = JWKKeyUtil.getJWKKey(OIDC_JWK_FOR_FAPI_JWE);
+			}
+			jsonString = replaceKeywordValue(jsonString, "$OIDC_JWK_KEY_FAPI_JWE$", jwkKey);
+		}
+
 		if (jsonString.contains("$OIDC_JWK_KEY_FAPI$")) {
 			String jwkKey = "";
 			if (getTriggerESignetKeyGenForFAPI()) {
@@ -1039,12 +1057,12 @@ public class EsignetUtil extends AdminTestUtil {
 			}
 		}		
 		
-		if (jsonString.contains("$CLIENT_ASSERTION_FAPI_JWT$")) {
-			String oidcJWKKeyString = JWKKeyUtil.getJWKKey(OIDC_JWK_FOR_FAPI);
+		if (jsonString.contains("$CLIENT_ASSERTION_FAPI_JWE_JWT$")) {
+			String oidcJWKKeyString = JWKKeyUtil.getJWKKey(OIDC_JWK_FOR_FAPI_JWE);
 			logger.info("oidcJWKKeyString =" + oidcJWKKeyString);
 			try {
-				oidc_JWK_Key_For_FAPI = RSAKey.parse(oidcJWKKeyString);
-				logger.info("oidc_JWK_Key_For_FAPI =" + oidc_JWK_Key_For_FAPI);
+				oidc_JWK_Key_For_FAPI_JWE = RSAKey.parse(oidcJWKKeyString);
+				logger.info("oidc_JWK_Key_For_FAPI_JWE =" + oidc_JWK_Key_For_FAPI_JWE);
 			} catch (java.text.ParseException e) {
 				logger.error(e.getMessage());
 			}
@@ -1062,8 +1080,47 @@ public class EsignetUtil extends AdminTestUtil {
 			String tempUrl = getValueFromEsignetWellKnownEndPoint(audKey, EsignetConfigManager.getEsignetBaseUrl());
 
 			if (clientId != null) {
+				jsonString = replaceKeywordValue(jsonString, "$CLIENT_ASSERTION_FAPI_JWE_JWT$",
+						signJWKKey(clientId, oidc_JWK_Key_For_FAPI_JWE, tempUrl));
+			} else {
+				logger.error("Client ID not found in JSON for $CLIENT_ASSERTION_FAPI_JWE_JWT$.");
+			}
+		}
+
+		if (jsonString.contains("$CLIENT_ASSERTION_FAPI_JWT$")) {
+			String fapiJwkKeyName = getFapiJwkKeyName(testCaseName);
+			String oidcJWKKeyString = JWKKeyUtil.getJWKKey(fapiJwkKeyName);
+			logger.info("oidcJWKKeyString =" + oidcJWKKeyString);
+			RSAKey fapiSigningKey;
+			try {
+				fapiSigningKey = RSAKey.parse(oidcJWKKeyString);
+				if (OIDC_JWK_FOR_FAPI_JWE.equals(fapiJwkKeyName)) {
+					oidc_JWK_Key_For_FAPI_JWE = fapiSigningKey;
+					logger.info("oidc_JWK_Key_For_FAPI_JWE =" + oidc_JWK_Key_For_FAPI_JWE);
+				} else {
+					oidc_JWK_Key_For_FAPI = fapiSigningKey;
+					logger.info("oidc_JWK_Key_For_FAPI =" + oidc_JWK_Key_For_FAPI);
+				}
+			} catch (java.text.ParseException e) {
+				logger.error(e.getMessage());
+				fapiSigningKey = null;
+			}
+
+			JSONObject root = new JSONObject(jsonString);
+			String clientId = root.optString("client_id", null);
+			String audKey = null;
+
+			if (root.has("aud_key")) {
+				audKey = root.optString("aud_key", null);
+				root.remove("aud_key");
+				jsonString = root.toString();
+			}
+
+			String tempUrl = getValueFromEsignetWellKnownEndPoint(audKey, EsignetConfigManager.getEsignetBaseUrl());
+
+			if (clientId != null && fapiSigningKey != null) {
 				jsonString = replaceKeywordValue(jsonString, "$CLIENT_ASSERTION_FAPI_JWT$",
-						signJWKKey(clientId, oidc_JWK_Key_For_FAPI, tempUrl));
+						signJWKKey(clientId, fapiSigningKey, tempUrl));
 			} else {
 				logger.error("Client ID not found in JSON for $CLIENT_ASSERTION_FAPI_JWT$.");
 			}
@@ -1959,7 +2016,8 @@ public class EsignetUtil extends AdminTestUtil {
 	protected static final String OIDCJWK14= "oidcJWK14";
 	protected static final String OIDC_JWK_FOR_PAR = "oidcJWKForPAR";
 	protected static final String OIDC_JWK_FOR_DPoP = "oidcJWKForDPoP";
-	protected static final String OIDC_JWK_FOR_FAPI = "oidcJWKForFAPI";	
+	protected static final String OIDC_JWK_FOR_FAPI = "oidcJWKForFAPI";
+	protected static final String OIDC_JWK_FOR_FAPI_JWE = "oidcJWKForFAPIJWE";
 	
 	protected static RSAKey oidcJWKKey1 = null;
 	protected static RSAKey oidcJWKKey3 = null;
@@ -1977,6 +2035,7 @@ public class EsignetUtil extends AdminTestUtil {
 	protected static RSAKey oidc_JWK_Key_For_PAR = null;
 	protected static RSAKey oidc_JWK_Key_For_DPoP = null;
 	protected static RSAKey oidc_JWK_Key_For_FAPI = null;
+	protected static RSAKey oidc_JWK_Key_For_FAPI_JWE = null;
 	
 	protected static boolean triggerESignetKeyGen1 = true;
 	protected static boolean triggerESignetKeyGen2 = true;
@@ -2017,8 +2076,16 @@ public class EsignetUtil extends AdminTestUtil {
 	protected static boolean triggerESignetKeyGen38 = true;
 	protected static boolean triggerESignetKeyGenForPAR = true;
 	protected static boolean triggerESignetKeyGenForDPoP = true;
-	protected static boolean triggerESignetKeyGenForFAPI = true;	
+	protected static boolean triggerESignetKeyGenForFAPI = true;
+	protected static boolean triggerESignetKeyGenForFAPIJWE = true;
 	
+	private static String getFapiJwkKeyName(String testCaseName) {
+		if (testCaseName != null
+				&& (testCaseName.contains("forUserInfoJWE") || testCaseName.contains("_GetUserInfoJWE_"))) {
+			return OIDC_JWK_FOR_FAPI_JWE;
+		}
+		return OIDC_JWK_FOR_FAPI;
+	}
 	
 	private static boolean gettriggerESignetKeyGen3() {
 		return triggerESignetKeyGen3;
@@ -2122,7 +2189,15 @@ public class EsignetUtil extends AdminTestUtil {
 	
 	private static void setTriggerESignetKeyGenForFAPI(boolean value) {
 		triggerESignetKeyGenForFAPI = value;
-	}	
+	}
+	
+	private static boolean getTriggerESignetKeyGenForFAPIJWE() {
+		return triggerESignetKeyGenForFAPIJWE;
+	}
+	
+	private static void setTriggerESignetKeyGenForFAPIJWE(boolean value) {
+		triggerESignetKeyGenForFAPIJWE = value;
+	}
 	
 	private static void settriggerESignetKeyGen2(boolean value) {
 		triggerESignetKeyGen2 = value;
