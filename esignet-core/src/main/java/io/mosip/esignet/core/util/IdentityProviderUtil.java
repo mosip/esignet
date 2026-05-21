@@ -31,6 +31,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.exception.EsignetException;
+import io.mosip.esignet.core.validator.RedirectURLValidator;
 import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.cert.X509CertificateHolder;
@@ -41,7 +42,6 @@ import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
-import org.apache.commons.validator.routines.UrlValidator;
 import org.jose4j.jwk.PublicJsonWebKey;
 import org.jose4j.jwk.RsaJsonWebKey;
 import org.jose4j.jwk.EllipticCurveJsonWebKey;
@@ -60,9 +60,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import jakarta.xml.bind.DatatypeConverter;
 
-import static org.apache.commons.validator.routines.UrlValidator.ALLOW_ALL_SCHEMES;
-import static org.apache.commons.validator.routines.UrlValidator.ALLOW_LOCAL_URLS;
-
 @Slf4j
 @Component
 public class IdentityProviderUtil {
@@ -80,13 +77,13 @@ public class IdentityProviderUtil {
     private static Base64.Encoder urlSafeEncoder;
     private static Base64.Decoder urlSafeDecoder;
     private static PathMatcher pathMatcher;
-    private static UrlValidator urlValidator;
+    private static RedirectURLValidator urlValidator;
 
     static {
         urlSafeEncoder = Base64.getUrlEncoder().withoutPadding();
         urlSafeDecoder = Base64.getUrlDecoder();
         pathMatcher = new AntPathMatcher();
-        urlValidator = new UrlValidator(ALLOW_ALL_SCHEMES+ALLOW_LOCAL_URLS);
+        urlValidator = new RedirectURLValidator();
     }
 
     /**
@@ -219,7 +216,7 @@ public class IdentityProviderUtil {
     }
 
     private static boolean matchUri(String registeredUri, String requestedUri) {
-        return (urlValidator.isValid(registeredUri) && urlValidator.isValid(requestedUri))
+        return (urlValidator.isValid(registeredUri, null) && urlValidator.isValid(requestedUri, null))
                 && pathMatcher.match(registeredUri, requestedUri);
     }
     

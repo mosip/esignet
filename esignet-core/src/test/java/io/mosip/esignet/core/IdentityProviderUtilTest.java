@@ -48,6 +48,12 @@ public class IdentityProviderUtilTest {
                 "https://api.dev.mosip.net/home/testament?rr=rrr");
         IdentityProviderUtil.validateRedirectURI(Arrays.asList("io.mosip.residentapp://oauth"),
                 "io.mosip.residentapp://oauth");
+        // Regression for issue #1883: non-public / private TLDs (.corp, .internal)
+        // must be accepted by the matchUri path inside validateRedirectURI.
+        IdentityProviderUtil.validateRedirectURI(Arrays.asList("https://sso.idp.corp/callback"),
+                "https://sso.idp.corp/callback");
+        IdentityProviderUtil.validateRedirectURI(Arrays.asList("https://portal.company.internal/**"),
+                "https://portal.company.internal/auth/callback");
     }
 
     @Test
