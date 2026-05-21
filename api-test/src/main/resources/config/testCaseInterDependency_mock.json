@@ -1028,10 +1028,7 @@
     ],
     "TC_ESignet_OAuthDetailsRequestV3_Prerequisite_E2EMock_01": ["TC_ESignet_OIDCClientV3_E2EMock_01"],
     "TC_ESignet_OAuthDetailsRequestNonAuth_23": ["TC_ESignet_CreateOIDCClient_V2_03"],
-    "TC_ESignet_OAuthDetailsRequestV3_Prerequisite_E2EMock_03": [
-        "TC_ESignet_OIDCClientV3_E2EMock_03",
-        "TC_ESignet_UpdateOIDCClientV3_E2EMock_01"
-    ],
+    "TC_ESignet_OAuthDetailsRequestV3_Prerequisite_E2EMock_03": ["TC_ESignet_OIDCClientV3_E2EMock_03"],
     "TC_ESignet_OAuthDetailsRequestV3_Prerequisite_E2EMock_02": ["TC_ESignet_OIDCClientV3_E2EMock_02"],
     "TC_ESignet_OAuthDetailsRequestNonAuth_25": ["TC_ESignet_CreateOIDCClient_V2_03"],
     "TC_ESignet_GenerateTokenVerifiedClaims_01": [
@@ -1129,7 +1126,7 @@
     ],
     "TC_ESignet_Oauth_FAPI_forUserInfoJWE_01": [
         "TC_ESignet_FAPI_CreateOIDCClient_02",
-        "TC_ESignet_FAPI_PartialUpdateOIDCClient_01"
+        "TC_ESignet_FAPI_PatchOIDCClientAdditionalConfig_01"
     ],
     "TC_ESignet_OauthParNegativeScenarios_07": ["TC_ESignet_PARCreateOIDCClientV3_01"],
     "TC_ESignet_OauthParNegativeScenarios_08": ["TC_ESignet_PARCreateOIDCClientV3_01"],
@@ -1368,8 +1365,7 @@
     ],
     "TC_ESignet_FAPI_GetUserInfo_02": [
         "TC_ESignet_FAPI_GenerateToken_forUserInfoJWE_01",
-        "TC_ESignet_FAPI_CreateOIDCClient_02",
-        "TC_ESignet_FAPI_PartialUpdateOIDCClient_01"
+        "TC_ESignet_FAPI_PatchOIDCClientAdditionalConfig_01"
     ],
     "TC_ESignet_SendBindingOtp_16": [
         "Dependent_Idrepo_AddIdentity_04",
@@ -1490,7 +1486,6 @@
         "TC_ESignet_OauthDPoP_01"
     ],
     "TC_ESignet_GetOidcUserInfoForV3_E2EMock_02": [
-        "TC_ESignet_OIDCClientV3_E2EMock_02",
         "TC_ESignet_PatchOIDCClient_01",
         "TC_ESignet_GenerateToken_E2EMock_02"
     ],
@@ -1500,8 +1495,7 @@
     ],
     "TC_ESignet_GetOidcUserInfoForV3_E2EMock_03": [
         "TC_ESignet_PatchOIDCClient_02",
-        "TC_ESignet_GenerateToken_E2EMock_03",
-        "TC_ESignet_OIDCClientV3_E2EMock_03"
+        "TC_ESignet_GenerateToken_E2EMock_03"
     ],
     "TC_ESignet_UpdateOIDCClientV3_09": ["TC_ESignet_CreateOIDCClientV3_01"],
     "TC_ESignet_UpdateOIDCClientV3_19": ["TC_ESignet_CreateOIDCClientV3_01"],

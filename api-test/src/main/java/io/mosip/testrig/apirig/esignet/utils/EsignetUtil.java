@@ -225,7 +225,8 @@ public class EsignetUtil extends AdminTestUtil {
 					|| testCaseName.contains("_AuthenticateUser_V3_MOSIPID_")
 					|| testCaseName.contains("_AuthorizationCode_MOSIPID_")
 					|| testCaseName.contains("_GenerateToken_MOSIPID_")
-					|| testCaseName.contains("_GetOidcUserInfo_MOSIPID_"))) {
+					|| testCaseName.contains("_GetOidcUserInfo_MOSIPID_")
+					|| testCaseName.contains("FAPIPatchClientConfig_MOSIPID_"))) {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 			}
 
@@ -249,7 +250,7 @@ public class EsignetUtil extends AdminTestUtil {
 						    || testCaseName.equals("ESignet_OIDCClient_DifferentScopeLanguageClaimsSce_sid")
 						    || testCaseName.equals("ESignet_PartialUpdateOIDCClient_MOCK_all_Valid_forUserInfoJWE_Smoke_sid")
 						    || testCaseName.equals("ESignet_PartialUpdateOIDCClient_MOCK_all_Valid_forUserInfoUpdateJWE_Smoke_sid")
-						    || testCaseName.equals("ESignet_PartialUpdateOIDCClient_MOCK_Invlalid_alg_value_Neg")
+						    || testCaseName.equals("ESignet_PartialUpdateOIDCClient_MOCK_Invlalid_alg_invalid_Public_key_values_value_Neg")
 						    || testCaseName.equals("ESignet_PartialUpdateOIDCClient_MOCK_Invlalid_ClientID_Neg")
 						    || testCaseName.equals("ESignet_PartialUpdateOIDCClient_MOCK_Missing_kid_value_Neg")
 						    || testCaseName.equals("ESignet_PartialUpdateOIDCClient_MOCK_Duplicate_EncKey_forUserInfoUpdateJWE_Neg")

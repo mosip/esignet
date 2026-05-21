@@ -16,7 +16,7 @@ OAuthDetailsRequestSunBirdC:
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
-	    "prompt": "login",
+	    "prompt": "consent",
 	    "acrValues": "mosip:idp:acr:knowledge",
 	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",

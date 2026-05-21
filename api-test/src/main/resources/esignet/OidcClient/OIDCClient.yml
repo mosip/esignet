@@ -713,12 +713,16 @@ CreateOIDCClient:
         "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
         "logoUri": "https://health-services.com/logo.png",
         "redirectUris": "$IDPREDIRECTURI$",
+        "userClaims1": "name",
+        "userClaims2": "email",
+        "userClaims3": "gender",
+        "userClaims4": "phone_number",
+        "userClaims5": "birthdate",
+        "authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"},{acrValues: "mosip:idp:acr:biometrics"}],
         "grantTypes": "authorization_code",
         "clientAuthMethods": "private_key_jwt",
-        "userinfo_response_type": "JWE",
-        "require_pushed_authorization_requests": true,
-        "dpop_bound_access_tokens": true,
-        "require_pkce": true
+        "keyLang1": "$1STLANG$",
+        "clientNameLang": "MOSIP FAPI OIDC Client"
 }'
       output: '{
         "status": "ACTIVE"
@@ -739,12 +743,16 @@ CreateOIDCClient:
         "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
         "logoUri": "https://health-services.com/logo.png",
         "redirectUris": "$IDPREDIRECTURI$",
+        "userClaims1": "name",
+        "userClaims2": "email",
+        "userClaims3": "gender",
+        "userClaims4": "phone_number",
+        "userClaims5": "birthdate",
+        "authContextRefs": [{acrValues: "mosip:idp:acr:static-code"},{acrValues: "mosip:idp:acr:generated-code"},{acrValues: "mosip:idp:acr:biometrics"}],
         "grantTypes": "authorization_code",
         "clientAuthMethods": "private_key_jwt",
-        "userinfo_response_type": "JWE",
-        "require_pushed_authorization_requests": true,
-        "dpop_bound_access_tokens": true,
-        "require_pkce": true
+        "keyLang1": "$1STLANG$",
+        "clientNameLang": "MOSIP FAPI OIDC Client"
 }'
       output: '{
         "status": "ACTIVE"

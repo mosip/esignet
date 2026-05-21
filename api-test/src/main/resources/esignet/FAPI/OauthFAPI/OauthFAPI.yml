@@ -36,7 +36,7 @@ OauthFAPI:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
-      additionalDependencies: TC_ESignet_FAPI_PartialUpdateOIDCClient_01
+      additionalDependencies: TC_ESignet_FAPI_PatchOIDCClientAdditionalConfig_01
       inputTemplate: esignet/FAPI/OauthFAPI/OauthFAPI
       outputTemplate: esignet/FAPI/OauthFAPI/OauthFAPIResult
       input: '{
