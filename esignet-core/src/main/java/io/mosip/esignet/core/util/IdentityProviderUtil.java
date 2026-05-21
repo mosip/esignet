@@ -16,7 +16,11 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.SecureRandom;
-import java.security.cert.*;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.ECParameterSpec;
@@ -24,16 +28,15 @@ import java.security.spec.RSAKeyGenParameterSpec;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-
-import io.mosip.esignet.core.constants.Constants;
-import io.mosip.esignet.core.constants.ErrorConstants;
-import io.mosip.esignet.core.exception.EsignetException;
 import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.cert.X509CertificateHolder;
@@ -44,28 +47,31 @@ import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
-import org.apache.commons.validator.routines.UrlValidator;
+import org.jose4j.jwk.EllipticCurveJsonWebKey;
 import org.jose4j.jwk.PublicJsonWebKey;
 import org.jose4j.jwk.RsaJsonWebKey;
-import org.jose4j.jwk.EllipticCurveJsonWebKey;
 import org.jose4j.keys.X509Util;
 import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
-import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.nimbusds.jose.util.ByteUtils;
 
-import lombok.extern.slf4j.Slf4j;
-
+import io.mosip.esignet.core.constants.Constants;
+import io.mosip.esignet.core.constants.ErrorConstants;
+import io.mosip.esignet.core.exception.EsignetException;
+import io.mosip.esignet.core.validator.RedirectURLValidator;
+import jakarta.annotation.PostConstruct;
 import jakarta.xml.bind.DatatypeConverter;
-
-import static org.apache.commons.validator.routines.UrlValidator.ALLOW_ALL_SCHEMES;
-import static org.apache.commons.validator.routines.UrlValidator.ALLOW_LOCAL_URLS;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -73,6 +79,9 @@ public class IdentityProviderUtil {
 
     @Value("#{${mosip.esignet.public-key-hash.fields}}")
     private Map<String, List<String>> publicKeyHashFields;
+
+    @Autowired
+    private RedirectURLValidator springManagedUrlValidator;
 
     private static final Logger logger = LoggerFactory.getLogger(IdentityProviderUtil.class);
     public static final String ALGO_SHA3_256 = "SHA3-256";
@@ -84,14 +93,19 @@ public class IdentityProviderUtil {
     private static Base64.Encoder urlSafeEncoder;
     private static Base64.Decoder urlSafeDecoder;
     private static PathMatcher pathMatcher;
-    private static UrlValidator urlValidator;
+    private static RedirectURLValidator urlValidator;
     private static final ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
 
     static {
         urlSafeEncoder = Base64.getUrlEncoder().withoutPadding();
         urlSafeDecoder = Base64.getUrlDecoder();
         pathMatcher = new AntPathMatcher();
-        urlValidator = new UrlValidator(ALLOW_ALL_SCHEMES+ALLOW_LOCAL_URLS);
+        urlValidator = new RedirectURLValidator(new String[0]); // safe default; @PostConstruct replaces with configured bean
+    }
+
+    @PostConstruct
+    private void initStaticUrlValidator() {
+        urlValidator = this.springManagedUrlValidator;
     }
 
     /**
@@ -224,7 +238,7 @@ public class IdentityProviderUtil {
     }
 
     private static boolean matchUri(String registeredUri, String requestedUri) {
-        return (urlValidator.isValid(registeredUri) && urlValidator.isValid(requestedUri))
+        return (urlValidator.isValid(registeredUri, null) && urlValidator.isValid(requestedUri, null))
                 && pathMatcher.match(registeredUri, requestedUri);
     }
     
