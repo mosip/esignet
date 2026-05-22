@@ -17,22 +17,20 @@ FAPIGetUserInfo:
       output: '{
         "aud": "$ID:CreateOIDCClientFAPI_all_Valid_Smoke_sid_clientId$"
 }'
-   ESignet_GetOidcUserInfo_FAPI_UIN_Dpop_AccessToken_GetUserInfoJWE_Valid_Smoke:
+   ESignet_GetOidcUserInfo_FAPI_UIN_Dpop_AccessToken_StatusCode_forUserInfoJWE_Valid_Smoke:
       endPoint: /v1/esignet/oidc/userinfo
       uniqueIdentifier: TC_ESignet_FAPI_GetUserInfo_02
       description: Get OIDC user info with JWE response for FAPI PAR DPoP PKCE flow
       role: resident
       restMethod: get
       validityCheckRequired: true
-      additionalDependencies: TC_ESignet_FAPI_PartialUpdateOIDCClient_01
+      additionalDependencies: TC_ESignet_FAPI_PatchOIDCClientAdditionalConfig_01
       inputTemplate: esignet/FAPI/FAPIGetUserInfo/FAPIGetUserInfo
-      outputTemplate: esignet/EndToEndFlowWithV3MOCK/userinfo/GetOidcUserInfoDecryptResult
+      outputTemplate: esignet/FAPI/FAPIGetUserInfo/FAPIGetUserInfoStatusCodeResult
       input: '{
         "dpop_access_token": "$ID:GenerateToken_FAPI_DPoP_AuthToken_Xsrf_Valid_forUserInfoJWE_Smoke_sid_access_token$",
         "authorization_key": "Authorization",
         "dpop_key": "DPoP",
         "dpop_value": "$DPOP_PROOF_WITH_ACCESS_TOKEN$"
 }'
-      output: '{
-        "aud": "$ID:CreateOIDCClientFAPI_all_Valid_forUserInfoJWE_Smoke_sid_clientId$"
-}'
+      output: "200"
