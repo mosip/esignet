@@ -6,9 +6,9 @@ CREATE DATABASE :mosipdbname
 	OWNER = postgres
 	TEMPLATE  = template0;
 
-COMMENT ON DATABASE mosip_esignet IS 'e-Signet related data is stored in this database';
+COMMENT ON DATABASE :mosipdbname IS 'e-Signet related data is stored in this database';
 
-\c mosip_esignet postgres
+\c :mosipdbname postgres
 
 DROP SCHEMA IF EXISTS esignet CASCADE;
 CREATE SCHEMA esignet;
