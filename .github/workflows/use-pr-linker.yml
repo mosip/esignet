@@ -1,0 +1,16 @@
+name: Auto link PR to Issues
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, closed, reopened]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+
+jobs:
+  call-linker:
+    uses: mosip/kattu/.github/workflows/link-pr-to-issue.yml@develop
+    secrets:
+      ACTION_PAT: ${{ secrets.ACTION_PAT }}
