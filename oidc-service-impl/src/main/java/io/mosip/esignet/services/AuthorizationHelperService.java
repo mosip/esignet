@@ -434,17 +434,10 @@ public class AuthorizationHelperService {
     }
 
     protected Pair<String,String> validateAndGetSubjectAndNonce(String clientId, String idTokenHint) {
-        // SECURITY: Fail closed on any null/blank input.
         if (idTokenHint == null || idTokenHint.isBlank()) {
             throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
         }
 
-        // SECURITY: The id_token_hint MUST be an id_token previously issued by this eSignet
-        // instance. Verify the JWT signature, issuer, expiry and audience BEFORE trusting any
-        // claim value (sub, nonce, etc.). Without this, an attacker could forge a JWT-like
-        // string with arbitrary 'sub' / 'aud' / 'nonce' values and bypass the signup
-        // continuation trust boundary as long as a cookie with the same name as the chosen
-        // 'sub' exists on the domain.
         try {
             // 1) Cryptographic + standard claims verification (issuer, exp, aud == signupIDTokenAudience).
             tokenService.verifyIdToken(idTokenHint, signupIDTokenAudience);
@@ -456,20 +449,14 @@ public class AuthorizationHelperService {
         // 2) Only after cryptographic validation passes do we parse the JWT to read claims.
         try {
             JWT jwt = JWTParser.parse(idTokenHint);
-            String audience = jwt.getJWTClaimsSet().getAudience() != null && !jwt.getJWTClaimsSet().getAudience().isEmpty()
-                    ? jwt.getJWTClaimsSet().getAudience().getFirst()
-                    : null;
+            List<String> audience = jwt.getJWTClaimsSet().getAudience();
 
-            // Defence-in-depth: re-check audience binding and that the caller's clientId is
-            // the expected signup audience. verifyIdToken above already validates 'aud', this
-            // extra check guards against any future divergence.
-            if (!signupIDTokenAudience.equals(audience) || !signupIDTokenAudience.equals(clientId)) {
+            if (CollectionUtils.isEmpty(audience) || !audience.contains(signupIDTokenAudience) || !signupIDTokenAudience.equals(clientId))  {
                 throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
             }
 
             String sub = jwt.getJWTClaimsSet().getSubject();
             String nonce = jwt.getJWTClaimsSet().getStringClaim(TokenService.NONCE);
-            // Fail closed on any missing/blank required claim.
             if (sub == null || sub.isBlank() || nonce == null || nonce.isBlank()) {
                 throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
             }
