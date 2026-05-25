@@ -2,7 +2,7 @@ FAPIOauthDetails:
    ESignet_OAuthDetailsRequest_FAPI_AuthToken_Xsrf_all_Valid_Smoke_sid:
       endPoint: /v1/esignet/authorization/par-oauth-details
       uniqueIdentifier: TC_ESignet_FAPI_OauthDetails_01
-      description: Validate successful retrieval of OAuth details in FAPI flow
+      description: Retrieve OAuth details in FAPI PAR flow with valid requestUri and clientId
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
@@ -12,6 +12,23 @@ FAPIOauthDetails:
        "requestTime": "$TIMESTAMP$",
        "requestUri": "$ID:OauthFAPI_all_Valid_Smoke_sid_request_uri$",
        "clientId": "$ID:CreateOIDCClientFAPI_all_Valid_Smoke_sid_clientId$"
+}'
+      output: '{
+}'
+   ESignet_OAuthDetailsRequest_FAPI_AuthToken_Xsrf_all_Valid_forUserInfoJWE_Smoke_sid:
+      endPoint: /v1/esignet/authorization/par-oauth-details
+      uniqueIdentifier: TC_ESignet_FAPI_OauthDetails_forUserInfoJWE_01
+      description: Retrieve OAuth details for FAPI JWE UserInfo flow with valid requestUri and clientId
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_Oauth_FAPI_forUserInfoJWE_01
+      inputTemplate: esignet/FAPI/FAPIOauthDetails/FAPIOauthDetails
+      outputTemplate: esignet/FAPI/FAPIOauthDetails/FAPIOauthDetailsResult
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "requestUri": "$ID:OauthFAPI_all_Valid_forUserInfoJWE_Smoke_sid_request_uri$",
+       "clientId": "$ID:CreateOIDCClientFAPI_all_Valid_forUserInfoJWE_Smoke_sid_clientId$"
 }'
       output: '{
 }'

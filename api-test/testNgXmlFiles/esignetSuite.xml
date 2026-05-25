@@ -1018,6 +1018,24 @@
 				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
+	<test name="FAPIPartialUpdateOIDCClient">
+		<parameter name="ymlFile"
+			value="esignet/FAPI/FAPIPartialUpdateOIDCClient/FAPIPartialUpdateOIDCClient.yml" />
+		<parameter name="pathParams" value="clientId" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.PatchWithPathParamsAndBody" />
+		</classes>
+	</test>
+	<test name="FAPIPatchClientConfig">
+		<parameter name="ymlFile"
+			value="esignet/FAPI/FAPIPatchClientConfig/FAPIPatchClientConfig.yml" />
+		<parameter name="pathParams" value="clientId" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.PatchWithPathParamsAndBody" />
+		</classes>
+	</test>
 		<test name="OauthFAPI">
 		<parameter name="ymlFile"
 			value="esignet/FAPI/OauthFAPI/OauthFAPI.yml" />

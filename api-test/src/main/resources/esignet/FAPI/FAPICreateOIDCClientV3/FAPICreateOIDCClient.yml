@@ -40,3 +40,43 @@ FAPICreateOIDCClientV3:
     output: '{
       "status": "ACTIVE"
 }'
+  ESignet_CreateOIDCClientFAPI_all_Valid_forUserInfoJWE_Smoke_sid:
+    endPoint: /v1/esignet/client-mgmt/client
+    uniqueIdentifier: TC_ESignet_FAPI_CreateOIDCClient_02
+    description: Create OIDC Client V3 for FAPI flow with JWE userinfo response type
+    role: partner
+    restMethod: post
+    inputTemplate: esignet/FAPI/FAPICreateOIDCClientV3/FAPICreateOIDCClient
+    outputTemplate: esignet/FAPI/FAPICreateOIDCClientV3/FAPICreateOIDCClientResult
+    input: '{
+      "requestTime": "$TIMESTAMP$",
+      "clientId": "$RANDOMPARTNERID$",
+      "clientName": "MOSIP FAPI OIDC Client",
+      "logoUri": "https://health-services.com/logo.png",
+      "relyingPartyId": "mock-relying-party-id",
+      "redirectUris": "$IDPREDIRECTURI$",
+      "publicKey": "$OIDC_JWK_KEY_FAPI_JWE$",
+      "userClaims1": "name",
+      "userClaims2": "email",
+      "userClaims3": "gender",
+      "userClaims4": "phone_number",
+      "userClaims5": "birthdate",
+      "authContextRefs": [{"acrValues": "mosip:idp:acr:static-code"},{"acrValues": "mosip:idp:acr:generated-code"},{"acrValues": "mosip:idp:acr:biometrics"}],
+      "grantTypes": "authorization_code",
+      "clientAuthMethods": "private_key_jwt",
+      "keyLang1": "$1STLANG$",
+      "clientNameLang": "MOSIP FAPI OIDC Client",
+      "userinfo_response_type": "JWE",
+      "purpose_title": "title",
+      "purpose_type": "verify",
+      "purpose_subTitle": "subtitle",
+      "signup_banner_required": true,
+      "forgot_pwd_link_required": true,
+      "consent_expire_in_mins": 120,
+      "require_pushed_authorization_requests": true,
+      "dpop_bound_access_tokens": true,
+      "require_pkce": true
+}'
+    output: '{
+      "status": "ACTIVE"
+}'

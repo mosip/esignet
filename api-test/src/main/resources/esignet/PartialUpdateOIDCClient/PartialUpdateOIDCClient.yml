@@ -5,6 +5,7 @@ PartialUpdateOIDCClient:
     description: Partial Update OIDCClient with Patch endpoint for valid encryption JWK to enable JWE based UserInfo responses
     role: partner
     restMethod: patch
+    additionalDependencies: TC_ESignet_OIDCClientV3_E2EMock_02
     inputTemplate: esignet/PartialUpdateOIDCClient/PartialUpdateOIDCClient
     outputTemplate: esignet/PartialUpdateOIDCClient/PartialUpdateOIDCClientResult
     input: '{
@@ -21,12 +22,129 @@ PartialUpdateOIDCClient:
     description: Partial Update OIDCClient with encryption public key for updated JWE UserInfo support in V3 MOCK flow
     role: partner
     restMethod: patch
+    additionalDependencies: TC_ESignet_OIDCClientV3_E2EMock_03
     inputTemplate: esignet/PartialUpdateOIDCClient/PartialUpdateOIDCClient
     outputTemplate: esignet/PartialUpdateOIDCClient/PartialUpdateOIDCClientResult
     input: '{
       "requestTime": "$TIMESTAMP$",
       "clientId": "$ID:CreateOIDCClientV3_MOCK_all_Valid_forUserInfoToUpdateClient_Smoke_sid_clientId$",
       "encPublicKey": "$OIDCJWKKEY14$"
+}'
+    output: '{
+      "status": "ACTIVE"
+}'
+  ESignet_PartialUpdateOIDCClient_MOCK_Invlalid_alg_invalid_Public_key_values_value_Neg:
+    endPoint: /v1/esignet/client-mgmt/client/{clientId}
+    uniqueIdentifier: TC_ESignet_PatchOIDCClient_03
+    description: Partial Update OIDC Client with invalid public keys values in encryption public key during JWE UserInfo configuration update in V3 MOCK flow and verify that the request fails with invalid public_key error
+    role: partner
+    restMethod: patch
+    additionalDependencies: TC_ESignet_OIDCClientV3_E2EMock_02
+    inputTemplate: esignet/PartialUpdateOIDCClient/PartialUpdateOIDCClientNegSce
+    outputTemplate: esignet/error
+    input: '{
+      "requestTime": "$TIMESTAMP$",
+      "clientId": "$ID:CreateOIDCClientV3_MOCK_all_Valid_forUserInfoJWE_Smoke_sid_clientId$",
+      "kty": "XYZ",
+      "e": "AQAB",
+      "use": "sig",
+      "kid": "RXby0U2xrdZcLq_X7U7TR0O646sSEWYsSsxCu8P6YGE",
+      "alg": "",
+      "n": "mfJudo-L9sy-1guqQwjCdg4ZkeR2KKlhId699HXxTSoh1wkFfPwIpq-nnXgvXC5oEj6pwifcwrfbcZiDS-yuaVRzQQ8GWiyZswE3mUzlplti3QlUU_yMt2mA2BtbfAKJ4iNvq24L2cxah7m0IchQEaacetp9NRxXlhqTpmcNunahsaMI7HnHI2D60gpsuC2F8VjtryV5eZDy2jI28UnTlFgaFc7J_UFNObtTIi8OOX5A4xAxPJ8gEceAEPz0zAU8ARzZIGYch7MbqmZN4YMLShoRub6F1a6xT_NBAjkmIhniBBre1goRwLfSFbn2ipnujP_rA-nVKF9Is-x1URLnWQ"
+}'
+    output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_public_key"
+    }
+  ]
+}'
+  ESignet_PartialUpdateOIDCClient_MOCK_Invlalid_ClientID_Neg:
+    endPoint: /v1/esignet/client-mgmt/client/{clientId}
+    uniqueIdentifier: TC_ESignet_PatchOIDCClient_04
+    description: Partial Update OIDC Client with invalid clientId during JWE UserInfo encryption public key update in V3 MOCK flow and verify that the request fails with invalid client id error
+    role: partner
+    restMethod: patch
+    inputTemplate: esignet/PartialUpdateOIDCClient/PartialUpdateOIDCClientNegSce
+    outputTemplate: esignet/error
+    input: '{
+      "requestTime": "$TIMESTAMP$",
+      "clientId": "12345699293404mosip",
+      "kty": "XYZ",
+      "e": "AQAB",
+      "use": "sig",
+      "kid": "RXby0U2xrdZcLq_X7U7TR0O646sSEWYsSsxCu8P6YGE",
+      "alg": "RS256",
+      "n": "mfJudo-L9sy-1gwsfsdfsfsfg4ZkeR2KKlhId699HXxTSoh1wkFfPwIpq-nnXgvXC5oEj6pwifcwrfbcZiDS-yuaVRzQQ8GWiyZswE3mUzlplti3QlUU_yMt2mA2BtbfAKJ4iNvq24L2cxah7m0IchQEaacetp9NRxXlhqTpmcNunahsaMI7HnHI2D60gpsuC2F8VjtryV5eZDy2jI28UnTlFgaFc7J_UFNObtTIi8OOX5A4xAxPJ8gEceAEPz0zAU8ARzZIGYch7MbqmZN4YMLShoRub6F1a6xT_NBAjkmIhniBBre1goRwLfSFbn2ipnujP_rA-nVKF9Is-x1URLnWQ"
+}'
+    output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_client_id"
+    }
+  ]
+}'
+  ESignet_PartialUpdateOIDCClient_MOCK_Missing_kid_value_Neg:
+    endPoint: /v1/esignet/client-mgmt/client/{clientId}
+    uniqueIdentifier: TC_ESignet_PatchOIDCClient_05
+    description: Partial Update OIDC Client with missing kid value in encryption public key during JWE UserInfo configuration update in V3 MOCK flow and verify that the request fails with invalid public key error
+    role: partner
+    restMethod: patch
+    additionalDependencies: TC_ESignet_OIDCClientV3_E2EMock_02
+    inputTemplate: esignet/PartialUpdateOIDCClient/PartialUpdateOIDCClientNegSce
+    outputTemplate: esignet/error
+    input: '{
+      "requestTime": "$TIMESTAMP$",
+      "clientId": "$ID:CreateOIDCClientV3_MOCK_all_Valid_forUserInfoJWE_Smoke_sid_clientId$",
+      "kty": "XYZ",
+      "e": "AQAB",
+      "use": "sig",
+      "kid": "$REMOVE$",
+      "alg": "RS256",
+      "n": "mfJudo-L9sy-1gwsfsdfsfsfg4ZkeR2KKlhId699HXxTSoh1wkFfPwIpq-nnXgvXC5oEj6pwifcwrfbcZiDS-yuaVRzQQ8GWiyZswE3mUzlplti3QlUU_yMt2mA2BtbfAKJ4iNvq24L2cxah7m0IchQEaacetp9NRxXlhqTpmcNunahsaMI7HnHI2D60gpsuC2F8VjtryV5eZDy2jI28UnTlFgaFc7J_UFNObtTIi8OOX5A4xAxPJ8gEceAEPz0zAU8ARzZIGYch7MbqmZN4YMLShoRub6F1a6xT_NBAjkmIhniBBre1goRwLfSFbn2ipnujP_rA-nVKF9Is-x1URLnWQ"
+}'
+    output: '{
+      "errors": [
+    {
+      "errorCode": "invalid_public_key"
+    }
+  ]
+}'
+  ESignet_PartialUpdateOIDCClient_MOCK_Duplicate_EncKey_forUserInfoUpdateJWE_Neg:
+    endPoint: /v1/esignet/client-mgmt/client/{clientId}
+    uniqueIdentifier: TC_ESignet_PatchOIDCClient_06
+    description: Partial Update OIDC Client with duplicate encryption public key during JWE UserInfo configuration update in V3 MOCK flow and verify that the client status remains ACTIVE
+    role: partner
+    restMethod: patch
+    additionalDependencies: TC_ESignet_PatchOIDCClient_02
+    inputTemplate: esignet/PartialUpdateOIDCClient/PartialUpdateOIDCClient
+    outputTemplate: esignet/PartialUpdateOIDCClient/PartialUpdateOIDCClientResult
+    input: '{
+      "requestTime": "$TIMESTAMP$",
+      "clientId": "$ID:CreateOIDCClientV3_MOCK_all_Valid_forUserInfoToUpdateClient_Smoke_sid_clientId$",
+      "encPublicKey": "$OIDCJWKKEY14$"
+}'
+    output: '{
+      "status": "ACTIVE"
+}'
+  ESignet_PartialUpdateOIDCClient_MOCK_Different_Encryption_alg_value_Pos:
+    endPoint: /v1/esignet/client-mgmt/client/{clientId}
+    uniqueIdentifier: TC_ESignet_PatchOIDCClient_07
+    description: Partial Update OIDC Client with RSA-OAEP-256 content encryption algorithm in encryption public key during JWE UserInfo configuration update in V3 MOCK flow and verify that the client status remains ACTIVE
+    role: partner
+    restMethod: patch
+    additionalDependencies: TC_ESignet_OIDCClientV3_E2EMock_02
+    inputTemplate: esignet/PartialUpdateOIDCClient/PartialUpdateOIDCClientNegSce
+    outputTemplate: esignet/PartialUpdateOIDCClient/PartialUpdateOIDCClientResult
+    input: '{
+      "requestTime": "$TIMESTAMP$",
+      "clientId": "$ID:CreateOIDCClientV3_MOCK_all_Valid_forUserInfoJWE_Smoke_sid_clientId$",
+      "kty": "RSA",
+      "e": "AQAB",
+      "use": "enc",
+      "kid": "Wa8SeFHOgsya0d05vxDWVy57Tpz-WQqQhDvJ38oRUuA",
+      "alg": "RSA-OAEP-256",
+      "n": "mfJudo-L9sy-1guqQwjCdg4ZkeR2KKlhId699HXxTSoh1wkFfPwIpq-nnXgvXC5oEj6pwifcwrfbcZiDS-yuaVRzQQ8GWiyZswE3mUzlplti3QlUU_yMt2mA2BtbfAKJ4iNvq24L2cxah7m0IchQEaacetp9NRxXlhqTpmcNunahsaMI7HnHI2D60gpsuC2F8VjtryV5eZDy2jI28UnTlFgaFc7J_UFNObtTIi8OOX5A4xAxPJ8gEceAEPz0zAU8ARzZIGYch7MbqmZN4YMLShoRub6F1a6xT_NBAjkmIhniBBre1goRwLfSFbn2ipnujP_rA-nVKF9Is-x1URLnWQ"
 }'
     output: '{
       "status": "ACTIVE"

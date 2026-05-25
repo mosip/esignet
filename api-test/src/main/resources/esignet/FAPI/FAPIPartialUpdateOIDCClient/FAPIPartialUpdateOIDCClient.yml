@@ -1,0 +1,18 @@
+FAPIPartialUpdateOIDCClient:
+  ESignet_FAPIPartialUpdateOIDCClient_all_Valid_forUserInfoJWE_Smoke_sid:
+    endPoint: /v1/esignet/client-mgmt/client/{clientId}
+    uniqueIdentifier: TC_ESignet_FAPI_PartialUpdateOIDCClient_01
+    description: Partial Update FAPI OIDC Client with encryption public key for JWE userinfo
+    role: partner
+    restMethod: patch
+    additionalDependencies: TC_ESignet_FAPI_CreateOIDCClient_02
+    inputTemplate: esignet/FAPI/FAPIPartialUpdateOIDCClient/FAPIPartialUpdateOIDCClient
+    outputTemplate: esignet/PartialUpdateOIDCClient/PartialUpdateOIDCClientResult
+    input: '{
+      "requestTime": "$TIMESTAMP$",
+      "clientId": "$ID:CreateOIDCClientFAPI_all_Valid_forUserInfoJWE_Smoke_sid_clientId$",
+      "encPublicKey": "$OIDCJWKKEY13$"
+}'
+    output: '{
+      "status": "ACTIVE"
+}'
