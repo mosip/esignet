@@ -1163,12 +1163,10 @@ public class AuthorizationServiceTest {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setCookies(new Cookie("qY--5Y4ToFkWToXJrRFmPWPHDZLkciML4-_g1L2A5xI", "5Y4ToFkWToXJrRFmPWPHDZLkciML4" + SERVER_NONCE_SEPARATOR + "test-state"));
 
-        try {
-            OAuthDetailResponseV2 oauthDetailResponseV2 = authorizationServiceImpl.getOauthDetailsV3(oauthDetailRequest, request);
-            Assertions.assertNotNull(oauthDetailResponseV2);
-        } catch (EsignetException e) {
-            Assertions.assertEquals(ErrorConstants.LOGIN_REQUIRED, e.getErrorCode());
-        }
+        EsignetException e = Assertions.assertThrows(EsignetException.class, () -> {
+            authorizationServiceImpl.getOauthDetailsV3(oauthDetailRequest, request);
+        });
+        Assertions.assertEquals(ErrorConstants.LOGIN_REQUIRED, e.getErrorCode());
     }
 
     @Test
