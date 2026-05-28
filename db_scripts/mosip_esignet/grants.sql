@@ -1,17 +1,17 @@
-\c mosip_esignet
+\c :mosipdbname
 
 GRANT CONNECT
-   ON DATABASE mosip_esignet
-   TO esignetuser;
+   ON DATABASE :mosipdbname
+   TO :dbuname;
 
 GRANT USAGE
    ON SCHEMA esignet
-   TO esignetuser;
+   TO :dbuname;
 
 GRANT SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES
    ON ALL TABLES IN SCHEMA esignet
-   TO esignetuser;
+   TO :dbuname;
 
 ALTER DEFAULT PRIVILEGES IN SCHEMA esignet
-	GRANT SELECT,INSERT,UPDATE,DELETE,REFERENCES ON TABLES TO esignetuser;
+	GRANT SELECT,INSERT,UPDATE,DELETE,REFERENCES ON TABLES TO :dbuname;
 

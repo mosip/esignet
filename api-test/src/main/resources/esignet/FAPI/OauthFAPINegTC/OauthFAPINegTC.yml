@@ -1,0 +1,91 @@
+OauthFAPINegTC:
+   ESignet_OauthFAPI_Invalid_Code_Challenge_Neg:
+      endPoint: /v1/esignet/oauth/par
+      uniqueIdentifier: TC_ESignet_Oauth_FAPI_NegTC_01
+      description: Verify that the PAR endpoint rejects requests with an invalid code challenge method and returns an invalid request error
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/FAPI/OauthFAPI/OauthFAPI
+      outputTemplate: esignet/error2
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "client_id": "$ID:CreateOIDCClientFAPI_all_Valid_Smoke_sid_clientId$", 
+       "scope": "openid profile",
+       "response_type": "code",
+       "redirect_uri": "$IDPREDIRECTURI$",
+       "display": "popup",
+       "prompt": "consent",
+       "acr_values": "mosip:idp:acr:generated-code",
+       "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+       "state": "eree2311",
+       "claim_locales": "en",
+       "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+       "client_assertion": "$CLIENT_ASSERTION_FAPI_JWT$",
+       "aud_key": "pushed_authorization_request_endpoint",
+       "dpop_jkt": "$DPOP_JKT$",
+       "code_challenge": "$CODE_CHALLENGE$",
+       "code_challenge_method": "S25"
+}'
+      output: '{
+            "error": "invalid_request"
+}'
+   ESignet_OauthFAPINegTC_Missing_code_challenge_ForNeg_sid:
+      endPoint: /v1/esignet/oauth/par
+      uniqueIdentifier: TC_ESignet_Oauth_FAPI_NegTC_02
+      description: Verify that the PAR endpoint rejects requests missing both code_challenge and code challenge method returning an error indicating PKCE is required
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/FAPI/OauthFAPI/OauthFAPI
+      outputTemplate: esignet/FAPI/OauthFAPI/OauthFAPIResult
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "client_id": "$ID:CreateOIDCClientFAPI_all_Valid_Smoke_sid_clientId$", 
+       "scope": "openid profile",
+       "response_type": "code",
+       "redirect_uri": "$IDPREDIRECTURI$",
+       "display": "popup",
+       "prompt": "consent",
+       "acr_values": "mosip:idp:acr:generated-code",
+       "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+       "state": "eree2311",
+       "claim_locales": "en",
+       "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+       "client_assertion": "$CLIENT_ASSERTION_FAPI_JWT$",
+       "aud_key": "pushed_authorization_request_endpoint",
+       "dpop_jkt": "$DPOP_JKT$",
+       "code_challenge": "$REMOVE$",
+       "code_challenge_method": "$REMOVE$"
+}'
+      output: '{
+}'
+   ESignet_OauthFAPINegTC_Invalid_client_assertion_Neg:
+      endPoint: /v1/esignet/oauth/par
+      uniqueIdentifier: TC_ESignet_Oauth_FAPI_NegTC_03
+      description: Verify that the PAR endpoint rejects requests with an invalid client assertion and returns an invalid client error
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/FAPI/OauthFAPI/OauthFAPI
+      outputTemplate: esignet/error2
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "client_id": "$ID:CreateOIDCClientFAPI_all_Valid_Smoke_sid_clientId$", 
+       "scope": "openid profile",
+       "response_type": "code",
+       "redirect_uri": "$IDPREDIRECTURI$",
+       "display": "popup",
+       "prompt": "consent",
+       "acr_values": "mosip:idp:acr:generated-code",
+       "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+       "state": "eree2311",
+       "claim_locales": "en",
+       "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+       "client_assertion": "$CLIENT_ASSERTION_FAPI_J1111$",
+       "aud_key": "pushed_authorization_request_endpoint",
+       "dpop_jkt": "$DPOP_JKT$",
+       "code_challenge": "$CODE_CHALLENGE$",
+       "code_challenge_method": "$CODE_CHALLENGE_METHOD$"
+}'
+      output: '{
+            "error": "invalid_client"
+}'

@@ -192,26 +192,41 @@ public class GetWithParam extends EsignetUtil implements ITest {
 						testCaseDTO.getOutput());
 				ouputValid = new HashMap<>();
 				ouputValid.put(GlobalConstants.EXPECTED_VS_ACTUAL, List.of(customResponse));
-			} else if (testCaseName.contains("_GetUserInfoJWS_")) {
+			} else if (testCaseName.contains("_GetUserInfoJWS_") 
+			        || testCaseName.contains("_GetUserInfoJWE_")) {
 
-				if (responseBody == null || responseBody.isEmpty()) {
-					throw new AdminTestException("Response body is empty");
+			    if (responseBody == null || responseBody.isEmpty()) {
+			        throw new AdminTestException("Response body is empty");
+			    }
+
+				try {
+					String jwtToken;
+					if (responseBody.trim().startsWith("{")) {
+						JSONObject responseJson = new JSONObject(responseBody);
+						jwtToken = responseJson.optString("idpAccessToken", responseBody);
+					} else {
+						jwtToken = responseBody;
+					}
+					System.out.println("JWT Parts Count: " + jwtToken.split("\\.").length);
+
+					// Decode (JWS + JWE)
+					JSONObject decoded = EsignetUtil.decodeUserInfoJWT(jwtToken);
+					JSONObject payload = decoded.getJSONObject("payload");
+
+					GlobalMethods.reportResponse(
+							decoded.has("header") ? decoded.getJSONObject("header").toString() : null, null,
+							payload.toString(), true);
+					JSONObject finalJson = new JSONObject();
+
+					if (decoded.has("header")) {
+						finalJson.put("header", decoded.getJSONObject("header"));
+					}
+					finalJson.put("payload", payload);
+					ouputValid = OutputValidationUtil.doJsonOutputValidation(finalJson.toString(), outputJson,
+							testCaseDTO, response.getStatusCode());
+				} catch (Exception e) {
+					throw new AdminTestException("Failed to process JWT/JWE: " + e.getMessage());
 				}
-
-				String finalJsonString = AdminTestUtil.decodeAndCombineJwt(responseBody);
-
-				if (finalJsonString == null) {
-					throw new AdminTestException("Failed to decode JWS response");
-				}
-
-				DecodedJWT jwt = JWT.decode(responseBody);
-				String headerJson = AdminTestUtil.decodeBase64Url(jwt.getHeader());
-				String payloadJson = AdminTestUtil.decodeBase64Url(jwt.getPayload());
-
-				GlobalMethods.reportResponse(headerJson, null, payloadJson, true);
-
-				ouputValid = OutputValidationUtil.doJsonOutputValidation(finalJsonString, outputJson, testCaseDTO,
-						response.getStatusCode());
 
 			} else {
 

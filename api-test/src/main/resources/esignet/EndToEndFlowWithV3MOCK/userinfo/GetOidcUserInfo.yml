@@ -1,5 +1,5 @@
 GetOidcUserInfo:
-   ESignet_GetOidcUserInfo_MOCK_uin_IdpAccessToken_StatusCode_forJWSInfo_Valid_Smoke:
+   ESignet_GetOidcUserInfo_MOCK_uin_IdpAccessToken_UIN_AccessToken_GetUserInfoJWS_Valid_Smoke:
       endPoint: /v1/esignet/oidc/userinfo
       uniqueIdentifier: TC_ESignet_GetOidcUserInfoForV3_E2EMock_01
       description: Get OIDC user info with all valid details UIN
@@ -7,13 +7,14 @@ GetOidcUserInfo:
       restMethod: get
       validityCheckRequired: true
       inputTemplate: esignet/EndToEndFlowWithV3MOCK/userinfo/GetOidcUserInfo
-      outputTemplate: esignet/EndToEndFlowWithV3MOCK/userinfo/GetOidcUserInfoResult
+      outputTemplate: esignet/EndToEndFlowWithV3MOCK/userinfo/GetOidcUserInfoDecryptResult
       input: '{
       	"idpAccessToken": "$ID:GenerateToken_MOCK_uin_Valid_forUserInfo_Smoke_sid_access_token$"
 }'
-      output: "200"
-
-   ESignet_GetOidcUserInfo_MOCK_uin_IdpAccessToken_StatusCode_forJWEInfo_Valid_Smoke:
+      output: '{
+        "aud": "$ID:CreateOIDCClientV3_MOCK_all_Valid_forUserInfo_Smoke_sid_clientId$"
+}'
+   ESignet_GetOidcUserInfo_MOCK_uin_IdpAccessToken_StatusCode_Valid_Smoke:
       endPoint: /v1/esignet/oidc/userinfo
       uniqueIdentifier: TC_ESignet_GetOidcUserInfoForV3_E2EMock_02
       description: Get OIDC user info with all valid details UIN
@@ -22,12 +23,11 @@ GetOidcUserInfo:
       validityCheckRequired: true
       additionalDependencies: TC_ESignet_PatchOIDCClient_01
       inputTemplate: esignet/EndToEndFlowWithV3MOCK/userinfo/GetOidcUserInfo
-      outputTemplate: esignet/EndToEndFlowWithV3MOCK/userinfo/GetOidcUserInfoResult
+      outputTemplate: esignet/EndToEndFlowWithV3MOCK/userinfo/GetOidcUserInfoDecryptResult
       input: '{
       	"idpAccessToken": "$ID:GenerateToken_MOCK_uin_Valid_forUserInfoJWE_Smoke_sid_access_token$"
 }'
       output: "200"
-
    ESignet_GetOidcUserInfo_MOCK_uin_IdpAccessToken_StatusCode_toUpdatedJWEInfo_Valid_Smoke:
       endPoint: /v1/esignet/oidc/userinfo
       uniqueIdentifier: TC_ESignet_GetOidcUserInfoForV3_E2EMock_03
@@ -42,4 +42,16 @@ GetOidcUserInfo:
       	"idpAccessToken": "$ID:GenerateToken_MOCK_uin_Valid_forUserInfoUpdatedJWE_Smoke_sid_access_token$"
 }'
       output: "200"
-
+   ESignet_GetOidcUserInfo_MOCK_uin_IdpAccessToken_StatusCode_EmptyAccessToken_Neg:
+      endPoint: /v1/esignet/oidc/userinfo
+      uniqueIdentifier: TC_ESignet_GetOidcUserInfoForV3_E2EMock_04
+      description: Get OIDC userinfo with empty IdP access token; expect HTTP 401
+      role: resident
+      restMethod: get
+      validityCheckRequired: true
+      inputTemplate: esignet/EndToEndFlowWithV3MOCK/userinfo/GetOidcUserInfo
+      outputTemplate: esignet/EndToEndFlowWithV3MOCK/userinfo/GetOidcUserInfoResult
+      input: '{
+      	"idpAccessToken": ""
+}'
+      output: "401"

@@ -697,9 +697,61 @@ CreateOIDCClient:
       output: '{
         "status": "ACTIVE"
 }'
-   Esignet_CreateOIDCClient_With_DataSharePlocy_Neg:
+   Esignet_CreateOIDCClientFAPI_all_Valid_Smoke_sid:
       endPoint: /v1/partnermanager/oidc/client
       uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_29
+      description: Create OIDC client with all valid details for MOSIP ID FAPI flow
+      role: partner
+      restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
+      inputTemplate: esignet/OidcClient/OIDCClientFAPI
+      outputTemplate: esignet/OidcClient/OIDCClientResult
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_All_Valid_Smoke_sid_id$",
+        "publicKey": "$JWKKEY$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "[\"$IDPREDIRECTURI$\",\"$IDPREDIRECTURI$\"]",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "status": "ACTIVE"
+}'
+Esignet_CreateOIDCClientFAPI_all_Valid_forUserInfoJWE_Smoke_sid:
+      endPoint: /v1/partnermanager/oidc/client
+      uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_30
+      description: Create OIDC client with all valid details for MOSIP ID FAPI JWE userinfo flow
+      role: partner
+      restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
+      inputTemplate: esignet/OidcClient/OIDCClientFAPI
+      outputTemplate: esignet/OidcClient/OIDCClientResult
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_All_Valid_Smoke_sid_id$",
+        "publicKey": "$OIDC_JWK_KEY_FAPI_JWE$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "userClaims1": "name",
+        "userClaims2": "email",
+        "userClaims3": "gender",
+        "userClaims4": "phone_number",
+        "userClaims5": "birthdate",
+        "authContextRefs": [{"acrValues": "mosip:idp:acr:static-code"},{"acrValues": "mosip:idp:acr:generated-code"},{"acrValues": "mosip:idp:acr:biometrics"}],
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt",
+        "keyLang1": "$1STLANG$",
+        "clientNameLang": "MOSIP FAPI OIDC Client"
+}'
+      output: '{
+        "status": "ACTIVE"
+}'
+   Esignet_CreateOIDCClient_With_DataSharePlocy_Neg:
+      endPoint: /v1/partnermanager/oidc/client
+      uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_31
       description: Create OIDC client With Data Share Policy
       role: partner
       restMethod: post
@@ -725,7 +777,7 @@ CreateOIDCClient:
 }'
    Esignet_CreateOIDCClient_With_MISP_Policy_Neg:
       endPoint: /v1/partnermanager/oidc/client
-      uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_30
+      uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_32
       description: Create OIDC client With MISP Policy
       role: partner
       restMethod: post
@@ -751,7 +803,7 @@ CreateOIDCClient:
 }'
    Esignet_CreateOIDCClient_With_Not_Approved_Policy_Neg:
       endPoint: /v1/partnermanager/oidc/client
-      uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_31
+      uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_33
       description: Create OIDC client With Not Approved Policy
       role: partner
       restMethod: post
@@ -777,7 +829,7 @@ CreateOIDCClient:
 }'
    Esignet_CreateOIDCClient_With_Same_AuthPartner_With_Diff_Policy_Neg:
       endPoint: /v1/partnermanager/oidc/client
-      uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_32
+      uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_34
       description: Create OIDC client With Not Approved Policy
       role: partner
       restMethod: post
@@ -799,7 +851,7 @@ CreateOIDCClient:
 }'
    Esignet_CreateOIDCClient_With_More_Than_One_RedirectedUri_sid:
       endPoint: /v1/partnermanager/oidc/client
-      uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_33
+      uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_35
       description: Create OIDC client with all valid details
       role: partner
       restMethod: post
@@ -821,7 +873,7 @@ CreateOIDCClient:
 }'
    Esignet_CreateOIDCClient_For_Policy_WithOut_FullName_Email_Gender_sid:
       endPoint: /v1/partnermanager/oidc/client
-      uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_34
+      uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_36
       description: Create OIDC client with all valid details
       role: partner
       restMethod: post
@@ -843,7 +895,7 @@ CreateOIDCClient:
 }'
    Esignet_CreateOIDCClient_For_Policy_WithOut_AllowedAuthTypes_sid:
       endPoint: /v1/partnermanager/oidc/client
-      uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_35
+      uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_37
       description: Create OIDC client with all valid details
       role: partner
       restMethod: post
@@ -865,7 +917,7 @@ CreateOIDCClient:
 }'
    Esignet_CreateOIDCClient_For_Policy_WithOut_AllowedKycAttributes_sid:
       endPoint: /v1/partnermanager/oidc/client
-      uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_36
+      uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_38
       description: Create OIDC client with all valid details
       role: partner
       restMethod: post

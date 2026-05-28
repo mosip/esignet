@@ -67,4 +67,5 @@ public class Constants {
     public static final String REQUIRE_PKCE= "require_pkce";
     public static final String NONE= "none";
     public static final String LOGIN = "login";
+    public static final String SELECT_ACCOUNT = "select_account";
 }

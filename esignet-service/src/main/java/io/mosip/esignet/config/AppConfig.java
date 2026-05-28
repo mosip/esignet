@@ -16,9 +16,14 @@ import io.mosip.kernel.keymanagerservice.dto.KeyPairGenerateRequestDto;
 import io.mosip.kernel.keymanagerservice.dto.SymmetricKeyGenerateRequestDto;
 import io.mosip.kernel.keymanagerservice.service.KeymanagerService;
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.hc.client5.http.config.ConnectionConfig;
+import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
@@ -26,12 +31,14 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadPoolExecutor;
 
 @Configuration
 @Slf4j
@@ -41,16 +48,49 @@ public class AppConfig implements ApplicationRunner {
     private static final List<String> SERVER_PROFILE_ADDITIONAL_CONFIG_KEYS = List.of(
             "dpop_bound_access_tokens",
             "require_pkce",
-            "user_info_response_type",
+            "userinfo_response_type",
             "require_pushed_authorization_requests"
     );
 
 
+    //Maximum connections per route (host). Default is set to 20
     @Value("${mosip.esignet.default.httpclient.connections.max.per.host:20}")
     private int defaultMaxConnectionPerRoute;
 
+    //Maximum total connections in the connection pool. Default is set to 100
     @Value("${mosip.esignet.default.httpclient.connections.max:100}")
     private int defaultTotalMaxConnection;
+
+    //Time to establish the connection with the remote host. Default is set to 5000 ms (5 seconds)
+    @Value("${mosip.esignet.default.httpclient.connection.timeout:5}")
+    private long defaultConnectionTimeout;
+
+    //Time it waits for data after establishing the connection; maximum time of inactivity between two data packets. Default is set to 10000 ms (10 seconds)
+    @Value("${mosip.esignet.default.httpclient.socket.timeout:10}")
+    private long defaultSocketTimeout;
+
+    //Time it waits to get free connection from the connection pool. Default is set to 2000 ms (2 seconds)
+    @Value("${mosip.esignet.default.httpclient.connection.request.timeout:2}")
+    private long defaultConnectionRequestTimeout;
+
+    //Time after which idle connections in the connection pool will be evicted. Default is set to 30000 ms (30 seconds)
+    @Value("${mosip.esignet.default.httpclient.connection.idle.timeout:30}")
+    private long defaultIdleTimeout;
+
+    @Value("${mosip.esignet.audit.executor.core-pool-size:5}")
+    private int auditExecutorCorePoolSize;
+
+    @Value("${mosip.esignet.audit.executor.max-pool-size:20}")
+    private int auditExecutorMaxPoolSize;
+
+    @Value("${mosip.esignet.audit.executor.queue-capacity:500}")
+    private int auditExecutorQueueCapacity;
+
+    @Value("${mosip.esignet.audit.executor.keep-alive-seconds:60}")
+    private int auditExecutorKeepAliveSeconds;
+
+    @Value("${mosip.esignet.audit.executor.thread-name-prefix:audit-}")
+    private String auditExecutorThreadNamePrefix;
 
     @Value("${mosip.esignet.cache.security.secretkey.reference-id}")
     private String cacheSecretKeyRefId;
@@ -76,14 +116,38 @@ public class AppConfig implements ApplicationRunner {
         PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
         connectionManager.setMaxTotal(defaultTotalMaxConnection);
         connectionManager.setDefaultMaxPerRoute(defaultMaxConnectionPerRoute);
+        ConnectionConfig connectionConfig = ConnectionConfig.custom()
+                .setConnectTimeout(Timeout.ofSeconds(defaultConnectionTimeout))
+                .setSocketTimeout(Timeout.ofSeconds(defaultSocketTimeout))
+                .build();
+
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setConnectionRequestTimeout(Timeout.ofSeconds(defaultConnectionRequestTimeout))
+                .build();
+
+        connectionManager.setDefaultConnectionConfig(connectionConfig);
         HttpClientBuilder httpClientBuilder = HttpClients.custom()
                 .setConnectionManager(connectionManager)
-                .disableCookieManagement();
+                .setDefaultRequestConfig(requestConfig)
+                .disableCookieManagement()
+                .evictIdleConnections(TimeValue.ofSeconds(defaultIdleTimeout));
         HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
         requestFactory.setHttpClient(httpClientBuilder.build());
         return new RestTemplate(requestFactory);
     }
 
+    @Bean("auditTaskExecutor")
+    public ThreadPoolTaskExecutor auditTaskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(auditExecutorCorePoolSize);
+        executor.setMaxPoolSize(auditExecutorMaxPoolSize);
+        executor.setQueueCapacity(auditExecutorQueueCapacity);
+        executor.setThreadNamePrefix(auditExecutorThreadNamePrefix);
+        executor.setKeepAliveSeconds(auditExecutorKeepAliveSeconds);
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        executor.initialize();
+        return executor;
+    }
 
     /**
      * Get the features associated with the profile

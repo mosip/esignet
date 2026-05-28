@@ -15,7 +15,6 @@ OAuthConsentNoCapture:
         "responseType": "code",
         "redirectUri": "$IDPREDIRECTURI$",
         "display": "popup",
-        "prompt": "login",
         "acrValues": "mosip:idp:acr:generated-code",
         "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
         "state": "urlInfo1724138417665",

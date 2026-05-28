@@ -42,7 +42,7 @@ eSignet repository contains following:
 Refer to [SQL scripts](db_scripts).
 
 ## Build (for developers)
-The project requires JDK 11.
+The project requires JDK 21.
 1. Build:
     ```
     $ mvn clean install -Dgpg.skip=true -Dmaven.gitcommitid.skip=true

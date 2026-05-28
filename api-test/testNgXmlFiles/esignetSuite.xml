@@ -1024,6 +1024,103 @@
 				name="io.mosip.testrig.apirig.esignet.testscripts.GetWithParam" />
 		</classes>
 	</test>
+		<test name="FAPICreateOIDCClient">
+		<parameter name="ymlFile"
+			value="esignet/FAPI/FAPICreateOIDCClientV3/FAPICreateOIDCClient.yml" />
+		<parameter name="idKeyName" value="clientId" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="FAPIPartialUpdateOIDCClient">
+		<parameter name="ymlFile"
+			value="esignet/FAPI/FAPIPartialUpdateOIDCClient/FAPIPartialUpdateOIDCClient.yml" />
+		<parameter name="pathParams" value="clientId" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.PatchWithPathParamsAndBody" />
+		</classes>
+	</test>
+	<test name="FAPIPatchClientConfig">
+		<parameter name="ymlFile"
+			value="esignet/FAPI/FAPIPatchClientConfig/FAPIPatchClientConfig.yml" />
+		<parameter name="pathParams" value="clientId" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.PatchWithPathParamsAndBody" />
+		</classes>
+	</test>
+		<test name="OauthFAPI">
+		<parameter name="ymlFile"
+			value="esignet/FAPI/OauthFAPI/OauthFAPI.yml" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
+		<parameter name="idKeyName" value="request_uri" />				
+		</classes>
+	</test>
+	<test name="FAPIOauthDetails">
+		<parameter name="ymlFile"
+			value="esignet/FAPI/FAPIOauthDetails/FAPIOauthDetails.yml" />
+		<parameter name="idKeyName" value="transactionId,encodedResp" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="FAPIAuthenticateUser">
+		<parameter name="ymlFile"
+			value="esignet/FAPI/FAPIAuthenticateUser/FAPIAuthenticateUser.yml" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.PostWithAutogenIdWithOtpGenerate" />
+		</classes>
+	</test>
+		<test name="FAPIAuthorizationCode">
+		<parameter name="ymlFile"
+			value="esignet/FAPI/FAPIAuthorizationCode/FAPIAuthorizationCode.yml" />
+		<parameter name="idKeyName" value="code" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+		<test name="FAPIGenerateToken">
+		<parameter name="ymlFile"
+			value="esignet/FAPI/FAPIGenerateToken/FAPIGenerateToken.yml" />
+		<parameter name="idKeyName" value="access_token" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
+		</classes>
+	</test>
+	<test name="FAPIGetUserInfo">
+		<parameter name="ymlFile"
+			value="esignet/FAPI/FAPIGetUserInfo/FAPIGetUserInfo.yml" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.GetWithParam" />
+		</classes>
+	</test>
+		<test name="OauthFAPINegTC">
+		<parameter name="ymlFile"
+			value="esignet/FAPI/OauthFAPINegTC/OauthFAPINegTC.yml" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
+		<parameter name="idKeyName" value="request_uri" />				
+		</classes>
+	</test>
+	<test name="FAPIOauthDetailsNegTC">
+		<parameter name="ymlFile"
+			value="esignet/FAPI/FAPIOauthDetailsNegTC/FAPIOauthDetailsNegTC.yml" />
+		<parameter name="idKeyName" value="transactionId,encodedResp" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
 	
 	<!-- End of end to end v3 with mock flow test cases -->
 

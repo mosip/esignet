@@ -231,6 +231,110 @@ public class AuthorizationServiceTest {
     }
 
     @Test
+    public void getOauthDetails_withRequestParameter_throwsRequestNotSupportedException() throws EsignetException {
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId("34567");
+        clientDetail.setName(new HashMap<>());
+        clientDetail.getName().put(Constants.NONE_LANG_KEY, "clientName");
+        clientDetail.setRedirectUris(Arrays.asList("http://localhost:8088/v1/idp"));
+        clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:static-code"));
+
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        oauthDetailRequest.setClientId("34567");
+        oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
+        oauthDetailRequest.setNonce("test-nonce");
+        oauthDetailRequest.setRequest("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."); // Setting request parameter
+
+        when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
+        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
+
+        try {
+            authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
+            Assertions.fail();
+        } catch (EsignetException e) {
+            Assertions.assertEquals(ErrorConstants.REQUEST_NOT_SUPPORTED, e.getErrorCode());
+        }
+    }
+
+    @Test
+    public void getOauthDetails_withPromptNone_throwsLoginRequiredException() throws EsignetException {
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId("34567");
+        clientDetail.setName(new HashMap<>());
+        clientDetail.getName().put(Constants.NONE_LANG_KEY, "clientName");
+        clientDetail.setRedirectUris(Arrays.asList("http://localhost:8088/v1/idp"));
+        clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:static-code"));
+
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        oauthDetailRequest.setClientId("34567");
+        oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
+        oauthDetailRequest.setNonce("test-nonce");
+        oauthDetailRequest.setPrompt("none"); // Setting unsupported prompt value
+
+        when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
+        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
+
+        try {
+            authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
+            Assertions.fail();
+        } catch (EsignetException e) {
+            Assertions.assertEquals(ErrorConstants.LOGIN_REQUIRED, e.getErrorCode());
+        }
+    }
+
+    @Test
+    public void getOauthDetails_withPromptLogin_throwsLoginRequiredException() throws EsignetException {
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId("34567");
+        clientDetail.setName(new HashMap<>());
+        clientDetail.getName().put(Constants.NONE_LANG_KEY, "clientName");
+        clientDetail.setRedirectUris(Arrays.asList("http://localhost:8088/v1/idp"));
+        clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:static-code"));
+
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        oauthDetailRequest.setClientId("34567");
+        oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
+        oauthDetailRequest.setNonce("test-nonce");
+        oauthDetailRequest.setPrompt("login"); // Setting unsupported prompt value
+
+        when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
+        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
+
+        try {
+            authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
+            Assertions.fail();
+        } catch (EsignetException e) {
+            Assertions.assertEquals(ErrorConstants.LOGIN_REQUIRED, e.getErrorCode());
+        }
+    }
+
+    @Test
+    public void getOauthDetails_withPromptContainingLogin_throwsLoginRequiredException() throws EsignetException {
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId("34567");
+        clientDetail.setName(new HashMap<>());
+        clientDetail.getName().put(Constants.NONE_LANG_KEY, "clientName");
+        clientDetail.setRedirectUris(Arrays.asList("http://localhost:8088/v1/idp"));
+        clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:static-code"));
+
+        OAuthDetailRequest oauthDetailRequest = new OAuthDetailRequest();
+        oauthDetailRequest.setClientId("34567");
+        oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
+        oauthDetailRequest.setNonce("test-nonce");
+        oauthDetailRequest.setPrompt("consent login"); // Space-delimited prompt containing unsupported value
+
+        when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
+        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
+
+        try {
+            authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
+            Assertions.fail();
+        } catch (EsignetException e) {
+            Assertions.assertEquals(ErrorConstants.LOGIN_REQUIRED, e.getErrorCode());
+        }
+    }
+
+    @Test
     public void getOauthDetails_whenParIsNotMandated_thenPass() throws EsignetException {
         ClientDetail clientDetail = new ClientDetail();
         clientDetail.setId("34567");
