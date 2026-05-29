@@ -516,10 +516,10 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         OIDCTransaction oidcTransaction = pair.getSecond();
 
         if (idTokenHint != null) {
-            OAuthDetailRequestV3 v3 = (OAuthDetailRequestV3) oauthDetailReqDto;
-            handleIdTokenHint(v3, httpServletRequest);
-            oidcTransaction.setNonce(v3.getNonce());
-            oidcTransaction.setState(v3.getState());
+            OAuthDetailRequestV3 oauthDetailRequestV3 = (OAuthDetailRequestV3) oauthDetailReqDto;
+            handleIdTokenHint(oauthDetailRequestV3, httpServletRequest);
+            oidcTransaction.setNonce(oauthDetailRequestV3.getNonce());
+            oidcTransaction.setState(oauthDetailRequestV3.getState());
         }
 
         //TODO - Need to check to persist credential scopes in consent registry
