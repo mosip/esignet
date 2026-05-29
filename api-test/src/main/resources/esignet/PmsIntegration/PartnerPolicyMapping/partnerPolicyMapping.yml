@@ -53,3 +53,21 @@ partnerPolicyMapping:
     }'
       output: '{
     }'
+   Esignet_partnerPolicyMapping_For_Policy_WithOut_AllowedKycAttributes_sid:
+      endPoint: /v1/partnermanager/partners/{partnerId}/policy/map
+      uniqueIdentifier: TC_PMS_PartnerPolicyMapping_04
+      description: Validate that partner policy mappings are retrieved successfully for all valid entries
+      role: partner
+      checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_PMS_createPartnerSelfRegistration_01  
+      restMethod: post 
+      inputTemplate: esignet/PmsIntegration/PartnerPolicyMapping/partnerPolicyMapping
+      outputTemplate: esignet/PmsIntegration/PartnerPolicyMapping/partnerPolicyMappingResult
+      input: '{
+        "partnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "policyName": "$ID:DefinePolicy_WithOut_AllowedKycAttributes_sid_name$",
+        "useCaseDescription": "Need to submit the payment",
+        "requesttime": "$TIMESTAMP$"
+    }'
+      output: '{
+    }'

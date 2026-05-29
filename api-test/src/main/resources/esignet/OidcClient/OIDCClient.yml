@@ -709,17 +709,25 @@ CreateOIDCClient:
       input: '{
         "name": "$RANDOMID$",
         "policyId": "$ID:DefinePolicy_All_Valid_Smoke_sid_id$",
-        "publicKey": "$JWKKEY$",
+        "publicKey": "$OIDC_JWK_KEY_FAPI$",
         "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
         "logoUri": "https://health-services.com/logo.png",
-        "redirectUris": "[\"$IDPREDIRECTURI$\",\"$IDPREDIRECTURI$\"]",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "userClaims1": "name",
+        "userClaims2": "email",
+        "userClaims3": "gender",
+        "userClaims4": "phone_number",
+        "userClaims5": "birthdate",
+        "authContextRefs": [{"acrValues": "mosip:idp:acr:static-code"},{"acrValues": "mosip:idp:acr:generated-code"},{"acrValues": "mosip:idp:acr:biometrics"}],
         "grantTypes": "authorization_code",
-        "clientAuthMethods": "private_key_jwt"
+        "clientAuthMethods": "private_key_jwt",
+        "keyLang1": "$1STLANG$",
+        "clientNameLang": "MOSIP FAPI OIDC Client"
 }'
       output: '{
         "status": "ACTIVE"
 }'
-Esignet_CreateOIDCClientFAPI_all_Valid_forUserInfoJWE_Smoke_sid:
+   Esignet_CreateOIDCClientFAPI_all_Valid_forUserInfoJWE_Smoke_sid:
       endPoint: /v1/partnermanager/oidc/client
       uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_30
       description: Create OIDC client with all valid details for MOSIP ID FAPI JWE userinfo flow
