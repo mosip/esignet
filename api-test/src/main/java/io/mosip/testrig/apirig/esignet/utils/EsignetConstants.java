@@ -38,5 +38,12 @@ public class EsignetConstants {
 	public static final String LANGUAGE = "language";
 	public static final String VALUE = "value";
 
-	
+	public static final String MOSIP_ESIGNET_SERVER_PROFILE = "mosip.esignet.server.profile";
+
+	public static final String FAPI2_0_SERVER_PROFILE = "fapi2.0";
+
+	public static final String FAPI_TEST_CASE_PATH = "esignet/FAPI";
+
+	public static final String FAPI_PREREQUISITE_TEST_CASE_MARKER = "For_FAPI";
+
 }

@@ -247,6 +247,10 @@
         "TC_ESignet_AuthorizationCodeWithoutVerifiedClaims_01"
     ],
     "TC_ESignet_OAuthDetailsRequestConsent_10": ["TC_ESignet_CreateOIDCClient_V2_01"],
+    "TC_ESignet_PKCE_JWE_GenerateToken_01": [
+        "TC_ESignet_PKCE_JWE_CreateOIDCClient_01",
+        "TC_ESignet_PKCE_JWE_AuthorizationCode_01"
+    ],
     "TC_ESignet_OAuthDetailsRequestLinkedConsent_01": ["TC_ESignet_CreateOIDCClient_V2_01"],
     "TC_ESignet_OAuthDetailsRequestLinkedConsent_02": ["TC_ESignet_CreateOIDCClient_V2_01"],
     "TC_ESignet_OAuthDetailsRequestLinkedConsent_03": ["TC_ESignet_CreateOIDCClient_V2_01"],
@@ -316,6 +320,10 @@
         "TC_ESignet_FAPI_AuthenticateUserV3_02"
     ],
     "TC_ESignet_GetLinkStatus_18": ["TC_ESignet_OAuthDetailsRequestLinked_07"],
+    "TC_ESignet_FAPI_GenerateToken_02": [
+        "TC_ESignet_FAPI_AuthorizationCode_01",
+        "TC_ESignet_FAPI_CreateOIDCClient_01"
+    ],
     "TC_ESignet_WalletBinding_01": [
         "Dependent_Idrepo_AddIdentity_04",
         "Dependent_Idrepo_AddIdentity_01"
@@ -531,6 +539,10 @@
     "TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_24": ["TC_ESignet_CreatePolicySunBirdR_01"],
     "TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_23": ["TC_ESignet_CreatePolicySunBirdR_01"],
     "TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_22": ["TC_ESignet_CreatePolicySunBirdR_01"],
+    "TC_ESignet_PKCE_JWE_AuthorizationCode_01": [
+        "TC_ESignet_PKCE_JWE_OAuthDetails_01",
+        "TC_ESignet_PKCE_JWE_AuthenticateUser_01"
+    ],
     "TC_ESignet_OAuthDetailsRequestSunBirdCNegTC_28": ["TC_ESignet_CreatePolicySunBirdR_01"],
     "TC_ESignet_GetOidcUserInfoForDifferentScopeLanguageClaims_01": [
         "TC_ESignet_DifferentScopeLanguageClaimsSce_OIDCClientV3_01",
@@ -602,6 +614,7 @@
     "TC_ESignet_Oauth_FAPI_NegTC_03": ["TC_ESignet_FAPI_CreateOIDCClient_01"],
     "TC_ESignet_Oauth_FAPI_NegTC_01": ["TC_ESignet_FAPI_CreateOIDCClient_01"],
     "TC_ESignet_Oauth_FAPI_NegTC_02": ["TC_ESignet_FAPI_CreateOIDCClient_01"],
+    "TC_ESignet_PKCE_JWE_GetUserInfo_01": ["TC_ESignet_PKCE_JWE_GenerateToken_01"],
     "TC_ESignet_DPoPAuthenticateUserV3_01": [
         "TC_ESignet_DPoPOauthDetails_01",
         "Dependent_Idrepo_AddIdentity_44"
@@ -735,6 +748,10 @@
     ],
     "TC_ESignet_OAuthDetailsRequestV2_01": ["TC_ESignet_CreateOIDCClientV2_01"],
     "TC_ESignet_OAuthDetailsRequestV2_02": ["TC_ESignet_CreateOIDCClientV2_01"],
+    "TC_ESignet_PKCE_JWE_AuthenticateUser_01": [
+        "TC_ESignet_PKCE_JWE_OAuthDetails_01",
+        "Dependent_Idrepo_AddIdentity_48"
+    ],
     "TC_ESignet_Generate_Token_12": ["TC_ESignet_CreateOIDCClient_V2_01"],
     "TC_ESignet_Generate_Token_11": [
         "TC_ESignet_AuthorizationCode_01",
@@ -778,6 +795,10 @@
     "TC_ESignet_AuthorizationCode_13": [
         "TC_ESignet_AuthenticateUser_01",
         "TC_ESignet_OAuthDetailsRequest_01"
+    ],
+    "TC_ESignet_PKCE_JWE_OAuthDetails_01": [
+        "TC_ESignet_PKCE_JWE_CreateOIDCClient_01",
+        "TC_ESignet_PKCE_JWE_PatchClientConfig_01"
     ],
     "TC_ESignet_AuthorizationCode_12": [
         "TC_ESignet_AuthenticateUser_01",
