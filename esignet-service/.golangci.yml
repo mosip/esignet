@@ -3,16 +3,16 @@ version: "2"
 linters:
   default: standard
   enable:
-    - errorlint  # checks for common error wrapping issues
-    - gocritic   # opinionated but useful checks
-    - misspell   # catches common misspellings
-    - revive     # extensible linter, replacement for golint
+    - errorlint
+    - gocritic
+    - misspell
+    - revive
 
 formatters:
   enable:
-    - gofmt      # checks code formatting per gofmt
-    - goimports  # checks import grouping and ordering
+    - gofmt
+    - goimports
   settings:
     goimports:
       local-prefixes:
-        - github.com/aarock1234/go-template
+        - github.com/mosip/esignet

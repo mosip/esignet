@@ -1,47 +1,22 @@
 # syntax=docker/dockerfile:1
-
-# ── Stage 1: dev ─────────────────────────────────────────────────────────────
-# Used by `docker compose watch` during local development.
-# The full Go toolchain is available so code is hot-reloaded with `go run`.
-FROM golang:1.23-alpine AS dev
-
-WORKDIR /app
-
-# Pre-download modules using the module cache mount to speed up rebuilds.
+# Build from test-app directory: docker build -t esignet:latest .
+FROM golang:1.26-bookworm AS build
+WORKDIR /src
 COPY go.mod go.sum ./
-RUN --mount=type=cache,target=/go/pkg/mod \
-    go mod download
+RUN go mod download
+COPY . ./
+RUN go build -o /out/engine ./cmd/engine
 
-COPY . .
-
-CMD ["go", "run", "./cmd/esignet"]
-
-# ── Stage 2: builder ─────────────────────────────────────────────────────────
-# Produces a statically-linked binary with no CGO dependencies.
-FROM dev AS builder
-
-RUN --mount=type=cache,target=/go/pkg/mod \
-    --mount=type=cache,target=/root/.cache/go-build \
-    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
-    go build \
-      -trimpath \
-      -ldflags="-s -w" \
-      -o /bin/esignet \
-      ./cmd/esignet
-
-# ── Stage 3: production ───────────────────────────────────────────────────────
-# Minimal Alpine image – only ca-certificates and tzdata are added so HTTPS
-# calls and timezone-aware timestamps work correctly.
-FROM alpine:3.21 AS production
-
-RUN apk add --no-cache ca-certificates tzdata
-
-# Run as a non-root user for defence-in-depth.
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-USER appuser
-
-COPY --from=builder /bin/esignet /bin/esignet
-
-EXPOSE 8088
-
-ENTRYPOINT ["/bin/esignet"]
+FROM debian:bookworm-slim
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates openssl && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+COPY --from=build /out/engine ./engine
+COPY data ./data
+COPY docker-entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh && mkdir -p /app/keys
+ENV THUNDERID_DATA_DIR=/app/data \
+    THUNDERID_ISSUER=http://localhost:8080 \
+    THUNDERID_SIGNING_KEY=/app/keys/signing.key \
+    PORT=8080
+EXPOSE 8080
+ENTRYPOINT ["/entrypoint.sh"]
