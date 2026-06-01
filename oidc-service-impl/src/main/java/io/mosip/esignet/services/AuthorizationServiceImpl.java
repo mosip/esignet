@@ -624,10 +624,10 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         if (oauthDetailReqDto.getIdTokenHint() != null) {
             Pair<String, String> pair = authorizationHelperService.validateAndGetSubjectAndNonce(oauthDetailReqDto.getClientId(), oauthDetailReqDto.getIdTokenHint());
             if(httpServletRequest.getCookies() == null)
-                throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
+                throw new EsignetException(ErrorConstants.LOGIN_REQUIRED);
             Optional<Cookie> result = Arrays.stream(httpServletRequest.getCookies()).filter(x -> x.getName().equals(pair.getFirst())).findFirst();
             if (result.isEmpty()) {
-                throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
+                throw new EsignetException(ErrorConstants.LOGIN_REQUIRED);
             }
             String[] parts = result.get().getValue().split(SERVER_NONCE_SEPARATOR);
             oauthDetailReqDto.setNonce(pair.getSecond());

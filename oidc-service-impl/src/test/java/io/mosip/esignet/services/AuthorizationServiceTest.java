@@ -1196,7 +1196,7 @@ public class AuthorizationServiceTest {
             authorizationServiceImpl.getOauthDetailsV3(oauthDetailRequest, request);
             Assertions.fail();
         } catch (EsignetException e) {
-            Assertions.assertEquals(ErrorConstants.INVALID_ID_TOKEN_HINT, e.getErrorCode());
+            Assertions.assertEquals(ErrorConstants.LOGIN_REQUIRED, e.getErrorCode());
         }
     }
 
