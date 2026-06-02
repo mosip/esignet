@@ -14,15 +14,19 @@ func TestLoadMosipAuthn_defaults(t *testing.T) {
 	t.Setenv("MOSIP_SEND_OTP_BASE_URL", "")
 	t.Setenv("MOSIP_KYC_AUTH_BASE_URL", "")
 	t.Setenv("MOSIP_KYC_EXCHANGE_BASE_URL", "")
+	t.Setenv("MOSIP_DOMAIN_URI", "")
+	t.Setenv("MOSIP_ENV", "")
 	t.Setenv("MOSIP_P12_PATH", "")
 	t.Setenv("MOSIP_P12_PASSWORD", "")
 
 	cfg := LoadMosipAuthn()
-	require.Equal(t, defaultLicenseKey, cfg.LicenseKey)
-	require.Equal(t, defaultMosipAPIBase+"/mosip-certs/ida-partner.cer", cfg.IDAPartnerCertificateURL)
-	require.Contains(t, cfg.SendOTPBaseURL, "/idauthentication/v1/otp/"+defaultLicenseKey+"/")
-	require.Contains(t, cfg.KYCAuthBaseURL, "/idauthentication/v1/kyc-auth/delegated/"+defaultLicenseKey+"/")
-	require.Contains(t, cfg.KYCExchangeBaseURL, "/idauthentication/v1/kyc-exchange/delegated/"+defaultLicenseKey+"/")
+	require.Empty(t, cfg.LicenseKey)
+	require.Empty(t, cfg.DomainURI)
+	require.Equal(t, "Staging", cfg.Env)
+	require.Equal(t, "/mosip-certs/ida-partner.cer", cfg.IDAPartnerCertificateURL)
+	require.Equal(t, "/idauthentication/v1/otp//", cfg.SendOTPBaseURL)
+	require.Equal(t, "/idauthentication/v1/kyc-auth/delegated//", cfg.KYCAuthBaseURL)
+	require.Equal(t, "/idauthentication/v1/kyc-exchange/delegated//", cfg.KYCExchangeBaseURL)
 }
 
 func TestLoadMosipAuthn_overrides(t *testing.T) {
@@ -32,11 +36,15 @@ func TestLoadMosipAuthn_overrides(t *testing.T) {
 	t.Setenv("MOSIP_SEND_OTP_BASE_URL", "https://example.test/otp/")
 	t.Setenv("MOSIP_KYC_AUTH_BASE_URL", "https://example.test/kyc-auth/")
 	t.Setenv("MOSIP_KYC_EXCHANGE_BASE_URL", "https://example.test/kyc-exchange/")
+	t.Setenv("MOSIP_DOMAIN_URI", "https://domain.example")
+	t.Setenv("MOSIP_ENV", "Production")
 	t.Setenv("MOSIP_P12_PATH", "/tmp/partner.p12")
 	t.Setenv("MOSIP_P12_PASSWORD", "secret")
 
 	cfg := LoadMosipAuthn()
 	require.Equal(t, "license-123", cfg.LicenseKey)
+	require.Equal(t, "https://domain.example", cfg.DomainURI)
+	require.Equal(t, "Production", cfg.Env)
 	require.Equal(t, "https://example.test/cert.cer", cfg.IDAPartnerCertificateURL)
 	require.Equal(t, "https://example.test/otp/", cfg.SendOTPBaseURL)
 	require.Equal(t, "https://example.test/kyc-auth/", cfg.KYCAuthBaseURL)
@@ -59,4 +67,6 @@ func TestLoadMosipAuthn_buildsEndpointURLsFromBase(t *testing.T) {
 
 	cfg := LoadMosipAuthn()
 	require.Equal(t, "https://ida.example/idauthentication/v1/otp/abc/", cfg.SendOTPBaseURL)
+	require.Equal(t, "https://ida.example", cfg.DomainURI)
+	require.Equal(t, "Staging", cfg.Env)
 }

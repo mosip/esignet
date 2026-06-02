@@ -1,11 +1,13 @@
 #!/bin/sh
 set -e
-if [ ! -f "${THUNDERID_SIGNING_KEY}" ]; then
-  cert_path="$(dirname "${THUNDERID_SIGNING_KEY}")/signing.crt"
-  mkdir -p "$(dirname "${THUNDERID_SIGNING_KEY}")"
+signing_key="${SIGNING_KEY_PATH:-${THUNDERID_SIGNING_KEY:-./keys/signing.key}}"
+if [ ! -f "${signing_key}" ]; then
+  cert_path="$(dirname "${signing_key}")/signing.crt"
+  mkdir -p "$(dirname "${signing_key}")"
   openssl req -x509 -newkey rsa:2048 \
-    -keyout "${THUNDERID_SIGNING_KEY}" \
+    -keyout "${signing_key}" \
     -out "${cert_path}" \
     -days 3650 -nodes -subj "/CN=esignet"
 fi
-exec /app/engine
+export SIGNING_KEY_PATH="${signing_key}"
+exec "$@"

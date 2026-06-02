@@ -2,7 +2,7 @@
   "info": {
     "name": "eSignet — positive flows",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "description": "eSignet embedder (github.com/mosip/esignet) at {{baseUrl}}.\n\nImport embedder-local.environment.json. Start the server with THUNDERID_ISSUER matching baseUrl (e.g. http://127.0.0.1:8080).\n\nRun folder **0** once, then **1** (app-native), **2** (full OAuth + userinfo), or **3** (MOSIP OTP + OAuth) in order.\n\nFolder **3** requires THUNDERID_AUTHN_PROVIDER=mosip and MOSIP_* env vars (see .env.example). Set individualId and otp in the environment before running."
+    "description": "eSignet embedder (github.com/mosip/esignet) at {{baseUrl}}.\n\nImport embedder-local.environment.json. Start the server with ISSUER_URL matching baseUrl (e.g. http://127.0.0.1:8080).\n\nRun folder **0** once, then **1** (app-native), **2** (full OAuth + userinfo), or **3** (MOSIP OTP + OAuth) in order.\n\nFolder **3** requires AUTHN_PROVIDER=mosip and MOSIP_* env vars (see .env.example). Set individualId and otp in the Postman environment before running."
   },
   "item": [
     {

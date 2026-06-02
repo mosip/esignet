@@ -1,0 +1,8 @@
+.env
+.env.*
+*.exe
+engine
+bin/
+.git/
+coverage.out
+coverage.html

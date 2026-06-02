@@ -17,7 +17,7 @@ type Authn struct {
 // LoadAuthn reads authn provider settings from environment variables.
 func LoadAuthn() Authn {
 	return Authn{
-		Provider: envOrDefault("THUNDERID_AUTHN_PROVIDER", defaultAuthnProvider),
+		Provider: envOrDefault("AUTHN_PROVIDER", defaultAuthnProvider),
 		Mosip:    LoadMosipAuthn(),
 	}
 }

@@ -1,22 +1,26 @@
 -include .env
 export
 
-BINARY          := engine
+OUT_DIR         := out
+BINARY          := $(OUT_DIR)/esignet.exe
 CMD             := ./cmd/engine
 KEY_DIR         := keys
 SIGNING_KEY     := $(KEY_DIR)/signing.key
 SIGNING_CERT    := $(KEY_DIR)/signing.crt
 PORT            ?= 8080
-THUNDERID_ISSUER ?= http://127.0.0.1:$(PORT)
-THUNDERID_DATA_DIR ?= ./data
-THUNDERID_SIGNING_KEY ?= ./$(SIGNING_KEY)
+ISSUER_URL ?= http://127.0.0.1:$(PORT)
+DATA_DIR ?= ./data
+SIGNING_KEY_PATH ?= ./$(SIGNING_KEY)
 DOCKER_IMAGE    ?= esignet:latest
 
 GOLANGCI_LINT       ?= golangci-lint
 GOLANGCI_LINT_VERSION ?= latest
 
+THUNDER_BRANCH ?= 3037
+THUNDER_MODULE := github.com/anushasunkada/thunder/backend
+
 .PHONY: help all keys build run dev test lint lint-install smoke tidy \
-        docker-build docker-run clean distclean
+        docker-build docker-run clean distclean update-thunder
 
 .DEFAULT_GOAL := help
 
@@ -34,15 +38,17 @@ keys: ## Generate local TLS signing key and certificate
 		echo "keys: wrote $(SIGNING_KEY) and $(SIGNING_CERT)"; \
 	fi
 
-build: keys ## Compile production binary (./engine)
+build: keys ## Compile production binary (out/esignet.exe)
+	@mkdir -p $(OUT_DIR)
 	CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o $(BINARY) $(CMD)
 
 ##@ Run
 run: keys ## Run with go run (development)
 	PORT=$(PORT) \
-	THUNDERID_ISSUER=$(THUNDERID_ISSUER) \
-	THUNDERID_DATA_DIR=$(THUNDERID_DATA_DIR) \
-	THUNDERID_SIGNING_KEY=$(THUNDERID_SIGNING_KEY) \
+	ISSUER_URL=$(ISSUER_URL) \
+	DATA_DIR=$(DATA_DIR) \
+	SIGNING_KEY_PATH=$(SIGNING_KEY_PATH) \
+	AUTHN_PROVIDER=$(or $(AUTHN_PROVIDER),catalog) \
 	go run $(CMD)
 
 dev: run ## Alias for run
@@ -66,7 +72,7 @@ lint-install: ## Install golangci-lint (GOLANGCI_LINT_VERSION=$(GOLANGCI_LINT_VE
 	@echo "installed: $$(go env GOPATH)/bin/golangci-lint"
 
 smoke: ## End-to-end OAuth smoke test (server must be running)
-	BASE_URL=$(or $(BASE_URL),$(THUNDERID_ISSUER)) ./scripts/oauth-smoke.sh
+	BASE_URL=$(or $(BASE_URL),$(ISSUER_URL)) ./scripts/oauth-smoke.sh
 
 ##@ Docker
 docker-build: ## Build container image (esignet:latest by default)
@@ -74,16 +80,26 @@ docker-build: ## Build container image (esignet:latest by default)
 
 docker-run: docker-build ## Run container mapped to PORT (default 8080)
 	docker run --rm -p $(PORT):8080 \
-		-e THUNDERID_ISSUER=$(THUNDERID_ISSUER) \
+		-e ISSUER_URL=$(ISSUER_URL) \
 		$(DOCKER_IMAGE)
 
 ##@ Maintenance
+update-thunder: ## Update thunder replace directive to latest commit on THUNDER_BRANCH (default: 3037)
+	@echo "Fetching latest commit on branch '$(THUNDER_BRANCH)'..."
+	@SHA=$$(git ls-remote https://github.com/anushasunkada/thunder.git refs/heads/$(THUNDER_BRANCH) | awk '{print $$1}'); \
+	if [ -z "$$SHA" ]; then echo "error: branch '$(THUNDER_BRANCH)' not found" && exit 1; fi; \
+	VERSION=$$(GOPROXY=direct go list -m -json $(THUNDER_MODULE)@$(THUNDER_BRANCH) | grep '"Version"' | sed 's/.*: "\(.*\)".*/\1/'); \
+	if [ -z "$$VERSION" ]; then echo "error: could not resolve version" && exit 1; fi; \
+	echo "Resolved version: $$VERSION"; \
+	sed -i.bak "s|replace github.com/thunder-id/thunderid => $(THUNDER_MODULE) .*|replace github.com/thunder-id/thunderid => $(THUNDER_MODULE) $$VERSION|" go.mod && rm -f go.mod.bak; \
+	echo "go.mod updated"
+
 tidy: ## Run go mod tidy
 	go mod tidy
 
 clean: ## Remove build artefacts and coverage output
-	rm -f $(BINARY)
-	rm -rf bin/
+	rm -f $(BINARY) engine
+	rm -rf bin/ $(OUT_DIR)/
 	rm -f coverage.out coverage.html
 
 distclean: clean ## Also remove generated signing keys under keys/
@@ -98,11 +114,11 @@ help: ## Show this help
 	@echo ""
 	@echo "Environment (override on the command line or in .env):"
 	@echo "  PORT=$(PORT)"
-	@echo "  THUNDERID_ISSUER=$(THUNDERID_ISSUER)"
-	@echo "  THUNDERID_DATA_DIR=$(THUNDERID_DATA_DIR)"
-	@echo "  THUNDERID_SIGNING_KEY=$(THUNDERID_SIGNING_KEY)"
-	@echo "  THUNDERID_AUTHN_PROVIDER (catalog|mosip, default catalog)"
-	@echo "  MOSIP_API_BASE_URL (optional, default https://api-internal.collab.mosip.net)"
+	@echo "  ISSUER_URL=$(ISSUER_URL)"
+	@echo "  DATA_DIR=$(DATA_DIR)"
+	@echo "  SIGNING_KEY_PATH=$(SIGNING_KEY_PATH)"
+	@echo "  AUTHN_PROVIDER=$(AUTHN_PROVIDER) (catalog|mosip, default catalog)"
+	@echo "  MOSIP_API_BASE_URL (optional, used to derive IDA endpoint URLs)"
 	@echo "  MOSIP_LICENSE_KEY (optional, used in IDA endpoint paths)"
 	@echo "  MOSIP_IDA_PARTNER_CERT_URL (optional override)"
 	@echo "  MOSIP_SEND_OTP_BASE_URL (optional override)"

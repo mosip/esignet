@@ -34,7 +34,6 @@ nodes:
         action:
           ref: action_submit_otp
           nextNode: basic_auth
-    onSuccess: basic_auth
   - id: basic_auth
     type: TASK_EXECUTION
     executor:

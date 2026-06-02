@@ -1,9 +1,9 @@
-id: partnernameforautomationesi-372269
+id: decl-app-2
 name: Declarative Test Application
 description: A declarative test application for integration testing
 ou_id: decl-ou-1
 template: web
-auth_flow_id: decl-mosip-otp-flow-1
+auth_flow_id: decl-flow-1
 registration_flow_id: decl-reg-flow-1
 recovery_flow_id: decl-recovery-flow-1
 is_registration_flow_enabled: true
@@ -16,7 +16,7 @@ contacts:
 inbound_auth_config:
   - type: "oauth2"
     config:
-      client_id: I6eXdnnLGGj2A2BcTL-jug_0ujpnQXlBpKAbBCkGWEM
+      client_id: "decl-public-client-2"
       redirect_uris:
         - "https://localhost:3000"
       grant_types:

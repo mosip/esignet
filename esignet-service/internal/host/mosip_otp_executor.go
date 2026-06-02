@@ -5,8 +5,10 @@ import (
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/flow"
+	"github.com/thunder-id/thunderid/pkg/thunderidengine/host"
 
 	"github.com/mosip/esignet/internal/config"
+	applog "github.com/mosip/esignet/internal/log"
 )
 
 const (
@@ -48,7 +50,7 @@ func (e *mosipOtpExecutor) Execute(ctx *flow.NodeContext) (*flow.ExecutorRespons
 		return execResp, nil
 	}
 
-	result, err := e.authn.SendOTP(ctx.Context, map[string]any{"username": username}, nil)
+	result, err := e.authn.SendOTP(ctx.Context, map[string]any{"username": username}, buildAuthnMetadata(ctx))
 	if err != nil {
 		return execResp, fmt.Errorf("failed to send OTP via MOSIP API: %w", err)
 	}
@@ -68,6 +70,42 @@ func (e *mosipOtpExecutor) ValidatePrerequisites(ctx *flow.NodeContext,
 	execResp.Status = flow.ExecUserInputRequired
 	execResp.Inputs = []flow.Input{individualIDInput}
 	return false
+}
+
+func buildAuthnMetadata(ctx *flow.NodeContext) *host.AuthnMetadata {
+	appMetadata := make(map[string]interface{})
+
+	if ctx.Application.Metadata != nil {
+		for key, value := range ctx.Application.Metadata {
+			appMetadata[key] = value
+		}
+	}
+
+	var clientIDs []string
+	for _, inboundConfig := range ctx.Application.InboundAuthConfig {
+		if inboundConfig.OAuthConfig != nil && inboundConfig.OAuthConfig.ClientID != "" {
+			clientIDs = append(clientIDs, inboundConfig.OAuthConfig.ClientID)
+		}
+	}
+	if len(clientIDs) > 0 {
+		appMetadata["client_ids"] = clientIDs
+	}
+
+	mosipTransactionID, err := GenerateTransactionID(nil)
+	if err != nil {
+		applog.GetLogger().Warn("failed to generate transaction ID", applog.Error(err))
+	} else {
+		ctx.RuntimeData["mosipTransactionID"] = mosipTransactionID
+	}
+
+	runtimeMetadata := make(map[string]interface{}, len(ctx.RuntimeData))
+	for k, v := range ctx.RuntimeData {
+		runtimeMetadata[k] = v
+	}
+
+	meta := &host.AuthnMetadata{AppMetadata: appMetadata, RuntimeMetadata: runtimeMetadata}
+
+	return meta
 }
 
 func usernameFromContext(ctx *flow.NodeContext) (string, error) {

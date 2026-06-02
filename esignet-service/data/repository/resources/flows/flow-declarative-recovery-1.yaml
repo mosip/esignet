@@ -1,5 +1,5 @@
 id: decl-recovery-flow-1
-handle: decl-flow-1
+handle: decl-recovery-flow-1
 name: Declarative Test Recovery Flow
 flowType: RECOVERY
 activeVersion: 1

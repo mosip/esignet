@@ -86,7 +86,10 @@ func (p *actorProvider) GetApplication(ctx context.Context, appID string) (*host
 func (p *actorProvider) GetInboundClientByEntityID(ctx context.Context, entityID string) (*host.InboundClient, error) {
 	app, ok := p.catalog.ApplicationByID(entityID)
 	if !ok {
-		return nil, runtime.ErrNotFound
+		app, ok = p.catalog.ApplicationByClientID(entityID)
+		if !ok {
+			return nil, runtime.ErrNotFound
+		}
 	}
 	_ = ctx
 	return inboundClientFromApp(app), nil
