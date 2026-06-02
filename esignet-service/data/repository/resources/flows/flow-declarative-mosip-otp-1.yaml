@@ -1,0 +1,62 @@
+id: decl-mosip-otp-flow-1
+handle: decl-mosip-otp-flow-1
+name: MOSIP Send OTP Flow
+flowType: AUTHENTICATION
+activeVersion: 1
+nodes:
+  - id: start
+    type: START
+    onSuccess: prompt_individual_id
+  - id: prompt_individual_id
+    type: PROMPT
+    prompts:
+      - inputs:
+          - ref: input_001
+            identifier: username
+            type: TEXT_INPUT
+            required: true
+        action:
+          ref: action_submit_individual_id
+          nextNode: send_mosip_otp
+  - id: send_mosip_otp
+    type: TASK_EXECUTION
+    executor:
+      name: MosipOtpExecutor
+    onSuccess: prompt_otp
+  - id: prompt_otp
+    type: PROMPT
+    prompts:
+      - inputs:
+          - ref: input_002
+            identifier: otp
+            type: TEXT_INPUT
+            required: true
+        action:
+          ref: action_submit_otp
+          nextNode: basic_auth
+  - id: basic_auth
+    type: TASK_EXECUTION
+    executor:
+      name: BasicAuthExecutor
+      inputs:
+        - ref: input_001
+          identifier: username
+          type: TEXT_INPUT
+          required: true
+        - ref: input_002
+          identifier: otp
+          type: PASSWORD_INPUT
+          required: true
+    onSuccess: authorization_check
+  - id: authorization_check
+    type: TASK_EXECUTION
+    executor:
+      name: AuthorizationExecutor
+    onSuccess: auth_assert
+  - id: auth_assert
+    type: TASK_EXECUTION
+    executor:
+      name: AuthAssertExecutor
+    onSuccess: end
+  - id: end
+    type: END

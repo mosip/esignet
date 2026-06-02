@@ -1,0 +1,9 @@
+id: decl-agent-1
+ou_id: decl-ou-1
+type: default
+name: Declarative Test Agent
+description: A declarative test agent for integration testing
+auth_flow_id: decl-flow-1
+attributes:
+  department: engineering
+  environment: test

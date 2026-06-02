@@ -1,259 +1,218 @@
-# eSignet Service
+# eSignet (ThunderID engine embedder)
 
-A production-grade Go HTTP service with PostgreSQL and Redis integration, structured for extensibility and operational clarity.
+Module: `github.com/mosip/esignet`
 
----
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Project Structure](#project-structure)
-- [Prerequisites](#prerequisites)
-- [Quickstart](#quickstart)
-- [Configuration](#configuration)
-- [API Reference](#api-reference)
-- [Development](#development)
-- [Docker](#docker)
-- [Database Migrations](#database-migrations)
-
----
-
-## Overview
-
-`esignet-service` is a Go HTTP service running on port **8088**. It provides:
-
-- Structured JSON logging via `log/slog`
-- PostgreSQL connection pool via `pgx/v5`
-- Redis client via `go-redis/v9`
-- Chi router with request-ID injection, access logging, panic recovery, and gzip compression
-- A deep health endpoint that concurrently pings all backing services
-- Graceful shutdown on `SIGINT`/`SIGTERM`
-- Multi-stage Docker build with a minimal Alpine production image
-
----
-
-## Project Structure
-
-```
-.
-├── cmd/
-│   └── esignet/
-│       └── main.go              # Entrypoint — wires config, logger, DB, Redis, server
-├── internal/
-│   ├── config/
-│   │   └── config.go            # Env-var configuration (envconfig)
-│   ├── db/
-│   │   └── postgres.go          # pgx/v5 connection pool + Ping
-│   ├── cache/
-│   │   └── redis.go             # go-redis/v9 client + Ping
-│   ├── middleware/
-│   │   └── middleware.go        # RequestID · Logger · Recoverer
-│   ├── handler/
-│   │   └── health.go            # GET /health — concurrent dependency checks
-│   └── server/
-│       └── server.go            # Chi router, route registration, graceful shutdown
-├── pkg/
-│   └── logger/
-│       └── logger.go            # slog JSON/text handler factory
-├── Dockerfile                   # Multi-stage: dev → builder → production
-├── compose.yaml                 # Full local stack: app + postgres + redis
-├── Makefile                     # Developer targets
-├── go.mod
-└── .env.example                 # All supported environment variables with defaults
-```
-
----
+A minimal Go sample that embeds the ThunderID authorization engine (`pkg/thunderidengine`) with declarative YAML under `data/repository/resources/` and in-memory host providers for users, OAuth clients, authn, and permit-all authorization.
 
 ## Prerequisites
 
-| Tool | Version | Purpose |
-|---|---|---|
-| Go | 1.23+ | Build and run the service |
-| Docker + Compose | v2 | Local backing services and container builds |
-| Make | any | Convenience targets |
+- Go 1.26+
+- OpenSSL (for signing key generation)
+- Network access to fetch the Thunder backend module (see `go.mod` `replace` directive for the pinned fork)
 
----
+## Repository layout
 
-## Quickstart
+```text
+esignet-service/
+  cmd/esignet/main.go         # HTTP entrypoint
+  internal/catalog/           # users + OAuth clients from YAML
+  internal/host/              # Actor, Authn, Authz, Consent, custom executors
+  internal/config/            # env-based configuration (authn, MOSIP)
+  data/repository/resources/  # declarative fixtures (flows, apps, OU, …)
+  keys/                       # signing.key + signing.crt (local, gitignored)
+  postman/                    # Postman collection + environment
+  scripts/oauth-smoke.sh      # end-to-end OAuth smoke test
+  Makefile
+  Dockerfile
+```
+
+## Build
+
+All build targets generate TLS signing material first (`make keys`), because the engine needs a PEM key pair for JWT signing.
+
+| Command | Output | Notes |
+|---------|--------|--------|
+| `make keys` | `keys/signing.key`, `keys/signing.crt` | One-time (or regenerate locally). Not committed. |
+| `make build` | `out/esignet.exe` | Preferred binary build. |
+| `go build -o out/esignet.exe ./cmd/esignet` | `out/esignet.exe` | Same as `make build` after `make keys`. |
+| `make test` | — | Unit tests + OIDC discovery smoke (`cmd/esignet`). |
+
+Example:
 
 ```bash
-# 1. Clone and enter the repo
-git clone <repo-url>
 cd esignet-service
-
-# 2. Copy the example env file
-cp .env.example .env
-
-# 3. Pull Go dependencies
-go mod tidy
-
-# 4a. Start everything with Docker Compose (app + postgres + redis)
-make up
-
-# 4b. OR start only the backing services and run the server locally
-make db redis   # starts postgres + redis in Docker
-make dev        # go run ./cmd/esignet
+make build
 ```
 
-The service is available at `http://localhost:8088`.
+If `go build` fails with a missing module, run `go mod download` (requires access to the module replace in `go.mod`).
 
----
+## Run
 
-## Configuration
-
-All configuration is supplied through environment variables. Copy `.env.example` to `.env` for local development.
-
-### Server
-
-| Variable | Default | Description |
-|---|---|---|
-| `PORT` | `8088` | HTTP listen port |
-| `READ_TIMEOUT` | `15s` | Maximum duration to read the full request |
-| `WRITE_TIMEOUT` | `15s` | Maximum duration to write the full response |
-| `IDLE_TIMEOUT` | `60s` | Keep-alive timeout for idle connections |
-| `SHUTDOWN_TIMEOUT` | `30s` | Graceful shutdown drain window |
-
-### PostgreSQL
-
-| Variable | Default | Description |
-|---|---|---|
-| `DATABASE_URL` | *(required)* | Full connection string, e.g. `postgres://user:pass@host:5432/db?sslmode=disable` |
-| `DB_MAX_CONNS` | `10` | Maximum open connections in the pool |
-| `DB_MIN_CONNS` | `2` | Minimum idle connections kept alive |
-| `DB_MAX_CONN_LIFETIME` | `1h` | Maximum age of a connection before it is recycled |
-| `DB_MAX_CONN_IDLE_TIME` | `30m` | Maximum idle time before a connection is closed |
-| `DB_HEALTH_TIMEOUT` | `5s` | Timeout for startup ping and health-check pings |
-
-### Redis
-
-| Variable | Default | Description |
-|---|---|---|
-| `REDIS_ADDR` | `localhost:6379` | `host:port` of the Redis server |
-| `REDIS_PASSWORD` | *(empty)* | Password, if required |
-| `REDIS_DB` | `0` | Redis logical database index |
-| `REDIS_DIAL_TIMEOUT` | `5s` | Timeout for establishing a new connection |
-| `REDIS_READ_TIMEOUT` | `3s` | Per-command read deadline |
-| `REDIS_WRITE_TIMEOUT` | `3s` | Per-command write deadline |
-| `REDIS_POOL_SIZE` | `10` | Maximum number of socket connections |
-| `REDIS_HEALTH_TIMEOUT` | `5s` | Timeout for startup ping and health-check pings |
-
-### Logging
-
-| Variable | Default | Options |
-|---|---|---|
-| `LOG_LEVEL` | `info` | `debug` · `info` · `warn` · `error` |
-| `LOG_FORMAT` | `json` | `json` · `text` |
-
----
-
-## API Reference
-
-### `GET /ping`
-
-Lightweight liveness probe. No database or cache calls are made. Use this for high-frequency load-balancer checks.
-
-**Response** `200 OK`
-```
-pong
-```
-
----
-
-### `GET /health`
-
-Deep readiness probe. Pings PostgreSQL and Redis concurrently within a 5-second budget.
-
-**Response** `200 OK` — all dependencies healthy
-```json
-{
-  "status": "ok",
-  "timestamp": "2026-05-13T10:00:00Z",
-  "components": {
-    "postgres": { "status": "up" },
-    "redis":    { "status": "up" }
-  }
-}
-```
-
-**Response** `503 Service Unavailable` — one or more dependencies unhealthy
-```json
-{
-  "status": "degraded",
-  "timestamp": "2026-05-13T10:00:00Z",
-  "components": {
-    "postgres": { "status": "up" },
-    "redis":    { "status": "down", "message": "redis ping: dial tcp: connection refused" }
-  }
-}
-```
-
-Every response includes `X-Request-ID` in the response headers.
-
----
-
-## Development
-
-### Make Targets
+### Makefile (development)
 
 ```bash
-make dev          # go run ./cmd/esignet  (fastest inner loop)
-make build        # compile → bin/esignet
-make run          # build + run the binary
-make test         # go test -race -cover ./...
-make lint         # golangci-lint run
-make format       # go fmt ./...
-make tidy         # go mod tidy
-make clean        # remove bin/
-make help         # list all targets
+cd esignet-service
+make run
 ```
 
-### Backing Services Only
+Runs `go run ./cmd/esignet` with `ISSUER_URL`, `DATA_DIR`, `SIGNING_KEY_PATH`, and `AUTHN_PROVIDER` (see [Environment variables](#environment-variables)). Copy `.env.example` to `.env` to override defaults via `make`.
+
+### Binary
 
 ```bash
-make db           # start postgres container
-make redis        # start redis container
-make db-down      # stop postgres container
-make redis-down   # stop redis container
+cd esignet-service
+make keys && make build
+
+export PORT=8080
+export ISSUER_URL=http://127.0.0.1:8080
+export DATA_DIR=./data
+export SIGNING_KEY_PATH=./keys/signing.key
+export AUTHN_PROVIDER=catalog
+
+./out/esignet.exe
 ```
 
-### Live Reload (Docker)
+The server logs startup at info level, for example:
+
+```text
+time=... level=INFO msg="server listening" addr=:8080 issuer=http://127.0.0.1:8080
+```
+
+Set `LOG_LEVEL=debug` for verbose MOSIP/IDA tracing (endpoint URLs, attribute requests, etc.).
+
+Use **127.0.0.1** in URLs if `localhost` resolves to IPv6 only and connections fail.
+
+### Environment variables
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `LOG_LEVEL` | `info` | Log verbosity: `debug`, `info`, `warn`, or `error`. |
+| `PORT` | `8080` | HTTP listen port (`:PORT`). |
+| `ISSUER_URL` | `http://127.0.0.1:<PORT>` | OIDC issuer, JWT `iss`, discovery. **Must match the URL clients use** for OAuth to succeed. |
+| `DATA_DIR` | `./data` | Server home; declarative YAML under `data/repository/resources/`. |
+| `SIGNING_KEY_PATH` | `./keys/signing.key` | PEM private key; `.crt` with the same basename is loaded automatically. |
+| `AUTHN_PROVIDER` | `catalog` | `catalog` (local YAML users) or `mosip` (MOSIP IDA). |
+| `MOSIP_API_BASE_URL` | _(empty)_ | MOSIP API host; used to derive IDA URLs when overrides are unset. |
+| `MOSIP_LICENSE_KEY` | _(empty)_ | License key segment in IDA endpoint paths. |
+| `MOSIP_P12_PATH` | _(empty)_ | Partner keystore path (required for `mosip` auth). |
+| `MOSIP_P12_PASSWORD` | _(empty)_ | Partner keystore password. |
+
+See `.env.example` for optional MOSIP URL overrides (`MOSIP_SEND_OTP_BASE_URL`, etc.).
+
+### Health check
 
 ```bash
-make watch        # docker compose watch — rebuilds on file changes
+curl -s http://127.0.0.1:8080/health
+# ok
 ```
-
----
 
 ## Docker
 
-### Build
+The image is built from the `esignet-service` directory; Thunder is fetched during `go mod download` from the remote module replace (no local checkout required).
+
+**Build**
 
 ```bash
-# Production image
-docker build --target production -t esignet-service .
-
-# Development image (includes full Go toolchain)
-docker build --target dev -t esignet-service:dev .
+cd esignet-service
+make docker-build
 ```
 
-### Run with Compose
+Equivalent:
 
 ```bash
-make up     # start app + postgres + redis (detached)
-make down   # stop and remove containers
-make watch  # start with file-watch hot rebuild
+cd esignet-service
+docker build -f Dockerfile -t esignet:latest .
 ```
 
-The compose file sets `DATABASE_URL` and `REDIS_ADDR` to point at the companion containers automatically, overriding whatever is in `.env`.
-
----
-
-## Database Migrations
-
-Migrations are managed with [Goose](https://github.com/pressly/goose). Migration files live in `pkg/db/migrations/`.
+**Run**
 
 ```bash
-make migrate        # apply all pending migrations
-make migrate-down   # roll back the most recent migration
-make migrate-new    # create a new timestamped migration file (prompts for name)
+docker run --rm -p 8080:8080 \
+  -e ISSUER_URL=http://127.0.0.1:8080 \
+  esignet:latest
 ```
+
+On first start, the entrypoint creates `/home/mosip/keys/signing.key` and `signing.crt` if they are missing. Declarative data is baked in at `/home/mosip/data`.
+
+**Smoke test against the container**
+
+```bash
+BASE_URL=http://127.0.0.1:8080 ./scripts/oauth-smoke.sh
+```
+
+Or:
+
+```bash
+make smoke BASE_URL=http://127.0.0.1:8080
+```
+
+Each step prints `PASS` or `FAIL` to the console (authorize → flow → callback → token → userinfo), then a short summary (exit code 1 if any step failed).
+
+Use the host port you mapped, and set `ISSUER_URL` in `docker run` to that same base URL.
+
+## Demo credentials
+
+| Field | Value |
+|-------|-------|
+| Username | `decl-user-1` |
+| Password | `TempPassword123!` |
+| Application | `decl-app-1` |
+| OAuth client | `decl-public-client-1` |
+| Redirect URI | `https://localhost:3000` |
+| OU | `decl-ou-1` |
+
+Users are loaded from `data/repository/resources/users/*.yaml` by the host catalog (not by the engine declarative loader). Apps, flows, themes, and OU resources are loaded by Thunder's declarative adapter from the same tree.
+
+## Verify with curl
+
+**Health and discovery**
+
+```bash
+curl -s http://127.0.0.1:8080/health
+curl -s http://127.0.0.1:8080/.well-known/openid-configuration | jq .
+```
+
+**App-native sign-in**
+
+```bash
+curl -s -X POST http://127.0.0.1:8080/flow/execute \
+  -H 'Content-Type: application/json' \
+  -d '{"applicationId":"decl-app-1","flowType":"AUTHENTICATION"}' | jq .
+
+# Use executionId and challengeToken from the response:
+curl -s -X POST http://127.0.0.1:8080/flow/execute \
+  -H 'Content-Type: application/json' \
+  -d '{"executionId":"<id>","challengeToken":"<token>","action":"action_001","inputs":{"username":"decl-user-1","password":"TempPassword123!"}}' | jq .
+```
+
+Expect `flowStatus: COMPLETE` and an `assertion` JWT on the second call.
+
+## Postman
+
+1. Import `postman/embedder-local.environment.json` (environment name: **eSignet (local)**)
+2. Import `postman/embedder-positive-flow.json`
+3. Run **0 — Shared setup**, then either **1 — App-native flow/execute** or **2 — Full OAuth (PKCE)** in order
+
+Folder **2** is a linear sequence: PKCE setup → authorize (no redirect follow) → flow resume → credentials → auth callback → token → userinfo. Start the server with `ISSUER_URL` matching `baseUrl` in the environment (e.g. `http://127.0.0.1:8080`) before running OAuth steps.
+
+Folder **3** (MOSIP OTP) requires `AUTHN_PROVIDER=mosip` and `MOSIP_*` variables (see `.env.example`). Set `individualId` and `otp` in the Postman environment before running.
+
+## Tests
+
+```bash
+make test
+```
+
+## OAuth
+
+Authorize redirects to the gate client (`http://localhost:8080/signin?...`) with `executionId`, `authId`, and related query parameters. Postman folder 2 parses that redirect without following it (`followRedirects: false` on authorize). The public client uses PKCE; no client secret is required.
+
+End-to-end check (server must be running with `ISSUER_URL` matching `BASE_URL`):
+
+```bash
+make smoke
+# or
+BASE_URL=http://127.0.0.1:8080 ./scripts/oauth-smoke.sh
+```
+
+Each step prints `PASS` or `FAIL` to the console (authorize → flow → callback → token → userinfo), then a short summary (exit code 1 if any step failed).

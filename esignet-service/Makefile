@@ -1,116 +1,129 @@
 -include .env
 export
 
-BINARY    := bin/esignet
-CMD       := ./cmd/esignet
+OUT_DIR         := out
+BINARY          := $(OUT_DIR)/esignet.exe
+CMD             := ./cmd/esignet
+KEY_DIR         := keys
+SIGNING_KEY     := $(KEY_DIR)/signing.key
+SIGNING_CERT    := $(KEY_DIR)/signing.crt
+PORT            ?= 8080
+ISSUER_URL ?= http://127.0.0.1:$(PORT)
+DATA_DIR ?= ./data
+SIGNING_KEY_PATH ?= ./$(SIGNING_KEY)
+DOCKER_IMAGE    ?= esignet:latest
 
-.PHONY: all build run dev test lint format fix generate \
-        up down watch \
-        db db-down redis redis-down \
-        migrate migrate-down migrate-new \
-        tidy clean help
+GOLANGCI_LINT       ?= golangci-lint
+GOLANGCI_LINT_VERSION ?= latest
 
-# ── Default ───────────────────────────────────────────────────────────────────
-all: build
+THUNDER_BRANCH ?= 3037
+THUNDER_MODULE := github.com/anushasunkada/thunder/backend
 
-# ── Build ─────────────────────────────────────────────────────────────────────
-build:
-	@mkdir -p bin
+.PHONY: help all keys build run dev test lint lint-install smoke tidy \
+        docker-build docker-run clean distclean update-thunder
+
+.DEFAULT_GOAL := help
+
+##@ Build
+all: build ## Alias for build
+
+keys: ## Generate local TLS signing key and certificate
+	@mkdir -p $(KEY_DIR)
+	@if [ -f "$(SIGNING_KEY)" ] && [ -f "$(SIGNING_CERT)" ]; then \
+		echo "keys: $(SIGNING_KEY) and $(SIGNING_CERT) already exist"; \
+	else \
+		openssl req -x509 -newkey rsa:2048 \
+			-keyout "$(SIGNING_KEY)" -out "$(SIGNING_CERT)" \
+			-days 3650 -nodes -subj "/CN=esignet"; \
+		echo "keys: wrote $(SIGNING_KEY) and $(SIGNING_CERT)"; \
+	fi
+
+build: keys ## Compile production binary (out/esignet.exe)
+	@mkdir -p $(OUT_DIR)
 	CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o $(BINARY) $(CMD)
 
-# ── Run (production binary) ───────────────────────────────────────────────────
-run: build
-	./$(BINARY)
-
-# ── Dev (go run, no compile step) ────────────────────────────────────────────
-dev:
+##@ Run
+run: keys ## Run with go run (development)
+	PORT=$(PORT) \
+	ISSUER_URL=$(ISSUER_URL) \
+	DATA_DIR=$(DATA_DIR) \
+	SIGNING_KEY_PATH=$(SIGNING_KEY_PATH) \
+	AUTHN_PROVIDER=$(or $(AUTHN_PROVIDER),catalog) \
 	go run $(CMD)
 
-# ── Test ──────────────────────────────────────────────────────────────────────
-test:
+dev: run ## Alias for run
+
+##@ Test
+test: keys ## Run unit tests (race + coverage)
 	go test -race -cover ./...
 
-# ── Lint ──────────────────────────────────────────────────────────────────────
-lint:
-	go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest run
+lint: ## Run golangci-lint
+	@PATH="$$(go env GOPATH)/bin:$$PATH"; \
+	export GOLANGCI_LINT_CACHE="$(CURDIR)/.golangci-lint-cache"; \
+	if command -v golangci-lint >/dev/null 2>&1; then \
+		golangci-lint run ./...; \
+	else \
+		echo "golangci-lint not on PATH; running via go run (use make lint-install to install)"; \
+		go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION) run ./...; \
+	fi
 
-# ── Format ───────────────────────────────────────────────────────────────────
-format:
-	go fmt ./...
+lint-install: ## Install golangci-lint (GOLANGCI_LINT_VERSION=$(GOLANGCI_LINT_VERSION))
+	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION)
+	@echo "installed: $$(go env GOPATH)/bin/golangci-lint"
 
-# ── Fix ──────────────────────────────────────────────────────────────────────
-fix:
-	go fix ./...
+smoke: ## End-to-end OAuth smoke test (server must be running)
+	BASE_URL=$(or $(BASE_URL),$(ISSUER_URL)) ./scripts/oauth-smoke.sh
 
-# ── Generate ─────────────────────────────────────────────────────────────────
-generate:
-	go generate ./...
+##@ Docker
+docker-build: ## Build container image (esignet:latest by default)
+	docker build -f Dockerfile -t $(DOCKER_IMAGE) .
 
-# ── Module tidy ──────────────────────────────────────────────────────────────
-tidy:
+docker-run: docker-build ## Run container mapped to PORT (default 8080)
+	docker run --rm -p $(PORT):8080 \
+		-e ISSUER_URL=$(ISSUER_URL) \
+		$(DOCKER_IMAGE)
+
+##@ Maintenance
+update-thunder: ## Update thunder replace directive to latest commit on THUNDER_BRANCH (default: 3037)
+	@echo "Fetching latest commit on branch '$(THUNDER_BRANCH)'..."
+	@SHA=$$(git ls-remote https://github.com/anushasunkada/thunder.git refs/heads/$(THUNDER_BRANCH) | awk '{print $$1}'); \
+	if [ -z "$$SHA" ]; then echo "error: branch '$(THUNDER_BRANCH)' not found" && exit 1; fi; \
+	VERSION=$$(GOPROXY=direct go list -m -json $(THUNDER_MODULE)@$(THUNDER_BRANCH) | grep '"Version"' | sed 's/.*: "\(.*\)".*/\1/'); \
+	if [ -z "$$VERSION" ]; then echo "error: could not resolve version" && exit 1; fi; \
+	echo "Resolved version: $$VERSION"; \
+	sed -i.bak "s|replace github.com/thunder-id/thunderid => $(THUNDER_MODULE) .*|replace github.com/thunder-id/thunderid => $(THUNDER_MODULE) $$VERSION|" go.mod && rm -f go.mod.bak; \
+	echo "go.mod updated"
+
+tidy: ## Run go mod tidy
 	go mod tidy
 
-# ── Docker Compose (full stack) ───────────────────────────────────────────────
-up:
-	docker compose up -d
+clean: ## Remove build artefacts and coverage output
+	rm -f $(BINARY) engine
+	rm -rf bin/ $(OUT_DIR)/
+	rm -f coverage.out coverage.html
 
-down:
-	docker compose down
+distclean: clean ## Also remove generated signing keys under keys/
+	rm -f $(SIGNING_KEY) $(SIGNING_CERT)
+	@rmdir $(KEY_DIR) 2>/dev/null || true
 
-watch:
-	docker compose watch
-
-# ── Postgres only ────────────────────────────────────────────────────────────
-db:
-	docker compose up -d postgres
-
-db-down:
-	docker compose down postgres
-
-# ── Redis only ───────────────────────────────────────────────────────────────
-redis:
-	docker compose up -d redis
-
-redis-down:
-	docker compose down redis
-
-# ── Migrations (goose) ────────────────────────────────────────────────────────
-migrate:
-	go run github.com/pressly/goose/v3/cmd/goose@latest \
-	  -dir pkg/db/migrations postgres $(DATABASE_URL) up
-
-migrate-down:
-	go run github.com/pressly/goose/v3/cmd/goose@latest \
-	  -dir pkg/db/migrations postgres $(DATABASE_URL) down
-
-migrate-new:
-	@read -p "Migration name: " name && \
-	go run github.com/pressly/goose/v3/cmd/goose@latest \
-	  -dir pkg/db/migrations create $$name sql
-
-# ── Clean ─────────────────────────────────────────────────────────────────────
-clean:
-	rm -rf bin/
-
-# ── Help ──────────────────────────────────────────────────────────────────────
-help:
+##@ Help
+help: ## Show this help
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage: make <target>\n"} \
+		/^##@/ { printf "\n%s\n", substr($$0, 5) } \
+		/^[a-zA-Z0-9_.-]+:.*##/ { printf "  %-18s %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
 	@echo ""
-	@echo "Usage: make <target>"
-	@echo ""
-	@echo "  build          Compile production binary → $(BINARY)"
-	@echo "  run            Build then run the binary"
-	@echo "  dev            Run with go run (no compile step)"
-	@echo "  test           Run tests with race detector"
-	@echo "  lint           Run golangci-lint"
-	@echo "  format         Run go fmt"
-	@echo "  tidy           Run go mod tidy"
-	@echo "  up             Start full stack (app + postgres + redis)"
-	@echo "  down           Stop full stack"
-	@echo "  watch          Start with docker compose watch (live reload)"
-	@echo "  db             Start postgres only"
-	@echo "  redis          Start redis only"
-	@echo "  migrate        Run database migrations (goose up)"
-	@echo "  migrate-down   Roll back last migration (goose down)"
-	@echo "  migrate-new    Create a new migration file"
-	@echo "  clean          Remove build artefacts"
+	@echo "Environment (override on the command line or in .env):"
+	@echo "  PORT=$(PORT)"
+	@echo "  ISSUER_URL=$(ISSUER_URL)"
+	@echo "  DATA_DIR=$(DATA_DIR)"
+	@echo "  SIGNING_KEY_PATH=$(SIGNING_KEY_PATH)"
+	@echo "  AUTHN_PROVIDER=$(AUTHN_PROVIDER) (catalog|mosip, default catalog)"
+	@echo "  MOSIP_API_BASE_URL (optional, used to derive IDA endpoint URLs)"
+	@echo "  MOSIP_LICENSE_KEY (optional, used in IDA endpoint paths)"
+	@echo "  MOSIP_IDA_PARTNER_CERT_URL (optional override)"
+	@echo "  MOSIP_SEND_OTP_BASE_URL (optional override)"
+	@echo "  MOSIP_KYC_AUTH_BASE_URL (optional override)"
+	@echo "  MOSIP_KYC_EXCHANGE_BASE_URL (optional override)"
+	@echo "  MOSIP_P12_PATH (required for MOSIP auth)"
+	@echo "  MOSIP_P12_PASSWORD (required for MOSIP auth)"
 	@echo ""

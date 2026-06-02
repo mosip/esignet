@@ -1,0 +1,15 @@
+id: decl-agent-confidential-1
+ou_id: decl-ou-1
+type: default
+name: Declarative Confidential Test Agent
+description: A declarative confidential test agent for integration testing
+auth_flow_id: decl-flow-1
+inbound_auth_config:
+  - type: "oauth2"
+    config:
+      client_id: "decl-agent-conf-client-1"
+      client_secret: "decl-agent-conf-secret-1"
+      grant_types:
+        - "client_credentials"
+      token_endpoint_auth_method: "client_secret_basic"
+      public_client: false

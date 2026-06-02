@@ -1,47 +1,75 @@
 # syntax=docker/dockerfile:1
-
-# ── Stage 1: dev ─────────────────────────────────────────────────────────────
-# Used by `docker compose watch` during local development.
-# The full Go toolchain is available so code is hot-reloaded with `go run`.
-FROM golang:1.23-alpine AS dev
-
-WORKDIR /app
-
-# Pre-download modules using the module cache mount to speed up rebuilds.
+# Build from esignet-service directory: docker build -t esignet:latest .
+FROM golang:1.26-bookworm AS build
+WORKDIR /src
 COPY go.mod go.sum ./
-RUN --mount=type=cache,target=/go/pkg/mod \
-    go mod download
+RUN go mod download
+COPY . ./
+RUN mkdir -p /out && go build -trimpath -ldflags="-s -w" -o /out/esignet.exe ./cmd/esignet
 
-COPY . .
+FROM debian:bookworm-slim
 
-CMD ["go", "run", "./cmd/esignet"]
+ARG SOURCE
+ARG COMMIT_HASH
+ARG COMMIT_ID
+ARG BUILD_TIME
+LABEL source=${SOURCE}
+LABEL commit_hash=${COMMIT_HASH}
+LABEL commit_id=${COMMIT_ID}
+LABEL build_time=${BUILD_TIME}
 
-# ── Stage 2: builder ─────────────────────────────────────────────────────────
-# Produces a statically-linked binary with no CGO dependencies.
-FROM dev AS builder
+ARG ISSUER_URL=http://localhost:8080
 
-RUN --mount=type=cache,target=/go/pkg/mod \
-    --mount=type=cache,target=/root/.cache/go-build \
-    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
-    go build \
-      -trimpath \
-      -ldflags="-s -w" \
-      -o /bin/esignet \
-      ./cmd/esignet
+# can be passed during Docker build as build time environment for github branch to pickup configuration from.
+ARG container_user=mosip
 
-# ── Stage 3: production ───────────────────────────────────────────────────────
-# Minimal Alpine image – only ca-certificates and tzdata are added so HTTPS
-# calls and timezone-aware timestamps work correctly.
-FROM alpine:3.21 AS production
+ARG DATA_DIR=/home/${container_user}/data
+ARG SIGNING_KEY_PATH=/home/${container_user}/keys/signing.key
 
-RUN apk add --no-cache ca-certificates tzdata
+# can be passed during Docker build as build time environment for github branch to pickup configuration from.
+ARG container_user_group=mosip
 
-# Run as a non-root user for defence-in-depth.
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-USER appuser
+# can be passed during Docker build as build time environment for github branch to pickup configuration from.
+ARG container_user_uid=1001
 
-COPY --from=builder /bin/esignet /bin/esignet
+# can be passed during Docker build as build time environment for github branch to pickup configuration from.
+ARG container_user_gid=1001
 
-EXPOSE 8088
+ENV ISSUER_URL_ENV=${ISSUER_URL}
 
-ENTRYPOINT ["/bin/esignet"]
+ENV DATA_DIR_ENV=${DATA_DIR}
+
+ENV SIGNING_KEY_PATH_ENV=${SIGNING_KEY_PATH}
+
+# set working directory for the user
+WORKDIR /home/${container_user}
+
+# install packages and create user
+RUN groupadd -g ${container_user_gid} ${container_user_group} \
+    && useradd -u ${container_user_uid} -g ${container_user_group} -s /bin/sh -m ${container_user} \
+    && chown -R ${container_user}:${container_user} /home/${container_user} \
+    && apt-get update && apt-get install -y --no-install-recommends ca-certificates openssl && rm -rf /var/lib/apt/lists/*
+
+COPY --from=build /out/esignet.exe /home/${container_user}/esignet.exe
+
+COPY data /home/${container_user}/data
+
+COPY docker-entrypoint.sh /home/${container_user}/entrypoint.sh
+
+RUN chmod +x /home/${container_user}/entrypoint.sh \
+    && mkdir -p /home/${container_user}/keys \
+    && chown -R ${container_user}:${container_user_group} /home/${container_user}
+
+# select container user for runtime
+USER ${container_user_uid}:${container_user_gid}
+
+ENV DATA_DIR=${DATA_DIR_ENV} \
+    ISSUER_URL=${ISSUER_URL_ENV} \
+    SIGNING_KEY_PATH=${SIGNING_KEY_PATH_ENV} \
+    PORT=8080
+
+EXPOSE 8080
+
+ENTRYPOINT ["/home/mosip/entrypoint.sh"]
+
+CMD ["/home/mosip/esignet.exe"]

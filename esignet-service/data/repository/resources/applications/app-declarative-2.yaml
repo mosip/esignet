@@ -1,0 +1,28 @@
+id: decl-app-2
+name: Declarative Test Application
+description: A declarative test application for integration testing
+ou_id: decl-ou-1
+template: web
+auth_flow_id: decl-flow-1
+registration_flow_id: decl-reg-flow-1
+recovery_flow_id: decl-recovery-flow-1
+is_registration_flow_enabled: true
+is_recovery_flow_enabled: true
+theme_id: decl-theme-1
+layout_id: decl-layout-1
+url: https://example.com
+contacts:
+  - test@example.com
+inbound_auth_config:
+  - type: "oauth2"
+    config:
+      client_id: "decl-public-client-2"
+      redirect_uris:
+        - "https://localhost:3000"
+      grant_types:
+        - "authorization_code"
+      response_types:
+        - "code"
+      token_endpoint_auth_method: "none"
+      pkce_required: true
+      public_client: true

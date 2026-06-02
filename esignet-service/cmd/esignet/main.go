@@ -1,91 +1,89 @@
+// Command esignet runs the ThunderID embedder with MOSIP authentication support.
 package main
 
 import (
-	"context"
-	"errors"
-	"log/slog"
+	"fmt"
+	"net/http"
 	"os"
-	"os/signal"
-	"syscall"
 
-	"github.com/mosip/esignet/internal/cache"
+	"github.com/thunder-id/thunderid/pkg/thunderidengine"
+	"github.com/thunder-id/thunderid/pkg/thunderidengine/runtime"
+
+	"github.com/mosip/esignet/internal/catalog"
 	"github.com/mosip/esignet/internal/config"
-	"github.com/mosip/esignet/internal/db"
-	"github.com/mosip/esignet/internal/server"
-	"github.com/mosip/esignet/pkg/logger"
+	embedhost "github.com/mosip/esignet/internal/host"
+	applog "github.com/mosip/esignet/internal/log"
 )
 
 func main() {
-	// ── 1. Configuration ─────────────────────────────────────────────────────
-	cfg, err := config.Load()
+	logger := applog.GetLogger()
+
+	port := envOrDefault("PORT", "8080")
+	issuer := envOrDefault("ISSUER_URL", fmt.Sprintf("http://127.0.0.1:%s", port))
+	dataDir := envOrDefault("DATA_DIR", "./data")
+	signingKey := envOrDefault("SIGNING_KEY_PATH", "./keys/signing.key")
+
+	cat, err := catalog.Load(dataDir)
 	if err != nil {
-		// slog default is not yet initialised; fall back to stdlib.
-		slog.Error("failed to load config", slog.String("error", err.Error()))
-		os.Exit(1)
+		logger.Fatal("load catalog", applog.Error(err))
 	}
 
-	// ── 2. Logger ────────────────────────────────────────────────────────────
-	log := logger.New(cfg.Log.Level, cfg.Log.Format)
-	slog.SetDefault(log) // make slog.Info/Error etc. route to our logger
-
-	log.Info("esignet service starting",
-		slog.String("log_level", cfg.Log.Level),
-		slog.String("log_format", cfg.Log.Format),
-	)
-
-	// ── 3. Root context – cancelled on SIGINT / SIGTERM ──────────────────────
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
-	defer stop()
-
-	// ── 4. Postgres ──────────────────────────────────────────────────────────
-	postgres, err := db.NewPostgres(ctx, cfg.Postgres, log)
+	authnCfg := config.LoadAuthn()
+	logger.Info("authn provider selected", applog.String("provider", authnCfg.Provider))
+	authnProvider, err := embedhost.NewAuthnProviderFromConfig(authnCfg, cat)
 	if err != nil {
-		log.Error("postgres init failed", slog.String("error", err.Error()))
-		os.Exit(1)
+		logger.Fatal("authn provider", applog.Error(err))
 	}
-	defer postgres.Close()
 
-	// ── 5. Redis ─────────────────────────────────────────────────────────────
-	redisClient, err := cache.NewRedis(ctx, cfg.Redis, log)
+	mux := http.NewServeMux()
+	mux.HandleFunc("GET /health", func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("ok"))
+	})
+
+	_, err = thunderidengine.Initialize(mux, thunderidengine.EngineConfig{
+		Issuer:  issuer,
+		DataDir: dataDir,
+		Runtime: runtime.NewMemoryRuntimeStore(),
+		Crypto: thunderidengine.CryptoConfig{
+			SigningKeyPath: signingKey,
+		},
+		FlowStore: thunderidengine.FlowProviderConfig{
+			StoreMode: thunderidengine.StoreModeDeclarative,
+		},
+		Flow: thunderidengine.FlowConfig{
+			Executors: []string{
+				"BasicAuthExecutor",
+				"AuthorizationExecutor",
+				"AuthAssertExecutor",
+				"ConsentExecutor",
+			},
+			RegisterCustom: func(reg thunderidengine.ExecutorRegistry, factory thunderidengine.FlowFactory) error {
+				return embedhost.RegisterCustomExecutors(reg, factory, embedhost.CustomExecutorDeps{
+					Authn:    authnProvider,
+					AuthnCfg: authnCfg,
+				})
+			},
+		},
+		Actors:        embedhost.NewActorProvider(cat),
+		Authn:         authnProvider,
+		Authorization: embedhost.NewAuthorizationProvider(),
+		Consent:       embedhost.NewConsentEnforcer(),
+	})
 	if err != nil {
-		log.Error("redis init failed", slog.String("error", err.Error()))
-		os.Exit(1)
-	}
-	defer func() {
-		if err := redisClient.Close(); err != nil {
-			log.Warn("redis close error", slog.String("error", err.Error()))
-		}
-	}()
-
-	// ── 6. HTTP Server ───────────────────────────────────────────────────────
-	srv := server.New(cfg.Server, server.Dependencies{
-		DB:    postgres,
-		Cache: redisClient,
-	}, log)
-
-	// Start server in a goroutine so we can listen for shutdown signals below.
-	srvErr := make(chan error, 1)
-	go func() {
-		srvErr <- srv.Start()
-	}()
-
-	// ── 7. Block until signal or server error ────────────────────────────────
-	select {
-	case err := <-srvErr:
-		if err != nil && !errors.Is(err, context.Canceled) {
-			log.Error("server exited with error", slog.String("error", err.Error()))
-			os.Exit(1)
-		}
-	case <-ctx.Done():
-		log.Info("shutdown signal received", slog.String("signal", ctx.Err().Error()))
+		logger.Fatal("initialize engine", applog.Error(err))
 	}
 
-	// ── 8. Graceful shutdown ─────────────────────────────────────────────────
-	// Use a fresh background context – the parent ctx is already cancelled.
-	if err := srv.Shutdown(context.Background()); err != nil {
-		log.Error("graceful shutdown failed", slog.String("error", err.Error()))
-		os.Exit(1)
+	addr := ":" + port
+	logger.Info("server listening", applog.String("addr", addr), applog.String("issuer", issuer))
+	if err := http.ListenAndServe(addr, mux); err != nil {
+		logger.Fatal("server", applog.Error(err))
 	}
+}
 
-	log.Info("esignet service stopped cleanly")
+func envOrDefault(key, fallback string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return fallback
 }

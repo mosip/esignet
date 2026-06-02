@@ -1,0 +1,29 @@
+{
+  "id": "esignet-local-env",
+  "name": "eSignet (local)",
+  "values": [
+    { "key": "baseUrl", "value": "http://127.0.0.1:8080", "enabled": true, "description": "Must match ISSUER_URL when starting the server" },
+    { "key": "applicationId", "value": "decl-app-1", "enabled": true },
+    { "key": "otpApplicationId", "value": "partnernameforautomationesi-372269", "enabled": true },
+    { "key": "clientId", "value": "decl-public-client-1", "enabled": true },
+    { "key": "otpClientId", "value": "I6eXdnnLGGj2A2BcTL-jug_0ujpnQXlBpKAbBCkGWEM", "enabled": true },
+    { "key": "individualId", "value": "2760459465", "enabled": true },
+    { "key": "otp", "value": "111111", "enabled": true },
+    { "key": "redirectUri", "value": "https://localhost:3000", "enabled": true },
+    { "key": "scope", "value": "openid profile email", "enabled": true },
+    { "key": "username", "value": "decl-user-1", "enabled": true },
+    { "key": "password", "value": "TempPassword123!", "enabled": true },
+    { "key": "ouId", "value": "decl-ou-1", "enabled": true },
+    { "key": "executionId", "value": "", "enabled": true },
+    { "key": "challengeToken", "value": "", "enabled": true },
+    { "key": "actionRef", "value": "action_001", "enabled": true },
+    { "key": "assertion", "value": "", "enabled": true },
+    { "key": "authId", "value": "", "enabled": true },
+    { "key": "codeVerifier", "value": "", "enabled": true },
+    { "key": "codeChallenge", "value": "", "enabled": true },
+    { "key": "authCode", "value": "", "enabled": true },
+    { "key": "accessToken", "value": "", "enabled": true },
+    { "key": "idToken", "value": "", "enabled": true }
+  ],
+  "_postman_variable_scope": "environment"
+}
