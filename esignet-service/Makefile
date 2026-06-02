@@ -3,7 +3,7 @@ export
 
 OUT_DIR         := out
 BINARY          := $(OUT_DIR)/esignet.exe
-CMD             := ./cmd/engine
+CMD             := ./cmd/esignet
 KEY_DIR         := keys
 SIGNING_KEY     := $(KEY_DIR)/signing.key
 SIGNING_CERT    := $(KEY_DIR)/signing.crt

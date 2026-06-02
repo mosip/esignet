@@ -14,7 +14,7 @@ A minimal Go sample that embeds the ThunderID authorization engine (`pkg/thunder
 
 ```text
 esignet-service/
-  cmd/engine/main.go          # HTTP entrypoint
+  cmd/esignet/main.go         # HTTP entrypoint
   internal/catalog/           # users + OAuth clients from YAML
   internal/host/              # Actor, Authn, Authz, Consent, custom executors
   internal/config/            # env-based configuration (authn, MOSIP)
@@ -34,8 +34,8 @@ All build targets generate TLS signing material first (`make keys`), because the
 |---------|--------|--------|
 | `make keys` | `keys/signing.key`, `keys/signing.crt` | One-time (or regenerate locally). Not committed. |
 | `make build` | `out/esignet.exe` | Preferred binary build. |
-| `go build -o out/esignet.exe ./cmd/engine` | `out/esignet.exe` | Same as `make build` after `make keys`. |
-| `make test` | — | Unit tests + OIDC discovery smoke (`cmd/engine`). |
+| `go build -o out/esignet.exe ./cmd/esignet` | `out/esignet.exe` | Same as `make build` after `make keys`. |
+| `make test` | — | Unit tests + OIDC discovery smoke (`cmd/esignet`). |
 
 Example:
 
@@ -55,7 +55,7 @@ cd esignet-service
 make run
 ```
 
-Runs `go run ./cmd/engine` with `ISSUER_URL`, `DATA_DIR`, `SIGNING_KEY_PATH`, and `AUTHN_PROVIDER` (see [Environment variables](#environment-variables)). Copy `.env.example` to `.env` to override defaults via `make`.
+Runs `go run ./cmd/esignet` with `ISSUER_URL`, `DATA_DIR`, `SIGNING_KEY_PATH`, and `AUTHN_PROVIDER` (see [Environment variables](#environment-variables)). Copy `.env.example` to `.env` to override defaults via `make`.
 
 ### Binary
 

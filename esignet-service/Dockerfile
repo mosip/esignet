@@ -5,7 +5,7 @@ WORKDIR /src
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . ./
-RUN mkdir -p /out && go build -trimpath -ldflags="-s -w" -o /out/esignet.exe ./cmd/engine
+RUN mkdir -p /out && go build -trimpath -ldflags="-s -w" -o /out/esignet.exe ./cmd/esignet
 
 FROM debian:bookworm-slim
 

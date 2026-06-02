@@ -1,4 +1,4 @@
-// Command engine runs the ThunderID embedder with MOSIP authentication support.
+// Command esignet runs the ThunderID embedder with MOSIP authentication support.
 package main
 
 import (

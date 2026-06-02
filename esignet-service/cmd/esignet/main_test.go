@@ -21,7 +21,7 @@ func TestDiscoverySmoke(t *testing.T) {
 	dataDir := filepath.Join(root, "..", "..", "data")
 	signingKey := filepath.Join(root, "..", "..", "keys", "signing.key")
 	if _, err := os.Stat(signingKey); err != nil {
-		t.Skip("run make keys before engine smoke test")
+		t.Skip("run make keys before esignet smoke test")
 	}
 
 	cat, err := catalog.Load(dataDir)
