@@ -435,7 +435,7 @@ public class AuthorizationHelperService {
 
     protected Pair<String,String> validateAndGetSubjectAndNonce(String clientId, String idTokenHint) {
         if (idTokenHint == null || idTokenHint.isBlank()) {
-            throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
+            throw new EsignetException(LOGIN_REQUIRED);
         }
 
         try {
@@ -443,7 +443,7 @@ public class AuthorizationHelperService {
             tokenService.verifyIdToken(idTokenHint, signupIDTokenAudience);
         } catch (Exception e) {
             log.error("id_token_hint signature/claims verification failed", e);
-            throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
+            throw new EsignetException(LOGIN_REQUIRED);
         }
 
         // 2) Only after cryptographic validation passes do we parse the JWT to read claims.
@@ -452,20 +452,20 @@ public class AuthorizationHelperService {
             List<String> audience = jwt.getJWTClaimsSet().getAudience();
 
             if (CollectionUtils.isEmpty(audience) || !audience.contains(signupIDTokenAudience) || !signupIDTokenAudience.equals(clientId))  {
-                throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
+                throw new EsignetException(LOGIN_REQUIRED);
             }
 
             String sub = jwt.getJWTClaimsSet().getSubject();
             String nonce = jwt.getJWTClaimsSet().getStringClaim(TokenService.NONCE);
             if (sub == null || sub.isBlank() || nonce == null || nonce.isBlank()) {
-                throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
+                throw new EsignetException(LOGIN_REQUIRED);
             }
             return Pair.of(sub, nonce);
         } catch (EsignetException e) {
             throw e;
         } catch (Exception e) {
             log.error("Failed to parse the (already signature-verified) id_token_hint", e);
-            throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
+            throw new EsignetException(LOGIN_REQUIRED);
         }
     }
 
