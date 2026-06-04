@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { fetchThemeConfig } from '../services/config.service';
-import type { ThemeConfig } from '../types';
+import { useEffect, useState } from "react";
+import { fetchThemeConfig } from "../services/config.service";
+import type { ThemeConfig } from "../types";
 
 export default function Footer() {
   const [config, setConfig] = useState<ThemeConfig | null>(null);
@@ -11,7 +11,9 @@ export default function Footer() {
       .then((cfg) => {
         if (mounted) setConfig(cfg);
       })
-      .catch(() => {});
+      .catch((error) => {
+        console.error("Failed to fetch footer config:", error);
+      });
     return () => {
       mounted = false;
     };

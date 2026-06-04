@@ -1,10 +1,10 @@
-import axios from 'axios';
-import { CSRF, SOMETHING_WENT_WRONG } from '../constants/routes';
-import type { NavigateFunction } from 'react-router-dom';
+import axios from "axios";
+import { CSRF, SOMETHING_WENT_WRONG } from "../constants/routes";
+import type { NavigateFunction } from "react-router-dom";
 
 const API_BASE_URL = import.meta.env.DEV
-  ? (import.meta.env.VITE_ESIGNET_API_URL ?? '')
-  : window.origin + (import.meta.env.VITE_ESIGNET_API_URL ?? '');
+  ? (import.meta.env.VITE_ESIGNET_API_URL ?? "")
+  : window.origin + (import.meta.env.VITE_ESIGNET_API_URL ?? "");
 
 const csrfEndpoint = `${API_BASE_URL}${CSRF}`;
 
@@ -17,7 +17,9 @@ export class HttpError extends Error {
 }
 
 async function getCsrfToken(): Promise<string> {
-  const response = await axios.get<{ token: string }>(csrfEndpoint);
+  const response = await axios.get<{ token: string }>(csrfEndpoint, {
+    withCredentials: true,
+  });
   return response.data.token;
 }
 
@@ -29,13 +31,20 @@ export const ApiService = axios.create({
 
 ApiService.interceptors.request.use(
   async (config) => {
-    if (config.method?.toLowerCase() === 'post') {
-      let csrfToken = sessionStorage.getItem('csrfToken');
+    if (config.method?.toLowerCase() === "post") {
+      let csrfToken = sessionStorage.getItem("csrfToken");
       if (!csrfToken) {
-        csrfToken = await getCsrfToken();
-        if (csrfToken) sessionStorage.setItem('csrfToken', csrfToken);
+        try {
+          csrfToken = await getCsrfToken();
+          if (csrfToken) sessionStorage.setItem("csrfToken", csrfToken);
+        } catch (error) {
+          console.error("Failed to fetch CSRF token:", error);
+          return Promise.reject(new Error("CSRF token unavailable"));
+        }
       }
-      config.headers['X-XSRF-TOKEN'] = csrfToken;
+      if (csrfToken) {
+        config.headers["X-XSRF-TOKEN"] = csrfToken;
+      }
     }
     return config;
   },
@@ -54,9 +63,10 @@ export function setupResponseInterceptor(navigate: NavigateFunction): void {
         ?.status;
       if (status && status >= 400) {
         navigate(SOMETHING_WENT_WRONG, { state: { code: status } });
-      } else {
-        return Promise.reject(error instanceof Error ? error : new Error(String(error)));
       }
+      return Promise.reject(
+        error instanceof Error ? error : new Error(String(error)),
+      );
     },
   );
 }

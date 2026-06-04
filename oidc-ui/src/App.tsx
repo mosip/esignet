@@ -1,20 +1,21 @@
-import { useEffect, useState } from 'react';
-import { BrowserRouter } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import './App.css';
-import NavHeader from './components/NavHeader';
-import Footer from './components/Footer';
-import AppRouter from './routes/AppRouter';
-import LoadingIndicator from './components/LoadingIndicator';
-import { initializeCSSVariables } from './services/css-variable.service';
-import { LoadingStates } from './constants/states';
-import type { LoadingState } from './constants/states';
+import { useEffect, useState } from "react";
+import { BrowserRouter } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import "./App.css";
+import NavHeader from "./components/NavHeader";
+import Footer from "./components/Footer";
+import AppRouter from "./routes/AppRouter";
+import LoadingIndicator from "./components/LoadingIndicator";
+import { initializeCSSVariables } from "./services/css-variable.service";
+import { LoadingStates } from "./constants/states";
+import type { LoadingState } from "./constants/states";
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: (failureCount, error) => {
-        const status = (error as { status?: number })?.status;
+        const status = (error as { response?: { status?: number } })?.response
+          ?.status;
         if (status && status >= 400 && status < 500) return false;
         return failureCount < 3;
       },

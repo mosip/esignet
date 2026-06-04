@@ -1,12 +1,14 @@
-import { useLocation } from 'react-router-dom';
+import { useLocation } from "react-router-dom";
 
 export default function NetworkErrorPage() {
   const location = useLocation();
 
   const tryAgain = () => {
     window.onbeforeunload = null;
-    const path = (location.state as { path?: string } | null)?.path ?? '/';
-    window.location.replace(path);
+    const path = (location.state as { path?: string } | null)?.path ?? "/";
+    const safePath =
+      path.startsWith("/") && !path.startsWith("//") ? path : "/";
+    window.location.replace(safePath);
   };
 
   return (

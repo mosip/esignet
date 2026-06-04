@@ -10,7 +10,7 @@ import {
 import { fetchThemeConfig } from "../services/config.service";
 import { getPollingConfig } from "../utils/parsing";
 import type { ThemeConfig } from "../types";
-import { Detector } from 'react-detect-offline';
+import { Detector } from "react-detect-offline";
 
 const EsignetDetailsPage = lazy(() => import("../pages/EsignetDetailsPage"));
 const LoginPage = lazy(() => import("../pages/LoginPage"));
@@ -60,7 +60,7 @@ export default function AppRouter() {
   // we can safely access its properties, adding null checks where appropriate.
   const backgroundLogoDiv = checkRoute(location.pathname) ? (
     config && config["background_logo"] ? (
-      <div className="flex justify-center m-10 lg:mt-20 mb:mt-0 lg:w-1/2 md:w-1/2 md:block sm:w-1/2 sm:block hidden w-5/6 mt-20 mb-10 md:mb-0">
+      <div className="flex justify-center m-10 lg:mt-20 md:mt-0 lg:w-1/2 md:w-1/2 md:block sm:w-1/2 sm:block hidden w-5/6 mt-20 mb-10 md:mb-0">
         <img
           className="background-logo object-contain rtl:scale-x-[-1]"
           alt="background"
@@ -108,7 +108,9 @@ export default function AppRouter() {
               }}
               render={({ online }) => {
                 if (!online && location.pathname !== NETWORK_ERROR) {
-                  navigate(NETWORK_ERROR, { state: { path: location.pathname } });
+                  navigate(NETWORK_ERROR, {
+                    state: { path: location.pathname },
+                  });
                 }
                 return null;
               }}

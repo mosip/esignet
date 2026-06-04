@@ -1,4 +1,4 @@
-import { decodeBase64 } from './encoding';
+import { decodeBase64 } from "./encoding";
 
 /**
  * Redirects the browser to the OAuth2 redirect_uri with error parameters.
@@ -9,8 +9,8 @@ export function redirectOnError(
   errorDescription?: string,
 ): void {
   const urlObj = new URL(window.location.href);
-  const state = urlObj.searchParams.get('state');
-  const nonce = urlObj.searchParams.get('nonce');
+  const state = urlObj.searchParams.get("state");
+  const nonce = urlObj.searchParams.get("nonce");
   const hash = urlObj.hash.substring(1);
 
   if (!hash || !state || !nonce) return;
@@ -30,24 +30,25 @@ export function redirectOnError(
   try {
     redirectUrl = new URL(redirectUri);
   } catch {
-    console.error('Invalid redirect URI:', redirectUri);
+    console.error("Invalid redirect URI:", redirectUri);
     return;
   }
 
   if (redirectUrl.origin !== window.location.origin) {
     console.error(
-      'Redirect URI origin mismatch: expected %s, got %s',
+      "Redirect URI origin mismatch: expected %s, got %s",
       window.location.origin,
       redirectUrl.origin,
     );
     return;
   }
 
-  const params = new URLSearchParams();
-  if (errorDescription) params.set('error_description', errorDescription);
-  params.set('state', state);
-  params.set('error', errorCode);
+  redirectUrl.searchParams.set("error", errorCode);
+  if (errorDescription) {
+    redirectUrl.searchParams.set("error_description", errorDescription);
+  }
+  redirectUrl.searchParams.set("state", state);
 
   window.onbeforeunload = null;
-  window.location.replace(`${redirectUri}?${params.toString()}`);
+  window.location.replace(redirectUrl.toString());
 }

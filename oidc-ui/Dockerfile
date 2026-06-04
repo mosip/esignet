@@ -7,7 +7,7 @@ ARG oidcUIPublicUrl
 ARG uiDefaultTheme
 ARG defaultLang
 ARG defaultWellknown
-ARG defaultFevicon
+ARG defaultFavicon
 ARG defaultTitle
 ARG defaultIdProviderName
 ARG pollingUrl
@@ -19,7 +19,7 @@ ENV OIDC_UI_PUBLIC_URL=$oidcUIPublicUrl
 ENV DEFAULT_THEME=$uiDefaultTheme
 ENV DEFAULT_LANG=$defaultLang
 ENV DEFAULT_WELLKNOWN=$defaultWellknown
-ENV DEFAULT_FEVICON=$defaultFevicon
+ENV DEFAULT_FAVICON=$defaultFavicon
 ENV DEFAULT_TITLE=$defaultTitle
 ENV DEFAULT_ID_PROVIDER_NAME=$defaultIdProviderName
 ENV POLLING_URL=$pollingUrl
@@ -95,7 +95,7 @@ RUN groupadd -g ${container_user_gid} ${container_user_group} \
     && mkdir -p /var/run/nginx /var/tmp/nginx ${i18n_path} ${theme_path} ${image_path} ${plugins_path} ${plugins_path}/temp \
     && chown -R ${container_user}:${container_user} /usr/share/nginx /var/run/nginx /var/tmp/nginx ${i18n_path} ${theme_path} ${image_path} ${plugins_path} ${plugins_path}/temp
 
-ADD configure_start.sh configure_start.sh
+COPY configure_start.sh configure_start.sh
 
 RUN chmod +x configure_start.sh
 
@@ -107,14 +107,15 @@ COPY --from=build_esignet_ui /app/dist  ${work_dir}
 RUN echo "DEFAULT_THEME=$DEFAULT_THEME" >> ${work_dir}/env.env \
     && echo "DEFAULT_LANG=$DEFAULT_LANG" >> ${work_dir}/env.env \
     && echo "DEFAULT_WELLKNOWN=$DEFAULT_WELLKNOWN" >> ${work_dir}/env.env \
-    && echo "DEFAULT_FEVICON=$DEFAULT_FEVICON" >> ${work_dir}/env.env env \
+    && echo "DEFAULT_FAVICON=$DEFAULT_FAVICON" >> ${work_dir}/env.env \
     && echo "DEFAULT_TITLE=$DEFAULT_TITLE" >> ${work_dir}/env.env \
     && echo "DEFAULT_ID_PROVIDER_NAME=$DEFAULT_ID_PROVIDER_NAME" >> ${work_dir}/env.env \
     && echo "POLLING_URL=$POLLING_URL" >> ${work_dir}/env.env \
     && echo "POLLING_INTERVAL=$POLLING_INTERVAL" >> ${work_dir}/env.env \
     && echo "POLLING_TIMEOUT=$POLLING_TIMEOUT" >> ${work_dir}/env.env \
-    && echo "POLLING_ENABLED=$POLLING_ENABLED" >> ${work_dir}/env.env \
-    && wget --no-check-certificate --no-cache --no-cookies https://raw.githubusercontent.com/mosip/artifactory-ref-impl/master/artifacts/src/mosip-plugins/sign-in-with-esignet/sign-in-with-esignet.zip -O ${plugins_path}/temp/sign-in-button-plugin.zip
+    && echo "POLLING_ENABLED=$POLLING_ENABLED" >> ${work_dir}/env.env
+
+# RUN wget --no-check-certificate --no-cache --no-cookies https://raw.githubusercontent.com/mosip/artifactory-ref-impl/master/artifacts/src/mosip-plugins/sign-in-with-esignet/sign-in-with-esignet.zip -O ${plugins_path}/temp/sign-in-button-plugin.zip
 
 RUN chown -R ${container_user}:${container_user} /home/${container_user}
 
@@ -123,6 +124,9 @@ RUN chown -R ${container_user}:${container_user} ${work_dir}
 
 # select container user for all tasks
 USER ${container_user_uid}:${container_user_gid}
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+    CMD wget --quiet --tries=1 --spider http://localhost:3000/ || exit 1
 
 EXPOSE 3000
 

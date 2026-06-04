@@ -8,7 +8,10 @@ echo "Downloading pre-requisites started."
 # Check if $i18n_url_env is not empty
 if [[ -n "$i18n_url_env" ]]; then
     echo "i18n_url_env is set: $i18n_url_env"
-    wget --no-check-certificate --no-cache --no-cookies $i18n_url_env -O $i18n_path/esignet-i18n-bundle.zip
+    if ! wget --no-check-certificate --no-cache --no-cookies $i18n_url_env -O $i18n_path/esignet-i18n-bundle.zip; then
+        echo "ERROR: Failed to download i18n bundle from $i18n_url_env"
+        exit 1
+    fi
 
     echo "unzip i18n bundle files.."
     chmod 775 $i18n_path/*
@@ -21,7 +24,10 @@ fi
 # Check if $theme_url_env is not empty
 if [[ -n "$theme_url_env" ]]; then
     echo "theme_url_env is set: $theme_url_env"
-    wget --no-check-certificate --no-cache --no-cookies $theme_url_env -O $theme_path/esignet-theme.zip
+    if ! wget --no-check-certificate --no-cache --no-cookies $theme_url_env -O $theme_path/esignet-theme.zip; then
+        echo "ERROR: Failed to download theme from $theme_url_env"
+        exit 1
+    fi
 
     echo "unzip theme files.."
     chmod 775 $theme_path/*
@@ -34,7 +40,10 @@ fi
 # Check if $images_url_env is not empty
 if [[ -n "$images_url_env" ]]; then
     echo "images_url_env is set: $images_url_env"
-    wget --no-check-certificate --no-cache --no-cookies $images_url_env -O $image_path/esignet-image.zip
+    if ! wget --no-check-certificate --no-cache --no-cookies $images_url_env -O $image_path/esignet-image.zip; then
+        echo "ERROR: Failed to download images from $images_url_env"
+        exit 1
+    fi
 
     echo "unzip image files.."
     chmod 775 $image_path/*
@@ -47,6 +56,10 @@ fi
 #sign-in-button-plugin
 echo "unzip plugins.."
 cd $plugins_path/temp
+if [! -f "sign-in-button-plugin.zip" ]; then
+    echo "ERROR: sign-in-button-plugin.zip not found!"
+    exit 1
+fi
 unzip -o sign-in-button-plugin.zip
 rm sign-in-button-plugin.zip
 #move the required js file
@@ -67,7 +80,7 @@ if [ -z "$OIDC_UI_PUBLIC_URL" ]; then
   done
 else
   workingDir=$nginx_dir/${OIDC_UI_PUBLIC_URL}
-  mkdir $workingDir
+  mkdir -p $workingDir
   mv -v $nginx_dir/html/* $workingDir/
   rpCmd="s/_PUBLIC_URL_/\/${OIDC_UI_PUBLIC_URL}/g"
   grep -rl '_PUBLIC_URL_' "$workingDir" | while IFS= read -r file; do

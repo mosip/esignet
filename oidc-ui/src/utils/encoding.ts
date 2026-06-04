@@ -3,12 +3,11 @@
  */
 export function encodeBase64Url(str: string): string {
   const bytes = new TextEncoder().encode(str);
-  const binary = Array.from(bytes, (byte) => String.fromCharCode(byte)).join('');
+  const binary = Array.from(bytes, (byte) => String.fromCharCode(byte)).join(
+    "",
+  );
   const base64 = btoa(binary);
-  return base64
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '');
+  return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
 /**
@@ -16,7 +15,9 @@ export function encodeBase64Url(str: string): string {
  */
 export function encodeBase64(str: string): string {
   const bytes = new TextEncoder().encode(str);
-  const binary = Array.from(bytes, (byte) => String.fromCharCode(byte)).join('');
+  const binary = Array.from(bytes, (byte) => String.fromCharCode(byte)).join(
+    "",
+  );
   return btoa(binary);
 }
 
@@ -34,10 +35,8 @@ export function decodeBase64(hash: string): string {
  */
 export function decodeBase64Url(str: string): string {
   // Convert base64url to standard base64 and restore padding
-  let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
-  const pad = base64.length % 4;
-  if (pad) base64 += '='.repeat(4 - pad);
+  const base64 = str.replace(/-/g, "+").replace(/_/g, "/");
   const binary = atob(base64);
   const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
-  return new TextDecoder('utf-8').decode(bytes);
+  return new TextDecoder("utf-8").decode(bytes);
 }
