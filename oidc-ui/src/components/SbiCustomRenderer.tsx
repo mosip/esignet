@@ -1,7 +1,7 @@
 import type {
   ComponentRenderContext,
   EmbeddedFlowComponent,
-} from "@asgardeo/react";
+} from "@thunderid/react";
 import Sbi from "./SbiComponent";
 
 export default function SbiCustomRenderer(

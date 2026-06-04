@@ -1,10 +1,10 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { AsgardeoProvider } from "@asgardeo/react";
+import { ThunderIDProvider } from "@thunderid/react";
 import App from "./App";
 import SbiCustomRenderer from "./components/SbiCustomRenderer";
 
-// getting applicationId from query param to pass it to AsgardeoProvider
+// getting applicationId from query param to pass it to ThunderIDProvider
 const applicationId = new URL(window.location.href).searchParams.get(
   "applicationId",
 );
@@ -21,9 +21,8 @@ const baseUrl = baseUrlRaw || `https://localhost:8088`;
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     {applicationId ? (
-      <AsgardeoProvider
+      <ThunderIDProvider
         baseUrl={baseUrl}
-        platform="AsgardeoV2"
         applicationId={applicationId}
         extensions={{
           components: {
@@ -34,7 +33,7 @@ createRoot(document.getElementById("root")!).render(
         }}
       >
         <App />
-      </AsgardeoProvider>
+      </ThunderIDProvider>
     ) : (
       <App />
     )}

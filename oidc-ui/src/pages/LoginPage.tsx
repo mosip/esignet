@@ -1,4 +1,4 @@
-import { SignIn } from "@asgardeo/react";
+import { SignIn } from "@thunderid/react";
 import LoadingIndicator from "../components/LoadingIndicator";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";

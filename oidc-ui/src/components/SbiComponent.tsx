@@ -4,7 +4,7 @@ import { encodeBase64 } from "../utils/encoding";
 import type {
   ComponentRenderContext,
   EmbeddedFlowComponent,
-} from "@asgardeo/react";
+} from "@thunderid/react";
 
 interface BiometricError {
   errorCode: string;
@@ -50,22 +50,18 @@ const DEFAULT_SBI_ENV = {
 } as const;
 
 export default function Sbi({ component, context }: SbiProps) {
-  const firstRender = useRef(true);
   const [, setValue] = useState("");
 
   useEffect(() => {
-    if (firstRender.current) {
-      firstRender.current = false;
-      init({
-        container: document.getElementById(SBI_CONTAINER_ID),
-        buttonLabel: "scan_and_verify",
-        transactionId: "transactionId",
-        sbiEnv: DEFAULT_SBI_ENV,
-        langCode: "en",
-        disable: false,
-      });
-      return;
-    }
+    init({
+      container: document.getElementById(SBI_CONTAINER_ID),
+      buttonLabel: "scan_and_verify",
+      transactionId: "transactionId",
+      sbiEnv: DEFAULT_SBI_ENV,
+      langCode: "en",
+      disable: false,
+    });
+    return;
 
     propChange({
       onCapture: (response: BiometricResponse | null) =>
@@ -89,7 +85,11 @@ export default function Sbi({ component, context }: SbiProps) {
   ): Promise<void> => {
     const { errorCode } = validateBiometricResponse(biometricResponse);
 
-    if (errorCode !== null) return;
+    if (errorCode !== null) {
+      setValue("");
+      context.onInputChange(component.id, "");
+      return;
+    }
 
     const encoded = encodeBase64(
       JSON.stringify(biometricResponse?.biometrics ?? []),
