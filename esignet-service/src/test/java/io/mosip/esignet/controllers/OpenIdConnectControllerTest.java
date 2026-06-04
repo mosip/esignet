@@ -92,7 +92,7 @@ public class OpenIdConnectControllerTest {
     public void getUserinfo_withNoAccessToken_thenFail() throws Exception {
         mockMvc.perform(get("/oidc/userinfo"))
                 .andExpect(status().is(401))
-                .andExpect(header().string("WWW-Authenticate", "Bearer error=\"invalid_token\""));
+                .andExpect(header().string("WWW-Authenticate", "Bearer"));
     }
 
     @Test
