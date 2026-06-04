@@ -25,9 +25,9 @@ var (
 	ErrDuplicatePublicKey = errors.New("duplicate public key")
 )
 
-// ClientDetailRow is the persistence shape of a row in `client_detail`.
+// DetailRow is the persistence shape of a row in `client_detail`.
 // List-shaped fields are stored as JSON-array strings.
-type ClientDetailRow struct {
+type DetailRow struct {
 	ID               string
 	Name             string // plain client name, OR JSON map of lang→name
 	RpID             string
@@ -69,7 +69,7 @@ func (r *Repository) ExistsByID(ctx context.Context, id string) (bool, error) {
 // Insert writes the row. On a unique-constraint violation, returns either
 // ErrDuplicateClientID or ErrDuplicatePublicKey depending on which constraint
 // the database reports.
-func (r *Repository) Insert(ctx context.Context, row *ClientDetailRow) error {
+func (r *Repository) Insert(ctx context.Context, row *DetailRow) error {
 	if row == nil {
 		return errors.New("client_detail insert: row is nil")
 	}

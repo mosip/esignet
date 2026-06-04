@@ -1,3 +1,5 @@
+// Package client implements the client-management feature module
+// (POST /v1/esignet/client-mgmt/client).
 package client
 
 import (
@@ -25,7 +27,7 @@ func NewModule(
 	pool *pgxpool.Pool,
 	log *applog.Logger,
 ) (*Module, error) {
-	validatorCfg := ClientValidatorConfig{
+	validatorCfg := ValidatorConfig{
 		SupportedUserClaims:        cfg.SupportedUserClaims,
 		SupportedACRValues:         cfg.SupportedACRValues,
 		SupportedGrantTypes:        cfg.SupportedGrantTypes,
@@ -47,7 +49,7 @@ func NewModule(
 
 // Initialize registers the client-management routes on the supplied mux.
 func (m *Module) Initialize(mux *http.ServeMux) {
-	create := ClientMgmtCreate(m.service, m.validator, m.log)
+	create := MgmtCreate(m.service, m.validator, m.log)
 	mux.HandleFunc("POST /v1/esignet/client-mgmt/client", create)
 }
 
@@ -55,7 +57,7 @@ func (m *Module) Initialize(mux *http.ServeMux) {
 // the override URL.
 func buildValidatorForConfig(
 	ctx context.Context,
-	vcfg ClientValidatorConfig,
+	vcfg ValidatorConfig,
 	additionalConfigSchemaURL string,
 	log *applog.Logger,
 ) (*Validator, error) {

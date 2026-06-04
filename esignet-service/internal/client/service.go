@@ -12,28 +12,28 @@ import (
 	"github.com/mosip/esignet/pkg/jwk"
 )
 
-// ClientRepo is the persistence contract the service consumes. Defined here
+// Repo is the persistence contract the service consumes. Defined here
 // so the repository package stays consumer-agnostic.
-type ClientRepo interface {
+type Repo interface {
 	ExistsByID(ctx context.Context, id string) (bool, error)
-	Insert(ctx context.Context, row *ClientDetailRow) error
+	Insert(ctx context.Context, row *DetailRow) error
 }
 
 // Service runs the post-validation pipeline: JWK parse → duplicate check →
 // row build → persist. Schema validation runs upstream in the handler.
 type Service struct {
-	repo ClientRepo
+	repo Repo
 	log  *applog.Logger
 }
 
 // NewService binds the service to its dependencies.
-func NewService(repo ClientRepo, log *applog.Logger) *Service {
+func NewService(repo Repo, log *applog.Logger) *Service {
 	return &Service{repo: repo, log: log}
 }
 
 // Create runs the create pipeline. Returns a populated createResponse on
 // success, or a non-empty list of wire error codes on failure.
-func (s *Service) Create(ctx context.Context, req *createRequest) (*createResponse, []string) {
+func (s *Service) create(ctx context.Context, req *createRequest) (*createResponse, []string) {
 	// 1. publicKey — parse the JWK and compute the row's public_key_hash.
 	pubKey, err := jwk.Parse(req.PublicKey)
 	if err != nil {
@@ -61,7 +61,7 @@ func (s *Service) Create(ctx context.Context, req *createRequest) (*createRespon
 	// 3. Build the row. Lists serialise as JSON arrays; name is a JSON map
 	//    when clientNameLangMap is set, else plain string; additionalConfig
 	//    is compacted JSON or nil when absent/null.
-	row, errCode := buildClientDetailRow(req, string(req.PublicKey), pubKeyHash)
+	row, errCode := buildDetailRow(req, string(req.PublicKey), pubKeyHash)
 	if errCode != "" {
 		return nil, []string{errCode}
 	}
@@ -87,7 +87,7 @@ func (s *Service) Create(ctx context.Context, req *createRequest) (*createRespon
 	return &createResponse{ClientID: req.ClientID, Status: clientStatusActive}, nil
 }
 
-func buildClientDetailRow(req *createRequest, publicKeyJSON, publicKeyHash string) (*ClientDetailRow, string) {
+func buildDetailRow(req *createRequest, publicKeyJSON, publicKeyHash string) (*DetailRow, string) {
 	name, err := marshalNameField(req)
 	if err != nil {
 		return nil, errInvalidClientName
@@ -123,7 +123,7 @@ func buildClientDetailRow(req *createRequest, publicKeyJSON, publicKeyHash strin
 		addCfg = &compact
 	}
 
-	return &ClientDetailRow{
+	return &DetailRow{
 		ID:               req.ClientID,
 		Name:             name,
 		RpID:             req.RelyingPartyID,

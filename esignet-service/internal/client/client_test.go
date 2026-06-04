@@ -34,24 +34,24 @@ func testLogger() *applog.Logger { return applog.GetLogger() }
 // happy-path tests. The key material is irrelevant — nothing is signed.
 const validRSAJWK = `{"kty":"RSA","n":"0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRXjBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw","e":"AQAB"}`
 
-// fakeClientRepo records calls and returns canned errors. The zero value
+// fakeRepo records calls and returns canned errors. The zero value
 // behaves like an empty database.
-type fakeClientRepo struct {
+type fakeRepo struct {
 	existsByID    map[string]bool
 	existsErr     error
-	insertedRows  []*ClientDetailRow
+	insertedRows  []*DetailRow
 	insertErr     error
 	insertErrOnce error
 }
 
-func (r *fakeClientRepo) ExistsByID(_ context.Context, id string) (bool, error) {
+func (r *fakeRepo) ExistsByID(_ context.Context, id string) (bool, error) {
 	if r.existsErr != nil {
 		return false, r.existsErr
 	}
 	return r.existsByID[id], nil
 }
 
-func (r *fakeClientRepo) Insert(_ context.Context, row *ClientDetailRow) error {
+func (r *fakeRepo) Insert(_ context.Context, row *DetailRow) error {
 	if r.insertErrOnce != nil {
 		err := r.insertErrOnce
 		r.insertErrOnce = nil
@@ -67,8 +67,8 @@ func (r *fakeClientRepo) Insert(_ context.Context, row *ClientDetailRow) error {
 // testValidatorConfig returns the canonical operator-configured allowed-value
 // sets that every test exercises. Mirrors the values the deployed binary
 // would receive from env config defaults.
-func testValidatorConfig() ClientValidatorConfig {
-	return ClientValidatorConfig{
+func testValidatorConfig() ValidatorConfig {
+	return ValidatorConfig{
 		SupportedGrantTypes:        []string{"authorization_code"},
 		SupportedClientAuthMethods: []string{"private_key_jwt"},
 		SupportedUserClaims:        []string{"name", "given_name", "middle_name", "preferred_username", "nickname", "gender", "birthdate", "email", "phone_number", "picture", "address"},
@@ -106,11 +106,11 @@ func schemasFixturePath(t *testing.T) string {
 // callCreate dispatches a request through the handler and returns the parsed
 // envelope plus the response recorder. The recorder's body is preserved
 // (we decode from a copy) so tests can also assert raw wire shape.
-func callCreate(t *testing.T, body string, repo ClientRepo) (createResponseEnvelope, *httptest.ResponseRecorder) {
+func callCreate(t *testing.T, body string, repo Repo) (createResponseEnvelope, *httptest.ResponseRecorder) {
 	t.Helper()
 	val := newTestValidator(t)
 	svc := NewService(repo, testLogger())
-	h := ClientMgmtCreate(svc, val, testLogger())
+	h := MgmtCreate(svc, val, testLogger())
 
 	req := httptest.NewRequest(http.MethodPost, "/v1/esignet/client-mgmt/client", strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -162,7 +162,7 @@ func validBody(t *testing.T, mutators ...func(m map[string]any)) string {
 // =============================================================================
 
 func TestCreate_HappyPath(t *testing.T) {
-	repo := &fakeClientRepo{existsByID: map[string]bool{}}
+	repo := &fakeRepo{existsByID: map[string]bool{}}
 	body := validBody(t)
 
 	env, rec := callCreate(t, body, repo)
@@ -208,7 +208,7 @@ func TestCreate_HappyPath(t *testing.T) {
 	}
 }
 
-// When ClientValidatorConfig.SupportedIDRegex is empty, the validator must
+// When ValidatorConfig.SupportedIDRegex is empty, the validator must
 // fall back to DefaultIDRegex. Guards against `envconfig` quirk where an
 // empty-string env var bypasses the struct-tag default.
 func TestNewValidator_EmptyRegex_FallsBackToDefault(t *testing.T) {
@@ -260,7 +260,7 @@ func containsCodeString(codes []string, want string) bool {
 // punctuation like dots, slashes, and `@`. Guards against accidental over-
 // strict validation in this Go port.
 func TestCreate_ClientIDWithSpecialChars_Accepted(t *testing.T) {
-	repo := &fakeClientRepo{existsByID: map[string]bool{}}
+	repo := &fakeRepo{existsByID: map[string]bool{}}
 	body := validBody(t, func(m map[string]any) {
 		m["clientId"] = "client.with-various_chars/and@stuff:ok"
 		m["relyingPartyId"] = "rp.with.dots"
@@ -274,7 +274,7 @@ func TestCreate_ClientIDWithSpecialChars_Accepted(t *testing.T) {
 func TestCreate_EmptyLangMap_Accepted(t *testing.T) {
 	// clientNameLangMap is optional and may be empty — the row builder
 	// falls back to the plain clientName when no map entries are supplied.
-	repo := &fakeClientRepo{existsByID: map[string]bool{}}
+	repo := &fakeRepo{existsByID: map[string]bool{}}
 	body := validBody(t, func(m map[string]any) {
 		m["clientNameLangMap"] = map[string]string{}
 	})
@@ -323,7 +323,7 @@ func TestCreate_ValidationErrors(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			repo := &fakeClientRepo{existsByID: map[string]bool{}}
+			repo := &fakeRepo{existsByID: map[string]bool{}}
 			body := validBody(t, tc.mutate)
 			env, rec := callCreate(t, body, repo)
 			if rec.Code != http.StatusOK {
@@ -344,7 +344,7 @@ func TestCreate_ValidationErrors(t *testing.T) {
 // =============================================================================
 
 func TestCreate_LangMap_InvalidKey(t *testing.T) {
-	repo := &fakeClientRepo{existsByID: map[string]bool{}}
+	repo := &fakeRepo{existsByID: map[string]bool{}}
 	body := validBody(t, func(m map[string]any) {
 		m["clientNameLangMap"] = map[string]string{"xx": "Bad Code"} // not ISO 639-2/T
 	})
@@ -355,7 +355,7 @@ func TestCreate_LangMap_InvalidKey(t *testing.T) {
 }
 
 func TestCreate_LangMap_BlankValue(t *testing.T) {
-	repo := &fakeClientRepo{existsByID: map[string]bool{}}
+	repo := &fakeRepo{existsByID: map[string]bool{}}
 	body := validBody(t, func(m map[string]any) {
 		m["clientNameLangMap"] = map[string]string{"eng": ""}
 	})
@@ -368,7 +368,7 @@ func TestCreate_LangMap_BlankValue(t *testing.T) {
 func TestCreate_LangMap_WhitespaceOnlyValue(t *testing.T) {
 	// Whitespace-only values must be rejected by the `not_blank` tag —
 	// the built-in `required` tag would otherwise accept them.
-	repo := &fakeClientRepo{existsByID: map[string]bool{}}
+	repo := &fakeRepo{existsByID: map[string]bool{}}
 	body := validBody(t, func(m map[string]any) {
 		m["clientNameLangMap"] = map[string]string{"eng": "   "}
 	})
@@ -383,7 +383,7 @@ func TestCreate_LangMap_WhitespaceOnlyValue(t *testing.T) {
 // =============================================================================
 
 func TestCreate_PublicKey_Malformed(t *testing.T) {
-	repo := &fakeClientRepo{existsByID: map[string]bool{}}
+	repo := &fakeRepo{existsByID: map[string]bool{}}
 	body := validBody(t, func(m map[string]any) {
 		m["publicKey"] = json.RawMessage(`{"kty":"RSA"}`) // missing n, e
 	})
@@ -398,7 +398,7 @@ func TestCreate_PublicKey_Malformed(t *testing.T) {
 // =============================================================================
 
 func TestCreate_AdditionalConfig_NullOK(t *testing.T) {
-	repo := &fakeClientRepo{existsByID: map[string]bool{}}
+	repo := &fakeRepo{existsByID: map[string]bool{}}
 	body := validBody(t, func(m map[string]any) {
 		m["additionalConfig"] = nil
 	})
@@ -409,7 +409,7 @@ func TestCreate_AdditionalConfig_NullOK(t *testing.T) {
 }
 
 func TestCreate_AdditionalConfig_Valid(t *testing.T) {
-	repo := &fakeClientRepo{existsByID: map[string]bool{}}
+	repo := &fakeRepo{existsByID: map[string]bool{}}
 	body := validBody(t, func(m map[string]any) {
 		m["additionalConfig"] = map[string]any{
 			"userinfo_response_type":                "JWS",
@@ -430,7 +430,7 @@ func TestCreate_AdditionalConfig_Valid(t *testing.T) {
 }
 
 func TestCreate_AdditionalConfig_InvalidEnum(t *testing.T) {
-	repo := &fakeClientRepo{existsByID: map[string]bool{}}
+	repo := &fakeRepo{existsByID: map[string]bool{}}
 	body := validBody(t, func(m map[string]any) {
 		m["additionalConfig"] = map[string]any{"userinfo_response_type": "PLAIN"}
 	})
@@ -441,7 +441,7 @@ func TestCreate_AdditionalConfig_InvalidEnum(t *testing.T) {
 }
 
 func TestCreate_AdditionalConfig_BelowMinimum(t *testing.T) {
-	repo := &fakeClientRepo{existsByID: map[string]bool{}}
+	repo := &fakeRepo{existsByID: map[string]bool{}}
 	body := validBody(t, func(m map[string]any) {
 		m["additionalConfig"] = map[string]any{"consent_expire_in_mins": 5}
 	})
@@ -454,7 +454,7 @@ func TestCreate_AdditionalConfig_BelowMinimum(t *testing.T) {
 // require_pkce is a boolean knob on additionalConfig; the schema accepts
 // it and the request flows through.
 func TestCreate_AdditionalConfig_RequirePKCE_Accepted(t *testing.T) {
-	repo := &fakeClientRepo{existsByID: map[string]bool{}}
+	repo := &fakeRepo{existsByID: map[string]bool{}}
 	body := validBody(t, func(m map[string]any) {
 		m["additionalConfig"] = map[string]any{"require_pkce": true}
 	})
@@ -467,7 +467,7 @@ func TestCreate_AdditionalConfig_RequirePKCE_Accepted(t *testing.T) {
 // purpose must be a typed object with a required `type` enum
 // (none/verify/link/login) or null. `purpose: {}` lacks `type`.
 func TestCreate_AdditionalConfig_PurposeEmptyObject_Rejected(t *testing.T) {
-	repo := &fakeClientRepo{existsByID: map[string]bool{}}
+	repo := &fakeRepo{existsByID: map[string]bool{}}
 	body := validBody(t, func(m map[string]any) {
 		m["additionalConfig"] = map[string]any{"purpose": map[string]any{}}
 	})
@@ -478,7 +478,7 @@ func TestCreate_AdditionalConfig_PurposeEmptyObject_Rejected(t *testing.T) {
 }
 
 func TestCreate_AdditionalConfig_PurposeWithType_Accepted(t *testing.T) {
-	repo := &fakeClientRepo{existsByID: map[string]bool{}}
+	repo := &fakeRepo{existsByID: map[string]bool{}}
 	body := validBody(t, func(m map[string]any) {
 		m["additionalConfig"] = map[string]any{
 			"purpose": map[string]any{"type": "verify"},
@@ -491,7 +491,7 @@ func TestCreate_AdditionalConfig_PurposeWithType_Accepted(t *testing.T) {
 }
 
 func TestCreate_AdditionalConfig_PurposeBogusType_Rejected(t *testing.T) {
-	repo := &fakeClientRepo{existsByID: map[string]bool{}}
+	repo := &fakeRepo{existsByID: map[string]bool{}}
 	body := validBody(t, func(m map[string]any) {
 		m["additionalConfig"] = map[string]any{
 			"purpose": map[string]any{"type": "bogus"},
@@ -505,7 +505,7 @@ func TestCreate_AdditionalConfig_PurposeBogusType_Rejected(t *testing.T) {
 
 // Unknown top-level keys are rejected — schema sets additionalProperties: false.
 func TestCreate_AdditionalConfig_UnknownProperty_Rejected(t *testing.T) {
-	repo := &fakeClientRepo{existsByID: map[string]bool{}}
+	repo := &fakeRepo{existsByID: map[string]bool{}}
 	body := validBody(t, func(m map[string]any) {
 		m["additionalConfig"] = map[string]any{"some_future_key": true}
 	})
@@ -520,7 +520,7 @@ func TestCreate_AdditionalConfig_UnknownProperty_Rejected(t *testing.T) {
 // =============================================================================
 
 func TestCreate_DuplicateID_ViaExistsCheck(t *testing.T) {
-	repo := &fakeClientRepo{existsByID: map[string]bool{"test-client-001": true}}
+	repo := &fakeRepo{existsByID: map[string]bool{"test-client-001": true}}
 	body := validBody(t)
 	env, _ := callCreate(t, body, repo)
 	if !containsCode(env.Errors, errDuplicateClientID) {
@@ -532,7 +532,7 @@ func TestCreate_DuplicateID_ViaExistsCheck(t *testing.T) {
 }
 
 func TestCreate_DuplicateID_ViaInsertRace(t *testing.T) {
-	repo := &fakeClientRepo{
+	repo := &fakeRepo{
 		existsByID:    map[string]bool{},
 		insertErrOnce: ErrDuplicateClientID,
 	}
@@ -544,7 +544,7 @@ func TestCreate_DuplicateID_ViaInsertRace(t *testing.T) {
 }
 
 func TestCreate_DuplicatePublicKey(t *testing.T) {
-	repo := &fakeClientRepo{
+	repo := &fakeRepo{
 		existsByID:    map[string]bool{},
 		insertErrOnce: ErrDuplicatePublicKey,
 	}
@@ -560,7 +560,7 @@ func TestCreate_DuplicatePublicKey(t *testing.T) {
 // =============================================================================
 
 func TestCreate_MalformedJSON(t *testing.T) {
-	repo := &fakeClientRepo{existsByID: map[string]bool{}}
+	repo := &fakeRepo{existsByID: map[string]bool{}}
 	env, _ := callCreate(t, `{not-json`, repo)
 	if !containsCode(env.Errors, errInvalidInput) {
 		t.Errorf("want %s, got %v", errInvalidInput, env.Errors)
@@ -570,7 +570,7 @@ func TestCreate_MalformedJSON(t *testing.T) {
 func TestCreate_UnknownField(t *testing.T) {
 	// DisallowUnknownFields() is enabled — any unexpected top-level key
 	// surfaces as invalid_input.
-	repo := &fakeClientRepo{existsByID: map[string]bool{}}
+	repo := &fakeRepo{existsByID: map[string]bool{}}
 	body := `{"requestTime":"2026-05-22T00:00:00Z","request":{"clientId":"x"},"extra":"x"}`
 	env, _ := callCreate(t, body, repo)
 	if !containsCode(env.Errors, errInvalidInput) {
@@ -650,7 +650,7 @@ func TestNewValidatorWithSchema_UnsupportedScheme(t *testing.T) {
 func TestErrorEnvelope_NeverNilErrorsArray(t *testing.T) {
 	// The `errors` array must always serialise as [] (never null), even
 	// on malformed input.
-	repo := &fakeClientRepo{existsByID: map[string]bool{}}
+	repo := &fakeRepo{existsByID: map[string]bool{}}
 	_, rec := callCreate(t, `garbage`, repo)
 
 	raw := map[string]json.RawMessage{}
@@ -665,7 +665,7 @@ func TestErrorEnvelope_NeverNilErrorsArray(t *testing.T) {
 // On error responses, `response` must be present and explicitly null
 // (not omitted) so clients can rely on the field always being there.
 func TestErrorEnvelope_ResponseFieldIsNull(t *testing.T) {
-	repo := &fakeClientRepo{existsByID: map[string]bool{}}
+	repo := &fakeRepo{existsByID: map[string]bool{}}
 	_, rec := callCreate(t, `garbage`, repo)
 
 	raw := map[string]json.RawMessage{}
@@ -684,7 +684,7 @@ func TestErrorEnvelope_ResponseFieldIsNull(t *testing.T) {
 // Every error code surfaced on the wire must come with a non-empty
 // errorMessage so clients can render it without reverse-mapping codes.
 func TestErrorEnvelope_ErrorMessagePopulated(t *testing.T) {
-	repo := &fakeClientRepo{existsByID: map[string]bool{}}
+	repo := &fakeRepo{existsByID: map[string]bool{}}
 	body := validBody(t, func(m map[string]any) {
 		m["grantTypes"] = []string{"password"}
 	})
@@ -701,7 +701,7 @@ func TestErrorEnvelope_ErrorMessagePopulated(t *testing.T) {
 // failure (in DTO declaration order) is returned. Mirrors the
 // fail-fast semantics the integrating clients expect.
 func TestCreate_FailFast_OnFirstError(t *testing.T) {
-	repo := &fakeClientRepo{existsByID: map[string]bool{}}
+	repo := &fakeRepo{existsByID: map[string]bool{}}
 	body := validBody(t, func(m map[string]any) {
 		// Two simultaneous failures: bad lang code AND bad redirect uri.
 		// ClientNameLangMap is declared before RedirectURIs in the DTO,

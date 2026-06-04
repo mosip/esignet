@@ -47,10 +47,10 @@ const (
 	placeholderClientAuthMethods = "__PLACEHOLDER_CLIENT_AUTH_METHODS__"
 )
 
-// ClientValidatorConfig carries the operator-controlled allowed-value sets
+// ValidatorConfig carries the operator-controlled allowed-value sets
 // for grant types, claims, ACR values, client auth methods, and the regex
 // that bounds clientId / relyingPartyId.
-type ClientValidatorConfig struct {
+type ValidatorConfig struct {
 	SupportedGrantTypes        []string
 	SupportedClientAuthMethods []string
 	SupportedUserClaims        []string
@@ -66,13 +66,13 @@ type Validator struct {
 
 // NewValidator builds a Validator using the embedded additionalConfig
 // schema. For an override URL, use NewValidatorWithSchema.
-func NewValidator(cfg ClientValidatorConfig) (*Validator, error) {
+func NewValidator(cfg ValidatorConfig) (*Validator, error) {
 	return buildValidator(cfg, embeddedAdditionalConfigSchemaBytes)
 }
 
 // NewValidatorWithSchema is the override-URL variant of NewValidator. It
 // fetches the additionalConfig schema from schemaURL (http / https / file).
-func NewValidatorWithSchema(ctx context.Context, cfg ClientValidatorConfig, schemaURL string) (*Validator, error) {
+func NewValidatorWithSchema(ctx context.Context, cfg ValidatorConfig, schemaURL string) (*Validator, error) {
 	if schemaURL == "" {
 		return NewValidator(cfg)
 	}
@@ -83,7 +83,7 @@ func NewValidatorWithSchema(ctx context.Context, cfg ClientValidatorConfig, sche
 	return buildValidator(cfg, raw)
 }
 
-func buildValidator(cfg ClientValidatorConfig, additionalConfigRaw []byte) (*Validator, error) {
+func buildValidator(cfg ValidatorConfig, additionalConfigRaw []byte) (*Validator, error) {
 	// 1. Parse the create-request schema and substitute enum placeholders.
 	var createDoc any
 	if err := json.Unmarshal(embeddedCreateRequestSchemaBytes, &createDoc); err != nil {
@@ -175,7 +175,7 @@ func substituteEnumPlaceholders(node any, replacements map[string][]string) {
 // (id-format, iso-639-2-t, redirect-url, not-blank) to Go validator
 // functions. Returns an error when cfg.SupportedIDRegex doesn't compile;
 // an empty pattern falls back to DefaultIDRegex.
-func registerCustomFormats(c *jsonschema.Compiler, cfg ClientValidatorConfig) error {
+func registerCustomFormats(c *jsonschema.Compiler, cfg ValidatorConfig) error {
 	idPattern := cfg.SupportedIDRegex
 	if idPattern == "" {
 		idPattern = DefaultIDRegex
@@ -519,7 +519,7 @@ func fetchSchemaBytes(ctx context.Context, schemaURL string) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		defer resp.Body.Close()
+		defer func() { _ = resp.Body.Close() }()
 		if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 			return nil, fmt.Errorf("unexpected status %d", resp.StatusCode)
 		}

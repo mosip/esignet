@@ -44,11 +44,11 @@ func newCreateSuccessEnvelope(resp *createResponse) createResponseEnvelope {
 	}
 }
 
-// ClientMgmtCreate handles POST /v1/esignet/client-mgmt/client.
+// MgmtCreate handles POST /v1/esignet/client-mgmt/client.
 //
 // Pipeline: cap body → decode untyped → schema-validate → decode typed →
 // hand to service.
-func ClientMgmtCreate(
+func MgmtCreate(
 	svc *Service,
 	val *Validator,
 	log *applog.Logger,
@@ -80,7 +80,7 @@ func ClientMgmtCreate(
 			return
 		}
 
-		resp, errs := svc.Create(r.Context(), &env.Request)
+		resp, errs := svc.create(r.Context(), &env.Request)
 		if len(errs) > 0 {
 			writeEnvelope(w, log, newCreateErrorEnvelope(errs...))
 			return

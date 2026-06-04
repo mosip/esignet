@@ -119,9 +119,9 @@ func TestClientRepo_ExistsByID_ScanError(t *testing.T) {
 // Insert — SQL shape + parameter order
 // =============================================================================
 
-func sampleRow() *ClientDetailRow {
+func sampleRow() *DetailRow {
 	addCfg := `{"userinfo_response_type":"JWS"}`
-	return &ClientDetailRow{
+	return &DetailRow{
 		ID:               "client-001",
 		Name:             `{"eng":"Test Client"}`,
 		RpID:             "rp-001",
