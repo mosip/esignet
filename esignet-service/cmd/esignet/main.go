@@ -2,6 +2,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
@@ -10,13 +11,26 @@ import (
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/runtime"
 
 	"github.com/mosip/esignet/internal/catalog"
+	"github.com/mosip/esignet/internal/client"
 	"github.com/mosip/esignet/internal/config"
+	"github.com/mosip/esignet/internal/database"
 	embedhost "github.com/mosip/esignet/internal/host"
 	applog "github.com/mosip/esignet/internal/log"
 )
 
 func main() {
 	logger := applog.GetLogger()
+	ctx := context.Background()
+
+	clientCfg, err := client.LoadConfig()
+	if err != nil {
+		logger.Fatal("client config", applog.Error(err))
+	}
+	dbPool, err := database.NewPool(ctx, clientCfg.Postgres, logger)
+	if err != nil {
+		logger.Fatal("postgres", applog.Error(err))
+	}
+	defer dbPool.Close()
 
 	port := envOrDefault("PORT", "8080")
 	issuer := envOrDefault("ISSUER_URL", fmt.Sprintf("http://127.0.0.1:%s", port))
@@ -73,6 +87,12 @@ func main() {
 	if err != nil {
 		logger.Fatal("initialize engine", applog.Error(err))
 	}
+
+	clientMod, err := client.NewModule(ctx, clientCfg, dbPool, logger)
+	if err != nil {
+		logger.Fatal("client module", applog.Error(err))
+	}
+	clientMod.Initialize(mux)
 
 	addr := ":" + port
 	logger.Info("server listening", applog.String("addr", addr), applog.String("issuer", issuer))

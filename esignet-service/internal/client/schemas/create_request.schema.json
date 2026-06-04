@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "embedded://create_request.schema.json",
+  "type": "object",
+  "required": ["requestTime", "request"],
+  "additionalProperties": false,
+  "properties": {
+    "requestTime": { "type": "string", "format": "date-time" },
+    "request": {
+      "type": "object",
+      "required": [
+        "clientId",
+        "clientName",
+        "relyingPartyId",
+        "logoUri",
+        "redirectUris",
+        "authContextRefs",
+        "publicKey",
+        "userClaims",
+        "grantTypes",
+        "clientAuthMethods"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "clientId": {
+          "type": "string",
+          "maxLength": 100,
+          "format": "id-format"
+        },
+        "clientName": {
+          "type": "string",
+          "maxLength": 256,
+          "format": "not-blank"
+        },
+        "clientNameLangMap": {
+          "type": "object",
+          "propertyNames": { "format": "iso-639-2-t" },
+          "additionalProperties": {
+            "type": "string",
+            "maxLength": 50,
+            "format": "not-blank"
+          }
+        },
+        "relyingPartyId": {
+          "type": "string",
+          "maxLength": 100,
+          "format": "id-format"
+        },
+        "logoUri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "redirectUris": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 5,
+          "items": { "type": "string", "format": "redirect-url" }
+        },
+        "authContextRefs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 30,
+          "items": {
+            "type": "string",
+            "enum": ["__PLACEHOLDER_ACR_VALUES__"]
+          }
+        },
+        "publicKey": {
+          "type": "object",
+          "minProperties": 1
+        },
+        "userClaims": {
+          "type": "array",
+          "maxItems": 30,
+          "items": {
+            "type": "string",
+            "enum": ["__PLACEHOLDER_USER_CLAIMS__"]
+          }
+        },
+        "grantTypes": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "items": {
+            "type": "string",
+            "enum": ["__PLACEHOLDER_GRANT_TYPES__"]
+          }
+        },
+        "clientAuthMethods": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "items": {
+            "type": "string",
+            "enum": ["__PLACEHOLDER_CLIENT_AUTH_METHODS__"]
+          }
+        },
+        "additionalConfig": {
+          "anyOf": [
+            { "type": "null" },
+            { "$ref": "embedded://additional_config_request_schema.json" }
+          ]
+        }
+      }
+    }
+  }
+}
