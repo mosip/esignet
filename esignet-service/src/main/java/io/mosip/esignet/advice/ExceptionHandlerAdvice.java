@@ -232,59 +232,58 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
         HttpStatusCode statusCode;
         String errorCode;
 
-        switch (ex) {
+        if (ex instanceof NotAuthenticatedException
+                || ex instanceof MissingRequestHeaderException) {
+            statusCode = HttpStatus.UNAUTHORIZED;
+            errorCode  = INVALID_AUTH_TOKEN;
+        } else {
+            switch (ex) {
+                case EsignetException e -> {
+                    String inner = e.getErrorCode();
+                    switch (inner) {
 
-            case NotAuthenticatedException e -> {
-                statusCode = HttpStatus.UNAUTHORIZED;
-                errorCode  = INVALID_AUTH_TOKEN;
-            }
-            case MissingRequestHeaderException e -> {
-                statusCode = HttpStatus.UNAUTHORIZED;
-                errorCode  = INVALID_AUTH_TOKEN;
-            }
-            case EsignetException e -> {
-                String inner = e.getErrorCode();
-                switch (inner) {
+                        case INVALID_AUTH_TOKEN,
+                             INVALID_TRANSACTION,
+                             MISSING_HEADER,
+                             INVALID_DPOP_PROOF,
+                             SHA256_THUMBPRINT_HEADER_MISSING -> {
+                            statusCode = HttpStatus.UNAUTHORIZED;
+                            errorCode  = INVALID_AUTH_TOKEN;
+                        }
 
-                    case INVALID_AUTH_TOKEN,
-                         INVALID_TRANSACTION,
-                         MISSING_HEADER,
-                         INVALID_DPOP_PROOF,
-                         SHA256_THUMBPRINT_HEADER_MISSING -> {
-                        statusCode = HttpStatus.UNAUTHORIZED;
-                        errorCode  = INVALID_AUTH_TOKEN;
-                    }
+                        case INVALID_PUBLIC_KEY,
+                             FAILED_TO_CREATE_JWE,
+                             INVALID_ALGORITHM,
+                             INVALID_CERTIFICATE -> {
+                            statusCode = HttpStatus.BAD_REQUEST;
+                            errorCode  = INVALID_REQUEST;
+                        }
 
-                    case INVALID_PUBLIC_KEY,
-                         FAILED_TO_CREATE_JWE,
-                         INVALID_ALGORITHM,
-                         INVALID_CERTIFICATE -> {
-                        statusCode = HttpStatus.BAD_REQUEST;
-                        errorCode  = INVALID_REQUEST;
-                    }
-
-                    default -> {
-                        statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
-                        errorCode  = INTERNAL_ERROR;
+                        default -> {
+                            statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+                            errorCode  = INTERNAL_ERROR;
+                        }
                     }
                 }
-            }
-            case HttpRequestMethodNotSupportedException e -> {
-                statusCode = e.getStatusCode();                // 405
-                errorCode  = INVALID_REQUEST;
-            }
-            case HttpMediaTypeNotAcceptableException e -> {
-                statusCode = e.getStatusCode();                // 406
-                errorCode  = INVALID_REQUEST;
-            }
-            default -> {
-                statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
-                errorCode  = INTERNAL_ERROR;
+                case HttpRequestMethodNotSupportedException e -> {
+                    statusCode = e.getStatusCode();                // 405
+                    errorCode  = INVALID_REQUEST;
+                }
+                case HttpMediaTypeNotAcceptableException e -> {
+                    statusCode = e.getStatusCode();                // 406
+                    errorCode  = INVALID_REQUEST;
+                }
+                default -> {
+                    statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+                    errorCode  = INTERNAL_ERROR;
+                }
             }
         }
 
-        log.error("Userinfo error mapped: status={}, error=\"{}\", cause={}",
-                  statusCode.value(), errorCode, ex.toString(), ex);
+        log.error("Userinfo error mapped: status={}, error=\"{}\", exceptionType={}",
+                  statusCode.value(), errorCode, ex.getClass().getName());
+
+        log.debug("Userinfo error full cause", ex);
 
         headers.add("Access-Control-Expose-Headers", "WWW-Authenticate");
         headers.add("WWW-Authenticate", "Bearer error=\"" + errorCode + "\"");
