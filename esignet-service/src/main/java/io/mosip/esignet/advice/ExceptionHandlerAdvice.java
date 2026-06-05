@@ -261,7 +261,9 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
             }
         }
         log.error("Userinfo error mapped: status={}, error=\"{}\"",
-                  statusCode.value(), errorCode, ex);
+                  statusCode.value(),
+                  errorCode == null ? "-" : errorCode,
+                  ex);
 
         headers.add("Access-Control-Expose-Headers", "WWW-Authenticate");
         String wwwAuthenticateValue = (errorCode == null)
