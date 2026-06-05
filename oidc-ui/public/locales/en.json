@@ -36,7 +36,7 @@
     "profile": "Profile",
     "authorize_scope_tooltip": "Allows Service provider to access these protected services on your behalf",
     "essential_claims_tooltip": "Mandatory user information required by the Service provider",
-    "voluntary_claims_tooltip": "Additional user information that the resident can choose to share with the Service provider",
+    "voluntary_claims_tooltip": "Additional user information you can choose to share with the Service provider",
     "logo_alt": "eSignet",
     "Manage-Identity-Data": "Allow access to manage identity data",
     "Manage-VID": "Allow access to manage VID",
