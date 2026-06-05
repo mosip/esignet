@@ -1,7 +1,4 @@
-// Package jwk parses JWK material and computes the public-key hash stored
-// in the `client_detail.public_key_hash` column: hex-encoded SHA-256 of the
-// JWK's defining material.
-package jwk
+package client
 
 import (
 	"crypto/sha256"
@@ -13,13 +10,13 @@ import (
 	"github.com/lestrrat-go/jwx/v2/jwk"
 )
 
-// ErrUnsupportedKeyType is returned when the JWK's `kty` is neither RSA nor EC.
-var ErrUnsupportedKeyType = errors.New("unsupported jwk key type")
+// errUnsupportedKeyType is returned when the JWK's `kty` is neither RSA nor EC.
+var errUnsupportedKeyType = errors.New("unsupported jwk key type")
 
-// Parse parses raw JSON bytes into a JWK. The raw input must be a single JWK
+// parseJWK parses raw JSON bytes into a JWK. The input must be a single JWK
 // object (not a JWK Set). Returns a wrapped error when the bytes are not a
 // well-formed JWK.
-func Parse(raw json.RawMessage) (jwk.Key, error) {
+func parseJWK(raw json.RawMessage) (jwk.Key, error) {
 	if len(raw) == 0 {
 		return nil, fmt.Errorf("jwk: empty input")
 	}
@@ -30,15 +27,15 @@ func Parse(raw json.RawMessage) (jwk.Key, error) {
 	return key, nil
 }
 
-// ComputeHash returns the lowercase hex SHA-256 of the JWK's key material.
-// Hash domain:
+// computeJWKHash returns the lowercase hex SHA-256 of the JWK's key material,
+// the value stored in `client_detail.public_key_hash`. Hash domain:
 //
 //   - RSA → SHA-256 of n (base64url string, no padding)
 //   - EC  → SHA-256 of x||y (concatenated base64url strings)
-//   - other kty → ErrUnsupportedKeyType
+//   - other kty → errUnsupportedKeyType
 //
 // Output is 64 lowercase hex characters (32-byte digest).
-func ComputeHash(k jwk.Key) (string, error) {
+func computeJWKHash(k jwk.Key) (string, error) {
 	if k == nil {
 		return "", fmt.Errorf("jwk: nil key")
 	}
@@ -60,12 +57,12 @@ func ComputeHash(k jwk.Key) (string, error) {
 		}
 		return sha256Hex(raw.X + raw.Y), nil
 	default:
-		return "", fmt.Errorf("jwk: %w: %q", ErrUnsupportedKeyType, raw.Kty)
+		return "", fmt.Errorf("jwk: %w: %q", errUnsupportedKeyType, raw.Kty)
 	}
 }
 
-// rawJWK is the minimal projection used for hashing. We round-trip through
-// JSON so we read the original base64url-no-pad strings — avoids re-encoding
+// rawJWK is the minimal projection used for hashing. Round-tripping through
+// JSON lets us read the original base64url-no-pad strings — avoids re-encoding
 // drift from jwk.Key's typed (decoded byte) accessors.
 type rawJWK struct {
 	Kty string `json:"kty"`

@@ -9,7 +9,6 @@ import (
 	"time"
 
 	applog "github.com/mosip/esignet/internal/log"
-	"github.com/mosip/esignet/pkg/jwk"
 )
 
 // Repo is the persistence contract the service consumes. Defined here
@@ -35,11 +34,11 @@ func NewService(repo Repo, log *applog.Logger) *Service {
 // success, or a non-empty list of wire error codes on failure.
 func (s *Service) create(ctx context.Context, req *createRequest) (*createResponse, []string) {
 	// 1. publicKey — parse the JWK and compute the row's public_key_hash.
-	pubKey, err := jwk.Parse(req.PublicKey)
+	pubKey, err := parseJWK(req.PublicKey)
 	if err != nil {
 		return nil, []string{errInvalidPublicKey}
 	}
-	pubKeyHash, err := jwk.ComputeHash(pubKey)
+	pubKeyHash, err := computeJWKHash(pubKey)
 	if err != nil {
 		return nil, []string{errInvalidPublicKey}
 	}
