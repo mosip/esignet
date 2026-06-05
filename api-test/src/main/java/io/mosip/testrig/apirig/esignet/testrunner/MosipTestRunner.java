@@ -86,6 +86,8 @@ public class MosipTestRunner {
 			}
 			AdminTestUtil.init();
 			EsignetConfigManager.init();
+			EsignetUtil.getIdentityPluginNameFromEsignetActuator();
+			EsignetUtil.getEsignetServerProfileFromActuator();
 			suiteSetup(getRunType());
 			SkipTestCaseHandler.loadTestcaseToBeSkippedList("testCaseSkippedList.txt");
 			GlobalMethods.setModuleNameAndReCompilePattern(EsignetConfigManager.getproperty("moduleNamePattern"));

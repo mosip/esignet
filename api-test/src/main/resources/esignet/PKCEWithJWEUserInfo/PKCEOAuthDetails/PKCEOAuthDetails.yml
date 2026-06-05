@@ -1,0 +1,28 @@
+PKCEOAuthDetails:
+   ESignet_OAuthDetailsRequest_PKCE_JWE_Valid_Smoke_sid:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_PKCE_JWE_OAuthDetails_01
+      description: Initiate authorization request with valid code_challenge and code_challenge_method for PKCE JWE flow
+      role: resident
+      additionalDependencies: TC_ESignet_PKCE_JWE_PatchClientConfig_01
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/PKCEWithJWEUserInfo/PKCEOAuthDetails/PKCEOAuthDetails
+      outputTemplate: esignet/PKCEWithJWEUserInfo/PKCEOAuthDetails/PKCEOAuthDetailsResult
+      input: '{
+       "requestTime": "$TIMESTAMP$",
+       "clientId": "$ID:CreateOIDCClient_PKCE_JWE_Valid_Smoke_sid_clientId$",
+       "scope": "openid profile",
+       "responseType": "code",
+       "redirectUri": "$IDPREDIRECTURI$",
+       "display": "popup",
+       "prompt": "consent",
+       "acrValues": "mosip:idp:acr:generated-code",
+       "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+       "state": "pkce_jwe_state_001",
+       "claimsLocales": "en",
+       "codeChallenge": "$CODE_CHALLENGE_PKCE_JWE$",
+       "codeChallengeMethod": "$CODE_CHALLENGE_METHOD_PKCE_JWE$"
+}'
+      output: '{
+}'

@@ -150,7 +150,6 @@ OAuthDetailsRequest:
       	"responseType": "code",
       	"redirectUri": "$IDPREDIRECTURI$",
       	"display": "popup",
-	    "prompt": "consent",
 	    "acrValues": "mosip:idp:acr:generated-code",
 	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
 	    "state": "eree2311",

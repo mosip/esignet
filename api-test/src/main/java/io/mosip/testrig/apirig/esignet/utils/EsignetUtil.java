@@ -80,6 +80,7 @@ public class EsignetUtil extends AdminTestUtil {
 
 	private static final Logger logger = Logger.getLogger(EsignetUtil.class);
 	public static String pluginName = null;
+	public static String esignetServerProfile = null;
 	private static Faker faker = new Faker();
 	private static String fullNameForSunBirdR = generateFullNameForSunBirdR();
 	private static String dobForSunBirdR = generateDobForSunBirdR();
@@ -135,6 +136,51 @@ public class EsignetUtil extends AdminTestUtil {
 
 		return pluginName;
 	}
+
+	public static String getEsignetServerProfileFromActuator() {
+		if (esignetServerProfile != null && !esignetServerProfile.isBlank()) {
+			return esignetServerProfile;
+		}
+		esignetServerProfile = getValueFromEsignetActuator(EsignetConstants.CLASS_PATH_APPLICATION_PROPERTIES,
+				EsignetConstants.MOSIP_ESIGNET_SERVER_PROFILE);
+		if (esignetServerProfile == null) {
+			esignetServerProfile = "";
+			logger.warn("Esignet server profile not found from actuator; defaulting to empty");
+		} else {
+			logger.info("Esignet server profile from actuator = " + esignetServerProfile);
+		}
+		return esignetServerProfile;
+	}
+
+	private static boolean isFapi2ServerProfile() {
+		return EsignetConstants.FAPI2_0_SERVER_PROFILE.equalsIgnoreCase(getEsignetServerProfileFromActuator());
+	}
+
+	private static boolean isFapiTestCase(TestCaseDTO testCaseDTO) {
+		if (testCaseDTO == null) {
+			return false;
+		}
+		String inputTemplate = testCaseDTO.getInputTemplate();
+		if (inputTemplate != null && inputTemplate.contains(EsignetConstants.FAPI_TEST_CASE_PATH)) {
+			return true;
+		}
+		String outputTemplate = testCaseDTO.getOutputTemplate();
+		if (outputTemplate != null && outputTemplate.contains(EsignetConstants.FAPI_TEST_CASE_PATH)) {
+			return true;
+		}
+		String uniqueIdentifier = testCaseDTO.getUniqueIdentifier();
+		if (uniqueIdentifier != null && uniqueIdentifier.contains("_FAPI_")) {
+			return true;
+		}
+		String testCaseName = testCaseDTO.getTestCaseName();
+		if (testCaseName != null
+				&& testCaseName.contains(EsignetConstants.FAPI_PREREQUISITE_TEST_CASE_MARKER)) {
+			return true;
+		}
+		String description = testCaseDTO.getDescription();
+		return description != null && description.toLowerCase().contains("for fapi");
+	}
+
 	public static String getPluginName() {
 		try {
 			String pluginServiceName = EsignetUtil.getIdentityPluginNameFromEsignetActuator().toLowerCase();
@@ -196,7 +242,21 @@ public class EsignetUtil extends AdminTestUtil {
 		if (MosipTestRunner.skipAll == true) {
 			throw new SkipException(GlobalConstants.PRE_REQUISITE_FAILED_MESSAGE);
 		}
-		
+
+		if (isFapi2ServerProfile() && !isFapiTestCase(testCaseDTO)) {
+			String pluginServiceName = getIdentityPluginNameFromEsignetActuator().toLowerCase();
+			String endpoint = testCaseDTO.getEndPoint();
+			if (pluginServiceName.contains("mockauthenticationservice")) {
+				// mock + fapi2.0: skip all non-FAPI tests
+				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
+			}
+			if (pluginServiceName.contains("idaauthenticatorimpl")
+					&& endpoint != null
+					&& (endpoint.contains("/esignet/") || endpoint.contains("$GETENDPOINTFROMWELLKNOWN$"))) {
+				// mosipid + fapi2.0: skip non-FAPI esignet tests; allow setup endpoints (PMS/partner/identity)
+				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
+			}
+		}
 		
 		if (getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("mockauthenticationservice")) {
 			// TO DO - need to conform whether esignet distinguishes between UIN and VID. BAsed on that need to remove VID test case from YAML.
@@ -220,15 +280,16 @@ public class EsignetUtil extends AdminTestUtil {
 					|| testCaseName.contains("ESignet_CreateOIDCClient_StatusCode_Diff_Token_Neg"))) {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 			}
-			if ((testCaseName.contains("_UpdateOIDCClientV3_MOSIPID_")
-					|| testCaseName.contains("_OAuthDetailsRequest_V3_MOSIPID_")
-					|| testCaseName.contains("_AuthenticateUser_V3_MOSIPID_")
-					|| testCaseName.contains("_AuthorizationCode_MOSIPID_")
-					|| testCaseName.contains("_GenerateToken_MOSIPID_")
-					|| testCaseName.contains("_GetOidcUserInfo_MOSIPID_")
-					|| testCaseName.contains("FAPIPatchClientConfig_MOSIPID_"))) {
-				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
-			}
+		if ((testCaseName.contains("_UpdateOIDCClientV3_MOSIPID_")
+				|| testCaseName.contains("_OAuthDetailsRequest_V3_MOSIPID_")
+				|| testCaseName.contains("_AuthenticateUser_V3_MOSIPID_")
+				|| testCaseName.contains("_AuthorizationCode_MOSIPID_")
+				|| testCaseName.contains("_GenerateToken_MOSIPID_")
+				|| testCaseName.contains("_GetOidcUserInfo_MOSIPID_")
+				|| testCaseName.contains("FAPIPatchClientConfig_MOSIPID_")
+				|| testCaseName.contains("PKCEPatchClientConfig_MOSIPID_"))) {
+			throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
+		}
 
 		} else if (getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("idaauthenticatorimpl")) {
 			// Let run test cases eSignet & MOSIP API calls --- both UIN and VID
@@ -255,24 +316,25 @@ public class EsignetUtil extends AdminTestUtil {
 						    || testCaseName.equals("ESignet_PartialUpdateOIDCClient_MOCK_Missing_kid_value_Neg")
 						    || testCaseName.equals("ESignet_PartialUpdateOIDCClient_MOCK_Duplicate_EncKey_forUserInfoUpdateJWE_Neg")
 						    || testCaseName.equals("ESignet_PartialUpdateOIDCClient_MOCK_Different_Encryption_alg_value_Pos")
-						    || testCaseName.equals("ESignet_CreateOIDCClientFAPI_all_Valid_Smoke_sid")
-						    || testCaseName.equals("ESignet_CreateOIDCClientFAPI_all_Valid_forUserInfoJWE_Smoke_sid")
-						    || testCaseName.equals("ESignet_FAPIPartialUpdateOIDCClient_all_Valid_forUserInfoJWE_Smoke_sid"))
+					        || testCaseName.equals("ESignet_CreateOIDCClientFAPI_all_Valid_Smoke_sid")
+				    	    || testCaseName.equals("ESignet_CreateOIDCClientFAPI_all_Valid_forUserInfoJWE_Smoke_sid")
+				      	    || testCaseName.equals("ESignet_FAPIPartialUpdateOIDCClient_all_Valid_forUserInfoJWE_Smoke_sid")
+					        || testCaseName.equals("ESignet_CreateOIDCClient_PKCE_JWE_Valid_Smoke_sid"))
 						    && (endpoint.contains("/v1/esignet/client-mgmt/client")
 						    || endpoint.contains("/v1/esignet/client-mgmt/client/{clientId}")	
 						    || endpoint.contains("/v1/esignet/client-mgmt/oauth-client")))) {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 			}
 			
-			if ((testCaseName.contains("_CreateOIDCClientV3_MOCK_")
-					|| testCaseName.contains("_UpdateOIDCClientV3_MOCK_")
-					|| testCaseName.contains("_OAuthDetailsRequest_V3_MOCK_")
-					|| testCaseName.contains("_AuthenticateUser_V3_MOCK_")
-					|| testCaseName.contains("_AuthorizationCode_MOCK_")
-					|| testCaseName.contains("_GenerateToken_MOCK_")
-					|| testCaseName.contains("_GetOidcUserInfo_MOCK_"))) {
-				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
-			}
+		if ((testCaseName.contains("_CreateOIDCClientV3_MOCK_")
+				|| testCaseName.contains("_UpdateOIDCClientV3_MOCK_")
+				|| testCaseName.contains("_OAuthDetailsRequest_V3_MOCK_")
+				|| testCaseName.contains("_AuthenticateUser_V3_MOCK_")
+				|| testCaseName.contains("_AuthorizationCode_MOCK_")
+				|| testCaseName.contains("_GenerateToken_MOCK_")
+				|| testCaseName.contains("_GetOidcUserInfo_MOCK_"))) {
+			throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
+		}
 			 
 			JSONArray individualBiometricsArray = new JSONArray(
 					getValueFromAuthActuator("json-property", "individualBiometrics"));
@@ -494,35 +556,11 @@ public class EsignetUtil extends AdminTestUtil {
 			}
 		}
 		
-		if (jsonString.contains("$CODE_CHALLENGE$")
-		        || jsonString.contains("$CODE_VERIFIER$")
-				|| jsonString.contains("$CODE_CHALLENGE_METHOD$")) {
+		jsonString = resolvePkceTokens(jsonString, "GLOBAL_PKCE",
+				"$CODE_CHALLENGE$", "$CODE_VERIFIER$", "$CODE_CHALLENGE_METHOD$");
 
-			Map<String, String> pkce;
-
-			String key = "GLOBAL_PKCE";
-
-			if (pkceCache.containsKey(key)) {
-				pkce = pkceCache.get(key);
-				logger.info("Reusing PKCE");
-			} else {
-				pkce = generatePKCE();
-				pkceCache.put(key, pkce);
-				logger.info("Generated new PKCE");
-			}
-
-			if (jsonString.contains("$CODE_CHALLENGE$")) {
-				jsonString = replaceKeywordValue(jsonString, "$CODE_CHALLENGE$", pkce.get("code_challenge"));
-			}
-
-			if (jsonString.contains("$CODE_VERIFIER$")) {
-				jsonString = replaceKeywordValue(jsonString, "$CODE_VERIFIER$", pkce.get("code_verifier"));
-			}
-
-			if (jsonString.contains("$CODE_CHALLENGE_METHOD$")) {
-				jsonString = replaceKeywordValue(jsonString, "$CODE_CHALLENGE_METHOD$", pkce.get("method"));
-			}
-		}
+		jsonString = resolvePkceTokens(jsonString, "PKCE_JWE_FLOW",
+				"$CODE_CHALLENGE_PKCE_JWE$", "$CODE_VERIFIER_PKCE_JWE$", "$CODE_CHALLENGE_METHOD_PKCE_JWE$");
 		
 		if (jsonString.contains("$BINDINGJWKKEY$")) {
 			String jwkKey = "";
@@ -825,6 +863,17 @@ public class EsignetUtil extends AdminTestUtil {
 			jsonString = replaceKeywordValue(jsonString, "$OIDC_JWK_KEY_FAPI_JWE$", jwkKey);
 		}
 
+		if (jsonString.contains("$OIDC_JWK_KEY_PKCE_JWE$")) {
+			String jwkKey = "";
+			if (getTriggerESignetKeyGenForPKCEJWE()) {
+				jwkKey = JWKKeyUtil.generateAndCacheJWKKey(OIDC_JWK_FOR_PKCE_JWE);
+				setTriggerESignetKeyGenForPKCEJWE(false);
+			} else {
+				jwkKey = JWKKeyUtil.getJWKKey(OIDC_JWK_FOR_PKCE_JWE);
+			}
+			jsonString = replaceKeywordValue(jsonString, "$OIDC_JWK_KEY_PKCE_JWE$", jwkKey);
+		}
+
 		if (jsonString.contains("$OIDC_JWK_KEY_FAPI$")) {
 			String jwkKey = "";
 			if (getTriggerESignetKeyGenForFAPI()) {
@@ -1085,6 +1134,36 @@ public class EsignetUtil extends AdminTestUtil {
 						signJWKKey(clientId, oidc_JWK_Key_For_FAPI_JWE, tempUrl));
 			} else {
 				logger.error("Client ID not found in JSON for $CLIENT_ASSERTION_FAPI_JWE_JWT$.");
+			}
+		}
+
+		if (jsonString.contains("$CLIENT_ASSERTION_PKCE_JWE_JWT$")) {
+			String oidcJWKKeyString = JWKKeyUtil.getJWKKey(OIDC_JWK_FOR_PKCE_JWE);
+			logger.info("oidcJWKKeyString =" + oidcJWKKeyString);
+			try {
+				oidc_JWK_Key_For_PKCE_JWE = RSAKey.parse(oidcJWKKeyString);
+				logger.info("oidc_JWK_Key_For_PKCE_JWE =" + oidc_JWK_Key_For_PKCE_JWE);
+			} catch (java.text.ParseException e) {
+				logger.error(e.getMessage());
+			}
+
+			JSONObject root = new JSONObject(jsonString);
+			String clientId = root.optString("client_id", null);
+			String audKey = null;
+
+			if (root.has("aud_key")) {
+				audKey = root.optString("aud_key", null);
+				root.remove("aud_key");
+				jsonString = root.toString();
+			}
+
+			String tempUrl = getValueFromEsignetWellKnownEndPoint(audKey, EsignetConfigManager.getEsignetBaseUrl());
+
+			if (clientId != null) {
+				jsonString = replaceKeywordValue(jsonString, "$CLIENT_ASSERTION_PKCE_JWE_JWT$",
+						signJWKKey(clientId, oidc_JWK_Key_For_PKCE_JWE, tempUrl));
+			} else {
+				logger.error("Client ID not found in JSON for $CLIENT_ASSERTION_PKCE_JWE_JWT$.");
 			}
 		}
 
@@ -2019,6 +2098,7 @@ public class EsignetUtil extends AdminTestUtil {
 	protected static final String OIDC_JWK_FOR_DPoP = "oidcJWKForDPoP";
 	protected static final String OIDC_JWK_FOR_FAPI = "oidcJWKForFAPI";
 	protected static final String OIDC_JWK_FOR_FAPI_JWE = "oidcJWKForFAPIJWE";
+	protected static final String OIDC_JWK_FOR_PKCE_JWE = "oidcJWKForPKCEJWE";
 	
 	protected static RSAKey oidcJWKKey1 = null;
 	protected static RSAKey oidcJWKKey3 = null;
@@ -2037,6 +2117,7 @@ public class EsignetUtil extends AdminTestUtil {
 	protected static RSAKey oidc_JWK_Key_For_DPoP = null;
 	protected static RSAKey oidc_JWK_Key_For_FAPI = null;
 	protected static RSAKey oidc_JWK_Key_For_FAPI_JWE = null;
+	protected static RSAKey oidc_JWK_Key_For_PKCE_JWE = null;
 	
 	protected static boolean triggerESignetKeyGen1 = true;
 	protected static boolean triggerESignetKeyGen2 = true;
@@ -2079,6 +2160,7 @@ public class EsignetUtil extends AdminTestUtil {
 	protected static boolean triggerESignetKeyGenForDPoP = true;
 	protected static boolean triggerESignetKeyGenForFAPI = true;
 	protected static boolean triggerESignetKeyGenForFAPIJWE = true;
+	protected static boolean triggerESignetKeyGenForPKCEJWE = true;
 	
 	private static String getFapiJwkKeyName(String testCaseName) {
 		if (testCaseName != null
@@ -2198,6 +2280,14 @@ public class EsignetUtil extends AdminTestUtil {
 	
 	private static void setTriggerESignetKeyGenForFAPIJWE(boolean value) {
 		triggerESignetKeyGenForFAPIJWE = value;
+	}
+
+	private static boolean getTriggerESignetKeyGenForPKCEJWE() {
+		return triggerESignetKeyGenForPKCEJWE;
+	}
+
+	private static void setTriggerESignetKeyGenForPKCEJWE(boolean value) {
+		triggerESignetKeyGenForPKCEJWE = value;
 	}
 	
 	private static void settriggerESignetKeyGen2(boolean value) {
@@ -2807,6 +2897,40 @@ public class EsignetUtil extends AdminTestUtil {
 		return tokens;
 	}
 	
+	private static String resolvePkceTokens(String jsonString,
+			String cacheKey,
+			String challengeToken,
+			String verifierToken,
+			String methodToken) {
+
+		if (!jsonString.contains(challengeToken)
+				&& !jsonString.contains(verifierToken)
+				&& !jsonString.contains(methodToken)) {
+			return jsonString;
+		}
+
+		Map<String, String> pkce;
+		if (pkceCache.containsKey(cacheKey)) {
+			pkce = pkceCache.get(cacheKey);
+			logger.info("Reusing PKCE for " + cacheKey);
+		} else {
+			pkce = generatePKCE();
+			pkceCache.put(cacheKey, pkce);
+			logger.info("Generated new PKCE for " + cacheKey);
+		}
+
+		if (jsonString.contains(challengeToken)) {
+			jsonString = replaceKeywordValue(jsonString, challengeToken, pkce.get("code_challenge"));
+		}
+		if (jsonString.contains(verifierToken)) {
+			jsonString = replaceKeywordValue(jsonString, verifierToken, pkce.get("code_verifier"));
+		}
+		if (jsonString.contains(methodToken)) {
+			jsonString = replaceKeywordValue(jsonString, methodToken, pkce.get("method"));
+		}
+		return jsonString;
+	}
+
 	public static Map<String, String> generatePKCE() {
 		try {
 			byte[] randomBytes = new byte[32];
