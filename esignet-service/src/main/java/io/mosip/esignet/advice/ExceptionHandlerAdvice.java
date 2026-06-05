@@ -242,32 +242,9 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
             errorCode  = INVALID_AUTH_TOKEN;
         } else {
             switch (ex) {
-                case EsignetException e -> {
-                    String inner = e.getErrorCode();
-                    switch (inner) {
-
-                        case INVALID_AUTH_TOKEN,
-                             INVALID_TRANSACTION,
-                             MISSING_HEADER,
-                             INVALID_DPOP_PROOF,
-                             SHA256_THUMBPRINT_HEADER_MISSING -> {
-                            statusCode = HttpStatus.UNAUTHORIZED;
-                            errorCode  = INVALID_AUTH_TOKEN;
-                        }
-
-                        case INVALID_PUBLIC_KEY,
-                             FAILED_TO_CREATE_JWE,
-                             INVALID_ALGORITHM,
-                             INVALID_CERTIFICATE -> {
-                            statusCode = HttpStatus.BAD_REQUEST;
-                            errorCode  = INVALID_REQUEST;
-                        }
-
-                        default -> {
-                            statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
-                            errorCode  = INTERNAL_ERROR;
-                        }
-                    }
+                case EsignetException e when INVALID_PUBLIC_KEY.equals(e.getErrorCode()) -> {
+                    statusCode = HttpStatus.BAD_REQUEST;
+                    errorCode  = INVALID_REQUEST;
                 }
                 case HttpRequestMethodNotSupportedException e -> {
                     statusCode = e.getStatusCode();                // 405
@@ -287,7 +264,7 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
                   statusCode.value(), errorCode, ex);
 
         headers.add("Access-Control-Expose-Headers", "WWW-Authenticate");
-        String wwwAuthenticateValue = (errorCode == null || errorCode.isEmpty())
+        String wwwAuthenticateValue = (errorCode == null)
                 ? "Bearer"
                 : "Bearer error=\"" + errorCode + "\"";
         headers.add("WWW-Authenticate", wwwAuthenticateValue);
