@@ -91,6 +91,16 @@ Use **127.0.0.1** in URLs if `localhost` resolves to IPv6 only and connections f
 | `ISSUER_URL` | `http://127.0.0.1:<PORT>` | OIDC issuer, JWT `iss`, discovery. **Must match the URL clients use** for OAuth to succeed. |
 | `DATA_DIR` | `./data` | Server home; declarative YAML under `data/repository/resources/`. |
 | `SIGNING_KEY_PATH` | `./keys/signing.key` | PEM private key; `.crt` with the same basename is loaded automatically. |
+| `GATE_CLIENT_SCHEME` | `http` | Gate UI scheme for authorize login/error redirects. |
+| `GATE_CLIENT_HOSTNAME` | `127.0.0.1` | Gate UI host. |
+| `GATE_CLIENT_PORT` | `<PORT>` | Gate UI port; defaults to `PORT` when unset. |
+| `GATE_CLIENT_LOGIN_PATH` | `/signin` | Login page path on the gate host. |
+| `GATE_CLIENT_ERROR_PATH` | `/error` | Error page path on the gate host. |
+| `JWT_AUDIENCE` | _(empty)_ | JWT `aud` claim; Thunder defaults apply when unset. |
+| `JWT_PREFERRED_KEY_ID` | _(empty)_ | Preferred signing key ID for JWKS. |
+| `JWT_LEEWAY` | _(empty)_ | JWT validation clock skew in seconds. |
+| `JWKS_CACHE_TTL` | _(empty)_ | JWKS cache TTL in seconds. |
+| `OAUTH_*` | _(empty)_ | Optional OAuth lifetime/policy overrides; see `.env.example`. |
 | `AUTHN_PROVIDER` | `catalog` | `catalog` (local YAML users) or `mosip` (MOSIP IDA). |
 | `MOSIP_API_BASE_URL` | _(empty)_ | MOSIP API host; used to derive IDA URLs when overrides are unset. |
 | `MOSIP_LICENSE_KEY` | _(empty)_ | License key segment in IDA endpoint paths. |
@@ -205,7 +215,7 @@ make test
 
 ## OAuth
 
-Authorize redirects to the gate client (`http://localhost:8080/signin?...`) with `executionId`, `authId`, and related query parameters. Postman folder 2 parses that redirect without following it (`followRedirects: false` on authorize). The public client uses PKCE; no client secret is required.
+Authorize redirects to the gate client (`http://127.0.0.1:8080/signin?...` by default) with `executionId`, `authId`, and related query parameters. Postman folder 2 parses that redirect without following it (`followRedirects: false` on authorize). The public client uses PKCE; no client secret is required.
 
 End-to-end check (server must be running with `ISSUER_URL` matching `BASE_URL`):
 
