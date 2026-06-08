@@ -27,7 +27,7 @@ function initialize_db() {
       if [ $yn = "Y" ] || [ $yn = "y" ];
         then
           echo Removing existing mosip_esignet installation and secret
-          helm -n $NS delete esignet-postgres-init || true
+          helm -n $NS delete postgres-init || true
           kubectl -n $NS delete secret db-common-secrets  || true
 	  ../copy_cm_func.sh secret postgres-postgresql postgres $NS
           echo Initializing DB
