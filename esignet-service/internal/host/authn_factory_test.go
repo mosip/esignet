@@ -23,6 +23,25 @@ func TestNewAuthnProviderFromConfig_mosip(t *testing.T) {
 	require.NotNil(t, provider)
 }
 
+func TestNewAuthnProviderFromConfig_sunbird(t *testing.T) {
+	cat := &catalog.Catalog{}
+	cfg := config.Authn{
+		Provider: config.AuthnProviderSunbird,
+		Sunbird:  config.SunbirdAuthn{SearchURL: "https://reg.example/search"},
+	}
+	provider, err := NewAuthnProviderFromConfig(cfg, cat)
+	require.NoError(t, err)
+	require.NotNil(t, provider)
+}
+
+func TestNewAuthnProviderFromConfig_sunbirdMissingSearchURL(t *testing.T) {
+	cat := &catalog.Catalog{}
+	provider, err := NewAuthnProviderFromConfig(config.Authn{Provider: config.AuthnProviderSunbird}, cat)
+	require.Error(t, err)
+	require.Nil(t, provider)
+	require.Contains(t, err.Error(), "SUNBIRD_SEARCH_URL")
+}
+
 func TestNewAuthnProviderFromConfig_unknown(t *testing.T) {
 	cat := &catalog.Catalog{}
 	provider, err := NewAuthnProviderFromConfig(config.Authn{Provider: "unknown"}, cat)

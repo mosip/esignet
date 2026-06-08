@@ -16,6 +16,8 @@ func NewAuthnProviderFromConfig(cfg config.Authn, cat *catalog.Catalog) (host.Au
 		return NewAuthnProvider(cat), nil
 	case config.AuthnProviderMosip:
 		return NewMosipAuthnProvider(cfg.Mosip), nil
+	case config.AuthnProviderSunbird:
+		return NewSunbirdAuthnProvider(cfg.Sunbird)
 	default:
 		return nil, fmt.Errorf("unsupported authn provider %q", cfg.Provider)
 	}

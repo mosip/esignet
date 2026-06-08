@@ -5,6 +5,7 @@ package config
 const (
 	AuthnProviderCatalog = "catalog"
 	AuthnProviderMosip   = "mosip"
+	AuthnProviderSunbird = "sunbird"
 	defaultAuthnProvider = AuthnProviderCatalog
 )
 
@@ -12,6 +13,7 @@ const (
 type Authn struct {
 	Provider string
 	Mosip    MosipAuthn
+	Sunbird  SunbirdAuthn
 }
 
 // LoadAuthn reads authn provider settings from environment variables.
@@ -19,5 +21,6 @@ func LoadAuthn() Authn {
 	return Authn{
 		Provider: envOrDefault("AUTHN_PROVIDER", defaultAuthnProvider),
 		Mosip:    LoadMosipAuthn(),
+		Sunbird:  LoadSunbirdAuthn(),
 	}
 }

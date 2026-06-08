@@ -1,0 +1,58 @@
+id: decl-sunbird-flow-1
+handle: decl-sunbird-flow-1
+name: SunbirdRC KBI Flow
+flowType: AUTHENTICATION
+activeVersion: 1
+nodes:
+  - id: start
+    type: START
+    onSuccess: prompt_credentials
+  - id: prompt_credentials
+    type: PROMPT
+    prompts:
+      - inputs:
+          - ref: input_001
+            identifier: individualId
+            type: TEXT_INPUT
+            required: true
+          - ref: input_002
+            identifier: fullName
+            type: TEXT_INPUT
+            required: true
+          - ref: input_003
+            identifier: dob
+            type: TEXT_INPUT
+            required: true
+        action:
+          ref: action_001
+          nextNode: basic_auth
+  - id: basic_auth
+    type: TASK_EXECUTION
+    executor:
+      name: BasicAuthExecutor
+      inputs:
+        - ref: input_001
+          identifier: individualId
+          type: TEXT_INPUT
+          required: true
+        - ref: input_002
+          identifier: fullName
+          type: PASSWORD_INPUT
+          required: true
+        - ref: input_003
+          identifier: dob
+          type: PASSWORD_INPUT
+          required: true
+    onSuccess: authorization_check
+  - id: authorization_check
+    type: TASK_EXECUTION
+    executor:
+      name: AuthorizationExecutor
+    onSuccess: auth_assert
+  - id: auth_assert
+    type: TASK_EXECUTION
+    executor:
+      name: AuthAssertExecutor
+    onSuccess: end
+  - id: end
+    type: END
