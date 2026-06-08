@@ -2,9 +2,7 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
-	"os"
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/runtime"
@@ -18,12 +16,10 @@ import (
 func main() {
 	logger := applog.GetLogger()
 
-	port := envOrDefault("PORT", "8080")
-	issuer := envOrDefault("ISSUER_URL", fmt.Sprintf("http://127.0.0.1:%s", port))
-	dataDir := envOrDefault("DATA_DIR", "./data")
-	signingKey := envOrDefault("SIGNING_KEY_PATH", "./keys/signing.key")
+	engineCfg := config.LoadEngine()
+	issuer := engineCfg.Issuer
 
-	cat, err := catalog.Load(dataDir)
+	cat, err := catalog.Load(engineCfg.DataDir)
 	if err != nil {
 		logger.Fatal("load catalog", applog.Error(err))
 	}
@@ -41,49 +37,27 @@ func main() {
 		_, _ = w.Write([]byte("ok"))
 	})
 
-	_, err = thunderidengine.Initialize(mux, thunderidengine.EngineConfig{
-		Issuer:  issuer,
-		DataDir: dataDir,
-		Runtime: runtime.NewMemoryRuntimeStore(),
-		Crypto: thunderidengine.CryptoConfig{
-			SigningKeyPath: signingKey,
-		},
-		FlowStore: thunderidengine.FlowProviderConfig{
-			StoreMode: thunderidengine.StoreModeDeclarative,
-		},
-		Flow: thunderidengine.FlowConfig{
-			Executors: []string{
-				"BasicAuthExecutor",
-				"AuthorizationExecutor",
-				"AuthAssertExecutor",
-				"ConsentExecutor",
-			},
-			RegisterCustom: func(reg thunderidengine.ExecutorRegistry, factory thunderidengine.FlowFactory) error {
-				return embedhost.RegisterCustomExecutors(reg, factory, embedhost.CustomExecutorDeps{
-					Authn:    authnProvider,
-					AuthnCfg: authnCfg,
-				})
-			},
-		},
-		Actors:        embedhost.NewActorProvider(cat),
-		Authn:         authnProvider,
-		Authorization: embedhost.NewAuthorizationProvider(),
-		Consent:       embedhost.NewConsentEnforcer(),
-	})
+	thunderCfg := engineCfg.ThunderEngineConfig()
+	thunderCfg.Runtime = runtime.NewMemoryRuntimeStore()
+	thunderCfg.Flow.RegisterCustom = func(reg thunderidengine.ExecutorRegistry, factory thunderidengine.FlowFactory) error {
+		return embedhost.RegisterCustomExecutors(reg, factory, embedhost.CustomExecutorDeps{
+			Authn:    authnProvider,
+			AuthnCfg: authnCfg,
+		})
+	}
+	thunderCfg.Actors = embedhost.NewActorProvider(cat)
+	thunderCfg.Authn = authnProvider
+	thunderCfg.Authorization = embedhost.NewAuthorizationProvider()
+	thunderCfg.Consent = embedhost.NewConsentEnforcer()
+
+	_, err = thunderidengine.Initialize(mux, thunderCfg)
 	if err != nil {
 		logger.Fatal("initialize engine", applog.Error(err))
 	}
 
-	addr := ":" + port
+	addr := ":" + engineCfg.Port
 	logger.Info("server listening", applog.String("addr", addr), applog.String("issuer", issuer))
 	if err := http.ListenAndServe(addr, mux); err != nil {
 		logger.Fatal("server", applog.Error(err))
 	}
-}
-
-func envOrDefault(key, fallback string) string {
-	if value := os.Getenv(key); value != "" {
-		return value
-	}
-	return fallback
 }
