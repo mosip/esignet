@@ -7,7 +7,7 @@ if [ $# -ge 1 ] ; then
 fi
 
 function deleting_softhsm() {
-  NS=softhsm
+  NS=esignet
   SERVICE_NAME=esignet-softhsm
   while true; do
       read -p "Are you sure you want to delete Softhsm helm charts? Y/n ?" yn
