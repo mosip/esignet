@@ -12,6 +12,7 @@ import (
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/runtime"
 
 	"github.com/mosip/esignet/internal/catalog"
+	"github.com/mosip/esignet/internal/config"
 	embedhost "github.com/mosip/esignet/internal/host"
 )
 
@@ -27,30 +28,28 @@ func TestDiscoverySmoke(t *testing.T) {
 	cat, err := catalog.Load(dataDir)
 	require.NoError(t, err)
 
+	engineCfg := config.Engine{
+		Issuer:         "http://127.0.0.1:8080",
+		DataDir:        dataDir,
+		SigningKeyPath: signingKey,
+		GateClient: config.EngineGateClient{
+			Scheme:    "http",
+			Hostname:  "127.0.0.1",
+			Port:      8080,
+			LoginPath: "/signin",
+			ErrorPath: "/error",
+		},
+	}
+
 	mux := http.NewServeMux()
-	_, err = thunderidengine.Initialize(mux, thunderidengine.EngineConfig{
-		Issuer:  "http://127.0.0.1:8080",
-		DataDir: dataDir,
-		Runtime: runtime.NewMemoryRuntimeStore(),
-		Crypto: thunderidengine.CryptoConfig{
-			SigningKeyPath: signingKey,
-		},
-		FlowStore: thunderidengine.FlowProviderConfig{
-			StoreMode: thunderidengine.StoreModeDeclarative,
-		},
-		Flow: thunderidengine.FlowConfig{
-			Executors: []string{
-				"BasicAuthExecutor",
-				"AuthorizationExecutor",
-				"AuthAssertExecutor",
-				"ConsentExecutor",
-			},
-		},
-		Actors:        embedhost.NewActorProvider(cat),
-		Authn:         embedhost.NewAuthnProvider(cat),
-		Authorization: embedhost.NewAuthorizationProvider(),
-		Consent:       embedhost.NewConsentEnforcer(),
-	})
+	thunderCfg := engineCfg.ThunderEngineConfig()
+	thunderCfg.Runtime = runtime.NewMemoryRuntimeStore()
+	thunderCfg.Actors = embedhost.NewActorProvider(cat)
+	thunderCfg.Authn = embedhost.NewAuthnProvider(cat)
+	thunderCfg.Authorization = embedhost.NewAuthorizationProvider()
+	thunderCfg.Consent = embedhost.NewConsentEnforcer()
+
+	_, err = thunderidengine.Initialize(mux, thunderCfg)
 	require.NoError(t, err)
 
 	req := httptest.NewRequest(http.MethodGet, "/.well-known/openid-configuration", nil)
