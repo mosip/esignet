@@ -58,8 +58,7 @@ COPY docker-entrypoint.sh /home/${container_user}/entrypoint.sh
 
 RUN chmod +x /home/${container_user}/entrypoint.sh \
     && mkdir -p /home/${container_user}/keys \
-    && chown -R ${container_user}:${container_user_group} /home/${container_user}
-
+    && chown -R ${container_user}:${container_user_group} /home/${container_user} /home/${container_user}/keys /home/${container_user}/data
 # select container user for runtime
 USER ${container_user_uid}:${container_user_gid}
 
