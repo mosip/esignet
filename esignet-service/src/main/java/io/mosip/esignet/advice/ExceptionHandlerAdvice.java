@@ -233,31 +233,30 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
         HttpStatusCode statusCode;
         String errorCode;
 
-        if (ex instanceof MissingRequestHeaderException) {
-            statusCode = HttpStatus.UNAUTHORIZED;
-            errorCode  = null;
-        }
-        else if (ex instanceof NotAuthenticatedException) {
-            statusCode = HttpStatus.UNAUTHORIZED;
-            errorCode  = INVALID_AUTH_TOKEN;
-        } else {
-            switch (ex) {
-                case EsignetException e when INVALID_PUBLIC_KEY.equals(e.getErrorCode()) -> {
-                    statusCode = HttpStatus.BAD_REQUEST;
-                    errorCode  = INVALID_REQUEST;
-                }
-                case HttpRequestMethodNotSupportedException e -> {
-                    statusCode = e.getStatusCode();                // 405
-                    errorCode  = INVALID_REQUEST;
-                }
-                case HttpMediaTypeNotAcceptableException e -> {
-                    statusCode = e.getStatusCode();                // 406
-                    errorCode  = INVALID_REQUEST;
-                }
-                default -> {
-                    statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
-                    errorCode  = INTERNAL_ERROR;
-                }
+        switch (ex) {
+            case MissingRequestHeaderException ignored -> {
+                statusCode = HttpStatus.UNAUTHORIZED;
+                errorCode  = null;
+            }
+            case NotAuthenticatedException ignored -> {
+                statusCode = HttpStatus.UNAUTHORIZED;
+                errorCode  = INVALID_AUTH_TOKEN;
+            }
+            case EsignetException e when INVALID_PUBLIC_KEY.equals(e.getErrorCode()) -> {
+                statusCode = HttpStatus.BAD_REQUEST;
+                errorCode  = INVALID_REQUEST;
+            }
+            case HttpRequestMethodNotSupportedException e -> {
+                statusCode = e.getStatusCode();                // 405
+                errorCode  = INVALID_REQUEST;
+            }
+            case HttpMediaTypeNotAcceptableException e -> {
+                statusCode = e.getStatusCode();                // 406
+                errorCode  = INVALID_REQUEST;
+            }
+            default -> {
+                statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+                errorCode  = INTERNAL_ERROR;
             }
         }
         log.error("Userinfo error mapped: status={}, error=\"{}\"",
