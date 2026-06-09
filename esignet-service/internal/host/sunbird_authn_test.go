@@ -149,3 +149,9 @@ func TestBuildSunbirdMappedClaims_rawPassthroughWhenNoMapping(t *testing.T) {
 	out := buildSunbirdMappedClaims(entity, "")
 	require.Equal(t, entity, out)
 }
+
+func TestBuildSunbirdMappedClaims_invalidMappingFailsClosed(t *testing.T) {
+	entity := map[string]interface{}{"fullName": "John", "email": "j@e.com", "extra": "sensitive"}
+	out := buildSunbirdMappedClaims(entity, `{"name":`)
+	require.Empty(t, out)
+}

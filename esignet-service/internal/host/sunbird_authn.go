@@ -217,8 +217,10 @@ func parseSunbirdClaimsMapping(jsonStr string) (map[string]string, error) {
 }
 
 // buildSunbirdMappedClaims maps registry entity fields to OIDC claims using
-// claimsMappingJSON ({oidcClaim: registryField}). When the mapping is empty or
-// invalid, the raw entity data is returned unchanged.
+// claimsMappingJSON ({oidcClaim: registryField}). When the mapping is empty,
+// the raw entity data is returned unchanged. When the mapping is malformed it
+// fails closed and returns an empty map, so unmapped registry fields are never
+// disclosed as OIDC attributes.
 func buildSunbirdMappedClaims(entityData map[string]interface{},
 	claimsMappingJSON string) map[string]interface{} {
 
@@ -228,9 +230,9 @@ func buildSunbirdMappedClaims(entityData map[string]interface{},
 
 	claimsMapping, err := parseSunbirdClaimsMapping(claimsMappingJSON)
 	if err != nil {
-		applog.GetLogger().Warn("failed to parse SUNBIRD_CLAIMS_MAPPING; using raw entity data",
+		applog.GetLogger().Warn("failed to parse SUNBIRD_CLAIMS_MAPPING; dropping all claims to avoid disclosing raw registry fields",
 			applog.Error(err))
-		return entityData
+		return map[string]interface{}{}
 	}
 
 	mapped := make(map[string]interface{}, len(claimsMapping))
