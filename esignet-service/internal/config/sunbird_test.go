@@ -51,4 +51,7 @@ func TestLoadSunbirdAuthn_invalidTimeoutFallsBackToDefault(t *testing.T) {
 
 	t.Setenv(envSunbirdTimeout, "0")
 	require.Equal(t, 10, LoadSunbirdAuthn().TimeoutSecs)
+
+	t.Setenv(envSunbirdTimeout, "-5")
+	require.Equal(t, 10, LoadSunbirdAuthn().TimeoutSecs)
 }
