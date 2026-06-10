@@ -19,6 +19,7 @@ import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.*;
 import io.mosip.esignet.core.dto.OIDCTransaction;
+import io.mosip.esignet.core.dto.ServerProfile;
 import io.mosip.esignet.core.exception.*;
 import io.mosip.esignet.core.spi.TokenService;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
@@ -92,6 +93,9 @@ public class TokenServiceImpl implements TokenService {
 
     @Value("${mosip.esignet.client-assertion.unique.jti.required}")
     private boolean uniqueJtiRequired;
+
+    @Autowired
+    private ServerProfile serverProfile;
 
     private final String CNF = "cnf";
     private final String JKT = "jkt";
@@ -221,7 +225,7 @@ public class TokenServiceImpl implements TokenService {
                 new JwtClaimValidator<Instant>(JwtClaimNames.IAT, Objects::nonNull),
                 new JwtClaimValidator<Instant>(JwtClaimNames.EXP, Objects::nonNull),
                 new JwtClaimValidator<List<String>>(JwtClaimNames.AUD, aud ->
-                        aud != null && aud.stream().anyMatch(audience::contains)
+                        aud != null && validateAudience(aud, audience)
                 ),
                 new JwtClaimValidator<String>(JwtClaimNames.SUB, clientId::equals),
                 new JwtClaimValidator<String>(JwtClaimNames.JTI, jti ->
@@ -230,6 +234,13 @@ public class TokenServiceImpl implements TokenService {
         );
         decoder.setJwtValidator(validator);
         return decoder;
+    }
+
+    private boolean validateAudience(List<String> aud, List<String> expectedAudience) {
+        if (serverProfile != null && "fapi2.0".equalsIgnoreCase(serverProfile.getName())) {
+            return aud.size() == 1 && expectedAudience.contains(aud.getFirst());
+        }
+        return aud.stream().anyMatch(expectedAudience::contains);
     }
 
     @Override
