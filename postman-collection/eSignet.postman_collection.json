@@ -439,6 +439,178 @@
 							"response": []
 						}
 					]
+				},
+				{
+					"name": "Sunbird KBI",
+					"item": [
+						{
+							"name": "Get Auth token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var jsonData = JSON.parse(pm.response.text());",
+											"pm.environment.set(\"authtoken\", jsonData.access_token);"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "client_secret",
+											"value": "ysd1exB4FXsZebbA",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "mosip-pms-client",
+											"type": "text"
+										},
+										{
+											"key": "grant_type",
+											"value": "client_credentials",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{iam_url}}/auth/realms/mosip/protocol/openid-connect/token",
+									"host": [
+										"{{iam_url}}"
+									],
+									"path": [
+										"auth",
+										"realms",
+										"mosip",
+										"protocol",
+										"openid-connect",
+										"token"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get CSRF token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.environment.set(\"csrf_token\", pm.response.json().token);"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/v1/esignet/csrf/token",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"v1",
+										"esignet",
+										"csrf",
+										"token"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create OIDC Client (V2)",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"eval(pm.environment.get('pmlib_code'));",
+											"const kp = pmlib.rs.KEYUTIL.generateKeypair(\"RSA\", 2048);",
+											"const privateKey_jwk = pmlib.rs.KEYUTIL.getJWK(kp.prvKeyObj);",
+											"const publicKey_jwk = pmlib.rs.KEYUTIL.getJWK(kp.pubKeyObj);",
+											"publicKey_jwk.alg = \"RS256\";",
+											"publicKey_jwk.use = \"sig\";",
+											"const publicKeyPem = pmlib.rs.KEYUTIL.getPEM(kp.pubKeyObj, \"PKCS8PUB\");",
+											"const publicKeyBase64 = publicKeyPem.replace(/-----BEGIN PUBLIC KEY-----|-----END PUBLIC KEY-----|\\n/g, '');",
+											"const clientId = publicKeyBase64.replace(/\\//g, \"_\").substring(2, 50);",
+											"pm.collectionVariables.set(\"sunbird_client_id\", clientId);",
+											"pm.collectionVariables.set(\"sunbird_client_private_key\", JSON.stringify(privateKey_jwk));",
+											"pm.collectionVariables.set(\"sunbird_client_public_key\", JSON.stringify(publicKey_jwk));"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{authtoken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-XSRF-TOKEN",
+										"value": "{{csrf_token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"clientId\": \"{{sunbird_client_id}}\",\n        \"clientName\": \"MOSIP OIDC Client\",\n        \"publicKey\": {{sunbird_client_public_key}},\n        \"relyingPartyId\": \"mock-relying-party-id\",\n        \"userClaims\": [\n            \"name\",\n            \"email\",\n            \"gender\",\n            \"phone_number\",\n            \"birthdate\"\n        ],\n        \"authContextRefs\": [\n            \"mosip:idp:acr:static-code\",\n            \"mosip:idp:acr:generated-code\",\n            \"mosip:idp:acr:biometrics\",\n            \"mosip:idp:acr:knowledge\"\n        ],\n        \"logoUri\": \"https://health-services.com/logo.png\",\n        \"redirectUris\": [\n            \"{{redirection_url}}\"\n        ],\n        \"grantTypes\": [\n            \"authorization_code\"\n        ],\n        \"clientAuthMethods\": [\n            \"private_key_jwt\"\n        ],\n        \"clientNameLangMap\": {\n            \"eng\": \"MOSIP OIDC Client\"\n        }\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/v1/esignet/client-mgmt/oauth-client",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"v1",
+										"esignet",
+										"client-mgmt",
+										"oauth-client"
+									]
+								}
+							},
+							"response": []
+						}
+					]
 				}
 			]
 		},
@@ -471,6 +643,174 @@
 										"v1",
 										"mock-identity-system",
 										"identity"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Sunbird Registry",
+					"item": [
+						{
+							"name": "Create Policy (Identity)",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"// Generate the identity (name / dob / policy number) once and reuse it across",
+											"// Search Policy and the KBI authentication in the 'AuthCode Flow with Sunbird KBI login' folder.",
+											"function pad(n){ return n < 10 ? '0' + n : '' + n; }",
+											"const first = ['Alex','Maria','John','Priya','Liang','Omar','Sara','David'][Math.floor(Math.random()*8)];",
+											"const last  = ['Smith','Kumar','Garcia','Chen','Khan','Mueller','Rossi','Lopez'][Math.floor(Math.random()*8)];",
+											"const fullName = first + ' ' + last;",
+											"const y = 1970 + Math.floor(Math.random()*35);",
+											"const dob = y + '-' + pad(1 + Math.floor(Math.random()*12)) + '-' + pad(1 + Math.floor(Math.random()*28));",
+											"let policyNumber = '';",
+											"for (let i = 0; i < 9; i++) { policyNumber += Math.floor(Math.random()*10); }",
+											"pm.collectionVariables.set('sunbird_full_name', fullName);",
+											"pm.collectionVariables.set('sunbird_dob', dob);",
+											"pm.collectionVariables.set('sunbird_policy_number', policyNumber);",
+											"console.log('Sunbird identity =>', fullName, dob, policyNumber);"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test('Policy created successfully', function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.params.status).to.eql('SUCCESSFUL');",
+											"});",
+											"",
+											"pm.test('Capture insurance osid', function () {",
+											"    var jsonData = pm.response.json();",
+											"    var osid = jsonData.result.Insurance.osid;",
+											"    pm.expect(osid).to.not.be.undefined;",
+											"    pm.collectionVariables.set('sunbird_insurance_id', osid);",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"policyNumber\": \"{{sunbird_policy_number}}\",\n    \"policyName\": \"Start Insurance Gold Premium\",\n    \"policyExpiresOn\": \"2033-04-20T20:48:17.684Z\",\n    \"policyIssuedOn\": \"{{$isoTimestamp}}\",\n    \"fullName\": \"{{sunbird_full_name}}\",\n    \"dob\": \"{{sunbird_dob}}\",\n    \"benefits\": [\"Critical Surgery\", \"Full body checkup\"],\n    \"gender\": \"Male\",\n    \"mobile\": \"0123456789\",\n    \"email\": \"abhishek@gmail.com\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{sunbird_url}}/api/v1/Insurance",
+									"host": [
+										"{{sunbird_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"Insurance"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Policy",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{sunbird_url}}/api/v1/Insurance/{{sunbird_insurance_id}}",
+									"host": [
+										"{{sunbird_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"Insurance",
+										"{{sunbird_insurance_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Search Policy",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"offset\": 0,\n    \"limit\": 5,\n    \"filters\": {\n        \"fullName\": { \"eq\": \"{{sunbird_full_name}}\" },\n        \"dob\": { \"eq\": \"{{sunbird_dob}}\" },\n        \"policyNumber\": { \"eq\": \"{{sunbird_policy_number}}\" }\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{sunbird_url}}/api/v1/Insurance/search",
+									"host": [
+										"{{sunbird_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"Insurance",
+										"search"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Policy",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{sunbird_url}}/api/v1/Insurance/{{sunbird_insurance_id}}",
+									"host": [
+										"{{sunbird_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"Insurance",
+										"{{sunbird_insurance_id}}"
 									]
 								}
 							},
@@ -2431,13 +2771,13 @@
 									"\t\"alg\": \"RS256\"",
 									"};",
 									"var payload = {}",
-                  "var acceptedClaims = JSON.parse(pm.environment.get('accepted_claims'));",
-                  "if(Array.isArray(acceptedClaims)){",
-                  "    payload[\"accepted_claims\"] = acceptedClaims.sort()",
+									"var acceptedClaims = JSON.parse(pm.environment.get('accepted_claims'));",
+									"if(Array.isArray(acceptedClaims)){",
+									"    payload[\"accepted_claims\"] = acceptedClaims.sort()",
 									"}",
-                  "var permittedAuthorizedScopes = JSON.parse(pm.environment.get('permitted_authorized_scopes'));",
-                  "if(Array.isArray(permittedAuthorizedScopes)){",
-                  "    payload[\"permitted_authorized_scopes\"] = permittedAuthorizedScopes.sort()",
+									"var permittedAuthorizedScopes = JSON.parse(pm.environment.get('permitted_authorized_scopes'));",
+									"if(Array.isArray(permittedAuthorizedScopes)){",
+									"    payload[\"permitted_authorized_scopes\"] = permittedAuthorizedScopes.sort()",
 									"}",
 									"const signedPayload = pmlib.rs.jws.JWS.sign(",
 									"    null, header, payload, private_key_jwk",
@@ -3417,6 +3757,347 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "AuthCode Flow with Sunbird KBI login",
+			"item": [
+				{
+					"name": "Get CSRF token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"csrf_token\", pm.response.json().token);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/v1/esignet/csrf/token",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"esignet",
+								"csrf",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "OAuth Details Request (V2)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"eval(pm.environment.get('pmlib_code'));",
+									"const pkce = pmlib.pkceChallenge();",
+									"pm.collectionVariables.set(\"codeChallenge\", pkce.code_challenge);",
+									"pm.collectionVariables.set(\"codeChallengeMethod\", pkce.code_challenge_method);",
+									"pm.collectionVariables.set(\"codeVerifier\", pkce.code_verifier);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validate transactionId\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.response.transactionId).to.not.be.null;",
+									"    pm.environment.set(\"transaction_id\", jsonData.response.transactionId);",
+									"});",
+									"",
+									"pm.test(\"set oauth-details-hash\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var sha256Hash = CryptoJS.SHA256(JSON.stringify(jsonData.response));",
+									"    var base64Encoded = sha256Hash.toString(CryptoJS.enc.Base64);",
+									"    base64Encoded = base64Encoded.replace(/=+$/, '').replace(/\\+/g, '-').replace(/\\//g, '_');",
+									"    pm.environment.set(\"oauth_details_key\", jsonData.response.transactionId);",
+									"    pm.environment.set(\"oauth_details_hash\", base64Encoded);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"clientId\": \"{{sunbird_client_id}}\",\n        \"scope\": \"{{sunbird_scope}}\",\n        \"responseType\": \"code\",\n        \"redirectUri\": \"{{redirection_url}}\",\n        \"display\": \"popup\",\n        \"prompt\": \"consent\",\n        \"acrValues\": \"mosip:idp:acr:knowledge\",\n        \"nonce\": \"{{$randomAlphaNumeric}}\",\n        \"state\": \"eree2311\",\n        \"claimsLocales\": \"en\",\n        \"codeChallenge\": \"{{codeChallenge}}\",\n        \"codeChallengeMethod\": \"{{codeChallengeMethod}}\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/v1/esignet/authorization/v2/oauth-details",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"esignet",
+								"authorization",
+								"v2",
+								"oauth-details"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Authenticate User (KBI)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// KBI challenge = base64url( JSON {fullName, dob} ) matching the registry policy",
+									"var challenge = JSON.stringify({",
+									"    fullName: pm.collectionVariables.get('sunbird_full_name'),",
+									"    dob: pm.collectionVariables.get('sunbird_dob')",
+									"});",
+									"var b64 = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(challenge));",
+									"b64 = b64.replace(/=+$/, '').replace(/\\+/g, '-').replace(/\\//g, '_');",
+									"pm.collectionVariables.set('sunbird_kbi_challenge', b64);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}"
+							},
+							{
+								"key": "oauth-details-key",
+								"value": "{{oauth_details_key}}"
+							},
+							{
+								"key": "oauth-details-hash",
+								"value": "{{oauth_details_hash}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"individualId\": \"{{sunbird_policy_number}}\",\n        \"challengeList\": [\n            {\n                \"authFactorType\": \"KBI\",\n                \"challenge\": \"{{sunbird_kbi_challenge}}\",\n                \"format\": \"base64url-encoded-json\"\n            }\n        ]\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/v1/esignet/authorization/authenticate",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"esignet",
+								"authorization",
+								"authenticate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Authorization Code",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validate code\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.response.code).to.not.be.null;",
+									"    pm.environment.set(\"code\", jsonData.response.code);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"followRedirects": false
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}"
+							},
+							{
+								"key": "oauth-details-key",
+								"value": "{{oauth_details_key}}"
+							},
+							{
+								"key": "oauth-details-hash",
+								"value": "{{oauth_details_hash}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"transactionId\": \"{{transaction_id}}\",\n        \"acceptedClaims\": [],\n        \"permittedAuthorizeScopes\": []\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/v1/esignet/authorization/auth-code",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"esignet",
+								"authorization",
+								"auth-code"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Tokens",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"eval(pm.environment.get('pmlib_code'));",
+									"const private_key_jwk = JSON.parse(pm.collectionVariables.get(\"sunbird_client_private_key\"));",
+									"const signed_jwt = pmlib.clientAssertPrivateKey(private_key_jwk, pm.collectionVariables.get('sunbird_client_id'), pm.environment.get('audience'), 60, \"RS256\");",
+									"pm.collectionVariables.set(\"client_assertion\", signed_jwt);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Validate access-token\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.access_token).to.not.be.null;",
+									"    pm.environment.set(\"access_token\", jsonData.access_token);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-XSRF-TOKEN",
+								"value": "{{csrf_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "code",
+									"value": "{{code}}",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "{{sunbird_client_id}}",
+									"type": "text"
+								},
+								{
+									"key": "redirect_uri",
+									"value": "{{redirection_url}}",
+									"type": "text"
+								},
+								{
+									"key": "grant_type",
+									"value": "authorization_code",
+									"type": "text"
+								},
+								{
+									"key": "client_assertion_type",
+									"value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+									"type": "text"
+								},
+								{
+									"key": "client_assertion",
+									"value": "{{client_assertion}}",
+									"type": "text"
+								},
+								{
+									"key": "code_verifier",
+									"value": "{{codeVerifier}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/v1/esignet/oauth/v2/token",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"v1",
+								"esignet",
+								"oauth",
+								"v2",
+								"token"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"event": [
@@ -3544,6 +4225,46 @@
 		},
 		{
 			"key": "codeVerifier",
+			"value": ""
+		},
+		{
+			"key": "sunbird_url",
+			"value": "https://registry.released.mosip.net"
+		},
+		{
+			"key": "sunbird_scope",
+			"value": "mosip_identity_vc_ldp"
+		},
+		{
+			"key": "sunbird_full_name",
+			"value": ""
+		},
+		{
+			"key": "sunbird_dob",
+			"value": ""
+		},
+		{
+			"key": "sunbird_policy_number",
+			"value": ""
+		},
+		{
+			"key": "sunbird_insurance_id",
+			"value": ""
+		},
+		{
+			"key": "sunbird_client_id",
+			"value": ""
+		},
+		{
+			"key": "sunbird_client_private_key",
+			"value": ""
+		},
+		{
+			"key": "sunbird_client_public_key",
+			"value": ""
+		},
+		{
+			"key": "sunbird_kbi_challenge",
 			"value": ""
 		}
 	]
