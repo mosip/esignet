@@ -702,7 +702,6 @@ public class AuthorizationServiceTest {
             authorizationServiceImpl.getOauthDetailsV3(oauthDetailReqDto, httpServletRequest);
             Assertions.fail();
         } catch (EsignetException e) {
-            // Signature verification fails for invalid token, so LOGIN_REQUIRED is thrown
             Assertions.assertTrue(e.getErrorCode().equals(ErrorConstants.LOGIN_REQUIRED));
         }
     }
@@ -716,7 +715,6 @@ public class AuthorizationServiceTest {
             authorizationServiceImpl.getOauthDetailsV3(oauthDetailReqDto, httpServletRequest);
             Assertions.fail();
         } catch (EsignetException e) {
-            // Signature verification fails for this token, so LOGIN_REQUIRED is thrown
             Assertions.assertTrue(e.getErrorCode().equals(ErrorConstants.LOGIN_REQUIRED));
         }
     }
@@ -1128,7 +1126,6 @@ public class AuthorizationServiceTest {
             OAuthDetailResponseV2 oauthDetailResponseV2 = authorizationServiceImpl.getOauthDetailsV3(oauthDetailRequest, request);
             Assertions.assertNotNull(oauthDetailResponseV2);
         } catch (EsignetException e) {
-            // Signature verification fails or audience/clientId mismatch results in LOGIN_REQUIRED
             Assertions.assertEquals(ErrorConstants.LOGIN_REQUIRED, e.getErrorCode());
         }
     }
@@ -1158,7 +1155,6 @@ public class AuthorizationServiceTest {
             authorizationServiceImpl.getOauthDetailsV3(oauthDetailRequest, request);
             Assertions.fail();
         } catch (EsignetException e) {
-            // Signature verification fails for this token, so LOGIN_REQUIRED is thrown
             Assertions.assertEquals(ErrorConstants.LOGIN_REQUIRED, e.getErrorCode());
         }
 
@@ -1168,7 +1164,6 @@ public class AuthorizationServiceTest {
             authorizationServiceImpl.getOauthDetailsV3(oauthDetailRequest, request);
             Assertions.fail();
         } catch (EsignetException e) {
-            // Signature verification fails for this token, so LOGIN_REQUIRED is thrown
             Assertions.assertEquals(ErrorConstants.LOGIN_REQUIRED, e.getErrorCode());
         }
     }
