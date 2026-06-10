@@ -1,0 +1,14 @@
+{
+    "encodedHash": "{{encodedHash}}",
+    "requestTime": "{{requestTime}}",
+    "request": {
+        "transactionId": "{{transactionId}}",
+        "acceptedClaims": [
+	      {{#each acceptedClaims}}
+	            "{{claim}}"
+	          {{#unless @last}},{{/unless}}
+	      	{{/each}}
+        ],
+        "permittedAuthorizeScopes": []
+    }
+}

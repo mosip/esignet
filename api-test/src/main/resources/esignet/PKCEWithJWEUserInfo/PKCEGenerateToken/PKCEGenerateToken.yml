@@ -1,0 +1,25 @@
+PKCEGenerateToken:
+   ESignet_GenerateToken_AuthToken_Xsrf_PKCE_JWE_Valid_Smoke_sid:
+      endPoint: $GETENDPOINTFROMWELLKNOWN$
+      uniqueIdentifier: TC_ESignet_PKCE_JWE_GenerateToken_01
+      description: Exchange authorization code with valid code_verifier to generate access token for PKCE JWE flow
+      role: resident
+      restMethod: post
+      validityCheckRequired: true
+      checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_PKCE_JWE_AuthorizationCode_01
+      inputTemplate: esignet/PKCEWithJWEUserInfo/PKCEGenerateToken/PKCEGenerateToken
+      outputTemplate: esignet/PKCEWithJWEUserInfo/PKCEGenerateToken/PKCEGenerateTokenResult
+      input: '{
+        "grant_type": "authorization_code",
+        "code": "$ID:AuthorizationCode_AuthToken_Xsrf_PKCE_JWE_Valid_Smoke_sid_code$",
+        "client_id": "$ID:CreateOIDCClient_PKCE_JWE_Valid_Smoke_sid_clientId$",
+        "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+        "client_assertion": "$CLIENT_ASSERTION_PKCE_JWE_JWT$",
+        "redirect_uri": "$IDPREDIRECTURI$",
+        "aud_key": "token_endpoint",
+        "code_verifier": "$CODE_VERIFIER_PKCE_JWE$"
+}'
+      output: '{
+        "token_type": "Bearer"
+}'

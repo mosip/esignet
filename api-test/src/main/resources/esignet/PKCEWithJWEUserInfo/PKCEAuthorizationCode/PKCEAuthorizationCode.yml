@@ -1,0 +1,20 @@
+PKCEAuthorizationCode:
+   ESignet_AuthorizationCode_AuthToken_Xsrf_PKCE_JWE_Valid_Smoke_sid:
+      endPoint: /v1/esignet/authorization/auth-code
+      uniqueIdentifier: TC_ESignet_PKCE_JWE_AuthorizationCode_01
+      description: Complete consent flow and obtain authorization code for PKCE JWE E2E flow
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      additionalDependencies: TC_ESignet_PKCE_JWE_AuthenticateUser_01
+      inputTemplate: esignet/PKCEWithJWEUserInfo/PKCEAuthorizationCode/PKCEAuthorizationCode
+      outputTemplate: esignet/PKCEWithJWEUserInfo/PKCEAuthorizationCode/PKCEAuthorizationCodeResult
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_PKCE_JWE_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$ID:OAuthDetailsRequest_PKCE_JWE_Valid_Smoke_sid_transactionId$",
+      	"acceptedClaims": [{"claim": "phone_number"},{"claim": "email"}]
+}'
+      output: '{
+}'

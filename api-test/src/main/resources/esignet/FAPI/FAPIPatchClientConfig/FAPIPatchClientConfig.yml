@@ -1,7 +1,32 @@
 FAPIPatchClientConfig:
-  ESignet_FAPIPatchClientConfig_MOSIPID_JWE_Smoke_sid:
+  ESignet_FAPIPatchClientConfig_MOSIPID_Smoke_sid:
     endPoint: /v1/esignet/client-mgmt/client/{clientId}
     uniqueIdentifier: TC_ESignet_FAPI_PatchOIDCClientAdditionalConfig_01
+    description: Patch plain FAPI OIDC client additionalConfig on eSignet for PKCE mandatory and PAR (MOSIP ID only)
+    role: partner
+    restMethod: patch
+    inputTemplate: esignet/FAPI/FAPIPatchClientConfig/FAPIPatchClientConfig
+    outputTemplate: esignet/PartialUpdateOIDCClient/PartialUpdateOIDCClientResult
+    input: '{
+      "requestTime": "$TIMESTAMP$",
+      "clientId": "$ID:CreateOIDCClientFAPI_all_Valid_Smoke_sid_clientId$",
+      "userinfo_response_type": "JWS",
+      "purpose_title": "title",
+      "purpose_type": "verify",
+      "purpose_subTitle": "subtitle",
+      "signup_banner_required": true,
+      "forgot_pwd_link_required": true,
+      "consent_expire_in_mins": 30,
+      "require_pushed_authorization_requests": true,
+      "dpop_bound_access_tokens": true,
+      "require_pkce": true
+}'
+    output: '{
+      "status": "ACTIVE"
+}'
+  ESignet_FAPIPatchClientConfig_MOSIPID_JWE_Smoke_sid:
+    endPoint: /v1/esignet/client-mgmt/client/{clientId}
+    uniqueIdentifier: TC_ESignet_FAPI_PatchOIDCClientAdditionalConfig_02
     description: Patch FAPI OIDC client additionalConfig on eSignet for JWE userinfo (MOSIP ID only)
     role: partner
     restMethod: patch
