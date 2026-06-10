@@ -150,6 +150,8 @@ public class AddIdentity extends EsignetUtil implements ITest {
 						logger.error(e.getMessage());
 					}
 				inputJson = replaceKeywordWithValue(inputJson, "$PHONENUMBERFORIDENTITY$", phoneNumber);
+			}
+			if (inputJson.contains("$EMAILVALUE$")) {
 				inputJson = replaceKeywordWithValue(inputJson, "$EMAILVALUE$", email);
 			}
 			
