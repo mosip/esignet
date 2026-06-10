@@ -523,7 +523,7 @@
 		</classes>
 	</test>
 
-	Start of end to end v3 with mosipId flow test cases 
+	<!-- Start of end to end v3 with mosipId flow test cases --> 
 	<test name="UpdateClientV3IDA">
 		<parameter name="ymlFile"
 			value="esignet/EndToEndFlowWithV3/UpdateClientV3/UpdateOIDCClient.yml" />
@@ -576,9 +576,9 @@
 				name="io.mosip.testrig.apirig.esignet.testscripts.GetWithParam" />
 		</classes>
 	</test>
-	End of end to end v3 with mosipId flow test cases 
+	<!-- End of end to end v3 with mosipId flow test cases -->
 
-	Start of end to end v3 with mock flow test cases 
+	<!-- Start of end to end v3 with mock flow test cases -->
 	<test name="OIDCClientV3MOCK">
 		<parameter name="ymlFile"
 			value="esignet/EndToEndFlowWithV3MOCK/CreateClient/CreateOIDCClient.yml" />
