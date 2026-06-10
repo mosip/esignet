@@ -19,6 +19,7 @@ inbound_auth_config:
       client_id: I6eXdnnLGGj2A2BcTL-jug_0ujpnQXlBpKAbBCkGWEM
       redirect_uris:
         - "https://localhost:3000"
+        - "https://healthservices.esdev.mosip.net/userprofile"
       grant_types:
         - "authorization_code"
       response_types:

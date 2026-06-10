@@ -9,6 +9,37 @@ nodes:
     onSuccess: prompt_individual_id
   - id: prompt_individual_id
     type: PROMPT
+    meta:
+      components:
+        - alt: "{{ t(signin:images.app_logo.alt) }}"
+          category: DISPLAY
+          height: "60"
+          id: image
+          resourceType: ELEMENT
+          src: "{{ meta(application.logoUrl) }}"
+          type: IMAGE
+          width: ""
+        - align: center
+          type: TEXT
+          id: text_001
+          label: "{{ t(signin:forms.credentials.title) }}"
+          variant: HEADING_1
+        - type: BLOCK
+          id: block_001
+          components:
+            - id: input_001
+              ref: username
+              type: TEXT_INPUT
+              label: "Username"
+              required: true
+              placeholder: "Enter your username"
+            - id: action_submit_individual_id
+              type: ACTION
+              label: Continue
+              variant: PRIMARY
+              category: ACTION
+              eventType: SUBMIT
+              resourceType: ELEMENT
     prompts:
       - inputs:
           - ref: input_001
@@ -25,6 +56,31 @@ nodes:
     onSuccess: prompt_otp
   - id: prompt_otp
     type: PROMPT
+    meta:
+      components:
+        - id: text_otp_title
+          type: TEXT
+          label: Enter OTP
+          variant: HEADING_3
+          category: DISPLAY
+          resourceType: ELEMENT
+        - id: block_enter_otp
+          type: BLOCK
+          category: BLOCK
+          components:
+            - id: input_002
+              ref: otp
+              type: OTP_INPUT
+              label: Please enter the 6-digit OTP sent to your registered contact
+              category: FIELD
+              required: true
+            - id: action_submit_otp
+              type: ACTION
+              label: Verify
+              variant: PRIMARY
+              category: ACTION
+              eventType: SUBMIT
+              resourceType: ELEMENT
     prompts:
       - inputs:
           - ref: input_002

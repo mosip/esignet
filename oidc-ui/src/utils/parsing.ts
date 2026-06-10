@@ -1,4 +1,4 @@
-import type { PollingConfig } from '../types';
+import type { PollingConfig } from "../types";
 
 /**
  * Parses a value as a positive integer, returning a default if invalid.
@@ -25,23 +25,23 @@ export function checkConfigProperty(
  * Gets the polling configuration from window._env_ or defaults.
  */
 export function getPollingConfig(): PollingConfig {
-  const env = window._env_ ?? ({} as Partial<Window['_env_']>);
+  const env = window._env_ ?? ({} as Partial<Window["_env_"]>);
   const { POLLING_URL, POLLING_INTERVAL, POLLING_TIMEOUT, POLLING_ENABLED } =
     env;
 
   const url =
     POLLING_URL ??
     (import.meta.env.DEV
-      ? `${import.meta.env.VITE_ESIGNET_API_URL ?? ''}/actuator/health`
+      ? `${import.meta.env.VITE_API_URL ?? ""}/actuator/health`
       : `${window.origin}/v1/esignet/actuator/health`);
 
   const interval = parsePositiveInt(POLLING_INTERVAL, 10000);
   const timeout = parsePositiveInt(POLLING_TIMEOUT, 5000);
 
   const enabled =
-    POLLING_ENABLED === undefined || POLLING_ENABLED === ''
+    POLLING_ENABLED === undefined || POLLING_ENABLED === ""
       ? true
-      : String(POLLING_ENABLED).toLowerCase() === 'true';
+      : String(POLLING_ENABLED).toLowerCase() === "true";
 
   return { url, interval, timeout, enabled };
 }

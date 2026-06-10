@@ -39,7 +39,7 @@ RUN npm run build
 FROM nginx:1.28.0-alpine3.21-slim
 
 RUN apk update \
-    && apk add --no-cache shadow
+    && apk add --no-cache wget shadow
 
 ARG SOURCE
 ARG COMMIT_HASH
@@ -115,7 +115,7 @@ RUN echo "DEFAULT_THEME=$DEFAULT_THEME" >> ${work_dir}/env.env \
     && echo "POLLING_TIMEOUT=$POLLING_TIMEOUT" >> ${work_dir}/env.env \
     && echo "POLLING_ENABLED=$POLLING_ENABLED" >> ${work_dir}/env.env
 
-# RUN wget --no-check-certificate --no-cache --no-cookies https://raw.githubusercontent.com/mosip/artifactory-ref-impl/master/artifacts/src/mosip-plugins/sign-in-with-esignet/sign-in-with-esignet.zip -O ${plugins_path}/temp/sign-in-button-plugin.zip
+RUN wget --no-check-certificate --no-cache --no-cookies https://raw.githubusercontent.com/mosip/artifactory-ref-impl/master/artifacts/src/mosip-plugins/sign-in-with-esignet/sign-in-with-esignet.zip -O ${plugins_path}/temp/sign-in-button-plugin.zip
 
 RUN chown -R ${container_user}:${container_user} /home/${container_user}
 

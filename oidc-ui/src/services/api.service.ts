@@ -3,8 +3,8 @@ import { CSRF, SOMETHING_WENT_WRONG } from "../constants/routes";
 import type { NavigateFunction } from "react-router-dom";
 
 const API_BASE_URL = import.meta.env.DEV
-  ? (import.meta.env.VITE_ESIGNET_API_URL ?? "")
-  : window.origin + (import.meta.env.VITE_ESIGNET_API_URL ?? "");
+  ? (import.meta.env.VITE_API_URL ?? "")
+  : window.origin + (import.meta.env.VITE_API_URL ?? "");
 
 const csrfEndpoint = `${API_BASE_URL}${CSRF}`;
 
