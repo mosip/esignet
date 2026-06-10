@@ -931,7 +931,7 @@ CreateOIDCClient:
       output: '{
         "status": "ACTIVE"
 }'
-   Esignet_CreateOIDCClient_For_Policy_WithOut_AllowedAuthTypes_sid:
+   Esignet_CreateOIDCClient_For_Policy_WithOut_AllowedAuthTypes_Neg:
       endPoint: /v1/partnermanager/oidc/client
       uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_37
       description: Create OIDC client with all valid details
@@ -939,7 +939,7 @@ CreateOIDCClient:
       restMethod: post
       additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
       inputTemplate: esignet/OidcClient/OIDCClient
-      outputTemplate: esignet/OidcClient/OIDCClientResult
+      outputTemplate: esignet/error
       input: '{
         "name": "$RANDOMID$",
         "policyId": "$ID:DefinePolicy_WithOut_AllowedAuthTypes_sid_id$",
@@ -951,9 +951,13 @@ CreateOIDCClient:
         "clientAuthMethods": "private_key_jwt"
 }'
       output: '{
-        "status": "ACTIVE"
+      "errors": [
+       {
+          "errorCode": "PMS_ESI_006"
+       }
+    ]
 }'
-   Esignet_CreateOIDCClient_For_Policy_WithOut_AllowedKycAttributes_sid:
+   Esignet_CreateOIDCClient_For_Policy_WithOut_AllowedKycAttributes_Neg:
       endPoint: /v1/partnermanager/oidc/client
       uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_38
       description: Create OIDC client with all valid details
@@ -961,7 +965,7 @@ CreateOIDCClient:
       restMethod: post
       additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
       inputTemplate: esignet/OidcClient/OIDCClient
-      outputTemplate: esignet/OidcClient/OIDCClientResult
+      outputTemplate: esignet/error
       input: '{
         "name": "$RANDOMID$",
         "policyId": "$ID:DefinePolicy_WithOut_AllowedKycAttributes_sid_id$",
@@ -973,5 +977,9 @@ CreateOIDCClient:
         "clientAuthMethods": "private_key_jwt"
 }'
       output: '{
-        "status": "ACTIVE"
+      "errors": [
+       {
+          "errorCode": "PMS_ESI_005"
+       }
+     ]
 }'

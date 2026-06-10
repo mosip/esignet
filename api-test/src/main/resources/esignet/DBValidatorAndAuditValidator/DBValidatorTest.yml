@@ -3,7 +3,7 @@ DBValidator:
     endPoint: SELECT * FROM pms.oidc_client where
     uniqueIdentifier: TC_Esignet_DBValidator_01
     description: Validate that data created for OIDCClient is correctly stored and consistent in the pms database
-    role: partner
+    role: pms
     restMethod: post
     inputTemplate: esignet/DBValidatorAndAuditValidator/DBValidatorTest
     outputTemplate: esignet/DBValidatorAndAuditValidator/DBValidatorTestResult
