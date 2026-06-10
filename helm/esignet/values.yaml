@@ -351,12 +351,12 @@ initContainers:
         |sed "s/mosip-api-internal-host=//g"); if [ -z "$HOST" ]; then echo "HOST
         $HOST is empty; EXITING"; exit 1; fi; openssl s_client -servername "$HOST"
         -connect "$HOST":443  > "$HOST.cer" 2>/dev/null & sleep 2 ; sed -i -ne '/-BEGIN
-        CERTIFICATE-/,/-END CERTIFICATE-/p' "$HOST.cer"; cat "$HOST.cer"; /usr/local/openjdk-11/bin/keytool
+        CERTIFICATE-/,/-END CERTIFICATE-/p' "$HOST.cer"; cat "$HOST.cer"; $JAVA_HOME/bin/keytool
         -delete -alias "$HOST" -keystore $JAVA_HOME/lib/security/cacerts  -storepass
-        changeit; /usr/local/openjdk-11/bin/keytool -trustcacerts -keystore "$JAVA_HOME/lib/security/cacerts"
+        changeit; $JAVA_HOME/bin/keytool -trustcacerts -keystore "$JAVA_HOME/lib/security/cacerts"
         -storepass changeit -noprompt -importcert -alias "$HOST" -file "$HOST.cer"
         ; if [ $? -gt 0 ]; then echo "Failed to add SSL certificate for host $host;
-        EXITING"; exit 1; fi; cp /usr/local/openjdk-11/lib/security/cacerts /cacerts;
+        EXITING"; exit 1; fi; cp $JAVA_HOME/lib/security/cacerts /cacerts;
         fi
     env:
       - name: ENABLE_INSECURE
@@ -364,7 +364,7 @@ initContainers:
     envFrom:
       - configMapRef:
           name: esignet-global
-    image: docker.io/openjdk:11-jre
+    image: docker.io/eclipse-temurin:11-jre-focal
     imagePullPolicy: Always
     name: cacerts
     resources: {}
