@@ -757,6 +757,36 @@ CreateOIDCClient:
       output: '{
         "status": "ACTIVE"
 }'
+   Esignet_CreateOIDCClient_PKCE_JWE_Valid_Smoke_sid:
+      endPoint: /v1/partnermanager/oidc/client
+      uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_31
+      description: Create OIDC client with PKCE mandatory and JWE UserInfo response type for MOSIP ID PKCE JWE E2E flow
+      role: partner
+      restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
+      inputTemplate: esignet/OidcClient/OIDCClientFAPI
+      outputTemplate: esignet/OidcClient/OIDCClientResult
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_All_Valid_Smoke_sid_id$",
+        "publicKey": "$OIDC_JWK_KEY_PKCE_JWE$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "userClaims1": "name",
+        "userClaims2": "email",
+        "userClaims3": "gender",
+        "userClaims4": "phone_number",
+        "userClaims5": "birthdate",
+        "authContextRefs": [{"acrValues": "mosip:idp:acr:static-code"},{"acrValues": "mosip:idp:acr:generated-code"},{"acrValues": "mosip:idp:acr:biometrics"}],
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt",
+        "keyLang1": "$1STLANG$",
+        "clientNameLang": "MOSIP PKCE JWE OIDC Client"
+}'
+      output: '{
+        "status": "ACTIVE"
+}'
    Esignet_CreateOIDCClient_With_DataSharePlocy_Neg:
       endPoint: /v1/partnermanager/oidc/client
       uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_31

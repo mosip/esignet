@@ -1120,8 +1120,70 @@
 			<class
 				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
 		</classes>
+	</test>	
+	<test name="PKCEWithJWECreateOIDCClient">
+		<parameter name="ymlFile"
+			value="esignet/PKCEWithJWEUserInfo/PKCECreateOIDCClient/PKCECreateOIDCClient.yml" />
+		<parameter name="idKeyName" value="clientId" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="PKCEWithJWEPatchClientConfig">
+		<parameter name="ymlFile"
+			value="esignet/PKCEWithJWEUserInfo/PKCEPatchClientConfig/PKCEPatchClientConfig.yml" />
+		<parameter name="pathParams" value="clientId" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.PatchWithPathParamsAndBody" />
+		</classes>
+	</test>
+	<test name="PKCEWithJWEOAuthDetails">
+		<parameter name="ymlFile"
+			value="esignet/PKCEWithJWEUserInfo/PKCEOAuthDetails/PKCEOAuthDetails.yml" />
+		<parameter name="idKeyName" value="transactionId,encodedResp" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="PKCEWithJWEAuthenticateUser">
+		<parameter name="ymlFile"
+			value="esignet/PKCEWithJWEUserInfo/PKCEAuthenticateUser/PKCEAuthenticateUser.yml" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.PostWithAutogenIdWithOtpGenerate" />
+		</classes>
+	</test>
+	<test name="PKCEWithJWEAuthorizationCode">
+		<parameter name="ymlFile"
+			value="esignet/PKCEWithJWEUserInfo/PKCEAuthorizationCode/PKCEAuthorizationCode.yml" />
+		<parameter name="idKeyName" value="code" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+	<test name="PKCEWithJWEGenerateToken">
+		<parameter name="ymlFile"
+			value="esignet/PKCEWithJWEUserInfo/PKCEGenerateToken/PKCEGenerateToken.yml" />
+		<parameter name="idKeyName" value="access_token" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePostForAutoGenIdForUrlEncoded" />
+		</classes>
+	</test>
+	<test name="PKCEWithJWEGetUserInfo">
+		<parameter name="ymlFile"
+			value="esignet/PKCEWithJWEUserInfo/PKCEGetUserInfo/PKCEGetUserInfo.yml" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.GetWithParam" />
+		</classes>
 	</test>
 	
 	<!-- End of end to end v3 with mock flow test cases -->
+
 
 </suite>

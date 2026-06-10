@@ -6,6 +6,7 @@ FAPIGenerateToken:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
       inputTemplate: esignet/FAPI/FAPIGenerateToken/FAPIGenerateToken
       outputTemplate: esignet/FAPI/FAPIGenerateToken/FAPIGenerateTokenResult
       input: '{
@@ -21,6 +22,7 @@ FAPIGenerateToken:
         "code_verifier": "$CODE_VERIFIER$"
 }'
       output: '{
+        "token_type": "DPoP"
 }'
    ESignet_GenerateToken_FAPI_DPoP_AuthToken_Xsrf_Valid_forUserInfoJWE_Smoke_sid:
       endPoint: $GETENDPOINTFROMWELLKNOWN$
@@ -29,6 +31,7 @@ FAPIGenerateToken:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
       additionalDependencies: TC_ESignet_FAPI_AuthorizationCode_02
       inputTemplate: esignet/FAPI/FAPIGenerateToken/FAPIGenerateToken
       outputTemplate: esignet/FAPI/FAPIGenerateToken/FAPIGenerateTokenResult
@@ -45,4 +48,28 @@ FAPIGenerateToken:
         "code_verifier": "$CODE_VERIFIER$"
 }'
       output: '{
+        "token_type": "DPoP"
+}'
+   ESignet_GenerateToken_FAPI_LargeValue_CodeVerifier_Neg:
+      endPoint: $GETENDPOINTFROMWELLKNOWN$
+      uniqueIdentifier: TC_ESignet_FAPI_GenerateToken_02
+      description: Generate token with large PKCE code_verifier value exceeding max allowed length for fapi
+      role: resident
+      restMethod: post
+      inputTemplate: esignet/FAPI/FAPIGenerateToken/FAPIGenerateToken
+      outputTemplate: esignet/error2
+      input: '{
+        "dpop_key": "DPoP",
+        "dpop_value": "$DPOP_PROOF$",
+        "grant_type": "authorization_code",
+        "code": "$ID:AuthorizationCode_FAPI__AuthToken_Xsrf_All_Valid_forUserInfo_Smoke_sid_code$",
+        "client_id": "$ID:CreateOIDCClientFAPI_all_Valid_Smoke_sid_clientId$",
+        "client_assertion_type": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+        "client_assertion": "$CLIENT_ASSERTION_FAPI_JWT$",
+        "redirect_uri": "$IDPREDIRECTURI$",
+        "aud_key": "token_endpoint",
+        "code_verifier": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~ABCDEFGHIJ"
+}'
+      output: '{
+        "error": "invalid_grant"
 }'

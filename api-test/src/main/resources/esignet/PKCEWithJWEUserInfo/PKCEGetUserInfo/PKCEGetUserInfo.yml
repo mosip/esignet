@@ -1,0 +1,15 @@
+PKCEGetUserInfo:
+   ESignet_GetOidcUserInfo_AuthToken_Xsrf_PKCE_JWE_UIN_AccessToken_StatusCode_Valid_Smoke:
+      endPoint: /v1/esignet/oidc/userinfo
+      uniqueIdentifier: TC_ESignet_PKCE_JWE_GetUserInfo_01
+      description: Invoke UserInfo endpoint with access token for PKCE JWE flow and verify that a 401 error is returned when encPublicKey is not configured for the client
+      role: resident
+      restMethod: get
+      validityCheckRequired: true
+      additionalDependencies: TC_ESignet_PKCE_JWE_GenerateToken_01
+      inputTemplate: esignet/PKCEWithJWEUserInfo/PKCEGetUserInfo/PKCEGetUserInfo
+      outputTemplate: esignet/PKCEWithJWEUserInfo/PKCEGetUserInfo/PKCEGetUserInfoResult
+      input: '{
+        "idpAccessToken": "$ID:GenerateToken_AuthToken_Xsrf_PKCE_JWE_Valid_Smoke_sid_access_token$"
+}'
+      output: "401"

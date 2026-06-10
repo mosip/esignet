@@ -1,0 +1,26 @@
+PKCEPatchClientConfig:
+  ESignet_PKCEPatchClientConfig_MOSIPID_JWE_Smoke_sid:
+    endPoint: /v1/esignet/client-mgmt/client/{clientId}
+    uniqueIdentifier: TC_ESignet_PKCE_JWE_PatchClientConfig_01
+    description: Patch PKCE JWE OIDC client additionalConfig on eSignet for PKCE mandatory and JWE userinfo (MOSIP ID only)
+    role: partner
+    restMethod: patch
+    inputTemplate: esignet/PKCEWithJWEUserInfo/PKCEPatchClientConfig/PKCEPatchClientConfig
+    outputTemplate: esignet/PKCEWithJWEUserInfo/PKCEPatchClientConfig/PKCEPatchClientConfigResult
+    input: '{
+      "requestTime": "$TIMESTAMP$",
+      "clientId": "$ID:CreateOIDCClient_PKCE_JWE_Valid_Smoke_sid_clientId$",
+      "userinfo_response_type": "JWE",
+      "purpose_title": "title",
+      "purpose_type": "verify",
+      "purpose_subTitle": "subtitle",
+      "signup_banner_required": true,
+      "forgot_pwd_link_required": true,
+      "consent_expire_in_mins": 120,
+      "require_pushed_authorization_requests": false,
+      "dpop_bound_access_tokens": false,
+      "require_pkce": true
+}'
+    output: '{
+      "status": "ACTIVE"
+}'
