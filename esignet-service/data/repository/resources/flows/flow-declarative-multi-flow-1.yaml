@@ -512,7 +512,7 @@ nodes:
           - ref: input_phone
             type: PHONE_INPUT
             required: true
-            identifier: mobile_number
+            identifier: username
             validation:
               - type: regex
                 value: "^[0-9]{10}$"
@@ -602,7 +602,7 @@ nodes:
           - ref: input_email
             type: EMAIL_INPUT
             required: true
-            identifier: email
+            identifier: username
             validation:
               - type: regex
                 value: "^[a-zA-Z0-9._%+\\-]+$"
@@ -692,7 +692,7 @@ nodes:
           - ref: input_vid
             type: TEXT_INPUT
             required: true
-            identifier: vid
+            identifier: username
             validation:
               - type: regex
                 value: "^[A-Z0-9]+$"
