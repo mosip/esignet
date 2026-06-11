@@ -466,7 +466,7 @@
 									"urlencoded": [
 										{
 											"key": "client_secret",
-											"value": "ysd1exB4FXsZebbA",
+											"value": "{{mosip_pms_client_secret}}",
 											"type": "text"
 										},
 										{
@@ -705,7 +705,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"policyNumber\": \"{{sunbird_policy_number}}\",\n    \"policyName\": \"Start Insurance Gold Premium\",\n    \"policyExpiresOn\": \"2033-04-20T20:48:17.684Z\",\n    \"policyIssuedOn\": \"{{$isoTimestamp}}\",\n    \"fullName\": \"{{sunbird_full_name}}\",\n    \"dob\": \"{{sunbird_dob}}\",\n    \"benefits\": [\"Critical Surgery\", \"Full body checkup\"],\n    \"gender\": \"Male\",\n    \"mobile\": \"0123456789\",\n    \"email\": \"abhishek@gmail.com\"\n}",
+									"raw": "{\n    \"policyNumber\": \"{{sunbird_policy_number}}\",\n    \"policyName\": \"Start Insurance Gold Premium\",\n    \"policyExpiresOn\": \"2033-04-20T20:48:17.684Z\",\n    \"policyIssuedOn\": \"{{$isoTimestamp}}\",\n    \"fullName\": \"{{sunbird_full_name}}\",\n    \"dob\": \"{{sunbird_dob}}\",\n    \"benefits\": [\"Critical Surgery\", \"Full body checkup\"],\n    \"gender\": \"Male\",\n    \"mobile\": \"0123456789\",\n    \"email\": \"{{$randomEmail}}\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
