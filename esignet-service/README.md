@@ -170,7 +170,7 @@ Set `LOG_LEVEL=debug` for verbose tracing.
 | `MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_KBI_ENTITY_ID_FIELD` | `osid` | Registry field holding the entity id returned by search |
 | `MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_AUTH_FACTOR_KBI_FIELD_DETAILS` | _(Insurance default)_ | JSON list of KBI fields collected from the user |
 | `MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_IDENTITY_OPENID_CLAIMS_MAPPING` | _(Insurance default)_ | JSON map of OIDC claim → registry field (empty = raw passthrough) |
-| `MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_REQUEST_TIMEOUT_SECS` | `10` | HTTP timeout in seconds for registry calls (Go-only; no Java equivalent) |
+| `MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_REQUEST_TIMEOUT_SECS` | `10` | HTTP timeout in seconds for registry calls |
 
 See `.env.example` for the full list including optional MOSIP URL overrides.
 
@@ -183,9 +183,6 @@ its entity-id field (default `osid`) becomes the user id. Attributes are then fe
 get URL (`.../{entityId}`) and mapped to OIDC claims via the claims-mapping config. This reuses the
 built-in `BasicAuthExecutor` (no custom executor); the demo flow `decl-sunbird-flow-1` and app
 `decl-app-sunbird` exercise it.
-
-The `SUNBIRD_RC` environment variables mirror the Java eSignet Sunbird plugin
-(`io.mosip.esignet.plugin.sunbirdrc`) property keys — uppercased, with `.` and `-` replaced by `_`.
 
 ## Client management API
 
