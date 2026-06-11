@@ -1,0 +1,12 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    queries: "internal/clientmgmt/db/query.sql"
+    schema:  "internal/clientmgmt/db/schema.sql"
+    gen:
+      go:
+        package:      "db"
+        out:          "internal/clientmgmt/db"
+        emit_db_tags: true
+        emit_json_tags: true
+        emit_interface: true

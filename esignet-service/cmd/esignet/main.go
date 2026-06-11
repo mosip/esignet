@@ -5,12 +5,13 @@ import (
 	"net/http"
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine"
-	"github.com/thunder-id/thunderid/pkg/thunderidengine/runtime"
 
 	"github.com/mosip/esignet/internal/catalog"
+	"github.com/mosip/esignet/internal/clientmgmt"
 	"github.com/mosip/esignet/internal/config"
 	embedhost "github.com/mosip/esignet/internal/host"
 	applog "github.com/mosip/esignet/internal/log"
+	"github.com/mosip/esignet/internal/store"
 )
 
 func main() {
@@ -31,14 +32,44 @@ func main() {
 		logger.Fatal("authn provider", applog.Error(err))
 	}
 
+	dbCfg := config.LoadDB()
+	pgConn, err := dbCfg.Open()
+	if err != nil {
+		logger.Fatal("connect postgres", applog.Error(err))
+	}
+	defer pgConn.Close()
+
+	redisCfg := config.LoadRedis()
+	redisClient, err := redisCfg.Open()
+	if err != nil {
+		logger.Fatal("connect redis", applog.Error(err))
+	}
+	defer redisClient.Close()
+	logger.Info("redis connected",
+		applog.String("key_prefix", redisCfg.KeyPrefix),
+	)
+
+	clientMgmtCfg := config.LoadClientMgmt(engineCfg.Issuer)
+	logger.Info("client mgmt scope enforcement",
+		applog.String("required_scope", clientMgmtCfg.RequiredScope),
+		applog.String("jwks_endpoint", clientMgmtCfg.JWKSEndpoint),
+	)
+
+	jwksCache := clientmgmt.NewJWKSCache(clientMgmtCfg.JWKSEndpoint, clientMgmtCfg.JWKSCacheTTL)
+	scopeMW := clientmgmt.ScopeMiddleware(jwksCache, clientMgmtCfg.Issuer, clientMgmtCfg.RequiredScope)
+
+	clientSvc := clientmgmt.NewService(pgConn)
+	clientHandler := clientmgmt.NewHandler(clientSvc, logger)
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("ok"))
 	})
+	clientHandler.RegisterRoutes(mux, scopeMW)
 
 	thunderCfg := engineCfg.ThunderEngineConfig()
-	thunderCfg.Runtime = runtime.NewMemoryRuntimeStore()
+	thunderCfg.Runtime = store.NewRedisStore(redisClient, redisCfg.KeyPrefix)
 	thunderCfg.Flow.RegisterCustom = func(reg thunderidengine.ExecutorRegistry, factory thunderidengine.FlowFactory) error {
 		return embedhost.RegisterCustomExecutors(reg, factory, embedhost.CustomExecutorDeps{
 			Authn:    authnProvider,

@@ -2,26 +2,36 @@
 
 Module: `github.com/mosip/esignet`
 
-A minimal Go sample that embeds the ThunderID authorization engine (`pkg/thunderidengine`) with declarative YAML under `data/repository/resources/` and in-memory host providers for users, OAuth clients, authn, and permit-all authorization.
+A Go service that embeds the ThunderID authorization engine with PostgreSQL-backed OIDC client management, Redis-backed session/flow storage, and MOSIP IDA authentication support.
 
 ## Prerequisites
 
 - Go 1.26+
 - OpenSSL (for signing key generation)
-- Network access to fetch the Thunder backend module (see `go.mod` `replace` directive for the pinned fork)
+- PostgreSQL 14+ (client management persistence)
+- Redis 6.0+ (runtime / session store; requires `KEEPTTL` support)
+- Network access to fetch the Thunder backend module (see `go.mod` `replace` directive)
 
 ## Repository layout
 
 ```text
 esignet-service/
-  cmd/esignet/main.go         # HTTP entrypoint
-  internal/catalog/           # users + OAuth clients from YAML
-  internal/host/              # Actor, Authn, Authz, Consent, custom executors
-  internal/config/            # env-based configuration (authn, MOSIP)
-  data/repository/resources/  # declarative fixtures (flows, apps, OU, …)
-  keys/                       # signing.key + signing.crt (local, gitignored)
-  postman/                    # Postman collection + environment
-  scripts/oauth-smoke.sh      # end-to-end OAuth smoke test
+  cmd/esignet/main.go               # HTTP entrypoint
+  internal/catalog/                 # users + OAuth clients from YAML
+  internal/clientmgmt/              # OIDC client management API
+    db/                             # SQLC-generated Postgres layer
+    handler.go                      # HTTP handlers
+    service.go                      # business logic
+    middleware.go                   # Bearer token scope enforcement
+    jwks.go                         # JWKS fetcher + cache
+  internal/store/                   # Redis-backed runtime.Store
+  internal/host/                    # Actor, Authn, Authz, Consent, executors
+  internal/config/                  # env-based config (engine, DB, Redis, authn, MOSIP)
+  data/repository/resources/        # declarative fixtures (flows, apps, OU, …)
+  keys/                             # signing.key + signing.crt (local, gitignored)
+  postman/                          # Postman collection + environment
+  scripts/oauth-smoke.sh            # end-to-end OAuth smoke test
+  sqlc.yaml                         # SQLC codegen config
   Makefile
   Dockerfile
 ```
@@ -33,83 +43,203 @@ All build targets generate TLS signing material first (`make keys`), because the
 | Command | Output | Notes |
 |---------|--------|--------|
 | `make keys` | `keys/signing.key`, `keys/signing.crt` | One-time (or regenerate locally). Not committed. |
-| `make build` | `out/esignet.exe` | Preferred binary build. |
-| `go build -o out/esignet.exe ./cmd/esignet` | `out/esignet.exe` | Same as `make build` after `make keys`. |
-| `make test` | — | Unit tests + OIDC discovery smoke (`cmd/esignet`). |
-
-Example:
+| `make build` | `out/esignet.exe` | Production binary. |
+| `make test` | — | Unit tests with race detector. |
+| `make coverage` | `coverage.out` | Coverage profile + per-package summary. |
+| `make coverage-html` | `coverage.html` | Opens full HTML report. |
 
 ```bash
 cd esignet-service
 make build
 ```
 
-If `go build` fails with a missing module, run `go mod download` (requires access to the module replace in `go.mod`).
+If `go build` fails with a missing module, run `go mod download` first.
 
 ## Run
 
-### Makefile (development)
+### Quick start (development)
 
 ```bash
-cd esignet-service
+cp .env.example .env          # fill in POSTGRES_* and REDIS_* at minimum
 make run
 ```
-
-Runs `go run ./cmd/esignet` with `ISSUER_URL`, `DATA_DIR`, `SIGNING_KEY_PATH`, and `AUTHN_PROVIDER` (see [Environment variables](#environment-variables)). Copy `.env.example` to `.env` to override defaults via `make`.
 
 ### Binary
 
 ```bash
-cd esignet-service
 make keys && make build
 
-export PORT=8080
 export ISSUER_URL=http://127.0.0.1:8080
-export DATA_DIR=./data
-export SIGNING_KEY_PATH=./keys/signing.key
-export AUTHN_PROVIDER=catalog
+export POSTGRES_HOST=localhost
+export POSTGRES_USER=esignet
+export POSTGRES_PASSWORD=secret
+export POSTGRES_DB=esignet
+export REDIS_HOST=localhost
 
 ./out/esignet.exe
 ```
 
-The server logs startup at info level, for example:
+Startup log:
 
 ```text
-time=... level=INFO msg="server listening" addr=:8080 issuer=http://127.0.0.1:8080
+time=... level=INFO msg="redis connected"   key_prefix=esignet:
+time=... level=INFO msg="client mgmt scope enforcement"  required_scope=client_mgmt  jwks_endpoint=http://127.0.0.1:8080/.well-known/jwks.json
+time=... level=INFO msg="server listening"  addr=:8080  issuer=http://127.0.0.1:8080
 ```
 
-Set `LOG_LEVEL=debug` for verbose MOSIP/IDA tracing (endpoint URLs, attribute requests, etc.).
+Set `LOG_LEVEL=debug` for verbose tracing.
 
-Use **127.0.0.1** in URLs if `localhost` resolves to IPv6 only and connections fail.
+## Environment variables
 
-### Environment variables
+### Core engine
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
-| `LOG_LEVEL` | `info` | Log verbosity: `debug`, `info`, `warn`, or `error`. |
-| `PORT` | `8080` | HTTP listen port (`:PORT`). |
-| `ISSUER_URL` | `http://127.0.0.1:<PORT>` | OIDC issuer, JWT `iss`, discovery. **Must match the URL clients use** for OAuth to succeed. |
-| `DATA_DIR` | `./data` | Server home; declarative YAML under `data/repository/resources/`. |
-| `SIGNING_KEY_PATH` | `./keys/signing.key` | PEM private key; `.crt` with the same basename is loaded automatically. |
-| `GATE_CLIENT_SCHEME` | `http` | Gate UI scheme for authorize login/error redirects. |
-| `GATE_CLIENT_HOSTNAME` | `127.0.0.1` | Gate UI host. |
-| `GATE_CLIENT_PORT` | `<PORT>` | Gate UI port; defaults to `PORT` when unset. |
-| `GATE_CLIENT_LOGIN_PATH` | `/signin` | Login page path on the gate host. |
-| `GATE_CLIENT_ERROR_PATH` | `/error` | Error page path on the gate host. |
-| `JWT_AUDIENCE` | _(empty)_ | JWT `aud` claim; Thunder defaults apply when unset. |
-| `JWT_PREFERRED_KEY_ID` | _(empty)_ | Preferred signing key ID for JWKS. |
-| `JWT_LEEWAY` | _(empty)_ | JWT validation clock skew in seconds. |
-| `JWKS_CACHE_TTL` | _(empty)_ | JWKS cache TTL in seconds. |
-| `OAUTH_*` | _(empty)_ | Optional OAuth lifetime/policy overrides; see `.env.example`. |
-| `AUTHN_PROVIDER` | `catalog` | `catalog` (local YAML users) or `mosip` (MOSIP IDA). |
-| `MOSIP_API_BASE_URL` | _(empty)_ | MOSIP API host; used to derive IDA URLs when overrides are unset. |
-| `MOSIP_LICENSE_KEY` | _(empty)_ | License key segment in IDA endpoint paths. |
-| `MOSIP_P12_PATH` | _(empty)_ | Partner keystore path (required for `mosip` auth). |
-| `MOSIP_P12_PASSWORD` | _(empty)_ | Partner keystore password. |
+| `LOG_LEVEL` | `info` | `debug` / `info` / `warn` / `error` |
+| `PORT` | `8080` | HTTP listen port |
+| `ISSUER_URL` | `http://127.0.0.1:<PORT>` | OIDC issuer, JWT `iss`, discovery base |
+| `DATA_DIR` | `./data` | Declarative YAML root |
+| `SIGNING_KEY_PATH` | `./keys/signing.key` | PEM private key for JWT signing |
+| `GATE_CLIENT_SCHEME` | `http` | Gate UI scheme for authorize redirects |
+| `GATE_CLIENT_HOSTNAME` | `127.0.0.1` | Gate UI hostname |
+| `GATE_CLIENT_PORT` | `<PORT>` | Gate UI port |
+| `GATE_CLIENT_LOGIN_PATH` | `/signin` | Login page path |
+| `GATE_CLIENT_ERROR_PATH` | `/error` | Error page path |
+| `JWT_AUDIENCE` | _(empty)_ | JWT `aud` claim |
+| `OAUTH_*` | _(empty)_ | Optional OAuth lifetime/policy overrides |
 
-See `.env.example` for optional MOSIP URL overrides (`MOSIP_SEND_OTP_BASE_URL`, etc.).
+### PostgreSQL
 
-### Health check
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `POSTGRES_URL` | _(empty)_ | Full DSN — takes precedence if set |
+| `POSTGRES_HOST` | `localhost` | |
+| `POSTGRES_PORT` | `5432` | |
+| `POSTGRES_DB` | `esignet` | |
+| `POSTGRES_USER` | `postgres` | |
+| `POSTGRES_PASSWORD` | _(empty)_ | |
+| `DB_MAX_OPEN_CONNS` | `25` | Max open connections |
+| `DB_MAX_IDLE_CONNS` | `5` | Max idle connections |
+| `DB_CONN_MAX_LIFETIME_SECS` | `300` | Connection lifetime |
+| `DB_CONN_MAX_IDLE_TIME_SECS` | `60` | Idle timeout |
+
+### Redis
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `REDIS_URL` | _(empty)_ | Full DSN (`redis://` or `rediss://`) — takes precedence if set |
+| `REDIS_HOST` | `localhost` | |
+| `REDIS_PORT` | `6379` | |
+| `REDIS_PASSWORD` | _(empty)_ | |
+| `REDIS_DB` | `0` | |
+| `REDIS_TLS_ENABLED` | `false` | Enable TLS (automatic for `rediss://`) |
+| `REDIS_SENTINEL_MASTER` | _(empty)_ | Master name — enables Sentinel mode |
+| `REDIS_SENTINEL_ADDRS` | _(empty)_ | Comma-separated sentinel addresses |
+| `REDIS_POOL_SIZE` | `10` | Max connections |
+| `REDIS_MIN_IDLE_CONNS` | `2` | Warm connections kept ready |
+| `REDIS_CONN_MAX_IDLE_TIME_SECS` | `300` | |
+| `REDIS_CONN_MAX_LIFETIME_SECS` | `0` | 0 = no limit |
+| `REDIS_DIAL_TIMEOUT_SECS` | `5` | |
+| `REDIS_READ_TIMEOUT_SECS` | `3` | |
+| `REDIS_WRITE_TIMEOUT_SECS` | `3` | |
+| `REDIS_KEY_PREFIX` | `esignet:` | Namespace prefix for all keys |
+
+### Client management API
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `CLIENT_MGMT_REQUIRED_SCOPE` | `client_mgmt` | Bearer token scope required on all `/client-mgmt/*` endpoints |
+| `CLIENT_MGMT_JWKS_ENDPOINT` | `<ISSUER_URL>/.well-known/jwks.json` | JWKS URL for validating Bearer tokens |
+| `CLIENT_MGMT_JWKS_CACHE_TTL_SECS` | `300` | JWKS key cache TTL |
+
+### Authentication provider
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `AUTHN_PROVIDER` | `catalog` | `catalog` (local YAML users) or `mosip` (MOSIP IDA) |
+| `MOSIP_API_BASE_URL` | _(empty)_ | MOSIP API host |
+| `MOSIP_LICENSE_KEY` | _(empty)_ | License key used in IDA endpoint paths |
+| `MOSIP_P12_PATH` | _(empty)_ | Partner keystore (required for MOSIP auth) |
+| `MOSIP_P12_PASSWORD` | _(empty)_ | Partner keystore password |
+
+See `.env.example` for the full list including optional MOSIP URL overrides.
+
+## Client management API
+
+All endpoints require `Authorization: Bearer <token>` where the token carries the scope configured by `CLIENT_MGMT_REQUIRED_SCOPE` (default `client_mgmt`). The token is validated against the JWKS endpoint.
+
+Responses follow the envelope `{"response": {...}}` on success and `{"errors": [{"errorCode": "...", "errorMessage": "..."}]}` on failure.
+
+### Create OIDC client
+
+```
+POST /client-mgmt/oidc-client
+```
+
+```json
+{
+  "client_id": "my-app",
+  "client_name": "My Application",
+  "rp_id": "rp-001",
+  "logo_uri": "https://example.com/logo.png",
+  "redirect_uris": ["https://example.com/callback"],
+  "claims": ["sub", "email"],
+  "acr_values": ["mosip:idp:acr:static-code"],
+  "public_key": "{\"kty\":\"RSA\",\"n\":\"...\",\"e\":\"AQAB\"}",
+  "grant_types": ["authorization_code"],
+  "client_auth_methods": ["private_key_jwt"]
+}
+```
+
+The `public_key` hash is stored for uniqueness enforcement. `enc_public_key` and `enc_public_key_cert` are optional. Status defaults to `ACTIVE`.
+
+### Update OIDC client
+
+```
+PUT /client-mgmt/oidc-client/{client_id}
+```
+
+Mutable fields: `client_name`, `logo_uri`, `redirect_uris`, `claims`, `acr_values`, `grant_types`, `client_auth_methods`, `status`, `additional_config`. `rp_id` and `public_key` are immutable after creation.
+
+### Get OIDC client
+
+```
+GET /client-mgmt/oidc-client/{client_id}
+```
+
+### Database schema
+
+Run the DDL from `internal/clientmgmt/db/schema.sql` before starting the service. To regenerate the Go DB layer after schema changes:
+
+```bash
+go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+sqlc generate
+```
+
+## Redis key layout
+
+All runtime state is namespaced under `REDIS_KEY_PREFIX` (default `esignet:`):
+
+| Prefix | Entity | Notes |
+|--------|--------|-------|
+| `esignet:flow:<id>` | Flow context | TTL set at creation; updated with `KEEPTTL` |
+| `esignet:authcode:<code>` | Auth code | Deleted on first use by the engine |
+| `esignet:authreq:<id>` | Auth request | Short-lived PAR / authorize state |
+| `esignet:par:<uri>` | PAR object | RFC 9126 pushed authorization request |
+| `esignet:jti:<jti>` | JTI replay guard | Presence = seen; TTL = token lifetime |
+| `esignet:attrcache:<id>` | Attribute cache | Extendable TTL via `EXPIREAT` |
+
+## Tests
+
+```bash
+make test           # unit tests with race detector
+make coverage       # coverage profile → stdout summary
+make coverage-html  # full HTML report → coverage.html
+```
+
+Unit tests use `miniredis` for Redis (no running Redis required) and mock queriers for the Postgres layer. The OIDC discovery smoke test in `cmd/esignet` requires `make keys` first (skipped automatically if keys are absent).
+
+## Health check
 
 ```bash
 curl -s http://127.0.0.1:8080/health
@@ -118,47 +248,21 @@ curl -s http://127.0.0.1:8080/health
 
 ## Docker
 
-The image is built from the `esignet-service` directory; Thunder is fetched during `go mod download` from the remote module replace (no local checkout required).
-
-**Build**
-
 ```bash
-cd esignet-service
 make docker-build
-```
 
-Equivalent:
-
-```bash
-cd esignet-service
-docker build -f Dockerfile -t esignet:latest .
-```
-
-**Run**
-
-```bash
 docker run --rm -p 8080:8080 \
   -e ISSUER_URL=http://127.0.0.1:8080 \
+  -e POSTGRES_URL=postgres://esignet:secret@host.docker.internal:5432/esignet?sslmode=disable \
+  -e REDIS_URL=redis://host.docker.internal:6379/0 \
   esignet:latest
 ```
 
-On first start, the entrypoint creates `/home/mosip/keys/signing.key` and `signing.crt` if they are missing. Declarative data is baked in at `/home/mosip/data`.
-
-**Smoke test against the container**
-
-```bash
-BASE_URL=http://127.0.0.1:8080 ./scripts/oauth-smoke.sh
-```
-
-Or:
+On first start the entrypoint generates signing keys if absent. Data is baked in at `/home/mosip/data`.
 
 ```bash
 make smoke BASE_URL=http://127.0.0.1:8080
 ```
-
-Each step prints `PASS` or `FAIL` to the console (authorize → flow → callback → token → userinfo), then a short summary (exit code 1 if any step failed).
-
-Use the host port you mapped, and set `ISSUER_URL` in `docker run` to that same base URL.
 
 ## Demo credentials
 
@@ -169,60 +273,11 @@ Use the host port you mapped, and set `ISSUER_URL` in `docker run` to that same 
 | Application | `decl-app-1` |
 | OAuth client | `decl-public-client-1` |
 | Redirect URI | `https://localhost:3000` |
-| OU | `decl-ou-1` |
-
-Users are loaded from `data/repository/resources/users/*.yaml` by the host catalog (not by the engine declarative loader). Apps, flows, themes, and OU resources are loaded by Thunder's declarative adapter from the same tree.
-
-## Verify with curl
-
-**Health and discovery**
-
-```bash
-curl -s http://127.0.0.1:8080/health
-curl -s http://127.0.0.1:8080/.well-known/openid-configuration | jq .
-```
-
-**App-native sign-in**
-
-```bash
-curl -s -X POST http://127.0.0.1:8080/flow/execute \
-  -H 'Content-Type: application/json' \
-  -d '{"applicationId":"decl-app-1","flowType":"AUTHENTICATION"}' | jq .
-
-# Use executionId and challengeToken from the response:
-curl -s -X POST http://127.0.0.1:8080/flow/execute \
-  -H 'Content-Type: application/json' \
-  -d '{"executionId":"<id>","challengeToken":"<token>","action":"action_001","inputs":{"username":"decl-user-1","password":"TempPassword123!"}}' | jq .
-```
-
-Expect `flowStatus: COMPLETE` and an `assertion` JWT on the second call.
 
 ## Postman
 
-1. Import `postman/embedder-local.environment.json` (environment name: **eSignet (local)**)
+1. Import `postman/embedder-local.environment.json`
 2. Import `postman/embedder-positive-flow.json`
-3. Run **0 — Shared setup**, then either **1 — App-native flow/execute** or **2 — Full OAuth (PKCE)** in order
+3. Run **0 — Shared setup**, then **1 — App-native flow** or **2 — Full OAuth (PKCE)** in order
 
-Folder **2** is a linear sequence: PKCE setup → authorize (no redirect follow) → flow resume → credentials → auth callback → token → userinfo. Start the server with `ISSUER_URL` matching `baseUrl` in the environment (e.g. `http://127.0.0.1:8080`) before running OAuth steps.
-
-Folder **3** (MOSIP OTP) requires `AUTHN_PROVIDER=mosip` and `MOSIP_*` variables (see `.env.example`). Set `individualId` and `otp` in the Postman environment before running.
-
-## Tests
-
-```bash
-make test
-```
-
-## OAuth
-
-Authorize redirects to the gate client (`http://127.0.0.1:8080/signin?...` by default) with `executionId`, `authId`, and related query parameters. Postman folder 2 parses that redirect without following it (`followRedirects: false` on authorize). The public client uses PKCE; no client secret is required.
-
-End-to-end check (server must be running with `ISSUER_URL` matching `BASE_URL`):
-
-```bash
-make smoke
-# or
-BASE_URL=http://127.0.0.1:8080 ./scripts/oauth-smoke.sh
-```
-
-Each step prints `PASS` or `FAIL` to the console (authorize → flow → callback → token → userinfo), then a short summary (exit code 1 if any step failed).
+Folder **3** (MOSIP OTP) requires `AUTHN_PROVIDER=mosip` and `MOSIP_*` vars. Set `individualId` and `otp` in the environment before running.
