@@ -3856,7 +3856,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"clientId\": \"{{sunbird_client_id}}\",\n        \"scope\": \"{{sunbird_scope}}\",\n        \"responseType\": \"code\",\n        \"redirectUri\": \"{{redirection_url}}\",\n        \"display\": \"popup\",\n        \"prompt\": \"consent\",\n        \"acrValues\": \"mosip:idp:acr:knowledge\",\n        \"nonce\": \"{{$randomAlphaNumeric}}\",\n        \"state\": \"eree2311\",\n        \"claimsLocales\": \"en\",\n        \"codeChallenge\": \"{{codeChallenge}}\",\n        \"codeChallengeMethod\": \"{{codeChallengeMethod}}\"\n    }\n}",
+							"raw": "{\n    \"requestTime\": \"{{$isoTimestamp}}\",\n    \"request\": {\n        \"clientId\": \"{{sunbird_client_id}}\",\n        \"scope\": \"{{sunbird_scope}}\",\n        \"responseType\": \"code\",\n        \"redirectUri\": \"{{redirection_url}}\",\n        \"display\": \"popup\",\n        \"prompt\": \"consent\",\n        \"acrValues\": \"mosip:idp:acr:knowledge\",\n        \"nonce\": \"{{$randomAlphaNumeric}}\",\n        \"state\": \"{{state}}\",\n        \"claimsLocales\": \"en\",\n        \"codeChallenge\": \"{{codeChallenge}}\",\n        \"codeChallengeMethod\": \"{{codeChallengeMethod}}\"\n    }\n}",
 							"options": {
 								"raw": {
 									"language": "json"
