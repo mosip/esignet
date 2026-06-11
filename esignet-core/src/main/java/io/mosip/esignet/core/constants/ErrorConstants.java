@@ -32,6 +32,7 @@ public class ErrorConstants {
     public static final String NO_ACR_REGISTERED="no_acr_registered";
     public static final String INVALID_ALGORITHM = "invalid_algorithm";
     public static final String UNKNOWN_ERROR = "unknown_error";
+    public static final String INTERNAL_ERROR = "internal_error";
     public static final String INVALID_INPUT = "invalid_input";
     public static final String DUPLICATE_CLIENT_ID = "duplicate_client_id";
     public static final String INVALID_CLAIM = "invalid_claim";
