@@ -441,13 +441,13 @@ public class AuthorizationHelperService {
                 JsonNode payload = objectMapper.readTree(payloadString);
                 String audience = payload.get(TokenService.AUD).textValue();
                 if(!signupIDTokenAudience.equals(audience) || !signupIDTokenAudience.equals(clientId))
-                    throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
+                    throw new EsignetException(ErrorConstants.LOGIN_REQUIRED);
                 return Pair.of(payload.get(TokenService.SUB).textValue(), payload.get(TokenService.NONCE).textValue());
             }
         } catch (Exception e) {
             log.error("Failed to parse the given IDTokenHint as JWT", e);
         }
-        throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
+        throw new EsignetException(ErrorConstants.LOGIN_REQUIRED);
     }
 
     protected void validateNonce(String nonce) {

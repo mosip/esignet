@@ -146,14 +146,17 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         assertPARRequiredIsFalse(clientDetailDto);
         validateRedirectURIAndNonce(oauthDetailReqDto, clientDetailDto);
         OAuthDetailResponseV2 oAuthDetailResponseV2 = new OAuthDetailResponseV2();
-        return buildTransactionAndOAuthDetailResponse(oauthDetailReqDto, clientDetailDto, oAuthDetailResponseV2);
+        // V2 path does not validate id_token_hint -> pass null for HttpServletRequest
+        return buildTransactionAndOAuthDetailResponse(oauthDetailReqDto, clientDetailDto, oAuthDetailResponseV2, null, null);
     }
 
     @Override
     public OAuthDetailResponseV2 getOauthDetailsV3(OAuthDetailRequestV3 oauthDetailReqDto, HttpServletRequest httpServletRequest) throws EsignetException {
-        //id_token_hint is an optional parameter, if provided then it is expected to be a valid JWT
-        handleIdTokenHint(oauthDetailReqDto, httpServletRequest);
-        return getOauthDetailsV2(oauthDetailReqDto);
+        ClientDetail clientDetailDto = clientManagementService.getClientDetails(oauthDetailReqDto.getClientId());
+        assertPARRequiredIsFalse(clientDetailDto);
+        validateRedirectURIAndNonce(oauthDetailReqDto, clientDetailDto);
+        OAuthDetailResponseV2 oAuthDetailResponseV2 = new OAuthDetailResponseV2();
+        return buildTransactionAndOAuthDetailResponse(oauthDetailReqDto, clientDetailDto, oAuthDetailResponseV2, oauthDetailReqDto.getIdTokenHint(), httpServletRequest);
     }
 
     @Override
@@ -169,10 +172,9 @@ public class AuthorizationServiceImpl implements AuthorizationService {
             throw new EsignetException(ErrorConstants.INVALID_REQUEST);
         }
         OAuthDetailRequestV3 oAuthDetailRequestV3 = mapPushedAuthorizationRequestToOAuthDetailsRequest(pushedAuthorizationRequest);
-        handleIdTokenHint(oAuthDetailRequestV3, httpServletRequest);
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(oAuthDetailRequestV3.getClientId());
         OAuthDetailResponseV2 oAuthDetailResponseV2 = new OAuthDetailResponseV2();
-        return buildTransactionAndOAuthDetailResponse(oAuthDetailRequestV3, clientDetailDto, oAuthDetailResponseV2);
+        return buildTransactionAndOAuthDetailResponse(oAuthDetailRequestV3, clientDetailDto, oAuthDetailResponseV2, oAuthDetailRequestV3.getIdTokenHint(),  httpServletRequest);
     }
 
     @Override
@@ -502,13 +504,23 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     }
 
     private OAuthDetailResponseV2 buildTransactionAndOAuthDetailResponse(OAuthDetailRequestV2 oauthDetailReqDto,
-                                                                         ClientDetail clientDetailDto, OAuthDetailResponseV2 oAuthDetailResponseV2) {
+                                                                         ClientDetail clientDetailDto,
+                                                                         OAuthDetailResponseV2 oAuthDetailResponseV2,
+                                                                         String idTokenHint,
+                                                                         HttpServletRequest httpServletRequest) {
 
         Pair<OAuthDetailResponse, OIDCTransaction> pair = checkAndBuildOIDCTransaction(oauthDetailReqDto, clientDetailDto, oAuthDetailResponseV2);
         oAuthDetailResponseV2 = (OAuthDetailResponseV2) pair.getFirst();
         oAuthDetailResponseV2.setClientName(clientDetailDto.getName());
 
         OIDCTransaction oidcTransaction = pair.getSecond();
+
+        if (idTokenHint != null) {
+            OAuthDetailRequestV3 oauthDetailRequestV3 = (OAuthDetailRequestV3) oauthDetailReqDto;
+            handleIdTokenHint(oauthDetailRequestV3, httpServletRequest);
+            oidcTransaction.setNonce(oauthDetailRequestV3.getNonce());
+            oidcTransaction.setState(oauthDetailRequestV3.getState());
+        }
 
         //TODO - Need to check to persist credential scopes in consent registry
         oAuthDetailResponseV2.setCredentialScopes(oidcTransaction.getRequestedCredentialScopes());
@@ -612,10 +624,10 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         if (oauthDetailReqDto.getIdTokenHint() != null) {
             Pair<String, String> pair = authorizationHelperService.validateAndGetSubjectAndNonce(oauthDetailReqDto.getClientId(), oauthDetailReqDto.getIdTokenHint());
             if(httpServletRequest.getCookies() == null)
-                throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
+                throw new EsignetException(ErrorConstants.LOGIN_REQUIRED);
             Optional<Cookie> result = Arrays.stream(httpServletRequest.getCookies()).filter(x -> x.getName().equals(pair.getFirst())).findFirst();
             if (result.isEmpty()) {
-                throw new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT);
+                throw new EsignetException(ErrorConstants.LOGIN_REQUIRED);
             }
             String[] parts = result.get().getValue().split(SERVER_NONCE_SEPARATOR);
             oauthDetailReqDto.setNonce(pair.getSecond());
