@@ -21,6 +21,12 @@ data:
     http {
       access_log /var/log/nginx/access1.log;
       error_log /var/log/nginx/error1.log;
+
+      map $http_origin $cors_allowed_origin {
+        default "";
+        "~^https?://([a-z0-9-]+\.)?mosip\.net$" $http_origin; # Matches *.mosip.net
+      }
+
       server {
         listen {{ .Values.oidc_ui.oidc_ui_port }};
         server_name  localhost;
@@ -35,7 +41,18 @@ data:
         gzip_types text/plain text/css application/json application/javascript application/x-javascript text/xml application/xml application/xml+rss text/javascript;
 
         location /v1/esignet {
-          proxy_pass         http://{{ .Values.oidc_ui.oidc_service_host }}/v1/esignet;
+          proxy_pass         http://{{ .Values.oidc_ui.oidc_service_host }}/;
+          proxy_redirect     off;
+          proxy_set_header   Host $host;
+          proxy_set_header   X-Real-IP $remote_addr;
+          proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header   X-Forwarded-Host $server_name;
+          add_header Content-Security-Policy "default-src 'none'" always;
+          add_header Referrer-Policy "no-referrer" always;
+        }
+
+        location /v1/esignet/actuator/ {
+          proxy_pass         http://{{ .Values.oidc_ui.oidc_service_host }}/;
           proxy_redirect     off;
           proxy_set_header   Host $host;
           proxy_set_header   X-Real-IP $remote_addr;
@@ -54,6 +71,9 @@ data:
           proxy_set_header   X-Forwarded-Host $server_name;
           add_header Content-Security-Policy "default-src 'none'" always;
           add_header Referrer-Policy "no-referrer" always;
+          add_header 'Access-Control-Allow-Origin' $cors_allowed_origin always;
+          add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS' always;
+          add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
           types {
             text/plain log cer json txt;
           }
@@ -68,6 +88,9 @@ data:
           proxy_set_header   X-Forwarded-Host $server_name;
           add_header Content-Security-Policy "default-src 'none'" always;
           add_header Referrer-Policy "no-referrer" always;
+          add_header 'Access-Control-Allow-Origin' $cors_allowed_origin always;
+          add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS' always;
+          add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
           types {
             text/plain log cer json txt;
           }
@@ -82,6 +105,9 @@ data:
           proxy_set_header   X-Forwarded-Host $server_name;
           add_header Content-Security-Policy "default-src 'none'" always;
           add_header Referrer-Policy "no-referrer" always;
+          add_header 'Access-Control-Allow-Origin' $cors_allowed_origin always;
+          add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS' always;
+          add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
           types {
             text/plain log cer json txt;
           }
@@ -96,6 +122,9 @@ data:
           proxy_set_header   X-Forwarded-Host $server_name;
           add_header Content-Security-Policy "default-src 'none'" always;
           add_header Referrer-Policy "no-referrer" always;
+          add_header 'Access-Control-Allow-Origin' $cors_allowed_origin always;
+          add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS' always;
+          add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
           types {
             text/plain log cer json txt;
           }
