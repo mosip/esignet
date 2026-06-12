@@ -7,7 +7,8 @@ A Go service that embeds the ThunderID authorization engine with PostgreSQL-back
 ## Prerequisites
 
 - Go 1.26+
-- OpenSSL (for signing key generation)
+- Bash (Git Bash on Windows) to run `make.sh`
+- OpenSSL (for signing key generation; bundled with Git Bash)
 - PostgreSQL 14+ (client management persistence)
 - Redis 6.0+ (runtime / session store; requires `KEEPTTL` support)
 - Network access to fetch the Thunder backend module (see `go.mod` `replace` directive)
@@ -32,25 +33,25 @@ esignet-service/
   postman/                          # Postman collection + environment
   scripts/oauth-smoke.sh            # end-to-end OAuth smoke test
   sqlc.yaml                         # SQLC codegen config
-  Makefile
+  make.sh                           # build/run/test entry point (Linux + Git Bash)
   Dockerfile
 ```
 
 ## Build
 
-All build targets generate TLS signing material first (`make keys`), because the engine needs a PEM key pair for JWT signing.
+All build targets generate TLS signing material first (`./make.sh keys`), because the engine needs a PEM key pair for JWT signing.
 
 | Command | Output | Notes |
 |---------|--------|--------|
-| `make keys` | `keys/signing.key`, `keys/signing.crt` | One-time (or regenerate locally). Not committed. |
-| `make build` | `out/esignet.exe` | Production binary. |
-| `make test` | — | Unit tests with race detector. |
-| `make coverage` | `coverage.out` | Coverage profile + per-package summary. |
-| `make coverage-html` | `coverage.html` | Opens full HTML report. |
+| `./make.sh keys` | `keys/signing.key`, `keys/signing.crt` | One-time (or regenerate locally). Not committed. |
+| `./make.sh build` | `out/esignet.exe` (Windows), `out/esignet` (Linux) | Production binary. |
+| `./make.sh test` | — | Unit tests with race detector. |
+| `./make.sh coverage` | `coverage.out` | Coverage profile + per-package summary. |
+| `./make.sh coverage-html` | `coverage.html` | Opens full HTML report. |
 
 ```bash
 cd esignet-service
-make build
+./make.sh build
 ```
 
 If `go build` fails with a missing module, run `go mod download` first.
@@ -61,13 +62,15 @@ If `go build` fails with a missing module, run `go mod download` first.
 
 ```bash
 cp .env.example .env          # fill in POSTGRES_* and REDIS_* at minimum
-make run
+./make.sh run
 ```
+
+Copy `.env.example` to `.env` to override defaults, or pass overrides on the command line (`./make.sh run PORT=9090`).
 
 ### Binary
 
 ```bash
-make keys && make build
+./make.sh keys && ./make.sh build
 
 export ISSUER_URL=http://127.0.0.1:8080
 export POSTGRES_HOST=localhost
@@ -76,7 +79,7 @@ export POSTGRES_PASSWORD=secret
 export POSTGRES_DB=esignet
 export REDIS_HOST=localhost
 
-./out/esignet.exe
+./out/esignet.exe   # ./out/esignet on Linux
 ```
 
 Startup log:
@@ -212,8 +215,8 @@ GET /client-mgmt/oidc-client/{client_id}
 Run the DDL from `internal/clientmgmt/db/schema.sql` before starting the service. To regenerate the Go DB layer after schema changes:
 
 ```bash
-go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
-sqlc generate
+./make.sh sqlc-install   # one-time
+./make.sh sqlc
 ```
 
 ## Redis key layout
@@ -232,12 +235,12 @@ All runtime state is namespaced under `REDIS_KEY_PREFIX` (default `esignet:`):
 ## Tests
 
 ```bash
-make test           # unit tests with race detector
-make coverage       # coverage profile → stdout summary
-make coverage-html  # full HTML report → coverage.html
+./make.sh test           # unit tests with race detector
+./make.sh coverage       # coverage profile → stdout summary
+./make.sh coverage-html  # full HTML report → coverage.html
 ```
 
-Unit tests use `miniredis` for Redis (no running Redis required) and mock queriers for the Postgres layer. The OIDC discovery smoke test in `cmd/esignet` requires `make keys` first (skipped automatically if keys are absent).
+Unit tests use `miniredis` for Redis (no running Redis required) and mock queriers for the Postgres layer. The OIDC discovery smoke test in `cmd/esignet` requires `./make.sh keys` first (skipped automatically if keys are absent).
 
 ## Health check
 
@@ -249,7 +252,7 @@ curl -s http://127.0.0.1:8080/health
 ## Docker
 
 ```bash
-make docker-build
+./make.sh docker-build
 
 docker run --rm -p 8080:8080 \
   -e ISSUER_URL=http://127.0.0.1:8080 \
@@ -261,7 +264,7 @@ docker run --rm -p 8080:8080 \
 On first start the entrypoint generates signing keys if absent. Data is baked in at `/home/mosip/data`.
 
 ```bash
-make smoke BASE_URL=http://127.0.0.1:8080
+./make.sh smoke BASE_URL=http://127.0.0.1:8080
 ```
 
 ## Demo credentials
@@ -280,4 +283,20 @@ make smoke BASE_URL=http://127.0.0.1:8080
 2. Import `postman/embedder-positive-flow.json`
 3. Run **0 — Shared setup**, then **1 — App-native flow** or **2 — Full OAuth (PKCE)** in order
 
-Folder **3** (MOSIP OTP) requires `AUTHN_PROVIDER=mosip` and `MOSIP_*` vars. Set `individualId` and `otp` in the environment before running.
+Folder **2** is a linear sequence: PKCE setup → authorize (no redirect follow) → flow resume → credentials → auth callback → token → userinfo. Start the server with `ISSUER_URL` matching `baseUrl` in the environment (e.g. `http://127.0.0.1:8080`) before running OAuth steps.
+
+Folder **3** (MOSIP OTP) requires `AUTHN_PROVIDER=mosip` and `MOSIP_*` variables (see `.env.example`). Set `individualId` and `otp` in the Postman environment before running.
+
+## OAuth
+
+Authorize redirects to the gate client (`http://127.0.0.1:8080/signin?...` by default) with `executionId`, `authId`, and related query parameters. Postman folder 2 parses that redirect without following it (`followRedirects: false` on authorize). The public client uses PKCE; no client secret is required.
+
+End-to-end check (server must be running with `ISSUER_URL` matching `BASE_URL`):
+
+```bash
+./make.sh smoke
+# or
+BASE_URL=http://127.0.0.1:8080 ./scripts/oauth-smoke.sh
+```
+
+Each step prints `PASS` or `FAIL` to the console (authorize → flow → callback → token → userinfo), then a short summary (exit code 1 if any step failed).
