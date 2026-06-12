@@ -143,7 +143,7 @@ func (s *Service) CreateClient(ctx context.Context, req CreateClientRequest) (Cl
 		}
 		return ClientResponse{}, fmt.Errorf("create client: %w", err)
 	}
-	return toResponse(row), nil
+	return toResponse(row)
 }
 
 // UpdateClient updates an existing OIDC client.
@@ -199,7 +199,7 @@ func (s *Service) UpdateClient(ctx context.Context, clientID string, req UpdateC
 		}
 		return ClientResponse{}, fmt.Errorf("update client: %w", err)
 	}
-	return toResponse(row), nil
+	return toResponse(row)
 }
 
 // GetClient retrieves a client by ID.
@@ -211,7 +211,7 @@ func (s *Service) GetClient(ctx context.Context, clientID string) (ClientRespons
 		}
 		return ClientResponse{}, fmt.Errorf("get client: %w", err)
 	}
-	return toResponse(row), nil
+	return toResponse(row)
 }
 
 // --- helpers ---
@@ -300,19 +300,23 @@ func marshalAdditionalConfig(m map[string]string) (sql.NullString, error) {
 	return sql.NullString{String: string(b), Valid: true}, nil
 }
 
-func unmarshalStringSlice(s string) []string {
+func unmarshalStringSlice(s string) ([]string, error) {
 	var out []string
-	_ = json.Unmarshal([]byte(s), &out)
-	return out
+	if err := json.Unmarshal([]byte(s), &out); err != nil {
+		return nil, fmt.Errorf("unmarshal string slice: %w", err)
+	}
+	return out, nil
 }
 
-func unmarshalAdditionalConfig(s sql.NullString) map[string]string {
+func unmarshalAdditionalConfig(s sql.NullString) (map[string]string, error) {
 	if !s.Valid || s.String == "" {
-		return nil
+		return nil, nil
 	}
 	var out map[string]string
-	_ = json.Unmarshal([]byte(s.String), &out)
-	return out
+	if err := json.Unmarshal([]byte(s.String), &out); err != nil {
+		return nil, fmt.Errorf("unmarshal additional config: %w", err)
+	}
+	return out, nil
 }
 
 func isUniqueViolation(err error) bool {
@@ -322,24 +326,49 @@ func isUniqueViolation(err error) bool {
 		strings.Contains(err.Error(), "uk_clntdtl_public_key_hash")
 }
 
-func toResponse(row db.ClientDetail) ClientResponse {
+func toResponse(row db.ClientDetail) (ClientResponse, error) {
+	redirectURIs, err := unmarshalStringSlice(row.RedirectUris)
+	if err != nil {
+		return ClientResponse{}, fmt.Errorf("client %s: %w", row.ID, err)
+	}
+	claims, err := unmarshalStringSlice(row.Claims)
+	if err != nil {
+		return ClientResponse{}, fmt.Errorf("client %s: %w", row.ID, err)
+	}
+	acrValues, err := unmarshalStringSlice(row.AcrValues)
+	if err != nil {
+		return ClientResponse{}, fmt.Errorf("client %s: %w", row.ID, err)
+	}
+	grantTypes, err := unmarshalStringSlice(row.GrantTypes)
+	if err != nil {
+		return ClientResponse{}, fmt.Errorf("client %s: %w", row.ID, err)
+	}
+	authMethods, err := unmarshalStringSlice(row.AuthMethods)
+	if err != nil {
+		return ClientResponse{}, fmt.Errorf("client %s: %w", row.ID, err)
+	}
+	additionalConfig, err := unmarshalAdditionalConfig(row.AdditionalConfig)
+	if err != nil {
+		return ClientResponse{}, fmt.Errorf("client %s: %w", row.ID, err)
+	}
+
 	resp := ClientResponse{
 		ClientID:         row.ID,
 		ClientName:       row.Name,
 		RpID:             row.RpID,
 		LogoURI:          row.LogoURI,
-		RedirectURIs:     unmarshalStringSlice(row.RedirectUris),
-		Claims:           unmarshalStringSlice(row.Claims),
-		AcrValues:        unmarshalStringSlice(row.AcrValues),
-		GrantTypes:       unmarshalStringSlice(row.GrantTypes),
-		AuthMethods:      unmarshalStringSlice(row.AuthMethods),
+		RedirectURIs:     redirectURIs,
+		Claims:           claims,
+		AcrValues:        acrValues,
+		GrantTypes:       grantTypes,
+		AuthMethods:      authMethods,
 		Status:           row.Status,
-		AdditionalConfig: unmarshalAdditionalConfig(row.AdditionalConfig),
+		AdditionalConfig: additionalConfig,
 		CreatedAt:        row.CrDtimes,
 	}
 	if row.UpdDtimes.Valid {
 		t := row.UpdDtimes.Time
 		resp.UpdatedAt = &t
 	}
-	return resp
+	return resp, nil
 }

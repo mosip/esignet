@@ -172,7 +172,7 @@ Responses follow the envelope `{"response": {...}}` on success and `{"errors": [
 
 ### Create OIDC client
 
-```
+```http
 POST /client-mgmt/oidc-client
 ```
 
@@ -195,7 +195,7 @@ The `public_key` hash is stored for uniqueness enforcement. `enc_public_key` and
 
 ### Update OIDC client
 
-```
+```http
 PUT /client-mgmt/oidc-client/{client_id}
 ```
 
@@ -203,7 +203,7 @@ Mutable fields: `client_name`, `logo_uri`, `redirect_uris`, `claims`, `acr_value
 
 ### Get OIDC client
 
-```
+```http
 GET /client-mgmt/oidc-client/{client_id}
 ```
 

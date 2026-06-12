@@ -40,12 +40,12 @@ func NewRedisStore(client *redis.Client, keyPrefix string) *RedisStore {
 	return &RedisStore{client: client, keyPrefix: keyPrefix}
 }
 
-// --- FlowContext ---
-
+// StoreFlowContext stores the flow context for the given execution ID.
 func (s *RedisStore) StoreFlowContext(ctx context.Context, executionID string, data []byte, expiry time.Time) error {
 	return s.set(ctx, prefixFlow, executionID, data, expiry)
 }
 
+// GetFlowContext retrieves the flow context for the given execution ID.
 func (s *RedisStore) GetFlowContext(ctx context.Context, executionID string) ([]byte, error) {
 	return s.get(ctx, prefixFlow, executionID)
 }
@@ -61,48 +61,58 @@ func (s *RedisStore) UpdateFlowContext(ctx context.Context, executionID string, 
 	return nil
 }
 
+// DeleteFlowContext deletes the flow context for the given execution ID.
 func (s *RedisStore) DeleteFlowContext(ctx context.Context, executionID string) error {
 	return s.del(ctx, prefixFlow, executionID)
 }
 
 // --- AuthCode ---
 
+// StoreAuthCode stores the auth code for the given code.
 func (s *RedisStore) StoreAuthCode(ctx context.Context, code string, data []byte, expiry time.Time) error {
 	return s.set(ctx, prefixAuthCode, code, data, expiry)
 }
 
+// GetAuthCode retrieves the auth code for the given code.
 func (s *RedisStore) GetAuthCode(ctx context.Context, code string) ([]byte, error) {
 	return s.get(ctx, prefixAuthCode, code)
 }
 
+// DeleteAuthCode deletes the auth code for the given code.
 func (s *RedisStore) DeleteAuthCode(ctx context.Context, code string) error {
 	return s.del(ctx, prefixAuthCode, code)
 }
 
 // --- AuthRequest ---
 
+// StoreAuthRequest stores the auth request for the given request ID.
 func (s *RedisStore) StoreAuthRequest(ctx context.Context, requestID string, data []byte, expiry time.Time) error {
 	return s.set(ctx, prefixAuthReq, requestID, data, expiry)
 }
 
+// GetAuthRequest retrieves the auth request for the given request ID.
 func (s *RedisStore) GetAuthRequest(ctx context.Context, requestID string) ([]byte, error) {
 	return s.get(ctx, prefixAuthReq, requestID)
 }
 
+// DeleteAuthRequest deletes the auth request for the given request ID.
 func (s *RedisStore) DeleteAuthRequest(ctx context.Context, requestID string) error {
 	return s.del(ctx, prefixAuthReq, requestID)
 }
 
 // --- PAR ---
 
+// StorePAR stores the PAR for the given request URI.
 func (s *RedisStore) StorePAR(ctx context.Context, requestURI string, data []byte, expiry time.Time) error {
 	return s.set(ctx, prefixPAR, requestURI, data, expiry)
 }
 
+// GetPAR retrieves the PAR for the given request URI.
 func (s *RedisStore) GetPAR(ctx context.Context, requestURI string) ([]byte, error) {
 	return s.get(ctx, prefixPAR, requestURI)
 }
 
+// DeletePAR deletes the PAR for the given request URI.
 func (s *RedisStore) DeletePAR(ctx context.Context, requestURI string) error {
 	return s.del(ctx, prefixPAR, requestURI)
 }
@@ -129,10 +139,12 @@ func (s *RedisStore) ExistsJTI(ctx context.Context, jti string) (bool, error) {
 
 // --- AttributeCache ---
 
+// StoreAttributeCache stores the attribute cache for the given ID.
 func (s *RedisStore) StoreAttributeCache(ctx context.Context, id string, data []byte, expiry time.Time) error {
 	return s.set(ctx, prefixAttrCache, id, data, expiry)
 }
 
+// GetAttributeCache retrieves the attribute cache for the given ID.
 func (s *RedisStore) GetAttributeCache(ctx context.Context, id string) ([]byte, error) {
 	return s.get(ctx, prefixAttrCache, id)
 }
@@ -150,26 +162,29 @@ func (s *RedisStore) ExtendAttributeCacheExpiry(ctx context.Context, id string, 
 	return nil
 }
 
+// DeleteAttributeCache deletes the attribute cache for the given ID.
 func (s *RedisStore) DeleteAttributeCache(ctx context.Context, id string) error {
 	return s.del(ctx, prefixAttrCache, id)
 }
 
 // --- internal helpers ---
 
+// key constructs a Redis key for the given prefix and ID.
 func (s *RedisStore) key(prefix, id string) string {
 	return s.keyPrefix + prefix + id
 }
 
 // ttl converts an absolute expiry into a duration for Redis SET EX.
-// Returns 0 if expiry is already in the past (Redis will reject negative TTLs).
+// Returns 1ms for already-expired times; 0 would mean "no expiry" in go-redis.
 func ttl(expiry time.Time) time.Duration {
 	d := time.Until(expiry)
-	if d < 0 {
-		return 0
+	if d <= 0 {
+		return time.Millisecond
 	}
 	return d
 }
 
+// set stores the given data in Redis with the given prefix and ID.
 func (s *RedisStore) set(ctx context.Context, prefix, id string, data []byte, expiry time.Time) error {
 	k := s.key(prefix, id)
 	if err := s.client.Set(ctx, k, data, ttl(expiry)).Err(); err != nil {
@@ -178,6 +193,7 @@ func (s *RedisStore) set(ctx context.Context, prefix, id string, data []byte, ex
 	return nil
 }
 
+// get retrieves the data from Redis with the given prefix and ID.
 func (s *RedisStore) get(ctx context.Context, prefix, id string) ([]byte, error) {
 	k := s.key(prefix, id)
 	data, err := s.client.Get(ctx, k).Bytes()
@@ -190,6 +206,7 @@ func (s *RedisStore) get(ctx context.Context, prefix, id string) ([]byte, error)
 	return data, nil
 }
 
+// del deletes the data from Redis with the given prefix and ID.
 func (s *RedisStore) del(ctx context.Context, prefix, id string) error {
 	k := s.key(prefix, id)
 	if err := s.client.Del(ctx, k).Err(); err != nil {

@@ -56,7 +56,7 @@ func bearerToken(r *http.Request) (string, error) {
 	}
 	scheme, token, ok := strings.Cut(auth, " ")
 	if !ok || !strings.EqualFold(scheme, "Bearer") || strings.TrimSpace(token) == "" {
-		return "", fmt.Errorf("Authorization header must be Bearer <token>")
+		return "", fmt.Errorf("authorization header must be Bearer <token>")
 	}
 	return strings.TrimSpace(token), nil
 }

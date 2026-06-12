@@ -3,6 +3,7 @@ package clientmgmt
 import (
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 
 	applog "github.com/mosip/esignet/internal/log"
@@ -46,6 +47,7 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux, middleware func(http.Handle
 }
 
 func (h *Handler) createClient(w http.ResponseWriter, r *http.Request) {
+	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB limit
 	var req CreateClientRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		writeError(w, http.StatusBadRequest, "invalid_request", "malformed JSON body")
@@ -68,6 +70,7 @@ func (h *Handler) updateClient(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB limit
 	var req UpdateClientRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		writeError(w, http.StatusBadRequest, "invalid_request", "malformed JSON body")
@@ -114,7 +117,10 @@ func (h *Handler) handleServiceError(w http.ResponseWriter, err error, op string
 func writeJSON(w http.ResponseWriter, status int, body interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(body)
+	if err := json.NewEncoder(w).Encode(body); err != nil {
+		// Response headers already sent; log only.
+		log.Printf("writeJSON encode error: %v", err)
+	}
 }
 
 func writeError(w http.ResponseWriter, status int, code, msg string) {

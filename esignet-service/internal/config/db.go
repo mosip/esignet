@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" // PostgreSQL driver for database/sql
 )
 
 const (

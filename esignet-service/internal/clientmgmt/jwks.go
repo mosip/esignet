@@ -62,8 +62,18 @@ func (c *JWKSCache) GetKey(kid string) (crypto.PublicKey, error) {
 		if ok {
 			return key, nil
 		}
-		// kid not in cache but cache is fresh — don't re-fetch
-		return nil, fmt.Errorf("key %q not found in JWKS", kid)
+		c.mu.RUnlock()
+		// kid miss may be a key rotation; force one refresh even though TTL is fresh.
+		if err := c.forceRefresh(); err != nil {
+			return nil, err
+		}
+		c.mu.RLock()
+		key, ok = c.keys[kid]
+		c.mu.RUnlock()
+		if !ok {
+			return nil, fmt.Errorf("key %q not found in JWKS", kid)
+		}
+		return key, nil
 	}
 	c.mu.RUnlock()
 
@@ -81,6 +91,12 @@ func (c *JWKSCache) GetKey(kid string) (crypto.PublicKey, error) {
 	return key, nil
 }
 
+func (c *JWKSCache) forceRefresh() error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.fetchLocked()
+}
+
 func (c *JWKSCache) refresh() error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -89,12 +105,15 @@ func (c *JWKSCache) refresh() error {
 	if time.Since(c.fetchedAt) < c.ttl {
 		return nil
 	}
+	return c.fetchLocked()
+}
 
+func (c *JWKSCache) fetchLocked() error {
 	resp, err := c.client.Get(c.url)
 	if err != nil {
 		return fmt.Errorf("fetch JWKS from %s: %w", c.url, err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("JWKS endpoint returned %d", resp.StatusCode)

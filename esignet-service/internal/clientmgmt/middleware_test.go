@@ -38,8 +38,8 @@ func newJWKSFixture(t *testing.T) *jwksFixture {
 	require.NoError(t, err)
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		n := base64.RawURLEncoding.EncodeToString(key.PublicKey.N.Bytes())
-		e := base64.RawURLEncoding.EncodeToString(big.NewInt(int64(key.PublicKey.E)).Bytes())
+		n := base64.RawURLEncoding.EncodeToString(key.N.Bytes())
+		e := base64.RawURLEncoding.EncodeToString(big.NewInt(int64(key.E)).Bytes())
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]interface{}{
 			"keys": []map[string]interface{}{

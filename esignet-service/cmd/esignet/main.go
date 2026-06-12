@@ -37,14 +37,22 @@ func main() {
 	if err != nil {
 		logger.Fatal("connect postgres", applog.Error(err))
 	}
-	defer pgConn.Close()
+	defer func() {
+		if err := pgConn.Close(); err != nil {
+			logger.Warn("close postgres", applog.Error(err))
+		}
+	}()
 
 	redisCfg := config.LoadRedis()
 	redisClient, err := redisCfg.Open()
 	if err != nil {
 		logger.Fatal("connect redis", applog.Error(err))
 	}
-	defer redisClient.Close()
+	defer func() {
+		if err := redisClient.Close(); err != nil {
+			logger.Warn("close redis", applog.Error(err))
+		}
+	}()
 	logger.Info("redis connected",
 		applog.String("key_prefix", redisCfg.KeyPrefix),
 	)

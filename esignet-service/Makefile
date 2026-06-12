@@ -15,7 +15,7 @@ DOCKER_IMAGE    ?= esignet:latest
 
 GOLANGCI_LINT       ?= golangci-lint
 GOLANGCI_LINT_VERSION ?= latest
-SQLC_VERSION        ?= latest
+SQLC_VERSION        ?= v1.29.0
 
 THUNDER_BRANCH ?= 3037
 THUNDER_MODULE := github.com/anushasunkada/thunder/backend

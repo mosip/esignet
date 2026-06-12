@@ -2,13 +2,14 @@ package config
 
 import (
 	"os"
+	"strings"
 	"time"
 )
 
 const (
-	defaultClientMgmtScope       = "client_mgmt"
-	defaultJWKSCacheTTL          = 5 * time.Minute
-	defaultJWKSEndpointSuffix    = "/.well-known/jwks.json"
+	defaultClientMgmtScope    = "client_mgmt"
+	defaultJWKSCacheTTL       = 5 * time.Minute
+	defaultJWKSEndpointSuffix = "/.well-known/jwks.json"
 )
 
 // ClientMgmt holds settings for the client management API scope enforcement.
@@ -36,7 +37,7 @@ type ClientMgmt struct {
 func LoadClientMgmt(issuer string) ClientMgmt {
 	endpoint := os.Getenv("CLIENT_MGMT_JWKS_ENDPOINT")
 	if endpoint == "" {
-		endpoint = issuer + defaultJWKSEndpointSuffix
+		endpoint = strings.TrimRight(issuer, "/") + defaultJWKSEndpointSuffix
 	}
 
 	scope := os.Getenv("CLIENT_MGMT_REQUIRED_SCOPE")

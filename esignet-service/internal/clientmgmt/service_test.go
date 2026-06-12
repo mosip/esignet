@@ -51,19 +51,19 @@ func validCreateReq() clientmgmt.CreateClientRequest {
 
 func stubRow(clientID string) db.ClientDetail {
 	return db.ClientDetail{
-		ID:           clientID,
-		Name:         "Test App",
-		RpID:         "rp-001",
-		LogoURI:      "https://example.com/logo.png",
-		RedirectUris: `["https://example.com/callback"]`,
-		Claims:       `["sub","email"]`,
-		AcrValues:    `["mosip:idp:acr:static-code"]`,
-		PublicKey:    `{"kty":"RSA","n":"abc","e":"AQAB"}`,
+		ID:            clientID,
+		Name:          "Test App",
+		RpID:          "rp-001",
+		LogoURI:       "https://example.com/logo.png",
+		RedirectUris:  `["https://example.com/callback"]`,
+		Claims:        `["sub","email"]`,
+		AcrValues:     `["mosip:idp:acr:static-code"]`,
+		PublicKey:     `{"kty":"RSA","n":"abc","e":"AQAB"}`,
 		PublicKeyHash: "deadbeef",
-		GrantTypes:   `["authorization_code"]`,
-		AuthMethods:  `["private_key_jwt"]`,
-		Status:       "ACTIVE",
-		CrDtimes:     time.Now(),
+		GrantTypes:    `["authorization_code"]`,
+		AuthMethods:   `["private_key_jwt"]`,
+		Status:        "ACTIVE",
+		CrDtimes:      time.Now(),
 	}
 }
 
@@ -91,7 +91,7 @@ func TestCreateClient_MissingRequiredFields(t *testing.T) {
 	svc := clientmgmt.NewServiceWithQuerier(&mockQuerier{})
 
 	tests := []struct {
-		name string
+		name   string
 		mutate func(*clientmgmt.CreateClientRequest)
 	}{
 		{"missing client_id", func(r *clientmgmt.CreateClientRequest) { r.ClientID = "" }},
