@@ -230,7 +230,7 @@ EOF
     $ENABLE_INSECURE $plugin_option \
     $ESIGNET_HELM_ARGS \
     $extra_env_vars_cm_set \
-    --set metrics.serviceMonitor.enabled=$servicemonitorflag -f values.yaml -f ../domain-values.yaml --wait
+    --set metrics.serviceMonitor.enabled=$servicemonitorflag -f values.yaml --wait
 
   kubectl -n $NS get deploy $ESIGNET_SERVICE_NAME -o name | xargs -n1 -t kubectl -n $NS rollout status
 

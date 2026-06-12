@@ -25,6 +25,8 @@ function installing_esignet() {
   NS=esignet
   CHART_VERSION=1.5.0-develop
 
+  ESIGNET_HOST=$(kubectl -n esignet get cm esignet-global -o jsonpath={.data.mosip-esignet-host})
+
   echo Create $NS namespace
   kubectl create ns $NS || true
 
@@ -99,9 +101,9 @@ function installing_esignet() {
             --set persistence.size=$volume_size \
             --set persistence.mountDir=\"$volume_mount_path\" \
             --set persistence.pvc_claim_name=\"$PVC_CLAIM_NAME\"  \
-            --set extraEnvVarsCM={'config-server-share','artifactory-share'} \
-            --set extraEnvVarsAdditional[0].name=MOSIP_KERNEL_KEYMANAGER_HSM_KEYSTORE-TYPE \
-            --set extraEnvVarsAdditional[0].value=PKCS12 \
+            --set extraEnvVarsCM={'esignet-global','config-server-share','artifactory-share'} \
+            --set extraEnvVarsAdditional[0].name="MOSIP_KERNEL_KEYMANAGER_HSM_KEYSTORE-TYPE" \
+            --set extraEnvVarsAdditional[0].value="PKCS12" \
             "
   fi
   echo "ESIGNET HELM ARGS $ESIGNET_HELM_ARGS"
@@ -115,7 +117,8 @@ function installing_esignet() {
   $ESIGNET_HELM_ARGS \
   --set image.repository=mosipdev/esignet --set image.tag=develop \
   $ENABLE_INSECURE $plugin_option \
-  --set metrics.serviceMonitor.enabled=$servicemonitorflag -f values.yaml -f ../domain-values.yaml --wait
+  --set metrics.serviceMonitor.enabled=$servicemonitorflag -f values.yaml --wait
+
   kubectl -n $NS  get deploy -o name |  xargs -n1 -t  kubectl -n $NS rollout status
 
   echo Installed esignet service
