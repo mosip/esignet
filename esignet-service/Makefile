@@ -15,12 +15,13 @@ DOCKER_IMAGE    ?= esignet:latest
 
 GOLANGCI_LINT       ?= golangci-lint
 GOLANGCI_LINT_VERSION ?= latest
+SQLC_VERSION        ?= v1.29.0
 
 THUNDER_BRANCH ?= 3037
 THUNDER_MODULE := github.com/anushasunkada/thunder/backend
 
 .PHONY: help all keys build run dev test lint lint-install smoke tidy \
-        docker-build docker-run clean distclean update-thunder
+        sqlc sqlc-install docker-build docker-run clean distclean update-thunder
 
 .DEFAULT_GOAL := help
 
@@ -54,8 +55,16 @@ run: keys ## Run with go run (development)
 dev: run ## Alias for run
 
 ##@ Test
-test: keys ## Run unit tests (race + coverage)
+test: keys ## Run unit tests with race detector
 	go test -race -cover ./...
+
+coverage: keys ## Run tests and write coverage profile (coverage.out)
+	go test -race -coverprofile=coverage.out -covermode=atomic ./...
+	@go tool cover -func=coverage.out | tail -1
+
+coverage-html: coverage ## Generate HTML coverage report (coverage.html)
+	go tool cover -html=coverage.out -o coverage.html
+	@echo "report: coverage.html"
 
 lint: ## Run golangci-lint
 	@PATH="$$(go env GOPATH)/bin:$$PATH"; \
@@ -84,6 +93,19 @@ docker-run: docker-build ## Run container mapped to PORT (default 8080)
 		$(DOCKER_IMAGE)
 
 ##@ Maintenance
+sqlc: ## Regenerate DB layer from SQL (requires sqlc; run sqlc-install first)
+	@PATH="$$(go env GOPATH)/bin:$$PATH"; \
+	if command -v sqlc >/dev/null 2>&1; then \
+		sqlc generate; \
+	else \
+		echo "sqlc not on PATH; running via go run (use make sqlc-install to install)"; \
+		go run github.com/sqlc-dev/sqlc/cmd/sqlc@$(SQLC_VERSION) generate; \
+	fi
+
+sqlc-install: ## Install sqlc (SQLC_VERSION=$(SQLC_VERSION))
+	go install github.com/sqlc-dev/sqlc/cmd/sqlc@$(SQLC_VERSION)
+	@echo "installed: $$(go env GOPATH)/bin/sqlc"
+
 update-thunder: ## Update thunder replace directive to latest commit on THUNDER_BRANCH (default: 3037)
 	@echo "Fetching latest commit on branch '$(THUNDER_BRANCH)'..."
 	@SHA=$$(git ls-remote https://github.com/anushasunkada/thunder.git refs/heads/$(THUNDER_BRANCH) | awk '{print $$1}'); \
@@ -101,6 +123,7 @@ clean: ## Remove build artefacts and coverage output
 	rm -f $(BINARY) engine
 	rm -rf bin/ $(OUT_DIR)/
 	rm -f coverage.out coverage.html
+	@echo "cleaned"
 
 distclean: clean ## Also remove generated signing keys under keys/
 	rm -f $(SIGNING_KEY) $(SIGNING_CERT)
