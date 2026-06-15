@@ -61,6 +61,11 @@ need() {
   command -v "$1" >/dev/null 2>&1 || { echo "make.sh: '$1' not found on PATH (required for this target)"; exit 1; }
 }
 
+# Override GOFLAGS=-mod=readonly so go.mod/go.sum can be updated.
+go_mod_write() {
+  GOFLAGS=-mod=mod go "$@"
+}
+
 # --- targets -----------------------------------------------------------------
 
 target_keys() { ## Generate local TLS signing key and certificate
@@ -176,22 +181,25 @@ target_sqlc_install() { ## Install sqlc
 }
 
 target_update_thunder() { ## Update thunder replace directive to latest commit on THUNDER_BRANCH
+  need go
   echo "Fetching latest commit on branch '$THUNDER_BRANCH'..."
   local sha version
   sha="$(git ls-remote https://github.com/anushasunkada/thunder.git "refs/heads/$THUNDER_BRANCH" | awk '{print $1}')"
   if [ -z "$sha" ]; then echo "error: branch '$THUNDER_BRANCH' not found"; exit 1; fi
   # Resolve the exact SHA we just fetched (the Makefile resolved the branch
   # name again, which could race with new pushes).
-  version="$(GOPROXY=direct go list -m -f '{{.Version}}' "$THUNDER_MODULE@$sha")"
+  version="$(GOPROXY=direct go_mod_write list -m -f '{{.Version}}' "$THUNDER_MODULE@$sha")"
   if [ -z "$version" ]; then echo "error: could not resolve version"; exit 1; fi
   echo "Resolved version: $version"
   sed -i.bak "s|replace github.com/thunder-id/thunderid => $THUNDER_MODULE .*|replace github.com/thunder-id/thunderid => $THUNDER_MODULE $version|" go.mod
   rm -f go.mod.bak
   echo "go.mod updated"
+  go_mod_write mod tidy
+  echo "go.sum updated"
 }
 
 target_tidy() { ## Run go mod tidy
-  go mod tidy
+  go_mod_write mod tidy
 }
 
 target_clean() { ## Remove build artefacts and coverage output
@@ -235,7 +243,7 @@ Docker
 Maintenance
   sqlc               Regenerate DB layer from SQL (requires sqlc; run sqlc-install first)
   sqlc-install       Install sqlc (SQLC_VERSION=$SQLC_VERSION)
-  update-thunder     Update thunder replace directive to latest commit on THUNDER_BRANCH (default: $THUNDER_BRANCH)
+  update-thunder     Update thunder replace directive and refresh go.sum (THUNDER_BRANCH=$THUNDER_BRANCH)
   tidy               Run go mod tidy
   clean              Remove build artefacts and coverage output
   distclean          Also remove generated signing keys under keys/

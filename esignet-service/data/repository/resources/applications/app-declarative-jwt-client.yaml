@@ -1,0 +1,27 @@
+id: decl-app-jwt-client-1
+name: Declarative JWT Client Application
+description: Confidential OAuth client for private_key_jwt smoke testing
+ou_id: decl-ou-1
+template: web
+auth_flow_id: decl-flow-1
+registration_flow_id: decl-reg-flow-1
+recovery_flow_id: decl-recovery-flow-1
+url: https://example.com
+contacts:
+  - test@example.com
+inbound_auth_config:
+  - type: "oauth2"
+    config:
+      client_id: "decl-jwt-client-1"
+      redirect_uris:
+        - "https://localhost:3000"
+      grant_types:
+        - "authorization_code"
+      response_types:
+        - "code"
+      token_endpoint_auth_method: "private_key_jwt"
+      pkce_required: true
+      public_client: false
+      certificate:
+        - type: "JWKS"
+          value: "{\"keys\":[{\"kty\":\"RSA\",\"n\":\"mZgGJ8pMALjmBQqJO2pjNo73e6MHeuWm0LAMi1C_961UR90wxJweZic-vqV5mv0fXFWlml3IBwCl0V4zKUcNfpFNjAEhvlMDUSqpDSQOvmTlJC2p7OtHZxXpMaudqyCd9EzXcdT0F6YsUxzEaXFR3Qt-BUInj9yrqsVVJgclD-5HmzgYfbI-VwgZW4uJuDbN1fwRphGpx2djLXlScAjXDAWhozF9Rnh-vQHfubph7DBPoZPX0WCmdSymns0X_PrV9B0JlGr0eVFcVX2LNwbsk0a-sXRwENU1I--ets12Eq1_tpuFmP_BaZbseWWQw_yEEA11Mi0yDY6oQw34_eVliQ\",\"e\":\"AQAB\",\"kid\":\"1a477d6c63d30c8a8f1c52d8\",\"alg\":\"RS256\",\"use\":\"sig\"}]}"

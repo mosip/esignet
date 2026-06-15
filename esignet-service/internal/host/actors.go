@@ -111,7 +111,7 @@ func (p *actorProvider) GetEntityType(ctx context.Context, typeID string) (*host
 }
 
 func inboundClientFromApp(app *catalog.Application) *host.InboundClient {
-	return &host.InboundClient{
+	client := &host.InboundClient{
 		ClientID:                  app.ClientID,
 		EntityID:                  app.ID,
 		ApplicationID:             app.ID,
@@ -128,4 +128,11 @@ func inboundClientFromApp(app *catalog.Application) *host.InboundClient {
 		RecoveryFlowID:            app.RecoveryFlowID,
 		IsRecoveryFlowEnabled:     app.IsRecoveryFlowEnabled,
 	}
+	if app.Certificate != nil {
+		client.Certificate = &host.Certificate{
+			Type:  app.Certificate.Type,
+			Value: app.Certificate.Value,
+		}
+	}
+	return client
 }
