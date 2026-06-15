@@ -27,7 +27,12 @@ func TestNewAuthnProviderFromConfig_sunbird(t *testing.T) {
 	cat := &catalog.Catalog{}
 	cfg := config.Authn{
 		Provider: config.AuthnProviderSunbird,
-		Sunbird:  config.SunbirdAuthn{SearchURL: "https://reg.example/search"},
+		Sunbird: config.SunbirdAuthn{
+			SearchURL:     "https://reg.example/search",
+			IDField:       "policyNumber",
+			EntityIDField: "osid",
+			FieldDetails:  testSunbirdFieldDetails,
+		},
 	}
 	provider, err := NewAuthnProviderFromConfig(cfg, cat)
 	require.NoError(t, err)

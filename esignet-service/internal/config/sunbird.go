@@ -1,8 +1,10 @@
 package config
 
 import (
+	"errors"
 	"os"
 	"strconv"
+	"strings"
 )
 
 // SunbirdRC env var names.
@@ -54,7 +56,7 @@ func LoadSunbirdAuthn() SunbirdAuthn {
 	}
 
 	return SunbirdAuthn{
-		SearchURL:     envOrDefault(envSunbirdSearchURL, ""),
+		SearchURL:     strings.TrimSpace(envOrDefault(envSunbirdSearchURL, "")),
 		EntityURL:     trimTrailingSlash(envOrDefault(envSunbirdEntityURL, "")),
 		IDField:       envOrDefault(envSunbirdIDField, defaultSunbirdIDField),
 		EntityIDField: envOrDefault(envSunbirdEntityIDField, defaultSunbirdEntityIDField),
@@ -62,4 +64,23 @@ func LoadSunbirdAuthn() SunbirdAuthn {
 		ClaimsMapping: envOrDefault(envSunbirdClaimsMapping, defaultSunbirdClaimsMapping),
 		TimeoutSecs:   timeoutSecs,
 	}
+}
+
+// Validate reports whether the SunbirdRC settings are usable by the provider.
+//
+// It is called at provider construction rather than in LoadSunbirdAuthn, which
+// runs unconditionally for every provider; failing there would also break the
+// catalog/mosip providers. Gating here means a missing SearchURL only fails when
+// AUTHN_PROVIDER=sunbird.
+func (c SunbirdAuthn) Validate() error {
+	if strings.TrimSpace(c.SearchURL) == "" {
+		return errors.New("SUNBIRD_SEARCH_URL is required for the sunbird authn provider")
+	}
+	if c.IDField == "" {
+		return errors.New("SUNBIRD individual ID field must not be empty")
+	}
+	if c.EntityIDField == "" {
+		return errors.New("SUNBIRD entity ID field must not be empty")
+	}
+	return nil
 }

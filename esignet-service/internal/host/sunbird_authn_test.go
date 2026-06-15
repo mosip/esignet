@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/mosip/esignet/internal/config"
@@ -42,11 +43,22 @@ func TestNewSunbirdAuthnProvider_requiresSearchURL(t *testing.T) {
 	require.Contains(t, err.Error(), "SUNBIRD_SEARCH_URL")
 }
 
+func TestNewSunbirdAuthnProvider_requiresNonIDKBIField(t *testing.T) {
+	_, err := NewSunbirdAuthnProvider(config.SunbirdAuthn{
+		SearchURL:     "https://reg.example/search",
+		IDField:       "policyNumber",
+		EntityIDField: "osid",
+		FieldDetails:  `[{"id":"policyNumber","type":"text","format":""}]`,
+	})
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "at least one KBI field")
+}
+
 func TestSunbirdAuthenticate_success(t *testing.T) {
 	var gotReq sunbirdSearchRequest
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		require.Equal(t, http.MethodPost, r.Method)
-		require.NoError(t, json.NewDecoder(r.Body).Decode(&gotReq))
+		assert.Equal(t, http.MethodPost, r.Method)
+		assert.NoError(t, json.NewDecoder(r.Body).Decode(&gotReq))
 		_, _ = w.Write([]byte(`[{"osid":"entity-123"}]`))
 	}))
 	defer srv.Close()
@@ -119,8 +131,8 @@ func TestSunbirdAuthenticate_missingIndividualIDFails(t *testing.T) {
 
 func TestSunbirdGetAttributes_mapsClaims(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		require.Equal(t, http.MethodGet, r.Method)
-		require.True(t, strings.HasSuffix(r.URL.Path, "/entity-123"))
+		assert.Equal(t, http.MethodGet, r.Method)
+		assert.True(t, strings.HasSuffix(r.URL.Path, "/entity-123"))
 		_, _ = w.Write([]byte(`{"fullName":"John Doe","email":"john@example.com","dob":"1990-01-01","extra":"ignored"}`))
 	}))
 	defer srv.Close()
@@ -144,10 +156,10 @@ func TestSunbirdGetAttributes_emptyEntityURLReturnsEmpty(t *testing.T) {
 	require.JSONEq(t, "{}", string(result.Attributes))
 }
 
-func TestBuildSunbirdMappedClaims_rawPassthroughWhenNoMapping(t *testing.T) {
+func TestBuildSunbirdMappedClaims_emptyMappingReleasesNothing(t *testing.T) {
 	entity := map[string]interface{}{"fullName": "John", "email": "j@e.com"}
 	out := buildSunbirdMappedClaims(entity, "")
-	require.Equal(t, entity, out)
+	require.Empty(t, out) // fail closed: no mapping means no claims disclosed
 }
 
 func TestBuildSunbirdMappedClaims_invalidMappingFailsClosed(t *testing.T) {

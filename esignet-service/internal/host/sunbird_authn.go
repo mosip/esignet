@@ -38,21 +38,42 @@ type sunbirdSearchRequest struct {
 type sunbirdAuthnProvider struct {
 	cfg    config.SunbirdAuthn
 	client *http.Client
+	// kbiFieldIDs are the KBI credential fields (from SUNBIRD_FIELD_DETAILS,
+	// excluding IDField) parsed once at construction and reused per request.
+	kbiFieldIDs []string
 }
 
 // NewSunbirdAuthnProvider creates a SunbirdRC registry-backed host.AuthnProvider.
-// It returns an error when SearchURL is not configured, since there is no default.
+// It validates the config and parses the KBI field details once, returning an
+// error when SearchURL is unset or no KBI field other than IDField is configured.
 func NewSunbirdAuthnProvider(cfg config.SunbirdAuthn) (host.AuthnProvider, error) {
-	if cfg.SearchURL == "" {
-		return nil, errors.New("SUNBIRD_SEARCH_URL is required for the sunbird authn provider")
+	if err := cfg.Validate(); err != nil {
+		return nil, err
 	}
+
+	fields, err := parseSunbirdFieldDetails(cfg.FieldDetails)
+	if err != nil {
+		return nil, err
+	}
+	kbiFieldIDs := make([]string, 0, len(fields))
+	for _, f := range fields {
+		if f.ID == cfg.IDField {
+			continue
+		}
+		kbiFieldIDs = append(kbiFieldIDs, f.ID)
+	}
+	if len(kbiFieldIDs) == 0 {
+		return nil, errors.New("SUNBIRD_FIELD_DETAILS must define at least one KBI field other than the individual ID field")
+	}
+
 	timeout := time.Duration(cfg.TimeoutSecs) * time.Second
 	if timeout <= 0 {
 		timeout = 10 * time.Second
 	}
 	return &sunbirdAuthnProvider{
-		cfg:    cfg,
-		client: &http.Client{Timeout: timeout},
+		cfg:         cfg,
+		client:      &http.Client{Timeout: timeout},
+		kbiFieldIDs: kbiFieldIDs,
 	}, nil
 }
 
@@ -64,21 +85,13 @@ func (p *sunbirdAuthnProvider) Authenticate(ctx context.Context, identifiers, cr
 		return nil, fmt.Errorf("missing or invalid %q in identifiers", sunbirdIndividualIDKey)
 	}
 
-	fields, err := parseSunbirdFieldDetails(p.cfg.FieldDetails)
-	if err != nil {
-		return nil, err
-	}
-
-	kbiFields := make(map[string]string, len(fields))
-	for _, f := range fields {
-		if f.ID == p.cfg.IDField {
-			continue
-		}
-		val, ok := credentials[f.ID].(string)
+	kbiFields := make(map[string]string, len(p.kbiFieldIDs))
+	for _, id := range p.kbiFieldIDs {
+		val, ok := credentials[id].(string)
 		if !ok || val == "" {
-			return nil, fmt.Errorf("missing or invalid KBI field %q in credentials", f.ID)
+			return nil, fmt.Errorf("missing or invalid KBI field %q in credentials", id)
 		}
-		kbiFields[f.ID] = val
+		kbiFields[id] = val
 	}
 
 	entityID, err := p.validateKBI(ctx, individualID, kbiFields)
@@ -217,15 +230,15 @@ func parseSunbirdClaimsMapping(jsonStr string) (map[string]string, error) {
 }
 
 // buildSunbirdMappedClaims maps registry entity fields to OIDC claims using
-// claimsMappingJSON ({oidcClaim: registryField}). When the mapping is empty,
-// the raw entity data is returned unchanged. When the mapping is malformed it
-// fails closed and returns an empty map, so unmapped registry fields are never
-// disclosed as OIDC attributes.
+// claimsMappingJSON ({oidcClaim: registryField}). It fails closed: when the
+// mapping is empty or malformed, no claims are released, so unmapped registry
+// fields are never disclosed as OIDC attributes. This mirrors the upstream Java
+// SunbirdRC plugin, which only emits claims that have an explicit mapping.
 func buildSunbirdMappedClaims(entityData map[string]interface{},
 	claimsMappingJSON string) map[string]interface{} {
 
 	if claimsMappingJSON == "" {
-		return entityData
+		return map[string]interface{}{}
 	}
 
 	claimsMapping, err := parseSunbirdClaimsMapping(claimsMappingJSON)
