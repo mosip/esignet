@@ -65,7 +65,6 @@ func LoadDB() DB {
 			)
 		}
 	}
-	dsn = ensurePostgresSSLMode(dsn)
 
 	maxOpen := envInt("DB_MAX_OPEN_CONNS")
 	if maxOpen <= 0 {
