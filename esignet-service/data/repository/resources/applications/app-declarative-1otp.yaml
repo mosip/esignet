@@ -24,6 +24,9 @@ inbound_auth_config:
         - "authorization_code"
       response_types:
         - "code"
-      token_endpoint_auth_method: "none"
+      token_endpoint_auth_method: "private_key_jwt"
       pkce_required: true
-      public_client: true
+      public_client: false
+      certificate: 
+        - type: "JWKS"
+          value: "{\"keys\":[{\"kty\":\"RSA\",\"n\":\"m_rPRF0UQeg3lVQJ6ah8Zn5CfSksxCthnmmtXASJRK_-q6rNHMpmXO37p9u9q9xy0IPABAMgsTWwreuKZe6B9f4yYOr97cRpU8CGtxQVYd7cKMB37A_dwnpgsg8vGzV8dy87DUjL841P5tyGNjstmwugBKpCF1179T5kHL_UL3DwEkM4kPPDfp6ssBBwv_Ww9Im661mZdqRQ04COqoDtK5UEBCyuLNv1AhT9xQD-kfdvJUkBc-TR9naSjbwx_9y6UlyzuLlrOWaUyHMY4jft2_NtGjq7eXuF2dvQ3icJhiP6-WIkUkuXUki3hnX6xY7_NhxNicQBKYVtLO8E5SrrOw\",\"e\":\"AQAB\",\"kid\":\"9513e739c164e24392c92c4c8f\",\"alg\":\"RS256\",\"use\":\"sig\"}]}"
