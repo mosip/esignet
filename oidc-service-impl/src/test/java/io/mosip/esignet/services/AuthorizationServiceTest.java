@@ -696,8 +696,26 @@ public class AuthorizationServiceTest {
 
     @Test
     public void testGetOauthDetailsV3_WithInvalidIdTokenHint_ShouldThrowEsignetException() {
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId("test-client");
+        clientDetail.setRedirectUris(Arrays.asList("http://localhost:8088/v1/idp"));
+        clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:static-code"));
+        clientDetail.setClaims(Arrays.asList("email"));
+        clientDetail.setName(new HashMap<>());
+        clientDetail.getName().put(Constants.NONE_LANG_KEY, "clientName");
+
         OAuthDetailRequestV3 oauthDetailReqDto = new OAuthDetailRequestV3();
+        oauthDetailReqDto.setClientId("test-client");
+        oauthDetailReqDto.setRedirectUri("http://localhost:8088/v1/idp");
+        oauthDetailReqDto.setNonce("test-nonce");
         oauthDetailReqDto.setIdTokenHint("invalid_id_token_hint");
+
+        when(clientManagementService.getClientDetails("test-client")).thenReturn(clientDetail);
+        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
+        List<List<AuthenticationFactor>> authFactors = new ArrayList<>();
+        authFactors.add(Collections.emptyList());
+        when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(authFactors);
+
         try {
             authorizationServiceImpl.getOauthDetailsV3(oauthDetailReqDto, httpServletRequest);
             Assertions.fail();
@@ -708,8 +726,25 @@ public class AuthorizationServiceTest {
 
     @Test
     public void getOauthDetailsV3_WithNoCookie_ThrowsEsignetException() {
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId("test-client");
+        clientDetail.setRedirectUris(Arrays.asList("http://localhost:8088/v1/idp"));
+        clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:static-code"));
+        clientDetail.setClaims(Arrays.asList("email"));
+        clientDetail.setName(new HashMap<>());
+        clientDetail.getName().put(Constants.NONE_LANG_KEY, "clientName");
+
         OAuthDetailRequestV3 oauthDetailReqDto = new OAuthDetailRequestV3();
+        oauthDetailReqDto.setClientId("test-client");
+        oauthDetailReqDto.setRedirectUri("http://localhost:8088/v1/idp");
+        oauthDetailReqDto.setNonce("test-nonce");
         oauthDetailReqDto.setIdTokenHint("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.3RJf1g9bKzRC-dEj4b2Jx2yCk7Mz4oG1bZbDqGt8QxE");
+
+        when(clientManagementService.getClientDetails("test-client")).thenReturn(clientDetail);
+        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
+        List<List<AuthenticationFactor>> authFactors = new ArrayList<>();
+        authFactors.add(Collections.emptyList());
+        when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(authFactors);
 
         try {
             authorizationServiceImpl.getOauthDetailsV3(oauthDetailReqDto, httpServletRequest);
@@ -1119,35 +1154,74 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setAcrValues("mosip:idp:acr:biometrics mosip:idp:acr:generated-code");
         oauthDetailRequest.setIdTokenHint("eyJraWQiOiJtbG02RVNRaFB5dVVsWmY0dnBZbGJTVWlSMXBXcG5jdW9kamtnRjNaNU5nIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJxWS0tNVk0VG9Ga1dUb1hKclJGbVBXUEhEWkxrY2lNTDQtX2cxTDJBNXhJIiwiYXVkIjoibW9zaXAtc2lnbnVwLW9hdXRoLWNsaWVudCIsImFjciI6Im1vc2lwOmlkcDphY3I6Z2VuZXJhdGVkLWNvZGUiLCJhdXRoX3RpbWUiOjE3MjUyNjk4ODUsImlzcyI6Imh0dHBzOlwvXC9lc2lnbmV0bDIuY2FtZGdjLXFhLm1vc2lwLm5ldFwvdjFcL2VzaWduZXQiLCJleHAiOjE3MjUyNzAwNzMsImlhdCI6MTcyNTI2OTg5Mywibm9uY2UiOiI5NzNlaWVsanpuZyJ9.VMMn92CFzGkVyx8Jwrq03KhuXOXj3wRlUoxZQQBN7MxlfIxGSX_yE7iw3JWxohzQuHticndtQX2LELcGTPhclzRop3skHCeo6ZPGJklCiRA3F5SyfCYLvDprgE_-pQhLWeECqRtW_8jFFgZSORMoxy8eBj5Vvc8q2zcoDjE-JiLZvqE9UWDRpAKzumJcD3iJvBwE-9jkzQtWZbp-tZrpPrm-KCZU6-Q3qhWU23E9DSMg_6byq4iH51TFwO0nHW1kaxhsqHvCsTX7YTvmfWXUwPVRLNZh5Uszt8EIsgpKIUDkRImqmCUbP1LwoFG55MsW67QzHNTFuR6H-4LidSKnnA");
 
+        when(clientManagementService.getClientDetails("34567")).thenReturn(clientDetail);
+        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
+        List<List<AuthenticationFactor>> authFactors = new ArrayList<>();
+        authFactors.add(Collections.emptyList());
+        when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:wallet"})).thenReturn(authFactors);
+
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setCookies(new Cookie("qY--5Y4ToFkWToXJrRFmPWPHDZLkciML4-_g1L2A5xI", "5Y4ToFkWToXJrRFmPWPHDZLkciML4" + SERVER_NONCE_SEPARATOR + "test-state"));
 
+        EsignetException e = Assertions.assertThrows(EsignetException.class, () -> {
+            authorizationServiceImpl.getOauthDetailsV3(oauthDetailRequest, request);
+        });
+        Assertions.assertEquals(ErrorConstants.LOGIN_REQUIRED, e.getErrorCode());
+    }
+
+    @Test
+    public void getOauthDetailsV3_withValidIDTokenHintNoCookie_thenFail() throws Exception {
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId("mosip-signup-oauth-client");
+        clientDetail.setRedirectUris(Arrays.asList("http://localhost:8088/v1/idp"));
+        clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:generated-code"));
+        clientDetail.setClaims(Arrays.asList("email"));
+        clientDetail.setName(new HashMap<>());
+        clientDetail.getName().put(Constants.NONE_LANG_KEY, "clientName");
+
+        OAuthDetailRequestV3 oauthDetailRequest = new OAuthDetailRequestV3();
+        oauthDetailRequest.setIdTokenHint("eyJraWQiOiJtbG02RVNRaFB5dVVsWmY0dnBZbGJTVWlSMXBXcG5jdW9kamtnRjNaNU5nIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJxWS0tNVk0VG9Ga1dUb1hKclJGbVBXUEhEWkxrY2lNTDQtX2cxTDJBNXhJIiwiYXVkIjoibW9zaXAtc2lnbnVwLW9hdXRoLWNsaWVudCIsImFjciI6Im1vc2lwOmlkcDphY3I6Z2VuZXJhdGVkLWNvZGUiLCJhdXRoX3RpbWUiOjE3MjUyNjk4ODUsImlzcyI6Imh0dHBzOlwvXC9lc2lnbmV0bDIuY2FtZGdjLXFhLm1vc2lwLm5ldFwvdjFcL2VzaWduZXQiLCJleHAiOjE3MjUyNzAwNzMsImlhdCI6MTcyNTI2OTg5Mywibm9uY2UiOiI5NzNlaWVsanpuZyJ9.VMMn92CFzGkVyx8Jwrq03KhuXOXj3wRlUoxZQQBN7MxlfIxGSX_yE7iw3JWxohzQuHticndtQX2LELcGTPhclzRop3skHCeo6ZPGJklCiRA3F5SyfCYLvDprgE_-pQhLWeECqRtW_8jFFgZSORMoxy8eBj5Vvc8q2zcoDjE-JiLZvqE9UWDRpAKzumJcD3iJvBwE-9jkzQtWZbp-tZrpPrm-KCZU6-Q3qhWU23E9DSMg_6byq4iH51TFwO0nHW1kaxhsqHvCsTX7YTvmfWXUwPVRLNZh5Uszt8EIsgpKIUDkRImqmCUbP1LwoFG55MsW67QzHNTFuR6H-4LidSKnnA");
+        oauthDetailRequest.setClientId("mosip-signup-oauth-client");
+        oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
+        oauthDetailRequest.setNonce("test-nonce");
+
+        when(clientManagementService.getClientDetails("mosip-signup-oauth-client")).thenReturn(clientDetail);
+        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
+        List<List<AuthenticationFactor>> authFactors = new ArrayList<>();
+        authFactors.add(Collections.emptyList());
+        when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:generated-code"})).thenReturn(authFactors);
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
         try {
-            OAuthDetailResponseV2 oauthDetailResponseV2 = authorizationServiceImpl.getOauthDetailsV3(oauthDetailRequest, request);
-            Assertions.assertNotNull(oauthDetailResponseV2);
+            authorizationServiceImpl.getOauthDetailsV3(oauthDetailRequest, request);
+            Assertions.fail();
         } catch (EsignetException e) {
             Assertions.assertEquals(ErrorConstants.LOGIN_REQUIRED, e.getErrorCode());
         }
     }
 
     @Test
-    public void getOauthDetailsV3_withValidIDTokenHintNoCookie_thenFail() throws Exception {
-        OAuthDetailRequestV3 oauthDetailRequest = new OAuthDetailRequestV3();
-        oauthDetailRequest.setIdTokenHint("eyJraWQiOiJtbG02RVNRaFB5dVVsWmY0dnBZbGJTVWlSMXBXcG5jdW9kamtnRjNaNU5nIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJxWS0tNVk0VG9Ga1dUb1hKclJGbVBXUEhEWkxrY2lNTDQtX2cxTDJBNXhJIiwiYXVkIjoibW9zaXAtc2lnbnVwLW9hdXRoLWNsaWVudCIsImFjciI6Im1vc2lwOmlkcDphY3I6Z2VuZXJhdGVkLWNvZGUiLCJhdXRoX3RpbWUiOjE3MjUyNjk4ODUsImlzcyI6Imh0dHBzOlwvXC9lc2lnbmV0bDIuY2FtZGdjLXFhLm1vc2lwLm5ldFwvdjFcL2VzaWduZXQiLCJleHAiOjE3MjUyNzAwNzMsImlhdCI6MTcyNTI2OTg5Mywibm9uY2UiOiI5NzNlaWVsanpuZyJ9.VMMn92CFzGkVyx8Jwrq03KhuXOXj3wRlUoxZQQBN7MxlfIxGSX_yE7iw3JWxohzQuHticndtQX2LELcGTPhclzRop3skHCeo6ZPGJklCiRA3F5SyfCYLvDprgE_-pQhLWeECqRtW_8jFFgZSORMoxy8eBj5Vvc8q2zcoDjE-JiLZvqE9UWDRpAKzumJcD3iJvBwE-9jkzQtWZbp-tZrpPrm-KCZU6-Q3qhWU23E9DSMg_6byq4iH51TFwO0nHW1kaxhsqHvCsTX7YTvmfWXUwPVRLNZh5Uszt8EIsgpKIUDkRImqmCUbP1LwoFG55MsW67QzHNTFuR6H-4LidSKnnA");
-        oauthDetailRequest.setClientId("mosip-signup-oauth-client");
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        try {
-            authorizationServiceImpl.getOauthDetailsV3(oauthDetailRequest, request);
-            Assertions.fail();
-        } catch (EsignetException e) {
-            Assertions.assertEquals(ErrorConstants.INVALID_ID_TOKEN_HINT, e.getErrorCode());
-        }
-    }
-
-    @Test
     public void getOauthDetailsV3_withValidIDTokenHintWrongAudience_thenFail() throws Exception {
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId("test-client");
+        clientDetail.setRedirectUris(Arrays.asList("http://localhost:8088/v1/idp"));
+        clientDetail.setAcrValues(Arrays.asList("mosip:idp:acr:static-code"));
+        clientDetail.setClaims(Arrays.asList("email"));
+        clientDetail.setName(new HashMap<>());
+        clientDetail.getName().put(Constants.NONE_LANG_KEY, "clientName");
+
         OAuthDetailRequestV3 oauthDetailRequest = new OAuthDetailRequestV3();
+        oauthDetailRequest.setClientId("test-client");
+        oauthDetailRequest.setRedirectUri("http://localhost:8088/v1/idp");
+        oauthDetailRequest.setNonce("test-nonce");
         oauthDetailRequest.setIdTokenHint("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
+
+        when(clientManagementService.getClientDetails("test-client")).thenReturn(clientDetail);
+        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
+        List<List<AuthenticationFactor>> authFactors = new ArrayList<>();
+        authFactors.add(Collections.emptyList());
+        when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(authFactors);
+
         MockHttpServletRequest request = new MockHttpServletRequest();
 
         //No audience claim

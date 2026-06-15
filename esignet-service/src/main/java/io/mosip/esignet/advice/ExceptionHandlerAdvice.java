@@ -124,17 +124,18 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
 
     @ExceptionHandler(value = { Exception.class, RuntimeException.class, MissingRequestHeaderException.class })
     public ResponseEntity handleExceptions(Exception ex, WebRequest request) {
-        log.error("Unhandled exception encountered in handler advice", ex);
         ServletWebRequest servletWebRequest = (ServletWebRequest) request;
         String pathInfo = servletWebRequest.getRequest().getPathInfo();
 
         if (pathInfo == null) {
             pathInfo = servletWebRequest.getRequest().getRequestURI();
         }
-        
+
         if(pathInfo.startsWith("/oidc/userinfo")) {
             return handleExceptionWithHeader(ex);
         }
+
+        log.error("Unhandled exception encountered in handler advice", ex);
 
         if(pathInfo.startsWith("/oauth/")) {
             return handleOpenIdConnectControllerExceptions(ex);
@@ -218,33 +219,56 @@ public class ExceptionHandlerAdvice extends ResponseEntityExceptionHandler imple
         log.error("Unhandled exception encountered in handler advice", ex);
         return new ResponseEntity<OAuthError>(getErrorRespDto(UNKNOWN_ERROR, ex.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
+    
     private ResponseEntity<Void> handleExceptionWithHeader(Exception ex) {
         MultiValueMap<String, String> headers = new HttpHeaders();
+
         if (ex instanceof DpopNonceMissingException dpopEx) {
             headers.add("Access-Control-Expose-Headers", "DPoP-Nonce, WWW-Authenticate");
-            headers.add("WWW-Authenticate", "DPoP error=\""+ USE_DPOP_NONCE +"\"");
+            headers.add("WWW-Authenticate", "DPoP error=\"" + USE_DPOP_NONCE + "\"");
             headers.add("DPoP-Nonce", dpopEx.getDpopNonceHeaderValue());
             return new ResponseEntity<>(headers, HttpStatus.UNAUTHORIZED);
         }
-        HttpStatusCode statusCode = HttpStatus.UNAUTHORIZED;
-        String errorCode = UNKNOWN_ERROR;
+
+        HttpStatusCode statusCode;
+        String errorCode;
+
         switch (ex) {
-            case NotAuthenticatedException exception -> errorCode = INVALID_AUTH_TOKEN;
-            case MissingRequestHeaderException exception -> errorCode = MISSING_HEADER;
-            case HttpRequestMethodNotSupportedException exception -> {
-                statusCode = exception.getStatusCode();
-                errorCode = HttpStatus.METHOD_NOT_ALLOWED.getReasonPhrase();
+            case MissingRequestHeaderException ignored -> {
+                statusCode = HttpStatus.UNAUTHORIZED;
+                errorCode  = null;
             }
-            case HttpMediaTypeNotAcceptableException exception -> {
-                statusCode = exception.getStatusCode();
-                errorCode = HttpStatus.NOT_ACCEPTABLE.getReasonPhrase();
+            case NotAuthenticatedException ignored -> {
+                statusCode = HttpStatus.UNAUTHORIZED;
+                errorCode  = INVALID_AUTH_TOKEN;
+            }
+            case EsignetException e when INVALID_PUBLIC_KEY.equals(e.getErrorCode()) -> {
+                statusCode = HttpStatus.BAD_REQUEST;
+                errorCode  = INVALID_REQUEST;
+            }
+            case HttpRequestMethodNotSupportedException e -> {
+                statusCode = e.getStatusCode();                // 405
+                errorCode  = INVALID_REQUEST;
+            }
+            case HttpMediaTypeNotAcceptableException e -> {
+                statusCode = e.getStatusCode();                // 406
+                errorCode  = INVALID_REQUEST;
             }
             default -> {
+                statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+                errorCode  = INTERNAL_ERROR;
             }
         }
-        log.error("Unhandled exception encountered in handler advice", ex);
-        headers.add("WWW-Authenticate", "error=\""+errorCode+"\"");
+        log.error("Userinfo error mapped: status={}, error=\"{}\"",
+                  statusCode.value(),
+                  errorCode == null ? "-" : errorCode,
+                  ex);
+
+        headers.add("Access-Control-Expose-Headers", "WWW-Authenticate");
+        String wwwAuthenticateValue = (errorCode == null)
+                ? "Bearer"
+                : "Bearer error=\"" + errorCode + "\"";
+        headers.add("WWW-Authenticate", wwwAuthenticateValue);
         return new ResponseEntity<>(headers, statusCode);
     }
 
