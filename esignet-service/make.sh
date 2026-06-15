@@ -19,8 +19,13 @@ esac
 # tr strips CR so a CRLF-encoded .env does not poison values on Windows.
 if [ -f .env ]; then
   set -a
+  # Process substitution (source <(...)) does not export vars under macOS bash 3.2
+  # with nounset; use a temp file so CRLF stripping still works on Windows.
+  _env_file="$(mktemp)"
+  trap 'rm -f "$_env_file"' EXIT
+  tr -d '\r' < .env > "$_env_file"
   # shellcheck disable=SC1090
-  source <(tr -d '\r' < .env)
+  source "$_env_file"
   set +a
 fi
 

@@ -28,4 +28,12 @@ func TestLoad(t *testing.T) {
 	byClient, ok := cat.ApplicationByClientID("decl-public-client-1")
 	require.True(t, ok)
 	require.Equal(t, app.ID, byClient.ID)
+
+	otpApp, ok := cat.ApplicationByClientID("I6eXdnnLGGj2A2BcTL-jug_0ujpnQXlBpKAbBCkGWEM")
+	require.True(t, ok)
+	require.Equal(t, "private_key_jwt", otpApp.TokenEndpointAuthMethod)
+	require.False(t, otpApp.PublicClient)
+	require.NotNil(t, otpApp.Certificate)
+	require.Equal(t, "JWKS", otpApp.Certificate.Type)
+	require.Contains(t, otpApp.Certificate.Value, `"kty":"RSA"`)
 }

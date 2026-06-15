@@ -21,6 +21,12 @@ type User struct {
 	Attributes json.RawMessage
 }
 
+// ClientCertificate holds OAuth client certificate material from declarative YAML.
+type ClientCertificate struct {
+	Type  string
+	Value string
+}
+
 // Application is an OAuth application registration from declarative YAML.
 type Application struct {
 	ID                        string
@@ -33,6 +39,7 @@ type Application struct {
 	TokenEndpointAuthMethod   string
 	PKCERequired              bool
 	PublicClient              bool
+	Certificate               *ClientCertificate
 	AuthFlowID                string
 	RegistrationFlowID        string
 	IsRegistrationFlowEnabled bool
@@ -81,6 +88,10 @@ type appDoc struct {
 			TokenEndpointAuthMethod string   `yaml:"token_endpoint_auth_method"`
 			PKCERequired            bool     `yaml:"pkce_required"`
 			PublicClient            bool     `yaml:"public_client"`
+			Certificate             []struct {
+				Type  string `yaml:"type"`
+				Value string `yaml:"value"`
+			} `yaml:"certificate"`
 		} `yaml:"config"`
 	} `yaml:"inbound_auth_config"`
 }
@@ -173,6 +184,12 @@ func (c *Catalog) loadApplications(dir string) error {
 			app.TokenEndpointAuthMethod = cfg.TokenEndpointAuthMethod
 			app.PKCERequired = cfg.PKCERequired
 			app.PublicClient = cfg.PublicClient
+			if len(cfg.Certificate) > 0 {
+				app.Certificate = &ClientCertificate{
+					Type:  cfg.Certificate[0].Type,
+					Value: cfg.Certificate[0].Value,
+				}
+			}
 		}
 		if app.ClientID == "" {
 			return fmt.Errorf("application %s has no oauth2 client_id", doc.ID)

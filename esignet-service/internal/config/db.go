@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	_ "github.com/lib/pq" // PostgreSQL driver for database/sql
@@ -50,10 +51,19 @@ func LoadDB() DB {
 		dbname := envOrDefault("POSTGRES_DB", "esignet")
 		user := envOrDefault("POSTGRES_USER", "postgres")
 		password := os.Getenv("POSTGRES_PASSWORD")
-		dsn = fmt.Sprintf(
-			"host=%s port=%s dbname=%s user=%s password=%s sslmode=disable",
-			host, port, dbname, user, password,
-		)
+		if password != "" {
+			dsn = fmt.Sprintf(
+				"host=%s port=%s dbname=%s user=%s password=%s sslmode=disable",
+				host, port, dbname, user, password,
+			)
+		} else {
+			// Omit password= when unset — lib/pq mis-parses "password= sslmode=..."
+			// and falls back to SSL, which fails against local Docker Postgres.
+			dsn = fmt.Sprintf(
+				"host=%s port=%s dbname=%s user=%s sslmode=disable",
+				host, port, dbname, user,
+			)
+		}
 	}
 
 	maxOpen := envInt("DB_MAX_OPEN_CONNS")
@@ -109,4 +119,19 @@ func (d DB) Open() (*sql.DB, error) {
 		return nil, fmt.Errorf("ping postgres: %w", err)
 	}
 	return conn, nil
+}
+
+// ensurePostgresSSLMode appends sslmode=disable to postgres:// URLs when absent.
+// lib/pq defaults URL connections to SSL, which fails against local Docker Postgres.
+func ensurePostgresSSLMode(dsn string) string {
+	if strings.Contains(dsn, "sslmode=") {
+		return dsn
+	}
+	if strings.HasPrefix(dsn, "postgres://") || strings.HasPrefix(dsn, "postgresql://") {
+		if strings.Contains(dsn, "?") {
+			return dsn + "&sslmode=disable"
+		}
+		return dsn + "?sslmode=disable"
+	}
+	return dsn
 }
