@@ -1,5 +1,5 @@
 #!/bin/bash
-# Installs esignet MISP onboarder helm
+# Installs esignet MOSIP onboarder helm
 ## Usage: ./install.sh [kubeconfig]
 
 if [ $# -ge 1 ] ; then
@@ -31,7 +31,6 @@ function installing_onboarder() {
 
   read -p "Is values.yaml for onboarder chart set correctly as part of pre-requisites? (Y/n) : " yn;
   if [[ $yn = "Y" ]] || [[ $yn = "y" ]] ; then
-    NFS_OPTION=''
     S3_OPTION=''
     config_complete=false  # flag to check if S3 or NFS is configured
     while [ "$config_complete" = false ]; do
@@ -69,20 +68,9 @@ function installing_onboarder() {
         push_reports_to_s3=false
         read -p "Since S3 details are not available, do you want to use NFS directory mount for storing reports? (y/n) : " answer
         if [[ $answer == "Y" ]] || [[ $answer == "y" ]]; then
-          read -p "Please provide NFS Server IP: " nfs_server
-          if [[ -z $nfs_server ]]; then
-            echo "NFS server not provided; EXITING."
-            exit 1;
-          fi
-          read -p "Please provide NFS directory to store reports from NFS server (e.g. /srv/nfs/mosip/<sandbox>/onboarder/), make sure permission is 777 for the folder: " nfs_path
-          if [[ -z $nfs_path ]]; then
-            echo "NFS Path not provided; EXITING."
-            exit 1;
-          fi
-          NFS_OPTION="--set onboarding.volumes.reports.nfs.server=$nfs_server --set onboarding.volumes.reports.nfs.path=$nfs_path"
           config_complete=true
         else
-          echo "Please rerun the script with either S3 or NFS server details."
+          echo "Please rerun the script with either S3 or NFS details."
           exit 1;
         fi
       else
@@ -158,9 +146,8 @@ function installing_onboarder() {
    kubectl label ns $NS istio-injection=disabled --overwrite
    helm repo update
 
-    echo "Onboarding Esignet MISIP partner client"
-    helm -n $NS install esignet-misp-onboarder mosip/partner-onboarder \
-      $NFS_OPTION \
+    echo "Onboarding Esignet MOSIP partner client"
+    helm -n $NS install esignet-mosip-onboarder mosip/partner-onboarder \
       $S3_OPTION \
       --set onboarding.variables.push_reports_to_s3=$push_reports_to_s3 \
       --set onboarding.configmaps.onboarder-namespace.ns_esignet="$NS" \
@@ -171,7 +158,7 @@ function installing_onboarder() {
       --wait --wait-for-jobs
     echo "Partner onboarder executed and reports are moved to S3 or NFS please check the same to make sure partner was onboarded sucessfully."
     kubectl rollout restart deployment $ESIGNET_SERVICE_NAME -n $NS
-    echo eSignet MISP License Key updated successfully to eSignet.
+    echo eSignet MOSIP License Key updated successfully to eSignet.
     return 0
   fi
 }
