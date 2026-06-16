@@ -44,5 +44,6 @@ func TestLoad(t *testing.T) {
 	require.True(t, jwtApp.PKCERequired)
 	require.NotNil(t, jwtApp.Certificate)
 	require.Equal(t, "JWKS", jwtApp.Certificate.Type)
-	require.Contains(t, jwtApp.Certificate.Value, `"kid":"1a477d6c63d30c8a8f1c52d8"`)
+	require.Contains(t, jwtApp.Certificate.Value, `"kid":"`)
+	require.Contains(t, jwtApp.Certificate.Value, `"alg":"RS256"`)
 }

@@ -14,10 +14,12 @@ import uuid
 
 
 def b64url(data: bytes) -> str:
+    """Return base64url encoding without padding."""
     return base64.urlsafe_b64encode(data).decode().rstrip("=")
 
 
 def sign_client_assertion(client_id: str, token_endpoint: str, key_path: str, kid: str) -> str:
+    """Build and sign an RS256 OAuth client assertion JWT."""
     header = {"alg": "RS256", "typ": "JWT", "kid": kid}
     now = int(time.time())
     payload = {
@@ -45,6 +47,7 @@ def sign_client_assertion(client_id: str, token_endpoint: str, key_path: str, ki
 
 
 def main() -> int:
+    """Parse CLI args and print a signed client assertion JWT."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--client-id", required=True)
     parser.add_argument("--token-endpoint", required=True)

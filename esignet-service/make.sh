@@ -63,7 +63,7 @@ need() {
 
 # Override GOFLAGS=-mod=readonly so go.mod/go.sum can be updated.
 go_mod_write() {
-  GOFLAGS=-mod=mod go "$@"
+  GOFLAGS="${GOFLAGS:+$GOFLAGS }-mod=mod" go "$@"
 }
 
 # --- targets -----------------------------------------------------------------
@@ -147,7 +147,15 @@ target_lint_install() { ## Install golangci-lint
   echo "installed: $(go env GOPATH)/bin/golangci-lint"
 }
 
+target_smoke_jwt_key() { ## Generate local private_key_jwt smoke client key (gitignored)
+  bash ./scripts/generate-smoke-jwt-client-key.sh
+}
+
 target_smoke() { ## End-to-end OAuth smoke test (server must be running)
+  if [ ! -f ./scripts/fixtures/smoke-jwt-client.key ]; then
+    echo "smoke-jwt-key: generating local JWT client key..."
+    target_smoke_jwt_key
+  fi
   # Invoked via bash so it works even when the exec bit is lost on Windows.
   BASE_URL="${BASE_URL:-$ISSUER_URL}" bash ./scripts/oauth-smoke.sh
 }
@@ -182,6 +190,7 @@ target_sqlc_install() { ## Install sqlc
 
 target_update_thunder() { ## Update thunder replace directive to latest commit on THUNDER_BRANCH
   need go
+  need git
   echo "Fetching latest commit on branch '$THUNDER_BRANCH'..."
   local sha version
   sha="$(git ls-remote https://github.com/anushasunkada/thunder.git "refs/heads/$THUNDER_BRANCH" | awk '{print $1}')"
@@ -235,6 +244,7 @@ Test
   lint               Run golangci-lint
   lint-install       Install golangci-lint (GOLANGCI_LINT_VERSION=$GOLANGCI_LINT_VERSION)
   smoke              End-to-end OAuth smoke test (server must be running)
+  smoke-jwt-key      Generate local private_key_jwt smoke client key (gitignored)
 
 Docker
   docker-build       Build container image ($DOCKER_IMAGE)
@@ -281,6 +291,7 @@ for t in "${targets[@]}"; do
     lint)            target_lint ;;
     lint-install)    target_lint_install ;;
     smoke)           target_smoke ;;
+    smoke-jwt-key)   target_smoke_jwt_key ;;
     docker-build)    target_docker_build ;;
     docker-run)      target_docker_run ;;
     sqlc)            target_sqlc ;;

@@ -24,4 +24,4 @@ inbound_auth_config:
       public_client: false
       certificate:
         - type: "JWKS"
-          value: "{\"keys\":[{\"kty\":\"RSA\",\"n\":\"mZgGJ8pMALjmBQqJO2pjNo73e6MHeuWm0LAMi1C_961UR90wxJweZic-vqV5mv0fXFWlml3IBwCl0V4zKUcNfpFNjAEhvlMDUSqpDSQOvmTlJC2p7OtHZxXpMaudqyCd9EzXcdT0F6YsUxzEaXFR3Qt-BUInj9yrqsVVJgclD-5HmzgYfbI-VwgZW4uJuDbN1fwRphGpx2djLXlScAjXDAWhozF9Rnh-vQHfubph7DBPoZPX0WCmdSymns0X_PrV9B0JlGr0eVFcVX2LNwbsk0a-sXRwENU1I--ets12Eq1_tpuFmP_BaZbseWWQw_yEEA11Mi0yDY6oQw34_eVliQ\",\"e\":\"AQAB\",\"kid\":\"1a477d6c63d30c8a8f1c52d8\",\"alg\":\"RS256\",\"use\":\"sig\"}]}"
+          value: "{\"keys\":[{\"kty\":\"RSA\",\"n\":\"mhTrjKvnxHJWhTK0ZDTdPn-73jT9E599a7L9VHo6YOPBH0eFY2ErL9xyk7apHX5VJD4BZL_WSSuHzhT8ZysLSq6R-HKb9KL6VLEybMYx_7TWXSsj2c8hDmy9CjCcbdRLcHEbq57lWczOSPU_xc6R8gt8I3ocSiIJKhBYSi-XSzAlp5rp0OGP7Ei0jSDCpneKPSBmNR3Wj5mZb673d5x6uV9_x-p3l3W2lQBxwKs3vj4pugFLwF5nTwZCX5FlmpKMW2qibXqgGYjZAXbzdZfalvp4quI05kmEZPiW0e-4i1hZ7gEa-8T-N-JJD8J6oHCLBVPtqr8oHudvT2XpWL1Lkw\",\"e\":\"AQAB\",\"kid\":\"143eb579deb28a2567306a3b\",\"alg\":\"RS256\",\"use\":\"sig\"}]}"
