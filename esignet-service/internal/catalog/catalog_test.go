@@ -36,4 +36,14 @@ func TestLoad(t *testing.T) {
 	require.NotNil(t, otpApp.Certificate)
 	require.Equal(t, "JWKS", otpApp.Certificate.Type)
 	require.Contains(t, otpApp.Certificate.Value, `"kty":"RSA"`)
+
+	jwtApp, ok := cat.ApplicationByClientID("decl-jwt-client-1")
+	require.True(t, ok)
+	require.Equal(t, "private_key_jwt", jwtApp.TokenEndpointAuthMethod)
+	require.False(t, jwtApp.PublicClient)
+	require.True(t, jwtApp.PKCERequired)
+	require.NotNil(t, jwtApp.Certificate)
+	require.Equal(t, "JWKS", jwtApp.Certificate.Type)
+	require.Contains(t, jwtApp.Certificate.Value, `"kid":"`)
+	require.Contains(t, jwtApp.Certificate.Value, `"alg":"RS256"`)
 }

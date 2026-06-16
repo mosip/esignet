@@ -8,13 +8,7 @@
         "mode": "auto",
         "program": "${workspaceFolder}/esignet-service/cmd/esignet",
         "cwd": "${workspaceFolder}/esignet-service",
-        "env": {
-          "LOG_LEVEL": "debug",
-          "PORT": "8080",
-          "ISSUER_URL": "http://127.0.0.1:8080",
-          "DATA_DIR": "./data",
-          "SIGNING_KEY_PATH": "./keys/signing.key"
-        }
+        "envFile": "${workspaceFolder}/esignet-service/.env"
       }
     ]
   }

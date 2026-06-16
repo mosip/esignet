@@ -33,6 +33,7 @@ go.work.sum
 .env.*.local
 *.pem
 *.key
+scripts/fixtures/smoke-jwt-client.*
 *.crt
 *.cert
 *.p12

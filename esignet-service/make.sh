@@ -61,6 +61,11 @@ need() {
   command -v "$1" >/dev/null 2>&1 || { echo "make.sh: '$1' not found on PATH (required for this target)"; exit 1; }
 }
 
+# Override GOFLAGS=-mod=readonly so go.mod/go.sum can be updated.
+go_mod_write() {
+  GOFLAGS="${GOFLAGS:+$GOFLAGS }-mod=mod" go "$@"
+}
+
 # --- targets -----------------------------------------------------------------
 
 target_keys() { ## Generate local TLS signing key and certificate
@@ -142,7 +147,15 @@ target_lint_install() { ## Install golangci-lint
   echo "installed: $(go env GOPATH)/bin/golangci-lint"
 }
 
+target_smoke_jwt_key() { ## Generate local private_key_jwt smoke client key (gitignored)
+  bash ./scripts/generate-smoke-jwt-client-key.sh
+}
+
 target_smoke() { ## End-to-end OAuth smoke test (server must be running)
+  if [ ! -f ./scripts/fixtures/smoke-jwt-client.key ]; then
+    echo "smoke-jwt-key: generating local JWT client key..."
+    target_smoke_jwt_key
+  fi
   # Invoked via bash so it works even when the exec bit is lost on Windows.
   BASE_URL="${BASE_URL:-$ISSUER_URL}" bash ./scripts/oauth-smoke.sh
 }
@@ -176,22 +189,26 @@ target_sqlc_install() { ## Install sqlc
 }
 
 target_update_thunder() { ## Update thunder replace directive to latest commit on THUNDER_BRANCH
+  need go
+  need git
   echo "Fetching latest commit on branch '$THUNDER_BRANCH'..."
   local sha version
   sha="$(git ls-remote https://github.com/anushasunkada/thunder.git "refs/heads/$THUNDER_BRANCH" | awk '{print $1}')"
   if [ -z "$sha" ]; then echo "error: branch '$THUNDER_BRANCH' not found"; exit 1; fi
   # Resolve the exact SHA we just fetched (the Makefile resolved the branch
   # name again, which could race with new pushes).
-  version="$(GOPROXY=direct go list -m -f '{{.Version}}' "$THUNDER_MODULE@$sha")"
+  version="$(GOPROXY=direct go_mod_write list -m -f '{{.Version}}' "$THUNDER_MODULE@$sha")"
   if [ -z "$version" ]; then echo "error: could not resolve version"; exit 1; fi
   echo "Resolved version: $version"
   sed -i.bak "s|replace github.com/thunder-id/thunderid => $THUNDER_MODULE .*|replace github.com/thunder-id/thunderid => $THUNDER_MODULE $version|" go.mod
   rm -f go.mod.bak
   echo "go.mod updated"
+  go_mod_write mod tidy
+  echo "go.sum updated"
 }
 
 target_tidy() { ## Run go mod tidy
-  go mod tidy
+  go_mod_write mod tidy
 }
 
 target_clean() { ## Remove build artefacts and coverage output
@@ -227,6 +244,7 @@ Test
   lint               Run golangci-lint
   lint-install       Install golangci-lint (GOLANGCI_LINT_VERSION=$GOLANGCI_LINT_VERSION)
   smoke              End-to-end OAuth smoke test (server must be running)
+  smoke-jwt-key      Generate local private_key_jwt smoke client key (gitignored)
 
 Docker
   docker-build       Build container image ($DOCKER_IMAGE)
@@ -235,7 +253,7 @@ Docker
 Maintenance
   sqlc               Regenerate DB layer from SQL (requires sqlc; run sqlc-install first)
   sqlc-install       Install sqlc (SQLC_VERSION=$SQLC_VERSION)
-  update-thunder     Update thunder replace directive to latest commit on THUNDER_BRANCH (default: $THUNDER_BRANCH)
+  update-thunder     Update thunder replace directive and refresh go.sum (THUNDER_BRANCH=$THUNDER_BRANCH)
   tidy               Run go mod tidy
   clean              Remove build artefacts and coverage output
   distclean          Also remove generated signing keys under keys/
@@ -273,6 +291,7 @@ for t in "${targets[@]}"; do
     lint)            target_lint ;;
     lint-install)    target_lint_install ;;
     smoke)           target_smoke ;;
+    smoke-jwt-key)   target_smoke_jwt_key ;;
     docker-build)    target_docker_build ;;
     docker-run)      target_docker_run ;;
     sqlc)            target_sqlc ;;

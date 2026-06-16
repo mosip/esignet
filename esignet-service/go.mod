@@ -18,7 +18,6 @@ require (
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/yuin/gopher-lua v1.1.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/fxamacker/cbor/v2 v2.9.0 // indirect
@@ -40,6 +39,7 @@ require (
 	github.com/segmentio/encoding v0.5.4 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
+	github.com/yuin/gopher-lua v1.1.1 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/otel v1.43.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.39.0 // indirect
@@ -66,4 +66,4 @@ require (
 	modernc.org/sqlite v1.37.0 // indirect
 )
 
-replace github.com/thunder-id/thunderid => github.com/anushasunkada/thunder/backend v0.0.0-20260607190135-05f8de3b6355
+replace github.com/thunder-id/thunderid => github.com/anushasunkada/thunder/backend v0.0.0-20260615204523-8c8fc92a664a
