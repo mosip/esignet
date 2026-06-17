@@ -533,3 +533,5 @@ springConfigNameEnv:
 activeProfileEnv:
 pluginNameEnv: esignet-mock-plugin.jar
 pluginUrlEnv:
+
+domainConfig: {}
