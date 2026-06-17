@@ -1690,6 +1690,7 @@
     ],
     "TC_ESignet_FAPI_PartialUpdateOIDCClient_01": ["TC_ESignet_FAPI_CreateOIDCClient_02"],
     "TC_ESignet_PatchOIDCClient_07": ["TC_ESignet_OIDCClientV3_E2EMock_02"],
+    "TC_Esignet_DBValidator_02": ["TC_ESignet_CreateOIDCClient_V2_01"],
     "TC_ESignet_UpdateOIDCClientV2_06": ["TC_ESignet_CreateOIDCClientV2_01"],
     "TC_ESignet_UpdateOIDCClientV2_05": ["TC_ESignet_CreateOIDCClientV2_01"],
     "TC_ESignet_UpdateOIDCClientV2_04": ["TC_ESignet_CreateOIDCClientV2_01"],

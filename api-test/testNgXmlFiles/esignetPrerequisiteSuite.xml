@@ -116,6 +116,7 @@
 			value="esignet/PmsIntegration/PartnerPolicyMapping/partnerPolicyMapping.yml" />
 		<parameter name="idKeyName" value="mappingkey" />
 		<parameter name="pathParams" value="partnerId" />
+		<parameter name="prerequisite" value="Yes" />
 		<classes>
 			<class
 				name="io.mosip.testrig.apirig.esignet.testscripts.PostWithBodyAndPathParams" />
@@ -125,6 +126,7 @@
 		<parameter name="ymlFile"
 			value="esignet/PmsIntegration/ApprovePartnerPolicyMapping/ApproveMappingKey.yml" />
 		<parameter name="pathParams" value="mappingkey" />
+		<parameter name="prerequisite" value="Yes" />
 		<classes>
 			<class
 				name="io.mosip.testrig.apirig.esignet.testscripts.PutWithPathParamsAndBody" />

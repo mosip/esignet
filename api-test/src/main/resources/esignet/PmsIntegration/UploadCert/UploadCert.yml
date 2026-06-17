@@ -150,7 +150,7 @@ uploadPartnerCert:
       role: partner
       checkErrorsOnlyInResponse: true
       restMethod: post
-      additionalDependencies: Dependent_Idrepo_uploadCACert_01,Dependent_Idrepo_uploadCACert_02
+      additionalDependencies: Dependent_Idrepo_uploadCACert_17,Dependent_Idrepo_uploadSubCACert_18
       inputTemplate: esignet/PmsIntegration/UploadCert/uploadCert
       outputTemplate: esignet/PmsIntegration/UploadCert/uploadCertResult
       input: '{

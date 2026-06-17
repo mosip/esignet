@@ -793,7 +793,7 @@ CreateOIDCClient:
       description: Create OIDC client with a Data Share type policy - should fail as Data Share policies are not allowed for OIDC client creation
       role: partner
       restMethod: post
-      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_08
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_08, Dependent_Idrepo_definePolicy_16, Dependent_Idrepo_createPartnerSelfRegistration_09
       inputTemplate: esignet/OidcClient/OIDCClient
       outputTemplate: esignet/error
       input: '{
@@ -819,7 +819,7 @@ CreateOIDCClient:
       description: Create OIDC client with a MISP type policy - should fail as MISP policies are not applicable for OIDC client creation
       role: partner
       restMethod: post
-      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_08
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_08, Dependent_Idrepo_definePolicy_02, Dependent_Idrepo_createPartnerSelfRegistration_01
       inputTemplate: esignet/OidcClient/OIDCClient
       outputTemplate: esignet/error
       input: '{
@@ -845,7 +845,7 @@ CreateOIDCClient:
       description: Create OIDC client with a policy that has not been approved - should fail as only approved policies are allowed for OIDC client creation
       role: partner
       restMethod: post
-      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_08
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_08, Dependent_Idrepo_definePolicy_17, Dependent_Idrepo_createPartnerSelfRegistration_01
       inputTemplate: esignet/OidcClient/OIDCClient
       outputTemplate: esignet/error
       input: '{
@@ -865,13 +865,13 @@ CreateOIDCClient:
 	    }
 	  ]
 }'
-   Esignet_CreateOIDCClient_With_Same_AuthPartner_With_Diff_Policy_Neg:
+   Esignet_CreateOIDCClient_With_Same_AuthPartner_With_Diff_Policy_sid:
       endPoint: /v1/partnermanager/oidc/client
       uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_35
       description: Create OIDC client using the same auth partner but with a different approved policy - should succeed as the same partner can be mapped to multiple policies
       role: partner
       restMethod: post
-      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_08
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_08, Dependent_Idrepo_definePolicy_18, Dependent_Idrepo_createPartnerSelfRegistration_01
       inputTemplate: esignet/OidcClient/OIDCClient
       outputTemplate: esignet/OidcClient/OIDCClientResult
       input: '{

@@ -5,7 +5,7 @@ partnerPolicyMapping:
       description: Validate that partner policy mappings are retrieved successfully for all valid entries
       role: partner
       checkErrorsOnlyInResponse: true
-      additionalDependencies: TC_PMS_createPartnerSelfRegistration_01  
+      additionalDependencies: Dependent_Idrepo_createPartnerSelfRegistration_01  
       restMethod: post 
       inputTemplate: esignet/PmsIntegration/PartnerPolicyMapping/partnerPolicyMapping
       outputTemplate: esignet/PmsIntegration/PartnerPolicyMapping/partnerPolicyMappingResult
@@ -23,7 +23,7 @@ partnerPolicyMapping:
       description: Validate that partner policy mappings are retrieved successfully for all valid entries
       role: partner
       checkErrorsOnlyInResponse: true
-      additionalDependencies: TC_PMS_createPartnerSelfRegistration_01  
+      additionalDependencies: Dependent_Idrepo_createPartnerSelfRegistration_01  
       restMethod: post 
       inputTemplate: esignet/PmsIntegration/PartnerPolicyMapping/partnerPolicyMapping
       outputTemplate: esignet/PmsIntegration/PartnerPolicyMapping/partnerPolicyMappingResult
@@ -41,7 +41,7 @@ partnerPolicyMapping:
       description: Validate that partner policy mappings are retrieved successfully for all valid entries
       role: partner
       checkErrorsOnlyInResponse: true
-      additionalDependencies: TC_PMS_createPartnerSelfRegistration_01  
+      additionalDependencies: Dependent_Idrepo_createPartnerSelfRegistration_01  
       restMethod: post 
       inputTemplate: esignet/PmsIntegration/PartnerPolicyMapping/partnerPolicyMapping
       outputTemplate: esignet/PmsIntegration/PartnerPolicyMapping/partnerPolicyMappingResult
@@ -59,7 +59,7 @@ partnerPolicyMapping:
       description: Validate that partner policy mappings are retrieved successfully for all valid entries
       role: partner
       checkErrorsOnlyInResponse: true
-      additionalDependencies: TC_PMS_createPartnerSelfRegistration_01  
+      additionalDependencies: Dependent_Idrepo_createPartnerSelfRegistration_01  
       restMethod: post 
       inputTemplate: esignet/PmsIntegration/PartnerPolicyMapping/partnerPolicyMapping
       outputTemplate: esignet/PmsIntegration/PartnerPolicyMapping/partnerPolicyMappingResult

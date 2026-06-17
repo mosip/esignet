@@ -190,7 +190,7 @@ createPublishPolicy:
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/PublishPolicy/publishPolicy
-      outputTemplate: esignet/PmsIntegration/PublishPolicy/publishPolicyMispResult
+      outputTemplate: esignet/PmsIntegration/PublishPolicy/publishPolicyResult
       input: '{
 		"policygroupId": "$ID:DefinePolicyGroup_All_Valid_Smoke_sid_id$",
 		"policyId": "$ID:DefinePolicy_For_AuthPartner_sid_id$",
@@ -200,7 +200,8 @@ createPublishPolicy:
         "policyGroupStatus": "true",
         "policyType": "Auth",
         "status": "PUBLISHED",
-        "is_Active": "true"
+        "is_Active": "true",
+        "authType": "bio"
 }'
 
    Esignet_PublishPolicy_For_Policy_WithOut_AllowedAuthTypes_Smoke:
@@ -230,7 +231,7 @@ createPublishPolicy:
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/PublishPolicy/publishPolicy
-      outputTemplate: esignet/PmsIntegration/PublishPolicy/publishPolicyMispResult
+      outputTemplate: esignet/PmsIntegration/PublishPolicy/publishPolicyResult
       input: '{
 		"policygroupId": "$ID:DefinePolicyGroup_All_Valid_Smoke_sid_id$",
 		"policyId": "$ID:DefinePolicy_WithOut_AllowedKycAttributes_sid_id$",
@@ -240,7 +241,8 @@ createPublishPolicy:
         "policyGroupStatus": "true",
         "policyType": "Auth",
         "status": "PUBLISHED",
-        "is_Active": "true"
+        "is_Active": "true",
+        "authType": "bio"
 }'
 
    Esignet_PublishPolicy_For_Policy_WithOut_FullName_Email_Gender_Smoke:
@@ -250,7 +252,7 @@ createPublishPolicy:
       role: partner
       restMethod: post
       inputTemplate: esignet/PmsIntegration/PublishPolicy/publishPolicy
-      outputTemplate: esignet/PmsIntegration/PublishPolicy/publishPolicyMispResult
+      outputTemplate: esignet/PmsIntegration/PublishPolicy/publishPolicyResult
       input: '{
 		"policygroupId": "$ID:DefinePolicyGroup_All_Valid_Smoke_sid_id$",
 		"policyId": "$ID:DefinePolicy_WithOut_FullName_Email_Gender_sid_id$",
@@ -260,5 +262,6 @@ createPublishPolicy:
         "policyGroupStatus": "true",
         "policyType": "Auth",
         "status": "PUBLISHED",
-        "is_Active": "true"
+        "is_Active": "true",
+        "authType": "bio"
 }'

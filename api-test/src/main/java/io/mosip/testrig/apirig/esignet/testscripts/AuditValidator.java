@@ -22,7 +22,6 @@ import io.mosip.testrig.apirig.dto.OutputValidationDto;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
 import io.mosip.testrig.apirig.esignet.utils.EsignetConfigManager;
 import io.mosip.testrig.apirig.esignet.utils.EsignetUtil;
-import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 import io.mosip.testrig.apirig.testrunner.HealthChecker;
 import io.mosip.testrig.apirig.utils.AdminTestException;
 import io.mosip.testrig.apirig.utils.AuthenticationTestException;
@@ -55,7 +54,7 @@ public class AuditValidator extends EsignetUtil implements ITest {
 
 	/**
 	 * Data provider class provides test case list
-	 * 
+	 *
 	 * @return object of data provider
 	 */
 	@DataProvider(name = "testcaselist")
@@ -76,8 +75,11 @@ public class AuditValidator extends EsignetUtil implements ITest {
 		String[] templateFields = testCaseDTO.getTemplateFields();
 		List<String> queryProp = Arrays.asList(templateFields);
 		logger.info(queryProp);
-		String partnerUserName = BaseTestCase.currentModule + "-" + EsignetConfigManager.getproperty("partner_userName");
-		String query = "select * from audit.app_audit_log where cr_by = '" + partnerUserName + "'";
+
+		String query = testCaseDTO.getEndPoint();
+		if (query == null || query.isBlank()) {
+			throw new AdminTestException("Audit query is missing in YAML for " + testCaseName);
+		}
 
 		logger.info(query);
 		Map<String, Object> response = DBManager.executeQueryAndGetRecord(testCaseDTO.getRole(), query);
@@ -101,14 +103,13 @@ public class AuditValidator extends EsignetUtil implements ITest {
 
 	/**
 	 * The method ser current test name to result
-	 * 
+	 *
 	 * @param result
 	 */
 	@AfterMethod(alwaysRun = true)
 	public void setResultTestName(ITestResult result) {
 
-		String deleteQuery = "delete from audit.app_audit_log where cr_by = '"
-				+ BaseTestCase.currentModule + "-" + EsignetConfigManager.getproperty("partner_userName") + "'";
+		String deleteQuery = "delete from audit.app_audit_log where module_name LIKE 'esignet%'";
 		logger.info(deleteQuery);
 		DBManager.executeQueryAndDeleteRecord("audit", deleteQuery);
 

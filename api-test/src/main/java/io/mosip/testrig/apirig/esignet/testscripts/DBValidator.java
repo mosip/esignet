@@ -82,12 +82,11 @@ public class DBValidator extends EsignetUtil implements ITest {
 
 		JSONObject jsonObject = new JSONObject(replaceId);
 		logger.info(jsonObject.keySet());
-		Set<String> set = new TreeSet<>();
-		set.addAll(jsonObject.keySet());
-		String filterId = "";
-
-		if (set.stream().findFirst().isPresent())
-			filterId = set.stream().findFirst().get();
+		if (jsonObject.length() != 1) {
+			throw new AdminTestException("DBValidator input must contain exactly one filter field");
+		}
+		Set<String> set = new TreeSet<>(jsonObject.keySet());
+		String filterId = set.iterator().next();
 
 		logger.info(filterId);
 		String query = testCaseDTO.getEndPoint() + " " + filterId + " = " + "'" + jsonObject.getString(filterId) + "'";

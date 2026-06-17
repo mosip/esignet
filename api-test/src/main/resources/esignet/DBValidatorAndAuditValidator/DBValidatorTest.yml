@@ -5,6 +5,7 @@ DBValidator:
     description: Validate that data created for OIDCClient is correctly stored and consistent in the pms database
     role: pms
     restMethod: post
+    additionalDependencies: TC_ESignet_CreateOIDCClient_MOSIPID_01
     inputTemplate: esignet/DBValidatorAndAuditValidator/DBValidatorTest
     outputTemplate: esignet/DBValidatorAndAuditValidator/DBValidatorTestResult
     input: '{
@@ -19,6 +20,7 @@ DBValidator:
     description: Validate that data created for OIDCClient client details is correctly stored and consistent in the esignet database
     role: esignet
     restMethod: post
+    additionalDependencies: TC_ESignet_CreateOIDCClient_MOSIPID_01
     inputTemplate: esignet/DBValidatorAndAuditValidator/DBValidatorTest
     outputTemplate: esignet/DBValidatorAndAuditValidator/DBValidatorTestResult
     input: '{
@@ -33,6 +35,7 @@ DBValidator:
     description: Validate that data created for OIDCClient client details is correctly stored and consistent in the ida database
     role: partner
     restMethod: post
+    additionalDependencies: TC_ESignet_CreateOIDCClient_MOSIPID_01
     inputTemplate: esignet/DBValidatorAndAuditValidator/DBValidatorTest
     outputTemplate: esignet/DBValidatorAndAuditValidator/DBValidatorTestResult
     input: '{
