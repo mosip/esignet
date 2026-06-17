@@ -37,6 +37,8 @@ public class DBValidator extends EsignetUtil implements ITest {
 	protected String testCaseName = "";
 	public static List<String> templateFields = new ArrayList<>();
 	public Response response = null;
+	private static final int MAX_RETRY_COUNT = 5;
+	private static final long RETRY_DELAY_MS = 2000;
 
 	@BeforeClass
 	public static void setLogLevel() {
@@ -92,6 +94,20 @@ public class DBValidator extends EsignetUtil implements ITest {
 
 		logger.info(query);
 		Map<String, Object> response = DBManager.executeQueryAndGetRecord(testCaseDTO.getRole(), query);
+
+		int retryCount = 0;
+		while (response.isEmpty() && retryCount < MAX_RETRY_COUNT) {
+			retryCount++;
+			logger.info("No record found yet, retrying (" + retryCount + "/" + MAX_RETRY_COUNT + ") after "
+					+ RETRY_DELAY_MS + "ms: " + query);
+			try {
+				Thread.sleep(RETRY_DELAY_MS);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				break;
+			}
+			response = DBManager.executeQueryAndGetRecord(testCaseDTO.getRole(), query);
+		}
 
 		Map<String, List<OutputValidationDto>> objMap = new HashMap<>();
 		List<OutputValidationDto> objList = new ArrayList<>();

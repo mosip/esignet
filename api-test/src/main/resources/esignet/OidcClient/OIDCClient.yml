@@ -790,7 +790,7 @@ CreateOIDCClient:
    Esignet_CreateOIDCClient_With_DataSharePlocy_Neg:
       endPoint: /v1/partnermanager/oidc/client
       uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_32
-      description: Create OIDC client With Data Share Policy
+      description: Create OIDC client with a Data Share type policy - should fail as Data Share policies are not allowed for OIDC client creation
       role: partner
       restMethod: post
       additionalDependencies: Dependent_Idrepo_uploadPartnerCert_08
@@ -816,7 +816,7 @@ CreateOIDCClient:
    Esignet_CreateOIDCClient_With_MISP_Policy_Neg:
       endPoint: /v1/partnermanager/oidc/client
       uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_33
-      description: Create OIDC client With MISP Policy
+      description: Create OIDC client with a MISP type policy - should fail as MISP policies are not applicable for OIDC client creation
       role: partner
       restMethod: post
       additionalDependencies: Dependent_Idrepo_uploadPartnerCert_08
@@ -842,7 +842,7 @@ CreateOIDCClient:
    Esignet_CreateOIDCClient_With_Not_Approved_Policy_Neg:
       endPoint: /v1/partnermanager/oidc/client
       uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_34
-      description: Create OIDC client With Not Approved Policy
+      description: Create OIDC client with a policy that has not been approved - should fail as only approved policies are allowed for OIDC client creation
       role: partner
       restMethod: post
       additionalDependencies: Dependent_Idrepo_uploadPartnerCert_08
@@ -868,7 +868,7 @@ CreateOIDCClient:
    Esignet_CreateOIDCClient_With_Same_AuthPartner_With_Diff_Policy_Neg:
       endPoint: /v1/partnermanager/oidc/client
       uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_35
-      description: Create OIDC client With Not Approved Policy
+      description: Create OIDC client using the same auth partner but with a different approved policy - should succeed as the same partner can be mapped to multiple policies
       role: partner
       restMethod: post
       additionalDependencies: Dependent_Idrepo_uploadPartnerCert_08
@@ -890,7 +890,7 @@ CreateOIDCClient:
    Esignet_CreateOIDCClient_With_More_Than_One_RedirectedUri_sid:
       endPoint: /v1/partnermanager/oidc/client
       uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_36
-      description: Create OIDC client with all valid details
+      description: Create OIDC client with more than one redirect URI configured - should succeed as multiple redirect URIs are supported
       role: partner
       restMethod: post
       additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
@@ -912,7 +912,7 @@ CreateOIDCClient:
    Esignet_CreateOIDCClient_For_Policy_WithOut_FullName_Email_Gender_sid:
       endPoint: /v1/partnermanager/oidc/client
       uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_37
-      description: Create OIDC client with all valid details
+      description: Create OIDC client with a policy that does not include FullName, Email and Gender claims - should succeed as these user claims are optional in the policy
       role: partner
       restMethod: post
       additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
@@ -934,7 +934,7 @@ CreateOIDCClient:
    Esignet_CreateOIDCClient_For_Policy_WithOut_AllowedAuthTypes_Neg:
       endPoint: /v1/partnermanager/oidc/client
       uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_38
-      description: Create OIDC client with all valid details
+      description: Create OIDC client with a policy that has no allowed auth types configured - should fail as at least one auth type must be defined in the policy
       role: partner
       restMethod: post
       additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
@@ -960,7 +960,7 @@ CreateOIDCClient:
    Esignet_CreateOIDCClient_For_Policy_WithOut_AllowedKycAttributes_Neg:
       endPoint: /v1/partnermanager/oidc/client
       uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_39
-      description: Create OIDC client with all valid details
+      description: Create OIDC client with a policy that has no allowed KYC attributes configured - should fail as at least one KYC attribute must be defined in the policy
       role: partner
       restMethod: post
       additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
@@ -979,7 +979,7 @@ CreateOIDCClient:
       output: '{
       "errors": [
        {
-          "errorCode": "PMS_ESI_006"
+          "errorCode": "PMS_ESI_005"
        }
     ]
 }'

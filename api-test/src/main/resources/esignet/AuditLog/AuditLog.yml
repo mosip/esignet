@@ -11,6 +11,6 @@ addContact:
     input: '{
   }'
     output: '{
-      "module_name": "esignet-service"
+      "module_name": "esignet-service",
       "cr_by": "111997"
    }'

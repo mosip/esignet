@@ -270,7 +270,8 @@ public class EsignetUtil extends AdminTestUtil {
 			}
 			if (endpoint.contains("/esignet/vci/") == false && endpoint.contains("/esignet/") == false
 					&& endpoint.contains("/v1/signup/") == false && endpoint.contains("/mock-identity-system/") == false
-					&& endpoint.contains("$GETENDPOINTFROMWELLKNOWN$") == false) {
+					&& endpoint.contains("$GETENDPOINTFROMWELLKNOWN$") == false
+					&& !testCaseName.equals("Esignet_DBValidator_All_Valid_Smoke_data_created_for_OIDCClient_Client_detail")) {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 			}
 			if ((testCaseName.contains("_KycBioAuth_") || testCaseName.contains("_BioAuth_")
@@ -332,7 +333,8 @@ public class EsignetUtil extends AdminTestUtil {
 				|| testCaseName.contains("_AuthenticateUser_V3_MOCK_")
 				|| testCaseName.contains("_AuthorizationCode_MOCK_")
 				|| testCaseName.contains("_GenerateToken_MOCK_")
-				|| testCaseName.contains("_GetOidcUserInfo_MOCK_"))) {
+				|| testCaseName.contains("_GetOidcUserInfo_MOCK_")
+				|| testCaseName.equals("Esignet_DBValidator_All_Valid_Smoke_data_created_for_OIDCClient_Client_detail"))) {
 			throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 		}
 			 

@@ -76,8 +76,8 @@ public class AuditValidator extends EsignetUtil implements ITest {
 		String[] templateFields = testCaseDTO.getTemplateFields();
 		List<String> queryProp = Arrays.asList(templateFields);
 		logger.info(queryProp);
-		String query = "select * from audit.app_audit_log where cr_by = '" + BaseTestCase.currentModule + "-"
-				+ EsignetConfigManager.getproperty("partner_userName") + "'";
+		String partnerUserName = BaseTestCase.currentModule + "-" + EsignetConfigManager.getproperty("partner_userName");
+		String query = "select * from audit.app_audit_log where cr_by = '" + partnerUserName + "'";
 
 		logger.info(query);
 		Map<String, Object> response = DBManager.executeQueryAndGetRecord(testCaseDTO.getRole(), query);
@@ -108,7 +108,7 @@ public class AuditValidator extends EsignetUtil implements ITest {
 	public void setResultTestName(ITestResult result) {
 
 		String deleteQuery = "delete from audit.app_audit_log where cr_by = '"
-				+ EsignetConfigManager.getproperty("partner_userName") + "'";
+				+ BaseTestCase.currentModule + "-" + EsignetConfigManager.getproperty("partner_userName") + "'";
 		logger.info(deleteQuery);
 		DBManager.executeQueryAndDeleteRecord("audit", deleteQuery);
 
