@@ -24,7 +24,6 @@ import io.mosip.esignet.api.util.Action;
 import io.mosip.esignet.api.util.ActionStatus;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.*;
-import io.mosip.esignet.core.dto.ServerProfile;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.InvalidDpopHeaderException;
 import io.mosip.esignet.core.spi.*;
