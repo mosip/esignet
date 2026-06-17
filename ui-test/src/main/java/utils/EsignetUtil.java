@@ -13,8 +13,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Consumer;
 
 import javax.ws.rs.core.MediaType;
 
@@ -71,7 +74,21 @@ public class EsignetUtil extends AdminTestUtil {
 	private static String partnerCookie = null;
 	private static String mobileAuthCookie = null;
 	protected static boolean triggerESignetKeyGenForPAR = true;
+	protected static boolean triggerESignetKeyGenForPARPurposeLogin = true;
+	protected static boolean triggerESignetKeyGenForPARPurposeLink = true;
+	protected static boolean triggerESignetKeyGenForPARPurposeNone = true;
+	protected static boolean triggerESignetKeyGenForPARNoPurpose = true;
+	protected static boolean triggerESignetKeyGenForPARNoTitle = true;
+	protected static boolean triggerESignetKeyGenForPAREmptyTitle = true;
+	protected static boolean triggerESignetKeyGenForPARSingleAcrValue = true;
 	protected static final String OIDC_JWK_FOR_PAR = "oidcJWKForPAR";
+	protected static final String OIDC_JWK_FOR_PAR_PURPOSE_LOGIN = "oidcJWKForPARPurposeLogin";
+	protected static final String OIDC_JWK_FOR_PAR_PURPOSE_LINK = "oidcJWKForPARPurposeLink";
+	protected static final String OIDC_JWK_FOR_PAR_PURPOSE_NONE = "oidcJWKForPARPurposeNone";
+	protected static final String OIDC_JWK_FOR_PAR_NO_PURPOSE = "oidcJWKForPARNoPurposeType";
+	protected static final String OIDC_JWK_FOR_PAR_NO_TITLE = "oidcJWKForPARNoTitle";
+	protected static final String OIDC_JWK_FOR_PAR_EMPTY_TITLE = "oidcJWKForPAREmptyTitle";
+	protected static final String OIDC_JWK_FOR_PAR_SINGLE_ACR_VALUE = "oidcJWKForPARSingleAcrValue";
 	protected static RSAKey oidc_JWK_Key_For_PAR = null;
 	protected static final String CLAIMS_REQUEST = "config/claims.json";
 
@@ -663,6 +680,62 @@ public class EsignetUtil extends AdminTestUtil {
 		triggerESignetKeyGenForPAR = value;
 	}
 
+	private static boolean getTriggerESignetKeyGenForPARPurposeLogin() {
+		return triggerESignetKeyGenForPARPurposeLogin;
+	}
+
+	private static void setTriggerESignetKeyGenForPARPurposeLogin(boolean value) {
+		triggerESignetKeyGenForPARPurposeLogin = value;
+	}
+
+	private static boolean getTriggerESignetKeyGenForPARPurposeLink() {
+		return triggerESignetKeyGenForPARPurposeLink;
+	}
+
+	private static void setTriggerESignetKeyGenForPARPurposeLink(boolean value) {
+		triggerESignetKeyGenForPARPurposeLink = value;
+	}
+
+	private static boolean getTriggerESignetKeyGenForPARPurposeNone() {
+		return triggerESignetKeyGenForPARPurposeNone;
+	}
+
+	private static void setTriggerESignetKeyGenForPARPurposeNone(boolean value) {
+		triggerESignetKeyGenForPARPurposeNone = value;
+	}
+
+	private static boolean getTriggerESignetKeyGenForPARNoPurpose() {
+		return triggerESignetKeyGenForPARNoPurpose;
+	}
+
+	private static void setTriggerESignetKeyGenForPARNoPurpose(boolean value) {
+		triggerESignetKeyGenForPARNoPurpose = value;
+	}
+
+	private static boolean getTriggerESignetKeyGenForPARNoTitle() {
+		return triggerESignetKeyGenForPARNoTitle;
+	}
+
+	private static void setTriggerESignetKeyGenForPARNoTitle(boolean value) {
+		triggerESignetKeyGenForPARNoTitle = value;
+	}
+
+	private static boolean getTriggerESignetKeyGenForPARSingleAcrValue() {
+		return triggerESignetKeyGenForPARSingleAcrValue;
+	}
+
+	private static void setTriggerESignetKeyGenForPARSingleAcrValue(boolean value) {
+		triggerESignetKeyGenForPARSingleAcrValue = value;
+	}
+
+	private static boolean getTriggerESignetKeyGenForPAREmptyTitle() {
+		return triggerESignetKeyGenForPAREmptyTitle;
+	}
+
+	private static void setTriggerESignetKeyGenForPAREmptyTitle(boolean value) {
+		triggerESignetKeyGenForPAREmptyTitle = value;
+	}
+
 	public static void getSupportedLanguage() {
 
 		if (EsignetConfigManager.getproperty("esignetSupportedLanguage") != null) {
@@ -689,15 +762,74 @@ public class EsignetUtil extends AdminTestUtil {
 					String.valueOf(Calendar.getInstance().getTimeInMillis()));
 		}
 
-		if (jsonString.contains("$CLIENT_ASSERTION_PAR_JWT$")) {
-			String oidcJWKKeyString = JWKKeyUtil.getJWKKey(OIDC_JWK_FOR_PAR);
-			logger.info("oidcJWKKeyString =" + oidcJWKKeyString);
+		jsonString = processClientAssertion(jsonString, "$CLIENT_ASSERTION_PAR_JWT$", OIDC_JWK_FOR_PAR);
+
+		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR$", OIDC_JWK_FOR_PAR);
+
+		// PURPOSE_LOGIN
+		jsonString = processClientAssertion(jsonString, "$CLIENT_ASSERTION_PAR_JWT_PURPOSE_LOGIN$",
+				OIDC_JWK_FOR_PAR_PURPOSE_LOGIN);
+
+		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_PURPOSE_LOGIN$", OIDC_JWK_FOR_PAR_PURPOSE_LOGIN);
+
+		// PURPOSE_LINK
+		jsonString = processClientAssertion(jsonString, "$CLIENT_ASSERTION_PAR_JWT_PURPOSE_LINK$",
+				OIDC_JWK_FOR_PAR_PURPOSE_LINK);
+
+		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_PURPOSE_LINK$", OIDC_JWK_FOR_PAR_PURPOSE_LINK);
+
+		// PURPOSE_NONE
+		jsonString = processClientAssertion(jsonString, "$CLIENT_ASSERTION_PAR_JWT_PURPOSE_NONE$",
+				OIDC_JWK_FOR_PAR_PURPOSE_NONE);
+
+		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_PURPOSE_NONE$", OIDC_JWK_FOR_PAR_PURPOSE_NONE);
+
+		// NO PURPOSE
+		jsonString = processClientAssertion(jsonString, "$CLIENT_ASSERTION_PAR_JWT_NO_PURPOSE$",
+				OIDC_JWK_FOR_PAR_NO_PURPOSE);
+
+		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_NO_PURPOSE$", OIDC_JWK_FOR_PAR_NO_PURPOSE);
+
+		// NO TITLE
+		jsonString = processClientAssertion(jsonString, "$CLIENT_ASSERTION_PAR_JWT_NO_TITLE$",
+				OIDC_JWK_FOR_PAR_NO_TITLE);
+
+		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_NO_TITLE$", OIDC_JWK_FOR_PAR_NO_TITLE);
+
+		// EMPTY TITLE
+		jsonString = processClientAssertion(jsonString, "$CLIENT_ASSERTION_PAR_JWT_EMPTY_TITLE$",
+				OIDC_JWK_FOR_PAR_EMPTY_TITLE);
+
+		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_EMPTY_TITLE$", OIDC_JWK_FOR_PAR_EMPTY_TITLE);
+
+		// SINGLE AUTH FACTOR
+		jsonString = processClientAssertion(jsonString, "$CLIENT_ASSERTION_PAR_JWT_SINGLE_ACR_VALUE$",
+				OIDC_JWK_FOR_PAR_SINGLE_ACR_VALUE);
+
+		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_SINGLE_ACR_VALUE$",
+				OIDC_JWK_FOR_PAR_SINGLE_ACR_VALUE);
+
+		if (jsonString.contains("$ESIGNET_REDIRECT_URI$")) {
+			jsonString = replaceKeywordWithValue(jsonString, "$ESIGNET_REDIRECT_URI$",
+					EsignetConfigManager.getproperty("baseurl") + "userprofile");
+		}
+
+		return jsonString;
+
+	}
+
+	private static String processClientAssertion(String jsonString, String placeholder, String jwkKeyName) {
+
+		if (jsonString.contains(placeholder)) {
+
+			String keyString = JWKKeyUtil.getJWKKey(jwkKeyName);
+			RSAKey rsaKey;
+
 			try {
-				oidc_JWK_Key_For_PAR = RSAKey.parse(oidcJWKKeyString);
-				logger.info("oidc_JWK_Key_For_PAR =" + oidc_JWK_Key_For_PAR);
-			} catch (java.text.ParseException e) {
-				logger.error(e.getMessage());
-				throw new RuntimeException("Failed to parse OIDC JWK key for PAR", e);
+				rsaKey = RSAKey.parse(keyString);
+			} catch (Exception e) {
+				throw new RuntimeException(
+						"Failed to parse JWK for placeholder " + placeholder + " (key=" + jwkKeyName + ")", e);
 			}
 
 			JSONObject root = new JSONObject(jsonString);
@@ -710,34 +842,24 @@ public class EsignetUtil extends AdminTestUtil {
 				jsonString = root.toString();
 			}
 
-			String tempUrl = getValueFromEsignetWellKnownEndPoint(audKey, EsignetConfigManager.getEsignetBaseUrl());
+			String url = getValueFromEsignetWellKnownEndPoint(audKey, EsignetConfigManager.getEsignetBaseUrl());
 
 			if (clientId != null) {
-				jsonString = replaceKeywordWithValue(jsonString, "$CLIENT_ASSERTION_PAR_JWT$",
-						signJWKKey(clientId, oidc_JWK_Key_For_PAR, tempUrl));
-			} else {
-				logger.error("Client ID not found in JSON for $CLIENT_ASSERTION_PAR_JWT$.");
+				jsonString = replaceKeywordWithValue(jsonString, placeholder, signJWKKey(clientId, rsaKey, url));
 			}
-		}
-
-		if (jsonString.contains("$OIDC_JWK_KEY_PAR$")) {
-			String jwkKey = "";
-			if (getTriggerESignetKeyGenForPAR()) {
-				jwkKey = JWKKeyUtil.generateAndCacheJWKKey(OIDC_JWK_FOR_PAR);
-				setTriggerESignetKeyGenForPAR(false);
-			} else {
-				jwkKey = JWKKeyUtil.getJWKKey(OIDC_JWK_FOR_PAR);
-			}
-			jsonString = replaceKeywordWithValue(jsonString, "$OIDC_JWK_KEY_PAR$", jwkKey);
-		}
-
-		if (jsonString.contains("$ESIGNET_REDIRECT_URI$")) {
-			jsonString = replaceKeywordWithValue(jsonString, "$ESIGNET_REDIRECT_URI$",
-					EsignetConfigManager.getproperty("baseurl") + "userprofile");
 		}
 
 		return jsonString;
+	}
 
+	private static final Set<String> generatedJwkKeys = ConcurrentHashMap.newKeySet();
+
+	private static String processJWKKey(String jsonString, String placeholder, String jwkKeyName) {
+		if (!jsonString.contains(placeholder))
+			return jsonString;
+		String jwkKey = generatedJwkKeys.add(jwkKeyName) ? JWKKeyUtil.generateAndCacheJWKKey(jwkKeyName)
+				: JWKKeyUtil.getJWKKey(jwkKeyName);
+		return replaceKeywordWithValue(jsonString, placeholder, jwkKey);
 	}
 
 	public static String getValueFromEsignetWellKnownEndPoint(String key, String baseURL) {
@@ -950,7 +1072,8 @@ public class EsignetUtil extends AdminTestUtil {
 		}
 	}
 
-	public static String generateParRequestUri() throws SecurityXSSException, JsonProcessingException {
+	public static String generateParRequestUri(String clientIdKey, String clientAssertionPlaceholder)
+			throws SecurityXSSException, JsonProcessingException {
 
 		String baseUrl = EsignetConfigManager.getproperty("eSignetbaseurl");
 		String parUrl = baseUrl + "/v1/esignet/oauth/par";
@@ -961,8 +1084,10 @@ public class EsignetUtil extends AdminTestUtil {
 		requestBody.put("display", display);
 		requestBody.put("response_type", responseType);
 		requestBody.put("nonce", "$UNIQUENONCEVALUEFORESIGNET$");
-		requestBody.put("client_id", AdminTestUtil
-				.replaceIdWithAutogeneratedId("$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$", "$ID:"));
+		if (clientIdKey == null || clientIdKey.isEmpty()) {
+			clientIdKey = "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$";
+		}
+		requestBody.put("client_id", AdminTestUtil.replaceIdWithAutogeneratedId(clientIdKey, "$ID:"));
 		requestBody.put("requestTime", "$TIMESTAMP$");
 		requestBody.put("client_assertion_type", client_assertion_type);
 		requestBody.put("claim_locales", claim_locales);
@@ -972,7 +1097,7 @@ public class EsignetUtil extends AdminTestUtil {
 				"mosip:idp:acr:generated-code mosip:idp:acr:biometrics mosip:idp:acr:linked-wallet mosip:idp:acr:password");
 		requestBody.put("redirect_uri", "$ESIGNET_REDIRECT_URI$");
 		requestBody.put("state", state);
-		requestBody.put("client_assertion", "$CLIENT_ASSERTION_PAR_JWT$");
+		requestBody.put("client_assertion", clientAssertionPlaceholder);
 		requestBody.put("prompt", prompt);
 		requestBody.put("aud_key", aud_key);
 

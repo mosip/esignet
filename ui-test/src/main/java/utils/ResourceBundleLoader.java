@@ -41,7 +41,7 @@ public class ResourceBundleLoader {
 				logger.warn("No ISO mapping found for language: " + currentLang + ", falling back to: " + currentLang);
 				twoLetterCode = currentLang;
 			}
-			String url = EsignetConfigManager.getproperty("baseurl") + "/locales/" + twoLetterCode + ".json";
+			String url = EsignetConfigManager.getproperty("eSignetbaseurl") + "/locales/" + twoLetterCode + ".json";
 
 			String jsonContent = downloadJson(url);
 			Map<String, Object> nestedMap = new ObjectMapper().readValue(jsonContent, new TypeReference<>() {
@@ -73,5 +73,13 @@ public class ResourceBundleLoader {
 				target.put(key, value.toString());
 			}
 		}
+	}
+
+	public static String getPrefixText(String key) {
+		String value = get(key);
+		if (value != null && value.startsWith("!!MISSING_KEY:")) {
+			throw new IllegalStateException("Resource bundle missing key: " + key);
+		}
+		return value.split("\\{\\{currentID\\}\\}")[0].trim();
 	}
 }

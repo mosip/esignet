@@ -92,7 +92,7 @@ public class OpenIdConnectControllerTest {
     public void getUserinfo_withNoAccessToken_thenFail() throws Exception {
         mockMvc.perform(get("/oidc/userinfo"))
                 .andExpect(status().is(401))
-                .andExpect(header().string("WWW-Authenticate", "error=\"missing_header\""));
+                .andExpect(header().string("WWW-Authenticate", "Bearer"));
     }
 
     @Test
@@ -101,7 +101,7 @@ public class OpenIdConnectControllerTest {
         mockMvc.perform(get("/oidc/userinfo")
                         .header("Authorization", "accessToken"))
                 .andExpect(status().is(401))
-                .andExpect(header().string("WWW-Authenticate", "error=\"invalid_token\""));
+                .andExpect(header().string("WWW-Authenticate", "Bearer error=\"invalid_token\""));
     }
 
     @Test
@@ -109,7 +109,7 @@ public class OpenIdConnectControllerTest {
         when(openIdConnectServiceImpl.getUserInfo(anyString(), any())).thenThrow(NullPointerException.class);
         mockMvc.perform(get("/oidc/userinfo")
                         .header("Authorization", "accessToken"))
-                .andExpect(status().is(401))
-                .andExpect(header().string("WWW-Authenticate", "error=\"unknown_error\""));
+                .andExpect(status().is(500))
+                .andExpect(header().string("WWW-Authenticate", "Bearer error=\"internal_error\""));
     }
 }
