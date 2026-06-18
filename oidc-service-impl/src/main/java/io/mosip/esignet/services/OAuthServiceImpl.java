@@ -79,9 +79,6 @@ public class OAuthServiceImpl implements OAuthService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
-    private ServerProfile serverProfile;
-
     @Value("${mosip.esignet.access-token-expire-seconds:60}")
     private int accessTokenExpireSeconds;
 
@@ -126,9 +123,7 @@ public class OAuthServiceImpl implements OAuthService {
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(transaction.getClientId());
 
         List<String> validAudience;
-        if (isFapi2Profile()) {
-            validAudience = List.of((String) discoveryMap.get(ISSUER));
-        } else if (isV2) {
+        if (isV2) {
             validAudience = List.of((String) oauthServerDiscoveryMap.get(TOKEN_ENDPOINT), (String) discoveryMap.get(ISSUER));
         } else {
             validAudience = List.of(discoveryIssuerId + "/oauth/token", (String) discoveryMap.get(ISSUER));
@@ -200,12 +195,7 @@ public class OAuthServiceImpl implements OAuthService {
         IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), pushedAuthorizationRequest.getRedirect_uri());
         authorizationHelperService.validateNonce(pushedAuthorizationRequest.getNonce());
 
-        List<String> validAudience;
-        if (isFapi2Profile()) {
-            validAudience = List.of((String) discoveryMap.get(ISSUER));
-        } else {
-            validAudience = List.of((String) oauthServerDiscoveryMap.get(PAR_ENDPOINT), (String) oauthServerDiscoveryMap.get(TOKEN_ENDPOINT), (String) discoveryMap.get(ISSUER));
-        }
+        List<String> validAudience = List.of((String) oauthServerDiscoveryMap.get(PAR_ENDPOINT), (String) oauthServerDiscoveryMap.get(TOKEN_ENDPOINT), (String) discoveryMap.get(ISSUER));
 
         tokenService.verifyClientAssertionToken(clientDetailDto.getId(), clientDetailDto.getPublicKey(), pushedAuthorizationRequest.getClient_assertion(), validAudience);
 
@@ -389,9 +379,6 @@ public class OAuthServiceImpl implements OAuthService {
         return null;
     }
 
-    private boolean isFapi2Profile() {
-        return serverProfile != null && "fapi2.0".equalsIgnoreCase(serverProfile.getName());
-    }
 
     private String validateDpopJktThumbprint(String dpopHeader,String dpopJkt) {
         try {

@@ -184,6 +184,7 @@ INSERT INTO esignet.KEY_POLICY_DEF(APP_ID,KEY_VALIDITY_DURATION,PRE_EXPIRE_DAYS,
 INSERT INTO esignet.server_profile(profile_name, feature, additional_config_key) VALUES ('fapi2.0', 'PAR', 'require_pushed_authorization_requests');
 INSERT INTO esignet.server_profile(profile_name, feature, additional_config_key) VALUES ('fapi2.0', 'DPOP', 'dpop_bound_access_tokens');
 INSERT INTO esignet.server_profile(profile_name, feature, additional_config_key) VALUES ('fapi2.0', 'PKCE', 'require_pkce');
+INSERT INTO esignet.server_profile(profile_name, feature, additional_config_key) VALUES ('fapi2.0', 'strict_audience_check', 'client_auth_assertion_audience');
 
 
 \c mosip_mockidentitysystem postgres

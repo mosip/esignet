@@ -191,8 +191,8 @@ public class TokenServiceImpl implements TokenService {
                 log.error("Client assertion sub '{}' does not match clientId '{}'", sub, clientId);
                 throw new EsignetException(ErrorConstants.INVALID_GRANT);
             }
-
-            NimbusJwtDecoder jwtDecoder = getNimbusJwtDecoderFromJwk(jwk, clientId, audience, maxClockSkew, alg);
+            List<String> validAudience = getValidAudienceForClientAssertion(audience);
+            NimbusJwtDecoder jwtDecoder = getNimbusJwtDecoderFromJwk(jwk, clientId, validAudience, maxClockSkew, alg);
             jwtDecoder.decode(clientAssertion);
             String jti = signedJWT.getJWTClaimsSet().getJWTID();
             if (uniqueJtiRequired && (jti == null || cacheUtilService.checkAndMarkJti(jti))) {
@@ -205,6 +205,26 @@ public class TokenServiceImpl implements TokenService {
             log.error("Failed to verify client assertion", e);
             throw new EsignetException(ErrorConstants.INVALID_CLIENT);
         }
+    }
+
+    /**
+     * Gets the valid audience list for client assertion verification.
+     * If the server profile has 'client_auth_assertion_audience' configured for the 'strict_audience_check' feature,
+     * it overrides the default audience list with the issuer URL only.
+     * @param audience the default audience list
+     * @return the valid audience list to use for verification
+     */
+    private List<String> getValidAudienceForClientAssertion(List<String> audience) {
+        if (serverProfile != null && serverProfile.getFeatureMap() != null
+                && serverProfile.getFeatureMap().containsKey("client_auth_assertion_audience")) {
+            // When strict_audience_check is enabled, use only the issuer as valid audience
+            String issuer = (String) discoveryMap.get("issuer");
+            if (issuer != null) {
+                log.debug("Using strict audience check with issuer: {}", issuer);
+                return List.of(issuer);
+            }
+        }
+        return audience;
     }
 
     private NimbusJwtDecoder getNimbusJwtDecoderFromJwk(String jwkJson, String clientId, List<String> audience, int maxClockSkew, String alg) throws Exception {
@@ -225,7 +245,7 @@ public class TokenServiceImpl implements TokenService {
                 new JwtClaimValidator<Instant>(JwtClaimNames.IAT, Objects::nonNull),
                 new JwtClaimValidator<Instant>(JwtClaimNames.EXP, Objects::nonNull),
                 new JwtClaimValidator<List<String>>(JwtClaimNames.AUD, aud ->
-                        aud != null && validateAudience(aud, audience)
+                        aud != null && aud.stream().anyMatch(audience::contains)
                 ),
                 new JwtClaimValidator<String>(JwtClaimNames.SUB, clientId::equals),
                 new JwtClaimValidator<String>(JwtClaimNames.JTI, jti ->
@@ -234,13 +254,6 @@ public class TokenServiceImpl implements TokenService {
         );
         decoder.setJwtValidator(validator);
         return decoder;
-    }
-
-    private boolean validateAudience(List<String> aud, List<String> expectedAudience) {
-        if (serverProfile != null && "fapi2.0".equalsIgnoreCase(serverProfile.getName())) {
-            return aud.size() == 1 && expectedAudience.contains(aud.getFirst());
-        }
-        return aud.stream().anyMatch(expectedAudience::contains);
     }
 
     @Override
