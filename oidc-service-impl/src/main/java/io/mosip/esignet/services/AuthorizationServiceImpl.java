@@ -409,7 +409,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     private void validateRedirectURIAndNonce(OAuthDetailRequest oAuthDetailRequest, ClientDetail clientDetail) {
         log.info("nonce : {} Valid client id found, proceeding to validate redirect URI", oAuthDetailRequest.getNonce());
         IdentityProviderUtil.validateRedirectURI(clientDetail.getRedirectUris(), oAuthDetailRequest.getRedirectUri());
-        authorizationHelperService.validateNonce(oAuthDetailRequest.getNonce());
     }
 
     private void assertPARRequiredIsFalse(ClientDetail clientDetail) throws EsignetException {
