@@ -120,6 +120,17 @@ public class ConsentPage extends BasePage {
 	@FindBy(xpath = "//p[@class='text-[#4E4E4E] font-semibold']")
 	WebElement actionMessage;
 
+	@FindBy(id = "login-header")
+	WebElement loginTitle;
+
+	@FindBy(id = "login-subheader")
+	WebElement loginSubTitle;
+
+	@FindBy(xpath = "//h1[@class='text-base leading-5 font-sans font-medium my-2']")
+	WebElement selectPreferredModeHeader;
+
+	@FindBy(xpath = "//div[@class='inline mx-2 font-semibold my-3']")
+	WebElement selectPreferredIdHeader;
 	@FindBy(xpath = "//div[@class='header my-2']")
 	WebElement headerInConsentUpdateProfileScreen;
 
@@ -375,6 +386,34 @@ public class ConsentPage extends BasePage {
 
 	public boolean isVerifyOtpButtonEnabled() {
 		return isButtonEnabled(verifyOtpButton, "Verified otp verification button is enabled");
+	}
+
+	public boolean isLoginWithOtpDisplayed(String expectedText) {
+		return isElementDisplayed(loginWithOtpButton) && loginWithOtpButton.getText().trim().startsWith(expectedText);
+	}
+
+	public boolean isLoginTitleDisplayed() {
+		return isElementDisplayed(loginTitle);
+	}
+
+	public boolean isLoginSubTitleDisplayed() {
+		return isElementDisplayed(loginSubTitle);
+	}
+
+	public String getLoginTitleText() {
+		return loginTitle.getText().trim();
+	}
+
+	public String getLoginSubTitleText() {
+		return loginSubTitle.getText().trim();
+	}
+
+	public String getSelectPreferredModeHeaderText() {
+		return selectPreferredModeHeader.getText().trim();
+	}
+
+	public String getSelectPreferredIdHeaderText() {
+		return selectPreferredIdHeader.getText().trim();
 	}
 
 	public boolean isHeaderInConsentUpdateProfileScreenVisible() {

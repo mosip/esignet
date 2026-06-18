@@ -93,6 +93,53 @@ Feature: Esignet Consent Page
    And user verify the action message in consent screen
    And user verify the timer is displayed in consent screen
    
+  @smoke @PurposeLogin
+  Scenario: Verifying auth factors for a client ID with purpose type login
+   When user creates the client with purpose type login
+   Given user captures the authorize url
+   Then all auth factors should start with login
+   And verify select preferred mode text is displayed
+   And user click on Login with Otp
+   And verify select preferred ID text based on purpose type when more than one auth factor is present
+    
+  @smoke @PurposeLink
+  Scenario: Verifying auth factors for a client ID with purpose type link
+    When user creates the client with purpose type link
+    Then all auth factors should start with link
+	
+  @smoke @PurposeVerify
+  Scenario: Verifying auth factors for a client ID with purpose type verify
+    When user creates the client with purpose type verify
+    Then all auth factors should start with verify
+    And verify title and subtitle should be displayed as per text given during client creation
+    
+  @smoke @PurposeNone
+  Scenario: Verifying auth factors for a client ID with purpose type none
+    When user creates the client with purpose type none
+    Then verify no title or subtitle should be displayed
+    And user click on Login with Otp
+    And verify select preferred ID text based on purpose type is displayed
+    
+  @smoke @NoPurpose
+  Scenario: Verify eSignet UI falls back to login when client is created without purpose field
+    When user creates the client without purpose field
+    Then all auth factors should start with login
+	
+  @smoke @NoTitleAndSubTitle
+  Scenario: Verifying title and subtitle are not displayed when purpose title and subtitle values are null
+    When user creates the client with null title and subtitle values
+    Then verify no title or subtitle should be displayed
+
+  @smoke @EmptyTitleAndSubTitle
+  Scenario: Verifying title and subtitle are not displayed when purpose title and subtitle values are empty
+    When user creates the client with empty title and subtitle values
+    Then verify no title or subtitle should be displayed
+	
+  @smoke @SingleAuthFactor
+  Scenario: Verifying header of select preferred ID with single auth factor
+   When user creates the client with single auth factor
+   Given user captures the authorize url
+   And verify select ID type text based on purpose type when one auth factor is displayed
   @smoke @ConsentToUpdateProfile
   Scenario: Verifying user consent to proceed with profile update
    Given user captures the authorize url
