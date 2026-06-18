@@ -159,13 +159,30 @@ Set `LOG_LEVEL=debug` for verbose tracing.
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
-| `AUTHN_PROVIDER` | `catalog` | `catalog` (local YAML users) or `mosip` (MOSIP IDA) |
+| `AUTHN_PROVIDER` | `catalog` | `catalog` (local YAML users), `mosip` (MOSIP IDA), or `sunbird` (SunbirdRC registry KBI) |
 | `MOSIP_API_BASE_URL` | _(empty)_ | MOSIP API host |
 | `MOSIP_LICENSE_KEY` | _(empty)_ | License key used in IDA endpoint paths |
 | `MOSIP_P12_PATH` | _(empty)_ | Partner keystore (required for MOSIP auth) |
 | `MOSIP_P12_PASSWORD` | _(empty)_ | Partner keystore password |
+| `MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_AUTH_FACTOR_KBI_REGISTRY_SEARCH_URL` | _(empty)_ | SunbirdRC registry search endpoint (**required** for `sunbird` auth) |
+| `MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_REGISTRY_GET_URL` | _(empty)_ | SunbirdRC registry get/entity endpoint; used to fetch OIDC claims after auth |
+| `MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_AUTH_FACTOR_KBI_INDIVIDUAL_ID_FIELD` | `policyNumber` | Registry field the entered `individualId` maps to in the search filter |
+| `MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_KBI_ENTITY_ID_FIELD` | `osid` | Registry field holding the entity id returned by search |
+| `MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_AUTH_FACTOR_KBI_FIELD_DETAILS` | _(Insurance default)_ | JSON list of KBI fields collected from the user |
+| `MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_IDENTITY_OPENID_CLAIMS_MAPPING` | _(Insurance default)_ | JSON map of OIDC claim → registry field (empty/unset or malformed = no claims released; fail closed) |
+| `MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_REQUEST_TIMEOUT_SECS` | `10` | HTTP timeout in seconds for registry calls |
 
 See `.env.example` for the full list including optional MOSIP URL overrides.
+
+### SunbirdRC (KBI) authentication
+
+With `AUTHN_PROVIDER=sunbird`, the user authenticates by knowledge-based identity: they enter an
+`individualId` plus KBI fields (default `fullName` and `dob`), which are POSTed as exact-match filters to the
+registry search URL. Authentication succeeds only when the registry returns **exactly one** matching entity;
+its entity-id field (default `osid`) becomes the user id. Attributes are then fetched from the registry
+get URL (`.../{entityId}`) and mapped to OIDC claims via the claims-mapping config. This reuses the
+built-in `BasicAuthExecutor` (no custom executor); the demo flow `decl-sunbird-flow-1` and app
+`decl-app-sunbird` exercise it.
 
 ## Client management API
 
