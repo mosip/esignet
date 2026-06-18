@@ -715,6 +715,8 @@ public class AuthorizationServiceTest {
         List<List<AuthenticationFactor>> authFactors = new ArrayList<>();
         authFactors.add(Collections.emptyList());
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(authFactors);
+        // Mock tokenService.verifyIdToken to throw exception for invalid token
+        doThrow(new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT)).when(tokenService).verifyIdToken(anyString(), anyString());
 
         try {
             authorizationServiceImpl.getOauthDetailsV3(oauthDetailReqDto, httpServletRequest);
@@ -745,6 +747,8 @@ public class AuthorizationServiceTest {
         List<List<AuthenticationFactor>> authFactors = new ArrayList<>();
         authFactors.add(Collections.emptyList());
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(authFactors);
+        // Mock tokenService.verifyIdToken to throw exception for invalid token (no proper audience)
+        doThrow(new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT)).when(tokenService).verifyIdToken(anyString(), anyString());
 
         try {
             authorizationServiceImpl.getOauthDetailsV3(oauthDetailReqDto, httpServletRequest);
@@ -1123,6 +1127,8 @@ public class AuthorizationServiceTest {
         authFactors.add(Collections.emptyList());
         //Highest priority is given to ACR in claims request parameter
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:wallet"})).thenReturn(authFactors);
+        // Mock tokenService.verifyIdToken to pass cryptographic validation
+        doNothing().when(tokenService).verifyIdToken(anyString(), anyString());
 
         oauthDetailRequest.setIdTokenHint("eyJraWQiOiJtbG02RVNRaFB5dVVsWmY0dnBZbGJTVWlSMXBXcG5jdW9kamtnRjNaNU5nIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJxWS0tNVk0VG9Ga1dUb1hKclJGbVBXUEhEWkxrY2lNTDQtX2cxTDJBNXhJIiwiYXVkIjoibW9zaXAtc2lnbnVwLW9hdXRoLWNsaWVudCIsImFjciI6Im1vc2lwOmlkcDphY3I6Z2VuZXJhdGVkLWNvZGUiLCJhdXRoX3RpbWUiOjE3MjUyNjk4ODUsImlzcyI6Imh0dHBzOlwvXC9lc2lnbmV0bDIuY2FtZGdjLXFhLm1vc2lwLm5ldFwvdjFcL2VzaWduZXQiLCJleHAiOjE3MjUyNzAwNzMsImlhdCI6MTcyNTI2OTg5Mywibm9uY2UiOiI5NzNlaWVsanpuZyJ9.VMMn92CFzGkVyx8Jwrq03KhuXOXj3wRlUoxZQQBN7MxlfIxGSX_yE7iw3JWxohzQuHticndtQX2LELcGTPhclzRop3skHCeo6ZPGJklCiRA3F5SyfCYLvDprgE_-pQhLWeECqRtW_8jFFgZSORMoxy8eBj5Vvc8q2zcoDjE-JiLZvqE9UWDRpAKzumJcD3iJvBwE-9jkzQtWZbp-tZrpPrm-KCZU6-Q3qhWU23E9DSMg_6byq4iH51TFwO0nHW1kaxhsqHvCsTX7YTvmfWXUwPVRLNZh5Uszt8EIsgpKIUDkRImqmCUbP1LwoFG55MsW67QzHNTFuR6H-4LidSKnnA");
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -1159,6 +1165,8 @@ public class AuthorizationServiceTest {
         List<List<AuthenticationFactor>> authFactors = new ArrayList<>();
         authFactors.add(Collections.emptyList());
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:wallet"})).thenReturn(authFactors);
+        // Mock tokenService.verifyIdToken to pass cryptographic validation (but audience mismatch will be caught later)
+        doNothing().when(tokenService).verifyIdToken(anyString(), anyString());
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setCookies(new Cookie("qY--5Y4ToFkWToXJrRFmPWPHDZLkciML4-_g1L2A5xI", "5Y4ToFkWToXJrRFmPWPHDZLkciML4" + SERVER_NONCE_SEPARATOR + "test-state"));
@@ -1190,6 +1198,8 @@ public class AuthorizationServiceTest {
         List<List<AuthenticationFactor>> authFactors = new ArrayList<>();
         authFactors.add(Collections.emptyList());
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:generated-code"})).thenReturn(authFactors);
+        // Mock tokenService.verifyIdToken to pass cryptographic validation
+        doNothing().when(tokenService).verifyIdToken(anyString(), anyString());
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         try {
@@ -1221,6 +1231,8 @@ public class AuthorizationServiceTest {
         List<List<AuthenticationFactor>> authFactors = new ArrayList<>();
         authFactors.add(Collections.emptyList());
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(authFactors);
+        // Mock tokenService.verifyIdToken to throw exception for invalid/wrong audience tokens
+        doThrow(new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT)).when(tokenService).verifyIdToken(anyString(), anyString());
 
         MockHttpServletRequest request = new MockHttpServletRequest();
 
