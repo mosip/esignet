@@ -68,4 +68,6 @@ public class Constants {
     public static final String NONE= "none";
     public static final String LOGIN = "login";
     public static final String SELECT_ACCOUNT = "select_account";
+    public static final String STRICT_AUDIENCE_CHECK = "strict_audience_check";
+    public static final String CLIENT_AUTH_ASSERTION_AUDIENCE = "client_auth_assertion_audience";
 }

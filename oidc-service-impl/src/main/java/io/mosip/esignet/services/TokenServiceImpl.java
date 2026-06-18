@@ -44,7 +44,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
-import static io.mosip.esignet.core.constants.Constants.SPACE;
+import static io.mosip.esignet.core.constants.Constants.*;
 
 @Slf4j
 @Service
@@ -215,16 +215,19 @@ public class TokenServiceImpl implements TokenService {
      * @return the valid audience list to use for verification
      */
     private List<String> getValidAudienceForClientAssertion(List<String> audience) {
-        if (serverProfile != null && serverProfile.getFeatureMap() != null
-                && serverProfile.getFeatureMap().containsKey("client_auth_assertion_audience")) {
-            // When strict_audience_check is enabled, use only the issuer as valid audience
-            String issuer = (String) discoveryMap.get("issuer");
-            if (issuer != null) {
+        if (serverProfile != null && serverProfile.getFeatureMap() != null) {
+            String configuredFeature = serverProfile.getFeatureMap().get(CLIENT_AUTH_ASSERTION_AUDIENCE);
+            if (STRICT_AUDIENCE_CHECK.equalsIgnoreCase(configuredFeature)) {
+                String issuer = (String) discoveryMap.get("issuer");
+                if (issuer == null || issuer.isBlank()) {
+                    log.error("Strict audience check is enabled but discovery issuer is missing");
+                    return List.of(); // fail-closed
+                }
                 log.debug("Using strict audience check with issuer: {}", issuer);
                 return List.of(issuer);
             }
         }
-        return audience;
+        return audience == null ? List.of() : audience;
     }
 
     private NimbusJwtDecoder getNimbusJwtDecoderFromJwk(String jwkJson, String clientId, List<String> audience, int maxClockSkew, String alg) throws Exception {
