@@ -25,7 +25,9 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisStringCommands;
 import org.springframework.data.redis.connection.ReturnType;
+import org.springframework.data.redis.core.types.Expiration;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
@@ -54,6 +56,11 @@ public class CacheUtilService {
 
     @Value("${spring.cache.type}")
     private String cacheType;
+
+    @Value("${mosip.esignet.cache.keyprefix:esignet}")
+    private String cacheKeyPrefix;
+
+    private static final String JTI_KEY_FORMAT = "%s:jti::%s";
 
     @Autowired
     CacheManager cacheManager;
@@ -205,9 +212,37 @@ public class CacheUtilService {
      * Check if JTI is used.
      * Returns true if already used (replay detected), false otherwise.
      */
-    public boolean checkAndMarkJti(String jti) {
+    public boolean checkAndMarkJti(String jti, long ttlSeconds) {
+        if (ttlSeconds <= 0) {
+            log.error("Non-positive ttl for jti {} — treating as replay", jti);
+            return true;
+        }
+
+        if ("redis".equalsIgnoreCase(cacheType)) {
+            try (RedisConnection connection = redisConnectionFactory.getConnection()) {
+                byte[] key = JTI_KEY_FORMAT.formatted(cacheKeyPrefix, jti)
+                                           .getBytes(StandardCharsets.UTF_8);
+                Boolean inserted = connection.stringCommands().set(
+                        key,
+                        new byte[]{1},
+                        Expiration.seconds(ttlSeconds),
+                        RedisStringCommands.SetOption.SET_IF_ABSENT);
+                if (Boolean.FALSE.equals(inserted)) {
+                    log.error("Replay detected for jti: {}", jti);
+                    return true;
+                }
+                return false;
+            } catch (Exception e) {
+                log.error("Redis JTI check failed, rejecting jti", e);
+                return true;   // fail-safe, mirrors checkNonce posture
+            }
+        }
+
+        // Non-prod path (spring.cache.type=simple)
         Cache jtiCache = cacheManager.getCache(Constants.JTI_CACHE);
-        if(Objects.isNull(jtiCache)) throw new EsignetException(ErrorConstants.UNKNOWN_ERROR);
+        if (Objects.isNull(jtiCache)) {
+            throw new EsignetException(ErrorConstants.UNKNOWN_ERROR);
+        }
         if (jtiCache.get(jti) != null) {
             log.error("Replay detected for jti: {}", jti);
             return true;

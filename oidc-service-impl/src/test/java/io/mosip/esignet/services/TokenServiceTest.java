@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -72,6 +73,9 @@ public class TokenServiceTest {
         ReflectionTestUtils.setField(tokenService, "maxClockSkew", 5);
         ReflectionTestUtils.setField(tokenService, "discoveryMap", mockDiscoveryMap);
         ReflectionTestUtils.setField(tokenService, "uniqueJtiRequired", true);
+        ReflectionTestUtils.setField(tokenService, "maxJtiCacheTtlSeconds", 3600L);
+        ReflectionTestUtils.setField(tokenService, "jtiCacheSkewBufferSeconds", 30L);
+
     }
 
     @Test
@@ -309,14 +313,14 @@ public class TokenServiceTest {
                 .subject("client-id")
                 .issuer("client-id")
                 .audience("audience")
-                .issueTime(new Date(123000L))
+                .issueTime(new Date(System.currentTimeMillis() - 1000))
                 .expirationTime(new Date(System.currentTimeMillis() + 60000))
                 .jwtID(IdentityProviderUtil.createTransactionId(null))
                 .build();
 
         SignedJWT signedJWT = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.PS256).keyID(rsaKey.getKeyID()).build(), claimsSet);
         signedJWT.sign(signer);
-        Mockito.when(cacheUtilService.checkAndMarkJti(Mockito.anyString())).thenReturn(true);
+        Mockito.when(cacheUtilService.checkAndMarkJti(Mockito.anyString(),Mockito.anyLong())).thenReturn(true);
         EsignetException ex = Assertions.assertThrows(EsignetException.class, () -> tokenService.verifyClientAssertionToken("client-id", rsaKey.toJSONString(), signedJWT.serialize(), List.of("audience")));
         Assertions.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
     }
@@ -333,7 +337,7 @@ public class TokenServiceTest {
                 .subject("client-id")
                 .issuer("client-id")
                 .audience("audience")
-                .issueTime(new Date(123000L))
+                .issueTime(new Date(System.currentTimeMillis() - 1000))
                 .expirationTime(new Date(System.currentTimeMillis() + 60000))
                 .jwtID(IdentityProviderUtil.createTransactionId(null))
                 .build();
@@ -342,6 +346,98 @@ public class TokenServiceTest {
         signedJWT.sign(signer);
 
         tokenService.verifyClientAssertionToken("client-id", rsaKey.toJSONString(), signedJWT.serialize(), List.of("audience"));
+    }
+
+    @Test
+    public void verifyClientAssertion_withLifetimeExceedingCap_thenFail() throws Exception {
+        // Declared lifetime = 4000 s, well above the 3600 s cap
+        long now = System.currentTimeMillis();
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject("client-id")
+                .audience("audience")
+                .issuer("client-id")
+                .issueTime(new Date(now))
+                .expirationTime(new Date(now + 4_000_000L))   // +4000 seconds in ms
+                .jwtID(IdentityProviderUtil.createTransactionId(null))
+                .build();
+
+        JWSSigner signer = new RSASSASigner(RSA_JWK.toRSAPrivateKey());
+        SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
+        jwt.sign(signer);
+
+        EsignetException ex = Assertions.assertThrows(EsignetException.class, () ->
+                tokenService.verifyClientAssertionToken(
+                        "client-id",
+                        RSA_JWK.toPublicJWK().toJSONString(),
+                        jwt.serialize(),
+                        List.of("audience")));
+
+        Assertions.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
+
+        // Critical: cache must NOT have been called — we reject before reaching it
+        Mockito.verify(cacheUtilService, Mockito.never())
+               .checkAndMarkJti(Mockito.anyString(), Mockito.anyLong());
+    }
+
+    @Test
+    public void verifyClientAssertion_validLifetime_passesCorrectTtl() throws Exception {
+        long now = System.currentTimeMillis();
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject("client-id")
+                .audience("audience")
+                .issuer("client-id")
+                .issueTime(new Date(now - 1000))                 // 1s ago
+                .expirationTime(new Date(now + 60_000))          // valid for next 60s
+                .jwtID(IdentityProviderUtil.createTransactionId(null))
+                .build();
+
+        JWSSigner signer = new RSASSASigner(RSA_JWK.toRSAPrivateKey());
+        SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
+        jwt.sign(signer);
+
+        ArgumentCaptor<Long> ttlCaptor = ArgumentCaptor.forClass(Long.class);
+        Mockito.when(cacheUtilService.checkAndMarkJti(Mockito.anyString(), ttlCaptor.capture()))
+               .thenReturn(false);
+
+        tokenService.verifyClientAssertionToken(
+                "client-id",
+                RSA_JWK.toPublicJWK().toJSONString(),
+                jwt.serialize(),
+                List.of("audience"));
+
+        // Expected: remaining (~60) + skewBuffer (30) = ~90s, well under the 3600s cap.
+        // Allow a small window for test scheduling jitter.
+        long ttl = ttlCaptor.getValue();
+        Assertions.assertTrue(ttl >= 85 && ttl <= 95,
+                "Expected TTL ~90s, got " + ttl);
+    }
+
+    @Test
+    public void verifyClientAssertion_expiredBeyondSkew_thenFail() throws Exception {
+        long now = System.currentTimeMillis();
+        // exp = now - 60s   ⇒  remainingValidity = -60
+        // jtiTtl = min(-60 + 30, 3600) = -30  →  rejected
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject("client-id")
+                .audience("audience")
+                .issuer("client-id")
+                .issueTime(new Date(now - 90_000))
+                .expirationTime(new Date(now - 60_000))
+                .jwtID(IdentityProviderUtil.createTransactionId(null))
+                .build();
+
+        JWSSigner signer = new RSASSASigner(RSA_JWK.toRSAPrivateKey());
+        SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
+        jwt.sign(signer);
+
+        EsignetException ex = Assertions.assertThrows(EsignetException.class, () ->
+                tokenService.verifyClientAssertionToken(
+                        "client-id",
+                        RSA_JWK.toPublicJWK().toJSONString(),
+                        jwt.serialize(),
+                        List.of("audience")));
+
+        Assertions.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
     }
 
     @Test
@@ -356,7 +452,7 @@ public class TokenServiceTest {
                 .subject("client-id")
                 .issuer("client-id")
                 .audience("audience")
-                .issueTime(new Date(123000L))
+                .issueTime(new Date(System.currentTimeMillis() - 1000))
                 .expirationTime(new Date(System.currentTimeMillis() + 60000))
                 .jwtID(IdentityProviderUtil.createTransactionId(null))
                 .build();

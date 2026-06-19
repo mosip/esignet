@@ -61,7 +61,7 @@ public class DpopValidationFilterTest {
 
         accessToken = generateAccessTokenForUserinfo(true);
 
-        when(cacheUtilService.checkAndMarkJti(anyString())).thenReturn(false);
+        when(cacheUtilService.checkAndMarkJti(anyString(), anyLong())).thenReturn(false);
         ReflectionTestUtils.setField(filter, "discoveryMap", Map.ofEntries(
                 Map.entry("dpop_signing_alg_values_supported", Arrays.asList("ES256", "RS256")),
                 Map.entry("pushed_authorization_request_endpoint", "http://localhost/oauth/par"),
@@ -148,7 +148,7 @@ public class DpopValidationFilterTest {
         addAuthorizationHeader(request, accessToken);
         request.setMethod("GET");
 
-        when(cacheUtilService.checkAndMarkJti(anyString())).thenReturn(true); // simulate replay
+        when(cacheUtilService.checkAndMarkJti(anyString(), anyLong())).thenReturn(true); // simulate replay
 
         filter.doFilterInternal(request, response, filterChain);
 

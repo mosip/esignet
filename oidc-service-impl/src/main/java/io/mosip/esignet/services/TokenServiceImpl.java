@@ -84,6 +84,12 @@ public class TokenServiceImpl implements TokenService {
     @Value("${mosip.esignet.client-assertion-jwt.leeway-seconds:5}")
     private int maxClockSkew;
 
+    @Value("${mosip.esignet.client-assertion.jti.cache.max-ttl-seconds:3600}")
+    private long maxJtiCacheTtlSeconds;
+
+    @Value("${mosip.esignet.client-assertion.jti.cache.skew-buffer-seconds:30}")
+    private long jtiCacheSkewBufferSeconds;
+
     @Value("${mosip.esignet.dpop.nonce.expire.seconds:15}")
     private long dpopNonceExpirySeconds;
 
@@ -190,15 +196,55 @@ public class TokenServiceImpl implements TokenService {
 
             NimbusJwtDecoder jwtDecoder = getNimbusJwtDecoderFromJwk(jwk, clientId, audience, maxClockSkew, alg);
             jwtDecoder.decode(clientAssertion);
-            String jti = signedJWT.getJWTClaimsSet().getJWTID();
-            if (uniqueJtiRequired && (jti == null || cacheUtilService.checkAndMarkJti(jti))) {
-                log.error("invalid jti {}", jti);
-                throw new EsignetException(ErrorConstants.INVALID_CLIENT);
+            if (uniqueJtiRequired) {
+                enforceJtiReplayProtection(signedJWT.getJWTClaimsSet(), clientId);
             }
         } catch (EsignetException e) {
             throw e;
         } catch (Exception e) {
             log.error("Failed to verify client assertion", e);
+            throw new EsignetException(ErrorConstants.INVALID_CLIENT);
+        }
+    }
+
+    private void enforceJtiReplayProtection(JWTClaimsSet claims, String clientId) {
+        String jti = claims.getJWTID();
+        Date   expDate   = claims.getExpirationTime();
+        Date   iatDate   = claims.getIssueTime();
+
+        if (jti == null) {
+            log.error("Missing jti in client assertion for clientId {}", clientId);
+            throw new EsignetException(ErrorConstants.INVALID_CLIENT);
+        }
+        if (expDate == null || iatDate == null) {
+            log.error("Client assertion missing exp/iat for clientId {}", clientId);
+            throw new EsignetException(ErrorConstants.INVALID_CLIENT);
+        }
+
+        long now = Instant.now().getEpochSecond();
+        long exp = expDate.toInstant().getEpochSecond();
+        long iat = iatDate.toInstant().getEpochSecond();
+
+        // Guarantee cache always outlives validity → close the (MAX_CAP, exp) replay window.
+        long declaredLifetime = exp - iat;
+        if (declaredLifetime <= 0 || declaredLifetime > maxJtiCacheTtlSeconds) {
+            log.error("Client assertion lifetime {}s outside (0,{}] for clientId {}",
+                    declaredLifetime, maxJtiCacheTtlSeconds, clientId);
+            throw new EsignetException(ErrorConstants.INVALID_CLIENT);
+        }
+
+        long jtiTtlSeconds = Math.min(
+                (exp - now) + jtiCacheSkewBufferSeconds,
+                maxJtiCacheTtlSeconds
+        );
+
+        if (jtiTtlSeconds <= 0) {
+            log.error("Client assertion already expired for clientId {}", clientId);
+            throw new EsignetException(ErrorConstants.INVALID_CLIENT);
+        }
+
+        if (cacheUtilService.checkAndMarkJti(jti, jtiTtlSeconds)) {
+            log.error("Replay detected for jti {} (clientId {})", jti, clientId);
             throw new EsignetException(ErrorConstants.INVALID_CLIENT);
         }
     }
