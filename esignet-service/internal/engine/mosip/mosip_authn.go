@@ -54,11 +54,15 @@ type mosipAuthnProvider struct {
 
 // NewMosipAuthnProvider creates a MOSIP providers.AuthnProviderManager with OTP send support.
 func NewMosipAuthnProvider(cfg *config.AppConfig, clientSvc *clientmgmt.Service) (shared.ConsolidatedAuthnProvider, error) {
+	mosipCfg, err := LoadConfig()
+	if err != nil {
+		return nil, err
+	}
 	provider := &mosipAuthnProvider{
 		appConfig: cfg,
 		client:    newHTTPClient(),
 		clientSvc: clientSvc,
-		cfg:       LoadConfig(),
+		cfg:       *mosipCfg,
 	}
 	return provider, nil
 }
@@ -890,13 +894,8 @@ func buildIDAEndpointURL(baseURL, relyingPartyID, clientID string) (string, erro
 }
 
 func (p *mosipAuthnProvider) getRequestSignature(requestBody []byte) (string, error) {
-	if p.cfg.P12Path == "" {
-		return "", errors.New("MOSIP_P12_PATH is not configured")
-	}
-	if p.cfg.P12Password == "" {
-		return "", errors.New("MOSIP_P12_PASSWORD is not configured")
-	}
-
+	// P12Path and P12Password are marked required:"true" in mosipSpec, so the
+	// config layer guarantees they are set before the provider is constructed.
 	encodedRequestBody := B64EncodeBytes(requestBody)
 
 	privateKey, signedCertificate, err := LoadRSAPrivateKeyAndCertFromP12(p.cfg.P12Path, p.cfg.P12Password)

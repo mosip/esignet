@@ -2,18 +2,18 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 
+	"github.com/kelseyhightower/envconfig"
 	engineconfig "github.com/thunder-id/thunderid/pkg/thunderidengine/config"
 	"gopkg.in/yaml.v3"
 )
 
 const (
-	defaultPort            = 8088
 	defaultDataDir         = "./data"
 	appConfigFileName      = "deployment.yaml"
 	defaultGatePort        = 3000
@@ -49,7 +49,27 @@ type AppConfig struct {
 	Consent          engineconfig.ConsentConfig       `yaml:"consent"`
 }
 
-// LoadAppConfig loads the application configuration from the default data directory.
+// appSpec is the environment-variable layout for core application settings.
+// Issuer carries no default tag because its fallback is derived from the
+// resolved Port at load time.
+type appSpec struct {
+	Identifier    string `envconfig:"NAMESPACE" default:"esignet"`
+	Port          int    `envconfig:"PORT" default:"8088"`
+	Issuer        string `envconfig:"MOSIP_ESIGNET_HOST"`
+	DataDir       string `envconfig:"DATA_DIR" default:"./data"`
+	Provider      string `envconfig:"AUTHN_PROVIDER" default:"mock"`
+	AuthFlowID    string `envconfig:"AUTH_FLOW_ID" default:"flow-esignet"`
+	ThemeID       string `envconfig:"THEME_ID" default:"theme-esignet"`
+	LayoutID      string `envconfig:"LAYOUT_ID" default:"layout-esignet"`
+	EncryptionKey string `envconfig:"CRYPTO_ENCRYPTION_KEY" required:"true"`
+}
+
+// LoadAppConfig loads the application configuration from the default data
+// directory and overlays environment-derived settings. It returns an error
+// (and a nil config) if the file cannot be read or any environment variable
+// cannot be parsed into its target type, so an invalid configuration fails
+// startup rather than being silently coerced or mistaken for a usable
+// zero-value struct.
 func LoadAppConfig() (*AppConfig, error) {
 	path := filepath.Join(defaultDataDir, appConfigFileName)
 	data, err := os.ReadFile(path)
@@ -65,28 +85,46 @@ func LoadAppConfig() (*AppConfig, error) {
 		return nil, fmt.Errorf("parse %s: %w", path, err)
 	}
 
-	applyDefaults(&cfg)
+	if err := applyDefaults(&cfg); err != nil {
+		return nil, err
+	}
 	return &cfg, nil
 }
 
-func applyDefaults(cfg *AppConfig) {
-	cfg.Identifier = envOrDefault("NAMESPACE", "esignet")
-	cfg.Port = envIntOrDefault("PORT", defaultPort)
-	cfg.Issuer = envOrDefault("MOSIP_ESIGNET_HOST", fmt.Sprintf("http://127.0.0.1:%d", cfg.Port))
-	cfg.DataDir = envOrDefault("DATA_DIR", defaultDataDir)
+func applyDefaults(cfg *AppConfig) error {
+	var s appSpec
+	if err := envconfig.Process("", &s); err != nil {
+		return fmt.Errorf("loading app config: %w", err)
+	}
+
+	cfg.Identifier = s.Identifier
+	cfg.Port = s.Port
+	cfg.Issuer = s.Issuer
+	if cfg.Issuer == "" {
+		cfg.Issuer = fmt.Sprintf("http://127.0.0.1:%d", cfg.Port)
+	}
+	cfg.DataDir = s.DataDir
 	yamlDB := cfg.DB
-	cfg.DB = loadDB()
+	db, err := loadDB()
+	if err != nil {
+		return err
+	}
+	cfg.DB = *db
 	if !hasDBEnvConfig() && yamlDB.DSN != "" {
 		cfg.DB.DSN = yamlDB.DSN
 	}
 	if yamlDB.Pool.MaxOpenConns > 0 {
 		cfg.DB.Pool = yamlDB.Pool
 	}
-	cfg.Redis = loadRedis()
-	cfg.Provider = envOrDefault("AUTHN_PROVIDER", "mock")
-	cfg.LayoutID = envOrDefault("LAYOUT_ID", "layout-esignet")
-	cfg.ThemeID = envOrDefault("THEME_ID", "theme-esignet")
-	cfg.AuthFlowID = envOrDefault("AUTH_FLOW_ID", "flow-esignet")
+	redisCfg, err := loadRedis()
+	if err != nil {
+		return err
+	}
+	cfg.Redis = *redisCfg
+	cfg.Provider = s.Provider
+	cfg.LayoutID = s.LayoutID
+	cfg.ThemeID = s.ThemeID
+	cfg.AuthFlowID = s.AuthFlowID
 
 	cfg.Server.Port = cfg.Port
 	cfg.Server.Identifier = cfg.Identifier
@@ -98,10 +136,7 @@ func applyDefaults(cfg *AppConfig) {
 	cfg.JWT.PreferredKeyID = "default-key"
 	cfg.JWT.ValidityPeriod = 3600
 
-	cfg.EncryptionConfig.Key = envOrDefault("CRYPTO_ENCRYPTION_KEY", "")
-	if cfg.EncryptionConfig.Key == "" {
-		panic("CRYPTO_ENCRYPTION_KEY must be set")
-	}
+	cfg.EncryptionConfig.Key = s.EncryptionKey
 
 	cfg.Cache.Disabled = false
 	cfg.Cache.Type = "redis"
@@ -140,88 +175,60 @@ func applyDefaults(cfg *AppConfig) {
 	cfg.KeyConfig.CertFile = defaultSigningCertPath
 	cfg.KeyConfig.KeyFile = defaultSigningKeyPath
 	cfg.KeyConfig.ID = "default-key"
+
+	return nil
+}
+
+// overrideSpec is the environment-variable layout for optional overrides of
+// gate-client and OAuth lifetime settings. Zero values mean "not set" and
+// leave the corresponding default in place.
+type overrideSpec struct {
+	UIScheme    string `envconfig:"OIDC_UI_SCHEME"`
+	UIHostname  string `envconfig:"OIDC_UI_HOSTNAME"`
+	UIPort      int    `envconfig:"OIDC_UI_PORT"`
+	UILoginPath string `envconfig:"OIDC_UI_LOGIN_PATH"`
+	UIErrorPath string `envconfig:"OIDC_UI_ERROR_PATH"`
+
+	AuthCodeLifetimeSecs    int64 `envconfig:"OAUTH_AUTH_CODE_LIFETIME_SECONDS"`
+	PARExpirySecs           int64 `envconfig:"OAUTH_PAR_EXPIRY_SECONDS"`
+	AccessTokenLifetimeSecs int64 `envconfig:"OAUTH_ACCESS_TOKEN_LIFETIME_SECONDS"`
 }
 
 // ApplyEnvOverrides overlays environment and application settings onto cfg.
 // Env vars take precedence over values from app.yaml.
 func ApplyEnvOverrides(cfg *AppConfig) error {
-	if v := os.Getenv("OIDC_UI_SCHEME"); v != "" {
-		cfg.GateClient.Scheme = v
-	}
-	if v := os.Getenv("OIDC_UI_HOSTNAME"); v != "" {
-		cfg.GateClient.Hostname = v
-	}
-	if v := os.Getenv("OIDC_UI_PORT"); v != "" {
-		port, err := strconv.Atoi(v)
-		if err != nil {
-			return fmt.Errorf("invalid OIDC_UI_PORT: %w", err)
-		}
-		if port < 1 || port > 65535 {
-			return fmt.Errorf("invalid OIDC_UI_PORT: port must be between 1 and 65535")
-		}
-		cfg.GateClient.Port = port
-	}
-	if v := os.Getenv("OIDC_UI_LOGIN_PATH"); v != "" {
-		cfg.GateClient.LoginPath = v
-	}
-	if v := os.Getenv("OIDC_UI_ERROR_PATH"); v != "" {
-		cfg.GateClient.ErrorPath = v
+	var s overrideSpec
+	if err := envconfig.Process("", &s); err != nil {
+		return fmt.Errorf("loading env overrides: %w", err)
 	}
 
-	if v := os.Getenv("OAUTH_AUTH_CODE_LIFETIME_SECONDS"); v != "" {
-		secs, err := strconv.ParseInt(v, 10, 64)
-		if err != nil {
-			return fmt.Errorf("invalid OAUTH_AUTH_CODE_LIFETIME_SECONDS: %w", err)
-		}
-		if secs > 0 {
-			cfg.OAuth.AuthorizationCode.ValidityPeriod = secs
-		}
+	if s.UIScheme != "" {
+		cfg.GateClient.Scheme = s.UIScheme
 	}
-	if v := os.Getenv("OAUTH_PAR_EXPIRY_SECONDS"); v != "" {
-		secs, err := strconv.ParseInt(v, 10, 64)
-		if err != nil {
-			return fmt.Errorf("invalid OAUTH_PAR_EXPIRY_SECONDS: %w", err)
-		}
-		if secs > 0 {
-			cfg.OAuth.PAR.ExpiresIn = secs
-		}
+	if s.UIHostname != "" {
+		cfg.GateClient.Hostname = s.UIHostname
 	}
-	if v := os.Getenv("OAUTH_ACCESS_TOKEN_LIFETIME_SECONDS"); v != "" {
-		secs, err := strconv.ParseInt(v, 10, 64)
-		if err != nil {
-			return fmt.Errorf("invalid OAUTH_ACCESS_TOKEN_LIFETIME_SECONDS: %w", err)
+	if s.UIPort != 0 {
+		if s.UIPort < 1 || s.UIPort > 65535 {
+			return errors.New("invalid OIDC_UI_PORT: port must be between 1 and 65535")
 		}
-		if secs > 0 {
-			cfg.JWT.ValidityPeriod = secs
-		}
+		cfg.GateClient.Port = s.UIPort
+	}
+	if s.UILoginPath != "" {
+		cfg.GateClient.LoginPath = s.UILoginPath
+	}
+	if s.UIErrorPath != "" {
+		cfg.GateClient.ErrorPath = s.UIErrorPath
+	}
+
+	if s.AuthCodeLifetimeSecs > 0 {
+		cfg.OAuth.AuthorizationCode.ValidityPeriod = s.AuthCodeLifetimeSecs
+	}
+	if s.PARExpirySecs > 0 {
+		cfg.OAuth.PAR.ExpiresIn = s.PARExpirySecs
+	}
+	if s.AccessTokenLifetimeSecs > 0 {
+		cfg.JWT.ValidityPeriod = s.AccessTokenLifetimeSecs
 	}
 	return nil
-}
-
-func envOrDefault(key, fallback string) string {
-	if value := os.Getenv(key); value != "" {
-		return value
-	}
-	return fallback
-}
-
-func envIntOrDefault(key string, fallback int) int {
-	raw := os.Getenv(key)
-	if raw == "" {
-		return fallback
-	}
-	n, err := strconv.Atoi(raw)
-	if err != nil {
-		return fallback
-	}
-	return n
-}
-
-func envBool(key string) bool {
-	switch strings.ToLower(strings.TrimSpace(os.Getenv(key))) {
-	case "1", "true", "yes", "on":
-		return true
-	default:
-		return false
-	}
 }

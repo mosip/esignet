@@ -7,23 +7,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/kelseyhightower/envconfig"
 	"github.com/redis/go-redis/v9"
 )
 
-const (
-	defaultRedisHost                = "localhost"
-	defaultRedisPort                = "6379"
-	defaultRedisPoolSize            = 10
-	defaultRedisMinIdleConns        = 2
-	defaultRedisConnMaxIdleTime     = 300
-	defaultRedisDialTimeoutSecs     = 5
-	defaultRedisReadTimeoutSecs     = 3
-	defaultRedisWriteTimeoutSecs    = 3
-	defaultRedisConnMaxLifetimeSecs = 0 // no limit
-	defaultRedisKeyPrefix           = "esignet:"
-	redisPingTimeout                = 5 * time.Second
-	defaultRedisDB                  = 0
-)
+const redisPingTimeout = 5 * time.Second
 
 // Redis holds all settings needed to open and configure a Redis client.
 //
@@ -70,81 +58,73 @@ type Redis struct {
 	SentinelAddrs  []string
 }
 
-func loadRedis() Redis {
-	poolSize := envIntOrDefault("REDIS_POOL_SIZE", defaultRedisPoolSize)
-	if poolSize <= 0 {
-		poolSize = defaultRedisPoolSize
-	}
-	minIdle := envIntOrDefault("REDIS_MIN_IDLE_CONNS", defaultRedisMinIdleConns)
-	if minIdle <= 0 {
-		minIdle = defaultRedisMinIdleConns
-	}
+// redisSpec is the environment-variable layout for Redis settings.
+// SentinelAddrs is parsed as a raw string so the historical trim/drop-empty
+// splitting is preserved in loadRedis.
+type redisSpec struct {
+	URL      string `envconfig:"REDIS_URL"`
+	Host     string `envconfig:"REDIS_HOST" default:"localhost"`
+	Port     string `envconfig:"REDIS_PORT" default:"6379"`
+	Password string `envconfig:"REDIS_PASSWORD"`
+	DB       int    `envconfig:"REDIS_DB"`
+	TLS      bool   `envconfig:"REDIS_TLS_ENABLED"`
 
-	idleSecs := envIntOrDefault("REDIS_CONN_MAX_IDLE_TIME_SECS", defaultRedisConnMaxIdleTime)
-	var idleTime time.Duration
-	if idleSecs > 0 {
-		idleTime = time.Duration(idleSecs) * time.Second
-	} else {
-		idleTime = defaultRedisConnMaxIdleTime
-	}
+	PoolSize        int `envconfig:"REDIS_POOL_SIZE" default:"10"`
+	MinIdleConns    int `envconfig:"REDIS_MIN_IDLE_CONNS" default:"2"`
+	ConnMaxIdleTime int `envconfig:"REDIS_CONN_MAX_IDLE_TIME_SECS" default:"300"`
+	ConnMaxLifetime int `envconfig:"REDIS_CONN_MAX_LIFETIME_SECS"` // 0 = no limit
+	DialTimeout     int `envconfig:"REDIS_DIAL_TIMEOUT_SECS" default:"5"`
+	ReadTimeout     int `envconfig:"REDIS_READ_TIMEOUT_SECS" default:"3"`
+	WriteTimeout    int `envconfig:"REDIS_WRITE_TIMEOUT_SECS" default:"3"`
 
-	lifetimeSecs := envIntOrDefault("REDIS_CONN_MAX_LIFETIME_SECS", defaultRedisConnMaxLifetimeSecs)
-	lifetime := time.Duration(lifetimeSecs) * time.Second // 0 = no limit
+	KeyPrefix string `envconfig:"REDIS_KEY_PREFIX" default:"esignet:"`
 
-	dialSecs := envIntOrDefault("REDIS_DIAL_TIMEOUT_SECS", defaultRedisDialTimeoutSecs)
-	var dialTimeout time.Duration
-	if dialSecs > 0 {
-		dialTimeout = time.Duration(dialSecs) * time.Second
-	} else {
-		dialTimeout = time.Duration(defaultRedisDialTimeoutSecs) * time.Second
-	}
+	SentinelMaster string `envconfig:"REDIS_SENTINEL_MASTER"`
+	SentinelAddrs  string `envconfig:"REDIS_SENTINEL_ADDRS"`
+}
 
-	readSecs := envIntOrDefault("REDIS_READ_TIMEOUT_SECS", defaultRedisReadTimeoutSecs)
-	var readTimeout time.Duration
-	if readSecs > 0 {
-		readTimeout = time.Duration(readSecs) * time.Second
-	} else {
-		readTimeout = time.Duration(defaultRedisReadTimeoutSecs) * time.Second
+// loadRedis reads Redis settings from environment variables. It returns nil on
+// error so a failed load can never be mistaken for a usable zero-value config.
+func loadRedis() (*Redis, error) {
+	var s redisSpec
+	if err := envconfig.Process("", &s); err != nil {
+		return nil, fmt.Errorf("loading redis config: %w", err)
 	}
 
-	writeSecs := envIntOrDefault("REDIS_WRITE_TIMEOUT_SECS", defaultRedisWriteTimeoutSecs)
-	var writeTimeout time.Duration
-	if writeSecs > 0 {
-		writeTimeout = time.Duration(writeSecs) * time.Second
-	} else {
-		writeTimeout = time.Duration(defaultRedisWriteTimeoutSecs) * time.Second
+	// A non-negative lifetime is required; 0 means "no limit". A negative value
+	// is rejected rather than silently clamped so a misconfiguration fails loudly.
+	if s.ConnMaxLifetime < 0 {
+		return nil, fmt.Errorf("loading redis config: REDIS_CONN_MAX_LIFETIME_SECS must not be negative, got %d", s.ConnMaxLifetime)
 	}
+	lifetime := time.Duration(s.ConnMaxLifetime) * time.Second // 0 = no limit
 
-	keyPrefix := envOrDefault("REDIS_KEY_PREFIX", defaultRedisKeyPrefix)
-
-	sentinelAddrsRaw := envOrDefault("REDIS_SENTINEL_ADDRS", "")
 	var sentinelAddrs []string
-	if sentinelAddrsRaw != "" {
-		for _, a := range strings.Split(sentinelAddrsRaw, ",") {
+	if s.SentinelAddrs != "" {
+		for _, a := range strings.Split(s.SentinelAddrs, ",") {
 			if a = strings.TrimSpace(a); a != "" {
 				sentinelAddrs = append(sentinelAddrs, a)
 			}
 		}
 	}
 
-	return Redis{
-		URL:             envOrDefault("REDIS_URL", ""),
-		Host:            envOrDefault("REDIS_HOST", defaultRedisHost),
-		Port:            envOrDefault("REDIS_PORT", defaultRedisPort),
-		Password:        envOrDefault("REDIS_PASSWORD", ""),
-		DB:              envIntOrDefault("REDIS_DB", defaultRedisDB),
-		TLS:             envBool("REDIS_TLS_ENABLED"),
-		PoolSize:        poolSize,
-		MinIdleConns:    minIdle,
-		ConnMaxIdleTime: idleTime,
+	return &Redis{
+		URL:             s.URL,
+		Host:            s.Host,
+		Port:            s.Port,
+		Password:        s.Password,
+		DB:              s.DB,
+		TLS:             s.TLS,
+		PoolSize:        s.PoolSize,
+		MinIdleConns:    s.MinIdleConns,
+		ConnMaxIdleTime: time.Duration(s.ConnMaxIdleTime) * time.Second,
 		ConnMaxLifetime: lifetime,
-		DialTimeout:     dialTimeout,
-		ReadTimeout:     readTimeout,
-		WriteTimeout:    writeTimeout,
-		KeyPrefix:       keyPrefix,
-		SentinelMaster:  envOrDefault("REDIS_SENTINEL_MASTER", ""),
+		DialTimeout:     time.Duration(s.DialTimeout) * time.Second,
+		ReadTimeout:     time.Duration(s.ReadTimeout) * time.Second,
+		WriteTimeout:    time.Duration(s.WriteTimeout) * time.Second,
+		KeyPrefix:       s.KeyPrefix,
+		SentinelMaster:  s.SentinelMaster,
 		SentinelAddrs:   sentinelAddrs,
-	}
+	}, nil
 }
 
 // Open creates a Redis client, applies pool/timeout settings, and pings the server.

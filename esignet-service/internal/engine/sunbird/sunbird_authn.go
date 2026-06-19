@@ -48,7 +48,10 @@ type sunbirdAuthnProvider struct {
 // It validates the config and parses the KBI field details once, returning an
 // error when SearchURL is unset or no KBI field other than IDField is configured.
 func NewSunbirdAuthnProvider() (shared.ConsolidatedAuthnProvider, error) {
-	cfg := LoadConfig()
+	cfg, err := LoadConfig()
+	if err != nil {
+		return nil, err
+	}
 	if err := cfg.Validate(); err != nil {
 		return nil, err
 	}
@@ -73,7 +76,7 @@ func NewSunbirdAuthnProvider() (shared.ConsolidatedAuthnProvider, error) {
 		timeout = 10 * time.Second
 	}
 	return &sunbirdAuthnProvider{
-		cfg:         cfg,
+		cfg:         *cfg,
 		client:      &http.Client{Timeout: timeout},
 		kbiFieldIDs: kbiFieldIDs,
 	}, nil
