@@ -435,19 +435,36 @@ public class AuthorizationHelperService {
 
     protected Pair<String,String> validateAndGetSubjectAndNonce(String clientId, String idTokenHint) {
         try {
-            String[] jwtParts = idTokenHint.split("\\.");
-            if (jwtParts.length == 3) {
-                String payloadString = new String(Base64.getDecoder().decode(jwtParts[1]));
-                JsonNode payload = objectMapper.readTree(payloadString);
-                String audience = payload.get(TokenService.AUD).textValue();
-                if(!signupIDTokenAudience.equals(audience) || !signupIDTokenAudience.equals(clientId))
-                    throw new EsignetException(ErrorConstants.LOGIN_REQUIRED);
-                return Pair.of(payload.get(TokenService.SUB).textValue(), payload.get(TokenService.NONCE).textValue());
+            // 1) Cryptographic + standard claims verification (issuer, exp, aud == signupIDTokenAudience).
+            tokenService.verifyIdToken(idTokenHint, signupIDTokenAudience);
+        } catch (Exception e) {
+            log.error("id_token_hint signature/claims verification failed", e);
+            throw new EsignetException(LOGIN_REQUIRED);
+        }
+
+        // 2) Only after cryptographic validation passes do we parse the JWT to read claims.
+        try {
+            JWT jwt = JWTParser.parse(idTokenHint);
+            List<String> audience = jwt.getJWTClaimsSet().getAudience();
+
+            if (CollectionUtils.isEmpty(audience) || !audience.contains(signupIDTokenAudience) || !signupIDTokenAudience.equals(clientId))  {
+                log.error("ID token hint validation failed: audience={}, expectedAudience={}, clientId={}",
+                        audience, signupIDTokenAudience, clientId);
+                throw new EsignetException(LOGIN_REQUIRED);
             }
+
+            String sub = jwt.getJWTClaimsSet().getSubject();
+            String nonce = jwt.getJWTClaimsSet().getStringClaim(TokenService.NONCE);
+            if (sub == null || sub.isBlank() || nonce == null || nonce.isBlank()) {
+                log.error("ID token hint validation failed: subject or nonce is missing or blank. sub={}, nonce={}",
+                        sub, nonce);
+                throw new EsignetException(LOGIN_REQUIRED);
+            }
+            return Pair.of(sub, nonce);
         } catch (Exception e) {
             log.error("Failed to parse the given IDTokenHint as JWT", e);
         }
-        throw new EsignetException(ErrorConstants.LOGIN_REQUIRED);
+        throw new EsignetException(LOGIN_REQUIRED);
     }
 
     protected void validateNonce(String nonce) {
