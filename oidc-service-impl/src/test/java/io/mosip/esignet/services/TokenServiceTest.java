@@ -733,4 +733,16 @@ public class TokenServiceTest {
         Assertions.assertNotNull(result);
         Assertions.assertEquals(defaultAudience, result);
     }
+
+    @Test
+    public void getValidAudienceForClientAssertion_withNonStrictFeatureValue_thenReturnDefaultAudience() {
+        Map<String, String> featureMap = new HashMap<>();
+        featureMap.put("client_auth_assertion_audience", "PAR");
+        Mockito.when(serverProfile.getFeatureMap()).thenReturn(featureMap);
+
+        List<String> defaultAudience = List.of("/oauth/v2/token", "https://issuer.example.com");
+        List<String> result = ReflectionTestUtils.invokeMethod(tokenService, "getValidAudienceForClientAssertion", defaultAudience);
+
+        Assertions.assertEquals(defaultAudience, result);
+    }
 }
