@@ -13,7 +13,6 @@ import (
 const (
 	defaultRedisHost            = "localhost"
 	defaultRedisPort            = "6379"
-	defaultRedisDB              = 0
 	defaultRedisPoolSize        = 10
 	defaultRedisMinIdleConns    = 2
 	defaultRedisConnMaxIdleTime = 5 * time.Minute
@@ -69,8 +68,7 @@ type Redis struct {
 	SentinelAddrs  []string
 }
 
-// LoadRedis reads Redis settings from environment variables.
-func LoadRedis() Redis {
+func loadRedis() Redis {
 	poolSize := envInt("REDIS_POOL_SIZE")
 	if poolSize <= 0 {
 		poolSize = defaultRedisPoolSize

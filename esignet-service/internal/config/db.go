@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
-	"strings"
 	"time"
 
 	_ "github.com/lib/pq" // PostgreSQL driver for database/sql
@@ -33,7 +32,7 @@ type DB struct {
 	Pool DBPool
 }
 
-// LoadDB reads Postgres connection config and pool settings from the environment.
+// loadDB reads Postgres connection config and pool settings from the environment.
 // Accepts either POSTGRES_URL (full DSN) or individual vars:
 // POSTGRES_HOST, POSTGRES_PORT, POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD.
 //
@@ -43,14 +42,14 @@ type DB struct {
 //	DB_MAX_IDLE_CONNS         — default 5
 //	DB_CONN_MAX_LIFETIME_SECS — default 300
 //	DB_CONN_MAX_IDLE_TIME_SECS — default 60
-func LoadDB() DB {
+func loadDB() DB {
 	dsn := os.Getenv("POSTGRES_URL")
 	if dsn == "" {
-		host := envOrDefault("POSTGRES_HOST", "localhost")
-		port := envOrDefault("POSTGRES_PORT", "5432")
-		dbname := envOrDefault("POSTGRES_DB", "esignet")
-		user := envOrDefault("POSTGRES_USER", "postgres")
-		password := os.Getenv("POSTGRES_PASSWORD")
+		host := envOrDefault("DATABASE_HOST", "localhost")
+		port := envOrDefault("DATABASE_PORT", "5432")
+		dbname := envOrDefault("DATABASE_NAME", "mosip_esignet")
+		user := envOrDefault("DATABASE_USERNAME", "postgres")
+		password := os.Getenv("DB_DBUSER_PASSWORD")
 		if password != "" {
 			dsn = fmt.Sprintf(
 				"host=%s port=%s dbname=%s user=%s password=%s sslmode=disable",
@@ -119,19 +118,4 @@ func (d DB) Open() (*sql.DB, error) {
 		return nil, fmt.Errorf("ping postgres: %w", err)
 	}
 	return conn, nil
-}
-
-// ensurePostgresSSLMode appends sslmode=disable to postgres:// URLs when absent.
-// lib/pq defaults URL connections to SSL, which fails against local Docker Postgres.
-func ensurePostgresSSLMode(dsn string) string {
-	if strings.Contains(dsn, "sslmode=") {
-		return dsn
-	}
-	if strings.HasPrefix(dsn, "postgres://") || strings.HasPrefix(dsn, "postgresql://") {
-		if strings.Contains(dsn, "?") {
-			return dsn + "&sslmode=disable"
-		}
-		return dsn + "?sslmode=disable"
-	}
-	return dsn
 }

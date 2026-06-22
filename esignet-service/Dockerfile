@@ -18,7 +18,7 @@ LABEL commit_hash=${COMMIT_HASH}
 LABEL commit_id=${COMMIT_ID}
 LABEL build_time=${BUILD_TIME}
 
-ARG ISSUER_URL=http://localhost:8080
+ARG MOSIP_ESIGNET_HOST
 
 # can be passed during Docker build as build time environment for github branch to pickup configuration from.
 ARG container_user=mosip
@@ -35,7 +35,7 @@ ARG container_user_uid=1001
 # can be passed during Docker build as build time environment for github branch to pickup configuration from.
 ARG container_user_gid=1001
 
-ENV ISSUER_URL_ENV=${ISSUER_URL}
+ENV MOSIP_ESIGNET_HOST_ENV=${MOSIP_ESIGNET_HOST}
 
 ENV DATA_DIR_ENV=${DATA_DIR}
 
@@ -63,11 +63,11 @@ RUN chmod +x /home/${container_user}/entrypoint.sh \
 USER ${container_user_uid}:${container_user_gid}
 
 ENV DATA_DIR=${DATA_DIR_ENV} \
-    ISSUER_URL=${ISSUER_URL_ENV} \
+    MOSIP_ESIGNET_HOST=${MOSIP_ESIGNET_HOST_ENV} \
     SIGNING_KEY_PATH=${SIGNING_KEY_PATH_ENV} \
-    PORT=8080
+    PORT=8088
 
-EXPOSE 8080
+EXPOSE 8088
 
 ENTRYPOINT ["/home/mosip/entrypoint.sh"]
 
