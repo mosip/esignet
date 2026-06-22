@@ -13,6 +13,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.OIDCTransaction;
+import io.mosip.esignet.core.dto.ServerProfile;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.exception.NotAuthenticatedException;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
@@ -51,6 +52,9 @@ public class TokenServiceTest {
     @Mock
     private CacheUtilService cacheUtilService;
 
+    @Mock
+    private ServerProfile serverProfile;
+
     private static final RSAKey RSA_JWK;
 
     static {
@@ -72,6 +76,7 @@ public class TokenServiceTest {
         ReflectionTestUtils.setField(tokenService, "maxClockSkew", 5);
         ReflectionTestUtils.setField(tokenService, "discoveryMap", mockDiscoveryMap);
         ReflectionTestUtils.setField(tokenService, "uniqueJtiRequired", true);
+        ReflectionTestUtils.setField(tokenService, "serverProfile", serverProfile);
     }
 
     @Test
@@ -663,5 +668,81 @@ public class TokenServiceTest {
             }
 
         };
+    }
+
+    @Test
+    public void getValidAudienceForClientAssertion_withStrictAudienceCheckEnabled_thenReturnIssuerOnly() {
+        // Setup server profile with strict_audience_check feature
+        Map<String, String> featureMap = new HashMap<>();
+        featureMap.put("client_auth_assertion_audience", "strict_audience_check");
+        Mockito.when(serverProfile.getFeatureMap()).thenReturn(featureMap);
+
+        List<String> defaultAudience = List.of("/oauth/v2/token", "https://issuer.example.com");
+
+        // Call the private method using reflection
+        List<String> result = ReflectionTestUtils.invokeMethod(tokenService, "getValidAudienceForClientAssertion", defaultAudience);
+
+        // Should return only issuer
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(1, result.size());
+        Assertions.assertEquals("client-id", result.get(0)); // "client-id" is set as issuer in discoveryMap
+    }
+
+    @Test
+    public void getValidAudienceForClientAssertion_withStrictAudienceCheckDisabled_thenReturnDefaultAudience() {
+        // Setup server profile without strict_audience_check feature
+        Map<String, String> featureMap = new HashMap<>();
+        Mockito.when(serverProfile.getFeatureMap()).thenReturn(featureMap);
+
+        List<String> defaultAudience = List.of("/oauth/v2/token", "https://issuer.example.com");
+
+        // Call the private method using reflection
+        List<String> result = ReflectionTestUtils.invokeMethod(tokenService, "getValidAudienceForClientAssertion", defaultAudience);
+
+        // Should return default audience unchanged
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(defaultAudience, result);
+    }
+
+    @Test
+    public void getValidAudienceForClientAssertion_withNullServerProfile_thenReturnDefaultAudience() {
+        // Reset serverProfile to null
+        ReflectionTestUtils.setField(tokenService, "serverProfile", null);
+
+        List<String> defaultAudience = List.of("/oauth/v2/token", "https://issuer.example.com");
+
+        // Call the private method using reflection
+        List<String> result = ReflectionTestUtils.invokeMethod(tokenService, "getValidAudienceForClientAssertion", defaultAudience);
+
+        // Should return default audience unchanged
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(defaultAudience, result);
+    }
+
+    @Test
+    public void getValidAudienceForClientAssertion_withNullFeatureMap_thenReturnDefaultAudience() {
+        // Setup server profile with null feature map
+        Mockito.when(serverProfile.getFeatureMap()).thenReturn(null);
+
+        List<String> defaultAudience = List.of("/oauth/v2/token", "https://issuer.example.com");
+
+        // Call the private method using reflection
+        List<String> result = ReflectionTestUtils.invokeMethod(tokenService, "getValidAudienceForClientAssertion", defaultAudience);
+
+        // Should return default audience unchanged
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(defaultAudience, result);
+    }
+
+    @Test
+    public void getValidAudienceForClientAssertion_withNonStrictFeatureValue_thenReturnDefaultAudience() {
+        Map<String, String> featureMap = new HashMap<>();
+        featureMap.put("client_auth_assertion_audience", "PAR");
+        Mockito.when(serverProfile.getFeatureMap()).thenReturn(featureMap);
+
+        List<String> defaultAudience = List.of("/oauth/v2/token", "https://issuer.example.com");
+        List<String> result = ReflectionTestUtils.invokeMethod(tokenService, "getValidAudienceForClientAssertion", defaultAudience);
+
+        Assertions.assertEquals(defaultAudience, result);
     }
 }

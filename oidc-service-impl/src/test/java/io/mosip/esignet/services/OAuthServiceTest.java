@@ -1061,4 +1061,124 @@ public class OAuthServiceTest {
         }
     }
 
+    @Test
+    public void getTokens_withV1Endpoint_verifyAudienceContainsV1TokenEndpoint() throws KycExchangeException {
+        TokenRequestV2 tokenRequest = new TokenRequestV2();
+        tokenRequest.setCode("test-code");
+        tokenRequest.setClient_id("client-id");
+        tokenRequest.setRedirect_uri("https://test-redirect-uri/test-page");
+        tokenRequest.setClient_assertion_type(JWT_BEARER_TYPE);
+        tokenRequest.setClient_assertion("client-assertion");
+
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
+        oidcTransaction.setClientId("client-id");
+        oidcTransaction.setKycToken("kyc-token");
+        oidcTransaction.setAuthTransactionId("auth-transaction-id");
+        oidcTransaction.setRelyingPartyId("rp-id");
+        oidcTransaction.setRedirectUri("https://test-redirect-uri/test-page");
+        oidcTransaction.setIndividualId("individual-id");
+        oidcTransaction.setUserInfoResponseType("JWS");
+
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId("client-id");
+        clientDetail.setPublicKey("public-key");
+        clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**"));
+
+        KycExchangeResult kycExchangeResult = new KycExchangeResult();
+        kycExchangeResult.setEncryptedKyc("encrypted-kyc");
+
+        ReflectionTestUtils.setField(oAuthService, "discoveryIssuerId", "https://esignet.example.com");
+
+        Mockito.when(authorizationHelperService.getKeyHash(Mockito.anyString())).thenReturn("code-hash");
+        Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
+        Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
+        Mockito.when(authenticationWrapper.doKycExchange(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(kycExchangeResult);
+        Mockito.when(tokenService.getAccessToken(Mockito.any(), Mockito.any())).thenReturn("test-access-token");
+        Mockito.when(tokenService.getIDToken(Mockito.any())).thenReturn("test-id-token");
+
+        // isV2 = false should use legacy token endpoint format
+        oAuthService.getTokens(tokenRequest, null, false);
+
+        // Verify that verifyClientAssertionToken was called with legacy audience format
+        Mockito.verify(tokenService).verifyClientAssertionToken(
+                Mockito.eq("client-id"),
+                Mockito.eq("public-key"),
+                Mockito.eq("client-assertion"),
+                Mockito.eq(List.of("https://esignet.example.com/oauth/token", "issuer_endpoint"))
+        );
+    }
+
+    @Test
+    public void getTokens_withV2Endpoint_verifyAudienceContainsV2TokenEndpoint() throws KycExchangeException {
+        TokenRequestV2 tokenRequest = new TokenRequestV2();
+        tokenRequest.setCode("test-code");
+        tokenRequest.setClient_id("client-id");
+        tokenRequest.setRedirect_uri("https://test-redirect-uri/test-page");
+        tokenRequest.setClient_assertion_type(JWT_BEARER_TYPE);
+        tokenRequest.setClient_assertion("client-assertion");
+
+        OIDCTransaction oidcTransaction = new OIDCTransaction();
+        oidcTransaction.setClientId("client-id");
+        oidcTransaction.setKycToken("kyc-token");
+        oidcTransaction.setAuthTransactionId("auth-transaction-id");
+        oidcTransaction.setRelyingPartyId("rp-id");
+        oidcTransaction.setRedirectUri("https://test-redirect-uri/test-page");
+        oidcTransaction.setIndividualId("individual-id");
+        oidcTransaction.setUserInfoResponseType("JWS");
+
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId("client-id");
+        clientDetail.setPublicKey("public-key");
+        clientDetail.setRedirectUris(Arrays.asList("https://test-redirect-uri/**"));
+
+        KycExchangeResult kycExchangeResult = new KycExchangeResult();
+        kycExchangeResult.setEncryptedKyc("encrypted-kyc");
+
+        Mockito.when(authorizationHelperService.getKeyHash(Mockito.anyString())).thenReturn("code-hash");
+        Mockito.when(cacheUtilService.getAuthCodeTransaction(Mockito.anyString())).thenReturn(oidcTransaction);
+        Mockito.when(clientManagementService.getClientDetails(Mockito.anyString())).thenReturn(clientDetail);
+        Mockito.when(authenticationWrapper.doKycExchange(Mockito.anyString(), Mockito.anyString(), Mockito.any())).thenReturn(kycExchangeResult);
+        Mockito.when(tokenService.getAccessToken(Mockito.any(), Mockito.any())).thenReturn("test-access-token");
+        Mockito.when(tokenService.getIDToken(Mockito.any())).thenReturn("test-id-token");
+
+        // isV2 = true should use V2 token endpoint
+        oAuthService.getTokens(tokenRequest, null, true);
+
+        // Verify that verifyClientAssertionToken was called with V2 audience format
+        Mockito.verify(tokenService).verifyClientAssertionToken(
+                Mockito.eq("client-id"),
+                Mockito.eq("public-key"),
+                Mockito.eq("client-assertion"),
+                Mockito.eq(List.of("/oauth/v2/token", "issuer_endpoint"))
+        );
+    }
+
+    @Test
+    public void authorize_verifyAudienceContainsPARAndTokenEndpoints() {
+        PushedAuthorizationRequest request = new PushedAuthorizationRequest();
+        request.setClient_id("34567");
+        request.setClient_assertion_type("urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
+        request.setClient_assertion("valid-jwt");
+        request.setRedirect_uri("http://localhost:8088/v1/idp");
+        request.setAcr_values("mosip:idp:acr:static-code");
+        request.setNonce("test-nonce");
+
+        ClientDetail clientDetail = new ClientDetail();
+        clientDetail.setId("test-client");
+        clientDetail.setPublicKey("public-key");
+        clientDetail.setRedirectUris(List.of("http://localhost:8088/v1/idp"));
+
+        Mockito.when(clientManagementService.getClientDetails("34567")).thenReturn(clientDetail);
+
+        oAuthService.authorize(request, null);
+
+        // Verify that verifyClientAssertionToken was called with PAR, TOKEN and ISSUER endpoints
+        Mockito.verify(tokenService).verifyClientAssertionToken(
+                Mockito.eq("test-client"),
+                Mockito.eq("public-key"),
+                Mockito.eq("valid-jwt"),
+                Mockito.eq(List.of("/oauth/par", "/oauth/v2/token", "issuer_endpoint"))
+        );
+    }
+
 }

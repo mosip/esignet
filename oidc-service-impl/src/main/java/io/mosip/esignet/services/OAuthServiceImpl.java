@@ -379,6 +379,7 @@ public class OAuthServiceImpl implements OAuthService {
         return null;
     }
 
+
     private String validateDpopJktThumbprint(String dpopHeader,String dpopJkt) {
         try {
             SignedJWT dpopJwt = SignedJWT.parse(dpopHeader);
