@@ -19,7 +19,8 @@ function installing_esignet_with_plugins() {
       if [ "$ans" = "Y" ] || [ "$ans" = "y" ]; then
           break
       elif [ "$ans" = "N" ] || [ "$ans" = "n" ]; then
-          exit 1
+          echo "User selected 'No'. Skipping esignet-with-plugins installation."
+          exit 0
       else
           echo "Please provide a correct option (Y or N)"
       fi

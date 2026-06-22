@@ -28,7 +28,7 @@ CHART_VERSION=12.0.1
 
     $COPY_UTIL secret keycloak keycloak $NS
     $COPY_UTIL secret keycloak-client-secrets keycloak $NS
-    $COPY_UTIL secret esignet-softhsm softhsm $NS
+    $COPY_UTIL secret esignet-softhsm esignet $NS
 
     echo Installing config-server
     helm -n $NS install esignet-config-server mosip/config-server -f values.yaml --wait --version $CHART_VERSION
