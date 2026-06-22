@@ -32,10 +32,8 @@ import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.constants.Constants;
 import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.repository.ClientDetailRepository;
-import io.mosip.esignet.services.CacheUtilService;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +41,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -78,8 +75,6 @@ public class AuthorizationAPIFlowTest {
     @Autowired
     private Authenticator authenticationWrapper;
 
-    @Autowired
-    private CacheUtilService cacheUtilService;
 
     @Autowired
     private TokenService tokenService;
@@ -101,10 +96,6 @@ public class AuthorizationAPIFlowTest {
     private JWK clientJWK = TestUtil.generateJWK_RSA();
     private boolean created = false;
 
-    @BeforeEach
-    public void init() {
-        ReflectionTestUtils.setField(cacheUtilService, "cacheType", "simple");
-    }
 
 
     @Test
