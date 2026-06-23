@@ -420,8 +420,6 @@ public class TokenServiceTest {
     @Test
     public void verifyClientAssertion_expiredBeyondSkew_thenFail() throws Exception {
         long now = System.currentTimeMillis();
-        // exp = now - 60s   ⇒  remainingValidity = -60
-        // jtiTtl = min(-60 + 30, 3600) = -30  →  rejected
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject("client-id")
                 .audience("audience")
