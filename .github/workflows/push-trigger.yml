@@ -25,7 +25,7 @@ on:
 
 jobs:
   build_go_esignet:
-    uses: mosip/kattu/.github/workflows/go-build.yml@master-go-build
+    uses: mosip/kattu/.github/workflows/go-build.yml@master
     with:
       SERVICE_LOCATION: ./esignet-service
       BUILD_BINARY: esignet
