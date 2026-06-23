@@ -644,4 +644,136 @@ public class AuthorizationHelperServiceTest {
             Assertions.assertEquals("auth_failed", e.getErrorCode());
         }
     }
+
+    @Test
+    public void validateAndGetSubjectAndNonce_withInvalidIdTokenHint_thenFail() {
+        ReflectionTestUtils.setField(authorizationHelperService, "signupIDTokenAudience", "mosip-signup-oauth-client");
+        ReflectionTestUtils.setField(authorizationHelperService, "tokenService", tokenService);
+
+        // Mock tokenService.verifyIdToken to throw exception for invalid token
+        Mockito.doThrow(new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT))
+                .when(tokenService).verifyIdToken(Mockito.anyString(), Mockito.anyString());
+
+        try {
+            authorizationHelperService.validateAndGetSubjectAndNonce("mosip-signup-oauth-client", "invalid_id_token_hint");
+            Assertions.fail();
+        } catch (EsignetException e) {
+            Assertions.assertEquals(ErrorConstants.LOGIN_REQUIRED, e.getErrorCode());
+        }
+    }
+
+    @Test
+    public void validateAndGetSubjectAndNonce_withValidIdTokenHint_thenPass() {
+        ReflectionTestUtils.setField(authorizationHelperService, "signupIDTokenAudience", "mosip-signup-oauth-client");
+        ReflectionTestUtils.setField(authorizationHelperService, "tokenService", tokenService);
+
+        // Valid JWT with sub, aud, and nonce claims
+        // Payload: {"sub":"qY--5Y4ToFkWToXJrRFmPWPHDZLkciML4-_g1L2A5xI","aud":"mosip-signup-oauth-client","nonce":"973ielJzng"}
+        String validIdTokenHint = "eyJraWQiOiJtbG02RVNRaFB5dVVsWmY0dnBZbGJTVWlSMXBXcG5jdW9kamtnRjNaNU5nIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJxWS0tNVk0VG9Ga1dUb1hKclJGbVBXUEhEWkxrY2lNTDQtX2cxTDJBNXhJIiwiYXVkIjoibW9zaXAtc2lnbnVwLW9hdXRoLWNsaWVudCIsImFjciI6Im1vc2lwOmlkcDphY3I6Z2VuZXJhdGVkLWNvZGUiLCJhdXRoX3RpbWUiOjE3MjUyNjk4ODUsImlzcyI6Imh0dHBzOlwvXC9lc2lnbmV0bDIuY2FtZGdjLXFhLm1vc2lwLm5ldFwvdjFcL2VzaWduZXQiLCJleHAiOjE3MjUyNzAwNzMsImlhdCI6MTcyNTI2OTg5Mywibm9uY2UiOiI5NzNlaWVsanpuZyJ9.VMMn92CFzGkVyx8Jwrq03KhuXOXj3wRlUoxZQQBN7MxlfIxGSX_yE7iw3JWxohzQuHticndtQX2LELcGTPhclzRop3skHCeo6ZPGJklCiRA3F5SyfCYLvDprgE_-pQhLWeECqRtW_8jFFgZSORMoxy8eBj5Vvc8q2zcoDjE-JiLZvqE9UWDRpAKzumJcD3iJvBwE-9jkzQtWZbp-tZrpPrm-KCZU6-Q3qhWU23E9DSMg_6byq4iH51TFwO0nHW1kaxhsqHvCsTX7YTvmfWXUwPVRLNZh5Uszt8EIsgpKIUDkRImqmCUbP1LwoFG55MsW67QzHNTFuR6H-4LidSKnnA";
+
+        // Mock tokenService.verifyIdToken to pass cryptographic validation
+        Mockito.doNothing().when(tokenService).verifyIdToken(Mockito.anyString(), Mockito.anyString());
+
+        org.springframework.data.util.Pair<String, String> result = authorizationHelperService.validateAndGetSubjectAndNonce("mosip-signup-oauth-client", validIdTokenHint);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals("qY--5Y4ToFkWToXJrRFmPWPHDZLkciML4-_g1L2A5xI", result.getFirst());
+        Assertions.assertEquals("973eieljzng", result.getSecond());
+    }
+
+    @Test
+    public void validateAndGetSubjectAndNonce_withClientIdMismatch_thenFail() {
+        ReflectionTestUtils.setField(authorizationHelperService, "signupIDTokenAudience", "mosip-signup-oauth-client");
+        ReflectionTestUtils.setField(authorizationHelperService, "tokenService", tokenService);
+
+        // Valid JWT with aud="mosip-signup-oauth-client" but clientId is different
+        String validIdTokenHint = "eyJraWQiOiJtbG02RVNRaFB5dVVsWmY0dnBZbGJTVWlSMXBXcG5jdW9kamtnRjNaNU5nIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJxWS0tNVk0VG9Ga1dUb1hKclJGbVBXUEhEWkxrY2lNTDQtX2cxTDJBNXhJIiwiYXVkIjoibW9zaXAtc2lnbnVwLW9hdXRoLWNsaWVudCIsImFjciI6Im1vc2lwOmlkcDphY3I6Z2VuZXJhdGVkLWNvZGUiLCJhdXRoX3RpbWUiOjE3MjUyNjk4ODUsImlzcyI6Imh0dHBzOlwvXC9lc2lnbmV0bDIuY2FtZGdjLXFhLm1vc2lwLm5ldFwvdjFcL2VzaWduZXQiLCJleHAiOjE3MjUyNzAwNzMsImlhdCI6MTcyNTI2OTg5Mywibm9uY2UiOiI5NzNlaWVsanpuZyJ9.VMMn92CFzGkVyx8Jwrq03KhuXOXj3wRlUoxZQQBN7MxlfIxGSX_yE7iw3JWxohzQuHticndtQX2LELcGTPhclzRop3skHCeo6ZPGJklCiRA3F5SyfCYLvDprgE_-pQhLWeECqRtW_8jFFgZSORMoxy8eBj5Vvc8q2zcoDjE-JiLZvqE9UWDRpAKzumJcD3iJvBwE-9jkzQtWZbp-tZrpPrm-KCZU6-Q3qhWU23E9DSMg_6byq4iH51TFwO0nHW1kaxhsqHvCsTX7YTvmfWXUwPVRLNZh5Uszt8EIsgpKIUDkRImqmCUbP1LwoFG55MsW67QzHNTFuR6H-4LidSKnnA";
+
+        // Mock tokenService.verifyIdToken to pass cryptographic validation
+        Mockito.doNothing().when(tokenService).verifyIdToken(Mockito.anyString(), Mockito.anyString());
+
+        try {
+            // Client ID "different-client" doesn't match signupIDTokenAudience "mosip-signup-oauth-client"
+            authorizationHelperService.validateAndGetSubjectAndNonce("different-client", validIdTokenHint);
+            Assertions.fail();
+        } catch (EsignetException e) {
+            Assertions.assertEquals(ErrorConstants.LOGIN_REQUIRED, e.getErrorCode());
+        }
+    }
+
+    @Test
+    public void validateAndGetSubjectAndNonce_withMissingSubject_thenFail() {
+        ReflectionTestUtils.setField(authorizationHelperService, "signupIDTokenAudience", "mosip-signup-oauth-client");
+        ReflectionTestUtils.setField(authorizationHelperService, "tokenService", tokenService);
+
+        // JWT without sub claim - base64 encoded payload: {"aud":"mosip-signup-oauth-client","nonce":"test-nonce"}
+        String idTokenWithoutSub = "eyJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJtb3NpcC1zaWdudXAtb2F1dGgtY2xpZW50Iiwibm9uY2UiOiJ0ZXN0LW5vbmNlIn0.signature";
+
+        // Mock tokenService.verifyIdToken to pass cryptographic validation
+        Mockito.doNothing().when(tokenService).verifyIdToken(Mockito.anyString(), Mockito.anyString());
+
+        try {
+            authorizationHelperService.validateAndGetSubjectAndNonce("mosip-signup-oauth-client", idTokenWithoutSub);
+            Assertions.fail();
+        } catch (EsignetException e) {
+            Assertions.assertEquals(ErrorConstants.LOGIN_REQUIRED, e.getErrorCode());
+        }
+    }
+
+    @Test
+    public void validateAndGetSubjectAndNonce_withMissingNonce_thenFail() {
+        ReflectionTestUtils.setField(authorizationHelperService, "signupIDTokenAudience", "mosip-signup-oauth-client");
+        ReflectionTestUtils.setField(authorizationHelperService, "tokenService", tokenService);
+
+        // JWT without nonce claim - base64 encoded payload: {"sub":"test-sub","aud":"mosip-signup-oauth-client"}
+        String idTokenWithoutNonce = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ0ZXN0LXN1YiIsImF1ZCI6Im1vc2lwLXNpZ251cC1vYXV0aC1jbGllbnQifQ.signature";
+
+        // Mock tokenService.verifyIdToken to pass cryptographic validation
+        Mockito.doNothing().when(tokenService).verifyIdToken(Mockito.anyString(), Mockito.anyString());
+
+        try {
+            authorizationHelperService.validateAndGetSubjectAndNonce("mosip-signup-oauth-client", idTokenWithoutNonce);
+            Assertions.fail();
+        } catch (EsignetException e) {
+            Assertions.assertEquals(ErrorConstants.LOGIN_REQUIRED, e.getErrorCode());
+        }
+    }
+
+    @Test
+    public void validateAndGetSubjectAndNonce_withEmptyAudience_thenFail() {
+        ReflectionTestUtils.setField(authorizationHelperService, "signupIDTokenAudience", "mosip-signup-oauth-client");
+        ReflectionTestUtils.setField(authorizationHelperService, "tokenService", tokenService);
+
+        // JWT with empty audience - base64 encoded payload: {"sub":"test-sub","aud":"","nonce":"test-nonce"}
+        String idTokenWithEmptyAud = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJ0ZXN0LXN1YiIsImF1ZCI6IiIsIm5vbmNlIjoidGVzdC1ub25jZSJ9.signature";
+
+        // Mock tokenService.verifyIdToken to pass cryptographic validation
+        Mockito.doNothing().when(tokenService).verifyIdToken(Mockito.anyString(), Mockito.anyString());
+
+        try {
+            authorizationHelperService.validateAndGetSubjectAndNonce("mosip-signup-oauth-client", idTokenWithEmptyAud);
+            Assertions.fail();
+        } catch (EsignetException e) {
+            Assertions.assertEquals(ErrorConstants.LOGIN_REQUIRED, e.getErrorCode());
+        }
+    }
+
+    @Test
+    public void validateAndGetSubjectAndNonce_withCryptographicVerificationFailed_thenFail() {
+        ReflectionTestUtils.setField(authorizationHelperService, "signupIDTokenAudience", "mosip-signup-oauth-client");
+        ReflectionTestUtils.setField(authorizationHelperService, "tokenService", tokenService);
+
+        String validIdTokenHint = "eyJraWQiOiJtbG02RVNRaFB5dVVsWmY0dnBZbGJTVWlSMXBXcG5jdW9kamtnRjNaNU5nIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJxWS0tNVk0VG9Ga1dUb1hKclJGbVBXUEhEWkxrY2lNTDQtX2cxTDJBNXhJIiwiYXVkIjoibW9zaXAtc2lnbnVwLW9hdXRoLWNsaWVudCIsImFjciI6Im1vc2lwOmlkcDphY3I6Z2VuZXJhdGVkLWNvZGUiLCJhdXRoX3RpbWUiOjE3MjUyNjk4ODUsImlzcyI6Imh0dHBzOlwvXC9lc2lnbmV0bDIuY2FtZGdjLXFhLm1vc2lwLm5ldFwvdjFcL2VzaWduZXQiLCJleHAiOjE3MjUyNzAwNzMsImlhdCI6MTcyNTI2OTg5Mywibm9uY2UiOiI5NzNlaWVsanpuZyJ9.VMMn92CFzGkVyx8Jwrq03KhuXOXj3wRlUoxZQQBN7MxlfIxGSX_yE7iw3JWxohzQuHticndtQX2LELcGTPhclzRop3skHCeo6ZPGJklCiRA3F5SyfCYLvDprgE_-pQhLWeECqRtW_8jFFgZSORMoxy8eBj5Vvc8q2zcoDjE-JiLZvqE9UWDRpAKzumJcD3iJvBwE-9jkzQtWZbp-tZrpPrm-KCZU6-Q3qhWU23E9DSMg_6byq4iH51TFwO0nHW1kaxhsqHvCsTX7YTvmfWXUwPVRLNZh5Uszt8EIsgpKIUDkRImqmCUbP1LwoFG55MsW67QzHNTFuR6H-4LidSKnnA";
+
+        // Mock tokenService.verifyIdToken to throw exception for signature verification failure
+        Mockito.doThrow(new RuntimeException("Signature verification failed"))
+                .when(tokenService).verifyIdToken(Mockito.anyString(), Mockito.anyString());
+
+        try {
+            authorizationHelperService.validateAndGetSubjectAndNonce("mosip-signup-oauth-client", validIdTokenHint);
+            Assertions.fail();
+        } catch (EsignetException e) {
+            Assertions.assertEquals(ErrorConstants.LOGIN_REQUIRED, e.getErrorCode());
+        }
+    }
 }

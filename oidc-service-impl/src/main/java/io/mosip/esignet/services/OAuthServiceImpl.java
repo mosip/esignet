@@ -193,7 +193,6 @@ public class OAuthServiceImpl implements OAuthService {
 
         log.info("nonce : {} Valid client id found, proceeding to validate redirect URI", pushedAuthorizationRequest.getNonce());
         IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), pushedAuthorizationRequest.getRedirect_uri());
-        authorizationHelperService.validateNonce(pushedAuthorizationRequest.getNonce());
 
         List<String> validAudience = List.of((String) oauthServerDiscoveryMap.get(PAR_ENDPOINT), (String) oauthServerDiscoveryMap.get(TOKEN_ENDPOINT), (String) discoveryMap.get(ISSUER));
 
@@ -378,6 +377,7 @@ public class OAuthServiceImpl implements OAuthService {
         }
         return null;
     }
+
 
     private String validateDpopJktThumbprint(String dpopHeader,String dpopJkt) {
         try {

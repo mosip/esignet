@@ -30,7 +30,6 @@ import io.mosip.kernel.keymanagerservice.entity.KeyAlias;
 import io.mosip.kernel.keymanagerservice.helper.KeymanagerDBHelper;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.env.Environment;
 import org.springframework.data.util.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -104,8 +103,6 @@ public class AuthorizationHelperService {
     @Autowired
     private ClaimsHelperService claimsHelperService;
 
-    @Autowired
-    private Environment environment;
 
     @Value("#{${mosip.esignet.supported.authorize.scopes}}")
     private List<String> authorizeScopes;
@@ -435,30 +432,35 @@ public class AuthorizationHelperService {
 
     protected Pair<String,String> validateAndGetSubjectAndNonce(String clientId, String idTokenHint) {
         try {
-            String[] jwtParts = idTokenHint.split("\\.");
-            if (jwtParts.length == 3) {
-                String payloadString = new String(Base64.getDecoder().decode(jwtParts[1]));
-                JsonNode payload = objectMapper.readTree(payloadString);
-                String audience = payload.get(TokenService.AUD).textValue();
-                if(!signupIDTokenAudience.equals(audience) || !signupIDTokenAudience.equals(clientId))
-                    throw new EsignetException(ErrorConstants.LOGIN_REQUIRED);
-                return Pair.of(payload.get(TokenService.SUB).textValue(), payload.get(TokenService.NONCE).textValue());
+            // 1) Cryptographic + standard claims verification (issuer, exp, aud == signupIDTokenAudience).
+            tokenService.verifyIdToken(idTokenHint, signupIDTokenAudience);
+        } catch (Exception e) {
+            log.error("id_token_hint signature/claims verification failed", e);
+            throw new EsignetException(LOGIN_REQUIRED);
+        }
+
+        // 2) Only after cryptographic validation passes do we parse the JWT to read claims.
+        try {
+            JWT jwt = JWTParser.parse(idTokenHint);
+            List<String> audience = jwt.getJWTClaimsSet().getAudience();
+
+            if (CollectionUtils.isEmpty(audience) || !audience.contains(signupIDTokenAudience) || !signupIDTokenAudience.equals(clientId))  {
+                log.error("ID token hint validation failed: audience={}, expectedAudience={}, clientId={}",
+                        audience, signupIDTokenAudience, clientId);
+                throw new EsignetException(LOGIN_REQUIRED);
             }
+
+            String sub = jwt.getJWTClaimsSet().getSubject();
+            String nonce = jwt.getJWTClaimsSet().getStringClaim(TokenService.NONCE);
+            if (sub == null || sub.isBlank() || nonce == null || nonce.isBlank()) {
+                log.error("ID token hint validation failed: subject or nonce is missing or blank. sub={}, nonce={}",
+                        sub, nonce);
+                throw new EsignetException(LOGIN_REQUIRED);
+            }
+            return Pair.of(sub, nonce);
         } catch (Exception e) {
             log.error("Failed to parse the given IDTokenHint as JWT", e);
         }
-        throw new EsignetException(ErrorConstants.LOGIN_REQUIRED);
-    }
-
-    protected void validateNonce(String nonce) {
-        if(isLocalEnvironment() || nonce == null || nonce.isBlank())
-            return;
-
-        if(cacheUtilService.checkNonce(nonce.trim()) == 0L)
-            throw new EsignetException(ErrorConstants.INVALID_REQUEST);
-    }
-
-    private boolean isLocalEnvironment() {
-        return Arrays.stream(environment.getActiveProfiles()).anyMatch(env -> env.equalsIgnoreCase("local"));
+        throw new EsignetException(LOGIN_REQUIRED);
     }
 }

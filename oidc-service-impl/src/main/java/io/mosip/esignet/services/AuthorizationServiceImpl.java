@@ -128,7 +128,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     public OAuthDetailResponseV1 getOauthDetails(OAuthDetailRequest oauthDetailReqDto) throws EsignetException {
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(oauthDetailReqDto.getClientId());
         assertPARRequiredIsFalse(clientDetailDto);
-        validateRedirectURIAndNonce(oauthDetailReqDto, clientDetailDto);
+        log.info("nonce : {} Valid client id found, proceeding to validate redirect URI", oauthDetailReqDto.getNonce());
+        IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), oauthDetailReqDto.getRedirectUri());
         OAuthDetailResponseV1 oAuthDetailResponseV1 = new OAuthDetailResponseV1();
         Pair<OAuthDetailResponse, OIDCTransaction> pair = checkAndBuildOIDCTransaction(oauthDetailReqDto, clientDetailDto, oAuthDetailResponseV1);
         oAuthDetailResponseV1 = (OAuthDetailResponseV1) pair.getFirst();
@@ -144,7 +145,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     public OAuthDetailResponseV2 getOauthDetailsV2(OAuthDetailRequestV2 oauthDetailReqDto) throws EsignetException {
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(oauthDetailReqDto.getClientId());
         assertPARRequiredIsFalse(clientDetailDto);
-        validateRedirectURIAndNonce(oauthDetailReqDto, clientDetailDto);
+        log.info("nonce : {} Valid client id found, proceeding to validate redirect URI", oauthDetailReqDto.getNonce());
+        IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), oauthDetailReqDto.getRedirectUri());
         OAuthDetailResponseV2 oAuthDetailResponseV2 = new OAuthDetailResponseV2();
         // V2 path does not validate id_token_hint -> pass null for HttpServletRequest
         return buildTransactionAndOAuthDetailResponse(oauthDetailReqDto, clientDetailDto, oAuthDetailResponseV2, null, null);
@@ -154,7 +156,8 @@ public class AuthorizationServiceImpl implements AuthorizationService {
     public OAuthDetailResponseV2 getOauthDetailsV3(OAuthDetailRequestV3 oauthDetailReqDto, HttpServletRequest httpServletRequest) throws EsignetException {
         ClientDetail clientDetailDto = clientManagementService.getClientDetails(oauthDetailReqDto.getClientId());
         assertPARRequiredIsFalse(clientDetailDto);
-        validateRedirectURIAndNonce(oauthDetailReqDto, clientDetailDto);
+        log.info("nonce : {} Valid client id found, proceeding to validate redirect URI", oauthDetailReqDto.getNonce());
+        IdentityProviderUtil.validateRedirectURI(clientDetailDto.getRedirectUris(), oauthDetailReqDto.getRedirectUri());
         OAuthDetailResponseV2 oAuthDetailResponseV2 = new OAuthDetailResponseV2();
         return buildTransactionAndOAuthDetailResponse(oauthDetailReqDto, clientDetailDto, oAuthDetailResponseV2, oauthDetailReqDto.getIdTokenHint(), httpServletRequest);
     }
@@ -406,11 +409,6 @@ public class AuthorizationServiceImpl implements AuthorizationService {
         return transaction;
     }
 
-    private void validateRedirectURIAndNonce(OAuthDetailRequest oAuthDetailRequest, ClientDetail clientDetail) {
-        log.info("nonce : {} Valid client id found, proceeding to validate redirect URI", oAuthDetailRequest.getNonce());
-        IdentityProviderUtil.validateRedirectURI(clientDetail.getRedirectUris(), oAuthDetailRequest.getRedirectUri());
-        authorizationHelperService.validateNonce(oAuthDetailRequest.getNonce());
-    }
 
     private void assertPARRequiredIsFalse(ClientDetail clientDetail) throws EsignetException {
         if (serverProfile.getFeatureMap().containsKey(REQUIRE_PAR) || clientDetail.getAdditionalConfig(REQUIRE_PAR, false)) {
