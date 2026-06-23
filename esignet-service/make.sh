@@ -47,13 +47,17 @@ KEY_DIR=keys
 SIGNING_KEY=$KEY_DIR/signing.key
 SIGNING_CERT=$KEY_DIR/signing.crt
 : "${PORT:=8080}"
-: "${ISSUER_URL:=http://127.0.0.1:$PORT}"
+# Backward compatibility: ISSUER_URL was renamed to MOSIP_ESIGNET_HOST.
+if [ -z "${MOSIP_ESIGNET_HOST:-}" ] && [ -n "${ISSUER_URL:-}" ]; then
+  MOSIP_ESIGNET_HOST="$ISSUER_URL"
+fi
+: "${MOSIP_ESIGNET_HOST:=http://127.0.0.1:$PORT}"
 : "${DATA_DIR:=./data}"
 : "${SIGNING_KEY_PATH:=./$SIGNING_KEY}"
 : "${DOCKER_IMAGE:=esignet:latest}"
 : "${GOLANGCI_LINT_VERSION:=latest}"
 : "${SQLC_VERSION:=v1.29.0}"
-: "${THUNDER_BRANCH:=3037}"
+: "${THUNDER_BRANCH:=engine}"
 : "${RACE:=1}"   # set RACE=0 if no C toolchain (go test -race needs gcc on Windows)
 THUNDER_MODULE=github.com/anushasunkada/thunder/backend
 
@@ -95,10 +99,9 @@ target_build() { ## Compile production binary (out/esignet[.exe])
 target_run() { ## Run with go run (development)
   target_keys
   PORT="$PORT" \
-  ISSUER_URL="$ISSUER_URL" \
+  MOSIP_ESIGNET_HOST="$MOSIP_ESIGNET_HOST" \
   DATA_DIR="$DATA_DIR" \
-  SIGNING_KEY_PATH="$SIGNING_KEY_PATH" \
-  AUTHN_PROVIDER="${AUTHN_PROVIDER:-catalog}" \
+  AUTHN_PROVIDER="${AUTHN_PROVIDER:-mosip}" \
     go run "$CMD"
 }
 
@@ -157,7 +160,7 @@ target_smoke() { ## End-to-end OAuth smoke test (server must be running)
     target_smoke_jwt_key
   fi
   # Invoked via bash so it works even when the exec bit is lost on Windows.
-  BASE_URL="${BASE_URL:-$ISSUER_URL}" bash ./scripts/oauth-smoke.sh
+  BASE_URL="${BASE_URL:-$MOSIP_ESIGNET_HOST}" bash ./scripts/oauth-smoke.sh
 }
 
 target_docker_build() { ## Build container image (esignet:latest by default)
@@ -167,7 +170,11 @@ target_docker_build() { ## Build container image (esignet:latest by default)
 
 target_docker_run() { ## Run container mapped to PORT (default 8080)
   target_docker_build
-  docker run --rm -p "$PORT:8080" -e ISSUER_URL="$ISSUER_URL" "$DOCKER_IMAGE"
+  docker run --rm -p "$PORT:8088" \
+    -e MOSIP_ESIGNET_HOST="$MOSIP_ESIGNET_HOST" \
+    -e AUTHN_PROVIDER="${AUTHN_PROVIDER:-mosip}" \
+    -e CRYPTO_ENCRYPTION_KEY="${CRYPTO_ENCRYPTION_KEY:-}" \
+    "$DOCKER_IMAGE"
 }
 
 target_sqlc() { ## Regenerate DB layer from SQL (requires sqlc; run sqlc-install first)
@@ -260,16 +267,15 @@ Maintenance
 
 Environment (override on the command line or in .env):
   PORT=$PORT
-  ISSUER_URL=$ISSUER_URL
+  MOSIP_ESIGNET_HOST=$MOSIP_ESIGNET_HOST
   DATA_DIR=$DATA_DIR
-  SIGNING_KEY_PATH=$SIGNING_KEY_PATH
-  AUTHN_PROVIDER=${AUTHN_PROVIDER:-} (catalog|mosip, default catalog)
-  MOSIP_API_BASE_URL (optional, used to derive IDA endpoint URLs)
-  MOSIP_LICENSE_KEY (optional, used in IDA endpoint paths)
-  MOSIP_IDA_PARTNER_CERT_URL (optional override)
-  MOSIP_SEND_OTP_BASE_URL (optional override)
-  MOSIP_KYC_AUTH_BASE_URL (optional override)
-  MOSIP_KYC_EXCHANGE_BASE_URL (optional override)
+  AUTHN_PROVIDER=${AUTHN_PROVIDER:-} (mosip|sunbird, default mosip)
+  MOSIP_API_INTERNAL_HOST (optional, used to derive IDA endpoint URLs)
+  MOSIP_ESIGNET_MISP_KEY (optional, used in IDA endpoint paths)
+  MOSIP_ESIGNET_AUTHENTICATOR_IDA_CERT_URL (optional override)
+  MOSIP_ESIGNET_AUTHENTICATOR_IDA_SEND_OTP_URL (optional override)
+  MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC_AUTH_URL (optional override)
+  MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC_EXCHANGE_URL (optional override)
   MOSIP_P12_PATH (required for MOSIP auth)
   MOSIP_P12_PASSWORD (required for MOSIP auth)
 

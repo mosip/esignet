@@ -63,6 +63,8 @@ type ClientResponse struct {
 	AuthMethods      []string          `json:"client_auth_methods"`
 	Status           string            `json:"status"`
 	AdditionalConfig map[string]string `json:"additional_config,omitempty"`
+	PublicKey        string            `json:"public_key"`
+	EncPublicKey     string            `json:"enc_public_key,omitempty"`
 	CreatedAt        time.Time         `json:"created_at"`
 	UpdatedAt        *time.Time        `json:"updated_at,omitempty"`
 }
@@ -351,6 +353,7 @@ func toResponse(row db.ClientDetail) (ClientResponse, error) {
 	if err != nil {
 		return ClientResponse{}, fmt.Errorf("client %s: %w", row.ID, err)
 	}
+	publicKey := row.PublicKey
 
 	resp := ClientResponse{
 		ClientID:         row.ID,
@@ -365,6 +368,10 @@ func toResponse(row db.ClientDetail) (ClientResponse, error) {
 		Status:           row.Status,
 		AdditionalConfig: additionalConfig,
 		CreatedAt:        row.CrDtimes,
+		PublicKey:        publicKey,
+	}
+	if row.EncPublicKey.Valid {
+		resp.EncPublicKey = row.EncPublicKey.String
 	}
 	if row.UpdDtimes.Valid {
 		t := row.UpdDtimes.Time

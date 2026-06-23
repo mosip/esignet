@@ -2,7 +2,7 @@
 
 Module: `github.com/mosip/esignet`
 
-A Go service that embeds the ThunderID authorization engine with PostgreSQL-backed OIDC client management, Redis-backed session/flow storage, and MOSIP IDA authentication support.
+A Go service that embeds the ThunderID authorization engine with PostgreSQL-backed OIDC client management, Redis-backed session/flow storage, and pluggable authentication (MOSIP IDA or SunbirdRC KBI).
 
 ## Prerequisites
 
@@ -18,17 +18,14 @@ A Go service that embeds the ThunderID authorization engine with PostgreSQL-back
 ```text
 esignet-service/
   cmd/esignet/main.go               # HTTP entrypoint
-  internal/catalog/                 # users + OAuth clients from YAML
   internal/clientmgmt/              # OIDC client management API
-    db/                             # SQLC-generated Postgres layer
-    handler.go                      # HTTP handlers
-    service.go                      # business logic
-    middleware.go                   # Bearer token scope enforcement
-    jwks.go                         # JWKS fetcher + cache
-  internal/store/                   # Redis-backed runtime.Store
+  internal/config/                  # env-based config (app, DB, Redis)
   internal/host/                    # Actor, Authn, Authz, Consent, executors
-  internal/config/                  # env-based config (engine, DB, Redis, authn, MOSIP)
-  data/repository/resources/        # declarative fixtures (flows, apps, OU, …)
+    mosip/                          # MOSIP IDA authn provider + OTP executor
+    sunbird/                        # SunbirdRC KBI authn provider
+  data/
+    deployment.yaml                 # engine deployment defaults
+    config/resources/               # declarative fixtures (flows, apps, OU, …)
   keys/                             # signing.key + signing.crt (local, gitignored)
   postman/                          # Postman collection + environment
   scripts/oauth-smoke.sh            # end-to-end OAuth smoke test
@@ -56,12 +53,14 @@ cd esignet-service
 
 If `go build` fails with a missing module, run `go mod download` first.
 
+The checked-in `go.mod` `replace` directive pins a Thunder backend fork until the upstream release is available. Refresh it with `./make.sh update-thunder` (`THUNDER_MODULE` defaults to `github.com/anushasunkada/thunder/backend`).
+
 ## Run
 
 ### Quick start (development)
 
 ```bash
-cp .env.example .env          # fill in POSTGRES_* and REDIS_* at minimum
+cp .env.example .env          # fill in DATABASE_* / DB_DBUSER_PASSWORD and REDIS_* at minimum
 ./make.sh run
 ```
 
@@ -72,12 +71,14 @@ Copy `.env.example` to `.env` to override defaults, or pass overrides on the com
 ```bash
 ./make.sh keys && ./make.sh build
 
-export ISSUER_URL=http://127.0.0.1:8080
-export POSTGRES_HOST=localhost
-export POSTGRES_USER=esignet
-export POSTGRES_PASSWORD=secret
-export POSTGRES_DB=esignet
+export PORT=8080
+export MOSIP_ESIGNET_HOST=http://127.0.0.1:8080
+export DATABASE_HOST=localhost
+export DATABASE_USERNAME=esignet
+export DB_DBUSER_PASSWORD=secret
+export DATABASE_NAME=mosip_esignet
 export REDIS_HOST=localhost
+export AUTHN_PROVIDER=mosip
 
 ./out/esignet.exe   # ./out/esignet on Linux
 ```
@@ -86,7 +87,8 @@ Startup log:
 
 ```text
 time=... level=INFO msg="redis connected"   key_prefix=esignet:
-time=... level=INFO msg="client mgmt scope enforcement"  required_scope=client_mgmt  jwks_endpoint=http://127.0.0.1:8080/.well-known/jwks.json
+time=... level=INFO msg="client mgmt scope enforcement"  required_scope=client_mgmt  jwks_endpoint=...
+time=... level=INFO msg="authn provider selected"  provider=mosip
 time=... level=INFO msg="server listening"  addr=:8080  issuer=http://127.0.0.1:8080
 ```
 
@@ -99,28 +101,50 @@ Set `LOG_LEVEL=debug` for verbose tracing.
 | Variable | Default | Purpose |
 |----------|---------|---------|
 | `LOG_LEVEL` | `info` | `debug` / `info` / `warn` / `error` |
-| `PORT` | `8080` | HTTP listen port |
-| `ISSUER_URL` | `http://127.0.0.1:<PORT>` | OIDC issuer, JWT `iss`, discovery base |
-| `DATA_DIR` | `./data` | Declarative YAML root |
-| `SIGNING_KEY_PATH` | `./keys/signing.key` | PEM private key for JWT signing |
-| `GATE_CLIENT_SCHEME` | `http` | Gate UI scheme for authorize redirects |
-| `GATE_CLIENT_HOSTNAME` | `127.0.0.1` | Gate UI hostname |
-| `GATE_CLIENT_PORT` | `<PORT>` | Gate UI port |
-| `GATE_CLIENT_LOGIN_PATH` | `/signin` | Login page path |
-| `GATE_CLIENT_ERROR_PATH` | `/error` | Error page path |
+| `PORT` | `8088` | HTTP listen port (`make.sh` defaults to `8080`) |
+| `MOSIP_ESIGNET_HOST` | `http://127.0.0.1:<PORT>` | OIDC issuer, JWT `iss`, discovery base |
+| `DATA_DIR` | `./data` | Declarative YAML root (`data/config/resources/`) |
+| `CRYPTO_ENCRYPTION_KEY` | _(required)_ | Hex key for `crypto.encryption.key` in `data/deployment.yaml` |
 | `JWT_AUDIENCE` | _(empty)_ | JWT `aud` claim |
-| `OAUTH_*` | _(empty)_ | Optional OAuth lifetime/policy overrides |
+| `JWT_PREFERRED_KEY_ID` | _(empty)_ | Preferred signing key id |
+| `OAUTH_AUTH_CODE_LIFETIME_SECONDS` | `120` | Authorization code lifetime |
+| `OAUTH_ACCESS_TOKEN_LIFETIME_SECONDS` | `3600` | Access token lifetime |
+| `OAUTH_PAR_EXPIRY_SECONDS` | `3600` | Pushed authorization request expiry |
+
+Signing keys are generated locally by `./make.sh keys` at `keys/signing.key` and `keys/signing.crt`.
+
+### OIDC UI (login gate)
+
+Authorize redirects are sent to the Thunder gate client:
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `OIDC_UI_SCHEME` | `http` | Gate UI scheme |
+| `OIDC_UI_HOSTNAME` | `127.0.0.1` | Gate UI hostname |
+| `OIDC_UI_PORT` | `3000` | Gate UI port |
+| `OIDC_UI_LOGIN_PATH` | `/signin` | Login page path |
+| `OIDC_UI_ERROR_PATH` | `/error` | Error page path |
+
+### Declarative defaults
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `DEFAULT_THEME_ID` | _(empty)_ | Default theme for flows |
+| `DEFAULT_LAYOUT_ID` | _(empty)_ | Default layout for flows |
+| `DEFAULT_AUTH_FLOW_ID` | _(empty)_ | Default authentication flow |
+| `DEFAULT_REGISTRATION_FLOW_ID` | _(empty)_ | Default registration flow |
+| `DEFAULT_RECOVERY_FLOW_ID` | _(empty)_ | Default recovery flow |
 
 ### PostgreSQL
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
 | `POSTGRES_URL` | _(empty)_ | Full DSN — takes precedence if set |
-| `POSTGRES_HOST` | `localhost` | |
-| `POSTGRES_PORT` | `5432` | |
-| `POSTGRES_DB` | `esignet` | |
-| `POSTGRES_USER` | `postgres` | |
-| `POSTGRES_PASSWORD` | _(empty)_ | |
+| `DATABASE_HOST` | `localhost` | |
+| `DATABASE_PORT` | `5432` | |
+| `DATABASE_NAME` | `mosip_esignet` | |
+| `DATABASE_USERNAME` | `postgres` | |
+| `DB_DBUSER_PASSWORD` | _(empty)_ | |
 | `DB_MAX_OPEN_CONNS` | `25` | Max open connections |
 | `DB_MAX_IDLE_CONNS` | `5` | Max idle connections |
 | `DB_CONN_MAX_LIFETIME_SECS` | `300` | Connection lifetime |
@@ -152,27 +176,46 @@ Set `LOG_LEVEL=debug` for verbose tracing.
 | Variable | Default | Purpose |
 |----------|---------|---------|
 | `CLIENT_MGMT_REQUIRED_SCOPE` | `client_mgmt` | Bearer token scope required on all `/client-mgmt/*` endpoints |
-| `CLIENT_MGMT_JWKS_ENDPOINT` | `<ISSUER_URL>/.well-known/jwks.json` | JWKS URL for validating Bearer tokens |
+| `CLIENT_MGMT_ISSUER_URL` | _(empty)_ | Expected `iss` claim in Bearer tokens |
+| `CLIENT_MGMT_JWKS_ENDPOINT` | _(empty)_ | JWKS URL for validating Bearer tokens |
 | `CLIENT_MGMT_JWKS_CACHE_TTL_SECS` | `300` | JWKS key cache TTL |
+
+Set `CLIENT_MGMT_ISSUER_URL` and `CLIENT_MGMT_JWKS_ENDPOINT` to match `MOSIP_ESIGNET_HOST` when validating tokens issued by the local engine.
 
 ### Authentication provider
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
-| `AUTHN_PROVIDER` | `catalog` | `catalog` (local YAML users), `mosip` (MOSIP IDA), or `sunbird` (SunbirdRC registry KBI) |
-| `MOSIP_API_BASE_URL` | _(empty)_ | MOSIP API host |
-| `MOSIP_LICENSE_KEY` | _(empty)_ | License key used in IDA endpoint paths |
+| `AUTHN_PROVIDER` | _(required)_ | `mosip` (MOSIP IDA) or `sunbird` (SunbirdRC registry KBI). `make.sh run` defaults to `mosip`. |
+
+#### MOSIP IDA
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `MOSIP_API_INTERNAL_HOST` | _(empty)_ | Internal MOSIP API host; used to derive IDA URLs |
+| `MOSIP_ESIGNET_MISP_KEY` | _(empty)_ | MISP license key used in IDA endpoint paths |
+| `MOSIP_ESIGNET_AUTHENTICATOR_IDA_CERT_URL` | `<host>/mosip-certs/ida-partner.cer` | IDA partner certificate URL |
+| `MOSIP_ESIGNET_AUTHENTICATOR_IDA_SEND_OTP_URL` | `<host>/idauthentication/v1/otp/<key>/` | Send OTP endpoint |
+| `MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC_AUTH_URL` | `<host>/idauthentication/v1/kyc-auth/delegated/<key>/` | KYC auth endpoint |
+| `MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC_EXCHANGE_URL` | `<host>/idauthentication/v1/kyc-exchange/delegated/<key>/` | KYC exchange endpoint |
+| `MOSIP_ESIGNET_DOMAIN_URL` | `MOSIP_API_INTERNAL_HOST` | Domain URI sent in IDA requests |
+| `IDA_AUTHENTICATOR_ENV` | `Staging` | IDA environment label |
 | `MOSIP_P12_PATH` | _(empty)_ | Partner keystore (required for MOSIP auth) |
 | `MOSIP_P12_PASSWORD` | _(empty)_ | Partner keystore password |
-| `MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_AUTH_FACTOR_KBI_REGISTRY_SEARCH_URL` | _(empty)_ | SunbirdRC registry search endpoint (**required** for `sunbird` auth) |
-| `MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_REGISTRY_GET_URL` | _(empty)_ | SunbirdRC registry get/entity endpoint; used to fetch OIDC claims after auth |
-| `MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_AUTH_FACTOR_KBI_INDIVIDUAL_ID_FIELD` | `policyNumber` | Registry field the entered `individualId` maps to in the search filter |
-| `MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_KBI_ENTITY_ID_FIELD` | `osid` | Registry field holding the entity id returned by search |
-| `MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_AUTH_FACTOR_KBI_FIELD_DETAILS` | _(Insurance default)_ | JSON list of KBI fields collected from the user |
-| `MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_IDENTITY_OPENID_CLAIMS_MAPPING` | _(Insurance default)_ | JSON map of OIDC claim → registry field (empty/unset or malformed = no claims released; fail closed) |
-| `MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_REQUEST_TIMEOUT_SECS` | `10` | HTTP timeout in seconds for registry calls |
 
-See `.env.example` for the full list including optional MOSIP URL overrides.
+#### SunbirdRC KBI
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_AUTH_FACTOR_KBI_REGISTRY_SEARCH_URL` | _(empty)_ | Registry search endpoint (**required** for `sunbird`) |
+| `MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_REGISTRY_GET_URL` | _(empty)_ | Registry get/entity endpoint for OIDC claims |
+| `MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_AUTH_FACTOR_KBI_INDIVIDUAL_ID_FIELD` | `policyNumber` | Registry field the entered `individualId` maps to |
+| `MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_KBI_ENTITY_ID_FIELD` | `osid` | Registry field holding the entity id from search |
+| `MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_AUTH_FACTOR_KBI_FIELD_DETAILS` | _(Insurance default)_ | JSON list of KBI fields collected from the user |
+| `MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_IDENTITY_OPENID_CLAIMS_MAPPING` | _(Insurance default)_ | JSON map of OIDC claim → registry field |
+| `MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_REQUEST_TIMEOUT_SECS` | `10` | HTTP timeout for registry calls |
+
+See `.env.example` for copy-paste values including optional MOSIP URL overrides.
 
 ### SunbirdRC (KBI) authentication
 
@@ -181,7 +224,7 @@ With `AUTHN_PROVIDER=sunbird`, the user authenticates by knowledge-based identit
 registry search URL. Authentication succeeds only when the registry returns **exactly one** matching entity;
 its entity-id field (default `osid`) becomes the user id. Attributes are then fetched from the registry
 get URL (`.../{entityId}`) and mapped to OIDC claims via the claims-mapping config. This reuses the
-built-in `BasicAuthExecutor` (no custom executor); the demo flow `decl-sunbird-flow-1` and app
+built-in `CredentialsAuthExecutor` (no custom executor); the demo flow `decl-sunbird-flow-1` and app
 `decl-app-sunbird` exercise it.
 
 ## Client management API
@@ -257,12 +300,12 @@ All runtime state is namespaced under `REDIS_KEY_PREFIX` (default `esignet:`):
 ./make.sh coverage-html  # full HTML report → coverage.html
 ```
 
-Unit tests use `miniredis` for Redis (no running Redis required) and mock queriers for the Postgres layer. The OIDC discovery smoke test in `cmd/esignet` requires `./make.sh keys` first (skipped automatically if keys are absent).
+Unit tests use `miniredis` for Redis (no running Redis required) and mock queriers for the Postgres layer. Run `./make.sh keys` before tests that exercise JWT signing.
 
 ## Health check
 
 ```bash
-curl -s http://127.0.0.1:8080/health
+curl -s http://127.0.0.1:8088/health
 # ok
 ```
 
@@ -271,17 +314,19 @@ curl -s http://127.0.0.1:8080/health
 ```bash
 ./make.sh docker-build
 
-docker run --rm -p 8080:8080 \
-  -e ISSUER_URL=http://127.0.0.1:8080 \
-  -e POSTGRES_URL=postgres://esignet:secret@host.docker.internal:5432/esignet?sslmode=disable \
+docker run --rm -p 8088:8088 \
+  -e MOSIP_ESIGNET_HOST=http://127.0.0.1:8080 \
+  -e CRYPTO_ENCRYPTION_KEY=your-64-char-hex-key \
+  -e POSTGRES_URL=postgres://esignet:secret@host.docker.internal:5432/mosip_esignet?sslmode=disable \
   -e REDIS_URL=redis://host.docker.internal:6379/0 \
+  -e AUTHN_PROVIDER=mosip \
   esignet:latest
 ```
 
 On first start the entrypoint generates signing keys if absent. Data is baked in at `/home/mosip/data`.
 
 ```bash
-./make.sh smoke BASE_URL=http://127.0.0.1:8080
+./make.sh smoke BASE_URL=http://127.0.0.1:8088 DEFAULT_AUTH_FLOW_ID=decl-flow-1
 ```
 
 ## Demo credentials
@@ -300,20 +345,22 @@ On first start the entrypoint generates signing keys if absent. Data is baked in
 2. Import `postman/embedder-positive-flow.json`
 3. Run **0 — Shared setup**, then **1 — App-native flow** or **2 — Full OAuth (PKCE)** in order
 
-Folder **2** is a linear sequence: PKCE setup → authorize (no redirect follow) → flow resume → credentials → auth callback → token → userinfo. Start the server with `ISSUER_URL` matching `baseUrl` in the environment (e.g. `http://127.0.0.1:8080`) before running OAuth steps.
+Folder **2** is a linear sequence: PKCE setup → authorize (no redirect follow) → flow resume → credentials → auth callback → token → userinfo. Start the server with `MOSIP_ESIGNET_HOST` matching `baseUrl` in the environment (e.g. `http://127.0.0.1:8080`) before running OAuth steps.
 
-Folder **3** (MOSIP OTP) requires `AUTHN_PROVIDER=mosip` and `MOSIP_*` variables (see `.env.example`). Set `individualId` and `otp` in the Postman environment before running.
+Folder **3** (MOSIP OTP) requires `AUTHN_PROVIDER=mosip` and MOSIP variables (see `.env.example`). Set `individualId` and `otp` in the Postman environment before running.
+
+Folder **4** (Client management) requires PostgreSQL with the `client_detail` table, `CLIENT_MGMT_ISSUER_URL` and `CLIENT_MGMT_JWKS_ENDPOINT` matching `baseUrl`, and `clientMgmtToken` set to a Bearer JWT carrying the `client_mgmt` scope. Run **Create OIDC client** → **Get OIDC client** → **Update OIDC client** in order.
 
 ## OAuth
 
-Authorize redirects to the gate client (`http://127.0.0.1:8080/signin?...` by default) with `executionId`, `authId`, and related query parameters. Postman folder 2 parses that redirect without following it (`followRedirects: false` on authorize). The public client uses PKCE; no client secret is required.
+Authorize redirects to the gate client (`http://127.0.0.1:3000/signin?...` by default via `OIDC_UI_*`) with `executionId`, `authId`, and related query parameters. Postman folder 2 parses that redirect without following it (`followRedirects: false` on authorize). The public client uses PKCE; no client secret is required.
 
-End-to-end check (server must be running with `ISSUER_URL` matching `BASE_URL`):
+End-to-end check (server must be running with `MOSIP_ESIGNET_HOST` matching `BASE_URL`):
 
 ```bash
 ./make.sh smoke
 # or
-BASE_URL=http://127.0.0.1:8080 ./scripts/oauth-smoke.sh
+BASE_URL=http://127.0.0.1:8088 ./scripts/oauth-smoke.sh
 ```
 
 Each step prints `PASS` or `FAIL` to the console (authorize → flow → callback → token → userinfo), then a short summary (exit code 1 if any step failed).

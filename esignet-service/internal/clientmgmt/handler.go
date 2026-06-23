@@ -31,9 +31,9 @@ func NewHandler(svc *Service, logger *applog.Logger) *Handler {
 	return &Handler{svc: svc, logger: logger}
 }
 
-// RegisterRoutes mounts the client management routes on mux, protected by the
-// given middleware (typically ScopeMiddleware). Pass nil for no protection
-// (tests only).
+// RegisterRoutes mounts the client management routes on mux, optionally protected
+// by the given middleware (typically ScopeMiddleware). Pass nil when scope
+// enforcement is not configured.
 func (h *Handler) RegisterRoutes(mux *http.ServeMux, middleware func(http.Handler) http.Handler) {
 	wrap := func(hf http.HandlerFunc) http.Handler {
 		if middleware == nil {
@@ -50,7 +50,7 @@ func (h *Handler) createClient(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB limit
 	var req CreateClientRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		writeError(w, http.StatusBadRequest, "invalid_request", "malformed JSON body")
+		writeError(w, http.StatusBadRequest, "invalid_request", err.Error())
 		return
 	}
 

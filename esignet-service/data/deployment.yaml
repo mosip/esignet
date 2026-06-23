@@ -1,0 +1,21 @@
+declarative_resources:
+  enabled: true
+flow:
+  store: declarative
+resource:
+  store: declarative
+organization_unit:
+  store: declarative
+identity_provider:
+  store: declarative
+role:
+  store: declarative
+theme:
+  store: declarative
+layout:
+  store: declarative
+translation:
+  store: declarative
+crypto:
+  encryption:
+    key: "${CRYPTO_ENCRYPTION_KEY}"

@@ -1,0 +1,118 @@
+id: decl-mosip-otp-flow-1
+handle: decl-mosip-otp-flow-1
+name: MOSIP Send OTP Flow
+flowType: AUTHENTICATION
+activeVersion: 1
+nodes:
+  - id: start
+    type: START
+    onSuccess: prompt_individual_id
+  - id: prompt_individual_id
+    type: PROMPT
+    meta:
+      components:
+        - alt: "{{ t(signin:images.app_logo.alt) }}"
+          category: DISPLAY
+          height: "60"
+          id: image
+          resourceType: ELEMENT
+          src: "{{ meta(application.logoUrl) }}"
+          type: IMAGE
+          width: ""
+        - align: center
+          type: TEXT
+          id: text_001
+          label: "{{ t(signin:forms.credentials.title) }}"
+          variant: HEADING_1
+        - type: BLOCK
+          id: block_001
+          components:
+            - id: input_001
+              ref: username
+              type: TEXT_INPUT
+              label: "Username"
+              required: true
+              placeholder: "Enter your username"
+            - id: action_submit_individual_id
+              type: ACTION
+              label: Continue
+              variant: PRIMARY
+              category: ACTION
+              eventType: SUBMIT
+              resourceType: ELEMENT
+    prompts:
+      - inputs:
+          - ref: input_001
+            identifier: username
+            type: TEXT_INPUT
+            required: true
+        action:
+          ref: action_submit_individual_id
+          nextNode: send_mosip_otp
+  - id: send_mosip_otp
+    type: TASK_EXECUTION
+    executor:
+      name: MosipOtpExecutor
+    onSuccess: prompt_otp
+  - id: prompt_otp
+    type: PROMPT
+    meta:
+      components:
+        - id: text_otp_title
+          type: TEXT
+          label: Enter OTP
+          variant: HEADING_3
+          category: DISPLAY
+          resourceType: ELEMENT
+        - id: block_enter_otp
+          type: BLOCK
+          category: BLOCK
+          components:
+            - id: input_002
+              ref: otp
+              type: OTP_INPUT
+              label: Please enter the 6-digit OTP sent to your registered contact
+              category: FIELD
+              required: true
+            - id: action_submit_otp
+              type: ACTION
+              label: Verify
+              variant: PRIMARY
+              category: ACTION
+              eventType: SUBMIT
+              resourceType: ELEMENT
+    prompts:
+      - inputs:
+          - ref: input_002
+            identifier: otp
+            type: TEXT_INPUT
+            required: true
+        action:
+          ref: action_submit_otp
+          nextNode: basic_auth
+  - id: basic_auth
+    type: TASK_EXECUTION
+    executor:
+      name: CredentialsAuthExecutor
+      inputs:
+        - ref: input_001
+          identifier: username
+          type: TEXT_INPUT
+          required: true
+        - ref: input_002
+          identifier: otp
+          type: PASSWORD_INPUT
+          required: true
+    onSuccess: authorization_check
+  - id: authorization_check
+    type: TASK_EXECUTION
+    executor:
+      name: AuthorizationExecutor
+    onSuccess: auth_assert
+  - id: auth_assert
+    type: TASK_EXECUTION
+    executor:
+      name: AuthAssertExecutor
+    onSuccess: end
+  - id: end
+    type: END
