@@ -169,10 +169,12 @@ EOF
     elif [[ "$plugin_no" == "3" ]]; then
       plugin_name="sunbird-rc-plugin.jar"
       read -p "Provide the URL for Sunbird registry: " sunbird_registry_url
-      extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_SUNBIRD_RC_REGISTRY_GET_URL\""$'\n'"    value: \"$sunbird_registry_url\""$'\n'
+      extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_REGISTRY_GET_URL\""$'\n'"    value: \"$sunbird_registry_url\""$'\n'
       extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_AUTH_FACTOR_KBI_REGISTRY_SEARCH_URL\""$'\n'"    value: \"$sunbird_registry_url/api/v1/Insurance/search\""$'\n'
       extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_INTEGRATION_AUDIT_PLUGIN\""$'\n'"    value: \"LoggerAuditService\""$'\n'
       extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_INTEGRATION_KEY_BINDER\""$'\n'"    value: \"NoOpKeyBinder\""$'\n'
+      extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_AUTHENTICATOR_DEFAULT_AUTH_FACTOR_KBI_INDIVIDUAL_ID_FIELD\""$'\n'"    value: \"\${mosip.esignet.authenticator.sunbird-rc.auth-factor.kbi.individual-id-field}\""$'\n'
+      extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_AUTHENTICATOR_DEFAULT_AUTH_FACTOR_KBI_FIELD_DETAILS\""$'\n'"    value: \"\${mosip.esignet.authenticator.sunbird-rc.auth-factor.kbi.field-details}\""$'\n'
       break
 
     elif [[ "$plugin_no" == "4" ]]; then
