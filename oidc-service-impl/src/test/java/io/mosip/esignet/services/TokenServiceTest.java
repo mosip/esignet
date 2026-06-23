@@ -443,6 +443,7 @@ public class TokenServiceTest {
                         List.of("audience")));
 
         Assertions.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
+        Mockito.verify(cacheUtilService, Mockito.never()).checkAndMarkJti(Mockito.anyString(),Mockito.anyLong());
     }
 
     @Test

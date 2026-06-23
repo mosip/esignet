@@ -238,7 +238,7 @@ public class TokenServiceImpl implements TokenService {
         }
 
         long jtiTtlSeconds = Math.min(
-                (exp - now) + jtiCacheSkewBufferSeconds,
+                (exp - now) + Math.max(jtiCacheSkewBufferSeconds,maxClockSkew),
                 maxJtiCacheTtlSeconds
         );
 
