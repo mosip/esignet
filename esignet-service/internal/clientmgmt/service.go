@@ -370,6 +370,9 @@ func toResponse(row db.ClientDetail) (ClientResponse, error) {
 		CreatedAt:        row.CrDtimes,
 		PublicKey:        publicKey,
 	}
+	if row.EncPublicKey.Valid {
+		resp.EncPublicKey = row.EncPublicKey.String
+	}
 	if row.UpdDtimes.Valid {
 		t := row.UpdDtimes.Time
 		resp.UpdatedAt = &t

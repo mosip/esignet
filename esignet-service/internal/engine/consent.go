@@ -2,7 +2,6 @@ package engine
 
 import (
 	"context"
-	"log"
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine"
 )
@@ -20,8 +19,16 @@ func (*consentEnforcer) ResolveConsent(
 	availableAttributes *thunderidengine.AttributesResponse, forceReprompt bool,
 	runtimeMetadata map[string]string,
 ) (*thunderidengine.ConsentPromptData, *thunderidengine.ServiceError) {
-	log.Println("ResolveConsent called", ouID, appID, appName, userID, essentialAttributes, optionalAttributes,
-		authorizedPermissions, availableAttributes, forceReprompt, runtimeMetadata)
+	_ = ouID
+	_ = appID
+	_ = appName
+	_ = userID
+	_ = essentialAttributes
+	_ = optionalAttributes
+	_ = authorizedPermissions
+	_ = availableAttributes
+	_ = forceReprompt
+	_ = runtimeMetadata
 	return nil, nil
 }
 
@@ -30,7 +37,12 @@ func (*consentEnforcer) RecordConsent(
 	decisions *thunderidengine.ConsentDecisions, sessionToken string, validityPeriod int64,
 	runtimeMetadata map[string]string,
 ) (*thunderidengine.ConsentRecord, *thunderidengine.ServiceError) {
-	log.Println("RecordConsent called", ouID, appID, userID, decisions, sessionToken, validityPeriod,
-		runtimeMetadata)
+	_ = ouID
+	_ = appID
+	_ = userID
+	_ = decisions
+	_ = sessionToken
+	_ = validityPeriod
+	_ = runtimeMetadata
 	return nil, nil
 }

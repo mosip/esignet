@@ -58,7 +58,10 @@ var _ OTPAuthnProvider = (*mosipAuthnProvider)(nil)
 func (p *mosipAuthnProvider) Authenticate(_ context.Context, identifiers, credentials map[string]interface{},
 	authnMetadata *host.AuthnMetadata) (*host.AuthnResult, error) {
 
-	relyingPartyID, clientID := p.getApplicationAndClientID(authnMetadata.RuntimeMetadata)
+	relyingPartyID, clientID, err := p.getApplicationAndClientID(authnMetadata.RuntimeMetadata)
+	if err != nil {
+		return nil, err
+	}
 
 	individualID, ok := identifiers["username"].(string)
 	if !ok || individualID == "" {
@@ -174,8 +177,12 @@ func (p *mosipAuthnProvider) GetAttributes(_ context.Context, token string, requ
 		consentedAttributes = append(consentedAttributes, requested.Names...)
 	}
 
+	requestedNames := []string{}
+	if requested != nil {
+		requestedNames = requested.Names
+	}
 	applog.GetLogger().Debug("GetAttributes called",
-		applog.Any("requestedAttributes", requested.Names),
+		applog.Any("requestedAttributes", requestedNames),
 		applog.Any("consentedAttributes", consentedAttributes))
 
 	idaKycExchangeRequest := &IdaKycExchangeRequest{
@@ -195,7 +202,10 @@ func (p *mosipAuthnProvider) GetAttributes(_ context.Context, token string, requ
 		return nil, fmt.Errorf("failed to marshal IDA KYC exchange request: %w", err)
 	}
 
-	relyingPartyID, clientID := p.getApplicationAndClientID(getAttributesMetadata.RuntimeMetadata)
+	relyingPartyID, clientID, err := p.getApplicationAndClientID(getAttributesMetadata.RuntimeMetadata)
+	if err != nil {
+		return nil, err
+	}
 
 	requestSignature, err := p.getRequestSignature(requestBytes)
 	if err != nil {
@@ -229,7 +239,10 @@ func (p *mosipAuthnProvider) SendOTP(_ context.Context, identifiers map[string]i
 		return nil, fmt.Errorf("failed to marshal send OTP request: %w", err)
 	}
 
-	relyingPartyID, clientID := p.getApplicationAndClientID(authnMetadata.RuntimeMetadata)
+	relyingPartyID, clientID, err := p.getApplicationAndClientID(authnMetadata.RuntimeMetadata)
+	if err != nil {
+		return nil, err
+	}
 
 	requestSignature, err := p.getRequestSignature(otpRequestBytes)
 	if err != nil {
@@ -238,17 +251,23 @@ func (p *mosipAuthnProvider) SendOTP(_ context.Context, identifiers map[string]i
 	return p.callSendOtpEndpoint(otpRequestBytes, requestSignature, relyingPartyID, clientID)
 }
 
-func (p *mosipAuthnProvider) getApplicationAndClientID(runtimeMetadata map[string]string) (string, string) {
+func (p *mosipAuthnProvider) getApplicationAndClientID(runtimeMetadata map[string]string) (string, string, error) {
 	if runtimeMetadata == nil {
-		return "", ""
+		return "", "", errors.New("missing runtime metadata")
+	}
+	if p.clientSvc == nil {
+		return "", "", errors.New("client service is not initialized")
 	}
 
 	clientID := runtimeMetadata["current_client_id"]
+	if clientID == "" {
+		return "", "", errors.New("missing current_client_id in runtime metadata")
+	}
 	client, err := p.clientSvc.GetClient(context.Background(), clientID)
 	if err != nil {
-		return "", ""
+		return "", "", fmt.Errorf("failed to resolve client %q: %w", clientID, err)
 	}
-	return client.RpID, clientID
+	return client.RpID, clientID, nil
 }
 
 // ---------------------------------------------------------------------------------------------------------

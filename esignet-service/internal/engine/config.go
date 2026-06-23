@@ -59,6 +59,15 @@ func BuildThunderConfig(appCfg config.AppConfig) (*thunderidengine.Config, []str
 		return nil, nil, err
 	}
 
+	if encKey := os.Getenv("CRYPTO_ENCRYPTION_KEY"); encKey != "" {
+		cfg.Crypto.Encryption.Key = encKey
+	} else {
+		cfg.Crypto.Encryption.Key = os.ExpandEnv(cfg.Crypto.Encryption.Key)
+	}
+	if cfg.Crypto.Encryption.Key == "" {
+		return nil, nil, fmt.Errorf("CRYPTO_ENCRYPTION_KEY must be set")
+	}
+
 	cfg.OAuth.RefreshToken.RenewOnGrant = false
 
 	cfg.DeclarativeResources.Enabled = true
@@ -90,6 +99,9 @@ func BuildThunderConfig(appCfg config.AppConfig) (*thunderidengine.Config, []str
 	gateClientPortInt, err := strconv.Atoi(gateClientPort)
 	if err != nil {
 		return nil, nil, fmt.Errorf("invalid OIDC_UI_PORT: %w", err)
+	}
+	if gateClientPortInt < 1 || gateClientPortInt > 65535 {
+		return nil, nil, fmt.Errorf("invalid OIDC_UI_PORT: port must be between 1 and 65535")
 	}
 	cfg.GateClient.Port = gateClientPortInt
 	cfg.GateClient.LoginPath = gateClientLoginPath
@@ -127,13 +139,23 @@ func BuildThunderConfig(appCfg config.AppConfig) (*thunderidengine.Config, []str
 
 // PKIPaths returns signing cert and key paths relative to the data directory.
 func PKIPaths(dataDir string) (certFile, keyFile string, err error) {
-	cert := defaultSigningCertPath
-	key := defaultSigningKeyPath
-	certRel, err := filepath.Rel(dataDir, cert)
+	dataDirAbs, err := filepath.Abs(dataDir)
+	if err != nil {
+		return "", "", fmt.Errorf("data dir: %w", err)
+	}
+	certAbs, err := filepath.Abs(defaultSigningCertPath)
 	if err != nil {
 		return "", "", fmt.Errorf("signing cert path: %w", err)
 	}
-	keyRel, err := filepath.Rel(dataDir, key)
+	keyAbs, err := filepath.Abs(defaultSigningKeyPath)
+	if err != nil {
+		return "", "", fmt.Errorf("signing key path: %w", err)
+	}
+	certRel, err := filepath.Rel(dataDirAbs, certAbs)
+	if err != nil {
+		return "", "", fmt.Errorf("signing cert path: %w", err)
+	}
+	keyRel, err := filepath.Rel(dataDirAbs, keyAbs)
 	if err != nil {
 		return "", "", fmt.Errorf("signing key path: %w", err)
 	}

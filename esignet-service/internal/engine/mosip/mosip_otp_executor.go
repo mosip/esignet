@@ -94,11 +94,17 @@ func buildAuthnMetadata(ctx *thunderidengine.ExecutorNodeContext) *host.AuthnMet
 		appMetadata["client_ids"] = clientIDs
 	}
 
-	mosipTransactionID, err := GenerateTransactionID(nil)
-	if err != nil {
-		applog.GetLogger().Warn("failed to generate transaction ID", applog.Error(err))
-	} else {
-		ctx.RuntimeData["ext_TransactionID"] = mosipTransactionID
+	if ctx.RuntimeData == nil {
+		ctx.RuntimeData = make(map[string]string)
+	}
+
+	if _, exists := ctx.RuntimeData["ext_TransactionID"]; !exists {
+		mosipTransactionID, err := GenerateTransactionID(nil)
+		if err != nil {
+			applog.GetLogger().Warn("failed to generate transaction ID", applog.Error(err))
+		} else {
+			ctx.RuntimeData["ext_TransactionID"] = mosipTransactionID
+		}
 	}
 
 	runtimeMetadata := map[string]string{
@@ -106,12 +112,10 @@ func buildAuthnMetadata(ctx *thunderidengine.ExecutorNodeContext) *host.AuthnMet
 		"current_client_id":        ctx.RuntimeData["clientId"],
 	}
 
-	if ctx.RuntimeData != nil {
-		for key, value := range ctx.RuntimeData {
-			// Only the ext_* runtime data keys are passed to the authn provider.
-			if strings.HasPrefix(key, "ext_") {
-				runtimeMetadata[key] = value
-			}
+	for key, value := range ctx.RuntimeData {
+		// Only the ext_* runtime data keys are passed to the authn provider.
+		if strings.HasPrefix(key, "ext_") {
+			runtimeMetadata[key] = value
 		}
 	}
 

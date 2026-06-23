@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	_ "github.com/lib/pq" // PostgreSQL driver for database/sql
@@ -44,6 +45,15 @@ type DB struct {
 //	DB_CONN_MAX_IDLE_TIME_SECS — default 60
 func loadDB() DB {
 	dsn := os.Getenv("POSTGRES_URL")
+	if dsn != "" &&
+		(strings.HasPrefix(dsn, "postgres://") || strings.HasPrefix(dsn, "postgresql://")) &&
+		!strings.Contains(strings.ToLower(dsn), "sslmode=") {
+		sep := "?"
+		if strings.Contains(dsn, "?") {
+			sep = "&"
+		}
+		dsn += sep + "sslmode=disable"
+	}
 	if dsn == "" {
 		host := envOrDefault("DATABASE_HOST", "localhost")
 		port := envOrDefault("DATABASE_PORT", "5432")

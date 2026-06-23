@@ -30,15 +30,15 @@ func LoadConfig() Config {
 			apiBase+"/mosip-certs/ida-partner.cer",
 		),
 		SendOTPBaseURL: envOrDefault(
-			"MOSIP_ESIGNET_AUTHENTICATOR_IDA_SEND-OTP-URL",
+			"MOSIP_ESIGNET_AUTHENTICATOR_IDA_SEND_OTP_URL",
 			apiBase+"/idauthentication/v1/otp/"+licenseKey+"/",
 		),
 		KYCAuthBaseURL: envOrDefault(
-			"MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC-AUTH-URL",
+			"MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC_AUTH_URL",
 			apiBase+"/idauthentication/v1/kyc-auth/delegated/"+licenseKey+"/",
 		),
 		KYCExchangeBaseURL: envOrDefault(
-			"MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC-EXCHANGE-URL",
+			"MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC_EXCHANGE_URL",
 			apiBase+"/idauthentication/v1/kyc-exchange/delegated/"+licenseKey+"/",
 		),
 		DomainURI:   envOrDefault("MOSIP_ESIGNET_DOMAIN_URL", apiBase),

@@ -32,6 +32,6 @@ func NewAuthnProviderFromConfig(provider string, clientSvc *clientmgmt.Service) 
 	case "mock":
 		return mock.NewMockAuthnProvider(), nil
 	default:
-		return nil, fmt.Errorf("unsupported authn provider %q (use mosip or sunbird)", provider)
+		return nil, fmt.Errorf("unsupported authn provider %q (use mosip, sunbird, or mock)", provider)
 	}
 }

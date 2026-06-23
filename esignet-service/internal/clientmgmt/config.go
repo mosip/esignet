@@ -44,11 +44,14 @@ func LoadConfig() Config {
 	if err != nil {
 		ttlSecs = defaultJWKSCacheTTL
 	}
+	if ttlSecs <= 0 {
+		ttlSecs = defaultJWKSCacheTTL
+	}
 
 	return Config{
 		JWKSEndpoint:  endpoint,
 		RequiredScope: scope,
-		JWKSCacheTTL:  time.Duration(ttlSecs),
+		JWKSCacheTTL:  time.Duration(ttlSecs) * time.Second,
 		Issuer:        issuer,
 	}
 }

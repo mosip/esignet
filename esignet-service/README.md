@@ -53,6 +53,8 @@ cd esignet-service
 
 If `go build` fails with a missing module, run `go mod download` first.
 
+The checked-in `go.mod` `replace` directive pins a Thunder backend fork until the upstream release is available. Refresh it with `./make.sh update-thunder` (`THUNDER_MODULE` defaults to `github.com/anushasunkada/thunder/backend`).
+
 ## Run
 
 ### Quick start (development)
@@ -69,6 +71,7 @@ Copy `.env.example` to `.env` to override defaults, or pass overrides on the com
 ```bash
 ./make.sh keys && ./make.sh build
 
+export PORT=8080
 export MOSIP_ESIGNET_HOST=http://127.0.0.1:8080
 export DATABASE_HOST=localhost
 export DATABASE_USERNAME=esignet
@@ -101,6 +104,7 @@ Set `LOG_LEVEL=debug` for verbose tracing.
 | `PORT` | `8088` | HTTP listen port (`make.sh` defaults to `8080`) |
 | `MOSIP_ESIGNET_HOST` | `http://127.0.0.1:<PORT>` | OIDC issuer, JWT `iss`, discovery base |
 | `DATA_DIR` | `./data` | Declarative YAML root (`data/config/resources/`) |
+| `CRYPTO_ENCRYPTION_KEY` | _(required)_ | Hex key for `crypto.encryption.key` in `data/deployment.yaml` |
 | `JWT_AUDIENCE` | _(empty)_ | JWT `aud` claim |
 | `JWT_PREFERRED_KEY_ID` | _(empty)_ | Preferred signing key id |
 | `OAUTH_AUTH_CODE_LIFETIME_SECONDS` | `120` | Authorization code lifetime |
@@ -191,9 +195,9 @@ Set `CLIENT_MGMT_ISSUER_URL` and `CLIENT_MGMT_JWKS_ENDPOINT` to match `MOSIP_ESI
 | `MOSIP_API_INTERNAL_HOST` | _(empty)_ | Internal MOSIP API host; used to derive IDA URLs |
 | `MOSIP_ESIGNET_MISP_KEY` | _(empty)_ | MISP license key used in IDA endpoint paths |
 | `MOSIP_ESIGNET_AUTHENTICATOR_IDA_CERT_URL` | `<host>/mosip-certs/ida-partner.cer` | IDA partner certificate URL |
-| `MOSIP_ESIGNET_AUTHENTICATOR_IDA_SEND-OTP-URL` | `<host>/idauthentication/v1/otp/<key>/` | Send OTP endpoint |
-| `MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC-AUTH-URL` | `<host>/idauthentication/v1/kyc-auth/delegated/<key>/` | KYC auth endpoint |
-| `MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC-EXCHANGE-URL` | `<host>/idauthentication/v1/kyc-exchange/delegated/<key>/` | KYC exchange endpoint |
+| `MOSIP_ESIGNET_AUTHENTICATOR_IDA_SEND_OTP_URL` | `<host>/idauthentication/v1/otp/<key>/` | Send OTP endpoint |
+| `MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC_AUTH_URL` | `<host>/idauthentication/v1/kyc-auth/delegated/<key>/` | KYC auth endpoint |
+| `MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC_EXCHANGE_URL` | `<host>/idauthentication/v1/kyc-exchange/delegated/<key>/` | KYC exchange endpoint |
 | `MOSIP_ESIGNET_DOMAIN_URL` | `MOSIP_API_INTERNAL_HOST` | Domain URI sent in IDA requests |
 | `IDA_AUTHENTICATOR_ENV` | `Staging` | IDA environment label |
 | `MOSIP_P12_PATH` | _(empty)_ | Partner keystore (required for MOSIP auth) |
@@ -301,7 +305,7 @@ Unit tests use `miniredis` for Redis (no running Redis required) and mock querie
 ## Health check
 
 ```bash
-curl -s http://127.0.0.1:8080/health
+curl -s http://127.0.0.1:8088/health
 # ok
 ```
 
@@ -310,8 +314,9 @@ curl -s http://127.0.0.1:8080/health
 ```bash
 ./make.sh docker-build
 
-docker run --rm -p 8080:8080 \
+docker run --rm -p 8088:8088 \
   -e MOSIP_ESIGNET_HOST=http://127.0.0.1:8080 \
+  -e CRYPTO_ENCRYPTION_KEY=your-64-char-hex-key \
   -e POSTGRES_URL=postgres://esignet:secret@host.docker.internal:5432/mosip_esignet?sslmode=disable \
   -e REDIS_URL=redis://host.docker.internal:6379/0 \
   -e AUTHN_PROVIDER=mosip \
@@ -321,7 +326,7 @@ docker run --rm -p 8080:8080 \
 On first start the entrypoint generates signing keys if absent. Data is baked in at `/home/mosip/data`.
 
 ```bash
-./make.sh smoke BASE_URL=http://127.0.0.1:8080
+./make.sh smoke BASE_URL=http://127.0.0.1:8088 DEFAULT_AUTH_FLOW_ID=decl-flow-1
 ```
 
 ## Demo credentials
@@ -355,7 +360,7 @@ End-to-end check (server must be running with `MOSIP_ESIGNET_HOST` matching `BAS
 ```bash
 ./make.sh smoke
 # or
-BASE_URL=http://127.0.0.1:8080 ./scripts/oauth-smoke.sh
+BASE_URL=http://127.0.0.1:8088 ./scripts/oauth-smoke.sh
 ```
 
 Each step prints `PASS` or `FAIL` to the console (authorize → flow → callback → token → userinfo), then a short summary (exit code 1 if any step failed).

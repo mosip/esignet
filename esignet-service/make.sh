@@ -170,9 +170,10 @@ target_docker_build() { ## Build container image (esignet:latest by default)
 
 target_docker_run() { ## Run container mapped to PORT (default 8080)
   target_docker_build
-  docker run --rm -p "$PORT:8080" \
+  docker run --rm -p "$PORT:8088" \
     -e MOSIP_ESIGNET_HOST="$MOSIP_ESIGNET_HOST" \
     -e AUTHN_PROVIDER="${AUTHN_PROVIDER:-mosip}" \
+    -e CRYPTO_ENCRYPTION_KEY="${CRYPTO_ENCRYPTION_KEY:-}" \
     "$DOCKER_IMAGE"
 }
 
@@ -272,9 +273,9 @@ Environment (override on the command line or in .env):
   MOSIP_API_INTERNAL_HOST (optional, used to derive IDA endpoint URLs)
   MOSIP_ESIGNET_MISP_KEY (optional, used in IDA endpoint paths)
   MOSIP_ESIGNET_AUTHENTICATOR_IDA_CERT_URL (optional override)
-  MOSIP_ESIGNET_AUTHENTICATOR_IDA_SEND-OTP-URL (optional override)
-  MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC-AUTH-URL (optional override)
-  MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC-EXCHANGE-URL (optional override)
+  MOSIP_ESIGNET_AUTHENTICATOR_IDA_SEND_OTP_URL (optional override)
+  MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC_AUTH_URL (optional override)
+  MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC_EXCHANGE_URL (optional override)
   MOSIP_P12_PATH (required for MOSIP auth)
   MOSIP_P12_PASSWORD (required for MOSIP auth)
 
