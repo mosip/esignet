@@ -63,10 +63,9 @@ function installing_prerequisites() {
   echo "Creating esignet-global configmap in esignet namespace"
   kubectl -n $NS apply -f esignet-global-cm.yaml
 
-  declare -a modules=("istio-gateway" "postgres" "kafka" "redis" "hsm" "captcha" "apiaccesscontrol")
+  declare -a modules=("istio-gateway" "postgres" "redis" "hsm" "captcha" "apiaccesscontrol")
   declare -A prompts=(
     ["hsm"]="Do you want to deploy hsm for esignet service? Please opt for 'n' if you already have hsm installed :(s - for softhsm, e - external, p - for pkcs12 based key management from mounted file): "
-    ["kafka"]="Do you want to deploy Kafka in the kafka namespace? Please opt for 'n' if you already have a kafka deployed: Press enter for default y: "
     ["redis"]="Do you want to deploy redis in the redis namespace? Please opt for 'n' if you already have a redis deployed  : Press enter for default y: "
     ["apiaccesscontrol"]="Do you want to access control the esignet client management APIs: Please opt for 'n' if not required. Press enter for default y: "
   )
@@ -100,13 +99,6 @@ function installing_prerequisites() {
         fi
       fi
 
-      if [[ "$module" == "kafka" && "$response" == "n" ]]; then
-        read -p "Please provide the kafka URL ( default: kafka-0.kafka-headless.kafka.svc.cluster.local:9092,kafka-1.kafka-headless.kafka.svc.cluster.local:9092,kafka-2.kafka-headless.kafka.svc.cluster.local:9092 ): " kafkaurl
-        kafkaurl=${kafkaurl:-kafka-0.kafka-headless.kafka.svc.cluster.local:9092,kafka-1.kafka-headless.kafka.svc.cluster.local:9092,kafka-2.kafka-headless.kafka.svc.cluster.local:9092}
-        echo "Creating ConfigMap for Kafka URL"
-        kubectl create configmap kafka-config --from-literal=SPRING_KAFKA_BOOTSTRAP-SERVERS="$kafkaurl" -n $NS --dry-run=client -o yaml | kubectl apply -f -
-      fi
-
       if [[ "$module" == "redis" && "$response" == "n" ]]; then
         read -p "Do you want to configure Redis? (y/n): " configure_redis
         configure_redis=${configure_redis,,}
@@ -123,7 +115,6 @@ function installing_prerequisites() {
         fi
       fi
 
-
       if [[ "$module" == "apiaccesscontrol"  && "$response" == "n"  ]]; then
           echo "Warning! You have chosen to skip the IAM initialization. The internal API’s of eSignet will run without access control."
         elif [[ "$response" == "y" ]]; then
@@ -137,8 +128,6 @@ function installing_prerequisites() {
             ./install.sh
           fi
         fi
-
-
     fi
   done
 
