@@ -247,7 +247,6 @@ extraEnvVars: |
       configMapKeyRef:
         name: keycloak-host
         key: keycloak-external-url
-  
   - name: AUTHN_PROVIDER
     value: mosip
   - name: MOSIP_API_BASE_URL
@@ -275,7 +274,7 @@ extraEnvVars: |
   - name: GATE_CLIENT_LOGIN_PATH
     value: /signin
   - name: GATE_CLIENT_ERROR_PATH
-    value: /error  
+    value: /error
   - name: REDIS_HOST
     valueFrom:
       configMapKeyRef:
