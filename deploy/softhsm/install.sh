@@ -15,7 +15,7 @@ function installing_softhsm() {
 
   echo Istio label
   kubectl label ns $SOFTHSM_NS istio-injection=enabled --overwrite
-#  helm repo update
+  helm repo update
 
   # Deploy Softhsm for Esignet.
   echo "Installing Softhsm for esignet"

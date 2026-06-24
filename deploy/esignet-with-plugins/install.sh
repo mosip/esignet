@@ -176,6 +176,7 @@ EOF
       break
     else
       echo "Please provide the correct plugin number (1, 2, or 3)."
+      read -p "Enter the plugin number: " plugin_no
     fi
   done
 
