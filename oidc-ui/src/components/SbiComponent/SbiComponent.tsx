@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { init, propChange } from "@mosip/secure-biometric-interface-integrator";
-import { encodeBase64 } from "../utils/encoding";
+import { encodeBase64 } from "../../utils/encoding";
 import type {
   ComponentRenderContext,
   EmbeddedFlowComponent,
@@ -61,7 +61,7 @@ export default function Sbi({ component, context }: SbiProps) {
       langCode: "en",
       disable: false,
     });
-    return;
+    // return;
 
     propChange({
       onCapture: (response: BiometricResponse | null) =>
@@ -79,15 +79,18 @@ export default function Sbi({ component, context }: SbiProps) {
   /**
    * Validates the SBI capture response and, if valid, encodes
    * the biometrics payload and passes it to the form context.
+   *
+   * component.ref will be the property name
    */
   const authenticateBiometricResponse = async (
     biometricResponse: BiometricResponse | null,
   ): Promise<void> => {
+    const ref = component.ref || component.id;
     const { errorCode } = validateBiometricResponse(biometricResponse);
 
     if (errorCode !== null) {
       setValue("");
-      context.onInputChange(component.id, "");
+      context.onInputChange(ref, "");
       return;
     }
 
@@ -95,7 +98,13 @@ export default function Sbi({ component, context }: SbiProps) {
       JSON.stringify(biometricResponse?.biometrics ?? []),
     );
     setValue(encoded);
-    context.onInputChange(component.id, encoded);
+    context.onInputChange(ref, encoded);
+
+    if (context.onSubmit) {
+      // submitting the whole form, while click on
+      // scan & verify button of biometric component
+      context.onSubmit(component, { [ref]: encoded }, true);
+    }
   };
 
   /**
@@ -127,9 +136,9 @@ export default function Sbi({ component, context }: SbiProps) {
 
   return (
     <>
-      <form className="relative">
+      <div className="relative">
         <div id="secure-biometric-interface-integration" className="my-2"></div>
-      </form>
+      </div>
     </>
   );
 }

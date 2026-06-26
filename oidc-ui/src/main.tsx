@@ -2,7 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { ThunderIDProvider } from "@thunderid/react";
 import App from "./App";
-import SbiCustomRenderer from "./components/SbiCustomRenderer";
+import SbiCustomRenderer from "./components/SbiComponent/SbiCustomRenderer";
 
 // getting applicationId from query param to pass it to ThunderIDProvider
 const applicationId = new URL(window.location.href).searchParams.get(
