@@ -249,7 +249,7 @@ extraEnvVars: |
         key: keycloak-external-url
   - name: AUTHN_PROVIDER
     value: mosip
-  - name: MOSIP_API_BASE_URL
+  - name: MOSIP_API_INTERNAL_HOST
     valueFrom:
       configMapKeyRef:
         name: esignet-global
@@ -258,21 +258,27 @@ extraEnvVars: |
     value: /home/mosip/keys/secret/esignet.pfx
   - name: MOSIP_P12_PASSWORD
     value: localtest
-  - name: GATE_CLIENT_SCHEME
+  - name: OIDC_UI_SCHEME
     value: https
   - name: CRYPTO_ENCRYPTION_KEY
     value: 0579f866ac7c9273580d0ff163fa01a7b2401a7ff3ddc3e3b14ae3136fa6025e
-  - name: GATE_CLIENT_HOSTNAME
+  - name: OIDC_UI_HOSTNAME
     valueFrom:
       configMapKeyRef:
         name: esignet-global
         key: mosip-esignet-host
-  - name: GATE_CLIENT_PORT
+  - name: OIDC_UI_PORT
     value: '443'
-  - name: GATE_CLIENT_LOGIN_PATH
+  - name: OIDC_UI_LOGIN_PATH
     value: /signin
-  - name: GATE_CLIENT_ERROR_PATH
+  - name: OIDC_UI_ERROR_PATH
     value: /error
+  - name: DEFAULT_THEME_ID
+    value: decl-theme-1
+  - name: DEFAULT_LAYOUT_ID
+    value: decl-layout-1
+  - name: DEFAULT_AUTH_FLOW_ID
+    value: decl-mosip-otp-flow-1
   - name: REDIS_HOST
     valueFrom:
       configMapKeyRef:
