@@ -179,7 +179,7 @@ nodes:
               variant: HEADING_5
               category: DISPLAY
               resourceType: ELEMENT
-            - id: input_002
+            - id: otp_input
               ref: otp
               type: OTP_INPUT
               label: Please enter the 6-digit OTP sent to your registered contact
@@ -194,7 +194,7 @@ nodes:
               resourceType: ELEMENT
     prompts:
       - inputs:
-          - ref: input_002
+          - ref: otp_input
             identifier: otp
             type: TEXT_INPUT
             required: true
@@ -207,11 +207,11 @@ nodes:
     executor:
       name: CredentialsAuthExecutor
       inputs:
-        - ref: input_001
+        - ref: username_input
           identifier: username
           type: TEXT_INPUT
           required: true
-        - ref: input_002
+        - ref: otp_input
           identifier: otp
           type: PASSWORD_INPUT
           required: true
@@ -265,7 +265,7 @@ nodes:
     executor:
       name: CredentialsAuthExecutor
       inputs:
-        - ref: input_001
+        - ref: username_input
           identifier: username
           type: TEXT_INPUT
           required: true
@@ -331,13 +331,13 @@ nodes:
     executor:
       name: CredentialsAuthExecutor
       inputs:
-        - ref: input_001
+        - ref: username_input
           identifier: username
           type: TEXT_INPUT
           required: true
         - ref: SBI_ID
           identifier: biometric_data
-          type: TEXT_INPUT
+          type: CUSTOM
           required: true
     onSuccess: authorization_check
 
@@ -387,7 +387,26 @@ nodes:
             required: true
         action:
           ref: submit_kbi_details
-          nextNode: basic_auth
+          nextNode: basic_kbi_auth
+
+  - id: basic_kbi_auth
+    type: TASK_EXECUTION
+    executor:
+      name: CredentialsAuthExecutor
+      inputs:
+        - ref: username_input
+          identifier: username
+          type: TEXT_INPUT
+          required: true
+        - ref: fullname_input
+          identifier: fullname
+          type: TEXT_INPUT
+          required: true
+        - ref: dob_input
+          identifier: date_of_birth
+          type: TEXT_INPUT
+          required: true
+    onSuccess: authorization_check
 
   - id: authorization_check
     type: TASK_EXECUTION

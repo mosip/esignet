@@ -110,7 +110,7 @@ theme:
           contrastText: "#ffffff"
           light: rgb(255, 143, 51)
           dark: rgb(178, 80, 0)
-          mainChannel: "255 115 0"
+          mainChannel: "255 115 45"
           lightChannel: "255 143 51"
           darkChannel: "178 80 0"
           contrastTextChannel: "255 255 255"

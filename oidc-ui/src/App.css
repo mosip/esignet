@@ -218,9 +218,9 @@ input[type="password"]::-ms-clear {
     color: black;
     background-color: white;
   }
-}
 
-/* size of icon in ACR selection button */
-.thunderid-button__start-icon > img {
-  width: 24px !important;
+  /* size of icon in ACR selection button */
+  & .thunderid-button__start-icon > img {
+    width: 24px !important;
+  }
 }

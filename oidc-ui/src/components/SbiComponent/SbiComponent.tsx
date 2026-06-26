@@ -51,6 +51,7 @@ const DEFAULT_SBI_ENV = {
 
 export default function Sbi({ component, context }: SbiProps) {
   const [, setValue] = useState("");
+  const fieldRef = component.ref ?? component.id;
 
   useEffect(() => {
     init({
@@ -73,8 +74,8 @@ export default function Sbi({ component, context }: SbiProps) {
   onInputChangeRef.current = context.onInputChange;
 
   useEffect(() => {
-    onInputChangeRef.current(component.id, "");
-  }, [component.id]);
+    onInputChangeRef.current(fieldRef, "");
+  }, [fieldRef]);
 
   /**
    * Validates the SBI capture response and, if valid, encodes
@@ -85,12 +86,11 @@ export default function Sbi({ component, context }: SbiProps) {
   const authenticateBiometricResponse = async (
     biometricResponse: BiometricResponse | null,
   ): Promise<void> => {
-    const ref = component.ref || component.id;
     const { errorCode } = validateBiometricResponse(biometricResponse);
 
     if (errorCode !== null) {
       setValue("");
-      context.onInputChange(ref, "");
+      context.onInputChange(fieldRef, "");
       return;
     }
 
@@ -98,12 +98,12 @@ export default function Sbi({ component, context }: SbiProps) {
       JSON.stringify(biometricResponse?.biometrics ?? []),
     );
     setValue(encoded);
-    context.onInputChange(ref, encoded);
+    context.onInputChange(fieldRef, encoded);
 
     if (context.onSubmit) {
       // submitting the whole form, while click on
       // scan & verify button of biometric component
-      context.onSubmit(component, { [ref]: encoded }, true);
+      context.onSubmit(component, { [fieldRef]: encoded }, true);
     }
   };
 
