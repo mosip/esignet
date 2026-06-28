@@ -223,4 +223,8 @@ input[type="password"]::-ms-clear {
   & .thunderid-button__start-icon > img {
     width: 24px !important;
   }
+
+  form#resend_otp_block > & {
+    justify-content: center;
+  }
 }
