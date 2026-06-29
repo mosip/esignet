@@ -1,6 +1,6 @@
 /* Default theme variables */
 :root {
-  --primary-color: #1262c9;
+  --primary-color: #eb6f2d;
   --login-card-box-color: #bcc0c7;
   --login-card-box-hover-color: var(--primary-color);
   --login-card-box-focus-color: var(--primary-color);
@@ -8,10 +8,10 @@
   --language-icon-color: #ffffff;
   --language-icon-bg-color: var(--primary-color);
   --login-background-min-height: calc(100vh - 102px) !important;
-  --brand-only-logo-url: url('/logo.png');
-  --brand-logo-url: url('/images/brand_logo.png');
-  --background-logo-url: url('/images/illustration_one.png');
-  --footer-brand-logo-url: url('/images/footer_logo.png');
+  --brand-only-logo-url: url("/logo.png");
+  --brand-logo-url: url("/images/brand_logo.png");
+  --background-logo-url: url("/images/illustration_one.png");
+  --footer-brand-logo-url: url("/images/footer_logo.png");
   --primary-button-color: #ffffff;
   --primary-button-bg-color: var(--primary-color);
   --primary-button-border-color: var(--primary-color);
@@ -74,12 +74,16 @@
     black 25%
   );
   --signup-banner-signup-url-color-focus: var(--primary-color);
-  --signup-banner-font: normal normal 400 15px/19px 'Montserrat', sans-serif;
+  --signup-banner-font: normal normal 400 15px/19px "Montserrat", sans-serif;
   --multipurpose-login-card-border-radius: 10px;
   --multipurpose-login-card-background-color: #ffffff;
-  --top-left-bg-logo-url: url('/images/top_left_bg_logo.svg');
-  --bottom-right-bg-logo-url: url('/images/bottom_right_bg_logo.svg');
+  --top-left-bg-logo-url: url("/images/top_left_bg_logo.svg");
+  --top-left-bg-logo-display: block;
+  --bottom-right-bg-logo-url: url("/images/bottom_right_bg_logo.svg");
+  --bottom-right-bg-logo-display: block;
+  --bottom-left-bg-logo-url: url("/images/top_left_bg_logo.svg");
   --bottom-left-bg-logo-display: none;
+  --bottom-right-bg-logo-url: url("/images/bottom_right_bg_logo.svg");
   --top-right-bg-logo-display: none;
   --top-left-bg-width: 14rem;
   --top-left-bg-height: 14rem;
@@ -99,7 +103,7 @@
   --bottom-right-bg-position-right: 10px;
   --login-client-logo-image-height: 3.25rem;
   --login-client-logo-image-width: 3.25rem;
-  --login-alternate-arrow: '\21CB';
+  --login-alternate-arrow: "\21CB";
   --login-alternate-arrow-size: 1.5rem;
   --login-text-color: #000000;
   --login-card-separator: linear-gradient(0deg, #fffbf7 0%, #ffffff 100%);
@@ -122,18 +126,18 @@
   --arrow-down-color: var(--primary-color);
   --primary-button-border-radius: 8px;
   --consent-details-header-font:
-    normal normal 600 24px/29px 'Montserrat', sans-serif;
+    normal normal 600 24px/29px "Montserrat", sans-serif;
   --consent-details-header-color: #2b3840;
   --consent-details-subheader-font:
-    normal normal 700 16px/21px 'Montserrat', sans-serif;
+    normal normal 700 16px/21px "Montserrat", sans-serif;
   --consent-details-subheader-color: #2c2c2c;
   --consent-details-infoIcon-fill: var(--primary-color);
   --consent-details-infoIcon-stroke: var(--primary-color);
   --consent-details-available-font:
-    normal normal 500 14px/17px 'Montserrat', sans-serif;
+    normal normal 500 14px/17px "Montserrat", sans-serif;
   --consent-details-available-color: #76ac6d;
   --consent-details-unavailable-font:
-    normal normal 500 14px/16px 'Montserrat', sans-serif;
+    normal normal 500 14px/16px "Montserrat", sans-serif;
   --consent-details-unavailable-color: #707070;
   --consent-details-message-color: var(--primary-color);
   --consent-details-message-background: color-mix(
@@ -154,7 +158,7 @@
     white
   );
   --no-record-banner-border-radius: 10px;
-  --no-record-banner-font: normal normal 400 13px/18px 'Montserrat', sans-serif;
+  --no-record-banner-font: normal normal 400 13px/18px "Montserrat", sans-serif;
   --no-record-banner-color: var(--primary-color);
   --no-record-banner-padding: 1em 1.5em;
   --selected_login_id_border_color: var(--primary-color);

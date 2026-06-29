@@ -60,10 +60,10 @@ select {
 .loading-indicator {
   background-color: var(--loading-indicator-bg-color);
   color: var(--loading-indicator-font-color);
-}
 
-.loading-indicator > svg {
-  fill: var(--loading-indicator-ring-color);
+  & > svg {
+    fill: var(--loading-indicator-ring-color);
+  }
 }
 
 .footer-brand-logo {
@@ -156,11 +156,11 @@ nav {
 .border-button {
   color: var(--border-button-text-color);
   border-color: var(--border-button-border-color);
-}
 
-.border-button:hover {
-  background-color: var(--border-button-text-color);
-  color: white;
+  &:hover {
+    background-color: var(--border-button-text-color);
+    color: white;
+  }
 }
 
 input {
@@ -210,11 +210,11 @@ input[type="password"]::-ms-clear {
 /* css for ACR selection button */
 .thunderid-signin__button.thunderid-button__secondary.thunderid-button__outline {
   justify-content: flex-start;
-  border-color: #bcc0c7;
+  border-color: var(--login-card-box-color);
   background-color: white;
   color: black;
   &:hover {
-    border-color: #eb6f2d;
+    border-color: var(--primary-color);
     color: black;
     background-color: white;
   }
@@ -227,4 +227,17 @@ input[type="password"]::-ms-clear {
   form#resend_otp_block > & {
     justify-content: center;
   }
+}
+
+.app-shadow {
+  box-shadow: 0px 4px 15px 2px #eb6f2d4d;
+}
+
+/* gradient background for divider */
+.thunderid-divider {
+  background-image: var(--login-card-separator);
+  border: 0;
+  height: 8px;
+  margin-left: -2rem;
+  width: 100vh;
 }

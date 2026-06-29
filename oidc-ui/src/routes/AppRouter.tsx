@@ -68,10 +68,7 @@ export default function AppRouter() {
       </div>
     ) : (
       <>
-        <img
-          className="top_left_bg_logo hidden md:block"
-          alt="top left background"
-        />
+        <img className="top_left_bg_logo md:block" alt="top left background" />
         <img
           className="bottom_left_bg_logo hidden md:block"
           alt="bottom left background"
@@ -81,7 +78,7 @@ export default function AppRouter() {
           alt="top right background"
         />
         <img
-          className="bottom_right_bg_logo hidden md:block"
+          className="bottom_right_bg_logo md:block"
           alt="bottom right background"
         />
       </>

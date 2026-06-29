@@ -54,6 +54,12 @@ export default function Sbi({ component, context }: SbiProps) {
   const fieldRef = component.ref ?? component.id;
 
   useEffect(() => {
+    const customStyle = {
+      verifyButtonStyle: {
+        background: "#EB6F2D",
+        color: "white",
+      },
+    };
     init({
       container: document.getElementById(SBI_CONTAINER_ID),
       buttonLabel: "scan_and_verify",
@@ -61,6 +67,7 @@ export default function Sbi({ component, context }: SbiProps) {
       sbiEnv: DEFAULT_SBI_ENV,
       langCode: "en",
       disable: false,
+      customStyle,
     });
     // return;
 
