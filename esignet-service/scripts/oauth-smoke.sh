@@ -123,7 +123,11 @@ EOF
 	if [ "$EXEC_HTTP" = "200" ] && [ "$FLOW_STATUS" = "COMPLETE" ] && [ -n "$ASSERT" ] && [ "$ASSERT" != "null" ]; then
 		pass "POST /flow/execute (credentials) → COMPLETE + assertion"
 	else
-		fail "POST /flow/execute (credentials) → COMPLETE + assertion" "HTTP ${EXEC_HTTP} flowStatus=${FLOW_STATUS:-<none>}"
+		flow_hint=""
+		if jq -e '.data.actions[]? | select(.ref == "action_submit_individual_id")' "$exec_json" >/dev/null 2>&1; then
+			flow_hint=" (server is on MOSIP OTP flow; set DEFAULT_AUTH_FLOW_ID=decl-flow-1 for mock/credentials smoke and restart)"
+		fi
+		fail "POST /flow/execute (credentials) → COMPLETE + assertion" "HTTP ${EXEC_HTTP} flowStatus=${FLOW_STATUS:-<none>}${flow_hint}"
 		return 1
 	fi
 

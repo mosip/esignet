@@ -810,7 +810,7 @@
       "name": "4 — Client management",
       "item": [
         {
-          "name": "Create OIDC client",
+          "name": "Create client",
           "request": {
             "method": "POST",
             "header": [
@@ -819,9 +819,9 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"client_id\": \"{{clientMgmtClientId}}\",\n  \"client_name\": \"Postman Test Client\",\n  \"rp_id\": \"{{rpId}}\",\n  \"logo_uri\": \"https://example.com/logo.png\",\n  \"redirect_uris\": [\"{{redirectUri}}\"],\n  \"claims\": [\"sub\", \"email\"],\n  \"acr_values\": [\"mosip:idp:acr:static-code\"],\n  \"public_key\": \"{{clientMgmtPublicKey}}\",\n  \"grant_types\": [\"authorization_code\"],\n  \"client_auth_methods\": [\"private_key_jwt\"]\n}"
+              "raw": "{\n  \"requestTime\": \"{{clientMgmtRequestTime}}\",\n  \"request\": {\n    \"clientId\": \"{{clientMgmtClientId}}\",\n    \"clientName\": \"Postman Test Client\",\n    \"clientNameLangMap\": { \"eng\": \"Postman Test Client\" },\n    \"relyingPartyId\": \"{{rpId}}\",\n    \"logoUri\": \"https://example.com/logo.png\",\n    \"redirectUris\": [\"{{redirectUri}}\"],\n    \"userClaims\": [\"name\", \"email\"],\n    \"authContextRefs\": [\"mosip:idp:acr:static-code\"],\n    \"publicKey\": {{clientMgmtPublicKey}},\n    \"grantTypes\": [\"authorization_code\"],\n    \"clientAuthMethods\": [\"private_key_jwt\"]\n  }\n}"
             },
-            "url": "{{baseUrl}}/client-mgmt/oidc-client"
+            "url": "{{baseUrl}}/client-mgmt/client"
           },
           "event": [
             {
@@ -830,6 +830,7 @@
                 "exec": [
                   "const suffix = Date.now();",
                   "pm.environment.set('clientMgmtClientId', 'postman-client-' + suffix);",
+                  "pm.environment.set('clientMgmtRequestTime', new Date().toISOString());",
                   "pm.environment.set('clientMgmtPublicKey', JSON.stringify({",
                   "  kty: 'RSA',",
                   "  n: 'postman-' + suffix,",
@@ -846,7 +847,7 @@
                   "pm.test('create 200', () => pm.response.to.have.status(200));",
                   "const j = pm.response.json();",
                   "pm.test('response envelope', () => pm.expect(j.response).to.be.an('object'));",
-                  "pm.test('client_id', () => pm.expect(j.response.client_id).to.eql(pm.environment.get('clientMgmtClientId')));",
+                  "pm.test('clientId', () => pm.expect(j.response.clientId).to.eql(pm.environment.get('clientMgmtClientId')));",
                   "pm.test('status ACTIVE', () => pm.expect(j.response.status).to.eql('ACTIVE'));"
                 ],
                 "type": "text/javascript"
@@ -855,13 +856,13 @@
           ]
         },
         {
-          "name": "Get OIDC client",
+          "name": "Get client",
           "request": {
             "method": "GET",
             "header": [
               { "key": "Authorization", "value": "Bearer {{clientMgmtToken}}" }
             ],
-            "url": "{{baseUrl}}/client-mgmt/oidc-client/{{clientMgmtClientId}}"
+            "url": "{{baseUrl}}/client-mgmt/client/{{clientMgmtClientId}}"
           },
           "event": [
             {
@@ -871,8 +872,8 @@
                   "pm.test('get 200', () => pm.response.to.have.status(200));",
                   "const j = pm.response.json();",
                   "pm.test('response envelope', () => pm.expect(j.response).to.be.an('object'));",
-                  "pm.test('client_id matches', () => pm.expect(j.response.client_id).to.eql(pm.environment.get('clientMgmtClientId')));",
-                  "pm.test('public_key present', () => pm.expect(j.response.public_key).to.be.a('string').and.not.empty);"
+                  "pm.test('clientId matches', () => pm.expect(j.response.clientId).to.eql(pm.environment.get('clientMgmtClientId')));",
+                  "pm.test('status present', () => pm.expect(j.response.status).to.be.oneOf(['ACTIVE', 'INACTIVE']));"
                 ],
                 "type": "text/javascript"
               }
@@ -880,7 +881,7 @@
           ]
         },
         {
-          "name": "Update OIDC client",
+          "name": "Update client",
           "request": {
             "method": "PUT",
             "header": [
@@ -889,11 +890,20 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"client_name\": \"Postman Test Client (updated)\",\n  \"logo_uri\": \"https://example.com/logo-updated.png\",\n  \"redirect_uris\": [\"{{redirectUri}}\"],\n  \"claims\": [\"sub\", \"email\"],\n  \"acr_values\": [\"mosip:idp:acr:static-code\"],\n  \"grant_types\": [\"authorization_code\"],\n  \"client_auth_methods\": [\"private_key_jwt\"],\n  \"status\": \"ACTIVE\"\n}"
+              "raw": "{\n  \"requestTime\": \"{{clientMgmtRequestTime}}\",\n  \"request\": {\n    \"clientName\": \"Postman Test Client (updated)\",\n    \"clientNameLangMap\": { \"eng\": \"Postman Test Client (updated)\" },\n    \"status\": \"active\",\n    \"logoUri\": \"https://example.com/logo-updated.png\",\n    \"redirectUris\": [\"{{redirectUri}}\"],\n    \"userClaims\": [\"name\", \"email\"],\n    \"authContextRefs\": [\"mosip:idp:acr:static-code\"],\n    \"grantTypes\": [\"authorization_code\"],\n    \"clientAuthMethods\": [\"private_key_jwt\"]\n  }\n}"
             },
-            "url": "{{baseUrl}}/client-mgmt/oidc-client/{{clientMgmtClientId}}"
+            "url": "{{baseUrl}}/client-mgmt/client/{{clientMgmtClientId}}"
           },
           "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set('clientMgmtRequestTime', new Date().toISOString());"
+                ],
+                "type": "text/javascript"
+              }
+            },
             {
               "listen": "test",
               "script": {
@@ -901,7 +911,8 @@
                   "pm.test('update 200', () => pm.response.to.have.status(200));",
                   "const j = pm.response.json();",
                   "pm.test('response envelope', () => pm.expect(j.response).to.be.an('object'));",
-                  "pm.test('client_name updated', () => pm.expect(j.response.client_name).to.eql('Postman Test Client (updated)'));"
+                  "pm.test('clientId matches', () => pm.expect(j.response.clientId).to.eql(pm.environment.get('clientMgmtClientId')));",
+                  "pm.test('status ACTIVE', () => pm.expect(j.response.status).to.eql('ACTIVE'));"
                 ],
                 "type": "text/javascript"
               }

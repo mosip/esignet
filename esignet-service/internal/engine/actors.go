@@ -88,8 +88,8 @@ func inboundClientFromDB(client clientmgmt.ClientResponse, cfg Config) *host.Inb
 	if len(client.AuthMethods) > 0 {
 		tokenAuthMethod = client.AuthMethods[0]
 	}
-	pkceRequired := client.AdditionalConfig["require_pkce"] == "true" ||
-		client.AdditionalConfig["pkce_required"] == "true"
+	pkceRequired := configBool(client.AdditionalConfig, "require_pkce") ||
+		configBool(client.AdditionalConfig, "pkce_required")
 	return &host.InboundClient{
 		ClientID:                client.ClientID,
 		EntityID:                client.ClientID,
@@ -111,6 +111,24 @@ func inboundClientFromDB(client clientmgmt.ClientResponse, cfg Config) *host.Inb
 		IsRegistrationFlowEnabled: false,
 		RecoveryFlowID:            cfg.RecoveryFlowID,
 		IsRecoveryFlowEnabled:     false,
+	}
+}
+
+func configBool(cfg map[string]any, key string) bool {
+	if cfg == nil {
+		return false
+	}
+	v, ok := cfg[key]
+	if !ok {
+		return false
+	}
+	switch b := v.(type) {
+	case bool:
+		return b
+	case string:
+		return b == "true"
+	default:
+		return false
 	}
 }
 

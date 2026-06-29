@@ -3,21 +3,19 @@ package clientmgmt
 import (
 	"encoding/json"
 	"errors"
+	"io"
 	"log"
 	"net/http"
+	"strings"
+	"time"
 
 	applog "github.com/mosip/esignet/internal/log"
 )
 
-// apiResponse is the standard envelope for all client management API responses.
-type apiResponse struct {
-	Errors   []apiError  `json:"errors,omitempty"`
-	Response interface{} `json:"response,omitempty"`
-}
+const mosipTimeLayout = "2006-01-02T15:04:05.000Z"
 
-type apiError struct {
-	ErrorCode    string `json:"errorCode"`
-	ErrorMessage string `json:"errorMessage"`
+func mosipResponseTime() string {
+	return time.Now().UTC().Format(mosipTimeLayout)
 }
 
 // Handler exposes client management HTTP endpoints.
@@ -41,55 +39,129 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux, middleware func(http.Handle
 		}
 		return middleware(hf)
 	}
-	mux.Handle("POST /client-mgmt/oidc-client", wrap(h.createClient))
-	mux.Handle("PUT /client-mgmt/oidc-client/{client_id}", wrap(h.updateClient))
-	mux.Handle("GET /client-mgmt/oidc-client/{client_id}", wrap(h.getClient))
+
+	mux.Handle("POST /client-mgmt/oidc-client", wrap(h.createClient(ProfileOIDC)))
+	mux.Handle("PUT /client-mgmt/oidc-client/{client_id}", wrap(h.updateClient(ProfileOIDC)))
+	mux.Handle("POST /client-mgmt/oauth-client", wrap(h.createClient(ProfileOAuth)))
+	mux.Handle("PUT /client-mgmt/oauth-client/{client_id}", wrap(h.updateClient(ProfileOAuth)))
+	mux.Handle("POST /client-mgmt/client", wrap(h.createClient(ProfileClient)))
+	mux.Handle("PUT /client-mgmt/client/{client_id}", wrap(h.updateClient(ProfileClient)))
+	mux.Handle("PATCH /client-mgmt/client/{client_id}", wrap(h.patchClient))
+	mux.Handle("GET /client-mgmt/client/{client_id}", wrap(h.getClient))
 }
 
-func (h *Handler) createClient(w http.ResponseWriter, r *http.Request) {
-	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB limit
-	var req CreateClientRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		writeError(w, http.StatusBadRequest, "invalid_request", err.Error())
-		return
-	}
+func (h *Handler) createClient(profile Profile) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			writeSpecError(w, "invalid_input", "malformed request body")
+			return
+		}
+		var req CreateRequestWrapper
+		if err := json.Unmarshal(body, &req); err != nil {
+			writeSpecError(w, "invalid_input", "malformed JSON body")
+			return
+		}
+		if strings.TrimSpace(req.RequestTime) == "" {
+			writeSpecError(w, "invalid_input", "requestTime is required")
+			return
+		}
 
-	resp, err := h.svc.CreateClient(r.Context(), req)
-	if err != nil {
-		h.handleServiceError(w, err, "create client")
-		return
-	}
+		resp, err := h.svc.CreateClient(r.Context(), profile, req.Request)
+		if err != nil {
+			h.handleServiceError(w, err, "create client")
+			return
+		}
 
-	writeJSON(w, http.StatusOK, apiResponse{Response: resp})
+		writeJSON(w, http.StatusOK, ResponseWrapper{
+			Response:     resp.APIResponse(),
+			ResponseTime: mosipResponseTime(),
+		})
+	}
 }
 
-func (h *Handler) updateClient(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) updateClient(profile Profile) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		clientID := r.PathValue("client_id")
+		if clientID == "" {
+			writeSpecError(w, "invalid_input", "client_id is required")
+			return
+		}
+
+		r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			writeSpecError(w, "invalid_input", "malformed request body")
+			return
+		}
+		var req UpdateRequestWrapper
+		if err := json.Unmarshal(body, &req); err != nil {
+			writeSpecError(w, "invalid_input", "malformed JSON body")
+			return
+		}
+		if strings.TrimSpace(req.RequestTime) == "" {
+			writeSpecError(w, "invalid_input", "requestTime is required")
+			return
+		}
+
+		resp, err := h.svc.UpdateClient(r.Context(), profile, clientID, req.Request)
+		if err != nil {
+			h.handleServiceError(w, err, "update client")
+			return
+		}
+
+		writeJSON(w, http.StatusOK, ResponseWrapper{
+			Response:     resp.APIResponse(),
+			ResponseTime: mosipResponseTime(),
+		})
+	}
+}
+
+func (h *Handler) patchClient(w http.ResponseWriter, r *http.Request) {
 	clientID := r.PathValue("client_id")
 	if clientID == "" {
-		writeError(w, http.StatusBadRequest, "invalid_request", "client_id is required")
+		writeSpecError(w, "invalid_input", "client_id is required")
 		return
 	}
 
-	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB limit
-	var req UpdateClientRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		writeError(w, http.StatusBadRequest, "invalid_request", "malformed JSON body")
-		return
-	}
-
-	resp, err := h.svc.UpdateClient(r.Context(), clientID, req)
+	r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		h.handleServiceError(w, err, "update client")
+		writeSpecError(w, "invalid_input", "malformed request body")
+		return
+	}
+	var wrapper PatchRequestWrapper
+	if err := json.Unmarshal(body, &wrapper); err != nil {
+		writeSpecError(w, "invalid_input", "malformed JSON body")
+		return
+	}
+	if strings.TrimSpace(wrapper.RequestTime) == "" {
+		writeSpecError(w, "invalid_input", "requestTime is required")
+		return
+	}
+	req, fields, err := DecodePatchRequest(body)
+	if err != nil {
+		writeSpecError(w, "invalid_input", err.Error())
 		return
 	}
 
-	writeJSON(w, http.StatusOK, apiResponse{Response: resp})
+	resp, err := h.svc.PatchClient(r.Context(), clientID, req, fields)
+	if err != nil {
+		h.handleServiceError(w, err, "patch client")
+		return
+	}
+
+	writeJSON(w, http.StatusOK, ResponseWrapper{
+		Response:     resp.APIResponse(),
+		ResponseTime: mosipResponseTime(),
+	})
 }
 
 func (h *Handler) getClient(w http.ResponseWriter, r *http.Request) {
 	clientID := r.PathValue("client_id")
 	if clientID == "" {
-		writeError(w, http.StatusBadRequest, "invalid_request", "client_id is required")
+		writeSpecError(w, "invalid_input", "client_id is required")
 		return
 	}
 
@@ -99,18 +171,29 @@ func (h *Handler) getClient(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusOK, apiResponse{Response: resp})
+	writeJSON(w, http.StatusOK, ResponseWrapper{
+		Response:     resp.APIResponse(),
+		ResponseTime: mosipResponseTime(),
+	})
 }
 
 func (h *Handler) handleServiceError(w http.ResponseWriter, err error, op string) {
+	var ve *ValidationError
 	switch {
+	case errors.As(err, &ve):
+		writeSpecError(w, ve.Code, ve.Message)
 	case errors.Is(err, ErrClientNotFound):
-		writeError(w, http.StatusNotFound, "client_not_found", "client not found")
+		writeSpecError(w, "invalid_client_id", "client not found")
+	case errors.Is(err, ErrDuplicateClientID):
+		writeSpecError(w, "duplicate_client_id", "client id already exists")
 	case errors.Is(err, ErrDuplicatePublicKey):
-		writeError(w, http.StatusConflict, "duplicate_public_key", "public key is already registered")
+		writeSpecError(w, "invalid_public_key", "public key is already registered")
 	default:
 		h.logger.Error(op, applog.Error(err))
-		writeError(w, http.StatusInternalServerError, "server_error", "an unexpected error occurred")
+		writeJSON(w, http.StatusInternalServerError, ResponseWrapper{
+			Errors:       []Error{{ErrorCode: "server_error", ErrorMessage: "an unexpected error occurred"}},
+			ResponseTime: mosipResponseTime(),
+		})
 	}
 }
 
@@ -118,13 +201,23 @@ func writeJSON(w http.ResponseWriter, status int, body interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	if err := json.NewEncoder(w).Encode(body); err != nil {
-		// Response headers already sent; log only.
 		log.Printf("writeJSON encode error: %v", err)
 	}
 }
 
+func writeSpecError(w http.ResponseWriter, code, msg string) {
+	if msg == "" {
+		msg = code
+	}
+	writeJSON(w, http.StatusOK, ResponseWrapper{
+		Errors:       []Error{{ErrorCode: code, ErrorMessage: msg}},
+		ResponseTime: mosipResponseTime(),
+	})
+}
+
 func writeError(w http.ResponseWriter, status int, code, msg string) {
-	writeJSON(w, status, apiResponse{
-		Errors: []apiError{{ErrorCode: code, ErrorMessage: msg}},
+	writeJSON(w, status, ResponseWrapper{
+		Errors:       []Error{{ErrorCode: code, ErrorMessage: msg}},
+		ResponseTime: mosipResponseTime(),
 	})
 }

@@ -154,13 +154,14 @@ target_smoke_jwt_key() { ## Generate local private_key_jwt smoke client key (git
   bash ./scripts/generate-smoke-jwt-client-key.sh
 }
 
-target_smoke() { ## End-to-end OAuth smoke test (server must be running)
+target_smoke() { ## End-to-end OAuth + client-mgmt smoke tests (server must be running)
   if [ ! -f ./scripts/fixtures/smoke-jwt-client.key ]; then
     echo "smoke-jwt-key: generating local JWT client key..."
     target_smoke_jwt_key
   fi
-  # Invoked via bash so it works even when the exec bit is lost on Windows.
-  BASE_URL="${BASE_URL:-$MOSIP_ESIGNET_HOST}" bash ./scripts/oauth-smoke.sh
+  export BASE_URL="${BASE_URL:-$MOSIP_ESIGNET_HOST}"
+  bash ./scripts/oauth-smoke.sh
+  bash ./scripts/client-mgmt-smoke.sh
 }
 
 target_docker_build() { ## Build container image (esignet:latest by default)
@@ -250,7 +251,7 @@ Test
   coverage-html      Generate HTML coverage report (coverage.html)
   lint               Run golangci-lint
   lint-install       Install golangci-lint (GOLANGCI_LINT_VERSION=$GOLANGCI_LINT_VERSION)
-  smoke              End-to-end OAuth smoke test (server must be running)
+  smoke              End-to-end OAuth + client-mgmt smoke tests (server must be running)
   smoke-jwt-key      Generate local private_key_jwt smoke client key (gitignored)
 
 Docker

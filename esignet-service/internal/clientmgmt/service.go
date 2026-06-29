@@ -3,7 +3,6 @@ package clientmgmt
 
 import (
 	"context"
-	"crypto/sha256"
 	"database/sql"
 	"encoding/json"
 	"errors"
@@ -17,57 +16,11 @@ import (
 // ErrClientNotFound is returned when a client ID does not exist.
 var ErrClientNotFound = errors.New("client not found")
 
+// ErrDuplicateClientID is returned when the client ID already exists.
+var ErrDuplicateClientID = errors.New("duplicate client id")
+
 // ErrDuplicatePublicKey is returned when the public key hash already exists.
 var ErrDuplicatePublicKey = errors.New("public key already registered")
-
-// CreateClientRequest is the payload for registering a new OIDC client.
-type CreateClientRequest struct {
-	ClientID         string            `json:"client_id"`
-	ClientName       string            `json:"client_name"`
-	RpID             string            `json:"rp_id"`
-	LogoURI          string            `json:"logo_uri"`
-	RedirectURIs     []string          `json:"redirect_uris"`
-	Claims           []string          `json:"claims"`
-	AcrValues        []string          `json:"acr_values"`
-	PublicKey        string            `json:"public_key"`
-	EncPublicKey     string            `json:"enc_public_key,omitempty"`
-	EncPublicKeyCert string            `json:"enc_public_key_cert,omitempty"`
-	GrantTypes       []string          `json:"grant_types"`
-	AuthMethods      []string          `json:"client_auth_methods"`
-	AdditionalConfig map[string]string `json:"additional_config,omitempty"`
-}
-
-// UpdateClientRequest is the payload for updating an existing OIDC client.
-type UpdateClientRequest struct {
-	ClientName       string            `json:"client_name"`
-	LogoURI          string            `json:"logo_uri"`
-	RedirectURIs     []string          `json:"redirect_uris"`
-	Claims           []string          `json:"claims"`
-	AcrValues        []string          `json:"acr_values"`
-	GrantTypes       []string          `json:"grant_types"`
-	AuthMethods      []string          `json:"client_auth_methods"`
-	Status           string            `json:"status"`
-	AdditionalConfig map[string]string `json:"additional_config,omitempty"`
-}
-
-// ClientResponse is returned from create/update/get operations.
-type ClientResponse struct {
-	ClientID         string            `json:"client_id"`
-	ClientName       string            `json:"client_name"`
-	RpID             string            `json:"rp_id"`
-	LogoURI          string            `json:"logo_uri"`
-	RedirectURIs     []string          `json:"redirect_uris"`
-	Claims           []string          `json:"claims"`
-	AcrValues        []string          `json:"acr_values"`
-	GrantTypes       []string          `json:"grant_types"`
-	AuthMethods      []string          `json:"client_auth_methods"`
-	Status           string            `json:"status"`
-	AdditionalConfig map[string]string `json:"additional_config,omitempty"`
-	PublicKey        string            `json:"public_key"`
-	EncPublicKey     string            `json:"enc_public_key,omitempty"`
-	CreatedAt        time.Time         `json:"created_at"`
-	UpdatedAt        *time.Time        `json:"updated_at,omitempty"`
-}
 
 // Service handles client management business logic.
 type Service struct {
@@ -86,12 +39,16 @@ func NewServiceWithQuerier(q db.Querier) *Service {
 }
 
 // CreateClient registers a new OIDC client.
-func (s *Service) CreateClient(ctx context.Context, req CreateClientRequest) (ClientResponse, error) {
-	if err := validateCreate(req); err != nil {
+func (s *Service) CreateClient(ctx context.Context, profile Profile, req CreateClientRequest) (ClientResponse, error) {
+	if err := ValidateCreate(profile, req); err != nil {
 		return ClientResponse{}, err
 	}
 
-	pkHash := hashKey(req.PublicKey)
+	publicKey, err := marshalJWK(req.PublicKey)
+	if err != nil {
+		return ClientResponse{}, fmt.Errorf("public_key: %w", err)
+	}
+	pkHash := hashJWK(req.PublicKey)
 
 	redirectURIs, err := marshalStringSlice(req.RedirectURIs)
 	if err != nil {
@@ -113,24 +70,29 @@ func (s *Service) CreateClient(ctx context.Context, req CreateClientRequest) (Cl
 	if err != nil {
 		return ClientResponse{}, fmt.Errorf("client_auth_methods: %w", err)
 	}
-	additionalConfig, err := marshalAdditionalConfig(req.AdditionalConfig)
+	additionalConfig, err := marshalAdditionalConfigRaw(req.AdditionalConfig)
 	if err != nil {
 		return ClientResponse{}, fmt.Errorf("additional_config: %w", err)
 	}
 
+	encPK, encPKHash, encPKCert, err := encKeyColumns(req.EncPublicKey, req.EncPublicKeyCert)
+	if err != nil {
+		return ClientResponse{}, err
+	}
+
 	params := db.CreateClientParams{
 		ID:               req.ClientID,
-		Name:             req.ClientName,
+		Name:             marshalClientName(req.ClientName, req.ClientNameLangMap, profile),
 		RpID:             req.RpID,
-		LogoURI:          req.LogoURI,
+		LogoUri:          req.LogoURI,
 		RedirectUris:     redirectURIs,
 		Claims:           claims,
 		AcrValues:        acrValues,
-		PublicKey:        req.PublicKey,
+		PublicKey:        publicKey,
 		PublicKeyHash:    pkHash,
-		EncPublicKey:     nullableString(req.EncPublicKey),
-		EncPublicKeyHash: nullableString(hashKeyIfNonEmpty(req.EncPublicKey)),
-		EncPublicKeyCert: nullableString(req.EncPublicKeyCert),
+		EncPublicKey:     encPK,
+		EncPublicKeyHash: encPKHash,
+		EncPublicKeyCert: encPKCert,
 		GrantTypes:       grantTypes,
 		AuthMethods:      authMethods,
 		Status:           "ACTIVE",
@@ -140,8 +102,11 @@ func (s *Service) CreateClient(ctx context.Context, req CreateClientRequest) (Cl
 
 	row, err := s.q.CreateClient(ctx, params)
 	if err != nil {
-		if isUniqueViolation(err) {
-			return ClientResponse{}, ErrDuplicatePublicKey
+		if isDuplicateClientID(err) {
+			return ClientResponse{}, ErrDuplicateClientID
+		}
+		if isDuplicatePublicKeyHash(err) {
+			return ClientResponse{}, &ValidationError{Code: "invalid_public_key"}
 		}
 		return ClientResponse{}, fmt.Errorf("create client: %w", err)
 	}
@@ -149,8 +114,13 @@ func (s *Service) CreateClient(ctx context.Context, req CreateClientRequest) (Cl
 }
 
 // UpdateClient updates an existing OIDC client.
-func (s *Service) UpdateClient(ctx context.Context, clientID string, req UpdateClientRequest) (ClientResponse, error) {
-	if err := validateUpdate(req); err != nil {
+func (s *Service) UpdateClient(ctx context.Context, profile Profile, clientID string, req UpdateClientRequest) (ClientResponse, error) {
+	if err := ValidateUpdate(profile, req); err != nil {
+		return ClientResponse{}, err
+	}
+
+	status, err := normalizePutStatus(req.Status)
+	if err != nil {
 		return ClientResponse{}, err
 	}
 
@@ -174,7 +144,7 @@ func (s *Service) UpdateClient(ctx context.Context, clientID string, req UpdateC
 	if err != nil {
 		return ClientResponse{}, fmt.Errorf("client_auth_methods: %w", err)
 	}
-	additionalConfig, err := marshalAdditionalConfig(req.AdditionalConfig)
+	additionalConfig, err := marshalAdditionalConfigRaw(req.AdditionalConfig)
 	if err != nil {
 		return ClientResponse{}, fmt.Errorf("additional_config: %w", err)
 	}
@@ -182,14 +152,14 @@ func (s *Service) UpdateClient(ctx context.Context, clientID string, req UpdateC
 	now := time.Now().UTC()
 	params := db.UpdateClientParams{
 		ID:               clientID,
-		Name:             req.ClientName,
-		LogoURI:          req.LogoURI,
+		Name:             marshalClientName(req.ClientName, req.ClientNameLangMap, profile),
+		LogoUri:          req.LogoURI,
 		RedirectUris:     redirectURIs,
 		Claims:           claims,
 		AcrValues:        acrValues,
 		GrantTypes:       grantTypes,
 		AuthMethods:      authMethods,
-		Status:           req.Status,
+		Status:           status,
 		AdditionalConfig: additionalConfig,
 		UpdDtimes:        sql.NullTime{Time: now, Valid: true},
 	}
@@ -200,6 +170,106 @@ func (s *Service) UpdateClient(ctx context.Context, clientID string, req UpdateC
 			return ClientResponse{}, ErrClientNotFound
 		}
 		return ClientResponse{}, fmt.Errorf("update client: %w", err)
+	}
+	return toResponse(row)
+}
+
+// PatchClient partially updates an existing OIDC client.
+func (s *Service) PatchClient(ctx context.Context, clientID string, req PatchClientRequest, fields PatchFields) (ClientResponse, error) {
+	existing, err := s.q.GetClient(ctx, clientID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ClientResponse{}, ErrClientNotFound
+		}
+		return ClientResponse{}, fmt.Errorf("get client: %w", err)
+	}
+
+	merged, err := mergePatch(existing, req, fields)
+	if err != nil {
+		return ClientResponse{}, err
+	}
+	if err := ValidatePatch(merged, fields); err != nil {
+		return ClientResponse{}, err
+	}
+
+	status := existing.Status
+	if fields.Status {
+		status, err = normalizePatchStatus(merged.Status)
+		if err != nil {
+			return ClientResponse{}, err
+		}
+	}
+
+	redirectURIs, err := marshalStringSlice(merged.RedirectURIs)
+	if err != nil {
+		return ClientResponse{}, err
+	}
+	claims, err := marshalStringSlice(merged.Claims)
+	if err != nil {
+		return ClientResponse{}, err
+	}
+	acrValues, err := marshalStringSlice(merged.AcrValues)
+	if err != nil {
+		return ClientResponse{}, err
+	}
+	grantTypes, err := marshalStringSlice(merged.GrantTypes)
+	if err != nil {
+		return ClientResponse{}, err
+	}
+	authMethods, err := marshalStringSlice(merged.AuthMethods)
+	if err != nil {
+		return ClientResponse{}, err
+	}
+	additionalConfig, err := marshalAdditionalConfigRaw(merged.AdditionalConfig)
+	if err != nil {
+		return ClientResponse{}, err
+	}
+
+	encPK := existing.EncPublicKey
+	encPKHash := existing.EncPublicKeyHash
+	encPKCert := existing.EncPublicKeyCert
+	if fields.EncPublicKey {
+		if req.EncPublicKey.IsNull {
+			encPK = sql.NullString{}
+			encPKHash = sql.NullString{}
+			encPKCert = sql.NullString{}
+		} else {
+			if err := validateJWK(req.EncPublicKey.Value); err != nil {
+				return ClientResponse{}, err
+			}
+			pkJSON, err := marshalJWK(req.EncPublicKey.Value)
+			if err != nil {
+				return ClientResponse{}, err
+			}
+			encPK = sql.NullString{String: pkJSON, Valid: true}
+			encPKHash = sql.NullString{String: hashJWK(req.EncPublicKey.Value), Valid: true}
+		}
+	}
+
+	now := time.Now().UTC()
+	params := db.PatchClientParams{
+		ID:               clientID,
+		Name:             marshalClientName(merged.ClientName, merged.ClientNameLangMap, ProfileClient),
+		LogoUri:          merged.LogoURI,
+		RedirectUris:     redirectURIs,
+		Claims:           claims,
+		AcrValues:        acrValues,
+		GrantTypes:       grantTypes,
+		AuthMethods:      authMethods,
+		Status:           status,
+		AdditionalConfig: additionalConfig,
+		EncPublicKey:     encPK,
+		EncPublicKeyHash: encPKHash,
+		EncPublicKeyCert: encPKCert,
+		UpdDtimes:        sql.NullTime{Time: now, Valid: true},
+	}
+
+	row, err := s.q.PatchClient(ctx, params)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ClientResponse{}, ErrClientNotFound
+		}
+		return ClientResponse{}, fmt.Errorf("patch client: %w", err)
 	}
 	return toResponse(row)
 }
@@ -216,68 +286,131 @@ func (s *Service) GetClient(ctx context.Context, clientID string) (ClientRespons
 	return toResponse(row)
 }
 
-// --- helpers ---
+func mergePatch(existing db.ClientDetail, req PatchClientRequest, fields PatchFields) (UpdateClientRequest, error) {
+	clientName, langMap, err := parseClientName(existing.Name)
+	if err != nil {
+		return UpdateClientRequest{}, err
+	}
+	redirectURIs, err := unmarshalStringSlice(existing.RedirectUris)
+	if err != nil {
+		return UpdateClientRequest{}, err
+	}
+	claims, err := unmarshalStringSlice(existing.Claims)
+	if err != nil {
+		return UpdateClientRequest{}, err
+	}
+	acrValues, err := unmarshalStringSlice(existing.AcrValues)
+	if err != nil {
+		return UpdateClientRequest{}, err
+	}
+	grantTypes, err := unmarshalStringSlice(existing.GrantTypes)
+	if err != nil {
+		return UpdateClientRequest{}, err
+	}
+	authMethods, err := unmarshalStringSlice(existing.AuthMethods)
+	if err != nil {
+		return UpdateClientRequest{}, err
+	}
+	var additionalConfig json.RawMessage
+	if existing.AdditionalConfig.Valid && existing.AdditionalConfig.String != "" {
+		additionalConfig = json.RawMessage(existing.AdditionalConfig.String)
+	}
 
-func validateCreate(req CreateClientRequest) error {
-	var missing []string
-	if req.ClientID == "" {
-		missing = append(missing, "client_id")
+	merged := UpdateClientRequest{
+		ClientName:        clientName,
+		ClientNameLangMap: langMap,
+		Status:            existing.Status,
+		LogoURI:           existing.LogoUri,
+		RedirectURIs:      redirectURIs,
+		Claims:            claims,
+		AcrValues:         acrValues,
+		GrantTypes:        grantTypes,
+		AuthMethods:       authMethods,
+		AdditionalConfig:  additionalConfig,
 	}
-	if req.ClientName == "" {
-		missing = append(missing, "client_name")
+
+	if fields.ClientName {
+		merged.ClientName = req.ClientName
 	}
-	if req.RpID == "" {
-		missing = append(missing, "rp_id")
+	if fields.ClientNameLangMap {
+		merged.ClientNameLangMap = req.ClientNameLangMap
 	}
-	if req.LogoURI == "" {
-		missing = append(missing, "logo_uri")
+	if fields.Status {
+		merged.Status = req.Status
 	}
-	if len(req.RedirectURIs) == 0 {
-		missing = append(missing, "redirect_uris")
+	if fields.LogoURI {
+		merged.LogoURI = req.LogoURI
 	}
-	if req.PublicKey == "" {
-		missing = append(missing, "public_key")
+	if fields.RedirectURIs {
+		merged.RedirectURIs = req.RedirectURIs
 	}
-	if len(req.GrantTypes) == 0 {
-		missing = append(missing, "grant_types")
+	if fields.Claims {
+		merged.Claims = req.Claims
 	}
-	if len(req.AuthMethods) == 0 {
-		missing = append(missing, "client_auth_methods")
+	if fields.AcrValues {
+		merged.AcrValues = req.AcrValues
 	}
-	if len(missing) > 0 {
-		return fmt.Errorf("missing required fields: %s", strings.Join(missing, ", "))
+	if fields.GrantTypes {
+		merged.GrantTypes = req.GrantTypes
 	}
-	return nil
+	if fields.AuthMethods {
+		merged.AuthMethods = req.AuthMethods
+	}
+	if fields.AdditionalConfig {
+		merged.AdditionalConfig = req.AdditionalConfig
+	}
+	return merged, nil
 }
 
-func validateUpdate(req UpdateClientRequest) error {
-	var missing []string
-	if req.ClientName == "" {
-		missing = append(missing, "client_name")
+func marshalClientName(clientName string, langMap map[string]string, profile Profile) string {
+	if profile == ProfileOIDC {
+		return clientName
 	}
-	if req.Status == "" {
-		missing = append(missing, "status")
+	m := make(map[string]string, len(langMap)+1)
+	for k, v := range langMap {
+		m[k] = v
 	}
-	if len(missing) > 0 {
-		return fmt.Errorf("missing required fields: %s", strings.Join(missing, ", "))
+	m["@none"] = clientName
+	b, err := json.Marshal(m)
+	if err != nil {
+		return clientName
 	}
-	return nil
+	return string(b)
 }
 
-func hashKey(key string) string {
-	sum := sha256.Sum256([]byte(key))
-	return fmt.Sprintf("%x", sum)
-}
-
-func hashKeyIfNonEmpty(key string) string {
-	if key == "" {
-		return ""
+func parseClientName(name string) (string, map[string]string, error) {
+	var langMap map[string]string
+	if err := json.Unmarshal([]byte(name), &langMap); err != nil {
+		return name, nil, nil
 	}
-	return hashKey(key)
+	clientName := langMap["@none"]
+	withoutNone := make(map[string]string, len(langMap))
+	for k, v := range langMap {
+		if k != "@none" {
+			withoutNone[k] = v
+		}
+	}
+	return clientName, withoutNone, nil
 }
 
-func nullableString(s string) sql.NullString {
-	return sql.NullString{String: s, Valid: s != ""}
+func encKeyColumns(encKey map[string]string, cert string) (sql.NullString, sql.NullString, sql.NullString, error) {
+	if len(encKey) == 0 {
+		return sql.NullString{}, sql.NullString{}, sql.NullString{}, nil
+	}
+	if err := validateJWK(encKey); err != nil {
+		return sql.NullString{}, sql.NullString{}, sql.NullString{}, err
+	}
+	pkJSON, err := marshalJWK(encKey)
+	if err != nil {
+		return sql.NullString{}, sql.NullString{}, sql.NullString{}, err
+	}
+	encPK := sql.NullString{String: pkJSON, Valid: true}
+	encHash := sql.NullString{String: hashJWK(encKey), Valid: true}
+	var encCert sql.NullString
+	if cert != "" {
+		encCert = sql.NullString{String: cert, Valid: true}
+	}
+	return encPK, encHash, encCert, nil
 }
 
 func marshalStringSlice(s []string) (string, error) {
@@ -291,15 +424,11 @@ func marshalStringSlice(s []string) (string, error) {
 	return string(b), nil
 }
 
-func marshalAdditionalConfig(m map[string]string) (sql.NullString, error) {
-	if len(m) == 0 {
+func marshalAdditionalConfigRaw(raw json.RawMessage) (sql.NullString, error) {
+	if len(raw) == 0 {
 		return sql.NullString{}, nil
 	}
-	b, err := json.Marshal(m)
-	if err != nil {
-		return sql.NullString{}, err
-	}
-	return sql.NullString{String: string(b), Valid: true}, nil
+	return sql.NullString{String: string(raw), Valid: true}, nil
 }
 
 func unmarshalStringSlice(s string) ([]string, error) {
@@ -310,72 +439,74 @@ func unmarshalStringSlice(s string) ([]string, error) {
 	return out, nil
 }
 
-func unmarshalAdditionalConfig(s sql.NullString) (map[string]string, error) {
+func unmarshalAdditionalConfig(s sql.NullString) (map[string]any, error) {
 	if !s.Valid || s.String == "" {
 		return nil, nil
 	}
-	var out map[string]string
+	var out map[string]any
 	if err := json.Unmarshal([]byte(s.String), &out); err != nil {
 		return nil, fmt.Errorf("unmarshal additional config: %w", err)
 	}
 	return out, nil
 }
 
-func isUniqueViolation(err error) bool {
-	// lib/pq error code 23505
-	return strings.Contains(err.Error(), "23505") ||
-		strings.Contains(err.Error(), "unique_violation") ||
-		strings.Contains(err.Error(), "uk_clntdtl_public_key_hash")
+func isDuplicateClientID(err error) bool {
+	msg := err.Error()
+	return strings.Contains(msg, "23505") &&
+		(strings.Contains(msg, "pk_clntdtl_id") || strings.Contains(msg, "client_detail_pkey"))
+}
+
+func isDuplicatePublicKeyHash(err error) bool {
+	return strings.Contains(err.Error(), "uk_clntdtl_public_key_hash")
 }
 
 func toResponse(row db.ClientDetail) (ClientResponse, error) {
+	clientName, langMap, err := parseClientName(row.Name)
+	if err != nil {
+		return ClientResponse{}, err
+	}
 	redirectURIs, err := unmarshalStringSlice(row.RedirectUris)
 	if err != nil {
-		return ClientResponse{}, fmt.Errorf("client %s: %w", row.ID, err)
+		return ClientResponse{}, err
 	}
 	claims, err := unmarshalStringSlice(row.Claims)
 	if err != nil {
-		return ClientResponse{}, fmt.Errorf("client %s: %w", row.ID, err)
+		return ClientResponse{}, err
 	}
 	acrValues, err := unmarshalStringSlice(row.AcrValues)
 	if err != nil {
-		return ClientResponse{}, fmt.Errorf("client %s: %w", row.ID, err)
+		return ClientResponse{}, err
 	}
 	grantTypes, err := unmarshalStringSlice(row.GrantTypes)
 	if err != nil {
-		return ClientResponse{}, fmt.Errorf("client %s: %w", row.ID, err)
+		return ClientResponse{}, err
 	}
 	authMethods, err := unmarshalStringSlice(row.AuthMethods)
 	if err != nil {
-		return ClientResponse{}, fmt.Errorf("client %s: %w", row.ID, err)
+		return ClientResponse{}, err
 	}
 	additionalConfig, err := unmarshalAdditionalConfig(row.AdditionalConfig)
 	if err != nil {
-		return ClientResponse{}, fmt.Errorf("client %s: %w", row.ID, err)
+		return ClientResponse{}, err
 	}
-	publicKey := row.PublicKey
-
-	resp := ClientResponse{
-		ClientID:         row.ID,
-		ClientName:       row.Name,
-		RpID:             row.RpID,
-		LogoURI:          row.LogoURI,
-		RedirectURIs:     redirectURIs,
-		Claims:           claims,
-		AcrValues:        acrValues,
-		GrantTypes:       grantTypes,
-		AuthMethods:      authMethods,
-		Status:           row.Status,
-		AdditionalConfig: additionalConfig,
-		CreatedAt:        row.CrDtimes,
-		PublicKey:        publicKey,
-	}
+	encPK := ""
 	if row.EncPublicKey.Valid {
-		resp.EncPublicKey = row.EncPublicKey.String
+		encPK = row.EncPublicKey.String
 	}
-	if row.UpdDtimes.Valid {
-		t := row.UpdDtimes.Time
-		resp.UpdatedAt = &t
-	}
-	return resp, nil
+	return ClientResponse{
+		ClientID:          row.ID,
+		Status:            row.Status,
+		ClientName:        clientName,
+		ClientNameLangMap: langMap,
+		RpID:              row.RpID,
+		LogoURI:           row.LogoUri,
+		RedirectURIs:      redirectURIs,
+		Claims:            claims,
+		AcrValues:         acrValues,
+		PublicKey:         row.PublicKey,
+		EncPublicKey:      encPK,
+		GrantTypes:        grantTypes,
+		AuthMethods:       authMethods,
+		AdditionalConfig:  additionalConfig,
+	}, nil
 }
