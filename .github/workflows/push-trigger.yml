@@ -88,13 +88,13 @@ jobs:
         with:
           name: ${{ env.BUILD_ARTIFACT }}
           path: ${{ env.BUILD_ARTIFACT }}.zip
-      - uses: 8398a7/action-slack@v3
-        with:
-          status: ${{ job.status }}
-          fields: repo,message,author,commit,workflow,job # selectable (default: repo,message)
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
-        if: failure() # Pick up events even if the job fails or is canceled.
+#      - uses: 8398a7/action-slack@v3
+#        with:
+#          status: ${{ job.status }}
+#          fields: repo,message,author,commit,workflow,job # selectable (default: repo,message)
+#        env:
+#          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
+#        if: failure() # Pick up events even if the job fails or is canceled.
 
   build_dockers_apitest_esignet:
     needs: build_apitest_esignet_local
@@ -180,13 +180,13 @@ jobs:
           name: ${{ env.BUILD_ARTIFACT }}
           path: ${{ env.BUILD_ARTIFACT }}.zip
 
-      - uses: 8398a7/action-slack@v3
-        with:
-          status: ${{ job.status }}
-          fields: repo,message,author,commit,workflow,job # selectable (default: repo,message)
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
-        if: failure() # Pick up events even if the job fails or is canceled.
+#      - uses: 8398a7/action-slack@v3
+#        with:
+#          status: ${{ job.status }}
+#          fields: repo,message,author,commit,workflow,job # selectable (default: repo,message)
+#        env:
+#          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
+#        if: failure() # Pick up events even if the job fails or is canceled.
 
   build-dockers-uitest-esignet:
     needs: build-uitest-esignet-local
