@@ -24,7 +24,31 @@ on:
       - DSD-6308
 
 jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.files.outputs.code }}
+    steps:
+      - uses: actions/github-script@v7
+        id: files
+        with:
+          script: |
+            if (context.eventName !== 'pull_request') {
+              core.setOutput('code', 'true');
+              return;
+            }
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+            });
+            const hasCodeChanges = files.some(
+              file => !file.filename.startsWith('.github/workflows/')
+            );
+            core.setOutput('code', hasCodeChanges ? 'true' : 'false');
   build-maven-esignet:
+    if: ${{ github.event_name != 'pull_request' || needs.detect-changes.outputs.code == 'true' }}
+    needs: detect-changes
     uses: mosip/kattu/.github/workflows/maven-build.yml@master
     with:
       SERVICE_LOCATION: ./
@@ -38,8 +62,8 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   publish_to_nexus:
-    if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' }}"
-    needs: build-maven-esignet
+    if: "${{ (github.event_name != 'pull_request' || needs.detect-changes.outputs.code == 'true') && (!contains(github.ref, 'master') && github.event_name != 'pull_request') }}"
+    needs: [detect-changes, build-maven-esignet]
     uses: mosip/kattu/.github/workflows/maven-publish-to-nexus.yml@master
     with:
       SERVICE_LOCATION: ./
@@ -53,8 +77,8 @@ jobs:
 
 
   sonar_analysis:
-    needs: build-maven-esignet
-    if: "${{  github.event_name != 'pull_request' }}"
+    needs: [detect-changes, build-maven-esignet]
+    if: "${{ (github.event_name != 'pull_request' || needs.detect-changes.outputs.code == 'true') && (github.event_name != 'pull_request') }}"
     uses: mosip/kattu/.github/workflows/maven-sonar-analysis.yml@master
     with:
       SERVICE_LOCATION: ./
@@ -68,7 +92,8 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   build-dockers:
-    needs: build-maven-esignet
+    if: ${{ github.event_name != 'pull_request' || needs.detect-changes.outputs.code == 'true' }}
+    needs: [detect-changes, build-maven-esignet]
     strategy:
       matrix:
         include:
@@ -89,6 +114,8 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   build-dockers-oidc-ui:
+    if: ${{ github.event_name != 'pull_request' || needs.detect-changes.outputs.code == 'true' }}
+    needs: detect-changes
     strategy:
       matrix:
         include:
@@ -107,6 +134,8 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   build-maven-apitest-esignet:
+    if: ${{ github.event_name != 'pull_request' || needs.detect-changes.outputs.code == 'true' }}
+    needs: detect-changes
     uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
     with:
       SERVICE_LOCATION: ./apitest
@@ -119,8 +148,8 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   publish_to_nexus_apitest_esignet:
-    if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' && github.event_name != 'release' && github.event_name != 'prerelease' && github.event_name != 'publish' }}"
-    needs: build-maven-apitest-esignet
+    if: "${{ (github.event_name != 'pull_request' || needs.detect-changes.outputs.code == 'true') && (!contains(github.ref, 'master') && github.event_name != 'pull_request' && github.event_name != 'release' && github.event_name != 'prerelease' && github.event_name != 'publish') }}"
+    needs: [detect-changes, build-maven-apitest-esignet]
     uses: mosip/kattu/.github/workflows/maven-publish-to-nexus.yml@master-java21
     with:
       SERVICE_LOCATION: ./apitest
@@ -133,7 +162,8 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   build-apitest-esignet-local:
-    needs: build-maven-apitest-esignet
+    if: ${{ github.event_name != 'pull_request' || needs.detect-changes.outputs.code == 'true' }}
+    needs: [detect-changes, build-maven-apitest-esignet]
     runs-on: ubuntu-latest
     env:
       NAMESPACE: ${{ secrets.dev_namespace_docker_hub }}
@@ -170,16 +200,17 @@ jobs:
         with:
           name: ${{ env.BUILD_ARTIFACT }}
           path: ${{ env.BUILD_ARTIFACT }}.zip
-      - uses: 8398a7/action-slack@v3
-        with:
-          status: ${{ job.status }}
-          fields: repo,message,author,commit,workflow,job # selectable (default: repo,message)
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
-        if: failure() # Pick up events even if the job fails or is canceled.
+#      - uses: 8398a7/action-slack@v3
+#        with:
+#          status: ${{ job.status }}
+#          fields: repo,message,author,commit,workflow,job # selectable (default: repo,message)
+#        env:
+#          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
+#        if: failure() # Pick up events even if the job fails or is canceled.
 
   build-dockers_apitest_esignet:
-    needs: build-apitest-esignet-local
+    if: ${{ github.event_name != 'pull_request' || needs.detect-changes.outputs.code == 'true' }}
+    needs: [detect-changes, build-apitest-esignet-local]
     strategy:
       matrix:
         include:
@@ -202,8 +233,8 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   sonar_analysis_apitest_esignet:
-    needs: build-maven-apitest-esignet
-    if: "${{  github.event_name != 'pull_request' }}"
+    needs: [detect-changes, build-maven-apitest-esignet]
+    if: "${{ (github.event_name != 'pull_request' || needs.detect-changes.outputs.code == 'true') && (github.event_name != 'pull_request') }}"
     uses: mosip/kattu/.github/workflows/maven-sonar-analysis.yml@master-java21
     with:
       SERVICE_LOCATION: ./apitest
