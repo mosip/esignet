@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -400,6 +401,79 @@ public class DpopValidationFilterTest {
         String wwwAuthenticate = response.getHeader("WWW-Authenticate");
         assertNotNull(wwwAuthenticate);
         assertTrue(wwwAuthenticate.contains("error=\"invalid_request\""));
+    }
+
+    /**
+     * Builds a DPoP proof JWT with a caller-controlled iat so we can drive the
+     * iat-anchored TTL formula in {@code replayCheck}.
+     */
+    private String createDpopJwtWithCustomIat(String httpMethod, String htuClaim, Instant iat) throws Exception {
+        JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.ES256)
+                .type(new JOSEObjectType("dpop+jwt"))
+                .jwk(ecJwk.toPublicJWK())
+                .build();
+
+        JWTClaimsSet claims = new JWTClaimsSet.Builder()
+                .jwtID(UUID.randomUUID().toString())
+                .claim("htm", httpMethod)
+                .claim("htu", htuClaim)
+                .issueTime(Date.from(iat))
+                .build();
+
+        SignedJWT signedJWT = new SignedJWT(header, claims);
+        signedJWT.sign(new ECDSASigner(ecJwk.toECPrivateKey()));
+        return signedJWT.serialize();
+    }
+
+    /**
+     * Happy path — verifies that the TTL handed to the JTI cache equals
+     * {@code maxDPOPIatAgeSeconds + 2 * maxClockSkewSeconds} when iat = now.
+     * With the configured defaults (60 + 2*10), the expected TTL is ~80s.
+     */
+    @Test
+    public void testDpopHeader_replayCheck_capturesIatAnchoredTtl() throws Exception {
+        String dpopJwt = createDpopJwtWithAllClaims("POST", "http://localhost/oauth/par", null, false);
+
+        request.setRequestURI("/oauth/par");
+        request.addHeader("DPoP", dpopJwt);
+        request.setMethod("POST");
+
+        ArgumentCaptor<Long> ttlCaptor = ArgumentCaptor.forClass(Long.class);
+        when(cacheUtilService.checkAndMarkJti(anyString(), ttlCaptor.capture())).thenReturn(false);
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
+        long ttl = ttlCaptor.getValue();
+        // iat ≈ now ⇒ expirySec = now + 60 + 20 ⇒ TTL ≈ 80s (allow ±2s for scheduling jitter)
+        assertTrue(ttl >= 78 && ttl <= 80,
+                "Expected TTL ~80s (maxDPOPIatAgeSeconds + 2*maxClockSkewSeconds), got " + ttl);
+    }
+
+    /**
+     * Confirms TTL is anchored to {@code iat}, not to "now":
+     * a proof issued 30s ago must shrink the cache entry's lifetime by ~30s.
+     * Expected TTL = (iat - 30) + 60 + 20 - now  ≈  50s.
+     */
+    @Test
+    public void testDpopHeader_replayCheck_olderIat_shortensTtl() throws Exception {
+        String dpopJwt = createDpopJwtWithCustomIat("POST", "http://localhost/oauth/par",
+                Instant.now().minusSeconds(30));
+
+        request.setRequestURI("/oauth/par");
+        request.addHeader("DPoP", dpopJwt);
+        request.setMethod("POST");
+
+        ArgumentCaptor<Long> ttlCaptor = ArgumentCaptor.forClass(Long.class);
+        when(cacheUtilService.checkAndMarkJti(anyString(), ttlCaptor.capture())).thenReturn(false);
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
+        long ttl = ttlCaptor.getValue();
+        // expirySec = (now-30) + 60 + 20 = now + 50 ⇒ TTL ≈ 50s
+        assertTrue(ttl >= 48 && ttl <= 50,
+                "Expected TTL ~50s for iat=now-30s, got " + ttl);
     }
 
 }
