@@ -71,8 +71,8 @@ Copy `.env.example` to `.env` to override defaults, or pass overrides on the com
 ```bash
 ./make.sh keys && ./make.sh build
 
-export PORT=8080
-export MOSIP_ESIGNET_HOST=http://127.0.0.1:8080
+export PORT=8088
+export MOSIP_ESIGNET_HOST=http://127.0.0.1:8088
 export DATABASE_HOST=localhost
 export DATABASE_USERNAME=esignet
 export DB_DBUSER_PASSWORD=secret
@@ -89,7 +89,7 @@ Startup log:
 time=... level=INFO msg="redis connected"   key_prefix=esignet:
 time=... level=INFO msg="client mgmt scope enforcement"  required_scope=client_mgmt  jwks_endpoint=...
 time=... level=INFO msg="authn provider selected"  provider=mosip
-time=... level=INFO msg="server listening"  addr=:8080  issuer=http://127.0.0.1:8080
+time=... level=INFO msg="server listening"  addr=:8088  issuer=http://127.0.0.1:8088
 ```
 
 Set `LOG_LEVEL=debug` for verbose tracing.
@@ -101,7 +101,7 @@ Set `LOG_LEVEL=debug` for verbose tracing.
 | Variable | Default | Purpose |
 |----------|---------|---------|
 | `LOG_LEVEL` | `info` | `debug` / `info` / `warn` / `error` |
-| `PORT` | `8088` | HTTP listen port (`make.sh` defaults to `8080`) |
+| `PORT` | `8088` | HTTP listen port (`make.sh` defaults to `8088`) |
 | `MOSIP_ESIGNET_HOST` | `http://127.0.0.1:<PORT>` | OIDC issuer, JWT `iss`, discovery base |
 | `DATA_DIR` | `./data` | Declarative YAML root (`data/config/resources/`) |
 | `CRYPTO_ENCRYPTION_KEY` | _(required)_ | Hex key for `crypto.encryption.key` in `data/deployment.yaml` |
@@ -231,44 +231,66 @@ built-in `CredentialsAuthExecutor` (no custom executor); the demo flow `decl-sun
 
 All endpoints require `Authorization: Bearer <token>` where the token carries the scope configured by `CLIENT_MGMT_REQUIRED_SCOPE` (default `client_mgmt`). The token is validated against the JWKS endpoint.
 
-Responses follow the envelope `{"response": {...}}` on success and `{"errors": [{"errorCode": "...", "errorMessage": "..."}]}` on failure.
+Requests and responses use the MOSIP envelope: `{"requestTime": "...", "request": {...}}` in, `{"responseTime": "...", "response": {"clientId", "status"}, "errors": []}` out. Validation failures return HTTP 200 with a populated `errors` array and documented `errorCode` values.
 
-### Create OIDC client
+### Current API (`/client-mgmt/client`)
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| POST | `/client-mgmt/client` | Create client (v3 schema) |
+| PUT | `/client-mgmt/client/{client_id}` | Full update; `status` is `active` or `inactive` in the request body |
+| PATCH | `/client-mgmt/client/{client_id}` | Partial update; all fields optional; `status` is `ACTIVE` or `INACTIVE`; supports nullable `encPublicKey` for JWE userinfo |
+| GET | `/client-mgmt/client/{client_id}` | Fetch client metadata (engine use) |
+
+v3 create requires `clientId`, `clientName`, `clientNameLangMap`, `relyingPartyId`, `logoUri`, `authContextRefs`, `publicKey`, `userClaims`, `grantTypes`, and `clientAuthMethods`. `redirectUris` and `additionalConfig` are optional. `clientNameLangMap` is stored in `client_detail.name` as JSON with `@none` set to `clientName`.
+
+`additionalConfig` supports `userinfo_response_type` (`JWS`/`JWE`), `purpose`, consent/UI flags, PAR, and DPoP settings. The JSON object is validated and persisted verbatim.
+
+### Deprecated aliases (backward compatibility)
+
+| Path | Difference from `/client-mgmt/client` |
+|------|---------------------------------------|
+| `/client-mgmt/oidc-client` | No `clientNameLangMap` or `additionalConfig`; PUT allows only four `authContextRefs` values |
+| `/client-mgmt/oauth-client` | Requires `clientNameLangMap`; no `additionalConfig` |
+
+### Example create (v3)
 
 ```http
-POST /client-mgmt/oidc-client
+POST /client-mgmt/client
 ```
 
 ```json
 {
-  "client_id": "my-app",
-  "client_name": "My Application",
-  "rp_id": "rp-001",
-  "logo_uri": "https://example.com/logo.png",
-  "redirect_uris": ["https://example.com/callback"],
-  "claims": ["sub", "email"],
-  "acr_values": ["mosip:idp:acr:static-code"],
-  "public_key": "{\"kty\":\"RSA\",\"n\":\"...\",\"e\":\"AQAB\"}",
-  "grant_types": ["authorization_code"],
-  "client_auth_methods": ["private_key_jwt"]
+  "requestTime": "2024-01-01T00:00:00Z",
+  "request": {
+    "clientId": "my-app",
+    "clientName": "My Application",
+    "clientNameLangMap": {"eng": "My Application"},
+    "relyingPartyId": "rp-001",
+    "logoUri": "https://example.com/logo.png",
+    "redirectUris": ["https://example.com/callback"],
+    "userClaims": ["name", "email"],
+    "authContextRefs": ["mosip:idp:acr:static-code"],
+    "publicKey": {"kty": "RSA", "n": "...", "e": "AQAB"},
+    "grantTypes": ["authorization_code"],
+    "clientAuthMethods": ["private_key_jwt"],
+    "additionalConfig": {
+      "userinfo_response_type": "JWS",
+      "consent_expire_in_mins": 30
+    }
+  }
 }
 ```
 
-The `public_key` hash is stored for uniqueness enforcement. `enc_public_key` and `enc_public_key_cert` are optional. Status defaults to `ACTIVE`.
+The `public_key` hash is stored for uniqueness enforcement. `enc_public_key` and `enc_public_key_cert` are optional on create; PATCH can set or clear `encPublicKey`. Status defaults to `ACTIVE` on create.
 
-### Update OIDC client
-
-```http
-PUT /client-mgmt/oidc-client/{client_id}
-```
-
-Mutable fields: `client_name`, `logo_uri`, `redirect_uris`, `claims`, `acr_values`, `grant_types`, `client_auth_methods`, `status`, `additional_config`. `rp_id` and `public_key` are immutable after creation.
-
-### Get OIDC client
+### Update (PUT)
 
 ```http
-GET /client-mgmt/oidc-client/{client_id}
+PUT /client-mgmt/client/{client_id}
 ```
+
+Mutable fields: `clientName`, `clientNameLangMap`, `logoUri`, `redirectUris`, `userClaims`, `authContextRefs`, `grantTypes`, `clientAuthMethods`, `status`, `additionalConfig`. `relyingPartyId` and `publicKey` are immutable after creation.
 
 ### Database schema
 
@@ -315,7 +337,7 @@ curl -s http://127.0.0.1:8088/health
 ./make.sh docker-build
 
 docker run --rm -p 8088:8088 \
-  -e MOSIP_ESIGNET_HOST=http://127.0.0.1:8080 \
+  -e MOSIP_ESIGNET_HOST=http://127.0.0.1:8088 \
   -e CRYPTO_ENCRYPTION_KEY=your-64-char-hex-key \
   -e POSTGRES_URL=postgres://esignet:secret@host.docker.internal:5432/mosip_esignet?sslmode=disable \
   -e REDIS_URL=redis://host.docker.internal:6379/0 \
@@ -326,7 +348,7 @@ docker run --rm -p 8088:8088 \
 On first start the entrypoint generates signing keys if absent. Data is baked in at `/home/mosip/data`.
 
 ```bash
-./make.sh smoke BASE_URL=http://127.0.0.1:8088 DEFAULT_AUTH_FLOW_ID=decl-flow-1
+./make.sh smoke BASE_URL=http://127.0.0.1:8088 
 ```
 
 ## Demo credentials
@@ -336,7 +358,7 @@ On first start the entrypoint generates signing keys if absent. Data is baked in
 | Username | `decl-user-1` |
 | Password | `TempPassword123!` |
 | Application | `decl-app-1` |
-| OAuth client | `decl-public-client-1` |
+| OAuth client | `decl-jwt-client-1` |
 | Redirect URI | `https://localhost:3000` |
 
 ## Postman
@@ -345,15 +367,15 @@ On first start the entrypoint generates signing keys if absent. Data is baked in
 2. Import `postman/embedder-positive-flow.json`
 3. Run **0 — Shared setup**, then **1 — App-native flow** or **2 — Full OAuth (PKCE)** in order
 
-Folder **2** is a linear sequence: PKCE setup → authorize (no redirect follow) → flow resume → credentials → auth callback → token → userinfo. Start the server with `MOSIP_ESIGNET_HOST` matching `baseUrl` in the environment (e.g. `http://127.0.0.1:8080`) before running OAuth steps.
+Folder **2** is a linear sequence: PKCE setup → authorize (no redirect follow) → flow resume → credentials → auth callback → token → userinfo. Start the server with `MOSIP_ESIGNET_HOST` matching `baseUrl` in the environment (e.g. `http://127.0.0.1:8088`) before running OAuth steps.
 
 Folder **3** (MOSIP OTP) requires `AUTHN_PROVIDER=mosip` and MOSIP variables (see `.env.example`). Set `individualId` and `otp` in the Postman environment before running.
 
-Folder **4** (Client management) requires PostgreSQL with the `client_detail` table, `CLIENT_MGMT_ISSUER_URL` and `CLIENT_MGMT_JWKS_ENDPOINT` matching `baseUrl`, and `clientMgmtToken` set to a Bearer JWT carrying the `client_mgmt` scope. Run **Create OIDC client** → **Get OIDC client** → **Update OIDC client** in order.
+Folder **4** (Client management) requires PostgreSQL with the `client_detail` table. When scope enforcement is enabled, set `CLIENT_MGMT_ISSUER_URL` and `CLIENT_MGMT_JWKS_ENDPOINT` to match `baseUrl`, and `clientMgmtToken` to a Bearer JWT carrying the `client_mgmt` scope. Run **Create client** → **Get client** → **Update client** in order against `POST/GET/PUT /client-mgmt/client`.
 
 ## OAuth
 
-Authorize redirects to the gate client (`http://127.0.0.1:3000/signin?...` by default via `OIDC_UI_*`) with `executionId`, `authId`, and related query parameters. Postman folder 2 parses that redirect without following it (`followRedirects: false` on authorize). The public client uses PKCE; no client secret is required.
+Authorize redirects to the gate client (`http://127.0.0.1:3000/signin?...` by default via `OIDC_UI_*`) with `executionId`, `authId`, and related query parameters. Postman folder 2 parses that redirect without following it (`followRedirects: false` on authorize). OAuth clients are confidential and use `private_key_jwt` at the token endpoint (with PKCE on authorize).
 
 End-to-end check (server must be running with `MOSIP_ESIGNET_HOST` matching `BASE_URL`):
 
@@ -363,4 +385,6 @@ End-to-end check (server must be running with `MOSIP_ESIGNET_HOST` matching `BAS
 BASE_URL=http://127.0.0.1:8088 ./scripts/oauth-smoke.sh
 ```
 
-Each step prints `PASS` or `FAIL` to the console (authorize → flow → callback → token → userinfo), then a short summary (exit code 1 if any step failed).
+Each step prints `PASS` or `FAIL` to the console (authorize → flow → callback → token → userinfo, then client-mgmt create → get → update), then a short summary (exit code 1 if any step failed).
+
+`./make.sh smoke` also runs `scripts/client-mgmt-smoke.sh` against `POST/GET/PUT /client-mgmt/client`. Set `SKIP_CLIENT_MGMT_SMOKE=1` to skip. When `CLIENT_MGMT_ISSUER_URL` is set, the script signs a management token with `keys/signing.key` and the engine JWKS `kid`.

@@ -4,6 +4,7 @@ package engine
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/host"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/runtime"
@@ -88,29 +89,60 @@ func inboundClientFromDB(client clientmgmt.ClientResponse, cfg Config) *host.Inb
 	if len(client.AuthMethods) > 0 {
 		tokenAuthMethod = client.AuthMethods[0]
 	}
-	pkceRequired := client.AdditionalConfig["require_pkce"] == "true" ||
-		client.AdditionalConfig["pkce_required"] == "true"
+	pkceRequired := configBool(client.AdditionalConfig, "require_pkce") ||
+		configBool(client.AdditionalConfig, "pkce_required")
+
+	var certificate *host.Certificate
+	if client.PublicKey != "" {
+		certValue := client.PublicKey
+		var parsed map[string]json.RawMessage
+		if err := json.Unmarshal([]byte(certValue), &parsed); err == nil {
+			if _, hasKeys := parsed["keys"]; !hasKeys {
+				certValue = fmt.Sprintf(`{"keys":[%s]}`, certValue)
+			}
+		}
+		certificate = &host.Certificate{
+			Type:  "JWKS",
+			Value: certValue,
+		}
+	}
+
 	return &host.InboundClient{
-		ClientID:                client.ClientID,
-		EntityID:                client.ClientID,
-		ApplicationID:           client.RpID,
-		OUID:                    client.RpID,
-		LogoURL:                 client.LogoURI,
-		GrantTypes:              client.GrantTypes,
-		RedirectURIs:            client.RedirectURIs,
-		ResponseTypes:           []string{"code"},
-		TokenEndpointAuthMethod: tokenAuthMethod,
-		PKCERequired:            pkceRequired,
-		PublicClient:            false,
-		Certificate: &host.Certificate{
-			Type:  "JWK",
-			Value: client.PublicKey,
-		},
+		ClientID:                  client.ClientID,
+		EntityID:                  client.ClientID,
+		ApplicationID:             client.RpID,
+		OUID:                      client.RpID,
+		LogoURL:                   client.LogoURI,
+		GrantTypes:                client.GrantTypes,
+		RedirectURIs:              client.RedirectURIs,
+		ResponseTypes:             []string{"code"},
+		TokenEndpointAuthMethod:   tokenAuthMethod,
+		PKCERequired:              pkceRequired,
+		PublicClient:              false,
+		Certificate:               certificate,
 		AuthFlowID:                cfg.AuthFlowID,
 		RegistrationFlowID:        cfg.RegistrationFlowID,
 		IsRegistrationFlowEnabled: false,
 		RecoveryFlowID:            cfg.RecoveryFlowID,
 		IsRecoveryFlowEnabled:     false,
+	}
+}
+
+func configBool(cfg map[string]any, key string) bool {
+	if cfg == nil {
+		return false
+	}
+	v, ok := cfg[key]
+	if !ok {
+		return false
+	}
+	switch b := v.(type) {
+	case bool:
+		return b
+	case string:
+		return b == "true"
+	default:
+		return false
 	}
 }
 

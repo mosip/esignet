@@ -3,11 +3,12 @@ set -uo pipefail
 
 BASE_URL="${BASE_URL:-http://127.0.0.1:8080}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=smoke-client-lib.sh
+source "${SCRIPT_DIR}/smoke-client-lib.sh"
 REDIRECT_URI="https://localhost:3000"
 SCOPE="openid profile email"
 USERNAME="decl-user-1"
 PASSWORD="TempPassword123!"
-PUBLIC_CLIENT_ID="decl-public-client-1"
 JWT_CLIENT_ID="decl-jwt-client-1"
 JWT_CLIENT_KEY="${JWT_CLIENT_KEY:-${SCRIPT_DIR}/fixtures/smoke-jwt-client.key}"
 JWT_CLIENT_KID_FILE="${SCRIPT_DIR}/fixtures/smoke-jwt-client.kid"
@@ -123,7 +124,11 @@ EOF
 	if [ "$EXEC_HTTP" = "200" ] && [ "$FLOW_STATUS" = "COMPLETE" ] && [ -n "$ASSERT" ] && [ "$ASSERT" != "null" ]; then
 		pass "POST /flow/execute (credentials) → COMPLETE + assertion"
 	else
-		fail "POST /flow/execute (credentials) → COMPLETE + assertion" "HTTP ${EXEC_HTTP} flowStatus=${FLOW_STATUS:-<none>}"
+		flow_hint=""
+		if jq -e '.data.actions[]? | select(.ref == "action_submit_individual_id")' "$exec_json" >/dev/null 2>&1; then
+			flow_hint=" (server is on MOSIP OTP flow; set DEFAULT_AUTH_FLOW_ID=decl-flow-1 for mock/credentials smoke and restart)"
+		fi
+		fail "POST /flow/execute (credentials) → COMPLETE + assertion" "HTTP ${EXEC_HTTP} flowStatus=${FLOW_STATUS:-<none>}${flow_hint}"
 		return 1
 	fi
 
@@ -206,9 +211,12 @@ EOF
 echo "OAuth smoke test — ${BASE_URL}"
 echo ""
 
-if ! run_oauth_flow "Public client (PKCE)" "$PUBLIC_CLIENT_ID" "none"; then
+if ! ensure_smoke_oauth_clients; then
+	fail "ensure smoke OAuth clients" "client-mgmt create failed (is PostgreSQL running?)"
 	summary
 fi
+echo "Smoke OAuth clients ready"
+echo ""
 
 if ! run_oauth_flow "Confidential client (private_key_jwt)" "$JWT_CLIENT_ID" "private_key_jwt"; then
 	summary
