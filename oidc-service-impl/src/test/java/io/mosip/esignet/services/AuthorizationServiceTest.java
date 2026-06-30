@@ -246,7 +246,6 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setRequest("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."); // Setting request parameter
 
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
-        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
 
         try {
             authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
@@ -272,7 +271,6 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setPrompt("none"); // Setting unsupported prompt value
 
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
-        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
 
         try {
             authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
@@ -298,7 +296,6 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setPrompt("login"); // Setting unsupported prompt value
 
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
-        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
 
         try {
             authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
@@ -324,7 +321,6 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setPrompt("consent login"); // Space-delimited prompt containing unsupported value
 
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
-        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
 
         try {
             authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
@@ -355,7 +351,6 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setNonce("test-nonce");
 
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
-        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(new ArrayList<>());
 
         OAuthDetailResponseV1 oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
@@ -380,7 +375,6 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setNonce("test-nonce");
 
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
-        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(new ArrayList<>());
 
         OAuthDetailResponseV1 oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
@@ -413,7 +407,6 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setAcrValues("level4");
 
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
-        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(new ArrayList<>());
 
         OAuthDetailResponseV1 oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
@@ -446,7 +439,6 @@ public class AuthorizationServiceTest {
 
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(new ArrayList<>());
-        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
 
         OAuthDetailResponseV1 oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
         Assertions.assertNotNull(oauthDetailResponse);
@@ -477,7 +469,6 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setAcrValues("mosip:idp:acr:generated-code");
 
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
-        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:generated-code"})).thenReturn(new ArrayList<>());
 
         OAuthDetailResponseV1 oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
@@ -502,7 +493,6 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setNonce("test-nonce");
 
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
-        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
 
         try {
             authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
@@ -530,7 +520,6 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setNonce("test-nonce");
 
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
-        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
         List<List<AuthenticationFactor>> authFactors = new ArrayList<>();
         authFactors.add(Collections.emptyList());
         authFactors.add(Collections.emptyList());
@@ -560,7 +549,6 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setNonce("test-nonce");
 
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
-        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
         List<List<AuthenticationFactor>> authFactors = new ArrayList<>();
         authFactors.add(Collections.emptyList());
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:linked-wallet"})).thenReturn(authFactors);
@@ -591,8 +579,6 @@ public class AuthorizationServiceTest {
         //NOTE: if order differs then below mock will not be used, hence will not return null
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:linked-wallet",
                 "mosip:idp:acr:generated-code"})).thenReturn(null);
-        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
-
         OAuthDetailResponseV1 oauthDetailResponse = authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
         Assertions.assertNotNull(oauthDetailResponse);
         Assertions.assertNull(oauthDetailResponse.getAuthFactors());
@@ -621,7 +607,6 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setAcrValues("mosip:idp:acr:biometrics mosip:idp:acr:generated-code");
 
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
-        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
         List<List<AuthenticationFactor>> authFactors = new ArrayList<>();
         authFactors.add(Collections.emptyList());
         //Highest priority is given to ACR in claims request parameter
@@ -653,7 +638,6 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setAcrValues("mosip:idp:acr:wallet");
 
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
-        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
 
         try {
             authorizationServiceImpl.getOauthDetails(oauthDetailRequest);
@@ -711,10 +695,11 @@ public class AuthorizationServiceTest {
         oauthDetailReqDto.setIdTokenHint("invalid_id_token_hint");
 
         when(clientManagementService.getClientDetails("test-client")).thenReturn(clientDetail);
-        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
         List<List<AuthenticationFactor>> authFactors = new ArrayList<>();
         authFactors.add(Collections.emptyList());
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(authFactors);
+        // Mock tokenService.verifyIdToken to throw exception for invalid token
+        doThrow(new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT)).when(tokenService).verifyIdToken(anyString(), anyString());
 
         try {
             authorizationServiceImpl.getOauthDetailsV3(oauthDetailReqDto, httpServletRequest);
@@ -741,10 +726,11 @@ public class AuthorizationServiceTest {
         oauthDetailReqDto.setIdTokenHint("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.3RJf1g9bKzRC-dEj4b2Jx2yCk7Mz4oG1bZbDqGt8QxE");
 
         when(clientManagementService.getClientDetails("test-client")).thenReturn(clientDetail);
-        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
         List<List<AuthenticationFactor>> authFactors = new ArrayList<>();
         authFactors.add(Collections.emptyList());
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(authFactors);
+        // Mock tokenService.verifyIdToken to throw exception for invalid token (no proper audience)
+        doThrow(new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT)).when(tokenService).verifyIdToken(anyString(), anyString());
 
         try {
             authorizationServiceImpl.getOauthDetailsV3(oauthDetailReqDto, httpServletRequest);
@@ -772,7 +758,6 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setNonce("test-nonce");
 
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
-        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(new ArrayList<>());
 
         OAuthDetailResponseV2 oauthDetailResponseV2 = authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
@@ -804,7 +789,6 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setAcrValues("level4");
 
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
-        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(new ArrayList<>());
 
         OAuthDetailResponseV2 oauthDetailResponseV2 = authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
@@ -836,7 +820,6 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setAcrValues("mosip:idp:acr:static-code");
 
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
-        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(new ArrayList<>());
 
         OAuthDetailResponseV2 oauthDetailResponseV2 = authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
@@ -868,7 +851,6 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setAcrValues("mosip:idp:acr:generated-code");
 
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
-        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:generated-code"})).thenReturn(new ArrayList<>());
 
         OAuthDetailResponseV2 oauthDetailResponseV2 = authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
@@ -893,7 +875,6 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setNonce("test-nonce");
 
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
-        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
 
         try {
             authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
@@ -921,7 +902,6 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setNonce("test-nonce");
 
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
-        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
         List<List<AuthenticationFactor>> authFactors = new ArrayList<>();
         authFactors.add(Collections.emptyList());
         authFactors.add(Collections.emptyList());
@@ -951,7 +931,6 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setNonce("test-nonce");
 
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
-        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
         List<List<AuthenticationFactor>> authFactors = new ArrayList<>();
         authFactors.add(Collections.emptyList());
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:linked-wallet"})).thenReturn(authFactors);
@@ -979,7 +958,6 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setNonce("test-nonce");
 
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
-        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
         //NOTE: if order differs then below mock will not be used, hence will not return null
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:linked-wallet",
                 "mosip:idp:acr:generated-code"})).thenReturn(null);
@@ -1012,7 +990,6 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setAcrValues("mosip:idp:acr:biometrics mosip:idp:acr:generated-code");
 
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
-        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
         List<List<AuthenticationFactor>> authFactors = new ArrayList<>();
         authFactors.add(Collections.emptyList());
         //Highest priority is given to ACR in claims request parameter
@@ -1044,7 +1021,6 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setAcrValues("mosip:idp:acr:wallet");
 
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
-        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
 
         try {
             authorizationServiceImpl.getOauthDetailsV2(oauthDetailRequest);
@@ -1081,7 +1057,6 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setScope("sample_ldp_vc");
 
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
-        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
         List<List<AuthenticationFactor>> authFactors = new ArrayList<>();
         authFactors.add(Collections.emptyList());
         //Highest priority is given to ACR in claims request parameter
@@ -1118,11 +1093,12 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setAcrValues("mosip:idp:acr:biometrics mosip:idp:acr:generated-code");
 
         when(clientManagementService.getClientDetails(oauthDetailRequest.getClientId())).thenReturn(clientDetail);
-        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
         List<List<AuthenticationFactor>> authFactors = new ArrayList<>();
         authFactors.add(Collections.emptyList());
         //Highest priority is given to ACR in claims request parameter
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:wallet"})).thenReturn(authFactors);
+        // Mock tokenService.verifyIdToken to pass cryptographic validation
+        doNothing().when(tokenService).verifyIdToken(anyString(), anyString());
 
         oauthDetailRequest.setIdTokenHint("eyJraWQiOiJtbG02RVNRaFB5dVVsWmY0dnBZbGJTVWlSMXBXcG5jdW9kamtnRjNaNU5nIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJxWS0tNVk0VG9Ga1dUb1hKclJGbVBXUEhEWkxrY2lNTDQtX2cxTDJBNXhJIiwiYXVkIjoibW9zaXAtc2lnbnVwLW9hdXRoLWNsaWVudCIsImFjciI6Im1vc2lwOmlkcDphY3I6Z2VuZXJhdGVkLWNvZGUiLCJhdXRoX3RpbWUiOjE3MjUyNjk4ODUsImlzcyI6Imh0dHBzOlwvXC9lc2lnbmV0bDIuY2FtZGdjLXFhLm1vc2lwLm5ldFwvdjFcL2VzaWduZXQiLCJleHAiOjE3MjUyNzAwNzMsImlhdCI6MTcyNTI2OTg5Mywibm9uY2UiOiI5NzNlaWVsanpuZyJ9.VMMn92CFzGkVyx8Jwrq03KhuXOXj3wRlUoxZQQBN7MxlfIxGSX_yE7iw3JWxohzQuHticndtQX2LELcGTPhclzRop3skHCeo6ZPGJklCiRA3F5SyfCYLvDprgE_-pQhLWeECqRtW_8jFFgZSORMoxy8eBj5Vvc8q2zcoDjE-JiLZvqE9UWDRpAKzumJcD3iJvBwE-9jkzQtWZbp-tZrpPrm-KCZU6-Q3qhWU23E9DSMg_6byq4iH51TFwO0nHW1kaxhsqHvCsTX7YTvmfWXUwPVRLNZh5Uszt8EIsgpKIUDkRImqmCUbP1LwoFG55MsW67QzHNTFuR6H-4LidSKnnA");
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -1155,10 +1131,11 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setIdTokenHint("eyJraWQiOiJtbG02RVNRaFB5dVVsWmY0dnBZbGJTVWlSMXBXcG5jdW9kamtnRjNaNU5nIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJxWS0tNVk0VG9Ga1dUb1hKclJGbVBXUEhEWkxrY2lNTDQtX2cxTDJBNXhJIiwiYXVkIjoibW9zaXAtc2lnbnVwLW9hdXRoLWNsaWVudCIsImFjciI6Im1vc2lwOmlkcDphY3I6Z2VuZXJhdGVkLWNvZGUiLCJhdXRoX3RpbWUiOjE3MjUyNjk4ODUsImlzcyI6Imh0dHBzOlwvXC9lc2lnbmV0bDIuY2FtZGdjLXFhLm1vc2lwLm5ldFwvdjFcL2VzaWduZXQiLCJleHAiOjE3MjUyNzAwNzMsImlhdCI6MTcyNTI2OTg5Mywibm9uY2UiOiI5NzNlaWVsanpuZyJ9.VMMn92CFzGkVyx8Jwrq03KhuXOXj3wRlUoxZQQBN7MxlfIxGSX_yE7iw3JWxohzQuHticndtQX2LELcGTPhclzRop3skHCeo6ZPGJklCiRA3F5SyfCYLvDprgE_-pQhLWeECqRtW_8jFFgZSORMoxy8eBj5Vvc8q2zcoDjE-JiLZvqE9UWDRpAKzumJcD3iJvBwE-9jkzQtWZbp-tZrpPrm-KCZU6-Q3qhWU23E9DSMg_6byq4iH51TFwO0nHW1kaxhsqHvCsTX7YTvmfWXUwPVRLNZh5Uszt8EIsgpKIUDkRImqmCUbP1LwoFG55MsW67QzHNTFuR6H-4LidSKnnA");
 
         when(clientManagementService.getClientDetails("34567")).thenReturn(clientDetail);
-        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
         List<List<AuthenticationFactor>> authFactors = new ArrayList<>();
         authFactors.add(Collections.emptyList());
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:wallet"})).thenReturn(authFactors);
+        // Mock tokenService.verifyIdToken to pass cryptographic validation (but audience mismatch will be caught later)
+        doNothing().when(tokenService).verifyIdToken(anyString(), anyString());
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setCookies(new Cookie("qY--5Y4ToFkWToXJrRFmPWPHDZLkciML4-_g1L2A5xI", "5Y4ToFkWToXJrRFmPWPHDZLkciML4" + SERVER_NONCE_SEPARATOR + "test-state"));
@@ -1186,10 +1163,11 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setNonce("test-nonce");
 
         when(clientManagementService.getClientDetails("mosip-signup-oauth-client")).thenReturn(clientDetail);
-        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
         List<List<AuthenticationFactor>> authFactors = new ArrayList<>();
         authFactors.add(Collections.emptyList());
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:generated-code"})).thenReturn(authFactors);
+        // Mock tokenService.verifyIdToken to pass cryptographic validation
+        doNothing().when(tokenService).verifyIdToken(anyString(), anyString());
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         try {
@@ -1217,10 +1195,11 @@ public class AuthorizationServiceTest {
         oauthDetailRequest.setIdTokenHint("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
 
         when(clientManagementService.getClientDetails("test-client")).thenReturn(clientDetail);
-        when(cacheUtilService.checkNonce(anyString())).thenReturn(1L);
         List<List<AuthenticationFactor>> authFactors = new ArrayList<>();
         authFactors.add(Collections.emptyList());
         when(authenticationContextClassRefUtil.getAuthFactors(new String[]{"mosip:idp:acr:static-code"})).thenReturn(authFactors);
+        // Mock tokenService.verifyIdToken to throw exception for invalid/wrong audience tokens
+        doThrow(new EsignetException(ErrorConstants.INVALID_ID_TOKEN_HINT)).when(tokenService).verifyIdToken(anyString(), anyString());
 
         MockHttpServletRequest request = new MockHttpServletRequest();
 

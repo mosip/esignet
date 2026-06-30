@@ -20,14 +20,15 @@ import java.util.UUID;
 
 import javax.security.auth.x500.X500Principal;
 
-import io.mosip.esignet.core.constants.ErrorConstants;
 import org.bouncycastle.x509.X509V3CertificateGenerator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 
+import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 
@@ -36,6 +37,14 @@ public class IdentityProviderUtilTest {
 
     @Test
     public void validateRedirectURIPositiveTest() throws EsignetException {
+        // Simulate Spring initialisation by wiring a configured RedirectURLValidator into
+        // the static field via the same @PostConstruct path used at runtime.
+        IdentityProviderUtil util = new IdentityProviderUtil();
+        org.springframework.test.util.ReflectionTestUtils.setField(util, "springManagedUrlValidator",
+                new io.mosip.esignet.core.validator.RedirectURLValidator(
+                        new String[]{"corp", "internal"}));
+        org.springframework.test.util.ReflectionTestUtils.invokeMethod(util, "initStaticUrlValidator");
+
         IdentityProviderUtil.validateRedirectURI(Arrays.asList("https://api.dev.mosip.net/**"),
                 "https://api.dev.mosip.net/home/test");
         IdentityProviderUtil.validateRedirectURI(Arrays.asList("https://api.dev.mosip.net/home/test"),
@@ -48,6 +57,10 @@ public class IdentityProviderUtilTest {
                 "https://api.dev.mosip.net/home/testament?rr=rrr");
         IdentityProviderUtil.validateRedirectURI(Arrays.asList("io.mosip.residentapp://oauth"),
                 "io.mosip.residentapp://oauth");
+        IdentityProviderUtil.validateRedirectURI(Arrays.asList("https://sso.idp.corp/callback"),
+                "https://sso.idp.corp/callback");
+        IdentityProviderUtil.validateRedirectURI(Arrays.asList("https://portal.company.internal/**"),
+                "https://portal.company.internal/auth/callback");
     }
 
     @Test

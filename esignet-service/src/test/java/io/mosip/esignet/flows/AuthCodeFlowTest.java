@@ -30,22 +30,16 @@ import io.mosip.esignet.repository.ClientDetailRepository;
 import io.mosip.esignet.core.spi.TokenService;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
 import io.mosip.esignet.core.constants.Constants;
-import io.mosip.esignet.services.CacheUtilService;
 import lombok.extern.slf4j.Slf4j;
 import org.jose4j.jwe.JsonWebEncryption;
 import org.json.simple.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.redis.connection.RedisConnection;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.RedisScriptingCommands;
-import org.springframework.data.redis.connection.ReturnType;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -61,8 +55,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static io.mosip.esignet.core.constants.Constants.UTC_DATETIME_PATTERN;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -85,8 +77,6 @@ public class AuthCodeFlowTest {
     @Autowired
     private Authenticator authenticationWrapper;
 
-    @Autowired
-    private CacheUtilService cacheUtilService;
 
     @Autowired
     private TokenService tokenService;
@@ -118,17 +108,6 @@ public class AuthCodeFlowTest {
         mockDiscoveryMap.put("token_endpoint_auth_signing_alg_values_supported", Arrays.asList("RS256", "PS256","ES256"));
         mockDiscoveryMap.put("issuer",clientId);
 
-        RedisScriptingCommands redisScriptingCommands = Mockito.mock(RedisScriptingCommands.class);
-        RedisConnection redisConnection = Mockito.mock(RedisConnection.class);
-        RedisConnectionFactory redisConnectionFactory = Mockito.mock(RedisConnectionFactory.class);
-        when(redisConnectionFactory.getConnection()).thenReturn(redisConnection);
-        when(redisConnection.scriptingCommands()).thenReturn(redisScriptingCommands);
-        when(redisScriptingCommands.scriptExists("nonceScriptHash")).thenReturn(List.of(true));
-        when(redisScriptingCommands.evalSha(anyString(), any(ReturnType.class), anyInt(), any(), any())).thenReturn(1L);
-
-        ReflectionTestUtils.setField(cacheUtilService, "redisConnectionFactory", redisConnectionFactory);
-        ReflectionTestUtils.setField(cacheUtilService, "nonceScriptHash", "nonceScriptHash");
-        ReflectionTestUtils.setField(cacheUtilService, "nonceValidity", 86400);
         ReflectionTestUtils.setField(tokenService,"discoveryMap",mockDiscoveryMap);
     }
 

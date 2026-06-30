@@ -5,23 +5,25 @@
  */
 package io.mosip.esignet.core;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.mosip.esignet.api.dto.claim.ClaimDetail;
-import io.mosip.esignet.api.dto.claim.ClaimsV2;
-import io.mosip.esignet.api.spi.Authenticator;
-import io.mosip.esignet.core.dto.OAuthDetailRequestV2;
-import io.mosip.esignet.core.exception.EsignetException;
-import io.mosip.esignet.core.constants.Constants;
-import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
-import io.mosip.esignet.core.validator.*;
+import java.io.IOException;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
@@ -31,13 +33,36 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import static org.mockito.Mockito.when;
+import io.mosip.esignet.api.dto.claim.ClaimDetail;
+import io.mosip.esignet.api.dto.claim.ClaimsV2;
+import io.mosip.esignet.api.spi.Authenticator;
+import io.mosip.esignet.core.constants.Constants;
+import io.mosip.esignet.core.dto.OAuthDetailRequestV2;
+import io.mosip.esignet.core.exception.EsignetException;
+import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
+import io.mosip.esignet.core.validator.AuthContextRefValidator;
+import io.mosip.esignet.core.validator.ClaimsSchemaValidator;
+import io.mosip.esignet.core.validator.ClientAdditionalConfigValidator;
+import io.mosip.esignet.core.validator.ClientNameLangValidator;
+import io.mosip.esignet.core.validator.CodeChallengeValidator;
+import io.mosip.esignet.core.validator.IdFormatValidator;
+import io.mosip.esignet.core.validator.OIDCClaimValidator;
+import io.mosip.esignet.core.validator.OIDCClientAssertionTypeValidator;
+import io.mosip.esignet.core.validator.OIDCClientAuthValidator;
+import io.mosip.esignet.core.validator.OIDCDisplayValidator;
+import io.mosip.esignet.core.validator.OIDCGrantTypeValidator;
+import io.mosip.esignet.core.validator.OIDCPromptValidator;
+import io.mosip.esignet.core.validator.OIDCResponseTypeValidator;
+import io.mosip.esignet.core.validator.OIDCScopeValidator;
+import io.mosip.esignet.core.validator.OtpChannelValidator;
+import io.mosip.esignet.core.validator.PKCECodeChallengeMethodValidator;
+import io.mosip.esignet.core.validator.RedirectURLValidator;
+import io.mosip.esignet.core.validator.RequestTimeValidator;
+import io.mosip.esignet.core.validator.SignatureFormatValidator;
 
 
 @MockitoSettings(strictness = Strictness.WARN)
@@ -621,7 +646,7 @@ public class ValidatorTest {
 
     @Test
     public void test_redirectURLValidator_withValidValues_thenPass() {
-        RedirectURLValidator validator = new RedirectURLValidator();
+        RedirectURLValidator validator = new RedirectURLValidator(new String[0]);
         Assertions.assertTrue(validator.isValid("https://domain.com/test", null));
         Assertions.assertTrue(validator.isValid("http://localhost:9090/png", null));
         Assertions.assertTrue(validator.isValid("http://domain.com/*", null));
@@ -632,7 +657,7 @@ public class ValidatorTest {
 
     @Test
     public void test_redirectURLValidator_withInvalidValues_thenFail() {
-        RedirectURLValidator validator = new RedirectURLValidator();
+        RedirectURLValidator validator = new RedirectURLValidator(new String[0]);
         Assertions.assertFalse(validator.isValid("*", null));
         Assertions.assertFalse(validator.isValid("https://domain*", null));
         Assertions.assertFalse(validator.isValid("io.mosip.residentapp://*", null));
