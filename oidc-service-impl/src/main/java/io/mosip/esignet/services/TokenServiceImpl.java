@@ -247,9 +247,12 @@ public class TokenServiceImpl implements TokenService {
                 new JwtIssuerValidator(clientId),
                 new JwtClaimValidator<Instant>(JwtClaimNames.IAT, Objects::nonNull),
                 new JwtClaimValidator<Instant>(JwtClaimNames.EXP, Objects::nonNull),
-                new JwtClaimValidator<List<String>>(JwtClaimNames.AUD, aud ->
-                        aud != null && aud.stream().anyMatch(audience::contains)
-                ),
+                new JwtClaimValidator<List<String>>(JwtClaimNames.AUD, aud -> {
+                    if (audience.size() == 1) {
+                        return aud != null && aud.size() == 1 && audience.contains(aud.getFirst());
+                    }
+                    return aud != null && aud.stream().anyMatch(audience::contains);
+                }),
                 new JwtClaimValidator<String>(JwtClaimNames.SUB, clientId::equals),
                 new JwtClaimValidator<String>(JwtClaimNames.JTI, jti ->
                         jti != null && !jti.trim().isEmpty()
