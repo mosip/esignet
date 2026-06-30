@@ -188,6 +188,8 @@ func (h *Handler) handleServiceError(w http.ResponseWriter, err error, op string
 		writeSpecError(w, "duplicate_client_id", "client id already exists")
 	case errors.Is(err, ErrDuplicatePublicKey):
 		writeSpecError(w, "invalid_public_key", "public key is already registered")
+	case errors.Is(err, ErrClientConflict):
+		writeSpecError(w, "invalid_input", "client was modified concurrently; retry the request")
 	default:
 		h.logger.Error(op, applog.Error(err))
 		writeJSON(w, http.StatusInternalServerError, ResponseWrapper{

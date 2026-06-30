@@ -104,11 +104,14 @@ func (p *mosipAuthnProvider) Authenticate(_ context.Context, identifiers, creden
 	authRequest := &AuthRequest{
 		Timestamp: requestTime,
 	}
+	credentialSet := false
 
 	if otp, ok := credentials["otp"].(string); ok && otp != "" {
 		authRequest.OTP = otp
+		credentialSet = true
 	} else if password, ok := credentials["password"].(string); ok && password != "" {
 		authRequest.Password = password
+		credentialSet = true
 	} else if encodedBiometric, ok := credentials["biometric"].(string); ok && encodedBiometric != "" {
 		decodedBiometric, err := B64Decode(encodedBiometric)
 		if err != nil {
@@ -118,7 +121,14 @@ func (p *mosipAuthnProvider) Authenticate(_ context.Context, identifiers, creden
 		if err := json.Unmarshal(decodedBiometric, &biometrics); err != nil {
 			return nil, fmt.Errorf("failed to unmarshal biometric data: %w", err)
 		}
+		if len(biometrics) == 0 {
+			return nil, errors.New("missing or invalid biometric data")
+		}
 		authRequest.Biometrics = biometrics
+		credentialSet = true
+	}
+	if !credentialSet {
+		return nil, errors.New("missing or invalid credentials")
 	}
 	authRequestBytes, err := json.Marshal(authRequest)
 	if err != nil {
@@ -213,7 +223,7 @@ func (p *mosipAuthnProvider) GetAttributes(_ context.Context, token string, requ
 		RequestTime:     GetUTCDateTime(),
 		TransactionID:   transactionID,
 		KycToken:        kycToken,
-		ConsentObtained: consentedAttributes, // assuming consent is obtained if there are requested attributes
+		ConsentObtained: true,
 		Locales:         []string{"eng"},
 		RespType:        "JWT",
 		IndividualID:    username,

@@ -186,37 +186,58 @@ func DecodePatchRequest(data []byte) (PatchClientRequest, PatchFields, error) {
 	if err := json.Unmarshal(reqObj, &reqMap); err != nil {
 		return PatchClientRequest{}, PatchFields{}, err
 	}
+	if reqMap == nil {
+		return PatchClientRequest{}, PatchFields{}, fmt.Errorf("invalid request")
+	}
 	var req PatchClientRequest
 	var fields PatchFields
 	for k, v := range reqMap {
 		switch k {
 		case "clientName":
 			fields.ClientName = true
-			_ = json.Unmarshal(v, &req.ClientName)
+			if err := json.Unmarshal(v, &req.ClientName); err != nil {
+				return PatchClientRequest{}, PatchFields{}, err
+			}
 		case "clientNameLangMap":
 			fields.ClientNameLangMap = true
-			_ = json.Unmarshal(v, &req.ClientNameLangMap)
+			if err := json.Unmarshal(v, &req.ClientNameLangMap); err != nil {
+				return PatchClientRequest{}, PatchFields{}, err
+			}
 		case "status":
 			fields.Status = true
-			_ = json.Unmarshal(v, &req.Status)
+			if err := json.Unmarshal(v, &req.Status); err != nil {
+				return PatchClientRequest{}, PatchFields{}, err
+			}
 		case "logoUri":
 			fields.LogoURI = true
-			_ = json.Unmarshal(v, &req.LogoURI)
+			if err := json.Unmarshal(v, &req.LogoURI); err != nil {
+				return PatchClientRequest{}, PatchFields{}, err
+			}
 		case "redirectUris":
 			fields.RedirectURIs = true
-			_ = json.Unmarshal(v, &req.RedirectURIs)
+			if err := json.Unmarshal(v, &req.RedirectURIs); err != nil {
+				return PatchClientRequest{}, PatchFields{}, err
+			}
 		case "userClaims":
 			fields.Claims = true
-			_ = json.Unmarshal(v, &req.Claims)
+			if err := json.Unmarshal(v, &req.Claims); err != nil {
+				return PatchClientRequest{}, PatchFields{}, err
+			}
 		case "authContextRefs":
 			fields.AcrValues = true
-			_ = json.Unmarshal(v, &req.AcrValues)
+			if err := json.Unmarshal(v, &req.AcrValues); err != nil {
+				return PatchClientRequest{}, PatchFields{}, err
+			}
 		case "grantTypes":
 			fields.GrantTypes = true
-			_ = json.Unmarshal(v, &req.GrantTypes)
+			if err := json.Unmarshal(v, &req.GrantTypes); err != nil {
+				return PatchClientRequest{}, PatchFields{}, err
+			}
 		case "clientAuthMethods":
 			fields.AuthMethods = true
-			_ = json.Unmarshal(v, &req.AuthMethods)
+			if err := json.Unmarshal(v, &req.AuthMethods); err != nil {
+				return PatchClientRequest{}, PatchFields{}, err
+			}
 		case "additionalConfig":
 			fields.AdditionalConfig = true
 			req.AdditionalConfig = v

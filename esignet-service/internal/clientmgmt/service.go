@@ -22,6 +22,9 @@ var ErrDuplicateClientID = errors.New("duplicate client id")
 // ErrDuplicatePublicKey is returned when the public key hash already exists.
 var ErrDuplicatePublicKey = errors.New("public key already registered")
 
+// ErrClientConflict is returned when a PATCH races with another update.
+var ErrClientConflict = errors.New("client was modified concurrently")
+
 // Service handles client management business logic.
 type Service struct {
 	q db.Querier
@@ -243,31 +246,36 @@ func (s *Service) PatchClient(ctx context.Context, clientID string, req PatchCli
 			}
 			encPK = sql.NullString{String: pkJSON, Valid: true}
 			encPKHash = sql.NullString{String: hashJWK(req.EncPublicKey.Value), Valid: true}
+			encPKCert = sql.NullString{}
 		}
 	}
 
 	now := time.Now().UTC()
 	params := db.PatchClientParams{
-		ID:               clientID,
-		Name:             marshalClientName(merged.ClientName, merged.ClientNameLangMap, ProfileClient),
-		LogoUri:          merged.LogoURI,
-		RedirectUris:     redirectURIs,
-		Claims:           claims,
-		AcrValues:        acrValues,
-		GrantTypes:       grantTypes,
-		AuthMethods:      authMethods,
-		Status:           status,
-		AdditionalConfig: additionalConfig,
-		EncPublicKey:     encPK,
-		EncPublicKeyHash: encPKHash,
-		EncPublicKeyCert: encPKCert,
-		UpdDtimes:        sql.NullTime{Time: now, Valid: true},
+		ID:                clientID,
+		Name:              marshalClientName(merged.ClientName, merged.ClientNameLangMap, ProfileClient),
+		LogoUri:           merged.LogoURI,
+		RedirectUris:      redirectURIs,
+		Claims:            claims,
+		AcrValues:         acrValues,
+		GrantTypes:        grantTypes,
+		AuthMethods:       authMethods,
+		Status:            status,
+		AdditionalConfig:  additionalConfig,
+		EncPublicKey:      encPK,
+		EncPublicKeyHash:  encPKHash,
+		EncPublicKeyCert:  encPKCert,
+		ExpectedUpdDtimes: existing.UpdDtimes,
+		UpdDtimes:         sql.NullTime{Time: now, Valid: true},
 	}
 
 	row, err := s.q.PatchClient(ctx, params)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return ClientResponse{}, ErrClientNotFound
+			return ClientResponse{}, ErrClientConflict
+		}
+		if isDuplicatePublicKeyHash(err) {
+			return ClientResponse{}, &ValidationError{Code: "invalid_public_key"}
 		}
 		return ClientResponse{}, fmt.Errorf("patch client: %w", err)
 	}

@@ -119,7 +119,7 @@ type IdaKycExchangeRequest struct {
 	RequestTime               string                   `json:"requestTime,omitempty"`
 	TransactionID             string                   `json:"transactionID,omitempty"`
 	KycToken                  string                   `json:"kycToken,omitempty"`
-	ConsentObtained           []string                 `json:"consentObtained,omitempty"`
+	ConsentObtained           bool                     `json:"consentObtained,omitempty"`
 	Locales                   []string                 `json:"locales,omitempty"`
 	RespType                  string                   `json:"respType,omitempty"`
 	IndividualID              string                   `json:"individualId,omitempty"`

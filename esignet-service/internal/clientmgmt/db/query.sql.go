@@ -147,24 +147,26 @@ UPDATE client_detail SET
 	enc_public_key_cert = $13,
 	upd_dtimes          = $14
 WHERE id = $1
+  AND upd_dtimes IS NOT DISTINCT FROM $15
 RETURNING id, name, rp_id, logo_uri, redirect_uris, claims, acr_values, public_key, public_key_hash, enc_public_key, enc_public_key_hash, enc_public_key_cert, grant_types, auth_methods, status, additional_config, cr_dtimes, upd_dtimes
 `
 
 type PatchClientParams struct {
-	ID               string         `db:"id" json:"id"`
-	Name             string         `db:"name" json:"name"`
-	LogoUri          string         `db:"logo_uri" json:"logo_uri"`
-	RedirectUris     string         `db:"redirect_uris" json:"redirect_uris"`
-	Claims           string         `db:"claims" json:"claims"`
-	AcrValues        string         `db:"acr_values" json:"acr_values"`
-	GrantTypes       string         `db:"grant_types" json:"grant_types"`
-	AuthMethods      string         `db:"auth_methods" json:"auth_methods"`
-	Status           string         `db:"status" json:"status"`
-	AdditionalConfig sql.NullString `db:"additional_config" json:"additional_config"`
-	EncPublicKey     sql.NullString `db:"enc_public_key" json:"enc_public_key"`
-	EncPublicKeyHash sql.NullString `db:"enc_public_key_hash" json:"enc_public_key_hash"`
-	EncPublicKeyCert sql.NullString `db:"enc_public_key_cert" json:"enc_public_key_cert"`
-	UpdDtimes        sql.NullTime   `db:"upd_dtimes" json:"upd_dtimes"`
+	ID                string         `db:"id" json:"id"`
+	Name              string         `db:"name" json:"name"`
+	LogoUri           string         `db:"logo_uri" json:"logo_uri"`
+	RedirectUris      string         `db:"redirect_uris" json:"redirect_uris"`
+	Claims            string         `db:"claims" json:"claims"`
+	AcrValues         string         `db:"acr_values" json:"acr_values"`
+	GrantTypes        string         `db:"grant_types" json:"grant_types"`
+	AuthMethods       string         `db:"auth_methods" json:"auth_methods"`
+	Status            string         `db:"status" json:"status"`
+	AdditionalConfig  sql.NullString `db:"additional_config" json:"additional_config"`
+	EncPublicKey      sql.NullString `db:"enc_public_key" json:"enc_public_key"`
+	EncPublicKeyHash  sql.NullString `db:"enc_public_key_hash" json:"enc_public_key_hash"`
+	EncPublicKeyCert  sql.NullString `db:"enc_public_key_cert" json:"enc_public_key_cert"`
+	UpdDtimes         sql.NullTime   `db:"upd_dtimes" json:"upd_dtimes"`
+	ExpectedUpdDtimes sql.NullTime   `db:"expected_upd_dtimes" json:"expected_upd_dtimes"`
 }
 
 func (q *Queries) PatchClient(ctx context.Context, arg PatchClientParams) (ClientDetail, error) {
@@ -183,6 +185,7 @@ func (q *Queries) PatchClient(ctx context.Context, arg PatchClientParams) (Clien
 		arg.EncPublicKeyHash,
 		arg.EncPublicKeyCert,
 		arg.UpdDtimes,
+		arg.ExpectedUpdDtimes,
 	)
 	var i ClientDetail
 	err := row.Scan(

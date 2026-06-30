@@ -2,7 +2,7 @@
   "info": {
     "name": "eSignet — positive flows",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "description": "eSignet embedder (github.com/mosip/esignet) at {{baseUrl}}.\n\nImport embedder-local.environment.json. Start the server with MOSIP_ESIGNET_HOST matching baseUrl (e.g. http://127.0.0.1:8080).\n\nRun folder **0** once, then **1** (app-native), **2** (full OAuth + userinfo), **3** (MOSIP OTP + OAuth), or **4** (client management) as needed.\n\nFolder **2** and **3** token requests use `private_key_jwt` (`client_assertion_type` + signed `client_assertion`). Run `./make.sh smoke-jwt-key`, then paste the generated private JWK JSON into `clientJwk` (folder **2**, client `decl-jwt-client-1`). For folder **3**, set `otpClientJwk` to the OTP client's private JWK matching its registered JWKS.\n\nFolder **3** requires AUTHN_PROVIDER=mosip and MOSIP_* env vars (see .env.example). Set individualId and otp in the Postman environment before running.\n\nFolder **4** requires PostgreSQL with client_detail schema, CLIENT_MGMT_ISSUER_URL and CLIENT_MGMT_JWKS_ENDPOINT matching baseUrl, and clientMgmtToken set to a Bearer JWT carrying the client_mgmt scope."
+    "description": "eSignet embedder (github.com/mosip/esignet) at {{baseUrl}}.\n\nImport embedder-local.environment.json. Start the server with MOSIP_ESIGNET_HOST matching baseUrl (e.g. http://127.0.0.1:8080).\n\nAll OAuth clients are **confidential** and must register with `clientAuthMethods: [\"private_key_jwt\"]` only. Public clients (`none`) are not supported.\n\nRun folder **0** once, then **1** (app-native), **2** (full OAuth + userinfo), **3** (MOSIP OTP + OAuth), or **4** (client management) as needed.\n\nFolder **2** registers `clientId` via client-mgmt, then runs authorize (PKCE) and exchanges the code using `private_key_jwt` (`client_assertion_type` + signed `client_assertion`). Run `./make.sh smoke-jwt-key`, then paste the generated private JWK JSON into `clientJwk`. Folder **3** uses the same token auth; set `otpClientJwk` to the private JWK matching the JWKS registered for `otpClientId`.\n\nFolder **3** requires AUTHN_PROVIDER=mosip and MOSIP_* env vars (see .env.example). Set individualId and otp in the Postman environment before running.\n\nFolder **4** requires PostgreSQL with client_detail schema. When scope enforcement is enabled, set CLIENT_MGMT_ISSUER_URL and CLIENT_MGMT_JWKS_ENDPOINT matching baseUrl, and clientMgmtToken to a Bearer JWT carrying the client_mgmt scope."
   },
   "event": [
     {
@@ -233,8 +233,74 @@
       ]
     },
     {
-      "name": "2 — Full OAuth (PKCE)",
+      "name": "2 — Full OAuth (private_key_jwt)",
       "item": [
+        {
+          "name": "Register OAuth client",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{clientMgmtToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"requestTime\": \"{{clientMgmtRequestTime}}\",\n  \"request\": {\n    \"clientId\": \"{{clientId}}\",\n    \"clientName\": \"Postman OAuth Client\",\n    \"clientNameLangMap\": { \"eng\": \"Postman OAuth Client\" },\n    \"relyingPartyId\": \"{{rpId}}\",\n    \"logoUri\": \"https://example.com/logo.png\",\n    \"redirectUris\": [\"{{redirectUri}}\"],\n    \"userClaims\": [\"name\", \"email\"],\n    \"authContextRefs\": [\"mosip:idp:acr:static-code\"],\n    \"publicKey\": {{oauthClientPublicKey}},\n    \"grantTypes\": [\"authorization_code\"],\n    \"clientAuthMethods\": [\"private_key_jwt\"],\n    \"additionalConfig\": { \"pkce_required\": true }\n  }\n}"
+            },
+            "url": "{{baseUrl}}/client-mgmt/client"
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const clientJwkRaw = pm.environment.get('clientJwk');",
+                  "if (!clientJwkRaw) {",
+                  "  throw new Error('Set clientJwk in the environment (RSA private JWK JSON; run ./make.sh smoke-jwt-key).');",
+                  "}",
+                  "const jwk = JSON.parse(clientJwkRaw);",
+                  "if (!jwk.kid || !jwk.n || !jwk.e || !jwk.d) {",
+                  "  throw new Error('clientJwk must include kid, n, e, and d');",
+                  "}",
+                  "pm.environment.set('oauthClientPublicKey', JSON.stringify({",
+                  "  kty: jwk.kty,",
+                  "  n: jwk.n,",
+                  "  e: jwk.e,",
+                  "  kid: jwk.kid,",
+                  "  alg: jwk.alg || 'RS256',",
+                  "  use: jwk.use || 'sig'",
+                  "}));",
+                  "pm.environment.set('clientMgmtRequestTime', new Date().toISOString());",
+                  "const token = pm.environment.get('clientMgmtToken');",
+                  "if (token) {",
+                  "  pm.request.headers.upsert({ key: 'Authorization', value: 'Bearer ' + token });",
+                  "} else {",
+                  "  pm.request.headers.remove('Authorization');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (pm.response.code === 200) {",
+                  "  pm.test('client registered ACTIVE', () => pm.expect(j.response.status).to.eql('ACTIVE'));",
+                  "  pm.test('clientId matches', () => pm.expect(j.response.clientId).to.eql(pm.environment.get('clientId')));",
+                  "} else {",
+                  "  const errorCode = j.errors && j.errors[0] && j.errors[0].errorCode;",
+                  "  pm.test('client already registered or duplicate', () => {",
+                  "    pm.expect(errorCode).to.eql('duplicate_client_id');",
+                  "  });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
         {
           "name": "PKCE setup",
           "event": [
@@ -460,7 +526,7 @@
       ]
     },
     {
-      "name": "3 — MOSIP OTP flow",
+      "name": "3 — MOSIP OTP (private_key_jwt)",
       "item": [
         {
           "name": "PKCE setup",
@@ -828,14 +894,31 @@
               "listen": "prerequest",
               "script": {
                 "exec": [
+                  "const clientJwkRaw = pm.environment.get('clientJwk');",
+                  "if (!clientJwkRaw) {",
+                  "  throw new Error('Set clientJwk in the environment (RSA private JWK JSON; run ./make.sh smoke-jwt-key).');",
+                  "}",
+                  "const jwk = JSON.parse(clientJwkRaw);",
+                  "if (!jwk.kid || !jwk.n || !jwk.e || !jwk.d) {",
+                  "  throw new Error('clientJwk must include kid, n, e, and d');",
+                  "}",
                   "const suffix = Date.now();",
                   "pm.environment.set('clientMgmtClientId', 'postman-client-' + suffix);",
                   "pm.environment.set('clientMgmtRequestTime', new Date().toISOString());",
                   "pm.environment.set('clientMgmtPublicKey', JSON.stringify({",
-                  "  kty: 'RSA',",
-                  "  n: 'postman-' + suffix,",
-                  "  e: 'AQAB'",
-                  "}));"
+                  "  kty: jwk.kty,",
+                  "  n: jwk.n,",
+                  "  e: jwk.e,",
+                  "  kid: jwk.kid,",
+                  "  alg: jwk.alg || 'RS256',",
+                  "  use: jwk.use || 'sig'",
+                  "}));",
+                  "const token = pm.environment.get('clientMgmtToken');",
+                  "if (token) {",
+                  "  pm.request.headers.upsert({ key: 'Authorization', value: 'Bearer ' + token });",
+                  "} else {",
+                  "  pm.request.headers.remove('Authorization');",
+                  "}"
                 ],
                 "type": "text/javascript"
               }
@@ -926,8 +1009,10 @@
           "script": {
             "exec": [
               "const token = pm.environment.get('clientMgmtToken');",
-              "if (!token) {",
-              "  throw new Error('Set clientMgmtToken in the environment: a Bearer JWT with scope client_mgmt, iss matching baseUrl, signed by the engine JWKS (see README Client management API).');",
+              "if (token) {",
+              "  pm.request.headers.upsert({ key: 'Authorization', value: 'Bearer ' + token });",
+              "} else {",
+              "  pm.request.headers.remove('Authorization');",
               "}"
             ],
             "type": "text/javascript"

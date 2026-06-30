@@ -358,7 +358,7 @@ On first start the entrypoint generates signing keys if absent. Data is baked in
 | Username | `decl-user-1` |
 | Password | `TempPassword123!` |
 | Application | `decl-app-1` |
-| OAuth client | `decl-public-client-1` |
+| OAuth client | `decl-jwt-client-1` |
 | Redirect URI | `https://localhost:3000` |
 
 ## Postman
@@ -375,7 +375,7 @@ Folder **4** (Client management) requires PostgreSQL with the `client_detail` ta
 
 ## OAuth
 
-Authorize redirects to the gate client (`http://127.0.0.1:3000/signin?...` by default via `OIDC_UI_*`) with `executionId`, `authId`, and related query parameters. Postman folder 2 parses that redirect without following it (`followRedirects: false` on authorize). The public client uses PKCE; no client secret is required.
+Authorize redirects to the gate client (`http://127.0.0.1:3000/signin?...` by default via `OIDC_UI_*`) with `executionId`, `authId`, and related query parameters. Postman folder 2 parses that redirect without following it (`followRedirects: false` on authorize). OAuth clients are confidential and use `private_key_jwt` at the token endpoint (with PKCE on authorize).
 
 End-to-end check (server must be running with `MOSIP_ESIGNET_HOST` matching `BASE_URL`):
 

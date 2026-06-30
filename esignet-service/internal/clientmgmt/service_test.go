@@ -238,6 +238,9 @@ func TestPatchClient_EncPublicKey(t *testing.T) {
 		patchFn: func(_ context.Context, arg db.PatchClientParams) (db.ClientDetail, error) {
 			assert.True(t, arg.EncPublicKey.Valid)
 			assert.Contains(t, arg.EncPublicKey.String, `"kty":"RSA"`)
+			assert.True(t, arg.EncPublicKeyHash.Valid)
+			assert.NotEmpty(t, arg.EncPublicKeyHash.String)
+			assert.False(t, arg.EncPublicKeyCert.Valid)
 			row := stubRow(arg.ID)
 			row.EncPublicKey = arg.EncPublicKey
 			return row, nil
@@ -262,6 +265,8 @@ func TestPatchClient_ClearEncPublicKey(t *testing.T) {
 		},
 		patchFn: func(_ context.Context, arg db.PatchClientParams) (db.ClientDetail, error) {
 			assert.False(t, arg.EncPublicKey.Valid)
+			assert.False(t, arg.EncPublicKeyHash.Valid)
+			assert.False(t, arg.EncPublicKeyCert.Valid)
 			return stubRow(arg.ID), nil
 		},
 	}

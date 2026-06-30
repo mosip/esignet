@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"strings"
 )
 
@@ -70,16 +71,38 @@ func hashJWK(key map[string]string) string {
 }
 
 func isValidURI(uri string) bool {
-	if uri == "" {
+	if uri == "" || len(uri) > 1024 {
 		return false
 	}
-	if strings.HasPrefix(uri, "http://") || strings.HasPrefix(uri, "https://") {
-		return len(uri) <= 1024
+	u, err := url.Parse(uri)
+	if err != nil || u.Scheme == "" {
+		return false
 	}
-	if strings.Contains(uri, "://") {
-		return len(uri) <= 1024
+	if u.Scheme == "http" || u.Scheme == "https" {
+		return u.Host != ""
 	}
-	return false
+	return u.Host != "" || u.Opaque != ""
+}
+
+// isValidRedirectURI validates a redirect URI.
+// It checks if the URI is a valid HTTP or HTTPS URI and is less than 1024 characters.
+func isValidRedirectURI(uri string) bool {
+	if uri == "" || len(uri) > 1024 {
+		return false
+	}
+	// Reject control characters and whitespace outright.
+	if strings.ContainsAny(uri, " \t\r\n") {
+		return false
+	}
+	u, err := url.Parse(uri)
+	if err != nil || u.Scheme == "" || u.Host == "" {
+		return false
+	}
+
+	// TODO: Allow App native redirect URIs for OAuth clients.
+	// TODO: Allow wildcards in redirect URIs.
+	// TODO: Allow redirect URIs TLDs
+	return true
 }
 
 func hasUniqueStrings(items []string) bool {

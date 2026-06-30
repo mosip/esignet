@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -uo pipefail
 
-BASE_URL="${BASE_URL:-http://127.0.0.1:8080}"
+BASE_URL="${BASE_URL:-http://127.0.0.1:8088}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
-SIGNING_KEY="${SIGNING_KEY:-${ROOT_DIR}/keys/signing.key}"
+# shellcheck source=smoke-client-lib.sh
+source "${SCRIPT_DIR}/smoke-client-lib.sh"
 RP_ID="${RP_ID:-decl-ou-1}"
 REDIRECT_URI="${REDIRECT_URI:-https://localhost:3000}"
 CLIENT_MGMT_SCOPE="${CLIENT_MGMT_SCOPE:-client_mgmt}"
@@ -43,69 +43,24 @@ summary() {
 	echo "Client-mgmt smoke OK"
 }
 
-mgmt_auth_header() {
-	if [ -n "$CLIENT_MGMT_ISSUER" ]; then
-		if [ ! -f "$SIGNING_KEY" ]; then
-			fail "client-mgmt auth" "missing signing key: ${SIGNING_KEY} (run ./make.sh keys)"
-			return 1
-		fi
-		local jwks kid token
-		jwks=$(curl -sf "${BASE_URL}/.well-known/jwks.json") || {
-			fail "fetch JWKS" "GET ${BASE_URL}/.well-known/jwks.json failed"
-			return 1
-		}
-		kid=$(printf '%s' "$jwks" | jq -r '.keys[0].kid // empty')
-		if [ -z "$kid" ]; then
-			fail "resolve JWKS kid" "no keys in JWKS document"
-			return 1
-		fi
-		token=$(python3 "${SCRIPT_DIR}/sign-mgmt-token.py" \
-			--issuer "$CLIENT_MGMT_ISSUER" \
-			--scope "$CLIENT_MGMT_SCOPE" \
-			--key "$SIGNING_KEY" \
-			--kid "$kid") || {
-			fail "sign client-mgmt token" "sign-mgmt-token.py failed"
-			return 1
-		}
-		printf 'Authorization: Bearer %s' "$token"
-		return 0
-	fi
-	return 0
-}
-
 run_client_mgmt_smoke() {
 	echo "Client management smoke — ${BASE_URL}"
 	echo ""
 
-	local auth_header client_id suffix create_body create_resp get_resp update_body update_resp
+	local auth_header client_id suffix create_body public_key_path public_jwk
 	auth_header=$(mgmt_auth_header) || return 1
 
 	suffix=$(date +%s)
 	client_id="smoke-client-${suffix}"
-	local public_key='{"kty":"RSA","n":"smoke-'"${suffix}"'","e":"AQAB"}'
+	public_key_path=$(generate_smoke_rsa_key) || return 1
+	trap 'rm -f "$public_key_path"' RETURN
+	public_jwk=$(extract_public_jwk "$public_key_path") || return 1
 
-	create_body=$(jq -n \
-		--arg rt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-		--arg id "$client_id" \
-		--arg rp "$RP_ID" \
-		--arg uri "$REDIRECT_URI" \
-		--argjson pk "$public_key" \
-		'{
-			requestTime: $rt,
-			request: {
-				clientId: $id,
-				clientName: "Smoke Test Client",
-				clientNameLangMap: {eng: "Smoke Test Client"},
-				relyingPartyId: $rp,
-				logoUri: "https://example.com/logo.png",
-				redirectUris: [$uri],
-				userClaims: ["name", "email"],
-				authContextRefs: ["mosip:idp:acr:static-code"],
-				publicKey: $pk,
-				grantTypes: ["authorization_code"],
-				clientAuthMethods: ["private_key_jwt"]
-			}
-		}')
+	create_body=$(build_smoke_client_create_body \
+		"$client_id" \
+		"Smoke Test Client" \
+		'["private_key_jwt"]' \
+		"$public_jwk") || return 1
 
 	local create_http create_json
 	create_json=$(mktemp)
@@ -189,7 +144,37 @@ run_client_mgmt_smoke() {
 		fail "PUT /client-mgmt/client/{id} → ACTIVE" "HTTP ${update_http}: $(head -c 300 "$update_json" 2>/dev/null)"
 	fi
 
-	rm -f "$create_json" "$get_json" "$update_json"
+	patch_body=$(jq -n \
+		--arg rt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+		'{
+			requestTime: $rt,
+			request: {
+				status: "INACTIVE"
+			}
+		}')
+
+	local patch_http patch_json
+	patch_json=$(mktemp)
+	if [ -n "$auth_header" ]; then
+		patch_http=$(curl -s -o "$patch_json" -w '%{http_code}' -X PATCH "${BASE_URL}/client-mgmt/client/${client_id}" \
+			-H 'Content-Type: application/json' \
+			-H "$auth_header" \
+			-d "$patch_body") || patch_http="000"
+	else
+		patch_http=$(curl -s -o "$patch_json" -w '%{http_code}' -X PATCH "${BASE_URL}/client-mgmt/client/${client_id}" \
+			-H 'Content-Type: application/json' \
+			-d "$patch_body") || patch_http="000"
+	fi
+
+	if [ "$patch_http" = "200" ] \
+		&& [ "$(jq -r '.response.clientId // empty' "$patch_json")" = "$client_id" ] \
+		&& [ "$(jq -r '.response.status // empty' "$patch_json")" = "INACTIVE" ]; then
+		pass "PATCH /client-mgmt/client/{id} → INACTIVE"
+	else
+		fail "PATCH /client-mgmt/client/{id} → INACTIVE" "HTTP ${patch_http}: $(head -c 300 "$patch_json" 2>/dev/null)"
+	fi
+
+	rm -f "$create_json" "$get_json" "$update_json" "$patch_json"
 	echo ""
 }
 

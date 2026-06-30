@@ -65,10 +65,11 @@ func ValidateCreate(profile Profile, req CreateClientRequest) error {
 	if err := validateLogoURI(req.LogoURI); err != nil {
 		return err
 	}
-	if len(req.RedirectURIs) > 0 {
-		if err := validateRedirectURIs(req.RedirectURIs, 0, 0); err != nil {
-			return err
-		}
+	if len(req.RedirectURIs) == 0 {
+		return validationErr("invalid_redirect_uri")
+	}
+	if err := validateRedirectURIs(req.RedirectURIs, 1, 0); err != nil {
+		return err
 	}
 	if len(req.Claims) == 0 {
 		return validationErr("invalid_claim")
@@ -236,6 +237,51 @@ func ValidatePatch(merged UpdateClientRequest, fields PatchFields) error {
 			return err
 		}
 	}
+	return validateMergedPatchState(merged)
+}
+
+func validateMergedPatchState(merged UpdateClientRequest) error {
+	if err := validateClientName(merged.ClientName); err != nil {
+		return err
+	}
+	if err := validateClientNameLangMap(merged.ClientNameLangMap, false); err != nil {
+		return err
+	}
+	if len(merged.RedirectURIs) == 0 {
+		return validationErr("invalid_redirect_uri")
+	}
+	if err := validateRedirectURIs(merged.RedirectURIs, 1, 0); err != nil {
+		return err
+	}
+	if len(merged.Claims) == 0 {
+		return validationErr("invalid_claim")
+	}
+	if err := validateClaims(merged.Claims, 1, 0); err != nil {
+		return err
+	}
+	if len(merged.AcrValues) == 0 {
+		return validationErr("invalid_acr")
+	}
+	if err := validateACRs(merged.AcrValues, allowedACRAll, 1, 0); err != nil {
+		return err
+	}
+	if len(merged.GrantTypes) == 0 {
+		return validationErr("invalid_grant_type")
+	}
+	if err := validateGrantTypes(merged.GrantTypes, 1, 0); err != nil {
+		return err
+	}
+	if len(merged.AuthMethods) == 0 {
+		return validationErr("invalid_client_auth")
+	}
+	if err := validateAuthMethods(merged.AuthMethods, 1, 0); err != nil {
+		return err
+	}
+	if len(merged.AdditionalConfig) > 0 {
+		if err := validateAdditionalConfig(merged.AdditionalConfig); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -278,7 +324,7 @@ func validateRedirectURIs(uris []string, minItems, maxItems int) error {
 		return validationErr("invalid_redirect_uri")
 	}
 	for _, u := range uris {
-		if !isValidURI(u) {
+		if !isValidRedirectURI(u) {
 			return validationErr("invalid_redirect_uri")
 		}
 	}

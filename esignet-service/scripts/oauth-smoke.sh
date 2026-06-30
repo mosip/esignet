@@ -3,11 +3,12 @@ set -uo pipefail
 
 BASE_URL="${BASE_URL:-http://127.0.0.1:8080}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=smoke-client-lib.sh
+source "${SCRIPT_DIR}/smoke-client-lib.sh"
 REDIRECT_URI="https://localhost:3000"
 SCOPE="openid profile email"
 USERNAME="decl-user-1"
 PASSWORD="TempPassword123!"
-PUBLIC_CLIENT_ID="decl-public-client-1"
 JWT_CLIENT_ID="decl-jwt-client-1"
 JWT_CLIENT_KEY="${JWT_CLIENT_KEY:-${SCRIPT_DIR}/fixtures/smoke-jwt-client.key}"
 JWT_CLIENT_KID_FILE="${SCRIPT_DIR}/fixtures/smoke-jwt-client.kid"
@@ -210,9 +211,12 @@ EOF
 echo "OAuth smoke test — ${BASE_URL}"
 echo ""
 
-if ! run_oauth_flow "Public client (PKCE)" "$PUBLIC_CLIENT_ID" "none"; then
+if ! ensure_smoke_oauth_clients; then
+	fail "ensure smoke OAuth clients" "client-mgmt create failed (is PostgreSQL running?)"
 	summary
 fi
+echo "Smoke OAuth clients ready"
+echo ""
 
 if ! run_oauth_flow "Confidential client (private_key_jwt)" "$JWT_CLIENT_ID" "private_key_jwt"; then
 	summary
