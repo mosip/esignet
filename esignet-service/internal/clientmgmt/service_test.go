@@ -292,6 +292,40 @@ func TestGetClient_Success(t *testing.T) {
 	assert.Equal(t, []string{"https://example.com/callback"}, resp.RedirectURIs)
 }
 
+func validUpdateReq() clientmgmt.UpdateClientRequest {
+	return clientmgmt.UpdateClientRequest{
+		ClientName:        "Test App",
+		ClientNameLangMap: map[string]string{"eng": "Test App"},
+		Status:            "ACTIVE",
+		LogoURI:           "https://example.com/logo.png",
+		RedirectURIs:      []string{"https://example.com/callback"},
+		Claims:            []string{"name", "email"},
+		AcrValues:         []string{"mosip:idp:acr:static-code"},
+		GrantTypes:        []string{"authorization_code"},
+		AuthMethods:       []string{"private_key_jwt"},
+	}
+}
+
+func TestValidatePatch_RejectsClearedRedirectURIs(t *testing.T) {
+	merged := validUpdateReq()
+	merged.RedirectURIs = nil
+	fields := clientmgmt.PatchFields{RedirectURIs: true}
+	err := clientmgmt.ValidatePatch(clientmgmt.ProfileClient, merged, fields, clientmgmt.NullableJWK{})
+	var ve *clientmgmt.ValidationError
+	require.ErrorAs(t, err, &ve)
+	assert.Equal(t, "invalid_redirect_uri", ve.Code)
+}
+
+func TestValidatePatch_RejectsInvalidEncPublicKey(t *testing.T) {
+	merged := validUpdateReq()
+	fields := clientmgmt.PatchFields{EncPublicKey: true}
+	encKey := clientmgmt.NullableJWK{Defined: true, Value: map[string]string{"kty": "RSA"}}
+	err := clientmgmt.ValidatePatch(clientmgmt.ProfileClient, merged, fields, encKey)
+	var ve *clientmgmt.ValidationError
+	require.ErrorAs(t, err, &ve)
+	assert.Equal(t, "invalid_public_key", ve.Code)
+}
+
 func TestValidateCreate_InvalidLanguageCode(t *testing.T) {
 	req := validCreateReq()
 	req.ClientNameLangMap = map[string]string{"mhsdfsfd": "Name"}

@@ -191,7 +191,7 @@ func (s *Service) PatchClient(ctx context.Context, clientID string, req PatchCli
 	if err != nil {
 		return ClientResponse{}, err
 	}
-	if err := ValidatePatch(merged, fields); err != nil {
+	if err := ValidatePatch(ProfileClient, merged, fields, req.EncPublicKey); err != nil {
 		return ClientResponse{}, err
 	}
 

@@ -186,7 +186,7 @@ func ValidateUpdate(profile Profile, req UpdateClientRequest) error {
 }
 
 // ValidatePatch validates a merged client state after applying PATCH fields.
-func ValidatePatch(merged UpdateClientRequest, fields PatchFields) error {
+func ValidatePatch(profile Profile, merged UpdateClientRequest, fields PatchFields, encPublicKey NullableJWK) error {
 	if fields.ClientName {
 		if err := validateClientName(merged.ClientName); err != nil {
 			return err
@@ -237,52 +237,15 @@ func ValidatePatch(merged UpdateClientRequest, fields PatchFields) error {
 			return err
 		}
 	}
-	return validateMergedPatchState(merged)
-}
-
-func validateMergedPatchState(merged UpdateClientRequest) error {
-	if err := validateClientName(merged.ClientName); err != nil {
-		return err
-	}
-	if err := validateClientNameLangMap(merged.ClientNameLangMap, false); err != nil {
-		return err
-	}
-	if len(merged.RedirectURIs) == 0 {
-		return validationErr("invalid_redirect_uri")
-	}
-	if err := validateRedirectURIs(merged.RedirectURIs, 1, 0); err != nil {
-		return err
-	}
-	if len(merged.Claims) == 0 {
-		return validationErr("invalid_claim")
-	}
-	if err := validateClaims(merged.Claims, 1, 0); err != nil {
-		return err
-	}
-	if len(merged.AcrValues) == 0 {
-		return validationErr("invalid_acr")
-	}
-	if err := validateACRs(merged.AcrValues, allowedACRAll, 1, 0); err != nil {
-		return err
-	}
-	if len(merged.GrantTypes) == 0 {
-		return validationErr("invalid_grant_type")
-	}
-	if err := validateGrantTypes(merged.GrantTypes, 1, 0); err != nil {
-		return err
-	}
-	if len(merged.AuthMethods) == 0 {
-		return validationErr("invalid_client_auth")
-	}
-	if err := validateAuthMethods(merged.AuthMethods, 1, 0); err != nil {
-		return err
-	}
-	if len(merged.AdditionalConfig) > 0 {
-		if err := validateAdditionalConfig(merged.AdditionalConfig); err != nil {
+	if fields.EncPublicKey && !encPublicKey.IsNull {
+		if err := validateJWK(encPublicKey.Value); err != nil {
 			return err
 		}
 	}
-	return nil
+
+	mergedForUpdate := merged
+	mergedForUpdate.Status = strings.ToLower(merged.Status)
+	return ValidateUpdate(profile, mergedForUpdate)
 }
 
 func validateClientID(id string) error {
