@@ -86,6 +86,12 @@ submit_button: &submit_button
   eventType: SUBMIT
   resourceType: ELEMENT
 
+# Anchor for Trigger button
+trigger_button: &trigger_button
+  <<: *submit_button
+  variant: OUTLINE
+  eventType: TRIGGER
+
 # Anchor for title for the page
 page_title: &page_title
   id: acr_text_heading
@@ -119,37 +125,21 @@ nodes:
           components:
             - <<: *page_title
               label: Select a preferred mode of login
-            - id: acr_otp
-              type: ACTION
+            - <<: *trigger_button
+              id: acr_otp
               label: Login with OTP
-              variant: OUTLINE
-              category: ACTION
-              eventType: TRIGGER
-              resourceType: ELEMENT
               startIcon: "/images/otp_icon.svg"
-            - id: acr_password
-              type: ACTION
+            - <<: *trigger_button
+              id: acr_password
               label: Login with Password
-              variant: OUTLINE
-              category: ACTION
-              eventType: TRIGGER
-              resourceType: ELEMENT
               startIcon: "/images/pwd_icon.svg"
-            - id: acr_bio
-              type: ACTION
+            - <<: *trigger_button
+              id: acr_bio
               label: Login with Biometrics
-              variant: OUTLINE
-              category: ACTION
-              eventType: TRIGGER
-              resourceType: ELEMENT
               startIcon: "/images/bio_icon.svg"
-            - id: acr_kbi
-              type: ACTION
+            - <<: *trigger_button
+              id: acr_kbi
               label: Login with KBI
-              variant: OUTLINE
-              category: ACTION
-              eventType: TRIGGER
-              resourceType: ELEMENT
               startIcon: "/images/kbi_icon.svg"
     prompts:
       - action:
@@ -221,17 +211,14 @@ nodes:
               category: BLOCK
               resourceType: ELEMENT
               components:
-                - id: resend_otp_timer
-                  type: TEXT
-                  label: "You can resend the OTP in {time}"
-                  align: center
-                  variant: HEADING_6
-                  category: DISPLAY
-                - <<: *submit_button
-                  id: action_retry_otp
-                  label: Resend OTP
+                - id: RESEND_OTP
+                  type: CUSTOM
+                  ref: resend_otp_timer
+                  category: MISCELLANEOUS
+                  resourceType: ELEMENT
+                  timeLeft: 180
                   variant: OUTLINE
-                  eventType: TRIGGER
+                  label: Resend OTP
     prompts:
       - inputs:
           - ref: otp_input
@@ -242,7 +229,7 @@ nodes:
           ref: action_submit_otp
           nextNode: basic_auth
       - action:
-          ref: action_retry_otp
+          ref: RESEND_OTP
           nextNode: send_mosip_otp
 
   - id: basic_auth
