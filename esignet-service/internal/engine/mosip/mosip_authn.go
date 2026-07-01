@@ -223,7 +223,7 @@ func (p *mosipAuthnProvider) GetAttributes(_ context.Context, token string, requ
 		RequestTime:     GetUTCDateTime(),
 		TransactionID:   transactionID,
 		KycToken:        kycToken,
-		ConsentObtained: true,
+		ConsentObtained: consentedAttributes,
 		Locales:         []string{"eng"},
 		RespType:        "JWT",
 		IndividualID:    username,
