@@ -456,7 +456,7 @@ public class TokenServiceTest {
                 .subject("client-id")
                 .issuer("client-id")
                 .audience("audience")
-                .issueTime(new Date(System.currentTimeMillis() - 1000))
+                .issueTime(new Date(System.currentTimeMillis()))
                 .expirationTime(new Date(System.currentTimeMillis() + 60000))
                 .jwtID(IdentityProviderUtil.createTransactionId(null))
                 .build();
