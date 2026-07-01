@@ -54,9 +54,12 @@ export default function Sbi({ component, context }: SbiProps) {
   const fieldRef = component.ref ?? component.id;
 
   useEffect(() => {
+    const primaryColor = getComputedStyle(document.documentElement)
+      .getPropertyValue("--primary-color")
+      .trim();
     const customStyle = {
       verifyButtonStyle: {
-        background: "#EB6F2D",
+        background: primaryColor,
         color: "white",
       },
     };

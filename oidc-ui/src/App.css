@@ -239,5 +239,5 @@ input[type="password"]::-ms-clear {
   border: 0;
   height: 8px;
   margin-left: -2rem;
-  width: 100vh;
+  width: calc(100% + 4rem);
 }
