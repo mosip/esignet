@@ -33,9 +33,7 @@ createRoot(document.getElementById("root")!).render(
             },
           },
         }}
-      >
-        <App />
-      </ThunderIDProvider>
+      ></ThunderIDProvider>
     ) : (
       <App />
     )}
