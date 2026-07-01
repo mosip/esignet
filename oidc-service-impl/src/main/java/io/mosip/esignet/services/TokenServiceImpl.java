@@ -220,10 +220,6 @@ public class TokenServiceImpl implements TokenService {
             log.error("Missing jti in client assertion for clientId {}", clientId);
             throw new EsignetException(ErrorConstants.INVALID_CLIENT);
         }
-        if (expDate == null || iatDate == null) {
-            log.error("Client assertion missing exp/iat for clientId {}", clientId);
-            throw new EsignetException(ErrorConstants.INVALID_CLIENT);
-        }
 
         long now = Instant.now().getEpochSecond();
         long exp = expDate.toInstant().getEpochSecond();
