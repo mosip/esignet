@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { init, propChange } from "@mosip/secure-biometric-interface-integrator";
-import { encodeBase64 } from "../utils/encoding";
+import { encodeBase64 } from "../../utils/encoding";
 import type {
   ComponentRenderContext,
   EmbeddedFlowComponent,
@@ -51,8 +51,18 @@ const DEFAULT_SBI_ENV = {
 
 export default function Sbi({ component, context }: SbiProps) {
   const [, setValue] = useState("");
+  const fieldRef = component.ref ?? component.id;
 
   useEffect(() => {
+    const primaryColor = getComputedStyle(document.documentElement)
+      .getPropertyValue("--primary-color")
+      .trim();
+    const customStyle = {
+      verifyButtonStyle: {
+        background: primaryColor,
+        color: "white",
+      },
+    };
     init({
       container: document.getElementById(SBI_CONTAINER_ID),
       buttonLabel: "scan_and_verify",
@@ -60,8 +70,9 @@ export default function Sbi({ component, context }: SbiProps) {
       sbiEnv: DEFAULT_SBI_ENV,
       langCode: "en",
       disable: false,
+      customStyle,
     });
-    return;
+    // return;
 
     propChange({
       onCapture: (response: BiometricResponse | null) =>
@@ -73,12 +84,14 @@ export default function Sbi({ component, context }: SbiProps) {
   onInputChangeRef.current = context.onInputChange;
 
   useEffect(() => {
-    onInputChangeRef.current(component.id, "");
-  }, [component.id]);
+    onInputChangeRef.current(fieldRef, "");
+  }, [fieldRef]);
 
   /**
    * Validates the SBI capture response and, if valid, encodes
    * the biometrics payload and passes it to the form context.
+   *
+   * component.ref will be the property name
    */
   const authenticateBiometricResponse = async (
     biometricResponse: BiometricResponse | null,
@@ -87,7 +100,7 @@ export default function Sbi({ component, context }: SbiProps) {
 
     if (errorCode !== null) {
       setValue("");
-      context.onInputChange(component.id, "");
+      context.onInputChange(fieldRef, "");
       return;
     }
 
@@ -95,7 +108,13 @@ export default function Sbi({ component, context }: SbiProps) {
       JSON.stringify(biometricResponse?.biometrics ?? []),
     );
     setValue(encoded);
-    context.onInputChange(component.id, encoded);
+    context.onInputChange(fieldRef, encoded);
+
+    if (context.onSubmit) {
+      // submitting the whole form, while click on
+      // scan & verify button of biometric component
+      context.onSubmit(component, { [fieldRef]: encoded }, true);
+    }
   };
 
   /**
@@ -127,9 +146,9 @@ export default function Sbi({ component, context }: SbiProps) {
 
   return (
     <>
-      <form className="relative">
+      <div className="relative">
         <div id="secure-biometric-interface-integration" className="my-2"></div>
-      </form>
+      </div>
     </>
   );
 }

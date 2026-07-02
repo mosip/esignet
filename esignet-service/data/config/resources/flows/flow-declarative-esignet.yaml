@@ -1,0 +1,441 @@
+# Anchor for heading details
+# it contains heading & subheading details
+# logo of main application & client
+# one divider line as well
+heading_details: &heading_details
+  id: heading_details
+  resourceType: ELEMENT
+  type: BLOCK
+  category: BLOCK
+  align: center
+  components:
+    - category: DISPLAY
+      id: text_heading
+      label: Login using eSignet
+      resourceType: ELEMENT
+      type: TEXT
+      variant: HEADING_3
+      align: center
+    - category: DISPLAY
+      id: text_subheading
+      label: "<center><b>{{meta(application.name)}}</b> is requesting authentication for login</center>"
+      resourceType: ELEMENT
+      type: RICH_TEXT
+      variant: SUBTITLE_2
+      align: center
+    - id: logo_block
+      type: STACK
+      resourceType: ELEMENT
+      direction: col
+      justify: center
+      components:
+        - category: DISPLAY
+          id: client_logo
+          resourceType: ELEMENT
+          type: IMAGE
+          src: "{{meta(application.logoUrl)}}"
+          alt: "{{t(signin:images.app_logo.alt)}}"
+          height: 52px
+          width: 52px
+        - category: DISPLAY
+          id: logo_divider
+          label: "&#x21CB;"
+          resourceType: ELEMENT
+          type: RICH_TEXT
+          height: 24px
+          width: 24px
+        - category: DISPLAY
+          id: app_logo
+          resourceType: ELEMENT
+          type: IMAGE
+          src: "/logo.png"
+          alt: "{{t(signin:images.app_logo.alt)}}"
+          height: 52px
+          width: 52px
+    - id: divider_block
+      type: DIVIDER
+
+# Anchor for UIN input, with validation
+prompt_uin: &prompt_uin
+  id: username_input
+  ref: username
+  type: TEXT_INPUT
+  label: UIN/VID
+  required: true
+  placeholder: Enter your UIN/VID
+  validation:
+    - type: maxLength
+      value: 16
+      message: UIN/VID must be between 10 and 16 digits
+    - type: minLength
+      value: 10
+      message: UIN/VID must be between 10 and 16 digits
+    - type: regex
+      value: "[0-9]*"
+      message: UIN/VID must contain numbers only
+
+# Anchor for Submit button
+# default id is submit_uin, it can be changed
+# default label is COntinue, that also can be changed
+submit_button: &submit_button
+  id: submit_uin
+  label: Continue
+  type: ACTION
+  variant: PRIMARY
+  category: ACTION
+  eventType: SUBMIT
+  resourceType: ELEMENT
+
+# Anchor for Trigger button
+trigger_button: &trigger_button
+  <<: *submit_button
+  variant: OUTLINE
+  eventType: TRIGGER
+
+# Anchor for title for the page
+page_title: &page_title
+  id: acr_text_heading
+  type: TEXT
+  label: Select a Login ID Option
+  align: left
+  variant: HEADING_5
+  category: DISPLAY
+  resourceType: ELEMENT
+
+id: decl-mosip-esignet-flow
+handle: decl-mosip-esignet-flow
+name: MOSIP Esignet Flow
+flowType: AUTHENTICATION
+nodes:
+  - id: start
+    type: START
+    onSuccess: prompt_acr
+
+  - id: prompt_acr
+    type: PROMPT
+    meta:
+      components:
+        - *heading_details
+        - id: acr_block
+          type: BLOCK
+          resourceType: ELEMENT
+          category: BLOCK
+          direction: col
+          justify: center
+          components:
+            - <<: *page_title
+              label: Select a preferred mode of login
+            - <<: *trigger_button
+              id: acr_otp
+              label: Login with OTP
+              startIcon: "/images/otp_icon.svg"
+            - <<: *trigger_button
+              id: acr_password
+              label: Login with Password
+              startIcon: "/images/pwd_icon.svg"
+            - <<: *trigger_button
+              id: acr_bio
+              label: Login with Biometrics
+              startIcon: "/images/bio_icon.svg"
+            - <<: *trigger_button
+              id: acr_kbi
+              label: Login with KBI
+              startIcon: "/images/kbi_icon.svg"
+    prompts:
+      - action:
+          ref: acr_otp
+          nextNode: prompt_uin_otp
+      - action:
+          ref: acr_password
+          nextNode: prompt_credentials
+      - action:
+          ref: acr_bio
+          nextNode: prompt_uin_bio
+      - action:
+          ref: acr_kbi
+          nextNode: prompt_kbi_details
+
+  - id: prompt_uin_otp
+    type: PROMPT
+    meta:
+      components:
+        - *heading_details
+        - type: BLOCK
+          id: block_otp
+          components:
+            - <<: *page_title
+              id: title_otp
+            - *prompt_uin
+            - <<: *submit_button
+              id: submit_uin
+              label: Get OTP
+    prompts:
+      - inputs:
+          - ref: username_input
+            identifier: username
+            type: TEXT_INPUT
+            required: true
+        action:
+          ref: submit_uin
+          nextNode: send_mosip_otp
+
+  - id: send_mosip_otp
+    type: TASK_EXECUTION
+    executor:
+      name: MosipOtpExecutor
+    onSuccess: prompt_otp
+
+  - id: prompt_otp
+    type: PROMPT
+    meta:
+      components:
+        - *heading_details
+        - id: block_otp
+          type: BLOCK
+          category: BLOCK
+          components:
+            - <<: *page_title
+              id: title_otp
+              label: Enter OTP
+            - id: otp_input
+              ref: otp
+              type: OTP_INPUT
+              label: Please enter the 6-digit OTP sent to your registered contact
+              category: FIELD
+              required: true
+            - <<: *submit_button
+              id: action_submit_otp
+              label: Verify
+            - id: resend_otp_block
+              type: BLOCK
+              category: BLOCK
+              resourceType: ELEMENT
+              components:
+                - id: RESEND_OTP
+                  type: CUSTOM
+                  ref: resend_otp_timer
+                  category: MISCELLANEOUS
+                  resourceType: ELEMENT
+                  timeLeft: 180
+                  variant: OUTLINE
+                  label: Resend OTP
+    prompts:
+      - inputs:
+          - ref: otp_input
+            identifier: otp
+            type: TEXT_INPUT
+            required: true
+        action:
+          ref: action_submit_otp
+          nextNode: basic_auth
+      - action:
+          ref: RESEND_OTP
+          nextNode: send_mosip_otp
+
+  - id: basic_auth
+    type: TASK_EXECUTION
+    executor:
+      name: CredentialsAuthExecutor
+      inputs:
+        - ref: username_input
+          identifier: username
+          type: TEXT_INPUT
+          required: true
+        - ref: otp_input
+          identifier: otp
+          type: PASSWORD_INPUT
+          required: true
+    onSuccess: authorization_check
+
+  - id: prompt_credentials
+    type: PROMPT
+    meta:
+      components:
+        - *heading_details
+        - id: block_credentials
+          resourceType: ELEMENT
+          type: BLOCK
+          category: BLOCK
+          components:
+            - <<: *page_title
+              id: title_credentials
+            - *prompt_uin
+            - id: password_input
+              ref: password
+              type: PASSWORD_INPUT
+              category: FIELD
+              inputType: password
+              label: Password
+              placeholder: Enter your password
+              required: true
+              resourceType: ELEMENT
+            - <<: *submit_button
+              id: password_authenticate
+              label: Login
+    prompts:
+      - inputs:
+          - ref: username_input
+            identifier: username
+            type: TEXT_INPUT
+            required: true
+          - ref: password_input
+            identifier: password
+            type: PASSWORD_INPUT
+            required: true
+        action:
+          ref: password_authenticate
+          nextNode: basic_cred_auth
+
+  - id: basic_cred_auth
+    type: TASK_EXECUTION
+    executor:
+      name: CredentialsAuthExecutor
+      inputs:
+        - ref: username_input
+          identifier: username
+          type: TEXT_INPUT
+          required: true
+        - ref: password_input
+          identifier: password
+          type: PASSWORD_INPUT
+          required: true
+    onSuccess: authorization_check
+
+  - id: prompt_uin_bio
+    type: PROMPT
+    meta:
+      components:
+        - *heading_details
+        - type: BLOCK
+          id: block_biometrics
+          components:
+            - <<: *page_title
+              id: title_biometrics
+            - *prompt_uin
+            - *submit_button
+    prompts:
+      - inputs:
+          - ref: username_input
+            identifier: username
+            type: TEXT_INPUT
+            required: true
+        action:
+          ref: submit_uin
+          nextNode: prompt_biometric
+
+  - id: prompt_biometric
+    type: PROMPT
+    meta:
+      components:
+        - *heading_details
+        - id: block_biometrics
+          type: BLOCK
+          components:
+            - <<: *page_title
+              id: title_biometrics
+            - id: SBI_ID
+              ref: biometrics
+              type: CUSTOM
+              category: MISCELLANEOUS
+              resourceType: ELEMENT
+    prompts:
+      - inputs:
+          - ref: SBI_ID
+            identifier: biometrics
+            type: CUSTOM
+            required: true
+        action:
+          ref: SBI_ID
+          nextNode: basic_bio_auth
+
+  - id: basic_bio_auth
+    type: TASK_EXECUTION
+    executor:
+      name: CredentialsAuthExecutor
+      inputs:
+        - ref: username_input
+          identifier: username
+          type: TEXT_INPUT
+          required: true
+        - ref: SBI_ID
+          identifier: biometrics
+          type: CUSTOM
+          required: true
+    onSuccess: authorization_check
+
+  - id: prompt_kbi_details
+    type: PROMPT
+    meta:
+      components:
+        - *heading_details
+        - id: block_kbi
+          type: BLOCK
+          components:
+            - <<: *page_title
+              id: title_kbi
+            - *prompt_uin
+            - id: fullname_input
+              ref: fullname
+              type: TEXT_INPUT
+              label: Fullname
+              required: true
+              placeholder: Enter your full name
+            - id: dob_input
+              ref: date_of_birth
+              type: DATE_INPUT
+              label: Date of Birth
+              required: true
+              placeholder: Select your date of birth
+              dateFormat: "yyyy-MM-dd"
+            - <<: *submit_button
+              id: submit_kbi_details
+              label: Login
+    prompts:
+      - inputs:
+          - ref: username_input
+            identifier: username
+            type: TEXT_INPUT
+            required: true
+          - ref: fullname_input
+            identifier: fullname
+            type: TEXT_INPUT
+            required: true
+          - ref: dob_input
+            identifier: date_of_birth
+            type: DATE_INPUT
+            required: true
+        action:
+          ref: submit_kbi_details
+          nextNode: basic_kbi_auth
+
+  - id: basic_kbi_auth
+    type: TASK_EXECUTION
+    executor:
+      name: CredentialsAuthExecutor
+      inputs:
+        - ref: username_input
+          identifier: username
+          type: TEXT_INPUT
+          required: true
+        - ref: fullname_input
+          identifier: fullname
+          type: TEXT_INPUT
+          required: true
+        - ref: dob_input
+          identifier: date_of_birth
+          type: TEXT_INPUT
+          required: true
+    onSuccess: authorization_check
+
+  - id: authorization_check
+    type: TASK_EXECUTION
+    executor:
+      name: AuthorizationExecutor
+    onSuccess: auth_assert
+  - id: auth_assert
+    type: TASK_EXECUTION
+    executor:
+      name: AuthAssertExecutor
+    onSuccess: end
+  - id: end
+    type: END
