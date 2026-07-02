@@ -11,16 +11,18 @@ import (
 )
 
 const (
-	defaultRedisHost            = "localhost"
-	defaultRedisPort            = "6379"
-	defaultRedisPoolSize        = 10
-	defaultRedisMinIdleConns    = 2
-	defaultRedisConnMaxIdleTime = 5 * time.Minute
-	defaultRedisDialTimeout     = 5 * time.Second
-	defaultRedisReadTimeout     = 3 * time.Second
-	defaultRedisWriteTimeout    = 3 * time.Second
-	defaultRedisKeyPrefix       = "esignet:"
-	redisPingTimeout            = 5 * time.Second
+	defaultRedisHost                = "localhost"
+	defaultRedisPort                = "6379"
+	defaultRedisPoolSize            = 10
+	defaultRedisMinIdleConns        = 2
+	defaultRedisConnMaxIdleTime     = 300
+	defaultRedisDialTimeoutSecs     = 5
+	defaultRedisReadTimeoutSecs     = 3
+	defaultRedisWriteTimeoutSecs    = 3
+	defaultRedisConnMaxLifetimeSecs = 0 // no limit
+	defaultRedisKeyPrefix           = "esignet:"
+	redisPingTimeout                = 5 * time.Second
+	defaultRedisDB                  = 0
 )
 
 // Redis holds all settings needed to open and configure a Redis client.
@@ -69,16 +71,16 @@ type Redis struct {
 }
 
 func loadRedis() Redis {
-	poolSize := envInt("REDIS_POOL_SIZE")
+	poolSize := envIntOrDefault("REDIS_POOL_SIZE", defaultRedisPoolSize)
 	if poolSize <= 0 {
 		poolSize = defaultRedisPoolSize
 	}
-	minIdle := envInt("REDIS_MIN_IDLE_CONNS")
+	minIdle := envIntOrDefault("REDIS_MIN_IDLE_CONNS", defaultRedisMinIdleConns)
 	if minIdle <= 0 {
 		minIdle = defaultRedisMinIdleConns
 	}
 
-	idleSecs := envInt("REDIS_CONN_MAX_IDLE_TIME_SECS")
+	idleSecs := envIntOrDefault("REDIS_CONN_MAX_IDLE_TIME_SECS", defaultRedisConnMaxIdleTime)
 	var idleTime time.Duration
 	if idleSecs > 0 {
 		idleTime = time.Duration(idleSecs) * time.Second
@@ -86,31 +88,31 @@ func loadRedis() Redis {
 		idleTime = defaultRedisConnMaxIdleTime
 	}
 
-	lifetimeSecs := envInt("REDIS_CONN_MAX_LIFETIME_SECS")
+	lifetimeSecs := envIntOrDefault("REDIS_CONN_MAX_LIFETIME_SECS", defaultRedisConnMaxLifetimeSecs)
 	lifetime := time.Duration(lifetimeSecs) * time.Second // 0 = no limit
 
-	dialSecs := envInt("REDIS_DIAL_TIMEOUT_SECS")
+	dialSecs := envIntOrDefault("REDIS_DIAL_TIMEOUT_SECS", defaultRedisDialTimeoutSecs)
 	var dialTimeout time.Duration
 	if dialSecs > 0 {
 		dialTimeout = time.Duration(dialSecs) * time.Second
 	} else {
-		dialTimeout = defaultRedisDialTimeout
+		dialTimeout = time.Duration(defaultRedisDialTimeoutSecs) * time.Second
 	}
 
-	readSecs := envInt("REDIS_READ_TIMEOUT_SECS")
+	readSecs := envIntOrDefault("REDIS_READ_TIMEOUT_SECS", defaultRedisReadTimeoutSecs)
 	var readTimeout time.Duration
 	if readSecs > 0 {
 		readTimeout = time.Duration(readSecs) * time.Second
 	} else {
-		readTimeout = defaultRedisReadTimeout
+		readTimeout = time.Duration(defaultRedisReadTimeoutSecs) * time.Second
 	}
 
-	writeSecs := envInt("REDIS_WRITE_TIMEOUT_SECS")
+	writeSecs := envIntOrDefault("REDIS_WRITE_TIMEOUT_SECS", defaultRedisWriteTimeoutSecs)
 	var writeTimeout time.Duration
 	if writeSecs > 0 {
 		writeTimeout = time.Duration(writeSecs) * time.Second
 	} else {
-		writeTimeout = defaultRedisWriteTimeout
+		writeTimeout = time.Duration(defaultRedisWriteTimeoutSecs) * time.Second
 	}
 
 	keyPrefix := envOrDefault("REDIS_KEY_PREFIX", defaultRedisKeyPrefix)
@@ -130,7 +132,7 @@ func loadRedis() Redis {
 		Host:            envOrDefault("REDIS_HOST", defaultRedisHost),
 		Port:            envOrDefault("REDIS_PORT", defaultRedisPort),
 		Password:        envOrDefault("REDIS_PASSWORD", ""),
-		DB:              envInt("REDIS_DB"),
+		DB:              envIntOrDefault("REDIS_DB", defaultRedisDB),
 		TLS:             envBool("REDIS_TLS_ENABLED"),
 		PoolSize:        poolSize,
 		MinIdleConns:    minIdle,
