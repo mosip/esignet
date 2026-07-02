@@ -1,21 +1,66 @@
-declarative_resources:
-  enabled: true
-flow:
-  store: declarative
-resource:
-  store: declarative
-organization_unit:
-  store: declarative
-identity_provider:
-  store: declarative
-role:
-  store: declarative
-theme:
-  store: declarative
-layout:
-  store: declarative
-translation:
-  store: declarative
+identifier: "${NAMESPACE}"
+port: 8088
+issuer: "${MOSIP_ESIGNET_HOST:-http://127.0.0.1:8088}"
+data_dir: "${DATA_DIR:-./data}"
+
+provider: "${AUTHN_PROVIDER:-mock}"
+auth_flow_id: "${DEFAULT_AUTH_FLOW_ID:-flow-esignet}"
+theme_id: "${DEFAULT_THEME_ID:-theme-esignet}"
+layout_id: "${DEFAULT_LAYOUT_ID:-layout-esignet}"
+
+server:
+  hostname: "0.0.0.0"
+  port: 8088
+  http_only: true
+  public_url: "${MOSIP_ESIGNET_HOST:-http://127.0.0.1:8088}"
+  identifier: ${NAMESPACE:-esignet}
+
+redis:
+  host: "${REDIS_HOST:-localhost}"
+  port: "${REDIS_PORT:-6379}"
+  password: "${REDIS_PASSWORD:-}"
+  db: ${REDIS_DB:-0}
+  tls: ${REDIS_TLS:-false}
+
+db:
+  dsn: "${DATABASE_URL}"
+  pool:
+    max_open_conns: ${DATABASE_MAX_OPEN_CONNS:-10}
+    max_idle_conns: ${DATABASE_MAX_IDLE_CONNS:-10}
+    conn_max_lifetime: ${DATABASE_CONN_MAX_LIFETIME:-0}
+    conn_max_idle_time: ${DATABASE_CONN_MAX_IDLE_TIME:-300}
+
+cache:
+  disabled: false
+  type: redis
+  size: 1000
+  ttl: 3600
+  eviction_policy: LRU
+  cleanup_interval: 300
+  redis:
+    address: "${REDIS_HOST}:${REDIS_PORT}"
+    db: ${REDIS_DB:-0}
+    key_prefix: "${NAMESPACE}:"
+
+gate_client:
+  scheme: http
+  hostname: "127.0.0.1"
+  port: 3000
+  login_path: /signin
+  error_path: /error
+
+jwt:
+  preferred_key_id: default-key
+  audience: application
+  validity_period: 3600
+
+oauth:
+  refresh_token:
+    renew_on_grant: false
+  authorization_code:
+    validity_period: 120
+  par:
+    expires_in: 3600
+
 crypto:
-  encryption:
-    key: "${CRYPTO_ENCRYPTION_KEY}"
+  key: "${CRYPTO_ENCRYPTION_KEY}"

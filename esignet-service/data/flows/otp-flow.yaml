@@ -1,6 +1,6 @@
-id: decl-mosip-otp-flow-1
-handle: decl-mosip-otp-flow-1
-name: MOSIP Send OTP Flow
+id: otp-flow
+handle: otp-flow
+name: eSignet OTP Flow
 flowType: AUTHENTICATION
 activeVersion: 1
 nodes:
