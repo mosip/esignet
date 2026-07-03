@@ -238,11 +238,6 @@ public class TokenServiceImpl implements TokenService {
                 maxJtiCacheTtlSeconds
         );
 
-        if (jtiTtlSeconds <= 0) {
-            log.error("Client assertion already expired for clientId {}", clientId);
-            throw new EsignetException(ErrorConstants.INVALID_CLIENT);
-        }
-
         if (cacheUtilService.checkAndMarkJti(jti, jtiTtlSeconds)) {
             log.error("Replay detected for jti {} (clientId {})", jti, clientId);
             throw new EsignetException(ErrorConstants.INVALID_CLIENT);

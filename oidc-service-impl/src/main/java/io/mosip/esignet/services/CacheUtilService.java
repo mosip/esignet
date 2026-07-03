@@ -23,15 +23,11 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
-import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.RedisStringCommands;
-import org.springframework.data.redis.connection.ReturnType;
-import org.springframework.data.redis.core.types.Expiration;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
-import java.util.List;
+import java.time.Duration;
 import java.util.Objects;
 
 import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
@@ -54,6 +50,9 @@ public class CacheUtilService {
 
     @Autowired
     private RedisConnectionFactory redisConnectionFactory;
+
+    @Autowired(required = false)
+    private StringRedisTemplate stringRedisTemplate;
 
     @Cacheable(value = Constants.PRE_AUTH_SESSION_CACHE, key = "#transactionId")
     public OIDCTransaction setTransaction(String transactionId, OIDCTransaction oidcTransaction) {
@@ -183,14 +182,10 @@ public class CacheUtilService {
         }
 
         if ("redis".equalsIgnoreCase(cacheType)) {
-            try (RedisConnection connection = redisConnectionFactory.getConnection()) {
-                byte[] key = JTI_KEY_FORMAT.formatted(cacheKeyPrefix, jti)
-                                           .getBytes(StandardCharsets.UTF_8);
-                Boolean inserted = connection.stringCommands().set(
-                        key,
-                        new byte[]{1},
-                        Expiration.seconds(ttlSeconds),
-                        RedisStringCommands.SetOption.SET_IF_ABSENT);
+                try{
+                    String key = JTI_KEY_FORMAT.formatted(cacheKeyPrefix, jti);
+                    Boolean inserted = stringRedisTemplate.opsForValue()
+                            .setIfAbsent(key, "1", Duration.ofSeconds(ttlSeconds));
                 if (Boolean.FALSE.equals(inserted)) {
                     log.error("Replay detected for jti: {}", jti);
                     return true;
