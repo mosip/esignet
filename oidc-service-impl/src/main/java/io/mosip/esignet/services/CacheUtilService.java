@@ -23,7 +23,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -47,9 +46,6 @@ public class CacheUtilService {
 
     @Autowired
     CacheManager cacheManager;
-
-    @Autowired
-    private RedisConnectionFactory redisConnectionFactory;
 
     @Autowired(required = false)
     private StringRedisTemplate stringRedisTemplate;
