@@ -44,12 +44,13 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Slf4j
 public class AppConfig implements ApplicationRunner {
 
-    private static final List<String> SERVER_PROFILE_FEATURES = List.of("PAR", "DPOP", "PKCE", "JWE");
+    private static final List<String> SERVER_PROFILE_FEATURES = List.of("PAR", "DPOP", "PKCE", "JWE", "STRICT_AUDIENCE_CHECK");
     private static final List<String> SERVER_PROFILE_ADDITIONAL_CONFIG_KEYS = List.of(
             "dpop_bound_access_tokens",
             "require_pkce",
             "userinfo_response_type",
-            "require_pushed_authorization_requests"
+            "require_pushed_authorization_requests",
+            "client_auth_assertion_audience"
     );
 
 

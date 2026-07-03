@@ -23,15 +23,11 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
-import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.RedisStringCommands;
-import org.springframework.data.redis.connection.ReturnType;
-import org.springframework.data.redis.core.types.Expiration;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
-import java.util.List;
+import java.time.Duration;
 import java.util.Objects;
 
 import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
@@ -40,19 +36,6 @@ import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 @Slf4j
 @Service
 public class CacheUtilService {
-
-    private static final String NONCE_CHECK_SCRIPT = """
-            if redis.call("EXISTS", KEYS[1]) == 0 then
-                redis.call("SETEX", KEYS[1], tonumber(ARGV[1]), "1")
-                return 1
-            else
-                return 0
-            end""";
-    private String nonceScriptHash = null;
-    private static String NONCE_KEY = "nonce::%s";
-
-    @Value("${mosip.esignet.nonce-expire-seconds:86400}")
-    private int nonceValidity;
 
     @Value("${spring.cache.type}")
     private String cacheType;
@@ -67,6 +50,9 @@ public class CacheUtilService {
 
     @Autowired
     private RedisConnectionFactory redisConnectionFactory;
+
+    @Autowired(required = false)
+    private StringRedisTemplate stringRedisTemplate;
 
     @Cacheable(value = Constants.PRE_AUTH_SESSION_CACHE, key = "#transactionId")
     public OIDCTransaction setTransaction(String transactionId, OIDCTransaction oidcTransaction) {
@@ -113,29 +99,6 @@ public class CacheUtilService {
     @CacheEvict(value = Constants.HALTED_CACHE, key = "#transactionId")
     public void removeHaltedTransaction(String transactionId) {
         log.debug("Evicting entry from HALTED_CACHE");
-    }
-
-    public long checkNonce(String nonce) {
-        if("simple".equalsIgnoreCase(cacheType))
-            return 1L;
-
-        try (RedisConnection connection = redisConnectionFactory.getConnection()) {
-            if (isScriptNotLoaded(connection, nonceScriptHash)) {
-                nonceScriptHash = connection.scriptingCommands().scriptLoad(NONCE_CHECK_SCRIPT.getBytes());
-            }
-            log.debug("Running NONCE_CHECK_SCRIPT script: {}", nonceScriptHash);
-            final String key = NONCE_KEY.formatted(nonce);
-            return connection.scriptingCommands().evalSha(
-                    nonceScriptHash,
-                    ReturnType.INTEGER,
-                    1,  // Number of keys
-                    key.getBytes(), // The Redis hash name (key)
-                    String.valueOf(nonceValidity).getBytes(StandardCharsets.UTF_8) // ttl
-            );
-        } catch (Exception e) {
-            log.error("Redis nonce check failed, rejecting nonce. {}", e);
-            return 0L;
-        }
     }
 
     //---------------------------------------------- Linked authorization ----------------------------------------------
@@ -219,14 +182,10 @@ public class CacheUtilService {
         }
 
         if ("redis".equalsIgnoreCase(cacheType)) {
-            try (RedisConnection connection = redisConnectionFactory.getConnection()) {
-                byte[] key = JTI_KEY_FORMAT.formatted(cacheKeyPrefix, jti)
-                                           .getBytes(StandardCharsets.UTF_8);
-                Boolean inserted = connection.stringCommands().set(
-                        key,
-                        new byte[]{1},
-                        Expiration.seconds(ttlSeconds),
-                        RedisStringCommands.SetOption.SET_IF_ABSENT);
+                try{
+                    String key = JTI_KEY_FORMAT.formatted(cacheKeyPrefix, jti);
+                    Boolean inserted = stringRedisTemplate.opsForValue()
+                            .setIfAbsent(key, "1", Duration.ofSeconds(ttlSeconds));
                 if (Boolean.FALSE.equals(inserted)) {
                     log.error("Replay detected for jti: {}", jti);
                     return true;
@@ -321,11 +280,5 @@ public class CacheUtilService {
 
     public String getSharedIDVResult(String transactionId) {
         return cacheManager.getCache(Constants.SHARED_IDV_RESULT).get(transactionId, String.class); //NOSONAR getCache() will not be returning null here.
-    }
-
-    private boolean isScriptNotLoaded(RedisConnection connection, String scriptHash) {
-        if(scriptHash == null) return true;
-        List<Boolean> scriptExists = connection.scriptingCommands().scriptExists(scriptHash);
-        return scriptExists == null || !scriptExists.getFirst();
     }
 }

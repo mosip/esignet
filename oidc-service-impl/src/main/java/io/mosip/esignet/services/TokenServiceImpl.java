@@ -19,6 +19,7 @@ import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.*;
 import io.mosip.esignet.core.dto.OIDCTransaction;
+import io.mosip.esignet.core.dto.ServerProfile;
 import io.mosip.esignet.core.exception.*;
 import io.mosip.esignet.core.spi.TokenService;
 import io.mosip.esignet.core.util.AuthenticationContextClassRefUtil;
@@ -43,7 +44,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
-import static io.mosip.esignet.core.constants.Constants.SPACE;
+import static io.mosip.esignet.core.constants.Constants.*;
 
 @Slf4j
 @Service
@@ -98,6 +99,9 @@ public class TokenServiceImpl implements TokenService {
 
     @Value("${mosip.esignet.client-assertion.unique.jti.required}")
     private boolean uniqueJtiRequired;
+
+    @Autowired
+    private ServerProfile serverProfile;
 
     private final String CNF = "cnf";
     private final String JKT = "jkt";
@@ -193,8 +197,8 @@ public class TokenServiceImpl implements TokenService {
                 log.error("Client assertion sub '{}' does not match clientId '{}'", sub, clientId);
                 throw new EsignetException(ErrorConstants.INVALID_GRANT);
             }
-
-            NimbusJwtDecoder jwtDecoder = getNimbusJwtDecoderFromJwk(jwk, clientId, audience, maxClockSkew, alg);
+            List<String> validAudience = getValidAudienceForClientAssertion(audience);
+            NimbusJwtDecoder jwtDecoder = getNimbusJwtDecoderFromJwk(jwk, clientId, validAudience, maxClockSkew, alg);
             jwtDecoder.decode(clientAssertion);
             if (uniqueJtiRequired) {
                 enforceJtiReplayProtection(signedJWT.getJWTClaimsSet(), clientId);
@@ -216,10 +220,6 @@ public class TokenServiceImpl implements TokenService {
             log.error("Missing jti in client assertion for clientId {}", clientId);
             throw new EsignetException(ErrorConstants.INVALID_CLIENT);
         }
-        if (expDate == null || iatDate == null) {
-            log.error("Client assertion missing exp/iat for clientId {}", clientId);
-            throw new EsignetException(ErrorConstants.INVALID_CLIENT);
-        }
 
         long now = Instant.now().getEpochSecond();
         long exp = expDate.toInstant().getEpochSecond();
@@ -234,19 +234,37 @@ public class TokenServiceImpl implements TokenService {
         }
 
         long jtiTtlSeconds = Math.min(
-                (exp - now) + jtiCacheSkewBufferSeconds,
+                (exp - now) + Math.max(jtiCacheSkewBufferSeconds,maxClockSkew),
                 maxJtiCacheTtlSeconds
         );
-
-        if (jtiTtlSeconds <= 0) {
-            log.error("Client assertion already expired for clientId {}", clientId);
-            throw new EsignetException(ErrorConstants.INVALID_CLIENT);
-        }
 
         if (cacheUtilService.checkAndMarkJti(jti, jtiTtlSeconds)) {
             log.error("Replay detected for jti {} (clientId {})", jti, clientId);
             throw new EsignetException(ErrorConstants.INVALID_CLIENT);
         }
+    }
+
+    /**
+     * Gets the valid audience list for client assertion verification.
+     * If the server profile has 'client_auth_assertion_audience' configured for the 'strict_audience_check' feature,
+     * it overrides the default audience list with the issuer URL only.
+     * @param audience the default audience list
+     * @return the valid audience list to use for verification
+     */
+    private List<String> getValidAudienceForClientAssertion(List<String> audience) {
+        if (serverProfile != null && serverProfile.getFeatureMap() != null) {
+            String configuredFeature = serverProfile.getFeatureMap().get(CLIENT_AUTH_ASSERTION_AUDIENCE);
+            if (STRICT_AUDIENCE_CHECK.equalsIgnoreCase(configuredFeature)) {
+                String issuer = (String) discoveryMap.get("issuer");
+                if (issuer == null || issuer.isBlank()) {
+                    log.error("Strict audience check is enabled but discovery issuer is missing");
+                    return List.of(); // fail-closed
+                }
+                log.debug("Using strict audience check with issuer: {}", issuer);
+                return List.of(issuer);
+            }
+        }
+        return audience == null ? List.of() : audience;
     }
 
     private NimbusJwtDecoder getNimbusJwtDecoderFromJwk(String jwkJson, String clientId, List<String> audience, int maxClockSkew, String alg) throws Exception {
