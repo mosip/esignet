@@ -1,4 +1,4 @@
-\c mosip_esignet
+\c :mosipdbname
 
 ALTER TABLE client_detail ADD COLUMN additional_config jsonb;
 
