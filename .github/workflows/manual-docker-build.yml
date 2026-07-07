@@ -12,7 +12,7 @@ on:
 jobs:
 
   build_maven_esignet_with_plugins:
-    uses: Mahesh-Binayak/kattu/.github/workflows/maven-build.yml@gpgupdate-masterj21
+    uses: mosip/kattu/.github/workflows/maven-build.yml@gpgupdate-masterj21
     with:
       SERVICE_LOCATION: ./esignet-with-plugins
       BUILD_ARTIFACT: esignet-with-plugins
