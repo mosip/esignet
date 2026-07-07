@@ -24,7 +24,7 @@ on:
 
 jobs:
   build_maven_esignet:
-    uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
+    uses: mosip/kattu/.github/workflows/maven-build.yml@gpgupdate-masterj21
     with:
       SERVICE_LOCATION: ./
       BUILD_ARTIFACT: esignet
@@ -33,6 +33,7 @@ jobs:
       OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
       OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
+      GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
       
   build-oidc-ui:
@@ -108,7 +109,7 @@ jobs:
   publish_to_nexus:
     if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' }}"
     needs: build_maven_esignet
-    uses: mosip/kattu/.github/workflows/maven-publish-to-nexus.yml@master-java21
+    uses: mosip/kattu/.github/workflows/maven-publish-to-nexus.yml@gpgupdate-masterj21
     with:
       SERVICE_LOCATION: ./
     secrets:
@@ -117,12 +118,13 @@ jobs:
       OSSRH_URL: ${{ secrets.OSSRH_SNAPSHOT_URL }}
       OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
+      GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   sonar_analysis:
     needs: build_maven_esignet
     if: "${{  github.event_name != 'pull_request' }}"
-    uses: mosip/kattu/.github/workflows/maven-sonar-analysis.yml@master-java21
+    uses: mosip/kattu/.github/workflows/maven-sonar-analysis.yml@gpgupdate-masterj21
     with:
       SERVICE_LOCATION: ./
     secrets:
@@ -169,7 +171,7 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   build_maven_esignet_with_plugins:
-    uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
+    uses: mosip/kattu/.github/workflows/maven-build.yml@gpgupdate-masterj21
     with:
       SERVICE_LOCATION: ./esignet-with-plugins
       BUILD_ARTIFACT: esignet-with-plugins
@@ -179,6 +181,7 @@ jobs:
       OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
       OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
+      GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   build_dockers_esignet_with_plugins:
@@ -224,7 +227,7 @@ jobs:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   build_maven_apitest_esignet:
-    uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
+    uses: mosip/kattu/.github/workflows/maven-build.yml@gpgupdate-masterj21
     with:
       SERVICE_LOCATION: ./api-test
       BUILD_ARTIFACT: apitest-esignet
@@ -233,12 +236,13 @@ jobs:
       OSSRH_SECRET: ${{ secrets.OSSRH_SECRET }}
       OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
+      GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   publish_to_nexus_apitest_esignet:
     if: "${{ !contains(github.ref, 'master') && github.event_name != 'pull_request' && github.event_name != 'release' && github.event_name != 'prerelease' && github.event_name != 'publish' }}"
     needs: build_maven_apitest_esignet
-    uses: mosip/kattu/.github/workflows/maven-publish-to-nexus.yml@master-java21
+    uses: mosip/kattu/.github/workflows/maven-publish-to-nexus.yml@gpgupdate-masterj21
     with:
       SERVICE_LOCATION: ./api-test
     secrets:
@@ -247,6 +251,7 @@ jobs:
       OSSRH_URL: ${{ secrets.OSSRH_SNAPSHOT_URL }}
       OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
       GPG_SECRET: ${{ secrets.GPG_SECRET }}
+      GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   build_apitest_esignet_local:
