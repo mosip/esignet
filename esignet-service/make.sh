@@ -57,9 +57,9 @@ fi
 : "${DOCKER_IMAGE:=esignet:latest}"
 : "${GOLANGCI_LINT_VERSION:=latest}"
 : "${SQLC_VERSION:=v1.29.0}"
-: "${THUNDER_BRANCH:=engine}"
+: "${THUNDER_BRANCH:=main}"
 : "${RACE:=1}"   # set RACE=0 if no C toolchain (go test -race needs gcc on Windows)
-THUNDER_MODULE=github.com/anushasunkada/thunder/backend
+THUNDER_MODULE=github.com/thunder-id/thunderid/backend
 
 need() {
   command -v "$1" >/dev/null 2>&1 || { echo "make.sh: '$1' not found on PATH (required for this target)"; exit 1; }

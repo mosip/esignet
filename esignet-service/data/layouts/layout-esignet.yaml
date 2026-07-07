@@ -1,6 +1,6 @@
-id: decl-layout-1
-displayName: Declarative Test Layout
-description: A declarative test layout
+id: layout-esignet
+displayName: Esignet Layout
+description: A Esignet layout
 layout:
   type: centered
   components:
