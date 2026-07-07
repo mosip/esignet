@@ -60,11 +60,13 @@ The checked-in `go.mod` `replace` directive pins a Thunder backend fork until th
 ### Quick start (development)
 
 ```bash
-cp .env.example .env          # fill in DATABASE_* / DB_DBUSER_PASSWORD and REDIS_* at minimum
+cp .env.example .env          # fill in DATABASE_* and REDIS_* at minimum
 ./make.sh run
 ```
 
 Copy `.env.example` to `.env` to override defaults, or pass overrides on the command line (`./make.sh run PORT=9090`).
+
+`make.sh` loads `.env` from the working directory into the environment before starting the service, so it applies to `go run`, the built binary, and tests. The service itself only reads variables already present in the environment; for Docker/CI, supply them through your usual mechanism. Real environment variables already set always take precedence over `.env`.
 
 ### Binary
 
@@ -75,7 +77,7 @@ export PORT=8088
 export MOSIP_ESIGNET_HOST=http://127.0.0.1:8088
 export DATABASE_HOST=localhost
 export DATABASE_USERNAME=esignet
-export DB_DBUSER_PASSWORD=secret
+export DATABASE_PASSWORD=secret
 export DATABASE_NAME=mosip_esignet
 export REDIS_HOST=localhost
 export AUTHN_PROVIDER=mosip
@@ -139,12 +141,12 @@ Authorize redirects are sent to the Thunder gate client:
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
-| `POSTGRES_URL` | _(empty)_ | Full DSN — takes precedence if set |
+| `DATABASE_URL` | _(empty)_ | Full DSN — takes precedence if set |
 | `DATABASE_HOST` | `localhost` | |
 | `DATABASE_PORT` | `5432` | |
 | `DATABASE_NAME` | `mosip_esignet` | |
 | `DATABASE_USERNAME` | `postgres` | |
-| `DB_DBUSER_PASSWORD` | _(empty)_ | |
+| `DATABASE_PASSWORD` | _(empty)_ | |
 | `DB_MAX_OPEN_CONNS` | `25` | Max open connections |
 | `DB_MAX_IDLE_CONNS` | `5` | Max idle connections |
 | `DB_CONN_MAX_LIFETIME_SECS` | `300` | Connection lifetime |
@@ -339,7 +341,7 @@ curl -s http://127.0.0.1:8088/health
 docker run --rm -p 8088:8088 \
   -e MOSIP_ESIGNET_HOST=http://127.0.0.1:8088 \
   -e CRYPTO_ENCRYPTION_KEY=your-64-char-hex-key \
-  -e POSTGRES_URL=postgres://esignet:secret@host.docker.internal:5432/mosip_esignet?sslmode=disable \
+  -e DATABASE_URL=postgres://esignet:secret@host.docker.internal:5432/mosip_esignet?sslmode=disable \
   -e REDIS_URL=redis://host.docker.internal:6379/0 \
   -e AUTHN_PROVIDER=mosip \
   esignet:latest

@@ -8,20 +8,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/kelseyhightower/envconfig"
 	_ "github.com/lib/pq" // PostgreSQL driver for database/sql
 )
 
-const (
-	defaultDBHost                = "localhost"
-	defaultDBPort                = "5455"
-	defaultDBName                = "mosip_esignet"
-	defaultDBUser                = "postgres"
-	defaultDBMaxOpenConns        = 25
-	defaultDBMaxIdleConns        = 5
-	defaultDBConnMaxLifetimeSecs = 0 // no limit
-	defaultDBConnMaxIdleTimeSecs = 60
-	dbPingTimeout                = 5 * time.Second
-)
+const dbPingTimeout = 5 * time.Second
 
 // DBPool holds connection pool tuning parameters.
 type DBPool struct {
@@ -47,90 +38,80 @@ func hasDBEnvConfig() bool {
 		os.Getenv("DB_DBUSER_PASSWORD") != ""
 }
 
-func ensurePostgresSSLMode(dsn string) string {
-	if (strings.HasPrefix(dsn, "postgres://") || strings.HasPrefix(dsn, "postgresql://")) &&
+// dbSpec is the environment-variable layout for Postgres settings. The
+// individual connection params are only used to build the DSN when DATABASE_URL
+// is empty, but always carry their defaults.
+type dbSpec struct {
+	URL      string `envconfig:"DATABASE_URL"`
+	Host     string `envconfig:"DATABASE_HOST" default:"localhost"`
+	Port     string `envconfig:"DATABASE_PORT" default:"5455"`
+	Name     string `envconfig:"DATABASE_NAME" default:"mosip_esignet"`
+	User     string `envconfig:"DATABASE_USERNAME" default:"postgres"`
+	Password string `envconfig:"DATABASE_PASSWORD"`
+	// PasswordAlt is the MOSIP deployment's name for the DB password,
+	// used when DATABASE_PASSWORD is unset.
+	PasswordAlt string `envconfig:"DB_DBUSER_PASSWORD"`
+
+	MaxOpenConns    int `envconfig:"DB_MAX_OPEN_CONNS" default:"25"`
+	MaxIdleConns    int `envconfig:"DB_MAX_IDLE_CONNS" default:"5"`
+	ConnMaxLifetime int `envconfig:"DB_CONN_MAX_LIFETIME_SECS"` // 0 = no limit
+	ConnMaxIdleTime int `envconfig:"DB_CONN_MAX_IDLE_TIME_SECS" default:"60"`
+}
+
+// loadDB reads Postgres connection config and pool settings from the environment.
+// Accepts either DATABASE_URL (full DSN) or individual vars:
+// DATABASE_HOST, DATABASE_PORT, DATABASE_NAME, DATABASE_USERNAME, DATABASE_PASSWORD.
+//
+// Pool tuning (all optional):
+//
+//	DB_MAX_OPEN_CONNS          — default 25
+//	DB_MAX_IDLE_CONNS          — default 5
+//	DB_CONN_MAX_LIFETIME_SECS  — default 0 (no limit)
+//	DB_CONN_MAX_IDLE_TIME_SECS — default 60
+func loadDB() (*DB, error) {
+	var s dbSpec
+	if err := envconfig.Process("", &s); err != nil {
+		return nil, fmt.Errorf("loading database config: %w", err)
+	}
+	if s.Password == "" {
+		s.Password = s.PasswordAlt
+	}
+
+	dsn := s.URL
+	if dsn != "" &&
+		(strings.HasPrefix(dsn, "postgres://") || strings.HasPrefix(dsn, "postgresql://")) &&
 		!strings.Contains(strings.ToLower(dsn), "sslmode=") {
 		sep := "?"
 		if strings.Contains(dsn, "?") {
 			sep = "&"
 		}
-		return dsn + sep + "sslmode=disable"
+		dsn += sep + "sslmode=disable"
 	}
-	return dsn
-}
-
-func resolveDBDSN() string {
-	if dsn := os.Getenv("DATABASE_URL"); dsn != "" {
-		return ensurePostgresSSLMode(dsn)
-	}
-
-	host := envOrDefault("DATABASE_HOST", defaultDBHost)
-	port := envOrDefault("DATABASE_PORT", defaultDBPort)
-	dbname := envOrDefault("DATABASE_NAME", defaultDBName)
-	user := envOrDefault("DATABASE_USERNAME", defaultDBUser)
-	password := os.Getenv("DATABASE_PASSWORD")
-	if password == "" {
-		password = os.Getenv("DB_DBUSER_PASSWORD")
-	}
-	if password != "" {
-		return fmt.Sprintf(
-			"host=%s port=%s dbname=%s user=%s password=%s sslmode=disable",
-			host, port, dbname, user, password,
-		)
-	}
-	// Omit password= when unset — lib/pq mis-parses "password= sslmode=..."
-	// and falls back to SSL, which fails against local Docker Postgres.
-	return fmt.Sprintf(
-		"host=%s port=%s dbname=%s user=%s sslmode=disable",
-		host, port, dbname, user,
-	)
-}
-
-// loadDB reads Postgres connection config and pool settings from the environment.
-// Accepts POSTGRES_URL or DATABASE_URL (full DSN), or individual vars:
-// DATABASE_HOST, DATABASE_PORT, DATABASE_NAME, DATABASE_USERNAME, DATABASE_PASSWORD.
-//
-// Pool tuning (all optional):
-//
-//	DB_MAX_OPEN_CONNS         — default 25
-//	DB_MAX_IDLE_CONNS         — default 5
-//	DB_CONN_MAX_LIFETIME_SECS — default 300
-//	DB_CONN_MAX_IDLE_TIME_SECS — default 60
-func loadDB() DB {
-	dsn := resolveDBDSN()
-
-	maxOpen := envIntOrDefault("DB_MAX_OPEN_CONNS", defaultDBMaxOpenConns)
-	if maxOpen <= 0 {
-		maxOpen = defaultDBMaxOpenConns
-	}
-	maxIdle := envIntOrDefault("DB_MAX_IDLE_CONNS", defaultDBMaxIdleConns)
-	if maxIdle <= 0 {
-		maxIdle = defaultDBMaxIdleConns
-	}
-	lifetimeSecs := envIntOrDefault("DB_CONN_MAX_LIFETIME_SECS", defaultDBConnMaxLifetimeSecs)
-	var lifetime time.Duration
-	if lifetimeSecs > 0 {
-		lifetime = time.Duration(lifetimeSecs) * time.Second
-	} else {
-		lifetime = defaultDBConnMaxLifetimeSecs
-	}
-	idleSecs := envIntOrDefault("DB_CONN_MAX_IDLE_TIME_SECS", defaultDBConnMaxIdleTimeSecs)
-	var idleTime time.Duration
-	if idleSecs > 0 {
-		idleTime = time.Duration(idleSecs) * time.Second
-	} else {
-		idleTime = defaultDBConnMaxIdleTimeSecs
+	if dsn == "" {
+		if s.Password != "" {
+			dsn = fmt.Sprintf(
+				"host=%s port=%s dbname=%s user=%s password=%s sslmode=disable",
+				s.Host, s.Port, s.Name, s.User, s.Password,
+			)
+		} else {
+			// Omit password= when unset — lib/pq mis-parses "password= sslmode=..."
+			// and falls back to SSL, which fails against local Docker Postgres.
+			dsn = fmt.Sprintf(
+				"host=%s port=%s dbname=%s user=%s sslmode=disable",
+				s.Host, s.Port, s.Name, s.User,
+			)
+		}
 	}
 
-	return DB{
+	return &DB{
 		DSN: dsn,
 		Pool: DBPool{
-			MaxOpenConns:    maxOpen,
-			MaxIdleConns:    maxIdle,
-			ConnMaxLifetime: lifetime,
-			ConnMaxIdleTime: idleTime,
+			MaxOpenConns:    s.MaxOpenConns,
+			MaxIdleConns:    s.MaxIdleConns,
+			ConnMaxLifetime: time.Duration(s.ConnMaxLifetime) * time.Second,
+			ConnMaxIdleTime: time.Duration(s.ConnMaxIdleTime) * time.Second,
 		},
-	}
+	}, nil
 }
 
 // Open opens, configures the pool, and pings the Postgres connection.
