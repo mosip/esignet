@@ -8,7 +8,7 @@ fi
 
 NS=esignet
 ESIGNET_SERVICE_NAME=esignet
-CHART_VERSION=0.0.1-develop
+CHART_VERSION=2.0.0-develop
 echo Create $NS namespace
 kubectl create ns $NS
 
@@ -108,7 +108,6 @@ EOF
   echo "1. esignet-mock-plugin"
   echo "2. mosip-identity-plugin"
   echo "3. sunbird-rc-plugin"
-  echo "4. custom-plugin"
   read -p "Enter the plugin number: " plugin_no
   echo "$plugin_no" > /tmp/plugin_no.txt
 
@@ -117,13 +116,13 @@ EOF
 
   while true; do
     if [[ "$plugin_no" == "1" ]]; then
-      plugin_option="--set pluginNameEnv=esignet-mock-plugin.jar"
+      plugin_option="--set pluginNameEnv=esignet-mock-plugin"
       break
 
     elif [[ "$plugin_no" == "2" ]]; then
       echo "Setting up dummy values for Esignet MISP license key"
       kubectl -n $NS create secret generic esignet-misp-onboarder-key --from-literal=mosip-esignet-misp-key='' --dry-run=client -o yaml | kubectl apply -f -
-      plugin_name="mosip-identity-plugin.jar"
+      plugin_name="mosip-identity-plugin"
       declare -A urls=(
         ["MOSIP_ESIGNET_AUTHENTICATOR_IDA_CERT_URL"]="http://mosip-file-server.mosip-file-server/mosip-certs/ida-partner.cer"
         ["MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC-AUTH-URL"]="http://ida-auth.ida/idauthentication/v1/kyc-auth/delegated/\${mosip.esignet.authenticator.ida.misp-license-key}/"
@@ -157,7 +156,7 @@ EOF
         value="${user_input:-${urls[$key]}}"
         extra_env_vars_additional+="  - name: \"$key\""$'\n'"    value: \"$value\""$'\n'
       done
-      # Add MISP_KEY from secret
+      # MOSIP_LICENSE_KEY references the existing esignet-misp-onboarder-key secret
       extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_MISP_KEY\""$'\n'
       extra_env_vars_additional+="    valueFrom:"$'\n'
       extra_env_vars_additional+="      secretKeyRef:"$'\n'
@@ -166,22 +165,18 @@ EOF
       break
 
     elif [[ "$plugin_no" == "3" ]]; then
-      plugin_name="sunbird-rc-plugin.jar"
+      plugin_name="sunbird-rc-plugin"
       read -p "Provide the URL for Sunbird registry: " sunbird_registry_url
-      extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_SUNBIRD_RC_REGISTRY_GET_URL\""$'\n'"    value: \"$sunbird_registry_url\""$'\n'
+      extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_REGISTRY_GET_URL\""$'\n'"    value: \"$sunbird_registry_url\""$'\n'
       extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_AUTH_FACTOR_KBI_REGISTRY_SEARCH_URL\""$'\n'"    value: \"$sunbird_registry_url/api/v1/Insurance/search\""$'\n'
       extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_INTEGRATION_AUDIT_PLUGIN\""$'\n'"    value: \"LoggerAuditService\""$'\n'
       extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_INTEGRATION_KEY_BINDER\""$'\n'"    value: \"NoOpKeyBinder\""$'\n'
+      extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_AUTHENTICATOR_DEFAULT_AUTH_FACTOR_KBI_INDIVIDUAL_ID_FIELD\""$'\n'"    value: \"\${mosip.esignet.authenticator.sunbird-rc.auth-factor.kbi.individual-id-field}\""$'\n'
+      extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_AUTHENTICATOR_DEFAULT_AUTH_FACTOR_KBI_FIELD_DETAILS\""$'\n'"    value: \"\${mosip.esignet.authenticator.sunbird-rc.auth-factor.kbi.field-details}\""$'\n'
       break
-
-    elif [[ "$plugin_no" == "4" ]]; then
-      read -p "Please provide the url for the custom plugin you want to use :  " plugin_url
-      read -p "Provide the plugin jar name (with extension eg., test-plugin.jar): " plugin_jar
-      plugin_option="--set pluginNameEnv=$plugin_jar --set pluginUrlEnv=$plugin_url"
-      break
-
     else
-      echo "Please provide the correct plugin number (1, 2, 3, or 4)."
+      echo "Please provide the correct plugin number (1, 2, or 3)."
+      read -p "Enter the plugin number: " plugin_no
     fi
   done
 
@@ -219,17 +214,11 @@ EOF
       plugin_option="$plugin_option -f $plugin_env_file"
   fi
 
-  extra_env_vars_cm_set=""
-  if kubectl get configmap kafka-config -n "$NS" > /dev/null 2>&1; then
-    extra_env_vars_cm_set="--set extraEnvVarsCM={esignet-softhsm-share,kafka-config}"
-  fi
-
-
   echo Installing esignet-with-plugins
   helm -n $NS install $ESIGNET_SERVICE_NAME mosip/esignet --version $CHART_VERSION  \
     $ENABLE_INSECURE $plugin_option \
     $ESIGNET_HELM_ARGS \
-    $extra_env_vars_cm_set \
+    --set extraEnvVarsCM={esignet-softhsm-share} \
     --set metrics.serviceMonitor.enabled=$servicemonitorflag -f values.yaml --wait
 
   kubectl -n $NS get deploy $ESIGNET_SERVICE_NAME -o name | xargs -n1 -t kubectl -n $NS rollout status

@@ -52,8 +52,8 @@ service:
 
 image:
   registry: docker.io
-  repository: mosipdev/esignet-with-plugins
-  tag: develop
+  repository: mosipdev/esignet
+  tag: develop-go
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
   ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
@@ -75,7 +75,7 @@ springServicePort: 8088
 startupProbe:
   enabled: true
   httpGet:
-    path: /v1/esignet/actuator/health
+    path: /health
     port: 8088
   initialDelaySeconds: 180
   periodSeconds: 10
@@ -86,7 +86,7 @@ startupProbe:
 livenessProbe:
   enabled: true
   httpGet:
-    path: /v1/esignet/actuator/health
+    path: /health
     port: 8088
   initialDelaySeconds: 200
   periodSeconds: 10
@@ -97,7 +97,7 @@ livenessProbe:
 readinessProbe:
   enabled: true
   httpGet:
-    path: /v1/esignet/actuator/health
+    path: /health
     port: 8088
   initialDelaySeconds: 180
   periodSeconds: 10
@@ -247,8 +247,38 @@ extraEnvVars: |
       configMapKeyRef:
         name: keycloak-host
         key: keycloak-external-url
-  - name: MOSIP_ESIGNET_CAPTCHA_MODULE_NAME
-    value: esignet
+  - name: AUTHN_PROVIDER
+    value: mosip
+  - name: MOSIP_API_INTERNAL_HOST
+    valueFrom:
+      configMapKeyRef:
+        name: esignet-global
+        key: mosip-api-internal-host
+  - name: MOSIP_P12_PATH
+    value: /home/mosip/keys/secret/esignet.pfx
+  - name: MOSIP_P12_PASSWORD
+    value: localtest
+  - name: OIDC_UI_SCHEME
+    value: https
+  - name: CRYPTO_ENCRYPTION_KEY
+    value: 0579f866ac7c9273580d0ff163fa01a7b2401a7ff3ddc3e3b14ae3136fa6025e
+  - name: OIDC_UI_HOSTNAME
+    valueFrom:
+      configMapKeyRef:
+        name: esignet-global
+        key: mosip-esignet-host
+  - name: OIDC_UI_PORT
+    value: '443'
+  - name: OIDC_UI_LOGIN_PATH
+    value: /signin
+  - name: OIDC_UI_ERROR_PATH
+    value: /error
+  - name: DEFAULT_THEME_ID
+    value: decl-theme-1
+  - name: DEFAULT_LAYOUT_ID
+    value: decl-layout-1
+  - name: DEFAULT_AUTH_FLOW_ID
+    value: decl-mosip-otp-flow-1
   - name: REDIS_HOST
     valueFrom:
       configMapKeyRef:
@@ -465,7 +495,7 @@ serviceAccount:
 ## Prometheus Metrics
 ##
 metrics:
-  enabled: true
+  enabled: false
   ## Prometheus pod annotations
   ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
   ##
