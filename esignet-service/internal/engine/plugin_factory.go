@@ -25,8 +25,7 @@ func NewPluginProviders(appConfig *config.AppConfig, clientSvc *clientmgmt.Servi
 	case "sunbird":
 		return sunbird.Init()
 	case "mock":
-		authnProvider, observabilityProvider := mock.Init()
-		return authnProvider, observabilityProvider, nil
+		return mock.Init(appConfig, clientSvc)
 	default:
 		return nil, nil, fmt.Errorf("unsupported authn provider %q (use mosip, sunbird, or mock)", appConfig.Provider)
 	}
