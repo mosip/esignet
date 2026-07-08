@@ -112,17 +112,17 @@ func (p *mosipAuthnProvider) Authenticate(_ context.Context, identifiers, creden
 	} else if password, ok := credentials["password"].(string); ok && password != "" {
 		authRequest.Password = password
 		credentialSet = true
-	} else if encodedBiometric, ok := credentials["biometric"].(string); ok && encodedBiometric != "" {
+	} else if encodedBiometric, ok := biometricCredential(credentials); ok {
 		decodedBiometric, err := B64Decode(encodedBiometric)
 		if err != nil {
-			return nil, fmt.Errorf("failed to decode biometric data: %w", err)
+			return nil, errors.New("missing or invalid credentials")
 		}
 		var biometrics []Biometric
 		if err := json.Unmarshal(decodedBiometric, &biometrics); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal biometric data: %w", err)
+			return nil, errors.New("missing or invalid credentials")
 		}
 		if len(biometrics) == 0 {
-			return nil, errors.New("missing or invalid biometric data")
+			return nil, errors.New("missing or invalid credentials")
 		}
 		authRequest.Biometrics = biometrics
 		credentialSet = true
@@ -361,10 +361,35 @@ func B64EncodeString(s string) string {
 	return base64.RawURLEncoding.EncodeToString([]byte(s))
 }
 
-// B64Decode decodes base64url string (both padded and unpadded accepted)
+// B64Decode decodes base64 in unpadded URL-safe, standard, or padded URL-safe form.
+// Biometric payloads from the OIDC UI use standard base64 (btoa); internal MOSIP
+// payloads use base64url.
 func B64Decode(s string) ([]byte, error) {
-	// RawURLEncoding accepts both padded and unpadded input
-	return base64.RawURLEncoding.DecodeString(s)
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return nil, errors.New("empty base64 input")
+	}
+
+	var lastErr error
+	for _, enc := range []*base64.Encoding{
+		base64.RawURLEncoding,
+		base64.StdEncoding,
+		base64.URLEncoding,
+	} {
+		decoded, err := enc.DecodeString(s)
+		if err == nil {
+			return decoded, nil
+		}
+		lastErr = err
+	}
+	return nil, lastErr
+}
+
+func biometricCredential(credentials map[string]interface{}) (string, bool) {
+	if val, ok := credentials["biometric"].(string); ok && val != "" {
+		return val, true
+	}
+	return "", false
 }
 
 // GenerateHashWithErr returns the SHA-256 hash of data.
