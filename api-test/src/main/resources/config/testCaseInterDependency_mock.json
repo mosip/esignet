@@ -678,6 +678,7 @@
         "Dependent_Idrepo_AddIdentity_03",
         "TC_ESignet_OAuthDetailsRequest_08"
     ],
+    "TC_ESignet_OautDPoPNegativeScenarios_05": ["TC_ESignet_DPoPCreateOIDCClientV3_01"],
     "TC_ESignet_OautDPoPNegativeScenarios_03": ["TC_ESignet_DPoPCreateOIDCClientV3_01"],
     "TC_ESignet_AuthenticateUser_57": [
         "Dependent_Idrepo_AddIdentity_01",
@@ -1180,6 +1181,7 @@
     "TC_ESignet_OAuthDetailsRequestLinked_13": ["TC_ESignet_CreateOIDCClient_V2_01"],
     "TC_ESignet_OAuthDetailsRequestLinked_12": ["TC_ESignet_CreateOIDCClient_V2_01"],
     "TC_ESignet_OAuthDetailsRequestLinked_11": ["TC_ESignet_CreateOIDCClient_V2_01"],
+    "TC_ESignet_OauthParNegativeScenarios_18": ["TC_ESignet_PARCreateOIDCClientV3_01"],
     "TC_ESignet_LinkTransaction_03": ["TC_ESignet_GenerateLinkCode_03"],
     "TC_ESignet_LinkTransaction_05": ["TC_ESignet_GenerateLinkCode_05"],
     "TC_ESignet_LinkTransaction_01": ["TC_ESignet_GenerateLinkCode_01"],
@@ -1487,8 +1489,11 @@
     "TC_ESignet_PAROauthDetailsNegativeScenarios_02": ["TC_ESignet_OauthPar_01"],
     "TC_ESignet_PAROauthDetailsNegativeScenarios_07": [
         "TC_ESignet_DPoPCreateOIDCClientV3_01",
+        "TC_ESignet_OauthPar_01",
+        "TC_ESignet_PARCreateOIDCClientV3_01",
         "TC_ESignet_OauthDPoP_01"
     ],
+    "TC_ESignet_PAROauthDetailsNegativeScenarios_08": ["TC_ESignet_PARCreateOIDCClientV3_01"],
     "TC_ESignet_PAROauthDetailsNegativeScenarios_05": [
         "TC_ESignet_DPoPCreateOIDCClientV3_01",
         "TC_ESignet_PARCreateOIDCClientV3_01"

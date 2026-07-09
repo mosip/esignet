@@ -28,6 +28,7 @@ PKCEAuthenticateUser:
     }
     }'
       output: '{
+  "consentAction": "CAPTURE",
   "sendOtpResp":{
         "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult"
     }
