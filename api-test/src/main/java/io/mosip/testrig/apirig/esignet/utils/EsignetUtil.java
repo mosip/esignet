@@ -456,7 +456,12 @@ public class EsignetUtil extends AdminTestUtil {
 			jsonString = replaceKeywordValue(jsonString, "$UNIQUENONCEVALUEFORESIGNET$",
 					String.valueOf(Calendar.getInstance().getTimeInMillis()));
 		}
-		
+
+		if (jsonString.contains("$OVERSIZED_REQUEST_URI$")) {
+			String oversizedRequestUri = "urn:ietf:params:oauth:request_uri:" + "A".repeat(20000);
+			jsonString = replaceKeywordValue(jsonString, "$OVERSIZED_REQUEST_URI$", oversizedRequestUri);
+		}
+
 		if (jsonString.contains("$ENCRYPTEDSESSIONKEY$")) {
 			jsonString = replaceKeywordValue(jsonString, "$ENCRYPTEDSESSIONKEY$", encryptedSessionKeyString);
 		}
