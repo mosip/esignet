@@ -460,7 +460,7 @@ OauthParNegativeScenarios:
    ESignet_OauthParNegativeScenarios_expired_client_assertion_Neg:
       endPoint: /v1/esignet/oauth/par
       uniqueIdentifier: TC_ESignet_OauthParNegativeScenarios_18
-      description: Validate PAR request with an expired client_assertion JWT (exp in the past); NimbusJwtDecoder's JwtTimestampValidator rejects it during verifyClientAssertionToken, which is caught and rethrown as EsignetException(INVALID_CLIENT) - same error family as the other malformed/invalid client_assertion cases in this file, not invalid_request
+      description: Validate PAR request with an expired client_assertion JWT (exp in the past)
       role: resident
       restMethod: post
       inputTemplate: esignet/PAR/OauthParNegativeScenarios/OauthParNegativeScenarios
