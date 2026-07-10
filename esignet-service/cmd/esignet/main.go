@@ -107,11 +107,11 @@ func main() {
 
 // CustomExecutors returns embedder-supplied flow executors keyed by executor name.
 func getCustomExecutors(authn providers.AuthnProviderManager) map[string]providers.Executor {
-	otpAuthn, ok := authn.(shared.ConsolidatedAuthnProvider)
-	if !ok {
-		return map[string]providers.Executor{}
+	executors := map[string]providers.Executor{
+		engine.ExecutorNameClearInputs: engine.NewClearInputsExecutor(),
 	}
-	return map[string]providers.Executor{
-		engine.ExecutorNameMosipOTP: engine.NewMosipOtpExecutor(otpAuthn),
+	if otpAuthn, ok := authn.(shared.ConsolidatedAuthnProvider); ok {
+		executors[engine.ExecutorNameMosipOTP] = engine.NewMosipOtpExecutor(otpAuthn)
 	}
+	return executors
 }
