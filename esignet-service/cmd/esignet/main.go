@@ -71,9 +71,9 @@ func main() {
 	})
 	clientHandler.RegisterRoutes(mux, scopeMW)
 
-	authnProvider, err := engine.NewAuthnProvider(appCfg.Provider, appCfg, clientSvc)
+	authnProvider, observabilityProvider, err := engine.NewPluginProviders(appCfg, clientSvc)
 	if err != nil {
-		logger.Fatal("authn provider", applog.Error(err))
+		logger.Fatal("plugin providers", applog.Error(err))
 	}
 	logger.Info("authn provider selected", applog.String("provider", appCfg.Provider))
 
@@ -94,7 +94,7 @@ func main() {
 		thunderidengine.WithI18nProvider(engine.NewI18nProvider(appCfg)),
 		thunderidengine.WithOUProvider(engine.NewOUProvider(appCfg)),
 		thunderidengine.WithResourceProvider(engine.NewResourceProvider(appCfg)),
-		thunderidengine.WithObservabilityProvider(engine.NewObservabilityProvider(appCfg.Observability)),
+		thunderidengine.WithObservabilityProvider(observabilityProvider),
 		thunderidengine.WithCustomExecutors(getCustomExecutors(authnProvider)),
 	)
 
