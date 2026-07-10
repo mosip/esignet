@@ -241,3 +241,8 @@ input[type="password"]::-ms-clear {
   margin-left: -2rem;
   width: calc(100% + 4rem);
 }
+
+/* login ID button styles */
+.login-id-button {
+  width: 47%;
+}

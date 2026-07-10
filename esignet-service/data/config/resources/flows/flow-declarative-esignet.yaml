@@ -166,18 +166,22 @@ login_ids: &login_ids
     - <<: *trigger_button
       id: login_id_uin
       label: UIN/VID
+      classes: login-id-button
       startIcon: "/images/vid_icon.svg"
     - <<: *trigger_button
       id: login_id_mobile
       label: Mobile Number
+      classes: login-id-button
       startIcon: "/images/mobile_icon.svg"
     - <<: *trigger_button
       id: login_id_email
       label: Email
+      classes: login-id-button
       startIcon: "/images/email_icon.svg"
     - <<: *trigger_button
       id: login_id_nrc
       label: NRC ID
+      classes: login-id-button
       startIcon: "/images/nrc_id_icon.svg"
 
 id: decl-mosip-esignet-flow
