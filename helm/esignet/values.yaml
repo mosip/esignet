@@ -533,3 +533,6 @@ springConfigNameEnv:
 activeProfileEnv:
 pluginNameEnv: esignet-mock-plugin.jar
 pluginUrlEnv:
+
+# domainConfig entries are injected as container env vars; values must be scalar/string (maps/lists will not render correctly)
+domainConfig: {}
