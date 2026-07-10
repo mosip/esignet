@@ -115,7 +115,7 @@ OauthDPoPNegativeScenarios:
    ESignet_OautDPoPNegativeScenarios_PAR_DPoP_Header_Replay_Neg:
       endPoint: /v1/esignet/oauth/par
       uniqueIdentifier: TC_ESignet_OautDPoPNegativeScenarios_05
-      description: Send a valid DPoP header (fresh jti) on the PAR request twice in a row with the identical resolved request body; the first call consumes the jti, and DpopValidationFilter.replayCheck must detect the reused jti on the second call and reject with invalid_dpop_proof (HTTP 400)
+      description: Reuse the same DPoP proof in consecutive PAR requests and verify DPoP replay detection returns invalid request
       role: resident
       restMethod: post
       inputTemplate: esignet/DPoP/OauthDPoPNegativeScenarios/OauthDPoPNegativeScenariosWithHeader
