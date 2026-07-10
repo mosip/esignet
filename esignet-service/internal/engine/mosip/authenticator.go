@@ -17,7 +17,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -53,10 +52,10 @@ type mosipAuthnProvider struct {
 }
 
 // NewMosipAuthnProvider creates a MOSIP providers.AuthnProviderManager with OTP send support.
-func NewMosipAuthnProvider(cfg *config.AppConfig, clientSvc *clientmgmt.Service) (shared.ConsolidatedAuthnProvider, error) {
+func NewMosipAuthnProvider(cfg *config.AppConfig, clientSvc *clientmgmt.Service, client *http.Client) (shared.ConsolidatedAuthnProvider, error) {
 	provider := &mosipAuthnProvider{
 		appConfig: cfg,
-		client:    newHTTPClient(),
+		client:    client,
 		clientSvc: clientSvc,
 		cfg:       LoadConfig(),
 	}
@@ -321,21 +320,6 @@ func (p *mosipAuthnProvider) getApplicationAndClientID(runtimeMetadata map[strin
 
 // ---------------------------------------------------------------------------------------------------------
 
-func newHTTPClient() *http.Client {
-	return &http.Client{
-		Timeout: 30 * time.Second,
-		Transport: &http.Transport{
-			DialContext: (&net.Dialer{
-				Timeout:   5 * time.Second,
-				KeepAlive: 30 * time.Second,
-			}).DialContext,
-			TLSHandshakeTimeout:   10 * time.Second,
-			ResponseHeaderTimeout: 10 * time.Second,
-			IdleConnTimeout:       90 * time.Second,
-		},
-	}
-}
-
 var (
 	// ErrInvalidCertificate is returned when a certificate is nil or empty.
 	ErrInvalidCertificate = errors.New("invalid or nil certificate")
@@ -343,11 +327,14 @@ var (
 	ErrCertificateParsing = errors.New("certificate parsing error")
 )
 
+// utcTimeFormat is the MOSIP ISO-8601 timestamp layout (millisecond
+// precision), shared by the IDA authenticator and the audit-manager client.
+const utcTimeFormat = "2006-01-02T15:04:05.000Z"
+
 // GetUTCDateTime returns current time in UTC as string in ISO 8601 format
 func GetUTCDateTime() string {
-	now := time.Now().UTC()
 	// Go uses a reference time Mon Jan 2 15:04:05 MST 2006 to define the format pattern
-	return now.Format("2006-01-02T15:04:05.000Z")
+	return time.Now().UTC().Format(utcTimeFormat)
 }
 
 // GenerateTransactionID generates a cryptographically random 10-digit numeric string.
