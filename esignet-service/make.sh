@@ -57,11 +57,9 @@ SIGNING_CERT=$KEY_DIR/signing.crt
 : "${DOCKER_IMAGE:=esignet:latest}"
 : "${GOLANGCI_LINT_VERSION:=latest}"
 : "${SQLC_VERSION:=v1.29.0}"
-: "${THUNDER_BRANCH:=3037_store}"
+: "${THUNDER_BRANCH:=feature/thunderid-engine-impr}"
 : "${RACE:=1}"   # set RACE=0 if no C toolchain (go test -race needs gcc on Windows)
-THUNDER_MODULE=github.com/anushasunkada/thunder/backend
-# THUNDER_MODULE=github.com/thunder-id/thunderid/backend
-# feature/thunderid-engine-impr
+THUNDER_MODULE=github.com/thunder-id/thunderid/backend 
 
 need() {
   command -v "$1" >/dev/null 2>&1 || { echo "make.sh: '$1' not found on PATH (required for this target)"; exit 1; }
@@ -203,7 +201,7 @@ target_update_thunder() { ## Update thunder replace directive to latest commit o
   need git
   echo "Fetching latest commit on branch '$THUNDER_BRANCH'..."
   local sha version
-  sha="$(git ls-remote https://github.com/anushasunkada/thunder.git "refs/heads/$THUNDER_BRANCH" | awk '{print $1}')"
+  sha="$(git ls-remote https://github.com/thunder-id/thunderid.git "refs/heads/$THUNDER_BRANCH" | awk '{print $1}')"
   if [ -z "$sha" ]; then echo "error: branch '$THUNDER_BRANCH' not found"; exit 1; fi
   # Resolve the exact SHA we just fetched (the Makefile resolved the branch
   # name again, which could race with new pushes).

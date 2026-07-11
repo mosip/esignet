@@ -53,4 +53,4 @@ require (
 	modernc.org/sqlite v1.53.0 // indirect
 )
 
-replace github.com/thunder-id/thunderid => github.com/anushasunkada/thunder/backend v0.0.0-20260711044728-739311d1f664
+replace github.com/thunder-id/thunderid => github.com/thunder-id/thunderid/backend v0.0.0-20260711051636-b155cab3eafa
