@@ -139,7 +139,12 @@ func (p *mockAuthnProvider) AuthenticateUser(_ context.Context, identifiers, cre
 
 func (p *mockAuthnProvider) GetEntityReference(_ context.Context, authUser providers.AuthUser) (
 	providers.AuthUser, *providers.EntityReference, *common.ServiceError) {
-	return authUser, nil, nil
+
+	psut, ok := authUser.EntityReferenceToken().(string)
+	if !ok || psut == "" {
+		return authUser, nil, shared.AuthenticationFailedError
+	}
+	return authUser, &providers.EntityReference{EntityID: psut}, nil
 }
 
 func (p *mockAuthnProvider) GetUserAvailableAttributes(_ context.Context,

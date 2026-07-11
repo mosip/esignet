@@ -64,3 +64,8 @@ oauth:
 
 crypto:
   key: "${CRYPTO_ENCRYPTION_KEY}"
+
+security_config:
+  issuer_url: ""
+  jwks_url: ""
+  jwks_cache_ttl: 3000

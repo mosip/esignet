@@ -46,8 +46,8 @@ func LoadConfig() Config {
 		),
 		DomainURI:   envOrDefault("MOSIP_ESIGNET_DOMAIN_URL", apiBase),
 		Env:         envOrDefault("IDA_AUTHENTICATOR_ENV", defaultMosipEnv),
-		P12Path:     os.Getenv("MOSIP_P12_PATH"),
-		P12Password: os.Getenv("MOSIP_P12_PASSWORD"),
+		P12Path:     envOrDefault("MOSIP_P12_PATH", ""),
+		P12Password: envOrDefault("MOSIP_P12_PASSWORD", ""),
 	}
 }
 

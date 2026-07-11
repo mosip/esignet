@@ -7,12 +7,16 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/mosip/esignet/internal/common"
 )
 
 func TestResponseWrapper_errorResponseIsNull(t *testing.T) {
 	body, err := json.Marshal(ResponseWrapper{
-		Errors:       []Error{{ErrorCode: "invalid_grant_type", ErrorMessage: "invalid_grant_type"}},
-		ResponseTime: time.Date(2026, 6, 29, 16, 20, 10, 980_000_000, time.UTC).Format(mosipTimeLayout),
+		ResponseWrapper: common.ResponseWrapper{
+			Errors:       []common.Error{{ErrorCode: "invalid_grant_type", ErrorMessage: "invalid_grant_type"}},
+			ResponseTime: time.Date(2026, 6, 29, 16, 20, 10, 980_000_000, time.UTC).Format(common.MOSIPTimeLayout),
+		},
 	})
 	require.NoError(t, err)
 
@@ -25,8 +29,8 @@ func TestResponseWrapper_errorResponseIsNull(t *testing.T) {
 func TestResponseWrapper_successResponse(t *testing.T) {
 	resp := ClientResponse{ClientID: "c1", Status: "ACTIVE"}
 	body, err := json.Marshal(ResponseWrapper{
-		Response:     resp.APIResponse(),
-		ResponseTime: "2026-06-29T16:20:10.980Z",
+		Response:        resp.APIResponse(),
+		ResponseWrapper: common.ResponseWrapper{ResponseTime: "2026-06-29T16:20:10.980Z"},
 	})
 	require.NoError(t, err)
 

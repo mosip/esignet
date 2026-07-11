@@ -24,7 +24,7 @@ ARG MOSIP_ESIGNET_HOST
 ARG container_user=mosip
 
 ARG DATA_DIR=/home/${container_user}/data
-ARG SIGNING_KEY_PATH=/home/${container_user}/keys/signing.key
+ARG SIGNING_KEY_PATH=/home/${container_user}/data/keys/signing.key
 
 # can be passed during Docker build as build time environment for github branch to pickup configuration from.
 ARG container_user_group=mosip
@@ -57,8 +57,8 @@ COPY data /home/${container_user}/data
 COPY docker-entrypoint.sh /home/${container_user}/entrypoint.sh
 
 RUN chmod +x /home/${container_user}/entrypoint.sh \
-    && mkdir -p /home/${container_user}/keys \
-    && chown -R ${container_user}:${container_user_group} /home/${container_user} /home/${container_user}/keys /home/${container_user}/data
+    && mkdir -p /home/${container_user}/data/keys \
+    && chown -R ${container_user}:${container_user_group} /home/${container_user} /home/${container_user}/data
 # select container user for runtime
 USER ${container_user_uid}:${container_user_gid}
 

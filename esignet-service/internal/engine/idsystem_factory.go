@@ -12,11 +12,11 @@ import (
 	"github.com/mosip/esignet/internal/engine/sunbird"
 )
 
-// NewPluginProviders builds the authn provider and its matching observability
-// provider for the configured authentication backend. Each backend package
+// NewIDSystemProviders builds the authn provider and its matching observability
+// provider for the configured ID system backend. Each backend package
 // (mock, mosip, sunbird) owns its own construction, including its own HTTP
 // client where one is needed.
-func NewPluginProviders(appConfig *config.AppConfig, clientSvc *clientmgmt.Service) (
+func NewIDSystemProviders(appConfig *config.AppConfig, clientSvc *clientmgmt.Service) (
 	providers.AuthnProviderManager, providers.ObservabilityProvider, error) {
 
 	switch appConfig.Provider {

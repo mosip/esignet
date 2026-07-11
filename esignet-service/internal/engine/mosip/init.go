@@ -5,10 +5,11 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
+
 	"github.com/mosip/esignet/internal/clientmgmt"
 	"github.com/mosip/esignet/internal/config"
 	"github.com/mosip/esignet/internal/engine/shared"
-	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 )
 
 // newHTTPClient returns a tuned HTTP client for outbound MOSIP calls. Each

@@ -1,4 +1,5 @@
-package clientmgmt
+// Package security for application security
+package security
 
 import (
 	"crypto"
