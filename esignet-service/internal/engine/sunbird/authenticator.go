@@ -138,7 +138,12 @@ func (p *sunbirdAuthnProvider) GetUserAttributes(ctx context.Context,
 
 func (p *sunbirdAuthnProvider) GetEntityReference(_ context.Context,
 	authUser providers.AuthUser) (providers.AuthUser, *providers.EntityReference, *common.ServiceError) {
-	return authUser, nil, nil
+
+	entityID, ok := authUser.EntityReferenceToken().(string)
+	if !ok || entityID == "" {
+		return authUser, nil, shared.AuthenticationFailedError
+	}
+	return authUser, &providers.EntityReference{EntityID: entityID}, nil
 }
 
 func (p *sunbirdAuthnProvider) GetUserAvailableAttributes(_ context.Context,

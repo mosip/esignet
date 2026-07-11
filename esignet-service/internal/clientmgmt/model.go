@@ -3,6 +3,8 @@ package clientmgmt
 import (
 	"encoding/json"
 	"fmt"
+
+	"github.com/mosip/esignet/internal/common"
 )
 
 // Profile identifies which client-mgmt API variant is being invoked.
@@ -34,33 +36,26 @@ func validationErr(code string) error {
 
 // CreateRequestWrapper is the MOSIP envelope for client create requests.
 type CreateRequestWrapper struct {
-	Request     CreateClientRequest `json:"request"`
-	RequestTime string              `json:"requestTime"`
+	common.RequestWrapper
+	Request CreateClientRequest `json:"request"`
 }
 
 // UpdateRequestWrapper is the MOSIP envelope for client update requests.
 type UpdateRequestWrapper struct {
-	Request     UpdateClientRequest `json:"request"`
-	RequestTime string              `json:"requestTime"`
+	common.RequestWrapper
+	Request UpdateClientRequest `json:"request"`
 }
 
 // PatchRequestWrapper is the MOSIP envelope for client patch requests.
 type PatchRequestWrapper struct {
-	Request     PatchClientRequest `json:"request"`
-	RequestTime string             `json:"requestTime"`
-}
-
-// Error is a single entry in a MOSIP API error list.
-type Error struct {
-	ErrorCode    string `json:"errorCode"`
-	ErrorMessage string `json:"errorMessage"`
+	common.RequestWrapper
+	Request PatchClientRequest `json:"request"`
 }
 
 // ResponseWrapper is the MOSIP envelope for client-mgmt API responses.
 type ResponseWrapper struct {
-	Response     *ClientResponse `json:"response"`
-	ResponseTime string          `json:"responseTime"`
-	Errors       []Error         `json:"errors,omitempty"`
+	common.ResponseWrapper
+	Response *ClientResponse `json:"response"`
 }
 
 // CreateClientRequest is the payload for registering a new OIDC client.

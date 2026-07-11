@@ -43,9 +43,6 @@ done
 OUT_DIR=out
 if $WINDOWS; then BINARY=$OUT_DIR/esignet.exe; else BINARY=$OUT_DIR/esignet; fi
 CMD=./cmd/esignet
-KEY_DIR=keys
-SIGNING_KEY=$KEY_DIR/signing.key
-SIGNING_CERT=$KEY_DIR/signing.crt
 : "${PORT:=8080}"
 # Backward compatibility: ISSUER_URL was renamed to MOSIP_ESIGNET_HOST.
 if [ -z "${MOSIP_ESIGNET_HOST:-}" ] && [ -n "${ISSUER_URL:-}" ]; then
@@ -53,13 +50,16 @@ if [ -z "${MOSIP_ESIGNET_HOST:-}" ] && [ -n "${ISSUER_URL:-}" ]; then
 fi
 : "${MOSIP_ESIGNET_HOST:=http://127.0.0.1:$PORT}"
 : "${DATA_DIR:=./data}"
+KEY_DIR=$DATA_DIR/keys
+SIGNING_KEY=$KEY_DIR/signing.key
+SIGNING_CERT=$KEY_DIR/signing.crt
 : "${SIGNING_KEY_PATH:=./$SIGNING_KEY}"
 : "${DOCKER_IMAGE:=esignet:latest}"
 : "${GOLANGCI_LINT_VERSION:=latest}"
 : "${SQLC_VERSION:=v1.29.0}"
-: "${THUNDER_BRANCH:=main}"
+: "${THUNDER_BRANCH:=feature/thunderid-engine-impr}"
 : "${RACE:=1}"   # set RACE=0 if no C toolchain (go test -race needs gcc on Windows)
-THUNDER_MODULE=github.com/thunder-id/thunderid/backend
+THUNDER_MODULE=github.com/thunder-id/thunderid/backend 
 
 need() {
   command -v "$1" >/dev/null 2>&1 || { echo "make.sh: '$1' not found on PATH (required for this target)"; exit 1; }
@@ -201,14 +201,22 @@ target_update_thunder() { ## Update thunder replace directive to latest commit o
   need git
   echo "Fetching latest commit on branch '$THUNDER_BRANCH'..."
   local sha version
-  sha="$(git ls-remote https://github.com/anushasunkada/thunder.git "refs/heads/$THUNDER_BRANCH" | awk '{print $1}')"
+  sha="$(git ls-remote https://github.com/thunder-id/thunderid.git "refs/heads/$THUNDER_BRANCH" | awk '{print $1}')"
   if [ -z "$sha" ]; then echo "error: branch '$THUNDER_BRANCH' not found"; exit 1; fi
   # Resolve the exact SHA we just fetched (the Makefile resolved the branch
   # name again, which could race with new pushes).
   version="$(GOPROXY=direct go_mod_write list -m -f '{{.Version}}' "$THUNDER_MODULE@$sha")"
   if [ -z "$version" ]; then echo "error: could not resolve version"; exit 1; fi
   echo "Resolved version: $version"
-  sed -i.bak "s|replace github.com/thunder-id/thunderid => $THUNDER_MODULE .*|replace github.com/thunder-id/thunderid => $THUNDER_MODULE $version|" go.mod
+  # Match any existing "replace github.com/thunder-id/thunderid => ..." line
+  # regardless of which module it currently points at, since that can drift
+  # (e.g. a prior run against a different fork/module).
+  sed -i.bak -E "s|^replace github\.com/thunder-id/thunderid => .*|replace github.com/thunder-id/thunderid => $THUNDER_MODULE $version|" go.mod
+  if ! grep -qF "replace github.com/thunder-id/thunderid => $THUNDER_MODULE $version" go.mod; then
+    mv go.mod.bak go.mod
+    echo "error: go.mod replace directive was not updated (no matching 'replace github.com/thunder-id/thunderid => ...' line found)"
+    exit 1
+  fi
   rm -f go.mod.bak
   echo "go.mod updated"
   go_mod_write mod tidy
@@ -225,7 +233,7 @@ target_clean() { ## Remove build artefacts and coverage output
   rm -f coverage.out coverage.html
 }
 
-target_distclean() { ## Also remove generated signing keys under keys/
+target_distclean() { ## Also remove generated signing keys under $DATA_DIR/keys/
   target_clean
   rm -f "$SIGNING_KEY" "$SIGNING_CERT"
   rmdir "$KEY_DIR" 2>/dev/null || true
@@ -264,7 +272,7 @@ Maintenance
   update-thunder     Update thunder replace directive and refresh go.sum (THUNDER_BRANCH=$THUNDER_BRANCH)
   tidy               Run go mod tidy
   clean              Remove build artefacts and coverage output
-  distclean          Also remove generated signing keys under keys/
+  distclean          Also remove generated signing keys under $DATA_DIR/keys/
 
 Environment (override on the command line or in .env):
   PORT=$PORT

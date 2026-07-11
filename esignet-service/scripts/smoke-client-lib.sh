@@ -21,7 +21,7 @@ mgmt_auth_header() {
 	if [ -n "${CLIENT_MGMT_ISSUER:-}" ]; then
 		local root_dir signing_key
 		root_dir="$(smoke_root_dir)"
-		signing_key="${SIGNING_KEY:-${root_dir}/keys/signing.key}"
+		signing_key="${SIGNING_KEY:-${DATA_DIR:-${root_dir}/data}/keys/signing.key}"
 		if [ ! -f "$signing_key" ]; then
 			printf 'missing signing key: %s (run ./make.sh keys)\n' "$signing_key" >&2
 			return 1
