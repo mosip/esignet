@@ -33,6 +33,9 @@ func (p *actorProvider) GetOAuthClientByClientID(
 	if err != nil {
 		return nil, shared.ClientNotFoundError
 	}
+	requirePushedAuthorizationRequests, _ := client.AdditionalConfig["require_pushed_authorization_requests"].(bool)
+	dpopBoundAccessTokens, _ := client.AdditionalConfig["dpop_bound_access_tokens"].(bool)
+	pkceRequired, _ := client.AdditionalConfig["require_pkce"].(bool)
 	return &providers.OAuthClient{
 		ID:                      client.ClientID,
 		OUID:                    client.RpID,
@@ -41,12 +44,15 @@ func (p *actorProvider) GetOAuthClientByClientID(
 		RedirectURIs:            client.RedirectURIs,
 		ResponseTypes:           []providers.ResponseType{providers.ResponseTypeCode},
 		TokenEndpointAuthMethod: providers.TokenEndpointAuthMethodPrivateKeyJWT,
-		PKCERequired:            false,
+		PKCERequired:            pkceRequired,
 		PublicClient:            false,
 		Certificate: &providers.Certificate{
 			Type:  "JWKS",
 			Value: getJWKS(client.PublicKey),
 		},
+		RequirePushedAuthorizationRequests: requirePushedAuthorizationRequests,
+		DPoPBoundAccessTokens:              dpopBoundAccessTokens,
+		AcrValues:                          client.AcrValues,
 	}, nil
 }
 
@@ -57,16 +63,19 @@ func (p *actorProvider) GetOAuthProfileByID(
 	if err != nil {
 		return nil, shared.ClientNotFoundError
 	}
+	requirePushedAuthorizationRequests, _ := client.AdditionalConfig["require_pushed_authorization_requests"].(bool)
+	dpopBoundAccessTokens, _ := client.AdditionalConfig["dpop_bound_access_tokens"].(bool)
+	pkceRequired, _ := client.AdditionalConfig["require_pkce"].(bool)
 	return &providers.OAuthProfile{
 		RedirectURIs:                       client.RedirectURIs,
 		GrantTypes:                         client.GrantTypes,
 		ResponseTypes:                      []string{string(providers.ResponseTypeCode)},
 		TokenEndpointAuthMethod:            string(providers.TokenEndpointAuthMethodPrivateKeyJWT),
-		PKCERequired:                       true,
+		PKCERequired:                       pkceRequired,
 		PublicClient:                       false,
-		RequirePushedAuthorizationRequests: true,
-		DPoPBoundAccessTokens:              true,
-		IncludeActClaim:                    true,
+		RequirePushedAuthorizationRequests: requirePushedAuthorizationRequests,
+		DPoPBoundAccessTokens:              dpopBoundAccessTokens,
+		IncludeActClaim:                    false,
 		Token: &providers.OAuthTokenConfig{
 			AccessToken: &providers.AccessTokenConfig{
 				UserConfig: &providers.AccessTokenSubConfig{
