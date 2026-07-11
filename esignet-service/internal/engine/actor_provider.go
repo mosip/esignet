@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
@@ -68,8 +69,10 @@ func (p *actorProvider) GetOAuthProfileByID(
 		IncludeActClaim:                    true,
 		Token: &providers.OAuthTokenConfig{
 			AccessToken: &providers.AccessTokenConfig{
-				ValidityPeriod: 5 * 60,
-				UserAttributes: client.Claims,
+				UserConfig: &providers.AccessTokenSubConfig{
+					ValidityPeriod: 5 * 60,
+					Attributes:     client.Claims,
+				},
 			},
 			IDToken: &providers.IDTokenConfig{
 				ValidityPeriod: 5 * 60,
@@ -103,6 +106,7 @@ func (p *actorProvider) GetInboundClientByID(
 	properties := make(map[string]interface{})
 	properties["name"] = client.ClientName
 	properties["description"] = client.ClientName
+	properties["logo_url"] = client.LogoURI
 
 	return &providers.InboundClient{
 		ID:                        client.ClientID,
@@ -123,8 +127,37 @@ func (p *actorProvider) GetInboundClientByID(
 	}, nil
 }
 
-func (p *actorProvider) GetActor(_ string) (*providers.Entity, *common.ServiceError) {
-	return nil, nil
+func (p *actorProvider) AuthenticateActor(
+	_ context.Context, _, _ map[string]interface{},
+) *common.ServiceError {
+	return shared.NotImplementedError
+}
+
+func (p *actorProvider) GetActor(id string) (*providers.Entity, *common.ServiceError) {
+	client, err := p.clientSvc.GetClient(context.Background(), id)
+	if err != nil {
+		return nil, shared.ClientNotFoundError
+	}
+
+	clientAttributes := map[string]interface{}{
+		"name":        client.ClientName,
+		"description": client.ClientName,
+	}
+	data, err := json.Marshal(clientAttributes)
+	if err != nil {
+		log.Println("failed to marshal client attributes")
+	}
+
+	return &providers.Entity{
+		ID:               id,
+		Category:         providers.EntityCategoryApp,
+		Type:             "app",
+		State:            providers.EntityStateActive,
+		OUID:             client.RpID,
+		OUHandle:         client.RpID,
+		SystemAttributes: json.RawMessage(data),
+		IsReadOnly:       true,
+	}, nil
 }
 
 func (p *actorProvider) GetActorGroups(_ string) ([]providers.EntityGroup, *common.ServiceError) {

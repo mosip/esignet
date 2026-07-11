@@ -23,7 +23,7 @@ import (
 	"strings"
 	"time"
 
-	"golang.org/x/crypto/pkcs12"
+	"software.sslmate.com/src/go-pkcs12"
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
@@ -194,7 +194,11 @@ func (p *mosipAuthnProvider) AuthenticateUser(_ context.Context, identifiers, cr
 func (p *mosipAuthnProvider) GetEntityReference(_ context.Context, authUser providers.AuthUser) (
 	providers.AuthUser, *providers.EntityReference, *common.ServiceError) {
 
-	return authUser, nil, nil
+	psut, ok := authUser.EntityReferenceToken().(string)
+	if !ok || psut == "" {
+		return authUser, nil, shared.AuthenticationFailedError
+	}
+	return authUser, &providers.EntityReference{EntityID: psut}, nil
 }
 
 func (p *mosipAuthnProvider) GetUserAvailableAttributes(_ context.Context,

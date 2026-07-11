@@ -4,30 +4,35 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine"
+	engineconfig "github.com/thunder-id/thunderid/pkg/thunderidengine/config"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
 	"github.com/mosip/esignet/internal/clientmgmt"
 	"github.com/mosip/esignet/internal/config"
 	"github.com/mosip/esignet/internal/engine"
+	"github.com/mosip/esignet/internal/engine/runtimestores/inmemory"
+	"github.com/mosip/esignet/internal/engine/runtimestores/redisstore"
 	"github.com/mosip/esignet/internal/engine/shared"
 	applog "github.com/mosip/esignet/internal/log"
+	"github.com/mosip/esignet/internal/security"
 )
 
 func main() {
 	logger := applog.GetLogger()
-	appCfg, err := config.LoadAppConfig()
+
+	// Load application configurations
+	appCfg, err := getAppConfig()
 	if err != nil {
 		logger.Fatal("failed to load app config", applog.Error(err))
 	}
-	if err := config.ApplyEnvOverrides(appCfg); err != nil {
-		logger.Fatal("failed to apply env overrides", applog.Error(err))
-	}
 
+	// Setup DB connection
 	pgConn, err := appCfg.DB.Open()
 	if err != nil {
-		logger.Fatal("connect postgres", applog.Error(err))
+		logger.Fatal("postgres connection failed", applog.Error(err))
 	}
 	defer func() {
 		if err := pgConn.Close(); err != nil {
@@ -35,43 +40,17 @@ func main() {
 		}
 	}()
 
-	redisClient, err := appCfg.Redis.Open()
-	if err != nil {
-		logger.Fatal("connect redis", applog.Error(err))
-	}
-	defer func() {
-		if err := redisClient.Close(); err != nil {
-			logger.Warn("close redis", applog.Error(err))
-		}
-	}()
-	logger.Info("redis connected",
-		applog.String("key_prefix", appCfg.Redis.KeyPrefix),
-	)
-
-	clientMgmtCfg := clientmgmt.LoadConfig()
-	var scopeMW func(http.Handler) http.Handler
-	if clientMgmtCfg.ScopeEnforcementEnabled() {
-		logger.Info("client mgmt scope enforcement enabled",
-			applog.String("required_scope", clientMgmtCfg.RequiredScope),
-			applog.String("jwks_endpoint", clientMgmtCfg.JWKSEndpoint),
-			applog.String("issuer", clientMgmtCfg.Issuer),
-		)
-		jwksCache := clientmgmt.NewJWKSCache(clientMgmtCfg.JWKSEndpoint, clientMgmtCfg.JWKSCacheTTL)
-		scopeMW = clientmgmt.ScopeMiddleware(jwksCache, clientMgmtCfg.Issuer, clientMgmtCfg.RequiredScope)
-	} else {
-		logger.Warn("client mgmt scope enforcement disabled; set CLIENT_MGMT_ISSUER_URL and CLIENT_MGMT_JWKS_ENDPOINT to enable")
-	}
-	clientSvc := clientmgmt.NewService(pgConn)
-	clientHandler := clientmgmt.NewHandler(clientSvc, logger)
-
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("ok"))
 	})
-	clientHandler.RegisterRoutes(mux, scopeMW)
 
-	authnProvider, observabilityProvider, err := engine.NewPluginProviders(appCfg, clientSvc)
+	clientSvc := clientmgmt.NewService(pgConn)
+	clientHandler := clientmgmt.NewHandler(clientSvc, logger)
+	clientHandler.RegisterRoutes(mux, getSecurityMiddleware(appCfg, logger))
+
+	authnProvider, observabilityProvider, err := engine.NewIDSystemProviders(appCfg, clientSvc)
 	if err != nil {
 		logger.Fatal("plugin providers", applog.Error(err))
 	}
@@ -79,10 +58,14 @@ func main() {
 
 	_ = thunderidengine.New(mux,
 		thunderidengine.WithServerHome(appCfg.DataDir),
+		thunderidengine.WithKeyConfigs([]engineconfig.KeyConfig{appCfg.KeyConfig}),
+		thunderidengine.WithEncryptionConfig(appCfg.EncryptionConfig),
+		thunderidengine.WithRuntimeDBType("redis"),
 		thunderidengine.WithServerConfig(appCfg.Server),
 		thunderidengine.WithCacheConfig(appCfg.Cache),
 		thunderidengine.WithOAuthConfig(appCfg.OAuth),
 		thunderidengine.WithJWTConfig(appCfg.JWT),
+		thunderidengine.WithGateClientConfig(appCfg.GateClient),
 		thunderidengine.WithFlowConfig(appCfg.Flow),
 		thunderidengine.WithObservabilityConfig(appCfg.Observability),
 		thunderidengine.WithActorProvider(engine.NewActorProvider(clientSvc, appCfg)),
@@ -95,7 +78,9 @@ func main() {
 		thunderidengine.WithOUProvider(engine.NewOUProvider(appCfg)),
 		thunderidengine.WithResourceProvider(engine.NewResourceProvider(appCfg)),
 		thunderidengine.WithObservabilityProvider(observabilityProvider),
+		thunderidengine.WithIDPProvider(engine.NewIDPProvider(appCfg)),
 		thunderidengine.WithCustomExecutors(getCustomExecutors(authnProvider)),
+		thunderidengine.WithRuntimeStoreProvider(getRuntimeStoreProvider(appCfg, logger)),
 	)
 
 	addr := fmt.Sprintf(":%d", appCfg.Port)
@@ -103,6 +88,49 @@ func main() {
 	if err := http.ListenAndServe(addr, mux); err != nil {
 		logger.Fatal("server", applog.Error(err))
 	}
+}
+
+func getAppConfig() (*config.AppConfig, error) {
+	appCfg, err := config.LoadAppConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	if err := config.ApplyEnvOverrides(appCfg); err != nil {
+		return nil, err
+	}
+	return appCfg, err
+}
+
+func getSecurityMiddleware(appCfg *config.AppConfig, logger *applog.Logger) func(http.Handler) http.Handler {
+	var scopeMW func(http.Handler) http.Handler
+	if scopeEnforcementEnabled(appCfg) {
+		logger.Info("Scope enforcement enabled",
+			applog.String("jwks_endpoint", appCfg.SecurityConfig.JwksURL),
+			applog.String("issuer", appCfg.SecurityConfig.IssuerURL),
+		)
+		jwksCache := security.NewJWKSCache(appCfg.SecurityConfig.JwksURL, time.Duration(appCfg.SecurityConfig.JwksCacheTTL))
+		scopeMW = security.ScopeMiddleware(jwksCache, appCfg.SecurityConfig)
+	} else {
+		logger.Warn("Scope enforcement disabled; set ISSUER_URL and JWKS_URL in security_config to enable")
+	}
+
+	requestTimeLeeway := time.Duration(appCfg.SecurityConfig.RequestTimeLeewaySecs) * time.Second
+	logger.Info("Request time validation enabled", applog.String("leeway", requestTimeLeeway.String()))
+	requestTimeMW := security.RequestTimeMiddleware(requestTimeLeeway)
+
+	if scopeMW != nil {
+		return func(next http.Handler) http.Handler {
+			return scopeMW(requestTimeMW(next))
+		}
+	}
+	return requestTimeMW
+}
+
+// ScopeEnforcementEnabled reports whether Bearer token scope enforcement should
+// be applied. Both Issuer and JWKSEndpoint must be set.
+func scopeEnforcementEnabled(appCfg *config.AppConfig) bool {
+	return appCfg.SecurityConfig.IssuerURL != "" && appCfg.SecurityConfig.JwksURL != ""
 }
 
 // CustomExecutors returns embedder-supplied flow executors keyed by executor name.
@@ -114,4 +142,28 @@ func getCustomExecutors(authn providers.AuthnProviderManager) map[string]provide
 		executors[engine.ExecutorNameMosipOTP] = engine.NewMosipOtpExecutor(otpAuthn)
 	}
 	return executors
+}
+
+func getRuntimeStoreProvider(appCfg *config.AppConfig, logger *applog.Logger) providers.RuntimeStoreProvider {
+	if appCfg.RuntimeDBType == "redis" {
+		redisClient, err := appCfg.Redis.Open()
+		if err != nil {
+			logger.Fatal("connect redis", applog.Error(err))
+		}
+		defer func() {
+			if err := redisClient.Close(); err != nil {
+				logger.Warn("close redis", applog.Error(err))
+			}
+		}()
+		logger.Info("redis connected",
+			applog.String("key_prefix", appCfg.Redis.KeyPrefix),
+		)
+		store, err := redisstore.Initialize(appCfg.Identifier, appCfg.Redis.KeyPrefix, redisClient)
+		if err != nil {
+			logger.Fatal("Failed to initialize redis store", applog.Error(err))
+		}
+		return store
+	}
+
+	return inmemory.Initialize(appCfg.Identifier)
 }
