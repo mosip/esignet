@@ -109,8 +109,8 @@ func applyDefaults(cfg *AppConfig) {
 
 	cfg.Server.Port = cfg.Port
 	cfg.Server.Identifier = cfg.Identifier
-	cfg.Server.PublicURL = cfg.Issuer
-	cfg.Server.HTTPOnly = strings.HasPrefix(cfg.Issuer, "http://")
+	cfg.Server.PublicURL = envOrDefault("MOSIP_ESIGNET_BASE_URL", cfg.Issuer)
+	cfg.Server.HTTPOnly = strings.HasPrefix(cfg.Server.PublicURL, "http://")
 
 	cfg.JWT.Issuer = cfg.Issuer
 	cfg.JWT.Audience = cfg.Issuer
