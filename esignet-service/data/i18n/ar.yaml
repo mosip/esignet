@@ -1,0 +1,1190 @@
+system:
+  "design.resolve.error.app_no_design": لا يوجد تكوين تصميم للتطبيق
+  "design.resolve.error.app_no_design_description": التطبيق المحدد لا يحتوي على تكوين سمة أو تخطيط مرتبط
+  "design.resolve.error.app_not_found": التطبيق غير موجود
+  "design.resolve.error.app_not_found_description": التطبيق بالمعرف المحدد غير موجود
+  "design.resolve.error.invalid_type": تنسيق الطلب غير صالح
+  "design.resolve.error.invalid_type_description": معامل الاستعلام 'type' مطلوب ويجب أن يكون إما 'APP' أو 'OU'
+  "design.resolve.error.missing_id": تنسيق الطلب غير صالح
+  "design.resolve.error.missing_id_description": معامل الاستعلام 'id' مطلوب
+  "design.resolve.error.unsupported_type": نوع الحل غير مدعوم
+  "design.resolve.error.unsupported_type_description": نوع الحل المحدد غير مدعوم حتى الآن. حالياً يُدعم فقط النوع 'APP'
+  "error.actor_not_found": الجهة الفاعلة غير موجودة
+  "error.actor_not_found_description": الجهة الفاعلة المطلوبة غير موجودة
+  "error.agentservice.agent_already_exists_with_client_id": معرف العميل مستخدم بالفعل
+  "error.agentservice.agent_already_exists_with_client_id_description": كيان بنفس معرف العميل موجود بالفعل
+  "error.agentservice.agent_already_exists_with_name": الوكيل موجود بالفعل
+  "error.agentservice.agent_already_exists_with_name_description": وكيل بنفس الاسم موجود بالفعل
+  "error.agentservice.agent_not_found": الوكيل غير موجود
+  "error.agentservice.agent_not_found_description": الوكيل بالمعرف المحدد غير موجود
+  "error.agentservice.attribute_conflict": تعارض في السمات
+  "error.agentservice.attribute_conflict_description": وكيل بنفس قيمة السمة الفريدة موجود بالفعل
+  "error.agentservice.auth_code_requires_code_response_type_description": نوع منح authorization_code يتطلب نوع استجابة 'code'
+  "error.agentservice.auth_code_requires_redirect_uris_description": نوع منح authorization_code يتطلب عناوين URI لإعادة التوجيه
+  "error.agentservice.cannot_modify_declarative_resource": لا يمكن تعديل المورد التعريفي
+  "error.agentservice.cannot_modify_declarative_resource_description": لا يمكن تعديل الوكلاء المُدارين تعريفياً عبر API
+  "error.agentservice.certificate_operation_failed": فشلت عملية الشهادة
+  "error.agentservice.certificate_operation_failed_description": فشلت عملية شهادة بسبب مدخلات غير صالحة
+  "error.agentservice.client_credentials_cannot_use_none_auth_description": نوع منح client_credentials لا يمكنه استخدام طريقة المصادقة 'none'
+  "error.agentservice.client_credentials_cannot_use_response_types_description": لا يمكن استخدام نوع منح client_credentials مع أنواع الاستجابة
+  "error.agentservice.client_secret_cannot_have_certificate_description": لا يمكن لطرق مصادقة client_secret امتلاك شهادة
+  "error.agentservice.consent_sync_failed": فشل مزامنة الموافقة
+  "error.agentservice.consent_sync_failed_description": فشل في مزامنة تغييرات سمات الوكيل مع خدمة الموافقة
+  "error.agentservice.error_retrieving_flow_definition": خطأ في استرداد تعريف التدفق
+  "error.agentservice.error_retrieving_flow_definition_description": حدث خطأ أثناء استرداد تعريف التدفق
+  "error.agentservice.idtoken_encryption_alg_requires_enc_description": encryptionEnc لـ idToken مطلوب عند تعيين encryptionAlg
+  "error.agentservice.idtoken_encryption_enc_requires_alg_description": encryptionAlg لـ idToken مطلوب عند تعيين encryptionEnc
+  "error.agentservice.idtoken_encryption_fields_not_allowed_description": يجب عدم تعيين encryptionAlg و encryptionEnc لـ idToken عندما يكون responseType هو JWT
+  "error.agentservice.idtoken_encryption_requires_certificate_description": شهادة (JWKS أو JWKS_URI) مطلوبة عند تكوين تشفير رمز ID
+  "error.agentservice.idtoken_jwks_uri_not_ssrf_safe_description": يجب أن يكون JWKS URI لـ idToken عنوان HTTPS URL يمكن الوصول إليه علنياً
+  "error.agentservice.idtoken_unsupported_encryption_alg_description": خوارزمية تشفير رمز ID غير مدعومة
+  "error.agentservice.idtoken_unsupported_encryption_enc_description": خوارزمية تشفير المحتوى لرمز ID غير مدعومة
+  "error.agentservice.idtoken_unsupported_response_type_description": responseType لرمز ID غير مدعوم
+  "error.agentservice.invalid_agent_name": اسم الوكيل غير صالح
+  "error.agentservice.invalid_agent_name_description": يجب تقديم اسم الوكيل وألا يكون فارغاً
+  "error.agentservice.invalid_agent_type": نوع الوكيل غير صالح
+  "error.agentservice.invalid_agent_type_description": يجب تقديم نوع الوكيل
+  "error.agentservice.invalid_auth_flow_id": معرف تدفق المصادقة غير صالح
+  "error.agentservice.invalid_auth_flow_id_description": معرف تدفق المصادقة المقدم غير صالح
+  "error.agentservice.invalid_certificate_type": نوع الشهادة غير صالح
+  "error.agentservice.invalid_certificate_type_description": نوع الشهادة المقدم غير مدعوم
+  "error.agentservice.invalid_certificate_value": قيمة الشهادة غير صالحة
+  "error.agentservice.invalid_certificate_value_description": قيمة الشهادة المقدمة غير صالحة أو مفقودة
+  "error.agentservice.invalid_credential": بيانات الاعتماد غير صالحة
+  "error.agentservice.invalid_credential_description": بيانات الاعتماد المقدمة غير صالحة
+  "error.agentservice.invalid_filter": معامل التصفية غير صالح
+  "error.agentservice.invalid_filter_description": تنسيق التصفية غير صالح
+  "error.agentservice.invalid_grant_type": نوع المنح غير صالح
+  "error.agentservice.invalid_grant_type_description": نوع منح واحد أو أكثر غير مدعوم
+  "error.agentservice.invalid_jwks_uri": JWKS URI غير صالح
+  "error.agentservice.invalid_jwks_uri_description": يجب أن يكون JWKS URI عنوان HTTPS URL يمكن الوصول إليه علنياً
+  "error.agentservice.invalid_limit": معامل ترقيم الصفحات غير صالح
+  "error.agentservice.invalid_limit_description": يجب أن يكون معامل الحد بين 1 و 100
+  "error.agentservice.invalid_oauth_configuration": تكوين OAuth غير صالح
+  "error.agentservice.invalid_oauth_configuration_description": تكوين OAuth المقدم غير صالح
+  "error.agentservice.invalid_offset": معامل ترقيم الصفحات غير صالح
+  "error.agentservice.invalid_offset_description": يجب أن يكون معامل الإزاحة عدداً صحيحاً غير سالب
+  "error.agentservice.invalid_public_client_configuration": تكوين العميل العام غير صالح
+  "error.agentservice.invalid_public_client_configuration_description": تكوين العميل العام غير صالح
+  "error.agentservice.invalid_redirect_uri": URI إعادة التوجيه غير صالح
+  "error.agentservice.invalid_redirect_uri_description": عنوان URI واحد أو أكثر لإعادة التوجيه غير صالح
+  "error.agentservice.invalid_registration_flow_id": معرف تدفق التسجيل غير صالح
+  "error.agentservice.invalid_registration_flow_id_description": معرف تدفق التسجيل المقدم غير صالح
+  "error.agentservice.invalid_request_format": تنسيق الطلب غير صالح
+  "error.agentservice.invalid_request_format_description": جسم الطلب مشوه أو يحتوي على بيانات غير صالحة
+  "error.agentservice.invalid_response_type": نوع الاستجابة غير صالح
+  "error.agentservice.invalid_response_type_description": نوع استجابة واحد أو أكثر مقدم غير صالح
+  "error.agentservice.invalid_token_endpoint_auth_method": طريقة مصادقة نقطة نهاية الرمز غير صالحة
+  "error.agentservice.invalid_token_endpoint_auth_method_description": طريقة مصادقة نقطة نهاية الرمز المقدمة غير مدعومة
+  "error.agentservice.invalid_user_attribute": سمة المستخدم غير صالحة
+  "error.agentservice.invalid_user_attribute_description": سمة مستخدم واحدة أو أكثر غير صالحة لأنواع المستخدمين المسموح بهم المكونة
+  "error.agentservice.invalid_user_type": نوع المستخدم غير صالح
+  "error.agentservice.invalid_user_type_description": نوع مستخدم واحد أو أكثر من أنواع المستخدمين المسموح بهم المحددة غير صالح
+  "error.agentservice.layout_not_found": التخطيط غير موجود
+  "error.agentservice.layout_not_found_description": التخطيط المحدد غير موجود
+  "error.agentservice.missing_agent_id": معرف الوكيل مفقود
+  "error.agentservice.missing_agent_id_description": معرف الوكيل مطلوب
+  "error.agentservice.multiple_oauth_configs": لا يُسمح بتكوينات مصادقة OAuth واردة متعددة
+  "error.agentservice.multiple_oauth_configs_description": يمكن للكيان امتلاك تكوين مصادقة وارد واحد على الأكثر لكل بروتوكول
+  "error.agentservice.none_auth_method_cannot_have_cert_or_secret_description": لا يمكن لطريقة المصادقة 'none' امتلاك شهادة أو سر عميل
+  "error.agentservice.none_auth_method_requires_public_client_description": طريقة المصادقة 'none' تتطلب أن يكون العميل عميلاً عاماً
+  "error.agentservice.organization_unit_not_found": وحدة المؤسسة غير موجودة
+  "error.agentservice.organization_unit_not_found_description": وحدة المؤسسة المحددة غير موجودة
+  "error.agentservice.owner_not_found": المالك غير موجود
+  "error.agentservice.owner_not_found_description": المالك المحدد لا يتطابق مع أي مستخدم أو تطبيق أو وكيل معروف
+  "error.agentservice.pkce_requires_authorization_code_description": لا يمكن تفعيل PKCE إلا عند تحديد نوع منح authorization_code
+  "error.agentservice.private_key_jwt_cannot_have_client_secret_description": لا يمكن لطريقة مصادقة private_key_jwt امتلاك سر عميل
+  "error.agentservice.private_key_jwt_requires_certificate_description": طريقة مصادقة private_key_jwt تتطلب شهادة
+  "error.agentservice.public_client_must_have_pkce_description": يجب على العملاء العامين تعيين PKCE مطلوباً على true
+  "error.agentservice.public_client_must_use_none_auth_description": يجب على العملاء العامين استخدام 'none' كطريقة مصادقة لنقطة نهاية الرمز
+  "error.agentservice.redirect_uri_fragment_not_allowed_description": يجب ألا تحتوي عناوين URI لإعادة التوجيه على مكون fragment
+  "error.agentservice.refresh_token_cannot_be_sole_grant_description": لا يمكن استخدام نوع منح refresh_token دون نوع منح آخر
+  "error.agentservice.response_types_require_authorization_code_description": لا يمكن تكوين أنواع الاستجابة إلا مع نوع منح authorization_code
+  "error.agentservice.schema_validation_failed": فشل التحقق من المخطط
+  "error.agentservice.schema_validation_failed_description": فشلت السمات المقدمة في التحقق من المخطط
+  "error.agentservice.theme_not_found": السمة غير موجودة
+  "error.agentservice.theme_not_found_description": السمة المحددة غير موجودة
+  "error.agentservice.userinfo_alg_requires_response_type_description": responseType لـ userinfo مطلوب عند تعيين signingAlg أو encryptionAlg
+  "error.agentservice.userinfo_encryption_alg_requires_enc_description": encryptionEnc لـ userinfo مطلوب عند تعيين encryptionAlg
+  "error.agentservice.userinfo_encryption_enc_requires_alg_description": encryptionAlg لـ userinfo مطلوب عند تعيين encryptionEnc
+  "error.agentservice.userinfo_encryption_requires_certificate_description": شهادة (JWKS أو JWKS_URI) مطلوبة عند تكوين تشفير userinfo
+  "error.agentservice.userinfo_jwe_requires_encryption_description": encryptionAlg و encryptionEnc مطلوبان عندما يكون responseType لـ userinfo هو JWE
+  "error.agentservice.userinfo_jwks_uri_not_ssrf_safe_description": يجب أن يكون JWKS URI لـ userinfo عنوان HTTPS URL يمكن الوصول إليه علنياً
+  "error.agentservice.userinfo_jws_requires_signing_alg_description": signingAlg مطلوب عندما يكون responseType لـ userinfo هو JWS
+  "error.agentservice.userinfo_nested_jwt_requires_all_description": signingAlg و encryptionAlg و encryptionEnc مطلوبة عندما يكون responseType لـ userinfo هو NESTED_JWT
+  "error.agentservice.userinfo_unsupported_encryption_alg_description": خوارزمية تشفير userinfo غير مدعومة
+  "error.agentservice.userinfo_unsupported_encryption_enc_description": خوارزمية تشفير محتوى userinfo غير مدعومة
+  "error.agentservice.userinfo_unsupported_response_type_description": responseType لـ userinfo غير مدعوم
+  "error.agentservice.userinfo_unsupported_signing_alg_description": خوارزمية توقيع userinfo غير مدعومة
+  "error.applicationservice.application_already_exists": التطبيق موجود بالفعل
+  "error.applicationservice.application_already_exists_description": تطبيق بنفس الاسم موجود بالفعل
+  "error.applicationservice.application_is_nil": التطبيق فارغ
+  "error.applicationservice.application_is_nil_description": كائن التطبيق المقدم فارغ
+  "error.applicationservice.application_not_found": التطبيق غير موجود
+  "error.applicationservice.application_not_found_description": لم يتم العثور على التطبيق المطلوب
+  "error.applicationservice.application_with_client_id_already_exists": تطبيق بمعرف العميل موجود بالفعل
+  "error.applicationservice.application_with_client_id_already_exists_description": تطبيق بنفس معرف العميل موجود بالفعل
+  "error.applicationservice.auth_code_requires_code_response_type_description": نوع منح authorization_code يتطلب نوع استجابة 'code'
+  "error.applicationservice.auth_code_requires_redirect_uris_description": نوع منح authorization_code يتطلب عناوين URI لإعادة التوجيه
+  "error.applicationservice.cannot_modify_declarative_resource": لا يمكن تعديل المورد التعريفي
+  "error.applicationservice.cannot_modify_declarative_resource_description": التطبيق تعريفي ولا يمكن تعديله أو حذفه
+  "error.applicationservice.certificate_operation_failed": فشلت عملية الشهادة
+  "error.applicationservice.certificate_operation_failed_description": حدث خطأ أثناء معالجة شهادة التطبيق
+  "error.applicationservice.client_credentials_cannot_use_none_auth_description": نوع منح client_credentials لا يمكنه استخدام طريقة المصادقة 'none'
+  "error.applicationservice.client_credentials_cannot_use_response_types_description": لا يمكن استخدام نوع منح client_credentials مع أنواع الاستجابة
+  "error.applicationservice.client_secret_cannot_have_certificate_description": لا يمكن لطرق مصادقة client_secret امتلاك شهادة
+  "error.applicationservice.consent_service_not_enabled": خدمة الموافقة غير مفعلة
+  "error.applicationservice.consent_service_not_enabled_description": لا يمكن تفعيل الموافقة للتطبيق لأن خدمة الموافقة غير مفعلة
+  "error.applicationservice.consent_synchronization_failed": فشل مزامنة الموافقة
+  "error.applicationservice.consent_synchronization_failed_description": فشل في مزامنة تكوينات الموافقة للتطبيق
+  "error.applicationservice.error_retrieving_flow_definition": خطأ في استرداد تعريف التدفق
+  "error.applicationservice.error_retrieving_flow_definition_description": حدث خطأ أثناء استرداد تعريف التدفق
+  "error.applicationservice.idtoken_encryption_alg_requires_enc_description": encryptionEnc لـ idToken مطلوب عند تعيين encryptionAlg
+  "error.applicationservice.idtoken_encryption_enc_requires_alg_description": encryptionAlg لـ idToken مطلوب عند تعيين encryptionEnc
+  "error.applicationservice.idtoken_encryption_fields_not_allowed_description": يجب عدم تعيين encryptionAlg و encryptionEnc لـ idToken عندما يكون responseType هو JWT
+  "error.applicationservice.idtoken_encryption_requires_certificate_description": شهادة (JWKS أو JWKS_URI) مطلوبة عند تكوين تشفير رمز ID
+  "error.applicationservice.idtoken_jwks_uri_not_ssrf_safe_description": يجب أن يكون JWKS URI لـ idToken عنوان HTTPS URL يمكن الوصول إليه علنياً
+  "error.applicationservice.idtoken_unsupported_encryption_alg_description": خوارزمية تشفير رمز ID غير مدعومة
+  "error.applicationservice.idtoken_unsupported_encryption_enc_description": خوارزمية تشفير المحتوى لرمز ID غير مدعومة
+  "error.applicationservice.idtoken_unsupported_response_type_description": responseType لرمز ID غير مدعوم
+  "error.applicationservice.invalid_acr_values": قيمة ACR غير صالحة
+  "error.applicationservice.invalid_acr_values_description": قيمة ACR واحدة أو أكثر في acr_values غير معروفة للنظام
+  "error.applicationservice.invalid_application_id": معرف التطبيق غير صالح
+  "error.applicationservice.invalid_application_id_description": معرف التطبيق المقدم غير صالح أو فارغ
+  "error.applicationservice.invalid_application_name": اسم التطبيق غير صالح
+  "error.applicationservice.invalid_application_name_description": اسم التطبيق المقدم غير صالح أو فارغ
+  "error.applicationservice.invalid_application_url": رابط التطبيق غير صالح
+  "error.applicationservice.invalid_application_url_description": رابط التطبيق المقدم ليس URI صالحاً
+  "error.applicationservice.invalid_auth_flow_id": معرف تدفق المصادقة غير صالح
+  "error.applicationservice.invalid_auth_flow_id_description": معرف تدفق المصادقة المقدم غير صالح
+  "error.applicationservice.invalid_certificate_type": نوع الشهادة غير صالح
+  "error.applicationservice.invalid_certificate_type_description": نوع الشهادة المقدم غير مدعوم
+  "error.applicationservice.invalid_certificate_value": قيمة الشهادة غير صالحة
+  "error.applicationservice.invalid_certificate_value_description": قيمة الشهادة المقدمة غير صالحة
+  "error.applicationservice.invalid_client_id": معرف العميل غير صالح
+  "error.applicationservice.invalid_client_id_description": معرف العميل المقدم غير صالح أو فارغ
+  "error.applicationservice.invalid_grant_type": نوع المنح غير صالح
+  "error.applicationservice.invalid_grant_type_description": نوع منح واحد أو أكثر مقدم غير صالح
+  "error.applicationservice.invalid_inbound_auth_config": تكوين المصادقة الواردة غير صالح
+  "error.applicationservice.invalid_inbound_auth_config_description": تكوين المصادقة الواردة المقدم غير صالح
+  "error.applicationservice.invalid_jwks_uri": JWKS URI غير صالح
+  "error.applicationservice.invalid_jwks_uri_description": JWKS URI المقدم ليس URI صالحاً
+  "error.applicationservice.invalid_jwks_uri_scheme": مخطط JWKS URI غير صالح
+  "error.applicationservice.invalid_jwks_uri_scheme_description": يجب أن يستخدم 'jwks_uri' مخطط HTTPS
+  "error.applicationservice.invalid_logo_url": رابط الشعار غير صالح
+  "error.applicationservice.invalid_logo_url_description": رابط الشعار المقدم ليس URI صالحاً
+  "error.applicationservice.invalid_oauth_configuration": تكوين OAuth غير صالح
+  "error.applicationservice.invalid_oauth_configuration_description": تكوين OAuth غير صالح
+  "error.applicationservice.invalid_public_client_configuration": تكوين العميل العام غير صالح
+  "error.applicationservice.invalid_public_client_configuration_description": تكوين العميل العام غير صالح
+  "error.applicationservice.invalid_recovery_flow_id": معرف تدفق الاسترداد غير صالح
+  "error.applicationservice.invalid_recovery_flow_id_description": معرف تدفق الاسترداد المقدم غير صالح
+  "error.applicationservice.invalid_redirect_uri": URI إعادة التوجيه غير صالح
+  "error.applicationservice.invalid_redirect_uri_description": عنوان URI واحد أو أكثر لإعادة التوجيه المقدمة ليست عناوين URI صالحة
+  "error.applicationservice.invalid_registration_flow_id": معرف تدفق التسجيل غير صالح
+  "error.applicationservice.invalid_registration_flow_id_description": معرف تدفق التسجيل المقدم غير صالح
+  "error.applicationservice.invalid_request_format": تنسيق الطلب غير صالح
+  "error.applicationservice.invalid_request_format_description": جسم الطلب مشوه أو يحتوي على بيانات غير صالحة
+  "error.applicationservice.invalid_response_type": نوع الاستجابة غير صالح
+  "error.applicationservice.invalid_response_type_description": نوع استجابة واحد أو أكثر مقدم غير صالح
+  "error.applicationservice.invalid_token_endpoint_auth_method": طريقة مصادقة نقطة نهاية الرمز غير صالحة
+  "error.applicationservice.invalid_token_endpoint_auth_method_description": طريقة مصادقة نقطة نهاية الرمز المقدمة غير صالحة
+  "error.applicationservice.invalid_user_attribute": سمة المستخدم غير صالحة
+  "error.applicationservice.invalid_user_attribute_description": سمة مستخدم واحدة أو أكثر غير صالحة لأنواع المستخدمين المسموح بهم المكونة
+  "error.applicationservice.invalid_user_type": نوع المستخدم غير صالح
+  "error.applicationservice.invalid_user_type_description": نوع مستخدم واحد أو أكثر في allowed_user_types غير موجود في النظام
+  "error.applicationservice.layout_not_found": التخطيط غير موجود
+  "error.applicationservice.layout_not_found_description": تكوين التخطيط المحدد غير موجود
+  "error.applicationservice.multiple_oauth_configs": لا يُسمح بتكوينات مصادقة OAuth واردة متعددة
+  "error.applicationservice.multiple_oauth_configs_description": يمكن للتطبيق امتلاك تكوين مصادقة وارد واحد على الأكثر لكل بروتوكول
+  "error.applicationservice.none_auth_method_cannot_have_cert_or_secret_description": لا يمكن لطريقة المصادقة 'none' امتلاك شهادة أو سر عميل
+  "error.applicationservice.none_auth_method_requires_public_client_description": طريقة المصادقة 'none' تتطلب أن يكون العميل عميلاً عاماً
+  "error.applicationservice.pkce_requires_authorization_code_description": لا يمكن تفعيل PKCE إلا عند تحديد نوع منح authorization_code
+  "error.applicationservice.private_key_jwt_cannot_have_client_secret_description": لا يمكن لطريقة مصادقة private_key_jwt امتلاك سر عميل
+  "error.applicationservice.private_key_jwt_requires_certificate_description": طريقة مصادقة private_key_jwt تتطلب شهادة
+  "error.applicationservice.public_client_must_have_pkce_description": يجب على العملاء العامين تعيين PKCE مطلوباً على true
+  "error.applicationservice.public_client_must_use_none_auth_description": يجب على العملاء العامين استخدام 'none' كطريقة مصادقة لنقطة نهاية الرمز
+  "error.applicationservice.redirect_uri_fragment_not_allowed_description": يجب ألا تحتوي عناوين URI لإعادة التوجيه على مكون fragment
+  "error.applicationservice.refresh_token_cannot_be_sole_grant_description": لا يمكن استخدام نوع منح refresh_token دون نوع منح آخر
+  "error.applicationservice.response_types_require_authorization_code_description": لا يمكن تكوين أنواع الاستجابة إلا مع نوع منح authorization_code
+  "error.applicationservice.result_limit_exceeded": تجاوز حد النتائج
+  "error.applicationservice.theme_not_found": السمة غير موجودة
+  "error.applicationservice.theme_not_found_description": تكوين السمة المحدد غير موجود
+  "error.applicationservice.userinfo_alg_requires_response_type_description": responseType لـ userinfo مطلوب عند تعيين signingAlg أو encryptionAlg
+  "error.applicationservice.userinfo_encryption_alg_requires_enc_description": encryptionEnc لـ userinfo مطلوب عند تعيين encryptionAlg
+  "error.applicationservice.userinfo_encryption_enc_requires_alg_description": encryptionAlg لـ userinfo مطلوب عند تعيين encryptionEnc
+  "error.applicationservice.userinfo_encryption_requires_certificate_description": شهادة (JWKS أو JWKS_URI) مطلوبة عند تكوين تشفير userinfo
+  "error.applicationservice.userinfo_jwe_requires_encryption_description": encryptionAlg و encryptionEnc مطلوبان عندما يكون responseType لـ userinfo هو JWE
+  "error.applicationservice.userinfo_jwks_uri_not_ssrf_safe_description": يجب أن يكون JWKS URI لـ userinfo عنوان HTTPS URL يمكن الوصول إليه علنياً
+  "error.applicationservice.userinfo_jws_requires_signing_alg_description": signingAlg مطلوب عندما يكون responseType لـ userinfo هو JWS
+  "error.applicationservice.userinfo_nested_jwt_requires_all_description": signingAlg و encryptionAlg و encryptionEnc مطلوبة عندما يكون responseType لـ userinfo هو NESTED_JWT
+  "error.applicationservice.userinfo_unsupported_encryption_alg_description": خوارزمية تشفير userinfo غير مدعومة
+  "error.applicationservice.userinfo_unsupported_encryption_enc_description": خوارزمية تشفير محتوى userinfo غير مدعومة
+  "error.applicationservice.userinfo_unsupported_response_type_description": responseType لـ userinfo غير مدعوم
+  "error.applicationservice.userinfo_unsupported_signing_alg_description": خوارزمية توقيع userinfo غير مدعومة
+  "error.assertservice.invalid_authenticator": المصادق غير صالح
+  "error.assertservice.invalid_authenticator_description": لا يمكن أن يكون اسم المصادق فارغاً
+  "error.assertservice.nil_assurance_context": سياق الضمان فارغ
+  "error.assertservice.nil_assurance_context_description": لا يمكن أن يكون سياق الضمان فارغاً للتحقق
+  "error.assertservice.no_assurance_requirements": لا توجد متطلبات ضمان
+  "error.assertservice.no_assurance_requirements_description": يجب تحديد مستوى ضمان واحد على الأقل (AAL أو IAL) للتحقق
+  "error.assertservice.no_authenticators": لا يوجد مصادقون
+  "error.assertservice.no_authenticators_description": لا يمكن إنشاء التأكيد بدون مصادقين
+  "error.attributecache.cache_not_found": ذاكرة التخزين المؤقت للسمات غير موجودة
+  "error.attributecache.cache_not_found_description": إدخال ذاكرة التخزين المؤقت للسمات بالمعرف المحدد غير موجود
+  "error.attributecache.invalid_expiry_time": وقت انتهاء الصلاحية غير صالح
+  "error.attributecache.invalid_expiry_time_description": يجب أن يكون وقت انتهاء الصلاحية في المستقبل
+  "error.attributecache.invalid_request_format": تنسيق الطلب غير صالح
+  "error.attributecache.invalid_request_format_description": جسم الطلب مشوه أو يحتوي على بيانات غير صالحة
+  "error.attributecache.missing_attributes": السمات مفقودة
+  "error.attributecache.missing_attributes_description": السمات مطلوبة
+  "error.attributecache.missing_cache_id": معرف ذاكرة التخزين المؤقت مفقود
+  "error.attributecache.missing_cache_id_description": معرف ذاكرة التخزين المؤقت مطلوب
+  "error.auth.forbidden": محظور
+  "error.auth.forbidden_description": ليس لديك صلاحيات كافية للوصول إلى هذا المورد
+  "error.auth.unauthorized": غير مصرح به
+  "error.auth.unauthorized_description": المصادقة مطلوبة للوصول إلى هذا المورد
+  "error.authncredservice.invalid_request_format": تنسيق الطلب غير صالح
+  "error.authncredservice.invalid_request_format_description": جسم الطلب مشوه أو يحتوي على بيانات غير صالحة
+  "error.authnmgrservice.ambiguous_user": مستخدم غامض
+  "error.authnmgrservice.ambiguous_user_description": تم العثور على مستخدمين متعددين يطابقون المعرفات المقدمة
+  "error.authnmgrservice.authentication_failed": فشلت المصادقة
+  "error.authnmgrservice.authentication_failed_description": فشلت محاولة المصادقة
+  "error.authnmgrservice.failed_to_get_attributes": فشل في الحصول على السمات
+  "error.authnmgrservice.failed_to_get_attributes_description": رفض المزود جلب السمات
+  "error.authnmgrservice.get_entity_reference_client_error": فشل في الحصول على مرجع الكيان
+  "error.authnmgrservice.get_entity_reference_client_error_description": رفض المزود جلب مرجع الكيان
+  "error.authnmgrservice.invalid_request": طلب غير صالح
+  "error.authnmgrservice.invalid_request_description": طلب المصادقة غير صالح
+  "error.authnmgrservice.user_not_found": المستخدم غير موجود
+  "error.authnmgrservice.user_not_found_description": لم يتم العثور على مستخدم يطابق المعرفات المقدمة
+  "error.authnotpservice.error_processing_otp": خطأ في معالجة OTP
+  "error.authnotpservice.error_processing_otp_description": حدث خطأ أثناء معالجة طلب OTP
+  "error.authnotpservice.error_resolving_user": خطأ في تحديد هوية المستخدم
+  "error.authnotpservice.error_resolving_user_description": حدث خطأ أثناء تحديد هوية المستخدم للمستلم
+  "error.authnotpservice.incorrect_otp": OTP غير صحيح
+  "error.authnotpservice.incorrect_otp_description": OTP المقدم غير صحيح أو منتهي الصلاحية
+  "error.authnotpservice.invalid_otp": OTP غير صالح
+  "error.authnotpservice.invalid_otp_description": OTP المقدم غير صالح أو فارغ
+  "error.authnotpservice.invalid_recipient": المستلم غير صالح
+  "error.authnotpservice.invalid_recipient_description": المستلم المقدم غير صالح أو فارغ
+  "error.authnotpservice.invalid_sender_id": معرف المرسل غير صالح
+  "error.authnotpservice.invalid_sender_id_description": معرف المرسل المقدم غير صالح أو فارغ
+  "error.authnotpservice.invalid_session_token": رمز الجلسة غير صالح
+  "error.authnotpservice.invalid_session_token_description": رمز الجلسة المقدم غير صالح أو فارغ
+  "error.authnotpservice.unsupported_channel": القناة غير مدعومة
+  "error.authnotpservice.unsupported_channel_description": القناة المقدمة غير مدعومة لمصادقة OTP
+  "error.authnservice.ambiguous_user": مستخدم غامض
+  "error.authnservice.ambiguous_user_description": مستخدمون متعددون يطابقون السمات المقدمة
+  "error.authnservice.assertion_subject_mismatch": عدم تطابق موضوع التأكيد
+  "error.authnservice.assertion_subject_mismatch_description": الموضوع في التأكيد لا يطابق المستخدم المصادق عليه
+  "error.authnservice.authentication_failed": فشلت المصادقة
+  "error.authnservice.authentication_failed_description": حدث خطأ أثناء مصادقة المستخدم
+  "error.authnservice.empty_attributes_or_credentials": سمات أو بيانات اعتماد فارغة
+  "error.authnservice.empty_attributes_or_credentials_description": لا يمكن أن تكون سمات المستخدم أو بيانات الاعتماد فارغة
+  "error.authnservice.empty_auth_code": رمز التفويض فارغ
+  "error.authnservice.empty_auth_code_description": رمز التفويض المقدم فارغ
+  "error.authnservice.empty_session_token": رمز الجلسة فارغ
+  "error.authnservice.empty_session_token_description": رمز الجلسة المقدم فارغ
+  "error.authnservice.error_retrieving_idp": خطأ في استرداد موفر الهوية
+  "error.authnservice.error_retrieving_idp_description": حدث خطأ أثناء استرداد موفر الهوية
+  "error.authnservice.federated_authentication_failed": فشلت المصادقة الموحدة
+  "error.authnservice.federated_authentication_failed_description": فشلت محاولة المصادقة الموحدة
+  "error.authnservice.google.invalid_id_token_audience_description": جمهور رمز ID لا يطابق معرف العميل المتوقع
+  "error.authnservice.google.invalid_id_token_exp_claim_description": مطالبة انتهاء صلاحية رمز ID مفقودة أو غير صالحة
+  "error.authnservice.google.invalid_id_token_expired_description": رمز ID منتهي الصلاحية
+  "error.authnservice.google.invalid_id_token_future_iat_description": رمز ID صدر في المستقبل
+  "error.authnservice.google.invalid_id_token_iat_claim_description": مطالبة وقت إصدار رمز ID (iat) مفقودة أو غير صالحة
+  "error.authnservice.google.invalid_id_token_issuer_description": مُصدر رمز ID ليس مُصدراً صالحاً من Google
+  "error.authnservice.invalid_assertion": تأكيد غير صالح
+  "error.authnservice.invalid_assertion_description": رمز التأكيد المقدم غير صالح
+  "error.authnservice.invalid_credentials": بيانات اعتماد غير صالحة
+  "error.authnservice.invalid_credentials_description": بيانات الاعتماد المقدمة غير صالحة
+  "error.authnservice.invalid_idp_id": معرف موفر الهوية غير صالح
+  "error.authnservice.invalid_idp_id_description": معرف موفر الهوية المقدم غير صالح أو فارغ
+  "error.authnservice.invalid_idp_type": نوع موفر الهوية غير صالح
+  "error.authnservice.invalid_idp_type_description": نوع موفر الهوية المطلوب غير صالح
+  "error.authnservice.invalid_session_token": رمز الجلسة غير صالح
+  "error.authnservice.invalid_session_token_description": رمز الجلسة المقدم غير صالح أو منتهي الصلاحية
+  "error.authnservice.invalid_token": رمز غير صالح
+  "error.authnservice.invalid_token_description": الرمز المقدم غير صالح
+  "error.authnservice.otp_authentication_failed": فشلت المصادقة
+  "error.authnservice.otp_authentication_failed_description": فشلت محاولة مصادقة OTP
+  "error.authnservice.passkey_authentication_failed": فشلت المصادقة
+  "error.authnservice.passkey_authentication_failed_description": فشلت محاولة مصادقة مفتاح المرور
+  "error.authnservice.sub_claim_not_found": موضوع المستخدم غير موجود
+  "error.authnservice.sub_claim_not_found_description": مطالبة 'sub' غير موجودة في مطالبات رمز ID
+  "error.authnservice.user_not_found": المستخدم غير موجود
+  "error.authnservice.user_not_found_description": لم يتم العثور على مستخدم بالسمات المقدمة
+  "error.authoauthservice.empty_access_token": رمز الوصول فارغ
+  "error.authoauthservice.empty_access_token_description": لا يمكن أن يكون رمز الوصول فارغاً
+  "error.authoauthservice.empty_authorization_code": رمز التفويض فارغ
+  "error.authoauthservice.empty_authorization_code_description": لا يمكن أن يكون رمز التفويض فارغاً
+  "error.authoauthservice.empty_idp_id": معرف IDP فارغ
+  "error.authoauthservice.empty_idp_id_description": لا يمكن أن يكون معرف موفر الهوية فارغاً
+  "error.authoauthservice.empty_sub_claim": مطالبة sub فارغة
+  "error.authoauthservice.empty_sub_claim_description": لا يمكن أن تكون مطالبة sub فارغة
+  "error.authoauthservice.failed_to_retrieve_idp": فشل في استرداد موفر الهوية
+  "error.authoauthservice.failed_to_retrieve_idp_description": حدث خطأ في العميل أثناء استرداد تكوين موفر الهوية
+  "error.authoauthservice.failed_to_retrieve_user": فشل في استرداد المستخدم
+  "error.authoauthservice.failed_to_retrieve_user_description": حدث خطأ في العميل أثناء استرداد المستخدم الداخلي
+  "error.authoauthservice.invalid_idp": موفر الهوية غير صالح
+  "error.authoauthservice.invalid_idp_description": موفر الهوية المسترد غير صالح أو فارغ
+  "error.authoauthservice.invalid_token_response": استجابة الرمز غير صالحة
+  "error.authoauthservice.invalid_token_response_description": استجابة الرمز المستلمة من موفر الهوية غير صالحة
+  "error.authoidcservice.invalid_id_token": رمز ID غير صالح
+  "error.authoidcservice.invalid_id_token_description": رمز ID غير صالح أو مشوه
+  "error.authoidcservice.invalid_id_token_signature": توقيع رمز ID غير صالح
+  "error.authoidcservice.invalid_id_token_signature_description": فشل التحقق من توقيع رمز ID
+  "error.authzen.invalid_action": إجراء غير صالح
+  "error.authzen.invalid_action_description": اسم الإجراء غير مسجل على خادم الموارد
+  "error.authzen.invalid_request_format": تنسيق الطلب غير صالح
+  "error.authzen.invalid_request_format_description": جسم الطلب مشوه أو يحتوي على بيانات غير صالحة
+  "error.authzen.invalid_resource": مورد غير صالح
+  "error.authzen.invalid_resource_description": نوع المورد غير مسجل كخادم موارد
+  "error.authzen.invalid_subject": موضوع غير صالح
+  "error.authzen.invalid_subject_description": معرف الموضوع لا يطابق نوع الموضوع
+  "error.authzen.missing_action": إجراء مفقود
+  "error.authzen.missing_action_description": اسم الإجراء مطلوب
+  "error.authzen.missing_evaluations": تقييمات مفقودة
+  "error.authzen.missing_evaluations_description": مطلوب تقييم واحد على الأقل
+  "error.authzen.missing_resource": مورد مفقود
+  "error.authzen.missing_resource_description": نوع المورد مطلوب
+  "error.authzen.missing_resource_id": معرف المورد مفقود
+  "error.authzen.missing_resource_id_description": معرف المورد مطلوب
+  "error.authzen.missing_subject": موضوع مفقود
+  "error.authzen.missing_subject_description": معرف الموضوع مطلوب
+  "error.certservice.certificate_already_exists": الشهادة موجودة بالفعل
+  "error.certservice.certificate_already_exists_description": شهادة بنفس نوع المرجع والمعرف موجودة بالفعل
+  "error.certservice.certificate_not_found": الشهادة غير موجودة
+  "error.certservice.certificate_not_found_description": لم يتم العثور على الشهادة المطلوبة
+  "error.certservice.invalid_certificate_id": معرف الشهادة غير صالح
+  "error.certservice.invalid_certificate_id_description": معرف الشهادة المقدم غير صالح
+  "error.certservice.invalid_certificate_type": نوع الشهادة غير صالح
+  "error.certservice.invalid_certificate_type_description": نوع الشهادة المقدم غير صالح
+  "error.certservice.invalid_certificate_value": قيمة الشهادة غير صالحة
+  "error.certservice.invalid_certificate_value_description": قيمة الشهادة المقدمة غير صالحة
+  "error.certservice.invalid_reference_id": معرف مرجع الشهادة غير صالح
+  "error.certservice.invalid_reference_id_description": معرف مرجع الشهادة المقدم غير صالح
+  "error.certservice.invalid_reference_type": نوع مرجع الشهادة غير صالح
+  "error.certservice.invalid_reference_type_description": نوع مرجع الشهادة المقدم غير صالح
+  "error.certservice.reference_update_not_allowed": تحديث المرجع غير مسموح
+  "error.certservice.reference_update_not_allowed_description": لا يُسمح بتحديث نوع المرجع أو معرف الشهادة الموجودة
+  "error.consentenforcerservice.consent_create_failed": فشل في إنشاء سجل الموافقة
+  "error.consentenforcerservice.consent_create_failed_description": خطأ أثناء إنشاء سجل الموافقة في خدمة الموافقة
+  "error.consentenforcerservice.consent_search_failed": فشل في البحث عن سجلات الموافقة
+  "error.consentenforcerservice.consent_search_failed_description": خطأ أثناء البحث عن سجلات الموافقة من خدمة الموافقة
+  "error.consentenforcerservice.consent_session_invalid": جلسة موافقة غير صالحة
+  "error.consentenforcerservice.consent_session_invalid_description": رمز جلسة الموافقة غير صالح أو منتهي الصلاحية
+  "error.consentenforcerservice.consent_update_failed": فشل في تحديث سجل الموافقة
+  "error.consentenforcerservice.consent_update_failed_description": خطأ أثناء تحديث سجل الموافقة في خدمة الموافقة
+  "error.consentenforcerservice.essential_consent_denied": رُفضت الموافقة الأساسية
+  "error.consentenforcerservice.essential_consent_denied_description": تم رفض سمة موافقة أساسية واحدة أو أكثر
+  "error.consentenforcerservice.purpose_create_failed": فشل في إنشاء غرض الموافقة
+  "error.consentenforcerservice.purpose_create_failed_description": خطأ أثناء إنشاء غرض الموافقة في خدمة الموافقة
+  "error.consentenforcerservice.purpose_fetch_failed": فشل في جلب أغراض الموافقة
+  "error.consentenforcerservice.purpose_fetch_failed_description": خطأ أثناء جلب أغراض الموافقة من خدمة الموافقة
+  "error.consentenforcerservice.purpose_update_failed": فشل في تحديث غرض الموافقة
+  "error.consentenforcerservice.purpose_update_failed_description": خطأ أثناء تحديث غرض الموافقة في خدمة الموافقة
+  "error.consentservice.cannot_delete_element": لا يمكن حذف عنصر الموافقة
+  "error.consentservice.cannot_delete_purpose": لا يمكن حذف غرض الموافقة
+  "error.consentservice.consent_not_found": الموافقة غير موجودة
+  "error.consentservice.consent_not_found_description": سجل الموافقة بالمعرف المحدد غير موجود
+  "error.consentservice.delete_element_with_associated_purpose_description": لا يمكن حذف عنصر الموافقة لأنه لا يزال مرتبطاً بغرض موافقة واحد أو أكثر.
+  "error.consentservice.delete_purpose_with_associated_records_description": لا يمكن حذف غرض الموافقة لأنه مرتبط بسجل موافقة واحد أو أكثر
+  "error.consentservice.element_already_exists": عنصر الموافقة موجود بالفعل
+  "error.consentservice.element_already_exists_description": عنصر موافقة بنفس الاسم موجود بالفعل
+  "error.consentservice.element_not_found": عنصر الموافقة غير موجود
+  "error.consentservice.element_not_found_description": عنصر الموافقة بالمعرف المحدد غير موجود
+  "error.consentservice.forbidden": محظور الوصول إلى خدمة الموافقة
+  "error.consentservice.forbidden_description": أعادت خدمة الموافقة استجابة محظورة
+  "error.consentservice.invalid_consent_request": طلب موافقة غير صالح
+  "error.consentservice.invalid_consent_request_description": طلب الموافقة رُفض بواسطة خدمة الموافقة كطلب غير صالح
+  "error.consentservice.invalid_element_request": طلب عنصر موافقة غير صالح
+  "error.consentservice.invalid_element_request_description": طلب عنصر الموافقة رُفض بواسطة خدمة الموافقة كطلب غير صالح
+  "error.consentservice.invalid_purpose_request": طلب غرض موافقة غير صالح
+  "error.consentservice.invalid_purpose_request_description": طلب غرض الموافقة رُفض بواسطة خدمة الموافقة كطلب غير صالح
+  "error.consentservice.invalid_request": طلب موافقة غير صالح
+  "error.consentservice.invalid_request_description": الطلب المرسل إلى خدمة الموافقة غير صالح
+  "error.consentservice.invalid_request_format": تنسيق الطلب غير صالح
+  "error.consentservice.invalid_request_format_description": جسم الطلب مشوه أو يحتوي على بيانات غير صالحة
+  "error.consentservice.invalid_revoke_request": طلب إلغاء موافقة غير صالح
+  "error.consentservice.invalid_revoke_request_description": طلب إلغاء الموافقة رُفض بواسطة خدمة الموافقة كطلب غير صالح
+  "error.consentservice.invalid_search_filter": فلتر بحث الموافقة غير صالح
+  "error.consentservice.invalid_search_filter_description": فلتر بحث الموافقة رُفض بواسطة خدمة الموافقة كطلب غير صالح
+  "error.consentservice.invalid_update_request": طلب تحديث موافقة غير صالح
+  "error.consentservice.invalid_update_request_description": طلب تحديث الموافقة رُفض بواسطة خدمة الموافقة كطلب غير صالح
+  "error.consentservice.invalid_validation_request": طلب التحقق من الموافقة غير صالح
+  "error.consentservice.invalid_validation_request_description": طلب التحقق من الموافقة رُفض بواسطة خدمة الموافقة كطلب غير صالح
+  "error.consentservice.purpose_already_exists": غرض الموافقة موجود بالفعل
+  "error.consentservice.purpose_already_exists_description": غرض موافقة بنفس الاسم موجود بالفعل لهذا المورد
+  "error.consentservice.purpose_not_found": غرض الموافقة غير موجود
+  "error.consentservice.purpose_not_found_description": غرض الموافقة بالمعرف المحدد غير موجود
+  "error.consentservice.unauthorized": غير مصرح بالوصول إلى خدمة الموافقة
+  "error.consentservice.unauthorized_description": أعادت خدمة الموافقة استجابة غير مصرح بها
+  "error.dcr.invalid_client_metadata": بيانات وصفية للعميل غير صالحة
+  "error.dcr.invalid_client_metadata_description": قيمة بيانات وصفية واحدة أو أكثر للعميل غير صالحة
+  "error.dcr.invalid_redirect_uri": URI إعادة التوجيه غير صالح
+  "error.dcr.invalid_redirect_uri_description": عنوان URI واحد أو أكثر لإعادة التوجيه غير صالح
+  "error.dcr.invalid_request_format": تنسيق الطلب غير صالح
+  "error.dcr.invalid_request_format_description": جسم الطلب مفقود أو بتنسيق غير صالح
+  "error.dcr.jwks_configuration_conflict": تعارض في تكوين JWKS
+  "error.dcr.jwks_configuration_conflict_description": لا يمكن تحديد كلٍّ من معاملَي 'jwks' و 'jwks_uri' معاً
+  "error.dcr.server_error": خطأ في الخادم
+  "error.dcr.server_error_description": حدث خطأ غير متوقع أثناء معالجة الطلب
+  "error.dcr.unauthorized": غير مصرح به
+  "error.dcr.unauthorized_description": المصادقة بصلاحيات كافية مطلوبة لتسجيل عميل
+  "error.declarative_resource.create_operation_not_allowed": عملية إنشاء المورد التعريفي غير مسموحة
+  "error.declarative_resource.create_operation_not_allowed_description": إنشاء الموارد التعريفية غير مسموح
+  "error.declarative_resource.delete_operation_not_allowed": عملية حذف المورد التعريفي غير مسموحة
+  "error.declarative_resource.delete_operation_not_allowed_description": حذف الموارد التعريفية غير مسموح
+  "error.declarative_resource.update_operation_not_allowed": عملية تحديث المورد التعريفي غير مسموحة
+  "error.declarative_resource.update_operation_not_allowed_description": تحديث الموارد التعريفية غير مسموح
+  "error.encoding_error": خطأ في الترميز
+  "error.encoding_error_description": حدث خطأ أثناء ترميز الاستجابة
+  "error.entitytypeservice.agent_type_cannot_delete": لا يمكن حذف نوع الوكيل
+  "error.entitytypeservice.agent_type_cannot_delete_description": لا يمكن حذف نوع الوكيل الافتراضي. قم بتعديل المخطط بدلاً من ذلك
+  "error.entitytypeservice.agent_type_name_conflict": تعارض في اسم نوع الوكيل
+  "error.entitytypeservice.agent_type_name_conflict_description": نوع وكيل بنفس الاسم موجود بالفعل
+  "error.entitytypeservice.agent_type_not_found": نوع الوكيل غير موجود
+  "error.entitytypeservice.agent_type_not_found_description": نوع الوكيل بالمعرف المحدد غير موجود
+  "error.entitytypeservice.agent_type_only_default_allowed": يُسمح فقط بنوع الوكيل الافتراضي
+  "error.entitytypeservice.agent_type_only_default_allowed_description": أنواع الوكيل مقيدة بمخطط 'default' واحد؛ لا يُسمح بإنشاء أو إعادة تسمية بأسماء أخرى
+  "error.entitytypeservice.cannot_modify_declarative_resource": لا يمكن تعديل المورد التعريفي
+  "error.entitytypeservice.cannot_modify_declarative_resource_description": نوع المستخدم تعريفي ولا يمكن تعديله أو حذفه
+  "error.entitytypeservice.consent_synchronization_failed": فشل مزامنة الموافقة
+  "error.entitytypeservice.consent_synchronization_failed_description": فشل في مزامنة تكوينات الموافقة لنوع الكيان
+  "error.entitytypeservice.create_schema_request_parse_failed_description": فشل في تحليل جسم الطلب
+  "error.entitytypeservice.credential_attribute_not_allowed_as_display": سمة بيانات الاعتماد غير مسموح بها كعرض
+  "error.entitytypeservice.credential_attribute_not_allowed_as_display_description": يجب ألا تشير سمة العرض إلى سمة بيانات اعتماد
+  "error.entitytypeservice.entity_type_name_conflict": تعارض في اسم نوع الكيان
+  "error.entitytypeservice.entity_type_name_conflict_description": نوع كيان بنفس الاسم موجود بالفعل
+  "error.entitytypeservice.entity_type_not_found": نوع الكيان غير موجود
+  "error.entitytypeservice.entity_type_not_found_description": نوع الكيان بالمعرف المحدد غير موجود
+  "error.entitytypeservice.invalid_agent_type_request": طلب نوع وكيل غير صالح
+  "error.entitytypeservice.invalid_agent_type_request_description": طلب نوع الوكيل يحتوي على حقول غير صالحة أو مفقودة مطلوبة
+  "error.entitytypeservice.invalid_display_attribute": سمة عرض غير صالحة
+  "error.entitytypeservice.invalid_display_attribute_description": يجب أن تشير سمة العرض إلى سمة محددة في المخطط (استخدم التدوين النقطي للسمات المتداخلة، مثل 'address.city')
+  "error.entitytypeservice.invalid_entity_type_request": طلب نوع كيان غير صالح
+  "error.entitytypeservice.invalid_entity_type_request_description": طلب نوع الكيان يحتوي على حقول غير صالحة أو مفقودة مطلوبة
+  "error.entitytypeservice.invalid_limit_parameter": معامل ترقيم الصفحات غير صالح
+  "error.entitytypeservice.invalid_limit_parameter_description": يجب أن يكون معامل الحد عدداً صحيحاً موجباً
+  "error.entitytypeservice.invalid_offset_parameter": معامل ترقيم الصفحات غير صالح
+  "error.entitytypeservice.invalid_offset_parameter_description": يجب أن يكون معامل الإزاحة عدداً صحيحاً غير سالب
+  "error.entitytypeservice.invalid_request_format": تنسيق الطلب غير صالح
+  "error.entitytypeservice.invalid_request_format_description": جسم الطلب مشوه أو يحتوي على بيانات غير صالحة
+  "error.entitytypeservice.invalid_user_type_request": طلب نوع مستخدم غير صالح
+  "error.entitytypeservice.invalid_user_type_request_description": طلب نوع المستخدم يحتوي على حقول غير صالحة أو مفقودة مطلوبة
+  "error.entitytypeservice.non_displayable_attribute_type": نوع سمة غير قابل للعرض
+  "error.entitytypeservice.non_displayable_attribute_type_description": يجب أن تشير سمة العرض إلى نوع سلسلة أو رقم
+  "error.entitytypeservice.result_limit_exceeded": تجاوز حد النتائج
+  "error.entitytypeservice.result_limit_exceeded_description": مجموعة النتائج المجمعة من المخازن المستندة إلى الملفات وقواعد البيانات تتجاوز الحد الأقصى. يرجى تحسين استعلامك لإرجاع نتائج أقل.
+  "error.entitytypeservice.update_schema_request_parse_failed_description": فشل في تحليل جسم الطلب
+  "error.entitytypeservice.user_type_name_conflict": تعارض في اسم نوع المستخدم
+  "error.entitytypeservice.user_type_name_conflict_description": نوع مستخدم بنفس الاسم موجود بالفعل
+  "error.entitytypeservice.user_type_not_found": نوع المستخدم غير موجود
+  "error.entitytypeservice.user_type_not_found_description": نوع المستخدم بالمعرف المحدد غير موجود
+  "error.entitytypeservice.user_validation_failed": فشل التحقق من المستخدم
+  "error.entitytypeservice.user_validation_failed_description": سمات المستخدم لا تتوافق مع المخطط المطلوب
+  "error.eudi.invalid_request": طلب غير صالح
+  "error.eudi.invalid_request_description": الطلب يفتقر إلى معاملات مطلوبة أو مشوه
+  "error.eudi.unknown_definition": تعريف عرض مجهول
+  "error.eudi.unknown_definition_description": لا يوجد تعريف عرض مسجل للمعرف المقدم
+  "error.eudi.unknown_state": طلب مجهول أو منتهي الصلاحية
+  "error.eudi.unknown_state_description": لم يتم العثور على طلب نشط لقيمة الحالة المقدمة
+  "error.eudi.verification_failed": فشل التحقق من العرض التقديمي
+  "error.eudi.verification_failed_description": تعذر التحقق من الاعتماد المقدم
+  "error.exportservice.invalid_request": طلب تصدير غير صالح
+  "error.exportservice.invalid_request_description": طلب التصدير المقدم غير صالح أو مشوه
+  "error.exportservice.nil_request_description": طلب التصدير لا يمكن أن يكون فارغاً
+  "error.exportservice.no_resources_found": لم يتم العثور على موارد
+  "error.exportservice.no_resources_found_description": لم يتم العثور على موارد صالحة للمعرفات المقدمة
+  "error.exportservice.no_valid_resources_for_export_description": لم يتم العثور على موارد صالحة للتصدير
+  "error.flow.core.executor_prerequisite_not_met": لم يتم استيفاء شرط مسبق للمنفذ
+  "error.flow.core.executor_prerequisite_not_met_description": شرط مسبق واحد أو أكثر مطلوب للمنفذ لم يتم استيفاؤه. يرجى التحقق من المدخلات والمحاولة مرة أخرى.
+  "error.flow.core.prompt_invalid_action": إجراء غير صالح مقدم
+  "error.flow.core.prompt_invalid_action_description": الإجراء المقدم غير صالح لخطوة التدفق الحالية
+  "error.flowexecservice.application_retrieval_error": خطأ في استرداد التطبيق
+  "error.flowexecservice.application_retrieval_error_description": خطأ أثناء استرداد تفاصيل التطبيق
+  "error.flowexecservice.direct_flow_initiation_not_permitted": بدء التدفق المباشر غير مسموح
+  "error.flowexecservice.direct_flow_initiation_not_permitted_description": بدء التدفق المباشر غير مسموح لهذا النوع من التطبيقات
+  "error.flowexecservice.invalid_app_id": طلب غير صالح
+  "error.flowexecservice.invalid_app_id_description": معرف التطبيق المقدم في الطلب غير صالح
+  "error.flowexecservice.invalid_execution_id": طلب غير صالح
+  "error.flowexecservice.invalid_execution_id_description": معرف تنفيذ التدفق المقدم في الطلب غير صالح
+  "error.flowexecservice.invalid_flow_init_context": طلب غير صالح
+  "error.flowexecservice.invalid_flow_init_context_description": سياق تهيئة التدفق المقدم غير صالح
+  "error.flowexecservice.invalid_flow_type": طلب غير صالح
+  "error.flowexecservice.invalid_flow_type_description": نوع التدفق المقدم في الطلب غير صالح
+  "error.flowexecservice.invalid_node_response": استجابة العقدة غير صالحة
+  "error.flowexecservice.invalid_node_response_description": تم استلام استجابة خطأ من العقدة
+  "error.flowexecservice.invalid_request_payload": حمولة الطلب غير صالحة
+  "error.flowexecservice.invalid_request_payload_description": فشل في فك ترميز حمولة الطلب
+  "error.flowexecservice.recovery_not_allowed": الاسترداد غير مسموح
+  "error.flowexecservice.recovery_not_allowed_description": تدفق الاسترداد معطل للتطبيق
+  "error.flowexecservice.registration_not_allowed": التسجيل غير مسموح
+  "error.flowexecservice.registration_not_allowed_description": تدفق التسجيل معطل للتطبيق
+  "error.flowmetaservice.application_fetch_failed_description": فشل في استرداد معلومات التطبيق
+  "error.flowmetaservice.application_not_found_description": التطبيق المحدد غير موجود
+  "error.flowmetaservice.internal_server_error": خطأ داخلي في الخادم
+  "error.flowmetaservice.invalid_request": طلب غير صالح
+  "error.flowmetaservice.invalid_type_description": يجب أن يكون معامل 'type' إما 'APP' أو 'OU'
+  "error.flowmetaservice.missing_id_description": معامل الاستعلام 'id' مطلوب
+  "error.flowmetaservice.missing_id_parameter": معامل مطلوب مفقود
+  "error.flowmetaservice.missing_required_parameter": معامل مطلوب مفقود
+  "error.flowmetaservice.missing_type_description": معامل الاستعلام 'type' مطلوب
+  "error.flowmetaservice.ou_fetch_failed": خطأ داخلي في الخادم
+  "error.flowmetaservice.ou_fetch_failed_description": فشل في استرداد معلومات وحدة المؤسسة
+  "error.flowmetaservice.ou_not_found": المورد غير موجود
+  "error.flowmetaservice.ou_not_found_description": وحدة المؤسسة المحددة غير موجودة
+  "error.flowmetaservice.resource_not_found": المورد غير موجود
+  "error.flowmgtservice.cannot_update_flow_type": طلب تحديث غير صالح
+  "error.flowmgtservice.cannot_update_flow_type_description": لا يمكن تغيير نوع التدفق بعد إنشائه
+  "error.flowmgtservice.duplicate_flow_handle": مقبض تدفق مكرر
+  "error.flowmgtservice.duplicate_flow_handle_description": تدفق بهذا المقبض موجود بالفعل لنوع التدفق المحدد
+  "error.flowmgtservice.duplicate_flow_id": معرف تدفق مكرر
+  "error.flowmgtservice.duplicate_flow_id_description": معرف التدفق موجود بالفعل
+  "error.flowmgtservice.flow_definition_nil_or_empty_description": تعريف التدفق فارغ أو لا يحتوي على عقد
+  "error.flowmgtservice.flow_is_immutable": التدفق غير قابل للتعديل
+  "error.flowmgtservice.flow_is_immutable_description": لا يمكن تعديل أو حذف التدفقات التعريفية
+  "error.flowmgtservice.flow_not_found": التدفق غير موجود
+  "error.flowmgtservice.flow_not_found_description": التدفق بالمعرف المحدد غير موجود
+  "error.flowmgtservice.flow_requires_intermediate_nodes_description": يجب أن يحتوي تعريف التدفق على عقد بين عقدتي البداية والنهاية
+  "error.flowmgtservice.flow_requires_start_and_end_nodes_description": يجب أن يحتوي تعريف التدفق على عقدة بداية وعقدة نهاية على الأقل
+  "error.flowmgtservice.flow_version_not_found": إصدار التدفق غير موجود
+  "error.flowmgtservice.flow_version_not_found_description": إصدار التدفق المطلوب غير موجود
+  "error.flowmgtservice.graph_build_failure": فشل في بناء الرسم البياني
+  "error.flowmgtservice.graph_build_failure_description": فشل في بناء رسم بياني قابل للتنفيذ من تعريف التدفق
+  "error.flowmgtservice.handle_update_not_allowed": طلب تحديث غير صالح
+  "error.flowmgtservice.handle_update_not_allowed_description": لا يمكن تعديل مقبض التدفق بعد الإنشاء
+  "error.flowmgtservice.interceptor_selected_scope_requires_apply_to": المعترض ذو النطاق SELECTED يجب أن يحدد عقدة واحدة على الأقل في applyTo
+  "error.flowmgtservice.invalid_flow_data": بيانات تدفق غير صالحة
+  "error.flowmgtservice.invalid_flow_data_description": تعريف التدفق يحتوي على بيانات غير صالحة
+  "error.flowmgtservice.invalid_flow_handle": مقبض التدفق غير صالح
+  "error.flowmgtservice.invalid_flow_handle_description": يجب تقديم مقبض التدفق
+  "error.flowmgtservice.invalid_flow_handle_format": تنسيق مقبض التدفق غير صالح
+  "error.flowmgtservice.invalid_flow_handle_format_description": يجب أن يكون مقبض التدفق بأحرف صغيرة وأرقام ويمكن أن يحتوي فقط على شرطات سفلية أو شرطات
+  "error.flowmgtservice.invalid_flow_id": معرف التدفق غير صالح
+  "error.flowmgtservice.invalid_flow_id_description": يجب تقديم معرف التدفق
+  "error.flowmgtservice.invalid_flow_id_format": تنسيق معرف التدفق غير صالح
+  "error.flowmgtservice.invalid_flow_id_format_description": يجب أن يكون معرف التدفق UUID صالحاً
+  "error.flowmgtservice.invalid_flow_name": اسم التدفق غير صالح
+  "error.flowmgtservice.invalid_flow_name_description": يجب تقديم اسم التدفق
+  "error.flowmgtservice.invalid_flow_type": نوع التدفق غير صالح
+  "error.flowmgtservice.invalid_flow_type_description": نوع التدفق المحدد غير صالح
+  "error.flowmgtservice.invalid_flow_version": إصدار التدفق غير صالح
+  "error.flowmgtservice.invalid_flow_version_description": إصدار التدفق المحدد غير صالح
+  "error.flowmgtservice.invalid_limit_parameter": معامل ترقيم الصفحات غير صالح
+  "error.flowmgtservice.invalid_limit_parameter_description": يجب أن يكون معامل الحد عدداً صحيحاً موجباً
+  "error.flowmgtservice.invalid_offset_parameter": معامل ترقيم الصفحات غير صالح
+  "error.flowmgtservice.invalid_offset_parameter_description": يجب أن يكون معامل الإزاحة عدداً صحيحاً غير سالب
+  "error.flowmgtservice.invalid_request_format": تنسيق الطلب غير صالح
+  "error.flowmgtservice.invalid_request_format_description": جسم الطلب مشوه أو يحتوي على بيانات غير صالحة
+  "error.groupservice.cannot_create_group_in_declarative_only_mode": لا يمكن إنشاء مجموعة في وضع التعريفي فقط
+  "error.groupservice.cannot_create_group_in_declarative_only_mode_description": إنشاء المجموعات غير مسموح عند التشغيل في وضع التعريفي فقط. يجب تعريف المجموعات في ملفات التكوين التعريفية
+  "error.groupservice.cannot_delete_group": لا يمكن حذف المجموعة
+  "error.groupservice.cannot_delete_group_description": لا يمكن حذف مجموعة لديها مجموعات فرعية
+  "error.groupservice.cannot_modify_declarative_group": لا يمكن تعديل المجموعة التعريفية
+  "error.groupservice.cannot_modify_declarative_group_description": المجموعة محددة في التكوين التعريفي ولا يمكن تعديلها
+  "error.groupservice.empty_members_list": قائمة الأعضاء فارغة
+  "error.groupservice.empty_members_list_description": لا يمكن أن تكون قائمة الأعضاء فارغة
+  "error.groupservice.group_name_conflict": تعارض في اسم المجموعة
+  "error.groupservice.group_name_conflict_description": مجموعة بنفس الاسم موجودة تحت نفس الأصل
+  "error.groupservice.group_not_found": المجموعة غير موجودة
+  "error.groupservice.group_not_found_description": المجموعة بالمعرف المحدد غير موجودة
+  "error.groupservice.handle_path_required_description": مسار المقبض مطلوب
+  "error.groupservice.invalid_group_member_id": معرف عضو المجموعة غير صالح
+  "error.groupservice.invalid_group_member_id_description": معرف عضو مجموعة واحد أو أكثر في الطلب غير موجود
+  "error.groupservice.invalid_limit_parameter": معامل الحد غير صالح
+  "error.groupservice.invalid_limit_parameter_description": يجب أن يكون معامل الحد عدداً صحيحاً موجباً
+  "error.groupservice.invalid_member_id": معرف العضو غير صالح
+  "error.groupservice.invalid_member_id_description": معرف عضو مستخدم أو تطبيق واحد أو أكثر في الطلب غير موجود أو لا يطابق النوع المُدّعى
+  "error.groupservice.invalid_member_type": نوع العضو غير صالح
+  "error.groupservice.invalid_member_type_description": يجب أن يكون نوع العضو 'user' أو 'group' أو 'app'
+  "error.groupservice.invalid_offset_parameter": معامل الإزاحة غير صالح
+  "error.groupservice.invalid_offset_parameter_description": يجب أن يكون معامل الإزاحة عدداً صحيحاً غير سالب
+  "error.groupservice.invalid_ou_id": معرف OU غير صالح
+  "error.groupservice.invalid_ou_id_description": وحدة المؤسسة غير موجودة
+  "error.groupservice.invalid_request_format": تنسيق الطلب غير صالح
+  "error.groupservice.invalid_request_format_description": جسم الطلب مشوه أو يحتوي على بيانات غير صالحة
+  "error.groupservice.missing_group_id": تنسيق الطلب غير صالح
+  "error.groupservice.missing_group_id_description": معرف المجموعة مطلوب
+  "error.i18nservice.empty_translations": الترجمات فارغة
+  "error.i18nservice.empty_translations_description": يجب تقديم ترجمة واحدة على الأقل
+  "error.i18nservice.export_error": فشل في جلب لغات الترجمة للتصدير
+  "error.i18nservice.fetch_error": فشل في جلب الترجمات للتصدير
+  "error.i18nservice.invalid_key": تنسيق المفتاح غير صالح
+  "error.i18nservice.invalid_key_description": يمكن للمفتاح أن يحتوي فقط على أحرف أبجدية رقمية ونقاط وشرطات سفلية وشرطات
+  "error.i18nservice.invalid_language": تنسيق علامة اللغة غير صالح
+  "error.i18nservice.invalid_language_description": يجب أن تتبع علامة اللغة تنسيق BCP 47 الرسمي (مثل 'en' أو 'es' أو 'fr-CA')
+  "error.i18nservice.invalid_namespace": تنسيق مساحة الاسم غير صالح
+  "error.i18nservice.invalid_namespace_description": يمكن لمساحة الاسم أن تحتوي فقط على أحرف أبجدية رقمية وشرطات سفلية وشرطات
+  "error.i18nservice.invalid_request_description": جسم الطلب مشوه أو يحتوي على بيانات غير صالحة
+  "error.i18nservice.invalid_request_format": تنسيق الطلب غير صالح
+  "error.i18nservice.missing_language": رمز اللغة مفقود
+  "error.i18nservice.missing_language_description": رمز اللغة مطلوب
+  "error.i18nservice.missing_value": قيمة الترجمة مفقودة
+  "error.i18nservice.missing_value_description": قيمة الترجمة مطلوبة
+  "error.i18nservice.translation_not_found": الترجمة غير موجودة
+  "error.i18nservice.translation_not_found_description": الترجمة المطلوبة غير موجودة للغة ومساحة الاسم والمفتاح المحددين
+  "error.idpservice.attribute_configuration_empty_claim_description": يجب ألا يحتوي تعيين السمات على أسماء سمات فارغة
+  "error.idpservice.attribute_configuration_entry_user_type_required_description": يتطلب كل إدخال سمات نوع مستخدم نوع مستخدم
+  "error.idpservice.attribute_configuration_user_type_required_description": تكوين السمات يتطلب نوع مستخدم
+  "error.idpservice.idp_already_exists": موفر الهوية موجود بالفعل
+  "error.idpservice.idp_already_exists_description": موفر هوية بنفس الاسم موجود بالفعل
+  "error.idpservice.idp_declarative_read_only": موفر الهوية غير قابل للتعديل
+  "error.idpservice.idp_declarative_read_only_description": موفر الهوية المطلوب تعريفي ولا يمكن تعديله أو حذفه
+  "error.idpservice.idp_nil": لا يمكن أن يكون موفر الهوية فارغاً
+  "error.idpservice.idp_nil_description": كائن موفر الهوية لا يمكن أن يكون فارغاً
+  "error.idpservice.idp_not_found": موفر الهوية غير موجود
+  "error.idpservice.idp_not_found_description": لم يتم العثور على موفر الهوية المطلوب
+  "error.idpservice.invalid_attribute_configuration": تكوين السمات غير صالح
+  "error.idpservice.invalid_attribute_configuration_description": تكوين سمات موفر الهوية غير صالح
+  "error.idpservice.invalid_idp_id": معرف موفر الهوية غير صالح
+  "error.idpservice.invalid_idp_id_description": معرف موفر الهوية المقدم غير صالح أو فارغ
+  "error.idpservice.invalid_idp_name": اسم موفر الهوية غير صالح
+  "error.idpservice.invalid_idp_name_description": اسم موفر الهوية المقدم غير صالح أو فارغ
+  "error.idpservice.invalid_idp_property": خاصية موفر الهوية غير صالحة
+  "error.idpservice.invalid_idp_property_description": خاصية موفر هوية واحدة أو أكثر غير صالحة أو فارغة
+  "error.idpservice.invalid_idp_type": نوع موفر الهوية غير صالح
+  "error.idpservice.invalid_idp_type_description": نوع موفر الهوية المقدم غير صالح أو فارغ
+  "error.idpservice.invalid_request_format": تنسيق الطلب غير صالح
+  "error.idpservice.invalid_request_format_description": جسم الطلب مشوه أو يحتوي على بيانات غير صالحة
+  "error.idpservice.property_name_empty_description": لا يمكن أن تكون أسماء الخصائص فارغة
+  "error.idpservice.result_limit_exceeded": تجاوز حد النتائج في الوضع المركب
+  "error.idpservice.result_limit_exceeded_description": إجمالي عدد السجلات يتجاوز الحد الأقصى في الوضع المركب
+  "error.idpservice.unsupported_idp_property": خاصية موفر هوية غير مدعومة
+  "error.idpservice.unsupported_idp_property_description": خاصية موفر هوية واحدة أو أكثر غير مدعومة
+  "error.import.adapterNotConfigured": المحول غير مكوّن
+  "error.import.adapterNotConfigured.description": محول المورد المطلوب غير مكوّن
+  "error.import.delete.dirNotFound": دليل المورد غير موجود
+  "error.import.delete.fileNotFound": ملف المورد غير موجود
+  "error.import.emptyContent": لا يمكن أن يكون محتوى الاستيراد فارغاً
+  "error.import.fileTargetNotSupported": هدف الملف غير مدعوم؛ استخدم هدف وقت التشغيل
+  "error.import.invalidRequest": طلب استيراد غير صالح
+  "error.import.invalidRequest.description": طلب الاستيراد المقدم غير صالح أو مشوه
+  "error.import.invalidYaml": محتوى YAML غير صالح
+  "error.import.invalidYaml.description": لا يمكن تحليل محتوى YAML المقدم
+  "error.import.missingDeleteFields": resourceType و resourceKey مطلوبان
+  "error.import.templateResolutionFailed": فشل حل القالب
+  "error.import.templateResolutionFailed.description": فشل في حل متغير قالب واحد أو أكثر في محتوى YAML
+  "error.import.unsupportedResourceType": نوع مورد غير مدعوم لإدارة الملفات التعريفية
+  "error.interceptor.challenge_token_invalid": رمز التحدي غير صالح
+  "error.interceptor.challenge_token_invalid_description": رمز التحدي مفقود أو غير صالح
+  "error.interceptor.failed": فشل التحقق من المعترض
+  "error.interceptor.failed_description": رفض معترض تدفق الطلب
+  "error.internal_server_error": خطأ داخلي في الخادم
+  "error.internal_server_error_description": حدث خطأ غير متوقع أثناء معالجة الطلب
+  "error.jweservice.decoding_jwe_error": خطأ في فك ترميز JWE
+  "error.jweservice.decoding_jwe_error_description": حدث خطأ أثناء فك ترميز رمز JWE
+  "error.jweservice.decryption_failed": فشل فك تشفير JWE
+  "error.jweservice.decryption_failed_description": فشل في فك تشفير رمز JWE
+  "error.jweservice.unsupported_algorithm": خوارزمية JWE غير مدعومة
+  "error.jweservice.unsupported_algorithm_description": خوارزمية JWE المحددة غير مدعومة
+  "error.jweservice.unsupported_encryption_algorithm": خوارزمية تشفير غير مدعومة
+  "error.jweservice.unsupported_encryption_algorithm_description": خوارزمية التشفير المحددة غير مدعومة
+  "error.jwsservice.decoding_header_error": خطأ في فك ترميز JWS
+  "error.jwsservice.decoding_header_error_description": حدث خطأ أثناء فك ترميز رأس JWS
+  "error.jwsservice.invalid_format": تنسيق JWS غير صالح
+  "error.jwsservice.invalid_format_description": تنسيق رمز JWS غير صالح
+  "error.jwsservice.invalid_signature": توقيع غير صالح
+  "error.jwsservice.invalid_signature_description": التوقيع غير صالح
+  "error.jwsservice.unsupported_algorithm": خوارزمية JWS غير مدعومة
+  "error.jwsservice.unsupported_algorithm_description": خوارزمية JWS المحددة غير مدعومة
+  "error.jwtservice.decoding_header_error": خطأ في فك ترميز JWT
+  "error.jwtservice.decoding_header_error_description": حدث خطأ أثناء فك ترميز رأس JWT
+  "error.jwtservice.decoding_payload_error": خطأ في فك ترميز JWT
+  "error.jwtservice.decoding_payload_error_description": حدث خطأ أثناء فك ترميز حمولة JWT
+  "error.jwtservice.failed_to_get_jwks": فشل في استرداد JWKS
+  "error.jwtservice.failed_to_get_jwks_description": فشل في استرداد JWKS من الرابط المحدد
+  "error.jwtservice.failed_to_parse_jwks": فشل في تحليل JWKS
+  "error.jwtservice.failed_to_parse_jwks_description": فشل في تحليل JWKS
+  "error.jwtservice.invalid_jwt_format": تنسيق JWT غير صالح
+  "error.jwtservice.invalid_jwt_format_description": تنسيق رمز JWT غير صالح
+  "error.jwtservice.invalid_token_signature": توقيع الرمز غير صالح
+  "error.jwtservice.invalid_token_signature_description": توقيع رمز JWT غير صالح
+  "error.jwtservice.no_matching_jwk_found": لم يتم العثور على JWK مطابق
+  "error.jwtservice.no_matching_jwk_found_description": لم يتم العثور على JWK مطابق لمعرف المفتاح المحدد
+  "error.jwtservice.token_expired": انتهت صلاحية الرمز
+  "error.jwtservice.token_expired_description": انتهت صلاحية رمز JWT
+  "error.jwtservice.unsupported_jws_algorithm": خوارزمية JWS غير مدعومة
+  "error.jwtservice.unsupported_jws_algorithm_description": خوارزمية JWS المحددة غير مدعومة
+  "error.magiclinkservice.expired_token": الرمز منتهي الصلاحية
+  "error.magiclinkservice.expired_token_description": انتهت صلاحية رمز الرابط السحري
+  "error.magiclinkservice.invalid_token": رمز غير صالح
+  "error.magiclinkservice.invalid_token_description": رمز الرابط السحري المقدم غير صالح
+  "error.magiclinkservice.malformed_token_claims": مطالبات رمز مشوهة
+  "error.magiclinkservice.malformed_token_claims_description": رمز الرابط السحري يحتوي على مطالبات غير صالحة أو مفقودة
+  "error.magiclinkservice.resolving_user": خطأ في تحديد هوية المستخدم
+  "error.magiclinkservice.resolving_user_description": حدث خطأ أثناء تحديد هوية المستخدم للمستلم
+  "error.magiclinkservice.token_generation_failed": فشل توليد الرمز
+  "error.magiclinkservice.token_generation_failed_description": فشل في توليد رمز الرابط السحري
+  "error.notificationservice.duplicate_sender_name": اسم المرسل مكرر
+  "error.notificationservice.duplicate_sender_name_description": مرسل بنفس الاسم موجود بالفعل
+  "error.notificationservice.error_while_retrieving_message_client": خطأ أثناء استرداد عميل الرسائل
+  "error.notificationservice.error_while_retrieving_message_client_description": حدث خطأ أثناء استرداد عميل الرسائل
+  "error.notificationservice.invalid_channel": القناة غير صالحة
+  "error.notificationservice.invalid_channel_description": القناة المقدمة غير صالحة
+  "error.notificationservice.invalid_notification_provider": موفر الإشعارات غير صالح
+  "error.notificationservice.invalid_notification_provider_description": موفر الإشعارات المحدد غير صالح أو غير مدعوم
+  "error.notificationservice.invalid_otp": OTP غير صالح
+  "error.notificationservice.invalid_otp_description": OTP المقدم غير صالح
+  "error.notificationservice.invalid_recipient": المستلم غير صالح
+  "error.notificationservice.invalid_recipient_description": المستلم المقدم غير صالح
+  "error.notificationservice.invalid_request_format": تنسيق الطلب غير صالح
+  "error.notificationservice.invalid_request_format_description": جسم الطلب مشوه أو يحتوي على بيانات غير صالحة
+  "error.notificationservice.invalid_sender_id": معرف المرسل غير صالح
+  "error.notificationservice.invalid_sender_id_description": معرف المرسل المقدم غير صالح
+  "error.notificationservice.invalid_sender_name": اسم المرسل غير صالح
+  "error.notificationservice.invalid_sender_name_description": اسم المرسل المقدم غير صالح
+  "error.notificationservice.invalid_sender_type": نوع المرسل غير صالح
+  "error.notificationservice.invalid_sender_type_description": نوع المرسل المقدم غير صالح أو غير مدعوم
+  "error.notificationservice.invalid_session_token": رمز الجلسة غير صالح
+  "error.notificationservice.invalid_session_token_description": رمز الجلسة المقدم غير صالح أو مشوه أو منتهي الصلاحية
+  "error.notificationservice.sender_not_found": المرسل غير موجود
+  "error.notificationservice.sender_not_found_description": لم يتم العثور على مرسل الإشعارات المطلوب
+  "error.notificationservice.sender_type_mismatch": عدم تطابق نوع المرسل
+  "error.notificationservice.sender_type_mismatch_description": المرسل المطلوب ليس من النوع المتوقع
+  "error.notificationservice.unsupported_channel": القناة غير مدعومة
+  "error.notificationservice.unsupported_channel_description": القناة المقدمة غير مدعومة
+  "error.notificationservice.update_not_allowed": التحديث غير مسموح
+  "error.notificationservice.update_not_allowed_description": تحديث نوع المرسل غير مسموح
+  "error.ouservice.cannot_modify_declarative_resource": لا يمكن تعديل المورد التعريفي
+  "error.ouservice.cannot_modify_declarative_resource_description": وحدة المؤسسة تعريفية ولا يمكن تعديلها أو حذفها
+  "error.ouservice.circular_dependency_detected": اعتماد دائري مكتشف
+  "error.ouservice.circular_dependency_detected_description": تعيين هذا الأصل سيؤدي إلى إنشاء اعتماد دائري
+  "error.ouservice.invalid_filter": معامل التصفية غير صالح
+  "error.ouservice.invalid_filter_description": "معامل التصفية غير صالح. استخدم التنسيق: attribute (eq|gt|lt) \"value\""
+  "error.ouservice.invalid_handle_path": مسار المقبض غير صالح
+  "error.ouservice.invalid_handle_path_description": مسار المقبض المحدد غير موجود
+  "error.ouservice.invalid_limit_parameter": معامل الحد غير صالح
+  "error.ouservice.invalid_limit_parameter_description": يجب أن يكون معامل الحد عدداً صحيحاً موجباً
+  "error.ouservice.invalid_offset_parameter": معامل الإزاحة غير صالح
+  "error.ouservice.invalid_offset_parameter_description": يجب أن يكون معامل الإزاحة عدداً صحيحاً غير سالب
+  "error.ouservice.invalid_request_format": تنسيق الطلب غير صالح
+  "error.ouservice.invalid_request_format_description": جسم الطلب مشوه أو يحتوي على بيانات غير صالحة أو الحقول المطلوبة مفقودة أو فارغة
+  "error.ouservice.missing_ou_id": تنسيق الطلب غير صالح
+  "error.ouservice.missing_ou_id_description": معرف وحدة المؤسسة مطلوب
+  "error.ouservice.organization_unit_handle_conflict": تعارض في مقبض وحدة المؤسسة
+  "error.ouservice.organization_unit_handle_conflict_description": وحدة مؤسسة بنفس المقبض موجودة بالفعل تحت نفس الأصل
+  "error.ouservice.organization_unit_has_children": وحدة المؤسسة لديها عناصر فرعية
+  "error.ouservice.organization_unit_has_children_description": لا يمكن حذف وحدة المؤسسة التي لديها عناصر فرعية أو مستخدمون أو مجموعات
+  "error.ouservice.organization_unit_name_conflict": تعارض في اسم وحدة المؤسسة
+  "error.ouservice.organization_unit_name_conflict_description": وحدة مؤسسة بنفس الاسم موجودة تحت نفس الأصل
+  "error.ouservice.organization_unit_not_found": وحدة المؤسسة غير موجودة
+  "error.ouservice.organization_unit_not_found_description": وحدة المؤسسة بالمعرف المحدد غير موجودة
+  "error.ouservice.parent_organization_unit_not_found": وحدة المؤسسة الأصل غير موجودة
+  "error.ouservice.parent_organization_unit_not_found_description": وحدة المؤسسة الأصل غير موجودة
+  "error.ouservice.result_limit_exceeded": تجاوز حد النتائج
+  "error.passkeyservice.credential_not_found": بيانات اعتماد مفتاح المرور غير موجودة
+  "error.passkeyservice.credential_not_found_description": بيانات الاعتماد المحددة غير موجودة للمستخدم
+  "error.passkeyservice.empty_credential_id": معرف بيانات الاعتماد فارغ
+  "error.passkeyservice.empty_credential_id_description": معرف بيانات الاعتماد مطلوب
+  "error.passkeyservice.empty_credential_type": نوع بيانات الاعتماد فارغ
+  "error.passkeyservice.empty_credential_type_description": نوع بيانات الاعتماد مطلوب
+  "error.passkeyservice.empty_relying_party_id": معرف الطرف المعتمد فارغ
+  "error.passkeyservice.empty_relying_party_id_description": معرف الطرف المعتمد مطلوب
+  "error.passkeyservice.empty_session_token": رمز الجلسة فارغ
+  "error.passkeyservice.empty_session_token_description": رمز الجلسة مطلوب
+  "error.passkeyservice.empty_user_identifier": معرف المستخدم فارغ
+  "error.passkeyservice.empty_user_identifier_description": يجب تقديم معرف المستخدم أو اسم المستخدم
+  "error.passkeyservice.invalid_attestation_response": استجابة التصديق غير صالحة
+  "error.passkeyservice.invalid_attestation_response_description": استجابة التصديق تفتقر إلى الحقول المطلوبة (clientDataJSON أو attestationObject)
+  "error.passkeyservice.invalid_authenticator_response": استجابة المصادق غير صالحة
+  "error.passkeyservice.invalid_authenticator_response_description": استجابة المصادق تفتقر إلى الحقول المطلوبة (clientDataJSON أو authenticatorData أو signature)
+  "error.passkeyservice.invalid_challenge": تحدي غير صالح
+  "error.passkeyservice.invalid_challenge_description": التحدي في الاستجابة لا يطابق التحدي المتوقع
+  "error.passkeyservice.invalid_finish_data": بيانات الإنهاء غير صالحة
+  "error.passkeyservice.invalid_finish_data_description": بيانات الإنهاء لا يمكن أن تكون فارغة
+  "error.passkeyservice.invalid_session_token": رمز الجلسة غير صالح
+  "error.passkeyservice.invalid_session_token_description": رمز الجلسة غير صالح أو مشوه
+  "error.passkeyservice.invalid_signature": توقيع غير صالح
+  "error.passkeyservice.invalid_signature_description": فشل التحقق من التوقيع
+  "error.passkeyservice.no_credentials_found": لم يتم العثور على بيانات اعتماد
+  "error.passkeyservice.no_credentials_found_description": لم يتم العثور على بيانات اعتماد للمستخدم. يرجى تسجيل بيانات اعتماد أولاً
+  "error.passkeyservice.session_expired": انتهت الجلسة
+  "error.passkeyservice.session_expired_description": انتهت الجلسة. يرجى بدء جلسة جديدة
+  "error.passkeyservice.user_not_found": المستخدم غير موجود
+  "error.passkeyservice.user_not_found_description": المستخدم المحدد غير موجود
+  "error.resourceservice.action_not_found": الإجراء غير موجود
+  "error.resourceservice.action_not_found_description": الإجراء بالمعرف المحدد غير موجود
+  "error.resourceservice.cannot_delete": لا يمكن الحذف
+  "error.resourceservice.cannot_delete_description": لا يمكن حذف خادم الموارد أو المورد الذي له تبعيات
+  "error.resourceservice.cannot_modify_declarative_action": لا يمكن تعديل الإجراء التعريفي
+  "error.resourceservice.cannot_modify_declarative_action_description": الإجراء %s محدد في التكوين التعريفي ولا يمكن تعديله
+  "error.resourceservice.cannot_modify_declarative_resource": لا يمكن تعديل المورد التعريفي
+  "error.resourceservice.cannot_modify_declarative_resource_description": المورد %s محدد في التكوين التعريفي ولا يمكن تعديله
+  "error.resourceservice.cannot_modify_declarative_resource_server": لا يمكن تعديل خادم الموارد التعريفي
+  "error.resourceservice.cannot_modify_declarative_resource_server_description": خادم الموارد %s محدد في التكوين التعريفي ولا يمكن تعديله
+  "error.resourceservice.circular_dependency_detected": اعتماد دائري مكتشف
+  "error.resourceservice.circular_dependency_detected_description": تعيين هذا الأصل سيؤدي إلى إنشاء اعتماد دائري
+  "error.resourceservice.consent_sync_failed": فشل مزامنة الموافقة
+  "error.resourceservice.consent_sync_failed_description": فشل في مزامنة تغييرات أذونات الموارد مع خدمة الموافقة
+  "error.resourceservice.delimiter_conflict_in_handle": تعارض المحدد في المقبض
+  "error.resourceservice.delimiter_conflict_in_handle_description": لا يمكن للمقبض أن يحتوي على حرف المحدد
+  "error.resourceservice.delimiter_conflict_in_resource_server_handle": تعارض المحدد في المقبض
+  "error.resourceservice.delimiter_conflict_in_resource_server_handle_description": لا يمكن لمقبض خادم الموارد أن يحتوي على حرف المحدد
+  "error.resourceservice.handle_conflict": تعارض المقبض
+  "error.resourceservice.handle_conflict_description": نفس المقبض موجود بالفعل داخل المورد المحدد
+  "error.resourceservice.identifier_conflict": تعارض المعرّف
+  "error.resourceservice.identifier_conflict_description": خادم موارد بنفس المعرّف موجود بالفعل
+  "error.resourceservice.immutable_handle": المقبض غير قابل للتعديل
+  "error.resourceservice.immutable_handle_description": لا يمكن تغيير مقبض خادم الموارد بعد الإنشاء
+  "error.resourceservice.invalid_delimiter": محدد غير صالح
+  "error.resourceservice.invalid_delimiter_description": "يجب أن يكون المحدد حرفاً واحداً صالحاً (a-z A-Z 0-9 . _ : - /)"
+  "error.resourceservice.invalid_handle": مقبض غير صالح
+  "error.resourceservice.invalid_handle_description": "يجب أن يكون طول المقبض أقل من 100 حرف ويحتوي على أحرف صالحة (a-z A-Z 0-9 . _ : - /)"
+  "error.resourceservice.invalid_limit_parameter": معامل الحد غير صالح
+  "error.resourceservice.invalid_limit_parameter_description": يجب أن يكون معامل الحد عدداً صحيحاً موجباً
+  "error.resourceservice.invalid_offset_parameter": معامل الإزاحة غير صالح
+  "error.resourceservice.invalid_offset_parameter_description": يجب أن يكون معامل الإزاحة عدداً صحيحاً غير سالب
+  "error.resourceservice.invalid_request_format": تنسيق الطلب غير صالح
+  "error.resourceservice.invalid_request_format_description": جسم الطلب مشوه أو يحتوي على بيانات غير صالحة
+  "error.resourceservice.missing_id": تنسيق الطلب غير صالح
+  "error.resourceservice.missing_id_description": المعرف مطلوب
+  "error.resourceservice.name_conflict": تعارض الاسم
+  "error.resourceservice.name_conflict_description": خادم موارد بنفس الاسم موجود بالفعل
+  "error.resourceservice.organization_unit_not_found": وحدة المؤسسة غير موجودة
+  "error.resourceservice.organization_unit_not_found_description": وحدة المؤسسة المحددة غير موجودة
+  "error.resourceservice.parent_resource_not_found": المورد الأصل غير موجود
+  "error.resourceservice.parent_resource_not_found_description": المورد الأصل المحدد غير موجود
+  "error.resourceservice.resource_not_found": المورد غير موجود
+  "error.resourceservice.resource_not_found_description": المورد بالمعرف المحدد غير موجود
+  "error.resourceservice.resource_server_id_conflict": تعارض معرف خادم الموارد
+  "error.resourceservice.resource_server_id_conflict_description": خادم موارد بالمعرف المحدد موجود بالفعل
+  "error.resourceservice.resource_server_not_found": خادم الموارد غير موجود
+  "error.resourceservice.resource_server_not_found_description": خادم الموارد بالمعرف المحدد غير موجود
+  "error.resourceservice.result_limit_exceeded_in_composite_mode": تجاوز حد النتائج في الوضع المركب
+  "error.resourceservice.result_limit_exceeded_in_composite_mode_description": إجمالي عدد السجلات يتجاوز الحد الأقصى في الوضع المركب
+  "error.roleservice.cannot_create_role_in_declarative_only_mode": لا يمكن إنشاء دور في وضع التعريفي فقط
+  "error.roleservice.cannot_create_role_in_declarative_only_mode_description": إنشاء الأدوار غير مسموح عند التشغيل في وضع التعريفي فقط. يجب تعريف الأدوار في ملفات التكوين التعريفية
+  "error.roleservice.cannot_delete_role": لا يمكن حذف الدور
+  "error.roleservice.cannot_delete_role_description": لا يمكن حذف دور مخصص حالياً للمستخدمين أو المجموعات
+  "error.roleservice.cannot_modify_declarative_assignment": لا يمكن تعديل التعيين التعريفي
+  "error.roleservice.cannot_modify_declarative_assignment_description": التعيين محدد في التكوين التعريفي ولا يمكن تعديله
+  "error.roleservice.cannot_modify_declarative_role": لا يمكن تعديل الدور التعريفي
+  "error.roleservice.cannot_modify_declarative_role_description": الدور محدد في التكوين التعريفي ولا يمكن تعديله
+  "error.roleservice.either_entity_id_or_groups_must_be_provided_for_authorization_check_description": يجب تقديم entityId أو groups لفحص التفويض
+  "error.roleservice.empty_assignments_list": قائمة التعيينات فارغة
+  "error.roleservice.empty_assignments_list_description": يجب تقديم تعيين واحد على الأقل
+  "error.roleservice.invalid_assignee_type": نوع المُعيَّن غير صالح
+  "error.roleservice.invalid_assignee_type_description": يجب أن يكون معامل النوع 'user' أو 'group' أو 'app'
+  "error.roleservice.invalid_assignment_id": معرف التعيين غير صالح
+  "error.roleservice.invalid_assignment_id_description": معرف تعيين واحد أو أكثر في الطلب غير موجود أو لا يطابق النوع المُدّعى
+  "error.roleservice.invalid_limit_parameter": معامل الحد غير صالح
+  "error.roleservice.invalid_limit_parameter_description": يجب أن يكون معامل الحد عدداً صحيحاً موجباً
+  "error.roleservice.invalid_offset_parameter": معامل الإزاحة غير صالح
+  "error.roleservice.invalid_offset_parameter_description": يجب أن يكون معامل الإزاحة عدداً صحيحاً غير سالب
+  "error.roleservice.invalid_permissions": أذونات غير صالحة
+  "error.roleservice.invalid_permissions_description": إذن واحد أو أكثر غير موجود في نظام إدارة الموارد
+  "error.roleservice.invalid_request_format": تنسيق الطلب غير صالح
+  "error.roleservice.invalid_request_format_description": جسم الطلب مشوه أو يحتوي على بيانات غير صالحة
+  "error.roleservice.missing_entity_or_groups": تنسيق الطلب غير صالح
+  "error.roleservice.missing_role_id": تنسيق الطلب غير صالح
+  "error.roleservice.missing_role_id_description": معرف الدور مطلوب
+  "error.roleservice.organization_unit_not_found": وحدة المؤسسة غير موجودة
+  "error.roleservice.organization_unit_not_found_description": وحدة المؤسسة غير موجودة
+  "error.roleservice.result_limit_exceeded_in_composite_mode": تجاوز حد النتائج في الوضع المركب
+  "error.roleservice.result_limit_exceeded_in_composite_mode_description": إجمالي عدد السجلات يتجاوز الحد الأقصى في الوضع المركب
+  "error.roleservice.role_id_conflict": تعارض معرف الدور
+  "error.roleservice.role_id_conflict_description": دور بالمعرف المحدد موجود بالفعل
+  "error.roleservice.role_name_conflict": تعارض اسم الدور
+  "error.roleservice.role_name_conflict_description": دور بنفس الاسم موجود تحت نفس وحدة المؤسسة
+  "error.roleservice.role_not_found": الدور غير موجود
+  "error.roleservice.role_not_found_description": الدور بالمعرف المحدد غير موجود
+  "error.templateservice.template_not_found": القالب غير موجود
+  "error.templateservice.template_not_found_description": القالب المطلوب غير موجود للسيناريو المحدد
+  "error.unauthorized": غير مصرح به
+  "error.unauthorized_description": المتصل غير مصرح له بتنفيذ هذه العملية
+  "error.userinfoservice.client_credentials_not_supported": رمز الوصول غير صالح
+  "error.userinfoservice.client_credentials_not_supported_description": نقطة نهاية UserInfo لا تنطبق على نوع منح client_credentials
+  "error.userinfoservice.dpop_bound_token_bearer_scheme": رمز الوصول غير صالح
+  "error.userinfoservice.dpop_bound_token_bearer_scheme_description": يجب أن يستخدم رمز DPoP المرتبط مخطط DPoP
+  "error.userinfoservice.insufficient_scope": النطاق غير كافٍ
+  "error.userinfoservice.insufficient_scope_description": نطاق 'openid' مطلوب لهذا الطلب
+  "error.userinfoservice.invalid_access_token": رمز الوصول غير صالح
+  "error.userinfoservice.invalid_access_token_description": رمز الوصول غير صالح أو منتهي الصلاحية أو مشوه
+  "error.userinfoservice.invalid_dpop_proof": رمز الوصول غير صالح
+  "error.userinfoservice.invalid_dpop_proof_description": فشل التحقق من إثبات DPoP
+  "error.userinfoservice.missing_sub_claim": رمز الوصول غير صالح
+  "error.userinfoservice.missing_sub_claim_description": رمز الوصول مفقود أو يحتوي على مطالبة 'sub' غير صالحة
+  "error.userservice.ambiguous_user": مستخدم غامض
+  "error.userservice.ambiguous_user_description": مستخدمون متعددون يطابقون الفلاتر المقدمة
+  "error.userservice.attribute_conflict": تعارض في السمات
+  "error.userservice.attribute_conflict_description": مستخدم بنفس قيمة السمة الفريدة موجود بالفعل
+  "error.userservice.authentication_failed": فشلت المصادقة
+  "error.userservice.authentication_failed_description": بيانات اعتماد غير صالحة مقدمة
+  "error.userservice.cannot_modify_declarative_resource": لا يمكن تعديل المورد التعريفي
+  "error.userservice.cannot_modify_declarative_resource_description": المستخدم تعريفي ولا يمكن تعديله أو حذفه
+  "error.userservice.email_conflict": تعارض البريد الإلكتروني
+  "error.userservice.email_conflict_description": مستخدم بنفس البريد الإلكتروني موجود بالفعل
+  "error.userservice.handle_path_required": مسار المقبض مطلوب
+  "error.userservice.handle_path_required_description": مسار المقبض مطلوب لهذه العملية
+  "error.userservice.invalid_credential": تنسيق الطلب غير صالح
+  "error.userservice.invalid_credential_description": حقول بيانات الاعتماد غير صالحة في الطلب
+  "error.userservice.invalid_filter_parameter": معامل التصفية غير صالح
+  "error.userservice.invalid_filter_parameter_description": تنسيق التصفية غير صالح
+  "error.userservice.invalid_group_id": معرف المجموعة غير صالح
+  "error.userservice.invalid_group_id_description": معرف مجموعة واحد أو أكثر في الطلب غير موجود
+  "error.userservice.invalid_handle_path": مسار المقبض غير صالح
+  "error.userservice.invalid_handle_path_description": يجب أن يحتوي مسار المقبض على معرفات وحدات تنظيمية صالحة مفصولة بشرطات مائلة للأمام
+  "error.userservice.invalid_limit_parameter": معامل ترقيم الصفحات غير صالح
+  "error.userservice.invalid_limit_parameter_description": يجب أن يكون معامل الحد عدداً صحيحاً موجباً
+  "error.userservice.invalid_offset_parameter": معامل ترقيم الصفحات غير صالح
+  "error.userservice.invalid_offset_parameter_description": يجب أن يكون معامل الإزاحة عدداً صحيحاً غير سالب
+  "error.userservice.invalid_organization_unit": وحدة المؤسسة غير صالحة
+  "error.userservice.invalid_organization_unit_description": يجب تحديد معرف وحدة المؤسسة كـ UUID صالح
+  "error.userservice.invalid_request_format": تنسيق الطلب غير صالح
+  "error.userservice.invalid_request_format_description": جسم الطلب مشوه أو يحتوي على بيانات غير صالحة
+  "error.userservice.missing_credentials": بيانات الاعتماد مفقودة
+  "error.userservice.missing_credentials_description": يجب تقديم حقل بيانات اعتماد واحد على الأقل
+  "error.userservice.missing_required_fields": الحقول المطلوبة مفقودة
+  "error.userservice.missing_required_fields_description": يجب تقديم سمة تعريفية واحدة على الأقل
+  "error.userservice.missing_user_id": تنسيق الطلب غير صالح
+  "error.userservice.missing_user_id_description": معرف المستخدم مطلوب
+  "error.userservice.organization_unit_mismatch": عدم تطابق وحدة المؤسسة
+  "error.userservice.organization_unit_mismatch_description": وحدة المؤسسة لا تطابق تكوين نوع المستخدم
+  "error.userservice.organization_unit_not_found": وحدة المؤسسة غير موجودة
+  "error.userservice.organization_unit_not_found_description": وحدة المؤسسة المحددة غير موجودة
+  "error.userservice.schema_validation_failed": فشل التحقق من المخطط
+  "error.userservice.schema_validation_failed_description": سمات المستخدم لا تتوافق مع المخطط المطلوب
+  "error.userservice.user_not_found": المستخدم غير موجود
+  "error.userservice.user_not_found_description": المستخدم بالمعرف المحدد غير موجود
+  "error.userservice.user_type_not_found": نوع المستخدم غير موجود
+  "error.userservice.user_type_not_found_description": نوع المستخدم المحدد غير موجود
+  "flows.executor.errors.ambiguous_user_identity": هوية المستخدم غامضة
+  "flows.executor.errors.ambiguous_user_identity_desc": هوية المستخدم غامضة ولا يمكن تحديدها
+  "flows.executor.errors.attribute_collect_failed": فشل في تحديث سمات المستخدم
+  "flows.executor.errors.attribute_collect_failed_desc": حدث خطأ أثناء تحديث سمات المستخدم
+  "flows.executor.errors.attribute_not_found_for_user": السمة المطلوبة غير موجودة
+  "flows.executor.errors.attribute_not_found_for_user_desc": لم يتم العثور على سمة مطلوبة للمستخدم
+  "flows.executor.errors.attribute_not_unique": قيمة السمة موجودة بالفعل
+  "flows.executor.errors.attribute_not_unique_desc": قيمة السمة المقدمة موجودة بالفعل ويجب أن تكون فريدة
+  "flows.executor.errors.attribute_retrieval_failed": فشل في استرداد سمات المستخدم
+  "flows.executor.errors.attribute_retrieval_failed_desc": حدث خطأ أثناء استرداد سمات المستخدم
+  "flows.executor.errors.auth_not_available_for_app": المصادقة غير متاحة لهذا التطبيق
+  "flows.executor.errors.auth_not_available_for_app_desc": طريقة المصادقة المطلوبة غير متاحة لهذا التطبيق
+  "flows.executor.errors.authorization_failed": فشل التحقق من التفويض
+  "flows.executor.errors.authorization_failed_desc": فشل التحقق من التفويض للمستخدم الحالي
+  "flows.executor.errors.cannot_provision_automatically": لا يمكن توفير المستخدم تلقائياً
+  "flows.executor.errors.cannot_provision_automatically_desc": لا يمكن توفير المستخدم تلقائياً بالمعلومات المقدمة
+  "flows.executor.errors.consent_decisions_missing": مدخل قرارات الموافقة مفقود أو فارغ
+  "flows.executor.errors.consent_decisions_missing_desc": مدخل قرارات الموافقة مفقود أو فارغ
+  "flows.executor.errors.consent_decisions_parse": فشل في تحليل قرارات الموافقة
+  "flows.executor.errors.consent_decisions_parse_desc": لم يتمكن من تحليل مدخل قرارات الموافقة
+  "flows.executor.errors.consent_denied": رفض المستخدم الموافقة
+  "flows.executor.errors.consent_denied_desc": رفض المستخدم الموافقة المطلوبة
+  "flows.executor.errors.consent_prereq_failed": فشل التحقق من الشروط المسبقة للموافقة
+  "flows.executor.errors.consent_prereq_failed_desc": لم يتم استيفاء الشروط المسبقة لمنفذ الموافقة
+  "flows.executor.errors.consent_prompt_timed_out": انتهت مهلة موجه الموافقة
+  "flows.executor.errors.consent_prompt_timed_out_desc": انتهت مهلة موجه الموافقة دون استجابة
+  "flows.executor.errors.consent_record_failed": فشل في تسجيل الموافقة
+  "flows.executor.errors.consent_record_failed_desc": حدث خطأ أثناء تسجيل موافقة المستخدم
+  "flows.executor.errors.consent_resolution_failed": فشل في حل الموافقة
+  "flows.executor.errors.consent_resolution_failed_desc": حدث خطأ أثناء حل متطلبات موافقة المستخدم
+  "flows.executor.errors.credential_input_invalid": تكوين مدخل بيانات الاعتماد غير صالح
+  "flows.executor.errors.credential_input_invalid_desc": تكوين مدخل بيانات الاعتماد غير صالح لمُحدِّد بيانات الاعتماد
+  "flows.executor.errors.credential_input_missing": لم يتم تكوين مدخل بيانات اعتماد
+  "flows.executor.errors.credential_input_missing_desc": لم يتم تكوين مدخل بيانات اعتماد لمُحدِّد بيانات الاعتماد
+  "flows.executor.errors.credential_processing_failed": فشل في معالجة بيانات الاعتماد
+  "flows.executor.errors.credential_processing_failed_desc": حدث خطأ أثناء معالجة بيانات الاعتماد
+  "flows.executor.errors.credential_set_failed": فشل في تعيين بيانات الاعتماد
+  "flows.executor.errors.credential_set_failed_desc": حدث خطأ أثناء تعيين بيانات اعتماد المستخدم
+  "flows.executor.errors.credential_value_empty": قيمة بيانات الاعتماد فارغة
+  "flows.executor.errors.credential_value_empty_desc": يجب ألا تكون قيمة بيانات الاعتماد فارغة لمُحدِّد بيانات الاعتماد
+  "flows.executor.errors.cross_ou_provisioning_target_missing": لم يتم تعيين OU المستهدف للتوفير عبر OU
+  "flows.executor.errors.cross_ou_provisioning_target_missing_desc": يجب تحديد وحدة مؤسسة مستهدفة لتوفير المستخدم عبر OU
+  "flows.executor.errors.email_recipient_missing": مستلم البريد الإلكتروني مطلوب
+  "flows.executor.errors.email_recipient_missing_desc": يجب تقديم مستلم بريد إلكتروني لإرسال الإشعار
+  "flows.executor.errors.email_send_failed": فشل في إرسال البريد الإلكتروني
+  "flows.executor.errors.email_send_failed_desc": حدث خطأ أثناء إرسال البريد الإلكتروني
+  "flows.executor.errors.email_service_not_configured": خدمة البريد الإلكتروني غير مكونة
+  "flows.executor.errors.email_service_not_configured_desc": لم يتم تكوين خدمة إشعارات البريد الإلكتروني
+  "flows.executor.errors.failed_to_identify_user": فشل في تحديد هوية المستخدم
+  "flows.executor.errors.failed_to_identify_user_desc": تعذر تحديد هوية المستخدم بالمعلومات المقدمة
+  "flows.executor.errors.http_request_config_invalid": خطأ في التكوين
+  "flows.executor.errors.http_request_config_invalid_desc": تكوين منفذ طلب HTTP غير صالح
+  "flows.executor.errors.http_request_failed": فشل منفذ طلب HTTP
+  "flows.executor.errors.http_request_failed_desc": فشل منفذ طلب HTTP في إكمال الطلب
+  "flows.executor.errors.insufficient_permissions": صلاحيات غير كافية
+  "flows.executor.errors.insufficient_permissions_desc": المستخدم لا يمتلك صلاحيات كافية لتنفيذ هذا الإجراء
+  "flows.executor.errors.invalid_action": إجراء غير صالح مقدم
+  "flows.executor.errors.invalid_action_desc": الإجراء المقدم غير صالح لخطوة التدفق الحالية
+  "flows.executor.errors.invalid_credentials": بيانات اعتماد غير صالحة مقدمة
+  "flows.executor.errors.invalid_credentials_desc": بيانات الاعتماد المقدمة غير صالحة
+  "flows.executor.errors.invalid_federated_user": مستخدم موحد غير صالح
+  "flows.executor.errors.invalid_federated_user_desc": معلومات المستخدم الموحد غير صالحة أو غير متسقة
+  "flows.executor.errors.invalid_invite_token": رمز الدعوة غير صالح
+  "flows.executor.errors.invalid_invite_token_desc": رمز الدعوة المقدم غير صالح أو منتهي الصلاحية
+  "flows.executor.errors.invalid_magic_link_token": رمز الرابط السحري غير صالح
+  "flows.executor.errors.invalid_magic_link_token_desc": رمز الرابط السحري غير صالح أو منتهي الصلاحية
+  "flows.executor.errors.invalid_oauth_code": رمز تفويض OAuth غير صالح
+  "flows.executor.errors.invalid_oauth_code_desc": رمز تفويض OAuth غير صالح أو لا يمكن تبادله مقابل رموز
+  "flows.executor.errors.invalid_oauth_state": معامل حالة OAuth غير صالح
+  "flows.executor.errors.invalid_oauth_state_desc": معامل حالة OAuth غير صالح أو لا يطابق القيمة المتوقعة
+  "flows.executor.errors.invalid_otp": OTP غير صالح مقدم
+  "flows.executor.errors.invalid_otp_desc": كلمة المرور لمرة واحدة المقدمة غير صالحة أو منتهية الصلاحية
+  "flows.executor.errors.invalid_ou": وحدة المؤسسة المحددة غير صالحة
+  "flows.executor.errors.invalid_ou_desc": وحدة المؤسسة المحددة غير صالحة لهذه العملية
+  "flows.executor.errors.invalid_passkey": بيانات اعتماد مفتاح المرور غير صالحة
+  "flows.executor.errors.invalid_passkey_desc": بيانات اعتماد مفتاح المرور المقدمة غير صالحة
+  "flows.executor.errors.invalid_user_type": نوع المستخدم غير صالح
+  "flows.executor.errors.invalid_user_type_desc": نوع المستخدم المقدم غير صالح
+  "flows.executor.errors.invite_token_generation_failed": فشل في توليد رمز الدعوة
+  "flows.executor.errors.invite_token_generation_failed_desc": حدث خطأ أثناء توليد رمز الدعوة
+  "flows.executor.errors.magic_link_generation_failed": فشل في توليد الرابط السحري
+  "flows.executor.errors.magic_link_generation_failed_desc": فشل في توليد الرابط السحري
+  "flows.executor.errors.max_otp_attempts_reached": تم الوصول إلى الحد الأقصى لمحاولات OTP
+  "flows.executor.errors.max_otp_attempts_reached_desc": تم الوصول إلى الحد الأقصى لمحاولات التحقق من OTP
+  "flows.executor.errors.no_registered_passkeys": لم يتم العثور على مفاتيح مرور مسجلة
+  "flows.executor.errors.no_registered_passkeys_desc": لم يتم العثور على مفاتيح مرور مسجلة للمستخدم
+  "flows.executor.errors.no_user_types_available": لا تتوفر أنواع مستخدمين
+  "flows.executor.errors.no_user_types_available_desc": لا تتوفر حالياً أنواع مستخدمين
+  "flows.executor.errors.no_valid_user_types": لا تتوفر أنواع مستخدمين صالحة
+  "flows.executor.errors.no_valid_user_types_desc": لا توجد أنواع مستخدمين صالحة مكونة لهذا التدفق
+  "flows.executor.errors.nonce_mismatch": عدم تطابق nonce في رمز ID
+  "flows.executor.errors.nonce_mismatch_desc": nonce في مطالبات رمز ID لا يطابق القيمة المتوقعة
+  "flows.executor.errors.openid4vp_expired": انتهت صلاحية طلب OpenID4VP قبل استلام استجابة
+  "flows.executor.errors.openid4vp_expired_desc": انتهت صلاحية طلب العرض التقديمي OpenID4VP قبل أن يرسل المحفظة استجابة
+  "flows.executor.errors.openid4vp_initiate_failed": فشل في بدء طلب OpenID4VP
+  "flows.executor.errors.openid4vp_initiate_failed_desc": حدث خطأ أثناء بدء طلب العرض التقديمي OpenID4VP
+  "flows.executor.errors.openid4vp_not_configured": مُحقِّق OpenID4VP غير مكوّن
+  "flows.executor.errors.openid4vp_not_configured_desc": لم يتم تكوين خدمة مُحقِّق OpenID4VP
+  "flows.executor.errors.openid4vp_verification_failed": فشل التحقق من عرض OpenID4VP التقديمي
+  "flows.executor.errors.openid4vp_verification_failed_desc": فشل التحقق من عرض OpenID4VP التقديمي
+  "flows.executor.errors.ou_creation_failed": فشل إنشاء وحدة المؤسسة
+  "flows.executor.errors.ou_creation_failed_desc": حدث خطأ أثناء إنشاء وحدة المؤسسة
+  "flows.executor.errors.ou_creation_prereq_failed": فشل التحقق من الشروط المسبقة لإنشاء OU
+  "flows.executor.errors.ou_creation_prereq_failed_desc": لم يتم استيفاء الشروط المسبقة لإنشاء وحدة مؤسسة
+  "flows.executor.errors.ou_handle_conflict": وحدة مؤسسة بنفس المقبض موجودة بالفعل
+  "flows.executor.errors.ou_handle_conflict_desc": وحدة مؤسسة بنفس المقبض موجودة بالفعل في هذا السياق
+  "flows.executor.errors.ou_name_conflict": وحدة مؤسسة بنفس الاسم موجودة بالفعل
+  "flows.executor.errors.ou_name_conflict_desc": وحدة مؤسسة بنفس الاسم موجودة بالفعل في هذا السياق
+  "flows.executor.errors.ou_not_found": وحدة المؤسسة غير موجودة
+  "flows.executor.errors.ou_not_found_desc": وحدة المؤسسة المحددة غير موجودة
+  "flows.executor.errors.ou_not_valid_for_user_type": وحدة المؤسسة المحددة غير صالحة لنوع المستخدم المختار.
+  "flows.executor.errors.ou_not_valid_for_user_type_desc": وحدة المؤسسة المحددة غير صالحة لنوع المستخدم المختار
+  "flows.executor.errors.ou_resolution_failed": فشل في حل وحدة المؤسسة
+  "flows.executor.errors.ou_resolution_failed_desc": تعذر حل وحدة المؤسسة للسياق الحالي
+  "flows.executor.errors.passkey_auth_failed": فشلت مصادقة مفتاح المرور
+  "flows.executor.errors.passkey_auth_failed_desc": حدث خطأ أثناء المصادقة بمفتاح المرور
+  "flows.executor.errors.passkey_registration_failed": فشل تسجيل مفتاح المرور
+  "flows.executor.errors.passkey_registration_failed_desc": حدث خطأ أثناء تسجيل مفتاح المرور
+  "flows.executor.errors.prerequisites_failed": فشل التحقق من الشروط المسبقة
+  "flows.executor.errors.prerequisites_failed_desc": لم يتم استيفاء الشروط المسبقة لهذه العملية
+  "flows.executor.errors.provisioning_assignment_failed": فشل في تعيين المجموعات والأدوار
+  "flows.executor.errors.provisioning_assignment_failed_desc": حدث خطأ أثناء تعيين المجموعات والأدوار للمستخدم المُوفَّر
+  "flows.executor.errors.provisioning_attribute_conflict": مستخدم بالسمات المقدمة موجود بالفعل
+  "flows.executor.errors.provisioning_attribute_conflict_desc": فشل توفير المستخدم لأن قيمة سمة فريدة واحدة أو أكثر مستخدمة بالفعل
+  "flows.executor.errors.provisioning_failed": فشل توفير المستخدم
+  "flows.executor.errors.provisioning_failed_desc": حدث خطأ أثناء توفير المستخدم
+  "flows.executor.errors.provisioning_user_attrs_missing": لم يتم تقديم سمات مستخدم للتوفير
+  "flows.executor.errors.provisioning_user_attrs_missing_desc": سمات المستخدم مطلوبة لتوفير مستخدم جديد
+  "flows.executor.errors.self_reg_disabled_for_user_type": التسجيل الذاتي معطل لنوع المستخدم
+  "flows.executor.errors.self_reg_disabled_for_user_type_desc": التسجيل الذاتي غير مفعل لنوع المستخدم المحدد
+  "flows.executor.errors.self_reg_not_available_for_app": التسجيل الذاتي غير متاح لهذا التطبيق
+  "flows.executor.errors.self_reg_not_available_for_app_desc": التسجيل الذاتي غير متاح لهذا التطبيق
+  "flows.executor.errors.self_registration_disabled": التسجيل الذاتي غير مفعل
+  "flows.executor.errors.self_registration_disabled_desc": التسجيل الذاتي غير مفعل لهذا التطبيق أو نوع المستخدم
+  "flows.executor.errors.sms_invalid_phone": مستلم SMS ليس رقم هاتف صالحاً
+  "flows.executor.errors.sms_invalid_phone_desc": مستلم SMS المقدم ليس رقم هاتف صالحاً
+  "flows.executor.errors.sms_provider_not_configured": موفر إشعارات SMS غير مكوّن
+  "flows.executor.errors.sms_provider_not_configured_desc": لم يتم تكوين موفر إشعارات SMS أو أنه يحتوي على أخطاء
+  "flows.executor.errors.sms_recipient_missing": مستلم SMS مطلوب
+  "flows.executor.errors.sms_recipient_missing_desc": يجب تقديم مستلم SMS لإرسال الإشعار
+  "flows.executor.errors.sms_template_missing": قالب SMS مطلوب
+  "flows.executor.errors.sms_template_missing_desc": يجب تقديم قالب SMS لإرسال الإشعار
+  "flows.executor.errors.user_already_exists": المستخدم موجود بالفعل
+  "flows.executor.errors.user_already_exists_desc": مستخدم موجود بالفعل بالسمات المقدمة
+  "flows.executor.errors.user_already_exists_in_target_ou": المستخدم موجود بالفعل في المؤسسة المستهدفة
+  "flows.executor.errors.user_already_exists_in_target_ou_desc": مستخدم بنفس الهوية موجود بالفعل في وحدة المؤسسة المستهدفة
+  "flows.executor.errors.user_auth_failed": فشلت مصادقة المستخدم
+  "flows.executor.errors.user_auth_failed_desc": حدث خطأ أثناء مصادقة المستخدم
+  "flows.executor.errors.user_id_missing_in_context": معرف المستخدم غير موجود
+  "flows.executor.errors.user_id_missing_in_context_desc": لم يتمكن من حل معرف المستخدم من سياق التدفق الحالي
+  "flows.executor.errors.user_id_required_for_passkey_reg": معرف المستخدم مفقود لتسجيل مفتاح المرور
+  "flows.executor.errors.user_id_required_for_passkey_reg_desc": معرف المستخدم مطلوب لتسجيل مفتاح المرور
+  "flows.executor.errors.user_not_authenticated": المستخدم غير مصادق عليه
+  "flows.executor.errors.user_not_authenticated_desc": لم يتم مصادقة المستخدم في هذا التدفق
+  "flows.executor.errors.user_not_found": المستخدم غير موجود
+  "flows.executor.errors.user_not_found_desc": لم يتم العثور على المستخدم في النظام
+  "flows.executor.errors.user_type_not_allowed": نوع المستخدم غير مسموح به لهذا التدفق
+  "flows.executor.errors.user_type_not_allowed_desc": نوع المستخدم المحدد غير مسموح به لهذا التدفق
+  "flows.executor.errors.user_type_not_valid_for_ou": نوع المستخدم غير صالح
+  "flows.executor.errors.user_type_not_valid_for_ou_desc": نوع المستخدم المحدد غير صالح لوحدة المؤسسة المختارة
+  "flows.executor.errors.user_type_retrieval_failed": فشل في استرداد أنواع المستخدمين
+  "flows.executor.errors.user_type_retrieval_failed_desc": حدث خطأ أثناء استرداد أنواع المستخدمين المتاحة
+  "layout.error.already_exists": التخطيط موجود بالفعل
+  "layout.error.already_exists_description": تخطيط بنفس المعرف موجود بالفعل
+  "layout.error.cannot_delete_declarative": لا يمكن حذف التخطيط التعريفي
+  "layout.error.cannot_delete_declarative_description": التخطيط محدد في الموارد التعريفية ولا يمكن حذفه
+  "layout.error.cannot_modify_declarative": لا يمكن تعديل المورد التعريفي
+  "layout.error.cannot_modify_declarative_description": التخطيط تعريفي ولا يمكن تعديله أو حذفه
+  "layout.error.cannot_update_declarative": لا يمكن تحديث التخطيط التعريفي
+  "layout.error.cannot_update_declarative_description": التخطيط محدد في الموارد التعريفية ولا يمكن تعديله
+  "layout.error.duplicate_handle": مقبض التخطيط مكرر
+  "layout.error.duplicate_handle_description": تخطيط بنفس المقبض موجود بالفعل
+  "layout.error.handle_immutable": مقبض التخطيط غير قابل للتعديل
+  "layout.error.handle_immutable_description": لا يمكن تغيير مقبض التخطيط بعد الإنشاء
+  "layout.error.in_use": التخطيط قيد الاستخدام
+  "layout.error.in_use_description": لا يمكن حذف التخطيط المرتبط حالياً بتطبيق واحد أو أكثر
+  "layout.error.invalid_data": بيانات التخطيط غير صالحة
+  "layout.error.invalid_data_description": بيانات التخطيط المقدمة غير صالحة
+  "layout.error.invalid_format": تنسيق التخطيط غير صالح
+  "layout.error.invalid_format_description": يجب أن يكون التخطيط كائن JSON صالح
+  "layout.error.invalid_id": معرف التخطيط غير صالح
+  "layout.error.invalid_id_description": معرف التخطيط المقدم غير صالح
+  "layout.error.invalid_limit": حد غير صالح
+  "layout.error.invalid_limit_description": قيمة الحد خارج النطاق الصالح
+  "layout.error.invalid_limit_param": حد غير صالح
+  "layout.error.invalid_limit_param_description": يجب أن يكون الحد عدداً صحيحاً صالحاً
+  "layout.error.invalid_offset": إزاحة غير صالحة
+  "layout.error.invalid_offset_description": يجب أن تكون الإزاحة غير سالبة
+  "layout.error.invalid_offset_param": إزاحة غير صالحة
+  "layout.error.invalid_offset_param_description": يجب أن تكون الإزاحة عدداً صحيحاً صالحاً
+  "layout.error.missing_display_name": اسم العرض مفقود
+  "layout.error.missing_display_name_description": اسم العرض مطلوب
+  "layout.error.missing_handle": مقبض التخطيط مفقود
+  "layout.error.missing_handle_description": مقبض التخطيط مطلوب
+  "layout.error.missing_layout": التخطيط مفقود
+  "layout.error.missing_layout_description": حقل التخطيط مطلوب
+  "layout.error.not_found": التخطيط غير موجود
+  "layout.error.not_found_description": لم يتم العثور على تكوين التخطيط المطلوب
+  "layout.error.result_limit_exceeded": تجاوز حد النتائج
+  "layout.error.result_limit_exceeded_description": إجمالي عدد التخطيطات يتجاوز الحد الأقصى المسموح به في الوضع المركب
+  "theme.error.cannot_delete_declarative": لا يمكن حذف السمة التعريفية
+  "theme.error.cannot_delete_declarative_description": السمة محددة في الموارد التعريفية ولا يمكن حذفها
+  "theme.error.cannot_modify_declarative": لا يمكن تعديل المورد التعريفي
+  "theme.error.cannot_modify_declarative_description": السمة تعريفية ولا يمكن تعديلها أو حذفها
+  "theme.error.cannot_update_declarative": لا يمكن تحديث السمة التعريفية
+  "theme.error.cannot_update_declarative_description": السمة محددة في الموارد التعريفية ولا يمكن تعديلها
+  "theme.error.duplicate_handle": مقبض السمة مكرر
+  "theme.error.duplicate_handle_description": سمة بنفس المقبض موجودة بالفعل
+  "theme.error.handle_immutable": مقبض السمة غير قابل للتعديل
+  "theme.error.handle_immutable_description": لا يمكن تغيير مقبض السمة بعد الإنشاء
+  "theme.error.in_use": السمة قيد الاستخدام
+  "theme.error.in_use_description": لا يمكن حذف السمة المرتبطة حالياً بتطبيق واحد أو أكثر
+  "theme.error.invalid_data": بيانات السمة غير صالحة
+  "theme.error.invalid_data_description": بيانات السمة المقدمة غير صالحة
+  "theme.error.invalid_format": تنسيق السمة غير صالح
+  "theme.error.invalid_format_description": يجب أن تكون السمة كائن JSON صالح
+  "theme.error.invalid_id": معرف السمة غير صالح
+  "theme.error.invalid_id_description": معرف السمة المقدم غير صالح
+  "theme.error.invalid_limit": حد غير صالح
+  "theme.error.invalid_limit_description": قيمة الحد خارج النطاق الصالح
+  "theme.error.invalid_limit_param": حد غير صالح
+  "theme.error.invalid_limit_param_description": يجب أن يكون الحد عدداً صحيحاً صالحاً
+  "theme.error.invalid_offset": إزاحة غير صالحة
+  "theme.error.invalid_offset_description": يجب أن تكون الإزاحة غير سالبة
+  "theme.error.invalid_offset_param": إزاحة غير صالحة
+  "theme.error.invalid_offset_param_description": يجب أن تكون الإزاحة عدداً صحيحاً صالحاً
+  "theme.error.missing_display_name": اسم العرض مفقود
+  "theme.error.missing_display_name_description": اسم العرض مطلوب
+  "theme.error.missing_handle": مقبض السمة مفقود
+  "theme.error.missing_handle_description": مقبض السمة مطلوب
+  "theme.error.missing_theme": السمة مفقودة
+  "theme.error.missing_theme_description": حقل السمة مطلوب
+  "theme.error.not_found": السمة غير موجودة
+  "theme.error.not_found_description": لم يتم العثور على تكوين السمة المطلوب
+  "theme.error.result_limit_exceeded": تجاوز حد النتائج
+  "theme.error.result_limit_exceeded_description": إجمالي عدد السمات يتجاوز الحد الأقصى المسموح به في الوضع المركب
