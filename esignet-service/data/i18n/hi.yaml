@@ -1,0 +1,1189 @@
+system:
+  "design.resolve.error.app_no_design": एप्लिकेशन में कोई डिज़ाइन कॉन्फ़िगरेशन नहीं है
+  "design.resolve.error.app_no_design_description": निर्दिष्ट एप्लिकेशन से कोई थीम या लेआउट कॉन्फ़िगरेशन संबद्ध नहीं है
+  "design.resolve.error.app_not_found": एप्लिकेशन नहीं मिला
+  "design.resolve.error.app_not_found_description": निर्दिष्ट आईडी वाला एप्लिकेशन मौजूद नहीं है
+  "design.resolve.error.invalid_type": अमान्य अनुरोध प्रारूप
+  "design.resolve.error.invalid_type_description": 'type' क्वेरी पैरामीटर आवश्यक है और यह 'APP' या 'OU' होना चाहिए
+  "design.resolve.error.missing_id": अमान्य अनुरोध प्रारूप
+  "design.resolve.error.missing_id_description": 'id' क्वेरी पैरामीटर आवश्यक है
+  "design.resolve.error.unsupported_type": असमर्थित रिज़ॉल्व प्रकार
+  "design.resolve.error.unsupported_type_description": निर्दिष्ट रिज़ॉल्व प्रकार अभी समर्थित नहीं है। वर्तमान में केवल 'APP' प्रकार समर्थित है
+  "error.actor_not_found": एक्टर नहीं मिला
+  "error.actor_not_found_description": अनुरोधित एक्टर मौजूद नहीं है
+  "error.agentservice.agent_already_exists_with_client_id": क्लाइंट ID पहले से उपयोग में है
+  "error.agentservice.agent_already_exists_with_client_id_description": उसी क्लाइंट ID वाली एक इकाई पहले से मौजूद है
+  "error.agentservice.agent_already_exists_with_name": एजेंट पहले से मौजूद है
+  "error.agentservice.agent_already_exists_with_name_description": उसी नाम वाला एक एजेंट पहले से मौजूद है
+  "error.agentservice.agent_not_found": एजेंट नहीं मिला
+  "error.agentservice.agent_not_found_description": निर्दिष्ट आईडी वाला एजेंट मौजूद नहीं है
+  "error.agentservice.attribute_conflict": विशेषता विरोध
+  "error.agentservice.attribute_conflict_description": उसी अद्वितीय विशेषता मान वाला एक एजेंट पहले से मौजूद है
+  "error.agentservice.auth_code_requires_code_response_type_description": authorization_code ग्रांट प्रकार के लिए 'code' प्रतिक्रिया प्रकार आवश्यक है
+  "error.agentservice.auth_code_requires_redirect_uris_description": authorization_code ग्रांट प्रकार के लिए redirect URI आवश्यक हैं
+  "error.agentservice.cannot_modify_declarative_resource": डिक्लेरेटिव संसाधन संशोधित नहीं किया जा सकता
+  "error.agentservice.cannot_modify_declarative_resource_description": डिक्लेरेटिव रूप से प्रबंधित एजेंटों को API के माध्यम से संशोधित नहीं किया जा सकता
+  "error.agentservice.certificate_operation_failed": प्रमाणपत्र ऑपरेशन विफल
+  "error.agentservice.certificate_operation_failed_description": अमान्य इनपुट के कारण प्रमाणपत्र ऑपरेशन विफल हो गया
+  "error.agentservice.client_credentials_cannot_use_none_auth_description": client_credentials ग्रांट प्रकार 'none' प्रमाणीकरण विधि का उपयोग नहीं कर सकता
+  "error.agentservice.client_credentials_cannot_use_response_types_description": client_credentials ग्रांट प्रकार को प्रतिक्रिया प्रकारों के साथ उपयोग नहीं किया जा सकता
+  "error.agentservice.client_secret_cannot_have_certificate_description": client_secret प्रमाणीकरण विधियों में प्रमाणपत्र नहीं हो सकता
+  "error.agentservice.consent_sync_failed": सहमति सिंक विफल
+  "error.agentservice.consent_sync_failed_description": सहमति सेवा के साथ एजेंट विशेषता परिवर्तन सिंक करने में विफल
+  "error.agentservice.error_retrieving_flow_definition": फ़्लो परिभाषा पुनः प्राप्त करने में त्रुटि
+  "error.agentservice.error_retrieving_flow_definition_description": फ़्लो परिभाषा पुनः प्राप्त करते समय एक त्रुटि हुई
+  "error.agentservice.idtoken_encryption_alg_requires_enc_description": encryptionAlg सेट होने पर idToken encryptionEnc आवश्यक है
+  "error.agentservice.idtoken_encryption_enc_requires_alg_description": encryptionEnc सेट होने पर idToken encryptionAlg आवश्यक है
+  "error.agentservice.idtoken_encryption_fields_not_allowed_description": responseType JWT होने पर idToken encryptionAlg और encryptionEnc सेट नहीं होने चाहिए
+  "error.agentservice.idtoken_encryption_requires_certificate_description": ID token एन्क्रिप्शन कॉन्फ़िगर होने पर एक प्रमाणपत्र (JWKS या JWKS_URI) आवश्यक है
+  "error.agentservice.idtoken_jwks_uri_not_ssrf_safe_description": idToken JWKS URI एक सार्वजनिक रूप से पहुंच योग्य HTTPS URL होना चाहिए
+  "error.agentservice.idtoken_unsupported_encryption_alg_description": ID token एन्क्रिप्शन एल्गोरिदम समर्थित नहीं है
+  "error.agentservice.idtoken_unsupported_encryption_enc_description": ID token कंटेंट-एन्क्रिप्शन एल्गोरिदम समर्थित नहीं है
+  "error.agentservice.idtoken_unsupported_response_type_description": ID token responseType समर्थित नहीं है
+  "error.agentservice.invalid_agent_name": अमान्य एजेंट नाम
+  "error.agentservice.invalid_agent_name_description": एजेंट का नाम प्रदान किया जाना चाहिए और खाली नहीं होना चाहिए
+  "error.agentservice.invalid_agent_type": अमान्य एजेंट प्रकार
+  "error.agentservice.invalid_agent_type_description": एजेंट प्रकार प्रदान किया जाना चाहिए
+  "error.agentservice.invalid_auth_flow_id": अमान्य प्रमाणीकरण फ़्लो ID
+  "error.agentservice.invalid_auth_flow_id_description": प्रदान की गई प्रमाणीकरण फ़्लो ID अमान्य है
+  "error.agentservice.invalid_certificate_type": अमान्य प्रमाणपत्र प्रकार
+  "error.agentservice.invalid_certificate_type_description": प्रदान किया गया प्रमाणपत्र प्रकार समर्थित नहीं है
+  "error.agentservice.invalid_certificate_value": अमान्य प्रमाणपत्र मान
+  "error.agentservice.invalid_certificate_value_description": प्रदान किया गया प्रमाणपत्र मान अमान्य या अनुपस्थित है
+  "error.agentservice.invalid_credential": अमान्य क्रेडेंशियल
+  "error.agentservice.invalid_credential_description": प्रदान किया गया क्रेडेंशियल अमान्य है
+  "error.agentservice.invalid_filter": अमान्य फ़िल्टर पैरामीटर
+  "error.agentservice.invalid_filter_description": फ़िल्टर प्रारूप अमान्य है
+  "error.agentservice.invalid_grant_type": अमान्य ग्रांट प्रकार
+  "error.agentservice.invalid_grant_type_description": एक या अधिक ग्रांट प्रकार समर्थित नहीं हैं
+  "error.agentservice.invalid_jwks_uri": अमान्य JWKS URI
+  "error.agentservice.invalid_jwks_uri_description": JWKS URI एक सार्वजनिक रूप से पहुंच योग्य HTTPS URL होना चाहिए
+  "error.agentservice.invalid_limit": अमान्य पेजिनेशन पैरामीटर
+  "error.agentservice.invalid_limit_description": लिमिट पैरामीटर 1 और 100 के बीच होना चाहिए
+  "error.agentservice.invalid_oauth_configuration": अमान्य OAuth कॉन्फ़िगरेशन
+  "error.agentservice.invalid_oauth_configuration_description": प्रदान किया गया OAuth कॉन्फ़िगरेशन अमान्य है
+  "error.agentservice.invalid_offset": अमान्य पेजिनेशन पैरामीटर
+  "error.agentservice.invalid_offset_description": ऑफसेट पैरामीटर एक गैर-ऋणात्मक पूर्णांक होना चाहिए
+  "error.agentservice.invalid_public_client_configuration": अमान्य पब्लिक क्लाइंट कॉन्फ़िगरेशन
+  "error.agentservice.invalid_public_client_configuration_description": पब्लिक क्लाइंट कॉन्फ़िगरेशन अमान्य है
+  "error.agentservice.invalid_redirect_uri": अमान्य redirect URI
+  "error.agentservice.invalid_redirect_uri_description": एक या अधिक redirect URI मान्य नहीं हैं
+  "error.agentservice.invalid_registration_flow_id": अमान्य पंजीकरण फ़्लो ID
+  "error.agentservice.invalid_registration_flow_id_description": प्रदान की गई पंजीकरण फ़्लो ID अमान्य है
+  "error.agentservice.invalid_request_format": अमान्य अनुरोध प्रारूप
+  "error.agentservice.invalid_request_format_description": अनुरोध बॉडी विकृत है या अमान्य डेटा है
+  "error.agentservice.invalid_response_type": अमान्य प्रतिक्रिया प्रकार
+  "error.agentservice.invalid_response_type_description": एक या अधिक प्रदान किए गए प्रतिक्रिया प्रकार अमान्य हैं
+  "error.agentservice.invalid_token_endpoint_auth_method": अमान्य टोकन एंडपॉइंट प्रमाणीकरण विधि
+  "error.agentservice.invalid_token_endpoint_auth_method_description": प्रदान की गई टोकन एंडपॉइंट प्रमाणीकरण विधि समर्थित नहीं है
+  "error.agentservice.invalid_user_attribute": अमान्य उपयोगकर्ता विशेषता
+  "error.agentservice.invalid_user_attribute_description": एक या अधिक उपयोगकर्ता विशेषताएं कॉन्फ़िगर किए गए अनुमत उपयोगकर्ता प्रकारों के लिए मान्य नहीं हैं
+  "error.agentservice.invalid_user_type": अमान्य उपयोगकर्ता प्रकार
+  "error.agentservice.invalid_user_type_description": एक या अधिक निर्दिष्ट अनुमत उपयोगकर्ता प्रकार अमान्य हैं
+  "error.agentservice.layout_not_found": लेआउट नहीं मिला
+  "error.agentservice.layout_not_found_description": निर्दिष्ट लेआउट मौजूद नहीं है
+  "error.agentservice.missing_agent_id": एजेंट ID अनुपस्थित है
+  "error.agentservice.missing_agent_id_description": एजेंट ID आवश्यक है
+  "error.agentservice.multiple_oauth_configs": एकाधिक OAuth इनबाउंड प्रमाणीकरण कॉन्फ़िग अनुमत नहीं हैं
+  "error.agentservice.multiple_oauth_configs_description": किसी इकाई में प्रति प्रोटोकॉल अधिकतम एक इनबाउंड प्रमाणीकरण कॉन्फ़िग हो सकता है
+  "error.agentservice.none_auth_method_cannot_have_cert_or_secret_description": 'none' प्रमाणीकरण विधि में प्रमाणपत्र या क्लाइंट सीक्रेट नहीं हो सकता
+  "error.agentservice.none_auth_method_requires_public_client_description": 'none' प्रमाणीकरण विधि के लिए क्लाइंट को पब्लिक क्लाइंट होना आवश्यक है
+  "error.agentservice.organization_unit_not_found": संगठन इकाई नहीं मिली
+  "error.agentservice.organization_unit_not_found_description": निर्दिष्ट संगठन इकाई मौजूद नहीं है
+  "error.agentservice.owner_not_found": स्वामी नहीं मिला
+  "error.agentservice.owner_not_found_description": निर्दिष्ट स्वामी किसी ज्ञात उपयोगकर्ता, एप्लिकेशन या एजेंट से मेल नहीं खाता
+  "error.agentservice.pkce_requires_authorization_code_description": PKCE केवल तब सक्षम किया जा सकता है जब authorization_code ग्रांट प्रकार चुना गया हो
+  "error.agentservice.private_key_jwt_cannot_have_client_secret_description": private_key_jwt प्रमाणीकरण विधि में क्लाइंट सीक्रेट नहीं हो सकता
+  "error.agentservice.private_key_jwt_requires_certificate_description": private_key_jwt प्रमाणीकरण विधि के लिए एक प्रमाणपत्र आवश्यक है
+  "error.agentservice.public_client_must_have_pkce_description": पब्लिक क्लाइंट के लिए PKCE आवश्यक true पर सेट होना चाहिए
+  "error.agentservice.public_client_must_use_none_auth_description": पब्लिक क्लाइंट को टोकन एंडपॉइंट प्रमाणीकरण विधि के रूप में 'none' का उपयोग करना चाहिए
+  "error.agentservice.redirect_uri_fragment_not_allowed_description": Redirect URI में फ्रैगमेंट घटक नहीं होना चाहिए
+  "error.agentservice.refresh_token_cannot_be_sole_grant_description": refresh_token ग्रांट प्रकार का उपयोग किसी अन्य ग्रांट प्रकार के बिना नहीं किया जा सकता
+  "error.agentservice.response_types_require_authorization_code_description": प्रतिक्रिया प्रकार केवल authorization_code ग्रांट प्रकार के साथ कॉन्फ़िगर किए जा सकते हैं
+  "error.agentservice.schema_validation_failed": स्कीमा सत्यापन विफल
+  "error.agentservice.schema_validation_failed_description": प्रदान की गई विशेषताएं स्कीमा सत्यापन में विफल हुईं
+  "error.agentservice.theme_not_found": थीम नहीं मिली
+  "error.agentservice.theme_not_found_description": निर्दिष्ट थीम मौजूद नहीं है
+  "error.agentservice.userinfo_alg_requires_response_type_description": signingAlg या encryptionAlg सेट होने पर userinfo responseType आवश्यक है
+  "error.agentservice.userinfo_encryption_alg_requires_enc_description": encryptionAlg सेट होने पर userinfo encryptionEnc आवश्यक है
+  "error.agentservice.userinfo_encryption_enc_requires_alg_description": encryptionEnc सेट होने पर userinfo encryptionAlg आवश्यक है
+  "error.agentservice.userinfo_encryption_requires_certificate_description": userinfo एन्क्रिप्शन कॉन्फ़िगर होने पर एक प्रमाणपत्र (JWKS या JWKS_URI) आवश्यक है
+  "error.agentservice.userinfo_jwe_requires_encryption_description": userinfo responseType JWE होने पर encryptionAlg और encryptionEnc आवश्यक हैं
+  "error.agentservice.userinfo_jwks_uri_not_ssrf_safe_description": userinfo JWKS URI एक सार्वजनिक रूप से पहुंच योग्य HTTPS URL होना चाहिए
+  "error.agentservice.userinfo_jws_requires_signing_alg_description": userinfo responseType JWS होने पर signingAlg आवश्यक है
+  "error.agentservice.userinfo_nested_jwt_requires_all_description": userinfo responseType NESTED_JWT होने पर signingAlg, encryptionAlg और encryptionEnc आवश्यक हैं
+  "error.agentservice.userinfo_unsupported_encryption_alg_description": userinfo एन्क्रिप्शन एल्गोरिदम समर्थित नहीं है
+  "error.agentservice.userinfo_unsupported_encryption_enc_description": userinfo कंटेंट-एन्क्रिप्शन एल्गोरिदम समर्थित नहीं है
+  "error.agentservice.userinfo_unsupported_response_type_description": userinfo responseType समर्थित नहीं है
+  "error.agentservice.userinfo_unsupported_signing_alg_description": userinfo साइनिंग एल्गोरिदम समर्थित नहीं है
+  "error.applicationservice.application_already_exists": एप्लिकेशन पहले से मौजूद है
+  "error.applicationservice.application_already_exists_description": उसी नाम वाला एक एप्लिकेशन पहले से मौजूद है
+  "error.applicationservice.application_is_nil": एप्लिकेशन nil है
+  "error.applicationservice.application_is_nil_description": प्रदान की गई एप्लिकेशन ऑब्जेक्ट nil है
+  "error.applicationservice.application_not_found": एप्लिकेशन नहीं मिला
+  "error.applicationservice.application_not_found_description": अनुरोधित एप्लिकेशन नहीं मिल सका
+  "error.applicationservice.application_with_client_id_already_exists": क्लाइंट ID वाला एप्लिकेशन पहले से मौजूद है
+  "error.applicationservice.application_with_client_id_already_exists_description": उसी क्लाइंट ID वाला एक एप्लिकेशन पहले से मौजूद है
+  "error.applicationservice.auth_code_requires_code_response_type_description": authorization_code ग्रांट प्रकार के लिए 'code' प्रतिक्रिया प्रकार आवश्यक है
+  "error.applicationservice.auth_code_requires_redirect_uris_description": authorization_code ग्रांट प्रकार के लिए redirect URI आवश्यक हैं
+  "error.applicationservice.cannot_modify_declarative_resource": डिक्लेरेटिव संसाधन संशोधित नहीं किया जा सकता
+  "error.applicationservice.cannot_modify_declarative_resource_description": एप्लिकेशन डिक्लेरेटिव है और इसे संशोधित या हटाया नहीं जा सकता
+  "error.applicationservice.certificate_operation_failed": प्रमाणपत्र ऑपरेशन विफल
+  "error.applicationservice.certificate_operation_failed_description": एप्लिकेशन प्रमाणपत्र संसाधित करते समय एक त्रुटि हुई
+  "error.applicationservice.client_credentials_cannot_use_none_auth_description": client_credentials ग्रांट प्रकार 'none' प्रमाणीकरण विधि का उपयोग नहीं कर सकता
+  "error.applicationservice.client_credentials_cannot_use_response_types_description": client_credentials ग्रांट प्रकार को प्रतिक्रिया प्रकारों के साथ उपयोग नहीं किया जा सकता
+  "error.applicationservice.client_secret_cannot_have_certificate_description": client_secret प्रमाणीकरण विधियों में प्रमाणपत्र नहीं हो सकता
+  "error.applicationservice.consent_service_not_enabled": सहमति सेवा सक्षम नहीं है
+  "error.applicationservice.consent_service_not_enabled_description": एप्लिकेशन के लिए सहमति सक्षम नहीं की जा सकती क्योंकि सहमति सेवा सक्षम नहीं है
+  "error.applicationservice.consent_synchronization_failed": सहमति सिंक्रोनाइज़ेशन विफल
+  "error.applicationservice.consent_synchronization_failed_description": एप्लिकेशन के लिए सहमति कॉन्फ़िगरेशन सिंक्रोनाइज़ करने में विफल
+  "error.applicationservice.error_retrieving_flow_definition": फ़्लो परिभाषा पुनः प्राप्त करने में त्रुटि
+  "error.applicationservice.error_retrieving_flow_definition_description": फ़्लो परिभाषा पुनः प्राप्त करते समय एक त्रुटि हुई
+  "error.applicationservice.idtoken_encryption_alg_requires_enc_description": encryptionAlg सेट होने पर idToken encryptionEnc आवश्यक है
+  "error.applicationservice.idtoken_encryption_enc_requires_alg_description": encryptionEnc सेट होने पर idToken encryptionAlg आवश्यक है
+  "error.applicationservice.idtoken_encryption_fields_not_allowed_description": responseType JWT होने पर idToken encryptionAlg और encryptionEnc सेट नहीं होने चाहिए
+  "error.applicationservice.idtoken_encryption_requires_certificate_description": ID token एन्क्रिप्शन कॉन्फ़िगर होने पर एक प्रमाणपत्र (JWKS या JWKS_URI) आवश्यक है
+  "error.applicationservice.idtoken_jwks_uri_not_ssrf_safe_description": idToken JWKS URI एक सार्वजनिक रूप से पहुंच योग्य HTTPS URL होना चाहिए
+  "error.applicationservice.idtoken_unsupported_encryption_alg_description": ID token एन्क्रिप्शन एल्गोरिदम समर्थित नहीं है
+  "error.applicationservice.idtoken_unsupported_encryption_enc_description": ID token कंटेंट-एन्क्रिप्शन एल्गोरिदम समर्थित नहीं है
+  "error.applicationservice.idtoken_unsupported_response_type_description": ID token responseType समर्थित नहीं है
+  "error.applicationservice.invalid_acr_values": अमान्य ACR मान
+  "error.applicationservice.invalid_acr_values_description": acr_values में एक या अधिक ACR मान सिस्टम द्वारा पहचाने नहीं गए
+  "error.applicationservice.invalid_application_id": अमान्य एप्लिकेशन ID
+  "error.applicationservice.invalid_application_id_description": प्रदान की गई एप्लिकेशन ID अमान्य या खाली है
+  "error.applicationservice.invalid_application_name": अमान्य एप्लिकेशन नाम
+  "error.applicationservice.invalid_application_name_description": प्रदान किया गया एप्लिकेशन नाम अमान्य या खाली है
+  "error.applicationservice.invalid_application_url": अमान्य एप्लिकेशन URL
+  "error.applicationservice.invalid_application_url_description": प्रदान किया गया एप्लिकेशन URL एक मान्य URI नहीं है
+  "error.applicationservice.invalid_auth_flow_id": अमान्य प्रमाणीकरण फ़्लो ID
+  "error.applicationservice.invalid_auth_flow_id_description": प्रदान की गई प्रमाणीकरण फ़्लो ID अमान्य है
+  "error.applicationservice.invalid_certificate_type": अमान्य प्रमाणपत्र प्रकार
+  "error.applicationservice.invalid_certificate_type_description": प्रदान किया गया प्रमाणपत्र प्रकार समर्थित नहीं है
+  "error.applicationservice.invalid_certificate_value": अमान्य प्रमाणपत्र मान
+  "error.applicationservice.invalid_certificate_value_description": प्रदान किया गया प्रमाणपत्र मान अमान्य है
+  "error.applicationservice.invalid_client_id": अमान्य क्लाइंट ID
+  "error.applicationservice.invalid_client_id_description": प्रदान की गई क्लाइंट ID अमान्य या खाली है
+  "error.applicationservice.invalid_grant_type": अमान्य ग्रांट प्रकार
+  "error.applicationservice.invalid_grant_type_description": एक या अधिक प्रदान किए गए ग्रांट प्रकार अमान्य हैं
+  "error.applicationservice.invalid_inbound_auth_config": अमान्य इनबाउंड प्रमाणीकरण कॉन्फ़िग
+  "error.applicationservice.invalid_inbound_auth_config_description": प्रदान किया गया इनबाउंड प्रमाणीकरण कॉन्फ़िगरेशन अमान्य है
+  "error.applicationservice.invalid_jwks_uri": अमान्य JWKS URI
+  "error.applicationservice.invalid_jwks_uri_description": प्रदान किया गया JWKS URI एक मान्य URI नहीं है
+  "error.applicationservice.invalid_jwks_uri_scheme": अमान्य JWKS URI स्कीम
+  "error.applicationservice.invalid_jwks_uri_scheme_description": 'jwks_uri' को HTTPS स्कीम का उपयोग करना चाहिए
+  "error.applicationservice.invalid_logo_url": अमान्य लोगो URL
+  "error.applicationservice.invalid_logo_url_description": प्रदान किया गया लोगो URL एक मान्य URI नहीं है
+  "error.applicationservice.invalid_oauth_configuration": अमान्य OAuth कॉन्फ़िगरेशन
+  "error.applicationservice.invalid_oauth_configuration_description": OAuth कॉन्फ़िगरेशन अमान्य है
+  "error.applicationservice.invalid_public_client_configuration": अमान्य पब्लिक क्लाइंट कॉन्फ़िगरेशन
+  "error.applicationservice.invalid_public_client_configuration_description": पब्लिक क्लाइंट कॉन्फ़िगरेशन अमान्य है
+  "error.applicationservice.invalid_recovery_flow_id": अमान्य रिकवरी फ़्लो ID
+  "error.applicationservice.invalid_recovery_flow_id_description": प्रदान की गई रिकवरी फ़्लो ID अमान्य है
+  "error.applicationservice.invalid_redirect_uri": अमान्य redirect URI
+  "error.applicationservice.invalid_redirect_uri_description": एक या अधिक प्रदान किए गए redirect URI मान्य URI नहीं हैं
+  "error.applicationservice.invalid_registration_flow_id": अमान्य पंजीकरण फ़्लो ID
+  "error.applicationservice.invalid_registration_flow_id_description": प्रदान की गई पंजीकरण फ़्लो ID अमान्य है
+  "error.applicationservice.invalid_request_format": अमान्य अनुरोध प्रारूप
+  "error.applicationservice.invalid_request_format_description": अनुरोध बॉडी विकृत है या अमान्य डेटा है
+  "error.applicationservice.invalid_response_type": अमान्य प्रतिक्रिया प्रकार
+  "error.applicationservice.invalid_response_type_description": एक या अधिक प्रदान किए गए प्रतिक्रिया प्रकार अमान्य हैं
+  "error.applicationservice.invalid_token_endpoint_auth_method": अमान्य टोकन एंडपॉइंट प्रमाणीकरण विधि
+  "error.applicationservice.invalid_token_endpoint_auth_method_description": प्रदान की गई टोकन एंडपॉइंट प्रमाणीकरण विधि अमान्य है
+  "error.applicationservice.invalid_user_attribute": अमान्य उपयोगकर्ता विशेषता
+  "error.applicationservice.invalid_user_attribute_description": एक या अधिक उपयोगकर्ता विशेषताएं कॉन्फ़िगर किए गए अनुमत उपयोगकर्ता प्रकारों के लिए मान्य नहीं हैं
+  "error.applicationservice.invalid_user_type": अमान्य उपयोगकर्ता प्रकार
+  "error.applicationservice.invalid_user_type_description": allowed_user_types में एक या अधिक उपयोगकर्ता प्रकार सिस्टम में मौजूद नहीं हैं
+  "error.applicationservice.layout_not_found": लेआउट नहीं मिला
+  "error.applicationservice.layout_not_found_description": निर्दिष्ट लेआउट कॉन्फ़िगरेशन मौजूद नहीं है
+  "error.applicationservice.multiple_oauth_configs": एकाधिक OAuth इनबाउंड प्रमाणीकरण कॉन्फ़िग अनुमत नहीं हैं
+  "error.applicationservice.multiple_oauth_configs_description": किसी एप्लिकेशन में प्रति प्रोटोकॉल अधिकतम एक इनबाउंड प्रमाणीकरण कॉन्फ़िग हो सकता है
+  "error.applicationservice.none_auth_method_cannot_have_cert_or_secret_description": 'none' प्रमाणीकरण विधि में प्रमाणपत्र या क्लाइंट सीक्रेट नहीं हो सकता
+  "error.applicationservice.none_auth_method_requires_public_client_description": 'none' प्रमाणीकरण विधि के लिए क्लाइंट को पब्लिक क्लाइंट होना आवश्यक है
+  "error.applicationservice.pkce_requires_authorization_code_description": PKCE केवल तब सक्षम किया जा सकता है जब authorization_code ग्रांट प्रकार चुना गया हो
+  "error.applicationservice.private_key_jwt_cannot_have_client_secret_description": private_key_jwt प्रमाणीकरण विधि में क्लाइंट सीक्रेट नहीं हो सकता
+  "error.applicationservice.private_key_jwt_requires_certificate_description": private_key_jwt प्रमाणीकरण विधि के लिए एक प्रमाणपत्र आवश्यक है
+  "error.applicationservice.public_client_must_have_pkce_description": पब्लिक क्लाइंट के लिए PKCE आवश्यक true पर सेट होना चाहिए
+  "error.applicationservice.public_client_must_use_none_auth_description": पब्लिक क्लाइंट को टोकन एंडपॉइंट प्रमाणीकरण विधि के रूप में 'none' का उपयोग करना चाहिए
+  "error.applicationservice.redirect_uri_fragment_not_allowed_description": Redirect URI में फ्रैगमेंट घटक नहीं होना चाहिए
+  "error.applicationservice.refresh_token_cannot_be_sole_grant_description": refresh_token ग्रांट प्रकार का उपयोग किसी अन्य ग्रांट प्रकार के बिना नहीं किया जा सकता
+  "error.applicationservice.response_types_require_authorization_code_description": प्रतिक्रिया प्रकार केवल authorization_code ग्रांट प्रकार के साथ कॉन्फ़िगर किए जा सकते हैं
+  "error.applicationservice.result_limit_exceeded": परिणाम सीमा पार हो गई
+  "error.applicationservice.theme_not_found": थीम नहीं मिली
+  "error.applicationservice.theme_not_found_description": निर्दिष्ट थीम कॉन्फ़िगरेशन मौजूद नहीं है
+  "error.applicationservice.userinfo_alg_requires_response_type_description": signingAlg या encryptionAlg सेट होने पर userinfo responseType आवश्यक है
+  "error.applicationservice.userinfo_encryption_alg_requires_enc_description": encryptionAlg सेट होने पर userinfo encryptionEnc आवश्यक है
+  "error.applicationservice.userinfo_encryption_enc_requires_alg_description": encryptionEnc सेट होने पर userinfo encryptionAlg आवश्यक है
+  "error.applicationservice.userinfo_encryption_requires_certificate_description": userinfo एन्क्रिप्शन कॉन्फ़िगर होने पर एक प्रमाणपत्र (JWKS या JWKS_URI) आवश्यक है
+  "error.applicationservice.userinfo_jwe_requires_encryption_description": userinfo responseType JWE होने पर encryptionAlg और encryptionEnc आवश्यक हैं
+  "error.applicationservice.userinfo_jwks_uri_not_ssrf_safe_description": userinfo JWKS URI एक सार्वजनिक रूप से पहुंच योग्य HTTPS URL होना चाहिए
+  "error.applicationservice.userinfo_jws_requires_signing_alg_description": userinfo responseType JWS होने पर signingAlg आवश्यक है
+  "error.applicationservice.userinfo_nested_jwt_requires_all_description": userinfo responseType NESTED_JWT होने पर signingAlg, encryptionAlg और encryptionEnc आवश्यक हैं
+  "error.applicationservice.userinfo_unsupported_encryption_alg_description": userinfo एन्क्रिप्शन एल्गोरिदम समर्थित नहीं है
+  "error.applicationservice.userinfo_unsupported_encryption_enc_description": userinfo कंटेंट-एन्क्रिप्शन एल्गोरिदम समर्थित नहीं है
+  "error.applicationservice.userinfo_unsupported_response_type_description": userinfo responseType समर्थित नहीं है
+  "error.applicationservice.userinfo_unsupported_signing_alg_description": userinfo साइनिंग एल्गोरिदम समर्थित नहीं है
+  "error.assertservice.invalid_authenticator": अमान्य प्रमाणक
+  "error.assertservice.invalid_authenticator_description": प्रमाणक नाम खाली नहीं हो सकता
+  "error.assertservice.nil_assurance_context": Nil आश्वासन संदर्भ
+  "error.assertservice.nil_assurance_context_description": सत्यापन के लिए आश्वासन संदर्भ nil नहीं हो सकता
+  "error.assertservice.no_assurance_requirements": कोई आश्वासन आवश्यकता नहीं
+  "error.assertservice.no_assurance_requirements_description": सत्यापन के लिए कम से कम एक आश्वासन स्तर (AAL या IAL) निर्दिष्ट होना चाहिए
+  "error.assertservice.no_authenticators": कोई प्रमाणक नहीं
+  "error.assertservice.no_authenticators_description": प्रमाणकों के बिना अभिकथन उत्पन्न नहीं किया जा सकता
+  "error.attributecache.cache_not_found": विशेषता कैश नहीं मिला
+  "error.attributecache.cache_not_found_description": निर्दिष्ट ID वाली विशेषता कैश प्रविष्टि मौजूद नहीं है
+  "error.attributecache.invalid_expiry_time": अमान्य समाप्ति समय
+  "error.attributecache.invalid_expiry_time_description": समाप्ति समय भविष्य में होना चाहिए
+  "error.attributecache.invalid_request_format": अमान्य अनुरोध प्रारूप
+  "error.attributecache.invalid_request_format_description": अनुरोध बॉडी विकृत है या अमान्य डेटा है
+  "error.attributecache.missing_attributes": विशेषताएं अनुपस्थित हैं
+  "error.attributecache.missing_attributes_description": विशेषताएं आवश्यक हैं
+  "error.attributecache.missing_cache_id": कैश ID अनुपस्थित है
+  "error.attributecache.missing_cache_id_description": कैश ID आवश्यक है
+  "error.auth.forbidden": प्रतिबंधित
+  "error.auth.forbidden_description": इस संसाधन तक पहुंचने के लिए आपके पास पर्याप्त अनुमतियां नहीं हैं
+  "error.auth.unauthorized": अनधिकृत
+  "error.auth.unauthorized_description": इस संसाधन तक पहुंचने के लिए प्रमाणीकरण आवश्यक है
+  "error.authncredservice.invalid_request_format": अमान्य अनुरोध प्रारूप
+  "error.authncredservice.invalid_request_format_description": अनुरोध बॉडी विकृत है या अमान्य डेटा है
+  "error.authnmgrservice.ambiguous_user": अस्पष्ट उपयोगकर्ता
+  "error.authnmgrservice.ambiguous_user_description": प्रदान किए गए पहचानकर्ताओं से मेल खाने वाले एकाधिक उपयोगकर्ता मिले
+  "error.authnmgrservice.authentication_failed": प्रमाणीकरण विफल
+  "error.authnmgrservice.authentication_failed_description": प्रमाणीकरण प्रयास विफल हो गया
+  "error.authnmgrservice.failed_to_get_attributes": विशेषताएं प्राप्त करने में विफल
+  "error.authnmgrservice.failed_to_get_attributes_description": विशेषता प्राप्ति अनुरोध प्रदाता द्वारा अस्वीकार कर दिया गया
+  "error.authnmgrservice.get_entity_reference_client_error": इकाई संदर्भ प्राप्त करने में विफल
+  "error.authnmgrservice.get_entity_reference_client_error_description": इकाई संदर्भ प्राप्ति अनुरोध प्रदाता द्वारा अस्वीकार कर दिया गया
+  "error.authnmgrservice.invalid_request": अमान्य अनुरोध
+  "error.authnmgrservice.invalid_request_description": प्रमाणीकरण अनुरोध अमान्य है
+  "error.authnmgrservice.user_not_found": उपयोगकर्ता नहीं मिला
+  "error.authnmgrservice.user_not_found_description": प्रदान किए गए पहचानकर्ताओं से मेल खाने वाला कोई उपयोगकर्ता नहीं मिला
+  "error.authnotpservice.error_processing_otp": OTP संसाधित करने में त्रुटि
+  "error.authnotpservice.error_processing_otp_description": OTP अनुरोध संसाधित करते समय एक त्रुटि हुई
+  "error.authnotpservice.error_resolving_user": उपयोगकर्ता हल करने में त्रुटि
+  "error.authnotpservice.error_resolving_user_description": प्राप्तकर्ता के लिए उपयोगकर्ता हल करते समय एक त्रुटि हुई
+  "error.authnotpservice.incorrect_otp": गलत OTP
+  "error.authnotpservice.incorrect_otp_description": प्रदान किया गया OTP गलत है या समाप्त हो गया है
+  "error.authnotpservice.invalid_otp": अमान्य OTP
+  "error.authnotpservice.invalid_otp_description": प्रदान किया गया OTP अमान्य या खाली है
+  "error.authnotpservice.invalid_recipient": अमान्य प्राप्तकर्ता
+  "error.authnotpservice.invalid_recipient_description": प्रदान किया गया प्राप्तकर्ता अमान्य या खाली है
+  "error.authnotpservice.invalid_sender_id": अमान्य प्रेषक ID
+  "error.authnotpservice.invalid_sender_id_description": प्रदान की गई प्रेषक ID अमान्य या खाली है
+  "error.authnotpservice.invalid_session_token": अमान्य सेशन टोकन
+  "error.authnotpservice.invalid_session_token_description": प्रदान किया गया सेशन टोकन अमान्य या खाली है
+  "error.authnotpservice.unsupported_channel": असमर्थित चैनल
+  "error.authnotpservice.unsupported_channel_description": प्रदान किया गया चैनल OTP प्रमाणीकरण के लिए समर्थित नहीं है
+  "error.authnservice.ambiguous_user": अस्पष्ट उपयोगकर्ता
+  "error.authnservice.ambiguous_user_description": प्रदान की गई विशेषताओं से एकाधिक उपयोगकर्ता मेल खाते हैं
+  "error.authnservice.assertion_subject_mismatch": अभिकथन विषय बेमेल
+  "error.authnservice.assertion_subject_mismatch_description": अभिकथन में विषय प्रमाणित उपयोगकर्ता से मेल नहीं खाता
+  "error.authnservice.authentication_failed": प्रमाणीकरण विफल
+  "error.authnservice.authentication_failed_description": उपयोगकर्ता को प्रमाणित करते समय एक त्रुटि हुई
+  "error.authnservice.empty_attributes_or_credentials": खाली विशेषताएं या क्रेडेंशियल
+  "error.authnservice.empty_attributes_or_credentials_description": उपयोगकर्ता विशेषताएं या क्रेडेंशियल खाली नहीं हो सकते
+  "error.authnservice.empty_auth_code": खाली प्राधिकरण कोड
+  "error.authnservice.empty_auth_code_description": प्रदान किया गया प्राधिकरण कोड खाली है
+  "error.authnservice.empty_session_token": खाली सेशन टोकन
+  "error.authnservice.empty_session_token_description": प्रदान किया गया सेशन टोकन खाली है
+  "error.authnservice.error_retrieving_idp": पहचान प्रदाता पुनः प्राप्त करने में त्रुटि
+  "error.authnservice.error_retrieving_idp_description": पहचान प्रदाता पुनः प्राप्त करते समय एक त्रुटि हुई
+  "error.authnservice.federated_authentication_failed": फेडरेटेड प्रमाणीकरण विफल
+  "error.authnservice.federated_authentication_failed_description": फेडरेटेड प्रमाणीकरण प्रयास विफल हो गया
+  "error.authnservice.google.invalid_id_token_audience_description": ID token का audience अपेक्षित क्लाइंट ID से मेल नहीं खाता
+  "error.authnservice.google.invalid_id_token_exp_claim_description": ID token की समाप्ति क्लेम अनुपस्थित या अमान्य है
+  "error.authnservice.google.invalid_id_token_expired_description": ID token समाप्त हो गया है
+  "error.authnservice.google.invalid_id_token_future_iat_description": ID token भविष्य में जारी किया गया था
+  "error.authnservice.google.invalid_id_token_iat_claim_description": ID token की जारी-समय (iat) क्लेम अनुपस्थित या अमान्य है
+  "error.authnservice.google.invalid_id_token_issuer_description": ID token का जारीकर्ता एक वैध Google जारीकर्ता नहीं है
+  "error.authnservice.invalid_assertion": अमान्य अभिकथन
+  "error.authnservice.invalid_assertion_description": प्रदान किया गया अभिकथन टोकन अमान्य है
+  "error.authnservice.invalid_credentials": अमान्य क्रेडेंशियल
+  "error.authnservice.invalid_credentials_description": प्रदान किए गए क्रेडेंशियल अमान्य हैं
+  "error.authnservice.invalid_idp_id": अमान्य पहचान प्रदाता ID
+  "error.authnservice.invalid_idp_id_description": प्रदान की गई पहचान प्रदाता ID अमान्य या खाली है
+  "error.authnservice.invalid_idp_type": अमान्य पहचान प्रदाता प्रकार
+  "error.authnservice.invalid_idp_type_description": अनुरोधित पहचान प्रदाता प्रकार अमान्य है
+  "error.authnservice.invalid_session_token": अमान्य सेशन टोकन
+  "error.authnservice.invalid_session_token_description": प्रदान किया गया सेशन टोकन अमान्य है या समाप्त हो गया है
+  "error.authnservice.invalid_token": अमान्य टोकन
+  "error.authnservice.invalid_token_description": प्रदान किया गया टोकन अमान्य है
+  "error.authnservice.otp_authentication_failed": प्रमाणीकरण विफल
+  "error.authnservice.otp_authentication_failed_description": OTP प्रमाणीकरण प्रयास विफल हो गया
+  "error.authnservice.passkey_authentication_failed": प्रमाणीकरण विफल
+  "error.authnservice.passkey_authentication_failed_description": पासकी प्रमाणीकरण प्रयास विफल हो गया
+  "error.authnservice.sub_claim_not_found": उपयोगकर्ता विषय नहीं मिला
+  "error.authnservice.sub_claim_not_found_description": ID token क्लेम में 'sub' क्लेम नहीं मिला
+  "error.authnservice.user_not_found": उपयोगकर्ता नहीं मिला
+  "error.authnservice.user_not_found_description": प्रदान की गई विशेषताओं से कोई उपयोगकर्ता नहीं मिला
+  "error.authoauthservice.empty_access_token": खाली एक्सेस टोकन
+  "error.authoauthservice.empty_access_token_description": एक्सेस टोकन खाली नहीं हो सकता
+  "error.authoauthservice.empty_authorization_code": खाली प्राधिकरण कोड
+  "error.authoauthservice.empty_authorization_code_description": प्राधिकरण कोड खाली नहीं हो सकता
+  "error.authoauthservice.empty_idp_id": IDP id खाली है
+  "error.authoauthservice.empty_idp_id_description": पहचान प्रदाता id खाली नहीं हो सकता
+  "error.authoauthservice.empty_sub_claim": खाली sub क्लेम
+  "error.authoauthservice.empty_sub_claim_description": sub क्लेम खाली नहीं हो सकता
+  "error.authoauthservice.failed_to_retrieve_idp": पहचान प्रदाता प्राप्त करने में विफल
+  "error.authoauthservice.failed_to_retrieve_idp_description": पहचान प्रदाता कॉन्फ़िगरेशन पुनः प्राप्त करते समय क्लाइंट त्रुटि हुई
+  "error.authoauthservice.failed_to_retrieve_user": उपयोगकर्ता प्राप्त करने में विफल
+  "error.authoauthservice.failed_to_retrieve_user_description": आंतरिक उपयोगकर्ता पुनः प्राप्त करते समय क्लाइंट त्रुटि हुई
+  "error.authoauthservice.invalid_idp": अमान्य पहचान प्रदाता
+  "error.authoauthservice.invalid_idp_description": प्राप्त पहचान प्रदाता अमान्य या खाली है
+  "error.authoauthservice.invalid_token_response": अमान्य टोकन प्रतिक्रिया
+  "error.authoauthservice.invalid_token_response_description": पहचान प्रदाता से प्राप्त टोकन प्रतिक्रिया अमान्य है
+  "error.authoidcservice.invalid_id_token": अमान्य ID token
+  "error.authoidcservice.invalid_id_token_description": ID token अमान्य या विकृत है
+  "error.authoidcservice.invalid_id_token_signature": अमान्य ID token हस्ताक्षर
+  "error.authoidcservice.invalid_id_token_signature_description": ID token हस्ताक्षर सत्यापन विफल हो गया
+  "error.authzen.invalid_action": अमान्य क्रिया
+  "error.authzen.invalid_action_description": क्रिया नाम संसाधन सर्वर पर पंजीकृत नहीं है
+  "error.authzen.invalid_request_format": अमान्य अनुरोध प्रारूप
+  "error.authzen.invalid_request_format_description": अनुरोध बॉडी विकृत है या अमान्य डेटा है
+  "error.authzen.invalid_resource": अमान्य संसाधन
+  "error.authzen.invalid_resource_description": संसाधन प्रकार संसाधन सर्वर के रूप में पंजीकृत नहीं है
+  "error.authzen.invalid_subject": अमान्य विषय
+  "error.authzen.invalid_subject_description": विषय id विषय प्रकार से मेल नहीं खाता
+  "error.authzen.missing_action": क्रिया अनुपस्थित है
+  "error.authzen.missing_action_description": क्रिया नाम आवश्यक है
+  "error.authzen.missing_evaluations": मूल्यांकन अनुपस्थित हैं
+  "error.authzen.missing_evaluations_description": कम से कम एक मूल्यांकन आवश्यक है
+  "error.authzen.missing_resource": संसाधन अनुपस्थित है
+  "error.authzen.missing_resource_description": संसाधन प्रकार आवश्यक है
+  "error.authzen.missing_resource_id": संसाधन id अनुपस्थित है
+  "error.authzen.missing_resource_id_description": संसाधन id आवश्यक है
+  "error.authzen.missing_subject": विषय अनुपस्थित है
+  "error.authzen.missing_subject_description": विषय id आवश्यक है
+  "error.certservice.certificate_already_exists": प्रमाणपत्र पहले से मौजूद है
+  "error.certservice.certificate_already_exists_description": उसी संदर्भ प्रकार और ID वाला एक प्रमाणपत्र पहले से मौजूद है
+  "error.certservice.certificate_not_found": प्रमाणपत्र नहीं मिला
+  "error.certservice.certificate_not_found_description": अनुरोधित प्रमाणपत्र नहीं मिल सका
+  "error.certservice.invalid_certificate_id": अमान्य प्रमाणपत्र ID
+  "error.certservice.invalid_certificate_id_description": प्रदान की गई प्रमाणपत्र ID अमान्य है
+  "error.certservice.invalid_certificate_type": अमान्य प्रमाणपत्र प्रकार
+  "error.certservice.invalid_certificate_type_description": प्रदान किया गया प्रमाणपत्र प्रकार अमान्य है
+  "error.certservice.invalid_certificate_value": अमान्य प्रमाणपत्र मान
+  "error.certservice.invalid_certificate_value_description": प्रदान किया गया प्रमाणपत्र मान अमान्य है
+  "error.certservice.invalid_reference_id": अमान्य प्रमाणपत्र संदर्भ ID
+  "error.certservice.invalid_reference_id_description": प्रदान की गई प्रमाणपत्र संदर्भ ID अमान्य है
+  "error.certservice.invalid_reference_type": अमान्य प्रमाणपत्र संदर्भ प्रकार
+  "error.certservice.invalid_reference_type_description": प्रदान किया गया प्रमाणपत्र संदर्भ प्रकार अमान्य है
+  "error.certservice.reference_update_not_allowed": संदर्भ अपडेट अनुमत नहीं है
+  "error.certservice.reference_update_not_allowed_description": मौजूदा प्रमाणपत्र का संदर्भ प्रकार या ID अपडेट करना अनुमत नहीं है
+  "error.consentenforcerservice.consent_create_failed": सहमति रिकॉर्ड बनाने में विफल
+  "error.consentenforcerservice.consent_create_failed_description": सहमति सेवा में सहमति रिकॉर्ड बनाते समय त्रुटि
+  "error.consentenforcerservice.consent_search_failed": सहमति रिकॉर्ड खोजने में विफल
+  "error.consentenforcerservice.consent_search_failed_description": सहमति सेवा से सहमति रिकॉर्ड खोजते समय त्रुटि
+  "error.consentenforcerservice.consent_session_invalid": अमान्य सहमति सेशन
+  "error.consentenforcerservice.consent_session_invalid_description": सहमति सेशन टोकन अमान्य है या समाप्त हो गया है
+  "error.consentenforcerservice.consent_update_failed": सहमति रिकॉर्ड अपडेट करने में विफल
+  "error.consentenforcerservice.consent_update_failed_description": सहमति सेवा में सहमति रिकॉर्ड अपडेट करते समय त्रुटि
+  "error.consentenforcerservice.essential_consent_denied": आवश्यक सहमति अस्वीकृत
+  "error.consentenforcerservice.essential_consent_denied_description": एक या अधिक आवश्यक सहमति विशेषताएं अस्वीकृत कर दी गईं
+  "error.consentenforcerservice.purpose_create_failed": सहमति उद्देश्य बनाने में विफल
+  "error.consentenforcerservice.purpose_create_failed_description": सहमति सेवा में सहमति उद्देश्य बनाते समय त्रुटि
+  "error.consentenforcerservice.purpose_fetch_failed": सहमति उद्देश्य प्राप्त करने में विफल
+  "error.consentenforcerservice.purpose_fetch_failed_description": सहमति सेवा से सहमति उद्देश्य प्राप्त करते समय त्रुटि
+  "error.consentenforcerservice.purpose_update_failed": सहमति उद्देश्य अपडेट करने में विफल
+  "error.consentenforcerservice.purpose_update_failed_description": सहमति सेवा में सहमति उद्देश्य अपडेट करते समय त्रुटि
+  "error.consentservice.cannot_delete_element": सहमति तत्व हटाया नहीं जा सकता
+  "error.consentservice.cannot_delete_purpose": सहमति उद्देश्य हटाया नहीं जा सकता
+  "error.consentservice.consent_not_found": सहमति नहीं मिली
+  "error.consentservice.consent_not_found_description": निर्दिष्ट ID वाला सहमति रिकॉर्ड मौजूद नहीं है
+  "error.consentservice.delete_element_with_associated_purpose_description": सहमति तत्व हटाया नहीं जा सकता क्योंकि यह अभी भी एक या अधिक सहमति उद्देश्यों से संबद्ध है।
+  "error.consentservice.delete_purpose_with_associated_records_description": सहमति उद्देश्य हटाया नहीं जा सकता क्योंकि यह एक या अधिक सहमति रिकॉर्डों से संबद्ध है
+  "error.consentservice.element_already_exists": सहमति तत्व पहले से मौजूद है
+  "error.consentservice.element_already_exists_description": उसी नाम वाला एक सहमति तत्व पहले से मौजूद है
+  "error.consentservice.element_not_found": सहमति तत्व नहीं मिला
+  "error.consentservice.element_not_found_description": निर्दिष्ट ID वाला सहमति तत्व मौजूद नहीं है
+  "error.consentservice.forbidden": सहमति सेवा तक पहुंच प्रतिबंधित
+  "error.consentservice.forbidden_description": सहमति सेवा ने प्रतिबंधित प्रतिक्रिया लौटाई
+  "error.consentservice.invalid_consent_request": अमान्य सहमति अनुरोध
+  "error.consentservice.invalid_consent_request_description": सहमति सेवा द्वारा सहमति अनुरोध अमान्य के रूप में अस्वीकृत किया गया
+  "error.consentservice.invalid_element_request": अमान्य सहमति तत्व अनुरोध
+  "error.consentservice.invalid_element_request_description": सहमति सेवा द्वारा सहमति तत्व अनुरोध अमान्य के रूप में अस्वीकृत किया गया
+  "error.consentservice.invalid_purpose_request": अमान्य सहमति उद्देश्य अनुरोध
+  "error.consentservice.invalid_purpose_request_description": सहमति सेवा द्वारा सहमति उद्देश्य अनुरोध अमान्य के रूप में अस्वीकृत किया गया
+  "error.consentservice.invalid_request": अमान्य सहमति अनुरोध
+  "error.consentservice.invalid_request_description": सहमति सेवा को भेजा गया अनुरोध अमान्य था
+  "error.consentservice.invalid_request_format": अमान्य अनुरोध प्रारूप
+  "error.consentservice.invalid_request_format_description": अनुरोध बॉडी विकृत है या अमान्य डेटा है
+  "error.consentservice.invalid_revoke_request": अमान्य सहमति रद्द करने का अनुरोध
+  "error.consentservice.invalid_revoke_request_description": सहमति सेवा द्वारा सहमति रद्द करने का अनुरोध अमान्य के रूप में अस्वीकृत किया गया
+  "error.consentservice.invalid_search_filter": अमान्य सहमति खोज फ़िल्टर
+  "error.consentservice.invalid_search_filter_description": सहमति सेवा द्वारा सहमति खोज फ़िल्टर अमान्य के रूप में अस्वीकृत किया गया
+  "error.consentservice.invalid_update_request": अमान्य सहमति अपडेट अनुरोध
+  "error.consentservice.invalid_update_request_description": सहमति सेवा द्वारा सहमति अपडेट अनुरोध अमान्य के रूप में अस्वीकृत किया गया
+  "error.consentservice.invalid_validation_request": अमान्य सहमति सत्यापन अनुरोध
+  "error.consentservice.invalid_validation_request_description": सहमति सेवा द्वारा सहमति सत्यापन अनुरोध अमान्य के रूप में अस्वीकृत किया गया
+  "error.consentservice.purpose_already_exists": सहमति उद्देश्य पहले से मौजूद है
+  "error.consentservice.purpose_already_exists_description": इस संसाधन के लिए उसी नाम वाला एक सहमति उद्देश्य पहले से मौजूद है
+  "error.consentservice.purpose_not_found": सहमति उद्देश्य नहीं मिला
+  "error.consentservice.purpose_not_found_description": निर्दिष्ट ID वाला सहमति उद्देश्य मौजूद नहीं है
+  "error.consentservice.unauthorized": सहमति सेवा तक पहुंच अनधिकृत
+  "error.consentservice.unauthorized_description": सहमति सेवा ने अनधिकृत प्रतिक्रिया लौटाई
+  "error.dcr.invalid_client_metadata": अमान्य क्लाइंट मेटाडेटा
+  "error.dcr.invalid_client_metadata_description": एक या अधिक क्लाइंट मेटाडेटा मान अमान्य हैं
+  "error.dcr.invalid_redirect_uri": अमान्य redirect URI
+  "error.dcr.invalid_redirect_uri_description": एक या अधिक redirect URI अमान्य हैं
+  "error.dcr.invalid_request_format": अमान्य अनुरोध प्रारूप
+  "error.dcr.invalid_request_format_description": अनुरोध बॉडी अनुपस्थित है या अमान्य प्रारूप में है
+  "error.dcr.jwks_configuration_conflict": JWKS कॉन्फ़िगरेशन विरोध
+  "error.dcr.jwks_configuration_conflict_description": 'jwks' और 'jwks_uri' दोनों पैरामीटर एक साथ निर्दिष्ट नहीं किए जा सकते
+  "error.dcr.server_error": सर्वर त्रुटि
+  "error.dcr.server_error_description": अनुरोध संसाधित करते समय एक अप्रत्याशित त्रुटि हुई
+  "error.dcr.unauthorized": अनधिकृत
+  "error.dcr.unauthorized_description": क्लाइंट पंजीकृत करने के लिए पर्याप्त अनुमतियों के साथ प्रमाणीकरण आवश्यक है
+  "error.declarative_resource.create_operation_not_allowed": डिक्लेरेटिव संसाधन बनाने की अनुमति नहीं है
+  "error.declarative_resource.create_operation_not_allowed_description": डिक्लेरेटिव संसाधन बनाना अनुमत नहीं है
+  "error.declarative_resource.delete_operation_not_allowed": डिक्लेरेटिव संसाधन हटाने की अनुमति नहीं है
+  "error.declarative_resource.delete_operation_not_allowed_description": डिक्लेरेटिव संसाधन हटाना अनुमत नहीं है
+  "error.declarative_resource.update_operation_not_allowed": डिक्लेरेटिव संसाधन अपडेट करने की अनुमति नहीं है
+  "error.declarative_resource.update_operation_not_allowed_description": डिक्लेरेटिव संसाधन अपडेट करना अनुमत नहीं है
+  "error.encoding_error": एन्कोडिंग त्रुटि
+  "error.encoding_error_description": प्रतिक्रिया एन्कोड करते समय एक त्रुटि हुई
+  "error.entitytypeservice.agent_type_cannot_delete": एजेंट प्रकार हटाया नहीं जा सकता
+  "error.entitytypeservice.agent_type_cannot_delete_description": डिफ़ॉल्ट एजेंट प्रकार हटाया नहीं जा सकता। इसके बजाय स्कीमा संपादित करें
+  "error.entitytypeservice.agent_type_name_conflict": एजेंट प्रकार नाम विरोध
+  "error.entitytypeservice.agent_type_name_conflict_description": उसी नाम वाला एक एजेंट प्रकार पहले से मौजूद है
+  "error.entitytypeservice.agent_type_not_found": एजेंट प्रकार नहीं मिला
+  "error.entitytypeservice.agent_type_not_found_description": निर्दिष्ट id वाला एजेंट प्रकार मौजूद नहीं है
+  "error.entitytypeservice.agent_type_only_default_allowed": केवल डिफ़ॉल्ट एजेंट प्रकार अनुमत है
+  "error.entitytypeservice.agent_type_only_default_allowed_description": एजेंट प्रकार एकल 'default' स्कीमा तक सीमित हैं; अन्य नाम बनाना या नाम बदलना अनुमत नहीं है
+  "error.entitytypeservice.cannot_modify_declarative_resource": डिक्लेरेटिव संसाधन संशोधित नहीं किया जा सकता
+  "error.entitytypeservice.cannot_modify_declarative_resource_description": उपयोगकर्ता प्रकार डिक्लेरेटिव है और इसे संशोधित या हटाया नहीं जा सकता
+  "error.entitytypeservice.consent_synchronization_failed": सहमति सिंक्रोनाइज़ेशन विफल
+  "error.entitytypeservice.consent_synchronization_failed_description": इकाई प्रकार के लिए सहमति कॉन्फ़िगरेशन सिंक्रोनाइज़ करने में विफल
+  "error.entitytypeservice.create_schema_request_parse_failed_description": अनुरोध बॉडी पार्स करने में विफल
+  "error.entitytypeservice.credential_attribute_not_allowed_as_display": क्रेडेंशियल विशेषता को प्रदर्शन के रूप में अनुमत नहीं है
+  "error.entitytypeservice.credential_attribute_not_allowed_as_display_description": प्रदर्शन विशेषता को क्रेडेंशियल विशेषता का संदर्भ नहीं देना चाहिए
+  "error.entitytypeservice.entity_type_name_conflict": इकाई प्रकार नाम विरोध
+  "error.entitytypeservice.entity_type_name_conflict_description": उसी नाम वाला एक इकाई प्रकार पहले से मौजूद है
+  "error.entitytypeservice.entity_type_not_found": इकाई प्रकार नहीं मिला
+  "error.entitytypeservice.entity_type_not_found_description": निर्दिष्ट id वाला इकाई प्रकार मौजूद नहीं है
+  "error.entitytypeservice.invalid_agent_type_request": अमान्य एजेंट प्रकार अनुरोध
+  "error.entitytypeservice.invalid_agent_type_request_description": एजेंट प्रकार अनुरोध में अमान्य या अनुपस्थित आवश्यक फ़ील्ड हैं
+  "error.entitytypeservice.invalid_display_attribute": अमान्य प्रदर्शन विशेषता
+  "error.entitytypeservice.invalid_display_attribute_description": प्रदर्शन विशेषता को स्कीमा में परिभाषित विशेषता का संदर्भ देना चाहिए (नेस्टेड विशेषताओं के लिए डॉट नोटेशन का उपयोग करें, जैसे 'address.city')
+  "error.entitytypeservice.invalid_entity_type_request": अमान्य इकाई प्रकार अनुरोध
+  "error.entitytypeservice.invalid_entity_type_request_description": इकाई प्रकार अनुरोध में अमान्य या अनुपस्थित आवश्यक फ़ील्ड हैं
+  "error.entitytypeservice.invalid_limit_parameter": अमान्य पेजिनेशन पैरामीटर
+  "error.entitytypeservice.invalid_limit_parameter_description": लिमिट पैरामीटर एक सकारात्मक पूर्णांक होना चाहिए
+  "error.entitytypeservice.invalid_offset_parameter": अमान्य पेजिनेशन पैरामीटर
+  "error.entitytypeservice.invalid_offset_parameter_description": ऑफसेट पैरामीटर एक गैर-ऋणात्मक पूर्णांक होना चाहिए
+  "error.entitytypeservice.invalid_request_format": अमान्य अनुरोध प्रारूप
+  "error.entitytypeservice.invalid_request_format_description": अनुरोध बॉडी विकृत है या अमान्य डेटा है
+  "error.entitytypeservice.invalid_user_type_request": अमान्य उपयोगकर्ता प्रकार अनुरोध
+  "error.entitytypeservice.invalid_user_type_request_description": उपयोगकर्ता प्रकार अनुरोध में अमान्य या अनुपस्थित आवश्यक फ़ील्ड हैं
+  "error.entitytypeservice.non_displayable_attribute_type": अप्रदर्शनीय विशेषता प्रकार
+  "error.entitytypeservice.non_displayable_attribute_type_description": प्रदर्शन विशेषता को स्ट्रिंग या संख्या प्रकार का संदर्भ देना चाहिए
+  "error.entitytypeservice.result_limit_exceeded": परिणाम सीमा पार हो गई
+  "error.entitytypeservice.result_limit_exceeded_description": फ़ाइल-आधारित और डेटाबेस स्टोर दोनों से संयुक्त परिणाम सेट अधिकतम सीमा से अधिक है। कृपया अपनी क्वेरी को कम परिणाम लौटाने के लिए परिष्कृत करें।
+  "error.entitytypeservice.update_schema_request_parse_failed_description": अनुरोध बॉडी पार्स करने में विफल
+  "error.entitytypeservice.user_type_name_conflict": उपयोगकर्ता प्रकार नाम विरोध
+  "error.entitytypeservice.user_type_name_conflict_description": उसी नाम वाला एक उपयोगकर्ता प्रकार पहले से मौजूद है
+  "error.entitytypeservice.user_type_not_found": उपयोगकर्ता प्रकार नहीं मिला
+  "error.entitytypeservice.user_type_not_found_description": निर्दिष्ट id वाला उपयोगकर्ता प्रकार मौजूद नहीं है
+  "error.entitytypeservice.user_validation_failed": उपयोगकर्ता सत्यापन विफल
+  "error.entitytypeservice.user_validation_failed_description": उपयोगकर्ता विशेषताएं आवश्यक स्कीमा के अनुरूप नहीं हैं
+  "error.eudi.invalid_request": अमान्य अनुरोध
+  "error.eudi.invalid_request_description": अनुरोध में आवश्यक पैरामीटर अनुपस्थित हैं या यह विकृत है
+  "error.eudi.unknown_definition": अज्ञात प्रस्तुति परिभाषा
+  "error.eudi.unknown_definition_description": प्रदान की गई id के लिए कोई प्रस्तुति परिभाषा पंजीकृत नहीं है
+  "error.eudi.unknown_state": अज्ञात या समाप्त अनुरोध
+  "error.eudi.unknown_state_description": प्रदान किए गए state मान के लिए कोई सक्रिय अनुरोध नहीं मिला
+  "error.eudi.verification_failed": प्रस्तुति सत्यापन विफल
+  "error.eudi.verification_failed_description": प्रस्तुत क्रेडेंशियल सत्यापित नहीं किया जा सका
+  "error.exportservice.invalid_request": अमान्य निर्यात अनुरोध
+  "error.exportservice.invalid_request_description": प्रदान किया गया निर्यात अनुरोध अमान्य या विकृत है
+  "error.exportservice.nil_request_description": निर्यात अनुरोध nil नहीं हो सकता
+  "error.exportservice.no_resources_found": कोई संसाधन नहीं मिला
+  "error.exportservice.no_resources_found_description": प्रदान किए गए पहचानकर्ताओं के लिए कोई मान्य संसाधन नहीं मिला
+  "error.exportservice.no_valid_resources_for_export_description": निर्यात के लिए कोई मान्य संसाधन नहीं मिला
+  "error.flow.core.executor_prerequisite_not_met": एक्ज़ीक्यूटर के लिए एक पूर्वापेक्षा पूरी नहीं हुई
+  "error.flow.core.executor_prerequisite_not_met_description": एक्ज़ीक्यूटर के लिए एक या अधिक आवश्यक पूर्वापेक्षाएं संतुष्ट नहीं हुईं। कृपया इनपुट की जांच करें और पुनः प्रयास करें।
+  "error.flow.core.prompt_invalid_action": अमान्य क्रिया प्रदान की गई
+  "error.flow.core.prompt_invalid_action_description": प्रदान की गई क्रिया वर्तमान फ़्लो चरण के लिए मान्य नहीं है
+  "error.flowexecservice.application_retrieval_error": एप्लिकेशन पुनः प्राप्ति त्रुटि
+  "error.flowexecservice.application_retrieval_error_description": एप्लिकेशन विवरण पुनः प्राप्त करते समय त्रुटि
+  "error.flowexecservice.direct_flow_initiation_not_permitted": प्रत्यक्ष फ़्लो आरंभ अनुमत नहीं है
+  "error.flowexecservice.direct_flow_initiation_not_permitted_description": इस एप्लिकेशन प्रकार के लिए प्रत्यक्ष फ़्लो आरंभ अनुमत नहीं है
+  "error.flowexecservice.invalid_app_id": अमान्य अनुरोध
+  "error.flowexecservice.invalid_app_id_description": अनुरोध में अमान्य app ID प्रदान किया गया
+  "error.flowexecservice.invalid_execution_id": अमान्य अनुरोध
+  "error.flowexecservice.invalid_execution_id_description": अनुरोध में अमान्य फ़्लो निष्पादन ID प्रदान किया गया
+  "error.flowexecservice.invalid_flow_init_context": अमान्य अनुरोध
+  "error.flowexecservice.invalid_flow_init_context_description": अमान्य फ़्लो प्रारंभीकरण संदर्भ प्रदान किया गया
+  "error.flowexecservice.invalid_flow_type": अमान्य अनुरोध
+  "error.flowexecservice.invalid_flow_type_description": अनुरोध में अमान्य फ़्लो प्रकार प्रदान किया गया
+  "error.flowexecservice.invalid_node_response": अमान्य नोड प्रतिक्रिया
+  "error.flowexecservice.invalid_node_response_description": नोड से त्रुटि प्रतिक्रिया प्राप्त हुई
+  "error.flowexecservice.invalid_request_payload": अमान्य अनुरोध पेलोड
+  "error.flowexecservice.invalid_request_payload_description": अनुरोध पेलोड डीकोड करने में विफल
+  "error.flowexecservice.recovery_not_allowed": रिकवरी अनुमत नहीं है
+  "error.flowexecservice.recovery_not_allowed_description": एप्लिकेशन के लिए रिकवरी फ़्लो अक्षम है
+  "error.flowexecservice.registration_not_allowed": पंजीकरण अनुमत नहीं है
+  "error.flowexecservice.registration_not_allowed_description": एप्लिकेशन के लिए पंजीकरण फ़्लो अक्षम है
+  "error.flowmetaservice.application_fetch_failed_description": एप्लिकेशन जानकारी प्राप्त करने में विफल
+  "error.flowmetaservice.application_not_found_description": निर्दिष्ट एप्लिकेशन मौजूद नहीं है
+  "error.flowmetaservice.internal_server_error": आंतरिक सर्वर त्रुटि
+  "error.flowmetaservice.invalid_request": अमान्य अनुरोध
+  "error.flowmetaservice.invalid_type_description": 'type' पैरामीटर 'APP' या 'OU' होना चाहिए
+  "error.flowmetaservice.missing_id_description": 'id' क्वेरी पैरामीटर आवश्यक है
+  "error.flowmetaservice.missing_id_parameter": आवश्यक पैरामीटर अनुपस्थित है
+  "error.flowmetaservice.missing_required_parameter": आवश्यक पैरामीटर अनुपस्थित है
+  "error.flowmetaservice.missing_type_description": 'type' क्वेरी पैरामीटर आवश्यक है
+  "error.flowmetaservice.ou_fetch_failed": आंतरिक सर्वर त्रुटि
+  "error.flowmetaservice.ou_fetch_failed_description": संगठन इकाई जानकारी प्राप्त करने में विफल
+  "error.flowmetaservice.ou_not_found": संसाधन नहीं मिला
+  "error.flowmetaservice.ou_not_found_description": निर्दिष्ट संगठन इकाई मौजूद नहीं है
+  "error.flowmetaservice.resource_not_found": संसाधन नहीं मिला
+  "error.flowmgtservice.cannot_update_flow_type": अमान्य अपडेट अनुरोध
+  "error.flowmgtservice.cannot_update_flow_type_description": फ़्लो प्रकार एक बार बनाए जाने के बाद बदला नहीं जा सकता
+  "error.flowmgtservice.duplicate_flow_handle": डुप्लिकेट फ़्लो हैंडल
+  "error.flowmgtservice.duplicate_flow_handle_description": इस फ़्लो प्रकार के लिए इस हैंडल वाला एक फ़्लो पहले से मौजूद है
+  "error.flowmgtservice.duplicate_flow_id": डुप्लिकेट फ़्लो ID
+  "error.flowmgtservice.duplicate_flow_id_description": फ़्लो ID पहले से मौजूद है
+  "error.flowmgtservice.flow_definition_nil_or_empty_description": फ़्लो परिभाषा nil है या इसमें कोई नोड नहीं है
+  "error.flowmgtservice.flow_is_immutable": फ़्लो अपरिवर्तनीय है
+  "error.flowmgtservice.flow_is_immutable_description": डिक्लेरेटिव फ़्लो संशोधित या हटाए नहीं जा सकते
+  "error.flowmgtservice.flow_not_found": फ़्लो नहीं मिला
+  "error.flowmgtservice.flow_not_found_description": निर्दिष्ट id वाला फ़्लो मौजूद नहीं है
+  "error.flowmgtservice.flow_requires_intermediate_nodes_description": फ़्लो परिभाषा में प्रारंभ और अंत नोड के बीच नोड होने चाहिए
+  "error.flowmgtservice.flow_requires_start_and_end_nodes_description": फ़्लो परिभाषा में कम से कम एक प्रारंभ और एक अंत नोड होना चाहिए
+  "error.flowmgtservice.flow_version_not_found": फ़्लो संस्करण नहीं मिला
+  "error.flowmgtservice.flow_version_not_found_description": अनुरोधित फ़्लो संस्करण मौजूद नहीं है
+  "error.flowmgtservice.graph_build_failure": ग्राफ निर्माण विफल
+  "error.flowmgtservice.graph_build_failure_description": फ़्लो परिभाषा से निष्पादन योग्य ग्राफ बनाने में विफल
+  "error.flowmgtservice.handle_update_not_allowed": अमान्य अपडेट अनुरोध
+  "error.flowmgtservice.handle_update_not_allowed_description": निर्माण के बाद फ़्लो हैंडल संशोधित नहीं किया जा सकता
+  "error.flowmgtservice.interceptor_selected_scope_requires_apply_to": SELECTED स्कोप वाले इंटरसेप्टर को applyTo में कम से कम एक नोड निर्दिष्ट करना होगा
+  "error.flowmgtservice.invalid_flow_data": अमान्य फ़्लो डेटा
+  "error.flowmgtservice.invalid_flow_data_description": फ़्लो परिभाषा में अमान्य डेटा है
+  "error.flowmgtservice.invalid_flow_handle": अमान्य फ़्लो हैंडल
+  "error.flowmgtservice.invalid_flow_handle_description": फ़्लो हैंडल प्रदान किया जाना चाहिए
+  "error.flowmgtservice.invalid_flow_handle_format": अमान्य फ़्लो हैंडल प्रारूप
+  "error.flowmgtservice.invalid_flow_handle_format_description": फ़्लो हैंडल लोअरकेस, अल्फ़ान्यूमेरिक होना चाहिए और केवल अंडरस्कोर या डैश हो सकते हैं
+  "error.flowmgtservice.invalid_flow_id": अमान्य फ़्लो ID
+  "error.flowmgtservice.invalid_flow_id_description": फ़्लो ID प्रदान की जानी चाहिए
+  "error.flowmgtservice.invalid_flow_id_format": अमान्य फ़्लो ID प्रारूप
+  "error.flowmgtservice.invalid_flow_id_format_description": फ़्लो ID एक मान्य UUID होना चाहिए
+  "error.flowmgtservice.invalid_flow_name": अमान्य फ़्लो नाम
+  "error.flowmgtservice.invalid_flow_name_description": फ़्लो नाम प्रदान किया जाना चाहिए
+  "error.flowmgtservice.invalid_flow_type": अमान्य फ़्लो प्रकार
+  "error.flowmgtservice.invalid_flow_type_description": निर्दिष्ट फ़्लो प्रकार अमान्य है
+  "error.flowmgtservice.invalid_flow_version": अमान्य फ़्लो संस्करण
+  "error.flowmgtservice.invalid_flow_version_description": निर्दिष्ट फ़्लो संस्करण अमान्य है
+  "error.flowmgtservice.invalid_limit_parameter": अमान्य पेजिनेशन पैरामीटर
+  "error.flowmgtservice.invalid_limit_parameter_description": लिमिट पैरामीटर एक सकारात्मक पूर्णांक होना चाहिए
+  "error.flowmgtservice.invalid_offset_parameter": अमान्य पेजिनेशन पैरामीटर
+  "error.flowmgtservice.invalid_offset_parameter_description": ऑफसेट पैरामीटर एक गैर-ऋणात्मक पूर्णांक होना चाहिए
+  "error.flowmgtservice.invalid_request_format": अमान्य अनुरोध प्रारूप
+  "error.flowmgtservice.invalid_request_format_description": अनुरोध बॉडी विकृत है या अमान्य डेटा है
+  "error.groupservice.cannot_create_group_in_declarative_only_mode": डिक्लेरेटिव-only मोड में समूह नहीं बनाया जा सकता
+  "error.groupservice.cannot_create_group_in_declarative_only_mode_description": डिक्लेरेटिव-only मोड में चलते समय समूह बनाना अनुमत नहीं है। समूह डिक्लेरेटिव कॉन्फ़िगरेशन फ़ाइलों में परिभाषित होने चाहिए
+  "error.groupservice.cannot_delete_group": समूह हटाया नहीं जा सकता
+  "error.groupservice.cannot_delete_group_description": बच्चे समूहों वाला समूह हटाया नहीं जा सकता
+  "error.groupservice.cannot_modify_declarative_group": डिक्लेरेटिव समूह संशोधित नहीं किया जा सकता
+  "error.groupservice.cannot_modify_declarative_group_description": समूह डिक्लेरेटिव कॉन्फ़िगरेशन में परिभाषित है और संशोधित नहीं किया जा सकता
+  "error.groupservice.empty_members_list": खाली सदस्य सूची
+  "error.groupservice.empty_members_list_description": सदस्य सूची खाली नहीं हो सकती
+  "error.groupservice.group_name_conflict": समूह नाम विरोध
+  "error.groupservice.group_name_conflict_description": उसी मूल के अंतर्गत उसी नाम वाला एक समूह पहले से मौजूद है
+  "error.groupservice.group_not_found": समूह नहीं मिला
+  "error.groupservice.group_not_found_description": निर्दिष्ट id वाला समूह मौजूद नहीं है
+  "error.groupservice.handle_path_required_description": हैंडल पाथ आवश्यक है
+  "error.groupservice.invalid_group_member_id": अमान्य समूह सदस्य ID
+  "error.groupservice.invalid_group_member_id_description": अनुरोध में एक या अधिक समूह सदस्य ID मौजूद नहीं हैं
+  "error.groupservice.invalid_limit_parameter": अमान्य लिमिट पैरामीटर
+  "error.groupservice.invalid_limit_parameter_description": लिमिट पैरामीटर एक सकारात्मक पूर्णांक होना चाहिए
+  "error.groupservice.invalid_member_id": अमान्य सदस्य ID
+  "error.groupservice.invalid_member_id_description": अनुरोध में एक या अधिक उपयोगकर्ता या app सदस्य ID मौजूद नहीं हैं या दावा किए गए प्रकार से मेल नहीं खाते
+  "error.groupservice.invalid_member_type": अमान्य सदस्य प्रकार
+  "error.groupservice.invalid_member_type_description": सदस्य प्रकार 'user', 'group' या 'app' होना चाहिए
+  "error.groupservice.invalid_offset_parameter": अमान्य ऑफसेट पैरामीटर
+  "error.groupservice.invalid_offset_parameter_description": ऑफसेट पैरामीटर एक गैर-ऋणात्मक पूर्णांक होना चाहिए
+  "error.groupservice.invalid_ou_id": अमान्य OU ID
+  "error.groupservice.invalid_ou_id_description": संगठन इकाई मौजूद नहीं है
+  "error.groupservice.invalid_request_format": अमान्य अनुरोध प्रारूप
+  "error.groupservice.invalid_request_format_description": अनुरोध बॉडी विकृत है या अमान्य डेटा है
+  "error.groupservice.missing_group_id": अमान्य अनुरोध प्रारूप
+  "error.groupservice.missing_group_id_description": समूह ID आवश्यक है
+  "error.i18nservice.empty_translations": खाली अनुवाद
+  "error.i18nservice.empty_translations_description": कम से कम एक अनुवाद प्रदान किया जाना चाहिए
+  "error.i18nservice.export_error": निर्यात के लिए अनुवाद भाषाएं प्राप्त करने में विफल
+  "error.i18nservice.fetch_error": निर्यात के लिए अनुवाद प्राप्त करने में विफल
+  "error.i18nservice.invalid_key": अमान्य की प्रारूप
+  "error.i18nservice.invalid_key_description": की में केवल अल्फ़ान्यूमेरिक अक्षर, डॉट, अंडरस्कोर और हाइफन हो सकते हैं
+  "error.i18nservice.invalid_language": अमान्य भाषा टैग प्रारूप
+  "error.i18nservice.invalid_language_description": भाषा टैग कैनोनिकल BCP 47 प्रारूप का पालन करना चाहिए (जैसे 'en', 'es', 'fr-CA')
+  "error.i18nservice.invalid_namespace": अमान्य नेमस्पेस प्रारूप
+  "error.i18nservice.invalid_namespace_description": नेमस्पेस में केवल अल्फ़ान्यूमेरिक अक्षर, अंडरस्कोर और हाइफन हो सकते हैं
+  "error.i18nservice.invalid_request_description": अनुरोध बॉडी विकृत है या अमान्य डेटा है
+  "error.i18nservice.invalid_request_format": अमान्य अनुरोध प्रारूप
+  "error.i18nservice.missing_language": भाषा कोड अनुपस्थित है
+  "error.i18nservice.missing_language_description": भाषा कोड आवश्यक है
+  "error.i18nservice.missing_value": अनुवाद मान अनुपस्थित है
+  "error.i18nservice.missing_value_description": अनुवाद मान आवश्यक है
+  "error.i18nservice.translation_not_found": अनुवाद नहीं मिला
+  "error.i18nservice.translation_not_found_description": निर्दिष्ट भाषा, नेमस्पेस और की के लिए अनुरोधित अनुवाद मौजूद नहीं है
+  "error.idpservice.attribute_configuration_empty_claim_description": विशेषता मैपिंग में खाली विशेषता नाम नहीं होने चाहिए
+  "error.idpservice.attribute_configuration_entry_user_type_required_description": प्रत्येक उपयोगकर्ता प्रकार विशेषता प्रविष्टि के लिए उपयोगकर्ता प्रकार आवश्यक है
+  "error.idpservice.attribute_configuration_user_type_required_description": विशेषता कॉन्फ़िगरेशन के लिए उपयोगकर्ता प्रकार आवश्यक है
+  "error.idpservice.idp_already_exists": पहचान प्रदाता पहले से मौजूद है
+  "error.idpservice.idp_already_exists_description": उसी नाम वाला एक पहचान प्रदाता पहले से मौजूद है
+  "error.idpservice.idp_declarative_read_only": पहचान प्रदाता अपरिवर्तनीय है
+  "error.idpservice.idp_declarative_read_only_description": अनुरोधित पहचान प्रदाता डिक्लेरेटिव है और संशोधित या हटाया नहीं जा सकता
+  "error.idpservice.idp_nil": पहचान प्रदाता null नहीं हो सकता
+  "error.idpservice.idp_nil_description": पहचान प्रदाता ऑब्जेक्ट null या खाली नहीं हो सकता
+  "error.idpservice.idp_not_found": पहचान प्रदाता नहीं मिला
+  "error.idpservice.idp_not_found_description": अनुरोधित पहचान प्रदाता नहीं मिल सका
+  "error.idpservice.invalid_attribute_configuration": अमान्य विशेषता कॉन्फ़िगरेशन
+  "error.idpservice.invalid_attribute_configuration_description": पहचान प्रदाता की विशेषता कॉन्फ़िगरेशन अमान्य है
+  "error.idpservice.invalid_idp_id": अमान्य पहचान प्रदाता ID
+  "error.idpservice.invalid_idp_id_description": प्रदान की गई पहचान प्रदाता ID अमान्य या खाली है
+  "error.idpservice.invalid_idp_name": अमान्य पहचान प्रदाता नाम
+  "error.idpservice.invalid_idp_name_description": प्रदान किया गया पहचान प्रदाता नाम अमान्य या खाली है
+  "error.idpservice.invalid_idp_property": अमान्य पहचान प्रदाता संपत्ति
+  "error.idpservice.invalid_idp_property_description": एक या अधिक पहचान प्रदाता संपत्तियां अमान्य या खाली हैं
+  "error.idpservice.invalid_idp_type": अमान्य पहचान प्रदाता प्रकार
+  "error.idpservice.invalid_idp_type_description": प्रदान किया गया पहचान प्रदाता प्रकार अमान्य या खाली है
+  "error.idpservice.invalid_request_format": अमान्य अनुरोध प्रारूप
+  "error.idpservice.invalid_request_format_description": अनुरोध बॉडी विकृत है या अमान्य डेटा है
+  "error.idpservice.property_name_empty_description": संपत्ति नाम खाली नहीं हो सकते
+  "error.idpservice.result_limit_exceeded": कंपोज़िट मोड में परिणाम सीमा पार हो गई
+  "error.idpservice.result_limit_exceeded_description": कंपोज़िट मोड में रिकॉर्ड की कुल संख्या अधिकतम सीमा से अधिक है
+  "error.idpservice.unsupported_idp_property": असमर्थित पहचान प्रदाता संपत्ति
+  "error.idpservice.unsupported_idp_property_description": एक या अधिक पहचान प्रदाता संपत्तियां समर्थित नहीं हैं
+  "error.import.adapterNotConfigured": एडेप्टर कॉन्फ़िगर नहीं किया गया
+  "error.import.adapterNotConfigured.description": आवश्यक संसाधन एडेप्टर कॉन्फ़िगर नहीं किया गया है
+  "error.import.delete.dirNotFound": संसाधन निर्देशिका नहीं मिली
+  "error.import.delete.fileNotFound": संसाधन फ़ाइल नहीं मिली
+  "error.import.emptyContent": आयात सामग्री खाली नहीं हो सकती
+  "error.import.fileTargetNotSupported": फ़ाइल लक्ष्य समर्थित नहीं है; रनटाइम लक्ष्य का उपयोग करें
+  "error.import.invalidRequest": अमान्य आयात अनुरोध
+  "error.import.invalidRequest.description": प्रदान किया गया आयात अनुरोध अमान्य या विकृत है
+  "error.import.invalidYaml": अमान्य YAML सामग्री
+  "error.import.invalidYaml.description": प्रदान की गई YAML सामग्री पार्स नहीं की जा सकती
+  "error.import.missingDeleteFields": resourceType और resourceKey आवश्यक हैं
+  "error.import.templateResolutionFailed": टेम्पलेट रिज़ॉल्यूशन विफल
+  "error.import.templateResolutionFailed.description": YAML सामग्री में एक या अधिक टेम्पलेट वेरिएबल रिज़ॉल्व करने में विफल
+  "error.import.unsupportedResourceType": डिक्लेरेटिव फ़ाइल प्रबंधन के लिए असमर्थित संसाधन प्रकार
+  "error.interceptor.challenge_token_invalid": अमान्य चैलेंज टोकन
+  "error.interceptor.challenge_token_invalid_description": चैलेंज टोकन अनुपस्थित या अमान्य है
+  "error.interceptor.failed": इंटरसेप्टर सत्यापन विफल
+  "error.interceptor.failed_description": एक फ़्लो इंटरसेप्टर ने अनुरोध अस्वीकृत कर दिया
+  "error.internal_server_error": आंतरिक सर्वर त्रुटि
+  "error.internal_server_error_description": अनुरोध संसाधित करते समय एक अप्रत्याशित त्रुटि हुई
+  "error.jweservice.decoding_jwe_error": JWE डीकोड त्रुटि
+  "error.jweservice.decoding_jwe_error_description": JWE टोकन डीकोड करते समय त्रुटि हुई
+  "error.jweservice.decryption_failed": JWE डिक्रिप्शन विफल
+  "error.jweservice.decryption_failed_description": JWE टोकन डिक्रिप्ट करने में विफल
+  "error.jweservice.unsupported_algorithm": असमर्थित JWE एल्गोरिदम
+  "error.jweservice.unsupported_algorithm_description": निर्दिष्ट JWE एल्गोरिदम समर्थित नहीं है
+  "error.jweservice.unsupported_encryption_algorithm": असमर्थित एन्क्रिप्शन एल्गोरिदम
+  "error.jweservice.unsupported_encryption_algorithm_description": निर्दिष्ट एन्क्रिप्शन एल्गोरिदम समर्थित नहीं है
+  "error.jwsservice.decoding_header_error": JWS डीकोड त्रुटि
+  "error.jwsservice.decoding_header_error_description": JWS हेडर डीकोड करते समय त्रुटि हुई
+  "error.jwsservice.invalid_format": अमान्य JWS प्रारूप
+  "error.jwsservice.invalid_format_description": JWS टोकन प्रारूप अमान्य है
+  "error.jwsservice.invalid_signature": अमान्य हस्ताक्षर
+  "error.jwsservice.invalid_signature_description": हस्ताक्षर अमान्य है
+  "error.jwsservice.unsupported_algorithm": असमर्थित JWS एल्गोरिदम
+  "error.jwsservice.unsupported_algorithm_description": निर्दिष्ट JWS एल्गोरिदम समर्थित नहीं है
+  "error.jwtservice.decoding_header_error": JWT डीकोड त्रुटि
+  "error.jwtservice.decoding_header_error_description": JWT हेडर डीकोड करते समय त्रुटि हुई
+  "error.jwtservice.decoding_payload_error": JWT डीकोड त्रुटि
+  "error.jwtservice.decoding_payload_error_description": JWT पेलोड डीकोड करते समय त्रुटि हुई
+  "error.jwtservice.failed_to_get_jwks": JWKS प्राप्त करने में विफल
+  "error.jwtservice.failed_to_get_jwks_description": निर्दिष्ट URL से JWKS प्राप्त करने में विफल
+  "error.jwtservice.failed_to_parse_jwks": JWKS पार्स करने में विफल
+  "error.jwtservice.failed_to_parse_jwks_description": JWKS पार्स करने में विफल
+  "error.jwtservice.invalid_jwt_format": अमान्य JWT प्रारूप
+  "error.jwtservice.invalid_jwt_format_description": JWT टोकन प्रारूप अमान्य है
+  "error.jwtservice.invalid_token_signature": अमान्य टोकन हस्ताक्षर
+  "error.jwtservice.invalid_token_signature_description": JWT टोकन हस्ताक्षर अमान्य है
+  "error.jwtservice.no_matching_jwk_found": कोई मिलान करने वाला JWK नहीं मिला
+  "error.jwtservice.no_matching_jwk_found_description": दिए गए Key ID के लिए कोई मिलान करने वाला JWK नहीं मिला
+  "error.jwtservice.token_expired": टोकन समाप्त हो गया
+  "error.jwtservice.token_expired_description": JWT टोकन समाप्त हो गया है
+  "error.jwtservice.unsupported_jws_algorithm": असमर्थित JWS एल्गोरिदम
+  "error.jwtservice.unsupported_jws_algorithm_description": निर्दिष्ट JWS एल्गोरिदम समर्थित नहीं है
+  "error.magiclinkservice.expired_token": समाप्त टोकन
+  "error.magiclinkservice.expired_token_description": मैजिक लिंक टोकन समाप्त हो गया है
+  "error.magiclinkservice.invalid_token": अमान्य टोकन
+  "error.magiclinkservice.invalid_token_description": प्रदान किया गया मैजिक लिंक टोकन अमान्य है
+  "error.magiclinkservice.malformed_token_claims": विकृत टोकन क्लेम
+  "error.magiclinkservice.malformed_token_claims_description": मैजिक लिंक टोकन में अमान्य या अनुपस्थित क्लेम हैं
+  "error.magiclinkservice.resolving_user": उपयोगकर्ता हल करने में त्रुटि
+  "error.magiclinkservice.resolving_user_description": प्राप्तकर्ता के लिए उपयोगकर्ता हल करते समय एक त्रुटि हुई
+  "error.magiclinkservice.token_generation_failed": टोकन जनरेशन विफल
+  "error.magiclinkservice.token_generation_failed_description": मैजिक लिंक टोकन जनरेट करने में विफल
+  "error.notificationservice.duplicate_sender_name": डुप्लिकेट प्रेषक नाम
+  "error.notificationservice.duplicate_sender_name_description": उसी नाम वाला एक प्रेषक पहले से मौजूद है
+  "error.notificationservice.error_while_retrieving_message_client": मैसेज क्लाइंट पुनः प्राप्त करते समय त्रुटि
+  "error.notificationservice.error_while_retrieving_message_client_description": मैसेज क्लाइंट पुनः प्राप्त करते समय एक त्रुटि हुई
+  "error.notificationservice.invalid_channel": अमान्य चैनल
+  "error.notificationservice.invalid_channel_description": प्रदान किया गया चैनल अमान्य है
+  "error.notificationservice.invalid_notification_provider": अमान्य अधिसूचना प्रदाता
+  "error.notificationservice.invalid_notification_provider_description": निर्दिष्ट अधिसूचना प्रदाता अमान्य या असमर्थित है
+  "error.notificationservice.invalid_otp": अमान्य OTP
+  "error.notificationservice.invalid_otp_description": प्रदान किया गया OTP अमान्य है
+  "error.notificationservice.invalid_recipient": अमान्य प्राप्तकर्ता
+  "error.notificationservice.invalid_recipient_description": प्रदान किया गया प्राप्तकर्ता अमान्य है
+  "error.notificationservice.invalid_request_format": अमान्य अनुरोध प्रारूप
+  "error.notificationservice.invalid_request_format_description": अनुरोध बॉडी विकृत है या अमान्य डेटा है
+  "error.notificationservice.invalid_sender_id": अमान्य प्रेषक ID
+  "error.notificationservice.invalid_sender_id_description": प्रदान की गई प्रेषक ID अमान्य है
+  "error.notificationservice.invalid_sender_name": अमान्य प्रेषक नाम
+  "error.notificationservice.invalid_sender_name_description": प्रदान किया गया प्रेषक नाम अमान्य है
+  "error.notificationservice.invalid_sender_type": अमान्य प्रेषक प्रकार
+  "error.notificationservice.invalid_sender_type_description": प्रदान किया गया प्रेषक प्रकार अमान्य या असमर्थित है
+  "error.notificationservice.invalid_session_token": अमान्य सेशन टोकन
+  "error.notificationservice.invalid_session_token_description": प्रदान किया गया सेशन टोकन अमान्य, विकृत या समाप्त है
+  "error.notificationservice.sender_not_found": प्रेषक नहीं मिला
+  "error.notificationservice.sender_not_found_description": अनुरोधित अधिसूचना प्रेषक नहीं मिल सका
+  "error.notificationservice.sender_type_mismatch": प्रेषक प्रकार बेमेल
+  "error.notificationservice.sender_type_mismatch_description": अनुरोधित प्रेषक अपेक्षित प्रकार का नहीं है
+  "error.notificationservice.unsupported_channel": असमर्थित चैनल
+  "error.notificationservice.unsupported_channel_description": प्रदान किया गया चैनल समर्थित नहीं है
+  "error.notificationservice.update_not_allowed": अपडेट अनुमत नहीं है
+  "error.notificationservice.update_not_allowed_description": प्रेषक प्रकार अपडेट करना अनुमत नहीं है
+  "error.ouservice.cannot_modify_declarative_resource": डिक्लेरेटिव संसाधन संशोधित नहीं किया जा सकता
+  "error.ouservice.cannot_modify_declarative_resource_description": संगठन इकाई डिक्लेरेटिव है और इसे संशोधित या हटाया नहीं जा सकता
+  "error.ouservice.circular_dependency_detected": परिपत्र निर्भरता पाई गई
+  "error.ouservice.circular_dependency_detected_description": इस मूल को सेट करने से परिपत्र निर्भरता बन जाएगी
+  "error.ouservice.invalid_filter": अमान्य फ़िल्टर पैरामीटर
+  "error.ouservice.invalid_filter_description": "फ़िल्टर पैरामीटर अमान्य है। प्रारूप का उपयोग करें: attribute (eq|gt|lt) \"value\""
+  "error.ouservice.invalid_handle_path": अमान्य हैंडल पाथ
+  "error.ouservice.invalid_handle_path_description": निर्दिष्ट हैंडल पाथ मौजूद नहीं है
+  "error.ouservice.invalid_limit_parameter": अमान्य लिमिट पैरामीटर
+  "error.ouservice.invalid_limit_parameter_description": लिमिट पैरामीटर एक सकारात्मक पूर्णांक होना चाहिए
+  "error.ouservice.invalid_offset_parameter": अमान्य ऑफसेट पैरामीटर
+  "error.ouservice.invalid_offset_parameter_description": ऑफसेट पैरामीटर एक गैर-ऋणात्मक पूर्णांक होना चाहिए
+  "error.ouservice.invalid_request_format": अमान्य अनुरोध प्रारूप
+  "error.ouservice.invalid_request_format_description": अनुरोध बॉडी विकृत है, अमान्य डेटा है, या आवश्यक फ़ील्ड अनुपस्थित/खाली हैं
+  "error.ouservice.missing_ou_id": अमान्य अनुरोध प्रारूप
+  "error.ouservice.missing_ou_id_description": संगठन इकाई ID आवश्यक है
+  "error.ouservice.organization_unit_handle_conflict": संगठन इकाई हैंडल विरोध
+  "error.ouservice.organization_unit_handle_conflict_description": उसी मूल के अंतर्गत उसी हैंडल वाली एक संगठन इकाई पहले से मौजूद है
+  "error.ouservice.organization_unit_has_children": संगठन इकाई में बच्चे हैं
+  "error.ouservice.organization_unit_has_children_description": बच्चों या उपयोगकर्ताओं/समूहों वाली संगठन इकाई हटाई नहीं जा सकती
+  "error.ouservice.organization_unit_name_conflict": संगठन इकाई नाम विरोध
+  "error.ouservice.organization_unit_name_conflict_description": उसी मूल के अंतर्गत उसी नाम वाली एक संगठन इकाई मौजूद है
+  "error.ouservice.organization_unit_not_found": संगठन इकाई नहीं मिली
+  "error.ouservice.organization_unit_not_found_description": निर्दिष्ट id वाली संगठन इकाई मौजूद नहीं है
+  "error.ouservice.parent_organization_unit_not_found": मूल संगठन इकाई नहीं मिली
+  "error.ouservice.parent_organization_unit_not_found_description": मूल संगठन इकाई नहीं मिली
+  "error.ouservice.result_limit_exceeded": परिणाम सीमा पार हो गई
+  "error.passkeyservice.credential_not_found": पासकी क्रेडेंशियल नहीं मिला
+  "error.passkeyservice.credential_not_found_description": उपयोगकर्ता के लिए निर्दिष्ट क्रेडेंशियल नहीं मिला
+  "error.passkeyservice.empty_credential_id": खाली क्रेडेंशियल ID
+  "error.passkeyservice.empty_credential_id_description": क्रेडेंशियल ID आवश्यक है
+  "error.passkeyservice.empty_credential_type": खाली क्रेडेंशियल प्रकार
+  "error.passkeyservice.empty_credential_type_description": क्रेडेंशियल प्रकार आवश्यक है
+  "error.passkeyservice.empty_relying_party_id": खाली रिलायिंग पार्टी ID
+  "error.passkeyservice.empty_relying_party_id_description": रिलायिंग पार्टी ID आवश्यक है
+  "error.passkeyservice.empty_session_token": खाली सेशन टोकन
+  "error.passkeyservice.empty_session_token_description": सेशन टोकन आवश्यक है
+  "error.passkeyservice.empty_user_identifier": खाली उपयोगकर्ता पहचानकर्ता
+  "error.passkeyservice.empty_user_identifier_description": उपयोगकर्ता ID या उपयोगकर्तानाम में से एक प्रदान किया जाना चाहिए
+  "error.passkeyservice.invalid_attestation_response": अमान्य सत्यापन प्रतिक्रिया
+  "error.passkeyservice.invalid_attestation_response_description": सत्यापन प्रतिक्रिया में आवश्यक फ़ील्ड अनुपस्थित हैं (clientDataJSON या attestationObject)
+  "error.passkeyservice.invalid_authenticator_response": अमान्य प्रमाणक प्रतिक्रिया
+  "error.passkeyservice.invalid_authenticator_response_description": प्रमाणक प्रतिक्रिया में आवश्यक फ़ील्ड अनुपस्थित हैं (clientDataJSON, authenticatorData या signature)
+  "error.passkeyservice.invalid_challenge": अमान्य चैलेंज
+  "error.passkeyservice.invalid_challenge_description": प्रतिक्रिया में चैलेंज अपेक्षित चैलेंज से मेल नहीं खाता
+  "error.passkeyservice.invalid_finish_data": अमान्य समाप्ति डेटा
+  "error.passkeyservice.invalid_finish_data_description": समाप्ति डेटा null नहीं हो सकता
+  "error.passkeyservice.invalid_session_token": अमान्य सेशन टोकन
+  "error.passkeyservice.invalid_session_token_description": सेशन टोकन अमान्य या विकृत है
+  "error.passkeyservice.invalid_signature": अमान्य हस्ताक्षर
+  "error.passkeyservice.invalid_signature_description": हस्ताक्षर सत्यापन विफल हो गया
+  "error.passkeyservice.no_credentials_found": कोई क्रेडेंशियल नहीं मिला
+  "error.passkeyservice.no_credentials_found_description": उपयोगकर्ता के लिए कोई क्रेडेंशियल नहीं मिला। पहले एक क्रेडेंशियल पंजीकृत करें
+  "error.passkeyservice.session_expired": सेशन समाप्त हो गया
+  "error.passkeyservice.session_expired_description": सेशन समाप्त हो गया है। एक नया सेशन शुरू करें
+  "error.passkeyservice.user_not_found": उपयोगकर्ता नहीं मिला
+  "error.passkeyservice.user_not_found_description": निर्दिष्ट उपयोगकर्ता नहीं मिला
+  "error.resourceservice.action_not_found": क्रिया नहीं मिली
+  "error.resourceservice.action_not_found_description": निर्दिष्ट id वाली क्रिया मौजूद नहीं है
+  "error.resourceservice.cannot_delete": हटाया नहीं जा सकता
+  "error.resourceservice.cannot_delete_description": निर्भरताओं वाला संसाधन सर्वर/संसाधन हटाया नहीं जा सकता
+  "error.resourceservice.cannot_modify_declarative_action": डिक्लेरेटिव क्रिया संशोधित नहीं की जा सकती
+  "error.resourceservice.cannot_modify_declarative_action_description": क्रिया %s डिक्लेरेटिव कॉन्फ़िगरेशन में परिभाषित है और संशोधित नहीं की जा सकती
+  "error.resourceservice.cannot_modify_declarative_resource": डिक्लेरेटिव संसाधन संशोधित नहीं किया जा सकता
+  "error.resourceservice.cannot_modify_declarative_resource_description": संसाधन %s डिक्लेरेटिव कॉन्फ़िगरेशन में परिभाषित है और संशोधित नहीं किया जा सकता
+  "error.resourceservice.cannot_modify_declarative_resource_server": डिक्लेरेटिव संसाधन सर्वर संशोधित नहीं किया जा सकता
+  "error.resourceservice.cannot_modify_declarative_resource_server_description": संसाधन सर्वर %s डिक्लेरेटिव कॉन्फ़िगरेशन में परिभाषित है और संशोधित नहीं किया जा सकता
+  "error.resourceservice.circular_dependency_detected": परिपत्र निर्भरता पाई गई
+  "error.resourceservice.circular_dependency_detected_description": इस मूल को सेट करने से परिपत्र निर्भरता बन जाएगी
+  "error.resourceservice.consent_sync_failed": सहमति सिंक विफल
+  "error.resourceservice.consent_sync_failed_description": सहमति सेवा के साथ संसाधन अनुमति परिवर्तन सिंक करने में विफल
+  "error.resourceservice.delimiter_conflict_in_handle": हैंडल में डिलिमिटर विरोध
+  "error.resourceservice.delimiter_conflict_in_handle_description": हैंडल में डिलिमिटर अक्षर नहीं हो सकता
+  "error.resourceservice.delimiter_conflict_in_resource_server_handle": हैंडल में डिलिमिटर विरोध
+  "error.resourceservice.delimiter_conflict_in_resource_server_handle_description": संसाधन सर्वर हैंडल में डिलिमिटर अक्षर नहीं हो सकता
+  "error.resourceservice.handle_conflict": हैंडल विरोध
+  "error.resourceservice.handle_conflict_description": निर्दिष्ट संसाधन के भीतर वही हैंडल पहले से मौजूद है
+  "error.resourceservice.identifier_conflict": पहचानकर्ता विरोध
+  "error.resourceservice.identifier_conflict_description": उसी पहचानकर्ता वाला एक संसाधन सर्वर पहले से मौजूद है
+  "error.resourceservice.immutable_handle": हैंडल अपरिवर्तनीय है
+  "error.resourceservice.immutable_handle_description": संसाधन सर्वर हैंडल निर्माण के बाद बदला नहीं जा सकता
+  "error.resourceservice.invalid_delimiter": अमान्य डिलिमिटर
+  "error.resourceservice.invalid_delimiter_description": "डिलिमिटर एक वैध एकल अक्षर होना चाहिए (a-z A-Z 0-9 . _ : - /)"
+  "error.resourceservice.invalid_handle": अमान्य हैंडल
+  "error.resourceservice.invalid_handle_description": "हैंडल की लंबाई 100 अक्षरों से कम होनी चाहिए और वैध अक्षर होने चाहिए (a-z A-Z 0-9 . _ : - /)"
+  "error.resourceservice.invalid_limit_parameter": अमान्य लिमिट पैरामीटर
+  "error.resourceservice.invalid_limit_parameter_description": लिमिट पैरामीटर एक सकारात्मक पूर्णांक होना चाहिए
+  "error.resourceservice.invalid_offset_parameter": अमान्य ऑफसेट पैरामीटर
+  "error.resourceservice.invalid_offset_parameter_description": ऑफसेट पैरामीटर एक गैर-ऋणात्मक पूर्णांक होना चाहिए
+  "error.resourceservice.invalid_request_format": अमान्य अनुरोध प्रारूप
+  "error.resourceservice.invalid_request_format_description": अनुरोध बॉडी विकृत है या अमान्य डेटा है
+  "error.resourceservice.missing_id": अमान्य अनुरोध प्रारूप
+  "error.resourceservice.missing_id_description": ID आवश्यक है
+  "error.resourceservice.name_conflict": नाम विरोध
+  "error.resourceservice.name_conflict_description": उसी नाम वाला एक संसाधन सर्वर पहले से मौजूद है
+  "error.resourceservice.organization_unit_not_found": संगठन इकाई नहीं मिली
+  "error.resourceservice.organization_unit_not_found_description": निर्दिष्ट संगठन इकाई मौजूद नहीं है
+  "error.resourceservice.parent_resource_not_found": मूल संसाधन नहीं मिला
+  "error.resourceservice.parent_resource_not_found_description": निर्दिष्ट मूल संसाधन मौजूद नहीं है
+  "error.resourceservice.resource_not_found": संसाधन नहीं मिला
+  "error.resourceservice.resource_not_found_description": निर्दिष्ट id वाला संसाधन मौजूद नहीं है
+  "error.resourceservice.resource_server_id_conflict": संसाधन सर्वर ID विरोध
+  "error.resourceservice.resource_server_id_conflict_description": निर्दिष्ट ID वाला एक संसाधन सर्वर पहले से मौजूद है
+  "error.resourceservice.resource_server_not_found": संसाधन सर्वर नहीं मिला
+  "error.resourceservice.resource_server_not_found_description": निर्दिष्ट id वाला संसाधन सर्वर मौजूद नहीं है
+  "error.resourceservice.result_limit_exceeded_in_composite_mode": कंपोज़िट मोड में परिणाम सीमा पार हो गई
+  "error.resourceservice.result_limit_exceeded_in_composite_mode_description": कंपोज़िट मोड में रिकॉर्ड की कुल संख्या अधिकतम सीमा से अधिक है
+  "error.roleservice.cannot_create_role_in_declarative_only_mode": डिक्लेरेटिव-only मोड में भूमिका नहीं बनाई जा सकती
+  "error.roleservice.cannot_create_role_in_declarative_only_mode_description": डिक्लेरेटिव-only मोड में चलते समय भूमिका बनाना अनुमत नहीं है। भूमिकाएं डिक्लेरेटिव कॉन्फ़िगरेशन फ़ाइलों में परिभाषित होनी चाहिए
+  "error.roleservice.cannot_delete_role": भूमिका हटाई नहीं जा सकती
+  "error.roleservice.cannot_delete_role_description": वर्तमान में उपयोगकर्ताओं या समूहों को असाइन की गई भूमिका हटाई नहीं जा सकती
+  "error.roleservice.cannot_modify_declarative_assignment": डिक्लेरेटिव असाइनमेंट संशोधित नहीं किया जा सकता
+  "error.roleservice.cannot_modify_declarative_assignment_description": असाइनमेंट डिक्लेरेटिव कॉन्फ़िगरेशन में परिभाषित है और संशोधित नहीं किया जा सकता
+  "error.roleservice.cannot_modify_declarative_role": डिक्लेरेटिव भूमिका संशोधित नहीं की जा सकती
+  "error.roleservice.cannot_modify_declarative_role_description": भूमिका डिक्लेरेटिव कॉन्फ़िगरेशन में परिभाषित है और संशोधित नहीं की जा सकती
+  "error.roleservice.either_entity_id_or_groups_must_be_provided_for_authorization_check_description": प्राधिकरण जाँच के लिए entityId या groups में से एक प्रदान किया जाना चाहिए
+  "error.roleservice.empty_assignments_list": खाली असाइनमेंट सूची
+  "error.roleservice.empty_assignments_list_description": कम से कम एक असाइनमेंट प्रदान किया जाना चाहिए
+  "error.roleservice.invalid_assignee_type": अमान्य असाइनी प्रकार
+  "error.roleservice.invalid_assignee_type_description": type पैरामीटर 'user', 'group' या 'app' होना चाहिए
+  "error.roleservice.invalid_assignment_id": अमान्य असाइनमेंट ID
+  "error.roleservice.invalid_assignment_id_description": अनुरोध में एक या अधिक असाइनमेंट ID मौजूद नहीं हैं या दावा किए गए प्रकार से मेल नहीं खाते
+  "error.roleservice.invalid_limit_parameter": अमान्य लिमिट पैरामीटर
+  "error.roleservice.invalid_limit_parameter_description": लिमिट पैरामीटर एक सकारात्मक पूर्णांक होना चाहिए
+  "error.roleservice.invalid_offset_parameter": अमान्य ऑफसेट पैरामीटर
+  "error.roleservice.invalid_offset_parameter_description": ऑफसेट पैरामीटर एक गैर-ऋणात्मक पूर्णांक होना चाहिए
+  "error.roleservice.invalid_permissions": अमान्य अनुमतियां
+  "error.roleservice.invalid_permissions_description": एक या अधिक अनुमतियां संसाधन प्रबंधन प्रणाली में मौजूद नहीं हैं
+  "error.roleservice.invalid_request_format": अमान्य अनुरोध प्रारूप
+  "error.roleservice.invalid_request_format_description": अनुरोध बॉडी विकृत है या अमान्य डेटा है
+  "error.roleservice.missing_entity_or_groups": अमान्य अनुरोध प्रारूप
+  "error.roleservice.missing_role_id": अमान्य अनुरोध प्रारूप
+  "error.roleservice.missing_role_id_description": भूमिका ID आवश्यक है
+  "error.roleservice.organization_unit_not_found": संगठन इकाई नहीं मिली
+  "error.roleservice.organization_unit_not_found_description": संगठन इकाई नहीं मिली
+  "error.roleservice.result_limit_exceeded_in_composite_mode": कंपोज़िट मोड में परिणाम सीमा पार हो गई
+  "error.roleservice.result_limit_exceeded_in_composite_mode_description": कंपोज़िट मोड में रिकॉर्ड की कुल संख्या अधिकतम सीमा से अधिक है
+  "error.roleservice.role_id_conflict": भूमिका ID विरोध
+  "error.roleservice.role_id_conflict_description": निर्दिष्ट ID वाली एक भूमिका पहले से मौजूद है
+  "error.roleservice.role_name_conflict": भूमिका नाम विरोध
+  "error.roleservice.role_name_conflict_description": उसी संगठन इकाई के अंतर्गत उसी नाम वाली एक भूमिका मौजूद है
+  "error.roleservice.role_not_found": भूमिका नहीं मिली
+  "error.roleservice.role_not_found_description": निर्दिष्ट id वाली भूमिका मौजूद नहीं है
+  "error.templateservice.template_not_found": टेम्पलेट नहीं मिला
+  "error.templateservice.template_not_found_description": दिए गए परिदृश्य के लिए अनुरोधित टेम्पलेट मौजूद नहीं है
+  "error.unauthorized": अनधिकृत
+  "error.unauthorized_description": कॉलर को यह ऑपरेशन करने के लिए अधिकृत नहीं है
+  "error.userinfoservice.client_credentials_not_supported": अमान्य एक्सेस टोकन
+  "error.userinfoservice.client_credentials_not_supported_description": UserInfo एंडपॉइंट client_credentials ग्रांट प्रकार के लिए लागू नहीं है
+  "error.userinfoservice.dpop_bound_token_bearer_scheme": अमान्य एक्सेस टोकन
+  "error.userinfoservice.dpop_bound_token_bearer_scheme_description": DPoP-बाउंड टोकन को DPoP स्कीम का उपयोग करना चाहिए
+  "error.userinfoservice.insufficient_scope": अपर्याप्त स्कोप
+  "error.userinfoservice.insufficient_scope_description": इस अनुरोध के लिए 'openid' स्कोप आवश्यक है
+  "error.userinfoservice.invalid_access_token": अमान्य एक्सेस टोकन
+  "error.userinfoservice.invalid_access_token_description": एक्सेस टोकन अमान्य, समाप्त या विकृत है
+  "error.userinfoservice.invalid_dpop_proof": अमान्य एक्सेस टोकन
+  "error.userinfoservice.invalid_dpop_proof_description": DPoP प्रमाण सत्यापन विफल हो गया
+  "error.userinfoservice.missing_sub_claim": अमान्य एक्सेस टोकन
+  "error.userinfoservice.missing_sub_claim_description": एक्सेस टोकन में 'sub' क्लेम अनुपस्थित है या अमान्य है
+  "error.userservice.ambiguous_user": अस्पष्ट उपयोगकर्ता
+  "error.userservice.ambiguous_user_description": प्रदान किए गए फ़िल्टर से एकाधिक उपयोगकर्ता मेल खाते हैं
+  "error.userservice.attribute_conflict": विशेषता विरोध
+  "error.userservice.attribute_conflict_description": उसी अद्वितीय विशेषता मान वाला एक उपयोगकर्ता पहले से मौजूद है
+  "error.userservice.authentication_failed": प्रमाणीकरण विफल
+  "error.userservice.authentication_failed_description": अमान्य क्रेडेंशियल प्रदान किए गए
+  "error.userservice.cannot_modify_declarative_resource": डिक्लेरेटिव संसाधन संशोधित नहीं किया जा सकता
+  "error.userservice.cannot_modify_declarative_resource_description": उपयोगकर्ता डिक्लेरेटिव है और संशोधित या हटाया नहीं जा सकता
+  "error.userservice.email_conflict": ईमेल विरोध
+  "error.userservice.email_conflict_description": उसी ईमेल वाला एक उपयोगकर्ता पहले से मौजूद है
+  "error.userservice.handle_path_required": हैंडल पाथ आवश्यक है
+  "error.userservice.handle_path_required_description": इस ऑपरेशन के लिए हैंडल पाथ आवश्यक है
+  "error.userservice.invalid_credential": अमान्य अनुरोध प्रारूप
+  "error.userservice.invalid_credential_description": अनुरोध में अमान्य क्रेडेंशियल फ़ील्ड
+  "error.userservice.invalid_filter_parameter": अमान्य फ़िल्टर पैरामीटर
+  "error.userservice.invalid_filter_parameter_description": फ़िल्टर प्रारूप अमान्य है
+  "error.userservice.invalid_group_id": अमान्य समूह ID
+  "error.userservice.invalid_group_id_description": अनुरोध में एक या अधिक समूह ID मौजूद नहीं हैं
+  "error.userservice.invalid_handle_path": अमान्य हैंडल पाथ
+  "error.userservice.invalid_handle_path_description": हैंडल पाथ में फ़ॉरवर्ड स्लैश से अलग किए गए वैध संगठनात्मक इकाई पहचानकर्ता होने चाहिए
+  "error.userservice.invalid_limit_parameter": अमान्य पेजिनेशन पैरामीटर
+  "error.userservice.invalid_limit_parameter_description": लिमिट पैरामीटर एक सकारात्मक पूर्णांक होना चाहिए
+  "error.userservice.invalid_offset_parameter": अमान्य पेजिनेशन पैरामीटर
+  "error.userservice.invalid_offset_parameter_description": ऑफसेट पैरामीटर एक गैर-ऋणात्मक पूर्णांक होना चाहिए
+  "error.userservice.invalid_organization_unit": अमान्य संगठन इकाई
+  "error.userservice.invalid_organization_unit_description": संगठन इकाई id एक मान्य UUID के रूप में निर्दिष्ट होना चाहिए
+  "error.userservice.invalid_request_format": अमान्य अनुरोध प्रारूप
+  "error.userservice.invalid_request_format_description": अनुरोध बॉडी विकृत है या अमान्य डेटा है
+  "error.userservice.missing_credentials": क्रेडेंशियल अनुपस्थित हैं
+  "error.userservice.missing_credentials_description": कम से कम एक क्रेडेंशियल फ़ील्ड प्रदान किया जाना चाहिए
+  "error.userservice.missing_required_fields": आवश्यक फ़ील्ड अनुपस्थित हैं
+  "error.userservice.missing_required_fields_description": कम से कम एक पहचान विशेषता प्रदान की जानी चाहिए
+  "error.userservice.missing_user_id": अमान्य अनुरोध प्रारूप
+  "error.userservice.missing_user_id_description": उपयोगकर्ता ID आवश्यक है
+  "error.userservice.organization_unit_mismatch": संगठन इकाई बेमेल
+  "error.userservice.organization_unit_mismatch_description": संगठन इकाई उपयोगकर्ता प्रकार कॉन्फ़िगरेशन से मेल नहीं खाती
+  "error.userservice.organization_unit_not_found": संगठन इकाई नहीं मिली
+  "error.userservice.organization_unit_not_found_description": निर्दिष्ट संगठन इकाई मौजूद नहीं है
+  "error.userservice.schema_validation_failed": स्कीमा सत्यापन विफल
+  "error.userservice.schema_validation_failed_description": उपयोगकर्ता विशेषताएं आवश्यक स्कीमा के अनुरूप नहीं हैं
+  "error.userservice.user_not_found": उपयोगकर्ता नहीं मिला
+  "error.userservice.user_not_found_description": निर्दिष्ट id वाला उपयोगकर्ता मौजूद नहीं है
+  "error.userservice.user_type_not_found": उपयोगकर्ता प्रकार नहीं मिला
+  "error.userservice.user_type_not_found_description": निर्दिष्ट उपयोगकर्ता प्रकार मौजूद नहीं है
+  "flows.executor.errors.ambiguous_user_identity": अस्पष्ट उपयोगकर्ता पहचान
+  "flows.executor.errors.ambiguous_user_identity_desc": उपयोगकर्ता पहचान अस्पष्ट है और निर्धारित नहीं की जा सकती
+  "flows.executor.errors.attribute_collect_failed": उपयोगकर्ता विशेषताएं अपडेट करने में विफल
+  "flows.executor.errors.attribute_collect_failed_desc": उपयोगकर्ता विशेषताएं अपडेट करते समय एक त्रुटि हुई
+  "flows.executor.errors.attribute_not_found_for_user": आवश्यक विशेषता नहीं मिली
+  "flows.executor.errors.attribute_not_found_for_user_desc": उपयोगकर्ता के लिए एक आवश्यक विशेषता नहीं मिली
+  "flows.executor.errors.attribute_not_unique": विशेषता मान पहले से मौजूद है
+  "flows.executor.errors.attribute_not_unique_desc": प्रदान किया गया विशेषता मान पहले से मौजूद है और अद्वितीय होना चाहिए
+  "flows.executor.errors.attribute_retrieval_failed": उपयोगकर्ता विशेषताएं प्राप्त करने में विफल
+  "flows.executor.errors.attribute_retrieval_failed_desc": उपयोगकर्ता विशेषताएं प्राप्त करते समय एक त्रुटि हुई
+  "flows.executor.errors.auth_not_available_for_app": इस एप्लिकेशन के लिए प्रमाणीकरण उपलब्ध नहीं है
+  "flows.executor.errors.auth_not_available_for_app_desc": अनुरोधित प्रमाणीकरण विधि इस एप्लिकेशन के लिए उपलब्ध नहीं है
+  "flows.executor.errors.authorization_failed": प्राधिकरण सत्यापन विफल
+  "flows.executor.errors.authorization_failed_desc": वर्तमान उपयोगकर्ता के लिए प्राधिकरण सत्यापन विफल हो गया
+  "flows.executor.errors.cannot_provision_automatically": उपयोगकर्ता को स्वचालित रूप से प्रावधान नहीं किया जा सकता
+  "flows.executor.errors.cannot_provision_automatically_desc": प्रदान की गई जानकारी के साथ उपयोगकर्ता को स्वचालित रूप से प्रावधान नहीं किया जा सकता
+  "flows.executor.errors.consent_decisions_missing": सहमति निर्णय इनपुट अनुपस्थित या खाली है
+  "flows.executor.errors.consent_decisions_missing_desc": सहमति निर्णय इनपुट अनुपस्थित या खाली है
+  "flows.executor.errors.consent_decisions_parse": सहमति निर्णय पार्स करने में विफल
+  "flows.executor.errors.consent_decisions_parse_desc": सहमति निर्णय इनपुट पार्स नहीं किया जा सका
+  "flows.executor.errors.consent_denied": उपयोगकर्ता ने सहमति अस्वीकृत की
+  "flows.executor.errors.consent_denied_desc": उपयोगकर्ता ने आवश्यक सहमति अस्वीकृत कर दी है
+  "flows.executor.errors.consent_prereq_failed": सहमति के लिए पूर्वापेक्षा सत्यापन विफल
+  "flows.executor.errors.consent_prereq_failed_desc": सहमति एक्ज़ीक्यूटर के लिए पूर्वापेक्षाएं पूरी नहीं हुई हैं
+  "flows.executor.errors.consent_prompt_timed_out": सहमति प्रॉम्प्ट समयसीमा समाप्त हो गई
+  "flows.executor.errors.consent_prompt_timed_out_desc": सहमति प्रॉम्प्ट बिना प्रतिक्रिया के समयसीमा समाप्त हो गई
+  "flows.executor.errors.consent_record_failed": सहमति रिकॉर्ड करने में विफल
+  "flows.executor.errors.consent_record_failed_desc": उपयोगकर्ता सहमति रिकॉर्ड करते समय एक त्रुटि हुई
+  "flows.executor.errors.consent_resolution_failed": सहमति हल करने में विफल
+  "flows.executor.errors.consent_resolution_failed_desc": उपयोगकर्ता सहमति आवश्यकताएं हल करते समय एक त्रुटि हुई
+  "flows.executor.errors.credential_input_invalid": अमान्य क्रेडेंशियल इनपुट कॉन्फ़िगरेशन
+  "flows.executor.errors.credential_input_invalid_desc": क्रेडेंशियल सेटर के लिए क्रेडेंशियल इनपुट कॉन्फ़िगरेशन अमान्य है
+  "flows.executor.errors.credential_input_missing": कोई क्रेडेंशियल इनपुट कॉन्फ़िगर नहीं
+  "flows.executor.errors.credential_input_missing_desc": क्रेडेंशियल सेटर के लिए कोई क्रेडेंशियल इनपुट कॉन्फ़िगर नहीं किया गया है
+  "flows.executor.errors.credential_processing_failed": क्रेडेंशियल संसाधित करने में विफल
+  "flows.executor.errors.credential_processing_failed_desc": क्रेडेंशियल संसाधित करते समय एक त्रुटि हुई
+  "flows.executor.errors.credential_set_failed": क्रेडेंशियल सेट करने में विफल
+  "flows.executor.errors.credential_set_failed_desc": उपयोगकर्ता क्रेडेंशियल सेट करते समय एक त्रुटि हुई
+  "flows.executor.errors.credential_value_empty": क्रेडेंशियल मान खाली है
+  "flows.executor.errors.credential_value_empty_desc": क्रेडेंशियल सेटर के लिए क्रेडेंशियल मान खाली नहीं होना चाहिए
+  "flows.executor.errors.cross_ou_provisioning_target_missing": क्रॉस-OU प्रावधान के लिए लक्ष्य OU सेट नहीं है
+  "flows.executor.errors.cross_ou_provisioning_target_missing_desc": क्रॉस-OU उपयोगकर्ता प्रावधान के लिए एक लक्ष्य संगठन इकाई निर्दिष्ट होनी चाहिए
+  "flows.executor.errors.email_recipient_missing": ईमेल प्राप्तकर्ता आवश्यक है
+  "flows.executor.errors.email_recipient_missing_desc": अधिसूचना भेजने के लिए एक ईमेल प्राप्तकर्ता प्रदान किया जाना चाहिए
+  "flows.executor.errors.email_send_failed": ईमेल भेजने में विफल
+  "flows.executor.errors.email_send_failed_desc": ईमेल भेजते समय एक त्रुटि हुई
+  "flows.executor.errors.email_service_not_configured": ईमेल सेवा कॉन्फ़िगर नहीं की गई है
+  "flows.executor.errors.email_service_not_configured_desc": ईमेल अधिसूचना सेवा कॉन्फ़िगर नहीं की गई है
+  "flows.executor.errors.failed_to_identify_user": उपयोगकर्ता पहचानने में विफल
+  "flows.executor.errors.failed_to_identify_user_desc": प्रदान की गई जानकारी से उपयोगकर्ता पहचानने में असमर्थ
+  "flows.executor.errors.http_request_config_invalid": कॉन्फ़िगरेशन त्रुटि
+  "flows.executor.errors.http_request_config_invalid_desc": HTTP अनुरोध एक्ज़ीक्यूटर कॉन्फ़िगरेशन अमान्य है
+  "flows.executor.errors.http_request_failed": HTTP अनुरोध एक्ज़ीक्यूटर विफल
+  "flows.executor.errors.http_request_failed_desc": HTTP अनुरोध एक्ज़ीक्यूटर अनुरोध पूरा करने में विफल रहा
+  "flows.executor.errors.insufficient_permissions": अपर्याप्त अनुमतियां
+  "flows.executor.errors.insufficient_permissions_desc": उपयोगकर्ता के पास यह क्रिया करने के लिए पर्याप्त अनुमतियां नहीं हैं
+  "flows.executor.errors.invalid_action": अमान्य क्रिया प्रदान की गई
+  "flows.executor.errors.invalid_action_desc": प्रदान की गई क्रिया वर्तमान फ़्लो चरण के लिए मान्य नहीं है
+  "flows.executor.errors.invalid_credentials": अमान्य क्रेडेंशियल प्रदान किए गए
+  "flows.executor.errors.invalid_credentials_desc": प्रदान किए गए क्रेडेंशियल अमान्य हैं
+  "flows.executor.errors.invalid_federated_user": अमान्य फेडरेटेड उपयोगकर्ता
+  "flows.executor.errors.invalid_federated_user_desc": फेडरेटेड उपयोगकर्ता जानकारी अमान्य या असंगत है
+  "flows.executor.errors.invalid_invite_token": अमान्य आमंत्रण टोकन
+  "flows.executor.errors.invalid_invite_token_desc": प्रदान किया गया आमंत्रण टोकन अमान्य है या समाप्त हो गया है
+  "flows.executor.errors.invalid_magic_link_token": अमान्य मैजिक लिंक टोकन
+  "flows.executor.errors.invalid_magic_link_token_desc": मैजिक लिंक टोकन अमान्य है या समाप्त हो गया है
+  "flows.executor.errors.invalid_oauth_code": अमान्य OAuth प्राधिकरण कोड
+  "flows.executor.errors.invalid_oauth_code_desc": OAuth प्राधिकरण कोड अमान्य है या टोकन के लिए एक्सचेंज नहीं किया जा सका
+  "flows.executor.errors.invalid_oauth_state": अमान्य OAuth state पैरामीटर
+  "flows.executor.errors.invalid_oauth_state_desc": OAuth state पैरामीटर अमान्य है या अपेक्षित मान से मेल नहीं खाता
+  "flows.executor.errors.invalid_otp": अमान्य OTP प्रदान किया गया
+  "flows.executor.errors.invalid_otp_desc": प्रदान किया गया वन-टाइम पासवर्ड अमान्य है या समाप्त हो गया है
+  "flows.executor.errors.invalid_ou": चुनी गई संगठन इकाई अमान्य है
+  "flows.executor.errors.invalid_ou_desc": चुनी गई संगठन इकाई इस ऑपरेशन के लिए मान्य नहीं है
+  "flows.executor.errors.invalid_passkey": अमान्य पासकी क्रेडेंशियल
+  "flows.executor.errors.invalid_passkey_desc": प्रदान किए गए पासकी क्रेडेंशियल अमान्य हैं
+  "flows.executor.errors.invalid_user_type": अमान्य उपयोगकर्ता प्रकार
+  "flows.executor.errors.invalid_user_type_desc": प्रदान किया गया उपयोगकर्ता प्रकार मान्य नहीं है
+  "flows.executor.errors.invite_token_generation_failed": आमंत्रण टोकन जनरेट करने में विफल
+  "flows.executor.errors.invite_token_generation_failed_desc": आमंत्रण टोकन जनरेट करते समय एक त्रुटि हुई
+  "flows.executor.errors.magic_link_generation_failed": मैजिक लिंक जनरेशन विफल
+  "flows.executor.errors.magic_link_generation_failed_desc": मैजिक लिंक जनरेट करने में विफल
+  "flows.executor.errors.max_otp_attempts_reached": OTP के अधिकतम प्रयास पूरे हो गए
+  "flows.executor.errors.max_otp_attempts_reached_desc": OTP सत्यापन प्रयासों की अधिकतम संख्या पूरी हो गई है
+  "flows.executor.errors.no_registered_passkeys": कोई पंजीकृत पासकी नहीं मिली
+  "flows.executor.errors.no_registered_passkeys_desc": उपयोगकर्ता के लिए कोई पंजीकृत पासकी नहीं मिली
+  "flows.executor.errors.no_user_types_available": कोई उपयोगकर्ता प्रकार उपलब्ध नहीं
+  "flows.executor.errors.no_user_types_available_desc": वर्तमान में कोई उपयोगकर्ता प्रकार उपलब्ध नहीं है
+  "flows.executor.errors.no_valid_user_types": कोई मान्य उपयोगकर्ता प्रकार उपलब्ध नहीं
+  "flows.executor.errors.no_valid_user_types_desc": इस फ़्लो के लिए कोई मान्य उपयोगकर्ता प्रकार कॉन्फ़िगर नहीं है
+  "flows.executor.errors.nonce_mismatch": ID token में nonce बेमेल
+  "flows.executor.errors.nonce_mismatch_desc": ID token क्लेम में nonce अपेक्षित मान से मेल नहीं खाता
+  "flows.executor.errors.openid4vp_expired": प्रतिक्रिया प्राप्त होने से पहले OpenID4VP अनुरोध समाप्त हो गया
+  "flows.executor.errors.openid4vp_expired_desc": वॉलेट द्वारा प्रतिक्रिया सबमिट करने से पहले OpenID4VP प्रस्तुति अनुरोध समाप्त हो गया
+  "flows.executor.errors.openid4vp_initiate_failed": OpenID4VP अनुरोध आरंभ करने में विफल
+  "flows.executor.errors.openid4vp_initiate_failed_desc": OpenID4VP प्रस्तुति अनुरोध आरंभ करते समय एक त्रुटि हुई
+  "flows.executor.errors.openid4vp_not_configured": OpenID4VP वेरिफायर कॉन्फ़िगर नहीं है
+  "flows.executor.errors.openid4vp_not_configured_desc": OpenID4VP वेरिफायर सेवा कॉन्फ़िगर नहीं की गई है
+  "flows.executor.errors.openid4vp_verification_failed": OpenID4VP प्रस्तुति सत्यापन विफल
+  "flows.executor.errors.openid4vp_verification_failed_desc": OpenID4VP प्रस्तुति सत्यापन विफल हो गया
+  "flows.executor.errors.ou_creation_failed": संगठन इकाई निर्माण विफल
+  "flows.executor.errors.ou_creation_failed_desc": संगठन इकाई बनाते समय एक त्रुटि हुई
+  "flows.executor.errors.ou_creation_prereq_failed": OU निर्माण के लिए पूर्वापेक्षा सत्यापन विफल
+  "flows.executor.errors.ou_creation_prereq_failed_desc": संगठन इकाई बनाने की पूर्वापेक्षाएं पूरी नहीं हुई हैं
+  "flows.executor.errors.ou_handle_conflict": उसी हैंडल वाली संगठन इकाई पहले से मौजूद है
+  "flows.executor.errors.ou_handle_conflict_desc": इस संदर्भ में उसी हैंडल वाली एक संगठन इकाई पहले से मौजूद है
+  "flows.executor.errors.ou_name_conflict": उसी नाम वाली संगठन इकाई पहले से मौजूद है
+  "flows.executor.errors.ou_name_conflict_desc": इस संदर्भ में उसी नाम वाली एक संगठन इकाई पहले से मौजूद है
+  "flows.executor.errors.ou_not_found": संगठन इकाई नहीं मिली
+  "flows.executor.errors.ou_not_found_desc": चुनी गई संगठन इकाई मौजूद नहीं है
+  "flows.executor.errors.ou_not_valid_for_user_type": चुनी गई संगठन इकाई चुने गए उपयोगकर्ता प्रकार के लिए मान्य नहीं है।
+  "flows.executor.errors.ou_not_valid_for_user_type_desc": चुनी गई संगठन इकाई चुने गए उपयोगकर्ता प्रकार के लिए मान्य नहीं है
+  "flows.executor.errors.ou_resolution_failed": संगठन इकाई हल करने में विफल
+  "flows.executor.errors.ou_resolution_failed_desc": वर्तमान संदर्भ के लिए संगठन इकाई हल करने में असमर्थ
+  "flows.executor.errors.passkey_auth_failed": पासकी प्रमाणीकरण विफल
+  "flows.executor.errors.passkey_auth_failed_desc": पासकी से प्रमाणीकरण करते समय एक त्रुटि हुई
+  "flows.executor.errors.passkey_registration_failed": पासकी पंजीकरण विफल
+  "flows.executor.errors.passkey_registration_failed_desc": पासकी पंजीकृत करते समय एक त्रुटि हुई
+  "flows.executor.errors.prerequisites_failed": पूर्वापेक्षा सत्यापन विफल
+  "flows.executor.errors.prerequisites_failed_desc": इस ऑपरेशन की पूर्वापेक्षाएं पूरी नहीं हुई हैं
+  "flows.executor.errors.provisioning_assignment_failed": समूह और भूमिकाएं असाइन करने में विफल
+  "flows.executor.errors.provisioning_assignment_failed_desc": प्रावधानित उपयोगकर्ता को समूह और भूमिकाएं असाइन करते समय एक त्रुटि हुई
+  "flows.executor.errors.provisioning_attribute_conflict": प्रदान की गई विशेषताओं वाला उपयोगकर्ता पहले से मौजूद है
+  "flows.executor.errors.provisioning_attribute_conflict_desc": उपयोगकर्ता प्रावधान विफल क्योंकि एक या अधिक अद्वितीय विशेषता मान पहले से लिए जा चुके हैं
+  "flows.executor.errors.provisioning_failed": उपयोगकर्ता प्रावधान विफल
+  "flows.executor.errors.provisioning_failed_desc": उपयोगकर्ता प्रावधान करते समय एक त्रुटि हुई
+  "flows.executor.errors.provisioning_user_attrs_missing": प्रावधान के लिए कोई उपयोगकर्ता विशेषता प्रदान नहीं की गई
+  "flows.executor.errors.provisioning_user_attrs_missing_desc": नए उपयोगकर्ता को प्रावधान करने के लिए उपयोगकर्ता विशेषताएं आवश्यक हैं
+  "flows.executor.errors.self_reg_disabled_for_user_type": उपयोगकर्ता प्रकार के लिए स्व-पंजीकरण अक्षम है
+  "flows.executor.errors.self_reg_disabled_for_user_type_desc": चुने गए उपयोगकर्ता प्रकार के लिए स्व-पंजीकरण सक्षम नहीं है
+  "flows.executor.errors.self_reg_not_available_for_app": इस एप्लिकेशन के लिए स्व-पंजीकरण उपलब्ध नहीं है
+  "flows.executor.errors.self_reg_not_available_for_app_desc": इस एप्लिकेशन के लिए स्व-पंजीकरण उपलब्ध नहीं है
+  "flows.executor.errors.self_registration_disabled": स्व-पंजीकरण सक्षम नहीं है
+  "flows.executor.errors.self_registration_disabled_desc": इस एप्लिकेशन या उपयोगकर्ता प्रकार के लिए स्व-पंजीकरण सक्षम नहीं है
+  "flows.executor.errors.sms_invalid_phone": SMS प्राप्तकर्ता एक वैध फ़ोन नंबर नहीं है
+  "flows.executor.errors.sms_invalid_phone_desc": प्रदान किया गया SMS प्राप्तकर्ता एक वैध फ़ोन नंबर नहीं है
+  "flows.executor.errors.sms_provider_not_configured": SMS अधिसूचना प्रदाता कॉन्फ़िगर नहीं है
+  "flows.executor.errors.sms_provider_not_configured_desc": SMS अधिसूचना प्रदाता कॉन्फ़िगर नहीं किया गया है या त्रुटिपूर्ण है
+  "flows.executor.errors.sms_recipient_missing": SMS प्राप्तकर्ता आवश्यक है
+  "flows.executor.errors.sms_recipient_missing_desc": अधिसूचना भेजने के लिए एक SMS प्राप्तकर्ता प्रदान किया जाना चाहिए
+  "flows.executor.errors.sms_template_missing": SMS टेम्पलेट आवश्यक है
+  "flows.executor.errors.sms_template_missing_desc": अधिसूचना भेजने के लिए एक SMS टेम्पलेट प्रदान किया जाना चाहिए
+  "flows.executor.errors.user_already_exists": उपयोगकर्ता पहले से मौजूद है
+  "flows.executor.errors.user_already_exists_desc": प्रदान की गई विशेषताओं वाला एक उपयोगकर्ता पहले से मौजूद है
+  "flows.executor.errors.user_already_exists_in_target_ou": लक्ष्य संगठन में उपयोगकर्ता पहले से मौजूद है
+  "flows.executor.errors.user_already_exists_in_target_ou_desc": लक्ष्य संगठन इकाई में उसी पहचान वाला एक उपयोगकर्ता पहले से मौजूद है
+  "flows.executor.errors.user_auth_failed": उपयोगकर्ता प्रमाणीकरण विफल
+  "flows.executor.errors.user_auth_failed_desc": उपयोगकर्ता को प्रमाणित करते समय एक त्रुटि हुई
+  "flows.executor.errors.user_id_missing_in_context": उपयोगकर्ता ID नहीं मिला
+  "flows.executor.errors.user_id_missing_in_context_desc": वर्तमान फ़्लो संदर्भ से उपयोगकर्ता ID हल नहीं किया जा सका
+  "flows.executor.errors.user_id_required_for_passkey_reg": पासकी पंजीकरण के लिए उपयोगकर्ता ID अनुपस्थित है
+  "flows.executor.errors.user_id_required_for_passkey_reg_desc": पासकी पंजीकृत करने के लिए उपयोगकर्ता ID आवश्यक है
+  "flows.executor.errors.user_not_authenticated": उपयोगकर्ता प्रमाणित नहीं है
+  "flows.executor.errors.user_not_authenticated_desc": उपयोगकर्ता इस फ़्लो में प्रमाणित नहीं हुआ है
+  "flows.executor.errors.user_not_found": उपयोगकर्ता नहीं मिला
+  "flows.executor.errors.user_not_found_desc": सिस्टम में उपयोगकर्ता नहीं मिल सका
+  "flows.executor.errors.user_type_not_allowed": इस फ़्लो के लिए उपयोगकर्ता प्रकार अनुमत नहीं है
+  "flows.executor.errors.user_type_not_allowed_desc": चुना गया उपयोगकर्ता प्रकार इस फ़्लो के लिए अनुमत नहीं है
+  "flows.executor.errors.user_type_not_valid_for_ou": उपयोगकर्ता प्रकार मान्य नहीं है
+  "flows.executor.errors.user_type_not_valid_for_ou_desc": चुना गया उपयोगकर्ता प्रकार चुनी गई संगठन इकाई के लिए मान्य नहीं है
+  "flows.executor.errors.user_type_retrieval_failed": उपयोगकर्ता प्रकार प्राप्त करने में विफल
+  "flows.executor.errors.user_type_retrieval_failed_desc": उपलब्ध उपयोगकर्ता प्रकार प्राप्त करते समय एक त्रुटि हुई
+  "layout.error.already_exists": लेआउट पहले से मौजूद है
+  "layout.error.already_exists_description": उसी ID वाला एक लेआउट पहले से मौजूद है
+  "layout.error.cannot_delete_declarative": डिक्लेरेटिव लेआउट हटाया नहीं जा सकता
+  "layout.error.cannot_delete_declarative_description": लेआउट डिक्लेरेटिव संसाधनों में परिभाषित है और हटाया नहीं जा सकता
+  "layout.error.cannot_modify_declarative": डिक्लेरेटिव संसाधन संशोधित नहीं किया जा सकता
+  "layout.error.cannot_modify_declarative_description": लेआउट डिक्लेरेटिव है और संशोधित या हटाया नहीं जा सकता
+  "layout.error.cannot_update_declarative": डिक्लेरेटिव लेआउट अपडेट नहीं किया जा सकता
+  "layout.error.cannot_update_declarative_description": लेआउट डिक्लेरेटिव संसाधनों में परिभाषित है और संशोधित नहीं किया जा सकता
+  "layout.error.duplicate_handle": डुप्लिकेट लेआउट हैंडल
+  "layout.error.duplicate_handle_description": उसी हैंडल वाला एक लेआउट पहले से मौजूद है
+  "layout.error.handle_immutable": लेआउट हैंडल अपरिवर्तनीय है
+  "layout.error.handle_immutable_description": लेआउट हैंडल निर्माण के बाद बदला नहीं जा सकता
+  "layout.error.in_use": लेआउट उपयोग में है
+  "layout.error.in_use_description": वर्तमान में एक या अधिक एप्लिकेशन से संबद्ध लेआउट हटाया नहीं जा सकता
+  "layout.error.invalid_data": अमान्य लेआउट डेटा
+  "layout.error.invalid_data_description": प्रदान किया गया लेआउट डेटा अमान्य है
+  "layout.error.invalid_format": अमान्य लेआउट प्रारूप
+  "layout.error.invalid_format_description": लेआउट एक मान्य JSON ऑब्जेक्ट होना चाहिए
+  "layout.error.invalid_id": अमान्य लेआउट ID
+  "layout.error.invalid_id_description": प्रदान की गई लेआउट ID अमान्य है
+  "layout.error.invalid_limit": अमान्य सीमा
+  "layout.error.invalid_limit_description": लिमिट मान वैध रेंज से बाहर है
+  "layout.error.invalid_limit_param": अमान्य सीमा
+  "layout.error.invalid_limit_param_description": लिमिट एक वैध पूर्णांक होना चाहिए
+  "layout.error.invalid_offset": अमान्य ऑफसेट
+  "layout.error.invalid_offset_description": ऑफसेट गैर-ऋणात्मक होना चाहिए
+  "layout.error.invalid_offset_param": अमान्य ऑफसेट
+  "layout.error.invalid_offset_param_description": ऑफसेट एक वैध पूर्णांक होना चाहिए
+  "layout.error.missing_display_name": प्रदर्शन नाम अनुपस्थित है
+  "layout.error.missing_display_name_description": प्रदर्शन नाम आवश्यक है
+  "layout.error.missing_handle": लेआउट हैंडल अनुपस्थित है
+  "layout.error.missing_handle_description": लेआउट हैंडल आवश्यक है
+  "layout.error.missing_layout": लेआउट अनुपस्थित है
+  "layout.error.missing_layout_description": लेआउट फ़ील्ड आवश्यक है
+  "layout.error.not_found": लेआउट नहीं मिला
+  "layout.error.not_found_description": अनुरोधित लेआउट कॉन्फ़िगरेशन नहीं मिला
+  "layout.error.result_limit_exceeded": परिणाम सीमा पार हो गई
+  "layout.error.result_limit_exceeded_description": कंपोज़िट मोड में लेआउट की कुल संख्या अधिकतम अनुमत सीमा से अधिक है
+  "theme.error.cannot_delete_declarative": डिक्लेरेटिव थीम हटाई नहीं जा सकती
+  "theme.error.cannot_delete_declarative_description": थीम डिक्लेरेटिव संसाधनों में परिभाषित है और हटाई नहीं जा सकती
+  "theme.error.cannot_modify_declarative": डिक्लेरेटिव संसाधन संशोधित नहीं किया जा सकता
+  "theme.error.cannot_modify_declarative_description": थीम डिक्लेरेटिव है और संशोधित या हटाई नहीं जा सकती
+  "theme.error.cannot_update_declarative": डिक्लेरेटिव थीम अपडेट नहीं की जा सकती
+  "theme.error.cannot_update_declarative_description": थीम डिक्लेरेटिव संसाधनों में परिभाषित है और संशोधित नहीं की जा सकती
+  "theme.error.duplicate_handle": डुप्लिकेट थीम हैंडल
+  "theme.error.duplicate_handle_description": उसी हैंडल वाली एक थीम पहले से मौजूद है
+  "theme.error.handle_immutable": थीम हैंडल अपरिवर्तनीय है
+  "theme.error.handle_immutable_description": थीम हैंडल निर्माण के बाद बदला नहीं जा सकता
+  "theme.error.in_use": थीम उपयोग में है
+  "theme.error.in_use_description": वर्तमान में एक या अधिक एप्लिकेशन से संबद्ध थीम हटाई नहीं जा सकती
+  "theme.error.invalid_data": अमान्य थीम डेटा
+  "theme.error.invalid_data_description": प्रदान किया गया थीम डेटा अमान्य है
+  "theme.error.invalid_format": अमान्य थीम प्रारूप
+  "theme.error.invalid_format_description": थीम एक मान्य JSON ऑब्जेक्ट होनी चाहिए
+  "theme.error.invalid_id": अमान्य थीम ID
+  "theme.error.invalid_id_description": प्रदान की गई थीम ID अमान्य है
+  "theme.error.invalid_limit": अमान्य सीमा
+  "theme.error.invalid_limit_description": लिमिट मान वैध रेंज से बाहर है
+  "theme.error.invalid_limit_param": अमान्य सीमा
+  "theme.error.invalid_limit_param_description": लिमिट एक वैध पूर्णांक होना चाहिए
+  "theme.error.invalid_offset": अमान्य ऑफसेट
+  "theme.error.invalid_offset_description": ऑफसेट गैर-ऋणात्मक होना चाहिए
+  "theme.error.invalid_offset_param": अमान्य ऑफसेट
+  "theme.error.invalid_offset_param_description": ऑफसेट एक वैध पूर्णांक होना चाहिए
+  "theme.error.missing_display_name": प्रदर्शन नाम अनुपस्थित है
+  "theme.error.missing_display_name_description": प्रदर्शन नाम आवश्यक है
+  "theme.error.missing_handle": थीम हैंडल अनुपस्थित है
+  "theme.error.missing_handle_description": थीम हैंडल आवश्यक है
+  "theme.error.missing_theme": थीम अनुपस्थित है
+  "theme.error.missing_theme_description": थीम फ़ील्ड आवश्यक है
+  "theme.error.not_found": थीम नहीं मिली
+  "theme.error.not_found_description": अनुरोधित थीम कॉन्फ़िगरेशन नहीं मिली
+  "theme.error.result_limit_exceeded": परिणाम सीमा पार हो गई
