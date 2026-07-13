@@ -1,7 +1,14 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 package clientmgmt
 
 import (
 	"encoding/json"
+	"net/url"
 	"strings"
 
 	"golang.org/x/text/language"
@@ -137,7 +144,7 @@ func ValidateUpdate(profile Profile, req UpdateClientRequest) error {
 			return err
 		}
 	}
-	if _, err := normalizePutStatus(req.Status); err != nil {
+	if _, err := normalizeStatus(req.Status); err != nil {
 		return err
 	}
 	if err := validateLogoURI(req.LogoURI); err != nil {
@@ -198,7 +205,7 @@ func ValidatePatch(profile Profile, merged UpdateClientRequest, fields PatchFiel
 		}
 	}
 	if fields.Status {
-		if _, err := normalizePatchStatus(merged.Status); err != nil {
+		if _, err := normalizeStatus(merged.Status); err != nil {
 			return err
 		}
 	}
@@ -243,9 +250,7 @@ func ValidatePatch(profile Profile, merged UpdateClientRequest, fields PatchFiel
 		}
 	}
 
-	mergedForUpdate := merged
-	mergedForUpdate.Status = strings.ToLower(merged.Status)
-	return ValidateUpdate(profile, mergedForUpdate)
+	return ValidateUpdate(profile, merged)
 }
 
 func validateClientID(id string) error {
@@ -276,6 +281,62 @@ func validateLogoURI(uri string) error {
 	return nil
 }
 
+func isValidURI(uri string) bool {
+	if uri == "" || len(uri) > 1024 {
+		return false
+	}
+	u, err := url.Parse(uri)
+	if err != nil || u.Scheme == "" {
+		return false
+	}
+	if u.Scheme == "http" || u.Scheme == "https" {
+		return u.Host != ""
+	}
+	return u.Host != "" || u.Opaque != ""
+}
+
+// isValidRedirectURI validates a redirect URI.
+//
+// It accepts standard HTTP(S) URIs as well as app native redirect URIs that
+// use a custom scheme (e.g. "io.mosip.residentapp://oauth"), matching the
+// relying party onboarding guidance at
+// https://docs.esignet.io/esignet-authentication/develop/integration/relying-party/relying-party-onboarding#id-4.-define-callback-urls-redirect-uris
+//
+// Wildcards ("*" and "**") are permitted, but only as a standalone path
+// segment: "*" matches exactly one path segment and "**" matches the
+// remainder of the path. Wildcards are never permitted in the scheme or
+// host, and can't be mixed with other characters within a segment, e.g.
+// "http*", "https://*", "https://domain*" and "residentapp://*" are all
+// rejected while "http://localhost:5000/*", "http://localhost:5000/**" and
+// "my.phone.app://oauth/*" are accepted.
+func isValidRedirectURI(uri string) bool {
+	if uri == "" || len(uri) > 1024 {
+		return false
+	}
+	// Reject control characters, whitespace and backslashes outright.
+	if strings.ContainsAny(uri, " \t\r\n\\") {
+		return false
+	}
+	u, err := url.Parse(uri)
+	if err != nil || u.Scheme == "" || u.Host == "" {
+		return false
+	}
+	// Wildcards are only allowed within path segments, never in the scheme
+	// or host/authority.
+	if strings.Contains(u.Scheme, "*") || strings.Contains(u.Host, "*") {
+		return false
+	}
+	for segment := range strings.SplitSeq(u.Path, "/") {
+		if segment == "" || segment == "*" || segment == "**" {
+			continue
+		}
+		if strings.Contains(segment, "*") {
+			return false
+		}
+	}
+	return true
+}
+
 func validateRedirectURIs(uris []string, minItems, maxItems int) error {
 	if minItems > 0 && len(uris) < minItems {
 		return validationErr("invalid_redirect_uri")
@@ -292,6 +353,26 @@ func validateRedirectURIs(uris []string, minItems, maxItems int) error {
 		}
 	}
 	return nil
+}
+
+func hasUniqueStrings(items []string) bool {
+	seen := make(map[string]struct{}, len(items))
+	for _, item := range items {
+		if _, ok := seen[item]; ok {
+			return false
+		}
+		seen[item] = struct{}{}
+	}
+	return true
+}
+
+func containsAll(items []string, allowed map[string]struct{}) bool {
+	for _, item := range items {
+		if _, ok := allowed[item]; !ok {
+			return false
+		}
+	}
+	return true
 }
 
 func validateClaims(claims []string, minItems, maxItems int) error {
@@ -454,21 +535,15 @@ func validatePurpose(raw json.RawMessage) error {
 	return nil
 }
 
-func normalizePutStatus(status string) (string, error) {
-	switch status {
-	case "active":
+// normalizeStatus validates a client status value case-insensitively and
+// returns its canonical uppercase form ("ACTIVE"/"INACTIVE"), matching the
+// representation stored in the database and returned in API responses.
+func normalizeStatus(status string) (string, error) {
+	switch strings.ToUpper(status) {
+	case "ACTIVE":
 		return "ACTIVE", nil
-	case "inactive":
+	case "INACTIVE":
 		return "INACTIVE", nil
-	default:
-		return "", validationErr("invalid_input")
-	}
-}
-
-func normalizePatchStatus(status string) (string, error) {
-	switch status {
-	case "ACTIVE", "INACTIVE":
-		return status, nil
 	default:
 		return "", validationErr("invalid_input")
 	}

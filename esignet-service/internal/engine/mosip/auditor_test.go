@@ -1,3 +1,9 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 package mosip
 
 import (
@@ -9,6 +15,8 @@ import (
 	"sync/atomic"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/suite"
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 )
@@ -44,7 +52,8 @@ func newTestAuditor(t *testing.T) (providers.ObservabilityProvider, <-chan Audit
 	return p, received
 }
 
-func TestPublishMapsFailedFlow(t *testing.T) {
+func (ts *AuditorTestSuite) TestPublishMapsFailedFlow() {
+	t := ts.T()
 	p, received := newTestAuditor(t)
 
 	p.PublishEvent(context.Background(), &providers.Event{
@@ -86,7 +95,8 @@ func TestPublishMapsFailedFlow(t *testing.T) {
 	}
 }
 
-func TestPublishNoUserFallback(t *testing.T) {
+func (ts *AuditorTestSuite) TestPublishNoUserFallback() {
+	t := ts.T()
 	p, received := newTestAuditor(t)
 
 	p.PublishEvent(context.Background(), &providers.Event{
@@ -109,7 +119,8 @@ func TestPublishNoUserFallback(t *testing.T) {
 	}
 }
 
-func TestClientPostSendsWrappedBodyAndCookie(t *testing.T) {
+func (ts *AuditorTestSuite) TestClientPostSendsWrappedBodyAndCookie() {
+	t := ts.T()
 	tokenSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("authorization", "tok-xyz")
 		w.WriteHeader(http.StatusOK)
@@ -154,7 +165,8 @@ func TestClientPostSendsWrappedBodyAndCookie(t *testing.T) {
 	}
 }
 
-func TestClientPostPurgesAndRetriesOn401(t *testing.T) {
+func (ts *AuditorTestSuite) TestClientPostPurgesAndRetriesOn401() {
+	t := ts.T()
 	var tokenCalls int32
 	tokenSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		atomic.AddInt32(&tokenCalls, 1)
@@ -191,7 +203,8 @@ func TestClientPostPurgesAndRetriesOn401(t *testing.T) {
 	}
 }
 
-func TestClientPostFailsWithoutAuthTokenURL(t *testing.T) {
+func (ts *AuditorTestSuite) TestClientPostFailsWithoutAuthTokenURL() {
+	t := ts.T()
 	auditSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
@@ -201,4 +214,12 @@ func TestClientPostFailsWithoutAuthTokenURL(t *testing.T) {
 	if err := c.Post(context.Background(), AuditRequest{}); err == nil {
 		t.Fatal("Post: want error when auth token URL is not configured")
 	}
+}
+
+type AuditorTestSuite struct {
+	suite.Suite
+}
+
+func TestAuditorTestSuite(t *testing.T) {
+	suite.Run(t, new(AuditorTestSuite))
 }

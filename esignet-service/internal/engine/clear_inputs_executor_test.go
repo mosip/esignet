@@ -1,7 +1,15 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 package engine
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/suite"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -9,7 +17,8 @@ import (
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 )
 
-func TestClearInputsExecutor_Execute_clearsConfiguredInputs(t *testing.T) {
+func (ts *ClearInputsExecutorTestSuite) TestClearInputsExecutor_Execute_clearsConfiguredInputs() {
+	t := ts.T()
 	ctx := &providers.NodeContext{
 		CurrentAction: "action_submit",
 		NodeInputs: []providers.Input{
@@ -34,7 +43,8 @@ func TestClearInputsExecutor_Execute_clearsConfiguredInputs(t *testing.T) {
 
 }
 
-func TestClearInputsExecutor_Execute_noConfiguredInputsIsNoop(t *testing.T) {
+func (ts *ClearInputsExecutorTestSuite) TestClearInputsExecutor_Execute_noConfiguredInputsIsNoop() {
+	t := ts.T()
 	ctx := &providers.NodeContext{
 		CurrentAction: "action_submit",
 		UserInputs: map[string]string{
@@ -51,7 +61,8 @@ func TestClearInputsExecutor_Execute_noConfiguredInputsIsNoop(t *testing.T) {
 	assert.Equal(t, "123456", ctx.UserInputs["otp"])
 }
 
-func TestClearInputsExecutor_Execute_nilMapsAreSafe(t *testing.T) {
+func (ts *ClearInputsExecutorTestSuite) TestClearInputsExecutor_Execute_nilMapsAreSafe() {
+	t := ts.T()
 	ctx := &providers.NodeContext{
 		NodeInputs: []providers.Input{
 			{Identifier: "username", Type: providers.InputTypeText},
@@ -66,7 +77,8 @@ func TestClearInputsExecutor_Execute_nilMapsAreSafe(t *testing.T) {
 	})
 }
 
-func TestClearInputsExecutor_metadata(t *testing.T) {
+func (ts *ClearInputsExecutorTestSuite) TestClearInputsExecutor_metadata() {
+	t := ts.T()
 	e := NewClearInputsExecutor()
 
 	assert.Equal(t, ExecutorNameClearInputs, e.GetName())
@@ -78,4 +90,12 @@ func TestClearInputsExecutor_metadata(t *testing.T) {
 	assert.True(t, e.HasRequiredInputs(&providers.NodeContext{}, &providers.ExecutorResponse{}))
 	assert.True(t, e.ValidatePrerequisites(&providers.NodeContext{}, &providers.ExecutorResponse{}, nil))
 	assert.Empty(t, e.GetUserIDFromContext(&providers.NodeContext{}, &providers.ExecutorResponse{}, nil))
+}
+
+type ClearInputsExecutorTestSuite struct {
+	suite.Suite
+}
+
+func TestClearInputsExecutorTestSuite(t *testing.T) {
+	suite.Run(t, new(ClearInputsExecutorTestSuite))
 }

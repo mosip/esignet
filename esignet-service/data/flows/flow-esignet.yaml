@@ -382,7 +382,7 @@ nodes:
               id: title_kbi
             - *prompt_uin
             - id: fullname_input
-              ref: fullname
+              ref: fullName
               type: TEXT_INPUT
               label: Fullname
               required: true
@@ -400,7 +400,7 @@ nodes:
     prompts:
       - inputs:
           - ref: username_input
-            identifier: individualId
+            identifier: username
             type: TEXT_INPUT
             required: true
           - ref: fullname_input
@@ -421,7 +421,7 @@ nodes:
       name: CredentialsAuthExecutor
       inputs:
         - ref: username_input
-          identifier: individualId
+          identifier: username
           type: TEXT_INPUT
           required: true
         - ref: fullname_input

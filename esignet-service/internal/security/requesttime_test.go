@@ -1,3 +1,9 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 package security
 
 import (
@@ -7,10 +13,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/suite"
+
 	"github.com/mosip/esignet/internal/common"
 )
 
-func TestRequestTimeMiddleware(t *testing.T) {
+func (ts *RequesttimeTestSuite) TestRequestTimeMiddleware() {
+	t := ts.T()
 	next := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	})
@@ -77,7 +86,8 @@ func TestRequestTimeMiddleware(t *testing.T) {
 	}
 }
 
-func TestRequestTimeMiddleware_BodyStillReadableDownstream(t *testing.T) {
+func (ts *RequesttimeTestSuite) TestRequestTimeMiddleware_BodyStillReadableDownstream() {
+	t := ts.T()
 	const payload = `{"requestTime":"` + "PLACEHOLDER" + `","request":{"clientId":"c1"}}`
 	body := strings.Replace(payload, "PLACEHOLDER", time.Now().UTC().Format(common.MOSIPTimeLayout), 1)
 
@@ -101,4 +111,12 @@ func TestRequestTimeMiddleware_BodyStillReadableDownstream(t *testing.T) {
 	if gotBody != body {
 		t.Errorf("downstream handler saw body %q, want %q", gotBody, body)
 	}
+}
+
+type RequesttimeTestSuite struct {
+	suite.Suite
+}
+
+func TestRequesttimeTestSuite(t *testing.T) {
+	suite.Run(t, new(RequesttimeTestSuite))
 }

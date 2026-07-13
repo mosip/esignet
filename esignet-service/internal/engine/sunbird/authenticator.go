@@ -1,3 +1,9 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 package sunbird
 
 import (
@@ -16,7 +22,7 @@ import (
 	applog "github.com/mosip/esignet/internal/log"
 )
 
-const sunbirdIndividualIDKey = "individualId"
+const sunbirdIndividualIDKey = "username"
 
 // errSunbirdKBIAuthFailed signals a registry lookup that did not match exactly one
 // entity, i.e. an authentication failure (as opposed to a transport/server error).

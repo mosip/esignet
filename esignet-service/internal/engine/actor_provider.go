@@ -1,10 +1,15 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 // Package engine provides ThunderID engine host integrations for the embedder.
 package engine
 
 import (
 	"context"
 	"encoding/json"
-	"log"
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
@@ -12,6 +17,7 @@ import (
 	"github.com/mosip/esignet/internal/clientmgmt"
 	"github.com/mosip/esignet/internal/config"
 	"github.com/mosip/esignet/internal/engine/shared"
+	applog "github.com/mosip/esignet/internal/log"
 )
 
 type actorProvider struct {
@@ -153,7 +159,7 @@ func (p *actorProvider) GetActor(id string) (*providers.Entity, *common.ServiceE
 	}
 	data, err := json.Marshal(clientAttributes)
 	if err != nil {
-		log.Println("failed to marshal client attributes")
+		applog.GetLogger().Warn("failed to marshal client attributes", applog.Error(err))
 	}
 
 	return &providers.Entity{

@@ -1,10 +1,17 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 package common
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"time"
+
+	applog "github.com/mosip/esignet/internal/log"
 )
 
 // MOSIPTimeLayout is MOSIP date-time format
@@ -28,6 +35,6 @@ func WriteJSON(w http.ResponseWriter, status int, body interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	if err := json.NewEncoder(w).Encode(body); err != nil {
-		log.Printf("writeJSON encode error: %v", err)
+		applog.GetLogger().Error("writeJSON encode error", applog.Error(err))
 	}
 }

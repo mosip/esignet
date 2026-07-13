@@ -1,14 +1,23 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 package clientmgmt
 
 import (
 	"encoding/json"
 	"testing"
 
+	"github.com/stretchr/testify/suite"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func TestCreateRequest_PublicKeyAsJWKObject(t *testing.T) {
+func (ts *JwkInputTestSuite) TestCreateRequest_PublicKeyAsJWKObject() {
+	t := ts.T()
 	// Matches Java eSignet client-mgmt: publicKey is a JWK JSON object (not a string).
 	body := `{
 		"requestTime": "2026-06-29T16:20:10.980Z",
@@ -46,9 +55,18 @@ func TestCreateRequest_PublicKeyAsJWKObject(t *testing.T) {
 	assert.NotEmpty(t, hashJWK(wrapper.Request.PublicKey))
 }
 
-func TestCreateRequest_PublicKeyStringRejected(t *testing.T) {
+func (ts *JwkInputTestSuite) TestCreateRequest_PublicKeyStringRejected() {
+	t := ts.T()
 	body := `{"requestTime":"2026-06-29T16:20:10.980Z","request":{"clientId":"c1","clientName":"n","publicKey":"{\"kty\":\"RSA\",\"n\":\"abc\",\"e\":\"AQAB\"}","relyingPartyId":"rp","userClaims":["name"],"authContextRefs":["mosip:idp:acr:static-code"],"logoUri":"https://example.com/logo.png","grantTypes":["authorization_code"],"clientAuthMethods":["private_key_jwt"]}}`
 	var wrapper CreateRequestWrapper
 	err := json.Unmarshal([]byte(body), &wrapper)
 	require.Error(t, err, "string-encoded publicKey should not be accepted; use a JWK object")
+}
+
+type JwkInputTestSuite struct {
+	suite.Suite
+}
+
+func TestJwkInputTestSuite(t *testing.T) {
+	suite.Run(t, new(JwkInputTestSuite))
 }

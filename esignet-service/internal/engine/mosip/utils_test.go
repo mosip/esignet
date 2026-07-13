@@ -1,3 +1,9 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 package mosip
 
 import (
@@ -6,9 +12,12 @@ import (
 	"net/http/httptest"
 	"sync/atomic"
 	"testing"
+
+	"github.com/stretchr/testify/suite"
 )
 
-func TestTokenProviderFetchAndCache(t *testing.T) {
+func (ts *UtilsTestSuite) TestTokenProviderFetchAndCache() {
+	t := ts.T()
 	var calls int32
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		atomic.AddInt32(&calls, 1)
@@ -45,7 +54,8 @@ func TestTokenProviderFetchAndCache(t *testing.T) {
 	}
 }
 
-func TestTokenProviderEmptyHeader(t *testing.T) {
+func (ts *UtilsTestSuite) TestTokenProviderEmptyHeader() {
+	t := ts.T()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
@@ -55,4 +65,12 @@ func TestTokenProviderEmptyHeader(t *testing.T) {
 	if _, err := tp.GetAuthToken(context.Background()); err == nil {
 		t.Fatal("expected error for empty authorization header")
 	}
+}
+
+type UtilsTestSuite struct {
+	suite.Suite
+}
+
+func TestUtilsTestSuite(t *testing.T) {
+	suite.Run(t, new(UtilsTestSuite))
 }

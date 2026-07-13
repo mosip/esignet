@@ -1,3 +1,9 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 package mock_test
 
 import (
@@ -9,6 +15,8 @@ import (
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/suite"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -91,7 +99,8 @@ func unsignedJWS(t *testing.T, claims map[string]any) string {
 
 // --- AuthenticateUser ---------------------------------------------------------------------
 
-func TestAuthenticateUser_OTP_Success(t *testing.T) {
+func (ts *AuthenticatorTestSuite) TestAuthenticateUser_OTP_Success() {
+	t := ts.T()
 	var gotBody map[string]any
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /kyc-auth/{rp}/{client}", func(w http.ResponseWriter, r *http.Request) {
@@ -128,7 +137,8 @@ func TestAuthenticateUser_OTP_Success(t *testing.T) {
 	assert.Equal(t, "2760459465", gotBody["individualId"])
 }
 
-func TestAuthenticateUser_Password_Success(t *testing.T) {
+func (ts *AuthenticatorTestSuite) TestAuthenticateUser_Password_Success() {
+	t := ts.T()
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /kyc-auth/{rp}/{client}", func(w http.ResponseWriter, r *http.Request) {
 		var body map[string]any
@@ -160,7 +170,8 @@ func TestAuthenticateUser_Password_Success(t *testing.T) {
 	assert.True(t, resultUser.IsAuthenticated())
 }
 
-func TestAuthenticateUser_Pin_Success(t *testing.T) {
+func (ts *AuthenticatorTestSuite) TestAuthenticateUser_Pin_Success() {
+	t := ts.T()
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /kyc-auth/{rp}/{client}", func(w http.ResponseWriter, r *http.Request) {
 		var body map[string]any
@@ -191,7 +202,8 @@ func TestAuthenticateUser_Pin_Success(t *testing.T) {
 	assert.True(t, resultUser.IsAuthenticated())
 }
 
-func TestAuthenticateUser_KBI_Success(t *testing.T) {
+func (ts *AuthenticatorTestSuite) TestAuthenticateUser_KBI_Success() {
+	t := ts.T()
 	var gotKbi string
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /kyc-auth/{rp}/{client}", func(w http.ResponseWriter, r *http.Request) {
@@ -229,7 +241,8 @@ func TestAuthenticateUser_KBI_Success(t *testing.T) {
 	assert.Equal(t, "1990-01-01", kbiFields["date_of_birth"])
 }
 
-func TestAuthenticateUser_NoChallenge_ReturnsInvalidRequest(t *testing.T) {
+func (ts *AuthenticatorTestSuite) TestAuthenticateUser_NoChallenge_ReturnsInvalidRequest() {
+	t := ts.T()
 	server := httptest.NewServer(http.NotFoundHandler())
 	defer server.Close()
 	setMockEnv(t, server)
@@ -247,7 +260,8 @@ func TestAuthenticateUser_NoChallenge_ReturnsInvalidRequest(t *testing.T) {
 	assert.Equal(t, shared.InvalidRequestError.Code, svcErr.Code)
 }
 
-func TestAuthenticateUser_ServiceRejects_ReturnsAuthenticationFailed(t *testing.T) {
+func (ts *AuthenticatorTestSuite) TestAuthenticateUser_ServiceRejects_ReturnsAuthenticationFailed() {
+	t := ts.T()
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /kyc-auth/{rp}/{client}", func(w http.ResponseWriter, _ *http.Request) {
 		_ = json.NewEncoder(w).Encode(map[string]any{
@@ -272,7 +286,8 @@ func TestAuthenticateUser_ServiceRejects_ReturnsAuthenticationFailed(t *testing.
 	assert.Equal(t, shared.AuthenticationFailedError.Code, svcErr.Code)
 }
 
-func TestAuthenticateUser_UnknownClient_ReturnsClientNotFound(t *testing.T) {
+func (ts *AuthenticatorTestSuite) TestAuthenticateUser_UnknownClient_ReturnsClientNotFound() {
+	t := ts.T()
 	server := httptest.NewServer(http.NotFoundHandler())
 	defer server.Close()
 	setMockEnv(t, server)
@@ -294,7 +309,8 @@ func TestAuthenticateUser_UnknownClient_ReturnsClientNotFound(t *testing.T) {
 
 // --- GetUserAttributes ---------------------------------------------------------------------
 
-func TestGetUserAttributes_Success(t *testing.T) {
+func (ts *AuthenticatorTestSuite) TestGetUserAttributes_Success() {
+	t := ts.T()
 	var gotBody map[string]any
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /kyc-exchange/{rp}/{client}", func(w http.ResponseWriter, r *http.Request) {
@@ -323,7 +339,8 @@ func TestGetUserAttributes_Success(t *testing.T) {
 	assert.Equal(t, "2760459465", gotBody["individualId"])
 }
 
-func TestGetUserAttributes_NoAttributeToken_ReturnsNil(t *testing.T) {
+func (ts *AuthenticatorTestSuite) TestGetUserAttributes_NoAttributeToken_ReturnsNil() {
+	t := ts.T()
 	provider, err := mock.NewMockAuthnProvider(nil, newClientService(t, "client-001", "rp-001"))
 	require.NoError(t, err)
 
@@ -336,7 +353,8 @@ func TestGetUserAttributes_NoAttributeToken_ReturnsNil(t *testing.T) {
 
 // --- SendOTP ---------------------------------------------------------------------
 
-func TestSendOTP_Success(t *testing.T) {
+func (ts *AuthenticatorTestSuite) TestSendOTP_Success() {
+	t := ts.T()
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /send-otp/{rp}/{client}", func(w http.ResponseWriter, r *http.Request) {
 		var body map[string]any
@@ -365,7 +383,8 @@ func TestSendOTP_Success(t *testing.T) {
 	assert.Equal(t, "XXXXX9999", result.MaskedMobile)
 }
 
-func TestSendOTP_ServiceError_ReturnsSendOTPFailed(t *testing.T) {
+func (ts *AuthenticatorTestSuite) TestSendOTP_ServiceError_ReturnsSendOTPFailed() {
+	t := ts.T()
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /send-otp/{rp}/{client}", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -384,4 +403,12 @@ func TestSendOTP_ServiceError_ReturnsSendOTPFailed(t *testing.T) {
 	require.NotNil(t, svcErr)
 	assert.Nil(t, result)
 	assert.Equal(t, shared.SendOTPFailedError.Code, svcErr.Code)
+}
+
+type AuthenticatorTestSuite struct {
+	suite.Suite
+}
+
+func TestAuthenticatorTestSuite(t *testing.T) {
+	suite.Run(t, new(AuthenticatorTestSuite))
 }
