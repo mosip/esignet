@@ -4,7 +4,6 @@ package engine
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
@@ -48,7 +47,7 @@ func (p *actorProvider) GetOAuthClientByClientID(
 		PublicClient:            false,
 		Certificate: &providers.Certificate{
 			Type:  "JWKS",
-			Value: getJWKS(client.PublicKey),
+			Value: getJWKS(client.PublicKey, client.EncPublicKey),
 		},
 		RequirePushedAuthorizationRequests: requirePushedAuthorizationRequests,
 		DPoPBoundAccessTokens:              dpopBoundAccessTokens,
@@ -98,7 +97,7 @@ func (p *actorProvider) GetOAuthProfileByID(
 		},
 		Certificate: &providers.Certificate{
 			Type:  "JWKS",
-			Value: getJWKS(client.PublicKey),
+			Value: getJWKS(client.PublicKey, client.EncPublicKey),
 		},
 		AcrValues: client.AcrValues,
 	}, nil
@@ -173,14 +172,29 @@ func (p *actorProvider) GetActorGroups(_ string) ([]providers.EntityGroup, *comm
 	return nil, nil
 }
 
-func getJWKS(publicKey string) string {
-	var parsed map[string]json.RawMessage
-	if err := json.Unmarshal([]byte(publicKey), &parsed); err == nil {
-		if _, hasKeys := parsed["keys"]; !hasKeys {
-			publicKey = fmt.Sprintf(`{"keys":[%s]}`, publicKey)
-		}
+func getJWKS(publicKey string, encPublicKey string) string {
+	keys := extractJWKs(publicKey)
+	keys = append(keys, extractJWKs(encPublicKey)...)
+	data, err := json.Marshal(map[string][]json.RawMessage{"keys": keys})
+	if err != nil {
+		return publicKey
 	}
-	return publicKey
+	return string(data)
+}
+
+// extractJWKs returns the individual keys contained in a JWK or JWKS JSON
+// string. It returns nil for empty or unparsable input.
+func extractJWKs(jwk string) []json.RawMessage {
+	if jwk == "" {
+		return nil
+	}
+	var jwks struct {
+		Keys []json.RawMessage `json:"keys"`
+	}
+	if err := json.Unmarshal([]byte(jwk), &jwks); err == nil && jwks.Keys != nil {
+		return jwks.Keys
+	}
+	return []json.RawMessage{json.RawMessage(jwk)}
 }
 
 func configInt64(cfg map[string]any, key string, defaultValue int64) int64 {
