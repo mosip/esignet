@@ -2037,6 +2037,7 @@ public class EsignetUtil extends AdminTestUtil {
 	
 	public static String signJWKKeyExpired(String clientId, RSAKey jwkKey, String tempUrl) {
 		JWSSigner signer;
+		String expiredClientAssertionToken = null;
 
 		try {
 			signer = new RSASSASigner(jwkKey);
@@ -2057,11 +2058,11 @@ public class EsignetUtil extends AdminTestUtil {
 					new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(jwkKey.getKeyID()).build(), claimsSet);
 
 			signedJWT.sign(signer);
-			clientAssertionToken = signedJWT.serialize();
+			expiredClientAssertionToken = signedJWT.serialize();
 		} catch (Exception e) {
 			logger.error("Exception while signing expired oidcJWKKey for client assertion: " + e.getMessage());
 		}
-		return clientAssertionToken;
+		return expiredClientAssertionToken;
 	}
 
 	public static String signJWKKey(String clientId, RSAKey jwkKey, String tempUrl) {

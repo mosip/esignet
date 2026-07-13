@@ -140,5 +140,5 @@ OauthDPoPNegativeScenarios:
        "dpop_jkt": "$DPOP_JKT$"
 }'
       output: '{
-            "error": "invalid_request"
+            "error": "invalid_dpop_proof"
 }'
