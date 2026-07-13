@@ -115,7 +115,7 @@ OauthDPoPNegativeScenarios:
    ESignet_OautDPoPNegativeScenarios_PAR_DPoP_Header_Replay_Neg:
       endPoint: /v1/esignet/oauth/par
       uniqueIdentifier: TC_ESignet_OautDPoPNegativeScenarios_05
-      description: Reuse the same DPoP proof in consecutive PAR requests and verify DPoP replay detection returns invalid request
+      description: Reuse the same DPoP proof in consecutive PAR requests and verify DPoP replay detection returns invalid dpop proof
       role: resident
       restMethod: post
       inputTemplate: esignet/DPoP/OauthDPoPNegativeScenarios/OauthDPoPNegativeScenariosWithHeader
