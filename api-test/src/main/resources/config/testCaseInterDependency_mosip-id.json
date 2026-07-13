@@ -515,6 +515,7 @@
     "TC_ESignet_OautDPoPNegativeScenarios_01": ["TC_ESignet_CreateOIDCClient_MOSIPID_25"],
     "TC_Signup_ESignet_OAuthDetailsRequestV3WithoutVerifiedClaims_01": ["TC_ESignet_CreateOIDCClient_MOSIPID_27"],
     "TC_ESignet_OautDPoPNegativeScenarios_03": ["TC_ESignet_CreateOIDCClient_MOSIPID_25"],
+    "TC_ESignet_OautDPoPNegativeScenarios_05": ["TC_ESignet_CreateOIDCClient_MOSIPID_25"],
     "TC_ESignet_GenerateLinkCodeConsent_09": ["TC_ESignet_OAuthDetailsRequestLinkedConsent_11"],
     "Dependent_Idrepo_createPublishPolicy_06": [
         "Dependent_Idrepo_definePolicyGroup_02",

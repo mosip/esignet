@@ -27,6 +27,7 @@ FAPIAuthenticateUser:
     }
     }'
       output: '{
+  "consentAction": "CAPTURE",
   "sendOtpResp":{
         "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult"
     }
@@ -60,6 +61,7 @@ FAPIAuthenticateUser:
     }
     }'
       output: '{
+  "consentAction": "CAPTURE",
   "sendOtpResp":{
         "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult"
     }
