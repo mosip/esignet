@@ -25,7 +25,7 @@ import (
 
 func newTestJWKSServer(t *testing.T, key *rsa.PrivateKey, kid string) *httptest.Server {
 	t.Helper()
-	n := base64.RawURLEncoding.EncodeToString(key.PublicKey.N.Bytes())
+	n := base64.RawURLEncoding.EncodeToString(key.N.Bytes())
 	e := base64.RawURLEncoding.EncodeToString([]byte{1, 0, 1}) // 65537
 
 	doc := fmt.Sprintf(`{"keys":[{"kty":"RSA","kid":%q,"use":"sig","alg":"RS256","n":%q,"e":%q}]}`, kid, n, e)

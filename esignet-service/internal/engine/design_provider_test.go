@@ -7,6 +7,7 @@
 package engine
 
 import (
+	"context"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -115,7 +116,7 @@ func (ts *DesignProviderTestSuite) TestDesignProvider_ResolveDesign() {
 	t := ts.T()
 	t.Run("missing layout or theme id", func(t *testing.T) {
 		p := NewDesignProvider(&config.AppConfig{})
-		_, svcErr := p.ResolveDesign(nil, "", "")
+		_, svcErr := p.ResolveDesign(context.TODO(), "", "")
 		if svcErr == nil {
 			t.Fatal("expected error when LayoutID/ThemeID are unset")
 		}
@@ -131,7 +132,7 @@ func (ts *DesignProviderTestSuite) TestDesignProvider_ResolveDesign() {
 			"id: theme-1\nhandle: default\ntheme:\n  color: blue\n")
 
 		p := NewDesignProvider(&config.AppConfig{DataDir: dir, LayoutID: "layout-1", ThemeID: "theme-1"})
-		resp, svcErr := p.ResolveDesign(nil, providers.DesignResolveType(""), "")
+		resp, svcErr := p.ResolveDesign(context.TODO(), providers.DesignResolveType(""), "")
 		if svcErr != nil {
 			t.Fatalf("unexpected service error: %v", svcErr)
 		}
@@ -144,7 +145,7 @@ func (ts *DesignProviderTestSuite) TestDesignProvider_ResolveDesign() {
 	t.Run("missing layout file", func(t *testing.T) {
 		dir := t.TempDir()
 		p := NewDesignProvider(&config.AppConfig{DataDir: dir, LayoutID: "missing", ThemeID: "missing"})
-		_, svcErr := p.ResolveDesign(nil, "", "")
+		_, svcErr := p.ResolveDesign(context.TODO(), "", "")
 		if svcErr == nil {
 			t.Fatal("expected error when layout file is missing")
 		}
