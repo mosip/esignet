@@ -61,6 +61,12 @@ oauth:
     validity_period: 120
   par:
     expires_in: 3600
+  dpop:
+    required: false
+    iat_window: 60
+    leeway": 5
+    allowed_algs: ["ES256", "PS256", "ES384", "ES512", "EdDSA", "RS256"]
+    max_jti_length: 256
 
 crypto:
   key: "${CRYPTO_ENCRYPTION_KEY}"
