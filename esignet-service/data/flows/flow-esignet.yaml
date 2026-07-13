@@ -400,15 +400,15 @@ nodes:
     prompts:
       - inputs:
           - ref: username_input
-            identifier: username
+            identifier: individualId
             type: TEXT_INPUT
             required: true
           - ref: fullname_input
-            identifier: fullname
+            identifier: fullName
             type: TEXT_INPUT
             required: true
           - ref: dob_input
-            identifier: date_of_birth
+            identifier: dob
             type: DATE_INPUT
             required: true
         action:
@@ -421,16 +421,16 @@ nodes:
       name: CredentialsAuthExecutor
       inputs:
         - ref: username_input
-          identifier: username
+          identifier: individualId
           type: TEXT_INPUT
           required: true
         - ref: fullname_input
-          identifier: fullname
-          type: TEXT_INPUT
+          identifier: fullName
+          type: PASSWORD_INPUT
           required: true
         - ref: dob_input
-          identifier: date_of_birth
-          type: TEXT_INPUT
+          identifier: dob
+          type: PASSWORD_INPUT
           required: true
     onSuccess: authorization_check
 
