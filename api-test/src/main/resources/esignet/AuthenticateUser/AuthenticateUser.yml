@@ -2157,7 +2157,7 @@ AuthenticateUser:
     "encodedHash": "$ID:OAuthDetailsRequest_forAuthenticateUserMissingTransactionId_Valid_Smoke_sid_encodedResp$",
     "transactionId": "$ID:OAuthDetailsRequest_forAuthenticateUserMissingTransactionId_Valid_Smoke_sid_transactionId$",
 	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
-    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "otpChannels": [{"channel": "email"},{"channel": "phone"}],
     "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
     "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
     }

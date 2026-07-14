@@ -2450,7 +2450,6 @@ OAuthDetailsRequest:
       role: resident
       restMethod: post
       checkErrorsOnlyInResponse: true
-      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01, TC_ESignet_CreateOIDCClient_MOSIPID_01
       inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequest
       outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
       input: '{
