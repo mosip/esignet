@@ -57,5 +57,5 @@ UPDATE client_detail SET
 	enc_public_key_cert = $13,
 	upd_dtimes          = $14
 WHERE id = $1
-  AND upd_dtimes IS NOT DISTINCT FROM $15
+  AND upd_dtimes IS NOT DISTINCT FROM sqlc.arg(expected_upd_dtimes)
 RETURNING *;

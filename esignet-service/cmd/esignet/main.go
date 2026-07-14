@@ -12,6 +12,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/redis/go-redis/v9"
+
 	"github.com/thunder-id/thunderid/pkg/thunderidengine"
 	engineconfig "github.com/thunder-id/thunderid/pkg/thunderidengine/config"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
@@ -46,6 +48,25 @@ func main() {
 		}
 	}()
 
+	// Setup Redis client. It is shared by the runtime store provider and the consent enforcer
+	// (which reads the engine's authorization requests), so both resolve the same keys. Created
+	// only when Redis is the configured runtime store; nil otherwise (e.g. in-memory store).
+	var redisClient *redis.Client
+	if appCfg.RuntimeDBType == "redis" {
+		redisClient, err = appCfg.Redis.Open()
+		if err != nil {
+			logger.Fatal("connect redis", applog.Error(err))
+		}
+		defer func() {
+			if err := redisClient.Close(); err != nil {
+				logger.Warn("close redis", applog.Error(err))
+			}
+		}()
+		logger.Info("redis connected",
+			applog.String("key_prefix", appCfg.Redis.KeyPrefix),
+		)
+	}
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -62,6 +83,10 @@ func main() {
 	}
 	logger.Info("authn provider selected", applog.String("provider", appCfg.Provider))
 
+	// The runtime store is shared between the engine and the consent enforcer (which reads the
+	// engine's stored authorization requests from it), so both resolve the same keys.
+	runtimeStore := getRuntimeStoreProvider(appCfg, redisClient, logger)
+
 	_ = thunderidengine.New(mux,
 		thunderidengine.WithServerHome(appCfg.DataDir),
 		thunderidengine.WithKeyConfigs([]engineconfig.KeyConfig{appCfg.KeyConfig}),
@@ -77,7 +102,7 @@ func main() {
 		thunderidengine.WithActorProvider(engine.NewActorProvider(clientSvc, appCfg)),
 		thunderidengine.WithAuthnProvider(authnProvider),
 		thunderidengine.WithAuthorizationProvider(engine.NewAuthorizationProvider(appCfg)),
-		thunderidengine.WithConsentProvider(engine.NewConsentEnforcer()),
+		thunderidengine.WithConsentProvider(engine.NewConsentEnforcer(pgConn, runtimeStore)),
 		thunderidengine.WithDesignResolveProvider(engine.NewDesignProvider(appCfg)),
 		thunderidengine.WithFlowProvider(engine.NewFlowProvider(appCfg)),
 		thunderidengine.WithI18nProvider(engine.NewI18nProvider(appCfg)),
@@ -86,7 +111,7 @@ func main() {
 		thunderidengine.WithObservabilityProvider(observabilityProvider),
 		thunderidengine.WithIDPProvider(engine.NewIDPProvider(appCfg)),
 		thunderidengine.WithCustomExecutors(getCustomExecutors(authnProvider)),
-		thunderidengine.WithRuntimeStoreProvider(getRuntimeStoreProvider(appCfg, logger)),
+		thunderidengine.WithRuntimeStoreProvider(runtimeStore),
 	)
 
 	addr := fmt.Sprintf(":%d", appCfg.Port)
@@ -150,20 +175,8 @@ func getCustomExecutors(authn providers.AuthnProviderManager) map[string]provide
 	return executors
 }
 
-func getRuntimeStoreProvider(appCfg *config.AppConfig, logger *applog.Logger) providers.RuntimeStoreProvider {
+func getRuntimeStoreProvider(appCfg *config.AppConfig, redisClient *redis.Client, logger *applog.Logger) providers.RuntimeStoreProvider {
 	if appCfg.RuntimeDBType == "redis" {
-		redisClient, err := appCfg.Redis.Open()
-		if err != nil {
-			logger.Fatal("connect redis", applog.Error(err))
-		}
-		defer func() {
-			if err := redisClient.Close(); err != nil {
-				logger.Warn("close redis", applog.Error(err))
-			}
-		}()
-		logger.Info("redis connected",
-			applog.String("key_prefix", appCfg.Redis.KeyPrefix),
-		)
 		store, err := redisstore.Initialize(appCfg.Identifier, appCfg.Redis.KeyPrefix, redisClient)
 		if err != nil {
 			logger.Fatal("Failed to initialize redis store", applog.Error(err))
