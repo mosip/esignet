@@ -64,15 +64,80 @@ prompt_uin: &prompt_uin
   required: true
   placeholder: Enter your UIN/VID
   validation:
+    - type: regex
+      value: ^[0-9]+$
+      message: UIN/VID must contain numbers only
     - type: maxLength
       value: 16
       message: UIN/VID must be between 10 and 16 digits
     - type: minLength
       value: 10
       message: UIN/VID must be between 10 and 16 digits
+
+# Anchor for Mobile number input, with validation
+prompt_mobile: &prompt_mobile
+  id: username_input
+  ref: username
+  type: PHONE_INPUT
+  label: Mobile Number
+  required: true
+  placeholder: Enter Mobile Number
+  postfix: "@phone"
+  prefixes:
+    - label: "+91"
+      value: "+91"
+      maxLength: 10
+      regex: ^[0-9]{10}$
+    - label: "+855"
+      value: "+855"
+      maxLength: 9
+      regex: ^[0-9]{9}$
+  validation:
     - type: regex
-      value: "[0-9]*"
-      message: UIN/VID must contain numbers only
+      value: ^[0-9]+$
+      message: Mobile Number must contain numbers only
+    - type: maxLength
+      value: 11
+      message: Mobile Number must be between 9 and 11 digits
+    - type: minLength
+      value: 9
+      message: Mobile Number must be between 9 and 11 digits
+
+# Anchor for Email input, with validation
+prompt_email: &prompt_email
+  id: username_input
+  ref: username
+  type: EMAIL_INPUT
+  label: Email
+  required: true
+  placeholder: Enter Email ID
+  postfix: "@email"
+  validation:
+    - type: regex
+      value: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+      message: Please enter a valid email address
+
+# Anchor for NRC ID input, without validation
+prompt_nrc: &prompt_nrc
+  id: username_input
+  ref: username
+  type: TEXT_INPUT
+  label: NRC ID
+  required: true
+  postfix: "@nrc"
+  placeholder: Enter NRC ID
+
+# Anchor for Password input, with validation
+prompt_password: &prompt_password
+  id: password_input
+  ref: password
+  type: PASSWORD_INPUT
+  category: FIELD
+  inputType: password
+  label: Password
+  placeholder: Enter your password
+  required: true
+  resourceType: ELEMENT
 
 # Anchor for Submit button
 # default id is submit_uin, it can be changed
@@ -90,7 +155,7 @@ submit_button: &submit_button
 trigger_button: &trigger_button
   <<: *submit_button
   variant: OUTLINE
-  eventType: TRIGGER
+  eventType: RESET
 
 # Anchor for title for the page
 page_title: &page_title
@@ -101,6 +166,44 @@ page_title: &page_title
   variant: HEADING_5
   category: DISPLAY
   resourceType: ELEMENT
+
+# Anchor for title for the page with back button
+page_title_with_back: &page_title_with_back
+  id: BACK_BUTTON
+  ref: back_button
+  type: CUSTOM
+  label: Select a Login ID Option
+  category: MISCELLANEOUS
+  resourceType: ELEMENT
+
+# Anchor for multiple login ids
+login_ids: &login_ids
+  id: block_login_id
+  type: STACK
+  direction: col
+  resourceType: ELEMENT
+  justify: center
+  components:
+    - <<: *trigger_button
+      id: login_id_uin
+      label: UIN/VID
+      classes: login-id-button
+      startIcon: "/images/vid_icon.svg"
+    - <<: *trigger_button
+      id: login_id_mobile
+      label: Mobile Number
+      classes: login-id-button
+      startIcon: "/images/mobile_icon.svg"
+    - <<: *trigger_button
+      id: login_id_email
+      label: Email
+      classes: login-id-button
+      startIcon: "/images/email_icon.svg"
+    - <<: *trigger_button
+      id: login_id_nrc
+      label: NRC ID
+      classes: login-id-button
+      startIcon: "/images/nrc_id_icon.svg"
 
 id: flow-esignet
 handle: flow-esignet
@@ -113,7 +216,6 @@ nodes:
 
   - id: prompt_acr
     type: PROMPT
-    variant: LOGIN_OPTIONS
     meta:
       components:
         - *heading_details
@@ -148,7 +250,7 @@ nodes:
           nextNode: prompt_uin_otp
       - action:
           ref: acr_password
-          nextNode: prompt_credentials
+          nextNode: prompt_uin_credentials
       - action:
           ref: acr_bio
           nextNode: prompt_uin_bio
@@ -170,8 +272,8 @@ nodes:
         - type: BLOCK
           id: block_otp
           components:
-            - <<: *page_title
-              id: title_otp
+            - *page_title_with_back
+            - *login_ids
             - *prompt_uin
             - <<: *submit_button
               id: submit_uin
@@ -185,6 +287,126 @@ nodes:
         action:
           ref: submit_uin
           nextNode: send_mosip_otp
+      - action:
+          ref: login_id_mobile
+          nextNode: prompt_mobile_otp
+      - action:
+          ref: login_id_email
+          nextNode: prompt_email_otp
+      - action:
+          ref: login_id_nrc
+          nextNode: prompt_nrc_otp
+      - action:
+          ref: BACK_BUTTON
+          nextNode: prompt_acr
+
+  - id: prompt_mobile_otp
+    type: PROMPT
+    meta:
+      components:
+        - *heading_details
+        - type: BLOCK
+          id: block_otp
+          components:
+            - *page_title_with_back
+            - *login_ids
+            - *prompt_mobile
+            - <<: *submit_button
+              id: submit_uin
+              label: Get OTP
+    prompts:
+      - inputs:
+          - ref: username_input
+            identifier: username
+            type: PHONE_INPUT
+            required: true
+        action:
+          ref: submit_uin
+          nextNode: send_mosip_otp
+      - action:
+          ref: login_id_uin
+          nextNode: prompt_uin_otp
+      - action:
+          ref: login_id_email
+          nextNode: prompt_email_otp
+      - action:
+          ref: login_id_nrc
+          nextNode: prompt_nrc_otp
+      - action:
+          ref: BACK_BUTTON
+          nextNode: prompt_acr
+
+  - id: prompt_email_otp
+    type: PROMPT
+    meta:
+      components:
+        - *heading_details
+        - type: BLOCK
+          id: block_otp
+          components:
+            - *page_title_with_back
+            - *login_ids
+            - *prompt_email
+            - <<: *submit_button
+              id: submit_uin
+              label: Get OTP
+    prompts:
+      - inputs:
+          - ref: username_input
+            identifier: username
+            type: EMAIL_INPUT
+            required: true
+        action:
+          ref: submit_uin
+          nextNode: send_mosip_otp
+      - action:
+          ref: login_id_uin
+          nextNode: prompt_uin_otp
+      - action:
+          ref: login_id_mobile
+          nextNode: prompt_mobile_otp
+      - action:
+          ref: login_id_nrc
+          nextNode: prompt_nrc_otp
+      - action:
+          ref: BACK_BUTTON
+          nextNode: prompt_acr
+
+  - id: prompt_nrc_otp
+    type: PROMPT
+    meta:
+      components:
+        - *heading_details
+        - type: BLOCK
+          id: block_otp
+          components:
+            - *page_title_with_back
+            - *login_ids
+            - *prompt_nrc
+            - <<: *submit_button
+              id: submit_uin
+              label: Get OTP
+    prompts:
+      - inputs:
+          - ref: username_input
+            identifier: username
+            type: TEXT_INPUT
+            required: true
+        action:
+          ref: submit_uin
+          nextNode: send_mosip_otp
+      - action:
+          ref: login_id_uin
+          nextNode: prompt_uin_otp
+      - action:
+          ref: login_id_mobile
+          nextNode: prompt_mobile_otp
+      - action:
+          ref: login_id_email
+          nextNode: prompt_email_otp
+      - action:
+          ref: BACK_BUTTON
+          nextNode: prompt_acr
 
   - id: send_mosip_otp
     type: TASK_EXECUTION
@@ -223,7 +445,7 @@ nodes:
                   ref: resend_otp_timer
                   category: MISCELLANEOUS
                   resourceType: ELEMENT
-                  timeLeft: 180
+                  timeLeft: 20
                   variant: OUTLINE
                   label: Resend OTP
     prompts:
@@ -250,11 +472,11 @@ nodes:
           required: true
         - ref: otp_input
           identifier: otp
-          type: PASSWORD_INPUT
+          type: OTP_INPUT
           required: true
     onSuccess: authorization_check
 
-  - id: prompt_credentials
+  - id: prompt_uin_credentials
     type: PROMPT
     meta:
       components:
@@ -264,18 +486,10 @@ nodes:
           type: BLOCK
           category: BLOCK
           components:
-            - <<: *page_title
-              id: title_credentials
+            - *page_title_with_back
+            - *login_ids
             - *prompt_uin
-            - id: password_input
-              ref: password
-              type: PASSWORD_INPUT
-              category: FIELD
-              inputType: password
-              label: Password
-              placeholder: Enter your password
-              required: true
-              resourceType: ELEMENT
+            - *prompt_password
             - <<: *submit_button
               id: password_authenticate
               label: Login
@@ -292,6 +506,147 @@ nodes:
         action:
           ref: password_authenticate
           nextNode: basic_cred_auth
+      - action:
+          ref: login_id_mobile
+          nextNode: prompt_mobile_credentials
+      - action:
+          ref: login_id_email
+          nextNode: prompt_email_credentials
+      - action:
+          ref: login_id_nrc
+          nextNode: prompt_nrc_credentials
+      - action:
+          ref: BACK_BUTTON
+          nextNode: prompt_acr
+
+  - id: prompt_mobile_credentials
+    type: PROMPT
+    meta:
+      components:
+        - *heading_details
+        - id: block_credentials
+          resourceType: ELEMENT
+          type: BLOCK
+          category: BLOCK
+          components:
+            - *page_title_with_back
+            - *login_ids
+            - *prompt_mobile
+            - *prompt_password
+            - <<: *submit_button
+              id: password_authenticate
+              label: Login
+    prompts:
+      - inputs:
+          - ref: username_input
+            identifier: username
+            type: TEXT_INPUT
+            required: true
+          - ref: password_input
+            identifier: password
+            type: PASSWORD_INPUT
+            required: true
+        action:
+          ref: password_authenticate
+          nextNode: basic_cred_auth
+      - action:
+          ref: login_id_uin
+          nextNode: prompt_uin_credentials
+      - action:
+          ref: login_id_email
+          nextNode: prompt_email_credentials
+      - action:
+          ref: login_id_nrc
+          nextNode: prompt_nrc_credentials
+      - action:
+          ref: BACK_BUTTON
+          nextNode: prompt_acr
+
+  - id: prompt_email_credentials
+    type: PROMPT
+    meta:
+      components:
+        - *heading_details
+        - id: block_credentials
+          resourceType: ELEMENT
+          type: BLOCK
+          category: BLOCK
+          components:
+            - *page_title_with_back
+            - *login_ids
+            - *prompt_email
+            - *prompt_password
+            - <<: *submit_button
+              id: password_authenticate
+              label: Login
+    prompts:
+      - inputs:
+          - ref: username_input
+            identifier: username
+            type: TEXT_INPUT
+            required: true
+          - ref: password_input
+            identifier: password
+            type: PASSWORD_INPUT
+            required: true
+        action:
+          ref: password_authenticate
+          nextNode: basic_cred_auth
+      - action:
+          ref: login_id_uin
+          nextNode: prompt_uin_credentials
+      - action:
+          ref: login_id_mobile
+          nextNode: prompt_mobile_credentials
+      - action:
+          ref: login_id_nrc
+          nextNode: prompt_nrc_credentials
+      - action:
+          ref: BACK_BUTTON
+          nextNode: prompt_acr
+
+  - id: prompt_nrc_credentials
+    type: PROMPT
+    meta:
+      components:
+        - *heading_details
+        - id: block_credentials
+          resourceType: ELEMENT
+          type: BLOCK
+          category: BLOCK
+          components:
+            - *page_title_with_back
+            - *login_ids
+            - *prompt_nrc
+            - *prompt_password
+            - <<: *submit_button
+              id: password_authenticate
+              label: Login
+    prompts:
+      - inputs:
+          - ref: username_input
+            identifier: username
+            type: TEXT_INPUT
+            required: true
+          - ref: password_input
+            identifier: password
+            type: PASSWORD_INPUT
+            required: true
+        action:
+          ref: password_authenticate
+          nextNode: basic_cred_auth
+      - action:
+          ref: login_id_uin
+          nextNode: prompt_uin_credentials
+      - action:
+          ref: login_id_mobile
+          nextNode: prompt_mobile_credentials
+      - action:
+          ref: login_id_email
+          nextNode: prompt_email_credentials
+      - action:
+          ref: BACK_BUTTON
+          nextNode: prompt_acr
 
   - id: basic_cred_auth
     type: TASK_EXECUTION
@@ -316,8 +671,8 @@ nodes:
         - type: BLOCK
           id: block_biometrics
           components:
-            - <<: *page_title
-              id: title_biometrics
+            - *page_title_with_back
+            - *login_ids
             - *prompt_uin
             - *submit_button
     prompts:
@@ -329,6 +684,120 @@ nodes:
         action:
           ref: submit_uin
           nextNode: prompt_biometric
+      - action:
+          ref: login_id_mobile
+          nextNode: prompt_mobile_bio
+      - action:
+          ref: login_id_email
+          nextNode: prompt_email_bio
+      - action:
+          ref: login_id_nrc
+          nextNode: prompt_nrc_bio
+      - action:
+          ref: BACK_BUTTON
+          nextNode: prompt_acr
+
+  - id: prompt_mobile_bio
+    type: PROMPT
+    meta:
+      components:
+        - *heading_details
+        - type: BLOCK
+          id: block_biometrics
+          components:
+            - *page_title_with_back
+            - *login_ids
+            - *prompt_mobile
+            - *submit_button
+    prompts:
+      - inputs:
+          - ref: username_input
+            identifier: username
+            type: TEXT_INPUT
+            required: true
+        action:
+          ref: submit_uin
+          nextNode: prompt_biometric
+      - action:
+          ref: login_id_uin
+          nextNode: prompt_uin_bio
+      - action:
+          ref: login_id_email
+          nextNode: prompt_email_bio
+      - action:
+          ref: login_id_nrc
+          nextNode: prompt_nrc_bio
+      - action:
+          ref: BACK_BUTTON
+          nextNode: prompt_acr
+
+  - id: prompt_email_bio
+    type: PROMPT
+    meta:
+      components:
+        - *heading_details
+        - type: BLOCK
+          id: block_biometrics
+          components:
+            - *page_title_with_back
+            - *login_ids
+            - *prompt_email
+            - *submit_button
+    prompts:
+      - inputs:
+          - ref: username_input
+            identifier: username
+            type: TEXT_INPUT
+            required: true
+        action:
+          ref: submit_uin
+          nextNode: prompt_biometric
+      - action:
+          ref: login_id_uin
+          nextNode: prompt_uin_bio
+      - action:
+          ref: login_id_mobile
+          nextNode: prompt_mobile_bio
+      - action:
+          ref: login_id_nrc
+          nextNode: prompt_nrc_bio
+      - action:
+          ref: BACK_BUTTON
+          nextNode: prompt_acr
+
+  - id: prompt_nrc_bio
+    type: PROMPT
+    meta:
+      components:
+        - *heading_details
+        - type: BLOCK
+          id: block_biometrics
+          components:
+            - *page_title_with_back
+            - *login_ids
+            - *prompt_nrc
+            - *submit_button
+    prompts:
+      - inputs:
+          - ref: username_input
+            identifier: username
+            type: TEXT_INPUT
+            required: true
+        action:
+          ref: submit_uin
+          nextNode: prompt_biometric
+      - action:
+          ref: login_id_uin
+          nextNode: prompt_uin_bio
+      - action:
+          ref: login_id_mobile
+          nextNode: prompt_mobile_bio
+      - action:
+          ref: login_id_email
+          nextNode: prompt_email_bio
+      - action:
+          ref: BACK_BUTTON
+          nextNode: prompt_acr
 
   - id: prompt_biometric
     type: PROMPT
@@ -341,14 +810,14 @@ nodes:
             - <<: *page_title
               id: title_biometrics
             - id: SBI_ID
-              ref: biometrics
+              ref: biometric
               type: CUSTOM
               category: MISCELLANEOUS
               resourceType: ELEMENT
     prompts:
       - inputs:
           - ref: SBI_ID
-            identifier: biometrics
+            identifier: biometric
             type: CUSTOM
             required: true
         action:
@@ -365,7 +834,7 @@ nodes:
           type: TEXT_INPUT
           required: true
         - ref: SBI_ID
-          identifier: biometrics
+          identifier: biometric
           type: CUSTOM
           required: true
     onSuccess: authorization_check
@@ -378,8 +847,8 @@ nodes:
         - id: block_kbi
           type: BLOCK
           components:
-            - <<: *page_title
-              id: title_kbi
+            - <<: *page_title_with_back
+              label: Login with KBI
             - *prompt_uin
             - id: fullname_input
               ref: fullName
@@ -388,7 +857,7 @@ nodes:
               required: true
               placeholder: Enter your full name
             - id: dob_input
-              ref: date_of_birth
+              ref: dob
               type: DATE_INPUT
               label: Date of Birth
               required: true
@@ -414,6 +883,9 @@ nodes:
         action:
           ref: submit_kbi_details
           nextNode: basic_kbi_auth
+      - action:
+          ref: BACK_BUTTON
+          nextNode: prompt_acr
 
   - id: basic_kbi_auth
     type: TASK_EXECUTION

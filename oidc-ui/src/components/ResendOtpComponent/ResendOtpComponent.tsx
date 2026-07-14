@@ -60,6 +60,7 @@ export default function ResendOtp({
 
   const handleClick = () => {
     if (context.onSubmit) {
+      context.resetForm?.();
       context.onSubmit(component, {}, true);
     }
   };
@@ -88,6 +89,7 @@ export default function ResendOtp({
             ? "primary"
             : "secondary"
         }
+        type="reset"
       >
         {component.label || "Submit"}
       </Button>
