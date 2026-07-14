@@ -257,6 +257,12 @@ nodes:
       - action:
           ref: acr_kbi
           nextNode: prompt_kbi_details
+    properties:
+      authMethodMapping:
+        "mosip:idp:acr:generated-code": acr_otp
+        "mosip:idp:acr:password": acr_password
+        "mosip:idp:acr:biometrics": acr_bio
+        "mosip:idp:acr:knowledge": acr_kbi
 
   - id: prompt_uin_otp
     type: PROMPT
