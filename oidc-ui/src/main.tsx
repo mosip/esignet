@@ -2,8 +2,11 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { ThunderIDProvider } from "@thunderid/react";
 import App from "./App";
-import SbiCustomRenderer from "./components/SbiComponent/SbiCustomRenderer";
-import ResendOtpRenderer from "./components/ResendOtpComponent/ResendOtpRenderer";
+import {
+  SbiCustomRenderer,
+  ResendOtpRenderer,
+  BackButtonRenderer,
+} from "./components";
 
 // getting applicationId from query param to pass it to ThunderIDProvider
 const applicationId = new URL(window.location.href).searchParams.get(
@@ -32,6 +35,7 @@ createRoot(document.getElementById("root")!).render(
             renderers: {
               SBI_ID: SbiCustomRenderer,
               RESEND_OTP: ResendOtpRenderer,
+              BACK_BUTTON: BackButtonRenderer,
             },
           },
         }}
