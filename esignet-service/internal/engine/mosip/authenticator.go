@@ -17,14 +17,13 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
 	"time"
 
-	"golang.org/x/crypto/pkcs12"
+	"software.sslmate.com/src/go-pkcs12"
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
@@ -53,10 +52,10 @@ type mosipAuthnProvider struct {
 }
 
 // NewMosipAuthnProvider creates a MOSIP providers.AuthnProviderManager with OTP send support.
-func NewMosipAuthnProvider(cfg *config.AppConfig, clientSvc *clientmgmt.Service) (shared.ConsolidatedAuthnProvider, error) {
+func NewMosipAuthnProvider(cfg *config.AppConfig, clientSvc *clientmgmt.Service, client *http.Client) (shared.ConsolidatedAuthnProvider, error) {
 	provider := &mosipAuthnProvider{
 		appConfig: cfg,
-		client:    newHTTPClient(),
+		client:    client,
 		clientSvc: clientSvc,
 		cfg:       LoadConfig(),
 	}
@@ -195,7 +194,11 @@ func (p *mosipAuthnProvider) AuthenticateUser(_ context.Context, identifiers, cr
 func (p *mosipAuthnProvider) GetEntityReference(_ context.Context, authUser providers.AuthUser) (
 	providers.AuthUser, *providers.EntityReference, *common.ServiceError) {
 
-	return authUser, nil, nil
+	psut, ok := authUser.EntityReferenceToken().(string)
+	if !ok || psut == "" {
+		return authUser, nil, shared.AuthenticationFailedError
+	}
+	return authUser, &providers.EntityReference{EntityID: psut}, nil
 }
 
 func (p *mosipAuthnProvider) GetUserAvailableAttributes(_ context.Context,
@@ -321,21 +324,6 @@ func (p *mosipAuthnProvider) getApplicationAndClientID(runtimeMetadata map[strin
 
 // ---------------------------------------------------------------------------------------------------------
 
-func newHTTPClient() *http.Client {
-	return &http.Client{
-		Timeout: 30 * time.Second,
-		Transport: &http.Transport{
-			DialContext: (&net.Dialer{
-				Timeout:   5 * time.Second,
-				KeepAlive: 30 * time.Second,
-			}).DialContext,
-			TLSHandshakeTimeout:   10 * time.Second,
-			ResponseHeaderTimeout: 10 * time.Second,
-			IdleConnTimeout:       90 * time.Second,
-		},
-	}
-}
-
 var (
 	// ErrInvalidCertificate is returned when a certificate is nil or empty.
 	ErrInvalidCertificate = errors.New("invalid or nil certificate")
@@ -343,11 +331,14 @@ var (
 	ErrCertificateParsing = errors.New("certificate parsing error")
 )
 
+// utcTimeFormat is the MOSIP ISO-8601 timestamp layout (millisecond
+// precision), shared by the IDA authenticator and the audit-manager client.
+const utcTimeFormat = "2006-01-02T15:04:05.000Z"
+
 // GetUTCDateTime returns current time in UTC as string in ISO 8601 format
 func GetUTCDateTime() string {
-	now := time.Now().UTC()
 	// Go uses a reference time Mon Jan 2 15:04:05 MST 2006 to define the format pattern
-	return now.Format("2006-01-02T15:04:05.000Z")
+	return time.Now().UTC().Format(utcTimeFormat)
 }
 
 // GenerateTransactionID generates a cryptographically random 10-digit numeric string.

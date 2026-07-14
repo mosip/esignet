@@ -13,16 +13,17 @@ import (
 )
 
 const (
-	defaultPort            = 8088
-	defaultDataDir         = "./data"
-	appConfigFileName      = "deployment.yaml"
-	defaultGatePort        = 3000
-	defaultSigningKeyPath  = "./keys/signing.key"
-	defaultSigningCertPath = "./keys/signing.crt"
-	defaultGateScheme      = "http"
-	defaultGateHostname    = "127.0.0.1"
-	defaultGateLoginPath   = "/signin"
-	defaultGateErrorPath   = "/error"
+	defaultPort                  = 8088
+	defaultDataDir               = "./data"
+	appConfigFileName            = "deployment.yaml"
+	defaultGatePort              = 3000
+	defaultSigningKeyPath        = "keys/signing.key"
+	defaultSigningCertPath       = "keys/signing.crt"
+	defaultGateScheme            = "http"
+	defaultGateHostname          = "127.0.0.1"
+	defaultGateLoginPath         = "/signin"
+	defaultGateErrorPath         = "/error"
+	defaultRequestTimeLeewaySecs = 300
 )
 
 // AppConfig holds core HTTP and infrastructure settings for the service.
@@ -31,6 +32,7 @@ type AppConfig struct {
 	Port             int                              `yaml:"port"`
 	Issuer           string                           `yaml:"issuer"`
 	DataDir          string                           `yaml:"data_dir"`
+	RuntimeDBType    string                           `yaml:"runtime_db_type"`
 	DB               DB                               `yaml:"db"`
 	Redis            Redis                            `yaml:"redis"`
 	Provider         string                           `yaml:"provider"`
@@ -47,6 +49,23 @@ type AppConfig struct {
 	EncryptionConfig engineconfig.EncryptionConfig    `yaml:"crypto"`
 	KeyConfig        engineconfig.KeyConfig           `yaml:"key"`
 	Consent          engineconfig.ConsentConfig       `yaml:"consent"`
+	SecurityConfig   SecurityConfig                   `yaml:"security_config"`
+}
+
+// SecurityConfig defines application security configuration
+type SecurityConfig struct {
+	IssuerURL             string                `yaml:"issuer_url"`
+	JwksURL               string                `yaml:"jwks_url"`
+	JwksCacheTTL          int64                 `yaml:"jwks_cache_ttl"`
+	RequestTimeLeewaySecs int                   `yaml:"request_time_leeway_secs"`
+	ScopeMapping          []AuthorizationConfig `yaml:"scope_mapping,omitempty"`
+}
+
+// AuthorizationConfig scope - endpoint mapping
+type AuthorizationConfig struct {
+	Endpoint string `yaml:"endpoint,omitempty"`
+	Method   string `yaml:"method,omitempty"`
+	Scope    string `yaml:"scope,omitempty"`
 }
 
 // LoadAppConfig loads the application configuration from the default data directory.
@@ -90,8 +109,8 @@ func applyDefaults(cfg *AppConfig) {
 
 	cfg.Server.Port = cfg.Port
 	cfg.Server.Identifier = cfg.Identifier
-	cfg.Server.PublicURL = cfg.Issuer
-	cfg.Server.HTTPOnly = strings.HasPrefix(cfg.Issuer, "http://")
+	cfg.Server.PublicURL = envOrDefault("MOSIP_ESIGNET_BASE_URL", cfg.Issuer)
+	cfg.Server.HTTPOnly = strings.HasPrefix(cfg.Server.PublicURL, "http://")
 
 	cfg.JWT.Issuer = cfg.Issuer
 	cfg.JWT.Audience = cfg.Issuer
@@ -125,7 +144,7 @@ func applyDefaults(cfg *AppConfig) {
 	cfg.Flow.MaxVersionHistory = 1
 	cfg.Flow.AutoInferRegistration = false
 	cfg.Flow.Store = "memory"
-	cfg.Flow.Executors = []string{"CredentialsAuthExecutor", "AuthAssertExecutor", "ConsentExecutor"}
+	cfg.Flow.Executors = []string{"CredentialsAuthExecutor", "AuthAssertExecutor", "ConsentExecutor", "AuthorizationExecutor"}
 	cfg.Flow.Interceptors = []string{}
 
 	cfg.Consent.Enabled = false
@@ -133,13 +152,22 @@ func applyDefaults(cfg *AppConfig) {
 	cfg.OAuth.RefreshToken.RenewOnGrant = false
 	cfg.OAuth.AuthorizationCode.ValidityPeriod = 3600
 	cfg.OAuth.PAR.ExpiresIn = 3600
-	cfg.OAuth.AuthClass.AcrAMR = map[string][]string{}
+	cfg.OAuth.AuthClass.AcrAMR = map[string][]string{
+		"mosip:idp:acr:generated-code": {},
+		"mosip:idp:acr:biometrics":     {},
+		"mosip:idp:acr:knowledge":      {},
+		"mosip:idp:acr:password":       {},
+	}
 	cfg.OAuth.AuthClass.Amrs = []string{}
 	cfg.OAuth.AllowWildcardRedirectURI = true
 
 	cfg.KeyConfig.CertFile = defaultSigningCertPath
 	cfg.KeyConfig.KeyFile = defaultSigningKeyPath
 	cfg.KeyConfig.ID = "default-key"
+
+	if cfg.SecurityConfig.RequestTimeLeewaySecs <= 0 {
+		cfg.SecurityConfig.RequestTimeLeewaySecs = defaultRequestTimeLeewaySecs
+	}
 }
 
 // ApplyEnvOverrides overlays environment and application settings onto cfg.

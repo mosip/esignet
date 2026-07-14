@@ -1,4 +1,4 @@
-package clientmgmt
+package security
 
 import (
 	"fmt"
@@ -6,6 +6,9 @@ import (
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
+
+	"github.com/mosip/esignet/internal/common"
+	"github.com/mosip/esignet/internal/config"
 )
 
 // ScopeMiddleware returns an http.Handler middleware that:
@@ -13,9 +16,9 @@ import (
 //  2. Validates the token's signature using the JWKS cache.
 //  3. Validates standard claims: iss, exp.
 //  4. Checks that the token's scope claim contains requiredScope.
-func ScopeMiddleware(cache *JWKSCache, issuer, requiredScope string) func(http.Handler) http.Handler {
+func ScopeMiddleware(cache *JWKSCache, config config.SecurityConfig) func(http.Handler) http.Handler {
 	parser := jwt.NewParser(
-		jwt.WithIssuer(issuer),
+		jwt.WithIssuer(config.IssuerURL),
 		jwt.WithExpirationRequired(),
 		jwt.WithValidMethods([]string{
 			"RS256", "RS384", "RS512",
@@ -28,19 +31,20 @@ func ScopeMiddleware(cache *JWKSCache, issuer, requiredScope string) func(http.H
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			tokenStr, err := bearerToken(r)
 			if err != nil {
-				writeError(w, http.StatusUnauthorized, "unauthorized", err.Error())
+				common.WriteError(w, http.StatusUnauthorized, "unauthorized", err.Error())
 				return
 			}
 
 			claims, err := parseAndValidate(parser, tokenStr, cache)
 			if err != nil {
-				writeError(w, http.StatusUnauthorized, "unauthorized", "invalid or expired token")
+				common.WriteError(w, http.StatusUnauthorized, "unauthorized", "invalid or expired token")
 				return
 			}
 
-			if !claimHasScope(claims, requiredScope) {
-				writeError(w, http.StatusForbidden, "forbidden",
-					fmt.Sprintf("token must carry scope %q", requiredScope))
+			// TODO do scope validation based on scope mapping in config.SecurityConfig.ScopeMapping
+			if !claimHasScope(claims, "test") {
+				common.WriteError(w, http.StatusForbidden, "forbidden",
+					fmt.Sprintf("token must carry scope %q", "test"))
 				return
 			}
 

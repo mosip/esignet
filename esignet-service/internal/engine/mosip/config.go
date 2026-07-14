@@ -1,7 +1,10 @@
 // Package mosip provides MOSIP IDA authentication and OTP executors for the embedder.
 package mosip
 
-import "os"
+import (
+	"fmt"
+	"os"
+)
 
 const defaultMosipEnv = "Staging"
 
@@ -43,8 +46,8 @@ func LoadConfig() Config {
 		),
 		DomainURI:   envOrDefault("MOSIP_ESIGNET_DOMAIN_URL", apiBase),
 		Env:         envOrDefault("IDA_AUTHENTICATOR_ENV", defaultMosipEnv),
-		P12Path:     os.Getenv("MOSIP_P12_PATH"),
-		P12Password: os.Getenv("MOSIP_P12_PASSWORD"),
+		P12Path:     envOrDefault("MOSIP_P12_PATH", ""),
+		P12Password: envOrDefault("MOSIP_P12_PASSWORD", ""),
 	}
 }
 
@@ -60,4 +63,54 @@ func trimTrailingSlash(value string) string {
 		value = value[:len(value)-1]
 	}
 	return value
+}
+
+// AuditConfig holds mosip-audit-manager integration settings.
+//
+// The auditor authenticates to MOSIP authmanager with a client-id/secret,
+// then POSTs an AuditRequest (wrapped in an AuditRequestWrapper) to the audit
+// manager. Authentication tokens are cached in memory and purged on 401/403
+// from the audit endpoint.
+type AuditConfig struct {
+	// AuditManagerURL is the audit ingestion endpoint (POST).
+	AuditManagerURL string
+	// AuthTokenURL is the authmanager clientidsecretkey endpoint (POST).
+	AuthTokenURL string
+	// ClientID, SecretKey and AppID are the authmanager client credentials.
+	ClientID  string
+	SecretKey string
+	AppID     string
+}
+
+const (
+	auditDefaultClientID = "mosip-ida-client"
+	auditDefaultAppID    = "ida"
+)
+
+// LoadAuditConfig reads audit settings from environment variables. URLs are
+// derived from MOSIP_API_INTERNAL_HOST unless overridden individually. It
+// fails if no audit manager endpoint can be resolved.
+func LoadAuditConfig() (AuditConfig, error) {
+	apiBase := trimTrailingSlash(os.Getenv("MOSIP_API_INTERNAL_HOST"))
+
+	auditURL := os.Getenv("MOSIP_ESIGNET_AUDIT_MANAGER_URL")
+	if auditURL == "" && apiBase != "" {
+		auditURL = apiBase + "/v1/auditmanager/audits"
+	}
+	if auditURL == "" {
+		return AuditConfig{}, fmt.Errorf("audit manager not configured: set MOSIP_ESIGNET_AUDIT_MANAGER_URL or MOSIP_API_INTERNAL_HOST")
+	}
+
+	tokenURL := os.Getenv("MOSIP_ESIGNET_AUTH_TOKEN_URL")
+	if tokenURL == "" && apiBase != "" {
+		tokenURL = apiBase + "/v1/authmanager/authenticate/clientidsecretkey"
+	}
+
+	return AuditConfig{
+		AuditManagerURL: auditURL,
+		AuthTokenURL:    tokenURL,
+		ClientID:        envOrDefault("MOSIP_ESIGNET_IDA_CLIENT_ID", auditDefaultClientID),
+		SecretKey:       os.Getenv("MOSIP_ESIGNET_IDA_CLIENT_SECRET"),
+		AppID:           envOrDefault("MOSIP_ESIGNET_IDA_APP_ID", auditDefaultAppID),
+	}, nil
 }

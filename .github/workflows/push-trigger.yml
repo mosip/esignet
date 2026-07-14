@@ -22,6 +22,7 @@ on:
       - develop
       - develop-go
       - release*
+      - ES-3037
 
 jobs:
   build_go_esignet:
