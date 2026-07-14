@@ -5,14 +5,12 @@
  */
 package io.mosip.esignet.services;
 
-import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.esignet.core.dto.LinkTransactionMetadata;
 import io.mosip.esignet.core.dto.ApiRateLimit;
 import io.mosip.esignet.core.dto.PushedAuthorizationRequest;
 import io.mosip.esignet.core.exception.DuplicateLinkCodeException;
 import io.mosip.esignet.core.constants.Constants;
-import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -168,42 +166,32 @@ public class CacheUtilService {
     }
 
     /**
-     * Check if JTI is used.
-     * Returns true if already used (replay detected), false otherwise.
+     * Check if JTI is used. Redis-only: simple cache type is dev-only and skips
+     * Returns true if already used (replay detected), false otherwise or in simple mode.
      */
     public boolean checkAndMarkJti(String jti, long ttlSeconds) {
+        if (!"redis".equalsIgnoreCase(cacheType)) {
+            return false;
+        }
+
         if (ttlSeconds <= 0) {
             log.error("Non-positive ttl for jti {} — treating as replay", jti);
             return true;
         }
 
-        if ("redis".equalsIgnoreCase(cacheType)) {
-                try{
-                    String key = JTI_KEY_FORMAT.formatted(cacheKeyPrefix, jti);
-                    Boolean inserted = stringRedisTemplate.opsForValue()
-                            .setIfAbsent(key, "1", Duration.ofSeconds(ttlSeconds));
-                if (Boolean.FALSE.equals(inserted)) {
-                    log.error("Replay detected for jti: {}", jti);
-                    return true;
-                }
-                return false;
-            } catch (Exception e) {
-                log.error("Redis JTI check failed, rejecting jti", e);
-                return true;   // fail-safe, mirrors checkNonce posture
+        try {
+            String key = JTI_KEY_FORMAT.formatted(cacheKeyPrefix, jti);
+            Boolean inserted = stringRedisTemplate.opsForValue()
+                    .setIfAbsent(key, "1", Duration.ofSeconds(ttlSeconds));
+            if (Boolean.FALSE.equals(inserted)) {
+                log.error("Replay detected for jti: {}", jti);
+                return true;
             }
+            return false;
+        } catch (Exception e) {
+            log.error("Redis JTI check failed, rejecting jti", e);
+            return true;   // fail-safe posture
         }
-
-        // Non-prod path (spring.cache.type=simple)
-        Cache jtiCache = cacheManager.getCache(Constants.JTI_CACHE);
-        if (Objects.isNull(jtiCache)) {
-            throw new EsignetException(ErrorConstants.UNKNOWN_ERROR);
-        }
-        if (jtiCache.get(jti) != null) {
-            log.error("Replay detected for jti: {}", jti);
-            return true;
-        }
-        jtiCache.put(jti, true);
-        return false;
     }
 
     public void updateNonceInCachedTransaction(String cacheKey, String newNonce, Long newExpiryTime, String cacheName) {

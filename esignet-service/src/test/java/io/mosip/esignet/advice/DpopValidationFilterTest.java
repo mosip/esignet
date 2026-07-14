@@ -427,8 +427,8 @@ public class DpopValidationFilterTest {
 
     /**
      * Happy path — verifies that the TTL handed to the JTI cache equals
-     * {@code maxDPOPIatAgeSeconds + 2 * maxClockSkewSeconds} when iat = now.
-     * With the configured defaults (60 + 2*10), the expected TTL is ~80s.
+     * {@code maxDPOPIatAgeSeconds + maxClockSkewSeconds} when iat = now and exp is absent.
+     * With the configured defaults (60 + 10), the expected TTL is ~70s.
      */
     @Test
     public void testDpopHeader_replayCheck_capturesIatAnchoredTtl() throws Exception {
@@ -445,15 +445,15 @@ public class DpopValidationFilterTest {
 
         verify(filterChain).doFilter(request, response);
         long ttl = ttlCaptor.getValue();
-        // iat ≈ now ⇒ expirySec = now + 60 + 20 ⇒ TTL ≈ 80s (allow ±2s for scheduling jitter)
-        assertTrue(ttl >= 78 && ttl <= 80,
-                "Expected TTL ~80s (maxDPOPIatAgeSeconds + 2*maxClockSkewSeconds), got " + ttl);
+        // iat ≈ now, no exp ⇒ acceptanceCloseSec = now + 60 + 10 ⇒ TTL ≈ 70s (allow ±2s for scheduling jitter)
+        assertTrue(ttl >= 68 && ttl <= 70,
+                "Expected TTL ~70s (maxDPOPIatAgeSeconds + maxClockSkewSeconds), got " + ttl);
     }
 
     /**
      * Confirms TTL is anchored to {@code iat}, not to "now":
      * a proof issued 30s ago must shrink the cache entry's lifetime by ~30s.
-     * Expected TTL = (iat - 30) + 60 + 20 - now  ≈  50s.
+     * Expected TTL = (iat - 30) + 60 + 10 - now  ≈  40s.
      */
     @Test
     public void testDpopHeader_replayCheck_olderIat_shortensTtl() throws Exception {
@@ -471,9 +471,62 @@ public class DpopValidationFilterTest {
 
         verify(filterChain).doFilter(request, response);
         long ttl = ttlCaptor.getValue();
-        // expirySec = (now-30) + 60 + 20 = now + 50 ⇒ TTL ≈ 50s
-        assertTrue(ttl >= 48 && ttl <= 50,
-                "Expected TTL ~50s for iat=now-30s, got " + ttl);
+        // acceptanceCloseSec = (now-30) + 60 + 10 = now + 40 ⇒ TTL ≈ 40s
+        assertTrue(ttl >= 38 && ttl <= 40,
+                "Expected TTL ~40s for iat=now-30s, got " + ttl);
+    }
+
+    /**
+     * Bound-A coverage — verifies that when the DPoP JWT declares a short {@code exp},
+     * the TTL tightens to the exp-anchored bound instead of the iat-anchored server policy.
+     * With iat = now, exp = iat + 20s: acceptanceCloseSec = min(now+70, iat+20+10) = iat+30
+     * ⇒ TTL ≈ 30s.
+     */
+    @Test
+    public void testDpopHeader_replayCheck_shortExp_tightensTtl() throws Exception {
+        Instant iat = Instant.now();
+        String dpopJwt = createDpopJwtWithIatAndExp("POST", "http://localhost/oauth/par",
+                iat, iat.plusSeconds(20));
+
+        request.setRequestURI("/oauth/par");
+        request.addHeader("DPoP", dpopJwt);
+        request.setMethod("POST");
+
+        ArgumentCaptor<Long> ttlCaptor = ArgumentCaptor.forClass(Long.class);
+        when(cacheUtilService.checkAndMarkJti(anyString(), ttlCaptor.capture())).thenReturn(false);
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
+        long ttl = ttlCaptor.getValue();
+        // acceptanceCloseSec = min(now+70, iat+20+10) = iat+30 ⇒ TTL ≈ 30s (allow ±2s for jitter)
+        assertTrue(ttl >= 28 && ttl <= 30,
+                "Expected TTL ~30s when exp binds, got " + ttl);
+    }
+
+    /**
+     * Builds a DPoP proof JWT with caller-controlled iat AND exp claims so we can
+     * exercise the bound-A path in {@code replayCheck} (where JWT self-exp tightens
+     * the TTL below the iat-anchored server policy).
+     */
+    private String createDpopJwtWithIatAndExp(String httpMethod, String htuClaim,
+                                              Instant iat, Instant exp) throws Exception {
+        JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.ES256)
+                .type(new JOSEObjectType("dpop+jwt"))
+                .jwk(ecJwk.toPublicJWK())
+                .build();
+
+        JWTClaimsSet claims = new JWTClaimsSet.Builder()
+                .jwtID(UUID.randomUUID().toString())
+                .claim("htm", httpMethod)
+                .claim("htu", htuClaim)
+                .issueTime(Date.from(iat))
+                .expirationTime(Date.from(exp))
+                .build();
+
+        SignedJWT signedJWT = new SignedJWT(header, claims);
+        signedJWT.sign(new ECDSASigner(ecJwk.toECPrivateKey()));
+        return signedJWT.serialize();
     }
 
 }
