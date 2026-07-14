@@ -94,7 +94,7 @@ prompt_mobile: &prompt_mobile
       regex: ^[0-9]{9}$
   validation:
     - type: regex
-      value: "[0-9]*"
+      value: ^[0-9]+$
       message: Mobile Number must contain numbers only
     - type: maxLength
       value: 11
