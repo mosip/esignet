@@ -2440,5 +2440,32 @@ OAuthDetailsRequest:
 	    "claimsLocales": "en"
 }'
       output: '{
-       
+
+}'
+
+   ESignet_OAuthDetailsRequest_forAuthenticateUserMissingTransactionId_Valid_Smoke_sid:
+      endPoint: /v1/esignet/authorization/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsRequest_90
+      description: Oauthdetails request dedicated to the AuthenticateUser missing-transactionId
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      additionalDependencies: TC_ESignet_CreateOIDCClient_V2_01, TC_ESignet_CreateOIDCClient_MOSIPID_01
+      inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequest
+      outputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequestResult
+      input: '{
+      	"requestTime": "$TIMESTAMP$",
+      	"clientId": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$",
+      	"scope": "openid resident-service profile",
+      	"responseType": "code",
+      	"redirectUri": "$IDPREDIRECTURI$",
+      	"display": "popup",
+	    "prompt": "consent",
+	    "acrValues": "mosip:idp:acr:biometrics mosip:idp:acr:generated-code",
+	    "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+	    "state": "eree2311",
+	    "claimsLocales": "en"
+}'
+      output: '{
+
 }'

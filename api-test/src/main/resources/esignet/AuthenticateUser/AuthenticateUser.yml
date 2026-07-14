@@ -2135,3 +2135,40 @@ AuthenticateUser:
         "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
     }
 }'
+   ESignet_AuthenticateUserIDP_V3_without_transactionId_Neg:
+      endPoint: /v1/esignet/authorization/v3/authenticate
+      uniqueIdentifier: TC_ESignet_AuthenticateUser_58
+      description: Authenticate user via v3/authenticate without transactionId UIN
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignet/AuthenticateUser/AuthenticateUser
+      outputTemplate: esignet/error
+      input: '{
+        "encodedHash": "$ID:OAuthDetailsRequest_forAuthenticateUserMissingTransactionId_Valid_Smoke_sid_encodedResp$",
+      	"requestTime": "$TIMESTAMP$",
+      	"transactionId": "$REMOVE$",
+      	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+      	"authFactorType" : "OTP",
+      	"challenge" : "$ID:AddIdentity_Invalid_Scen_smoke_Pos_EMAIL$",
+        "sendOtp":{
+    "requestTime": "$TIMESTAMP$",
+    "encodedHash": "$ID:OAuthDetailsRequest_forAuthenticateUserMissingTransactionId_Valid_Smoke_sid_encodedResp$",
+    "transactionId": "$ID:OAuthDetailsRequest_forAuthenticateUserMissingTransactionId_Valid_Smoke_sid_transactionId$",
+	"individualId": "$ID:AddIdentity_Invalid_Scen_smoke_Pos_UIN$",
+    "otpChannels": [{channel: "email"},{channel: "phone"}],
+    "sendOtpReqTemplate": "esignet/SendOtp/SendOtp",
+    "sendOtpEndPoint": "/v1/esignet/authorization/send-otp"
+    }
+}'
+      output: '{
+      	"errors": [
+    {
+      "errorCode": "invalid_transaction"
+    }
+  ],
+  "sendOtpResp":{
+        "sendOtpResTemplate":"esignet/SendOtp/SendOtpResult",
+    }
+}'

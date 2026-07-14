@@ -1167,7 +1167,19 @@
 				name="io.mosip.testrig.apirig.esignet.testscripts.GetWithParam" />
 		</classes>
 	</test>
-	
+
+	<!-- Deliberately last in the suite: reuses a transaction created near the very
+	     start (OAuthDetailsRequest), relying on the maximum possible natural elapsed
+	     suite execution time for its preauth cache entry to have genuinely expired. -->
+	<test name="SendOtpExpiredTransactionNegTC">
+		<parameter name="ymlFile"
+			value="esignet/SendOtpExpiredTransactionNegTC/SendOtpExpiredTransactionNegTC.yml" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePost" />
+		</classes>
+	</test>
+
 	<!-- End of end to end v3 with mock flow test cases -->
 
 
