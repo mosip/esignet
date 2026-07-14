@@ -1,0 +1,12 @@
+id: layout-esignet
+displayName: Esignet Layout
+description: A Esignet layout
+layout:
+  type: centered
+  components:
+    - type: logo
+      position: top
+    - type: form
+      position: center
+    - type: footer
+      position: bottom

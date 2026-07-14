@@ -1,0 +1,1190 @@
+system:
+  "design.resolve.error.app_no_design": ಅಪ್ಲಿಕೇಶನ್‌ಗೆ ಯಾವುದೇ ವಿನ್ಯಾಸ ಸಂರಚನೆ ಇಲ್ಲ
+  "design.resolve.error.app_no_design_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಅಪ್ಲಿಕೇಶನ್‌ಗೆ ಯಾವುದೇ ಸಂಬಂಧಿತ ಥೀಮ್ ಅಥವಾ ಲೇಔಟ್ ಸಂರಚನೆ ಇಲ್ಲ
+  "design.resolve.error.app_not_found": ಅಪ್ಲಿಕೇಶನ್ ಕಂಡುಬಂದಿಲ್ಲ
+  "design.resolve.error.app_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ id ಹೊಂದಿರುವ ಅಪ್ಲಿಕೇಶನ್ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "design.resolve.error.invalid_type": ಅಮಾನ್ಯ ವಿನಂತಿ ಸ್ವರೂಪ
+  "design.resolve.error.invalid_type_description": 'type' ಕ್ವೆರಿ ಪ್ಯಾರಾಮೀಟರ್ ಅಗತ್ಯವಿದ್ದು, 'APP' ಅಥವಾ 'OU' ಆಗಿರಬೇಕು
+  "design.resolve.error.missing_id": ಅಮಾನ್ಯ ವಿನಂತಿ ಸ್ವರೂಪ
+  "design.resolve.error.missing_id_description": 'id' ಕ್ವೆರಿ ಪ್ಯಾರಾಮೀಟರ್ ಅಗತ್ಯವಿದೆ
+  "design.resolve.error.unsupported_type": ಬೆಂಬಲಿಸದ ರಿಸಾಲ್ವ್ ಪ್ರಕಾರ
+  "design.resolve.error.unsupported_type_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ರಿಸಾಲ್ವ್ ಪ್ರಕಾರವನ್ನು ಇನ್ನೂ ಬೆಂಬಲಿಸಲಾಗಿಲ್ಲ. ಪ್ರಸ್ತುತ ಕೇವಲ 'APP' ಪ್ರಕಾರ ಮಾತ್ರ ಬೆಂಬಲಿತವಾಗಿದೆ
+  "error.actor_not_found": ನಟ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.actor_not_found_description": ವಿನಂತಿಸಿದ ನಟ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.agentservice.agent_already_exists_with_client_id": Client ID ಈಗಾಗಲೇ ಬಳಕೆಯಲ್ಲಿದೆ
+  "error.agentservice.agent_already_exists_with_client_id_description": ಅದೇ client ID ಹೊಂದಿರುವ ಒಂದು ಘಟಕ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "error.agentservice.agent_already_exists_with_name": ಏಜೆಂಟ್ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "error.agentservice.agent_already_exists_with_name_description": ಅದೇ ಹೆಸರಿನ ಏಜೆಂಟ್ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "error.agentservice.agent_not_found": ಏಜೆಂಟ್ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.agentservice.agent_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ id ಹೊಂದಿರುವ ಏಜೆಂಟ್ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.agentservice.attribute_conflict": ಗುಣಲಕ್ಷಣ ಸಂಘರ್ಷ
+  "error.agentservice.attribute_conflict_description": ಅದೇ ಅನನ್ಯ ಗುಣಲಕ್ಷಣ ಮೌಲ್ಯ ಹೊಂದಿರುವ ಏಜೆಂಟ್ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "error.agentservice.auth_code_requires_code_response_type_description": authorization_code ಗ್ರಾಂಟ್ ಪ್ರಕಾರಕ್ಕೆ 'code' ಪ್ರತಿಕ್ರಿಯೆ ಪ್ರಕಾರ ಅಗತ್ಯವಿದೆ
+  "error.agentservice.auth_code_requires_redirect_uris_description": authorization_code ಗ್ರಾಂಟ್ ಪ್ರಕಾರಕ್ಕೆ ರೀಡೈರೆಕ್ಟ್ URIs ಅಗತ್ಯವಿದೆ
+  "error.agentservice.cannot_modify_declarative_resource": ಘೋಷಣಾತ್ಮಕ ಸಂಪನ್ಮೂಲವನ್ನು ಮಾರ್ಪಡಿಸಲಾಗುವುದಿಲ್ಲ
+  "error.agentservice.cannot_modify_declarative_resource_description": ಘೋಷಣಾತ್ಮಕವಾಗಿ ನಿರ್ವಹಿಸಲ್ಪಡುವ ಏಜೆಂಟ್‌ಗಳನ್ನು API ಮೂಲಕ ಮಾರ್ಪಡಿಸಲಾಗುವುದಿಲ್ಲ
+  "error.agentservice.certificate_operation_failed": ಸರ್ಟಿಫಿಕೇಟ್ ಕಾರ್ಯಾಚರಣೆ ವಿಫಲವಾಗಿದೆ
+  "error.agentservice.certificate_operation_failed_description": ಅಮಾನ್ಯ ಇನ್‌ಪುಟ್ ಕಾರಣ ಸರ್ಟಿಫಿಕೇಟ್ ಕಾರ್ಯಾಚರಣೆ ವಿಫಲವಾಗಿದೆ
+  "error.agentservice.client_credentials_cannot_use_none_auth_description": client_credentials ಗ್ರಾಂಟ್ ಪ್ರಕಾರ 'none' ದೃಢೀಕರಣ ವಿಧಾನವನ್ನು ಬಳಸಲಾಗುವುದಿಲ್ಲ
+  "error.agentservice.client_credentials_cannot_use_response_types_description": client_credentials ಗ್ರಾಂಟ್ ಪ್ರಕಾರವನ್ನು ಪ್ರತಿಕ್ರಿಯೆ ಪ್ರಕಾರಗಳೊಂದಿಗೆ ಬಳಸಲಾಗುವುದಿಲ್ಲ
+  "error.agentservice.client_secret_cannot_have_certificate_description": client_secret ದೃಢೀಕರಣ ವಿಧಾನಗಳಿಗೆ ಸರ್ಟಿಫಿಕೇಟ್ ಇರಲು ಅನುಮತಿ ಇಲ್ಲ
+  "error.agentservice.consent_sync_failed": ಒಪ್ಪಿಗೆ ಸಿಂಕ್ ವಿಫಲವಾಗಿದೆ
+  "error.agentservice.consent_sync_failed_description": ಒಪ್ಪಿಗೆ ಸೇವೆಯೊಂದಿಗೆ ಏಜೆಂಟ್ ಗುಣಲಕ್ಷಣ ಬದಲಾವಣೆಗಳನ್ನು ಸಿಂಕ್ ಮಾಡಲು ವಿಫಲವಾಗಿದೆ
+  "error.agentservice.error_retrieving_flow_definition": ಫ್ಲೋ ವ್ಯಾಖ್ಯಾನ ಮರುಪಡೆಯುವಲ್ಲಿ ದೋಷ
+  "error.agentservice.error_retrieving_flow_definition_description": ಫ್ಲೋ ವ್ಯಾಖ್ಯಾನ ಮರುಪಡೆಯುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "error.agentservice.idtoken_encryption_alg_requires_enc_description": encryptionAlg ಹೊಂದಿಸಿದಾಗ idToken encryptionEnc ಅಗತ್ಯವಿದೆ
+  "error.agentservice.idtoken_encryption_enc_requires_alg_description": encryptionEnc ಹೊಂದಿಸಿದಾಗ idToken encryptionAlg ಅಗತ್ಯವಿದೆ
+  "error.agentservice.idtoken_encryption_fields_not_allowed_description": responseType JWT ಆಗಿದ್ದಾಗ idToken encryptionAlg ಮತ್ತು encryptionEnc ಹೊಂದಿಸಬಾರದು
+  "error.agentservice.idtoken_encryption_requires_certificate_description": ID ಟೋಕನ್ ಎನ್‌ಕ್ರಿಪ್ಶನ್ ಸಂರಚಿಸಿದಾಗ ಸರ್ಟಿಫಿಕೇಟ್ (JWKS ಅಥವಾ JWKS_URI) ಅಗತ್ಯವಿದೆ
+  "error.agentservice.idtoken_jwks_uri_not_ssrf_safe_description": idToken JWKS URI ಸಾರ್ವಜನಿಕವಾಗಿ ತಲುಪಬಹುದಾದ HTTPS URL ಆಗಿರಬೇಕು
+  "error.agentservice.idtoken_unsupported_encryption_alg_description": ID ಟೋಕನ್ ಎನ್‌ಕ್ರಿಪ್ಶನ್ ಅಲ್ಗಾರಿದಮ್ ಬೆಂಬಲಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.agentservice.idtoken_unsupported_encryption_enc_description": ID ಟೋಕನ್ ವಿಷಯ-ಎನ್‌ಕ್ರಿಪ್ಶನ್ ಅಲ್ಗಾರಿದಮ್ ಬೆಂಬಲಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.agentservice.idtoken_unsupported_response_type_description": ID ಟೋಕನ್ responseType ಬೆಂಬಲಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.agentservice.invalid_agent_name": ಅಮಾನ್ಯ ಏಜೆಂಟ್ ಹೆಸರು
+  "error.agentservice.invalid_agent_name_description": ಏಜೆಂಟ್ ಹೆಸರನ್ನು ಒದಗಿಸಬೇಕು ಮತ್ತು ಖಾಲಿ ಇರಬಾರದು
+  "error.agentservice.invalid_agent_type": ಅಮಾನ್ಯ ಏಜೆಂಟ್ ಪ್ರಕಾರ
+  "error.agentservice.invalid_agent_type_description": ಏಜೆಂಟ್ ಪ್ರಕಾರವನ್ನು ಒದಗಿಸಬೇಕು
+  "error.agentservice.invalid_auth_flow_id": ಅಮಾನ್ಯ ದೃಢೀಕರಣ ಫ್ಲೋ ID
+  "error.agentservice.invalid_auth_flow_id_description": ಒದಗಿಸಿದ ದೃಢೀಕರಣ ಫ್ಲೋ ID ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.agentservice.invalid_certificate_type": ಅಮಾನ್ಯ ಸರ್ಟಿಫಿಕೇಟ್ ಪ್ರಕಾರ
+  "error.agentservice.invalid_certificate_type_description": ಒದಗಿಸಿದ ಸರ್ಟಿಫಿಕೇಟ್ ಪ್ರಕಾರ ಬೆಂಬಲಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.agentservice.invalid_certificate_value": ಅಮಾನ್ಯ ಸರ್ಟಿಫಿಕೇಟ್ ಮೌಲ್ಯ
+  "error.agentservice.invalid_certificate_value_description": ಒದಗಿಸಿದ ಸರ್ಟಿಫಿಕೇಟ್ ಮೌಲ್ಯ ಅಮಾನ್ಯ ಅಥವಾ ಕಾಣೆಯಾಗಿದೆ
+  "error.agentservice.invalid_credential": ಅಮಾನ್ಯ ರುಜುವಾತು
+  "error.agentservice.invalid_credential_description": ಒದಗಿಸಿದ ರುಜುವಾತು ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.agentservice.invalid_filter": ಅಮಾನ್ಯ ಫಿಲ್ಟರ್ ಪ್ಯಾರಾಮೀಟರ್
+  "error.agentservice.invalid_filter_description": ಫಿಲ್ಟರ್ ಸ್ವರೂಪ ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.agentservice.invalid_grant_type": ಅಮಾನ್ಯ ಗ್ರಾಂಟ್ ಪ್ರಕಾರ
+  "error.agentservice.invalid_grant_type_description": ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ಗ್ರಾಂಟ್ ಪ್ರಕಾರಗಳು ಬೆಂಬಲಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.agentservice.invalid_jwks_uri": ಅಮಾನ್ಯ JWKS URI
+  "error.agentservice.invalid_jwks_uri_description": JWKS URI ಸಾರ್ವಜನಿಕವಾಗಿ ತಲುಪಬಹುದಾದ HTTPS URL ಆಗಿರಬೇಕು
+  "error.agentservice.invalid_limit": ಅಮಾನ್ಯ ಪೇಜಿನೇಶನ್ ಪ್ಯಾರಾಮೀಟರ್
+  "error.agentservice.invalid_limit_description": ಲಿಮಿಟ್ ಪ್ಯಾರಾಮೀಟರ್ 1 ಮತ್ತು 100 ನಡುವೆ ಇರಬೇಕು
+  "error.agentservice.invalid_oauth_configuration": ಅಮಾನ್ಯ OAuth ಸಂರಚನೆ
+  "error.agentservice.invalid_oauth_configuration_description": ಒದಗಿಸಿದ OAuth ಸಂರಚನೆ ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.agentservice.invalid_offset": ಅಮಾನ್ಯ ಪೇಜಿನೇಶನ್ ಪ್ಯಾರಾಮೀಟರ್
+  "error.agentservice.invalid_offset_description": ಆಫ್‌ಸೆಟ್ ಪ್ಯಾರಾಮೀಟರ್ ಋಣಾತ್ಮಕವಲ್ಲದ ಪೂರ್ಣಾಂಕವಾಗಿರಬೇಕು
+  "error.agentservice.invalid_public_client_configuration": ಅಮಾನ್ಯ ಸಾರ್ವಜನಿಕ ಕ್ಲೈಂಟ್ ಸಂರಚನೆ
+  "error.agentservice.invalid_public_client_configuration_description": ಸಾರ್ವಜನಿಕ ಕ್ಲೈಂಟ್ ಸಂರಚನೆ ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.agentservice.invalid_redirect_uri": ಅಮಾನ್ಯ ರೀಡೈರೆಕ್ಟ್ URI
+  "error.agentservice.invalid_redirect_uri_description": ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ರೀಡೈರೆಕ್ಟ್ URIs ಮಾನ್ಯವಾಗಿಲ್ಲ
+  "error.agentservice.invalid_registration_flow_id": ಅಮಾನ್ಯ ನೋಂದಣಿ ಫ್ಲೋ ID
+  "error.agentservice.invalid_registration_flow_id_description": ಒದಗಿಸಿದ ನೋಂದಣಿ ಫ್ಲೋ ID ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.agentservice.invalid_request_format": ಅಮಾನ್ಯ ವಿನಂತಿ ಸ್ವರೂಪ
+  "error.agentservice.invalid_request_format_description": ವಿನಂತಿ ಮುಖ್ಯಭಾಗ ಅಸ್ತವ್ಯಸ್ತವಾಗಿದೆ ಅಥವಾ ಅಮಾನ್ಯ ದತ್ತಾಂಶ ಹೊಂದಿದೆ
+  "error.agentservice.invalid_response_type": ಅಮಾನ್ಯ ಪ್ರತಿಕ್ರಿಯೆ ಪ್ರಕಾರ
+  "error.agentservice.invalid_response_type_description": ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ಒದಗಿಸಿದ ಪ್ರತಿಕ್ರಿಯೆ ಪ್ರಕಾರಗಳು ಅಮಾನ್ಯವಾಗಿವೆ
+  "error.agentservice.invalid_token_endpoint_auth_method": ಅಮಾನ್ಯ ಟೋಕನ್ ಎಂಡ್‌ಪಾಯಿಂಟ್ ದೃಢೀಕರಣ ವಿಧಾನ
+  "error.agentservice.invalid_token_endpoint_auth_method_description": ಒದಗಿಸಿದ ಟೋಕನ್ ಎಂಡ್‌ಪಾಯಿಂಟ್ ದೃಢೀಕರಣ ವಿಧಾನ ಬೆಂಬಲಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.agentservice.invalid_user_attribute": ಅಮಾನ್ಯ ಬಳಕೆದಾರ ಗುಣಲಕ್ಷಣ
+  "error.agentservice.invalid_user_attribute_description": ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ಬಳಕೆದಾರ ಗುಣಲಕ್ಷಣಗಳು ಸಂರಚಿತ ಅನುಮತಿಸಿದ ಬಳಕೆದಾರ ಪ್ರಕಾರಗಳಿಗೆ ಮಾನ್ಯವಾಗಿಲ್ಲ
+  "error.agentservice.invalid_user_type": ಅಮಾನ್ಯ ಬಳಕೆದಾರ ಪ್ರಕಾರ
+  "error.agentservice.invalid_user_type_description": ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಅನುಮತಿಸಿದ ಬಳಕೆದಾರ ಪ್ರಕಾರಗಳು ಅಮಾನ್ಯವಾಗಿವೆ
+  "error.agentservice.layout_not_found": ಲೇಔಟ್ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.agentservice.layout_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಲೇಔಟ್ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.agentservice.missing_agent_id": ಏಜೆಂಟ್ ID ಕಾಣೆಯಾಗಿದೆ
+  "error.agentservice.missing_agent_id_description": ಏಜೆಂಟ್ ID ಅಗತ್ಯವಿದೆ
+  "error.agentservice.multiple_oauth_configs": ಅನೇಕ OAuth ಇನ್‌ಬೌಂಡ್ ದೃಢೀಕರಣ ಸಂರಚನೆಗಳಿಗೆ ಅನುಮತಿ ಇಲ್ಲ
+  "error.agentservice.multiple_oauth_configs_description": ಒಂದು ಘಟಕವು ಪ್ರತಿ ಪ್ರೋಟೋಕಾಲ್‌ಗೆ ಗರಿಷ್ಠ ಒಂದು ಇನ್‌ಬೌಂಡ್ ದೃಢೀಕರಣ ಸಂರಚನೆ ಹೊಂದಬಹುದು
+  "error.agentservice.none_auth_method_cannot_have_cert_or_secret_description": 'none' ದೃಢೀಕರಣ ವಿಧಾನಕ್ಕೆ ಸರ್ಟಿಫಿಕೇಟ್ ಅಥವಾ ಕ್ಲೈಂಟ್ ರಹಸ್ಯ ಇರಲು ಅನುಮತಿ ಇಲ್ಲ
+  "error.agentservice.none_auth_method_requires_public_client_description": 'none' ದೃಢೀಕರಣ ವಿಧಾನಕ್ಕೆ ಕ್ಲೈಂಟ್ ಸಾರ್ವಜನಿಕ ಕ್ಲೈಂಟ್ ಆಗಿರಬೇಕು
+  "error.agentservice.organization_unit_not_found": ಸಂಸ್ಥಾ ಘಟಕ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.agentservice.organization_unit_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಸಂಸ್ಥಾ ಘಟಕ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.agentservice.owner_not_found": ಮಾಲೀಕ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.agentservice.owner_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಮಾಲೀಕ ಯಾವುದೇ ತಿಳಿದಿರುವ ಬಳಕೆದಾರ, ಅಪ್ಲಿಕೇಶನ್, ಅಥವಾ ಏಜೆಂಟ್‌ಗೆ ಹೊಂದಿಕೆಯಾಗುವುದಿಲ್ಲ
+  "error.agentservice.pkce_requires_authorization_code_description": authorization_code ಗ್ರಾಂಟ್ ಪ್ರಕಾರ ಆಯ್ಕೆ ಮಾಡಿದಾಗ ಮಾತ್ರ PKCE ಸಕ್ರಿಯಗೊಳಿಸಬಹುದು
+  "error.agentservice.private_key_jwt_cannot_have_client_secret_description": private_key_jwt ದೃಢೀಕರಣ ವಿಧಾನಕ್ಕೆ ಕ್ಲೈಂಟ್ ರಹಸ್ಯ ಇರಲು ಅನುಮತಿ ಇಲ್ಲ
+  "error.agentservice.private_key_jwt_requires_certificate_description": private_key_jwt ದೃಢೀಕರಣ ವಿಧಾನಕ್ಕೆ ಸರ್ಟಿಫಿಕೇಟ್ ಅಗತ್ಯವಿದೆ
+  "error.agentservice.public_client_must_have_pkce_description": ಸಾರ್ವಜನಿಕ ಕ್ಲೈಂಟ್‌ಗಳಿಗೆ PKCE ಅಗತ್ಯ true ಗೆ ಹೊಂದಿಸಿರಬೇಕು
+  "error.agentservice.public_client_must_use_none_auth_description": ಸಾರ್ವಜನಿಕ ಕ್ಲೈಂಟ್‌ಗಳು ಟೋಕನ್ ಎಂಡ್‌ಪಾಯಿಂಟ್ ದೃಢೀಕರಣ ವಿಧಾನವಾಗಿ 'none' ಬಳಸಬೇಕು
+  "error.agentservice.redirect_uri_fragment_not_allowed_description": ರೀಡೈರೆಕ್ಟ್ URIs ಫ್ರಾಗ್ಮೆಂಟ್ ಘಟಕ ಹೊಂದಿರಬಾರದು
+  "error.agentservice.refresh_token_cannot_be_sole_grant_description": refresh_token ಗ್ರಾಂಟ್ ಪ್ರಕಾರವನ್ನು ಮತ್ತೊಂದು ಗ್ರಾಂಟ್ ಪ್ರಕಾರವಿಲ್ಲದೆ ಬಳಸಲಾಗುವುದಿಲ್ಲ
+  "error.agentservice.response_types_require_authorization_code_description": ಪ್ರತಿಕ್ರಿಯೆ ಪ್ರಕಾರಗಳನ್ನು authorization_code ಗ್ರಾಂಟ್ ಪ್ರಕಾರದೊಂದಿಗೆ ಮಾತ್ರ ಸಂರಚಿಸಬಹುದು
+  "error.agentservice.schema_validation_failed": ಸ್ಕೀಮಾ ಮಾನ್ಯೀಕರಣ ವಿಫಲವಾಗಿದೆ
+  "error.agentservice.schema_validation_failed_description": ಒದಗಿಸಿದ ಗುಣಲಕ್ಷಣಗಳು ಸ್ಕೀಮಾ ಮಾನ್ಯೀಕರಣದಲ್ಲಿ ವಿಫಲವಾಗಿವೆ
+  "error.agentservice.theme_not_found": ಥೀಮ್ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.agentservice.theme_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಥೀಮ್ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.agentservice.userinfo_alg_requires_response_type_description": signingAlg ಅಥವಾ encryptionAlg ಹೊಂದಿಸಿದಾಗ userinfo responseType ಅಗತ್ಯವಿದೆ
+  "error.agentservice.userinfo_encryption_alg_requires_enc_description": encryptionAlg ಹೊಂದಿಸಿದಾಗ userinfo encryptionEnc ಅಗತ್ಯವಿದೆ
+  "error.agentservice.userinfo_encryption_enc_requires_alg_description": encryptionEnc ಹೊಂದಿಸಿದಾಗ userinfo encryptionAlg ಅಗತ್ಯವಿದೆ
+  "error.agentservice.userinfo_encryption_requires_certificate_description": userinfo ಎನ್‌ಕ್ರಿಪ್ಶನ್ ಸಂರಚಿಸಿದಾಗ ಸರ್ಟಿಫಿಕೇಟ್ (JWKS ಅಥವಾ JWKS_URI) ಅಗತ್ಯವಿದೆ
+  "error.agentservice.userinfo_jwe_requires_encryption_description": userinfo responseType JWE ಆಗಿದ್ದಾಗ encryptionAlg ಮತ್ತು encryptionEnc ಅಗತ್ಯವಿದೆ
+  "error.agentservice.userinfo_jwks_uri_not_ssrf_safe_description": userinfo JWKS URI ಸಾರ್ವಜನಿಕವಾಗಿ ತಲುಪಬಹುದಾದ HTTPS URL ಆಗಿರಬೇಕು
+  "error.agentservice.userinfo_jws_requires_signing_alg_description": userinfo responseType JWS ಆಗಿದ್ದಾಗ signingAlg ಅಗತ್ಯವಿದೆ
+  "error.agentservice.userinfo_nested_jwt_requires_all_description": userinfo responseType NESTED_JWT ಆಗಿದ್ದಾಗ signingAlg, encryptionAlg, ಮತ್ತು encryptionEnc ಅಗತ್ಯವಿದೆ
+  "error.agentservice.userinfo_unsupported_encryption_alg_description": userinfo ಎನ್‌ಕ್ರಿಪ್ಶನ್ ಅಲ್ಗಾರಿದಮ್ ಬೆಂಬಲಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.agentservice.userinfo_unsupported_encryption_enc_description": userinfo ವಿಷಯ-ಎನ್‌ಕ್ರಿಪ್ಶನ್ ಅಲ್ಗಾರಿದಮ್ ಬೆಂಬಲಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.agentservice.userinfo_unsupported_response_type_description": userinfo responseType ಬೆಂಬಲಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.agentservice.userinfo_unsupported_signing_alg_description": userinfo ಸಹಿ ಅಲ್ಗಾರಿದಮ್ ಬೆಂಬಲಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.applicationservice.application_already_exists": ಅಪ್ಲಿಕೇಶನ್ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "error.applicationservice.application_already_exists_description": ಅದೇ ಹೆಸರಿನ ಅಪ್ಲಿಕೇಶನ್ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "error.applicationservice.application_is_nil": ಅಪ್ಲಿಕೇಶನ್ ನಲ್ ಆಗಿದೆ
+  "error.applicationservice.application_is_nil_description": ಒದಗಿಸಿದ ಅಪ್ಲಿಕೇಶನ್ ಆಬ್ಜೆಕ್ಟ್ ನಲ್ ಆಗಿದೆ
+  "error.applicationservice.application_not_found": ಅಪ್ಲಿಕೇಶನ್ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.applicationservice.application_not_found_description": ವಿನಂತಿಸಿದ ಅಪ್ಲಿಕೇಶನ್ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.applicationservice.application_with_client_id_already_exists": Client ID ಹೊಂದಿರುವ ಅಪ್ಲಿಕೇಶನ್ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "error.applicationservice.application_with_client_id_already_exists_description": ಅದೇ client ID ಹೊಂದಿರುವ ಅಪ್ಲಿಕೇಶನ್ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "error.applicationservice.auth_code_requires_code_response_type_description": authorization_code ಗ್ರಾಂಟ್ ಪ್ರಕಾರಕ್ಕೆ 'code' ಪ್ರತಿಕ್ರಿಯೆ ಪ್ರಕಾರ ಅಗತ್ಯವಿದೆ
+  "error.applicationservice.auth_code_requires_redirect_uris_description": authorization_code ಗ್ರಾಂಟ್ ಪ್ರಕಾರಕ್ಕೆ ರೀಡೈರೆಕ್ಟ್ URIs ಅಗತ್ಯವಿದೆ
+  "error.applicationservice.cannot_modify_declarative_resource": ಘೋಷಣಾತ್ಮಕ ಸಂಪನ್ಮೂಲವನ್ನು ಮಾರ್ಪಡಿಸಲಾಗುವುದಿಲ್ಲ
+  "error.applicationservice.cannot_modify_declarative_resource_description": ಅಪ್ಲಿಕೇಶನ್ ಘೋಷಣಾತ್ಮಕವಾಗಿದ್ದು ಮಾರ್ಪಡಿಸಲು ಅಥವಾ ಅಳಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "error.applicationservice.certificate_operation_failed": ಸರ್ಟಿಫಿಕೇಟ್ ಕಾರ್ಯಾಚರಣೆ ವಿಫಲವಾಗಿದೆ
+  "error.applicationservice.certificate_operation_failed_description": ಅಪ್ಲಿಕೇಶನ್ ಸರ್ಟಿಫಿಕೇಟ್ ಪ್ರಕ್ರಿಯೆಗೊಳಿಸುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "error.applicationservice.client_credentials_cannot_use_none_auth_description": client_credentials ಗ್ರಾಂಟ್ ಪ್ರಕಾರ 'none' ದೃಢೀಕರಣ ವಿಧಾನವನ್ನು ಬಳಸಲಾಗುವುದಿಲ್ಲ
+  "error.applicationservice.client_credentials_cannot_use_response_types_description": client_credentials ಗ್ರಾಂಟ್ ಪ್ರಕಾರವನ್ನು ಪ್ರತಿಕ್ರಿಯೆ ಪ್ರಕಾರಗಳೊಂದಿಗೆ ಬಳಸಲಾಗುವುದಿಲ್ಲ
+  "error.applicationservice.client_secret_cannot_have_certificate_description": client_secret ದೃಢೀಕರಣ ವಿಧಾನಗಳಿಗೆ ಸರ್ಟಿಫಿಕೇಟ್ ಇರಲು ಅನುಮತಿ ಇಲ್ಲ
+  "error.applicationservice.consent_service_not_enabled": ಒಪ್ಪಿಗೆ ಸೇವೆ ಸಕ್ರಿಯಗೊಳಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.applicationservice.consent_service_not_enabled_description": ಒಪ್ಪಿಗೆ ಸೇವೆ ಸಕ್ರಿಯಗೊಳಿಸಲ್ಪಟ್ಟಿಲ್ಲ ಕಾರಣ ಅಪ್ಲಿಕೇಶನ್‌ಗೆ ಒಪ್ಪಿಗೆ ಸಕ್ರಿಯಗೊಳಿಸಲಾಗುವುದಿಲ್ಲ
+  "error.applicationservice.consent_synchronization_failed": ಒಪ್ಪಿಗೆ ಸಿಂಕ್ರೊನೈಸೇಶನ್ ವಿಫಲವಾಗಿದೆ
+  "error.applicationservice.consent_synchronization_failed_description": ಅಪ್ಲಿಕೇಶನ್‌ಗಾಗಿ ಒಪ್ಪಿಗೆ ಸಂರಚನೆಗಳನ್ನು ಸಿಂಕ್ರೊನೈಸ್ ಮಾಡಲು ವಿಫಲವಾಗಿದೆ
+  "error.applicationservice.error_retrieving_flow_definition": ಫ್ಲೋ ವ್ಯಾಖ್ಯಾನ ಮರುಪಡೆಯುವಲ್ಲಿ ದೋಷ
+  "error.applicationservice.error_retrieving_flow_definition_description": ಫ್ಲೋ ವ್ಯಾಖ್ಯಾನ ಮರುಪಡೆಯುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "error.applicationservice.idtoken_encryption_alg_requires_enc_description": encryptionAlg ಹೊಂದಿಸಿದಾಗ idToken encryptionEnc ಅಗತ್ಯವಿದೆ
+  "error.applicationservice.idtoken_encryption_enc_requires_alg_description": encryptionEnc ಹೊಂದಿಸಿದಾಗ idToken encryptionAlg ಅಗತ್ಯವಿದೆ
+  "error.applicationservice.idtoken_encryption_fields_not_allowed_description": responseType JWT ಆಗಿದ್ದಾಗ idToken encryptionAlg ಮತ್ತು encryptionEnc ಹೊಂದಿಸಬಾರದು
+  "error.applicationservice.idtoken_encryption_requires_certificate_description": ID ಟೋಕನ್ ಎನ್‌ಕ್ರಿಪ್ಶನ್ ಸಂರಚಿಸಿದಾಗ ಸರ್ಟಿಫಿಕೇಟ್ (JWKS ಅಥವಾ JWKS_URI) ಅಗತ್ಯವಿದೆ
+  "error.applicationservice.idtoken_jwks_uri_not_ssrf_safe_description": idToken JWKS URI ಸಾರ್ವಜನಿಕವಾಗಿ ತಲುಪಬಹುದಾದ HTTPS URL ಆಗಿರಬೇಕು
+  "error.applicationservice.idtoken_unsupported_encryption_alg_description": ID ಟೋಕನ್ ಎನ್‌ಕ್ರಿಪ್ಶನ್ ಅಲ್ಗಾರಿದಮ್ ಬೆಂಬಲಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.applicationservice.idtoken_unsupported_encryption_enc_description": ID ಟೋಕನ್ ವಿಷಯ-ಎನ್‌ಕ್ರಿಪ್ಶನ್ ಅಲ್ಗಾರಿದಮ್ ಬೆಂಬಲಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.applicationservice.idtoken_unsupported_response_type_description": ID ಟೋಕನ್ responseType ಬೆಂಬಲಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.applicationservice.invalid_acr_values": ಅಮಾನ್ಯ ACR ಮೌಲ್ಯ
+  "error.applicationservice.invalid_acr_values_description": acr_values ನಲ್ಲಿ ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ACR ಮೌಲ್ಯಗಳು ಸಿಸ್ಟಂನಿಂದ ಗುರುತಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.applicationservice.invalid_application_id": ಅಮಾನ್ಯ ಅಪ್ಲಿಕೇಶನ್ ID
+  "error.applicationservice.invalid_application_id_description": ಒದಗಿಸಿದ ಅಪ್ಲಿಕೇಶನ್ ID ಅಮಾನ್ಯ ಅಥವಾ ಖಾಲಿ ಆಗಿದೆ
+  "error.applicationservice.invalid_application_name": ಅಮಾನ್ಯ ಅಪ್ಲಿಕೇಶನ್ ಹೆಸರು
+  "error.applicationservice.invalid_application_name_description": ಒದಗಿಸಿದ ಅಪ್ಲಿಕೇಶನ್ ಹೆಸರು ಅಮಾನ್ಯ ಅಥವಾ ಖಾಲಿ ಆಗಿದೆ
+  "error.applicationservice.invalid_application_url": ಅಮಾನ್ಯ ಅಪ್ಲಿಕೇಶನ್ URL
+  "error.applicationservice.invalid_application_url_description": ಒದಗಿಸಿದ ಅಪ್ಲಿಕೇಶನ್ URL ಮಾನ್ಯ URI ಅಲ್ಲ
+  "error.applicationservice.invalid_auth_flow_id": ಅಮಾನ್ಯ ದೃಢೀಕರಣ ಫ್ಲೋ ID
+  "error.applicationservice.invalid_auth_flow_id_description": ಒದಗಿಸಿದ ದೃಢೀಕರಣ ಫ್ಲೋ ID ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.applicationservice.invalid_certificate_type": ಅಮಾನ್ಯ ಸರ್ಟಿಫಿಕೇಟ್ ಪ್ರಕಾರ
+  "error.applicationservice.invalid_certificate_type_description": ಒದಗಿಸಿದ ಸರ್ಟಿಫಿಕೇಟ್ ಪ್ರಕಾರ ಬೆಂಬಲಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.applicationservice.invalid_certificate_value": ಅಮಾನ್ಯ ಸರ್ಟಿಫಿಕೇಟ್ ಮೌಲ್ಯ
+  "error.applicationservice.invalid_certificate_value_description": ಒದಗಿಸಿದ ಸರ್ಟಿಫಿಕೇಟ್ ಮೌಲ್ಯ ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.applicationservice.invalid_client_id": ಅಮಾನ್ಯ client ID
+  "error.applicationservice.invalid_client_id_description": ಒದಗಿಸಿದ client ID ಅಮಾನ್ಯ ಅಥವಾ ಖಾಲಿ ಆಗಿದೆ
+  "error.applicationservice.invalid_grant_type": ಅಮಾನ್ಯ ಗ್ರಾಂಟ್ ಪ್ರಕಾರ
+  "error.applicationservice.invalid_grant_type_description": ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ಒದಗಿಸಿದ ಗ್ರಾಂಟ್ ಪ್ರಕಾರಗಳು ಅಮಾನ್ಯವಾಗಿವೆ
+  "error.applicationservice.invalid_inbound_auth_config": ಅಮಾನ್ಯ ಇನ್‌ಬೌಂಡ್ ದೃಢೀಕರಣ ಸಂರಚನೆ
+  "error.applicationservice.invalid_inbound_auth_config_description": ಒದಗಿಸಿದ ಇನ್‌ಬೌಂಡ್ ದೃಢೀಕರಣ ಸಂರಚನೆ ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.applicationservice.invalid_jwks_uri": ಅಮಾನ್ಯ JWKS URI
+  "error.applicationservice.invalid_jwks_uri_description": ಒದಗಿಸಿದ JWKS URI ಮಾನ್ಯ URI ಅಲ್ಲ
+  "error.applicationservice.invalid_jwks_uri_scheme": ಅಮಾನ್ಯ JWKS URI ಸ್ಕೀಮ್
+  "error.applicationservice.invalid_jwks_uri_scheme_description": 'jwks_uri' HTTPS ಸ್ಕೀಮ್ ಬಳಸಬೇಕು
+  "error.applicationservice.invalid_logo_url": ಅಮಾನ್ಯ ಲೋಗೋ URL
+  "error.applicationservice.invalid_logo_url_description": ಒದಗಿಸಿದ ಲೋಗೋ URL ಮಾನ್ಯ URI ಅಲ್ಲ
+  "error.applicationservice.invalid_oauth_configuration": ಅಮಾನ್ಯ OAuth ಸಂರಚನೆ
+  "error.applicationservice.invalid_oauth_configuration_description": OAuth ಸಂರಚನೆ ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.applicationservice.invalid_public_client_configuration": ಅಮಾನ್ಯ ಸಾರ್ವಜನಿಕ ಕ್ಲೈಂಟ್ ಸಂರಚನೆ
+  "error.applicationservice.invalid_public_client_configuration_description": ಸಾರ್ವಜನಿಕ ಕ್ಲೈಂಟ್ ಸಂರಚನೆ ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.applicationservice.invalid_recovery_flow_id": ಅಮಾನ್ಯ ಚೇತರಿಕೆ ಫ್ಲೋ ID
+  "error.applicationservice.invalid_recovery_flow_id_description": ಒದಗಿಸಿದ ಚೇತರಿಕೆ ಫ್ಲೋ ID ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.applicationservice.invalid_redirect_uri": ಅಮಾನ್ಯ ರೀಡೈರೆಕ್ಟ್ URI
+  "error.applicationservice.invalid_redirect_uri_description": ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ಒದಗಿಸಿದ ರೀಡೈರೆಕ್ಟ್ URIs ಮಾನ್ಯ URIs ಅಲ್ಲ
+  "error.applicationservice.invalid_registration_flow_id": ಅಮಾನ್ಯ ನೋಂದಣಿ ಫ್ಲೋ ID
+  "error.applicationservice.invalid_registration_flow_id_description": ಒದಗಿಸಿದ ನೋಂದಣಿ ಫ್ಲೋ ID ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.applicationservice.invalid_request_format": ಅಮಾನ್ಯ ವಿನಂತಿ ಸ್ವರೂಪ
+  "error.applicationservice.invalid_request_format_description": ವಿನಂತಿ ಮುಖ್ಯಭಾಗ ಅಸ್ತವ್ಯಸ್ತವಾಗಿದೆ ಅಥವಾ ಅಮಾನ್ಯ ದತ್ತಾಂಶ ಹೊಂದಿದೆ
+  "error.applicationservice.invalid_response_type": ಅಮಾನ್ಯ ಪ್ರತಿಕ್ರಿಯೆ ಪ್ರಕಾರ
+  "error.applicationservice.invalid_response_type_description": ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ಒದಗಿಸಿದ ಪ್ರತಿಕ್ರಿಯೆ ಪ್ರಕಾರಗಳು ಅಮಾನ್ಯವಾಗಿವೆ
+  "error.applicationservice.invalid_token_endpoint_auth_method": ಅಮಾನ್ಯ ಟೋಕನ್ ಎಂಡ್‌ಪಾಯಿಂಟ್ ದೃಢೀಕರಣ ವಿಧಾನ
+  "error.applicationservice.invalid_token_endpoint_auth_method_description": ಒದಗಿಸಿದ ಟೋಕನ್ ಎಂಡ್‌ಪಾಯಿಂಟ್ ದೃಢೀಕರಣ ವಿಧಾನ ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.applicationservice.invalid_user_attribute": ಅಮಾನ್ಯ ಬಳಕೆದಾರ ಗುಣಲಕ್ಷಣ
+  "error.applicationservice.invalid_user_attribute_description": ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ಬಳಕೆದಾರ ಗುಣಲಕ್ಷಣಗಳು ಸಂರಚಿತ ಅನುಮತಿಸಿದ ಬಳಕೆದಾರ ಪ್ರಕಾರಗಳಿಗೆ ಮಾನ್ಯವಾಗಿಲ್ಲ
+  "error.applicationservice.invalid_user_type": ಅಮಾನ್ಯ ಬಳಕೆದಾರ ಪ್ರಕಾರ
+  "error.applicationservice.invalid_user_type_description": allowed_user_types ನಲ್ಲಿ ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ಬಳಕೆದಾರ ಪ್ರಕಾರಗಳು ಸಿಸ್ಟಂನಲ್ಲಿ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.applicationservice.layout_not_found": ಲೇಔಟ್ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.applicationservice.layout_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಲೇಔಟ್ ಸಂರಚನೆ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.applicationservice.multiple_oauth_configs": ಅನೇಕ OAuth ಇನ್‌ಬೌಂಡ್ ದೃಢೀಕರಣ ಸಂರಚನೆಗಳಿಗೆ ಅನುಮತಿ ಇಲ್ಲ
+  "error.applicationservice.multiple_oauth_configs_description": ಒಂದು ಅಪ್ಲಿಕೇಶನ್ ಪ್ರತಿ ಪ್ರೋಟೋಕಾಲ್‌ಗೆ ಗರಿಷ್ಠ ಒಂದು ಇನ್‌ಬೌಂಡ್ ದೃಢೀಕರಣ ಸಂರಚನೆ ಹೊಂದಬಹುದು
+  "error.applicationservice.none_auth_method_cannot_have_cert_or_secret_description": 'none' ದೃಢೀಕರಣ ವಿಧಾನಕ್ಕೆ ಸರ್ಟಿಫಿಕೇಟ್ ಅಥವಾ ಕ್ಲೈಂಟ್ ರಹಸ್ಯ ಇರಲು ಅನುಮತಿ ಇಲ್ಲ
+  "error.applicationservice.none_auth_method_requires_public_client_description": 'none' ದೃಢೀಕರಣ ವಿಧಾನಕ್ಕೆ ಕ್ಲೈಂಟ್ ಸಾರ್ವಜನಿಕ ಕ್ಲೈಂಟ್ ಆಗಿರಬೇಕು
+  "error.applicationservice.pkce_requires_authorization_code_description": authorization_code ಗ್ರಾಂಟ್ ಪ್ರಕಾರ ಆಯ್ಕೆ ಮಾಡಿದಾಗ ಮಾತ್ರ PKCE ಸಕ್ರಿಯಗೊಳಿಸಬಹುದು
+  "error.applicationservice.private_key_jwt_cannot_have_client_secret_description": private_key_jwt ದೃಢೀಕರಣ ವಿಧಾನಕ್ಕೆ ಕ್ಲೈಂಟ್ ರಹಸ್ಯ ಇರಲು ಅನುಮತಿ ಇಲ್ಲ
+  "error.applicationservice.private_key_jwt_requires_certificate_description": private_key_jwt ದೃಢೀಕರಣ ವಿಧಾನಕ್ಕೆ ಸರ್ಟಿಫಿಕೇಟ್ ಅಗತ್ಯವಿದೆ
+  "error.applicationservice.public_client_must_have_pkce_description": ಸಾರ್ವಜನಿಕ ಕ್ಲೈಂಟ್‌ಗಳಿಗೆ PKCE ಅಗತ್ಯ true ಗೆ ಹೊಂದಿಸಿರಬೇಕು
+  "error.applicationservice.public_client_must_use_none_auth_description": ಸಾರ್ವಜನಿಕ ಕ್ಲೈಂಟ್‌ಗಳು ಟೋಕನ್ ಎಂಡ್‌ಪಾಯಿಂಟ್ ದೃಢೀಕರಣ ವಿಧಾನವಾಗಿ 'none' ಬಳಸಬೇಕು
+  "error.applicationservice.redirect_uri_fragment_not_allowed_description": ರೀಡೈರೆಕ್ಟ್ URIs ಫ್ರಾಗ್ಮೆಂಟ್ ಘಟಕ ಹೊಂದಿರಬಾರದು
+  "error.applicationservice.refresh_token_cannot_be_sole_grant_description": refresh_token ಗ್ರಾಂಟ್ ಪ್ರಕಾರವನ್ನು ಮತ್ತೊಂದು ಗ್ರಾಂಟ್ ಪ್ರಕಾರವಿಲ್ಲದೆ ಬಳಸಲಾಗುವುದಿಲ್ಲ
+  "error.applicationservice.response_types_require_authorization_code_description": ಪ್ರತಿಕ್ರಿಯೆ ಪ್ರಕಾರಗಳನ್ನು authorization_code ಗ್ರಾಂಟ್ ಪ್ರಕಾರದೊಂದಿಗೆ ಮಾತ್ರ ಸಂರಚಿಸಬಹುದು
+  "error.applicationservice.result_limit_exceeded": ಫಲಿತಾಂಶ ಮಿತಿ ಮೀರಿದೆ
+  "error.applicationservice.theme_not_found": ಥೀಮ್ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.applicationservice.theme_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಥೀಮ್ ಸಂರಚನೆ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.applicationservice.userinfo_alg_requires_response_type_description": signingAlg ಅಥವಾ encryptionAlg ಹೊಂದಿಸಿದಾಗ userinfo responseType ಅಗತ್ಯವಿದೆ
+  "error.applicationservice.userinfo_encryption_alg_requires_enc_description": encryptionAlg ಹೊಂದಿಸಿದಾಗ userinfo encryptionEnc ಅಗತ್ಯವಿದೆ
+  "error.applicationservice.userinfo_encryption_enc_requires_alg_description": encryptionEnc ಹೊಂದಿಸಿದಾಗ userinfo encryptionAlg ಅಗತ್ಯವಿದೆ
+  "error.applicationservice.userinfo_encryption_requires_certificate_description": userinfo ಎನ್‌ಕ್ರಿಪ್ಶನ್ ಸಂರಚಿಸಿದಾಗ ಸರ್ಟಿಫಿಕೇಟ್ (JWKS ಅಥವಾ JWKS_URI) ಅಗತ್ಯವಿದೆ
+  "error.applicationservice.userinfo_jwe_requires_encryption_description": userinfo responseType JWE ಆಗಿದ್ದಾಗ encryptionAlg ಮತ್ತು encryptionEnc ಅಗತ್ಯವಿದೆ
+  "error.applicationservice.userinfo_jwks_uri_not_ssrf_safe_description": userinfo JWKS URI ಸಾರ್ವಜನಿಕವಾಗಿ ತಲುಪಬಹುದಾದ HTTPS URL ಆಗಿರಬೇಕು
+  "error.applicationservice.userinfo_jws_requires_signing_alg_description": userinfo responseType JWS ಆಗಿದ್ದಾಗ signingAlg ಅಗತ್ಯವಿದೆ
+  "error.applicationservice.userinfo_nested_jwt_requires_all_description": userinfo responseType NESTED_JWT ಆಗಿದ್ದಾಗ signingAlg, encryptionAlg, ಮತ್ತು encryptionEnc ಅಗತ್ಯವಿದೆ
+  "error.applicationservice.userinfo_unsupported_encryption_alg_description": userinfo ಎನ್‌ಕ್ರಿಪ್ಶನ್ ಅಲ್ಗಾರಿದಮ್ ಬೆಂಬಲಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.applicationservice.userinfo_unsupported_encryption_enc_description": userinfo ವಿಷಯ-ಎನ್‌ಕ್ರಿಪ್ಶನ್ ಅಲ್ಗಾರಿದಮ್ ಬೆಂಬಲಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.applicationservice.userinfo_unsupported_response_type_description": userinfo responseType ಬೆಂಬಲಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.applicationservice.userinfo_unsupported_signing_alg_description": userinfo ಸಹಿ ಅಲ್ಗಾರಿದಮ್ ಬೆಂಬಲಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.assertservice.invalid_authenticator": ಅಮಾನ್ಯ ದೃಢೀಕರಣಕಾರ
+  "error.assertservice.invalid_authenticator_description": ದೃಢೀಕರಣಕಾರ ಹೆಸರು ಖಾಲಿ ಇರಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "error.assertservice.nil_assurance_context": ನಲ್ ಖಚಿತತೆ ಸಂದರ್ಭ
+  "error.assertservice.nil_assurance_context_description": ಪರಿಶೀಲನೆಗಾಗಿ ಖಚಿತತೆ ಸಂದರ್ಭ ನಲ್ ಆಗಿರಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "error.assertservice.no_assurance_requirements": ಯಾವುದೇ ಖಚಿತತೆ ಅವಶ್ಯಕತೆಗಳಿಲ್ಲ
+  "error.assertservice.no_assurance_requirements_description": ಪರಿಶೀಲನೆಗಾಗಿ ಕನಿಷ್ಠ ಒಂದು ಖಚಿತತೆ ಮಟ್ಟ (AAL ಅಥವಾ IAL) ನಿರ್ದಿಷ್ಟಪಡಿಸಬೇಕು
+  "error.assertservice.no_authenticators": ಯಾವುದೇ ದೃಢೀಕರಣಕಾರಗಳಿಲ್ಲ
+  "error.assertservice.no_authenticators_description": ದೃಢೀಕರಣಕಾರಗಳಿಲ್ಲದೆ ಘೋಷಣೆ ರಚಿಸಲಾಗುವುದಿಲ್ಲ
+  "error.attributecache.cache_not_found": ಗುಣಲಕ್ಷಣ ಕ್ಯಾಶ್ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.attributecache.cache_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ID ಹೊಂದಿರುವ ಗುಣಲಕ್ಷಣ ಕ್ಯಾಶ್ ನಮೂದು ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.attributecache.invalid_expiry_time": ಅಮಾನ್ಯ ಮುಕ್ತಾಯ ಸಮಯ
+  "error.attributecache.invalid_expiry_time_description": ಮುಕ್ತಾಯ ಸಮಯ ಭವಿಷ್ಯದಲ್ಲಿ ಇರಬೇಕು
+  "error.attributecache.invalid_request_format": ಅಮಾನ್ಯ ವಿನಂತಿ ಸ್ವರೂಪ
+  "error.attributecache.invalid_request_format_description": ವಿನಂತಿ ಮುಖ್ಯಭಾಗ ಅಸ್ತವ್ಯಸ್ತವಾಗಿದೆ ಅಥವಾ ಅಮಾನ್ಯ ದತ್ತಾಂಶ ಹೊಂದಿದೆ
+  "error.attributecache.missing_attributes": ಗುಣಲಕ್ಷಣಗಳು ಕಾಣೆಯಾಗಿವೆ
+  "error.attributecache.missing_attributes_description": ಗುಣಲಕ್ಷಣಗಳು ಅಗತ್ಯವಿದೆ
+  "error.attributecache.missing_cache_id": ಕ್ಯಾಶ್ ID ಕಾಣೆಯಾಗಿದೆ
+  "error.attributecache.missing_cache_id_description": ಕ್ಯಾಶ್ ID ಅಗತ್ಯವಿದೆ
+  "error.auth.forbidden": ನಿಷೇಧಿಸಲ್ಪಟ್ಟಿದೆ
+  "error.auth.forbidden_description": ಈ ಸಂಪನ್ಮೂಲ ಪ್ರವೇಶಿಸಲು ನಿಮಗೆ ಸಾಕಷ್ಟು ಅನುಮತಿಗಳಿಲ್ಲ
+  "error.auth.unauthorized": ಅನಧಿಕೃತ
+  "error.auth.unauthorized_description": ಈ ಸಂಪನ್ಮೂಲ ಪ್ರವೇಶಿಸಲು ದೃಢೀಕರಣ ಅಗತ್ಯವಿದೆ
+  "error.authncredservice.invalid_request_format": ಅಮಾನ್ಯ ವಿನಂತಿ ಸ್ವರೂಪ
+  "error.authncredservice.invalid_request_format_description": ವಿನಂತಿ ಮುಖ್ಯಭಾಗ ಅಸ್ತವ್ಯಸ್ತವಾಗಿದೆ ಅಥವಾ ಅಮಾನ್ಯ ದತ್ತಾಂಶ ಹೊಂದಿದೆ
+  "error.authnmgrservice.ambiguous_user": ಅಸ್ಪಷ್ಟ ಬಳಕೆದಾರ
+  "error.authnmgrservice.ambiguous_user_description": ಒದಗಿಸಿದ ಗುರುತಿನ ವಿವರಗಳಿಗೆ ಹೊಂದಿಕೆಯಾಗುವ ಅನೇಕ ಬಳಕೆದಾರರು ಕಂಡುಬಂದಿದ್ದಾರೆ
+  "error.authnmgrservice.authentication_failed": ದೃಢೀಕರಣ ವಿಫಲವಾಗಿದೆ
+  "error.authnmgrservice.authentication_failed_description": ದೃಢೀಕರಣ ಪ್ರಯತ್ನ ವಿಫಲವಾಗಿದೆ
+  "error.authnmgrservice.failed_to_get_attributes": ಗುಣಲಕ್ಷಣಗಳು ಪಡೆಯಲು ವಿಫಲವಾಗಿದೆ
+  "error.authnmgrservice.failed_to_get_attributes_description": ಪ್ರದಾನಕರ್ತನಿಂದ ಗುಣಲಕ್ಷಣ ಪಡೆಯುವ ವಿನಂತಿ ತಿರಸ್ಕರಿಸಲ್ಪಟ್ಟಿದೆ
+  "error.authnmgrservice.get_entity_reference_client_error": ಘಟಕ ಉಲ್ಲೇಖ ಪಡೆಯಲು ವಿಫಲವಾಗಿದೆ
+  "error.authnmgrservice.get_entity_reference_client_error_description": ಪ್ರದಾನಕರ್ತನಿಂದ ಘಟಕ ಉಲ್ಲೇಖ ಪಡೆಯುವ ವಿನಂತಿ ತಿರಸ್ಕರಿಸಲ್ಪಟ್ಟಿದೆ
+  "error.authnmgrservice.invalid_request": ಅಮಾನ್ಯ ವಿನಂತಿ
+  "error.authnmgrservice.invalid_request_description": ದೃಢೀಕರಣ ವಿನಂತಿ ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.authnmgrservice.user_not_found": ಬಳಕೆದಾರ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.authnmgrservice.user_not_found_description": ಒದಗಿಸಿದ ಗುರುತಿನ ವಿವರಗಳಿಗೆ ಹೊಂದಿಕೆಯಾಗುವ ಯಾವುದೇ ಬಳಕೆದಾರ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.authnotpservice.error_processing_otp": OTP ಪ್ರಕ್ರಿಯೆಗೊಳಿಸುವಲ್ಲಿ ದೋಷ
+  "error.authnotpservice.error_processing_otp_description": OTP ವಿನಂತಿ ಪ್ರಕ್ರಿಯೆಗೊಳಿಸುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "error.authnotpservice.error_resolving_user": ಬಳಕೆದಾರ ರಿಸಾಲ್ವ್ ಮಾಡುವಲ್ಲಿ ದೋಷ
+  "error.authnotpservice.error_resolving_user_description": ಸ್ವೀಕರಿಸುವವರಿಗಾಗಿ ಬಳಕೆದಾರ ರಿಸಾಲ್ವ್ ಮಾಡುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "error.authnotpservice.incorrect_otp": ತಪ್ಪಾದ OTP
+  "error.authnotpservice.incorrect_otp_description": ಒದಗಿಸಿದ OTP ತಪ್ಪಾಗಿದೆ ಅಥವಾ ಅವಧಿ ಮೀರಿದೆ
+  "error.authnotpservice.invalid_otp": ಅಮಾನ್ಯ OTP
+  "error.authnotpservice.invalid_otp_description": ಒದಗಿಸಿದ OTP ಅಮಾನ್ಯ ಅಥವಾ ಖಾಲಿ ಆಗಿದೆ
+  "error.authnotpservice.invalid_recipient": ಅಮಾನ್ಯ ಸ್ವೀಕರಿಸುವವರು
+  "error.authnotpservice.invalid_recipient_description": ಒದಗಿಸಿದ ಸ್ವೀಕರಿಸುವವರು ಅಮಾನ್ಯ ಅಥವಾ ಖಾಲಿ ಆಗಿದ್ದಾರೆ
+  "error.authnotpservice.invalid_sender_id": ಅಮಾನ್ಯ ಕಳುಹಿಸುವವರ ID
+  "error.authnotpservice.invalid_sender_id_description": ಒದಗಿಸಿದ ಕಳುಹಿಸುವವರ ID ಅಮಾನ್ಯ ಅಥವಾ ಖಾಲಿ ಆಗಿದೆ
+  "error.authnotpservice.invalid_session_token": ಅಮಾನ್ಯ ಸೆಶನ್ ಟೋಕನ್
+  "error.authnotpservice.invalid_session_token_description": ಒದಗಿಸಿದ ಸೆಶನ್ ಟೋಕನ್ ಅಮಾನ್ಯ ಅಥವಾ ಖಾಲಿ ಆಗಿದೆ
+  "error.authnotpservice.unsupported_channel": ಬೆಂಬಲಿಸದ ಚಾನೆಲ್
+  "error.authnotpservice.unsupported_channel_description": ಒದಗಿಸಿದ ಚಾನೆಲ್ OTP ದೃಢೀಕರಣಕ್ಕೆ ಬೆಂಬಲಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.authnservice.ambiguous_user": ಅಸ್ಪಷ್ಟ ಬಳಕೆದಾರ
+  "error.authnservice.ambiguous_user_description": ಅನೇಕ ಬಳಕೆದಾರರು ಒದಗಿಸಿದ ಗುಣಲಕ್ಷಣಗಳಿಗೆ ಹೊಂದಿಕೆಯಾಗುತ್ತಾರೆ
+  "error.authnservice.assertion_subject_mismatch": ಘೋಷಣೆ ವಿಷಯ ಹೊಂದಿಕೆಯಾಗುತ್ತಿಲ್ಲ
+  "error.authnservice.assertion_subject_mismatch_description": ಘೋಷಣೆಯಲ್ಲಿನ ವಿಷಯ ದೃಢೀಕೃತ ಬಳಕೆದಾರರಿಗೆ ಹೊಂದಿಕೆಯಾಗುತ್ತಿಲ್ಲ
+  "error.authnservice.authentication_failed": ದೃಢೀಕರಣ ವಿಫಲವಾಗಿದೆ
+  "error.authnservice.authentication_failed_description": ಬಳಕೆದಾರನನ್ನು ದೃಢೀಕರಿಸುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "error.authnservice.empty_attributes_or_credentials": ಖಾಲಿ ಗುಣಲಕ್ಷಣಗಳು ಅಥವಾ ರುಜುವಾತುಗಳು
+  "error.authnservice.empty_attributes_or_credentials_description": ಬಳಕೆದಾರ ಗುಣಲಕ್ಷಣಗಳು ಅಥವಾ ರುಜುವಾತುಗಳು ಖಾಲಿ ಆಗಿರಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "error.authnservice.empty_auth_code": ಖಾಲಿ ದೃಢೀಕರಣ ಕೋಡ್
+  "error.authnservice.empty_auth_code_description": ಒದಗಿಸಿದ ದೃಢೀಕರಣ ಕೋಡ್ ಖಾಲಿ ಆಗಿದೆ
+  "error.authnservice.empty_session_token": ಖಾಲಿ ಸೆಶನ್ ಟೋಕನ್
+  "error.authnservice.empty_session_token_description": ಒದಗಿಸಿದ ಸೆಶನ್ ಟೋಕನ್ ಖಾಲಿ ಆಗಿದೆ
+  "error.authnservice.error_retrieving_idp": ಗುರುತಿನ ಪ್ರದಾನಕರ್ತ ಮರುಪಡೆಯುವಲ್ಲಿ ದೋಷ
+  "error.authnservice.error_retrieving_idp_description": ಗುರುತಿನ ಪ್ರದಾನಕರ್ತ ಮರುಪಡೆಯುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "error.authnservice.federated_authentication_failed": ಫೆಡರೇಟೆಡ್ ದೃಢೀಕರಣ ವಿಫಲವಾಗಿದೆ
+  "error.authnservice.federated_authentication_failed_description": ಫೆಡರೇಟೆಡ್ ದೃಢೀಕರಣ ಪ್ರಯತ್ನ ವಿಫಲವಾಗಿದೆ
+  "error.authnservice.google.invalid_id_token_audience_description": ID ಟೋಕನ್ ಪ್ರೇಕ್ಷಕ ನಿರೀಕ್ಷಿತ client ID ಗೆ ಹೊಂದಿಕೆಯಾಗುತ್ತಿಲ್ಲ
+  "error.authnservice.google.invalid_id_token_exp_claim_description": ID ಟೋಕನ್ ಮುಕ್ತಾಯ ಕ್ಲೇಮ್ ಕಾಣೆಯಾಗಿದೆ ಅಥವಾ ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.authnservice.google.invalid_id_token_expired_description": ID ಟೋಕನ್ ಅವಧಿ ಮೀರಿದೆ
+  "error.authnservice.google.invalid_id_token_future_iat_description": ID ಟೋಕನ್ ಭವಿಷ್ಯದಲ್ಲಿ ನೀಡಲಾಗಿದೆ
+  "error.authnservice.google.invalid_id_token_iat_claim_description": ID ಟೋಕನ್ ನೀಡಲ್ಪಟ್ಟ-ಸಮಯ (iat) ಕ್ಲೇಮ್ ಕಾಣೆಯಾಗಿದೆ ಅಥವಾ ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.authnservice.google.invalid_id_token_issuer_description": ID ಟೋಕನ್‌ನ ನೀಡುವವರು ಮಾನ್ಯ Google ನೀಡುವವರಲ್ಲ
+  "error.authnservice.invalid_assertion": ಅಮಾನ್ಯ ಘೋಷಣೆ
+  "error.authnservice.invalid_assertion_description": ಒದಗಿಸಿದ ಘೋಷಣೆ ಟೋಕನ್ ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.authnservice.invalid_credentials": ಅಮಾನ್ಯ ರುಜುವಾತುಗಳು
+  "error.authnservice.invalid_credentials_description": ಒದಗಿಸಿದ ರುಜುವಾತುಗಳು ಅಮಾನ್ಯವಾಗಿವೆ
+  "error.authnservice.invalid_idp_id": ಅಮಾನ್ಯ ಗುರುತಿನ ಪ್ರದಾನಕರ್ತ ID
+  "error.authnservice.invalid_idp_id_description": ಒದಗಿಸಿದ ಗುರುತಿನ ಪ್ರದಾನಕರ್ತ ID ಅಮಾನ್ಯ ಅಥವಾ ಖಾಲಿ ಆಗಿದೆ
+  "error.authnservice.invalid_idp_type": ಅಮಾನ್ಯ ಗುರುತಿನ ಪ್ರದಾನಕರ್ತ ಪ್ರಕಾರ
+  "error.authnservice.invalid_idp_type_description": ವಿನಂತಿಸಿದ ಗುರುತಿನ ಪ್ರದಾನಕರ್ತ ಪ್ರಕಾರ ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.authnservice.invalid_session_token": ಅಮಾನ್ಯ ಸೆಶನ್ ಟೋಕನ್
+  "error.authnservice.invalid_session_token_description": ಒದಗಿಸಿದ ಸೆಶನ್ ಟೋಕನ್ ಅಮಾನ್ಯ ಅಥವಾ ಅವಧಿ ಮೀರಿದೆ
+  "error.authnservice.invalid_token": ಅಮಾನ್ಯ ಟೋಕನ್
+  "error.authnservice.invalid_token_description": ಒದಗಿಸಿದ ಟೋಕನ್ ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.authnservice.otp_authentication_failed": ದೃಢೀಕರಣ ವಿಫಲವಾಗಿದೆ
+  "error.authnservice.otp_authentication_failed_description": OTP ದೃಢೀಕರಣ ಪ್ರಯತ್ನ ವಿಫಲವಾಗಿದೆ
+  "error.authnservice.passkey_authentication_failed": ದೃಢೀಕರಣ ವಿಫಲವಾಗಿದೆ
+  "error.authnservice.passkey_authentication_failed_description": ಪಾಸ್‌ಕೀ ದೃಢೀಕರಣ ಪ್ರಯತ್ನ ವಿಫಲವಾಗಿದೆ
+  "error.authnservice.sub_claim_not_found": ಬಳಕೆದಾರ ವಿಷಯ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.authnservice.sub_claim_not_found_description": ID ಟೋಕನ್ ಕ್ಲೇಮ್‌ಗಳಲ್ಲಿ 'sub' ಕ್ಲೇಮ್ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.authnservice.user_not_found": ಬಳಕೆದಾರ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.authnservice.user_not_found_description": ಒದಗಿಸಿದ ಗುಣಲಕ್ಷಣಗಳೊಂದಿಗೆ ಯಾವುದೇ ಬಳಕೆದಾರ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.authoauthservice.empty_access_token": ಖಾಲಿ ಪ್ರವೇಶ ಟೋಕನ್
+  "error.authoauthservice.empty_access_token_description": ಪ್ರವೇಶ ಟೋಕನ್ ಖಾಲಿ ಆಗಿರಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "error.authoauthservice.empty_authorization_code": ಖಾಲಿ ದೃಢೀಕರಣ ಕೋಡ್
+  "error.authoauthservice.empty_authorization_code_description": ದೃಢೀಕರಣ ಕೋಡ್ ಖಾಲಿ ಆಗಿರಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "error.authoauthservice.empty_idp_id": IDP id ಖಾಲಿ ಆಗಿದೆ
+  "error.authoauthservice.empty_idp_id_description": ಗುರುತಿನ ಪ್ರದಾನಕರ್ತ id ಖಾಲಿ ಆಗಿರಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "error.authoauthservice.empty_sub_claim": ಖಾಲಿ sub ಕ್ಲೇಮ್
+  "error.authoauthservice.empty_sub_claim_description": sub ಕ್ಲೇಮ್ ಖಾಲಿ ಆಗಿರಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "error.authoauthservice.failed_to_retrieve_idp": ಗುರುತಿನ ಪ್ರದಾನಕರ್ತ ಮರುಪಡೆಯಲು ವಿಫಲವಾಗಿದೆ
+  "error.authoauthservice.failed_to_retrieve_idp_description": ಗುರುತಿನ ಪ್ರದಾನಕರ್ತ ಸಂರಚನೆ ಮರುಪಡೆಯುವಾಗ ಕ್ಲೈಂಟ್ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "error.authoauthservice.failed_to_retrieve_user": ಬಳಕೆದಾರ ಮರುಪಡೆಯಲು ವಿಫಲವಾಗಿದೆ
+  "error.authoauthservice.failed_to_retrieve_user_description": ಆಂತರಿಕ ಬಳಕೆದಾರ ಮರುಪಡೆಯುವಾಗ ಕ್ಲೈಂಟ್ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "error.authoauthservice.invalid_idp": ಅಮಾನ್ಯ ಗುರುತಿನ ಪ್ರದಾನಕರ್ತ
+  "error.authoauthservice.invalid_idp_description": ಮರುಪಡೆದ ಗುರುತಿನ ಪ್ರದಾನಕರ್ತ ಅಮಾನ್ಯ ಅಥವಾ ಖಾಲಿ ಆಗಿದೆ
+  "error.authoauthservice.invalid_token_response": ಅಮಾನ್ಯ ಟೋಕನ್ ಪ್ರತಿಕ್ರಿಯೆ
+  "error.authoauthservice.invalid_token_response_description": ಗುರುತಿನ ಪ್ರದಾನಕರ್ತನಿಂದ ಸ್ವೀಕರಿಸಿದ ಟೋಕನ್ ಪ್ರತಿಕ್ರಿಯೆ ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.authoidcservice.invalid_id_token": ಅಮಾನ್ಯ ID ಟೋಕನ್
+  "error.authoidcservice.invalid_id_token_description": ID ಟೋಕನ್ ಅಮಾನ್ಯ ಅಥವಾ ವಿರೂಪಗೊಂಡಿದೆ
+  "error.authoidcservice.invalid_id_token_signature": ಅಮಾನ್ಯ ID ಟೋಕನ್ ಸಹಿ
+  "error.authoidcservice.invalid_id_token_signature_description": ID ಟೋಕನ್ ಸಹಿ ಪರಿಶೀಲನೆ ವಿಫಲವಾಗಿದೆ
+  "error.authzen.invalid_action": ಅಮಾನ್ಯ ಕ್ರಿಯೆ
+  "error.authzen.invalid_action_description": ಕ್ರಿಯೆ ಹೆಸರು ಸಂಪನ್ಮೂಲ ಸರ್ವರ್‌ನಲ್ಲಿ ನೋಂದಾಯಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.authzen.invalid_request_format": ಅಮಾನ್ಯ ವಿನಂತಿ ಸ್ವರೂಪ
+  "error.authzen.invalid_request_format_description": ವಿನಂತಿ ಮುಖ್ಯಭಾಗ ಅಸ್ತವ್ಯಸ್ತವಾಗಿದೆ ಅಥವಾ ಅಮಾನ್ಯ ದತ್ತಾಂಶ ಹೊಂದಿದೆ
+  "error.authzen.invalid_resource": ಅಮಾನ್ಯ ಸಂಪನ್ಮೂಲ
+  "error.authzen.invalid_resource_description": ಸಂಪನ್ಮೂಲ ಪ್ರಕಾರ ಸಂಪನ್ಮೂಲ ಸರ್ವರ್ ಆಗಿ ನೋಂದಾಯಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.authzen.invalid_subject": ಅಮಾನ್ಯ ವಿಷಯ
+  "error.authzen.invalid_subject_description": ವಿಷಯ id ವಿಷಯ ಪ್ರಕಾರಕ್ಕೆ ಹೊಂದಿಕೆಯಾಗುತ್ತಿಲ್ಲ
+  "error.authzen.missing_action": ಕ್ರಿಯೆ ಕಾಣೆಯಾಗಿದೆ
+  "error.authzen.missing_action_description": ಕ್ರಿಯೆ ಹೆಸರು ಅಗತ್ಯವಿದೆ
+  "error.authzen.missing_evaluations": ಮೌಲ್ಯಮಾಪನಗಳು ಕಾಣೆಯಾಗಿವೆ
+  "error.authzen.missing_evaluations_description": ಕನಿಷ್ಠ ಒಂದು ಮೌಲ್ಯಮಾಪನ ಅಗತ್ಯವಿದೆ
+  "error.authzen.missing_resource": ಸಂಪನ್ಮೂಲ ಕಾಣೆಯಾಗಿದೆ
+  "error.authzen.missing_resource_description": ಸಂಪನ್ಮೂಲ ಪ್ರಕಾರ ಅಗತ್ಯವಿದೆ
+  "error.authzen.missing_resource_id": ಸಂಪನ್ಮೂಲ id ಕಾಣೆಯಾಗಿದೆ
+  "error.authzen.missing_resource_id_description": ಸಂಪನ್ಮೂಲ id ಅಗತ್ಯವಿದೆ
+  "error.authzen.missing_subject": ವಿಷಯ ಕಾಣೆಯಾಗಿದೆ
+  "error.authzen.missing_subject_description": ವಿಷಯ id ಅಗತ್ಯವಿದೆ
+  "error.certservice.certificate_already_exists": ಸರ್ಟಿಫಿಕೇಟ್ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "error.certservice.certificate_already_exists_description": ಅದೇ ಉಲ್ಲೇಖ ಪ್ರಕಾರ ಮತ್ತು ID ಹೊಂದಿರುವ ಸರ್ಟಿಫಿಕೇಟ್ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "error.certservice.certificate_not_found": ಸರ್ಟಿಫಿಕೇಟ್ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.certservice.certificate_not_found_description": ವಿನಂತಿಸಿದ ಸರ್ಟಿಫಿಕೇಟ್ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.certservice.invalid_certificate_id": ಅಮಾನ್ಯ ಸರ್ಟಿಫಿಕೇಟ್ ID
+  "error.certservice.invalid_certificate_id_description": ಒದಗಿಸಿದ ಸರ್ಟಿಫಿಕೇಟ್ ID ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.certservice.invalid_certificate_type": ಅಮಾನ್ಯ ಸರ್ಟಿಫಿಕೇಟ್ ಪ್ರಕಾರ
+  "error.certservice.invalid_certificate_type_description": ಒದಗಿಸಿದ ಸರ್ಟಿಫಿಕೇಟ್ ಪ್ರಕಾರ ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.certservice.invalid_certificate_value": ಅಮಾನ್ಯ ಸರ್ಟಿಫಿಕೇಟ್ ಮೌಲ್ಯ
+  "error.certservice.invalid_certificate_value_description": ಒದಗಿಸಿದ ಸರ್ಟಿಫಿಕೇಟ್ ಮೌಲ್ಯ ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.certservice.invalid_reference_id": ಅಮಾನ್ಯ ಸರ್ಟಿಫಿಕೇಟ್ ಉಲ್ಲೇಖ ID
+  "error.certservice.invalid_reference_id_description": ಒದಗಿಸಿದ ಸರ್ಟಿಫಿಕೇಟ್ ಉಲ್ಲೇಖ ID ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.certservice.invalid_reference_type": ಅಮಾನ್ಯ ಸರ್ಟಿಫಿಕೇಟ್ ಉಲ್ಲೇಖ ಪ್ರಕಾರ
+  "error.certservice.invalid_reference_type_description": ಒದಗಿಸಿದ ಸರ್ಟಿಫಿಕೇಟ್ ಉಲ್ಲೇಖ ಪ್ರಕಾರ ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.certservice.reference_update_not_allowed": ಉಲ್ಲೇಖ ನವೀಕರಣ ಅನುಮತಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.certservice.reference_update_not_allowed_description": ಅಸ್ತಿತ್ವದಲ್ಲಿರುವ ಸರ್ಟಿಫಿಕೇಟ್‌ನ ಉಲ್ಲೇಖ ಪ್ರಕಾರ ಅಥವಾ ID ನವೀಕರಿಸಲು ಅನುಮತಿ ಇಲ್ಲ
+  "error.consentenforcerservice.consent_create_failed": ಒಪ್ಪಿಗೆ ದಾಖಲೆ ರಚಿಸಲು ವಿಫಲವಾಗಿದೆ
+  "error.consentenforcerservice.consent_create_failed_description": ಒಪ್ಪಿಗೆ ಸೇವೆಯಲ್ಲಿ ಒಪ್ಪಿಗೆ ದಾಖಲೆ ರಚಿಸುವಾಗ ದೋಷ
+  "error.consentenforcerservice.consent_search_failed": ಒಪ್ಪಿಗೆ ದಾಖಲೆಗಳು ಹುಡುಕಲು ವಿಫಲವಾಗಿದೆ
+  "error.consentenforcerservice.consent_search_failed_description": ಒಪ್ಪಿಗೆ ಸೇವೆಯಿಂದ ಒಪ್ಪಿಗೆ ದಾಖಲೆಗಳು ಹುಡುಕುವಾಗ ದೋಷ
+  "error.consentenforcerservice.consent_session_invalid": ಅಮಾನ್ಯ ಒಪ್ಪಿಗೆ ಸೆಶನ್
+  "error.consentenforcerservice.consent_session_invalid_description": ಒಪ್ಪಿಗೆ ಸೆಶನ್ ಟೋಕನ್ ಅಮಾನ್ಯ ಅಥವಾ ಅವಧಿ ಮೀರಿದೆ
+  "error.consentenforcerservice.consent_update_failed": ಒಪ್ಪಿಗೆ ದಾಖಲೆ ನವೀಕರಿಸಲು ವಿಫಲವಾಗಿದೆ
+  "error.consentenforcerservice.consent_update_failed_description": ಒಪ್ಪಿಗೆ ಸೇವೆಯಲ್ಲಿ ಒಪ್ಪಿಗೆ ದಾಖಲೆ ನವೀಕರಿಸುವಾಗ ದೋಷ
+  "error.consentenforcerservice.essential_consent_denied": ಅಗತ್ಯ ಒಪ್ಪಿಗೆ ನಿರಾಕರಿಸಲ್ಪಟ್ಟಿದೆ
+  "error.consentenforcerservice.essential_consent_denied_description": ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ಅಗತ್ಯ ಒಪ್ಪಿಗೆ ಗುಣಲಕ್ಷಣಗಳು ನಿರಾಕರಿಸಲ್ಪಟ್ಟವು
+  "error.consentenforcerservice.purpose_create_failed": ಒಪ್ಪಿಗೆ ಉದ್ದೇಶ ರಚಿಸಲು ವಿಫಲವಾಗಿದೆ
+  "error.consentenforcerservice.purpose_create_failed_description": ಒಪ್ಪಿಗೆ ಸೇವೆಯಲ್ಲಿ ಒಪ್ಪಿಗೆ ಉದ್ದೇಶ ರಚಿಸುವಾಗ ದೋಷ
+  "error.consentenforcerservice.purpose_fetch_failed": ಒಪ್ಪಿಗೆ ಉದ್ದೇಶಗಳು ಪಡೆಯಲು ವಿಫಲವಾಗಿದೆ
+  "error.consentenforcerservice.purpose_fetch_failed_description": ಒಪ್ಪಿಗೆ ಸೇವೆಯಿಂದ ಒಪ್ಪಿಗೆ ಉದ್ದೇಶಗಳು ಪಡೆಯುವಾಗ ದೋಷ
+  "error.consentenforcerservice.purpose_update_failed": ಒಪ್ಪಿಗೆ ಉದ್ದೇಶ ನವೀಕರಿಸಲು ವಿಫಲವಾಗಿದೆ
+  "error.consentenforcerservice.purpose_update_failed_description": ಒಪ್ಪಿಗೆ ಸೇವೆಯಲ್ಲಿ ಒಪ್ಪಿಗೆ ಉದ್ದೇಶ ನವೀಕರಿಸುವಾಗ ದೋಷ
+  "error.consentservice.cannot_delete_element": ಒಪ್ಪಿಗೆ ಅಂಶ ಅಳಿಸಲಾಗುವುದಿಲ್ಲ
+  "error.consentservice.cannot_delete_purpose": ಒಪ್ಪಿಗೆ ಉದ್ದೇಶ ಅಳಿಸಲಾಗುವುದಿಲ್ಲ
+  "error.consentservice.consent_not_found": ಒಪ್ಪಿಗೆ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.consentservice.consent_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ID ಹೊಂದಿರುವ ಒಪ್ಪಿಗೆ ದಾಖಲೆ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.consentservice.delete_element_with_associated_purpose_description": ಒಪ್ಪಿಗೆ ಅಂಶ ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ಒಪ್ಪಿಗೆ ಉದ್ದೇಶಗಳೊಂದಿಗೆ ಇನ್ನೂ ಸಂಬಂಧಿತವಾಗಿರುವ ಕಾರಣ ಅಳಿಸಲಾಗುವುದಿಲ್ಲ.
+  "error.consentservice.delete_purpose_with_associated_records_description": ಒಪ್ಪಿಗೆ ಉದ್ದೇಶ ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ಒಪ್ಪಿಗೆ ದಾಖಲೆಗಳೊಂದಿಗೆ ಸಂಬಂಧಿತವಾಗಿರುವ ಕಾರಣ ಅಳಿಸಲಾಗುವುದಿಲ್ಲ
+  "error.consentservice.element_already_exists": ಒಪ್ಪಿಗೆ ಅಂಶ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "error.consentservice.element_already_exists_description": ಅದೇ ಹೆಸರಿನ ಒಪ್ಪಿಗೆ ಅಂಶ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "error.consentservice.element_not_found": ಒಪ್ಪಿಗೆ ಅಂಶ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.consentservice.element_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ID ಹೊಂದಿರುವ ಒಪ್ಪಿಗೆ ಅಂಶ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.consentservice.forbidden": ಒಪ್ಪಿಗೆ ಸೇವೆ ಪ್ರವೇಶಿಸಲು ನಿಷೇಧಿಸಲ್ಪಟ್ಟಿದೆ
+  "error.consentservice.forbidden_description": ಒಪ್ಪಿಗೆ ಸೇವೆ ನಿಷೇಧಿಸಿದ ಪ್ರತಿಕ್ರಿಯೆ ನೀಡಿದೆ
+  "error.consentservice.invalid_consent_request": ಅಮಾನ್ಯ ಒಪ್ಪಿಗೆ ವಿನಂತಿ
+  "error.consentservice.invalid_consent_request_description": ಒಪ್ಪಿಗೆ ವಿನಂತಿ ಒಪ್ಪಿಗೆ ಸೇವೆಯಿಂದ ಅಮಾನ್ಯವಾಗಿ ತಿರಸ್ಕರಿಸಲ್ಪಟ್ಟಿದೆ
+  "error.consentservice.invalid_element_request": ಅಮಾನ್ಯ ಒಪ್ಪಿಗೆ ಅಂಶ ವಿನಂತಿ
+  "error.consentservice.invalid_element_request_description": ಒಪ್ಪಿಗೆ ಅಂಶ ವಿನಂತಿ ಒಪ್ಪಿಗೆ ಸೇವೆಯಿಂದ ಅಮಾನ್ಯವಾಗಿ ತಿರಸ್ಕರಿಸಲ್ಪಟ್ಟಿದೆ
+  "error.consentservice.invalid_purpose_request": ಅಮಾನ್ಯ ಒಪ್ಪಿಗೆ ಉದ್ದೇಶ ವಿನಂತಿ
+  "error.consentservice.invalid_purpose_request_description": ಒಪ್ಪಿಗೆ ಉದ್ದೇಶ ವಿನಂತಿ ಒಪ್ಪಿಗೆ ಸೇವೆಯಿಂದ ಅಮಾನ್ಯವಾಗಿ ತಿರಸ್ಕರಿಸಲ್ಪಟ್ಟಿದೆ
+  "error.consentservice.invalid_request": ಅಮಾನ್ಯ ಒಪ್ಪಿಗೆ ವಿನಂತಿ
+  "error.consentservice.invalid_request_description": ಒಪ್ಪಿಗೆ ಸೇವೆಗೆ ಕಳುಹಿಸಿದ ವಿನಂತಿ ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.consentservice.invalid_request_format": ಅಮಾನ್ಯ ವಿನಂತಿ ಸ್ವರೂಪ
+  "error.consentservice.invalid_request_format_description": ವಿನಂತಿ ಮುಖ್ಯಭಾಗ ಅಸ್ತವ್ಯಸ್ತವಾಗಿದೆ ಅಥವಾ ಅಮಾನ್ಯ ದತ್ತಾಂಶ ಹೊಂದಿದೆ
+  "error.consentservice.invalid_revoke_request": ಅಮಾನ್ಯ ಒಪ್ಪಿಗೆ ರದ್ದತಿ ವಿನಂತಿ
+  "error.consentservice.invalid_revoke_request_description": ಒಪ್ಪಿಗೆ ರದ್ದತಿ ವಿನಂತಿ ಒಪ್ಪಿಗೆ ಸೇವೆಯಿಂದ ಅಮಾನ್ಯವಾಗಿ ತಿರಸ್ಕರಿಸಲ್ಪಟ್ಟಿದೆ
+  "error.consentservice.invalid_search_filter": ಅಮಾನ್ಯ ಒಪ್ಪಿಗೆ ಹುಡುಕಾಟ ಫಿಲ್ಟರ್
+  "error.consentservice.invalid_search_filter_description": ಒಪ್ಪಿಗೆ ಹುಡುಕಾಟ ಫಿಲ್ಟರ್ ಒಪ್ಪಿಗೆ ಸೇವೆಯಿಂದ ಅಮಾನ್ಯವಾಗಿ ತಿರಸ್ಕರಿಸಲ್ಪಟ್ಟಿದೆ
+  "error.consentservice.invalid_update_request": ಅಮಾನ್ಯ ಒಪ್ಪಿಗೆ ನವೀಕರಣ ವಿನಂತಿ
+  "error.consentservice.invalid_update_request_description": ಒಪ್ಪಿಗೆ ನವೀಕರಣ ವಿನಂತಿ ಒಪ್ಪಿಗೆ ಸೇವೆಯಿಂದ ಅಮಾನ್ಯವಾಗಿ ತಿರಸ್ಕರಿಸಲ್ಪಟ್ಟಿದೆ
+  "error.consentservice.invalid_validation_request": ಅಮಾನ್ಯ ಒಪ್ಪಿಗೆ ಮಾನ್ಯೀಕರಣ ವಿನಂತಿ
+  "error.consentservice.invalid_validation_request_description": ಒಪ್ಪಿಗೆ ಮಾನ್ಯೀಕರಣ ವಿನಂತಿ ಒಪ್ಪಿಗೆ ಸೇವೆಯಿಂದ ಅಮಾನ್ಯವಾಗಿ ತಿರಸ್ಕರಿಸಲ್ಪಟ್ಟಿದೆ
+  "error.consentservice.purpose_already_exists": ಒಪ್ಪಿಗೆ ಉದ್ದೇಶ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "error.consentservice.purpose_already_exists_description": ಈ ಸಂಪನ್ಮೂಲಕ್ಕಾಗಿ ಅದೇ ಹೆಸರಿನ ಒಪ್ಪಿಗೆ ಉದ್ದೇಶ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "error.consentservice.purpose_not_found": ಒಪ್ಪಿಗೆ ಉದ್ದೇಶ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.consentservice.purpose_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ID ಹೊಂದಿರುವ ಒಪ್ಪಿಗೆ ಉದ್ದೇಶ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.consentservice.unauthorized": ಒಪ್ಪಿಗೆ ಸೇವೆ ಪ್ರವೇಶಿಸಲು ಅನಧಿಕೃತ
+  "error.consentservice.unauthorized_description": ಒಪ್ಪಿಗೆ ಸೇವೆ ಅನಧಿಕೃತ ಪ್ರತಿಕ್ರಿಯೆ ನೀಡಿದೆ
+  "error.dcr.invalid_client_metadata": ಅಮಾನ್ಯ ಕ್ಲೈಂಟ್ ಮೆಟಾಡೇಟಾ
+  "error.dcr.invalid_client_metadata_description": ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ಕ್ಲೈಂಟ್ ಮೆಟಾಡೇಟಾ ಮೌಲ್ಯಗಳು ಅಮಾನ್ಯವಾಗಿವೆ
+  "error.dcr.invalid_redirect_uri": ಅಮಾನ್ಯ ರೀಡೈರೆಕ್ಟ್ URI
+  "error.dcr.invalid_redirect_uri_description": ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ರೀಡೈರೆಕ್ಟ್ URIs ಅಮಾನ್ಯವಾಗಿವೆ
+  "error.dcr.invalid_request_format": ಅಮಾನ್ಯ ವಿನಂತಿ ಸ್ವರೂಪ
+  "error.dcr.invalid_request_format_description": ವಿನಂತಿ ಮುಖ್ಯಭಾಗ ಕಾಣೆಯಾಗಿದೆ ಅಥವಾ ಅಮಾನ್ಯ ಸ್ವರೂಪ ಹೊಂದಿದೆ
+  "error.dcr.jwks_configuration_conflict": JWKS ಸಂರಚನೆ ಸಂಘರ್ಷ
+  "error.dcr.jwks_configuration_conflict_description": 'jwks' ಮತ್ತು 'jwks_uri' ಪ್ಯಾರಾಮೀಟರ್‌ಗಳು ಎರಡನ್ನೂ ನಿರ್ದಿಷ್ಟಪಡಿಸಲಾಗುವುದಿಲ್ಲ
+  "error.dcr.server_error": ಸರ್ವರ್ ದೋಷ
+  "error.dcr.server_error_description": ವಿನಂತಿ ಪ್ರಕ್ರಿಯೆಗೊಳಿಸುವಾಗ ಅನಿರೀಕ್ಷಿತ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "error.dcr.unauthorized": ಅನಧಿಕೃತ
+  "error.dcr.unauthorized_description": ಕ್ಲೈಂಟ್ ನೋಂದಾಯಿಸಲು ಸಾಕಷ್ಟು ಅನುಮತಿಗಳೊಂದಿಗೆ ದೃಢೀಕರಣ ಅಗತ್ಯವಿದೆ
+  "error.declarative_resource.create_operation_not_allowed": ಘೋಷಣಾತ್ಮಕ ಸಂಪನ್ಮೂಲ ರಚನೆ ಕಾರ್ಯಾಚರಣೆ ಅನುಮತಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.declarative_resource.create_operation_not_allowed_description": ಘೋಷಣಾತ್ಮಕ ಸಂಪನ್ಮೂಲಗಳನ್ನು ರಚಿಸಲು ಅನುಮತಿ ಇಲ್ಲ
+  "error.declarative_resource.delete_operation_not_allowed": ಘೋಷಣಾತ್ಮಕ ಸಂಪನ್ಮೂಲ ಅಳಿಸುವ ಕಾರ್ಯಾಚರಣೆ ಅನುಮತಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.declarative_resource.delete_operation_not_allowed_description": ಘೋಷಣಾತ್ಮಕ ಸಂಪನ್ಮೂಲಗಳನ್ನು ಅಳಿಸಲು ಅನುಮತಿ ಇಲ್ಲ
+  "error.declarative_resource.update_operation_not_allowed": ಘೋಷಣಾತ್ಮಕ ಸಂಪನ್ಮೂಲ ನವೀಕರಣ ಕಾರ್ಯಾಚರಣೆ ಅನುಮತಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.declarative_resource.update_operation_not_allowed_description": ಘೋಷಣಾತ್ಮಕ ಸಂಪನ್ಮೂಲಗಳನ್ನು ನವೀಕರಿಸಲು ಅನುಮತಿ ಇಲ್ಲ
+  "error.encoding_error": ಎನ್‌ಕೋಡಿಂಗ್ ದೋಷ
+  "error.encoding_error_description": ಪ್ರತಿಕ್ರಿಯೆ ಎನ್‌ಕೋಡ್ ಮಾಡುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "error.entitytypeservice.agent_type_cannot_delete": ಏಜೆಂಟ್ ಪ್ರಕಾರ ಅಳಿಸಲಾಗುವುದಿಲ್ಲ
+  "error.entitytypeservice.agent_type_cannot_delete_description": ಡಿಫಾಲ್ಟ್ ಏಜೆಂಟ್ ಪ್ರಕಾರ ಅಳಿಸಲಾಗುವುದಿಲ್ಲ. ಬದಲಿಗೆ ಸ್ಕೀಮಾ ಸಂಪಾದಿಸಿ
+  "error.entitytypeservice.agent_type_name_conflict": ಏಜೆಂಟ್ ಪ್ರಕಾರ ಹೆಸರು ಸಂಘರ್ಷ
+  "error.entitytypeservice.agent_type_name_conflict_description": ಅದೇ ಹೆಸರಿನ ಏಜೆಂಟ್ ಪ್ರಕಾರ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "error.entitytypeservice.agent_type_not_found": ಏಜೆಂಟ್ ಪ್ರಕಾರ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.entitytypeservice.agent_type_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ id ಹೊಂದಿರುವ ಏಜೆಂಟ್ ಪ್ರಕಾರ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.entitytypeservice.agent_type_only_default_allowed": ಕೇವಲ ಡಿಫಾಲ್ಟ್ ಏಜೆಂಟ್ ಪ್ರಕಾರ ಅನುಮತಿಸಲ್ಪಟ್ಟಿದೆ
+  "error.entitytypeservice.agent_type_only_default_allowed_description": ಏಜೆಂಟ್ ಪ್ರಕಾರಗಳು ಒಂದೇ 'default' ಸ್ಕೀಮಾಕ್ಕೆ ಸೀಮಿತವಾಗಿವೆ; ಇತರ ಹೆಸರುಗಳಿಗೆ ರಚಿಸುವುದು ಅಥವಾ ಮರುಹೆಸರಿಸುವುದು ಅನುಮತಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.entitytypeservice.cannot_modify_declarative_resource": ಘೋಷಣಾತ್ಮಕ ಸಂಪನ್ಮೂಲವನ್ನು ಮಾರ್ಪಡಿಸಲಾಗುವುದಿಲ್ಲ
+  "error.entitytypeservice.cannot_modify_declarative_resource_description": ಬಳಕೆದಾರ ಪ್ರಕಾರ ಘೋಷಣಾತ್ಮಕವಾಗಿದ್ದು ಮಾರ್ಪಡಿಸಲು ಅಥವಾ ಅಳಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "error.entitytypeservice.consent_synchronization_failed": ಒಪ್ಪಿಗೆ ಸಿಂಕ್ರೊನೈಸೇಶನ್ ವಿಫಲವಾಗಿದೆ
+  "error.entitytypeservice.consent_synchronization_failed_description": ಘಟಕ ಪ್ರಕಾರಕ್ಕಾಗಿ ಒಪ್ಪಿಗೆ ಸಂರಚನೆಗಳನ್ನು ಸಿಂಕ್ರೊನೈಸ್ ಮಾಡಲು ವಿಫಲವಾಗಿದೆ
+  "error.entitytypeservice.create_schema_request_parse_failed_description": ವಿನಂತಿ ಮುಖ್ಯಭಾಗ ಪಾರ್ಸ್ ಮಾಡಲು ವಿಫಲವಾಗಿದೆ
+  "error.entitytypeservice.credential_attribute_not_allowed_as_display": ರುಜುವಾತು ಗುಣಲಕ್ಷಣ ಪ್ರದರ್ಶನವಾಗಿ ಅನುಮತಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.entitytypeservice.credential_attribute_not_allowed_as_display_description": ಪ್ರದರ್ಶನ ಗುಣಲಕ್ಷಣ ರುಜುವಾತು ಗುಣಲಕ್ಷಣ ಉಲ್ಲೇಖಿಸಬಾರದು
+  "error.entitytypeservice.entity_type_name_conflict": ಘಟಕ ಪ್ರಕಾರ ಹೆಸರು ಸಂಘರ್ಷ
+  "error.entitytypeservice.entity_type_name_conflict_description": ಅದೇ ಹೆಸರಿನ ಘಟಕ ಪ್ರಕಾರ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "error.entitytypeservice.entity_type_not_found": ಘಟಕ ಪ್ರಕಾರ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.entitytypeservice.entity_type_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ id ಹೊಂದಿರುವ ಘಟಕ ಪ್ರಕಾರ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.entitytypeservice.invalid_agent_type_request": ಅಮಾನ್ಯ ಏಜೆಂಟ್ ಪ್ರಕಾರ ವಿನಂತಿ
+  "error.entitytypeservice.invalid_agent_type_request_description": ಏಜೆಂಟ್ ಪ್ರಕಾರ ವಿನಂತಿ ಅಮಾನ್ಯ ಅಥವಾ ಕಾಣೆಯಾದ ಅಗತ್ಯ ಕ್ಷೇತ್ರಗಳು ಹೊಂದಿದೆ
+  "error.entitytypeservice.invalid_display_attribute": ಅಮಾನ್ಯ ಪ್ರದರ್ಶನ ಗುಣಲಕ್ಷಣ
+  "error.entitytypeservice.invalid_display_attribute_description": ಪ್ರದರ್ಶನ ಗುಣಲಕ್ಷಣ ಸ್ಕೀಮಾದಲ್ಲಿ ವ್ಯಾಖ್ಯಾನಿಸಿದ ಗುಣಲಕ್ಷಣ ಉಲ್ಲೇಖಿಸಬೇಕು (ನೆಸ್ಟೆಡ್ ಗುಣಲಕ್ಷಣಗಳಿಗೆ ಡಾಟ್ ನೊಟೇಶನ್ ಬಳಸಿ, ಉದಾ. 'address.city')
+  "error.entitytypeservice.invalid_entity_type_request": ಅಮಾನ್ಯ ಘಟಕ ಪ್ರಕಾರ ವಿನಂತಿ
+  "error.entitytypeservice.invalid_entity_type_request_description": ಘಟಕ ಪ್ರಕಾರ ವಿನಂತಿ ಅಮಾನ್ಯ ಅಥವಾ ಕಾಣೆಯಾದ ಅಗತ್ಯ ಕ್ಷೇತ್ರಗಳು ಹೊಂದಿದೆ
+  "error.entitytypeservice.invalid_limit_parameter": ಅಮಾನ್ಯ ಪೇಜಿನೇಶನ್ ಪ್ಯಾರಾಮೀಟರ್
+  "error.entitytypeservice.invalid_limit_parameter_description": ಲಿಮಿಟ್ ಪ್ಯಾರಾಮೀಟರ್ ಧನಾತ್ಮಕ ಪೂರ್ಣಾಂಕವಾಗಿರಬೇಕು
+  "error.entitytypeservice.invalid_offset_parameter": ಅಮಾನ್ಯ ಪೇಜಿನೇಶನ್ ಪ್ಯಾರಾಮೀಟರ್
+  "error.entitytypeservice.invalid_offset_parameter_description": ಆಫ್‌ಸೆಟ್ ಪ್ಯಾರಾಮೀಟರ್ ಋಣಾತ್ಮಕವಲ್ಲದ ಪೂರ್ಣಾಂಕವಾಗಿರಬೇಕು
+  "error.entitytypeservice.invalid_request_format": ಅಮಾನ್ಯ ವಿನಂತಿ ಸ್ವರೂಪ
+  "error.entitytypeservice.invalid_request_format_description": ವಿನಂತಿ ಮುಖ್ಯಭಾಗ ಅಸ್ತವ್ಯಸ್ತವಾಗಿದೆ ಅಥವಾ ಅಮಾನ್ಯ ದತ್ತಾಂಶ ಹೊಂದಿದೆ
+  "error.entitytypeservice.invalid_user_type_request": ಅಮಾನ್ಯ ಬಳಕೆದಾರ ಪ್ರಕಾರ ವಿನಂತಿ
+  "error.entitytypeservice.invalid_user_type_request_description": ಬಳಕೆದಾರ ಪ್ರಕಾರ ವಿನಂತಿ ಅಮಾನ್ಯ ಅಥವಾ ಕಾಣೆಯಾದ ಅಗತ್ಯ ಕ್ಷೇತ್ರಗಳು ಹೊಂದಿದೆ
+  "error.entitytypeservice.non_displayable_attribute_type": ಪ್ರದರ್ಶಿಸಲಾಗದ ಗುಣಲಕ್ಷಣ ಪ್ರಕಾರ
+  "error.entitytypeservice.non_displayable_attribute_type_description": ಪ್ರದರ್ಶನ ಗುಣಲಕ್ಷಣ ಸ್ಟ್ರಿಂಗ್ ಅಥವಾ ಸಂಖ್ಯೆ ಪ್ರಕಾರ ಉಲ್ಲೇಖಿಸಬೇಕು
+  "error.entitytypeservice.result_limit_exceeded": ಫಲಿತಾಂಶ ಮಿತಿ ಮೀರಿದೆ
+  "error.entitytypeservice.result_limit_exceeded_description": ಫೈಲ್-ಆಧಾರಿತ ಮತ್ತು ಡೇಟಾಬೇಸ್ ಸ್ಟೋರ್‌ಗಳ ಸಂಯೋಜಿತ ಫಲಿತಾಂಶ ಗರಿಷ್ಠ ಮಿತಿ ಮೀರಿದೆ. ಕಡಿಮೆ ಫಲಿತಾಂಶಗಳು ಹಿಂತಿರುಗಿಸಲು ನಿಮ್ಮ ಕ್ವೆರಿ ಪರಿಷ್ಕರಿಸಿ.
+  "error.entitytypeservice.update_schema_request_parse_failed_description": ವಿನಂತಿ ಮುಖ್ಯಭಾಗ ಪಾರ್ಸ್ ಮಾಡಲು ವಿಫಲವಾಗಿದೆ
+  "error.entitytypeservice.user_type_name_conflict": ಬಳಕೆದಾರ ಪ್ರಕಾರ ಹೆಸರು ಸಂಘರ್ಷ
+  "error.entitytypeservice.user_type_name_conflict_description": ಅದೇ ಹೆಸರಿನ ಬಳಕೆದಾರ ಪ್ರಕಾರ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "error.entitytypeservice.user_type_not_found": ಬಳಕೆದಾರ ಪ್ರಕಾರ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.entitytypeservice.user_type_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ id ಹೊಂದಿರುವ ಬಳಕೆದಾರ ಪ್ರಕಾರ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.entitytypeservice.user_validation_failed": ಬಳಕೆದಾರ ಮಾನ್ಯೀಕರಣ ವಿಫಲವಾಗಿದೆ
+  "error.entitytypeservice.user_validation_failed_description": ಬಳಕೆದಾರ ಗುಣಲಕ್ಷಣಗಳು ಅಗತ್ಯ ಸ್ಕೀಮಾಕ್ಕೆ ಅನುಗುಣವಾಗಿಲ್ಲ
+  "error.eudi.invalid_request": ಅಮಾನ್ಯ ವಿನಂತಿ
+  "error.eudi.invalid_request_description": ವಿನಂತಿಯಲ್ಲಿ ಅಗತ್ಯ ಪ್ಯಾರಾಮೀಟರ್‌ಗಳು ಕಾಣೆಯಾಗಿವೆ ಅಥವಾ ವಿರೂಪಗೊಂಡಿದೆ
+  "error.eudi.unknown_definition": ಅಜ್ಞಾತ ಪ್ರೆಸೆಂಟೇಶನ್ ವ್ಯಾಖ್ಯಾನ
+  "error.eudi.unknown_definition_description": ಒದಗಿಸಿದ id ಗಾಗಿ ಯಾವುದೇ ಪ್ರೆಸೆಂಟೇಶನ್ ವ್ಯಾಖ್ಯಾನ ನೋಂದಾಯಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.eudi.unknown_state": ಅಜ್ಞಾತ ಅಥವಾ ಅವಧಿ ಮೀರಿದ ವಿನಂತಿ
+  "error.eudi.unknown_state_description": ಒದಗಿಸಿದ ಸ್ಥಿತಿ ಮೌಲ್ಯಕ್ಕಾಗಿ ಯಾವುದೇ ಸಕ್ರಿಯ ವಿನಂತಿ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.eudi.verification_failed": ಪ್ರೆಸೆಂಟೇಶನ್ ಪರಿಶೀಲನೆ ವಿಫಲವಾಗಿದೆ
+  "error.eudi.verification_failed_description": ಪ್ರಸ್ತುತಪಡಿಸಿದ ರುಜುವಾತು ಪರಿಶೀಲಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ
+  "error.exportservice.invalid_request": ಅಮಾನ್ಯ ರಫ್ತು ವಿನಂತಿ
+  "error.exportservice.invalid_request_description": ಒದಗಿಸಿದ ರಫ್ತು ವಿನಂತಿ ಅಮಾನ್ಯ ಅಥವಾ ವಿರೂಪಗೊಂಡಿದೆ
+  "error.exportservice.nil_request_description": ರಫ್ತು ವಿನಂತಿ ನಲ್ ಆಗಿರಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "error.exportservice.no_resources_found": ಯಾವುದೇ ಸಂಪನ್ಮೂಲಗಳು ಕಂಡುಬಂದಿಲ್ಲ
+  "error.exportservice.no_resources_found_description": ಒದಗಿಸಿದ ಗುರುತಿನ ವಿವರಗಳಿಗಾಗಿ ಯಾವುದೇ ಮಾನ್ಯ ಸಂಪನ್ಮೂಲಗಳು ಕಂಡುಬಂದಿಲ್ಲ
+  "error.exportservice.no_valid_resources_for_export_description": ರಫ್ತುಗಾಗಿ ಯಾವುದೇ ಮಾನ್ಯ ಸಂಪನ್ಮೂಲಗಳು ಕಂಡುಬಂದಿಲ್ಲ
+  "error.flow.core.executor_prerequisite_not_met": ಎಕ್ಸಿಕ್ಯೂಟರ್‌ಗಾಗಿ ಪೂರ್ವಷರತ್ತು ಪೂರೈಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.flow.core.executor_prerequisite_not_met_description": ಎಕ್ಸಿಕ್ಯೂಟರ್‌ಗೆ ಅಗತ್ಯವಾದ ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ಪೂರ್ವಷರತ್ತುಗಳು ಪೂರೈಸಲ್ಪಟ್ಟಿಲ್ಲ. ಇನ್‌ಪುಟ್‌ಗಳನ್ನು ಪರಿಶೀಲಿಸಿ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.
+  "error.flow.core.prompt_invalid_action": ಅಮಾನ್ಯ ಕ್ರಿಯೆ ಒದಗಿಸಲ್ಪಟ್ಟಿದೆ
+  "error.flow.core.prompt_invalid_action_description": ಒದಗಿಸಿದ ಕ್ರಿಯೆ ಪ್ರಸ್ತುತ ಫ್ಲೋ ಹಂತಕ್ಕೆ ಮಾನ್ಯವಾಗಿಲ್ಲ
+  "error.flowexecservice.application_retrieval_error": ಅಪ್ಲಿಕೇಶನ್ ಮರುಪಡೆಯುವ ದೋಷ
+  "error.flowexecservice.application_retrieval_error_description": ಅಪ್ಲಿಕೇಶನ್ ವಿವರಗಳು ಮರುಪಡೆಯುವಾಗ ದೋಷ
+  "error.flowexecservice.direct_flow_initiation_not_permitted": ನೇರ ಫ್ಲೋ ಆರಂಭ ಅನುಮತಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.flowexecservice.direct_flow_initiation_not_permitted_description": ಈ ಅಪ್ಲಿಕೇಶನ್ ಪ್ರಕಾರಕ್ಕೆ ನೇರ ಫ್ಲೋ ಆರಂಭ ಅನುಮತಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.flowexecservice.invalid_app_id": ಅಮಾನ್ಯ ವಿನಂತಿ
+  "error.flowexecservice.invalid_app_id_description": ವಿನಂತಿಯಲ್ಲಿ ಅಮಾನ್ಯ ಅಪ್ಲಿಕೇಶನ್ ID ಒದಗಿಸಲ್ಪಟ್ಟಿದೆ
+  "error.flowexecservice.invalid_execution_id": ಅಮಾನ್ಯ ವಿನಂತಿ
+  "error.flowexecservice.invalid_execution_id_description": ವಿನಂತಿಯಲ್ಲಿ ಅಮಾನ್ಯ ಫ್ಲೋ ಎಕ್ಸಿಕ್ಯೂಶನ್ ID ಒದಗಿಸಲ್ಪಟ್ಟಿದೆ
+  "error.flowexecservice.invalid_flow_init_context": ಅಮಾನ್ಯ ವಿನಂತಿ
+  "error.flowexecservice.invalid_flow_init_context_description": ಅಮಾನ್ಯ ಫ್ಲೋ ಆರಂಭ ಸಂದರ್ಭ ಒದಗಿಸಲ್ಪಟ್ಟಿದೆ
+  "error.flowexecservice.invalid_flow_type": ಅಮಾನ್ಯ ವಿನಂತಿ
+  "error.flowexecservice.invalid_flow_type_description": ವಿನಂತಿಯಲ್ಲಿ ಅಮಾನ್ಯ ಫ್ಲೋ ಪ್ರಕಾರ ಒದಗಿಸಲ್ಪಟ್ಟಿದೆ
+  "error.flowexecservice.invalid_node_response": ಅಮಾನ್ಯ ನೋಡ್ ಪ್ರತಿಕ್ರಿಯೆ
+  "error.flowexecservice.invalid_node_response_description": ನೋಡ್‌ನಿಂದ ದೋಷ ಪ್ರತಿಕ್ರಿಯೆ ಸ್ವೀಕರಿಸಲ್ಪಟ್ಟಿದೆ
+  "error.flowexecservice.invalid_request_payload": ಅಮಾನ್ಯ ವಿನಂತಿ ಪೇಲೋಡ್
+  "error.flowexecservice.invalid_request_payload_description": ವಿನಂತಿ ಪೇಲೋಡ್ ಡಿಕೋಡ್ ಮಾಡಲು ವಿಫಲವಾಗಿದೆ
+  "error.flowexecservice.recovery_not_allowed": ಚೇತರಿಕೆ ಅನುಮತಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.flowexecservice.recovery_not_allowed_description": ಅಪ್ಲಿಕೇಶನ್‌ಗಾಗಿ ಚೇತರಿಕೆ ಫ್ಲೋ ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲ್ಪಟ್ಟಿದೆ
+  "error.flowexecservice.registration_not_allowed": ನೋಂದಣಿ ಅನುಮತಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.flowexecservice.registration_not_allowed_description": ಅಪ್ಲಿಕೇಶನ್‌ಗಾಗಿ ನೋಂದಣಿ ಫ್ಲೋ ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲ್ಪಟ್ಟಿದೆ
+  "error.flowmetaservice.application_fetch_failed_description": ಅಪ್ಲಿಕೇಶನ್ ಮಾಹಿತಿ ಮರುಪಡೆಯಲು ವಿಫಲವಾಗಿದೆ
+  "error.flowmetaservice.application_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಅಪ್ಲಿಕೇಶನ್ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.flowmetaservice.internal_server_error": ಆಂತರಿಕ ಸರ್ವರ್ ದೋಷ
+  "error.flowmetaservice.invalid_request": ಅಮಾನ್ಯ ವಿನಂತಿ
+  "error.flowmetaservice.invalid_type_description": 'type' ಪ್ಯಾರಾಮೀಟರ್ 'APP' ಅಥವಾ 'OU' ಆಗಿರಬೇಕು
+  "error.flowmetaservice.missing_id_description": 'id' ಕ್ವೆರಿ ಪ್ಯಾರಾಮೀಟರ್ ಅಗತ್ಯವಿದೆ
+  "error.flowmetaservice.missing_id_parameter": ಅಗತ್ಯ ಪ್ಯಾರಾಮೀಟರ್ ಕಾಣೆಯಾಗಿದೆ
+  "error.flowmetaservice.missing_required_parameter": ಅಗತ್ಯ ಪ್ಯಾರಾಮೀಟರ್ ಕಾಣೆಯಾಗಿದೆ
+  "error.flowmetaservice.missing_type_description": 'type' ಕ್ವೆರಿ ಪ್ಯಾರಾಮೀಟರ್ ಅಗತ್ಯವಿದೆ
+  "error.flowmetaservice.ou_fetch_failed": ಆಂತರಿಕ ಸರ್ವರ್ ದೋಷ
+  "error.flowmetaservice.ou_fetch_failed_description": ಸಂಸ್ಥಾ ಘಟಕ ಮಾಹಿತಿ ಮರುಪಡೆಯಲು ವಿಫಲವಾಗಿದೆ
+  "error.flowmetaservice.ou_not_found": ಸಂಪನ್ಮೂಲ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.flowmetaservice.ou_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಸಂಸ್ಥಾ ಘಟಕ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.flowmetaservice.resource_not_found": ಸಂಪನ್ಮೂಲ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.flowmgtservice.cannot_update_flow_type": ಅಮಾನ್ಯ ನವೀಕರಣ ವಿನಂತಿ
+  "error.flowmgtservice.cannot_update_flow_type_description": ರಚಿಸಿದ ನಂತರ ಫ್ಲೋ ಪ್ರಕಾರ ಬದಲಾಯಿಸಲಾಗುವುದಿಲ್ಲ
+  "error.flowmgtservice.duplicate_flow_handle": ನಕಲಿ ಫ್ಲೋ ಹ್ಯಾಂಡಲ್
+  "error.flowmgtservice.duplicate_flow_handle_description": ಈ ಫ್ಲೋ ಪ್ರಕಾರಕ್ಕಾಗಿ ಈ ಹ್ಯಾಂಡಲ್ ಹೊಂದಿರುವ ಫ್ಲೋ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "error.flowmgtservice.duplicate_flow_id": ನಕಲಿ ಫ್ಲೋ ID
+  "error.flowmgtservice.duplicate_flow_id_description": ಫ್ಲೋ ID ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "error.flowmgtservice.flow_definition_nil_or_empty_description": ಫ್ಲೋ ವ್ಯಾಖ್ಯಾನ ನಲ್ ಆಗಿದೆ ಅಥವಾ ಯಾವುದೇ ನೋಡ್‌ಗಳಿಲ್ಲ
+  "error.flowmgtservice.flow_is_immutable": ಫ್ಲೋ ಬದಲಾಯಿಸಲಾಗದು
+  "error.flowmgtservice.flow_is_immutable_description": ಘೋಷಣಾತ್ಮಕ ಫ್ಲೋಗಳನ್ನು ಮಾರ್ಪಡಿಸಲು ಅಥವಾ ಅಳಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "error.flowmgtservice.flow_not_found": ಫ್ಲೋ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.flowmgtservice.flow_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ id ಹೊಂದಿರುವ ಫ್ಲೋ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.flowmgtservice.flow_requires_intermediate_nodes_description": ಫ್ಲೋ ವ್ಯಾಖ್ಯಾನ ಪ್ರಾರಂಭ ಮತ್ತು ಅಂತ್ಯ ನೋಡ್‌ಗಳ ನಡುವೆ ನೋಡ್‌ಗಳನ್ನು ಒಳಗೊಂಡಿರಬೇಕು
+  "error.flowmgtservice.flow_requires_start_and_end_nodes_description": ಫ್ಲೋ ವ್ಯಾಖ್ಯಾನ ಕನಿಷ್ಠ ಒಂದು ಪ್ರಾರಂಭ ಮತ್ತು ಒಂದು ಅಂತ್ಯ ನೋಡ್ ಒಳಗೊಂಡಿರಬೇಕು
+  "error.flowmgtservice.flow_version_not_found": ಫ್ಲೋ ಆವೃತ್ತಿ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.flowmgtservice.flow_version_not_found_description": ವಿನಂತಿಸಿದ ಫ್ಲೋ ಆವೃತ್ತಿ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.flowmgtservice.graph_build_failure": ಗ್ರಾಫ್ ನಿರ್ಮಾಣ ವಿಫಲತೆ
+  "error.flowmgtservice.graph_build_failure_description": ಫ್ಲೋ ವ್ಯಾಖ್ಯಾನದಿಂದ ಎಕ್ಸಿಕ್ಯೂಟಬಲ್ ಗ್ರಾಫ್ ನಿರ್ಮಿಸಲು ವಿಫಲವಾಗಿದೆ
+  "error.flowmgtservice.handle_update_not_allowed": ಅಮಾನ್ಯ ನವೀಕರಣ ವಿನಂತಿ
+  "error.flowmgtservice.handle_update_not_allowed_description": ರಚಿಸಿದ ನಂತರ ಫ್ಲೋ ಹ್ಯಾಂಡಲ್ ಮಾರ್ಪಡಿಸಲಾಗುವುದಿಲ್ಲ
+  "error.flowmgtservice.interceptor_selected_scope_requires_apply_to": SELECTED ವ್ಯಾಪ್ತಿಯ ಇಂಟರ್‌ಸೆಪ್ಟರ್ applyTo ನಲ್ಲಿ ಕನಿಷ್ಠ ಒಂದು ನೋಡ್ ನಿರ್ದಿಷ್ಟಪಡಿಸಬೇಕು
+  "error.flowmgtservice.invalid_flow_data": ಅಮಾನ್ಯ ಫ್ಲೋ ದತ್ತಾಂಶ
+  "error.flowmgtservice.invalid_flow_data_description": ಫ್ಲೋ ವ್ಯಾಖ್ಯಾನ ಅಮಾನ್ಯ ದತ್ತಾಂಶ ಹೊಂದಿದೆ
+  "error.flowmgtservice.invalid_flow_handle": ಅಮಾನ್ಯ ಫ್ಲೋ ಹ್ಯಾಂಡಲ್
+  "error.flowmgtservice.invalid_flow_handle_description": ಫ್ಲೋ ಹ್ಯಾಂಡಲ್ ಒದಗಿಸಬೇಕು
+  "error.flowmgtservice.invalid_flow_handle_format": ಅಮಾನ್ಯ ಫ್ಲೋ ಹ್ಯಾಂಡಲ್ ಸ್ವರೂಪ
+  "error.flowmgtservice.invalid_flow_handle_format_description": ಫ್ಲೋ ಹ್ಯಾಂಡಲ್ ಸಣ್ಣ ಅಕ್ಷರ, ಅಲ್ಫಾನ್ಯೂಮೆರಿಕ್ ಆಗಿರಬೇಕು ಮತ್ತು ಅಂಡರ್‌ಸ್ಕೋರ್ ಅಥವಾ ಡ್ಯಾಶ್ ಮಾತ್ರ ಒಳಗೊಂಡಿರಬಹುದು
+  "error.flowmgtservice.invalid_flow_id": ಅಮಾನ್ಯ ಫ್ಲೋ ID
+  "error.flowmgtservice.invalid_flow_id_description": ಫ್ಲೋ ID ಒದಗಿಸಬೇಕು
+  "error.flowmgtservice.invalid_flow_id_format": ಅಮಾನ್ಯ ಫ್ಲೋ ID ಸ್ವರೂಪ
+  "error.flowmgtservice.invalid_flow_id_format_description": ಫ್ಲೋ ID ಮಾನ್ಯ UUID ಆಗಿರಬೇಕು
+  "error.flowmgtservice.invalid_flow_name": ಅಮಾನ್ಯ ಫ್ಲೋ ಹೆಸರು
+  "error.flowmgtservice.invalid_flow_name_description": ಫ್ಲೋ ಹೆಸರು ಒದಗಿಸಬೇಕು
+  "error.flowmgtservice.invalid_flow_type": ಅಮಾನ್ಯ ಫ್ಲೋ ಪ್ರಕಾರ
+  "error.flowmgtservice.invalid_flow_type_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಫ್ಲೋ ಪ್ರಕಾರ ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.flowmgtservice.invalid_flow_version": ಅಮಾನ್ಯ ಫ್ಲೋ ಆವೃತ್ತಿ
+  "error.flowmgtservice.invalid_flow_version_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಫ್ಲೋ ಆವೃತ್ತಿ ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.flowmgtservice.invalid_limit_parameter": ಅಮಾನ್ಯ ಪೇಜಿನೇಶನ್ ಪ್ಯಾರಾಮೀಟರ್
+  "error.flowmgtservice.invalid_limit_parameter_description": ಲಿಮಿಟ್ ಪ್ಯಾರಾಮೀಟರ್ ಧನಾತ್ಮಕ ಪೂರ್ಣಾಂಕವಾಗಿರಬೇಕು
+  "error.flowmgtservice.invalid_offset_parameter": ಅಮಾನ್ಯ ಪೇಜಿನೇಶನ್ ಪ್ಯಾರಾಮೀಟರ್
+  "error.flowmgtservice.invalid_offset_parameter_description": ಆಫ್‌ಸೆಟ್ ಪ್ಯಾರಾಮೀಟರ್ ಋಣಾತ್ಮಕವಲ್ಲದ ಪೂರ್ಣಾಂಕವಾಗಿರಬೇಕು
+  "error.flowmgtservice.invalid_request_format": ಅಮಾನ್ಯ ವಿನಂತಿ ಸ್ವರೂಪ
+  "error.flowmgtservice.invalid_request_format_description": ವಿನಂತಿ ಮುಖ್ಯಭಾಗ ಅಸ್ತವ್ಯಸ್ತವಾಗಿದೆ ಅಥವಾ ಅಮಾನ್ಯ ದತ್ತಾಂಶ ಹೊಂದಿದೆ
+  "error.groupservice.cannot_create_group_in_declarative_only_mode": ಘೋಷಣಾತ್ಮಕ-ಮಾತ್ರ ಮೋಡ್‌ನಲ್ಲಿ ಗುಂಪು ರಚಿಸಲಾಗುವುದಿಲ್ಲ
+  "error.groupservice.cannot_create_group_in_declarative_only_mode_description": ಘೋಷಣಾತ್ಮಕ-ಮಾತ್ರ ಮೋಡ್‌ನಲ್ಲಿ ಚಾಲನೆಯಲ್ಲಿರುವಾಗ ಗುಂಪು ರಚನೆ ಅನುಮತಿಸಲ್ಪಟ್ಟಿಲ್ಲ. ಗುಂಪುಗಳನ್ನು ಘೋಷಣಾತ್ಮಕ ಸಂರಚನೆ ಫೈಲ್‌ಗಳಲ್ಲಿ ವ್ಯಾಖ್ಯಾನಿಸಬೇಕು
+  "error.groupservice.cannot_delete_group": ಗುಂಪು ಅಳಿಸಲಾಗುವುದಿಲ್ಲ
+  "error.groupservice.cannot_delete_group_description": ಮಕ್ಕಳ ಗುಂಪುಗಳು ಹೊಂದಿರುವ ಗುಂಪು ಅಳಿಸಲಾಗುವುದಿಲ್ಲ
+  "error.groupservice.cannot_modify_declarative_group": ಘೋಷಣಾತ್ಮಕ ಗುಂಪು ಮಾರ್ಪಡಿಸಲಾಗುವುದಿಲ್ಲ
+  "error.groupservice.cannot_modify_declarative_group_description": ಗುಂಪು ಘೋಷಣಾತ್ಮಕ ಸಂರಚನೆಯಲ್ಲಿ ವ್ಯಾಖ್ಯಾನಿಸಲ್ಪಟ್ಟಿದ್ದು ಮಾರ್ಪಡಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "error.groupservice.empty_members_list": ಖಾಲಿ ಸದಸ್ಯರ ಪಟ್ಟಿ
+  "error.groupservice.empty_members_list_description": ಸದಸ್ಯರ ಪಟ್ಟಿ ಖಾಲಿ ಆಗಿರಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "error.groupservice.group_name_conflict": ಗುಂಪು ಹೆಸರು ಸಂಘರ್ಷ
+  "error.groupservice.group_name_conflict_description": ಅದೇ ಹೆಸರಿನ ಗುಂಪು ಅದೇ ಮೂಲ ಅಡಿಯಲ್ಲಿ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "error.groupservice.group_not_found": ಗುಂಪು ಕಂಡುಬಂದಿಲ್ಲ
+  "error.groupservice.group_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ id ಹೊಂದಿರುವ ಗುಂಪು ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.groupservice.handle_path_required_description": ಹ್ಯಾಂಡಲ್ ಮಾರ್ಗ ಅಗತ್ಯವಿದೆ
+  "error.groupservice.invalid_group_member_id": ಅಮಾನ್ಯ ಗುಂಪು ಸದಸ್ಯ ID
+  "error.groupservice.invalid_group_member_id_description": ವಿನಂತಿಯಲ್ಲಿ ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ಗುಂಪು ಸದಸ್ಯ IDs ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.groupservice.invalid_limit_parameter": ಅಮಾನ್ಯ ಲಿಮಿಟ್ ಪ್ಯಾರಾಮೀಟರ್
+  "error.groupservice.invalid_limit_parameter_description": ಲಿಮಿಟ್ ಪ್ಯಾರಾಮೀಟರ್ ಧನಾತ್ಮಕ ಪೂರ್ಣಾಂಕವಾಗಿರಬೇಕು
+  "error.groupservice.invalid_member_id": ಅಮಾನ್ಯ ಸದಸ್ಯ ID
+  "error.groupservice.invalid_member_id_description": ವಿನಂತಿಯಲ್ಲಿ ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ಬಳಕೆದಾರ ಅಥವಾ ಅಪ್ಲಿಕೇಶನ್ ಸದಸ್ಯ IDs ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ ಅಥವಾ ಹೇಳಿಕೊಂಡ ಪ್ರಕಾರಕ್ಕೆ ಹೊಂದಿಕೆಯಾಗುವುದಿಲ್ಲ
+  "error.groupservice.invalid_member_type": ಅಮಾನ್ಯ ಸದಸ್ಯ ಪ್ರಕಾರ
+  "error.groupservice.invalid_member_type_description": ಸದಸ್ಯ ಪ್ರಕಾರ 'user', 'group', ಅಥವಾ 'app' ಆಗಿರಬೇಕು
+  "error.groupservice.invalid_offset_parameter": ಅಮಾನ್ಯ ಆಫ್‌ಸೆಟ್ ಪ್ಯಾರಾಮೀಟರ್
+  "error.groupservice.invalid_offset_parameter_description": ಆಫ್‌ಸೆಟ್ ಪ್ಯಾರಾಮೀಟರ್ ಋಣಾತ್ಮಕವಲ್ಲದ ಪೂರ್ಣಾಂಕವಾಗಿರಬೇಕು
+  "error.groupservice.invalid_ou_id": ಅಮಾನ್ಯ OU ID
+  "error.groupservice.invalid_ou_id_description": ಸಂಸ್ಥಾ ಘಟಕ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.groupservice.invalid_request_format": ಅಮಾನ್ಯ ವಿನಂತಿ ಸ್ವರೂಪ
+  "error.groupservice.invalid_request_format_description": ವಿನಂತಿ ಮುಖ್ಯಭಾಗ ಅಸ್ತವ್ಯಸ್ತವಾಗಿದೆ ಅಥವಾ ಅಮಾನ್ಯ ದತ್ತಾಂಶ ಹೊಂದಿದೆ
+  "error.groupservice.missing_group_id": ಅಮಾನ್ಯ ವಿನಂತಿ ಸ್ವರೂಪ
+  "error.groupservice.missing_group_id_description": ಗುಂಪು ID ಅಗತ್ಯವಿದೆ
+  "error.i18nservice.empty_translations": ಖಾಲಿ ಅನುವಾದಗಳು
+  "error.i18nservice.empty_translations_description": ಕನಿಷ್ಠ ಒಂದು ಅನುವಾದ ಒದಗಿಸಬೇಕು
+  "error.i18nservice.export_error": ರಫ್ತುಗಾಗಿ ಅನುವಾದ ಭಾಷೆಗಳು ಪಡೆಯಲು ವಿಫಲವಾಗಿದೆ
+  "error.i18nservice.fetch_error": ರಫ್ತುಗಾಗಿ ಅನುವಾದಗಳು ಪಡೆಯಲು ವಿಫಲವಾಗಿದೆ
+  "error.i18nservice.invalid_key": ಅಮಾನ್ಯ ಕೀ ಸ್ವರೂಪ
+  "error.i18nservice.invalid_key_description": ಕೀ ಅಲ್ಫಾನ್ಯೂಮೆರಿಕ್ ಅಕ್ಷರಗಳು, ಡಾಟ್‌ಗಳು, ಅಂಡರ್‌ಸ್ಕೋರ್‌ಗಳು ಮತ್ತು ಹೈಫನ್‌ಗಳನ್ನು ಮಾತ್ರ ಒಳಗೊಂಡಿರಬಹುದು
+  "error.i18nservice.invalid_language": ಅಮಾನ್ಯ ಭಾಷಾ ಟ್ಯಾಗ್ ಸ್ವರೂಪ
+  "error.i18nservice.invalid_language_description": ಭಾಷಾ ಟ್ಯಾಗ್ ಮಾನಕ BCP 47 ಸ್ವರೂಪ ಅನುಸರಿಸಬೇಕು (ಉದಾ., 'en', 'es', 'fr-CA')
+  "error.i18nservice.invalid_namespace": ಅಮಾನ್ಯ ನೇಮ್‌ಸ್ಪೇಸ್ ಸ್ವರೂಪ
+  "error.i18nservice.invalid_namespace_description": ನೇಮ್‌ಸ್ಪೇಸ್ ಅಲ್ಫಾನ್ಯೂಮೆರಿಕ್ ಅಕ್ಷರಗಳು, ಅಂಡರ್‌ಸ್ಕೋರ್‌ಗಳು ಮತ್ತು ಹೈಫನ್‌ಗಳನ್ನು ಮಾತ್ರ ಒಳಗೊಂಡಿರಬಹುದು
+  "error.i18nservice.invalid_request_description": ವಿನಂತಿ ಮುಖ್ಯಭಾಗ ಅಸ್ತವ್ಯಸ್ತವಾಗಿದೆ ಅಥವಾ ಅಮಾನ್ಯ ದತ್ತಾಂಶ ಹೊಂದಿದೆ
+  "error.i18nservice.invalid_request_format": ಅಮಾನ್ಯ ವಿನಂತಿ ಸ್ವರೂಪ
+  "error.i18nservice.missing_language": ಭಾಷೆ ಕೋಡ್ ಕಾಣೆಯಾಗಿದೆ
+  "error.i18nservice.missing_language_description": ಭಾಷೆ ಕೋಡ್ ಅಗತ್ಯವಿದೆ
+  "error.i18nservice.missing_value": ಅನುವಾದ ಮೌಲ್ಯ ಕಾಣೆಯಾಗಿದೆ
+  "error.i18nservice.missing_value_description": ಅನುವಾದ ಮೌಲ್ಯ ಅಗತ್ಯವಿದೆ
+  "error.i18nservice.translation_not_found": ಅನುವಾದ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.i18nservice.translation_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಭಾಷೆ, ನೇಮ್‌ಸ್ಪೇಸ್ ಮತ್ತು ಕೀಗಾಗಿ ವಿನಂತಿಸಿದ ಅನುವಾದ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.idpservice.attribute_configuration_empty_claim_description": ಗುಣಲಕ್ಷಣ ಮ್ಯಾಪಿಂಗ್ ಖಾಲಿ ಗುಣಲಕ್ಷಣ ಹೆಸರುಗಳನ್ನು ಒಳಗೊಂಡಿರಬಾರದು
+  "error.idpservice.attribute_configuration_entry_user_type_required_description": ಪ್ರತಿ ಬಳಕೆದಾರ ಪ್ರಕಾರ ಗುಣಲಕ್ಷಣ ನಮೂದಿಗೆ ಬಳಕೆದಾರ ಪ್ರಕಾರ ಅಗತ್ಯವಿದೆ
+  "error.idpservice.attribute_configuration_user_type_required_description": ಗುಣಲಕ್ಷಣ ಸಂರಚನೆಗೆ ಬಳಕೆದಾರ ಪ್ರಕಾರ ಅಗತ್ಯವಿದೆ
+  "error.idpservice.idp_already_exists": ಗುರುತಿನ ಪ್ರದಾನಕರ್ತ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "error.idpservice.idp_already_exists_description": ಅದೇ ಹೆಸರಿನ ಗುರುತಿನ ಪ್ರದಾನಕರ್ತ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "error.idpservice.idp_declarative_read_only": ಗುರುತಿನ ಪ್ರದಾನಕರ್ತ ಬದಲಾಯಿಸಲಾಗದು
+  "error.idpservice.idp_declarative_read_only_description": ವಿನಂತಿಸಿದ ಗುರುತಿನ ಪ್ರದಾನಕರ್ತ ಘೋಷಣಾತ್ಮಕವಾಗಿದ್ದು ಮಾರ್ಪಡಿಸಲು ಅಥವಾ ಅಳಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "error.idpservice.idp_nil": ಗುರುತಿನ ಪ್ರದಾನಕರ್ತ ನಲ್ ಆಗಿರಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "error.idpservice.idp_nil_description": ಗುರುತಿನ ಪ್ರದಾನಕರ್ತ ಆಬ್ಜೆಕ್ಟ್ ನಲ್ ಅಥವಾ ಖಾಲಿ ಆಗಿರಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "error.idpservice.idp_not_found": ಗುರುತಿನ ಪ್ರದಾನಕರ್ತ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.idpservice.idp_not_found_description": ವಿನಂತಿಸಿದ ಗುರುತಿನ ಪ್ರದಾನಕರ್ತ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.idpservice.invalid_attribute_configuration": ಅಮಾನ್ಯ ಗುಣಲಕ್ಷಣ ಸಂರಚನೆ
+  "error.idpservice.invalid_attribute_configuration_description": ಗುರುತಿನ ಪ್ರದಾನಕರ್ತನ ಗುಣಲಕ್ಷಣ ಸಂರಚನೆ ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.idpservice.invalid_idp_id": ಅಮಾನ್ಯ ಗುರುತಿನ ಪ್ರದಾನಕರ್ತ ID
+  "error.idpservice.invalid_idp_id_description": ಒದಗಿಸಿದ ಗುರುತಿನ ಪ್ರದಾನಕರ್ತ ID ಅಮಾನ್ಯ ಅಥವಾ ಖಾಲಿ ಆಗಿದೆ
+  "error.idpservice.invalid_idp_name": ಅಮಾನ್ಯ ಗುರುತಿನ ಪ್ರದಾನಕರ್ತ ಹೆಸರು
+  "error.idpservice.invalid_idp_name_description": ಒದಗಿಸಿದ ಗುರುತಿನ ಪ್ರದಾನಕರ್ತ ಹೆಸರು ಅಮಾನ್ಯ ಅಥವಾ ಖಾಲಿ ಆಗಿದೆ
+  "error.idpservice.invalid_idp_property": ಅಮಾನ್ಯ ಗುರುತಿನ ಪ್ರದಾನಕರ್ತ ಗುಣ
+  "error.idpservice.invalid_idp_property_description": ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ಗುರುತಿನ ಪ್ರದಾನಕರ್ತ ಗುಣಗಳು ಅಮಾನ್ಯ ಅಥವಾ ಖಾಲಿ ಆಗಿವೆ
+  "error.idpservice.invalid_idp_type": ಅಮಾನ್ಯ ಗುರುತಿನ ಪ್ರದಾನಕರ್ತ ಪ್ರಕಾರ
+  "error.idpservice.invalid_idp_type_description": ಒದಗಿಸಿದ ಗುರುತಿನ ಪ್ರದಾನಕರ್ತ ಪ್ರಕಾರ ಅಮಾನ್ಯ ಅಥವಾ ಖಾಲಿ ಆಗಿದೆ
+  "error.idpservice.invalid_request_format": ಅಮಾನ್ಯ ವಿನಂತಿ ಸ್ವರೂಪ
+  "error.idpservice.invalid_request_format_description": ವಿನಂತಿ ಮುಖ್ಯಭಾಗ ಅಸ್ತವ್ಯಸ್ತವಾಗಿದೆ ಅಥವಾ ಅಮಾನ್ಯ ದತ್ತಾಂಶ ಹೊಂದಿದೆ
+  "error.idpservice.property_name_empty_description": ಗುಣ ಹೆಸರುಗಳು ಖಾಲಿ ಆಗಿರಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "error.idpservice.result_limit_exceeded": ಸಂಯೋಜಿತ ಮೋಡ್‌ನಲ್ಲಿ ಫಲಿತಾಂಶ ಮಿತಿ ಮೀರಿದೆ
+  "error.idpservice.result_limit_exceeded_description": ಸಂಯೋಜಿತ ಮೋಡ್‌ನಲ್ಲಿ ದಾಖಲೆಗಳ ಒಟ್ಟು ಸಂಖ್ಯೆ ಗರಿಷ್ಠ ಮಿತಿ ಮೀರಿದೆ
+  "error.idpservice.unsupported_idp_property": ಬೆಂಬಲಿಸದ ಗುರುತಿನ ಪ್ರದಾನಕರ್ತ ಗುಣ
+  "error.idpservice.unsupported_idp_property_description": ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ಗುರುತಿನ ಪ್ರದಾನಕರ್ತ ಗುಣಗಳು ಬೆಂಬಲಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.import.adapterNotConfigured": ಅಡಾಪ್ಟರ್ ಸಂರಚಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.import.adapterNotConfigured.description": ಅಗತ್ಯ ಸಂಪನ್ಮೂಲ ಅಡಾಪ್ಟರ್ ಸಂರಚಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.import.delete.dirNotFound": ಸಂಪನ್ಮೂಲ ಡೈರೆಕ್ಟರಿ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.import.delete.fileNotFound": ಸಂಪನ್ಮೂಲ ಫೈಲ್ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.import.emptyContent": ಆಮದು ವಿಷಯ ಖಾಲಿ ಆಗಿರಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "error.import.fileTargetNotSupported": ಫೈಲ್ ಟಾರ್ಗೆಟ್ ಬೆಂಬಲಿಸಲ್ಪಟ್ಟಿಲ್ಲ; ರನ್‌ಟೈಮ್ ಟಾರ್ಗೆಟ್ ಬಳಸಿ
+  "error.import.invalidRequest": ಅಮಾನ್ಯ ಆಮದು ವಿನಂತಿ
+  "error.import.invalidRequest.description": ಒದಗಿಸಿದ ಆಮದು ವಿನಂತಿ ಅಮಾನ್ಯ ಅಥವಾ ವಿರೂಪಗೊಂಡಿದೆ
+  "error.import.invalidYaml": ಅಮಾನ್ಯ YAML ವಿಷಯ
+  "error.import.invalidYaml.description": ಒದಗಿಸಿದ YAML ವಿಷಯ ಪಾರ್ಸ್ ಮಾಡಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "error.import.missingDeleteFields": resourceType ಮತ್ತು resourceKey ಅಗತ್ಯವಿದೆ
+  "error.import.templateResolutionFailed": ಟೆಂಪ್ಲೇಟ್ ರಿಸಾಲ್ಯೂಶನ್ ವಿಫಲವಾಗಿದೆ
+  "error.import.templateResolutionFailed.description": YAML ವಿಷಯದಲ್ಲಿ ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ಟೆಂಪ್ಲೇಟ್ ಚಲರಾಶಿಗಳನ್ನು ರಿಸಾಲ್ವ್ ಮಾಡಲು ವಿಫಲವಾಗಿದೆ
+  "error.import.unsupportedResourceType": ಘೋಷಣಾತ್ಮಕ ಫೈಲ್ ನಿರ್ವಹಣೆಗಾಗಿ ಬೆಂಬಲಿಸದ ಸಂಪನ್ಮೂಲ ಪ್ರಕಾರ
+  "error.interceptor.challenge_token_invalid": ಅಮಾನ್ಯ ಚಾಲೆಂಜ್ ಟೋಕನ್
+  "error.interceptor.challenge_token_invalid_description": ಚಾಲೆಂಜ್ ಟೋಕನ್ ಕಾಣೆಯಾಗಿದೆ ಅಥವಾ ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.interceptor.failed": ಇಂಟರ್‌ಸೆಪ್ಟರ್ ಮಾನ್ಯೀಕರಣ ವಿಫಲವಾಗಿದೆ
+  "error.interceptor.failed_description": ಫ್ಲೋ ಇಂಟರ್‌ಸೆಪ್ಟರ್ ವಿನಂತಿ ತಿರಸ್ಕರಿಸಿದೆ
+  "error.internal_server_error": ಆಂತರಿಕ ಸರ್ವರ್ ದೋಷ
+  "error.internal_server_error_description": ವಿನಂತಿ ಪ್ರಕ್ರಿಯೆಗೊಳಿಸುವಾಗ ಅನಿರೀಕ್ಷಿತ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "error.jweservice.decoding_jwe_error": JWE ಡಿಕೋಡ್ ದೋಷ
+  "error.jweservice.decoding_jwe_error_description": JWE ಟೋಕನ್ ಡಿಕೋಡ್ ಮಾಡುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "error.jweservice.decryption_failed": JWE ಡಿಕ್ರಿಪ್ಶನ್ ವಿಫಲವಾಗಿದೆ
+  "error.jweservice.decryption_failed_description": JWE ಟೋಕನ್ ಡಿಕ್ರಿಪ್ಟ್ ಮಾಡಲು ವಿಫಲವಾಗಿದೆ
+  "error.jweservice.unsupported_algorithm": ಬೆಂಬಲಿಸದ JWE ಅಲ್ಗಾರಿದಮ್
+  "error.jweservice.unsupported_algorithm_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ JWE ಅಲ್ಗಾರಿದಮ್ ಬೆಂಬಲಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.jweservice.unsupported_encryption_algorithm": ಬೆಂಬಲಿಸದ ಎನ್‌ಕ್ರಿಪ್ಶನ್ ಅಲ್ಗಾರಿದಮ್
+  "error.jweservice.unsupported_encryption_algorithm_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಎನ್‌ಕ್ರಿಪ್ಶನ್ ಅಲ್ಗಾರಿದಮ್ ಬೆಂಬಲಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.jwsservice.decoding_header_error": JWS ಡಿಕೋಡ್ ದೋಷ
+  "error.jwsservice.decoding_header_error_description": JWS ಹೆಡರ್ ಡಿಕೋಡ್ ಮಾಡುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "error.jwsservice.invalid_format": ಅಮಾನ್ಯ JWS ಸ್ವರೂಪ
+  "error.jwsservice.invalid_format_description": JWS ಟೋಕನ್ ಸ್ವರೂಪ ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.jwsservice.invalid_signature": ಅಮಾನ್ಯ ಸಹಿ
+  "error.jwsservice.invalid_signature_description": ಸಹಿ ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.jwsservice.unsupported_algorithm": ಬೆಂಬಲಿಸದ JWS ಅಲ್ಗಾರಿದಮ್
+  "error.jwsservice.unsupported_algorithm_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ JWS ಅಲ್ಗಾರಿದಮ್ ಬೆಂಬಲಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.jwtservice.decoding_header_error": JWT ಡಿಕೋಡ್ ದೋಷ
+  "error.jwtservice.decoding_header_error_description": JWT ಹೆಡರ್ ಡಿಕೋಡ್ ಮಾಡುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "error.jwtservice.decoding_payload_error": JWT ಡಿಕೋಡ್ ದೋಷ
+  "error.jwtservice.decoding_payload_error_description": JWT ಪೇಲೋಡ್ ಡಿಕೋಡ್ ಮಾಡುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "error.jwtservice.failed_to_get_jwks": JWKS ಮರುಪಡೆಯಲು ವಿಫಲವಾಗಿದೆ
+  "error.jwtservice.failed_to_get_jwks_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ URL ನಿಂದ JWKS ಮರುಪಡೆಯಲು ವಿಫಲವಾಗಿದೆ
+  "error.jwtservice.failed_to_parse_jwks": JWKS ಪಾರ್ಸ್ ಮಾಡಲು ವಿಫಲವಾಗಿದೆ
+  "error.jwtservice.failed_to_parse_jwks_description": JWKS ಪಾರ್ಸ್ ಮಾಡಲು ವಿಫಲವಾಗಿದೆ
+  "error.jwtservice.invalid_jwt_format": ಅಮಾನ್ಯ JWT ಸ್ವರೂಪ
+  "error.jwtservice.invalid_jwt_format_description": JWT ಟೋಕನ್ ಸ್ವರೂಪ ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.jwtservice.invalid_token_signature": ಅಮಾನ್ಯ ಟೋಕನ್ ಸಹಿ
+  "error.jwtservice.invalid_token_signature_description": JWT ಟೋಕನ್ ಸಹಿ ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.jwtservice.no_matching_jwk_found": ಹೊಂದಿಕೆಯಾಗುವ JWK ಕಂಡುಬಂದಿಲ್ಲ
+  "error.jwtservice.no_matching_jwk_found_description": ನೀಡಿದ ಕೀ ID ಗಾಗಿ ಹೊಂದಿಕೆಯಾಗುವ JWK ಕಂಡುಬಂದಿಲ್ಲ
+  "error.jwtservice.token_expired": ಟೋಕನ್ ಅವಧಿ ಮೀರಿದೆ
+  "error.jwtservice.token_expired_description": JWT ಟೋಕನ್ ಅವಧಿ ಮೀರಿದೆ
+  "error.jwtservice.unsupported_jws_algorithm": ಬೆಂಬಲಿಸದ JWS ಅಲ್ಗಾರಿದಮ್
+  "error.jwtservice.unsupported_jws_algorithm_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ JWS ಅಲ್ಗಾರಿದಮ್ ಬೆಂಬಲಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.magiclinkservice.expired_token": ಅವಧಿ ಮೀರಿದ ಟೋಕನ್
+  "error.magiclinkservice.expired_token_description": ಮ್ಯಾಜಿಕ್ ಲಿಂಕ್ ಟೋಕನ್ ಅವಧಿ ಮೀರಿದೆ
+  "error.magiclinkservice.invalid_token": ಅಮಾನ್ಯ ಟೋಕನ್
+  "error.magiclinkservice.invalid_token_description": ಒದಗಿಸಿದ ಮ್ಯಾಜಿಕ್ ಲಿಂಕ್ ಟೋಕನ್ ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.magiclinkservice.malformed_token_claims": ವಿರೂಪಗೊಂಡ ಟೋಕನ್ ಕ್ಲೇಮ್‌ಗಳು
+  "error.magiclinkservice.malformed_token_claims_description": ಮ್ಯಾಜಿಕ್ ಲಿಂಕ್ ಟೋಕನ್ ಅಮಾನ್ಯ ಅಥವಾ ಕಾಣೆಯಾದ ಕ್ಲೇಮ್‌ಗಳು ಹೊಂದಿದೆ
+  "error.magiclinkservice.resolving_user": ಬಳಕೆದಾರ ರಿಸಾಲ್ವ್ ಮಾಡುವಲ್ಲಿ ದೋಷ
+  "error.magiclinkservice.resolving_user_description": ಸ್ವೀಕರಿಸುವವರಿಗಾಗಿ ಬಳಕೆದಾರ ರಿಸಾಲ್ವ್ ಮಾಡುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "error.magiclinkservice.token_generation_failed": ಟೋಕನ್ ರಚನೆ ವಿಫಲವಾಗಿದೆ
+  "error.magiclinkservice.token_generation_failed_description": ಮ್ಯಾಜಿಕ್ ಲಿಂಕ್ ಟೋಕನ್ ರಚಿಸಲು ವಿಫಲವಾಗಿದೆ
+  "error.notificationservice.duplicate_sender_name": ನಕಲಿ ಕಳುಹಿಸುವವರ ಹೆಸರು
+  "error.notificationservice.duplicate_sender_name_description": ಅದೇ ಹೆಸರಿನ ಕಳುಹಿಸುವವರು ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದ್ದಾರೆ
+  "error.notificationservice.error_while_retrieving_message_client": ಸಂದೇಶ ಕ್ಲೈಂಟ್ ಮರುಪಡೆಯುವಾಗ ದೋಷ
+  "error.notificationservice.error_while_retrieving_message_client_description": ಸಂದೇಶ ಕ್ಲೈಂಟ್ ಮರುಪಡೆಯುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "error.notificationservice.invalid_channel": ಅಮಾನ್ಯ ಚಾನೆಲ್
+  "error.notificationservice.invalid_channel_description": ಒದಗಿಸಿದ ಚಾನೆಲ್ ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.notificationservice.invalid_notification_provider": ಅಮಾನ್ಯ ಅಧಿಸೂಚನೆ ಪ್ರದಾನಕರ್ತ
+  "error.notificationservice.invalid_notification_provider_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಅಧಿಸೂಚನೆ ಪ್ರದಾನಕರ್ತ ಅಮಾನ್ಯ ಅಥವಾ ಬೆಂಬಲಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.notificationservice.invalid_otp": ಅಮಾನ್ಯ OTP
+  "error.notificationservice.invalid_otp_description": ಒದಗಿಸಿದ OTP ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.notificationservice.invalid_recipient": ಅಮಾನ್ಯ ಸ್ವೀಕರಿಸುವವರು
+  "error.notificationservice.invalid_recipient_description": ಒದಗಿಸಿದ ಸ್ವೀಕರಿಸುವವರು ಅಮಾನ್ಯವಾಗಿದ್ದಾರೆ
+  "error.notificationservice.invalid_request_format": ಅಮಾನ್ಯ ವಿನಂತಿ ಸ್ವರೂಪ
+  "error.notificationservice.invalid_request_format_description": ವಿನಂತಿ ಮುಖ್ಯಭಾಗ ಅಸ್ತವ್ಯಸ್ತವಾಗಿದೆ ಅಥವಾ ಅಮಾನ್ಯ ದತ್ತಾಂಶ ಹೊಂದಿದೆ
+  "error.notificationservice.invalid_sender_id": ಅಮಾನ್ಯ ಕಳುಹಿಸುವವರ ID
+  "error.notificationservice.invalid_sender_id_description": ಒದಗಿಸಿದ ಕಳುಹಿಸುವವರ ID ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.notificationservice.invalid_sender_name": ಅಮಾನ್ಯ ಕಳುಹಿಸುವವರ ಹೆಸರು
+  "error.notificationservice.invalid_sender_name_description": ಒದಗಿಸಿದ ಕಳುಹಿಸುವವರ ಹೆಸರು ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.notificationservice.invalid_sender_type": ಅಮಾನ್ಯ ಕಳುಹಿಸುವವರ ಪ್ರಕಾರ
+  "error.notificationservice.invalid_sender_type_description": ಒದಗಿಸಿದ ಕಳುಹಿಸುವವರ ಪ್ರಕಾರ ಅಮಾನ್ಯ ಅಥವಾ ಬೆಂಬಲಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.notificationservice.invalid_session_token": ಅಮಾನ್ಯ ಸೆಶನ್ ಟೋಕನ್
+  "error.notificationservice.invalid_session_token_description": ಒದಗಿಸಿದ ಸೆಶನ್ ಟೋಕನ್ ಅಮಾನ್ಯ, ವಿರೂಪಗೊಂಡ ಅಥವಾ ಅವಧಿ ಮೀರಿದೆ
+  "error.notificationservice.sender_not_found": ಕಳುಹಿಸುವವರು ಕಂಡುಬಂದಿಲ್ಲ
+  "error.notificationservice.sender_not_found_description": ವಿನಂತಿಸಿದ ಅಧಿಸೂಚನೆ ಕಳುಹಿಸುವವರು ಕಂಡುಬಂದಿಲ್ಲ
+  "error.notificationservice.sender_type_mismatch": ಕಳುಹಿಸುವವರ ಪ್ರಕಾರ ಹೊಂದಿಕೆಯಾಗುತ್ತಿಲ್ಲ
+  "error.notificationservice.sender_type_mismatch_description": ವಿನಂತಿಸಿದ ಕಳುಹಿಸುವವರು ನಿರೀಕ್ಷಿತ ಪ್ರಕಾರದ ಅಲ್ಲ
+  "error.notificationservice.unsupported_channel": ಬೆಂಬಲಿಸದ ಚಾನೆಲ್
+  "error.notificationservice.unsupported_channel_description": ಒದಗಿಸಿದ ಚಾನೆಲ್ ಬೆಂಬಲಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.notificationservice.update_not_allowed": ನವೀಕರಣ ಅನುಮತಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "error.notificationservice.update_not_allowed_description": ಕಳುಹಿಸುವವರ ಪ್ರಕಾರ ನವೀಕರಿಸಲು ಅನುಮತಿ ಇಲ್ಲ
+  "error.ouservice.cannot_modify_declarative_resource": ಘೋಷಣಾತ್ಮಕ ಸಂಪನ್ಮೂಲವನ್ನು ಮಾರ್ಪಡಿಸಲಾಗುವುದಿಲ್ಲ
+  "error.ouservice.cannot_modify_declarative_resource_description": ಸಂಸ್ಥಾ ಘಟಕ ಘೋಷಣಾತ್ಮಕವಾಗಿದ್ದು ಮಾರ್ಪಡಿಸಲು ಅಥವಾ ಅಳಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "error.ouservice.circular_dependency_detected": ವೃತ್ತಾಕಾರ ಅವಲಂಬನೆ ಪತ್ತೆಯಾಗಿದೆ
+  "error.ouservice.circular_dependency_detected_description": ಈ ಮೂಲವನ್ನು ಹೊಂದಿಸುವುದರಿಂದ ವೃತ್ತಾಕಾರ ಅವಲಂಬನೆ ರಚನೆಯಾಗುತ್ತದೆ
+  "error.ouservice.invalid_filter": ಅಮಾನ್ಯ ಫಿಲ್ಟರ್ ಪ್ಯಾರಾಮೀಟರ್
+  "error.ouservice.invalid_filter_description": "ಫಿಲ್ಟರ್ ಪ್ಯಾರಾಮೀಟರ್ ಅಮಾನ್ಯವಾಗಿದೆ. ಸ್ವರೂಪ ಬಳಸಿ: attribute (eq|gt|lt) \"value\""
+  "error.ouservice.invalid_handle_path": ಅಮಾನ್ಯ ಹ್ಯಾಂಡಲ್ ಮಾರ್ಗ
+  "error.ouservice.invalid_handle_path_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಹ್ಯಾಂಡಲ್ ಮಾರ್ಗ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.ouservice.invalid_limit_parameter": ಅಮಾನ್ಯ ಲಿಮಿಟ್ ಪ್ಯಾರಾಮೀಟರ್
+  "error.ouservice.invalid_limit_parameter_description": ಲಿಮಿಟ್ ಪ್ಯಾರಾಮೀಟರ್ ಧನಾತ್ಮಕ ಪೂರ್ಣಾಂಕವಾಗಿರಬೇಕು
+  "error.ouservice.invalid_offset_parameter": ಅಮಾನ್ಯ ಆಫ್‌ಸೆಟ್ ಪ್ಯಾರಾಮೀಟರ್
+  "error.ouservice.invalid_offset_parameter_description": ಆಫ್‌ಸೆಟ್ ಪ್ಯಾರಾಮೀಟರ್ ಋಣಾತ್ಮಕವಲ್ಲದ ಪೂರ್ಣಾಂಕವಾಗಿರಬೇಕು
+  "error.ouservice.invalid_request_format": ಅಮಾನ್ಯ ವಿನಂತಿ ಸ್ವರೂಪ
+  "error.ouservice.invalid_request_format_description": ವಿನಂತಿ ಮುಖ್ಯಭಾಗ ಅಸ್ತವ್ಯಸ್ತವಾಗಿದೆ, ಅಮಾನ್ಯ ದತ್ತಾಂಶ ಹೊಂದಿದೆ, ಅಥವಾ ಅಗತ್ಯ ಕ್ಷೇತ್ರಗಳು ಕಾಣೆಯಾಗಿವೆ/ಖಾಲಿ ಆಗಿವೆ
+  "error.ouservice.missing_ou_id": ಅಮಾನ್ಯ ವಿನಂತಿ ಸ್ವರೂಪ
+  "error.ouservice.missing_ou_id_description": ಸಂಸ್ಥಾ ಘಟಕ ID ಅಗತ್ಯವಿದೆ
+  "error.ouservice.organization_unit_handle_conflict": ಸಂಸ್ಥಾ ಘಟಕ ಹ್ಯಾಂಡಲ್ ಸಂಘರ್ಷ
+  "error.ouservice.organization_unit_handle_conflict_description": ಅದೇ ಮೂಲ ಅಡಿಯಲ್ಲಿ ಅದೇ ಹ್ಯಾಂಡಲ್ ಹೊಂದಿರುವ ಸಂಸ್ಥಾ ಘಟಕ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "error.ouservice.organization_unit_has_children": ಸಂಸ್ಥಾ ಘಟಕಕ್ಕೆ ಮಕ್ಕಳಿದ್ದಾರೆ
+  "error.ouservice.organization_unit_has_children_description": ಮಕ್ಕಳು ಅಥವಾ ಬಳಕೆದಾರರು/ಗುಂಪುಗಳು ಹೊಂದಿರುವ ಸಂಸ್ಥಾ ಘಟಕ ಅಳಿಸಲಾಗುವುದಿಲ್ಲ
+  "error.ouservice.organization_unit_name_conflict": ಸಂಸ್ಥಾ ಘಟಕ ಹೆಸರು ಸಂಘರ್ಷ
+  "error.ouservice.organization_unit_name_conflict_description": ಅದೇ ಮೂಲ ಅಡಿಯಲ್ಲಿ ಅದೇ ಹೆಸರಿನ ಸಂಸ್ಥಾ ಘಟಕ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "error.ouservice.organization_unit_not_found": ಸಂಸ್ಥಾ ಘಟಕ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.ouservice.organization_unit_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ id ಹೊಂದಿರುವ ಸಂಸ್ಥಾ ಘಟಕ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.ouservice.parent_organization_unit_not_found": ಮೂಲ ಸಂಸ್ಥಾ ಘಟಕ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.ouservice.parent_organization_unit_not_found_description": ಮೂಲ ಸಂಸ್ಥಾ ಘಟಕ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.ouservice.result_limit_exceeded": ಫಲಿತಾಂಶ ಮಿತಿ ಮೀರಿದೆ
+  "error.passkeyservice.credential_not_found": ಪಾಸ್‌ಕೀ ರುಜುವಾತು ಕಂಡುಬಂದಿಲ್ಲ
+  "error.passkeyservice.credential_not_found_description": ಬಳಕೆದಾರನಿಗಾಗಿ ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ರುಜುವಾತು ಕಂಡುಬಂದಿಲ್ಲ
+  "error.passkeyservice.empty_credential_id": ಖಾಲಿ ರುಜುವಾತು ID
+  "error.passkeyservice.empty_credential_id_description": ರುಜುವಾತು ID ಅಗತ್ಯವಿದೆ
+  "error.passkeyservice.empty_credential_type": ಖಾಲಿ ರುಜುವಾತು ಪ್ರಕಾರ
+  "error.passkeyservice.empty_credential_type_description": ರುಜುವಾತು ಪ್ರಕಾರ ಅಗತ್ಯವಿದೆ
+  "error.passkeyservice.empty_relying_party_id": ಖಾಲಿ ರಿಲೈಯಿಂಗ್ ಪಾರ್ಟಿ ID
+  "error.passkeyservice.empty_relying_party_id_description": ರಿಲೈಯಿಂಗ್ ಪಾರ್ಟಿ ID ಅಗತ್ಯವಿದೆ
+  "error.passkeyservice.empty_session_token": ಖಾಲಿ ಸೆಶನ್ ಟೋಕನ್
+  "error.passkeyservice.empty_session_token_description": ಸೆಶನ್ ಟೋಕನ್ ಅಗತ್ಯವಿದೆ
+  "error.passkeyservice.empty_user_identifier": ಖಾಲಿ ಬಳಕೆದಾರ ಗುರುತಿನ ವಿವರ
+  "error.passkeyservice.empty_user_identifier_description": ಬಳಕೆದಾರ ID ಅಥವಾ ಬಳಕೆದಾರ ಹೆಸರು ಒದಗಿಸಬೇಕು
+  "error.passkeyservice.invalid_attestation_response": ಅಮಾನ್ಯ ಅಟೆಸ್ಟೇಶನ್ ಪ್ರತಿಕ್ರಿಯೆ
+  "error.passkeyservice.invalid_attestation_response_description": ಅಟೆಸ್ಟೇಶನ್ ಪ್ರತಿಕ್ರಿಯೆ ಅಗತ್ಯ ಕ್ಷೇತ್ರಗಳು ಕಾಣೆಯಾಗಿದೆ (clientDataJSON ಅಥವಾ attestationObject)
+  "error.passkeyservice.invalid_authenticator_response": ಅಮಾನ್ಯ ದೃಢೀಕರಣಕಾರ ಪ್ರತಿಕ್ರಿಯೆ
+  "error.passkeyservice.invalid_authenticator_response_description": ದೃಢೀಕರಣಕಾರ ಪ್ರತಿಕ್ರಿಯೆ ಅಗತ್ಯ ಕ್ಷೇತ್ರಗಳು ಕಾಣೆಯಾಗಿದೆ (clientDataJSON, authenticatorData, ಅಥವಾ signature)
+  "error.passkeyservice.invalid_challenge": ಅಮಾನ್ಯ ಚಾಲೆಂಜ್
+  "error.passkeyservice.invalid_challenge_description": ಪ್ರತಿಕ್ರಿಯೆಯಲ್ಲಿನ ಚಾಲೆಂಜ್ ನಿರೀಕ್ಷಿತ ಚಾಲೆಂಜ್‌ಗೆ ಹೊಂದಿಕೆಯಾಗುತ್ತಿಲ್ಲ
+  "error.passkeyservice.invalid_finish_data": ಅಮಾನ್ಯ ಮುಕ್ತಾಯ ದತ್ತಾಂಶ
+  "error.passkeyservice.invalid_finish_data_description": ಮುಕ್ತಾಯ ದತ್ತಾಂಶ ನಲ್ ಆಗಿರಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "error.passkeyservice.invalid_session_token": ಅಮಾನ್ಯ ಸೆಶನ್ ಟೋಕನ್
+  "error.passkeyservice.invalid_session_token_description": ಸೆಶನ್ ಟೋಕನ್ ಅಮಾನ್ಯ ಅಥವಾ ವಿರೂಪಗೊಂಡಿದೆ
+  "error.passkeyservice.invalid_signature": ಅಮಾನ್ಯ ಸಹಿ
+  "error.passkeyservice.invalid_signature_description": ಸಹಿ ಪರಿಶೀಲನೆ ವಿಫಲವಾಗಿದೆ
+  "error.passkeyservice.no_credentials_found": ಯಾವುದೇ ರುಜುವಾತುಗಳು ಕಂಡುಬಂದಿಲ್ಲ
+  "error.passkeyservice.no_credentials_found_description": ಬಳಕೆದಾರನಿಗಾಗಿ ಯಾವುದೇ ರುಜುವಾತುಗಳು ಕಂಡುಬಂದಿಲ್ಲ. ಮೊದಲು ರುಜುವಾತು ನೋಂದಾಯಿಸಿ
+  "error.passkeyservice.session_expired": ಸೆಶನ್ ಅವಧಿ ಮೀರಿದೆ
+  "error.passkeyservice.session_expired_description": ಸೆಶನ್ ಅವಧಿ ಮೀರಿದೆ. ಹೊಸ ಸೆಶನ್ ಪ್ರಾರಂಭಿಸಿ
+  "error.passkeyservice.user_not_found": ಬಳಕೆದಾರ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.passkeyservice.user_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಬಳಕೆದಾರ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.resourceservice.action_not_found": ಕ್ರಿಯೆ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.resourceservice.action_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ id ಹೊಂದಿರುವ ಕ್ರಿಯೆ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.resourceservice.cannot_delete": ಅಳಿಸಲಾಗುವುದಿಲ್ಲ
+  "error.resourceservice.cannot_delete_description": ಅವಲಂಬನೆಗಳು ಹೊಂದಿರುವ ಸಂಪನ್ಮೂಲ ಸರ್ವರ್/ಸಂಪನ್ಮೂಲ ಅಳಿಸಲಾಗುವುದಿಲ್ಲ
+  "error.resourceservice.cannot_modify_declarative_action": ಘೋಷಣಾತ್ಮಕ ಕ್ರಿಯೆ ಮಾರ್ಪಡಿಸಲಾಗುವುದಿಲ್ಲ
+  "error.resourceservice.cannot_modify_declarative_action_description": ಕ್ರಿಯೆ %s ಘೋಷಣಾತ್ಮಕ ಸಂರಚನೆಯಲ್ಲಿ ವ್ಯಾಖ್ಯಾನಿಸಲ್ಪಟ್ಟಿದ್ದು ಮಾರ್ಪಡಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "error.resourceservice.cannot_modify_declarative_resource": ಘೋಷಣಾತ್ಮಕ ಸಂಪನ್ಮೂಲ ಮಾರ್ಪಡಿಸಲಾಗುವುದಿಲ್ಲ
+  "error.resourceservice.cannot_modify_declarative_resource_description": ಸಂಪನ್ಮೂಲ %s ಘೋಷಣಾತ್ಮಕ ಸಂರಚನೆಯಲ್ಲಿ ವ್ಯಾಖ್ಯಾನಿಸಲ್ಪಟ್ಟಿದ್ದು ಮಾರ್ಪಡಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "error.resourceservice.cannot_modify_declarative_resource_server": ಘೋಷಣಾತ್ಮಕ ಸಂಪನ್ಮೂಲ ಸರ್ವರ್ ಮಾರ್ಪಡಿಸಲಾಗುವುದಿಲ್ಲ
+  "error.resourceservice.cannot_modify_declarative_resource_server_description": ಸಂಪನ್ಮೂಲ ಸರ್ವರ್ %s ಘೋಷಣಾತ್ಮಕ ಸಂರಚನೆಯಲ್ಲಿ ವ್ಯಾಖ್ಯಾನಿಸಲ್ಪಟ್ಟಿದ್ದು ಮಾರ್ಪಡಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "error.resourceservice.circular_dependency_detected": ವೃತ್ತಾಕಾರ ಅವಲಂಬನೆ ಪತ್ತೆಯಾಗಿದೆ
+  "error.resourceservice.circular_dependency_detected_description": ಈ ಮೂಲವನ್ನು ಹೊಂದಿಸುವುದರಿಂದ ವೃತ್ತಾಕಾರ ಅವಲಂಬನೆ ರಚನೆಯಾಗುತ್ತದೆ
+  "error.resourceservice.consent_sync_failed": ಒಪ್ಪಿಗೆ ಸಿಂಕ್ ವಿಫಲವಾಗಿದೆ
+  "error.resourceservice.consent_sync_failed_description": ಒಪ್ಪಿಗೆ ಸೇವೆಯೊಂದಿಗೆ ಸಂಪನ್ಮೂಲ ಅನುಮತಿ ಬದಲಾವಣೆಗಳನ್ನು ಸಿಂಕ್ ಮಾಡಲು ವಿಫಲವಾಗಿದೆ
+  "error.resourceservice.delimiter_conflict_in_handle": ಹ್ಯಾಂಡಲ್‌ನಲ್ಲಿ ಡಿಲಿಮಿಟರ್ ಸಂಘರ್ಷ
+  "error.resourceservice.delimiter_conflict_in_handle_description": ಹ್ಯಾಂಡಲ್ ಡಿಲಿಮಿಟರ್ ಅಕ್ಷರ ಒಳಗೊಂಡಿರಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "error.resourceservice.delimiter_conflict_in_resource_server_handle": ಹ್ಯಾಂಡಲ್‌ನಲ್ಲಿ ಡಿಲಿಮಿಟರ್ ಸಂಘರ್ಷ
+  "error.resourceservice.delimiter_conflict_in_resource_server_handle_description": ಸಂಪನ್ಮೂಲ ಸರ್ವರ್ ಹ್ಯಾಂಡಲ್ ಡಿಲಿಮಿಟರ್ ಅಕ್ಷರ ಒಳಗೊಂಡಿರಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "error.resourceservice.handle_conflict": ಹ್ಯಾಂಡಲ್ ಸಂಘರ್ಷ
+  "error.resourceservice.handle_conflict_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಸಂಪನ್ಮೂಲದಲ್ಲಿ ಅದೇ ಹ್ಯಾಂಡಲ್ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "error.resourceservice.identifier_conflict": ಗುರುತಿನ ವಿವರ ಸಂಘರ್ಷ
+  "error.resourceservice.identifier_conflict_description": ಅದೇ ಗುರುತಿನ ವಿವರ ಹೊಂದಿರುವ ಸಂಪನ್ಮೂಲ ಸರ್ವರ್ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "error.resourceservice.immutable_handle": ಹ್ಯಾಂಡಲ್ ಬದಲಾಯಿಸಲಾಗದು
+  "error.resourceservice.immutable_handle_description": ರಚಿಸಿದ ನಂತರ ಸಂಪನ್ಮೂಲ ಸರ್ವರ್ ಹ್ಯಾಂಡಲ್ ಬದಲಾಯಿಸಲಾಗುವುದಿಲ್ಲ
+  "error.resourceservice.invalid_delimiter": ಅಮಾನ್ಯ ಡಿಲಿಮಿಟರ್
+  "error.resourceservice.invalid_delimiter_description": "ಡಿಲಿಮಿಟರ್ ಒಂದೇ ಮಾನ್ಯ ಅಕ್ಷರ ಆಗಿರಬೇಕು (a-z A-Z 0-9 . _ : - /)"
+  "error.resourceservice.invalid_handle": ಅಮಾನ್ಯ ಹ್ಯಾಂಡಲ್
+  "error.resourceservice.invalid_handle_description": "ಹ್ಯಾಂಡಲ್ ಉದ್ದ 100 ಅಕ್ಷರಗಳಿಗಿಂತ ಕಡಿಮೆ ಮತ್ತು ಮಾನ್ಯ ಅಕ್ಷರಗಳನ್ನು ಒಳಗೊಂಡಿರಬೇಕು (a-z A-Z 0-9 . _ : - /)"
+  "error.resourceservice.invalid_limit_parameter": ಅಮಾನ್ಯ ಲಿಮಿಟ್ ಪ್ಯಾರಾಮೀಟರ್
+  "error.resourceservice.invalid_limit_parameter_description": ಲಿಮಿಟ್ ಪ್ಯಾರಾಮೀಟರ್ ಧನಾತ್ಮಕ ಪೂರ್ಣಾಂಕವಾಗಿರಬೇಕು
+  "error.resourceservice.invalid_offset_parameter": ಅಮಾನ್ಯ ಆಫ್‌ಸೆಟ್ ಪ್ಯಾರಾಮೀಟರ್
+  "error.resourceservice.invalid_offset_parameter_description": ಆಫ್‌ಸೆಟ್ ಪ್ಯಾರಾಮೀಟರ್ ಋಣಾತ್ಮಕವಲ್ಲದ ಪೂರ್ಣಾಂಕವಾಗಿರಬೇಕು
+  "error.resourceservice.invalid_request_format": ಅಮಾನ್ಯ ವಿನಂತಿ ಸ್ವರೂಪ
+  "error.resourceservice.invalid_request_format_description": ವಿನಂತಿ ಮುಖ್ಯಭಾಗ ಅಸ್ತವ್ಯಸ್ತವಾಗಿದೆ ಅಥವಾ ಅಮಾನ್ಯ ದತ್ತಾಂಶ ಹೊಂದಿದೆ
+  "error.resourceservice.missing_id": ಅಮಾನ್ಯ ವಿನಂತಿ ಸ್ವರೂಪ
+  "error.resourceservice.missing_id_description": ID ಅಗತ್ಯವಿದೆ
+  "error.resourceservice.name_conflict": ಹೆಸರು ಸಂಘರ್ಷ
+  "error.resourceservice.name_conflict_description": ಅದೇ ಹೆಸರಿನ ಸಂಪನ್ಮೂಲ ಸರ್ವರ್ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "error.resourceservice.organization_unit_not_found": ಸಂಸ್ಥಾ ಘಟಕ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.resourceservice.organization_unit_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಸಂಸ್ಥಾ ಘಟಕ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.resourceservice.parent_resource_not_found": ಮೂಲ ಸಂಪನ್ಮೂಲ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.resourceservice.parent_resource_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಮೂಲ ಸಂಪನ್ಮೂಲ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.resourceservice.resource_not_found": ಸಂಪನ್ಮೂಲ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.resourceservice.resource_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ id ಹೊಂದಿರುವ ಸಂಪನ್ಮೂಲ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.resourceservice.resource_server_id_conflict": ಸಂಪನ್ಮೂಲ ಸರ್ವರ್ ID ಸಂಘರ್ಷ
+  "error.resourceservice.resource_server_id_conflict_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ID ಹೊಂದಿರುವ ಸಂಪನ್ಮೂಲ ಸರ್ವರ್ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "error.resourceservice.resource_server_not_found": ಸಂಪನ್ಮೂಲ ಸರ್ವರ್ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.resourceservice.resource_server_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ id ಹೊಂದಿರುವ ಸಂಪನ್ಮೂಲ ಸರ್ವರ್ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.resourceservice.result_limit_exceeded_in_composite_mode": ಸಂಯೋಜಿತ ಮೋಡ್‌ನಲ್ಲಿ ಫಲಿತಾಂಶ ಮಿತಿ ಮೀರಿದೆ
+  "error.resourceservice.result_limit_exceeded_in_composite_mode_description": ಸಂಯೋಜಿತ ಮೋಡ್‌ನಲ್ಲಿ ದಾಖಲೆಗಳ ಒಟ್ಟು ಸಂಖ್ಯೆ ಗರಿಷ್ಠ ಮಿತಿ ಮೀರಿದೆ
+  "error.roleservice.cannot_create_role_in_declarative_only_mode": ಘೋಷಣಾತ್ಮಕ-ಮಾತ್ರ ಮೋಡ್‌ನಲ್ಲಿ ಪಾತ್ರ ರಚಿಸಲಾಗುವುದಿಲ್ಲ
+  "error.roleservice.cannot_create_role_in_declarative_only_mode_description": ಘೋಷಣಾತ್ಮಕ-ಮಾತ್ರ ಮೋಡ್‌ನಲ್ಲಿ ಚಾಲನೆಯಲ್ಲಿರುವಾಗ ಪಾತ್ರ ರಚನೆ ಅನುಮತಿಸಲ್ಪಟ್ಟಿಲ್ಲ. ಪಾತ್ರಗಳನ್ನು ಘೋಷಣಾತ್ಮಕ ಸಂರಚನೆ ಫೈಲ್‌ಗಳಲ್ಲಿ ವ್ಯಾಖ್ಯಾನಿಸಬೇಕು
+  "error.roleservice.cannot_delete_role": ಪಾತ್ರ ಅಳಿಸಲಾಗುವುದಿಲ್ಲ
+  "error.roleservice.cannot_delete_role_description": ಪ್ರಸ್ತುತ ಬಳಕೆದಾರರಿಗೆ ಅಥವಾ ಗುಂಪುಗಳಿಗೆ ನಿಯೋಜಿಸಲ್ಪಟ್ಟಿರುವ ಪಾತ್ರ ಅಳಿಸಲಾಗುವುದಿಲ್ಲ
+  "error.roleservice.cannot_modify_declarative_assignment": ಘೋಷಣಾತ್ಮಕ ನಿಯೋಜನೆ ಮಾರ್ಪಡಿಸಲಾಗುವುದಿಲ್ಲ
+  "error.roleservice.cannot_modify_declarative_assignment_description": ನಿಯೋಜನೆ ಘೋಷಣಾತ್ಮಕ ಸಂರಚನೆಯಲ್ಲಿ ವ್ಯಾಖ್ಯಾನಿಸಲ್ಪಟ್ಟಿದ್ದು ಮಾರ್ಪಡಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "error.roleservice.cannot_modify_declarative_role": ಘೋಷಣಾತ್ಮಕ ಪಾತ್ರ ಮಾರ್ಪಡಿಸಲಾಗುವುದಿಲ್ಲ
+  "error.roleservice.cannot_modify_declarative_role_description": ಪಾತ್ರ ಘೋಷಣಾತ್ಮಕ ಸಂರಚನೆಯಲ್ಲಿ ವ್ಯಾಖ್ಯಾನಿಸಲ್ಪಟ್ಟಿದ್ದು ಮಾರ್ಪಡಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "error.roleservice.either_entity_id_or_groups_must_be_provided_for_authorization_check_description": ದೃಢೀಕರಣ ಪರಿಶೀಲನೆಗಾಗಿ entityId ಅಥವಾ groups ಒದಗಿಸಬೇಕು
+  "error.roleservice.empty_assignments_list": ಖಾಲಿ ನಿಯೋಜನೆಗಳ ಪಟ್ಟಿ
+  "error.roleservice.empty_assignments_list_description": ಕನಿಷ್ಠ ಒಂದು ನಿಯೋಜನೆ ಒದಗಿಸಬೇಕು
+  "error.roleservice.invalid_assignee_type": ಅಮಾನ್ಯ ನಿಯೋಜಿತ ಪ್ರಕಾರ
+  "error.roleservice.invalid_assignee_type_description": type ಪ್ಯಾರಾಮೀಟರ್ 'user', 'group', ಅಥವಾ 'app' ಆಗಿರಬೇಕು
+  "error.roleservice.invalid_assignment_id": ಅಮಾನ್ಯ ನಿಯೋಜನೆ ID
+  "error.roleservice.invalid_assignment_id_description": ವಿನಂತಿಯಲ್ಲಿ ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ನಿಯೋಜನೆ IDs ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ ಅಥವಾ ಹೇಳಿಕೊಂಡ ಪ್ರಕಾರಕ್ಕೆ ಹೊಂದಿಕೆಯಾಗುವುದಿಲ್ಲ
+  "error.roleservice.invalid_limit_parameter": ಅಮಾನ್ಯ ಲಿಮಿಟ್ ಪ್ಯಾರಾಮೀಟರ್
+  "error.roleservice.invalid_limit_parameter_description": ಲಿಮಿಟ್ ಪ್ಯಾರಾಮೀಟರ್ ಧನಾತ್ಮಕ ಪೂರ್ಣಾಂಕವಾಗಿರಬೇಕು
+  "error.roleservice.invalid_offset_parameter": ಅಮಾನ್ಯ ಆಫ್‌ಸೆಟ್ ಪ್ಯಾರಾಮೀಟರ್
+  "error.roleservice.invalid_offset_parameter_description": ಆಫ್‌ಸೆಟ್ ಪ್ಯಾರಾಮೀಟರ್ ಋಣಾತ್ಮಕವಲ್ಲದ ಪೂರ್ಣಾಂಕವಾಗಿರಬೇಕು
+  "error.roleservice.invalid_permissions": ಅಮಾನ್ಯ ಅನುಮತಿಗಳು
+  "error.roleservice.invalid_permissions_description": ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ಅನುಮತಿಗಳು ಸಂಪನ್ಮೂಲ ನಿರ್ವಹಣಾ ವ್ಯವಸ್ಥೆಯಲ್ಲಿ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.roleservice.invalid_request_format": ಅಮಾನ್ಯ ವಿನಂತಿ ಸ್ವರೂಪ
+  "error.roleservice.invalid_request_format_description": ವಿನಂತಿ ಮುಖ್ಯಭಾಗ ಅಸ್ತವ್ಯಸ್ತವಾಗಿದೆ ಅಥವಾ ಅಮಾನ್ಯ ದತ್ತಾಂಶ ಹೊಂದಿದೆ
+  "error.roleservice.missing_entity_or_groups": ಅಮಾನ್ಯ ವಿನಂತಿ ಸ್ವರೂಪ
+  "error.roleservice.missing_role_id": ಅಮಾನ್ಯ ವಿನಂತಿ ಸ್ವರೂಪ
+  "error.roleservice.missing_role_id_description": ಪಾತ್ರ ID ಅಗತ್ಯವಿದೆ
+  "error.roleservice.organization_unit_not_found": ಸಂಸ್ಥಾ ಘಟಕ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.roleservice.organization_unit_not_found_description": ಸಂಸ್ಥಾ ಘಟಕ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.roleservice.result_limit_exceeded_in_composite_mode": ಸಂಯೋಜಿತ ಮೋಡ್‌ನಲ್ಲಿ ಫಲಿತಾಂಶ ಮಿತಿ ಮೀರಿದೆ
+  "error.roleservice.result_limit_exceeded_in_composite_mode_description": ಸಂಯೋಜಿತ ಮೋಡ್‌ನಲ್ಲಿ ದಾಖಲೆಗಳ ಒಟ್ಟು ಸಂಖ್ಯೆ ಗರಿಷ್ಠ ಮಿತಿ ಮೀರಿದೆ
+  "error.roleservice.role_id_conflict": ಪಾತ್ರ ID ಸಂಘರ್ಷ
+  "error.roleservice.role_id_conflict_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ID ಹೊಂದಿರುವ ಪಾತ್ರ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "error.roleservice.role_name_conflict": ಪಾತ್ರ ಹೆಸರು ಸಂಘರ್ಷ
+  "error.roleservice.role_name_conflict_description": ಅದೇ ಸಂಸ್ಥಾ ಘಟಕ ಅಡಿಯಲ್ಲಿ ಅದೇ ಹೆಸರಿನ ಪಾತ್ರ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "error.roleservice.role_not_found": ಪಾತ್ರ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.roleservice.role_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ id ಹೊಂದಿರುವ ಪಾತ್ರ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.templateservice.template_not_found": ಟೆಂಪ್ಲೇಟ್ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.templateservice.template_not_found_description": ನೀಡಿದ ಸನ್ನಿವೇಶಕ್ಕಾಗಿ ವಿನಂತಿಸಿದ ಟೆಂಪ್ಲೇಟ್ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.unauthorized": ಅನಧಿಕೃತ
+  "error.unauthorized_description": ಕರೆ ಮಾಡುವವರಿಗೆ ಈ ಕಾರ್ಯಾಚರಣೆ ನಿರ್ವಹಿಸಲು ಅಧಿಕಾರ ಇಲ್ಲ
+  "error.userinfoservice.client_credentials_not_supported": ಅಮಾನ್ಯ ಪ್ರವೇಶ ಟೋಕನ್
+  "error.userinfoservice.client_credentials_not_supported_description": UserInfo ಎಂಡ್‌ಪಾಯಿಂಟ್ client_credentials ಗ್ರಾಂಟ್ ಪ್ರಕಾರಕ್ಕೆ ಅನ್ವಯಿಸುವುದಿಲ್ಲ
+  "error.userinfoservice.dpop_bound_token_bearer_scheme": ಅಮಾನ್ಯ ಪ್ರವೇಶ ಟೋಕನ್
+  "error.userinfoservice.dpop_bound_token_bearer_scheme_description": DPoP-ಬದ್ಧ ಟೋಕನ್ DPoP ಸ್ಕೀಮ್ ಬಳಸಬೇಕು
+  "error.userinfoservice.insufficient_scope": ಸಾಕಷ್ಟಿಲ್ಲದ ವ್ಯಾಪ್ತಿ
+  "error.userinfoservice.insufficient_scope_description": ಈ ವಿನಂತಿಗಾಗಿ 'openid' ವ್ಯಾಪ್ತಿ ಅಗತ್ಯವಿದೆ
+  "error.userinfoservice.invalid_access_token": ಅಮಾನ್ಯ ಪ್ರವೇಶ ಟೋಕನ್
+  "error.userinfoservice.invalid_access_token_description": ಪ್ರವೇಶ ಟೋಕನ್ ಅಮಾನ್ಯ, ಅವಧಿ ಮೀರಿದ, ಅಥವಾ ವಿರೂಪಗೊಂಡಿದೆ
+  "error.userinfoservice.invalid_dpop_proof": ಅಮಾನ್ಯ ಪ್ರವೇಶ ಟೋಕನ್
+  "error.userinfoservice.invalid_dpop_proof_description": DPoP ಪ್ರಮಾಣ ಪರಿಶೀಲನೆ ವಿಫಲವಾಗಿದೆ
+  "error.userinfoservice.missing_sub_claim": ಅಮಾನ್ಯ ಪ್ರವೇಶ ಟೋಕನ್
+  "error.userinfoservice.missing_sub_claim_description": ಪ್ರವೇಶ ಟೋಕನ್ 'sub' ಕ್ಲೇಮ್ ಕಾಣೆಯಾಗಿದೆ ಅಥವಾ ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.userservice.ambiguous_user": ಅಸ್ಪಷ್ಟ ಬಳಕೆದಾರ
+  "error.userservice.ambiguous_user_description": ಒದಗಿಸಿದ ಫಿಲ್ಟರ್‌ಗಳಿಗೆ ಅನೇಕ ಬಳಕೆದಾರರು ಹೊಂದಿಕೆಯಾಗುತ್ತಾರೆ
+  "error.userservice.attribute_conflict": ಗುಣಲಕ್ಷಣ ಸಂಘರ್ಷ
+  "error.userservice.attribute_conflict_description": ಅದೇ ಅನನ್ಯ ಗುಣಲಕ್ಷಣ ಮೌಲ್ಯ ಹೊಂದಿರುವ ಬಳಕೆದಾರ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದ್ದಾರೆ
+  "error.userservice.authentication_failed": ದೃಢೀಕರಣ ವಿಫಲವಾಗಿದೆ
+  "error.userservice.authentication_failed_description": ಅಮಾನ್ಯ ರುಜುವಾತುಗಳು ಒದಗಿಸಲ್ಪಟ್ಟಿವೆ
+  "error.userservice.cannot_modify_declarative_resource": ಘೋಷಣಾತ್ಮಕ ಸಂಪನ್ಮೂಲವನ್ನು ಮಾರ್ಪಡಿಸಲಾಗುವುದಿಲ್ಲ
+  "error.userservice.cannot_modify_declarative_resource_description": ಬಳಕೆದಾರ ಘೋಷಣಾತ್ಮಕವಾಗಿದ್ದು ಮಾರ್ಪಡಿಸಲು ಅಥವಾ ಅಳಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "error.userservice.email_conflict": ಇಮೇಲ್ ಸಂಘರ್ಷ
+  "error.userservice.email_conflict_description": ಅದೇ ಇಮೇಲ್ ಹೊಂದಿರುವ ಬಳಕೆದಾರ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದ್ದಾರೆ
+  "error.userservice.handle_path_required": ಹ್ಯಾಂಡಲ್ ಮಾರ್ಗ ಅಗತ್ಯವಿದೆ
+  "error.userservice.handle_path_required_description": ಈ ಕಾರ್ಯಾಚರಣೆಗಾಗಿ ಹ್ಯಾಂಡಲ್ ಮಾರ್ಗ ಅಗತ್ಯವಿದೆ
+  "error.userservice.invalid_credential": ಅಮಾನ್ಯ ವಿನಂತಿ ಸ್ವರೂಪ
+  "error.userservice.invalid_credential_description": ವಿನಂತಿಯಲ್ಲಿ ಅಮಾನ್ಯ ರುಜುವಾತು ಕ್ಷೇತ್ರಗಳು
+  "error.userservice.invalid_filter_parameter": ಅಮಾನ್ಯ ಫಿಲ್ಟರ್ ಪ್ಯಾರಾಮೀಟರ್
+  "error.userservice.invalid_filter_parameter_description": ಫಿಲ್ಟರ್ ಸ್ವರೂಪ ಅಮಾನ್ಯವಾಗಿದೆ
+  "error.userservice.invalid_group_id": ಅಮಾನ್ಯ ಗುಂಪು ID
+  "error.userservice.invalid_group_id_description": ವಿನಂತಿಯಲ್ಲಿ ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ಗುಂಪು IDs ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.userservice.invalid_handle_path": ಅಮಾನ್ಯ ಹ್ಯಾಂಡಲ್ ಮಾರ್ಗ
+  "error.userservice.invalid_handle_path_description": ಹ್ಯಾಂಡಲ್ ಮಾರ್ಗ ಫಾರ್ವರ್ಡ್ ಸ್ಲ್ಯಾಶ್‌ಗಳಿಂದ ಬೇರ್ಪಡಿಸಿದ ಮಾನ್ಯ ಸಂಸ್ಥಾ ಘಟಕ ಗುರುತಿನ ವಿವರಗಳನ್ನು ಹೊಂದಿರಬೇಕು
+  "error.userservice.invalid_limit_parameter": ಅಮಾನ್ಯ ಪೇಜಿನೇಶನ್ ಪ್ಯಾರಾಮೀಟರ್
+  "error.userservice.invalid_limit_parameter_description": ಲಿಮಿಟ್ ಪ್ಯಾರಾಮೀಟರ್ ಧನಾತ್ಮಕ ಪೂರ್ಣಾಂಕವಾಗಿರಬೇಕು
+  "error.userservice.invalid_offset_parameter": ಅಮಾನ್ಯ ಪೇಜಿನೇಶನ್ ಪ್ಯಾರಾಮೀಟರ್
+  "error.userservice.invalid_offset_parameter_description": ಆಫ್‌ಸೆಟ್ ಪ್ಯಾರಾಮೀಟರ್ ಋಣಾತ್ಮಕವಲ್ಲದ ಪೂರ್ಣಾಂಕವಾಗಿರಬೇಕು
+  "error.userservice.invalid_organization_unit": ಅಮಾನ್ಯ ಸಂಸ್ಥಾ ಘಟಕ
+  "error.userservice.invalid_organization_unit_description": ಸಂಸ್ಥಾ ಘಟಕ id ಮಾನ್ಯ UUID ಆಗಿ ನಿರ್ದಿಷ್ಟಪಡಿಸಬೇಕು
+  "error.userservice.invalid_request_format": ಅಮಾನ್ಯ ವಿನಂತಿ ಸ್ವರೂಪ
+  "error.userservice.invalid_request_format_description": ವಿನಂತಿ ಮುಖ್ಯಭಾಗ ಅಸ್ತವ್ಯಸ್ತವಾಗಿದೆ ಅಥವಾ ಅಮಾನ್ಯ ದತ್ತಾಂಶ ಹೊಂದಿದೆ
+  "error.userservice.missing_credentials": ರುಜುವಾತುಗಳು ಕಾಣೆಯಾಗಿವೆ
+  "error.userservice.missing_credentials_description": ಕನಿಷ್ಠ ಒಂದು ರುಜುವಾತು ಕ್ಷೇತ್ರ ಒದಗಿಸಬೇಕು
+  "error.userservice.missing_required_fields": ಅಗತ್ಯ ಕ್ಷೇತ್ರಗಳು ಕಾಣೆಯಾಗಿವೆ
+  "error.userservice.missing_required_fields_description": ಕನಿಷ್ಠ ಒಂದು ಗುರುತಿನ ಗುಣಲಕ್ಷಣ ಒದಗಿಸಬೇಕು
+  "error.userservice.missing_user_id": ಅಮಾನ್ಯ ವಿನಂತಿ ಸ್ವರೂಪ
+  "error.userservice.missing_user_id_description": ಬಳಕೆದಾರ ID ಅಗತ್ಯವಿದೆ
+  "error.userservice.organization_unit_mismatch": ಸಂಸ್ಥಾ ಘಟಕ ಹೊಂದಿಕೆಯಾಗುತ್ತಿಲ್ಲ
+  "error.userservice.organization_unit_mismatch_description": ಸಂಸ್ಥಾ ಘಟಕ ಬಳಕೆದಾರ ಪ್ರಕಾರ ಸಂರಚನೆಗೆ ಹೊಂದಿಕೆಯಾಗುತ್ತಿಲ್ಲ
+  "error.userservice.organization_unit_not_found": ಸಂಸ್ಥಾ ಘಟಕ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.userservice.organization_unit_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಸಂಸ್ಥಾ ಘಟಕ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.userservice.schema_validation_failed": ಸ್ಕೀಮಾ ಮಾನ್ಯೀಕರಣ ವಿಫಲವಾಗಿದೆ
+  "error.userservice.schema_validation_failed_description": ಬಳಕೆದಾರ ಗುಣಲಕ್ಷಣಗಳು ಅಗತ್ಯ ಸ್ಕೀಮಾಕ್ಕೆ ಅನುಗುಣವಾಗಿಲ್ಲ
+  "error.userservice.user_not_found": ಬಳಕೆದಾರ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.userservice.user_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ id ಹೊಂದಿರುವ ಬಳಕೆದಾರ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.userservice.user_type_not_found": ಬಳಕೆದಾರ ಪ್ರಕಾರ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.userservice.user_type_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಬಳಕೆದಾರ ಪ್ರಕಾರ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "flows.executor.errors.ambiguous_user_identity": ಅಸ್ಪಷ್ಟ ಬಳಕೆದಾರ ಗುರುತು
+  "flows.executor.errors.ambiguous_user_identity_desc": ಬಳಕೆದಾರ ಗುರುತು ಅಸ್ಪಷ್ಟವಾಗಿದ್ದು ನಿರ್ಧರಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "flows.executor.errors.attribute_collect_failed": ಬಳಕೆದಾರ ಗುಣಲಕ್ಷಣಗಳು ನವೀಕರಿಸಲು ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.attribute_collect_failed_desc": ಬಳಕೆದಾರ ಗುಣಲಕ್ಷಣಗಳು ನವೀಕರಿಸುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "flows.executor.errors.attribute_not_found_for_user": ಅಗತ್ಯ ಗುಣಲಕ್ಷಣ ಕಂಡುಬಂದಿಲ್ಲ
+  "flows.executor.errors.attribute_not_found_for_user_desc": ಬಳಕೆದಾರನಿಗಾಗಿ ಅಗತ್ಯ ಗುಣಲಕ್ಷಣ ಕಂಡುಬಂದಿಲ್ಲ
+  "flows.executor.errors.attribute_not_unique": ಗುಣಲಕ್ಷಣ ಮೌಲ್ಯ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "flows.executor.errors.attribute_not_unique_desc": ಒದಗಿಸಿದ ಗುಣಲಕ್ಷಣ ಮೌಲ್ಯ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದ್ದು ಅನನ್ಯವಾಗಿರಬೇಕು
+  "flows.executor.errors.attribute_retrieval_failed": ಬಳಕೆದಾರ ಗುಣಲಕ್ಷಣಗಳು ಮರುಪಡೆಯಲು ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.attribute_retrieval_failed_desc": ಬಳಕೆದಾರ ಗುಣಲಕ್ಷಣಗಳು ಮರುಪಡೆಯುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "flows.executor.errors.auth_not_available_for_app": ಈ ಅಪ್ಲಿಕೇಶನ್‌ಗೆ ದೃಢೀಕರಣ ಲಭ್ಯವಿಲ್ಲ
+  "flows.executor.errors.auth_not_available_for_app_desc": ವಿನಂತಿಸಿದ ದೃಢೀಕರಣ ವಿಧಾನ ಈ ಅಪ್ಲಿಕೇಶನ್‌ಗೆ ಲಭ್ಯವಿಲ್ಲ
+  "flows.executor.errors.authorization_failed": ದೃಢೀಕರಣ ಮಾನ್ಯೀಕರಣ ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.authorization_failed_desc": ಪ್ರಸ್ತುತ ಬಳಕೆದಾರನಿಗಾಗಿ ದೃಢೀಕರಣ ಮಾನ್ಯೀಕರಣ ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.cannot_provision_automatically": ಬಳಕೆದಾರನನ್ನು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಪ್ರೊವಿಶನ್ ಮಾಡಲಾಗುವುದಿಲ್ಲ
+  "flows.executor.errors.cannot_provision_automatically_desc": ಒದಗಿಸಿದ ಮಾಹಿತಿಯೊಂದಿಗೆ ಬಳಕೆದಾರನನ್ನು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಪ್ರೊವಿಶನ್ ಮಾಡಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "flows.executor.errors.consent_decisions_missing": ಒಪ್ಪಿಗೆ ನಿರ್ಧಾರಗಳ ಇನ್‌ಪುಟ್ ಕಾಣೆಯಾಗಿದೆ ಅಥವಾ ಖಾಲಿ ಆಗಿದೆ
+  "flows.executor.errors.consent_decisions_missing_desc": ಒಪ್ಪಿಗೆ ನಿರ್ಧಾರಗಳ ಇನ್‌ಪುಟ್ ಕಾಣೆಯಾಗಿದೆ ಅಥವಾ ಖಾಲಿ ಆಗಿದೆ
+  "flows.executor.errors.consent_decisions_parse": ಒಪ್ಪಿಗೆ ನಿರ್ಧಾರಗಳು ಪಾರ್ಸ್ ಮಾಡಲು ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.consent_decisions_parse_desc": ಒಪ್ಪಿಗೆ ನಿರ್ಧಾರಗಳ ಇನ್‌ಪುಟ್ ಪಾರ್ಸ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ
+  "flows.executor.errors.consent_denied": ಬಳಕೆದಾರ ಒಪ್ಪಿಗೆ ನಿರಾಕರಿಸಿದ್ದಾರೆ
+  "flows.executor.errors.consent_denied_desc": ಬಳಕೆದಾರ ಅಗತ್ಯ ಒಪ್ಪಿಗೆ ನಿರಾಕರಿಸಿದ್ದಾರೆ
+  "flows.executor.errors.consent_prereq_failed": ಒಪ್ಪಿಗೆಗಾಗಿ ಪೂರ್ವಷರತ್ತು ಮಾನ್ಯೀಕರಣ ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.consent_prereq_failed_desc": ಒಪ್ಪಿಗೆ ಎಕ್ಸಿಕ್ಯೂಟರ್‌ಗಾಗಿ ಪೂರ್ವಷರತ್ತುಗಳು ಪೂರೈಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "flows.executor.errors.consent_prompt_timed_out": ಒಪ್ಪಿಗೆ ಪ್ರಾಂಪ್ಟ್ ಸಮಯ ಮೀರಿದೆ
+  "flows.executor.errors.consent_prompt_timed_out_desc": ಒಪ್ಪಿಗೆ ಪ್ರಾಂಪ್ಟ್ ಪ್ರತಿಕ್ರಿಯೆ ಇಲ್ಲದೆ ಸಮಯ ಮೀರಿದೆ
+  "flows.executor.errors.consent_record_failed": ಒಪ್ಪಿಗೆ ದಾಖಲಿಸಲು ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.consent_record_failed_desc": ಬಳಕೆದಾರ ಒಪ್ಪಿಗೆ ದಾಖಲಿಸುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "flows.executor.errors.consent_resolution_failed": ಒಪ್ಪಿಗೆ ರಿಸಾಲ್ವ್ ಮಾಡಲು ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.consent_resolution_failed_desc": ಬಳಕೆದಾರ ಒಪ್ಪಿಗೆ ಅವಶ್ಯಕತೆಗಳನ್ನು ರಿಸಾಲ್ವ್ ಮಾಡುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "flows.executor.errors.credential_input_invalid": ಅಮಾನ್ಯ ರುಜುವಾತು ಇನ್‌ಪುಟ್ ಸಂರಚನೆ
+  "flows.executor.errors.credential_input_invalid_desc": ರುಜುವಾತು ಸೆಟ್ಟರ್‌ಗಾಗಿ ರುಜುವಾತು ಇನ್‌ಪುಟ್ ಸಂರಚನೆ ಅಮಾನ್ಯವಾಗಿದೆ
+  "flows.executor.errors.credential_input_missing": ಯಾವುದೇ ರುಜುವಾತು ಇನ್‌ಪುಟ್ ಸಂರಚಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "flows.executor.errors.credential_input_missing_desc": ರುಜುವಾತು ಸೆಟ್ಟರ್‌ಗಾಗಿ ಯಾವುದೇ ರುಜುವಾತು ಇನ್‌ಪುಟ್ ಸಂರಚಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "flows.executor.errors.credential_processing_failed": ರುಜುವಾತುಗಳು ಪ್ರಕ್ರಿಯೆಗೊಳಿಸಲು ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.credential_processing_failed_desc": ರುಜುವಾತುಗಳು ಪ್ರಕ್ರಿಯೆಗೊಳಿಸುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "flows.executor.errors.credential_set_failed": ರುಜುವಾತುಗಳು ಹೊಂದಿಸಲು ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.credential_set_failed_desc": ಬಳಕೆದಾರ ರುಜುವಾತುಗಳು ಹೊಂದಿಸುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "flows.executor.errors.credential_value_empty": ರುಜುವಾತು ಮೌಲ್ಯ ಖಾಲಿ ಆಗಿದೆ
+  "flows.executor.errors.credential_value_empty_desc": ರುಜುವಾತು ಸೆಟ್ಟರ್‌ಗಾಗಿ ರುಜುವಾತು ಮೌಲ್ಯ ಖಾಲಿ ಆಗಿರಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "flows.executor.errors.cross_ou_provisioning_target_missing": ಕ್ರಾಸ್-OU ಪ್ರೊವಿಶನಿಂಗ್‌ಗಾಗಿ ಟಾರ್ಗೆಟ್ OU ಹೊಂದಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "flows.executor.errors.cross_ou_provisioning_target_missing_desc": ಕ್ರಾಸ್-OU ಬಳಕೆದಾರ ಪ್ರೊವಿಶನಿಂಗ್‌ಗಾಗಿ ಟಾರ್ಗೆಟ್ ಸಂಸ್ಥಾ ಘಟಕ ನಿರ್ದಿಷ್ಟಪಡಿಸಬೇಕು
+  "flows.executor.errors.email_recipient_missing": ಇಮೇಲ್ ಸ್ವೀಕರಿಸುವವರು ಅಗತ್ಯವಿದೆ
+  "flows.executor.errors.email_recipient_missing_desc": ಅಧಿಸೂಚನೆ ಕಳುಹಿಸಲು ಇಮೇಲ್ ಸ್ವೀಕರಿಸುವವರು ಒದಗಿಸಬೇಕು
+  "flows.executor.errors.email_send_failed": ಇಮೇಲ್ ಕಳುಹಿಸಲು ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.email_send_failed_desc": ಇಮೇಲ್ ಕಳುಹಿಸುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "flows.executor.errors.email_service_not_configured": ಇಮೇಲ್ ಸೇವೆ ಸಂರಚಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "flows.executor.errors.email_service_not_configured_desc": ಇಮೇಲ್ ಅಧಿಸೂಚನೆ ಸೇವೆ ಸಂರಚಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "flows.executor.errors.failed_to_identify_user": ಬಳಕೆದಾರನನ್ನು ಗುರುತಿಸಲು ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.failed_to_identify_user_desc": ಒದಗಿಸಿದ ಮಾಹಿತಿಯೊಂದಿಗೆ ಬಳಕೆದಾರನನ್ನು ಗುರುತಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ
+  "flows.executor.errors.http_request_config_invalid": ಸಂರಚನೆ ದೋಷ
+  "flows.executor.errors.http_request_config_invalid_desc": HTTP ವಿನಂತಿ ಎಕ್ಸಿಕ್ಯೂಟರ್ ಸಂರಚನೆ ಅಮಾನ್ಯವಾಗಿದೆ
+  "flows.executor.errors.http_request_failed": HTTP ವಿನಂತಿ ಎಕ್ಸಿಕ್ಯೂಟರ್ ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.http_request_failed_desc": HTTP ವಿನಂತಿ ಎಕ್ಸಿಕ್ಯೂಟರ್ ವಿನಂತಿ ಪೂರ್ಣಗೊಳಿಸಲು ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.insufficient_permissions": ಸಾಕಷ್ಟಿಲ್ಲದ ಅನುಮತಿಗಳು
+  "flows.executor.errors.insufficient_permissions_desc": ಈ ಕ್ರಿಯೆ ನಿರ್ವಹಿಸಲು ಬಳಕೆದಾರನಿಗೆ ಸಾಕಷ್ಟು ಅನುಮತಿಗಳಿಲ್ಲ
+  "flows.executor.errors.invalid_action": ಅಮಾನ್ಯ ಕ್ರಿಯೆ ಒದಗಿಸಲ್ಪಟ್ಟಿದೆ
+  "flows.executor.errors.invalid_action_desc": ಒದಗಿಸಿದ ಕ್ರಿಯೆ ಪ್ರಸ್ತುತ ಫ್ಲೋ ಹಂತಕ್ಕೆ ಮಾನ್ಯವಾಗಿಲ್ಲ
+  "flows.executor.errors.invalid_credentials": ಅಮಾನ್ಯ ರುಜುವಾತುಗಳು ಒದಗಿಸಲ್ಪಟ್ಟಿವೆ
+  "flows.executor.errors.invalid_credentials_desc": ಒದಗಿಸಿದ ರುಜುವಾತುಗಳು ಅಮಾನ್ಯವಾಗಿವೆ
+  "flows.executor.errors.invalid_federated_user": ಅಮಾನ್ಯ ಫೆಡರೇಟೆಡ್ ಬಳಕೆದಾರ
+  "flows.executor.errors.invalid_federated_user_desc": ಫೆಡರೇಟೆಡ್ ಬಳಕೆದಾರ ಮಾಹಿತಿ ಅಮಾನ್ಯ ಅಥವಾ ಅಸಂಗತವಾಗಿದೆ
+  "flows.executor.errors.invalid_invite_token": ಅಮಾನ್ಯ ಆಮಂತ್ರಣ ಟೋಕನ್
+  "flows.executor.errors.invalid_invite_token_desc": ಒದಗಿಸಿದ ಆಮಂತ್ರಣ ಟೋಕನ್ ಅಮಾನ್ಯ ಅಥವಾ ಅವಧಿ ಮೀರಿದೆ
+  "flows.executor.errors.invalid_magic_link_token": ಅಮಾನ್ಯ ಮ್ಯಾಜಿಕ್ ಲಿಂಕ್ ಟೋಕನ್
+  "flows.executor.errors.invalid_magic_link_token_desc": ಮ್ಯಾಜಿಕ್ ಲಿಂಕ್ ಟೋಕನ್ ಅಮಾನ್ಯ ಅಥವಾ ಅವಧಿ ಮೀರಿದೆ
+  "flows.executor.errors.invalid_oauth_code": ಅಮಾನ್ಯ OAuth ದೃಢೀಕರಣ ಕೋಡ್
+  "flows.executor.errors.invalid_oauth_code_desc": OAuth ದೃಢೀಕರಣ ಕೋಡ್ ಅಮಾನ್ಯ ಅಥವಾ ಟೋಕನ್‌ಗಳಿಗೆ ವಿನಿಮಯ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ
+  "flows.executor.errors.invalid_oauth_state": ಅಮಾನ್ಯ OAuth ಸ್ಥಿತಿ ಪ್ಯಾರಾಮೀಟರ್
+  "flows.executor.errors.invalid_oauth_state_desc": OAuth ಸ್ಥಿತಿ ಪ್ಯಾರಾಮೀಟರ್ ಅಮಾನ್ಯ ಅಥವಾ ನಿರೀಕ್ಷಿತ ಮೌಲ್ಯಕ್ಕೆ ಹೊಂದಿಕೆಯಾಗುತ್ತಿಲ್ಲ
+  "flows.executor.errors.invalid_otp": ಅಮಾನ್ಯ OTP ಒದಗಿಸಲ್ಪಟ್ಟಿದೆ
+  "flows.executor.errors.invalid_otp_desc": ಒದಗಿಸಿದ ಒಂದು-ಬಾರಿ ಪಾಸ್‌ವರ್ಡ್ ಅಮಾನ್ಯ ಅಥವಾ ಅವಧಿ ಮೀರಿದೆ
+  "flows.executor.errors.invalid_ou": ಆಯ್ಕೆ ಮಾಡಿದ ಸಂಸ್ಥಾ ಘಟಕ ಅಮಾನ್ಯ
+  "flows.executor.errors.invalid_ou_desc": ಆಯ್ಕೆ ಮಾಡಿದ ಸಂಸ್ಥಾ ಘಟಕ ಈ ಕಾರ್ಯಾಚರಣೆಗೆ ಮಾನ್ಯವಾಗಿಲ್ಲ
+  "flows.executor.errors.invalid_passkey": ಅಮಾನ್ಯ ಪಾಸ್‌ಕೀ ರುಜುವಾತುಗಳು
+  "flows.executor.errors.invalid_passkey_desc": ಒದಗಿಸಿದ ಪಾಸ್‌ಕೀ ರುಜುವಾತುಗಳು ಅಮಾನ್ಯವಾಗಿವೆ
+  "flows.executor.errors.invalid_user_type": ಅಮಾನ್ಯ ಬಳಕೆದಾರ ಪ್ರಕಾರ
+  "flows.executor.errors.invalid_user_type_desc": ಒದಗಿಸಿದ ಬಳಕೆದಾರ ಪ್ರಕಾರ ಮಾನ್ಯವಾಗಿಲ್ಲ
+  "flows.executor.errors.invite_token_generation_failed": ಆಮಂತ್ರಣ ಟೋಕನ್ ರಚಿಸಲು ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.invite_token_generation_failed_desc": ಆಮಂತ್ರಣ ಟೋಕನ್ ರಚಿಸುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "flows.executor.errors.magic_link_generation_failed": ಮ್ಯಾಜಿಕ್ ಲಿಂಕ್ ರಚನೆ ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.magic_link_generation_failed_desc": ಮ್ಯಾಜಿಕ್ ಲಿಂಕ್ ರಚಿಸಲು ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.max_otp_attempts_reached": ಗರಿಷ್ಠ OTP ಪ್ರಯತ್ನಗಳು ತಲುಪಲ್ಪಟ್ಟಿವೆ
+  "flows.executor.errors.max_otp_attempts_reached_desc": OTP ಪರಿಶೀಲನೆ ಪ್ರಯತ್ನಗಳ ಗರಿಷ್ಠ ಸಂಖ್ಯೆ ತಲುಪಲ್ಪಟ್ಟಿದೆ
+  "flows.executor.errors.no_registered_passkeys": ನೋಂದಾಯಿಸಿದ ಪಾಸ್‌ಕೀಗಳು ಕಂಡುಬಂದಿಲ್ಲ
+  "flows.executor.errors.no_registered_passkeys_desc": ಬಳಕೆದಾರನಿಗಾಗಿ ನೋಂದಾಯಿಸಿದ ಪಾಸ್‌ಕೀಗಳು ಕಂಡುಬಂದಿಲ್ಲ
+  "flows.executor.errors.no_user_types_available": ಯಾವುದೇ ಬಳಕೆದಾರ ಪ್ರಕಾರಗಳು ಲಭ್ಯವಿಲ್ಲ
+  "flows.executor.errors.no_user_types_available_desc": ಯಾವುದೇ ಬಳಕೆದಾರ ಪ್ರಕಾರಗಳು ಪ್ರಸ್ತುತ ಲಭ್ಯವಿಲ್ಲ
+  "flows.executor.errors.no_valid_user_types": ಯಾವುದೇ ಮಾನ್ಯ ಬಳಕೆದಾರ ಪ್ರಕಾರಗಳು ಲಭ್ಯವಿಲ್ಲ
+  "flows.executor.errors.no_valid_user_types_desc": ಈ ಫ್ಲೋಗಾಗಿ ಯಾವುದೇ ಮಾನ್ಯ ಬಳಕೆದಾರ ಪ್ರಕಾರಗಳು ಸಂರಚಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "flows.executor.errors.nonce_mismatch": ID ಟೋಕನ್‌ನಲ್ಲಿ ನಾನ್ಸ್ ಹೊಂದಿಕೆಯಾಗುತ್ತಿಲ್ಲ
+  "flows.executor.errors.nonce_mismatch_desc": ID ಟೋಕನ್ ಕ್ಲೇಮ್‌ಗಳಲ್ಲಿನ ನಾನ್ಸ್ ನಿರೀಕ್ಷಿತ ಮೌಲ್ಯಕ್ಕೆ ಹೊಂದಿಕೆಯಾಗುತ್ತಿಲ್ಲ
+  "flows.executor.errors.openid4vp_expired": ಪ್ರತಿಕ್ರಿಯೆ ಸ್ವೀಕರಿಸುವ ಮೊದಲು OpenID4VP ವಿನಂತಿ ಅವಧಿ ಮೀರಿದೆ
+  "flows.executor.errors.openid4vp_expired_desc": ವ್ಯಾಲೆಟ್ ಪ್ರತಿಕ್ರಿಯೆ ಸಲ್ಲಿಸುವ ಮೊದಲು OpenID4VP ಪ್ರೆಸೆಂಟೇಶನ್ ವಿನಂತಿ ಅವಧಿ ಮೀರಿದೆ
+  "flows.executor.errors.openid4vp_initiate_failed": OpenID4VP ವಿನಂತಿ ಆರಂಭಿಸಲು ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.openid4vp_initiate_failed_desc": OpenID4VP ಪ್ರೆಸೆಂಟೇಶನ್ ವಿನಂತಿ ಆರಂಭಿಸುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "flows.executor.errors.openid4vp_not_configured": OpenID4VP ಪರಿಶೀಲಕ ಸಂರಚಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "flows.executor.errors.openid4vp_not_configured_desc": OpenID4VP ಪರಿಶೀಲಕ ಸೇವೆ ಸಂರಚಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "flows.executor.errors.openid4vp_verification_failed": OpenID4VP ಪ್ರೆಸೆಂಟೇಶನ್ ಪರಿಶೀಲನೆ ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.openid4vp_verification_failed_desc": OpenID4VP ಪ್ರೆಸೆಂಟೇಶನ್ ಪರಿಶೀಲನೆ ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.ou_creation_failed": ಸಂಸ್ಥಾ ಘಟಕ ರಚನೆ ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.ou_creation_failed_desc": ಸಂಸ್ಥಾ ಘಟಕ ರಚಿಸುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "flows.executor.errors.ou_creation_prereq_failed": OU ರಚನೆಗಾಗಿ ಪೂರ್ವಷರತ್ತು ಮಾನ್ಯೀಕರಣ ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.ou_creation_prereq_failed_desc": ಸಂಸ್ಥಾ ಘಟಕ ರಚಿಸಲು ಪೂರ್ವಷರತ್ತುಗಳು ಪೂರೈಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "flows.executor.errors.ou_handle_conflict": ಅದೇ ಹ್ಯಾಂಡಲ್ ಹೊಂದಿರುವ ಸಂಸ್ಥಾ ಘಟಕ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "flows.executor.errors.ou_handle_conflict_desc": ಈ ಸಂದರ್ಭದಲ್ಲಿ ಅದೇ ಹ್ಯಾಂಡಲ್ ಹೊಂದಿರುವ ಸಂಸ್ಥಾ ಘಟಕ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "flows.executor.errors.ou_name_conflict": ಅದೇ ಹೆಸರಿನ ಸಂಸ್ಥಾ ಘಟಕ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "flows.executor.errors.ou_name_conflict_desc": ಈ ಸಂದರ್ಭದಲ್ಲಿ ಅದೇ ಹೆಸರಿನ ಸಂಸ್ಥಾ ಘಟಕ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "flows.executor.errors.ou_not_found": ಸಂಸ್ಥಾ ಘಟಕ ಕಂಡುಬಂದಿಲ್ಲ
+  "flows.executor.errors.ou_not_found_desc": ಆಯ್ಕೆ ಮಾಡಿದ ಸಂಸ್ಥಾ ಘಟಕ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "flows.executor.errors.ou_not_valid_for_user_type": ಆಯ್ಕೆ ಮಾಡಿದ ಸಂಸ್ಥಾ ಘಟಕ ಆಯ್ಕೆ ಮಾಡಿದ ಬಳಕೆದಾರ ಪ್ರಕಾರಕ್ಕೆ ಮಾನ್ಯವಾಗಿಲ್ಲ.
+  "flows.executor.errors.ou_not_valid_for_user_type_desc": ಆಯ್ಕೆ ಮಾಡಿದ ಸಂಸ್ಥಾ ಘಟಕ ಆಯ್ಕೆ ಮಾಡಿದ ಬಳಕೆದಾರ ಪ್ರಕಾರಕ್ಕೆ ಮಾನ್ಯವಾಗಿಲ್ಲ
+  "flows.executor.errors.ou_resolution_failed": ಸಂಸ್ಥಾ ಘಟಕ ರಿಸಾಲ್ವ್ ಮಾಡಲು ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.ou_resolution_failed_desc": ಪ್ರಸ್ತುತ ಸಂದರ್ಭಕ್ಕಾಗಿ ಸಂಸ್ಥಾ ಘಟಕ ರಿಸಾಲ್ವ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ
+  "flows.executor.errors.passkey_auth_failed": ಪಾಸ್‌ಕೀ ದೃಢೀಕರಣ ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.passkey_auth_failed_desc": ಪಾಸ್‌ಕೀ ಮೂಲಕ ದೃಢೀಕರಿಸುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "flows.executor.errors.passkey_registration_failed": ಪಾಸ್‌ಕೀ ನೋಂದಣಿ ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.passkey_registration_failed_desc": ಪಾಸ್‌ಕೀ ನೋಂದಾಯಿಸುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "flows.executor.errors.prerequisites_failed": ಪೂರ್ವಷರತ್ತು ಮಾನ್ಯೀಕರಣ ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.prerequisites_failed_desc": ಈ ಕಾರ್ಯಾಚರಣೆಗಾಗಿ ಪೂರ್ವಷರತ್ತುಗಳು ಪೂರೈಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "flows.executor.errors.provisioning_assignment_failed": ಗುಂಪುಗಳು ಮತ್ತು ಪಾತ್ರಗಳು ನಿಯೋಜಿಸಲು ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.provisioning_assignment_failed_desc": ಪ್ರೊವಿಶನ್ ಮಾಡಿದ ಬಳಕೆದಾರನಿಗೆ ಗುಂಪುಗಳು ಮತ್ತು ಪಾತ್ರಗಳು ನಿಯೋಜಿಸುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "flows.executor.errors.provisioning_attribute_conflict": ಒದಗಿಸಿದ ಗುಣಲಕ್ಷಣಗಳೊಂದಿಗೆ ಬಳಕೆದಾರ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದ್ದಾರೆ
+  "flows.executor.errors.provisioning_attribute_conflict_desc": ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ಅನನ್ಯ ಗುಣಲಕ್ಷಣ ಮೌಲ್ಯಗಳು ಈಗಾಗಲೇ ಬಳಕೆಯಲ್ಲಿರುವ ಕಾರಣ ಬಳಕೆದಾರ ಪ್ರೊವಿಶನಿಂಗ್ ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.provisioning_failed": ಬಳಕೆದಾರ ಪ್ರೊವಿಶನಿಂಗ್ ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.provisioning_failed_desc": ಬಳಕೆದಾರ ಪ್ರೊವಿಶನ್ ಮಾಡುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "flows.executor.errors.provisioning_user_attrs_missing": ಪ್ರೊವಿಶನಿಂಗ್‌ಗಾಗಿ ಯಾವುದೇ ಬಳಕೆದಾರ ಗುಣಲಕ್ಷಣಗಳು ಒದಗಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "flows.executor.errors.provisioning_user_attrs_missing_desc": ಹೊಸ ಬಳಕೆದಾರ ಪ್ರೊವಿಶನ್ ಮಾಡಲು ಬಳಕೆದಾರ ಗುಣಲಕ್ಷಣಗಳು ಅಗತ್ಯವಿದೆ
+  "flows.executor.errors.self_reg_disabled_for_user_type": ಬಳಕೆದಾರ ಪ್ರಕಾರಕ್ಕೆ ಸ್ವ-ನೋಂದಣಿ ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲ್ಪಟ್ಟಿದೆ
+  "flows.executor.errors.self_reg_disabled_for_user_type_desc": ಆಯ್ಕೆ ಮಾಡಿದ ಬಳಕೆದಾರ ಪ್ರಕಾರಕ್ಕೆ ಸ್ವ-ನೋಂದಣಿ ಸಕ್ರಿಯಗೊಳಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "flows.executor.errors.self_reg_not_available_for_app": ಈ ಅಪ್ಲಿಕೇಶನ್‌ಗೆ ಸ್ವ-ನೋಂದಣಿ ಲಭ್ಯವಿಲ್ಲ
+  "flows.executor.errors.self_reg_not_available_for_app_desc": ಈ ಅಪ್ಲಿಕೇಶನ್‌ಗೆ ಸ್ವ-ನೋಂದಣಿ ಲಭ್ಯವಿಲ್ಲ
+  "flows.executor.errors.self_registration_disabled": ಸ್ವ-ನೋಂದಣಿ ಸಕ್ರಿಯಗೊಳಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "flows.executor.errors.self_registration_disabled_desc": ಈ ಅಪ್ಲಿಕೇಶನ್ ಅಥವಾ ಬಳಕೆದಾರ ಪ್ರಕಾರಕ್ಕೆ ಸ್ವ-ನೋಂದಣಿ ಸಕ್ರಿಯಗೊಳಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "flows.executor.errors.sms_invalid_phone": SMS ಸ್ವೀಕರಿಸುವವರು ಮಾನ್ಯ ಫೋನ್ ಸಂಖ್ಯೆ ಅಲ್ಲ
+  "flows.executor.errors.sms_invalid_phone_desc": ಒದಗಿಸಿದ SMS ಸ್ವೀಕರಿಸುವವರು ಮಾನ್ಯ ಫೋನ್ ಸಂಖ್ಯೆ ಅಲ್ಲ
+  "flows.executor.errors.sms_provider_not_configured": SMS ಅಧಿಸೂಚನೆ ಪ್ರದಾನಕರ್ತ ಸಂರಚಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "flows.executor.errors.sms_provider_not_configured_desc": SMS ಅಧಿಸೂಚನೆ ಪ್ರದಾನಕರ್ತ ಸಂರಚಿಸಲ್ಪಟ್ಟಿಲ್ಲ ಅಥವಾ ತಪ್ಪಾಗಿದೆ
+  "flows.executor.errors.sms_recipient_missing": SMS ಸ್ವೀಕರಿಸುವವರು ಅಗತ್ಯವಿದೆ
+  "flows.executor.errors.sms_recipient_missing_desc": ಅಧಿಸೂಚನೆ ಕಳುಹಿಸಲು SMS ಸ್ವೀಕರಿಸುವವರು ಒದಗಿಸಬೇಕು
+  "flows.executor.errors.sms_template_missing": SMS ಟೆಂಪ್ಲೇಟ್ ಅಗತ್ಯವಿದೆ
+  "flows.executor.errors.sms_template_missing_desc": ಅಧಿಸೂಚನೆ ಕಳುಹಿಸಲು SMS ಟೆಂಪ್ಲೇಟ್ ಒದಗಿಸಬೇಕು
+  "flows.executor.errors.user_already_exists": ಬಳಕೆದಾರ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದ್ದಾರೆ
+  "flows.executor.errors.user_already_exists_desc": ಒದಗಿಸಿದ ಗುಣಲಕ್ಷಣಗಳೊಂದಿಗೆ ಬಳಕೆದಾರ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದ್ದಾರೆ
+  "flows.executor.errors.user_already_exists_in_target_ou": ಟಾರ್ಗೆಟ್ ಸಂಸ್ಥೆಯಲ್ಲಿ ಬಳಕೆದಾರ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದ್ದಾರೆ
+  "flows.executor.errors.user_already_exists_in_target_ou_desc": ಅದೇ ಗುರುತಿನೊಂದಿಗೆ ಬಳಕೆದಾರ ಟಾರ್ಗೆಟ್ ಸಂಸ್ಥಾ ಘಟಕದಲ್ಲಿ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದ್ದಾರೆ
+  "flows.executor.errors.user_auth_failed": ಬಳಕೆದಾರ ದೃಢೀಕರಣ ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.user_auth_failed_desc": ಬಳಕೆದಾರನನ್ನು ದೃಢೀಕರಿಸುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "flows.executor.errors.user_id_missing_in_context": ಬಳಕೆದಾರ ID ಕಂಡುಬಂದಿಲ್ಲ
+  "flows.executor.errors.user_id_missing_in_context_desc": ಪ್ರಸ್ತುತ ಫ್ಲೋ ಸಂದರ್ಭದಿಂದ ಬಳಕೆದಾರ ID ರಿಸಾಲ್ವ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ
+  "flows.executor.errors.user_id_required_for_passkey_reg": ಪಾಸ್‌ಕೀ ನೋಂದಣಿಗಾಗಿ ಬಳಕೆದಾರ ID ಕಾಣೆಯಾಗಿದೆ
+  "flows.executor.errors.user_id_required_for_passkey_reg_desc": ಪಾಸ್‌ಕೀ ನೋಂದಾಯಿಸಲು ಬಳಕೆದಾರ ID ಅಗತ್ಯವಿದೆ
+  "flows.executor.errors.user_not_authenticated": ಬಳಕೆದಾರ ದೃಢೀಕೃತರಾಗಿಲ್ಲ
+  "flows.executor.errors.user_not_authenticated_desc": ಈ ಫ್ಲೋದಲ್ಲಿ ಬಳಕೆದಾರ ದೃಢೀಕರಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "flows.executor.errors.user_not_found": ಬಳಕೆದಾರ ಕಂಡುಬಂದಿಲ್ಲ
+  "flows.executor.errors.user_not_found_desc": ಸಿಸ್ಟಂನಲ್ಲಿ ಬಳಕೆದಾರ ಕಂಡುಬಂದಿಲ್ಲ
+  "flows.executor.errors.user_type_not_allowed": ಈ ಫ್ಲೋಗೆ ಬಳಕೆದಾರ ಪ್ರಕಾರ ಅನುಮತಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "flows.executor.errors.user_type_not_allowed_desc": ಆಯ್ಕೆ ಮಾಡಿದ ಬಳಕೆದಾರ ಪ್ರಕಾರ ಈ ಫ್ಲೋಗೆ ಅನುಮತಿಸಲ್ಪಟ್ಟಿಲ್ಲ
+  "flows.executor.errors.user_type_not_valid_for_ou": ಬಳಕೆದಾರ ಪ್ರಕಾರ ಮಾನ್ಯವಾಗಿಲ್ಲ
+  "flows.executor.errors.user_type_not_valid_for_ou_desc": ಆಯ್ಕೆ ಮಾಡಿದ ಬಳಕೆದಾರ ಪ್ರಕಾರ ಆಯ್ಕೆ ಮಾಡಿದ ಸಂಸ್ಥಾ ಘಟಕಕ್ಕೆ ಮಾನ್ಯವಾಗಿಲ್ಲ
+  "flows.executor.errors.user_type_retrieval_failed": ಬಳಕೆದಾರ ಪ್ರಕಾರಗಳು ಮರುಪಡೆಯಲು ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.user_type_retrieval_failed_desc": ಲಭ್ಯ ಬಳಕೆದಾರ ಪ್ರಕಾರಗಳು ಮರುಪಡೆಯುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
+  "layout.error.already_exists": ಲೇಔಟ್ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "layout.error.already_exists_description": ಅದೇ ID ಹೊಂದಿರುವ ಲೇಔಟ್ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "layout.error.cannot_delete_declarative": ಘೋಷಣಾತ್ಮಕ ಲೇಔಟ್ ಅಳಿಸಲಾಗುವುದಿಲ್ಲ
+  "layout.error.cannot_delete_declarative_description": ಲೇಔಟ್ ಘೋಷಣಾತ್ಮಕ ಸಂಪನ್ಮೂಲಗಳಲ್ಲಿ ವ್ಯಾಖ್ಯಾನಿಸಲ್ಪಟ್ಟಿದ್ದು ಅಳಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "layout.error.cannot_modify_declarative": ಘೋಷಣಾತ್ಮಕ ಸಂಪನ್ಮೂಲ ಮಾರ್ಪಡಿಸಲಾಗುವುದಿಲ್ಲ
+  "layout.error.cannot_modify_declarative_description": ಲೇಔಟ್ ಘೋಷಣಾತ್ಮಕವಾಗಿದ್ದು ಮಾರ್ಪಡಿಸಲು ಅಥವಾ ಅಳಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "layout.error.cannot_update_declarative": ಘೋಷಣಾತ್ಮಕ ಲೇಔಟ್ ನವೀಕರಿಸಲಾಗುವುದಿಲ್ಲ
+  "layout.error.cannot_update_declarative_description": ಲೇಔಟ್ ಘೋಷಣಾತ್ಮಕ ಸಂಪನ್ಮೂಲಗಳಲ್ಲಿ ವ್ಯಾಖ್ಯಾನಿಸಲ್ಪಟ್ಟಿದ್ದು ಮಾರ್ಪಡಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "layout.error.duplicate_handle": ನಕಲಿ ಲೇಔಟ್ ಹ್ಯಾಂಡಲ್
+  "layout.error.duplicate_handle_description": ಅದೇ ಹ್ಯಾಂಡಲ್ ಹೊಂದಿರುವ ಲೇಔಟ್ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "layout.error.handle_immutable": ಲೇಔಟ್ ಹ್ಯಾಂಡಲ್ ಬದಲಾಯಿಸಲಾಗದು
+  "layout.error.handle_immutable_description": ರಚಿಸಿದ ನಂತರ ಲೇಔಟ್ ಹ್ಯಾಂಡಲ್ ಬದಲಾಯಿಸಲಾಗುವುದಿಲ್ಲ
+  "layout.error.in_use": ಲೇಔಟ್ ಬಳಕೆಯಲ್ಲಿದೆ
+  "layout.error.in_use_description": ಪ್ರಸ್ತುತ ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ಅಪ್ಲಿಕೇಶನ್‌ಗಳೊಂದಿಗೆ ಸಂಬಂಧಿತ ಲೇಔಟ್ ಅಳಿಸಲಾಗುವುದಿಲ್ಲ
+  "layout.error.invalid_data": ಅಮಾನ್ಯ ಲೇಔಟ್ ದತ್ತಾಂಶ
+  "layout.error.invalid_data_description": ಒದಗಿಸಿದ ಲೇಔಟ್ ದತ್ತಾಂಶ ಅಮಾನ್ಯವಾಗಿದೆ
+  "layout.error.invalid_format": ಅಮಾನ್ಯ ಲೇಔಟ್ ಸ್ವರೂಪ
+  "layout.error.invalid_format_description": ಲೇಔಟ್ ಮಾನ್ಯ JSON ಆಬ್ಜೆಕ್ಟ್ ಆಗಿರಬೇಕು
+  "layout.error.invalid_id": ಅಮಾನ್ಯ ಲೇಔಟ್ ID
+  "layout.error.invalid_id_description": ಒದಗಿಸಿದ ಲೇಔಟ್ ID ಅಮಾನ್ಯವಾಗಿದೆ
+  "layout.error.invalid_limit": ಅಮಾನ್ಯ ಲಿಮಿಟ್
+  "layout.error.invalid_limit_description": ಲಿಮಿಟ್ ಮೌಲ್ಯ ಮಾನ್ಯ ವ್ಯಾಪ್ತಿಯ ಹೊರಗಿದೆ
+  "layout.error.invalid_limit_param": ಅಮಾನ್ಯ ಲಿಮಿಟ್
+  "layout.error.invalid_limit_param_description": ಲಿಮಿಟ್ ಮಾನ್ಯ ಪೂರ್ಣಾಂಕವಾಗಿರಬೇಕು
+  "layout.error.invalid_offset": ಅಮಾನ್ಯ ಆಫ್‌ಸೆಟ್
+  "layout.error.invalid_offset_description": ಆಫ್‌ಸೆಟ್ ಋಣಾತ್ಮಕವಾಗಿರಬಾರದು
+  "layout.error.invalid_offset_param": ಅಮಾನ್ಯ ಆಫ್‌ಸೆಟ್
+  "layout.error.invalid_offset_param_description": ಆಫ್‌ಸೆಟ್ ಮಾನ್ಯ ಪೂರ್ಣಾಂಕವಾಗಿರಬೇಕು
+  "layout.error.missing_display_name": ಪ್ರದರ್ಶನ ಹೆಸರು ಕಾಣೆಯಾಗಿದೆ
+  "layout.error.missing_display_name_description": ಪ್ರದರ್ಶನ ಹೆಸರು ಅಗತ್ಯವಿದೆ
+  "layout.error.missing_handle": ಲೇಔಟ್ ಹ್ಯಾಂಡಲ್ ಕಾಣೆಯಾಗಿದೆ
+  "layout.error.missing_handle_description": ಲೇಔಟ್ ಹ್ಯಾಂಡಲ್ ಅಗತ್ಯವಿದೆ
+  "layout.error.missing_layout": ಲೇಔಟ್ ಕಾಣೆಯಾಗಿದೆ
+  "layout.error.missing_layout_description": ಲೇಔಟ್ ಕ್ಷೇತ್ರ ಅಗತ್ಯವಿದೆ
+  "layout.error.not_found": ಲೇಔಟ್ ಕಂಡುಬಂದಿಲ್ಲ
+  "layout.error.not_found_description": ವಿನಂತಿಸಿದ ಲೇಔಟ್ ಸಂರಚನೆ ಕಂಡುಬಂದಿಲ್ಲ
+  "layout.error.result_limit_exceeded": ಫಲಿತಾಂಶ ಮಿತಿ ಮೀರಿದೆ
+  "layout.error.result_limit_exceeded_description": ಸಂಯೋಜಿತ ಮೋಡ್‌ನಲ್ಲಿ ಲೇಔಟ್‌ಗಳ ಒಟ್ಟು ಸಂಖ್ಯೆ ಗರಿಷ್ಠ ಅನುಮತಿಸಿದ ಮಿತಿ ಮೀರಿದೆ
+  "theme.error.cannot_delete_declarative": ಘೋಷಣಾತ್ಮಕ ಥೀಮ್ ಅಳಿಸಲಾಗುವುದಿಲ್ಲ
+  "theme.error.cannot_delete_declarative_description": ಥೀಮ್ ಘೋಷಣಾತ್ಮಕ ಸಂಪನ್ಮೂಲಗಳಲ್ಲಿ ವ್ಯಾಖ್ಯಾನಿಸಲ್ಪಟ್ಟಿದ್ದು ಅಳಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "theme.error.cannot_modify_declarative": ಘೋಷಣಾತ್ಮಕ ಸಂಪನ್ಮೂಲ ಮಾರ್ಪಡಿಸಲಾಗುವುದಿಲ್ಲ
+  "theme.error.cannot_modify_declarative_description": ಥೀಮ್ ಘೋಷಣಾತ್ಮಕವಾಗಿದ್ದು ಮಾರ್ಪಡಿಸಲು ಅಥವಾ ಅಳಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "theme.error.cannot_update_declarative": ಘೋಷಣಾತ್ಮಕ ಥೀಮ್ ನವೀಕರಿಸಲಾಗುವುದಿಲ್ಲ
+  "theme.error.cannot_update_declarative_description": ಥೀಮ್ ಘೋಷಣಾತ್ಮಕ ಸಂಪನ್ಮೂಲಗಳಲ್ಲಿ ವ್ಯಾಖ್ಯಾನಿಸಲ್ಪಟ್ಟಿದ್ದು ಮಾರ್ಪಡಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "theme.error.duplicate_handle": ನಕಲಿ ಥೀಮ್ ಹ್ಯಾಂಡಲ್
+  "theme.error.duplicate_handle_description": ಅದೇ ಹ್ಯಾಂಡಲ್ ಹೊಂದಿರುವ ಥೀಮ್ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
+  "theme.error.handle_immutable": ಥೀಮ್ ಹ್ಯಾಂಡಲ್ ಬದಲಾಯಿಸಲಾಗದು
+  "theme.error.handle_immutable_description": ರಚಿಸಿದ ನಂತರ ಥೀಮ್ ಹ್ಯಾಂಡಲ್ ಬದಲಾಯಿಸಲಾಗುವುದಿಲ್ಲ
+  "theme.error.in_use": ಥೀಮ್ ಬಳಕೆಯಲ್ಲಿದೆ
+  "theme.error.in_use_description": ಪ್ರಸ್ತುತ ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ಅಪ್ಲಿಕೇಶನ್‌ಗಳೊಂದಿಗೆ ಸಂಬಂಧಿತ ಥೀಮ್ ಅಳಿಸಲಾಗುವುದಿಲ್ಲ
+  "theme.error.invalid_data": ಅಮಾನ್ಯ ಥೀಮ್ ದತ್ತಾಂಶ
+  "theme.error.invalid_data_description": ಒದಗಿಸಿದ ಥೀಮ್ ದತ್ತಾಂಶ ಅಮಾನ್ಯವಾಗಿದೆ
+  "theme.error.invalid_format": ಅಮಾನ್ಯ ಥೀಮ್ ಸ್ವರೂಪ
+  "theme.error.invalid_format_description": ಥೀಮ್ ಮಾನ್ಯ JSON ಆಬ್ಜೆಕ್ಟ್ ಆಗಿರಬೇಕು
+  "theme.error.invalid_id": ಅಮಾನ್ಯ ಥೀಮ್ ID
+  "theme.error.invalid_id_description": ಒದಗಿಸಿದ ಥೀಮ್ ID ಅಮಾನ್ಯವಾಗಿದೆ
+  "theme.error.invalid_limit": ಅಮಾನ್ಯ ಲಿಮಿಟ್
+  "theme.error.invalid_limit_description": ಲಿಮಿಟ್ ಮೌಲ್ಯ ಮಾನ್ಯ ವ್ಯಾಪ್ತಿಯ ಹೊರಗಿದೆ
+  "theme.error.invalid_limit_param": ಅಮಾನ್ಯ ಲಿಮಿಟ್
+  "theme.error.invalid_limit_param_description": ಲಿಮಿಟ್ ಮಾನ್ಯ ಪೂರ್ಣಾಂಕವಾಗಿರಬೇಕು
+  "theme.error.invalid_offset": ಅಮಾನ್ಯ ಆಫ್‌ಸೆಟ್
+  "theme.error.invalid_offset_description": ಆಫ್‌ಸೆಟ್ ಋಣಾತ್ಮಕವಾಗಿರಬಾರದು
+  "theme.error.invalid_offset_param": ಅಮಾನ್ಯ ಆಫ್‌ಸೆಟ್
+  "theme.error.invalid_offset_param_description": ಆಫ್‌ಸೆಟ್ ಮಾನ್ಯ ಪೂರ್ಣಾಂಕವಾಗಿರಬೇಕು
+  "theme.error.missing_display_name": ಪ್ರದರ್ಶನ ಹೆಸರು ಕಾಣೆಯಾಗಿದೆ
+  "theme.error.missing_display_name_description": ಪ್ರದರ್ಶನ ಹೆಸರು ಅಗತ್ಯವಿದೆ
+  "theme.error.missing_handle": ಥೀಮ್ ಹ್ಯಾಂಡಲ್ ಕಾಣೆಯಾಗಿದೆ
+  "theme.error.missing_handle_description": ಥೀಮ್ ಹ್ಯಾಂಡಲ್ ಅಗತ್ಯವಿದೆ
+  "theme.error.missing_theme": ಥೀಮ್ ಕಾಣೆಯಾಗಿದೆ
+  "theme.error.missing_theme_description": ಥೀಮ್ ಕ್ಷೇತ್ರ ಅಗತ್ಯವಿದೆ
+  "theme.error.not_found": ಥೀಮ್ ಕಂಡುಬಂದಿಲ್ಲ
+  "theme.error.not_found_description": ವಿನಂತಿಸಿದ ಥೀಮ್ ಸಂರಚನೆ ಕಂಡುಬಂದಿಲ್ಲ
+  "theme.error.result_limit_exceeded": ಫಲಿತಾಂಶ ಮಿತಿ ಮೀರಿದೆ
+  "theme.error.result_limit_exceeded_description": ಸಂಯೋಜಿತ ಮೋಡ್‌ನಲ್ಲಿ ಥೀಮ್‌ಗಳ ಒಟ್ಟು ಸಂಖ್ಯೆ ಗರಿಷ್ಠ ಅನುಮತಿಸಿದ ಮಿತಿ ಮೀರಿದೆ

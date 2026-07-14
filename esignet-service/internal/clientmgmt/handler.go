@@ -1,22 +1,21 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 package clientmgmt
 
 import (
 	"encoding/json"
 	"errors"
 	"io"
-	"log"
 	"net/http"
 	"strings"
-	"time"
 
+	"github.com/mosip/esignet/internal/common"
 	applog "github.com/mosip/esignet/internal/log"
 )
-
-const mosipTimeLayout = "2006-01-02T15:04:05.000Z"
-
-func mosipResponseTime() string {
-	return time.Now().UTC().Format(mosipTimeLayout)
-}
 
 // Handler exposes client management HTTP endpoints.
 type Handler struct {
@@ -74,9 +73,9 @@ func (h *Handler) createClient(profile Profile) http.HandlerFunc {
 			return
 		}
 
-		writeJSON(w, http.StatusOK, ResponseWrapper{
-			Response:     resp.APIResponse(),
-			ResponseTime: mosipResponseTime(),
+		common.WriteJSON(w, http.StatusOK, ResponseWrapper{
+			ResponseWrapper: common.ResponseWrapper{ResponseTime: common.GetResponseTime()},
+			Response:        resp.APIResponse(),
 		})
 	}
 }
@@ -111,9 +110,9 @@ func (h *Handler) updateClient(profile Profile) http.HandlerFunc {
 			return
 		}
 
-		writeJSON(w, http.StatusOK, ResponseWrapper{
-			Response:     resp.APIResponse(),
-			ResponseTime: mosipResponseTime(),
+		common.WriteJSON(w, http.StatusOK, ResponseWrapper{
+			ResponseWrapper: common.ResponseWrapper{ResponseTime: common.GetResponseTime()},
+			Response:        resp.APIResponse(),
 		})
 	}
 }
@@ -152,9 +151,9 @@ func (h *Handler) patchClient(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusOK, ResponseWrapper{
-		Response:     resp.APIResponse(),
-		ResponseTime: mosipResponseTime(),
+	common.WriteJSON(w, http.StatusOK, ResponseWrapper{
+		ResponseWrapper: common.ResponseWrapper{ResponseTime: common.GetResponseTime()},
+		Response:        resp.APIResponse(),
 	})
 }
 
@@ -171,9 +170,9 @@ func (h *Handler) getClient(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusOK, ResponseWrapper{
-		Response:     resp.APIResponse(),
-		ResponseTime: mosipResponseTime(),
+	common.WriteJSON(w, http.StatusOK, ResponseWrapper{
+		ResponseWrapper: common.ResponseWrapper{ResponseTime: common.GetResponseTime()},
+		Response:        resp.APIResponse(),
 	})
 }
 
@@ -192,18 +191,12 @@ func (h *Handler) handleServiceError(w http.ResponseWriter, err error, op string
 		writeSpecError(w, "patch_conflict", "client was modified concurrently; retry the request")
 	default:
 		h.logger.Error(op, applog.Error(err))
-		writeJSON(w, http.StatusInternalServerError, ResponseWrapper{
-			Errors:       []Error{{ErrorCode: "server_error", ErrorMessage: "an unexpected error occurred"}},
-			ResponseTime: mosipResponseTime(),
+		common.WriteJSON(w, http.StatusInternalServerError, ResponseWrapper{
+			ResponseWrapper: common.ResponseWrapper{
+				Errors:       []common.Error{{ErrorCode: "server_error", ErrorMessage: "an unexpected error occurred"}},
+				ResponseTime: common.GetResponseTime(),
+			},
 		})
-	}
-}
-
-func writeJSON(w http.ResponseWriter, status int, body interface{}) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	if err := json.NewEncoder(w).Encode(body); err != nil {
-		log.Printf("writeJSON encode error: %v", err)
 	}
 }
 
@@ -211,15 +204,10 @@ func writeSpecError(w http.ResponseWriter, code, msg string) {
 	if msg == "" {
 		msg = code
 	}
-	writeJSON(w, http.StatusOK, ResponseWrapper{
-		Errors:       []Error{{ErrorCode: code, ErrorMessage: msg}},
-		ResponseTime: mosipResponseTime(),
-	})
-}
-
-func writeError(w http.ResponseWriter, status int, code, msg string) {
-	writeJSON(w, status, ResponseWrapper{
-		Errors:       []Error{{ErrorCode: code, ErrorMessage: msg}},
-		ResponseTime: mosipResponseTime(),
+	common.WriteJSON(w, http.StatusOK, ResponseWrapper{
+		ResponseWrapper: common.ResponseWrapper{
+			Errors:       []common.Error{{ErrorCode: code, ErrorMessage: msg}},
+			ResponseTime: common.GetResponseTime(),
+		},
 	})
 }

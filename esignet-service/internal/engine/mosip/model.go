@@ -1,3 +1,9 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 package mosip
 
 // IdaKycAuthRequest represents the top-level KYC authentication request
@@ -73,12 +79,6 @@ type IdaError struct {
 	ErrorMessage  string `json:"errorMessage,omitempty"`
 }
 
-// SendOTPResult represents the result of an generate and notify OTP attempt.
-type SendOTPResult struct {
-	MaskedEmail  string `json:"maskedEmail,omitempty"`
-	MaskedMobile string `json:"maskedMobile,omitempty"`
-}
-
 // IdaSendOtpRequest is the MOSIP IDA send-OTP request payload.
 type IdaSendOtpRequest struct {
 	ID               string   `json:"id,omitempty"`
@@ -141,4 +141,54 @@ type IdaKycExchangeResponseWrapper struct {
 	ResponseTime  string                  `json:"responseTime,omitempty"`
 	Response      *IdaKycExchangeResponse `json:"response,omitempty"`
 	Errors        []IdaError              `json:"errors,omitempty"`
+}
+
+// AuditRequestWrapper is the MOSIP kernel request envelope. Version is
+// omitted; it is never set on the wire.
+type AuditRequestWrapper[T any] struct {
+	ID          string `json:"id"`
+	Version     string `json:"version,omitempty"`
+	RequestTime string `json:"requesttime"`
+	Request     T      `json:"request"`
+}
+
+// AuditRequest is the audit record posted to mosip-audit-manager.
+type AuditRequest struct {
+	EventID         string `json:"eventId"`
+	EventName       string `json:"eventName"`
+	EventType       string `json:"eventType"`
+	ActionTimeStamp string `json:"actionTimeStamp"`
+	HostName        string `json:"hostName"`
+	HostIP          string `json:"hostIp"`
+	ApplicationID   string `json:"applicationId"`
+	ApplicationName string `json:"applicationName"`
+	SessionUserID   string `json:"sessionUserId"`
+	SessionUserName string `json:"sessionUserName"`
+	ID              string `json:"id"`
+	IDType          string `json:"idType"`
+	CreatedBy       string `json:"createdBy"`
+	ModuleName      string `json:"moduleName"`
+	ModuleID        string `json:"moduleId"`
+	Description     string `json:"description"`
+}
+
+// ClientIDSecretKeyRequest is the authmanager clientidsecretkey request body.
+type ClientIDSecretKeyRequest struct {
+	ClientID  string `json:"clientId"`
+	SecretKey string `json:"secretKey"`
+	AppID     string `json:"appId"`
+}
+
+// ServiceError mirrors a MOSIP kernel service error entry returned by the
+// audit manager or authmanager (distinct from common.ServiceError, which is
+// the ThunderID engine's own error type).
+type ServiceError struct {
+	ErrorCode string `json:"errorCode"`
+	Message   string `json:"message"`
+}
+
+// AuditResponseWrapper is the MOSIP kernel response envelope. Only the errors
+// list is inspected; the response payload is ignored.
+type AuditResponseWrapper struct {
+	Errors []ServiceError `json:"errors"`
 }

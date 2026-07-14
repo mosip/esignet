@@ -1,3 +1,9 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 // Package clientmgmt implements OIDC client registration management.
 package clientmgmt
 
@@ -122,7 +128,7 @@ func (s *Service) UpdateClient(ctx context.Context, profile Profile, clientID st
 		return ClientResponse{}, err
 	}
 
-	status, err := normalizePutStatus(req.Status)
+	status, err := normalizeStatus(req.Status)
 	if err != nil {
 		return ClientResponse{}, err
 	}
@@ -197,7 +203,7 @@ func (s *Service) PatchClient(ctx context.Context, clientID string, req PatchCli
 
 	status := existing.Status
 	if fields.Status {
-		status, err = normalizePatchStatus(merged.Status)
+		status, err = normalizeStatus(merged.Status)
 		if err != nil {
 			return ClientResponse{}, err
 		}

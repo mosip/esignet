@@ -1,3 +1,9 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 package clientmgmt
 
 import (
@@ -5,8 +11,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"net/url"
-	"strings"
 )
 
 func validateJWK(key map[string]string) error {
@@ -68,59 +72,4 @@ func hashJWK(key map[string]string) string {
 	}
 	sum := sha256.Sum256(b)
 	return fmt.Sprintf("%x", sum)
-}
-
-func isValidURI(uri string) bool {
-	if uri == "" || len(uri) > 1024 {
-		return false
-	}
-	u, err := url.Parse(uri)
-	if err != nil || u.Scheme == "" {
-		return false
-	}
-	if u.Scheme == "http" || u.Scheme == "https" {
-		return u.Host != ""
-	}
-	return u.Host != "" || u.Opaque != ""
-}
-
-// isValidRedirectURI validates a redirect URI.
-// It checks if the URI is a valid HTTP or HTTPS URI and is less than 1024 characters.
-func isValidRedirectURI(uri string) bool {
-	if uri == "" || len(uri) > 1024 {
-		return false
-	}
-	// Reject control characters and whitespace outright.
-	if strings.ContainsAny(uri, " \t\r\n") {
-		return false
-	}
-	u, err := url.Parse(uri)
-	if err != nil || u.Scheme == "" || u.Host == "" {
-		return false
-	}
-
-	// TODO: Allow App native redirect URIs for OAuth clients.
-	// TODO: Allow wildcards in redirect URIs.
-	// TODO: Allow redirect URIs TLDs
-	return true
-}
-
-func hasUniqueStrings(items []string) bool {
-	seen := make(map[string]struct{}, len(items))
-	for _, item := range items {
-		if _, ok := seen[item]; ok {
-			return false
-		}
-		seen[item] = struct{}{}
-	}
-	return true
-}
-
-func containsAll(items []string, allowed map[string]struct{}) bool {
-	for _, item := range items {
-		if _, ok := allowed[item]; !ok {
-			return false
-		}
-	}
-	return true
 }

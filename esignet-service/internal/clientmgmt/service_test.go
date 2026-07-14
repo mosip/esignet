@@ -1,3 +1,9 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 package clientmgmt_test
 
 import (
@@ -7,6 +13,8 @@ import (
 	"fmt"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/suite"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -83,7 +91,8 @@ func stubRow(clientID string) db.ClientDetail {
 	}
 }
 
-func TestCreateClient_ClientProfile_Success(t *testing.T) {
+func (ts *ServiceTestSuite) TestCreateClient_ClientProfile_Success() {
+	t := ts.T()
 	q := &mockQuerier{
 		createFn: func(_ context.Context, arg db.CreateClientParams) (db.ClientDetail, error) {
 			assert.Equal(t, "client-001", arg.ID)
@@ -102,7 +111,8 @@ func TestCreateClient_ClientProfile_Success(t *testing.T) {
 	assert.Equal(t, "Test App", resp.ClientName)
 }
 
-func TestCreateClient_OIDCProfile_StoresPlainName(t *testing.T) {
+func (ts *ServiceTestSuite) TestCreateClient_OIDCProfile_StoresPlainName() {
+	t := ts.T()
 	q := &mockQuerier{
 		createFn: func(_ context.Context, arg db.CreateClientParams) (db.ClientDetail, error) {
 			assert.Equal(t, "Test App", arg.Name)
@@ -118,7 +128,8 @@ func TestCreateClient_OIDCProfile_StoresPlainName(t *testing.T) {
 	assert.Equal(t, "Test App", resp.ClientName)
 }
 
-func TestCreateClient_MissingLangMap_ClientProfile(t *testing.T) {
+func (ts *ServiceTestSuite) TestCreateClient_MissingLangMap_ClientProfile() {
+	t := ts.T()
 	svc := clientmgmt.NewServiceWithQuerier(&mockQuerier{})
 	req := validCreateReq()
 	req.ClientNameLangMap = nil
@@ -128,7 +139,8 @@ func TestCreateClient_MissingLangMap_ClientProfile(t *testing.T) {
 	assert.Equal(t, "invalid_input", ve.Code)
 }
 
-func TestCreateClient_InvalidClaim(t *testing.T) {
+func (ts *ServiceTestSuite) TestCreateClient_InvalidClaim() {
+	t := ts.T()
 	svc := clientmgmt.NewServiceWithQuerier(&mockQuerier{})
 	req := validCreateReq()
 	req.Claims = []string{"not-a-claim"}
@@ -138,7 +150,8 @@ func TestCreateClient_InvalidClaim(t *testing.T) {
 	assert.Equal(t, "invalid_claim", ve.Code)
 }
 
-func TestCreateClient_DuplicateClientID(t *testing.T) {
+func (ts *ServiceTestSuite) TestCreateClient_DuplicateClientID() {
+	t := ts.T()
 	q := &mockQuerier{
 		createFn: func(_ context.Context, _ db.CreateClientParams) (db.ClientDetail, error) {
 			return db.ClientDetail{}, fmt.Errorf(`ERROR: duplicate key value violates unique constraint "pk_clntdtl_id" (SQLSTATE 23505)`)
@@ -149,7 +162,8 @@ func TestCreateClient_DuplicateClientID(t *testing.T) {
 	assert.ErrorIs(t, err, clientmgmt.ErrDuplicateClientID)
 }
 
-func TestCreateClient_DuplicatePublicKeyHash(t *testing.T) {
+func (ts *ServiceTestSuite) TestCreateClient_DuplicatePublicKeyHash() {
+	t := ts.T()
 	q := &mockQuerier{
 		createFn: func(_ context.Context, _ db.CreateClientParams) (db.ClientDetail, error) {
 			return db.ClientDetail{}, fmt.Errorf(`ERROR: duplicate key value violates unique constraint "uk_clntdtl_public_key_hash" (SQLSTATE 23505)`)
@@ -162,7 +176,8 @@ func TestCreateClient_DuplicatePublicKeyHash(t *testing.T) {
 	assert.Equal(t, "invalid_public_key", ve.Code)
 }
 
-func TestCreateClient_AdditionalConfigRoundTrip(t *testing.T) {
+func (ts *ServiceTestSuite) TestCreateClient_AdditionalConfigRoundTrip() {
+	t := ts.T()
 	raw := json.RawMessage(`{"userinfo_response_type":"JWS","consent_expire_in_mins":30,"purpose":{"type":"verify","title":{"@none":"Title"}}}`)
 	q := &mockQuerier{
 		createFn: func(_ context.Context, arg db.CreateClientParams) (db.ClientDetail, error) {
@@ -181,7 +196,8 @@ func TestCreateClient_AdditionalConfigRoundTrip(t *testing.T) {
 	assert.Equal(t, "JWS", resp.AdditionalConfig["userinfo_response_type"])
 }
 
-func TestUpdateClient_NormalizesStatus(t *testing.T) {
+func (ts *ServiceTestSuite) TestUpdateClient_NormalizesStatus() {
+	t := ts.T()
 	q := &mockQuerier{
 		updateFn: func(_ context.Context, arg db.UpdateClientParams) (db.ClientDetail, error) {
 			assert.Equal(t, "INACTIVE", arg.Status)
@@ -207,7 +223,8 @@ func TestUpdateClient_NormalizesStatus(t *testing.T) {
 	assert.Equal(t, "INACTIVE", resp.Status)
 }
 
-func TestUpdateClient_NotFound(t *testing.T) {
+func (ts *ServiceTestSuite) TestUpdateClient_NotFound() {
+	t := ts.T()
 	q := &mockQuerier{
 		updateFn: func(_ context.Context, _ db.UpdateClientParams) (db.ClientDetail, error) {
 			return db.ClientDetail{}, sql.ErrNoRows
@@ -229,7 +246,8 @@ func TestUpdateClient_NotFound(t *testing.T) {
 	assert.ErrorIs(t, err, clientmgmt.ErrClientNotFound)
 }
 
-func TestPatchClient_EncPublicKey(t *testing.T) {
+func (ts *ServiceTestSuite) TestPatchClient_EncPublicKey() {
+	t := ts.T()
 	encKey := map[string]string{"kty": "RSA", "n": "xyz", "e": "AQAB"}
 	q := &mockQuerier{
 		getFn: func(_ context.Context, _ string) (db.ClientDetail, error) {
@@ -256,7 +274,8 @@ func TestPatchClient_EncPublicKey(t *testing.T) {
 	assert.Equal(t, "client-001", resp.ClientID)
 }
 
-func TestPatchClient_ClearEncPublicKey(t *testing.T) {
+func (ts *ServiceTestSuite) TestPatchClient_ClearEncPublicKey() {
+	t := ts.T()
 	q := &mockQuerier{
 		getFn: func(_ context.Context, _ string) (db.ClientDetail, error) {
 			row := stubRow("client-001")
@@ -279,7 +298,8 @@ func TestPatchClient_ClearEncPublicKey(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestGetClient_Success(t *testing.T) {
+func (ts *ServiceTestSuite) TestGetClient_Success() {
+	t := ts.T()
 	q := &mockQuerier{
 		getFn: func(_ context.Context, id string) (db.ClientDetail, error) {
 			return stubRow(id), nil
@@ -306,7 +326,8 @@ func validUpdateReq() clientmgmt.UpdateClientRequest {
 	}
 }
 
-func TestValidatePatch_RejectsClearedRedirectURIs(t *testing.T) {
+func (ts *ServiceTestSuite) TestValidatePatch_RejectsClearedRedirectURIs() {
+	t := ts.T()
 	merged := validUpdateReq()
 	merged.RedirectURIs = nil
 	fields := clientmgmt.PatchFields{RedirectURIs: true}
@@ -316,7 +337,8 @@ func TestValidatePatch_RejectsClearedRedirectURIs(t *testing.T) {
 	assert.Equal(t, "invalid_redirect_uri", ve.Code)
 }
 
-func TestValidatePatch_RejectsInvalidEncPublicKey(t *testing.T) {
+func (ts *ServiceTestSuite) TestValidatePatch_RejectsInvalidEncPublicKey() {
+	t := ts.T()
 	merged := validUpdateReq()
 	fields := clientmgmt.PatchFields{EncPublicKey: true}
 	encKey := clientmgmt.NullableJWK{Defined: true, Value: map[string]string{"kty": "RSA"}}
@@ -326,7 +348,8 @@ func TestValidatePatch_RejectsInvalidEncPublicKey(t *testing.T) {
 	assert.Equal(t, "invalid_public_key", ve.Code)
 }
 
-func TestValidateCreate_InvalidLanguageCode(t *testing.T) {
+func (ts *ServiceTestSuite) TestValidateCreate_InvalidLanguageCode() {
+	t := ts.T()
 	req := validCreateReq()
 	req.ClientNameLangMap = map[string]string{"mhsdfsfd": "Name"}
 	err := clientmgmt.ValidateCreate(clientmgmt.ProfileClient, req)
@@ -335,7 +358,8 @@ func TestValidateCreate_InvalidLanguageCode(t *testing.T) {
 	assert.Equal(t, "invalid_language_code", ve.Code)
 }
 
-func TestValidateAdditionalConfig_InvalidResponseType(t *testing.T) {
+func (ts *ServiceTestSuite) TestValidateAdditionalConfig_InvalidResponseType() {
+	t := ts.T()
 	req := validCreateReq()
 	req.AdditionalConfig = json.RawMessage(`{"userinfo_response_type":"swj"}`)
 	err := clientmgmt.ValidateCreate(clientmgmt.ProfileClient, req)
@@ -344,11 +368,20 @@ func TestValidateAdditionalConfig_InvalidResponseType(t *testing.T) {
 	assert.Equal(t, "invalid_additional_config", ve.Code)
 }
 
-func TestOAuthProfile_RejectsAdditionalConfig(t *testing.T) {
+func (ts *ServiceTestSuite) TestOAuthProfile_RejectsAdditionalConfig() {
+	t := ts.T()
 	req := validCreateReq()
 	req.AdditionalConfig = json.RawMessage(`{"userinfo_response_type":"JWS"}`)
 	err := clientmgmt.ValidateCreate(clientmgmt.ProfileOAuth, req)
 	var ve *clientmgmt.ValidationError
 	require.ErrorAs(t, err, &ve)
 	assert.Equal(t, "invalid_input", ve.Code)
+}
+
+type ServiceTestSuite struct {
+	suite.Suite
+}
+
+func TestServiceTestSuite(t *testing.T) {
+	suite.Run(t, new(ServiceTestSuite))
 }

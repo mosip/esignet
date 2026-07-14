@@ -1,0 +1,1190 @@
+system:
+  "design.resolve.error.app_no_design": பயன்பாட்டிற்கு வடிவமைப்பு கட்டமைப்பு இல்லை
+  "design.resolve.error.app_no_design_description": குறிப்பிட்ட பயன்பாட்டுடன் தொடர்புடைய தீம் அல்லது தளவமைப்பு கட்டமைப்பு இல்லை
+  "design.resolve.error.app_not_found": பயன்பாடு கண்டுபிடிக்கப்படவில்லை
+  "design.resolve.error.app_not_found_description": குறிப்பிட்ட ID கொண்ட பயன்பாடு இல்லை
+  "design.resolve.error.invalid_type": தவறான கோரிக்கை வடிவம்
+  "design.resolve.error.invalid_type_description": 'type' வினவல் அளவுரு தேவை மற்றும் 'APP' அல்லது 'OU' ஆக இருக்க வேண்டும்
+  "design.resolve.error.missing_id": தவறான கோரிக்கை வடிவம்
+  "design.resolve.error.missing_id_description": 'id' வினவல் அளவுரு தேவை
+  "design.resolve.error.unsupported_type": ஆதரிக்கப்படாத தீர்மான வகை
+  "design.resolve.error.unsupported_type_description": குறிப்பிட்ட தீர்மான வகை இன்னும் ஆதரிக்கப்படவில்லை. தற்போது 'APP' வகை மட்டுமே ஆதரிக்கப்படுகிறது
+  "error.actor_not_found": நடிகர் கண்டுபிடிக்கப்படவில்லை
+  "error.actor_not_found_description": கோரப்பட்ட நடிகர் இல்லை
+  "error.agentservice.agent_already_exists_with_client_id": கிளையன்ட் ID ஏற்கனவே பயன்பாட்டில் உள்ளது
+  "error.agentservice.agent_already_exists_with_client_id_description": அதே கிளையன்ட் ID கொண்ட ஒரு நிறுவனம் ஏற்கனவே உள்ளது
+  "error.agentservice.agent_already_exists_with_name": முகவர் ஏற்கனவே உள்ளது
+  "error.agentservice.agent_already_exists_with_name_description": அதே பெயருடைய ஒரு முகவர் ஏற்கனவே உள்ளது
+  "error.agentservice.agent_not_found": முகவர் கண்டுபிடிக்கப்படவில்லை
+  "error.agentservice.agent_not_found_description": குறிப்பிட்ட ID கொண்ட முகவர் இல்லை
+  "error.agentservice.attribute_conflict": பண்பு முரண்பாடு
+  "error.agentservice.attribute_conflict_description": அதே தனிப்பட்ட பண்பு மதிப்பு கொண்ட ஒரு முகவர் ஏற்கனவே உள்ளது
+  "error.agentservice.auth_code_requires_code_response_type_description": authorization_code மானிய வகைக்கு 'code' பதில் வகை தேவை
+  "error.agentservice.auth_code_requires_redirect_uris_description": authorization_code மானிய வகைக்கு திருப்பி அனுப்பல் URI கள் தேவை
+  "error.agentservice.cannot_modify_declarative_resource": அறிவிப்பு வளத்தை மாற்ற முடியாது
+  "error.agentservice.cannot_modify_declarative_resource_description": அறிவிப்பு முறையில் நிர்வகிக்கப்படும் முகவர்களை API மூலம் மாற்ற முடியாது
+  "error.agentservice.certificate_operation_failed": சான்றிதழ் செயல்பாடு தோல்வியடைந்தது
+  "error.agentservice.certificate_operation_failed_description": தவறான உள்ளீட்டின் காரணமாக சான்றிதழ் செயல்பாடு தோல்வியடைந்தது
+  "error.agentservice.client_credentials_cannot_use_none_auth_description": client_credentials மானிய வகை 'none' அங்கீகார முறையை பயன்படுத்த முடியாது
+  "error.agentservice.client_credentials_cannot_use_response_types_description": client_credentials மானிய வகையை பதில் வகைகளுடன் பயன்படுத்த முடியாது
+  "error.agentservice.client_secret_cannot_have_certificate_description": client_secret அங்கீகார முறைகளுக்கு சான்றிதழ் இருக்க முடியாது
+  "error.agentservice.consent_sync_failed": சம்மதம் ஒத்திசைவு தோல்வியடைந்தது
+  "error.agentservice.consent_sync_failed_description": சம்மதம் சேவையுடன் முகவர் பண்பு மாற்றங்களை ஒத்திசைக்க தோல்வியடைந்தது
+  "error.agentservice.error_retrieving_flow_definition": ஓட்ட வரையறை மீட்டெடுப்பதில் பிழை
+  "error.agentservice.error_retrieving_flow_definition_description": ஓட்ட வரையறையை மீட்டெடுக்கும் போது பிழை ஏற்பட்டது
+  "error.agentservice.idtoken_encryption_alg_requires_enc_description": encryptionAlg அமைக்கப்பட்டிருக்கும் போது idToken encryptionEnc தேவை
+  "error.agentservice.idtoken_encryption_enc_requires_alg_description": encryptionEnc அமைக்கப்பட்டிருக்கும் போது idToken encryptionAlg தேவை
+  "error.agentservice.idtoken_encryption_fields_not_allowed_description": responseType JWT ஆக இருக்கும் போது idToken encryptionAlg மற்றும் encryptionEnc அமைக்கப்படக்கூடாது
+  "error.agentservice.idtoken_encryption_requires_certificate_description": ID token குறியாக்கம் கட்டமைக்கப்படும் போது ஒரு சான்றிதழ் (JWKS அல்லது JWKS_URI) தேவை
+  "error.agentservice.idtoken_jwks_uri_not_ssrf_safe_description": idToken JWKS URI பொதுவில் அணுகக்கூடிய HTTPS URL ஆக இருக்க வேண்டும்
+  "error.agentservice.idtoken_unsupported_encryption_alg_description": ID token குறியாக்க வழிமுறை ஆதரிக்கப்படவில்லை
+  "error.agentservice.idtoken_unsupported_encryption_enc_description": ID token உள்ளடக்க குறியாக்க வழிமுறை ஆதரிக்கப்படவில்லை
+  "error.agentservice.idtoken_unsupported_response_type_description": ID token responseType ஆதரிக்கப்படவில்லை
+  "error.agentservice.invalid_agent_name": தவறான முகவர் பெயர்
+  "error.agentservice.invalid_agent_name_description": முகவர் பெயர் வழங்கப்பட வேண்டும் மற்றும் காலியாக இருக்கக்கூடாது
+  "error.agentservice.invalid_agent_type": தவறான முகவர் வகை
+  "error.agentservice.invalid_agent_type_description": முகவர் வகை வழங்கப்பட வேண்டும்
+  "error.agentservice.invalid_auth_flow_id": தவறான அங்கீகார ஓட்ட ID
+  "error.agentservice.invalid_auth_flow_id_description": வழங்கப்பட்ட அங்கீகார ஓட்ட ID தவறானது
+  "error.agentservice.invalid_certificate_type": தவறான சான்றிதழ் வகை
+  "error.agentservice.invalid_certificate_type_description": வழங்கப்பட்ட சான்றிதழ் வகை ஆதரிக்கப்படவில்லை
+  "error.agentservice.invalid_certificate_value": தவறான சான்றிதழ் மதிப்பு
+  "error.agentservice.invalid_certificate_value_description": வழங்கப்பட்ட சான்றிதழ் மதிப்பு தவறானது அல்லது இல்லை
+  "error.agentservice.invalid_credential": தவறான நற்சான்றிதழ்
+  "error.agentservice.invalid_credential_description": வழங்கப்பட்ட நற்சான்றிதழ் தவறானது
+  "error.agentservice.invalid_filter": தவறான வடிகட்டி அளவுரு
+  "error.agentservice.invalid_filter_description": வடிகட்டி வடிவம் தவறானது
+  "error.agentservice.invalid_grant_type": தவறான மானிய வகை
+  "error.agentservice.invalid_grant_type_description": ஒன்று அல்லது அதிகமான மானிய வகைகள் ஆதரிக்கப்படவில்லை
+  "error.agentservice.invalid_jwks_uri": தவறான JWKS URI
+  "error.agentservice.invalid_jwks_uri_description": JWKS URI பொதுவில் அணுகக்கூடிய HTTPS URL ஆக இருக்க வேண்டும்
+  "error.agentservice.invalid_limit": தவறான பக்கமடைவு அளவுரு
+  "error.agentservice.invalid_limit_description": வரம்பு அளவுரு 1 முதல் 100 வரை இருக்க வேண்டும்
+  "error.agentservice.invalid_oauth_configuration": தவறான OAuth கட்டமைப்பு
+  "error.agentservice.invalid_oauth_configuration_description": வழங்கப்பட்ட OAuth கட்டமைப்பு தவறானது
+  "error.agentservice.invalid_offset": தவறான பக்கமடைவு அளவுரு
+  "error.agentservice.invalid_offset_description": ஆஃப்செட் அளவுரு எதிர்மறையல்லாத முழு எண்ணாக இருக்க வேண்டும்
+  "error.agentservice.invalid_public_client_configuration": தவறான பொது கிளையன்ட் கட்டமைப்பு
+  "error.agentservice.invalid_public_client_configuration_description": பொது கிளையன்ட் கட்டமைப்பு தவறானது
+  "error.agentservice.invalid_redirect_uri": தவறான திருப்பி அனுப்பல் URI
+  "error.agentservice.invalid_redirect_uri_description": ஒன்று அல்லது அதிகமான திருப்பி அனுப்பல் URI கள் செல்லுபடியாகவில்லை
+  "error.agentservice.invalid_registration_flow_id": தவறான பதிவு ஓட்ட ID
+  "error.agentservice.invalid_registration_flow_id_description": வழங்கப்பட்ட பதிவு ஓட்ட ID தவறானது
+  "error.agentservice.invalid_request_format": தவறான கோரிக்கை வடிவம்
+  "error.agentservice.invalid_request_format_description": கோரிக்கை உடல் தவறாக வடிவமைக்கப்பட்டுள்ளது அல்லது தவறான தரவு உள்ளது
+  "error.agentservice.invalid_response_type": தவறான பதில் வகை
+  "error.agentservice.invalid_response_type_description": ஒன்று அல்லது அதிகமான வழங்கப்பட்ட பதில் வகைகள் தவறானவை
+  "error.agentservice.invalid_token_endpoint_auth_method": தவறான டோக்கன் இறுதிப்புள்ளி அங்கீகார முறை
+  "error.agentservice.invalid_token_endpoint_auth_method_description": வழங்கப்பட்ட டோக்கன் இறுதிப்புள்ளி அங்கீகார முறை ஆதரிக்கப்படவில்லை
+  "error.agentservice.invalid_user_attribute": தவறான பயனர் பண்பு
+  "error.agentservice.invalid_user_attribute_description": ஒன்று அல்லது அதிகமான பயனர் பண்புகள் கட்டமைக்கப்பட்ட அனுமதிக்கப்பட்ட பயனர் வகைகளுக்கு செல்லுபடியாகவில்லை
+  "error.agentservice.invalid_user_type": தவறான பயனர் வகை
+  "error.agentservice.invalid_user_type_description": குறிப்பிட்ட அனுமதிக்கப்பட்ட பயனர் வகைகளில் ஒன்று அல்லது அதிகமானவை தவறானவை
+  "error.agentservice.layout_not_found": தளவமைப்பு கண்டுபிடிக்கப்படவில்லை
+  "error.agentservice.layout_not_found_description": குறிப்பிட்ட தளவமைப்பு இல்லை
+  "error.agentservice.missing_agent_id": முகவர் ID இல்லை
+  "error.agentservice.missing_agent_id_description": முகவர் ID தேவை
+  "error.agentservice.multiple_oauth_configs": பல OAuth உள்வரும் அங்கீகார கட்டமைப்புகள் அனுமதிக்கப்படவில்லை
+  "error.agentservice.multiple_oauth_configs_description": ஒரு நிறுவனம் ஒரு நெறிமுறைக்கு அதிகபட்சம் ஒரு உள்வரும் அங்கீகார கட்டமைப்பை மட்டுமே கொண்டிருக்க முடியும்
+  "error.agentservice.none_auth_method_cannot_have_cert_or_secret_description": 'none' அங்கீகார முறைக்கு சான்றிதழ் அல்லது கிளையன்ட் ரகசியம் இருக்க முடியாது
+  "error.agentservice.none_auth_method_requires_public_client_description": 'none' அங்கீகார முறைக்கு கிளையன்ட் பொது கிளையன்டாக இருக்க வேண்டும்
+  "error.agentservice.organization_unit_not_found": நிறுவன அலகு கண்டுபிடிக்கப்படவில்லை
+  "error.agentservice.organization_unit_not_found_description": குறிப்பிட்ட நிறுவன அலகு இல்லை
+  "error.agentservice.owner_not_found": உரிமையாளர் கண்டுபிடிக்கப்படவில்லை
+  "error.agentservice.owner_not_found_description": குறிப்பிட்ட உரிமையாளர் எந்த அறியப்பட்ட பயனர், பயன்பாடு, அல்லது முகவருடனும் பொருந்தவில்லை
+  "error.agentservice.pkce_requires_authorization_code_description": authorization_code மானிய வகை தேர்ந்தெடுக்கப்பட்டிருக்கும் போது மட்டுமே PKCE இயக்கப்படலாம்
+  "error.agentservice.private_key_jwt_cannot_have_client_secret_description": private_key_jwt அங்கீகார முறைக்கு கிளையன்ட் ரகசியம் இருக்க முடியாது
+  "error.agentservice.private_key_jwt_requires_certificate_description": private_key_jwt அங்கீகார முறைக்கு சான்றிதழ் தேவை
+  "error.agentservice.public_client_must_have_pkce_description": பொது கிளையன்டுகளுக்கு PKCE தேவை true ஆக அமைக்கப்பட்டிருக்க வேண்டும்
+  "error.agentservice.public_client_must_use_none_auth_description": பொது கிளையன்டுகள் டோக்கன் இறுதிப்புள்ளி அங்கீகார முறையாக 'none' பயன்படுத்த வேண்டும்
+  "error.agentservice.redirect_uri_fragment_not_allowed_description": திருப்பி அனுப்பல் URI கள் துண்டு கூறு கொண்டிருக்கக்கூடாது
+  "error.agentservice.refresh_token_cannot_be_sole_grant_description": refresh_token மானிய வகையை மற்றொரு மானிய வகை இல்லாமல் பயன்படுத்த முடியாது
+  "error.agentservice.response_types_require_authorization_code_description": பதில் வகைகளை authorization_code மானிய வகையுடன் மட்டுமே கட்டமைக்க முடியும்
+  "error.agentservice.schema_validation_failed": திட்ட சரிபார்ப்பு தோல்வியடைந்தது
+  "error.agentservice.schema_validation_failed_description": வழங்கப்பட்ட பண்புகள் திட்ட சரிபார்ப்பில் தோல்வியடைந்தன
+  "error.agentservice.theme_not_found": தீம் கண்டுபிடிக்கப்படவில்லை
+  "error.agentservice.theme_not_found_description": குறிப்பிட்ட தீம் இல்லை
+  "error.agentservice.userinfo_alg_requires_response_type_description": signingAlg அல்லது encryptionAlg அமைக்கப்பட்டிருக்கும் போது userinfo responseType தேவை
+  "error.agentservice.userinfo_encryption_alg_requires_enc_description": encryptionAlg அமைக்கப்பட்டிருக்கும் போது userinfo encryptionEnc தேவை
+  "error.agentservice.userinfo_encryption_enc_requires_alg_description": encryptionEnc அமைக்கப்பட்டிருக்கும் போது userinfo encryptionAlg தேவை
+  "error.agentservice.userinfo_encryption_requires_certificate_description": userinfo குறியாக்கம் கட்டமைக்கப்படும் போது ஒரு சான்றிதழ் (JWKS அல்லது JWKS_URI) தேவை
+  "error.agentservice.userinfo_jwe_requires_encryption_description": userinfo responseType JWE ஆக இருக்கும் போது encryptionAlg மற்றும் encryptionEnc தேவை
+  "error.agentservice.userinfo_jwks_uri_not_ssrf_safe_description": userinfo JWKS URI பொதுவில் அணுகக்கூடிய HTTPS URL ஆக இருக்க வேண்டும்
+  "error.agentservice.userinfo_jws_requires_signing_alg_description": userinfo responseType JWS ஆக இருக்கும் போது signingAlg தேவை
+  "error.agentservice.userinfo_nested_jwt_requires_all_description": userinfo responseType NESTED_JWT ஆக இருக்கும் போது signingAlg, encryptionAlg மற்றும் encryptionEnc தேவை
+  "error.agentservice.userinfo_unsupported_encryption_alg_description": userinfo குறியாக்க வழிமுறை ஆதரிக்கப்படவில்லை
+  "error.agentservice.userinfo_unsupported_encryption_enc_description": userinfo உள்ளடக்க குறியாக்க வழிமுறை ஆதரிக்கப்படவில்லை
+  "error.agentservice.userinfo_unsupported_response_type_description": userinfo responseType ஆதரிக்கப்படவில்லை
+  "error.agentservice.userinfo_unsupported_signing_alg_description": userinfo கையொப்பமிடல் வழிமுறை ஆதரிக்கப்படவில்லை
+  "error.applicationservice.application_already_exists": பயன்பாடு ஏற்கனவே உள்ளது
+  "error.applicationservice.application_already_exists_description": அதே பெயருடைய ஒரு பயன்பாடு ஏற்கனவே உள்ளது
+  "error.applicationservice.application_is_nil": பயன்பாடு nil ஆகும்
+  "error.applicationservice.application_is_nil_description": வழங்கப்பட்ட பயன்பாட்டு பொருள் nil ஆகும்
+  "error.applicationservice.application_not_found": பயன்பாடு கண்டுபிடிக்கப்படவில்லை
+  "error.applicationservice.application_not_found_description": கோரப்பட்ட பயன்பாட்டை கண்டுபிடிக்க முடியவில்லை
+  "error.applicationservice.application_with_client_id_already_exists": கிளையன்ட் ID கொண்ட பயன்பாடு ஏற்கனவே உள்ளது
+  "error.applicationservice.application_with_client_id_already_exists_description": அதே கிளையன்ட் ID கொண்ட ஒரு பயன்பாடு ஏற்கனவே உள்ளது
+  "error.applicationservice.auth_code_requires_code_response_type_description": authorization_code மானிய வகைக்கு 'code' பதில் வகை தேவை
+  "error.applicationservice.auth_code_requires_redirect_uris_description": authorization_code மானிய வகைக்கு திருப்பி அனுப்பல் URI கள் தேவை
+  "error.applicationservice.cannot_modify_declarative_resource": அறிவிப்பு வளத்தை மாற்ற முடியாது
+  "error.applicationservice.cannot_modify_declarative_resource_description": பயன்பாடு அறிவிப்பு முறையில் உள்ளது மற்றும் மாற்றவோ நீக்கவோ முடியாது
+  "error.applicationservice.certificate_operation_failed": சான்றிதழ் செயல்பாடு தோல்வியடைந்தது
+  "error.applicationservice.certificate_operation_failed_description": பயன்பாட்டு சான்றிதழை செயலாக்கும் போது பிழை ஏற்பட்டது
+  "error.applicationservice.client_credentials_cannot_use_none_auth_description": client_credentials மானிய வகை 'none' அங்கீகார முறையை பயன்படுத்த முடியாது
+  "error.applicationservice.client_credentials_cannot_use_response_types_description": client_credentials மானிய வகையை பதில் வகைகளுடன் பயன்படுத்த முடியாது
+  "error.applicationservice.client_secret_cannot_have_certificate_description": client_secret அங்கீகார முறைகளுக்கு சான்றிதழ் இருக்க முடியாது
+  "error.applicationservice.consent_service_not_enabled": சம்மதம் சேவை இயக்கப்படவில்லை
+  "error.applicationservice.consent_service_not_enabled_description": சம்மதம் சேவை இயக்கப்படவில்லை என்பதால் பயன்பாட்டிற்கு சம்மதம் இயக்க முடியாது
+  "error.applicationservice.consent_synchronization_failed": சம்மதம் ஒத்திசைவு தோல்வியடைந்தது
+  "error.applicationservice.consent_synchronization_failed_description": பயன்பாட்டிற்கான சம்மதம் கட்டமைப்புகளை ஒத்திசைக்க தோல்வியடைந்தது
+  "error.applicationservice.error_retrieving_flow_definition": ஓட்ட வரையறை மீட்டெடுப்பதில் பிழை
+  "error.applicationservice.error_retrieving_flow_definition_description": ஓட்ட வரையறையை மீட்டெடுக்கும் போது பிழை ஏற்பட்டது
+  "error.applicationservice.idtoken_encryption_alg_requires_enc_description": encryptionAlg அமைக்கப்பட்டிருக்கும் போது idToken encryptionEnc தேவை
+  "error.applicationservice.idtoken_encryption_enc_requires_alg_description": encryptionEnc அமைக்கப்பட்டிருக்கும் போது idToken encryptionAlg தேவை
+  "error.applicationservice.idtoken_encryption_fields_not_allowed_description": responseType JWT ஆக இருக்கும் போது idToken encryptionAlg மற்றும் encryptionEnc அமைக்கப்படக்கூடாது
+  "error.applicationservice.idtoken_encryption_requires_certificate_description": ID token குறியாக்கம் கட்டமைக்கப்படும் போது ஒரு சான்றிதழ் (JWKS அல்லது JWKS_URI) தேவை
+  "error.applicationservice.idtoken_jwks_uri_not_ssrf_safe_description": idToken JWKS URI பொதுவில் அணுகக்கூடிய HTTPS URL ஆக இருக்க வேண்டும்
+  "error.applicationservice.idtoken_unsupported_encryption_alg_description": ID token குறியாக்க வழிமுறை ஆதரிக்கப்படவில்லை
+  "error.applicationservice.idtoken_unsupported_encryption_enc_description": ID token உள்ளடக்க குறியாக்க வழிமுறை ஆதரிக்கப்படவில்லை
+  "error.applicationservice.idtoken_unsupported_response_type_description": ID token responseType ஆதரிக்கப்படவில்லை
+  "error.applicationservice.invalid_acr_values": தவறான ACR மதிப்பு
+  "error.applicationservice.invalid_acr_values_description": acr_values இல் உள்ள ஒன்று அல்லது அதிகமான ACR மதிப்புகள் கணினியால் அங்கீகரிக்கப்படவில்லை
+  "error.applicationservice.invalid_application_id": தவறான பயன்பாட்டு ID
+  "error.applicationservice.invalid_application_id_description": வழங்கப்பட்ட பயன்பாட்டு ID தவறானது அல்லது காலி
+  "error.applicationservice.invalid_application_name": தவறான பயன்பாட்டு பெயர்
+  "error.applicationservice.invalid_application_name_description": வழங்கப்பட்ட பயன்பாட்டு பெயர் தவறானது அல்லது காலி
+  "error.applicationservice.invalid_application_url": தவறான பயன்பாட்டு URL
+  "error.applicationservice.invalid_application_url_description": வழங்கப்பட்ட பயன்பாட்டு URL செல்லுபடியான URI அல்ல
+  "error.applicationservice.invalid_auth_flow_id": தவறான அங்கீகார ஓட்ட ID
+  "error.applicationservice.invalid_auth_flow_id_description": வழங்கப்பட்ட அங்கீகார ஓட்ட ID தவறானது
+  "error.applicationservice.invalid_certificate_type": தவறான சான்றிதழ் வகை
+  "error.applicationservice.invalid_certificate_type_description": வழங்கப்பட்ட சான்றிதழ் வகை ஆதரிக்கப்படவில்லை
+  "error.applicationservice.invalid_certificate_value": தவறான சான்றிதழ் மதிப்பு
+  "error.applicationservice.invalid_certificate_value_description": வழங்கப்பட்ட சான்றிதழ் மதிப்பு தவறானது
+  "error.applicationservice.invalid_client_id": தவறான கிளையன்ட் ID
+  "error.applicationservice.invalid_client_id_description": வழங்கப்பட்ட கிளையன்ட் ID தவறானது அல்லது காலி
+  "error.applicationservice.invalid_grant_type": தவறான மானிய வகை
+  "error.applicationservice.invalid_grant_type_description": வழங்கப்பட்ட ஒன்று அல்லது அதிகமான மானிய வகைகள் தவறானவை
+  "error.applicationservice.invalid_inbound_auth_config": தவறான உள்வரும் அங்கீகார கட்டமைப்பு
+  "error.applicationservice.invalid_inbound_auth_config_description": வழங்கப்பட்ட உள்வரும் அங்கீகார கட்டமைப்பு தவறானது
+  "error.applicationservice.invalid_jwks_uri": தவறான JWKS URI
+  "error.applicationservice.invalid_jwks_uri_description": வழங்கப்பட்ட JWKS URI செல்லுபடியான URI அல்ல
+  "error.applicationservice.invalid_jwks_uri_scheme": தவறான JWKS URI திட்டம்
+  "error.applicationservice.invalid_jwks_uri_scheme_description": 'jwks_uri' HTTPS திட்டம் பயன்படுத்த வேண்டும்
+  "error.applicationservice.invalid_logo_url": தவறான சின்னம் URL
+  "error.applicationservice.invalid_logo_url_description": வழங்கப்பட்ட சின்னம் URL செல்லுபடியான URI அல்ல
+  "error.applicationservice.invalid_oauth_configuration": தவறான OAuth கட்டமைப்பு
+  "error.applicationservice.invalid_oauth_configuration_description": OAuth கட்டமைப்பு தவறானது
+  "error.applicationservice.invalid_public_client_configuration": தவறான பொது கிளையன்ட் கட்டமைப்பு
+  "error.applicationservice.invalid_public_client_configuration_description": பொது கிளையன்ட் கட்டமைப்பு தவறானது
+  "error.applicationservice.invalid_recovery_flow_id": தவறான மீட்பு ஓட்ட ID
+  "error.applicationservice.invalid_recovery_flow_id_description": வழங்கப்பட்ட மீட்பு ஓட்ட ID தவறானது
+  "error.applicationservice.invalid_redirect_uri": தவறான திருப்பி அனுப்பல் URI
+  "error.applicationservice.invalid_redirect_uri_description": வழங்கப்பட்ட ஒன்று அல்லது அதிகமான திருப்பி அனுப்பல் URI கள் செல்லுபடியான URI கள் அல்ல
+  "error.applicationservice.invalid_registration_flow_id": தவறான பதிவு ஓட்ட ID
+  "error.applicationservice.invalid_registration_flow_id_description": வழங்கப்பட்ட பதிவு ஓட்ட ID தவறானது
+  "error.applicationservice.invalid_request_format": தவறான கோரிக்கை வடிவம்
+  "error.applicationservice.invalid_request_format_description": கோரிக்கை உடல் தவறாக வடிவமைக்கப்பட்டுள்ளது அல்லது தவறான தரவு உள்ளது
+  "error.applicationservice.invalid_response_type": தவறான பதில் வகை
+  "error.applicationservice.invalid_response_type_description": வழங்கப்பட்ட ஒன்று அல்லது அதிகமான பதில் வகைகள் தவறானவை
+  "error.applicationservice.invalid_token_endpoint_auth_method": தவறான டோக்கன் இறுதிப்புள்ளி அங்கீகார முறை
+  "error.applicationservice.invalid_token_endpoint_auth_method_description": வழங்கப்பட்ட டோக்கன் இறுதிப்புள்ளி அங்கீகார முறை தவறானது
+  "error.applicationservice.invalid_user_attribute": தவறான பயனர் பண்பு
+  "error.applicationservice.invalid_user_attribute_description": ஒன்று அல்லது அதிகமான பயனர் பண்புகள் கட்டமைக்கப்பட்ட அனுமதிக்கப்பட்ட பயனர் வகைகளுக்கு செல்லுபடியாகவில்லை
+  "error.applicationservice.invalid_user_type": தவறான பயனர் வகை
+  "error.applicationservice.invalid_user_type_description": allowed_user_types இல் உள்ள ஒன்று அல்லது அதிகமான பயனர் வகைகள் கணினியில் இல்லை
+  "error.applicationservice.layout_not_found": தளவமைப்பு கண்டுபிடிக்கப்படவில்லை
+  "error.applicationservice.layout_not_found_description": குறிப்பிட்ட தளவமைப்பு கட்டமைப்பு இல்லை
+  "error.applicationservice.multiple_oauth_configs": பல OAuth உள்வரும் அங்கீகார கட்டமைப்புகள் அனுமதிக்கப்படவில்லை
+  "error.applicationservice.multiple_oauth_configs_description": ஒரு பயன்பாடு ஒரு நெறிமுறைக்கு அதிகபட்சம் ஒரு உள்வரும் அங்கீகார கட்டமைப்பை மட்டுமே கொண்டிருக்க முடியும்
+  "error.applicationservice.none_auth_method_cannot_have_cert_or_secret_description": 'none' அங்கீகார முறைக்கு சான்றிதழ் அல்லது கிளையன்ட் ரகசியம் இருக்க முடியாது
+  "error.applicationservice.none_auth_method_requires_public_client_description": 'none' அங்கீகார முறைக்கு கிளையன்ட் பொது கிளையன்டாக இருக்க வேண்டும்
+  "error.applicationservice.pkce_requires_authorization_code_description": authorization_code மானிய வகை தேர்ந்தெடுக்கப்பட்டிருக்கும் போது மட்டுமே PKCE இயக்கப்படலாம்
+  "error.applicationservice.private_key_jwt_cannot_have_client_secret_description": private_key_jwt அங்கீகார முறைக்கு கிளையன்ட் ரகசியம் இருக்க முடியாது
+  "error.applicationservice.private_key_jwt_requires_certificate_description": private_key_jwt அங்கீகார முறைக்கு சான்றிதழ் தேவை
+  "error.applicationservice.public_client_must_have_pkce_description": பொது கிளையன்டுகளுக்கு PKCE தேவை true ஆக அமைக்கப்பட்டிருக்க வேண்டும்
+  "error.applicationservice.public_client_must_use_none_auth_description": பொது கிளையன்டுகள் டோக்கன் இறுதிப்புள்ளி அங்கீகார முறையாக 'none' பயன்படுத்த வேண்டும்
+  "error.applicationservice.redirect_uri_fragment_not_allowed_description": திருப்பி அனுப்பல் URI கள் துண்டு கூறு கொண்டிருக்கக்கூடாது
+  "error.applicationservice.refresh_token_cannot_be_sole_grant_description": refresh_token மானிய வகையை மற்றொரு மானிய வகை இல்லாமல் பயன்படுத்த முடியாது
+  "error.applicationservice.response_types_require_authorization_code_description": பதில் வகைகளை authorization_code மானிய வகையுடன் மட்டுமே கட்டமைக்க முடியும்
+  "error.applicationservice.result_limit_exceeded": முடிவு வரம்பு மீறப்பட்டது
+  "error.applicationservice.theme_not_found": தீம் கண்டுபிடிக்கப்படவில்லை
+  "error.applicationservice.theme_not_found_description": குறிப்பிட்ட தீம் கட்டமைப்பு இல்லை
+  "error.applicationservice.userinfo_alg_requires_response_type_description": signingAlg அல்லது encryptionAlg அமைக்கப்பட்டிருக்கும் போது userinfo responseType தேவை
+  "error.applicationservice.userinfo_encryption_alg_requires_enc_description": encryptionAlg அமைக்கப்பட்டிருக்கும் போது userinfo encryptionEnc தேவை
+  "error.applicationservice.userinfo_encryption_enc_requires_alg_description": encryptionEnc அமைக்கப்பட்டிருக்கும் போது userinfo encryptionAlg தேவை
+  "error.applicationservice.userinfo_encryption_requires_certificate_description": userinfo குறியாக்கம் கட்டமைக்கப்படும் போது ஒரு சான்றிதழ் (JWKS அல்லது JWKS_URI) தேவை
+  "error.applicationservice.userinfo_jwe_requires_encryption_description": userinfo responseType JWE ஆக இருக்கும் போது encryptionAlg மற்றும் encryptionEnc தேவை
+  "error.applicationservice.userinfo_jwks_uri_not_ssrf_safe_description": userinfo JWKS URI பொதுவில் அணுகக்கூடிய HTTPS URL ஆக இருக்க வேண்டும்
+  "error.applicationservice.userinfo_jws_requires_signing_alg_description": userinfo responseType JWS ஆக இருக்கும் போது signingAlg தேவை
+  "error.applicationservice.userinfo_nested_jwt_requires_all_description": userinfo responseType NESTED_JWT ஆக இருக்கும் போது signingAlg, encryptionAlg மற்றும் encryptionEnc தேவை
+  "error.applicationservice.userinfo_unsupported_encryption_alg_description": userinfo குறியாக்க வழிமுறை ஆதரிக்கப்படவில்லை
+  "error.applicationservice.userinfo_unsupported_encryption_enc_description": userinfo உள்ளடக்க குறியாக்க வழிமுறை ஆதரிக்கப்படவில்லை
+  "error.applicationservice.userinfo_unsupported_response_type_description": userinfo responseType ஆதரிக்கப்படவில்லை
+  "error.applicationservice.userinfo_unsupported_signing_alg_description": userinfo கையொப்பமிடல் வழிமுறை ஆதரிக்கப்படவில்லை
+  "error.assertservice.invalid_authenticator": தவறான அங்கீகரிப்பாளர்
+  "error.assertservice.invalid_authenticator_description": அங்கீகரிப்பாளர் பெயர் காலியாக இருக்க முடியாது
+  "error.assertservice.nil_assurance_context": nil உறுதிப்பாட்டு சூழல்
+  "error.assertservice.nil_assurance_context_description": சரிபார்ப்புக்கான உறுதிப்பாட்டு சூழல் nil ஆக இருக்க முடியாது
+  "error.assertservice.no_assurance_requirements": உறுதிப்பாட்டு தேவைகள் இல்லை
+  "error.assertservice.no_assurance_requirements_description": சரிபார்ப்புக்கு குறைந்தது ஒரு உறுதிப்பாட்டு நிலை (AAL அல்லது IAL) குறிப்பிடப்பட வேண்டும்
+  "error.assertservice.no_authenticators": அங்கீகரிப்பாளர்கள் இல்லை
+  "error.assertservice.no_authenticators_description": அங்கீகரிப்பாளர்கள் இல்லாமல் உறுதிப்பாட்டை உருவாக்க முடியாது
+  "error.attributecache.cache_not_found": பண்பு தற்காலிக சேமிப்பு கண்டுபிடிக்கப்படவில்லை
+  "error.attributecache.cache_not_found_description": குறிப்பிட்ட ID கொண்ட பண்பு தற்காலிக சேமிப்பு உள்ளீடு இல்லை
+  "error.attributecache.invalid_expiry_time": தவறான காலாவதி நேரம்
+  "error.attributecache.invalid_expiry_time_description": காலாவதி நேரம் எதிர்காலத்தில் இருக்க வேண்டும்
+  "error.attributecache.invalid_request_format": தவறான கோரிக்கை வடிவம்
+  "error.attributecache.invalid_request_format_description": கோரிக்கை உடல் தவறாக வடிவமைக்கப்பட்டுள்ளது அல்லது தவறான தரவு உள்ளது
+  "error.attributecache.missing_attributes": பண்புகள் இல்லை
+  "error.attributecache.missing_attributes_description": பண்புகள் தேவை
+  "error.attributecache.missing_cache_id": தற்காலிக சேமிப்பு ID இல்லை
+  "error.attributecache.missing_cache_id_description": தற்காலிக சேமிப்பு ID தேவை
+  "error.auth.forbidden": தடைசெய்யப்பட்டது
+  "error.auth.forbidden_description": இந்த வளத்தை அணுக உங்களுக்கு போதுமான அனுமதிகள் இல்லை
+  "error.auth.unauthorized": அங்கீகரிக்கப்படவில்லை
+  "error.auth.unauthorized_description": இந்த வளத்தை அணுக அங்கீகரிப்பு தேவை
+  "error.authncredservice.invalid_request_format": தவறான கோரிக்கை வடிவம்
+  "error.authncredservice.invalid_request_format_description": கோரிக்கை உடல் தவறாக வடிவமைக்கப்பட்டுள்ளது அல்லது தவறான தரவு உள்ளது
+  "error.authnmgrservice.ambiguous_user": தெளிவற்ற பயனர்
+  "error.authnmgrservice.ambiguous_user_description": வழங்கப்பட்ட அடையாளங்களுடன் பொருந்தும் பல பயனர்கள் கண்டுபிடிக்கப்பட்டனர்
+  "error.authnmgrservice.authentication_failed": அங்கீகரிப்பு தோல்வியடைந்தது
+  "error.authnmgrservice.authentication_failed_description": அங்கீகரிப்பு முயற்சி தோல்வியடைந்தது
+  "error.authnmgrservice.failed_to_get_attributes": பண்புகளை பெறுவதில் தோல்வி
+  "error.authnmgrservice.failed_to_get_attributes_description": பண்பு பெறும் கோரிக்கை வழங்குநரால் நிராகரிக்கப்பட்டது
+  "error.authnmgrservice.get_entity_reference_client_error": நிறுவன குறிப்பை பெறுவதில் தோல்வி
+  "error.authnmgrservice.get_entity_reference_client_error_description": நிறுவன குறிப்பு பெறும் கோரிக்கை வழங்குநரால் நிராகரிக்கப்பட்டது
+  "error.authnmgrservice.invalid_request": தவறான கோரிக்கை
+  "error.authnmgrservice.invalid_request_description": அங்கீகரிப்பு கோரிக்கை தவறானது
+  "error.authnmgrservice.user_not_found": பயனர் கண்டுபிடிக்கப்படவில்லை
+  "error.authnmgrservice.user_not_found_description": வழங்கப்பட்ட அடையாளங்களுடன் பொருந்தும் பயனர் இல்லை
+  "error.authnotpservice.error_processing_otp": OTP செயலாக்கத்தில் பிழை
+  "error.authnotpservice.error_processing_otp_description": OTP கோரிக்கையை செயலாக்கும் போது பிழை ஏற்பட்டது
+  "error.authnotpservice.error_resolving_user": பயனரை தீர்மானிப்பதில் பிழை
+  "error.authnotpservice.error_resolving_user_description": பெறுநருக்கான பயனரை தீர்மானிக்கும் போது பிழை ஏற்பட்டது
+  "error.authnotpservice.incorrect_otp": தவறான OTP
+  "error.authnotpservice.incorrect_otp_description": வழங்கப்பட்ட OTP தவறானது அல்லது காலாவதியாகிவிட்டது
+  "error.authnotpservice.invalid_otp": தவறான OTP
+  "error.authnotpservice.invalid_otp_description": வழங்கப்பட்ட OTP தவறானது அல்லது காலி
+  "error.authnotpservice.invalid_recipient": தவறான பெறுநர்
+  "error.authnotpservice.invalid_recipient_description": வழங்கப்பட்ட பெறுநர் தவறானது அல்லது காலி
+  "error.authnotpservice.invalid_sender_id": தவறான அனுப்புனர் ID
+  "error.authnotpservice.invalid_sender_id_description": வழங்கப்பட்ட அனுப்புனர் ID தவறானது அல்லது காலி
+  "error.authnotpservice.invalid_session_token": தவறான அமர்வு டோக்கன்
+  "error.authnotpservice.invalid_session_token_description": வழங்கப்பட்ட அமர்வு டோக்கன் தவறானது அல்லது காலி
+  "error.authnotpservice.unsupported_channel": ஆதரிக்கப்படாத சேனல்
+  "error.authnotpservice.unsupported_channel_description": வழங்கப்பட்ட சேனல் OTP அங்கீகரிப்புக்கு ஆதரிக்கப்படவில்லை
+  "error.authnservice.ambiguous_user": தெளிவற்ற பயனர்
+  "error.authnservice.ambiguous_user_description": வழங்கப்பட்ட பண்புகளுடன் பல பயனர்கள் பொருந்துகின்றனர்
+  "error.authnservice.assertion_subject_mismatch": உறுதிப்பாட்டு பொருள் பொருத்தமின்மை
+  "error.authnservice.assertion_subject_mismatch_description": உறுதிப்பாட்டில் உள்ள பொருள் அங்கீகரிக்கப்பட்ட பயனருடன் பொருந்தவில்லை
+  "error.authnservice.authentication_failed": அங்கீகரிப்பு தோல்வியடைந்தது
+  "error.authnservice.authentication_failed_description": பயனரை அங்கீகரிக்கும் போது பிழை ஏற்பட்டது
+  "error.authnservice.empty_attributes_or_credentials": காலி பண்புகள் அல்லது நற்சான்றிதழ்கள்
+  "error.authnservice.empty_attributes_or_credentials_description": பயனர் பண்புகள் அல்லது நற்சான்றிதழ்கள் காலியாக இருக்க முடியாது
+  "error.authnservice.empty_auth_code": காலி அங்கீகார குறியீடு
+  "error.authnservice.empty_auth_code_description": வழங்கப்பட்ட அங்கீகார குறியீடு காலியாகும்
+  "error.authnservice.empty_session_token": காலி அமர்வு டோக்கன்
+  "error.authnservice.empty_session_token_description": வழங்கப்பட்ட அமர்வு டோக்கன் காலியாகும்
+  "error.authnservice.error_retrieving_idp": அடையாள வழங்குநரை மீட்டெடுப்பதில் பிழை
+  "error.authnservice.error_retrieving_idp_description": அடையாள வழங்குநரை மீட்டெடுக்கும் போது பிழை ஏற்பட்டது
+  "error.authnservice.federated_authentication_failed": கூட்டாண்மை அங்கீகரிப்பு தோல்வியடைந்தது
+  "error.authnservice.federated_authentication_failed_description": கூட்டாண்மை அங்கீகரிப்பு முயற்சி தோல்வியடைந்தது
+  "error.authnservice.google.invalid_id_token_audience_description": ID token பார்வையாளர் எதிர்பார்க்கப்பட்ட கிளையன்ட் ID உடன் பொருந்தவில்லை
+  "error.authnservice.google.invalid_id_token_exp_claim_description": ID token காலாவதி கோரிக்கை இல்லை அல்லது தவறானது
+  "error.authnservice.google.invalid_id_token_expired_description": ID token காலாவதியாகிவிட்டது
+  "error.authnservice.google.invalid_id_token_future_iat_description": ID token எதிர்காலத்தில் வழங்கப்பட்டது
+  "error.authnservice.google.invalid_id_token_iat_claim_description": ID token வழங்கப்பட்ட நேரம் (iat) கோரிக்கை இல்லை அல்லது தவறானது
+  "error.authnservice.google.invalid_id_token_issuer_description": ID token வழங்குநர் செல்லுபடியான Google வழங்குநர் அல்ல
+  "error.authnservice.invalid_assertion": தவறான உறுதிப்பாடு
+  "error.authnservice.invalid_assertion_description": வழங்கப்பட்ட உறுதிப்பாட்டு டோக்கன் தவறானது
+  "error.authnservice.invalid_credentials": தவறான நற்சான்றிதழ்கள்
+  "error.authnservice.invalid_credentials_description": வழங்கப்பட்ட நற்சான்றிதழ்கள் தவறானவை
+  "error.authnservice.invalid_idp_id": தவறான அடையாள வழங்குநர் ID
+  "error.authnservice.invalid_idp_id_description": வழங்கப்பட்ட அடையாள வழங்குநர் ID தவறானது அல்லது காலி
+  "error.authnservice.invalid_idp_type": தவறான அடையாள வழங்குநர் வகை
+  "error.authnservice.invalid_idp_type_description": கோரப்பட்ட அடையாள வழங்குநர் வகை தவறானது
+  "error.authnservice.invalid_session_token": தவறான அமர்வு டோக்கன்
+  "error.authnservice.invalid_session_token_description": வழங்கப்பட்ட அமர்வு டோக்கன் தவறானது அல்லது காலாவதியாகிவிட்டது
+  "error.authnservice.invalid_token": தவறான டோக்கன்
+  "error.authnservice.invalid_token_description": வழங்கப்பட்ட டோக்கன் தவறானது
+  "error.authnservice.otp_authentication_failed": அங்கீகரிப்பு தோல்வியடைந்தது
+  "error.authnservice.otp_authentication_failed_description": OTP அங்கீகரிப்பு முயற்சி தோல்வியடைந்தது
+  "error.authnservice.passkey_authentication_failed": அங்கீகரிப்பு தோல்வியடைந்தது
+  "error.authnservice.passkey_authentication_failed_description": passkey அங்கீகரிப்பு முயற்சி தோல்வியடைந்தது
+  "error.authnservice.sub_claim_not_found": பயனர் பொருள் கண்டுபிடிக்கப்படவில்லை
+  "error.authnservice.sub_claim_not_found_description": ID token கோரிக்கைகளில் 'sub' கோரிக்கை கண்டுபிடிக்கப்படவில்லை
+  "error.authnservice.user_not_found": பயனர் கண்டுபிடிக்கப்படவில்லை
+  "error.authnservice.user_not_found_description": வழங்கப்பட்ட பண்புகளுடன் பயனர் இல்லை
+  "error.authoauthservice.empty_access_token": காலி அணுகல் டோக்கன்
+  "error.authoauthservice.empty_access_token_description": அணுகல் டோக்கன் காலியாக இருக்க முடியாது
+  "error.authoauthservice.empty_authorization_code": காலி அங்கீகார குறியீடு
+  "error.authoauthservice.empty_authorization_code_description": அங்கீகார குறியீடு காலியாக இருக்க முடியாது
+  "error.authoauthservice.empty_idp_id": IDP id காலியாகும்
+  "error.authoauthservice.empty_idp_id_description": அடையாள வழங்குநர் id காலியாக இருக்க முடியாது
+  "error.authoauthservice.empty_sub_claim": காலி sub கோரிக்கை
+  "error.authoauthservice.empty_sub_claim_description": sub கோரிக்கை காலியாக இருக்க முடியாது
+  "error.authoauthservice.failed_to_retrieve_idp": அடையாள வழங்குநரை மீட்டெடுப்பதில் தோல்வி
+  "error.authoauthservice.failed_to_retrieve_idp_description": அடையாள வழங்குநர் கட்டமைப்பை மீட்டெடுக்கும் போது கிளையன்ட் பிழை ஏற்பட்டது
+  "error.authoauthservice.failed_to_retrieve_user": பயனரை மீட்டெடுப்பதில் தோல்வி
+  "error.authoauthservice.failed_to_retrieve_user_description": உள் பயனரை மீட்டெடுக்கும் போது கிளையன்ட் பிழை ஏற்பட்டது
+  "error.authoauthservice.invalid_idp": தவறான அடையாள வழங்குநர்
+  "error.authoauthservice.invalid_idp_description": மீட்டெடுக்கப்பட்ட அடையாள வழங்குநர் தவறானது அல்லது காலி
+  "error.authoauthservice.invalid_token_response": தவறான டோக்கன் பதில்
+  "error.authoauthservice.invalid_token_response_description": அடையாள வழங்குநரிடமிருந்து பெறப்பட்ட டோக்கன் பதில் தவறானது
+  "error.authoidcservice.invalid_id_token": தவறான ID டோக்கன்
+  "error.authoidcservice.invalid_id_token_description": ID டோக்கன் தவறானது அல்லது தவறாக வடிவமைக்கப்பட்டுள்ளது
+  "error.authoidcservice.invalid_id_token_signature": தவறான ID டோக்கன் கையொப்பம்
+  "error.authoidcservice.invalid_id_token_signature_description": ID டோக்கன் கையொப்பம் சரிபார்ப்பு தோல்வியடைந்தது
+  "error.authzen.invalid_action": தவறான செயல்
+  "error.authzen.invalid_action_description": செயல் பெயர் வள சேவையகத்தில் பதிவு செய்யப்படவில்லை
+  "error.authzen.invalid_request_format": தவறான கோரிக்கை வடிவம்
+  "error.authzen.invalid_request_format_description": கோரிக்கை உடல் தவறாக வடிவமைக்கப்பட்டுள்ளது அல்லது தவறான தரவு உள்ளது
+  "error.authzen.invalid_resource": தவறான வளம்
+  "error.authzen.invalid_resource_description": வள வகை வள சேவையகமாக பதிவு செய்யப்படவில்லை
+  "error.authzen.invalid_subject": தவறான பொருள்
+  "error.authzen.invalid_subject_description": பொருள் id பொருள் வகையுடன் பொருந்தவில்லை
+  "error.authzen.missing_action": செயல் இல்லை
+  "error.authzen.missing_action_description": செயல் பெயர் தேவை
+  "error.authzen.missing_evaluations": மதிப்பீடுகள் இல்லை
+  "error.authzen.missing_evaluations_description": குறைந்தது ஒரு மதிப்பீடு தேவை
+  "error.authzen.missing_resource": வளம் இல்லை
+  "error.authzen.missing_resource_description": வள வகை தேவை
+  "error.authzen.missing_resource_id": வள id இல்லை
+  "error.authzen.missing_resource_id_description": வள id தேவை
+  "error.authzen.missing_subject": பொருள் இல்லை
+  "error.authzen.missing_subject_description": பொருள் id தேவை
+  "error.certservice.certificate_already_exists": சான்றிதழ் ஏற்கனவே உள்ளது
+  "error.certservice.certificate_already_exists_description": அதே குறிப்பு வகை மற்றும் ID கொண்ட ஒரு சான்றிதழ் ஏற்கனவே உள்ளது
+  "error.certservice.certificate_not_found": சான்றிதழ் கண்டுபிடிக்கப்படவில்லை
+  "error.certservice.certificate_not_found_description": கோரப்பட்ட சான்றிதழை கண்டுபிடிக்க முடியவில்லை
+  "error.certservice.invalid_certificate_id": தவறான சான்றிதழ் ID
+  "error.certservice.invalid_certificate_id_description": வழங்கப்பட்ட சான்றிதழ் ID தவறானது
+  "error.certservice.invalid_certificate_type": தவறான சான்றிதழ் வகை
+  "error.certservice.invalid_certificate_type_description": வழங்கப்பட்ட சான்றிதழ் வகை தவறானது
+  "error.certservice.invalid_certificate_value": தவறான சான்றிதழ் மதிப்பு
+  "error.certservice.invalid_certificate_value_description": வழங்கப்பட்ட சான்றிதழ் மதிப்பு தவறானது
+  "error.certservice.invalid_reference_id": தவறான சான்றிதழ் குறிப்பு ID
+  "error.certservice.invalid_reference_id_description": வழங்கப்பட்ட சான்றிதழ் குறிப்பு ID தவறானது
+  "error.certservice.invalid_reference_type": தவறான சான்றிதழ் குறிப்பு வகை
+  "error.certservice.invalid_reference_type_description": வழங்கப்பட்ட சான்றிதழ் குறிப்பு வகை தவறானது
+  "error.certservice.reference_update_not_allowed": குறிப்பு புதுப்பிப்பு அனுமதிக்கப்படவில்லை
+  "error.certservice.reference_update_not_allowed_description": ஏற்கனவே உள்ள சான்றிதழின் குறிப்பு வகை அல்லது ID ஐ புதுப்பிப்பது அனுமதிக்கப்படவில்லை
+  "error.consentenforcerservice.consent_create_failed": சம்மதம் பதிவை உருவாக்குவதில் தோல்வி
+  "error.consentenforcerservice.consent_create_failed_description": சம்மதம் சேவையில் சம்மதம் பதிவை உருவாக்கும் போது பிழை
+  "error.consentenforcerservice.consent_search_failed": சம்மதம் பதிவுகளை தேடுவதில் தோல்வி
+  "error.consentenforcerservice.consent_search_failed_description": சம்மதம் சேவையிலிருந்து சம்மதம் பதிவுகளை தேடும் போது பிழை
+  "error.consentenforcerservice.consent_session_invalid": தவறான சம்மதம் அமர்வு
+  "error.consentenforcerservice.consent_session_invalid_description": சம்மதம் அமர்வு டோக்கன் தவறானது அல்லது காலாவதியாகிவிட்டது
+  "error.consentenforcerservice.consent_update_failed": சம்மதம் பதிவை புதுப்பிப்பதில் தோல்வி
+  "error.consentenforcerservice.consent_update_failed_description": சம்மதம் சேவையில் சம்மதம் பதிவை புதுப்பிக்கும் போது பிழை
+  "error.consentenforcerservice.essential_consent_denied": அவசியமான சம்மதம் மறுக்கப்பட்டது
+  "error.consentenforcerservice.essential_consent_denied_description": ஒன்று அல்லது அதிகமான அவசியமான சம்மதம் பண்புகள் மறுக்கப்பட்டன
+  "error.consentenforcerservice.purpose_create_failed": சம்மதம் நோக்கத்தை உருவாக்குவதில் தோல்வி
+  "error.consentenforcerservice.purpose_create_failed_description": சம்மதம் சேவையில் சம்மதம் நோக்கத்தை உருவாக்கும் போது பிழை
+  "error.consentenforcerservice.purpose_fetch_failed": சம்மதம் நோக்கங்களை பெறுவதில் தோல்வி
+  "error.consentenforcerservice.purpose_fetch_failed_description": சம்மதம் சேவையிலிருந்து சம்மதம் நோக்கங்களை பெறும் போது பிழை
+  "error.consentenforcerservice.purpose_update_failed": சம்மதம் நோக்கத்தை புதுப்பிப்பதில் தோல்வி
+  "error.consentenforcerservice.purpose_update_failed_description": சம்மதம் சேவையில் சம்மதம் நோக்கத்தை புதுப்பிக்கும் போது பிழை
+  "error.consentservice.cannot_delete_element": சம்மதம் கூறை நீக்க முடியாது
+  "error.consentservice.cannot_delete_purpose": சம்மதம் நோக்கத்தை நீக்க முடியாது
+  "error.consentservice.consent_not_found": சம்மதம் கண்டுபிடிக்கப்படவில்லை
+  "error.consentservice.consent_not_found_description": குறிப்பிட்ட ID கொண்ட சம்மதம் பதிவு இல்லை
+  "error.consentservice.delete_element_with_associated_purpose_description": சம்மதம் கூறை நீக்க முடியாது, ஏனெனில் அது இன்னும் ஒன்று அல்லது அதிகமான சம்மதம் நோக்கங்களுடன் தொடர்புடையது.
+  "error.consentservice.delete_purpose_with_associated_records_description": சம்மதம் நோக்கத்தை நீக்க முடியாது, ஏனெனில் அது ஒன்று அல்லது அதிகமான சம்மதம் பதிவுகளுடன் தொடர்புடையது
+  "error.consentservice.element_already_exists": சம்மதம் கூறு ஏற்கனவே உள்ளது
+  "error.consentservice.element_already_exists_description": அதே பெயருடைய சம்மதம் கூறு ஏற்கனவே உள்ளது
+  "error.consentservice.element_not_found": சம்மதம் கூறு கண்டுபிடிக்கப்படவில்லை
+  "error.consentservice.element_not_found_description": குறிப்பிட்ட ID கொண்ட சம்மதம் கூறு இல்லை
+  "error.consentservice.forbidden": சம்மதம் சேவையை அணுக தடைசெய்யப்பட்டது
+  "error.consentservice.forbidden_description": சம்மதம் சேவை தடைசெய்யப்பட்ட பதிலை திரும்பியது
+  "error.consentservice.invalid_consent_request": தவறான சம்மதம் கோரிக்கை
+  "error.consentservice.invalid_consent_request_description": சம்மதம் கோரிக்கை சம்மதம் சேவையால் தவறானதாக நிராகரிக்கப்பட்டது
+  "error.consentservice.invalid_element_request": தவறான சம்மதம் கூறு கோரிக்கை
+  "error.consentservice.invalid_element_request_description": சம்மதம் கூறு கோரிக்கை சம்மதம் சேவையால் தவறானதாக நிராகரிக்கப்பட்டது
+  "error.consentservice.invalid_purpose_request": தவறான சம்மதம் நோக்கம் கோரிக்கை
+  "error.consentservice.invalid_purpose_request_description": சம்மதம் நோக்கம் கோரிக்கை சம்மதம் சேவையால் தவறானதாக நிராகரிக்கப்பட்டது
+  "error.consentservice.invalid_request": தவறான சம்மதம் கோரிக்கை
+  "error.consentservice.invalid_request_description": சம்மதம் சேவைக்கு அனுப்பப்பட்ட கோரிக்கை தவறானது
+  "error.consentservice.invalid_request_format": தவறான கோரிக்கை வடிவம்
+  "error.consentservice.invalid_request_format_description": கோரிக்கை உடல் தவறாக வடிவமைக்கப்பட்டுள்ளது அல்லது தவறான தரவு உள்ளது
+  "error.consentservice.invalid_revoke_request": தவறான சம்மதம் திரும்பப்பெறும் கோரிக்கை
+  "error.consentservice.invalid_revoke_request_description": சம்மதம் திரும்பப்பெறும் கோரிக்கை சம்மதம் சேவையால் தவறானதாக நிராகரிக்கப்பட்டது
+  "error.consentservice.invalid_search_filter": தவறான சம்மதம் தேடல் வடிகட்டி
+  "error.consentservice.invalid_search_filter_description": சம்மதம் தேடல் வடிகட்டி சம்மதம் சேவையால் தவறானதாக நிராகரிக்கப்பட்டது
+  "error.consentservice.invalid_update_request": தவறான சம்மதம் புதுப்பிப்பு கோரிக்கை
+  "error.consentservice.invalid_update_request_description": சம்மதம் புதுப்பிப்பு கோரிக்கை சம்மதம் சேவையால் தவறானதாக நிராகரிக்கப்பட்டது
+  "error.consentservice.invalid_validation_request": தவறான சம்மதம் சரிபார்ப்பு கோரிக்கை
+  "error.consentservice.invalid_validation_request_description": சம்மதம் சரிபார்ப்பு கோரிக்கை சம்மதம் சேவையால் தவறானதாக நிராகரிக்கப்பட்டது
+  "error.consentservice.purpose_already_exists": சம்மதம் நோக்கம் ஏற்கனவே உள்ளது
+  "error.consentservice.purpose_already_exists_description": இந்த வளத்திற்கு அதே பெயருடைய சம்மதம் நோக்கம் ஏற்கனவே உள்ளது
+  "error.consentservice.purpose_not_found": சம்மதம் நோக்கம் கண்டுபிடிக்கப்படவில்லை
+  "error.consentservice.purpose_not_found_description": குறிப்பிட்ட ID கொண்ட சம்மதம் நோக்கம் இல்லை
+  "error.consentservice.unauthorized": சம்மதம் சேவையை அணுக அங்கீகரிக்கப்படவில்லை
+  "error.consentservice.unauthorized_description": சம்மதம் சேவை அங்கீகரிக்கப்படாத பதிலை திரும்பியது
+  "error.dcr.invalid_client_metadata": தவறான கிளையன்ட் மெட்டாடேட்டா
+  "error.dcr.invalid_client_metadata_description": ஒன்று அல்லது அதிகமான கிளையன்ட் மெட்டாடேட்டா மதிப்புகள் தவறானவை
+  "error.dcr.invalid_redirect_uri": தவறான திருப்பி அனுப்பல் URI
+  "error.dcr.invalid_redirect_uri_description": ஒன்று அல்லது அதிகமான திருப்பி அனுப்பல் URI கள் தவறானவை
+  "error.dcr.invalid_request_format": தவறான கோரிக்கை வடிவம்
+  "error.dcr.invalid_request_format_description": கோரிக்கை உடல் இல்லை அல்லது தவறான வடிவத்தில் உள்ளது
+  "error.dcr.jwks_configuration_conflict": JWKS கட்டமைப்பு முரண்பாடு
+  "error.dcr.jwks_configuration_conflict_description": 'jwks' மற்றும் 'jwks_uri' அளவுருக்கள் இரண்டையும் குறிப்பிட முடியாது
+  "error.dcr.server_error": சேவையக பிழை
+  "error.dcr.server_error_description": கோரிக்கையை செயலாக்கும் போது எதிர்பாராத பிழை ஏற்பட்டது
+  "error.dcr.unauthorized": அங்கீகரிக்கப்படவில்லை
+  "error.dcr.unauthorized_description": கிளையன்டை பதிவு செய்ய போதுமான அனுமதிகளுடன் அங்கீகரிப்பு தேவை
+  "error.declarative_resource.create_operation_not_allowed": அறிவிப்பு வள உருவாக்கல் செயல்பாடு அனுமதிக்கப்படவில்லை
+  "error.declarative_resource.create_operation_not_allowed_description": அறிவிப்பு வளங்களை உருவாக்குவது அனுமதிக்கப்படவில்லை
+  "error.declarative_resource.delete_operation_not_allowed": அறிவிப்பு வள நீக்கல் செயல்பாடு அனுமதிக்கப்படவில்லை
+  "error.declarative_resource.delete_operation_not_allowed_description": அறிவிப்பு வளங்களை நீக்குவது அனுமதிக்கப்படவில்லை
+  "error.declarative_resource.update_operation_not_allowed": அறிவிப்பு வள புதுப்பிப்பு செயல்பாடு அனுமதிக்கப்படவில்லை
+  "error.declarative_resource.update_operation_not_allowed_description": அறிவிப்பு வளங்களை புதுப்பிப்பது அனுமதிக்கப்படவில்லை
+  "error.encoding_error": குறியாக்கல் பிழை
+  "error.encoding_error_description": பதிலை குறியாக்கும் போது பிழை ஏற்பட்டது
+  "error.entitytypeservice.agent_type_cannot_delete": முகவர் வகையை நீக்க முடியாது
+  "error.entitytypeservice.agent_type_cannot_delete_description": இயல்புநிலை முகவர் வகையை நீக்க முடியாது. திட்டத்தை திருத்தவும்
+  "error.entitytypeservice.agent_type_name_conflict": முகவர் வகை பெயர் முரண்பாடு
+  "error.entitytypeservice.agent_type_name_conflict_description": அதே பெயருடைய முகவர் வகை ஏற்கனவே உள்ளது
+  "error.entitytypeservice.agent_type_not_found": முகவர் வகை கண்டுபிடிக்கப்படவில்லை
+  "error.entitytypeservice.agent_type_not_found_description": குறிப்பிட்ட id கொண்ட முகவர் வகை இல்லை
+  "error.entitytypeservice.agent_type_only_default_allowed": இயல்புநிலை முகவர் வகை மட்டுமே அனுமதிக்கப்படுகிறது
+  "error.entitytypeservice.agent_type_only_default_allowed_description": முகவர் வகைகள் ஒரே ஒரு 'default' திட்டத்திற்கு மட்டுப்படுத்தப்பட்டுள்ளன; மற்ற பெயர்களுக்கு உருவாக்கவோ மறுபெயரிடவோ அனுமதிக்கப்படவில்லை
+  "error.entitytypeservice.cannot_modify_declarative_resource": அறிவிப்பு வளத்தை மாற்ற முடியாது
+  "error.entitytypeservice.cannot_modify_declarative_resource_description": பயனர் வகை அறிவிப்பு முறையில் உள்ளது மற்றும் மாற்றவோ நீக்கவோ முடியாது
+  "error.entitytypeservice.consent_synchronization_failed": சம்மதம் ஒத்திசைவு தோல்வியடைந்தது
+  "error.entitytypeservice.consent_synchronization_failed_description": நிறுவன வகைக்கான சம்மதம் கட்டமைப்புகளை ஒத்திசைக்க தோல்வியடைந்தது
+  "error.entitytypeservice.create_schema_request_parse_failed_description": கோரிக்கை உடலை பாகுபடுத்துவதில் தோல்வி
+  "error.entitytypeservice.credential_attribute_not_allowed_as_display": நற்சான்றிதழ் பண்பு காட்சியாக அனுமதிக்கப்படவில்லை
+  "error.entitytypeservice.credential_attribute_not_allowed_as_display_description": காட்சி பண்பு நற்சான்றிதழ் பண்பை குறிப்பிடக்கூடாது
+  "error.entitytypeservice.entity_type_name_conflict": நிறுவன வகை பெயர் முரண்பாடு
+  "error.entitytypeservice.entity_type_name_conflict_description": அதே பெயருடைய நிறுவன வகை ஏற்கனவே உள்ளது
+  "error.entitytypeservice.entity_type_not_found": நிறுவன வகை கண்டுபிடிக்கப்படவில்லை
+  "error.entitytypeservice.entity_type_not_found_description": குறிப்பிட்ட id கொண்ட நிறுவன வகை இல்லை
+  "error.entitytypeservice.invalid_agent_type_request": தவறான முகவர் வகை கோரிக்கை
+  "error.entitytypeservice.invalid_agent_type_request_description": முகவர் வகை கோரிக்கை தவறான அல்லது இல்லாத தேவையான புலங்களை கொண்டுள்ளது
+  "error.entitytypeservice.invalid_display_attribute": தவறான காட்சி பண்பு
+  "error.entitytypeservice.invalid_display_attribute_description": காட்சி பண்பு திட்டத்தில் வரையறுக்கப்பட்ட ஒரு பண்பை குறிப்பிட வேண்டும் (உட்பொதிக்கப்பட்ட பண்புகளுக்கு புள்ளி குறியீடு பயன்படுத்தவும், எ.கா. 'address.city')
+  "error.entitytypeservice.invalid_entity_type_request": தவறான நிறுவன வகை கோரிக்கை
+  "error.entitytypeservice.invalid_entity_type_request_description": நிறுவன வகை கோரிக்கை தவறான அல்லது இல்லாத தேவையான புலங்களை கொண்டுள்ளது
+  "error.entitytypeservice.invalid_limit_parameter": தவறான பக்கமடைவு அளவுரு
+  "error.entitytypeservice.invalid_limit_parameter_description": வரம்பு அளவுரு நேர்மறை முழு எண்ணாக இருக்க வேண்டும்
+  "error.entitytypeservice.invalid_offset_parameter": தவறான பக்கமடைவு அளவுரு
+  "error.entitytypeservice.invalid_offset_parameter_description": ஆஃப்செட் அளவுரு எதிர்மறையல்லாத முழு எண்ணாக இருக்க வேண்டும்
+  "error.entitytypeservice.invalid_request_format": தவறான கோரிக்கை வடிவம்
+  "error.entitytypeservice.invalid_request_format_description": கோரிக்கை உடல் தவறாக வடிவமைக்கப்பட்டுள்ளது அல்லது தவறான தரவு உள்ளது
+  "error.entitytypeservice.invalid_user_type_request": தவறான பயனர் வகை கோரிக்கை
+  "error.entitytypeservice.invalid_user_type_request_description": பயனர் வகை கோரிக்கை தவறான அல்லது இல்லாத தேவையான புலங்களை கொண்டுள்ளது
+  "error.entitytypeservice.non_displayable_attribute_type": காட்சிப்படுத்த முடியாத பண்பு வகை
+  "error.entitytypeservice.non_displayable_attribute_type_description": காட்சி பண்பு சரம் அல்லது எண் வகையை குறிப்பிட வேண்டும்
+  "error.entitytypeservice.result_limit_exceeded": முடிவு வரம்பு மீறப்பட்டது
+  "error.entitytypeservice.result_limit_exceeded_description": கோப்பு அடிப்படையிலான மற்றும் தரவுத்தள கடைகளிலிருந்து ஒருங்கிணைந்த முடிவு தொகுப்பு அதிகபட்ச வரம்பை மீறுகிறது. குறைவான முடிவுகளை திரும்பப்பெற உங்கள் வினவலை சுத்திகரிக்கவும்.
+  "error.entitytypeservice.update_schema_request_parse_failed_description": கோரிக்கை உடலை பாகுபடுத்துவதில் தோல்வி
+  "error.entitytypeservice.user_type_name_conflict": பயனர் வகை பெயர் முரண்பாடு
+  "error.entitytypeservice.user_type_name_conflict_description": அதே பெயருடைய பயனர் வகை ஏற்கனவே உள்ளது
+  "error.entitytypeservice.user_type_not_found": பயனர் வகை கண்டுபிடிக்கப்படவில்லை
+  "error.entitytypeservice.user_type_not_found_description": குறிப்பிட்ட id கொண்ட பயனர் வகை இல்லை
+  "error.entitytypeservice.user_validation_failed": பயனர் சரிபார்ப்பு தோல்வியடைந்தது
+  "error.entitytypeservice.user_validation_failed_description": பயனர் பண்புகள் தேவையான திட்டத்திற்கு இணங்கவில்லை
+  "error.eudi.invalid_request": தவறான கோரிக்கை
+  "error.eudi.invalid_request_description": கோரிக்கையில் தேவையான அளவுருக்கள் இல்லை அல்லது தவறாக வடிவமைக்கப்பட்டுள்ளது
+  "error.eudi.unknown_definition": அறியப்படாத வழங்கல் வரையறை
+  "error.eudi.unknown_definition_description": வழங்கப்பட்ட id க்கு எந்த வழங்கல் வரையறையும் பதிவு செய்யப்படவில்லை
+  "error.eudi.unknown_state": அறியப்படாத அல்லது காலாவதியான கோரிக்கை
+  "error.eudi.unknown_state_description": வழங்கப்பட்ட நிலை மதிப்புக்கு எந்த செயலில் உள்ள கோரிக்கையும் கண்டுபிடிக்கப்படவில்லை
+  "error.eudi.verification_failed": வழங்கல் சரிபார்ப்பு தோல்வியடைந்தது
+  "error.eudi.verification_failed_description": வழங்கப்பட்ட நற்சான்றிதழை சரிபார்க்க முடியவில்லை
+  "error.exportservice.invalid_request": தவறான ஏற்றுமதி கோரிக்கை
+  "error.exportservice.invalid_request_description": வழங்கப்பட்ட ஏற்றுமதி கோரிக்கை தவறானது அல்லது தவறாக வடிவமைக்கப்பட்டுள்ளது
+  "error.exportservice.nil_request_description": ஏற்றுமதி கோரிக்கை nil ஆக இருக்க முடியாது
+  "error.exportservice.no_resources_found": வளங்கள் கண்டுபிடிக்கப்படவில்லை
+  "error.exportservice.no_resources_found_description": வழங்கப்பட்ட அடையாளங்களுக்கு செல்லுபடியான வளங்கள் கண்டுபிடிக்கப்படவில்லை
+  "error.exportservice.no_valid_resources_for_export_description": ஏற்றுமதிக்கு செல்லுபடியான வளங்கள் கண்டுபிடிக்கப்படவில்லை
+  "error.flow.core.executor_prerequisite_not_met": செயலாக்கியின் முன்நிபந்தனை பூர்த்தி செய்யப்படவில்லை
+  "error.flow.core.executor_prerequisite_not_met_description": செயலாக்கிக்கு தேவையான ஒன்று அல்லது அதிகமான முன்நிபந்தனைகள் நிறைவேற்றப்படவில்லை. உள்ளீடுகளை சரிபார்த்து மீண்டும் முயற்சிக்கவும்.
+  "error.flow.core.prompt_invalid_action": தவறான செயல் வழங்கப்பட்டது
+  "error.flow.core.prompt_invalid_action_description": வழங்கப்பட்ட செயல் தற்போதைய ஓட்ட படிக்கு செல்லுபடியாகவில்லை
+  "error.flowexecservice.application_retrieval_error": பயன்பாடு மீட்டெடுப்பு பிழை
+  "error.flowexecservice.application_retrieval_error_description": பயன்பாட்டு விவரங்களை மீட்டெடுக்கும் போது பிழை
+  "error.flowexecservice.direct_flow_initiation_not_permitted": நேரடி ஓட்ட துவக்கம் அனுமதிக்கப்படவில்லை
+  "error.flowexecservice.direct_flow_initiation_not_permitted_description": இந்த பயன்பாட்டு வகைக்கு நேரடி ஓட்ட துவக்கம் அனுமதிக்கப்படவில்லை
+  "error.flowexecservice.invalid_app_id": தவறான கோரிக்கை
+  "error.flowexecservice.invalid_app_id_description": கோரிக்கையில் தவறான பயன்பாடு ID வழங்கப்பட்டது
+  "error.flowexecservice.invalid_execution_id": தவறான கோரிக்கை
+  "error.flowexecservice.invalid_execution_id_description": கோரிக்கையில் தவறான ஓட்ட செயலாக்க ID வழங்கப்பட்டது
+  "error.flowexecservice.invalid_flow_init_context": தவறான கோரிக்கை
+  "error.flowexecservice.invalid_flow_init_context_description": தவறான ஓட்ட துவக்க சூழல் வழங்கப்பட்டது
+  "error.flowexecservice.invalid_flow_type": தவறான கோரிக்கை
+  "error.flowexecservice.invalid_flow_type_description": கோரிக்கையில் தவறான ஓட்ட வகை வழங்கப்பட்டது
+  "error.flowexecservice.invalid_node_response": தவறான முனை பதில்
+  "error.flowexecservice.invalid_node_response_description": முனையிலிருந்து பிழை பதில் பெறப்பட்டது
+  "error.flowexecservice.invalid_request_payload": தவறான கோரிக்கை தரவு
+  "error.flowexecservice.invalid_request_payload_description": கோரிக்கை தரவை டிகோட் செய்வதில் தோல்வி
+  "error.flowexecservice.recovery_not_allowed": மீட்பு அனுமதிக்கப்படவில்லை
+  "error.flowexecservice.recovery_not_allowed_description": பயன்பாட்டிற்கு மீட்பு ஓட்டம் முடக்கப்பட்டுள்ளது
+  "error.flowexecservice.registration_not_allowed": பதிவு அனுமதிக்கப்படவில்லை
+  "error.flowexecservice.registration_not_allowed_description": பயன்பாட்டிற்கு பதிவு ஓட்டம் முடக்கப்பட்டுள்ளது
+  "error.flowmetaservice.application_fetch_failed_description": பயன்பாட்டு தகவலை மீட்டெடுப்பதில் தோல்வி
+  "error.flowmetaservice.application_not_found_description": குறிப்பிட்ட பயன்பாடு இல்லை
+  "error.flowmetaservice.internal_server_error": உள் சேவையக பிழை
+  "error.flowmetaservice.invalid_request": தவறான கோரிக்கை
+  "error.flowmetaservice.invalid_type_description": 'type' அளவுரு 'APP' அல்லது 'OU' ஆக இருக்க வேண்டும்
+  "error.flowmetaservice.missing_id_description": 'id' வினவல் அளவுரு தேவை
+  "error.flowmetaservice.missing_id_parameter": தேவையான அளவுரு இல்லை
+  "error.flowmetaservice.missing_required_parameter": தேவையான அளவுரு இல்லை
+  "error.flowmetaservice.missing_type_description": 'type' வினவல் அளவுரு தேவை
+  "error.flowmetaservice.ou_fetch_failed": உள் சேவையக பிழை
+  "error.flowmetaservice.ou_fetch_failed_description": நிறுவன அலகு தகவலை மீட்டெடுப்பதில் தோல்வி
+  "error.flowmetaservice.ou_not_found": வளம் கண்டுபிடிக்கப்படவில்லை
+  "error.flowmetaservice.ou_not_found_description": குறிப்பிட்ட நிறுவன அலகு இல்லை
+  "error.flowmetaservice.resource_not_found": வளம் கண்டுபிடிக்கப்படவில்லை
+  "error.flowmgtservice.cannot_update_flow_type": தவறான புதுப்பிப்பு கோரிக்கை
+  "error.flowmgtservice.cannot_update_flow_type_description": உருவாக்கப்பட்ட பிறகு ஓட்ட வகையை மாற்ற முடியாது
+  "error.flowmgtservice.duplicate_flow_handle": நகல் ஓட்ட கைப்பிடி
+  "error.flowmgtservice.duplicate_flow_handle_description": இந்த கைப்பிடி கொண்ட ஓட்டம் கொடுக்கப்பட்ட ஓட்ட வகைக்கு ஏற்கனவே உள்ளது
+  "error.flowmgtservice.duplicate_flow_id": நகல் ஓட்ட ID
+  "error.flowmgtservice.duplicate_flow_id_description": ஓட்ட ID ஏற்கனவே உள்ளது
+  "error.flowmgtservice.flow_definition_nil_or_empty_description": ஓட்ட வரையறை nil ஆகும் அல்லது முனைகள் இல்லை
+  "error.flowmgtservice.flow_is_immutable": ஓட்டம் மாற்றமற்றது
+  "error.flowmgtservice.flow_is_immutable_description": அறிவிப்பு ஓட்டங்களை மாற்றவோ நீக்கவோ முடியாது
+  "error.flowmgtservice.flow_not_found": ஓட்டம் கண்டுபிடிக்கப்படவில்லை
+  "error.flowmgtservice.flow_not_found_description": குறிப்பிட்ட id கொண்ட ஓட்டம் இல்லை
+  "error.flowmgtservice.flow_requires_intermediate_nodes_description": ஓட்ட வரையறை தொடக்க மற்றும் இறுதி முனைகளுக்கு இடையில் முனைகளை கொண்டிருக்க வேண்டும்
+  "error.flowmgtservice.flow_requires_start_and_end_nodes_description": ஓட்ட வரையறை குறைந்தது ஒரு தொடக்க மற்றும் இறுதி முனையை கொண்டிருக்க வேண்டும்
+  "error.flowmgtservice.flow_version_not_found": ஓட்ட பதிப்பு கண்டுபிடிக்கப்படவில்லை
+  "error.flowmgtservice.flow_version_not_found_description": கோரப்பட்ட ஓட்ட பதிப்பு இல்லை
+  "error.flowmgtservice.graph_build_failure": வரைபடம் கட்டமைப்பு தோல்வி
+  "error.flowmgtservice.graph_build_failure_description": ஓட்ட வரையறையிலிருந்து செயல்படக்கூடிய வரைபடத்தை கட்டமைப்பதில் தோல்வி
+  "error.flowmgtservice.handle_update_not_allowed": தவறான புதுப்பிப்பு கோரிக்கை
+  "error.flowmgtservice.handle_update_not_allowed_description": உருவாக்கப்பட்ட பிறகு ஓட்ட கைப்பிடியை மாற்ற முடியாது
+  "error.flowmgtservice.interceptor_selected_scope_requires_apply_to": SELECTED நோக்கம் கொண்ட இடைமறிப்பான் applyTo இல் குறைந்தது ஒரு முனையை குறிப்பிட வேண்டும்
+  "error.flowmgtservice.invalid_flow_data": தவறான ஓட்ட தரவு
+  "error.flowmgtservice.invalid_flow_data_description": ஓட்ட வரையறை தவறான தரவை கொண்டுள்ளது
+  "error.flowmgtservice.invalid_flow_handle": தவறான ஓட்ட கைப்பிடி
+  "error.flowmgtservice.invalid_flow_handle_description": ஓட்ட கைப்பிடி வழங்கப்பட வேண்டும்
+  "error.flowmgtservice.invalid_flow_handle_format": தவறான ஓட்ட கைப்பிடி வடிவம்
+  "error.flowmgtservice.invalid_flow_handle_format_description": ஓட்ட கைப்பிடி சிறிய எழுத்துக்கள், எண்கள் மட்டுமே கொண்டிருக்க வேண்டும் மற்றும் அடிக்கோடுகள் அல்லது கோடுகள் மட்டுமே கொண்டிருக்கலாம்
+  "error.flowmgtservice.invalid_flow_id": தவறான ஓட்ட ID
+  "error.flowmgtservice.invalid_flow_id_description": ஓட்ட ID வழங்கப்பட வேண்டும்
+  "error.flowmgtservice.invalid_flow_id_format": தவறான ஓட்ட ID வடிவம்
+  "error.flowmgtservice.invalid_flow_id_format_description": ஓட்ட ID செல்லுபடியான UUID ஆக இருக்க வேண்டும்
+  "error.flowmgtservice.invalid_flow_name": தவறான ஓட்ட பெயர்
+  "error.flowmgtservice.invalid_flow_name_description": ஓட்ட பெயர் வழங்கப்பட வேண்டும்
+  "error.flowmgtservice.invalid_flow_type": தவறான ஓட்ட வகை
+  "error.flowmgtservice.invalid_flow_type_description": குறிப்பிட்ட ஓட்ட வகை தவறானது
+  "error.flowmgtservice.invalid_flow_version": தவறான ஓட்ட பதிப்பு
+  "error.flowmgtservice.invalid_flow_version_description": குறிப்பிட்ட ஓட்ட பதிப்பு தவறானது
+  "error.flowmgtservice.invalid_limit_parameter": தவறான பக்கமடைவு அளவுரு
+  "error.flowmgtservice.invalid_limit_parameter_description": வரம்பு அளவுரு நேர்மறை முழு எண்ணாக இருக்க வேண்டும்
+  "error.flowmgtservice.invalid_offset_parameter": தவறான பக்கமடைவு அளவுரு
+  "error.flowmgtservice.invalid_offset_parameter_description": ஆஃப்செட் அளவுரு எதிர்மறையல்லாத முழு எண்ணாக இருக்க வேண்டும்
+  "error.flowmgtservice.invalid_request_format": தவறான கோரிக்கை வடிவம்
+  "error.flowmgtservice.invalid_request_format_description": கோரிக்கை உடல் தவறாக வடிவமைக்கப்பட்டுள்ளது அல்லது தவறான தரவு உள்ளது
+  "error.groupservice.cannot_create_group_in_declarative_only_mode": அறிவிப்பு-மட்டும் பயன்முறையில் குழுவை உருவாக்க முடியாது
+  "error.groupservice.cannot_create_group_in_declarative_only_mode_description": அறிவிப்பு-மட்டும் பயன்முறையில் இயங்கும் போது குழு உருவாக்கல் அனுமதிக்கப்படவில்லை. குழுக்கள் அறிவிப்பு கட்டமைப்பு கோப்புகளில் வரையறுக்கப்பட வேண்டும்
+  "error.groupservice.cannot_delete_group": குழுவை நீக்க முடியாது
+  "error.groupservice.cannot_delete_group_description": குழந்தை குழுக்கள் கொண்ட குழுவை நீக்க முடியாது
+  "error.groupservice.cannot_modify_declarative_group": அறிவிப்பு குழுவை மாற்ற முடியாது
+  "error.groupservice.cannot_modify_declarative_group_description": குழு அறிவிப்பு கட்டமைப்பில் வரையறுக்கப்பட்டுள்ளது மற்றும் மாற்ற முடியாது
+  "error.groupservice.empty_members_list": காலி உறுப்பினர்கள் பட்டியல்
+  "error.groupservice.empty_members_list_description": உறுப்பினர்கள் பட்டியல் காலியாக இருக்க முடியாது
+  "error.groupservice.group_name_conflict": குழு பெயர் முரண்பாடு
+  "error.groupservice.group_name_conflict_description": அதே பெயருடைய குழு அதே பெற்றோரின் கீழ் உள்ளது
+  "error.groupservice.group_not_found": குழு கண்டுபிடிக்கப்படவில்லை
+  "error.groupservice.group_not_found_description": குறிப்பிட்ட id கொண்ட குழு இல்லை
+  "error.groupservice.handle_path_required_description": கைப்பிடி பாதை தேவை
+  "error.groupservice.invalid_group_member_id": தவறான குழு உறுப்பினர் ID
+  "error.groupservice.invalid_group_member_id_description": கோரிக்கையில் உள்ள ஒன்று அல்லது அதிகமான குழு உறுப்பினர் IDகள் இல்லை
+  "error.groupservice.invalid_limit_parameter": தவறான வரம்பு அளவுரு
+  "error.groupservice.invalid_limit_parameter_description": வரம்பு அளவுரு நேர்மறை முழு எண்ணாக இருக்க வேண்டும்
+  "error.groupservice.invalid_member_id": தவறான உறுப்பினர் ID
+  "error.groupservice.invalid_member_id_description": கோரிக்கையில் உள்ள ஒன்று அல்லது அதிகமான பயனர் அல்லது பயன்பாட்டு உறுப்பினர் IDகள் இல்லை அல்லது கூறப்பட்ட வகையுடன் பொருந்தவில்லை
+  "error.groupservice.invalid_member_type": தவறான உறுப்பினர் வகை
+  "error.groupservice.invalid_member_type_description": உறுப்பினர் வகை 'user', 'group', அல்லது 'app' ஆக இருக்க வேண்டும்
+  "error.groupservice.invalid_offset_parameter": தவறான ஆஃப்செட் அளவுரு
+  "error.groupservice.invalid_offset_parameter_description": ஆஃப்செட் அளவுரு எதிர்மறையல்லாத முழு எண்ணாக இருக்க வேண்டும்
+  "error.groupservice.invalid_ou_id": தவறான OU ID
+  "error.groupservice.invalid_ou_id_description": நிறுவன அலகு இல்லை
+  "error.groupservice.invalid_request_format": தவறான கோரிக்கை வடிவம்
+  "error.groupservice.invalid_request_format_description": கோரிக்கை உடல் தவறாக வடிவமைக்கப்பட்டுள்ளது அல்லது தவறான தரவு உள்ளது
+  "error.groupservice.missing_group_id": தவறான கோரிக்கை வடிவம்
+  "error.groupservice.missing_group_id_description": குழு ID தேவை
+  "error.i18nservice.empty_translations": காலி மொழிபெயர்ப்புகள்
+  "error.i18nservice.empty_translations_description": குறைந்தது ஒரு மொழிபெயர்ப்பு வழங்கப்பட வேண்டும்
+  "error.i18nservice.export_error": ஏற்றுமதிக்கான மொழிபெயர்ப்பு மொழிகளை பெறுவதில் தோல்வி
+  "error.i18nservice.fetch_error": ஏற்றுமதிக்கான மொழிபெயர்ப்புகளை பெறுவதில் தோல்வி
+  "error.i18nservice.invalid_key": தவறான விசை வடிவம்
+  "error.i18nservice.invalid_key_description": விசையில் எழுத்துக்கள், புள்ளிகள், அடிக்கோடுகள் மற்றும் கோடுகள் மட்டுமே இருக்க முடியும்
+  "error.i18nservice.invalid_language": தவறான மொழி குறி வடிவம்
+  "error.i18nservice.invalid_language_description": மொழி குறி BCP 47 வடிவத்தை பின்பற்ற வேண்டும் (எ.கா., 'en', 'es', 'fr-CA')
+  "error.i18nservice.invalid_namespace": தவறான பெயர்வெளி வடிவம்
+  "error.i18nservice.invalid_namespace_description": பெயர்வெளியில் எழுத்துக்கள், அடிக்கோடுகள் மற்றும் கோடுகள் மட்டுமே இருக்க முடியும்
+  "error.i18nservice.invalid_request_description": கோரிக்கை உடல் தவறாக வடிவமைக்கப்பட்டுள்ளது அல்லது தவறான தரவு உள்ளது
+  "error.i18nservice.invalid_request_format": தவறான கோரிக்கை வடிவம்
+  "error.i18nservice.missing_language": மொழி குறியீடு இல்லை
+  "error.i18nservice.missing_language_description": மொழி குறியீடு தேவை
+  "error.i18nservice.missing_value": மொழிபெயர்ப்பு மதிப்பு இல்லை
+  "error.i18nservice.missing_value_description": மொழிபெயர்ப்பு மதிப்பு தேவை
+  "error.i18nservice.translation_not_found": மொழிபெயர்ப்பு கண்டுபிடிக்கப்படவில்லை
+  "error.i18nservice.translation_not_found_description": குறிப்பிட்ட மொழி, பெயர்வெளி மற்றும் விசைக்கான கோரப்பட்ட மொழிபெயர்ப்பு இல்லை
+  "error.idpservice.attribute_configuration_empty_claim_description": பண்பு மேப்பிங் காலி பண்பு பெயர்களை கொண்டிருக்கக்கூடாது
+  "error.idpservice.attribute_configuration_entry_user_type_required_description": ஒவ்வொரு பயனர் வகை பண்புகள் உள்ளீட்டிற்கும் பயனர் வகை தேவை
+  "error.idpservice.attribute_configuration_user_type_required_description": பண்பு கட்டமைப்புக்கு பயனர் வகை தேவை
+  "error.idpservice.idp_already_exists": அடையாள வழங்குநர் ஏற்கனவே உள்ளது
+  "error.idpservice.idp_already_exists_description": அதே பெயருடைய அடையாள வழங்குநர் ஏற்கனவே உள்ளது
+  "error.idpservice.idp_declarative_read_only": அடையாள வழங்குநர் மாற்றமற்றது
+  "error.idpservice.idp_declarative_read_only_description": கோரப்பட்ட அடையாள வழங்குநர் அறிவிப்பு முறையில் உள்ளது மற்றும் மாற்றவோ நீக்கவோ முடியாது
+  "error.idpservice.idp_nil": அடையாள வழங்குநர் null ஆக இருக்க முடியாது
+  "error.idpservice.idp_nil_description": அடையாள வழங்குநர் பொருள் null அல்லது காலியாக இருக்க முடியாது
+  "error.idpservice.idp_not_found": அடையாள வழங்குநர் கண்டுபிடிக்கப்படவில்லை
+  "error.idpservice.idp_not_found_description": கோரப்பட்ட அடையாள வழங்குநரை கண்டுபிடிக்க முடியவில்லை
+  "error.idpservice.invalid_attribute_configuration": தவறான பண்பு கட்டமைப்பு
+  "error.idpservice.invalid_attribute_configuration_description": அடையாள வழங்குநரின் பண்பு கட்டமைப்பு தவறானது
+  "error.idpservice.invalid_idp_id": தவறான அடையாள வழங்குநர் ID
+  "error.idpservice.invalid_idp_id_description": வழங்கப்பட்ட அடையாள வழங்குநர் ID தவறானது அல்லது காலி
+  "error.idpservice.invalid_idp_name": தவறான அடையாள வழங்குநர் பெயர்
+  "error.idpservice.invalid_idp_name_description": வழங்கப்பட்ட அடையாள வழங்குநர் பெயர் தவறானது அல்லது காலி
+  "error.idpservice.invalid_idp_property": தவறான அடையாள வழங்குநர் சொத்து
+  "error.idpservice.invalid_idp_property_description": ஒன்று அல்லது அதிகமான அடையாள வழங்குநர் சொத்துக்கள் தவறானவை அல்லது காலி
+  "error.idpservice.invalid_idp_type": தவறான அடையாள வழங்குநர் வகை
+  "error.idpservice.invalid_idp_type_description": வழங்கப்பட்ட அடையாள வழங்குநர் வகை தவறானது அல்லது காலி
+  "error.idpservice.invalid_request_format": தவறான கோரிக்கை வடிவம்
+  "error.idpservice.invalid_request_format_description": கோரிக்கை உடல் தவறாக வடிவமைக்கப்பட்டுள்ளது அல்லது தவறான தரவு உள்ளது
+  "error.idpservice.property_name_empty_description": சொத்து பெயர்கள் காலியாக இருக்க முடியாது
+  "error.idpservice.result_limit_exceeded": கலப்பு பயன்முறையில் முடிவு வரம்பு மீறப்பட்டது
+  "error.idpservice.result_limit_exceeded_description": கலப்பு பயன்முறையில் மொத்த பதிவுகளின் எண்ணிக்கை அதிகபட்ச வரம்பை மீறுகிறது
+  "error.idpservice.unsupported_idp_property": ஆதரிக்கப்படாத அடையாள வழங்குநர் சொத்து
+  "error.idpservice.unsupported_idp_property_description": ஒன்று அல்லது அதிகமான அடையாள வழங்குநர் சொத்துக்கள் ஆதரிக்கப்படவில்லை
+  "error.import.adapterNotConfigured": அடாப்டர் கட்டமைக்கப்படவில்லை
+  "error.import.adapterNotConfigured.description": தேவையான வள அடாப்டர் கட்டமைக்கப்படவில்லை
+  "error.import.delete.dirNotFound": வள அடைவு கண்டுபிடிக்கப்படவில்லை
+  "error.import.delete.fileNotFound": வள கோப்பு கண்டுபிடிக்கப்படவில்லை
+  "error.import.emptyContent": இறக்குமதி உள்ளடக்கம் காலியாக இருக்க முடியாது
+  "error.import.fileTargetNotSupported": கோப்பு இலக்கு ஆதரிக்கப்படவில்லை; இயக்க நேர இலக்கை பயன்படுத்தவும்
+  "error.import.invalidRequest": தவறான இறக்குமதி கோரிக்கை
+  "error.import.invalidRequest.description": வழங்கப்பட்ட இறக்குமதி கோரிக்கை தவறானது அல்லது தவறாக வடிவமைக்கப்பட்டுள்ளது
+  "error.import.invalidYaml": தவறான YAML உள்ளடக்கம்
+  "error.import.invalidYaml.description": வழங்கப்பட்ட YAML உள்ளடக்கத்தை பாகுபடுத்த முடியாது
+  "error.import.missingDeleteFields": resourceType மற்றும் resourceKey தேவை
+  "error.import.templateResolutionFailed": வார்ப்புரு தீர்மானம் தோல்வியடைந்தது
+  "error.import.templateResolutionFailed.description": YAML உள்ளடக்கத்தில் ஒன்று அல்லது அதிகமான வார்ப்புரு மாறிகளை தீர்மானிப்பதில் தோல்வி
+  "error.import.unsupportedResourceType": அறிவிப்பு கோப்பு மேலாண்மைக்கான ஆதரிக்கப்படாத வள வகை
+  "error.interceptor.challenge_token_invalid": தவறான சவால் டோக்கன்
+  "error.interceptor.challenge_token_invalid_description": சவால் டோக்கன் இல்லை அல்லது தவறானது
+  "error.interceptor.failed": இடைமறிப்பான் சரிபார்ப்பு தோல்வியடைந்தது
+  "error.interceptor.failed_description": ஒரு ஓட்ட இடைமறிப்பான் கோரிக்கையை நிராகரித்தது
+  "error.internal_server_error": உள் சேவையக பிழை
+  "error.internal_server_error_description": கோரிக்கையை செயலாக்கும் போது எதிர்பாராத பிழை ஏற்பட்டது
+  "error.jweservice.decoding_jwe_error": JWE டிகோட் பிழை
+  "error.jweservice.decoding_jwe_error_description": JWE டோக்கனை டிகோட் செய்யும் போது பிழை ஏற்பட்டது
+  "error.jweservice.decryption_failed": JWE மறைகுறியாக்கம் தோல்வியடைந்தது
+  "error.jweservice.decryption_failed_description": JWE டோக்கனை மறைகுறியாக்குவதில் தோல்வி
+  "error.jweservice.unsupported_algorithm": ஆதரிக்கப்படாத JWE வழிமுறை
+  "error.jweservice.unsupported_algorithm_description": குறிப்பிட்ட JWE வழிமுறை ஆதரிக்கப்படவில்லை
+  "error.jweservice.unsupported_encryption_algorithm": ஆதரிக்கப்படாத குறியாக்க வழிமுறை
+  "error.jweservice.unsupported_encryption_algorithm_description": குறிப்பிட்ட குறியாக்க வழிமுறை ஆதரிக்கப்படவில்லை
+  "error.jwsservice.decoding_header_error": JWS டிகோட் பிழை
+  "error.jwsservice.decoding_header_error_description": JWS தலைப்பை டிகோட் செய்யும் போது பிழை ஏற்பட்டது
+  "error.jwsservice.invalid_format": தவறான JWS வடிவம்
+  "error.jwsservice.invalid_format_description": JWS டோக்கன் வடிவம் தவறானது
+  "error.jwsservice.invalid_signature": தவறான கையொப்பம்
+  "error.jwsservice.invalid_signature_description": கையொப்பம் தவறானது
+  "error.jwsservice.unsupported_algorithm": ஆதரிக்கப்படாத JWS வழிமுறை
+  "error.jwsservice.unsupported_algorithm_description": குறிப்பிட்ட JWS வழிமுறை ஆதரிக்கப்படவில்லை
+  "error.jwtservice.decoding_header_error": JWT டிகோட் பிழை
+  "error.jwtservice.decoding_header_error_description": JWT தலைப்பை டிகோட் செய்யும் போது பிழை ஏற்பட்டது
+  "error.jwtservice.decoding_payload_error": JWT டிகோட் பிழை
+  "error.jwtservice.decoding_payload_error_description": JWT தரவை டிகோட் செய்யும் போது பிழை ஏற்பட்டது
+  "error.jwtservice.failed_to_get_jwks": JWKS மீட்டெடுப்பதில் தோல்வி
+  "error.jwtservice.failed_to_get_jwks_description": குறிப்பிட்ட URL இலிருந்து JWKS மீட்டெடுப்பதில் தோல்வி
+  "error.jwtservice.failed_to_parse_jwks": JWKS பாகுபடுத்துவதில் தோல்வி
+  "error.jwtservice.failed_to_parse_jwks_description": JWKS பாகுபடுத்துவதில் தோல்வி
+  "error.jwtservice.invalid_jwt_format": தவறான JWT வடிவம்
+  "error.jwtservice.invalid_jwt_format_description": JWT டோக்கன் வடிவம் தவறானது
+  "error.jwtservice.invalid_token_signature": தவறான டோக்கன் கையொப்பம்
+  "error.jwtservice.invalid_token_signature_description": JWT டோக்கன் கையொப்பம் தவறானது
+  "error.jwtservice.no_matching_jwk_found": பொருந்தும் JWK கண்டுபிடிக்கப்படவில்லை
+  "error.jwtservice.no_matching_jwk_found_description": கொடுக்கப்பட்ட விசை ID க்கு பொருந்தும் JWK கண்டுபிடிக்கப்படவில்லை
+  "error.jwtservice.token_expired": டோக்கன் காலாவதியானது
+  "error.jwtservice.token_expired_description": JWT டோக்கன் காலாவதியாகிவிட்டது
+  "error.jwtservice.unsupported_jws_algorithm": ஆதரிக்கப்படாத JWS வழிமுறை
+  "error.jwtservice.unsupported_jws_algorithm_description": குறிப்பிட்ட JWS வழிமுறை ஆதரிக்கப்படவில்லை
+  "error.magiclinkservice.expired_token": காலாவதியான டோக்கன்
+  "error.magiclinkservice.expired_token_description": மேஜிக் இணைப்பு டோக்கன் காலாவதியாகிவிட்டது
+  "error.magiclinkservice.invalid_token": தவறான டோக்கன்
+  "error.magiclinkservice.invalid_token_description": வழங்கப்பட்ட மேஜிக் இணைப்பு டோக்கன் தவறானது
+  "error.magiclinkservice.malformed_token_claims": தவறாக வடிவமைக்கப்பட்ட டோக்கன் கோரிக்கைகள்
+  "error.magiclinkservice.malformed_token_claims_description": மேஜிக் இணைப்பு டோக்கன் தவறான அல்லது இல்லாத கோரிக்கைகளை கொண்டுள்ளது
+  "error.magiclinkservice.resolving_user": பயனரை தீர்மானிப்பதில் பிழை
+  "error.magiclinkservice.resolving_user_description": பெறுநருக்கான பயனரை தீர்மானிக்கும் போது பிழை ஏற்பட்டது
+  "error.magiclinkservice.token_generation_failed": டோக்கன் உருவாக்கல் தோல்வியடைந்தது
+  "error.magiclinkservice.token_generation_failed_description": மேஜிக் இணைப்பு டோக்கனை உருவாக்குவதில் தோல்வி
+  "error.notificationservice.duplicate_sender_name": நகல் அனுப்புனர் பெயர்
+  "error.notificationservice.duplicate_sender_name_description": அதே பெயருடைய அனுப்புனர் ஏற்கனவே உள்ளது
+  "error.notificationservice.error_while_retrieving_message_client": செய்தி கிளையன்டை மீட்டெடுக்கும் போது பிழை
+  "error.notificationservice.error_while_retrieving_message_client_description": செய்தி கிளையன்டை மீட்டெடுக்கும் போது பிழை ஏற்பட்டது
+  "error.notificationservice.invalid_channel": தவறான சேனல்
+  "error.notificationservice.invalid_channel_description": வழங்கப்பட்ட சேனல் தவறானது
+  "error.notificationservice.invalid_notification_provider": தவறான அறிவிப்பு வழங்குநர்
+  "error.notificationservice.invalid_notification_provider_description": குறிப்பிட்ட அறிவிப்பு வழங்குநர் தவறானது அல்லது ஆதரிக்கப்படவில்லை
+  "error.notificationservice.invalid_otp": தவறான OTP
+  "error.notificationservice.invalid_otp_description": வழங்கப்பட்ட OTP தவறானது
+  "error.notificationservice.invalid_recipient": தவறான பெறுநர்
+  "error.notificationservice.invalid_recipient_description": வழங்கப்பட்ட பெறுநர் தவறானது
+  "error.notificationservice.invalid_request_format": தவறான கோரிக்கை வடிவம்
+  "error.notificationservice.invalid_request_format_description": கோரிக்கை உடல் தவறாக வடிவமைக்கப்பட்டுள்ளது அல்லது தவறான தரவு உள்ளது
+  "error.notificationservice.invalid_sender_id": தவறான அனுப்புனர் ID
+  "error.notificationservice.invalid_sender_id_description": வழங்கப்பட்ட அனுப்புனர் ID தவறானது
+  "error.notificationservice.invalid_sender_name": தவறான அனுப்புனர் பெயர்
+  "error.notificationservice.invalid_sender_name_description": வழங்கப்பட்ட அனுப்புனர் பெயர் தவறானது
+  "error.notificationservice.invalid_sender_type": தவறான அனுப்புனர் வகை
+  "error.notificationservice.invalid_sender_type_description": வழங்கப்பட்ட அனுப்புனர் வகை தவறானது அல்லது ஆதரிக்கப்படவில்லை
+  "error.notificationservice.invalid_session_token": தவறான அமர்வு டோக்கன்
+  "error.notificationservice.invalid_session_token_description": வழங்கப்பட்ட அமர்வு டோக்கன் தவறானது, தவறாக வடிவமைக்கப்பட்டுள்ளது, அல்லது காலாவதியானது
+  "error.notificationservice.sender_not_found": அனுப்புனர் கண்டுபிடிக்கப்படவில்லை
+  "error.notificationservice.sender_not_found_description": கோரப்பட்ட அறிவிப்பு அனுப்புனரை கண்டுபிடிக்க முடியவில்லை
+  "error.notificationservice.sender_type_mismatch": அனுப்புனர் வகை பொருத்தமின்மை
+  "error.notificationservice.sender_type_mismatch_description": கோரப்பட்ட அனுப்புனர் எதிர்பார்க்கப்பட்ட வகையில் இல்லை
+  "error.notificationservice.unsupported_channel": ஆதரிக்கப்படாத சேனல்
+  "error.notificationservice.unsupported_channel_description": வழங்கப்பட்ட சேனல் ஆதரிக்கப்படவில்லை
+  "error.notificationservice.update_not_allowed": புதுப்பிப்பு அனுமதிக்கப்படவில்லை
+  "error.notificationservice.update_not_allowed_description": அனுப்புனர் வகையை புதுப்பிப்பது அனுமதிக்கப்படவில்லை
+  "error.ouservice.cannot_modify_declarative_resource": அறிவிப்பு வளத்தை மாற்ற முடியாது
+  "error.ouservice.cannot_modify_declarative_resource_description": நிறுவன அலகு அறிவிப்பு முறையில் உள்ளது மற்றும் மாற்றவோ நீக்கவோ முடியாது
+  "error.ouservice.circular_dependency_detected": வட்ட சார்பு கண்டுபிடிக்கப்பட்டது
+  "error.ouservice.circular_dependency_detected_description": இந்த பெற்றோரை அமைப்பது வட்ட சார்பை உருவாக்கும்
+  "error.ouservice.invalid_filter": தவறான வடிகட்டி அளவுரு
+  "error.ouservice.invalid_filter_description": "வடிகட்டி அளவுரு தவறானது. வடிவம் பயன்படுத்தவும்: attribute (eq|gt|lt) \"value\""
+  "error.ouservice.invalid_handle_path": தவறான கைப்பிடி பாதை
+  "error.ouservice.invalid_handle_path_description": குறிப்பிட்ட கைப்பிடி பாதை இல்லை
+  "error.ouservice.invalid_limit_parameter": தவறான வரம்பு அளவுரு
+  "error.ouservice.invalid_limit_parameter_description": வரம்பு அளவுரு நேர்மறை முழு எண்ணாக இருக்க வேண்டும்
+  "error.ouservice.invalid_offset_parameter": தவறான ஆஃப்செட் அளவுரு
+  "error.ouservice.invalid_offset_parameter_description": ஆஃப்செட் அளவுரு எதிர்மறையல்லாத முழு எண்ணாக இருக்க வேண்டும்
+  "error.ouservice.invalid_request_format": தவறான கோரிக்கை வடிவம்
+  "error.ouservice.invalid_request_format_description": கோரிக்கை உடல் தவறாக வடிவமைக்கப்பட்டுள்ளது, தவறான தரவு உள்ளது, அல்லது தேவையான புலங்கள் இல்லை/காலி
+  "error.ouservice.missing_ou_id": தவறான கோரிக்கை வடிவம்
+  "error.ouservice.missing_ou_id_description": நிறுவன அலகு ID தேவை
+  "error.ouservice.organization_unit_handle_conflict": நிறுவன அலகு கைப்பிடி முரண்பாடு
+  "error.ouservice.organization_unit_handle_conflict_description": அதே கைப்பிடி கொண்ட நிறுவன அலகு அதே பெற்றோரின் கீழ் ஏற்கனவே உள்ளது
+  "error.ouservice.organization_unit_has_children": நிறுவன அலகு குழந்தைகளை கொண்டுள்ளது
+  "error.ouservice.organization_unit_has_children_description": குழந்தைகள் அல்லது பயனர்கள்/குழுக்கள் கொண்ட நிறுவன அலகை நீக்க முடியாது
+  "error.ouservice.organization_unit_name_conflict": நிறுவன அலகு பெயர் முரண்பாடு
+  "error.ouservice.organization_unit_name_conflict_description": அதே பெயருடைய நிறுவன அலகு அதே பெற்றோரின் கீழ் உள்ளது
+  "error.ouservice.organization_unit_not_found": நிறுவன அலகு கண்டுபிடிக்கப்படவில்லை
+  "error.ouservice.organization_unit_not_found_description": குறிப்பிட்ட id கொண்ட நிறுவன அலகு இல்லை
+  "error.ouservice.parent_organization_unit_not_found": பெற்றோர் நிறுவன அலகு கண்டுபிடிக்கப்படவில்லை
+  "error.ouservice.parent_organization_unit_not_found_description": பெற்றோர் நிறுவன அலகு கண்டுபிடிக்கப்படவில்லை
+  "error.ouservice.result_limit_exceeded": முடிவு வரம்பு மீறப்பட்டது
+  "error.passkeyservice.credential_not_found": Passkey நற்சான்றிதழ் கண்டுபிடிக்கப்படவில்லை
+  "error.passkeyservice.credential_not_found_description": பயனருக்கான குறிப்பிட்ட நற்சான்றிதழ் கண்டுபிடிக்கப்படவில்லை
+  "error.passkeyservice.empty_credential_id": காலி நற்சான்றிதழ் ID
+  "error.passkeyservice.empty_credential_id_description": நற்சான்றிதழ் ID தேவை
+  "error.passkeyservice.empty_credential_type": காலி நற்சான்றிதழ் வகை
+  "error.passkeyservice.empty_credential_type_description": நற்சான்றிதழ் வகை தேவை
+  "error.passkeyservice.empty_relying_party_id": காலி நம்பகமான தரப்பு ID
+  "error.passkeyservice.empty_relying_party_id_description": நம்பகமான தரப்பு ID தேவை
+  "error.passkeyservice.empty_session_token": காலி அமர்வு டோக்கன்
+  "error.passkeyservice.empty_session_token_description": அமர்வு டோக்கன் தேவை
+  "error.passkeyservice.empty_user_identifier": காலி பயனர் அடையாளங்காட்டி
+  "error.passkeyservice.empty_user_identifier_description": பயனர் ID அல்லது பயனர்பெயர் வழங்கப்பட வேண்டும்
+  "error.passkeyservice.invalid_attestation_response": தவறான சான்றுக்கோர்வை பதில்
+  "error.passkeyservice.invalid_attestation_response_description": சான்றுக்கோர்வை பதிலில் தேவையான புலங்கள் இல்லை (clientDataJSON அல்லது attestationObject)
+  "error.passkeyservice.invalid_authenticator_response": தவறான அங்கீகரிப்பாளர் பதில்
+  "error.passkeyservice.invalid_authenticator_response_description": அங்கீகரிப்பாளர் பதிலில் தேவையான புலங்கள் இல்லை (clientDataJSON, authenticatorData, அல்லது signature)
+  "error.passkeyservice.invalid_challenge": தவறான சவால்
+  "error.passkeyservice.invalid_challenge_description": பதிலில் உள்ள சவால் எதிர்பார்க்கப்பட்ட சவாலுடன் பொருந்தவில்லை
+  "error.passkeyservice.invalid_finish_data": தவறான முடிவு தரவு
+  "error.passkeyservice.invalid_finish_data_description": முடிவு தரவு null ஆக இருக்க முடியாது
+  "error.passkeyservice.invalid_session_token": தவறான அமர்வு டோக்கன்
+  "error.passkeyservice.invalid_session_token_description": அமர்வு டோக்கன் தவறானது அல்லது தவறாக வடிவமைக்கப்பட்டுள்ளது
+  "error.passkeyservice.invalid_signature": தவறான கையொப்பம்
+  "error.passkeyservice.invalid_signature_description": கையொப்பம் சரிபார்ப்பு தோல்வியடைந்தது
+  "error.passkeyservice.no_credentials_found": நற்சான்றிதழ்கள் கண்டுபிடிக்கப்படவில்லை
+  "error.passkeyservice.no_credentials_found_description": பயனருக்கு நற்சான்றிதழ்கள் கண்டுபிடிக்கப்படவில்லை. முதலில் நற்சான்றிதழை பதிவு செய்யவும்
+  "error.passkeyservice.session_expired": அமர்வு காலாவதியானது
+  "error.passkeyservice.session_expired_description": அமர்வு காலாவதியாகிவிட்டது. புதிய அமர்வை தொடங்கவும்
+  "error.passkeyservice.user_not_found": பயனர் கண்டுபிடிக்கப்படவில்லை
+  "error.passkeyservice.user_not_found_description": குறிப்பிட்ட பயனர் கண்டுபிடிக்கப்படவில்லை
+  "error.resourceservice.action_not_found": செயல் கண்டுபிடிக்கப்படவில்லை
+  "error.resourceservice.action_not_found_description": குறிப்பிட்ட id கொண்ட செயல் இல்லை
+  "error.resourceservice.cannot_delete": நீக்க முடியாது
+  "error.resourceservice.cannot_delete_description": சார்புகள் கொண்ட வள சேவையகம்/வளத்தை நீக்க முடியாது
+  "error.resourceservice.cannot_modify_declarative_action": அறிவிப்பு செயலை மாற்ற முடியாது
+  "error.resourceservice.cannot_modify_declarative_action_description": செயல் %s அறிவிப்பு கட்டமைப்பில் வரையறுக்கப்பட்டுள்ளது மற்றும் மாற்ற முடியாது
+  "error.resourceservice.cannot_modify_declarative_resource": அறிவிப்பு வளத்தை மாற்ற முடியாது
+  "error.resourceservice.cannot_modify_declarative_resource_description": வளம் %s அறிவிப்பு கட்டமைப்பில் வரையறுக்கப்பட்டுள்ளது மற்றும் மாற்ற முடியாது
+  "error.resourceservice.cannot_modify_declarative_resource_server": அறிவிப்பு வள சேவையகத்தை மாற்ற முடியாது
+  "error.resourceservice.cannot_modify_declarative_resource_server_description": வள சேவையகம் %s அறிவிப்பு கட்டமைப்பில் வரையறுக்கப்பட்டுள்ளது மற்றும் மாற்ற முடியாது
+  "error.resourceservice.circular_dependency_detected": வட்ட சார்பு கண்டுபிடிக்கப்பட்டது
+  "error.resourceservice.circular_dependency_detected_description": இந்த பெற்றோரை அமைப்பது வட்ட சார்பை உருவாக்கும்
+  "error.resourceservice.consent_sync_failed": சம்மதம் ஒத்திசைவு தோல்வியடைந்தது
+  "error.resourceservice.consent_sync_failed_description": சம்மதம் சேவையுடன் வள அனுமதி மாற்றங்களை ஒத்திசைக்க தோல்வியடைந்தது
+  "error.resourceservice.delimiter_conflict_in_handle": கைப்பிடியில் பிரிப்பான் முரண்பாடு
+  "error.resourceservice.delimiter_conflict_in_handle_description": கைப்பிடியில் பிரிப்பான் எழுத்து இருக்கக்கூடாது
+  "error.resourceservice.delimiter_conflict_in_resource_server_handle": கைப்பிடியில் பிரிப்பான் முரண்பாடு
+  "error.resourceservice.delimiter_conflict_in_resource_server_handle_description": வள சேவையக கைப்பிடியில் பிரிப்பான் எழுத்து இருக்கக்கூடாது
+  "error.resourceservice.handle_conflict": கைப்பிடி முரண்பாடு
+  "error.resourceservice.handle_conflict_description": அதே கைப்பிடி குறிப்பிட்ட வளத்தில் ஏற்கனவே உள்ளது
+  "error.resourceservice.identifier_conflict": அடையாளங்காட்டி முரண்பாடு
+  "error.resourceservice.identifier_conflict_description": அதே அடையாளங்காட்டி கொண்ட வள சேவையகம் ஏற்கனவே உள்ளது
+  "error.resourceservice.immutable_handle": கைப்பிடி மாற்றமற்றது
+  "error.resourceservice.immutable_handle_description": வள சேவையக கைப்பிடியை உருவாக்கப்பட்ட பிறகு மாற்ற முடியாது
+  "error.resourceservice.invalid_delimiter": தவறான பிரிப்பான்
+  "error.resourceservice.invalid_delimiter_description": "பிரிப்பான் ஒரே ஒரு செல்லுபடியான எழுத்தாக இருக்க வேண்டும் (a-z A-Z 0-9 . _ : - /)"
+  "error.resourceservice.invalid_handle": தவறான கைப்பிடி
+  "error.resourceservice.invalid_handle_description": "கைப்பிடி நீளம் 100 எழுத்துக்களுக்கும் குறைவாக இருக்க வேண்டும் மற்றும் செல்லுபடியான எழுத்துக்களை கொண்டிருக்க வேண்டும் (a-z A-Z 0-9 . _ : - /)"
+  "error.resourceservice.invalid_limit_parameter": தவறான வரம்பு அளவுரு
+  "error.resourceservice.invalid_limit_parameter_description": வரம்பு அளவுரு நேர்மறை முழு எண்ணாக இருக்க வேண்டும்
+  "error.resourceservice.invalid_offset_parameter": தவறான ஆஃப்செட் அளவுரு
+  "error.resourceservice.invalid_offset_parameter_description": ஆஃப்செட் அளவுரு எதிர்மறையல்லாத முழு எண்ணாக இருக்க வேண்டும்
+  "error.resourceservice.invalid_request_format": தவறான கோரிக்கை வடிவம்
+  "error.resourceservice.invalid_request_format_description": கோரிக்கை உடல் தவறாக வடிவமைக்கப்பட்டுள்ளது அல்லது தவறான தரவு உள்ளது
+  "error.resourceservice.missing_id": தவறான கோரிக்கை வடிவம்
+  "error.resourceservice.missing_id_description": ID தேவை
+  "error.resourceservice.name_conflict": பெயர் முரண்பாடு
+  "error.resourceservice.name_conflict_description": அதே பெயருடைய வள சேவையகம் ஏற்கனவே உள்ளது
+  "error.resourceservice.organization_unit_not_found": நிறுவன அலகு கண்டுபிடிக்கப்படவில்லை
+  "error.resourceservice.organization_unit_not_found_description": குறிப்பிட்ட நிறுவன அலகு இல்லை
+  "error.resourceservice.parent_resource_not_found": பெற்றோர் வளம் கண்டுபிடிக்கப்படவில்லை
+  "error.resourceservice.parent_resource_not_found_description": குறிப்பிட்ட பெற்றோர் வளம் இல்லை
+  "error.resourceservice.resource_not_found": வளம் கண்டுபிடிக்கப்படவில்லை
+  "error.resourceservice.resource_not_found_description": குறிப்பிட்ட id கொண்ட வளம் இல்லை
+  "error.resourceservice.resource_server_id_conflict": வள சேவையக ID முரண்பாடு
+  "error.resourceservice.resource_server_id_conflict_description": குறிப்பிட்ட ID கொண்ட வள சேவையகம் ஏற்கனவே உள்ளது
+  "error.resourceservice.resource_server_not_found": வள சேவையகம் கண்டுபிடிக்கப்படவில்லை
+  "error.resourceservice.resource_server_not_found_description": குறிப்பிட்ட id கொண்ட வள சேவையகம் இல்லை
+  "error.resourceservice.result_limit_exceeded_in_composite_mode": கலப்பு பயன்முறையில் முடிவு வரம்பு மீறப்பட்டது
+  "error.resourceservice.result_limit_exceeded_in_composite_mode_description": கலப்பு பயன்முறையில் மொத்த பதிவுகளின் எண்ணிக்கை அதிகபட்ச வரம்பை மீறுகிறது
+  "error.roleservice.cannot_create_role_in_declarative_only_mode": அறிவிப்பு-மட்டும் பயன்முறையில் பங்கை உருவாக்க முடியாது
+  "error.roleservice.cannot_create_role_in_declarative_only_mode_description": அறிவிப்பு-மட்டும் பயன்முறையில் இயங்கும் போது பங்கு உருவாக்கல் அனுமதிக்கப்படவில்லை. பங்குகள் அறிவிப்பு கட்டமைப்பு கோப்புகளில் வரையறுக்கப்பட வேண்டும்
+  "error.roleservice.cannot_delete_role": பங்கை நீக்க முடியாது
+  "error.roleservice.cannot_delete_role_description": தற்போது பயனர்கள் அல்லது குழுக்களுக்கு ஒதுக்கப்பட்ட பங்கை நீக்க முடியாது
+  "error.roleservice.cannot_modify_declarative_assignment": அறிவிப்பு ஒதுக்கீட்டை மாற்ற முடியாது
+  "error.roleservice.cannot_modify_declarative_assignment_description": ஒதுக்கீடு அறிவிப்பு கட்டமைப்பில் வரையறுக்கப்பட்டுள்ளது மற்றும் மாற்ற முடியாது
+  "error.roleservice.cannot_modify_declarative_role": அறிவிப்பு பங்கை மாற்ற முடியாது
+  "error.roleservice.cannot_modify_declarative_role_description": பங்கு அறிவிப்பு கட்டமைப்பில் வரையறுக்கப்பட்டுள்ளது மற்றும் மாற்ற முடியாது
+  "error.roleservice.either_entity_id_or_groups_must_be_provided_for_authorization_check_description": அங்கீகாரம் சரிபார்ப்புக்கு entityId அல்லது groups வழங்கப்பட வேண்டும்
+  "error.roleservice.empty_assignments_list": காலி ஒதுக்கீடுகள் பட்டியல்
+  "error.roleservice.empty_assignments_list_description": குறைந்தது ஒரு ஒதுக்கீடு வழங்கப்பட வேண்டும்
+  "error.roleservice.invalid_assignee_type": தவறான ஒதுக்கப்படுவோர் வகை
+  "error.roleservice.invalid_assignee_type_description": வகை அளவுரு 'user', 'group', அல்லது 'app' ஆக இருக்க வேண்டும்
+  "error.roleservice.invalid_assignment_id": தவறான ஒதுக்கீடு ID
+  "error.roleservice.invalid_assignment_id_description": கோரிக்கையில் உள்ள ஒன்று அல்லது அதிகமான ஒதுக்கீடு IDகள் இல்லை அல்லது கூறப்பட்ட வகையுடன் பொருந்தவில்லை
+  "error.roleservice.invalid_limit_parameter": தவறான வரம்பு அளவுரு
+  "error.roleservice.invalid_limit_parameter_description": வரம்பு அளவுரு நேர்மறை முழு எண்ணாக இருக்க வேண்டும்
+  "error.roleservice.invalid_offset_parameter": தவறான ஆஃப்செட் அளவுரு
+  "error.roleservice.invalid_offset_parameter_description": ஆஃப்செட் அளவுரு எதிர்மறையல்லாத முழு எண்ணாக இருக்க வேண்டும்
+  "error.roleservice.invalid_permissions": தவறான அனுமதிகள்
+  "error.roleservice.invalid_permissions_description": ஒன்று அல்லது அதிகமான அனுமதிகள் வள மேலாண்மை கணினியில் இல்லை
+  "error.roleservice.invalid_request_format": தவறான கோரிக்கை வடிவம்
+  "error.roleservice.invalid_request_format_description": கோரிக்கை உடல் தவறாக வடிவமைக்கப்பட்டுள்ளது அல்லது தவறான தரவு உள்ளது
+  "error.roleservice.missing_entity_or_groups": தவறான கோரிக்கை வடிவம்
+  "error.roleservice.missing_role_id": தவறான கோரிக்கை வடிவம்
+  "error.roleservice.missing_role_id_description": பங்கு ID தேவை
+  "error.roleservice.organization_unit_not_found": நிறுவன அலகு கண்டுபிடிக்கப்படவில்லை
+  "error.roleservice.organization_unit_not_found_description": நிறுவன அலகு கண்டுபிடிக்கப்படவில்லை
+  "error.roleservice.result_limit_exceeded_in_composite_mode": கலப்பு பயன்முறையில் முடிவு வரம்பு மீறப்பட்டது
+  "error.roleservice.result_limit_exceeded_in_composite_mode_description": கலப்பு பயன்முறையில் மொத்த பதிவுகளின் எண்ணிக்கை அதிகபட்ச வரம்பை மீறுகிறது
+  "error.roleservice.role_id_conflict": பங்கு ID முரண்பாடு
+  "error.roleservice.role_id_conflict_description": குறிப்பிட்ட ID கொண்ட பங்கு ஏற்கனவே உள்ளது
+  "error.roleservice.role_name_conflict": பங்கு பெயர் முரண்பாடு
+  "error.roleservice.role_name_conflict_description": அதே பெயருடைய பங்கு அதே நிறுவன அலகின் கீழ் உள்ளது
+  "error.roleservice.role_not_found": பங்கு கண்டுபிடிக்கப்படவில்லை
+  "error.roleservice.role_not_found_description": குறிப்பிட்ட id கொண்ட பங்கு இல்லை
+  "error.templateservice.template_not_found": வார்ப்புரு கண்டுபிடிக்கப்படவில்லை
+  "error.templateservice.template_not_found_description": கொடுக்கப்பட்ட சூழ்நிலைக்கான கோரப்பட்ட வார்ப்புரு இல்லை
+  "error.unauthorized": அங்கீகரிக்கப்படவில்லை
+  "error.unauthorized_description": அழைப்பாளருக்கு இந்த செயல்பாட்டை செய்ய அங்கீகாரம் இல்லை
+  "error.userinfoservice.client_credentials_not_supported": தவறான அணுகல் டோக்கன்
+  "error.userinfoservice.client_credentials_not_supported_description": UserInfo இறுதிப்புள்ளி client_credentials மானிய வகைக்கு பொருந்தாது
+  "error.userinfoservice.dpop_bound_token_bearer_scheme": தவறான அணுகல் டோக்கன்
+  "error.userinfoservice.dpop_bound_token_bearer_scheme_description": DPoP-இணைக்கப்பட்ட டோக்கன் DPoP திட்டம் பயன்படுத்த வேண்டும்
+  "error.userinfoservice.insufficient_scope": போதுமான நோக்கம் இல்லை
+  "error.userinfoservice.insufficient_scope_description": இந்த கோரிக்கைக்கு 'openid' நோக்கம் தேவை
+  "error.userinfoservice.invalid_access_token": தவறான அணுகல் டோக்கன்
+  "error.userinfoservice.invalid_access_token_description": அணுகல் டோக்கன் தவறானது, காலாவதியானது, அல்லது தவறாக வடிவமைக்கப்பட்டுள்ளது
+  "error.userinfoservice.invalid_dpop_proof": தவறான அணுகல் டோக்கன்
+  "error.userinfoservice.invalid_dpop_proof_description": DPoP சான்று சரிபார்ப்பு தோல்வியடைந்தது
+  "error.userinfoservice.missing_sub_claim": தவறான அணுகல் டோக்கன்
+  "error.userinfoservice.missing_sub_claim_description": அணுகல் டோக்கனில் 'sub' கோரிக்கை இல்லை அல்லது தவறானது
+  "error.userservice.ambiguous_user": தெளிவற்ற பயனர்
+  "error.userservice.ambiguous_user_description": வழங்கப்பட்ட வடிகட்டிகளுடன் பல பயனர்கள் பொருந்துகின்றனர்
+  "error.userservice.attribute_conflict": பண்பு முரண்பாடு
+  "error.userservice.attribute_conflict_description": அதே தனிப்பட்ட பண்பு மதிப்பு கொண்ட பயனர் ஏற்கனவே உள்ளது
+  "error.userservice.authentication_failed": அங்கீகரிப்பு தோல்வியடைந்தது
+  "error.userservice.authentication_failed_description": தவறான நற்சான்றிதழ்கள் வழங்கப்பட்டன
+  "error.userservice.cannot_modify_declarative_resource": அறிவிப்பு வளத்தை மாற்ற முடியாது
+  "error.userservice.cannot_modify_declarative_resource_description": பயனர் அறிவிப்பு முறையில் உள்ளது மற்றும் மாற்றவோ நீக்கவோ முடியாது
+  "error.userservice.email_conflict": மின்னஞ்சல் முரண்பாடு
+  "error.userservice.email_conflict_description": அதே மின்னஞ்சல் கொண்ட பயனர் ஏற்கனவே உள்ளது
+  "error.userservice.handle_path_required": கைப்பிடி பாதை தேவை
+  "error.userservice.handle_path_required_description": இந்த செயல்பாட்டிற்கு கைப்பிடி பாதை தேவை
+  "error.userservice.invalid_credential": தவறான கோரிக்கை வடிவம்
+  "error.userservice.invalid_credential_description": கோரிக்கையில் தவறான நற்சான்றிதழ் புலங்கள்
+  "error.userservice.invalid_filter_parameter": தவறான வடிகட்டி அளவுரு
+  "error.userservice.invalid_filter_parameter_description": வடிகட்டி வடிவம் தவறானது
+  "error.userservice.invalid_group_id": தவறான குழு ID
+  "error.userservice.invalid_group_id_description": கோரிக்கையில் உள்ள ஒன்று அல்லது அதிகமான குழு IDகள் இல்லை
+  "error.userservice.invalid_handle_path": தவறான கைப்பிடி பாதை
+  "error.userservice.invalid_handle_path_description": கைப்பிடி பாதை முன்னோக்கு சாய்வுகளால் பிரிக்கப்பட்ட செல்லுபடியான நிறுவன அலகு அடையாளங்காட்டிகளை கொண்டிருக்க வேண்டும்
+  "error.userservice.invalid_limit_parameter": தவறான பக்கமடைவு அளவுரு
+  "error.userservice.invalid_limit_parameter_description": வரம்பு அளவுரு நேர்மறை முழு எண்ணாக இருக்க வேண்டும்
+  "error.userservice.invalid_offset_parameter": தவறான பக்கமடைவு அளவுரு
+  "error.userservice.invalid_offset_parameter_description": ஆஃப்செட் அளவுரு எதிர்மறையல்லாத முழு எண்ணாக இருக்க வேண்டும்
+  "error.userservice.invalid_organization_unit": தவறான நிறுவன அலகு
+  "error.userservice.invalid_organization_unit_description": நிறுவன அலகு id செல்லுபடியான UUID ஆக குறிப்பிடப்பட வேண்டும்
+  "error.userservice.invalid_request_format": தவறான கோரிக்கை வடிவம்
+  "error.userservice.invalid_request_format_description": கோரிக்கை உடல் தவறாக வடிவமைக்கப்பட்டுள்ளது அல்லது தவறான தரவு உள்ளது
+  "error.userservice.missing_credentials": நற்சான்றிதழ்கள் இல்லை
+  "error.userservice.missing_credentials_description": குறைந்தது ஒரு நற்சான்றிதழ் புலம் வழங்கப்பட வேண்டும்
+  "error.userservice.missing_required_fields": தேவையான புலங்கள் இல்லை
+  "error.userservice.missing_required_fields_description": குறைந்தது ஒரு அடையாளம் காணும் பண்பு வழங்கப்பட வேண்டும்
+  "error.userservice.missing_user_id": தவறான கோரிக்கை வடிவம்
+  "error.userservice.missing_user_id_description": பயனர் ID தேவை
+  "error.userservice.organization_unit_mismatch": நிறுவன அலகு பொருத்தமின்மை
+  "error.userservice.organization_unit_mismatch_description": நிறுவன அலகு பயனர் வகை கட்டமைப்புடன் பொருந்தவில்லை
+  "error.userservice.organization_unit_not_found": நிறுவன அலகு கண்டுபிடிக்கப்படவில்லை
+  "error.userservice.organization_unit_not_found_description": குறிப்பிட்ட நிறுவன அலகு இல்லை
+  "error.userservice.schema_validation_failed": திட்ட சரிபார்ப்பு தோல்வியடைந்தது
+  "error.userservice.schema_validation_failed_description": பயனர் பண்புகள் தேவையான திட்டத்திற்கு இணங்கவில்லை
+  "error.userservice.user_not_found": பயனர் கண்டுபிடிக்கப்படவில்லை
+  "error.userservice.user_not_found_description": குறிப்பிட்ட id கொண்ட பயனர் இல்லை
+  "error.userservice.user_type_not_found": பயனர் வகை கண்டுபிடிக்கப்படவில்லை
+  "error.userservice.user_type_not_found_description": குறிப்பிட்ட பயனர் வகை இல்லை
+  "flows.executor.errors.ambiguous_user_identity": தெளிவற்ற பயனர் அடையாளம்
+  "flows.executor.errors.ambiguous_user_identity_desc": பயனர் அடையாளம் தெளிவற்றது மற்றும் தீர்மானிக்க முடியாது
+  "flows.executor.errors.attribute_collect_failed": பயனர் பண்புகளை புதுப்பிப்பதில் தோல்வி
+  "flows.executor.errors.attribute_collect_failed_desc": பயனர் பண்புகளை புதுப்பிக்கும் போது பிழை ஏற்பட்டது
+  "flows.executor.errors.attribute_not_found_for_user": தேவையான பண்பு கண்டுபிடிக்கப்படவில்லை
+  "flows.executor.errors.attribute_not_found_for_user_desc": பயனருக்கு தேவையான பண்பு கண்டுபிடிக்கப்படவில்லை
+  "flows.executor.errors.attribute_not_unique": பண்பு மதிப்பு ஏற்கனவே உள்ளது
+  "flows.executor.errors.attribute_not_unique_desc": வழங்கப்பட்ட பண்பு மதிப்பு ஏற்கனவே உள்ளது மற்றும் தனிப்பட்டதாக இருக்க வேண்டும்
+  "flows.executor.errors.attribute_retrieval_failed": பயனர் பண்புகளை மீட்டெடுப்பதில் தோல்வி
+  "flows.executor.errors.attribute_retrieval_failed_desc": பயனர் பண்புகளை மீட்டெடுக்கும் போது பிழை ஏற்பட்டது
+  "flows.executor.errors.auth_not_available_for_app": இந்த பயன்பாட்டிற்கு அங்கீகரிப்பு கிடைக்கவில்லை
+  "flows.executor.errors.auth_not_available_for_app_desc": கோரப்பட்ட அங்கீகரிப்பு முறை இந்த பயன்பாட்டிற்கு கிடைக்கவில்லை
+  "flows.executor.errors.authorization_failed": அங்கீகாரம் சரிபார்ப்பு தோல்வியடைந்தது
+  "flows.executor.errors.authorization_failed_desc": தற்போதைய பயனருக்கான அங்கீகாரம் சரிபார்ப்பு தோல்வியடைந்தது
+  "flows.executor.errors.cannot_provision_automatically": பயனரை தானாக ஏற்பாடு செய்ய முடியாது
+  "flows.executor.errors.cannot_provision_automatically_desc": வழங்கப்பட்ட தகவலுடன் பயனரை தானாக ஏற்பாடு செய்ய முடியாது
+  "flows.executor.errors.consent_decisions_missing": சம்மதம் முடிவுகள் உள்ளீடு இல்லை அல்லது காலி
+  "flows.executor.errors.consent_decisions_missing_desc": சம்மதம் முடிவுகள் உள்ளீடு இல்லை அல்லது காலி
+  "flows.executor.errors.consent_decisions_parse": சம்மதம் முடிவுகளை பாகுபடுத்துவதில் தோல்வி
+  "flows.executor.errors.consent_decisions_parse_desc": சம்மதம் முடிவுகள் உள்ளீட்டை பாகுபடுத்த முடியவில்லை
+  "flows.executor.errors.consent_denied": பயனர் சம்மதம் மறுத்தார்
+  "flows.executor.errors.consent_denied_desc": பயனர் தேவையான சம்மதத்தை மறுத்துவிட்டார்
+  "flows.executor.errors.consent_prereq_failed": சம்மதத்திற்கான முன்நிபந்தனை சரிபார்ப்பு தோல்வியடைந்தது
+  "flows.executor.errors.consent_prereq_failed_desc": சம்மதம் செயலாக்கிக்கான முன்நிபந்தனைகள் பூர்த்தி செய்யப்படவில்லை
+  "flows.executor.errors.consent_prompt_timed_out": சம்மதம் கோரிக்கை நேரம் முடிந்தது
+  "flows.executor.errors.consent_prompt_timed_out_desc": சம்மதம் கோரிக்கை பதிலின்றி நேரம் முடிந்தது
+  "flows.executor.errors.consent_record_failed": சம்மதத்தை பதிவு செய்வதில் தோல்வி
+  "flows.executor.errors.consent_record_failed_desc": பயனர் சம்மதத்தை பதிவு செய்யும் போது பிழை ஏற்பட்டது
+  "flows.executor.errors.consent_resolution_failed": சம்மதத்தை தீர்மானிப்பதில் தோல்வி
+  "flows.executor.errors.consent_resolution_failed_desc": பயனர் சம்மத தேவைகளை தீர்மானிக்கும் போது பிழை ஏற்பட்டது
+  "flows.executor.errors.credential_input_invalid": தவறான நற்சான்றிதழ் உள்ளீடு கட்டமைப்பு
+  "flows.executor.errors.credential_input_invalid_desc": நற்சான்றிதழ் அமைப்பாளருக்கான நற்சான்றிதழ் உள்ளீடு கட்டமைப்பு தவறானது
+  "flows.executor.errors.credential_input_missing": நற்சான்றிதழ் உள்ளீடு கட்டமைக்கப்படவில்லை
+  "flows.executor.errors.credential_input_missing_desc": நற்சான்றிதழ் அமைப்பாளருக்கு எந்த நற்சான்றிதழ் உள்ளீடும் கட்டமைக்கப்படவில்லை
+  "flows.executor.errors.credential_processing_failed": நற்சான்றிதழ்களை செயலாக்குவதில் தோல்வி
+  "flows.executor.errors.credential_processing_failed_desc": நற்சான்றிதழ்களை செயலாக்கும் போது பிழை ஏற்பட்டது
+  "flows.executor.errors.credential_set_failed": நற்சான்றிதழ்களை அமைப்பதில் தோல்வி
+  "flows.executor.errors.credential_set_failed_desc": பயனர் நற்சான்றிதழ்களை அமைக்கும் போது பிழை ஏற்பட்டது
+  "flows.executor.errors.credential_value_empty": நற்சான்றிதழ் மதிப்பு காலி
+  "flows.executor.errors.credential_value_empty_desc": நற்சான்றிதழ் அமைப்பாளருக்கு நற்சான்றிதழ் மதிப்பு காலியாக இருக்கக்கூடாது
+  "flows.executor.errors.cross_ou_provisioning_target_missing": குறுக்கு-OU ஏற்பாட்டிற்கான இலக்கு OU அமைக்கப்படவில்லை
+  "flows.executor.errors.cross_ou_provisioning_target_missing_desc": குறுக்கு-OU பயனர் ஏற்பாட்டிற்கு இலக்கு நிறுவன அலகு குறிப்பிடப்பட வேண்டும்
+  "flows.executor.errors.email_recipient_missing": மின்னஞ்சல் பெறுநர் தேவை
+  "flows.executor.errors.email_recipient_missing_desc": அறிவிப்பை அனுப்ப மின்னஞ்சல் பெறுநர் வழங்கப்பட வேண்டும்
+  "flows.executor.errors.email_send_failed": மின்னஞ்சல் அனுப்புவதில் தோல்வி
+  "flows.executor.errors.email_send_failed_desc": மின்னஞ்சல் அனுப்பும் போது பிழை ஏற்பட்டது
+  "flows.executor.errors.email_service_not_configured": மின்னஞ்சல் சேவை கட்டமைக்கப்படவில்லை
+  "flows.executor.errors.email_service_not_configured_desc": மின்னஞ்சல் அறிவிப்பு சேவை கட்டமைக்கப்படவில்லை
+  "flows.executor.errors.failed_to_identify_user": பயனரை அடையாளம் காண்பதில் தோல்வி
+  "flows.executor.errors.failed_to_identify_user_desc": வழங்கப்பட்ட தகவலுடன் பயனரை அடையாளம் காண முடியவில்லை
+  "flows.executor.errors.http_request_config_invalid": கட்டமைப்பு பிழை
+  "flows.executor.errors.http_request_config_invalid_desc": HTTP கோரிக்கை செயலாக்கி கட்டமைப்பு தவறானது
+  "flows.executor.errors.http_request_failed": HTTP கோரிக்கை செயலாக்கி தோல்வியடைந்தது
+  "flows.executor.errors.http_request_failed_desc": HTTP கோரிக்கை செயலாக்கி கோரிக்கையை முடிக்க தோல்வியடைந்தது
+  "flows.executor.errors.insufficient_permissions": போதுமான அனுமதிகள் இல்லை
+  "flows.executor.errors.insufficient_permissions_desc": இந்த செயலை செய்ய பயனருக்கு போதுமான அனுமதிகள் இல்லை
+  "flows.executor.errors.invalid_action": தவறான செயல் வழங்கப்பட்டது
+  "flows.executor.errors.invalid_action_desc": வழங்கப்பட்ட செயல் தற்போதைய ஓட்ட படிக்கு செல்லுபடியாகவில்லை
+  "flows.executor.errors.invalid_credentials": தவறான நற்சான்றிதழ்கள் வழங்கப்பட்டன
+  "flows.executor.errors.invalid_credentials_desc": வழங்கப்பட்ட நற்சான்றிதழ்கள் தவறானவை
+  "flows.executor.errors.invalid_federated_user": தவறான கூட்டமைப்பு பயனர்
+  "flows.executor.errors.invalid_federated_user_desc": கூட்டமைப்பு பயனர் தகவல் தவறானது அல்லது சீரற்றது
+  "flows.executor.errors.invalid_invite_token": தவறான அழைப்பு டோக்கன்
+  "flows.executor.errors.invalid_invite_token_desc": வழங்கப்பட்ட அழைப்பு டோக்கன் தவறானது அல்லது காலாவதியாகிவிட்டது
+  "flows.executor.errors.invalid_magic_link_token": தவறான மேஜிக் இணைப்பு டோக்கன்
+  "flows.executor.errors.invalid_magic_link_token_desc": மேஜிக் இணைப்பு டோக்கன் தவறானது அல்லது காலாவதியாகிவிட்டது
+  "flows.executor.errors.invalid_oauth_code": தவறான OAuth அங்கீகார குறியீடு
+  "flows.executor.errors.invalid_oauth_code_desc": OAuth அங்கீகார குறியீடு தவறானது அல்லது டோக்கன்களுக்கு மாற்ற முடியவில்லை
+  "flows.executor.errors.invalid_oauth_state": தவறான OAuth நிலை அளவுரு
+  "flows.executor.errors.invalid_oauth_state_desc": OAuth நிலை அளவுரு தவறானது அல்லது எதிர்பார்க்கப்பட்ட மதிப்புடன் பொருந்தவில்லை
+  "flows.executor.errors.invalid_otp": தவறான OTP வழங்கப்பட்டது
+  "flows.executor.errors.invalid_otp_desc": வழங்கப்பட்ட ஒரு முறை கடவுச்சொல் தவறானது அல்லது காலாவதியாகிவிட்டது
+  "flows.executor.errors.invalid_ou": தேர்ந்தெடுக்கப்பட்ட நிறுவன அலகு தவறானது
+  "flows.executor.errors.invalid_ou_desc": தேர்ந்தெடுக்கப்பட்ட நிறுவன அலகு இந்த செயல்பாட்டிற்கு செல்லுபடியாகவில்லை
+  "flows.executor.errors.invalid_passkey": தவறான passkey நற்சான்றிதழ்கள்
+  "flows.executor.errors.invalid_passkey_desc": வழங்கப்பட்ட passkey நற்சான்றிதழ்கள் தவறானவை
+  "flows.executor.errors.invalid_user_type": தவறான பயனர் வகை
+  "flows.executor.errors.invalid_user_type_desc": வழங்கப்பட்ட பயனர் வகை செல்லுபடியாகவில்லை
+  "flows.executor.errors.invite_token_generation_failed": அழைப்பு டோக்கனை உருவாக்குவதில் தோல்வி
+  "flows.executor.errors.invite_token_generation_failed_desc": அழைப்பு டோக்கனை உருவாக்கும் போது பிழை ஏற்பட்டது
+  "flows.executor.errors.magic_link_generation_failed": மேஜிக் இணைப்பு உருவாக்கல் தோல்வியடைந்தது
+  "flows.executor.errors.magic_link_generation_failed_desc": மேஜிக் இணைப்பை உருவாக்குவதில் தோல்வி
+  "flows.executor.errors.max_otp_attempts_reached": அதிகபட்ச OTP முயற்சிகள் எட்டப்பட்டன
+  "flows.executor.errors.max_otp_attempts_reached_desc": OTP சரிபார்ப்பு முயற்சிகளின் அதிகபட்ச எண்ணிக்கை எட்டப்பட்டது
+  "flows.executor.errors.no_registered_passkeys": பதிவு செய்யப்பட்ட passkeys கண்டுபிடிக்கப்படவில்லை
+  "flows.executor.errors.no_registered_passkeys_desc": பயனருக்கு பதிவு செய்யப்பட்ட passkeys கண்டுபிடிக்கப்படவில்லை
+  "flows.executor.errors.no_user_types_available": பயனர் வகைகள் கிடைக்கவில்லை
+  "flows.executor.errors.no_user_types_available_desc": தற்போது எந்த பயனர் வகைகளும் கிடைக்கவில்லை
+  "flows.executor.errors.no_valid_user_types": செல்லுபடியான பயனர் வகைகள் கிடைக்கவில்லை
+  "flows.executor.errors.no_valid_user_types_desc": இந்த ஓட்டத்திற்கு செல்லுபடியான பயனர் வகைகள் கட்டமைக்கப்படவில்லை
+  "flows.executor.errors.nonce_mismatch": ID டோக்கனில் nonce பொருத்தமின்மை
+  "flows.executor.errors.nonce_mismatch_desc": ID டோக்கன் கோரிக்கைகளில் உள்ள nonce எதிர்பார்க்கப்பட்ட மதிப்புடன் பொருந்தவில்லை
+  "flows.executor.errors.openid4vp_expired": பதில் பெறப்படுவதற்கு முன் OpenID4VP கோரிக்கை காலாவதியானது
+  "flows.executor.errors.openid4vp_expired_desc": பணப்பை பதில் சமர்ப்பிப்பதற்கு முன் OpenID4VP வழங்கல் கோரிக்கை காலாவதியானது
+  "flows.executor.errors.openid4vp_initiate_failed": OpenID4VP கோரிக்கையை தொடங்குவதில் தோல்வி
+  "flows.executor.errors.openid4vp_initiate_failed_desc": OpenID4VP வழங்கல் கோரிக்கையை தொடங்கும் போது பிழை ஏற்பட்டது
+  "flows.executor.errors.openid4vp_not_configured": OpenID4VP சரிபார்ப்பாளர் கட்டமைக்கப்படவில்லை
+  "flows.executor.errors.openid4vp_not_configured_desc": OpenID4VP சரிபார்ப்பாளர் சேவை கட்டமைக்கப்படவில்லை
+  "flows.executor.errors.openid4vp_verification_failed": OpenID4VP வழங்கல் சரிபார்ப்பு தோல்வியடைந்தது
+  "flows.executor.errors.openid4vp_verification_failed_desc": OpenID4VP வழங்கல் சரிபார்ப்பு தோல்வியடைந்தது
+  "flows.executor.errors.ou_creation_failed": நிறுவன அலகு உருவாக்கல் தோல்வியடைந்தது
+  "flows.executor.errors.ou_creation_failed_desc": நிறுவன அலகை உருவாக்கும் போது பிழை ஏற்பட்டது
+  "flows.executor.errors.ou_creation_prereq_failed": OU உருவாக்கலுக்கான முன்நிபந்தனை சரிபார்ப்பு தோல்வியடைந்தது
+  "flows.executor.errors.ou_creation_prereq_failed_desc": நிறுவன அலகை உருவாக்குவதற்கான முன்நிபந்தனைகள் பூர்த்தி செய்யப்படவில்லை
+  "flows.executor.errors.ou_handle_conflict": அதே கைப்பிடி கொண்ட நிறுவன அலகு ஏற்கனவே உள்ளது
+  "flows.executor.errors.ou_handle_conflict_desc": இந்த சூழலில் அதே கைப்பிடி கொண்ட நிறுவன அலகு ஏற்கனவே உள்ளது
+  "flows.executor.errors.ou_name_conflict": அதே பெயருடைய நிறுவன அலகு ஏற்கனவே உள்ளது
+  "flows.executor.errors.ou_name_conflict_desc": இந்த சூழலில் அதே பெயருடைய நிறுவன அலகு ஏற்கனவே உள்ளது
+  "flows.executor.errors.ou_not_found": நிறுவன அலகு கண்டுபிடிக்கப்படவில்லை
+  "flows.executor.errors.ou_not_found_desc": தேர்ந்தெடுக்கப்பட்ட நிறுவன அலகு இல்லை
+  "flows.executor.errors.ou_not_valid_for_user_type": தேர்ந்தெடுக்கப்பட்ட நிறுவன அலகு தேர்ந்தெடுக்கப்பட்ட பயனர் வகைக்கு செல்லுபடியாகவில்லை.
+  "flows.executor.errors.ou_not_valid_for_user_type_desc": தேர்ந்தெடுக்கப்பட்ட நிறுவன அலகு தேர்ந்தெடுக்கப்பட்ட பயனர் வகைக்கு செல்லுபடியாகவில்லை
+  "flows.executor.errors.ou_resolution_failed": நிறுவன அலகை தீர்மானிப்பதில் தோல்வி
+  "flows.executor.errors.ou_resolution_failed_desc": தற்போதைய சூழலுக்கான நிறுவன அலகை தீர்மானிக்க முடியவில்லை
+  "flows.executor.errors.passkey_auth_failed": Passkey அங்கீகரிப்பு தோல்வியடைந்தது
+  "flows.executor.errors.passkey_auth_failed_desc": passkey உடன் அங்கீகரிக்கும் போது பிழை ஏற்பட்டது
+  "flows.executor.errors.passkey_registration_failed": Passkey பதிவு தோல்வியடைந்தது
+  "flows.executor.errors.passkey_registration_failed_desc": passkey ஐ பதிவு செய்யும் போது பிழை ஏற்பட்டது
+  "flows.executor.errors.prerequisites_failed": முன்நிபந்தனை சரிபார்ப்பு தோல்வியடைந்தது
+  "flows.executor.errors.prerequisites_failed_desc": இந்த செயல்பாட்டிற்கான முன்நிபந்தனைகள் பூர்த்தி செய்யப்படவில்லை
+  "flows.executor.errors.provisioning_assignment_failed": குழுக்கள் மற்றும் பங்குகளை ஒதுக்குவதில் தோல்வி
+  "flows.executor.errors.provisioning_assignment_failed_desc": ஏற்பாடு செய்யப்பட்ட பயனருக்கு குழுக்கள் மற்றும் பங்குகளை ஒதுக்கும் போது பிழை ஏற்பட்டது
+  "flows.executor.errors.provisioning_attribute_conflict": வழங்கப்பட்ட பண்புகள் கொண்ட பயனர் ஏற்கனவே உள்ளது
+  "flows.executor.errors.provisioning_attribute_conflict_desc": ஒன்று அல்லது அதிகமான தனிப்பட்ட பண்பு மதிப்புகள் ஏற்கனவே எடுக்கப்பட்டிருப்பதால் பயனர் ஏற்பாடு தோல்வியடைந்தது
+  "flows.executor.errors.provisioning_failed": பயனர் ஏற்பாடு தோல்வியடைந்தது
+  "flows.executor.errors.provisioning_failed_desc": பயனரை ஏற்பாடு செய்யும் போது பிழை ஏற்பட்டது
+  "flows.executor.errors.provisioning_user_attrs_missing": ஏற்பாட்டிற்கு பயனர் பண்புகள் வழங்கப்படவில்லை
+  "flows.executor.errors.provisioning_user_attrs_missing_desc": புதிய பயனரை ஏற்பாடு செய்ய பயனர் பண்புகள் தேவை
+  "flows.executor.errors.self_reg_disabled_for_user_type": பயனர் வகைக்கு சுய-பதிவு முடக்கப்பட்டுள்ளது
+  "flows.executor.errors.self_reg_disabled_for_user_type_desc": தேர்ந்தெடுக்கப்பட்ட பயனர் வகைக்கு சுய-பதிவு இயக்கப்படவில்லை
+  "flows.executor.errors.self_reg_not_available_for_app": இந்த பயன்பாட்டிற்கு சுய-பதிவு கிடைக்கவில்லை
+  "flows.executor.errors.self_reg_not_available_for_app_desc": இந்த பயன்பாட்டிற்கு சுய-பதிவு கிடைக்கவில்லை
+  "flows.executor.errors.self_registration_disabled": சுய-பதிவு இயக்கப்படவில்லை
+  "flows.executor.errors.self_registration_disabled_desc": இந்த பயன்பாடு அல்லது பயனர் வகைக்கு சுய-பதிவு இயக்கப்படவில்லை
+  "flows.executor.errors.sms_invalid_phone": SMS பெறுநர் செல்லுபடியான தொலைபேசி எண் அல்ல
+  "flows.executor.errors.sms_invalid_phone_desc": வழங்கப்பட்ட SMS பெறுநர் செல்லுபடியான தொலைபேசி எண் அல்ல
+  "flows.executor.errors.sms_provider_not_configured": SMS அறிவிப்பு வழங்குநர் கட்டமைக்கப்படவில்லை
+  "flows.executor.errors.sms_provider_not_configured_desc": SMS அறிவிப்பு வழங்குநர் கட்டமைக்கப்படவில்லை அல்லது பிழையானது
+  "flows.executor.errors.sms_recipient_missing": SMS பெறுநர் தேவை
+  "flows.executor.errors.sms_recipient_missing_desc": அறிவிப்பை அனுப்ப SMS பெறுநர் வழங்கப்பட வேண்டும்
+  "flows.executor.errors.sms_template_missing": SMS வார்ப்புரு தேவை
+  "flows.executor.errors.sms_template_missing_desc": அறிவிப்பை அனுப்ப SMS வார்ப்புரு வழங்கப்பட வேண்டும்
+  "flows.executor.errors.user_already_exists": பயனர் ஏற்கனவே உள்ளது
+  "flows.executor.errors.user_already_exists_desc": வழங்கப்பட்ட பண்புகள் கொண்ட பயனர் ஏற்கனவே உள்ளது
+  "flows.executor.errors.user_already_exists_in_target_ou": இலக்கு நிறுவனத்தில் பயனர் ஏற்கனவே உள்ளது
+  "flows.executor.errors.user_already_exists_in_target_ou_desc": இலக்கு நிறுவன அலகில் அதே அடையாளம் கொண்ட பயனர் ஏற்கனவே உள்ளது
+  "flows.executor.errors.user_auth_failed": பயனர் அங்கீகரிப்பு தோல்வியடைந்தது
+  "flows.executor.errors.user_auth_failed_desc": பயனரை அங்கீகரிக்கும் போது பிழை ஏற்பட்டது
+  "flows.executor.errors.user_id_missing_in_context": பயனர் ID கண்டுபிடிக்கப்படவில்லை
+  "flows.executor.errors.user_id_missing_in_context_desc": தற்போதைய ஓட்ட சூழலிலிருந்து பயனர் ID தீர்மானிக்க முடியவில்லை
+  "flows.executor.errors.user_id_required_for_passkey_reg": passkey பதிவுக்கு பயனர் ID இல்லை
+  "flows.executor.errors.user_id_required_for_passkey_reg_desc": passkey பதிவு செய்ய பயனர் ID தேவை
+  "flows.executor.errors.user_not_authenticated": பயனர் அங்கீகரிக்கப்படவில்லை
+  "flows.executor.errors.user_not_authenticated_desc": இந்த ஓட்டத்தில் பயனர் அங்கீகரிக்கப்படவில்லை
+  "flows.executor.errors.user_not_found": பயனர் கண்டுபிடிக்கப்படவில்லை
+  "flows.executor.errors.user_not_found_desc": கணினியில் பயனர் கண்டுபிடிக்கப்படவில்லை
+  "flows.executor.errors.user_type_not_allowed": இந்த ஓட்டத்திற்கு பயனர் வகை அனுமதிக்கப்படவில்லை
+  "flows.executor.errors.user_type_not_allowed_desc": தேர்ந்தெடுக்கப்பட்ட பயனர் வகை இந்த ஓட்டத்திற்கு அனுமதிக்கப்படவில்லை
+  "flows.executor.errors.user_type_not_valid_for_ou": பயனர் வகை செல்லுபடியாகவில்லை
+  "flows.executor.errors.user_type_not_valid_for_ou_desc": தேர்ந்தெடுக்கப்பட்ட பயனர் வகை தேர்ந்தெடுக்கப்பட்ட நிறுவன அலகுக்கு செல்லுபடியாகவில்லை
+  "flows.executor.errors.user_type_retrieval_failed": பயனர் வகைகளை மீட்டெடுப்பதில் தோல்வி
+  "flows.executor.errors.user_type_retrieval_failed_desc": கிடைக்கக்கூடிய பயனர் வகைகளை மீட்டெடுக்கும் போது பிழை ஏற்பட்டது
+  "layout.error.already_exists": தளவமைப்பு ஏற்கனவே உள்ளது
+  "layout.error.already_exists_description": அதே ID கொண்ட தளவமைப்பு ஏற்கனவே உள்ளது
+  "layout.error.cannot_delete_declarative": அறிவிப்பு தளவமைப்பை நீக்க முடியாது
+  "layout.error.cannot_delete_declarative_description": தளவமைப்பு அறிவிப்பு வளங்களில் வரையறுக்கப்பட்டுள்ளது மற்றும் நீக்க முடியாது
+  "layout.error.cannot_modify_declarative": அறிவிப்பு வளத்தை மாற்ற முடியாது
+  "layout.error.cannot_modify_declarative_description": தளவமைப்பு அறிவிப்பு முறையில் உள்ளது மற்றும் மாற்றவோ நீக்கவோ முடியாது
+  "layout.error.cannot_update_declarative": அறிவிப்பு தளவமைப்பை புதுப்பிக்க முடியாது
+  "layout.error.cannot_update_declarative_description": தளவமைப்பு அறிவிப்பு வளங்களில் வரையறுக்கப்பட்டுள்ளது மற்றும் மாற்ற முடியாது
+  "layout.error.duplicate_handle": நகல் தளவமைப்பு கைப்பிடி
+  "layout.error.duplicate_handle_description": அதே கைப்பிடி கொண்ட தளவமைப்பு ஏற்கனவே உள்ளது
+  "layout.error.handle_immutable": தளவமைப்பு கைப்பிடி மாற்றமற்றது
+  "layout.error.handle_immutable_description": உருவாக்கப்பட்ட பிறகு தளவமைப்பு கைப்பிடியை மாற்ற முடியாது
+  "layout.error.in_use": தளவமைப்பு பயன்பாட்டில் உள்ளது
+  "layout.error.in_use_description": தற்போது ஒன்று அல்லது அதிகமான பயன்பாடுகளுடன் தொடர்புடைய தளவமைப்பை நீக்க முடியாது
+  "layout.error.invalid_data": தவறான தளவமைப்பு தரவு
+  "layout.error.invalid_data_description": வழங்கப்பட்ட தளவமைப்பு தரவு தவறானது
+  "layout.error.invalid_format": தவறான தளவமைப்பு வடிவம்
+  "layout.error.invalid_format_description": தளவமைப்பு செல்லுபடியான JSON பொருளாக இருக்க வேண்டும்
+  "layout.error.invalid_id": தவறான தளவமைப்பு ID
+  "layout.error.invalid_id_description": வழங்கப்பட்ட தளவமைப்பு ID தவறானது
+  "layout.error.invalid_limit": தவறான வரம்பு
+  "layout.error.invalid_limit_description": வரம்பு மதிப்பு செல்லுபடியான வரம்பிற்கு வெளியே உள்ளது
+  "layout.error.invalid_limit_param": தவறான வரம்பு
+  "layout.error.invalid_limit_param_description": வரம்பு செல்லுபடியான முழு எண்ணாக இருக்க வேண்டும்
+  "layout.error.invalid_offset": தவறான ஆஃப்செட்
+  "layout.error.invalid_offset_description": ஆஃப்செட் எதிர்மறையல்லாததாக இருக்க வேண்டும்
+  "layout.error.invalid_offset_param": தவறான ஆஃப்செட்
+  "layout.error.invalid_offset_param_description": ஆஃப்செட் செல்லுபடியான முழு எண்ணாக இருக்க வேண்டும்
+  "layout.error.missing_display_name": காட்சி பெயர் இல்லை
+  "layout.error.missing_display_name_description": காட்சி பெயர் தேவை
+  "layout.error.missing_handle": தளவமைப்பு கைப்பிடி இல்லை
+  "layout.error.missing_handle_description": தளவமைப்பு கைப்பிடி தேவை
+  "layout.error.missing_layout": தளவமைப்பு இல்லை
+  "layout.error.missing_layout_description": தளவமைப்பு புலம் தேவை
+  "layout.error.not_found": தளவமைப்பு கண்டுபிடிக்கப்படவில்லை
+  "layout.error.not_found_description": கோரப்பட்ட தளவமைப்பு கட்டமைப்பு கண்டுபிடிக்கப்படவில்லை
+  "layout.error.result_limit_exceeded": முடிவு வரம்பு மீறப்பட்டது
+  "layout.error.result_limit_exceeded_description": கலப்பு பயன்முறையில் தளவமைப்புகளின் மொத்த எண்ணிக்கை அதிகபட்ச அனுமதிக்கப்பட்ட வரம்பை மீறுகிறது
+  "theme.error.cannot_delete_declarative": அறிவிப்பு தீமை நீக்க முடியாது
+  "theme.error.cannot_delete_declarative_description": தீம் அறிவிப்பு வளங்களில் வரையறுக்கப்பட்டுள்ளது மற்றும் நீக்க முடியாது
+  "theme.error.cannot_modify_declarative": அறிவிப்பு வளத்தை மாற்ற முடியாது
+  "theme.error.cannot_modify_declarative_description": தீம் அறிவிப்பு முறையில் உள்ளது மற்றும் மாற்றவோ நீக்கவோ முடியாது
+  "theme.error.cannot_update_declarative": அறிவிப்பு தீமை புதுப்பிக்க முடியாது
+  "theme.error.cannot_update_declarative_description": தீம் அறிவிப்பு வளங்களில் வரையறுக்கப்பட்டுள்ளது மற்றும் மாற்ற முடியாது
+  "theme.error.duplicate_handle": நகல் தீம் கைப்பிடி
+  "theme.error.duplicate_handle_description": அதே கைப்பிடி கொண்ட தீம் ஏற்கனவே உள்ளது
+  "theme.error.handle_immutable": தீம் கைப்பிடி மாற்றமற்றது
+  "theme.error.handle_immutable_description": உருவாக்கப்பட்ட பிறகு தீம் கைப்பிடியை மாற்ற முடியாது
+  "theme.error.in_use": தீம் பயன்பாட்டில் உள்ளது
+  "theme.error.in_use_description": தற்போது ஒன்று அல்லது அதிகமான பயன்பாடுகளுடன் தொடர்புடைய தீமை நீக்க முடியாது
+  "theme.error.invalid_data": தவறான தீம் தரவு
+  "theme.error.invalid_data_description": வழங்கப்பட்ட தீம் தரவு தவறானது
+  "theme.error.invalid_format": தவறான தீம் வடிவம்
+  "theme.error.invalid_format_description": தீம் செல்லுபடியான JSON பொருளாக இருக்க வேண்டும்
+  "theme.error.invalid_id": தவறான தீம் ID
+  "theme.error.invalid_id_description": வழங்கப்பட்ட தீம் ID தவறானது
+  "theme.error.invalid_limit": தவறான வரம்பு
+  "theme.error.invalid_limit_description": வரம்பு மதிப்பு செல்லுபடியான வரம்பிற்கு வெளியே உள்ளது
+  "theme.error.invalid_limit_param": தவறான வரம்பு
+  "theme.error.invalid_limit_param_description": வரம்பு செல்லுபடியான முழு எண்ணாக இருக்க வேண்டும்
+  "theme.error.invalid_offset": தவறான ஆஃப்செட்
+  "theme.error.invalid_offset_description": ஆஃப்செட் எதிர்மறையல்லாததாக இருக்க வேண்டும்
+  "theme.error.invalid_offset_param": தவறான ஆஃப்செட்
+  "theme.error.invalid_offset_param_description": ஆஃப்செட் செல்லுபடியான முழு எண்ணாக இருக்க வேண்டும்
+  "theme.error.missing_display_name": காட்சி பெயர் இல்லை
+  "theme.error.missing_display_name_description": காட்சி பெயர் தேவை
+  "theme.error.missing_handle": தீம் கைப்பிடி இல்லை
+  "theme.error.missing_handle_description": தீம் கைப்பிடி தேவை
+  "theme.error.missing_theme": தீம் இல்லை
+  "theme.error.missing_theme_description": தீம் புலம் தேவை
+  "theme.error.not_found": தீம் கண்டுபிடிக்கப்படவில்லை
+  "theme.error.not_found_description": கோரப்பட்ட தீம் கட்டமைப்பு கண்டுபிடிக்கப்படவில்லை
+  "theme.error.result_limit_exceeded": முடிவு வரம்பு மீறப்பட்டது
+  "theme.error.result_limit_exceeded_description": கலப்பு பயன்முறையில் தீம்களின் மொத்த எண்ணிக்கை அதிகபட்ச அனுமதிக்கப்பட்ட வரம்பை மீறுகிறது

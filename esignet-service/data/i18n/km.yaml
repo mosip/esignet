@@ -1,0 +1,1190 @@
+system:
+  "design.resolve.error.app_no_design": កម្មវិធីមិនមានការកំណត់រចនាសម្ព័ន្ធការរចនា
+  "design.resolve.error.app_no_design_description": កម្មវិធីដែលបានระบុ​មិនមានការកំណត់រចនា​ theme ឬ layout ដែលពាក់ព័ន្ធ
+  "design.resolve.error.app_not_found": រកមិនឃើញកម្មវិធី
+  "design.resolve.error.app_not_found_description": កម្មវិធីដែលមាន id ដែលបានระบុ​មិនមានស្ថិតក្នុងប្រព័ន្ធ
+  "design.resolve.error.invalid_type": ទម្រង់សំណើមិនត្រឹមត្រូវ
+  "design.resolve.error.invalid_type_description": ប៉ារ៉ាម៉ែត្រ 'type' ជា query ត្រូវបានទាមទារ ហើយត្រូវតែជា 'APP' ឬ 'OU'
+  "design.resolve.error.missing_id": ទម្រង់សំណើមិនត្រឹមត្រូវ
+  "design.resolve.error.missing_id_description": ប៉ារ៉ាម៉ែត្រ 'id' ជា query ត្រូវបានទាមទារ
+  "design.resolve.error.unsupported_type": ប្រភេទ resolve មិនត្រូវបានគាំទ្រ
+  "design.resolve.error.unsupported_type_description": ប្រភេទ resolve ដែលបានระบុ​មិនទាន់ត្រូវបានគាំទ្រ។ បច្ចុប្បន្នគាំទ្រតែប្រភេទ 'APP' ប៉ុណ្ណោះ
+  "error.actor_not_found": រកមិនឃើញតួអង្គ
+  "error.actor_not_found_description": តួអង្គដែលបានស្នើសុំមិនមានស្ថិតក្នុងប្រព័ន្ធ
+  "error.agentservice.agent_already_exists_with_client_id": Client ID ត្រូវបានប្រើប្រាស់រួចហើយ
+  "error.agentservice.agent_already_exists_with_client_id_description": មានអង្គភាពដែលមាន client ID ដូចគ្នានេះស្ថិតក្នុងប្រព័ន្ធរួចហើយ
+  "error.agentservice.agent_already_exists_with_name": Agent មានស្ថិតក្នុងប្រព័ន្ធរួចហើយ
+  "error.agentservice.agent_already_exists_with_name_description": Agent ដែលមានឈ្មោះដូចគ្នានេះស្ថិតក្នុងប្រព័ន្ធរួចហើយ
+  "error.agentservice.agent_not_found": រកមិនឃើញ Agent
+  "error.agentservice.agent_not_found_description": Agent ដែលមាន id ដែលបានระบុ​មិនមានស្ថិតក្នុងប្រព័ន្ធ
+  "error.agentservice.attribute_conflict": ជម្លោះ Attribute
+  "error.agentservice.attribute_conflict_description": Agent ដែលមានតម្លៃ attribute តែមួយគត់ដូចគ្នានេះស្ថិតក្នុងប្រព័ន្ធរួចហើយ
+  "error.agentservice.auth_code_requires_code_response_type_description": ប្រភេទ grant authorization_code ទាមទារ response type 'code'
+  "error.agentservice.auth_code_requires_redirect_uris_description": ប្រភេទ grant authorization_code ទាមទារ redirect URI
+  "error.agentservice.cannot_modify_declarative_resource": មិនអាចកែប្រែធនធានដែលប្រកាស
+  "error.agentservice.cannot_modify_declarative_resource_description": Agent ដែលគ្រប់គ្រងតាមរយៈការប្រកាសមិនអាចកែប្រែតាម API បាន
+  "error.agentservice.certificate_operation_failed": ប្រតិបត្តិការវិញ្ញាបនប័ត្របរាជ័យ
+  "error.agentservice.certificate_operation_failed_description": ប្រតិបត្តិការវិញ្ញាបនប័ត្របរាជ័យដោយសារទិន្នន័យបញ្ចូលមិនត្រឹមត្រូវ
+  "error.agentservice.client_credentials_cannot_use_none_auth_description": ប្រភេទ grant client_credentials មិនអាចប្រើវិធីសាស្ត្រផ្ទៀងផ្ទាត់ 'none' បាន
+  "error.agentservice.client_credentials_cannot_use_response_types_description": ប្រភេទ grant client_credentials មិនអាចប្រើជាមួយ response types បាន
+  "error.agentservice.client_secret_cannot_have_certificate_description": វិធីសាស្ត្រផ្ទៀងផ្ទាត់ client_secret មិនអាចមានវិញ្ញាបនប័ត្របាន
+  "error.agentservice.consent_sync_failed": ការ​ធ្វើ​សមកាលកម្ម​ការ​យល់​ព្រម​បរាជ័យ
+  "error.agentservice.consent_sync_failed_description": ការ​ធ្វើ​សមកាលកម្ម​ការ​ផ្លាស់ប្ដូរ​ attribute ​របស់ Agent ជាមួយ​សេវា​ការ​យល់​ព្រម​បរាជ័យ
+  "error.agentservice.error_retrieving_flow_definition": កំហុស​ក្នុង​ការ​ទទួល​យក​និយមន័យ​លំហូរ
+  "error.agentservice.error_retrieving_flow_definition_description": មានកំហុស​កើតឡើង​ខណៈ​ពេល​ទទួល​យក​និយមន័យ​លំហូរ
+  "error.agentservice.idtoken_encryption_alg_requires_enc_description": idToken encryptionEnc ត្រូវបានទាមទារនៅពេល encryptionAlg ត្រូវបានកំណត់
+  "error.agentservice.idtoken_encryption_enc_requires_alg_description": idToken encryptionAlg ត្រូវបានទាមទារនៅពេល encryptionEnc ត្រូវបានកំណត់
+  "error.agentservice.idtoken_encryption_fields_not_allowed_description": idToken encryptionAlg និង encryptionEnc មិនត្រូវតែកំណត់នៅពេល responseType គឺ JWT
+  "error.agentservice.idtoken_encryption_requires_certificate_description": វិញ្ញាបនប័ត្រ (JWKS ឬ JWKS_URI) ត្រូវបានទាមទារនៅពេលការអ៊ិនគ្រីប ID token ត្រូវបានកំណត់
+  "error.agentservice.idtoken_jwks_uri_not_ssrf_safe_description": idToken JWKS URI ត្រូវតែជា URL HTTPS ដែលអាចចូលប្រើបានជាសាធារណៈ
+  "error.agentservice.idtoken_unsupported_encryption_alg_description": ក្បួនដោះស្រាយការអ៊ិនគ្រីប ID token មិនត្រូវបានគាំទ្រ
+  "error.agentservice.idtoken_unsupported_encryption_enc_description": ក្បួនដោះស្រាយការអ៊ិនគ្រីបខ្លឹមសារ ID token មិនត្រូវបានគាំទ្រ
+  "error.agentservice.idtoken_unsupported_response_type_description": responseType នៃ ID token មិនត្រូវបានគាំទ្រ
+  "error.agentservice.invalid_agent_name": ឈ្មោះ Agent មិនត្រឹមត្រូវ
+  "error.agentservice.invalid_agent_name_description": ឈ្មោះ Agent ត្រូវតែផ្ដល់ជូន ហើយមិនអាចទទេ
+  "error.agentservice.invalid_agent_type": ប្រភេទ Agent មិនត្រឹមត្រូវ
+  "error.agentservice.invalid_agent_type_description": ប្រភេទ Agent ត្រូវតែផ្ដល់ជូន
+  "error.agentservice.invalid_auth_flow_id": auth flow ID មិនត្រឹមត្រូវ
+  "error.agentservice.invalid_auth_flow_id_description": auth flow ID ដែលបានផ្ដល់ជូនមិនត្រឹមត្រូវ
+  "error.agentservice.invalid_certificate_type": ប្រភេទវិញ្ញាបនប័ត្រមិនត្រឹមត្រូវ
+  "error.agentservice.invalid_certificate_type_description": ប្រភេទវិញ្ញាបនប័ត្រដែលបានផ្ដល់ជូនមិនត្រូវបានគាំទ្រ
+  "error.agentservice.invalid_certificate_value": តម្លៃវិញ្ញាបនប័ត្រមិនត្រឹមត្រូវ
+  "error.agentservice.invalid_certificate_value_description": តម្លៃវិញ្ញាបនប័ត្រដែលបានផ្ដល់ជូនមិនត្រឹមត្រូវ ឬបាត់
+  "error.agentservice.invalid_credential": ព័ត៌មានសម្ងាត់មិនត្រឹមត្រូវ
+  "error.agentservice.invalid_credential_description": ព័ត៌មានសម្ងាត់ដែលបានផ្ដល់ជូនមិនត្រឹមត្រូវ
+  "error.agentservice.invalid_filter": ប៉ារ៉ាម៉ែត្រ filter មិនត្រឹមត្រូវ
+  "error.agentservice.invalid_filter_description": ទម្រង់ filter មិនត្រឹមត្រូវ
+  "error.agentservice.invalid_grant_type": ប្រភេទ grant មិនត្រឹមត្រូវ
+  "error.agentservice.invalid_grant_type_description": ប្រភេទ grant មួយ ឬច្រើនមិនត្រូវបានគាំទ្រ
+  "error.agentservice.invalid_jwks_uri": JWKS URI មិនត្រឹមត្រូវ
+  "error.agentservice.invalid_jwks_uri_description": JWKS URI ត្រូវតែជា URL HTTPS ដែលអាចចូលប្រើបានជាសាធារណៈ
+  "error.agentservice.invalid_limit": ប៉ារ៉ាម៉ែត្រការ​ជំ​ន្រ្ដ​ទំព័រ​មិន​ត្រឹម​ត្រូវ
+  "error.agentservice.invalid_limit_description": ប៉ារ៉ាម៉ែត្រ limit ត្រូវតែស្ថិតរវាង 1 និង 100
+  "error.agentservice.invalid_oauth_configuration": ការ​កំ​ណត់ OAuth មិន​ត្រឹម​ត្រូវ
+  "error.agentservice.invalid_oauth_configuration_description": ការ​កំ​ណត់ OAuth ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ
+  "error.agentservice.invalid_offset": ប៉ារ៉ាម៉ែត្រ​ការ​ជំ​ន្រ្ដ​ទំព័រ​មិន​ត្រឹម​ត្រូវ
+  "error.agentservice.invalid_offset_description": ប៉ារ៉ាម៉ែត្រ offset ត្រូវ​តែ​ជា​អន្តរ​ចំនួន​គត់​ដែល​មិន​អវិជ្ជមាន
+  "error.agentservice.invalid_public_client_configuration": ការ​កំ​ណត់​ client សាធារណៈ​មិន​ត្រឹម​ត្រូវ
+  "error.agentservice.invalid_public_client_configuration_description": ការ​កំ​ណត់​ client សាធារណៈ​មិន​ត្រឹម​ត្រូវ
+  "error.agentservice.invalid_redirect_uri": redirect URI មិន​ត្រឹម​ត្រូវ
+  "error.agentservice.invalid_redirect_uri_description": redirect URI មួយ​ ឬ​ច្រើន​មិន​ត្រឹម​ត្រូវ
+  "error.agentservice.invalid_registration_flow_id": registration flow ID មិន​ត្រឹម​ត្រូវ
+  "error.agentservice.invalid_registration_flow_id_description": registration flow ID ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ
+  "error.agentservice.invalid_request_format": ទម្រង់​សំណើ​មិន​ត្រឹម​ត្រូវ
+  "error.agentservice.invalid_request_format_description": ខ្លឹមសារ​នៃ​សំណើ​មាន​ទ្រង់ទ្រាយ​ខុស ឬ​មាន​ទិន្នន័យ​មិន​ត្រឹម​ត្រូវ
+  "error.agentservice.invalid_response_type": response type មិន​ត្រឹម​ត្រូវ
+  "error.agentservice.invalid_response_type_description": response type មួយ​ ឬ​ច្រើន​ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ
+  "error.agentservice.invalid_token_endpoint_auth_method": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់​ token endpoint មិន​ត្រឹម​ត្រូវ
+  "error.agentservice.invalid_token_endpoint_auth_method_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់​ token endpoint ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រូវ​បាន​គាំ​ទ្រ
+  "error.agentservice.invalid_user_attribute": user attribute មិន​ត្រឹម​ត្រូវ
+  "error.agentservice.invalid_user_attribute_description": user attribute មួយ​ ឬ​ច្រើន​មិន​ត្រឹម​ត្រូវ​សម្រាប់​ប្រភេទ​អ្នក​ប្រើ​ប្រាស់​ដែល​បាន​អនុញ្ញាត
+  "error.agentservice.invalid_user_type": ប្រភេទ​អ្នក​ប្រើ​ប្រាស់​មិន​ត្រឹម​ត្រូវ
+  "error.agentservice.invalid_user_type_description": ប្រភេទ​អ្នក​ប្រើ​ប្រាស់​ដែល​បាន​ระบុ​មួយ ​ឬ​ច្រើន​មិន​ត្រឹម​ត្រូវ
+  "error.agentservice.layout_not_found": រក​មិន​ឃើញ Layout
+  "error.agentservice.layout_not_found_description": layout ដែល​បាន​ระบុ​មិន​មាន​ស្ថិត​ក្នុង​ប្រព័ន្ធ
+  "error.agentservice.missing_agent_id": Agent ID បាត់
+  "error.agentservice.missing_agent_id_description": Agent ID ត្រូវ​បាន​ទាម​ទារ
+  "error.agentservice.multiple_oauth_configs": OAuth inbound auth config ច្រើន​មិន​ត្រូវ​បាន​អនុញ្ញាត
+  "error.agentservice.multiple_oauth_configs_description": អង្គ​ភាព​មួយ​អាច​មាន​ inbound auth config តែ​មួយ​ក្នុង​មួយ​ protocol
+  "error.agentservice.none_auth_method_cannot_have_cert_or_secret_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ 'none' មិន​អាច​មាន​វិញ្ញាបន​ប័ត្រ ឬ​ client secret បាន
+  "error.agentservice.none_auth_method_requires_public_client_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ 'none' ទាម​ទារ​ឱ្យ client ជា public client
+  "error.agentservice.organization_unit_not_found": រក​មិន​ឃើញ​អង្គ​ភាព​អង្គការ
+  "error.agentservice.organization_unit_not_found_description": អង្គ​ភាព​អង្គការ​ដែល​បាន​ระบុ​មិន​មាន​ស្ថិត​ក្នុង​ប្រព័ន្ធ
+  "error.agentservice.owner_not_found": រក​មិន​ឃើញ​ម្ចាស់
+  "error.agentservice.owner_not_found_description": ម្ចាស់​ដែល​បាន​ระบុ​មិន​ត្រង​ទៅ​នឹង​អ្នក​ប្រើ​ប្រាស់ ​កម្មវិធី ​ឬ Agent ណា​មួយ​ដែល​ស្គាល់
+  "error.agentservice.pkce_requires_authorization_code_description": PKCE អាច​ធ្វើ​ឱ្យ​ដំ​ណើរ​ការ​បាន​តែ​នៅ​ពេល​ជ្រើស​រើស​ប្រភេទ grant authorization_code
+  "error.agentservice.private_key_jwt_cannot_have_client_secret_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ private_key_jwt មិន​អាច​មាន client secret បាន
+  "error.agentservice.private_key_jwt_requires_certificate_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ private_key_jwt ទាម​ទារ​វិញ្ញាបន​ប័ត្រ
+  "error.agentservice.public_client_must_have_pkce_description": Public client ត្រូវ​តែ​មាន PKCE ដែល​ត្រូវ​បាន​ដំ​ណើរ​ការ​ដែល​ស្មើ​នឹង true
+  "error.agentservice.public_client_must_use_none_auth_description": Public client ត្រូវ​តែ​ប្រើ 'none' ជា​វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ token endpoint
+  "error.agentservice.redirect_uri_fragment_not_allowed_description": redirect URI មិន​ត្រូវ​មាន​ fragment component
+  "error.agentservice.refresh_token_cannot_be_sole_grant_description": ប្រភេទ grant refresh_token មិន​អាច​ប្រើ​បាន​ដោយ​គ្មាន​ប្រភេទ grant ផ្សេង​ទៀត
+  "error.agentservice.response_types_require_authorization_code_description": Response type អាច​ត្រូវ​បាន​កំ​ណត់​ត្រឹម​តែ​ជា​មួយ​ប្រភេទ grant authorization_code ប៉ុណ្ណោះ
+  "error.agentservice.schema_validation_failed": ការ​ត្រួត​ពិនិត្យ Schema បរាជ័យ
+  "error.agentservice.schema_validation_failed_description": attribute ដែល​បាន​ផ្ដល់​ជូន​មិន​ប្រព្រឹ​ត្ត​ទៅ​ក្នុង Schema
+  "error.agentservice.theme_not_found": រក​មិន​ឃើញ Theme
+  "error.agentservice.theme_not_found_description": theme ដែល​បាន​ระบุ​មិន​មាន​ស្ថិត​ក្នុង​ប្រព័ន្ធ
+  "error.agentservice.userinfo_alg_requires_response_type_description": userinfo responseType ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល signingAlg ឬ encryptionAlg ត្រូវ​បាន​កំ​ណត់
+  "error.agentservice.userinfo_encryption_alg_requires_enc_description": userinfo encryptionEnc ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល encryptionAlg ត្រូវ​បាន​កំ​ណត់
+  "error.agentservice.userinfo_encryption_enc_requires_alg_description": userinfo encryptionAlg ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល encryptionEnc ត្រូវ​បាន​កំ​ណត់
+  "error.agentservice.userinfo_encryption_requires_certificate_description": វិញ្ញាបន​ប័ត្រ (JWKS ឬ JWKS_URI) ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល​ការ​អ៊ិន​គ្រីប userinfo ត្រូវ​បាន​កំ​ណត់
+  "error.agentservice.userinfo_jwe_requires_encryption_description": encryptionAlg និង encryptionEnc ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល userinfo responseType គឺ JWE
+  "error.agentservice.userinfo_jwks_uri_not_ssrf_safe_description": userinfo JWKS URI ត្រូវ​តែ​ជា URL HTTPS ដែល​អាច​ចូល​ប្រើ​បាន​ជា​សាធារណៈ
+  "error.agentservice.userinfo_jws_requires_signing_alg_description": signingAlg ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល userinfo responseType គឺ JWS
+  "error.agentservice.userinfo_nested_jwt_requires_all_description": signingAlg, encryptionAlg, និង encryptionEnc ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល userinfo responseType គឺ NESTED_JWT
+  "error.agentservice.userinfo_unsupported_encryption_alg_description": ក្បួន​ដោះ​ស្រាយ​ការ​អ៊ិន​គ្រីប userinfo មិន​ត្រូវ​បាន​គាំ​ទ្រ
+  "error.agentservice.userinfo_unsupported_encryption_enc_description": ក្បួន​ដោះ​ស្រាយ​ការ​អ៊ិន​គ្រីប​ខ្លឹម​សារ userinfo មិន​ត្រូវ​បាន​គាំ​ទ្រ
+  "error.agentservice.userinfo_unsupported_response_type_description": userinfo responseType មិន​ត្រូវ​បាន​គាំ​ទ្រ
+  "error.agentservice.userinfo_unsupported_signing_alg_description": ក្បួន​ដោះ​ស្រាយ​ការ​ចុះ​ហត្ថ​លេខា userinfo មិន​ត្រូវ​បាន​គាំ​ទ្រ
+  "error.applicationservice.application_already_exists": កម្ម​វិធី​មាន​ស្ថិត​ក្នុង​ប្រព័ន្ធ​រួច​ហើយ
+  "error.applicationservice.application_already_exists_description": កម្ម​វិធី​ដែល​មាន​ឈ្មោះ​ដូច​គ្នា​នេះ​ស្ថិត​ក្នុង​ប្រព័ន្ធ​រួច​ហើយ
+  "error.applicationservice.application_is_nil": កម្ម​វិធី​គឺ nil
+  "error.applicationservice.application_is_nil_description": object កម្ម​វិធី​ដែល​បាន​ផ្ដល់​ជូន​គឺ nil
+  "error.applicationservice.application_not_found": រក​មិន​ឃើញ​កម្ម​វិធី
+  "error.applicationservice.application_not_found_description": មិន​អាច​រក​ឃើញ​កម្ម​វិធី​ដែល​បាន​ស្នើ​សុំ
+  "error.applicationservice.application_with_client_id_already_exists": កម្ម​វិធី​ដែល​មាន client ID ស្ថិត​ក្នុង​ប្រព័ន្ធ​រួច​ហើយ
+  "error.applicationservice.application_with_client_id_already_exists_description": កម្ម​វិធី​ដែល​មាន client ID ដូច​គ្នា​នេះ​ស្ថិត​ក្នុង​ប្រព័ន្ធ​រួច​ហើយ
+  "error.applicationservice.auth_code_requires_code_response_type_description": ប្រភេទ grant authorization_code ទាម​ទារ response type 'code'
+  "error.applicationservice.auth_code_requires_redirect_uris_description": ប្រភេទ grant authorization_code ទាម​ទារ redirect URI
+  "error.applicationservice.cannot_modify_declarative_resource": មិន​អាច​កែ​ប្រែ​ធន​ធាន​ដែល​ប្រកាស
+  "error.applicationservice.cannot_modify_declarative_resource_description": កម្ម​វិធី​ត្រូវ​បាន​ប្រកាស ហើយ​មិន​អាច​កែ​ប្រែ ឬ​លុប​បាន
+  "error.applicationservice.certificate_operation_failed": ប្រតិ​បត្តិ​ការ​វិញ្ញាបន​ប័ត្រ​បរាជ័យ
+  "error.applicationservice.certificate_operation_failed_description": មាន​កំ​ហុស​កើត​ឡើង​ខណៈ​ពេល​ដំ​ណើរ​ការ​វិញ្ញាបន​ប័ត្រ​របស់​កម្ម​វិធី
+  "error.applicationservice.client_credentials_cannot_use_none_auth_description": ប្រភេទ grant client_credentials មិន​អាច​ប្រើ​វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ 'none' បាន
+  "error.applicationservice.client_credentials_cannot_use_response_types_description": ប្រភេទ grant client_credentials មិន​អាច​ប្រើ​ជា​មួយ response types បាន
+  "error.applicationservice.client_secret_cannot_have_certificate_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ client_secret មិន​អាច​មាន​វិញ្ញាបន​ប័ត្រ​បាន
+  "error.applicationservice.consent_service_not_enabled": សេវា​ការ​យល់​ព្រម​មិន​ត្រូវ​បាន​ដំ​ណើរ​ការ
+  "error.applicationservice.consent_service_not_enabled_description": មិន​អាច​ដំ​ណើរ​ការ​ការ​យល់​ព្រម​សម្រាប់​កម្ម​វិធី​បាន ព្រោះ​សេវា​ការ​យល់​ព្រម​មិន​ត្រូវ​បាន​ដំ​ណើរ​ការ
+  "error.applicationservice.consent_synchronization_failed": ការ​ធ្វើ​សមកាល​កម្ម​ការ​យល់​ព្រម​បរាជ័យ
+  "error.applicationservice.consent_synchronization_failed_description": ការ​ធ្វើ​សមកាល​កម្ម​ការ​កំ​ណត់​ការ​យល់​ព្រម​សម្រាប់​កម្ម​វិធី​បរាជ័យ
+  "error.applicationservice.error_retrieving_flow_definition": កំ​ហុស​ក្នុង​ការ​ទទួល​យក​និយ​មន័យ​លំ​ហូរ
+  "error.applicationservice.error_retrieving_flow_definition_description": មាន​កំ​ហុស​កើត​ឡើង​ខណៈ​ពេល​ទទួល​យក​និយ​មន័យ​លំ​ហូរ
+  "error.applicationservice.idtoken_encryption_alg_requires_enc_description": idToken encryptionEnc ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល encryptionAlg ត្រូវ​បាន​កំ​ណត់
+  "error.applicationservice.idtoken_encryption_enc_requires_alg_description": idToken encryptionAlg ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល encryptionEnc ត្រូវ​បាន​កំ​ណត់
+  "error.applicationservice.idtoken_encryption_fields_not_allowed_description": idToken encryptionAlg និង encryptionEnc មិន​ត្រូវ​តែ​កំ​ណត់​នៅ​ពេល responseType គឺ JWT
+  "error.applicationservice.idtoken_encryption_requires_certificate_description": វិញ្ញាបន​ប័ត្រ (JWKS ឬ JWKS_URI) ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល​ការ​អ៊ិន​គ្រីប ID token ត្រូវ​បាន​កំ​ណត់
+  "error.applicationservice.idtoken_jwks_uri_not_ssrf_safe_description": idToken JWKS URI ត្រូវ​តែ​ជា URL HTTPS ដែល​អាច​ចូល​ប្រើ​បាន​ជា​សាធារណៈ
+  "error.applicationservice.idtoken_unsupported_encryption_alg_description": ក្បួន​ដោះ​ស្រាយ​ការ​អ៊ិន​គ្រីប ID token មិន​ត្រូវ​បាន​គាំ​ទ្រ
+  "error.applicationservice.idtoken_unsupported_encryption_enc_description": ក្បួន​ដោះ​ស្រាយ​ការ​អ៊ិន​គ្រីប​ខ្លឹម​សារ ID token មិន​ត្រូវ​បាន​គាំ​ទ្រ
+  "error.applicationservice.idtoken_unsupported_response_type_description": responseType នៃ ID token មិន​ត្រូវ​បាន​គាំ​ទ្រ
+  "error.applicationservice.invalid_acr_values": តម្លៃ ACR មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_acr_values_description": តម្លៃ ACR មួយ ​ឬ​ច្រើន​ក្នុង acr_values មិន​ត្រូវ​បាន​ទទួល​ស្គាល់​ដោយ​ប្រព័ន្ធ
+  "error.applicationservice.invalid_application_id": application ID មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_application_id_description": application ID ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ​ ឬ​ទទេ
+  "error.applicationservice.invalid_application_name": ឈ្មោះ​កម្ម​វិធី​មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_application_name_description": ឈ្មោះ​កម្ម​វិធី​ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ ​ឬ​ទទេ
+  "error.applicationservice.invalid_application_url": URL កម្ម​វិធី​មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_application_url_description": URL កម្ម​វិធី​ដែល​បាន​ផ្ដល់​ជូន​មិន​មែន​ជា URI ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_auth_flow_id": auth flow ID មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_auth_flow_id_description": auth flow ID ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_certificate_type": ប្រភេទ​វិញ្ញាបន​ប័ត្រ​មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_certificate_type_description": ប្រភេទ​វិញ្ញាបន​ប័ត្រ​ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រូវ​បាន​គាំ​ទ្រ
+  "error.applicationservice.invalid_certificate_value": តម្លៃ​វិញ្ញាបន​ប័ត្រ​មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_certificate_value_description": តម្លៃ​វិញ្ញាបន​ប័ត្រ​ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_client_id": client ID មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_client_id_description": client ID ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ ​ឬ​ទទេ
+  "error.applicationservice.invalid_grant_type": ប្រភេទ grant មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_grant_type_description": ប្រភេទ grant មួយ ​ឬ​ច្រើន​ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_inbound_auth_config": inbound auth config មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_inbound_auth_config_description": ការ​កំ​ណត់​ inbound authentication ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_jwks_uri": JWKS URI មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_jwks_uri_description": JWKS URI ដែល​បាន​ផ្ដល់​ជូន​មិន​មែន​ជា URI ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_jwks_uri_scheme": គ្រោង JWKS URI មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_jwks_uri_scheme_description": 'jwks_uri' ត្រូវ​តែ​ប្រើ​គ្រោង HTTPS
+  "error.applicationservice.invalid_logo_url": URL រូប​សញ្ញា​មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_logo_url_description": URL រូប​សញ្ញា​ដែល​បាន​ផ្ដល់​ជូន​មិន​មែន​ជា URI ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_oauth_configuration": ការ​កំ​ណត់ OAuth មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_oauth_configuration_description": ការ​កំ​ណត់ OAuth មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_public_client_configuration": ការ​កំ​ណត់ client សាធារណៈ​មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_public_client_configuration_description": ការ​កំ​ណត់ client សាធារណៈ​មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_recovery_flow_id": recovery flow ID មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_recovery_flow_id_description": recovery flow ID ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_redirect_uri": redirect URI មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_redirect_uri_description": redirect URI មួយ ​ឬ​ច្រើន​ដែល​បាន​ផ្ដល់​ជូន​មិន​មែន​ជា URI ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_registration_flow_id": registration flow ID មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_registration_flow_id_description": registration flow ID ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_request_format": ទម្រង់​សំណើ​មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_request_format_description": ខ្លឹម​សារ​នៃ​សំណើ​មាន​ទ្រង់​ទ្រាយ​ខុស ​ឬ​មាន​ទិន្នន័យ​មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_response_type": response type មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_response_type_description": response type មួយ ​ឬ​ច្រើន​ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_token_endpoint_auth_method": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ token endpoint មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_token_endpoint_auth_method_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ token endpoint ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_user_attribute": user attribute មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_user_attribute_description": user attribute មួយ ​ឬ​ច្រើន​មិន​ត្រឹម​ត្រូវ​សម្រាប់​ប្រភេទ​អ្នក​ប្រើ​ប្រាស់​ដែល​បាន​អនុញ្ញាត
+  "error.applicationservice.invalid_user_type": ប្រភេទ​អ្នក​ប្រើ​ប្រាស់​មិន​ត្រឹម​ត្រូវ
+  "error.applicationservice.invalid_user_type_description": ប្រភេទ​អ្នក​ប្រើ​ប្រាស់​មួយ ​ឬ​ច្រើន​ក្នុង allowed_user_types មិន​មាន​ស្ថិត​ក្នុង​ប្រព័ន្ធ
+  "error.applicationservice.layout_not_found": រក​មិន​ឃើញ Layout
+  "error.applicationservice.layout_not_found_description": ការ​កំ​ណត់ layout ដែល​បាន​ระบุ​មិន​មាន​ស្ថិត​ក្នុង​ប្រព័ន្ធ
+  "error.applicationservice.multiple_oauth_configs": OAuth inbound auth config ច្រើន​មិន​ត្រូវ​បាន​អនុញ្ញាត
+  "error.applicationservice.multiple_oauth_configs_description": កម្ម​វិធី​មួយ​អាច​មាន inbound auth config តែ​មួយ​ក្នុង​មួយ protocol
+  "error.applicationservice.none_auth_method_cannot_have_cert_or_secret_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ 'none' មិន​អាច​មាន​វិញ្ញាបន​ប័ត្រ ​ឬ client secret បាន
+  "error.applicationservice.none_auth_method_requires_public_client_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ 'none' ទាម​ទារ​ឱ្យ client ជា public client
+  "error.applicationservice.pkce_requires_authorization_code_description": PKCE អាច​ធ្វើ​ឱ្យ​ដំ​ណើរ​ការ​បាន​តែ​នៅ​ពេល​ជ្រើស​រើស​ប្រភេទ grant authorization_code
+  "error.applicationservice.private_key_jwt_cannot_have_client_secret_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ private_key_jwt មិន​អាច​មាន client secret បាន
+  "error.applicationservice.private_key_jwt_requires_certificate_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ private_key_jwt ទាម​ទារ​វិញ្ញាបន​ប័ត្រ
+  "error.applicationservice.public_client_must_have_pkce_description": Public client ត្រូវ​តែ​មាន PKCE ដែល​ត្រូវ​បាន​ដំ​ណើរ​ការ​ស្មើ​នឹង true
+  "error.applicationservice.public_client_must_use_none_auth_description": Public client ត្រូវ​តែ​ប្រើ 'none' ជា​វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ token endpoint
+  "error.applicationservice.redirect_uri_fragment_not_allowed_description": redirect URI មិន​ត្រូវ​មាន fragment component
+  "error.applicationservice.refresh_token_cannot_be_sole_grant_description": ប្រភេទ grant refresh_token មិន​អាច​ប្រើ​បាន​ដោយ​គ្មាន​ប្រភេទ grant ផ្សេង​ទៀត
+  "error.applicationservice.response_types_require_authorization_code_description": Response type អាច​ត្រូវ​បាន​កំ​ណត់​ត្រឹម​តែ​ជា​មួយ​ប្រភេទ grant authorization_code ប៉ុណ្ណោះ
+  "error.applicationservice.result_limit_exceeded": លើស​កំ​រិត​លទ្ធ​ផល
+  "error.applicationservice.theme_not_found": រក​មិន​ឃើញ Theme
+  "error.applicationservice.theme_not_found_description": ការ​កំ​ណត់ theme ដែល​បាន​ระบุ​មិន​មាន​ស្ថិត​ក្នុង​ប្រព័ន្ធ
+  "error.applicationservice.userinfo_alg_requires_response_type_description": userinfo responseType ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល signingAlg ​ឬ encryptionAlg ត្រូវ​បាន​កំ​ណត់
+  "error.applicationservice.userinfo_encryption_alg_requires_enc_description": userinfo encryptionEnc ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល encryptionAlg ត្រូវ​បាន​កំ​ណត់
+  "error.applicationservice.userinfo_encryption_enc_requires_alg_description": userinfo encryptionAlg ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល encryptionEnc ត្រូវ​បាន​កំ​ណត់
+  "error.applicationservice.userinfo_encryption_requires_certificate_description": វិញ្ញាបន​ប័ត្រ (JWKS ​ឬ JWKS_URI) ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល​ការ​អ៊ិន​គ្រីប userinfo ត្រូវ​បាន​កំ​ណត់
+  "error.applicationservice.userinfo_jwe_requires_encryption_description": encryptionAlg និង encryptionEnc ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល userinfo responseType គឺ JWE
+  "error.applicationservice.userinfo_jwks_uri_not_ssrf_safe_description": userinfo JWKS URI ត្រូវ​តែ​ជា URL HTTPS ដែល​អាច​ចូល​ប្រើ​បាន​ជា​សាធារណៈ
+  "error.applicationservice.userinfo_jws_requires_signing_alg_description": signingAlg ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល userinfo responseType គឺ JWS
+  "error.applicationservice.userinfo_nested_jwt_requires_all_description": signingAlg, encryptionAlg, និង encryptionEnc ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល userinfo responseType គឺ NESTED_JWT
+  "error.applicationservice.userinfo_unsupported_encryption_alg_description": ក្បួន​ដោះ​ស្រាយ​ការ​អ៊ិន​គ្រីប userinfo មិន​ត្រូវ​បាន​គាំ​ទ្រ
+  "error.applicationservice.userinfo_unsupported_encryption_enc_description": ក្បួន​ដោះ​ស្រាយ​ការ​អ៊ិន​គ្រីប​ខ្លឹម​សារ userinfo មិន​ត្រូវ​បាន​គាំ​ទ្រ
+  "error.applicationservice.userinfo_unsupported_response_type_description": userinfo responseType មិន​ត្រូវ​បាន​គាំ​ទ្រ
+  "error.applicationservice.userinfo_unsupported_signing_alg_description": ក្បួន​ដោះ​ស្រាយ​ការ​ចុះ​ហត្ថ​លេខា userinfo មិន​ត្រូវ​បាន​គាំ​ទ្រ
+  "error.assertservice.invalid_authenticator": authenticator មិន​ត្រឹម​ត្រូវ
+  "error.assertservice.invalid_authenticator_description": ឈ្មោះ authenticator មិន​អាច​ទទេ​បាន
+  "error.assertservice.nil_assurance_context": assurance context គឺ nil
+  "error.assertservice.nil_assurance_context_description": assurance context មិន​អាច​ជា nil​ សម្រាប់​ការ​ផ្ទៀង​ផ្ទាត់
+  "error.assertservice.no_assurance_requirements": មិន​មាន​តម្រូវ​ការ assurance
+  "error.assertservice.no_assurance_requirements_description": ត្រូវ​តែ​ระบุ​កម្រិត assurance យ៉ាង​ហោច​ណាស់​មួយ (AAL ​ឬ IAL) សម្រាប់​ការ​ផ្ទៀង​ផ្ទាត់
+  "error.assertservice.no_authenticators": មិន​មាន authenticator
+  "error.assertservice.no_authenticators_description": មិន​អាច​បង្កើត assertion ដោយ​គ្មាន authenticator បាន
+  "error.attributecache.cache_not_found": រក​មិន​ឃើញ​ cache attribute
+  "error.attributecache.cache_not_found_description": ធាតុ​ cache attribute ដែល​មាន ID ដែល​បាន​ระบุ​មិន​មាន​ស្ថិត​ក្នុង​ប្រព័ន្ធ
+  "error.attributecache.invalid_expiry_time": ពេល​វេលា​ផុត​កំ​ណត់​មិន​ត្រឹម​ត្រូវ
+  "error.attributecache.invalid_expiry_time_description": ពេល​វេលា​ផុត​កំ​ណត់​ត្រូវ​តែ​ស្ថិត​ក្នុង​ពេល​អនា​គត
+  "error.attributecache.invalid_request_format": ទម្រង់​សំណើ​មិន​ត្រឹម​ត្រូវ
+  "error.attributecache.invalid_request_format_description": ខ្លឹម​សារ​នៃ​សំណើ​មាន​ទ្រង់​ទ្រាយ​ខុស ​ឬ​មាន​ទិន្នន័យ​មិន​ត្រឹម​ត្រូវ
+  "error.attributecache.missing_attributes": attribute ​បាត់
+  "error.attributecache.missing_attributes_description": attribute ត្រូវ​បាន​ទាម​ទារ
+  "error.attributecache.missing_cache_id": cache ID ​បាត់
+  "error.attributecache.missing_cache_id_description": cache ID ត្រូវ​បាន​ទាម​ទារ
+  "error.auth.forbidden": ហាម​ឃាត់
+  "error.auth.forbidden_description": អ្នក​មិន​មាន​សិទ្ធិ​គ្រប់​គ្រាន់​ដើម្បី​ចូល​ប្រើ​ធន​ធាន​នេះ​បាន
+  "error.auth.unauthorized": មិន​ត្រូវ​បាន​អនុញ្ញាត
+  "error.auth.unauthorized_description": ការ​ផ្ទៀង​ផ្ទាត់​ត្រូវ​បាន​ទាម​ទារ​ដើម្បី​ចូល​ប្រើ​ធន​ធាន​នេះ
+  "error.authncredservice.invalid_request_format": ទម្រង់​សំណើ​មិន​ត្រឹម​ត្រូវ
+  "error.authncredservice.invalid_request_format_description": ខ្លឹម​សារ​នៃ​សំណើ​មាន​ទ្រង់​ទ្រាយ​ខុស ​ឬ​មាន​ទិន្នន័យ​មិន​ត្រឹម​ត្រូវ
+  "error.authnmgrservice.ambiguous_user": អ្នក​ប្រើ​ប្រាស់​មិន​ច្បាស់
+  "error.authnmgrservice.ambiguous_user_description": រក​ឃើញ​អ្នក​ប្រើ​ប្រាស់​ច្រើន​នាក់​ដែល​ត្រង​ទៅ​នឹង​អ្នក​កំ​ណត់​អត្ត​សញ្ញាណ​ដែល​បាន​ផ្ដល់​ជូន
+  "error.authnmgrservice.authentication_failed": ការ​ផ្ទៀង​ផ្ទាត់​ខ្លួន​បរាជ័យ
+  "error.authnmgrservice.authentication_failed_description": ការ​ព្យាយាម​ផ្ទៀង​ផ្ទាត់​ខ្លួន​បរាជ័យ
+  "error.authnmgrservice.failed_to_get_attributes": ទទួល attribute ​បរាជ័យ
+  "error.authnmgrservice.failed_to_get_attributes_description": ការ​ទទួល attribute ​ត្រូវ​បាន​បដិ​សេធ​ដោយ​អ្នក​ផ្ដល់​សេវា
+  "error.authnmgrservice.get_entity_reference_client_error": ទទួល entity reference ​បរាជ័យ
+  "error.authnmgrservice.get_entity_reference_client_error_description": ការ​ទទួល entity reference ​ត្រូវ​បាន​បដិ​សេធ​ដោយ​អ្នក​ផ្ដល់​សេវា
+  "error.authnmgrservice.invalid_request": សំណើ​មិន​ត្រឹម​ត្រូវ
+  "error.authnmgrservice.invalid_request_description": សំណើ​ផ្ទៀង​ផ្ទាត់​ខ្លួន​មិន​ត្រឹម​ត្រូវ
+  "error.authnmgrservice.user_not_found": រក​មិន​ឃើញ​អ្នក​ប្រើ​ប្រាស់
+  "error.authnmgrservice.user_not_found_description": រក​មិន​ឃើញ​អ្នក​ប្រើ​ប្រាស់​ណា​ដែល​ត្រង​ទៅ​នឹង​អ្នក​កំ​ណត់​អត្ត​សញ្ញាណ​ដែល​បាន​ផ្ដល់​ជូន
+  "error.authnotpservice.error_processing_otp": កំ​ហុស​ក្នុង​ការ​ដំ​ណើរ​ការ OTP
+  "error.authnotpservice.error_processing_otp_description": មាន​កំ​ហុស​កើត​ឡើង​ខណៈ​ពេល​ដំ​ណើរ​ការ​សំណើ OTP
+  "error.authnotpservice.error_resolving_user": កំ​ហុស​ក្នុង​ការ​ដោះ​ស្រាយ​អ្នក​ប្រើ​ប្រាស់
+  "error.authnotpservice.error_resolving_user_description": មាន​កំ​ហុស​កើត​ឡើង​ខណៈ​ពេល​ដោះ​ស្រាយ​អ្នក​ប្រើ​ប្រាស់​សម្រាប់​អ្នក​ទទួល
+  "error.authnotpservice.incorrect_otp": OTP មិន​ត្រឹម​ត្រូវ
+  "error.authnotpservice.incorrect_otp_description": OTP ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ ​ឬ​ផុត​កំ​ណត់​ហើយ
+  "error.authnotpservice.invalid_otp": OTP មិន​ត្រឹម​ត្រូវ
+  "error.authnotpservice.invalid_otp_description": OTP ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ ​ឬ​ទទេ
+  "error.authnotpservice.invalid_recipient": អ្នក​ទទួល​មិន​ត្រឹម​ត្រូវ
+  "error.authnotpservice.invalid_recipient_description": អ្នក​ទទួល​ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ ​ឬ​ទទេ
+  "error.authnotpservice.invalid_sender_id": sender ID មិន​ត្រឹម​ត្រូវ
+  "error.authnotpservice.invalid_sender_id_description": sender ID ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ ​ឬ​ទទេ
+  "error.authnotpservice.invalid_session_token": session token មិន​ត្រឹម​ត្រូវ
+  "error.authnotpservice.invalid_session_token_description": session token ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ ​ឬ​ទទេ
+  "error.authnotpservice.unsupported_channel": channel មិន​ត្រូវ​បាន​គាំ​ទ្រ
+  "error.authnotpservice.unsupported_channel_description": channel ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រូវ​បាន​គាំ​ទ្រ​សម្រាប់​ការ​ផ្ទៀង​ផ្ទាត់ OTP
+  "error.authnservice.ambiguous_user": អ្នក​ប្រើ​ប្រាស់​មិន​ច្បាស់
+  "error.authnservice.ambiguous_user_description": អ្នក​ប្រើ​ប្រាស់​ច្រើន​នាក់​ត្រង​ទៅ​នឹង attribute ដែល​បាន​ផ្ដល់​ជូន
+  "error.authnservice.assertion_subject_mismatch": subject ​នៃ assertion ​មិន​ត្រូវ​គ្នា
+  "error.authnservice.assertion_subject_mismatch_description": subject ​ក្នុង assertion ​មិន​ត្រូវ​គ្នា​ជា​មួយ​អ្នក​ប្រើ​ប្រាស់​ដែល​ត្រូវ​បាន​ផ្ទៀង​ផ្ទាត់
+  "error.authnservice.authentication_failed": ការ​ផ្ទៀង​ផ្ទាត់​ខ្លួន​បរាជ័យ
+  "error.authnservice.authentication_failed_description": មាន​កំ​ហុស​កើត​ឡើង​ខណៈ​ពេល​ផ្ទៀង​ផ្ទាត់​ខ្លួន​អ្នក​ប្រើ​ប្រាស់
+  "error.authnservice.empty_attributes_or_credentials": attribute ​ឬ​ព័ត៌​មាន​សម្ងាត់​ទទេ
+  "error.authnservice.empty_attributes_or_credentials_description": attribute ​ឬ​ព័ត៌​មាន​សម្ងាត់​របស់​អ្នក​ប្រើ​ប្រាស់​មិន​អាច​ទទេ​បាន
+  "error.authnservice.empty_auth_code": authorization code ​ទទេ
+  "error.authnservice.empty_auth_code_description": authorization code ​ដែល​បាន​ផ្ដល់​ជូន​ទទេ
+  "error.authnservice.empty_session_token": session token ​ទទេ
+  "error.authnservice.empty_session_token_description": session token ​ដែល​បាន​ផ្ដល់​ជូន​ទទេ
+  "error.authnservice.error_retrieving_idp": កំ​ហុស​ក្នុង​ការ​ទទួល identity provider
+  "error.authnservice.error_retrieving_idp_description": មាន​កំ​ហុស​កើត​ឡើង​ខណៈ​ពេល​ទទួល identity provider
+  "error.authnservice.federated_authentication_failed": ការ​ផ្ទៀង​ផ្ទាត់​ខ្លួន federated ​បរាជ័យ
+  "error.authnservice.federated_authentication_failed_description": ការ​ព្យាយាម​ផ្ទៀង​ផ្ទាត់​ខ្លួន federated ​បរាជ័យ
+  "error.authnservice.google.invalid_id_token_audience_description": ទស្សនិក​ជន ID token ​មិន​ត្រូវ​គ្នា​ជា​មួយ client ID ​ដែល​បាន​រំ​ពឹង
+  "error.authnservice.google.invalid_id_token_exp_claim_description": ការ​ទទួល​ ID token ​expiration claim ​បាត់ ​ឬ​មិន​ត្រឹម​ត្រូវ
+  "error.authnservice.google.invalid_id_token_expired_description": ID token ​ផុត​កំ​ណត់​ហើយ
+  "error.authnservice.google.invalid_id_token_future_iat_description": ID token ​ត្រូវ​បាន​ចេញ​ក្នុង​ពេល​អនា​គត
+  "error.authnservice.google.invalid_id_token_iat_claim_description": ID token issued-at (iat) claim ​បាត់ ​ឬ​មិន​ត្រឹម​ត្រូវ
+  "error.authnservice.google.invalid_id_token_issuer_description": អ្នក​ចេញ ID token ​មិន​មែន​ជា Google issuer ​ត្រឹម​ត្រូវ
+  "error.authnservice.invalid_assertion": assertion ​មិន​ត្រឹម​ត្រូវ
+  "error.authnservice.invalid_assertion_description": assertion token ​ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ
+  "error.authnservice.invalid_credentials": លិខិតបញ្ជាក់មិនត្រឹមត្រូវ
+  "error.authnservice.invalid_credentials_description": លិខិតបញ្ជាក់ដែលបានផ្តល់មិនត្រឹមត្រូវ
+  "error.authnservice.invalid_idp_id": លេខសម្គាល់អ្នកផ្តល់អត្តសញ្ញាណមិនត្រឹមត្រូវ
+  "error.authnservice.invalid_idp_id_description": លេខសម្គាល់អ្នកផ្តល់អត្តសញ្ញាណដែលបានផ្តល់គឺមិនត្រឹមត្រូវ ឬទទេ
+  "error.authnservice.invalid_idp_type": ប្រភេទអ្នកផ្តល់អត្តសញ្ញាណមិនត្រឹមត្រូវ
+  "error.authnservice.invalid_idp_type_description": ប្រភេទអ្នកផ្តល់អត្តសញ្ញាណដែលបានស្នើសុំគឺមិនត្រឹមត្រូវ
+  "error.authnservice.invalid_session_token": ថូខឹនវគ្គប្រើប្រាស់មិនត្រឹមត្រូវ
+  "error.authnservice.invalid_session_token_description": ថូខឹនវគ្គប្រើប្រាស់ដែលបានផ្តល់គឺមិនត្រឹមត្រូវ ឬហួសសំណាំ
+  "error.authnservice.invalid_token": ថូខឹនមិនត្រឹមត្រូវ
+  "error.authnservice.invalid_token_description": ថូខឹនដែលបានផ្តល់មិនត្រឹមត្រូវ
+  "error.authnservice.otp_authentication_failed": ការផ្ទៀងផ្ទាត់បានបរាជ័យ
+  "error.authnservice.otp_authentication_failed_description": ការព្យាយាមផ្ទៀងផ្ទាត់ OTP បានបរាជ័យ
+  "error.authnservice.passkey_authentication_failed": ការផ្ទៀងផ្ទាត់បានបរាជ័យ
+  "error.authnservice.passkey_authentication_failed_description": ការព្យាយាមផ្ទៀងផ្ទាត់សោចូលបានបរាជ័យ
+  "error.authnservice.sub_claim_not_found": រកមិនឃើញប្រធានបទអ្នកប្រើប្រាស់
+  "error.authnservice.sub_claim_not_found_description": រកមិនឃើញការទាមទារ 'sub' នៅក្នុងការទាមទារថូខឹន ID
+  "error.authnservice.user_not_found": រកមិនឃើញអ្នកប្រើប្រាស់
+  "error.authnservice.user_not_found_description": រកមិនឃើញអ្នកប្រើប្រាស់ណាមួយដែលមានគុណលក្ខណៈដែលបានផ្តល់
+  "error.authoauthservice.empty_access_token": ថូខឹនចូលប្រើប្រាស់ទទេ
+  "error.authoauthservice.empty_access_token_description": ថូខឹនចូលប្រើប្រាស់មិនអាចទទេបាន
+  "error.authoauthservice.empty_authorization_code": លេខកូដអនុញ្ញាតទទេ
+  "error.authoauthservice.empty_authorization_code_description": លេខកូដអនុញ្ញាតមិនអាចទទេបាន
+  "error.authoauthservice.empty_idp_id": លេខសម្គាល់ IDP ទទេ
+  "error.authoauthservice.empty_idp_id_description": លេខសម្គាល់អ្នកផ្តល់អត្តសញ្ញាណមិនអាចទទេបាន
+  "error.authoauthservice.empty_sub_claim": ការទាមទារ sub ទទេ
+  "error.authoauthservice.empty_sub_claim_description": ការទាមទារ sub មិនអាចទទេបាន
+  "error.authoauthservice.failed_to_retrieve_idp": បរាជ័យក្នុងការទាញយកអ្នកផ្តល់អត្តសញ្ញាណ
+  "error.authoauthservice.failed_to_retrieve_idp_description": កំហុសអតិថិជនបានកើតឡើងក្នុងពេលទាញយកការកំណត់អ្នកផ្តល់អត្តសញ្ញាណ
+  "error.authoauthservice.failed_to_retrieve_user": បរាជ័យក្នុងការទាញយកអ្នកប្រើប្រាស់
+  "error.authoauthservice.failed_to_retrieve_user_description": កំហុសអតិថិជនបានកើតឡើងក្នុងពេលទាញយកអ្នកប្រើប្រាស់ខាងក្នុង
+  "error.authoauthservice.invalid_idp": អ្នកផ្តល់អត្តសញ្ញាណមិនត្រឹមត្រូវ
+  "error.authoauthservice.invalid_idp_description": អ្នកផ្តល់អត្តសញ្ញាណដែលបានទាញយកគឺមិនត្រឹមត្រូវ ឬទទេ
+  "error.authoauthservice.invalid_token_response": ការឆ្លើយតបថូខឹនមិនត្រឹមត្រូវ
+  "error.authoauthservice.invalid_token_response_description": ការឆ្លើយតបថូខឹនដែលបានទទួលពីអ្នកផ្តល់អត្តសញ្ញាណគឺមិនត្រឹមត្រូវ
+  "error.authoidcservice.invalid_id_token": ថូខឹន ID មិនត្រឹមត្រូវ
+  "error.authoidcservice.invalid_id_token_description": ថូខឹន ID មិនត្រឹមត្រូវ ឬមានទ្រង់ទ្រាយខុស
+  "error.authoidcservice.invalid_id_token_signature":ữ署ហត្ថលេខាថូខឹន ID មិនត្រឹមត្រូវ
+  "error.authoidcservice.invalid_id_token_signature_description": ការផ្ទៀងផ្ទាត់ហត្ថលេខាថូខឹន ID បានបរាជ័យ
+  "error.authzen.invalid_action": សកម្មភាពមិនត្រឹមត្រូវ
+  "error.authzen.invalid_action_description": ឈ្មោះសកម្មភាពមិនត្រូវបានចុះឈ្មោះនៅលើម៉ាស៊ីនបម្រើធនធាន
+  "error.authzen.invalid_request_format": ទ្រង់ទ្រាយសំណើមិនត្រឹមត្រូវ
+  "error.authzen.invalid_request_format_description": តួនៃសំណើមានទ្រង់ទ្រាយខុស ឬមានទិន្នន័យមិនត្រឹមត្រូវ
+  "error.authzen.invalid_resource": ធនធានមិនត្រឹមត្រូវ
+  "error.authzen.invalid_resource_description": ប្រភេទធនធានមិនត្រូវបានចុះឈ្មោះជាម៉ាស៊ីនបម្រើធនធាន
+  "error.authzen.invalid_subject": ប្រធានបទមិនត្រឹមត្រូវ
+  "error.authzen.invalid_subject_description": លេខសម្គាល់ប្រធានបទមិនត្រូវគ្នានឹងប្រភេទប្រធានបទ
+  "error.authzen.missing_action": ខ្វះសកម្មភាព
+  "error.authzen.missing_action_description": ត្រូវការឈ្មោះសកម្មភាព
+  "error.authzen.missing_evaluations": ខ្វះការវាយតម្លៃ
+  "error.authzen.missing_evaluations_description": ត្រូវការការវាយតម្លៃយ៉ាងតិចមួយ
+  "error.authzen.missing_resource": ខ្វះធនធាន
+  "error.authzen.missing_resource_description": ត្រូវការប្រភេទធនធាន
+  "error.authzen.missing_resource_id": ខ្វះលេខសម្គាល់ធនធាន
+  "error.authzen.missing_resource_id_description": ត្រូវការលេខសម្គាល់ធនធាន
+  "error.authzen.missing_subject": ខ្វះប្រធានបទ
+  "error.authzen.missing_subject_description": ត្រូវការលេខសម្គាល់ប្រធានបទ
+  "error.certservice.certificate_already_exists": វិញ្ញាបនបត្រមានស្រាប់រួចហើយ
+  "error.certservice.certificate_already_exists_description": វិញ្ញាបនបត្រដែលមានប្រភេទយោងនិងលេខសម្គាល់ដូចគ្នាមានស្រាប់រួចហើយ
+  "error.certservice.certificate_not_found": រកមិនឃើញវិញ្ញាបនបត្រ
+  "error.certservice.certificate_not_found_description": រកមិនឃើញវិញ្ញាបនបត្រដែលបានស្នើសុំ
+  "error.certservice.invalid_certificate_id": លេខសម្គាល់វិញ្ញាបនបត្រមិនត្រឹមត្រូវ
+  "error.certservice.invalid_certificate_id_description": លេខសម្គាល់វិញ្ញាបនបត្រដែលបានផ្តល់មិនត្រឹមត្រូវ
+  "error.certservice.invalid_certificate_type": ប្រភេទវិញ្ញាបនបត្រមិនត្រឹមត្រូវ
+  "error.certservice.invalid_certificate_type_description": ប្រភេទវិញ្ញាបនបត្រដែលបានផ្តល់មិនត្រឹមត្រូវ
+  "error.certservice.invalid_certificate_value": តម្លៃវិញ្ញាបនបត្រមិនត្រឹមត្រូវ
+  "error.certservice.invalid_certificate_value_description": តម្លៃវិញ្ញាបនបត្រដែលបានផ្តល់មិនត្រឹមត្រូវ
+  "error.certservice.invalid_reference_id": លេខសម្គាល់យោងវិញ្ញាបនបត្រមិនត្រឹមត្រូវ
+  "error.certservice.invalid_reference_id_description": លេខសម្គាល់យោងវិញ្ញាបនបត្រដែលបានផ្តល់មិនត្រឹមត្រូវ
+  "error.certservice.invalid_reference_type": ប្រភេទយោងវិញ្ញាបនបត្រមិនត្រឹមត្រូវ
+  "error.certservice.invalid_reference_type_description": ប្រភេទយោងវិញ្ញាបនបត្រដែលបានផ្តល់មិនត្រឹមត្រូវ
+  "error.certservice.reference_update_not_allowed": មិនអនុញ្ញាតឱ្យធ្វើបច្ចុប្បន្នភាពយោង
+  "error.certservice.reference_update_not_allowed_description": មិនអនុញ្ញាតឱ្យធ្វើបច្ចុប្បន្នភាពប្រភេទយោង ឬលេខសម្គាល់របស់វិញ្ញាបនបត្រដែលមានស្រាប់
+  "error.consentenforcerservice.consent_create_failed": បរាជ័យក្នុងការបង្កើតកំណត់ហេតុការយល់ព្រម
+  "error.consentenforcerservice.consent_create_failed_description": កំហុសក្នុងពេលបង្កើតកំណត់ហេតុការយល់ព្រមនៅក្នុងសេវាការយល់ព្រម
+  "error.consentenforcerservice.consent_search_failed": បរាជ័យក្នុងការស្វែងរកកំណត់ហេតុការយល់ព្រម
+  "error.consentenforcerservice.consent_search_failed_description": កំហុសក្នុងពេលស្វែងរកកំណត់ហេតុការយល់ព្រមពីសេវាការយល់ព្រម
+  "error.consentenforcerservice.consent_session_invalid": វគ្គការយល់ព្រមមិនត្រឹមត្រូវ
+  "error.consentenforcerservice.consent_session_invalid_description": ថូខឹនវគ្គការយល់ព្រមមិនត្រឹមត្រូវ ឬហួសសំណាំ
+  "error.consentenforcerservice.consent_update_failed": បរាជ័យក្នុងការធ្វើបច្ចុប្បន្នភាពកំណត់ហេតុការយល់ព្រម
+  "error.consentenforcerservice.consent_update_failed_description": កំហុសក្នុងពេលធ្វើបច្ចុប្បន្នភាពកំណត់ហេតុការយល់ព្រមនៅក្នុងសេវាការយល់ព្រម
+  "error.consentenforcerservice.essential_consent_denied": ការបដិសេធការយល់ព្រមសំខាន់
+  "error.consentenforcerservice.essential_consent_denied_description": គុណលក្ខណៈការយល់ព្រមសំខាន់មួយ ឬច្រើនត្រូវបានបដិសេធ
+  "error.consentenforcerservice.purpose_create_failed": បរាជ័យក្នុងការបង្កើតគោលបំណងការយល់ព្រម
+  "error.consentenforcerservice.purpose_create_failed_description": កំហុសក្នុងពេលបង្កើតគោលបំណងការយល់ព្រមនៅក្នុងសេវាការយល់ព្រម
+  "error.consentenforcerservice.purpose_fetch_failed": បរាជ័យក្នុងការទាញយកគោលបំណងការយល់ព្រម
+  "error.consentenforcerservice.purpose_fetch_failed_description": កំហុសក្នុងពេលទាញយកគោលបំណងការយល់ព្រមពីសេវាការយល់ព្រម
+  "error.consentenforcerservice.purpose_update_failed": បរាជ័យក្នុងការធ្វើបច្ចុប្បន្នភាពគោលបំណងការយល់ព្រម
+  "error.consentenforcerservice.purpose_update_failed_description": កំហុសក្នុងពេលធ្វើបច្ចុប្បន្នភាពគោលបំណងការយល់ព្រមនៅក្នុងសេវាការយល់ព្រម
+  "error.consentservice.cannot_delete_element": មិនអាចលុបធាតុការយល់ព្រម
+  "error.consentservice.cannot_delete_purpose": មិនអាចលុបគោលបំណងការយល់ព្រម
+  "error.consentservice.consent_not_found": រកមិនឃើញការយល់ព្រម
+  "error.consentservice.consent_not_found_description": មិនមានកំណត់ហេតុការយល់ព្រមដែលមានលេខសម្គាល់ដែលបានបញ្ជាក់
+  "error.consentservice.delete_element_with_associated_purpose_description": មិនអាចលុបធាតុការយល់ព្រមដោយសារតែវានៅតែត្រូវបានភ្ជាប់ជាមួយគោលបំណងការយល់ព្រមមួយ ឬច្រើន
+  "error.consentservice.delete_purpose_with_associated_records_description": មិនអាចលុបគោលបំណងការយល់ព្រមដោយសារតែវាត្រូវបានភ្ជាប់ជាមួយកំណត់ហេតុការយល់ព្រមមួយ ឬច្រើន
+  "error.consentservice.element_already_exists": ធាតុការយល់ព្រមមានស្រាប់រួចហើយ
+  "error.consentservice.element_already_exists_description": ធាតុការយល់ព្រមដែលមានឈ្មោះដូចគ្នាមានស្រាប់រួចហើយ
+  "error.consentservice.element_not_found": រកមិនឃើញធាតុការយល់ព្រម
+  "error.consentservice.element_not_found_description": មិនមានធាតុការយល់ព្រមដែលមានលេខសម្គាល់ដែលបានបញ្ជាក់
+  "error.consentservice.forbidden": ត្រូវបានហាមឃាត់ក្នុងការចូលប្រើប្រាស់សេវាការយល់ព្រម
+  "error.consentservice.forbidden_description": សេវាការយល់ព្រមបានឆ្លើយតបថាត្រូវបានហាមឃាត់
+  "error.consentservice.invalid_consent_request": សំណើការយល់ព្រមមិនត្រឹមត្រូវ
+  "error.consentservice.invalid_consent_request_description": សំណើការយល់ព្រមត្រូវបានបដិសេធដោយសេវាការយល់ព្រមថាមិនត្រឹមត្រូវ
+  "error.consentservice.invalid_element_request": សំណើធាតុការយល់ព្រមមិនត្រឹមត្រូវ
+  "error.consentservice.invalid_element_request_description": សំណើធាតុការយល់ព្រមត្រូវបានបដិសេធដោយសេវាការយល់ព្រមថាមិនត្រឹមត្រូវ
+  "error.consentservice.invalid_purpose_request": សំណើគោលបំណងការយល់ព្រមមិនត្រឹមត្រូវ
+  "error.consentservice.invalid_purpose_request_description": សំណើគោលបំណងការយល់ព្រមត្រូវបានបដិសេធដោយសេវាការយល់ព្រមថាមិនត្រឹមត្រូវ
+  "error.consentservice.invalid_request": សំណើការយល់ព្រមមិនត្រឹមត្រូវ
+  "error.consentservice.invalid_request_description": សំណើដែលបានផ្ញើទៅសេវាការយល់ព្រមមិនត្រឹមត្រូវ
+  "error.consentservice.invalid_request_format": ទ្រង់ទ្រាយសំណើមិនត្រឹមត្រូវ
+  "error.consentservice.invalid_request_format_description": តួនៃសំណើមានទ្រង់ទ្រាយខុស ឬមានទិន្នន័យមិនត្រឹមត្រូវ
+  "error.consentservice.invalid_revoke_request": សំណើដកហូតការយល់ព្រមមិនត្រឹមត្រូវ
+  "error.consentservice.invalid_revoke_request_description": សំណើដកហូតការយល់ព្រមត្រូវបានបដិសេធដោយសេវាការយល់ព្រមថាមិនត្រឹមត្រូវ
+  "error.consentservice.invalid_search_filter": តម្រងស្វែងរកការយល់ព្រមមិនត្រឹមត្រូវ
+  "error.consentservice.invalid_search_filter_description": តម្រងស្វែងរកការយល់ព្រមត្រូវបានបដិសេធដោយសេវាការយល់ព្រមថាមិនត្រឹមត្រូវ
+  "error.consentservice.invalid_update_request": សំណើធ្វើបច្ចុប្បន្នភាពការយល់ព្រមមិនត្រឹមត្រូវ
+  "error.consentservice.invalid_update_request_description": សំណើធ្វើបច្ចុប្បន្នភាពការយល់ព្រមត្រូវបានបដិសេធដោយសេវាការយល់ព្រមថាមិនត្រឹមត្រូវ
+  "error.consentservice.invalid_validation_request": សំណើផ្ទៀងផ្ទាត់ការយល់ព្រមមិនត្រឹមត្រូវ
+  "error.consentservice.invalid_validation_request_description": សំណើផ្ទៀងផ្ទាត់ការយល់ព្រមត្រូវបានបដិសេធដោយសេវាការយល់ព្រមថាមិនត្រឹមត្រូវ
+  "error.consentservice.purpose_already_exists": គោលបំណងការយល់ព្រមមានស្រាប់រួចហើយ
+  "error.consentservice.purpose_already_exists_description": គោលបំណងការយល់ព្រមដែលមានឈ្មោះដូចគ្នាមានស្រាប់រួចហើយសម្រាប់ធនធាននេះ
+  "error.consentservice.purpose_not_found": រកមិនឃើញគោលបំណងការយល់ព្រម
+  "error.consentservice.purpose_not_found_description": មិនមានគោលបំណងការយល់ព្រមដែលមានលេខសម្គាល់ដែលបានបញ្ជាក់
+  "error.consentservice.unauthorized": មិនមានការអនុញ្ញាតក្នុងការចូលប្រើប្រាស់សេវាការយល់ព្រម
+  "error.consentservice.unauthorized_description": សេវាការយល់ព្រមបានឆ្លើយតបថាគ្មានការអនុញ្ញាត
+  "error.dcr.invalid_client_metadata": មេតាដេតាអតិថិជនមិនត្រឹមត្រូវ
+  "error.dcr.invalid_client_metadata_description": តម្លៃមេតាដេតាអតិថិជនមួយ ឬច្រើនមិនត្រឹមត្រូវ
+  "error.dcr.invalid_redirect_uri": URI ប្តូរទិសមិនត្រឹមត្រូវ
+  "error.dcr.invalid_redirect_uri_description": URI ប្តូរទិសមួយ ឬច្រើនមិនត្រឹមត្រូវ
+  "error.dcr.invalid_request_format": ទ្រង់ទ្រាយសំណើមិនត្រឹមត្រូវ
+  "error.dcr.invalid_request_format_description": តួនៃសំណើបាត់ ឬមានទ្រង់ទ្រាយមិនត្រឹមត្រូវ
+  "error.dcr.jwks_configuration_conflict": ជម្លោះការកំណត់ JWKS
+  "error.dcr.jwks_configuration_conflict_description": មិនអាចបញ្ជាក់ទាំងប៉ារ៉ាម៉ែត្រ 'jwks' និង 'jwks_uri' ក្នុងពេលតែមួយ
+  "error.dcr.server_error": កំហុសម៉ាស៊ីនបម្រើ
+  "error.dcr.server_error_description": កំហុសដែលមិនបានរំពឹងទុកបានកើតឡើងក្នុងពេលដំណើរការសំណើ
+  "error.dcr.unauthorized": គ្មានការអនុញ្ញាត
+  "error.dcr.unauthorized_description": ត្រូវការការផ្ទៀងផ្ទាត់ដែលមានសិទ្ធិគ្រប់គ្រាន់ដើម្បីចុះឈ្មោះអតិថិជន
+  "error.declarative_resource.create_operation_not_allowed": មិនអនុញ្ញាតការបង្កើតធនធានប្រកាស
+  "error.declarative_resource.create_operation_not_allowed_description": មិនអនុញ្ញាតការបង្កើតធនធានប្រកាស
+  "error.declarative_resource.delete_operation_not_allowed": មិនអនុញ្ញាតការលុបធនធានប្រកាស
+  "error.declarative_resource.delete_operation_not_allowed_description": មិនអនុញ្ញាតការលុបធនធានប្រកាស
+  "error.declarative_resource.update_operation_not_allowed": មិនអនុញ្ញាតការធ្វើបច្ចុប្បន្នភាពធនធានប្រកាស
+  "error.declarative_resource.update_operation_not_allowed_description": មិនអនុញ្ញាតការធ្វើបច្ចុប្បន្នភាពធនធានប្រកាស
+  "error.encoding_error": កំហុសការអ៊ិនកូដ
+  "error.encoding_error_description": កំហុសបានកើតឡើងក្នុងពេលអ៊ិនកូដការឆ្លើយតប
+  "error.entitytypeservice.agent_type_cannot_delete": មិនអាចលុបប្រភេទភ្នាក់ងារ
+  "error.entitytypeservice.agent_type_cannot_delete_description": មិនអាចលុបប្រភេទភ្នាក់ងារលំនាំដើម។ សូមកែសម្រួលស្គីម៉ាជំនួស
+  "error.entitytypeservice.agent_type_name_conflict": ជម្លោះឈ្មោះប្រភេទភ្នាក់ងារ
+  "error.entitytypeservice.agent_type_name_conflict_description": ប្រភេទភ្នាក់ងារដែលមានឈ្មោះដូចគ្នាមានស្រាប់រួចហើយ
+  "error.entitytypeservice.agent_type_not_found": រកមិនឃើញប្រភេទភ្នាក់ងារ
+  "error.entitytypeservice.agent_type_not_found_description": មិនមានប្រភេទភ្នាក់ងារដែលមានលេខសម្គាល់ដែលបានបញ្ជាក់
+  "error.entitytypeservice.agent_type_only_default_allowed": អនុញ្ញាតតែប្រភេទភ្នាក់ងារលំនាំដើម
+  "error.entitytypeservice.agent_type_only_default_allowed_description": ប្រភេទភ្នាក់ងារត្រូវបានកំណត់ចំពោះស្គីម៉ា 'default' តែមួយ; មិនអនុញ្ញាតការបង្កើត ឬប្តូរឈ្មោះទៅជាឈ្មោះផ្សេង
+  "error.entitytypeservice.cannot_modify_declarative_resource": មិនអាចកែប្រែធនធានប្រកាស
+  "error.entitytypeservice.cannot_modify_declarative_resource_description": ប្រភេទអ្នកប្រើប្រាស់គឺជាប្រភេទប្រកាស ហើយមិនអាចកែប្រែ ឬលុបបាន
+  "error.entitytypeservice.consent_synchronization_failed": ការធ្វើសមកាលកម្មការយល់ព្រមបានបរាជ័យ
+  "error.entitytypeservice.consent_synchronization_failed_description": បរាជ័យក្នុងការធ្វើសមកាលកម្មការកំណត់ការយល់ព្រមសម្រាប់ប្រភេទអង្គភាព
+  "error.entitytypeservice.create_schema_request_parse_failed_description": បរាជ័យក្នុងការញែកតួនៃសំណើ
+  "error.entitytypeservice.credential_attribute_not_allowed_as_display": គុណលក្ខណៈលិខិតបញ្ជាក់មិនអនុញ្ញាតសម្រាប់ការបង្ហាញ
+  "error.entitytypeservice.credential_attribute_not_allowed_as_display_description": គុណលក្ខណៈការបង្ហាញមិនត្រូវយោងទៅគុណលក្ខណៈលិខិតបញ្ជាក់
+  "error.entitytypeservice.entity_type_name_conflict": ជម្លោះឈ្មោះប្រភេទអង្គភាព
+  "error.entitytypeservice.entity_type_name_conflict_description": ប្រភេទអង្គភាពដែលមានឈ្មោះដូចគ្នាមានស្រាប់រួចហើយ
+  "error.entitytypeservice.entity_type_not_found": រកមិនឃើញប្រភេទអង្គភាព
+  "error.entitytypeservice.entity_type_not_found_description": មិនមានប្រភេទអង្គភាពដែលមានលេខសម្គាល់ដែលបានបញ្ជាក់
+  "error.entitytypeservice.invalid_agent_type_request": សំណើប្រភេទភ្នាក់ងារមិនត្រឹមត្រូវ
+  "error.entitytypeservice.invalid_agent_type_request_description": សំណើប្រភេទភ្នាក់ងារមានវាលដែលមិនត្រឹមត្រូវ ឬខ្វះ
+  "error.entitytypeservice.invalid_display_attribute": គុណលក្ខណៈការបង្ហាញមិនត្រឹមត្រូវ
+  "error.entitytypeservice.invalid_display_attribute_description": គុណលក្ខណៈការបង្ហាញត្រូវតែយោងទៅគុណលក្ខណៈដែលបានកំណត់នៅក្នុងស្គីម៉ា (ប្រើសញ្ញាចុចសម្រាប់គុណលក្ខណៈដែលបង្កប់ ដូចជា 'address.city')
+  "error.entitytypeservice.invalid_entity_type_request": សំណើប្រភេទអង្គភាពមិនត្រឹមត្រូវ
+  "error.entitytypeservice.invalid_entity_type_request_description": សំណើប្រភេទអង្គភាពមានវាលដែលមិនត្រឹមត្រូវ ឬខ្វះ
+  "error.entitytypeservice.invalid_limit_parameter": ប៉ារ៉ាម៉ែត្រការបន្ទះទំព័រមិនត្រឹមត្រូវ
+  "error.entitytypeservice.invalid_limit_parameter_description": ប៉ារ៉ាម៉ែត្រដែនកំណត់ត្រូវតែជាចំនួនគត់វិជ្ជមាន
+  "error.entitytypeservice.invalid_offset_parameter": ប៉ារ៉ាម៉ែត្រការបន្ទះទំព័រមិនត្រឹមត្រូវ
+  "error.entitytypeservice.invalid_offset_parameter_description": ប៉ារ៉ាម៉ែត្រការប្រណាំងត្រូវតែជាចំនួនគត់ដែលមិនអវិជ្ជមាន
+  "error.entitytypeservice.invalid_request_format": ទ្រង់ទ្រាយសំណើមិនត្រឹមត្រូវ
+  "error.entitytypeservice.invalid_request_format_description": តួនៃសំណើមានទ្រង់ទ្រាយខុស ឬមានទិន្នន័យមិនត្រឹមត្រូវ
+  "error.entitytypeservice.invalid_user_type_request": សំណើប្រភេទអ្នកប្រើប្រាស់មិនត្រឹមត្រូវ
+  "error.entitytypeservice.invalid_user_type_request_description": សំណើប្រភេទអ្នកប្រើប្រាស់មានវាលដែលមិនត្រឹមត្រូវ ឬខ្វះ
+  "error.entitytypeservice.non_displayable_attribute_type": ប្រភេទគុណលក្ខណៈដែលមិនអាចបង្ហាញ
+  "error.entitytypeservice.non_displayable_attribute_type_description": គុណលក្ខណៈការបង្ហាញត្រូវតែយោងទៅប្រភេទខ្សែអក្សរ ឬលេខ
+  "error.entitytypeservice.result_limit_exceeded": លើសដែនកំណត់លទ្ធផល
+  "error.entitytypeservice.result_limit_exceeded_description": សំណុំលទ្ធផលរួមពីទាំងឯកសារ និងឃ្លាំងទិន្នន័យលើសដែនកំណត់អតិបរមា។ សូមកំណត់ការស្វែងរករបស់អ្នកឱ្យបង្ហាញលទ្ធផលតិចជាងនេះ។
+  "error.entitytypeservice.update_schema_request_parse_failed_description": បរាជ័យក្នុងការញែកតួនៃសំណើ
+  "error.entitytypeservice.user_type_name_conflict": ជម្លោះឈ្មោះប្រភេទអ្នកប្រើប្រាស់
+  "error.entitytypeservice.user_type_name_conflict_description": ប្រភេទអ្នកប្រើប្រាស់ដែលមានឈ្មោះដូចគ្នាមានស្រាប់រួចហើយ
+  "error.entitytypeservice.user_type_not_found": រកមិនឃើញប្រភេទអ្នកប្រើប្រាស់
+  "error.entitytypeservice.user_type_not_found_description": មិនមានប្រភេទអ្នកប្រើប្រាស់ដែលមានលេខសម្គាល់ដែលបានបញ្ជាក់
+  "error.entitytypeservice.user_validation_failed": ការផ្ទៀងផ្ទាត់អ្នកប្រើប្រាស់បានបរាជ័យ
+  "error.entitytypeservice.user_validation_failed_description": គុណលក្ខណៈអ្នកប្រើប្រាស់មិនស្របតាមស្គីម៉ាដែលតម្រូវ
+  "error.eudi.invalid_request": សំណើមិនត្រឹមត្រូវ
+  "error.eudi.invalid_request_description": សំណើខ្វះប៉ារ៉ាម៉ែត្រដែលតម្រូវ ឬមានទ្រង់ទ្រាយខុស
+  "error.eudi.unknown_definition": និយមន័យការបង្ហាញដែលមិនស្គាល់
+  "error.eudi.unknown_definition_description": មិនមាននិយមន័យការបង្ហាញដែលបានចុះឈ្មោះសម្រាប់លេខសម្គាល់ដែលបានផ្តល់
+  "error.eudi.unknown_state": សំណើដែលមិនស្គាល់ ឬហួសសំណាំ
+  "error.eudi.unknown_state_description": រកមិនឃើញសំណើដំណើរការណាមួយសម្រាប់តម្លៃស្ថានភាពដែលបានផ្តល់
+  "error.eudi.verification_failed": ការផ្ទៀងផ្ទាត់ការបង្ហាញបានបរាជ័យ
+  "error.eudi.verification_failed_description": មិនអាចផ្ទៀងផ្ទាត់លិខិតបញ្ជាក់ដែលបានបង្ហាញ
+  "error.exportservice.invalid_request": សំណើនាំចេញមិនត្រឹមត្រូវ
+  "error.exportservice.invalid_request_description": សំណើនាំចេញដែលបានផ្តល់មិនត្រឹមត្រូវ ឬមានទ្រង់ទ្រាយខុស
+  "error.exportservice.nil_request_description": សំណើនាំចេញមិនអាចជា nil
+  "error.exportservice.no_resources_found": រកមិនឃើញធនធាន
+  "error.exportservice.no_resources_found_description": រកមិនឃើញធនធានត្រឹមត្រូវណាមួយសម្រាប់លេខសម្គាល់ដែលបានផ្តល់
+  "error.exportservice.no_valid_resources_for_export_description": រកមិនឃើញធនធានត្រឹមត្រូវណាមួយសម្រាប់ការនាំចេញ
+  "error.flow.core.executor_prerequisite_not_met": លក្ខខណ្ឌជាមុនសម្រាប់ executor មិនត្រូវបានបំពេញ
+  "error.flow.core.executor_prerequisite_not_met_description": លក្ខខណ្ឌជាមុនមួយ ឬច្រើនដែលតម្រូវសម្រាប់ executor មិនត្រូវបានបំពេញ។ សូមពិនិត្យទិន្នន័យបញ្ចូល ហើយព្យាយាមម្តងទៀត។
+  "error.flow.core.prompt_invalid_action": ការប្រតិបត្តិសកម្មភាពដែលបានផ្តល់មិនត្រឹមត្រូវ
+  "error.flow.core.prompt_invalid_action_description": សកម្មភាពដែលបានផ្តល់មិនត្រឹមត្រូវសម្រាប់ជំហានលំហូរបច្ចុប្បន្ន
+  "error.flowexecservice.application_retrieval_error": កំហុសការទាញយកកម្មវិធី
+  "error.flowexecservice.application_retrieval_error_description": កំហុសក្នុងពេលទាញយកព័ត៌មានលម្អិតកម្មវិធី
+  "error.flowexecservice.direct_flow_initiation_not_permitted": មិនអនុញ្ញាតការចាប់ផ្តើមលំហូរផ្ទាល់
+  "error.flowexecservice.direct_flow_initiation_not_permitted_description": មិនអនុញ្ញាតការចាប់ផ្តើមលំហូរផ្ទាល់សម្រាប់ប្រភេទកម្មវិធីនេះ
+  "error.flowexecservice.invalid_app_id": សំណើមិនត្រឹមត្រូវ
+  "error.flowexecservice.invalid_app_id_description": លេខសម្គាល់កម្មវិធីដែលផ្តល់នៅក្នុងសំណើមិនត្រឹមត្រូវ
+  "error.flowexecservice.invalid_execution_id": សំណើមិនត្រឹមត្រូវ
+  "error.flowexecservice.invalid_execution_id_description": លេខសម្គាល់ការប្រតិបត្តិលំហូរដែលផ្តល់នៅក្នុងសំណើមិនត្រឹមត្រូវ
+  "error.flowexecservice.invalid_flow_init_context": សំណើមិនត្រឹមត្រូវ
+  "error.flowexecservice.invalid_flow_init_context_description": បរិបទចាប់ផ្តើមលំហូរដែលផ្តល់មិនត្រឹមត្រូវ
+  "error.flowexecservice.invalid_flow_type": សំណើមិនត្រឹមត្រូវ
+  "error.flowexecservice.invalid_flow_type_description": ប្រភេទលំហូរដែលផ្តល់នៅក្នុងសំណើមិនត្រឹមត្រូវ
+  "error.flowexecservice.invalid_node_response": ការឆ្លើយតបថ្នាំងមិនត្រឹមត្រូវ
+  "error.flowexecservice.invalid_node_response_description": ការឆ្លើយតបកំហុសបានទទួលពីថ្នាំង
+  "error.flowexecservice.invalid_request_payload": បន្ទុកទិន្នន័យសំណើមិនត្រឹមត្រូវ
+  "error.flowexecservice.invalid_request_payload_description": បរាជ័យក្នុងការឌីកូដបន្ទុកទិន្នន័យសំណើ
+  "error.flowexecservice.recovery_not_allowed": មិនអនុញ្ញាតការសង្គ្រោះ
+  "error.flowexecservice.recovery_not_allowed_description": លំហូរការសង្គ្រោះត្រូវបានបិទសម្រាប់កម្មវិធី
+  "error.flowexecservice.registration_not_allowed": មិនអនុញ្ញាតការចុះឈ្មោះ
+  "error.flowexecservice.registration_not_allowed_description": លំហូរការចុះឈ្មោះត្រូវបានបិទសម្រាប់កម្មវិធី
+  "error.flowmetaservice.application_fetch_failed_description": បរាជ័យក្នុងការទាញយកព័ត៌មានកម្មវិធី
+  "error.flowmetaservice.application_not_found_description": កម្មវិធីដែលបានបញ្ជាក់មិនមានស្រាប់
+  "error.flowmetaservice.internal_server_error": កំហុសម៉ាស៊ីនបម្រើខាងក្នុង
+  "error.flowmetaservice.invalid_request": សំណើមិនត្រឹមត្រូវ
+  "error.flowmetaservice.invalid_type_description": ប៉ារ៉ាម៉ែត្រ 'type' ត្រូវតែជា 'APP' ឬ 'OU'
+  "error.flowmetaservice.missing_id_description": ប៉ារ៉ាម៉ែត្រសំណួរ 'id' ត្រូវការ
+  "error.flowmetaservice.missing_id_parameter": ខ្វះប៉ារ៉ាម៉ែត្រដែលតម្រូវ
+  "error.flowmetaservice.missing_required_parameter": ខ្វះប៉ារ៉ាម៉ែត្រដែលតម្រូវ
+  "error.flowmetaservice.missing_type_description": ប៉ារ៉ាម៉ែត្រសំណួរ 'type' ត្រូវការ
+  "error.flowmetaservice.ou_fetch_failed": កំហុសម៉ាស៊ីនបម្រើខាងក្នុង
+  "error.flowmetaservice.ou_fetch_failed_description": បរាជ័យក្នុងការទាញយកព័ត៌មានឯកតារៀបចំ
+  "error.flowmetaservice.ou_not_found": រកមិនឃើញធនធាន
+  "error.flowmetaservice.ou_not_found_description": ឯកតារៀបចំដែលបានបញ្ជាក់មិនមានស្រាប់
+  "error.flowmetaservice.resource_not_found": រកមិនឃើញធនធាន
+  "error.flowmgtservice.cannot_update_flow_type": សំណើធ្វើបច្ចុប្បន្នភាពមិនត្រឹមត្រូវ
+  "error.flowmgtservice.cannot_update_flow_type_description": មិនអាចផ្លាស់ប្តូរប្រភេទលំហូរនៅពេលបានបង្កើតហើយ
+  "error.flowmgtservice.duplicate_flow_handle": ចំណុចទាញលំហូររួចហើយ
+  "error.flowmgtservice.duplicate_flow_handle_description": លំហូរដែលមានចំណុចទាញនេះមានស្រាប់រួចហើយសម្រាប់ប្រភេទលំហូរដែលបានផ្តល់
+  "error.flowmgtservice.duplicate_flow_id": លេខសម្គាល់លំហូររួចហើយ
+  "error.flowmgtservice.duplicate_flow_id_description": លេខសម្គាល់លំហូរមានស្រាប់រួចហើយ
+  "error.flowmgtservice.flow_definition_nil_or_empty_description": និយមន័យលំហូរគឺ nil ឬគ្មានថ្នាំង
+  "error.flowmgtservice.flow_is_immutable": លំហូរមិនអាចប្តូរបាន
+  "error.flowmgtservice.flow_is_immutable_description": លំហូរប្រកាសមិនអាចកែប្រែ ឬលុបបាន
+  "error.flowmgtservice.flow_not_found": រកមិនឃើញលំហូរ
+  "error.flowmgtservice.flow_not_found_description": មិនមានលំហូរដែលមានលេខសម្គាល់ដែលបានបញ្ជាក់
+  "error.flowmgtservice.flow_requires_intermediate_nodes_description": និយមន័យលំហូរត្រូវតែមានថ្នាំងរវាងថ្នាំងចាប់ផ្តើម និងបញ្ចប់
+  "error.flowmgtservice.flow_requires_start_and_end_nodes_description": និយមន័យលំហូរត្រូវតែមានយ៉ាងតិចថ្នាំងចាប់ផ្តើម និងថ្នាំងបញ្ចប់
+  "error.flowmgtservice.flow_version_not_found": រកមិនឃើញកំណែលំហូរ
+  "error.flowmgtservice.flow_version_not_found_description": កំណែលំហូរដែលបានស្នើសុំមិនមានស្រាប់
+  "error.flowmgtservice.graph_build_failure": ការបង្កើតក្រាហ្វបានបរាជ័យ
+  "error.flowmgtservice.graph_build_failure_description": បរាជ័យក្នុងការបង្កើតក្រាហ្វដំណើរការពីនិយមន័យលំហូរ
+  "error.flowmgtservice.handle_update_not_allowed": សំណើធ្វើបច្ចុប្បន្នភាពមិនត្រឹមត្រូវ
+  "error.flowmgtservice.handle_update_not_allowed_description": មិនអាចកែប្រែចំណុចទាញលំហូរបន្ទាប់ពីការបង្កើត
+  "error.flowmgtservice.interceptor_selected_scope_requires_apply_to": ការស្ទាក់ចាប់ដែលមានវិសាលភាព SELECTED ត្រូវតែបញ្ជាក់ថ្នាំងយ៉ាងតិចមួយនៅក្នុង applyTo
+  "error.flowmgtservice.invalid_flow_data": ទិន្នន័យលំហូរមិនត្រឹមត្រូវ
+  "error.flowmgtservice.invalid_flow_data_description": និយមន័យលំហូរមានទិន្នន័យមិនត្រឹមត្រូវ
+  "error.flowmgtservice.invalid_flow_handle": ចំណុចទាញលំហូរមិនត្រឹមត្រូវ
+  "error.flowmgtservice.invalid_flow_handle_description": ត្រូវតែផ្តល់ចំណុចទាញលំហូរ
+  "error.flowmgtservice.invalid_flow_handle_format": ទ្រង់ទ្រាយចំណុចទាញលំហូរមិនត្រឹមត្រូវ
+  "error.flowmgtservice.invalid_flow_handle_format_description": ចំណុចទាញលំហូរត្រូវតែជាអក្សរតូច អក្ខរជីវប្រវត្ត ហើយអាចមានតែគូសសរ ឬដាស
+  "error.flowmgtservice.invalid_flow_id": លេខសម្គាល់លំហូរមិនត្រឹមត្រូវ
+  "error.flowmgtservice.invalid_flow_id_description": ត្រូវតែផ្តល់លេខសម្គាល់លំហូរ
+  "error.flowmgtservice.invalid_flow_id_format": ទ្រង់ទ្រាយលេខសម្គាល់លំហូរមិនត្រឹមត្រូវ
+  "error.flowmgtservice.invalid_flow_id_format_description": លេខសម្គាល់លំហូរត្រូវតែជា UUID ត្រឹមត្រូវ
+  "error.flowmgtservice.invalid_flow_name": ឈ្មោះលំហូរមិនត្រឹមត្រូវ
+  "error.flowmgtservice.invalid_flow_name_description": ត្រូវតែផ្តល់ឈ្មោះលំហូរ
+  "error.flowmgtservice.invalid_flow_type": ប្រភេទលំហូរមិនត្រឹមត្រូវ
+  "error.flowmgtservice.invalid_flow_type_description": ប្រភេទលំហូរដែលបានបញ្ជាក់មិនត្រឹមត្រូវ
+  "error.flowmgtservice.invalid_flow_version": កំណែលំហូរមិនត្រឹមត្រូវ
+  "error.flowmgtservice.invalid_flow_version_description": កំណែលំហូរដែលបានបញ្ជាក់មិនត្រឹមត្រូវ
+  "error.flowmgtservice.invalid_limit_parameter": ប៉ារ៉ាម៉ែត្រការបន្ទះទំព័រមិនត្រឹមត្រូវ
+  "error.flowmgtservice.invalid_limit_parameter_description": ប៉ារ៉ាម៉ែត្រដែនកំណត់ត្រូវតែជាចំនួនគត់វិជ្ជមាន
+  "error.flowmgtservice.invalid_offset_parameter": ប៉ារ៉ាម៉ែត្រការបន្ទះទំព័រមិនត្រឹមត្រូវ
+  "error.flowmgtservice.invalid_offset_parameter_description": ប៉ារ៉ាម៉ែត្រការប្រណាំងត្រូវតែជាចំនួនគត់ដែលមិនអវិជ្ជមាន
+  "error.flowmgtservice.invalid_request_format": ទ្រង់ទ្រាយសំណើមិនត្រឹមត្រូវ
+  "error.flowmgtservice.invalid_request_format_description": តួនៃសំណើមានទ្រង់ទ្រាយខុស ឬមានទិន្នន័យមិនត្រឹមត្រូវ
+  "error.groupservice.cannot_create_group_in_declarative_only_mode": មិនអាចបង្កើតក្រុមក្នុងរបៀបប្រកាសតែប៉ុណ្ណោះ
+  "error.groupservice.cannot_create_group_in_declarative_only_mode_description": មិនអនុញ្ញាតការបង្កើតក្រុមនៅពេលដំណើរការក្នុងរបៀបប្រកាសតែប៉ុណ្ណោះ។ ក្រុមត្រូវតែកំណត់ក្នុងឯកសារការកំណត់ប្រកាស
+  "error.groupservice.cannot_delete_group": មិនអាចលុបក្រុម
+  "error.groupservice.cannot_delete_group_description": មិនអាចលុបក្រុមដែលមានក្រុមកូន
+  "error.groupservice.cannot_modify_declarative_group": មិនអាចកែប្រែក្រុមប្រកាស
+  "error.groupservice.cannot_modify_declarative_group_description": ក្រុមនេះត្រូវបានកំណត់ក្នុងការកំណត់ប្រកាស ហើយមិនអាចកែប្រែ
+  "error.groupservice.empty_members_list": បញ្ជីសមាជិកទទេ
+  "error.groupservice.empty_members_list_description": បញ្ជីសមាជិកមិនអាចទទេ
+  "error.groupservice.group_name_conflict": ជម្លោះឈ្មោះក្រុម
+  "error.groupservice.group_name_conflict_description": ក្រុមដែលមានឈ្មោះដូចគ្នាមានស្រាប់ក្រោមឪពុកដូចគ្នា
+  "error.groupservice.group_not_found": រកមិនឃើញក្រុម
+  "error.groupservice.group_not_found_description": មិនមានក្រុមដែលមានលេខសម្គាល់ដែលបានបញ្ជាក់
+  "error.groupservice.handle_path_required_description": ត្រូវការផ្លូវចំណុចទាញ
+  "error.groupservice.invalid_group_member_id": លេខសម្គាល់សមាជិកក្រុមមិនត្រឹមត្រូវ
+  "error.groupservice.invalid_group_member_id_description": លេខសម្គាល់សមាជិកក្រុមមួយ ឬច្រើននៅក្នុងសំណើមិនមានស្រាប់
+  "error.groupservice.invalid_limit_parameter": ប៉ារ៉ាម៉ែត្រដែនកំណត់មិនត្រឹមត្រូវ
+  "error.groupservice.invalid_limit_parameter_description": ប៉ារ៉ាម៉ែត្រដែនកំណត់ត្រូវតែជាចំនួនគត់វិជ្ជមាន
+  "error.groupservice.invalid_member_id": លេខសម្គាល់សមាជិកមិនត្រឹមត្រូវ
+  "error.groupservice.invalid_member_id_description": លេខសម្គាល់សមាជិកអ្នកប្រើប្រាស់ ឬកម្មវិធីមួយ ឬច្រើននៅក្នុងសំណើមិនមាន ឬមិនត្រូវនឹងប្រភេទដែលបានអះអាង
+  "error.groupservice.invalid_member_type": ប្រភេទសមាជិកមិនត្រឹមត្រូវ
+  "error.groupservice.invalid_member_type_description": ប្រភេទសមាជិកត្រូវតែជា 'user', 'group', ឬ 'app'
+  "error.groupservice.invalid_offset_parameter": ប៉ារ៉ាម៉ែត្រ offset មិនត្រឹមត្រូវ
+  "error.groupservice.invalid_offset_parameter_description": ប៉ារ៉ាម៉ែត្រ offset ត្រូវតែជាចំនួនគត់មិនអវិជ្ជមាន
+  "error.groupservice.invalid_ou_id": លេខសម្គាល់ OU មិនត្រឹមត្រូវ
+  "error.groupservice.invalid_ou_id_description": រង្វង់អង្គភាពស្ថាប័នមិនមាន
+  "error.groupservice.invalid_request_format": ទម្រង់សំណើមិនត្រឹមត្រូវ
+  "error.groupservice.invalid_request_format_description": តួសំណើខូច ឬមានទិន្នន័យមិនត្រឹមត្រូវ
+  "error.groupservice.missing_group_id": ទម្រង់សំណើមិនត្រឹមត្រូវ
+  "error.groupservice.missing_group_id_description": លេខសម្គាល់ក្រុមត្រូវការ
+  "error.i18nservice.empty_translations": ការបកប្រែទទេ
+  "error.i18nservice.empty_translations_description": ត្រូវតែផ្តល់ការបកប្រែយ៉ាងតិចមួយ
+  "error.i18nservice.export_error": បរាជ័យក្នុងការទាញយកភាសាបកប្រែសម្រាប់នាំចេញ
+  "error.i18nservice.fetch_error": បរាជ័យក្នុងការទាញយកការបកប្រែសម្រាប់នាំចេញ
+  "error.i18nservice.invalid_key": ទម្រង់គ្រាប់ចុចមិនត្រឹមត្រូវ
+  "error.i18nservice.invalid_key_description": គ្រាប់ចុចអាចមានតែអក្សរអក្ខរក្រម ចំណុច សញ្ញា underscore និងសញ្ញាដកប្រហែល
+  "error.i18nservice.invalid_language": ទម្រង់ tag ភាសាមិនត្រឹមត្រូវ
+  "error.i18nservice.invalid_language_description": tag ភាសាត្រូវតែធ្វើតាមទម្រង់ BCP 47 ស្តង់ដារ (ឧ. 'en', 'es', 'fr-CA')
+  "error.i18nservice.invalid_namespace": ទម្រង់ namespace មិនត្រឹមត្រូវ
+  "error.i18nservice.invalid_namespace_description": namespace អាចមានតែអក្សរអក្ខរក្រម សញ្ញា underscore និងសញ្ញាដកប្រហែល
+  "error.i18nservice.invalid_request_description": តួសំណើខូច ឬមានទិន្នន័យមិនត្រឹមត្រូវ
+  "error.i18nservice.invalid_request_format": ទម្រង់សំណើមិនត្រឹមត្រូវ
+  "error.i18nservice.missing_language": កូដភាសាបាត់
+  "error.i18nservice.missing_language_description": កូដភាសាត្រូវការ
+  "error.i18nservice.missing_value": តម្លៃការបកប្រែបាត់
+  "error.i18nservice.missing_value_description": តម្លៃការបកប្រែត្រូវការ
+  "error.i18nservice.translation_not_found": រកមិនឃើញការបកប្រែ
+  "error.i18nservice.translation_not_found_description": ការបកប្រែដែលស្នើសុំមិនមានសម្រាប់ភាសា namespace និងគ្រាប់ចុចដែលបានបញ្ជាក់
+  "error.idpservice.attribute_configuration_empty_claim_description": ការគូសផែនទីគុណលក្ខណៈមិនត្រូវមានឈ្មោះគុណលក្ខណៈទទេ
+  "error.idpservice.attribute_configuration_entry_user_type_required_description": ធាតុគុណលក្ខណៈប្រភេទអ្នកប្រើប្រាស់នីមួយៗតម្រូវឱ្យមានប្រភេទអ្នកប្រើប្រាស់
+  "error.idpservice.attribute_configuration_user_type_required_description": ការកំណត់រចនាសម្ព័ន្ធគុណលក្ខណៈតម្រូវឱ្យមានប្រភេទអ្នកប្រើប្រាស់
+  "error.idpservice.idp_already_exists": អ្នកផ្តល់អត្តសញ្ញាណមានរួចហើយ
+  "error.idpservice.idp_already_exists_description": អ្នកផ្តល់អត្តសញ្ញាណដែលមានឈ្មោះដូចគ្នាមានរួចហើយ
+  "error.idpservice.idp_declarative_read_only": អ្នកផ្តល់អត្តសញ្ញាណមិនអាចផ្លាស់ប្តូរបាន
+  "error.idpservice.idp_declarative_read_only_description": អ្នកផ្តល់អត្តសញ្ញាណដែលស្នើសុំជាប្រភេទប្រកាស និងមិនអាចកែប្រែ ឬលុបបាន
+  "error.idpservice.idp_nil": អ្នកផ្តល់អត្តសញ្ញាណមិនអាចជា null
+  "error.idpservice.idp_nil_description": វត្ថុអ្នកផ្តល់អត្តសញ្ញាណមិនអាចជា null ឬទទេ
+  "error.idpservice.idp_not_found": រកមិនឃើញអ្នកផ្តល់អត្តសញ្ញាណ
+  "error.idpservice.idp_not_found_description": រកមិនឃើញអ្នកផ្តល់អត្តសញ្ញាណដែលស្នើសុំ
+  "error.idpservice.invalid_attribute_configuration": ការកំណត់រចនាសម្ព័ន្ធគុណលក្ខណៈមិនត្រឹមត្រូវ
+  "error.idpservice.invalid_attribute_configuration_description": ការកំណត់រចនាសម្ព័ន្ធគុណលក្ខណៈរបស់អ្នកផ្តល់អត្តសញ្ញាណមិនត្រឹមត្រូវ
+  "error.idpservice.invalid_idp_id": លេខសម្គាល់អ្នកផ្តល់អត្តសញ្ញាណមិនត្រឹមត្រូវ
+  "error.idpservice.invalid_idp_id_description": លេខសម្គាល់អ្នកផ្តល់អត្តសញ្ញាណដែលបានផ្តល់មិនត្រឹមត្រូវ ឬទទេ
+  "error.idpservice.invalid_idp_name": ឈ្មោះអ្នកផ្តល់អត្តសញ្ញាណមិនត្រឹមត្រូវ
+  "error.idpservice.invalid_idp_name_description": ឈ្មោះអ្នកផ្តល់អត្តសញ្ញាណដែលបានផ្តល់មិនត្រឹមត្រូវ ឬទទេ
+  "error.idpservice.invalid_idp_property": លក្ខណៈសម្បត្តិអ្នកផ្តល់អត្តសញ្ញាណមិនត្រឹមត្រូវ
+  "error.idpservice.invalid_idp_property_description": លក្ខណៈសម្បត្តិអ្នកផ្តល់អត្តសញ្ញាណមួយ ឬច្រើនមិនត្រឹមត្រូវ ឬទទេ
+  "error.idpservice.invalid_idp_type": ប្រភេទអ្នកផ្តល់អត្តសញ្ញាណមិនត្រឹមត្រូវ
+  "error.idpservice.invalid_idp_type_description": ប្រភេទអ្នកផ្តល់អត្តសញ្ញាណដែលបានផ្តល់មិនត្រឹមត្រូវ ឬទទេ
+  "error.idpservice.invalid_request_format": ទម្រង់សំណើមិនត្រឹមត្រូវ
+  "error.idpservice.invalid_request_format_description": តួសំណើខូច ឬមានទិន្នន័យមិនត្រឹមត្រូវ
+  "error.idpservice.property_name_empty_description": ឈ្មោះលក្ខណៈសម្បត្តិមិនអាចទទេ
+  "error.idpservice.result_limit_exceeded": ដែនកំណត់លទ្ធផលលើសសំណើក្នុងរបៀបផ្សំ
+  "error.idpservice.result_limit_exceeded_description": ចំនួនទាំងមូលនៃកំណត់ត្រាលើសដែនកំណត់អតិបរិមាក្នុងរបៀបផ្សំ
+  "error.idpservice.unsupported_idp_property": លក្ខណៈសម្បត្តិអ្នកផ្តល់អត្តសញ្ញាណមិនគាំទ្រ
+  "error.idpservice.unsupported_idp_property_description": លក្ខណៈសម្បត្តិអ្នកផ្តល់អត្តសញ្ញាណមួយ ឬច្រើនមិនត្រូវបានគាំទ្រ
+  "error.import.adapterNotConfigured": Adapter មិនត្រូវបានកំណត់រចនាសម្ព័ន្ធ
+  "error.import.adapterNotConfigured.description": adapter ធនធានដែលតម្រូវការមិនត្រូវបានកំណត់រចនាសម្ព័ន្ធ
+  "error.import.delete.dirNotFound": រកមិនឃើញថតធនធាន
+  "error.import.delete.fileNotFound": រកមិនឃើញឯកសារធនធាន
+  "error.import.emptyContent": មាតិការនាំចូលមិនអាចទទេ
+  "error.import.fileTargetNotSupported": គោលដៅឯកសារមិនត្រូវបានគាំទ្រ សូមប្រើគោលដៅ runtime
+  "error.import.invalidRequest": សំណើនាំចូលមិនត្រឹមត្រូវ
+  "error.import.invalidRequest.description": សំណើនាំចូលដែលបានផ្តល់មិនត្រឹមត្រូវ ឬខូច
+  "error.import.invalidYaml": មាតិការ YAML មិនត្រឹមត្រូវ
+  "error.import.invalidYaml.description": មាតិការ YAML ដែលបានផ្តល់មិនអាចត្រូវបាន parse
+  "error.import.missingDeleteFields": resourceType និង resourceKey ត្រូវការ
+  "error.import.templateResolutionFailed": ការដោះស្រាយគំរូបរាជ័យ
+  "error.import.templateResolutionFailed.description": បរាជ័យក្នុងការដោះស្រាយអថេរគំរូមួយ ឬច្រើននៅក្នុងមាតិការ YAML
+  "error.import.unsupportedResourceType": ប្រភេទធនធានមិនត្រូវបានគាំទ្រសម្រាប់ការគ្រប់គ្រងឯកសារប្រកាស
+  "error.interceptor.challenge_token_invalid": token challenge មិនត្រឹមត្រូវ
+  "error.interceptor.challenge_token_invalid_description": token challenge បាត់ ឬមិនត្រឹមត្រូវ
+  "error.interceptor.failed": ការផ្ទៀងផ្ទាត់ interceptor បរាជ័យ
+  "error.interceptor.failed_description": interceptor flow បានបដិសេធសំណើ
+  "error.internal_server_error": កំហុសសេវាម៉ាស៊ីនផ្ទៃក្នុង
+  "error.internal_server_error_description": មានកំហុសដែលមិនបានរំពឹងទុកកើតឡើងក្នុងពេលដំណើរការសំណើ
+  "error.jweservice.decoding_jwe_error": កំហុស decode JWE
+  "error.jweservice.decoding_jwe_error_description": មានកំហុសកើតឡើងក្នុងពេល decode token JWE
+  "error.jweservice.decryption_failed": ការឌិគ្រីប JWE បរាជ័យ
+  "error.jweservice.decryption_failed_description": បរាជ័យក្នុងការឌិគ្រីប token JWE
+  "error.jweservice.unsupported_algorithm": ក្បួនដោះស្រាយ JWE មិនត្រូវបានគាំទ្រ
+  "error.jweservice.unsupported_algorithm_description": ក្បួនដោះស្រាយ JWE ដែលបានបញ្ជាក់មិនត្រូវបានគាំទ្រ
+  "error.jweservice.unsupported_encryption_algorithm": ក្បួនដោះស្រាយការអ៊ិនគ្រីបមិនត្រូវបានគាំទ្រ
+  "error.jweservice.unsupported_encryption_algorithm_description": ក្បួនដោះស្រាយការអ៊ិនគ្រីបដែលបានបញ្ជាក់មិនត្រូវបានគាំទ្រ
+  "error.jwsservice.decoding_header_error": កំហុស decode JWS
+  "error.jwsservice.decoding_header_error_description": មានកំហុសកើតឡើងក្នុងពេល decode header JWS
+  "error.jwsservice.invalid_format": ទម្រង់ JWS មិនត្រឹមត្រូវ
+  "error.jwsservice.invalid_format_description": ទម្រង់ token JWS មិនត្រឹមត្រូវ
+  "error.jwsservice.invalid_signature": ហត្ថលេខាមិនត្រឹមត្រូវ
+  "error.jwsservice.invalid_signature_description": ហត្ថលេខាមិនត្រឹមត្រូវ
+  "error.jwsservice.unsupported_algorithm": ក្បួនដោះស្រាយ JWS មិនត្រូវបានគាំទ្រ
+  "error.jwsservice.unsupported_algorithm_description": ក្បួនដោះស្រាយ JWS ដែលបានបញ្ជាក់មិនត្រូវបានគាំទ្រ
+  "error.jwtservice.decoding_header_error": កំហុស decode JWT
+  "error.jwtservice.decoding_header_error_description": មានកំហុសកើតឡើងក្នុងពេល decode header JWT
+  "error.jwtservice.decoding_payload_error": កំហុស decode JWT
+  "error.jwtservice.decoding_payload_error_description": មានកំហុសកើតឡើងក្នុងពេល decode payload JWT
+  "error.jwtservice.failed_to_get_jwks": បរាជ័យក្នុងការទាញយក JWKS
+  "error.jwtservice.failed_to_get_jwks_description": បរាជ័យក្នុងការទាញយក JWKS ពី URI ដែលបានបញ្ជាក់
+  "error.jwtservice.failed_to_parse_jwks": បរាជ័យក្នុងការ parse JWKS
+  "error.jwtservice.failed_to_parse_jwks_description": បរាជ័យក្នុងការ parse JWKS
+  "error.jwtservice.invalid_jwt_format": ទម្រង់ JWT មិនត្រឹមត្រូវ
+  "error.jwtservice.invalid_jwt_format_description": ទម្រង់ token JWT មិនត្រឹមត្រូវ
+  "error.jwtservice.invalid_token_signature": ហត្ថលេខា token មិនត្រឹមត្រូវ
+  "error.jwtservice.invalid_token_signature_description": ហត្ថលេខា token JWT មិនត្រឹមត្រូវ
+  "error.jwtservice.no_matching_jwk_found": រកមិនឃើញ JWK ដែលត្រូវគ្នា
+  "error.jwtservice.no_matching_jwk_found_description": រកមិនឃើញ JWK ដែលត្រូវគ្នាសម្រាប់ Key ID ដែលបានផ្តល់
+  "error.jwtservice.token_expired": Token ផុតកំណត់
+  "error.jwtservice.token_expired_description": token JWT បានផុតកំណត់
+  "error.jwtservice.unsupported_jws_algorithm": ក្បួនដោះស្រាយ JWS មិនត្រូវបានគាំទ្រ
+  "error.jwtservice.unsupported_jws_algorithm_description": ក្បួនដោះស្រាយ JWS ដែលបានបញ្ជាក់មិនត្រូវបានគាំទ្រ
+  "error.magiclinkservice.expired_token": Token ផុតកំណត់
+  "error.magiclinkservice.expired_token_description": token magic link បានផុតកំណត់
+  "error.magiclinkservice.invalid_token": Token មិនត្រឹមត្រូវ
+  "error.magiclinkservice.invalid_token_description": token magic link ដែលបានផ្តល់មិនត្រឹមត្រូវ
+  "error.magiclinkservice.malformed_token_claims": Claims token ខូច
+  "error.magiclinkservice.malformed_token_claims_description": token magic link មាន claims មិនត្រឹមត្រូវ ឬបាត់
+  "error.magiclinkservice.resolving_user": កំហុសក្នុងការដោះស្រាយអ្នកប្រើប្រាស់
+  "error.magiclinkservice.resolving_user_description": មានកំហុសកើតឡើងក្នុងពេលដោះស្រាយអ្នកប្រើប្រាស់សម្រាប់អ្នកទទួល
+  "error.magiclinkservice.token_generation_failed": ការបង្កើត token បរាជ័យ
+  "error.magiclinkservice.token_generation_failed_description": បរាជ័យក្នុងការបង្កើត token magic link
+  "error.notificationservice.duplicate_sender_name": ឈ្មោះអ្នកផ្ញើស្ទួន
+  "error.notificationservice.duplicate_sender_name_description": អ្នកផ្ញើដែលមានឈ្មោះដូចគ្នាមានរួចហើយ
+  "error.notificationservice.error_while_retrieving_message_client": កំហុសក្នុងពេលទាញយក message client
+  "error.notificationservice.error_while_retrieving_message_client_description": មានកំហុសកើតឡើងក្នុងពេលទាញយក message client
+  "error.notificationservice.invalid_channel": ឆានែលមិនត្រឹមត្រូវ
+  "error.notificationservice.invalid_channel_description": ឆានែលដែលបានផ្តល់មិនត្រឹមត្រូវ
+  "error.notificationservice.invalid_notification_provider": អ្នកផ្តល់សេវាជូនដំណឹងមិនត្រឹមត្រូវ
+  "error.notificationservice.invalid_notification_provider_description": អ្នកផ្តល់សេវាជូនដំណឹងដែលបានបញ្ជាក់មិនត្រឹមត្រូវ ឬមិនត្រូវបានគាំទ្រ
+  "error.notificationservice.invalid_otp": OTP មិនត្រឹមត្រូវ
+  "error.notificationservice.invalid_otp_description": OTP ដែលបានផ្តល់មិនត្រឹមត្រូវ
+  "error.notificationservice.invalid_recipient": អ្នកទទួលមិនត្រឹមត្រូវ
+  "error.notificationservice.invalid_recipient_description": អ្នកទទួលដែលបានផ្តល់មិនត្រឹមត្រូវ
+  "error.notificationservice.invalid_request_format": ទម្រង់សំណើមិនត្រឹមត្រូវ
+  "error.notificationservice.invalid_request_format_description": តួសំណើខូច ឬមានទិន្នន័យមិនត្រឹមត្រូវ
+  "error.notificationservice.invalid_sender_id": លេខសម្គាល់អ្នកផ្ញើមិនត្រឹមត្រូវ
+  "error.notificationservice.invalid_sender_id_description": លេខសម្គាល់អ្នកផ្ញើដែលបានផ្តល់មិនត្រឹមត្រូវ
+  "error.notificationservice.invalid_sender_name": ឈ្មោះអ្នកផ្ញើមិនត្រឹមត្រូវ
+  "error.notificationservice.invalid_sender_name_description": ឈ្មោះអ្នកផ្ញើដែលបានផ្តល់មិនត្រឹមត្រូវ
+  "error.notificationservice.invalid_sender_type": ប្រភេទអ្នកផ្ញើមិនត្រឹមត្រូវ
+  "error.notificationservice.invalid_sender_type_description": ប្រភេទអ្នកផ្ញើដែលបានផ្តល់មិនត្រឹមត្រូវ ឬមិនត្រូវបានគាំទ្រ
+  "error.notificationservice.invalid_session_token": token សម័យប្រជុំមិនត្រឹមត្រូវ
+  "error.notificationservice.invalid_session_token_description": token សម័យប្រជុំដែលបានផ្តល់មិនត្រឹមត្រូវ ខូច ឬផុតកំណត់
+  "error.notificationservice.sender_not_found": រកមិនឃើញអ្នកផ្ញើ
+  "error.notificationservice.sender_not_found_description": រកមិនឃើញអ្នកផ្ញើជូនដំណឹងដែលបានស្នើសុំ
+  "error.notificationservice.sender_type_mismatch": ប្រភេទអ្នកផ្ញើមិនត្រូវគ្នា
+  "error.notificationservice.sender_type_mismatch_description": អ្នកផ្ញើដែលបានស្នើសុំមិនមែនជាប្រភេទដែលរំពឹងទុក
+  "error.notificationservice.unsupported_channel": ឆានែលមិនត្រូវបានគាំទ្រ
+  "error.notificationservice.unsupported_channel_description": ឆានែលដែលបានផ្តល់មិនត្រូវបានគាំទ្រ
+  "error.notificationservice.update_not_allowed": មិនអនុញ្ញាតឱ្យធ្វើបច្ចុប្បន្នភាព
+  "error.notificationservice.update_not_allowed_description": មិនអនុញ្ញាតឱ្យធ្វើបច្ចុប្បន្នភាពប្រភេទអ្នកផ្ញើ
+  "error.ouservice.cannot_modify_declarative_resource": មិនអាចកែប្រែធនធានប្រកាស
+  "error.ouservice.cannot_modify_declarative_resource_description": អង្គភាពស្ថាប័នជាប្រភេទប្រកាស និងមិនអាចកែប្រែ ឬលុបបាន
+  "error.ouservice.circular_dependency_detected": រកឃើញការពឹងផ្អែកជាមូលដ្ឋានជ្រុំ
+  "error.ouservice.circular_dependency_detected_description": ការកំណត់មេនេះនឹងបង្កើតការពឹងផ្អែកជាមូលដ្ឋានជ្រុំ
+  "error.ouservice.invalid_filter": ប៉ារ៉ាម៉ែត្រ filter មិនត្រឹមត្រូវ
+  "error.ouservice.invalid_filter_description": "ប៉ារ៉ាម៉ែត្រ filter មិនត្រឹមត្រូវ។ ប្រើទម្រង់: attribute (eq|gt|lt) \"value\""
+  "error.ouservice.invalid_handle_path": ផ្លូវ handle មិនត្រឹមត្រូវ
+  "error.ouservice.invalid_handle_path_description": ផ្លូវ handle ដែលបានបញ្ជាក់មិនមាន
+  "error.ouservice.invalid_limit_parameter": ប៉ារ៉ាម៉ែត្រ limit មិនត្រឹមត្រូវ
+  "error.ouservice.invalid_limit_parameter_description": ប៉ារ៉ាម៉ែត្រ limit ត្រូវតែជាចំនួនគត់វិជ្ជមាន
+  "error.ouservice.invalid_offset_parameter": ប៉ារ៉ាម៉ែត្រ offset មិនត្រឹមត្រូវ
+  "error.ouservice.invalid_offset_parameter_description": ប៉ារ៉ាម៉ែត្រ offset ត្រូវតែជាចំនួនគត់មិនអវិជ្ជមាន
+  "error.ouservice.invalid_request_format": ទម្រង់សំណើមិនត្រឹមត្រូវ
+  "error.ouservice.invalid_request_format_description": តួសំណើខូច មានទិន្នន័យមិនត្រឹមត្រូវ ឬវាលដែលតម្រូវការបាត់/ទទេ
+  "error.ouservice.missing_ou_id": ទម្រង់សំណើមិនត្រឹមត្រូវ
+  "error.ouservice.missing_ou_id_description": លេខសម្គាល់អង្គភាពស្ថាប័នត្រូវការ
+  "error.ouservice.organization_unit_handle_conflict": ជម្លោះ handle អង្គភាពស្ថាប័ន
+  "error.ouservice.organization_unit_handle_conflict_description": អង្គភាពស្ថាប័នដែលមាន handle ដូចគ្នាមានរួចហើយក្រោមមេដូចគ្នា
+  "error.ouservice.organization_unit_has_children": អង្គភាពស្ថាប័នមានកូន
+  "error.ouservice.organization_unit_has_children_description": មិនអាចលុបអង្គភាពស្ថាប័នដែលមានកូន ឬអ្នកប្រើប្រាស់/ក្រុម
+  "error.ouservice.organization_unit_name_conflict": ជម្លោះឈ្មោះអង្គភាពស្ថាប័ន
+  "error.ouservice.organization_unit_name_conflict_description": អង្គភាពស្ថាប័នដែលមានឈ្មោះដូចគ្នាមានក្រោមមេដូចគ្នា
+  "error.ouservice.organization_unit_not_found": រកមិនឃើញអង្គភាពស្ថាប័ន
+  "error.ouservice.organization_unit_not_found_description": អង្គភាពស្ថាប័នដែលមានលេខសម្គាល់ដែលបានបញ្ជាក់មិនមាន
+  "error.ouservice.parent_organization_unit_not_found": រកមិនឃើញអង្គភាពស្ថាប័នមេ
+  "error.ouservice.parent_organization_unit_not_found_description": រកមិនឃើញអង្គភាពស្ថាប័នមេ
+  "error.ouservice.result_limit_exceeded": ដែនកំណត់លទ្ធផលលើស
+  "error.passkeyservice.credential_not_found": រកមិនឃើញ credential passkey
+  "error.passkeyservice.credential_not_found_description": រកមិនឃើញ credential ដែលបានបញ្ជាក់សម្រាប់អ្នកប្រើប្រាស់
+  "error.passkeyservice.empty_credential_id": លេខសម្គាល់ credential ទទេ
+  "error.passkeyservice.empty_credential_id_description": លេខសម្គាល់ credential ត្រូវការ
+  "error.passkeyservice.empty_credential_type": ប្រភេទ credential ទទេ
+  "error.passkeyservice.empty_credential_type_description": ប្រភេទ credential ត្រូវការ
+  "error.passkeyservice.empty_relying_party_id": លេខសម្គាល់ relying party ទទេ
+  "error.passkeyservice.empty_relying_party_id_description": លេខសម្គាល់ relying party ត្រូវការ
+  "error.passkeyservice.empty_session_token": token សម័យប្រជុំទទេ
+  "error.passkeyservice.empty_session_token_description": token សម័យប្រជុំត្រូវការ
+  "error.passkeyservice.empty_user_identifier": អ្នកកំណត់អត្តសញ្ញាណអ្នកប្រើប្រាស់ទទេ
+  "error.passkeyservice.empty_user_identifier_description": ត្រូវតែផ្តល់ ID អ្នកប្រើប្រាស់ ឬឈ្មោះអ្នកប្រើប្រាស់
+  "error.passkeyservice.invalid_attestation_response": ការឆ្លើយតប attestation មិនត្រឹមត្រូវ
+  "error.passkeyservice.invalid_attestation_response_description": ការឆ្លើយតប attestation មិនមានវាលដែលតម្រូវការ (clientDataJSON ឬ attestationObject)
+  "error.passkeyservice.invalid_authenticator_response": ការឆ្លើយតប authenticator មិនត្រឹមត្រូវ
+  "error.passkeyservice.invalid_authenticator_response_description": ការឆ្លើយតប authenticator មិនមានវាលដែលតម្រូវការ (clientDataJSON, authenticatorData, ឬ signature)
+  "error.passkeyservice.invalid_challenge": challenge មិនត្រឹមត្រូវ
+  "error.passkeyservice.invalid_challenge_description": challenge នៅក្នុងការឆ្លើយតបមិនត្រូវនឹង challenge ដែលរំពឹងទុក
+  "error.passkeyservice.invalid_finish_data": ទិន្នន័យបញ្ចប់មិនត្រឹមត្រូវ
+  "error.passkeyservice.invalid_finish_data_description": ទិន្នន័យបញ្ចប់មិនអាចជា null
+  "error.passkeyservice.invalid_session_token": token សម័យប្រជុំមិនត្រឹមត្រូវ
+  "error.passkeyservice.invalid_session_token_description": token សម័យប្រជុំមិនត្រឹមត្រូវ ឬខូច
+  "error.passkeyservice.invalid_signature": ហត្ថលេខាមិនត្រឹមត្រូវ
+  "error.passkeyservice.invalid_signature_description": ការផ្ទៀងផ្ទាត់ហត្ថលេខាបរាជ័យ
+  "error.passkeyservice.no_credentials_found": រកមិនឃើញ credentials
+  "error.passkeyservice.no_credentials_found_description": រកមិនឃើញ credentials សម្រាប់អ្នកប្រើប្រាស់។ សូមចុះឈ្មោះ credential មុន
+  "error.passkeyservice.session_expired": សម័យប្រជុំផុតកំណត់
+  "error.passkeyservice.session_expired_description": សម័យប្រជុំបានផុតកំណត់។ សូមចាប់ផ្តើមសម័យប្រជុំថ្មី
+  "error.passkeyservice.user_not_found": រកមិនឃើញអ្នកប្រើប្រាស់
+  "error.passkeyservice.user_not_found_description": រកមិនឃើញអ្នកប្រើប្រាស់ដែលបានបញ្ជាក់
+  "error.resourceservice.action_not_found": រកមិនឃើញសកម្មភាព
+  "error.resourceservice.action_not_found_description": សកម្មភាពដែលមានលេខសម្គាល់ដែលបានបញ្ជាក់មិនមាន
+  "error.resourceservice.cannot_delete": មិនអាចលុប
+  "error.resourceservice.cannot_delete_description": មិនអាចលុបម៉ាស៊ីនបម្រើធនធាន/ធនធានដែលមានការពឹងផ្អែក
+  "error.resourceservice.cannot_modify_declarative_action": មិនអាចកែប្រែសកម្មភាពប្រកាស
+  "error.resourceservice.cannot_modify_declarative_action_description": សកម្មភាព %s ត្រូវបានកំណត់នៅក្នុងការកំណត់រចនាសម្ព័ន្ធប្រកាស និងមិនអាចកែប្រែបាន
+  "error.resourceservice.cannot_modify_declarative_resource": មិនអាចកែប្រែធនធានប្រកាស
+  "error.resourceservice.cannot_modify_declarative_resource_description": ធនធាន %s ត្រូវបានកំណត់នៅក្នុងការកំណត់រចនាសម្ព័ន្ធប្រកាស និងមិនអាចកែប្រែបាន
+  "error.resourceservice.cannot_modify_declarative_resource_server": មិនអាចកែប្រែម៉ាស៊ីនបម្រើធនធានប្រកាស
+  "error.resourceservice.cannot_modify_declarative_resource_server_description": ម៉ាស៊ីនបម្រើធនធាន %s ត្រូវបានកំណត់នៅក្នុងការកំណត់រចនាសម្ព័ន្ធប្រកាស និងមិនអាចកែប្រែបាន
+  "error.resourceservice.circular_dependency_detected": រកឃើញការពឹងផ្អែកជាមូលដ្ឋានជ្រុំ
+  "error.resourceservice.circular_dependency_detected_description": ការកំណត់មេនេះនឹងបង្កើតការពឹងផ្អែកជាមូលដ្ឋានជ្រុំ
+  "error.resourceservice.consent_sync_failed": ការធ្វើសមកាលភាពការយល់ព្រមបរាជ័យ
+  "error.resourceservice.consent_sync_failed_description": បរាជ័យក្នុងការធ្វើសមកាលភាពការផ្លាស់ប្តូរការអនុញ្ញាតធនធានជាមួយសេវាការយល់ព្រម
+  "error.resourceservice.delimiter_conflict_in_handle": ជម្លោះ delimiter នៅក្នុង handle
+  "error.resourceservice.delimiter_conflict_in_handle_description": handle មិនអាចមានតួអក្សរ delimiter
+  "error.resourceservice.delimiter_conflict_in_resource_server_handle": ជម្លោះ delimiter នៅក្នុង handle
+  "error.resourceservice.delimiter_conflict_in_resource_server_handle_description": handle ម៉ាស៊ីនបម្រើធនធានមិនអាចមានតួអក្សរ delimiter
+  "error.resourceservice.handle_conflict": ជម្លោះ handle
+  "error.resourceservice.handle_conflict_description": handle ដូចគ្នាមានរួចហើយនៅក្នុងធនធានដែលបានបញ្ជាក់
+  "error.resourceservice.identifier_conflict": ជម្លោះ identifier
+  "error.resourceservice.identifier_conflict_description": ម៉ាស៊ីនបម្រើធនធានដែលមាន identifier ដូចគ្នាមានរួចហើយ
+  "error.resourceservice.immutable_handle": Handle មិនអាចផ្លាស់ប្តូរ
+  "error.resourceservice.immutable_handle_description": handle ម៉ាស៊ីនបម្រើធនធានមិនអាចផ្លាស់ប្តូរបន្ទាប់ពីការបង្កើត
+  "error.resourceservice.invalid_delimiter": delimiter មិនត្រឹមត្រូវ
+  "error.resourceservice.invalid_delimiter_description": "delimiter ត្រូវតែជាតួអក្សរតែមួយដែលត្រឹមត្រូវ (a-z A-Z 0-9 . _ : - /)"
+  "error.resourceservice.invalid_handle": handle មិនត្រឹមត្រូវ
+  "error.resourceservice.invalid_handle_description": "ប្រវែង handle ត្រូវតែតិចជាង 100 តួអក្សរ និងមានតួអក្សរត្រឹមត្រូវ (a-z A-Z 0-9 . _ : - /)"
+  "error.resourceservice.invalid_limit_parameter": ប៉ារ៉ាម៉ែត្រ limit មិនត្រឹមត្រូវ
+  "error.resourceservice.invalid_limit_parameter_description": ប៉ារ៉ាម៉ែត្រ limit ត្រូវតែជាចំនួនគត់វិជ្ជមាន
+  "error.resourceservice.invalid_offset_parameter": ប៉ារ៉ាម៉ែត្រ offset មិនត្រឹមត្រូវ
+  "error.resourceservice.invalid_offset_parameter_description": ប៉ារ៉ាម៉ែត្រ offset ត្រូវតែជាចំនួនគត់មិនអវិជ្ជមាន
+  "error.resourceservice.invalid_request_format": ទម្រង់សំណើមិនត្រឹមត្រូវ
+  "error.resourceservice.invalid_request_format_description": តួសំណើខូច ឬមានទិន្នន័យមិនត្រឹមត្រូវ
+  "error.resourceservice.missing_id": ទម្រង់សំណើមិនត្រឹមត្រូវ
+  "error.resourceservice.missing_id_description": ID ត្រូវការ
+  "error.resourceservice.name_conflict": ជម្លោះឈ្មោះ
+  "error.resourceservice.name_conflict_description": ម៉ាស៊ីនបម្រើធនធានដែលមានឈ្មោះដូចគ្នាមានរួចហើយ
+  "error.resourceservice.organization_unit_not_found": រកមិនឃើញអង្គភាពស្ថាប័ន
+  "error.resourceservice.organization_unit_not_found_description": អង្គភាពស្ថាប័នដែលបានបញ្ជាក់មិនមាន
+  "error.resourceservice.parent_resource_not_found": រកមិនឃើញធនធានមេ
+  "error.resourceservice.parent_resource_not_found_description": ធនធានមេដែលបានបញ្ជាក់មិនមាន
+  "error.resourceservice.resource_not_found": រកមិនឃើញធនធាន
+  "error.resourceservice.resource_not_found_description": ធនធានដែលមានលេខសម្គាល់ដែលបានបញ្ជាក់មិនមាន
+  "error.resourceservice.resource_server_id_conflict": ជម្លោះ ID ម៉ាស៊ីនបម្រើធនធាន
+  "error.resourceservice.resource_server_id_conflict_description": ម៉ាស៊ីនបម្រើធនធានដែលមាន ID ដែលបានបញ្ជាក់មានរួចហើយ
+  "error.resourceservice.resource_server_not_found": រកមិនឃើញម៉ាស៊ីនបម្រើធនធាន
+  "error.resourceservice.resource_server_not_found_description": ម៉ាស៊ីនបម្រើធនធានដែលមានលេខសម្គាល់ដែលបានបញ្ជាក់មិនមាន
+  "error.resourceservice.result_limit_exceeded_in_composite_mode": ដែនកំណត់លទ្ធផលលើសសំណើក្នុងរបៀបផ្សំ
+  "error.resourceservice.result_limit_exceeded_in_composite_mode_description": ចំនួនទាំងមូលនៃកំណត់ត្រាលើសដែនកំណត់អតិបរិមាក្នុងរបៀបផ្សំ
+  "error.roleservice.cannot_create_role_in_declarative_only_mode": មិនអាចបង្កើតតួនាទីក្នុងរបៀបប្រកាសតែប៉ុណ្ណោះ
+  "error.roleservice.cannot_create_role_in_declarative_only_mode_description": ការបង្កើតតួនាទីមិនត្រូវបានអនុញ្ញាតនៅពេលដំណើរការក្នុងរបៀបប្រកាសតែប៉ុណ្ណោះ។ តួនាទីត្រូវតែកំណត់នៅក្នុងឯកសារការកំណត់រចនាសម្ព័ន្ធប្រកាស
+  "error.roleservice.cannot_delete_role": មិនអាចលុបតួនាទី
+  "error.roleservice.cannot_delete_role_description": មិនអាចលុបតួនាទីដែលបច្ចុប្បន្នត្រូវបានកំណត់ទៅអ្នកប្រើប្រាស់ ឬក្រុម
+  "error.roleservice.cannot_modify_declarative_assignment": មិនអាចកែប្រែការចាត់តាំងប្រកាស
+  "error.roleservice.cannot_modify_declarative_assignment_description": ការចាត់តាំងត្រូវបានកំណត់នៅក្នុងការកំណត់រចនាសម្ព័ន្ធប្រកាស និងមិនអាចកែប្រែបាន
+  "error.roleservice.cannot_modify_declarative_role": មិនអាចកែប្រែតួនាទីប្រកាស
+  "error.roleservice.cannot_modify_declarative_role_description": តួនាទីត្រូវបានកំណត់នៅក្នុងការកំណត់រចនាសម្ព័ន្ធប្រកាស និងមិនអាចកែប្រែបាន
+  "error.roleservice.either_entity_id_or_groups_must_be_provided_for_authorization_check_description": ត្រូវផ្តល់ entityId ឬ groups សម្រាប់ការពិនិត្យការអនុញ្ញាត
+  "error.roleservice.empty_assignments_list": បញ្ជីការចាត់តាំងទទេ
+  "error.roleservice.empty_assignments_list_description": ត្រូវតែផ្តល់ការចាត់តាំងយ៉ាងតិចមួយ
+  "error.roleservice.invalid_assignee_type": ប្រភេទអ្នកទទួលការចាត់តាំងមិនត្រឹមត្រូវ
+  "error.roleservice.invalid_assignee_type_description": ប៉ារ៉ាម៉ែត្រប្រភេទត្រូវតែជា 'user', 'group', ឬ 'app'
+  "error.roleservice.invalid_assignment_id": លេខសម្គាល់ការចាត់តាំងមិនត្រឹមត្រូវ
+  "error.roleservice.invalid_assignment_id_description": លេខសម្គាល់ការចាត់តាំងមួយ ឬច្រើននៅក្នុងសំណើមិនមាន ឬមិនត្រូវនឹងប្រភេទដែលបានអះអាង
+  "error.roleservice.invalid_limit_parameter": ប៉ារ៉ាម៉ែត្រ limit មិនត្រឹមត្រូវ
+  "error.roleservice.invalid_limit_parameter_description": ប៉ារ៉ាម៉ែត្រ limit ត្រូវតែជាចំនួនគត់វិជ្ជមាន
+  "error.roleservice.invalid_offset_parameter": ប៉ារ៉ាម៉ែត្រ offset មិនត្រឹមត្រូវ
+  "error.roleservice.invalid_offset_parameter_description": ប៉ារ៉ាម៉ែត្រ offset ត្រូវតែជាចំនួនគត់មិនអវិជ្ជមាន
+  "error.roleservice.invalid_permissions": សិទ្ធិមិនត្រឹមត្រូវ
+  "error.roleservice.invalid_permissions_description": សិទ្ធិមួយ ឬច្រើនមិនមាននៅក្នុងប្រព័ន្ធគ្រប់គ្រងធនធាន
+  "error.roleservice.invalid_request_format": ទម្រង់សំណើមិនត្រឹមត្រូវ
+  "error.roleservice.invalid_request_format_description": តួសំណើខូច ឬមានទិន្នន័យមិនត្រឹមត្រូវ
+  "error.roleservice.missing_entity_or_groups": ទម្រង់សំណើមិនត្រឹមត្រូវ
+  "error.roleservice.missing_role_id": ទម្រង់សំណើមិនត្រឹមត្រូវ
+  "error.roleservice.missing_role_id_description": លេខសម្គាល់តួនាទីត្រូវការ
+  "error.roleservice.organization_unit_not_found": រកមិនឃើញអង្គភាពស្ថាប័ន
+  "error.roleservice.organization_unit_not_found_description": រកមិនឃើញអង្គភាពស្ថាប័ន
+  "error.roleservice.result_limit_exceeded_in_composite_mode": ដែនកំណត់លទ្ធផលលើសសំណើក្នុងរបៀបផ្សំ
+  "error.roleservice.result_limit_exceeded_in_composite_mode_description": ចំនួនទាំងមូលនៃកំណត់ត្រាលើសដែនកំណត់អតិបរិមាក្នុងរបៀបផ្សំ
+  "error.roleservice.role_id_conflict": ជម្លោះ ID តួនាទី
+  "error.roleservice.role_id_conflict_description": តួនាទីដែលមាន ID ដែលបានបញ្ជាក់មានរួចហើយ
+  "error.roleservice.role_name_conflict": ជម្លោះឈ្មោះតួនាទី
+  "error.roleservice.role_name_conflict_description": តួនាទីដែលមានឈ្មោះដូចគ្នាមានក្រោមអង្គភាពស្ថាប័នដូចគ្នា
+  "error.roleservice.role_not_found": រកមិនឃើញតួនាទី
+  "error.roleservice.role_not_found_description": តួនាទីដែលមានលេខសម្គាល់ដែលបានបញ្ជាក់មិនមាន
+  "error.templateservice.template_not_found": រកមិនឃើញគំរូ
+  "error.templateservice.template_not_found_description": គំរូដែលបានស្នើសុំមិនមានសម្រាប់សេណារីយ៉ូដែលបានផ្តល់
+  "error.unauthorized": មិនមានការអនុញ្ញាត
+  "error.unauthorized_description": អ្នកហៅទូរស័ព្ទមិនត្រូវបានអនុញ្ញាតឱ្យអនុវត្តប្រតិបត្តិការនេះ
+  "error.userinfoservice.client_credentials_not_supported": token ចូលប្រើប្រាស់មិនត្រឹមត្រូវ
+  "error.userinfoservice.client_credentials_not_supported_description": endpoint UserInfo មិនអនុវត្តចំពោះប្រភេទការផ្តល់ client_credentials
+  "error.userinfoservice.dpop_bound_token_bearer_scheme": token ចូលប្រើប្រាស់មិនត្រឹមត្រូវ
+  "error.userinfoservice.dpop_bound_token_bearer_scheme_description": token ដែលភ្ជាប់ DPoP ត្រូវប្រើ DPoP scheme
+  "error.userinfoservice.insufficient_scope": scope មិនគ្រប់គ្រាន់
+  "error.userinfoservice.insufficient_scope_description": scope 'openid' ត្រូវការសម្រាប់សំណើនេះ
+  "error.userinfoservice.invalid_access_token": token ចូលប្រើប្រាស់មិនត្រឹមត្រូវ
+  "error.userinfoservice.invalid_access_token_description": token ចូលប្រើប្រាស់មិនត្រឹមត្រូវ ផុតកំណត់ ឬខូច
+  "error.userinfoservice.invalid_dpop_proof": token ចូលប្រើប្រាស់មិនត្រឹមត្រូវ
+  "error.userinfoservice.invalid_dpop_proof_description": ការផ្ទៀងផ្ទាត់ DPoP proof បរាជ័យ
+  "error.userinfoservice.missing_sub_claim": token ចូលប្រើប្រាស់មិនត្រឹមត្រូវ
+  "error.userinfoservice.missing_sub_claim_description": token ចូលប្រើប្រាស់បាត់ ឬមាន claim 'sub' មិនត្រឹមត្រូវ
+  "error.userservice.ambiguous_user": អ្នកប្រើប្រាស់មិនច្បាស់លាស់
+  "error.userservice.ambiguous_user_description": អ្នកប្រើប្រាស់ច្រើននាក់ត្រូវនឹង filter ដែលបានផ្តល់
+  "error.userservice.attribute_conflict": ជម្លោះគុណលក្ខណៈ
+  "error.userservice.attribute_conflict_description": អ្នកប្រើប្រាស់ដែលមានតម្លៃគុណលក្ខណៈតែមួយដូចគ្នាមានរួចហើយ
+  "error.userservice.authentication_failed": ការផ្ទៀងផ្ទាត់ដោយបរាជ័យ
+  "error.userservice.authentication_failed_description": បានផ្តល់ credentials មិនត្រឹមត្រូវ
+  "error.userservice.cannot_modify_declarative_resource": មិនអាចកែប្រែធនធានប្រកាស
+  "error.userservice.cannot_modify_declarative_resource_description": អ្នកប្រើប្រាស់ជាប្រភេទប្រកាស និងមិនអាចកែប្រែ ឬលុបបាន
+  "error.userservice.email_conflict": ជម្លោះអ៊ីម៉ែល
+  "error.userservice.email_conflict_description": អ្នកប្រើប្រាស់ដែលមានអ៊ីម៉ែលដូចគ្នាមានរួចហើយ
+  "error.userservice.handle_path_required": ផ្លូវ handle ត្រូវការ
+  "error.userservice.handle_path_required_description": ផ្លូវ handle ត្រូវការសម្រាប់ប្រតិបត្តិការនេះ
+  "error.userservice.invalid_credential": ទម្រង់សំណើមិនត្រឹមត្រូវ
+  "error.userservice.invalid_credential_description": វាល credential មិនត្រឹមត្រូវនៅក្នុងសំណើ
+  "error.userservice.invalid_filter_parameter": ប៉ារ៉ាម៉ែត្រ filter មិនត្រឹមត្រូវ
+  "error.userservice.invalid_filter_parameter_description": ទម្រង់ filter មិនត្រឹមត្រូវ
+  "error.userservice.invalid_group_id": លេខសម្គាល់ក្រុមមិនត្រឹមត្រូវ
+  "error.userservice.invalid_group_id_description": លេខសម្គាល់ក្រុមមួយ ឬច្រើននៅក្នុងសំណើមិនមាន
+  "error.userservice.invalid_handle_path": ផ្លូវ handle មិនត្រឹមត្រូវ
+  "error.userservice.invalid_handle_path_description": ផ្លូវ handle ត្រូវតែមាន identifier អង្គភាពស្ថាប័នត្រឹមត្រូវដែលបំបែកដោយ forward slashes
+  "error.userservice.invalid_limit_parameter": ប៉ារ៉ាម៉ែត្រ pagination មិនត្រឹមត្រូវ
+  "error.userservice.invalid_limit_parameter_description": ប៉ារ៉ាម៉ែត្រ limit ត្រូវតែជាចំនួនគត់វិជ្ជមាន
+  "error.userservice.invalid_offset_parameter": ប៉ារ៉ាម៉ែត្រ pagination មិនត្រឹមត្រូវ
+  "error.userservice.invalid_offset_parameter_description": ប៉ារ៉ាម៉ែត្រ offset ត្រូវតែជាចំនួនគត់មិនអវិជ្ជមាន
+  "error.userservice.invalid_organization_unit": អង្គភាពស្ថាប័នមិនត្រឹមត្រូវ
+  "error.userservice.invalid_organization_unit_description": លេខសម្គាល់អង្គភាពស្ថាប័នត្រូវតែបញ្ជាក់ជា UUID ត្រឹមត្រូវ
+  "error.userservice.invalid_request_format": ទម្រង់សំណើមិនត្រឹមត្រូវ
+  "error.userservice.invalid_request_format_description": តួសំណើខូច ឬមានទិន្នន័យមិនត្រឹមត្រូវ
+  "error.userservice.missing_credentials": credentials បាត់
+  "error.userservice.missing_credentials_description": ត្រូវតែផ្តល់វាល credential យ៉ាងតិចមួយ
+  "error.userservice.missing_required_fields": វាលដែលតម្រូវការបាត់
+  "error.userservice.missing_required_fields_description": ត្រូវតែផ្តល់គុណលក្ខណៈសម្គាល់យ៉ាងតិចមួយ
+  "error.userservice.missing_user_id": ទម្រង់សំណើមិនត្រឹមត្រូវ
+  "error.userservice.missing_user_id_description": លេខសម្គាល់អ្នកប្រើប្រាស់ត្រូវការ
+  "error.userservice.organization_unit_mismatch": អង្គភាពស្ថាប័នមិនត្រូវគ្នា
+  "error.userservice.organization_unit_mismatch_description": អង្គភាពស្ថាប័នមិនត្រូវនឹងការកំណត់រចនាសម្ព័ន្ធប្រភេទអ្នកប្រើប្រាស់
+  "error.userservice.organization_unit_not_found": រកមិនឃើញអង្គភាពស្ថាប័ន
+  "error.userservice.organization_unit_not_found_description": អង្គភាពស្ថាប័នដែលបានបញ្ជាក់មិនមាន
+  "error.userservice.schema_validation_failed": ការផ្ទៀងផ្ទាត់ schema បរាជ័យ
+  "error.userservice.schema_validation_failed_description": គុណលក្ខណៈអ្នកប្រើប្រាស់មិនស្របតាម schema ដែលតម្រូវការ
+  "error.userservice.user_not_found": រកមិនឃើញអ្នកប្រើប្រាស់
+  "error.userservice.user_not_found_description": អ្នកប្រើប្រាស់ដែលមានលេខសម្គាល់ដែលបានបញ្ជាក់មិនមាន
+  "error.userservice.user_type_not_found": រកមិនឃើញប្រភេទអ្នកប្រើប្រាស់
+  "error.userservice.user_type_not_found_description": ប្រភេទអ្នកប្រើប្រាស់ដែលបានបញ្ជាក់មិនមាន
+  "flows.executor.errors.ambiguous_user_identity": អត្តសញ្ញាណអ្នកប្រើប្រាស់មិនច្បាស់លាស់
+  "flows.executor.errors.ambiguous_user_identity_desc": អត្តសញ្ញាណអ្នកប្រើប្រាស់មិនច្បាស់លាស់ និងមិនអាចកំណត់បាន
+  "flows.executor.errors.attribute_collect_failed": បរាជ័យក្នុងការធ្វើបច្ចុប្បន្នភាពគុណលក្ខណៈអ្នកប្រើប្រាស់
+  "flows.executor.errors.attribute_collect_failed_desc": មានកំហុសកើតឡើងក្នុងពេលធ្វើបច្ចុប្បន្នភាពគុណលក្ខណៈអ្នកប្រើប្រាស់
+  "flows.executor.errors.attribute_not_found_for_user": រកមិនឃើញគុណលក្ខណៈដែលតម្រូវការ
+  "flows.executor.errors.attribute_not_found_for_user_desc": រកមិនឃើញគុណលក្ខណៈដែលតម្រូវការសម្រាប់អ្នកប្រើប្រាស់
+  "flows.executor.errors.attribute_not_unique": តម្លៃគុណលក្ខណៈមានរួចហើយ
+  "flows.executor.errors.attribute_not_unique_desc": តម្លៃគុណលក្ខណៈដែលបានផ្តល់មានរួចហើយ និងត្រូវតែជាតម្លៃតែមួយ
+  "flows.executor.errors.attribute_retrieval_failed": បរាជ័យក្នុងការទាញយកគុណលក្ខណៈអ្នកប្រើប្រាស់
+  "flows.executor.errors.attribute_retrieval_failed_desc": មានកំហុសកើតឡើងក្នុងពេលទាញយកគុណលក្ខណៈអ្នកប្រើប្រាស់
+  "flows.executor.errors.auth_not_available_for_app": ការផ្ទៀងផ្ទាត់មិនអាចរកបានសម្រាប់កម្មវិធីនេះ
+  "flows.executor.errors.auth_not_available_for_app_desc": វិធីសាស្ត្រផ្ទៀងផ្ទាត់ដែលបានស្នើសុំមិនអាចរកបានសម្រាប់កម្មវិធីនេះ
+  "flows.executor.errors.authorization_failed": ការផ្ទៀងផ្ទាត់ការអនុញ្ញាតបរាជ័យ
+  "flows.executor.errors.authorization_failed_desc": ការផ្ទៀងផ្ទាត់ការអនុញ្ញាតបរាជ័យសម្រាប់អ្នកប្រើប្រាស់បច្ចុប្បន្ន
+  "flows.executor.errors.cannot_provision_automatically": មិនអាចផ្តល់អ្នកប្រើប្រាស់ដោយស្វ័យប្រវត្តិ
+  "flows.executor.errors.cannot_provision_automatically_desc": អ្នកប្រើប្រាស់មិនអាចផ្តល់ដោយស្វ័យប្រវត្តិជាមួយព័ត៌មានដែលបានផ្តល់
+  "flows.executor.errors.consent_decisions_missing": ការបញ្ចូលការសម្រេចការយល់ព្រមបាត់ ឬទទេ
+  "flows.executor.errors.consent_decisions_missing_desc": ការបញ្ចូលការសម្រេចការយល់ព្រមបាត់ ឬទទេ
+  "flows.executor.errors.consent_decisions_parse": បរាជ័យក្នុងការ parse ការសម្រេចការយល់ព្រម
+  "flows.executor.errors.consent_decisions_parse_desc": ការបញ្ចូលការសម្រេចការយល់ព្រមមិនអាចត្រូវបាន parse
+  "flows.executor.errors.consent_denied": អ្នកប្រើប្រាស់បានបដិសេធការយល់ព្រម
+  "flows.executor.errors.consent_denied_desc": អ្នកប្រើប្រាស់បានបដិសេធការយល់ព្រមដែលតម្រូវការ
+  "flows.executor.errors.consent_prereq_failed": ការផ្ទៀងផ្ទាត់ Prerequisites បរាជ័យសម្រាប់ការយល់ព្រម
+  "flows.executor.errors.consent_prereq_failed_desc": Prerequisites សម្រាប់ executor ការយល់ព្រមមិនត្រូវបានបំពេញ
+  "flows.executor.errors.consent_prompt_timed_out": prompt ការយល់ព្រមបានផុតពេល
+  "flows.executor.errors.consent_prompt_timed_out_desc": prompt ការយល់ព្រមបានផុតពេលដោយគ្មានការឆ្លើយតប
+  "flows.executor.errors.consent_record_failed": បរាជ័យក្នុងការកត់ត្រាការយល់ព្រម
+  "flows.executor.errors.consent_record_failed_desc": មានកំហុសកើតឡើងក្នុងពេលកត់ត្រាការយល់ព្រមអ្នកប្រើប្រាស់
+  "flows.executor.errors.consent_resolution_failed": បរាជ័យក្នុងការដោះស្រាយការយល់ព្រម
+  "flows.executor.errors.consent_resolution_failed_desc": មានកំហុសកើតឡើងក្នុងពេលដោះស្រាយតម្រូវការការយល់ព្រមអ្នកប្រើប្រាស់
+  "flows.executor.errors.credential_input_invalid": ការកំណត់រចនាសម្ព័ន្ធការបញ្ចូល credential មិនត្រឹមត្រូវ
+  "flows.executor.errors.credential_input_invalid_desc": ការកំណត់រចនាសម្ព័ន្ធការបញ្ចូល credential មិនត្រឹមត្រូវសម្រាប់ credential setter
+  "flows.executor.errors.credential_input_missing": គ្មានការបញ្ចូល credential ដែលបានកំណត់
+  "flows.executor.errors.credential_input_missing_desc": គ្មានការបញ្ចូល credential ដែលបានកំណត់សម្រាប់ credential setter
+  "flows.executor.errors.credential_processing_failed": បរាជ័យក្នុងការដំណើរការ credentials
+  "flows.executor.errors.credential_processing_failed_desc": មានកំហុសកើតឡើងក្នុងពេលដំណើរការ credentials
+  "flows.executor.errors.credential_set_failed": បរាជ័យក្នុងការកំណត់ credentials
+  "flows.executor.errors.credential_set_failed_desc": មានកំហុសកើតឡើងក្នុងពេលកំណត់ credentials អ្នកប្រើប្រាស់
+  "flows.executor.errors.credential_value_empty": តម្លៃ credential ទទេ
+  "flows.executor.errors.credential_value_empty_desc": តម្លៃ credential មិនត្រូវទទេសម្រាប់ credential setter
+  "flows.executor.errors.cross_ou_provisioning_target_missing": OU គោលដៅមិនត្រូវបានកំណត់សម្រាប់ការផ្តល់ cross-OU
+  "flows.executor.errors.cross_ou_provisioning_target_missing_desc": ត្រូវតែបញ្ជាក់អង្គភាពស្ថាប័នគោលដៅសម្រាប់ការផ្តល់អ្នកប្រើប្រាស់ cross-OU
+  "flows.executor.errors.email_recipient_missing": អ្នកទទួលអ៊ីម៉ែលត្រូវការ
+  "flows.executor.errors.email_recipient_missing_desc": ត្រូវតែផ្តល់អ្នកទទួលអ៊ីម៉ែលដើម្បីផ្ញើការជូនដំណឹង
+  "flows.executor.errors.email_send_failed": បរាជ័យក្នុងការផ្ញើអ៊ីម៉ែល
+  "flows.executor.errors.email_send_failed_desc": មានកំហុសកើតឡើងក្នុងពេលផ្ញើអ៊ីម៉ែល
+  "flows.executor.errors.email_service_not_configured": សេវាអ៊ីម៉ែលមិនត្រូវបានកំណត់រចនាសម្ព័ន្ធ
+  "flows.executor.errors.email_service_not_configured_desc": សេវាជូនដំណឹងអ៊ីម៉ែលមិនត្រូវបានកំណត់រចនាសម្ព័ន្ធ
+  "flows.executor.errors.failed_to_identify_user": បរាជ័យក្នុងការកំណត់អ្នកប្រើប្រាស់
+  "flows.executor.errors.failed_to_identify_user_desc": មិនអាចកំណត់អ្នកប្រើប្រាស់ជាមួយព័ត៌មានដែលបានផ្តល់
+  "flows.executor.errors.http_request_config_invalid": កំហុសការកំណត់រចនាសម្ព័ន្ធ
+  "flows.executor.errors.http_request_config_invalid_desc": ការកំណត់រចនាសម្ព័ន្ធ executor សំណើ HTTP មិនត្រឹមត្រូវ
+  "flows.executor.errors.http_request_failed": executor សំណើ HTTP បរាជ័យ
+  "flows.executor.errors.http_request_failed_desc": executor សំណើ HTTP បរាជ័យក្នុងការបំពេញសំណើ
+  "flows.executor.errors.insufficient_permissions": សិទ្ធិមិនគ្រប់គ្រាន់
+  "flows.executor.errors.insufficient_permissions_desc": អ្នកប្រើប្រាស់មិនមានសិទ្ធិគ្រប់គ្រាន់ដើម្បីអនុវត្តសកម្មភាពនេះ
+  "flows.executor.errors.invalid_action": សកម្មភាពដែលបានផ្តល់មិនត្រឹមត្រូវ
+  "flows.executor.errors.invalid_action_desc": សកម្មភាពដែលបានផ្តល់មិនត្រឹមត្រូវសម្រាប់ជំហាន flow បច្ចុប្បន្ន
+  "flows.executor.errors.invalid_credentials": credentials ដែលបានផ្តល់មិនត្រឹមត្រូវ
+  "flows.executor.errors.invalid_credentials_desc": credentials ដែលបានផ្តល់មិនត្រឹមត្រូវ
+  "flows.executor.errors.invalid_federated_user": អ្នកប្រើប្រាស់ federated មិនត្រឹមត្រូវ
+  "flows.executor.errors.invalid_federated_user_desc": ព័ត៌មានអ្នកប្រើប្រាស់ federated មិនត្រឹមត្រូវ ឬមិនស្របគ្នា
+  "flows.executor.errors.invalid_invite_token": token ការអញ្ជើញមិនត្រឹមត្រូវ
+  "flows.executor.errors.invalid_invite_token_desc": token ការអញ្ជើញដែលបានផ្តល់មិនត្រឹមត្រូវ ឬបានផុតកំណត់
+  "flows.executor.errors.invalid_magic_link_token": token magic link មិនត្រឹមត្រូវ
+  "flows.executor.errors.invalid_magic_link_token_desc": token magic link មិនត្រឹមត្រូវ ឬបានផុតកំណត់
+  "flows.executor.errors.invalid_oauth_code": លេខកូដការអនុញ្ញាត OAuth មិនត្រឹមត្រូវ
+  "flows.executor.errors.invalid_oauth_code_desc": លេខកូដការអនុញ្ញាត OAuth មិនត្រឹមត្រូវ ឬមិនអាចប្តូរប្រាក់ tokens
+  "flows.executor.errors.invalid_oauth_state": ប៉ារ៉ាម៉ែត្រ state OAuth មិនត្រឹមត្រូវ
+  "flows.executor.errors.invalid_oauth_state_desc": ប៉ារ៉ាម៉ែត្រ state OAuth មិនត្រឹមត្រូវ ឬមិនត្រូវនឹងតម្លៃដែលរំពឹងទុក
+  "flows.executor.errors.invalid_otp": OTP ដែលបានផ្តល់មិនត្រឹមត្រូវ
+  "flows.executor.errors.invalid_otp_desc": ពាក្យសម្ងាត់ម្តងប្រើដែលបានផ្តល់មិនត្រឹមត្រូវ ឬបានផុតកំណត់
+  "flows.executor.errors.invalid_ou": អង្គភាពស្ថាប័នដែលបានជ្រើសរើសមិនត្រឹមត្រូវ
+  "flows.executor.errors.invalid_ou_desc": អង្គភាពស្ថាប័នដែលបានជ្រើសរើសមិនត្រឹមត្រូវសម្រាប់ប្រតិបត្តិការនេះ
+  "flows.executor.errors.invalid_passkey": credentials passkey មិនត្រឹមត្រូវ
+  "flows.executor.errors.invalid_passkey_desc": credentials passkey ដែលបានផ្តល់មិនត្រឹមត្រូវ
+  "flows.executor.errors.invalid_user_type": ប្រភេទអ្នកប្រើប្រាស់មិនត្រឹមត្រូវ
+  "flows.executor.errors.invalid_user_type_desc": ប្រភេទអ្នកប្រើប្រាស់ដែលបានផ្តល់មិនត្រឹមត្រូវ
+  "flows.executor.errors.invite_token_generation_failed": បរាជ័យក្នុងការបង្កើត token ការអញ្ជើញ
+  "flows.executor.errors.invite_token_generation_failed_desc": មានកំហុសកើតឡើងក្នុងពេលបង្កើត token ការអញ្ជើញ
+  "flows.executor.errors.magic_link_generation_failed": ការបង្កើត magic link បរាជ័យ
+  "flows.executor.errors.magic_link_generation_failed_desc": បរាជ័យក្នុងការបង្កើត magic link
+  "flows.executor.errors.max_otp_attempts_reached": ឈានដល់ចំនួនអតិបរិមានៃការព្យាយាម OTP
+  "flows.executor.errors.max_otp_attempts_reached_desc": ឈានដល់ចំនួនអតិបរិមានៃការព្យាយាមផ្ទៀងផ្ទាត់ OTP
+  "flows.executor.errors.no_registered_passkeys": រកមិនឃើញ passkeys ដែលបានចុះឈ្មោះ
+  "flows.executor.errors.no_registered_passkeys_desc": រកមិនឃើញ passkeys ដែលបានចុះឈ្មោះសម្រាប់អ្នកប្រើប្រាស់
+  "flows.executor.errors.no_user_types_available": គ្មានប្រភេទអ្នកប្រើប្រាស់
+  "flows.executor.errors.no_user_types_available_desc": គ្មានប្រភេទអ្នកប្រើប្រាស់ដែលអាចរកបានបច្ចុប្បន្ន
+  "flows.executor.errors.no_valid_user_types": គ្មានប្រភេទអ្នកប្រើប្រាស់ត្រឹមត្រូវ
+  "flows.executor.errors.no_valid_user_types_desc": គ្មានប្រភេទអ្នកប្រើប្រាស់ត្រឹមត្រូវដែលបានកំណត់សម្រាប់ flow នេះ
+  "flows.executor.errors.nonce_mismatch": nonce មិនត្រូវគ្នានៅក្នុង ID token
+  "flows.executor.errors.nonce_mismatch_desc": nonce នៅក្នុង claims ID token មិនត្រូវនឹងតម្លៃដែលរំពឹងទុក
+  "flows.executor.errors.openid4vp_expired": សំណើ OpenID4VP ផុតកំណត់មុនពេលទទួលបានការឆ្លើយតប
+  "flows.executor.errors.openid4vp_expired_desc": សំណើបង្ហាញ OpenID4VP ផុតកំណត់មុនពេល wallet បញ្ជូនការឆ្លើយតប
+  "flows.executor.errors.openid4vp_initiate_failed": បរាជ័យក្នុងការចាប់ផ្តើមសំណើ OpenID4VP
+  "flows.executor.errors.openid4vp_initiate_failed_desc": មានកំហុសកើតឡើងក្នុងពេលចាប់ផ្តើមសំណើបង្ហាញ OpenID4VP
+  "flows.executor.errors.openid4vp_not_configured": OpenID4VP verifier មិនត្រូវបានកំណត់រចនាសម្ព័ន្ធ
+  "flows.executor.errors.openid4vp_not_configured_desc": សេវា OpenID4VP verifier មិនត្រូវបានកំណត់រចនាសម្ព័ន្ធ
+  "flows.executor.errors.openid4vp_verification_failed": ការផ្ទៀងផ្ទាត់ការបង្ហាញ OpenID4VP បរាជ័យ
+  "flows.executor.errors.openid4vp_verification_failed_desc": ការផ្ទៀងផ្ទាត់ការបង្ហាញ OpenID4VP បរាជ័យ
+  "flows.executor.errors.ou_creation_failed": ការបង្កើតអង្គភាពស្ថាប័នបរាជ័យ
+  "flows.executor.errors.ou_creation_failed_desc": មានកំហុសកើតឡើងក្នុងពេលបង្កើតអង្គភាពស្ថាប័ន
+  "flows.executor.errors.ou_creation_prereq_failed": ការផ្ទៀងផ្ទាត់ Prerequisites បរាជ័យសម្រាប់ការបង្កើត OU
+  "flows.executor.errors.ou_creation_prereq_failed_desc": Prerequisites សម្រាប់ការបង្កើតអង្គភាពស្ថាប័នមិនត្រូវបានបំពេញ
+  "flows.executor.errors.ou_handle_conflict": អង្គភាពស្ថាប័នដែលមាន handle ដូចគ្នាមានរួចហើយ
+  "flows.executor.errors.ou_handle_conflict_desc": អង្គភាពស្ថាប័នដែលមាន handle ដូចគ្នាមានរួចហើយនៅក្នុងបរិបទនេះ
+  "flows.executor.errors.ou_name_conflict": អង្គភាពស្ថាប័នដែលមានឈ្មោះដូចគ្នាមានរួចហើយ
+  "flows.executor.errors.ou_name_conflict_desc": អង្គភាពស្ថាប័នដែលមានឈ្មោះដូចគ្នាមានរួចហើយនៅក្នុងបរិបទនេះ
+  "flows.executor.errors.ou_not_found": រកមិនឃើញអង្គភាពស្ថាប័ន
+  "flows.executor.errors.ou_not_found_desc": អង្គភាពស្ថាប័នដែលបានជ្រើសរើសមិនមាន
+  "flows.executor.errors.ou_not_valid_for_user_type": អង្គភាពស្ថាប័នដែលបានជ្រើសរើសមិនត្រឹមត្រូវសម្រាប់ប្រភេទអ្នកប្រើប្រាស់ដែលបានជ្រើសរើស។
+  "flows.executor.errors.ou_not_valid_for_user_type_desc": អង្គភាពស្ថាប័នដែលបានជ្រើសរើសមិនត្រឹមត្រូវសម្រាប់ប្រភេទអ្នកប្រើប្រាស់ដែលបានជ្រើសរើស
+  "flows.executor.errors.ou_resolution_failed": បរាជ័យក្នុងការដោះស្រាយអង្គភាពស្ថាប័ន
+  "flows.executor.errors.ou_resolution_failed_desc": មិនអាចដោះស្រាយអង្គភាពស្ថាប័នសម្រាប់បរិបទបច្ចុប្បន្ន
+  "flows.executor.errors.passkey_auth_failed": ការផ្ទៀងផ្ទាត់ passkey បរាជ័យ
+  "flows.executor.errors.passkey_auth_failed_desc": មានកំហុសកើតឡើងក្នុងពេលផ្ទៀងផ្ទាត់ជាមួយ passkey
+  "flows.executor.errors.passkey_registration_failed": ការចុះឈ្មោះ passkey បរាជ័យ
+  "flows.executor.errors.passkey_registration_failed_desc": មានកំហុសកើតឡើងក្នុងពេលចុះឈ្មោះ passkey
+  "flows.executor.errors.prerequisites_failed": ការផ្ទៀងផ្ទាត់ Prerequisites បរាជ័យ
+  "flows.executor.errors.prerequisites_failed_desc": Prerequisites សម្រាប់ប្រតិបត្តិការនេះមិនត្រូវបានបំពេញ
+  "flows.executor.errors.provisioning_assignment_failed": បរាជ័យក្នុងការចាត់តាំងក្រុម និងតួនាទី
+  "flows.executor.errors.provisioning_assignment_failed_desc": មានកំហុសកើតឡើងក្នុងពេលចាត់តាំងក្រុម និងតួនាទីទៅអ្នកប្រើប្រាស់ដែលបានផ្តល់
+  "flows.executor.errors.provisioning_attribute_conflict": អ្នកប្រើប្រាស់ដែលមានគុណលក្ខណៈដែលបានផ្តល់មានរួចហើយ
+  "flows.executor.errors.provisioning_attribute_conflict_desc": ការផ្តល់អ្នកប្រើប្រាស់បរាជ័យដោយសារតម្លៃគុណលក្ខណៈតែមួយមួយ ឬច្រើនត្រូវបានយកហើយ
+  "flows.executor.errors.provisioning_failed": ការផ្តល់អ្នកប្រើប្រាស់បរាជ័យ
+  "flows.executor.errors.provisioning_failed_desc": មានកំហុសកើតឡើងក្នុងពេលផ្តល់អ្នកប្រើប្រាស់
+  "flows.executor.errors.provisioning_user_attrs_missing": គ្មានគុណលក្ខណៈអ្នកប្រើប្រាស់ដែលបានផ្តល់សម្រាប់ការផ្តល់
+  "flows.executor.errors.provisioning_user_attrs_missing_desc": គុណលក្ខណៈអ្នកប្រើប្រាស់ត្រូវការដើម្បីផ្តល់អ្នកប្រើប្រាស់ថ្មី
+  "flows.executor.errors.self_reg_disabled_for_user_type": ការចុះឈ្មោះដោយខ្លួនឯងបានបិទសម្រាប់ប្រភេទអ្នកប្រើប្រាស់
+  "flows.executor.errors.self_reg_disabled_for_user_type_desc": ការចុះឈ្មោះដោយខ្លួនឯងមិនត្រូវបានបើកដំណើរការសម្រាប់ប្រភេទអ្នកប្រើប្រាស់ដែលបានជ្រើសរើស
+  "flows.executor.errors.self_reg_not_available_for_app": ការចុះឈ្មោះដោយខ្លួនឯងមិនអាចរកបានសម្រាប់កម្មវិធីនេះ
+  "flows.executor.errors.self_reg_not_available_for_app_desc": ការចុះឈ្មោះដោយខ្លួនឯងមិនអាចរកបានសម្រាប់កម្មវិធីនេះ
+  "flows.executor.errors.self_registration_disabled": ការចុះឈ្មោះដោយខ្លួនឯងមិនត្រូវបានបើក
+  "flows.executor.errors.self_registration_disabled_desc": ការចុះឈ្មោះដោយខ្លួនឯងមិនត្រូវបានបើកដំណើរការសម្រាប់កម្មវិធី ឬប្រភេទអ្នកប្រើប្រាស់នេះ
+  "flows.executor.errors.sms_invalid_phone": អ្នកទទួល SMS មិនមែនជាលេខទូរស័ព្ទត្រឹមត្រូវ
+  "flows.executor.errors.sms_invalid_phone_desc": អ្នកទទួល SMS ដែលបានផ្តល់មិនមែនជាលេខទូរស័ព្ទត្រឹមត្រូវ
+  "flows.executor.errors.sms_provider_not_configured": អ្នកផ្តល់សេវាជូនដំណឹង SMS មិនត្រូវបានកំណត់រចនាសម្ព័ន្ធ
+  "flows.executor.errors.sms_provider_not_configured_desc": អ្នកផ្តល់សេវាជូនដំណឹង SMS មិនត្រូវបានកំណត់រចនាសម្ព័ន្ធ ឬមានបញ្ហា
+  "flows.executor.errors.sms_recipient_missing": អ្នកទទួល SMS ត្រូវការ
+  "flows.executor.errors.sms_recipient_missing_desc": ត្រូវតែផ្តល់អ្នកទទួល SMS ដើម្បីផ្ញើការជូនដំណឹង
+  "flows.executor.errors.sms_template_missing": គំរូ SMS ត្រូវការ
+  "flows.executor.errors.sms_template_missing_desc": ត្រូវតែផ្តល់គំរូ SMS ដើម្បីផ្ញើការជូនដំណឹង
+  "flows.executor.errors.user_already_exists": អ្នកប្រើប្រាស់មានរួចហើយ
+  "flows.executor.errors.user_already_exists_desc": អ្នកប្រើប្រាស់មានរួចហើយជាមួយគុណលក្ខណៈដែលបានផ្តល់
+  "flows.executor.errors.user_already_exists_in_target_ou": អ្នកប្រើប្រាស់មានរួចហើយនៅក្នុងស្ថាប័នគោលដៅ
+  "flows.executor.errors.user_already_exists_in_target_ou_desc": អ្នកប្រើប្រាស់ដែលមានអត្តសញ្ញាណដូចគ្នាមានរួចហើយនៅក្នុងអង្គភាពស្ថាប័នគោលដៅ
+  "flows.executor.errors.user_auth_failed": ការផ្ទៀងផ្ទាត់អ្នកប្រើប្រាស់បរាជ័យ
+  "flows.executor.errors.user_auth_failed_desc": មានកំហុសកើតឡើងក្នុងពេលផ្ទៀងផ្ទាត់អ្នកប្រើប្រាស់
+  "flows.executor.errors.user_id_missing_in_context": រកមិនឃើញ ID អ្នកប្រើប្រាស់
+  "flows.executor.errors.user_id_missing_in_context_desc": ID អ្នកប្រើប្រាស់មិនអាចដោះស្រាយបានពីបរិបទ flow បច្ចុប្បន្ន
+  "flows.executor.errors.user_id_required_for_passkey_reg": ID អ្នកប្រើប្រាស់បាត់សម្រាប់ការចុះឈ្មោះ passkey
+  "flows.executor.errors.user_id_required_for_passkey_reg_desc": ID អ្នកប្រើប្រាស់ត្រូវការដើម្បីចុះឈ្មោះ passkey
+  "flows.executor.errors.user_not_authenticated": អ្នកប្រើប្រាស់មិនត្រូវបានផ្ទៀងផ្ទាត់
+  "flows.executor.errors.user_not_authenticated_desc": អ្នកប្រើប្រាស់មិនត្រូវបានផ្ទៀងផ្ទាត់នៅក្នុង flow នេះ
+  "flows.executor.errors.user_not_found": រកមិនឃើញអ្នកប្រើប្រាស់
+  "flows.executor.errors.user_not_found_desc": រកមិនឃើញអ្នកប្រើប្រាស់នៅក្នុងប្រព័ន្ធ
+  "flows.executor.errors.user_type_not_allowed": ប្រភេទអ្នកប្រើប្រាស់មិនត្រូវបានអនុញ្ញាតសម្រាប់ flow នេះ
+  "flows.executor.errors.user_type_not_allowed_desc": ប្រភេទអ្នកប្រើប្រាស់ដែលបានជ្រើសរើសមិនត្រូវបានអនុញ្ញាតសម្រាប់ flow នេះ
+  "flows.executor.errors.user_type_not_valid_for_ou": ប្រភេទអ្នកប្រើប្រាស់មិនត្រឹមត្រូវ
+  "flows.executor.errors.user_type_not_valid_for_ou_desc": ប្រភេទអ្នកប្រើប្រាស់ដែលបានជ្រើសរើសមិនត្រឹមត្រូវសម្រាប់អង្គភាពស្ថាប័នដែលបានជ្រើសរើស
+  "flows.executor.errors.user_type_retrieval_failed": បរាជ័យក្នុងការទាញយកប្រភេទអ្នកប្រើប្រាស់
+  "flows.executor.errors.user_type_retrieval_failed_desc": មានកំហុសកើតឡើងក្នុងពេលទាញយកប្រភេទអ្នកប្រើប្រាស់ដែលអាចរកបាន
+  "layout.error.already_exists": Layout មានរួចហើយ
+  "layout.error.already_exists_description": Layout ដែលមាន ID ដូចគ្នាមានរួចហើយ
+  "layout.error.cannot_delete_declarative": មិនអាចលុប layout ប្រកាស
+  "layout.error.cannot_delete_declarative_description": Layout ត្រូវបានកំណត់នៅក្នុងធនធានប្រកាស និងមិនអាចលុបបាន
+  "layout.error.cannot_modify_declarative": មិនអាចកែប្រែធនធានប្រកាស
+  "layout.error.cannot_modify_declarative_description": Layout ជាប្រភេទប្រកាស និងមិនអាចកែប្រែ ឬលុបបាន
+  "layout.error.cannot_update_declarative": មិនអាចធ្វើបច្ចុប្បន្នភាព layout ប្រកាស
+  "layout.error.cannot_update_declarative_description": Layout ត្រូវបានកំណត់នៅក្នុងធនធានប្រកាស និងមិនអាចកែប្រែបាន
+  "layout.error.duplicate_handle": handle layout ស្ទួន
+  "layout.error.duplicate_handle_description": Layout ដែលមាន handle ដូចគ្នាមានរួចហើយ
+  "layout.error.handle_immutable": handle layout មិនអាចផ្លាស់ប្តូរ
+  "layout.error.handle_immutable_description": handle layout មិនអាចផ្លាស់ប្តូរបន្ទាប់ពីការបង្កើត
+  "layout.error.in_use": Layout កំពុងប្រើប្រាស់
+  "layout.error.in_use_description": មិនអាចលុប layout ដែលបច្ចុប្បន្នភ្ជាប់ជាមួយកម្មវិធីមួយ ឬច្រើន
+  "layout.error.invalid_data": ទិន្នន័យ layout មិនត្រឹមត្រូវ
+  "layout.error.invalid_data_description": ទិន្នន័យ layout ដែលបានផ្តល់មិនត្រឹមត្រូវ
+  "layout.error.invalid_format": ទម្រង់ layout មិនត្រឹមត្រូវ
+  "layout.error.invalid_format_description": Layout ត្រូវតែជា JSON object ត្រឹមត្រូវ
+  "layout.error.invalid_id": ID layout មិនត្រឹមត្រូវ
+  "layout.error.invalid_id_description": ID layout ដែលបានផ្តល់មិនត្រឹមត្រូវ
+  "layout.error.invalid_limit": limit មិនត្រឹមត្រូវ
+  "layout.error.invalid_limit_description": តម្លៃ limit នៅក្រៅជួរត្រឹមត្រូវ
+  "layout.error.invalid_limit_param": limit មិនត្រឹមត្រូវ
+  "layout.error.invalid_limit_param_description": limit ត្រូវតែជាចំនួនគត់ត្រឹមត្រូវ
+  "layout.error.invalid_offset": offset មិនត្រឹមត្រូវ
+  "layout.error.invalid_offset_description": offset ត្រូវតែមិនអវិជ្ជមាន
+  "layout.error.invalid_offset_param": offset មិនត្រឹមត្រូវ
+  "layout.error.invalid_offset_param_description": offset ត្រូវតែជាចំនួនគត់ត្រឹមត្រូវ
+  "layout.error.missing_display_name": ឈ្មោះបង្ហាញបាត់
+  "layout.error.missing_display_name_description": ឈ្មោះបង្ហាញត្រូវការ
+  "layout.error.missing_handle": handle layout បាត់
+  "layout.error.missing_handle_description": handle layout ត្រូវការ
+  "layout.error.missing_layout": layout បាត់
+  "layout.error.missing_layout_description": វាល layout ត្រូវការ
+  "layout.error.not_found": រកមិនឃើញ layout
+  "layout.error.not_found_description": រកមិនឃើញការកំណត់រចនាសម្ព័ន្ធ layout ដែលបានស្នើសុំ
+  "layout.error.result_limit_exceeded": ដែនកំណត់លទ្ធផលលើស
+  "layout.error.result_limit_exceeded_description": ចំនួនសរុបនៃ layouts លើសដែនកំណត់អតិបរិមាដែលអនុញ្ញាតក្នុងរបៀបផ្សំ
+  "theme.error.cannot_delete_declarative": មិនអាចលុប theme ប្រកាស
+  "theme.error.cannot_delete_declarative_description": Theme ត្រូវបានកំណត់នៅក្នុងធនធានប្រកាស និងមិនអាចលុបបាន
+  "theme.error.cannot_modify_declarative": មិនអាចកែប្រែធនធានប្រកាស
+  "theme.error.cannot_modify_declarative_description": Theme ជាប្រភេទប្រកាស និងមិនអាចកែប្រែ ឬលុបបាន
+  "theme.error.cannot_update_declarative": មិនអាចធ្វើបច្ចុប្បន្នភាព theme ប្រកាស
+  "theme.error.cannot_update_declarative_description": Theme ត្រូវបានកំណត់នៅក្នុងធនធានប្រកាស និងមិនអាចកែប្រែបាន
+  "theme.error.duplicate_handle": handle theme ស្ទួន
+  "theme.error.duplicate_handle_description": Theme ដែលមាន handle ដូចគ្នាមានរួចហើយ
+  "theme.error.handle_immutable": handle theme មិនអាចផ្លាស់ប្តូរ
+  "theme.error.handle_immutable_description": handle theme មិនអាចផ្លាស់ប្តូរបន្ទាប់ពីការបង្កើត
+  "theme.error.in_use": Theme កំពុងប្រើប្រាស់
+  "theme.error.in_use_description": មិនអាចលុប theme ដែលបច្ចុប្បន្នភ្ជាប់ជាមួយកម្មវិធីមួយ ឬច្រើន
+  "theme.error.invalid_data": ទិន្នន័យ theme មិនត្រឹមត្រូវ
+  "theme.error.invalid_data_description": ទិន្នន័យ theme ដែលបានផ្តល់មិនត្រឹមត្រូវ
+  "theme.error.invalid_format": ទម្រង់ theme មិនត្រឹមត្រូវ
+  "theme.error.invalid_format_description": Theme ត្រូវតែជា JSON object ត្រឹមត្រូវ
+  "theme.error.invalid_id": ID theme មិនត្រឹមត្រូវ
+  "theme.error.invalid_id_description": ID theme ដែលបានផ្តល់មិនត្រឹមត្រូវ
+  "theme.error.invalid_limit": limit មិនត្រឹមត្រូវ
+  "theme.error.invalid_limit_description": តម្លៃ limit នៅក្រៅជួរត្រឹមត្រូវ
+  "theme.error.invalid_limit_param": limit មិនត្រឹមត្រូវ
+  "theme.error.invalid_limit_param_description": limit ត្រូវតែជាចំនួនគត់ត្រឹមត្រូវ
+  "theme.error.invalid_offset": offset មិនត្រឹមត្រូវ
+  "theme.error.invalid_offset_description": offset ត្រូវតែមិនអវិជ្ជមាន
+  "theme.error.invalid_offset_param": offset មិនត្រឹមត្រូវ
+  "theme.error.invalid_offset_param_description": offset ត្រូវតែជាចំនួនគត់ត្រឹមត្រូវ
+  "theme.error.missing_display_name": ឈ្មោះបង្ហាញបាត់
+  "theme.error.missing_display_name_description": ឈ្មោះបង្ហាញត្រូវការ
+  "theme.error.missing_handle": handle theme បាត់
+  "theme.error.missing_handle_description": handle theme ត្រូវការ
+  "theme.error.missing_theme": theme បាត់
+  "theme.error.missing_theme_description": វាល theme ត្រូវការ
+  "theme.error.not_found": រកមិនឃើញ theme
+  "theme.error.not_found_description": រកមិនឃើញការកំណត់រចនាសម្ព័ន្ធ theme ដែលបានស្នើសុំ
+  "theme.error.result_limit_exceeded": ដែនកំណត់លទ្ធផលលើស
+  "theme.error.result_limit_exceeded_description": ចំនួនសរុបនៃ themes លើសដែនកំណត់អតិបរិមាដែលអនុញ្ញាតក្នុងរបៀបផ្សំ
