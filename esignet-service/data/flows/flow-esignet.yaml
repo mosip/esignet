@@ -438,7 +438,82 @@ nodes:
     type: TASK_EXECUTION
     executor:
       name: AuthorizationExecutor
+    onSuccess: consent_check
+
+  - id: consent_check
+    type: TASK_EXECUTION
+    properties:
+      timeout: "120"
+    executor:
+      name: ConsentExecutor
+      inputs:
+        - ref: input_consent
+          identifier: consent_decisions
+          type: CONSENT_INPUT
+          required: true
     onSuccess: auth_assert
+    onIncomplete: prompt_consent
+
+  - id: prompt_consent
+    type: PROMPT
+    meta:
+      components:
+        - id: text_consent_title
+          type: TEXT
+          label: We need your consent
+          variant: HEADING_3
+          category: DISPLAY
+          resourceType: ELEMENT
+        - id: text_consent_desc
+          type: TEXT
+          label: This app would like to access the following information. Please review and choose what you'd like to share.
+          variant: BODY_1
+          category: DISPLAY
+          resourceType: ELEMENT
+        - id: block_consent
+          type: BLOCK
+          category: BLOCK
+          resourceType: ELEMENT
+          components:
+            - id: timer_consent
+              type: TIMER
+              category: DISPLAY
+              resourceType: ELEMENT
+            - id: input_consent
+              type: CONSENT
+              category: DISPLAY
+            - id: action_allow
+              type: ACTION
+              label: Allow
+              variant: PRIMARY
+              category: ACTION
+              eventType: SUBMIT
+              resourceType: ELEMENT
+            - id: action_deny
+              type: ACTION
+              label: Deny
+              variant: SECONDARY
+              category: ACTION
+              eventType: SUBMIT
+              resourceType: ELEMENT
+    prompts:
+      - inputs:
+          - ref: input_consent
+            identifier: consent_decisions
+            type: CONSENT_INPUT
+            required: true
+        action:
+          ref: action_allow
+          nextNode: consent_check
+      - inputs:
+          - ref: input_consent
+            identifier: consent_decisions
+            type: CONSENT_INPUT
+            required: true
+        action:
+          ref: action_deny
+          nextNode: consent_check
+
   - id: auth_assert
     type: TASK_EXECUTION
     executor:
