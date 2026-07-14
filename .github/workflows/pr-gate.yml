@@ -1,0 +1,20 @@
+name: PR Gate
+on:
+  pull_request:
+    branches: [ master, main, develop, release-*, develop-go ]
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: write
+jobs:
+  pr-gate:
+    uses: Mahesh-Binayak/kattu/.github/workflows/pr-gate.yml@esignet-343
+    secrets: inherit
+    with:
+      # esignet's npm project (and its package-lock.json) live in oidc-ui/, not the repo root,
+      # so npm ci / tests must run there. Java reactor is at root, so JAVA_SERVICE_LOCATION stays '.'.
+      NPM_SERVICE_LOCATION: oidc-ui
+      # Trivy findings are posted as a PR comment. `full` lists all current HIGH/CRITICAL
+      # on every PR (self-converges to diff-only as the backlog is fixed). Switch to `diff`
+      # once the backlog is clear to comment only vulns the PR newly introduces.
+      trivy_comment_mode: full
