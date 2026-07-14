@@ -845,13 +845,13 @@ nodes:
               label: Login with KBI
             - *prompt_uin
             - id: fullname_input
-              ref: fullname
+              ref: fullName
               type: TEXT_INPUT
               label: Fullname
               required: true
               placeholder: Enter your full name
             - id: dob_input
-              ref: date_of_birth
+              ref: dob
               type: DATE_INPUT
               label: Date of Birth
               required: true
@@ -867,11 +867,11 @@ nodes:
             type: TEXT_INPUT
             required: true
           - ref: fullname_input
-            identifier: fullname
+            identifier: fullName
             type: TEXT_INPUT
             required: true
           - ref: dob_input
-            identifier: date_of_birth
+            identifier: dob
             type: DATE_INPUT
             required: true
         action:
@@ -891,11 +891,11 @@ nodes:
           type: TEXT_INPUT
           required: true
         - ref: fullname_input
-          identifier: fullname
+          identifier: fullName
           type: PASSWORD_INPUT
           required: true
         - ref: dob_input
-          identifier: date_of_birth
+          identifier: dob
           type: PASSWORD_INPUT
           required: true
     onSuccess: authorization_check

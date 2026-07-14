@@ -24,6 +24,7 @@ export default function BackButton({
           <button
             id="back-button"
             type="button"
+            aria-label={component.label || "Back"}
             onClick={() => handleBackButtonClick()}
             className="back-button-color cursor-pointer text-2xl font-semibold justify-left rtl:rotate-180 relative top-[2px]"
           >
