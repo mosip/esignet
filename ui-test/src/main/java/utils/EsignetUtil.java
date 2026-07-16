@@ -1,9 +1,14 @@
 package utils;
 
+import java.io.InputStream;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -12,9 +17,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
@@ -84,11 +92,13 @@ public class EsignetUtil extends AdminTestUtil {
 	protected static final String OIDC_JWK_FOR_PAR = "oidcJWKForPAR";
 	protected static final String OIDC_JWK_FOR_PAR_PURPOSE_LOGIN = "oidcJWKForPARPurposeLogin";
 	protected static final String OIDC_JWK_FOR_PAR_PURPOSE_LINK = "oidcJWKForPARPurposeLink";
+	protected static final String OIDC_JWK_FOR_PAR_PURPOSE_VERIFY = "oidcJWKForPARPurposeVerify";
 	protected static final String OIDC_JWK_FOR_PAR_PURPOSE_NONE = "oidcJWKForPARPurposeNone";
 	protected static final String OIDC_JWK_FOR_PAR_NO_PURPOSE = "oidcJWKForPARNoPurposeType";
 	protected static final String OIDC_JWK_FOR_PAR_NO_TITLE = "oidcJWKForPARNoTitle";
 	protected static final String OIDC_JWK_FOR_PAR_EMPTY_TITLE = "oidcJWKForPAREmptyTitle";
 	protected static final String OIDC_JWK_FOR_PAR_SINGLE_ACR_VALUE = "oidcJWKForPARSingleAcrValue";
+	protected static final String OIDC_JWK_FOR_PAR_REQUIRED = "oidcJWKForParRequired";
 	protected static RSAKey oidc_JWK_Key_For_PAR = null;
 	protected static final String CLAIMS_REQUEST = "config/claims.json";
 
@@ -98,7 +108,7 @@ public class EsignetUtil extends AdminTestUtil {
 	private static final String claim_locales = "en";
 	private static final String scope = "openid profile";
 	private static final String state = "eree2311";
-	private static final String prompt = "login";
+	private static final String prompt = "consent";
 	private static final String aud_key = "pushed_authorization_request_endpoint";
 
 	private static Response sendPostRequest(String url, Map<String, String> params) {
@@ -270,6 +280,28 @@ public class EsignetUtil extends AdminTestUtil {
 		}
 	}
 
+	private static Boolean signupServiceDeployed = null;
+
+	/**
+	 * Cached reachability probe for the signup service actuator. The end-to-end registration
+	 * scenario (and every scenario that reuses its phone number) needs this to fail fast with a
+	 * skip rather than an NPE/timeout when signup isn't deployed in the environment.
+	 */
+	public static boolean isSignupServiceDeployed() {
+		if (signupServiceDeployed == null) {
+			try {
+				Response response = RestClient.getRequest(UiConstants.SIGNUP_ACTUATOR_URL, MediaType.APPLICATION_JSON,
+						MediaType.APPLICATION_JSON);
+				signupServiceDeployed = response != null && response.getStatusCode() == 200;
+			} catch (Exception e) {
+				logger.warn("Signup service actuator unreachable at " + UiConstants.SIGNUP_ACTUATOR_URL
+						+ " - treating signup service as not deployed: " + e.getMessage());
+				signupServiceDeployed = false;
+			}
+		}
+		return signupServiceDeployed;
+	}
+
 	public static JSONArray getActiveProfilesFromActuator(String url, String key) {
 		JSONArray activeProfiles = null;
 
@@ -298,15 +330,14 @@ public class EsignetUtil extends AdminTestUtil {
 
 		String phoneNumber = "";
 		try {
-			phoneNumber = AdminTestUtil.genStringAsperRegex(regex);
+			//todo remove the below commented line
+//			phoneNumber = AdminTestUtil.genStringAsperRegex(regex);
+			phoneNumber = AdminTestUtil.genStringAsperRegex("^\\+91[1-9]\\d{8}$");
 		} catch (Exception e) {
 			logger.info("Phone Number is not generated with regex: " + e);
 		}
 
-		String countryCode = regex.substring(regex.indexOf('\\') + 1, regex.indexOf('['));
-		phoneNumber = phoneNumber.replace(countryCode, "");
-
-		return phoneNumber;
+		return stripCountryCode(phoneNumber, regex);
 	}
 
 	public static String getPasswordPattern() {
@@ -452,12 +483,14 @@ public class EsignetUtil extends AdminTestUtil {
 		String enRegex = getRegexForFullName("en");
 		String kmRegex = getRegexForFullName("km");
 
+		int enMin = extractMinLength(enRegex);
 		int enMax = extractMaxLength(enRegex);
+		int kmMin = extractMinLength(kmRegex);
 		int kmMax = extractMaxLength(kmRegex);
 
 		FullName fullName = new FullName();
-		fullName.english = generateEnglishName(enMax);
-		fullName.khmer = generateKhmerName(kmMax);
+		fullName.english = generateEnglishName(enMin, enMax);
+		fullName.khmer = generateKhmerName(kmMin, kmMax);
 
 		return fullName;
 	}
@@ -484,29 +517,55 @@ public class EsignetUtil extends AdminTestUtil {
 		return extractLength(regex, false);
 	}
 
-	public static String generateEnglishName(int maxLength) {
-		String letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ";
-		Random random = new Random();
-		int length = 2 + random.nextInt(Math.max(1, maxLength - 1));
-		StringBuilder name = new StringBuilder();
-		name.append((char) ('A' + random.nextInt(26)));
-		for (int i = 1; i < length; i++) {
-			name.append(letters.charAt(random.nextInt(letters.length())));
-		}
-		return name.toString().trim();
+	// Builds a target length in [minLength, maxLength], floored at 2 so a single-char name is
+	// never requested even if the schema's min is looser than that.
+	private static int targetNameLength(int minLength, int maxLength, Random random) {
+		int min = Math.max(minLength, 2);
+		int max = Math.max(min, maxLength);
+		return min + random.nextInt(max - min + 1);
 	}
 
-	public static String generateKhmerName(int maxLength) {
+	/**
+	 * Letters only, plus single spaces between "words" - never a leading/trailing/doubled space,
+	 * and always exactly targetLength characters, so trimming can never silently drop the result
+	 * below the schema's minimum length (extractMinLength was previously computed but unused).
+	 */
+	public static String generateEnglishName(int minLength, int maxLength) {
+		String letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 		Random random = new Random();
-		int length = 2 + random.nextInt(Math.max(1, maxLength - 1));
+		int targetLength = targetNameLength(minLength, maxLength, random);
+
 		StringBuilder name = new StringBuilder();
+		name.append((char) ('A' + random.nextInt(26)));
+		while (name.length() < targetLength) {
+			boolean canInsertSpace = name.length() < targetLength - 1 && name.charAt(name.length() - 1) != ' ';
+			if (canInsertSpace && random.nextInt(6) == 0) {
+				name.append(' ');
+			} else {
+				name.append(letters.charAt(random.nextInt(letters.length())));
+			}
+		}
+		return name.toString();
+	}
 
-		int[][] ranges = { { 0x1780, 0x17FF }, { 0x19E0, 0x19FF }, };
+	/**
+	 * Khmer independent consonants only (U+1780-U+17A2) - these are valid standalone base
+	 * characters. Deliberately excludes: combining vowel signs/diacritics elsewhere in the Khmer
+	 * block, which are only valid *following* a consonant and produce malformed sequences on their
+	 * own; and the separate Khmer Symbols block (U+19E0-U+19FF), which is lunar calendar date
+	 * glyphs, not name characters at all - the previous version drew from both, which is the likely
+	 * cause of "invalid name" validation failures.
+	 */
+	public static String generateKhmerName(int minLength, int maxLength) {
+		Random random = new Random();
+		int targetLength = targetNameLength(minLength, maxLength, random);
 
-		for (int i = 0; i < length; i++) {
-			int[] range = ranges[random.nextInt(ranges.length)];
-			int codePoint = range[0] + random.nextInt(range[1] - range[0] + 1);
+		int consonantStart = 0x1780;
+		int consonantEnd = 0x17A2;
 
+		StringBuilder name = new StringBuilder();
+		for (int i = 0; i < targetLength; i++) {
+			int codePoint = consonantStart + random.nextInt(consonantEnd - consonantStart + 1);
 			name.append((char) codePoint);
 		}
 		return name.toString();
@@ -541,6 +600,100 @@ public class EsignetUtil extends AdminTestUtil {
 		public static void setFullName(String reisteredFullName) {
 			registeredFullName = reisteredFullName;
 		}
+	}
+
+	/**
+	 * Login-phone source for every scenario except the end-to-end registration flow itself: reads
+	 * the phone number the "Adding Identity" prerequisite generated (mosipid: AddIdentity.yml,
+	 * mock: AddIdentityMock/AddIdentity.yml) instead of depending on the real signup UI having run.
+	 * The cache key mirrors AdminTestUtil#getAutogenIdKeyName, which strips the testcase name down
+	 * to everything after its first underscore before appending the field name.
+	 */
+	public static String getPrerequisiteRegisteredPhoneNumber() {
+		// Mirrors UINManager's "uin" config short-circuit: a config-supplied number is used as-is
+		// (already expected in local-number format, no country code) and skips the AddIdentity
+		// cache lookup entirely.
+		String configuredPhoneNumber = EsignetConfigManager.getproperty("uinPhoneNumber");
+		if (configuredPhoneNumber != null && !configuredPhoneNumber.isBlank()) {
+			return configuredPhoneNumber.trim();
+		}
+
+		boolean isMock = "mock".equalsIgnoreCase(getPluginName());
+		// For mock, the mock-identity-system's send-otp lookup only recognizes an exact
+		// individualId match - it doesn't look identities up by their separately-generated "phone"
+		// attribute, which is an independently random, unrelated value for this schema. So the
+		// login value has to be individualId (cached under "UIN"), which happens to be
+		// phone-shaped for this schema, not the "phone" field itself.
+		String cacheKey = isMock ? "AddIdentity_Valid_Parameters_smoke_Pos_UIN"
+				: "AddIdentity_withValidParameters_smoke_Pos_PHONE";
+		String phoneNumber = autoGeneratedIDValueCache.get(cacheKey);
+		// phoneSchemaRegex is only ever populated for mosipid (AdminTestUtil.getRequiredField(),
+		// called only on that branch in Runner.main()) - for mock it stays empty, so stripping must
+		// come from the mock identity schema's own field pattern instead.
+		String schemaSource = isMock ? getMockIdentityFieldPattern("individualId") : phoneSchemaRegex;
+		return stripCountryCode(phoneNumber, schemaSource);
+	}
+
+	private static final Map<String, String> mockIdentityFieldPatternCache = new HashMap<>();
+
+	// Extracted via a text search over the raw schema rather than a structured JSON walk with
+	// $ref/allOf resolution, since the mock identity schema's exact nesting/$ref layout isn't
+	// known here - this finds a property with an adjacent "pattern" attribute wherever it appears,
+	// which covers the common case without needing to correctly walk the full schema.
+	private static String getMockIdentityFieldPattern(String fieldName) {
+		return mockIdentityFieldPatternCache.computeIfAbsent(fieldName, field -> {
+			try {
+				String schemaStr = getMockIdentitySchema();
+				Matcher matcher = Pattern
+						.compile("\"" + field + "\"\\s*:\\s*\\{[^{}]*\"pattern\"\\s*:\\s*\"([^\"]+)\"",
+								Pattern.CASE_INSENSITIVE)
+						.matcher(schemaStr);
+				String pattern = matcher.find() ? matcher.group(1) : "";
+				if (pattern.isEmpty()) {
+					logger.warn("Could not find a \"" + field
+							+ "\" field with a \"pattern\" in the mock identity schema - country code stripping "
+							+ "will be skipped for the mock-generated value");
+				}
+				return pattern;
+			} catch (Exception e) {
+				logger.warn("Failed to extract " + field + " pattern from mock identity schema: " + e.getMessage());
+				return "";
+			}
+		});
+	}
+
+	// Matches a literal '+' - optionally immediately closed by a ']' when the schema writes it as
+	// a single-char class, e.g. "^[+]91([1-9][0-9]{7,9})$" - followed by the run of digits after
+	// it. Also covers plainer forms like "^\+91[1-9]\d{9}$" or "^\+(91)\d{10}$".
+	private static final Pattern COUNTRY_CODE_PATTERN = Pattern.compile("\\+\\]?(\\d+)");
+
+	/**
+	 * AddIdentity generates the phone number straight off the ID schema's validator regex (E.164,
+	 * country code included) because that's what the identity-creation API requires. The esignet
+	 * login field expects only the local number - the UI selects the country code separately - so
+	 * whatever country code this deployment's schema actually uses has to be stripped here. Derived
+	 * live from the same regex rather than a hardcoded country list, since that regex is the
+	 * environment's actual source of truth and can differ per deployment.
+	 */
+	private static String stripCountryCode(String phoneNumber, String schemaRegex) {
+		if (phoneNumber == null || phoneNumber.isBlank()) {
+			return phoneNumber;
+		}
+		if (schemaRegex != null && !schemaRegex.isBlank()) {
+			Matcher matcher = COUNTRY_CODE_PATTERN.matcher(schemaRegex);
+			if (matcher.find()) {
+				String countryCode = "+" + matcher.group(1);
+				if (phoneNumber.startsWith(countryCode)) {
+					return phoneNumber.substring(countryCode.length());
+				}
+				logger.warn("Country code '" + countryCode + "' derived from phone schema regex '" + schemaRegex
+						+ "' does not prefix phone number '" + phoneNumber + "' - returning it unchanged");
+				return phoneNumber;
+			}
+		}
+		logger.warn("Could not derive a country code from phone schema regex '" + schemaRegex
+				+ "' - returning phone number '" + phoneNumber + "' unchanged");
+		return phoneNumber;
 	}
 
 	public static String getRegexForField(String fieldId) {
@@ -668,7 +821,14 @@ public class EsignetUtil extends AdminTestUtil {
 		long randomDays = ThreadLocalRandom.current().nextLong(daysRange);
 		LocalDate dob = earliest.plusDays(randomDays);
 
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+		// yyyy/MM/dd matches the dateOfBirth format MOSIP identity records actually expect (see
+		// AddIdentity.yml's hardcoded "1992/04/15") - the previous dd-MM-yyyy ordering produced a
+		// plausible-looking but field-order-wrong date, which IDA's backend later fails to parse
+		// when extracting birth year for its anonymous profile analytics (KER-UTL-103). Locale is
+		// pinned explicitly - ofPattern() without one uses the JVM's default locale, and some
+		// locales render numeric fields with non-ASCII digit glyphs, which would silently break
+		// this on a machine/CI runner whose default locale differs from the one this was tested on.
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd", Locale.ENGLISH);
 		return dob.format(formatter);
 	}
 
@@ -778,6 +938,12 @@ public class EsignetUtil extends AdminTestUtil {
 
 		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_PURPOSE_LINK$", OIDC_JWK_FOR_PAR_PURPOSE_LINK);
 
+		// PURPOSE_VERIFY
+		jsonString = processClientAssertion(jsonString, "$CLIENT_ASSERTION_PAR_JWT_PURPOSE_VERIFY$",
+				OIDC_JWK_FOR_PAR_PURPOSE_VERIFY);
+
+		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_PURPOSE_VERIFY$", OIDC_JWK_FOR_PAR_PURPOSE_VERIFY);
+
 		// PURPOSE_NONE
 		jsonString = processClientAssertion(jsonString, "$CLIENT_ASSERTION_PAR_JWT_PURPOSE_NONE$",
 				OIDC_JWK_FOR_PAR_PURPOSE_NONE);
@@ -809,6 +975,12 @@ public class EsignetUtil extends AdminTestUtil {
 		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_SINGLE_ACR_VALUE$",
 				OIDC_JWK_FOR_PAR_SINGLE_ACR_VALUE);
 
+		// PAR-MANDATED CLIENT (require_pushed_authorization_requests = true)
+		jsonString = processClientAssertion(jsonString, "$CLIENT_ASSERTION_PAR_JWT_PAR_REQUIRED$",
+				OIDC_JWK_FOR_PAR_REQUIRED);
+
+		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_REQUIRED$", OIDC_JWK_FOR_PAR_REQUIRED);
+
 		if (jsonString.contains("$ESIGNET_REDIRECT_URI$")) {
 			jsonString = replaceKeywordWithValue(jsonString, "$ESIGNET_REDIRECT_URI$",
 					EsignetConfigManager.getproperty("baseurl") + "userprofile");
@@ -823,6 +995,20 @@ public class EsignetUtil extends AdminTestUtil {
 		if (jsonString.contains(placeholder)) {
 
 			String keyString = JWKKeyUtil.getJWKKey(jwkKeyName);
+			if (keyString == null) {
+				// This key is normally generated as a side effect of its matching client-creation
+				// testcase running (see processJWKKey). If that testcase was skipped - e.g. a
+				// pre-existing client ID was supplied via config (oidcClientId) instead of creating a
+				// new client - the key was never generated, and getJWKKey (a pure cache read) returns
+				// null. Generate one now so callers that unconditionally need a signed client
+				// assertion (e.g. PAR request building in InvalidUrlStepDefinition) don't crash. It
+				// won't match whatever key the referenced pre-existing client was actually registered
+				// with, but callers relying on this fallback aren't validating signature correctness.
+				logger.warn("No cached JWK for key=" + jwkKeyName
+						+ " - generating one now (its client-creation testcase was likely skipped)");
+				JWKKeyUtil.generateAndCacheJWKKey(jwkKeyName);
+				keyString = JWKKeyUtil.getJWKKey(jwkKeyName);
+			}
 			RSAKey rsaKey;
 
 			try {
@@ -859,6 +1045,14 @@ public class EsignetUtil extends AdminTestUtil {
 			return jsonString;
 		String jwkKey = generatedJwkKeys.add(jwkKeyName) ? JWKKeyUtil.generateAndCacheJWKKey(jwkKeyName)
 				: JWKKeyUtil.getJWKKey(jwkKeyName);
+		// The cached key includes private material (needed later for client_assertion signing via
+		// processClientAssertion); only the public JWK should ever be submitted as a client's
+		// registered "publicKey".
+		try {
+			jwkKey = RSAKey.parse(jwkKey).toPublicJWK().toJSONString();
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to derive public JWK for placeholder " + placeholder, e);
+		}
 		return replaceKeywordWithValue(jsonString, placeholder, jwkKey);
 	}
 
@@ -873,6 +1067,44 @@ public class EsignetUtil extends AdminTestUtil {
 			logger.error(GlobalConstants.EXCEPTION_STRING_2 + e);
 			return null;
 		}
+	}
+
+	/* ======================= PAR SUPPORT DETECTION ======================= */
+
+	private static JSONObject esignetDiscoveryDocument = null;
+
+	/** The OIDC discovery document, fetched once per run. */
+	private static synchronized JSONObject getEsignetDiscoveryDocument() {
+		if (esignetDiscoveryDocument != null) {
+			return esignetDiscoveryDocument;
+		}
+		String url = EsignetConfigManager.getEsignetBaseUrl()
+				+ EsignetConfigManager.getproperty("esignetWellKnownEndPoint");
+		try {
+			Response response = RestClient.getRequest(url, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
+			esignetDiscoveryDocument = new JSONObject(response.getBody().asString());
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to fetch eSignet discovery document from " + url, e);
+		}
+		return esignetDiscoveryDocument;
+	}
+
+	/**
+	 * Whether the environment supports the PAR flow, i.e. advertises a pushed authorization request
+	 * endpoint in its discovery document.
+	 */
+	public static boolean isParSupported() {
+		String parEndpoint = getEsignetDiscoveryDocument().optString("pushed_authorization_request_endpoint", "");
+		return !parEndpoint.isEmpty();
+	}
+
+	/**
+	 * Whether the environment mandates PAR for every client. When true, even clients that don't set
+	 * require_pushed_authorization_requests must go through PAR - the direct /authorize flow is
+	 * rejected server-side (see AuthorizationServiceImpl#assertPARRequiredIsFalse).
+	 */
+	public static boolean isParRequired() {
+		return getEsignetDiscoveryDocument().optBoolean("require_pushed_authorization_requests", false);
 	}
 
 	public static String signJWKKey(String clientId, RSAKey jwkKey, String tempUrl) {
@@ -939,8 +1171,20 @@ public class EsignetUtil extends AdminTestUtil {
 		return null;
 	}
 
+	public void writeConfigValueAndSkipIfProvided(String configKey, String testCaseName, String idKeyName) {
+		String configValue = EsignetConfigManager.getproperty(configKey);
+		if (configValue == null || configValue.trim().isEmpty()) {
+			return;
+		}
+		String value = configValue.split(",")[0].trim();
+		writeAutoGeneratedId(testCaseName, idKeyName, value);
+		throw new SkipException(
+				idKeyName + " value is provided in config, skipping " + testCaseName + " generation test case");
+	}
+
 	public static String isTestCaseValidForExecution(TestCaseDTO testCaseDTO) {
 		String testCaseName = testCaseDTO.getTestCaseName();
+		currentTestCaseName = testCaseName;
 
 		int indexof = testCaseName.indexOf("_");
 		String modifiedTestCaseName = testCaseName.substring(indexof + 1);
@@ -975,9 +1219,30 @@ public class EsignetUtil extends AdminTestUtil {
 							&& endpoint.contains("/v1/esignet/client-mgmt/client"))) {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 			}
+
+			// DefinePolicyGroup -> DefinePolicy -> PublishPolicy -> CreatePartner -> UploadCACertificate
+			// -> UploadPartnerCert -> RequestAPIKeyForAuthPartner -> ApproveAPIKey exist solely to feed
+			// OIDCClient's real (mosipid) client creation - nothing else in the suite consumes their
+			// output. If oidcClientId is configured, OIDCClient itself already skips (see
+			// writeConfigValueAndSkipIfProvided in SimplePostForAutoGenId), so running this whole chain
+			// for a client that will never be created is pure waste.
+			String preconfiguredOidcClientId = EsignetConfigManager.getproperty("oidcClientId");
+			if (preconfiguredOidcClientId != null && !preconfiguredOidcClientId.isBlank()
+					&& OIDC_CLIENT_CHAIN_TESTCASE_PREFIXES.stream().anyMatch(modifiedTestCaseName::startsWith)) {
+				throw new SkipException("oidcClientId is provided in config - skipping " + testCaseName
+						+ " (only needed to create a new OIDC client)");
+			}
 		}
 		return testCaseName;
 	}
+
+	// modifiedTestCaseName prefixes (i.e. testCaseName with its module prefix stripped, matching
+	// AdminTestUtil#getAutogenIdKeyName's convention) for every prerequisite that exists solely to
+	// feed OIDCClient's mosipid client creation.
+	private static final Set<String> OIDC_CLIENT_CHAIN_TESTCASE_PREFIXES = Set.of("DefinePolicyGroup_",
+			"DefinePolicy_", "PublishPolicy_", "PartnerSelfRegistration_", "UploadCACertificate_",
+			"UploadCInterCertificate_", "UploadPartnerCert_", "SubmitPartnerApiKeyRequest_",
+			"ApproveRejectPartnerAPIKeyReq_");
 
 	public static String getAuthTokenFromKeyCloak(String clientId, String clientSecret) {
 		Map<String, String> params = new HashMap<>();
@@ -1117,6 +1382,36 @@ public class EsignetUtil extends AdminTestUtil {
 		return responseJson.getString("request_uri");
 	}
 
+	/**
+	 * Builds a direct (non-PAR) /authorize URL, carrying every parameter in the query string rather
+	 * than behind a request_uri. Requires no client_assertion, since the client isn't authenticated
+	 * on this browser-facing leg. Only valid for clients that don't set
+	 * require_pushed_authorization_requests - those are forced down the PAR flow server-side.
+	 */
+	public static String generateDirectAuthorizeUrl(String clientId) throws SecurityXSSException {
+
+		String baseUrl = EsignetConfigManager.getproperty("eSignetbaseurl");
+		String redirectUri = EsignetConfigManager.getproperty("baseurl") + "userprofile";
+		String nonce = String.valueOf(Calendar.getInstance().getTimeInMillis());
+		String acrValues = "mosip:idp:acr:generated-code mosip:idp:acr:biometrics mosip:idp:acr:linked-wallet mosip:idp:acr:password";
+		org.json.simple.JSONObject claimRequest = getRequestJson(CLAIMS_REQUEST);
+
+		Charset utf8 = StandardCharsets.UTF_8;
+		StringBuilder url = new StringBuilder(baseUrl + "/authorize?");
+		url.append("client_id=").append(URLEncoder.encode(clientId, utf8));
+		url.append("&response_type=").append(responseType);
+		url.append("&scope=").append(URLEncoder.encode(scope, utf8));
+		url.append("&redirect_uri=").append(URLEncoder.encode(redirectUri, utf8));
+		url.append("&display=").append(display);
+		url.append("&prompt=").append(prompt);
+		url.append("&nonce=").append(nonce);
+		url.append("&state=").append(state);
+		url.append("&acr_values=").append(URLEncoder.encode(acrValues, utf8));
+		url.append("&claims=").append(URLEncoder.encode(claimRequest.toString(), utf8));
+
+		return url.toString();
+	}
+
 	public static String getIdentityPluginNameFromEsignetActuator() {
 		if (pluginName != null && !pluginName.isBlank()) {
 			return pluginName;
@@ -1166,4 +1461,52 @@ public class EsignetUtil extends AdminTestUtil {
 		return responseJson.getString("request_uri");
 	}
 
+	/* ======================= DYNAMIC MOCK IDENTITY REQUEST GENERATION =======================
+	 * Thin wrapper around AdminTestUtil.generateDynamicRequestFromSchema (apitest-commons),
+	 * which is the shared, schema-agnostic engine also used by esignet/api-test's EsignetUtil
+	 * and esignet-signup/api-test's SignupUtil. Only the schema-endpoint lookup and the
+	 * module-specific value defaults (mockIdentityValueMapping.properties) live here.
+	 */
+
+	private static JSONObject mockIdentitySchemaJson = null;
+
+	private static final Properties MOCK_IDENTITY_VALUE_MAP = new Properties();
+
+	static {
+		try (InputStream is = Thread.currentThread().getContextClassLoader()
+				.getResourceAsStream("config/mockIdentityValueMapping.properties")) {
+			if (is == null) {
+				throw new RuntimeException("mockIdentityValueMapping.properties NOT FOUND in classpath");
+			}
+			MOCK_IDENTITY_VALUE_MAP.load(is);
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to load mockIdentityValueMapping.properties", e);
+		}
+	}
+
+	public static String getMockIdentitySchema() {
+		try {
+			if (mockIdentitySchemaJson != null) {
+				return mockIdentitySchemaJson.toString();
+			}
+
+			String endpoint = properties.getProperty("mockIdentityIdentitySchemaEndpoint");
+			String url = ApplnURI.replace("-internal", "") + endpoint;
+			Response response = RestClient.getRequest(url, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
+
+			mockIdentitySchemaJson = new JSONObject(response.asString());
+
+			return mockIdentitySchemaJson.toString();
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to fetch mock identity schema", e);
+		}
+	}
+
+	public static String generateDynamicMockIdentityRequest(String schemaStr, String testCaseName) {
+		return AdminTestUtil.generateDynamicRequestFromSchema(schemaStr, testCaseName, MOCK_IDENTITY_VALUE_MAP);
+	}
+
+	public void extractAndStoreMockIdentityDetails(String testCaseName, String requestBody) {
+		extractAndStoreIdentityDetailsFromRequest(testCaseName, requestBody);
+	}
 }

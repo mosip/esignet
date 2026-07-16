@@ -49,8 +49,11 @@ import utils.LanguageUtil;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(
-        features = {"classpath:featurefiles"},
-        glue = {"stepdefinitions", "base"},
+		features = {
+//				"classpath:featurefiles/ConsentPage.feature"
+				"classpath:featurefiles"
+		},
+		glue = {"stepdefinitions", "base"},
         monochrome = true,
         plugin = {"pretty",
                 "html:reports",
@@ -134,6 +137,11 @@ public class Runner extends AbstractTestNGCucumberTests {
 			EsignetUtil.getPluginName();
 			suiteSetup(getRunType());
 			setLogLevels();
+			otpListener.run();
+
+			// Populates BaseTestCase.languageList from esignetSupportedLanguage - needed by both
+			// plugins (e.g. $1STLANG$ template resolution during OIDC client creation), not just mock.
+			EsignetUtil.getSupportedLanguage();
 
 			if (EsignetUtil.pluginName.equals("mosipid")) {
 				KeycloakUserManager.removeUser();
@@ -145,13 +153,8 @@ public class Runner extends AbstractTestNGCucumberTests {
 				AdminTestUtil.createAndPublishPolicy();
 				AdminTestUtil.createEditAndPublishPolicy();
 				PartnerRegistration.deviceGeneration();
-				otpListener.run();
 
 				BiometricDataProvider.generateBiometricTestData("Registration");
-			}
-
-			else if (EsignetUtil.pluginName.equals("mock")) {
-				EsignetUtil.getSupportedLanguage();
 			}
 
 			List<String> languages = new ArrayList<>();
@@ -205,8 +208,9 @@ public class Runner extends AbstractTestNGCucumberTests {
 			AuthTestsUtil.removeOldMosipTempTestResource();
 		}
 
-		BaseTestCase.currentModule = ESignetConstants.ESIGNETUI_MODULENAME;
-		BaseTestCase.certsForModule = ESignetConstants.ESIGNETUI_MODULENAME;
+		BaseTestCase.currentModule = ESignetConstants.ESIGNETUI_MODULENAME + BaseTestCase.runContext;
+		BaseTestCase.certsForModule = ESignetConstants.ESIGNETUI_MODULENAME + BaseTestCase.runContext;
+		BaseTestCase.initializePMSDetails();
 		AdminTestUtil.copymoduleSpecificAndConfigFile(ESignetConstants.ESIGNETUI_MODULENAME);
 	}
 
