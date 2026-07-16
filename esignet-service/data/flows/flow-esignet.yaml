@@ -615,7 +615,7 @@ nodes:
           category: BLOCK
           components:
             - *page_title_with_back
-            - *login_id_nrc
+            - *login_id_email
             - *prompt_email
             - *prompt_password
             - <<: *submit_button
