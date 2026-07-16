@@ -176,34 +176,76 @@ page_title_with_back: &page_title_with_back
   category: MISCELLANEOUS
   resourceType: ELEMENT
 
-# Anchor for multiple login ids
-login_ids: &login_ids
+login_id_header: &login_id_header
   id: block_login_id
   type: STACK
   direction: col
   resourceType: ELEMENT
   justify: center
+
+login_uin_button: &login_uin_button
+  <<: *trigger_button
+  id: login_id_uin
+  label: UIN/VID
+  classes: login-id-button
+  startIcon: "/images/vid_icon.svg"
+
+login_mobile_button: &login_mobile_button
+  <<: *trigger_button
+  id: login_id_mobile
+  label: Mobile Number
+  classes: login-id-button
+  startIcon: "/images/mobile_icon.svg"
+
+login_email_button: &login_email_button
+  <<: *trigger_button
+  id: login_id_email
+  label: Email
+  classes: login-id-button
+  startIcon: "/images/email_icon.svg"
+
+login_nrc_button: &login_nrc_button
+  <<: *trigger_button
+  id: login_id_nrc
+  label: NRC ID
+  classes: login-id-button
+  startIcon: "/images/nrc_id_icon.svg"
+
+login_id_uin: &login_id_uin
+  <<: *login_id_header
   components:
-    - <<: *trigger_button
-      id: login_id_uin
-      label: UIN/VID
-      classes: login-id-button
-      startIcon: "/images/vid_icon.svg"
-    - <<: *trigger_button
-      id: login_id_mobile
-      label: Mobile Number
-      classes: login-id-button
-      startIcon: "/images/mobile_icon.svg"
-    - <<: *trigger_button
-      id: login_id_email
-      label: Email
-      classes: login-id-button
-      startIcon: "/images/email_icon.svg"
-    - <<: *trigger_button
-      id: login_id_nrc
-      label: NRC ID
-      classes: login-id-button
-      startIcon: "/images/nrc_id_icon.svg"
+    - <<: *login_uin_button
+      classes: "login-id-button login-id-button--active"
+    - *login_mobile_button
+    - *login_email_button
+    - *login_nrc_button
+
+login_id_mobile: &login_id_mobile
+  <<: *login_id_header
+  components:
+    - *login_uin_button
+    - <<: *login_mobile_button
+      classes: "login-id-button login-id-button--active"
+    - *login_email_button
+    - *login_nrc_button
+
+login_id_email: &login_id_email
+  <<: *login_id_header
+  components:
+    - *login_uin_button
+    - *login_mobile_button
+    - <<: *login_email_button
+      classes: "login-id-button login-id-button--active"
+    - *login_nrc_button
+
+login_id_nrc: &login_id_nrc
+  <<: *login_id_header
+  components:
+    - *login_uin_button
+    - *login_mobile_button
+    - *login_email_button
+    - <<: *login_nrc_button
+      classes: "login-id-button login-id-button--active"
 
 id: flow-esignet
 handle: flow-esignet
@@ -273,7 +315,7 @@ nodes:
           id: block_otp
           components:
             - *page_title_with_back
-            - *login_ids
+            - *login_id_uin
             - *prompt_uin
             - <<: *submit_button
               id: submit_uin
@@ -309,7 +351,7 @@ nodes:
           id: block_otp
           components:
             - *page_title_with_back
-            - *login_ids
+            - *login_id_mobile
             - *prompt_mobile
             - <<: *submit_button
               id: submit_uin
@@ -345,7 +387,7 @@ nodes:
           id: block_otp
           components:
             - *page_title_with_back
-            - *login_ids
+            - *login_id_email
             - *prompt_email
             - <<: *submit_button
               id: submit_uin
@@ -381,7 +423,7 @@ nodes:
           id: block_otp
           components:
             - *page_title_with_back
-            - *login_ids
+            - *login_id_nrc
             - *prompt_nrc
             - <<: *submit_button
               id: submit_uin
@@ -487,7 +529,7 @@ nodes:
           category: BLOCK
           components:
             - *page_title_with_back
-            - *login_ids
+            - *login_id_uin
             - *prompt_uin
             - *prompt_password
             - <<: *submit_button
@@ -530,7 +572,7 @@ nodes:
           category: BLOCK
           components:
             - *page_title_with_back
-            - *login_ids
+            - *login_id_mobile
             - *prompt_mobile
             - *prompt_password
             - <<: *submit_button
@@ -573,7 +615,7 @@ nodes:
           category: BLOCK
           components:
             - *page_title_with_back
-            - *login_ids
+            - *login_id_nrc
             - *prompt_email
             - *prompt_password
             - <<: *submit_button
@@ -616,7 +658,7 @@ nodes:
           category: BLOCK
           components:
             - *page_title_with_back
-            - *login_ids
+            - *login_id_nrc
             - *prompt_nrc
             - *prompt_password
             - <<: *submit_button
@@ -672,7 +714,7 @@ nodes:
           id: block_biometrics
           components:
             - *page_title_with_back
-            - *login_ids
+            - *login_id_uin
             - *prompt_uin
             - *submit_button
     prompts:
@@ -706,7 +748,7 @@ nodes:
           id: block_biometrics
           components:
             - *page_title_with_back
-            - *login_ids
+            - *login_id_mobile
             - *prompt_mobile
             - *submit_button
     prompts:
@@ -740,7 +782,7 @@ nodes:
           id: block_biometrics
           components:
             - *page_title_with_back
-            - *login_ids
+            - *login_id_email
             - *prompt_email
             - *submit_button
     prompts:
@@ -774,7 +816,7 @@ nodes:
           id: block_biometrics
           components:
             - *page_title_with_back
-            - *login_ids
+            - *login_id_nrc
             - *prompt_nrc
             - *submit_button
     prompts:
