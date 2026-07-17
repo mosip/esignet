@@ -233,6 +233,11 @@ public class BaseTest extends AdminTestUtil {
 
 			LOGGER.info("Navigated to URL: " + authorizeUrl);
 
+		} catch (SkipException e) {
+			// skipWithReason() (e.g. the PAR-not-supported check above) throws this from inside the
+			// try block - let it propagate as a skip instead of falling into the generic handler
+			// below, which would misreport it as a WebDriver setup failure.
+			throw e;
 		} catch (Exception e) {
 			LOGGER.error("Failed to initialize WebDriver: " + e.getMessage());
 			ExtentReportManager.getTest().fail("❌ WebDriver setup failed: " + e.getMessage());

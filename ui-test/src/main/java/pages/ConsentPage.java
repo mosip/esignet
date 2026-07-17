@@ -13,11 +13,15 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import base.BasePage;
 import utils.ClaimsUtil;
 
 public class ConsentPage extends BasePage {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(ConsentPage.class);
 
 	public ConsentPage(WebDriver driver) {
 		super(driver);
@@ -370,6 +374,9 @@ public class ConsentPage extends BasePage {
 
 	public int getConsentTimerSeconds() {
 		waitForElementVisible(consentTimer);
+		// Confirmed on both plugins: the timer always starts at 55 seconds and never crosses a
+		// minute boundary, so this intentionally reads only the seconds portion - do not "fix" this
+		// into a minutes*60+seconds calculation.
 		String timerValue = consentTimer.getText().trim();
 		String secondsPart = timerValue.split(":")[1];
 		int seconds = Integer.parseInt(secondsPart);
@@ -429,6 +436,7 @@ public class ConsentPage extends BasePage {
 		try {
 			waitForElementVisible(loginWithOtpButton);
 		} catch (Exception e) {
+			LOGGER.warn("Login with OTP button not visible or timed out", e);
 			return false;
 		}
 		return loginWithOtpButton.getText().trim().startsWith(expectedText);

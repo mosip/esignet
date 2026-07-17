@@ -686,13 +686,11 @@ public class EsignetUtil extends AdminTestUtil {
 				if (phoneNumber.startsWith(countryCode)) {
 					return phoneNumber.substring(countryCode.length());
 				}
-				logger.warn("Country code '" + countryCode + "' derived from phone schema regex '" + schemaRegex
-						+ "' does not prefix phone number '" + phoneNumber + "' - returning it unchanged");
+				logger.warn("Derived country code does not prefix the phone number; returning it unchanged");
 				return phoneNumber;
 			}
 		}
-		logger.warn("Could not derive a country code from phone schema regex '" + schemaRegex
-				+ "' - returning phone number '" + phoneNumber + "' unchanged");
+		logger.warn("Could not derive a country code from the phone schema regex; returning the phone number unchanged");
 		return phoneNumber;
 	}
 
