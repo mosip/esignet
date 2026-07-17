@@ -304,6 +304,10 @@
         "TC_ESignet_CreateOIDCClient_MOSIPID_01",
         "TC_ESignet_CreateOIDCClient_V2_01"
     ],
+    "TC_ESignet_OAuthDetailsRequest_90": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_01",
+        "TC_ESignet_CreateOIDCClient_V2_01"
+    ],
     "TC_ESignet_OAuthDetailsRequestLinkedConsent_08": [
         "TC_ESignet_CreateOIDCClient_MOSIPID_01",
         "TC_ESignet_CreateOIDCClient_V2_01"
@@ -514,8 +518,8 @@
     "TC_ESignet_OautDPoPNegativeScenarios_02": ["TC_ESignet_CreateOIDCClient_MOSIPID_25"],
     "TC_ESignet_OautDPoPNegativeScenarios_01": ["TC_ESignet_CreateOIDCClient_MOSIPID_25"],
     "TC_Signup_ESignet_OAuthDetailsRequestV3WithoutVerifiedClaims_01": ["TC_ESignet_CreateOIDCClient_MOSIPID_27"],
-    "TC_ESignet_OautDPoPNegativeScenarios_03": ["TC_ESignet_CreateOIDCClient_MOSIPID_25"],
     "TC_ESignet_OautDPoPNegativeScenarios_05": ["TC_ESignet_CreateOIDCClient_MOSIPID_25"],
+    "TC_ESignet_OautDPoPNegativeScenarios_03": ["TC_ESignet_CreateOIDCClient_MOSIPID_25"],
     "TC_ESignet_GenerateLinkCodeConsent_09": ["TC_ESignet_OAuthDetailsRequestLinkedConsent_11"],
     "Dependent_Idrepo_createPublishPolicy_06": [
         "Dependent_Idrepo_definePolicyGroup_02",
@@ -655,6 +659,10 @@
     "TC_ESignet_GetOidcUserInfoForV3_E2E_01": ["TC_ESignet_GenerateToken_E2E_01"],
     "TC_ESignet_GetOidcUserInfoForV3_E2E_03": ["TC_ESignet_GenerateToken_E2E_03"],
     "TC_ESignet_GetOidcUserInfoForV3_E2E_02": ["TC_ESignet_GenerateToken_E2E_02"],
+    "TC_ESignet_SendOtpExpiredTransactionNegTC_01": [
+        "Dependent_Idrepo_AddIdentity_03",
+        "TC_ESignet_OAuthDetailsRequest_08"
+    ],
     "TC_ESignet_OAuthDetailsRequestSunBirdC_01": ["TC_ESignet_CreatePolicySunBirdR_01"],
     "TC_ESignet_LinkedAuthConsent_07": [
         "TC_ESignet_LinkTransactionConsent_08",
@@ -881,7 +889,7 @@
         "TC_ESignet_CreateOIDCClient_MOSIPID_26"
     ],
     "TC_ESignet_Oauth_FAPI_forUserInfoJWE_01": [
-        "TC_ESignet_FAPI_PatchOIDCClientAdditionalConfig_02",
+        "TC_ESignet_FAPI_PatchOIDCClientAdditionalConfig_01",
         "TC_ESignet_CreateOIDCClient_MOSIPID_30"
     ],
     "TC_ESignet_CreateOIDCClient_MOSIPID_19": [
@@ -967,6 +975,7 @@
     "TC_ESignet_OauthPar_02": ["TC_ESignet_CreateOIDCClient_MOSIPID_24"],
     "TC_ESignet_OauthParNegativeScenarios_17": ["TC_ESignet_CreateOIDCClient_MOSIPID_24"],
     "TC_ESignet_LinkTransaction_04": ["TC_ESignet_GenerateLinkCode_04"],
+    "TC_ESignet_OauthParNegativeScenarios_18": ["TC_ESignet_CreateOIDCClient_MOSIPID_24"],
     "TC_ESignet_LinkTransaction_03": ["TC_ESignet_GenerateLinkCode_03"],
     "TC_ESignet_LinkTransaction_06": ["TC_ESignet_GenerateLinkCode_06"],
     "TC_ESignet_LinkTransaction_05": ["TC_ESignet_GenerateLinkCode_05"],
@@ -1517,8 +1526,7 @@
     "TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_01": ["TC_ESignet_CreateOIDCClient_MOSIPID_28"],
     "TC_ESignet_FAPI_OauthDetails_NegTC_01": [
         "TC_ESignet_CreateOIDCClient_MOSIPID_29",
-        "TC_ESignet_Oauth_FAPI_NegTC_02",
-        "TC_ESignet_FAPI_PatchOIDCClientAdditionalConfig_01"
+        "TC_ESignet_Oauth_FAPI_NegTC_02"
     ],
     "TC_ESignet_AuthorizationCodeDifferentScopeLanguageClaimsSce_01": [
         "TC_ESignet_AuthenticateUserDifferentScopeLanguage_01",
@@ -2140,6 +2148,10 @@
     "TC_ESignet_AuthenticateUser_30": [
         "Dependent_Idrepo_AddIdentity_03",
         "TC_ESignet_OAuthDetailsRequest_08"
+    ],
+    "TC_ESignet_AuthenticateUser_58": [
+        "Dependent_Idrepo_AddIdentity_03",
+        "TC_ESignet_OAuthDetailsRequest_90"
     ],
     "TC_ESignet_AuthenticateUser_57": [
         "Dependent_Idrepo_AddIdentity_01",
@@ -2833,7 +2845,7 @@
     ],
     "TC_ESignet_FAPI_GetUserInfo_02": [
         "TC_ESignet_FAPI_GenerateToken_forUserInfoJWE_01",
-        "TC_ESignet_FAPI_PatchOIDCClientAdditionalConfig_02"
+        "TC_ESignet_FAPI_PatchOIDCClientAdditionalConfig_01"
     ],
     "TC_ESignet_FAPI_GetUserInfo_01": [
         "TC_ESignet_CreateOIDCClient_MOSIPID_29",
@@ -2943,9 +2955,12 @@
     "TC_ESignet_PAROauthDetailsNegativeScenarios_01": ["TC_ESignet_OauthPar_01"],
     "TC_ESignet_PAROauthDetailsNegativeScenarios_02": ["TC_ESignet_OauthPar_01"],
     "TC_ESignet_PAROauthDetailsNegativeScenarios_07": [
+        "TC_ESignet_CreateOIDCClient_MOSIPID_24",
+        "TC_ESignet_OauthPar_01",
         "TC_ESignet_OauthDPoP_01",
         "TC_ESignet_CreateOIDCClient_MOSIPID_25"
     ],
+    "TC_ESignet_PAROauthDetailsNegativeScenarios_08": ["TC_ESignet_CreateOIDCClient_MOSIPID_24"],
     "TC_ESignet_PAROauthDetailsNegativeScenarios_05": [
         "TC_ESignet_CreateOIDCClient_MOSIPID_24",
         "TC_ESignet_CreateOIDCClient_MOSIPID_25"

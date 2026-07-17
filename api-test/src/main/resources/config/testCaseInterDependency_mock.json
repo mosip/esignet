@@ -254,6 +254,7 @@
     "TC_ESignet_OAuthDetailsRequestLinkedConsent_01": ["TC_ESignet_CreateOIDCClient_V2_01"],
     "TC_ESignet_OAuthDetailsRequestLinkedConsent_02": ["TC_ESignet_CreateOIDCClient_V2_01"],
     "TC_ESignet_OAuthDetailsRequestLinkedConsent_03": ["TC_ESignet_CreateOIDCClient_V2_01"],
+    "TC_ESignet_OAuthDetailsRequest_90": ["TC_ESignet_CreateOIDCClient_V2_01"],
     "TC_ESignet_OAuthDetailsRequestLinkedConsent_08": ["TC_ESignet_CreateOIDCClient_V2_01"],
     "TC_ESignet_OAuthDetailsRequestLinkedConsent_09": ["TC_ESignet_CreateOIDCClient_V2_01"],
     "TC_ESignet_OAuthDetailsRequestLinkedConsent_04": ["TC_ESignet_CreateOIDCClient_V2_01"],
@@ -680,6 +681,10 @@
     ],
     "TC_ESignet_OautDPoPNegativeScenarios_05": ["TC_ESignet_DPoPCreateOIDCClientV3_01"],
     "TC_ESignet_OautDPoPNegativeScenarios_03": ["TC_ESignet_DPoPCreateOIDCClientV3_01"],
+    "TC_ESignet_AuthenticateUser_58": [
+        "Dependent_Idrepo_AddIdentity_03",
+        "TC_ESignet_OAuthDetailsRequest_90"
+    ],
     "TC_ESignet_AuthenticateUser_57": [
         "Dependent_Idrepo_AddIdentity_01",
         "TC_ESignet_OAuthDetailsRequest_89"
@@ -947,6 +952,10 @@
         "TC_ESignet_OAuthDetailsRequestV3_Prerequisite_E2EMock_03"
     ],
     "TC_ESignet_SendOtp_16": ["TC_ESignet_OAuthDetailsRequest_01"],
+    "TC_ESignet_SendOtpExpiredTransactionNegTC_01": [
+        "Dependent_Idrepo_AddIdentity_03",
+        "TC_ESignet_OAuthDetailsRequest_08"
+    ],
     "TC_ESignet_SendOtp_15": ["TC_ESignet_OAuthDetailsRequest_08"],
     "TC_ESignet_SendOtp_14": [
         "Dependent_Idrepo_AddIdentity_03",
