@@ -17,21 +17,6 @@ import (
 	"github.com/mosip/esignet/internal/config"
 )
 
-func (ts *StubProvidersTestSuite) TestConsentEnforcer() {
-	t := ts.T()
-	p := NewConsentEnforcer()
-
-	resolved, svcErr := p.ResolveConsent(context.Background(), "", "", "", "", nil, nil, nil, nil, false, nil)
-	if resolved != nil || svcErr != nil {
-		t.Errorf("ResolveConsent() = (%v, %v), want (nil, nil)", resolved, svcErr)
-	}
-
-	recorded, svcErr := p.RecordConsent(context.Background(), "", "", "", nil, "", 0, nil)
-	if recorded != nil || svcErr != nil {
-		t.Errorf("RecordConsent() = (%v, %v), want (nil, nil)", recorded, svcErr)
-	}
-}
-
 func (ts *StubProvidersTestSuite) TestAuthorizationProvider() {
 	t := ts.T()
 	p := NewAuthorizationProvider(&config.AppConfig{})

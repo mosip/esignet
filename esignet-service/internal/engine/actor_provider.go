@@ -25,8 +25,7 @@ type actorProvider struct {
 	config    *config.AppConfig
 }
 
-// NewActorProvider returns a minimal host.ActorProvider stub. Declarative resources
-// supply applications, flows, and related SoR data to the engine directly.
+// NewActorProvider returns a providers.ActorProvider implementation
 func NewActorProvider(clientSvc *clientmgmt.Service, config *config.AppConfig) providers.ActorProvider {
 	return &actorProvider{clientSvc: clientSvc, config: config}
 }
