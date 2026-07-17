@@ -330,9 +330,7 @@ public class EsignetUtil extends AdminTestUtil {
 
 		String phoneNumber = "";
 		try {
-			//todo remove the below commented line
-//			phoneNumber = AdminTestUtil.genStringAsperRegex(regex);
-			phoneNumber = AdminTestUtil.genStringAsperRegex("^\\+91[1-9]\\d{8}$");
+			phoneNumber = AdminTestUtil.genStringAsperRegex(regex);
 		} catch (Exception e) {
 			logger.info("Phone Number is not generated with regex: " + e);
 		}
