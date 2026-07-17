@@ -9,7 +9,6 @@ require (
 	github.com/redis/go-redis/v9 v9.18.0
 	github.com/stretchr/testify v1.11.1
 	github.com/thunder-id/thunderid v0.0.0-20260701124159-a8f0fb52b5c5
-	golang.org/x/crypto v0.53.0
 	golang.org/x/text v0.38.0
 	gopkg.in/yaml.v3 v3.0.1
 	software.sslmate.com/src/go-pkcs12 v0.7.3
@@ -44,6 +43,7 @@ require (
 	go.opentelemetry.io/otel/metric v1.44.0 // indirect
 	go.opentelemetry.io/otel/trace v1.44.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
+	golang.org/x/crypto v0.53.0 // indirect
 	golang.org/x/net v0.55.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/sys v0.46.0 // indirect
@@ -53,4 +53,4 @@ require (
 	modernc.org/sqlite v1.53.0 // indirect
 )
 
-replace github.com/thunder-id/thunderid => github.com/thunder-id/thunderid/backend v0.0.0-20260713080127-2a05e9846e45
+replace github.com/thunder-id/thunderid => github.com/thunder-id/thunderid/backend v0.0.0-20260716123635-69048d6dbe5d

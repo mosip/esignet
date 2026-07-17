@@ -198,7 +198,7 @@ func (ts *ExecutorsTestSuite) TestBuildAuthnMetadata() {
 		},
 	}
 
-	meta := buildAuthnMetadata(ctx)
+	meta := (&mosipOtpExecutor{}).BuildAuthnMetadata(ctx)
 	if meta.AppMetadata["foo"] != "bar" {
 		t.Errorf("AppMetadata[foo] = %v, want bar", meta.AppMetadata["foo"])
 	}
@@ -226,7 +226,7 @@ func (ts *ExecutorsTestSuite) TestBuildAuthnMetadata() {
 func (ts *ExecutorsTestSuite) TestBuildAuthnMetadata_GeneratesTransactionIDWhenMissing() {
 	t := ts.T()
 	ctx := &providers.NodeContext{RuntimeData: map[string]string{}}
-	meta := buildAuthnMetadata(ctx)
+	meta := (&mosipOtpExecutor{}).BuildAuthnMetadata(ctx)
 	if meta.RuntimeMetadata["ext_TransactionID"] == "" {
 		t.Error("expected a generated ext_TransactionID")
 	}
@@ -238,7 +238,7 @@ func (ts *ExecutorsTestSuite) TestBuildAuthnMetadata_GeneratesTransactionIDWhenM
 func (ts *ExecutorsTestSuite) TestBuildAuthnMetadata_NilRuntimeData() {
 	t := ts.T()
 	ctx := &providers.NodeContext{}
-	meta := buildAuthnMetadata(ctx)
+	meta := (&mosipOtpExecutor{}).BuildAuthnMetadata(ctx)
 	if ctx.RuntimeData == nil {
 		t.Error("expected RuntimeData to be initialized")
 	}

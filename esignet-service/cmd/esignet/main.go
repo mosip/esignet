@@ -20,6 +20,7 @@ import (
 
 	"github.com/mosip/esignet/internal/clientmgmt"
 	"github.com/mosip/esignet/internal/config"
+	"github.com/mosip/esignet/internal/consentmgmt"
 	"github.com/mosip/esignet/internal/engine"
 	"github.com/mosip/esignet/internal/engine/runtimestores/inmemory"
 	"github.com/mosip/esignet/internal/engine/runtimestores/redisstore"
@@ -102,7 +103,7 @@ func main() {
 		thunderidengine.WithActorProvider(engine.NewActorProvider(clientSvc, appCfg)),
 		thunderidengine.WithAuthnProvider(authnProvider),
 		thunderidengine.WithAuthorizationProvider(engine.NewAuthorizationProvider(appCfg)),
-		thunderidengine.WithConsentProvider(engine.NewConsentEnforcer(pgConn, runtimeStore)),
+		thunderidengine.WithConsentProvider(engine.NewConsentProvider(consentmgmt.NewService(pgConn), appCfg, runtimeStore)),
 		thunderidengine.WithDesignResolveProvider(engine.NewDesignProvider(appCfg)),
 		thunderidengine.WithFlowProvider(engine.NewFlowProvider(appCfg)),
 		thunderidengine.WithI18nProvider(engine.NewI18nProvider(appCfg)),

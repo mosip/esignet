@@ -94,7 +94,8 @@ func (e *mosipOtpExecutor) Execute(ctx *providers.NodeContext) (*providers.Execu
 		return nil, err
 	}
 
-	result, serviceError := e.authn.SendOTP(ctx.Context, map[string]any{"username": username}, buildAuthnMetadata(ctx))
+	result, serviceError := e.authn.SendOTP(ctx.Context, map[string]any{"username": username},
+		e.BuildAuthnMetadata(ctx))
 	if serviceError != nil {
 		return execResp, fmt.Errorf("failed to send OTP via MOSIP API: %s", serviceError.Code)
 	}
@@ -117,7 +118,7 @@ func (e *mosipOtpExecutor) ensurePrerequisites(
 	return false
 }
 
-func buildAuthnMetadata(ctx *providers.NodeContext) *providers.AuthnMetadata {
+func buildAppMetadataFromContext(ctx *providers.NodeContext) map[string]any {
 	appMetadata := make(map[string]any)
 
 	if ctx.Application.Metadata != nil {
@@ -136,6 +137,12 @@ func buildAuthnMetadata(ctx *providers.NodeContext) *providers.AuthnMetadata {
 		appMetadata["client_ids"] = clientIDs
 	}
 
+	return appMetadata
+}
+
+// BuildRuntimeMetadata constructs the runtime metadata passed to the MOSIP authn provider,
+// generating a transaction ID on first use so it stays stable across the flow.
+func (e *mosipOtpExecutor) BuildRuntimeMetadata(ctx *providers.NodeContext) map[string]string {
 	if ctx.RuntimeData == nil {
 		ctx.RuntimeData = make(map[string]string)
 	}
@@ -161,7 +168,32 @@ func buildAuthnMetadata(ctx *providers.NodeContext) *providers.AuthnMetadata {
 		}
 	}
 
-	return &providers.AuthnMetadata{AppMetadata: appMetadata, RuntimeMetadata: runtimeMetadata}
+	return runtimeMetadata
+}
+
+// BuildAuthnMetadata constructs the metadata passed to the MOSIP authn provider's
+// authentication calls (e.g. SendOTP).
+func (e *mosipOtpExecutor) BuildAuthnMetadata(ctx *providers.NodeContext) *providers.AuthnMetadata {
+	return &providers.AuthnMetadata{
+		AppMetadata:     buildAppMetadataFromContext(ctx),
+		RuntimeMetadata: e.BuildRuntimeMetadata(ctx),
+	}
+}
+
+// BuildGetAttributesMetadata constructs the metadata passed to the MOSIP authn provider's
+// attribute-fetching calls. mosipOtpExecutor doesn't itself fetch attributes, but the
+// interface requires the method.
+func (e *mosipOtpExecutor) BuildGetAttributesMetadata(ctx *providers.NodeContext) *providers.GetAttributesMetadata {
+	metadata := &providers.GetAttributesMetadata{
+		AppMetadata:     buildAppMetadataFromContext(ctx),
+		RuntimeMetadata: e.BuildRuntimeMetadata(ctx),
+	}
+
+	if locale, exists := ctx.RuntimeData["required_locales"]; exists && locale != "" {
+		metadata.Locale = locale
+	}
+
+	return metadata
 }
 
 func usernameFromContext(ctx *providers.NodeContext) (string, error) {
