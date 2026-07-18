@@ -33,7 +33,7 @@ func (s *stubQuerier) GetClient(_ context.Context, id string) (db.ClientDetail, 
 }
 
 func newActorTestService(client db.ClientDetail) *clientmgmt.Service {
-	return clientmgmt.NewServiceWithQuerier(&stubQuerier{client: client, found: true})
+	return clientmgmt.NewServiceWithQuerier(&stubQuerier{client: client, found: true}, nil, 0)
 }
 
 func testClientRow() db.ClientDetail {

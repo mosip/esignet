@@ -16,7 +16,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
+
 	"github.com/mosip/esignet/internal/clientmgmt/db"
+	applog "github.com/mosip/esignet/internal/log"
 )
 
 // ErrClientNotFound is returned when a client ID does not exist.
@@ -31,20 +34,27 @@ var ErrDuplicatePublicKey = errors.New("public key already registered")
 // ErrClientConflict is returned when a PATCH races with another update.
 var ErrClientConflict = errors.New("client was modified concurrently")
 
+// clientCacheNamespace isolates cached client rows in the shared runtime store.
+const clientCacheNamespace providers.RuntimeStoreNamespace = "client:detail"
+
 // Service handles client management business logic.
 type Service struct {
-	q db.Querier
+	q            db.Querier
+	cache        providers.RuntimeStoreProvider
+	cacheTTLSecs int64
+	logger       *applog.Logger
 }
 
-// NewService creates a Service backed by the given database connection.
-func NewService(conn *sql.DB) *Service {
-	return &Service{q: db.New(conn)}
+// NewService creates a Service backed by the given database connection. Client
+// lookups are cached in cache under the given TTL and invalidated on write.
+func NewService(conn *sql.DB, cache providers.RuntimeStoreProvider, cacheTTLSecs int64) *Service {
+	return &Service{q: db.New(conn), cache: cache, cacheTTLSecs: cacheTTLSecs, logger: applog.GetLogger()}
 }
 
 // NewServiceWithQuerier creates a Service with an explicit Querier; use in tests
 // to inject a mock without a real database connection.
-func NewServiceWithQuerier(q db.Querier) *Service {
-	return &Service{q: q}
+func NewServiceWithQuerier(q db.Querier, cache providers.RuntimeStoreProvider, cacheTTLSecs int64) *Service {
+	return &Service{q: q, cache: cache, cacheTTLSecs: cacheTTLSecs, logger: applog.GetLogger()}
 }
 
 // CreateClient registers a new OIDC client.
@@ -180,6 +190,7 @@ func (s *Service) UpdateClient(ctx context.Context, profile Profile, clientID st
 		}
 		return ClientResponse{}, fmt.Errorf("update client: %w", err)
 	}
+	s.invalidateCache(ctx, clientID)
 	return toResponse(row)
 }
 
@@ -285,11 +296,16 @@ func (s *Service) PatchClient(ctx context.Context, clientID string, req PatchCli
 		}
 		return ClientResponse{}, fmt.Errorf("patch client: %w", err)
 	}
+	s.invalidateCache(ctx, clientID)
 	return toResponse(row)
 }
 
-// GetClient retrieves a client by ID.
+// GetClient retrieves a client by ID, serving from cache when possible.
 func (s *Service) GetClient(ctx context.Context, clientID string) (ClientResponse, error) {
+	if row, ok := s.getCachedRow(ctx, clientID); ok {
+		return toResponse(row)
+	}
+
 	row, err := s.q.GetClient(ctx, clientID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -297,7 +313,59 @@ func (s *Service) GetClient(ctx context.Context, clientID string) (ClientRespons
 		}
 		return ClientResponse{}, fmt.Errorf("get client: %w", err)
 	}
+	s.cacheRow(ctx, clientID, row)
 	return toResponse(row)
+}
+
+// getCachedRow returns the cached row for clientID, if present. Any cache
+// read/decode error is logged and treated as a miss: Postgres remains the
+// source of truth, so a cache problem must never fail the request.
+func (s *Service) getCachedRow(ctx context.Context, clientID string) (db.ClientDetail, bool) {
+	if s.cache == nil {
+		return db.ClientDetail{}, false
+	}
+	data, err := s.cache.Get(ctx, clientCacheNamespace, clientID)
+	if err != nil {
+		s.logger.Warn("client cache get failed", applog.String("client_id", clientID), applog.Error(err))
+		return db.ClientDetail{}, false
+	}
+	if data == nil {
+		return db.ClientDetail{}, false
+	}
+	var row db.ClientDetail
+	if err := json.Unmarshal(data, &row); err != nil {
+		s.logger.Warn("client cache decode failed", applog.String("client_id", clientID), applog.Error(err))
+		return db.ClientDetail{}, false
+	}
+	return row, true
+}
+
+// cacheRow populates the cache with row. Failures are logged, not returned:
+// caching is a pure optimization on top of the successful DB read.
+func (s *Service) cacheRow(ctx context.Context, clientID string, row db.ClientDetail) {
+	if s.cache == nil {
+		return
+	}
+	data, err := json.Marshal(row)
+	if err != nil {
+		s.logger.Warn("client cache encode failed", applog.String("client_id", clientID), applog.Error(err))
+		return
+	}
+	if err := s.cache.Put(ctx, clientCacheNamespace, clientID, data, s.cacheTTLSecs); err != nil {
+		s.logger.Warn("client cache put failed", applog.String("client_id", clientID), applog.Error(err))
+	}
+}
+
+// invalidateCache clears the cached row for clientID after a successful
+// write so the next GetClient re-reads Postgres. Failures are logged, not
+// returned: the write already succeeded and must not be reported as failed.
+func (s *Service) invalidateCache(ctx context.Context, clientID string) {
+	if s.cache == nil {
+		return
+	}
+	if err := s.cache.Delete(ctx, clientCacheNamespace, clientID); err != nil {
+		s.logger.Warn("client cache invalidate failed", applog.String("client_id", clientID), applog.Error(err))
+	}
 }
 
 func mergePatch(existing db.ClientDetail, req PatchClientRequest, fields PatchFields) (UpdateClientRequest, error) {

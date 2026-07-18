@@ -20,6 +20,24 @@ import (
 	applog "github.com/mosip/esignet/internal/log"
 )
 
+const (
+
+	// Keys used in the client additionalConfig map
+	parRequired                = "require_pushed_authorization_requests"
+	dpopRequired               = "dpop_bound_access_tokens"
+	pkceRequired               = "require_pkce"
+	userinfoResponseType       = "userinfo_response_type"
+	consentExpireInMins        = "consent_expire_in_mins"
+	allowedAuthorizationScopes = "allowed_authorization_scopes"
+
+	// Map keys
+	jwks        = "JWKS"
+	name        = "name"
+	description = "description"
+	logoURL     = "logo_url"
+	app         = "app"
+)
+
 type actorProvider struct {
 	clientSvc *clientmgmt.Service
 	config    *config.AppConfig
@@ -37,9 +55,10 @@ func (p *actorProvider) GetOAuthClientByClientID(
 	if err != nil {
 		return nil, shared.ClientNotFoundError
 	}
-	requirePushedAuthorizationRequests, _ := client.AdditionalConfig["require_pushed_authorization_requests"].(bool)
-	dpopBoundAccessTokens, _ := client.AdditionalConfig["dpop_bound_access_tokens"].(bool)
-	pkceRequired, _ := client.AdditionalConfig["require_pkce"].(bool)
+
+	requirePushedAuthorizationRequests, _ := client.AdditionalConfig[parRequired].(bool)
+	dpopBoundAccessTokens, _ := client.AdditionalConfig[dpopRequired].(bool)
+	pkceRequired, _ := client.AdditionalConfig[pkceRequired].(bool)
 	return &providers.OAuthClient{
 		ID:                      client.ClientID,
 		OUID:                    client.RpID,
@@ -51,12 +70,28 @@ func (p *actorProvider) GetOAuthClientByClientID(
 		PKCERequired:            pkceRequired,
 		PublicClient:            false,
 		Certificate: &providers.Certificate{
-			Type:  "JWKS",
+			Type:  jwks,
 			Value: getJWKS(client.PublicKey, client.EncPublicKey),
 		},
 		RequirePushedAuthorizationRequests: requirePushedAuthorizationRequests,
 		DPoPBoundAccessTokens:              dpopBoundAccessTokens,
 		AcrValues:                          client.AcrValues,
+		UserInfo: &providers.UserInfoConfig{
+			ResponseType:   getUserinfoResponseType(client.AdditionalConfig),
+			UserAttributes: client.Claims,
+		},
+		Scopes:      getAllowedScopes(p.config.ScopeClaims, client.AdditionalConfig),
+		ScopeClaims: getScopeClaimsMapping(p.config.ScopeClaims, client.Claims),
+		Token: &providers.OAuthTokenConfig{
+			AccessToken: &providers.AccessTokenConfig{
+				UserConfig: &providers.AccessTokenSubConfig{
+					Attributes: []string{},
+				},
+			},
+			IDToken: &providers.IDTokenConfig{
+				UserAttributes: []string{},
+			},
+		},
 	}, nil
 }
 
@@ -67,9 +102,9 @@ func (p *actorProvider) GetOAuthProfileByID(
 	if err != nil {
 		return nil, shared.ClientNotFoundError
 	}
-	requirePushedAuthorizationRequests, _ := client.AdditionalConfig["require_pushed_authorization_requests"].(bool)
-	dpopBoundAccessTokens, _ := client.AdditionalConfig["dpop_bound_access_tokens"].(bool)
-	pkceRequired, _ := client.AdditionalConfig["require_pkce"].(bool)
+	requirePushedAuthorizationRequests, _ := client.AdditionalConfig[parRequired].(bool)
+	dpopBoundAccessTokens, _ := client.AdditionalConfig[dpopRequired].(bool)
+	pkceRequired, _ := client.AdditionalConfig[pkceRequired].(bool)
 	return &providers.OAuthProfile{
 		RedirectURIs:                       client.RedirectURIs,
 		GrantTypes:                         client.GrantTypes,
@@ -83,25 +118,21 @@ func (p *actorProvider) GetOAuthProfileByID(
 		Token: &providers.OAuthTokenConfig{
 			AccessToken: &providers.AccessTokenConfig{
 				UserConfig: &providers.AccessTokenSubConfig{
-					ValidityPeriod: 5 * 60,
-					Attributes:     client.Claims,
+					Attributes: []string{},
 				},
 			},
 			IDToken: &providers.IDTokenConfig{
-				ValidityPeriod: 5 * 60,
 				UserAttributes: []string{},
 			},
 		},
-		Scopes: []string{"openid"},
 		UserInfo: &providers.UserInfoConfig{
-			ResponseType:   providers.UserInfoResponseTypeJSON,
+			ResponseType:   getUserinfoResponseType(client.AdditionalConfig),
 			UserAttributes: client.Claims,
 		},
-		ScopeClaims: map[string][]string{
-			"openid": {"sub"},
-		},
+		Scopes:      getAllowedScopes(p.config.ScopeClaims, client.AdditionalConfig),
+		ScopeClaims: getScopeClaimsMapping(p.config.ScopeClaims, client.Claims),
 		Certificate: &providers.Certificate{
-			Type:  "JWKS",
+			Type:  jwks,
 			Value: getJWKS(client.PublicKey, client.EncPublicKey),
 		},
 		AcrValues: client.AcrValues,
@@ -117,9 +148,9 @@ func (p *actorProvider) GetInboundClientByID(
 	}
 
 	properties := make(map[string]interface{})
-	properties["name"] = client.ClientName
-	properties["description"] = client.ClientName
-	properties["logo_url"] = client.LogoURI
+	properties[name] = client.ClientName
+	properties[description] = client.ClientName
+	properties[logoURL] = client.LogoURI
 
 	return &providers.InboundClient{
 		ID:                        client.ClientID,
@@ -133,7 +164,7 @@ func (p *actorProvider) GetInboundClientByID(
 			UserAttributes: client.Claims,
 		},
 		LoginConsent: &providers.LoginConsentConfig{
-			ValidityPeriod: configInt64(client.AdditionalConfig, "consent_expire_in_mins", 0),
+			ValidityPeriod: configInt64(client.AdditionalConfig, consentExpireInMins, 0),
 		},
 		Properties: properties,
 		IsReadOnly: false,
@@ -153,8 +184,8 @@ func (p *actorProvider) GetActor(id string) (*providers.Entity, *common.ServiceE
 	}
 
 	clientAttributes := map[string]interface{}{
-		"name":        client.ClientName,
-		"description": client.ClientName,
+		name:        client.ClientName,
+		description: client.ClientName,
 	}
 	data, err := json.Marshal(clientAttributes)
 	if err != nil {
@@ -164,7 +195,7 @@ func (p *actorProvider) GetActor(id string) (*providers.Entity, *common.ServiceE
 	return &providers.Entity{
 		ID:               id,
 		Category:         providers.EntityCategoryApp,
-		Type:             "app",
+		Type:             app,
 		State:            providers.EntityStateActive,
 		OUID:             client.RpID,
 		OUHandle:         client.RpID,
@@ -200,6 +231,47 @@ func extractJWKs(jwk string) []json.RawMessage {
 		return jwks.Keys
 	}
 	return []json.RawMessage{json.RawMessage(jwk)}
+}
+
+// getAllowedScopes combines both OIDC scopes and authorization scopes
+func getAllowedScopes(standardScopeClaims map[string][]string, additionalConfig map[string]any) []string {
+	scopes := make([]string, 0, len(standardScopeClaims))
+	for k := range standardScopeClaims {
+		scopes = append(scopes, k)
+	}
+
+	additionalScopes, _ := additionalConfig[allowedAuthorizationScopes].([]string)
+	return append(scopes, additionalScopes...)
+}
+
+// getScopeClaimsMapping builds a scope-to-claims mapping for the standard
+// scopes, populating each scope with only the claims present in the given
+// claims list.
+func getScopeClaimsMapping(standardScopeClaims map[string][]string, claims []string) map[string][]string {
+	claimSet := make(map[string]struct{}, len(claims))
+	for _, claim := range claims {
+		claimSet[claim] = struct{}{}
+	}
+
+	mapping := make(map[string][]string, len(standardScopeClaims))
+	for scope, scopeClaims := range standardScopeClaims {
+		var matched []string
+		for _, claim := range scopeClaims {
+			if _, ok := claimSet[claim]; ok {
+				matched = append(matched, claim)
+			}
+		}
+		mapping[scope] = matched
+	}
+	return mapping
+}
+
+func getUserinfoResponseType(additionalConfig map[string]any) providers.UserInfoResponseType {
+	respType, _ := additionalConfig[userinfoResponseType].(string)
+	if respType == "JWE" {
+		return providers.UserInfoResponseTypeJWE
+	}
+	return providers.UserInfoResponseTypeJWS
 }
 
 func configInt64(cfg map[string]any, key string, defaultValue int64) int64 {

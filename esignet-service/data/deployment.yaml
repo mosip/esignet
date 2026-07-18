@@ -76,3 +76,23 @@ security_config:
   issuer_url: ""
   jwks_url: ""
   jwks_cache_ttl: 3000
+
+scope_claims:
+  openid:
+  profile: 
+    - name
+    - given_name
+    - middle_name
+    - nickname
+    - preferred_username
+    - picture
+    - gender
+    - birthdate
+  email:
+    - email
+    - email_verified
+  phone:
+    - phone_number
+    - phone_number_verified
+  address:
+    - address

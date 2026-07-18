@@ -30,32 +30,36 @@ const (
 	defaultGateLoginPath         = "/signin"
 	defaultGateErrorPath         = "/error"
 	defaultRequestTimeLeewaySecs = 300
+	defaultClientCacheTTLSecs    = 3600
 )
 
 // AppConfig holds core HTTP and infrastructure settings for the service.
 type AppConfig struct {
-	Identifier       string                           `yaml:"identifier"`
-	Port             int                              `yaml:"port"`
-	Issuer           string                           `yaml:"issuer"`
-	DataDir          string                           `yaml:"data_dir"`
-	RuntimeDBType    string                           `yaml:"runtime_db_type"`
-	DB               DB                               `yaml:"db"`
-	Redis            Redis                            `yaml:"redis"`
-	Provider         string                           `yaml:"provider"`
-	AuthFlowID       string                           `yaml:"auth_flow_id"`
-	ThemeID          string                           `yaml:"theme_id"`
-	LayoutID         string                           `yaml:"layout_id"`
-	Server           engineconfig.ServerConfig        `yaml:"server"`
-	Cache            engineconfig.CacheConfig         `yaml:"cache"`
-	OAuth            engineconfig.OAuthConfig         `yaml:"oauth"`
-	JWT              engineconfig.JWTConfig           `yaml:"jwt"`
-	Flow             engineconfig.FlowConfig          `yaml:"flow"`
-	Observability    engineconfig.ObservabilityConfig `yaml:"observability"`
-	GateClient       engineconfig.GateClientConfig    `yaml:"gate_client"`
-	EncryptionConfig engineconfig.EncryptionConfig    `yaml:"crypto"`
-	KeyConfig        engineconfig.KeyConfig           `yaml:"key"`
-	Consent          engineconfig.ConsentConfig       `yaml:"consent"`
-	SecurityConfig   SecurityConfig                   `yaml:"security_config"`
+	Identifier          string                           `yaml:"identifier"`
+	Port                int                              `yaml:"port"`
+	Issuer              string                           `yaml:"issuer"`
+	DataDir             string                           `yaml:"data_dir"`
+	RuntimeDBType       string                           `yaml:"runtime_db_type"`
+	DB                  DB                               `yaml:"db"`
+	Redis               Redis                            `yaml:"redis"`
+	ScopeClaims         map[string][]string              `yaml:"scope_claims"`
+	AuthorizationScopes map[string]string                `yaml:"authorization_scopes"`
+	Provider            string                           `yaml:"provider"`
+	AuthFlowID          string                           `yaml:"auth_flow_id"`
+	ThemeID             string                           `yaml:"theme_id"`
+	LayoutID            string                           `yaml:"layout_id"`
+	Server              engineconfig.ServerConfig        `yaml:"server"`
+	Cache               engineconfig.CacheConfig         `yaml:"cache"`
+	OAuth               engineconfig.OAuthConfig         `yaml:"oauth"`
+	JWT                 engineconfig.JWTConfig           `yaml:"jwt"`
+	Flow                engineconfig.FlowConfig          `yaml:"flow"`
+	Observability       engineconfig.ObservabilityConfig `yaml:"observability"`
+	GateClient          engineconfig.GateClientConfig    `yaml:"gate_client"`
+	EncryptionConfig    engineconfig.EncryptionConfig    `yaml:"crypto"`
+	KeyConfig           engineconfig.KeyConfig           `yaml:"key"`
+	Consent             engineconfig.ConsentConfig       `yaml:"consent"`
+	SecurityConfig      SecurityConfig                   `yaml:"security_config"`
+	ClientCacheTTLSecs  int64                            `yaml:"client_cache_ttl_secs"`
 }
 
 // SecurityConfig defines application security configuration
@@ -173,6 +177,10 @@ func applyDefaults(cfg *AppConfig) {
 
 	if cfg.SecurityConfig.RequestTimeLeewaySecs <= 0 {
 		cfg.SecurityConfig.RequestTimeLeewaySecs = defaultRequestTimeLeewaySecs
+	}
+
+	if cfg.ClientCacheTTLSecs <= 0 {
+		cfg.ClientCacheTTLSecs = defaultClientCacheTTLSecs
 	}
 }
 

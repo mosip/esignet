@@ -74,7 +74,12 @@ func main() {
 		_, _ = w.Write([]byte("ok"))
 	})
 
-	clientSvc := clientmgmt.NewService(pgConn)
+	// The runtime store is shared between the engine and the consent enforcer (which reads the
+	// engine's stored authorization requests from it), so both resolve the same keys. It's also
+	// used by clientSvc below to cache GetClient lookups.
+	runtimeStore := getRuntimeStoreProvider(appCfg, redisClient, logger)
+
+	clientSvc := clientmgmt.NewService(pgConn, runtimeStore, appCfg.ClientCacheTTLSecs)
 	clientHandler := clientmgmt.NewHandler(clientSvc, logger)
 	clientHandler.RegisterRoutes(mux, getSecurityMiddleware(appCfg, logger))
 
@@ -83,10 +88,6 @@ func main() {
 		logger.Fatal("plugin providers", applog.Error(err))
 	}
 	logger.Info("authn provider selected", applog.String("provider", appCfg.Provider))
-
-	// The runtime store is shared between the engine and the consent enforcer (which reads the
-	// engine's stored authorization requests from it), so both resolve the same keys.
-	runtimeStore := getRuntimeStoreProvider(appCfg, redisClient, logger)
 
 	_ = thunderidengine.New(mux,
 		thunderidengine.WithServerHome(appCfg.DataDir),
