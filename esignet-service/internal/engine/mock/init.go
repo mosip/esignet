@@ -12,6 +12,7 @@ import (
 	"github.com/mosip/esignet/internal/clientmgmt"
 	"github.com/mosip/esignet/internal/config"
 	"github.com/mosip/esignet/internal/engine/shared"
+	applog "github.com/mosip/esignet/internal/log"
 )
 
 // Init builds the mock authn provider and its observability provider. Mock
@@ -23,5 +24,6 @@ func Init(appConfig *config.AppConfig, clientSvc *clientmgmt.Service) (
 	if err != nil {
 		return nil, nil, err
 	}
+	applog.GetLogger().Warn("mock identity system provider active: no real OTP/KYC verification is performed; not for production use")
 	return authnProvider, shared.NewNoopAuditor(), nil
 }

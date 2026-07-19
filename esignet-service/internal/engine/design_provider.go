@@ -19,6 +19,7 @@ import (
 
 	"github.com/mosip/esignet/internal/config"
 	"github.com/mosip/esignet/internal/engine/shared"
+	applog "github.com/mosip/esignet/internal/log"
 )
 
 // layoutRequestWithID represents the request structure for creating a layout from file-based config.
@@ -82,19 +83,23 @@ func (p *designProvider) ResolveDesign(
 
 	layoutData, err := os.ReadFile(filepath.Join(p.cfg.DataDir, "layouts", p.cfg.LayoutID+".yaml"))
 	if err != nil {
+		applog.GetLogger().Warn("layout file not found", applog.String("layoutId", p.cfg.LayoutID), applog.Error(err))
 		return nil, shared.FileNotFoundError
 	}
 	layout, err := parseToLayout(layoutData)
 	if err != nil {
+		applog.GetLogger().Warn("failed to parse layout file", applog.String("layoutId", p.cfg.LayoutID), applog.Error(err))
 		return nil, shared.FileUnmarshallError
 	}
 
 	themeData, err := os.ReadFile(filepath.Join(p.cfg.DataDir, "themes", p.cfg.ThemeID+".yaml"))
 	if err != nil {
+		applog.GetLogger().Warn("theme file not found", applog.String("themeId", p.cfg.ThemeID), applog.Error(err))
 		return nil, shared.FileNotFoundError
 	}
 	theme, err := parseToTheme(themeData)
 	if err != nil {
+		applog.GetLogger().Warn("failed to parse theme file", applog.String("themeId", p.cfg.ThemeID), applog.Error(err))
 		return nil, shared.FileUnmarshallError
 	}
 

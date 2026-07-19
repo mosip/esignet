@@ -1,3 +1,9 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 package engine
 
 import (
@@ -47,7 +53,7 @@ func NewConsentProvider(consentSvc *consentmgmt.Service, config *config.AppConfi
 	return &consentProvider{consentSvc: consentSvc,
 		config:       config,
 		runtimeStore: runtimeStore,
-		logger:       applog.GetLogger(),
+		logger:       applog.GetLogger().Named("consentProvider"),
 	}
 }
 

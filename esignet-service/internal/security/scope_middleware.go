@@ -15,6 +15,7 @@ import (
 
 	"github.com/mosip/esignet/internal/common"
 	"github.com/mosip/esignet/internal/config"
+	applog "github.com/mosip/esignet/internal/log"
 )
 
 // ScopeMiddleware returns an http.Handler middleware that:
@@ -37,18 +38,24 @@ func ScopeMiddleware(cache *JWKSCache, config config.SecurityConfig) func(http.H
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			tokenStr, err := bearerToken(r)
 			if err != nil {
+				logger.Debug("rejected request with missing/malformed Authorization header",
+					applog.String("path", r.URL.Path), applog.Error(err))
 				common.WriteError(w, http.StatusUnauthorized, "unauthorized", err.Error())
 				return
 			}
 
 			claims, err := parseAndValidate(parser, tokenStr, cache)
 			if err != nil {
+				logger.Warn("rejected request with invalid or expired token",
+					applog.String("path", r.URL.Path), applog.Error(err))
 				common.WriteError(w, http.StatusUnauthorized, "unauthorized", "invalid or expired token")
 				return
 			}
 
 			// TODO do scope validation based on scope mapping in config.SecurityConfig.ScopeMapping
 			if !claimHasScope(claims, "test") {
+				logger.Warn("rejected request missing required scope",
+					applog.String("path", r.URL.Path), applog.String("requiredScope", "test"))
 				common.WriteError(w, http.StatusForbidden, "forbidden",
 					fmt.Sprintf("token must carry scope %q", "test"))
 				return

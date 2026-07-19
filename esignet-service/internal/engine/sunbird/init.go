@@ -10,6 +10,7 @@ import (
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
 	"github.com/mosip/esignet/internal/engine/shared"
+	applog "github.com/mosip/esignet/internal/log"
 )
 
 // Init builds the SunbirdRC KBI authn provider and its observability
@@ -22,5 +23,6 @@ func Init() (
 	if err != nil {
 		return nil, nil, err
 	}
+	applog.GetLogger().Info("Sunbird KBI authn provider initialized")
 	return authnProvider, shared.NewNoopAuditor(), nil
 }

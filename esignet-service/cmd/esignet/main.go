@@ -25,6 +25,7 @@ import (
 	"github.com/mosip/esignet/internal/engine/runtimestores/inmemory"
 	"github.com/mosip/esignet/internal/engine/runtimestores/redisstore"
 	"github.com/mosip/esignet/internal/engine/shared"
+	"github.com/mosip/esignet/internal/httpmiddleware"
 	applog "github.com/mosip/esignet/internal/log"
 	"github.com/mosip/esignet/internal/security"
 )
@@ -43,6 +44,9 @@ func main() {
 	if err != nil {
 		logger.Fatal("postgres connection failed", applog.Error(err))
 	}
+	logger.Info("postgres connected",
+		applog.Int("maxOpenConns", appCfg.DB.Pool.MaxOpenConns),
+		applog.Int("maxIdleConns", appCfg.DB.Pool.MaxIdleConns))
 	defer func() {
 		if err := pgConn.Close(); err != nil {
 			logger.Warn("close postgres", applog.Error(err))
@@ -118,7 +122,8 @@ func main() {
 
 	addr := fmt.Sprintf(":%d", appCfg.Port)
 	logger.Info("server listening", applog.String("addr", addr), applog.String("issuer", appCfg.Issuer))
-	if err := http.ListenAndServe(addr, mux); err != nil {
+	handler := httpmiddleware.CorrelationID(httpmiddleware.AccessLog(mux))
+	if err := http.ListenAndServe(addr, handler); err != nil {
 		logger.Fatal("server", applog.Error(err))
 	}
 }
@@ -183,8 +188,11 @@ func getRuntimeStoreProvider(appCfg *config.AppConfig, redisClient *redis.Client
 		if err != nil {
 			logger.Fatal("Failed to initialize redis store", applog.Error(err))
 		}
+		logger.Info("runtime store initialized", applog.String("type", "redis"))
 		return store
 	}
 
+	logger.Warn("runtime store initialized", applog.String("type", "in-memory"),
+		applog.String("note", "not shared across replicas; use redis for multi-instance deployments"))
 	return inmemory.Initialize(appCfg.Identifier)
 }

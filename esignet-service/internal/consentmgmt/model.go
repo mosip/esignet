@@ -1,3 +1,9 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 // Package consentmgmt implements the esignet consent-action decision logic: it ports the
 // consent-action decision of the Java esignet ConsentHelperService, hashing the requested OIDC
 // claims (read from the authorization request) and authorize scopes and comparing against a stored

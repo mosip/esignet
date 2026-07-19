@@ -48,13 +48,13 @@ type Service struct {
 // NewService creates a Service backed by the given database connection. Client
 // lookups are cached in cache under the given TTL and invalidated on write.
 func NewService(conn *sql.DB, cache providers.RuntimeStoreProvider, cacheTTLSecs int64) *Service {
-	return &Service{q: db.New(conn), cache: cache, cacheTTLSecs: cacheTTLSecs, logger: applog.GetLogger()}
+	return &Service{q: db.New(conn), cache: cache, cacheTTLSecs: cacheTTLSecs, logger: applog.GetLogger().Named("clientmgmt")}
 }
 
 // NewServiceWithQuerier creates a Service with an explicit Querier; use in tests
 // to inject a mock without a real database connection.
 func NewServiceWithQuerier(q db.Querier, cache providers.RuntimeStoreProvider, cacheTTLSecs int64) *Service {
-	return &Service{q: q, cache: cache, cacheTTLSecs: cacheTTLSecs, logger: applog.GetLogger()}
+	return &Service{q: q, cache: cache, cacheTTLSecs: cacheTTLSecs, logger: applog.GetLogger().Named("clientmgmt")}
 }
 
 // CreateClient registers a new OIDC client.
@@ -337,6 +337,7 @@ func (s *Service) getCachedRow(ctx context.Context, clientID string) (db.ClientD
 		s.logger.Warn("client cache decode failed", applog.String("client_id", clientID), applog.Error(err))
 		return db.ClientDetail{}, false
 	}
+	s.logger.Debug("client cache hit", applog.String("client_id", clientID))
 	return row, true
 }
 

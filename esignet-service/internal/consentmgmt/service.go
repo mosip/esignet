@@ -1,3 +1,8 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
 package consentmgmt
 
 import (
@@ -10,25 +15,27 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/mosip/esignet/internal/consentmgmt/db"
+	applog "github.com/mosip/esignet/internal/log"
 )
 
 // Service persists consent records in the consent_detail Postgres table via the sqlc-generated
 // query layer. Each (client_id, psu_token) pair holds at most one record in consent_detail
 // (unique constraint), while consent_history keeps an append-only snapshot of every consent taken.
 type Service struct {
-	db *sql.DB
-	q  db.Querier
+	db     *sql.DB
+	q      db.Querier
+	logger *applog.Logger
 }
 
 // NewService creates a Service backed by the given database connection.
 func NewService(conn *sql.DB) *Service {
-	return &Service{q: db.New(conn)}
+	return &Service{q: db.New(conn), logger: applog.GetLogger().Named("consentmgmt")}
 }
 
 // NewServiceWithQuerier creates a Service with an explicit Querier; use in tests
 // to inject a mock without a real database connection.
 func NewServiceWithQuerier(q db.Querier) *Service {
-	return &Service{q: q}
+	return &Service{q: q, logger: applog.GetLogger().Named("consentmgmt")}
 }
 
 // FetchRecord returns the stored consent for the (clientID, userID) pair. It returns a nil
@@ -37,6 +44,7 @@ func (s *Service) FetchRecord(ctx context.Context, clientID, userID string) (*Co
 	row, err := s.q.GetConsent(ctx, db.GetConsentParams{ClientID: clientID, PsuToken: userID})
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
+			s.logger.Debug("no stored consent record", applog.String("clientId", clientID))
 			return nil, nil
 		}
 		return nil, fmt.Errorf("query consent: %w", err)
@@ -155,6 +163,10 @@ func (s *Service) SaveRecord(ctx context.Context, c *ConsentRecord) error {
 			return fmt.Errorf("commit consent tx: %w", err)
 		}
 	}
+	s.logger.Debug("consent record saved",
+		applog.String("clientId", c.ClientID),
+		applog.Int("claimCount", len(normalizedClaims)),
+		applog.Int("scopeCount", len(normalizedScopes)))
 	return nil
 }
 
@@ -165,6 +177,7 @@ func (s *Service) DeleteRecord(ctx context.Context, clientID, userID string) err
 	if err := s.q.DeleteConsent(ctx, db.DeleteConsentParams{ClientID: clientID, PsuToken: userID}); err != nil {
 		return fmt.Errorf("delete consent: %w", err)
 	}
+	s.logger.Debug("consent record deleted", applog.String("clientId", clientID))
 	return nil
 }
 

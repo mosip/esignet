@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/mosip/esignet/internal/common"
+	applog "github.com/mosip/esignet/internal/log"
 )
 
 // RequestTimeMiddleware validates that the "requestTime" field of a JSON
@@ -32,6 +33,7 @@ func RequestTimeMiddleware(leeway time.Duration) func(http.Handler) http.Handler
 
 			body, err := io.ReadAll(r.Body)
 			if err != nil {
+				logger.Debug("failed to read request body", applog.String("path", r.URL.Path), applog.Error(err))
 				common.WriteError(w, http.StatusBadRequest, "invalid_input", "malformed request body")
 				return
 			}
@@ -47,10 +49,16 @@ func RequestTimeMiddleware(leeway time.Duration) func(http.Handler) http.Handler
 
 			reqTime, err := time.Parse(common.MOSIPTimeLayout, wrapper.RequestTime)
 			if err != nil {
+				logger.Debug("rejected request with unparseable requestTime",
+					applog.String("path", r.URL.Path), applog.Error(err))
 				common.WriteError(w, http.StatusBadRequest, "invalid_input", "requestTime must match format "+common.MOSIPTimeLayout)
 				return
 			}
 			if drift := time.Since(reqTime); drift > leeway || drift < -leeway {
+				logger.Warn("rejected request outside requestTime leeway",
+					applog.String("path", r.URL.Path),
+					applog.String("drift", time.Since(reqTime).String()),
+					applog.String("leeway", leeway.String()))
 				common.WriteError(w, http.StatusBadRequest, "invalid_input", "requestTime is not within the allowed leeway of server time")
 				return
 			}

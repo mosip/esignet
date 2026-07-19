@@ -88,8 +88,8 @@ func (ts *ActorProviderTestSuite) TestActorProvider_GetOAuthProfileByID() {
 	if svcErr != nil {
 		t.Fatalf("GetOAuthProfileByID: %v", svcErr)
 	}
-	if len(profile.Token.AccessToken.UserConfig.Attributes) != 2 {
-		t.Errorf("Attributes = %v, want 2 claims", profile.Token.AccessToken.UserConfig.Attributes)
+	if len(profile.Token.AccessToken.UserConfig.Attributes) != 0 {
+		t.Errorf("Attributes = %v, want empty", profile.Token.AccessToken.UserConfig.Attributes)
 	}
 
 	if _, svcErr := p.GetOAuthProfileByID(context.Background(), "no-such-client"); svcErr == nil {

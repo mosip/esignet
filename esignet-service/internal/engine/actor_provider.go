@@ -53,6 +53,7 @@ func (p *actorProvider) GetOAuthClientByClientID(
 ) (*providers.OAuthClient, *common.ServiceError) {
 	client, err := p.clientSvc.GetClient(ctx, clientID)
 	if err != nil {
+		applog.GetLogger().Debug("OAuth client lookup failed", applog.String("clientId", clientID), applog.Error(err))
 		return nil, shared.ClientNotFoundError
 	}
 
@@ -100,6 +101,7 @@ func (p *actorProvider) GetOAuthProfileByID(
 ) (*providers.OAuthProfile, *common.ServiceError) {
 	client, err := p.clientSvc.GetClient(ctx, id)
 	if err != nil {
+		applog.GetLogger().Debug("OAuth profile lookup failed", applog.String("clientId", id), applog.Error(err))
 		return nil, shared.ClientNotFoundError
 	}
 	requirePushedAuthorizationRequests, _ := client.AdditionalConfig[parRequired].(bool)
@@ -144,6 +146,7 @@ func (p *actorProvider) GetInboundClientByID(
 ) (*providers.InboundClient, *common.ServiceError) {
 	client, err := p.clientSvc.GetClient(ctx, id)
 	if err != nil {
+		applog.GetLogger().Debug("inbound client lookup failed", applog.String("clientId", id), applog.Error(err))
 		return nil, shared.ClientNotFoundError
 	}
 
@@ -180,6 +183,7 @@ func (p *actorProvider) AuthenticateActor(
 func (p *actorProvider) GetActor(id string) (*providers.Entity, *common.ServiceError) {
 	client, err := p.clientSvc.GetClient(context.Background(), id)
 	if err != nil {
+		applog.GetLogger().Debug("actor lookup failed", applog.String("clientId", id), applog.Error(err))
 		return nil, shared.ClientNotFoundError
 	}
 
