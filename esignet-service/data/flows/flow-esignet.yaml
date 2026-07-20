@@ -139,9 +139,53 @@ prompt_password: &prompt_password
   required: true
   resourceType: ELEMENT
 
+# Anchor for Captcha component
+captcha_box: &captcha_box
+  id: CAPTCHA_BOX
+  ref: captcha
+  type: CUSTOM
+  category: MISCELLANEOUS
+  resourceType: ELEMENT
+  required: true
+  captcha:
+    provider: google-recaptcha
+    siteKey: 6LdNIFctAAAAAP3FmtGT16TDyVxfX6s9K96BBg2G
+    # provider: cloudflare-turnstile
+    # siteKey: 1x00000000000000000000AA
+    # provider: hcaptcha
+    # siteKey: 10000000-ffff-ffff-ffff-000000000001
+    theme: dark
+    size: normal
+
+# Anchor for otp's required inputs
+otp_inputs: &otp_inputs
+  - ref: username_input
+    identifier: username
+    type: TEXT_INPUT
+    required: true
+  - ref: CAPTCHA_BOX
+    identifier: captcha
+    type: CUSTOM
+    required: true
+
+# Anchor for password's required inputs
+password_inputs: &password_inputs
+  - ref: username_input
+    identifier: username
+    type: TEXT_INPUT
+    required: true
+  - ref: password_input
+    identifier: password
+    type: PASSWORD_INPUT
+    required: true
+  - ref: CAPTCHA_BOX
+    identifier: captcha
+    type: CUSTOM
+    required: true
+
 # Anchor for Submit button
 # default id is submit_uin, it can be changed
-# default label is COntinue, that also can be changed
+# default label is Continue, that also can be changed
 submit_button: &submit_button
   id: submit_uin
   label: Continue
@@ -317,15 +361,12 @@ nodes:
             - *page_title_with_back
             - *login_id_uin
             - *prompt_uin
+            - *captcha_box
             - <<: *submit_button
               id: submit_uin
               label: Get OTP
     prompts:
-      - inputs:
-          - ref: username_input
-            identifier: username
-            type: TEXT_INPUT
-            required: true
+      - inputs: *otp_inputs
         action:
           ref: submit_uin
           nextNode: send_mosip_otp
@@ -353,15 +394,12 @@ nodes:
             - *page_title_with_back
             - *login_id_mobile
             - *prompt_mobile
+            - *captcha_box
             - <<: *submit_button
               id: submit_uin
               label: Get OTP
     prompts:
-      - inputs:
-          - ref: username_input
-            identifier: username
-            type: PHONE_INPUT
-            required: true
+      - inputs: *otp_inputs
         action:
           ref: submit_uin
           nextNode: send_mosip_otp
@@ -389,15 +427,12 @@ nodes:
             - *page_title_with_back
             - *login_id_email
             - *prompt_email
+            - *captcha_box
             - <<: *submit_button
               id: submit_uin
               label: Get OTP
     prompts:
-      - inputs:
-          - ref: username_input
-            identifier: username
-            type: EMAIL_INPUT
-            required: true
+      - inputs: *otp_inputs
         action:
           ref: submit_uin
           nextNode: send_mosip_otp
@@ -425,15 +460,12 @@ nodes:
             - *page_title_with_back
             - *login_id_nrc
             - *prompt_nrc
+            - *captcha_box
             - <<: *submit_button
               id: submit_uin
               label: Get OTP
     prompts:
-      - inputs:
-          - ref: username_input
-            identifier: username
-            type: TEXT_INPUT
-            required: true
+      - inputs: *otp_inputs
         action:
           ref: submit_uin
           nextNode: send_mosip_otp
@@ -532,19 +564,12 @@ nodes:
             - *login_id_uin
             - *prompt_uin
             - *prompt_password
+            - *captcha_box
             - <<: *submit_button
               id: password_authenticate
               label: Login
     prompts:
-      - inputs:
-          - ref: username_input
-            identifier: username
-            type: TEXT_INPUT
-            required: true
-          - ref: password_input
-            identifier: password
-            type: PASSWORD_INPUT
-            required: true
+      - inputs: *password_inputs
         action:
           ref: password_authenticate
           nextNode: basic_cred_auth
@@ -575,19 +600,12 @@ nodes:
             - *login_id_mobile
             - *prompt_mobile
             - *prompt_password
+            - *captcha_box
             - <<: *submit_button
               id: password_authenticate
               label: Login
     prompts:
-      - inputs:
-          - ref: username_input
-            identifier: username
-            type: TEXT_INPUT
-            required: true
-          - ref: password_input
-            identifier: password
-            type: PASSWORD_INPUT
-            required: true
+      - inputs: *password_inputs
         action:
           ref: password_authenticate
           nextNode: basic_cred_auth
@@ -618,19 +636,12 @@ nodes:
             - *login_id_email
             - *prompt_email
             - *prompt_password
+            - *captcha_box
             - <<: *submit_button
               id: password_authenticate
               label: Login
     prompts:
-      - inputs:
-          - ref: username_input
-            identifier: username
-            type: TEXT_INPUT
-            required: true
-          - ref: password_input
-            identifier: password
-            type: PASSWORD_INPUT
-            required: true
+      - inputs: *password_inputs
         action:
           ref: password_authenticate
           nextNode: basic_cred_auth
@@ -661,19 +672,12 @@ nodes:
             - *login_id_nrc
             - *prompt_nrc
             - *prompt_password
+            - *captcha_box
             - <<: *submit_button
               id: password_authenticate
               label: Login
     prompts:
-      - inputs:
-          - ref: username_input
-            identifier: username
-            type: TEXT_INPUT
-            required: true
-          - ref: password_input
-            identifier: password
-            type: PASSWORD_INPUT
-            required: true
+      - inputs: *password_inputs
         action:
           ref: password_authenticate
           nextNode: basic_cred_auth
@@ -703,6 +707,10 @@ nodes:
           identifier: password
           type: PASSWORD_INPUT
           required: true
+        - ref: CAPTCHA_BOX
+          identifier: captcha
+          type: PASSWORD_INPUT
+          reuired: true
     onSuccess: authorization_check
 
   - id: prompt_uin_bio
@@ -905,6 +913,7 @@ nodes:
               required: true
               placeholder: Select your date of birth
               dateFormat: "yyyy-MM-dd"
+            - *captcha_box
             - <<: *submit_button
               id: submit_kbi_details
               label: Login
@@ -921,6 +930,10 @@ nodes:
           - ref: dob_input
             identifier: dob
             type: DATE_INPUT
+            required: true
+          - ref: CAPTCHA_BOX
+            identifier: captcha
+            type: CUSTOM
             required: true
         action:
           ref: submit_kbi_details
@@ -946,6 +959,10 @@ nodes:
           identifier: dob
           type: PASSWORD_INPUT
           required: true
+        - ref: CAPTCHA_BOX
+          identifier: captcha
+          type: PASSWORD_INPUT
+          reuired: true
     onSuccess: authorization_check
 
   - id: authorization_check

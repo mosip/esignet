@@ -42,7 +42,11 @@ export default function LoginPage() {
         "!rounded-lg w-auto sm:w-3/6 lg:max-w-sm md:z-10 md:m-auto py-4"
       }
     >
-      {isLoading ? <LoadingIndicator /> : <SignIn />}
+      {isLoading ? (
+        <LoadingIndicator />
+      ) : (
+        <SignIn revalidateOnChangeAfterBlur />
+      )}
     </div>
   );
 }
