@@ -97,6 +97,8 @@ func (e *mosipOtpExecutor) Execute(ctx *providers.NodeContext) (*providers.Execu
 	result, serviceError := e.authn.SendOTP(ctx.Context, map[string]any{"username": username},
 		e.BuildAuthnMetadata(ctx))
 	if serviceError != nil {
+		// username is the individual's identity number and must not be logged.
+		applog.GetLogger().Warn("failed to send OTP via MOSIP API", applog.String("errorCode", serviceError.Code))
 		return execResp, fmt.Errorf("failed to send OTP via MOSIP API: %s", serviceError.Code)
 	}
 

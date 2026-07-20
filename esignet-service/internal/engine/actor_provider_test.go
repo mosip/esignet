@@ -33,7 +33,7 @@ func (s *stubQuerier) GetClient(_ context.Context, id string) (db.ClientDetail, 
 }
 
 func newActorTestService(client db.ClientDetail) *clientmgmt.Service {
-	return clientmgmt.NewServiceWithQuerier(&stubQuerier{client: client, found: true})
+	return clientmgmt.NewServiceWithQuerier(&stubQuerier{client: client, found: true}, nil, 0)
 }
 
 func testClientRow() db.ClientDetail {
@@ -88,8 +88,8 @@ func (ts *ActorProviderTestSuite) TestActorProvider_GetOAuthProfileByID() {
 	if svcErr != nil {
 		t.Fatalf("GetOAuthProfileByID: %v", svcErr)
 	}
-	if len(profile.Token.AccessToken.UserConfig.Attributes) != 2 {
-		t.Errorf("Attributes = %v, want 2 claims", profile.Token.AccessToken.UserConfig.Attributes)
+	if len(profile.Token.AccessToken.UserConfig.Attributes) != 0 {
+		t.Errorf("Attributes = %v, want empty", profile.Token.AccessToken.UserConfig.Attributes)
 	}
 
 	if _, svcErr := p.GetOAuthProfileByID(context.Background(), "no-such-client"); svcErr == nil {
@@ -206,6 +206,46 @@ func (ts *ActorProviderTestSuite) TestConfigInt64() {
 	if got := configInt64(map[string]any{"k": "not-a-number"}, "k", 5); got != 5 {
 		t.Errorf("configInt64(unsupported type) = %d, want default 5", got)
 	}
+}
+
+func (ts *ActorProviderTestSuite) TestGetAllowedScopes() {
+	t := ts.T()
+	standardScopeClaims := map[string][]string{
+		"profile": {"name"},
+		"address": {"address"},
+		"email":   {"email"},
+		"openid":  nil,
+	}
+
+	t.Run("base scopes are sorted deterministically", func(t *testing.T) {
+		got := getAllowedScopes(standardScopeClaims, nil)
+		want := []string{"address", "email", "openid", "profile"}
+		if len(got) != len(want) {
+			t.Fatalf("getAllowedScopes() = %v, want %v", got, want)
+		}
+		for i := range want {
+			if got[i] != want[i] {
+				t.Errorf("getAllowedScopes() = %v, want %v", got, want)
+				break
+			}
+		}
+	})
+
+	t.Run("accepts []string additional scopes", func(t *testing.T) {
+		additionalConfig := map[string]any{allowedAuthorizationScopes: []string{"custom_scope"}}
+		got := getAllowedScopes(standardScopeClaims, additionalConfig)
+		if got[len(got)-1] != "custom_scope" {
+			t.Errorf("getAllowedScopes() = %v, want last element custom_scope", got)
+		}
+	})
+
+	t.Run("accepts []any additional scopes decoded from JSON", func(t *testing.T) {
+		additionalConfig := map[string]any{allowedAuthorizationScopes: []any{"custom_scope", "other_scope"}}
+		got := getAllowedScopes(standardScopeClaims, additionalConfig)
+		if got[len(got)-2] != "custom_scope" || got[len(got)-1] != "other_scope" {
+			t.Errorf("getAllowedScopes() = %v, want trailing [custom_scope other_scope]", got)
+		}
+	})
 }
 
 type ActorProviderTestSuite struct {

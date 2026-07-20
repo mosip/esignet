@@ -13,6 +13,7 @@ import (
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
 	"github.com/mosip/esignet/internal/config"
+	applog "github.com/mosip/esignet/internal/log"
 )
 
 type authorizationProvider struct {
@@ -21,6 +22,7 @@ type authorizationProvider struct {
 
 // NewAuthorizationProvider returns a permissive authorization provider for local development.
 func NewAuthorizationProvider(cfg *config.AppConfig) providers.AuthorizationProvider {
+	applog.GetLogger().Warn("authorization provider running in permissive mode: every access evaluation is granted; not for production use")
 	return &authorizationProvider{cfg: cfg}
 }
 

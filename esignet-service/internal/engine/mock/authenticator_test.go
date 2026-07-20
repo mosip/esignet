@@ -60,7 +60,7 @@ func newClientService(t *testing.T, clientID, rpID string) *clientmgmt.Service {
 			Status:       "ACTIVE",
 			CrDtimes:     time.Now(),
 		},
-	})
+	}, nil, 0)
 }
 
 func newAuthnMetadata() *providers.AuthnMetadata {

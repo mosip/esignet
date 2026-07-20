@@ -17,6 +17,7 @@ import (
 
 	"github.com/mosip/esignet/internal/config"
 	"github.com/mosip/esignet/internal/engine/shared"
+	applog "github.com/mosip/esignet/internal/log"
 )
 
 type flowProvider struct {
@@ -41,11 +42,13 @@ func (p *flowProvider) parseFlowDefinition() (*providers.CompleteFlowDefinition,
 	// Read the flow definition from file in the data directory.
 	data, err := os.ReadFile(filepath.Join(p.cfg.DataDir, "flows", p.cfg.AuthFlowID+".yaml"))
 	if err != nil {
+		applog.GetLogger().Warn("flow definition file not found", applog.String("flowId", p.cfg.AuthFlowID), applog.Error(err))
 		return nil, shared.FileNotFoundError
 	}
 	var flowDef providers.CompleteFlowDefinition
 	err = yaml.Unmarshal(data, &flowDef)
 	if err != nil {
+		applog.GetLogger().Warn("failed to parse flow definition file", applog.String("flowId", p.cfg.AuthFlowID), applog.Error(err))
 		return nil, shared.FileUnmarshallError
 	}
 	return &flowDef, nil
