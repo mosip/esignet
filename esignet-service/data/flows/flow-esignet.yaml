@@ -149,12 +149,8 @@ captcha_box: &captcha_box
   required: true
   captcha:
     provider: google-recaptcha
-    siteKey: 6LdNIFctAAAAAP3FmtGT16TDyVxfX6s9K96BBg2G
-    # provider: cloudflare-turnstile
-    # siteKey: 1x00000000000000000000AA
-    # provider: hcaptcha
-    # siteKey: 10000000-ffff-ffff-ffff-000000000001
-    theme: dark
+    siteKey: ${CAPTCHA_SITE_KEY}
+    theme: light
     size: normal
 
 # Anchor for otp's required inputs
@@ -710,7 +706,7 @@ nodes:
         - ref: CAPTCHA_BOX
           identifier: captcha
           type: PASSWORD_INPUT
-          reuired: true
+          required: true
     onSuccess: authorization_check
 
   - id: prompt_uin_bio
@@ -962,7 +958,7 @@ nodes:
         - ref: CAPTCHA_BOX
           identifier: captcha
           type: PASSWORD_INPUT
-          reuired: true
+          required: true
     onSuccess: authorization_check
 
   - id: authorization_check
