@@ -7,6 +7,8 @@
 package httpmiddleware
 
 import (
+	"bufio"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -65,6 +67,51 @@ func TestStatusRecorder_TracksWriteHeaderAndBytesWritten(t *testing.T) {
 	_, err = rec.Write([]byte("de"))
 	require.NoError(t, err)
 	assert.Equal(t, 5, rec.bytesWritten)
+}
+
+func TestStatusRecorder_Flush(t *testing.T) {
+	rr := httptest.NewRecorder()
+	rec := &statusRecorder{ResponseWriter: rr, statusCode: http.StatusOK}
+
+	rec.Flush()
+
+	assert.True(t, rr.Flushed)
+}
+
+// hijackableRecorder embeds httptest.ResponseRecorder, which does not itself
+// implement http.Hijacker, and adds a minimal Hijack so tests can exercise
+// the delegation path.
+type hijackableRecorder struct {
+	*httptest.ResponseRecorder
+	hijacked bool
+}
+
+func (h *hijackableRecorder) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	h.hijacked = true
+	server, _ := net.Pipe()
+	return server, bufio.NewReadWriter(bufio.NewReader(server), bufio.NewWriter(server)), nil
+}
+
+func TestStatusRecorder_Hijack_Supported(t *testing.T) {
+	rr := &hijackableRecorder{ResponseRecorder: httptest.NewRecorder()}
+	rec := &statusRecorder{ResponseWriter: rr, statusCode: http.StatusOK}
+
+	conn, buf, err := rec.Hijack()
+
+	require.NoError(t, err)
+	require.NotNil(t, conn)
+	require.NotNil(t, buf)
+	assert.True(t, rr.hijacked)
+	_ = conn.Close()
+}
+
+func TestStatusRecorder_Hijack_NotSupported(t *testing.T) {
+	rr := httptest.NewRecorder()
+	rec := &statusRecorder{ResponseWriter: rr, statusCode: http.StatusOK}
+
+	_, _, err := rec.Hijack()
+
+	assert.Error(t, err)
 }
 
 func TestOrDash(t *testing.T) {

@@ -76,6 +76,31 @@ security_config:
   issuer_url: ""
   jwks_url: ""
   jwks_cache_ttl: 3000
+  scope_mapping:
+    - endpoint: "/client-mgmt/oidc-client"
+      method: POST
+      scope: client_mgmt
+    - endpoint: "/client-mgmt/oidc-client/{client_id}"
+      method: PUT
+      scope: client_mgmt
+    - endpoint: "/client-mgmt/oauth-client"
+      method: POST
+      scope: client_mgmt
+    - endpoint: "/client-mgmt/oauth-client/{client_id}"
+      method: PUT
+      scope: client_mgmt
+    - endpoint: "/client-mgmt/client"
+      method: POST
+      scope: client_mgmt
+    - endpoint: "/client-mgmt/client/{client_id}"
+      method: PUT
+      scope: client_mgmt
+    - endpoint: "/client-mgmt/client/{client_id}"
+      method: PATCH
+      scope: client_mgmt
+    - endpoint: "/client-mgmt/client/{client_id}"
+      method: GET
+      scope: client_mgmt
 
 scope_claims:
   openid:

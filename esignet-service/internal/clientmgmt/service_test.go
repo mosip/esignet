@@ -467,6 +467,41 @@ func (ts *ServiceTestSuite) TestPatchClient_InvalidatesCache() {
 	assert.Empty(t, cache.data)
 }
 
+func (ts *ServiceTestSuite) TestUpdateClient_InvalidateCacheFailure_PropagatesError() {
+	t := ts.T()
+	cache := newFakeRuntimeStore()
+	cache.err = errors.New("cache unavailable")
+
+	q := &mockQuerier{
+		updateFn: func(_ context.Context, arg db.UpdateClientParams) (db.ClientDetail, error) {
+			return stubRow(arg.ID), nil
+		},
+	}
+	svc := clientmgmt.NewServiceWithQuerier(q, cache, 60)
+	_, err := svc.UpdateClient(context.Background(), clientmgmt.ProfileClient, "client-001", validUpdateReq())
+	require.Error(t, err)
+}
+
+func (ts *ServiceTestSuite) TestPatchClient_InvalidateCacheFailure_PropagatesError() {
+	t := ts.T()
+	cache := newFakeRuntimeStore()
+	cache.err = errors.New("cache unavailable")
+
+	q := &mockQuerier{
+		getFn: func(_ context.Context, _ string) (db.ClientDetail, error) {
+			return stubRow("client-001"), nil
+		},
+		patchFn: func(_ context.Context, arg db.PatchClientParams) (db.ClientDetail, error) {
+			return stubRow(arg.ID), nil
+		},
+	}
+	svc := clientmgmt.NewServiceWithQuerier(q, cache, 60)
+	req := clientmgmt.PatchClientRequest{LogoURI: "https://example.com/new-logo.png"}
+	fields := clientmgmt.PatchFields{LogoURI: true}
+	_, err := svc.PatchClient(context.Background(), "client-001", req, fields)
+	require.Error(t, err)
+}
+
 func validUpdateReq() clientmgmt.UpdateClientRequest {
 	return clientmgmt.UpdateClientRequest{
 		ClientName:        "Test App",

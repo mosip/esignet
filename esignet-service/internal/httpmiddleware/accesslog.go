@@ -7,6 +7,8 @@
 package httpmiddleware
 
 import (
+	"bufio"
+	"fmt"
 	"net"
 	"net/http"
 	"time"
@@ -55,6 +57,25 @@ func (r *statusRecorder) Write(b []byte) (int, error) {
 	n, err := r.ResponseWriter.Write(b)
 	r.bytesWritten += n
 	return n, err
+}
+
+// Flush implements http.Flusher by delegating to the wrapped ResponseWriter,
+// so streaming handlers (e.g. SSE) still work when wrapped by AccessLog.
+func (r *statusRecorder) Flush() {
+	if f, ok := r.ResponseWriter.(http.Flusher); ok {
+		f.Flush()
+	}
+}
+
+// Hijack implements http.Hijacker by delegating to the wrapped
+// ResponseWriter, so protocol-upgrade handlers (e.g. WebSocket) still work
+// when wrapped by AccessLog.
+func (r *statusRecorder) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	hj, ok := r.ResponseWriter.(http.Hijacker)
+	if !ok {
+		return nil, nil, fmt.Errorf("underlying ResponseWriter does not support hijacking")
+	}
+	return hj.Hijack()
 }
 
 func orDash(s string) string {

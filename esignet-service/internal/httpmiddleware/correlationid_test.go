@@ -80,6 +80,37 @@ func TestCorrelationID_FallsBackToOtherHeadersInPriorityOrder(t *testing.T) {
 	}
 }
 
+func TestCorrelationID_FallsBackToB3Headers(t *testing.T) {
+	tests := []struct {
+		name    string
+		headers map[string]string
+		want    string
+	}{
+		{"single b3 header, trace ID only", map[string]string{"b3": "80f198ee56343ba864fe8b2a57d3eff7"}, "80f198ee56343ba864fe8b2a57d3eff7"},
+		{"single b3 header with span/sampled/parent segments", map[string]string{"b3": "80f198ee56343ba864fe8b2a57d3eff7-e457b5a2e4d86bd1-1-05e3ac9a4f6e3b90"}, "80f198ee56343ba864fe8b2a57d3eff7"},
+		{"multi-header X-B3-TraceId used when single b3 header absent", map[string]string{"X-B3-TraceId": "80f198ee56343ba864fe8b2a57d3eff7"}, "80f198ee56343ba864fe8b2a57d3eff7"},
+		{"single b3 header takes priority over X-B3-TraceId", map[string]string{"b3": "tracefromsingleheader", "X-B3-TraceId": "tracefrommultiheader"}, "tracefromsingleheader"},
+		{"X-Trace-ID takes priority over B3 headers", map[string]string{"X-Trace-ID": "trace-1", "b3": "80f198ee56343ba864fe8b2a57d3eff7"}, "trace-1"},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			var got string
+			next := http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
+				got = TraceIDFromContext(r.Context())
+			})
+
+			req := httptest.NewRequest(http.MethodGet, "/", nil)
+			for k, v := range tc.headers {
+				req.Header.Set(k, v)
+			}
+			CorrelationID(next).ServeHTTP(httptest.NewRecorder(), req)
+
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
 // This is exactly the contract thunderidengine's own correlation-ID
 // middleware relies on to resolve the same trace ID as esignet-service's
 // outer middleware: it checks X-Correlation-ID first.

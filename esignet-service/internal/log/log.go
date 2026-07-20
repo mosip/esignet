@@ -126,27 +126,27 @@ func (l *Logger) With(fields ...Field) *Logger {
 
 // Debug logs a debug message.
 func (l *Logger) Debug(msg string, fields ...Field) {
-	l.internal.Debug(msg, convertFields(append(fields, Int(levelValueKey, levelValueDebug)))...)
+	l.internal.Debug(msg, withLevelValue(fields, levelValueDebug)...)
 }
 
 // Info logs an informational message.
 func (l *Logger) Info(msg string, fields ...Field) {
-	l.internal.Info(msg, convertFields(append(fields, Int(levelValueKey, levelValueInfo)))...)
+	l.internal.Info(msg, withLevelValue(fields, levelValueInfo)...)
 }
 
 // Warn logs a warning message.
 func (l *Logger) Warn(msg string, fields ...Field) {
-	l.internal.Warn(msg, convertFields(append(fields, Int(levelValueKey, levelValueWarn)))...)
+	l.internal.Warn(msg, withLevelValue(fields, levelValueWarn)...)
 }
 
 // Error logs an error message.
 func (l *Logger) Error(msg string, fields ...Field) {
-	l.internal.Error(msg, convertFields(append(fields, Int(levelValueKey, levelValueError)))...)
+	l.internal.Error(msg, withLevelValue(fields, levelValueError)...)
 }
 
 // Fatal logs an error message and exits the process.
 func (l *Logger) Fatal(msg string, fields ...Field) {
-	l.internal.Error(msg, convertFields(append(fields, Int(levelValueKey, levelValueError)))...)
+	l.internal.Error(msg, withLevelValue(fields, levelValueError)...)
 	os.Exit(1)
 }
 
@@ -154,8 +154,15 @@ func (l *Logger) Fatal(msg string, fields ...Field) {
 // configured LOG_LEVEL, matching the ACCESS pseudo-level convention used by
 // the Java services' Tomcat access logs.
 func (l *Logger) Access(fields ...Field) {
-	l.internal.Log(context.Background(), LevelAccess, "access",
-		convertFields(append(fields, Int(levelValueKey, levelValueAccess)))...)
+	l.internal.Log(context.Background(), LevelAccess, "access", withLevelValue(fields, levelValueAccess)...)
+}
+
+// withLevelValue converts fields to slog attrs with levelValue appended.
+// It converts fields first and appends to the resulting []any rather than
+// appending to the caller-supplied fields slice, which could otherwise
+// alias and mutate the caller's backing array if it has spare capacity.
+func withLevelValue(fields []Field, levelValue int) []any {
+	return append(convertFields(fields), slog.Any(levelValueKey, levelValue))
 }
 
 func parseLogLevel(logLevel string) (slog.Level, error) {

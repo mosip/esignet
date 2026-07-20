@@ -13,6 +13,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 // CorrelationIDHeader is the header used to propagate the request's
@@ -21,13 +22,26 @@ import (
 // been tagged here resolves to the same ID inside the engine.
 const CorrelationIDHeader = "X-Correlation-ID"
 
+// B3 (Zipkin) propagation headers, checked as a last-resort fallback. MOSIP
+// Java services on older Spring Cloud Sleuth (Brave/Zipkin) versions
+// propagate trace IDs this way; Sleuth's successor, Micrometer Tracing,
+// defaults to W3C traceparent but MOSIP deployments may still have
+// unupgraded services or infra (gateways, meshes) emitting B3. Without this
+// fallback, a request arriving with only B3 headers would get a brand-new
+// ID here, breaking the trace chain across the two propagation styles.
+const (
+	b3SingleHeader  = "b3"
+	b3TraceIDHeader = "X-B3-TraceId"
+)
+
 type contextKey string
 
 const traceIDContextKey contextKey = "trace_id"
 
 // CorrelationID extracts a correlation/trace ID from the incoming request
-// (checking X-Correlation-ID, X-Request-ID, X-Trace-ID in that order) or
-// generates a new UUIDv4 if none is present. The ID is stored in the request
+// (checking X-Correlation-ID, X-Request-ID, X-Trace-ID, then falling back to
+// the B3 "b3" single header or "X-B3-TraceId", in that order) or generates a
+// new UUIDv4 if none is present. The ID is stored in the request
 // context, echoed back as a response header, and normalized onto the
 // X-Correlation-ID request header so that downstream components — including
 // thunderidengine's own correlation-ID middleware — resolve to the same ID.
@@ -65,7 +79,19 @@ func extractTraceID(r *http.Request) string {
 			return id
 		}
 	}
-	return ""
+	return extractB3TraceID(r)
+}
+
+// extractB3TraceID reads the trace ID out of B3 propagation headers. The
+// single-header form packs "{TraceId}-{SpanId}-{SamplingState}-{ParentSpanId}"
+// (SpanId onward optional) into one "b3" header; only the TraceId segment is
+// relevant here. Falls back to the multi-header "X-B3-TraceId" form.
+func extractB3TraceID(r *http.Request) string {
+	if b3 := r.Header.Get(b3SingleHeader); b3 != "" {
+		traceID, _, _ := strings.Cut(b3, "-")
+		return traceID
+	}
+	return r.Header.Get(b3TraceIDHeader)
 }
 
 func generateUUIDv4() string {

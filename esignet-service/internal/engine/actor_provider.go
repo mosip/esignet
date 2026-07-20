@@ -10,6 +10,7 @@ package engine
 import (
 	"context"
 	"encoding/json"
+	"sort"
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
@@ -59,7 +60,7 @@ func (p *actorProvider) GetOAuthClientByClientID(
 
 	requirePushedAuthorizationRequests, _ := client.AdditionalConfig[parRequired].(bool)
 	dpopBoundAccessTokens, _ := client.AdditionalConfig[dpopRequired].(bool)
-	pkceRequired, _ := client.AdditionalConfig[pkceRequired].(bool)
+	isPKCERequired, _ := client.AdditionalConfig[pkceRequired].(bool)
 	return &providers.OAuthClient{
 		ID:                      client.ClientID,
 		OUID:                    client.RpID,
@@ -68,7 +69,7 @@ func (p *actorProvider) GetOAuthClientByClientID(
 		RedirectURIs:            client.RedirectURIs,
 		ResponseTypes:           []providers.ResponseType{providers.ResponseTypeCode},
 		TokenEndpointAuthMethod: providers.TokenEndpointAuthMethodPrivateKeyJWT,
-		PKCERequired:            pkceRequired,
+		PKCERequired:            isPKCERequired,
 		PublicClient:            false,
 		Certificate: &providers.Certificate{
 			Type:  jwks,
@@ -106,13 +107,13 @@ func (p *actorProvider) GetOAuthProfileByID(
 	}
 	requirePushedAuthorizationRequests, _ := client.AdditionalConfig[parRequired].(bool)
 	dpopBoundAccessTokens, _ := client.AdditionalConfig[dpopRequired].(bool)
-	pkceRequired, _ := client.AdditionalConfig[pkceRequired].(bool)
+	isPKCERequired, _ := client.AdditionalConfig[pkceRequired].(bool)
 	return &providers.OAuthProfile{
 		RedirectURIs:                       client.RedirectURIs,
 		GrantTypes:                         client.GrantTypes,
 		ResponseTypes:                      []string{string(providers.ResponseTypeCode)},
 		TokenEndpointAuthMethod:            string(providers.TokenEndpointAuthMethodPrivateKeyJWT),
-		PKCERequired:                       pkceRequired,
+		PKCERequired:                       isPKCERequired,
 		PublicClient:                       false,
 		RequirePushedAuthorizationRequests: requirePushedAuthorizationRequests,
 		DPoPBoundAccessTokens:              dpopBoundAccessTokens,
@@ -243,9 +244,30 @@ func getAllowedScopes(standardScopeClaims map[string][]string, additionalConfig 
 	for k := range standardScopeClaims {
 		scopes = append(scopes, k)
 	}
+	sort.Strings(scopes)
 
-	additionalScopes, _ := additionalConfig[allowedAuthorizationScopes].([]string)
-	return append(scopes, additionalScopes...)
+	return append(scopes, additionalAuthorizationScopes(additionalConfig)...)
+}
+
+// additionalAuthorizationScopes extracts allowedAuthorizationScopes from
+// additionalConfig. The value is []string when set programmatically, but
+// []any when decoded from JSON (e.g. read back from the database), so both
+// representations are accepted.
+func additionalAuthorizationScopes(additionalConfig map[string]any) []string {
+	switch v := additionalConfig[allowedAuthorizationScopes].(type) {
+	case []string:
+		return v
+	case []any:
+		scopes := make([]string, 0, len(v))
+		for _, item := range v {
+			if s, ok := item.(string); ok {
+				scopes = append(scopes, s)
+			}
+		}
+		return scopes
+	default:
+		return nil
+	}
 }
 
 // getScopeClaimsMapping builds a scope-to-claims mapping for the standard

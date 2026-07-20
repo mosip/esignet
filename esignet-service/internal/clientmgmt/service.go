@@ -190,7 +190,9 @@ func (s *Service) UpdateClient(ctx context.Context, profile Profile, clientID st
 		}
 		return ClientResponse{}, fmt.Errorf("update client: %w", err)
 	}
-	s.invalidateCache(ctx, clientID)
+	if err := s.invalidateCache(ctx, clientID); err != nil {
+		return ClientResponse{}, err
+	}
 	return toResponse(row)
 }
 
@@ -296,7 +298,9 @@ func (s *Service) PatchClient(ctx context.Context, clientID string, req PatchCli
 		}
 		return ClientResponse{}, fmt.Errorf("patch client: %w", err)
 	}
-	s.invalidateCache(ctx, clientID)
+	if err := s.invalidateCache(ctx, clientID); err != nil {
+		return ClientResponse{}, err
+	}
 	return toResponse(row)
 }
 
@@ -358,15 +362,19 @@ func (s *Service) cacheRow(ctx context.Context, clientID string, row db.ClientDe
 }
 
 // invalidateCache clears the cached row for clientID after a successful
-// write so the next GetClient re-reads Postgres. Failures are logged, not
-// returned: the write already succeeded and must not be reported as failed.
-func (s *Service) invalidateCache(ctx context.Context, clientID string) {
+// write so the next GetClient re-reads Postgres. A failure here leaves the
+// cache stale until it expires (up to cacheTTLSecs), which can allow reads
+// of a deactivated or rotated client, so it is returned rather than only
+// logged: the caller must be able to signal the partial failure.
+func (s *Service) invalidateCache(ctx context.Context, clientID string) error {
 	if s.cache == nil {
-		return
+		return nil
 	}
 	if err := s.cache.Delete(ctx, clientCacheNamespace, clientID); err != nil {
 		s.logger.Warn("client cache invalidate failed", applog.String("client_id", clientID), applog.Error(err))
+		return fmt.Errorf("invalidate client cache: %w", err)
 	}
+	return nil
 }
 
 func mergePatch(existing db.ClientDetail, req PatchClientRequest, fields PatchFields) (UpdateClientRequest, error) {

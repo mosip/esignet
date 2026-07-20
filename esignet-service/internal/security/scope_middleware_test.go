@@ -52,7 +52,12 @@ func newTestMiddleware(t *testing.T, key *rsa.PrivateKey, kid, issuer string) fu
 	t.Helper()
 	srv := newTestJWKSServer(t, key, kid)
 	cache := NewJWKSCache(srv.URL, time.Minute)
-	return ScopeMiddleware(cache, config.SecurityConfig{IssuerURL: issuer})
+	return ScopeMiddleware(cache, config.SecurityConfig{
+		IssuerURL: issuer,
+		ScopeMapping: []config.AuthorizationConfig{
+			{Method: http.MethodGet, Endpoint: "/", Scope: "test"},
+		},
+	})
 }
 
 func newProtectedHandler() (http.Handler, *bool) {
@@ -233,6 +238,71 @@ func (ts *ScopeMiddlewareTestSuite) TestScopeMiddleware_MissingScope() {
 	if *called {
 		t.Error("expected downstream handler not to be called")
 	}
+}
+
+func (ts *ScopeMiddlewareTestSuite) TestScopeMiddleware_NoScopeMappingConfigured() {
+	t := ts.T()
+	key, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		t.Fatalf("GenerateKey: %v", err)
+	}
+	srv := newTestJWKSServer(t, key, "kid-1")
+	cache := NewJWKSCache(srv.URL, time.Minute)
+	mw := ScopeMiddleware(cache, config.SecurityConfig{IssuerURL: "https://issuer.example.com"})
+
+	claims := jwt.MapClaims{
+		"iss":   "https://issuer.example.com",
+		"exp":   time.Now().Add(time.Hour).Unix(),
+		"scope": "test",
+	}
+	tokenStr := signTestToken(t, key, "kid-1", claims)
+
+	handler, called := newProtectedHandler()
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest(http.MethodGet, "/", nil)
+	r.Header.Set("Authorization", "Bearer "+tokenStr)
+	mw(handler).ServeHTTP(w, r)
+
+	if w.Code != http.StatusForbidden {
+		t.Errorf("status = %d, want 403", w.Code)
+	}
+	if *called {
+		t.Error("expected downstream handler not to be called")
+	}
+}
+
+func (ts *ScopeMiddlewareTestSuite) TestResolveRequiredScope() {
+	t := ts.T()
+	mapping := []config.AuthorizationConfig{
+		{Method: http.MethodGet, Endpoint: "/client-mgmt/client/{client_id}", Scope: "client_mgmt_read"},
+		{Method: http.MethodPatch, Endpoint: "/client-mgmt/client/{client_id}", Scope: "client_mgmt_write"},
+	}
+
+	t.Run("matches method and templated path", func(t *testing.T) {
+		scope, ok := resolveRequiredScope(mapping, http.MethodGet, "/client-mgmt/client/abc-123")
+		if !ok || scope != "client_mgmt_read" {
+			t.Errorf("resolveRequiredScope() = (%q, %v), want (client_mgmt_read, true)", scope, ok)
+		}
+	})
+
+	t.Run("method mismatch", func(t *testing.T) {
+		if _, ok := resolveRequiredScope(mapping, http.MethodDelete, "/client-mgmt/client/abc-123"); ok {
+			t.Error("expected no match for unmapped method")
+		}
+	})
+
+	t.Run("path mismatch", func(t *testing.T) {
+		if _, ok := resolveRequiredScope(mapping, http.MethodGet, "/client-mgmt/other"); ok {
+			t.Error("expected no match for unmapped path")
+		}
+	})
+
+	t.Run("is case-insensitive on method", func(t *testing.T) {
+		scope, ok := resolveRequiredScope(mapping, "get", "/client-mgmt/client/abc-123")
+		if !ok || scope != "client_mgmt_read" {
+			t.Errorf("resolveRequiredScope() = (%q, %v), want (client_mgmt_read, true)", scope, ok)
+		}
+	})
 }
 
 func (ts *ScopeMiddlewareTestSuite) TestBearerToken() {
