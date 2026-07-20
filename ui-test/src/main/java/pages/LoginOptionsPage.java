@@ -180,8 +180,8 @@ public class LoginOptionsPage extends BasePage {
 	}
 
 	public void selectLanguage(String language) {
-		WebElement langOption = driver
-				.findElement(By.xpath("//div[@role='menuitem' and normalize-space()='" + language + "']"));
+		WebElement langOption = waitForElementVisible(
+				By.xpath("//div[@role='menuitem' and normalize-space()='" + language + "']"));
 
 		langOption.click();
 	}
@@ -282,6 +282,7 @@ public class LoginOptionsPage extends BasePage {
 	}
 
 	public void enterVid(String vid) {
+		waitForElementVisible(vidField);
 		vidField.clear();
 		enterText(vidField, vid, "Entered vid in vid field");
 	}
@@ -291,6 +292,7 @@ public class LoginOptionsPage extends BasePage {
 	}
 
 	public void enterEmail(String email) {
+		waitForElementVisible(emailField);
 		emailField.clear();
 		enterText(emailField, email, "Entered email in email field");
 	}

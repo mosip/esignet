@@ -83,6 +83,9 @@ public class BaseTest extends AdminTestUtil {
 		}
 	}
 
+	/** Scenarios carrying this tag exercise the PAR flow against a client that mandates PAR. */
+	private static final String PAR_TAG = "@PAR";
+
 	private static final Map<String, String[]> CLIENT_CONFIG_MAP = new HashMap<>();
 
 	static {
@@ -93,6 +96,10 @@ public class BaseTest extends AdminTestUtil {
 		CLIENT_CONFIG_MAP.put("@PurposeLink",
 				new String[] { "$ID:CreateOIDCClient_with_purpose_type_link_Smoke_sid_clientId$",
 						"$CLIENT_ASSERTION_PAR_JWT_PURPOSE_LINK$" });
+
+		CLIENT_CONFIG_MAP.put("@PurposeVerify",
+				new String[] { "$ID:CreateOIDCClient_with_purpose_type_verify_Smoke_sid_clientId$",
+						"$CLIENT_ASSERTION_PAR_JWT_PURPOSE_VERIFY$" });
 
 		CLIENT_CONFIG_MAP.put("@PurposeNone",
 				new String[] { "$ID:CreateOIDCClient_with_purpose_type_none_Smoke_sid_clientId$",
@@ -112,6 +119,25 @@ public class BaseTest extends AdminTestUtil {
 		CLIENT_CONFIG_MAP.put("@SingleAuthFactor",
 				new String[] { "$ID:CreateOIDCClient_with_single_auth_factor_Smoke_sid_clientId$",
 						"$CLIENT_ASSERTION_PAR_JWT_SINGLE_ACR_VALUE$" });
+
+		CLIENT_CONFIG_MAP.put(PAR_TAG, new String[] { "$ID:CreateOIDCClient_par_required_Smoke_sid_clientId$",
+				"$CLIENT_ASSERTION_PAR_JWT_PAR_REQUIRED$" });
+	}
+
+	// Runs before every other @Before hook (lowest order), unconditionally, so every scenario -
+	// pass, fail, or skipped by any later hook (known-issue, mosipid purpose-tag skip,
+	// @registrationProcess, etc.) - gets its own correctly-named ExtentTest before anything can
+	// throw. Without this, a hook that skips before beforeAll() reached its old createTest() call
+	// left testThread (a ThreadLocal that's never cleared - see ExtentReportManager.removeTest(),
+	// which is dead code) pointing at whatever scenario last ran on that thread, so the skip
+	// message was misattributed to an unrelated scenario's report entry.
+	@Before(order = 0)
+	public void createExtentTestForScenario(Scenario scenario) {
+		String browser = BaseTestUtil.getBrowserForScenario(scenario);
+		String lang = BaseTestUtil.getThreadLocalLanguage();
+		ExtentReportManager.createTest(scenario.getName() + " [" + browser + " | " + lang + "]");
+		ExtentReportManager
+				.logStep("Scenario Started: " + scenario.getName() + " | Browser: " + browser + " | Language: " + lang);
 	}
 
 	@Before(order = 2)
@@ -123,12 +149,9 @@ public class BaseTest extends AdminTestUtil {
 
 		if (runners.Runner.knownIssues.containsKey(scenario.getName())) {
 			String bugId = runners.Runner.knownIssues.get(scenario.getName());
-			String browser = BaseTestUtil.getBrowserForScenario(scenario);
-			String lang = BaseTestUtil.getThreadLocalLanguage();
-			ExtentReportManager.createTest(scenario.getName() + " [" + browser + " | " + lang + "]");
 			LOGGER.info("Skipping Known Issue Scenario: " + scenario.getName() + " | Bug: " + bugId);
 			isKnownIssueScenario.set(true);
-			throw new SkipException("Known Issue - Skipped: " + scenario.getName() + " | " + bugId);
+			skipWithReason("Known Issue - Skipped: " + scenario.getName() + " | " + bugId);
 		}
 		isKnownIssueScenario.set(false);
 
@@ -139,17 +162,14 @@ public class BaseTest extends AdminTestUtil {
 
 			for (String tag : scenario.getSourceTagNames()) {
 				if (skipTags.contains(tag)) {
-					throw new SkipException("Skipped for mosipid");
+					// scenario.getSourceTagNames() already returns tags with their leading '@'.
+					skipWithReason("Skipped for mosipid: scenario is tagged " + tag
+							+ ", which requires a mock-identity client not created under the mosipid plugin");
 				}
 			}
 		}
 
 		totalCount++;
-		String browser = BaseTestUtil.getBrowserForScenario(scenario); // Start logging for the scenario
-		String lang = BaseTestUtil.getThreadLocalLanguage();
-		ExtentReportManager.createTest(scenario.getName() + " [" + browser + " | " + lang + "]");
-		ExtentReportManager
-				.logStep("Scenario Started: " + scenario.getName() + " | Browser: " + browser + " | Language: " + lang);
 
 		try {
 			String scenarioBrowser = BaseTestUtil.getBrowserForScenario(scenario);
@@ -170,7 +190,6 @@ public class BaseTest extends AdminTestUtil {
 
 			// Browser settings
 			driver.manage().window().maximize();
-			driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10)); // Configurable if needed
 			driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));
 
 			String baseUrl = EsignetConfigManager.getproperty("eSignetbaseurl");
@@ -178,6 +197,7 @@ public class BaseTest extends AdminTestUtil {
 
 			String clientIdKey = "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$";
 			String clientAssertion = "$CLIENT_ASSERTION_PAR_JWT$";
+			boolean isParScenario = scenario.getSourceTagNames().contains(PAR_TAG);
 
 			for (String tag : scenario.getSourceTagNames()) {
 				if (CLIENT_CONFIG_MAP.containsKey(tag)) {
@@ -188,13 +208,23 @@ public class BaseTest extends AdminTestUtil {
 				}
 			}
 
-			String requestUri = EsignetUtil.generateParRequestUri(clientIdKey, clientAssertion);
+			if (isParScenario && !EsignetUtil.isParSupported()) {
+				skipWithReason("Skipped: PAR is not supported in this environment");
+			}
 
-			String clientId = AdminTestUtil.replaceIdWithAutogeneratedId(clientIdKey, "$ID:");
-
-			String updatedTemplate = template.replace("$REQUEST_URI$", requestUri).replace("$CLIENT_ID$", clientId);
-
-			String authorizeUrl = baseUrl + updatedTemplate;
+			// PAR-tagged scenarios drive a client that mandates PAR. Everything else uses the direct
+			// (non-PAR) /authorize flow - unless the environment mandates PAR for every client, in
+			// which case the direct flow would be rejected server-side and PAR is the only option.
+			String authorizeUrl;
+			if (isParScenario || EsignetUtil.isParRequired()) {
+				String requestUri = EsignetUtil.generateParRequestUri(clientIdKey, clientAssertion);
+				String clientId = AdminTestUtil.replaceIdWithAutogeneratedId(clientIdKey, "$ID:");
+				String updatedTemplate = template.replace("$REQUEST_URI$", requestUri).replace("$CLIENT_ID$", clientId);
+				authorizeUrl = baseUrl + updatedTemplate;
+			} else {
+				String clientId = AdminTestUtil.replaceIdWithAutogeneratedId(clientIdKey, "$ID:");
+				authorizeUrl = EsignetUtil.generateDirectAuthorizeUrl(clientId);
+			}
 
 			LOGGER.info("Authorize URL: " + authorizeUrl);
 
@@ -203,6 +233,11 @@ public class BaseTest extends AdminTestUtil {
 
 			LOGGER.info("Navigated to URL: " + authorizeUrl);
 
+		} catch (SkipException e) {
+			// skipWithReason() (e.g. the PAR-not-supported check above) throws this from inside the
+			// try block - let it propagate as a skip instead of falling into the generic handler
+			// below, which would misreport it as a WebDriver setup failure.
+			throw e;
 		} catch (Exception e) {
 			LOGGER.error("Failed to initialize WebDriver: " + e.getMessage());
 			ExtentReportManager.getTest().fail("❌ WebDriver setup failed: " + e.getMessage());
@@ -366,6 +401,24 @@ public class BaseTest extends AdminTestUtil {
 				LOGGER.error("Error stopping BrowserStack Local", e);
 			}
 		}
+	}
+
+	@Before(value = "@registrationProcess", order = 1)
+	public void skipRegistrationIfSignupServiceNotDeployed(Scenario scenario) {
+		if (!EsignetUtil.isSignupServiceDeployed()) {
+			skipWithReason("Signup service is not deployed in this environment - skipping end-to-end registration flow");
+		}
+	}
+
+	// SkipException's message alone never reaches the Extent report - only a generic
+	// "Scenario Skipped: <name>" line gets logged in afterScenario(). Log the reason as its own
+	// report entry before throwing, so every skip path (known-issue, mosipid purpose-tag,
+	// PAR-not-supported, @registrationProcess, etc.) is as visible in the report as a pass/fail.
+	// createExtentTestForScenario (order 0) guarantees an ExtentTest already exists by the time any
+	// of these run.
+	private void skipWithReason(String reason) {
+		ExtentReportManager.getTest().warning(reason);
+		throw new SkipException(reason);
 	}
 
 	@Before(value = "@mobile", order = 1)

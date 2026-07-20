@@ -25,7 +25,7 @@ public class MultiLanguagePage extends BasePage {
 
     public void clickOnLanguage() {
         String langCode = BaseTestUtil.getThreadLocalLanguage();
-        WebElement language = driver.findElement(By.xpath("//div[text()='" + LanguageUtil.getDisplayName(langCode) +"']"));
+        WebElement language = waitForElementVisible(By.xpath("//div[text()='" + LanguageUtil.getDisplayName(langCode) +"']"));
         clickOnElement(language,"Selected the given language");
     }
 

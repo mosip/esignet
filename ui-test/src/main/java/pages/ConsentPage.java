@@ -6,16 +6,22 @@ import java.util.List;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import base.BasePage;
 import utils.ClaimsUtil;
 
 public class ConsentPage extends BasePage {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(ConsentPage.class);
 
 	public ConsentPage(WebDriver driver) {
 		super(driver);
@@ -184,6 +190,7 @@ public class ConsentPage extends BasePage {
 	}
 
 	public void enterRegisteredMobileNumber(String number) {
+		waitForElementVisible(mobileNumberField);
 		mobileNumberField.clear();
 		enterText(mobileNumberField, number, "Entered registered mobile number");
 	}
@@ -193,10 +200,12 @@ public class ConsentPage extends BasePage {
 	}
 
 	public String getCurrentLanguage() {
+		waitForElementVisible(languageSelection);
 		return languageSelection.getText().trim();
 	}
 
 	public void enterOtp(String otp) {
+		waitForElementVisible(By.xpath("//div[@class='pincode-input-container']/input"));
 		if (otp.length() > otpInputFields.size()) {
 			throw new IllegalArgumentException(
 					"OTP length " + otp.length() + " exceeds rendered inputs " + otpInputFields.size());
@@ -218,6 +227,7 @@ public class ConsentPage extends BasePage {
 	}
 
 	public boolean isOnAttentionScreen() {
+		waitForElementVisible(proceedToAttentionScreen);
 		return proceedToAttentionScreen.isDisplayed();
 	}
 
@@ -226,7 +236,7 @@ public class ConsentPage extends BasePage {
 	}
 
 	public void clickOnProceedButton() {
-		clickOnElement(proceedButton, "Clicked on proceed button");
+		clickWhenClickable(proceedButton);
 	}
 
 	public void clickOnMockIdentifyVerifier() {
@@ -234,10 +244,11 @@ public class ConsentPage extends BasePage {
 	}
 
 	public void clickOnProceedButtonInServiceProviderPage() {
-		clickOnElement(proceedButtonInServiceProviderPage, "clicked on proceed button in ekyc screen");
+		clickWhenClickable(proceedButtonInServiceProviderPage);
 	}
 
 	public void checkTermsAndCondition() {
+		waitForElementVisible(termsAndConditionCheckBox);
 		if (!termsAndConditionCheckBox.isSelected()) {
 			clickOnElement(termsAndConditionCheckBox, "Selected the terms and condition checkbox");
 		}
@@ -251,16 +262,36 @@ public class ConsentPage extends BasePage {
 		clickWhenClickable(proceedBtnInCameraPreviewPage);
 	}
 
+	/**
+	 * Waits for eKYC identity verification to finish. Signup polls its status endpoint for up to
+	 * 200s by design (mosip.signup.status.request.limit=10 x status.request.delay=20s), so the
+	 * timeout must outlast that budget rather than cutting the app off mid-poll. Rather than always
+	 * burning the full timeout, this resolves as soon as either outcome is reached: the eSignet
+	 * consent screen (success), or one of signup's failure paths (fails fast with the reason).
+	 */
 	public void waitUntilLivenessCheckCompletes() {
-		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(120));
-		wait.until(ExpectedConditions.visibilityOf(allowButtonInConsentScreen));
-	}
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(240));
+		wait.pollingEvery(Duration.ofSeconds(2));
+		wait.ignoring(NoSuchElementException.class, StaleElementReferenceException.class);
 
-	private void clickWhenClickable(WebElement element) {
-		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
-		WebElement stableElement = wait
-				.until(ExpectedConditions.refreshed(ExpectedConditions.elementToBeClickable(element)));
-		stableElement.click();
+		wait.until(driverInstance -> {
+			// Signup's "Verification Unsuccessful!" screen - this button renders only on failure.
+			List<WebElement> verificationFailed = driverInstance.findElements(By.id("success-continue-button"));
+			if (!verificationFailed.isEmpty() && verificationFailed.get(0).isDisplayed()) {
+				throw new IllegalStateException("eKYC identity verification failed: signup reported "
+						+ "'Verification Unsuccessful!' on the identity verification status screen");
+			}
+
+			// Signup's other failure paths redirect back to eSignet carrying an error query param.
+			String currentUrl = driverInstance.getCurrentUrl();
+			if (currentUrl != null && currentUrl.contains("error=")) {
+				throw new IllegalStateException(
+						"eKYC identity verification failed; redirected back with error: " + currentUrl);
+			}
+
+			List<WebElement> consentAllowButton = driverInstance.findElements(By.id("continue"));
+			return !consentAllowButton.isEmpty() && consentAllowButton.get(0).isDisplayed();
+		});
 	}
 
 	public boolean isConsentScreenVisible() {
@@ -281,6 +312,7 @@ public class ConsentPage extends BasePage {
 	}
 
 	public void enableVoluntaryClaimsMasterToggle() {
+		waitForElementVisible(voluntaryClaimsMasterToggle);
 		if (!voluntaryClaimsMasterToggle.isSelected()) {
 			clickOnElement(voluntaryClaimsMasterToggle, "Enabled the voluntary claims master toggle button");
 		}
@@ -291,6 +323,7 @@ public class ConsentPage extends BasePage {
 	}
 
 	public boolean isVoluntaryClaimsMasterToggleSelected() {
+		waitForElementVisible(voluntaryClaimsMasterToggle);
 		return voluntaryClaimsMasterCheckbox.isSelected();
 	}
 
@@ -302,7 +335,7 @@ public class ConsentPage extends BasePage {
 		String normalized = ClaimsUtil.normalizeClaim(claimName);
 		By labelLocator = By.xpath("//label[@for='" + normalized + "']");
 		By inputLocator = By.id(normalized);
-		WebElement label = driver.findElement(labelLocator);
+		WebElement label = waitForElementVisible(labelLocator);
 		WebElement checkbox = driver.findElement(inputLocator);
 		if (checkbox.isSelected() != enable) {
 			label.click();
@@ -340,6 +373,10 @@ public class ConsentPage extends BasePage {
 	}
 
 	public int getConsentTimerSeconds() {
+		waitForElementVisible(consentTimer);
+		// Confirmed on both plugins: the timer always starts at 55 seconds and never crosses a
+		// minute boundary, so this intentionally reads only the seconds portion - do not "fix" this
+		// into a minutes*60+seconds calculation.
 		String timerValue = consentTimer.getText().trim();
 		String secondsPart = timerValue.split(":")[1];
 		int seconds = Integer.parseInt(secondsPart);
@@ -347,6 +384,7 @@ public class ConsentPage extends BasePage {
 	}
 
 	public String getSelectedLanguageFromDropdown() {
+		waitForElementVisible(selectedLanguageDropdown);
 		return selectedLanguageDropdown.getText().trim();
 	}
 
@@ -388,31 +426,54 @@ public class ConsentPage extends BasePage {
 		return isButtonEnabled(verifyOtpButton, "Verified otp verification button is enabled");
 	}
 
+	/**
+	 * The purpose-type scenarios assert on this button as their first step, so the /authorize page
+	 * may still be resolving oauth-details (showing its loading spinner) when this runs. Wait for
+	 * the button to render before reading its text, otherwise the check races the page load and
+	 * fails intermittently in a full suite run while passing in isolation.
+	 */
 	public boolean isLoginWithOtpDisplayed(String expectedText) {
-		return isElementDisplayed(loginWithOtpButton) && loginWithOtpButton.getText().trim().startsWith(expectedText);
+		try {
+			waitForElementVisible(loginWithOtpButton);
+		} catch (Exception e) {
+			LOGGER.warn("Login with OTP button not visible or timed out", e);
+			return false;
+		}
+		return loginWithOtpButton.getText().trim().startsWith(expectedText);
 	}
 
+	/**
+	 * These back the "no title/subtitle should be displayed" assertions. They wait for the login
+	 * page itself to render first - otherwise, on a page that is still loading, the title is
+	 * trivially absent and the assertion would pass for the wrong reason.
+	 */
 	public boolean isLoginTitleDisplayed() {
+		waitForElementVisible(loginWithOtpButton);
 		return isElementDisplayed(loginTitle);
 	}
 
 	public boolean isLoginSubTitleDisplayed() {
+		waitForElementVisible(loginWithOtpButton);
 		return isElementDisplayed(loginSubTitle);
 	}
 
 	public String getLoginTitleText() {
+		waitForElementVisible(loginTitle);
 		return loginTitle.getText().trim();
 	}
 
 	public String getLoginSubTitleText() {
+		waitForElementVisible(loginSubTitle);
 		return loginSubTitle.getText().trim();
 	}
 
 	public String getSelectPreferredModeHeaderText() {
+		waitForElementVisible(selectPreferredModeHeader);
 		return selectPreferredModeHeader.getText().trim();
 	}
 
 	public String getSelectPreferredIdHeaderText() {
+		waitForElementVisible(selectPreferredIdHeader);
 		return selectPreferredIdHeader.getText().trim();
 	}
 
