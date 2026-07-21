@@ -166,14 +166,32 @@ func (ts *ExecutorsTestSuite) TestMosipOtpExecutor_Execute() {
 		}
 	})
 
-	t.Run("service error propagates", func(t *testing.T) {
-		fake := &fakeAuthnProvider{sendOTPErr: &common.ServiceError{Code: "boom"}}
+	t.Run("client error returns ExecFailure without Go error", func(t *testing.T) {
+		svcErr := &common.ServiceError{Code: "UIN_NOT_FOUND", Type: common.ClientErrorType}
+		fake := &fakeAuthnProvider{sendOTPErr: svcErr}
+		e := NewMosipOtpExecutor(fake)
+		ctx := newNodeContext(map[string]string{"username": "bad-uin"}, nil)
+
+		resp, err := e.Execute(ctx)
+		if err != nil {
+			t.Fatalf("Execute returned Go error for client error: %v", err)
+		}
+		if resp.Status != providers.ExecFailure {
+			t.Errorf("Status = %v, want ExecFailure", resp.Status)
+		}
+		if resp.Error != svcErr {
+			t.Errorf("Error = %v, want the original ServiceError", resp.Error)
+		}
+	})
+
+	t.Run("server error propagates as Go error", func(t *testing.T) {
+		fake := &fakeAuthnProvider{sendOTPErr: &common.ServiceError{Code: "INTERNAL", Type: common.ServerErrorType}}
 		e := NewMosipOtpExecutor(fake)
 		ctx := newNodeContext(map[string]string{"username": "user-1"}, nil)
 
 		_, err := e.Execute(ctx)
 		if err == nil {
-			t.Fatal("expected error when SendOTP fails")
+			t.Fatal("expected Go error when SendOTP returns a server error")
 		}
 	})
 }

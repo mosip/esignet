@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
 	"github.com/mosip/esignet/internal/engine/shared"
@@ -99,6 +100,14 @@ func (e *mosipOtpExecutor) Execute(ctx *providers.NodeContext) (*providers.Execu
 	if serviceError != nil {
 		// username is the individual's identity number and must not be logged.
 		applog.GetLogger().Warn("failed to send OTP via MOSIP API", applog.String("errorCode", serviceError.Code))
+		// Return ExecFailure so the engine surfaces the error to the user without terminating the flow session
+		if serviceError.Type == common.ClientErrorType {
+			execResp.Status = providers.ExecFailure
+			execResp.Error = serviceError
+			return execResp, nil
+		}
+		// Genuine server-side failures (infrastructure, unexpected API errors) propagate
+		// as a Go error so the engine converts them to an HTTP 500.
 		return execResp, fmt.Errorf("failed to send OTP via MOSIP API: %s", serviceError.Code)
 	}
 
