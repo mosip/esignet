@@ -40,9 +40,13 @@ public class SignupFormDynamicFiller {
 				continue;
 			}
 
+			// id/data-field-id may be on the input/select/textarea itself, or on a wrapper
+			// element around it - match either shape rather than assuming one or the other.
 			List<WebElement> matchingElements = driver.findElements(By.xpath(
 					"//*[self::input or self::select or self::textarea][@id='" + fieldId + "' or @data-field-id='"
-							+ fieldId + "']"));
+							+ fieldId + "']"
+							+ " | //*[@id='" + fieldId + "' or @data-field-id='" + fieldId
+							+ "']//*[self::input or self::select or self::textarea]"));
 
 			if (matchingElements.isEmpty()) {
 				logger.info("No element found for fieldId: " + fieldId);

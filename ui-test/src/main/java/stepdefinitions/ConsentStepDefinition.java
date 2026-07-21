@@ -59,11 +59,15 @@ public class ConsentStepDefinition {
 		signUpPage.clickOnRegisterButton();
 	}
 
+	private String lastGeneratedIdentifier;
 	@Then("user enters mobile_number in the mobile number field")
 	public void userEnterValidMobileNumber() {
-		String mobileNumber = EsignetUtil.generateMobileNumberFromRegex();
-		RegisteredDetails.setMobileNumber(mobileNumber);
-		signUpPage.enterMobileNumber(mobileNumber);
+		String fieldId = EsignetUtil.getIdentifierFieldId();
+		String regex = EsignetUtil.getRegexForField(fieldId);
+		String value = EsignetUtil.generateValueFromRegex(regex, 9);
+		lastGeneratedIdentifier = value;
+		RegisteredDetails.setMobileNumber(value);
+		signUpPage.enterMobileNumber(value);
 	}
 
 	@Then("user clicks on the Continue button")
