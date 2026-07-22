@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -118,7 +119,7 @@ public class Runner extends AbstractTestNGCucumberTests {
 		Set<String> requestedFeatures = new HashSet<>();
 		for (String name : featureFilesToExecute.split(",")) {
 			if (!name.trim().isEmpty()) {
-				requestedFeatures.add(name.trim().toLowerCase());
+				requestedFeatures.add(name.trim().toLowerCase(Locale.ROOT));
 			}
 		}
 
@@ -131,12 +132,19 @@ public class Runner extends AbstractTestNGCucumberTests {
 			PickleWrapper pickle = (PickleWrapper) scenario[0];
 			String uri = pickle.getPickle().getUri().toString();
 			String fileName = uri.substring(Math.max(uri.lastIndexOf('/'), uri.lastIndexOf('\\')) + 1);
-			if (fileName.toLowerCase().endsWith(".feature")) {
+			if (fileName.toLowerCase(Locale.ROOT).endsWith(".feature")) {
 				fileName = fileName.substring(0, fileName.length() - ".feature".length());
 			}
-			if (requestedFeatures.contains(fileName.toLowerCase())) {
+			if (requestedFeatures.contains(fileName.toLowerCase(Locale.ROOT))) {
 				filtered.add(scenario);
 			}
+		}
+
+		if (filtered.isEmpty()) {
+			LOGGER.warning("featureFilesToExecute=" + requestedFeatures
+					+ " matched no scenarios out of " + scenarios.length
+					+ " - check for a typo/stale entry; running all scenarios instead of silently running none.");
+			return scenarios;
 		}
 
 		LOGGER.info("featureFilesToExecute=" + requestedFeatures + " selected " + filtered.size() + "/"

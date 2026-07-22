@@ -746,6 +746,9 @@ public class EsignetUtil extends AdminTestUtil {
 
 	public static String generateValueFromRegex(String regex, int exactLength) {
 		if (regex == null || regex.isEmpty()) {
+			if (exactLength > 0) {
+				throw new IllegalArgumentException("Regex is required when exactLength is specified");
+			}
 			return "defaultValue";
 		}
 
@@ -786,6 +789,10 @@ public class EsignetUtil extends AdminTestUtil {
 			sb.append(chars.charAt(random.nextInt(chars.length())));
 		}
 
+		// exactLength > 0 is only ever passed for the mobile-number field (see
+		// ConsentStepDefinition.userEnterValidMobileNumber), where the live signup form rejects a
+		// leading zero regardless of what the fetched regex literally spells out - so this is safe
+		// to apply unconditionally rather than trying to detect the constraint from the regex text.
 		if (exactLength > 0 && sb.length() > 0 && sb.charAt(0) == '0' && chars.toString().equals("0123456789")) {
 			sb.setCharAt(0, (char) ('1' + random.nextInt(9)));
 		}
