@@ -139,7 +139,7 @@ func (ts *AuthenticatorTestSuite) TestAuthenticateUser_OTP_Success() {
 
 	require.Nil(t, svcErr)
 	assert.Nil(t, claims)
-	assert.Equal(t, "kyc-token-xyz||2760459465", resultUser.AttributeToken())
+	assert.Equal(t, "kyc-token-xyz||2760459465||1234567890", resultUser.AttributeToken())
 	assert.Equal(t, "psut-xyz", resultUser.EntityReferenceToken())
 	assert.Equal(t, "111111", gotBody["otp"])
 	assert.Equal(t, "2760459465", gotBody["individualId"])
@@ -336,7 +336,7 @@ func (ts *AuthenticatorTestSuite) TestGetUserAttributes_Success() {
 	require.NoError(t, err)
 
 	var authUser providers.AuthUser
-	authUser.SetAttributeToken("kyc-token-xyz||2760459465")
+	authUser.SetAttributeToken("kyc-token-xyz||2760459465||1234567890")
 
 	_, attrs, svcErr := provider.GetUserAttributes(context.Background(), newRequestedAttributes("name"), newGetAttributesMetadata(), authUser)
 
