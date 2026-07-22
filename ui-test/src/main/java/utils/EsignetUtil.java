@@ -741,7 +741,14 @@ public class EsignetUtil extends AdminTestUtil {
 	}
 
 	public static String generateValueFromRegex(String regex) {
+		return generateValueFromRegex(regex, -1);
+	}
+
+	public static String generateValueFromRegex(String regex, int exactLength) {
 		if (regex == null || regex.isEmpty()) {
+			if (exactLength > 0) {
+				throw new IllegalArgumentException("Regex is required when exactLength is specified");
+			}
 			return "defaultValue";
 		}
 
@@ -760,7 +767,9 @@ public class EsignetUtil extends AdminTestUtil {
 		}
 
 		int min = 8, max = 8;
-		if (regex.contains("{") && regex.contains("}")) {
+		if (exactLength > 0) {
+			min = max = exactLength;
+		} else if (regex.contains("{") && regex.contains("}")) {
 			String range = regex.substring(regex.indexOf('{') + 1, regex.indexOf('}'));
 			String[] parts = range.split(",");
 			try {
@@ -778,6 +787,14 @@ public class EsignetUtil extends AdminTestUtil {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < length; i++) {
 			sb.append(chars.charAt(random.nextInt(chars.length())));
+		}
+
+		// exactLength > 0 is only ever passed for the mobile-number field (see
+		// ConsentStepDefinition.userEnterValidMobileNumber), where the live signup form rejects a
+		// leading zero regardless of what the fetched regex literally spells out - so this is safe
+		// to apply unconditionally rather than trying to detect the constraint from the regex text.
+		if (exactLength > 0 && sb.length() > 0 && sb.charAt(0) == '0' && chars.toString().equals("0123456789")) {
+			sb.setCharAt(0, (char) ('1' + random.nextInt(9)));
 		}
 
 		return sb.toString();
@@ -1504,5 +1521,10 @@ public class EsignetUtil extends AdminTestUtil {
 
 	public void extractAndStoreMockIdentityDetails(String testCaseName, String requestBody) {
 		extractAndStoreIdentityDetailsFromRequest(testCaseName, requestBody);
+	}
+
+	public static String getIdentifierFieldId() {
+		return getValueFromSignupActuator("applicationConfig: [classpath:/application-default.properties]",
+				"mosip.signup.identifier.name");
 	}
 }

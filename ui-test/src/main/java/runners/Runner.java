@@ -7,9 +7,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -78,7 +81,7 @@ public class Runner extends AbstractTestNGCucumberTests {
 
 		System.setProperty("dataproviderthreadcount", String.valueOf(threadCount));
 
-		Object[][] base = super.scenarios();
+		Object[][] base = filterByFeatureFiles(super.scenarios());
 		boolean runMultipleBrowsers = Boolean.parseBoolean(EsignetConfigManager.getproperty("runMultipleBrowsers"));
 		List<String> browsers = BaseTestUtil.getSupportedLocalBrowsers();
 
@@ -103,6 +106,51 @@ public class Runner extends AbstractTestNGCucumberTests {
 		System.setProperty("testng.threadcount", String.valueOf(EsignetConfigManager.getproperty("threadCount")));
 
 		return fallback.toArray(new Object[0][]);
+	}
+
+	// featureFilesToExecute (config.properties) is a comma-separated list of feature file names
+	// (without .feature extension); empty/unset means run every discovered scenario.
+	private static Object[][] filterByFeatureFiles(Object[][] scenarios) {
+		String featureFilesToExecute = EsignetConfigManager.getproperty("featureFilesToExecute");
+		if (featureFilesToExecute == null || featureFilesToExecute.trim().isEmpty()) {
+			return scenarios;
+		}
+
+		Set<String> requestedFeatures = new HashSet<>();
+		for (String name : featureFilesToExecute.split(",")) {
+			if (!name.trim().isEmpty()) {
+				requestedFeatures.add(name.trim().toLowerCase(Locale.ROOT));
+			}
+		}
+
+		if (requestedFeatures.isEmpty()) {
+			return scenarios;
+		}
+
+		List<Object[]> filtered = new ArrayList<>();
+		for (Object[] scenario : scenarios) {
+			PickleWrapper pickle = (PickleWrapper) scenario[0];
+			String uri = pickle.getPickle().getUri().toString();
+			String fileName = uri.substring(Math.max(uri.lastIndexOf('/'), uri.lastIndexOf('\\')) + 1);
+			if (fileName.toLowerCase(Locale.ROOT).endsWith(".feature")) {
+				fileName = fileName.substring(0, fileName.length() - ".feature".length());
+			}
+			if (requestedFeatures.contains(fileName.toLowerCase(Locale.ROOT))) {
+				filtered.add(scenario);
+			}
+		}
+
+		if (filtered.isEmpty()) {
+			LOGGER.warning("featureFilesToExecute=" + requestedFeatures
+					+ " matched no scenarios out of " + scenarios.length
+					+ " - check for a typo/stale entry; running all scenarios instead of silently running none.");
+			return scenarios;
+		}
+
+		LOGGER.info("featureFilesToExecute=" + requestedFeatures + " selected " + filtered.size() + "/"
+				+ scenarios.length + " scenarios");
+
+		return filtered.toArray(new Object[0][]);
 	}
 
 	@Test(dataProvider = "scenarios")
