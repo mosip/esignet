@@ -163,6 +163,10 @@ func (p *mockAuthnProvider) GetUserAttributes(_ context.Context,
 	metadata *providers.GetAttributesMetadata,
 	authUser providers.AuthUser) (providers.AuthUser, *providers.AttributesResponse, *common.ServiceError) {
 
+	if requestedAttributes == nil || len(requestedAttributes.Attributes) == 0 {
+		return authUser, nil, shared.InvalidRequestError
+	}
+
 	relyingPartyID, clientID, err := p.getApplicationAndClientID(metadata.RuntimeMetadata)
 	if err != nil {
 		return authUser, nil, shared.ClientNotFoundError

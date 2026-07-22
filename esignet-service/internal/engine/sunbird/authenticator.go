@@ -123,9 +123,13 @@ func (p *sunbirdAuthnProvider) AuthenticateUser(ctx context.Context, identifiers
 }
 
 func (p *sunbirdAuthnProvider) GetUserAttributes(ctx context.Context,
-	_ *providers.RequestedAttributes,
+	requestedAttributes *providers.RequestedAttributes,
 	_ *providers.GetAttributesMetadata,
 	authUser providers.AuthUser) (providers.AuthUser, *providers.AttributesResponse, *common.ServiceError) {
+
+	if requestedAttributes == nil || len(requestedAttributes.Attributes) == 0 {
+		return authUser, nil, shared.InvalidRequestError
+	}
 
 	entityData, err := p.fetchEntityData(ctx, authUser.EntityReferenceToken().(string))
 	if err != nil {

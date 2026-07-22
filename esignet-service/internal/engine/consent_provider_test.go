@@ -15,6 +15,7 @@ import (
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
+	"github.com/mosip/esignet/internal/config"
 	"github.com/mosip/esignet/internal/consentmgmt"
 	"github.com/mosip/esignet/internal/consentmgmt/db"
 	applog "github.com/mosip/esignet/internal/log"
@@ -91,9 +92,16 @@ var testMetadata = map[string]string{
 // storeWithAuthRequest builds a fakeRuntimeStore that returns the given claims/scopes under
 // testAuthID, in the engine's stored authorization-request wire form.
 func storeWithAuthRequest(claimsRequest map[string]any, authorizeScopes []string) *fakeRuntimeStore {
+	return storeWithAuthRequestScopes(claimsRequest, authorizeScopes, nil)
+}
+
+// storeWithAuthRequestScopes is storeWithAuthRequest extended with standard OIDC scopes.
+func storeWithAuthRequestScopes(claimsRequest map[string]any, authorizeScopes,
+	standardScopes []string) *fakeRuntimeStore {
 	data, _ := json.Marshal(map[string]any{"OAuthParameters": map[string]any{
 		"ClientID":         testClientID,
 		"PermissionScopes": authorizeScopes,
+		"StandardScopes":   standardScopes,
 		"ClaimsRequest":    claimsRequest,
 	}})
 	return &fakeRuntimeStore{data: map[string][]byte{
@@ -102,8 +110,15 @@ func storeWithAuthRequest(claimsRequest map[string]any, authorizeScopes []string
 }
 
 func newProvider(q db.Querier, rs providers.RuntimeStoreProvider) *consentProvider {
+	return newProviderWithConfig(q, rs, &config.AppConfig{})
+}
+
+// newProviderWithConfig is newProvider with an explicit AppConfig, for tests that need
+// config.ScopeClaims (e.g. standard-scope-to-claim expansion) populated.
+func newProviderWithConfig(q db.Querier, rs providers.RuntimeStoreProvider, cfg *config.AppConfig) *consentProvider {
 	return &consentProvider{
 		consentSvc:   consentmgmt.NewServiceWithQuerier(q),
+		config:       cfg,
 		runtimeStore: rs,
 		logger:       applog.GetLogger(),
 	}
@@ -187,6 +202,86 @@ func TestResolveConsent_MatchingHash_SkipsPrompt(t *testing.T) {
 	}
 	if prompt != nil {
 		t.Fatalf("expected no prompt when the stored hash matches, got %#v", prompt)
+	}
+}
+
+func TestResolveConsent_AdditionalStandardScope_Reprompts(t *testing.T) {
+	cfg := &config.AppConfig{ScopeClaims: map[string][]string{"email": {"email", "email_verified"}}}
+	claimsRequest := map[string]any{"userinfo": map[string]any{}}
+	scopes := []string{"resource.read"}
+
+	// The stored consent's hash was computed for a request that carried no claim-producing standard
+	// scope (e.g. just "openid").
+	priorHash, err := requestHash(claimsRequest, scopes)
+	if err != nil {
+		t.Fatalf("compute prior hash: %v", err)
+	}
+	q := &fakeQuerier{getRow: db.ConsentDetail{
+		Hash:                sql.NullString{String: priorHash, Valid: true},
+		Claims:              `{}`,
+		AuthorizationScopes: `{}`,
+	}}
+	// The current request adds the "email" standard scope, which the ScopeClaims config expands
+	// into claims. Same explicit claims param and same authorize scopes as before.
+	rs := storeWithAuthRequestScopes(claimsRequest, scopes, []string{"openid", "email"})
+	p := newProviderWithConfig(q, rs, cfg)
+
+	prompt, svcErr := p.ResolveConsent(context.Background(), "ou1", "app1", "App One", testUserID,
+		nil, []string{"email"}, scopes, nil, false, testMetadata)
+
+	if svcErr != nil {
+		t.Fatalf("unexpected service error: %+v", svcErr)
+	}
+	if prompt == nil {
+		t.Fatal("expected a reprompt: the added standard scope expands to claims not covered by the stored consent")
+	}
+}
+
+func TestGetConsentRequestHash_SameStandardScopes_SameHash(t *testing.T) {
+	cfg := &config.AppConfig{ScopeClaims: map[string][]string{"email": {"email", "email_verified"}}}
+	p := newProviderWithConfig(&fakeQuerier{}, &fakeRuntimeStore{}, cfg)
+	req := &requestedConsent{
+		claimsRequest:   map[string]any{"userinfo": map[string]any{}},
+		authorizeScopes: []string{"resource.read"},
+		standardScopes:  []string{"openid", "email"},
+	}
+
+	h1 := p.getConsentRequestHash(context.Background(), req)
+	h2 := p.getConsentRequestHash(context.Background(), req)
+	if h1 == "" || h1 != h2 {
+		t.Fatalf("expected identical, non-empty hashes for identical requests, got %q vs %q", h1, h2)
+	}
+}
+
+func TestMergeScopeClaims_SkipsAlreadyRequestedClaim(t *testing.T) {
+	claimsRequest := map[string]any{"userinfo": map[string]any{"email": map[string]any{"essential": true}}}
+
+	merged := mergeScopeClaims(claimsRequest, []string{"email"})
+
+	userinfo, ok := merged["userinfo"].(map[string]any)
+	if !ok {
+		t.Fatalf("expected merged userinfo section, got %#v", merged["userinfo"])
+	}
+	constraint, ok := userinfo["email"].(map[string]any)
+	if !ok {
+		t.Fatalf("expected the explicit email constraint to be preserved as a map, got %#v", userinfo["email"])
+	}
+	if essential, _ := constraint["essential"].(bool); !essential {
+		t.Errorf("expected the explicit essential constraint to survive, not be overwritten by the scope-derived claim")
+	}
+}
+
+func TestMergeScopeClaims_DoesNotMutateInput(t *testing.T) {
+	original := map[string]any{"userinfo": map[string]any{"name": nil}}
+	originalUserinfo := original["userinfo"].(map[string]any)
+
+	_ = mergeScopeClaims(original, []string{"email"})
+
+	if _, ok := originalUserinfo["email"]; ok {
+		t.Fatal("mergeScopeClaims must not mutate the input claims request")
+	}
+	if len(originalUserinfo) != 1 {
+		t.Fatalf("expected the input userinfo section to be untouched, got %#v", originalUserinfo)
 	}
 }
 
