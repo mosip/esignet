@@ -83,7 +83,7 @@ func (p *mosipAuthnProvider) AuthenticateUser(_ context.Context, identifiers, cr
 		return authUser, nil, shared.InvalidIndividualIDError
 	}
 
-	transactionID, err := GenerateTransactionID(metadata.RuntimeMetadata)
+	transactionID, err := shared.GenerateTransactionID(metadata.RuntimeMetadata)
 	if err != nil {
 		return authUser, nil, shared.InvalidRequestError
 	}
@@ -192,7 +192,7 @@ func (p *mosipAuthnProvider) AuthenticateUser(_ context.Context, identifiers, cr
 		return authUser, nil, shared.AuthenticationFailedError
 	}
 
-	authUser.SetAttributeToken(strings.Join([]string{kycToken, individualID}, "||"))
+	authUser.SetAttributeToken(strings.Join([]string{kycToken, individualID, transactionID}, "||"))
 	authUser.SetEntityReferenceToken(psut)
 	return authUser, nil, nil
 }
@@ -232,13 +232,11 @@ func (p *mosipAuthnProvider) GetUserAttributes(_ context.Context,
 		return authUser, nil, nil
 	}
 
-	kycToken := strings.Split(attributeToken.(string), "||")[0] // Extract KYC token from token (assuming format "kycToken||username")
-	username := strings.Split(attributeToken.(string), "||")[1] // Extract username from token (assuming format "kycToken||username")
-
-	transactionID, err := GenerateTransactionID(metadata.RuntimeMetadata)
-	if err != nil {
-		return authUser, nil, shared.InvalidRequestError
+	tokenParts := strings.Split(attributeToken.(string), "||") // Extract KYC token, username and transaction ID from token (format "kycToken||username||transactionID")
+	if len(tokenParts) != 3 {
+		return authUser, nil, shared.AuthenticationFailedError
 	}
+	kycToken, username, transactionID := tokenParts[0], tokenParts[1], tokenParts[2]
 
 	// TODO add requested attributes to the request with value and values
 	keys := make([]string, 0, len(requestedAttributes.Attributes))
@@ -286,7 +284,7 @@ func (p *mosipAuthnProvider) SendOTP(_ context.Context, identifiers map[string]i
 		return nil, shared.ClientNotFoundError
 	}
 
-	transactionID, err := GenerateTransactionID(metadata.RuntimeMetadata)
+	transactionID, err := shared.GenerateTransactionID(metadata.RuntimeMetadata)
 	if err != nil {
 		return nil, shared.InvalidRequestError
 	}
@@ -355,24 +353,6 @@ const utcTimeFormat = "2006-01-02T15:04:05.000Z"
 func GetUTCDateTime() string {
 	// Go uses a reference time Mon Jan 2 15:04:05 MST 2006 to define the format pattern
 	return time.Now().UTC().Format(utcTimeFormat)
-}
-
-// GenerateTransactionID generates a cryptographically random 10-digit numeric string.
-func GenerateTransactionID(runtimeMetadata map[string]string) (string, error) {
-
-	if runtimeMetadata != nil && runtimeMetadata["ext_TransactionID"] != "" {
-		return runtimeMetadata["ext_TransactionID"], nil
-	}
-
-	const digitCount = 10
-	b := make([]byte, digitCount)
-	if _, err := rand.Read(b); err != nil {
-		return "", err
-	}
-	for i := range b {
-		b[i] = '0' + b[i]%10
-	}
-	return string(b), nil
 }
 
 // B64EncodeBytes returns base64url-encoded string (no padding)
