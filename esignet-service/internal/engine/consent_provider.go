@@ -11,6 +11,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"maps"
 	"sort"
 	"strings"
 	"time"
@@ -58,7 +59,7 @@ func NewConsentProvider(consentSvc *consentmgmt.Service, config *config.AppConfi
 }
 
 func (p *consentProvider) ResolveConsent(ctx context.Context, _, appID string, _, userID string,
-	_, _, authorizedPermissions []string,
+	essentialAttributes, optionalAttributes, authorizedPermissions []string,
 	_ *providers.AttributesResponse, forceReprompt bool,
 	runtimeMetadata map[string]string) (
 	*providers.ConsentPromptData, *common.ServiceError) {
@@ -79,7 +80,6 @@ func (p *consentProvider) ResolveConsent(ctx context.Context, _, appID string, _
 		p.logger.Error("Read auth request is nil", applog.Error(err))
 		return nil, clientError("consent_record_failed", err)
 	}
-	essentialAttributes, optionalAttributes := consentmgmt.ExtractAttributes(req.claimsRequest)
 
 	if forceReprompt {
 		p.logger.Warn("Force reprompt consent")
@@ -159,7 +159,7 @@ func (p *consentProvider) RecordConsent(ctx context.Context, _, appID, userID st
 		ID:                  uuid.NewString(),
 		ClientID:            clientID,
 		UserID:              userID,
-		Claims:              req.claimsRequest,
+		Claims:              mergeScopeClaims(req.claimsRequest, p.claimsFromScopes(req.standardScopes)),
 		AuthorizationScopes: req.authorizeScopes,
 		AcceptedClaims:      acceptedClaims,
 		PermittedScopes:     permittedScopes,
@@ -372,7 +372,8 @@ func clientError(errorCode string, err error) *common.ServiceError {
 }
 
 func (p *consentProvider) getConsentRequestHash(_ context.Context, req *requestedConsent) string {
-	hash, err := requestHash(req.claimsRequest, req.authorizeScopes)
+	effectiveClaims := mergeScopeClaims(req.claimsRequest, p.claimsFromScopes(req.standardScopes))
+	hash, err := requestHash(effectiveClaims, req.authorizeScopes)
 	if err != nil {
 		p.logger.Error("Failed to hash the claims request", applog.Error(err))
 		return ""
@@ -387,6 +388,50 @@ func requestHash(claimsRequest map[string]any, authorizeScopes []string) (string
 		consentmgmt.NormalizeClaims(claimsRequest),
 		consentmgmt.NormalizeAuthorizationScopes(authorizeScopes),
 	)
+}
+
+// claimsFromScopes flattens the claim names mapped to scopes by the configured ScopeClaims table
+// (esignet's scope_claims deployment config), deduplicated. Scopes with no mapping entry (or an
+// empty one, e.g. "openid") contribute nothing.
+func (p *consentProvider) claimsFromScopes(scopes []string) []string {
+	seen := map[string]bool{}
+	var claims []string
+	for _, scope := range scopes {
+		for _, claim := range p.config.ScopeClaims[scope] {
+			if seen[claim] {
+				continue
+			}
+			seen[claim] = true
+			claims = append(claims, claim)
+		}
+	}
+	return claims
+}
+
+// mergeScopeClaims returns a copy of claimsRequest with each name in scopeClaimNames added to the
+// userinfo section as an optional claim (nil constraint), skipping any name already present in
+// either the userinfo or id_token section. The input is never mutated: callers (e.g. the consent
+// prompt path via requestedClaims) read the original claimsRequest independently.
+func mergeScopeClaims(claimsRequest map[string]any, scopeClaimNames []string) map[string]any {
+	if len(scopeClaimNames) == 0 {
+		return claimsRequest
+	}
+
+	normalized := consentmgmt.NormalizeClaims(claimsRequest)
+	userinfo, _ := normalized["userinfo"].(map[string]any)
+
+	merged := make(map[string]any, len(claimsRequest))
+	maps.Copy(merged, claimsRequest)
+	mergedUserinfo := make(map[string]any, len(userinfo)+len(scopeClaimNames))
+	maps.Copy(mergedUserinfo, userinfo)
+	for _, name := range scopeClaimNames {
+		if _, ok := userinfo[name]; ok {
+			continue
+		}
+		mergedUserinfo[name] = nil
+	}
+	merged["userinfo"] = mergedUserinfo
+	return merged
 }
 
 // readAuthRequest reads and decodes the consent-relevant view of the authorization request
@@ -421,6 +466,7 @@ func decodeStored(data []byte) (*requestedConsent, error) {
 	return &requestedConsent{
 		claimsRequest:   raw.OAuthParameters.ClaimsRequest,
 		authorizeScopes: raw.OAuthParameters.PermissionScopes,
+		standardScopes:  raw.OAuthParameters.StandardScopes,
 		prompt:          raw.OAuthParameters.Prompt,
 	}, nil
 }
@@ -445,6 +491,10 @@ type requestedConsent struct {
 	claimsRequest map[string]any
 	// AuthorizeScopes is the set of resource/authorize scopes that require consent.
 	authorizeScopes []string
+	// standardScopes is the set of standard OIDC scopes (e.g. "profile", "email") requested; the
+	// claims they expand to (via the configured ScopeClaims mapping) are folded into the consent
+	// hash and stored consent record alongside the explicit claims request.
+	standardScopes []string
 	// Prompt is the raw OIDC prompt parameter (space-delimited values).
 	prompt string
 }

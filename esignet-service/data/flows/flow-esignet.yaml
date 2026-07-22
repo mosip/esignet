@@ -258,6 +258,7 @@ nodes:
 
   - id: prompt_acr
     type: PROMPT
+    variant: LOGIN_OPTIONS
     meta:
       components:
         - *heading_details

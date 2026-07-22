@@ -81,6 +81,14 @@ func newGetAttributesMetadata() *providers.GetAttributesMetadata {
 	}
 }
 
+func newRequestedAttributes(claims ...string) *providers.RequestedAttributes {
+	attrs := make(map[string]*providers.AttributeMetadataRequest, len(claims))
+	for _, claim := range claims {
+		attrs[claim] = &providers.AttributeMetadataRequest{}
+	}
+	return &providers.RequestedAttributes{Attributes: attrs}
+}
+
 func setMockEnv(t *testing.T, server *httptest.Server) {
 	t.Helper()
 	t.Setenv("MOSIP_ESIGNET_MOCK_KYC_AUTH_URL", server.URL+"/kyc-auth")
@@ -330,7 +338,7 @@ func (ts *AuthenticatorTestSuite) TestGetUserAttributes_Success() {
 	var authUser providers.AuthUser
 	authUser.SetAttributeToken("kyc-token-xyz||2760459465")
 
-	_, attrs, svcErr := provider.GetUserAttributes(context.Background(), nil, newGetAttributesMetadata(), authUser)
+	_, attrs, svcErr := provider.GetUserAttributes(context.Background(), newRequestedAttributes("name"), newGetAttributesMetadata(), authUser)
 
 	require.Nil(t, svcErr)
 	require.NotNil(t, attrs)
@@ -345,7 +353,7 @@ func (ts *AuthenticatorTestSuite) TestGetUserAttributes_NoAttributeToken_Returns
 	require.NoError(t, err)
 
 	var authUser providers.AuthUser
-	_, attrs, svcErr := provider.GetUserAttributes(context.Background(), nil, newGetAttributesMetadata(), authUser)
+	_, attrs, svcErr := provider.GetUserAttributes(context.Background(), newRequestedAttributes("name"), newGetAttributesMetadata(), authUser)
 
 	require.Nil(t, svcErr)
 	assert.Nil(t, attrs)
