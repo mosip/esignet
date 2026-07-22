@@ -4,11 +4,11 @@ system:
   "design.resolve.error.app_not_found": រកមិនឃើញកម្មវិធី
   "design.resolve.error.app_not_found_description": កម្មវិធីដែលមាន id ដែលបានระบុ​មិនមានស្ថិតក្នុងប្រព័ន្ធ
   "design.resolve.error.invalid_type": ទម្រង់សំណើមិនត្រឹមត្រូវ
-  "design.resolve.error.invalid_type_description": ប៉ារ៉ាម៉ែត្រ 'type' ជា query ត្រូវបានទាមទារ ហើយត្រូវតែជា 'APP' ឬ 'OU'
+  "design.resolve.error.invalid_type_description": ប៉ារ៉ាម៉ែត្រ \"type\" ជា query ត្រូវបានទាមទារ ហើយត្រូវតែជា \"APP\" ឬ \"OU\"
   "design.resolve.error.missing_id": ទម្រង់សំណើមិនត្រឹមត្រូវ
-  "design.resolve.error.missing_id_description": ប៉ារ៉ាម៉ែត្រ 'id' ជា query ត្រូវបានទាមទារ
+  "design.resolve.error.missing_id_description": ប៉ារ៉ាម៉ែត្រ \"id\" ជា query ត្រូវបានទាមទារ
   "design.resolve.error.unsupported_type": ប្រភេទ resolve មិនត្រូវបានគាំទ្រ
-  "design.resolve.error.unsupported_type_description": ប្រភេទ resolve ដែលបានระบុ​មិនទាន់ត្រូវបានគាំទ្រ។ បច្ចុប្បន្នគាំទ្រតែប្រភេទ 'APP' ប៉ុណ្ណោះ
+  "design.resolve.error.unsupported_type_description": ប្រភេទ resolve ដែលបានระบុ​មិនទាន់ត្រូវបានគាំទ្រ។ បច្ចុប្បន្នគាំទ្រតែប្រភេទ \"APP\" ប៉ុណ្ណោះ
   "error.actor_not_found": រកមិនឃើញតួអង្គ
   "error.actor_not_found_description": តួអង្គដែលបានស្នើសុំមិនមានស្ថិតក្នុងប្រព័ន្ធ
   "error.agentservice.agent_already_exists_with_client_id": Client ID ត្រូវបានប្រើប្រាស់រួចហើយ
@@ -25,7 +25,7 @@ system:
   "error.agentservice.cannot_modify_declarative_resource_description": Agent ដែលគ្រប់គ្រងតាមរយៈការប្រកាសមិនអាចកែប្រែតាម API បាន
   "error.agentservice.certificate_operation_failed": ប្រតិបត្តិការវិញ្ញាបនប័ត្របរាជ័យ
   "error.agentservice.certificate_operation_failed_description": ប្រតិបត្តិការវិញ្ញាបនប័ត្របរាជ័យដោយសារទិន្នន័យបញ្ចូលមិនត្រឹមត្រូវ
-  "error.agentservice.client_credentials_cannot_use_none_auth_description": ប្រភេទ grant client_credentials មិនអាចប្រើវិធីសាស្ត្រផ្ទៀងផ្ទាត់ 'none' បាន
+  "error.agentservice.client_credentials_cannot_use_none_auth_description": ប្រភេទ grant client_credentials មិនអាចប្រើវិធីសាស្ត្រផ្ទៀងផ្ទាត់ \"none\" បាន
   "error.agentservice.client_credentials_cannot_use_response_types_description": ប្រភេទ grant client_credentials មិនអាចប្រើជាមួយ response types បាន
   "error.agentservice.client_secret_cannot_have_certificate_description": វិធីសាស្ត្រផ្ទៀងផ្ទាត់ client_secret មិនអាចមានវិញ្ញាបនប័ត្របាន
   "error.agentservice.consent_sync_failed": ការ​ធ្វើ​សមកាលកម្ម​ការ​យល់​ព្រម​បរាជ័យ
@@ -86,8 +86,8 @@ system:
   "error.agentservice.missing_agent_id_description": Agent ID ត្រូវ​បាន​ទាម​ទារ
   "error.agentservice.multiple_oauth_configs": OAuth inbound auth config ច្រើន​មិន​ត្រូវ​បាន​អនុញ្ញាត
   "error.agentservice.multiple_oauth_configs_description": អង្គ​ភាព​មួយ​អាច​មាន​ inbound auth config តែ​មួយ​ក្នុង​មួយ​ protocol
-  "error.agentservice.none_auth_method_cannot_have_cert_or_secret_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ 'none' មិន​អាច​មាន​វិញ្ញាបន​ប័ត្រ ឬ​ client secret បាន
-  "error.agentservice.none_auth_method_requires_public_client_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ 'none' ទាម​ទារ​ឱ្យ client ជា public client
+  "error.agentservice.none_auth_method_cannot_have_cert_or_secret_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ \"none\" មិន​អាច​មាន​វិញ្ញាបន​ប័ត្រ ឬ​ client secret បាន
+  "error.agentservice.none_auth_method_requires_public_client_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ \"none\" ទាម​ទារ​ឱ្យ client ជា public client
   "error.agentservice.organization_unit_not_found": រក​មិន​ឃើញ​អង្គ​ភាព​អង្គការ
   "error.agentservice.organization_unit_not_found_description": អង្គ​ភាព​អង្គការ​ដែល​បាន​ระบុ​មិន​មាន​ស្ថិត​ក្នុង​ប្រព័ន្ធ
   "error.agentservice.owner_not_found": រក​មិន​ឃើញ​ម្ចាស់
@@ -96,7 +96,7 @@ system:
   "error.agentservice.private_key_jwt_cannot_have_client_secret_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ private_key_jwt មិន​អាច​មាន client secret បាន
   "error.agentservice.private_key_jwt_requires_certificate_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ private_key_jwt ទាម​ទារ​វិញ្ញាបន​ប័ត្រ
   "error.agentservice.public_client_must_have_pkce_description": Public client ត្រូវ​តែ​មាន PKCE ដែល​ត្រូវ​បាន​ដំ​ណើរ​ការ​ដែល​ស្មើ​នឹង true
-  "error.agentservice.public_client_must_use_none_auth_description": Public client ត្រូវ​តែ​ប្រើ 'none' ជា​វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ token endpoint
+  "error.agentservice.public_client_must_use_none_auth_description": Public client ត្រូវ​តែ​ប្រើ \"none\" ជា​វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ token endpoint
   "error.agentservice.redirect_uri_fragment_not_allowed_description": redirect URI មិន​ត្រូវ​មាន​ fragment component
   "error.agentservice.refresh_token_cannot_be_sole_grant_description": ប្រភេទ grant refresh_token មិន​អាច​ប្រើ​បាន​ដោយ​គ្មាន​ប្រភេទ grant ផ្សេង​ទៀត
   "error.agentservice.response_types_require_authorization_code_description": Response type អាច​ត្រូវ​បាន​កំ​ណត់​ត្រឹម​តែ​ជា​មួយ​ប្រភេទ grant authorization_code ប៉ុណ្ណោះ
@@ -130,7 +130,7 @@ system:
   "error.applicationservice.cannot_modify_declarative_resource_description": កម្ម​វិធី​ត្រូវ​បាន​ប្រកាស ហើយ​មិន​អាច​កែ​ប្រែ ឬ​លុប​បាន
   "error.applicationservice.certificate_operation_failed": ប្រតិ​បត្តិ​ការ​វិញ្ញាបន​ប័ត្រ​បរាជ័យ
   "error.applicationservice.certificate_operation_failed_description": មាន​កំ​ហុស​កើត​ឡើង​ខណៈ​ពេល​ដំ​ណើរ​ការ​វិញ្ញាបន​ប័ត្រ​របស់​កម្ម​វិធី
-  "error.applicationservice.client_credentials_cannot_use_none_auth_description": ប្រភេទ grant client_credentials មិន​អាច​ប្រើ​វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ 'none' បាន
+  "error.applicationservice.client_credentials_cannot_use_none_auth_description": ប្រភេទ grant client_credentials មិន​អាច​ប្រើ​វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ \"none\" បាន
   "error.applicationservice.client_credentials_cannot_use_response_types_description": ប្រភេទ grant client_credentials មិន​អាច​ប្រើ​ជា​មួយ response types បាន
   "error.applicationservice.client_secret_cannot_have_certificate_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ client_secret មិន​អាច​មាន​វិញ្ញាបន​ប័ត្រ​បាន
   "error.applicationservice.consent_service_not_enabled": សេវា​ការ​យល់​ព្រម​មិន​ត្រូវ​បាន​ដំ​ណើរ​ការ
@@ -170,7 +170,7 @@ system:
   "error.applicationservice.invalid_jwks_uri": JWKS URI មិន​ត្រឹម​ត្រូវ
   "error.applicationservice.invalid_jwks_uri_description": JWKS URI ដែល​បាន​ផ្ដល់​ជូន​មិន​មែន​ជា URI ត្រឹម​ត្រូវ
   "error.applicationservice.invalid_jwks_uri_scheme": គ្រោង JWKS URI មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_jwks_uri_scheme_description": 'jwks_uri' ត្រូវ​តែ​ប្រើ​គ្រោង HTTPS
+  "error.applicationservice.invalid_jwks_uri_scheme_description": "\"jwks_uri\" ត្រូវ​តែ​ប្រើ​គ្រោង HTTPS"
   "error.applicationservice.invalid_logo_url": URL រូប​សញ្ញា​មិន​ត្រឹម​ត្រូវ
   "error.applicationservice.invalid_logo_url_description": URL រូប​សញ្ញា​ដែល​បាន​ផ្ដល់​ជូន​មិន​មែន​ជា URI ត្រឹម​ត្រូវ
   "error.applicationservice.invalid_oauth_configuration": ការ​កំ​ណត់ OAuth មិន​ត្រឹម​ត្រូវ
@@ -197,13 +197,13 @@ system:
   "error.applicationservice.layout_not_found_description": ការ​កំ​ណត់ layout ដែល​បាន​ระบุ​មិន​មាន​ស្ថិត​ក្នុង​ប្រព័ន្ធ
   "error.applicationservice.multiple_oauth_configs": OAuth inbound auth config ច្រើន​មិន​ត្រូវ​បាន​អនុញ្ញាត
   "error.applicationservice.multiple_oauth_configs_description": កម្ម​វិធី​មួយ​អាច​មាន inbound auth config តែ​មួយ​ក្នុង​មួយ protocol
-  "error.applicationservice.none_auth_method_cannot_have_cert_or_secret_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ 'none' មិន​អាច​មាន​វិញ្ញាបន​ប័ត្រ ​ឬ client secret បាន
-  "error.applicationservice.none_auth_method_requires_public_client_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ 'none' ទាម​ទារ​ឱ្យ client ជា public client
+  "error.applicationservice.none_auth_method_cannot_have_cert_or_secret_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ \"none\" មិន​អាច​មាន​វិញ្ញាបន​ប័ត្រ ​ឬ client secret បាន
+  "error.applicationservice.none_auth_method_requires_public_client_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ \"none\" ទាម​ទារ​ឱ្យ client ជា public client
   "error.applicationservice.pkce_requires_authorization_code_description": PKCE អាច​ធ្វើ​ឱ្យ​ដំ​ណើរ​ការ​បាន​តែ​នៅ​ពេល​ជ្រើស​រើស​ប្រភេទ grant authorization_code
   "error.applicationservice.private_key_jwt_cannot_have_client_secret_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ private_key_jwt មិន​អាច​មាន client secret បាន
   "error.applicationservice.private_key_jwt_requires_certificate_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ private_key_jwt ទាម​ទារ​វិញ្ញាបន​ប័ត្រ
   "error.applicationservice.public_client_must_have_pkce_description": Public client ត្រូវ​តែ​មាន PKCE ដែល​ត្រូវ​បាន​ដំ​ណើរ​ការ​ស្មើ​នឹង true
-  "error.applicationservice.public_client_must_use_none_auth_description": Public client ត្រូវ​តែ​ប្រើ 'none' ជា​វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ token endpoint
+  "error.applicationservice.public_client_must_use_none_auth_description": Public client ត្រូវ​តែ​ប្រើ \"none\" ជា​វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ token endpoint
   "error.applicationservice.redirect_uri_fragment_not_allowed_description": redirect URI មិន​ត្រូវ​មាន fragment component
   "error.applicationservice.refresh_token_cannot_be_sole_grant_description": ប្រភេទ grant refresh_token មិន​អាច​ប្រើ​បាន​ដោយ​គ្មាន​ប្រភេទ grant ផ្សេង​ទៀត
   "error.applicationservice.response_types_require_authorization_code_description": Response type អាច​ត្រូវ​បាន​កំ​ណត់​ត្រឹម​តែ​ជា​មួយ​ប្រភេទ grant authorization_code ប៉ុណ្ណោះ
@@ -334,7 +334,7 @@ system:
   "error.authoauthservice.invalid_token_response_description": ការឆ្លើយតបថូខឹនដែលបានទទួលពីអ្នកផ្តល់អត្តសញ្ញាណគឺមិនត្រឹមត្រូវ
   "error.authoidcservice.invalid_id_token": ថូខឹន ID មិនត្រឹមត្រូវ
   "error.authoidcservice.invalid_id_token_description": ថូខឹន ID មិនត្រឹមត្រូវ ឬមានទ្រង់ទ្រាយខុស
-  "error.authoidcservice.invalid_id_token_signature":ữ署ហត្ថលេខាថូខឹន ID មិនត្រឹមត្រូវ
+  "error.authoidcservice.invalid_id_token_signature": ហត្ថលេខាថូខឹន ID មិនត្រឹមត្រូវ
   "error.authoidcservice.invalid_id_token_signature_description": ការផ្ទៀងផ្ទាត់ហត្ថលេខាថូខឹន ID បានបរាជ័យ
   "error.authzen.invalid_action": សកម្មភាពមិនត្រឹមត្រូវ
   "error.authzen.invalid_action_description": ឈ្មោះសកម្មភាពមិនត្រូវបានចុះឈ្មោះនៅលើម៉ាស៊ីនបម្រើធនធាន
@@ -429,7 +429,7 @@ system:
   "error.dcr.invalid_request_format": ទ្រង់ទ្រាយសំណើមិនត្រឹមត្រូវ
   "error.dcr.invalid_request_format_description": តួនៃសំណើបាត់ ឬមានទ្រង់ទ្រាយមិនត្រឹមត្រូវ
   "error.dcr.jwks_configuration_conflict": ជម្លោះការកំណត់ JWKS
-  "error.dcr.jwks_configuration_conflict_description": មិនអាចបញ្ជាក់ទាំងប៉ារ៉ាម៉ែត្រ 'jwks' និង 'jwks_uri' ក្នុងពេលតែមួយ
+  "error.dcr.jwks_configuration_conflict_description": មិនអាចបញ្ជាក់ទាំងប៉ារ៉ាម៉ែត្រ \"jwks\" និង \"jwks_uri\" ក្នុងពេលតែមួយ
   "error.dcr.server_error": កំហុសម៉ាស៊ីនបម្រើ
   "error.dcr.server_error_description": កំហុសដែលមិនបានរំពឹងទុកបានកើតឡើងក្នុងពេលដំណើរការសំណើ
   "error.dcr.unauthorized": គ្មានការអនុញ្ញាត
@@ -528,11 +528,11 @@ system:
   "error.flowmetaservice.application_not_found_description": កម្មវិធីដែលបានបញ្ជាក់មិនមានស្រាប់
   "error.flowmetaservice.internal_server_error": កំហុសម៉ាស៊ីនបម្រើខាងក្នុង
   "error.flowmetaservice.invalid_request": សំណើមិនត្រឹមត្រូវ
-  "error.flowmetaservice.invalid_type_description": ប៉ារ៉ាម៉ែត្រ 'type' ត្រូវតែជា 'APP' ឬ 'OU'
-  "error.flowmetaservice.missing_id_description": ប៉ារ៉ាម៉ែត្រសំណួរ 'id' ត្រូវការ
+  "error.flowmetaservice.invalid_type_description": ប៉ារ៉ាម៉ែត្រ \"type\" ត្រូវតែជា \"APP\" ឬ \"OU\"
+  "error.flowmetaservice.missing_id_description": ប៉ារ៉ាម៉ែត្រសំណួរ \"id\" ត្រូវការ
   "error.flowmetaservice.missing_id_parameter": ខ្វះប៉ារ៉ាម៉ែត្រដែលតម្រូវ
   "error.flowmetaservice.missing_required_parameter": ខ្វះប៉ារ៉ាម៉ែត្រដែលតម្រូវ
-  "error.flowmetaservice.missing_type_description": ប៉ារ៉ាម៉ែត្រសំណួរ 'type' ត្រូវការ
+  "error.flowmetaservice.missing_type_description": ប៉ារ៉ាម៉ែត្រសំណួរ \"type\" ត្រូវការ
   "error.flowmetaservice.ou_fetch_failed": កំហុសម៉ាស៊ីនបម្រើខាងក្នុង
   "error.flowmetaservice.ou_fetch_failed_description": បរាជ័យក្នុងការទាញយកព័ត៌មានឯកតារៀបចំ
   "error.flowmetaservice.ou_not_found": រកមិនឃើញធនធាន
@@ -600,7 +600,7 @@ system:
   "error.groupservice.invalid_member_id": លេខសម្គាល់សមាជិកមិនត្រឹមត្រូវ
   "error.groupservice.invalid_member_id_description": លេខសម្គាល់សមាជិកអ្នកប្រើប្រាស់ ឬកម្មវិធីមួយ ឬច្រើននៅក្នុងសំណើមិនមាន ឬមិនត្រូវនឹងប្រភេទដែលបានអះអាង
   "error.groupservice.invalid_member_type": ប្រភេទសមាជិកមិនត្រឹមត្រូវ
-  "error.groupservice.invalid_member_type_description": ប្រភេទសមាជិកត្រូវតែជា 'user', 'group', ឬ 'app'
+  "error.groupservice.invalid_member_type_description": ប្រភេទសមាជិកត្រូវតែជា \"user\", \"group\", ឬ \"APP\"
   "error.groupservice.invalid_offset_parameter": ប៉ារ៉ាម៉ែត្រ offset មិនត្រឹមត្រូវ
   "error.groupservice.invalid_offset_parameter_description": ប៉ារ៉ាម៉ែត្រ offset ត្រូវតែជាចំនួនគត់មិនអវិជ្ជមាន
   "error.groupservice.invalid_ou_id": លេខសម្គាល់ OU មិនត្រឹមត្រូវ
@@ -868,7 +868,7 @@ system:
   "error.roleservice.empty_assignments_list": បញ្ជីការចាត់តាំងទទេ
   "error.roleservice.empty_assignments_list_description": ត្រូវតែផ្តល់ការចាត់តាំងយ៉ាងតិចមួយ
   "error.roleservice.invalid_assignee_type": ប្រភេទអ្នកទទួលការចាត់តាំងមិនត្រឹមត្រូវ
-  "error.roleservice.invalid_assignee_type_description": ប៉ារ៉ាម៉ែត្រប្រភេទត្រូវតែជា 'user', 'group', ឬ 'app'
+  "error.roleservice.invalid_assignee_type_description": ប៉ារ៉ាម៉ែត្រប្រភេទត្រូវតែជា \"user\", \"group\", ឬ \"APP\"
   "error.roleservice.invalid_assignment_id": លេខសម្គាល់ការចាត់តាំងមិនត្រឹមត្រូវ
   "error.roleservice.invalid_assignment_id_description": លេខសម្គាល់ការចាត់តាំងមួយ ឬច្រើននៅក្នុងសំណើមិនមាន ឬមិនត្រូវនឹងប្រភេទដែលបានអះអាង
   "error.roleservice.invalid_limit_parameter": ប៉ារ៉ាម៉ែត្រ limit មិនត្រឹមត្រូវ
