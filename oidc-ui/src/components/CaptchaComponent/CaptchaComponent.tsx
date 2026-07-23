@@ -39,7 +39,7 @@ export default function CaptchaComponent({
   };
 
   /**
-   * Reset the captcha values as soon as it encoutered error
+   * Reset the captcha values as soon as it encountered error
    */
   const handleError = () => {
     context.onInputChange(fieldRef, "");
@@ -56,14 +56,12 @@ export default function CaptchaComponent({
 
   if (provider === "google-recaptcha") {
     providerElement = <GoogleReCaptcha {...captchaProps} />;
-  }
-
-  if (provider === "cloudflare-turnstile") {
+  } else if (provider === "cloudflare-turnstile") {
     providerElement = <CloudflareTurnstile {...captchaProps} />;
-  }
-
-  if (provider === "hcaptcha") {
+  } else if (provider === "hcaptcha") {
     providerElement = <HCaptcha {...captchaProps} />;
+  } else {
+    console.warn("Captcha provider is incorrect. Please provide a valid one.");
   }
 
   return (
