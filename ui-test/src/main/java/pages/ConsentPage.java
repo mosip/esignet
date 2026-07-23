@@ -137,6 +137,7 @@ public class ConsentPage extends BasePage {
 
 	@FindBy(xpath = "//div[@class='inline mx-2 font-semibold my-3']")
 	WebElement selectPreferredIdHeader;
+	
 	@FindBy(xpath = "//div[@class='header my-2']")
 	WebElement headerInConsentUpdateProfileScreen;
 
@@ -352,6 +353,107 @@ public class ConsentPage extends BasePage {
 
 	public void clickOnAllowBtnInConsentScreen() {
 		clickOnElement(allowButtonInConsentScreen, "Clicked on allow button in consent screen");
+	}
+
+	public void enterVid(String vid) {
+		WebElement vidField = waitForElementVisible(By.id("Otp_vid"));
+		vidField.clear();
+		enterText(vidField, vid, "Entered vid in vid field");
+	}
+
+	public boolean isAttentionScreenDisplayedNow() {
+		List<WebElement> attentionHeaders = driver.findElements(By.id("navbar-header"));
+		return !attentionHeaders.isEmpty() && attentionHeaders.get(0).isDisplayed();
+	}
+
+	public boolean isConsentScreenDisplayedNow() {
+		List<WebElement> timers = driver.findElements(By.xpath("//p[@class='font-bold consent-timer-text']"));
+		return !timers.isEmpty() && timers.get(0).isDisplayed();
+	}
+
+	public void waitForRelyingPartyRedirect() {
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(60));
+		wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("sign-in-with-esignet")));
+	}
+
+	public void assertAuthenticationCompletedWithoutConsent() {
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(60));
+		wait.pollingEvery(Duration.ofMillis(500));
+		wait.until(driverInstance -> {
+			if (isAttentionScreenDisplayedNow()) {
+				throw new AssertionError("Attention screen was displayed when consent should be skipped");
+			}
+			if (isConsentScreenDisplayedNow()) {
+				throw new AssertionError("Consent screen was displayed when consent should be skipped");
+			}
+			String url = driverInstance.getCurrentUrl();
+			return url != null && !url.contains("/authorize") && !url.contains("esignet");
+		});
+	}
+
+	public void completeConsentFlowThroughEkyc() {
+		clickOnProceedButtonInAttentionPage();
+		clickOnProceedButton();
+		clickOnMockIdentifyVerifier();
+		clickOnProceedButtonInServiceProviderPage();
+		checkTermsAndCondition();
+		clickOnProceedButtonInTermsAndConditionPage();
+		clickOnProceedButtonInCameraPreviewPage();
+		waitUntilLivenessCheckCompletes();
+		clickOnAllowBtnInConsentScreen();
+		waitForRelyingPartyRedirect();
+	}
+
+	public void completeConsentFlowThroughEkycIfAttentionScreenIsDisplayed() {
+		if (isAttentionScreenDisplayedNow()) {
+			completeConsentFlowThroughEkyc();
+		}
+	}
+
+	public void waitUntilConsentScreenAfterAuthentication() {
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(60));
+		wait.pollingEvery(Duration.ofSeconds(1));
+		wait.ignoring(NoSuchElementException.class, StaleElementReferenceException.class);
+		wait.until(driverInstance -> {
+			String currentUrl = driverInstance.getCurrentUrl();
+			if (currentUrl != null && currentUrl.contains("error=")) {
+				throw new IllegalStateException("Authentication failed; redirected back with error: " + currentUrl);
+			}
+			return currentUrl != null && (currentUrl.contains("/consent") || isConsentScreenVisible());
+		});
+	}
+
+	public boolean isAuthorizeScopeSectionDisplayed() {
+		return !driver.findElements(By.id("authorize_scope_tooltip")).isEmpty();
+	}
+
+	public boolean isAuthorizeScopeDisplayed(String scopeName) {
+		List<WebElement> scopeToggles = driver.findElements(By.id(scopeName));
+		return !scopeToggles.isEmpty() && scopeToggles.get(0).isDisplayed();
+	}
+
+	public void toggleAuthorizeScope(String scopeName, boolean enable) {
+		WebElement toggle = driver.findElement(By.id(scopeName));
+		if (toggle.isSelected() != enable) {
+			WebElement label = driver.findElement(By.cssSelector("label[for='" + scopeName + "']"));
+			clickOnElement(label, "Toggled authorize scope " + scopeName + " to " + enable);
+		}
+	}
+
+	public boolean areClaimSectionsAbsent() {
+		return driver.findElements(By.id("essential_claims_tooltip")).isEmpty()
+				&& driver.findElements(By.id("voluntary_claims_tooltip")).isEmpty();
+	}
+
+	public void waitUntilUserProfilePage() {
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+		wait.until(driverInstance -> isUserProfilePageDisplayed());
+		LOGGER.info("Navigated to user profile page: {}", driver.getCurrentUrl());
+	}
+
+	public boolean isUserProfilePageDisplayed() {
+		String currentUrl = driver.getCurrentUrl();
+		return currentUrl != null && currentUrl.contains("userprofile") && currentUrl.contains("code=");
 	}
 
 	public boolean isLanguageDropdownDisplayed() {

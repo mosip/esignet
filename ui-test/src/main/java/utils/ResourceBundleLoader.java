@@ -33,6 +33,11 @@ public class ResourceBundleLoader {
 		return resourceBundleMap.getOrDefault(key, "!!MISSING_KEY: " + key + "!!");
 	}
 
+	public static String getByIsoCode(String isoCode, String key) {
+		Map<String, String> bundle = loadResourceBundleForIsoCode(isoCode);
+		return bundle.getOrDefault(key, "!!MISSING_KEY: " + key + "!!");
+	}
+
 	private static void loadResourceBundleJson(String currentLang) {
 		try {
 			resourceBundleMap.clear();
@@ -41,18 +46,26 @@ public class ResourceBundleLoader {
 				logger.warn("No ISO mapping found for language: " + currentLang + ", falling back to: " + currentLang);
 				twoLetterCode = currentLang;
 			}
-			String url = EsignetConfigManager.getproperty("eSignetbaseurl") + "/locales/" + twoLetterCode + ".json";
-
-			String jsonContent = downloadJson(url);
-			Map<String, Object> nestedMap = new ObjectMapper().readValue(jsonContent, new TypeReference<>() {
-			});
-			flatten(nestedMap, "", resourceBundleMap);
-
+			resourceBundleMap.putAll(loadResourceBundleForIsoCode(twoLetterCode));
 			logger.info("Loaded resource bundle for language: " + currentLang);
-
 		} catch (Exception e) {
 			logger.error("Error loading resource bundle JSON for lang: " + currentLang, e);
 		}
+	}
+
+	private static Map<String, String> loadResourceBundleForIsoCode(String isoCode) {
+		Map<String, String> bundle = new HashMap<>();
+		try {
+			String url = EsignetConfigManager.getproperty("eSignetbaseurl") + "/locales/" + isoCode + ".json";
+			String jsonContent = downloadJson(url);
+			Map<String, Object> nestedMap = new ObjectMapper().readValue(jsonContent, new TypeReference<>() {
+			});
+			flatten(nestedMap, "", bundle);
+			logger.info("Loaded resource bundle for ISO code: " + isoCode);
+		} catch (Exception e) {
+			logger.error("Error loading resource bundle JSON for ISO code: " + isoCode, e);
+		}
+		return bundle;
 	}
 
 	private static String downloadJson(String url) throws IOException {

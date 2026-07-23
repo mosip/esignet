@@ -34,4 +34,14 @@ public class MultiLanguagePage extends BasePage {
         return (String) js.executeScript("return window.localStorage.getItem('i18nextLng');");
     }
 
+    public String getNavigatorLanguage() {
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        return (String) js.executeScript("return navigator.language || navigator.userLanguage;");
+    }
+
+    public String getDisplayedLanguageSelection() {
+        waitForElementVisible(languageSelection);
+        return languageSelection.getText().trim();
+    }
+
 }
