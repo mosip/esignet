@@ -61,7 +61,11 @@ export default function CaptchaComponent({
   } else if (provider === "hcaptcha") {
     providerElement = <HCaptcha {...captchaProps} />;
   } else {
-    console.warn("Captcha provider is incorrect. Please provide a valid one.");
+    providerElement = (
+      <span role="alert">CAPTCHA provider configuration is invalid.</span>
+    );
+    context.onInputChange(fieldRef, "");
+    context.formErrors[fieldRef] = "CAPTCHA provider configuration is invalid.";
   }
 
   return (
