@@ -22,17 +22,6 @@ import utils.ResourceBundleLoader;
 
 public class LoginOptionsPage extends BasePage {
 
-	private static final By BIOMETRIC_INTEGRATION_CONTAINER = By.id("secure-biometric-interface-integration");
-	private static final By BIOMETRIC_DEVICE_ALERT = By
-			.cssSelector("#secure-biometric-interface-integration div[role='alert']");
-	private static final By BIOMETRIC_DEVICE_RETRY_BUTTON = By.cssSelector(
-			"#secure-biometric-interface-integration button[type='button'].sbd-cursor-pointer.sbd-ml-1, "
-					+ "#secure-biometric-interface-integration div.sbd-dropdown_container + button[type='button'], "
-					+ "#secure-biometric-interface-integration div.sbd-flex button[type='button'].sbd-cursor-pointer");
-	private static final String DEVICE_NOT_FOUND_MESSAGE_KEY = "errors.no_devices_found_msg";
-	private static final String DEVICE_NOT_FOUND_PARTIAL = "device not found";
-	private static final String CONNECTIVITY_PARTIAL = "connectivity";
-
 	public LoginOptionsPage(WebDriver driver) {
 		super(driver);
 	}
@@ -135,6 +124,9 @@ public class LoginOptionsPage extends BasePage {
 
 	@FindBy(id = "sbi_vid")
 	WebElement biometricVidField;
+
+	@FindBy(id = "secure-biometric-interface-integration")
+	WebElement biometricIntegrationContainer;
 
 	public boolean isLogoDisplayed() {
 		return isElementVisible(brandLogo, "Verified is logo displayed");
@@ -322,12 +314,8 @@ public class LoginOptionsPage extends BasePage {
 	}
 
 	public boolean isBiometricIntegrationContainerDisplayed() {
-		try {
-			waitForElementVisible(BIOMETRIC_INTEGRATION_CONTAINER);
-			return true;
-		} catch (Exception e) {
-			return false;
-		}
+		return isElementVisible(biometricIntegrationContainer,
+				"Verified secure biometric interface integration container is displayed");
 	}
 
 	public boolean isBiometricVidOptionDisplayed() {
@@ -372,7 +360,11 @@ public class LoginOptionsPage extends BasePage {
 	public void clickOnBiometricDeviceScanRetryButton() {
 		int waitSeconds = getBiometricDeviceDiscoveryTimeoutSeconds();
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(waitSeconds));
-		WebElement retryButton = wait.until(ExpectedConditions.elementToBeClickable(BIOMETRIC_DEVICE_RETRY_BUTTON));
+		By retryButtonLocator = By.cssSelector(
+				"#secure-biometric-interface-integration button[type='button'].sbd-cursor-pointer.sbd-ml-1, "
+						+ "#secure-biometric-interface-integration div.sbd-dropdown_container + button[type='button'], "
+						+ "#secure-biometric-interface-integration div.sbd-flex button[type='button'].sbd-cursor-pointer");
+		WebElement retryButton = wait.until(ExpectedConditions.elementToBeClickable(retryButtonLocator));
 		clickOnElement(retryButton, "Clicked on biometric device scan retry button");
 	}
 
@@ -408,16 +400,17 @@ public class LoginOptionsPage extends BasePage {
 
 	private boolean isDeviceNotFoundMessageVisible() {
 		String containerText = getBiometricContainerText();
-		if (containerText.contains(DEVICE_NOT_FOUND_PARTIAL) && containerText.contains(CONNECTIVITY_PARTIAL)) {
+		if (containerText.contains("device not found") && containerText.contains("connectivity")) {
 			return true;
 		}
 
 		try {
-			List<WebElement> alerts = driver.findElements(BIOMETRIC_DEVICE_ALERT);
+			List<WebElement> alerts = driver.findElements(
+					By.cssSelector("#secure-biometric-interface-integration div[role='alert']"));
 			for (WebElement alert : alerts) {
 				if (alert.isDisplayed()) {
 					String alertText = normalizeMessage(safeGetText(alert));
-					if (alertText.contains(DEVICE_NOT_FOUND_PARTIAL) && alertText.contains(CONNECTIVITY_PARTIAL)) {
+					if (alertText.contains("device not found") && alertText.contains("connectivity")) {
 						return true;
 					}
 				}
@@ -426,7 +419,7 @@ public class LoginOptionsPage extends BasePage {
 			// DOM is still updating while SBI scans for devices; retry on next wait poll.
 		}
 
-		String expectedMessage = ResourceBundleLoader.get(DEVICE_NOT_FOUND_MESSAGE_KEY);
+		String expectedMessage = ResourceBundleLoader.get("errors.no_devices_found_msg");
 		return !expectedMessage.startsWith("!!MISSING_KEY:")
 				&& containerText.contains(normalizeMessage(expectedMessage));
 	}
@@ -444,11 +437,10 @@ public class LoginOptionsPage extends BasePage {
 
 	private String getBiometricContainerText() {
 		try {
-			WebElement container = driver.findElement(BIOMETRIC_INTEGRATION_CONTAINER);
-			if (!container.isDisplayed()) {
+			if (!biometricIntegrationContainer.isDisplayed()) {
 				return "";
 			}
-			return normalizeMessage(safeGetText(container));
+			return normalizeMessage(safeGetText(biometricIntegrationContainer));
 		} catch (StaleElementReferenceException e) {
 			return "";
 		}
@@ -479,7 +471,10 @@ public class LoginOptionsPage extends BasePage {
 			return true;
 		}
 
-		List<WebElement> iconRetryButtons = driver.findElements(BIOMETRIC_DEVICE_RETRY_BUTTON);
+		List<WebElement> iconRetryButtons = driver.findElements(By.cssSelector(
+				"#secure-biometric-interface-integration button[type='button'].sbd-cursor-pointer.sbd-ml-1, "
+						+ "#secure-biometric-interface-integration div.sbd-dropdown_container + button[type='button'], "
+						+ "#secure-biometric-interface-integration div.sbd-flex button[type='button'].sbd-cursor-pointer"));
 		return iconRetryButtons.stream().anyMatch(WebElement::isDisplayed);
 	}
 
