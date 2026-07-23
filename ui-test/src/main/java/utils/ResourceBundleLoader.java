@@ -3,6 +3,7 @@ package utils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -70,7 +71,10 @@ public class ResourceBundleLoader {
 
 	private static String downloadJson(String url) throws IOException {
 		URI uri = URI.create(url);
-		try (InputStream in = uri.toURL().openStream()) {
+		URLConnection connection = uri.toURL().openConnection();
+		connection.setConnectTimeout(10_000);
+		connection.setReadTimeout(10_000);
+		try (InputStream in = connection.getInputStream()) {
 			return new String(in.readAllBytes(), StandardCharsets.UTF_8);
 		}
 	}

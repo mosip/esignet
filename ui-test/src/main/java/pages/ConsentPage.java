@@ -448,7 +448,11 @@ public class ConsentPage extends BasePage {
 	public void waitUntilUserProfilePage() {
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
 		wait.until(driverInstance -> isUserProfilePageDisplayed());
-		LOGGER.info("Navigated to user profile page: {}", driver.getCurrentUrl());
+		String currentUrl = driver.getCurrentUrl();
+		String sanitizedUrl = currentUrl != null && currentUrl.contains("?")
+				? currentUrl.substring(0, currentUrl.indexOf('?'))
+				: currentUrl;
+		LOGGER.info("Navigated to user profile page: {}", sanitizedUrl);
 	}
 
 	public boolean isUserProfilePageDisplayed() {

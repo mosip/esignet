@@ -633,8 +633,8 @@ public class EsignetUtil extends AdminTestUtil {
 		return stripCountryCode(phoneNumber, schemaSource);
 	}
 
-	private static final String PERPETUAL_VID_CACHE_KEY = "Generate_Perpetual_VID_Valid_Smoke_sid_vid";
-	private static final String TEMPORARY_VID_CACHE_KEY = "Generate_Temporary_VID_Valid_Smoke_sid_vid";
+	public static final String PERPETUAL_VID_CACHE_KEY = "Generate_Perpetual_VID_Valid_Smoke_sid_vid";
+	public static final String TEMPORARY_VID_CACHE_KEY = "Generate_Temporary_VID_Valid_Smoke_sid_vid";
 
 	public static String getPrerequisitePerpetualVid() {
 		return getPrerequisiteVidFromConfigOrCache(0, PERPETUAL_VID_CACHE_KEY);

@@ -330,15 +330,17 @@ public class LoginOptionsPage extends BasePage {
 		return isElementVisible(biometricVidField, "Verified VID text field is displayed on biometric screen");
 	}
 
+	private static final String SCANNING_DEVICES_MSG_KEY = "loadingMsgs.scanning_devices_msg";
+
 	public boolean isScanningDevicesMessageDisplayed() {
-		return waitForTextWithinBiometricContainer(getScanningDevicesPartialText(), getBiometricScanningWaitSeconds());
+		return waitForLocalizedTextWithinBiometricContainer(SCANNING_DEVICES_MSG_KEY, getBiometricScanningWaitSeconds());
 	}
 
 	public boolean isRetryScanButtonNotDisplayedWhileScanning() {
 		int waitSeconds = getBiometricScanningWaitSeconds();
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(waitSeconds));
 		try {
-			wait.until(driver -> isTextVisibleWithinBiometricContainer(getScanningDevicesPartialText())
+			wait.until(driver -> isLocalizedTextVisibleWithinBiometricContainer(SCANNING_DEVICES_MSG_KEY)
 					&& !isRetryScanButtonVisible());
 			return true;
 		} catch (TimeoutException e) {
@@ -388,10 +390,10 @@ public class LoginOptionsPage extends BasePage {
 		}
 	}
 
-	private boolean waitForTextWithinBiometricContainer(String expectedMessage, int timeoutSeconds) {
+	private boolean waitForLocalizedTextWithinBiometricContainer(String resourceKey, int timeoutSeconds) {
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
 		try {
-			wait.until(driver -> isTextVisibleWithinBiometricContainer(expectedMessage));
+			wait.until(driver -> isLocalizedTextVisibleWithinBiometricContainer(resourceKey));
 			return true;
 		} catch (TimeoutException e) {
 			return false;
@@ -422,10 +424,6 @@ public class LoginOptionsPage extends BasePage {
 		String expectedMessage = ResourceBundleLoader.get("errors.no_devices_found_msg");
 		return !expectedMessage.startsWith("!!MISSING_KEY:")
 				&& containerText.contains(normalizeMessage(expectedMessage));
-	}
-
-	private String getScanningDevicesPartialText() {
-		return "scanning devices";
 	}
 
 	private boolean isTextVisibleWithinBiometricContainer(String normalizedPartialText) {
