@@ -127,7 +127,7 @@ func (p *sunbirdAuthnProvider) GetUserAttributes(ctx context.Context,
 	_ *providers.GetAttributesMetadata,
 	authUser providers.AuthUser) (providers.AuthUser, *providers.AttributesResponse, *common.ServiceError) {
 
-	if requestedAttributes == nil || len(requestedAttributes.Attributes) == 0 {
+	if requestedAttributes == nil {
 		return authUser, nil, shared.InvalidRequestError
 	}
 
