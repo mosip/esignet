@@ -9,7 +9,7 @@ CreateVID:
       outputTemplate: esignetUI/CreateVID/createVidResult
       input: '{
     "vidType": "Perpetual",
-    "UIN": "$ID:AddIdentity_withValidParameters_smoke_Pos_UIN$",
+    "UIN": "$ID:AddIdentity_Vid_Generation_smoke_Pos_UIN$",
     "version": "v1",
     "id": "mosip.vid.create",
     "requesttime": "$TIMESTAMP$"
@@ -28,7 +28,7 @@ CreateVID:
       outputTemplate: esignetUI/CreateVID/createVidResult
       input: '{
     "vidType": "Temporary",
-    "UIN": "$ID:AddIdentity_withValidParameters_smoke_Pos_UIN$",
+    "UIN": "$ID:AddIdentity_Vid_Generation_smoke_Pos_UIN$",
     "version": "v1",
     "id": "mosip.vid.create",
     "requesttime": "$TIMESTAMP$"
