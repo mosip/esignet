@@ -205,3 +205,19 @@ Feature: Esignet Consent Page
    And click on verify Otp button
    And clicks on proceed button in attention page
    Then verify user navigate to eKYC process steps screen
+
+  @smoke @AuthorizeScopeOnly @TC06
+  Scenario: TC_06 Launch authorize url without claims and with authorize scopes
+   When click on Language selection option
+   And select the mandatory language
+   And user click on Login with Otp
+   Then user enters Registered mobile number into the mobile number field
+   And user click on get otp button
+   When user enters the correct otp
+   And click on verify Otp button
+   Then user is navigated to consent screen after authentication
+   And verify authorize scopes are displayed on consent screen
+   And verify essential and voluntary claims are not displayed on consent screen
+   When user enables the authorize scope "Manage-VID"
+   And user clicks on allow button in consent screen
+   Then verify user is navigated to user profile page

@@ -92,6 +92,7 @@ public class BaseTestUtil {
 				ChromeOptions chromeOptions = new ChromeOptions();
 				chromeOptions.addArguments("--use-fake-ui-for-media-stream"); // auto allow camera
 				chromeOptions.addArguments("--use-fake-device-for-media-stream");
+				applyBrowserLocale(chromeOptions, null, null);
 
 				caps.setCapability(ChromeOptions.CAPABILITY, chromeOptions);
 			}
@@ -100,6 +101,7 @@ public class BaseTestUtil {
 				FirefoxOptions firefoxOptions = new FirefoxOptions();
 				firefoxOptions.addPreference("media.navigator.streams.fake", true);
 				firefoxOptions.addPreference("media.navigator.permission.disabled", true);
+				applyBrowserLocale(null, firefoxOptions, null);
 				caps.setCapability(FirefoxOptions.FIREFOX_OPTIONS, firefoxOptions);
 			}
 
@@ -107,6 +109,7 @@ public class BaseTestUtil {
 				EdgeOptions edgeOptions = new EdgeOptions();
 				edgeOptions.addArguments("--use-fake-ui-for-media-stream");
 				edgeOptions.addArguments("--use-fake-device-for-media-stream");
+				applyBrowserLocale(null, null, edgeOptions);
 				caps.setCapability(EdgeOptions.CAPABILITY, edgeOptions);
 			}
 
@@ -164,6 +167,7 @@ public class BaseTestUtil {
 			chromeOptions.addArguments("--use-fake-ui-for-media-stream"); // auto-allow camera
 			chromeOptions.addArguments("--use-fake-device-for-media-stream");
 			chromeOptions.addArguments("--enable-media-stream");
+			applyBrowserLocale(chromeOptions, null, null);
 
 			Map<String, Object> prefs = new HashMap<>();
 			Map<String, Object> profile = new HashMap<>();
@@ -204,6 +208,7 @@ public class BaseTestUtil {
 			FirefoxOptions firefoxOptions = new FirefoxOptions();
 			firefoxOptions.addPreference("media.navigator.streams.fake", true);
 			firefoxOptions.addPreference("media.navigator.permission.disabled", true);
+			applyBrowserLocale(null, firefoxOptions, null);
 
 			if (isHeadless)
 				firefoxOptions.addArguments("--headless");
@@ -217,6 +222,7 @@ public class BaseTestUtil {
 			edgeOptions.addArguments("--use-fake-ui-for-media-stream");
 			edgeOptions.addArguments("--use-fake-device-for-media-stream");
 			edgeOptions.addArguments("--enable-media-stream");
+			applyBrowserLocale(null, null, edgeOptions);
 
 			if (isHeadless)
 				edgeOptions.addArguments("--headless=new");
@@ -266,6 +272,24 @@ public class BaseTestUtil {
 
 	public static String getThreadLocalLanguage() {
 		return threadLocalLanguage.get();
+	}
+
+	private static void applyBrowserLocale(ChromeOptions chromeOptions, FirefoxOptions firefoxOptions,
+			EdgeOptions edgeOptions) {
+		String locale = LanguageUtil.getNeutralBrowserLocale();
+		if (locale == null || locale.isBlank()) {
+			return;
+		}
+		if (chromeOptions != null) {
+			chromeOptions.addArguments("--lang=" + locale);
+		}
+		if (firefoxOptions != null) {
+			firefoxOptions.addPreference("intl.accept_languages", locale);
+		}
+		if (edgeOptions != null) {
+			edgeOptions.addArguments("--lang=" + locale);
+		}
+		LOGGER.info("Browser locale configured to: " + locale);
 	}
 
 }

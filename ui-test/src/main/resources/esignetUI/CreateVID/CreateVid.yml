@@ -17,3 +17,22 @@ CreateVID:
       output: '{
   "vidStatus":"ACTIVE"
 }'
+
+  ESignetIdR_Generate_Temporary_VID_Valid_Smoke_sid:
+      endPoint: /idrepository/v1/vid
+      uniqueIdentifier: Dependent_Idrepo_CreateVID_02
+      description: Generate temporary VID with valid details
+      role: idrepo
+      restMethod: post
+      inputTemplate: esignetUI/CreateVID/createVid
+      outputTemplate: esignetUI/CreateVID/createVidResult
+      input: '{
+    "vidType": "Temporary",
+    "UIN": "$ID:AddIdentity_Vid_Generation_smoke_Pos_UIN$",
+    "version": "v1",
+    "id": "mosip.vid.create",
+    "requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+  "vidStatus":"ACTIVE"
+}'

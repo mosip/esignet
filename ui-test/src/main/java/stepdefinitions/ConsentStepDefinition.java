@@ -639,4 +639,70 @@ public class ConsentStepDefinition {
 	public void userClickDiscontinueButtonInWarningPopup() {
 		consentPage.clickOnDiscontinueButton();
 	}
+
+	@Then("user is navigated to consent screen after authentication")
+	public void waitUntilConsentScreenAfterAuthentication() {
+		consentPage.waitUntilConsentScreenAfterAuthentication();
+		Assert.assertTrue(consentPage.isConsentScreenVisible(), "User didn't navigated to consent screen");
+	}
+
+	@Then("verify authorize scopes are displayed on consent screen")
+	public void verifyAuthorizeScopesDisplayedOnConsentScreen() {
+		Assert.assertTrue(consentPage.isAuthorizeScopeSectionDisplayed(),
+				"Authorize scopes section is not displayed on consent screen");
+		Assert.assertTrue(consentPage.isAuthorizeScopeDisplayed("Manage-VID"),
+				"Manage-VID authorize scope is not displayed on consent screen");
+	}
+
+	@Then("verify essential and voluntary claims are not displayed on consent screen")
+	public void verifyClaimSectionsAbsentOnConsentScreen() {
+		Assert.assertTrue(consentPage.areClaimSectionsAbsent(),
+				"Essential or voluntary claims sections were displayed when only authorize scopes were requested");
+	}
+
+	@When("user enables the authorize scope {string}")
+	public void userEnablesAuthorizeScope(String scopeName) {
+		consentPage.toggleAuthorizeScope(scopeName, true);
+	}
+
+	@When("user clicks on allow button in consent screen")
+	public void userClicksAllowButtonInConsentScreen() {
+		consentPage.clickOnAllowBtnInConsentScreen();
+	}
+
+	@Then("verify user is navigated to user profile page")
+	public void verifyUserIsNavigatedToUserProfilePage() {
+		consentPage.waitUntilUserProfilePage();
+		Assert.assertTrue(consentPage.isUserProfilePageDisplayed(),
+				"User was not redirected to the Health Service user profile page with an authorization code");
+	}
+
+	@Then("user completes consent flow through eKYC and returns to relying party")
+	public void userCompletesConsentFlowThroughEkycAndReturnsToRelyingParty() {
+		requirePrerequisiteVidsForConsentRegistry();
+		Assert.assertTrue(consentPage.isOnAttentionScreen(), "User didn't navigate to attention page");
+		consentPage.completeConsentFlowThroughEkyc();
+	}
+
+	@Then("user completes consent flow through eKYC if attention screen is displayed")
+	public void userCompletesConsentFlowIfAttentionScreenIsDisplayed() {
+		requirePrerequisiteVidsForConsentRegistry();
+		consentPage.completeConsentFlowThroughEkycIfAttentionScreenIsDisplayed();
+	}
+
+	@Then("verify consent is not requested after authentication")
+	public void verifyConsentIsNotRequestedAfterAuthentication() {
+		requirePrerequisiteVidsForConsentRegistry();
+		consentPage.assertAuthenticationCompletedWithoutConsent();
+	}
+
+	private void requirePrerequisiteVidsForConsentRegistry() {
+		if (!"mosipid".equalsIgnoreCase(EsignetUtil.getPluginName())) {
+			skipWithReason("Consent registry VID flow requires mosipid plugin");
+		}
+		if (!EsignetUtil.arePrerequisiteVidsAvailable()) {
+			skipWithReason(
+					"Prerequisite perpetual and temporary VIDs are unavailable - enable CreateVID in esignetPrerequisiteSuite.xml or set vid=vid1,vid2 in config.properties");
+		}
+	}
 }
