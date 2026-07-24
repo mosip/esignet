@@ -3,6 +3,10 @@ name: PR Gate
 on:
   pull_request:
     types: [opened, reopened, synchronize]
+    # Gate only PRs targeting develop-go for now. Add branches here as each
+    # is ready to be gated (e.g. develop, release-*), or drop the filter to
+    # gate every PR.
+    branches: [ develop-go ]
 
 permissions:
   contents: read           # checkout
