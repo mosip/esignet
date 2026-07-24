@@ -218,7 +218,7 @@ func (p *mosipAuthnProvider) GetUserAttributes(_ context.Context,
 	metadata *providers.GetAttributesMetadata,
 	authUser providers.AuthUser) (providers.AuthUser, *providers.AttributesResponse, *common.ServiceError) {
 
-	if requestedAttributes == nil || len(requestedAttributes.Attributes) == 0 {
+	if requestedAttributes == nil {
 		return authUser, nil, shared.InvalidRequestError
 	}
 
@@ -243,6 +243,11 @@ func (p *mosipAuthnProvider) GetUserAttributes(_ context.Context,
 	for k := range requestedAttributes.Attributes {
 		keys = append(keys, k)
 	}
+
+	if len(keys) == 0 {
+		keys = append(keys, "sub")
+	}
+
 	responseType, ok := clientDtl.AdditionalConfig["userinfo_response_type"].(string)
 	if !ok || responseType == "" {
 		responseType = "JWS"
