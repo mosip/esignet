@@ -16,6 +16,7 @@ import (
 	"github.com/mosip/esignet/internal/clientmgmt"
 	"github.com/mosip/esignet/internal/config"
 	"github.com/mosip/esignet/internal/engine/shared"
+	applog "github.com/mosip/esignet/internal/log"
 )
 
 // newHTTPClient returns a tuned HTTP client for outbound MOSIP calls. Each
@@ -49,5 +50,6 @@ func Init(appConfig *config.AppConfig, clientSvc *clientmgmt.Service) (
 	if err != nil {
 		return nil, nil, err
 	}
+	applog.GetLogger().Info("MOSIP IDA authn provider and audit manager initialized")
 	return authnProvider, auditor, nil
 }

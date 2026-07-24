@@ -17,6 +17,7 @@ import (
 
 	"github.com/mosip/esignet/internal/config"
 	"github.com/mosip/esignet/internal/engine/shared"
+	applog "github.com/mosip/esignet/internal/log"
 )
 
 type i18nProvider struct {
@@ -35,11 +36,13 @@ func (p *i18nProvider) ResolveTranslations(
 ) (*providers.LanguageTranslationsResponse, *common.ServiceError) {
 	data, err := os.ReadFile(filepath.Join(p.cfg.DataDir, "i18n", language+".yaml"))
 	if err != nil {
+		applog.GetLogger().Warn("i18n translations file not found", applog.String("language", language), applog.Error(err))
 		return nil, shared.FileNotFoundError
 	}
 	var translations providers.LanguageTranslationsResponse
 	err = yaml.Unmarshal(data, &translations)
 	if err != nil {
+		applog.GetLogger().Warn("failed to parse i18n translations file", applog.String("language", language), applog.Error(err))
 		return nil, shared.FileUnmarshallError
 	}
 	return &translations, nil

@@ -26,7 +26,7 @@ import (
 )
 
 func newTestHandler(q db.Querier) *clientmgmt.Handler {
-	svc := clientmgmt.NewServiceWithQuerier(q)
+	svc := clientmgmt.NewServiceWithQuerier(q, nil, 0)
 	return clientmgmt.NewHandler(svc, applog.GetLogger())
 }
 
@@ -312,7 +312,7 @@ func (ts *HandlerTestSuite) TestHandler_RegisterRoutes_WithMiddleware() {
 			return stubRow(id), nil
 		},
 	}
-	svc := clientmgmt.NewServiceWithQuerier(q)
+	svc := clientmgmt.NewServiceWithQuerier(q, nil, 0)
 	h := clientmgmt.NewHandler(svc, applog.GetLogger())
 
 	var calledMiddleware bool

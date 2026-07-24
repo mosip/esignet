@@ -4,6 +4,7 @@ go 1.26
 
 require (
 	github.com/golang-jwt/jwt/v5 v5.3.1
+	github.com/google/uuid v1.6.0
 	github.com/lib/pq v1.10.9
 	github.com/redis/go-redis/v9 v9.18.0
 	github.com/stretchr/testify v1.11.1
@@ -26,7 +27,6 @@ require (
 	github.com/go-webauthn/x v0.2.6 // indirect
 	github.com/google/go-tpm v0.9.8 // indirect
 	github.com/google/jsonschema-go v0.4.3 // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/modelcontextprotocol/go-sdk v1.6.1 // indirect
 	github.com/ncruces/go-strftime v1.0.0 // indirect
@@ -53,4 +53,4 @@ require (
 	modernc.org/sqlite v1.53.0 // indirect
 )
 
-replace github.com/thunder-id/thunderid => github.com/thunder-id/thunderid/backend v0.0.0-20260713080127-2a05e9846e45
+replace github.com/thunder-id/thunderid => github.com/thunder-id/thunderid/backend v0.0.0-20260716123635-69048d6dbe5d

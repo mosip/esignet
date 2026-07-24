@@ -15,6 +15,7 @@ import (
 
 	"github.com/mosip/esignet/internal/common"
 	"github.com/mosip/esignet/internal/config"
+	applog "github.com/mosip/esignet/internal/log"
 )
 
 // ScopeMiddleware returns an http.Handler middleware that:
@@ -37,26 +38,74 @@ func ScopeMiddleware(cache *JWKSCache, config config.SecurityConfig) func(http.H
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			tokenStr, err := bearerToken(r)
 			if err != nil {
+				logger.Debug("rejected request with missing/malformed Authorization header",
+					applog.String("path", r.URL.Path), applog.Error(err))
 				common.WriteError(w, http.StatusUnauthorized, "unauthorized", err.Error())
 				return
 			}
 
 			claims, err := parseAndValidate(parser, tokenStr, cache)
 			if err != nil {
+				logger.Warn("rejected request with invalid or expired token",
+					applog.String("path", r.URL.Path), applog.Error(err))
 				common.WriteError(w, http.StatusUnauthorized, "unauthorized", "invalid or expired token")
 				return
 			}
 
-			// TODO do scope validation based on scope mapping in config.SecurityConfig.ScopeMapping
-			if !claimHasScope(claims, "test") {
+			requiredScope, ok := resolveRequiredScope(config.ScopeMapping, r.Method, r.URL.Path)
+			if !ok {
+				logger.Warn("rejected request with no configured scope mapping",
+					applog.String("path", r.URL.Path), applog.String("method", r.Method))
+				common.WriteError(w, http.StatusForbidden, "forbidden", "no scope mapping configured for this endpoint")
+				return
+			}
+			if !claimHasScope(claims, requiredScope) {
+				logger.Warn("rejected request missing required scope",
+					applog.String("path", r.URL.Path), applog.String("requiredScope", requiredScope))
 				common.WriteError(w, http.StatusForbidden, "forbidden",
-					fmt.Sprintf("token must carry scope %q", "test"))
+					fmt.Sprintf("token must carry scope %q", requiredScope))
 				return
 			}
 
 			next.ServeHTTP(w, r)
 		})
 	}
+}
+
+// resolveRequiredScope returns the scope required for method and path, as
+// configured in config.SecurityConfig.ScopeMapping. It reports false when no
+// mapping entry matches, so callers can fail closed instead of falling back
+// to an implicit default scope.
+func resolveRequiredScope(mapping []config.AuthorizationConfig, method, path string) (string, bool) {
+	for _, m := range mapping {
+		if !strings.EqualFold(m.Method, method) {
+			continue
+		}
+		if endpointMatches(m.Endpoint, path) {
+			return m.Scope, true
+		}
+	}
+	return "", false
+}
+
+// endpointMatches reports whether path matches the endpoint pattern.
+// Pattern segments of the form "{name}" match any single path segment, the
+// same placeholder syntax used to register routes on http.ServeMux.
+func endpointMatches(pattern, path string) bool {
+	patternSegs := strings.Split(strings.Trim(pattern, "/"), "/")
+	pathSegs := strings.Split(strings.Trim(path, "/"), "/")
+	if len(patternSegs) != len(pathSegs) {
+		return false
+	}
+	for i, seg := range patternSegs {
+		if strings.HasPrefix(seg, "{") && strings.HasSuffix(seg, "}") {
+			continue
+		}
+		if seg != pathSegs[i] {
+			return false
+		}
+	}
+	return true
 }
 
 func bearerToken(r *http.Request) (string, error) {

@@ -73,6 +73,7 @@ func (h *Handler) createClient(profile Profile) http.HandlerFunc {
 			return
 		}
 
+		h.logger.Debug("client created", applog.String("profile", string(profile)))
 		common.WriteJSON(w, http.StatusOK, ResponseWrapper{
 			ResponseWrapper: common.ResponseWrapper{ResponseTime: common.GetResponseTime()},
 			Response:        resp.APIResponse(),
@@ -110,6 +111,7 @@ func (h *Handler) updateClient(profile Profile) http.HandlerFunc {
 			return
 		}
 
+		h.logger.Debug("client updated", applog.String("clientId", clientID), applog.String("profile", string(profile)))
 		common.WriteJSON(w, http.StatusOK, ResponseWrapper{
 			ResponseWrapper: common.ResponseWrapper{ResponseTime: common.GetResponseTime()},
 			Response:        resp.APIResponse(),
@@ -151,6 +153,7 @@ func (h *Handler) patchClient(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	h.logger.Debug("client patched", applog.String("clientId", clientID), applog.Any("fields", fields))
 	common.WriteJSON(w, http.StatusOK, ResponseWrapper{
 		ResponseWrapper: common.ResponseWrapper{ResponseTime: common.GetResponseTime()},
 		Response:        resp.APIResponse(),
@@ -170,6 +173,7 @@ func (h *Handler) getClient(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	h.logger.Debug("client fetched", applog.String("clientId", clientID))
 	common.WriteJSON(w, http.StatusOK, ResponseWrapper{
 		ResponseWrapper: common.ResponseWrapper{ResponseTime: common.GetResponseTime()},
 		Response:        resp.APIResponse(),
@@ -180,14 +184,19 @@ func (h *Handler) handleServiceError(w http.ResponseWriter, err error, op string
 	var ve *ValidationError
 	switch {
 	case errors.As(err, &ve):
+		h.logger.Debug(op+": validation error", applog.String("code", ve.Code))
 		writeSpecError(w, ve.Code, ve.Message)
 	case errors.Is(err, ErrClientNotFound):
+		h.logger.Debug(op + ": client not found")
 		writeSpecError(w, "invalid_client_id", "client not found")
 	case errors.Is(err, ErrDuplicateClientID):
+		h.logger.Debug(op + ": duplicate client id")
 		writeSpecError(w, "duplicate_client_id", "client id already exists")
 	case errors.Is(err, ErrDuplicatePublicKey):
+		h.logger.Debug(op + ": duplicate public key")
 		writeSpecError(w, "invalid_public_key", "public key is already registered")
 	case errors.Is(err, ErrClientConflict):
+		h.logger.Debug(op + ": concurrent modification conflict")
 		writeSpecError(w, "patch_conflict", "client was modified concurrently; retry the request")
 	default:
 		h.logger.Error(op, applog.Error(err))

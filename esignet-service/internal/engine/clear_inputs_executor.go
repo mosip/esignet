@@ -64,6 +64,21 @@ func (e *clearInputsExecutor) GetUserIDFromContext(_ *providers.NodeContext, _ *
 	return ""
 }
 
+// BuildRuntimeMetadata returns nil: this utility executor never calls an authn provider.
+func (e *clearInputsExecutor) BuildRuntimeMetadata(_ *providers.NodeContext) map[string]string {
+	return nil
+}
+
+// BuildAuthnMetadata returns nil: this utility executor never calls an authn provider.
+func (e *clearInputsExecutor) BuildAuthnMetadata(_ *providers.NodeContext) *providers.AuthnMetadata {
+	return nil
+}
+
+// BuildGetAttributesMetadata returns nil: this utility executor never fetches attributes.
+func (e *clearInputsExecutor) BuildGetAttributesMetadata(_ *providers.NodeContext) *providers.GetAttributesMetadata {
+	return nil
+}
+
 // Execute deletes each of this node's configured inputs from UserInputs, RuntimeData,
 // and ForwardedData, and resets the selected action. This forces a downstream PROMPT
 // node to treat those inputs as unsatisfied and re-ask the user for them.

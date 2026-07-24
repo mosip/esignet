@@ -9,7 +9,6 @@ package mock
 import (
 	"bytes"
 	"context"
-	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -77,7 +76,7 @@ func (p *mockAuthnProvider) SendOTP(_ context.Context, identifiers map[string]an
 		return nil, shared.InvalidIndividualIDError
 	}
 
-	transactionID, err := generateTransactionID(metadata.RuntimeMetadata)
+	transactionID, err := shared.GenerateTransactionID(metadata.RuntimeMetadata)
 	if err != nil {
 		return nil, shared.InvalidRequestError
 	}
@@ -115,7 +114,7 @@ func (p *mockAuthnProvider) AuthenticateUser(_ context.Context, identifiers, cre
 		return authUser, nil, shared.InvalidIndividualIDError
 	}
 
-	transactionID, err := generateTransactionID(metadata.RuntimeMetadata)
+	transactionID, err := shared.GenerateTransactionID(metadata.RuntimeMetadata)
 	if err != nil {
 		return authUser, nil, shared.InvalidRequestError
 	}
@@ -138,7 +137,7 @@ func (p *mockAuthnProvider) AuthenticateUser(_ context.Context, identifiers, cre
 		return authUser, nil, shared.AuthenticationFailedError
 	}
 
-	authUser.SetAttributeToken(strings.Join([]string{kycToken, individualID}, "||"))
+	authUser.SetAttributeToken(strings.Join([]string{kycToken, individualID, transactionID}, "||"))
 	authUser.SetEntityReferenceToken(psut)
 	return authUser, nil, nil
 }
@@ -163,6 +162,10 @@ func (p *mockAuthnProvider) GetUserAttributes(_ context.Context,
 	metadata *providers.GetAttributesMetadata,
 	authUser providers.AuthUser) (providers.AuthUser, *providers.AttributesResponse, *common.ServiceError) {
 
+	if requestedAttributes == nil || len(requestedAttributes.Attributes) == 0 {
+		return authUser, nil, shared.InvalidRequestError
+	}
+
 	relyingPartyID, clientID, err := p.getApplicationAndClientID(metadata.RuntimeMetadata)
 	if err != nil {
 		return authUser, nil, shared.ClientNotFoundError
@@ -173,16 +176,11 @@ func (p *mockAuthnProvider) GetUserAttributes(_ context.Context,
 		return authUser, nil, nil
 	}
 
-	tokenParts := strings.SplitN(attributeToken.(string), "||", 2)
-	if len(tokenParts) != 2 {
+	tokenParts := strings.SplitN(attributeToken.(string), "||", 3)
+	if len(tokenParts) != 3 {
 		return authUser, nil, shared.AuthenticationFailedError
 	}
-	kycToken, individualID := tokenParts[0], tokenParts[1]
-
-	transactionID, err := generateTransactionID(metadata.RuntimeMetadata)
-	if err != nil {
-		return authUser, nil, shared.InvalidRequestError
-	}
+	kycToken, individualID, transactionID := tokenParts[0], tokenParts[1], tokenParts[2]
 
 	acceptedClaims := acceptedClaimsFromRequest(requestedAttributes)
 	claimLocales := []string{defaultClaimLocale}
@@ -451,26 +449,6 @@ func buildEndpointURL(baseURL, relyingPartyID, clientID string) string {
 // getUTCDateTime returns current time in UTC as string in ISO 8601 format.
 func getUTCDateTime() string {
 	return time.Now().UTC().Format(utcDateTimeFormat)
-}
-
-// generateTransactionID generates a cryptographically random 10-digit numeric string,
-// reusing any transaction id already established for this runtime context (so
-// SendOTP/AuthenticateUser/GetUserAttributes calls for the same flow execution share
-// one transaction id, as mock-identity-system requires).
-func generateTransactionID(runtimeMetadata map[string]string) (string, error) {
-	if runtimeMetadata != nil && runtimeMetadata["ext_TransactionID"] != "" {
-		return runtimeMetadata["ext_TransactionID"], nil
-	}
-
-	const digitCount = 10
-	b := make([]byte, digitCount)
-	if _, err := rand.Read(b); err != nil {
-		return "", err
-	}
-	for i := range b {
-		b[i] = '0' + b[i]%10
-	}
-	return string(b), nil
 }
 
 // decodeJWTUnsafe decodes a JWT's payload without verifying its signature. The mock

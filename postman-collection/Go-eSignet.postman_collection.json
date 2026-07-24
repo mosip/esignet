@@ -8,7 +8,7 @@
   "item": [
     {
       "name": "Client Management",
-      "description": "Create / Get / Update an OAuth client. Run 'Create client' first, then a flow folder — every flow uses {{clientMgmtClientId}} + {{clientMgmtPrivateKey}}. Toggle additionalConfig in the Create body per client type: normal OAuth = pkce_required only; FAPI2 = also require_pushed_authorization_requests + dpop_bound_access_tokens = true.",
+      "description": "Create / Get / Update an OAuth client. Run 'Create client' first, then a flow folder — every flow uses {{client_id}} + {{client_private_key}}. Toggle additionalConfig in the Create body per client type: normal OAuth = pkce_required only; FAPI2 = also require_pushed_authorization_requests + dpop_bound_access_tokens = true.",
       "event": [
         {
           "listen": "prerequest",
@@ -16,7 +16,7 @@
             "type": "text/javascript",
             "exec": [
               "// Attach the client-mgmt bearer only when set (scope enforcement); otherwise drop it.",
-              "const token = pm.environment.get('clientMgmtToken');",
+              "const token = pm.environment.get('client_mgmt_token');",
               "if (token) { pm.request.headers.upsert({ key: 'Authorization', value: 'Bearer ' + token }); }",
               "else { pm.request.headers.remove('Authorization'); }"
             ]
@@ -31,19 +31,19 @@
               "listen": "prerequest",
               "script": {
                 "exec": [
-                  "// Generates a fresh RSA key and a fresh clientId, then registers the client.",
+                  "// Generates a fresh RSA key and a fresh client_id, then registers the client.",
                   "// The private JWK is stored WITHOUT an 'alg' field so the SAME key signs the",
-                  "// private_key_jwt assertion as RS256 (OTP/Credentials) or PS256 (FAPI2).",
+                  "// private_key_jwt client assertion as RS256 (OTP/Credentials) or PS256 (FAPI2).",
                   "// Edit additionalConfig in the request body for the client type you need.",
                   "if (!(crypto && crypto.subtle && crypto.subtle.generateKey)) {",
-                  "  throw new Error('Update Postman, or set clientMgmtPrivateKey + clientMgmtPublicKey + clientMgmtClientId manually.');",
+                  "  throw new Error('Update Postman, or set client_private_key + client_public_key + client_id manually.');",
                   "}",
                   "function b64url(bytes) {",
                   "  const v = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);",
                   "  return btoa(String.fromCharCode(...v)).replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=/g, '');",
                   "}",
-                  "if (!pm.environment.get('rpId')) pm.environment.set('rpId', 'decl-ou-1');",
-                  "if (!pm.environment.get('redirectUri')) pm.environment.set('redirectUri', 'https://localhost:3000');",
+                  "if (!pm.environment.get('relying_party_id')) pm.environment.set('relying_party_id', 'decl-ou-1');",
+                  "if (!pm.environment.get('redirect_uri')) pm.environment.set('redirect_uri', 'https://localhost:3000');",
                   "return crypto.subtle.generateKey(",
                   "  { name: 'RSASSA-PKCS1-v1_5', modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: 'SHA-256' },",
                   "  true, ['sign', 'verify']",
@@ -55,10 +55,10 @@
                   "      p: jwk.p, q: jwk.q, dp: jwk.dp, dq: jwk.dq, qi: jwk.qi,",
                   "      kid: kid, use: 'sig'",
                   "    };",
-                  "    pm.environment.set('clientMgmtPrivateKey', JSON.stringify(privateJwk));",
-                  "    pm.environment.set('clientMgmtClientId', 'pm-client-' + Date.now());",
-                  "    pm.environment.set('clientMgmtPublicKey', JSON.stringify({ kty: jwk.kty, n: jwk.n, e: jwk.e, kid: kid, use: 'sig' }));",
-                  "    pm.environment.set('clientMgmtRequestTime', new Date().toISOString());",
+                  "    pm.environment.set('client_private_key', JSON.stringify(privateJwk));",
+                  "    pm.environment.set('client_id', 'pm-client-' + Date.now());",
+                  "    pm.environment.set('client_public_key', JSON.stringify({ kty: jwk.kty, n: jwk.n, e: jwk.e, kid: kid, use: 'sig' }));",
+                  "    pm.environment.set('client_mgmt_request_time', new Date().toISOString());",
                   "  })",
                   ");"
                 ],
@@ -73,7 +73,7 @@
                   "const j = pm.response.json();",
                   "if (j.errors && j.errors.length) { throw new Error('client create failed: ' + JSON.stringify(j.errors)); }",
                   "pm.test('client ACTIVE', () => pm.expect(j.response.status).to.eql('ACTIVE'));",
-                  "pm.test('clientId matches', () => pm.expect(j.response.clientId).to.eql(pm.environment.get('clientMgmtClientId')));"
+                  "pm.test('client_id matches', () => pm.expect(j.response.clientId).to.eql(pm.environment.get('client_id')));"
                 ],
                 "type": "text/javascript"
               }
@@ -83,11 +83,11 @@
             "method": "POST",
             "header": [
               { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{clientMgmtToken}}" }
+              { "key": "Authorization", "value": "Bearer {{client_mgmt_token}}" }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"requestTime\": \"{{clientMgmtRequestTime}}\",\n  \"request\": {\n    \"clientId\": \"{{clientMgmtClientId}}\",\n    \"clientName\": \"Postman Test Client\",\n    \"clientNameLangMap\": { \"eng\": \"Postman Test Client\" },\n    \"relyingPartyId\": \"{{rpId}}\",\n    \"logoUri\": \"https://example.com/logo.png\",\n    \"redirectUris\": [\"{{redirectUri}}\"],\n    \"userClaims\": [\"name\", \"email\"],\n    \"authContextRefs\": [\"mosip:idp:acr:static-code\"],\n    \"publicKey\": {{clientMgmtPublicKey}},\n    \"grantTypes\": [\"authorization_code\"],\n    \"clientAuthMethods\": [\"private_key_jwt\"],\n    \"additionalConfig\": { \"require_pushed_authorization_requests\": false, \"dpop_bound_access_tokens\": false, \"pkce_required\": true }\n  }\n}"
+              "raw": "{\n  \"requestTime\": \"{{client_mgmt_request_time}}\",\n  \"request\": {\n    \"clientId\": \"{{client_id}}\",\n    \"clientName\": \"Postman Test Client\",\n    \"clientNameLangMap\": { \"eng\": \"Postman Test Client\" },\n    \"relyingPartyId\": \"{{relying_party_id}}\",\n    \"logoUri\": \"https://example.com/logo.png\",\n    \"redirectUris\": [\"{{redirect_uri}}\"],\n    \"userClaims\": [\"name\", \"email\"],\n    \"authContextRefs\": [\"mosip:idp:acr:static-code\"],\n    \"publicKey\": {{client_public_key}},\n    \"grantTypes\": [\"authorization_code\"],\n    \"clientAuthMethods\": [\"private_key_jwt\"],\n    \"additionalConfig\": { \"require_pushed_authorization_requests\": false, \"dpop_bound_access_tokens\": false, \"pkce_required\": true }\n  }\n}"
             },
             "url": { "raw": "{{baseUrl}}/client-mgmt/client", "host": ["{{baseUrl}}"], "path": ["client-mgmt", "client"] }
           },
@@ -103,7 +103,7 @@
                   "pm.test('get 200', () => pm.response.to.have.status(200));",
                   "const j = pm.response.json();",
                   "pm.test('response envelope', () => pm.expect(j.response).to.be.an('object'));",
-                  "pm.test('clientId matches', () => pm.expect(j.response.clientId).to.eql(pm.environment.get('clientMgmtClientId')));",
+                  "pm.test('client_id matches', () => pm.expect(j.response.clientId).to.eql(pm.environment.get('client_id')));",
                   "pm.test('status present', () => pm.expect(j.response.status).to.be.oneOf(['ACTIVE', 'INACTIVE']));"
                 ],
                 "type": "text/javascript"
@@ -112,8 +112,8 @@
           ],
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{clientMgmtToken}}" }],
-            "url": { "raw": "{{baseUrl}}/client-mgmt/client/{{clientMgmtClientId}}", "host": ["{{baseUrl}}"], "path": ["client-mgmt", "client", "{{clientMgmtClientId}}"] }
+            "header": [{ "key": "Authorization", "value": "Bearer {{client_mgmt_token}}" }],
+            "url": { "raw": "{{baseUrl}}/client-mgmt/client/{{client_id}}", "host": ["{{baseUrl}}"], "path": ["client-mgmt", "client", "{{client_id}}"] }
           },
           "response": []
         },
@@ -123,7 +123,7 @@
             {
               "listen": "prerequest",
               "script": {
-                "exec": ["pm.environment.set('clientMgmtRequestTime', new Date().toISOString());"],
+                "exec": ["pm.environment.set('client_mgmt_request_time', new Date().toISOString());"],
                 "type": "text/javascript"
               }
             },
@@ -135,7 +135,7 @@
                   "const j = pm.response.json();",
                   "if (j.errors && j.errors.length) { throw new Error('client update failed: ' + JSON.stringify(j.errors)); }",
                   "pm.test('response envelope', () => pm.expect(j.response).to.be.an('object'));",
-                  "pm.test('clientId matches', () => pm.expect(j.response.clientId).to.eql(pm.environment.get('clientMgmtClientId')));",
+                  "pm.test('client_id matches', () => pm.expect(j.response.clientId).to.eql(pm.environment.get('client_id')));",
                   "pm.test('status ACTIVE', () => pm.expect(j.response.status).to.eql('ACTIVE'));"
                 ],
                 "type": "text/javascript"
@@ -146,13 +146,13 @@
             "method": "PUT",
             "header": [
               { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{clientMgmtToken}}" }
+              { "key": "Authorization", "value": "Bearer {{client_mgmt_token}}" }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"requestTime\": \"{{clientMgmtRequestTime}}\",\n  \"request\": {\n    \"clientName\": \"Postman Test Client (updated)\",\n    \"clientNameLangMap\": { \"eng\": \"Postman Test Client (updated)\" },\n    \"status\": \"active\",\n    \"logoUri\": \"https://example.com/logo-updated.png\",\n    \"redirectUris\": [\"{{redirectUri}}\"],\n    \"userClaims\": [\"name\", \"email\"],\n    \"authContextRefs\": [\"mosip:idp:acr:static-code\"],\n    \"grantTypes\": [\"authorization_code\"],\n    \"clientAuthMethods\": [\"private_key_jwt\"]\n  }\n}"
+              "raw": "{\n  \"requestTime\": \"{{client_mgmt_request_time}}\",\n  \"request\": {\n    \"clientName\": \"Postman Test Client (updated)\",\n    \"clientNameLangMap\": { \"eng\": \"Postman Test Client (updated)\" },\n    \"status\": \"active\",\n    \"logoUri\": \"https://example.com/logo-updated.png\",\n    \"redirectUris\": [\"{{redirect_uri}}\"],\n    \"userClaims\": [\"name\", \"email\"],\n    \"authContextRefs\": [\"mosip:idp:acr:static-code\"],\n    \"grantTypes\": [\"authorization_code\"],\n    \"clientAuthMethods\": [\"private_key_jwt\"]\n  }\n}"
             },
-            "url": { "raw": "{{baseUrl}}/client-mgmt/client/{{clientMgmtClientId}}", "host": ["{{baseUrl}}"], "path": ["client-mgmt", "client", "{{clientMgmtClientId}}"] }
+            "url": { "raw": "{{baseUrl}}/client-mgmt/client/{{client_id}}", "host": ["{{baseUrl}}"], "path": ["client-mgmt", "client", "{{client_id}}"] }
           },
           "response": []
         }
@@ -177,9 +177,9 @@
                   "const array = new Uint8Array(32);",
                   "crypto.getRandomValues(array);",
                   "const codeVerifier = base64UrlEncode(array);",
-                  "pm.environment.set('codeVerifier', codeVerifier);",
+                  "pm.environment.set('code_verifier', codeVerifier);",
                   "return crypto.subtle.digest('SHA-256', new TextEncoder().encode(codeVerifier))",
-                  "  .then(hash => { pm.environment.set('codeChallenge', base64UrlEncode(hash)); });"
+                  "  .then(hash => { pm.environment.set('code_challenge', base64UrlEncode(hash)); });"
                 ],
                 "type": "text/javascript"
               }
@@ -192,10 +192,10 @@
                   "const location = pm.response.headers.get('Location');",
                   "pm.test('Location present', () => pm.expect(location).to.be.a('string').and.not.empty);",
                   "const redirectUrl = new URL(location, pm.environment.get('baseUrl'));",
-                  "pm.test('authId present', () => pm.expect(redirectUrl.searchParams.get('authId')).to.be.a('string').and.not.empty);",
-                  "pm.test('executionId present', () => pm.expect(redirectUrl.searchParams.get('executionId')).to.be.a('string').and.not.empty);",
-                  "pm.environment.set('authId', redirectUrl.searchParams.get('authId'));",
-                  "pm.environment.set('executionId', redirectUrl.searchParams.get('executionId'));"
+                  "pm.test('auth_id present', () => pm.expect(redirectUrl.searchParams.get('authId')).to.be.a('string').and.not.empty);",
+                  "pm.test('execution_id present', () => pm.expect(redirectUrl.searchParams.get('executionId')).to.be.a('string').and.not.empty);",
+                  "pm.environment.set('auth_id', redirectUrl.searchParams.get('authId'));",
+                  "pm.environment.set('execution_id', redirectUrl.searchParams.get('executionId'));"
                 ],
                 "type": "text/javascript"
               }
@@ -206,16 +206,16 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/oauth2/authorize?client_id={{clientMgmtClientId}}&redirect_uri={{redirectUri}}&response_type=code&scope={{scope}}&state=esignet-otp-test&code_challenge={{codeChallenge}}&code_challenge_method=S256",
+              "raw": "{{baseUrl}}/oauth2/authorize?client_id={{client_id}}&redirect_uri={{redirect_uri}}&response_type=code&scope={{scope}}&state=esignet-otp-test&code_challenge={{code_challenge}}&code_challenge_method=S256",
               "host": ["{{baseUrl}}"],
               "path": ["oauth2", "authorize"],
               "query": [
-                { "key": "client_id", "value": "{{clientMgmtClientId}}" },
-                { "key": "redirect_uri", "value": "{{redirectUri}}" },
+                { "key": "client_id", "value": "{{client_id}}" },
+                { "key": "redirect_uri", "value": "{{redirect_uri}}" },
                 { "key": "response_type", "value": "code" },
                 { "key": "scope", "value": "{{scope}}" },
                 { "key": "state", "value": "esignet-otp-test" },
-                { "key": "code_challenge", "value": "{{codeChallenge}}" },
+                { "key": "code_challenge", "value": "{{code_challenge}}" },
                 { "key": "code_challenge_method", "value": "S256" }
               ]
             }
@@ -231,12 +231,12 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/flow/meta?type=APP&id={{otpApplicationId}}&language=en&namespace=auth",
+              "raw": "{{baseUrl}}/flow/meta?type=APP&id={{otp_application_id}}&language=en&namespace=auth",
               "host": ["{{baseUrl}}"],
               "path": ["flow", "meta"],
               "query": [
                 { "key": "type", "value": "APP" },
-                { "key": "id", "value": "{{otpApplicationId}}" },
+                { "key": "id", "value": "{{otp_application_id}}" },
                 { "key": "language", "value": "en" },
                 { "key": "namespace", "value": "auth" }
               ]
@@ -258,10 +258,10 @@
                   "  const ids = (j.data && j.data.inputs || []).map(i => i.identifier);",
                   "  pm.expect(ids).to.include('username');",
                   "});",
-                  "pm.test('challengeToken', () => pm.expect(j.challengeToken).to.be.a('string').and.not.empty);",
-                  "pm.environment.set('challengeToken', j.challengeToken);",
+                  "pm.test('challenge_token', () => pm.expect(j.challengeToken).to.be.a('string').and.not.empty);",
+                  "pm.environment.set('challenge_token', j.challengeToken);",
                   "if (j.data && j.data.actions && j.data.actions[0]) {",
-                  "  pm.environment.set('actionRef', j.data.actions[0].ref);",
+                  "  pm.environment.set('action_ref', j.data.actions[0].ref);",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -271,7 +271,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{executionId}}\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{execution_id}}\"\n}" },
             "url": { "raw": "{{baseUrl}}/flow/execute", "host": ["{{baseUrl}}"], "path": ["flow", "execute"] }
           },
           "response": []
@@ -285,9 +285,9 @@
                 "exec": [
                   "pm.test('select acr 200', () => pm.response.to.have.status(200));",
                   "const j = pm.response.json();",
-                  "if (j.challengeToken) pm.environment.set('challengeToken', j.challengeToken);",
+                  "if (j.challengeToken) pm.environment.set('challenge_token', j.challengeToken);",
                   "if (j.data && j.data.actions && j.data.actions[0]) {",
-                  "  pm.environment.set('actionRef', j.data.actions[0].ref);",
+                  "  pm.environment.set('action_ref', j.data.actions[0].ref);",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -297,7 +297,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{executionId}}\",\n  \"challengeToken\": \"{{challengeToken}}\",\n  \"action\": \"{{actionRef}}\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\"\n}" },
             "url": { "raw": "{{baseUrl}}/flow/execute", "host": ["{{baseUrl}}"], "path": ["flow", "execute"] }
           },
           "response": []
@@ -309,8 +309,8 @@
               "listen": "prerequest",
               "script": {
                 "exec": [
-                  "if (!pm.environment.get('individualId')) {",
-                  "  throw new Error('Set individualId in the environment (MOSIP UIN) before running this folder.');",
+                  "if (!pm.environment.get('individual_id')) {",
+                  "  throw new Error('Set individual_id in the environment (MOSIP UIN) before running this folder.');",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -327,9 +327,9 @@
                   "  const ids = (j.data && j.data.inputs || []).map(i => i.identifier);",
                   "  pm.expect(ids).to.include('otp');",
                   "});",
-                  "if (j.challengeToken) pm.environment.set('challengeToken', j.challengeToken);",
+                  "if (j.challengeToken) pm.environment.set('challenge_token', j.challengeToken);",
                   "if (j.data && j.data.actions && j.data.actions[0]) {",
-                  "  pm.environment.set('actionRef', j.data.actions[0].ref);",
+                  "  pm.environment.set('action_ref', j.data.actions[0].ref);",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -339,7 +339,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{executionId}}\",\n  \"challengeToken\": \"{{challengeToken}}\",\n  \"action\": \"{{actionRef}}\",\n  \"inputs\": {\n    \"username\": \"{{individualId}}\"\n  }\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\",\n  \"inputs\": {\n    \"username\": \"{{individual_id}}\"\n  }\n}" },
             "url": { "raw": "{{baseUrl}}/flow/execute", "host": ["{{baseUrl}}"], "path": ["flow", "execute"] }
           },
           "response": []
@@ -364,14 +364,14 @@
                 "exec": [
                   "pm.test('otp submit 200', () => pm.response.to.have.status(200));",
                   "const j = pm.response.json();",
-                  "if (j.challengeToken) pm.environment.set('challengeToken', j.challengeToken);",
+                  "if (j.challengeToken) pm.environment.set('challenge_token', j.challengeToken);",
                   "if (j.flowStatus === 'COMPLETE') {",
                   "  pm.test('assertion', () => pm.expect(j.assertion).to.be.a('string').and.not.empty);",
                   "  pm.environment.set('assertion', j.assertion);",
                   "} else {",
                   "  pm.test('INCOMPLETE after OTP', () => pm.expect(j.flowStatus).to.eql('INCOMPLETE'));",
                   "  if (j.data && j.data.actions && j.data.actions[0]) {",
-                  "    pm.environment.set('actionRef', j.data.actions[0].ref);",
+                  "    pm.environment.set('action_ref', j.data.actions[0].ref);",
                   "  }",
                   "}"
                 ],
@@ -382,7 +382,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{executionId}}\",\n  \"challengeToken\": \"{{challengeToken}}\",\n  \"action\": \"{{actionRef}}\",\n  \"inputs\": {\n    \"otp\": \"{{otp}}\"\n  }\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\",\n  \"inputs\": {\n    \"otp\": \"{{otp}}\"\n  }\n}" },
             "url": { "raw": "{{baseUrl}}/flow/execute", "host": ["{{baseUrl}}"], "path": ["flow", "execute"] }
           },
           "response": []
@@ -401,7 +401,7 @@
                   "const url = new URL(ru);",
                   "pm.test('no OAuth error in redirect', () => pm.expect(url.searchParams.get('error')).to.be.null);",
                   "pm.test('authorization code present', () => pm.expect(url.searchParams.get('code')).to.be.a('string').and.not.empty);",
-                  "pm.environment.set('authCode', url.searchParams.get('code'));"
+                  "pm.environment.set('code', url.searchParams.get('code'));"
                 ],
                 "type": "text/javascript"
               }
@@ -410,7 +410,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"authId\": \"{{authId}}\",\n  \"assertion\": \"{{assertion}}\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"authId\": \"{{auth_id}}\",\n  \"assertion\": \"{{assertion}}\"\n}" },
             "url": { "raw": "{{baseUrl}}/oauth2/auth/callback", "host": ["{{baseUrl}}"], "path": ["oauth2", "auth", "callback"] }
           },
           "response": []
@@ -426,8 +426,8 @@
                   "const t = pm.response.json();",
                   "pm.test('access_token', () => pm.expect(t.access_token).to.be.a('string').and.not.empty);",
                   "pm.test('id_token', () => pm.expect(t.id_token).to.be.a('string').and.not.empty);",
-                  "pm.environment.set('accessToken', t.access_token);",
-                  "pm.environment.set('idToken', t.id_token);"
+                  "pm.environment.set('access_token', t.access_token);",
+                  "pm.environment.set('id_token', t.id_token);"
                 ],
                 "type": "text/javascript"
               }
@@ -440,12 +440,12 @@
               "mode": "urlencoded",
               "urlencoded": [
                 { "key": "grant_type", "value": "authorization_code" },
-                { "key": "code", "value": "{{authCode}}" },
-                { "key": "redirect_uri", "value": "{{redirectUri}}" },
-                { "key": "client_id", "value": "{{clientMgmtClientId}}" },
-                { "key": "code_verifier", "value": "{{codeVerifier}}" },
+                { "key": "code", "value": "{{code}}" },
+                { "key": "redirect_uri", "value": "{{redirect_uri}}" },
+                { "key": "client_id", "value": "{{client_id}}" },
+                { "key": "code_verifier", "value": "{{code_verifier}}" },
                 { "key": "client_assertion_type", "value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer" },
-                { "key": "client_assertion", "value": "{{clientAssertion}}" }
+                { "key": "client_assertion", "value": "{{client_assertion}}" }
               ]
             },
             "url": { "raw": "{{baseUrl}}/oauth2/token", "host": ["{{baseUrl}}"], "path": ["oauth2", "token"] }
@@ -462,7 +462,7 @@
                   "pm.test('userinfo 200', () => pm.response.to.have.status(200));",
                   "const j = pm.response.json();",
                   "pm.test('sub claim', () => pm.expect(j.sub).to.be.a('string').and.not.empty);",
-                  "pm.test('sub matches individualId', () => pm.expect(j.sub).to.eql(pm.environment.get('individualId')));"
+                  "pm.test('sub matches individual_id', () => pm.expect(j.sub).to.eql(pm.environment.get('individual_id')));"
                 ],
                 "type": "text/javascript"
               }
@@ -470,7 +470,7 @@
           ],
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
             "url": { "raw": "{{baseUrl}}/oauth2/userinfo", "host": ["{{baseUrl}}"], "path": ["oauth2", "userinfo"] }
           },
           "response": []
@@ -496,9 +496,9 @@
                   "const array = new Uint8Array(32);",
                   "crypto.getRandomValues(array);",
                   "const codeVerifier = base64UrlEncode(array);",
-                  "pm.environment.set('codeVerifier', codeVerifier);",
+                  "pm.environment.set('code_verifier', codeVerifier);",
                   "return crypto.subtle.digest('SHA-256', new TextEncoder().encode(codeVerifier))",
-                  "  .then(hash => { pm.environment.set('codeChallenge', base64UrlEncode(hash)); });"
+                  "  .then(hash => { pm.environment.set('code_challenge', base64UrlEncode(hash)); });"
                 ],
                 "type": "text/javascript"
               }
@@ -511,10 +511,10 @@
                   "const location = pm.response.headers.get('Location');",
                   "pm.test('Location present', () => pm.expect(location).to.be.a('string').and.not.empty);",
                   "const redirectUrl = new URL(location, pm.environment.get('baseUrl'));",
-                  "pm.test('authId present', () => pm.expect(redirectUrl.searchParams.get('authId')).to.be.a('string').and.not.empty);",
-                  "pm.test('executionId present', () => pm.expect(redirectUrl.searchParams.get('executionId')).to.be.a('string').and.not.empty);",
-                  "pm.environment.set('authId', redirectUrl.searchParams.get('authId'));",
-                  "pm.environment.set('executionId', redirectUrl.searchParams.get('executionId'));"
+                  "pm.test('auth_id present', () => pm.expect(redirectUrl.searchParams.get('authId')).to.be.a('string').and.not.empty);",
+                  "pm.test('execution_id present', () => pm.expect(redirectUrl.searchParams.get('executionId')).to.be.a('string').and.not.empty);",
+                  "pm.environment.set('auth_id', redirectUrl.searchParams.get('authId'));",
+                  "pm.environment.set('execution_id', redirectUrl.searchParams.get('executionId'));"
                 ],
                 "type": "text/javascript"
               }
@@ -525,16 +525,16 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/oauth2/authorize?client_id={{clientMgmtClientId}}&redirect_uri={{redirectUri}}&response_type=code&scope={{scope}}&state=esignet-cred-test&code_challenge={{codeChallenge}}&code_challenge_method=S256",
+              "raw": "{{baseUrl}}/oauth2/authorize?client_id={{client_id}}&redirect_uri={{redirect_uri}}&response_type=code&scope={{scope}}&state=esignet-cred-test&code_challenge={{code_challenge}}&code_challenge_method=S256",
               "host": ["{{baseUrl}}"],
               "path": ["oauth2", "authorize"],
               "query": [
-                { "key": "client_id", "value": "{{clientMgmtClientId}}" },
-                { "key": "redirect_uri", "value": "{{redirectUri}}" },
+                { "key": "client_id", "value": "{{client_id}}" },
+                { "key": "redirect_uri", "value": "{{redirect_uri}}" },
                 { "key": "response_type", "value": "code" },
                 { "key": "scope", "value": "{{scope}}" },
                 { "key": "state", "value": "esignet-cred-test" },
-                { "key": "code_challenge", "value": "{{codeChallenge}}" },
+                { "key": "code_challenge", "value": "{{code_challenge}}" },
                 { "key": "code_challenge_method", "value": "S256" }
               ]
             }
@@ -550,12 +550,12 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/flow/meta?type=APP&id={{otpApplicationId}}&language=en&namespace=auth",
+              "raw": "{{baseUrl}}/flow/meta?type=APP&id={{otp_application_id}}&language=en&namespace=auth",
               "host": ["{{baseUrl}}"],
               "path": ["flow", "meta"],
               "query": [
                 { "key": "type", "value": "APP" },
-                { "key": "id", "value": "{{otpApplicationId}}" },
+                { "key": "id", "value": "{{otp_application_id}}" },
                 { "key": "language", "value": "en" },
                 { "key": "namespace", "value": "auth" }
               ]
@@ -577,10 +577,10 @@
                   "  const ids = (j.data && j.data.inputs || []).map(i => i.identifier);",
                   "  pm.expect(ids).to.include('username');",
                   "});",
-                  "pm.test('challengeToken', () => pm.expect(j.challengeToken).to.be.a('string').and.not.empty);",
-                  "pm.environment.set('challengeToken', j.challengeToken);",
+                  "pm.test('challenge_token', () => pm.expect(j.challengeToken).to.be.a('string').and.not.empty);",
+                  "pm.environment.set('challenge_token', j.challengeToken);",
                   "if (j.data && j.data.actions && j.data.actions[1]) {",
-                  "  pm.environment.set('actionRef', j.data.actions[1].ref);",
+                  "  pm.environment.set('action_ref', j.data.actions[1].ref);",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -590,7 +590,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{executionId}}\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{execution_id}}\"\n}" },
             "url": { "raw": "{{baseUrl}}/flow/execute", "host": ["{{baseUrl}}"], "path": ["flow", "execute"] }
           },
           "response": []
@@ -604,9 +604,9 @@
                 "exec": [
                   "pm.test('select acr 200', () => pm.response.to.have.status(200));",
                   "const j = pm.response.json();",
-                  "if (j.challengeToken) pm.environment.set('challengeToken', j.challengeToken);",
+                  "if (j.challengeToken) pm.environment.set('challenge_token', j.challengeToken);",
                   "if (j.data && j.data.actions && j.data.actions[0]) {",
-                  "  pm.environment.set('actionRef', j.data.actions[0].ref);",
+                  "  pm.environment.set('action_ref', j.data.actions[0].ref);",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -616,7 +616,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{executionId}}\",\n  \"challengeToken\": \"{{challengeToken}}\",\n  \"action\": \"{{actionRef}}\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\"\n}" },
             "url": { "raw": "{{baseUrl}}/flow/execute", "host": ["{{baseUrl}}"], "path": ["flow", "execute"] }
           },
           "response": []
@@ -628,8 +628,8 @@
               "listen": "prerequest",
               "script": {
                 "exec": [
-                  "if (!pm.environment.get('individualId')) {",
-                  "  throw new Error('Set individualId in the environment (MOSIP UIN) before running this folder.');",
+                  "if (!pm.environment.get('individual_id')) {",
+                  "  throw new Error('Set individual_id in the environment (MOSIP UIN) before running this folder.');",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -652,7 +652,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{executionId}}\",\n  \"challengeToken\": \"{{challengeToken}}\",\n  \"action\": \"{{actionRef}}\",\n  \"inputs\": {\n    \"username\": \"{{individualId}}\",\n    \"password\": \"{{password}}\"\n  }\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\",\n  \"inputs\": {\n    \"username\": \"{{individual_id}}\",\n    \"password\": \"{{password}}\"\n  }\n}" },
             "url": { "raw": "{{baseUrl}}/flow/execute", "host": ["{{baseUrl}}"], "path": ["flow", "execute"] }
           },
           "response": []
@@ -671,7 +671,7 @@
                   "const url = new URL(ru);",
                   "pm.test('no OAuth error in redirect', () => pm.expect(url.searchParams.get('error')).to.be.null);",
                   "pm.test('authorization code present', () => pm.expect(url.searchParams.get('code')).to.be.a('string').and.not.empty);",
-                  "pm.environment.set('authCode', url.searchParams.get('code'));"
+                  "pm.environment.set('code', url.searchParams.get('code'));"
                 ],
                 "type": "text/javascript"
               }
@@ -680,7 +680,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"authId\": \"{{authId}}\",\n  \"assertion\": \"{{assertion}}\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"authId\": \"{{auth_id}}\",\n  \"assertion\": \"{{assertion}}\"\n}" },
             "url": { "raw": "{{baseUrl}}/oauth2/auth/callback", "host": ["{{baseUrl}}"], "path": ["oauth2", "auth", "callback"] }
           },
           "response": []
@@ -696,8 +696,8 @@
                   "const t = pm.response.json();",
                   "pm.test('access_token', () => pm.expect(t.access_token).to.be.a('string').and.not.empty);",
                   "pm.test('id_token', () => pm.expect(t.id_token).to.be.a('string').and.not.empty);",
-                  "pm.environment.set('accessToken', t.access_token);",
-                  "pm.environment.set('idToken', t.id_token);"
+                  "pm.environment.set('access_token', t.access_token);",
+                  "pm.environment.set('id_token', t.id_token);"
                 ],
                 "type": "text/javascript"
               }
@@ -710,12 +710,12 @@
               "mode": "urlencoded",
               "urlencoded": [
                 { "key": "grant_type", "value": "authorization_code" },
-                { "key": "code", "value": "{{authCode}}" },
-                { "key": "redirect_uri", "value": "{{redirectUri}}" },
-                { "key": "client_id", "value": "{{clientMgmtClientId}}" },
-                { "key": "code_verifier", "value": "{{codeVerifier}}" },
+                { "key": "code", "value": "{{code}}" },
+                { "key": "redirect_uri", "value": "{{redirect_uri}}" },
+                { "key": "client_id", "value": "{{client_id}}" },
+                { "key": "code_verifier", "value": "{{code_verifier}}" },
                 { "key": "client_assertion_type", "value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer" },
-                { "key": "client_assertion", "value": "{{clientAssertion}}" }
+                { "key": "client_assertion", "value": "{{client_assertion}}" }
               ]
             },
             "url": { "raw": "{{baseUrl}}/oauth2/token", "host": ["{{baseUrl}}"], "path": ["oauth2", "token"] }
@@ -732,7 +732,7 @@
                   "pm.test('userinfo 200', () => pm.response.to.have.status(200));",
                   "const j = pm.response.json();",
                   "pm.test('sub claim', () => pm.expect(j.sub).to.be.a('string').and.not.empty);",
-                  "pm.test('sub matches individualId', () => pm.expect(j.sub).to.eql(pm.environment.get('individualId')));"
+                  "pm.test('sub matches individual_id', () => pm.expect(j.sub).to.eql(pm.environment.get('individual_id')));"
                 ],
                 "type": "text/javascript"
               }
@@ -740,7 +740,7 @@
           ],
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
             "url": { "raw": "{{baseUrl}}/oauth2/userinfo", "host": ["{{baseUrl}}"], "path": ["oauth2", "userinfo"] }
           },
           "response": []
@@ -749,7 +749,7 @@
     },
     {
       "name": "3 — MOSIP FAPI2 flow",
-      "description": "Run Client Management > Create client first with additionalConfig require_pushed_authorization_requests=true AND dpop_bound_access_tokens=true. Then run this folder top-to-bottom. Requires Redis >= 6.2 (PAR uses GETDEL).",
+      "description": "Run Client Management > Create client first with additionalConfig require_pushed_authorization_requests=true AND dpop_bound_access_tokens=true. Then run this folder top-to-bottom. Requires Redis >= 6.2 (PAR uses GETDEL). The PAR/token/userinfo audiences (DPoP htu + client_assertion aud) are read from the par_audience / audience / userinfo_audience environment variables.",
       "auth": { "type": "noauth" },
       "item": [
         {
@@ -759,8 +759,9 @@
               "listen": "prerequest",
               "script": {
                 "exec": [
-                  "// Dynamic PKCE (codeVerifier/codeChallenge), a fresh DPoP key (dpop*), and a PS256",
-                  "// private_key_jwt (clientAssertion, aud = {baseUrl}/oauth2/par) signed with clientMgmtPrivateKey.",
+                  "// Dynamic PKCE (code_verifier/code_challenge), a fresh DPoP key (dpop_*), and a PS256",
+                  "// private_key_jwt (par_client_assertion) signed with client_private_key.",
+                  "// The PAR audience (DPoP htu AND assertion aud) comes from the par_audience env var.",
                   "function b64url(bytes) {",
                   "  const arr = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);",
                   "  let s = ''; for (let i = 0; i < arr.length; i++) s += String.fromCharCode(arr[i]);",
@@ -772,12 +773,13 @@
                   "  return b64url(new Uint8Array(await crypto.subtle.digest('SHA-256', data)));",
                   "}",
                   "async function generateJKT(jwk) { return await sha256b64url(JSON.stringify({ e: jwk.e, kty: jwk.kty, n: jwk.n })); }",
+                  "const parAudience = pm.environment.get('par_audience') || `${pm.environment.get('baseUrl')}/oauth2/par`;",
                   "",
                   "const pkceBytes = new Uint8Array(32);",
                   "crypto.getRandomValues(pkceBytes);",
                   "const codeVerifier = b64url(pkceBytes);",
-                  "pm.environment.set('codeVerifier', codeVerifier);",
-                  "pm.environment.set('codeChallenge', await sha256b64url(codeVerifier));",
+                  "pm.environment.set('code_verifier', codeVerifier);",
+                  "pm.environment.set('code_challenge', await sha256b64url(codeVerifier));",
                   "",
                   "await (async () => {",
                   "  const keyPair = await crypto.subtle.generateKey(",
@@ -787,19 +789,19 @@
                   "  const exportedPriv = await crypto.subtle.exportKey('jwk', keyPair.privateKey);",
                   "  const publicJwk = { e: exportedPub.e, kty: exportedPub.kty, n: exportedPub.n };",
                   "  const header = { typ: 'dpop+jwt', alg: 'PS256', jwk: publicJwk };",
-                  "  const payload = { jti: crypto.randomUUID(), htm: pm.request.method.toUpperCase(), htu: `${pm.environment.get('baseUrl')}/oauth2/par`, iat: Math.floor(Date.now() / 1000) };",
+                  "  const payload = { jti: crypto.randomUUID(), htm: pm.request.method.toUpperCase(), htu: parAudience, iat: Math.floor(Date.now() / 1000) };",
                   "  const signingInput = `${b64urlStr(JSON.stringify(header))}.${b64urlStr(JSON.stringify(payload))}`;",
                   "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, keyPair.privateKey, new TextEncoder().encode(signingInput));",
-                  "  pm.environment.set('dpopJkt', await generateJKT(publicJwk));",
-                  "  pm.environment.set('dpopPrivateKey', JSON.stringify(exportedPriv));",
-                  "  pm.environment.set('dpopPublicKey', JSON.stringify(exportedPub));",
+                  "  pm.environment.set('dpop_jkt', await generateJKT(publicJwk));",
+                  "  pm.environment.set('dpop_private_key', JSON.stringify(exportedPriv));",
+                  "  pm.environment.set('dpop_public_key', JSON.stringify(exportedPub));",
                   "  pm.request.headers.upsert({ key: 'DPoP', value: `${signingInput}.${b64url(new Uint8Array(sig))}` });",
                   "})();",
                   "",
                   "async function buildClientAssertion() {",
-                  "  const privateJwk = JSON.parse(pm.environment.get('clientMgmtPrivateKey'));",
-                  "  const clientId = pm.environment.get('clientMgmtClientId');",
-                  "  const audience = `${pm.environment.get('baseUrl')}/oauth2/par`;",
+                  "  const privateJwk = JSON.parse(pm.environment.get('client_private_key'));",
+                  "  const clientId = pm.environment.get('client_id');",
+                  "  const audience = parAudience;",
                   "  const privateKey = await crypto.subtle.importKey('jwk', privateJwk, { name: 'RSA-PSS', hash: 'SHA-256' }, false, ['sign']);",
                   "  const kid = privateJwk.kid || await generateJKT(privateJwk);",
                   "  const header = { alg: 'PS256', typ: 'JWT', kid };",
@@ -809,7 +811,7 @@
                   "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, privateKey, new TextEncoder().encode(signingInput));",
                   "  return `${signingInput}.${b64url(new Uint8Array(sig))}`;",
                   "}",
-                  "pm.environment.set('clientAssertion', await buildClientAssertion());"
+                  "pm.collectionVariables.set('par_client_assertion', await buildClientAssertion());"
                 ],
                 "type": "text/javascript"
               }
@@ -823,7 +825,7 @@
                   "const r = pm.response.json();",
                   "const ru = r.request_uri || r.requestUri;",
                   "pm.test('request_uri present', () => pm.expect(ru).to.be.a('string').and.not.empty);",
-                  "pm.environment.set('requestUri', ru);"
+                  "pm.environment.set('request_uri', ru);"
                 ],
                 "type": "text/javascript"
               }
@@ -835,16 +837,16 @@
             "body": {
               "mode": "urlencoded",
               "urlencoded": [
-                { "key": "client_id", "value": "{{clientMgmtClientId}}", "type": "text" },
-                { "key": "redirect_uri", "value": "{{redirectUri}}", "type": "text" },
+                { "key": "client_id", "value": "{{client_id}}", "type": "text" },
+                { "key": "redirect_uri", "value": "{{redirect_uri}}", "type": "text" },
                 { "key": "response_type", "value": "code", "type": "text" },
                 { "key": "state", "value": "esignet-fapi2-test", "type": "text" },
-                { "key": "code_challenge", "value": "{{codeChallenge}}", "type": "text" },
+                { "key": "code_challenge", "value": "{{code_challenge}}", "type": "text" },
                 { "key": "code_challenge_method", "value": "S256", "type": "text" },
                 { "key": "scope", "value": "{{scope}}", "type": "text" },
                 { "key": "client_assertion_type", "value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer", "type": "text" },
-                { "key": "client_assertion", "value": "{{clientAssertion}}", "type": "text" },
-                { "key": "dpop_jkt", "value": "{{dpopJkt}}", "type": "text" }
+                { "key": "client_assertion", "value": "{{par_client_assertion}}", "type": "text" },
+                { "key": "dpop_jkt", "value": "{{dpop_jkt}}", "type": "text" }
               ]
             },
             "url": { "raw": "{{baseUrl}}/oauth2/par", "host": ["{{baseUrl}}"], "path": ["oauth2", "par"] }
@@ -866,9 +868,9 @@
                   "  const err = url.searchParams.get('error');",
                   "  if (err) console.log('OAuth ERROR:', err, '-', url.searchParams.get('error_description') || url.searchParams.get('errorMessage'));",
                   "  pm.test('no error redirect', () => pm.expect(err, 'authorize returned an error redirect').to.be.null);",
-                  "  pm.environment.set('authId', url.searchParams.get('authId'));",
-                  "  pm.environment.set('executionId', url.searchParams.get('executionId'));",
-                  "  console.log('authId:', url.searchParams.get('authId'), '| executionId:', url.searchParams.get('executionId'));",
+                  "  pm.environment.set('auth_id', url.searchParams.get('authId'));",
+                  "  pm.environment.set('execution_id', url.searchParams.get('executionId'));",
+                  "  console.log('auth_id:', url.searchParams.get('authId'), '| execution_id:', url.searchParams.get('executionId'));",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -880,12 +882,12 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/oauth2/authorize?client_id={{clientMgmtClientId}}&request_uri={{requestUri}}",
+              "raw": "{{baseUrl}}/oauth2/authorize?client_id={{client_id}}&request_uri={{request_uri}}",
               "host": ["{{baseUrl}}"],
               "path": ["oauth2", "authorize"],
               "query": [
-                { "key": "client_id", "value": "{{clientMgmtClientId}}" },
-                { "key": "request_uri", "value": "{{requestUri}}" }
+                { "key": "client_id", "value": "{{client_id}}" },
+                { "key": "request_uri", "value": "{{request_uri}}" }
               ]
             }
           },
@@ -900,10 +902,10 @@
                 "exec": [
                   "pm.test('resume 200', () => pm.response.to.have.status(200));",
                   "const j = pm.response.json();",
-                  "pm.test('challengeToken', () => pm.expect(j.challengeToken).to.be.a('string').and.not.empty);",
-                  "pm.environment.set('challengeToken', j.challengeToken);",
+                  "pm.test('challenge_token', () => pm.expect(j.challengeToken).to.be.a('string').and.not.empty);",
+                  "pm.environment.set('challenge_token', j.challengeToken);",
                   "if (j.data && j.data.actions && j.data.actions[0]) {",
-                  "  pm.environment.set('actionRef', j.data.actions[0].ref);",
+                  "  pm.environment.set('action_ref', j.data.actions[0].ref);",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -913,7 +915,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{executionId}}\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{execution_id}}\"\n}" },
             "url": { "raw": "{{baseUrl}}/flow/execute", "host": ["{{baseUrl}}"], "path": ["flow", "execute"] }
           },
           "response": []
@@ -927,9 +929,9 @@
                 "exec": [
                   "pm.test('select acr 200', () => pm.response.to.have.status(200));",
                   "const j = pm.response.json();",
-                  "if (j.challengeToken) pm.environment.set('challengeToken', j.challengeToken);",
+                  "if (j.challengeToken) pm.environment.set('challenge_token', j.challengeToken);",
                   "if (j.data && j.data.actions && j.data.actions[0]) {",
-                  "  pm.environment.set('actionRef', j.data.actions[0].ref);",
+                  "  pm.environment.set('action_ref', j.data.actions[0].ref);",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -939,7 +941,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{executionId}}\",\n  \"challengeToken\": \"{{challengeToken}}\",\n  \"action\": \"{{actionRef}}\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\"\n}" },
             "url": { "raw": "{{baseUrl}}/flow/execute", "host": ["{{baseUrl}}"], "path": ["flow", "execute"] }
           },
           "response": []
@@ -951,8 +953,8 @@
               "listen": "prerequest",
               "script": {
                 "exec": [
-                  "if (!pm.environment.get('individualId')) {",
-                  "  throw new Error('Set individualId in the environment (MOSIP UIN) before running this folder.');",
+                  "if (!pm.environment.get('individual_id')) {",
+                  "  throw new Error('Set individual_id in the environment (MOSIP UIN) before running this folder.');",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -969,9 +971,9 @@
                   "  const ids = (j.data && j.data.inputs || []).map(i => i.identifier);",
                   "  pm.expect(ids).to.include('otp');",
                   "});",
-                  "if (j.challengeToken) pm.environment.set('challengeToken', j.challengeToken);",
+                  "if (j.challengeToken) pm.environment.set('challenge_token', j.challengeToken);",
                   "if (j.data && j.data.actions && j.data.actions[0]) {",
-                  "  pm.environment.set('actionRef', j.data.actions[0].ref);",
+                  "  pm.environment.set('action_ref', j.data.actions[0].ref);",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -981,7 +983,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{executionId}}\",\n  \"challengeToken\": \"{{challengeToken}}\",\n  \"action\": \"{{actionRef}}\",\n  \"inputs\": {\n    \"username\": \"{{individualId}}\"\n  }\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\",\n  \"inputs\": {\n    \"username\": \"{{individual_id}}\"\n  }\n}" },
             "url": { "raw": "{{baseUrl}}/flow/execute", "host": ["{{baseUrl}}"], "path": ["flow", "execute"] }
           },
           "response": []
@@ -1006,14 +1008,14 @@
                 "exec": [
                   "pm.test('otp submit 200', () => pm.response.to.have.status(200));",
                   "const j = pm.response.json();",
-                  "if (j.challengeToken) pm.environment.set('challengeToken', j.challengeToken);",
+                  "if (j.challengeToken) pm.environment.set('challenge_token', j.challengeToken);",
                   "if (j.flowStatus === 'COMPLETE') {",
                   "  pm.test('assertion', () => pm.expect(j.assertion).to.be.a('string').and.not.empty);",
                   "  pm.environment.set('assertion', j.assertion);",
                   "} else {",
                   "  pm.test('INCOMPLETE after OTP', () => pm.expect(j.flowStatus).to.eql('INCOMPLETE'));",
                   "  if (j.data && j.data.actions && j.data.actions[0]) {",
-                  "    pm.environment.set('actionRef', j.data.actions[0].ref);",
+                  "    pm.environment.set('action_ref', j.data.actions[0].ref);",
                   "  }",
                   "}"
                 ],
@@ -1024,7 +1026,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{executionId}}\",\n  \"challengeToken\": \"{{challengeToken}}\",\n  \"action\": \"{{actionRef}}\",\n  \"inputs\": {\n    \"otp\": \"{{otp}}\"\n  }\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\",\n  \"inputs\": {\n    \"otp\": \"{{otp}}\"\n  }\n}" },
             "url": { "raw": "{{baseUrl}}/flow/execute", "host": ["{{baseUrl}}"], "path": ["flow", "execute"] }
           },
           "response": []
@@ -1043,7 +1045,7 @@
                   "const url = new URL(ru);",
                   "pm.test('no OAuth error in redirect', () => pm.expect(url.searchParams.get('error')).to.be.null);",
                   "pm.test('authorization code present', () => pm.expect(url.searchParams.get('code')).to.be.a('string').and.not.empty);",
-                  "pm.environment.set('authCode', url.searchParams.get('code'));"
+                  "pm.environment.set('code', url.searchParams.get('code'));"
                 ],
                 "type": "text/javascript"
               }
@@ -1052,7 +1054,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"authId\": \"{{authId}}\",\n  \"assertion\": \"{{assertion}}\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"authId\": \"{{auth_id}}\",\n  \"assertion\": \"{{assertion}}\"\n}" },
             "url": { "raw": "{{baseUrl}}/oauth2/auth/callback", "host": ["{{baseUrl}}"], "path": ["oauth2", "auth", "callback"] }
           },
           "response": []
@@ -1065,7 +1067,8 @@
               "script": {
                 "exec": [
                   "// DPoP proof for the token endpoint (reuses the key from Initiate PAR) + PS256",
-                  "// private_key_jwt (clientAssertion, aud = {baseUrl}/oauth2/token) signed with clientMgmtPrivateKey.",
+                  "// private_key_jwt (client_assertion) signed with client_private_key.",
+                  "// The token audience (DPoP htu AND assertion aud) comes from the audience env var.",
                   "function b64url(bytes) {",
                   "  const arr = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);",
                   "  let s = ''; for (let i = 0; i < arr.length; i++) s += String.fromCharCode(arr[i]);",
@@ -1077,22 +1080,23 @@
                   "  return b64url(new Uint8Array(await crypto.subtle.digest('SHA-256', data)));",
                   "}",
                   "async function generateJKT(jwk) { return await sha256b64url(JSON.stringify({ e: jwk.e, kty: jwk.kty, n: jwk.n })); }",
+                  "const tokenAudience = pm.environment.get('audience') || `${pm.environment.get('baseUrl')}/oauth2/token`;",
                   "",
                   "await (async () => {",
-                  "  const privateJwk = JSON.parse(pm.environment.get('dpopPrivateKey'));",
-                  "  const publicJwk = JSON.parse(pm.environment.get('dpopPublicKey'));",
+                  "  const privateJwk = JSON.parse(pm.environment.get('dpop_private_key'));",
+                  "  const publicJwk = JSON.parse(pm.environment.get('dpop_public_key'));",
                   "  const privateKey = await crypto.subtle.importKey('jwk', privateJwk, { name: 'RSA-PSS', hash: 'SHA-256' }, false, ['sign']);",
                   "  const header = { typ: 'dpop+jwt', alg: 'PS256', jwk: { e: publicJwk.e, kty: publicJwk.kty, n: publicJwk.n } };",
-                  "  const payload = { jti: crypto.randomUUID(), htm: 'POST', htu: `${pm.environment.get('baseUrl')}/oauth2/token`, iat: Math.floor(Date.now() / 1000) };",
+                  "  const payload = { jti: crypto.randomUUID(), htm: 'POST', htu: tokenAudience, iat: Math.floor(Date.now() / 1000) };",
                   "  const signingInput = `${b64urlStr(JSON.stringify(header))}.${b64urlStr(JSON.stringify(payload))}`;",
                   "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, privateKey, new TextEncoder().encode(signingInput));",
                   "  pm.request.headers.upsert({ key: 'DPoP', value: `${signingInput}.${b64url(new Uint8Array(sig))}` });",
                   "})();",
                   "",
                   "async function buildClientAssertion() {",
-                  "  const privateJwk = JSON.parse(pm.environment.get('clientMgmtPrivateKey'));",
-                  "  const clientId = pm.environment.get('clientMgmtClientId');",
-                  "  const audience = `${pm.environment.get('baseUrl')}/oauth2/token`;",
+                  "  const privateJwk = JSON.parse(pm.environment.get('client_private_key'));",
+                  "  const clientId = pm.environment.get('client_id');",
+                  "  const audience = tokenAudience;",
                   "  const privateKey = await crypto.subtle.importKey('jwk', privateJwk, { name: 'RSA-PSS', hash: 'SHA-256' }, false, ['sign']);",
                   "  const kid = privateJwk.kid || await generateJKT(privateJwk);",
                   "  const header = { alg: 'PS256', typ: 'JWT', kid };",
@@ -1102,7 +1106,7 @@
                   "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, privateKey, new TextEncoder().encode(signingInput));",
                   "  return `${signingInput}.${b64url(new Uint8Array(sig))}`;",
                   "}",
-                  "pm.environment.set('clientAssertion', await buildClientAssertion());"
+                  "pm.collectionVariables.set('client_assertion', await buildClientAssertion());"
                 ],
                 "type": "text/javascript"
               }
@@ -1114,8 +1118,8 @@
                   "pm.test('token 200', () => pm.response.to.have.status(200));",
                   "const t = pm.response.json();",
                   "pm.test('access_token', () => pm.expect(t.access_token).to.be.a('string').and.not.empty);",
-                  "pm.environment.set('accessToken', t.access_token);",
-                  "if (t.id_token) pm.environment.set('idToken', t.id_token);"
+                  "pm.environment.set('access_token', t.access_token);",
+                  "if (t.id_token) pm.environment.set('id_token', t.id_token);"
                 ],
                 "type": "text/javascript"
               }
@@ -1128,12 +1132,12 @@
               "mode": "urlencoded",
               "urlencoded": [
                 { "key": "grant_type", "value": "authorization_code", "type": "text" },
-                { "key": "code", "value": "{{authCode}}", "type": "text" },
-                { "key": "redirect_uri", "value": "{{redirectUri}}", "type": "text" },
-                { "key": "client_id", "value": "{{clientMgmtClientId}}", "type": "text" },
-                { "key": "code_verifier", "value": "{{codeVerifier}}", "type": "text" },
+                { "key": "code", "value": "{{code}}", "type": "text" },
+                { "key": "redirect_uri", "value": "{{redirect_uri}}", "type": "text" },
+                { "key": "client_id", "value": "{{client_id}}", "type": "text" },
+                { "key": "code_verifier", "value": "{{code_verifier}}", "type": "text" },
                 { "key": "client_assertion_type", "value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer", "type": "text" },
-                { "key": "client_assertion", "value": "{{clientAssertion}}", "type": "text" }
+                { "key": "client_assertion", "value": "{{client_assertion}}", "type": "text" }
               ]
             },
             "url": { "raw": "{{baseUrl}}/oauth2/token", "host": ["{{baseUrl}}"], "path": ["oauth2", "token"] }
@@ -1148,6 +1152,7 @@
               "script": {
                 "exec": [
                   "// DPoP proof for userinfo (ath = SHA-256 of the access token).",
+                  "// The userinfo audience (DPoP htu) comes from the userinfo_audience env var.",
                   "function b64url(bytes) {",
                   "  const arr = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);",
                   "  let s = ''; for (let i = 0; i < arr.length; i++) s += String.fromCharCode(arr[i]);",
@@ -1158,13 +1163,14 @@
                   "  const data = typeof input === 'string' ? new TextEncoder().encode(input) : input;",
                   "  return b64url(new Uint8Array(await crypto.subtle.digest('SHA-256', data)));",
                   "}",
+                  "const userinfoAudience = pm.environment.get('userinfo_audience') || `${pm.environment.get('baseUrl')}/oauth2/userinfo`;",
                   "await (async () => {",
-                  "  const privateJwk = JSON.parse(pm.environment.get('dpopPrivateKey'));",
-                  "  const publicJwk = JSON.parse(pm.environment.get('dpopPublicKey'));",
-                  "  const accessToken = pm.environment.get('accessToken');",
+                  "  const privateJwk = JSON.parse(pm.environment.get('dpop_private_key'));",
+                  "  const publicJwk = JSON.parse(pm.environment.get('dpop_public_key'));",
+                  "  const accessToken = pm.environment.get('access_token');",
                   "  const privateKey = await crypto.subtle.importKey('jwk', privateJwk, { name: 'RSA-PSS', hash: 'SHA-256' }, false, ['sign']);",
                   "  const header = { typ: 'dpop+jwt', alg: 'PS256', jwk: { e: publicJwk.e, kty: publicJwk.kty, n: publicJwk.n } };",
-                  "  const payload = { jti: crypto.randomUUID(), htm: pm.request.method.toUpperCase(), htu: `${pm.environment.get('baseUrl')}/oauth2/userinfo`, iat: Math.floor(Date.now() / 1000), ath: await sha256b64url(accessToken) };",
+                  "  const payload = { jti: crypto.randomUUID(), htm: pm.request.method.toUpperCase(), htu: userinfoAudience, iat: Math.floor(Date.now() / 1000), ath: await sha256b64url(accessToken) };",
                   "  const signingInput = `${b64urlStr(JSON.stringify(header))}.${b64urlStr(JSON.stringify(payload))}`;",
                   "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, privateKey, new TextEncoder().encode(signingInput));",
                   "  pm.request.headers.upsert({ key: 'DPoP', value: `${signingInput}.${b64url(new Uint8Array(sig))}` });",
@@ -1186,7 +1192,7 @@
           ],
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "DPoP {{accessToken}}", "type": "text" }],
+            "header": [{ "key": "Authorization", "value": "DPoP {{access_token}}", "type": "text" }],
             "url": { "raw": "{{baseUrl}}/oauth2/userinfo", "host": ["{{baseUrl}}"], "path": ["oauth2", "userinfo"] }
           },
           "response": []
@@ -1203,7 +1209,7 @@
         "exec": [
           "// Collection-level pre-request. Runs before EVERY request; no-ops on everything",
           "// except a request literally named 'Token' (OTP + Credentials folders). Signs the",
-          "// private_key_jwt client_assertion (RS256) with clientMgmtPrivateKey. FAPI2 builds",
+          "// private_key_jwt client_assertion (RS256) with client_private_key. FAPI2 builds",
           "// its own PS256 assertions per request, so this no-ops there.",
           "if (pm.info.requestName !== 'Token') { return; }",
           "",
@@ -1219,26 +1225,29 @@
           "  return jwk;",
           "}",
           "",
-          "const clientId = pm.environment.get('clientMgmtClientId');",
-          "const clientJwkRaw = pm.environment.get('clientMgmtPrivateKey');",
-          "const tokenEndpoint = pm.environment.get('baseUrl').replace(/\\/$/, '') + '/oauth2/token';",
-          "if (!clientId) { throw new Error('clientMgmtClientId is not set — run Client Management > Create client first'); }",
-          "if (!clientJwkRaw) { throw new Error('clientMgmtPrivateKey is not set — run Client Management > Create client first'); }",
+          "const clientId = pm.environment.get('client_id');",
+          "const clientJwkRaw = pm.environment.get('client_private_key');",
+          "const audience = pm.environment.get('audience') || (pm.environment.get('baseUrl').replace(/\\/$/, '') + '/oauth2/token');",
+          "if (!clientId) { throw new Error('client_id is not set — run Client Management > Create client first'); }",
+          "if (!clientJwkRaw) { throw new Error('client_private_key is not set — run Client Management > Create client first'); }",
           "",
           "const jwk = parsePrivateJwk(clientJwkRaw);",
           "if (!jwk.kid) { throw new Error('Private JWK must include kid'); }",
           "const header = { alg: 'RS256', typ: 'JWT', kid: jwk.kid };",
           "const now = Math.floor(Date.now() / 1000);",
-          "const payload = { iss: clientId, sub: clientId, aud: tokenEndpoint, jti: pm.variables.replaceIn('{{$guid}}'), iat: now, exp: now + 300 };",
+          "const payload = { iss: clientId, sub: clientId, aud: audience, jti: pm.variables.replaceIn('{{$guid}}'), iat: now, exp: now + 300 };",
           "const signingInput = base64UrlEncode(new TextEncoder().encode(JSON.stringify(header)))",
           "  + '.' + base64UrlEncode(new TextEncoder().encode(JSON.stringify(payload)));",
           "return crypto.subtle.importKey('jwk', jwk, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['sign'])",
           "  .then((key) => crypto.subtle.sign('RSASSA-PKCS1-v1_5', key, new TextEncoder().encode(signingInput)))",
-          "  .then((sig) => { pm.environment.set('clientAssertion', signingInput + '.' + base64UrlEncode(new Uint8Array(sig))); });"
+          "  .then((sig) => { pm.collectionVariables.set('client_assertion', signingInput + '.' + base64UrlEncode(new Uint8Array(sig))); });"
         ]
       }
     },
     { "listen": "test", "script": { "type": "text/javascript", "exec": [""] } }
   ],
-  "variable": []
+  "variable": [
+    { "key": "client_assertion", "value": "", "type": "string" },
+    { "key": "par_client_assertion", "value": "", "type": "string" }
+  ]
 }

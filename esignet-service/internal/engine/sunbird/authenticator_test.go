@@ -18,6 +18,14 @@ import (
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 )
 
+func testRequestedAttributes(claims ...string) *providers.RequestedAttributes {
+	attrs := make(map[string]*providers.AttributeMetadataRequest, len(claims))
+	for _, claim := range claims {
+		attrs[claim] = &providers.AttributeMetadataRequest{}
+	}
+	return &providers.RequestedAttributes{Attributes: attrs}
+}
+
 func testConfig(searchURL, entityURL string) Config {
 	return Config{
 		SearchURL:     searchURL,
@@ -221,7 +229,7 @@ func (ts *AuthenticatorTestSuite) TestGetUserAttributes() {
 		var authUser providers.AuthUser
 		authUser.SetEntityReferenceToken("entity-123")
 
-		_, attrs, svcErr := p.GetUserAttributes(context.Background(), nil, nil, authUser)
+		_, attrs, svcErr := p.GetUserAttributes(context.Background(), testRequestedAttributes("name", "email"), nil, authUser)
 		if svcErr != nil {
 			t.Fatalf("unexpected service error: %v", svcErr)
 		}
@@ -243,7 +251,7 @@ func (ts *AuthenticatorTestSuite) TestGetUserAttributes() {
 		var authUser providers.AuthUser
 		authUser.SetEntityReferenceToken("entity-123")
 
-		_, _, svcErr := p.GetUserAttributes(context.Background(), nil, nil, authUser)
+		_, _, svcErr := p.GetUserAttributes(context.Background(), testRequestedAttributes("name"), nil, authUser)
 		if svcErr == nil {
 			t.Fatal("expected invalid request error on entity fetch failure")
 		}

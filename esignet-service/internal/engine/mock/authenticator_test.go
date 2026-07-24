@@ -60,7 +60,7 @@ func newClientService(t *testing.T, clientID, rpID string) *clientmgmt.Service {
 			Status:       "ACTIVE",
 			CrDtimes:     time.Now(),
 		},
-	})
+	}, nil, 0)
 }
 
 func newAuthnMetadata() *providers.AuthnMetadata {
@@ -79,6 +79,14 @@ func newGetAttributesMetadata() *providers.GetAttributesMetadata {
 			"ext_TransactionID": "1234567890",
 		},
 	}
+}
+
+func newRequestedAttributes(claims ...string) *providers.RequestedAttributes {
+	attrs := make(map[string]*providers.AttributeMetadataRequest, len(claims))
+	for _, claim := range claims {
+		attrs[claim] = &providers.AttributeMetadataRequest{}
+	}
+	return &providers.RequestedAttributes{Attributes: attrs}
 }
 
 func setMockEnv(t *testing.T, server *httptest.Server) {
@@ -131,7 +139,7 @@ func (ts *AuthenticatorTestSuite) TestAuthenticateUser_OTP_Success() {
 
 	require.Nil(t, svcErr)
 	assert.Nil(t, claims)
-	assert.Equal(t, "kyc-token-xyz||2760459465", resultUser.AttributeToken())
+	assert.Equal(t, "kyc-token-xyz||2760459465||1234567890", resultUser.AttributeToken())
 	assert.Equal(t, "psut-xyz", resultUser.EntityReferenceToken())
 	assert.Equal(t, "111111", gotBody["otp"])
 	assert.Equal(t, "2760459465", gotBody["individualId"])
@@ -328,9 +336,9 @@ func (ts *AuthenticatorTestSuite) TestGetUserAttributes_Success() {
 	require.NoError(t, err)
 
 	var authUser providers.AuthUser
-	authUser.SetAttributeToken("kyc-token-xyz||2760459465")
+	authUser.SetAttributeToken("kyc-token-xyz||2760459465||1234567890")
 
-	_, attrs, svcErr := provider.GetUserAttributes(context.Background(), nil, newGetAttributesMetadata(), authUser)
+	_, attrs, svcErr := provider.GetUserAttributes(context.Background(), newRequestedAttributes("name"), newGetAttributesMetadata(), authUser)
 
 	require.Nil(t, svcErr)
 	require.NotNil(t, attrs)
@@ -345,7 +353,7 @@ func (ts *AuthenticatorTestSuite) TestGetUserAttributes_NoAttributeToken_Returns
 	require.NoError(t, err)
 
 	var authUser providers.AuthUser
-	_, attrs, svcErr := provider.GetUserAttributes(context.Background(), nil, newGetAttributesMetadata(), authUser)
+	_, attrs, svcErr := provider.GetUserAttributes(context.Background(), newRequestedAttributes("name"), newGetAttributesMetadata(), authUser)
 
 	require.Nil(t, svcErr)
 	assert.Nil(t, attrs)

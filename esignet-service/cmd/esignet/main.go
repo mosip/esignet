@@ -12,16 +12,20 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/redis/go-redis/v9"
+
 	"github.com/thunder-id/thunderid/pkg/thunderidengine"
 	engineconfig "github.com/thunder-id/thunderid/pkg/thunderidengine/config"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
 	"github.com/mosip/esignet/internal/clientmgmt"
 	"github.com/mosip/esignet/internal/config"
+	"github.com/mosip/esignet/internal/consentmgmt"
 	"github.com/mosip/esignet/internal/engine"
 	"github.com/mosip/esignet/internal/engine/runtimestores/inmemory"
 	"github.com/mosip/esignet/internal/engine/runtimestores/redisstore"
 	"github.com/mosip/esignet/internal/engine/shared"
+	"github.com/mosip/esignet/internal/httpmiddleware"
 	applog "github.com/mosip/esignet/internal/log"
 	"github.com/mosip/esignet/internal/security"
 )
@@ -40,11 +44,33 @@ func main() {
 	if err != nil {
 		logger.Fatal("postgres connection failed", applog.Error(err))
 	}
+	logger.Info("postgres connected",
+		applog.Int("maxOpenConns", appCfg.DB.Pool.MaxOpenConns),
+		applog.Int("maxIdleConns", appCfg.DB.Pool.MaxIdleConns))
 	defer func() {
 		if err := pgConn.Close(); err != nil {
 			logger.Warn("close postgres", applog.Error(err))
 		}
 	}()
+
+	// Setup Redis client. It is shared by the runtime store provider and the consent enforcer
+	// (which reads the engine's authorization requests), so both resolve the same keys. Created
+	// only when Redis is the configured runtime store; nil otherwise (e.g. in-memory store).
+	var redisClient *redis.Client
+	if appCfg.RuntimeDBType == "redis" {
+		redisClient, err = appCfg.Redis.Open()
+		if err != nil {
+			logger.Fatal("connect redis", applog.Error(err))
+		}
+		defer func() {
+			if err := redisClient.Close(); err != nil {
+				logger.Warn("close redis", applog.Error(err))
+			}
+		}()
+		logger.Info("redis connected",
+			applog.String("key_prefix", appCfg.Redis.KeyPrefix),
+		)
+	}
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, _ *http.Request) {
@@ -52,7 +78,12 @@ func main() {
 		_, _ = w.Write([]byte("ok"))
 	})
 
-	clientSvc := clientmgmt.NewService(pgConn)
+	// The runtime store is shared between the engine and the consent enforcer (which reads the
+	// engine's stored authorization requests from it), so both resolve the same keys. It's also
+	// used by clientSvc below to cache GetClient lookups.
+	runtimeStore := getRuntimeStoreProvider(appCfg, redisClient, logger)
+
+	clientSvc := clientmgmt.NewService(pgConn, runtimeStore, appCfg.ClientCacheTTLSecs)
 	clientHandler := clientmgmt.NewHandler(clientSvc, logger)
 	clientHandler.RegisterRoutes(mux, getSecurityMiddleware(appCfg, logger))
 
@@ -77,7 +108,7 @@ func main() {
 		thunderidengine.WithActorProvider(engine.NewActorProvider(clientSvc, appCfg)),
 		thunderidengine.WithAuthnProvider(authnProvider),
 		thunderidengine.WithAuthorizationProvider(engine.NewAuthorizationProvider(appCfg)),
-		thunderidengine.WithConsentProvider(engine.NewConsentEnforcer()),
+		thunderidengine.WithConsentProvider(engine.NewConsentProvider(consentmgmt.NewService(pgConn), appCfg, runtimeStore)),
 		thunderidengine.WithDesignResolveProvider(engine.NewDesignProvider(appCfg)),
 		thunderidengine.WithFlowProvider(engine.NewFlowProvider(appCfg)),
 		thunderidengine.WithI18nProvider(engine.NewI18nProvider(appCfg)),
@@ -86,12 +117,13 @@ func main() {
 		thunderidengine.WithObservabilityProvider(observabilityProvider),
 		thunderidengine.WithIDPProvider(engine.NewIDPProvider(appCfg)),
 		thunderidengine.WithCustomExecutors(getCustomExecutors(authnProvider)),
-		thunderidengine.WithRuntimeStoreProvider(getRuntimeStoreProvider(appCfg, logger)),
+		thunderidengine.WithRuntimeStoreProvider(runtimeStore),
 	)
 
 	addr := fmt.Sprintf(":%d", appCfg.Port)
 	logger.Info("server listening", applog.String("addr", addr), applog.String("issuer", appCfg.Issuer))
-	if err := http.ListenAndServe(addr, mux); err != nil {
+	handler := httpmiddleware.CorrelationID(httpmiddleware.AccessLog(mux))
+	if err := http.ListenAndServe(addr, handler); err != nil {
 		logger.Fatal("server", applog.Error(err))
 	}
 }
@@ -150,26 +182,17 @@ func getCustomExecutors(authn providers.AuthnProviderManager) map[string]provide
 	return executors
 }
 
-func getRuntimeStoreProvider(appCfg *config.AppConfig, logger *applog.Logger) providers.RuntimeStoreProvider {
+func getRuntimeStoreProvider(appCfg *config.AppConfig, redisClient *redis.Client, logger *applog.Logger) providers.RuntimeStoreProvider {
 	if appCfg.RuntimeDBType == "redis" {
-		redisClient, err := appCfg.Redis.Open()
-		if err != nil {
-			logger.Fatal("connect redis", applog.Error(err))
-		}
-		defer func() {
-			if err := redisClient.Close(); err != nil {
-				logger.Warn("close redis", applog.Error(err))
-			}
-		}()
-		logger.Info("redis connected",
-			applog.String("key_prefix", appCfg.Redis.KeyPrefix),
-		)
 		store, err := redisstore.Initialize(appCfg.Identifier, appCfg.Redis.KeyPrefix, redisClient)
 		if err != nil {
 			logger.Fatal("Failed to initialize redis store", applog.Error(err))
 		}
+		logger.Info("runtime store initialized", applog.String("type", "redis"))
 		return store
 	}
 
+	logger.Warn("runtime store initialized", applog.String("type", "in-memory"),
+		applog.String("note", "not shared across replicas; use redis for multi-instance deployments"))
 	return inmemory.Initialize(appCfg.Identifier)
 }

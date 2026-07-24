@@ -1,6 +1,6 @@
 /* Default theme variables */
 :root {
-  --primary-color: #eb6f2d;
+  --primary-color: var(--thunderid-color-primary-main);
   --login-card-box-color: #bcc0c7;
   --login-card-box-hover-color: var(--primary-color);
   --login-card-box-focus-color: var(--primary-color);
