@@ -1,20 +1,22 @@
 name: PR Gate
+
 on:
   pull_request:
-    branches: [ master, main, develop, release-*, develop-go ]
+    types: [opened, reopened, synchronize]
+
 permissions:
-  contents: read
-  security-events: write
-  pull-requests: write
+  contents: read           # checkout
+  pull-requests: write     # dependency-review + Trivy + pgpverify PR comments
+  security-events: write   # Trivy SARIF upload to the Security tab
+
 jobs:
   pr-gate:
+    # Testing ref (fork/branch holding the updated gate). After the kattu PR
+    # merges, switch to: mosip/kattu/.github/workflows/pr-gate.yml@<release-tag>
     uses: Mahesh-Binayak/kattu/.github/workflows/pr-gate.yml@esignet-343
-    secrets: inherit
     with:
-      # esignet's npm project (and its package-lock.json) live in oidc-ui/, not the repo root,
-      # so npm ci / tests must run there. Java reactor is at root, so JAVA_SERVICE_LOCATION stays '.'.
-      NPM_SERVICE_LOCATION: oidc-ui
-      # Trivy findings are posted as a PR comment. `full` lists all current HIGH/CRITICAL
-      # on every PR (self-converges to diff-only as the backlog is fixed). Switch to `diff`
-      # once the backlog is clear to comment only vulns the PR newly introduces.
-      trivy_comment_mode: full
+      SERVICE_LOCATION: '.'
+      GO_SERVICE_LOCATION: 'esignet-service'
+      NPM_SERVICE_LOCATION: 'oidc-ui'
+      NPM_COVERAGE_COMMAND: 'npx vitest run --coverage'
+    secrets: inherit
