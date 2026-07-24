@@ -1187,3 +1187,90 @@ system:
   "theme.error.not_found": थीम नहीं मिली
   "theme.error.not_found_description": अनुरोधित थीम कॉन्फ़िगरेशन नहीं मिली
   "theme.error.result_limit_exceeded": परिणाम सीमा पार हो गई
+
+header:
+  login_heading: लॉगिन
+  login_subheading: लॉगिन के लिए प्रमाणीकरण का अनुरोध कर रहा है
+  select_login_id: लॉगिन आईडी विकल्प चुनें
+  select_login_mode: लॉगिन का पसंदीदा तरीका चुनें
+
+input:
+  uin_label: यूआईएन/वीआईडी
+  uin_placeholder: अपना यूआईएन/वीआईडी दर्ज करें
+  mobile_label: मोबाइल नंबर
+  mobile_placeholder: मोबाइल नंबर दर्ज करें
+  email_label: ईमेल
+  email_placeholder: ईमेल आईडी दर्ज करें
+  nrc_label: एनआरसी आईडी
+  nrc_placeholder: एनआरसी आईडी दर्ज करें
+  password_label: पासवर्ड
+  password_placeholder: अपना पासवर्ड दर्ज करें
+  username_label: उपयोगकर्ता नाम
+  username_placeholder: अपना उपयोगकर्ता नाम दर्ज करें
+  fullname_label: पूरा नाम
+  fullname_placeholder: अपना पूरा नाम दर्ज करें
+  dob_label: जन्म तिथि
+  dob_placeholder: अपनी जन्म तिथि चुनें
+
+button:
+  continue: जारी रखें
+  login: लॉगिन
+  verify: सत्यापित करें
+  get_otp: ओटीपी प्राप्त करें
+  login_otp: ओटीपी से लॉगिन करें
+  login_password: पासवर्ड से लॉगिन करें
+  login_biometrics: बायोमेट्रिक्स से लॉगिन करें
+  login_kbi: केबीआई से लॉगिन करें
+  login_id_uin: यूआईएन/वीआईडी
+  login_id_mobile: मोबाइल नंबर
+  login_id_email: ईमेल
+  login_id_nrc: एनआरसी आईडी
+
+otp:
+  enter_otp_title: ओटीपी दर्ज करें
+  otp_sent_msg: कृपया अपने पंजीकृत संपर्क पर भेजा गया 6 अंकों का ओटीपी दर्ज करें
+  resend_otp: ओटीपी पुनः भेजें
+
+consent:
+  title: हमें आपकी सहमति चाहिए
+  description: यह ऐप निम्नलिखित जानकारी तक पहुंचना चाहता है। कृपया समीक्षा करें और चुनें कि आप क्या साझा करना चाहते हैं।
+  allow: अनुमति दें
+  deny: अस्वीकार करें
+
+signin:
+  images.app_logo.alt: एप्लिकेशन लोगो
+
+validation:
+  uin.numeric: यूआईएन/वीआईडी में केवल संख्याएं होनी चाहिए
+  uin.length: यूआईएन/वीआईडी 10 से 16 अंकों के बीच होना चाहिए
+  mobile.numeric: मोबाइल नंबर में केवल संख्याएं होनी चाहिए
+  mobile.length: मोबाइल नंबर 9 से 11 अंकों के बीच होना चाहिए
+  email.format: कृपया एक मान्य ईमेल पता दर्ज करें
+  pattern.invalid: अमान्य प्रारूप
+  minLength.invalid: मान बहुत छोटा है
+  maxLength.invalid: मान बहुत लंबा है
+
+validations:
+  required.field.error: यह फ़ील्ड आवश्यक है
+
+errors:
+  heading: त्रुटि
+  signin.initialization: साइन-इन प्रारंभ करने में असमर्थ। कृपया पुनः प्रयास करें।
+  network.unavailable: नेटवर्क अनुपलब्ध। कृपया अपना कनेक्शन जांचें।
+  something_went_wrong: कुछ गलत हो गया
+  unexpected_error: एक अप्रत्याशित त्रुटि हुई। कृपया बाद में पुनः प्रयास करें।
+  page_not_found: पृष्ठ नहीं मिला
+
+messages:
+  loading.placeholder: लोड हो रहा है...
+
+app:
+  footer.powered_by: द्वारा संचालित
+  network_error.title: इंटरनेट कनेक्शन नहीं है
+  network_error.description: कृपया अपना नेटवर्क कनेक्शन जांचें और पुनः प्रयास करें।
+  network_error.try_again: पुनः प्रयास करें
+  otp.resend_timer: आप ओटीपी पुनः भेज सकते हैं
+  otp.timed_out: समय समाप्त
+  otp.submit: सबमिट करें
+  back: पीछे
+  esignet_details: ईसिग्नेट विवरण

@@ -1188,3 +1188,90 @@ system:
   "theme.error.not_found_description": រកមិនឃើញការកំណត់រចនាសម្ព័ន្ធ theme ដែលបានស្នើសុំ
   "theme.error.result_limit_exceeded": ដែនកំណត់លទ្ធផលលើស
   "theme.error.result_limit_exceeded_description": ចំនួនសរុបនៃ themes លើសដែនកំណត់អតិបរិមាដែលអនុញ្ញាតក្នុងរបៀបផ្សំ
+
+header:
+  login_heading: ចូល
+  login_subheading: កំពុងស្នើសុំការផ្ទៀងផ្ទាត់សម្រាប់ការចូល
+  select_login_id: ជ្រើសរើសជម្រើសអត្តសញ្ញាណចូល
+  select_login_mode: ជ្រើសរើសរបៀបចូលដែលពេញចិត្ត
+
+input:
+  uin_label: UIN/VID
+  uin_placeholder: បញ្ចូល UIN/VID របស់អ្នក
+  mobile_label: លេខទូរស័ព្ទ
+  mobile_placeholder: បញ្ចូលលេខទូរស័ព្ទ
+  email_label: អ៊ីមែល
+  email_placeholder: បញ្ចូលអ៊ីមែល
+  nrc_label: អត្តសញ្ញាណប័ណ្ណ NRC
+  nrc_placeholder: បញ្ចូលអត្តសញ្ញាណប័ណ្ណ NRC
+  password_label: ពាក្យសម្ងាត់
+  password_placeholder: បញ្ចូលពាក្យសម្ងាត់របស់អ្នក
+  username_label: ឈ្មោះអ្នកប្រើ
+  username_placeholder: បញ្ចូលឈ្មោះអ្នកប្រើរបស់អ្នក
+  fullname_label: ឈ្មោះពេញ
+  fullname_placeholder: បញ្ចូលឈ្មោះពេញរបស់អ្នក
+  dob_label: ថ្ងៃខែឆ្នាំកំណើត
+  dob_placeholder: ជ្រើសរើសថ្ងៃខែឆ្នាំកំណើតរបស់អ្នក
+
+button:
+  continue: បន្ត
+  login: ចូល
+  verify: ផ្ទៀងផ្ទាត់
+  get_otp: ទទួល OTP
+  login_otp: ចូលដោយ OTP
+  login_password: ចូលដោយពាក្យសម្ងាត់
+  login_biometrics: ចូលដោយជីវមាត្រ
+  login_kbi: ចូលដោយ KBI
+  login_id_uin: UIN/VID
+  login_id_mobile: លេខទូរស័ព្ទ
+  login_id_email: អ៊ីមែល
+  login_id_nrc: អត្តសញ្ញាណប័ណ្ណ NRC
+
+otp:
+  enter_otp_title: បញ្ចូល OTP
+  otp_sent_msg: សូមបញ្ចូលលេខកូដ OTP 6 ខ្ទង់ដែលបានផ្ញើទៅទំនាក់ទំនងដែលបានចុះឈ្មោះរបស់អ្នក
+  resend_otp: ផ្ញើ OTP ម្តងទៀត
+
+consent:
+  title: យើងត្រូវការការយល់ព្រមរបស់អ្នក
+  description: កម្មវិធីនេះចង់ចូលប្រើព័ត៌មានខាងក្រោម។ សូមពិនិត្យមើល និងជ្រើសរើសអ្វីដែលអ្នកចង់ចែករំលែក។
+  allow: អនុញ្ញាត
+  deny: បដិសេធ
+
+signin:
+  images.app_logo.alt: រូបសញ្ញាកម្មវិធី
+
+validation:
+  uin.numeric: UIN/VID ត្រូវមានតែលេខប៉ុណ្ណោះ
+  uin.length: UIN/VID ត្រូវមានចន្លោះពី 10 ទៅ 16 ខ្ទង់
+  mobile.numeric: លេខទូរស័ព្ទត្រូវមានតែលេខប៉ុណ្ណោះ
+  mobile.length: លេខទូរស័ព្ទត្រូវមានចន្លោះពី 9 ទៅ 11 ខ្ទង់
+  email.format: សូមបញ្ចូលអាសយដ្ឋានអ៊ីមែលត្រឹមត្រូវ
+  pattern.invalid: ទម្រង់មិនត្រឹមត្រូវ
+  minLength.invalid: តម្លៃខ្លីពេក
+  maxLength.invalid: តម្លៃវែងពេក
+
+validations:
+  required.field.error: វាលនេះត្រូវបានទាមទារ
+
+errors:
+  heading: កំហុស
+  signin.initialization: មិនអាចចាប់ផ្តើមការចូលបានទេ។ សូមព្យាយាមម្តងទៀត។
+  network.unavailable: បណ្តាញមិនអាចប្រើបាន។ សូមពិនិត្យមើលការតភ្ជាប់របស់អ្នក។
+  something_went_wrong: មានអ្វីមួយខុសប្រក្រតី
+  unexpected_error: មានកំហុសដែលមិនបានរំពឹងទុក។ សូមព្យាយាមម្តងទៀតនៅពេលក្រោយ។
+  page_not_found: រកមិនឃើញទំព័រ
+
+messages:
+  loading.placeholder: កំពុងផ្ទុក...
+
+app:
+  footer.powered_by: ដំណើរការដោយ
+  network_error.title: គ្មានការតភ្ជាប់អ៊ីនធឺណិត
+  network_error.description: សូមពិនិត្យមើលការតភ្ជាប់បណ្តាញរបស់អ្នក រួចព្យាយាមម្តងទៀត។
+  network_error.try_again: ព្យាយាមម្តងទៀត
+  otp.resend_timer: អ្នកអាចផ្ញើ OTP ម្តងទៀតក្នុង
+  otp.timed_out: អស់ពេល
+  otp.submit: ដាក់ស្នើ
+  back: ថយក្រោយ
+  esignet_details: ព័ត៌មានលម្អិត eSignet

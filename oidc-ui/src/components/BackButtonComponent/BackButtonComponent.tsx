@@ -2,6 +2,7 @@ import type {
   ComponentRenderContext,
   EmbeddedFlowComponent,
 } from "@thunderid/react";
+import { useTranslation, resolveFlowTemplateLiterals } from "@thunderid/react";
 
 export default function BackButton({
   component,
@@ -10,6 +11,12 @@ export default function BackButton({
   component: EmbeddedFlowComponent;
   context: ComponentRenderContext;
 }) {
+  const { t } = useTranslation();
+
+  const resolvedLabel = component.label
+    ? resolveFlowTemplateLiterals(component.label, { t })
+    : t("app.back");
+
   const handleBackButtonClick = () => {
     if (context.onSubmit) {
       context.resetForm?.();
@@ -24,9 +31,9 @@ export default function BackButton({
           <button
             id="back-button"
             type="button"
-            aria-label={component.label || "Back"}
+            aria-label={resolvedLabel}
             onClick={() => handleBackButtonClick()}
-            className="back-button-color cursor-pointer text-2xl font-semibold justify-left rtl:rotate-180 relative top-[2px]"
+            className="back-button-color cursor-pointer text-2xl font-semibold justify-start rtl:rotate-180 relative top-[2px]"
           >
             <svg
               width="15"
@@ -34,7 +41,7 @@ export default function BackButton({
               viewBox="0 0 15 13"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
-              className="mr-2 relative top-[2px]"
+              className="me-2 relative top-[2px]"
               aria-label="left_arrow_icon"
             >
               <g clipPath="url(#clip0_171_703)">
@@ -55,7 +62,7 @@ export default function BackButton({
             </svg>
           </button>
         </div>
-        <div className="inline mx-2 font-semibold my-3">{component.label}</div>
+        <div className="inline mx-2 font-semibold my-3">{resolvedLabel}</div>
       </div>
     </>
   );

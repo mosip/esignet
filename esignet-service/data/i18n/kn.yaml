@@ -1188,3 +1188,90 @@ system:
   "theme.error.not_found_description": ವಿನಂತಿಸಿದ ಥೀಮ್ ಸಂರಚನೆ ಕಂಡುಬಂದಿಲ್ಲ
   "theme.error.result_limit_exceeded": ಫಲಿತಾಂಶ ಮಿತಿ ಮೀರಿದೆ
   "theme.error.result_limit_exceeded_description": ಸಂಯೋಜಿತ ಮೋಡ್‌ನಲ್ಲಿ ಥೀಮ್‌ಗಳ ಒಟ್ಟು ಸಂಖ್ಯೆ ಗರಿಷ್ಠ ಅನುಮತಿಸಿದ ಮಿತಿ ಮೀರಿದೆ
+
+header:
+  login_heading: ಲಾಗಿನ್
+  login_subheading: ಲಾಗಿನ್‌ಗಾಗಿ ದೃಢೀಕರಣವನ್ನು ವಿನಂತಿಸುತ್ತಿದೆ
+  select_login_id: ಲಾಗಿನ್ ಐಡಿ ಆಯ್ಕೆಯನ್ನು ಆರಿಸಿ
+  select_login_mode: ಲಾಗಿನ್‌ನ ಆದ್ಯತೆಯ ವಿಧಾನವನ್ನು ಆರಿಸಿ
+
+input:
+  uin_label: UIN/VID
+  uin_placeholder: ನಿಮ್ಮ UIN/VID ನಮೂದಿಸಿ
+  mobile_label: ಮೊಬೈಲ್ ಸಂಖ್ಯೆ
+  mobile_placeholder: ಮೊಬೈಲ್ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ
+  email_label: ಇಮೇಲ್
+  email_placeholder: ಇಮೇಲ್ ಐಡಿ ನಮೂದಿಸಿ
+  nrc_label: NRC ಐಡಿ
+  nrc_placeholder: NRC ಐಡಿ ನಮೂದಿಸಿ
+  password_label: ಪಾಸ್‌ವರ್ಡ್
+  password_placeholder: ನಿಮ್ಮ ಪಾಸ್‌ವರ್ಡ್ ನಮೂದಿಸಿ
+  username_label: ಬಳಕೆದಾರ ಹೆಸರು
+  username_placeholder: ನಿಮ್ಮ ಬಳಕೆದಾರ ಹೆಸರನ್ನು ನಮೂದಿಸಿ
+  fullname_label: ಪೂರ್ಣ ಹೆಸರು
+  fullname_placeholder: ನಿಮ್ಮ ಪೂರ್ಣ ಹೆಸರನ್ನು ನಮೂದಿಸಿ
+  dob_label: ಹುಟ್ಟಿದ ದಿನಾಂಕ
+  dob_placeholder: ನಿಮ್ಮ ಹುಟ್ಟಿದ ದಿನಾಂಕವನ್ನು ಆಯ್ಕೆಮಾಡಿ
+
+button:
+  continue: ಮುಂದುವರಿಸಿ
+  login: ಲಾಗಿನ್
+  verify: ಪರಿಶೀಲಿಸಿ
+  get_otp: OTP ಪಡೆಯಿರಿ
+  login_otp: OTP ಮೂಲಕ ಲಾಗಿನ್ ಮಾಡಿ
+  login_password: ಪಾಸ್‌ವರ್ಡ್ ಮೂಲಕ ಲಾಗಿನ್ ಮಾಡಿ
+  login_biometrics: ಬಯೋಮೆಟ್ರಿಕ್ಸ್ ಮೂಲಕ ಲಾಗಿನ್ ಮಾಡಿ
+  login_kbi: KBI ಮೂಲಕ ಲಾಗಿನ್ ಮಾಡಿ
+  login_id_uin: UIN/VID
+  login_id_mobile: ಮೊಬೈಲ್ ಸಂಖ್ಯೆ
+  login_id_email: ಇಮೇಲ್
+  login_id_nrc: NRC ಐಡಿ
+
+otp:
+  enter_otp_title: OTP ನಮೂದಿಸಿ
+  otp_sent_msg: ನಿಮ್ಮ ನೋಂದಾಯಿತ ಸಂಪರ್ಕಕ್ಕೆ ಕಳುಹಿಸಲಾದ 6 ಅಂಕಿಯ OTP ನಮೂದಿಸಿ
+  resend_otp: OTP ಮರುಕಳುಹಿಸಿ
+
+consent:
+  title: ನಿಮ್ಮ ಒಪ್ಪಿಗೆ ಬೇಕು
+  description: ಈ ಅಪ್ಲಿಕೇಶನ್ ಈ ಕೆಳಗಿನ ಮಾಹಿತಿಯನ್ನು ಪ್ರವೇಶಿಸಲು ಬಯಸುತ್ತದೆ. ದಯವಿಟ್ಟು ಪರಿಶೀಲಿಸಿ ಮತ್ತು ನೀವು ಏನನ್ನು ಹಂಚಿಕೊಳ್ಳಲು ಬಯಸುತ್ತೀರಿ ಎಂಬುದನ್ನು ಆಯ್ಕೆಮಾಡಿ.
+  allow: ಅನುಮತಿಸಿ
+  deny: ನಿರಾಕರಿಸಿ
+
+signin:
+  images.app_logo.alt: ಅಪ್ಲಿಕೇಶನ್ ಲೋಗೋ
+
+validation:
+  uin.numeric: UIN/VID ಸಂಖ್ಯೆಗಳನ್ನು ಮಾತ್ರ ಹೊಂದಿರಬೇಕು
+  uin.length: UIN/VID 10 ರಿಂದ 16 ಅಂಕಿಗಳ ನಡುವೆ ಇರಬೇಕು
+  mobile.numeric: ಮೊಬೈಲ್ ಸಂಖ್ಯೆ ಸಂಖ್ಯೆಗಳನ್ನು ಮಾತ್ರ ಹೊಂದಿರಬೇಕು
+  mobile.length: ಮೊಬೈಲ್ ಸಂಖ್ಯೆ 9 ರಿಂದ 11 ಅಂಕಿಗಳ ನಡುವೆ ಇರಬೇಕು
+  email.format: ದಯವಿಟ್ಟು ಮಾನ್ಯ ಇಮೇಲ್ ವಿಳಾಸವನ್ನು ನಮೂದಿಸಿ
+  pattern.invalid: ಅಮಾನ್ಯ ಸ್ವರೂಪ
+  minLength.invalid: ಮೌಲ್ಯ ತುಂಬಾ ಚಿಕ್ಕದಾಗಿದೆ
+  maxLength.invalid: ಮೌಲ್ಯ ತುಂಬಾ ಉದ್ದವಾಗಿದೆ
+
+validations:
+  required.field.error: ಈ ಕ್ಷೇತ್ರ ಅಗತ್ಯವಿದೆ
+
+errors:
+  heading: ದೋಷ
+  signin.initialization: ಸೈನ್-ಇನ್ ಪ್ರಾರಂಭಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.
+  network.unavailable: ನೆಟ್‌ವರ್ಕ್ ಲಭ್ಯವಿಲ್ಲ. ನಿಮ್ಮ ಸಂಪರ್ಕವನ್ನು ಪರಿಶೀಲಿಸಿ.
+  something_went_wrong: ಏನೋ ತಪ್ಪಾಗಿದೆ
+  unexpected_error: ಅನಿರೀಕ್ಷಿತ ದೋಷ ಸಂಭವಿಸಿದೆ. ದಯವಿಟ್ಟು ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.
+  page_not_found: ಪುಟ ಕಂಡುಬಂದಿಲ್ಲ
+
+messages:
+  loading.placeholder: ಲೋಡ್ ಆಗುತ್ತಿದೆ...
+
+app:
+  footer.powered_by: ಇದರಿಂದ ನಡೆಸಲ್ಪಡುತ್ತಿದೆ
+  network_error.title: ಇಂಟರ್ನೆಟ್ ಸಂಪರ್ಕವಿಲ್ಲ
+  network_error.description: ನಿಮ್ಮ ನೆಟ್‌ವರ್ಕ್ ಸಂಪರ್ಕವನ್ನು ಪರಿಶೀಲಿಸಿ ಮತ್ತು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.
+  network_error.try_again: ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ
+  otp.resend_timer: ನೀವು OTP ಮರುಕಳುಹಿಸಬಹುದು
+  otp.timed_out: ಸಮಯ ಮೀರಿದೆ
+  otp.submit: ಸಲ್ಲಿಸಿ
+  back: ಹಿಂದೆ
+  esignet_details: ಈಸಿಗ್ನೆಟ್ ವಿವರಗಳು

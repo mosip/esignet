@@ -103,7 +103,7 @@ select {
   width: var(--top-left-bg-width);
   height: var(--top-left-bg-height);
   top: var(--top-left-bg-position-top);
-  left: var(--top-left-bg-position-left);
+  inset-inline-start: var(--top-left-bg-position-left);
 }
 
 .section-background .bottom_right_bg_logo {
@@ -114,7 +114,7 @@ select {
   width: var(--bottom-right-bg-width);
   height: var(--bottom-right-bg-height);
   bottom: var(--bottom-right-bg-position-bottom);
-  right: var(--bottom-right-bg-position-right);
+  inset-inline-end: var(--bottom-right-bg-position-right);
 }
 
 .back-button-color {
@@ -127,6 +127,7 @@ select {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  /* left + translate(-50%) is direction-agnostic for centering */
 }
 
 .error-page-header {
@@ -238,7 +239,7 @@ input[type="password"]::-ms-clear {
   background-image: var(--login-card-separator);
   border: 0;
   height: 8px;
-  margin-left: -2rem;
+  margin-inline-start: -2rem;
   width: calc(100% + 4rem);
 }
 

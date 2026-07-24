@@ -1188,3 +1188,90 @@ system:
   "theme.error.not_found_description": கோரப்பட்ட தீம் கட்டமைப்பு கண்டுபிடிக்கப்படவில்லை
   "theme.error.result_limit_exceeded": முடிவு வரம்பு மீறப்பட்டது
   "theme.error.result_limit_exceeded_description": கலப்பு பயன்முறையில் தீம்களின் மொத்த எண்ணிக்கை அதிகபட்ச அனுமதிக்கப்பட்ட வரம்பை மீறுகிறது
+
+header:
+  login_heading: உள்நுழைவு
+  login_subheading: உள்நுழைவுக்கான அங்கீகாரத்தைக் கோருகிறது
+  select_login_id: உள்நுழைவு ஐடி விருப்பத்தைத் தேர்ந்தெடுக்கவும்
+  select_login_mode: உள்நுழைவின் விருப்பமான முறையைத் தேர்ந்தெடுக்கவும்
+
+input:
+  uin_label: UIN/VID
+  uin_placeholder: உங்கள் UIN/VID ஐ உள்ளிடவும்
+  mobile_label: மொபைல் எண்
+  mobile_placeholder: மொபைல் எண்ணை உள்ளிடவும்
+  email_label: மின்னஞ்சல்
+  email_placeholder: மின்னஞ்சல் ஐடியை உள்ளிடவும்
+  nrc_label: NRC ஐடி
+  nrc_placeholder: NRC ஐடியை உள்ளிடவும்
+  password_label: கடவுச்சொல்
+  password_placeholder: உங்கள் கடவுச்சொல்லை உள்ளிடவும்
+  username_label: பயனர்பெயர்
+  username_placeholder: உங்கள் பயனர்பெயரை உள்ளிடவும்
+  fullname_label: முழு பெயர்
+  fullname_placeholder: உங்கள் முழு பெயரை உள்ளிடவும்
+  dob_label: பிறந்த தேதி
+  dob_placeholder: உங்கள் பிறந்த தேதியைத் தேர்ந்தெடுக்கவும்
+
+button:
+  continue: தொடரவும்
+  login: உள்நுழைவு
+  verify: சரிபார்க்கவும்
+  get_otp: OTP பெறவும்
+  login_otp: OTP மூலம் உள்நுழையவும்
+  login_password: கடவுச்சொல் மூலம் உள்நுழையவும்
+  login_biometrics: பயோமெட்ரிக்ஸ் மூலம் உள்நுழையவும்
+  login_kbi: KBI மூலம் உள்நுழையவும்
+  login_id_uin: UIN/VID
+  login_id_mobile: மொபைல் எண்
+  login_id_email: மின்னஞ்சல்
+  login_id_nrc: NRC ஐடி
+
+otp:
+  enter_otp_title: OTP ஐ உள்ளிடவும்
+  otp_sent_msg: உங்கள் பதிவு செய்யப்பட்ட தொடர்புக்கு அனுப்பப்பட்ட 6 இலக்க OTP ஐ உள்ளிடவும்
+  resend_otp: OTP ஐ மீண்டும் அனுப்பவும்
+
+consent:
+  title: உங்கள் ஒப்புதல் தேவை
+  description: இந்த பயன்பாடு பின்வரும் தகவல்களை அணுக விரும்புகிறது. தயவுசெய்து மதிப்பாய்வு செய்து நீங்கள் என்ன பகிர விரும்புகிறீர்கள் என்பதைத் தேர்ந்தெடுக்கவும்.
+  allow: அனுமதிக்கவும்
+  deny: மறுக்கவும்
+
+signin:
+  images.app_logo.alt: பயன்பாட்டு லோகோ
+
+validation:
+  uin.numeric: UIN/VID இல் எண்கள் மட்டுமே இருக்க வேண்டும்
+  uin.length: UIN/VID 10 முதல் 16 இலக்கங்களுக்கு இடையில் இருக்க வேண்டும்
+  mobile.numeric: மொபைல் எண்ணில் எண்கள் மட்டுமே இருக்க வேண்டும்
+  mobile.length: மொபைல் எண் 9 முதல் 11 இலக்கங்களுக்கு இடையில் இருக்க வேண்டும்
+  email.format: செல்லுபடியாகும் மின்னஞ்சல் முகவரியை உள்ளிடவும்
+  pattern.invalid: தவறான வடிவம்
+  minLength.invalid: மதிப்பு மிகவும் குறுகியது
+  maxLength.invalid: மதிப்பு மிகவும் நீளமானது
+
+validations:
+  required.field.error: இந்த புலம் தேவை
+
+errors:
+  heading: பிழை
+  signin.initialization: உள்நுழைவைத் தொடங்க இயலவில்லை. மீண்டும் முயற்சிக்கவும்.
+  network.unavailable: நெட்வொர்க் கிடைக்கவில்லை. உங்கள் இணைப்பை சரிபார்க்கவும்.
+  something_went_wrong: ஏதோ தவறு நடந்தது
+  unexpected_error: எதிர்பாராத பிழை ஏற்பட்டது. பின்னர் மீண்டும் முயற்சிக்கவும்.
+  page_not_found: பக்கம் கிடைக்கவில்லை
+
+messages:
+  loading.placeholder: ஏற்றுகிறது...
+
+app:
+  footer.powered_by: மூலம் இயக்கப்படுகிறது
+  network_error.title: இணைய இணைப்பு இல்லை
+  network_error.description: உங்கள் நெட்வொர்க் இணைப்பை சரிபார்த்து மீண்டும் முயற்சிக்கவும்.
+  network_error.try_again: மீண்டும் முயற்சிக்கவும்
+  otp.resend_timer: நீங்கள் OTP ஐ மீண்டும் அனுப்பலாம்
+  otp.timed_out: நேரம் முடிந்தது
+  otp.submit: சமர்ப்பிக்கவும்
+  back: பின்னால்
+  esignet_details: ஈசிக்னெட் விவரங்கள்

@@ -1188,3 +1188,90 @@ system:
   "theme.error.not_found_description": The requested theme configuration was not found
   "theme.error.result_limit_exceeded": Result limit exceeded
   "theme.error.result_limit_exceeded_description": Total count of themes exceeds maximum allowed limit in composite mode
+
+header:
+  login_heading: Login
+  login_subheading: is requesting authentication for login
+  select_login_id: Select a Login ID Option
+  select_login_mode: Select a preferred mode of login
+
+input:
+  uin_label: UIN/VID
+  uin_placeholder: Enter your UIN/VID
+  mobile_label: Mobile Number
+  mobile_placeholder: Enter Mobile Number
+  email_label: Email
+  email_placeholder: Enter Email ID
+  nrc_label: NRC ID
+  nrc_placeholder: Enter NRC ID
+  password_label: Password
+  password_placeholder: Enter your password
+  username_label: Username
+  username_placeholder: Enter your username
+  fullname_label: Fullname
+  fullname_placeholder: Enter your full name
+  dob_label: Date of Birth
+  dob_placeholder: Select your date of birth
+
+button:
+  continue: Continue
+  login: Login
+  verify: Verify
+  get_otp: Get OTP
+  login_otp: Login with OTP
+  login_password: Login with Password
+  login_biometrics: Login with Biometrics
+  login_kbi: Login with KBI
+  login_id_uin: UIN/VID
+  login_id_mobile: Mobile Number
+  login_id_email: Email
+  login_id_nrc: NRC ID
+
+otp:
+  enter_otp_title: Enter OTP
+  otp_sent_msg: Please enter the 6-digit OTP sent to your registered contact
+  resend_otp: Resend OTP
+
+consent:
+  title: We need your consent
+  description: This app would like to access the following information. Please review and choose what you would like to share.
+  allow: Allow
+  deny: Deny
+
+signin:
+  images.app_logo.alt: Application Logo
+
+validation:
+  uin.numeric: UIN/VID must contain numbers only
+  uin.length: UIN/VID must be between 10 and 16 digits
+  mobile.numeric: Mobile Number must contain numbers only
+  mobile.length: Mobile Number must be between 9 and 11 digits
+  email.format: Please enter a valid email address
+  pattern.invalid: Invalid format
+  minLength.invalid: Value is too short
+  maxLength.invalid: Value is too long
+
+validations:
+  required.field.error: This field is required
+
+errors:
+  heading: Error
+  signin.initialization: Unable to initialize sign-in. Please try again.
+  network.unavailable: Network unavailable. Please check your connection.
+  something_went_wrong: Something went wrong
+  unexpected_error: An unexpected error occurred. Please try again later.
+  page_not_found: Page Not Found
+
+messages:
+  loading.placeholder: Loading...
+
+app:
+  footer.powered_by: Powered by
+  network_error.title: No Internet Connection
+  network_error.description: Please check your network connection and try again.
+  network_error.try_again: Try Again
+  otp.resend_timer: You can resend the OTP in
+  otp.timed_out: Timed out
+  otp.submit: Submit
+  back: Back
+  esignet_details: eSignet Details

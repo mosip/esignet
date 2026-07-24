@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { LoadingStates } from '../constants/states';
 import type { LoadingState } from '../constants/states';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 
 interface WellKnownDetail {
   name: string;
@@ -11,6 +12,7 @@ interface WellKnownDetail {
 export default function EsignetDetailsPage() {
   const [status, setStatus] = useState<LoadingState>(LoadingStates.LOADING);
   const [details, setDetails] = useState<WellKnownDetail[]>([]);
+  const { t } = useAppTranslation();
 
   useEffect(() => {
     setStatus(LoadingStates.LOADING);
@@ -37,13 +39,13 @@ export default function EsignetDetailsPage() {
   };
 
   return (
-    <div className="lg:flex-grow md:w-1/2 flex flex-col md:items-start text-left items-center">
+    <div className="lg:flex-grow md:w-1/2 flex flex-col md:items-start text-start items-center">
       <div className="w-full flex justify-center">
         <img className="mb-4 h-20 brand-only-logo" alt="brand-logo" />
       </div>
       <div className="w-full">
         <h1 className="flex justify-center title-font sm:text-3xl text-3xl mb-16 font-medium text-gray-900">
-          eSignet Details
+          {t("app.esignet_details")}
         </h1>
       </div>
       <div className="w-full flex justify-center">
