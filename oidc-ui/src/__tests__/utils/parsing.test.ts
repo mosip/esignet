@@ -3,9 +3,27 @@ import {
   parsePositiveInt,
   checkConfigProperty,
   getPollingConfig,
+  isNonEmptyString,
 } from "../../utils/parsing";
 
 describe("parsing utilities", () => {
+  describe("isNonEmptyString", () => {
+    it("returns true for a non-empty string", () => {
+      expect(isNonEmptyString("hello")).toBe(true);
+    });
+
+    it("returns false for an empty or whitespace-only string", () => {
+      expect(isNonEmptyString("")).toBe(false);
+      expect(isNonEmptyString("   ")).toBe(false);
+    });
+
+    it("returns false for non-string values", () => {
+      expect(isNonEmptyString(42)).toBe(false);
+      expect(isNonEmptyString(null)).toBe(false);
+      expect(isNonEmptyString(undefined)).toBe(false);
+    });
+  });
+
   describe("parsePositiveInt", () => {
     it("parses a valid positive integer", () => {
       expect(parsePositiveInt(42, 10)).toBe(42);

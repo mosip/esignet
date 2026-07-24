@@ -73,6 +73,16 @@ func (ts *UtilsTestSuite) TestWriteError() {
 	}
 }
 
+func (ts *UtilsTestSuite) TestIsBlank() {
+	t := ts.T()
+	cases := map[string]bool{"": true, "   ": true, "\t\n": true, "x": false, " a ": false}
+	for in, want := range cases {
+		if got := IsBlank(in); got != want {
+			t.Errorf("IsBlank(%q) = %v, want %v", in, got, want)
+		}
+	}
+}
+
 type UtilsTestSuite struct {
 	suite.Suite
 }
