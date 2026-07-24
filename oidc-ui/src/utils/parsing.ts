@@ -12,6 +12,13 @@ export function parsePositiveInt(
 }
 
 /**
+ * Returns true if the value is a non-empty, non-whitespace string.
+ */
+export function isNonEmptyString(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+/**
  * Checks if a property exists in a config object.
  */
 export function checkConfigProperty(
