@@ -4,11 +4,11 @@ system:
   "design.resolve.error.app_not_found": பயன்பாடு கண்டுபிடிக்கப்படவில்லை
   "design.resolve.error.app_not_found_description": குறிப்பிட்ட ID கொண்ட பயன்பாடு இல்லை
   "design.resolve.error.invalid_type": தவறான கோரிக்கை வடிவம்
-  "design.resolve.error.invalid_type_description": 'type' வினவல் அளவுரு தேவை மற்றும் 'APP' அல்லது 'OU' ஆக இருக்க வேண்டும்
+  "design.resolve.error.invalid_type_description": "\"type\" வினவல் அளவுரு தேவை மற்றும் \"APP\" அல்லது \"OU\" ஆக இருக்க வேண்டும்"
   "design.resolve.error.missing_id": தவறான கோரிக்கை வடிவம்
-  "design.resolve.error.missing_id_description": 'id' வினவல் அளவுரு தேவை
+  "design.resolve.error.missing_id_description": "\"id\" வினவல் அளவுரு தேவை"
   "design.resolve.error.unsupported_type": ஆதரிக்கப்படாத தீர்மான வகை
-  "design.resolve.error.unsupported_type_description": குறிப்பிட்ட தீர்மான வகை இன்னும் ஆதரிக்கப்படவில்லை. தற்போது 'APP' வகை மட்டுமே ஆதரிக்கப்படுகிறது
+  "design.resolve.error.unsupported_type_description": குறிப்பிட்ட தீர்மான வகை இன்னும் ஆதரிக்கப்படவில்லை. தற்போது \"APP\" வகை மட்டுமே ஆதரிக்கப்படுகிறது
   "error.actor_not_found": நடிகர் கண்டுபிடிக்கப்படவில்லை
   "error.actor_not_found_description": கோரப்பட்ட நடிகர் இல்லை
   "error.agentservice.agent_already_exists_with_client_id": கிளையன்ட் ID ஏற்கனவே பயன்பாட்டில் உள்ளது
@@ -25,7 +25,7 @@ system:
   "error.agentservice.cannot_modify_declarative_resource_description": அறிவிப்பு முறையில் நிர்வகிக்கப்படும் முகவர்களை API மூலம் மாற்ற முடியாது
   "error.agentservice.certificate_operation_failed": சான்றிதழ் செயல்பாடு தோல்வியடைந்தது
   "error.agentservice.certificate_operation_failed_description": தவறான உள்ளீட்டின் காரணமாக சான்றிதழ் செயல்பாடு தோல்வியடைந்தது
-  "error.agentservice.client_credentials_cannot_use_none_auth_description": client_credentials மானிய வகை 'none' அங்கீகார முறையை பயன்படுத்த முடியாது
+  "error.agentservice.client_credentials_cannot_use_none_auth_description": client_credentials மானிய வகை \"none\" அங்கீகார முறையை பயன்படுத்த முடியாது
   "error.agentservice.client_credentials_cannot_use_response_types_description": client_credentials மானிய வகையை பதில் வகைகளுடன் பயன்படுத்த முடியாது
   "error.agentservice.client_secret_cannot_have_certificate_description": client_secret அங்கீகார முறைகளுக்கு சான்றிதழ் இருக்க முடியாது
   "error.agentservice.consent_sync_failed": சம்மதம் ஒத்திசைவு தோல்வியடைந்தது
@@ -86,8 +86,8 @@ system:
   "error.agentservice.missing_agent_id_description": முகவர் ID தேவை
   "error.agentservice.multiple_oauth_configs": பல OAuth உள்வரும் அங்கீகார கட்டமைப்புகள் அனுமதிக்கப்படவில்லை
   "error.agentservice.multiple_oauth_configs_description": ஒரு நிறுவனம் ஒரு நெறிமுறைக்கு அதிகபட்சம் ஒரு உள்வரும் அங்கீகார கட்டமைப்பை மட்டுமே கொண்டிருக்க முடியும்
-  "error.agentservice.none_auth_method_cannot_have_cert_or_secret_description": 'none' அங்கீகார முறைக்கு சான்றிதழ் அல்லது கிளையன்ட் ரகசியம் இருக்க முடியாது
-  "error.agentservice.none_auth_method_requires_public_client_description": 'none' அங்கீகார முறைக்கு கிளையன்ட் பொது கிளையன்டாக இருக்க வேண்டும்
+  "error.agentservice.none_auth_method_cannot_have_cert_or_secret_description": "\"none\" அங்கீகார முறைக்கு சான்றிதழ் அல்லது கிளையன்ட் ரகசியம் இருக்க முடியாது"
+  "error.agentservice.none_auth_method_requires_public_client_description": "\"none\" அங்கீகார முறைக்கு கிளையன்ட் பொது கிளையன்டாக இருக்க வேண்டும்"
   "error.agentservice.organization_unit_not_found": நிறுவன அலகு கண்டுபிடிக்கப்படவில்லை
   "error.agentservice.organization_unit_not_found_description": குறிப்பிட்ட நிறுவன அலகு இல்லை
   "error.agentservice.owner_not_found": உரிமையாளர் கண்டுபிடிக்கப்படவில்லை
@@ -96,7 +96,7 @@ system:
   "error.agentservice.private_key_jwt_cannot_have_client_secret_description": private_key_jwt அங்கீகார முறைக்கு கிளையன்ட் ரகசியம் இருக்க முடியாது
   "error.agentservice.private_key_jwt_requires_certificate_description": private_key_jwt அங்கீகார முறைக்கு சான்றிதழ் தேவை
   "error.agentservice.public_client_must_have_pkce_description": பொது கிளையன்டுகளுக்கு PKCE தேவை true ஆக அமைக்கப்பட்டிருக்க வேண்டும்
-  "error.agentservice.public_client_must_use_none_auth_description": பொது கிளையன்டுகள் டோக்கன் இறுதிப்புள்ளி அங்கீகார முறையாக 'none' பயன்படுத்த வேண்டும்
+  "error.agentservice.public_client_must_use_none_auth_description": பொது கிளையன்டுகள் டோக்கன் இறுதிப்புள்ளி அங்கீகார முறையாக \"none\" பயன்படுத்த வேண்டும்
   "error.agentservice.redirect_uri_fragment_not_allowed_description": திருப்பி அனுப்பல் URI கள் துண்டு கூறு கொண்டிருக்கக்கூடாது
   "error.agentservice.refresh_token_cannot_be_sole_grant_description": refresh_token மானிய வகையை மற்றொரு மானிய வகை இல்லாமல் பயன்படுத்த முடியாது
   "error.agentservice.response_types_require_authorization_code_description": பதில் வகைகளை authorization_code மானிய வகையுடன் மட்டுமே கட்டமைக்க முடியும்
@@ -130,7 +130,7 @@ system:
   "error.applicationservice.cannot_modify_declarative_resource_description": பயன்பாடு அறிவிப்பு முறையில் உள்ளது மற்றும் மாற்றவோ நீக்கவோ முடியாது
   "error.applicationservice.certificate_operation_failed": சான்றிதழ் செயல்பாடு தோல்வியடைந்தது
   "error.applicationservice.certificate_operation_failed_description": பயன்பாட்டு சான்றிதழை செயலாக்கும் போது பிழை ஏற்பட்டது
-  "error.applicationservice.client_credentials_cannot_use_none_auth_description": client_credentials மானிய வகை 'none' அங்கீகார முறையை பயன்படுத்த முடியாது
+  "error.applicationservice.client_credentials_cannot_use_none_auth_description": client_credentials மானிய வகை \"none\" அங்கீகார முறையை பயன்படுத்த முடியாது
   "error.applicationservice.client_credentials_cannot_use_response_types_description": client_credentials மானிய வகையை பதில் வகைகளுடன் பயன்படுத்த முடியாது
   "error.applicationservice.client_secret_cannot_have_certificate_description": client_secret அங்கீகார முறைகளுக்கு சான்றிதழ் இருக்க முடியாது
   "error.applicationservice.consent_service_not_enabled": சம்மதம் சேவை இயக்கப்படவில்லை
@@ -170,7 +170,7 @@ system:
   "error.applicationservice.invalid_jwks_uri": தவறான JWKS URI
   "error.applicationservice.invalid_jwks_uri_description": வழங்கப்பட்ட JWKS URI செல்லுபடியான URI அல்ல
   "error.applicationservice.invalid_jwks_uri_scheme": தவறான JWKS URI திட்டம்
-  "error.applicationservice.invalid_jwks_uri_scheme_description": 'jwks_uri' HTTPS திட்டம் பயன்படுத்த வேண்டும்
+  "error.applicationservice.invalid_jwks_uri_scheme_description": "\"jwks_uri\" HTTPS திட்டம் பயன்படுத்த வேண்டும்"
   "error.applicationservice.invalid_logo_url": தவறான சின்னம் URL
   "error.applicationservice.invalid_logo_url_description": வழங்கப்பட்ட சின்னம் URL செல்லுபடியான URI அல்ல
   "error.applicationservice.invalid_oauth_configuration": தவறான OAuth கட்டமைப்பு
@@ -197,13 +197,13 @@ system:
   "error.applicationservice.layout_not_found_description": குறிப்பிட்ட தளவமைப்பு கட்டமைப்பு இல்லை
   "error.applicationservice.multiple_oauth_configs": பல OAuth உள்வரும் அங்கீகார கட்டமைப்புகள் அனுமதிக்கப்படவில்லை
   "error.applicationservice.multiple_oauth_configs_description": ஒரு பயன்பாடு ஒரு நெறிமுறைக்கு அதிகபட்சம் ஒரு உள்வரும் அங்கீகார கட்டமைப்பை மட்டுமே கொண்டிருக்க முடியும்
-  "error.applicationservice.none_auth_method_cannot_have_cert_or_secret_description": 'none' அங்கீகார முறைக்கு சான்றிதழ் அல்லது கிளையன்ட் ரகசியம் இருக்க முடியாது
-  "error.applicationservice.none_auth_method_requires_public_client_description": 'none' அங்கீகார முறைக்கு கிளையன்ட் பொது கிளையன்டாக இருக்க வேண்டும்
+  "error.applicationservice.none_auth_method_cannot_have_cert_or_secret_description": "\"none\" அங்கீகார முறைக்கு சான்றிதழ் அல்லது கிளையன்ட் ரகசியம் இருக்க முடியாது"
+  "error.applicationservice.none_auth_method_requires_public_client_description": "\"none\" அங்கீகார முறைக்கு கிளையன்ட் பொது கிளையன்டாக இருக்க வேண்டும்"
   "error.applicationservice.pkce_requires_authorization_code_description": authorization_code மானிய வகை தேர்ந்தெடுக்கப்பட்டிருக்கும் போது மட்டுமே PKCE இயக்கப்படலாம்
   "error.applicationservice.private_key_jwt_cannot_have_client_secret_description": private_key_jwt அங்கீகார முறைக்கு கிளையன்ட் ரகசியம் இருக்க முடியாது
   "error.applicationservice.private_key_jwt_requires_certificate_description": private_key_jwt அங்கீகார முறைக்கு சான்றிதழ் தேவை
   "error.applicationservice.public_client_must_have_pkce_description": பொது கிளையன்டுகளுக்கு PKCE தேவை true ஆக அமைக்கப்பட்டிருக்க வேண்டும்
-  "error.applicationservice.public_client_must_use_none_auth_description": பொது கிளையன்டுகள் டோக்கன் இறுதிப்புள்ளி அங்கீகார முறையாக 'none' பயன்படுத்த வேண்டும்
+  "error.applicationservice.public_client_must_use_none_auth_description": பொது கிளையன்டுகள் டோக்கன் இறுதிப்புள்ளி அங்கீகார முறையாக \"none\" பயன்படுத்த வேண்டும்
   "error.applicationservice.redirect_uri_fragment_not_allowed_description": திருப்பி அனுப்பல் URI கள் துண்டு கூறு கொண்டிருக்கக்கூடாது
   "error.applicationservice.refresh_token_cannot_be_sole_grant_description": refresh_token மானிய வகையை மற்றொரு மானிய வகை இல்லாமல் பயன்படுத்த முடியாது
   "error.applicationservice.response_types_require_authorization_code_description": பதில் வகைகளை authorization_code மானிய வகையுடன் மட்டுமே கட்டமைக்க முடியும்
@@ -429,7 +429,7 @@ system:
   "error.dcr.invalid_request_format": தவறான கோரிக்கை வடிவம்
   "error.dcr.invalid_request_format_description": கோரிக்கை உடல் இல்லை அல்லது தவறான வடிவத்தில் உள்ளது
   "error.dcr.jwks_configuration_conflict": JWKS கட்டமைப்பு முரண்பாடு
-  "error.dcr.jwks_configuration_conflict_description": 'jwks' மற்றும் 'jwks_uri' அளவுருக்கள் இரண்டையும் குறிப்பிட முடியாது
+  "error.dcr.jwks_configuration_conflict_description": "\"jwks\" மற்றும் \"jwks_uri\" அளவுருக்கள் இரண்டையும் குறிப்பிட முடியாது"
   "error.dcr.server_error": சேவையக பிழை
   "error.dcr.server_error_description": கோரிக்கையை செயலாக்கும் போது எதிர்பாராத பிழை ஏற்பட்டது
   "error.dcr.unauthorized": அங்கீகரிக்கப்படவில்லை
@@ -528,11 +528,11 @@ system:
   "error.flowmetaservice.application_not_found_description": குறிப்பிட்ட பயன்பாடு இல்லை
   "error.flowmetaservice.internal_server_error": உள் சேவையக பிழை
   "error.flowmetaservice.invalid_request": தவறான கோரிக்கை
-  "error.flowmetaservice.invalid_type_description": 'type' அளவுரு 'APP' அல்லது 'OU' ஆக இருக்க வேண்டும்
-  "error.flowmetaservice.missing_id_description": 'id' வினவல் அளவுரு தேவை
+  "error.flowmetaservice.invalid_type_description": "\"type\" அளவுரு \"APP\" அல்லது \"OU\" ஆக இருக்க வேண்டும்"
+  "error.flowmetaservice.missing_id_description": "\"id\" வினவல் அளவுரு தேவை"
   "error.flowmetaservice.missing_id_parameter": தேவையான அளவுரு இல்லை
   "error.flowmetaservice.missing_required_parameter": தேவையான அளவுரு இல்லை
-  "error.flowmetaservice.missing_type_description": 'type' வினவல் அளவுரு தேவை
+  "error.flowmetaservice.missing_type_description": "\"type\" வினவல் அளவுரு தேவை"
   "error.flowmetaservice.ou_fetch_failed": உள் சேவையக பிழை
   "error.flowmetaservice.ou_fetch_failed_description": நிறுவன அலகு தகவலை மீட்டெடுப்பதில் தோல்வி
   "error.flowmetaservice.ou_not_found": வளம் கண்டுபிடிக்கப்படவில்லை
@@ -600,7 +600,7 @@ system:
   "error.groupservice.invalid_member_id": தவறான உறுப்பினர் ID
   "error.groupservice.invalid_member_id_description": கோரிக்கையில் உள்ள ஒன்று அல்லது அதிகமான பயனர் அல்லது பயன்பாட்டு உறுப்பினர் IDகள் இல்லை அல்லது கூறப்பட்ட வகையுடன் பொருந்தவில்லை
   "error.groupservice.invalid_member_type": தவறான உறுப்பினர் வகை
-  "error.groupservice.invalid_member_type_description": உறுப்பினர் வகை 'user', 'group', அல்லது 'app' ஆக இருக்க வேண்டும்
+  "error.groupservice.invalid_member_type_description": உறுப்பினர் வகை \"user\", \"group\", அல்லது \"APP\" ஆக இருக்க வேண்டும்
   "error.groupservice.invalid_offset_parameter": தவறான ஆஃப்செட் அளவுரு
   "error.groupservice.invalid_offset_parameter_description": ஆஃப்செட் அளவுரு எதிர்மறையல்லாத முழு எண்ணாக இருக்க வேண்டும்
   "error.groupservice.invalid_ou_id": தவறான OU ID
@@ -868,7 +868,7 @@ system:
   "error.roleservice.empty_assignments_list": காலி ஒதுக்கீடுகள் பட்டியல்
   "error.roleservice.empty_assignments_list_description": குறைந்தது ஒரு ஒதுக்கீடு வழங்கப்பட வேண்டும்
   "error.roleservice.invalid_assignee_type": தவறான ஒதுக்கப்படுவோர் வகை
-  "error.roleservice.invalid_assignee_type_description": வகை அளவுரு 'user', 'group', அல்லது 'app' ஆக இருக்க வேண்டும்
+  "error.roleservice.invalid_assignee_type_description": வகை அளவுரு \"user\", \"group\", அல்லது \"APP\" ஆக இருக்க வேண்டும்
   "error.roleservice.invalid_assignment_id": தவறான ஒதுக்கீடு ID
   "error.roleservice.invalid_assignment_id_description": கோரிக்கையில் உள்ள ஒன்று அல்லது அதிகமான ஒதுக்கீடு IDகள் இல்லை அல்லது கூறப்பட்ட வகையுடன் பொருந்தவில்லை
   "error.roleservice.invalid_limit_parameter": தவறான வரம்பு அளவுரு
@@ -1188,3 +1188,4 @@ system:
   "theme.error.not_found_description": கோரப்பட்ட தீம் கட்டமைப்பு கண்டுபிடிக்கப்படவில்லை
   "theme.error.result_limit_exceeded": முடிவு வரம்பு மீறப்பட்டது
   "theme.error.result_limit_exceeded_description": கலப்பு பயன்முறையில் தீம்களின் மொத்த எண்ணிக்கை அதிகபட்ச அனுமதிக்கப்பட்ட வரம்பை மீறுகிறது
+
