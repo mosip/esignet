@@ -149,7 +149,7 @@ captcha_box: &captcha_box
   required: true
   captcha:
     provider: google-recaptcha
-    siteKey: ${CAPTCHA_SITE_KEY}
+    siteKey: ${MOSIP_ESIGNET_CAPTCHA_SITE_KEY}
     theme: light
     size: normal
 

@@ -46,7 +46,8 @@ func (p *flowProvider) parseFlowDefinition() (*providers.CompleteFlowDefinition,
 		return nil, shared.FileNotFoundError
 	}
 	var flowDef providers.CompleteFlowDefinition
-	err = yaml.Unmarshal(data, &flowDef)
+	expanded := os.ExpandEnv(string(data))
+	err = yaml.Unmarshal([]byte(expanded), &flowDef)
 	if err != nil {
 		applog.GetLogger().Warn("failed to parse flow definition file", applog.String("flowId", p.cfg.AuthFlowID), applog.Error(err))
 		return nil, shared.FileUnmarshallError
