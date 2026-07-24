@@ -49,7 +49,6 @@ export default function AppRouter() {
       <div className="h-screen flex justify-center content-center">
         <LoadingIndicator
           size="medium"
-          message={"loading_msg"}
           className="align-loading-center"
         />
       </div>

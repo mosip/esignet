@@ -1,7 +1,9 @@
 import { useLocation } from "react-router-dom";
+import { useAppTranslation } from "../hooks/useAppTranslation";
 
 export default function NetworkErrorPage() {
   const location = useLocation();
+  const { t } = useAppTranslation();
 
   const tryAgain = () => {
     window.onbeforeunload = null;
@@ -44,10 +46,10 @@ export default function NetworkErrorPage() {
           />
         </svg>
         <p className="text-[1.5rem] font-semibold text-center mt-[2rem] mb-2">
-          No Internet Connection
+          {t("app.network_error.title")}
         </p>
         <p className="text-[#7B7B7B] text-center">
-          Please check your network connection and try again.
+          {t("app.network_error.description")}
         </p>
         <button
           type="button"
@@ -55,7 +57,7 @@ export default function NetworkErrorPage() {
           onClick={tryAgain}
           id="try_again"
         >
-          Try Again
+          {t("app.network_error.try_again")}
         </button>
       </div>
     </div>
