@@ -3,6 +3,7 @@ import {
   type ComponentRenderContext,
   type EmbeddedFlowComponent,
   Button,
+  useTranslation,
 } from "@thunderid/react";
 
 interface EmbeddedFlowComponentWithTimeLeft extends EmbeddedFlowComponent {
@@ -16,6 +17,7 @@ export default function ResendOtp({
   component: EmbeddedFlowComponentWithTimeLeft;
   context: ComponentRenderContext;
 }) {
+  const { t } = useTranslation();
   const onInputChangeRef = useRef(context.onInputChange);
   onInputChangeRef.current = context.onInputChange;
 
@@ -51,7 +53,7 @@ export default function ResendOtp({
 
   const formatTime = (seconds: number): string => {
     if (seconds <= 0) {
-      return "Timed out";
+      return t("app.otp.timed_out");
     }
     const m: number = Math.floor(seconds / 60);
     const s: number = seconds % 60;
@@ -69,7 +71,7 @@ export default function ResendOtp({
     <div className="flex flex-col items-center">
       {timeLeft && (
         <h6 className="thunderid-typography thunderid-typography__h6">
-          You can resend the OTP in {formattedTime}
+          {t("app.otp.resend_timer")} {formattedTime}
         </h6>
       )}
 
@@ -79,7 +81,6 @@ export default function ResendOtp({
         key={component.id}
         onClick={handleClick}
         disabled={timeLeft}
-        // className={options.buttonClassName}
         data-testid="thunderid-resend-otp-button"
         variant={
           component.variant?.toLowerCase() === "primary" ? "solid" : "outline"
@@ -91,7 +92,7 @@ export default function ResendOtp({
         }
         type="reset"
       >
-        {component.label || "Submit"}
+        {component.label || t("app.otp.submit")}
       </Button>
     </div>
   );

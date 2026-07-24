@@ -20,14 +20,14 @@ nodes:
           components:
             - category: "DISPLAY"
               id: "text_xukp"
-              label: "Login using eSignet"
+              label: "{{t(header:login_heading)}}"
               resourceType: "ELEMENT"
               type: "TEXT"
               variant: "HEADING_3"
               align: "center"
             - category: "DISPLAY"
               id: "text_subheading"
-              label: "<center><b>{{meta(application.name)}}</b> is requesting authentication for login</center>"
+              label: "<center><b>{{meta(application.name)}}</b> {{t(header:login_subheading)}}</center>"
               resourceType: "ELEMENT"
               type: "RICH_TEXT"
               variant: "SUBTITLE_2"
@@ -69,12 +69,12 @@ nodes:
             - id: username_input
               ref: username
               type: TEXT_INPUT
-              label: "Username"
+              label: "{{t(input:username_label)}}"
               required: true
-              placeholder: "Enter your username"
+              placeholder: "{{t(input:username_placeholder)}}"
             - id: action_submit_individual_id
               type: ACTION
-              label: Continue
+              label: "{{t(button:continue)}}"
               variant: PRIMARY
               category: ACTION
               eventType: SUBMIT
@@ -107,14 +107,14 @@ nodes:
           components:
             - category: "DISPLAY"
               id: "text_xukp"
-              label: "Login using eSignet"
+              label: "{{t(header:login_heading)}}"
               resourceType: "ELEMENT"
               type: "TEXT"
               variant: "HEADING_3"
               align: "center"
             - category: "DISPLAY"
               id: "text_subheading"
-              label: "<center><b>{{meta(application.name)}}</b> is requesting authentication for login</center>"
+              label: "<center><b>{{meta(application.name)}}</b> {{t(header:login_subheading)}}</center>"
               resourceType: "ELEMENT"
               type: "RICH_TEXT"
               variant: "SUBTITLE_2"
@@ -152,7 +152,7 @@ nodes:
               width: "52px"
         - id: text_otp_title
           type: TEXT
-          label: Enter OTP
+          label: "{{t(otp:enter_otp_title)}}"
           variant: HEADING_3
           category: DISPLAY
           resourceType: ELEMENT
@@ -163,12 +163,12 @@ nodes:
             - id: otp_input
               ref: otp
               type: OTP_INPUT
-              label: Please enter the 6-digit OTP sent to your registered contact
+              label: "{{t(otp:otp_sent_msg)}}"
               category: FIELD
               required: true
             - id: action_submit_otp
               type: ACTION
-              label: Verify
+              label: "{{t(button:verify)}}"
               variant: PRIMARY
               category: ACTION
               eventType: SUBMIT

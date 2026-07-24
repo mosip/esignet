@@ -11,14 +11,14 @@ heading_details: &heading_details
   components:
     - category: DISPLAY
       id: text_heading
-      label: Login using eSignet
+      label: "{{t(header:login_heading)}}"
       resourceType: ELEMENT
       type: TEXT
       variant: HEADING_3
       align: center
     - category: DISPLAY
       id: text_subheading
-      label: "<center><b>{{meta(application.name)}}</b> is requesting authentication for login</center>"
+      label: "<center><b>{{meta(application.name)}}</b> {{t(header:login_subheading)}}</center>"
       resourceType: ELEMENT
       type: RICH_TEXT
       variant: SUBTITLE_2
@@ -60,28 +60,28 @@ prompt_uin: &prompt_uin
   id: username_input
   ref: username
   type: TEXT_INPUT
-  label: UIN/VID
+  label: "{{t(input:uin_label)}}"
   required: true
-  placeholder: Enter your UIN/VID
+  placeholder: "{{t(input:uin_placeholder)}}"
   validation:
     - type: regex
       value: ^[0-9]+$
-      message: UIN/VID must contain numbers only
+      message: "validation.uin.numeric"
     - type: maxLength
       value: 16
-      message: UIN/VID must be between 10 and 16 digits
+      message: "validation.uin.length"
     - type: minLength
       value: 10
-      message: UIN/VID must be between 10 and 16 digits
+      message: "validation.uin.length"
 
 # Anchor for Mobile number input, with validation
 prompt_mobile: &prompt_mobile
   id: username_input
   ref: username
   type: PHONE_INPUT
-  label: Mobile Number
+  label: "{{t(input:mobile_label)}}"
   required: true
-  placeholder: Enter Mobile Number
+  placeholder: "{{t(input:mobile_placeholder)}}"
   postfix: "@phone"
   prefixes:
     - label: "+91"
@@ -95,37 +95,37 @@ prompt_mobile: &prompt_mobile
   validation:
     - type: regex
       value: ^[0-9]+$
-      message: Mobile Number must contain numbers only
+      message: "validation.mobile.numeric"
     - type: maxLength
       value: 11
-      message: Mobile Number must be between 9 and 11 digits
+      message: "validation.mobile.length"
     - type: minLength
       value: 9
-      message: Mobile Number must be between 9 and 11 digits
+      message: "validation.mobile.length"
 
 # Anchor for Email input, with validation
 prompt_email: &prompt_email
   id: username_input
   ref: username
   type: EMAIL_INPUT
-  label: Email
+  label: "{{t(input:email_label)}}"
   required: true
-  placeholder: Enter Email ID
+  placeholder: "{{t(input:email_placeholder)}}"
   postfix: "@email"
   validation:
     - type: regex
       value: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
-      message: Please enter a valid email address
+      message: "validation.email.format"
 
 # Anchor for NRC ID input, without validation
 prompt_nrc: &prompt_nrc
   id: username_input
   ref: username
   type: TEXT_INPUT
-  label: NRC ID
+  label: "{{t(input:nrc_label)}}"
   required: true
   postfix: "@nrc"
-  placeholder: Enter NRC ID
+  placeholder: "{{t(input:nrc_placeholder)}}"
 
 # Anchor for Password input, with validation
 prompt_password: &prompt_password
@@ -134,8 +134,8 @@ prompt_password: &prompt_password
   type: PASSWORD_INPUT
   category: FIELD
   inputType: password
-  label: Password
-  placeholder: Enter your password
+  label: "{{t(input:password_label)}}"
+  placeholder: "{{t(input:password_placeholder)}}"
   required: true
   resourceType: ELEMENT
 
@@ -144,7 +144,7 @@ prompt_password: &prompt_password
 # default label is COntinue, that also can be changed
 submit_button: &submit_button
   id: submit_uin
-  label: Continue
+  label: "{{t(button:continue)}}"
   type: ACTION
   variant: PRIMARY
   category: ACTION
@@ -161,7 +161,7 @@ trigger_button: &trigger_button
 page_title: &page_title
   id: acr_text_heading
   type: TEXT
-  label: Select a Login ID Option
+  label: "{{t(header:select_login_id)}}"
   align: left
   variant: HEADING_5
   category: DISPLAY
@@ -172,7 +172,7 @@ page_title_with_back: &page_title_with_back
   id: BACK_BUTTON
   ref: back_button
   type: CUSTOM
-  label: Select a Login ID Option
+  label: "{{t(header:select_login_id)}}"
   category: MISCELLANEOUS
   resourceType: ELEMENT
 
@@ -186,28 +186,28 @@ login_id_header: &login_id_header
 login_uin_button: &login_uin_button
   <<: *trigger_button
   id: login_id_uin
-  label: UIN/VID
+  label: "{{t(button:login_id_uin)}}"
   classes: login-id-button
   startIcon: "/images/vid_icon.svg"
 
 login_mobile_button: &login_mobile_button
   <<: *trigger_button
   id: login_id_mobile
-  label: Mobile Number
+  label: "{{t(button:login_id_mobile)}}"
   classes: login-id-button
   startIcon: "/images/mobile_icon.svg"
 
 login_email_button: &login_email_button
   <<: *trigger_button
   id: login_id_email
-  label: Email
+  label: "{{t(button:login_id_email)}}"
   classes: login-id-button
   startIcon: "/images/email_icon.svg"
 
 login_nrc_button: &login_nrc_button
   <<: *trigger_button
   id: login_id_nrc
-  label: NRC ID
+  label: "{{t(button:login_id_nrc)}}"
   classes: login-id-button
   startIcon: "/images/nrc_id_icon.svg"
 
@@ -270,22 +270,22 @@ nodes:
           justify: center
           components:
             - <<: *page_title
-              label: Select a preferred mode of login
+              label: "{{t(header:select_login_mode)}}"
             - <<: *trigger_button
               id: acr_otp
-              label: Login with OTP
+              label: "{{t(button:login_otp)}}"
               startIcon: "/images/otp_icon.svg"
             - <<: *trigger_button
               id: acr_password
-              label: Login with Password
+              label: "{{t(button:login_password)}}"
               startIcon: "/images/pwd_icon.svg"
             - <<: *trigger_button
               id: acr_bio
-              label: Login with Biometrics
+              label: "{{t(button:login_biometrics)}}"
               startIcon: "/images/bio_icon.svg"
             - <<: *trigger_button
               id: acr_kbi
-              label: Login with KBI
+              label: "{{t(button:login_kbi)}}"
               startIcon: "/images/kbi_icon.svg"
     prompts:
       - action:
@@ -320,7 +320,7 @@ nodes:
             - *prompt_uin
             - <<: *submit_button
               id: submit_uin
-              label: Get OTP
+              label: "{{t(button:get_otp)}}"
     prompts:
       - inputs:
           - ref: username_input
@@ -356,7 +356,7 @@ nodes:
             - *prompt_mobile
             - <<: *submit_button
               id: submit_uin
-              label: Get OTP
+              label: "{{t(button:get_otp)}}"
     prompts:
       - inputs:
           - ref: username_input
@@ -392,7 +392,7 @@ nodes:
             - *prompt_email
             - <<: *submit_button
               id: submit_uin
-              label: Get OTP
+              label: "{{t(button:get_otp)}}"
     prompts:
       - inputs:
           - ref: username_input
@@ -428,7 +428,7 @@ nodes:
             - *prompt_nrc
             - <<: *submit_button
               id: submit_uin
-              label: Get OTP
+              label: "{{t(button:get_otp)}}"
     prompts:
       - inputs:
           - ref: username_input
@@ -468,16 +468,16 @@ nodes:
           components:
             - <<: *page_title
               id: title_otp
-              label: Enter OTP
+              label: "{{t(otp:enter_otp_title)}}"
             - id: otp_input
               ref: otp
               type: OTP_INPUT
-              label: Please enter the 6-digit OTP sent to your registered contact
+              label: "{{t(otp:otp_sent_msg)}}"
               category: FIELD
               required: true
             - <<: *submit_button
               id: action_submit_otp
-              label: Verify
+              label: "{{t(button:verify)}}"
             - id: resend_otp_block
               type: BLOCK
               category: BLOCK
@@ -490,7 +490,7 @@ nodes:
                   resourceType: ELEMENT
                   timeLeft: 20
                   variant: OUTLINE
-                  label: Resend OTP
+                  label: "{{t(otp:resend_otp)}}"
     prompts:
       - inputs:
           - ref: otp_input
@@ -535,7 +535,7 @@ nodes:
             - *prompt_password
             - <<: *submit_button
               id: password_authenticate
-              label: Login
+              label: "{{t(button:login)}}"
     prompts:
       - inputs:
           - ref: username_input
@@ -578,7 +578,7 @@ nodes:
             - *prompt_password
             - <<: *submit_button
               id: password_authenticate
-              label: Login
+              label: "{{t(button:login)}}"
     prompts:
       - inputs:
           - ref: username_input
@@ -621,7 +621,7 @@ nodes:
             - *prompt_password
             - <<: *submit_button
               id: password_authenticate
-              label: Login
+              label: "{{t(button:login)}}"
     prompts:
       - inputs:
           - ref: username_input
@@ -664,7 +664,7 @@ nodes:
             - *prompt_password
             - <<: *submit_button
               id: password_authenticate
-              label: Login
+              label: "{{t(button:login)}}"
     prompts:
       - inputs:
           - ref: username_input
@@ -891,24 +891,24 @@ nodes:
           type: BLOCK
           components:
             - <<: *page_title_with_back
-              label: Login with KBI
+              label: "{{t(button:login_kbi)}}"
             - *prompt_uin
             - id: fullname_input
               ref: fullName
               type: TEXT_INPUT
-              label: Fullname
+              label: "{{t(input:fullname_label)}}"
               required: true
-              placeholder: Enter your full name
+              placeholder: "{{t(input:fullname_placeholder)}}"
             - id: dob_input
               ref: dob
               type: DATE_INPUT
-              label: Date of Birth
+              label: "{{t(input:dob_label)}}"
               required: true
-              placeholder: Select your date of birth
+              placeholder: "{{t(input:dob_placeholder)}}"
               dateFormat: "yyyy-MM-dd"
             - <<: *submit_button
               id: submit_kbi_details
-              label: Login
+              label: "{{t(button:login)}}"
     prompts:
       - inputs:
           - ref: username_input
@@ -975,13 +975,13 @@ nodes:
       components:
         - id: text_consent_title
           type: TEXT
-          label: We need your consent
+          label: "{{t(consent:title)}}"
           variant: HEADING_3
           category: DISPLAY
           resourceType: ELEMENT
         - id: text_consent_desc
           type: TEXT
-          label: This app would like to access the following information. Please review and choose what you'd like to share.
+          label: "{{t(consent:description)}}"
           variant: BODY_1
           category: DISPLAY
           resourceType: ELEMENT
@@ -999,14 +999,14 @@ nodes:
               category: DISPLAY
             - id: action_allow
               type: ACTION
-              label: Allow
+              label: "{{t(consent:allow)}}"
               variant: PRIMARY
               category: ACTION
               eventType: SUBMIT
               resourceType: ELEMENT
             - id: action_deny
               type: ACTION
-              label: Deny
+              label: "{{t(consent:deny)}}"
               variant: SECONDARY
               category: ACTION
               eventType: SUBMIT

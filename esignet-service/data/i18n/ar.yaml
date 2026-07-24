@@ -1188,3 +1188,90 @@ system:
   "theme.error.not_found_description": لم يتم العثور على تكوين السمة المطلوب
   "theme.error.result_limit_exceeded": تجاوز حد النتائج
   "theme.error.result_limit_exceeded_description": إجمالي عدد السمات يتجاوز الحد الأقصى المسموح به في الوضع المركب
+
+header:
+  login_heading: تسجيل الدخول
+  login_subheading: يطلب المصادقة لتسجيل الدخول
+  select_login_id: اختر خيار معرف تسجيل الدخول
+  select_login_mode: اختر طريقة تسجيل الدخول المفضلة
+
+input:
+  uin_label: UIN/VID
+  uin_placeholder: أدخل UIN/VID الخاص بك
+  mobile_label: رقم الهاتف المحمول
+  mobile_placeholder: أدخل رقم الهاتف المحمول
+  email_label: البريد الإلكتروني
+  email_placeholder: أدخل البريد الإلكتروني
+  nrc_label: معرف NRC
+  nrc_placeholder: أدخل معرف NRC
+  password_label: كلمة المرور
+  password_placeholder: أدخل كلمة المرور الخاصة بك
+  username_label: اسم المستخدم
+  username_placeholder: أدخل اسم المستخدم الخاص بك
+  fullname_label: الاسم الكامل
+  fullname_placeholder: أدخل اسمك الكامل
+  dob_label: تاريخ الميلاد
+  dob_placeholder: حدد تاريخ ميلادك
+
+button:
+  continue: متابعة
+  login: تسجيل الدخول
+  verify: تحقق
+  get_otp: احصل على OTP
+  login_otp: تسجيل الدخول بـ OTP
+  login_password: تسجيل الدخول بكلمة المرور
+  login_biometrics: تسجيل الدخول بالقياسات الحيوية
+  login_kbi: تسجيل الدخول بـ KBI
+  login_id_uin: UIN/VID
+  login_id_mobile: رقم الهاتف المحمول
+  login_id_email: البريد الإلكتروني
+  login_id_nrc: معرف NRC
+
+otp:
+  enter_otp_title: أدخل OTP
+  otp_sent_msg: يرجى إدخال رمز OTP المكون من 6 أرقام المرسل إلى جهة الاتصال المسجلة الخاصة بك
+  resend_otp: إعادة إرسال OTP
+
+consent:
+  title: نحتاج إلى موافقتك
+  description: يرغب هذا التطبيق في الوصول إلى المعلومات التالية. يرجى المراجعة واختيار ما ترغب في مشاركته.
+  allow: السماح
+  deny: الرفض
+
+signin:
+  images.app_logo.alt: شعار التطبيق
+
+validation:
+  uin.numeric: يجب أن يحتوي UIN/VID على أرقام فقط
+  uin.length: يجب أن يكون UIN/VID بين 10 و 16 رقمًا
+  mobile.numeric: يجب أن يحتوي رقم الهاتف المحمول على أرقام فقط
+  mobile.length: يجب أن يكون رقم الهاتف المحمول بين 9 و 11 رقمًا
+  email.format: يرجى إدخال عنوان بريد إلكتروني صالح
+  pattern.invalid: تنسيق غير صالح
+  minLength.invalid: القيمة قصيرة جدًا
+  maxLength.invalid: القيمة طويلة جدًا
+
+validations:
+  required.field.error: هذا الحقل مطلوب
+
+errors:
+  heading: خطأ
+  signin.initialization: تعذر بدء تسجيل الدخول. يرجى المحاولة مرة أخرى.
+  network.unavailable: الشبكة غير متاحة. يرجى التحقق من اتصالك.
+  something_went_wrong: حدث خطأ ما
+  unexpected_error: حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى لاحقًا.
+  page_not_found: الصفحة غير موجودة
+
+messages:
+  loading.placeholder: جاري التحميل...
+
+app:
+  footer.powered_by: مدعوم من
+  network_error.title: لا يوجد اتصال بالإنترنت
+  network_error.description: يرجى التحقق من اتصال الشبكة والمحاولة مرة أخرى.
+  network_error.try_again: حاول مرة أخرى
+  otp.resend_timer: يمكنك إعادة إرسال OTP في
+  otp.timed_out: انتهت المهلة
+  otp.submit: إرسال
+  back: رجوع
+  esignet_details: تفاصيل eSignet
