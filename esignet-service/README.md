@@ -111,8 +111,10 @@ Set `LOG_LEVEL=debug` for verbose tracing.
 | `PORT` | `8088` | HTTP listen port (code default; `./make.sh run`/`build` default `PORT` to `8080` unless overridden) |
 | `NAMESPACE` | `esignet` | Service identifier; also used as the Redis cache key prefix |
 | `MOSIP_ESIGNET_HOST` | `http://127.0.0.1:<PORT>` | OIDC issuer, JWT `iss`, discovery base |
+| `MOSIP_ESIGNET_BASE_URL` | `MOSIP_ESIGNET_HOST` | Overrides the server's public URL (used to detect `http://` vs `https://` for cookie/HTTPS-only behavior) |
 | `DATA_DIR` | `./data` | Declarative YAML root (`flows/`, `i18n/`, `layouts/`, `themes/`, `keys/`) |
 | `CRYPTO_ENCRYPTION_KEY` | _(required)_ | Hex key for `crypto.encryption.key` in `data/deployment.yaml`; the process panics at startup if unset |
+| `RUNTIME_DB_TYPE` | `redis` | Runtime store backend for flow/session/PAR state: `redis` (shared across replicas) or any other value for the in-memory store (single instance only, dev/test use) |
 | `AUTHN_PROVIDER` | `mock` | `mock` (default; talks to esignet-mock-services), `mosip` (MOSIP IDA), or `sunbird` (SunbirdRC registry KBI). `./make.sh run` overrides the default to `mosip`. |
 | `LAYOUT_ID` | `layout-esignet` | Declarative layout id |
 | `THEME_ID` | `theme-esignet` | Declarative theme id |

@@ -19,8 +19,8 @@ const (
 // SendOTP/AuthenticateUser/GetUserAttributes calls for the same flow execution share
 // one transaction id, as mock-identity-system and MOSIP IDA require).
 func GenerateTransactionID(runtimeMetadata map[string][]string) (string, error) {
-	if runtimeMetadata != nil && runtimeMetadata[transactionIDKey] != nil {
-		return runtimeMetadata[transactionIDKey][0], nil
+	if ids := runtimeMetadata[transactionIDKey]; len(ids) > 0 {
+		return ids[0], nil
 	}
 
 	const digitCount = 10

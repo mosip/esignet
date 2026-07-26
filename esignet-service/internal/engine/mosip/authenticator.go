@@ -733,13 +733,13 @@ func (p *mosipAuthnProvider) callKycAuthEndpoint(
 
 	// Check status
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return "", "", err
+		return "", "", fmt.Errorf("unexpected KYC auth status: %d - %s", resp.StatusCode, string(bodyBytes))
 	}
 
 	// Parse response
 	var wrapper IdaResponseWrapper
 	if err := json.Unmarshal(bodyBytes, &wrapper); err != nil {
-		return "", "", err
+		return "", "", fmt.Errorf("failed to parse IdaResponseWrapper: %w", err)
 	}
 
 	// Success path
@@ -749,7 +749,7 @@ func (p *mosipAuthnProvider) callKycAuthEndpoint(
 
 	// Error path
 	if wrapper.Response == nil {
-		return "", "", err
+		return "", "", errors.New("response object is missing in wrapper")
 	}
 
 	applog.GetLogger().Error("IDA KYC auth error response",
@@ -757,7 +757,7 @@ func (p *mosipAuthnProvider) callKycAuthEndpoint(
 		applog.Any("errors", wrapper.Errors))
 
 	if len(wrapper.Errors) == 0 {
-		return "", "", err
+		return "", "", errors.New("no errors in response wrapper")
 	}
 
 	// Take first error (common pattern)

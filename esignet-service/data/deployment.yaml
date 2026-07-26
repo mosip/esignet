@@ -4,9 +4,10 @@ issuer: "${MOSIP_ESIGNET_HOST:-http://localhost:8088}"
 data_dir: "${DATA_DIR:-./data}"
 
 provider: "${AUTHN_PROVIDER:-mock}"
-auth_flow_id: "${DEFAULT_AUTH_FLOW_ID:-flow-esignet}"
-theme_id: "${DEFAULT_THEME_ID:-theme-esignet}"
-layout_id: "${DEFAULT_LAYOUT_ID:-layout-esignet}"
+auth_flow_id: "${AUTH_FLOW_ID:-flow-esignet}"
+theme_id: "${THEME_ID:-theme-esignet}"
+layout_id: "${LAYOUT_ID:-layout-esignet}"
+runtime_db_type: "${RUNTIME_DB_TYPE:-redis}"
 
 server:
   hostname: "0.0.0.0"

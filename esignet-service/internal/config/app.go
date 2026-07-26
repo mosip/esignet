@@ -169,8 +169,12 @@ func applyDefaults(cfg *AppConfig) {
 	cfg.Flow.Interceptors = []string{}
 
 	cfg.OAuth.RefreshToken.RenewOnGrant = false
-	cfg.OAuth.AuthorizationCode.ValidityPeriod = 3600
-	cfg.OAuth.PAR.ExpiresIn = 3600
+	if cfg.OAuth.AuthorizationCode.ValidityPeriod <= 0 {
+		cfg.OAuth.AuthorizationCode.ValidityPeriod = 3600
+	}
+	if cfg.OAuth.PAR.ExpiresIn <= 0 {
+		cfg.OAuth.PAR.ExpiresIn = 3600
+	}
 	cfg.OAuth.AuthClass.AcrAMR = map[string][]string{
 		"mosip:idp:acr:generated-code": {},
 		"mosip:idp:acr:biometrics":     {},
