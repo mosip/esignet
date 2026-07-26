@@ -8,6 +8,7 @@ package engine
 
 import (
 	"context"
+	"encoding/json"
 	"os"
 	"path/filepath"
 
@@ -20,25 +21,36 @@ import (
 	applog "github.com/mosip/esignet/internal/log"
 )
 
+// flowDefinitionCacheNamespace isolates cached flow definition JSON in the shared runtime store.
+const flowDefinitionCacheNamespace providers.RuntimeStoreNamespace = "flow:definition"
+
 type flowProvider struct {
-	cfg *config.AppConfig
+	cfg          *config.AppConfig
+	cache        providers.RuntimeStoreProvider
+	cacheTTLSecs int64
 }
 
 // NewFlowProvider returns a file-based flow provider backed by the configured data directory.
-func NewFlowProvider(cfg *config.AppConfig) providers.FlowProvider {
-	return &flowProvider{cfg: cfg}
+// The parsed flow definition is cached in the runtime store under cacheTTLSecs so the flow
+// file isn't re-read and re-parsed on every request.
+func NewFlowProvider(cfg *config.AppConfig, cache providers.RuntimeStoreProvider, cacheTTLSecs int64) providers.FlowProvider {
+	return &flowProvider{cfg: cfg, cache: cache, cacheTTLSecs: cacheTTLSecs}
 }
 
-func (p *flowProvider) GetFlowByHandle(_ context.Context, _ string, _ providers.FlowType) (
+func (p *flowProvider) GetFlowByHandle(ctx context.Context, _ string, _ providers.FlowType) (
 	*providers.CompleteFlowDefinition, *common.ServiceError) {
-	return p.parseFlowDefinition()
+	return p.parseFlowDefinition(ctx)
 }
 
-func (p *flowProvider) GetFlow(_ context.Context, _ string) (*providers.CompleteFlowDefinition, *common.ServiceError) {
-	return p.parseFlowDefinition()
+func (p *flowProvider) GetFlow(ctx context.Context, _ string) (*providers.CompleteFlowDefinition, *common.ServiceError) {
+	return p.parseFlowDefinition(ctx)
 }
 
-func (p *flowProvider) parseFlowDefinition() (*providers.CompleteFlowDefinition, *common.ServiceError) {
+func (p *flowProvider) parseFlowDefinition(ctx context.Context) (*providers.CompleteFlowDefinition, *common.ServiceError) {
+	if flowDef, ok := p.getCached(ctx); ok {
+		return flowDef, nil
+	}
+
 	// Read the flow definition from file in the data directory.
 	data, err := os.ReadFile(filepath.Join(p.cfg.DataDir, "flows", p.cfg.AuthFlowID+".yaml"))
 	if err != nil {
@@ -52,5 +64,46 @@ func (p *flowProvider) parseFlowDefinition() (*providers.CompleteFlowDefinition,
 		applog.GetLogger().Warn("failed to parse flow definition file", applog.String("flowId", p.cfg.AuthFlowID), applog.Error(err))
 		return nil, shared.FileUnmarshallError
 	}
+
+	p.setCached(ctx, &flowDef)
 	return &flowDef, nil
+}
+
+// getCached returns the cached flow definition for p.cfg.AuthFlowID, if present. Any cache
+// read or unmarshal error is logged and treated as a miss: the flow file remains the source
+// of truth, so a cache problem must never fail the request.
+func (p *flowProvider) getCached(ctx context.Context) (*providers.CompleteFlowDefinition, bool) {
+	if p.cache == nil {
+		return nil, false
+	}
+	data, err := p.cache.Get(ctx, flowDefinitionCacheNamespace, p.cfg.AuthFlowID)
+	if err != nil {
+		applog.GetLogger().Warn("flow cache get failed", applog.String("flowId", p.cfg.AuthFlowID), applog.Error(err))
+		return nil, false
+	}
+	if data == nil {
+		return nil, false
+	}
+	var flowDef providers.CompleteFlowDefinition
+	if err := json.Unmarshal(data, &flowDef); err != nil {
+		applog.GetLogger().Warn("failed to unmarshal cached flow definition", applog.String("flowId", p.cfg.AuthFlowID), applog.Error(err))
+		return nil, false
+	}
+	return &flowDef, true
+}
+
+// setCached populates the cache with the parsed flow definition. Failures are logged, not
+// returned: caching is a pure optimization on top of the successful file read.
+func (p *flowProvider) setCached(ctx context.Context, flowDef *providers.CompleteFlowDefinition) {
+	if p.cache == nil {
+		return
+	}
+	data, err := json.Marshal(flowDef)
+	if err != nil {
+		applog.GetLogger().Warn("failed to marshal flow definition for cache", applog.String("flowId", p.cfg.AuthFlowID), applog.Error(err))
+		return
+	}
+	if err := p.cache.Put(ctx, flowDefinitionCacheNamespace, p.cfg.AuthFlowID, data, p.cacheTTLSecs); err != nil {
+		applog.GetLogger().Warn("flow cache put failed", applog.String("flowId", p.cfg.AuthFlowID), applog.Error(err))
+	}
 }

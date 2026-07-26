@@ -3,431 +3,426 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
+
 package engine
 
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"errors"
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/suite"
+
+	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
 	"github.com/mosip/esignet/internal/config"
 	"github.com/mosip/esignet/internal/consentmgmt"
 	"github.com/mosip/esignet/internal/consentmgmt/db"
-	applog "github.com/mosip/esignet/internal/log"
 )
 
-// fakeQuerier is a minimal db.Querier stand-in so consentmgmt.Service can be exercised without a
-// real Postgres connection.
-type fakeQuerier struct {
+type consentStubQuerier struct {
+	db.Querier
+
 	getRow db.ConsentDetail
 	getErr error
 
-	upsertParams        db.UpsertConsentParams
-	insertHistoryParams db.InsertConsentHistoryParams
-	saveErr             error
+	upsertErr        error
+	insertHistoryErr error
+
+	lastUpsert  db.UpsertConsentParams
+	lastHistory db.InsertConsentHistoryParams
 }
 
-var _ db.Querier = (*fakeQuerier)(nil)
-
-func (f *fakeQuerier) GetConsent(context.Context, db.GetConsentParams) (db.ConsentDetail, error) {
-	return f.getRow, f.getErr
-}
-func (f *fakeQuerier) InsertConsentHistory(_ context.Context, arg db.InsertConsentHistoryParams) error {
-	f.insertHistoryParams = arg
-	return f.saveErr
-}
-func (f *fakeQuerier) UpsertConsent(_ context.Context, arg db.UpsertConsentParams) error {
-	f.upsertParams = arg
-	return f.saveErr
-}
-func (f *fakeQuerier) DeleteConsent(context.Context, db.DeleteConsentParams) error { return nil }
-
-// fakeRuntimeStore is a minimal RuntimeStoreProvider whose Get returns preset data/err; the other
-// methods are unused by the consent provider.
-type fakeRuntimeStore struct {
-	data map[string][]byte
-	err  error
+func (q *consentStubQuerier) GetConsent(_ context.Context, _ db.GetConsentParams) (db.ConsentDetail, error) {
+	return q.getRow, q.getErr
 }
 
-func (f *fakeRuntimeStore) Put(context.Context, providers.RuntimeStoreNamespace, string, []byte, int64) error {
-	return nil
+func (q *consentStubQuerier) InsertConsentHistory(_ context.Context, arg db.InsertConsentHistoryParams) error {
+	q.lastHistory = arg
+	return q.insertHistoryErr
 }
-func (f *fakeRuntimeStore) Get(_ context.Context, ns providers.RuntimeStoreNamespace, key string) ([]byte, error) {
-	if f.err != nil {
-		return nil, f.err
+
+func (q *consentStubQuerier) UpsertConsent(_ context.Context, arg db.UpsertConsentParams) error {
+	q.lastUpsert = arg
+	return q.upsertErr
+}
+
+func newConsentTestProvider(q db.Querier, cfg *config.AppConfig) *consentProvider {
+	if cfg == nil {
+		cfg = &config.AppConfig{}
 	}
-	return f.data[string(ns)+":"+key], nil
-}
-func (f *fakeRuntimeStore) Update(context.Context, providers.RuntimeStoreNamespace, string, []byte) error {
-	return nil
-}
-func (f *fakeRuntimeStore) Delete(context.Context, providers.RuntimeStoreNamespace, string) error {
-	return nil
-}
-func (f *fakeRuntimeStore) Take(context.Context, providers.RuntimeStoreNamespace, string) ([]byte, error) {
-	return nil, nil
-}
-func (f *fakeRuntimeStore) ExtendTTL(context.Context, providers.RuntimeStoreNamespace, string, int64) error {
-	return nil
+	svc := consentmgmt.NewServiceWithQuerier(q)
+	return NewConsentProvider(svc, cfg).(*consentProvider)
 }
 
-var _ providers.RuntimeStoreProvider = (*fakeRuntimeStore)(nil)
-
-const (
-	testAuthID   = "authreq-1"
-	testClientID = "client-1"
-	testUserID   = "user-1"
-)
-
-var testMetadata = map[string]string{
-	runtimeKeyAuthorizationRequestID: testAuthID,
-	runtimeKeyClientID:               testClientID,
+func clientIDMeta(clientID string) map[string][]string {
+	return map[string][]string{runtimeKeyClientID: {clientID}}
 }
 
-// storeWithAuthRequest builds a fakeRuntimeStore that returns the given claims/scopes under
-// testAuthID, in the engine's stored authorization-request wire form.
-func storeWithAuthRequest(claimsRequest map[string]any, authorizeScopes []string) *fakeRuntimeStore {
-	return storeWithAuthRequestScopes(claimsRequest, authorizeScopes, nil)
+func matchingConsentHash(ts *ConsentProviderTestSuite) string {
+	hash, err := consentmgmt.HashRequestedConsent(
+		consentmgmt.NormalizeClaims(map[string]any{}),
+		consentmgmt.NormalizeAuthorizationScopes([]string{}),
+	)
+	ts.Require().NoError(err)
+	return hash
 }
 
-// storeWithAuthRequestScopes is storeWithAuthRequest extended with standard OIDC scopes.
-func storeWithAuthRequestScopes(claimsRequest map[string]any, authorizeScopes,
-	standardScopes []string) *fakeRuntimeStore {
-	data, _ := json.Marshal(map[string]any{"OAuthParameters": map[string]any{
-		"ClientID":         testClientID,
-		"PermissionScopes": authorizeScopes,
-		"StandardScopes":   standardScopes,
-		"ClaimsRequest":    claimsRequest,
-	}})
-	return &fakeRuntimeStore{data: map[string][]byte{
-		string(providers.NamespaceAuthzReq) + ":" + testAuthID: data,
+func (ts *ConsentProviderTestSuite) TestNewConsentProvider() {
+	p := newConsentTestProvider(&consentStubQuerier{getErr: sql.ErrNoRows}, nil)
+	ts.Require().NotNil(p)
+}
+
+func (ts *ConsentProviderTestSuite) TestResolveConsent_FetchRecordError() {
+	p := newConsentTestProvider(&consentStubQuerier{getErr: errors.New("db down")}, nil)
+
+	prompt, svcErr := p.ResolveConsent(context.Background(), "ou-1", "app-1", "App One", "user-1",
+		nil, nil, nil, nil, false, clientIDMeta("client-1"))
+	ts.Require().Nil(prompt)
+	ts.Require().NotNil(svcErr)
+	ts.Require().Equal("consent_fetch_failed", svcErr.Code)
+}
+
+func (ts *ConsentProviderTestSuite) TestResolveConsent_NoStoredConsent_BuildsPrompt() {
+	p := newConsentTestProvider(&consentStubQuerier{getErr: sql.ErrNoRows}, nil)
+
+	prompt, svcErr := p.ResolveConsent(context.Background(), "ou-1", "app-1", "App One", "user-1",
+		[]string{"name"}, []string{"email"}, []string{"perm.write", "perm.read"}, nil, false,
+		clientIDMeta("client-1"))
+	ts.Require().Nil(svcErr)
+	ts.Require().NotNil(prompt)
+	ts.Require().Len(prompt.Purposes, 2)
+
+	attrs := prompt.Purposes[0]
+	ts.Require().Equal("attributes:app-1", attrs.PurposeName)
+	ts.Require().Equal(promptTypeAttributes, attrs.Type)
+	ts.Require().Equal([]providers.PromptElement{{Name: "name"}}, attrs.Essential)
+	ts.Require().Equal([]providers.PromptElement{{Name: "email"}}, attrs.Optional)
+
+	perms := prompt.Purposes[1]
+	ts.Require().Equal("permissions:app-1", perms.PurposeName)
+	ts.Require().Equal(promptTypePermissions, perms.Type)
+	ts.Require().Equal([]providers.PromptElement{{Name: "perm.read"}, {Name: "perm.write"}}, perms.Essential)
+	ts.Require().Empty(perms.Optional)
+}
+
+func (ts *ConsentProviderTestSuite) TestResolveConsent_NothingToPrompt_ReturnsNil() {
+	p := newConsentTestProvider(&consentStubQuerier{getErr: sql.ErrNoRows}, nil)
+
+	prompt, svcErr := p.ResolveConsent(context.Background(), "ou-1", "app-1", "App One", "user-1",
+		nil, nil, nil, nil, false, clientIDMeta("client-1"))
+	ts.Require().Nil(svcErr)
+	ts.Require().Nil(prompt)
+}
+
+func (ts *ConsentProviderTestSuite) TestResolveConsent_ForceReprompt() {
+	hash := matchingConsentHash(ts)
+	q := &consentStubQuerier{getRow: db.ConsentDetail{
+		ID: "consent-1", ClientID: "client-1", PsuToken: "user-1",
+		Claims: "{}", AuthorizationScopes: "{}",
+		Hash: sql.NullString{String: hash, Valid: true}, CrDtimes: time.Now().UTC(),
 	}}
+	p := newConsentTestProvider(q, nil)
+
+	prompt, svcErr := p.ResolveConsent(context.Background(), "ou-1", "app-1", "App One", "user-1",
+		[]string{"name"}, nil, nil, nil, true, clientIDMeta("client-1"))
+	ts.Require().Nil(svcErr)
+	ts.Require().NotNil(prompt, "force reprompt should re-prompt even when stored consent matches")
 }
 
-func newProvider(q db.Querier, rs providers.RuntimeStoreProvider) *consentProvider {
-	return newProviderWithConfig(q, rs, &config.AppConfig{})
-}
-
-// newProviderWithConfig is newProvider with an explicit AppConfig, for tests that need
-// config.ScopeClaims (e.g. standard-scope-to-claim expansion) populated.
-func newProviderWithConfig(q db.Querier, rs providers.RuntimeStoreProvider, cfg *config.AppConfig) *consentProvider {
-	return &consentProvider{
-		consentSvc:   consentmgmt.NewServiceWithQuerier(q),
-		config:       cfg,
-		runtimeStore: rs,
-		logger:       applog.GetLogger(),
-	}
-}
-
-func TestResolveConsent_NoStoredConsent_PromptsWithoutPanic(t *testing.T) {
-	q := &fakeQuerier{getErr: sql.ErrNoRows}
-	rs := storeWithAuthRequest(map[string]any{"userinfo": map[string]any{"email": nil}}, []string{"resource.read"})
-	p := newProvider(q, rs)
-
-	prompt, svcErr := p.ResolveConsent(context.Background(), "ou1", "app1", "App One", testUserID,
-		[]string{"email"}, nil, []string{"resource.read"}, nil, false, testMetadata)
-
-	if svcErr != nil {
-		t.Fatalf("unexpected service error: %+v", svcErr)
-	}
-	if prompt == nil {
-		t.Fatal("expected a consent prompt when no consent is on file")
-	}
-}
-
-func TestResolveConsent_ForceReprompt(t *testing.T) {
-	q := &fakeQuerier{getRow: db.ConsentDetail{
-		Hash:   sql.NullString{String: "irrelevant", Valid: true},
-		Claims: `{}`, AuthorizationScopes: `{}`,
-	}}
-	rs := storeWithAuthRequest(map[string]any{"userinfo": map[string]any{"email": nil}}, []string{"resource.read"})
-	p := newProvider(q, rs)
-
-	prompt, svcErr := p.ResolveConsent(context.Background(), "ou1", "app1", "App One", testUserID,
-		[]string{"email"}, nil, []string{"resource.read"}, nil, true, testMetadata)
-
-	if svcErr != nil {
-		t.Fatalf("unexpected service error: %+v", svcErr)
-	}
-	if prompt == nil {
-		t.Fatal("expected a consent prompt when forceReprompt is set")
-	}
-}
-
-func TestResolveConsent_ExpiredConsent_Prompts(t *testing.T) {
-	q := &fakeQuerier{getRow: db.ConsentDetail{
+func (ts *ConsentProviderTestSuite) TestResolveConsent_ExpiredConsent_Reprompts() {
+	hash := matchingConsentHash(ts)
+	q := &consentStubQuerier{getRow: db.ConsentDetail{
+		ID: "consent-1", ClientID: "client-1", PsuToken: "user-1",
+		Claims: "{}", AuthorizationScopes: "{}",
+		Hash:         sql.NullString{String: hash, Valid: true},
+		CrDtimes:     time.Now().UTC().Add(-2 * time.Hour),
 		ExpireDtimes: sql.NullTime{Time: time.Now().UTC().Add(-time.Hour), Valid: true},
-		Claims:       `{}`, AuthorizationScopes: `{}`,
 	}}
-	rs := storeWithAuthRequest(map[string]any{"userinfo": map[string]any{"email": nil}}, []string{"resource.read"})
-	p := newProvider(q, rs)
+	p := newConsentTestProvider(q, nil)
 
-	prompt, svcErr := p.ResolveConsent(context.Background(), "ou1", "app1", "App One", testUserID,
-		[]string{"email"}, nil, []string{"resource.read"}, nil, false, testMetadata)
-
-	if svcErr != nil {
-		t.Fatalf("unexpected service error: %+v", svcErr)
-	}
-	if prompt == nil {
-		t.Fatal("expected a consent prompt for an expired consent")
-	}
+	prompt, svcErr := p.ResolveConsent(context.Background(), "ou-1", "app-1", "App One", "user-1",
+		[]string{"name"}, nil, nil, nil, false, clientIDMeta("client-1"))
+	ts.Require().Nil(svcErr)
+	ts.Require().NotNil(prompt, "expired consent should be re-prompted")
 }
 
-func TestResolveConsent_MatchingHash_SkipsPrompt(t *testing.T) {
-	claimsRequest := map[string]any{"userinfo": map[string]any{"email": nil}}
-	scopes := []string{"resource.read"}
-	hash, err := requestHash(claimsRequest, scopes)
-	if err != nil {
-		t.Fatalf("compute hash: %v", err)
-	}
-
-	q := &fakeQuerier{getRow: db.ConsentDetail{
-		Hash:                sql.NullString{String: hash, Valid: true},
-		Claims:              `{}`,
-		AuthorizationScopes: `{}`,
+func (ts *ConsentProviderTestSuite) TestResolveConsent_HashMatches_SkipsPrompt() {
+	hash := matchingConsentHash(ts)
+	q := &consentStubQuerier{getRow: db.ConsentDetail{
+		ID: "consent-1", ClientID: "client-1", PsuToken: "user-1",
+		Claims: "{}", AuthorizationScopes: "{}",
+		Hash:     sql.NullString{String: hash, Valid: true},
+		CrDtimes: time.Now().UTC(),
 	}}
-	rs := storeWithAuthRequest(claimsRequest, scopes)
-	p := newProvider(q, rs)
+	p := newConsentTestProvider(q, nil)
 
-	prompt, svcErr := p.ResolveConsent(context.Background(), "ou1", "app1", "App One", testUserID,
-		[]string{"email"}, nil, scopes, nil, false, testMetadata)
-
-	if svcErr != nil {
-		t.Fatalf("unexpected service error: %+v", svcErr)
-	}
-	if prompt != nil {
-		t.Fatalf("expected no prompt when the stored hash matches, got %#v", prompt)
-	}
+	prompt, svcErr := p.ResolveConsent(context.Background(), "ou-1", "app-1", "App One", "user-1",
+		nil, nil, nil, nil, false, clientIDMeta("client-1"))
+	ts.Require().Nil(svcErr)
+	ts.Require().Nil(prompt)
 }
 
-func TestResolveConsent_AdditionalStandardScope_Reprompts(t *testing.T) {
-	cfg := &config.AppConfig{ScopeClaims: map[string][]string{"email": {"email", "email_verified"}}}
-	claimsRequest := map[string]any{"userinfo": map[string]any{}}
-	scopes := []string{"resource.read"}
-
-	// The stored consent's hash was computed for a request that carried no claim-producing standard
-	// scope (e.g. just "openid").
-	priorHash, err := requestHash(claimsRequest, scopes)
-	if err != nil {
-		t.Fatalf("compute prior hash: %v", err)
-	}
-	q := &fakeQuerier{getRow: db.ConsentDetail{
-		Hash:                sql.NullString{String: priorHash, Valid: true},
-		Claims:              `{}`,
-		AuthorizationScopes: `{}`,
+func (ts *ConsentProviderTestSuite) TestResolveConsent_HashMismatch_ReturnsPrompt() {
+	q := &consentStubQuerier{getRow: db.ConsentDetail{
+		ID: "consent-1", ClientID: "client-1", PsuToken: "user-1",
+		Claims: "{}", AuthorizationScopes: "{}",
+		Hash:     sql.NullString{String: "stale-hash", Valid: true},
+		CrDtimes: time.Now().UTC(),
 	}}
-	// The current request adds the "email" standard scope, which the ScopeClaims config expands
-	// into claims. Same explicit claims param and same authorize scopes as before.
-	rs := storeWithAuthRequestScopes(claimsRequest, scopes, []string{"openid", "email"})
-	p := newProviderWithConfig(q, rs, cfg)
+	p := newConsentTestProvider(q, nil)
 
-	prompt, svcErr := p.ResolveConsent(context.Background(), "ou1", "app1", "App One", testUserID,
-		nil, []string{"email"}, scopes, nil, false, testMetadata)
-
-	if svcErr != nil {
-		t.Fatalf("unexpected service error: %+v", svcErr)
-	}
-	if prompt == nil {
-		t.Fatal("expected a reprompt: the added standard scope expands to claims not covered by the stored consent")
-	}
+	prompt, svcErr := p.ResolveConsent(context.Background(), "ou-1", "app-1", "App One", "user-1",
+		[]string{"name"}, nil, nil, nil, false, clientIDMeta("client-1"))
+	ts.Require().Nil(svcErr)
+	ts.Require().NotNil(prompt)
 }
 
-func TestGetConsentRequestHash_SameStandardScopes_SameHash(t *testing.T) {
-	cfg := &config.AppConfig{ScopeClaims: map[string][]string{"email": {"email", "email_verified"}}}
-	p := newProviderWithConfig(&fakeQuerier{}, &fakeRuntimeStore{}, cfg)
-	req := &requestedConsent{
-		claimsRequest:   map[string]any{"userinfo": map[string]any{}},
-		authorizeScopes: []string{"resource.read"},
-		standardScopes:  []string{"openid", "email"},
-	}
+func (ts *ConsentProviderTestSuite) TestRecordConsent_Success() {
+	q := &consentStubQuerier{}
+	p := newConsentTestProvider(q, nil)
 
-	h1 := p.getConsentRequestHash(context.Background(), req)
-	h2 := p.getConsentRequestHash(context.Background(), req)
-	if h1 == "" || h1 != h2 {
-		t.Fatalf("expected identical, non-empty hashes for identical requests, got %q vs %q", h1, h2)
-	}
-}
-
-func TestMergeScopeClaims_SkipsAlreadyRequestedClaim(t *testing.T) {
-	claimsRequest := map[string]any{"userinfo": map[string]any{"email": map[string]any{"essential": true}}}
-
-	merged := mergeScopeClaims(claimsRequest, []string{"email"})
-
-	userinfo, ok := merged["userinfo"].(map[string]any)
-	if !ok {
-		t.Fatalf("expected merged userinfo section, got %#v", merged["userinfo"])
-	}
-	constraint, ok := userinfo["email"].(map[string]any)
-	if !ok {
-		t.Fatalf("expected the explicit email constraint to be preserved as a map, got %#v", userinfo["email"])
-	}
-	if essential, _ := constraint["essential"].(bool); !essential {
-		t.Errorf("expected the explicit essential constraint to survive, not be overwritten by the scope-derived claim")
-	}
-}
-
-func TestMergeScopeClaims_DoesNotMutateInput(t *testing.T) {
-	original := map[string]any{"userinfo": map[string]any{"name": nil}}
-	originalUserinfo := original["userinfo"].(map[string]any)
-
-	_ = mergeScopeClaims(original, []string{"email"})
-
-	if _, ok := originalUserinfo["email"]; ok {
-		t.Fatal("mergeScopeClaims must not mutate the input claims request")
-	}
-	if len(originalUserinfo) != 1 {
-		t.Fatalf("expected the input userinfo section to be untouched, got %#v", originalUserinfo)
-	}
-}
-
-func TestResolveConsent_MismatchedHash_Prompts(t *testing.T) {
-	q := &fakeQuerier{getRow: db.ConsentDetail{
-		Hash:                sql.NullString{String: "stale-hash", Valid: true},
-		Claims:              `{}`,
-		AuthorizationScopes: `{}`,
-	}}
-	rs := storeWithAuthRequest(map[string]any{"userinfo": map[string]any{"email": nil}}, []string{"resource.read"})
-	p := newProvider(q, rs)
-
-	prompt, svcErr := p.ResolveConsent(context.Background(), "ou1", "app1", "App One", testUserID,
-		[]string{"email"}, nil, []string{"resource.read"}, nil, false, testMetadata)
-
-	if svcErr != nil {
-		t.Fatalf("unexpected service error: %+v", svcErr)
-	}
-	if prompt == nil {
-		t.Fatal("expected a consent prompt when the stored hash no longer matches")
-	}
-}
-
-func TestResolveConsent_FetchError(t *testing.T) {
-	q := &fakeQuerier{getErr: errors.New("db down")}
-	p := newProvider(q, &fakeRuntimeStore{})
-
-	prompt, svcErr := p.ResolveConsent(context.Background(), "ou1", "app1", "App One", testUserID,
-		[]string{"email"}, nil, nil, nil, false, testMetadata)
-
-	if svcErr == nil {
-		t.Fatal("expected a service error when fetching consent fails")
-	}
-	if prompt != nil {
-		t.Fatal("expected a nil prompt on error")
-	}
-}
-
-func TestResolveConsent_MissingAuthRequest_ChecksFailed(t *testing.T) {
-	q := &fakeQuerier{getRow: db.ConsentDetail{Claims: `{}`, AuthorizationScopes: `{}`}}
-	p := newProvider(q, &fakeRuntimeStore{})
-
-	prompt, svcErr := p.ResolveConsent(context.Background(), "ou1", "app1", "App One", testUserID,
-		[]string{"email"}, nil, []string{"resource.read"}, nil, false, testMetadata)
-
-	if svcErr == nil {
-		t.Fatal("expected a service error when the authorization request cannot be resolved")
-	}
-	if prompt != nil {
-		t.Fatal("expected a nil prompt on error")
-	}
-}
-
-func TestRecordConsent_PersistsAcceptedClaimsAndScopes(t *testing.T) {
-	q := &fakeQuerier{}
-	rs := storeWithAuthRequest(map[string]any{"userinfo": map[string]any{"email": nil}}, []string{"resource.read"})
-	p := newProvider(q, rs)
-
-	decisions := &providers.ConsentDecisions{Purposes: []providers.PurposeDecision{
-		{
-			PurposeName: attributesPurpose,
-			Approved:    true,
-			Elements:    []providers.ElementDecision{{Name: "email", Approved: true}, {Name: "phone", Approved: false}},
+	decisions := &providers.ConsentDecisions{
+		Purposes: []providers.PurposeDecision{
+			{
+				PurposeName: "attributes:app-1",
+				Approved:    true,
+				Elements: []providers.ElementDecision{
+					{Name: "email", Approved: true},
+					{Name: "phone", Approved: false},
+				},
+			},
+			{
+				PurposeName: "permissions:app-1",
+				Approved:    true,
+				Elements: []providers.ElementDecision{
+					{Name: "perm.read", Approved: true},
+				},
+			},
 		},
-		{
-			PurposeName: permissionsPurpose,
-			Approved:    true,
-			Elements:    []providers.ElementDecision{{Name: "resource.read", Approved: true}},
+	}
+
+	consent, svcErr := p.RecordConsent(context.Background(), "ou-1", "app-1", "user-1",
+		decisions, "session-token", 3600, clientIDMeta("client-1"))
+	ts.Require().Nil(svcErr)
+	ts.Require().NotNil(consent)
+	ts.Require().Equal("app-1", consent.GroupID)
+	ts.Require().Equal(providers.ConsentStatusActive, consent.Status)
+	ts.Require().Len(consent.Purposes, 2)
+
+	ts.Require().Equal("attributes:app-1", consent.Purposes[0].Name)
+	ts.Require().ElementsMatch(consent.Purposes[0].Elements, []providers.ConsentElementApproval{
+		{Name: "email", Namespace: providers.NamespaceAttribute, IsUserApproved: true},
+		{Name: "phone", Namespace: providers.NamespaceAttribute, IsUserApproved: false},
+	})
+
+	ts.Require().Equal("permissions:app-1", consent.Purposes[1].Name)
+	ts.Require().ElementsMatch(consent.Purposes[1].Elements, []providers.ConsentElementApproval{
+		{Name: "perm.read", Namespace: providers.NamespacePermission, IsUserApproved: true},
+	})
+
+	ts.Require().Equal("client-1", q.lastUpsert.ClientID)
+	ts.Require().Equal("user-1", q.lastUpsert.PsuToken)
+	ts.Require().True(q.lastUpsert.ExpireDtimes.Valid)
+}
+
+func (ts *ConsentProviderTestSuite) TestRecordConsent_NilDecisions() {
+	q := &consentStubQuerier{}
+	p := newConsentTestProvider(q, nil)
+
+	consent, svcErr := p.RecordConsent(context.Background(), "ou-1", "app-1", "user-1",
+		nil, "", 0, clientIDMeta("client-1"))
+	ts.Require().Nil(svcErr)
+	ts.Require().NotNil(consent)
+	ts.Require().Empty(consent.Purposes)
+	ts.Require().False(q.lastUpsert.ExpireDtimes.Valid, "zero validity period should not set an expiry")
+}
+
+func (ts *ConsentProviderTestSuite) TestRecordConsent_SaveError() {
+	q := &consentStubQuerier{upsertErr: errors.New("upsert failed")}
+	p := newConsentTestProvider(q, nil)
+
+	consent, svcErr := p.RecordConsent(context.Background(), "ou-1", "app-1", "user-1",
+		nil, "", 0, clientIDMeta("client-1"))
+	ts.Require().Nil(consent)
+	ts.Require().NotNil(svcErr)
+	ts.Require().Equal("consent_persist_failed", svcErr.Code)
+}
+
+func (ts *ConsentProviderTestSuite) TestBuildPrompt_EmptyReturnsNil() {
+	p := newConsentTestProvider(&consentStubQuerier{}, nil)
+	req := &requestedConsent{claimsRequest: map[string]any{}}
+	prompt := p.buildPrompt("app-1", req, nil, nil, nil, nil)
+	ts.Require().Nil(prompt)
+}
+
+func (ts *ConsentProviderTestSuite) TestClassifyAttributes() {
+	req := &requestedConsent{claimsRequest: map[string]any{
+		"userinfo": map[string]any{
+			"email": map[string]any{"essential": true},
+			"phone": nil,
 		},
+		"id_token": map[string]any{},
 	}}
 
-	consent, svcErr := p.RecordConsent(context.Background(), "ou1", "app1", testUserID,
-		decisions, "session-token", 3600, testMetadata)
-
-	if svcErr != nil {
-		t.Fatalf("unexpected service error: %+v", svcErr)
-	}
-	if consent == nil || consent.GroupID != "app1" {
-		t.Fatalf("unexpected consent result: %#v", consent)
-	}
-
-	var accepted []string
-	if err := json.Unmarshal([]byte(q.upsertParams.AcceptedClaims.String), &accepted); err != nil {
-		t.Fatalf("decode accepted claims: %v", err)
-	}
-	if len(accepted) != 1 || accepted[0] != "email" {
-		t.Errorf("unexpected accepted claims: %#v", accepted)
-	}
-
-	var permitted []string
-	if err := json.Unmarshal([]byte(q.upsertParams.PermittedScopes.String), &permitted); err != nil {
-		t.Fatalf("decode permitted scopes: %v", err)
-	}
-	if len(permitted) != 1 || permitted[0] != "resource.read" {
-		t.Errorf("unexpected permitted scopes: %#v", permitted)
-	}
-	if !q.upsertParams.ExpireDtimes.Valid {
-		t.Errorf("expected an expiry to be set for a positive validity period")
-	}
+	essential, optional := classifyAttributes(req, []string{"name"}, []string{"phone", "address"}, nil)
+	ts.Require().ElementsMatch([]string{"email", "name"}, essential)
+	ts.Require().ElementsMatch([]string{"phone", "address"}, optional)
 }
 
-func TestRecordConsent_NilDecisions(t *testing.T) {
-	q := &fakeQuerier{}
-	rs := storeWithAuthRequest(map[string]any{"userinfo": map[string]any{"email": nil}}, []string{"resource.read"})
-	p := newProvider(q, rs)
-
-	consent, svcErr := p.RecordConsent(context.Background(), "ou1", "app1", testUserID,
-		nil, "session-token", 0, testMetadata)
-
-	if svcErr != nil {
-		t.Fatalf("unexpected service error: %+v", svcErr)
-	}
-	if consent == nil {
-		t.Fatal("expected a consent result even with no decisions")
-	}
-	if q.upsertParams.ExpireDtimes.Valid {
-		t.Errorf("expected no expiry for a zero validity period")
-	}
+func (ts *ConsentProviderTestSuite) TestClassifyAttributes_FiltersToAvailable() {
+	req := &requestedConsent{claimsRequest: map[string]any{}}
+	essential, optional := classifyAttributes(req, []string{"name", "email"}, []string{"phone"},
+		[]string{"name"})
+	ts.Require().Equal([]string{"name"}, essential)
+	ts.Require().Empty(optional)
 }
 
-func TestRecordConsent_MissingAuthRequest(t *testing.T) {
-	q := &fakeQuerier{}
-	p := newProvider(q, &fakeRuntimeStore{})
-
-	consent, svcErr := p.RecordConsent(context.Background(), "ou1", "app1", testUserID,
-		nil, "session-token", 0, testMetadata)
-
-	if svcErr == nil {
-		t.Fatal("expected a service error when the authorization request is missing")
-	}
-	if consent != nil {
-		t.Fatal("expected a nil consent on error")
-	}
+func (ts *ConsentProviderTestSuite) TestIsEssentialClaim() {
+	ts.Require().True(isEssentialClaim(map[string]any{"essential": true}))
+	ts.Require().False(isEssentialClaim(map[string]any{"essential": false}))
+	ts.Require().False(isEssentialClaim(nil))
+	ts.Require().False(isEssentialClaim("not-a-map"))
 }
 
-func TestRecordConsent_ReadAuthRequestError(t *testing.T) {
-	q := &fakeQuerier{}
-	p := newProvider(q, &fakeRuntimeStore{err: errors.New("store down")})
+func (ts *ConsentProviderTestSuite) TestProfileFilter() {
+	ts.Require().Nil(profileFilter(nil))
+	ts.Require().Nil(profileFilter([]string{}))
+	got := profileFilter([]string{"a", "b"})
+	ts.Require().Equal(map[string]bool{"a": true, "b": true}, got)
+}
 
-	consent, svcErr := p.RecordConsent(context.Background(), "ou1", "app1", testUserID,
-		nil, "session-token", 0, testMetadata)
+func (ts *ConsentProviderTestSuite) TestFilterSorted() {
+	set := map[string]bool{"Banana": true, "apple": true, "Cherry": true}
+	ts.Require().Equal([]string{"apple", "Banana", "Cherry"}, filterSorted(set, nil))
+	ts.Require().Equal([]string{"apple"}, filterSorted(set, map[string]bool{"apple": true}))
+}
 
-	if svcErr == nil {
-		t.Fatal("expected a service error when the runtime store fails")
-	}
-	if consent != nil {
-		t.Fatal("expected a nil consent on error")
-	}
+func (ts *ConsentProviderTestSuite) TestSortFold() {
+	s := []string{"Charlie", "alpha", "Bravo"}
+	sortFold(s)
+	ts.Require().Equal([]string{"alpha", "Bravo", "Charlie"}, s)
+}
+
+func (ts *ConsentProviderTestSuite) TestRequestedClaims_SkipsVerifiedClaims() {
+	req := &requestedConsent{claimsRequest: map[string]any{
+		"userinfo": map[string]any{"email": nil, "verified_claims": map[string]any{}},
+		"id_token": map[string]any{"acr": nil},
+	}}
+	claims := requestedClaims(req)
+	_, hasEmail := claims["email"]
+	_, hasVerified := claims["verified_claims"]
+	_, hasAcr := claims["acr"]
+	ts.Require().True(hasEmail)
+	ts.Require().False(hasVerified)
+	ts.Require().True(hasAcr)
+}
+
+func (ts *ConsentProviderTestSuite) TestBuildRecord() {
+	ts.Run("nil decisions yields empty purposes", func() {
+		record := buildRecord("consent-1", "app-1", nil)
+		ts.Require().Equal("consent-1", record.ID)
+		ts.Require().Equal("app-1", record.GroupID)
+		ts.Require().Equal(providers.ConsentStatusActive, record.Status)
+		ts.Require().Empty(record.Purposes)
+	})
+
+	ts.Run("maps purposes and elements with namespace", func() {
+		decisions := &providers.ConsentDecisions{Purposes: []providers.PurposeDecision{
+			{PurposeName: "attributes:app-1", Elements: []providers.ElementDecision{{Name: "email", Approved: true}}},
+			{PurposeName: "permissions:app-1", Elements: []providers.ElementDecision{{Name: "perm.read", Approved: false}}},
+			{PurposeName: "unknown:app-1", Elements: []providers.ElementDecision{{Name: "x", Approved: true}}},
+		}}
+		record := buildRecord("consent-1", "app-1", decisions)
+		ts.Require().Len(record.Purposes, 3)
+		ts.Require().Equal(providers.NamespaceAttribute, record.Purposes[0].Elements[0].Namespace)
+		ts.Require().Equal(providers.NamespacePermission, record.Purposes[1].Elements[0].Namespace)
+		ts.Require().Equal(providers.Namespace(""), record.Purposes[2].Elements[0].Namespace)
+	})
+}
+
+func (ts *ConsentProviderTestSuite) TestNamespaceFromPurposeName() {
+	ts.Require().Equal(providers.NamespacePermission, namespaceFromPurposeName("permissions:app-1"))
+	ts.Require().Equal(providers.NamespaceAttribute, namespaceFromPurposeName("attributes:app-1"))
+	ts.Require().Equal(providers.Namespace(""), namespaceFromPurposeName("other:app-1"))
+}
+
+func (ts *ConsentProviderTestSuite) TestClientError() {
+	svcErr := clientError("some_code", nil)
+	ts.Require().Equal("some_code", svcErr.Code)
+	ts.Require().Equal(common.ClientErrorType, svcErr.Type)
+	ts.Require().Empty(svcErr.Error.DefaultValue)
+
+	svcErr = clientError("some_code", errors.New("boom"))
+	ts.Require().Equal("boom", svcErr.Error.DefaultValue)
+	ts.Require().Equal("boom", svcErr.ErrorDescription.DefaultValue)
+}
+
+func (ts *ConsentProviderTestSuite) TestGetConsentRequestHash() {
+	p := newConsentTestProvider(&consentStubQuerier{}, &config.AppConfig{})
+	req := &requestedConsent{claimsRequest: map[string]any{}, standardScopes: []string{"openid"}}
+	hash := p.getConsentRequestHash(context.Background(), req)
+	ts.Require().NotEmpty(hash)
+}
+
+func (ts *ConsentProviderTestSuite) TestClaimsFromScopes() {
+	cfg := &config.AppConfig{ScopeClaims: map[string][]string{
+		"profile": {"name", "family_name"},
+		"email":   {"email", "name"},
+		"openid":  nil,
+	}}
+	p := newConsentTestProvider(&consentStubQuerier{}, cfg)
+
+	claims := p.claimsFromScopes([]string{"profile", "email", "openid"})
+	ts.Require().ElementsMatch([]string{"name", "family_name", "email"}, claims)
+}
+
+func (ts *ConsentProviderTestSuite) TestMergeScopeClaims() {
+	ts.Run("no scope claim names returns original", func() {
+		original := map[string]any{"userinfo": map[string]any{"email": nil}}
+		got := mergeScopeClaims(original, nil)
+		ts.Require().Equal(original, got)
+	})
+
+	ts.Run("adds missing claims without mutating input", func() {
+		original := map[string]any{"userinfo": map[string]any{"email": nil}}
+		got := mergeScopeClaims(original, []string{"name", "email"})
+
+		userinfo, ok := got["userinfo"].(map[string]any)
+		ts.Require().True(ok)
+		_, hasName := userinfo["name"]
+		ts.Require().True(hasName)
+
+		originalUserinfo := original["userinfo"].(map[string]any)
+		ts.Require().Len(originalUserinfo, 1, "original claimsRequest must not be mutated")
+	})
+}
+
+func (ts *ConsentProviderTestSuite) TestToPromptElements() {
+	got := toPromptElements([]string{"a", "b"})
+	ts.Require().Equal([]providers.PromptElement{{Name: "a"}, {Name: "b"}}, got)
+	ts.Require().Empty(toPromptElements(nil))
+}
+
+func (ts *ConsentProviderTestSuite) TestReadAuthRequest() {
+	p := newConsentTestProvider(&consentStubQuerier{}, nil)
+	req, err := p.readAuthRequest(context.Background(), map[string][]string{
+		"initiator_query_claims": {"some-claims"},
+		"initiator_query_scopes": {"some-scopes"},
+	})
+	ts.Require().NoError(err)
+	ts.Require().NotNil(req)
+	ts.Require().Equal("consent", req.prompt)
+	ts.Require().Equal([]string{"openid"}, req.standardScopes)
+}
+
+type ConsentProviderTestSuite struct {
+	suite.Suite
+}
+
+func TestConsentProviderTestSuite(t *testing.T) {
+	suite.Run(t, new(ConsentProviderTestSuite))
 }

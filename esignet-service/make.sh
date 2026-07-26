@@ -57,7 +57,7 @@ SIGNING_CERT=$KEY_DIR/signing.crt
 : "${DOCKER_IMAGE:=esignet:latest}"
 : "${GOLANGCI_LINT_VERSION:=latest}"
 : "${SQLC_VERSION:=v1.29.0}"
-: "${THUNDER_BRANCH:=feature/thunderid-engine-impr}"
+: "${THUNDER_BRANCH:=main}"
 : "${RACE:=1}"   # set RACE=0 if no C toolchain (go test -race needs gcc on Windows)
 THUNDER_MODULE=github.com/thunder-id/thunderid/backend 
 

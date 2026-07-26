@@ -15,6 +15,7 @@ import (
 	"github.com/mosip/esignet/internal/config"
 	"github.com/mosip/esignet/internal/engine/mock"
 	"github.com/mosip/esignet/internal/engine/mosip"
+	"github.com/mosip/esignet/internal/engine/shared"
 	"github.com/mosip/esignet/internal/engine/sunbird"
 )
 
@@ -23,7 +24,7 @@ import (
 // (mock, mosip, sunbird) owns its own construction, including its own HTTP
 // client where one is needed.
 func NewIDSystemProviders(appConfig *config.AppConfig, clientSvc *clientmgmt.Service) (
-	providers.AuthnProviderManager, providers.ObservabilityProvider, error) {
+	shared.ConsolidatedAuthnProvider, providers.ObservabilityProvider, error) {
 
 	switch appConfig.Provider {
 	case "mosip":

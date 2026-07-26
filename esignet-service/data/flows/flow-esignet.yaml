@@ -482,7 +482,7 @@ nodes:
   - id: send_mosip_otp
     type: TASK_EXECUTION
     executor:
-      name: MosipOtpExecutor
+      name: eSignetOtpExecutor
     onSuccess: prompt_otp
 
   - id: prompt_otp

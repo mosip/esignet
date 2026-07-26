@@ -4,340 +4,420 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package clientmgmt_test
+package clientmgmt
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-
-	"github.com/mosip/esignet/internal/clientmgmt"
 	"github.com/mosip/esignet/internal/clientmgmt/db"
 	applog "github.com/mosip/esignet/internal/log"
 )
 
-func newTestHandler(q db.Querier) *clientmgmt.Handler {
-	svc := clientmgmt.NewServiceWithQuerier(q, nil, 0)
-	return clientmgmt.NewHandler(svc, applog.GetLogger())
+func newTestHandler(q db.Querier) *Handler {
+	svc := NewServiceWithQuerier(q, nil, 0)
+	return NewHandler(svc, applog.GetLogger().Named("clientmgmt-test"))
 }
 
-func newMux(h *clientmgmt.Handler) *http.ServeMux {
+func decodeEnvelope(t *testing.T, body []byte) map[string]any {
+	t.Helper()
+	var decoded map[string]any
+	require.NoError(t, json.Unmarshal(body, &decoded))
+	return decoded
+}
+
+func (ts *HandlerTestSuite) TestRegisterRoutes() {
+	t := ts.T()
+	h := newTestHandler(&fakeQuerier{createRow: existingClientRow()})
 	mux := http.NewServeMux()
 	h.RegisterRoutes(mux, nil)
-	return mux
+
+	body := []byte(`{"requestTime":"2026-07-27T00:00:00.000Z","request":` + validCreateRequestJSON() + `}`)
+	req := httptest.NewRequest(http.MethodPost, "/client-mgmt/oidc-client", bytes.NewReader(body))
+	rec := httptest.NewRecorder()
+	mux.ServeHTTP(rec, req)
+	require.Equal(t, http.StatusOK, rec.Code)
 }
 
-func validUpdateRequestForHandler() clientmgmt.UpdateClientRequest {
-	return clientmgmt.UpdateClientRequest{
-		ClientName:        "Test App",
-		ClientNameLangMap: map[string]string{"eng": "Test App"},
-		Status:            "active",
-		LogoURI:           "https://example.com/logo.png",
-		RedirectURIs:      []string{"https://example.com/callback"},
-		Claims:            []string{"name", "email"},
-		AcrValues:         []string{"mosip:idp:acr:static-code"},
-		GrantTypes:        []string{"authorization_code"},
-		AuthMethods:       []string{"private_key_jwt"},
-	}
-}
-
-func decodeResponseWrapper(t *testing.T, body []byte) clientmgmt.ResponseWrapper {
-	t.Helper()
-	var wrapper clientmgmt.ResponseWrapper
-	require.NoError(t, json.Unmarshal(body, &wrapper))
-	return wrapper
-}
-
-func (ts *HandlerTestSuite) TestHandler_CreateClient() {
+func (ts *HandlerTestSuite) TestRegisterRoutesWithMiddleware() {
 	t := ts.T()
-	t.Run("success", func(t *testing.T) {
-		q := &mockQuerier{
-			createFn: func(_ context.Context, arg db.CreateClientParams) (db.ClientDetail, error) {
-				return stubRow(arg.ID), nil
-			},
-		}
-		mux := newMux(newTestHandler(q))
-
-		reqBody := `{"requestTime":"2026-06-29T16:20:10.980Z","request":` + mustJSON(t, validCreateReq()) + `}`
-		w := httptest.NewRecorder()
-		mux.ServeHTTP(w, httptest.NewRequest(http.MethodPost, "/client-mgmt/client", strings.NewReader(reqBody)))
-
-		require.Equal(t, http.StatusOK, w.Code)
-		wrapper := decodeResponseWrapper(t, w.Body.Bytes())
-		require.NotNil(t, wrapper.Response)
-		assert.Equal(t, "client-001", wrapper.Response.ClientID)
-		assert.Empty(t, wrapper.Errors)
-	})
-
-	t.Run("missing request time", func(t *testing.T) {
-		mux := newMux(newTestHandler(&mockQuerier{}))
-		reqBody := `{"request":` + mustJSON(t, validCreateReq()) + `}`
-		w := httptest.NewRecorder()
-		mux.ServeHTTP(w, httptest.NewRequest(http.MethodPost, "/client-mgmt/client", strings.NewReader(reqBody)))
-
-		require.Equal(t, http.StatusOK, w.Code)
-		wrapper := decodeResponseWrapper(t, w.Body.Bytes())
-		require.Len(t, wrapper.Errors, 1)
-		assert.Equal(t, "invalid_input", wrapper.Errors[0].ErrorCode)
-	})
-
-	t.Run("malformed json", func(t *testing.T) {
-		mux := newMux(newTestHandler(&mockQuerier{}))
-		w := httptest.NewRecorder()
-		mux.ServeHTTP(w, httptest.NewRequest(http.MethodPost, "/client-mgmt/client", strings.NewReader(`not-json`)))
-
-		require.Equal(t, http.StatusOK, w.Code)
-		wrapper := decodeResponseWrapper(t, w.Body.Bytes())
-		require.Len(t, wrapper.Errors, 1)
-		assert.Equal(t, "invalid_input", wrapper.Errors[0].ErrorCode)
-	})
-
-	t.Run("validation error surfaced with its own code", func(t *testing.T) {
-		mux := newMux(newTestHandler(&mockQuerier{}))
-		req := validCreateReq()
-		req.Claims = []string{"not-a-claim"}
-		reqBody := `{"requestTime":"2026-06-29T16:20:10.980Z","request":` + mustJSON(t, req) + `}`
-		w := httptest.NewRecorder()
-		mux.ServeHTTP(w, httptest.NewRequest(http.MethodPost, "/client-mgmt/client", strings.NewReader(reqBody)))
-
-		require.Equal(t, http.StatusOK, w.Code)
-		wrapper := decodeResponseWrapper(t, w.Body.Bytes())
-		require.Len(t, wrapper.Errors, 1)
-		assert.Equal(t, "invalid_claim", wrapper.Errors[0].ErrorCode)
-	})
-
-	t.Run("unexpected error maps to server_error", func(t *testing.T) {
-		q := &mockQuerier{
-			createFn: func(_ context.Context, _ db.CreateClientParams) (db.ClientDetail, error) {
-				return db.ClientDetail{}, assert.AnError
-			},
-		}
-		mux := newMux(newTestHandler(q))
-		reqBody := `{"requestTime":"2026-06-29T16:20:10.980Z","request":` + mustJSON(t, validCreateReq()) + `}`
-		w := httptest.NewRecorder()
-		mux.ServeHTTP(w, httptest.NewRequest(http.MethodPost, "/client-mgmt/client", strings.NewReader(reqBody)))
-
-		require.Equal(t, http.StatusInternalServerError, w.Code)
-		wrapper := decodeResponseWrapper(t, w.Body.Bytes())
-		require.Len(t, wrapper.Errors, 1)
-		assert.Equal(t, "server_error", wrapper.Errors[0].ErrorCode)
-	})
-
-	t.Run("duplicate client id maps to duplicate_client_id", func(t *testing.T) {
-		q := &mockQuerier{
-			createFn: func(_ context.Context, _ db.CreateClientParams) (db.ClientDetail, error) {
-				return db.ClientDetail{}, clientmgmt.ErrDuplicateClientID
-			},
-		}
-		mux := newMux(newTestHandler(q))
-		reqBody := `{"requestTime":"2026-06-29T16:20:10.980Z","request":` + mustJSON(t, validCreateReq()) + `}`
-		w := httptest.NewRecorder()
-		mux.ServeHTTP(w, httptest.NewRequest(http.MethodPost, "/client-mgmt/client", strings.NewReader(reqBody)))
-
-		require.Equal(t, http.StatusOK, w.Code)
-		wrapper := decodeResponseWrapper(t, w.Body.Bytes())
-		require.Len(t, wrapper.Errors, 1)
-		assert.Equal(t, "duplicate_client_id", wrapper.Errors[0].ErrorCode)
-	})
-
-	t.Run("duplicate public key maps to invalid_public_key", func(t *testing.T) {
-		q := &mockQuerier{
-			createFn: func(_ context.Context, _ db.CreateClientParams) (db.ClientDetail, error) {
-				return db.ClientDetail{}, clientmgmt.ErrDuplicatePublicKey
-			},
-		}
-		mux := newMux(newTestHandler(q))
-		reqBody := `{"requestTime":"2026-06-29T16:20:10.980Z","request":` + mustJSON(t, validCreateReq()) + `}`
-		w := httptest.NewRecorder()
-		mux.ServeHTTP(w, httptest.NewRequest(http.MethodPost, "/client-mgmt/client", strings.NewReader(reqBody)))
-
-		require.Equal(t, http.StatusOK, w.Code)
-		wrapper := decodeResponseWrapper(t, w.Body.Bytes())
-		require.Len(t, wrapper.Errors, 1)
-		assert.Equal(t, "invalid_public_key", wrapper.Errors[0].ErrorCode)
-	})
-}
-
-func (ts *HandlerTestSuite) TestHandler_UpdateClient() {
-	t := ts.T()
-	t.Run("success", func(t *testing.T) {
-		q := &mockQuerier{
-			updateFn: func(_ context.Context, arg db.UpdateClientParams) (db.ClientDetail, error) {
-				return stubRow(arg.ID), nil
-			},
-		}
-		mux := newMux(newTestHandler(q))
-		reqBody := `{"requestTime":"2026-06-29T16:20:10.980Z","request":` + mustJSON(t, validUpdateRequestForHandler()) + `}`
-		w := httptest.NewRecorder()
-		mux.ServeHTTP(w, httptest.NewRequest(http.MethodPut, "/client-mgmt/client/client-001", strings.NewReader(reqBody)))
-
-		require.Equal(t, http.StatusOK, w.Code)
-		wrapper := decodeResponseWrapper(t, w.Body.Bytes())
-		require.NotNil(t, wrapper.Response)
-		assert.Equal(t, "client-001", wrapper.Response.ClientID)
-	})
-
-	t.Run("not found maps to invalid_client_id", func(t *testing.T) {
-		q := &mockQuerier{
-			updateFn: func(_ context.Context, _ db.UpdateClientParams) (db.ClientDetail, error) {
-				return db.ClientDetail{}, sql.ErrNoRows
-			},
-		}
-		mux := newMux(newTestHandler(q))
-		reqBody := `{"requestTime":"2026-06-29T16:20:10.980Z","request":` + mustJSON(t, validUpdateRequestForHandler()) + `}`
-		w := httptest.NewRecorder()
-		mux.ServeHTTP(w, httptest.NewRequest(http.MethodPut, "/client-mgmt/client/no-such-client", strings.NewReader(reqBody)))
-
-		require.Equal(t, http.StatusOK, w.Code)
-		wrapper := decodeResponseWrapper(t, w.Body.Bytes())
-		require.Len(t, wrapper.Errors, 1)
-		assert.Equal(t, "invalid_client_id", wrapper.Errors[0].ErrorCode)
-	})
-
-	t.Run("malformed body", func(t *testing.T) {
-		mux := newMux(newTestHandler(&mockQuerier{}))
-		w := httptest.NewRecorder()
-		mux.ServeHTTP(w, httptest.NewRequest(http.MethodPut, "/client-mgmt/client/client-001", strings.NewReader(`not-json`)))
-
-		require.Equal(t, http.StatusOK, w.Code)
-		wrapper := decodeResponseWrapper(t, w.Body.Bytes())
-		require.Len(t, wrapper.Errors, 1)
-		assert.Equal(t, "invalid_input", wrapper.Errors[0].ErrorCode)
-	})
-}
-
-func (ts *HandlerTestSuite) TestHandler_PatchClient() {
-	t := ts.T()
-	t.Run("success", func(t *testing.T) {
-		q := &mockQuerier{
-			getFn: func(_ context.Context, id string) (db.ClientDetail, error) {
-				return stubRow(id), nil
-			},
-			patchFn: func(_ context.Context, arg db.PatchClientParams) (db.ClientDetail, error) {
-				return stubRow(arg.ID), nil
-			},
-		}
-		mux := newMux(newTestHandler(q))
-		reqBody := `{"requestTime":"2026-06-29T16:20:10.980Z","request":{"clientName":"New Name"}}`
-		w := httptest.NewRecorder()
-		mux.ServeHTTP(w, httptest.NewRequest(http.MethodPatch, "/client-mgmt/client/client-001", strings.NewReader(reqBody)))
-
-		require.Equal(t, http.StatusOK, w.Code)
-		wrapper := decodeResponseWrapper(t, w.Body.Bytes())
-		require.NotNil(t, wrapper.Response)
-		assert.Equal(t, "client-001", wrapper.Response.ClientID)
-	})
-
-	t.Run("conflict maps to patch_conflict", func(t *testing.T) {
-		q := &mockQuerier{
-			getFn: func(_ context.Context, id string) (db.ClientDetail, error) {
-				return stubRow(id), nil
-			},
-			patchFn: func(_ context.Context, _ db.PatchClientParams) (db.ClientDetail, error) {
-				return db.ClientDetail{}, sql.ErrNoRows
-			},
-		}
-		mux := newMux(newTestHandler(q))
-		reqBody := `{"requestTime":"2026-06-29T16:20:10.980Z","request":{"clientName":"New Name"}}`
-		w := httptest.NewRecorder()
-		mux.ServeHTTP(w, httptest.NewRequest(http.MethodPatch, "/client-mgmt/client/client-001", strings.NewReader(reqBody)))
-
-		require.Equal(t, http.StatusOK, w.Code)
-		wrapper := decodeResponseWrapper(t, w.Body.Bytes())
-		require.Len(t, wrapper.Errors, 1)
-		assert.Equal(t, "patch_conflict", wrapper.Errors[0].ErrorCode)
-	})
-
-	t.Run("missing request key", func(t *testing.T) {
-		mux := newMux(newTestHandler(&mockQuerier{}))
-		reqBody := `{"requestTime":"2026-06-29T16:20:10.980Z"}`
-		w := httptest.NewRecorder()
-		mux.ServeHTTP(w, httptest.NewRequest(http.MethodPatch, "/client-mgmt/client/client-001", strings.NewReader(reqBody)))
-
-		require.Equal(t, http.StatusOK, w.Code)
-		wrapper := decodeResponseWrapper(t, w.Body.Bytes())
-		require.Len(t, wrapper.Errors, 1)
-		assert.Equal(t, "invalid_input", wrapper.Errors[0].ErrorCode)
-	})
-}
-
-func (ts *HandlerTestSuite) TestHandler_GetClient() {
-	t := ts.T()
-	t.Run("success", func(t *testing.T) {
-		q := &mockQuerier{
-			getFn: func(_ context.Context, id string) (db.ClientDetail, error) {
-				return stubRow(id), nil
-			},
-		}
-		mux := newMux(newTestHandler(q))
-		w := httptest.NewRecorder()
-		mux.ServeHTTP(w, httptest.NewRequest(http.MethodGet, "/client-mgmt/client/client-001", nil))
-
-		require.Equal(t, http.StatusOK, w.Code)
-		wrapper := decodeResponseWrapper(t, w.Body.Bytes())
-		require.NotNil(t, wrapper.Response)
-		assert.Equal(t, "client-001", wrapper.Response.ClientID)
-	})
-
-	t.Run("not found", func(t *testing.T) {
-		q := &mockQuerier{
-			getFn: func(_ context.Context, _ string) (db.ClientDetail, error) {
-				return db.ClientDetail{}, sql.ErrNoRows
-			},
-		}
-		mux := newMux(newTestHandler(q))
-		w := httptest.NewRecorder()
-		mux.ServeHTTP(w, httptest.NewRequest(http.MethodGet, "/client-mgmt/client/no-such-client", nil))
-
-		require.Equal(t, http.StatusOK, w.Code)
-		wrapper := decodeResponseWrapper(t, w.Body.Bytes())
-		require.Len(t, wrapper.Errors, 1)
-		assert.Equal(t, "invalid_client_id", wrapper.Errors[0].ErrorCode)
-	})
-}
-
-func (ts *HandlerTestSuite) TestHandler_RegisterRoutes_WithMiddleware() {
-	t := ts.T()
-	q := &mockQuerier{
-		getFn: func(_ context.Context, id string) (db.ClientDetail, error) {
-			return stubRow(id), nil
-		},
-	}
-	svc := clientmgmt.NewServiceWithQuerier(q, nil, 0)
-	h := clientmgmt.NewHandler(svc, applog.GetLogger())
-
-	var calledMiddleware bool
+	h := newTestHandler(&fakeQuerier{getErr: sql.ErrNoRows})
+	mux := http.NewServeMux()
+	called := false
 	middleware := func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			calledMiddleware = true
+			called = true
 			next.ServeHTTP(w, r)
 		})
 	}
-
-	mux := http.NewServeMux()
 	h.RegisterRoutes(mux, middleware)
 
-	w := httptest.NewRecorder()
-	mux.ServeHTTP(w, httptest.NewRequest(http.MethodGet, "/client-mgmt/client/client-001", nil))
-
-	require.Equal(t, http.StatusOK, w.Code)
-	assert.True(t, calledMiddleware)
+	req := httptest.NewRequest(http.MethodGet, "/client-mgmt/client/missing", nil)
+	rec := httptest.NewRecorder()
+	mux.ServeHTTP(rec, req)
+	require.True(t, called)
+	require.Equal(t, http.StatusOK, rec.Code)
 }
 
-func mustJSON(t *testing.T, v any) string {
-	t.Helper()
-	b, err := json.Marshal(v)
-	require.NoError(t, err)
+func validCreateRequestJSON() string {
+	b, _ := json.Marshal(validCreateRequest())
 	return string(b)
+}
+
+func (ts *HandlerTestSuite) TestCreateClientHandler() {
+	t := ts.T()
+
+	t.Run("success", func(t *testing.T) {
+		h := newTestHandler(&fakeQuerier{createRow: existingClientRow()})
+		body := []byte(`{"requestTime":"2026-07-27T00:00:00.000Z","request":` + validCreateRequestJSON() + `}`)
+		req := httptest.NewRequest(http.MethodPost, "/client-mgmt/oidc-client", bytes.NewReader(body))
+		rec := httptest.NewRecorder()
+		h.createClient(ProfileOIDC).ServeHTTP(rec, req)
+
+		require.Equal(t, http.StatusOK, rec.Code)
+		decoded := decodeEnvelope(t, rec.Body.Bytes())
+		require.Nil(t, decoded["errors"])
+		response, ok := decoded["response"].(map[string]any)
+		require.True(t, ok)
+		require.Equal(t, "client-1", response["clientId"])
+	})
+
+	t.Run("malformed json body", func(t *testing.T) {
+		h := newTestHandler(&fakeQuerier{})
+		req := httptest.NewRequest(http.MethodPost, "/client-mgmt/oidc-client", bytes.NewReader([]byte("not-json")))
+		rec := httptest.NewRecorder()
+		h.createClient(ProfileOIDC).ServeHTTP(rec, req)
+
+		require.Equal(t, http.StatusOK, rec.Code)
+		decoded := decodeEnvelope(t, rec.Body.Bytes())
+		errs, ok := decoded["errors"].([]any)
+		require.True(t, ok)
+		require.Len(t, errs, 1)
+	})
+
+	t.Run("missing request time", func(t *testing.T) {
+		h := newTestHandler(&fakeQuerier{})
+		body := []byte(`{"request":` + validCreateRequestJSON() + `}`)
+		req := httptest.NewRequest(http.MethodPost, "/client-mgmt/oidc-client", bytes.NewReader(body))
+		rec := httptest.NewRecorder()
+		h.createClient(ProfileOIDC).ServeHTTP(rec, req)
+
+		require.Equal(t, http.StatusOK, rec.Code)
+		decoded := decodeEnvelope(t, rec.Body.Bytes())
+		errs, ok := decoded["errors"].([]any)
+		require.True(t, ok)
+		require.Len(t, errs, 1)
+	})
+
+	t.Run("validation error returns 200 with populated errors", func(t *testing.T) {
+		h := newTestHandler(&fakeQuerier{})
+		reqObj := validCreateRequest()
+		reqObj.ClientID = ""
+		reqJSON, err := json.Marshal(reqObj)
+		require.NoError(t, err)
+		body := []byte(`{"requestTime":"2026-07-27T00:00:00.000Z","request":` + string(reqJSON) + `}`)
+		req := httptest.NewRequest(http.MethodPost, "/client-mgmt/oidc-client", bytes.NewReader(body))
+		rec := httptest.NewRecorder()
+		h.createClient(ProfileOIDC).ServeHTTP(rec, req)
+
+		require.Equal(t, http.StatusOK, rec.Code)
+		decoded := decodeEnvelope(t, rec.Body.Bytes())
+		errs, ok := decoded["errors"].([]any)
+		require.True(t, ok)
+		require.Len(t, errs, 1)
+		errObj := errs[0].(map[string]any)
+		require.Equal(t, "invalid_client_id", errObj["errorCode"])
+	})
+
+	t.Run("duplicate client id", func(t *testing.T) {
+		h := newTestHandler(&fakeQuerier{createErr: errors.New(`SQLSTATE 23505 pk_clntdtl_id`)})
+		body := []byte(`{"requestTime":"2026-07-27T00:00:00.000Z","request":` + validCreateRequestJSON() + `}`)
+		req := httptest.NewRequest(http.MethodPost, "/client-mgmt/oidc-client", bytes.NewReader(body))
+		rec := httptest.NewRecorder()
+		h.createClient(ProfileOIDC).ServeHTTP(rec, req)
+
+		decoded := decodeEnvelope(t, rec.Body.Bytes())
+		errs := decoded["errors"].([]any)
+		errObj := errs[0].(map[string]any)
+		require.Equal(t, "duplicate_client_id", errObj["errorCode"])
+	})
+
+	t.Run("server error on unexpected failure", func(t *testing.T) {
+		h := newTestHandler(&fakeQuerier{createErr: errors.New("connection reset")})
+		body := []byte(`{"requestTime":"2026-07-27T00:00:00.000Z","request":` + validCreateRequestJSON() + `}`)
+		req := httptest.NewRequest(http.MethodPost, "/client-mgmt/oidc-client", bytes.NewReader(body))
+		rec := httptest.NewRecorder()
+		h.createClient(ProfileOIDC).ServeHTTP(rec, req)
+
+		require.Equal(t, http.StatusInternalServerError, rec.Code)
+		decoded := decodeEnvelope(t, rec.Body.Bytes())
+		errs := decoded["errors"].([]any)
+		errObj := errs[0].(map[string]any)
+		require.Equal(t, "server_error", errObj["errorCode"])
+	})
+}
+
+func (ts *HandlerTestSuite) TestUpdateClientHandler() {
+	t := ts.T()
+
+	t.Run("missing client id", func(t *testing.T) {
+		h := newTestHandler(&fakeQuerier{})
+		req := httptest.NewRequest(http.MethodPut, "/client-mgmt/oidc-client/", bytes.NewReader([]byte(`{}`)))
+		rec := httptest.NewRecorder()
+		h.updateClient(ProfileOIDC).ServeHTTP(rec, req)
+
+		decoded := decodeEnvelope(t, rec.Body.Bytes())
+		errs := decoded["errors"].([]any)
+		errObj := errs[0].(map[string]any)
+		require.Equal(t, "invalid_input", errObj["errorCode"])
+	})
+
+	t.Run("success via mux with path value", func(t *testing.T) {
+		h := newTestHandler(&fakeQuerier{updateRow: existingClientRow()})
+		mux := http.NewServeMux()
+		h.RegisterRoutes(mux, nil)
+
+		updateJSON, err := json.Marshal(validUpdateRequest())
+		require.NoError(t, err)
+		body := []byte(`{"requestTime":"2026-07-27T00:00:00.000Z","request":` + string(updateJSON) + `}`)
+		req := httptest.NewRequest(http.MethodPut, "/client-mgmt/oidc-client/client-1", bytes.NewReader(body))
+		rec := httptest.NewRecorder()
+		mux.ServeHTTP(rec, req)
+
+		require.Equal(t, http.StatusOK, rec.Code)
+		decoded := decodeEnvelope(t, rec.Body.Bytes())
+		require.Nil(t, decoded["errors"])
+	})
+
+	t.Run("client not found", func(t *testing.T) {
+		h := newTestHandler(&fakeQuerier{updateErr: sql.ErrNoRows})
+		mux := http.NewServeMux()
+		h.RegisterRoutes(mux, nil)
+
+		updateJSON, err := json.Marshal(validUpdateRequest())
+		require.NoError(t, err)
+		body := []byte(`{"requestTime":"2026-07-27T00:00:00.000Z","request":` + string(updateJSON) + `}`)
+		req := httptest.NewRequest(http.MethodPut, "/client-mgmt/oidc-client/missing", bytes.NewReader(body))
+		rec := httptest.NewRecorder()
+		mux.ServeHTTP(rec, req)
+
+		decoded := decodeEnvelope(t, rec.Body.Bytes())
+		errs := decoded["errors"].([]any)
+		errObj := errs[0].(map[string]any)
+		require.Equal(t, "invalid_client_id", errObj["errorCode"])
+	})
+
+	t.Run("malformed body", func(t *testing.T) {
+		h := newTestHandler(&fakeQuerier{})
+		mux := http.NewServeMux()
+		h.RegisterRoutes(mux, nil)
+		req := httptest.NewRequest(http.MethodPut, "/client-mgmt/oidc-client/client-1", bytes.NewReader([]byte("not-json")))
+		rec := httptest.NewRecorder()
+		mux.ServeHTTP(rec, req)
+
+		decoded := decodeEnvelope(t, rec.Body.Bytes())
+		errs := decoded["errors"].([]any)
+		errObj := errs[0].(map[string]any)
+		require.Equal(t, "invalid_input", errObj["errorCode"])
+	})
+
+	t.Run("missing request time", func(t *testing.T) {
+		h := newTestHandler(&fakeQuerier{})
+		mux := http.NewServeMux()
+		h.RegisterRoutes(mux, nil)
+		updateJSON, err := json.Marshal(validUpdateRequest())
+		require.NoError(t, err)
+		body := []byte(`{"request":` + string(updateJSON) + `}`)
+		req := httptest.NewRequest(http.MethodPut, "/client-mgmt/oidc-client/client-1", bytes.NewReader(body))
+		rec := httptest.NewRecorder()
+		mux.ServeHTTP(rec, req)
+
+		decoded := decodeEnvelope(t, rec.Body.Bytes())
+		errs := decoded["errors"].([]any)
+		errObj := errs[0].(map[string]any)
+		require.Equal(t, "invalid_input", errObj["errorCode"])
+	})
+}
+
+func (ts *HandlerTestSuite) TestPatchClientHandler() {
+	t := ts.T()
+
+	t.Run("missing client id", func(t *testing.T) {
+		h := newTestHandler(&fakeQuerier{})
+		req := httptest.NewRequest(http.MethodPatch, "/client-mgmt/client/", bytes.NewReader([]byte(`{}`)))
+		rec := httptest.NewRecorder()
+		h.patchClient(rec, req)
+
+		decoded := decodeEnvelope(t, rec.Body.Bytes())
+		errs := decoded["errors"].([]any)
+		errObj := errs[0].(map[string]any)
+		require.Equal(t, "invalid_input", errObj["errorCode"])
+	})
+
+	t.Run("success via mux", func(t *testing.T) {
+		h := newTestHandler(&fakeQuerier{getRow: existingClientRow(), patchRow: existingClientRow()})
+		mux := http.NewServeMux()
+		h.RegisterRoutes(mux, nil)
+
+		body := []byte(`{"requestTime":"2026-07-27T00:00:00.000Z","request":{"logoUri":"https://example.com/new-logo.png"}}`)
+		req := httptest.NewRequest(http.MethodPatch, "/client-mgmt/client/client-1", bytes.NewReader(body))
+		rec := httptest.NewRecorder()
+		mux.ServeHTTP(rec, req)
+
+		require.Equal(t, http.StatusOK, rec.Code)
+		decoded := decodeEnvelope(t, rec.Body.Bytes())
+		require.Nil(t, decoded["errors"])
+	})
+
+	t.Run("malformed body", func(t *testing.T) {
+		h := newTestHandler(&fakeQuerier{})
+		mux := http.NewServeMux()
+		h.RegisterRoutes(mux, nil)
+		req := httptest.NewRequest(http.MethodPatch, "/client-mgmt/client/client-1", bytes.NewReader([]byte("not-json")))
+		rec := httptest.NewRecorder()
+		mux.ServeHTTP(rec, req)
+
+		decoded := decodeEnvelope(t, rec.Body.Bytes())
+		errs := decoded["errors"].([]any)
+		errObj := errs[0].(map[string]any)
+		require.Equal(t, "invalid_input", errObj["errorCode"])
+	})
+
+	t.Run("missing request time", func(t *testing.T) {
+		h := newTestHandler(&fakeQuerier{})
+		mux := http.NewServeMux()
+		h.RegisterRoutes(mux, nil)
+		body := []byte(`{"request":{"logoUri":"https://example.com/new-logo.png"}}`)
+		req := httptest.NewRequest(http.MethodPatch, "/client-mgmt/client/client-1", bytes.NewReader(body))
+		rec := httptest.NewRecorder()
+		mux.ServeHTTP(rec, req)
+
+		decoded := decodeEnvelope(t, rec.Body.Bytes())
+		errs := decoded["errors"].([]any)
+		errObj := errs[0].(map[string]any)
+		require.Equal(t, "invalid_input", errObj["errorCode"])
+	})
+
+	t.Run("decode patch request error", func(t *testing.T) {
+		h := newTestHandler(&fakeQuerier{})
+		mux := http.NewServeMux()
+		h.RegisterRoutes(mux, nil)
+		body := []byte(`{"requestTime":"2026-07-27T00:00:00.000Z","request":{"logoUri":123}}`)
+		req := httptest.NewRequest(http.MethodPatch, "/client-mgmt/client/client-1", bytes.NewReader(body))
+		rec := httptest.NewRecorder()
+		mux.ServeHTTP(rec, req)
+
+		decoded := decodeEnvelope(t, rec.Body.Bytes())
+		errs := decoded["errors"].([]any)
+		require.Len(t, errs, 1)
+		errObj := errs[0].(map[string]any)
+		require.Equal(t, "invalid_input", errObj["errorCode"])
+	})
+
+	t.Run("patch conflict", func(t *testing.T) {
+		h := newTestHandler(&fakeQuerier{getRow: existingClientRow(), patchErr: sql.ErrNoRows})
+		mux := http.NewServeMux()
+		h.RegisterRoutes(mux, nil)
+		body := []byte(`{"requestTime":"2026-07-27T00:00:00.000Z","request":{"logoUri":"https://example.com/new-logo.png"}}`)
+		req := httptest.NewRequest(http.MethodPatch, "/client-mgmt/client/client-1", bytes.NewReader(body))
+		rec := httptest.NewRecorder()
+		mux.ServeHTTP(rec, req)
+
+		decoded := decodeEnvelope(t, rec.Body.Bytes())
+		errs := decoded["errors"].([]any)
+		errObj := errs[0].(map[string]any)
+		require.Equal(t, "patch_conflict", errObj["errorCode"])
+	})
+}
+
+func (ts *HandlerTestSuite) TestGetClientHandler() {
+	t := ts.T()
+
+	t.Run("missing client id", func(t *testing.T) {
+		h := newTestHandler(&fakeQuerier{})
+		req := httptest.NewRequest(http.MethodGet, "/client-mgmt/client/", nil)
+		rec := httptest.NewRecorder()
+		h.getClient(rec, req)
+
+		decoded := decodeEnvelope(t, rec.Body.Bytes())
+		errs := decoded["errors"].([]any)
+		errObj := errs[0].(map[string]any)
+		require.Equal(t, "invalid_input", errObj["errorCode"])
+	})
+
+	t.Run("success via mux", func(t *testing.T) {
+		h := newTestHandler(&fakeQuerier{getRow: existingClientRow()})
+		mux := http.NewServeMux()
+		h.RegisterRoutes(mux, nil)
+		req := httptest.NewRequest(http.MethodGet, "/client-mgmt/client/client-1", nil)
+		rec := httptest.NewRecorder()
+		mux.ServeHTTP(rec, req)
+
+		require.Equal(t, http.StatusOK, rec.Code)
+		decoded := decodeEnvelope(t, rec.Body.Bytes())
+		response := decoded["response"].(map[string]any)
+		require.Equal(t, "client-1", response["clientId"])
+	})
+
+	t.Run("not found", func(t *testing.T) {
+		h := newTestHandler(&fakeQuerier{getErr: sql.ErrNoRows})
+		mux := http.NewServeMux()
+		h.RegisterRoutes(mux, nil)
+		req := httptest.NewRequest(http.MethodGet, "/client-mgmt/client/missing", nil)
+		rec := httptest.NewRecorder()
+		mux.ServeHTTP(rec, req)
+
+		decoded := decodeEnvelope(t, rec.Body.Bytes())
+		errs := decoded["errors"].([]any)
+		errObj := errs[0].(map[string]any)
+		require.Equal(t, "invalid_client_id", errObj["errorCode"])
+	})
+}
+
+func (ts *HandlerTestSuite) TestWriteSpecErrorDefaultsMessageToCode() {
+	t := ts.T()
+	rec := httptest.NewRecorder()
+	writeSpecError(rec, "some_code", "")
+
+	decoded := decodeEnvelope(t, rec.Body.Bytes())
+	errs := decoded["errors"].([]any)
+	errObj := errs[0].(map[string]any)
+	require.Equal(t, "some_code", errObj["errorCode"])
+	require.Equal(t, "some_code", errObj["errorMessage"])
+}
+
+func (ts *HandlerTestSuite) TestHandleServiceErrorDuplicatePublicKey() {
+	t := ts.T()
+	h := newTestHandler(&fakeQuerier{})
+	rec := httptest.NewRecorder()
+	h.handleServiceError(rec, ErrDuplicatePublicKey, "op")
+
+	decoded := decodeEnvelope(t, rec.Body.Bytes())
+	errs := decoded["errors"].([]any)
+	errObj := errs[0].(map[string]any)
+	require.Equal(t, "invalid_public_key", errObj["errorCode"])
+}
+
+func (ts *HandlerTestSuite) TestNewHandlerAndContextPropagation() {
+	t := ts.T()
+	q := &fakeQuerier{getRow: existingClientRow()}
+	h := newTestHandler(q)
+	require.NotNil(t, h)
+
+	ctx := context.WithValue(context.Background(), struct{ key string }{"k"}, "v")
+	req := httptest.NewRequest(http.MethodGet, "/client-mgmt/client/client-1", nil).WithContext(ctx)
+	rec := httptest.NewRecorder()
+	h.getClient(rec, req)
+	require.Equal(t, http.StatusOK, rec.Code)
 }
 
 type HandlerTestSuite struct {

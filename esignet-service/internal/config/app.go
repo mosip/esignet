@@ -31,6 +31,8 @@ const (
 	defaultGateErrorPath         = "/error"
 	defaultRequestTimeLeewaySecs = 300
 	defaultClientCacheTTLSecs    = 3600
+	defaultDesignCacheTTLSecs    = 86400
+	defaultFlowCacheTTLSecs      = 86400
 )
 
 // AppConfig holds core HTTP and infrastructure settings for the service.
@@ -57,9 +59,11 @@ type AppConfig struct {
 	GateClient          engineconfig.GateClientConfig    `yaml:"gate_client"`
 	EncryptionConfig    engineconfig.EncryptionConfig    `yaml:"crypto"`
 	KeyConfig           engineconfig.KeyConfig           `yaml:"key"`
-	Consent             engineconfig.ConsentConfig       `yaml:"consent"`
 	SecurityConfig      SecurityConfig                   `yaml:"security_config"`
 	ClientCacheTTLSecs  int64                            `yaml:"client_cache_ttl_secs"`
+	DesignCacheTTLSecs  int64                            `yaml:"design_cache_ttl_secs"`
+	FlowCacheTTLSecs    int64                            `yaml:"flow_cache_ttl_secs"`
+	CaptchaConfig       CaptchaConfig                    `yaml:"captcha_config"`
 }
 
 // SecurityConfig defines application security configuration
@@ -76,6 +80,13 @@ type AuthorizationConfig struct {
 	Endpoint string `yaml:"endpoint,omitempty"`
 	Method   string `yaml:"method,omitempty"`
 	Scope    string `yaml:"scope,omitempty"`
+}
+
+// CaptchaConfig Captcha validation configuration
+type CaptchaConfig struct {
+	ValidatorURL string `yaml:"validator_url"`
+	ModuleName   string `yaml:"module_name"`
+	TimeoutSecs  int    `yaml:"timeout_secs"`
 }
 
 // LoadAppConfig loads the application configuration from the default data directory.
@@ -157,11 +168,13 @@ func applyDefaults(cfg *AppConfig) {
 	cfg.Flow.Executors = []string{"CredentialsAuthExecutor", "AuthAssertExecutor", "ConsentExecutor", "AuthorizationExecutor"}
 	cfg.Flow.Interceptors = []string{}
 
-	cfg.Consent.Enabled = false
-
 	cfg.OAuth.RefreshToken.RenewOnGrant = false
-	cfg.OAuth.AuthorizationCode.ValidityPeriod = 3600
-	cfg.OAuth.PAR.ExpiresIn = 3600
+	if cfg.OAuth.AuthorizationCode.ValidityPeriod <= 0 {
+		cfg.OAuth.AuthorizationCode.ValidityPeriod = 3600
+	}
+	if cfg.OAuth.PAR.ExpiresIn <= 0 {
+		cfg.OAuth.PAR.ExpiresIn = 3600
+	}
 	cfg.OAuth.AuthClass.AcrAMR = map[string][]string{
 		"mosip:idp:acr:generated-code": {},
 		"mosip:idp:acr:biometrics":     {},
@@ -169,7 +182,12 @@ func applyDefaults(cfg *AppConfig) {
 		"mosip:idp:acr:password":       {},
 	}
 	cfg.OAuth.AuthClass.Amrs = []string{}
+	cfg.OAuth.AllowedAuthMethods = []string{"private_key_jwt"}
+	cfg.OAuth.AllowedGrantTypes = []string{"authorization_code"}
+	cfg.OAuth.AllowedResponseTypes = []string{"code"}
 	cfg.OAuth.AllowWildcardRedirectURI = true
+	cfg.OAuth.TokenRevocation.Enabled = false
+	cfg.OAuth.Logout.Enabled = false
 
 	cfg.KeyConfig.CertFile = defaultSigningCertPath
 	cfg.KeyConfig.KeyFile = defaultSigningKeyPath
@@ -181,6 +199,14 @@ func applyDefaults(cfg *AppConfig) {
 
 	if cfg.ClientCacheTTLSecs <= 0 {
 		cfg.ClientCacheTTLSecs = defaultClientCacheTTLSecs
+	}
+
+	if cfg.DesignCacheTTLSecs <= 0 {
+		cfg.DesignCacheTTLSecs = defaultDesignCacheTTLSecs
+	}
+
+	if cfg.FlowCacheTTLSecs <= 0 {
+		cfg.FlowCacheTTLSecs = defaultFlowCacheTTLSecs
 	}
 }
 

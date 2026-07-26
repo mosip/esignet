@@ -4,413 +4,532 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package mock_test
+package mock
 
 import (
 	"context"
 	"database/sql"
-	"encoding/base64"
-	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/suite"
-
-	"github.com/stretchr/testify/assert"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/require"
-
+	"github.com/stretchr/testify/suite"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
 	"github.com/mosip/esignet/internal/clientmgmt"
 	"github.com/mosip/esignet/internal/clientmgmt/db"
-	"github.com/mosip/esignet/internal/engine/mock"
 	"github.com/mosip/esignet/internal/engine/shared"
 )
 
-// --- test scaffolding ---------------------------------------------------------------------
-
+// stubQuerier is a hand-written fake of db.Querier, reused across the tests in this file to
+// avoid standing up a real database. It only implements GetClient since that is all the mock
+// authn provider needs.
 type stubQuerier struct {
 	db.Querier
 	client db.ClientDetail
+	found  bool
 }
 
 func (s *stubQuerier) GetClient(_ context.Context, id string) (db.ClientDetail, error) {
-	if id != s.client.ID {
+	if !s.found || id != s.client.ID {
 		return db.ClientDetail{}, sql.ErrNoRows
 	}
 	return s.client, nil
 }
 
-func newClientService(t *testing.T, clientID, rpID string) *clientmgmt.Service {
-	t.Helper()
-	return clientmgmt.NewServiceWithQuerier(&stubQuerier{
-		client: db.ClientDetail{
-			ID:           clientID,
-			Name:         `{"@none":"Test App"}`,
-			RpID:         rpID,
-			LogoUri:      "https://example.com/logo.png",
-			RedirectUris: `["https://example.com/callback"]`,
-			Claims:       `["name","email"]`,
-			AcrValues:    `["mosip:idp:acr:static-code"]`,
-			PublicKey:    `{"kty":"RSA","n":"abc","e":"AQAB"}`,
-			GrantTypes:   `["authorization_code"]`,
-			AuthMethods:  `["private_key_jwt"]`,
-			Status:       "ACTIVE",
-			CrDtimes:     time.Now(),
-		},
-	}, nil, 0)
+func testClientRow() db.ClientDetail {
+	return db.ClientDetail{
+		ID:           "client-1",
+		Name:         `{"@none":"Test App"}`,
+		RpID:         "rp-1",
+		RedirectUris: `["https://example.com/callback"]`,
+		Claims:       `["name","email"]`,
+		AcrValues:    `["mosip:idp:acr:static-code"]`,
+		PublicKey:    `{"kty":"RSA","n":"abc","e":"AQAB"}`,
+		GrantTypes:   `["authorization_code"]`,
+		AuthMethods:  `["private_key_jwt"]`,
+		Status:       "ACTIVE",
+		CrDtimes:     time.Now(),
+	}
 }
 
-func newAuthnMetadata() *providers.AuthnMetadata {
-	return &providers.AuthnMetadata{
-		RuntimeMetadata: map[string]string{
-			"current_client_id": "client-001",
-			"ext_TransactionID": "1234567890",
+func newTestClientSvc() *clientmgmt.Service {
+	return clientmgmt.NewServiceWithQuerier(&stubQuerier{client: testClientRow(), found: true}, nil, 0)
+}
+
+func metadataWithClientID(clientID string) *providers.AuthnMetadata {
+	return &providers.AuthnMetadata{RuntimeMetadata: map[string][]string{runtimeKeyClientID: {clientID}}}
+}
+
+func getAttributesMetadataWithClientID(clientID string) *providers.GetAttributesMetadata {
+	return &providers.GetAttributesMetadata{RuntimeMetadata: map[string][]string{runtimeKeyClientID: {clientID}}}
+}
+
+func newTestProvider(t *testing.T, kycAuthURL, kycExchangeV3URL, sendOtpURL string) *mockAuthnProvider {
+	t.Helper()
+	return &mockAuthnProvider{
+		client:    &http.Client{Timeout: 5 * time.Second},
+		clientSvc: newTestClientSvc(),
+		cfg: Config{
+			KycAuthURL:       kycAuthURL,
+			KycExchangeV3URL: kycExchangeV3URL,
+			SendOtpURL:       sendOtpURL,
+			OtpChannels:      []string{"email", "phone"},
 		},
 	}
 }
 
-func newGetAttributesMetadata() *providers.GetAttributesMetadata {
-	return &providers.GetAttributesMetadata{
-		RuntimeMetadata: map[string]string{
-			"current_client_id": "client-001",
-			"ext_TransactionID": "1234567890",
-		},
-	}
-}
-
-func newRequestedAttributes(claims ...string) *providers.RequestedAttributes {
-	attrs := make(map[string]*providers.AttributeMetadataRequest, len(claims))
-	for _, claim := range claims {
-		attrs[claim] = &providers.AttributeMetadataRequest{}
-	}
-	return &providers.RequestedAttributes{Attributes: attrs}
-}
-
-func setMockEnv(t *testing.T, server *httptest.Server) {
-	t.Helper()
-	t.Setenv("MOSIP_ESIGNET_MOCK_KYC_AUTH_URL", server.URL+"/kyc-auth")
-	t.Setenv("MOSIP_ESIGNET_MOCK_KYC_EXCHANGE_V3_URL", server.URL+"/kyc-exchange")
-	t.Setenv("MOSIP_ESIGNET_MOCK_SEND_OTP_URL", server.URL+"/send-otp")
-}
-
-// unsignedJWS builds a "header.payload.signature" token carrying the given claims as
-// its payload, with an arbitrary signature segment (decodeJWTUnsafe does not verify it).
-func unsignedJWS(t *testing.T, claims map[string]any) string {
-	t.Helper()
-	payload, err := json.Marshal(claims)
-	require.NoError(t, err)
-	return "header." + base64.RawURLEncoding.EncodeToString(payload) + ".signature"
-}
-
-// --- AuthenticateUser ---------------------------------------------------------------------
-
-func (ts *AuthenticatorTestSuite) TestAuthenticateUser_OTP_Success() {
+func (ts *AuthenticatorTestSuite) TestAuthenticate() {
 	t := ts.T()
-	var gotBody map[string]any
-	mux := http.NewServeMux()
-	mux.HandleFunc("POST /kyc-auth/{rp}/{client}", func(w http.ResponseWriter, r *http.Request) {
-		assert.Equal(t, "rp-001", r.PathValue("rp"))
-		assert.Equal(t, "client-001", r.PathValue("client"))
-		require.NoError(t, json.NewDecoder(r.Body).Decode(&gotBody))
-		_ = json.NewEncoder(w).Encode(map[string]any{
-			"response": map[string]any{
-				"authStatus":               true,
-				"kycToken":                 "kyc-token-xyz",
-				"partnerSpecificUserToken": "psut-xyz",
-			},
-		})
+
+	t.Run("missing runtime metadata", func(t *testing.T) {
+		p := newTestProvider(t, "http://unused", "http://unused", "http://unused")
+		result, svcErr := p.Authenticate(context.Background(), map[string]interface{}{}, map[string]interface{}{}, &providers.AuthnMetadata{})
+		require.Nil(t, result)
+		require.Same(t, shared.ClientNotFoundError, svcErr)
 	})
-	server := httptest.NewServer(mux)
-	defer server.Close()
-	setMockEnv(t, server)
 
-	provider, err := mock.NewMockAuthnProvider(nil, newClientService(t, "client-001", "rp-001"))
-	require.NoError(t, err)
+	t.Run("unknown client", func(t *testing.T) {
+		p := newTestProvider(t, "http://unused", "http://unused", "http://unused")
+		result, svcErr := p.Authenticate(context.Background(), map[string]interface{}{}, map[string]interface{}{}, metadataWithClientID("no-such-client"))
+		require.Nil(t, result)
+		require.Same(t, shared.ClientNotFoundError, svcErr)
+	})
 
-	var authUser providers.AuthUser
-	identifiers := map[string]any{"username": "2760459465"}
-	credentials := map[string]any{"otp": "111111"}
+	t.Run("missing individual id", func(t *testing.T) {
+		p := newTestProvider(t, "http://unused", "http://unused", "http://unused")
+		result, svcErr := p.Authenticate(context.Background(), map[string]interface{}{}, map[string]interface{}{}, metadataWithClientID("client-1"))
+		require.Nil(t, result)
+		require.Same(t, shared.InvalidIndividualIDError, svcErr)
+	})
 
-	resultUser, claims, svcErr := provider.AuthenticateUser(context.Background(), identifiers, credentials,
-		nil, newAuthnMetadata(), authUser)
+	t.Run("empty individual id", func(t *testing.T) {
+		p := newTestProvider(t, "http://unused", "http://unused", "http://unused")
+		identifiers := map[string]interface{}{identifierKeyIndividualID: ""}
+		result, svcErr := p.Authenticate(context.Background(), identifiers, map[string]interface{}{}, metadataWithClientID("client-1"))
+		require.Nil(t, result)
+		require.Same(t, shared.InvalidIndividualIDError, svcErr)
+	})
 
+	t.Run("no supported challenge", func(t *testing.T) {
+		p := newTestProvider(t, "http://unused", "http://unused", "http://unused")
+		identifiers := map[string]interface{}{identifierKeyIndividualID: "ind-1"}
+		result, svcErr := p.Authenticate(context.Background(), identifiers, map[string]interface{}{}, metadataWithClientID("client-1"))
+		require.Nil(t, result)
+		require.Same(t, shared.InvalidRequestError, svcErr)
+	})
+
+	t.Run("successful otp authentication", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			require.Equal(t, http.MethodPost, r.Method)
+			require.Contains(t, r.URL.Path, "/rp-1/client-1")
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"response":{"authStatus":true,"kycToken":"kyc-token-1","partnerSpecificUserToken":"psut-1"}}`))
+		}))
+		defer server.Close()
+
+		p := newTestProvider(t, server.URL, "http://unused", "http://unused")
+		identifiers := map[string]interface{}{identifierKeyIndividualID: "ind-1"}
+		credentials := map[string]interface{}{credentialOtp: "111111"}
+		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, metadataWithClientID("client-1"))
+		require.Nil(t, svcErr)
+		require.NotNil(t, result)
+		require.Equal(t, "psut-1", result.EntityReferenceToken)
+		require.Contains(t, result.AttributeToken, "kyc-token-1||ind-1||")
+	})
+
+	t.Run("password challenge accepted", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"response":{"authStatus":true,"kycToken":"kyc-token-2","partnerSpecificUserToken":"psut-2"}}`))
+		}))
+		defer server.Close()
+
+		p := newTestProvider(t, server.URL, "http://unused", "http://unused")
+		identifiers := map[string]interface{}{identifierKeyIndividualID: "ind-1"}
+		credentials := map[string]interface{}{credentialPassword: "secret"}
+		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, metadataWithClientID("client-1"))
+		require.Nil(t, svcErr)
+		require.Equal(t, "psut-2", result.EntityReferenceToken)
+	})
+
+	t.Run("kyc-auth authStatus false returns authentication failed", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"response":{"authStatus":false},"errors":[{"errorCode":"IDA-001","message":"auth failed"}]}`))
+		}))
+		defer server.Close()
+
+		p := newTestProvider(t, server.URL, "http://unused", "http://unused")
+		identifiers := map[string]interface{}{identifierKeyIndividualID: "ind-1"}
+		credentials := map[string]interface{}{credentialOtp: "111111"}
+		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, metadataWithClientID("client-1"))
+		require.Nil(t, result)
+		require.Same(t, shared.AuthenticationFailedError, svcErr)
+	})
+
+	t.Run("kyc-auth http error returns authentication failed", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusInternalServerError)
+		}))
+		defer server.Close()
+
+		p := newTestProvider(t, server.URL, "http://unused", "http://unused")
+		identifiers := map[string]interface{}{identifierKeyIndividualID: "ind-1"}
+		credentials := map[string]interface{}{credentialOtp: "111111"}
+		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, metadataWithClientID("client-1"))
+		require.Nil(t, result)
+		require.Same(t, shared.AuthenticationFailedError, svcErr)
+	})
+
+	t.Run("unreachable kyc-auth endpoint returns authentication failed", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}))
+		server.Close()
+
+		p := newTestProvider(t, server.URL, "http://unused", "http://unused")
+		identifiers := map[string]interface{}{identifierKeyIndividualID: "ind-1"}
+		credentials := map[string]interface{}{credentialOtp: "111111"}
+		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, metadataWithClientID("client-1"))
+		require.Nil(t, result)
+		require.Same(t, shared.AuthenticationFailedError, svcErr)
+	})
+}
+
+func (ts *AuthenticatorTestSuite) TestGetEntityReference() {
+	t := ts.T()
+	p := newTestProvider(t, "http://unused", "http://unused", "http://unused")
+
+	t.Run("valid token", func(t *testing.T) {
+		ref, svcErr := p.GetEntityReference(context.Background(), "psut-1")
+		require.Nil(t, svcErr)
+		require.Equal(t, "psut-1", ref.EntityID)
+	})
+
+	t.Run("empty token", func(t *testing.T) {
+		ref, svcErr := p.GetEntityReference(context.Background(), "")
+		require.Nil(t, ref)
+		require.Same(t, shared.AuthenticationFailedError, svcErr)
+	})
+
+	t.Run("non string token", func(t *testing.T) {
+		ref, svcErr := p.GetEntityReference(context.Background(), 42)
+		require.Nil(t, ref)
+		require.Same(t, shared.AuthenticationFailedError, svcErr)
+	})
+}
+
+func (ts *AuthenticatorTestSuite) TestGetAttributes() {
+	t := ts.T()
+
+	t.Run("nil consented attributes", func(t *testing.T) {
+		p := newTestProvider(t, "http://unused", "http://unused", "http://unused")
+		attrs, svcErr := p.GetAttributes(context.Background(), "any", nil, getAttributesMetadataWithClientID("client-1"))
+		require.Nil(t, attrs)
+		require.Same(t, shared.InvalidRequestError, svcErr)
+	})
+
+	t.Run("unknown client", func(t *testing.T) {
+		p := newTestProvider(t, "http://unused", "http://unused", "http://unused")
+		attrs, svcErr := p.GetAttributes(context.Background(), "any", &providers.RequestedAttributes{}, getAttributesMetadataWithClientID("no-such-client"))
+		require.Nil(t, attrs)
+		require.Same(t, shared.ClientNotFoundError, svcErr)
+	})
+
+	t.Run("nil attribute token returns nil result", func(t *testing.T) {
+		p := newTestProvider(t, "http://unused", "http://unused", "http://unused")
+		attrs, svcErr := p.GetAttributes(context.Background(), nil, &providers.RequestedAttributes{}, getAttributesMetadataWithClientID("client-1"))
+		require.Nil(t, attrs)
+		require.Nil(t, svcErr)
+	})
+
+	t.Run("malformed attribute token", func(t *testing.T) {
+		p := newTestProvider(t, "http://unused", "http://unused", "http://unused")
+		attrs, svcErr := p.GetAttributes(context.Background(), "not-enough-parts", &providers.RequestedAttributes{}, getAttributesMetadataWithClientID("client-1"))
+		require.Nil(t, attrs)
+		require.Same(t, shared.AuthenticationFailedError, svcErr)
+	})
+
+	t.Run("successful kyc exchange maps claims", func(t *testing.T) {
+		claims := jwt.MapClaims{"sub": "ind-1", "name": "Jane Doe"}
+		signed, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte("test-secret"))
+		require.NoError(t, err)
+
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			require.Equal(t, http.MethodPost, r.Method)
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"response":{"kyc":"` + signed + `"}}`))
+		}))
+		defer server.Close()
+
+		p := newTestProvider(t, "http://unused", server.URL, "http://unused")
+		attrs, svcErr := p.GetAttributes(context.Background(), "kyc-token||ind-1||txn-1",
+			&providers.RequestedAttributes{}, getAttributesMetadataWithClientID("client-1"))
+		require.Nil(t, svcErr)
+		require.NotNil(t, attrs)
+		require.Equal(t, "Jane Doe", attrs.Attributes["name"].Value)
+		require.Equal(t, "ind-1", attrs.Attributes["sub"].Value)
+	})
+
+	t.Run("kyc exchange error", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusInternalServerError)
+		}))
+		defer server.Close()
+
+		p := newTestProvider(t, "http://unused", server.URL, "http://unused")
+		attrs, svcErr := p.GetAttributes(context.Background(), "kyc-token||ind-1||txn-1",
+			&providers.RequestedAttributes{}, getAttributesMetadataWithClientID("client-1"))
+		require.Nil(t, attrs)
+		require.Same(t, shared.AuthenticationFailedError, svcErr)
+	})
+
+	t.Run("kyc response missing kyc field", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"response":{},"errors":[{"errorCode":"IDA-002","message":"kyc failed"}]}`))
+		}))
+		defer server.Close()
+
+		p := newTestProvider(t, "http://unused", server.URL, "http://unused")
+		attrs, svcErr := p.GetAttributes(context.Background(), "kyc-token||ind-1||txn-1",
+			&providers.RequestedAttributes{}, getAttributesMetadataWithClientID("client-1"))
+		require.Nil(t, attrs)
+		require.Same(t, shared.AuthenticationFailedError, svcErr)
+	})
+}
+
+func (ts *AuthenticatorTestSuite) TestSendOTP() {
+	t := ts.T()
+
+	t.Run("unknown client", func(t *testing.T) {
+		p := newTestProvider(t, "http://unused", "http://unused", "http://unused")
+		result, svcErr := p.SendOTP(context.Background(), map[string]any{identifierKeyIndividualID: "ind-1"}, metadataWithClientID("no-such-client"))
+		require.Nil(t, result)
+		require.Same(t, shared.ClientNotFoundError, svcErr)
+	})
+
+	t.Run("missing individual id", func(t *testing.T) {
+		p := newTestProvider(t, "http://unused", "http://unused", "http://unused")
+		result, svcErr := p.SendOTP(context.Background(), map[string]any{}, metadataWithClientID("client-1"))
+		require.Nil(t, result)
+		require.Same(t, shared.InvalidIndividualIDError, svcErr)
+	})
+
+	t.Run("success", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			require.Equal(t, http.MethodPost, r.Method)
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"response":{"maskedEmail":"j***@example.com","maskedMobile":"9***789"}}`))
+		}))
+		defer server.Close()
+
+		p := newTestProvider(t, "http://unused", "http://unused", server.URL)
+		result, svcErr := p.SendOTP(context.Background(), map[string]any{identifierKeyIndividualID: "ind-1"}, metadataWithClientID("client-1"))
+		require.Nil(t, svcErr)
+		require.NotNil(t, result)
+		require.Equal(t, "j***@example.com", result.MaskedEmail)
+		require.Equal(t, "9***789", result.MaskedMobile)
+		require.NotEmpty(t, result.TransactionID)
+	})
+
+	t.Run("endpoint error returns send otp failed", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusInternalServerError)
+		}))
+		defer server.Close()
+
+		p := newTestProvider(t, "http://unused", "http://unused", server.URL)
+		result, svcErr := p.SendOTP(context.Background(), map[string]any{identifierKeyIndividualID: "ind-1"}, metadataWithClientID("client-1"))
+		require.Nil(t, result)
+		require.Same(t, shared.SendOTPFailedError, svcErr)
+	})
+
+	t.Run("endpoint returns errors array", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"errors":[{"errorCode":"IDA-003","message":"otp failed"}]}`))
+		}))
+		defer server.Close()
+
+		p := newTestProvider(t, "http://unused", "http://unused", server.URL)
+		result, svcErr := p.SendOTP(context.Background(), map[string]any{identifierKeyIndividualID: "ind-1"}, metadataWithClientID("client-1"))
+		require.Nil(t, result)
+		require.Same(t, shared.SendOTPFailedError, svcErr)
+	})
+}
+
+func (ts *AuthenticatorTestSuite) TestNoOpMethods() {
+	t := ts.T()
+	p := newTestProvider(t, "http://unused", "http://unused", "http://unused")
+
+	result, svcErr := p.InitiateAuthentication(context.Background(), "otp", nil, nil)
+	require.Nil(t, result)
 	require.Nil(t, svcErr)
-	assert.Nil(t, claims)
-	assert.Equal(t, "kyc-token-xyz||2760459465||1234567890", resultUser.AttributeToken())
-	assert.Equal(t, "psut-xyz", resultUser.EntityReferenceToken())
-	assert.Equal(t, "111111", gotBody["otp"])
-	assert.Equal(t, "2760459465", gotBody["individualId"])
-}
 
-func (ts *AuthenticatorTestSuite) TestAuthenticateUser_Password_Success() {
-	t := ts.T()
-	mux := http.NewServeMux()
-	mux.HandleFunc("POST /kyc-auth/{rp}/{client}", func(w http.ResponseWriter, r *http.Request) {
-		var body map[string]any
-		require.NoError(t, json.NewDecoder(r.Body).Decode(&body))
-		assert.Equal(t, "s3cr3t", body["password"])
-		_ = json.NewEncoder(w).Encode(map[string]any{
-			"response": map[string]any{
-				"authStatus":               true,
-				"kycToken":                 "kyc-token-pwd",
-				"partnerSpecificUserToken": "psut-pwd",
-			},
-		})
-	})
-	server := httptest.NewServer(mux)
-	defer server.Close()
-	setMockEnv(t, server)
-
-	provider, err := mock.NewMockAuthnProvider(nil, newClientService(t, "client-001", "rp-001"))
-	require.NoError(t, err)
-
-	var authUser providers.AuthUser
-	identifiers := map[string]any{"username": "2760459465"}
-	credentials := map[string]any{"password": "s3cr3t"}
-
-	resultUser, _, svcErr := provider.AuthenticateUser(context.Background(), identifiers, credentials,
-		nil, newAuthnMetadata(), authUser)
-
+	result, svcErr = p.InitiateEnrollment(context.Background(), "otp", nil, nil)
+	require.Nil(t, result)
 	require.Nil(t, svcErr)
-	assert.True(t, resultUser.IsAuthenticated())
-}
 
-func (ts *AuthenticatorTestSuite) TestAuthenticateUser_Pin_Success() {
-	t := ts.T()
-	mux := http.NewServeMux()
-	mux.HandleFunc("POST /kyc-auth/{rp}/{client}", func(w http.ResponseWriter, r *http.Request) {
-		var body map[string]any
-		require.NoError(t, json.NewDecoder(r.Body).Decode(&body))
-		assert.Equal(t, "1234", body["pin"])
-		_ = json.NewEncoder(w).Encode(map[string]any{
-			"response": map[string]any{
-				"authStatus":               true,
-				"kycToken":                 "kyc-token-pin",
-				"partnerSpecificUserToken": "psut-pin",
-			},
-		})
-	})
-	server := httptest.NewServer(mux)
-	defer server.Close()
-	setMockEnv(t, server)
-
-	provider, err := mock.NewMockAuthnProvider(nil, newClientService(t, "client-001", "rp-001"))
-	require.NoError(t, err)
-
-	var authUser providers.AuthUser
-	identifiers := map[string]any{"username": "2760459465", "pin": "1234"}
-
-	resultUser, _, svcErr := provider.AuthenticateUser(context.Background(), identifiers, map[string]any{},
-		nil, newAuthnMetadata(), authUser)
-
+	authnResult, svcErr := p.Enroll(context.Background(), nil, nil, nil)
+	require.Nil(t, authnResult)
 	require.Nil(t, svcErr)
-	assert.True(t, resultUser.IsAuthenticated())
 }
 
-func (ts *AuthenticatorTestSuite) TestAuthenticateUser_KBI_Success() {
+func (ts *AuthenticatorTestSuite) TestSetChallenge() {
 	t := ts.T()
-	var gotKbi string
-	mux := http.NewServeMux()
-	mux.HandleFunc("POST /kyc-auth/{rp}/{client}", func(w http.ResponseWriter, r *http.Request) {
-		var body map[string]any
-		require.NoError(t, json.NewDecoder(r.Body).Decode(&body))
-		gotKbi, _ = body["kbi"].(string)
-		_ = json.NewEncoder(w).Encode(map[string]any{
-			"response": map[string]any{
-				"authStatus":               true,
-				"kycToken":                 "kyc-token-kbi",
-				"partnerSpecificUserToken": "psut-kbi",
-			},
-		})
+
+	t.Run("otp", func(t *testing.T) {
+		req := &KycAuthRequestDto{}
+		ok := setChallenge(req, nil, map[string]interface{}{credentialOtp: "111111"})
+		require.True(t, ok)
+		require.Equal(t, "111111", req.Otp)
 	})
-	server := httptest.NewServer(mux)
-	defer server.Close()
-	setMockEnv(t, server)
 
-	provider, err := mock.NewMockAuthnProvider(nil, newClientService(t, "client-001", "rp-001"))
-	require.NoError(t, err)
-
-	var authUser providers.AuthUser
-	identifiers := map[string]any{"username": "2760459465"}
-	credentials := map[string]any{"fullname": "Jane Doe", "date_of_birth": "1990-01-01"}
-
-	_, _, svcErr := provider.AuthenticateUser(context.Background(), identifiers, credentials,
-		nil, newAuthnMetadata(), authUser)
-
-	require.Nil(t, svcErr)
-	decoded, err := base64.RawURLEncoding.DecodeString(gotKbi)
-	require.NoError(t, err)
-	var kbiFields map[string]string
-	require.NoError(t, json.Unmarshal(decoded, &kbiFields))
-	assert.Equal(t, "Jane Doe", kbiFields["fullname"])
-	assert.Equal(t, "1990-01-01", kbiFields["date_of_birth"])
-}
-
-func (ts *AuthenticatorTestSuite) TestAuthenticateUser_NoChallenge_ReturnsInvalidRequest() {
-	t := ts.T()
-	server := httptest.NewServer(http.NotFoundHandler())
-	defer server.Close()
-	setMockEnv(t, server)
-
-	provider, err := mock.NewMockAuthnProvider(nil, newClientService(t, "client-001", "rp-001"))
-	require.NoError(t, err)
-
-	var authUser providers.AuthUser
-	identifiers := map[string]any{"username": "2760459465"}
-
-	_, _, svcErr := provider.AuthenticateUser(context.Background(), identifiers, map[string]any{},
-		nil, newAuthnMetadata(), authUser)
-
-	require.NotNil(t, svcErr)
-	assert.Equal(t, shared.InvalidRequestError.Code, svcErr.Code)
-}
-
-func (ts *AuthenticatorTestSuite) TestAuthenticateUser_ServiceRejects_ReturnsAuthenticationFailed() {
-	t := ts.T()
-	mux := http.NewServeMux()
-	mux.HandleFunc("POST /kyc-auth/{rp}/{client}", func(w http.ResponseWriter, _ *http.Request) {
-		_ = json.NewEncoder(w).Encode(map[string]any{
-			"response": map[string]any{"authStatus": false},
-		})
+	t.Run("password", func(t *testing.T) {
+		req := &KycAuthRequestDto{}
+		ok := setChallenge(req, nil, map[string]interface{}{credentialPassword: "secret"})
+		require.True(t, ok)
+		require.Equal(t, "secret", req.Password)
 	})
-	server := httptest.NewServer(mux)
-	defer server.Close()
-	setMockEnv(t, server)
 
-	provider, err := mock.NewMockAuthnProvider(nil, newClientService(t, "client-001", "rp-001"))
-	require.NoError(t, err)
-
-	var authUser providers.AuthUser
-	identifiers := map[string]any{"username": "2760459465"}
-	credentials := map[string]any{"otp": "000000"}
-
-	_, _, svcErr := provider.AuthenticateUser(context.Background(), identifiers, credentials,
-		nil, newAuthnMetadata(), authUser)
-
-	require.NotNil(t, svcErr)
-	assert.Equal(t, shared.AuthenticationFailedError.Code, svcErr.Code)
-}
-
-func (ts *AuthenticatorTestSuite) TestAuthenticateUser_UnknownClient_ReturnsClientNotFound() {
-	t := ts.T()
-	server := httptest.NewServer(http.NotFoundHandler())
-	defer server.Close()
-	setMockEnv(t, server)
-
-	provider, err := mock.NewMockAuthnProvider(nil, newClientService(t, "client-001", "rp-001"))
-	require.NoError(t, err)
-
-	var authUser providers.AuthUser
-	identifiers := map[string]any{"username": "2760459465"}
-	credentials := map[string]any{"otp": "111111"}
-	metadata := &providers.AuthnMetadata{RuntimeMetadata: map[string]string{"current_client_id": "unknown-client"}}
-
-	_, _, svcErr := provider.AuthenticateUser(context.Background(), identifiers, credentials,
-		nil, metadata, authUser)
-
-	require.NotNil(t, svcErr)
-	assert.Equal(t, shared.ClientNotFoundError.Code, svcErr.Code)
-}
-
-// --- GetUserAttributes ---------------------------------------------------------------------
-
-func (ts *AuthenticatorTestSuite) TestGetUserAttributes_Success() {
-	t := ts.T()
-	var gotBody map[string]any
-	mux := http.NewServeMux()
-	mux.HandleFunc("POST /kyc-exchange/{rp}/{client}", func(w http.ResponseWriter, r *http.Request) {
-		require.NoError(t, json.NewDecoder(r.Body).Decode(&gotBody))
-		kyc := unsignedJWS(t, map[string]any{"sub": "psut-xyz", "name": "Jane Doe"})
-		_ = json.NewEncoder(w).Encode(map[string]any{
-			"response": map[string]any{"kyc": kyc},
-		})
+	t.Run("pin", func(t *testing.T) {
+		req := &KycAuthRequestDto{}
+		ok := setChallenge(req, map[string]interface{}{credentialPin: "1234"}, nil)
+		require.True(t, ok)
+		require.Equal(t, "1234", req.Pin)
 	})
-	server := httptest.NewServer(mux)
-	defer server.Close()
-	setMockEnv(t, server)
 
-	provider, err := mock.NewMockAuthnProvider(nil, newClientService(t, "client-001", "rp-001"))
-	require.NoError(t, err)
-
-	var authUser providers.AuthUser
-	authUser.SetAttributeToken("kyc-token-xyz||2760459465||1234567890")
-
-	_, attrs, svcErr := provider.GetUserAttributes(context.Background(), newRequestedAttributes("name"), newGetAttributesMetadata(), authUser)
-
-	require.Nil(t, svcErr)
-	require.NotNil(t, attrs)
-	assert.Equal(t, "Jane Doe", attrs.Attributes["name"].Value)
-	assert.Equal(t, "kyc-token-xyz", gotBody["kycToken"])
-	assert.Equal(t, "2760459465", gotBody["individualId"])
-}
-
-func (ts *AuthenticatorTestSuite) TestGetUserAttributes_NoAttributeToken_ReturnsNil() {
-	t := ts.T()
-	provider, err := mock.NewMockAuthnProvider(nil, newClientService(t, "client-001", "rp-001"))
-	require.NoError(t, err)
-
-	var authUser providers.AuthUser
-	_, attrs, svcErr := provider.GetUserAttributes(context.Background(), newRequestedAttributes("name"), newGetAttributesMetadata(), authUser)
-
-	require.Nil(t, svcErr)
-	assert.Nil(t, attrs)
-}
-
-// --- SendOTP ---------------------------------------------------------------------
-
-func (ts *AuthenticatorTestSuite) TestSendOTP_Success() {
-	t := ts.T()
-	mux := http.NewServeMux()
-	mux.HandleFunc("POST /send-otp/{rp}/{client}", func(w http.ResponseWriter, r *http.Request) {
-		var body map[string]any
-		require.NoError(t, json.NewDecoder(r.Body).Decode(&body))
-		assert.Equal(t, "2760459465", body["individualId"])
-		_ = json.NewEncoder(w).Encode(map[string]any{
-			"response": map[string]any{
-				"maskedEmail":  "j***@x.io",
-				"maskedMobile": "XXXXX9999",
-			},
-		})
+	t.Run("biometrics", func(t *testing.T) {
+		req := &KycAuthRequestDto{}
+		ok := setChallenge(req, map[string]interface{}{credentialBio: "bio-data"}, nil)
+		require.True(t, ok)
+		require.Equal(t, "bio-data", req.Biometrics)
 	})
-	server := httptest.NewServer(mux)
-	defer server.Close()
-	setMockEnv(t, server)
 
-	provider, err := mock.NewMockAuthnProvider(nil, newClientService(t, "client-001", "rp-001"))
-	require.NoError(t, err)
+	t.Run("kbi fallback", func(t *testing.T) {
+		req := &KycAuthRequestDto{}
+		ok := setChallenge(req, nil, map[string]interface{}{"fullName": "Jane"})
+		require.True(t, ok)
+		require.NotEmpty(t, req.Kbi)
+	})
 
-	identifiers := map[string]any{"username": "2760459465"}
-	result, svcErr := provider.SendOTP(context.Background(), identifiers, newAuthnMetadata())
+	t.Run("no challenge found", func(t *testing.T) {
+		req := &KycAuthRequestDto{}
+		ok := setChallenge(req, map[string]interface{}{}, map[string]interface{}{})
+		require.False(t, ok)
+	})
 
-	require.Nil(t, svcErr)
-	require.NotNil(t, result)
-	assert.Equal(t, "j***@x.io", result.MaskedEmail)
-	assert.Equal(t, "XXXXX9999", result.MaskedMobile)
+	t.Run("empty otp value falls back to kbi since credentials map is non-empty", func(t *testing.T) {
+		req := &KycAuthRequestDto{}
+		ok := setChallenge(req, nil, map[string]interface{}{credentialOtp: ""})
+		require.True(t, ok)
+		require.Empty(t, req.Otp)
+		require.NotEmpty(t, req.Kbi)
+	})
 }
 
-func (ts *AuthenticatorTestSuite) TestSendOTP_ServiceError_ReturnsSendOTPFailed() {
+func (ts *AuthenticatorTestSuite) TestKbiChallenge() {
 	t := ts.T()
-	mux := http.NewServeMux()
-	mux.HandleFunc("POST /send-otp/{rp}/{client}", func(w http.ResponseWriter, _ *http.Request) {
-		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(`{"errors":[{"errorCode":"no_email_mobile_found","message":"no channel"}]}`))
+
+	t.Run("empty credentials", func(t *testing.T) {
+		_, ok := kbiChallenge(map[string]interface{}{})
+		require.False(t, ok)
 	})
-	server := httptest.NewServer(mux)
-	defer server.Close()
-	setMockEnv(t, server)
 
-	provider, err := mock.NewMockAuthnProvider(nil, newClientService(t, "client-001", "rp-001"))
+	t.Run("non empty credentials", func(t *testing.T) {
+		encoded, ok := kbiChallenge(map[string]interface{}{"fullName": "Jane"})
+		require.True(t, ok)
+		require.NotEmpty(t, encoded)
+	})
+}
+
+func (ts *AuthenticatorTestSuite) TestAcceptedClaimsFromRequest() {
+	t := ts.T()
+
+	t.Run("nil requested attributes defaults to sub and name", func(t *testing.T) {
+		claims := acceptedClaimsFromRequest(nil)
+		require.ElementsMatch(t, []string{"sub", "name"}, claims)
+	})
+
+	t.Run("empty attributes defaults to sub and name", func(t *testing.T) {
+		claims := acceptedClaimsFromRequest(&providers.RequestedAttributes{})
+		require.ElementsMatch(t, []string{"sub", "name"}, claims)
+	})
+
+	t.Run("explicit attributes are used", func(t *testing.T) {
+		req := &providers.RequestedAttributes{
+			Attributes: map[string]*providers.AttributeMetadataRequest{"email": {}, "phone_number": {}},
+		}
+		claims := acceptedClaimsFromRequest(req)
+		require.ElementsMatch(t, []string{"email", "phone_number"}, claims)
+	})
+}
+
+func (ts *AuthenticatorTestSuite) TestGetApplicationAndClientID() {
+	t := ts.T()
+
+	t.Run("nil runtime metadata", func(t *testing.T) {
+		p := newTestProvider(t, "", "", "")
+		_, err := p.getApplicationAndClientID(nil)
+		require.Error(t, err)
+	})
+
+	t.Run("nil client service", func(t *testing.T) {
+		p := newTestProvider(t, "", "", "")
+		p.clientSvc = nil
+		_, err := p.getApplicationAndClientID(map[string][]string{runtimeKeyClientID: {"client-1"}})
+		require.Error(t, err)
+	})
+
+	t.Run("missing client id in metadata", func(t *testing.T) {
+		p := newTestProvider(t, "", "", "")
+		_, err := p.getApplicationAndClientID(map[string][]string{})
+		require.Error(t, err)
+	})
+
+	t.Run("client not found", func(t *testing.T) {
+		p := newTestProvider(t, "", "", "")
+		_, err := p.getApplicationAndClientID(map[string][]string{runtimeKeyClientID: {"missing"}})
+		require.Error(t, err)
+	})
+
+	t.Run("success", func(t *testing.T) {
+		p := newTestProvider(t, "", "", "")
+		clientDtl, err := p.getApplicationAndClientID(map[string][]string{runtimeKeyClientID: {"client-1"}})
+		require.NoError(t, err)
+		require.Equal(t, "client-1", clientDtl.ClientID)
+		require.Equal(t, "rp-1", clientDtl.RpID)
+	})
+}
+
+func (ts *AuthenticatorTestSuite) TestBuildEndpointURL() {
+	t := ts.T()
+	got := buildEndpointURL("http://example.com/v1/kyc-auth/", "rp 1", "client/1")
+	require.Equal(t, "http://example.com/v1/kyc-auth/rp%201/client%2F1", got)
+}
+
+func (ts *AuthenticatorTestSuite) TestGetUTCDateTime() {
+	t := ts.T()
+	got := getUTCDateTime()
+	_, err := time.Parse(utcDateTimeFormat, got)
 	require.NoError(t, err)
+}
 
-	identifiers := map[string]any{"username": "2760459465"}
-	result, svcErr := provider.SendOTP(context.Background(), identifiers, newAuthnMetadata())
+func (ts *AuthenticatorTestSuite) TestNewHTTPClient() {
+	t := ts.T()
+	client := newHTTPClient()
+	require.NotNil(t, client)
+	require.Equal(t, 30*time.Second, client.Timeout)
+}
 
-	require.NotNil(t, svcErr)
-	assert.Nil(t, result)
-	assert.Equal(t, shared.SendOTPFailedError.Code, svcErr.Code)
+func (ts *AuthenticatorTestSuite) TestNewMockAuthnProvider() {
+	t := ts.T()
+	provider, err := NewMockAuthnProvider(nil, newTestClientSvc())
+	require.NoError(t, err)
+	require.NotNil(t, provider)
 }
 
 type AuthenticatorTestSuite struct {

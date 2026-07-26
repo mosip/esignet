@@ -85,26 +85,19 @@ func NewSunbirdAuthnProvider() (shared.ConsolidatedAuthnProvider, error) {
 	}, nil
 }
 
-func (p *sunbirdAuthnProvider) SendOTP(_ context.Context, _ map[string]interface{},
-	_ *providers.AuthnMetadata) (*shared.SendOTPResult, *common.ServiceError) {
-	return nil, shared.NotImplementedError
-}
-
-func (p *sunbirdAuthnProvider) AuthenticateUser(ctx context.Context, identifiers, credentials map[string]interface{},
-	_ *providers.RequestedAttributes,
-	_ *providers.AuthnMetadata,
-	authUser providers.AuthUser) (providers.AuthUser, providers.AuthenticatedClaims, *common.ServiceError) {
+func (p *sunbirdAuthnProvider) Authenticate(ctx context.Context, identifiers, credentials map[string]interface{},
+	_ *providers.AuthnMetadata) (*providers.AuthnResult, *common.ServiceError) {
 
 	individualID, ok := identifiers[sunbirdIndividualIDKey].(string)
 	if !ok || individualID == "" {
-		return authUser, nil, shared.InvalidIndividualIDError
+		return nil, shared.InvalidIndividualIDError
 	}
 
 	kbiFields := make(map[string]string, len(p.kbiFieldIDs))
 	for _, id := range p.kbiFieldIDs {
 		val, ok := credentials[id].(string)
 		if !ok || val == "" {
-			return authUser, nil, shared.InvalidRequestError
+			return nil, shared.InvalidRequestError
 		}
 		kbiFields[id] = val
 	}
@@ -112,28 +105,27 @@ func (p *sunbirdAuthnProvider) AuthenticateUser(ctx context.Context, identifiers
 	entityID, err := p.validateKBI(ctx, individualID, kbiFields)
 	if err != nil {
 		if errors.Is(err, errSunbirdKBIAuthFailed) {
-			return authUser, nil, shared.InvalidRequestError
+			return nil, shared.InvalidRequestError
 		}
-		return authUser, nil, shared.AuthenticationFailedError
+		return nil, shared.AuthenticationFailedError
 	}
 
-	authUser.SetEntityReferenceToken(entityID)
-	authUser.SetAttributeToken(entityID)
-	return authUser, nil, nil
+	return &providers.AuthnResult{
+		EntityReferenceToken: entityID,
+		AttributeToken:       entityID,
+	}, nil
 }
 
-func (p *sunbirdAuthnProvider) GetUserAttributes(ctx context.Context,
-	requestedAttributes *providers.RequestedAttributes,
-	_ *providers.GetAttributesMetadata,
-	authUser providers.AuthUser) (providers.AuthUser, *providers.AttributesResponse, *common.ServiceError) {
+func (p *sunbirdAuthnProvider) GetAttributes(ctx context.Context, attributeToken any, consentedAttributes *providers.RequestedAttributes,
+	_ *providers.GetAttributesMetadata) (*providers.AttributesResponse, *common.ServiceError) {
 
-	if requestedAttributes == nil || len(requestedAttributes.Attributes) == 0 {
-		return authUser, nil, shared.InvalidRequestError
+	if consentedAttributes == nil {
+		return nil, shared.InvalidRequestError
 	}
 
-	entityData, err := p.fetchEntityData(ctx, authUser.EntityReferenceToken().(string))
+	entityData, err := p.fetchEntityData(ctx, attributeToken.(string))
 	if err != nil {
-		return authUser, nil, shared.InvalidRequestError
+		return nil, shared.InvalidRequestError
 	}
 
 	mappedClaims := buildSunbirdMappedClaims(entityData, p.cfg.ClaimsMapping)
@@ -143,22 +135,36 @@ func (p *sunbirdAuthnProvider) GetUserAttributes(ctx context.Context,
 		mappedClaimsMap[claim] = &providers.AttributeResponse{Value: value}
 	}
 
-	return authUser, &providers.AttributesResponse{Attributes: mappedClaimsMap}, nil
+	return &providers.AttributesResponse{Attributes: mappedClaimsMap}, nil
 }
 
-func (p *sunbirdAuthnProvider) GetEntityReference(_ context.Context,
-	authUser providers.AuthUser) (providers.AuthUser, *providers.EntityReference, *common.ServiceError) {
-
-	entityID, ok := authUser.EntityReferenceToken().(string)
-	if !ok || entityID == "" {
-		return authUser, nil, shared.AuthenticationFailedError
+func (p *sunbirdAuthnProvider) GetEntityReference(_ context.Context, entityReferenceToken any) (*providers.EntityReference,
+	*common.ServiceError) {
+	psut, ok := entityReferenceToken.(string)
+	if !ok || psut == "" {
+		return nil, shared.AuthenticationFailedError
 	}
-	return authUser, &providers.EntityReference{EntityID: entityID}, nil
+	return &providers.EntityReference{EntityID: psut}, nil
 }
 
-func (p *sunbirdAuthnProvider) GetUserAvailableAttributes(_ context.Context,
-	_ providers.AuthUser) (*providers.AttributesResponse, *common.ServiceError) {
-	return &providers.AttributesResponse{}, nil
+func (p *sunbirdAuthnProvider) InitiateAuthentication(_ context.Context, _ string, _ any,
+	_ *providers.AuthnMetadata) (any, *common.ServiceError) {
+	return nil, nil
+}
+
+func (p *sunbirdAuthnProvider) InitiateEnrollment(_ context.Context, _ string, _ any,
+	_ *providers.AuthnMetadata) (any, *common.ServiceError) {
+	return nil, nil
+}
+
+func (p *sunbirdAuthnProvider) Enroll(_ context.Context, _, _ map[string]interface{},
+	_ *providers.AuthnMetadata) (*providers.AuthnResult, *common.ServiceError) {
+	return nil, nil
+}
+
+func (p *sunbirdAuthnProvider) SendOTP(_ context.Context, _ map[string]interface{},
+	_ *providers.AuthnMetadata) (*shared.SendOTPResult, *common.ServiceError) {
+	return nil, shared.NotImplementedError
 }
 
 func (p *sunbirdAuthnProvider) validateKBI(ctx context.Context, individualID string, kbiFields map[string]string) (string, error) {

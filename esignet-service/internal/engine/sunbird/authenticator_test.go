@@ -12,342 +12,445 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
+	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
-
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
+
+	"github.com/mosip/esignet/internal/engine/shared"
 )
 
-func testRequestedAttributes(claims ...string) *providers.RequestedAttributes {
-	attrs := make(map[string]*providers.AttributeMetadataRequest, len(claims))
-	for _, claim := range claims {
-		attrs[claim] = &providers.AttributeMetadataRequest{}
+func newTestProvider(searchURL, entityURL string) *sunbirdAuthnProvider {
+	return &sunbirdAuthnProvider{
+		cfg: Config{
+			SearchURL:     searchURL,
+			EntityURL:     entityURL,
+			IDField:       "policyNumber",
+			EntityIDField: "osid",
+			ClaimsMapping: defaultSunbirdClaimsMapping,
+		},
+		client:      &http.Client{Timeout: 5 * time.Second},
+		kbiFieldIDs: []string{"fullName", "dob"},
 	}
-	return &providers.RequestedAttributes{Attributes: attrs}
-}
-
-func testConfig(searchURL, entityURL string) Config {
-	return Config{
-		SearchURL:     searchURL,
-		EntityURL:     entityURL,
-		IDField:       "policyNumber",
-		EntityIDField: "osid",
-		FieldDetails:  defaultSunbirdFieldDetails,
-		ClaimsMapping: defaultSunbirdClaimsMapping,
-		TimeoutSecs:   defaultSunbirdTimeoutSecs,
-	}
-}
-
-func newTestProvider(t *testing.T, cfg Config) *sunbirdAuthnProvider {
-	t.Helper()
-	fields, err := parseSunbirdFieldDetails(cfg.FieldDetails)
-	if err != nil {
-		t.Fatalf("parseSunbirdFieldDetails: %v", err)
-	}
-	var kbiFieldIDs []string
-	for _, f := range fields {
-		if f.ID != cfg.IDField {
-			kbiFieldIDs = append(kbiFieldIDs, f.ID)
-		}
-	}
-	return &sunbirdAuthnProvider{cfg: cfg, client: http.DefaultClient, kbiFieldIDs: kbiFieldIDs}
 }
 
 func (ts *AuthenticatorTestSuite) TestNewSunbirdAuthnProvider() {
 	t := ts.T()
+	clearSunbirdEnv(t)
+
 	t.Run("missing search url", func(t *testing.T) {
-		t.Setenv(envSunbirdSearchURL, "")
-		if _, err := NewSunbirdAuthnProvider(); err == nil {
-			t.Fatal("expected error when SUNBIRD_SEARCH_URL is unset")
-		}
+		_, err := NewSunbirdAuthnProvider()
+		require.Error(t, err)
+	})
+
+	t.Run("invalid field details", func(t *testing.T) {
+		t.Setenv(envSunbirdSearchURL, "http://example.com/search")
+		t.Setenv(envSunbirdFieldDetails, "not-json")
+		_, err := NewSunbirdAuthnProvider()
+		require.Error(t, err)
 	})
 
 	t.Run("no kbi fields other than id field", func(t *testing.T) {
 		t.Setenv(envSunbirdSearchURL, "http://example.com/search")
 		t.Setenv(envSunbirdFieldDetails, `[{"id":"policyNumber","type":"text","format":""}]`)
-		if _, err := NewSunbirdAuthnProvider(); err == nil {
-			t.Fatal("expected error when no KBI field is configured")
-		}
-	})
-
-	t.Run("invalid field details json", func(t *testing.T) {
-		t.Setenv(envSunbirdSearchURL, "http://example.com/search")
-		t.Setenv(envSunbirdFieldDetails, `not-json`)
-		if _, err := NewSunbirdAuthnProvider(); err == nil {
-			t.Fatal("expected error for invalid field details JSON")
-		}
+		_, err := NewSunbirdAuthnProvider()
+		require.Error(t, err)
 	})
 
 	t.Run("success", func(t *testing.T) {
 		t.Setenv(envSunbirdSearchURL, "http://example.com/search")
 		t.Setenv(envSunbirdFieldDetails, defaultSunbirdFieldDetails)
 		t.Setenv(envSunbirdTimeout, "0")
-		p, err := NewSunbirdAuthnProvider()
-		if err != nil {
-			t.Fatalf("NewSunbirdAuthnProvider: %v", err)
-		}
-		if p == nil {
-			t.Fatal("expected non-nil provider")
-		}
+		provider, err := NewSunbirdAuthnProvider()
+		require.NoError(t, err)
+		require.NotNil(t, provider)
 	})
 }
 
-func (ts *AuthenticatorTestSuite) TestSendOTP() {
+func (ts *AuthenticatorTestSuite) TestAuthenticate() {
 	t := ts.T()
-	p := newTestProvider(t, testConfig("http://example.com", "http://example.com"))
-	result, svcErr := p.SendOTP(context.Background(), nil, nil)
-	if result != nil {
-		t.Errorf("expected nil result, got %+v", result)
-	}
-	if svcErr == nil {
-		t.Fatal("expected NotImplemented service error")
-	}
-}
 
-func (ts *AuthenticatorTestSuite) TestAuthenticateUser() {
-	t := ts.T()
 	t.Run("missing individual id", func(t *testing.T) {
-		p := newTestProvider(t, testConfig("http://example.com", "http://example.com"))
-		var authUser providers.AuthUser
-		_, claims, svcErr := p.AuthenticateUser(context.Background(),
-			map[string]interface{}{}, map[string]interface{}{}, nil, nil, authUser)
-		if svcErr == nil {
-			t.Fatal("expected invalid individual id error")
-		}
-		if claims != nil {
-			t.Errorf("expected nil claims, got %+v", claims)
-		}
+		p := newTestProvider("http://unused", "http://unused")
+		result, svcErr := p.Authenticate(context.Background(), map[string]interface{}{}, map[string]interface{}{}, nil)
+		require.Nil(t, result)
+		require.Same(t, shared.InvalidIndividualIDError, svcErr)
 	})
 
 	t.Run("empty individual id", func(t *testing.T) {
-		p := newTestProvider(t, testConfig("http://example.com", "http://example.com"))
-		var authUser providers.AuthUser
-		_, _, svcErr := p.AuthenticateUser(context.Background(),
-			map[string]interface{}{sunbirdIndividualIDKey: ""}, map[string]interface{}{}, nil, nil, authUser)
-		if svcErr == nil {
-			t.Fatal("expected invalid individual id error")
-		}
+		p := newTestProvider("http://unused", "http://unused")
+		identifiers := map[string]interface{}{sunbirdIndividualIDKey: ""}
+		result, svcErr := p.Authenticate(context.Background(), identifiers, map[string]interface{}{}, nil)
+		require.Nil(t, result)
+		require.Same(t, shared.InvalidIndividualIDError, svcErr)
 	})
 
-	t.Run("missing kbi field", func(t *testing.T) {
-		p := newTestProvider(t, testConfig("http://example.com", "http://example.com"))
-		var authUser providers.AuthUser
-		_, _, svcErr := p.AuthenticateUser(context.Background(),
-			map[string]interface{}{sunbirdIndividualIDKey: "pol-1"},
-			map[string]interface{}{"fullName": "Jane"}, // missing "dob"
-			nil, nil, authUser)
-		if svcErr == nil {
-			t.Fatal("expected invalid request error when a KBI field is missing")
-		}
+	t.Run("missing credential field", func(t *testing.T) {
+		p := newTestProvider("http://unused", "http://unused")
+		identifiers := map[string]interface{}{sunbirdIndividualIDKey: "POL123"}
+		credentials := map[string]interface{}{"fullName": "Jane Doe"}
+		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, nil)
+		require.Nil(t, result)
+		require.Same(t, shared.InvalidRequestError, svcErr)
 	})
 
-	t.Run("registry match success", func(t *testing.T) {
-		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			var req sunbirdSearchRequest
-			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-				t.Fatalf("decode request: %v", err)
-			}
-			if req.Filters["policyNumber"].Eq != "pol-1" {
-				t.Errorf("policyNumber filter = %q, want pol-1", req.Filters["policyNumber"].Eq)
-			}
+	t.Run("empty credential value", func(t *testing.T) {
+		p := newTestProvider("http://unused", "http://unused")
+		identifiers := map[string]interface{}{sunbirdIndividualIDKey: "POL123"}
+		credentials := map[string]interface{}{"fullName": "Jane Doe", "dob": ""}
+		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, nil)
+		require.Nil(t, result)
+		require.Same(t, shared.InvalidRequestError, svcErr)
+	})
+
+	t.Run("successful match", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			require.Equal(t, http.MethodPost, r.Method)
+			var body sunbirdSearchRequest
+			require.NoError(t, json.NewDecoder(r.Body).Decode(&body))
+			require.Equal(t, "POL123", body.Filters["policyNumber"].Eq)
+			require.Equal(t, "Jane Doe", body.Filters["fullName"].Eq)
+			w.Header().Set("Content-Type", "application/json")
 			_ = json.NewEncoder(w).Encode([]map[string]interface{}{
-				{"osid": "entity-123"},
+				{"osid": "entity-1"},
 			})
 		}))
-		defer srv.Close()
+		defer server.Close()
 
-		p := newTestProvider(t, testConfig(srv.URL, srv.URL))
-		var authUser providers.AuthUser
-		resultUser, _, svcErr := p.AuthenticateUser(context.Background(),
-			map[string]interface{}{sunbirdIndividualIDKey: "pol-1"},
-			map[string]interface{}{"fullName": "Jane", "dob": "01/01/1990"},
-			nil, nil, authUser)
-		if svcErr != nil {
-			t.Fatalf("unexpected service error: %v", svcErr)
-		}
-		if resultUser.EntityReferenceToken() != "entity-123" {
-			t.Errorf("entity reference token = %v, want entity-123", resultUser.EntityReferenceToken())
-		}
-		if resultUser.AttributeToken() != "entity-123" {
-			t.Errorf("attribute token = %v, want entity-123", resultUser.AttributeToken())
-		}
+		p := newTestProvider(server.URL, "http://unused")
+		identifiers := map[string]interface{}{sunbirdIndividualIDKey: "POL123"}
+		credentials := map[string]interface{}{"fullName": "Jane Doe", "dob": "01/01/1990"}
+		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, &providers.AuthnMetadata{})
+		require.Nil(t, svcErr)
+		require.NotNil(t, result)
+		require.Equal(t, "entity-1", result.EntityReferenceToken)
+		require.Equal(t, "entity-1", result.AttributeToken)
 	})
 
-	t.Run("registry no match maps to invalid request", func(t *testing.T) {
-		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+	t.Run("no match returns invalid request", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
 			_ = json.NewEncoder(w).Encode([]map[string]interface{}{})
 		}))
-		defer srv.Close()
+		defer server.Close()
 
-		p := newTestProvider(t, testConfig(srv.URL, srv.URL))
-		var authUser providers.AuthUser
-		_, _, svcErr := p.AuthenticateUser(context.Background(),
-			map[string]interface{}{sunbirdIndividualIDKey: "pol-1"},
-			map[string]interface{}{"fullName": "Jane", "dob": "01/01/1990"},
-			nil, nil, authUser)
-		if svcErr == nil {
-			t.Fatal("expected invalid request error on zero registry matches")
-		}
+		p := newTestProvider(server.URL, "http://unused")
+		identifiers := map[string]interface{}{sunbirdIndividualIDKey: "POL123"}
+		credentials := map[string]interface{}{"fullName": "Jane Doe", "dob": "01/01/1990"}
+		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, nil)
+		require.Nil(t, result)
+		require.Same(t, shared.InvalidRequestError, svcErr)
 	})
 
-	t.Run("registry transport error maps to authentication failed", func(t *testing.T) {
-		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+	t.Run("multiple matches returns invalid request", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode([]map[string]interface{}{
+				{"osid": "entity-1"}, {"osid": "entity-2"},
+			})
+		}))
+		defer server.Close()
+
+		p := newTestProvider(server.URL, "http://unused")
+		identifiers := map[string]interface{}{sunbirdIndividualIDKey: "POL123"}
+		credentials := map[string]interface{}{"fullName": "Jane Doe", "dob": "01/01/1990"}
+		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, nil)
+		require.Nil(t, result)
+		require.Same(t, shared.InvalidRequestError, svcErr)
+	})
+
+	t.Run("registry error returns authentication failed", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 		}))
-		defer srv.Close()
+		defer server.Close()
 
-		p := newTestProvider(t, testConfig(srv.URL, srv.URL))
-		var authUser providers.AuthUser
-		_, _, svcErr := p.AuthenticateUser(context.Background(),
-			map[string]interface{}{sunbirdIndividualIDKey: "pol-1"},
-			map[string]interface{}{"fullName": "Jane", "dob": "01/01/1990"},
-			nil, nil, authUser)
-		if svcErr == nil {
-			t.Fatal("expected authentication failed error on transport/server error")
-		}
+		p := newTestProvider(server.URL, "http://unused")
+		identifiers := map[string]interface{}{sunbirdIndividualIDKey: "POL123"}
+		credentials := map[string]interface{}{"fullName": "Jane Doe", "dob": "01/01/1990"}
+		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, nil)
+		require.Nil(t, result)
+		require.Same(t, shared.AuthenticationFailedError, svcErr)
+	})
+
+	t.Run("unreachable registry returns authentication failed", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}))
+		server.Close()
+
+		p := newTestProvider(server.URL, "http://unused")
+		identifiers := map[string]interface{}{sunbirdIndividualIDKey: "POL123"}
+		credentials := map[string]interface{}{"fullName": "Jane Doe", "dob": "01/01/1990"}
+		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, nil)
+		require.Nil(t, result)
+		require.Same(t, shared.AuthenticationFailedError, svcErr)
+	})
+
+	t.Run("entity id field missing in response", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode([]map[string]interface{}{{"other": "value"}})
+		}))
+		defer server.Close()
+
+		p := newTestProvider(server.URL, "http://unused")
+		identifiers := map[string]interface{}{sunbirdIndividualIDKey: "POL123"}
+		credentials := map[string]interface{}{"fullName": "Jane Doe", "dob": "01/01/1990"}
+		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, nil)
+		require.Nil(t, result)
+		require.Same(t, shared.AuthenticationFailedError, svcErr)
+	})
+
+	t.Run("entity id field not a string", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode([]map[string]interface{}{{"osid": 123}})
+		}))
+		defer server.Close()
+
+		p := newTestProvider(server.URL, "http://unused")
+		identifiers := map[string]interface{}{sunbirdIndividualIDKey: "POL123"}
+		credentials := map[string]interface{}{"fullName": "Jane Doe", "dob": "01/01/1990"}
+		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, nil)
+		require.Nil(t, result)
+		require.Same(t, shared.AuthenticationFailedError, svcErr)
+	})
+
+	t.Run("malformed json response", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte("not-json"))
+		}))
+		defer server.Close()
+
+		p := newTestProvider(server.URL, "http://unused")
+		identifiers := map[string]interface{}{sunbirdIndividualIDKey: "POL123"}
+		credentials := map[string]interface{}{"fullName": "Jane Doe", "dob": "01/01/1990"}
+		result, svcErr := p.Authenticate(context.Background(), identifiers, credentials, nil)
+		require.Nil(t, result)
+		require.Same(t, shared.AuthenticationFailedError, svcErr)
 	})
 }
 
-func (ts *AuthenticatorTestSuite) TestGetUserAttributes() {
+func (ts *AuthenticatorTestSuite) TestGetAttributes() {
 	t := ts.T()
-	t.Run("success", func(t *testing.T) {
-		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if r.URL.Path != "/entity-123" {
-				t.Errorf("path = %q, want /entity-123", r.URL.Path)
-			}
+
+	t.Run("nil consented attributes", func(t *testing.T) {
+		p := newTestProvider("http://unused", "http://unused")
+		attrs, svcErr := p.GetAttributes(context.Background(), "entity-1", nil, nil)
+		require.Nil(t, attrs)
+		require.Same(t, shared.InvalidRequestError, svcErr)
+	})
+
+	t.Run("entity fetch error", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusNotFound)
+		}))
+		defer server.Close()
+
+		p := newTestProvider("http://unused", server.URL)
+		attrs, svcErr := p.GetAttributes(context.Background(), "entity-1", &providers.RequestedAttributes{}, nil)
+		require.Nil(t, attrs)
+		require.Same(t, shared.InvalidRequestError, svcErr)
+	})
+
+	t.Run("success maps claims", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			require.Equal(t, http.MethodGet, r.Method)
+			require.Equal(t, "/entity-1", r.URL.Path)
+			w.Header().Set("Content-Type", "application/json")
 			_ = json.NewEncoder(w).Encode(map[string]interface{}{
 				"fullName": "Jane Doe",
 				"email":    "jane@example.com",
+				"mobile":   "9999999999",
+				"gender":   "female",
+				"dob":      "01/01/1990",
+				"unused":   "should not be mapped",
 			})
 		}))
-		defer srv.Close()
+		defer server.Close()
 
-		cfg := testConfig(srv.URL, srv.URL)
-		cfg.ClaimsMapping = `{"name":"fullName","email":"email"}`
-		p := newTestProvider(t, cfg)
-
-		var authUser providers.AuthUser
-		authUser.SetEntityReferenceToken("entity-123")
-
-		_, attrs, svcErr := p.GetUserAttributes(context.Background(), testRequestedAttributes("name", "email"), nil, authUser)
-		if svcErr != nil {
-			t.Fatalf("unexpected service error: %v", svcErr)
-		}
-		if attrs.Attributes["name"].Value != "Jane Doe" {
-			t.Errorf("name claim = %v, want Jane Doe", attrs.Attributes["name"].Value)
-		}
-		if attrs.Attributes["email"].Value != "jane@example.com" {
-			t.Errorf("email claim = %v, want jane@example.com", attrs.Attributes["email"].Value)
-		}
+		p := newTestProvider("http://unused", server.URL)
+		attrs, svcErr := p.GetAttributes(context.Background(), "entity-1", &providers.RequestedAttributes{}, &providers.GetAttributesMetadata{})
+		require.Nil(t, svcErr)
+		require.NotNil(t, attrs)
+		require.Equal(t, "Jane Doe", attrs.Attributes["name"].Value)
+		require.Equal(t, "jane@example.com", attrs.Attributes["email"].Value)
+		require.Equal(t, "9999999999", attrs.Attributes["phone_number"].Value)
+		require.Equal(t, "female", attrs.Attributes["gender"].Value)
+		require.Equal(t, "01/01/1990", attrs.Attributes["birthdate"].Value)
+		_, ok := attrs.Attributes["unused"]
+		require.False(t, ok)
 	})
 
-	t.Run("fetch failure", func(t *testing.T) {
-		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-			w.WriteHeader(http.StatusNotFound)
+	t.Run("empty claims mapping yields no claims", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{"fullName": "Jane Doe"})
 		}))
-		defer srv.Close()
+		defer server.Close()
 
-		p := newTestProvider(t, testConfig(srv.URL, srv.URL))
-		var authUser providers.AuthUser
-		authUser.SetEntityReferenceToken("entity-123")
+		p := newTestProvider("http://unused", server.URL)
+		p.cfg.ClaimsMapping = ""
+		attrs, svcErr := p.GetAttributes(context.Background(), "entity-1", &providers.RequestedAttributes{}, nil)
+		require.Nil(t, svcErr)
+		require.Empty(t, attrs.Attributes)
+	})
 
-		_, _, svcErr := p.GetUserAttributes(context.Background(), testRequestedAttributes("name"), nil, authUser)
-		if svcErr == nil {
-			t.Fatal("expected invalid request error on entity fetch failure")
-		}
+	t.Run("malformed claims mapping yields no claims", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{"fullName": "Jane Doe"})
+		}))
+		defer server.Close()
+
+		p := newTestProvider("http://unused", server.URL)
+		p.cfg.ClaimsMapping = "not-json"
+		attrs, svcErr := p.GetAttributes(context.Background(), "entity-1", &providers.RequestedAttributes{}, nil)
+		require.Nil(t, svcErr)
+		require.Empty(t, attrs.Attributes)
 	})
 }
 
 func (ts *AuthenticatorTestSuite) TestGetEntityReference() {
 	t := ts.T()
-	p := newTestProvider(t, testConfig("http://example.com", "http://example.com"))
+	p := newTestProvider("http://unused", "http://unused")
 
-	t.Run("missing entity reference token", func(t *testing.T) {
-		var authUser providers.AuthUser
-		_, ref, svcErr := p.GetEntityReference(context.Background(), authUser)
-		if svcErr == nil {
-			t.Fatal("expected authentication failed error")
-		}
-		if ref != nil {
-			t.Errorf("expected nil entity reference, got %+v", ref)
-		}
+	t.Run("valid token", func(t *testing.T) {
+		ref, svcErr := p.GetEntityReference(context.Background(), "entity-1")
+		require.Nil(t, svcErr)
+		require.Equal(t, "entity-1", ref.EntityID)
 	})
 
-	t.Run("success", func(t *testing.T) {
-		var authUser providers.AuthUser
-		authUser.SetEntityReferenceToken("entity-123")
-		_, ref, svcErr := p.GetEntityReference(context.Background(), authUser)
-		if svcErr != nil {
-			t.Fatalf("unexpected service error: %v", svcErr)
-		}
-		if ref.EntityID != "entity-123" {
-			t.Errorf("entityID = %q, want entity-123", ref.EntityID)
-		}
+	t.Run("empty token", func(t *testing.T) {
+		ref, svcErr := p.GetEntityReference(context.Background(), "")
+		require.Nil(t, ref)
+		require.Same(t, shared.AuthenticationFailedError, svcErr)
+	})
+
+	t.Run("non string token", func(t *testing.T) {
+		ref, svcErr := p.GetEntityReference(context.Background(), 42)
+		require.Nil(t, ref)
+		require.Same(t, shared.AuthenticationFailedError, svcErr)
 	})
 }
 
-func (ts *AuthenticatorTestSuite) TestGetUserAvailableAttributes() {
+func (ts *AuthenticatorTestSuite) TestNoOpMethods() {
 	t := ts.T()
-	p := newTestProvider(t, testConfig("http://example.com", "http://example.com"))
-	var authUser providers.AuthUser
-	attrs, svcErr := p.GetUserAvailableAttributes(context.Background(), authUser)
-	if svcErr != nil {
-		t.Fatalf("unexpected service error: %v", svcErr)
-	}
-	if attrs == nil {
-		t.Fatal("expected non-nil attributes response")
-	}
+	p := newTestProvider("http://unused", "http://unused")
+
+	result, svcErr := p.InitiateAuthentication(context.Background(), "individual-1", nil, nil)
+	require.Nil(t, result)
+	require.Nil(t, svcErr)
+
+	result, svcErr = p.InitiateEnrollment(context.Background(), "individual-1", nil, nil)
+	require.Nil(t, result)
+	require.Nil(t, svcErr)
+
+	authnResult, svcErr := p.Enroll(context.Background(), nil, nil, nil)
+	require.Nil(t, authnResult)
+	require.Nil(t, svcErr)
+
+	otpResult, svcErr := p.SendOTP(context.Background(), nil, nil)
+	require.Nil(t, otpResult)
+	require.Same(t, shared.NotImplementedError, svcErr)
+}
+
+func (ts *AuthenticatorTestSuite) TestValidateKBIRequestBuildError() {
+	t := ts.T()
+	p := newTestProvider("http://example.com/%zz", "http://unused")
+	_, err := p.validateKBI(context.Background(), "POL123", map[string]string{"fullName": "Jane"})
+	require.Error(t, err)
+}
+
+func (ts *AuthenticatorTestSuite) TestFetchEntityDataRequestBuildError() {
+	t := ts.T()
+	p := newTestProvider("http://unused", "http://example.com")
+	_, err := p.fetchEntityData(context.Background(), "%zz")
+	require.Error(t, err)
+}
+
+func (ts *AuthenticatorTestSuite) TestFetchEntityDataStatusError() {
+	t := ts.T()
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	defer server.Close()
+
+	p := newTestProvider("http://unused", server.URL)
+	_, err := p.fetchEntityData(context.Background(), "entity-1")
+	require.Error(t, err)
+}
+
+func (ts *AuthenticatorTestSuite) TestFetchEntityDataDecodeError() {
+	t := ts.T()
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = w.Write([]byte("not-json"))
+	}))
+	defer server.Close()
+
+	p := newTestProvider("http://unused", server.URL)
+	_, err := p.fetchEntityData(context.Background(), "entity-1")
+	require.Error(t, err)
 }
 
 func (ts *AuthenticatorTestSuite) TestParseSunbirdFieldDetails() {
 	t := ts.T()
-	if _, err := parseSunbirdFieldDetails(""); err == nil {
-		t.Error("expected error for empty field details")
-	}
-	if _, err := parseSunbirdFieldDetails("not-json"); err == nil {
-		t.Error("expected error for invalid JSON")
-	}
-	fields, err := parseSunbirdFieldDetails(defaultSunbirdFieldDetails)
-	if err != nil {
-		t.Fatalf("parseSunbirdFieldDetails: %v", err)
-	}
-	if len(fields) != 3 {
-		t.Errorf("len(fields) = %d, want 3", len(fields))
-	}
+
+	t.Run("empty string", func(t *testing.T) {
+		_, err := parseSunbirdFieldDetails("")
+		require.Error(t, err)
+	})
+
+	t.Run("invalid json", func(t *testing.T) {
+		_, err := parseSunbirdFieldDetails("not-json")
+		require.Error(t, err)
+	})
+
+	t.Run("valid", func(t *testing.T) {
+		fields, err := parseSunbirdFieldDetails(defaultSunbirdFieldDetails)
+		require.NoError(t, err)
+		require.Len(t, fields, 3)
+		require.Equal(t, "policyNumber", fields[0].ID)
+	})
+}
+
+func (ts *AuthenticatorTestSuite) TestParseSunbirdClaimsMapping() {
+	t := ts.T()
+
+	t.Run("invalid json", func(t *testing.T) {
+		_, err := parseSunbirdClaimsMapping("not-json")
+		require.Error(t, err)
+	})
+
+	t.Run("valid", func(t *testing.T) {
+		mapping, err := parseSunbirdClaimsMapping(`{"name":"fullName"}`)
+		require.NoError(t, err)
+		require.Equal(t, "fullName", mapping["name"])
+	})
 }
 
 func (ts *AuthenticatorTestSuite) TestBuildSunbirdMappedClaims() {
 	t := ts.T()
-	entityData := map[string]interface{}{
-		"fullName": "Jane Doe",
-		"mobile":   "1234567890",
-	}
 
-	t.Run("empty mapping yields no claims", func(t *testing.T) {
-		claims := buildSunbirdMappedClaims(entityData, "")
-		if len(claims) != 0 {
-			t.Errorf("expected no claims, got %+v", claims)
-		}
+	t.Run("empty mapping json", func(t *testing.T) {
+		claims := buildSunbirdMappedClaims(map[string]interface{}{"fullName": "Jane"}, "")
+		require.Empty(t, claims)
 	})
 
-	t.Run("invalid mapping fails closed", func(t *testing.T) {
-		claims := buildSunbirdMappedClaims(entityData, "not-json")
-		if len(claims) != 0 {
-			t.Errorf("expected no claims on invalid mapping, got %+v", claims)
-		}
+	t.Run("malformed mapping json", func(t *testing.T) {
+		claims := buildSunbirdMappedClaims(map[string]interface{}{"fullName": "Jane"}, "not-json")
+		require.Empty(t, claims)
 	})
 
-	t.Run("maps configured fields only", func(t *testing.T) {
-		claims := buildSunbirdMappedClaims(entityData, `{"name":"fullName","phone_number":"mobile","gender":"missingField"}`)
-		if claims["name"] != "Jane Doe" {
-			t.Errorf("name = %v, want Jane Doe", claims["name"])
-		}
-		if claims["phone_number"] != "1234567890" {
-			t.Errorf("phone_number = %v, want 1234567890", claims["phone_number"])
-		}
-		if _, ok := claims["gender"]; ok {
-			t.Errorf("gender should not be present when source field is missing")
-		}
+	t.Run("missing registry field is skipped", func(t *testing.T) {
+		claims := buildSunbirdMappedClaims(map[string]interface{}{}, `{"name":"fullName"}`)
+		require.Empty(t, claims)
+	})
+
+	t.Run("mapped field present", func(t *testing.T) {
+		claims := buildSunbirdMappedClaims(map[string]interface{}{"fullName": "Jane"}, `{"name":"fullName"}`)
+		require.Equal(t, "Jane", claims["name"])
 	})
 }
 

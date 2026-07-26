@@ -4,568 +4,531 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package clientmgmt_test
+package clientmgmt
 
 import (
 	"context"
 	"database/sql"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
-
-	"github.com/mosip/esignet/internal/clientmgmt"
 	"github.com/mosip/esignet/internal/clientmgmt/db"
+	"github.com/mosip/esignet/internal/engine/runtimestores/inmemory"
 )
 
-type mockQuerier struct {
-	createFn func(context.Context, db.CreateClientParams) (db.ClientDetail, error)
-	getFn    func(context.Context, string) (db.ClientDetail, error)
-	updateFn func(context.Context, db.UpdateClientParams) (db.ClientDetail, error)
-	patchFn  func(context.Context, db.PatchClientParams) (db.ClientDetail, error)
+// fakeQuerier is an in-memory db.Querier stand-in that lets tests script each
+// method's response and capture the params passed to write methods.
+type fakeQuerier struct {
+	createRow    db.ClientDetail
+	createErr    error
+	createParams db.CreateClientParams
+
+	getRow db.ClientDetail
+	getErr error
+
+	updateRow    db.ClientDetail
+	updateErr    error
+	updateParams db.UpdateClientParams
+
+	patchRow    db.ClientDetail
+	patchErr    error
+	patchParams db.PatchClientParams
 }
 
-func (m *mockQuerier) CreateClient(ctx context.Context, arg db.CreateClientParams) (db.ClientDetail, error) {
-	return m.createFn(ctx, arg)
-}
-func (m *mockQuerier) GetClient(ctx context.Context, id string) (db.ClientDetail, error) {
-	return m.getFn(ctx, id)
-}
-func (m *mockQuerier) UpdateClient(ctx context.Context, arg db.UpdateClientParams) (db.ClientDetail, error) {
-	return m.updateFn(ctx, arg)
-}
-func (m *mockQuerier) PatchClient(ctx context.Context, arg db.PatchClientParams) (db.ClientDetail, error) {
-	return m.patchFn(ctx, arg)
+var _ db.Querier = (*fakeQuerier)(nil)
+
+func (f *fakeQuerier) CreateClient(_ context.Context, arg db.CreateClientParams) (db.ClientDetail, error) {
+	f.createParams = arg
+	return f.createRow, f.createErr
 }
 
-// fakeRuntimeStore is an in-memory providers.RuntimeStoreProvider stand-in,
-// mirroring the one in internal/engine/consent_provider_test.go.
-type fakeRuntimeStore struct {
-	data map[string][]byte
-	err  error
+func (f *fakeQuerier) GetClient(_ context.Context, _ string) (db.ClientDetail, error) {
+	return f.getRow, f.getErr
 }
 
-func newFakeRuntimeStore() *fakeRuntimeStore {
-	return &fakeRuntimeStore{data: map[string][]byte{}}
+func (f *fakeQuerier) UpdateClient(_ context.Context, arg db.UpdateClientParams) (db.ClientDetail, error) {
+	f.updateParams = arg
+	return f.updateRow, f.updateErr
 }
 
-func (f *fakeRuntimeStore) key(ns providers.RuntimeStoreNamespace, key string) string {
-	return string(ns) + ":" + key
+func (f *fakeQuerier) PatchClient(_ context.Context, arg db.PatchClientParams) (db.ClientDetail, error) {
+	f.patchParams = arg
+	return f.patchRow, f.patchErr
 }
 
-func (f *fakeRuntimeStore) Put(_ context.Context, ns providers.RuntimeStoreNamespace, key string, value []byte, _ int64) error {
-	if f.err != nil {
-		return f.err
-	}
-	f.data[f.key(ns, key)] = value
-	return nil
+func b64(s string) string {
+	return base64.RawURLEncoding.EncodeToString([]byte(s))
 }
 
-func (f *fakeRuntimeStore) Get(_ context.Context, ns providers.RuntimeStoreNamespace, key string) ([]byte, error) {
-	if f.err != nil {
-		return nil, f.err
-	}
-	return f.data[f.key(ns, key)], nil
+func validJWK() map[string]string {
+	return map[string]string{"kty": "RSA", "n": b64("modulus-bytes"), "e": b64("AQAB")}
 }
 
-func (f *fakeRuntimeStore) Update(_ context.Context, ns providers.RuntimeStoreNamespace, key string, value []byte) error {
-	if f.err != nil {
-		return f.err
-	}
-	f.data[f.key(ns, key)] = value
-	return nil
-}
-
-func (f *fakeRuntimeStore) Delete(_ context.Context, ns providers.RuntimeStoreNamespace, key string) error {
-	if f.err != nil {
-		return f.err
-	}
-	delete(f.data, f.key(ns, key))
-	return nil
-}
-
-func (f *fakeRuntimeStore) Take(_ context.Context, ns providers.RuntimeStoreNamespace, key string) ([]byte, error) {
-	if f.err != nil {
-		return nil, f.err
-	}
-	v := f.data[f.key(ns, key)]
-	delete(f.data, f.key(ns, key))
-	return v, nil
-}
-
-func (f *fakeRuntimeStore) ExtendTTL(_ context.Context, _ providers.RuntimeStoreNamespace, _ string, _ int64) error {
-	return f.err
-}
-
-var _ providers.RuntimeStoreProvider = (*fakeRuntimeStore)(nil)
-
-func validRSAKey() map[string]string {
-	return map[string]string{
-		"kty": "RSA",
-		"n":   "abc",
-		"e":   "AQAB",
-	}
-}
-
-func validCreateReq() clientmgmt.CreateClientRequest {
-	return clientmgmt.CreateClientRequest{
-		ClientID:          "client-001",
-		ClientName:        "Test App",
-		ClientNameLangMap: map[string]string{"eng": "Test App"},
-		RpID:              "rp-001",
-		LogoURI:           "https://example.com/logo.png",
-		RedirectURIs:      []string{"https://example.com/callback"},
-		Claims:            []string{"name", "email"},
-		AcrValues:         []string{"mosip:idp:acr:static-code"},
-		PublicKey:         validRSAKey(),
-		GrantTypes:        []string{"authorization_code"},
-		AuthMethods:       []string{"private_key_jwt"},
-	}
-}
-
-func validOIDCCreateReq() clientmgmt.CreateClientRequest {
-	req := validCreateReq()
-	req.ClientNameLangMap = nil
-	return req
-}
-
-func stubRow(clientID string) db.ClientDetail {
+func existingClientRow() db.ClientDetail {
 	return db.ClientDetail{
-		ID:            clientID,
-		Name:          `{"@none":"Test App","eng":"Test App"}`,
-		RpID:          "rp-001",
+		ID:            "client-1",
+		Name:          `{"@none":"Test Client"}`,
+		RpID:          "rp-1",
 		LogoUri:       "https://example.com/logo.png",
 		RedirectUris:  `["https://example.com/callback"]`,
 		Claims:        `["name","email"]`,
 		AcrValues:     `["mosip:idp:acr:static-code"]`,
-		PublicKey:     `{"kty":"RSA","n":"abc","e":"AQAB"}`,
-		PublicKeyHash: "deadbeef",
+		PublicKey:     `{"kty":"RSA"}`,
+		PublicKeyHash: "hash-1",
 		GrantTypes:    `["authorization_code"]`,
 		AuthMethods:   `["private_key_jwt"]`,
 		Status:        "ACTIVE",
-		CrDtimes:      time.Now(),
+		CrDtimes:      time.Now().UTC(),
+		UpdDtimes:     sql.NullTime{Time: time.Now().UTC(), Valid: true},
 	}
 }
 
-func (ts *ServiceTestSuite) TestCreateClient_ClientProfile_Success() {
+func (ts *ServiceTestSuite) TestCreateClient() {
 	t := ts.T()
-	q := &mockQuerier{
-		createFn: func(_ context.Context, arg db.CreateClientParams) (db.ClientDetail, error) {
-			assert.Equal(t, "client-001", arg.ID)
-			assert.Equal(t, "ACTIVE", arg.Status)
-			assert.Contains(t, arg.Name, `"@none":"Test App"`)
-			assert.Contains(t, arg.Name, `"eng":"Test App"`)
-			return stubRow(arg.ID), nil
-		},
-	}
-	svc := clientmgmt.NewServiceWithQuerier(q, nil, 0)
 
-	resp, err := svc.CreateClient(context.Background(), clientmgmt.ProfileClient, validCreateReq())
-	require.NoError(t, err)
-	assert.Equal(t, "client-001", resp.ClientID)
-	assert.Equal(t, "ACTIVE", resp.Status)
-	assert.Equal(t, "Test App", resp.ClientName)
+	t.Run("validation error short circuits", func(t *testing.T) {
+		q := &fakeQuerier{}
+		s := NewServiceWithQuerier(q, nil, 0)
+		req := validCreateRequest()
+		req.ClientID = ""
+		_, err := s.CreateClient(context.Background(), ProfileOIDC, req)
+		require.Error(t, err)
+		var ve *ValidationError
+		require.ErrorAs(t, err, &ve)
+		require.Equal(t, "invalid_client_id", ve.Code)
+	})
+
+	t.Run("invalid enc public key", func(t *testing.T) {
+		q := &fakeQuerier{}
+		s := NewServiceWithQuerier(q, nil, 0)
+		req := validCreateRequest()
+		req.EncPublicKey = map[string]string{"kty": "bogus"}
+		_, err := s.CreateClient(context.Background(), ProfileOIDC, req)
+		require.Error(t, err)
+	})
+
+	t.Run("success", func(t *testing.T) {
+		q := &fakeQuerier{createRow: existingClientRow()}
+		s := NewServiceWithQuerier(q, nil, 0)
+		req := validCreateRequest()
+		resp, err := s.CreateClient(context.Background(), ProfileOIDC, req)
+		require.NoError(t, err)
+		require.Equal(t, "client-1", resp.ClientID)
+		require.Equal(t, "ACTIVE", resp.Status)
+		require.Equal(t, "client-1", q.createParams.ID)
+		require.Equal(t, "rp-1", q.createParams.RpID)
+		require.Equal(t, "ACTIVE", q.createParams.Status)
+	})
+
+	t.Run("duplicate client id", func(t *testing.T) {
+		q := &fakeQuerier{createErr: errors.New(`pq: duplicate key value violates unique constraint "pk_clntdtl_id" (SQLSTATE 23505)`)}
+		s := NewServiceWithQuerier(q, nil, 0)
+		_, err := s.CreateClient(context.Background(), ProfileOIDC, validCreateRequest())
+		require.ErrorIs(t, err, ErrDuplicateClientID)
+	})
+
+	t.Run("duplicate public key hash", func(t *testing.T) {
+		q := &fakeQuerier{createErr: errors.New(`pq: duplicate key value violates unique constraint "uk_clntdtl_public_key_hash"`)}
+		s := NewServiceWithQuerier(q, nil, 0)
+		_, err := s.CreateClient(context.Background(), ProfileOIDC, validCreateRequest())
+		var ve *ValidationError
+		require.ErrorAs(t, err, &ve)
+		require.Equal(t, "invalid_public_key", ve.Code)
+	})
+
+	t.Run("generic db error", func(t *testing.T) {
+		q := &fakeQuerier{createErr: errors.New("connection refused")}
+		s := NewServiceWithQuerier(q, nil, 0)
+		_, err := s.CreateClient(context.Background(), ProfileOIDC, validCreateRequest())
+		require.Error(t, err)
+		require.False(t, errors.Is(err, ErrDuplicateClientID))
+	})
 }
 
-func (ts *ServiceTestSuite) TestCreateClient_OIDCProfile_StoresPlainName() {
+func (ts *ServiceTestSuite) TestUpdateClient() {
 	t := ts.T()
-	q := &mockQuerier{
-		createFn: func(_ context.Context, arg db.CreateClientParams) (db.ClientDetail, error) {
-			assert.Equal(t, "Test App", arg.Name)
-			row := stubRow(arg.ID)
-			row.Name = arg.Name
-			return row, nil
-		},
-	}
-	svc := clientmgmt.NewServiceWithQuerier(q, nil, 0)
 
-	resp, err := svc.CreateClient(context.Background(), clientmgmt.ProfileOIDC, validOIDCCreateReq())
-	require.NoError(t, err)
-	assert.Equal(t, "Test App", resp.ClientName)
+	t.Run("validation error", func(t *testing.T) {
+		q := &fakeQuerier{}
+		s := NewServiceWithQuerier(q, nil, 0)
+		req := validUpdateRequest()
+		req.Status = "not-a-status"
+		_, err := s.UpdateClient(context.Background(), ProfileOIDC, "client-1", req)
+		require.Error(t, err)
+	})
+
+	t.Run("success normalizes status and invalidates cache", func(t *testing.T) {
+		cache := inmemory.Initialize("test")
+		row := existingClientRow()
+		data, err := json.Marshal(row)
+		require.NoError(t, err)
+		require.NoError(t, cache.Put(context.Background(), clientCacheNamespace, "client-1", data, 60))
+
+		q := &fakeQuerier{updateRow: row}
+		s := NewServiceWithQuerier(q, cache, 60)
+		resp, err := s.UpdateClient(context.Background(), ProfileOIDC, "client-1", validUpdateRequest())
+		require.NoError(t, err)
+		require.Equal(t, "client-1", resp.ClientID)
+		require.Equal(t, "ACTIVE", q.updateParams.Status)
+
+		cached, err := cache.Get(context.Background(), clientCacheNamespace, "client-1")
+		require.NoError(t, err)
+		require.Nil(t, cached)
+	})
+
+	t.Run("not found", func(t *testing.T) {
+		q := &fakeQuerier{updateErr: sql.ErrNoRows}
+		s := NewServiceWithQuerier(q, nil, 0)
+		_, err := s.UpdateClient(context.Background(), ProfileOIDC, "missing", validUpdateRequest())
+		require.ErrorIs(t, err, ErrClientNotFound)
+	})
+
+	t.Run("generic db error", func(t *testing.T) {
+		q := &fakeQuerier{updateErr: errors.New("boom")}
+		s := NewServiceWithQuerier(q, nil, 0)
+		_, err := s.UpdateClient(context.Background(), ProfileOIDC, "client-1", validUpdateRequest())
+		require.Error(t, err)
+		require.False(t, errors.Is(err, ErrClientNotFound))
+	})
 }
 
-func (ts *ServiceTestSuite) TestCreateClient_MissingLangMap_ClientProfile() {
+func (ts *ServiceTestSuite) TestPatchClient() {
 	t := ts.T()
-	svc := clientmgmt.NewServiceWithQuerier(&mockQuerier{}, nil, 0)
-	req := validCreateReq()
-	req.ClientNameLangMap = nil
-	_, err := svc.CreateClient(context.Background(), clientmgmt.ProfileClient, req)
-	var ve *clientmgmt.ValidationError
-	require.ErrorAs(t, err, &ve)
-	assert.Equal(t, "invalid_input", ve.Code)
+
+	t.Run("client not found", func(t *testing.T) {
+		q := &fakeQuerier{getErr: sql.ErrNoRows}
+		s := NewServiceWithQuerier(q, nil, 0)
+		_, err := s.PatchClient(context.Background(), "missing", PatchClientRequest{}, PatchFields{})
+		require.ErrorIs(t, err, ErrClientNotFound)
+	})
+
+	t.Run("get client generic error", func(t *testing.T) {
+		q := &fakeQuerier{getErr: errors.New("boom")}
+		s := NewServiceWithQuerier(q, nil, 0)
+		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
+		require.Error(t, err)
+		require.False(t, errors.Is(err, ErrClientNotFound))
+	})
+
+	t.Run("merge patch error on corrupt redirect uris", func(t *testing.T) {
+		row := existingClientRow()
+		row.RedirectUris = "not-json"
+		q := &fakeQuerier{getRow: row}
+		s := NewServiceWithQuerier(q, nil, 0)
+		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
+		require.Error(t, err)
+	})
+
+	t.Run("validation error on patched field", func(t *testing.T) {
+		q := &fakeQuerier{getRow: existingClientRow()}
+		s := NewServiceWithQuerier(q, nil, 0)
+		req := PatchClientRequest{LogoURI: "not-a-uri"}
+		fields := PatchFields{LogoURI: true}
+		_, err := s.PatchClient(context.Background(), "client-1", req, fields)
+		require.Error(t, err)
+		var ve *ValidationError
+		require.ErrorAs(t, err, &ve)
+		require.Equal(t, "invalid_uri", ve.Code)
+	})
+
+	t.Run("success with no field changes", func(t *testing.T) {
+		q := &fakeQuerier{getRow: existingClientRow(), patchRow: existingClientRow()}
+		s := NewServiceWithQuerier(q, nil, 0)
+		resp, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
+		require.NoError(t, err)
+		require.Equal(t, "client-1", resp.ClientID)
+		require.Equal(t, "ACTIVE", q.patchParams.Status)
+	})
+
+	t.Run("status field patched", func(t *testing.T) {
+		existing := existingClientRow()
+		patched := existingClientRow()
+		patched.Status = "INACTIVE"
+		q := &fakeQuerier{getRow: existing, patchRow: patched}
+		s := NewServiceWithQuerier(q, nil, 0)
+		req := PatchClientRequest{Status: "inactive"}
+		fields := PatchFields{Status: true}
+		resp, err := s.PatchClient(context.Background(), "client-1", req, fields)
+		require.NoError(t, err)
+		require.Equal(t, "INACTIVE", resp.Status)
+		require.Equal(t, "INACTIVE", q.patchParams.Status)
+	})
+
+	t.Run("invalid status value", func(t *testing.T) {
+		q := &fakeQuerier{getRow: existingClientRow()}
+		s := NewServiceWithQuerier(q, nil, 0)
+		req := PatchClientRequest{Status: "bogus"}
+		fields := PatchFields{Status: true}
+		_, err := s.PatchClient(context.Background(), "client-1", req, fields)
+		require.Error(t, err)
+	})
+
+	t.Run("enc public key cleared with null", func(t *testing.T) {
+		existing := existingClientRow()
+		existing.EncPublicKey = sql.NullString{String: `{"kty":"RSA"}`, Valid: true}
+		existing.EncPublicKeyHash = sql.NullString{String: "hash", Valid: true}
+		existing.EncPublicKeyCert = sql.NullString{String: "cert", Valid: true}
+		q := &fakeQuerier{getRow: existing, patchRow: existingClientRow()}
+		s := NewServiceWithQuerier(q, nil, 0)
+		req := PatchClientRequest{EncPublicKey: NullableJWK{Defined: true, IsNull: true}}
+		fields := PatchFields{EncPublicKey: true}
+		_, err := s.PatchClient(context.Background(), "client-1", req, fields)
+		require.NoError(t, err)
+		require.False(t, q.patchParams.EncPublicKey.Valid)
+		require.False(t, q.patchParams.EncPublicKeyHash.Valid)
+		require.False(t, q.patchParams.EncPublicKeyCert.Valid)
+	})
+
+	t.Run("enc public key updated with new value", func(t *testing.T) {
+		q := &fakeQuerier{getRow: existingClientRow(), patchRow: existingClientRow()}
+		s := NewServiceWithQuerier(q, nil, 0)
+		req := PatchClientRequest{EncPublicKey: NullableJWK{Defined: true, Value: validJWK()}}
+		fields := PatchFields{EncPublicKey: true}
+		_, err := s.PatchClient(context.Background(), "client-1", req, fields)
+		require.NoError(t, err)
+		require.True(t, q.patchParams.EncPublicKey.Valid)
+		require.True(t, q.patchParams.EncPublicKeyHash.Valid)
+	})
+
+	t.Run("enc public key invalid new value", func(t *testing.T) {
+		q := &fakeQuerier{getRow: existingClientRow()}
+		s := NewServiceWithQuerier(q, nil, 0)
+		req := PatchClientRequest{EncPublicKey: NullableJWK{Defined: true, Value: map[string]string{"kty": "bogus"}}}
+		fields := PatchFields{EncPublicKey: true}
+		_, err := s.PatchClient(context.Background(), "client-1", req, fields)
+		require.Error(t, err)
+	})
+
+	t.Run("patch conflict", func(t *testing.T) {
+		q := &fakeQuerier{getRow: existingClientRow(), patchErr: sql.ErrNoRows}
+		s := NewServiceWithQuerier(q, nil, 0)
+		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
+		require.ErrorIs(t, err, ErrClientConflict)
+	})
+
+	t.Run("duplicate public key hash on patch", func(t *testing.T) {
+		q := &fakeQuerier{getRow: existingClientRow(), patchErr: errors.New(`duplicate key value violates unique constraint "uk_clntdtl_public_key_hash"`)}
+		s := NewServiceWithQuerier(q, nil, 0)
+		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
+		var ve *ValidationError
+		require.ErrorAs(t, err, &ve)
+		require.Equal(t, "invalid_public_key", ve.Code)
+	})
+
+	t.Run("generic patch db error", func(t *testing.T) {
+		q := &fakeQuerier{getRow: existingClientRow(), patchErr: errors.New("boom")}
+		s := NewServiceWithQuerier(q, nil, 0)
+		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
+		require.Error(t, err)
+		require.False(t, errors.Is(err, ErrClientConflict))
+	})
+
+	t.Run("invalidates cache on success", func(t *testing.T) {
+		cache := inmemory.Initialize("test")
+		row := existingClientRow()
+		data, err := json.Marshal(row)
+		require.NoError(t, err)
+		require.NoError(t, cache.Put(context.Background(), clientCacheNamespace, "client-1", data, 60))
+
+		q := &fakeQuerier{getRow: row, patchRow: row}
+		s := NewServiceWithQuerier(q, cache, 60)
+		_, err = s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
+		require.NoError(t, err)
+
+		cached, err := cache.Get(context.Background(), clientCacheNamespace, "client-1")
+		require.NoError(t, err)
+		require.Nil(t, cached)
+	})
 }
 
-func (ts *ServiceTestSuite) TestCreateClient_InvalidClaim() {
+func (ts *ServiceTestSuite) TestGetClient() {
 	t := ts.T()
-	svc := clientmgmt.NewServiceWithQuerier(&mockQuerier{}, nil, 0)
-	req := validCreateReq()
-	req.Claims = []string{"not-a-claim"}
-	_, err := svc.CreateClient(context.Background(), clientmgmt.ProfileClient, req)
-	var ve *clientmgmt.ValidationError
-	require.ErrorAs(t, err, &ve)
-	assert.Equal(t, "invalid_claim", ve.Code)
+
+	t.Run("no cache configured queries db", func(t *testing.T) {
+		q := &fakeQuerier{getRow: existingClientRow()}
+		s := NewServiceWithQuerier(q, nil, 0)
+		resp, err := s.GetClient(context.Background(), "client-1")
+		require.NoError(t, err)
+		require.Equal(t, "client-1", resp.ClientID)
+	})
+
+	t.Run("not found", func(t *testing.T) {
+		q := &fakeQuerier{getErr: sql.ErrNoRows}
+		s := NewServiceWithQuerier(q, nil, 0)
+		_, err := s.GetClient(context.Background(), "missing")
+		require.ErrorIs(t, err, ErrClientNotFound)
+	})
+
+	t.Run("generic db error", func(t *testing.T) {
+		q := &fakeQuerier{getErr: errors.New("boom")}
+		s := NewServiceWithQuerier(q, nil, 0)
+		_, err := s.GetClient(context.Background(), "client-1")
+		require.Error(t, err)
+		require.False(t, errors.Is(err, ErrClientNotFound))
+	})
+
+	t.Run("cache hit avoids db call", func(t *testing.T) {
+		cache := inmemory.Initialize("test")
+		row := existingClientRow()
+		row.ID = "cached-client"
+		data, err := json.Marshal(row)
+		require.NoError(t, err)
+		require.NoError(t, cache.Put(context.Background(), clientCacheNamespace, "cached-client", data, 60))
+
+		q := &fakeQuerier{getErr: errors.New("db should not be called")}
+		s := NewServiceWithQuerier(q, cache, 60)
+		resp, err := s.GetClient(context.Background(), "cached-client")
+		require.NoError(t, err)
+		require.Equal(t, "cached-client", resp.ClientID)
+	})
+
+	t.Run("cache miss populates cache", func(t *testing.T) {
+		cache := inmemory.Initialize("test")
+		q := &fakeQuerier{getRow: existingClientRow()}
+		s := NewServiceWithQuerier(q, cache, 60)
+		resp, err := s.GetClient(context.Background(), "client-1")
+		require.NoError(t, err)
+		require.Equal(t, "client-1", resp.ClientID)
+
+		cached, err := cache.Get(context.Background(), clientCacheNamespace, "client-1")
+		require.NoError(t, err)
+		require.NotNil(t, cached)
+	})
+
+	t.Run("corrupt cache entry falls back to db", func(t *testing.T) {
+		cache := inmemory.Initialize("test")
+		require.NoError(t, cache.Put(context.Background(), clientCacheNamespace, "client-1", []byte("not-json"), 60))
+
+		q := &fakeQuerier{getRow: existingClientRow()}
+		s := NewServiceWithQuerier(q, cache, 60)
+		resp, err := s.GetClient(context.Background(), "client-1")
+		require.NoError(t, err)
+		require.Equal(t, "client-1", resp.ClientID)
+	})
 }
 
-func (ts *ServiceTestSuite) TestCreateClient_DuplicateClientID() {
+func (ts *ServiceTestSuite) TestMarshalUnmarshalHelpers() {
 	t := ts.T()
-	q := &mockQuerier{
-		createFn: func(_ context.Context, _ db.CreateClientParams) (db.ClientDetail, error) {
-			return db.ClientDetail{}, fmt.Errorf(`ERROR: duplicate key value violates unique constraint "pk_clntdtl_id" (SQLSTATE 23505)`)
-		},
-	}
-	svc := clientmgmt.NewServiceWithQuerier(q, nil, 0)
-	_, err := svc.CreateClient(context.Background(), clientmgmt.ProfileClient, validCreateReq())
-	assert.ErrorIs(t, err, clientmgmt.ErrDuplicateClientID)
+
+	t.Run("marshalStringSlice empty", func(t *testing.T) {
+		s, err := marshalStringSlice(nil)
+		require.NoError(t, err)
+		require.Equal(t, "[]", s)
+	})
+
+	t.Run("unmarshalStringSlice invalid json", func(t *testing.T) {
+		_, err := unmarshalStringSlice("not-json")
+		require.Error(t, err)
+	})
+
+	t.Run("marshalAdditionalConfigRaw empty", func(t *testing.T) {
+		v, err := marshalAdditionalConfigRaw(nil)
+		require.NoError(t, err)
+		require.False(t, v.Valid)
+	})
+
+	t.Run("unmarshalAdditionalConfig invalid", func(t *testing.T) {
+		_, err := unmarshalAdditionalConfig(sql.NullString{String: "not-json", Valid: true})
+		require.Error(t, err)
+	})
+
+	t.Run("unmarshalAdditionalConfig empty", func(t *testing.T) {
+		v, err := unmarshalAdditionalConfig(sql.NullString{})
+		require.NoError(t, err)
+		require.Nil(t, v)
+	})
+
+	t.Run("marshalClientName oidc profile ignores lang map", func(t *testing.T) {
+		name := marshalClientName("App", map[string]string{"eng": "App"}, ProfileOIDC)
+		require.Equal(t, "App", name)
+	})
+
+	t.Run("marshalClientName non-oidc embeds none key", func(t *testing.T) {
+		name := marshalClientName("App", map[string]string{"eng": "AppEng"}, ProfileClient)
+		var decoded map[string]string
+		require.NoError(t, json.Unmarshal([]byte(name), &decoded))
+		require.Equal(t, "App", decoded["@none"])
+		require.Equal(t, "AppEng", decoded["eng"])
+	})
+
+	t.Run("parseClientName non-json falls back to raw name", func(t *testing.T) {
+		name, langMap, err := parseClientName("Plain Name")
+		require.NoError(t, err)
+		require.Equal(t, "Plain Name", name)
+		require.Nil(t, langMap)
+	})
+
+	t.Run("parseClientName json strips none key", func(t *testing.T) {
+		name, langMap, err := parseClientName(`{"@none":"App","eng":"AppEng"}`)
+		require.NoError(t, err)
+		require.Equal(t, "App", name)
+		require.Equal(t, map[string]string{"eng": "AppEng"}, langMap)
+	})
+
+	t.Run("isDuplicateClientID matches constraint variants", func(t *testing.T) {
+		require.True(t, isDuplicateClientID(errors.New(`SQLSTATE 23505 pk_clntdtl_id`)))
+		require.True(t, isDuplicateClientID(errors.New(`SQLSTATE 23505 client_detail_pkey`)))
+		require.False(t, isDuplicateClientID(errors.New("some other error")))
+	})
+
+	t.Run("isDuplicatePublicKeyHash", func(t *testing.T) {
+		require.True(t, isDuplicatePublicKeyHash(errors.New("uk_clntdtl_public_key_hash violation")))
+		require.False(t, isDuplicatePublicKeyHash(errors.New("some other error")))
+	})
+
+	t.Run("encKeyColumns empty key", func(t *testing.T) {
+		pk, hash, cert, err := encKeyColumns(nil, "")
+		require.NoError(t, err)
+		require.False(t, pk.Valid)
+		require.False(t, hash.Valid)
+		require.False(t, cert.Valid)
+	})
+
+	t.Run("encKeyColumns with cert", func(t *testing.T) {
+		pk, hash, cert, err := encKeyColumns(validJWK(), "cert-data")
+		require.NoError(t, err)
+		require.True(t, pk.Valid)
+		require.True(t, hash.Valid)
+		require.True(t, cert.Valid)
+		require.Equal(t, "cert-data", cert.String)
+	})
+
+	t.Run("encKeyColumns invalid key", func(t *testing.T) {
+		_, _, _, err := encKeyColumns(map[string]string{"kty": "bogus"}, "")
+		require.Error(t, err)
+	})
 }
 
-func (ts *ServiceTestSuite) TestCreateClient_DuplicatePublicKeyHash() {
+func (ts *ServiceTestSuite) TestToResponse() {
 	t := ts.T()
-	q := &mockQuerier{
-		createFn: func(_ context.Context, _ db.CreateClientParams) (db.ClientDetail, error) {
-			return db.ClientDetail{}, fmt.Errorf(`ERROR: duplicate key value violates unique constraint "uk_clntdtl_public_key_hash" (SQLSTATE 23505)`)
-		},
-	}
-	svc := clientmgmt.NewServiceWithQuerier(q, nil, 0)
-	_, err := svc.CreateClient(context.Background(), clientmgmt.ProfileClient, validCreateReq())
-	var ve *clientmgmt.ValidationError
-	require.ErrorAs(t, err, &ve)
-	assert.Equal(t, "invalid_public_key", ve.Code)
+
+	t.Run("propagates unmarshal error", func(t *testing.T) {
+		row := existingClientRow()
+		row.Claims = "not-json"
+		_, err := toResponse(row)
+		require.Error(t, err)
+	})
+
+	t.Run("maps enc public key when present", func(t *testing.T) {
+		row := existingClientRow()
+		row.EncPublicKey = sql.NullString{String: `{"kty":"RSA"}`, Valid: true}
+		resp, err := toResponse(row)
+		require.NoError(t, err)
+		require.Equal(t, `{"kty":"RSA"}`, resp.EncPublicKey)
+	})
 }
 
-func (ts *ServiceTestSuite) TestCreateClient_AdditionalConfigRoundTrip() {
+func (ts *ServiceTestSuite) TestNewService() {
 	t := ts.T()
-	raw := json.RawMessage(`{"userinfo_response_type":"JWS","consent_expire_in_mins":30,"purpose":{"type":"verify","title":{"@none":"Title"}}}`)
-	q := &mockQuerier{
-		createFn: func(_ context.Context, arg db.CreateClientParams) (db.ClientDetail, error) {
-			assert.True(t, arg.AdditionalConfig.Valid)
-			assert.JSONEq(t, string(raw), arg.AdditionalConfig.String)
-			row := stubRow(arg.ID)
-			row.AdditionalConfig = arg.AdditionalConfig
-			return row, nil
-		},
-	}
-	svc := clientmgmt.NewServiceWithQuerier(q, nil, 0)
-	req := validCreateReq()
-	req.AdditionalConfig = raw
-	resp, err := svc.CreateClient(context.Background(), clientmgmt.ProfileClient, req)
-	require.NoError(t, err)
-	assert.Equal(t, "JWS", resp.AdditionalConfig["userinfo_response_type"])
-}
-
-func (ts *ServiceTestSuite) TestUpdateClient_NormalizesStatus() {
-	t := ts.T()
-	q := &mockQuerier{
-		updateFn: func(_ context.Context, arg db.UpdateClientParams) (db.ClientDetail, error) {
-			assert.Equal(t, "INACTIVE", arg.Status)
-			row := stubRow(arg.ID)
-			row.Status = arg.Status
-			return row, nil
-		},
-	}
-	svc := clientmgmt.NewServiceWithQuerier(q, nil, 0)
-	req := clientmgmt.UpdateClientRequest{
-		ClientName:        "Updated App",
-		ClientNameLangMap: map[string]string{"eng": "Updated App"},
-		Status:            "inactive",
-		LogoURI:           "https://example.com/logo.png",
-		RedirectURIs:      []string{"https://example.com/callback"},
-		Claims:            []string{"email"},
-		AcrValues:         []string{"mosip:idp:acr:static-code"},
-		GrantTypes:        []string{"authorization_code"},
-		AuthMethods:       []string{"private_key_jwt"},
-	}
-	resp, err := svc.UpdateClient(context.Background(), clientmgmt.ProfileClient, "client-001", req)
-	require.NoError(t, err)
-	assert.Equal(t, "INACTIVE", resp.Status)
-}
-
-func (ts *ServiceTestSuite) TestUpdateClient_NotFound() {
-	t := ts.T()
-	q := &mockQuerier{
-		updateFn: func(_ context.Context, _ db.UpdateClientParams) (db.ClientDetail, error) {
-			return db.ClientDetail{}, sql.ErrNoRows
-		},
-	}
-	svc := clientmgmt.NewServiceWithQuerier(q, nil, 0)
-	req := clientmgmt.UpdateClientRequest{
-		ClientName:        "X",
-		ClientNameLangMap: map[string]string{},
-		Status:            "active",
-		LogoURI:           "https://example.com/logo.png",
-		RedirectURIs:      []string{"https://example.com/callback"},
-		Claims:            []string{"email"},
-		AcrValues:         []string{"mosip:idp:acr:static-code"},
-		GrantTypes:        []string{"authorization_code"},
-		AuthMethods:       []string{"private_key_jwt"},
-	}
-	_, err := svc.UpdateClient(context.Background(), clientmgmt.ProfileClient, "no-such-client", req)
-	assert.ErrorIs(t, err, clientmgmt.ErrClientNotFound)
-}
-
-func (ts *ServiceTestSuite) TestPatchClient_EncPublicKey() {
-	t := ts.T()
-	encKey := map[string]string{"kty": "RSA", "n": "xyz", "e": "AQAB"}
-	q := &mockQuerier{
-		getFn: func(_ context.Context, _ string) (db.ClientDetail, error) {
-			return stubRow("client-001"), nil
-		},
-		patchFn: func(_ context.Context, arg db.PatchClientParams) (db.ClientDetail, error) {
-			assert.True(t, arg.EncPublicKey.Valid)
-			assert.Contains(t, arg.EncPublicKey.String, `"kty":"RSA"`)
-			assert.True(t, arg.EncPublicKeyHash.Valid)
-			assert.NotEmpty(t, arg.EncPublicKeyHash.String)
-			assert.False(t, arg.EncPublicKeyCert.Valid)
-			row := stubRow(arg.ID)
-			row.EncPublicKey = arg.EncPublicKey
-			return row, nil
-		},
-	}
-	svc := clientmgmt.NewServiceWithQuerier(q, nil, 0)
-	req := clientmgmt.PatchClientRequest{
-		EncPublicKey: clientmgmt.NullableJWK{Defined: true, Value: encKey},
-	}
-	fields := clientmgmt.PatchFields{EncPublicKey: true}
-	resp, err := svc.PatchClient(context.Background(), "client-001", req, fields)
-	require.NoError(t, err)
-	assert.Equal(t, "client-001", resp.ClientID)
-}
-
-func (ts *ServiceTestSuite) TestPatchClient_ClearEncPublicKey() {
-	t := ts.T()
-	q := &mockQuerier{
-		getFn: func(_ context.Context, _ string) (db.ClientDetail, error) {
-			row := stubRow("client-001")
-			row.EncPublicKey = sql.NullString{String: `{"kty":"RSA"}`, Valid: true}
-			return row, nil
-		},
-		patchFn: func(_ context.Context, arg db.PatchClientParams) (db.ClientDetail, error) {
-			assert.False(t, arg.EncPublicKey.Valid)
-			assert.False(t, arg.EncPublicKeyHash.Valid)
-			assert.False(t, arg.EncPublicKeyCert.Valid)
-			return stubRow(arg.ID), nil
-		},
-	}
-	svc := clientmgmt.NewServiceWithQuerier(q, nil, 0)
-	req := clientmgmt.PatchClientRequest{
-		EncPublicKey: clientmgmt.NullableJWK{Defined: true, IsNull: true},
-	}
-	fields := clientmgmt.PatchFields{EncPublicKey: true}
-	_, err := svc.PatchClient(context.Background(), "client-001", req, fields)
-	require.NoError(t, err)
-}
-
-func (ts *ServiceTestSuite) TestGetClient_Success() {
-	t := ts.T()
-	q := &mockQuerier{
-		getFn: func(_ context.Context, id string) (db.ClientDetail, error) {
-			return stubRow(id), nil
-		},
-	}
-	svc := clientmgmt.NewServiceWithQuerier(q, nil, 0)
-	resp, err := svc.GetClient(context.Background(), "client-001")
-	require.NoError(t, err)
-	assert.Equal(t, "client-001", resp.ClientID)
-	assert.Equal(t, []string{"https://example.com/callback"}, resp.RedirectURIs)
-}
-
-func (ts *ServiceTestSuite) TestGetClient_CachesOnMiss() {
-	t := ts.T()
-	cache := newFakeRuntimeStore()
-	q := &mockQuerier{
-		getFn: func(_ context.Context, id string) (db.ClientDetail, error) {
-			return stubRow(id), nil
-		},
-	}
-	svc := clientmgmt.NewServiceWithQuerier(q, cache, 60)
-	resp, err := svc.GetClient(context.Background(), "client-001")
-	require.NoError(t, err)
-	assert.Equal(t, "client-001", resp.ClientID)
-	assert.Len(t, cache.data, 1)
-}
-
-func (ts *ServiceTestSuite) TestGetClient_ServesFromCache() {
-	t := ts.T()
-	cache := newFakeRuntimeStore()
-	q := &mockQuerier{
-		getFn: func(_ context.Context, _ string) (db.ClientDetail, error) {
-			t.Fatal("db should not be queried on a cache hit")
-			return db.ClientDetail{}, nil
-		},
-	}
-	svc := clientmgmt.NewServiceWithQuerier(q, cache, 60)
-
-	row := stubRow("client-001")
-	data, err := json.Marshal(row)
-	require.NoError(t, err)
-	require.NoError(t, cache.Put(context.Background(), "client:detail", "client-001", data, 60))
-
-	resp, err := svc.GetClient(context.Background(), "client-001")
-	require.NoError(t, err)
-	assert.Equal(t, "client-001", resp.ClientID)
-}
-
-func (ts *ServiceTestSuite) TestGetClient_CacheErrorFallsBackToDB() {
-	t := ts.T()
-	cache := newFakeRuntimeStore()
-	cache.err = errors.New("cache unavailable")
-	q := &mockQuerier{
-		getFn: func(_ context.Context, id string) (db.ClientDetail, error) {
-			return stubRow(id), nil
-		},
-	}
-	svc := clientmgmt.NewServiceWithQuerier(q, cache, 60)
-	resp, err := svc.GetClient(context.Background(), "client-001")
-	require.NoError(t, err)
-	assert.Equal(t, "client-001", resp.ClientID)
-}
-
-func (ts *ServiceTestSuite) TestUpdateClient_InvalidatesCache() {
-	t := ts.T()
-	cache := newFakeRuntimeStore()
-	data, err := json.Marshal(stubRow("client-001"))
-	require.NoError(t, err)
-	require.NoError(t, cache.Put(context.Background(), "client:detail", "client-001", data, 60))
-
-	q := &mockQuerier{
-		updateFn: func(_ context.Context, arg db.UpdateClientParams) (db.ClientDetail, error) {
-			return stubRow(arg.ID), nil
-		},
-	}
-	svc := clientmgmt.NewServiceWithQuerier(q, cache, 60)
-	_, err = svc.UpdateClient(context.Background(), clientmgmt.ProfileClient, "client-001", validUpdateReq())
-	require.NoError(t, err)
-	assert.Empty(t, cache.data)
-}
-
-func (ts *ServiceTestSuite) TestPatchClient_InvalidatesCache() {
-	t := ts.T()
-	cache := newFakeRuntimeStore()
-	data, err := json.Marshal(stubRow("client-001"))
-	require.NoError(t, err)
-	require.NoError(t, cache.Put(context.Background(), "client:detail", "client-001", data, 60))
-
-	q := &mockQuerier{
-		getFn: func(_ context.Context, _ string) (db.ClientDetail, error) {
-			return stubRow("client-001"), nil
-		},
-		patchFn: func(_ context.Context, arg db.PatchClientParams) (db.ClientDetail, error) {
-			return stubRow(arg.ID), nil
-		},
-	}
-	svc := clientmgmt.NewServiceWithQuerier(q, cache, 60)
-	req := clientmgmt.PatchClientRequest{LogoURI: "https://example.com/new-logo.png"}
-	fields := clientmgmt.PatchFields{LogoURI: true}
-	_, err = svc.PatchClient(context.Background(), "client-001", req, fields)
-	require.NoError(t, err)
-	assert.Empty(t, cache.data)
-}
-
-func (ts *ServiceTestSuite) TestUpdateClient_InvalidateCacheFailure_PropagatesError() {
-	t := ts.T()
-	cache := newFakeRuntimeStore()
-	cache.err = errors.New("cache unavailable")
-
-	q := &mockQuerier{
-		updateFn: func(_ context.Context, arg db.UpdateClientParams) (db.ClientDetail, error) {
-			return stubRow(arg.ID), nil
-		},
-	}
-	svc := clientmgmt.NewServiceWithQuerier(q, cache, 60)
-	_, err := svc.UpdateClient(context.Background(), clientmgmt.ProfileClient, "client-001", validUpdateReq())
-	require.Error(t, err)
-}
-
-func (ts *ServiceTestSuite) TestPatchClient_InvalidateCacheFailure_PropagatesError() {
-	t := ts.T()
-	cache := newFakeRuntimeStore()
-	cache.err = errors.New("cache unavailable")
-
-	q := &mockQuerier{
-		getFn: func(_ context.Context, _ string) (db.ClientDetail, error) {
-			return stubRow("client-001"), nil
-		},
-		patchFn: func(_ context.Context, arg db.PatchClientParams) (db.ClientDetail, error) {
-			return stubRow(arg.ID), nil
-		},
-	}
-	svc := clientmgmt.NewServiceWithQuerier(q, cache, 60)
-	req := clientmgmt.PatchClientRequest{LogoURI: "https://example.com/new-logo.png"}
-	fields := clientmgmt.PatchFields{LogoURI: true}
-	_, err := svc.PatchClient(context.Background(), "client-001", req, fields)
-	require.Error(t, err)
-}
-
-func validUpdateReq() clientmgmt.UpdateClientRequest {
-	return clientmgmt.UpdateClientRequest{
-		ClientName:        "Test App",
-		ClientNameLangMap: map[string]string{"eng": "Test App"},
-		Status:            "ACTIVE",
-		LogoURI:           "https://example.com/logo.png",
-		RedirectURIs:      []string{"https://example.com/callback"},
-		Claims:            []string{"name", "email"},
-		AcrValues:         []string{"mosip:idp:acr:static-code"},
-		GrantTypes:        []string{"authorization_code"},
-		AuthMethods:       []string{"private_key_jwt"},
-	}
-}
-
-func (ts *ServiceTestSuite) TestValidatePatch_RejectsClearedRedirectURIs() {
-	t := ts.T()
-	merged := validUpdateReq()
-	merged.RedirectURIs = nil
-	fields := clientmgmt.PatchFields{RedirectURIs: true}
-	err := clientmgmt.ValidatePatch(clientmgmt.ProfileClient, merged, fields, clientmgmt.NullableJWK{})
-	var ve *clientmgmt.ValidationError
-	require.ErrorAs(t, err, &ve)
-	assert.Equal(t, "invalid_redirect_uri", ve.Code)
-}
-
-func (ts *ServiceTestSuite) TestValidatePatch_RejectsInvalidEncPublicKey() {
-	t := ts.T()
-	merged := validUpdateReq()
-	fields := clientmgmt.PatchFields{EncPublicKey: true}
-	encKey := clientmgmt.NullableJWK{Defined: true, Value: map[string]string{"kty": "RSA"}}
-	err := clientmgmt.ValidatePatch(clientmgmt.ProfileClient, merged, fields, encKey)
-	var ve *clientmgmt.ValidationError
-	require.ErrorAs(t, err, &ve)
-	assert.Equal(t, "invalid_public_key", ve.Code)
-}
-
-func (ts *ServiceTestSuite) TestValidateCreate_InvalidLanguageCode() {
-	t := ts.T()
-	req := validCreateReq()
-	req.ClientNameLangMap = map[string]string{"mhsdfsfd": "Name"}
-	err := clientmgmt.ValidateCreate(clientmgmt.ProfileClient, req)
-	var ve *clientmgmt.ValidationError
-	require.ErrorAs(t, err, &ve)
-	assert.Equal(t, "invalid_language_code", ve.Code)
-}
-
-func (ts *ServiceTestSuite) TestValidateAdditionalConfig_InvalidResponseType() {
-	t := ts.T()
-	req := validCreateReq()
-	req.AdditionalConfig = json.RawMessage(`{"userinfo_response_type":"swj"}`)
-	err := clientmgmt.ValidateCreate(clientmgmt.ProfileClient, req)
-	var ve *clientmgmt.ValidationError
-	require.ErrorAs(t, err, &ve)
-	assert.Equal(t, "invalid_additional_config", ve.Code)
-}
-
-func (ts *ServiceTestSuite) TestOAuthProfile_RejectsAdditionalConfig() {
-	t := ts.T()
-	req := validCreateReq()
-	req.AdditionalConfig = json.RawMessage(`{"userinfo_response_type":"JWS"}`)
-	err := clientmgmt.ValidateCreate(clientmgmt.ProfileOAuth, req)
-	var ve *clientmgmt.ValidationError
-	require.ErrorAs(t, err, &ve)
-	assert.Equal(t, "invalid_input", ve.Code)
+	require.NotPanics(t, func() {
+		_ = NewService(nil, nil, 0)
+	})
 }
 
 type ServiceTestSuite struct {

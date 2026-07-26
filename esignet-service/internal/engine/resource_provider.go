@@ -36,8 +36,8 @@ func (p *resourceProvider) ValidatePermissions(
 	return []string{}, nil
 }
 
-func (p *resourceProvider) FindResourceServersByPermissions(
-	_ context.Context, _ []string,
-) ([]providers.ResourceServer, *common.ServiceError) {
-	return []providers.ResourceServer{}, nil
+func (p *resourceProvider) GetResourceServer(
+	_ context.Context, _ string,
+) (*providers.ResourceServer, *common.ServiceError) {
+	return &providers.ResourceServer{}, nil
 }
