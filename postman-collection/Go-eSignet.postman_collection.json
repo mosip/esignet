@@ -1198,6 +1198,638 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "4 — Sunbird Registry",
+      "item": [
+        {
+          "name": "Create Policy (Identity)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Generate the identity (name / dob / policy number) once and reuse it across",
+                  "// Search Policy and the KBI authentication in the '5 — Sunbird KBI' folder.",
+                  "function pad(n){ return n < 10 ? '0' + n : '' + n; }",
+                  "const first = ['Alex','Maria','John','Priya','Liang','Omar','Sara','David'][Math.floor(Math.random()*8)];",
+                  "const last  = ['Smith','Kumar','Garcia','Chen','Khan','Mueller','Rossi','Lopez'][Math.floor(Math.random()*8)];",
+                  "const fullName = first + ' ' + last;",
+                  "const y = 1970 + Math.floor(Math.random()*35);",
+                  "const dob = y + '-' + pad(1 + Math.floor(Math.random()*12)) + '-' + pad(1 + Math.floor(Math.random()*28));",
+                  "let policyNumber = '';",
+                  "for (let i = 0; i < 9; i++) { policyNumber += Math.floor(Math.random()*10); }",
+                  "pm.environment.set('sunbird_full_name', fullName);",
+                  "pm.environment.set('sunbird_dob', dob);",
+                  "pm.environment.set('sunbird_individual_id', policyNumber);",
+                  "console.log('Sunbird identity =>', fullName, dob, policyNumber);"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Policy created successfully', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.params.status).to.eql('SUCCESSFUL');",
+                  "});",
+                  "",
+                  "pm.test('Capture insurance osid', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    var osid = jsonData.result.Insurance.osid;",
+                  "    pm.expect(osid).to.not.be.undefined;",
+                  "    pm.environment.set('sunbird_insurance_id', osid);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"policyNumber\": \"{{sunbird_individual_id}}\",\n    \"policyName\": \"Start Insurance Gold Premium\",\n    \"policyExpiresOn\": \"2033-04-20T20:48:17.684Z\",\n    \"policyIssuedOn\": \"{{$isoTimestamp}}\",\n    \"fullName\": \"{{sunbird_full_name}}\",\n    \"dob\": \"{{sunbird_dob}}\",\n    \"benefits\": [\"Critical Surgery\", \"Full body checkup\"],\n    \"gender\": \"Male\",\n    \"mobile\": \"0123456789\",\n    \"email\": \"{{$randomEmail}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{sunbird_url}}/api/v1/Insurance",
+              "host": [
+                "{{sunbird_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "Insurance"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Policy",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{sunbird_url}}/api/v1/Insurance/{{sunbird_insurance_id}}",
+              "host": [
+                "{{sunbird_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "Insurance",
+                "{{sunbird_insurance_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Policy",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"offset\": 0,\n    \"limit\": 5,\n    \"filters\": {\n        \"fullName\": { \"eq\": \"{{sunbird_full_name}}\" },\n        \"dob\": { \"eq\": \"{{sunbird_dob}}\" },\n        \"policyNumber\": { \"eq\": \"{{sunbird_individual_id}}\" }\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{sunbird_url}}/api/v1/Insurance/search",
+              "host": [
+                "{{sunbird_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "Insurance",
+                "search"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Policy",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Opt-in cleanup: skipped by default so a top-to-bottom 'Run collection' does",
+                  "// not delete the seeded record before '5 — Sunbird KBI' consumes it. Set",
+                  "// sunbird_cleanup=true (and run this request manually, after KBI) to enable.",
+                  "if (!pm.environment.get('sunbird_cleanup')) {",
+                  "  console.log('Skipping Delete Policy — set sunbird_cleanup=true to enable.');",
+                  "  pm.execution.skipRequest();",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{sunbird_url}}/api/v1/Insurance/{{sunbird_insurance_id}}",
+              "host": [
+                "{{sunbird_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "Insurance",
+                "{{sunbird_insurance_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "CRUD against the Sunbird registry (Insurance schema) used by the KBI flow. Run 'Create Policy (Identity)' first: it generates a random identity and stores it in the environment as sunbird_individual_id (policy number) / sunbird_full_name / sunbird_dob, then '5 — Sunbird KBI' authenticates against it. These dedicated vars keep the MOSIP individual_id (folders 1-3) untouched. 'Delete Policy' is opt-in (sunbird_cleanup=true) so it does not run automatically before KBI. Requires {{sunbird_url}} reachable."
+    },
+    {
+      "name": "5 — Sunbird KBI",
+      "item": [
+        {
+          "name": "Authorize (no redirect)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// PKCE: generate a fresh verifier + S256 challenge for this authorize.",
+                  "function base64UrlEncode(buffer) {",
+                  "  return btoa(String.fromCharCode(...new Uint8Array(buffer)))",
+                  "    .replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=/g, '');",
+                  "}",
+                  "const array = new Uint8Array(32);",
+                  "crypto.getRandomValues(array);",
+                  "const codeVerifier = base64UrlEncode(array);",
+                  "pm.environment.set('code_verifier', codeVerifier);",
+                  "return crypto.subtle.digest('SHA-256', new TextEncoder().encode(codeVerifier))",
+                  "  .then(hash => { pm.environment.set('code_challenge', base64UrlEncode(hash)); });"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('authorize 302', () => pm.response.to.have.status(302));",
+                  "const location = pm.response.headers.get('Location');",
+                  "pm.test('Location present', () => pm.expect(location).to.be.a('string').and.not.empty);",
+                  "const redirectUrl = new URL(location, pm.environment.get('baseUrl'));",
+                  "pm.test('auth_id present', () => pm.expect(redirectUrl.searchParams.get('authId')).to.be.a('string').and.not.empty);",
+                  "pm.test('execution_id present', () => pm.expect(redirectUrl.searchParams.get('executionId')).to.be.a('string').and.not.empty);",
+                  "pm.environment.set('auth_id', redirectUrl.searchParams.get('authId'));",
+                  "pm.environment.set('execution_id', redirectUrl.searchParams.get('executionId'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/oauth2/authorize?client_id={{client_id}}&redirect_uri={{redirect_uri}}&response_type=code&scope={{scope}}&state=esignet-kbi-test&code_challenge={{code_challenge}}&code_challenge_method=S256",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "oauth2",
+                "authorize"
+              ],
+              "query": [
+                {
+                  "key": "client_id",
+                  "value": "{{client_id}}"
+                },
+                {
+                  "key": "redirect_uri",
+                  "value": "{{redirect_uri}}"
+                },
+                {
+                  "key": "response_type",
+                  "value": "code"
+                },
+                {
+                  "key": "scope",
+                  "value": "{{scope}}"
+                },
+                {
+                  "key": "state",
+                  "value": "esignet-kbi-test"
+                },
+                {
+                  "key": "code_challenge",
+                  "value": "{{code_challenge}}"
+                },
+                {
+                  "key": "code_challenge_method",
+                  "value": "S256"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Flow meta (OTP app)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('flow meta OTP app', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/flow/meta?type=APP&id={{otp_application_id}}&language=en&namespace=auth",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "flow",
+                "meta"
+              ],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "APP"
+                },
+                {
+                  "key": "id",
+                  "value": "{{otp_application_id}}"
+                },
+                {
+                  "key": "language",
+                  "value": "en"
+                },
+                {
+                  "key": "namespace",
+                  "value": "auth"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Flow execute — resume",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('resume 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('INCOMPLETE', () => pm.expect(j.flowStatus).to.eql('INCOMPLETE'));",
+                  "pm.test('username prompt', () => {",
+                  "  const ids = (j.data && j.data.inputs || []).map(i => i.identifier);",
+                  "  pm.expect(ids).to.include('username');",
+                  "});",
+                  "pm.test('challenge_token', () => pm.expect(j.challengeToken).to.be.a('string').and.not.empty);",
+                  "pm.environment.set('challenge_token', j.challengeToken);",
+                  "if (j.data && j.data.actions && j.data.actions[0]) {",
+                  "  pm.environment.set('action_ref', j.data.actions[0].ref);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"executionId\": \"{{execution_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/flow/execute",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "flow",
+                "execute"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Flow execute — select acr",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('select acr 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('challenge_token', () => pm.expect(j.challengeToken).to.be.a('string').and.not.empty);",
+                  "pm.environment.set('challenge_token', j.challengeToken);",
+                  "pm.test('action_ref', () => pm.expect(j.data && j.data.actions && j.data.actions[0] && j.data.actions[0].ref).to.be.a('string').and.not.empty);",
+                  "pm.environment.set('action_ref', j.data.actions[0].ref);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/flow/execute",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "flow",
+                "execute"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Flow execute — individual ID",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "['sunbird_individual_id', 'sunbird_full_name', 'sunbird_dob'].forEach((k) => {",
+                  "  if (!pm.environment.get(k)) { throw new Error('Set ' + k + ' (run Sunbird Registry > Create Policy first).'); }",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('individual ID 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('COMPLETE', () => pm.expect(j.flowStatus).to.eql('COMPLETE'));",
+                  "pm.test('assertion', () => pm.expect(j.assertion).to.be.a('string').and.not.empty);",
+                  "pm.environment.set('assertion', j.assertion);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\",\n  \"inputs\": {\n    \"username\": \"{{sunbird_individual_id}}\",\n    \"fullName\": \"{{sunbird_full_name}}\",\n    \"dob\": \"{{sunbird_dob}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/flow/execute",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "flow",
+                "execute"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Auth callback",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('callback 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "const ru = j.redirect_uri || j.redirectUri;",
+                  "pm.test('redirect_uri present', () => pm.expect(ru).to.be.a('string').and.not.empty);",
+                  "const url = new URL(ru);",
+                  "pm.test('no OAuth error in redirect', () => pm.expect(url.searchParams.get('error')).to.be.null);",
+                  "pm.test('authorization code present', () => pm.expect(url.searchParams.get('code')).to.be.a('string').and.not.empty);",
+                  "pm.environment.set('code', url.searchParams.get('code'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"authId\": \"{{auth_id}}\",\n  \"assertion\": \"{{assertion}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/oauth2/auth/callback",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "oauth2",
+                "auth",
+                "callback"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('token 200', () => pm.response.to.have.status(200));",
+                  "const t = pm.response.json();",
+                  "pm.test('access_token', () => pm.expect(t.access_token).to.be.a('string').and.not.empty);",
+                  "pm.test('id_token', () => pm.expect(t.id_token).to.be.a('string').and.not.empty);",
+                  "pm.environment.set('access_token', t.access_token);",
+                  "pm.environment.set('id_token', t.id_token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "grant_type",
+                  "value": "authorization_code"
+                },
+                {
+                  "key": "code",
+                  "value": "{{code}}"
+                },
+                {
+                  "key": "redirect_uri",
+                  "value": "{{redirect_uri}}"
+                },
+                {
+                  "key": "client_id",
+                  "value": "{{client_id}}"
+                },
+                {
+                  "key": "code_verifier",
+                  "value": "{{code_verifier}}"
+                },
+                {
+                  "key": "client_assertion_type",
+                  "value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
+                },
+                {
+                  "key": "client_assertion",
+                  "value": "{{client_assertion}}"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/oauth2/token",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "oauth2",
+                "token"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "UserInfo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('userinfo 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('sub claim', () => pm.expect(j.sub).to.be.a('string').and.not.empty);",
+                  "pm.test('sub matches sunbird_individual_id', () => pm.expect(j.sub).to.eql(pm.environment.get('sunbird_individual_id')));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/oauth2/userinfo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "oauth2",
+                "userinfo"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Knowledge-Based Identification against the Sunbird registry. Prereqs: (1) Client Management > Create client with additionalConfig pkce_required only AND authContextRefs including \"mosip:idp:acr:knowledge\"; (2) run '4 — Sunbird Registry' > Create Policy to seed the identity. Then run this folder top-to-bottom. KBI completes in a single flow/execute step (username = sunbird_individual_id = policy number, challenge = sunbird_full_name + sunbird_dob)."
     }
   ],
   "auth": { "type": "noauth" },
