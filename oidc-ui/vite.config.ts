@@ -8,8 +8,11 @@ export default defineConfig({
   server: {
     port: 3000,
   },
+  resolve: {
+    dedupe: ["react", "react-dom", "react/jsx-runtime"],
+  },
   optimizeDeps: {
-    include: ["react-detect-offline"],
+    include: ["react-detect-offline", "@floating-ui/react"],
   },
   test: {
     globals: true,

@@ -1,14 +1,14 @@
-system:
+﻿system:
   "design.resolve.error.app_no_design": ಅಪ್ಲಿಕೇಶನ್‌ಗೆ ಯಾವುದೇ ವಿನ್ಯಾಸ ಸಂರಚನೆ ಇಲ್ಲ
   "design.resolve.error.app_no_design_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಅಪ್ಲಿಕೇಶನ್‌ಗೆ ಯಾವುದೇ ಸಂಬಂಧಿತ ಥೀಮ್ ಅಥವಾ ಲೇಔಟ್ ಸಂರಚನೆ ಇಲ್ಲ
   "design.resolve.error.app_not_found": ಅಪ್ಲಿಕೇಶನ್ ಕಂಡುಬಂದಿಲ್ಲ
   "design.resolve.error.app_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ id ಹೊಂದಿರುವ ಅಪ್ಲಿಕೇಶನ್ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
   "design.resolve.error.invalid_type": ಅಮಾನ್ಯ ವಿನಂತಿ ಸ್ವರೂಪ
-  "design.resolve.error.invalid_type_description": 'type' ಕ್ವೆರಿ ಪ್ಯಾರಾಮೀಟರ್ ಅಗತ್ಯವಿದ್ದು, 'APP' ಅಥವಾ 'OU' ಆಗಿರಬೇಕು
+  "design.resolve.error.invalid_type_description": "\"type\" ಕ್ವೆರಿ ಪ್ಯಾರಾಮೀಟರ್ ಅಗತ್ಯವಿದ್ದು, \"APP\" ಅಥವಾ \"OU\" ಆಗಿರಬೇಕು"
   "design.resolve.error.missing_id": ಅಮಾನ್ಯ ವಿನಂತಿ ಸ್ವರೂಪ
-  "design.resolve.error.missing_id_description": 'id' ಕ್ವೆರಿ ಪ್ಯಾರಾಮೀಟರ್ ಅಗತ್ಯವಿದೆ
+  "design.resolve.error.missing_id_description": "\"id\" ಕ್ವೆರಿ ಪ್ಯಾರಾಮೀಟರ್ ಅಗತ್ಯವಿದೆ"
   "design.resolve.error.unsupported_type": ಬೆಂಬಲಿಸದ ರಿಸಾಲ್ವ್ ಪ್ರಕಾರ
-  "design.resolve.error.unsupported_type_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ರಿಸಾಲ್ವ್ ಪ್ರಕಾರವನ್ನು ಇನ್ನೂ ಬೆಂಬಲಿಸಲಾಗಿಲ್ಲ. ಪ್ರಸ್ತುತ ಕೇವಲ 'APP' ಪ್ರಕಾರ ಮಾತ್ರ ಬೆಂಬಲಿತವಾಗಿದೆ
+  "design.resolve.error.unsupported_type_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ರಿಸಾಲ್ವ್ ಪ್ರಕಾರವನ್ನು ಇನ್ನೂ ಬೆಂಬಲಿಸಲಾಗಿಲ್ಲ. ಪ್ರಸ್ತುತ ಕೇವಲ \"APP\" ಪ್ರಕಾರ ಮಾತ್ರ ಬೆಂಬಲಿತವಾಗಿದೆ
   "error.actor_not_found": ನಟ ಕಂಡುಬಂದಿಲ್ಲ
   "error.actor_not_found_description": ವಿನಂತಿಸಿದ ನಟ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
   "error.agentservice.agent_already_exists_with_client_id": Client ID ಈಗಾಗಲೇ ಬಳಕೆಯಲ್ಲಿದೆ
@@ -25,7 +25,7 @@ system:
   "error.agentservice.cannot_modify_declarative_resource_description": ಘೋಷಣಾತ್ಮಕವಾಗಿ ನಿರ್ವಹಿಸಲ್ಪಡುವ ಏಜೆಂಟ್‌ಗಳನ್ನು API ಮೂಲಕ ಮಾರ್ಪಡಿಸಲಾಗುವುದಿಲ್ಲ
   "error.agentservice.certificate_operation_failed": ಸರ್ಟಿಫಿಕೇಟ್ ಕಾರ್ಯಾಚರಣೆ ವಿಫಲವಾಗಿದೆ
   "error.agentservice.certificate_operation_failed_description": ಅಮಾನ್ಯ ಇನ್‌ಪುಟ್ ಕಾರಣ ಸರ್ಟಿಫಿಕೇಟ್ ಕಾರ್ಯಾಚರಣೆ ವಿಫಲವಾಗಿದೆ
-  "error.agentservice.client_credentials_cannot_use_none_auth_description": client_credentials ಗ್ರಾಂಟ್ ಪ್ರಕಾರ 'none' ದೃಢೀಕರಣ ವಿಧಾನವನ್ನು ಬಳಸಲಾಗುವುದಿಲ್ಲ
+  "error.agentservice.client_credentials_cannot_use_none_auth_description": client_credentials ಗ್ರಾಂಟ್ ಪ್ರಕಾರ \"none\" ದೃಢೀಕರಣ ವಿಧಾನವನ್ನು ಬಳಸಲಾಗುವುದಿಲ್ಲ
   "error.agentservice.client_credentials_cannot_use_response_types_description": client_credentials ಗ್ರಾಂಟ್ ಪ್ರಕಾರವನ್ನು ಪ್ರತಿಕ್ರಿಯೆ ಪ್ರಕಾರಗಳೊಂದಿಗೆ ಬಳಸಲಾಗುವುದಿಲ್ಲ
   "error.agentservice.client_secret_cannot_have_certificate_description": client_secret ದೃಢೀಕರಣ ವಿಧಾನಗಳಿಗೆ ಸರ್ಟಿಫಿಕೇಟ್ ಇರಲು ಅನುಮತಿ ಇಲ್ಲ
   "error.agentservice.consent_sync_failed": ಒಪ್ಪಿಗೆ ಸಿಂಕ್ ವಿಫಲವಾಗಿದೆ
@@ -86,8 +86,8 @@ system:
   "error.agentservice.missing_agent_id_description": ಏಜೆಂಟ್ ID ಅಗತ್ಯವಿದೆ
   "error.agentservice.multiple_oauth_configs": ಅನೇಕ OAuth ಇನ್‌ಬೌಂಡ್ ದೃಢೀಕರಣ ಸಂರಚನೆಗಳಿಗೆ ಅನುಮತಿ ಇಲ್ಲ
   "error.agentservice.multiple_oauth_configs_description": ಒಂದು ಘಟಕವು ಪ್ರತಿ ಪ್ರೋಟೋಕಾಲ್‌ಗೆ ಗರಿಷ್ಠ ಒಂದು ಇನ್‌ಬೌಂಡ್ ದೃಢೀಕರಣ ಸಂರಚನೆ ಹೊಂದಬಹುದು
-  "error.agentservice.none_auth_method_cannot_have_cert_or_secret_description": 'none' ದೃಢೀಕರಣ ವಿಧಾನಕ್ಕೆ ಸರ್ಟಿಫಿಕೇಟ್ ಅಥವಾ ಕ್ಲೈಂಟ್ ರಹಸ್ಯ ಇರಲು ಅನುಮತಿ ಇಲ್ಲ
-  "error.agentservice.none_auth_method_requires_public_client_description": 'none' ದೃಢೀಕರಣ ವಿಧಾನಕ್ಕೆ ಕ್ಲೈಂಟ್ ಸಾರ್ವಜನಿಕ ಕ್ಲೈಂಟ್ ಆಗಿರಬೇಕು
+  "error.agentservice.none_auth_method_cannot_have_cert_or_secret_description": "\"none\" ದೃಢೀಕರಣ ವಿಧಾನಕ್ಕೆ ಸರ್ಟಿಫಿಕೇಟ್ ಅಥವಾ ಕ್ಲೈಂಟ್ ರಹಸ್ಯ ಇರಲು ಅನುಮತಿ ಇಲ್ಲ"
+  "error.agentservice.none_auth_method_requires_public_client_description": "\"none\" ದೃಢೀಕರಣ ವಿಧಾನಕ್ಕೆ ಕ್ಲೈಂಟ್ ಸಾರ್ವಜನಿಕ ಕ್ಲೈಂಟ್ ಆಗಿರಬೇಕು"
   "error.agentservice.organization_unit_not_found": ಸಂಸ್ಥಾ ಘಟಕ ಕಂಡುಬಂದಿಲ್ಲ
   "error.agentservice.organization_unit_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಸಂಸ್ಥಾ ಘಟಕ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
   "error.agentservice.owner_not_found": ಮಾಲೀಕ ಕಂಡುಬಂದಿಲ್ಲ
@@ -96,7 +96,7 @@ system:
   "error.agentservice.private_key_jwt_cannot_have_client_secret_description": private_key_jwt ದೃಢೀಕರಣ ವಿಧಾನಕ್ಕೆ ಕ್ಲೈಂಟ್ ರಹಸ್ಯ ಇರಲು ಅನುಮತಿ ಇಲ್ಲ
   "error.agentservice.private_key_jwt_requires_certificate_description": private_key_jwt ದೃಢೀಕರಣ ವಿಧಾನಕ್ಕೆ ಸರ್ಟಿಫಿಕೇಟ್ ಅಗತ್ಯವಿದೆ
   "error.agentservice.public_client_must_have_pkce_description": ಸಾರ್ವಜನಿಕ ಕ್ಲೈಂಟ್‌ಗಳಿಗೆ PKCE ಅಗತ್ಯ true ಗೆ ಹೊಂದಿಸಿರಬೇಕು
-  "error.agentservice.public_client_must_use_none_auth_description": ಸಾರ್ವಜನಿಕ ಕ್ಲೈಂಟ್‌ಗಳು ಟೋಕನ್ ಎಂಡ್‌ಪಾಯಿಂಟ್ ದೃಢೀಕರಣ ವಿಧಾನವಾಗಿ 'none' ಬಳಸಬೇಕು
+  "error.agentservice.public_client_must_use_none_auth_description": ಸಾರ್ವಜನಿಕ ಕ್ಲೈಂಟ್‌ಗಳು ಟೋಕನ್ ಎಂಡ್‌ಪಾಯಿಂಟ್ ದೃಢೀಕರಣ ವಿಧಾನವಾಗಿ \"none\" ಬಳಸಬೇಕು
   "error.agentservice.redirect_uri_fragment_not_allowed_description": ರೀಡೈರೆಕ್ಟ್ URIs ಫ್ರಾಗ್ಮೆಂಟ್ ಘಟಕ ಹೊಂದಿರಬಾರದು
   "error.agentservice.refresh_token_cannot_be_sole_grant_description": refresh_token ಗ್ರಾಂಟ್ ಪ್ರಕಾರವನ್ನು ಮತ್ತೊಂದು ಗ್ರಾಂಟ್ ಪ್ರಕಾರವಿಲ್ಲದೆ ಬಳಸಲಾಗುವುದಿಲ್ಲ
   "error.agentservice.response_types_require_authorization_code_description": ಪ್ರತಿಕ್ರಿಯೆ ಪ್ರಕಾರಗಳನ್ನು authorization_code ಗ್ರಾಂಟ್ ಪ್ರಕಾರದೊಂದಿಗೆ ಮಾತ್ರ ಸಂರಚಿಸಬಹುದು
@@ -130,7 +130,7 @@ system:
   "error.applicationservice.cannot_modify_declarative_resource_description": ಅಪ್ಲಿಕೇಶನ್ ಘೋಷಣಾತ್ಮಕವಾಗಿದ್ದು ಮಾರ್ಪಡಿಸಲು ಅಥವಾ ಅಳಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ
   "error.applicationservice.certificate_operation_failed": ಸರ್ಟಿಫಿಕೇಟ್ ಕಾರ್ಯಾಚರಣೆ ವಿಫಲವಾಗಿದೆ
   "error.applicationservice.certificate_operation_failed_description": ಅಪ್ಲಿಕೇಶನ್ ಸರ್ಟಿಫಿಕೇಟ್ ಪ್ರಕ್ರಿಯೆಗೊಳಿಸುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
-  "error.applicationservice.client_credentials_cannot_use_none_auth_description": client_credentials ಗ್ರಾಂಟ್ ಪ್ರಕಾರ 'none' ದೃಢೀಕರಣ ವಿಧಾನವನ್ನು ಬಳಸಲಾಗುವುದಿಲ್ಲ
+  "error.applicationservice.client_credentials_cannot_use_none_auth_description": client_credentials ಗ್ರಾಂಟ್ ಪ್ರಕಾರ \"none\" ದೃಢೀಕರಣ ವಿಧಾನವನ್ನು ಬಳಸಲಾಗುವುದಿಲ್ಲ
   "error.applicationservice.client_credentials_cannot_use_response_types_description": client_credentials ಗ್ರಾಂಟ್ ಪ್ರಕಾರವನ್ನು ಪ್ರತಿಕ್ರಿಯೆ ಪ್ರಕಾರಗಳೊಂದಿಗೆ ಬಳಸಲಾಗುವುದಿಲ್ಲ
   "error.applicationservice.client_secret_cannot_have_certificate_description": client_secret ದೃಢೀಕರಣ ವಿಧಾನಗಳಿಗೆ ಸರ್ಟಿಫಿಕೇಟ್ ಇರಲು ಅನುಮತಿ ಇಲ್ಲ
   "error.applicationservice.consent_service_not_enabled": ಒಪ್ಪಿಗೆ ಸೇವೆ ಸಕ್ರಿಯಗೊಳಿಸಲ್ಪಟ್ಟಿಲ್ಲ
@@ -170,7 +170,7 @@ system:
   "error.applicationservice.invalid_jwks_uri": ಅಮಾನ್ಯ JWKS URI
   "error.applicationservice.invalid_jwks_uri_description": ಒದಗಿಸಿದ JWKS URI ಮಾನ್ಯ URI ಅಲ್ಲ
   "error.applicationservice.invalid_jwks_uri_scheme": ಅಮಾನ್ಯ JWKS URI ಸ್ಕೀಮ್
-  "error.applicationservice.invalid_jwks_uri_scheme_description": 'jwks_uri' HTTPS ಸ್ಕೀಮ್ ಬಳಸಬೇಕು
+  "error.applicationservice.invalid_jwks_uri_scheme_description": "\"jwks_uri\" HTTPS ಸ್ಕೀಮ್ ಬಳಸಬೇಕು"
   "error.applicationservice.invalid_logo_url": ಅಮಾನ್ಯ ಲೋಗೋ URL
   "error.applicationservice.invalid_logo_url_description": ಒದಗಿಸಿದ ಲೋಗೋ URL ಮಾನ್ಯ URI ಅಲ್ಲ
   "error.applicationservice.invalid_oauth_configuration": ಅಮಾನ್ಯ OAuth ಸಂರಚನೆ
@@ -197,13 +197,13 @@ system:
   "error.applicationservice.layout_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಲೇಔಟ್ ಸಂರಚನೆ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
   "error.applicationservice.multiple_oauth_configs": ಅನೇಕ OAuth ಇನ್‌ಬೌಂಡ್ ದೃಢೀಕರಣ ಸಂರಚನೆಗಳಿಗೆ ಅನುಮತಿ ಇಲ್ಲ
   "error.applicationservice.multiple_oauth_configs_description": ಒಂದು ಅಪ್ಲಿಕೇಶನ್ ಪ್ರತಿ ಪ್ರೋಟೋಕಾಲ್‌ಗೆ ಗರಿಷ್ಠ ಒಂದು ಇನ್‌ಬೌಂಡ್ ದೃಢೀಕರಣ ಸಂರಚನೆ ಹೊಂದಬಹುದು
-  "error.applicationservice.none_auth_method_cannot_have_cert_or_secret_description": 'none' ದೃಢೀಕರಣ ವಿಧಾನಕ್ಕೆ ಸರ್ಟಿಫಿಕೇಟ್ ಅಥವಾ ಕ್ಲೈಂಟ್ ರಹಸ್ಯ ಇರಲು ಅನುಮತಿ ಇಲ್ಲ
-  "error.applicationservice.none_auth_method_requires_public_client_description": 'none' ದೃಢೀಕರಣ ವಿಧಾನಕ್ಕೆ ಕ್ಲೈಂಟ್ ಸಾರ್ವಜನಿಕ ಕ್ಲೈಂಟ್ ಆಗಿರಬೇಕು
+  "error.applicationservice.none_auth_method_cannot_have_cert_or_secret_description": "\"none\" ದೃಢೀಕರಣ ವಿಧಾನಕ್ಕೆ ಸರ್ಟಿಫಿಕೇಟ್ ಅಥವಾ ಕ್ಲೈಂಟ್ ರಹಸ್ಯ ಇರಲು ಅನುಮತಿ ಇಲ್ಲ"
+  "error.applicationservice.none_auth_method_requires_public_client_description": "\"none\" ದೃಢೀಕರಣ ವಿಧಾನಕ್ಕೆ ಕ್ಲೈಂಟ್ ಸಾರ್ವಜನಿಕ ಕ್ಲೈಂಟ್ ಆಗಿರಬೇಕು"
   "error.applicationservice.pkce_requires_authorization_code_description": authorization_code ಗ್ರಾಂಟ್ ಪ್ರಕಾರ ಆಯ್ಕೆ ಮಾಡಿದಾಗ ಮಾತ್ರ PKCE ಸಕ್ರಿಯಗೊಳಿಸಬಹುದು
   "error.applicationservice.private_key_jwt_cannot_have_client_secret_description": private_key_jwt ದೃಢೀಕರಣ ವಿಧಾನಕ್ಕೆ ಕ್ಲೈಂಟ್ ರಹಸ್ಯ ಇರಲು ಅನುಮತಿ ಇಲ್ಲ
   "error.applicationservice.private_key_jwt_requires_certificate_description": private_key_jwt ದೃಢೀಕರಣ ವಿಧಾನಕ್ಕೆ ಸರ್ಟಿಫಿಕೇಟ್ ಅಗತ್ಯವಿದೆ
   "error.applicationservice.public_client_must_have_pkce_description": ಸಾರ್ವಜನಿಕ ಕ್ಲೈಂಟ್‌ಗಳಿಗೆ PKCE ಅಗತ್ಯ true ಗೆ ಹೊಂದಿಸಿರಬೇಕು
-  "error.applicationservice.public_client_must_use_none_auth_description": ಸಾರ್ವಜನಿಕ ಕ್ಲೈಂಟ್‌ಗಳು ಟೋಕನ್ ಎಂಡ್‌ಪಾಯಿಂಟ್ ದೃಢೀಕರಣ ವಿಧಾನವಾಗಿ 'none' ಬಳಸಬೇಕು
+  "error.applicationservice.public_client_must_use_none_auth_description": ಸಾರ್ವಜನಿಕ ಕ್ಲೈಂಟ್‌ಗಳು ಟೋಕನ್ ಎಂಡ್‌ಪಾಯಿಂಟ್ ದೃಢೀಕರಣ ವಿಧಾನವಾಗಿ \"none\" ಬಳಸಬೇಕು
   "error.applicationservice.redirect_uri_fragment_not_allowed_description": ರೀಡೈರೆಕ್ಟ್ URIs ಫ್ರಾಗ್ಮೆಂಟ್ ಘಟಕ ಹೊಂದಿರಬಾರದು
   "error.applicationservice.refresh_token_cannot_be_sole_grant_description": refresh_token ಗ್ರಾಂಟ್ ಪ್ರಕಾರವನ್ನು ಮತ್ತೊಂದು ಗ್ರಾಂಟ್ ಪ್ರಕಾರವಿಲ್ಲದೆ ಬಳಸಲಾಗುವುದಿಲ್ಲ
   "error.applicationservice.response_types_require_authorization_code_description": ಪ್ರತಿಕ್ರಿಯೆ ಪ್ರಕಾರಗಳನ್ನು authorization_code ಗ್ರಾಂಟ್ ಪ್ರಕಾರದೊಂದಿಗೆ ಮಾತ್ರ ಸಂರಚಿಸಬಹುದು
@@ -429,7 +429,7 @@ system:
   "error.dcr.invalid_request_format": ಅಮಾನ್ಯ ವಿನಂತಿ ಸ್ವರೂಪ
   "error.dcr.invalid_request_format_description": ವಿನಂತಿ ಮುಖ್ಯಭಾಗ ಕಾಣೆಯಾಗಿದೆ ಅಥವಾ ಅಮಾನ್ಯ ಸ್ವರೂಪ ಹೊಂದಿದೆ
   "error.dcr.jwks_configuration_conflict": JWKS ಸಂರಚನೆ ಸಂಘರ್ಷ
-  "error.dcr.jwks_configuration_conflict_description": 'jwks' ಮತ್ತು 'jwks_uri' ಪ್ಯಾರಾಮೀಟರ್‌ಗಳು ಎರಡನ್ನೂ ನಿರ್ದಿಷ್ಟಪಡಿಸಲಾಗುವುದಿಲ್ಲ
+  "error.dcr.jwks_configuration_conflict_description": "\"jwks\" ಮತ್ತು \"jwks_uri\" ಪ್ಯಾರಾಮೀಟರ್‌ಗಳು ಎರಡನ್ನೂ ನಿರ್ದಿಷ್ಟಪಡಿಸಲಾಗುವುದಿಲ್ಲ"
   "error.dcr.server_error": ಸರ್ವರ್ ದೋಷ
   "error.dcr.server_error_description": ವಿನಂತಿ ಪ್ರಕ್ರಿಯೆಗೊಳಿಸುವಾಗ ಅನಿರೀಕ್ಷಿತ ದೋಷ ಸಂಭವಿಸಿದೆ
   "error.dcr.unauthorized": ಅನಧಿಕೃತ
@@ -528,11 +528,11 @@ system:
   "error.flowmetaservice.application_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಅಪ್ಲಿಕೇಶನ್ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
   "error.flowmetaservice.internal_server_error": ಆಂತರಿಕ ಸರ್ವರ್ ದೋಷ
   "error.flowmetaservice.invalid_request": ಅಮಾನ್ಯ ವಿನಂತಿ
-  "error.flowmetaservice.invalid_type_description": 'type' ಪ್ಯಾರಾಮೀಟರ್ 'APP' ಅಥವಾ 'OU' ಆಗಿರಬೇಕು
-  "error.flowmetaservice.missing_id_description": 'id' ಕ್ವೆರಿ ಪ್ಯಾರಾಮೀಟರ್ ಅಗತ್ಯವಿದೆ
+  "error.flowmetaservice.invalid_type_description": "\"type\" ಪ್ಯಾರಾಮೀಟರ್ \"APP\" ಅಥವಾ \"OU\" ಆಗಿರಬೇಕು"
+  "error.flowmetaservice.missing_id_description": "\"id\" ಕ್ವೆರಿ ಪ್ಯಾರಾಮೀಟರ್ ಅಗತ್ಯವಿದೆ"
   "error.flowmetaservice.missing_id_parameter": ಅಗತ್ಯ ಪ್ಯಾರಾಮೀಟರ್ ಕಾಣೆಯಾಗಿದೆ
   "error.flowmetaservice.missing_required_parameter": ಅಗತ್ಯ ಪ್ಯಾರಾಮೀಟರ್ ಕಾಣೆಯಾಗಿದೆ
-  "error.flowmetaservice.missing_type_description": 'type' ಕ್ವೆರಿ ಪ್ಯಾರಾಮೀಟರ್ ಅಗತ್ಯವಿದೆ
+  "error.flowmetaservice.missing_type_description": "\"type\" ಕ್ವೆರಿ ಪ್ಯಾರಾಮೀಟರ್ ಅಗತ್ಯವಿದೆ"
   "error.flowmetaservice.ou_fetch_failed": ಆಂತರಿಕ ಸರ್ವರ್ ದೋಷ
   "error.flowmetaservice.ou_fetch_failed_description": ಸಂಸ್ಥಾ ಘಟಕ ಮಾಹಿತಿ ಮರುಪಡೆಯಲು ವಿಫಲವಾಗಿದೆ
   "error.flowmetaservice.ou_not_found": ಸಂಪನ್ಮೂಲ ಕಂಡುಬಂದಿಲ್ಲ
@@ -600,7 +600,7 @@ system:
   "error.groupservice.invalid_member_id": ಅಮಾನ್ಯ ಸದಸ್ಯ ID
   "error.groupservice.invalid_member_id_description": ವಿನಂತಿಯಲ್ಲಿ ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ಬಳಕೆದಾರ ಅಥವಾ ಅಪ್ಲಿಕೇಶನ್ ಸದಸ್ಯ IDs ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ ಅಥವಾ ಹೇಳಿಕೊಂಡ ಪ್ರಕಾರಕ್ಕೆ ಹೊಂದಿಕೆಯಾಗುವುದಿಲ್ಲ
   "error.groupservice.invalid_member_type": ಅಮಾನ್ಯ ಸದಸ್ಯ ಪ್ರಕಾರ
-  "error.groupservice.invalid_member_type_description": ಸದಸ್ಯ ಪ್ರಕಾರ 'user', 'group', ಅಥವಾ 'app' ಆಗಿರಬೇಕು
+  "error.groupservice.invalid_member_type_description": ಸದಸ್ಯ ಪ್ರಕಾರ \"user\", \"group\", ಅಥವಾ \"app\" ಆಗಿರಬೇಕು
   "error.groupservice.invalid_offset_parameter": ಅಮಾನ್ಯ ಆಫ್‌ಸೆಟ್ ಪ್ಯಾರಾಮೀಟರ್
   "error.groupservice.invalid_offset_parameter_description": ಆಫ್‌ಸೆಟ್ ಪ್ಯಾರಾಮೀಟರ್ ಋಣಾತ್ಮಕವಲ್ಲದ ಪೂರ್ಣಾಂಕವಾಗಿರಬೇಕು
   "error.groupservice.invalid_ou_id": ಅಮಾನ್ಯ OU ID
@@ -868,7 +868,7 @@ system:
   "error.roleservice.empty_assignments_list": ಖಾಲಿ ನಿಯೋಜನೆಗಳ ಪಟ್ಟಿ
   "error.roleservice.empty_assignments_list_description": ಕನಿಷ್ಠ ಒಂದು ನಿಯೋಜನೆ ಒದಗಿಸಬೇಕು
   "error.roleservice.invalid_assignee_type": ಅಮಾನ್ಯ ನಿಯೋಜಿತ ಪ್ರಕಾರ
-  "error.roleservice.invalid_assignee_type_description": type ಪ್ಯಾರಾಮೀಟರ್ 'user', 'group', ಅಥವಾ 'app' ಆಗಿರಬೇಕು
+  "error.roleservice.invalid_assignee_type_description": type ಪ್ಯಾರಾಮೀಟರ್ \"user\", \"group\", ಅಥವಾ \"app\" ಆಗಿರಬೇಕು
   "error.roleservice.invalid_assignment_id": ಅಮಾನ್ಯ ನಿಯೋಜನೆ ID
   "error.roleservice.invalid_assignment_id_description": ವಿನಂತಿಯಲ್ಲಿ ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ನಿಯೋಜನೆ IDs ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ ಅಥವಾ ಹೇಳಿಕೊಂಡ ಪ್ರಕಾರಕ್ಕೆ ಹೊಂದಿಕೆಯಾಗುವುದಿಲ್ಲ
   "error.roleservice.invalid_limit_parameter": ಅಮಾನ್ಯ ಲಿಮಿಟ್ ಪ್ಯಾರಾಮೀಟರ್
