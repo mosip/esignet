@@ -6,6 +6,7 @@ import {
   SbiCustomRenderer,
   ResendOtpRenderer,
   BackButtonRenderer,
+  CaptchaRenderer,
 } from "./components";
 
 // getting applicationId from query param to pass it to ThunderIDProvider
@@ -36,6 +37,7 @@ createRoot(document.getElementById("root")!).render(
               SBI_ID: SbiCustomRenderer,
               RESEND_OTP: ResendOtpRenderer,
               BACK_BUTTON: BackButtonRenderer,
+              CAPTCHA_BOX: CaptchaRenderer,
             },
           },
         }}

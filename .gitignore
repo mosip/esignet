@@ -35,3 +35,5 @@ helm/*/Chart.lock
 helm/*/charts/
 
 .DS_Store
+coverage/
+build/

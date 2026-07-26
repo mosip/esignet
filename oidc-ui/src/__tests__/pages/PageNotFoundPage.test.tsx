@@ -1,22 +1,22 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import PageNotFoundPage from '../../pages/PageNotFoundPage';
+import { describe, it, expect } from "vitest";
+import { render, screen } from "@testing-library/react";
+import PageNotFoundPage from "../../pages/PageNotFoundPage";
 
-describe('PageNotFoundPage', () => {
-  it('renders the under construction image', () => {
+describe("PageNotFoundPage", () => {
+  it("renders the under construction image", () => {
     render(<PageNotFoundPage />);
-    expect(screen.getByAltText('page_not_found')).toBeDefined();
+    expect(screen.getByAltText("Page not found")).toBeDefined();
   });
 
-  it('renders the page not found heading', () => {
+  it("renders the page not found heading", () => {
     render(<PageNotFoundPage />);
-    expect(screen.getByText('Page Not Found')).toBeDefined();
+    expect(screen.getByText("Page Not Found")).toBeDefined();
   });
 
-  it('has the correct CSS classes', () => {
+  it("has the correct CSS classes", () => {
     const { container } = render(<PageNotFoundPage />);
     const card = container.firstElementChild;
-    expect(card?.className).toContain('multipurpose-login-card');
-    expect(card?.className).toContain('section-background');
+    expect(card?.className).toContain("multipurpose-login-card");
+    expect(card?.className).toContain("section-background");
   });
 });
