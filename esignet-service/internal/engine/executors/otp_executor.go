@@ -37,7 +37,7 @@ type otpExecutor struct {
 
 var _ providers.Executor = (*otpExecutor)(nil)
 
-// NewMosipOtpExecutor creates an executor that sends OTP via the MOSIP IDA API.
+// NewOtpExecutor creates an executor that sends OTP via the MOSIP IDA API.
 func NewOtpExecutor(authn shared.ConsolidatedAuthnProvider) providers.Executor {
 	return &otpExecutor{authn: authn}
 }

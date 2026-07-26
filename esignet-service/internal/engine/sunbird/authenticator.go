@@ -86,7 +86,7 @@ func NewSunbirdAuthnProvider() (shared.ConsolidatedAuthnProvider, error) {
 }
 
 func (p *sunbirdAuthnProvider) Authenticate(ctx context.Context, identifiers, credentials map[string]interface{},
-	metadata *providers.AuthnMetadata) (*providers.AuthnResult, *common.ServiceError) {
+	_ *providers.AuthnMetadata) (*providers.AuthnResult, *common.ServiceError) {
 
 	individualID, ok := identifiers[sunbirdIndividualIDKey].(string)
 	if !ok || individualID == "" {
@@ -117,7 +117,7 @@ func (p *sunbirdAuthnProvider) Authenticate(ctx context.Context, identifiers, cr
 }
 
 func (p *sunbirdAuthnProvider) GetAttributes(ctx context.Context, attributeToken any, consentedAttributes *providers.RequestedAttributes,
-	metadata *providers.GetAttributesMetadata) (*providers.AttributesResponse, *common.ServiceError) {
+	_ *providers.GetAttributesMetadata) (*providers.AttributesResponse, *common.ServiceError) {
 
 	if consentedAttributes == nil {
 		return nil, shared.InvalidRequestError
@@ -138,7 +138,7 @@ func (p *sunbirdAuthnProvider) GetAttributes(ctx context.Context, attributeToken
 	return &providers.AttributesResponse{Attributes: mappedClaimsMap}, nil
 }
 
-func (p *sunbirdAuthnProvider) GetEntityReference(ctx context.Context, entityReferenceToken any) (*providers.EntityReference,
+func (p *sunbirdAuthnProvider) GetEntityReference(_ context.Context, entityReferenceToken any) (*providers.EntityReference,
 	*common.ServiceError) {
 	psut, ok := entityReferenceToken.(string)
 	if !ok || psut == "" {
@@ -147,18 +147,18 @@ func (p *sunbirdAuthnProvider) GetEntityReference(ctx context.Context, entityRef
 	return &providers.EntityReference{EntityID: psut}, nil
 }
 
-func (p *sunbirdAuthnProvider) InitiateAuthentication(ctx context.Context, credentialType string, initData any,
-	metadata *providers.AuthnMetadata) (any, *common.ServiceError) {
+func (p *sunbirdAuthnProvider) InitiateAuthentication(_ context.Context, _ string, _ any,
+	_ *providers.AuthnMetadata) (any, *common.ServiceError) {
 	return nil, nil
 }
 
-func (p *sunbirdAuthnProvider) InitiateEnrollment(ctx context.Context, credentialType string, initData any,
-	metadata *providers.AuthnMetadata) (any, *common.ServiceError) {
+func (p *sunbirdAuthnProvider) InitiateEnrollment(_ context.Context, _ string, _ any,
+	_ *providers.AuthnMetadata) (any, *common.ServiceError) {
 	return nil, nil
 }
 
-func (p *sunbirdAuthnProvider) Enroll(ctx context.Context, identifiers, credentials map[string]interface{},
-	metadata *providers.AuthnMetadata) (*providers.AuthnResult, *common.ServiceError) {
+func (p *sunbirdAuthnProvider) Enroll(_ context.Context, _, _ map[string]interface{},
+	_ *providers.AuthnMetadata) (*providers.AuthnResult, *common.ServiceError) {
 	return nil, nil
 }
 

@@ -18,6 +18,7 @@ import (
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
 	"github.com/mosip/esignet/internal/config"
+	"github.com/mosip/esignet/internal/engine/runtimestores/inmemory"
 )
 
 func (ts *DesignProviderTestSuite) TestParseToLayout() {
@@ -115,7 +116,7 @@ theme: '{"color":"red"}'
 func (ts *DesignProviderTestSuite) TestDesignProvider_ResolveDesign() {
 	t := ts.T()
 	t.Run("missing layout or theme id", func(t *testing.T) {
-		p := NewDesignProvider(&config.AppConfig{})
+		p := NewDesignProvider(&config.AppConfig{}, nil, 0)
 		_, svcErr := p.ResolveDesign(context.TODO(), "", "")
 		if svcErr == nil {
 			t.Fatal("expected error when LayoutID/ThemeID are unset")
@@ -131,7 +132,7 @@ func (ts *DesignProviderTestSuite) TestDesignProvider_ResolveDesign() {
 		mustWriteFile(t, filepath.Join(dir, "themes", "theme-1.yaml"),
 			"id: theme-1\nhandle: default\ntheme:\n  color: blue\n")
 
-		p := NewDesignProvider(&config.AppConfig{DataDir: dir, LayoutID: "layout-1", ThemeID: "theme-1"})
+		p := NewDesignProvider(&config.AppConfig{DataDir: dir, LayoutID: "layout-1", ThemeID: "theme-1"}, nil, 0)
 		resp, svcErr := p.ResolveDesign(context.TODO(), providers.DesignResolveType(""), "")
 		if svcErr != nil {
 			t.Fatalf("unexpected service error: %v", svcErr)
@@ -144,10 +145,40 @@ func (ts *DesignProviderTestSuite) TestDesignProvider_ResolveDesign() {
 
 	t.Run("missing layout file", func(t *testing.T) {
 		dir := t.TempDir()
-		p := NewDesignProvider(&config.AppConfig{DataDir: dir, LayoutID: "missing", ThemeID: "missing"})
+		p := NewDesignProvider(&config.AppConfig{DataDir: dir, LayoutID: "missing", ThemeID: "missing"}, nil, 0)
 		_, svcErr := p.ResolveDesign(context.TODO(), "", "")
 		if svcErr == nil {
 			t.Fatal("expected error when layout file is missing")
+		}
+	})
+
+	t.Run("cache hit avoids re-reading files", func(t *testing.T) {
+		dir := t.TempDir()
+		mustMkdirAll(t, filepath.Join(dir, "layouts"))
+		mustMkdirAll(t, filepath.Join(dir, "themes"))
+		mustWriteFile(t, filepath.Join(dir, "layouts", "layout-1.yaml"),
+			"id: layout-1\nhandle: default\nlayout:\n  type: grid\n")
+		mustWriteFile(t, filepath.Join(dir, "themes", "theme-1.yaml"),
+			"id: theme-1\nhandle: default\ntheme:\n  color: blue\n")
+
+		cache := inmemory.Initialize("test")
+		p := NewDesignProvider(&config.AppConfig{DataDir: dir, LayoutID: "layout-1", ThemeID: "theme-1"}, cache, 60)
+
+		if _, svcErr := p.ResolveDesign(context.TODO(), providers.DesignResolveType(""), ""); svcErr != nil {
+			t.Fatalf("unexpected service error on first resolve: %v", svcErr)
+		}
+
+		if err := os.RemoveAll(dir); err != nil {
+			t.Fatalf("RemoveAll(%s): %v", dir, err)
+		}
+
+		resp, svcErr := p.ResolveDesign(context.TODO(), providers.DesignResolveType(""), "")
+		if svcErr != nil {
+			t.Fatalf("expected cached resolve to succeed after files were removed: %v", svcErr)
+		}
+		var layout map[string]any
+		if err := json.Unmarshal(resp.Layout, &layout); err != nil || layout["type"] != "grid" {
+			t.Errorf("resp.Layout = %s, want type=grid", resp.Layout)
 		}
 	})
 }

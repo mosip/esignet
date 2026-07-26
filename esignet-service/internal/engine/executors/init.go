@@ -8,9 +8,11 @@ package executors
 
 import (
 	"github.com/mosip/esignet/internal/engine/shared"
+
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 )
 
+// Initialize builds the map of executors registered for this engine, keyed by executor name.
 func Initialize(authnProvider shared.ConsolidatedAuthnProvider) map[string]providers.Executor {
 	executors := map[string]providers.Executor{
 		ExecutorNameEsignetClearInputs: NewClearInputsExecutor(),

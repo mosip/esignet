@@ -31,6 +31,8 @@ const (
 	defaultGateErrorPath         = "/error"
 	defaultRequestTimeLeewaySecs = 300
 	defaultClientCacheTTLSecs    = 3600
+	defaultDesignCacheTTLSecs    = 86400
+	defaultFlowCacheTTLSecs      = 86400
 )
 
 // AppConfig holds core HTTP and infrastructure settings for the service.
@@ -59,6 +61,9 @@ type AppConfig struct {
 	KeyConfig           engineconfig.KeyConfig           `yaml:"key"`
 	SecurityConfig      SecurityConfig                   `yaml:"security_config"`
 	ClientCacheTTLSecs  int64                            `yaml:"client_cache_ttl_secs"`
+	DesignCacheTTLSecs  int64                            `yaml:"design_cache_ttl_secs"`
+	FlowCacheTTLSecs    int64                            `yaml:"flow_cache_ttl_secs"`
+	CaptchaConfig       CaptchaConfig                    `yaml:"captcha_config"`
 }
 
 // SecurityConfig defines application security configuration
@@ -75,6 +80,13 @@ type AuthorizationConfig struct {
 	Endpoint string `yaml:"endpoint,omitempty"`
 	Method   string `yaml:"method,omitempty"`
 	Scope    string `yaml:"scope,omitempty"`
+}
+
+// CaptchaConfig Captcha validation configuration
+type CaptchaConfig struct {
+	ValidatorURL string `yaml:"validator_url"`
+	ModuleName   string `yaml:"module_name"`
+	TimeoutSecs  int    `yaml:"timeout_secs"`
 }
 
 // LoadAppConfig loads the application configuration from the default data directory.
@@ -183,6 +195,14 @@ func applyDefaults(cfg *AppConfig) {
 
 	if cfg.ClientCacheTTLSecs <= 0 {
 		cfg.ClientCacheTTLSecs = defaultClientCacheTTLSecs
+	}
+
+	if cfg.DesignCacheTTLSecs <= 0 {
+		cfg.DesignCacheTTLSecs = defaultDesignCacheTTLSecs
+	}
+
+	if cfg.FlowCacheTTLSecs <= 0 {
+		cfg.FlowCacheTTLSecs = defaultFlowCacheTTLSecs
 	}
 }
 

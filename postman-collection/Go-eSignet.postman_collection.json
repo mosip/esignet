@@ -1,28 +1,14 @@
 {
   "info": {
-    "_postman_id": "37bf43b9-87d6-46ba-851c-baf25e18ecb5",
+    "_postman_id": "2484cccd-71e8-4ebe-86d1-01c6a5f4f522",
     "name": "Go-eSignet",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "24889089"
+    "_exporter_id": "20579541",
+    "_collection_link": "https://go.postman.co/collection/20579541-2484cccd-71e8-4ebe-86d1-01c6a5f4f522?source=collection_link"
   },
   "item": [
     {
       "name": "Client Management",
-      "description": "Create / Get / Update an OAuth client. Run 'Create client' first, then a flow folder — every flow uses {{client_id}} + {{client_private_key}}. Toggle additionalConfig in the Create body per client type: normal OAuth = pkce_required only; FAPI2 = also require_pushed_authorization_requests + dpop_bound_access_tokens = true.",
-      "event": [
-        {
-          "listen": "prerequest",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "// Attach the client-mgmt bearer only when set (scope enforcement); otherwise drop it.",
-              "const token = pm.environment.get('client_mgmt_token');",
-              "if (token) { pm.request.headers.upsert({ key: 'Authorization', value: 'Bearer ' + token }); }",
-              "else { pm.request.headers.remove('Authorization'); }"
-            ]
-          }
-        }
-      ],
       "item": [
         {
           "name": "Create client",
@@ -56,13 +42,15 @@
                   "      kid: kid, use: 'sig'",
                   "    };",
                   "    pm.environment.set('client_private_key', JSON.stringify(privateJwk));",
-                  "    pm.environment.set('client_id', 'pm-client-' + Date.now());",
+                  "    //pm.environment.set('client_id', 'pm-client-' + Date.now());",
                   "    pm.environment.set('client_public_key', JSON.stringify({ kty: jwk.kty, n: jwk.n, e: jwk.e, kid: kid, use: 'sig' }));",
                   "    pm.environment.set('client_mgmt_request_time', new Date().toISOString());",
                   "  })",
                   ");"
                 ],
-                "type": "text/javascript"
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             },
             {
@@ -75,21 +63,38 @@
                   "pm.test('client ACTIVE', () => pm.expect(j.response.status).to.eql('ACTIVE'));",
                   "pm.test('client_id matches', () => pm.expect(j.response.clientId).to.eql(pm.environment.get('client_id')));"
                 ],
-                "type": "text/javascript"
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             }
           ],
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{client_mgmt_token}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{client_mgmt_token}}"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"requestTime\": \"{{client_mgmt_request_time}}\",\n  \"request\": {\n    \"clientId\": \"{{client_id}}\",\n    \"clientName\": \"Postman Test Client\",\n    \"clientNameLangMap\": { \"eng\": \"Postman Test Client\" },\n    \"relyingPartyId\": \"{{relying_party_id}}\",\n    \"logoUri\": \"https://example.com/logo.png\",\n    \"redirectUris\": [\"{{redirect_uri}}\"],\n    \"userClaims\": [\"name\", \"email\"],\n    \"authContextRefs\": [\"mosip:idp:acr:static-code\"],\n    \"publicKey\": {{client_public_key}},\n    \"grantTypes\": [\"authorization_code\"],\n    \"clientAuthMethods\": [\"private_key_jwt\"],\n    \"additionalConfig\": { \"require_pushed_authorization_requests\": false, \"dpop_bound_access_tokens\": false, \"pkce_required\": true }\n  }\n}"
+              "raw": "{\n  \"requestTime\": \"{{client_mgmt_request_time}}\",\n  \"request\": {\n    \"clientId\": \"{{client_id}}\",\n    \"clientName\": \"Postman Test Client\",\n    \"clientNameLangMap\": { \"eng\": \"Postman Test Client\" },\n    \"relyingPartyId\": \"{{relying_party_id}}\",\n    \"logoUri\": \"https://example.com/logo.png\",\n    \"redirectUris\": [\"{{redirect_uri}}\"],\n    \"userClaims\": [\"name\", \"email\", \"picture\", \"phone_number\", \"address\"],\n    \"authContextRefs\": [\"mosip:idp:acr:generated-code\", \"mosip:idp:acr:password\",\"mosip:idp:acr:biometrics\"],\n    \"publicKey\": {{client_public_key}},\n    \"grantTypes\": [\"authorization_code\"],\n    \"clientAuthMethods\": [\"private_key_jwt\"],\n    \"additionalConfig\": { \"require_pushed_authorization_requests\": false, \"dpop_bound_access_tokens\": false, \"pkce_required\": true }\n  }\n}"
             },
-            "url": { "raw": "{{baseUrl}}/client-mgmt/client", "host": ["{{baseUrl}}"], "path": ["client-mgmt", "client"] }
+            "url": {
+              "raw": "{{baseUrl}}/client-mgmt/client",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "client-mgmt",
+                "client"
+              ]
+            }
           },
           "response": []
         },
@@ -112,8 +117,23 @@
           ],
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{client_mgmt_token}}" }],
-            "url": { "raw": "{{baseUrl}}/client-mgmt/client/{{client_id}}", "host": ["{{baseUrl}}"], "path": ["client-mgmt", "client", "{{client_id}}"] }
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{client_mgmt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/client-mgmt/client/{{client_id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "client-mgmt",
+                "client",
+                "{{client_id}}"
+              ]
+            }
           },
           "response": []
         },
@@ -123,7 +143,9 @@
             {
               "listen": "prerequest",
               "script": {
-                "exec": ["pm.environment.set('client_mgmt_request_time', new Date().toISOString());"],
+                "exec": [
+                  "pm.environment.set('client_mgmt_request_time', new Date().toISOString());"
+                ],
                 "type": "text/javascript"
               }
             },
@@ -145,612 +167,52 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{client_mgmt_token}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{client_mgmt_token}}"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"requestTime\": \"{{client_mgmt_request_time}}\",\n  \"request\": {\n    \"clientName\": \"Postman Test Client (updated)\",\n    \"clientNameLangMap\": { \"eng\": \"Postman Test Client (updated)\" },\n    \"status\": \"active\",\n    \"logoUri\": \"https://example.com/logo-updated.png\",\n    \"redirectUris\": [\"{{redirect_uri}}\"],\n    \"userClaims\": [\"name\", \"email\"],\n    \"authContextRefs\": [\"mosip:idp:acr:static-code\"],\n    \"grantTypes\": [\"authorization_code\"],\n    \"clientAuthMethods\": [\"private_key_jwt\"]\n  }\n}"
             },
-            "url": { "raw": "{{baseUrl}}/client-mgmt/client/{{client_id}}", "host": ["{{baseUrl}}"], "path": ["client-mgmt", "client", "{{client_id}}"] }
+            "url": {
+              "raw": "{{baseUrl}}/client-mgmt/client/{{client_id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "client-mgmt",
+                "client",
+                "{{client_id}}"
+              ]
+            }
           },
           "response": []
+        }
+      ],
+      "description": "Create / Get / Update an OAuth client. Run 'Create client' first, then a flow folder — every flow uses {{client_id}} + {{client_private_key}}. Toggle additionalConfig in the Create body per client type: normal OAuth = pkce_required only; FAPI2 = also require_pushed_authorization_requests + dpop_bound_access_tokens = true.",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Attach the client-mgmt bearer only when set (scope enforcement); otherwise drop it.",
+              "const token = pm.environment.get('client_mgmt_token');",
+              "if (token) { pm.request.headers.upsert({ key: 'Authorization', value: 'Bearer ' + token }); }",
+              "else { pm.request.headers.remove('Authorization'); }"
+            ]
+          }
         }
       ]
     },
     {
-      "name": "1 — MOSIP OTP (private_key_jwt)",
-      "description": "Run Client Management > Create client first (additionalConfig: pkce_required only). Then run this folder top-to-bottom.",
-      "item": [
-        {
-          "name": "Authorize (no redirect)",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  "// PKCE: generate a fresh verifier + S256 challenge for this authorize.",
-                  "function base64UrlEncode(buffer) {",
-                  "  return btoa(String.fromCharCode(...new Uint8Array(buffer)))",
-                  "    .replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=/g, '');",
-                  "}",
-                  "const array = new Uint8Array(32);",
-                  "crypto.getRandomValues(array);",
-                  "const codeVerifier = base64UrlEncode(array);",
-                  "pm.environment.set('code_verifier', codeVerifier);",
-                  "return crypto.subtle.digest('SHA-256', new TextEncoder().encode(codeVerifier))",
-                  "  .then(hash => { pm.environment.set('code_challenge', base64UrlEncode(hash)); });"
-                ],
-                "type": "text/javascript"
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('authorize 302', () => pm.response.to.have.status(302));",
-                  "const location = pm.response.headers.get('Location');",
-                  "pm.test('Location present', () => pm.expect(location).to.be.a('string').and.not.empty);",
-                  "const redirectUrl = new URL(location, pm.environment.get('baseUrl'));",
-                  "pm.test('auth_id present', () => pm.expect(redirectUrl.searchParams.get('authId')).to.be.a('string').and.not.empty);",
-                  "pm.test('execution_id present', () => pm.expect(redirectUrl.searchParams.get('executionId')).to.be.a('string').and.not.empty);",
-                  "pm.environment.set('auth_id', redirectUrl.searchParams.get('authId'));",
-                  "pm.environment.set('execution_id', redirectUrl.searchParams.get('executionId'));"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "protocolProfileBehavior": { "followRedirects": false },
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/oauth2/authorize?client_id={{client_id}}&redirect_uri={{redirect_uri}}&response_type=code&scope={{scope}}&state=esignet-otp-test&code_challenge={{code_challenge}}&code_challenge_method=S256",
-              "host": ["{{baseUrl}}"],
-              "path": ["oauth2", "authorize"],
-              "query": [
-                { "key": "client_id", "value": "{{client_id}}" },
-                { "key": "redirect_uri", "value": "{{redirect_uri}}" },
-                { "key": "response_type", "value": "code" },
-                { "key": "scope", "value": "{{scope}}" },
-                { "key": "state", "value": "esignet-otp-test" },
-                { "key": "code_challenge", "value": "{{code_challenge}}" },
-                { "key": "code_challenge_method", "value": "S256" }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Flow meta (OTP app)",
-          "event": [
-            { "listen": "test", "script": { "exec": ["pm.test('flow meta OTP app', () => pm.response.to.have.status(200));"], "type": "text/javascript" } }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/flow/meta?type=APP&id={{otp_application_id}}&language=en&namespace=auth",
-              "host": ["{{baseUrl}}"],
-              "path": ["flow", "meta"],
-              "query": [
-                { "key": "type", "value": "APP" },
-                { "key": "id", "value": "{{otp_application_id}}" },
-                { "key": "language", "value": "en" },
-                { "key": "namespace", "value": "auth" }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Flow execute — resume",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('resume 200', () => pm.response.to.have.status(200));",
-                  "const j = pm.response.json();",
-                  "pm.test('INCOMPLETE', () => pm.expect(j.flowStatus).to.eql('INCOMPLETE'));",
-                  "pm.test('username prompt', () => {",
-                  "  const ids = (j.data && j.data.inputs || []).map(i => i.identifier);",
-                  "  pm.expect(ids).to.include('username');",
-                  "});",
-                  "pm.test('challenge_token', () => pm.expect(j.challengeToken).to.be.a('string').and.not.empty);",
-                  "pm.environment.set('challenge_token', j.challengeToken);",
-                  "if (j.data && j.data.actions && j.data.actions[0]) {",
-                  "  pm.environment.set('action_ref', j.data.actions[0].ref);",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{execution_id}}\"\n}" },
-            "url": { "raw": "{{baseUrl}}/flow/execute", "host": ["{{baseUrl}}"], "path": ["flow", "execute"] }
-          },
-          "response": []
-        },
-        {
-          "name": "Flow execute — select acr",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('select acr 200', () => pm.response.to.have.status(200));",
-                  "const j = pm.response.json();",
-                  "if (j.challengeToken) pm.environment.set('challenge_token', j.challengeToken);",
-                  "if (j.data && j.data.actions && j.data.actions[0]) {",
-                  "  pm.environment.set('action_ref', j.data.actions[0].ref);",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\"\n}" },
-            "url": { "raw": "{{baseUrl}}/flow/execute", "host": ["{{baseUrl}}"], "path": ["flow", "execute"] }
-          },
-          "response": []
-        },
-        {
-          "name": "Flow execute — individual ID",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  "if (!pm.environment.get('individual_id')) {",
-                  "  throw new Error('Set individual_id in the environment (MOSIP UIN) before running this folder.');",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('individual ID 200', () => pm.response.to.have.status(200));",
-                  "const j = pm.response.json();",
-                  "pm.test('INCOMPLETE', () => pm.expect(j.flowStatus).to.eql('INCOMPLETE'));",
-                  "pm.test('otp prompt', () => {",
-                  "  const ids = (j.data && j.data.inputs || []).map(i => i.identifier);",
-                  "  pm.expect(ids).to.include('otp');",
-                  "});",
-                  "if (j.challengeToken) pm.environment.set('challenge_token', j.challengeToken);",
-                  "if (j.data && j.data.actions && j.data.actions[0]) {",
-                  "  pm.environment.set('action_ref', j.data.actions[0].ref);",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\",\n  \"inputs\": {\n    \"username\": \"{{individual_id}}\"\n  }\n}" },
-            "url": { "raw": "{{baseUrl}}/flow/execute", "host": ["{{baseUrl}}"], "path": ["flow", "execute"] }
-          },
-          "response": []
-        },
-        {
-          "name": "Flow execute — OTP",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  "if (!pm.environment.get('otp')) {",
-                  "  throw new Error('Set otp in the environment after MOSIP sends the code.');",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('otp submit 200', () => pm.response.to.have.status(200));",
-                  "const j = pm.response.json();",
-                  "if (j.challengeToken) pm.environment.set('challenge_token', j.challengeToken);",
-                  "if (j.flowStatus === 'COMPLETE') {",
-                  "  pm.test('assertion', () => pm.expect(j.assertion).to.be.a('string').and.not.empty);",
-                  "  pm.environment.set('assertion', j.assertion);",
-                  "} else {",
-                  "  pm.test('INCOMPLETE after OTP', () => pm.expect(j.flowStatus).to.eql('INCOMPLETE'));",
-                  "  if (j.data && j.data.actions && j.data.actions[0]) {",
-                  "    pm.environment.set('action_ref', j.data.actions[0].ref);",
-                  "  }",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\",\n  \"inputs\": {\n    \"otp\": \"{{otp}}\"\n  }\n}" },
-            "url": { "raw": "{{baseUrl}}/flow/execute", "host": ["{{baseUrl}}"], "path": ["flow", "execute"] }
-          },
-          "response": []
-        },
-        {
-          "name": "Auth callback",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('callback 200', () => pm.response.to.have.status(200));",
-                  "const j = pm.response.json();",
-                  "const ru = j.redirect_uri || j.redirectUri;",
-                  "pm.test('redirect_uri present', () => pm.expect(ru).to.be.a('string').and.not.empty);",
-                  "const url = new URL(ru);",
-                  "pm.test('no OAuth error in redirect', () => pm.expect(url.searchParams.get('error')).to.be.null);",
-                  "pm.test('authorization code present', () => pm.expect(url.searchParams.get('code')).to.be.a('string').and.not.empty);",
-                  "pm.environment.set('code', url.searchParams.get('code'));"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"authId\": \"{{auth_id}}\",\n  \"assertion\": \"{{assertion}}\"\n}" },
-            "url": { "raw": "{{baseUrl}}/oauth2/auth/callback", "host": ["{{baseUrl}}"], "path": ["oauth2", "auth", "callback"] }
-          },
-          "response": []
-        },
-        {
-          "name": "Token",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('token 200', () => pm.response.to.have.status(200));",
-                  "const t = pm.response.json();",
-                  "pm.test('access_token', () => pm.expect(t.access_token).to.be.a('string').and.not.empty);",
-                  "pm.test('id_token', () => pm.expect(t.id_token).to.be.a('string').and.not.empty);",
-                  "pm.environment.set('access_token', t.access_token);",
-                  "pm.environment.set('id_token', t.id_token);"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }],
-            "body": {
-              "mode": "urlencoded",
-              "urlencoded": [
-                { "key": "grant_type", "value": "authorization_code" },
-                { "key": "code", "value": "{{code}}" },
-                { "key": "redirect_uri", "value": "{{redirect_uri}}" },
-                { "key": "client_id", "value": "{{client_id}}" },
-                { "key": "code_verifier", "value": "{{code_verifier}}" },
-                { "key": "client_assertion_type", "value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer" },
-                { "key": "client_assertion", "value": "{{client_assertion}}" }
-              ]
-            },
-            "url": { "raw": "{{baseUrl}}/oauth2/token", "host": ["{{baseUrl}}"], "path": ["oauth2", "token"] }
-          },
-          "response": []
-        },
-        {
-          "name": "UserInfo",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('userinfo 200', () => pm.response.to.have.status(200));",
-                  "const j = pm.response.json();",
-                  "pm.test('sub claim', () => pm.expect(j.sub).to.be.a('string').and.not.empty);",
-                  "pm.test('sub matches individual_id', () => pm.expect(j.sub).to.eql(pm.environment.get('individual_id')));"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": { "raw": "{{baseUrl}}/oauth2/userinfo", "host": ["{{baseUrl}}"], "path": ["oauth2", "userinfo"] }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "2 — MOSIP Credentials (private_key_jwt)",
-      "description": "Run Client Management > Create client first (additionalConfig: pkce_required only). Then run this folder top-to-bottom.",
-      "item": [
-        {
-          "name": "Authorize (no redirect)",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  "// PKCE: generate a fresh verifier + S256 challenge for this authorize.",
-                  "function base64UrlEncode(buffer) {",
-                  "  return btoa(String.fromCharCode(...new Uint8Array(buffer)))",
-                  "    .replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=/g, '');",
-                  "}",
-                  "const array = new Uint8Array(32);",
-                  "crypto.getRandomValues(array);",
-                  "const codeVerifier = base64UrlEncode(array);",
-                  "pm.environment.set('code_verifier', codeVerifier);",
-                  "return crypto.subtle.digest('SHA-256', new TextEncoder().encode(codeVerifier))",
-                  "  .then(hash => { pm.environment.set('code_challenge', base64UrlEncode(hash)); });"
-                ],
-                "type": "text/javascript"
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('authorize 302', () => pm.response.to.have.status(302));",
-                  "const location = pm.response.headers.get('Location');",
-                  "pm.test('Location present', () => pm.expect(location).to.be.a('string').and.not.empty);",
-                  "const redirectUrl = new URL(location, pm.environment.get('baseUrl'));",
-                  "pm.test('auth_id present', () => pm.expect(redirectUrl.searchParams.get('authId')).to.be.a('string').and.not.empty);",
-                  "pm.test('execution_id present', () => pm.expect(redirectUrl.searchParams.get('executionId')).to.be.a('string').and.not.empty);",
-                  "pm.environment.set('auth_id', redirectUrl.searchParams.get('authId'));",
-                  "pm.environment.set('execution_id', redirectUrl.searchParams.get('executionId'));"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "protocolProfileBehavior": { "followRedirects": false },
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/oauth2/authorize?client_id={{client_id}}&redirect_uri={{redirect_uri}}&response_type=code&scope={{scope}}&state=esignet-cred-test&code_challenge={{code_challenge}}&code_challenge_method=S256",
-              "host": ["{{baseUrl}}"],
-              "path": ["oauth2", "authorize"],
-              "query": [
-                { "key": "client_id", "value": "{{client_id}}" },
-                { "key": "redirect_uri", "value": "{{redirect_uri}}" },
-                { "key": "response_type", "value": "code" },
-                { "key": "scope", "value": "{{scope}}" },
-                { "key": "state", "value": "esignet-cred-test" },
-                { "key": "code_challenge", "value": "{{code_challenge}}" },
-                { "key": "code_challenge_method", "value": "S256" }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Flow meta (OTP app)",
-          "event": [
-            { "listen": "test", "script": { "exec": ["pm.test('flow meta OTP app', () => pm.response.to.have.status(200));"], "type": "text/javascript" } }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/flow/meta?type=APP&id={{otp_application_id}}&language=en&namespace=auth",
-              "host": ["{{baseUrl}}"],
-              "path": ["flow", "meta"],
-              "query": [
-                { "key": "type", "value": "APP" },
-                { "key": "id", "value": "{{otp_application_id}}" },
-                { "key": "language", "value": "en" },
-                { "key": "namespace", "value": "auth" }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Flow execute — resume",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('resume 200', () => pm.response.to.have.status(200));",
-                  "const j = pm.response.json();",
-                  "pm.test('INCOMPLETE', () => pm.expect(j.flowStatus).to.eql('INCOMPLETE'));",
-                  "pm.test('username prompt', () => {",
-                  "  const ids = (j.data && j.data.inputs || []).map(i => i.identifier);",
-                  "  pm.expect(ids).to.include('username');",
-                  "});",
-                  "pm.test('challenge_token', () => pm.expect(j.challengeToken).to.be.a('string').and.not.empty);",
-                  "pm.environment.set('challenge_token', j.challengeToken);",
-                  "if (j.data && j.data.actions && j.data.actions[1]) {",
-                  "  pm.environment.set('action_ref', j.data.actions[1].ref);",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{execution_id}}\"\n}" },
-            "url": { "raw": "{{baseUrl}}/flow/execute", "host": ["{{baseUrl}}"], "path": ["flow", "execute"] }
-          },
-          "response": []
-        },
-        {
-          "name": "Flow execute — select acr",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('select acr 200', () => pm.response.to.have.status(200));",
-                  "const j = pm.response.json();",
-                  "if (j.challengeToken) pm.environment.set('challenge_token', j.challengeToken);",
-                  "if (j.data && j.data.actions && j.data.actions[0]) {",
-                  "  pm.environment.set('action_ref', j.data.actions[0].ref);",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\"\n}" },
-            "url": { "raw": "{{baseUrl}}/flow/execute", "host": ["{{baseUrl}}"], "path": ["flow", "execute"] }
-          },
-          "response": []
-        },
-        {
-          "name": "Flow execute — credentials",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  "if (!pm.environment.get('individual_id')) {",
-                  "  throw new Error('Set individual_id in the environment (MOSIP UIN) before running this folder.');",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('credentials 200', () => pm.response.to.have.status(200));",
-                  "const j = pm.response.json();",
-                  "pm.test('COMPLETE', () => pm.expect(j.flowStatus).to.eql('COMPLETE'));",
-                  "pm.test('assertion', () => pm.expect(j.assertion).to.be.a('string').and.not.empty);",
-                  "pm.environment.set('assertion', j.assertion);"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\",\n  \"inputs\": {\n    \"username\": \"{{individual_id}}\",\n    \"password\": \"{{password}}\"\n  }\n}" },
-            "url": { "raw": "{{baseUrl}}/flow/execute", "host": ["{{baseUrl}}"], "path": ["flow", "execute"] }
-          },
-          "response": []
-        },
-        {
-          "name": "Auth callback",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('callback 200', () => pm.response.to.have.status(200));",
-                  "const j = pm.response.json();",
-                  "const ru = j.redirect_uri || j.redirectUri;",
-                  "pm.test('redirect_uri present', () => pm.expect(ru).to.be.a('string').and.not.empty);",
-                  "const url = new URL(ru);",
-                  "pm.test('no OAuth error in redirect', () => pm.expect(url.searchParams.get('error')).to.be.null);",
-                  "pm.test('authorization code present', () => pm.expect(url.searchParams.get('code')).to.be.a('string').and.not.empty);",
-                  "pm.environment.set('code', url.searchParams.get('code'));"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"authId\": \"{{auth_id}}\",\n  \"assertion\": \"{{assertion}}\"\n}" },
-            "url": { "raw": "{{baseUrl}}/oauth2/auth/callback", "host": ["{{baseUrl}}"], "path": ["oauth2", "auth", "callback"] }
-          },
-          "response": []
-        },
-        {
-          "name": "Token",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('token 200', () => pm.response.to.have.status(200));",
-                  "const t = pm.response.json();",
-                  "pm.test('access_token', () => pm.expect(t.access_token).to.be.a('string').and.not.empty);",
-                  "pm.test('id_token', () => pm.expect(t.id_token).to.be.a('string').and.not.empty);",
-                  "pm.environment.set('access_token', t.access_token);",
-                  "pm.environment.set('id_token', t.id_token);"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }],
-            "body": {
-              "mode": "urlencoded",
-              "urlencoded": [
-                { "key": "grant_type", "value": "authorization_code" },
-                { "key": "code", "value": "{{code}}" },
-                { "key": "redirect_uri", "value": "{{redirect_uri}}" },
-                { "key": "client_id", "value": "{{client_id}}" },
-                { "key": "code_verifier", "value": "{{code_verifier}}" },
-                { "key": "client_assertion_type", "value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer" },
-                { "key": "client_assertion", "value": "{{client_assertion}}" }
-              ]
-            },
-            "url": { "raw": "{{baseUrl}}/oauth2/token", "host": ["{{baseUrl}}"], "path": ["oauth2", "token"] }
-          },
-          "response": []
-        },
-        {
-          "name": "UserInfo",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('userinfo 200', () => pm.response.to.have.status(200));",
-                  "const j = pm.response.json();",
-                  "pm.test('sub claim', () => pm.expect(j.sub).to.be.a('string').and.not.empty);",
-                  "pm.test('sub matches individual_id', () => pm.expect(j.sub).to.eql(pm.environment.get('individual_id')));"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
-            "url": { "raw": "{{baseUrl}}/oauth2/userinfo", "host": ["{{baseUrl}}"], "path": ["oauth2", "userinfo"] }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "3 — MOSIP FAPI2 flow",
-      "description": "Run Client Management > Create client first with additionalConfig require_pushed_authorization_requests=true AND dpop_bound_access_tokens=true. Then run this folder top-to-bottom. Requires Redis >= 6.2 (PAR uses GETDEL). The PAR/token/userinfo audiences (DPoP htu + client_assertion aud) are read from the par_audience / audience / userinfo_audience environment variables.",
-      "auth": { "type": "noauth" },
+      "name": "FAPI2.0 flow",
       "item": [
         {
           "name": "Initiate PAR",
@@ -789,7 +251,7 @@
                   "  const exportedPriv = await crypto.subtle.exportKey('jwk', keyPair.privateKey);",
                   "  const publicJwk = { e: exportedPub.e, kty: exportedPub.kty, n: exportedPub.n };",
                   "  const header = { typ: 'dpop+jwt', alg: 'PS256', jwk: publicJwk };",
-                  "  const payload = { jti: crypto.randomUUID(), htm: pm.request.method.toUpperCase(), htu: parAudience, iat: Math.floor(Date.now() / 1000) };",
+                  "  const payload = { jti: crypto.randomUUID(), htm: pm.request.method.toUpperCase(), htu: `${pm.environment.get('baseUrl')}/oauth2/par`, iat: Math.floor(Date.now() / 1000) };",
                   "  const signingInput = `${b64urlStr(JSON.stringify(header))}.${b64urlStr(JSON.stringify(payload))}`;",
                   "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, keyPair.privateKey, new TextEncoder().encode(signingInput));",
                   "  pm.environment.set('dpop_jkt', await generateJKT(publicJwk));",
@@ -813,7 +275,9 @@
                   "}",
                   "pm.collectionVariables.set('par_client_assertion', await buildClientAssertion());"
                 ],
-                "type": "text/javascript"
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             },
             {
@@ -827,7 +291,9 @@
                   "pm.test('request_uri present', () => pm.expect(ru).to.be.a('string').and.not.empty);",
                   "pm.environment.set('request_uri', ru);"
                 ],
-                "type": "text/javascript"
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             }
           ],
@@ -837,19 +303,68 @@
             "body": {
               "mode": "urlencoded",
               "urlencoded": [
-                { "key": "client_id", "value": "{{client_id}}", "type": "text" },
-                { "key": "redirect_uri", "value": "{{redirect_uri}}", "type": "text" },
-                { "key": "response_type", "value": "code", "type": "text" },
-                { "key": "state", "value": "esignet-fapi2-test", "type": "text" },
-                { "key": "code_challenge", "value": "{{code_challenge}}", "type": "text" },
-                { "key": "code_challenge_method", "value": "S256", "type": "text" },
-                { "key": "scope", "value": "{{scope}}", "type": "text" },
-                { "key": "client_assertion_type", "value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer", "type": "text" },
-                { "key": "client_assertion", "value": "{{par_client_assertion}}", "type": "text" },
-                { "key": "dpop_jkt", "value": "{{dpop_jkt}}", "type": "text" }
+                {
+                  "key": "client_id",
+                  "value": "{{client_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "redirect_uri",
+                  "value": "{{redirect_uri}}",
+                  "type": "text"
+                },
+                {
+                  "key": "response_type",
+                  "value": "code",
+                  "type": "text"
+                },
+                {
+                  "key": "state",
+                  "value": "esignet-fapi2-test",
+                  "type": "text"
+                },
+                {
+                  "key": "code_challenge",
+                  "value": "{{code_challenge}}",
+                  "type": "text"
+                },
+                {
+                  "key": "code_challenge_method",
+                  "value": "S256",
+                  "type": "text"
+                },
+                {
+                  "key": "scope",
+                  "value": "{{scope}}",
+                  "type": "text"
+                },
+                {
+                  "key": "client_assertion_type",
+                  "value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+                  "type": "text"
+                },
+                {
+                  "key": "client_assertion",
+                  "value": "{{par_client_assertion}}",
+                  "type": "text"
+                },
+                {
+                  "key": "dpop_jkt",
+                  "value": "{{dpop_jkt}}",
+                  "type": "text"
+                }
               ]
             },
-            "url": { "raw": "{{baseUrl}}/oauth2/par", "host": ["{{baseUrl}}"], "path": ["oauth2", "par"] }
+            "url": {
+              "raw": "{{baseUrl}}/oauth2/par",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "oauth2",
+                "par"
+              ]
+            }
           },
           "response": []
         },
@@ -877,24 +392,86 @@
               }
             }
           ],
-          "protocolProfileBehavior": { "followRedirects": false },
+          "protocolProfileBehavior": {
+            "followRedirects": false
+          },
           "request": {
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/oauth2/authorize?client_id={{client_id}}&request_uri={{request_uri}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["oauth2", "authorize"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "oauth2",
+                "authorize"
+              ],
               "query": [
-                { "key": "client_id", "value": "{{client_id}}" },
-                { "key": "request_uri", "value": "{{request_uri}}" }
+                {
+                  "key": "client_id",
+                  "value": "{{client_id}}"
+                },
+                {
+                  "key": "request_uri",
+                  "value": "{{request_uri}}"
+                }
               ]
             }
           },
           "response": []
         },
         {
-          "name": "Flow execute — resume",
+          "name": "Flow meta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('flow meta OTP app', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/flow/meta?type=APP&id={{client_id}}&language=en&namespace=auth",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "flow",
+                "meta"
+              ],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "APP"
+                },
+                {
+                  "key": "id",
+                  "value": "{{client_id}}"
+                },
+                {
+                  "key": "language",
+                  "value": "en"
+                },
+                {
+                  "key": "namespace",
+                  "value": "auth"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Flow execute — start",
           "event": [
             {
               "listen": "test",
@@ -914,9 +491,26 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{execution_id}}\"\n}" },
-            "url": { "raw": "{{baseUrl}}/flow/execute", "host": ["{{baseUrl}}"], "path": ["flow", "execute"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"executionId\": \"{{execution_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/flow/execute",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "flow",
+                "execute"
+              ]
+            }
           },
           "response": []
         },
@@ -940,14 +534,31 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\"\n}" },
-            "url": { "raw": "{{baseUrl}}/flow/execute", "host": ["{{baseUrl}}"], "path": ["flow", "execute"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/flow/execute",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "flow",
+                "execute"
+              ]
+            }
           },
           "response": []
         },
         {
-          "name": "Flow execute — individual ID",
+          "name": "Flow execute — enter uin",
           "event": [
             {
               "listen": "prerequest",
@@ -957,7 +568,9 @@
                   "  throw new Error('Set individual_id in the environment (MOSIP UIN) before running this folder.');",
                   "}"
                 ],
-                "type": "text/javascript"
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             },
             {
@@ -976,20 +589,39 @@
                   "  pm.environment.set('action_ref', j.data.actions[0].ref);",
                   "}"
                 ],
-                "type": "text/javascript"
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             }
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\",\n  \"inputs\": {\n    \"username\": \"{{individual_id}}\"\n  }\n}" },
-            "url": { "raw": "{{baseUrl}}/flow/execute", "host": ["{{baseUrl}}"], "path": ["flow", "execute"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\",\n  \"inputs\": {\n    \"username\": \"{{individual_id}}\",\n    \"captcha\" : \"test-captcha-token\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/flow/execute",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "flow",
+                "execute"
+              ]
+            }
           },
           "response": []
         },
         {
-          "name": "Flow execute — OTP",
+          "name": "Flow execute — enter OTP",
           "event": [
             {
               "listen": "prerequest",
@@ -999,7 +631,9 @@
                   "  throw new Error('Set otp in the environment after MOSIP sends the code.');",
                   "}"
                 ],
-                "type": "text/javascript"
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             },
             {
@@ -1019,15 +653,226 @@
                   "  }",
                   "}"
                 ],
-                "type": "text/javascript"
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             }
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\",\n  \"inputs\": {\n    \"otp\": \"{{otp}}\"\n  }\n}" },
-            "url": { "raw": "{{baseUrl}}/flow/execute", "host": ["{{baseUrl}}"], "path": ["flow", "execute"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\",\n  \"inputs\": {\n    \"otp\": \"{{otp}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/flow/execute",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "flow",
+                "execute"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Flow execute — enter password",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "if (!pm.environment.get('otp')) {",
+                  "  throw new Error('Set otp in the environment after MOSIP sends the code.');",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('otp submit 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "if (j.challengeToken) pm.environment.set('challenge_token', j.challengeToken);",
+                  "if (j.flowStatus === 'COMPLETE') {",
+                  "  pm.test('assertion', () => pm.expect(j.assertion).to.be.a('string').and.not.empty);",
+                  "  pm.environment.set('assertion', j.assertion);",
+                  "} else {",
+                  "  pm.test('INCOMPLETE after OTP', () => pm.expect(j.flowStatus).to.eql('INCOMPLETE'));",
+                  "  if (j.data && j.data.actions && j.data.actions[0]) {",
+                  "    pm.environment.set('action_ref', j.data.actions[0].ref);",
+                  "  }",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\",\n  \"inputs\": {\n    \"password\": \"{{password}}\",\n    \"captcha\" : \"test-captcha-token\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/flow/execute",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "flow",
+                "execute"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Flow execute — sunbird KBI",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "if (!pm.environment.get('otp')) {",
+                  "  throw new Error('Set otp in the environment after MOSIP sends the code.');",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('otp submit 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "if (j.challengeToken) pm.environment.set('challenge_token', j.challengeToken);",
+                  "if (j.flowStatus === 'COMPLETE') {",
+                  "  pm.test('assertion', () => pm.expect(j.assertion).to.be.a('string').and.not.empty);",
+                  "  pm.environment.set('assertion', j.assertion);",
+                  "} else {",
+                  "  pm.test('INCOMPLETE after OTP', () => pm.expect(j.flowStatus).to.eql('INCOMPLETE'));",
+                  "  if (j.data && j.data.actions && j.data.actions[0]) {",
+                  "    pm.environment.set('action_ref', j.data.actions[0].ref);",
+                  "  }",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\",\n  \"inputs\": {\n    \"username\": \"{{sunbird_individual_id}}\",\n    \"fullName\": \"{{sunbird_full_name}}\",\n    \"dob\": \"{{sunbird_dob}}\",\n    \"captcha\" : \"test-captcha-token\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/flow/execute",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "flow",
+                "execute"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Flow execute — consent",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "if (!pm.environment.get('otp')) {",
+                  "  throw new Error('Set otp in the environment after MOSIP sends the code.');",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('otp submit 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "if (j.challengeToken) pm.environment.set('challenge_token', j.challengeToken);",
+                  "if (j.flowStatus === 'COMPLETE') {",
+                  "  pm.test('assertion', () => pm.expect(j.assertion).to.be.a('string').and.not.empty);",
+                  "  pm.environment.set('assertion', j.assertion);",
+                  "} else {",
+                  "  pm.test('INCOMPLETE after OTP', () => pm.expect(j.flowStatus).to.eql('INCOMPLETE'));",
+                  "  if (j.data && j.data.actions && j.data.actions[0]) {",
+                  "    pm.environment.set('action_ref', j.data.actions[0].ref);",
+                  "  }",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\",\n  \"inputs\": {\n    \"consent_decisions\": \"{\\\"purposes\\\":[{\\\"approved\\\":true,\\\"elements\\\":[{\\\"approved\\\":true,\\\"name\\\":\\\"email\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"given_name\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"address\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"birthdate\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"gender\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"name\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"phone_number\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"picture\\\"}],\\\"purposeName\\\":\\\"attributes:{{client_id}}\\\"}]}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/flow/execute",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "flow",
+                "execute"
+              ]
+            }
           },
           "response": []
         },
@@ -1053,9 +898,27 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"authId\": \"{{auth_id}}\",\n  \"assertion\": \"{{assertion}}\"\n}" },
-            "url": { "raw": "{{baseUrl}}/oauth2/auth/callback", "host": ["{{baseUrl}}"], "path": ["oauth2", "auth", "callback"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"authId\": \"{{auth_id}}\",\n  \"assertion\": \"{{assertion}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/oauth2/auth/callback",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "oauth2",
+                "auth",
+                "callback"
+              ]
+            }
           },
           "response": []
         },
@@ -1087,7 +950,7 @@
                   "  const publicJwk = JSON.parse(pm.environment.get('dpop_public_key'));",
                   "  const privateKey = await crypto.subtle.importKey('jwk', privateJwk, { name: 'RSA-PSS', hash: 'SHA-256' }, false, ['sign']);",
                   "  const header = { typ: 'dpop+jwt', alg: 'PS256', jwk: { e: publicJwk.e, kty: publicJwk.kty, n: publicJwk.n } };",
-                  "  const payload = { jti: crypto.randomUUID(), htm: 'POST', htu: tokenAudience, iat: Math.floor(Date.now() / 1000) };",
+                  "  const payload = { jti: crypto.randomUUID(), htm: pm.request.method.toUpperCase(), htu: `${pm.environment.get('baseUrl')}/oauth2/token`, iat: Math.floor(Date.now() / 1000) };",
                   "  const signingInput = `${b64urlStr(JSON.stringify(header))}.${b64urlStr(JSON.stringify(payload))}`;",
                   "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, privateKey, new TextEncoder().encode(signingInput));",
                   "  pm.request.headers.upsert({ key: 'DPoP', value: `${signingInput}.${b64url(new Uint8Array(sig))}` });",
@@ -1108,7 +971,9 @@
                   "}",
                   "pm.collectionVariables.set('client_assertion', await buildClientAssertion());"
                 ],
-                "type": "text/javascript"
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             },
             {
@@ -1121,7 +986,9 @@
                   "pm.environment.set('access_token', t.access_token);",
                   "if (t.id_token) pm.environment.set('id_token', t.id_token);"
                 ],
-                "type": "text/javascript"
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             }
           ],
@@ -1131,16 +998,53 @@
             "body": {
               "mode": "urlencoded",
               "urlencoded": [
-                { "key": "grant_type", "value": "authorization_code", "type": "text" },
-                { "key": "code", "value": "{{code}}", "type": "text" },
-                { "key": "redirect_uri", "value": "{{redirect_uri}}", "type": "text" },
-                { "key": "client_id", "value": "{{client_id}}", "type": "text" },
-                { "key": "code_verifier", "value": "{{code_verifier}}", "type": "text" },
-                { "key": "client_assertion_type", "value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer", "type": "text" },
-                { "key": "client_assertion", "value": "{{client_assertion}}", "type": "text" }
+                {
+                  "key": "grant_type",
+                  "value": "authorization_code",
+                  "type": "text"
+                },
+                {
+                  "key": "code",
+                  "value": "{{code}}",
+                  "type": "text"
+                },
+                {
+                  "key": "redirect_uri",
+                  "value": "{{redirect_uri}}",
+                  "type": "text"
+                },
+                {
+                  "key": "client_id",
+                  "value": "{{client_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "code_verifier",
+                  "value": "{{code_verifier}}",
+                  "type": "text"
+                },
+                {
+                  "key": "client_assertion_type",
+                  "value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+                  "type": "text"
+                },
+                {
+                  "key": "client_assertion",
+                  "value": "{{client_assertion}}",
+                  "type": "text"
+                }
               ]
             },
-            "url": { "raw": "{{baseUrl}}/oauth2/token", "host": ["{{baseUrl}}"], "path": ["oauth2", "token"] }
+            "url": {
+              "raw": "{{baseUrl}}/oauth2/token",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "oauth2",
+                "token"
+              ]
+            }
           },
           "response": []
         },
@@ -1170,13 +1074,15 @@
                   "  const accessToken = pm.environment.get('access_token');",
                   "  const privateKey = await crypto.subtle.importKey('jwk', privateJwk, { name: 'RSA-PSS', hash: 'SHA-256' }, false, ['sign']);",
                   "  const header = { typ: 'dpop+jwt', alg: 'PS256', jwk: { e: publicJwk.e, kty: publicJwk.kty, n: publicJwk.n } };",
-                  "  const payload = { jti: crypto.randomUUID(), htm: pm.request.method.toUpperCase(), htu: userinfoAudience, iat: Math.floor(Date.now() / 1000), ath: await sha256b64url(accessToken) };",
+                  "  const payload = { jti: crypto.randomUUID(), htm: pm.request.method.toUpperCase(), htu: `${pm.environment.get('baseUrl')}/oauth2/userinfo`, iat: Math.floor(Date.now() / 1000), ath: await sha256b64url(accessToken) };",
                   "  const signingInput = `${b64urlStr(JSON.stringify(header))}.${b64urlStr(JSON.stringify(payload))}`;",
                   "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, privateKey, new TextEncoder().encode(signingInput));",
                   "  pm.request.headers.upsert({ key: 'DPoP', value: `${signingInput}.${b64url(new Uint8Array(sig))}` });",
                   "})();"
                 ],
-                "type": "text/javascript"
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             },
             {
@@ -1186,21 +1092,42 @@
                   "pm.test('userinfo 200', () => pm.response.to.have.status(200));",
                   "console.log('userinfo body:', pm.response.text());"
                 ],
-                "type": "text/javascript"
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             }
           ],
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "DPoP {{access_token}}", "type": "text" }],
-            "url": { "raw": "{{baseUrl}}/oauth2/userinfo", "host": ["{{baseUrl}}"], "path": ["oauth2", "userinfo"] }
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "DPoP {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/oauth2/userinfo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "oauth2",
+                "userinfo"
+              ]
+            }
           },
           "response": []
         }
-      ]
+      ],
+      "description": "Run Client Management > Create client first with additionalConfig require_pushed_authorization_requests=true AND dpop_bound_access_tokens=true. Then run this folder top-to-bottom. Requires Redis >= 6.2 (PAR uses GETDEL). The PAR/token/userinfo audiences (DPoP htu + client_assertion aud) are read from the par_audience / audience / userinfo_audience environment variables.",
+      "auth": {
+        "type": "noauth"
+      }
     },
     {
-      "name": "4 — Sunbird Registry",
+      "name": "Sunbird Registry",
       "item": [
         {
           "name": "Create Policy (Identity)",
@@ -1385,454 +1312,8 @@
         }
       ],
       "description": "CRUD against the Sunbird registry (Insurance schema) used by the KBI flow. Run 'Create Policy (Identity)' first: it generates a random identity and stores it in the environment as sunbird_individual_id (policy number) / sunbird_full_name / sunbird_dob, then '5 — Sunbird KBI' authenticates against it. These dedicated vars keep the MOSIP individual_id (folders 1-3) untouched. 'Delete Policy' is opt-in (sunbird_cleanup=true) so it does not run automatically before KBI. Requires {{sunbird_url}} reachable."
-    },
-    {
-      "name": "5 — Sunbird KBI",
-      "item": [
-        {
-          "name": "Authorize (no redirect)",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  "// PKCE: generate a fresh verifier + S256 challenge for this authorize.",
-                  "function base64UrlEncode(buffer) {",
-                  "  return btoa(String.fromCharCode(...new Uint8Array(buffer)))",
-                  "    .replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=/g, '');",
-                  "}",
-                  "const array = new Uint8Array(32);",
-                  "crypto.getRandomValues(array);",
-                  "const codeVerifier = base64UrlEncode(array);",
-                  "pm.environment.set('code_verifier', codeVerifier);",
-                  "return crypto.subtle.digest('SHA-256', new TextEncoder().encode(codeVerifier))",
-                  "  .then(hash => { pm.environment.set('code_challenge', base64UrlEncode(hash)); });"
-                ],
-                "type": "text/javascript"
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('authorize 302', () => pm.response.to.have.status(302));",
-                  "const location = pm.response.headers.get('Location');",
-                  "pm.test('Location present', () => pm.expect(location).to.be.a('string').and.not.empty);",
-                  "const redirectUrl = new URL(location, pm.environment.get('baseUrl'));",
-                  "pm.test('auth_id present', () => pm.expect(redirectUrl.searchParams.get('authId')).to.be.a('string').and.not.empty);",
-                  "pm.test('execution_id present', () => pm.expect(redirectUrl.searchParams.get('executionId')).to.be.a('string').and.not.empty);",
-                  "pm.environment.set('auth_id', redirectUrl.searchParams.get('authId'));",
-                  "pm.environment.set('execution_id', redirectUrl.searchParams.get('executionId'));"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "protocolProfileBehavior": {
-            "followRedirects": false
-          },
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/oauth2/authorize?client_id={{client_id}}&redirect_uri={{redirect_uri}}&response_type=code&scope={{scope}}&state=esignet-kbi-test&code_challenge={{code_challenge}}&code_challenge_method=S256",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "oauth2",
-                "authorize"
-              ],
-              "query": [
-                {
-                  "key": "client_id",
-                  "value": "{{client_id}}"
-                },
-                {
-                  "key": "redirect_uri",
-                  "value": "{{redirect_uri}}"
-                },
-                {
-                  "key": "response_type",
-                  "value": "code"
-                },
-                {
-                  "key": "scope",
-                  "value": "{{scope}}"
-                },
-                {
-                  "key": "state",
-                  "value": "esignet-kbi-test"
-                },
-                {
-                  "key": "code_challenge",
-                  "value": "{{code_challenge}}"
-                },
-                {
-                  "key": "code_challenge_method",
-                  "value": "S256"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Flow meta (OTP app)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('flow meta OTP app', () => pm.response.to.have.status(200));"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/flow/meta?type=APP&id={{otp_application_id}}&language=en&namespace=auth",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "flow",
-                "meta"
-              ],
-              "query": [
-                {
-                  "key": "type",
-                  "value": "APP"
-                },
-                {
-                  "key": "id",
-                  "value": "{{otp_application_id}}"
-                },
-                {
-                  "key": "language",
-                  "value": "en"
-                },
-                {
-                  "key": "namespace",
-                  "value": "auth"
-                }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Flow execute — resume",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('resume 200', () => pm.response.to.have.status(200));",
-                  "const j = pm.response.json();",
-                  "pm.test('INCOMPLETE', () => pm.expect(j.flowStatus).to.eql('INCOMPLETE'));",
-                  "pm.test('username prompt', () => {",
-                  "  const ids = (j.data && j.data.inputs || []).map(i => i.identifier);",
-                  "  pm.expect(ids).to.include('username');",
-                  "});",
-                  "pm.test('challenge_token', () => pm.expect(j.challengeToken).to.be.a('string').and.not.empty);",
-                  "pm.environment.set('challenge_token', j.challengeToken);",
-                  "if (j.data && j.data.actions && j.data.actions[0]) {",
-                  "  pm.environment.set('action_ref', j.data.actions[0].ref);",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"executionId\": \"{{execution_id}}\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/flow/execute",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "flow",
-                "execute"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Flow execute — select acr",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('select acr 200', () => pm.response.to.have.status(200));",
-                  "const j = pm.response.json();",
-                  "pm.test('challenge_token', () => pm.expect(j.challengeToken).to.be.a('string').and.not.empty);",
-                  "pm.environment.set('challenge_token', j.challengeToken);",
-                  "pm.test('action_ref', () => pm.expect(j.data && j.data.actions && j.data.actions[0] && j.data.actions[0].ref).to.be.a('string').and.not.empty);",
-                  "pm.environment.set('action_ref', j.data.actions[0].ref);"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/flow/execute",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "flow",
-                "execute"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Flow execute — individual ID",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  "['sunbird_individual_id', 'sunbird_full_name', 'sunbird_dob'].forEach((k) => {",
-                  "  if (!pm.environment.get(k)) { throw new Error('Set ' + k + ' (run Sunbird Registry > Create Policy first).'); }",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('individual ID 200', () => pm.response.to.have.status(200));",
-                  "const j = pm.response.json();",
-                  "pm.test('COMPLETE', () => pm.expect(j.flowStatus).to.eql('COMPLETE'));",
-                  "pm.test('assertion', () => pm.expect(j.assertion).to.be.a('string').and.not.empty);",
-                  "pm.environment.set('assertion', j.assertion);"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\",\n  \"inputs\": {\n    \"username\": \"{{sunbird_individual_id}}\",\n    \"fullName\": \"{{sunbird_full_name}}\",\n    \"dob\": \"{{sunbird_dob}}\"\n  }\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/flow/execute",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "flow",
-                "execute"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Auth callback",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('callback 200', () => pm.response.to.have.status(200));",
-                  "const j = pm.response.json();",
-                  "const ru = j.redirect_uri || j.redirectUri;",
-                  "pm.test('redirect_uri present', () => pm.expect(ru).to.be.a('string').and.not.empty);",
-                  "const url = new URL(ru);",
-                  "pm.test('no OAuth error in redirect', () => pm.expect(url.searchParams.get('error')).to.be.null);",
-                  "pm.test('authorization code present', () => pm.expect(url.searchParams.get('code')).to.be.a('string').and.not.empty);",
-                  "pm.environment.set('code', url.searchParams.get('code'));"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"authId\": \"{{auth_id}}\",\n  \"assertion\": \"{{assertion}}\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/oauth2/auth/callback",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "oauth2",
-                "auth",
-                "callback"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Token",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('token 200', () => pm.response.to.have.status(200));",
-                  "const t = pm.response.json();",
-                  "pm.test('access_token', () => pm.expect(t.access_token).to.be.a('string').and.not.empty);",
-                  "pm.test('id_token', () => pm.expect(t.id_token).to.be.a('string').and.not.empty);",
-                  "pm.environment.set('access_token', t.access_token);",
-                  "pm.environment.set('id_token', t.id_token);"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/x-www-form-urlencoded"
-              }
-            ],
-            "body": {
-              "mode": "urlencoded",
-              "urlencoded": [
-                {
-                  "key": "grant_type",
-                  "value": "authorization_code"
-                },
-                {
-                  "key": "code",
-                  "value": "{{code}}"
-                },
-                {
-                  "key": "redirect_uri",
-                  "value": "{{redirect_uri}}"
-                },
-                {
-                  "key": "client_id",
-                  "value": "{{client_id}}"
-                },
-                {
-                  "key": "code_verifier",
-                  "value": "{{code_verifier}}"
-                },
-                {
-                  "key": "client_assertion_type",
-                  "value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
-                },
-                {
-                  "key": "client_assertion",
-                  "value": "{{client_assertion}}"
-                }
-              ]
-            },
-            "url": {
-              "raw": "{{baseUrl}}/oauth2/token",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "oauth2",
-                "token"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "UserInfo",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('userinfo 200', () => pm.response.to.have.status(200));",
-                  "const j = pm.response.json();",
-                  "pm.test('sub claim', () => pm.expect(j.sub).to.be.a('string').and.not.empty);",
-                  "pm.test('sub matches sunbird_individual_id', () => pm.expect(j.sub).to.eql(pm.environment.get('sunbird_individual_id')));"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{access_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/oauth2/userinfo",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "oauth2",
-                "userinfo"
-              ]
-            }
-          },
-          "response": []
-        }
-      ],
-      "description": "Knowledge-Based Identification against the Sunbird registry. Prereqs: (1) Client Management > Create client with additionalConfig pkce_required only AND authContextRefs including \"mosip:idp:acr:knowledge\"; (2) run '4 — Sunbird Registry' > Create Policy to seed the identity. Then run this folder top-to-bottom. KBI completes in a single flow/execute step (username = sunbird_individual_id = policy number, challenge = sunbird_full_name + sunbird_dob)."
     }
   ],
-  "auth": { "type": "noauth" },
   "event": [
     {
       "listen": "prerequest",
@@ -1876,10 +1357,26 @@
         ]
       }
     },
-    { "listen": "test", "script": { "type": "text/javascript", "exec": [""] } }
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
   ],
   "variable": [
-    { "key": "client_assertion", "value": "", "type": "string" },
-    { "key": "par_client_assertion", "value": "", "type": "string" }
+    {
+      "key": "client_assertion",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "par_client_assertion",
+      "value": "",
+      "type": "string"
+    }
   ]
 }

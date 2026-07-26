@@ -11,6 +11,7 @@ import (
 	"context"
 
 	"github.com/mosip/esignet/internal/config"
+
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 )
@@ -24,7 +25,7 @@ func NewAttestationProvider(config *config.AppConfig) providers.AttestationProvi
 	return &attestationProvider{config: config}
 }
 
-func (p attestationProvider) Verify(ctx context.Context, cfg *providers.AttestationConfig,
-	token string) (bool, *common.ServiceError) {
+func (p attestationProvider) Verify(_ context.Context, _ *providers.AttestationConfig,
+	_ string) (bool, *common.ServiceError) {
 	return true, nil
 }

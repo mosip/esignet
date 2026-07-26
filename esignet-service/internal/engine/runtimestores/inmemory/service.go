@@ -62,7 +62,7 @@ func (s *inMemoryStore) Put(_ context.Context, namespace providers.RuntimeStoreN
 }
 
 // PutIfNotExists atomically stores a value only if the key does not already hold a non-expired value.
-func (s *inMemoryStore) PutIfNotExists(ctx context.Context, namespace providers.RuntimeStoreNamespace,
+func (s *inMemoryStore) PutIfNotExists(_ context.Context, namespace providers.RuntimeStoreNamespace,
 	key string, value []byte, ttlSeconds int64) (bool, error) {
 	e := &entry{value: value}
 	if ttlSeconds > 0 {

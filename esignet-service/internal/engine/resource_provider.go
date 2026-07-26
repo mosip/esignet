@@ -37,7 +37,7 @@ func (p *resourceProvider) ValidatePermissions(
 }
 
 func (p *resourceProvider) GetResourceServer(
-	ctx context.Context, id string,
+	_ context.Context, _ string,
 ) (*providers.ResourceServer, *common.ServiceError) {
 	return &providers.ResourceServer{}, nil
 }

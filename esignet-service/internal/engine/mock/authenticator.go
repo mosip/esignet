@@ -63,7 +63,7 @@ func NewMockAuthnProvider(cfg *config.AppConfig, clientSvc *clientmgmt.Service) 
 	}, nil
 }
 
-func (p *mockAuthnProvider) Authenticate(ctx context.Context, identifiers, credentials map[string]interface{},
+func (p *mockAuthnProvider) Authenticate(_ context.Context, identifiers, credentials map[string]interface{},
 	metadata *providers.AuthnMetadata) (*providers.AuthnResult, *common.ServiceError) {
 
 	clientDtl, err := p.getApplicationAndClientID(metadata.RuntimeMetadata)
@@ -105,7 +105,7 @@ func (p *mockAuthnProvider) Authenticate(ctx context.Context, identifiers, crede
 	}, nil
 }
 
-func (p *mockAuthnProvider) GetEntityReference(ctx context.Context, entityReferenceToken any) (*providers.EntityReference,
+func (p *mockAuthnProvider) GetEntityReference(_ context.Context, entityReferenceToken any) (*providers.EntityReference,
 	*common.ServiceError) {
 	psut, ok := entityReferenceToken.(string)
 	if !ok || psut == "" {
@@ -114,7 +114,7 @@ func (p *mockAuthnProvider) GetEntityReference(ctx context.Context, entityRefere
 	return &providers.EntityReference{EntityID: psut}, nil
 }
 
-func (p *mockAuthnProvider) GetAttributes(ctx context.Context, attributeToken any, consentedAttributes *providers.RequestedAttributes,
+func (p *mockAuthnProvider) GetAttributes(_ context.Context, attributeToken any, consentedAttributes *providers.RequestedAttributes,
 	metadata *providers.GetAttributesMetadata) (*providers.AttributesResponse, *common.ServiceError) {
 
 	if consentedAttributes == nil {
@@ -164,18 +164,18 @@ func (p *mockAuthnProvider) GetAttributes(ctx context.Context, attributeToken an
 	return attributesResponse, nil
 }
 
-func (p *mockAuthnProvider) InitiateAuthentication(ctx context.Context, credentialType string, initData any,
-	metadata *providers.AuthnMetadata) (any, *common.ServiceError) {
+func (p *mockAuthnProvider) InitiateAuthentication(_ context.Context, _ string, _ any,
+	_ *providers.AuthnMetadata) (any, *common.ServiceError) {
 	return nil, nil
 }
 
-func (p *mockAuthnProvider) InitiateEnrollment(ctx context.Context, credentialType string, initData any,
-	metadata *providers.AuthnMetadata) (any, *common.ServiceError) {
+func (p *mockAuthnProvider) InitiateEnrollment(_ context.Context, _ string, _ any,
+	_ *providers.AuthnMetadata) (any, *common.ServiceError) {
 	return nil, nil
 }
 
-func (p *mockAuthnProvider) Enroll(ctx context.Context, identifiers, credentials map[string]interface{},
-	metadata *providers.AuthnMetadata) (*providers.AuthnResult, *common.ServiceError) {
+func (p *mockAuthnProvider) Enroll(_ context.Context, _, _ map[string]interface{},
+	_ *providers.AuthnMetadata) (*providers.AuthnResult, *common.ServiceError) {
 	return nil, nil
 }
 
@@ -281,7 +281,7 @@ func (p *mockAuthnProvider) getApplicationAndClientID(runtimeMetadata map[string
 	}
 
 	values := runtimeMetadata[runtimeKeyClientID]
-	if len(values) <= 0 {
+	if len(values) == 0 {
 		return clientmgmt.ClientResponse{}, errors.New("missing client_id in runtime metadata")
 	}
 	client, err := p.clientSvc.GetClient(context.Background(), values[0])

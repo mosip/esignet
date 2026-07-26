@@ -8,7 +8,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -109,8 +108,8 @@ func main() {
 		thunderidengine.WithDefaultAuthnProvider(authnProvider),
 		thunderidengine.WithAuthorizationProvider(engine.NewAuthorizationProvider(appCfg)),
 		thunderidengine.WithConsentProvider(engine.NewConsentProvider(consentmgmt.NewService(pgConn), appCfg)),
-		thunderidengine.WithDesignResolveProvider(engine.NewDesignProvider(appCfg)),
-		thunderidengine.WithFlowProvider(engine.NewFlowProvider(appCfg)),
+		thunderidengine.WithDesignResolveProvider(engine.NewDesignProvider(appCfg, runtimeStore, appCfg.DesignCacheTTLSecs)),
+		thunderidengine.WithFlowProvider(engine.NewFlowProvider(appCfg, runtimeStore, appCfg.FlowCacheTTLSecs)),
 		thunderidengine.WithI18nProvider(engine.NewI18nProvider(appCfg)),
 		thunderidengine.WithOUProvider(engine.NewOUProvider(appCfg)),
 		thunderidengine.WithResourceProvider(engine.NewResourceProvider(appCfg)),
@@ -120,6 +119,7 @@ func main() {
 		thunderidengine.WithRuntimeStoreProvider(runtimeStore),
 		thunderidengine.WithTransactioner(engine.NewNoOpTransactioner()),
 		thunderidengine.WithAttestationProvider(engine.NewAttestationProvider(appCfg)),
+		// TODO Add Captcha Validation Provider
 	)
 
 	addr := fmt.Sprintf(":%d", appCfg.Port)
@@ -171,13 +171,4 @@ func getSecurityMiddleware(appCfg *config.AppConfig, logger *applog.Logger) func
 // be applied. Both Issuer and JWKSEndpoint must be set.
 func scopeEnforcementEnabled(appCfg *config.AppConfig) bool {
 	return appCfg.SecurityConfig.IssuerURL != "" && appCfg.SecurityConfig.JwksURL != ""
-}
-
-// noOpTransactioner is a no-op implementation that simply executes the function directly.
-// Used for declarative (file-based) store modes where no database transaction is needed.
-type noOpTransactioner struct{}
-
-// Transact executes the given function directly without transaction wrapping.
-func (n *noOpTransactioner) Transact(ctx context.Context, txFunc func(context.Context) error) error {
-	return txFunc(ctx)
 }

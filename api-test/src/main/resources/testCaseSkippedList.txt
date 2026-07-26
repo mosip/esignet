@@ -1,2 +1,0 @@
-##### JIRA number;testcase 
-#MOSIP-12456------test_case_name

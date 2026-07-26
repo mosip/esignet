@@ -426,7 +426,7 @@ func mergeScopeClaims(claimsRequest map[string]any, scopeClaimNames []string) ma
 	return merged
 }
 
-func (p *consentProvider) readAuthRequest(ctx context.Context, runtimeMetadata map[string][]string) (*requestedConsent, error) {
+func (p *consentProvider) readAuthRequest(_ context.Context, runtimeMetadata map[string][]string) (*requestedConsent, error) {
 	claims := runtimeMetadata["initiator_query_claims"]
 	scopes := runtimeMetadata["initiator_query_scopes"]
 
@@ -446,20 +446,6 @@ func (p *consentProvider) readAuthRequest(ctx context.Context, runtimeMetadata m
 		standardScopes:  []string{"openid"},
 		prompt:          "consent",
 	}, nil
-}
-
-// authReqContext mirrors the consent-relevant fields of the engine's stored authorization request.
-// The field names match the engine's serialized OAuthParameters (no json tags on the source struct,
-// so keys are the Go field names); ClaimsRequest is decoded generically as it is stored in the OIDC
-// claims wire shape ({"userinfo":{...},"id_token":{...}}).
-type authReqContext struct {
-	OAuthParameters struct {
-		ClientID         string         `json:"ClientID"`
-		Prompt           string         `json:"Prompt"`
-		StandardScopes   []string       `json:"StandardScopes"`
-		PermissionScopes []string       `json:"PermissionScopes"`
-		ClaimsRequest    map[string]any `json:"ClaimsRequest"`
-	} `json:"OAuthParameters"`
 }
 
 // requestedConsent is the consent-relevant view of an authorization request, read from the

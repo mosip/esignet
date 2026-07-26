@@ -4,6 +4,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+// Package executors provides the built-in flow-step executors for the engine.
 package executors
 
 import (

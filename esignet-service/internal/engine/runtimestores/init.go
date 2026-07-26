@@ -4,17 +4,20 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+// Package runtimestores selects and initializes the runtime store backend for the engine.
 package runtimestores
 
 import (
+	"github.com/redis/go-redis/v9"
+	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
+
 	"github.com/mosip/esignet/internal/config"
 	"github.com/mosip/esignet/internal/engine/runtimestores/inmemory"
 	"github.com/mosip/esignet/internal/engine/runtimestores/redisstore"
 	applog "github.com/mosip/esignet/internal/log"
-	"github.com/redis/go-redis/v9"
-	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 )
 
+// Initialize selects and initializes the runtime store backend based on the configured RuntimeDBType.
 func Initialize(appCfg *config.AppConfig, redisClient *redis.Client) providers.RuntimeStoreProvider {
 	logger := applog.GetLogger()
 	if appCfg.RuntimeDBType == "redis" {

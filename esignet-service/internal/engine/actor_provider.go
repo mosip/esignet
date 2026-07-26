@@ -213,7 +213,7 @@ func (p *actorProvider) GetActorGroups(_ string) ([]providers.EntityGroup, *comm
 	return nil, nil
 }
 
-func (p *actorProvider) GetActorRoles(actorID string, groupIDs []string) ([]string, *common.ServiceError) {
+func (p *actorProvider) GetActorRoles(_ string, _ []string) ([]string, *common.ServiceError) {
 	return nil, nil
 }
 

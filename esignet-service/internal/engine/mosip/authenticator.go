@@ -70,7 +70,7 @@ func NewMosipAuthnProvider(cfg *config.AppConfig, clientSvc *clientmgmt.Service,
 	return provider, nil
 }
 
-func (p *mosipAuthnProvider) Authenticate(ctx context.Context, identifiers, credentials map[string]interface{},
+func (p *mosipAuthnProvider) Authenticate(_ context.Context, identifiers, credentials map[string]interface{},
 	metadata *providers.AuthnMetadata) (*providers.AuthnResult, *common.ServiceError) {
 
 	clientDtl, err := p.getApplicationAndClientID(metadata.RuntimeMetadata)
@@ -198,7 +198,7 @@ func (p *mosipAuthnProvider) Authenticate(ctx context.Context, identifiers, cred
 	}, nil
 }
 
-func (p *mosipAuthnProvider) GetEntityReference(ctx context.Context, entityReferenceToken any) (*providers.EntityReference,
+func (p *mosipAuthnProvider) GetEntityReference(_ context.Context, entityReferenceToken any) (*providers.EntityReference,
 	*common.ServiceError) {
 	psut, ok := entityReferenceToken.(string)
 	if !ok || psut == "" {
@@ -207,7 +207,7 @@ func (p *mosipAuthnProvider) GetEntityReference(ctx context.Context, entityRefer
 	return &providers.EntityReference{EntityID: psut}, nil
 }
 
-func (p *mosipAuthnProvider) GetAttributes(ctx context.Context, attributeToken any, consentedAttributes *providers.RequestedAttributes,
+func (p *mosipAuthnProvider) GetAttributes(_ context.Context, attributeToken any, consentedAttributes *providers.RequestedAttributes,
 	metadata *providers.GetAttributesMetadata) (*providers.AttributesResponse, *common.ServiceError) {
 
 	if consentedAttributes == nil {
@@ -267,18 +267,18 @@ func (p *mosipAuthnProvider) GetAttributes(ctx context.Context, attributeToken a
 	return attributesResponse, nil
 }
 
-func (p *mosipAuthnProvider) InitiateAuthentication(ctx context.Context, credentialType string, initData any,
-	metadata *providers.AuthnMetadata) (any, *common.ServiceError) {
+func (p *mosipAuthnProvider) InitiateAuthentication(_ context.Context, _ string, _ any,
+	_ *providers.AuthnMetadata) (any, *common.ServiceError) {
 	return nil, nil
 }
 
-func (p *mosipAuthnProvider) InitiateEnrollment(ctx context.Context, credentialType string, initData any,
-	metadata *providers.AuthnMetadata) (any, *common.ServiceError) {
+func (p *mosipAuthnProvider) InitiateEnrollment(_ context.Context, _ string, _ any,
+	_ *providers.AuthnMetadata) (any, *common.ServiceError) {
 	return nil, nil
 }
 
-func (p *mosipAuthnProvider) Enroll(ctx context.Context, identifiers, credentials map[string]interface{},
-	metadata *providers.AuthnMetadata) (*providers.AuthnResult, *common.ServiceError) {
+func (p *mosipAuthnProvider) Enroll(_ context.Context, _, _ map[string]interface{},
+	_ *providers.AuthnMetadata) (*providers.AuthnResult, *common.ServiceError) {
 	return nil, nil
 }
 
@@ -334,7 +334,7 @@ func (p *mosipAuthnProvider) getApplicationAndClientID(runtimeMetadata map[strin
 	}
 
 	values := runtimeMetadata[runtimeKeyClientID]
-	if len(values) <= 0 {
+	if len(values) == 0 {
 		return clientmgmt.ClientResponse{}, errors.New("missing client_id in runtime metadata")
 	}
 	client, err := p.clientSvc.GetClient(context.Background(), values[0])
