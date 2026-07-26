@@ -20,6 +20,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
@@ -116,7 +117,7 @@ func (p *mockAuthnProvider) GetEntityReference(ctx context.Context, entityRefere
 func (p *mockAuthnProvider) GetAttributes(ctx context.Context, attributeToken any, consentedAttributes *providers.RequestedAttributes,
 	metadata *providers.GetAttributesMetadata) (*providers.AttributesResponse, *common.ServiceError) {
 
-	if consentedAttributes == nil || len(consentedAttributes.Attributes) == 0 {
+	if consentedAttributes == nil {
 		return nil, shared.InvalidRequestError
 	}
 
@@ -361,15 +362,20 @@ func (p *mockAuthnProvider) callKycExchangeEndpoint(requestBody []byte, relyingP
 		return nil, fmt.Errorf("failed to parse kyc-exchange response: %w", err)
 	}
 
+	// Success path, currently parses the payload and returns the claims
+	// This should instead return signed JWT as is, but this can be done only when
+	// thunderID SDK supports "JWT" key in the Attributes map.
 	if wrapper.Response != nil && wrapper.Response.Kyc != "" {
-		claims, err := decodeJWTUnsafe(wrapper.Response.Kyc)
-		if err != nil {
-			return nil, fmt.Errorf("failed to decode kyc JWT: %w", err)
+		claims := jwt.MapClaims{}
+		if _, _, err := jwt.NewParser().ParseUnverified(wrapper.Response.Kyc, claims); err != nil {
+			return nil, fmt.Errorf("failed to parse KYC JWT payload: %w", err)
 		}
+
 		attributes := make(map[string]*providers.AttributeResponse, len(claims))
-		for claim, value := range claims {
-			attributes[claim] = &providers.AttributeResponse{Value: value}
+		for k, v := range claims {
+			attributes[k] = &providers.AttributeResponse{Value: v}
 		}
+
 		return &providers.AttributesResponse{Attributes: attributes}, nil
 	}
 
@@ -454,28 +460,4 @@ func buildEndpointURL(baseURL, relyingPartyID, clientID string) string {
 // getUTCDateTime returns current time in UTC as string in ISO 8601 format.
 func getUTCDateTime() string {
 	return time.Now().UTC().Format(utcDateTimeFormat)
-}
-
-// decodeJWTUnsafe decodes a JWT's payload without verifying its signature. The mock
-// provider trusts mock-identity-system's response as-is, matching the trust boundary
-// already used by the mosip provider for the same purpose.
-func decodeJWTUnsafe(token string) (map[string]any, error) {
-	parts := strings.Split(token, ".")
-	if len(parts) != 3 {
-		return nil, fmt.Errorf("invalid JWT format")
-	}
-
-	payload := parts[1]
-	payload += strings.Repeat("=", (4-len(payload)%4)%4)
-
-	decoded, err := base64.URLEncoding.DecodeString(payload)
-	if err != nil {
-		return nil, err
-	}
-
-	var claims map[string]any
-	if err := json.Unmarshal(decoded, &claims); err != nil {
-		return nil, err
-	}
-	return claims, nil
 }

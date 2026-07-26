@@ -210,7 +210,7 @@ func (p *mosipAuthnProvider) GetEntityReference(ctx context.Context, entityRefer
 func (p *mosipAuthnProvider) GetAttributes(ctx context.Context, attributeToken any, consentedAttributes *providers.RequestedAttributes,
 	metadata *providers.GetAttributesMetadata) (*providers.AttributesResponse, *common.ServiceError) {
 
-	if consentedAttributes == nil || len(consentedAttributes.Attributes) == 0 {
+	if consentedAttributes == nil {
 		return nil, shared.InvalidRequestError
 	}
 
@@ -234,9 +234,9 @@ func (p *mosipAuthnProvider) GetAttributes(ctx context.Context, attributeToken a
 	for k := range consentedAttributes.Attributes {
 		keys = append(keys, k)
 	}
-	responseType, ok := clientDtl.AdditionalConfig["userinfo_response_type"].(string)
-	if !ok || responseType == "" {
-		responseType = "JWS"
+
+	if len(keys) == 0 {
+		keys = append(keys, "sub")
 	}
 
 	idaKycExchangeRequest := &IdaKycExchangeRequest{
@@ -247,7 +247,7 @@ func (p *mosipAuthnProvider) GetAttributes(ctx context.Context, attributeToken a
 		KycToken:        kycToken,
 		ConsentObtained: keys,
 		Locales:         []string{"eng"},
-		RespType:        responseType,
+		RespType:        "JWS",
 		IndividualID:    username,
 	}
 

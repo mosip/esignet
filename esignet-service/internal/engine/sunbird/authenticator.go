@@ -119,7 +119,7 @@ func (p *sunbirdAuthnProvider) Authenticate(ctx context.Context, identifiers, cr
 func (p *sunbirdAuthnProvider) GetAttributes(ctx context.Context, attributeToken any, consentedAttributes *providers.RequestedAttributes,
 	metadata *providers.GetAttributesMetadata) (*providers.AttributesResponse, *common.ServiceError) {
 
-	if consentedAttributes == nil || len(consentedAttributes.Attributes) == 0 {
+	if consentedAttributes == nil {
 		return nil, shared.InvalidRequestError
 	}
 
