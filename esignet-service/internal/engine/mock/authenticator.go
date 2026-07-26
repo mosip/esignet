@@ -32,17 +32,16 @@ import (
 const (
 	utcDateTimeFormat  = "2006-01-02T15:04:05.000Z"
 	defaultClaimLocale = "eng"
-)
+	runtimeKeyClientID = "initiator_query_client_id"
 
-// identifierKeyIndividualID is the identifiers-map key that carries the individual ID.
-const identifierKeyIndividualID = "username"
-
-// Credential/identifier keys sent by the esignet flows (see data/flows/flow-esignet.yaml).
-const (
+	// Credential/identifier keys sent by the esignet flows (see data/flows/flow-esignet.yaml).
 	credentialOtp      = "otp"
 	credentialPassword = "password"
 	credentialPin      = "pin"
 	credentialBio      = "biometrics"
+
+	// identifierKeyIndividualID is the identifiers-map key that carries the individual ID.
+	identifierKeyIndividualID = "username"
 )
 
 type mockAuthnProvider struct {
@@ -63,10 +62,126 @@ func NewMockAuthnProvider(cfg *config.AppConfig, clientSvc *clientmgmt.Service) 
 	}, nil
 }
 
+func (p *mockAuthnProvider) Authenticate(ctx context.Context, identifiers, credentials map[string]interface{},
+	metadata *providers.AuthnMetadata) (*providers.AuthnResult, *common.ServiceError) {
+
+	clientDtl, err := p.getApplicationAndClientID(metadata.RuntimeMetadata)
+	if err != nil {
+		return nil, shared.ClientNotFoundError
+	}
+
+	individualID, ok := identifiers[identifierKeyIndividualID].(string)
+	if !ok || individualID == "" {
+		return nil, shared.InvalidIndividualIDError
+	}
+
+	transactionID, err := shared.GenerateTransactionID(metadata.RuntimeMetadata)
+	if err != nil {
+		return nil, shared.InvalidRequestError
+	}
+
+	kycAuthRequest := &KycAuthRequestDto{
+		TransactionID: transactionID,
+		IndividualID:  individualID,
+	}
+	if !setChallenge(kycAuthRequest, identifiers, credentials) {
+		return nil, shared.InvalidRequestError
+	}
+
+	requestBytes, err := json.Marshal(kycAuthRequest)
+	if err != nil {
+		return nil, shared.AuthenticationFailedError
+	}
+
+	kycToken, psut, err := p.callKycAuthEndpoint(requestBytes, clientDtl.RpID, clientDtl.ClientID)
+	if err != nil {
+		return nil, shared.AuthenticationFailedError
+	}
+
+	return &providers.AuthnResult{
+		EntityReferenceToken: psut,
+		AttributeToken:       strings.Join([]string{kycToken, individualID, transactionID}, "||"),
+	}, nil
+}
+
+func (p *mockAuthnProvider) GetEntityReference(ctx context.Context, entityReferenceToken any) (*providers.EntityReference,
+	*common.ServiceError) {
+	psut, ok := entityReferenceToken.(string)
+	if !ok || psut == "" {
+		return nil, shared.AuthenticationFailedError
+	}
+	return &providers.EntityReference{EntityID: psut}, nil
+}
+
+func (p *mockAuthnProvider) GetAttributes(ctx context.Context, attributeToken any, consentedAttributes *providers.RequestedAttributes,
+	metadata *providers.GetAttributesMetadata) (*providers.AttributesResponse, *common.ServiceError) {
+
+	if consentedAttributes == nil || len(consentedAttributes.Attributes) == 0 {
+		return nil, shared.InvalidRequestError
+	}
+
+	clientDtl, err := p.getApplicationAndClientID(metadata.RuntimeMetadata)
+	if err != nil {
+		return nil, shared.ClientNotFoundError
+	}
+
+	if attributeToken == nil || attributeToken == "" {
+		return nil, nil
+	}
+
+	tokenParts := strings.SplitN(attributeToken.(string), "||", 3)
+	if len(tokenParts) != 3 {
+		return nil, shared.AuthenticationFailedError
+	}
+	kycToken, individualID, transactionID := tokenParts[0], tokenParts[1], tokenParts[2]
+
+	acceptedClaims := acceptedClaimsFromRequest(consentedAttributes)
+	claimLocales := []string{defaultClaimLocale}
+	if metadata.Locale != "" {
+		claimLocales = []string{metadata.Locale}
+	}
+
+	kycExchangeRequest := &KycExchangeRequestDto{
+		RequestDateTime: getUTCDateTime(),
+		TransactionID:   transactionID,
+		KycToken:        kycToken,
+		IndividualID:    individualID,
+		AcceptedClaims:  acceptedClaims,
+		ClaimLocales:    claimLocales,
+		RespType:        "JWS",
+	}
+
+	requestBytes, err := json.Marshal(kycExchangeRequest)
+	if err != nil {
+		return nil, shared.InvalidRequestError
+	}
+
+	attributesResponse, err := p.callKycExchangeEndpoint(requestBytes, clientDtl.RpID, clientDtl.ClientID)
+	if err != nil {
+		return nil, shared.AuthenticationFailedError
+	}
+	return attributesResponse, nil
+}
+
+func (p *mockAuthnProvider) InitiateAuthentication(ctx context.Context, credentialType string, initData any,
+	metadata *providers.AuthnMetadata) (any, *common.ServiceError) {
+	return nil, nil
+}
+
+func (p *mockAuthnProvider) InitiateEnrollment(ctx context.Context, credentialType string, initData any,
+	metadata *providers.AuthnMetadata) (any, *common.ServiceError) {
+	return nil, nil
+}
+
+func (p *mockAuthnProvider) Enroll(ctx context.Context, identifiers, credentials map[string]interface{},
+	metadata *providers.AuthnMetadata) (*providers.AuthnResult, *common.ServiceError) {
+	return nil, nil
+}
+
 func (p *mockAuthnProvider) SendOTP(_ context.Context, identifiers map[string]any,
 	metadata *providers.AuthnMetadata) (*shared.SendOTPResult, *common.ServiceError) {
 
-	relyingPartyID, clientID, err := p.getApplicationAndClientID(metadata.RuntimeMetadata)
+	clientDtl, err := p.getApplicationAndClientID(metadata.RuntimeMetadata)
 	if err != nil {
 		return nil, shared.ClientNotFoundError
 	}
@@ -92,122 +207,12 @@ func (p *mockAuthnProvider) SendOTP(_ context.Context, identifiers map[string]an
 		return nil, shared.InvalidRequestError
 	}
 
-	result, err := p.callSendOtpEndpoint(requestBytes, relyingPartyID, clientID)
+	result, err := p.callSendOtpEndpoint(requestBytes, clientDtl.RpID, clientDtl.ClientID)
 	if err != nil {
 		return nil, shared.SendOTPFailedError
 	}
+	result.TransactionID = transactionID
 	return result, nil
-}
-
-func (p *mockAuthnProvider) AuthenticateUser(_ context.Context, identifiers, credentials map[string]any,
-	_ *providers.RequestedAttributes,
-	metadata *providers.AuthnMetadata,
-	authUser providers.AuthUser) (providers.AuthUser, providers.AuthenticatedClaims, *common.ServiceError) {
-
-	relyingPartyID, clientID, err := p.getApplicationAndClientID(metadata.RuntimeMetadata)
-	if err != nil {
-		return authUser, nil, shared.ClientNotFoundError
-	}
-
-	individualID, ok := identifiers[identifierKeyIndividualID].(string)
-	if !ok || individualID == "" {
-		return authUser, nil, shared.InvalidIndividualIDError
-	}
-
-	transactionID, err := shared.GenerateTransactionID(metadata.RuntimeMetadata)
-	if err != nil {
-		return authUser, nil, shared.InvalidRequestError
-	}
-
-	kycAuthRequest := &KycAuthRequestDto{
-		TransactionID: transactionID,
-		IndividualID:  individualID,
-	}
-	if !setChallenge(kycAuthRequest, identifiers, credentials) {
-		return authUser, nil, shared.InvalidRequestError
-	}
-
-	requestBytes, err := json.Marshal(kycAuthRequest)
-	if err != nil {
-		return authUser, nil, shared.AuthenticationFailedError
-	}
-
-	kycToken, psut, err := p.callKycAuthEndpoint(requestBytes, relyingPartyID, clientID)
-	if err != nil {
-		return authUser, nil, shared.AuthenticationFailedError
-	}
-
-	authUser.SetAttributeToken(strings.Join([]string{kycToken, individualID, transactionID}, "||"))
-	authUser.SetEntityReferenceToken(psut)
-	return authUser, nil, nil
-}
-
-func (p *mockAuthnProvider) GetEntityReference(_ context.Context, authUser providers.AuthUser) (
-	providers.AuthUser, *providers.EntityReference, *common.ServiceError) {
-
-	psut, ok := authUser.EntityReferenceToken().(string)
-	if !ok || psut == "" {
-		return authUser, nil, shared.AuthenticationFailedError
-	}
-	return authUser, &providers.EntityReference{EntityID: psut}, nil
-}
-
-func (p *mockAuthnProvider) GetUserAvailableAttributes(_ context.Context,
-	_ providers.AuthUser) (*providers.AttributesResponse, *common.ServiceError) {
-	return nil, nil
-}
-
-func (p *mockAuthnProvider) GetUserAttributes(_ context.Context,
-	requestedAttributes *providers.RequestedAttributes,
-	metadata *providers.GetAttributesMetadata,
-	authUser providers.AuthUser) (providers.AuthUser, *providers.AttributesResponse, *common.ServiceError) {
-
-	if requestedAttributes == nil || len(requestedAttributes.Attributes) == 0 {
-		return authUser, nil, shared.InvalidRequestError
-	}
-
-	relyingPartyID, clientID, err := p.getApplicationAndClientID(metadata.RuntimeMetadata)
-	if err != nil {
-		return authUser, nil, shared.ClientNotFoundError
-	}
-
-	attributeToken := authUser.AttributeToken()
-	if attributeToken == nil || attributeToken == "" {
-		return authUser, nil, nil
-	}
-
-	tokenParts := strings.SplitN(attributeToken.(string), "||", 3)
-	if len(tokenParts) != 3 {
-		return authUser, nil, shared.AuthenticationFailedError
-	}
-	kycToken, individualID, transactionID := tokenParts[0], tokenParts[1], tokenParts[2]
-
-	acceptedClaims := acceptedClaimsFromRequest(requestedAttributes)
-	claimLocales := []string{defaultClaimLocale}
-	if metadata.Locale != "" {
-		claimLocales = []string{metadata.Locale}
-	}
-
-	kycExchangeRequest := &KycExchangeRequestDto{
-		RequestDateTime: getUTCDateTime(),
-		TransactionID:   transactionID,
-		KycToken:        kycToken,
-		IndividualID:    individualID,
-		AcceptedClaims:  acceptedClaims,
-		ClaimLocales:    claimLocales,
-		RespType:        "JWS",
-	}
-
-	requestBytes, err := json.Marshal(kycExchangeRequest)
-	if err != nil {
-		return authUser, nil, shared.InvalidRequestError
-	}
-
-	attributesResponse, err := p.callKycExchangeEndpoint(requestBytes, relyingPartyID, clientID)
-	if err != nil {
-		return authUser, nil, shared.AuthenticationFailedError
-	}
-	return authUser, attributesResponse, nil
 }
 
 // setChallenge inspects identifiers and credentials for a supported auth factor and
@@ -266,23 +271,23 @@ func acceptedClaimsFromRequest(requestedAttributes *providers.RequestedAttribute
 	return claims
 }
 
-func (p *mockAuthnProvider) getApplicationAndClientID(runtimeMetadata map[string]string) (string, string, error) {
+func (p *mockAuthnProvider) getApplicationAndClientID(runtimeMetadata map[string][]string) (clientmgmt.ClientResponse, error) {
 	if runtimeMetadata == nil {
-		return "", "", errors.New("missing runtime metadata")
+		return clientmgmt.ClientResponse{}, errors.New("missing runtime metadata")
 	}
 	if p.clientSvc == nil {
-		return "", "", errors.New("client service is not initialized")
+		return clientmgmt.ClientResponse{}, errors.New("client service is not initialized")
 	}
 
-	clientID := runtimeMetadata["current_client_id"]
-	if clientID == "" {
-		return "", "", errors.New("missing current_client_id in runtime metadata")
+	values := runtimeMetadata[runtimeKeyClientID]
+	if len(values) <= 0 {
+		return clientmgmt.ClientResponse{}, errors.New("missing client_id in runtime metadata")
 	}
-	client, err := p.clientSvc.GetClient(context.Background(), clientID)
+	client, err := p.clientSvc.GetClient(context.Background(), values[0])
 	if err != nil {
-		return "", "", fmt.Errorf("failed to resolve client %q: %w", clientID, err)
+		return clientmgmt.ClientResponse{}, fmt.Errorf("failed to resolve client %q: %w", values[0], err)
 	}
-	return client.RpID, clientID, nil
+	return client, nil
 }
 
 func (p *mockAuthnProvider) callKycAuthEndpoint(requestBody []byte, relyingPartyID, clientID string) (string, string, error) {

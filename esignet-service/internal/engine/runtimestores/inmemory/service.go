@@ -61,6 +61,29 @@ func (s *inMemoryStore) Put(_ context.Context, namespace providers.RuntimeStoreN
 	return nil
 }
 
+// PutIfNotExists atomically stores a value only if the key does not already hold a non-expired value.
+func (s *inMemoryStore) PutIfNotExists(ctx context.Context, namespace providers.RuntimeStoreNamespace,
+	key string, value []byte, ttlSeconds int64) (bool, error) {
+	e := &entry{value: value}
+	if ttlSeconds > 0 {
+		e.expiresAt = time.Now().Add(time.Duration(ttlSeconds) * time.Second)
+	}
+
+	fk := s.getFormattedKey(namespace, key)
+
+	s.mu.Lock()
+	existing, ok := s.data[fk]
+	if ok && !existing.isExpired() {
+		s.mu.Unlock()
+		return false, nil
+	}
+	s.data[fk] = e
+	s.mu.Unlock()
+
+	s.logger.Debug("Stored in memory", applog.String("key", key))
+	return true, nil
+}
+
 // Get retrieves a value from the in-memory store by its key.
 func (s *inMemoryStore) Get(_ context.Context, namespace providers.RuntimeStoreNamespace,
 	key string) ([]byte, error) {

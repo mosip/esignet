@@ -89,3 +89,5 @@ docker-compose.override.yml
 
 # Air (live-reload tool)
 tmp/
+
+.claude/

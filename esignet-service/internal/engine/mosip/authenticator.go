@@ -29,6 +29,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"software.sslmate.com/src/go-pkcs12"
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
@@ -48,6 +49,7 @@ const (
 	mosipKycExchangeRequestID = "mosip.identity.kycexchange"
 	mosipRequestVersion       = "1.0"
 	mosipEnvStaging           = "Staging" // default MOSIP_ENV; see config.LoadMosipAuthn
+	runtimeKeyClientID        = "initiator_query_client_id"
 )
 
 type mosipAuthnProvider struct {
@@ -68,24 +70,22 @@ func NewMosipAuthnProvider(cfg *config.AppConfig, clientSvc *clientmgmt.Service,
 	return provider, nil
 }
 
-func (p *mosipAuthnProvider) AuthenticateUser(_ context.Context, identifiers, credentials map[string]interface{},
-	_ *providers.RequestedAttributes,
-	metadata *providers.AuthnMetadata,
-	authUser providers.AuthUser) (providers.AuthUser, providers.AuthenticatedClaims, *common.ServiceError) {
+func (p *mosipAuthnProvider) Authenticate(ctx context.Context, identifiers, credentials map[string]interface{},
+	metadata *providers.AuthnMetadata) (*providers.AuthnResult, *common.ServiceError) {
 
 	clientDtl, err := p.getApplicationAndClientID(metadata.RuntimeMetadata)
 	if err != nil {
-		return authUser, nil, shared.ClientNotFoundError
+		return nil, shared.ClientNotFoundError
 	}
 
 	individualID, ok := identifiers["username"].(string)
 	if !ok || individualID == "" {
-		return authUser, nil, shared.InvalidIndividualIDError
+		return nil, shared.InvalidIndividualIDError
 	}
 
 	transactionID, err := shared.GenerateTransactionID(metadata.RuntimeMetadata)
 	if err != nil {
-		return authUser, nil, shared.InvalidRequestError
+		return nil, shared.InvalidRequestError
 	}
 
 	claimsMetadataRequired := false
@@ -103,7 +103,7 @@ func (p *mosipAuthnProvider) AuthenticateUser(_ context.Context, identifiers, cr
 	}
 
 	if len(credentials) == 0 {
-		return authUser, nil, shared.InvalidRequestError
+		return nil, shared.InvalidRequestError
 	}
 	authRequest := &AuthRequest{
 		Timestamp: requestTime,
@@ -119,57 +119,57 @@ func (p *mosipAuthnProvider) AuthenticateUser(_ context.Context, identifiers, cr
 	} else if encodedBiometric, ok := biometricCredential(credentials); ok {
 		decodedBiometric, err := B64Decode(encodedBiometric)
 		if err != nil {
-			return authUser, nil, shared.InvalidRequestError
+			return nil, shared.InvalidRequestError
 		}
 		var biometrics []Biometric
 		if err := json.Unmarshal(decodedBiometric, &biometrics); err != nil {
-			return authUser, nil, shared.InvalidRequestError
+			return nil, shared.InvalidRequestError
 		}
 		if len(biometrics) == 0 {
-			return authUser, nil, shared.InvalidRequestError
+			return nil, shared.InvalidRequestError
 		}
 		authRequest.Biometrics = biometrics
 		credentialSet = true
 	}
 	if !credentialSet {
-		return authUser, nil, shared.InvalidRequestError
+		return nil, shared.InvalidRequestError
 	}
 	authRequestBytes, err := json.Marshal(authRequest)
 	if err != nil {
-		return authUser, nil, shared.AuthenticationFailedError
+		return nil, shared.AuthenticationFailedError
 	}
 
 	requestHash, err := GenerateHashWithErr(authRequestBytes)
 	if err != nil {
-		return authUser, nil, shared.AuthenticationFailedError
+		return nil, shared.AuthenticationFailedError
 	}
 	hexEncodedRequestHash, err := EncodeBytesToHexUpper(requestHash)
 	if err != nil {
-		return authUser, nil, shared.AuthenticationFailedError
+		return nil, shared.AuthenticationFailedError
 	}
 	symmetricKey, err := GenerateAESKey()
 	if err != nil {
-		return authUser, nil, shared.AuthenticationFailedError
+		return nil, shared.AuthenticationFailedError
 	}
 	encryptedRequest, err := SymmetricEncrypt(authRequestBytes, symmetricKey)
 	if err != nil {
-		return authUser, nil, shared.AuthenticationFailedError
+		return nil, shared.AuthenticationFailedError
 	}
 	encryptedRequestHash, err := SymmetricEncrypt(hexEncodedRequestHash, symmetricKey)
 	if err != nil {
-		return authUser, nil, shared.AuthenticationFailedError
+		return nil, shared.AuthenticationFailedError
 	}
 	generatedCert, err := p.fetchIDAPartnerCertificate()
 	if err != nil {
-		return authUser, nil, shared.AuthenticationFailedError
+		return nil, shared.AuthenticationFailedError
 	}
 	encryptedSessionKey, err := AsymmetricEncrypt(generatedCert.PublicKey.(*rsa.PublicKey), symmetricKey)
 	if err != nil {
-		return authUser, nil, shared.AuthenticationFailedError
+		return nil, shared.AuthenticationFailedError
 	}
 	certThumbprint, err := GetCertificateThumbprint(generatedCert)
 	if err != nil {
-		return authUser, nil, shared.AuthenticationFailedError
+		return nil, shared.AuthenticationFailedError
 	}
 
 	idaKycAuthRequest.RequestSessionKey = B64EncodeBytes(encryptedSessionKey)
@@ -179,68 +179,59 @@ func (p *mosipAuthnProvider) AuthenticateUser(_ context.Context, identifiers, cr
 
 	requestBytes, err := json.Marshal(idaKycAuthRequest)
 	if err != nil {
-		return authUser, nil, shared.AuthenticationFailedError
+		return nil, shared.AuthenticationFailedError
 	}
 
 	requestSignature, err := p.getRequestSignature(requestBytes)
 	if err != nil {
-		return authUser, nil, shared.AuthenticationFailedError
+		return nil, shared.AuthenticationFailedError
 	}
 
 	psut, kycToken, err := p.callKycAuthEndpoint(requestBytes, requestSignature, clientDtl.RpID, clientDtl.ClientID, claimsMetadataRequired)
 	if err != nil {
-		return authUser, nil, shared.AuthenticationFailedError
+		return nil, shared.AuthenticationFailedError
 	}
 
-	authUser.SetAttributeToken(strings.Join([]string{kycToken, individualID, transactionID}, "||"))
-	authUser.SetEntityReferenceToken(psut)
-	return authUser, nil, nil
+	return &providers.AuthnResult{
+		EntityReferenceToken: psut,
+		AttributeToken:       strings.Join([]string{kycToken, individualID, transactionID}, "||"),
+	}, nil
 }
 
-func (p *mosipAuthnProvider) GetEntityReference(_ context.Context, authUser providers.AuthUser) (
-	providers.AuthUser, *providers.EntityReference, *common.ServiceError) {
-
-	psut, ok := authUser.EntityReferenceToken().(string)
+func (p *mosipAuthnProvider) GetEntityReference(ctx context.Context, entityReferenceToken any) (*providers.EntityReference,
+	*common.ServiceError) {
+	psut, ok := entityReferenceToken.(string)
 	if !ok || psut == "" {
-		return authUser, nil, shared.AuthenticationFailedError
+		return nil, shared.AuthenticationFailedError
 	}
-	return authUser, &providers.EntityReference{EntityID: psut}, nil
+	return &providers.EntityReference{EntityID: psut}, nil
 }
 
-func (p *mosipAuthnProvider) GetUserAvailableAttributes(_ context.Context,
-	_ providers.AuthUser) (*providers.AttributesResponse, *common.ServiceError) {
+func (p *mosipAuthnProvider) GetAttributes(ctx context.Context, attributeToken any, consentedAttributes *providers.RequestedAttributes,
+	metadata *providers.GetAttributesMetadata) (*providers.AttributesResponse, *common.ServiceError) {
 
-	return nil, nil
-}
-
-func (p *mosipAuthnProvider) GetUserAttributes(_ context.Context,
-	requestedAttributes *providers.RequestedAttributes,
-	metadata *providers.GetAttributesMetadata,
-	authUser providers.AuthUser) (providers.AuthUser, *providers.AttributesResponse, *common.ServiceError) {
-
-	if requestedAttributes == nil || len(requestedAttributes.Attributes) == 0 {
-		return authUser, nil, shared.InvalidRequestError
+	if consentedAttributes == nil || len(consentedAttributes.Attributes) == 0 {
+		return nil, shared.InvalidRequestError
 	}
 
 	clientDtl, err := p.getApplicationAndClientID(metadata.RuntimeMetadata)
 	if err != nil {
-		return authUser, nil, shared.ClientNotFoundError
+		return nil, shared.ClientNotFoundError
 	}
 
-	attributeToken := authUser.AttributeToken()
 	if attributeToken == nil || attributeToken == "" {
-		return authUser, nil, nil
+		return nil, nil
 	}
 
 	tokenParts := strings.Split(attributeToken.(string), "||") // Extract KYC token, username and transaction ID from token (format "kycToken||username||transactionID")
 	if len(tokenParts) != 3 {
-		return authUser, nil, shared.AuthenticationFailedError
+		return nil, shared.AuthenticationFailedError
 	}
 	kycToken, username, transactionID := tokenParts[0], tokenParts[1], tokenParts[2]
 
 	// TODO add requested attributes to the request with value and values
-	keys := make([]string, 0, len(requestedAttributes.Attributes))
-	for k := range requestedAttributes.Attributes {
+	keys := make([]string, 0, len(consentedAttributes.Attributes))
+	for k := range consentedAttributes.Attributes {
 		keys = append(keys, k)
 	}
 	responseType, ok := clientDtl.AdditionalConfig["userinfo_response_type"].(string)
@@ -262,18 +253,33 @@ func (p *mosipAuthnProvider) GetUserAttributes(_ context.Context,
 
 	requestBytes, err := json.Marshal(idaKycExchangeRequest)
 	if err != nil {
-		return authUser, nil, shared.InvalidRequestError
+		return nil, shared.InvalidRequestError
 	}
 
 	requestSignature, err := p.getRequestSignature(requestBytes)
 	if err != nil {
-		return authUser, nil, shared.InvalidRequestError
+		return nil, shared.InvalidRequestError
 	}
 	attributesResponse, err := p.callKycExchangeEndpoint(requestBytes, requestSignature, clientDtl.RpID, clientDtl.ClientID)
 	if err != nil {
-		return authUser, nil, shared.AuthenticationFailedError
+		return nil, shared.AuthenticationFailedError
 	}
-	return authUser, attributesResponse, nil
+	return attributesResponse, nil
+}
+
+func (p *mosipAuthnProvider) InitiateAuthentication(ctx context.Context, credentialType string, initData any,
+	metadata *providers.AuthnMetadata) (any, *common.ServiceError) {
+	return nil, nil
+}
+
+func (p *mosipAuthnProvider) InitiateEnrollment(ctx context.Context, credentialType string, initData any,
+	metadata *providers.AuthnMetadata) (any, *common.ServiceError) {
+	return nil, nil
+}
+
+func (p *mosipAuthnProvider) Enroll(ctx context.Context, identifiers, credentials map[string]interface{},
+	metadata *providers.AuthnMetadata) (*providers.AuthnResult, *common.ServiceError) {
+	return nil, nil
 }
 
 func (p *mosipAuthnProvider) SendOTP(_ context.Context, identifiers map[string]interface{},
@@ -314,10 +320,12 @@ func (p *mosipAuthnProvider) SendOTP(_ context.Context, identifiers map[string]i
 	if err != nil {
 		return nil, shared.SendOTPFailedError
 	}
+
+	sendOTPResult.TransactionID = transactionID
 	return sendOTPResult, nil
 }
 
-func (p *mosipAuthnProvider) getApplicationAndClientID(runtimeMetadata map[string]string) (clientmgmt.ClientResponse, error) {
+func (p *mosipAuthnProvider) getApplicationAndClientID(runtimeMetadata map[string][]string) (clientmgmt.ClientResponse, error) {
 	if runtimeMetadata == nil {
 		return clientmgmt.ClientResponse{}, errors.New("missing runtime metadata")
 	}
@@ -325,13 +333,13 @@ func (p *mosipAuthnProvider) getApplicationAndClientID(runtimeMetadata map[strin
 		return clientmgmt.ClientResponse{}, errors.New("client service is not initialized")
 	}
 
-	clientID := runtimeMetadata["current_client_id"]
-	if clientID == "" {
-		return clientmgmt.ClientResponse{}, errors.New("missing current_client_id in runtime metadata")
+	values := runtimeMetadata[runtimeKeyClientID]
+	if len(values) <= 0 {
+		return clientmgmt.ClientResponse{}, errors.New("missing client_id in runtime metadata")
 	}
-	client, err := p.clientSvc.GetClient(context.Background(), clientID)
+	client, err := p.clientSvc.GetClient(context.Background(), values[0])
 	if err != nil {
-		return clientmgmt.ClientResponse{}, fmt.Errorf("failed to resolve client %q: %w", clientID, err)
+		return clientmgmt.ClientResponse{}, fmt.Errorf("failed to resolve client %q: %w", values[0], err)
 	}
 	return client, nil
 }
@@ -801,15 +809,21 @@ func (p *mosipAuthnProvider) callKycExchangeEndpoint(
 		return nil, fmt.Errorf("failed to parse IdaKycExchangeResponseWrapper: %w", err)
 	}
 
-	// Success path
+	// Success path, currently parses the payload and returns the claims
+	// This should instead return signed JWT as is, but this can be done only when
+	// thunderID SDK supports "JWT" key in the Attributes map.
 	if wrapper.Response != nil && wrapper.Response.EncryptedKyc != "" {
-		return &providers.AttributesResponse{
-			Attributes: map[string]*providers.AttributeResponse{
-				"jwt": {
-					Value: wrapper.Response.EncryptedKyc,
-				},
-			},
-		}, nil
+		claims := jwt.MapClaims{}
+		if _, _, err := jwt.NewParser().ParseUnverified(wrapper.Response.EncryptedKyc, claims); err != nil {
+			return nil, fmt.Errorf("failed to parse KYC JWT payload: %w", err)
+		}
+
+		attributes := make(map[string]*providers.AttributeResponse, len(claims))
+		for k, v := range claims {
+			attributes[k] = &providers.AttributeResponse{Value: v}
+		}
+
+		return &providers.AttributesResponse{Attributes: attributes}, nil
 	}
 
 	// Error path

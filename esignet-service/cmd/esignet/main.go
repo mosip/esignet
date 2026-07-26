@@ -8,6 +8,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -16,15 +17,13 @@ import (
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine"
 	engineconfig "github.com/thunder-id/thunderid/pkg/thunderidengine/config"
-	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
 	"github.com/mosip/esignet/internal/clientmgmt"
 	"github.com/mosip/esignet/internal/config"
 	"github.com/mosip/esignet/internal/consentmgmt"
 	"github.com/mosip/esignet/internal/engine"
-	"github.com/mosip/esignet/internal/engine/runtimestores/inmemory"
-	"github.com/mosip/esignet/internal/engine/runtimestores/redisstore"
-	"github.com/mosip/esignet/internal/engine/shared"
+	"github.com/mosip/esignet/internal/engine/executors"
+	"github.com/mosip/esignet/internal/engine/runtimestores"
 	"github.com/mosip/esignet/internal/httpmiddleware"
 	applog "github.com/mosip/esignet/internal/log"
 	"github.com/mosip/esignet/internal/security"
@@ -81,7 +80,7 @@ func main() {
 	// The runtime store is shared between the engine and the consent enforcer (which reads the
 	// engine's stored authorization requests from it), so both resolve the same keys. It's also
 	// used by clientSvc below to cache GetClient lookups.
-	runtimeStore := getRuntimeStoreProvider(appCfg, redisClient, logger)
+	runtimeStore := runtimestores.Initialize(appCfg, redisClient)
 
 	clientSvc := clientmgmt.NewService(pgConn, runtimeStore, appCfg.ClientCacheTTLSecs)
 	clientHandler := clientmgmt.NewHandler(clientSvc, logger)
@@ -94,10 +93,11 @@ func main() {
 	logger.Info("authn provider selected", applog.String("provider", appCfg.Provider))
 
 	_ = thunderidengine.New(mux,
+		thunderidengine.WithLogConfig(engineconfig.LogConfig{Level: "DEBUG", Format: "json"}),
 		thunderidengine.WithServerHome(appCfg.DataDir),
+		thunderidengine.WithRuntimeTransientDBType("redis"),
 		thunderidengine.WithKeyConfigs([]engineconfig.KeyConfig{appCfg.KeyConfig}),
 		thunderidengine.WithEncryptionConfig(appCfg.EncryptionConfig),
-		thunderidengine.WithRuntimeDBType("redis"),
 		thunderidengine.WithServerConfig(appCfg.Server),
 		thunderidengine.WithCacheConfig(appCfg.Cache),
 		thunderidengine.WithOAuthConfig(appCfg.OAuth),
@@ -106,9 +106,9 @@ func main() {
 		thunderidengine.WithFlowConfig(appCfg.Flow),
 		thunderidengine.WithObservabilityConfig(appCfg.Observability),
 		thunderidengine.WithActorProvider(engine.NewActorProvider(clientSvc, appCfg)),
-		thunderidengine.WithAuthnProvider(authnProvider),
+		thunderidengine.WithDefaultAuthnProvider(authnProvider),
 		thunderidengine.WithAuthorizationProvider(engine.NewAuthorizationProvider(appCfg)),
-		thunderidengine.WithConsentProvider(engine.NewConsentProvider(consentmgmt.NewService(pgConn), appCfg, runtimeStore)),
+		thunderidengine.WithConsentProvider(engine.NewConsentProvider(consentmgmt.NewService(pgConn), appCfg)),
 		thunderidengine.WithDesignResolveProvider(engine.NewDesignProvider(appCfg)),
 		thunderidengine.WithFlowProvider(engine.NewFlowProvider(appCfg)),
 		thunderidengine.WithI18nProvider(engine.NewI18nProvider(appCfg)),
@@ -116,8 +116,10 @@ func main() {
 		thunderidengine.WithResourceProvider(engine.NewResourceProvider(appCfg)),
 		thunderidengine.WithObservabilityProvider(observabilityProvider),
 		thunderidengine.WithIDPProvider(engine.NewIDPProvider(appCfg)),
-		thunderidengine.WithCustomExecutors(getCustomExecutors(authnProvider)),
+		thunderidengine.WithCustomExecutors(executors.Initialize(authnProvider)),
 		thunderidengine.WithRuntimeStoreProvider(runtimeStore),
+		thunderidengine.WithTransactioner(engine.NewNoOpTransactioner()),
+		thunderidengine.WithAttestationProvider(engine.NewAttestationProvider(appCfg)),
 	)
 
 	addr := fmt.Sprintf(":%d", appCfg.Port)
@@ -171,28 +173,11 @@ func scopeEnforcementEnabled(appCfg *config.AppConfig) bool {
 	return appCfg.SecurityConfig.IssuerURL != "" && appCfg.SecurityConfig.JwksURL != ""
 }
 
-// CustomExecutors returns embedder-supplied flow executors keyed by executor name.
-func getCustomExecutors(authn providers.AuthnProviderManager) map[string]providers.Executor {
-	executors := map[string]providers.Executor{
-		engine.ExecutorNameClearInputs: engine.NewClearInputsExecutor(),
-	}
-	if otpAuthn, ok := authn.(shared.ConsolidatedAuthnProvider); ok {
-		executors[engine.ExecutorNameMosipOTP] = engine.NewMosipOtpExecutor(otpAuthn)
-	}
-	return executors
-}
+// noOpTransactioner is a no-op implementation that simply executes the function directly.
+// Used for declarative (file-based) store modes where no database transaction is needed.
+type noOpTransactioner struct{}
 
-func getRuntimeStoreProvider(appCfg *config.AppConfig, redisClient *redis.Client, logger *applog.Logger) providers.RuntimeStoreProvider {
-	if appCfg.RuntimeDBType == "redis" {
-		store, err := redisstore.Initialize(appCfg.Identifier, appCfg.Redis.KeyPrefix, redisClient)
-		if err != nil {
-			logger.Fatal("Failed to initialize redis store", applog.Error(err))
-		}
-		logger.Info("runtime store initialized", applog.String("type", "redis"))
-		return store
-	}
-
-	logger.Warn("runtime store initialized", applog.String("type", "in-memory"),
-		applog.String("note", "not shared across replicas; use redis for multi-instance deployments"))
-	return inmemory.Initialize(appCfg.Identifier)
+// Transact executes the given function directly without transaction wrapping.
+func (n *noOpTransactioner) Transact(ctx context.Context, txFunc func(context.Context) error) error {
+	return txFunc(ctx)
 }

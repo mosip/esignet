@@ -57,7 +57,6 @@ type AppConfig struct {
 	GateClient          engineconfig.GateClientConfig    `yaml:"gate_client"`
 	EncryptionConfig    engineconfig.EncryptionConfig    `yaml:"crypto"`
 	KeyConfig           engineconfig.KeyConfig           `yaml:"key"`
-	Consent             engineconfig.ConsentConfig       `yaml:"consent"`
 	SecurityConfig      SecurityConfig                   `yaml:"security_config"`
 	ClientCacheTTLSecs  int64                            `yaml:"client_cache_ttl_secs"`
 }
@@ -157,8 +156,6 @@ func applyDefaults(cfg *AppConfig) {
 	cfg.Flow.Executors = []string{"CredentialsAuthExecutor", "AuthAssertExecutor", "ConsentExecutor", "AuthorizationExecutor"}
 	cfg.Flow.Interceptors = []string{}
 
-	cfg.Consent.Enabled = false
-
 	cfg.OAuth.RefreshToken.RenewOnGrant = false
 	cfg.OAuth.AuthorizationCode.ValidityPeriod = 3600
 	cfg.OAuth.PAR.ExpiresIn = 3600
@@ -169,7 +166,12 @@ func applyDefaults(cfg *AppConfig) {
 		"mosip:idp:acr:password":       {},
 	}
 	cfg.OAuth.AuthClass.Amrs = []string{}
+	cfg.OAuth.AllowedAuthMethods = []string{"private_key_jwt"}
+	cfg.OAuth.AllowedGrantTypes = []string{"authorization_code"}
+	cfg.OAuth.AllowedResponseTypes = []string{"code"}
 	cfg.OAuth.AllowWildcardRedirectURI = true
+	cfg.OAuth.TokenRevocation.Enabled = false
+	cfg.OAuth.Logout.Enabled = false
 
 	cfg.KeyConfig.CertFile = defaultSigningCertPath
 	cfg.KeyConfig.KeyFile = defaultSigningKeyPath

@@ -9,8 +9,6 @@ package engine
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
-	"fmt"
 	"maps"
 	"sort"
 	"strings"
@@ -26,10 +24,7 @@ import (
 )
 
 const (
-	// runtimeKeyAuthorizationRequestID and runtimeKeyClientID are the runtimeMetadata keys the
-	// engine populates for the consent enforcer.
-	runtimeKeyAuthorizationRequestID = "authorization_request_id"
-	runtimeKeyClientID               = "current_client_id"
+	runtimeKeyClientID = "initiator_query_client_id"
 
 	// purpose-name prefixes the engine uses to classify a consent purpose's namespace.
 	attributesPurpose  = "attributes:"
@@ -41,37 +36,34 @@ const (
 )
 
 type consentProvider struct {
-	consentSvc   *consentmgmt.Service
-	config       *config.AppConfig
-	runtimeStore providers.RuntimeStoreProvider
-	logger       *applog.Logger
+	consentSvc *consentmgmt.Service
+	config     *config.AppConfig
+	logger     *applog.Logger
 }
 
 // NewConsentProvider builds a providers.ConsentProvider backed by consentSvc.
-func NewConsentProvider(consentSvc *consentmgmt.Service, config *config.AppConfig,
-	runtimeStore providers.RuntimeStoreProvider) providers.ConsentProvider {
+func NewConsentProvider(consentSvc *consentmgmt.Service, config *config.AppConfig) providers.ConsentProvider {
 
 	return &consentProvider{consentSvc: consentSvc,
-		config:       config,
-		runtimeStore: runtimeStore,
-		logger:       applog.GetLogger().Named("consentProvider"),
+		config: config,
+		logger: applog.GetLogger().Named("consentProvider"),
 	}
 }
 
 func (p *consentProvider) ResolveConsent(ctx context.Context, _, appID string, _, userID string,
 	essentialAttributes, optionalAttributes, authorizedPermissions []string,
 	_ *providers.AttributesResponse, forceReprompt bool,
-	runtimeMetadata map[string]string) (
+	runtimeMetadata map[string][]string) (
 	*providers.ConsentPromptData, *common.ServiceError) {
 
-	clientID := runtimeMetadata[runtimeKeyClientID]
+	clientID := runtimeMetadata[runtimeKeyClientID][0]
 	consentRecord, err := p.consentSvc.FetchRecord(ctx, clientID, userID)
 	if err != nil {
 		p.logger.Error("Failed to read consent record", applog.Error(err))
 		return nil, clientError("consent_fetch_failed", err)
 	}
 
-	req, err := p.readAuthRequest(ctx, runtimeMetadata[runtimeKeyAuthorizationRequestID])
+	req, err := p.readAuthRequest(ctx, runtimeMetadata)
 	if err != nil {
 		p.logger.Error("Failed to read auth request", applog.Error(err))
 		return nil, clientError("consent_record_failed", err)
@@ -117,11 +109,11 @@ func (p *consentProvider) ResolveConsent(ctx context.Context, _, appID string, _
 // If the user denied any essential attribute, ErrorEssentialConsentDenied is returned.
 func (p *consentProvider) RecordConsent(ctx context.Context, _, appID, userID string,
 	decisions *providers.ConsentDecisions, _ string, validityPeriod int64,
-	runtimeMetadata map[string]string) (
+	runtimeMetadata map[string][]string) (
 	*providers.Consent, *common.ServiceError) {
-	clientID := runtimeMetadata[runtimeKeyClientID]
+	clientID := runtimeMetadata[runtimeKeyClientID][0]
 
-	req, err := p.readAuthRequest(ctx, runtimeMetadata[runtimeKeyAuthorizationRequestID])
+	req, err := p.readAuthRequest(ctx, runtimeMetadata)
 	if err != nil {
 		p.logger.Error("Failed to read auth request", applog.Error(err))
 		return nil, clientError("consent_record_failed", err)
@@ -434,40 +426,25 @@ func mergeScopeClaims(claimsRequest map[string]any, scopeClaimNames []string) ma
 	return merged
 }
 
-// readAuthRequest reads and decodes the consent-relevant view of the authorization request
-// identified by authID from the runtime store shared with the ThunderID engine. The engine
-// persists each authorization request under NamespaceAuthzReq keyed by the
-// authorization_request_id (see the engine's authorizationRequestStore); there is no public API to
-// fetch it, so it is read back through the same runtime store.
-func (p *consentProvider) readAuthRequest(ctx context.Context, authID string) (*requestedConsent, error) {
-	if authID == "" {
-		return nil, nil
-	}
-	data, err := p.runtimeStore.Get(ctx, providers.NamespaceAuthzReq, authID)
-	if err != nil {
-		return nil, fmt.Errorf("read authorization request %q: %w", authID, err)
-	}
-	if data == nil {
-		return nil, nil
-	}
-	req, err := decodeStored(data)
-	if err != nil {
-		return nil, err
-	}
-	return req, nil
-}
+func (p *consentProvider) readAuthRequest(ctx context.Context, runtimeMetadata map[string][]string) (*requestedConsent, error) {
+	claims := runtimeMetadata["initiator_query_claims"]
+	scopes := runtimeMetadata["initiator_query_scopes"]
 
-// decodeStored unmarshals the engine's stored authorization-request form into a requestedConsent.
-func decodeStored(data []byte) (*requestedConsent, error) {
-	var raw authReqContext
-	if err := json.Unmarshal(data, &raw); err != nil {
-		return nil, fmt.Errorf("unmarshal authorization request: %w", err)
+	if claims != nil {
+		// TODO
+		p.logger.Info("Non nil claims parameter found in the request")
 	}
+
+	if scopes != nil {
+		// TODO
+		p.logger.Info("Non nil scopes parameter found in the request")
+	}
+
 	return &requestedConsent{
-		claimsRequest:   raw.OAuthParameters.ClaimsRequest,
-		authorizeScopes: raw.OAuthParameters.PermissionScopes,
-		standardScopes:  raw.OAuthParameters.StandardScopes,
-		prompt:          raw.OAuthParameters.Prompt,
+		claimsRequest:   map[string]any{},
+		authorizeScopes: []string{},
+		standardScopes:  []string{"openid"},
+		prompt:          "consent",
 	}, nil
 }
 

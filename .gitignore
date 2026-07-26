@@ -36,4 +36,4 @@ helm/*/charts/
 
 .DS_Store
 coverage/
-build/
+build/.claude/

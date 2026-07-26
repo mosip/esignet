@@ -6,15 +6,21 @@
 
 package shared
 
-import "crypto/rand"
+import (
+	"crypto/rand"
+)
+
+const (
+	transactionIDKey = "provider_ext_TransactionID"
+)
 
 // GenerateTransactionID generates a cryptographically random 10-digit numeric string,
 // reusing any transaction id already established for this runtime context (so
 // SendOTP/AuthenticateUser/GetUserAttributes calls for the same flow execution share
 // one transaction id, as mock-identity-system and MOSIP IDA require).
-func GenerateTransactionID(runtimeMetadata map[string]string) (string, error) {
-	if runtimeMetadata != nil && runtimeMetadata["ext_TransactionID"] != "" {
-		return runtimeMetadata["ext_TransactionID"], nil
+func GenerateTransactionID(runtimeMetadata map[string][]string) (string, error) {
+	if runtimeMetadata != nil && runtimeMetadata[transactionIDKey] != nil {
+		return runtimeMetadata[transactionIDKey][0], nil
 	}
 
 	const digitCount = 10

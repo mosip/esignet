@@ -213,6 +213,10 @@ func (p *actorProvider) GetActorGroups(_ string) ([]providers.EntityGroup, *comm
 	return nil, nil
 }
 
+func (p *actorProvider) GetActorRoles(actorID string, groupIDs []string) ([]string, *common.ServiceError) {
+	return nil, nil
+}
+
 func getJWKS(publicKey string, encPublicKey string) string {
 	keys := extractJWKs(publicKey)
 	keys = append(keys, extractJWKs(encPublicKey)...)
