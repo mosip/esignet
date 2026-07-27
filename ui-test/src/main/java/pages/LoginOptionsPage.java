@@ -1322,19 +1322,6 @@ public class LoginOptionsPage extends BasePage {
 		return deviceDropdowns.stream().anyMatch(WebElement::isDisplayed);
 	}
 
-	private boolean hasBiometricDeviceSelectionUi() {
-		return hasBiometricDeviceDropdown()
-				|| (isBiometricScanAndVerifyButtonEnabled() && isBiometricScanAndVerifyButtonDisplayed());
-	}
-
-	private boolean isBiometricScanButtonVisible() {
-		List<WebElement> scanButtons = driver.findElements(By.xpath(
-				"//div[@id='secure-biometric-interface-integration']//button[contains("
-						+ "translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'scan') "
-						+ "or contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'verify')]"));
-		return scanButtons.stream().anyMatch(WebElement::isDisplayed);
-	}
-
 	private boolean isBiometricAuthenticationSuccess() {
 		String currentUrl = driver.getCurrentUrl();
 		if (currentUrl != null) {
