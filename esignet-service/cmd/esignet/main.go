@@ -9,6 +9,7 @@ package main
 
 import (
 	"fmt"
+	"net"
 	"net/http"
 	"time"
 
@@ -124,7 +125,7 @@ func main() {
 		thunderidengine.WithRuntimeStoreProvider(runtimeStore),
 		thunderidengine.WithTransactioner(engine.NewNoOpTransactioner()),
 		thunderidengine.WithAttestationProvider(engine.NewAttestationProvider(appCfg)),
-		// TODO Add Captcha Validation Provider
+		thunderidengine.WithCaptchaValidationProvider(engine.NewCaptchaProvider(&appCfg.CaptchaConfig, newHTTPClient())),
 	)
 
 	addr := fmt.Sprintf(":%d", appCfg.Port)
@@ -176,4 +177,22 @@ func getSecurityMiddleware(appCfg *config.AppConfig, logger *applog.Logger) func
 // be applied. Both Issuer and JWKSEndpoint must be set.
 func scopeEnforcementEnabled(appCfg *config.AppConfig) bool {
 	return appCfg.SecurityConfig.IssuerURL != "" && appCfg.SecurityConfig.JwksURL != ""
+}
+
+// newHTTPClient returns a tuned HTTP client for outbound MOSIP calls. Each
+// caller (the IDA authenticator, the audit-manager client) gets its own
+// instance.
+func newHTTPClient() *http.Client {
+	return &http.Client{
+		Timeout: 30 * time.Second,
+		Transport: &http.Transport{
+			DialContext: (&net.Dialer{
+				Timeout:   5 * time.Second,
+				KeepAlive: 30 * time.Second,
+			}).DialContext,
+			TLSHandshakeTimeout:   10 * time.Second,
+			ResponseHeaderTimeout: 10 * time.Second,
+			IdleConnTimeout:       90 * time.Second,
+		},
+	}
 }

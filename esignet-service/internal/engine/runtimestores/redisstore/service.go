@@ -19,8 +19,11 @@ import (
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 )
 
-// redisClient is the minimal Redis API needed by redisStore.
+// redisClient is the minimal Redis API needed by redisStore. It embeds redis.Scripter so
+// compareFieldAndSwapScript.Run can be passed a redisClient directly.
 type redisClient interface {
+	redis.Scripter
+
 	Set(ctx context.Context, key string, value any, expiration time.Duration) *redis.StatusCmd
 	Get(ctx context.Context, key string) *redis.StringCmd
 	SetArgs(ctx context.Context, key string, value any, a redis.SetArgs) *redis.StatusCmd
@@ -28,6 +31,18 @@ type redisClient interface {
 	GetDel(ctx context.Context, key string) *redis.StringCmd
 	Expire(ctx context.Context, key string, expiration time.Duration) *redis.BoolCmd
 }
+
+// compareFieldAndSwapScript atomically replaces the stored value with a new one only when the
+// top-level JSON string field named ARGV[1] equals ARGV[2], preserving the existing TTL.
+// Returns 1 on swap, 0 when the key is absent or the field differs.
+var compareFieldAndSwapScript = redis.NewScript(`
+local val = redis.call('GET', KEYS[1])
+if not val then return 0 end
+local data = cjson.decode(val)
+if data[ARGV[1]] ~= ARGV[2] then return 0 end
+redis.call('SET', KEYS[1], ARGV[3], 'KEEPTTL')
+return 1
+`)
 
 // keyFormat is the format string used to build Redis store keys.
 const keyFormat = "%s:runtime:%s:%s:%s"
@@ -154,6 +169,21 @@ func (r *redisStore) ExtendTTL(ctx context.Context, namespace providers.RuntimeS
 		return providers.ErrRuntimeStoreKeyNotFound
 	}
 	return nil
+}
+
+// CompareFieldAndSwap replaces the stored value with newValue only when the top-level JSON string
+// field of the current value equals expected, preserving the existing TTL.
+func (r *redisStore) CompareFieldAndSwap(ctx context.Context, namespace providers.RuntimeStoreNamespace,
+	key, field, expected string, newValue []byte) (bool, error) {
+	n, err := compareFieldAndSwapScript.Run(ctx, r.client,
+		[]string{r.getFormattedKey(namespace, key)}, field, expected, newValue).Int64()
+	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return false, nil
+		}
+		return false, fmt.Errorf("failed to compare-and-swap in Redis: %w", err)
+	}
+	return n == 1, nil
 }
 
 // getFormattedKey builds the Redis key.

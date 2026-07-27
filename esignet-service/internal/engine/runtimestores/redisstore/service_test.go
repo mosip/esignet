@@ -37,6 +37,11 @@ type fakeRedisClient struct {
 	getDelVal string
 	expireErr error
 	expireOK  bool
+
+	evalKeys []string
+	evalArgs []any
+	evalVal  int64
+	evalErr  error
 }
 
 func (f *fakeRedisClient) Set(_ context.Context, key string, value any, expiration time.Duration) *redis.StatusCmd {
@@ -102,6 +107,41 @@ func (f *fakeRedisClient) Expire(_ context.Context, key string, expiration time.
 	} else {
 		cmd.SetVal(f.expireOK)
 	}
+	return cmd
+}
+
+func (f *fakeRedisClient) EvalSha(_ context.Context, _ string, keys []string, args ...any) *redis.Cmd {
+	f.evalKeys, f.evalArgs = keys, args
+	cmd := redis.NewCmd(context.Background())
+	if f.evalErr != nil {
+		cmd.SetErr(f.evalErr)
+	} else {
+		cmd.SetVal(f.evalVal)
+	}
+	return cmd
+}
+
+func (f *fakeRedisClient) Eval(ctx context.Context, _ string, keys []string, args ...any) *redis.Cmd {
+	return f.EvalSha(ctx, "", keys, args...)
+}
+
+func (f *fakeRedisClient) EvalShaRO(ctx context.Context, sha1 string, keys []string, args ...any) *redis.Cmd {
+	return f.EvalSha(ctx, sha1, keys, args...)
+}
+
+func (f *fakeRedisClient) EvalRO(ctx context.Context, script string, keys []string, args ...any) *redis.Cmd {
+	return f.Eval(ctx, script, keys, args...)
+}
+
+func (f *fakeRedisClient) ScriptExists(_ context.Context, _ ...string) *redis.BoolSliceCmd {
+	cmd := redis.NewBoolSliceCmd(context.Background())
+	cmd.SetVal([]bool{true})
+	return cmd
+}
+
+func (f *fakeRedisClient) ScriptLoad(_ context.Context, _ string) *redis.StringCmd {
+	cmd := redis.NewStringCmd(context.Background())
+	cmd.SetVal("")
 	return cmd
 }
 
@@ -302,6 +342,59 @@ func (ts *ServiceTestSuite) TestExtendTTL() {
 		s := newTestStore(fake)
 		if err := s.ExtendTTL(context.Background(), ns, "k", 60); err == nil {
 			t.Fatal("expected error from ExtendTTL")
+		}
+	})
+}
+
+func (ts *ServiceTestSuite) TestCompareFieldAndSwap() {
+	t := ts.T()
+	newValue := []byte(`{"State":"AUTHENTICATED"}`)
+
+	t.Run("swapped", func(t *testing.T) {
+		fake := &fakeRedisClient{evalVal: 1}
+		s := newTestStore(fake)
+		swapped, err := s.CompareFieldAndSwap(context.Background(), ns, "k", "State", "PENDING", newValue)
+		if err != nil {
+			t.Fatalf("CompareFieldAndSwap: %v", err)
+		}
+		if !swapped {
+			t.Error("swapped = false, want true")
+		}
+		wantKey := s.getFormattedKey(ns, "k")
+		if len(fake.evalKeys) != 1 || fake.evalKeys[0] != wantKey {
+			t.Errorf("evalKeys = %v, want [%q]", fake.evalKeys, wantKey)
+		}
+	})
+
+	t.Run("field differs, no swap", func(t *testing.T) {
+		fake := &fakeRedisClient{evalVal: 0}
+		s := newTestStore(fake)
+		swapped, err := s.CompareFieldAndSwap(context.Background(), ns, "k", "State", "PENDING", newValue)
+		if err != nil {
+			t.Fatalf("CompareFieldAndSwap: %v", err)
+		}
+		if swapped {
+			t.Error("swapped = true, want false")
+		}
+	})
+
+	t.Run("missing key returns no swap, no error", func(t *testing.T) {
+		fake := &fakeRedisClient{evalErr: redis.Nil}
+		s := newTestStore(fake)
+		swapped, err := s.CompareFieldAndSwap(context.Background(), ns, "k", "State", "PENDING", newValue)
+		if err != nil {
+			t.Fatalf("CompareFieldAndSwap: %v", err)
+		}
+		if swapped {
+			t.Error("swapped = true, want false")
+		}
+	})
+
+	t.Run("error", func(t *testing.T) {
+		fake := &fakeRedisClient{evalErr: errors.New("boom")}
+		s := newTestStore(fake)
+		if _, err := s.CompareFieldAndSwap(context.Background(), ns, "k", "State", "PENDING", newValue); err == nil {
+			t.Fatal("expected error from CompareFieldAndSwap")
 		}
 	})
 }

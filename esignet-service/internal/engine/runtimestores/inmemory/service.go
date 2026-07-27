@@ -8,6 +8,7 @@ package inmemory
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"sync"
 	"time"
@@ -142,6 +143,34 @@ func (s *inMemoryStore) Take(_ context.Context, namespace providers.RuntimeStore
 
 	s.logger.Debug("Taken from memory", applog.String("key", key))
 	return e.value, nil
+}
+
+// CompareFieldAndSwap replaces the stored value with newValue only when the top-level JSON string
+// field of the current value equals expected, preserving the existing TTL.
+func (s *inMemoryStore) CompareFieldAndSwap(_ context.Context, namespace providers.RuntimeStoreNamespace,
+	key, field, expected string, newValue []byte) (bool, error) {
+	fk := s.getFormattedKey(namespace, key)
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	e, ok := s.data[fk]
+	if !ok || e.isExpired() {
+		return false, nil
+	}
+
+	var doc map[string]json.RawMessage
+	if err := json.Unmarshal(e.value, &doc); err != nil {
+		return false, fmt.Errorf("failed to unmarshal stored value: %w", err)
+	}
+
+	var current string
+	if err := json.Unmarshal(doc[field], &current); err != nil || current != expected {
+		return false, nil
+	}
+
+	s.data[fk] = &entry{value: newValue, expiresAt: e.expiresAt}
+	return true, nil
 }
 
 // ExtendTTL extends the TTL of an existing entry in the in-memory store.

@@ -197,6 +197,95 @@ func (ts *ServiceTestSuite) TestExtendTTL() {
 	}
 }
 
+func (ts *ServiceTestSuite) TestCompareFieldAndSwap() {
+	t := ts.T()
+	store := Initialize("dep-1")
+	ctx := context.Background()
+
+	swapped, err := store.CompareFieldAndSwap(ctx, ns, "missing", "State", "PENDING", []byte(`{"State":"AUTHENTICATED"}`))
+	if err != nil {
+		t.Fatalf("CompareFieldAndSwap(missing): %v", err)
+	}
+	if swapped {
+		t.Error("CompareFieldAndSwap(missing) = true, want false")
+	}
+
+	if err := store.Put(ctx, ns, "key1", []byte(`{"State":"PENDING"}`), 60); err != nil {
+		t.Fatalf("Put: %v", err)
+	}
+
+	swapped, err = store.CompareFieldAndSwap(ctx, ns, "key1", "State", "CONSUMED", []byte(`{"State":"AUTHENTICATED"}`))
+	if err != nil {
+		t.Fatalf("CompareFieldAndSwap(wrong expected): %v", err)
+	}
+	if swapped {
+		t.Error("CompareFieldAndSwap(wrong expected) = true, want false")
+	}
+
+	swapped, err = store.CompareFieldAndSwap(ctx, ns, "key1", "State", "PENDING", []byte(`{"State":"AUTHENTICATED"}`))
+	if err != nil {
+		t.Fatalf("CompareFieldAndSwap: %v", err)
+	}
+	if !swapped {
+		t.Error("CompareFieldAndSwap = false, want true")
+	}
+
+	got, err := store.Get(ctx, ns, "key1")
+	if err != nil {
+		t.Fatalf("Get: %v", err)
+	}
+	if string(got) != `{"State":"AUTHENTICATED"}` {
+		t.Errorf("Get() after swap = %q, want AUTHENTICATED doc", got)
+	}
+
+	s := store.(*inMemoryStore)
+	fk := s.getFormattedKey(ns, "key1")
+	s.mu.RLock()
+	expiresAt := s.data[fk].expiresAt
+	s.mu.RUnlock()
+	if expiresAt.IsZero() {
+		t.Error("expected TTL to be preserved across CompareFieldAndSwap")
+	}
+}
+
+func (ts *ServiceTestSuite) TestCompareFieldAndSwapExpiredEntry() {
+	t := ts.T()
+	store := Initialize("dep-1")
+	ctx := context.Background()
+
+	if err := store.Put(ctx, ns, "key1", []byte(`{"State":"PENDING"}`), 1); err != nil {
+		t.Fatalf("Put: %v", err)
+	}
+
+	s := store.(*inMemoryStore)
+	fk := s.getFormattedKey(ns, "key1")
+	s.mu.Lock()
+	s.data[fk].expiresAt = time.Now().Add(-time.Second)
+	s.mu.Unlock()
+
+	swapped, err := store.CompareFieldAndSwap(ctx, ns, "key1", "State", "PENDING", []byte(`{"State":"AUTHENTICATED"}`))
+	if err != nil {
+		t.Fatalf("CompareFieldAndSwap: %v", err)
+	}
+	if swapped {
+		t.Error("CompareFieldAndSwap on expired entry = true, want false")
+	}
+}
+
+func (ts *ServiceTestSuite) TestCompareFieldAndSwapMalformedJSON() {
+	t := ts.T()
+	store := Initialize("dep-1")
+	ctx := context.Background()
+
+	if err := store.Put(ctx, ns, "key1", []byte("not-json"), 0); err != nil {
+		t.Fatalf("Put: %v", err)
+	}
+
+	if _, err := store.CompareFieldAndSwap(ctx, ns, "key1", "State", "PENDING", []byte(`{"State":"AUTHENTICATED"}`)); err == nil {
+		t.Fatal("expected error unmarshalling malformed stored value")
+	}
+}
+
 func (ts *ServiceTestSuite) TestNamespaceIsolation() {
 	t := ts.T()
 	store := Initialize("dep-1")
