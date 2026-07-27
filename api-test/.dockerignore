@@ -1,0 +1,7 @@
+out/
+config.json
+conformance-suite-private/
+*esignet-config*.json
+bdd/**/*.test
+.env
+.git

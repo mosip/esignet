@@ -1,0 +1,24 @@
+@flow-authz-neg
+Feature: authorize endpoint — negative validation (uses a pre-registered client)
+  Negative cases the conformance suite cannot reach: they assert eSignet rejects a
+  malformed /oauth2/authorize request before any login begins. Driven with a real,
+  pre-registered client id (FLOW_CLIENT_ID) so redirect/param validation runs
+  against a genuine client — no partner/policy or OTP needed. Requests are made
+  without following redirects so the 302 and its Location (errorCode) are asserted
+  directly (following it would land on the HTML /error page).
+
+  # eSignet answers an invalid authorize with 302 -> /error?errorCode=...&errorMessage=...
+  # rather than a JSON body. gated by @flow-authz-neg + FLOW_CLIENT_ID.
+
+  Background:
+    Given a registered client id is configured
+
+  Scenario: An unregistered redirect_uri is rejected
+    When I send a "GET" request to "{{authz_endpoint}}?response_type=code&client_id={{client_id}}&scope=openid&redirect_uri=https://evil.example.org/cb&state=s1&nonce=n1&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256" without following redirects
+    Then the response status should be 302
+    And the redirect location should contain "errorCode=invalid_request"
+
+  Scenario: An unknown client id is rejected
+    When I send a "GET" request to "{{authz_endpoint}}?response_type=code&client_id=does-not-exist-e2e&scope=openid&redirect_uri=https://evil.example.org/cb&state=s1&nonce=n1&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256" without following redirects
+    Then the response status should be 302
+    And the redirect location should contain "/error"

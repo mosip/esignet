@@ -1,0 +1,21 @@
+{
+  "_comment": "End-to-end scenarios for AUTHN_PROVIDER=sunbird (KBI). Only one ACR applies -- knowledge-based auth (policy number + full name + DOB). Positive uses the configured identity/knowledge answers (INDIVIDUAL_ID, KBI_FULL_NAME, KBI_DOB); negative overrides full name + DOB with deliberately wrong values and expects rejection.",
+  "redirect_uri": "https://bdd-e2e.example.org/callback",
+  "user_claims": ["name", "email", "phone_number", "gender", "birthdate"],
+  "acr": ["mosip:idp:acr:knowledge"],
+  "scenarios": [
+    {
+      "name": "kbi positive: correct policy number + full name + DOB succeeds",
+      "auth_factor": "kbi",
+      "scopes": ["openid"],
+      "expect_present": ["sub"]
+    },
+    {
+      "name": "kbi negative: wrong full name and DOB are rejected",
+      "auth_factor": "kbi",
+      "expect_login_failure": true,
+      "credentials": { "fullName": "Wrong Name Xyz", "dob": "1900-01-01" },
+      "scopes": ["openid"]
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "_comment": "End-to-end scenarios for AUTHN_PROVIDER=mock. Each scenario declares auth_factor (otp|password|bio) and drives the full authorize -> login -> token(private_key_jwt) -> userinfo chain. Positive scenarios expect login to succeed; negative scenarios (expect_login_failure=true) expect it to be rejected. password/bio have no working credential confirmed on this deployment yet -- their positive scenarios are kept in place and will FAIL until real credentials/config exist (per instruction: let it fail, don't omit the testcase). Their negative scenarios still meaningfully assert rejection: for password a deliberately wrong value is submitted; for bio there is no way to submit any credential at all, so rejection is structural (no configured answer) rather than a value mismatch -- also acceptable per instruction. TRIED (2026-07-21) for password ACR: username=decl-user-1 with password='Mosip@123' and, separately, the Postman-documented 'TempPassword123!' -- both submit successfully (flow accepts the inputs, no config error) but the flow loops indefinitely re-requesting username+password (INCOMPLETE) rather than ever completing or returning an explicit rejection, for both passwords. This means neither credential authenticates against this environment's mock-identity-system as currently seeded; the actual valid password (if this user exists here at all) is still unconfirmed.",
+  "redirect_uri": "https://bdd-e2e.example.org/callback",
+  "user_claims": ["name", "email", "phone_number", "gender", "birthdate"],
+  "acr": ["mosip:idp:acr:generated-code", "mosip:idp:acr:password", "mosip:idp:acr:biometrics"],
+  "scenarios": [
+    {
+      "name": "otp positive: pipeline authorize->login->token->userinfo returns sub",
+      "auth_factor": "otp",
+      "scopes": ["openid"],
+      "expect_present": ["sub"]
+    },
+    {
+      "name": "otp positive: profile scope should release the name claim",
+      "auth_factor": "otp",
+      "scopes": ["openid", "profile"],
+      "expect_present": ["sub", "name"]
+    },
+    {
+      "name": "otp positive: email scope should release the email claim",
+      "auth_factor": "otp",
+      "scopes": ["openid", "email"],
+      "expect_present": ["sub", "email"]
+    },
+    {
+      "name": "otp positive: multiple scopes should release name + email + phone together",
+      "auth_factor": "otp",
+      "scopes": ["openid", "profile", "email", "phone"],
+      "expect_present": ["sub", "name", "email", "phone_number"]
+    },
+    {
+      "name": "otp positive: essential claims via claims request object (name, gender, birthdate)",
+      "auth_factor": "otp",
+      "scopes": ["openid"],
+      "userinfo_claims": {
+        "name": { "essential": true },
+        "gender": null,
+        "birthdate": null
+      },
+      "expect_present": ["sub", "name", "gender", "birthdate"]
+    },
+    {
+      "name": "otp negative: wrong OTP is rejected",
+      "auth_factor": "otp",
+      "expect_login_failure": true,
+      "credentials": { "otp": "000000" },
+      "scopes": ["openid"]
+    },
+    {
+      "name": "password positive: login succeeds with configured password",
+      "auth_factor": "password",
+      "_comment": "No credentials override: the username/password come from esignet.credentials (TEST_USERNAME/TEST_PASSWORD), defaulted to the mock plugin's seeded login by cmd/e2e.",
+      "scopes": ["openid"],
+      "expect_present": ["sub"]
+    },
+    {
+      "name": "password negative: wrong password is rejected",
+      "auth_factor": "password",
+      "expect_login_failure": true,
+      "credentials": { "password": "wrong-password-e2e" },
+      "scopes": ["openid"]
+    },
+    {
+      "name": "bio positive: login succeeds with biometric capture",
+      "auth_factor": "bio",
+      "scopes": ["openid"],
+      "expect_present": ["sub"]
+    },
+    {
+      "name": "bio negative: no biometric capture is rejected",
+      "auth_factor": "bio",
+      "expect_login_failure": true,
+      "scopes": ["openid"]
+    }
+  ]
+}
