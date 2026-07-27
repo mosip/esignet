@@ -1,3 +1,5 @@
+import { useAppTranslation } from "../hooks/useAppTranslation";
+
 interface LoadingIndicatorProps {
   message?: string;
   size?: 'small' | 'medium' | 'large';
@@ -15,6 +17,8 @@ export default function LoadingIndicator({
   size = 'medium',
   className,
 }: LoadingIndicatorProps) {
+  const { t } = useAppTranslation();
+
   return (
     <div
       role="status"
@@ -23,7 +27,7 @@ export default function LoadingIndicator({
       <svg
         style={sizeMap[size]}
         aria-hidden="true"
-        className="mr-2 w-8 h-8 text-gray-200 animate-spin dark:text-gray-300"
+        className="me-2 w-8 h-8 text-gray-200 animate-spin dark:text-gray-300"
         viewBox="0 0 100 101"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -37,7 +41,7 @@ export default function LoadingIndicator({
           fill="currentFill"
         />
       </svg>
-      <span className="sr-only">Loading...</span>
+      <span className="sr-only">{t("messages.loading.placeholder")}</span>
       {message && <span>{message}</span>}
     </div>
   );

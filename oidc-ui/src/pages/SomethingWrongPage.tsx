@@ -1,8 +1,10 @@
 import { useLocation } from 'react-router-dom';
 import { IMAGES } from '../constants/public-assets';
+import { useAppTranslation } from '../hooks/useAppTranslation';
 
 export default function SomethingWrongPage() {
   const location = useLocation();
+  const { t } = useAppTranslation();
   const statusCode =
     (location.state as { code?: number } | null)?.code ?? 'unknown';
 
@@ -14,10 +16,10 @@ export default function SomethingWrongPage() {
         alt="something_went_wrong"
       />
       <div className="error-page-header">
-        Something went wrong ({statusCode})
+        {t("errors.something_went_wrong")} ({statusCode})
       </div>
       <div className="error-page-detail">
-        An unexpected error occurred. Please try again later.
+        {t("errors.unexpected_error")}
       </div>
     </div>
   );
