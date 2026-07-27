@@ -87,15 +87,7 @@ public class AddIdentity extends EsignetUtil implements ITest {
 		boolean isMockIdentitySystem = testCaseDTO.getEndPoint().contains("mock-identity-system");
 		writeConfigValueAndSkipIfProvided(isMockIdentitySystem ? "mockUin" : "uin", testCaseName, "UIN");
 
-		// uinPhoneNumber is a single override consumed for both plugins by
-		// EsignetUtil.getPrerequisiteRegisteredPhoneNumber() - mirror that here so providing it
-		// skips identity creation the same way uin/mockUin already do, instead of running the API
-		// call pointlessly when the login scenarios are going to ignore its cached phone anyway.
 		String configuredPhoneNumber = EsignetConfigManager.getproperty("uinPhoneNumber");
-		if (configuredPhoneNumber != null && !configuredPhoneNumber.isBlank()) {
-			throw new SkipException(
-					"uinPhoneNumber value is provided in config, skipping " + testCaseName + " generation test case");
-		}
 
 		if (isMockIdentitySystem) {
 			String url = ApplnURI.replace("-internal", "") + testCaseDTO.getEndPoint();
@@ -136,12 +128,19 @@ public class AddIdentity extends EsignetUtil implements ITest {
 			String email = testCaseName + "_" + generateRandomAlphaNumericString(3)
 					+ generateRandomAlphaNumericString(3) + "@mosip.net";
 			if (inputJson.contains("$PHONENUMBERFORIDENTITY$")) {
-				if (!phoneSchemaRegex.isEmpty())
+				if (configuredPhoneNumber != null && !configuredPhoneNumber.isBlank()) {
+					phoneNumber = EsignetUtil.formatLocalPhoneForIdentity(configuredPhoneNumber.trim(),
+							phoneSchemaRegex);
+				}
+				if ((phoneNumber == null || phoneNumber.isBlank() || !phoneNumber.startsWith("+"))
+						&& !phoneSchemaRegex.isEmpty()) {
 					try {
 						phoneNumber = genStringAsperRegex(phoneSchemaRegex);
+						logger.info("Using schema-generated phone for identity creation: " + phoneNumber);
 					} catch (Exception e) {
 						logger.error(e.getMessage());
 					}
+				}
 				inputJson = replaceKeywordWithValue(inputJson, "$PHONENUMBERFORIDENTITY$", phoneNumber);
 			}
 			if (inputJson.contains("$EMAILVALUE$")) {

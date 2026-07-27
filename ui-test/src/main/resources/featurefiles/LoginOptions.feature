@@ -121,4 +121,161 @@ Feature: Esignet Login Options Page
    Then verify device not found message is displayed on biometric screen
    When user clicks on biometric device scan retry button
    Then verify scanning devices message is displayed on biometric screen
-   
+
+  @smoke @BiometricDeviceDetectedOnRetry @MOSIP-22718
+  Scenario: Log in with Biometrics - Device discovered after Mock MDS retry (MOSIP-22718 TC_06)
+   Given user captures the authorize url
+   When click on Language selection option
+   And select the mandatory language
+   And user click on Login with Biometrics
+   Then verify secure biometric interface is displayed
+   And verify uin vid option is displayed on biometric screen
+   When user clicks on uin vid option on biometric screen
+   Then verify vid text field is displayed on biometric screen
+   And verify scanning devices message is displayed on biometric screen
+   And verify retry scan button is not displayed while scanning devices
+   Then verify device not found message is displayed on biometric screen
+   When mock mds is started for biometric device scan
+   And user clicks on biometric device scan retry button
+   Then verify scanning devices message is displayed on biometric screen
+   And verify device not found message is cleared after mock mds retry scan
+   And verify biometric device is discovered on biometric screen
+
+  @smoke @NeedsUIN @BiometricLogin @MOSIP-22718
+  Scenario: Log in with Biometrics - Mock MDS fingerprint login (MOSIP-22718 TC_05)
+   Given user captures the authorize url
+   When click on Language selection option
+   And select the mandatory language
+   When mock mds is started for biometric device scan
+   And user click on Login with Biometrics
+   Then verify secure biometric interface is displayed
+   When user clicks on uin vid option on biometric screen
+   And user enters prerequisite uin into biometric vid field
+   Then verify biometric device is discovered on biometric screen
+   When user clicks biometric scan and verify button
+   Then verify user is authenticated via biometrics successfully
+
+  @smoke @BiometricAuthenticationFlow @MOSIP-22718 @NeedsUIN @NeedsVID
+  Scenario: IdP-UI biometrics authentication end-to-end (MOSIP-22718 TC_09-TC_29)
+   Given user captures the authorize url
+   When click on Language selection option
+   And select the mandatory language
+   # TC_27 - More ways to sign in exposes Login with Biometrics
+   When user opens login with biometrics via more ways to sign in if needed
+   Then verify login with biometrics option is available in sign in options
+   # TC_28 - device not detected when Mock MDS is stopped
+   When user click on Login with Biometrics
+   Then verify secure biometric interface is displayed
+   When user clicks on uin vid option on biometric screen
+   And verify scanning devices message is displayed on biometric screen
+   Then verify device not found message is displayed on biometric screen
+   # TC_06 / TC_09 - start Mock MDS on retry and verify L1 device discovered
+   When mock mds is started for biometric device scan
+   And user clicks on biometric device scan retry button
+   Then verify biometric device is discovered on biometric screen
+   # TC_10 / TC_11 - L0 / unregistered provider not listed in mock data
+   Then verify l0 or unregistered biometric device is not available
+   # TC_13 - Scan and Verify button visible after device discovery
+   Then verify biometric scan and verify button is displayed
+   # TC_14 / TC_15 - empty UIN/VID keeps Scan and Verify disabled
+   When user clears biometric vid field
+   Then verify biometric scan and verify button is disabled
+   # TC_16 / TC_17 - single character enables Scan and Verify
+   When user enters "1" into biometric vid field
+   Then verify biometric scan and verify button is enabled
+   # TC_24 - invalid UIN
+   When user clears biometric vid field
+   And user enters invalid uin into biometric vid field
+   And user clicks biometric scan and verify button
+   Then verify biometric error message contains "incorrect"
+   When user dismisses biometric error banner if displayed
+   # TC_25 - invalid VID
+   When user enters invalid vid into biometric vid field
+   And user clicks biometric scan and verify button
+   Then verify biometric error message contains "incorrect"
+   When user dismisses biometric error banner if displayed
+   # TC_20 - exception UIN (configure biometricExceptionUin when available)
+   When user enters configured exception uin into biometric vid field
+   And user clicks biometric scan and verify button
+   Then verify biometric error message contains "biometric data"
+   When user dismisses biometric error banner if displayed
+   # TC_21 - exception VID (configure biometricExceptionVid when available)
+   When user enters configured exception vid into biometric vid field
+   And user clicks biometric scan and verify button
+   Then verify biometric error message contains "biometric data"
+   When user dismisses biometric error banner if displayed
+   # TC_22 - wrong biometrics for UIN (configure biometricWrongMatchUin when available)
+   When user enters configured wrong match uin into biometric vid field
+   And user clicks biometric scan and verify button
+   Then verify biometric error message contains "did not match"
+   When user dismisses biometric error banner if displayed
+   # TC_23 - wrong biometrics for VID (configure biometricWrongMatchVid when available)
+   When user enters configured wrong match vid into biometric vid field
+   And user clicks biometric scan and verify button
+   Then verify biometric error message contains "did not match"
+   When user dismisses biometric error banner if displayed
+   # TC_19 - valid VID + correct biometrics navigates to consent
+   When user enters prerequisite vid into biometric vid field
+   And user clicks biometric scan and verify button
+   Then verify user is authenticated via biometrics successfully
+   When user completes consent flow through eKYC if attention screen is displayed
+   And clicks on sign in with esignet button in login page
+   When click on Language selection option
+   And select the mandatory language
+   And user click on Login with Biometrics
+   When user clicks on uin vid option on biometric screen
+   And mock mds is started for biometric device scan
+   And user clicks on biometric device scan retry button
+   Then verify biometric device is discovered on biometric screen
+   # TC_18 - valid UIN + correct biometrics navigates to consent
+   When user enters prerequisite uin into biometric vid field
+   And user clicks biometric scan and verify button
+   Then verify user is authenticated via biometrics successfully
+   # TC_29 - capture timeout (real device only; skipped for Mock MDS)
+   Then verify biometric capture timeout scenario is skipped for mock mds
+
+  @smoke @LoginWithInji @MOSIP-24755
+  Scenario: IdP-UI Login with Inji QR code (MOSIP-24755 TC_05-TC_21)
+   Given user captures the authorize url
+   When click on Language selection option
+   And select the mandatory language
+   # TC_05 - Login with Inji tab shows QR code screen
+   When user opens login with inji via more ways to sign in if needed
+   Then verify login with inji option is available in sign in options
+   When user click on Login with Inji
+   Then verify inji qr code login screen is displayed
+   # TC_06 - link-code expiry is ~60 sec
+   And verify link code expires in configured seconds
+   # TC_07 / TC_08 - QR expiry message and refresh option
+   When user waits for inji qr code to expire without scanning
+   Then verify inji qr code expired message is displayed
+   And verify refresh qr code option is available after inji qr expiry
+   # TC_09 - refresh produces a new QR code
+   When user refreshes inji qr code after expiry
+   Then verify new inji qr code is generated after refresh
+   # TC_15 - expired link-code cannot link transaction
+   And verify link code expires in configured seconds
+   When user waits for first inji link code to expire
+   And user attempts to link transaction with expired inji link code
+   # TC_16-TC_21 - link-code API behaviour on a fresh transaction
+   When user relaunches authorize flow for inji link code tests
+   And click on Language selection option
+   And select the mandatory language
+   And user opens login with inji via more ways to sign in if needed
+   And user click on Login with Inji
+   And verify link code expires in configured seconds
+   # TC_20 - link-code works when transaction is not yet shifted
+   When user links transaction with first inji link code before shift
+   When user relaunches authorize flow for inji link code tests
+   And click on Language selection option
+   And select the mandatory language
+   And user opens login with inji via more ways to sign in if needed
+   And user click on Login with Inji
+   And verify link code expires in configured seconds
+   # TC_16 - superseded link-code is rejected after a new link-code is generated
+   When user generates second inji link code for same transaction
+   And user attempts to link transaction with first inji link code after second is generated
+   # TC_17 / TC_21 - latest link-code links; old link-code fails after shift
+   When user links transaction with latest inji link code
+   Then verify new inji link code cannot be generated after transaction is linked
+   And user attempts to link transaction with old inji link code after shift

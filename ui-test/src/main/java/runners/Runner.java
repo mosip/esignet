@@ -182,6 +182,7 @@ public class Runner extends AbstractTestNGCucumberTests {
 
 			AdminTestUtil.init();
 			EsignetConfigManager.init();
+			EsignetUtil.seedPreconfiguredIdsFromConfig();
 			EsignetUtil.getPluginName();
 			suiteSetup(getRunType());
 			setLogLevels();
@@ -200,9 +201,15 @@ public class Runner extends AbstractTestNGCucumberTests {
 				PartnerRegistration.deleteCertificates();
 				AdminTestUtil.createAndPublishPolicy();
 				AdminTestUtil.createEditAndPublishPolicy();
-				PartnerRegistration.deviceGeneration();
+				try {
+					PartnerRegistration.deviceGeneration();
+				} catch (Exception e) {
+					LOGGER.warning("Device partner registration skipped (may already exist): " + e.getMessage());
+				}
+				utils.MockMdsManager.ensureDevicePartnerP12Available();
 
 				BiometricDataProvider.generateBiometricTestData("Registration");
+				utils.MockMdsManager.stopAll();
 			}
 
 			List<String> languages = new ArrayList<>();
