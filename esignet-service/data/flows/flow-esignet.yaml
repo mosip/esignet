@@ -886,7 +886,7 @@ nodes:
           required: true
         - ref: SBI_ID
           identifier: biometric
-          type: CUSTOM
+          type: PASSWORD_INPUT
           required: true
     onSuccess: authorization_check
 
