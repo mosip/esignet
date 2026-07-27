@@ -85,7 +85,7 @@ jobs:
       BUILD_ARTIFACT: oidc
       NPM_BUILD_TYPE: BOB
       NODE_VERSION: "22"
-      ZIP_DIR: build
+      ZIP_DIR: dist
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
