@@ -1,0 +1,334 @@
+// Package conformance is a thin client over the OpenID Conformance Suite's
+// container API (create plan, start a module, poll status, fetch the authorize
+// URL, read the condition log, and deliver the authorization code back to the
+// suite callback). See plan doc §4 and §8b.
+package conformance
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"regexp"
+	"strings"
+	"time"
+	"unicode/utf8"
+
+	"github.com/mosip/esignet/api-test/internal/httpx"
+	"github.com/mosip/esignet/api-test/internal/result"
+)
+
+type Client struct {
+	baseURL string
+	token   string
+	http    *http.Client
+	calls   []result.HTTPCall // accumulated call trace; drained via TakeCalls
+}
+
+func New(baseURL, token string, tlsVerify bool, timeout time.Duration) *Client {
+	return &Client{
+		baseURL: strings.TrimRight(baseURL, "/"),
+		token:   token,
+		http:    httpx.NewClient(tlsVerify, timeout),
+	}
+}
+
+// TakeCalls returns and clears the accumulated call trace (so the orchestrator
+// can attach run-level calls to a setup section and per-module calls to a module).
+func (c *Client) TakeCalls() []result.HTTPCall {
+	out := c.calls
+	c.calls = nil
+	return out
+}
+
+// ----- API response shapes (accessed defensively; schema drifts across suite releases) -----
+
+type Module struct {
+	TestModule string         `json:"testModule"`
+	Variant    map[string]any `json:"variant"`
+}
+
+type PlanResponse struct {
+	ID      string   `json:"id"`
+	Name    string   `json:"name"`
+	Modules []Module `json:"modules"`
+}
+
+type TestResponse struct {
+	Name string `json:"name"`
+	ID   string `json:"id"`
+	URL  string `json:"url"`
+}
+
+type Info struct {
+	Status string `json:"status"`
+	Result string `json:"result"`
+}
+
+type Runner struct {
+	Exposed map[string]any `json:"exposed"`
+	Browser Browser        `json:"browser"`
+}
+
+type Browser struct {
+	URLs    []string `json:"urls"`
+	Visited []string `json:"visited"`
+}
+
+type LogEntry struct {
+	Src          string          `json:"src"`
+	Msg          string          `json:"msg"`
+	Result       string          `json:"result"`
+	Requirements json.RawMessage `json:"requirements"`
+}
+
+// Available polls GET /api/runner/available (200 => suite ready).
+func (c *Client) Available() error {
+	body, status, err := c.do("suite /api/runner/available", http.MethodGet, "/api/runner/available", nil, "")
+	if err != nil {
+		return err
+	}
+	if status != http.StatusOK {
+		return fmt.Errorf("suite not available: HTTP %d: %s", status, snippet(body))
+	}
+	return nil
+}
+
+// CreatePlan POSTs the exported suite config as the body and the variant as a
+// url-encoded query param, returning the planId + module list.
+func (c *Client) CreatePlan(planName string, variant map[string]any, configBody []byte) (*PlanResponse, error) {
+	variantJSON, err := json.Marshal(variant)
+	if err != nil {
+		return nil, fmt.Errorf("marshal variant: %w", err)
+	}
+	q := url.Values{}
+	q.Set("planName", planName)
+	q.Set("variant", string(variantJSON))
+	path := "/api/plan?" + q.Encode()
+
+	body, status, err := c.do("suite /api/plan (create plan)", http.MethodPost, path, configBody, "application/json")
+	if err != nil {
+		return nil, err
+	}
+	if status != http.StatusOK && status != http.StatusCreated {
+		return nil, fmt.Errorf("create plan HTTP %d: %s", status, snippet(body))
+	}
+	var pr PlanResponse
+	if err := json.Unmarshal(body, &pr); err != nil {
+		return nil, fmt.Errorf("parse plan response: %w (%s)", err, snippet(body))
+	}
+	if pr.ID == "" {
+		return nil, fmt.Errorf("create plan: empty planId in response: %s", snippet(body))
+	}
+	return &pr, nil
+}
+
+// CreateTest starts one module (no body) and returns its testId.
+func (c *Client) CreateTest(module, planID string) (*TestResponse, error) {
+	q := url.Values{}
+	q.Set("test", module)
+	q.Set("plan", planID)
+	path := "/api/runner?" + q.Encode()
+
+	body, status, err := c.do("suite /api/runner (start "+module+")", http.MethodPost, path, nil, "")
+	if err != nil {
+		return nil, err
+	}
+	if status != http.StatusOK && status != http.StatusCreated {
+		return nil, fmt.Errorf("create test %s HTTP %d: %s", module, status, snippet(body))
+	}
+	var tr TestResponse
+	if err := json.Unmarshal(body, &tr); err != nil {
+		return nil, fmt.Errorf("parse test response: %w (%s)", err, snippet(body))
+	}
+	if tr.ID == "" {
+		return nil, fmt.Errorf("create test %s: empty testId: %s", module, snippet(body))
+	}
+	return &tr, nil
+}
+
+func (c *Client) GetInfo(testID string) (*Info, error) {
+	body, status, err := c.do("suite /api/info", http.MethodGet, "/api/info/"+testID, nil, "")
+	if err != nil {
+		return nil, err
+	}
+	if status != http.StatusOK {
+		return nil, fmt.Errorf("get info HTTP %d: %s", status, snippet(body))
+	}
+	var i Info
+	if err := json.Unmarshal(body, &i); err != nil {
+		return nil, fmt.Errorf("parse info: %w (%s)", err, snippet(body))
+	}
+	return &i, nil
+}
+
+func (c *Client) GetRunner(testID string) (*Runner, error) {
+	body, status, err := c.do("suite /api/runner (browser urls)", http.MethodGet, "/api/runner/"+testID, nil, "")
+	if err != nil {
+		return nil, err
+	}
+	if status != http.StatusOK {
+		return nil, fmt.Errorf("get runner HTTP %d: %s", status, snippet(body))
+	}
+	var r Runner
+	if err := json.Unmarshal(body, &r); err != nil {
+		return nil, fmt.Errorf("parse runner: %w (%s)", err, snippet(body))
+	}
+	return &r, nil
+}
+
+func (c *Client) GetLog(testID string) ([]LogEntry, error) {
+	body, status, err := c.do("suite /api/log", http.MethodGet, "/api/log/"+testID, nil, "")
+	if err != nil {
+		return nil, err
+	}
+	if status != http.StatusOK {
+		return nil, fmt.Errorf("get log HTTP %d: %s", status, snippet(body))
+	}
+	var entries []LogEntry
+	if err := json.Unmarshal(body, &entries); err != nil {
+		return nil, fmt.Errorf("parse log: %w (%s)", err, snippet(body))
+	}
+	return entries, nil
+}
+
+// GetRawLog returns the per-test condition log as raw objects, preserving every
+// field so the report can reproduce the suite UI's log view (badges + "+N more"
+// detail). The suite schema drifts across releases, hence map[string]any.
+func (c *Client) GetRawLog(testID string) ([]map[string]any, error) {
+	body, status, err := c.do("suite /api/log", http.MethodGet, "/api/log/"+testID, nil, "")
+	if err != nil {
+		return nil, err
+	}
+	if status != http.StatusOK {
+		return nil, fmt.Errorf("get log HTTP %d: %s", status, snippet(body))
+	}
+	var entries []map[string]any
+	if err := json.Unmarshal(body, &entries); err != nil {
+		return nil, fmt.Errorf("parse log: %w (%s)", err, snippet(body))
+	}
+	return entries, nil
+}
+
+// DeliverResult reports the two-step hand-off back to the suite. (The captured
+// HTTP calls flow through the client's shared trace, drained via TakeCalls.)
+type DeliverResult struct {
+	SuiteCallbackStatus  int
+	ImplicitSubmitStatus int
+	ImplicitSubmitURL    string
+}
+
+var implicitSubmitRe = regexp.MustCompile(`"implicitSubmitUrl"\s*:\s*"([^"]+)"`)
+var implicitPathRe = regexp.MustCompile(`https?://[^"'\s]+/implicit/[^"'\s]+`)
+
+// DeliverCallback performs the mandatory two-request hand-off (plan doc §2):
+//  1. GET the eSignet-provided redirect_uri (the suite callback with code+state)
+//     — the suite stores the params and returns an implicitCallback HTML page.
+//  2. Parse implicitSubmitUrl from that HTML and POST it (empty, text/plain),
+//     which triggers the suite's token/userinfo exchange. Without (2) the test
+//     stays WAITING forever.
+func (c *Client) DeliverCallback(redirectURI string) (DeliverResult, error) {
+	var res DeliverResult
+
+	body, status, err := c.doAbs("suite callback (deliver code)", http.MethodGet, redirectURI, nil, "")
+	res.SuiteCallbackStatus = status
+	if err != nil {
+		return res, fmt.Errorf("deliver code (GET callback): %w", err)
+	}
+
+	submitURL := parseImplicitSubmitURL(string(body))
+	res.ImplicitSubmitURL = submitURL
+	if submitURL == "" {
+		return res, fmt.Errorf("could not find implicitSubmitUrl in callback response (status %d)", status)
+	}
+
+	sbody, sstatus, err := c.doAbs("suite implicit-submit", http.MethodPost, submitURL, []byte{}, "text/plain")
+	res.ImplicitSubmitStatus = sstatus
+	if err != nil {
+		return res, fmt.Errorf("implicit submit POST: %w", err)
+	}
+	if sstatus != http.StatusNoContent && sstatus != http.StatusOK {
+		return res, fmt.Errorf("implicit submit HTTP %d: %s", sstatus, snippet(sbody))
+	}
+	return res, nil
+}
+
+func parseImplicitSubmitURL(html string) string {
+	// Older suites: a JSON field "implicitSubmitUrl": "https://…".
+	if m := implicitSubmitRe.FindStringSubmatch(html); len(m) == 2 {
+		return strings.ReplaceAll(m[1], "\\/", "/")
+	}
+	// Current suite: the URL is a JS string in an xhr.open("POST", "…/implicit/…")
+	// call with backslash-escaped slashes (https:\/\/…\/implicit\/token). Unescape
+	// the slashes first, then match.
+	un := strings.ReplaceAll(html, "\\/", "/")
+	if m := implicitPathRe.FindString(un); m != "" {
+		return m
+	}
+	return ""
+}
+
+// ----- low-level helpers -----
+
+func (c *Client) do(label, method, path string, body []byte, contentType string) ([]byte, int, error) {
+	return c.doAbs(label, method, c.baseURL+path, body, contentType)
+}
+
+// doAbs performs the request and records it (headers/cookies/bodies) into the
+// client's call trace for the debug report.
+func (c *Client) doAbs(label, method, absURL string, body []byte, contentType string) ([]byte, int, error) {
+	var rdr io.Reader
+	if body != nil {
+		rdr = bytes.NewReader(body)
+	}
+	// Seq is assigned up front so the error paths below record an ordered row too.
+	call := result.HTTPCall{Seq: len(c.calls) + 1, At: time.Now().UnixNano(), Label: label, Method: method, URL: absURL, ReqBody: string(body)}
+	req, err := http.NewRequest(method, absURL, rdr)
+	if err != nil {
+		call.RespBody = "ERROR: " + err.Error()
+		c.calls = append(c.calls, call)
+		return nil, 0, err
+	}
+	if contentType != "" {
+		req.Header.Set("Content-Type", contentType)
+	}
+	if c.token != "" {
+		req.Header.Set("Authorization", "Bearer "+c.token)
+	}
+	call.ReqHeaders = httpx.CloneHeader(req.Header)
+	// Redact at the capture point, not downstream: these calls are dropped from
+	// the report today, but the suite admin token must never depend on that.
+	if _, ok := call.ReqHeaders["Authorization"]; ok {
+		call.ReqHeaders["Authorization"] = []string{"***redacted***"}
+	}
+	resp, err := c.http.Do(req)
+	if err != nil {
+		call.RespBody = "ERROR: " + err.Error()
+		c.calls = append(c.calls, call)
+		return nil, 0, err
+	}
+	defer resp.Body.Close()
+	rb, _ := io.ReadAll(resp.Body)
+	call.Status = resp.StatusCode
+	call.RespHeaders = httpx.CloneHeader(resp.Header)
+	call.RespCookies = strings.Join(resp.Header["Set-Cookie"], "\n")
+	call.RespBody = string(rb)
+	c.calls = append(c.calls, call)
+	return rb, resp.StatusCode, nil
+}
+
+// snippet cuts to at most 400 bytes, backing off to the last full rune so a
+// multi-byte UTF-8 character is never split.
+func snippet(b []byte) string {
+	s := strings.TrimSpace(string(b))
+	if len(s) <= 400 {
+		return s
+	}
+	cut := 400
+	for cut > 0 && !utf8.RuneStart(s[cut]) {
+		cut--
+	}
+	return s[:cut] + "…"
+}

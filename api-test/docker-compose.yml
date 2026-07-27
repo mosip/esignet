@@ -1,0 +1,115 @@
+# api-test/docker-compose.yml — one command to run the harness locally/in CI
+# (#2209). Brings up the OpenID Conformance Suite (mongodb + server + nginx,
+# service definitions mirror the suite's own docker-compose-prebuilt.yml,
+# pinned via SUITE_IMAGE_TAG) plus the harness image, which runs run-all.sh
+# and writes the consolidated report to ./out.
+#
+# Usage:
+#   cp .env.example .env   # fill in ESIGNET_BASE_URL, KEYCLOAK_*, etc.
+#   docker compose up --build --abort-on-container-exit --exit-code-from harness
+#
+# Prerequisites (README "Prerequisites"): the suite's two pre-registered static
+# clients + conformance-suite-private/esignet-config.json (private jwks) must
+# already exist — this compose file only brings the suite process up, it does
+# not provision the plan config.
+#
+# httpd is given the network alias `localhost.emobix.co.uk` (the suite's own
+# BASE_URL) so any container on this network — including harness — resolves it
+# to the suite instead of its own loopback.
+
+services:
+  mongodb:
+    image: ${MONGODB_IMAGE:-mongo:6.0.13}
+    volumes:
+      - suite-mongodb-data:/data/db
+    logging:
+      driver: json-file
+      options:
+        max-size: "500k"
+        max-file: "5"
+
+  server:
+    image: registry.gitlab.com/openid/conformance-suite:${SUITE_IMAGE_TAG:-release-v5.1.41}
+    depends_on:
+      - mongodb
+    environment:
+      BASE_URL: https://localhost.emobix.co.uk:8443
+      MONGODB_HOST: mongodb
+      SPRING_PROFILES_ACTIVE: ${SUITE_SPRING_PROFILE:-dev}
+      # The suite's dev profile declares an optional GitLab-login OAuth2 client;
+      # Spring validates registrations eagerly even when unused, so it refuses to
+      # boot without a non-empty client-id/secret. Dummy values are enough since
+      # the harness never exercises GitLab login.
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GITLAB_CLIENTID: unused
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GITLAB_CLIENTSECRET: unused
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENTID: unused
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENTSECRET: unused
+    logging:
+      driver: json-file
+      options:
+        max-size: "500k"
+        max-file: "5"
+
+  httpd:
+    image: registry.gitlab.com/openid/conformance-suite/nginx:${SUITE_IMAGE_TAG:-release-v5.1.41}
+    depends_on:
+      - server
+    ports:
+      - "8443:8443"
+    networks:
+      default:
+        aliases:
+          - localhost.emobix.co.uk
+    logging:
+      driver: json-file
+      options:
+        max-size: "500k"
+        max-file: "5"
+
+  harness:
+    build: .
+    depends_on:
+      - httpd
+    environment:
+      ESIGNET_BASE_URL: ${ESIGNET_BASE_URL:?set ESIGNET_BASE_URL to a reachable eSignet deployment}
+      PLUGIN: ${PLUGIN:-mock}
+      AUTHN_PROVIDER: ${PLUGIN:-mock}
+      SURFACES: ${SURFACES:-conformance,bdd,e2e}
+      TEST_PROFILE: ${TEST_PROFILE:-smoke}
+      SUITE_WAIT_SECONDS: ${SUITE_WAIT_SECONDS:-150}
+      CONFORMANCE_BASE_URL: ${CONFORMANCE_BASE_URL:-https://localhost.emobix.co.uk:8443}
+      # Defaults off for the suite's self-signed localhost.emobix.co.uk cert;
+      # override to "true" when pointing CONFORMANCE_BASE_URL at a remote suite.
+      CONFORMANCE_TLS_VERIFY: ${CONFORMANCE_TLS_VERIFY:-false}
+      BDD_TLS_VERIFY: ${BDD_TLS_VERIFY:-true}
+      PLAN_CONFIG_PATH: /secrets/esignet-config.json
+      INDIVIDUAL_ID: ${INDIVIDUAL_ID:-}
+      ID_TYPE: ${ID_TYPE:-}
+      TEST_USERNAME: ${TEST_USERNAME:-}
+      TEST_PASSWORD: ${TEST_PASSWORD:-}
+      TEST_OTP: ${TEST_OTP:-111111}
+      KBI_FULL_NAME: ${KBI_FULL_NAME:-}
+      KBI_DOB: ${KBI_DOB:-}
+      OTP_SOURCE: ${OTP_SOURCE:-static}
+      OTP_WS_URL: ${OTP_WS_URL:-}
+      OTP_RECIPIENT_EMAIL: ${OTP_RECIPIENT_EMAIL:-}
+      KEYCLOAK_TOKEN_URL: ${KEYCLOAK_TOKEN_URL:-}
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-}
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET:-}
+      PMS_BASE_URL: ${PMS_BASE_URL:-}
+      AUTH_PARTNER_ID: ${AUTH_PARTNER_ID:-}
+      AUTH_POLICY_ID: ${AUTH_POLICY_ID:-}
+      GODOG_TAGS: ${GODOG_TAGS:-}
+    volumes:
+      - ./out:/app/out
+      - ./conformance-suite-private:/secrets:ro
+    extra_hosts:
+      # Lets ESIGNET_BASE_URL=http://host.docker.internal:<port> reach a
+      # self-managed eSignet running on the host (e.g. `make.sh run` in
+      # ../esignet-service). Docker Desktop (Windows/Mac) already resolves
+      # this; host-gateway makes it work on Linux too. No effect when
+      # ESIGNET_BASE_URL points at a deployed remote environment instead.
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  suite-mongodb-data:

@@ -1,0 +1,36 @@
+{
+  "conformance": {
+    "base_url": "https://localhost.emobix.co.uk:8443",
+    "tls_verify": false,
+    "token": ""
+  },
+  "plan": {
+    "name": "oidcc-test-plan",
+    "variant": {
+      "client_auth_type": "private_key_jwt",
+      "response_type": "code",
+      "response_mode": "default",
+      "client_registration": "static_client"
+    },
+    "config_file": "../conformance-suite-private/esignet-config.json"
+  },
+  "esignet": {
+    "base_url": "",
+    "provider": "mock",
+    "auth_factor": "otp",
+    "identity": { "individual_id": "2760459465", "id_type": "uin" },
+    "credentials": { "username": "decl-user-1", "password": "" },
+    "knowledge": { "full_name": "", "dob": "" },
+    "otp": { "source": "static", "value": "111111", "ws_url": "", "recipient_email": "" },
+    "pms": { "base_url": "", "auth_partner_id": "", "policy_id": "" }
+  },
+  "run": {
+    "modules": [],
+    "profile": "smoke",
+    "filter": "",
+    "poll_interval_seconds": 2,
+    "timeout_seconds": 120,
+    "fail_fast": false,
+    "report_dir": "out"
+  }
+}

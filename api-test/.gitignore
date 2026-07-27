@@ -1,0 +1,18 @@
+# Local runtime config (may contain secrets: private jwks path, passwords, tokens)
+config.json
+
+# docker compose env overrides (secrets: KEYCLOAK_CLIENT_SECRET etc.)
+.env
+
+# The suite plan config with PRIVATE jwks must never be committed.
+# Keep it outside the repo (see config_file in config.json) or here if you must:
+*esignet-config*.json
+conformance-suite-private/
+
+# Report output
+out/
+*.report.html
+
+# Go build artifacts
+/conformance
+/conformance.exe
