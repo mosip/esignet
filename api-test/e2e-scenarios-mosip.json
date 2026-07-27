@@ -1,0 +1,46 @@
+{
+  "_comment": "End-to-end scenarios for AUTHN_PROVIDER=mosip. Same auth_factor matrix as mock (otp/password/bio), positive + negative. otp uses the real MOSIP send-OTP -> verify chain; the individual id/OTP come from config (INDIVIDUAL_ID/TEST_OTP env), so a positive otp run needs an identity with a working OTP channel in the target environment -- if the configured identity has none, that scenario is expected to FAIL and is kept in place rather than removed, per instruction. password/bio have no credential configured on this deployment; their positive scenarios are likewise kept in place to fail until real credentials exist, and their negative scenarios still assert rejection (structurally, since no valid credential exists to accept).",
+  "redirect_uri": "https://bdd-e2e.example.org/callback",
+  "user_claims": ["name", "email", "phone_number", "gender", "birthdate"],
+  "acr": ["mosip:idp:acr:generated-code", "mosip:idp:acr:password", "mosip:idp:acr:biometrics"],
+  "scenarios": [
+    {
+      "name": "otp positive: MOSIP send-OTP -> verify -> userinfo returns sub",
+      "auth_factor": "otp",
+      "scopes": ["openid"],
+      "expect_present": ["sub"]
+    },
+    {
+      "name": "otp negative: wrong OTP is rejected",
+      "auth_factor": "otp",
+      "expect_login_failure": true,
+      "credentials": { "otp": "000000" },
+      "scopes": ["openid"]
+    },
+    {
+      "name": "password positive: login succeeds with configured password",
+      "auth_factor": "password",
+      "scopes": ["openid"],
+      "expect_present": ["sub"]
+    },
+    {
+      "name": "password negative: wrong password is rejected",
+      "auth_factor": "password",
+      "expect_login_failure": true,
+      "credentials": { "password": "wrong-password-e2e" },
+      "scopes": ["openid"]
+    },
+    {
+      "name": "bio positive: login succeeds with biometric capture",
+      "auth_factor": "bio",
+      "scopes": ["openid"],
+      "expect_present": ["sub"]
+    },
+    {
+      "name": "bio negative: no biometric capture is rejected",
+      "auth_factor": "bio",
+      "expect_login_failure": true,
+      "scopes": ["openid"]
+    }
+  ]
+}

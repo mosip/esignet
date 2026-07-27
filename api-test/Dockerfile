@@ -50,7 +50,7 @@ COPY --from=builder-main /out/bin/ ./bin/
 COPY --from=builder-bdd /out/bin/bdd.test ./bin/bdd.test
 COPY profiles ./profiles
 COPY bdd/features ./bdd/features
-COPY e2e-scenarios.json e2e-scenarios-sunbird.json ./
+COPY e2e-scenarios.json e2e-scenarios-mosip.json e2e-scenarios-sunbird.json ./
 COPY run-all.sh ./
 RUN chmod +x run-all.sh && mkdir -p out && chown -R apitest:apitest /app
 

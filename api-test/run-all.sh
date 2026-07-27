@@ -13,7 +13,7 @@
 #   Required env:
 #     ESIGNET_BASE_URL      e.g. https://esignet-thunder1.esdev.mosip.net/v1/esignet
 #   Optional env:
-#     PLUGIN                mock | sunbird                   (default: mock)
+#     PLUGIN                mock | mosip | sunbird           (default: mock)
 #     SURFACES              comma list of conformance,bdd,e2e (default: all three)
 #     CONFIG                conformance config path          (default: config.json)
 #     KEYCLOAK_TOKEN_URL / KEYCLOAK_CLIENT_ID / KEYCLOAK_CLIENT_SECRET

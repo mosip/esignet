@@ -221,14 +221,11 @@ func (c *Config) defaults() {
 	}
 }
 
-// validate enforces the supported scope: mock/sunbird providers with a static
-// OTP source. sunbird runs like the others (plan doc §8e); its environment
-// prerequisites (reachable KBI flow, seeded registry) surface as a runtime
-// ENV_NOT_READY / failure, not a hard config rejection here.
-//
-// mosip and the dynamic OTP source land together in the mosipid follow-up: the
-// PMS client-registration path and the mock-SMTP listener it needs are both
-// unverified, so they are recognised-but-rejected rather than silently accepted.
+// validate enforces the supported scope: mock/mosip/sunbird providers with a
+// static OTP source. sunbird runs like the others (plan doc §8e); its
+// environment prerequisites (reachable KBI flow, seeded registry) surface as a
+// runtime ENV_NOT_READY / failure, not a hard config rejection here. dynamic OTP
+// is the mock-SMTP listener the mosipid plugin uses to read a live OTP.
 func (c *Config) validate() error {
 	if c.Conformance.BaseURL == "" {
 		return fmt.Errorf("conformance.base_url (CONFORMANCE_BASE_URL) is required")
@@ -241,21 +238,24 @@ func (c *Config) validate() error {
 	}
 
 	switch c.Esignet.Provider {
-	case "mock", "sunbird":
+	case "mock", "mosip", "sunbird":
 		// supported
-	case "mosip":
-		return fmt.Errorf("provider %q is not supported yet — the mosipid plugin (PMS client registration, dynamic OTP) lands in a follow-up; use mock or sunbird", c.Esignet.Provider)
 	default:
-		return fmt.Errorf("unknown provider %q (want mock|sunbird)", c.Esignet.Provider)
+		return fmt.Errorf("unknown provider %q (want mock|mosip|sunbird)", c.Esignet.Provider)
 	}
 
 	switch c.Esignet.OTP.Source {
 	case "static":
 		// supported: the OTP value is taken from otp.value (default 111111).
 	case "dynamic":
-		return fmt.Errorf("otp.source=dynamic is not supported yet — the mock-SMTP listener lands with the mosipid plugin; use otp.source=static")
+		// The real OTP is read from the mock-SMTP WebSocket (mosipid sends a
+		// live OTP). Requires a reachable ws_url; recipient is optional (when
+		// unset, the newest fresh 6-digit message is used).
+		if c.Esignet.OTP.WSURL == "" {
+			return fmt.Errorf("otp.source=dynamic needs otp.ws_url (OTP_WS_URL), e.g. https://smtp.<env>.mosip.net/ or wss://smtp.<env>.mosip.net/mocksmtp/websocket")
+		}
 	default:
-		return fmt.Errorf("unknown otp.source %q (want static)", c.Esignet.OTP.Source)
+		return fmt.Errorf("unknown otp.source %q (want static|dynamic)", c.Esignet.OTP.Source)
 	}
 
 	switch c.Run.Profile {

@@ -13,6 +13,7 @@
 package main
 
 import (
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"flag"
@@ -30,6 +31,7 @@ import (
 	"github.com/mosip/esignet/api-test/internal/e2e"
 	"github.com/mosip/esignet/api-test/internal/esignet"
 	"github.com/mosip/esignet/api-test/internal/result"
+	"github.com/mosip/esignet/api-test/internal/wsotp"
 )
 
 func main() {
@@ -120,15 +122,20 @@ func main() {
 		logger.Fatalf("load spec %s: %v", *specPath, err)
 	}
 
-	// Dynamic OTP (mock-SMTP listener) lands with the mosipid plugin; this build
-	// only drives the static OTP source. This binary assembles config.Esignet
-	// itself and never goes through config.Load, so validate() does not run here —
-	// reject it explicitly, or BuildAnswers omits the otp answer and every OTP
-	// scenario dies deep in the driver as "no configured answer for flow input(s)".
-	if strings.EqualFold(es.OTP.Source, "dynamic") {
-		logger.Fatal("OTP_SOURCE=dynamic is not supported yet — the mock-SMTP listener lands with the mosipid plugin; use OTP_SOURCE=static")
-	}
+	// Dynamic OTP: connect the mock-SMTP listener once, shared across scenarios.
 	var otpProvider esignet.OTPProvider
+	if es.OTP.Source == "dynamic" {
+		if es.OTP.WSURL == "" {
+			logger.Fatal("OTP_SOURCE=dynamic requires OTP_WS_URL")
+		}
+		lst := wsotp.NewListener(es.OTP.WSURL, tlsVerify)
+		if err := lst.Start(context.Background()); err != nil {
+			logger.Fatalf("dynamic OTP: %v", err)
+		}
+		defer lst.Close()
+		otpProvider = wsotp.NewOTPProvider(lst, es.OTP.RecipientEmail, 90*time.Second, time.Second)
+		logger.Printf("dynamic OTP: listening on mock-SMTP for recipient %q", es.OTP.RecipientEmail)
+	}
 
 	runner := &e2e.Runner{
 		Base:             base,

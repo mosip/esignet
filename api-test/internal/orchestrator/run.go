@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"context"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -20,6 +21,7 @@ import (
 	"github.com/mosip/esignet/api-test/internal/conformance"
 	"github.com/mosip/esignet/api-test/internal/esignet"
 	"github.com/mosip/esignet/api-test/internal/result"
+	"github.com/mosip/esignet/api-test/internal/wsotp"
 )
 
 // unsupportedModuleHints flag modules the harness can't drive in v1 (they need
@@ -91,8 +93,20 @@ func (o *Orchestrator) Run() (*RunResult, error) {
 	preferred := append(esignet.AuthFactorTokens(o.cfg.Esignet.AuthFactor), esignet.IDTypeTokens(o.cfg.Esignet.Identity.IDType)...)
 	driver := esignet.New(answers, preferred, o.cfg.Conformance.TLSVerify, time.Duration(o.cfg.Run.TimeoutSeconds)*time.Second)
 
-	// Dynamic OTP (mock-SMTP listener) lands with the mosipid plugin; this build
-	// only drives the static OTP source, which config.validate() enforces.
+	// Dynamic OTP: connect the mock-SMTP listener once and share it across all
+	// modules. Connecting before the module loop guarantees we are buffering
+	// before any send-OTP is triggered.
+	if o.cfg.Esignet.OTP.Source == "dynamic" {
+		lst := wsotp.NewListener(o.cfg.Esignet.OTP.WSURL, o.cfg.Conformance.TLSVerify)
+		if err := lst.Start(context.Background()); err != nil {
+			return out, fmt.Errorf("ENV_NOT_READY: %w", err)
+		}
+		defer lst.Close()
+		timeout := time.Duration(o.cfg.Run.TimeoutSeconds) * time.Second
+		poll := time.Duration(o.cfg.Run.PollIntervalSeconds) * time.Second
+		driver.SetOTPProvider(wsotp.NewOTPProvider(lst, o.cfg.Esignet.OTP.RecipientEmail, timeout, poll))
+		o.logf("dynamic OTP: listening on mock-SMTP for recipient %q", o.cfg.Esignet.OTP.RecipientEmail)
+	}
 
 	// known_issues and skip modules are separated out before execution: they are
 	// not run, they just get a report row in the Known / Skipped bucket.

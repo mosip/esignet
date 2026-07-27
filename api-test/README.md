@@ -14,15 +14,20 @@ report per plugin**:
 Design/background: [mosip/esignet#2120](https://github.com/mosip/esignet/issues/2120).
 Plugin rollout order is **mock → sunbird → mosip** (by deployment-dependency weight).
 
-> **mock and sunbird run on every surface.** Both are accepted across conformance, bdd, and e2e.
-> sunbird's environment prerequisites (a reachable KBI flow, a seeded registry/policy) surface at
-> **runtime** as `ENV_NOT_READY` / failures, not as a hard config rejection.
+> **All three plugins run on every surface.** `mock`/`mosip`/`sunbird` are accepted across
+> conformance, bdd, and e2e. sunbird's environment prerequisites (a reachable KBI flow, a seeded
+> registry/policy) surface at **runtime** as `ENV_NOT_READY` / failures, not as a hard config
+> rejection.
 >
-> **mosipid is not wired up in this build.** `AUTHN_PROVIDER=mosip` and `OTP_SOURCE=dynamic` are
-> rejected by config validation. mosipid needs the test OIDC client registered through
-> partner-management-service (rather than eSignet client-mgmt, so IDA gets the partner+policy
-> binding) and the live OTP read from the mock-SMTP WebSocket; both paths are still unverified and
-> land in a follow-up PR together with `internal/wsotp` and `e2e-scenarios-mosip.json`.
+> **mosipid specifics.** For `AUTHN_PROVIDER=mosip` the test OIDC client is registered through
+> partner-management-service (`{PMS_BASE_URL}/oauth/client`) rather than eSignet client-mgmt, so IDA
+> gets the partner+policy binding — set `PMS_BASE_URL`, `AUTH_PARTNER_ID`, `AUTH_POLICY_ID` (the
+> partner + published policy must already be onboarded; PMS reuses the `KEYCLOAK_*` creds). And
+> `OTP_SOURCE=dynamic` reads the live OTP from the mock-SMTP WebSocket (`OTP_WS_URL`, e.g.
+> `https://smtp.<env>.mosip.net/`) instead of a static `TEST_OTP`. The 6-digit code is pulled from
+> the message body (`\b\d{6}\b`); `OTP_RECIPIENT_EMAIL` filters to one recipient — an email **or a
+> phone** (UIN OTPs arrive as SMS) — or leave it empty to take the newest fresh code (reliable for a
+> single-identity run).
 >
 > **sunbird validated end-to-end, 2026-07-22** — all four surfaces green against a live sunbird
 > deployment: conformance smoke (2/2), client-mgmt (8/8, incl. the positive lifecycle), flow/execute
@@ -42,6 +47,7 @@ api-test/
   bdd/                 SEPARATE nested module (godog + gjson): client-mgmt + flow-execute
     features/          PO-authored .feature files
   e2e-scenarios.json          e2e scenarios for mock   (default spec)
+  e2e-scenarios-mosip.json    e2e scenarios for mosip
   e2e-scenarios-sunbird.json  e2e scenarios for sunbird
   run-all.sh           one command: run selected surfaces + consolidate
   config.json          conformance config (copy from config.example.json)
@@ -87,13 +93,13 @@ KEYCLOAK_CLIENT_SECRET=***your-secret*** \
 ./run-all.sh
 ```
 
-Knobs (env): `PLUGIN` (mock|sunbird, default mock), `SURFACES` (comma list of
+Knobs (env): `PLUGIN` (mock|mosip|sunbird, default mock), `SURFACES` (comma list of
 `conformance,bdd,e2e`, default all three), `CONFIG` (conformance config path, default `config.json`).
 Runs in git-bash on Windows or any POSIX shell. It runs the chosen surfaces then calls
 `cmd/consolidate` → one HTML report under `out/`.
 
-> `run-all.sh` uses `e2e-scenarios.json` (mock) by default. For sunbird e2e, run `cmd/e2e`
-> directly with `-spec e2e-scenarios-sunbird.json` (see D), or set `E2E_SPEC`.
+> `run-all.sh` uses `e2e-scenarios.json` (mock) by default. For mosip/sunbird e2e, run `cmd/e2e`
+> directly with `-spec e2e-scenarios-mosip.json` / `-sunbird.json` (see D), or set `E2E_SPEC`.
 
 ### B. Conformance surface only
 
@@ -184,7 +190,7 @@ Any of `-conformance`/`-bdd`/`-e2e` may be omitted; whatever is passed is merged
   ]
 }
 ```
-Pick the config in the Run and Debug panel and hit ▶. (For sunbird e2e, copy the `e2e (mock)`
+Pick the config in the Run and Debug panel and hit ▶. (For mosip/sunbird e2e, copy the `e2e (mock)`
 config, swap `-spec` and the `AUTHN_PROVIDER`/identity env.)
 
 **GoLand / IntelliJ** — two run configs:
@@ -285,7 +291,7 @@ file* referenced by `plan.config_file`, not here.
 | `CONFORMANCE_TLS_VERIFY` | `conformance.tls_verify` | | `INDIVIDUAL_ID` | `esignet.identity.individual_id` |
 | `PLAN_CONFIG_PATH` | `plan.config_file` (secret) | | `TEST_OTP` | `esignet.otp.value` |
 | `ESIGNET_BASE_URL` | `esignet.base_url` | | `TEST_PROFILE` | `run.profile` |
-| `AUTHN_PROVIDER` | `esignet.provider` (`mock`\|`sunbird`) | | `TEST_RUN` | `run.filter` (module regex) |
+| `AUTHN_PROVIDER` | `esignet.provider` (`mock`\|`mosip`\|`sunbird`) | | `TEST_RUN` | `run.filter` (module regex) |
 | `TEST_USERNAME`/`TEST_PASSWORD` | `esignet.credentials.*` | | `TIMEOUT_SECONDS`/`FAIL_FAST` | `run.*` |
 
 ---
