@@ -1,0 +1,1282 @@
+system:
+  "design.resolve.error.app_no_design": යෙදුමට සැලසුම් වින්‍යාසයක් නොමැත
+  "design.resolve.error.app_no_design_description": නිශ්චිත යෙදුමට සම්බන්ධිත තේමාවක් හෝ පිරිසැලසුම් වින්‍යාසයක් නොමැත
+  "design.resolve.error.app_not_found": යෙදුම සොයාගත නොහැක
+  "design.resolve.error.app_not_found_description": නිශ්චිත හැඳුනුම්පත සහිත යෙදුම පවතින්නේ නැත
+  "design.resolve.error.invalid_type": වලංගු නොවන ඉල්ලීම් ආකෘතිය
+  "design.resolve.error.invalid_type_description": විමසුම් පරාමිතිය \"type\" අවශ්‍ය වන අතර එය \"APP\" හෝ \"OU\" විය යුතුය
+  "design.resolve.error.missing_id": වලංගු නොවන ඉල්ලීම් ආකෘතිය
+  "design.resolve.error.missing_id_description": විමසුම් පරාමිතිය \"id\" අවශ්‍ය වේ
+  "design.resolve.error.unsupported_type": සහාය නොදක්වන විසඳුම් වර්ගය
+  "design.resolve.error.unsupported_type_description": නිශ්චිත විසඳුම් වර්ගයට තවම සහාය නොදක්වයි. දැනට \"APP\" වර්ගයට පමණක් සහාය දක්වයි
+  "error.actor_not_found": ක්‍රියාකරු සොයාගත නොහැක
+  "error.actor_not_found_description": ඉල්ලූ ක්‍රියාකරු පවතින්නේ නැත
+  "error.agentservice.agent_already_exists_with_client_id": Client ID දැනටමත් භාවිතයේ පවතී
+  "error.agentservice.agent_already_exists_with_client_id_description": එම Client ID සහිත ආයතනයක් දැනටමත් පවතී
+  "error.agentservice.agent_already_exists_with_name": නියෝජිතයා දැනටමත් පවතී
+  "error.agentservice.agent_already_exists_with_name_description": එම නමින් නියෝජිතයෙකු දැනටමත් පවතී
+  "error.agentservice.agent_not_found": නියෝජිතයා සොයාගත නොහැක
+  "error.agentservice.agent_not_found_description": නිශ්චිත හැඳුනුම්පත සහිත නියෝජිතයා පවතින්නේ නැත
+  "error.agentservice.attribute_conflict": ගුණාංග ගැටුම
+  "error.agentservice.attribute_conflict_description": එම අනන්‍ය ගුණාංග අගය සහිත නියෝජිතයෙකු දැනටමත් පවතී
+  "error.agentservice.auth_code_requires_code_response_type_description": authorization_code ප්‍රදාන වර්ගයට 'code' ප්‍රතිචාර වර්ගය අවශ්‍ය වේ
+  "error.agentservice.auth_code_requires_redirect_uris_description": authorization_code ප්‍රදාන වර්ගයට යළි-යොමු URI අවශ්‍ය වේ
+  "error.agentservice.cannot_modify_declarative_resource": ප්‍රකාශනාත්මක සම්පත වෙනස් කළ නොහැක
+  "error.agentservice.cannot_modify_declarative_resource_description": ප්‍රකාශනාත්මකව කළමනාකරණය කරන නියෝජිතයින් API හරහා වෙනස් කළ නොහැක
+  "error.agentservice.certificate_operation_failed": සහතික මෙහෙයුම අසාර්ථක විය
+  "error.agentservice.certificate_operation_failed_description": වලංගු නොවන ආදානය නිසා සහතික මෙහෙයුම අසාර්ථක විය
+  "error.agentservice.client_credentials_cannot_use_none_auth_description": client_credentials ප්‍රදාන වර්ගයට \"none\" සත්‍යාපන ක්‍රමය භාවිතා කළ නොහැක
+  "error.agentservice.client_credentials_cannot_use_response_types_description": client_credentials ප්‍රදාන වර්ගය ප්‍රතිචාර වර්ග සමඟ භාවිතා කළ නොහැක
+  "error.agentservice.client_secret_cannot_have_certificate_description": client_secret සත්‍යාපන ක්‍රමවලට සහතිකයක් තිබිය නොහැක
+  "error.agentservice.consent_sync_failed": එකඟතා සමමුහුර්තකරණය අසාර්ථක විය
+  "error.agentservice.consent_sync_failed_description": එකඟතා සේවාව සමඟ නියෝජිත ගුණාංග වෙනස්කම් සමමුහුර්ත කිරීම අසාර්ථක විය
+  "error.agentservice.error_retrieving_flow_definition": ප්‍රවාහ නිර්වචනය ලබාගැනීමේ දෝෂය
+  "error.agentservice.error_retrieving_flow_definition_description": ප්‍රවාහ නිර්වචනය ලබාගැනීමේදී දෝෂයක් ඇති විය
+  "error.agentservice.idtoken_encryption_alg_requires_enc_description": encryptionAlg සකසා ඇති විට idToken encryptionEnc අවශ්‍ය වේ
+  "error.agentservice.idtoken_encryption_enc_requires_alg_description": encryptionEnc සකසා ඇති විට idToken encryptionAlg අවශ්‍ය වේ
+  "error.agentservice.idtoken_encryption_fields_not_allowed_description": responseType JWT වන විට idToken encryptionAlg සහ encryptionEnc සැකසිය නොයුතුය
+  "error.agentservice.idtoken_encryption_requires_certificate_description": ID token සංකේතනය වින්‍යාස කර ඇති විට සහතිකයක් (JWKS හෝ JWKS_URI) අවශ්‍ය වේ
+  "error.agentservice.idtoken_jwks_uri_not_ssrf_safe_description": idToken JWKS URI පොදු ප්‍රවේශ්‍ය HTTPS URL එකක් විය යුතුය
+  "error.agentservice.idtoken_unsupported_encryption_alg_description": ID token සංකේතන ඇල්ගොරිතමයට සහාය නොදක්වයි
+  "error.agentservice.idtoken_unsupported_encryption_enc_description": ID token අන්තර්ගත-සංකේතන ඇල්ගොරිතමයට සහාය නොදක්වයි
+  "error.agentservice.idtoken_unsupported_response_type_description": ID token responseType සහාය නොදක්වයි
+  "error.agentservice.invalid_agent_name": වලංගු නොවන නියෝජිත නම
+  "error.agentservice.invalid_agent_name_description": නියෝජිත නම සැපයිය යුතු අතර හිස් නොවිය යුතුය
+  "error.agentservice.invalid_agent_type": වලංගු නොවන නියෝජිත වර්ගය
+  "error.agentservice.invalid_agent_type_description": නියෝජිත වර්ගය සැපයිය යුතුය
+  "error.agentservice.invalid_auth_flow_id": වලංගු නොවන සත්‍යාපන ප්‍රවාහ හැඳුනුම්පත
+  "error.agentservice.invalid_auth_flow_id_description": සපයා ඇති සත්‍යාපන ප්‍රවාහ හැඳුනුම්පත වලංගු නොවේ
+  "error.agentservice.invalid_certificate_type": වලංගු නොවන සහතික වර්ගය
+  "error.agentservice.invalid_certificate_type_description": සපයා ඇති සහතික වර්ගයට සහාය නොදක්වයි
+  "error.agentservice.invalid_certificate_value": වලංගු නොවන සහතික අගය
+  "error.agentservice.invalid_certificate_value_description": සපයා ඇති සහතික අගය වලංගු නොවේ හෝ අස්ථානගත වී ඇත
+  "error.agentservice.invalid_credential": වලංගු නොවන අක්තපත්‍රය
+  "error.agentservice.invalid_credential_description": සපයා ඇති අක්තපත්‍රය වලංගු නොවේ
+  "error.agentservice.invalid_filter": වලංගු නොවන පෙරහන් පරාමිතිය
+  "error.agentservice.invalid_filter_description": පෙරහන් ආකෘතිය වලංගු නොවේ
+  "error.agentservice.invalid_grant_type": වලංගු නොවන ප්‍රදාන වර්ගය
+  "error.agentservice.invalid_grant_type_description": එක් හෝ කිහිපයක් ප්‍රදාන වර්ගවලට සහාය නොදක්වයි
+  "error.agentservice.invalid_jwks_uri": වලංගු නොවන JWKS URI
+  "error.agentservice.invalid_jwks_uri_description": JWKS URI පොදු ප්‍රවේශ්‍ය HTTPS URL එකක් විය යුතුය
+  "error.agentservice.invalid_limit": වලංගු නොවන පිටුකරණ පරාමිතිය
+  "error.agentservice.invalid_limit_description": සීමා පරාමිතිය 1 සහ 100 අතර විය යුතුය
+  "error.agentservice.invalid_oauth_configuration": වලංගු නොවන OAuth වින්‍යාසය
+  "error.agentservice.invalid_oauth_configuration_description": සපයා ඇති OAuth වින්‍යාසය වලංගු නොවේ
+  "error.agentservice.invalid_offset": වලංගු නොවන පිටුකරණ පරාමිතිය
+  "error.agentservice.invalid_offset_description": ඕෆ්සෙට් පරාමිතිය සෘණ නොවන පූර්ණ සංඛ්‍යාවක් විය යුතුය
+  "error.agentservice.invalid_public_client_configuration": වලංගු නොවන පොදු සේවාලාභී වින්‍යාසය
+  "error.agentservice.invalid_public_client_configuration_description": පොදු සේවාලාභී වින්‍යාසය වලංගු නොවේ
+  "error.agentservice.invalid_redirect_uri": වලංගු නොවන යළි-යොමු URI
+  "error.agentservice.invalid_redirect_uri_description": එක් හෝ කිහිපයක් යළි-යොමු URI වලංගු නොවේ
+  "error.agentservice.invalid_registration_flow_id": වලංගු නොවන ලියාපදිංචි ප්‍රවාහ හැඳුනුම්පත
+  "error.agentservice.invalid_registration_flow_id_description": සපයා ඇති ලියාපදිංචි ප්‍රවාහ හැඳුනුම්පත වලංගු නොවේ
+  "error.agentservice.invalid_request_format": වලංගු නොවන ඉල්ලීම් ආකෘතිය
+  "error.agentservice.invalid_request_format_description": ඉල්ලීම් ශරීරය විකෘති වී ඇත හෝ වලංගු නොවන දත්ත අඩංගු වේ
+  "error.agentservice.invalid_response_type": වලංගු නොවන ප්‍රතිචාර වර්ගය
+  "error.agentservice.invalid_response_type_description": සපයා ඇති එක් හෝ කිහිපයක් ප්‍රතිචාර වර්ග වලංගු නොවේ
+  "error.agentservice.invalid_token_endpoint_auth_method": වලංගු නොවන ටෝකන අන්ත ලක්ෂ්‍ය සත්‍යාපන ක්‍රමය
+  "error.agentservice.invalid_token_endpoint_auth_method_description": සපයා ඇති ටෝකන අන්ත ලක්ෂ්‍ය සත්‍යාපන ක්‍රමයට සහාය නොදක්වයි
+  "error.agentservice.invalid_user_attribute": වලංගු නොවන පරිශීලක ගුණාංගය
+  "error.agentservice.invalid_user_attribute_description": වින්‍යාස කළ අවසර ලත් පරිශීලක වර්ග සඳහා එක් හෝ කිහිපයක් පරිශීලක ගුණාංග වලංගු නොවේ
+  "error.agentservice.invalid_user_type": වලංගු නොවන පරිශීලක වර්ගය
+  "error.agentservice.invalid_user_type_description": නිශ්චිත අවසර ලත් පරිශීලක වර්ග එකක් හෝ කිහිපයක් වලංගු නොවේ
+  "error.agentservice.layout_not_found": පිරිසැලසුම සොයාගත නොහැක
+  "error.agentservice.layout_not_found_description": නිශ්චිත පිරිසැලසුම පවතින්නේ නැත
+  "error.agentservice.missing_agent_id": නියෝජිත හැඳුනුම්පත අස්ථානගත වී ඇත
+  "error.agentservice.missing_agent_id_description": නියෝජිත හැඳුනුම්පත අවශ්‍ය වේ
+  "error.agentservice.multiple_oauth_configs": බහු OAuth අභ්‍යන්තර සත්‍යාපන වින්‍යාස අවසර නැත
+  "error.agentservice.multiple_oauth_configs_description": ආයතනයකට ප්‍රොටෝකෝලයකට උපරිම එක් අභ්‍යන්තර සත්‍යාපන වින්‍යාසයක් තිබිය හැක
+  "error.agentservice.none_auth_method_cannot_have_cert_or_secret_description": "\"none\" සත්‍යාපන ක්‍රමයට සහතිකයක් හෝ සේවාලාභී රහසක් තිබිය නොහැක"
+  "error.agentservice.none_auth_method_requires_public_client_description": "\"none\" සත්‍යාපන ක්‍රමයට සේවාලාභියා පොදු සේවාලාභියෙකු විය යුතුය"
+  "error.agentservice.organization_unit_not_found": සංවිධාන ඒකකය සොයාගත නොහැක
+  "error.agentservice.organization_unit_not_found_description": නිශ්චිත සංවිධාන ඒකකය පවතින්නේ නැත
+  "error.agentservice.owner_not_found": හිමිකරු සොයාගත නොහැක
+  "error.agentservice.owner_not_found_description": නිශ්චිත හිමිකරු කිසිදු දන්නා පරිශීලකයෙකුට, යෙදුමකට හෝ නියෝජිතයෙකුට ගැළපෙන්නේ නැත
+  "error.agentservice.pkce_requires_authorization_code_description": authorization_code ප්‍රදාන වර්ගය තෝරාගත් විට පමණක් PKCE සක්‍රීය කළ හැක
+  "error.agentservice.private_key_jwt_cannot_have_client_secret_description": private_key_jwt සත්‍යාපන ක්‍රමයට සේවාලාභී රහසක් තිබිය නොහැක
+  "error.agentservice.private_key_jwt_requires_certificate_description": private_key_jwt සත්‍යාපන ක්‍රමයට සහතිකයක් අවශ්‍ය වේ
+  "error.agentservice.public_client_must_have_pkce_description": පොදු සේවාලාභීන්ට PKCE අවශ්‍ය true ලෙස සැකසිය යුතුය
+  "error.agentservice.public_client_must_use_none_auth_description": පොදු සේවාලාභීන් ටෝකන අන්ත ලක්ෂ්‍ය සත්‍යාපන ක්‍රමය ලෙස \"none\" භාවිතා කළ යුතුය
+  "error.agentservice.redirect_uri_fragment_not_allowed_description": යළි-යොමු URI වල කොටස් සංරචකයක් අඩංගු නොවිය යුතුය
+  "error.agentservice.refresh_token_cannot_be_sole_grant_description": refresh_token ප්‍රදාන වර්ගය වෙනත් ප්‍රදාන වර්ගයක් නොමැතිව භාවිතා කළ නොහැක
+  "error.agentservice.response_types_require_authorization_code_description": authorization_code ප්‍රදාන වර්ගය සමඟ පමණක් ප්‍රතිචාර වර්ග වින්‍යාස කළ හැක
+  "error.agentservice.schema_validation_failed": ක්‍රමලේඛ වලංගුකරණය අසාර්ථක විය
+  "error.agentservice.schema_validation_failed_description": සපයා ඇති ගුණාංග ක්‍රමලේඛ වලංගුකරණයේදී අසාර්ථක විය
+  "error.agentservice.theme_not_found": තේමාව සොයාගත නොහැක
+  "error.agentservice.theme_not_found_description": නිශ්චිත තේමාව පවතින්නේ නැත
+  "error.agentservice.userinfo_alg_requires_response_type_description": signingAlg හෝ encryptionAlg සකසා ඇති විට userinfo responseType අවශ්‍ය වේ
+  "error.agentservice.userinfo_encryption_alg_requires_enc_description": encryptionAlg සකසා ඇති විට userinfo encryptionEnc අවශ්‍ය වේ
+  "error.agentservice.userinfo_encryption_enc_requires_alg_description": encryptionEnc සකසා ඇති විට userinfo encryptionAlg අවශ්‍ය වේ
+  "error.agentservice.userinfo_encryption_requires_certificate_description": userinfo සංකේතනය වින්‍යාස කර ඇති විට සහතිකයක් (JWKS හෝ JWKS_URI) අවශ්‍ය වේ
+  "error.agentservice.userinfo_jwe_requires_encryption_description": userinfo responseType JWE වන විට encryptionAlg සහ encryptionEnc අවශ්‍ය වේ
+  "error.agentservice.userinfo_jwks_uri_not_ssrf_safe_description": userinfo JWKS URI පොදු ප්‍රවේශ්‍ය HTTPS URL එකක් විය යුතුය
+  "error.agentservice.userinfo_jws_requires_signing_alg_description": userinfo responseType JWS වන විට signingAlg අවශ්‍ය වේ
+  "error.agentservice.userinfo_nested_jwt_requires_all_description": userinfo responseType NESTED_JWT වන විට signingAlg, encryptionAlg, සහ encryptionEnc අවශ්‍ය වේ
+  "error.agentservice.userinfo_unsupported_encryption_alg_description": userinfo සංකේතන ඇල්ගොරිතමයට සහාය නොදක්වයි
+  "error.agentservice.userinfo_unsupported_encryption_enc_description": userinfo අන්තර්ගත-සංකේතන ඇල්ගොරිතමයට සහාය නොදක්වයි
+  "error.agentservice.userinfo_unsupported_response_type_description": userinfo responseType සහාය නොදක්වයි
+  "error.agentservice.userinfo_unsupported_signing_alg_description": userinfo අත්සන ඇල්ගොරිතමයට සහාය නොදක්වයි
+  "error.applicationservice.application_already_exists": යෙදුම දැනටමත් පවතී
+  "error.applicationservice.application_already_exists_description": එම නමින් යෙදුමක් දැනටමත් පවතී
+  "error.applicationservice.application_is_nil": යෙදුම nil වේ
+  "error.applicationservice.application_is_nil_description": සපයා ඇති යෙදුම් වස්තුව nil වේ
+  "error.applicationservice.application_not_found": යෙදුම සොයාගත නොහැක
+  "error.applicationservice.application_not_found_description": ඉල්ලූ යෙදුම සොයාගත නොහැකි විය
+  "error.applicationservice.application_with_client_id_already_exists": Client ID සහිත යෙදුම දැනටමත් පවතී
+  "error.applicationservice.application_with_client_id_already_exists_description": එම Client ID සහිත යෙදුමක් දැනටමත් පවතී
+  "error.applicationservice.auth_code_requires_code_response_type_description": authorization_code ප්‍රදාන වර්ගයට 'code' ප්‍රතිචාර වර්ගය අවශ්‍ය වේ
+  "error.applicationservice.auth_code_requires_redirect_uris_description": authorization_code ප්‍රදාන වර්ගයට යළි-යොමු URI අවශ්‍ය වේ
+  "error.applicationservice.cannot_modify_declarative_resource": ප්‍රකාශනාත්මක සම්පත වෙනස් කළ නොහැක
+  "error.applicationservice.cannot_modify_declarative_resource_description": යෙදුම ප්‍රකාශනාත්මක වන අතර වෙනස් කිරීම හෝ මකා දැමීම කළ නොහැක
+  "error.applicationservice.certificate_operation_failed": සහතික මෙහෙයුම අසාර්ථක විය
+  "error.applicationservice.certificate_operation_failed_description": යෙදුම් සහතිකය සැකසීමේදී දෝෂයක් ඇති විය
+  "error.applicationservice.client_credentials_cannot_use_none_auth_description": client_credentials ප්‍රදාන වර්ගයට \"none\" සත්‍යාපන ක්‍රමය භාවිතා කළ නොහැක
+  "error.applicationservice.client_credentials_cannot_use_response_types_description": client_credentials ප්‍රදාන වර්ගය ප්‍රතිචාර වර්ග සමඟ භාවිතා කළ නොහැක
+  "error.applicationservice.client_secret_cannot_have_certificate_description": client_secret සත්‍යාපන ක්‍රමවලට සහතිකයක් තිබිය නොහැක
+  "error.applicationservice.consent_service_not_enabled": එකඟතා සේවාව සක්‍රීය කර නොමැත
+  "error.applicationservice.consent_service_not_enabled_description": එකඟතා සේවාව සක්‍රීය නොවන බැවින් යෙදුම සඳහා එකඟතාව සක්‍රීය කළ නොහැක
+  "error.applicationservice.consent_synchronization_failed": එකඟතා සමමුහුර්තකරණය අසාර්ථක විය
+  "error.applicationservice.consent_synchronization_failed_description": යෙදුම සඳහා එකඟතා වින්‍යාස සමමුහුර්ත කිරීම අසාර්ථක විය
+  "error.applicationservice.error_retrieving_flow_definition": ප්‍රවාහ නිර්වචනය ලබාගැනීමේ දෝෂය
+  "error.applicationservice.error_retrieving_flow_definition_description": ප්‍රවාහ නිර්වචනය ලබාගැනීමේදී දෝෂයක් ඇති විය
+  "error.applicationservice.idtoken_encryption_alg_requires_enc_description": encryptionAlg සකසා ඇති විට idToken encryptionEnc අවශ්‍ය වේ
+  "error.applicationservice.idtoken_encryption_enc_requires_alg_description": encryptionEnc සකසා ඇති විට idToken encryptionAlg අවශ්‍ය වේ
+  "error.applicationservice.idtoken_encryption_fields_not_allowed_description": responseType JWT වන විට idToken encryptionAlg සහ encryptionEnc සැකසිය නොයුතුය
+  "error.applicationservice.idtoken_encryption_requires_certificate_description": ID token සංකේතනය වින්‍යාස කර ඇති විට සහතිකයක් (JWKS හෝ JWKS_URI) අවශ්‍ය වේ
+  "error.applicationservice.idtoken_jwks_uri_not_ssrf_safe_description": idToken JWKS URI පොදු ප්‍රවේශ්‍ය HTTPS URL එකක් විය යුතුය
+  "error.applicationservice.idtoken_unsupported_encryption_alg_description": ID token සංකේතන ඇල්ගොරිතමයට සහාය නොදක්වයි
+  "error.applicationservice.idtoken_unsupported_encryption_enc_description": ID token අන්තර්ගත-සංකේතන ඇල්ගොරිතමයට සහාය නොදක්වයි
+  "error.applicationservice.idtoken_unsupported_response_type_description": ID token responseType සහාය නොදක්වයි
+  "error.applicationservice.invalid_acr_values": වලංගු නොවන ACR අගය
+  "error.applicationservice.invalid_acr_values_description": acr_values හි ACR අගයන් එකක් හෝ කිහිපයක් පද්ධතිය මඟින් හඳුනාගත නොහැක
+  "error.applicationservice.invalid_application_id": වලංගු නොවන යෙදුම් හැඳුනුම්පත
+  "error.applicationservice.invalid_application_id_description": සපයා ඇති යෙදුම් හැඳුනුම්පත වලංගු නොවේ හෝ හිස් වේ
+  "error.applicationservice.invalid_application_name": වලංගු නොවන යෙදුම් නම
+  "error.applicationservice.invalid_application_name_description": සපයා ඇති යෙදුම් නම වලංගු නොවේ හෝ හිස් වේ
+  "error.applicationservice.invalid_application_url": වලංගු නොවන යෙදුම් URL
+  "error.applicationservice.invalid_application_url_description": සපයා ඇති යෙදුම් URL වලංගු URI එකක් නොවේ
+  "error.applicationservice.invalid_auth_flow_id": වලංගු නොවන සත්‍යාපන ප්‍රවාහ හැඳුනුම්පත
+  "error.applicationservice.invalid_auth_flow_id_description": සපයා ඇති සත්‍යාපන ප්‍රවාහ හැඳුනුම්පත වලංගු නොවේ
+  "error.applicationservice.invalid_certificate_type": වලංගු නොවන සහතික වර්ගය
+  "error.applicationservice.invalid_certificate_type_description": සපයා ඇති සහතික වර්ගයට සහාය නොදක්වයි
+  "error.applicationservice.invalid_certificate_value": වලංගු නොවන සහතික අගය
+  "error.applicationservice.invalid_certificate_value_description": සපයා ඇති සහතික අගය වලංගු නොවේ
+  "error.applicationservice.invalid_client_id": වලංගු නොවන Client ID
+  "error.applicationservice.invalid_client_id_description": සපයා ඇති Client ID වලංගු නොවේ හෝ හිස් වේ
+  "error.applicationservice.invalid_grant_type": වලංගු නොවන ප්‍රදාන වර්ගය
+  "error.applicationservice.invalid_grant_type_description": සපයා ඇති එක් හෝ කිහිපයක් ප්‍රදාන වර්ග වලංගු නොවේ
+  "error.applicationservice.invalid_inbound_auth_config": වලංගු නොවන අභ්‍යන්තර සත්‍යාපන වින්‍යාසය
+  "error.applicationservice.invalid_inbound_auth_config_description": සපයා ඇති අභ්‍යන්තර සත්‍යාපන වින්‍යාසය වලංගු නොවේ
+  "error.applicationservice.invalid_jwks_uri": වලංගු නොවන JWKS URI
+  "error.applicationservice.invalid_jwks_uri_description": සපයා ඇති JWKS URI වලංගු URI එකක් නොවේ
+  "error.applicationservice.invalid_jwks_uri_scheme": වලංගු නොවන JWKS URI scheme
+  "error.applicationservice.invalid_jwks_uri_scheme_description": "\"jwks_uri\" HTTPS ක්‍රමය භාවිතා කළ යුතුය"
+  "error.applicationservice.invalid_logo_url": වලංගු නොවන ලාංඡන URL
+  "error.applicationservice.invalid_logo_url_description": සපයා ඇති ලාංඡන URL වලංගු URI එකක් නොවේ
+  "error.applicationservice.invalid_oauth_configuration": වලංගු නොවන OAuth වින්‍යාසය
+  "error.applicationservice.invalid_oauth_configuration_description": OAuth වින්‍යාසය වලංගු නොවේ
+  "error.applicationservice.invalid_public_client_configuration": වලංගු නොවන පොදු සේවාලාභී වින්‍යාසය
+  "error.applicationservice.invalid_public_client_configuration_description": පොදු සේවාලාභී වින්‍යාසය වලංගු නොවේ
+  "error.applicationservice.invalid_recovery_flow_id": වලංගු නොවන ප්‍රතිසාධන ප්‍රවාහ හැඳුනුම්පත
+  "error.applicationservice.invalid_recovery_flow_id_description": සපයා ඇති ප්‍රතිසාධන ප්‍රවාහ හැඳුනුම්පත වලංගු නොවේ
+  "error.applicationservice.invalid_redirect_uri": වලංගු නොවන යළි-යොමු URI
+  "error.applicationservice.invalid_redirect_uri_description": සපයා ඇති එක් හෝ කිහිපයක් යළි-යොමු URI වලංගු URI නොවේ
+  "error.applicationservice.invalid_registration_flow_id": වලංගු නොවන ලියාපදිංචි ප්‍රවාහ හැඳුනුම්පත
+  "error.applicationservice.invalid_registration_flow_id_description": සපයා ඇති ලියාපදිංචි ප්‍රවාහ හැඳුනුම්පත වලංගු නොවේ
+  "error.applicationservice.invalid_request_format": වලංගු නොවන ඉල්ලීම් ආකෘතිය
+  "error.applicationservice.invalid_request_format_description": ඉල්ලීම් ශරීරය විකෘති වී ඇත හෝ වලංගු නොවන දත්ත අඩංගු වේ
+  "error.applicationservice.invalid_response_type": වලංගු නොවන ප්‍රතිචාර වර්ගය
+  "error.applicationservice.invalid_response_type_description": සපයා ඇති එක් හෝ කිහිපයක් ප්‍රතිචාර වර්ග වලංගු නොවේ
+  "error.applicationservice.invalid_token_endpoint_auth_method": වලංගු නොවන ටෝකන අන්ත ලක්ෂ්‍ය සත්‍යාපන ක්‍රමය
+  "error.applicationservice.invalid_token_endpoint_auth_method_description": සපයා ඇති ටෝකන අන්ත ලක්ෂ්‍ය සත්‍යාපන ක්‍රමය වලංගු නොවේ
+  "error.applicationservice.invalid_user_attribute": වලංගු නොවන පරිශීලක ගුණාංගය
+  "error.applicationservice.invalid_user_attribute_description": වින්‍යාස කළ අවසර ලත් පරිශීලක වර්ග සඳහා එක් හෝ කිහිපයක් පරිශීලක ගුණාංග වලංගු නොවේ
+  "error.applicationservice.invalid_user_type": වලංගු නොවන පරිශීලක වර්ගය
+  "error.applicationservice.invalid_user_type_description": allowed_user_types හි පරිශීලක වර්ග එකක් හෝ කිහිපයක් පද්ධතියේ පවතින්නේ නැත
+  "error.applicationservice.layout_not_found": පිරිසැලසුම සොයාගත නොහැක
+  "error.applicationservice.layout_not_found_description": නිශ්චිත පිරිසැලසුම් වින්‍යාසය පවතින්නේ නැත
+  "error.applicationservice.multiple_oauth_configs": බහු OAuth අභ්‍යන්තර සත්‍යාපන වින්‍යාස අවසර නැත
+  "error.applicationservice.multiple_oauth_configs_description": යෙදුමකට ප්‍රොටෝකෝලයකට උපරිම එක් අභ්‍යන්තර සත්‍යාපන වින්‍යාසයක් තිබිය හැක
+  "error.applicationservice.none_auth_method_cannot_have_cert_or_secret_description": "\"none\" සත්‍යාපන ක්‍රමයට සහතිකයක් හෝ සේවාලාභී රහසක් තිබිය නොහැක"
+  "error.applicationservice.none_auth_method_requires_public_client_description": "\"none\" සත්‍යාපන ක්‍රමය සඳහා සේවාලාභියා පොදු සේවාලාභියෙකු විය යුතුය"
+  "error.applicationservice.pkce_requires_authorization_code_description": authorization_code grant type තෝරාගත් විට පමණක් PKCE සක්‍රිය කළ හැක
+  "error.applicationservice.private_key_jwt_cannot_have_client_secret_description": private_key_jwt සත්‍යාපන ක්‍රමයට සේවාලාභී රහසක් තිබිය නොහැක
+  "error.applicationservice.private_key_jwt_requires_certificate_description": private_key_jwt සත්‍යාපන ක්‍රමයට සහතිකයක් අවශ්‍යයි
+  "error.applicationservice.public_client_must_have_pkce_description": පොදු සේවාලාභීන්ට PKCE අවශ්‍ය සත්‍ය ලෙස සැකසිය යුතුය
+  "error.applicationservice.public_client_must_use_none_auth_description": පොදු සේවාලාභීන් token endpoint සත්‍යාපන ක්‍රමය ලෙස \"none\" භාවිතා කළ යුතුය
+  "error.applicationservice.redirect_uri_fragment_not_allowed_description": redirect URI වල කොටස් සංරචකයක් අඩංගු නොවිය යුතුය
+  "error.applicationservice.refresh_token_cannot_be_sole_grant_description": refresh_token grant type වෙනත් grant type එකක් නොමැතිව භාවිතා කළ නොහැක
+  "error.applicationservice.response_types_require_authorization_code_description": ප්‍රතිචාර වර්ග authorization_code grant type සමඟ පමණක් වින්‍යාස කළ හැක
+  "error.applicationservice.result_limit_exceeded": ප්‍රතිඵල සීමාව ඉක්මවා ඇත
+  "error.applicationservice.theme_not_found": තේමාව සොයාගත නොහැක
+  "error.applicationservice.theme_not_found_description": නිශ්චිත තේමා වින්‍යාසය නොපවතී
+  "error.applicationservice.userinfo_alg_requires_response_type_description": signingAlg හෝ encryptionAlg සකසා ඇති විට userinfo responseType අවශ්‍යයි
+  "error.applicationservice.userinfo_encryption_alg_requires_enc_description": encryptionAlg සකසා ඇති විට userinfo encryptionEnc අවශ්‍යයි
+  "error.applicationservice.userinfo_encryption_enc_requires_alg_description": encryptionEnc සකසා ඇති විට userinfo encryptionAlg අවශ්‍යයි
+  "error.applicationservice.userinfo_encryption_requires_certificate_description": userinfo සංකේතනය වින්‍යාස කර ඇති විට සහතිකයක් (JWKS හෝ JWKS_URI) අවශ්‍යයි
+  "error.applicationservice.userinfo_jwe_requires_encryption_description": userinfo responseType JWE වන විට encryptionAlg සහ encryptionEnc අවශ්‍යයි
+  "error.applicationservice.userinfo_jwks_uri_not_ssrf_safe_description": userinfo JWKS URI පොදුවේ ළඟා විය හැකි HTTPS URL එකක් විය යුතුය
+  "error.applicationservice.userinfo_jws_requires_signing_alg_description": userinfo responseType JWS වන විට signingAlg අවශ්‍යයි
+  "error.applicationservice.userinfo_nested_jwt_requires_all_description": userinfo responseType NESTED_JWT වන විට signingAlg, encryptionAlg, සහ encryptionEnc අවශ්‍යයි
+  "error.applicationservice.userinfo_unsupported_encryption_alg_description": userinfo සංකේතන ඇල්ගොරිතම සහාය නොදක්වයි
+  "error.applicationservice.userinfo_unsupported_encryption_enc_description": userinfo අන්තර්ගත-සංකේතන ඇල්ගොරිතම සහාය නොදක්වයි
+  "error.applicationservice.userinfo_unsupported_response_type_description": userinfo responseType සහාය නොදක්වයි
+  "error.applicationservice.userinfo_unsupported_signing_alg_description": userinfo අත්සන් ඇල්ගොරිතම සහාය නොදක්වයි
+  "error.assertservice.invalid_authenticator": වලංගු නොවන සත්‍යාපකය
+  "error.assertservice.invalid_authenticator_description": සත්‍යාපක නාමය හිස් විය නොහැක
+  "error.assertservice.nil_assurance_context": හිස් සහතික සන්දර්භය
+  "error.assertservice.nil_assurance_context_description": සත්‍යාපනය සඳහා සහතික සන්දර්භය හිස් විය නොහැක
+  "error.assertservice.no_assurance_requirements": සහතික අවශ්‍යතා නොමැත
+  "error.assertservice.no_assurance_requirements_description": සත්‍යාපනය සඳහා අවම වශයෙන් එක් සහතික මට්ටමක් (AAL හෝ IAL) නිශ්චිත කළ යුතුය
+  "error.assertservice.no_authenticators": සත්‍යාපක නොමැත
+  "error.assertservice.no_authenticators_description": සත්‍යාපක නොමැතිව ප්‍රකාශනය ජනනය කළ නොහැක
+  "error.attributecache.cache_not_found": ගුණාංග හැඹිලිය සොයාගත නොහැක
+  "error.attributecache.cache_not_found_description": නිශ්චිත ID සහිත ගුණාංග හැඹිලි ඇතුළත් කිරීම නොපවතී
+  "error.attributecache.invalid_expiry_time": වලංගු නොවන කල් ඉකුත් වීමේ කාලය
+  "error.attributecache.invalid_expiry_time_description": කල් ඉකුත් වීමේ කාලය අනාගතයේ විය යුතුය
+  "error.attributecache.invalid_request_format": වලංගු නොවන ඉල්ලීම් ආකෘතිය
+  "error.attributecache.invalid_request_format_description": ඉල්ලීම් ශරීරය විකෘති ආකෘතියකින් ඇත හෝ වලංගු නොවන දත්ත අඩංගු වේ
+  "error.attributecache.missing_attributes": ගුණාංග අස්ථානගත වී ඇත
+  "error.attributecache.missing_attributes_description": ගුණාංග අවශ්‍යයි
+  "error.attributecache.missing_cache_id": හැඹිලි ID අස්ථානගත වී ඇත
+  "error.attributecache.missing_cache_id_description": හැඹිලි ID අවශ්‍යයි
+  "error.auth.forbidden": තහනම්
+  "error.auth.forbidden_description": මෙම සම්පතට ප්‍රවේශ වීමට ඔබට ප්‍රමාණවත් අවසර නොමැත
+  "error.auth.unauthorized": අනවසරයි
+  "error.auth.unauthorized_description": මෙම සම්පතට ප්‍රවේශ වීමට සත්‍යාපනය අවශ්‍යයි
+  "error.authncredservice.invalid_request_format": වලංගු නොවන ඉල්ලීම් ආකෘතිය
+  "error.authncredservice.invalid_request_format_description": ඉල්ලීම් ශරීරය විකෘති ආකෘතියකින් ඇත හෝ වලංගු නොවන දත්ත අඩංගු වේ
+  "error.authnmgrservice.ambiguous_user": අපැහැදිලි පරිශීලකයා
+  "error.authnmgrservice.ambiguous_user_description": සපයන ලද හඳුනාගැනීම් සමඟ ගැලපෙන පරිශීලකයන් කිහිප දෙනෙකු සොයාගත්තේය
+  "error.authnmgrservice.authentication_failed": සත්‍යාපනය අසාර්ථකයි
+  "error.authnmgrservice.authentication_failed_description": සත්‍යාපන උත්සාහය අසාර්ථක විය
+  "error.authnmgrservice.failed_to_get_attributes": ගුණාංග ලබාගැනීම අසාර්ථක විය
+  "error.authnmgrservice.failed_to_get_attributes_description": ගුණාංග ලබාගැනීම සැපයුම්කරු විසින් ප්‍රතික්ෂේප කරන ලදී
+  "error.authnmgrservice.get_entity_reference_client_error": ආයතන යොමුව ලබාගැනීම අසාර්ථක විය
+  "error.authnmgrservice.get_entity_reference_client_error_description": ආයතන යොමුව ලබාගැනීම සැපයුම්කරු විසින් ප්‍රතික්ෂේප කරන ලදී
+  "error.authnmgrservice.invalid_request": වලංගු නොවන ඉල්ලීම
+  "error.authnmgrservice.invalid_request_description": සත්‍යාපන ඉල්ලීම වලංගු නොවේ
+  "error.authnmgrservice.user_not_found": පරිශීලකයා සොයාගත නොහැක
+  "error.authnmgrservice.user_not_found_description": සපයන ලද හඳුනාගැනීම් සමඟ ගැලපෙන පරිශීලකයෙකු සොයාගත නොහැක
+  "error.authnotpservice.error_processing_otp": OTP සැකසීමේ දෝෂයක්
+  "error.authnotpservice.error_processing_otp_description": OTP ඉල්ලීම සැකසීමේදී දෝෂයක් ඇති විය
+  "error.authnotpservice.error_resolving_user": පරිශීලකයා විසඳීමේ දෝෂයක්
+  "error.authnotpservice.error_resolving_user_description": ලබන්නා සඳහා පරිශීලකයා විසඳීමේදී දෝෂයක් ඇති විය
+  "error.authnotpservice.incorrect_otp": වැරදි OTP
+  "error.authnotpservice.incorrect_otp_description": සපයන ලද OTP වැරදි හෝ කල් ඉකුත් වී ඇත
+  "error.authnotpservice.invalid_otp": වලංගු නොවන OTP
+  "error.authnotpservice.invalid_otp_description": සපයන ලද OTP වලංගු නොවේ හෝ හිස්ය
+  "error.authnotpservice.invalid_recipient": වලංගු නොවන ලබන්නා
+  "error.authnotpservice.invalid_recipient_description": සපයන ලද ලබන්නා වලංගු නොවේ හෝ හිස්ය
+  "error.authnotpservice.invalid_sender_id": වලංගු නොවන යවන්නාගේ ID
+  "error.authnotpservice.invalid_sender_id_description": සපයන ලද යවන්නාගේ ID වලංගු නොවේ හෝ හිස්ය
+  "error.authnotpservice.invalid_session_token": වලංගු නොවන සැසි ටෝකනය
+  "error.authnotpservice.invalid_session_token_description": සපයන ලද සැසි ටෝකනය වලංගු නොවේ හෝ හිස්ය
+  "error.authnotpservice.unsupported_channel": සහාය නොදක්වන නාලිකාව
+  "error.authnotpservice.unsupported_channel_description": සපයන ලද නාලිකාව OTP සත්‍යාපනය සඳහා සහාය නොදක්වයි
+  "error.authnservice.ambiguous_user": අපැහැදිලි පරිශීලකයා
+  "error.authnservice.ambiguous_user_description": සපයන ලද ගුණාංග සමඟ පරිශීලකයන් කිහිප දෙනෙකු ගැලපේ
+  "error.authnservice.assertion_subject_mismatch": ප්‍රකාශන විෂය නොගැලපීම
+  "error.authnservice.assertion_subject_mismatch_description": ප්‍රකාශනයේ විෂය සත්‍යාපනය කළ පරිශීලකයා සමඟ නොගැලපේ
+  "error.authnservice.authentication_failed": සත්‍යාපනය අසාර්ථකයි
+  "error.authnservice.authentication_failed_description": පරිශීලකයා සත්‍යාපනය කිරීමේදී දෝෂයක් ඇති විය
+  "error.authnservice.empty_attributes_or_credentials": හිස් ගුණාංග හෝ අක්තපත්‍ර
+  "error.authnservice.empty_attributes_or_credentials_description": පරිශීලක ගුණාංග හෝ අක්තපත්‍ර හිස් විය නොහැක
+  "error.authnservice.empty_auth_code": හිස් අනුමැතිකරණ කේතය
+  "error.authnservice.empty_auth_code_description": සපයන ලද අනුමැතිකරණ කේතය හිස්ය
+  "error.authnservice.empty_session_token": හිස් සැසි ටෝකනය
+  "error.authnservice.empty_session_token_description": සපයන ලද සැසි ටෝකනය හිස්ය
+  "error.authnservice.error_retrieving_idp": හඳුනාගැනීමේ සැපයුම්කරු ලබාගැනීමේ දෝෂයක්
+  "error.authnservice.error_retrieving_idp_description": හඳුනාගැනීමේ සැපයුම්කරු ලබාගැනීමේදී දෝෂයක් ඇති විය
+  "error.authnservice.federated_authentication_failed": ෆෙඩරේටඩ් සත්‍යාපනය අසාර්ථකයි
+  "error.authnservice.federated_authentication_failed_description": ෆෙඩරේටඩ් සත්‍යාපන උත්සාහය අසාර්ථක විය
+  "error.authnservice.google.invalid_id_token_audience_description": ID ටෝකන් ප්‍රේක්ෂක පිරිස අපේක්ෂිත සේවාලාභී ID සමඟ නොගැලපේ
+  "error.authnservice.google.invalid_id_token_exp_claim_description": ID ටෝකන් කල් ඉකුත් වීමේ හිමිකම අස්ථානගත වී ඇත හෝ වලංගු නොවේ
+  "error.authnservice.google.invalid_id_token_expired_description": ID ටෝකනය කල් ඉකුත් වී ඇත
+  "error.authnservice.google.invalid_id_token_future_iat_description": ID ටෝකනය අනාගතයේදී නිකුත් කර ඇත
+  "error.authnservice.google.invalid_id_token_iat_claim_description": ID ටෝකන් නිකුත් කළ (iat) හිමිකම අස්ථානගත වී ඇත හෝ වලංගු නොවේ
+  "error.authnservice.google.invalid_id_token_issuer_description": ID ටෝකනයේ නිකුත්කරු වලංගු Google නිකුත්කරුවෙකු නොවේ
+  "error.authnservice.invalid_assertion": වලංගු නොවන ප්‍රකාශනය
+  "error.authnservice.invalid_assertion_description": සපයන ලද ප්‍රකාශන ටෝකනය වලංගු නොවේ
+  "error.authnservice.invalid_credentials": වලංගු නොවන අක්තපත්‍ර
+  "error.authnservice.invalid_credentials_description": සපයන ලද අක්තපත්‍ර වලංගු නොවේ
+  "error.authnservice.invalid_idp_id": වලංගු නොවන හඳුනාගැනීමේ සැපයුම්කරු ID
+  "error.authnservice.invalid_idp_id_description": සපයන ලද හඳුනාගැනීමේ සැපයුම්කරු ID වලංගු නොවේ හෝ හිස්ය
+  "error.authnservice.invalid_idp_type": වලංගු නොවන හඳුනාගැනීමේ සැපයුම්කරු වර්ගය
+  "error.authnservice.invalid_idp_type_description": ඉල්ලා ඇති හඳුනාගැනීමේ සැපයුම්කරු වර්ගය වලංගු නොවේ
+  "error.authnservice.invalid_session_token": වලංගු නොවන සැසි ටෝකනය
+  "error.authnservice.invalid_session_token_description": සපයන ලද සැසි ටෝකනය වලංගු නොවේ හෝ කල් ඉකුත් වී ඇත
+  "error.authnservice.invalid_token": වලංගු නොවන ටෝකනය
+  "error.authnservice.invalid_token_description": සපයන ලද ටෝකනය වලංගු නොවේ
+  "error.authnservice.otp_authentication_failed": සත්‍යාපනය අසාර්ථකයි
+  "error.authnservice.otp_authentication_failed_description": OTP සත්‍යාපන උත්සාහය අසාර්ථක විය
+  "error.authnservice.passkey_authentication_failed": සත්‍යාපනය අසාර්ථකයි
+  "error.authnservice.passkey_authentication_failed_description": passkey සත්‍යාපන උත්සාහය අසාර්ථක විය
+  "error.authnservice.sub_claim_not_found": පරිශීලක විෂය සොයාගත නොහැක
+  "error.authnservice.sub_claim_not_found_description": ID ටෝකන් හිමිකම් වල 'sub' හිමිකම සොයාගත නොහැක
+  "error.authnservice.user_not_found": පරිශීලකයා සොයාගත නොහැක
+  "error.authnservice.user_not_found_description": සපයන ලද ලක්ෂණ සහිත පරිශීලකයෙකු සොයාගත නොහැක
+  "error.authoauthservice.empty_access_token": හිස් ප්‍රවේශ ටෝකනය
+  "error.authoauthservice.empty_access_token_description": ප්‍රවේශ ටෝකනය හිස් විය නොහැක
+  "error.authoauthservice.empty_authorization_code": හිස් අනුමැතිකරණ කේතය
+  "error.authoauthservice.empty_authorization_code_description": අනුමැතිකරණ කේතය හිස් විය නොහැක
+  "error.authoauthservice.empty_idp_id": IDP id හිස්ය
+  "error.authoauthservice.empty_idp_id_description": හඳුනාගැනීමේ සැපයුම්කරු id හිස් විය නොහැක
+  "error.authoauthservice.empty_sub_claim": හිස් sub හිමිකම
+  "error.authoauthservice.empty_sub_claim_description": sub හිමිකම හිස් විය නොහැක
+  "error.authoauthservice.failed_to_retrieve_idp": හඳුනාගැනීමේ සැපයුම්කරු ලබාගැනීම අසාර්ථක විය
+  "error.authoauthservice.failed_to_retrieve_idp_description": හඳුනාගැනීමේ සැපයුම්කරු වින්‍යාසය ලබාගැනීමේදී සේවාලාභී දෝෂයක් ඇති විය
+  "error.authoauthservice.failed_to_retrieve_user": පරිශීලකයා ලබාගැනීම අසාර්ථක විය
+  "error.authoauthservice.failed_to_retrieve_user_description": අභ්‍යන්තර පරිශීලකයා ලබාගැනීමේදී සේවාලාභී දෝෂයක් ඇති විය
+  "error.authoauthservice.invalid_idp": වලංගු නොවන හඳුනාගැනීමේ සැපයුම්කරු
+  "error.authoauthservice.invalid_idp_description": ලබාගත් හඳුනාගැනීමේ සැපයුම්කරු වලංගු නොවේ හෝ හිස්ය
+  "error.authoauthservice.invalid_token_response": වලංගු නොවන ටෝකන් ප්‍රතිචාරය
+  "error.authoauthservice.invalid_token_response_description": හඳුනාගැනීමේ සැපයුම්කරුගෙන් ලැබුණු ටෝකන් ප්‍රතිචාරය වලංගු නොවේ
+  "error.authoidcservice.invalid_id_token": වලංගු නොවන ID ටෝකනය
+  "error.authoidcservice.invalid_id_token_description": ID ටෝකනය වලංගු නොවේ හෝ විකෘති ආකෘතියකින් ඇත
+  "error.authoidcservice.invalid_id_token_signature": වලංගු නොවන ID ටෝකන් අත්සන
+  "error.authoidcservice.invalid_id_token_signature_description": ID ටෝකන් අත්සන සත්‍යාපනය අසාර්ථක විය
+  "error.authzen.invalid_action": වලංගු නොවන ක්‍රියාව
+  "error.authzen.invalid_action_description": ක්‍රියාවේ නම සම්පත් සේවාදායකයේ ලියාපදිංචි නොවේ
+  "error.authzen.invalid_request_format": වලංගු නොවන ඉල්ලීම් ආකෘතිය
+  "error.authzen.invalid_request_format_description": ඉල්ලීම් ශරීරය විකෘති ආකෘතියකින් ඇත හෝ වලංගු නොවන දත්ත අඩංගු වේ
+  "error.authzen.invalid_resource": වලංගු නොවන සම්පත
+  "error.authzen.invalid_resource_description": සම්පත් වර්ගය සම්පත් සේවාදායකයක් ලෙස ලියාපදිංචි නොවේ
+  "error.authzen.invalid_subject": වලංගු නොවන විෂය
+  "error.authzen.invalid_subject_description": විෂය id විෂය වර්ගය සමඟ නොගැලපේ
+  "error.authzen.missing_action": ක්‍රියාව අස්ථානගත වී ඇත
+  "error.authzen.missing_action_description": ක්‍රියාවේ නම අවශ්‍යයි
+  "error.authzen.missing_evaluations": ඇගයීම් අස්ථානගත වී ඇත
+  "error.authzen.missing_evaluations_description": අවම වශයෙන් එක් ඇගයීමක් අවශ්‍යයි
+  "error.authzen.missing_resource": සම්පත අස්ථානගත වී ඇත
+  "error.authzen.missing_resource_description": සම්පත් වර්ගය අවශ්‍යයි
+  "error.authzen.missing_resource_id": සම්පත් id අස්ථානගත වී ඇත
+  "error.authzen.missing_resource_id_description": සම්පත් id අවශ්‍යයි
+  "error.authzen.missing_subject": විෂය අස්ථානගත වී ඇත
+  "error.authzen.missing_subject_description": විෂය id අවශ්‍යයි
+  "error.certservice.certificate_already_exists": සහතිකය දැනටමත් පවතී
+  "error.certservice.certificate_already_exists_description": එකම යොමු වර්ගය සහ ID සහිත සහතිකයක් දැනටමත් පවතී
+  "error.certservice.certificate_not_found": සහතිකය සොයාගත නොහැක
+  "error.certservice.certificate_not_found_description": ඉල්ලූ සහතිකය සොයාගත නොහැකි විය
+  "error.certservice.invalid_certificate_id": වලංගු නොවන සහතික ID
+  "error.certservice.invalid_certificate_id_description": සපයන ලද සහතික ID වලංගු නොවේ
+  "error.certservice.invalid_certificate_type": වලංගු නොවන සහතික වර්ගය
+  "error.certservice.invalid_certificate_type_description": සපයන ලද සහතික වර්ගය වලංගු නොවේ
+  "error.certservice.invalid_certificate_value": වලංගු නොවන සහතික අගය
+  "error.certservice.invalid_certificate_value_description": සපයන ලද සහතික අගය වලංගු නොවේ
+  "error.certservice.invalid_reference_id": වලංගු නොවන සහතික යොමු ID
+  "error.certservice.invalid_reference_id_description": සපයන ලද සහතික යොමු ID වලංගු නොවේ
+  "error.certservice.invalid_reference_type": වලංගු නොවන සහතික යොමු වර්ගය
+  "error.certservice.invalid_reference_type_description": සපයන ලද සහතික යොමු වර්ගය වලංගු නොවේ
+  "error.certservice.reference_update_not_allowed": යොමු යාවත්කාලීනය අවසර නොදෙනු ලැබේ
+  "error.certservice.reference_update_not_allowed_description": පවතින සහතිකයක යොමු වර්ගය හෝ ID යාවත්කාලීනය අවසර නොදෙනු ලැබේ
+  "error.consentenforcerservice.consent_create_failed": කැමැත්ත වාර්තාව සෑදීම අසාර්ථක විය
+  "error.consentenforcerservice.consent_create_failed_description": කැමැත්ත සේවාවේ කැමැත්ත වාර්තාව සෑදීමේදී දෝෂයක් ඇති විය
+  "error.consentenforcerservice.consent_search_failed": කැමැත්ත වාර්තා සෙවීම අසාර්ථක විය
+  "error.consentenforcerservice.consent_search_failed_description": කැමැත්ත සේවාවෙන් කැමැත්ත වාර්තා සෙවීමේදී දෝෂයක් ඇති විය
+  "error.consentenforcerservice.consent_session_invalid": වලංගු නොවන කැමැත්ත සැසිය
+  "error.consentenforcerservice.consent_session_invalid_description": කැමැත්ත සැසි ටෝකනය වලංගු නොවේ හෝ කල් ඉකුත් වී ඇත
+  "error.consentenforcerservice.consent_update_failed": කැමැත්ත වාර්තාව යාවත්කාලීනය අසාර්ථක විය
+  "error.consentenforcerservice.consent_update_failed_description": කැමැත්ත සේවාවේ කැමැත්ත වාර්තාව යාවත්කාලීනයේදී දෝෂයක් ඇති විය
+  "error.consentenforcerservice.essential_consent_denied": අත්‍යවශ්‍ය කැමැත්ත ප්‍රතික්ෂේප කෙරිණි
+  "error.consentenforcerservice.essential_consent_denied_description": එක් හෝ වැඩි අත්‍යවශ්‍ය කැමැත්ත ගුණාංග ප්‍රතික්ෂේප කෙරිණි
+  "error.consentenforcerservice.purpose_create_failed": කැමැත්ත අරමුණ සෑදීම අසාර්ථක විය
+  "error.consentenforcerservice.purpose_create_failed_description": කැමැත්ත සේවාවේ කැමැත්ත අරමුණ සෑදීමේදී දෝෂයක් ඇති විය
+  "error.consentenforcerservice.purpose_fetch_failed": කැමැත්ත අරමුණු ලබාගැනීම අසාර්ථක විය
+  "error.consentenforcerservice.purpose_fetch_failed_description": කැමැත්ත සේවාවෙන් කැමැත්ත අරමුණු ලබාගැනීමේදී දෝෂයක් ඇති විය
+  "error.consentenforcerservice.purpose_update_failed": කැමැත්ත අරමුණ යාවත්කාලීනය අසාර්ථක විය
+  "error.consentenforcerservice.purpose_update_failed_description": කැමැත්ත සේවාවේ කැමැත්ත අරමුණ යාවත්කාලීනයේදී දෝෂයක් ඇති විය
+  "error.consentservice.cannot_delete_element": කැමැත්ත මූලද්‍රව්‍යය මකා දැමිය නොහැක
+  "error.consentservice.cannot_delete_purpose": කැමැත්ත අරමුණ මකා දැමිය නොහැක
+  "error.consentservice.consent_not_found": කැමැත්ත සොයාගත නොහැක
+  "error.consentservice.consent_not_found_description": නිශ්චිත ID සහිත කැමැත්ත වාර්තාව නොපවතී
+  "error.consentservice.delete_element_with_associated_purpose_description": කැමැත්ත මූලද්‍රව්‍යය එක් හෝ වැඩි කැමැත්ත අරමුණු සමඟ සම්බන්ධ බැවින් මකා දැමිය නොහැක
+  "error.consentservice.delete_purpose_with_associated_records_description": කැමැත්ත අරමුණ එක් හෝ වැඩි කැමැත්ත වාර්තා සමඟ සම්බන්ධ බැවින් මකා දැමිය නොහැක
+  "error.consentservice.element_already_exists": කැමැත්ත මූලද්‍රව්‍යය දැනටමත් පවතී
+  "error.consentservice.element_already_exists_description": එකම නමකින් කැමැත්ත මූලද්‍රව්‍යයක් දැනටමත් පවතී
+  "error.consentservice.element_not_found": කැමැත්ත මූලද්‍රව්‍යය සොයාගත නොහැක
+  "error.consentservice.element_not_found_description": නිශ්චිත ID සහිත කැමැත්ත මූලද්‍රව්‍යය නොපවතී
+  "error.consentservice.forbidden": කැමැත්ත සේවාවට ප්‍රවේශ වීම තහනම්
+  "error.consentservice.forbidden_description": කැමැත්ත සේවාව තහනම් ප්‍රතිචාරයක් ලබා දෙන ලදී
+  "error.consentservice.invalid_consent_request": වලංගු නොවන කැමැත්ත ඉල්ලීම
+  "error.consentservice.invalid_consent_request_description": කැමැත්ත ඉල්ලීම කැමැත්ත සේවාව විසින් වලංගු නොවන ලෙස ප්‍රතික්ෂේප කෙරිණි
+  "error.consentservice.invalid_element_request": වලංගු නොවන කැමැත්ත මූලද්‍රව්‍ය ඉල්ලීම
+  "error.consentservice.invalid_element_request_description": කැමැත්ත මූලද්‍රව්‍ය ඉල්ලීම කැමැත්ත සේවාව විසින් වලංගු නොවන ලෙස ප්‍රතික්ෂේප කෙරිණි
+  "error.consentservice.invalid_purpose_request": වලංගු නොවන කැමැත්ත අරමුණ ඉල්ලීම
+  "error.consentservice.invalid_purpose_request_description": කැමැත්ත අරමුණ ඉල්ලීම කැමැත්ත සේවාව විසින් වලංගු නොවන ලෙස ප්‍රතික්ෂේප කෙරිණි
+  "error.consentservice.invalid_request": වලංගු නොවන කැමැත්ත ඉල්ලීම
+  "error.consentservice.invalid_request_description": කැමැත්ත සේවාවට යවන ලද ඉල්ලීම වලංගු නොවේ
+  "error.consentservice.invalid_request_format": වලංගු නොවන ඉල්ලීම් ආකෘතිය
+  "error.consentservice.invalid_request_format_description": ඉල්ලීම් ශරීරය විකෘති ආකෘතියකින් ඇත හෝ වලංගු නොවන දත්ත අඩංගු වේ
+  "error.consentservice.invalid_revoke_request": වලංගු නොවන කැමැත්ත අවලංගු ඉල්ලීම
+  "error.consentservice.invalid_revoke_request_description": කැමැත්ත අවලංගු ඉල්ලීම කැමැත්ත සේවාව විසින් වලංගු නොවන ලෙස ප්‍රතික්ෂේප කෙරිණි
+  "error.consentservice.invalid_search_filter": වලංගු නොවන කැමැත්ත සෙවුම් පෙරහන
+  "error.consentservice.invalid_search_filter_description": කැමැත්ත සෙවුම් පෙරහන කැමැත්ත සේවාව විසින් වලංගු නොවන ලෙස ප්‍රතික්ෂේප කෙරිණි
+  "error.consentservice.invalid_update_request": වලංගු නොවන කැමැත්ත යාවත්කාලීන ඉල්ලීම
+  "error.consentservice.invalid_update_request_description": කැමැත්ත යාවත්කාලීන ඉල්ලීම කැමැත්ත සේවාව විසින් වලංගු නොවන ලෙස ප්‍රතික්ෂේප කෙරිණි
+  "error.consentservice.invalid_validation_request": වලංගු නොවන කැමැත්ත සත්‍යාපන ඉල්ලීම
+  "error.consentservice.invalid_validation_request_description": කැමැත්ත සත්‍යාපන ඉල්ලීම කැමැත්ත සේවාව විසින් වලංගු නොවන ලෙස ප්‍රතික්ෂේප කෙරිණි
+  "error.consentservice.purpose_already_exists": කැමැත්ත අරමුණ දැනටමත් පවතී
+  "error.consentservice.purpose_already_exists_description": මෙම සම්පත සඳහා එකම නමකින් කැමැත්ත අරමුණක් දැනටමත් පවතී
+  "error.consentservice.purpose_not_found": කැමැත්ත අරමුණ සොයාගත නොහැක
+  "error.consentservice.purpose_not_found_description": නිශ්චිත ID සහිත කැමැත්ත අරමුණ නොපවතී
+  "error.consentservice.unauthorized": කැමැත්ත සේවාවට ප්‍රවේශ වීමට අනවසරයි
+  "error.consentservice.unauthorized_description": කැමැත්ත සේවාව අනවසර ප්‍රතිචාරයක් ලබා දෙන ලදී
+  "error.dcr.invalid_client_metadata": වලංගු නොවන සේවාලාභී පාර-දත්ත
+  "error.dcr.invalid_client_metadata_description": එක් හෝ වැඩි සේවාලාභී පාර-දත්ත අගයන් වලංගු නොවේ
+  "error.dcr.invalid_redirect_uri": වලංගු නොවන යළි-යොමු URI
+  "error.dcr.invalid_redirect_uri_description": එක් හෝ වැඩි යළි-යොමු URI වලංගු නොවේ
+  "error.dcr.invalid_request_format": වලංගු නොවන ඉල්ලීම් ආකෘතිය
+  "error.dcr.invalid_request_format_description": ඉල්ලීම් ශරීරය අස්ථානගත වී ඇත හෝ වලංගු නොවන ආකෘතියකින් ඇත
+  "error.dcr.jwks_configuration_conflict": JWKS වින්‍යාස ගැටුම
+  "error.dcr.jwks_configuration_conflict_description": \"jwks\" සහ \"jwks_uri\" කොන්දේසි දෙකම නිශ්චිත කළ නොහැක
+  "error.dcr.server_error": සේවාදායක දෝෂය
+  "error.dcr.server_error_description": ඉල්ලීම සකසමින් සිටිය දී අනපේක්ෂිත දෝෂයක් ඇති විය
+  "error.dcr.unauthorized": අනවසරයි
+  "error.dcr.unauthorized_description": සේවාලාභියෙකු ලියාපදිංචි කිරීමට ප්‍රමාණවත් අවසර සහිත සත්‍යාපනය අවශ්‍යයි
+  "error.declarative_resource.create_operation_not_allowed": ප්‍රකාශාත්මක සම්පත් සෑදීමේ මෙහෙයුම අවසර නොදෙනු ලැබේ
+  "error.declarative_resource.create_operation_not_allowed_description": ප්‍රකාශාත්මක සම්පත් සෑදීමට අවසර නොමැත
+  "error.declarative_resource.delete_operation_not_allowed": ප්‍රකාශාත්මක සම්පත් මකාදැමීමේ මෙහෙයුම අවසර නොදෙනු ලැබේ
+  "error.declarative_resource.delete_operation_not_allowed_description": ප්‍රකාශාත්මක සම්පත් මකා දැමීමට අවසර නොමැත
+  "error.declarative_resource.update_operation_not_allowed": ප්‍රකාශාත්මක සම්පත් යාවත්කාලීන මෙහෙයුම අවසර නොදෙනු ලැබේ
+  "error.declarative_resource.update_operation_not_allowed_description": ප්‍රකාශාත්මක සම්පත් යාවත්කාලීනය අවසර නොමැත
+  "error.encoding_error": කේතීකරණ දෝෂය
+  "error.encoding_error_description": ප්‍රතිචාරය කේතීකරණය කිරීමේදී දෝෂයක් ඇති විය
+  "error.entitytypeservice.agent_type_cannot_delete": නියෝජිත වර්ගය මකා දැමිය නොහැක
+  "error.entitytypeservice.agent_type_cannot_delete_description": පෙරනිමි නියෝජිත වර්ගය මකා දැමිය නොහැක. ඒ වෙනුවට ශ්‍රේෂ්ඨාංකනය සංස්කරණය කරන්න
+  "error.entitytypeservice.agent_type_name_conflict": නියෝජිත වර්ග නාම ගැටුම
+  "error.entitytypeservice.agent_type_name_conflict_description": එකම නමකින් නියෝජිත වර්ගයක් දැනටමත් පවතී
+  "error.entitytypeservice.agent_type_not_found": නියෝජිත වර්ගය සොයාගත නොහැක
+  "error.entitytypeservice.agent_type_not_found_description": නිශ්චිත id සහිත නියෝජිත වර්ගය නොපවතී
+  "error.entitytypeservice.agent_type_only_default_allowed": පෙරනිමි නියෝජිත වර්ගය පමණක් අවසර දෙනු ලැබේ
+  "error.entitytypeservice.agent_type_only_default_allowed_description": නියෝජිත වර්ග 'default' ශ්‍රේෂ්ඨාංකනයකට සීමා කෙරේ; වෙනත් නම් සෑදීමට හෝ නම් කිරීමට අවසර නොමැත
+  "error.entitytypeservice.cannot_modify_declarative_resource": ප්‍රකාශාත්මක සම්පත් වෙනස් කළ නොහැක
+  "error.entitytypeservice.cannot_modify_declarative_resource_description": පරිශීලක වර්ගය ප්‍රකාශාත්මක වන අතර වෙනස් කළ හෝ මකා දැමිය නොහැක
+  "error.entitytypeservice.consent_synchronization_failed": කැමැත්ත සමමුහුර්තකරණය අසාර්ථක විය
+  "error.entitytypeservice.consent_synchronization_failed_description": ආයතන වර්ගය සඳහා කැමැත්ත වින්‍යාසයන් සමමුහුර්ත කිරීම අසාර්ථක විය
+  "error.entitytypeservice.create_schema_request_parse_failed_description": ඉල්ලීම් ශරීරය විශ්ලේෂණය කිරීම අසාර්ථක විය
+  "error.entitytypeservice.credential_attribute_not_allowed_as_display": අක්තපත්‍ර ගුණාංගය දර්ශනය ලෙස අවසර නොදෙනු ලැබේ
+  "error.entitytypeservice.credential_attribute_not_allowed_as_display_description": දර්ශන ගුණාංගය අක්තපත්‍ර ගුණාංගයක් යොමු නොකළ යුතුය
+  "error.entitytypeservice.entity_type_name_conflict": ආයතන වර්ග නාම ගැටුම
+  "error.entitytypeservice.entity_type_name_conflict_description": එකම නමකින් ආයතන වර්ගයක් දැනටමත් පවතී
+  "error.entitytypeservice.entity_type_not_found": ආයතන වර්ගය සොයාගත නොහැක
+  "error.entitytypeservice.entity_type_not_found_description": නිශ්චිත id සහිත ආයතන වර්ගය නොපවතී
+  "error.entitytypeservice.invalid_agent_type_request": වලංගු නොවන නියෝජිත වර්ග ඉල්ලීම
+  "error.entitytypeservice.invalid_agent_type_request_description": නියෝජිත වර්ග ඉල්ලීමේ අවශ්‍ය ක්ෂේත්‍ර වලංගු නොවේ හෝ නොමැත
+  "error.entitytypeservice.invalid_display_attribute": වලංගු නොවන දර්ශන ගුණාංගය
+  "error.entitytypeservice.invalid_display_attribute_description": දර්ශන ගුණාංගය ශ්‍රේෂ්ඨාංකනයේ නිර්වචිත ගුණාංගයක් යොමු කළ යුතුය (කූඩු කළ ගුණාංග සඳහා ලක්ෂ්‍ය සංකේතය භාවිතා කරන්න, උදා. 'address.city')
+  "error.entitytypeservice.invalid_entity_type_request": වලංගු නොවන ආයතන වර්ග ඉල්ලීම
+  "error.entitytypeservice.invalid_entity_type_request_description": ආයතන වර්ග ඉල්ලීමේ අවශ්‍ය ක්ෂේත්‍ර වලංගු නොවේ හෝ නොමැත
+  "error.entitytypeservice.invalid_limit_parameter": වලංගු නොවන පිටු ගැනීමේ පරාමිතිය
+  "error.entitytypeservice.invalid_limit_parameter_description": සීමා පරාමිතිය ධනාත්මක පූර්ණ සංඛ්‍යාවක් විය යුතුය
+  "error.entitytypeservice.invalid_offset_parameter": වලංගු නොවන පිටු ගැනීමේ පරාමිතිය
+  "error.entitytypeservice.invalid_offset_parameter_description": ඕෆ්සෙට් පරාමිතිය ශූන්‍ය හෝ ධනාත්මක පූර්ණ සංඛ්‍යාවක් විය යුතුය
+  "error.entitytypeservice.invalid_request_format": වලංගු නොවන ඉල්ලීම් ආකෘතිය
+  "error.entitytypeservice.invalid_request_format_description": ඉල්ලීම් ශරීරය විකෘති ආකෘතියකින් ඇත හෝ වලංගු නොවන දත්ත අඩංගු වේ
+  "error.entitytypeservice.invalid_user_type_request": වලංගු නොවන පරිශීලක වර්ග ඉල්ලීම
+  "error.entitytypeservice.invalid_user_type_request_description": පරිශීලක වර්ග ඉල්ලීමේ අවශ්‍ය ක්ෂේත්‍ර වලංගු නොවේ හෝ නොමැත
+  "error.entitytypeservice.non_displayable_attribute_type": දර්ශනය කළ නොහැකි ගුණාංග වර්ගය
+  "error.entitytypeservice.non_displayable_attribute_type_description": දර්ශන ගුණාංගය තන්තු හෝ සංඛ්‍යා වර්ගයක් යොමු කළ යුතුය
+  "error.entitytypeservice.result_limit_exceeded": ප්‍රතිඵල සීමාව ඉක්මවා ඇත
+  "error.entitytypeservice.result_limit_exceeded_description": ගොනු-පදනම් සහ දත්ත සමුදා ගබඩා දෙකෙහිම ඒකාබද්ධ ප්‍රතිඵල කට්ටලය උපරිම සීමාව ඉක්මවා ඇත. කරුණාකර අඩු ප්‍රතිඵල ලබා ගැනීමට ඔබේ විමසුම පිරිපහදු කරන්න.
+  "error.entitytypeservice.update_schema_request_parse_failed_description": ඉල්ලීම් ශරීරය විශ්ලේෂණය කිරීම අසාර්ථක විය
+  "error.entitytypeservice.user_type_name_conflict": පරිශීලක වර්ග නාම ගැටුම
+  "error.entitytypeservice.user_type_name_conflict_description": එකම නමකින් පරිශීලක වර්ගයක් දැනටමත් පවතී
+  "error.entitytypeservice.user_type_not_found": පරිශීලක වර්ගය සොයාගත නොහැක
+  "error.entitytypeservice.user_type_not_found_description": නිශ්චිත id සහිත පරිශීලක වර්ගය නොපවතී
+  "error.entitytypeservice.user_validation_failed": පරිශීලක සත්‍යාපනය අසාර්ථක විය
+  "error.entitytypeservice.user_validation_failed_description": පරිශීලක ගුණාංග අවශ්‍ය ශ්‍රේෂ්ඨාංකනයට අනුකූල නොවේ
+  "error.eudi.invalid_request": වලංගු නොවන ඉල්ලීම
+  "error.eudi.invalid_request_description": ඉල්ලීමේ අවශ්‍ය පරාමිති නොමැත හෝ විකෘති ආකෘතියකින් ඇත
+  "error.eudi.unknown_definition": නොදන්නා ඉදිරිපත් කිරීම් නිර්වචනය
+  "error.eudi.unknown_definition_description": සපයන ලද id සඳහා ඉදිරිපත් කිරීම් නිර්වචනයක් ලියාපදිංචි නොවේ
+  "error.eudi.unknown_state": නොදන්නා හෝ කල් ඉකුත් වූ ඉල්ලීම
+  "error.eudi.unknown_state_description": සපයන ලද තත්ත්ව අගය සඳහා ක්‍රියාකාරී ඉල්ලීමක් සොයාගත නොහැකි විය
+  "error.eudi.verification_failed": ඉදිරිපත් කිරීමේ සත්‍යාපනය අසාර්ථක විය
+  "error.eudi.verification_failed_description": ඉදිරිපත් කළ අක්තපත්‍රය සත්‍යාපනය කළ නොහැකි විය
+  "error.exportservice.invalid_request": වලංගු නොවන අපනයන ඉල්ලීම
+  "error.exportservice.invalid_request_description": සපයන ලද අපනයන ඉල්ලීම වලංගු නොවේ හෝ විකෘති ආකෘතියකින් ඇත
+  "error.exportservice.nil_request_description": අපනයන ඉල්ලීම හිස් විය නොහැක
+  "error.exportservice.no_resources_found": සම්පත් සොයාගත නොහැක
+  "error.exportservice.no_resources_found_description": සපයන ලද හඳුනාගැනීම් සඳහා වලංගු සම්පත් සොයාගත නොහැකි විය
+  "error.exportservice.no_valid_resources_for_export_description": අපනයනය සඳහා වලංගු සම්පත් සොයාගත නොහැකි විය
+  "error.flow.core.executor_prerequisite_not_met": ක්‍රියාවලිකරු සඳහා පූර්ව අවශ්‍යතාවය සෑහෙනු නොලැබිණි
+  "error.flow.core.executor_prerequisite_not_met_description": ක්‍රියාවලිකරුට අවශ්‍ය එක් හෝ වැඩි පූර්ව අවශ්‍යතාවයන් සෑහෙනු නොලැබිණි. කරුණාකර ආදානයන් පරීක්ෂා කර නැවත උත්සාහ කරන්න.
+  "error.flow.core.prompt_invalid_action": සපයන ලද ක්‍රියාව වලංගු නොවේ
+  "error.flow.core.prompt_invalid_action_description": සපයන ලද ක්‍රියාව වර්තමාන ප්‍රවාහ පියවරට වලංගු නොවේ
+  "error.flowexecservice.application_retrieval_error": යෙදුම් ලබාගැනීමේ දෝෂය
+  "error.flowexecservice.application_retrieval_error_description": යෙදුම් විස්තර ලබාගැනීමේදී දෝෂයක් ඇති විය
+  "error.flowexecservice.direct_flow_initiation_not_permitted": සෘජු ප්‍රවාහ ආරම්භය අවසර නොදෙනු ලැබේ
+  "error.flowexecservice.direct_flow_initiation_not_permitted_description": මෙම යෙදුම් වර්ගය සඳහා සෘජු ප්‍රවාහ ආරම්භය අවසර නොදෙනු ලැබේ
+  "error.flowexecservice.invalid_app_id": වලංගු නොවන ඉල්ලීම
+  "error.flowexecservice.invalid_app_id_description": ඉල්ලීමේ සපයන ලද app ID වලංගු නොවේ
+  "error.flowexecservice.invalid_execution_id": වලංගු නොවන ඉල්ලීම
+  "error.flowexecservice.invalid_execution_id_description": ඉල්ලීමේ සපයන ලද ප්‍රවාහ ක්‍රියාත්මක කිරීමේ ID වලංගු නොවේ
+  "error.flowexecservice.invalid_flow_init_context": වලංගු නොවන ඉල්ලීම
+  "error.flowexecservice.invalid_flow_init_context_description": සපයන ලද ප්‍රවාහ ආරම්භ සන්දර්භය වලංගු නොවේ
+  "error.flowexecservice.invalid_flow_type": වලංගු නොවන ඉල්ලීම
+  "error.flowexecservice.invalid_flow_type_description": ඉල්ලීමේ සපයන ලද ප්‍රවාහ වර්ගය වලංගු නොවේ
+  "error.flowexecservice.invalid_node_response": වලංගු නොවන නෝඩ් ප්‍රතිචාරය
+  "error.flowexecservice.invalid_node_response_description": නෝඩ් වෙතින් ලැබුණු දෝෂ ප්‍රතිචාරය
+  "error.flowexecservice.invalid_request_payload": වලංගු නොවන ඉල්ලීම් ෙපේලෝඩ්
+  "error.flowexecservice.invalid_request_payload_description": ඉල්ලීම් ෙපේලෝඩ් විකේතනය කිරීම අසාර්ථක විය
+  "error.flowexecservice.recovery_not_allowed": ප්‍රතිසාධනය අවසර නොදෙනු ලැබේ
+  "error.flowexecservice.recovery_not_allowed_description": යෙදුම සඳහා ප්‍රතිසාධන ප්‍රවාහය අක්‍රිය කර ඇත
+  "error.flowexecservice.registration_not_allowed": ලියාපදිංචිය අවසර නොදෙනු ලැබේ
+  "error.flowexecservice.registration_not_allowed_description": යෙදුම සඳහා ලියාපදිංචි ප්‍රවාහය අක්‍රිය කර ඇත
+  "error.flowmetaservice.application_fetch_failed_description": යෙදුම් තොරතුරු ලබාගැනීම අසාර්ථක විය
+  "error.flowmetaservice.application_not_found_description": නිශ්චිත යෙදුම නොපවතී
+  "error.flowmetaservice.internal_server_error": අභ්‍යන්තර සේවාදායක දෝෂය
+  "error.flowmetaservice.invalid_request": වලංගු නොවන ඉල්ලීම
+  "error.flowmetaservice.invalid_type_description": \"type\" පරාමිතිය \"APP\" හෝ \"OU\" විය යුතුය
+  "error.flowmetaservice.missing_id_description": \"id\" විමසුම් පරාමිතිය අවශ්‍යයි
+  "error.flowmetaservice.missing_id_parameter": අවශ්‍ය පරාමිතිය නොමැත
+  "error.flowmetaservice.missing_required_parameter": අවශ්‍ය පරාමිතිය නොමැත
+  "error.flowmetaservice.missing_type_description": \"type\" විමසුම් පරාමිතිය අවශ්‍යයි
+  "error.flowmetaservice.ou_fetch_failed": අභ්‍යන්තර සේවාදායක දෝෂය
+  "error.flowmetaservice.ou_fetch_failed_description": සංවිධාන ඒකක තොරතුරු ලබාගැනීම අසාර්ථක විය
+  "error.flowmetaservice.ou_not_found": සම්පත සොයාගත නොහැක
+  "error.flowmetaservice.ou_not_found_description": නිශ්චිත සංවිධාන ඒකකය නොපවතී
+  "error.flowmetaservice.resource_not_found": සම්පත සොයාගත නොහැක
+  "error.flowmgtservice.cannot_update_flow_type": වලංගු නොවන යාවත්කාලීන ඉල්ලීම
+  "error.flowmgtservice.cannot_update_flow_type_description": නිර්මාණය කළ පසු ප්‍රවාහ වර්ගය වෙනස් කළ නොහැක
+  "error.flowmgtservice.duplicate_flow_handle": අනුපිටපත් ප්‍රවාහ හසුරු
+  "error.flowmgtservice.duplicate_flow_handle_description": දී ඇති ප්‍රවාහ වර්ගය සඳහා මෙම හසුරුගෙන් ප්‍රවාහයක් දැනටමත් පවතී
+  "error.flowmgtservice.duplicate_flow_id": අනුපිටපත් ප්‍රවාහ ID
+  "error.flowmgtservice.duplicate_flow_id_description": ප්‍රවාහ ID දැනටමත් පවතී
+  "error.flowmgtservice.flow_definition_nil_or_empty_description": ප්‍රවාහ නිර්වචනය හිස් හෝ නෝඩ් නොමැත
+  "error.flowmgtservice.flow_is_immutable": ප්‍රවාහය නොවෙනස්ව ඇත
+  "error.flowmgtservice.flow_is_immutable_description": ප්‍රකාශාත්මක ප්‍රවාහ වෙනස් කළ හෝ මකා දැමිය නොහැක
+  "error.flowmgtservice.flow_not_found": ප්‍රවාහය සොයාගත නොහැක
+  "error.flowmgtservice.flow_not_found_description": නිශ්චිත id සහිත ප්‍රවාහය නොපවතී
+  "error.flowmgtservice.flow_requires_intermediate_nodes_description": ප්‍රවාහ නිර්වචනයේ ආරම්භ සහ අවසාන නෝඩ් අතර නෝඩ් අඩංගු විය යුතුය
+  "error.flowmgtservice.flow_requires_start_and_end_nodes_description": ප්‍රවාහ නිර්වචනයේ අවම වශයෙන් ආරම්භ සහ අවසාන නෝඩ් අඩංගු විය යුතුය
+  "error.flowmgtservice.flow_version_not_found": ප්‍රවාහ අනුවාදය සොයාගත නොහැක
+  "error.flowmgtservice.flow_version_not_found_description": ඉල්ලූ ප්‍රවාහ අනුවාදය නොපවතී
+  "error.flowmgtservice.graph_build_failure": ග්‍රාෆ් ගොඩනැගීමේ අසාර්ථකත්වය
+  "error.flowmgtservice.graph_build_failure_description": ප්‍රවාහ නිර්වචනයෙන් ක්‍රියාත්මක කළ හැකි ග්‍රාෆ් ගොඩනැගීම අසාර්ථක විය
+  "error.flowmgtservice.handle_update_not_allowed": වලංගු නොවන යාවත්කාලීන ඉල්ලීම
+  "error.flowmgtservice.handle_update_not_allowed_description": නිර්මාණය කළ පසු ප්‍රවාහ හසුරු වෙනස් කළ නොහැක
+  "error.flowmgtservice.interceptor_selected_scope_requires_apply_to": SELECTED ක්ෂේත්‍රය සහිත බාධාකාරකය applyTo හි අවම වශයෙන් එක් නෝඩ් එකක් නිශ්චිත කළ යුතුය
+  "error.flowmgtservice.invalid_flow_data": වලංගු නොවන ප්‍රවාහ දත්ත
+  "error.flowmgtservice.invalid_flow_data_description": ප්‍රවාහ නිර්වචනයේ වලංගු නොවන දත්ත අඩංගු වේ
+  "error.flowmgtservice.invalid_flow_handle": වලංගු නොවන ප්‍රවාහ හසුරු
+  "error.flowmgtservice.invalid_flow_handle_description": ප්‍රවාහ හසුරු සපයා ගත යුතුය
+  "error.flowmgtservice.invalid_flow_handle_format": වලංගු නොවන ප්‍රවාහ හසුරු ආකෘතිය
+  "error.flowmgtservice.invalid_flow_handle_format_description": ප්‍රවාහ හසුරු කුඩා අකුරු, ඇල්ෆානූමෙරික් විය යුතු අතර යටිරේ හෝ ඉරි පමණක් අඩංගු විය හැකිය
+  "error.flowmgtservice.invalid_flow_id": වලංගු නොවන ප්‍රවාහ ID
+  "error.flowmgtservice.invalid_flow_id_description": ප්‍රවාහ ID සපයා ගත යුතුය
+  "error.flowmgtservice.invalid_flow_id_format": වලංගු නොවන ප්‍රවාහ ID ආකෘතිය
+  "error.flowmgtservice.invalid_flow_id_format_description": ප්‍රවාහ ID වලංගු UUID එකක් විය යුතුය
+  "error.flowmgtservice.invalid_flow_name": වලංගු නොවන ප්‍රවාහ නාමය
+  "error.flowmgtservice.invalid_flow_name_description": ප්‍රවාහ නාමය සපයා ගත යුතුය
+  "error.flowmgtservice.invalid_flow_type": වලංගු නොවන ප්‍රවාහ වර්ගය
+  "error.flowmgtservice.invalid_flow_type_description": නිශ්චිත ප්‍රවාහ වර්ගය වලංගු නොවේ
+  "error.flowmgtservice.invalid_flow_version": වලංගු නොවන ප්‍රවාහ අනුවාදය
+  "error.flowmgtservice.invalid_flow_version_description": නිශ්චිත ප්‍රවාහ අනුවාදය වලංගු නොවේ
+  "error.flowmgtservice.invalid_limit_parameter": වලංගු නොවන පිටුකරණ පරාමිතිය
+  "error.flowmgtservice.invalid_limit_parameter_description": සීමා පරාමිතිය ධන පූර්ණ සංඛ්‍යාවක් විය යුතුය
+  "error.flowmgtservice.invalid_offset_parameter": වලංගු නොවන පිටුකරණ පරාමිතිය
+  "error.flowmgtservice.invalid_offset_parameter_description": ඕෆ්සෙට් පරාමිතිය සෘණ නොවන පූර්ණ සංඛ්‍යාවක් විය යුතුය
+  "error.flowmgtservice.invalid_request_format": වලංගු නොවන ඉල්ලීම් ආකෘතිය
+  "error.flowmgtservice.invalid_request_format_description": ඉල්ලීම් බොඩිය විකෘති වී ඇත හෝ වලංගු නොවන දත්ත අඩංගු වේ
+  "error.groupservice.cannot_create_group_in_declarative_only_mode": ප්‍රකාශාත්මක-පමණක් ආකාරයේ කණ්ඩායම් සෑදිය නොහැක
+  "error.groupservice.cannot_create_group_in_declarative_only_mode_description": ප්‍රකාශාත්මක-පමණක් ආකාරයේ ක්‍රියාත්මක වන විට කණ්ඩායම් සෑදීමට අවසර නැත. කණ්ඩායම් ප්‍රකාශාත්මක වින්‍යාස ගොනුවල නිර්වචනය කළ යුතුය
+  "error.groupservice.cannot_delete_group": කණ්ඩායම මකා දැමිය නොහැක
+  "error.groupservice.cannot_delete_group_description": ළමා කණ්ඩායම් සහිත කණ්ඩායම මකා දැමිය නොහැක
+  "error.groupservice.cannot_modify_declarative_group": ප්‍රකාශාත්මක කණ්ඩායම වෙනස් කළ නොහැක
+  "error.groupservice.cannot_modify_declarative_group_description": කණ්ඩායම ප්‍රකාශාත්මක වින්‍යාසයේ නිර්වචනය කර ඇති අතර වෙනස් කළ නොහැක
+  "error.groupservice.empty_members_list": හිස් සාමාජික ලැයිස්තුව
+  "error.groupservice.empty_members_list_description": සාමාජික ලැයිස්තුව හිස් විය නොහැක
+  "error.groupservice.group_name_conflict": කණ්ඩායම් නාම ගැටුම
+  "error.groupservice.group_name_conflict_description": එම මව් යටතේ එකම නමින් කණ්ඩායමක් පවතී
+  "error.groupservice.group_not_found": කණ්ඩායම සොයාගත නොහැක
+  "error.groupservice.group_not_found_description": නිශ්චිත id සහිත කණ්ඩායම නොපවතී
+  "error.groupservice.handle_path_required_description": හසුරු මාර්ගය අවශ්‍යයි
+  "error.groupservice.invalid_group_member_id": වලංගු නොවන කණ්ඩායම් සාමාජික ID
+  "error.groupservice.invalid_group_member_id_description": ඉල්ලීමේ එක් හෝ වැඩි කණ්ඩායම් සාමාජික ID නොපවතී
+  "error.groupservice.invalid_limit_parameter": වලංගු නොවන සීමා පරාමිතිය
+  "error.groupservice.invalid_limit_parameter_description": සීමා පරාමිතිය ධන පූර්ණ සංඛ්‍යාවක් විය යුතුය
+  "error.groupservice.invalid_member_id": වලංගු නොවන සාමාජික ID
+  "error.groupservice.invalid_member_id_description": ඉල්ලීමේ එක් හෝ වැඩි පරිශීලක හෝ යෙදුම් සාමාජික ID නොපවතී හෝ ප්‍රකාශිත වර්ගයට නොගැළපේ
+  "error.groupservice.invalid_member_type": වලංගු නොවන සාමාජික වර්ගය
+  "error.groupservice.invalid_member_type_description": සාමාජික වර්ගය \"user\", \"group\", හෝ \"APP\" විය යුතුය
+  "error.groupservice.invalid_offset_parameter": වලංගු නොවන ඕෆ්සෙට් පරාමිතිය
+  "error.groupservice.invalid_offset_parameter_description": ඕෆ්සෙට් පරාමිතිය සෘණ නොවන පූර්ණ සංඛ්‍යාවක් විය යුතුය
+  "error.groupservice.invalid_ou_id": වලංගු නොවන OU ID
+  "error.groupservice.invalid_ou_id_description": සංවිධාන ඒකකය නොපවතී
+  "error.groupservice.invalid_request_format": වලංගු නොවන ඉල්ලීම් ආකෘතිය
+  "error.groupservice.invalid_request_format_description": ඉල්ලීම් බොඩිය විකෘති වී ඇත හෝ වලංගු නොවන දත්ත අඩංගු වේ
+  "error.groupservice.missing_group_id": වලංගු නොවන ඉල්ලීම් ආකෘතිය
+  "error.groupservice.missing_group_id_description": කණ්ඩායම් ID අවශ්‍යයි
+  "error.i18nservice.empty_translations": හිස් පරිවර්තන
+  "error.i18nservice.empty_translations_description": අවම වශයෙන් එක් පරිවර්තනයක් සැපයිය යුතුය
+  "error.i18nservice.export_error": අපනයනය සඳහා පරිවර්තන භාෂා ලබාගැනීම අසාර්ථක විය
+  "error.i18nservice.fetch_error": අපනයනය සඳහා පරිවර්තන ලබාගැනීම අසාර්ථක විය
+  "error.i18nservice.invalid_key": වලංගු නොවන යතුරු ආකෘතිය
+  "error.i18nservice.invalid_key_description": යතුරට ඇල්ෆානූමෙරික් අක්ෂර, තිත්, යටිරේ සහ ඉරි පමණක් අඩංගු විය හැක
+  "error.i18nservice.invalid_language": වලංගු නොවන භාෂා ටැග් ආකෘතිය
+  "error.i18nservice.invalid_language_description": භාෂා ටැගය BCP 47 ආකෘතිය අනුගමනය කළ යුතුය (උදා., 'en', 'es', 'fr-CA')
+  "error.i18nservice.invalid_namespace": වලංගු නොවන නාම අවකාශ ආකෘතිය
+  "error.i18nservice.invalid_namespace_description": නාම අවකාශයට ඇල්ෆානූමෙරික් අක්ෂර, යටිරේ සහ ඉරි පමණක් අඩංගු විය හැක
+  "error.i18nservice.invalid_request_description": ඉල්ලීම් බොඩිය විකෘති වී ඇත හෝ වලංගු නොවන දත්ත අඩංගු වේ
+  "error.i18nservice.invalid_request_format": වලංගු නොවන ඉල්ලීම් ආකෘතිය
+  "error.i18nservice.missing_language": භාෂා කේතය නොමැත
+  "error.i18nservice.missing_language_description": භාෂා කේතය අවශ්‍යයි
+  "error.i18nservice.missing_value": පරිවර්තන අගය නොමැත
+  "error.i18nservice.missing_value_description": පරිවර්තන අගය අවශ්‍යයි
+  "error.i18nservice.translation_not_found": පරිවර්තනය සොයාගත නොහැක
+  "error.i18nservice.translation_not_found_description": නිශ්චිත භාෂාව, නාම අවකාශය සහ යතුර සඳහා ඉල්ලූ පරිවර්තනය නොපවතී
+  "error.idpservice.attribute_configuration_empty_claim_description": ගුණාංග සිතියම්ගත කිරීමේ හිස් ගුණාංග නාම අඩංගු නොවිය යුතුය
+  "error.idpservice.attribute_configuration_entry_user_type_required_description": සෑම පරිශීලක වර්ග ගුණාංග ඇතුළත් කිරීමකට පරිශීලක වර්ගයක් අවශ්‍යයි
+  "error.idpservice.attribute_configuration_user_type_required_description": ගුණාංග වින්‍යාසයට පරිශීලක වර්ගයක් අවශ්‍යයි
+  "error.idpservice.idp_already_exists": අනන්‍යතා සැපයුම්කරු දැනටමත් පවතී
+  "error.idpservice.idp_already_exists_description": එකම නමින් අනන්‍යතා සැපයුම්කරුවෙක් දැනටමත් පවතී
+  "error.idpservice.idp_declarative_read_only": අනන්‍යතා සැපයුම්කරු නොවෙනස්ව ඇත
+  "error.idpservice.idp_declarative_read_only_description": ඉල්ලූ අනන්‍යතා සැපයුම්කරු ප්‍රකාශාත්මක වන අතර වෙනස් කළ හෝ මකා දැමිය නොහැක
+  "error.idpservice.idp_nil": අනන්‍යතා සැපයුම්කරු ශුන්‍ය විය නොහැක
+  "error.idpservice.idp_nil_description": අනන්‍යතා සැපයුම්කරු වස්තුව ශුන්‍ය හෝ හිස් විය නොහැක
+  "error.idpservice.idp_not_found": අනන්‍යතා සැපයුම්කරු සොයාගත නොහැක
+  "error.idpservice.idp_not_found_description": ඉල්ලූ අනන්‍යතා සැපයුම්කරු සොයාගත නොහැකි විය
+  "error.idpservice.invalid_attribute_configuration": වලංගු නොවන ගුණාංග වින්‍යාසය
+  "error.idpservice.invalid_attribute_configuration_description": අනන්‍යතා සැපයුම්කරුගේ ගුණාංග වින්‍යාසය වලංගු නොවේ
+  "error.idpservice.invalid_idp_id": වලංගු නොවන අනන්‍යතා සැපයුම්කරු ID
+  "error.idpservice.invalid_idp_id_description": සපයන ලද අනන්‍යතා සැපයුම්කරු ID වලංගු නොවේ හෝ හිස්ය
+  "error.idpservice.invalid_idp_name": වලංගු නොවන අනන්‍යතා සැපයුම්කරු නාමය
+  "error.idpservice.invalid_idp_name_description": සපයන ලද අනන්‍යතා සැපයුම්කරු නාමය වලංගු නොවේ හෝ හිස්ය
+  "error.idpservice.invalid_idp_property": වලංගු නොවන අනන්‍යතා සැපයුම්කරු ගුණාංගය
+  "error.idpservice.invalid_idp_property_description": එක් හෝ වැඩි අනන්‍යතා සැපයුම්කරු ගුණාංග වලංගු නොවේ හෝ හිස්ය
+  "error.idpservice.invalid_idp_type": වලංගු නොවන අනන්‍යතා සැපයුම්කරු වර්ගය
+  "error.idpservice.invalid_idp_type_description": සපයන ලද අනන්‍යතා සැපයුම්කරු වර්ගය වලංගු නොවේ හෝ හිස්ය
+  "error.idpservice.invalid_request_format": වලංගු නොවන ඉල්ලීම් ආකෘතිය
+  "error.idpservice.invalid_request_format_description": ඉල්ලීම් බොඩිය විකෘති වී ඇත හෝ වලංගු නොවන දත්ත අඩංගු වේ
+  "error.idpservice.property_name_empty_description": ගුණාංග නාම හිස් විය නොහැක
+  "error.idpservice.result_limit_exceeded": සංයුක්ත ආකාරයේ ප්‍රතිඵල සීමාව ඉක්මවා ඇත
+  "error.idpservice.result_limit_exceeded_description": මුළු වාර්තා සංඛ්‍යාව සංයුක්ත ආකාරයේ උපරිම සීමාව ඉක්මවයි
+  "error.idpservice.unsupported_idp_property": සහාය නොදක්වන අනන්‍යතා සැපයුම්කරු ගුණාංගය
+  "error.idpservice.unsupported_idp_property_description": එක් හෝ වැඩි අනන්‍යතා සැපයුම්කරු ගුණාංග සහාය නොදක්වයි
+  "error.import.adapterNotConfigured": ඇඩැප්ටරය වින්‍යාස කර නැත
+  "error.import.adapterNotConfigured.description": අවශ්‍ය සම්පත් ඇඩැප්ටරය වින්‍යාස කර නැත
+  "error.import.delete.dirNotFound": සම්පත් නාමාවලිය සොයාගත නොහැක
+  "error.import.delete.fileNotFound": සම්පත් ගොනුව සොයාගත නොහැක
+  "error.import.emptyContent": ආයාත අන්තර්ගතය හිස් විය නොහැක
+  "error.import.fileTargetNotSupported": ගොනු ඉලක්කය සහාය නොදක්වයි; ධාවන කාල ඉලක්කය භාවිතා කරන්න
+  "error.import.invalidRequest": වලංගු නොවන ආයාත ඉල්ලීම
+  "error.import.invalidRequest.description": සපයන ලද ආයාත ඉල්ලීම වලංගු නොවේ හෝ විකෘති වී ඇත
+  "error.import.invalidYaml": වලංගු නොවන YAML අන්තර්ගතය
+  "error.import.invalidYaml.description": සපයන ලද YAML අන්තර්ගතය විග්‍රහ කළ නොහැක
+  "error.import.missingDeleteFields": resourceType සහ resourceKey අවශ්‍යයි
+  "error.import.templateResolutionFailed": අච්චු විසඳීම අසාර්ථක විය
+  "error.import.templateResolutionFailed.description": YAML අන්තර්ගතයේ එක් හෝ වැඩි අච්චු විචල්‍යයන් විසඳීම අසාර්ථක විය
+  "error.import.unsupportedResourceType": ප්‍රකාශාත්මක ගොනු කළමනාකරණය සඳහා සහාය නොදක්වන සම්පත් වර්ගය
+  "error.interceptor.challenge_token_invalid": වලංගු නොවන අභියෝග ටෝකනය
+  "error.interceptor.challenge_token_invalid_description": අභියෝග ටෝකනය නොමැත හෝ වලංගු නොවේ
+  "error.interceptor.failed": බාධාකාරක වලංගුකරණය අසාර්ථක විය
+  "error.interceptor.failed_description": ප්‍රවාහ බාධාකාරකයක් ඉල්ලීම ප්‍රතික්ෂේප කළේය
+  "error.internal_server_error": අභ්‍යන්තර සේවාදායක දෝෂය
+  "error.internal_server_error_description": ඉල්ලීම සැකසීමේදී අනපේක්ෂිත දෝෂයක් ඇති විය
+  "error.jweservice.decoding_jwe_error": JWE විකේතන දෝෂය
+  "error.jweservice.decoding_jwe_error_description": JWE ටෝකනය විකේතනය කිරීමේදී දෝෂයක් ඇති විය
+  "error.jweservice.decryption_failed": JWE විකේතනය අසාර්ථක විය
+  "error.jweservice.decryption_failed_description": JWE ටෝකනය විකේතනය කිරීම අසාර්ථක විය
+  "error.jweservice.unsupported_algorithm": සහාය නොදක්වන JWE ඇල්ගොරිතමය
+  "error.jweservice.unsupported_algorithm_description": නිශ්චිත JWE ඇල්ගොරිතමය සහාය නොදක්වයි
+  "error.jweservice.unsupported_encryption_algorithm": සහාය නොදක්වන සංකේතන ඇල්ගොරිතමය
+  "error.jweservice.unsupported_encryption_algorithm_description": නිශ්චිත සංකේතන ඇල්ගොරිතමය සහාය නොදක්වයි
+  "error.jwsservice.decoding_header_error": JWS විකේතන දෝෂය
+  "error.jwsservice.decoding_header_error_description": JWS ශීර්ෂය විකේතනය කිරීමේදී දෝෂයක් ඇති විය
+  "error.jwsservice.invalid_format": වලංගු නොවන JWS ආකෘතිය
+  "error.jwsservice.invalid_format_description": JWS ටෝකන ආකෘතිය වලංගු නොවේ
+  "error.jwsservice.invalid_signature": වලංගු නොවන අත්සන
+  "error.jwsservice.invalid_signature_description": අත්සන වලංගු නොවේ
+  "error.jwsservice.unsupported_algorithm": සහාය නොදක්වන JWS ඇල්ගොරිතමය
+  "error.jwsservice.unsupported_algorithm_description": නිශ්චිත JWS ඇල්ගොරිතමය සහාය නොදක්වයි
+  "error.jwtservice.decoding_header_error": JWT විකේතන දෝෂය
+  "error.jwtservice.decoding_header_error_description": JWT ශීර්ෂය විකේතනය කිරීමේදී දෝෂයක් ඇති විය
+  "error.jwtservice.decoding_payload_error": JWT විකේතන දෝෂය
+  "error.jwtservice.decoding_payload_error_description": JWT ෙපේලෝඩ් විකේතනය කිරීමේදී දෝෂයක් ඇති විය
+  "error.jwtservice.failed_to_get_jwks": JWKS ලබාගැනීම අසාර්ථක විය
+  "error.jwtservice.failed_to_get_jwks_description": නිශ්චිත URL වෙතින් JWKS ලබාගැනීම අසාර්ථක විය
+  "error.jwtservice.failed_to_parse_jwks": JWKS විග්‍රහ කිරීම අසාර්ථක විය
+  "error.jwtservice.failed_to_parse_jwks_description": JWKS විග්‍රහ කිරීම අසාර්ථක විය
+  "error.jwtservice.invalid_jwt_format": වලංගු නොවන JWT ආකෘතිය
+  "error.jwtservice.invalid_jwt_format_description": JWT ටෝකන ආකෘතිය වලංගු නොවේ
+  "error.jwtservice.invalid_token_signature": වලංගු නොවන ටෝකන අත්සන
+  "error.jwtservice.invalid_token_signature_description": JWT ටෝකන අත්සන වලංගු නොවේ
+  "error.jwtservice.no_matching_jwk_found": ගැළපෙන JWK සොයාගත නොහැක
+  "error.jwtservice.no_matching_jwk_found_description": දී ඇති Key ID සඳහා ගැළපෙන JWK සොයාගත නොහැක
+  "error.jwtservice.token_expired": ටෝකනය කල් ඉකුත්වී ඇත
+  "error.jwtservice.token_expired_description": JWT ටෝකනය කල් ඉකුත්වී ඇත
+  "error.jwtservice.unsupported_jws_algorithm": සහාය නොදක්වන JWS ඇල්ගොරිතමය
+  "error.jwtservice.unsupported_jws_algorithm_description": නිශ්චිත JWS ඇල්ගොරිතමය සහාය නොදක්වයි
+  "error.magiclinkservice.expired_token": කල් ඉකුත්වූ ටෝකනය
+  "error.magiclinkservice.expired_token_description": මැජික් සබැඳි ටෝකනය කල් ඉකුත්වී ඇත
+  "error.magiclinkservice.invalid_token": වලංගු නොවන ටෝකනය
+  "error.magiclinkservice.invalid_token_description": සපයන ලද මැජික් සබැඳි ටෝකනය වලංගු නොවේ
+  "error.magiclinkservice.malformed_token_claims": විකෘති ටෝකන හිමිකම්
+  "error.magiclinkservice.malformed_token_claims_description": මැජික් සබැඳි ටෝකනයේ වලංගු නොවන හෝ නොමැති හිමිකම් අඩංගු වේ
+  "error.magiclinkservice.resolving_user": පරිශීලක විසඳීමේ දෝෂය
+  "error.magiclinkservice.resolving_user_description": ලබන්නා සඳහා පරිශීලකයා විසඳීමේදී දෝෂයක් ඇති විය
+  "error.magiclinkservice.token_generation_failed": ටෝකන උත්පාදනය අසාර්ථක විය
+  "error.magiclinkservice.token_generation_failed_description": මැජික් සබැඳි ටෝකනය උත්පාදනය කිරීම අසාර්ථක විය
+  "error.notificationservice.duplicate_sender_name": අනුපිටපත් යවන්නාගේ නම
+  "error.notificationservice.duplicate_sender_name_description": එකම නමින් යවන්නෙකු දැනටමත් පවතී
+  "error.notificationservice.error_while_retrieving_message_client": පණිවිඩ සේවාලාභියා ලබාගැනීමේ දෝෂය
+  "error.notificationservice.error_while_retrieving_message_client_description": පණිවිඩ සේවාලාභියා ලබාගැනීමේදී දෝෂයක් ඇති විය
+  "error.notificationservice.invalid_channel": වලංගු නොවන නාලිකාව
+  "error.notificationservice.invalid_channel_description": සපයන ලද නාලිකාව වලංගු නොවේ
+  "error.notificationservice.invalid_notification_provider": වලංගු නොවන දැනුම්දීම් සැපයුම්කරු
+  "error.notificationservice.invalid_notification_provider_description": නිශ්චිත දැනුම්දීම් සැපයුම්කරු වලංගු නොවේ හෝ සහාය නොදක්වයි
+  "error.notificationservice.invalid_otp": වලංගු නොවන OTP
+  "error.notificationservice.invalid_otp_description": සපයන ලද OTP වලංගු නොවේ
+  "error.notificationservice.invalid_recipient": වලංගු නොවන ලබන්නා
+  "error.notificationservice.invalid_recipient_description": සපයන ලද ලබන්නා වලංගු නොවේ
+  "error.notificationservice.invalid_request_format": වලංගු නොවන ඉල්ලීම් ආකෘතිය
+  "error.notificationservice.invalid_request_format_description": ඉල්ලීම් බොඩිය විකෘති වී ඇත හෝ වලංගු නොවන දත්ත අඩංගු වේ
+  "error.notificationservice.invalid_sender_id": වලංගු නොවන යවන්නාගේ ID
+  "error.notificationservice.invalid_sender_id_description": සපයන ලද යවන්නාගේ ID වලංගු නොවේ
+  "error.notificationservice.invalid_sender_name": වලංගු නොවන යවන්නාගේ නම
+  "error.notificationservice.invalid_sender_name_description": සපයන ලද යවන්නාගේ නම වලංගු නොවේ
+  "error.notificationservice.invalid_sender_type": වලංගු නොවන යවන්නාගේ වර්ගය
+  "error.notificationservice.invalid_sender_type_description": සපයන ලද යවන්නාගේ වර්ගය වලංගු නොවේ හෝ සහාය නොදක්වයි
+  "error.notificationservice.invalid_session_token": වලංගු නොවන සැසි ටෝකනය
+  "error.notificationservice.invalid_session_token_description": සපයන ලද සැසි ටෝකනය වලංගු නොවේ, විකෘති වී ඇත, හෝ කල් ඉකුත්වී ඇත
+  "error.notificationservice.sender_not_found": යවන්නා සොයාගත නොහැක
+  "error.notificationservice.sender_not_found_description": ඉල්ලූ දැනුම්දීම් යවන්නා සොයාගත නොහැකි විය
+  "error.notificationservice.sender_type_mismatch": යවන්නාගේ වර්ග නොගැළපීම
+  "error.notificationservice.sender_type_mismatch_description": ඉල්ලූ යවන්නා අපේක්ෂිත වර්ගයට අයත් නොවේ
+  "error.notificationservice.unsupported_channel": සහාය නොදක්වන නාලිකාව
+  "error.notificationservice.unsupported_channel_description": සපයන ලද නාලිකාව සහාය නොදක්වයි
+  "error.notificationservice.update_not_allowed": යාවත්කාලීන කිරීමට අවසර නැත
+  "error.notificationservice.update_not_allowed_description": යවන්නාගේ වර්ගය යාවත්කාලීන කිරීමට අවසර නැත
+  "error.ouservice.cannot_modify_declarative_resource": ප්‍රකාශාත්මක සම්පත වෙනස් කළ නොහැක
+  "error.ouservice.cannot_modify_declarative_resource_description": සංවිධාන ඒකකය ප්‍රකාශාත්මක වන අතර වෙනස් කළ හෝ මකා දැමිය නොහැක
+  "error.ouservice.circular_dependency_detected": චක්‍රීය පරායත්තතාවය හඳුනාගන්නා ලදී
+  "error.ouservice.circular_dependency_detected_description": මෙම මව් සැකසීම චක්‍රීය පරායත්තතාවයක් නිර්මාණය කරනු ඇත
+  "error.ouservice.invalid_filter": වලංගු නොවන පෙරහන් පරාමිතිය
+  "error.ouservice.invalid_filter_description": "පෙරහන් පරාමිතිය වලංගු නොවේ. ආකෘතිය භාවිතා කරන්න: attribute (eq|gt|lt) \"value\""
+  "error.ouservice.invalid_handle_path": වලංගු නොවන හසුරු මාර්ගය
+  "error.ouservice.invalid_handle_path_description": නිශ්චිත හසුරු මාර්ගය නොපවතී
+  "error.ouservice.invalid_limit_parameter": වලංගු නොවන සීමා පරාමිතිය
+  "error.ouservice.invalid_limit_parameter_description": සීමා පරාමිතිය ධන පූර්ණ සංඛ්‍යාවක් විය යුතුය
+  "error.ouservice.invalid_offset_parameter": වලංගු නොවන ඕෆ්සෙට් පරාමිතිය
+  "error.ouservice.invalid_offset_parameter_description": ඕෆ්සෙට් පරාමිතිය සෘණ නොවන පූර්ණ සංඛ්‍යාවක් විය යුතුය
+  "error.ouservice.invalid_request_format": වලංගු නොවන ඉල්ලීම් ආකෘතිය
+  "error.ouservice.invalid_request_format_description": ඉල්ලීම් බොඩිය විකෘති වී ඇත, වලංගු නොවන දත්ත අඩංගු වේ, හෝ අවශ්‍ය ක්ෂේත්‍ර නොමැත/හිස්ය
+  "error.ouservice.missing_ou_id": වලංගු නොවන ඉල්ලීම් ආකෘතිය
+  "error.ouservice.missing_ou_id_description": සංවිධාන ඒකක ID අවශ්‍යයි
+  "error.ouservice.organization_unit_handle_conflict": සංවිධාන ඒකක හසුරු ගැටුම
+  "error.ouservice.organization_unit_handle_conflict_description": එම මව් යටතේ එකම හසුරුගෙන් සංවිධාන ඒකකයක් දැනටමත් පවතී
+  "error.ouservice.organization_unit_has_children": සංවිධාන ඒකකයට ළමා ඒකක ඇත
+  "error.ouservice.organization_unit_has_children_description": ළමා ඒකක හෝ පරිශීලකයන්/කණ්ඩායම් සහිත සංවිධාන ඒකකය මකා දැමිය නොහැක
+  "error.ouservice.organization_unit_name_conflict": සංවිධාන ඒකක නාම ගැටුම
+  "error.ouservice.organization_unit_name_conflict_description": එම මව් යටතේ එකම නමින් සංවිධාන ඒකකයක් පවතී
+  "error.ouservice.organization_unit_not_found": සංවිධාන ඒකකය සොයාගත නොහැක
+  "error.ouservice.organization_unit_not_found_description": නිශ්චිත id සහිත සංවිධාන ඒකකය නොපවතී
+  "error.ouservice.parent_organization_unit_not_found": මව් සංවිධාන ඒකකය සොයාගත නොහැක
+  "error.ouservice.parent_organization_unit_not_found_description": මව් සංවිධාන ඒකකය සොයාගත නොහැක
+  "error.ouservice.result_limit_exceeded": ප්‍රතිඵල සීමාව ඉක්මවා ඇත
+  "error.passkeyservice.credential_not_found": Passkey අක්තපත්‍ර සොයාගත නොහැක
+  "error.passkeyservice.credential_not_found_description": පරිශීලකයා සඳහා නිශ්චිත අක්තපත්‍ර සොයාගත නොහැකි විය
+  "error.passkeyservice.empty_credential_id": හිස් අක්තපත්‍ර ID
+  "error.passkeyservice.empty_credential_id_description": අක්තපත්‍ර ID අවශ්‍යයි
+  "error.passkeyservice.empty_credential_type": හිස් අක්තපත්‍ර වර්ගය
+  "error.passkeyservice.empty_credential_type_description": අක්තපත්‍ර වර්ගය අවශ්‍යයි
+  "error.passkeyservice.empty_relying_party_id": හිස් රිලයින් පාර්ටි ID
+  "error.passkeyservice.empty_relying_party_id_description": රිලයින් පාර්ටි ID අවශ්‍යයි
+  "error.passkeyservice.empty_session_token": හිස් සැසි ටෝකනය
+  "error.passkeyservice.empty_session_token_description": සැසි ටෝකනය අවශ්‍යයි
+  "error.passkeyservice.empty_user_identifier": හිස් පරිශීලක හඳුනාගැනීම
+  "error.passkeyservice.empty_user_identifier_description": පරිශීලක ID හෝ පරිශීලක නාමය සැපයිය යුතුය
+  "error.passkeyservice.invalid_attestation_response": වලංගු නොවන සහතික ප්‍රතිචාරය
+  "error.passkeyservice.invalid_attestation_response_description": සහතික ප්‍රතිචාරයේ අවශ්‍ය ක්ෂේත්‍ර නොමැත (clientDataJSON හෝ attestationObject)
+  "error.passkeyservice.invalid_authenticator_response": වලංගු නොවන සත්‍යාපක ප්‍රතිචාරය
+  "error.passkeyservice.invalid_authenticator_response_description": සත්‍යාපක ප්‍රතිචාරයේ අවශ්‍ය ක්ෂේත්‍ර නොමැත (clientDataJSON, authenticatorData, හෝ signature)
+  "error.passkeyservice.invalid_challenge": වලංගු නොවන අභියෝගය
+  "error.passkeyservice.invalid_challenge_description": ප්‍රතිචාරයේ අභියෝගය අපේක්ෂිත අභියෝගයට නොගැළපේ
+  "error.passkeyservice.invalid_finish_data": වලංගු නොවන අවසන් දත්ත
+  "error.passkeyservice.invalid_finish_data_description": අවසන් දත්ත ශුන්‍ය විය නොහැක
+  "error.passkeyservice.invalid_session_token": වලංගු නොවන සැසි ටෝකනය
+  "error.passkeyservice.invalid_session_token_description": සැසි ටෝකනය වලංගු නොවේ හෝ විකෘති වී ඇත
+  "error.passkeyservice.invalid_signature": වලංගු නොවන අත්සන
+  "error.passkeyservice.invalid_signature_description": අත්සන සත්‍යාපනය අසාර්ථක විය
+  "error.passkeyservice.no_credentials_found": අක්තපත්‍ර සොයාගත නොහැක
+  "error.passkeyservice.no_credentials_found_description": පරිශීලකයා සඳහා අක්තපත්‍ර සොයාගත නොහැකි විය. කරුණාකර පළමුව අක්තපත්‍රයක් ලියාපදිංචි කරන්න
+  "error.passkeyservice.session_expired": සැසිය කල් ඉකුත්වී ඇත
+  "error.passkeyservice.session_expired_description": සැසිය කල් ඉකුත්වී ඇත. කරුණාකර නව සැසියක් ආරම්භ කරන්න
+  "error.passkeyservice.user_not_found": පරිශීලකයා සොයාගත නොහැක
+  "error.passkeyservice.user_not_found_description": නිශ්චිත පරිශීලකයා සොයාගත නොහැකි විය
+  "error.resourceservice.action_not_found": ක්‍රියාව සොයාගත නොහැක
+  "error.resourceservice.action_not_found_description": නිශ්චිත ID සහිත ක්‍රියාව නොපවතී
+  "error.resourceservice.cannot_delete": මකා දැමිය නොහැක
+  "error.resourceservice.cannot_delete_description": පරායත්තතා සහිත සම්පත් සේවාදායකයක්/සම්පතක් මකා දැමිය නොහැක
+  "error.resourceservice.cannot_modify_declarative_action": ප්‍රකාශන ක්‍රියාව සංශෝධනය කළ නොහැක
+  "error.resourceservice.cannot_modify_declarative_action_description": %s ක්‍රියාව ප්‍රකාශන වින්‍යාසයේ අර්ථ දක්වා ඇති අතර සංශෝධනය කළ නොහැක
+  "error.resourceservice.cannot_modify_declarative_resource": ප්‍රකාශන සම්පත සංශෝධනය කළ නොහැක
+  "error.resourceservice.cannot_modify_declarative_resource_description": %s සම්පත ප්‍රකාශන වින්‍යාසයේ අර්ථ දක්වා ඇති අතර සංශෝධනය කළ නොහැක
+  "error.resourceservice.cannot_modify_declarative_resource_server": ප්‍රකාශන සම්පත් සේවාදායකය සංශෝධනය කළ නොහැක
+  "error.resourceservice.cannot_modify_declarative_resource_server_description": %s සම්පත් සේවාදායකය ප්‍රකාශන වින්‍යාසයේ අර්ථ දක්වා ඇති අතර සංශෝධනය කළ නොහැක
+  "error.resourceservice.circular_dependency_detected": චක්‍රීය පරායත්තතාවය හඳුනාගන්නා ලදී
+  "error.resourceservice.circular_dependency_detected_description": මෙම මූලිකයා සැකසීම චක්‍රීය පරායත්තතාවයක් ඇති කරයි
+  "error.resourceservice.consent_sync_failed": එකඟතා සමමුහුර්තකරණය අසාර්ථක විය
+  "error.resourceservice.consent_sync_failed_description": සම්පත් අවසර වෙනස්කම් එකඟතා සේවාව සමඟ සමමුහුර්ත කිරීම අසාර්ථක විය
+  "error.resourceservice.delimiter_conflict_in_handle": හැන්ඩලයේ සීමාකාරක ගැටුම
+  "error.resourceservice.delimiter_conflict_in_handle_description": හැන්ඩලයේ සීමාකාරක අකුරු අඩංගු විය නොහැක
+  "error.resourceservice.delimiter_conflict_in_resource_server_handle": හැන්ඩලයේ සීමාකාරක ගැටුම
+  "error.resourceservice.delimiter_conflict_in_resource_server_handle_description": සම්පත් සේවාදායක හැන්ඩලයේ සීමාකාරක අකුරු අඩංගු විය නොහැක
+  "error.resourceservice.handle_conflict": හැන්ඩල් ගැටුම
+  "error.resourceservice.handle_conflict_description": නිශ්චිත සම්පත තුළ එකම හැන්ඩලය දැනටමත් පවතී
+  "error.resourceservice.identifier_conflict": නිර්ණායක ගැටුම
+  "error.resourceservice.identifier_conflict_description": එකම නිර්ණායකය සහිත සම්පත් සේවාදායකයක් දැනටමත් පවතී
+  "error.resourceservice.immutable_handle": හැන්ඩලය වෙනස් කළ නොහැක
+  "error.resourceservice.immutable_handle_description": සෑදීමෙන් පසු සම්පත් සේවාදායක හැන්ඩලය වෙනස් කළ නොහැක
+  "error.resourceservice.invalid_delimiter": වලංගු නොවන සීමාකාරකය
+  "error.resourceservice.invalid_delimiter_description": "සීමාකාරකය එක් වලංගු අකුරක් විය යුතුය (a-z A-Z 0-9 . _ : - /)"
+  "error.resourceservice.invalid_handle": වලංගු නොවන හැන්ඩලය
+  "error.resourceservice.invalid_handle_description": "හැන්ඩල දිග අකුරු 100 කට වඩා අඩු විය යුතු අතර වලංගු අකුරු (a-z A-Z 0-9 . _ : - /) අඩංගු විය යුතුය"
+  "error.resourceservice.invalid_limit_parameter": වලංගු නොවන සීමා පරාමිතිය
+  "error.resourceservice.invalid_limit_parameter_description": සීමා පරාමිතිය ධන පූර්ණ සංඛ්‍යාවක් විය යුතුය
+  "error.resourceservice.invalid_offset_parameter": වලංගු නොවන ඕෆ්සෙට් පරාමිතිය
+  "error.resourceservice.invalid_offset_parameter_description": ඕෆ්සෙට් පරාමිතිය සෘණ නොවන පූර්ණ සංඛ්‍යාවක් විය යුතුය
+  "error.resourceservice.invalid_request_format": වලංගු නොවන ඉල්ලීම් ආකෘතිය
+  "error.resourceservice.invalid_request_format_description": ඉල්ලීම් අන්තර්ගතය සාවද්‍ය ලෙස සකසා ඇත හෝ වලංගු නොවන දත්ත අඩංගු වේ
+  "error.resourceservice.missing_id": වලංගු නොවන ඉල්ලීම් ආකෘතිය
+  "error.resourceservice.missing_id_description": ID අවශ්‍යයි
+  "error.resourceservice.name_conflict": නාම ගැටුම
+  "error.resourceservice.name_conflict_description": එකම නම සහිත සම්පත් සේවාදායකයක් දැනටමත් පවතී
+  "error.resourceservice.organization_unit_not_found": සංවිධාන ඒකකය සොයාගත නොහැක
+  "error.resourceservice.organization_unit_not_found_description": නිශ්චිත සංවිධාන ඒකකය නොපවතී
+  "error.resourceservice.parent_resource_not_found": මූලික සම්පත සොයාගත නොහැක
+  "error.resourceservice.parent_resource_not_found_description": නිශ්චිත මූලික සම්පත නොපවතී
+  "error.resourceservice.resource_not_found": සම්පත සොයාගත නොහැක
+  "error.resourceservice.resource_not_found_description": නිශ්චිත ID සහිත සම්පත නොපවතී
+  "error.resourceservice.resource_server_id_conflict": සම්පත් සේවාදායක ID ගැටුම
+  "error.resourceservice.resource_server_id_conflict_description": නිශ්චිත ID සහිත සම්පත් සේවාදායකයක් දැනටමත් පවතී
+  "error.resourceservice.resource_server_not_found": සම්පත් සේවාදායකය සොයාගත නොහැක
+  "error.resourceservice.resource_server_not_found_description": නිශ්චිත ID සහිත සම්පත් සේවාදායකය නොපවතී
+  "error.resourceservice.result_limit_exceeded_in_composite_mode": සංයුක්ත ප්‍රකාරයේ ප්‍රතිඵල සීමාව ඉක්මවා ඇත
+  "error.resourceservice.result_limit_exceeded_in_composite_mode_description": සංයුක්ත ප්‍රකාරයේ මුළු වාර්තා ගණන උපරිම සීමාව ඉක්මවයි
+  "error.roleservice.cannot_create_role_in_declarative_only_mode": ප්‍රකාශන-පමණි ප්‍රකාරයේ භූමිකාවක් සෑදිය නොහැක
+  "error.roleservice.cannot_create_role_in_declarative_only_mode_description": ප්‍රකාශන-පමණි ප්‍රකාරයේ ක්‍රියාත්මක වන විට භූමිකා සෑදීමට අවසර නැත. භූමිකා ප්‍රකාශන වින්‍යාස ගොනු තුළ අර්ථ දක්වා තිබිය යුතුය
+  "error.roleservice.cannot_delete_role": භූමිකාව මකා දැමිය නොහැක
+  "error.roleservice.cannot_delete_role_description": පරිශීලකයන් හෝ කණ්ඩායම් වලට පවතින භූමිකාවක් මකා දැමිය නොහැක
+  "error.roleservice.cannot_modify_declarative_assignment": ප්‍රකාශන පවරාදීම සංශෝධනය කළ නොහැක
+  "error.roleservice.cannot_modify_declarative_assignment_description": මෙම පවරාදීම ප්‍රකාශන වින්‍යාසයේ අර්ථ දක්වා ඇති අතර සංශෝධනය කළ නොහැක
+  "error.roleservice.cannot_modify_declarative_role": ප්‍රකාශන භූමිකාව සංශෝධනය කළ නොහැක
+  "error.roleservice.cannot_modify_declarative_role_description": මෙම භූමිකාව ප්‍රකාශන වින්‍යාසයේ අර්ථ දක්වා ඇති අතර සංශෝධනය කළ නොහැක
+  "error.roleservice.either_entity_id_or_groups_must_be_provided_for_authorization_check_description": අවසර පරීක්ෂාව සඳහා entityId හෝ groups සැපයිය යුතුය
+  "error.roleservice.empty_assignments_list": හිස් පවරාදීම් ලැයිස්තුව
+  "error.roleservice.empty_assignments_list_description": අවම වශයෙන් එක් පවරාදීමක් සැපයිය යුතුය
+  "error.roleservice.invalid_assignee_type": වලංගු නොවන පවරන ලද්දාගේ වර්ගය
+  "error.roleservice.invalid_assignee_type_description": වර්ග පරාමිතිය "user", "group", හෝ "APP" විය යුතුය
+  "error.roleservice.invalid_assignment_id": වලංගු නොවන පවරාදීම් ID
+  "error.roleservice.invalid_assignment_id_description": ඉල්ලීමේ ඇති එක් හෝ කිහිපයක් පවරාදීම් ID නොපවතී හෝ ප්‍රකාශිත වර්ගයට නොගැලපේ
+  "error.roleservice.invalid_limit_parameter": වලංගු නොවන සීමා පරාමිතිය
+  "error.roleservice.invalid_limit_parameter_description": සීමා පරාමිතිය ධන පූර්ණ සංඛ්‍යාවක් විය යුතුය
+  "error.roleservice.invalid_offset_parameter": වලංගු නොවන ඕෆ්සෙට් පරාමිතිය
+  "error.roleservice.invalid_offset_parameter_description": ඕෆ්සෙට් පරාමිතිය සෘණ නොවන පූර්ණ සංඛ්‍යාවක් විය යුතුය
+  "error.roleservice.invalid_permissions": වලංගු නොවන අවසර
+  "error.roleservice.invalid_permissions_description": එක් හෝ කිහිපයක් අවසර සම්පත් කළමනාකරණ පද්ධතියේ නොපවතී
+  "error.roleservice.invalid_request_format": වලංගු නොවන ඉල්ලීම් ආකෘතිය
+  "error.roleservice.invalid_request_format_description": ඉල්ලීම් අන්තර්ගතය සාවද්‍ය ලෙස සකසා ඇත හෝ වලංගු නොවන දත්ත අඩංගු වේ
+  "error.roleservice.missing_entity_or_groups": වලංගු නොවන ඉල්ලීම් ආකෘතිය
+  "error.roleservice.missing_role_id": වලංගු නොවන ඉල්ලීම් ආකෘතිය
+  "error.roleservice.missing_role_id_description": භූමිකා ID අවශ්‍යයි
+  "error.roleservice.organization_unit_not_found": සංවිධාන ඒකකය සොයාගත නොහැක
+  "error.roleservice.organization_unit_not_found_description": සංවිධාන ඒකකය සොයාගත නොහැක
+  "error.roleservice.result_limit_exceeded_in_composite_mode": සංයුක්ත ප්‍රකාරයේ ප්‍රතිඵල සීමාව ඉක්මවා ඇත
+  "error.roleservice.result_limit_exceeded_in_composite_mode_description": සංයුක්ත ප්‍රකාරයේ මුළු වාර්තා ගණන උපරිම සීමාව ඉක්මවයි
+  "error.roleservice.role_id_conflict": භූමිකා ID ගැටුම
+  "error.roleservice.role_id_conflict_description": නිශ්චිත ID සහිත භූමිකාවක් දැනටමත් පවතී
+  "error.roleservice.role_name_conflict": භූමිකා නාම ගැටුම
+  "error.roleservice.role_name_conflict_description": එකම සංවිධාන ඒකකය යටතේ එකම නම සහිත භූමිකාවක් දැනටමත් පවතී
+  "error.roleservice.role_not_found": කාර්යභාරය සොයාගත නොහැක
+  "error.roleservice.role_not_found_description": නිශ්චිත ID සහිත භූමිකාව නොපවතී
+  "error.templateservice.template_not_found": අච්චුව සොයාගත නොහැක
+  "error.templateservice.template_not_found_description": ඉල්ලූ අච්චුව නිශ්චිත අවස්ථාව සඳහා නොපවතී
+  "error.unauthorized": අනවසරයි
+  "error.unauthorized_description": මෙම ක්‍රියාව සිදු කිරීමට ඇමතුම්කරුට අවසර නැත
+  "error.userinfoservice.client_credentials_not_supported": වලංගු නොවන ප්‍රවේශ ටෝකනය
+  "error.userinfoservice.client_credentials_not_supported_description": UserInfo අන්තයට client_credentials ප්‍රදාන වර්ගය අදාළ නොවේ
+  "error.userinfoservice.dpop_bound_token_bearer_scheme": වලංගු නොවන ප්‍රවේශ ටෝකනය
+  "error.userinfoservice.dpop_bound_token_bearer_scheme_description": DPoP-බැඳි ටෝකනයක් DPoP ක්‍රමය භාවිතා කළ යුතුය
+  "error.userinfoservice.insufficient_scope": ප්‍රමාණවත් නොවන විෂය පථය
+  "error.userinfoservice.insufficient_scope_description": මෙම ඉල්ලීම සඳහා 'openid' විෂය පථය අවශ්‍යයි
+  "error.userinfoservice.invalid_access_token": වලංගු නොවන ප්‍රවේශ ටෝකනය
+  "error.userinfoservice.invalid_access_token_description": ප්‍රවේශ ටෝකනය වලංගු නොවේ, කල් ඉකුත්වී ඇත, හෝ සාවද්‍ය ලෙස සකසා ඇත
+  "error.userinfoservice.invalid_dpop_proof": වලංගු නොවන ප්‍රවේශ ටෝකනය
+  "error.userinfoservice.invalid_dpop_proof_description": DPoP සාක්ෂි සත්‍යාපනය අසාර්ථක විය
+  "error.userinfoservice.missing_sub_claim": වලංගු නොවන ප්‍රවේශ ටෝකනය
+  "error.userinfoservice.missing_sub_claim_description": ප්‍රවේශ ටෝකනයේ 'sub' ප්‍රකාශනය අස්ථානගතය හෝ වලංගු නොවේ
+  "error.userservice.ambiguous_user": අපැහැදිලි පරිශීලකයා
+  "error.userservice.ambiguous_user_description": සපයන ලද පෙරහන් වලට බොහෝ පරිශීලකයන් ගැලපේ
+  "error.userservice.attribute_conflict": උපලක්‍ෂණ ගැටුම
+  "error.userservice.attribute_conflict_description": එකම අනන්‍ය උපලක්‍ෂණ අගය සහිත පරිශීලකයෙකු දැනටමත් පවතී
+  "error.userservice.authentication_failed": සත්‍යාපනය අසාර්ථකයි
+  "error.userservice.authentication_failed_description": සපයන ලද අක්තපත්‍ර වලංගු නොවේ
+  "error.userservice.cannot_modify_declarative_resource": ප්‍රකාශන සම්පත සංශෝධනය කළ නොහැක
+  "error.userservice.cannot_modify_declarative_resource_description": මෙම පරිශීලකයා ප්‍රකාශනාත්මක වන අතර සංශෝධනය කිරීමට හෝ මකා දැමීමට නොහැක
+  "error.userservice.email_conflict": විද්‍යුත් තැපැල් ගැටුම
+  "error.userservice.email_conflict_description": එකම විද්‍යුත් තැපෑල සහිත පරිශීලකයෙකු දැනටමත් පවතී
+  "error.userservice.handle_path_required": හැන්ඩල් මාර්ගය අවශ්‍යයි
+  "error.userservice.handle_path_required_description": මෙම ක්‍රියාව සඳහා හැන්ඩල් මාර්ගය අවශ්‍යයි
+  "error.userservice.invalid_credential": වලංගු නොවන ඉල්ලීම් ආකෘතිය
+  "error.userservice.invalid_credential_description": ඉල්ලීමේ ඇති අක්තපත්‍ර ක්ෂේත්‍ර වලංගු නොවේ
+  "error.userservice.invalid_filter_parameter": වලංගු නොවන පෙරහන් පරාමිතිය
+  "error.userservice.invalid_filter_parameter_description": පෙරහන් ආකෘතිය වලංගු නොවේ
+  "error.userservice.invalid_group_id": වලංගු නොවන කණ්ඩායම් ID
+  "error.userservice.invalid_group_id_description": ඉල්ලීමේ ඇති එක් හෝ කිහිපයක් කණ්ඩායම් ID නොපවතී
+  "error.userservice.invalid_handle_path": වලංගු නොවන හැන්ඩල් මාර්ගය
+  "error.userservice.invalid_handle_path_description": හැන්ඩල් මාර්ගයේ ෆෝවර්ඩ් ස්ලෑෂ් මගින් වෙන් කරන ලද වලංගු සංවිධාන ඒකක නිර්ණායක අඩංගු විය යුතුය
+  "error.userservice.invalid_limit_parameter": වලංගු නොවන පිටු සීමා පරාමිතිය
+  "error.userservice.invalid_limit_parameter_description": සීමා පරාමිතිය ධන පූර්ණ සංඛ්‍යාවක් විය යුතුය
+  "error.userservice.invalid_offset_parameter": වලංගු නොවන පිටු ඕෆ්සෙට් පරාමිතිය
+  "error.userservice.invalid_offset_parameter_description": ඕෆ්සෙට් පරාමිතිය සෘණ නොවන පූර්ණ සංඛ්‍යාවක් විය යුතුය
+  "error.userservice.invalid_organization_unit": වලංගු නොවන සංවිධාන ඒකකය
+  "error.userservice.invalid_organization_unit_description": සංවිධාන ඒකක ID වලංගු UUID එකක් ලෙස නිශ්චය කළ යුතුය
+  "error.userservice.invalid_request_format": වලංගු නොවන ඉල්ලීම් ආකෘතිය
+  "error.userservice.invalid_request_format_description": ඉල්ලීම් අන්තර්ගතය සාවද්‍ය ලෙස සකසා ඇත හෝ වලංගු නොවන දත්ත අඩංගු වේ
+  "error.userservice.missing_credentials": අක්තපත්‍ර අස්ථානගතය
+  "error.userservice.missing_credentials_description": අවම වශයෙන් එක් අක්තපත්‍ර ක්ෂේත්‍රයක් සැපයිය යුතුය
+  "error.userservice.missing_required_fields": අවශ්‍ය ක්ෂේත්‍ර අස්ථානගතය
+  "error.userservice.missing_required_fields_description": අවම වශයෙන් එක් හඳුනාගැනීමේ උපලක්‍ෂණයක් සැපයිය යුතුය
+  "error.userservice.missing_user_id": වලංගු නොවන ඉල්ලීම් ආකෘතිය
+  "error.userservice.missing_user_id_description": පරිශීලක ID අවශ්‍යයි
+  "error.userservice.organization_unit_mismatch": සංවිධාන ඒකක නොගැලපීම
+  "error.userservice.organization_unit_mismatch_description": සංවිධාන ඒකකය පරිශීලක වර්ග වින්‍යාසයට නොගැලපේ
+  "error.userservice.organization_unit_not_found": සංවිධාන ඒකකය සොයාගත නොහැක
+  "error.userservice.organization_unit_not_found_description": නිශ්චිත සංවිධාන ඒකකය නොපවතී
+  "error.userservice.schema_validation_failed": යාන්ත්‍රණ වැලිඩේෂන් අසාර්ථක විය
+  "error.userservice.schema_validation_failed_description": පරිශීලක උපලක්‍ෂණ අවශ්‍ය යාන්ත්‍රණයට අනුකූල නොවේ
+  "error.userservice.user_not_found": පරිශීලකයා සොයාගත නොහැක
+  "error.userservice.user_not_found_description": නිශ්චිත ID සහිත පරිශීලකයා නොපවතී
+  "error.userservice.user_type_not_found": පරිශීලක වර්ගය සොයාගත නොහැක
+  "error.userservice.user_type_not_found_description": නිශ්චිත පරිශීලක වර්ගය නොපවතී
+  "flows.executor.errors.ambiguous_user_identity": අපැහැදිලි පරිශීලක අනන්‍යතාවය
+  "flows.executor.errors.ambiguous_user_identity_desc": පරිශීලක අනන්‍යතාවය අපැහැදිලි වන අතර නිශ්චය කළ නොහැක
+  "flows.executor.errors.attribute_collect_failed": පරිශීලක උපලක්‍ෂණ යවීම අසාර්ථක විය
+  "flows.executor.errors.attribute_collect_failed_desc": පරිශීලක උපලක්‍ෂණ යවීමේදී දෝෂයක් සිදු විය
+  "flows.executor.errors.attribute_not_found_for_user": අවශ්‍ය උපලක්‍ෂණය සොයාගත නොහැක
+  "flows.executor.errors.attribute_not_found_for_user_desc": පරිශීලකයා සඳහා අවශ්‍ය උපලක්‍ෂණය සොයාගත නොහැකි විය
+  "flows.executor.errors.attribute_not_unique": උපලක්‍ෂණ අගය දැනටමත් පවතී
+  "flows.executor.errors.attribute_not_unique_desc": සපයන ලද උපලක්‍ෂණ අගය දැනටමත් පවතින අතර එය අනන්‍ය විය යුතුය
+  "flows.executor.errors.attribute_retrieval_failed": පරිශීලක උපලක්‍ෂණ ලබාගැනීම අසාර්ථක විය
+  "flows.executor.errors.attribute_retrieval_failed_desc": පරිශීලක උපලක්‍ෂණ ලබාගැනීමේදී දෝෂයක් සිදු විය
+  "flows.executor.errors.auth_not_available_for_app": මෙම යෙදුම සඳහා සත්‍යාපනය ලබා ගත නොහැක
+  "flows.executor.errors.auth_not_available_for_app_desc": ඉල්ලූ සත්‍යාපන ක්‍රමය මෙම යෙදුම සඳහා ලබා ගත නොහැක
+  "flows.executor.errors.authorization_failed": අවසර වැලිඩේෂන් අසාර්ථක විය
+  "flows.executor.errors.authorization_failed_desc": වත්මන් පරිශීලකයා සඳහා අවසර වැලිඩේෂන් අසාර්ථක විය
+  "flows.executor.errors.cannot_provision_automatically": පරිශීලකයා ස්වයංක්‍රීයව සපයා ගත නොහැක
+  "flows.executor.errors.cannot_provision_automatically_desc": සපයන ලද තොරතුරු සමඟ පරිශීලකයා ස්වයංක්‍රීයව සපයා ගත නොහැක
+  "flows.executor.errors.consent_decisions_missing": එකඟතා තීරණ ආදාන අස්ථානගතය හෝ හිස්ය
+  "flows.executor.errors.consent_decisions_missing_desc": එකඟතා තීරණ ආදාන අස්ථානගතය හෝ හිස්ය
+  "flows.executor.errors.consent_decisions_parse": එකඟතා තීරණ විග්‍රහ කිරීම අසාර්ථක විය
+  "flows.executor.errors.consent_decisions_parse_desc": එකඟතා තීරණ ආදානය විග්‍රහ කළ නොහැක
+  "flows.executor.errors.consent_denied": පරිශීලකයා එකඟතාව ප්‍රතික්ෂේප කළේය
+  "flows.executor.errors.consent_denied_desc": පරිශීලකයා අවශ්‍ය එකඟතාව ප්‍රතික්ෂේප කර ඇත
+  "flows.executor.errors.consent_prereq_failed": එකඟතාව සඳහා පූර්ව අවශ්‍යතා වැලිඩේෂන් අසාර්ථක විය
+  "flows.executor.errors.consent_prereq_failed_desc": එකඟතා විධායකයේ පූර්ව අවශ්‍යතා සපුරා නොමැත
+  "flows.executor.errors.consent_prompt_timed_out": එකඟතා ඉඟිය කල් ඉකුත්වී ඇත
+  "flows.executor.errors.consent_prompt_timed_out_desc": ප්‍රතිචාරයක් නොමැතිව එකඟතා ඉඟිය කල් ඉකුත්වී ඇත
+  "flows.executor.errors.consent_record_failed": එකඟතාව වාර්තා කිරීම අසාර්ථක විය
+  "flows.executor.errors.consent_record_failed_desc": පරිශීලක එකඟතාව වාර්තා කිරීමේදී දෝෂයක් සිදු විය
+  "flows.executor.errors.consent_resolution_failed": එකඟතාව නිරාකරණය කිරීම අසාර්ථක විය
+  "flows.executor.errors.consent_resolution_failed_desc": පරිශීලක එකඟතා අවශ්‍යතා නිරාකරණය කිරීමේදී දෝෂයක් සිදු විය
+  "flows.executor.errors.credential_input_invalid": වලංගු නොවන අක්තපත්‍ර ආදාන වින්‍යාසය
+  "flows.executor.errors.credential_input_invalid_desc": අක්තපත්‍ර සකසන්නා සඳහා අක්තපත්‍ර ආදාන වින්‍යාසය වලංගු නොවේ
+  "flows.executor.errors.credential_input_missing": අක්තපත්‍ර ආදානයක් වින්‍යාස කර නොමැත
+  "flows.executor.errors.credential_input_missing_desc": අක්තපත්‍ර සකසන්නා සඳහා අක්තපත්‍ර ආදානයක් වින්‍යාස කර නොමැත
+  "flows.executor.errors.credential_processing_failed": අක්තපත්‍ර සැකසීම අසාර්ථක විය
+  "flows.executor.errors.credential_processing_failed_desc": අක්තපත්‍ර සැකසීමේදී දෝෂයක් සිදු විය
+  "flows.executor.errors.credential_set_failed": අක්තපත්‍ර සැකසීම අසාර්ථක විය
+  "flows.executor.errors.credential_set_failed_desc": පරිශීලක අක්තපත්‍ර සැකසීමේදී දෝෂයක් සිදු විය
+  "flows.executor.errors.credential_value_empty": අක්තපත්‍ර අගය හිස්ය
+  "flows.executor.errors.credential_value_empty_desc": අක්තපත්‍ර සකසන්නා සඳහා අක්තපත්‍ර අගය හිස් විය නොහැක
+  "flows.executor.errors.cross_ou_provisioning_target_missing": හරස්-OU සැපයීම සඳහා ඉලක්ක OU සකසා නොමැත
+  "flows.executor.errors.cross_ou_provisioning_target_missing_desc": හරස්-OU පරිශීලක සැපයීම සඳහා ඉලක්ක සංවිධාන ඒකකයක් නිශ්චිත කළ යුතුය
+  "flows.executor.errors.email_recipient_missing": විද්‍යුත් තැපැල් ලබන්නා අවශ්‍යයි
+  "flows.executor.errors.email_recipient_missing_desc": දැනුම්දීම යැවීම සඳහා විද්‍යුත් තැපැල් ලබන්නෙකු සැපයිය යුතුය
+  "flows.executor.errors.email_send_failed": විද්‍යුත් තැපෑල යැවීම අසාර්ථක විය
+  "flows.executor.errors.email_send_failed_desc": විද්‍යුත් තැපෑල යැවීමේදී දෝෂයක් සිදු විය
+  "flows.executor.errors.email_service_not_configured": විද්‍යුත් තැපැල් සේවාව වින්‍යාස කර නොමැත
+  "flows.executor.errors.email_service_not_configured_desc": විද්‍යුත් තැපැල් දැනුම්දීම් සේවාව වින්‍යාස කර නොමැත
+  "flows.executor.errors.failed_to_identify_user": පරිශීලකයා හඳුනාගැනීම අසාර්ථක විය
+  "flows.executor.errors.failed_to_identify_user_desc": සපයන ලද තොරතුරු සමඟ පරිශීලකයා හඳුනාගැනීමට නොහැක
+  "flows.executor.errors.http_request_config_invalid": වින්‍යාස දෝෂය
+  "flows.executor.errors.http_request_config_invalid_desc": HTTP ඉල්ලීම් විධායක වින්‍යාසය වලංගු නොවේ
+  "flows.executor.errors.http_request_failed": HTTP ඉල්ලීම් විධායකය අසාර්ථක විය
+  "flows.executor.errors.http_request_failed_desc": HTTP ඉල්ලීම් විධායකයට ඉල්ලීම සම්පූර්ණ කිරීමට නොහැකි විය
+  "flows.executor.errors.insufficient_permissions": ප්‍රමාණවත් නොවන අවසර
+  "flows.executor.errors.insufficient_permissions_desc": මෙම ක්‍රියාව සිදු කිරීමට පරිශීලකයාට ප්‍රමාණවත් අවසර නොමැත
+  "flows.executor.errors.invalid_action": වලංගු නොවන ක්‍රියාව සපයා ඇත
+  "flows.executor.errors.invalid_action_desc": වත්මන් ප්‍රවාහ පියවර සඳහා සපයන ලද ක්‍රියාව වලංගු නොවේ
+  "flows.executor.errors.invalid_credentials": වලංගු නොවන අක්තපත්‍ර සපයා ඇත
+  "flows.executor.errors.invalid_credentials_desc": සපයන ලද අක්තපත්‍ර වලංගු නොවේ
+  "flows.executor.errors.invalid_federated_user": වලංගු නොවන සම්මිත පරිශීලකයා
+  "flows.executor.errors.invalid_federated_user_desc": සම්මිත පරිශීලක තොරතුරු වලංගු නොවේ හෝ නොගැලපේ
+  "flows.executor.errors.invalid_invite_token": වලංගු නොවන ආරාධනා ටෝකනය
+  "flows.executor.errors.invalid_invite_token_desc": සපයන ලද ආරාධනා ටෝකනය වලංගු නොවේ හෝ කල් ඉකුත්වී ඇත
+  "flows.executor.errors.invalid_magic_link_token": වලංගු නොවන මැජික් ලින්ක් ටෝකනය
+  "flows.executor.errors.invalid_magic_link_token_desc": මැජික් ලින්ක් ටෝකනය වලංගු නොවේ හෝ කල් ඉකුත්වී ඇත
+  "flows.executor.errors.invalid_oauth_code": වලංගු නොවන OAuth අවසර කේතය
+  "flows.executor.errors.invalid_oauth_code_desc": OAuth අවසර කේතය වලංගු නොවේ හෝ ටෝකන සඳහා හුවමාරු කළ නොහැක
+  "flows.executor.errors.invalid_oauth_state": වලංගු නොවන OAuth state පරාමිතිය
+  "flows.executor.errors.invalid_oauth_state_desc": OAuth state පරාමිතිය වලංගු නොවේ හෝ අපේක්ෂිත අගයට නොගැලපේ
+  "flows.executor.errors.invalid_otp": වලංගු නොවන OTP සපයා ඇත
+  "flows.executor.errors.invalid_otp_desc": සපයන ලද එක්-වර මුරපදය වලංගු නොවේ හෝ කල් ඉකුත්වී ඇත
+  "flows.executor.errors.invalid_ou": තෝරාගත් සංවිධාන ඒකකය වලංගු නොවේ
+  "flows.executor.errors.invalid_ou_desc": තෝරාගත් සංවිධාන ඒකකය මෙම ක්‍රියාව සඳහා වලංගු නොවේ
+  "flows.executor.errors.invalid_passkey": වලංගු නොවන පාස්කී අක්තපත්‍ර
+  "flows.executor.errors.invalid_passkey_desc": සපයන ලද පාස්කී අක්තපත්‍ර වලංගු නොවේ
+  "flows.executor.errors.invalid_user_type": වලංගු නොවන පරිශීලක වර්ගය
+  "flows.executor.errors.invalid_user_type_desc": සපයන ලද පරිශීලක වර්ගය වලංගු නොවේ
+  "flows.executor.errors.invite_token_generation_failed": ආරාධනා ටෝකනය උත්පාදනය අසාර්ථක විය
+  "flows.executor.errors.invite_token_generation_failed_desc": ආරාධනා ටෝකනය උත්පාදනය කිරීමේදී දෝෂයක් සිදු විය
+  "flows.executor.errors.magic_link_generation_failed": මැජික් ලින්ක් උත්පාදනය අසාර්ථක විය
+  "flows.executor.errors.magic_link_generation_failed_desc": මැජික් ලින්ක් උත්පාදනය කිරීම අසාර්ථක විය
+  "flows.executor.errors.max_otp_attempts_reached": උපරිම OTP උත්සාහ ගණන ඉකුත්වී ඇත
+  "flows.executor.errors.max_otp_attempts_reached_desc": OTP සත්‍යාපන උත්සාහයන්හි උපරිම ගණන ඉකුත්වී ඇත
+  "flows.executor.errors.no_registered_passkeys": ලියාපදිංචි කළ පාස්කී සොයාගත නොහැක
+  "flows.executor.errors.no_registered_passkeys_desc": පරිශීලකයා සඳහා ලියාපදිංචි කළ පාස්කී සොයාගත නොහැකි විය
+  "flows.executor.errors.no_user_types_available": පරිශීලක වර්ග ලබා ගත නොහැක
+  "flows.executor.errors.no_user_types_available_desc": වර්තමානයේ පරිශීලක වර්ග කිසිවක් ලබා ගත නොහැක
+  "flows.executor.errors.no_valid_user_types": වලංගු පරිශීලක වර්ග ලබා ගත නොහැක
+  "flows.executor.errors.no_valid_user_types_desc": මෙම ප්‍රවාහය සඳහා වින්‍යාස කළ වලංගු පරිශීලක වර්ග නොමැත
+  "flows.executor.errors.nonce_mismatch": ID ටෝකනයේ nonce නොගැලපීම
+  "flows.executor.errors.nonce_mismatch_desc": ID ටෝකන ප්‍රකාශනවල ඇති nonce අපේක්ෂිත අගයට නොගැලපේ
+  "flows.executor.errors.openid4vp_expired": ප්‍රතිචාරයක් ලැබීමට පෙර OpenID4VP ඉල්ලීම කල් ඉකුත්වී ඇත
+  "flows.executor.errors.openid4vp_expired_desc": වොලට් එකෙන් ප්‍රතිචාරයක් ඉදිරිපත් කිරීමට පෙර OpenID4VP ඉදිරිපත් කිරීමේ ඉල්ලීම කල් ඉකුත්වී ඇත
+  "flows.executor.errors.openid4vp_initiate_failed": OpenID4VP ඉල්ලීම ආරම්භ කිරීම අසාර්ථක විය
+  "flows.executor.errors.openid4vp_initiate_failed_desc": OpenID4VP ඉදිරිපත් කිරීමේ ඉල්ලීම ආරම්භ කිරීමේදී දෝෂයක් සිදු විය
+  "flows.executor.errors.openid4vp_not_configured": OpenID4VP සත්‍යාපකය වින්‍යාස කර නොමැත
+  "flows.executor.errors.openid4vp_not_configured_desc": OpenID4VP සත්‍යාපක සේවාව වින්‍යාස කර නොමැත
+  "flows.executor.errors.openid4vp_verification_failed": OpenID4VP ඉදිරිපත් කිරීමේ සත්‍යාපනය අසාර්ථක විය
+  "flows.executor.errors.openid4vp_verification_failed_desc": OpenID4VP ඉදිරිපත් කිරීමේ සත්‍යාපනය අසාර්ථක විය
+  "flows.executor.errors.ou_creation_failed": සංවිධාන ඒකක නිර්මාණය අසාර්ථක විය
+  "flows.executor.errors.ou_creation_failed_desc": සංවිධාන ඒකකය නිර්මාණය කිරීමේදී දෝෂයක් සිදු විය
+  "flows.executor.errors.ou_creation_prereq_failed": OU නිර්මාණය සඳහා පූර්ව අවශ්‍යතා වැලිඩේෂන් අසාර්ථක විය
+  "flows.executor.errors.ou_creation_prereq_failed_desc": සංවිධාන ඒකකයක් නිර්මාණය කිරීම සඳහා පූර්ව අවශ්‍යතා සපුරා නොමැත
+  "flows.executor.errors.ou_handle_conflict": එකම හැන්ඩල් සහිත සංවිධාන ඒකකයක් දැනටමත් පවතී
+  "flows.executor.errors.ou_handle_conflict_desc": මෙම සන්දර්භය තුළ එකම හැන්ඩල් සහිත සංවිධාන ඒකකයක් දැනටමත් පවතී
+  "flows.executor.errors.ou_name_conflict": එකම නම සහිත සංවිධාන ඒකකයක් දැනටමත් පවතී
+  "flows.executor.errors.ou_name_conflict_desc": මෙම සන්දර්භය තුළ එකම නම සහිත සංවිධාන ඒකකයක් දැනටමත් පවතී
+  "flows.executor.errors.ou_not_found": සංවිධාන ඒකකය සොයාගත නොහැක
+  "flows.executor.errors.ou_not_found_desc": තෝරාගත් සංවිධාන ඒකකය නොපවතී
+  "flows.executor.errors.ou_not_valid_for_user_type": තෝරාගත් සංවිධාන ඒකකය තෝරාගත් පරිශීලක වර්ගය සඳහා වලංගු නොවේ.
+  "flows.executor.errors.ou_not_valid_for_user_type_desc": තෝරාගත් සංවිධාන ඒකකය තෝරාගත් පරිශීලක වර්ගය සඳහා වලංගු නොවේ
+  "flows.executor.errors.ou_resolution_failed": සංවිධාන ඒකකය නිරාකරණය කිරීම අසාර්ථක විය
+  "flows.executor.errors.ou_resolution_failed_desc": වත්මන් සන්දර්භය සඳහා සංවිධාන ඒකකය නිරාකරණය කිරීමට නොහැක
+  "flows.executor.errors.passkey_auth_failed": පාස්කී සත්‍යාපනය අසාර්ථක විය
+  "flows.executor.errors.passkey_auth_failed_desc": පාස්කී සමඟ සත්‍යාපනය කිරීමේදී දෝෂයක් සිදු විය
+  "flows.executor.errors.passkey_registration_failed": පාස්කී ලියාපදිංචිය අසාර්ථක විය
+  "flows.executor.errors.passkey_registration_failed_desc": පාස්කී ලියාපදිංචි කිරීමේදී දෝෂයක් සිදු විය
+  "flows.executor.errors.prerequisites_failed": පූර්ව අවශ්‍යතා වැලිඩේෂන් අසාර්ථක විය
+  "flows.executor.errors.prerequisites_failed_desc": මෙම ක්‍රියාව සඳහා පූර්ව අවශ්‍යතා සපුරා නොමැත
+  "flows.executor.errors.provisioning_assignment_failed": කණ්ඩායම් සහ භූමිකා පවරාදීම අසාර්ථක විය
+  "flows.executor.errors.provisioning_assignment_failed_desc": සපයන ලද පරිශීලකයාට කණ්ඩායම් සහ භූමිකා පවරාදීමේදී දෝෂයක් සිදු විය
+  "flows.executor.errors.provisioning_attribute_conflict": සපයන ලද උපලක්‍ෂණ සහිත පරිශීලකයෙකු දැනටමත් පවතී
+  "flows.executor.errors.provisioning_attribute_conflict_desc": එක් හෝ කිහිපයක් අනන්‍ය උපලක්‍ෂණ අගයන් දැනටමත් ගෙන ඇති නිසා පරිශීලක සැපයීම අසාර්ථක විය
+  "flows.executor.errors.provisioning_failed": පරිශීලක සැපයීම අසාර්ථක විය
+  "flows.executor.errors.provisioning_failed_desc": පරිශීලකයා සැපයීමේදී දෝෂයක් සිදු විය
+  "flows.executor.errors.provisioning_user_attrs_missing": සැපයීම සඳහා පරිශීලක උපලක්‍ෂණ සපයා නොමැත
+  "flows.executor.errors.provisioning_user_attrs_missing_desc": නව පරිශීලකයෙකු සැපයීම සඳහා පරිශීලක උපලක්‍ෂණ අවශ්‍යයි
+  "flows.executor.errors.self_reg_disabled_for_user_type": පරිශීලක වර්ගය සඳහා ස්වයං-ලියාපදිංචිය අබල කර ඇත
+  "flows.executor.errors.self_reg_disabled_for_user_type_desc": තෝරාගත් පරිශීලක වර්ගය සඳහා ස්වයං-ලියාපදිංචිය සක්‍රීය කර නොමැත
+  "flows.executor.errors.self_reg_not_available_for_app": මෙම යෙදුම සඳහා ස්වයං-ලියාපදිංචිය ලබා ගත නොහැක
+  "flows.executor.errors.self_reg_not_available_for_app_desc": මෙම යෙදුම සඳහා ස්වයං-ලියාපදිංචිය ලබා ගත නොහැක
+  "flows.executor.errors.self_registration_disabled": ස්වයං-ලියාපදිංචිය සක්‍රීය කර නොමැත
+  "flows.executor.errors.self_registration_disabled_desc": මෙම යෙදුම හෝ පරිශීලක වර්ගය සඳහා ස්වයං-ලියාපදිංචිය සක්‍රීය කර නොමැත
+  "flows.executor.errors.sms_invalid_phone": SMS ලබන්නා වලංගු දුරකථන අංකයක් නොවේ
+  "flows.executor.errors.sms_invalid_phone_desc": සපයන ලද SMS ලබන්නා වලංගු දුරකථන අංකයක් නොවේ
+  "flows.executor.errors.sms_provider_not_configured": SMS දැනුම්දීම් සැපයුම්කරු වින්‍යාස කර නොමැත
+  "flows.executor.errors.sms_provider_not_configured_desc": SMS දැනුම්දීම් සැපයුම්කරු වින්‍යාස කර නොමැත හෝ දෝෂ සහිතය
+  "flows.executor.errors.sms_recipient_missing": SMS ලබන්නා අවශ්‍යයි
+  "flows.executor.errors.sms_recipient_missing_desc": දැනුම්දීම යැවීම සඳහා SMS ලබන්නෙකු සැපයිය යුතුය
+  "flows.executor.errors.sms_template_missing": SMS අච්චුව අවශ්‍යයි
+  "flows.executor.errors.sms_template_missing_desc": දැනුම්දීම යැවීම සඳහා SMS අච්චුවක් සැපයිය යුතුය
+  "flows.executor.errors.user_already_exists": පරිශීලකයා දැනටමත් පවතී
+  "flows.executor.errors.user_already_exists_desc": සපයන ලද උපලක්‍ෂණ සහිත පරිශීලකයෙකු දැනටමත් පවතී
+  "flows.executor.errors.user_already_exists_in_target_ou": පරිශීලකයා ඉලක්ක සංවිධානයේ දැනටමත් පවතී
+  "flows.executor.errors.user_already_exists_in_target_ou_desc": එකම අනන්‍යතාවය සහිත පරිශීලකයෙකු ඉලක්ක සංවිධාන ඒකකයේ දැනටමත් පවතී
+  "flows.executor.errors.user_auth_failed": පරිශීලක සත්‍යාපනය අසාර්ථක විය
+  "flows.executor.errors.user_auth_failed_desc": පරිශීලකයා සත්‍යාපනය කිරීමේදී දෝෂයක් සිදු විය
+  "flows.executor.errors.user_id_missing_in_context": පරිශීලක ID සොයාගත නොහැක
+  "flows.executor.errors.user_id_missing_in_context_desc": වත්මන් ප්‍රවාහ සන්දර්භයෙන් පරිශීලක ID නිරාකරණය කළ නොහැක
+  "flows.executor.errors.user_id_required_for_passkey_reg": පාස්කී ලියාපදිංචිය සඳහා පරිශීලක ID අස්ථානගතය
+  "flows.executor.errors.user_id_required_for_passkey_reg_desc": පාස්කී ලියාපදිංචි කිරීම සඳහා පරිශීලක ID අවශ්‍යයි
+  "flows.executor.errors.user_not_authenticated": පරිශීලකයා සත්‍යාපනය කර නොමැත
+  "flows.executor.errors.user_not_authenticated_desc": මෙම ප්‍රවාහයේ පරිශීලකයා සත්‍යාපනය කර නොමැත
+  "flows.executor.errors.user_not_found": පරිශීලකයා සොයාගත නොහැක
+  "flows.executor.errors.user_not_found_desc": පද්ධතියේ පරිශීලකයා සොයාගත නොහැකි විය
+  "flows.executor.errors.user_type_not_allowed": මෙම ප්‍රවාහය සඳහා පරිශීලක වර්ගයට අවසර නැත
+  "flows.executor.errors.user_type_not_allowed_desc": තෝරාගත් පරිශීලක වර්ගයට මෙම ප්‍රවාහය සඳහා අවසර නැත
+  "flows.executor.errors.user_type_not_valid_for_ou": පරිශීලක වර්ගය වලංගු නොවේ
+  "flows.executor.errors.user_type_not_valid_for_ou_desc": තෝරාගත් පරිශීලක වර්ගය තෝරාගත් සංවිධාන ඒකකය සඳහා වලංගු නොවේ
+  "flows.executor.errors.user_type_retrieval_failed": පරිශීලක වර්ග ලබාගැනීම අසාර්ථක විය
+  "flows.executor.errors.user_type_retrieval_failed_desc": ලබා ගත හැකි පරිශීලක වර්ග ලබාගැනීමේදී දෝෂයක් සිදු විය
+  "layout.error.already_exists": පිරිසැලසුම දැනටමත් පවතී
+  "layout.error.already_exists_description": එකම ID සහිත පිරිසැලසුමක් දැනටමත් පවතී
+  "layout.error.cannot_delete_declarative": ප්‍රකාශන පිරිසැලසුම මකා දැමිය නොහැක
+  "layout.error.cannot_delete_declarative_description": පිරිසැලසුම ප්‍රකාශන සම්පත් තුළ අර්ථ දක්වා ඇති අතර මකා දැමිය නොහැක
+  "layout.error.cannot_modify_declarative": ප්‍රකාශන සම්පත සංශෝධනය කළ නොහැක
+  "layout.error.cannot_modify_declarative_description": මෙම පිරිසැලසුම ප්‍රකාශනාත්මක වන අතර සංශෝධනය කිරීමට හෝ මකා දැමීමට නොහැක
+  "layout.error.cannot_update_declarative": ප්‍රකාශන පිරිසැලසුම යවීම කළ නොහැක
+  "layout.error.cannot_update_declarative_description": පිරිසැලසුම ප්‍රකාශන සම්පත් තුළ අර්ථ දක්වා ඇති අතර සංශෝධනය කළ නොහැක
+  "layout.error.duplicate_handle": ද්විත්ව පිරිසැලසුම් හැන්ඩලය
+  "layout.error.duplicate_handle_description": එකම හැන්ඩල් සහිත පිරිසැලසුමක් දැනටමත් පවතී
+  "layout.error.handle_immutable": පිරිසැලසුම් හැන්ඩලය වෙනස් කළ නොහැක
+  "layout.error.handle_immutable_description": සෑදීමෙන් පසු පිරිසැලසුම් හැන්ඩලය වෙනස් කළ නොහැක
+  "layout.error.in_use": පිරිසැලසුම භාවිතයේ ඇත
+  "layout.error.in_use_description": එක් හෝ කිහිපයක් යෙදුම් සමඟ දැනට සම්බන්ධ පිරිසැලසුමක් මකා දැමිය නොහැක
+  "layout.error.invalid_data": වලංගු නොවන පිරිසැලසුම් දත්ත
+  "layout.error.invalid_data_description": සපයන ලද පිරිසැලසුම් දත්ත වලංගු නොවේ
+  "layout.error.invalid_format": වලංගු නොවන පිරිසැලසුම් ආකෘතිය
+  "layout.error.invalid_format_description": පිරිසැලසුම වලංගු JSON වස්තුවක් විය යුතුය
+  "layout.error.invalid_id": වලංගු නොවන පිරිසැලසුම් ID
+  "layout.error.invalid_id_description": සපයන ලද පිරිසැලසුම් ID වලංගු නොවේ
+  "layout.error.invalid_limit": වලංගු නොවන සීමාව
+  "layout.error.invalid_limit_description": සීමා අගය වලංගු පරාසයෙන් බැහැරය
+  "layout.error.invalid_limit_param": වලංගු නොවන සීමාව
+  "layout.error.invalid_limit_param_description": සීමාව වලංගු පූර්ණ සංඛ්‍යාවක් විය යුතුය
+  "layout.error.invalid_offset": වලංගු නොවන ඕෆ්සෙට්
+  "layout.error.invalid_offset_description": ඕෆ්සෙට් සෘණ නොවිය යුතුය
+  "layout.error.invalid_offset_param": වලංගු නොවන ඕෆ්සෙට්
+  "layout.error.invalid_offset_param_description": ඕෆ්සෙට් වලංගු පූර්ණ සංඛ්‍යාවක් විය යුතුය
+  "layout.error.missing_display_name": සංදර්ශන නාමය අස්ථානගතය
+  "layout.error.missing_display_name_description": සංදර්ශන නාමය අවශ්‍යයි
+  "layout.error.missing_handle": පිරිසැලසුම් හැන්ඩලය අස්ථානගතය
+  "layout.error.missing_handle_description": පිරිසැලසුම් හැන්ඩලය අවශ්‍යයි
+  "layout.error.missing_layout": පිරිසැලසුම අස්ථානගතය
+  "layout.error.missing_layout_description": පිරිසැලසුම් ක්ෂේත්‍රය අවශ්‍යයි
+  "layout.error.not_found": පිරිසැලසුම සොයාගත නොහැක
+  "layout.error.not_found_description": ඉල්ලූ පිරිසැලසුම් වින්‍යාසය සොයාගත නොහැකි විය
+  "layout.error.result_limit_exceeded": ප්‍රතිඵල සීමාව ඉක්මවා ඇත
+  "layout.error.result_limit_exceeded_description": සංයුක්ත ප්‍රකාරයේ පිරිසැලසුම් මුළු ගණන උපරිම අවසර සීමාව ඉක්මවයි
+  "theme.error.cannot_delete_declarative": ප්‍රකාශන තේමාව මකා දැමිය නොහැක
+  "theme.error.cannot_delete_declarative_description": තේමාව ප්‍රකාශන සම්පත් තුළ අර්ථ දක්වා ඇති අතර මකා දැමිය නොහැක
+  "theme.error.cannot_modify_declarative": ප්‍රකාශන සම්පත සංශෝධනය කළ නොහැක
+  "theme.error.cannot_modify_declarative_description": මෙම තේමාව ප්‍රකාශනාත්මක වන අතර සංශෝධනය කිරීමට හෝ මකා දැමීමට නොහැක
+  "theme.error.cannot_update_declarative": ප්‍රකාශන තේමාව යවීම කළ නොහැක
+  "theme.error.cannot_update_declarative_description": තේමාව ප්‍රකාශන සම්පත් තුළ අර්ථ දක්වා ඇති අතර සංශෝධනය කළ නොහැක
+  "theme.error.duplicate_handle": ද්විත්ව තේමා හැන්ඩලය
+  "theme.error.duplicate_handle_description": එකම හැන්ඩල් සහිත තේමාවක් දැනටමත් පවතී
+  "theme.error.handle_immutable": තේමා හැන්ඩලය වෙනස් කළ නොහැක
+  "theme.error.handle_immutable_description": සෑදීමෙන් පසු තේමා හැන්ඩලය වෙනස් කළ නොහැක
+  "theme.error.in_use": තේමාව භාවිතයේ ඇත
+  "theme.error.in_use_description": එක් හෝ කිහිපයක් යෙදුම් සමඟ දැනට සම්බන්ධ තේමාවක් මකා දැමිය නොහැක
+  "theme.error.invalid_data": වලංගු නොවන තේමා දත්ත
+  "theme.error.invalid_data_description": සපයන ලද තේමා දත්ත වලංගු නොවේ
+  "theme.error.invalid_format": වලංගු නොවන තේමා ආකෘතිය
+  "theme.error.invalid_format_description": තේමාව වලංගු JSON වස්තුවක් විය යුතුය
+  "theme.error.invalid_id": වලංගු නොවන තේමා ID
+  "theme.error.invalid_id_description": සපයන ලද තේමා ID වලංගු නොවේ
+  "theme.error.invalid_limit": වලංගු නොවන සීමාව
+  "theme.error.invalid_limit_description": සීමා අගය වලංගු පරාසයෙන් බැහැරය
+  "theme.error.invalid_limit_param": වලංගු නොවන සීමාව
+  "theme.error.invalid_limit_param_description": සීමාව වලංගු පූර්ණ සංඛ්‍යාවක් විය යුතුය
+  "theme.error.invalid_offset": වලංගු නොවන ඕෆ්සෙට්
+  "theme.error.invalid_offset_description": ඕෆ්සෙට් සෘණ නොවිය යුතුය
+  "theme.error.invalid_offset_param": වලංගු නොවන ඕෆ්සෙට්
+  "theme.error.invalid_offset_param_description": ඕෆ්සෙට් වලංගු පූර්ණ සංඛ්‍යාවක් විය යුතුය
+  "theme.error.missing_display_name": සංදර්ශන නාමය අස්ථානගතය
+  "theme.error.missing_display_name_description": සංදර්ශන නාමය අවශ්‍යයි
+  "theme.error.missing_handle": තේමා හැන්ඩලය අස්ථානගතය
+  "theme.error.missing_handle_description": තේමා හැන්ඩලය අවශ්‍යයි
+  "theme.error.missing_theme": තේමාව අස්ථානගතය
+  "theme.error.missing_theme_description": තේමා ක්ෂේත්‍රය අවශ්‍යයි
+  "theme.error.not_found": තේමාව සොයාගත නොහැක
+  "theme.error.not_found_description": ඉල්ලූ තේමා වින්‍යාසය සොයාගත නොහැකි විය
+  "theme.error.result_limit_exceeded": ප්‍රතිඵල සීමාව ඉක්මවා ඇත
+  "theme.error.result_limit_exceeded_description": සංයුක්ත ප්‍රකාරයේ තේමා මුළු ගණන උපරිම අවසර සීමාව ඉක්මවයි
+
+header:
+  login_heading: පිවිසුම
+  login_subheading: පිවිසුම සඳහා සත්‍යාපනය ඉල්ලා සිටී
+  select_login_id: පිවිසුම් ID විකල්පයක් තෝරන්න
+  select_login_mode: කැමති පිවිසුම් ආකාරයක් තෝරන්න
+
+input:
+  uin_label: UIN/VID
+  uin_placeholder: ඔබේ UIN/VID ඇතුළත් කරන්න
+  mobile_label: ජංගම දුරකථන අංකය
+  mobile_placeholder: ජංගම දුරකථන අංකය ඇතුළත් කරන්න
+  email_label: විද්‍යුත් තැපෑල
+  email_placeholder: විද්‍යුත් තැපැල් ලිපිනය ඇතුළත් කරන්න
+  nrc_label: NRC ID
+  nrc_placeholder: NRC ID ඇතුළත් කරන්න
+  password_label: මුරපදය
+  password_placeholder: ඔබේ මුරපදය ඇතුළත් කරන්න
+  username_label: පරිශීලක නාමය
+  username_placeholder: ඔබේ පරිශීලක නාමය ඇතුළත් කරන්න
+  fullname_label: සම්පූර්ණ නම
+  fullname_placeholder: ඔබේ සම්පූර්ණ නම ඇතුළත් කරන්න
+  dob_label: උපන් දිනය
+  dob_placeholder: ඔබේ උපන් දිනය තෝරන්න
+
+button:
+  continue: ඉදිරියට
+  login: පිවිසුම
+  verify: සත්‍යාපනය
+  get_otp: OTP ලබාගන්න
+  login_otp: OTP සමඟ පිවිසෙන්න
+  login_password: මුරපදය සමඟ පිවිසෙන්න
+  login_biometrics: ජෛවමිතික සමඟ පිවිසෙන්න
+  login_kbi: KBI සමඟ පිවිසෙන්න
+  login_id_uin: UIN/VID
+  login_id_mobile: ජංගම දුරකථන අංකය
+  login_id_email: විද්‍යුත් තැපෑල
+  login_id_nrc: NRC ID
+
+otp:
+  enter_otp_title: OTP ඇතුළත් කරන්න
+  otp_sent_msg: කරුණාකර ඔබේ ලියාපදිංචි සම්බන්ධතාවයට යවන ලද ඉලක්කම් 6ක OTP ඇතුළත් කරන්න
+  resend_otp: OTP නැවත යවන්න
+
+consent:
+  title: "පහත සඳහන් දේ සඳහා ප්‍රවේශය ඉල්ලා සිටී:"
+  description: මෙම යෙදුම පහත තොරතුරු වෙත ප්‍රවේශ වීමට කැමැත්තෙන් සිටී. කරුණාකර සමාලෝචනය කර ඔබ බෙදා ගැනීමට කැමති දේ තෝරාගන්න.
+  allow: ඉඩ දෙන්න
+  deny: ප්‍රතික්ෂේප කරන්න
+  timer_label: කරුණාකර සුදුසු ක්‍රියාමාර්ගය ගන්න
+  essential: අත්‍යවශ්‍ය හිමිකම්
+  optional: ස්වේච්ඡා හිමිකම්
+  essential_info: සේවා සැපයුම්කරු විසින් අවශ්‍ය අනිවාර්ය පරිශීලක තොරතුරු
+  optional_info: පදිංචිකරු සේවා සැපයුම්කරු සමඟ බෙදා ගැනීමට තෝරාගත හැකි අතිරේක පරිශීලක තොරතුරු
+
+signin:
+  images.app_logo.alt: යෙදුම් ලාංඡනය
+
+validation:
+  uin.numeric: UIN/VID හි අංක පමණක් අඩංගු විය යුතුය
+  uin.length: UIN/VID ඉලක්කම් 10 සිට 16 අතර විය යුතුය
+  mobile.numeric: ජංගම දුරකථන අංකයේ අංක පමණක් අඩංගු විය යුතුය
+  mobile.length: ජංගම දුරකථන අංකය ඉලක්කම් 9 සිට 11 අතර විය යුතුය
+  email.format: කරුණාකර වලංගු විද්‍යුත් තැපැල් ලිපිනයක් ඇතුළත් කරන්න
+  pattern.invalid: වලංගු නොවන ආකෘතිය
+  minLength.invalid: අගය ඉතා කෙටිය
+  maxLength.invalid: අගය ඉතා දිගය
+
+validations:
+  required.field.error: මෙම ක්ෂේත්‍රය අවශ්‍යයි
+
+errors:
+  heading: දෝෂය
+  signin.initialization: පිවිසුම ආරම්භ කිරීමට නොහැක. කරුණාකර නැවත උත්සාහ කරන්න.
+  network.unavailable: ජාලය නොමැත. කරුණාකර ඔබේ සම්බන්ධතාවය පරීක්ෂා කරන්න.
+  something_went_wrong: යමක් වැරදී ඇත
+  unexpected_error: අනපේක්ෂිත දෝෂයක් සිදුවිය. කරුණාකර පසුව නැවත උත්සාහ කරන්න.
+  page_not_found: පිටුව හමු නොවීය
+
+messages:
+  loading.placeholder: පූරණය වෙමින්...
+
+app:
+  footer.powered_by: බලගැන්වීම
+  network_error.title: අන්තර්ජාල සම්බන්ධතාවක් නැත
+  network_error.description: කරුණාකර ඔබේ ජාල සම්බන්ධතාවය පරීක්ෂා කර නැවත උත්සාහ කරන්න.
+  network_error.try_again: නැවත උත්සාහ කරන්න
+  otp.resend_timer: ඔබට OTP නැවත යැවිය හැක
+  otp.timed_out: කාලය ඉකුත්වී ඇත
+  otp.submit: ඉදිරිපත් කරන්න
+  back: ආපසු
+  esignet_details: eSignet විස්තර
