@@ -19,34 +19,36 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func (ts *LogTestSuite) TestParseLogLevel() {
+func (ts *LogTestSuite) TestResolveLevel() {
 	t := ts.T()
-	t.Parallel()
 
 	tests := []struct {
 		name      string
-		input     string
-		expected  slog.Level
+		env       string
+		wantName  string
+		wantLevel slog.Level
 		wantError bool
 	}{
-		{"debug", "debug", slog.LevelDebug, false},
-		{"info", "info", slog.LevelInfo, false},
-		{"warn", "warn", slog.LevelWarn, false},
-		{"error", "error", slog.LevelError, false},
-		{"invalid", "invalid", slog.LevelError, true},
-		{"empty", "", slog.LevelInfo, true},
+		{"debug", "debug", "debug", slog.LevelDebug, false},
+		{"info", "info", "info", slog.LevelInfo, false},
+		{"warn", "warn", "warn", slog.LevelWarn, false},
+		{"error", "error", "error", slog.LevelError, false},
+		{"uppercase is normalized", "DEBUG", "debug", slog.LevelDebug, false},
+		{"unset defaults to info", "", "info", slog.LevelInfo, false},
+		{"invalid", "invalid", "", 0, true},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-			level, err := parseLogLevel(tc.input)
+			t.Setenv("LOG_LEVEL", tc.env)
+			name, level, err := resolveLevel()
 			if tc.wantError {
 				require.Error(t, err)
 				return
 			}
 			require.NoError(t, err)
-			assert.Equal(t, tc.expected, level)
+			assert.Equal(t, tc.wantName, name)
+			assert.Equal(t, tc.wantLevel, level)
 		})
 	}
 }

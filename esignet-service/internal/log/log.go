@@ -14,8 +14,10 @@ package log
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"os"
+	"strings"
 	"sync"
 )
 
@@ -68,13 +70,34 @@ func GetLogger() *Logger {
 	return logger
 }
 
-func initLogger() error {
-	logLevel := os.Getenv(logLevelEnvVar)
-	if logLevel == "" {
-		logLevel = defaultLogLevel
+// resolveLevel reads the log level from the LOG_LEVEL environment variable
+// (falling back to defaultLogLevel when unset), normalizes casing, and
+// validates it against supportedLevels. It returns the canonical, lower-cased
+// name together with its slog.Level. This service's logger and the embedded
+// ThunderID engine both resolve through it, so they cannot diverge on casing
+// or an unsupported level.
+func resolveLevel() (string, slog.Level, error) {
+	name := defaultLogLevel
+	if logLevel := os.Getenv(logLevelEnvVar); logLevel != "" {
+		name = strings.ToLower(logLevel)
 	}
+	level, ok := supportedLevels[name]
+	if !ok {
+		return "", 0, fmt.Errorf("unsupported log level %q", name)
+	}
+	return name, level, nil
+}
 
-	level, err := parseLogLevel(logLevel)
+// ConfiguredLevel returns the canonical, lower-cased log level name so the
+// embedded ThunderID engine is configured from the same value this service's
+// logger uses.
+func ConfiguredLevel() (string, error) {
+	name, _, err := resolveLevel()
+	return name, err
+}
+
+func initLogger() error {
+	_, level, err := resolveLevel()
 	if err != nil {
 		return errors.New("error parsing log level: " + err.Error())
 	}
@@ -165,12 +188,15 @@ func withLevelValue(fields []Field, levelValue int) []any {
 	return append(convertFields(fields), slog.Any(levelValueKey, levelValue))
 }
 
-func parseLogLevel(logLevel string) (slog.Level, error) {
-	var level slog.Level
-	if err := level.UnmarshalText([]byte(logLevel)); err != nil {
-		return slog.LevelError, err
-	}
-	return level, nil
+// supportedLevels is the single source of truth for the level names this
+// service and the embedded ThunderID engine both accept, mapped to their
+// slog.Level. Only these values are honored; anything else is rejected by
+// resolveLevel rather than silently downgraded.
+var supportedLevels = map[string]slog.Level{
+	"debug": slog.LevelDebug,
+	"info":  slog.LevelInfo,
+	"warn":  slog.LevelWarn,
+	"error": slog.LevelError,
 }
 
 func convertFields(fields []Field) []any {
