@@ -92,7 +92,9 @@ export default function ResendOtp({
         }
         type="reset"
       >
-        {component.label || t("app.otp.submit")}
+        {t(component?.label ?? "otp.resend_otp", {
+          defaultValue: t("otp.resend_otp"),
+        })}
       </Button>
     </div>
   );
