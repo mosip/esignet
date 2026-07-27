@@ -91,8 +91,13 @@ func main() {
 	}
 	logger.Info("authn provider selected", applog.String("provider", appCfg.Provider))
 
+	logLevel, err := applog.ConfiguredLevel()
+	if err != nil {
+		logger.Fatal("resolve log level", applog.Error(err))
+	}
+
 	_ = thunderidengine.New(mux,
-		thunderidengine.WithLogConfig(engineconfig.LogConfig{Level: "DEBUG", Format: "json"}),
+		thunderidengine.WithLogConfig(engineconfig.LogConfig{Level: logLevel, Format: "json"}),
 		thunderidengine.WithServerHome(appCfg.DataDir),
 		thunderidengine.WithRuntimeTransientDBType("redis"),
 		thunderidengine.WithKeyConfigs([]engineconfig.KeyConfig{appCfg.KeyConfig}),
