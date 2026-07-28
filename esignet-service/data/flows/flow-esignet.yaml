@@ -142,7 +142,7 @@ prompt_password: &prompt_password
 # Anchor for Captcha component
 captcha_box: &captcha_box
   id: CAPTCHA_BOX
-  ref: captcha
+  ref: captcha_token
   type: CUSTOM
   category: MISCELLANEOUS
   resourceType: ELEMENT
@@ -160,7 +160,7 @@ otp_inputs: &otp_inputs
     type: TEXT_INPUT
     required: true
   - ref: CAPTCHA_BOX
-    identifier: captcha
+    identifier: captcha_token
     type: CUSTOM
     required: true
 
@@ -175,7 +175,7 @@ password_inputs: &password_inputs
     type: PASSWORD_INPUT
     required: true
   - ref: CAPTCHA_BOX
-    identifier: captcha
+    identifier: captcha_token
     type: CUSTOM
     required: true
 
@@ -291,6 +291,16 @@ id: flow-esignet
 handle: flow-esignet
 name: MOSIP Esignet Flow
 flowType: AUTHENTICATION
+interceptors:
+  - name: CaptchaInterceptor
+    mode: PRE_NODE
+    scope: SELECTED
+    applyto:
+      - send_mosip_otp
+      - basic_cred_auth
+      - basic_bio_auth
+      - basic_kbi_auth
+
 nodes:
   - id: start
     type: START
@@ -709,7 +719,7 @@ nodes:
           type: PASSWORD_INPUT
           required: true
         - ref: CAPTCHA_BOX
-          identifier: captcha
+          identifier: captcha_token
           type: PASSWORD_INPUT
           required: true
     onSuccess: authorization_check
@@ -933,7 +943,7 @@ nodes:
             type: DATE_INPUT
             required: true
           - ref: CAPTCHA_BOX
-            identifier: captcha
+            identifier: captcha_token
             type: CUSTOM
             required: true
         action:
@@ -961,7 +971,7 @@ nodes:
           type: PASSWORD_INPUT
           required: true
         - ref: CAPTCHA_BOX
-          identifier: captcha
+          identifier: captcha_token
           type: PASSWORD_INPUT
           required: true
     onSuccess: authorization_check
