@@ -21,7 +21,8 @@ COPY profiles ./profiles
 RUN mkdir -p /out/bin && \
     go build -trimpath -ldflags="-s -w" -o /out/bin/conformance ./cmd/conformance && \
     go build -trimpath -ldflags="-s -w" -o /out/bin/e2e ./cmd/e2e && \
-    go build -trimpath -ldflags="-s -w" -o /out/bin/consolidate ./cmd/consolidate
+    go build -trimpath -ldflags="-s -w" -o /out/bin/consolidate ./cmd/consolidate && \
+    go build -trimpath -ldflags="-s -w" -o /out/bin/cfg ./cmd/cfg
 
 FROM golang:1.26-bookworm AS builder-bdd
 WORKDIR /src/bdd
@@ -51,6 +52,11 @@ COPY --from=builder-bdd /out/bin/bdd.test ./bin/bdd.test
 COPY profiles ./profiles
 COPY bdd/features ./bdd/features
 COPY e2e-scenarios.json e2e-scenarios-mosip.json e2e-scenarios-sunbird.json ./
+# The tracked per-plugin configs ship with the image so `docker run
+# apitest-esignet -c config.mosip.json` works with nothing mounted but the plan
+# config and the target URL. They hold no secrets — credentials arrive as env or
+# a mounted config.local.json, both of which override these.
+COPY config.mock.json config.mosip.json config.sunbird.json ./
 COPY run-all.sh ./
 RUN chmod +x run-all.sh && mkdir -p out && chown -R apitest:apitest /app
 

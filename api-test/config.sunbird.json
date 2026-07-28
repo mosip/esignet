@@ -1,0 +1,51 @@
+{
+  "_comment": [
+    "sunbird plugin — knowledge-based identification (KBI) rather than OTP, so",
+    "auth_factor is kbi and the identity answers are full_name + dob. Those are",
+    "real registry data: put them in config.local.json, not here.",
+    "",
+    "The KBI flow and a seeded registry must exist on the target environment; if",
+    "they do not, scenarios report ENV_NOT_READY / failures at runtime rather than",
+    "being rejected as a config error.",
+    "",
+    "Run: ./run-all.sh -c config.sunbird.json"
+  ],
+
+  "conformance": {
+    "base_url": "https://localhost.emobix.co.uk:8443",
+    "tls_verify": false
+  },
+
+  "plan": {
+    "name": "oidcc-test-plan",
+    "config_file": "conformance-suite-private/esignet-config.json"
+  },
+
+  "keycloak": {
+    "client_id": "mosip-pms-client"
+  },
+
+  "esignet": {
+    "provider": "sunbird",
+    "auth_factor": "kbi",
+    "identity": { "individual_id": "", "id_type": "uin" },
+    "knowledge": { "full_name": "", "dob": "" },
+    "otp": { "source": "static", "value": "111111" }
+  },
+
+  "bdd": {
+    "tags": ""
+  },
+
+  "e2e": {
+    "spec": "e2e-scenarios-sunbird.json",
+    "auth_factors": [],
+    "include": [],
+    "exclude": []
+  },
+
+  "run": {
+    "surfaces": ["conformance", "bdd", "e2e"],
+    "profile": "smoke"
+  }
+}

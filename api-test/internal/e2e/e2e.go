@@ -10,6 +10,7 @@ import (
 	"maps"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -26,6 +27,87 @@ type Spec struct {
 	UserClaims  []string   `json:"user_claims"` // claims registered on the client
 	Acr         []string   `json:"acr"`         // authContextRefs registered on the client
 	Scenarios   []Scenario `json:"scenarios"`
+}
+
+// Filter narrows a Spec's scenarios for a focused run. A spec file carries
+// scenarios across several ACRs and one run drives them all by default; these
+// criteria are AND-ed, and an empty criterion matches everything.
+type Filter struct {
+	AuthFactors []string // keep only these auth_factors (case insensitive)
+	Include     []string // keep only names matching at least one regex
+	Exclude     []string // drop names matching any regex; applied last, so it wins
+}
+
+// Empty reports whether the filter would keep every scenario.
+func (f Filter) Empty() bool {
+	return len(f.AuthFactors) == 0 && len(f.Include) == 0 && len(f.Exclude) == 0
+}
+
+// Select returns a copy of s holding only the scenarios the filter keeps. The
+// client registration fields (redirect URI, claims, ACRs) are carried over
+// unchanged: the test client must still be registered with the full ACR set, or
+// a narrowed run would fail on client capability rather than on the behaviour
+// under test.
+//
+// An empty result is an error rather than a silently empty run — a typo'd filter
+// that produced zero scenarios would otherwise report a green "0 failed".
+func (s Spec) Select(f Filter) (Spec, error) {
+	if f.Empty() {
+		return s, nil
+	}
+	include, err := compileAll(f.Include)
+	if err != nil {
+		return s, err
+	}
+	exclude, err := compileAll(f.Exclude)
+	if err != nil {
+		return s, err
+	}
+	factors := map[string]bool{}
+	for _, x := range f.AuthFactors {
+		factors[strings.ToLower(strings.TrimSpace(x))] = true
+	}
+
+	out := s
+	out.Scenarios = nil
+	for _, sc := range s.Scenarios {
+		if len(factors) > 0 && !factors[strings.ToLower(strings.TrimSpace(sc.AuthFactor))] {
+			continue
+		}
+		if len(include) > 0 && !matchAny(include, sc.Name) {
+			continue
+		}
+		if matchAny(exclude, sc.Name) {
+			continue
+		}
+		out.Scenarios = append(out.Scenarios, sc)
+	}
+	if len(out.Scenarios) == 0 {
+		return out, fmt.Errorf("e2e scenario filter matched none of the %d scenarios (auth_factors=%v include=%v exclude=%v)",
+			len(s.Scenarios), f.AuthFactors, f.Include, f.Exclude)
+	}
+	return out, nil
+}
+
+func compileAll(exprs []string) ([]*regexp.Regexp, error) {
+	var out []*regexp.Regexp
+	for _, e := range exprs {
+		re, err := regexp.Compile(e)
+		if err != nil {
+			return nil, fmt.Errorf("invalid e2e scenario regex %q: %w", e, err)
+		}
+		out = append(out, re)
+	}
+	return out, nil
+}
+
+func matchAny(res []*regexp.Regexp, s string) bool {
+	for _, re := range res {
+		if re.MatchString(s) {
+			return true
+		}
+	}
+	return false
 }
 
 // Scenario is one full-flow case: which ACR/credentials to drive the login with,

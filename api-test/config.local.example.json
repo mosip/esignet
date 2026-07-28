@@ -1,0 +1,32 @@
+{
+  "_comment": [
+    "Copy to config.local.json (gitignored) and fill in. This overlay is applied",
+    "on top of whichever config.<plugin>.json you run, so one copy serves all",
+    "three plugins — keep only what is the same across them here, and anything",
+    "plugin-specific in the plugin file or the environment.",
+    "",
+    "This is the ONLY config file that should ever hold a credential. The",
+    "per-plugin files are tracked; never put a secret in one, even temporarily.",
+    "",
+    "In containers this file is usually absent — compose and Rancher inject the",
+    "same values as environment variables, which take precedence over both files."
+  ],
+
+  "esignet": {
+    "base_url": "https://esignet-thunder1.esdev.mosip.net/v1/esignet",
+    "identity": { "individual_id": "" },
+    "credentials": { "password": "" },
+    "knowledge": { "full_name": "", "dob": "" },
+    "otp": { "ws_url": "https://smtp.esdev.mosip.net/", "recipient_email": "" },
+    "pms": {
+      "base_url": "https://api-internal.esdev.mosip.net/v1/partnermanager",
+      "auth_partner_id": "",
+      "policy_id": ""
+    }
+  },
+
+  "keycloak": {
+    "token_url": "https://iam.esdev.mosip.net/auth/realms/mosip/protocol/openid-connect/token",
+    "client_secret": ""
+  }
+}

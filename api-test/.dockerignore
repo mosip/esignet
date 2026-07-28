@@ -1,4 +1,8 @@
 out/
+# Never bake a developer's credentials into the image. The tracked per-plugin
+# configs are copied in explicitly by the Dockerfile; these two are the local,
+# secret-bearing ones.
+config.local.json
 config.json
 conformance-suite-private/
 *esignet-config*.json

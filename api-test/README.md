@@ -49,10 +49,43 @@ api-test/
   e2e-scenarios.json          e2e scenarios for mock   (default spec)
   e2e-scenarios-mosip.json    e2e scenarios for mosip
   e2e-scenarios-sunbird.json  e2e scenarios for sunbird
+  cmd/cfg/             resolve the config: -check, -print-env, -get
   run-all.sh           one command: run selected surfaces + consolidate
-  config.json          conformance config (copy from config.example.json)
+
+  config.mock.json          TRACKED per-plugin config: what the run does
+  config.mosip.json         (surfaces, modules, tags, scenarios, auth factor)
+  config.sunbird.json
+  config.example.json       annotated schema reference for the three above
+  config.local.example.json template for the overlay below
+  config.local.json         GITIGNORED: your credentials + machine URLs
+
   Dockerfile           harness image (multi-stage: builds run-all.sh's binaries)
   docker-compose.yml   suite (mongodb+server+nginx) + harness, one command locally/CI
+```
+
+### Configuration model
+
+One file per plugin, layered with a gitignored overlay. Lowest precedence first:
+
+| layer | tracked? | holds |
+|---|---|---|
+| `config.<plugin>.json` | **yes** | what the test *does*: surfaces, auth factor, modules, bdd tags, e2e scenario filters |
+| `config.local.json` | no | what is *yours*: credentials, target URLs, test identity |
+| environment | — | always wins; how compose/Rancher inject secrets |
+| `defaults()` | — | fills anything still empty |
+
+Each layer overrides only the keys it names, at any depth. The split exists so
+you **never edit a tracked file to add a secret** — a dirty `config.mosip.json`
+always means a real change worth reviewing, and test selection stays under review
+because it defines what "passing" means.
+
+First run:
+
+```bash
+cd api-test
+cp config.local.example.json config.local.json     # fill in ~4 fields
+./run-all.sh -c config.mosip.json --check          # confirm what would run
+./run-all.sh -c config.mosip.json                  # run it
 ```
 
 ---
@@ -81,56 +114,95 @@ Depending on which surfaces you run:
 
 ## Running locally
 
-### A. One command — all surfaces, one report (`run-all.sh`)
+### A. One command — selected surfaces, one report (`run-all.sh`)
 
 ```bash
 cd api-test
-ESIGNET_BASE_URL=https://esignet-thunder1.esdev.mosip.net/v1/esignet \
-PLUGIN=mock \
-KEYCLOAK_TOKEN_URL=https://iam.esdev.mosip.net/auth/realms/mosip/protocol/openid-connect/token \
-KEYCLOAK_CLIENT_ID=mosip-pms-client \
-KEYCLOAK_CLIENT_SECRET=***your-secret*** \
-./run-all.sh
+./run-all.sh -c config.mosip.json
 ```
 
-Knobs (env): `PLUGIN` (mock|mosip|sunbird, default mock), `SURFACES` (comma list of
-`conformance,bdd,e2e`, default all three), `CONFIG` (conformance config path, default `config.json`).
-Runs in git-bash on Windows or any POSIX shell. It runs the chosen surfaces then calls
-`cmd/consolidate` → one HTML report under `out/`.
+Runs in git-bash on Windows or any POSIX shell. It runs the surfaces listed in
+the config's `run.surfaces`, then calls `cmd/consolidate` → one HTML report under
+`out/`.
 
-> `run-all.sh` uses `e2e-scenarios.json` (mock) by default. For mosip/sunbird e2e, run `cmd/e2e`
-> directly with `-spec e2e-scenarios-mosip.json` / `-sunbird.json` (see D), or set `E2E_SPEC`.
+| flag | effect |
+|---|---|
+| `-c, --config PATH` | which plugin config to run (or `CONFIG=...`) |
+| `-s, --surfaces LIST` | narrow to `conformance,bdd,e2e` for this run only |
+| `--check` | print the resolved plan and exit without running |
+
+A config named explicitly **must exist** — `-c config.msoip.json` is an error,
+not a silent fallback, because falling back would run mock while you believe
+mosip ran and the green report would be read as mosip passing.
+
+`--check` shows exactly what will happen before a long run starts:
+
+```
+config    config.mosip.json + config.local.json + 2 env override(s)
+plugin    mosip
+surfaces  conformance, bdd, e2e
+esignet   https://esignet-thunder1.esdev.mosip.net/v1/esignet
+
+conformance
+  suite       https://localhost.emobix.co.uk:8443 (tls_verify=false)
+  auth factor otp
+  modules     profile=smoke
+bdd
+  tags        (auto — chosen from configured credentials)
+  client-mgmt will run
+  authz-neg   ENV_NOT_READY: no bdd.flow_client_id
+e2e
+  spec        e2e-scenarios-mosip.json
+  scenarios   4 of 6
+                otp positive: MOSIP send-OTP -> verify -> userinfo returns sub
+                otp negative: wrong OTP is rejected
+                ...
+```
 
 ### B. Conformance surface only
 
 ```bash
-cp config.example.json config.json   # first time; then edit it
-go run ./cmd/conformance -config config.json
+go run ./cmd/conformance -config config.mosip.json
 ```
 Exit: `0` all-clear · `1` a FAILED/errored module · `2` config/run error.
 
+Conformance drives **one auth factor per run** (`esignet.auth_factor`). To cover
+another, change that field and run again.
+
 ### C. bdd surfaces only (client-mgmt + flow-execute)
 
+`bdd/` is a separate Go module and cannot import `internal/config`, so it reads
+environment variables. `cmd/cfg -print-env` renders the config into exactly those:
+
 ```bash
-cd bdd
-ESIGNET_BASE_URL=https://esignet-thunder1.esdev.mosip.net/v1/esignet AUTHN_PROVIDER=mock \
-KEYCLOAK_TOKEN_URL=... KEYCLOAK_CLIENT_ID=mosip-pms-client KEYCLOAK_CLIENT_SECRET=*** \
-go test ./... -run TestFeatures        # writes ../out/bdd-envelope.json
+eval "$(go run ./cmd/cfg -config config.mosip.json -print-env)"
+cd bdd && go test ./... -run TestFeatures        # writes ../out/bdd-envelope.json
 ```
-Without the `KEYCLOAK_*` vars, `@client-mgmt` is skipped and reported `ENV_NOT_READY`;
-`@flow-execute` still runs. Narrow with `GODOG_TAGS=@flow-execute` (comma = OR).
+
+Without a Keycloak secret, `@client-mgmt` is skipped and reported `ENV_NOT_READY`;
+`@flow-execute` still runs. Narrow with `bdd.tags` in the config (comma = OR).
 
 ### D. e2e surface only (per plugin)
 
 ```bash
-# mock (default spec)
-ESIGNET_BASE_URL=... AUTHN_PROVIDER=mock KEYCLOAK_TOKEN_URL=... KEYCLOAK_CLIENT_ID=mosip-pms-client KEYCLOAK_CLIENT_SECRET=*** \
-go run ./cmd/e2e -spec e2e-scenarios.json -out out/e2e-envelope.json
-
-# sunbird (KBI answers)
-ESIGNET_BASE_URL=... AUTHN_PROVIDER=sunbird INDIVIDUAL_ID=<policy#> KBI_FULL_NAME="..." KBI_DOB=YYYY-MM-DD KEYCLOAK_...=... \
-go run ./cmd/e2e -spec e2e-scenarios-sunbird.json -out out/e2e-envelope-sunbird.json
+go run ./cmd/e2e -config config.mosip.json
 ```
+
+The spec comes from `e2e.spec`; override with `-spec` for a one-off. Every
+scenario in the spec runs by default, each driving the ACR it declares. Narrow it
+with the `e2e` block:
+
+```jsonc
+"e2e": {
+  "spec": "e2e-scenarios-mosip.json",
+  "auth_factors": ["otp", "password"],   // only these ACRs
+  "include": ["^otp positive"],          // regex on scenario name, OR-ed
+  "exclude": ["bio"]                     // applied last, always wins
+}
+```
+
+A filter matching zero scenarios is an **error**, not an empty run — a green
+"0 scenarios, 0 failed" is indistinguishable from a clean pass.
 
 ### E. Consolidate surfaces you've already run
 
@@ -157,21 +229,14 @@ Any of `-conformance`/`-bdd`/`-e2e` may be omitted; whatever is passed is merged
       "type": "go", "request": "launch", "mode": "auto",
       "program": "${workspaceFolder}/api-test/cmd/conformance",
       "cwd": "${workspaceFolder}/api-test",
-      "args": ["-config", "config.json"]
+      "args": ["-config", "config.mock.json"]
     },
     {
       "name": "e2e (mock)",
       "type": "go", "request": "launch", "mode": "auto",
       "program": "${workspaceFolder}/api-test/cmd/e2e",
       "cwd": "${workspaceFolder}/api-test",
-      "args": ["-spec", "e2e-scenarios.json", "-out", "out/e2e-envelope.json"],
-      "env": {
-        "ESIGNET_BASE_URL": "https://esignet-thunder1.esdev.mosip.net/v1/esignet",
-        "AUTHN_PROVIDER": "mock",
-        "KEYCLOAK_TOKEN_URL": "https://iam.esdev.mosip.net/auth/realms/mosip/protocol/openid-connect/token",
-        "KEYCLOAK_CLIENT_ID": "mosip-pms-client",
-        "KEYCLOAK_CLIENT_SECRET": ""
-      }
+      "args": ["-config", "config.mock.json"]
     },
     {
       "name": "bdd (client-mgmt + flow-execute)",
@@ -180,6 +245,8 @@ Any of `-conformance`/`-bdd`/`-e2e` may be omitted; whatever is passed is merged
       "cwd": "${workspaceFolder}/api-test/bdd",
       "args": ["-test.run", "TestFeatures", "-test.v"],
       "env": {
+        "_comment": "bdd is a separate module and cannot read the config; render it with",
+        "_comment2": "`go run ./cmd/cfg -config config.mock.json -print-env` and paste the values here",
         "ESIGNET_BASE_URL": "https://esignet-thunder1.esdev.mosip.net/v1/esignet",
         "AUTHN_PROVIDER": "mock",
         "KEYCLOAK_TOKEN_URL": "https://iam.esdev.mosip.net/auth/realms/mosip/protocol/openid-connect/token",
@@ -190,15 +257,15 @@ Any of `-conformance`/`-bdd`/`-e2e` may be omitted; whatever is passed is merged
   ]
 }
 ```
-Pick the config in the Run and Debug panel and hit ▶. (For mosip/sunbird e2e, copy the `e2e (mock)`
-config, swap `-spec` and the `AUTHN_PROVIDER`/identity env.)
+Pick the config in the Run and Debug panel and hit ▶. For mosip/sunbird, copy the
+`conformance` / `e2e (mock)` entries and swap the `-config` argument — nothing
+else changes, since the config file carries the identity and the scenario spec.
 
 **GoLand / IntelliJ** — two run configs:
 - **Go Build**: Run kind *Package*, Package path `.../api-test/cmd/e2e` (or `cmd/conformance`),
-  Working directory `.../api-test`, Program arguments `-spec e2e-scenarios.json -out out/e2e-envelope.json`,
-  and add the same `ESIGNET_BASE_URL` / `AUTHN_PROVIDER` / `KEYCLOAK_*` **Environment** variables.
+  Working directory `.../api-test`, Program arguments `-config config.mock.json`. No env needed.
 - **Go Test** (for bdd): Test kind *Package*, Directory `.../api-test/bdd`, Pattern `TestFeatures`,
-  Working directory `.../api-test/bdd`, same env vars.
+  Working directory `.../api-test/bdd`, plus the env from `cmd/cfg -print-env` as above.
 
 ### G. Docker Compose — suite + harness, one command
 
@@ -220,16 +287,27 @@ at whichever eSignet you want to test — a deployed environment, or one you're 
 
 ```bash
 cd api-test
+cp config.local.example.json config.local.json   # required — it is bind-mounted
 cp .env.example .env
-# .env: ESIGNET_BASE_URL=https://esignet-thunder1.esdev.mosip.net/v1/esignet     (deployed), or
-# .env: ESIGNET_BASE_URL=http://host.docker.internal:8080                       (self-run on this host)
+# .env: CONFIG_FILE=config.mosip.json
+# .env: ESIGNET_BASE_URL=https://esignet-thunder1.esdev.mosip.net/v1/esignet   (deployed), or
+# .env: ESIGNET_BASE_URL=http://host.docker.internal:8080                     (self-run on this host)
 docker compose up --build --abort-on-container-exit --exit-code-from harness
 ```
+
+Compose mounts `$CONFIG_FILE` as `/app/config.json` and your `config.local.json`
+beside it, so **the same two files drive both the native and containerised run**.
+`conformance-suite-private/` is mounted at the *same relative path* it has on the
+host, which is why `plan.config_file` needs no per-environment override.
+
+> `config.local.json` must exist before `docker compose up`. A bind mount whose
+> source is missing makes Docker create a **directory** at the target; the
+> harness detects that and says so, but the fix is the `cp` above.
 
 The consolidated report lands in `./out` on the host (bind-mounted into the container). Exit code of
 the `up` command matches the harness's (`0` all-clear, `1` a failure — including a surface that died
 before writing its envelope, `2` a config/run error — same as running `run-all.sh` directly). Knobs:
-`PLUGIN`, `SURFACES`, `TEST_PROFILE`, `SUITE_WAIT_SECONDS` (how long the harness polls the suite's
+`CONFIG_FILE`, `SURFACES`, `TEST_PROFILE`, `SUITE_WAIT_SECONDS` (how long the harness polls the suite's
 `/api/runner/available` before giving up and running anyway — default 150s, covers the suite's
 Mongo+Java cold start), `SUITE_IMAGE_TAG` (the suite image tag — keep it in step with `suite_version`
 in `profiles/oidcc-test-plan.smoke.json`, which the smoke allow-list is curated against),
@@ -248,51 +326,112 @@ Mongo volume): `docker compose down -v`.
 
 ---
 
-## Conformance config (`config.json`)
+## Config reference
 
-The conformance surface reads `config.json` (env vars override the file). The suite is the OAuth
-client, so eSignet's discovery URL + client ids + **private** JWKS live in the *suite plan config
-file* referenced by `plan.config_file`, not here.
+`config.example.json` is the annotated schema. All three surfaces read the same
+file; see [Configuration model](#configuration-model) for the layering.
 
-```json
-{
-  "conformance": { "base_url": "https://localhost.emobix.co.uk:8443", "tls_verify": false, "token": "" },
-  "plan": {
-    "name": "oidcc-test-plan",
-    "variant": { "client_auth_type": "private_key_jwt", "response_type": "code",
-                 "response_mode": "default", "client_registration": "static_client" },
-    "config_file": "../conformance-suite-private/esignet-config.json"
-  },
-  "esignet": {
-    "base_url": "", "provider": "mock", "auth_factor": "otp",
-    "identity":    { "individual_id": "+912532509749", "id_type": "phone" },
-    "credentials": { "username": "", "password": "" },
-    "knowledge":   { "full_name": "", "dob": "" },
-    "otp": { "source": "static", "value": "111111", "ws_url": "", "recipient_email": "" }
-  },
-  "run": {
-    "modules": [], "profile": "full", "filter": "",
-    "skip": [], "known_issues": [],
-    "poll_interval_seconds": 2, "timeout_seconds": 60, "fail_fast": false, "report_dir": "out"
-  }
-}
-```
+The suite is the OAuth client for the conformance surface, so eSignet's discovery
+URL + client ids + **private** JWKS live in the *suite plan config file*
+referenced by `plan.config_file` — never in these files, and never in git.
+
+| block | used by | notable fields |
+|---|---|---|
+| `conformance` | conformance | `base_url`, `tls_verify` (false for the suite's self-signed local cert) |
+| `plan` | conformance | `name`, `variant`, `config_file` (the private-JWKS plan config) |
+| `keycloak` | bdd, e2e | `token_url`, `client_id`, `client_secret` — client-credentials grant |
+| `esignet` | all | `provider`, `auth_factor`, `identity`, `credentials`, `knowledge`, `otp`, `pms` |
+| `bdd` | bdd | `tags` (godog expression, comma = OR), `flow_client_id`, `tls_verify` |
+| `e2e` | e2e | `spec`, `auth_factors`, `include`, `exclude` |
+| `run` | all | `surfaces`, `modules`, `profile`, `filter`, `skip`, `known_issues`, timeouts |
+
+Notes:
 - `plan.variant` must **not** include `server_metadata` (the plan sets it; passing it → HTTP 400).
-- `esignet.base_url` empty ⇒ derived from the suite's authorize URL; if set, it's validated
-  against it (mismatch → `ESIGNET_BASE_URL_MISMATCH`).
+- `esignet.base_url` empty ⇒ derived from the suite's authorize URL for the conformance
+  surface; if set, it's validated against it (mismatch → `ESIGNET_BASE_URL_MISMATCH`).
+  bdd and e2e require it outright.
 - `run.profile` `smoke` (curated allow-list) or `full` (all modules; undrivable ones →
-  `SKIPPED_BY_HARNESS`). `tls_verify:false` needed for the suite's self-signed local cert.
+  `SKIPPED_BY_HARNESS`). `run.modules` overrides the profile entirely.
+- Requirements are **scoped to the selected surfaces**: an e2e-only run is not
+  rejected for missing `conformance.base_url`. A single-surface binary invoked
+  directly still enforces its own surface's requirements.
 
-### Env vars (conformance surface — override the file)
+### Env overrides
+
+Every field has one, and the environment always wins over both files.
 
 | Env var | Overrides | | Env var | Overrides |
 |---|---|---|---|---|
-| `CONFORMANCE_BASE_URL` | `conformance.base_url` | | `AUTH_FACTOR` | `esignet.auth_factor` |
-| `CONFORMANCE_TLS_VERIFY` | `conformance.tls_verify` | | `INDIVIDUAL_ID` | `esignet.identity.individual_id` |
-| `PLAN_CONFIG_PATH` | `plan.config_file` (secret) | | `TEST_OTP` | `esignet.otp.value` |
-| `ESIGNET_BASE_URL` | `esignet.base_url` | | `TEST_PROFILE` | `run.profile` |
-| `AUTHN_PROVIDER` | `esignet.provider` (`mock`\|`mosip`\|`sunbird`) | | `TEST_RUN` | `run.filter` (module regex) |
-| `TEST_USERNAME`/`TEST_PASSWORD` | `esignet.credentials.*` | | `TIMEOUT_SECONDS`/`FAIL_FAST` | `run.*` |
+| `CONFIG` | which config file | | `SURFACES` | `run.surfaces` |
+| `CONFIG_LOCAL` | overlay path | | `TEST_PROFILE` | `run.profile` |
+| `CONFORMANCE_BASE_URL` | `conformance.base_url` | | `TEST_RUN` | `run.filter` (module regex) |
+| `CONFORMANCE_TLS_VERIFY` | `conformance.tls_verify` | | `SKIP_MODULES` | `run.skip` |
+| `PLAN_CONFIG_PATH` | `plan.config_file` (secret) | | `TIMEOUT_SECONDS`/`FAIL_FAST` | `run.*` |
+| `ESIGNET_BASE_URL` | `esignet.base_url` | | `KEYCLOAK_TOKEN_URL` | `keycloak.token_url` |
+| `AUTHN_PROVIDER` | `esignet.provider` | | `KEYCLOAK_CLIENT_ID` | `keycloak.client_id` |
+| `AUTH_FACTOR` | `esignet.auth_factor` | | `KEYCLOAK_CLIENT_SECRET` | `keycloak.client_secret` |
+| `INDIVIDUAL_ID`/`ID_TYPE` | `esignet.identity.*` | | `GODOG_TAGS` | `bdd.tags` |
+| `TEST_USERNAME`/`TEST_PASSWORD` | `esignet.credentials.*` | | `FLOW_CLIENT_ID` | `bdd.flow_client_id` |
+| `KBI_FULL_NAME`/`KBI_DOB` | `esignet.knowledge.*` | | `BDD_TLS_VERIFY` | `bdd.tls_verify` |
+| `OTP_SOURCE`/`TEST_OTP` | `esignet.otp.*` | | `E2E_SPEC` | `e2e.spec` |
+| `OTP_WS_URL`/`OTP_RECIPIENT_EMAIL` | `esignet.otp.*` | | `E2E_AUTH_FACTORS` | `e2e.auth_factors` |
+| `PMS_BASE_URL`/`AUTH_PARTNER_ID`/`AUTH_POLICY_ID` | `esignet.pms.*` | | `E2E_INCLUDE`/`E2E_EXCLUDE` | `e2e.*` |
+
+---
+
+## Rancher / plain `docker run`
+
+Scheduled runs execute this image outside GitHub Actions. Mount the same two
+files you use locally; inject only secrets as env.
+
+```bash
+docker run --rm \
+  -v /opt/esignet-harness/config.mosip.json:/app/config.json:ro \
+  -v /opt/esignet-harness/secrets:/app/conformance-suite-private:ro \
+  -v /opt/esignet-harness/out:/app/out \
+  -e CONFIG=/app/config.json \
+  -e ESIGNET_BASE_URL=https://esignet-thunder1.esdev.mosip.net/v1/esignet \
+  -e KEYCLOAK_CLIENT_SECRET=*** \
+  apitest-esignet:<branch>
+```
+
+On Kubernetes/Rancher the plan config belongs in a **Secret volume**, not an env
+var — it holds private JWKS, and secret volumes are tmpfs and never appear in
+`kubectl describe pod` or the Rancher UI's env tab:
+
+```bash
+kubectl create secret generic esignet-conformance-config \
+  --from-file=esignet-config.json=./conformance-suite-private/esignet-config.json -n <ns>
+```
+```yaml
+spec:
+  volumes:
+    - name: plan-config
+      secret: { secretName: esignet-conformance-config }
+    - name: harness-config
+      configMap: { name: esignet-harness-config }   # holds config.mosip.json
+  containers:
+    - name: harness
+      args: ["-c", "/app/config.json"]
+      env:
+        - name: KEYCLOAK_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef: { name: esignet-harness-secrets, key: keycloak-client-secret }
+      volumeMounts:
+        - { name: plan-config,    mountPath: /app/conformance-suite-private, readOnly: true }
+        - { name: harness-config, mountPath: /app/config.json, subPath: config.mosip.json, readOnly: true }
+```
+
+**What needs a PR, and what doesn't.** Anything mounted is environment data and
+changes without a rebuild: plugin, surfaces, auth factor, profile, identity,
+scenario filters, `run.modules`, `bdd.tags`, and the plan config itself. Only
+*image contents* need commit → merge → image build: Go code, `run-all.sh`, BDD
+feature files, and the baked `e2e-scenarios*.json` / `profiles/*.json`. (Both of
+those last two can be shadowed by mounting your own and pointing `E2E_SPEC` /
+`run.modules` at it, for iterating before you PR.)
+
+The all-env path still works unchanged — a missing config file is allowed when
+the environment supplies everything, so pre-existing deployments need no edits.
 
 ---
 
@@ -368,11 +507,18 @@ is run through the body/URL scrubbers. Values are masked whether they are string
 
 ## Selecting what runs
 
-- **Which surfaces** — `run-all.sh`'s `SURFACES` (`conformance,bdd,e2e`).
+All of it lives in the per-plugin config; `--check` shows the resolved result.
+
+- **Which plugin** — one config file per plugin; pick with `-c config.mosip.json`.
+- **Which surfaces** — `run.surfaces` (`conformance`, `bdd`, `e2e`), or `-s` for a one-off.
+- **Which auth factor (conformance)** — `esignet.auth_factor`. One factor per run;
+  to cover another, change it and run again.
 - **Conformance modules** — `run.profile` (`smoke`/`full`) → `run.filter` (regex) → `run.modules`
   (exact list, overrides profile). `run.skip` (→ **Skipped** bucket) and `run.known_issues`
   (→ **Known** bucket, with reason) carve modules out of execution without touching the exit code.
-- **Gherkin scenarios** — `GODOG_TAGS` (e.g. `@client-mgmt`, `@flow-execute`, `@sunbird`; comma = OR).
+- **Gherkin scenarios** — `bdd.tags` (e.g. `@client-mgmt`, `@flow-execute`, `@sunbird`; comma = OR).
+- **e2e scenarios** — `e2e.auth_factors` (which ACRs) plus `e2e.include` / `e2e.exclude`
+  (regex on scenario name). Every scenario runs by default, each driving its own ACR.
 
 ---
 

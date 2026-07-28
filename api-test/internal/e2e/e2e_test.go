@@ -100,3 +100,114 @@ func TestAssertClaimsFailsOnUnverifiedJWS(t *testing.T) {
 		}
 	}
 }
+
+// mixedSpec mirrors a real spec file: several ACRs, positive and negative cases,
+// plus client-registration fields that must survive filtering.
+func mixedSpec() Spec {
+	return Spec{
+		RedirectURI: "https://rp.example/cb",
+		Acr:         []string{"otp", "password", "bio"},
+		UserClaims:  []string{"name", "email"},
+		Scenarios: []Scenario{
+			{Name: "otp positive: returns sub", AuthFactor: "otp"},
+			{Name: "otp negative: wrong OTP is rejected", AuthFactor: "otp"},
+			{Name: "password positive: login succeeds", AuthFactor: "password"},
+			{Name: "password negative: wrong password is rejected", AuthFactor: "password"},
+			{Name: "bio positive: login succeeds", AuthFactor: "bio"},
+		},
+	}
+}
+
+func selectedNames(t *testing.T, f Filter) []string {
+	t.Helper()
+	got, err := mixedSpec().Select(f)
+	if err != nil {
+		t.Fatalf("Select(%+v): %v", f, err)
+	}
+	var names []string
+	for _, s := range got.Scenarios {
+		names = append(names, s.Name)
+	}
+	return names
+}
+
+func TestSelectFilters(t *testing.T) {
+	cases := []struct {
+		name   string
+		filter Filter
+		want   []string
+	}{
+		{"empty keeps everything", Filter{}, []string{
+			"otp positive: returns sub",
+			"otp negative: wrong OTP is rejected",
+			"password positive: login succeeds",
+			"password negative: wrong password is rejected",
+			"bio positive: login succeeds",
+		}},
+		{"by auth factor", Filter{AuthFactors: []string{"bio"}}, []string{
+			"bio positive: login succeeds",
+		}},
+		{"auth factor is case insensitive", Filter{AuthFactors: []string{"OTP"}}, []string{
+			"otp positive: returns sub",
+			"otp negative: wrong OTP is rejected",
+		}},
+		{"several auth factors", Filter{AuthFactors: []string{"otp", "bio"}}, []string{
+			"otp positive: returns sub",
+			"otp negative: wrong OTP is rejected",
+			"bio positive: login succeeds",
+		}},
+		{"include is OR-ed", Filter{Include: []string{"^otp positive", "^bio"}}, []string{
+			"otp positive: returns sub",
+			"bio positive: login succeeds",
+		}},
+		{"exclude beats include", Filter{Include: []string{"positive"}, Exclude: []string{"^bio"}}, []string{
+			"otp positive: returns sub",
+			"password positive: login succeeds",
+		}},
+		{"factor and name are AND-ed", Filter{AuthFactors: []string{"password"}, Include: []string{"negative"}}, []string{
+			"password negative: wrong password is rejected",
+		}},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := selectedNames(t, tc.filter)
+			if len(got) != len(tc.want) {
+				t.Fatalf("got %d scenario(s) %v, want %d %v", len(got), got, len(tc.want), tc.want)
+			}
+			for i := range got {
+				if got[i] != tc.want[i] {
+					t.Errorf("scenario %d = %q, want %q", i, got[i], tc.want[i])
+				}
+			}
+		})
+	}
+}
+
+// The client is registered once for the whole run, so narrowing the scenarios
+// must not narrow the ACRs/claims it is registered with — a filtered run would
+// then fail on client capability rather than on the behaviour under test.
+func TestSelectKeepsClientRegistrationFields(t *testing.T) {
+	got, err := mixedSpec().Select(Filter{AuthFactors: []string{"otp"}})
+	if err != nil {
+		t.Fatalf("Select: %v", err)
+	}
+	if len(got.Acr) != 3 || len(got.UserClaims) != 2 || got.RedirectURI == "" {
+		t.Errorf("registration fields lost: acr=%v claims=%v redirect=%q", got.Acr, got.UserClaims, got.RedirectURI)
+	}
+}
+
+// A filter that matches nothing must fail loudly. Returning an empty spec would
+// produce a report reading "0 scenarios, 0 failed" — indistinguishable from a
+// clean pass.
+func TestSelectEmptyResultIsAnError(t *testing.T) {
+	_, err := mixedSpec().Select(Filter{AuthFactors: []string{"kbi"}})
+	if err == nil {
+		t.Fatal("Select accepted a filter matching zero scenarios")
+	}
+}
+
+func TestSelectRejectsBadRegex(t *testing.T) {
+	if _, err := mixedSpec().Select(Filter{Include: []string{"("}}); err == nil {
+		t.Fatal("Select accepted an invalid regex")
+	}
+}

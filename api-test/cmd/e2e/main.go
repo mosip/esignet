@@ -5,11 +5,13 @@
 // consolidation runner. Here the harness IS the relying party (unlike the
 // conformance surface, where the suite is).
 //
-// Required env: ESIGNET_BASE_URL, KEYCLOAK_TOKEN_URL/CLIENT_ID/CLIENT_SECRET.
-// Optional env: AUTHN_PROVIDER, INDIVIDUAL_ID, ID_TYPE, TEST_OTP, AUTH_FACTOR,
-// E2E_SPEC (default e2e-scenarios.json), BDD_TLS_VERIFY.
-// For AUTHN_PROVIDER=mosip the client is registered via PMS, which also needs
-// PMS_BASE_URL, AUTH_PARTNER_ID, AUTH_POLICY_ID.
+// Configuration comes from the same layered source as every other surface —
+// config.<plugin>.json, config.local.json, then environment overrides (see
+// internal/config). Which scenarios run is narrowed by e2e.auth_factors /
+// e2e.include / e2e.exclude; by default every scenario in the spec runs, each
+// driving the ACR it declares.
+//
+//	e2e -config config.mosip.json
 package main
 
 import (
@@ -35,19 +37,34 @@ import (
 )
 
 func main() {
-	specPath := flag.String("spec", env("E2E_SPEC", "e2e-scenarios.json"), "path to the scenarios JSON")
+	configPath := flag.String("config", "config.json", "path to the harness config (env vars override its values)")
+	specPath := flag.String("spec", "", "override e2e.spec from the config")
 	outPath := flag.String("out", "out/e2e-envelope.json", "envelope output path")
 	flag.Parse()
 
 	logger := log.New(os.Stderr, "", log.LstdFlags)
 
-	base := strings.TrimRight(os.Getenv("ESIGNET_BASE_URL"), "/")
-	if base == "" {
-		logger.Fatal("ESIGNET_BASE_URL is required")
+	// The e2e surface is the only one selected here, so conformance-only
+	// requirements (suite base URL, private plan config) are not enforced.
+	cfgPath, mustExist := config.ResolvePath(*configPath, config.FlagExplicit("config"))
+	cfg, err := config.Load(cfgPath, mustExist)
+	if err != nil {
+		logger.Printf("config error: %v", err)
+		os.Exit(2)
 	}
-	// Fail closed: verification is only skipped when explicitly opted out, so a
-	// run against a real deployment never sends the client secret unverified.
-	tlsVerify := !strings.EqualFold(os.Getenv("BDD_TLS_VERIFY"), "false")
+	// This binary IS the e2e surface, so enforce its requirements even when the
+	// config's run.surfaces omits it (a direct single-surface run).
+	if err := cfg.ValidateSurface(config.SurfaceE2E); err != nil {
+		logger.Printf("config error: %v", err)
+		os.Exit(2)
+	}
+	es := cfg.Esignet
+
+	base := strings.TrimRight(es.BaseURL, "/")
+	if base == "" {
+		logger.Fatal("esignet.base_url (ESIGNET_BASE_URL) is required")
+	}
+	tlsVerify := cfg.BDD.TLSVerify
 
 	// Discovery -> endpoints.
 	disco, err := fetchDiscovery(base+"/.well-known/openid-configuration", tlsVerify)
@@ -56,70 +73,33 @@ func main() {
 	}
 
 	// Admin token for client registration.
-	adminTok, err := keycloakToken(tlsVerify)
+	adminTok, err := keycloakToken(cfg.Keycloak, tlsVerify)
 	if err != nil {
 		logger.Fatalf("keycloak admin token: %v", err)
 	}
 
-	// Base login inputs (reuse the same resolver the conformance surface uses).
-	// Each scenario declares its own auth_factor (ACR) and may override any of
-	// these via its credentials map — there is no single global auth factor
-	// anymore, since one run now drives every ACR the plugin supports.
-	provider := env("AUTHN_PROVIDER", "mock")
-	// The seeded identity is a default only for the mock plugin, whose data is
-	// synthetic. Against any real deployment an unset INDIVIDUAL_ID must fail
-	// rather than silently authenticate as (and report claims for) whoever owns
-	// that identifier.
-	individualID := os.Getenv("INDIVIDUAL_ID")
-	if individualID == "" {
-		if !strings.EqualFold(provider, "mock") {
-			logger.Fatalf("INDIVIDUAL_ID is required for the %q plugin", provider)
-		}
-		individualID = "+912532509749" // mock plugin's seeded test identity
+	// Each scenario declares its own auth_factor (ACR) and may override the base
+	// identity answers via its credentials map — there is no single global auth
+	// factor here, since one run drives every ACR the spec covers.
+	sp := cfg.E2E.Spec
+	if *specPath != "" {
+		sp = *specPath
 	}
-
-	// Same rule for the password ACR: the mock plugin's seeded login is synthetic
-	// and lives here rather than in the committed scenario file, so no scenario
-	// carries a credential pattern. Any other plugin must supply TEST_USERNAME /
-	// TEST_PASSWORD; without them the password scenarios report FAILED, which is
-	// the documented behaviour for an ACR with no configured answer.
-	username, password := os.Getenv("TEST_USERNAME"), os.Getenv("TEST_PASSWORD")
-	if strings.EqualFold(provider, "mock") {
-		if username == "" {
-			username = "decl-user-1"
-		}
-		if password == "" {
-			password = "Mosip@123"
-		}
-	}
-
-	es := config.Esignet{
-		Provider: provider,
-		Identity: config.Identity{IndividualID: individualID, IDType: env("ID_TYPE", "phone")},
-		Credentials: config.Credentials{
-			Username: username,
-			Password: password,
-		},
-		Knowledge: config.Knowledge{
-			FullName: env("KBI_FULL_NAME", ""),
-			DOB:      env("KBI_DOB", ""),
-		},
-		OTP: config.OTP{
-			Source:         env("OTP_SOURCE", "static"),
-			Value:          env("TEST_OTP", "111111"),
-			WSURL:          os.Getenv("OTP_WS_URL"),
-			RecipientEmail: os.Getenv("OTP_RECIPIENT_EMAIL"),
-		},
-		PMS: config.PMS{
-			BaseURL:       os.Getenv("PMS_BASE_URL"),
-			AuthPartnerID: os.Getenv("AUTH_PARTNER_ID"),
-			PolicyID:      os.Getenv("AUTH_POLICY_ID"),
-		},
-	}
-
 	var spec e2e.Spec
-	if err := loadJSON(*specPath, &spec); err != nil {
-		logger.Fatalf("load spec %s: %v", *specPath, err)
+	if err := loadJSON(sp, &spec); err != nil {
+		logger.Fatalf("load spec %s: %v", sp, err)
+	}
+	total := len(spec.Scenarios)
+	spec, err = spec.Select(e2e.Filter{
+		AuthFactors: cfg.E2E.AuthFactors,
+		Include:     cfg.E2E.Include,
+		Exclude:     cfg.E2E.Exclude,
+	})
+	if err != nil {
+		logger.Fatalf("e2e scenario selection: %v", err)
+	}
+	if len(spec.Scenarios) != total {
+		logger.Printf("scenario filter: %d of %d scenario(s) selected from %s", len(spec.Scenarios), total, sp)
 	}
 
 	// Dynamic OTP: connect the mock-SMTP listener once, shared across scenarios.
@@ -198,14 +178,12 @@ func fetchDiscovery(url string, tlsVerify bool) (*discovery, error) {
 	return &d, nil
 }
 
-func keycloakToken(tlsVerify bool) (string, error) {
-	tokenURL := os.Getenv("KEYCLOAK_TOKEN_URL")
-	clientID := os.Getenv("KEYCLOAK_CLIENT_ID")
-	secret := os.Getenv("KEYCLOAK_CLIENT_SECRET")
-	if tokenURL == "" || clientID == "" || secret == "" {
-		return "", fmt.Errorf("KEYCLOAK_TOKEN_URL/CLIENT_ID/CLIENT_SECRET required")
+func keycloakToken(kc config.Keycloak, tlsVerify bool) (string, error) {
+	tokenURL := kc.TokenURL
+	if tokenURL == "" || kc.ClientID == "" || kc.ClientSecret == "" {
+		return "", fmt.Errorf("keycloak.token_url/client_id/client_secret (KEYCLOAK_*) required")
 	}
-	form := url.Values{"grant_type": {"client_credentials"}, "client_id": {clientID}, "client_secret": {secret}}
+	form := url.Values{"grant_type": {"client_credentials"}, "client_id": {kc.ClientID}, "client_secret": {kc.ClientSecret}}
 	client := httpClient(tlsVerify)
 	resp, err := client.Post(tokenURL, "application/x-www-form-urlencoded", strings.NewReader(form.Encode()))
 	if err != nil {
@@ -268,11 +246,4 @@ func writeEnvelope(path string, rows []result.ModuleResult) error {
 		}
 	}
 	return os.WriteFile(path, data, 0o644)
-}
-
-func env(key, def string) string {
-	if v := os.Getenv(key); v != "" {
-		return v
-	}
-	return def
 }

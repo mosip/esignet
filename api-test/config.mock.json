@@ -1,0 +1,45 @@
+{
+  "_comment": [
+    "mock plugin — the reference run. Its identity and login are synthetic seed",
+    "data, so they are committed here rather than kept in config.local.json.",
+    "Run: ./run-all.sh -c config.mock.json"
+  ],
+
+  "conformance": {
+    "base_url": "https://localhost.emobix.co.uk:8443",
+    "tls_verify": false
+  },
+
+  "plan": {
+    "name": "oidcc-test-plan",
+    "config_file": "conformance-suite-private/esignet-config.json"
+  },
+
+  "keycloak": {
+    "client_id": "mosip-pms-client"
+  },
+
+  "esignet": {
+    "provider": "mock",
+    "auth_factor": "otp",
+    "identity": { "individual_id": "+912532509749", "id_type": "phone" },
+    "credentials": { "username": "decl-user-1", "password": "Mosip@123" },
+    "otp": { "source": "static", "value": "111111" }
+  },
+
+  "bdd": {
+    "tags": ""
+  },
+
+  "e2e": {
+    "spec": "e2e-scenarios.json",
+    "auth_factors": [],
+    "include": [],
+    "exclude": []
+  },
+
+  "run": {
+    "surfaces": ["conformance", "bdd", "e2e"],
+    "profile": "smoke"
+  }
+}

@@ -23,14 +23,21 @@ import (
 )
 
 func main() {
-	configPath := flag.String("config", "config.json", "path to config.json (env vars override its values)")
+	configPath := flag.String("config", "config.json", "path to the harness config (env vars override its values)")
 	flag.Parse()
 
 	logger := log.New(os.Stderr, "", log.LstdFlags)
 	logf := func(format string, args ...any) { logger.Printf(format, args...) }
 
-	cfg, err := config.Load(*configPath)
+	cfgPath, mustExist := config.ResolvePath(*configPath, config.FlagExplicit("config"))
+	cfg, err := config.Load(cfgPath, mustExist)
 	if err != nil {
+		logger.Printf("config error: %v", err)
+		os.Exit(2)
+	}
+	// This binary IS the conformance surface, so enforce its requirements even
+	// when the config's run.surfaces omits it (a direct single-surface run).
+	if err := cfg.ValidateSurface(config.SurfaceConformance); err != nil {
 		logger.Printf("config error: %v", err)
 		os.Exit(2)
 	}

@@ -1,4 +1,11 @@
-# Local runtime config (may contain secrets: private jwks path, passwords, tokens)
+# Your credentials overlay — the ONLY config file that should hold a secret.
+# The per-plugin files (config.mock/mosip/sunbird.json) ARE tracked: they define
+# what the tests do, so they belong under review. Keeping secrets out of them
+# means you never edit a tracked file to add one, and a dirty config.mosip.json
+# always means a real change worth reviewing.
+config.local.json
+
+# Pre-existing local config from before the per-plugin split.
 config.json
 
 # docker compose env overrides (secrets: KEYCLOAK_CLIENT_SECRET etc.)
@@ -13,6 +20,12 @@ conformance-suite-private/
 out/
 *.report.html
 
-# Go build artifacts
+# Go build artifacts — `go build ./...` drops one per cmd/ package here
 /conformance
 /conformance.exe
+/e2e
+/e2e.exe
+/consolidate
+/consolidate.exe
+/cfg
+/cfg.exe

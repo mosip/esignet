@@ -66,43 +66,38 @@ services:
         max-size: "500k"
         max-file: "5"
 
+  # Configuration comes from the per-plugin config file (CONFIG_FILE, default
+  # config.mock.json), not from a wall of environment variables. Only secrets and
+  # things that genuinely differ per run are listed below — env still overrides
+  # any config value, so anything here can be added back ad hoc.
   harness:
     build: .
     depends_on:
       - httpd
+    command: ["-c", "/app/config.json"]
     environment:
-      ESIGNET_BASE_URL: ${ESIGNET_BASE_URL:?set ESIGNET_BASE_URL to a reachable eSignet deployment}
-      PLUGIN: ${PLUGIN:-mock}
-      AUTHN_PROVIDER: ${PLUGIN:-mock}
-      SURFACES: ${SURFACES:-conformance,bdd,e2e}
-      TEST_PROFILE: ${TEST_PROFILE:-smoke}
-      SUITE_WAIT_SECONDS: ${SUITE_WAIT_SECONDS:-150}
-      CONFORMANCE_BASE_URL: ${CONFORMANCE_BASE_URL:-https://localhost.emobix.co.uk:8443}
-      # Defaults off for the suite's self-signed localhost.emobix.co.uk cert;
-      # override to "true" when pointing CONFORMANCE_BASE_URL at a remote suite.
-      CONFORMANCE_TLS_VERIFY: ${CONFORMANCE_TLS_VERIFY:-false}
-      BDD_TLS_VERIFY: ${BDD_TLS_VERIFY:-true}
-      PLAN_CONFIG_PATH: /secrets/esignet-config.json
-      INDIVIDUAL_ID: ${INDIVIDUAL_ID:-}
-      ID_TYPE: ${ID_TYPE:-}
-      TEST_USERNAME: ${TEST_USERNAME:-}
-      TEST_PASSWORD: ${TEST_PASSWORD:-}
-      TEST_OTP: ${TEST_OTP:-111111}
-      KBI_FULL_NAME: ${KBI_FULL_NAME:-}
-      KBI_DOB: ${KBI_DOB:-}
-      OTP_SOURCE: ${OTP_SOURCE:-static}
-      OTP_WS_URL: ${OTP_WS_URL:-}
-      OTP_RECIPIENT_EMAIL: ${OTP_RECIPIENT_EMAIL:-}
-      KEYCLOAK_TOKEN_URL: ${KEYCLOAK_TOKEN_URL:-}
-      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-}
+      # Your credentials overlay is normally mounted (see volumes); these are the
+      # ad-hoc escape hatches, and they win over both config layers.
+      ESIGNET_BASE_URL: ${ESIGNET_BASE_URL:-}
       KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET:-}
-      PMS_BASE_URL: ${PMS_BASE_URL:-}
-      AUTH_PARTNER_ID: ${AUTH_PARTNER_ID:-}
-      AUTH_POLICY_ID: ${AUTH_POLICY_ID:-}
-      GODOG_TAGS: ${GODOG_TAGS:-}
+      INDIVIDUAL_ID: ${INDIVIDUAL_ID:-}
+      SURFACES: ${SURFACES:-}
+      TEST_PROFILE: ${TEST_PROFILE:-}
+      # Compose reaches the suite by its network alias rather than the config's
+      # host-side URL, and that cert is the suite's own self-signed one.
+      CONFORMANCE_BASE_URL: ${CONFORMANCE_BASE_URL:-https://localhost.emobix.co.uk:8443}
+      CONFORMANCE_TLS_VERIFY: ${CONFORMANCE_TLS_VERIFY:-false}
+      SUITE_WAIT_SECONDS: ${SUITE_WAIT_SECONDS:-150}
     volumes:
       - ./out:/app/out
-      - ./conformance-suite-private:/secrets:ro
+      - ./${CONFIG_FILE:-config.mock.json}:/app/config.json:ro
+      # Mounted at the SAME relative path it has on the host, so the config's
+      # plan.config_file ("conformance-suite-private/esignet-config.json")
+      # resolves identically here and on a native run — no PLAN_CONFIG_PATH
+      # override, and one config file for both.
+      - ./conformance-suite-private:/app/conformance-suite-private:ro
+      # Your gitignored credentials overlay. Comment out to rely on env instead.
+      - ./config.local.json:/app/config.local.json:ro
     extra_hosts:
       # Lets ESIGNET_BASE_URL=http://host.docker.internal:<port> reach a
       # self-managed eSignet running on the host (e.g. `make.sh run` in

@@ -1,0 +1,53 @@
+{
+  "_comment": [
+    "mosipid plugin. Everything identifying a real person or environment is left",
+    "empty here on purpose — put it in config.local.json (gitignored) or the",
+    "environment. Required there: esignet.base_url, esignet.identity.individual_id,",
+    "esignet.otp.ws_url, esignet.pms.*, keycloak.token_url, keycloak.client_secret.",
+    "",
+    "Test OIDC clients are registered through PMS (not eSignet client-mgmt) so IDA",
+    "gets the partner+policy binding; the partner and policy must already be",
+    "onboarded on the target environment.",
+    "",
+    "Run: ./run-all.sh -c config.mosip.json"
+  ],
+
+  "conformance": {
+    "base_url": "https://localhost.emobix.co.uk:8443",
+    "tls_verify": false
+  },
+
+  "plan": {
+    "name": "oidcc-test-plan",
+    "config_file": "conformance-suite-private/esignet-config.json"
+  },
+
+  "keycloak": {
+    "client_id": "mosip-pms-client"
+  },
+
+  "esignet": {
+    "provider": "mosip",
+    "auth_factor": "otp",
+    "identity": { "individual_id": "", "id_type": "uin" },
+    "credentials": { "username": "", "password": "" },
+    "otp": { "source": "dynamic", "ws_url": "", "recipient_email": "" },
+    "pms": { "base_url": "", "auth_partner_id": "", "policy_id": "" }
+  },
+
+  "bdd": {
+    "tags": ""
+  },
+
+  "e2e": {
+    "spec": "e2e-scenarios-mosip.json",
+    "auth_factors": [],
+    "include": [],
+    "exclude": []
+  },
+
+  "run": {
+    "surfaces": ["conformance", "bdd", "e2e"],
+    "profile": "smoke"
+  }
+}
