@@ -4,9 +4,9 @@ system:
   "design.resolve.error.app_not_found": एप्लिकेशन नहीं मिला
   "design.resolve.error.app_not_found_description": निर्दिष्ट आईडी वाला एप्लिकेशन मौजूद नहीं है
   "design.resolve.error.invalid_type": अमान्य अनुरोध प्रारूप
-  "design.resolve.error.invalid_type_description": "\"type\" क्वेरी पैरामीटर आवश्यक है और यह \"APP\" या \"OU\" होना चाहिए"
+  "design.resolve.error.invalid_type_description": '"type" क्वेरी पैरामीटर आवश्यक है और यह "APP" या "OU" होना चाहिए'
   "design.resolve.error.missing_id": अमान्य अनुरोध प्रारूप
-  "design.resolve.error.missing_id_description": "\"id\" क्वेरी पैरामीटर आवश्यक है"
+  "design.resolve.error.missing_id_description": '"id" क्वेरी पैरामीटर आवश्यक है'
   "design.resolve.error.unsupported_type": असमर्थित रिज़ॉल्व प्रकार
   "design.resolve.error.unsupported_type_description": निर्दिष्ट रिज़ॉल्व प्रकार अभी समर्थित नहीं है। वर्तमान में केवल \"APP\" प्रकार समर्थित है
   "error.actor_not_found": एक्टर नहीं मिला
@@ -86,8 +86,8 @@ system:
   "error.agentservice.missing_agent_id_description": एजेंट ID आवश्यक है
   "error.agentservice.multiple_oauth_configs": एकाधिक OAuth इनबाउंड प्रमाणीकरण कॉन्फ़िग अनुमत नहीं हैं
   "error.agentservice.multiple_oauth_configs_description": किसी इकाई में प्रति प्रोटोकॉल अधिकतम एक इनबाउंड प्रमाणीकरण कॉन्फ़िग हो सकता है
-  "error.agentservice.none_auth_method_cannot_have_cert_or_secret_description": "\"none\" प्रमाणीकरण विधि में प्रमाणपत्र या क्लाइंट सीक्रेट नहीं हो सकता"
-  "error.agentservice.none_auth_method_requires_public_client_description": "\"none\" प्रमाणीकरण विधि के लिए क्लाइंट को पब्लिक क्लाइंट होना आवश्यक है"
+  "error.agentservice.none_auth_method_cannot_have_cert_or_secret_description": '"none" प्रमाणीकरण विधि में प्रमाणपत्र या क्लाइंट सीक्रेट नहीं हो सकता'
+  "error.agentservice.none_auth_method_requires_public_client_description": '"none" प्रमाणीकरण विधि के लिए क्लाइंट को पब्लिक क्लाइंट होना आवश्यक है'
   "error.agentservice.organization_unit_not_found": संगठन इकाई नहीं मिली
   "error.agentservice.organization_unit_not_found_description": निर्दिष्ट संगठन इकाई मौजूद नहीं है
   "error.agentservice.owner_not_found": स्वामी नहीं मिला
@@ -170,7 +170,7 @@ system:
   "error.applicationservice.invalid_jwks_uri": अमान्य JWKS URI
   "error.applicationservice.invalid_jwks_uri_description": प्रदान किया गया JWKS URI एक मान्य URI नहीं है
   "error.applicationservice.invalid_jwks_uri_scheme": अमान्य JWKS URI स्कीम
-  "error.applicationservice.invalid_jwks_uri_scheme_description": "\"jwks_uri\" को HTTPS स्कीम का उपयोग करना चाहिए"
+  "error.applicationservice.invalid_jwks_uri_scheme_description": '"jwks_uri" को HTTPS स्कीम का उपयोग करना चाहिए'
   "error.applicationservice.invalid_logo_url": अमान्य लोगो URL
   "error.applicationservice.invalid_logo_url_description": प्रदान किया गया लोगो URL एक मान्य URI नहीं है
   "error.applicationservice.invalid_oauth_configuration": अमान्य OAuth कॉन्फ़िगरेशन
@@ -197,8 +197,8 @@ system:
   "error.applicationservice.layout_not_found_description": निर्दिष्ट लेआउट कॉन्फ़िगरेशन मौजूद नहीं है
   "error.applicationservice.multiple_oauth_configs": एकाधिक OAuth इनबाउंड प्रमाणीकरण कॉन्फ़िग अनुमत नहीं हैं
   "error.applicationservice.multiple_oauth_configs_description": किसी एप्लिकेशन में प्रति प्रोटोकॉल अधिकतम एक इनबाउंड प्रमाणीकरण कॉन्फ़िग हो सकता है
-  "error.applicationservice.none_auth_method_cannot_have_cert_or_secret_description": "\"none\" प्रमाणीकरण विधि में प्रमाणपत्र या क्लाइंट सीक्रेट नहीं हो सकता"
-  "error.applicationservice.none_auth_method_requires_public_client_description": "\"none\" प्रमाणीकरण विधि के लिए क्लाइंट को पब्लिक क्लाइंट होना आवश्यक है"
+  "error.applicationservice.none_auth_method_cannot_have_cert_or_secret_description": '"none" प्रमाणीकरण विधि में प्रमाणपत्र या क्लाइंट सीक्रेट नहीं हो सकता'
+  "error.applicationservice.none_auth_method_requires_public_client_description": '"none" प्रमाणीकरण विधि के लिए क्लाइंट को पब्लिक क्लाइंट होना आवश्यक है'
   "error.applicationservice.pkce_requires_authorization_code_description": PKCE केवल तब सक्षम किया जा सकता है जब authorization_code ग्रांट प्रकार चुना गया हो
   "error.applicationservice.private_key_jwt_cannot_have_client_secret_description": private_key_jwt प्रमाणीकरण विधि में क्लाइंट सीक्रेट नहीं हो सकता
   "error.applicationservice.private_key_jwt_requires_certificate_description": private_key_jwt प्रमाणीकरण विधि के लिए एक प्रमाणपत्र आवश्यक है
@@ -429,7 +429,7 @@ system:
   "error.dcr.invalid_request_format": अमान्य अनुरोध प्रारूप
   "error.dcr.invalid_request_format_description": अनुरोध बॉडी अनुपस्थित है या अमान्य प्रारूप में है
   "error.dcr.jwks_configuration_conflict": JWKS कॉन्फ़िगरेशन विरोध
-  "error.dcr.jwks_configuration_conflict_description": "\"jwks\" और \"jwks_uri\" दोनों पैरामीटर एक साथ निर्दिष्ट नहीं किए जा सकते"
+  "error.dcr.jwks_configuration_conflict_description": '"jwks" और "jwks_uri" दोनों पैरामीटर एक साथ निर्दिष्ट नहीं किए जा सकते'
   "error.dcr.server_error": सर्वर त्रुटि
   "error.dcr.server_error_description": अनुरोध संसाधित करते समय एक अप्रत्याशित त्रुटि हुई
   "error.dcr.unauthorized": अनधिकृत
@@ -528,11 +528,11 @@ system:
   "error.flowmetaservice.application_not_found_description": निर्दिष्ट एप्लिकेशन मौजूद नहीं है
   "error.flowmetaservice.internal_server_error": आंतरिक सर्वर त्रुटि
   "error.flowmetaservice.invalid_request": अमान्य अनुरोध
-  "error.flowmetaservice.invalid_type_description": "\"type\" पैरामीटर \"APP\" या \"OU\" होना चाहिए"
-  "error.flowmetaservice.missing_id_description": "\"id\" क्वेरी पैरामीटर आवश्यक है"
+  "error.flowmetaservice.invalid_type_description": '"type" पैरामीटर "APP" या "OU" होना चाहिए'
+  "error.flowmetaservice.missing_id_description": '"id" क्वेरी पैरामीटर आवश्यक है'
   "error.flowmetaservice.missing_id_parameter": आवश्यक पैरामीटर अनुपस्थित है
   "error.flowmetaservice.missing_required_parameter": आवश्यक पैरामीटर अनुपस्थित है
-  "error.flowmetaservice.missing_type_description": "\"type\" क्वेरी पैरामीटर आवश्यक है"
+  "error.flowmetaservice.missing_type_description": '"type" क्वेरी पैरामीटर आवश्यक है'
   "error.flowmetaservice.ou_fetch_failed": आंतरिक सर्वर त्रुटि
   "error.flowmetaservice.ou_fetch_failed_description": संगठन इकाई जानकारी प्राप्त करने में विफल
   "error.flowmetaservice.ou_not_found": संसाधन नहीं मिला
@@ -754,7 +754,7 @@ system:
   "error.ouservice.circular_dependency_detected": परिपत्र निर्भरता पाई गई
   "error.ouservice.circular_dependency_detected_description": इस मूल को सेट करने से परिपत्र निर्भरता बन जाएगी
   "error.ouservice.invalid_filter": अमान्य फ़िल्टर पैरामीटर
-  "error.ouservice.invalid_filter_description": "फ़िल्टर पैरामीटर अमान्य है। प्रारूप का उपयोग करें: attribute (eq|gt|lt) \"value\""
+  "error.ouservice.invalid_filter_description": 'फ़िल्टर पैरामीटर अमान्य है। प्रारूप का उपयोग करें: attribute (eq|gt|lt) "value"'
   "error.ouservice.invalid_handle_path": अमान्य हैंडल पाथ
   "error.ouservice.invalid_handle_path_description": निर्दिष्ट हैंडल पाथ मौजूद नहीं है
   "error.ouservice.invalid_limit_parameter": अमान्य लिमिट पैरामीटर
@@ -1232,10 +1232,15 @@ otp:
   resend_otp: ओटीपी पुनः भेजें
 
 consent:
-  title: हमें आपकी सहमति चाहिए
-  description: यह ऐप निम्नलिखित जानकारी तक पहुंचना चाहता है। कृपया समीक्षा करें और चुनें कि आप क्या साझा करना चाहते हैं।
-  allow: अनुमति दें
-  deny: अस्वीकार करें
+  title: "निम्नलिखित तक पहुंच की मांग कर रहा है:"
+  description: "यह ऐप निम्नलिखित जानकारी तक पहुंच बनाना चाहता है। कृपया समीक्षा करें और चुनें कि आप क्या साझा करना चाहते हैं।"
+  allow: "अनुमति दें"
+  deny: "अस्वीकार करें"
+  timer_label: "कृपया कार्रवाई के लिए शेष समय:"
+  essential: "आवश्यक दावे"
+  optional: "ऐच्छिक दावे"
+  essential_info: "सेवा प्रदाता द्वारा आवश्यक अनिवार्य उपयोगकर्ता जानकारी"
+  optional_info: "अतिरिक्त उपयोगकर्ता जानकारी जिसे निवासी सेवा प्रदाता के साथ साझा करने का विकल्प चुन सकता है"
 
 signin:
   images.app_logo.alt: एप्लिकेशन लोगो

@@ -227,35 +227,35 @@ login_uin_button: &login_uin_button
   <<: *trigger_button
   id: login_id_uin
   label: "{{t(button:login_id_uin)}}"
-  classes: login-id-button
+  classes: left-align-button login-id-button
   startIcon: "/images/vid_icon.svg"
 
 login_mobile_button: &login_mobile_button
   <<: *trigger_button
   id: login_id_mobile
   label: "{{t(button:login_id_mobile)}}"
-  classes: login-id-button
+  classes: left-align-button login-id-button
   startIcon: "/images/mobile_icon.svg"
 
 login_email_button: &login_email_button
   <<: *trigger_button
   id: login_id_email
   label: "{{t(button:login_id_email)}}"
-  classes: login-id-button
+  classes: left-align-button login-id-button
   startIcon: "/images/email_icon.svg"
 
 login_nrc_button: &login_nrc_button
   <<: *trigger_button
   id: login_id_nrc
   label: "{{t(button:login_id_nrc)}}"
-  classes: login-id-button
+  classes: left-align-button login-id-button
   startIcon: "/images/nrc_id_icon.svg"
 
 login_id_uin: &login_id_uin
   <<: *login_id_header
   components:
     - <<: *login_uin_button
-      classes: "login-id-button login-id-button--active"
+      classes: left-align-button login-id-button login-id-button--active
     - *login_mobile_button
     - *login_email_button
     - *login_nrc_button
@@ -265,7 +265,7 @@ login_id_mobile: &login_id_mobile
   components:
     - *login_uin_button
     - <<: *login_mobile_button
-      classes: "login-id-button login-id-button--active"
+      classes: left-align-button login-id-button login-id-button--active
     - *login_email_button
     - *login_nrc_button
 
@@ -275,7 +275,7 @@ login_id_email: &login_id_email
     - *login_uin_button
     - *login_mobile_button
     - <<: *login_email_button
-      classes: "login-id-button login-id-button--active"
+      classes: left-align-button login-id-button login-id-button--active
     - *login_nrc_button
 
 login_id_nrc: &login_id_nrc
@@ -285,7 +285,7 @@ login_id_nrc: &login_id_nrc
     - *login_mobile_button
     - *login_email_button
     - <<: *login_nrc_button
-      classes: "login-id-button login-id-button--active"
+      classes: left-align-button login-id-button login-id-button--active
 
 id: flow-esignet
 handle: flow-esignet
@@ -314,18 +314,22 @@ nodes:
             - <<: *trigger_button
               id: acr_otp
               label: "{{t(button:login_otp)}}"
+              classes: left-align-button
               startIcon: "/images/otp_icon.svg"
             - <<: *trigger_button
               id: acr_password
               label: "{{t(button:login_password)}}"
+              classes: left-align-button
               startIcon: "/images/pwd_icon.svg"
             - <<: *trigger_button
               id: acr_bio
               label: "{{t(button:login_biometrics)}}"
+              classes: left-align-button
               startIcon: "/images/bio_icon.svg"
             - <<: *trigger_button
               id: acr_kbi
               label: "{{t(button:login_kbi)}}"
+              classes: left-align-button
               startIcon: "/images/kbi_icon.svg"
     prompts:
       - action:
@@ -518,7 +522,7 @@ nodes:
                   resourceType: ELEMENT
                   timeLeft: 20
                   variant: OUTLINE
-                  label: "{{t(otp:resend_otp)}}"
+                  label: "otp.resend_otp"
     prompts:
       - inputs:
           - ref: otp_input
@@ -882,7 +886,7 @@ nodes:
           required: true
         - ref: SBI_ID
           identifier: biometric
-          type: CUSTOM
+          type: PASSWORD_INPUT
           required: true
     onSuccess: authorization_check
 
@@ -986,44 +990,37 @@ nodes:
     type: PROMPT
     meta:
       components:
+        - id: timer_consent
+          type: TIMER
+          category: DISPLAY
+          resourceType: ELEMENT
+          label: "{{t(consent:timer_label)}} {time}"
         - id: text_consent_title
           type: TEXT
-          label: "{{t(consent:title)}}"
-          variant: HEADING_3
+          label: "{{meta(application.name)}} {{t(consent:title)}}"
+          variant: HEADING_5
           category: DISPLAY
           resourceType: ELEMENT
-        - id: text_consent_desc
-          type: TEXT
-          label: "{{t(consent:description)}}"
-          variant: BODY_1
-          category: DISPLAY
-          resourceType: ELEMENT
+          align: center
         - id: block_consent
           type: BLOCK
           category: BLOCK
           resourceType: ELEMENT
           components:
-            - id: timer_consent
-              type: TIMER
-              category: DISPLAY
-              resourceType: ELEMENT
             - id: input_consent
               type: CONSENT
               category: DISPLAY
-            - id: action_allow
-              type: ACTION
+              config:
+                essential: "{{t(consent:essential)}}"
+                optional: "{{t(consent:optional)}}"
+                essentialInfo: "{{t(consent:essential_info)}}"
+                optionalInfo: "{{t(consent:optional_info)}}"
+            - <<: *submit_button
+              id: action_allow
               label: "{{t(consent:allow)}}"
-              variant: PRIMARY
-              category: ACTION
-              eventType: SUBMIT
-              resourceType: ELEMENT
-            - id: action_deny
-              type: ACTION
+            - <<: *trigger_button
+              id: action_deny
               label: "{{t(consent:deny)}}"
-              variant: SECONDARY
-              category: ACTION
-              eventType: SUBMIT
-              resourceType: ELEMENT
     prompts:
       - inputs:
           - ref: input_consent
@@ -1033,19 +1030,15 @@ nodes:
         action:
           ref: action_allow
           nextNode: consent_check
-      - inputs:
-          - ref: input_consent
-            identifier: consent_decisions
-            type: CONSENT_INPUT
-            required: true
-        action:
+      - action:
           ref: action_deny
-          nextNode: consent_check
+          nextNode: end
 
   - id: auth_assert
     type: TASK_EXECUTION
     executor:
       name: AuthAssertExecutor
     onSuccess: end
+
   - id: end
     type: END

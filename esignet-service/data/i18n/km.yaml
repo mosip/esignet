@@ -170,7 +170,7 @@ system:
   "error.applicationservice.invalid_jwks_uri": JWKS URI មិន​ត្រឹម​ត្រូវ
   "error.applicationservice.invalid_jwks_uri_description": JWKS URI ដែល​បាន​ផ្ដល់​ជូន​មិន​មែន​ជា URI ត្រឹម​ត្រូវ
   "error.applicationservice.invalid_jwks_uri_scheme": គ្រោង JWKS URI មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_jwks_uri_scheme_description": "\"jwks_uri\" ត្រូវ​តែ​ប្រើ​គ្រោង HTTPS"
+  "error.applicationservice.invalid_jwks_uri_scheme_description": '"jwks_uri" ត្រូវ​តែ​ប្រើ​គ្រោង HTTPS'
   "error.applicationservice.invalid_logo_url": URL រូប​សញ្ញា​មិន​ត្រឹម​ត្រូវ
   "error.applicationservice.invalid_logo_url_description": URL រូប​សញ្ញា​ដែល​បាន​ផ្ដល់​ជូន​មិន​មែន​ជា URI ត្រឹម​ត្រូវ
   "error.applicationservice.invalid_oauth_configuration": ការ​កំ​ណត់ OAuth មិន​ត្រឹម​ត្រូវ
@@ -754,7 +754,7 @@ system:
   "error.ouservice.circular_dependency_detected": រកឃើញការពឹងផ្អែកជាមូលដ្ឋានជ្រុំ
   "error.ouservice.circular_dependency_detected_description": ការកំណត់មេនេះនឹងបង្កើតការពឹងផ្អែកជាមូលដ្ឋានជ្រុំ
   "error.ouservice.invalid_filter": ប៉ារ៉ាម៉ែត្រ filter មិនត្រឹមត្រូវ
-  "error.ouservice.invalid_filter_description": "ប៉ារ៉ាម៉ែត្រ filter មិនត្រឹមត្រូវ។ ប្រើទម្រង់: attribute (eq|gt|lt) \"value\""
+  "error.ouservice.invalid_filter_description": 'ប៉ារ៉ាម៉ែត្រ filter មិនត្រឹមត្រូវ។ ប្រើទម្រង់: attribute (eq|gt|lt) "value"'
   "error.ouservice.invalid_handle_path": ផ្លូវ handle មិនត្រឹមត្រូវ
   "error.ouservice.invalid_handle_path_description": ផ្លូវ handle ដែលបានបញ្ជាក់មិនមាន
   "error.ouservice.invalid_limit_parameter": ប៉ារ៉ាម៉ែត្រ limit មិនត្រឹមត្រូវ
@@ -1233,10 +1233,15 @@ otp:
   resend_otp: ផ្ញើ OTP ម្តងទៀត
 
 consent:
-  title: យើងត្រូវការការយល់ព្រមរបស់អ្នក
-  description: កម្មវិធីនេះចង់ចូលប្រើព័ត៌មានខាងក្រោម។ សូមពិនិត្យមើល និងជ្រើសរើសអ្វីដែលអ្នកចង់ចែករំលែក។
-  allow: អនុញ្ញាត
-  deny: បដិសេធ
+  title: "កំពុងស្នើសុំចូលប្រើប្រាស់ដូចខាងក្រោម៖"
+  description: "កម្មវិធីនេះចង់ចូលប្រើប្រាស់ព័ត៌មានខាងក្រោម។ សូមពិនិត្យមើល និងជ្រើសរើសអ្វីដែលអ្នកចង់ចែករំលែក។"
+  allow: "អនុញ្ញាត"
+  deny: "បដិសេធ"
+  timer_label: "សូមចាត់វិធានការសមស្របក្នុងរយៈពេល៖"
+  essential: "ព័ត៌មានទាមទារចាំបាច់"
+  optional: "ព័ត៌មានទាមទារស្ម័គ្រចិត្ត"
+  essential_info: "ព័ត៌មានអ្នកប្រើប្រាស់ជាកាតព្វកិច្ចដែលតម្រូវដោយអ្នកផ្តល់សេវា"
+  optional_info: "ព័ត៌មានអ្នកប្រើប្រាស់បន្ថែមដែលប្រជាពលរដ្ឋអាចជ្រើសរើសចែករំលែកជាមួយអ្នកផ្តល់សេវា"
 
 signin:
   images.app_logo.alt: រូបសញ្ញាកម្មវិធី

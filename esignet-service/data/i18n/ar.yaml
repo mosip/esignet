@@ -754,7 +754,7 @@ system:
   "error.ouservice.circular_dependency_detected": اعتماد دائري مكتشف
   "error.ouservice.circular_dependency_detected_description": تعيين هذا الأصل سيؤدي إلى إنشاء اعتماد دائري
   "error.ouservice.invalid_filter": معامل التصفية غير صالح
-  "error.ouservice.invalid_filter_description": "معامل التصفية غير صالح. استخدم التنسيق: attribute (eq|gt|lt) \"value\""
+  "error.ouservice.invalid_filter_description": 'معامل التصفية غير صالح. استخدم التنسيق: attribute (eq|gt|lt) "value"'
   "error.ouservice.invalid_handle_path": مسار المقبض غير صالح
   "error.ouservice.invalid_handle_path_description": مسار المقبض المحدد غير موجود
   "error.ouservice.invalid_limit_parameter": معامل الحد غير صالح
@@ -1233,10 +1233,15 @@ otp:
   resend_otp: إعادة إرسال OTP
 
 consent:
-  title: نحتاج إلى موافقتك
-  description: يرغب هذا التطبيق في الوصول إلى المعلومات التالية. يرجى المراجعة واختيار ما ترغب في مشاركته.
-  allow: السماح
-  deny: الرفض
+  title: "يطلب الوصول إلى ما يلي:"
+  description: "يرغب هذا التطبيق في الوصول إلى المعلومات التالية. يرجى المراجعة واختيار ما ترغب في مشاركته."
+  allow: "سماح"
+  deny: "رفض"
+  timer_label: "يرجى اتخاذ الإجراء المناسب خلال"
+  essential: "المطالبات الأساسية"
+  optional: "المطالبات الاختيارية"
+  essential_info: "معلومات المستخدم الإلزامية المطلوبة من قبل مزود الخدمة"
+  optional_info: "معلومات إضافية للمستخدم يمكن للمقيم اختيار مشاركتها مع مزود الخدمة"
 
 signin:
   images.app_logo.alt: شعار التطبيق

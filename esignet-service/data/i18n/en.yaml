@@ -86,8 +86,8 @@ system:
   "error.agentservice.missing_agent_id_description": The agent ID is required
   "error.agentservice.multiple_oauth_configs": Multiple OAuth inbound auth configs are not allowed
   "error.agentservice.multiple_oauth_configs_description": An entity may have at most one inbound auth config per protocol
-  "error.agentservice.none_auth_method_cannot_have_cert_or_secret_description": "\"none\" authentication method cannot have a certificate or client secret"
-  "error.agentservice.none_auth_method_requires_public_client_description": "\"none\" authentication method requires the client to be a public client"
+  "error.agentservice.none_auth_method_cannot_have_cert_or_secret_description": '"none" authentication method cannot have a certificate or client secret'
+  "error.agentservice.none_auth_method_requires_public_client_description": '"none" authentication method requires the client to be a public client'
   "error.agentservice.organization_unit_not_found": Organization unit not found
   "error.agentservice.organization_unit_not_found_description": The specified organization unit does not exist
   "error.agentservice.owner_not_found": Owner not found
@@ -170,7 +170,7 @@ system:
   "error.applicationservice.invalid_jwks_uri": Invalid JWKS URI
   "error.applicationservice.invalid_jwks_uri_description": The provided JWKS URI is not a valid URI
   "error.applicationservice.invalid_jwks_uri_scheme": Invalid JWKS URI scheme
-  "error.applicationservice.invalid_jwks_uri_scheme_description": "\"jwks_uri\" must use HTTPS scheme"
+  "error.applicationservice.invalid_jwks_uri_scheme_description": '"jwks_uri" must use HTTPS scheme'
   "error.applicationservice.invalid_logo_url": Invalid logo URL
   "error.applicationservice.invalid_logo_url_description": The provided logo URL is not a valid URI
   "error.applicationservice.invalid_oauth_configuration": Invalid OAuth configuration
@@ -197,8 +197,8 @@ system:
   "error.applicationservice.layout_not_found_description": The specified layout configuration does not exist
   "error.applicationservice.multiple_oauth_configs": Multiple OAuth inbound auth configs are not allowed
   "error.applicationservice.multiple_oauth_configs_description": An application may have at most one inbound auth config per protocol
-  "error.applicationservice.none_auth_method_cannot_have_cert_or_secret_description": "\"none\" authentication method cannot have a certificate or client secret"
-  "error.applicationservice.none_auth_method_requires_public_client_description": "\"none\" authentication method requires the client to be a public client"
+  "error.applicationservice.none_auth_method_cannot_have_cert_or_secret_description": '"none" authentication method cannot have a certificate or client secret'
+  "error.applicationservice.none_auth_method_requires_public_client_description": '"none" authentication method requires the client to be a public client'
   "error.applicationservice.pkce_requires_authorization_code_description": PKCE can only be enabled when the authorization_code grant type is selected
   "error.applicationservice.private_key_jwt_cannot_have_client_secret_description": private_key_jwt authentication method cannot have a client secret
   "error.applicationservice.private_key_jwt_requires_certificate_description": private_key_jwt authentication method requires a certificate
@@ -754,7 +754,7 @@ system:
   "error.ouservice.circular_dependency_detected": Circular dependency detected
   "error.ouservice.circular_dependency_detected_description": Setting this parent would create a circular dependency
   "error.ouservice.invalid_filter": Invalid filter parameter
-  "error.ouservice.invalid_filter_description": "The filter parameter is invalid. Use format: attribute (eq|gt|lt) \"value\""
+  "error.ouservice.invalid_filter_description": 'The filter parameter is invalid. Use format: attribute (eq|gt|lt) "value"'
   "error.ouservice.invalid_handle_path": Invalid handle path
   "error.ouservice.invalid_handle_path_description": The specified handle path does not exist
   "error.ouservice.invalid_limit_parameter": Invalid limit parameter
@@ -1233,10 +1233,15 @@ otp:
   resend_otp: Resend OTP
 
 consent:
-  title: We need your consent
+  title: "is requesting access to the following:"
   description: This app would like to access the following information. Please review and choose what you would like to share.
   allow: Allow
   deny: Deny
+  timer_label: Please take appropriate action in
+  essential: Essential Claims
+  optional: Voluntary Claims
+  essential_info: Mandatory user information required by the Service provider
+  optional_info: Additional user information that the resident can choose to share with the Service provider
 
 signin:
   images.app_logo.alt: Application Logo

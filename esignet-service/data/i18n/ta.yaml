@@ -4,9 +4,9 @@ system:
   "design.resolve.error.app_not_found": பயன்பாடு கண்டுபிடிக்கப்படவில்லை
   "design.resolve.error.app_not_found_description": குறிப்பிட்ட ID கொண்ட பயன்பாடு இல்லை
   "design.resolve.error.invalid_type": தவறான கோரிக்கை வடிவம்
-  "design.resolve.error.invalid_type_description": "\"type\" வினவல் அளவுரு தேவை மற்றும் \"APP\" அல்லது \"OU\" ஆக இருக்க வேண்டும்"
+  "design.resolve.error.invalid_type_description": '"type" வினவல் அளவுரு தேவை மற்றும் "APP" அல்லது "OU" ஆக இருக்க வேண்டும்'
   "design.resolve.error.missing_id": தவறான கோரிக்கை வடிவம்
-  "design.resolve.error.missing_id_description": "\"id\" வினவல் அளவுரு தேவை"
+  "design.resolve.error.missing_id_description": '"id" வினவல் அளவுரு தேவை'
   "design.resolve.error.unsupported_type": ஆதரிக்கப்படாத தீர்மான வகை
   "design.resolve.error.unsupported_type_description": குறிப்பிட்ட தீர்மான வகை இன்னும் ஆதரிக்கப்படவில்லை. தற்போது \"APP\" வகை மட்டுமே ஆதரிக்கப்படுகிறது
   "error.actor_not_found": நடிகர் கண்டுபிடிக்கப்படவில்லை
@@ -86,8 +86,8 @@ system:
   "error.agentservice.missing_agent_id_description": முகவர் ID தேவை
   "error.agentservice.multiple_oauth_configs": பல OAuth உள்வரும் அங்கீகார கட்டமைப்புகள் அனுமதிக்கப்படவில்லை
   "error.agentservice.multiple_oauth_configs_description": ஒரு நிறுவனம் ஒரு நெறிமுறைக்கு அதிகபட்சம் ஒரு உள்வரும் அங்கீகார கட்டமைப்பை மட்டுமே கொண்டிருக்க முடியும்
-  "error.agentservice.none_auth_method_cannot_have_cert_or_secret_description": "\"none\" அங்கீகார முறைக்கு சான்றிதழ் அல்லது கிளையன்ட் ரகசியம் இருக்க முடியாது"
-  "error.agentservice.none_auth_method_requires_public_client_description": "\"none\" அங்கீகார முறைக்கு கிளையன்ட் பொது கிளையன்டாக இருக்க வேண்டும்"
+  "error.agentservice.none_auth_method_cannot_have_cert_or_secret_description": '"none" அங்கீகார முறைக்கு சான்றிதழ் அல்லது கிளையன்ட் ரகசியம் இருக்க முடியாது'
+  "error.agentservice.none_auth_method_requires_public_client_description": '"none" அங்கீகார முறைக்கு கிளையன்ட் பொது கிளையன்டாக இருக்க வேண்டும்'
   "error.agentservice.organization_unit_not_found": நிறுவன அலகு கண்டுபிடிக்கப்படவில்லை
   "error.agentservice.organization_unit_not_found_description": குறிப்பிட்ட நிறுவன அலகு இல்லை
   "error.agentservice.owner_not_found": உரிமையாளர் கண்டுபிடிக்கப்படவில்லை
@@ -170,7 +170,7 @@ system:
   "error.applicationservice.invalid_jwks_uri": தவறான JWKS URI
   "error.applicationservice.invalid_jwks_uri_description": வழங்கப்பட்ட JWKS URI செல்லுபடியான URI அல்ல
   "error.applicationservice.invalid_jwks_uri_scheme": தவறான JWKS URI திட்டம்
-  "error.applicationservice.invalid_jwks_uri_scheme_description": "\"jwks_uri\" HTTPS திட்டம் பயன்படுத்த வேண்டும்"
+  "error.applicationservice.invalid_jwks_uri_scheme_description": '"jwks_uri" HTTPS திட்டம் பயன்படுத்த வேண்டும்'
   "error.applicationservice.invalid_logo_url": தவறான சின்னம் URL
   "error.applicationservice.invalid_logo_url_description": வழங்கப்பட்ட சின்னம் URL செல்லுபடியான URI அல்ல
   "error.applicationservice.invalid_oauth_configuration": தவறான OAuth கட்டமைப்பு
@@ -197,8 +197,8 @@ system:
   "error.applicationservice.layout_not_found_description": குறிப்பிட்ட தளவமைப்பு கட்டமைப்பு இல்லை
   "error.applicationservice.multiple_oauth_configs": பல OAuth உள்வரும் அங்கீகார கட்டமைப்புகள் அனுமதிக்கப்படவில்லை
   "error.applicationservice.multiple_oauth_configs_description": ஒரு பயன்பாடு ஒரு நெறிமுறைக்கு அதிகபட்சம் ஒரு உள்வரும் அங்கீகார கட்டமைப்பை மட்டுமே கொண்டிருக்க முடியும்
-  "error.applicationservice.none_auth_method_cannot_have_cert_or_secret_description": "\"none\" அங்கீகார முறைக்கு சான்றிதழ் அல்லது கிளையன்ட் ரகசியம் இருக்க முடியாது"
-  "error.applicationservice.none_auth_method_requires_public_client_description": "\"none\" அங்கீகார முறைக்கு கிளையன்ட் பொது கிளையன்டாக இருக்க வேண்டும்"
+  "error.applicationservice.none_auth_method_cannot_have_cert_or_secret_description": '"none" அங்கீகார முறைக்கு சான்றிதழ் அல்லது கிளையன்ட் ரகசியம் இருக்க முடியாது'
+  "error.applicationservice.none_auth_method_requires_public_client_description": '"none" அங்கீகார முறைக்கு கிளையன்ட் பொது கிளையன்டாக இருக்க வேண்டும்'
   "error.applicationservice.pkce_requires_authorization_code_description": authorization_code மானிய வகை தேர்ந்தெடுக்கப்பட்டிருக்கும் போது மட்டுமே PKCE இயக்கப்படலாம்
   "error.applicationservice.private_key_jwt_cannot_have_client_secret_description": private_key_jwt அங்கீகார முறைக்கு கிளையன்ட் ரகசியம் இருக்க முடியாது
   "error.applicationservice.private_key_jwt_requires_certificate_description": private_key_jwt அங்கீகார முறைக்கு சான்றிதழ் தேவை
@@ -429,7 +429,7 @@ system:
   "error.dcr.invalid_request_format": தவறான கோரிக்கை வடிவம்
   "error.dcr.invalid_request_format_description": கோரிக்கை உடல் இல்லை அல்லது தவறான வடிவத்தில் உள்ளது
   "error.dcr.jwks_configuration_conflict": JWKS கட்டமைப்பு முரண்பாடு
-  "error.dcr.jwks_configuration_conflict_description": "\"jwks\" மற்றும் \"jwks_uri\" அளவுருக்கள் இரண்டையும் குறிப்பிட முடியாது"
+  "error.dcr.jwks_configuration_conflict_description": '"jwks" மற்றும் "jwks_uri" அளவுருக்கள் இரண்டையும் குறிப்பிட முடியாது'
   "error.dcr.server_error": சேவையக பிழை
   "error.dcr.server_error_description": கோரிக்கையை செயலாக்கும் போது எதிர்பாராத பிழை ஏற்பட்டது
   "error.dcr.unauthorized": அங்கீகரிக்கப்படவில்லை
@@ -528,11 +528,11 @@ system:
   "error.flowmetaservice.application_not_found_description": குறிப்பிட்ட பயன்பாடு இல்லை
   "error.flowmetaservice.internal_server_error": உள் சேவையக பிழை
   "error.flowmetaservice.invalid_request": தவறான கோரிக்கை
-  "error.flowmetaservice.invalid_type_description": "\"type\" அளவுரு \"APP\" அல்லது \"OU\" ஆக இருக்க வேண்டும்"
-  "error.flowmetaservice.missing_id_description": "\"id\" வினவல் அளவுரு தேவை"
+  "error.flowmetaservice.invalid_type_description": '"type" அளவுரு "APP" அல்லது "OU" ஆக இருக்க வேண்டும்'
+  "error.flowmetaservice.missing_id_description": '"id" வினவல் அளவுரு தேவை'
   "error.flowmetaservice.missing_id_parameter": தேவையான அளவுரு இல்லை
   "error.flowmetaservice.missing_required_parameter": தேவையான அளவுரு இல்லை
-  "error.flowmetaservice.missing_type_description": "\"type\" வினவல் அளவுரு தேவை"
+  "error.flowmetaservice.missing_type_description": '"type" வினவல் அளவுரு தேவை'
   "error.flowmetaservice.ou_fetch_failed": உள் சேவையக பிழை
   "error.flowmetaservice.ou_fetch_failed_description": நிறுவன அலகு தகவலை மீட்டெடுப்பதில் தோல்வி
   "error.flowmetaservice.ou_not_found": வளம் கண்டுபிடிக்கப்படவில்லை
@@ -754,7 +754,7 @@ system:
   "error.ouservice.circular_dependency_detected": வட்ட சார்பு கண்டுபிடிக்கப்பட்டது
   "error.ouservice.circular_dependency_detected_description": இந்த பெற்றோரை அமைப்பது வட்ட சார்பை உருவாக்கும்
   "error.ouservice.invalid_filter": தவறான வடிகட்டி அளவுரு
-  "error.ouservice.invalid_filter_description": "வடிகட்டி அளவுரு தவறானது. வடிவம் பயன்படுத்தவும்: attribute (eq|gt|lt) \"value\""
+  "error.ouservice.invalid_filter_description": 'வடிகட்டி அளவுரு தவறானது. வடிவம் பயன்படுத்தவும்: attribute (eq|gt|lt) "value"'
   "error.ouservice.invalid_handle_path": தவறான கைப்பிடி பாதை
   "error.ouservice.invalid_handle_path_description": குறிப்பிட்ட கைப்பிடி பாதை இல்லை
   "error.ouservice.invalid_limit_parameter": தவறான வரம்பு அளவுரு
@@ -1233,10 +1233,15 @@ otp:
   resend_otp: OTP ஐ மீண்டும் அனுப்பவும்
 
 consent:
-  title: உங்கள் ஒப்புதல் தேவை
-  description: இந்த பயன்பாடு பின்வரும் தகவல்களை அணுக விரும்புகிறது. தயவுசெய்து மதிப்பாய்வு செய்து நீங்கள் என்ன பகிர விரும்புகிறீர்கள் என்பதைத் தேர்ந்தெடுக்கவும்.
-  allow: அனுமதிக்கவும்
-  deny: மறுக்கவும்
+  title: "பின்வருவனவற்றிற்கான அணுகலைக் கோருகிறது:"
+  description: "இந்தச் செயலி பின்வரும் தகவல்களை அணுக விரும்புகிறது. தயவுசெய்து மதிப்பாய்வு செய்து, நீங்கள் எைப் பகிர விரும்புகிறீர்கள் என்பதைத் தேர்ந்தெடுக்கவும்."
+  allow: "அனுமதி"
+  deny: "நிராகரி"
+  timer_label: "தயவுசெய்து குறிப்பிட்ட நேரத்திற்குள் உரிய நடவடிக்கை எடுக்கவும்:"
+  essential: "அத்தியாவசியக் கோரிக்கைகள்"
+  optional: "விருப்பக் கோரிக்கைகள்"
+  essential_info: "சேவை வழங்குநருக்குத் தேவைப்படும் கட்டாயப் பயனர் தகவல்"
+  optional_info: "வசிப்பாளர் சேவை வழங்குநருடன் பகிரத் தேர்ந்தெடுக்கக்கூடிய கூடுதல் பயனர் தகவல்"
 
 signin:
   images.app_logo.alt: பயன்பாட்டு லோகோ

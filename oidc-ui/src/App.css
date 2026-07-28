@@ -209,12 +209,12 @@ input[type="password"]::-ms-clear {
 }
 
 /* css for ACR selection button */
-.thunderid-signin__button.thunderid-button__secondary.thunderid-button__outline {
+.left-align-button {
   justify-content: flex-start;
   border-color: var(--login-card-box-color);
   background-color: white;
   color: black;
-  &:hover {
+  &:hover:not(:disabled) {
     border-color: var(--primary-color);
     color: black;
     background-color: white;
@@ -223,10 +223,6 @@ input[type="password"]::-ms-clear {
   /* size of icon in ACR selection button */
   & .thunderid-button__start-icon > img {
     width: 24px !important;
-  }
-
-  form#resend_otp_block > & {
-    justify-content: center;
   }
 }
 

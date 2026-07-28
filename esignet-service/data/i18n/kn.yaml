@@ -4,9 +4,9 @@
   "design.resolve.error.app_not_found": ಅಪ್ಲಿಕೇಶನ್ ಕಂಡುಬಂದಿಲ್ಲ
   "design.resolve.error.app_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ id ಹೊಂದಿರುವ ಅಪ್ಲಿಕೇಶನ್ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
   "design.resolve.error.invalid_type": ಅಮಾನ್ಯ ವಿನಂತಿ ಸ್ವರೂಪ
-  "design.resolve.error.invalid_type_description": "\"type\" ಕ್ವೆರಿ ಪ್ಯಾರಾಮೀಟರ್ ಅಗತ್ಯವಿದ್ದು, \"APP\" ಅಥವಾ \"OU\" ಆಗಿರಬೇಕು"
+  "design.resolve.error.invalid_type_description": '"type" ಕ್ವೆರಿ ಪ್ಯಾರಾಮೀಟರ್ ಅಗತ್ಯವಿದ್ದು, "APP" ಅಥವಾ "OU" ಆಗಿರಬೇಕು'
   "design.resolve.error.missing_id": ಅಮಾನ್ಯ ವಿನಂತಿ ಸ್ವರೂಪ
-  "design.resolve.error.missing_id_description": "\"id\" ಕ್ವೆರಿ ಪ್ಯಾರಾಮೀಟರ್ ಅಗತ್ಯವಿದೆ"
+  "design.resolve.error.missing_id_description": '"id" ಕ್ವೆರಿ ಪ್ಯಾರಾಮೀಟರ್ ಅಗತ್ಯವಿದೆ'
   "design.resolve.error.unsupported_type": ಬೆಂಬಲಿಸದ ರಿಸಾಲ್ವ್ ಪ್ರಕಾರ
   "design.resolve.error.unsupported_type_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ರಿಸಾಲ್ವ್ ಪ್ರಕಾರವನ್ನು ಇನ್ನೂ ಬೆಂಬಲಿಸಲಾಗಿಲ್ಲ. ಪ್ರಸ್ತುತ ಕೇವಲ \"APP\" ಪ್ರಕಾರ ಮಾತ್ರ ಬೆಂಬಲಿತವಾಗಿದೆ
   "error.actor_not_found": ನಟ ಕಂಡುಬಂದಿಲ್ಲ
@@ -86,8 +86,8 @@
   "error.agentservice.missing_agent_id_description": ಏಜೆಂಟ್ ID ಅಗತ್ಯವಿದೆ
   "error.agentservice.multiple_oauth_configs": ಅನೇಕ OAuth ಇನ್‌ಬೌಂಡ್ ದೃಢೀಕರಣ ಸಂರಚನೆಗಳಿಗೆ ಅನುಮತಿ ಇಲ್ಲ
   "error.agentservice.multiple_oauth_configs_description": ಒಂದು ಘಟಕವು ಪ್ರತಿ ಪ್ರೋಟೋಕಾಲ್‌ಗೆ ಗರಿಷ್ಠ ಒಂದು ಇನ್‌ಬೌಂಡ್ ದೃಢೀಕರಣ ಸಂರಚನೆ ಹೊಂದಬಹುದು
-  "error.agentservice.none_auth_method_cannot_have_cert_or_secret_description": "\"none\" ದೃಢೀಕರಣ ವಿಧಾನಕ್ಕೆ ಸರ್ಟಿಫಿಕೇಟ್ ಅಥವಾ ಕ್ಲೈಂಟ್ ರಹಸ್ಯ ಇರಲು ಅನುಮತಿ ಇಲ್ಲ"
-  "error.agentservice.none_auth_method_requires_public_client_description": "\"none\" ದೃಢೀಕರಣ ವಿಧಾನಕ್ಕೆ ಕ್ಲೈಂಟ್ ಸಾರ್ವಜನಿಕ ಕ್ಲೈಂಟ್ ಆಗಿರಬೇಕು"
+  "error.agentservice.none_auth_method_cannot_have_cert_or_secret_description": '"none" ದೃಢೀಕರಣ ವಿಧಾನಕ್ಕೆ ಸರ್ಟಿಫಿಕೇಟ್ ಅಥವಾ ಕ್ಲೈಂಟ್ ರಹಸ್ಯ ಇರಲು ಅನುಮತಿ ಇಲ್ಲ'
+  "error.agentservice.none_auth_method_requires_public_client_description": '"none" ದೃಢೀಕರಣ ವಿಧಾನಕ್ಕೆ ಕ್ಲೈಂಟ್ ಸಾರ್ವಜನಿಕ ಕ್ಲೈಂಟ್ ಆಗಿರಬೇಕು'
   "error.agentservice.organization_unit_not_found": ಸಂಸ್ಥಾ ಘಟಕ ಕಂಡುಬಂದಿಲ್ಲ
   "error.agentservice.organization_unit_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಸಂಸ್ಥಾ ಘಟಕ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
   "error.agentservice.owner_not_found": ಮಾಲೀಕ ಕಂಡುಬಂದಿಲ್ಲ
@@ -170,7 +170,7 @@
   "error.applicationservice.invalid_jwks_uri": ಅಮಾನ್ಯ JWKS URI
   "error.applicationservice.invalid_jwks_uri_description": ಒದಗಿಸಿದ JWKS URI ಮಾನ್ಯ URI ಅಲ್ಲ
   "error.applicationservice.invalid_jwks_uri_scheme": ಅಮಾನ್ಯ JWKS URI ಸ್ಕೀಮ್
-  "error.applicationservice.invalid_jwks_uri_scheme_description": "\"jwks_uri\" HTTPS ಸ್ಕೀಮ್ ಬಳಸಬೇಕು"
+  "error.applicationservice.invalid_jwks_uri_scheme_description": '"jwks_uri" HTTPS ಸ್ಕೀಮ್ ಬಳಸಬೇಕು'
   "error.applicationservice.invalid_logo_url": ಅಮಾನ್ಯ ಲೋಗೋ URL
   "error.applicationservice.invalid_logo_url_description": ಒದಗಿಸಿದ ಲೋಗೋ URL ಮಾನ್ಯ URI ಅಲ್ಲ
   "error.applicationservice.invalid_oauth_configuration": ಅಮಾನ್ಯ OAuth ಸಂರಚನೆ
@@ -197,8 +197,8 @@
   "error.applicationservice.layout_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಲೇಔಟ್ ಸಂರಚನೆ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
   "error.applicationservice.multiple_oauth_configs": ಅನೇಕ OAuth ಇನ್‌ಬೌಂಡ್ ದೃಢೀಕರಣ ಸಂರಚನೆಗಳಿಗೆ ಅನುಮತಿ ಇಲ್ಲ
   "error.applicationservice.multiple_oauth_configs_description": ಒಂದು ಅಪ್ಲಿಕೇಶನ್ ಪ್ರತಿ ಪ್ರೋಟೋಕಾಲ್‌ಗೆ ಗರಿಷ್ಠ ಒಂದು ಇನ್‌ಬೌಂಡ್ ದೃಢೀಕರಣ ಸಂರಚನೆ ಹೊಂದಬಹುದು
-  "error.applicationservice.none_auth_method_cannot_have_cert_or_secret_description": "\"none\" ದೃಢೀಕರಣ ವಿಧಾನಕ್ಕೆ ಸರ್ಟಿಫಿಕೇಟ್ ಅಥವಾ ಕ್ಲೈಂಟ್ ರಹಸ್ಯ ಇರಲು ಅನುಮತಿ ಇಲ್ಲ"
-  "error.applicationservice.none_auth_method_requires_public_client_description": "\"none\" ದೃಢೀಕರಣ ವಿಧಾನಕ್ಕೆ ಕ್ಲೈಂಟ್ ಸಾರ್ವಜನಿಕ ಕ್ಲೈಂಟ್ ಆಗಿರಬೇಕು"
+  "error.applicationservice.none_auth_method_cannot_have_cert_or_secret_description": '"none" ದೃಢೀಕರಣ ವಿಧಾನಕ್ಕೆ ಸರ್ಟಿಫಿಕೇಟ್ ಅಥವಾ ಕ್ಲೈಂಟ್ ರಹಸ್ಯ ಇರಲು ಅನುಮತಿ ಇಲ್ಲ'
+  "error.applicationservice.none_auth_method_requires_public_client_description": '"none" ದೃಢೀಕರಣ ವಿಧಾನಕ್ಕೆ ಕ್ಲೈಂಟ್ ಸಾರ್ವಜನಿಕ ಕ್ಲೈಂಟ್ ಆಗಿರಬೇಕು'
   "error.applicationservice.pkce_requires_authorization_code_description": authorization_code ಗ್ರಾಂಟ್ ಪ್ರಕಾರ ಆಯ್ಕೆ ಮಾಡಿದಾಗ ಮಾತ್ರ PKCE ಸಕ್ರಿಯಗೊಳಿಸಬಹುದು
   "error.applicationservice.private_key_jwt_cannot_have_client_secret_description": private_key_jwt ದೃಢೀಕರಣ ವಿಧಾನಕ್ಕೆ ಕ್ಲೈಂಟ್ ರಹಸ್ಯ ಇರಲು ಅನುಮತಿ ಇಲ್ಲ
   "error.applicationservice.private_key_jwt_requires_certificate_description": private_key_jwt ದೃಢೀಕರಣ ವಿಧಾನಕ್ಕೆ ಸರ್ಟಿಫಿಕೇಟ್ ಅಗತ್ಯವಿದೆ
@@ -429,7 +429,7 @@
   "error.dcr.invalid_request_format": ಅಮಾನ್ಯ ವಿನಂತಿ ಸ್ವರೂಪ
   "error.dcr.invalid_request_format_description": ವಿನಂತಿ ಮುಖ್ಯಭಾಗ ಕಾಣೆಯಾಗಿದೆ ಅಥವಾ ಅಮಾನ್ಯ ಸ್ವರೂಪ ಹೊಂದಿದೆ
   "error.dcr.jwks_configuration_conflict": JWKS ಸಂರಚನೆ ಸಂಘರ್ಷ
-  "error.dcr.jwks_configuration_conflict_description": "\"jwks\" ಮತ್ತು \"jwks_uri\" ಪ್ಯಾರಾಮೀಟರ್‌ಗಳು ಎರಡನ್ನೂ ನಿರ್ದಿಷ್ಟಪಡಿಸಲಾಗುವುದಿಲ್ಲ"
+  "error.dcr.jwks_configuration_conflict_description": '"jwks" ಮತ್ತು "jwks_uri" ಪ್ಯಾರಾಮೀಟರ್‌ಗಳು ಎರಡನ್ನೂ ನಿರ್ದಿಷ್ಟಪಡಿಸಲಾಗುವುದಿಲ್ಲ'
   "error.dcr.server_error": ಸರ್ವರ್ ದೋಷ
   "error.dcr.server_error_description": ವಿನಂತಿ ಪ್ರಕ್ರಿಯೆಗೊಳಿಸುವಾಗ ಅನಿರೀಕ್ಷಿತ ದೋಷ ಸಂಭವಿಸಿದೆ
   "error.dcr.unauthorized": ಅನಧಿಕೃತ
@@ -528,11 +528,11 @@
   "error.flowmetaservice.application_not_found_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಅಪ್ಲಿಕೇಶನ್ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
   "error.flowmetaservice.internal_server_error": ಆಂತರಿಕ ಸರ್ವರ್ ದೋಷ
   "error.flowmetaservice.invalid_request": ಅಮಾನ್ಯ ವಿನಂತಿ
-  "error.flowmetaservice.invalid_type_description": "\"type\" ಪ್ಯಾರಾಮೀಟರ್ \"APP\" ಅಥವಾ \"OU\" ಆಗಿರಬೇಕು"
-  "error.flowmetaservice.missing_id_description": "\"id\" ಕ್ವೆರಿ ಪ್ಯಾರಾಮೀಟರ್ ಅಗತ್ಯವಿದೆ"
+  "error.flowmetaservice.invalid_type_description": '"type" ಪ್ಯಾರಾಮೀಟರ್ "APP" ಅಥವಾ "OU" ಆಗಿರಬೇಕು'
+  "error.flowmetaservice.missing_id_description": '"id" ಕ್ವೆರಿ ಪ್ಯಾರಾಮೀಟರ್ ಅಗತ್ಯವಿದೆ'
   "error.flowmetaservice.missing_id_parameter": ಅಗತ್ಯ ಪ್ಯಾರಾಮೀಟರ್ ಕಾಣೆಯಾಗಿದೆ
   "error.flowmetaservice.missing_required_parameter": ಅಗತ್ಯ ಪ್ಯಾರಾಮೀಟರ್ ಕಾಣೆಯಾಗಿದೆ
-  "error.flowmetaservice.missing_type_description": "\"type\" ಕ್ವೆರಿ ಪ್ಯಾರಾಮೀಟರ್ ಅಗತ್ಯವಿದೆ"
+  "error.flowmetaservice.missing_type_description": '"type" ಕ್ವೆರಿ ಪ್ಯಾರಾಮೀಟರ್ ಅಗತ್ಯವಿದೆ'
   "error.flowmetaservice.ou_fetch_failed": ಆಂತರಿಕ ಸರ್ವರ್ ದೋಷ
   "error.flowmetaservice.ou_fetch_failed_description": ಸಂಸ್ಥಾ ಘಟಕ ಮಾಹಿತಿ ಮರುಪಡೆಯಲು ವಿಫಲವಾಗಿದೆ
   "error.flowmetaservice.ou_not_found": ಸಂಪನ್ಮೂಲ ಕಂಡುಬಂದಿಲ್ಲ
@@ -754,7 +754,7 @@
   "error.ouservice.circular_dependency_detected": ವೃತ್ತಾಕಾರ ಅವಲಂಬನೆ ಪತ್ತೆಯಾಗಿದೆ
   "error.ouservice.circular_dependency_detected_description": ಈ ಮೂಲವನ್ನು ಹೊಂದಿಸುವುದರಿಂದ ವೃತ್ತಾಕಾರ ಅವಲಂಬನೆ ರಚನೆಯಾಗುತ್ತದೆ
   "error.ouservice.invalid_filter": ಅಮಾನ್ಯ ಫಿಲ್ಟರ್ ಪ್ಯಾರಾಮೀಟರ್
-  "error.ouservice.invalid_filter_description": "ಫಿಲ್ಟರ್ ಪ್ಯಾರಾಮೀಟರ್ ಅಮಾನ್ಯವಾಗಿದೆ. ಸ್ವರೂಪ ಬಳಸಿ: attribute (eq|gt|lt) \"value\""
+  "error.ouservice.invalid_filter_description": 'ಫಿಲ್ಟರ್ ಪ್ಯಾರಾಮೀಟರ್ ಅಮಾನ್ಯವಾಗಿದೆ. ಸ್ವರೂಪ ಬಳಸಿ: attribute (eq|gt|lt) "value"'
   "error.ouservice.invalid_handle_path": ಅಮಾನ್ಯ ಹ್ಯಾಂಡಲ್ ಮಾರ್ಗ
   "error.ouservice.invalid_handle_path_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಹ್ಯಾಂಡಲ್ ಮಾರ್ಗ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
   "error.ouservice.invalid_limit_parameter": ಅಮಾನ್ಯ ಲಿಮಿಟ್ ಪ್ಯಾರಾಮೀಟರ್
@@ -1233,10 +1233,15 @@ otp:
   resend_otp: OTP ಮರುಕಳುಹಿಸಿ
 
 consent:
-  title: ನಿಮ್ಮ ಒಪ್ಪಿಗೆ ಬೇಕು
-  description: ಈ ಅಪ್ಲಿಕೇಶನ್ ಈ ಕೆಳಗಿನ ಮಾಹಿತಿಯನ್ನು ಪ್ರವೇಶಿಸಲು ಬಯಸುತ್ತದೆ. ದಯವಿಟ್ಟು ಪರಿಶೀಲಿಸಿ ಮತ್ತು ನೀವು ಏನನ್ನು ಹಂಚಿಕೊಳ್ಳಲು ಬಯಸುತ್ತೀರಿ ಎಂಬುದನ್ನು ಆಯ್ಕೆಮಾಡಿ.
-  allow: ಅನುಮತಿಸಿ
-  deny: ನಿರಾಕರಿಸಿ
+  title: "ಕೆಳಗಿನವುಗಳಿಗೆ ಪ್ರವೇಶವನ್ನು ಕೋರುತ್ತಿದೆ:"
+  description: "ಈ ಅಪ್ಲಿಕೇಶನ್ ಕೆಳಗಿನ ಮಾಹಿತಿಯನ್ನು ಪ್ರವೇಶಿಸಲು ಬಯಸುತ್ತದೆ. ದಯವಿಟ್ಟು ಪರಿಶೀಲಿಸಿ ಮತ್ತು ನೀವು ಏನನ್ನು ಹಂಚಿಕೊಳ್ಳಲು ಬಯಸುತ್ತೀರಿ ಎಂಬುದನ್ನು ಆಯ್ಕೆಮಾಡಿ."
+  allow: "ಅನುಮತಿಸಿ"
+  deny: "ನಿರಾಕರಿಸಿ"
+  timer_label: "ದಯವಿಟ್ಟು ನಿಗದಿತ ಸಮಯದಲ್ಲಿ ಸೂಕ್ತ ಕ್ರಮ ತಗೆದುಕೊಳ್ಳಿ:"
+  essential: "ಅಗತ್ಯ ಹಕ್ಕುಗಳು"
+  optional: "ಐಚ್ಛಿಕ ಹಕ್ಕುಗಳು"
+  essential_info: "ಸೇವಾ ಪೂರೈಕೆದಾರರಿಗೆ ಅಗತ್ಯವಿರುವ ಕಡ್ಡಾಯ ಬಳಕೆದಾರ ಮಾಹಿತಿ"
+  optional_info: "ನಿವಾಸಿಯು ಸೇವಾ ಪೂರೈಕೆದಾರರೊಂದಿಗೆ ಹಂಚಿಕೊಳ್ಳಲು ಆಯ್ಕೆ ಮಾಡಬಹುದಾದ ಹೆಚ್ಚುವರಿ ಬಳಕೆದಾರ ಮಾಹಿತಿ"
 
 signin:
   images.app_logo.alt: ಅಪ್ಲಿಕೇಶನ್ ಲೋಗೋ
