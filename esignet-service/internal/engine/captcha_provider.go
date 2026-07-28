@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
@@ -72,6 +73,12 @@ func (p captchaProvider) Verify(ctx context.Context, token string) (*providers.C
 	if err != nil {
 		p.logger.Error("captcha: failed to marshal request", applog.Error(err))
 		return nil, errCaptchaProviderServer
+	}
+
+	if p.config.TimeoutSecs > 0 {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, time.Duration(p.config.TimeoutSecs)*time.Second)
+		defer cancel()
 	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, p.config.ValidatorURL, bytes.NewReader(payload))
