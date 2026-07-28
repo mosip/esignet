@@ -5,6 +5,7 @@ Feature: Esignet Login Options Page
   @smoke @AuthenticaionPage
   Scenario Outline: Verifying Login page Options
    Given user captures the authorize url
+   Then verify IDP UI uses default language configured in env-config
    Then verify dropdown language selection is present
    And verify multiple options for login is available
    And authentication screen should show login options based on acr_values from url
@@ -61,8 +62,17 @@ Feature: Esignet Login Options Page
    Then verify the otp verification button is enabled on the verification screen
    And click on verify Otp button
    Then verify user navigate to Attention screen
-   Then clicks on cancel button in attention consent screen page
-   Then clicks on discontinue button in attention screen page
+   And user completes consent flow through eKYC and returns to relying party
+   And clicks on sign in with esignet button in login page
+   When click on Language selection option
+   And select the mandatory language
+   And user click on Login with Otp
+   Then clicks on vid option button in authentication screen page
+   When user enters prerequisite vid1 into vid field
+   And user click on get otp button
+   When user enters the correct otp
+   And click on verify Otp button
+   And user completes consent flow through eKYC if attention screen is displayed
    And clicks on sign in with esignet button in login page
    When click on Language selection option
    And select the mandatory language
@@ -85,4 +95,30 @@ Feature: Esignet Login Options Page
    Then verify user should get invalid individual id error message in authentication screen
    When user enters only space into email field
    Then verify get otp button is disabled in authentication screen
+   And clicks on sign in with esignet button in login page
+   When click on Language selection option
+   And select the mandatory language
+   And user click on Login with Otp
+   Then clicks on vid option button in authentication screen page
+   When user enters prerequisite vid2 into vid field
+   And user click on get otp button
+   When user enters the correct otp
+   And click on verify Otp button
+   Then verify consent is not requested after authentication
+
+  @smoke @BiometricDeviceNotDetected @MOSIP-22718
+  Scenario: Log in with Biometrics - Device Not Detected (MOSIP-22718 TC_04)
+   Given user captures the authorize url
+   When click on Language selection option
+   And select the mandatory language
+   And user click on Login with Biometrics
+   Then verify secure biometric interface is displayed
+   And verify uin vid option is displayed on biometric screen
+   When user clicks on uin vid option on biometric screen
+   Then verify vid text field is displayed on biometric screen
+   And verify scanning devices message is displayed on biometric screen
+   And verify retry scan button is not displayed while scanning devices
+   Then verify device not found message is displayed on biometric screen
+   When user clicks on biometric device scan retry button
+   Then verify scanning devices message is displayed on biometric screen
    
