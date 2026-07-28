@@ -7,7 +7,9 @@
 package mock
 
 import (
+	"net/http"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -17,7 +19,7 @@ import (
 
 func (ts *InitTestSuite) TestInitReturnsAuthnProviderAndNoopAuditor() {
 	t := ts.T()
-	authnProvider, observability, err := Init(&config.AppConfig{}, newTestClientSvc())
+	authnProvider, observability, err := Init(&config.AppConfig{}, newTestClientSvc(), &http.Client{Timeout: 30 * time.Second})
 
 	require.NoError(t, err)
 	require.NotNil(t, authnProvider)

@@ -14,7 +14,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
 	"net/url"
 	"strings"
@@ -54,10 +53,10 @@ type mockAuthnProvider struct {
 
 // NewMockAuthnProvider creates a new mock authentication provider that talks to the
 // MOSIP mock-identity-system over HTTP.
-func NewMockAuthnProvider(cfg *config.AppConfig, clientSvc *clientmgmt.Service) (shared.ConsolidatedAuthnProvider, error) {
+func NewMockAuthnProvider(cfg *config.AppConfig, clientSvc *clientmgmt.Service, httpClient *http.Client) (shared.ConsolidatedAuthnProvider, error) {
 	return &mockAuthnProvider{
 		appConfig: cfg,
-		client:    newHTTPClient(),
+		client:    httpClient,
 		clientSvc: clientSvc,
 		cfg:       LoadConfig(),
 	}, nil
@@ -436,21 +435,6 @@ func (p *mockAuthnProvider) callSendOtpEndpoint(requestBody []byte, relyingParty
 }
 
 // ---------------------------------------------------------------------------------------------------------
-
-func newHTTPClient() *http.Client {
-	return &http.Client{
-		Timeout: 30 * time.Second,
-		Transport: &http.Transport{
-			DialContext: (&net.Dialer{
-				Timeout:   5 * time.Second,
-				KeepAlive: 30 * time.Second,
-			}).DialContext,
-			TLSHandshakeTimeout:   10 * time.Second,
-			ResponseHeaderTimeout: 10 * time.Second,
-			IdleConnTimeout:       90 * time.Second,
-		},
-	}
-}
 
 func buildEndpointURL(baseURL, relyingPartyID, clientID string) string {
 	return strings.TrimRight(baseURL, "/") + "/" +

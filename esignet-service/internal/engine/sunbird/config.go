@@ -10,7 +10,6 @@ package sunbird
 import (
 	"errors"
 	"os"
-	"strconv"
 	"strings"
 )
 
@@ -22,13 +21,11 @@ const (
 	envSunbirdEntityIDField = "MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_KBI_ENTITY_ID_FIELD"
 	envSunbirdClaimsMapping = "MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_IDENTITY_OPENID_CLAIMS_MAPPING"
 	envSunbirdEntityURL     = "MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_REGISTRY_GET_URL"
-	envSunbirdTimeout       = "MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_REQUEST_TIMEOUT_SECS"
 )
 
 const (
 	defaultSunbirdIDField       = "policyNumber"
 	defaultSunbirdEntityIDField = "osid"
-	defaultSunbirdTimeoutSecs   = 10
 
 	defaultSunbirdFieldDetails = `[{"id":"policyNumber","type":"text","format":""},` +
 		`{"id":"fullName","type":"text","format":""},` +
@@ -46,7 +43,6 @@ type Config struct {
 	EntityIDField string
 	FieldDetails  string
 	ClaimsMapping string
-	TimeoutSecs   int
 }
 
 // LoadConfig reads SunbirdRC auth settings from environment variables.
@@ -55,13 +51,6 @@ type Config struct {
 // start. The remaining fields default to the released MOSIP Insurance registry
 // conventions.
 func LoadConfig() Config {
-	timeoutSecs := defaultSunbirdTimeoutSecs
-	if raw := os.Getenv(envSunbirdTimeout); raw != "" {
-		if secs, err := strconv.Atoi(raw); err == nil && secs > 0 {
-			timeoutSecs = secs
-		}
-	}
-
 	return Config{
 		SearchURL:     strings.TrimSpace(envOrDefault(envSunbirdSearchURL, "")),
 		EntityURL:     trimTrailingSlash(envOrDefault(envSunbirdEntityURL, "")),
@@ -69,7 +58,6 @@ func LoadConfig() Config {
 		EntityIDField: envOrDefault(envSunbirdEntityIDField, defaultSunbirdEntityIDField),
 		FieldDetails:  envOrDefault(envSunbirdFieldDetails, defaultSunbirdFieldDetails),
 		ClaimsMapping: envOrDefault(envSunbirdClaimsMapping, defaultSunbirdClaimsMapping),
-		TimeoutSecs:   timeoutSecs,
 	}
 }
 

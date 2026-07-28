@@ -8,6 +8,7 @@ package engine
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
@@ -23,16 +24,16 @@ import (
 // provider for the configured ID system backend. Each backend package
 // (mock, mosip, sunbird) owns its own construction, including its own HTTP
 // client where one is needed.
-func NewIDSystemProviders(appConfig *config.AppConfig, clientSvc *clientmgmt.Service) (
+func NewIDSystemProviders(appConfig *config.AppConfig, clientSvc *clientmgmt.Service, httpClient *http.Client) (
 	shared.ConsolidatedAuthnProvider, providers.ObservabilityProvider, error) {
 
 	switch appConfig.Provider {
 	case "mosip":
-		return mosip.Init(appConfig, clientSvc)
+		return mosip.Init(appConfig, clientSvc, httpClient)
 	case "sunbird":
-		return sunbird.Init()
+		return sunbird.Init(httpClient)
 	case "mock":
-		return mock.Init(appConfig, clientSvc)
+		return mock.Init(appConfig, clientSvc, httpClient)
 	default:
 		return nil, nil, fmt.Errorf("unsupported authn provider %q (use mosip, sunbird, or mock)", appConfig.Provider)
 	}

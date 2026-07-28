@@ -177,6 +177,26 @@ func TestApplyDefaults_TTLGuards(t *testing.T) {
 	require.EqualValues(t, defaultFlowCacheTTLSecs, cfg.FlowCacheTTLSecs)
 }
 
+func TestApplyDefaults_OutboundHTTPClient(t *testing.T) {
+	t.Setenv("CRYPTO_ENCRYPTION_KEY", "k")
+
+	cfg := &AppConfig{
+		OutboundHTTPClient: HTTPClientConfig{
+			TimeoutSecs:     15,
+			MaxConnsPerHost: -1,
+		},
+	}
+	applyDefaults(cfg)
+
+	require.EqualValues(t, 15, cfg.OutboundHTTPClient.TimeoutSecs, "positive yaml value preserved")
+	require.EqualValues(t, defaultHTTPDialTimeoutSecs, cfg.OutboundHTTPClient.DialTimeoutSecs)
+	require.EqualValues(t, defaultHTTPDialKeepAliveSecs, cfg.OutboundHTTPClient.DialKeepAliveSecs)
+	require.EqualValues(t, defaultHTTPTLSHandshakeTimeoutSecs, cfg.OutboundHTTPClient.TLSHandshakeTimeoutSecs)
+	require.EqualValues(t, defaultHTTPResponseHeaderTimeoutSecs, cfg.OutboundHTTPClient.ResponseHeaderTimeoutSecs)
+	require.EqualValues(t, defaultHTTPIdleConnTimeoutSecs, cfg.OutboundHTTPClient.IdleConnTimeoutSecs)
+	require.EqualValues(t, defaultHTTPMaxConnsPerHost, cfg.OutboundHTTPClient.MaxConnsPerHost)
+}
+
 func TestApplyEnvOverrides_GateClient(t *testing.T) {
 	cfg := &AppConfig{}
 	t.Setenv("OIDC_UI_SCHEME", "https")

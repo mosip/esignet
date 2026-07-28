@@ -39,6 +39,7 @@ var compareFieldAndSwapScript = redis.NewScript(`
 local val = redis.call('GET', KEYS[1])
 if not val then return 0 end
 local data = cjson.decode(val)
+if type(data) ~= 'table' then return 0 end
 if data[ARGV[1]] ~= ARGV[2] then return 0 end
 redis.call('SET', KEYS[1], ARGV[3], 'KEEPTTL')
 return 1

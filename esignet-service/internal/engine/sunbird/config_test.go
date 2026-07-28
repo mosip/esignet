@@ -7,7 +7,9 @@
 package sunbird
 
 import (
+	"net/http"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/suite"
 )
@@ -16,7 +18,7 @@ func clearSunbirdEnv(t *testing.T) {
 	t.Helper()
 	for _, key := range []string{
 		envSunbirdIDField, envSunbirdFieldDetails, envSunbirdSearchURL,
-		envSunbirdEntityIDField, envSunbirdClaimsMapping, envSunbirdEntityURL, envSunbirdTimeout,
+		envSunbirdEntityIDField, envSunbirdClaimsMapping, envSunbirdEntityURL,
 	} {
 		t.Setenv(key, "")
 	}
@@ -42,9 +44,6 @@ func (ts *ConfigTestSuite) TestLoadConfigDefaults() {
 	if cfg.ClaimsMapping != defaultSunbirdClaimsMapping {
 		t.Errorf("ClaimsMapping = %q, want default", cfg.ClaimsMapping)
 	}
-	if cfg.TimeoutSecs != defaultSunbirdTimeoutSecs {
-		t.Errorf("TimeoutSecs = %d, want %d", cfg.TimeoutSecs, defaultSunbirdTimeoutSecs)
-	}
 }
 
 func (ts *ConfigTestSuite) TestLoadConfigOverrides() {
@@ -54,7 +53,6 @@ func (ts *ConfigTestSuite) TestLoadConfigOverrides() {
 	t.Setenv(envSunbirdEntityURL, "http://example.com/entity///")
 	t.Setenv(envSunbirdIDField, "custom_id")
 	t.Setenv(envSunbirdEntityIDField, "custom_osid")
-	t.Setenv(envSunbirdTimeout, "45")
 
 	cfg := LoadConfig()
 	if cfg.SearchURL != "http://example.com/search" {
@@ -69,38 +67,22 @@ func (ts *ConfigTestSuite) TestLoadConfigOverrides() {
 	if cfg.EntityIDField != "custom_osid" {
 		t.Errorf("EntityIDField = %q, want custom_osid", cfg.EntityIDField)
 	}
-	if cfg.TimeoutSecs != 45 {
-		t.Errorf("TimeoutSecs = %d, want 45", cfg.TimeoutSecs)
-	}
-}
-
-func (ts *ConfigTestSuite) TestLoadConfigInvalidTimeoutFallsBackToDefault() {
-	t := ts.T()
-	clearSunbirdEnv(t)
-	t.Setenv(envSunbirdTimeout, "not-a-number")
-	if cfg := LoadConfig(); cfg.TimeoutSecs != defaultSunbirdTimeoutSecs {
-		t.Errorf("TimeoutSecs = %d, want default %d", cfg.TimeoutSecs, defaultSunbirdTimeoutSecs)
-	}
-
-	t.Setenv(envSunbirdTimeout, "-5")
-	if cfg := LoadConfig(); cfg.TimeoutSecs != defaultSunbirdTimeoutSecs {
-		t.Errorf("TimeoutSecs = %d, want default %d for negative value", cfg.TimeoutSecs, defaultSunbirdTimeoutSecs)
-	}
 }
 
 func (ts *ConfigTestSuite) TestInit() {
 	t := ts.T()
 	clearSunbirdEnv(t)
+	httpClient := &http.Client{Timeout: 30 * time.Second}
 
 	t.Run("missing search url fails", func(t *testing.T) {
-		if _, _, err := Init(); err == nil {
+		if _, _, err := Init(httpClient); err == nil {
 			t.Fatal("expected error when SUNBIRD_SEARCH_URL is unset")
 		}
 	})
 
 	t.Run("success", func(t *testing.T) {
 		t.Setenv(envSunbirdSearchURL, "http://example.com/search")
-		authnProvider, observabilityProvider, err := Init()
+		authnProvider, observabilityProvider, err := Init(httpClient)
 		if err != nil {
 			t.Fatalf("Init: %v", err)
 		}

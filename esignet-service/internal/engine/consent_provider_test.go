@@ -252,6 +252,33 @@ func (ts *ConsentProviderTestSuite) TestRecordConsent_SaveError() {
 	ts.Require().Equal("consent_persist_failed", svcErr.Code)
 }
 
+func (ts *ConsentProviderTestSuite) TestRecordConsent_EssentialAttributeDenied() {
+	q := &consentStubQuerier{}
+	p := newConsentTestProvider(q, nil)
+
+	meta := clientIDMeta("client-1")
+	meta[runtimeKeyClaims] = []string{`{"userinfo":{"email":{"essential":true}}}`}
+
+	decisions := &providers.ConsentDecisions{
+		Purposes: []providers.PurposeDecision{
+			{
+				PurposeName: "attributes:app-1",
+				Approved:    true,
+				Elements: []providers.ElementDecision{
+					{Name: "email", Approved: false},
+				},
+			},
+		},
+	}
+
+	consent, svcErr := p.RecordConsent(context.Background(), "ou-1", "app-1", "user-1",
+		decisions, "session-token", 3600, meta)
+	ts.Require().Nil(consent)
+	ts.Require().NotNil(svcErr)
+	ts.Require().Equal("essential_consent_denied", svcErr.Code)
+	ts.Require().Empty(q.lastUpsert.ClientID, "consent record must not be persisted when essential consent is denied")
+}
+
 func (ts *ConsentProviderTestSuite) TestBuildPrompt_EmptyReturnsNil() {
 	p := newConsentTestProvider(&consentStubQuerier{}, nil)
 	req := &requestedConsent{claimsRequest: map[string]any{}}
@@ -408,15 +435,38 @@ func (ts *ConsentProviderTestSuite) TestToPromptElements() {
 }
 
 func (ts *ConsentProviderTestSuite) TestReadAuthRequest() {
-	p := newConsentTestProvider(&consentStubQuerier{}, nil)
+	cfg := &config.AppConfig{AuthorizationScopes: map[string]string{"perm.read": "read"}}
+	p := newConsentTestProvider(&consentStubQuerier{}, cfg)
 	req, err := p.readAuthRequest(context.Background(), map[string][]string{
-		"initiator_query_claims": {"some-claims"},
-		"initiator_query_scopes": {"some-scopes"},
+		"initiator_query_claims": {`{"userinfo":{"name":{"essential":true}}}`},
+		"initiator_query_scope":  {"openid profile perm.read"},
 	})
 	ts.Require().NoError(err)
 	ts.Require().NotNil(req)
 	ts.Require().Equal("consent", req.prompt)
-	ts.Require().Equal([]string{"openid"}, req.standardScopes)
+	ts.Require().Equal(map[string]any{"name": map[string]any{"essential": true}},
+		req.claimsRequest["userinfo"])
+	ts.Require().Equal([]string{"openid", "profile"}, req.standardScopes)
+	ts.Require().Equal([]string{"perm.read"}, req.authorizeScopes)
+}
+
+func (ts *ConsentProviderTestSuite) TestReadAuthRequest_Empty() {
+	p := newConsentTestProvider(&consentStubQuerier{}, nil)
+	req, err := p.readAuthRequest(context.Background(), map[string][]string{})
+	ts.Require().NoError(err)
+	ts.Require().NotNil(req)
+	ts.Require().Equal(map[string]any{}, req.claimsRequest)
+	ts.Require().Empty(req.standardScopes)
+	ts.Require().Empty(req.authorizeScopes)
+}
+
+func (ts *ConsentProviderTestSuite) TestReadAuthRequest_InvalidClaimsJSON() {
+	p := newConsentTestProvider(&consentStubQuerier{}, nil)
+	req, err := p.readAuthRequest(context.Background(), map[string][]string{
+		"initiator_query_claims": {"not-json"},
+	})
+	ts.Require().Error(err)
+	ts.Require().Nil(req)
 }
 
 type ConsentProviderTestSuite struct {

@@ -7,9 +7,7 @@
 package mosip
 
 import (
-	"net"
 	"net/http"
-	"time"
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
@@ -19,34 +17,15 @@ import (
 	applog "github.com/mosip/esignet/internal/log"
 )
 
-// newHTTPClient returns a tuned HTTP client for outbound MOSIP calls. Each
-// caller (the IDA authenticator, the audit-manager client) gets its own
-// instance.
-func newHTTPClient() *http.Client {
-	return &http.Client{
-		Timeout: 30 * time.Second,
-		Transport: &http.Transport{
-			DialContext: (&net.Dialer{
-				Timeout:   5 * time.Second,
-				KeepAlive: 30 * time.Second,
-			}).DialContext,
-			TLSHandshakeTimeout:   10 * time.Second,
-			ResponseHeaderTimeout: 10 * time.Second,
-			IdleConnTimeout:       90 * time.Second,
-		},
-	}
-}
-
 // Init builds the MOSIP IDA authn provider and the mosip-audit-manager
-// observability provider. Each gets its own HTTP client (see newHTTPClient).
-func Init(appConfig *config.AppConfig, clientSvc *clientmgmt.Service) (
+// observability provider.
+func Init(appConfig *config.AppConfig, clientSvc *clientmgmt.Service, httpClient *http.Client) (
 	shared.ConsolidatedAuthnProvider, providers.ObservabilityProvider, error) {
-	client := newHTTPClient()
-	authnProvider, err := NewMosipAuthnProvider(appConfig, clientSvc, client)
+	authnProvider, err := NewMosipAuthnProvider(appConfig, clientSvc, httpClient)
 	if err != nil {
 		return nil, nil, err
 	}
-	auditor, err := NewAuditor(client)
+	auditor, err := NewAuditor(httpClient)
 	if err != nil {
 		return nil, nil, err
 	}

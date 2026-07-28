@@ -38,31 +38,31 @@ func newTestProvider(searchURL, entityURL string) *sunbirdAuthnProvider {
 func (ts *AuthenticatorTestSuite) TestNewSunbirdAuthnProvider() {
 	t := ts.T()
 	clearSunbirdEnv(t)
+	httpClient := &http.Client{Timeout: 30 * time.Second}
 
 	t.Run("missing search url", func(t *testing.T) {
-		_, err := NewSunbirdAuthnProvider()
+		_, err := NewSunbirdAuthnProvider(httpClient)
 		require.Error(t, err)
 	})
 
 	t.Run("invalid field details", func(t *testing.T) {
 		t.Setenv(envSunbirdSearchURL, "http://example.com/search")
 		t.Setenv(envSunbirdFieldDetails, "not-json")
-		_, err := NewSunbirdAuthnProvider()
+		_, err := NewSunbirdAuthnProvider(httpClient)
 		require.Error(t, err)
 	})
 
 	t.Run("no kbi fields other than id field", func(t *testing.T) {
 		t.Setenv(envSunbirdSearchURL, "http://example.com/search")
 		t.Setenv(envSunbirdFieldDetails, `[{"id":"policyNumber","type":"text","format":""}]`)
-		_, err := NewSunbirdAuthnProvider()
+		_, err := NewSunbirdAuthnProvider(httpClient)
 		require.Error(t, err)
 	})
 
 	t.Run("success", func(t *testing.T) {
 		t.Setenv(envSunbirdSearchURL, "http://example.com/search")
 		t.Setenv(envSunbirdFieldDetails, defaultSunbirdFieldDetails)
-		t.Setenv(envSunbirdTimeout, "0")
-		provider, err := NewSunbirdAuthnProvider()
+		provider, err := NewSunbirdAuthnProvider(httpClient)
 		require.NoError(t, err)
 		require.NotNil(t, provider)
 	})

@@ -9,6 +9,8 @@ package engine
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
+	"fmt"
 	"maps"
 	"sort"
 	"strings"
@@ -25,6 +27,8 @@ import (
 
 const (
 	runtimeKeyClientID = "initiator_query_client_id"
+	runtimeKeyScopes   = "initiator_query_scope"
+	runtimeKeyClaims   = "initiator_query_claims"
 
 	// purpose-name prefixes the engine uses to classify a consent purpose's namespace.
 	attributesPurpose  = "attributes:"
@@ -123,15 +127,26 @@ func (p *consentProvider) RecordConsent(ctx context.Context, _, appID, userID st
 		return nil, clientError("consent_record_failed", err)
 	}
 
-	// TODO check if any essential attribute is denied, ErrorEssentialConsentDenied should be returned.
+	essentialClaims := map[string]bool{}
+	for name, v := range requestedClaims(req) {
+		if isEssentialClaim(v) {
+			essentialClaims[name] = true
+		}
+	}
+
 	var acceptedClaims, permittedScopes []string
 	if decisions != nil {
 		for _, purpose := range decisions.Purposes {
+			isAttributesPurpose := strings.HasPrefix(purpose.PurposeName, attributesPurpose)
 			for _, element := range purpose.Elements {
 				if !element.Approved {
+					if isAttributesPurpose && essentialClaims[element.Name] {
+						p.logger.Warn("Essential attribute consent denied", applog.String("attribute", element.Name))
+						return nil, clientError("essential_consent_denied", nil)
+					}
 					continue
 				}
-				if strings.HasPrefix(purpose.PurposeName, attributesPurpose) {
+				if isAttributesPurpose {
 					acceptedClaims = append(acceptedClaims, element.Name)
 				}
 				if strings.HasPrefix(purpose.PurposeName, permissionsPurpose) {
@@ -427,25 +442,36 @@ func mergeScopeClaims(claimsRequest map[string]any, scopeClaimNames []string) ma
 }
 
 func (p *consentProvider) readAuthRequest(_ context.Context, runtimeMetadata map[string][]string) (*requestedConsent, error) {
-	claims := runtimeMetadata["initiator_query_claims"]
-	scopes := runtimeMetadata["initiator_query_scopes"]
-
-	if claims != nil {
-		// TODO
-		p.logger.Info("Non nil claims parameter found in the request")
+	req := &requestedConsent{
+		claimsRequest: map[string]any{},
+		prompt:        "consent",
 	}
 
-	if scopes != nil {
-		// TODO
-		p.logger.Info("Non nil scopes parameter found in the request")
+	if claims := firstValue(runtimeMetadata[runtimeKeyClaims]); claims != "" {
+		var claimsRequest map[string]any
+		if err := json.Unmarshal([]byte(claims), &claimsRequest); err != nil {
+			return nil, fmt.Errorf("failed to parse claims request parameter: %w", err)
+		}
+		req.claimsRequest = claimsRequest
 	}
 
-	return &requestedConsent{
-		claimsRequest:   map[string]any{},
-		authorizeScopes: []string{},
-		standardScopes:  []string{"openid"},
-		prompt:          "consent",
-	}, nil
+	for _, scope := range strings.Fields(firstValue(runtimeMetadata[runtimeKeyScopes])) {
+		if _, ok := p.config.AuthorizationScopes[scope]; ok {
+			req.authorizeScopes = append(req.authorizeScopes, scope)
+			continue
+		}
+		req.standardScopes = append(req.standardScopes, scope)
+	}
+
+	return req, nil
+}
+
+// firstValue returns the first element of values, or "" when values is empty.
+func firstValue(values []string) string {
+	if len(values) == 0 {
+		return ""
+	}
+	return values[0]
 }
 
 // requestedConsent is the consent-relevant view of an authorization request, read from the

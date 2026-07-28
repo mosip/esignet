@@ -518,16 +518,9 @@ func (ts *AuthenticatorTestSuite) TestGetUTCDateTime() {
 	require.NoError(t, err)
 }
 
-func (ts *AuthenticatorTestSuite) TestNewHTTPClient() {
-	t := ts.T()
-	client := newHTTPClient()
-	require.NotNil(t, client)
-	require.Equal(t, 30*time.Second, client.Timeout)
-}
-
 func (ts *AuthenticatorTestSuite) TestNewMockAuthnProvider() {
 	t := ts.T()
-	provider, err := NewMockAuthnProvider(nil, newTestClientSvc())
+	provider, err := NewMockAuthnProvider(nil, newTestClientSvc(), &http.Client{Timeout: 30 * time.Second})
 	require.NoError(t, err)
 	require.NotNil(t, provider)
 }

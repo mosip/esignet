@@ -159,13 +159,17 @@ func (s *inMemoryStore) CompareFieldAndSwap(_ context.Context, namespace provide
 		return false, nil
 	}
 
-	var doc map[string]json.RawMessage
-	if err := json.Unmarshal(e.value, &doc); err != nil {
+	var value any
+	if err := json.Unmarshal(e.value, &value); err != nil {
 		return false, fmt.Errorf("failed to unmarshal stored value: %w", err)
 	}
 
-	var current string
-	if err := json.Unmarshal(doc[field], &current); err != nil || current != expected {
+	doc, ok := value.(map[string]any)
+	if !ok {
+		return false, nil
+	}
+	current, ok := doc[field].(string)
+	if !ok || current != expected {
 		return false, nil
 	}
 

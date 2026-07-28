@@ -7,6 +7,7 @@
 package mosip
 
 import (
+	"net/http"
 	"testing"
 	"time"
 
@@ -16,21 +17,13 @@ import (
 	"github.com/mosip/esignet/internal/config"
 )
 
-func (ts *InitTestSuite) TestNewHTTPClientIsTuned() {
-	t := ts.T()
-	client := newHTTPClient()
-
-	require.Equal(t, 30*time.Second, client.Timeout)
-	require.NotNil(t, client.Transport)
-}
-
 func (ts *InitTestSuite) TestInitSucceedsWithAuditConfigured() {
 	t := ts.T()
 	t.Setenv("MOSIP_ESIGNET_AUDIT_MANAGER_URL", "http://audit.example.org/audits")
 	t.Setenv("MOSIP_ESIGNET_AUTH_TOKEN_URL", "http://audit.example.org/token")
 	t.Setenv("MOSIP_ESIGNET_IDA_CLIENT_SECRET", "secret")
 
-	authnProvider, auditor, err := Init(&config.AppConfig{}, nil)
+	authnProvider, auditor, err := Init(&config.AppConfig{}, nil, &http.Client{Timeout: 30 * time.Second})
 
 	require.NoError(t, err)
 	require.NotNil(t, authnProvider)
@@ -44,7 +37,7 @@ func (ts *InitTestSuite) TestInitFailsWhenAuditNotConfigured() {
 	t.Setenv("MOSIP_ESIGNET_AUDIT_MANAGER_URL", "")
 	t.Setenv("MOSIP_ESIGNET_AUTH_TOKEN_URL", "")
 
-	authnProvider, auditor, err := Init(&config.AppConfig{}, nil)
+	authnProvider, auditor, err := Init(&config.AppConfig{}, nil, &http.Client{Timeout: 30 * time.Second})
 
 	require.Error(t, err)
 	require.Nil(t, authnProvider)

@@ -214,6 +214,12 @@ func (ts *ServiceTestSuite) TestCompareFieldAndSwap() {
 		t.Fatalf("Put: %v", err)
 	}
 
+	s := store.(*inMemoryStore)
+	fk := s.getFormattedKey(ns, "key1")
+	s.mu.RLock()
+	wantExpiresAt := s.data[fk].expiresAt
+	s.mu.RUnlock()
+
 	swapped, err = store.CompareFieldAndSwap(ctx, ns, "key1", "State", "CONSUMED", []byte(`{"State":"AUTHENTICATED"}`))
 	if err != nil {
 		t.Fatalf("CompareFieldAndSwap(wrong expected): %v", err)
@@ -238,13 +244,11 @@ func (ts *ServiceTestSuite) TestCompareFieldAndSwap() {
 		t.Errorf("Get() after swap = %q, want AUTHENTICATED doc", got)
 	}
 
-	s := store.(*inMemoryStore)
-	fk := s.getFormattedKey(ns, "key1")
 	s.mu.RLock()
 	expiresAt := s.data[fk].expiresAt
 	s.mu.RUnlock()
-	if expiresAt.IsZero() {
-		t.Error("expected TTL to be preserved across CompareFieldAndSwap")
+	if !expiresAt.Equal(wantExpiresAt) {
+		t.Errorf("expiresAt = %v, want %v", expiresAt, wantExpiresAt)
 	}
 }
 
@@ -283,6 +287,42 @@ func (ts *ServiceTestSuite) TestCompareFieldAndSwapMalformedJSON() {
 
 	if _, err := store.CompareFieldAndSwap(ctx, ns, "key1", "State", "PENDING", []byte(`{"State":"AUTHENTICATED"}`)); err == nil {
 		t.Fatal("expected error unmarshalling malformed stored value")
+	}
+}
+
+func (ts *ServiceTestSuite) TestCompareFieldAndSwapNullField() {
+	t := ts.T()
+	store := Initialize("dep-1")
+	ctx := context.Background()
+
+	if err := store.Put(ctx, ns, "key1", []byte(`{"State":null}`), 0); err != nil {
+		t.Fatalf("Put: %v", err)
+	}
+
+	swapped, err := store.CompareFieldAndSwap(ctx, ns, "key1", "State", "", []byte(`{"State":"AUTHENTICATED"}`))
+	if err != nil {
+		t.Fatalf("CompareFieldAndSwap: %v", err)
+	}
+	if swapped {
+		t.Error("CompareFieldAndSwap on null field = true, want false")
+	}
+}
+
+func (ts *ServiceTestSuite) TestCompareFieldAndSwapScalarRoot() {
+	t := ts.T()
+	store := Initialize("dep-1")
+	ctx := context.Background()
+
+	if err := store.Put(ctx, ns, "key1", []byte(`42`), 0); err != nil {
+		t.Fatalf("Put: %v", err)
+	}
+
+	swapped, err := store.CompareFieldAndSwap(ctx, ns, "key1", "State", "PENDING", []byte(`{"State":"AUTHENTICATED"}`))
+	if err != nil {
+		t.Fatalf("CompareFieldAndSwap: %v", err)
+	}
+	if swapped {
+		t.Error("CompareFieldAndSwap on scalar-root document = true, want false")
 	}
 }
 
