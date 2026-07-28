@@ -1,0 +1,1282 @@
+system:
+  "design.resolve.error.app_no_design": L'application n'a pas de configuration de conception
+  "design.resolve.error.app_no_design_description": L'application spécifiée ne dispose pas d'une configuration de thème ou de mise en page associée
+  "design.resolve.error.app_not_found": Application introuvable
+  "design.resolve.error.app_not_found_description": L'application avec l'identifiant spécifié n'existe pas
+  "design.resolve.error.invalid_type": Format de requête non valide
+  "design.resolve.error.invalid_type_description": Le paramètre de requête \"type\" est obligatoire et doit être soit \"APP\" soit \"OU\"
+  "design.resolve.error.missing_id": Format de requête non valide
+  "design.resolve.error.missing_id_description": Le paramètre de requête \"id\" est obligatoire
+  "design.resolve.error.unsupported_type": Type de résolution non pris en charge
+  "design.resolve.error.unsupported_type_description": Le type de résolution spécifié n'est pas encore pris en charge. Actuellement, seul le type \"APP\" est pris en charge
+  "error.actor_not_found": Acteur introuvable
+  "error.actor_not_found_description": L'acteur demandé n'existe pas
+  "error.agentservice.agent_already_exists_with_client_id": ID client déjà utilisé
+  "error.agentservice.agent_already_exists_with_client_id_description": Une entité avec le même ID client existe déjà
+  "error.agentservice.agent_already_exists_with_name": L'agent existe déjà
+  "error.agentservice.agent_already_exists_with_name_description": Un agent avec le même nom existe déjà
+  "error.agentservice.agent_not_found": Agent introuvable
+  "error.agentservice.agent_not_found_description": L'agent avec l'identifiant spécifié n'existe pas
+  "error.agentservice.attribute_conflict": Conflit d'attribut
+  "error.agentservice.attribute_conflict_description": Un agent avec la même valeur d'attribut unique existe déjà
+  "error.agentservice.auth_code_requires_code_response_type_description": Le type d'octroi authorization_code requiert le type de réponse 'code'
+  "error.agentservice.auth_code_requires_redirect_uris_description": Le type d'octroi authorization_code requiert des URIs de redirection
+  "error.agentservice.cannot_modify_declarative_resource": Impossible de modifier une ressource déclarative
+  "error.agentservice.cannot_modify_declarative_resource_description": Les agents gérés de manière déclarative ne peuvent pas être modifiés via l'API
+  "error.agentservice.certificate_operation_failed": Échec de l'opération de certificat
+  "error.agentservice.certificate_operation_failed_description": Une opération de certificat a échoué en raison d'une entrée non valide
+  "error.agentservice.client_credentials_cannot_use_none_auth_description": Le type d'octroi client_credentials ne peut pas utiliser la méthode d'authentification \"none\"
+  "error.agentservice.client_credentials_cannot_use_response_types_description": Le type d'octroi client_credentials ne peut pas être utilisé avec des types de réponse
+  "error.agentservice.client_secret_cannot_have_certificate_description": Les méthodes d'authentification client_secret ne peuvent pas avoir de certificat
+  "error.agentservice.consent_sync_failed": Échec de la synchronisation du consentement
+  "error.agentservice.consent_sync_failed_description": Échec de la synchronisation des modifications d'attributs de l'agent avec le service de consentement
+  "error.agentservice.error_retrieving_flow_definition": Erreur lors de la récupération de la définition du flux
+  "error.agentservice.error_retrieving_flow_definition_description": Une erreur s'est produite lors de la récupération de la définition du flux
+  "error.agentservice.idtoken_encryption_alg_requires_enc_description": idToken encryptionEnc est requis lorsque encryptionAlg est défini
+  "error.agentservice.idtoken_encryption_enc_requires_alg_description": idToken encryptionAlg est requis lorsque encryptionEnc est défini
+  "error.agentservice.idtoken_encryption_fields_not_allowed_description": idToken encryptionAlg et encryptionEnc ne doivent pas être définis lorsque responseType est JWT
+  "error.agentservice.idtoken_encryption_requires_certificate_description": un certificat (JWKS ou JWKS_URI) est requis lorsque le chiffrement du jeton d'identité est configuré
+  "error.agentservice.idtoken_jwks_uri_not_ssrf_safe_description": L'URI JWKS du idToken doit être une URL HTTPS accessible publiquement
+  "error.agentservice.idtoken_unsupported_encryption_alg_description": L'algorithme de chiffrement du jeton d'identité n'est pas pris en charge
+  "error.agentservice.idtoken_unsupported_encryption_enc_description": L'algorithme de chiffrement de contenu du jeton d'identité n'est pas pris en charge
+  "error.agentservice.idtoken_unsupported_response_type_description": Le responseType du jeton d'identité n'est pas pris en charge
+  "error.agentservice.invalid_agent_name": Nom d'agent non valide
+  "error.agentservice.invalid_agent_name_description": Le nom de l'agent doit être fourni et non vide
+  "error.agentservice.invalid_agent_type": Type d'agent non valide
+  "error.agentservice.invalid_agent_type_description": Le type d'agent doit être fourni
+  "error.agentservice.invalid_auth_flow_id": ID de flux d'authentification non valide
+  "error.agentservice.invalid_auth_flow_id_description": L'ID de flux d'authentification fourni est non valide
+  "error.agentservice.invalid_certificate_type": Type de certificat non valide
+  "error.agentservice.invalid_certificate_type_description": Le type de certificat fourni n'est pas pris en charge
+  "error.agentservice.invalid_certificate_value": Valeur de certificat non valide
+  "error.agentservice.invalid_certificate_value_description": La valeur de certificat fournie est non valide ou manquante
+  "error.agentservice.invalid_credential": Identifiant non valide
+  "error.agentservice.invalid_credential_description": L'identifiant fourni est non valide
+  "error.agentservice.invalid_filter": Paramètre de filtre non valide
+  "error.agentservice.invalid_filter_description": Le format du filtre est non valide
+  "error.agentservice.invalid_grant_type": Type d'autorisation non valide
+  "error.agentservice.invalid_grant_type_description": Un ou plusieurs types d'octroi ne sont pas pris en charge
+  "error.agentservice.invalid_jwks_uri": URI JWKS non valide
+  "error.agentservice.invalid_jwks_uri_description": L'URI JWKS doit être une URL HTTPS accessible publiquement
+  "error.agentservice.invalid_limit": Paramètre de pagination non valide
+  "error.agentservice.invalid_limit_description": Le paramètre de limite doit être compris entre 1 et 100
+  "error.agentservice.invalid_oauth_configuration": Configuration OAuth non valide
+  "error.agentservice.invalid_oauth_configuration_description": La configuration OAuth fournie est non valide
+  "error.agentservice.invalid_offset": Paramètre de pagination non valide
+  "error.agentservice.invalid_offset_description": Le paramètre de décalage doit être un entier non négatif
+  "error.agentservice.invalid_public_client_configuration": Configuration de client public non valide
+  "error.agentservice.invalid_public_client_configuration_description": La configuration du client public est non valide
+  "error.agentservice.invalid_redirect_uri": URI de redirection non valide
+  "error.agentservice.invalid_redirect_uri_description": Une ou plusieurs URIs de redirection ne sont pas valides
+  "error.agentservice.invalid_registration_flow_id": ID de flux d'inscription non valide
+  "error.agentservice.invalid_registration_flow_id_description": L'ID de flux d'inscription fourni est non valide
+  "error.agentservice.invalid_request_format": Format de requête non valide
+  "error.agentservice.invalid_request_format_description": Le corps de la requête est mal formé ou contient des données non valides
+  "error.agentservice.invalid_response_type": Type de réponse non valide
+  "error.agentservice.invalid_response_type_description": Un ou plusieurs types de réponse fournis sont non valides
+  "error.agentservice.invalid_token_endpoint_auth_method": Méthode d'authentification du point de terminaison du jeton non valide
+  "error.agentservice.invalid_token_endpoint_auth_method_description": La méthode d'authentification du point de terminaison du jeton fournie n'est pas prise en charge
+  "error.agentservice.invalid_user_attribute": Attribut utilisateur non valide
+  "error.agentservice.invalid_user_attribute_description": Un ou plusieurs attributs utilisateur ne sont pas valides pour les types d'utilisateurs autorisés configurés
+  "error.agentservice.invalid_user_type": Type d'utilisateur non valide
+  "error.agentservice.invalid_user_type_description": Un ou plusieurs types d'utilisateurs autorisés spécifiés sont non valides
+  "error.agentservice.layout_not_found": Mise en page introuvable
+  "error.agentservice.layout_not_found_description": La mise en page spécifiée n'existe pas
+  "error.agentservice.missing_agent_id": ID d'agent manquant
+  "error.agentservice.missing_agent_id_description": L'ID de l'agent est obligatoire
+  "error.agentservice.multiple_oauth_configs": Les configurations d'authentification OAuth multiples ne sont pas autorisées
+  "error.agentservice.multiple_oauth_configs_description": Une entité ne peut avoir qu'une seule configuration d'authentification entrante par protocole
+  "error.agentservice.none_auth_method_cannot_have_cert_or_secret_description": "La méthode d'authentification \"none\" ne peut pas avoir de certificat ou de secret client"
+  "error.agentservice.none_auth_method_requires_public_client_description": "La méthode d'authentification \"none\" requiert que le client soit un client public"
+  "error.agentservice.organization_unit_not_found": Unité organisationnelle introuvable
+  "error.agentservice.organization_unit_not_found_description": L'unité organisationnelle spécifiée n'existe pas
+  "error.agentservice.owner_not_found": Propriétaire introuvable
+  "error.agentservice.owner_not_found_description": Le propriétaire spécifié ne correspond à aucun utilisateur, application ou agent connu
+  "error.agentservice.pkce_requires_authorization_code_description": PKCE ne peut être activé que lorsque le type d'octroi authorization_code est sélectionné
+  "error.agentservice.private_key_jwt_cannot_have_client_secret_description": La méthode d'authentification private_key_jwt ne peut pas avoir de secret client
+  "error.agentservice.private_key_jwt_requires_certificate_description": La méthode d'authentification private_key_jwt nécessite un certificat
+  "error.agentservice.public_client_must_have_pkce_description": Les clients publics doivent avoir PKCE requis défini à true
+  "error.agentservice.public_client_must_use_none_auth_description": Les clients publics doivent utiliser \"none\" comme méthode d'authentification du point de terminaison du jeton
+  "error.agentservice.redirect_uri_fragment_not_allowed_description": Les URIs de redirection ne doivent pas contenir de composant fragment
+  "error.agentservice.refresh_token_cannot_be_sole_grant_description": Le type d'octroi refresh_token ne peut pas être utilisé sans un autre type d'octroi
+  "error.agentservice.response_types_require_authorization_code_description": Les types de réponse ne peuvent être configurés qu'avec le type d'octroi authorization_code
+  "error.agentservice.schema_validation_failed": Échec de la validation du schéma
+  "error.agentservice.schema_validation_failed_description": Les attributs fournis n'ont pas réussi la validation du schéma
+  "error.agentservice.theme_not_found": Thème introuvable
+  "error.agentservice.theme_not_found_description": Le thème spécifié n'existe pas
+  "error.agentservice.userinfo_alg_requires_response_type_description": userinfo responseType est requis lorsque signingAlg ou encryptionAlg est défini
+  "error.agentservice.userinfo_encryption_alg_requires_enc_description": userinfo encryptionEnc est requis lorsque encryptionAlg est défini
+  "error.agentservice.userinfo_encryption_enc_requires_alg_description": userinfo encryptionAlg est requis lorsque encryptionEnc est défini
+  "error.agentservice.userinfo_encryption_requires_certificate_description": un certificat (JWKS ou JWKS_URI) est requis lorsque le chiffrement userinfo est configuré
+  "error.agentservice.userinfo_jwe_requires_encryption_description": encryptionAlg et encryptionEnc sont requis lorsque userinfo responseType est JWE
+  "error.agentservice.userinfo_jwks_uri_not_ssrf_safe_description": L'URI JWKS userinfo doit être une URL HTTPS accessible publiquement
+  "error.agentservice.userinfo_jws_requires_signing_alg_description": signingAlg est requis lorsque userinfo responseType est JWS
+  "error.agentservice.userinfo_nested_jwt_requires_all_description": signingAlg, encryptionAlg et encryptionEnc sont requis lorsque userinfo responseType est NESTED_JWT
+  "error.agentservice.userinfo_unsupported_encryption_alg_description": L'algorithme de chiffrement userinfo n'est pas pris en charge
+  "error.agentservice.userinfo_unsupported_encryption_enc_description": L'algorithme de chiffrement de contenu userinfo n'est pas pris en charge
+  "error.agentservice.userinfo_unsupported_response_type_description": Le userinfo responseType n'est pas pris en charge
+  "error.agentservice.userinfo_unsupported_signing_alg_description": L'algorithme de signature userinfo n'est pas pris en charge
+  "error.applicationservice.application_already_exists": L'application existe déjà
+  "error.applicationservice.application_already_exists_description": Une application avec le même nom existe déjà
+  "error.applicationservice.application_is_nil": L'application est nulle
+  "error.applicationservice.application_is_nil_description": L'objet application fourni est nul
+  "error.applicationservice.application_not_found": Application introuvable
+  "error.applicationservice.application_not_found_description": L'application demandée est introuvable
+  "error.applicationservice.application_with_client_id_already_exists": L'application avec l'ID client existe déjà
+  "error.applicationservice.application_with_client_id_already_exists_description": Une application avec le même ID client existe déjà
+  "error.applicationservice.auth_code_requires_code_response_type_description": Le type d'octroi authorization_code requiert le type de réponse 'code'
+  "error.applicationservice.auth_code_requires_redirect_uris_description": Le type d'octroi authorization_code requiert des URIs de redirection
+  "error.applicationservice.cannot_modify_declarative_resource": Impossible de modifier une ressource déclarative
+  "error.applicationservice.cannot_modify_declarative_resource_description": L'application est déclarative et ne peut pas être modifiée ou supprimée
+  "error.applicationservice.certificate_operation_failed": Échec de l'opération de certificat
+  "error.applicationservice.certificate_operation_failed_description": Une erreur s'est produite lors du traitement du certificat de l'application
+  "error.applicationservice.client_credentials_cannot_use_none_auth_description": Le type d'octroi client_credentials ne peut pas utiliser la méthode d'authentification \"none\"
+  "error.applicationservice.client_credentials_cannot_use_response_types_description": Le type d'octroi client_credentials ne peut pas être utilisé avec des types de réponse
+  "error.applicationservice.client_secret_cannot_have_certificate_description": Les méthodes d'authentification client_secret ne peuvent pas avoir de certificat
+  "error.applicationservice.consent_service_not_enabled": Service de consentement non activé
+  "error.applicationservice.consent_service_not_enabled_description": Impossible d'activer le consentement pour l'application car le service de consentement n'est pas activé
+  "error.applicationservice.consent_synchronization_failed": Échec de la synchronisation du consentement
+  "error.applicationservice.consent_synchronization_failed_description": Échec de la synchronisation des configurations de consentement pour l'application
+  "error.applicationservice.error_retrieving_flow_definition": Erreur lors de la récupération de la définition du flux
+  "error.applicationservice.error_retrieving_flow_definition_description": Une erreur s'est produite lors de la récupération de la définition du flux
+  "error.applicationservice.idtoken_encryption_alg_requires_enc_description": idToken encryptionEnc est requis lorsque encryptionAlg est défini
+  "error.applicationservice.idtoken_encryption_enc_requires_alg_description": idToken encryptionAlg est requis lorsque encryptionEnc est défini
+  "error.applicationservice.idtoken_encryption_fields_not_allowed_description": idToken encryptionAlg et encryptionEnc ne doivent pas être définis lorsque responseType est JWT
+  "error.applicationservice.idtoken_encryption_requires_certificate_description": un certificat (JWKS ou JWKS_URI) est requis lorsque le chiffrement du jeton d'identité est configuré
+  "error.applicationservice.idtoken_jwks_uri_not_ssrf_safe_description": L'URI JWKS du idToken doit être une URL HTTPS accessible publiquement
+  "error.applicationservice.idtoken_unsupported_encryption_alg_description": L'algorithme de chiffrement du jeton d'identité n'est pas pris en charge
+  "error.applicationservice.idtoken_unsupported_encryption_enc_description": L'algorithme de chiffrement de contenu du jeton d'identité n'est pas pris en charge
+  "error.applicationservice.idtoken_unsupported_response_type_description": Le responseType du jeton d'identité n'est pas pris en charge
+  "error.applicationservice.invalid_acr_values": Valeur ACR non valide
+  "error.applicationservice.invalid_acr_values_description": Une ou plusieurs valeurs ACR dans acr_values ne sont pas reconnues par le système
+  "error.applicationservice.invalid_application_id": ID d'application non valide
+  "error.applicationservice.invalid_application_id_description": L'ID d'application fourni est non valide ou vide
+  "error.applicationservice.invalid_application_name": Nom d'application non valide
+  "error.applicationservice.invalid_application_name_description": Le nom d'application fourni est non valide ou vide
+  "error.applicationservice.invalid_application_url": URL d'application non valide
+  "error.applicationservice.invalid_application_url_description": L'URL d'application fournie n'est pas une URI valide
+  "error.applicationservice.invalid_auth_flow_id": ID de flux d'authentification non valide
+  "error.applicationservice.invalid_auth_flow_id_description": L'ID de flux d'authentification fourni est non valide
+  "error.applicationservice.invalid_certificate_type": Type de certificat non valide
+  "error.applicationservice.invalid_certificate_type_description": Le type de certificat fourni n'est pas pris en charge
+  "error.applicationservice.invalid_certificate_value": Valeur de certificat non valide
+  "error.applicationservice.invalid_certificate_value_description": La valeur de certificat fournie est non valide
+  "error.applicationservice.invalid_client_id": ID client non valide
+  "error.applicationservice.invalid_client_id_description": L'ID client fourni est non valide ou vide
+  "error.applicationservice.invalid_grant_type": Type d'autorisation non valide
+  "error.applicationservice.invalid_grant_type_description": Un ou plusieurs types d'octroi fournis sont non valides
+  "error.applicationservice.invalid_inbound_auth_config": Configuration d'authentification entrante non valide
+  "error.applicationservice.invalid_inbound_auth_config_description": La configuration d'authentification entrante fournie est non valide
+  "error.applicationservice.invalid_jwks_uri": URI JWKS non valide
+  "error.applicationservice.invalid_jwks_uri_description": L'URI JWKS fournie n'est pas une URI valide
+  "error.applicationservice.invalid_jwks_uri_scheme": Schéma d'URI JWKS non valide
+  "error.applicationservice.invalid_jwks_uri_scheme_description": "\"jwks_uri\" doit utiliser le schéma HTTPS"
+  "error.applicationservice.invalid_logo_url": URL de logo non valide
+  "error.applicationservice.invalid_logo_url_description": L'URL du logo fournie n'est pas une URI valide
+  "error.applicationservice.invalid_oauth_configuration": Configuration OAuth non valide
+  "error.applicationservice.invalid_oauth_configuration_description": La configuration OAuth est non valide
+  "error.applicationservice.invalid_public_client_configuration": Configuration de client public non valide
+  "error.applicationservice.invalid_public_client_configuration_description": La configuration du client public est non valide
+  "error.applicationservice.invalid_recovery_flow_id": ID de flux de récupération non valide
+  "error.applicationservice.invalid_recovery_flow_id_description": L'ID de flux de récupération fourni est non valide
+  "error.applicationservice.invalid_redirect_uri": URI de redirection non valide
+  "error.applicationservice.invalid_redirect_uri_description": Une ou plusieurs URIs de redirection fournies ne sont pas des URIs valides
+  "error.applicationservice.invalid_registration_flow_id": ID de flux d'inscription non valide
+  "error.applicationservice.invalid_registration_flow_id_description": L'ID de flux d'inscription fourni est non valide
+  "error.applicationservice.invalid_request_format": Format de requête non valide
+  "error.applicationservice.invalid_request_format_description": Le corps de la requête est mal formé ou contient des données non valides
+  "error.applicationservice.invalid_response_type": Type de réponse non valide
+  "error.applicationservice.invalid_response_type_description": Un ou plusieurs types de réponse fournis sont non valides
+  "error.applicationservice.invalid_token_endpoint_auth_method": Méthode d'authentification du point de terminaison du jeton non valide
+  "error.applicationservice.invalid_token_endpoint_auth_method_description": La méthode d'authentification du point de terminaison du jeton fournie est non valide
+  "error.applicationservice.invalid_user_attribute": Attribut utilisateur non valide
+  "error.applicationservice.invalid_user_attribute_description": Un ou plusieurs attributs utilisateur ne sont pas valides pour les types d'utilisateurs autorisés configurés
+  "error.applicationservice.invalid_user_type": Type d'utilisateur non valide
+  "error.applicationservice.invalid_user_type_description": Un ou plusieurs types d'utilisateurs dans allowed_user_types n'existent pas dans le système
+  "error.applicationservice.layout_not_found": Mise en page introuvable
+  "error.applicationservice.layout_not_found_description": La configuration de mise en page spécifiée n'existe pas
+  "error.applicationservice.multiple_oauth_configs": Les configurations d'authentification OAuth multiples ne sont pas autorisées
+  "error.applicationservice.multiple_oauth_configs_description": Une application ne peut avoir qu'une seule configuration d'authentification entrante par protocole
+  "error.applicationservice.none_auth_method_cannot_have_cert_or_secret_description": "La méthode d'authentification \"none\" ne peut pas avoir de certificat ou de secret client"
+  "error.applicationservice.none_auth_method_requires_public_client_description": "La méthode d'authentification \"none\" requiert que le client soit un client public"
+  "error.applicationservice.pkce_requires_authorization_code_description": PKCE ne peut être activé que lorsque le type d'octroi authorization_code est sélectionné
+  "error.applicationservice.private_key_jwt_cannot_have_client_secret_description": La méthode d'authentification private_key_jwt ne peut pas avoir de secret client
+  "error.applicationservice.private_key_jwt_requires_certificate_description": La méthode d'authentification private_key_jwt nécessite un certificat
+  "error.applicationservice.public_client_must_have_pkce_description": Les clients publics doivent avoir PKCE requis défini à true
+  "error.applicationservice.public_client_must_use_none_auth_description": Les clients publics doivent utiliser \"none\" comme méthode d'authentification du point de terminaison du jeton
+  "error.applicationservice.redirect_uri_fragment_not_allowed_description": Les URIs de redirection ne doivent pas contenir de composant fragment
+  "error.applicationservice.refresh_token_cannot_be_sole_grant_description": Le type d'octroi refresh_token ne peut pas être utilisé sans un autre type d'octroi
+  "error.applicationservice.response_types_require_authorization_code_description": Les types de réponse ne peuvent être configurés qu'avec le type d'octroi authorization_code
+  "error.applicationservice.result_limit_exceeded": Limite de résultats dépassée
+  "error.applicationservice.theme_not_found": Thème introuvable
+  "error.applicationservice.theme_not_found_description": La configuration de thème spécifiée n'existe pas
+  "error.applicationservice.userinfo_alg_requires_response_type_description": userinfo responseType est requis lorsque signingAlg ou encryptionAlg est défini
+  "error.applicationservice.userinfo_encryption_alg_requires_enc_description": userinfo encryptionEnc est requis lorsque encryptionAlg est défini
+  "error.applicationservice.userinfo_encryption_enc_requires_alg_description": userinfo encryptionAlg est requis lorsque encryptionEnc est défini
+  "error.applicationservice.userinfo_encryption_requires_certificate_description": un certificat (JWKS ou JWKS_URI) est requis lorsque le chiffrement userinfo est configuré
+  "error.applicationservice.userinfo_jwe_requires_encryption_description": encryptionAlg et encryptionEnc sont requis lorsque userinfo responseType est JWE
+  "error.applicationservice.userinfo_jwks_uri_not_ssrf_safe_description": L'URI JWKS userinfo doit être une URL HTTPS accessible publiquement
+  "error.applicationservice.userinfo_jws_requires_signing_alg_description": signingAlg est requis lorsque userinfo responseType est JWS
+  "error.applicationservice.userinfo_nested_jwt_requires_all_description": signingAlg, encryptionAlg et encryptionEnc sont requis lorsque userinfo responseType est NESTED_JWT
+  "error.applicationservice.userinfo_unsupported_encryption_alg_description": L'algorithme de chiffrement userinfo n'est pas pris en charge
+  "error.applicationservice.userinfo_unsupported_encryption_enc_description": L'algorithme de chiffrement de contenu userinfo n'est pas pris en charge
+  "error.applicationservice.userinfo_unsupported_response_type_description": Le userinfo responseType n'est pas pris en charge
+  "error.applicationservice.userinfo_unsupported_signing_alg_description": L'algorithme de signature userinfo n'est pas pris en charge
+  "error.assertservice.invalid_authenticator": Authentificateur non valide
+  "error.assertservice.invalid_authenticator_description": Le nom de l'authentificateur ne peut pas être vide
+  "error.assertservice.nil_assurance_context": Contexte d'assurance nul
+  "error.assertservice.nil_assurance_context_description": Le contexte d'assurance ne peut pas être nul pour la vérification
+  "error.assertservice.no_assurance_requirements": Aucune exigence d'assurance
+  "error.assertservice.no_assurance_requirements_description": Au moins un niveau d'assurance (AAL ou IAL) doit être spécifié pour la vérification
+  "error.assertservice.no_authenticators": Aucun authentificateur
+  "error.assertservice.no_authenticators_description": Impossible de générer une assertion sans authentificateurs
+  "error.attributecache.cache_not_found": Cache d'attributs introuvable
+  "error.attributecache.cache_not_found_description": L'entrée de cache d'attributs avec l'ID spécifié n'existe pas
+  "error.attributecache.invalid_expiry_time": Heure d'expiration non valide
+  "error.attributecache.invalid_expiry_time_description": L'heure d'expiration doit être dans le futur
+  "error.attributecache.invalid_request_format": Format de requête non valide
+  "error.attributecache.invalid_request_format_description": Le corps de la requête est mal formé ou contient des données non valides
+  "error.attributecache.missing_attributes": Attributs manquants
+  "error.attributecache.missing_attributes_description": Les attributs sont obligatoires
+  "error.attributecache.missing_cache_id": ID de cache manquant
+  "error.attributecache.missing_cache_id_description": L'ID de cache est obligatoire
+  "error.auth.forbidden": Interdit
+  "error.auth.forbidden_description": Vous ne disposez pas des autorisations suffisantes pour accéder à cette ressource
+  "error.auth.unauthorized": Non autorisé
+  "error.auth.unauthorized_description": L'authentification est requise pour accéder à cette ressource
+  "error.authncredservice.invalid_request_format": Format de requête non valide
+  "error.authncredservice.invalid_request_format_description": Le corps de la requête est mal formé ou contient des données non valides
+  "error.authnmgrservice.ambiguous_user": Utilisateur ambigu
+  "error.authnmgrservice.ambiguous_user_description": Plusieurs utilisateurs trouvés correspondant aux identifiants fournis
+  "error.authnmgrservice.authentication_failed": Échec de l'authentification
+  "error.authnmgrservice.authentication_failed_description": La tentative d'authentification a échoué
+  "error.authnmgrservice.failed_to_get_attributes": Échec de la récupération des attributs
+  "error.authnmgrservice.failed_to_get_attributes_description": La récupération des attributs a été rejetée par le fournisseur
+  "error.authnmgrservice.get_entity_reference_client_error": Échec de la récupération de la référence d'entité
+  "error.authnmgrservice.get_entity_reference_client_error_description": La récupération de la référence d'entité a été rejetée par le fournisseur
+  "error.authnmgrservice.invalid_request": Requête non valide
+  "error.authnmgrservice.invalid_request_description": La requête d'authentification est non valide
+  "error.authnmgrservice.user_not_found": Utilisateur introuvable
+  "error.authnmgrservice.user_not_found_description": Aucun utilisateur trouvé correspondant aux identifiants fournis
+  "error.authnotpservice.error_processing_otp": Erreur lors du traitement de l'OTP
+  "error.authnotpservice.error_processing_otp_description": Une erreur s'est produite lors du traitement de la demande OTP
+  "error.authnotpservice.error_resolving_user": Erreur lors de la résolution de l'utilisateur
+  "error.authnotpservice.error_resolving_user_description": Une erreur s'est produite lors de la résolution de l'utilisateur pour le destinataire
+  "error.authnotpservice.incorrect_otp": OTP incorrect
+  "error.authnotpservice.incorrect_otp_description": L'OTP fourni est incorrect ou a expiré
+  "error.authnotpservice.invalid_otp": OTP non valide
+  "error.authnotpservice.invalid_otp_description": L'OTP fourni est non valide ou vide
+  "error.authnotpservice.invalid_recipient": Destinataire non valide
+  "error.authnotpservice.invalid_recipient_description": Le destinataire fourni est non valide ou vide
+  "error.authnotpservice.invalid_sender_id": ID d'expéditeur non valide
+  "error.authnotpservice.invalid_sender_id_description": L'ID d'expéditeur fourni est non valide ou vide
+  "error.authnotpservice.invalid_session_token": Jeton de session non valide
+  "error.authnotpservice.invalid_session_token_description": Le jeton de session fourni est non valide ou vide
+  "error.authnotpservice.unsupported_channel": Canal non pris en charge
+  "error.authnotpservice.unsupported_channel_description": Le canal fourni n'est pas pris en charge pour l'authentification OTP
+  "error.authnservice.ambiguous_user": Utilisateur ambigu
+  "error.authnservice.ambiguous_user_description": Plusieurs utilisateurs correspondent aux attributs fournis
+  "error.authnservice.assertion_subject_mismatch": Non-concordance du sujet de l'assertion
+  "error.authnservice.assertion_subject_mismatch_description": Le sujet dans l'assertion ne correspond pas à l'utilisateur authentifié
+  "error.authnservice.authentication_failed": échec de l'authentification
+  "error.authnservice.authentication_failed_description": Une erreur s'est produite lors de l'authentification de l'utilisateur
+  "error.authnservice.empty_attributes_or_credentials": Attributs ou identifiants vides
+  "error.authnservice.empty_attributes_or_credentials_description": Les attributs ou les identifiants de l'utilisateur ne peuvent pas être vides
+  "error.authnservice.empty_auth_code": Code d'autorisation vide
+  "error.authnservice.empty_auth_code_description": Le code d'autorisation fourni est vide
+  "error.authnservice.empty_session_token": Jeton de session vide
+  "error.authnservice.empty_session_token_description": Le jeton de session fourni est vide
+  "error.authnservice.error_retrieving_idp": Erreur lors de la récupération du fournisseur d'identité
+  "error.authnservice.error_retrieving_idp_description": Une erreur s'est produite lors de la récupération du fournisseur d'identité
+  "error.authnservice.federated_authentication_failed": Échec de l'authentification fédérée
+  "error.authnservice.federated_authentication_failed_description": La tentative d'authentification fédérée a échoué
+  "error.authnservice.google.invalid_id_token_audience_description": L'audience du jeton d'identité ne correspond pas à l'ID client attendu
+  "error.authnservice.google.invalid_id_token_exp_claim_description": La revendication d'expiration du jeton d'identité est manquante ou non valide
+  "error.authnservice.google.invalid_id_token_expired_description": Le jeton d'identité a expiré
+  "error.authnservice.google.invalid_id_token_future_iat_description": Le jeton d'identité a été émis dans le futur
+  "error.authnservice.google.invalid_id_token_iat_claim_description": La revendication d'émission (iat) du jeton d'identité est manquante ou non valide
+  "error.authnservice.google.invalid_id_token_issuer_description": L'émetteur du jeton d'identité n'est pas un émetteur Google valide
+  "error.authnservice.invalid_assertion": Assertion non valide
+  "error.authnservice.invalid_assertion_description": Le jeton d'assertion fourni est non valide
+  "error.authnservice.invalid_credentials": Identifiants non valides
+  "error.authnservice.invalid_credentials_description": Les identifiants fournis sont non valides
+  "error.authnservice.invalid_idp_id": ID de fournisseur d'identité non valide
+  "error.authnservice.invalid_idp_id_description": L'ID de fournisseur d'identité fourni est non valide ou vide
+  "error.authnservice.invalid_idp_type": Type de fournisseur d'identité non valide
+  "error.authnservice.invalid_idp_type_description": Le type de fournisseur d'identité demandé est non valide
+  "error.authnservice.invalid_session_token": Jeton de session non valide
+  "error.authnservice.invalid_session_token_description": Le jeton de session fourni est non valide ou a expiré
+  "error.authnservice.invalid_token": Jeton non valide
+  "error.authnservice.invalid_token_description": Le jeton fourni est non valide
+  "error.authnservice.otp_authentication_failed": Échec de l'authentification
+  "error.authnservice.otp_authentication_failed_description": La tentative d'authentification OTP a échoué
+  "error.authnservice.passkey_authentication_failed": Échec de l'authentification
+  "error.authnservice.passkey_authentication_failed_description": La tentative d'authentification par clé d'accès a échoué
+  "error.authnservice.sub_claim_not_found": sujet utilisateur introuvable
+  "error.authnservice.sub_claim_not_found_description": La revendication 'sub' est introuvable dans les revendications du jeton d'identité
+  "error.authnservice.user_not_found": Utilisateur introuvable
+  "error.authnservice.user_not_found_description": Aucun utilisateur trouvé avec les attributs fournis
+  "error.authoauthservice.empty_access_token": Jeton d'accès vide
+  "error.authoauthservice.empty_access_token_description": Le jeton d'accès ne peut pas être vide
+  "error.authoauthservice.empty_authorization_code": Code d'autorisation vide
+  "error.authoauthservice.empty_authorization_code_description": Le code d'autorisation ne peut pas être vide
+  "error.authoauthservice.empty_idp_id": L'ID du fournisseur d'identité est vide
+  "error.authoauthservice.empty_idp_id_description": L'ID du fournisseur d'identité ne peut pas être vide
+  "error.authoauthservice.empty_sub_claim": Revendication sub vide
+  "error.authoauthservice.empty_sub_claim_description": La revendication sub ne peut pas être vide
+  "error.authoauthservice.failed_to_retrieve_idp": Échec de la récupération du fournisseur d'identité
+  "error.authoauthservice.failed_to_retrieve_idp_description": Une erreur client s'est produite lors de la récupération de la configuration du fournisseur d'identité
+  "error.authoauthservice.failed_to_retrieve_user": Échec de la récupération de l'utilisateur
+  "error.authoauthservice.failed_to_retrieve_user_description": Une erreur client s'est produite lors de la récupération de l'utilisateur interne
+  "error.authoauthservice.invalid_idp": Fournisseur d'identité non valide
+  "error.authoauthservice.invalid_idp_description": Le fournisseur d'identité récupéré est non valide ou vide
+  "error.authoauthservice.invalid_token_response": Réponse de jeton non valide
+  "error.authoauthservice.invalid_token_response_description": La réponse de jeton reçue du fournisseur d'identité est non valide
+  "error.authoidcservice.invalid_id_token": Jeton ID non valide
+  "error.authoidcservice.invalid_id_token_description": Le jeton d'identité est non valide ou mal formé
+  "error.authoidcservice.invalid_id_token_signature": Signature du jeton ID non valide
+  "error.authoidcservice.invalid_id_token_signature_description": La vérification de la signature du jeton d'identité a échoué
+  "error.authzen.invalid_action": Action non valide
+  "error.authzen.invalid_action_description": Le nom de l'action n'est pas enregistré sur le serveur de ressources
+  "error.authzen.invalid_request_format": Format de requête non valide
+  "error.authzen.invalid_request_format_description": Le corps de la requête est mal formé ou contient des données non valides
+  "error.authzen.invalid_resource": Ressource non valide
+  "error.authzen.invalid_resource_description": Le type de ressource n'est pas enregistré en tant que serveur de ressources
+  "error.authzen.invalid_subject": Sujet non valide
+  "error.authzen.invalid_subject_description": L'identifiant du sujet ne correspond pas au type de sujet
+  "error.authzen.missing_action": Action manquante
+  "error.authzen.missing_action_description": Le nom de l'action est obligatoire
+  "error.authzen.missing_evaluations": Évaluations manquantes
+  "error.authzen.missing_evaluations_description": Au moins une évaluation est requise
+  "error.authzen.missing_resource": Ressource manquante
+  "error.authzen.missing_resource_description": Le type de ressource est obligatoire
+  "error.authzen.missing_resource_id": ID de ressource manquant
+  "error.authzen.missing_resource_id_description": L'identifiant de ressource est obligatoire
+  "error.authzen.missing_subject": Sujet manquant
+  "error.authzen.missing_subject_description": L'identifiant du sujet est obligatoire
+  "error.certservice.certificate_already_exists": Le certificat existe déjà
+  "error.certservice.certificate_already_exists_description": Un certificat avec le même type de référence et le même ID existe déjà
+  "error.certservice.certificate_not_found": Certificat introuvable
+  "error.certservice.certificate_not_found_description": Le certificat demandé est introuvable
+  "error.certservice.invalid_certificate_id": ID de certificat non valide
+  "error.certservice.invalid_certificate_id_description": L'ID de certificat fourni est non valide
+  "error.certservice.invalid_certificate_type": Type de certificat non valide
+  "error.certservice.invalid_certificate_type_description": Le type de certificat fourni est non valide
+  "error.certservice.invalid_certificate_value": Valeur de certificat non valide
+  "error.certservice.invalid_certificate_value_description": La valeur de certificat fournie est non valide
+  "error.certservice.invalid_reference_id": ID de référence de certificat non valide
+  "error.certservice.invalid_reference_id_description": L'ID de référence du certificat fourni est non valide
+  "error.certservice.invalid_reference_type": Type de référence de certificat non valide
+  "error.certservice.invalid_reference_type_description": Le type de référence du certificat fourni est non valide
+  "error.certservice.reference_update_not_allowed": La mise à jour de la référence n'est pas autorisée
+  "error.certservice.reference_update_not_allowed_description": La modification du type de référence ou de l'ID d'un certificat existant n'est pas autorisée
+  "error.consentenforcerservice.consent_create_failed": Échec de la création de l'enregistrement de consentement
+  "error.consentenforcerservice.consent_create_failed_description": Erreur lors de la création de l'enregistrement de consentement dans le service de consentement
+  "error.consentenforcerservice.consent_search_failed": Échec de la recherche des enregistrements de consentement
+  "error.consentenforcerservice.consent_search_failed_description": Erreur lors de la recherche d'enregistrements de consentement dans le service de consentement
+  "error.consentenforcerservice.consent_session_invalid": Session de consentement non valide
+  "error.consentenforcerservice.consent_session_invalid_description": Le jeton de session de consentement est non valide ou a expiré
+  "error.consentenforcerservice.consent_update_failed": Échec de la mise à jour de l'enregistrement de consentement
+  "error.consentenforcerservice.consent_update_failed_description": Erreur lors de la mise à jour de l'enregistrement de consentement dans le service de consentement
+  "error.consentenforcerservice.essential_consent_denied": Consentement essentiel refusé
+  "error.consentenforcerservice.essential_consent_denied_description": Un ou plusieurs attributs de consentement essentiels ont été refusés
+  "error.consentenforcerservice.purpose_create_failed": Échec de la création de l'objectif de consentement
+  "error.consentenforcerservice.purpose_create_failed_description": Erreur lors de la création de l'objet de consentement dans le service de consentement
+  "error.consentenforcerservice.purpose_fetch_failed": Échec de la récupération des objectifs de consentement
+  "error.consentenforcerservice.purpose_fetch_failed_description": Erreur lors de la récupération des objets de consentement depuis le service de consentement
+  "error.consentenforcerservice.purpose_update_failed": Échec de la mise à jour de l'objectif de consentement
+  "error.consentenforcerservice.purpose_update_failed_description": Erreur lors de la mise à jour de l'objet de consentement dans le service de consentement
+  "error.consentservice.cannot_delete_element": Impossible de supprimer l'élément de consentement
+  "error.consentservice.cannot_delete_purpose": Impossible de supprimer l'objectif de consentement
+  "error.consentservice.consent_not_found": Consentement introuvable
+  "error.consentservice.consent_not_found_description": L'enregistrement de consentement avec l'ID spécifié n'existe pas
+  "error.consentservice.delete_element_with_associated_purpose_description": L'élément de consentement ne peut pas être supprimé car il est encore associé à un ou plusieurs objets de consentement.
+  "error.consentservice.delete_purpose_with_associated_records_description": L'objet de consentement ne peut pas être supprimé car il est associé à un ou plusieurs enregistrements de consentement
+  "error.consentservice.element_already_exists": L'élément de consentement existe déjà
+  "error.consentservice.element_already_exists_description": Un élément de consentement avec le même nom existe déjà
+  "error.consentservice.element_not_found": Élément de consentement introuvable
+  "error.consentservice.element_not_found_description": L'élément de consentement avec l'ID spécifié n'existe pas
+  "error.consentservice.forbidden": Accès au service de consentement interdit
+  "error.consentservice.forbidden_description": Le service de consentement a renvoyé une réponse interdite
+  "error.consentservice.invalid_consent_request": Requête de consentement non valide
+  "error.consentservice.invalid_consent_request_description": La demande de consentement a été rejetée par le service de consentement car non valide
+  "error.consentservice.invalid_element_request": Requête d'élément de consentement non valide
+  "error.consentservice.invalid_element_request_description": La demande d'élément de consentement a été rejetée par le service de consentement car non valide
+  "error.consentservice.invalid_purpose_request": Requête d'objectif de consentement non valide
+  "error.consentservice.invalid_purpose_request_description": La demande d'objet de consentement a été rejetée par le service de consentement car non valide
+  "error.consentservice.invalid_request": Requête de consentement non valide
+  "error.consentservice.invalid_request_description": La requête envoyée au service de consentement est non valide
+  "error.consentservice.invalid_request_format": Format de requête non valide
+  "error.consentservice.invalid_request_format_description": Le corps de la requête est mal formé ou contient des données non valides
+  "error.consentservice.invalid_revoke_request": Requête de révocation de consentement non valide
+  "error.consentservice.invalid_revoke_request_description": La demande de révocation de consentement a été rejetée par le service de consentement car non valide
+  "error.consentservice.invalid_search_filter": Filtre de recherche de consentement non valide
+  "error.consentservice.invalid_search_filter_description": Le filtre de recherche de consentement a été rejeté par le service de consentement car non valide
+  "error.consentservice.invalid_update_request": Requête de mise à jour de consentement non valide
+  "error.consentservice.invalid_update_request_description": La demande de mise à jour de consentement a été rejetée par le service de consentement car non valide
+  "error.consentservice.invalid_validation_request": Requête de validation de consentement non valide
+  "error.consentservice.invalid_validation_request_description": La demande de validation de consentement a été rejetée par le service de consentement car non valide
+  "error.consentservice.purpose_already_exists": L'objectif de consentement existe déjà
+  "error.consentservice.purpose_already_exists_description": Un objet de consentement avec le même nom existe déjà pour cette ressource
+  "error.consentservice.purpose_not_found": Objectif de consentement introuvable
+  "error.consentservice.purpose_not_found_description": L'objet de consentement avec l'ID spécifié n'existe pas
+  "error.consentservice.unauthorized": Non autorisé à accéder au service de consentement
+  "error.consentservice.unauthorized_description": Le service de consentement a renvoyé une réponse non autorisée
+  "error.dcr.invalid_client_metadata": Métadonnées client non valides
+  "error.dcr.invalid_client_metadata_description": Une ou plusieurs valeurs de métadonnées client sont non valides
+  "error.dcr.invalid_redirect_uri": URI de redirection non valide
+  "error.dcr.invalid_redirect_uri_description": Une ou plusieurs URIs de redirection sont non valides
+  "error.dcr.invalid_request_format": Format de requête non valide
+  "error.dcr.invalid_request_format_description": Le corps de la requête est manquant ou a un format non valide
+  "error.dcr.jwks_configuration_conflict": Conflit de configuration JWKS
+  "error.dcr.jwks_configuration_conflict_description": Impossible de spécifier à la fois les paramètres \"jwks\" et \"jwks_uri\"
+  "error.dcr.server_error": Erreur serveur
+  "error.dcr.server_error_description": Une erreur inattendue s'est produite lors du traitement de la requête
+  "error.dcr.unauthorized": Non autorisé
+  "error.dcr.unauthorized_description": Une authentification avec des autorisations suffisantes est requise pour enregistrer un client
+  "error.declarative_resource.create_operation_not_allowed": La création de ressource déclarative n'est pas autorisée
+  "error.declarative_resource.create_operation_not_allowed_description": La création de ressources déclaratives n'est pas autorisée
+  "error.declarative_resource.delete_operation_not_allowed": La suppression de ressource déclarative n'est pas autorisée
+  "error.declarative_resource.delete_operation_not_allowed_description": La suppression de ressources déclaratives n'est pas autorisée
+  "error.declarative_resource.update_operation_not_allowed": La mise à jour de ressource déclarative n'est pas autorisée
+  "error.declarative_resource.update_operation_not_allowed_description": La mise à jour de ressources déclaratives n'est pas autorisée
+  "error.encoding_error": Erreur d'encodage
+  "error.encoding_error_description": Une erreur s'est produite lors de l'encodage de la réponse
+  "error.entitytypeservice.agent_type_cannot_delete": Le type d'agent ne peut pas être supprimé
+  "error.entitytypeservice.agent_type_cannot_delete_description": Le type d'agent par défaut ne peut pas être supprimé. Modifiez le schéma à la place
+  "error.entitytypeservice.agent_type_name_conflict": Conflit de nom de type d'agent
+  "error.entitytypeservice.agent_type_name_conflict_description": Un type d'agent avec le même nom existe déjà
+  "error.entitytypeservice.agent_type_not_found": Type d'agent introuvable
+  "error.entitytypeservice.agent_type_not_found_description": Le type d'agent avec l'identifiant spécifié n'existe pas
+  "error.entitytypeservice.agent_type_only_default_allowed": Seul le type d'agent par défaut est autorisé
+  "error.entitytypeservice.agent_type_only_default_allowed_description": Les types d'agent sont limités à un seul schéma 'default' ; la création ou le renommage vers d'autres noms n'est pas autorisé
+  "error.entitytypeservice.cannot_modify_declarative_resource": Impossible de modifier une ressource déclarative
+  "error.entitytypeservice.cannot_modify_declarative_resource_description": Le type d'utilisateur est déclaratif et ne peut pas être modifié ou supprimé
+  "error.entitytypeservice.consent_synchronization_failed": Échec de la synchronisation du consentement
+  "error.entitytypeservice.consent_synchronization_failed_description": Échec de la synchronisation des configurations de consentement pour le type d'entité
+  "error.entitytypeservice.create_schema_request_parse_failed_description": Échec de l'analyse du corps de la requête
+  "error.entitytypeservice.credential_attribute_not_allowed_as_display": Attribut d'identifiant non autorisé comme affichage
+  "error.entitytypeservice.credential_attribute_not_allowed_as_display_description": L'attribut d'affichage ne doit pas référencer un attribut d'identifiant
+  "error.entitytypeservice.entity_type_name_conflict": Conflit de nom de type d'entité
+  "error.entitytypeservice.entity_type_name_conflict_description": Un type d'entité avec le même nom existe déjà
+  "error.entitytypeservice.entity_type_not_found": Type d'entité introuvable
+  "error.entitytypeservice.entity_type_not_found_description": Le type d'entité avec l'identifiant spécifié n'existe pas
+  "error.entitytypeservice.invalid_agent_type_request": Requête de type d'agent non valide
+  "error.entitytypeservice.invalid_agent_type_request_description": La requête de type d'agent contient des champs obligatoires non valides ou manquants
+  "error.entitytypeservice.invalid_display_attribute": Attribut d'affichage non valide
+  "error.entitytypeservice.invalid_display_attribute_description": L'attribut d'affichage doit référencer un attribut défini dans le schéma (utilisez la notation par points pour les attributs imbriqués, par ex. 'address.city')
+  "error.entitytypeservice.invalid_entity_type_request": Requête de type d'entité non valide
+  "error.entitytypeservice.invalid_entity_type_request_description": La requête de type d'entité contient des champs obligatoires non valides ou manquants
+  "error.entitytypeservice.invalid_limit_parameter": Paramètre de pagination non valide
+  "error.entitytypeservice.invalid_limit_parameter_description": Le paramètre de limite doit être un entier positif
+  "error.entitytypeservice.invalid_offset_parameter": Paramètre de pagination non valide
+  "error.entitytypeservice.invalid_offset_parameter_description": Le paramètre de décalage doit être un entier non négatif
+  "error.entitytypeservice.invalid_request_format": Format de requête non valide
+  "error.entitytypeservice.invalid_request_format_description": Le corps de la requête est mal formé ou contient des données non valides
+  "error.entitytypeservice.invalid_user_type_request": Requête de type d'utilisateur non valide
+  "error.entitytypeservice.invalid_user_type_request_description": La requête de type d'utilisateur contient des champs obligatoires non valides ou manquants
+  "error.entitytypeservice.non_displayable_attribute_type": Type d'attribut non affichable
+  "error.entitytypeservice.non_displayable_attribute_type_description": L'attribut d'affichage doit référencer un type chaîne ou nombre
+  "error.entitytypeservice.result_limit_exceeded": Limite de résultats dépassée
+  "error.entitytypeservice.result_limit_exceeded_description": L'ensemble de résultats combiné des magasins de fichiers et de base de données dépasse la limite maximale. Veuillez affiner votre requête pour retourner moins de résultats.
+  "error.entitytypeservice.update_schema_request_parse_failed_description": Échec de l'analyse du corps de la requête
+  "error.entitytypeservice.user_type_name_conflict": Conflit de nom de type d'utilisateur
+  "error.entitytypeservice.user_type_name_conflict_description": Un type d'utilisateur avec le même nom existe déjà
+  "error.entitytypeservice.user_type_not_found": Type d'utilisateur introuvable
+  "error.entitytypeservice.user_type_not_found_description": Le type d'utilisateur avec l'identifiant spécifié n'existe pas
+  "error.entitytypeservice.user_validation_failed": Échec de la validation de l'utilisateur
+  "error.entitytypeservice.user_validation_failed_description": Les attributs utilisateur ne sont pas conformes au schéma requis
+  "error.eudi.invalid_request": Requête non valide
+  "error.eudi.invalid_request_description": La requête manque de paramètres obligatoires ou est mal formée
+  "error.eudi.unknown_definition": Définition de présentation inconnue
+  "error.eudi.unknown_definition_description": Aucune définition de présentation n'est enregistrée pour l'identifiant fourni
+  "error.eudi.unknown_state": Requête inconnue ou expirée
+  "error.eudi.unknown_state_description": Aucune requête active n'a été trouvée pour la valeur d'état fournie
+  "error.eudi.verification_failed": Échec de la vérification de la présentation
+  "error.eudi.verification_failed_description": L'identifiant présenté n'a pas pu être vérifié
+  "error.exportservice.invalid_request": Requête d'exportation non valide
+  "error.exportservice.invalid_request_description": La requête d'exportation fournie est non valide ou mal formée
+  "error.exportservice.nil_request_description": La requête d'exportation ne peut pas être nulle
+  "error.exportservice.no_resources_found": Aucune ressource trouvée
+  "error.exportservice.no_resources_found_description": Aucune ressource valide trouvée pour les identifiants fournis
+  "error.exportservice.no_valid_resources_for_export_description": Aucune ressource valide trouvée pour l'exportation
+  "error.flow.core.executor_prerequisite_not_met": Un prérequis pour l'exécuteur n'a pas été satisfait
+  "error.flow.core.executor_prerequisite_not_met_description": Une ou plusieurs conditions préalables requises pour l'exécuteur n'ont pas été satisfaites. Veuillez vérifier les entrées et réessayer.
+  "error.flow.core.prompt_invalid_action": Action fournie non valide
+  "error.flow.core.prompt_invalid_action_description": L'action fournie n'est pas valide pour l'étape actuelle du flux
+  "error.flowexecservice.application_retrieval_error": Erreur de récupération de l'application
+  "error.flowexecservice.application_retrieval_error_description": Erreur lors de la récupération des détails de l'application
+  "error.flowexecservice.direct_flow_initiation_not_permitted": Initiation directe du flux non autorisée
+  "error.flowexecservice.direct_flow_initiation_not_permitted_description": L'initiation directe du flux n'est pas autorisée pour ce type d'application
+  "error.flowexecservice.invalid_app_id": Requête non valide
+  "error.flowexecservice.invalid_app_id_description": ID d'application non valide fourni dans la requête
+  "error.flowexecservice.invalid_execution_id": Requête non valide
+  "error.flowexecservice.invalid_execution_id_description": ID d'exécution de flux non valide fourni dans la requête
+  "error.flowexecservice.invalid_flow_init_context": Requête non valide
+  "error.flowexecservice.invalid_flow_init_context_description": Contexte d'initialisation de flux non valide fourni
+  "error.flowexecservice.invalid_flow_type": Requête non valide
+  "error.flowexecservice.invalid_flow_type_description": Type de flux non valide fourni dans la requête
+  "error.flowexecservice.invalid_node_response": Réponse de nœud non valide
+  "error.flowexecservice.invalid_node_response_description": Réponse d'erreur reçue du nœud
+  "error.flowexecservice.invalid_request_payload": Charge utile de requête non valide
+  "error.flowexecservice.invalid_request_payload_description": Échec du décodage du contenu de la requête
+  "error.flowexecservice.recovery_not_allowed": Récupération non autorisée
+  "error.flowexecservice.recovery_not_allowed_description": Le flux de récupération est désactivé pour l'application
+  "error.flowexecservice.registration_not_allowed": Inscription non autorisée
+  "error.flowexecservice.registration_not_allowed_description": Le flux d'inscription est désactivé pour l'application
+  "error.flowmetaservice.application_fetch_failed_description": Échec de la récupération des informations de l'application
+  "error.flowmetaservice.application_not_found_description": L'application spécifiée n'existe pas
+  "error.flowmetaservice.internal_server_error": Erreur interne du serveur
+  "error.flowmetaservice.invalid_request": Requête non valide
+  "error.flowmetaservice.invalid_type_description": Le paramètre \"type\" doit être soit \"APP\" soit \"OU\"
+  "error.flowmetaservice.missing_id_description": Le paramètre de requête \"id\" est obligatoire
+  "error.flowmetaservice.missing_id_parameter": Paramètre requis manquant
+  "error.flowmetaservice.missing_required_parameter": Paramètre requis manquant
+  "error.flowmetaservice.missing_type_description": Le paramètre de requête \"type\" est obligatoire
+  "error.flowmetaservice.ou_fetch_failed": Erreur interne du serveur
+  "error.flowmetaservice.ou_fetch_failed_description": Échec de la récupération des informations de l'unité organisationnelle
+  "error.flowmetaservice.ou_not_found": Ressource introuvable
+  "error.flowmetaservice.ou_not_found_description": L'unité organisationnelle spécifiée n'existe pas
+  "error.flowmetaservice.resource_not_found": Ressource introuvable
+  "error.flowmgtservice.cannot_update_flow_type": Requête de mise à jour non valide
+  "error.flowmgtservice.cannot_update_flow_type_description": Le type de flux ne peut pas être modifié une fois créé
+  "error.flowmgtservice.duplicate_flow_handle": Identifiant de flux en doublon
+  "error.flowmgtservice.duplicate_flow_handle_description": Un flux avec cet identifiant existe déjà pour le type de flux donné
+  "error.flowmgtservice.duplicate_flow_id": ID de flux en doublon
+  "error.flowmgtservice.duplicate_flow_id_description": L'ID de flux existe déjà
+  "error.flowmgtservice.flow_definition_nil_or_empty_description": La définition du flux est nulle ou ne contient aucun nœud
+  "error.flowmgtservice.flow_is_immutable": Le flux est immuable
+  "error.flowmgtservice.flow_is_immutable_description": Les flux déclaratifs ne peuvent pas être modifiés ou supprimés
+  "error.flowmgtservice.flow_not_found": Flux introuvable
+  "error.flowmgtservice.flow_not_found_description": Le flux avec l'identifiant spécifié n'existe pas
+  "error.flowmgtservice.flow_requires_intermediate_nodes_description": La définition du flux doit contenir des nœuds entre les nœuds de début et de fin
+  "error.flowmgtservice.flow_requires_start_and_end_nodes_description": La définition du flux doit contenir au moins un nœud de début et un nœud de fin
+  "error.flowmgtservice.flow_version_not_found": Version du flux introuvable
+  "error.flowmgtservice.flow_version_not_found_description": La version du flux demandée n'existe pas
+  "error.flowmgtservice.graph_build_failure": Échec de construction du graphe
+  "error.flowmgtservice.graph_build_failure_description": Échec de la construction du graphe exécutable à partir de la définition du flux
+  "error.flowmgtservice.handle_update_not_allowed": Requête de mise à jour non valide
+  "error.flowmgtservice.handle_update_not_allowed_description": L'identifiant du flux ne peut pas être modifié après la création
+  "error.flowmgtservice.interceptor_selected_scope_requires_apply_to": Un intercepteur avec la portée SELECTED doit spécifier au moins un nœud dans applyTo
+  "error.flowmgtservice.invalid_flow_data": Données de flux non valides
+  "error.flowmgtservice.invalid_flow_data_description": La définition du flux contient des données non valides
+  "error.flowmgtservice.invalid_flow_handle": Identifiant de flux non valide
+  "error.flowmgtservice.invalid_flow_handle_description": L'identifiant du flux doit être fourni
+  "error.flowmgtservice.invalid_flow_handle_format": Format d'identifiant de flux non valide
+  "error.flowmgtservice.invalid_flow_handle_format_description": L'identifiant du flux doit être en minuscules, alphanumérique, et ne peut contenir que des tirets bas ou des tirets
+  "error.flowmgtservice.invalid_flow_id": ID de flux non valide
+  "error.flowmgtservice.invalid_flow_id_description": L'ID du flux doit être fourni
+  "error.flowmgtservice.invalid_flow_id_format": Format d'ID de flux non valide
+  "error.flowmgtservice.invalid_flow_id_format_description": L'ID du flux doit être un UUID valide
+  "error.flowmgtservice.invalid_flow_name": Nom de flux non valide
+  "error.flowmgtservice.invalid_flow_name_description": Le nom du flux doit être fourni
+  "error.flowmgtservice.invalid_flow_type": Type de flux non valide
+  "error.flowmgtservice.invalid_flow_type_description": Le type de flux spécifié est non valide
+  "error.flowmgtservice.invalid_flow_version": Version de flux non valide
+  "error.flowmgtservice.invalid_flow_version_description": La version du flux spécifiée est non valide
+  "error.flowmgtservice.invalid_limit_parameter": Paramètre de pagination non valide
+  "error.flowmgtservice.invalid_limit_parameter_description": Le paramètre de limite doit être un entier positif
+  "error.flowmgtservice.invalid_offset_parameter": Paramètre de pagination non valide
+  "error.flowmgtservice.invalid_offset_parameter_description": Le paramètre de décalage doit être un entier non négatif
+  "error.flowmgtservice.invalid_request_format": Format de requête non valide
+  "error.flowmgtservice.invalid_request_format_description": Le corps de la requête est mal formé ou contient des données non valides
+  "error.groupservice.cannot_create_group_in_declarative_only_mode": Impossible de créer un groupe en mode déclaratif uniquement
+  "error.groupservice.cannot_create_group_in_declarative_only_mode_description": La création de groupes n'est pas autorisée en mode déclaratif uniquement. Les groupes doivent être définis dans les fichiers de configuration déclaratifs
+  "error.groupservice.cannot_delete_group": Impossible de supprimer le groupe
+  "error.groupservice.cannot_delete_group_description": Impossible de supprimer un groupe ayant des groupes enfants
+  "error.groupservice.cannot_modify_declarative_group": Impossible de modifier un groupe déclaratif
+  "error.groupservice.cannot_modify_declarative_group_description": Le groupe est défini dans la configuration déclarative et ne peut pas être modifié
+  "error.groupservice.empty_members_list": Liste de membres vide
+  "error.groupservice.empty_members_list_description": La liste des membres ne peut pas être vide
+  "error.groupservice.group_name_conflict": Conflit de nom de groupe
+  "error.groupservice.group_name_conflict_description": Un groupe avec le même nom existe sous le même parent
+  "error.groupservice.group_not_found": Groupe introuvable
+  "error.groupservice.group_not_found_description": Le groupe avec l'identifiant spécifié n'existe pas
+  "error.groupservice.handle_path_required_description": Le chemin d'identifiant est obligatoire
+  "error.groupservice.invalid_group_member_id": ID de membre de groupe non valide
+  "error.groupservice.invalid_group_member_id_description": Un ou plusieurs identifiants de membres de groupe dans la requête n'existent pas
+  "error.groupservice.invalid_limit_parameter": Paramètre de limite non valide
+  "error.groupservice.invalid_limit_parameter_description": Le paramètre de limite doit être un entier positif
+  "error.groupservice.invalid_member_id": ID de membre non valide
+  "error.groupservice.invalid_member_id_description": Un ou plusieurs ID de membres utilisateur ou application dans la requête n'existent pas ou ne correspondent pas au type revendiqué
+  "error.groupservice.invalid_member_type": Type de membre non valide
+  "error.groupservice.invalid_member_type_description": Le type de membre doit être \"user\", \"group\" ou \"APP\"
+  "error.groupservice.invalid_offset_parameter": Paramètre de décalage non valide
+  "error.groupservice.invalid_offset_parameter_description": Le paramètre de décalage doit être un entier non négatif
+  "error.groupservice.invalid_ou_id": ID d'unité organisationnelle non valide
+  "error.groupservice.invalid_ou_id_description": L'unité organisationnelle n'existe pas
+  "error.groupservice.invalid_request_format": Format de requête non valide
+  "error.groupservice.invalid_request_format_description": Le corps de la requête est mal formé ou contient des données non valides
+  "error.groupservice.missing_group_id": Format de requête non valide
+  "error.groupservice.missing_group_id_description": L'ID de groupe est requis
+  "error.i18nservice.empty_translations": Traductions vides
+  "error.i18nservice.empty_translations_description": Au moins une traduction doit être fournie
+  "error.i18nservice.export_error": Échec de la récupération des langues de traduction pour l'exportation
+  "error.i18nservice.fetch_error": Échec de la récupération des traductions pour l'exportation
+  "error.i18nservice.invalid_key": Format de clé non valide
+  "error.i18nservice.invalid_key_description": La clé ne peut contenir que des caractères alphanumériques, des points, des traits de soulignement et des tirets
+  "error.i18nservice.invalid_language": Format de balise de langue non valide
+  "error.i18nservice.invalid_language_description": La balise de langue doit suivre le format canonique BCP 47 (par ex., 'en', 'es', 'fr-CA')
+  "error.i18nservice.invalid_namespace": Format d'espace de noms non valide
+  "error.i18nservice.invalid_namespace_description": L'espace de noms ne peut contenir que des caractères alphanumériques, des traits de soulignement et des tirets
+  "error.i18nservice.invalid_request_description": Le corps de la requête est mal formé ou contient des données non valides
+  "error.i18nservice.invalid_request_format": Format de requête non valide
+  "error.i18nservice.missing_language": Code de langue manquant
+  "error.i18nservice.missing_language_description": Le code de langue est requis
+  "error.i18nservice.missing_value": Valeur de traduction manquante
+  "error.i18nservice.missing_value_description": La valeur de traduction est requise
+  "error.i18nservice.translation_not_found": Traduction introuvable
+  "error.i18nservice.translation_not_found_description": La traduction demandée n'existe pas pour la langue, l'espace de noms et la clé spécifiés
+  "error.idpservice.attribute_configuration_empty_claim_description": Le mappage d'attributs ne doit pas contenir de noms d'attributs vides
+  "error.idpservice.attribute_configuration_entry_user_type_required_description": Chaque entrée d'attributs de type utilisateur nécessite un type d'utilisateur
+  "error.idpservice.attribute_configuration_user_type_required_description": La configuration d'attributs nécessite un type d'utilisateur
+  "error.idpservice.idp_already_exists": Le fournisseur d'identité existe déjà
+  "error.idpservice.idp_already_exists_description": Un fournisseur d'identité avec le même nom existe déjà
+  "error.idpservice.idp_declarative_read_only": Le fournisseur d'identité est immuable
+  "error.idpservice.idp_declarative_read_only_description": Le fournisseur d'identité demandé est déclaratif et ne peut pas être modifié ni supprimé
+  "error.idpservice.idp_nil": Le fournisseur d'identité ne peut pas être nul
+  "error.idpservice.idp_nil_description": L'objet fournisseur d'identité ne peut pas être nul ou vide
+  "error.idpservice.idp_not_found": Fournisseur d'identité introuvable
+  "error.idpservice.idp_not_found_description": Le fournisseur d'identité demandé est introuvable
+  "error.idpservice.invalid_attribute_configuration": Configuration d'attribut non valide
+  "error.idpservice.invalid_attribute_configuration_description": La configuration d'attributs du fournisseur d'identité est non valide
+  "error.idpservice.invalid_idp_id": ID de fournisseur d'identité non valide
+  "error.idpservice.invalid_idp_id_description": L'ID de fournisseur d'identité fourni est non valide ou vide
+  "error.idpservice.invalid_idp_name": Nom de fournisseur d'identité non valide
+  "error.idpservice.invalid_idp_name_description": Le nom de fournisseur d'identité fourni est non valide ou vide
+  "error.idpservice.invalid_idp_property": Propriété de fournisseur d'identité non valide
+  "error.idpservice.invalid_idp_property_description": Une ou plusieurs propriétés du fournisseur d'identité sont non valides ou vides
+  "error.idpservice.invalid_idp_type": Type de fournisseur d'identité non valide
+  "error.idpservice.invalid_idp_type_description": Le type de fournisseur d'identité fourni est non valide ou vide
+  "error.idpservice.invalid_request_format": Format de requête non valide
+  "error.idpservice.invalid_request_format_description": Le corps de la requête est mal formé ou contient des données non valides
+  "error.idpservice.property_name_empty_description": Les noms de propriétés ne peuvent pas être vides
+  "error.idpservice.result_limit_exceeded": Limite de résultats dépassée en mode composite
+  "error.idpservice.result_limit_exceeded_description": Le nombre total d'enregistrements dépasse la limite maximale en mode composite
+  "error.idpservice.unsupported_idp_property": Propriété de fournisseur d'identité non prise en charge
+  "error.idpservice.unsupported_idp_property_description": Une ou plusieurs propriétés du fournisseur d'identité ne sont pas prises en charge
+  "error.import.adapterNotConfigured": Adaptateur non configuré
+  "error.import.adapterNotConfigured.description": L'adaptateur de ressources requis n'est pas configuré
+  "error.import.delete.dirNotFound": Répertoire de ressources introuvable
+  "error.import.delete.fileNotFound": Fichier de ressources introuvable
+  "error.import.emptyContent": Le contenu d'importation ne peut pas être vide
+  "error.import.fileTargetNotSupported": La cible de fichier n'est pas prise en charge ; utilisez la cible d'exécution
+  "error.import.invalidRequest": Requête d'importation non valide
+  "error.import.invalidRequest.description": La requête d'importation fournie est non valide ou mal formée
+  "error.import.invalidYaml": Contenu YAML non valide
+  "error.import.invalidYaml.description": Le contenu YAML fourni ne peut pas être analysé
+  "error.import.missingDeleteFields": resourceType et resourceKey sont requis
+  "error.import.templateResolutionFailed": Échec de la résolution du modèle
+  "error.import.templateResolutionFailed.description": Échec de la résolution d'une ou plusieurs variables de modèle dans le contenu YAML
+  "error.import.unsupportedResourceType": Type de ressource non pris en charge pour la gestion de fichiers déclaratifs
+  "error.interceptor.challenge_token_invalid": Jeton de défi non valide
+  "error.interceptor.challenge_token_invalid_description": Le jeton de défi est manquant ou non valide
+  "error.interceptor.failed": Échec de la validation de l'intercepteur
+  "error.interceptor.failed_description": Un intercepteur de flux a rejeté la requête
+  "error.internal_server_error": Erreur interne du serveur
+  "error.internal_server_error_description": Une erreur inattendue s'est produite lors du traitement de la requête
+  "error.jweservice.decoding_jwe_error": Erreur de décodage JWE
+  "error.jweservice.decoding_jwe_error_description": Une erreur s'est produite lors du décodage du jeton JWE
+  "error.jweservice.decryption_failed": Échec du déchiffrement JWE
+  "error.jweservice.decryption_failed_description": Échec du déchiffrement du jeton JWE
+  "error.jweservice.unsupported_algorithm": Algorithme JWE non pris en charge
+  "error.jweservice.unsupported_algorithm_description": L'algorithme JWE spécifié n'est pas pris en charge
+  "error.jweservice.unsupported_encryption_algorithm": Algorithme de chiffrement non pris en charge
+  "error.jweservice.unsupported_encryption_algorithm_description": L'algorithme de chiffrement spécifié n'est pas pris en charge
+  "error.jwsservice.decoding_header_error": Erreur de décodage JWS
+  "error.jwsservice.decoding_header_error_description": Une erreur s'est produite lors du décodage de l'en-tête JWS
+  "error.jwsservice.invalid_format": Format JWS non valide
+  "error.jwsservice.invalid_format_description": Le format du jeton JWS est non valide
+  "error.jwsservice.invalid_signature": Signature non valide
+  "error.jwsservice.invalid_signature_description": La signature est non valide
+  "error.jwsservice.unsupported_algorithm": Algorithme JWS non pris en charge
+  "error.jwsservice.unsupported_algorithm_description": L'algorithme JWS spécifié n'est pas pris en charge
+  "error.jwtservice.decoding_header_error": Erreur de décodage JWT
+  "error.jwtservice.decoding_header_error_description": Une erreur s'est produite lors du décodage de l'en-tête JWT
+  "error.jwtservice.decoding_payload_error": Erreur de décodage JWT
+  "error.jwtservice.decoding_payload_error_description": Une erreur s'est produite lors du décodage du contenu JWT
+  "error.jwtservice.failed_to_get_jwks": Échec de la récupération du JWKS
+  "error.jwtservice.failed_to_get_jwks_description": Échec de la récupération du JWKS depuis l'URL spécifiée
+  "error.jwtservice.failed_to_parse_jwks": Échec de l'analyse du JWKS
+  "error.jwtservice.failed_to_parse_jwks_description": Échec de l'analyse du JWKS
+  "error.jwtservice.invalid_jwt_format": Format JWT non valide
+  "error.jwtservice.invalid_jwt_format_description": Le format du jeton JWT est non valide
+  "error.jwtservice.invalid_token_signature": Signature de jeton non valide
+  "error.jwtservice.invalid_token_signature_description": La signature du jeton JWT est non valide
+  "error.jwtservice.no_matching_jwk_found": Aucun JWK correspondant trouvé
+  "error.jwtservice.no_matching_jwk_found_description": Aucun JWK correspondant trouvé pour l'ID de clé donné
+  "error.jwtservice.token_expired": Jeton expiré
+  "error.jwtservice.token_expired_description": Le jeton JWT a expiré
+  "error.jwtservice.unsupported_jws_algorithm": Algorithme JWS non pris en charge
+  "error.jwtservice.unsupported_jws_algorithm_description": L'algorithme JWS spécifié n'est pas pris en charge
+  "error.magiclinkservice.expired_token": Jeton expiré
+  "error.magiclinkservice.expired_token_description": Le jeton de lien magique a expiré
+  "error.magiclinkservice.invalid_token": Jeton non valide
+  "error.magiclinkservice.invalid_token_description": Le jeton de lien magique fourni est non valide
+  "error.magiclinkservice.malformed_token_claims": Revendications de jeton mal formées
+  "error.magiclinkservice.malformed_token_claims_description": Le jeton de lien magique contient des revendications non valides ou manquantes
+  "error.magiclinkservice.resolving_user": Erreur lors de la résolution de l'utilisateur
+  "error.magiclinkservice.resolving_user_description": Une erreur s'est produite lors de la résolution de l'utilisateur pour le destinataire
+  "error.magiclinkservice.token_generation_failed": Échec de la génération du jeton
+  "error.magiclinkservice.token_generation_failed_description": Échec de la génération du jeton de lien magique
+  "error.notificationservice.duplicate_sender_name": Nom d'expéditeur en doublon
+  "error.notificationservice.duplicate_sender_name_description": Un expéditeur avec le même nom existe déjà
+  "error.notificationservice.error_while_retrieving_message_client": Erreur lors de la récupération du client de messagerie
+  "error.notificationservice.error_while_retrieving_message_client_description": Une erreur s'est produite lors de la récupération du client de messagerie
+  "error.notificationservice.invalid_channel": Canal non valide
+  "error.notificationservice.invalid_channel_description": Le canal fourni est non valide
+  "error.notificationservice.invalid_notification_provider": Fournisseur de notification non valide
+  "error.notificationservice.invalid_notification_provider_description": Le fournisseur de notification spécifié est non valide ou non pris en charge
+  "error.notificationservice.invalid_otp": OTP non valide
+  "error.notificationservice.invalid_otp_description": L'OTP fourni est non valide
+  "error.notificationservice.invalid_recipient": Destinataire non valide
+  "error.notificationservice.invalid_recipient_description": Le destinataire fourni est non valide
+  "error.notificationservice.invalid_request_format": Format de requête non valide
+  "error.notificationservice.invalid_request_format_description": Le corps de la requête est mal formé ou contient des données non valides
+  "error.notificationservice.invalid_sender_id": ID d'expéditeur non valide
+  "error.notificationservice.invalid_sender_id_description": L'ID d'expéditeur fourni est non valide
+  "error.notificationservice.invalid_sender_name": Nom d'expéditeur non valide
+  "error.notificationservice.invalid_sender_name_description": Le nom d'expéditeur fourni est non valide
+  "error.notificationservice.invalid_sender_type": Type d'expéditeur non valide
+  "error.notificationservice.invalid_sender_type_description": Le type d'expéditeur fourni est non valide ou non pris en charge
+  "error.notificationservice.invalid_session_token": Jeton de session non valide
+  "error.notificationservice.invalid_session_token_description": Le jeton de session fourni est non valide, mal formé ou expiré
+  "error.notificationservice.sender_not_found": Expéditeur introuvable
+  "error.notificationservice.sender_not_found_description": L'expéditeur de notification demandé est introuvable
+  "error.notificationservice.sender_type_mismatch": Type d'expéditeur non concordant
+  "error.notificationservice.sender_type_mismatch_description": L'expéditeur demandé n'est pas du type attendu
+  "error.notificationservice.unsupported_channel": Canal non pris en charge
+  "error.notificationservice.unsupported_channel_description": Le canal fourni n'est pas pris en charge
+  "error.notificationservice.update_not_allowed": Mise à jour non autorisée
+  "error.notificationservice.update_not_allowed_description": La mise à jour du type d'expéditeur n'est pas autorisée
+  "error.ouservice.cannot_modify_declarative_resource": Impossible de modifier une ressource déclarative
+  "error.ouservice.cannot_modify_declarative_resource_description": L'unité organisationnelle est déclarative et ne peut pas être modifiée ni supprimée
+  "error.ouservice.circular_dependency_detected": Dépendance circulaire détectée
+  "error.ouservice.circular_dependency_detected_description": La définition de ce parent créerait une dépendance circulaire
+  "error.ouservice.invalid_filter": Paramètre de filtre non valide
+  "error.ouservice.invalid_filter_description": "Le paramètre de filtre est non valide. Utilisez le format : attribut (eq|gt|lt) \"valeur\""
+  "error.ouservice.invalid_handle_path": Chemin d'identifiant non valide
+  "error.ouservice.invalid_handle_path_description": Le chemin d'identifiant spécifié n'existe pas
+  "error.ouservice.invalid_limit_parameter": Paramètre de limite non valide
+  "error.ouservice.invalid_limit_parameter_description": Le paramètre de limite doit être un entier positif
+  "error.ouservice.invalid_offset_parameter": Paramètre de décalage non valide
+  "error.ouservice.invalid_offset_parameter_description": Le paramètre de décalage doit être un entier non négatif
+  "error.ouservice.invalid_request_format": Format de requête non valide
+  "error.ouservice.invalid_request_format_description": Le corps de la requête est mal formé, contient des données non valides ou des champs requis sont manquants ou vides
+  "error.ouservice.missing_ou_id": Format de requête non valide
+  "error.ouservice.missing_ou_id_description": L'ID d'unité organisationnelle est requis
+  "error.ouservice.organization_unit_handle_conflict": Conflit d'identifiant d'unité organisationnelle
+  "error.ouservice.organization_unit_handle_conflict_description": Une unité organisationnelle avec le même identifiant existe déjà sous le même parent
+  "error.ouservice.organization_unit_has_children": L'unité organisationnelle a des enfants
+  "error.ouservice.organization_unit_has_children_description": Impossible de supprimer l'unité organisationnelle ayant des enfants ou des utilisateurs/groupes
+  "error.ouservice.organization_unit_name_conflict": Conflit de nom d'unité organisationnelle
+  "error.ouservice.organization_unit_name_conflict_description": Une unité organisationnelle avec le même nom existe déjà sous le même parent
+  "error.ouservice.organization_unit_not_found": Unité organisationnelle introuvable
+  "error.ouservice.organization_unit_not_found_description": L'unité organisationnelle avec l'ID spécifié n'existe pas
+  "error.ouservice.parent_organization_unit_not_found": Unité organisationnelle parente introuvable
+  "error.ouservice.parent_organization_unit_not_found_description": Unité organisationnelle parente introuvable
+  "error.ouservice.result_limit_exceeded": Limite de résultats dépassée
+  "error.passkeyservice.credential_not_found": Identifiant passkey introuvable
+  "error.passkeyservice.credential_not_found_description": L'identifiant spécifié est introuvable pour l'utilisateur
+  "error.passkeyservice.empty_credential_id": ID d'identifiant vide
+  "error.passkeyservice.empty_credential_id_description": L'ID d'identifiant est requis
+  "error.passkeyservice.empty_credential_type": Type d'identifiant vide
+  "error.passkeyservice.empty_credential_type_description": Le type d'identifiant est requis
+  "error.passkeyservice.empty_relying_party_id": ID de partie de confiance vide
+  "error.passkeyservice.empty_relying_party_id_description": L'ID de la partie de confiance est requis
+  "error.passkeyservice.empty_session_token": Jeton de session vide
+  "error.passkeyservice.empty_session_token_description": Le jeton de session est requis
+  "error.passkeyservice.empty_user_identifier": Identifiant utilisateur vide
+  "error.passkeyservice.empty_user_identifier_description": L'ID utilisateur ou le nom d'utilisateur doit être fourni
+  "error.passkeyservice.invalid_attestation_response": Réponse d'attestation non valide
+  "error.passkeyservice.invalid_attestation_response_description": La réponse d'attestation est manquante de champs requis (clientDataJSON ou attestationObject)
+  "error.passkeyservice.invalid_authenticator_response": Réponse de l'authentificateur non valide
+  "error.passkeyservice.invalid_authenticator_response_description": La réponse de l'authentificateur est manquante de champs requis (clientDataJSON, authenticatorData ou signature)
+  "error.passkeyservice.invalid_challenge": Défi non valide
+  "error.passkeyservice.invalid_challenge_description": Le défi dans la réponse ne correspond pas au défi attendu
+  "error.passkeyservice.invalid_finish_data": Données de fin non valides
+  "error.passkeyservice.invalid_finish_data_description": Les données de fin ne peuvent pas être nulles
+  "error.passkeyservice.invalid_session_token": Jeton de session non valide
+  "error.passkeyservice.invalid_session_token_description": Le jeton de session est non valide ou mal formé
+  "error.passkeyservice.invalid_signature": Signature non valide
+  "error.passkeyservice.invalid_signature_description": La vérification de la signature a échoué
+  "error.passkeyservice.no_credentials_found": Aucun identifiant trouvé
+  "error.passkeyservice.no_credentials_found_description": Aucun identifiant trouvé pour l'utilisateur. Veuillez d'abord enregistrer un identifiant
+  "error.passkeyservice.session_expired": Session expirée
+  "error.passkeyservice.session_expired_description": La session a expiré. Veuillez démarrer une nouvelle session
+  "error.passkeyservice.user_not_found": Utilisateur introuvable
+  "error.passkeyservice.user_not_found_description": L'utilisateur spécifié est introuvable
+  "error.resourceservice.action_not_found": Action introuvable
+  "error.resourceservice.action_not_found_description": L'action avec l'ID spécifié n'existe pas
+  "error.resourceservice.cannot_delete": Impossible de supprimer
+  "error.resourceservice.cannot_delete_description": Impossible de supprimer le serveur de ressources/la ressource ayant des dépendances
+  "error.resourceservice.cannot_modify_declarative_action": Impossible de modifier une action déclarative
+  "error.resourceservice.cannot_modify_declarative_action_description": L'action %s est définie dans la configuration déclarative et ne peut pas être modifiée
+  "error.resourceservice.cannot_modify_declarative_resource": Impossible de modifier une ressource déclarative
+  "error.resourceservice.cannot_modify_declarative_resource_description": La ressource %s est définie dans la configuration déclarative et ne peut pas être modifiée
+  "error.resourceservice.cannot_modify_declarative_resource_server": Impossible de modifier un serveur de ressources déclaratif
+  "error.resourceservice.cannot_modify_declarative_resource_server_description": Le serveur de ressources %s est défini dans la configuration déclarative et ne peut pas être modifié
+  "error.resourceservice.circular_dependency_detected": Dépendance circulaire détectée
+  "error.resourceservice.circular_dependency_detected_description": La définition de ce parent créerait une dépendance circulaire
+  "error.resourceservice.consent_sync_failed": Échec de la synchronisation du consentement
+  "error.resourceservice.consent_sync_failed_description": Échec de la synchronisation des modifications de permissions de ressources avec le service de consentement
+  "error.resourceservice.delimiter_conflict_in_handle": Conflit de délimiteur dans l'identifiant
+  "error.resourceservice.delimiter_conflict_in_handle_description": L'identifiant ne peut pas contenir le caractère délimiteur
+  "error.resourceservice.delimiter_conflict_in_resource_server_handle": Conflit de délimiteur dans l'identifiant
+  "error.resourceservice.delimiter_conflict_in_resource_server_handle_description": L'identifiant du serveur de ressources ne peut pas contenir le caractère délimiteur
+  "error.resourceservice.handle_conflict": Conflit d'identifiant
+  "error.resourceservice.handle_conflict_description": Le même identifiant existe déjà dans la ressource spécifiée
+  "error.resourceservice.identifier_conflict": Conflit d'identifiant
+  "error.resourceservice.identifier_conflict_description": Un serveur de ressources avec le même identifiant existe déjà
+  "error.resourceservice.immutable_handle": L'identifiant est immuable
+  "error.resourceservice.immutable_handle_description": L'identifiant du serveur de ressources ne peut pas être modifié après sa création
+  "error.resourceservice.invalid_delimiter": Délimiteur non valide
+  "error.resourceservice.invalid_delimiter_description": "Le délimiteur doit être un seul caractère valide (a-z A-Z 0-9 . _ : - /)"
+  "error.resourceservice.invalid_handle": Identifiant non valide
+  "error.resourceservice.invalid_handle_description": "La longueur de l'identifiant doit être inférieure à 100 caractères et contenir des caractères valides (a-z A-Z 0-9 . _ : - /)"
+  "error.resourceservice.invalid_limit_parameter": Paramètre de limite non valide
+  "error.resourceservice.invalid_limit_parameter_description": Le paramètre de limite doit être un entier positif
+  "error.resourceservice.invalid_offset_parameter": Paramètre de décalage non valide
+  "error.resourceservice.invalid_offset_parameter_description": Le paramètre de décalage doit être un entier non négatif
+  "error.resourceservice.invalid_request_format": Format de requête non valide
+  "error.resourceservice.invalid_request_format_description": Le corps de la requête est mal formé ou contient des données non valides
+  "error.resourceservice.missing_id": Format de requête non valide
+  "error.resourceservice.missing_id_description": L'ID est requis
+  "error.resourceservice.name_conflict": Conflit de nom
+  "error.resourceservice.name_conflict_description": Un serveur de ressources avec le même nom existe déjà
+  "error.resourceservice.organization_unit_not_found": Unité organisationnelle introuvable
+  "error.resourceservice.organization_unit_not_found_description": L'unité organisationnelle spécifiée n'existe pas
+  "error.resourceservice.parent_resource_not_found": Ressource parente introuvable
+  "error.resourceservice.parent_resource_not_found_description": La ressource parente spécifiée n'existe pas
+  "error.resourceservice.resource_not_found": Ressource introuvable
+  "error.resourceservice.resource_not_found_description": La ressource avec l'ID spécifié n'existe pas
+  "error.resourceservice.resource_server_id_conflict": Conflit d'ID de serveur de ressources
+  "error.resourceservice.resource_server_id_conflict_description": Un serveur de ressources avec l'ID spécifié existe déjà
+  "error.resourceservice.resource_server_not_found": Serveur de ressources introuvable
+  "error.resourceservice.resource_server_not_found_description": Le serveur de ressources avec l'ID spécifié n'existe pas
+  "error.resourceservice.result_limit_exceeded_in_composite_mode": Limite de résultats dépassée en mode composite
+  "error.resourceservice.result_limit_exceeded_in_composite_mode_description": Le nombre total d'enregistrements dépasse la limite maximale en mode composite
+  "error.roleservice.cannot_create_role_in_declarative_only_mode": Impossible de créer un rôle en mode déclaratif uniquement
+  "error.roleservice.cannot_create_role_in_declarative_only_mode_description": La création de rôles n'est pas autorisée en mode déclaratif uniquement. Les rôles doivent être définis dans les fichiers de configuration déclaratifs
+  "error.roleservice.cannot_delete_role": Impossible de supprimer le rôle
+  "error.roleservice.cannot_delete_role_description": Impossible de supprimer un rôle actuellement attribué à des utilisateurs ou des groupes
+  "error.roleservice.cannot_modify_declarative_assignment": Impossible de modifier une affectation déclarative
+  "error.roleservice.cannot_modify_declarative_assignment_description": L'affectation est définie dans la configuration déclarative et ne peut pas être modifiée
+  "error.roleservice.cannot_modify_declarative_role": Impossible de modifier un rôle déclaratif
+  "error.roleservice.cannot_modify_declarative_role_description": Le rôle est défini dans la configuration déclarative et ne peut pas être modifié
+  "error.roleservice.either_entity_id_or_groups_must_be_provided_for_authorization_check_description": L'entityId ou les groupes doivent être fournis pour la vérification d'autorisation
+  "error.roleservice.empty_assignments_list": Liste d'affectations vide
+  "error.roleservice.empty_assignments_list_description": Au moins une affectation doit être fournie
+  "error.roleservice.invalid_assignee_type": Type de bénéficiaire non valide
+  "error.roleservice.invalid_assignee_type_description": Le paramètre de type doit être \"user\", \"group\" ou \"APP\"
+  "error.roleservice.invalid_assignment_id": ID d'affectation non valide
+  "error.roleservice.invalid_assignment_id_description": Un ou plusieurs ID d'affectation dans la requête n'existent pas ou ne correspondent pas au type revendiqué
+  "error.roleservice.invalid_limit_parameter": Paramètre de limite non valide
+  "error.roleservice.invalid_limit_parameter_description": Le paramètre de limite doit être un entier positif
+  "error.roleservice.invalid_offset_parameter": Paramètre de décalage non valide
+  "error.roleservice.invalid_offset_parameter_description": Le paramètre de décalage doit être un entier non négatif
+  "error.roleservice.invalid_permissions": Permissions non valides
+  "error.roleservice.invalid_permissions_description": Une ou plusieurs permissions n'existent pas dans le système de gestion des ressources
+  "error.roleservice.invalid_request_format": Format de requête non valide
+  "error.roleservice.invalid_request_format_description": Le corps de la requête est mal formé ou contient des données non valides
+  "error.roleservice.missing_entity_or_groups": Format de requête non valide
+  "error.roleservice.missing_role_id": Format de requête non valide
+  "error.roleservice.missing_role_id_description": L'ID de rôle est requis
+  "error.roleservice.organization_unit_not_found": Unité organisationnelle introuvable
+  "error.roleservice.organization_unit_not_found_description": Unité organisationnelle introuvable
+  "error.roleservice.result_limit_exceeded_in_composite_mode": Limite de résultats dépassée en mode composite
+  "error.roleservice.result_limit_exceeded_in_composite_mode_description": Le nombre total d'enregistrements dépasse la limite maximale en mode composite
+  "error.roleservice.role_id_conflict": Conflit d'ID de rôle
+  "error.roleservice.role_id_conflict_description": Un rôle avec l'ID spécifié existe déjà
+  "error.roleservice.role_name_conflict": Conflit de nom de rôle
+  "error.roleservice.role_name_conflict_description": Un rôle avec le même nom existe déjà sous la même unité organisationnelle
+  "error.roleservice.role_not_found": Rôle introuvable
+  "error.roleservice.role_not_found_description": Le rôle avec l'ID spécifié n'existe pas
+  "error.templateservice.template_not_found": Modèle introuvable
+  "error.templateservice.template_not_found_description": Le modèle demandé n'existe pas pour le scénario donné
+  "error.unauthorized": Non autorisé
+  "error.unauthorized_description": L'appelant n'est pas autorisé à effectuer cette opération
+  "error.userinfoservice.client_credentials_not_supported": Jeton d'accès non valide
+  "error.userinfoservice.client_credentials_not_supported_description": Le point de terminaison UserInfo n'est pas applicable pour le type d'octroi client_credentials
+  "error.userinfoservice.dpop_bound_token_bearer_scheme": Jeton d'accès non valide
+  "error.userinfoservice.dpop_bound_token_bearer_scheme_description": Le jeton lié à DPoP doit utiliser le schéma DPoP
+  "error.userinfoservice.insufficient_scope": Portée insuffisante
+  "error.userinfoservice.insufficient_scope_description": La portée 'openid' est requise pour cette demande
+  "error.userinfoservice.invalid_access_token": Jeton d'accès non valide
+  "error.userinfoservice.invalid_access_token_description": Le jeton d'accès est non valide, expiré ou mal formé
+  "error.userinfoservice.invalid_dpop_proof": Jeton d'accès non valide
+  "error.userinfoservice.invalid_dpop_proof_description": La vérification de la preuve DPoP a échoué
+  "error.userinfoservice.missing_sub_claim": Jeton d'accès non valide
+  "error.userinfoservice.missing_sub_claim_description": Le jeton d'accès est manquant ou contient une revendication 'sub' non valide
+  "error.userservice.ambiguous_user": Utilisateur ambigu
+  "error.userservice.ambiguous_user_description": Plusieurs utilisateurs correspondent aux filtres fournis
+  "error.userservice.attribute_conflict": Conflit d'attribut
+  "error.userservice.attribute_conflict_description": Un utilisateur avec la même valeur d'attribut unique existe déjà
+  "error.userservice.authentication_failed": Échec de l'authentification
+  "error.userservice.authentication_failed_description": Informations d'identification non valides fournies
+  "error.userservice.cannot_modify_declarative_resource": Impossible de modifier une ressource déclarative
+  "error.userservice.cannot_modify_declarative_resource_description": L'utilisateur est déclaratif et ne peut pas être modifié ou supprimé
+  "error.userservice.email_conflict": Conflit d'adresse e-mail
+  "error.userservice.email_conflict_description": Un utilisateur avec la même adresse e-mail existe déjà
+  "error.userservice.handle_path_required": Chemin d'identifiant requis
+  "error.userservice.handle_path_required_description": Le chemin d'identifiant est requis pour cette opération
+  "error.userservice.invalid_credential": Format de requête non valide
+  "error.userservice.invalid_credential_description": Champs d'identification non valides dans la requête
+  "error.userservice.invalid_filter_parameter": Paramètre de filtre non valide
+  "error.userservice.invalid_filter_parameter_description": Le format de filtre est non valide
+  "error.userservice.invalid_group_id": ID de groupe non valide
+  "error.userservice.invalid_group_id_description": Un ou plusieurs ID de groupe dans la requête n'existent pas
+  "error.userservice.invalid_handle_path": Chemin d'identifiant non valide
+  "error.userservice.invalid_handle_path_description": Le chemin d'identifiant doit contenir des identifiants d'unité organisationnelle valides séparés par des barres obliques
+  "error.userservice.invalid_limit_parameter": Paramètre de pagination non valide
+  "error.userservice.invalid_limit_parameter_description": Le paramètre de limite doit être un entier positif
+  "error.userservice.invalid_offset_parameter": Paramètre de pagination non valide
+  "error.userservice.invalid_offset_parameter_description": Le paramètre de décalage doit être un entier non négatif
+  "error.userservice.invalid_organization_unit": Unité organisationnelle non valide
+  "error.userservice.invalid_organization_unit_description": L'identifiant d'unité organisationnelle doit être spécifié sous forme d'UUID valide
+  "error.userservice.invalid_request_format": Format de requête non valide
+  "error.userservice.invalid_request_format_description": Le corps de la requête est mal formé ou contient des données non valides
+  "error.userservice.missing_credentials": Identifiants manquants
+  "error.userservice.missing_credentials_description": Au moins un champ d'identification doit être fourni
+  "error.userservice.missing_required_fields": Champs requis manquants
+  "error.userservice.missing_required_fields_description": Au moins un attribut d'identification doit être fourni
+  "error.userservice.missing_user_id": Format de requête non valide
+  "error.userservice.missing_user_id_description": L'identifiant utilisateur est requis
+  "error.userservice.organization_unit_mismatch": Non-concordance de l'unité organisationnelle
+  "error.userservice.organization_unit_mismatch_description": L'unité organisationnelle ne correspond pas à la configuration du type d'utilisateur
+  "error.userservice.organization_unit_not_found": Unité organisationnelle introuvable
+  "error.userservice.organization_unit_not_found_description": L'unité organisationnelle spécifiée n'existe pas
+  "error.userservice.schema_validation_failed": Échec de la validation du schéma
+  "error.userservice.schema_validation_failed_description": Les attributs utilisateur ne sont pas conformes au schéma requis
+  "error.userservice.user_not_found": Utilisateur introuvable
+  "error.userservice.user_not_found_description": L'utilisateur avec l'identifiant spécifié n'existe pas
+  "error.userservice.user_type_not_found": Type d'utilisateur introuvable
+  "error.userservice.user_type_not_found_description": Le type d'utilisateur spécifié n'existe pas
+  "flows.executor.errors.ambiguous_user_identity": Identité utilisateur ambiguë
+  "flows.executor.errors.ambiguous_user_identity_desc": L'identité utilisateur est ambiguë et ne peut pas être déterminée
+  "flows.executor.errors.attribute_collect_failed": Échec de la mise à jour des attributs utilisateur
+  "flows.executor.errors.attribute_collect_failed_desc": Une erreur s'est produite lors de la mise à jour des attributs utilisateur
+  "flows.executor.errors.attribute_not_found_for_user": Attribut requis introuvable
+  "flows.executor.errors.attribute_not_found_for_user_desc": Un attribut requis n'a pas été trouvé pour l'utilisateur
+  "flows.executor.errors.attribute_not_unique": La valeur d'attribut existe déjà
+  "flows.executor.errors.attribute_not_unique_desc": La valeur d'attribut fournie existe déjà et doit être unique
+  "flows.executor.errors.attribute_retrieval_failed": Échec de la récupération des attributs utilisateur
+  "flows.executor.errors.attribute_retrieval_failed_desc": Une erreur s'est produite lors de la récupération des attributs utilisateur
+  "flows.executor.errors.auth_not_available_for_app": Authentification non disponible pour cette application
+  "flows.executor.errors.auth_not_available_for_app_desc": La méthode d'authentification demandée n'est pas disponible pour cette application
+  "flows.executor.errors.authorization_failed": Échec de la validation de l'autorisation
+  "flows.executor.errors.authorization_failed_desc": La validation de l'autorisation a échoué pour l'utilisateur actuel
+  "flows.executor.errors.cannot_provision_automatically": Impossible de provisionner l'utilisateur automatiquement
+  "flows.executor.errors.cannot_provision_automatically_desc": L'utilisateur ne peut pas être provisionné automatiquement avec les informations fournies
+  "flows.executor.errors.consent_decisions_missing": La saisie des décisions de consentement est manquante ou vide
+  "flows.executor.errors.consent_decisions_missing_desc": La saisie des décisions de consentement est manquante ou vide
+  "flows.executor.errors.consent_decisions_parse": Échec de l'analyse des décisions de consentement
+  "flows.executor.errors.consent_decisions_parse_desc": La saisie des décisions de consentement n'a pas pu être analysée
+  "flows.executor.errors.consent_denied": L'utilisateur a refusé le consentement
+  "flows.executor.errors.consent_denied_desc": L'utilisateur a refusé le consentement requis
+  "flows.executor.errors.consent_prereq_failed": Échec de la validation des prérequis pour le consentement
+  "flows.executor.errors.consent_prereq_failed_desc": Les prérequis pour l'exécuteur de consentement n'ont pas été satisfaits
+  "flows.executor.errors.consent_prompt_timed_out": Le délai de la demande de consentement a expiré
+  "flows.executor.errors.consent_prompt_timed_out_desc": Le délai de la demande de consentement a expiré sans réponse
+  "flows.executor.errors.consent_record_failed": Échec de l'enregistrement du consentement
+  "flows.executor.errors.consent_record_failed_desc": Une erreur s'est produite lors de l'enregistrement du consentement de l'utilisateur
+  "flows.executor.errors.consent_resolution_failed": Échec de la résolution du consentement
+  "flows.executor.errors.consent_resolution_failed_desc": Une erreur s'est produite lors de la résolution des exigences de consentement de l'utilisateur
+  "flows.executor.errors.credential_input_invalid": Configuration d'entrée d'identifiant non valide
+  "flows.executor.errors.credential_input_invalid_desc": La configuration d'entrée d'identifiant est non valide pour le configurateur d'identifiant
+  "flows.executor.errors.credential_input_missing": Aucune entrée d'identifiant configurée
+  "flows.executor.errors.credential_input_missing_desc": Aucune entrée d'identifiant n'a été configurée pour le configurateur d'identifiant
+  "flows.executor.errors.credential_processing_failed": Échec du traitement des identifiants
+  "flows.executor.errors.credential_processing_failed_desc": Une erreur s'est produite lors du traitement des identifiants
+  "flows.executor.errors.credential_set_failed": Échec de la définition des identifiants
+  "flows.executor.errors.credential_set_failed_desc": Une erreur s'est produite lors de la définition des identifiants de l'utilisateur
+  "flows.executor.errors.credential_value_empty": La valeur de l'identifiant est vide
+  "flows.executor.errors.credential_value_empty_desc": La valeur de l'identifiant ne doit pas être vide pour le configurateur d'identifiant
+  "flows.executor.errors.cross_ou_provisioning_target_missing": L'unité organisationnelle cible n'est pas définie pour le provisionnement inter-OU
+  "flows.executor.errors.cross_ou_provisioning_target_missing_desc": Une unité organisationnelle cible doit être spécifiée pour le provisionnement d'utilisateurs inter-OU
+  "flows.executor.errors.email_recipient_missing": Le destinataire de l'e-mail est obligatoire
+  "flows.executor.errors.email_recipient_missing_desc": Un destinataire d'e-mail doit être fourni pour envoyer la notification
+  "flows.executor.errors.email_send_failed": Échec de l'envoi de l'e-mail
+  "flows.executor.errors.email_send_failed_desc": Une erreur s'est produite lors de l'envoi de l'e-mail
+  "flows.executor.errors.email_service_not_configured": Le service d'e-mail n'est pas configuré
+  "flows.executor.errors.email_service_not_configured_desc": Le service de notification par e-mail n'a pas été configuré
+  "flows.executor.errors.failed_to_identify_user": Échec de l'identification de l'utilisateur
+  "flows.executor.errors.failed_to_identify_user_desc": Impossible d'identifier l'utilisateur avec les informations fournies
+  "flows.executor.errors.http_request_config_invalid": Erreur de configuration
+  "flows.executor.errors.http_request_config_invalid_desc": La configuration de l'exécuteur de requêtes HTTP est non valide
+  "flows.executor.errors.http_request_failed": Échec de l'exécuteur de requêtes HTTP
+  "flows.executor.errors.http_request_failed_desc": L'exécuteur de requêtes HTTP n'a pas réussi à terminer la requête
+  "flows.executor.errors.insufficient_permissions": Autorisations insuffisantes
+  "flows.executor.errors.insufficient_permissions_desc": L'utilisateur ne dispose pas d'autorisations suffisantes pour effectuer cette action
+  "flows.executor.errors.invalid_action": Action fournie non valide
+  "flows.executor.errors.invalid_action_desc": L'action fournie n'est pas valide pour l'étape actuelle du flux
+  "flows.executor.errors.invalid_credentials": Identifiants fournis non valides
+  "flows.executor.errors.invalid_credentials_desc": Les identifiants fournis sont non valides
+  "flows.executor.errors.invalid_federated_user": Utilisateur fédéré non valide
+  "flows.executor.errors.invalid_federated_user_desc": Les informations de l'utilisateur fédéré sont non valides ou incohérentes
+  "flows.executor.errors.invalid_invite_token": Jeton d'invitation non valide
+  "flows.executor.errors.invalid_invite_token_desc": Le jeton d'invitation fourni est non valide ou a expiré
+  "flows.executor.errors.invalid_magic_link_token": Jeton de lien magique non valide
+  "flows.executor.errors.invalid_magic_link_token_desc": Le jeton de lien magique est non valide ou a expiré
+  "flows.executor.errors.invalid_oauth_code": Code d'autorisation OAuth non valide
+  "flows.executor.errors.invalid_oauth_code_desc": Le code d'autorisation OAuth est non valide ou n'a pas pu être échangé contre des jetons
+  "flows.executor.errors.invalid_oauth_state": Paramètre d'état OAuth non valide
+  "flows.executor.errors.invalid_oauth_state_desc": Le paramètre d'état OAuth est non valide ou ne correspond pas à la valeur attendue
+  "flows.executor.errors.invalid_otp": OTP fourni non valide
+  "flows.executor.errors.invalid_otp_desc": Le mot de passe à usage unique fourni est non valide ou a expiré
+  "flows.executor.errors.invalid_ou": L'unité organisationnelle sélectionnée est non valide
+  "flows.executor.errors.invalid_ou_desc": L'unité organisationnelle sélectionnée n'est pas valide pour cette opération
+  "flows.executor.errors.invalid_passkey": Identifiants de clé d'accès non valides
+  "flows.executor.errors.invalid_passkey_desc": Les identifiants de clé d'accès fournis sont non valides
+  "flows.executor.errors.invalid_user_type": Type d'utilisateur non valide
+  "flows.executor.errors.invalid_user_type_desc": Le type d'utilisateur fourni n'est pas valide
+  "flows.executor.errors.invite_token_generation_failed": Échec de la génération du jeton d'invitation
+  "flows.executor.errors.invite_token_generation_failed_desc": Une erreur s'est produite lors de la génération du jeton d'invitation
+  "flows.executor.errors.magic_link_generation_failed": Échec de la génération du lien magique
+  "flows.executor.errors.magic_link_generation_failed_desc": Échec de la génération du lien magique
+  "flows.executor.errors.max_otp_attempts_reached": Nombre maximal de tentatives OTP atteint
+  "flows.executor.errors.max_otp_attempts_reached_desc": Le nombre maximal de tentatives de vérification OTP a été atteint
+  "flows.executor.errors.no_registered_passkeys": Aucune clé d'accès enregistrée trouvée
+  "flows.executor.errors.no_registered_passkeys_desc": Aucune clé d'accès enregistrée n'a été trouvée pour l'utilisateur
+  "flows.executor.errors.no_user_types_available": Aucun type d'utilisateur disponible
+  "flows.executor.errors.no_user_types_available_desc": Aucun type d'utilisateur n'est actuellement disponible
+  "flows.executor.errors.no_valid_user_types": Aucun type d'utilisateur valide disponible
+  "flows.executor.errors.no_valid_user_types_desc": Aucun type d'utilisateur valide n'est configuré pour ce flux
+  "flows.executor.errors.nonce_mismatch": Non-concordance du nonce dans le jeton d'identité
+  "flows.executor.errors.nonce_mismatch_desc": Le nonce dans les revendications du jeton d'identité ne correspond pas à la valeur attendue
+  "flows.executor.errors.openid4vp_expired": La requête OpenID4VP a expiré avant qu'une réponse ne soit reçue
+  "flows.executor.errors.openid4vp_expired_desc": La requête de présentation OpenID4VP a expiré avant que le portefeuille ne soumette une réponse
+  "flows.executor.errors.openid4vp_initiate_failed": Échec de l'initiation de la requête OpenID4VP
+  "flows.executor.errors.openid4vp_initiate_failed_desc": Une erreur s'est produite lors de l'initiation de la requête de présentation OpenID4VP
+  "flows.executor.errors.openid4vp_not_configured": Le vérificateur OpenID4VP n'est pas configuré
+  "flows.executor.errors.openid4vp_not_configured_desc": Le service de vérification OpenID4VP n'a pas été configuré
+  "flows.executor.errors.openid4vp_verification_failed": Échec de la vérification de la présentation OpenID4VP
+  "flows.executor.errors.openid4vp_verification_failed_desc": La vérification de la présentation OpenID4VP a échoué
+  "flows.executor.errors.ou_creation_failed": Échec de la création de l'unité organisationnelle
+  "flows.executor.errors.ou_creation_failed_desc": Une erreur s'est produite lors de la création de l'unité organisationnelle
+  "flows.executor.errors.ou_creation_prereq_failed": Échec de la validation des prérequis pour la création de l'unité organisationnelle
+  "flows.executor.errors.ou_creation_prereq_failed_desc": Les prérequis pour la création d'une unité organisationnelle n'ont pas été satisfaits
+  "flows.executor.errors.ou_handle_conflict": Une unité organisationnelle avec le même identifiant existe déjà
+  "flows.executor.errors.ou_handle_conflict_desc": Une unité organisationnelle avec le même identifiant existe déjà dans ce contexte
+  "flows.executor.errors.ou_name_conflict": Une unité organisationnelle avec le même nom existe déjà
+  "flows.executor.errors.ou_name_conflict_desc": Une unité organisationnelle avec le même nom existe déjà dans ce contexte
+  "flows.executor.errors.ou_not_found": Unité organisationnelle introuvable
+  "flows.executor.errors.ou_not_found_desc": L'unité organisationnelle sélectionnée n'existe pas
+  "flows.executor.errors.ou_not_valid_for_user_type": L'unité organisationnelle sélectionnée n'est pas valide pour le type d'utilisateur choisi.
+  "flows.executor.errors.ou_not_valid_for_user_type_desc": L'unité organisationnelle sélectionnée n'est pas valide pour le type d'utilisateur choisi
+  "flows.executor.errors.ou_resolution_failed": Échec de la résolution de l'unité organisationnelle
+  "flows.executor.errors.ou_resolution_failed_desc": Impossible de résoudre l'unité organisationnelle pour le contexte actuel
+  "flows.executor.errors.passkey_auth_failed": Échec de l'authentification par clé d'accès
+  "flows.executor.errors.passkey_auth_failed_desc": Une erreur s'est produite lors de l'authentification avec la clé d'accès
+  "flows.executor.errors.passkey_registration_failed": Échec de l'enregistrement de la clé d'accès
+  "flows.executor.errors.passkey_registration_failed_desc": Une erreur s'est produite lors de l'enregistrement de la clé d'accès
+  "flows.executor.errors.prerequisites_failed": Échec de la validation des prérequis
+  "flows.executor.errors.prerequisites_failed_desc": Les prérequis pour cette opération n'ont pas été satisfaits
+  "flows.executor.errors.provisioning_assignment_failed": Échec de l'attribution des groupes et rôles
+  "flows.executor.errors.provisioning_assignment_failed_desc": Une erreur s'est produite lors de l'attribution des groupes et rôles à l'utilisateur provisionné
+  "flows.executor.errors.provisioning_attribute_conflict": Un utilisateur avec les attributs fournis existe déjà
+  "flows.executor.errors.provisioning_attribute_conflict_desc": Le provisionnement de l'utilisateur a échoué car une ou plusieurs valeurs d'attributs uniques sont déjà utilisées
+  "flows.executor.errors.provisioning_failed": Échec du provisionnement de l'utilisateur
+  "flows.executor.errors.provisioning_failed_desc": Une erreur s'est produite lors du provisionnement de l'utilisateur
+  "flows.executor.errors.provisioning_user_attrs_missing": Aucun attribut utilisateur fourni pour le provisionnement
+  "flows.executor.errors.provisioning_user_attrs_missing_desc": Les attributs utilisateur sont requis pour provisionner un nouvel utilisateur
+  "flows.executor.errors.self_reg_disabled_for_user_type": L'auto-inscription est désactivée pour le type d'utilisateur
+  "flows.executor.errors.self_reg_disabled_for_user_type_desc": L'auto-inscription n'est pas activée pour le type d'utilisateur sélectionné
+  "flows.executor.errors.self_reg_not_available_for_app": L'auto-inscription n'est pas disponible pour cette application
+  "flows.executor.errors.self_reg_not_available_for_app_desc": L'auto-inscription n'est pas disponible pour cette application
+  "flows.executor.errors.self_registration_disabled": Auto-inscription non activée
+  "flows.executor.errors.self_registration_disabled_desc": L'auto-inscription n'est pas activée pour cette application ou ce type d'utilisateur
+  "flows.executor.errors.sms_invalid_phone": Le destinataire SMS n'est pas un numéro de téléphone valide
+  "flows.executor.errors.sms_invalid_phone_desc": Le destinataire SMS fourni n'est pas un numéro de téléphone valide
+  "flows.executor.errors.sms_provider_not_configured": Le fournisseur de notifications SMS n'est pas configuré
+  "flows.executor.errors.sms_provider_not_configured_desc": Le fournisseur de notifications SMS n'a pas été configuré ou est erroné
+  "flows.executor.errors.sms_recipient_missing": Le destinataire SMS est obligatoire
+  "flows.executor.errors.sms_recipient_missing_desc": Un destinataire SMS doit être fourni pour envoyer la notification
+  "flows.executor.errors.sms_template_missing": Le modèle SMS est obligatoire
+  "flows.executor.errors.sms_template_missing_desc": Un modèle SMS doit être fourni pour envoyer la notification
+  "flows.executor.errors.user_already_exists": L'utilisateur existe déjà
+  "flows.executor.errors.user_already_exists_desc": Un utilisateur existe déjà avec les attributs fournis
+  "flows.executor.errors.user_already_exists_in_target_ou": L'utilisateur existe déjà dans l'organisation cible
+  "flows.executor.errors.user_already_exists_in_target_ou_desc": Un utilisateur avec la même identité existe déjà dans l'unité organisationnelle cible
+  "flows.executor.errors.user_auth_failed": Échec de l'authentification de l'utilisateur
+  "flows.executor.errors.user_auth_failed_desc": Une erreur s'est produite lors de l'authentification de l'utilisateur
+  "flows.executor.errors.user_id_missing_in_context": ID utilisateur introuvable
+  "flows.executor.errors.user_id_missing_in_context_desc": L'ID utilisateur n'a pas pu être résolu à partir du contexte de flux actuel
+  "flows.executor.errors.user_id_required_for_passkey_reg": ID utilisateur manquant pour l'enregistrement de la clé d'accès
+  "flows.executor.errors.user_id_required_for_passkey_reg_desc": Un ID utilisateur est requis pour enregistrer une clé d'accès
+  "flows.executor.errors.user_not_authenticated": L'utilisateur n'est pas authentifié
+  "flows.executor.errors.user_not_authenticated_desc": L'utilisateur n'a pas été authentifié dans ce flux
+  "flows.executor.errors.user_not_found": Utilisateur introuvable
+  "flows.executor.errors.user_not_found_desc": L'utilisateur est introuvable dans le système
+  "flows.executor.errors.user_type_not_allowed": Type d'utilisateur non autorisé pour ce flux
+  "flows.executor.errors.user_type_not_allowed_desc": Le type d'utilisateur sélectionné n'est pas autorisé pour ce flux
+  "flows.executor.errors.user_type_not_valid_for_ou": Le type d'utilisateur n'est pas valide
+  "flows.executor.errors.user_type_not_valid_for_ou_desc": Le type d'utilisateur sélectionné n'est pas valide pour l'unité organisationnelle choisie
+  "flows.executor.errors.user_type_retrieval_failed": Échec de la récupération des types d'utilisateurs
+  "flows.executor.errors.user_type_retrieval_failed_desc": Une erreur s'est produite lors de la récupération des types d'utilisateurs disponibles
+  "layout.error.already_exists": La mise en page existe déjà
+  "layout.error.already_exists_description": Une mise en page avec le même ID existe déjà
+  "layout.error.cannot_delete_declarative": Impossible de supprimer une mise en page déclarative
+  "layout.error.cannot_delete_declarative_description": La mise en page est définie dans les ressources déclaratives et ne peut pas être supprimée
+  "layout.error.cannot_modify_declarative": Impossible de modifier une ressource déclarative
+  "layout.error.cannot_modify_declarative_description": La mise en page est déclarative et ne peut pas être modifiée ou supprimée
+  "layout.error.cannot_update_declarative": Impossible de mettre à jour une mise en page déclarative
+  "layout.error.cannot_update_declarative_description": La mise en page est définie dans les ressources déclaratives et ne peut pas être modifiée
+  "layout.error.duplicate_handle": Identifiant de mise en page en doublon
+  "layout.error.duplicate_handle_description": Une mise en page avec le même identifiant existe déjà
+  "layout.error.handle_immutable": L'identifiant de mise en page est immuable
+  "layout.error.handle_immutable_description": L'identifiant de la mise en page ne peut pas être modifié après la création
+  "layout.error.in_use": Mise en page en cours d'utilisation
+  "layout.error.in_use_description": Impossible de supprimer une mise en page actuellement associée à une ou plusieurs applications
+  "layout.error.invalid_data": Données de mise en page non valides
+  "layout.error.invalid_data_description": Les données de mise en page fournies sont non valides
+  "layout.error.invalid_format": Format de mise en page non valide
+  "layout.error.invalid_format_description": La mise en page doit être un objet JSON valide
+  "layout.error.invalid_id": ID de mise en page non valide
+  "layout.error.invalid_id_description": L'ID de mise en page fourni est non valide
+  "layout.error.invalid_limit": Limite non valide
+  "layout.error.invalid_limit_description": La valeur de limite est hors de la plage valide
+  "layout.error.invalid_limit_param": Limite non valide
+  "layout.error.invalid_limit_param_description": La limite doit être un entier valide
+  "layout.error.invalid_offset": Décalage non valide
+  "layout.error.invalid_offset_description": Le décalage doit être non négatif
+  "layout.error.invalid_offset_param": Décalage non valide
+  "layout.error.invalid_offset_param_description": Le décalage doit être un entier valide
+  "layout.error.missing_display_name": Nom d'affichage manquant
+  "layout.error.missing_display_name_description": Le nom d'affichage est obligatoire
+  "layout.error.missing_handle": Identifiant de mise en page manquant
+  "layout.error.missing_handle_description": L'identifiant de la mise en page est obligatoire
+  "layout.error.missing_layout": Mise en page manquante
+  "layout.error.missing_layout_description": Le champ de mise en page est obligatoire
+  "layout.error.not_found": Mise en page introuvable
+  "layout.error.not_found_description": La configuration de mise en page demandée est introuvable
+  "layout.error.result_limit_exceeded": Limite de résultats dépassée
+  "layout.error.result_limit_exceeded_description": Le nombre total de mises en page dépasse la limite maximale autorisée en mode composite
+  "theme.error.cannot_delete_declarative": Impossible de supprimer un thème déclaratif
+  "theme.error.cannot_delete_declarative_description": Le thème est défini dans les ressources déclaratives et ne peut pas être supprimé
+  "theme.error.cannot_modify_declarative": Impossible de modifier une ressource déclarative
+  "theme.error.cannot_modify_declarative_description": Le thème est déclaratif et ne peut pas être modifié ou supprimé
+  "theme.error.cannot_update_declarative": Impossible de mettre à jour un thème déclaratif
+  "theme.error.cannot_update_declarative_description": Le thème est défini dans les ressources déclaratives et ne peut pas être modifié
+  "theme.error.duplicate_handle": Identifiant de thème en doublon
+  "theme.error.duplicate_handle_description": Un thème avec le même identifiant existe déjà
+  "theme.error.handle_immutable": L'identifiant de thème est immuable
+  "theme.error.handle_immutable_description": L'identifiant du thème ne peut pas être modifié après la création
+  "theme.error.in_use": Thème en cours d'utilisation
+  "theme.error.in_use_description": Impossible de supprimer un thème actuellement associé à une ou plusieurs applications
+  "theme.error.invalid_data": Données de thème non valides
+  "theme.error.invalid_data_description": Les données de thème fournies sont non valides
+  "theme.error.invalid_format": Format de thème non valide
+  "theme.error.invalid_format_description": Le thème doit être un objet JSON valide
+  "theme.error.invalid_id": ID de thème non valide
+  "theme.error.invalid_id_description": L'ID de thème fourni est non valide
+  "theme.error.invalid_limit": Limite non valide
+  "theme.error.invalid_limit_description": La valeur de limite est hors de la plage valide
+  "theme.error.invalid_limit_param": Limite non valide
+  "theme.error.invalid_limit_param_description": La limite doit être un entier valide
+  "theme.error.invalid_offset": Décalage non valide
+  "theme.error.invalid_offset_description": Le décalage doit être non négatif
+  "theme.error.invalid_offset_param": Décalage non valide
+  "theme.error.invalid_offset_param_description": Le décalage doit être un entier valide
+  "theme.error.missing_display_name": Nom d'affichage manquant
+  "theme.error.missing_display_name_description": Le nom d'affichage est obligatoire
+  "theme.error.missing_handle": Identifiant de thème manquant
+  "theme.error.missing_handle_description": L'identifiant du thème est obligatoire
+  "theme.error.missing_theme": Thème manquant
+  "theme.error.missing_theme_description": Le champ de thème est obligatoire
+  "theme.error.not_found": Thème introuvable
+  "theme.error.not_found_description": La configuration de thème demandée est introuvable
+  "theme.error.result_limit_exceeded": Limite de résultats dépassée
+  "theme.error.result_limit_exceeded_description": Le nombre total de thèmes dépasse la limite maximale autorisée en mode composite
+
+header:
+  login_heading: Connexion
+  login_subheading: demande une authentification pour la connexion
+  select_login_id: "Sélectionnez une option d'identifiant de connexion"
+  select_login_mode: Sélectionnez un mode de connexion préféré
+
+input:
+  uin_label: UIN/VID
+  uin_placeholder: Entrez votre UIN/VID
+  mobile_label: Numéro de téléphone
+  mobile_placeholder: Entrez le numéro de téléphone
+  email_label: E-mail
+  email_placeholder: Entrez votre adresse e-mail
+  nrc_label: NRC ID
+  nrc_placeholder: Entrez le NRC ID
+  password_label: Mot de passe
+  password_placeholder: Entrez votre mot de passe
+  username_label: "Nom d'utilisateur"
+  username_placeholder: "Entrez votre nom d'utilisateur"
+  fullname_label: Nom complet
+  fullname_placeholder: Entrez votre nom complet
+  dob_label: Date de naissance
+  dob_placeholder: Sélectionnez votre date de naissance
+
+button:
+  continue: Continuer
+  login: Connexion
+  verify: Vérifier
+  get_otp: Obtenir OTP
+  login_otp: Connexion avec OTP
+  login_password: Connexion avec mot de passe
+  login_biometrics: Connexion avec biométrie
+  login_kbi: Connexion avec KBI
+  login_id_uin: UIN/VID
+  login_id_mobile: Numéro de téléphone
+  login_id_email: E-mail
+  login_id_nrc: NRC ID
+
+otp:
+  enter_otp_title: "Entrez l'OTP"
+  otp_sent_msg: "Veuillez entrer l'OTP à 6 chiffres envoyé à votre contact enregistré"
+  resend_otp: "Renvoyer l'OTP"
+
+consent:
+  title: "demande l'accès aux éléments suivants :"
+  description: Cette application souhaite accéder aux informations suivantes. Veuillez examiner et choisir ce que vous souhaitez partager.
+  allow: Autoriser
+  deny: Refuser
+  timer_label: Veuillez prendre les mesures appropriées dans
+  essential: Informations essentielles
+  optional: Informations facultatives
+  essential_info: Informations utilisateur obligatoires requises par le fournisseur de services
+  optional_info: Informations utilisateur supplémentaires que le résident peut choisir de partager avec le fournisseur de services
+
+signin:
+  images.app_logo.alt: "Logo de l'application"
+
+validation:
+  uin.numeric: UIN/VID doit contenir uniquement des chiffres
+  uin.length: UIN/VID doit contenir entre 10 et 16 chiffres
+  mobile.numeric: Le numéro de téléphone doit contenir uniquement des chiffres
+  mobile.length: Le numéro de téléphone doit contenir entre 9 et 11 chiffres
+  email.format: Veuillez entrer une adresse e-mail valide
+  pattern.invalid: Format non valide
+  minLength.invalid: La valeur est trop courte
+  maxLength.invalid: La valeur est trop longue
+
+validations:
+  required.field.error: Ce champ est obligatoire
+
+errors:
+  heading: Erreur
+  signin.initialization: "Impossible d'initialiser la connexion. Veuillez réessayer."
+  network.unavailable: Réseau indisponible. Veuillez vérifier votre connexion.
+  something_went_wrong: "Une erreur s'est produite"
+  unexpected_error: "Une erreur inattendue s'est produite. Veuillez réessayer plus tard."
+  page_not_found: Page non trouvée
+
+messages:
+  loading.placeholder: Chargement...
+
+app:
+  footer.powered_by: Propulsé par
+  network_error.title: Pas de connexion Internet
+  network_error.description: Veuillez vérifier votre connexion réseau et réessayer.
+  network_error.try_again: Réessayer
+  otp.resend_timer: "Vous pouvez renvoyer l'OTP dans"
+  otp.timed_out: Délai expiré
+  otp.submit: Soumettre
+  back: Retour
+  esignet_details: Détails eSignet
