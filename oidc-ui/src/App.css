@@ -210,14 +210,14 @@ input[type="password"]::-ms-clear {
 
 /* css for ACR selection button */
 .left-align-button {
-  justify-content: flex-start;
-  border-color: var(--login-card-box-color);
-  background-color: white;
-  color: black;
+  justify-content: flex-start !important;
+  border-color: var(--login-card-box-color) !important;
+  background-color: white !important;
+  color: black !important;
   &:hover:not(:disabled) {
-    border-color: var(--primary-color);
-    color: black;
-    background-color: white;
+    border-color: var(--primary-color) !important;
+    color: black !important;
+    background-color: white !important;
   }
 
   /* size of icon in ACR selection button */
