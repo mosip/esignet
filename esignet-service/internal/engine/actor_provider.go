@@ -10,6 +10,7 @@ package engine
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"sort"
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
@@ -54,8 +55,11 @@ func (p *actorProvider) GetOAuthClientByClientID(
 ) (*providers.OAuthClient, *common.ServiceError) {
 	client, err := p.clientSvc.GetClient(ctx, clientID)
 	if err != nil {
-		applog.GetLogger().Debug(ctx, "OAuth client lookup failed", applog.String("clientId", clientID), applog.Error(err))
-		return nil, shared.ClientNotFoundError
+		if errors.Is(err, clientmgmt.ErrClientNotFound) {
+			return nil, nil
+		}
+		applog.GetLogger().Error(ctx, "OAuth client lookup failed", applog.String("clientId", clientID), applog.Error(err))
+		return nil, shared.InternalServerError
 	}
 
 	requirePushedAuthorizationRequests, _ := client.AdditionalConfig[parRequired].(bool)
@@ -103,8 +107,11 @@ func (p *actorProvider) GetOAuthProfileByID(
 ) (*providers.OAuthProfile, *common.ServiceError) {
 	client, err := p.clientSvc.GetClient(ctx, id)
 	if err != nil {
-		applog.GetLogger().Debug(ctx, "OAuth profile lookup failed", applog.String("clientId", id), applog.Error(err))
-		return nil, shared.ClientNotFoundError
+		if errors.Is(err, clientmgmt.ErrClientNotFound) {
+			return nil, shared.ClientNotFoundError
+		}
+		applog.GetLogger().Error(ctx, "OAuth profile lookup failed", applog.String("clientId", id), applog.Error(err))
+		return nil, shared.InternalServerError
 	}
 	requirePushedAuthorizationRequests, _ := client.AdditionalConfig[parRequired].(bool)
 	dpopBoundAccessTokens, _ := client.AdditionalConfig[dpopRequired].(bool)
@@ -149,8 +156,11 @@ func (p *actorProvider) GetInboundClientByID(
 ) (*providers.InboundClient, *common.ServiceError) {
 	client, err := p.clientSvc.GetClient(ctx, id)
 	if err != nil {
-		applog.GetLogger().Debug(ctx, "inbound client lookup failed", applog.String("clientId", id), applog.Error(err))
-		return nil, shared.ClientNotFoundError
+		if errors.Is(err, clientmgmt.ErrClientNotFound) {
+			return nil, shared.ClientNotFoundError
+		}
+		applog.GetLogger().Error(ctx, "inbound client lookup failed", applog.String("clientId", id), applog.Error(err))
+		return nil, shared.InternalServerError
 	}
 
 	properties := make(map[string]interface{})
@@ -186,8 +196,11 @@ func (p *actorProvider) AuthenticateActor(
 func (p *actorProvider) GetActor(id string) (*providers.Entity, *common.ServiceError) {
 	client, err := p.clientSvc.GetClient(context.Background(), id)
 	if err != nil {
-		applog.GetLogger().Debug(context.Background(), "actor lookup failed", applog.String("clientId", id), applog.Error(err))
-		return nil, shared.ClientNotFoundError
+		if errors.Is(err, clientmgmt.ErrClientNotFound) {
+			return nil, shared.ClientNotFoundError
+		}
+		applog.GetLogger().Error(context.Background(), "actor lookup failed", applog.String("clientId", id), applog.Error(err))
+		return nil, shared.InternalServerError
 	}
 
 	clientAttributes := map[string]interface{}{
