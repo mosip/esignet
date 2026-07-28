@@ -298,7 +298,6 @@ interceptors:
     applyto:
       - send_mosip_otp
       - basic_cred_auth
-      - basic_bio_auth
       - basic_kbi_auth
 
 nodes:

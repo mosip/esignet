@@ -58,6 +58,9 @@ var errCaptchaProviderServer = &common.ServiceError{
 func (p captchaProvider) Verify(ctx context.Context, token string) (*providers.CaptchaVerificationResult,
 	*common.ServiceError) {
 	if strings.TrimSpace(token) == "" {
+		p.logger.Debug("captcha: token is empty or whitespace-only, skipping verification call",
+			applog.Int("tokenLen", len(token)),
+		)
 		return &providers.CaptchaVerificationResult{Success: false}, nil
 	}
 
@@ -89,6 +92,10 @@ func (p captchaProvider) Verify(ctx context.Context, token string) (*providers.C
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
 
+	p.logger.Debug("captcha: sending verification request",
+		applog.Int("tokenLen", len(token)),
+	)
+
 	resp, err := p.client.Do(req)
 	if err != nil {
 		p.logger.Error("captcha: HTTP request to validation service failed",
@@ -101,7 +108,6 @@ func (p captchaProvider) Verify(ctx context.Context, token string) (*providers.C
 
 	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
 		p.logger.Error("captcha: validation service returned non-2xx status",
-			applog.String("url", p.config.ValidatorURL),
 			applog.String("status", fmt.Sprintf("%d", resp.StatusCode)),
 		)
 		return nil, errCaptchaProviderServer
@@ -110,7 +116,6 @@ func (p captchaProvider) Verify(ctx context.Context, token string) (*providers.C
 	var result captchaResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		p.logger.Error("captcha: failed to decode response from validation service",
-			applog.String("url", p.config.ValidatorURL),
 			applog.Error(err),
 		)
 		return nil, errCaptchaProviderServer
@@ -118,7 +123,21 @@ func (p captchaProvider) Verify(ctx context.Context, token string) (*providers.C
 
 	// Service returned errors or omitted the response body — negative verdict.
 	if len(result.Errors) > 0 || result.Response == nil {
+		p.logger.Debug("captcha: validation service returned errors or missing response field",
+			applog.Int("errorCount", len(result.Errors)),
+			applog.Bool("responseFieldPresent", result.Response != nil),
+		)
+		for _, svcErr := range result.Errors {
+			p.logger.Debug("captcha: validation service error detail",
+				applog.String("errorCode", svcErr.ErrorCode),
+				applog.String("message", svcErr.Message),
+			)
+		}
 		return &providers.CaptchaVerificationResult{Success: false}, nil
+	}
+
+	if !result.Response.Success {
+		p.logger.Debug("captcha: validation service returned success=false")
 	}
 
 	return &providers.CaptchaVerificationResult{Success: result.Response.Success}, nil
