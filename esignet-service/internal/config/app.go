@@ -180,8 +180,8 @@ func applyDefaults(cfg *AppConfig) {
 	cfg.GateClient.LoginPath = defaultGateLoginPath
 	cfg.GateClient.ErrorPath = defaultGateErrorPath
 
-	//cfg.Flow.DefaultAuthFlowHandle = "default"
-	//cfg.Flow.UserOnboardingFlowHandle = "user-onboarding"
+	// cfg.Flow.DefaultAuthFlowHandle = "default"
+	// cfg.Flow.UserOnboardingFlowHandle = "user-onboarding"
 	cfg.Flow.MaxVersionHistory = 1
 	cfg.Flow.AutoInferRegistration = false
 	cfg.Flow.Store = "memory"
