@@ -33,6 +33,14 @@ const (
 	defaultClientCacheTTLSecs    = 3600
 	defaultDesignCacheTTLSecs    = 86400
 	defaultFlowCacheTTLSecs      = 86400
+
+	defaultHTTPClientTimeoutSecs         = 30
+	defaultHTTPDialTimeoutSecs           = 5
+	defaultHTTPDialKeepAliveSecs         = 30
+	defaultHTTPTLSHandshakeTimeoutSecs   = 10
+	defaultHTTPResponseHeaderTimeoutSecs = 10
+	defaultHTTPIdleConnTimeoutSecs       = 90
+	defaultHTTPMaxConnsPerHost           = 100
 )
 
 // AppConfig holds core HTTP and infrastructure settings for the service.
@@ -64,6 +72,7 @@ type AppConfig struct {
 	DesignCacheTTLSecs  int64                            `yaml:"design_cache_ttl_secs"`
 	FlowCacheTTLSecs    int64                            `yaml:"flow_cache_ttl_secs"`
 	CaptchaConfig       CaptchaConfig                    `yaml:"captcha_config"`
+	OutboundHTTPClient  HTTPClientConfig                 `yaml:"outbound_http_client"`
 }
 
 // SecurityConfig defines application security configuration
@@ -87,6 +96,17 @@ type CaptchaConfig struct {
 	ValidatorURL string `yaml:"validator_url"`
 	ModuleName   string `yaml:"module_name"`
 	TimeoutSecs  int    `yaml:"timeout_secs"`
+}
+
+// HTTPClientConfig tunes an outbound HTTP client's timeouts and connection pooling.
+type HTTPClientConfig struct {
+	TimeoutSecs               int `yaml:"timeout_secs"`
+	DialTimeoutSecs           int `yaml:"dial_timeout_secs"`
+	DialKeepAliveSecs         int `yaml:"dial_keep_alive_secs"`
+	TLSHandshakeTimeoutSecs   int `yaml:"tls_handshake_timeout_secs"`
+	ResponseHeaderTimeoutSecs int `yaml:"response_header_timeout_secs"`
+	IdleConnTimeoutSecs       int `yaml:"idle_conn_timeout_secs"`
+	MaxConnsPerHost           int `yaml:"max_conns_per_host"`
 }
 
 // LoadAppConfig loads the application configuration from the default data directory.
@@ -160,8 +180,8 @@ func applyDefaults(cfg *AppConfig) {
 	cfg.GateClient.LoginPath = defaultGateLoginPath
 	cfg.GateClient.ErrorPath = defaultGateErrorPath
 
-	cfg.Flow.DefaultAuthFlowHandle = "default"
-	cfg.Flow.UserOnboardingFlowHandle = "user-onboarding"
+	//cfg.Flow.DefaultAuthFlowHandle = "default"
+	//cfg.Flow.UserOnboardingFlowHandle = "user-onboarding"
 	cfg.Flow.MaxVersionHistory = 1
 	cfg.Flow.AutoInferRegistration = false
 	cfg.Flow.Store = "memory"
@@ -207,6 +227,28 @@ func applyDefaults(cfg *AppConfig) {
 
 	if cfg.FlowCacheTTLSecs <= 0 {
 		cfg.FlowCacheTTLSecs = defaultFlowCacheTTLSecs
+	}
+
+	if cfg.OutboundHTTPClient.TimeoutSecs <= 0 {
+		cfg.OutboundHTTPClient.TimeoutSecs = defaultHTTPClientTimeoutSecs
+	}
+	if cfg.OutboundHTTPClient.DialTimeoutSecs <= 0 {
+		cfg.OutboundHTTPClient.DialTimeoutSecs = defaultHTTPDialTimeoutSecs
+	}
+	if cfg.OutboundHTTPClient.DialKeepAliveSecs <= 0 {
+		cfg.OutboundHTTPClient.DialKeepAliveSecs = defaultHTTPDialKeepAliveSecs
+	}
+	if cfg.OutboundHTTPClient.TLSHandshakeTimeoutSecs <= 0 {
+		cfg.OutboundHTTPClient.TLSHandshakeTimeoutSecs = defaultHTTPTLSHandshakeTimeoutSecs
+	}
+	if cfg.OutboundHTTPClient.ResponseHeaderTimeoutSecs <= 0 {
+		cfg.OutboundHTTPClient.ResponseHeaderTimeoutSecs = defaultHTTPResponseHeaderTimeoutSecs
+	}
+	if cfg.OutboundHTTPClient.IdleConnTimeoutSecs <= 0 {
+		cfg.OutboundHTTPClient.IdleConnTimeoutSecs = defaultHTTPIdleConnTimeoutSecs
+	}
+	if cfg.OutboundHTTPClient.MaxConnsPerHost <= 0 {
+		cfg.OutboundHTTPClient.MaxConnsPerHost = defaultHTTPMaxConnsPerHost
 	}
 }
 

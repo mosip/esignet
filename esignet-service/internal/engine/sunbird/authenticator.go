@@ -13,7 +13,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
@@ -53,7 +52,7 @@ type sunbirdAuthnProvider struct {
 // NewSunbirdAuthnProvider creates a SunbirdRC registry-backed host.AuthnProvider.
 // It validates the config and parses the KBI field details once, returning an
 // error when SearchURL is unset or no KBI field other than IDField is configured.
-func NewSunbirdAuthnProvider() (shared.ConsolidatedAuthnProvider, error) {
+func NewSunbirdAuthnProvider(httpClient *http.Client) (shared.ConsolidatedAuthnProvider, error) {
 	cfg := LoadConfig()
 	if err := cfg.Validate(); err != nil {
 		return nil, err
@@ -74,13 +73,9 @@ func NewSunbirdAuthnProvider() (shared.ConsolidatedAuthnProvider, error) {
 		return nil, errors.New("SUNBIRD_FIELD_DETAILS must define at least one KBI field other than the individual ID field")
 	}
 
-	timeout := time.Duration(cfg.TimeoutSecs) * time.Second
-	if timeout <= 0 {
-		timeout = 10 * time.Second
-	}
 	return &sunbirdAuthnProvider{
 		cfg:         cfg,
-		client:      &http.Client{Timeout: timeout},
+		client:      httpClient,
 		kbiFieldIDs: kbiFieldIDs,
 	}, nil
 }

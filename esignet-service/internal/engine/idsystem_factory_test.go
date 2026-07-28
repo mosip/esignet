@@ -7,7 +7,9 @@
 package engine
 
 import (
+	"net/http"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/suite"
 
@@ -16,8 +18,9 @@ import (
 
 func (ts *IdsystemFactoryTestSuite) TestNewIDSystemProviders() {
 	t := ts.T()
+	httpClient := &http.Client{Timeout: 30 * time.Second}
 	t.Run("mock provider", func(t *testing.T) {
-		authn, observability, err := NewIDSystemProviders(&config.AppConfig{Provider: "mock"}, nil)
+		authn, observability, err := NewIDSystemProviders(&config.AppConfig{Provider: "mock"}, nil, httpClient)
 		if err != nil {
 			t.Fatalf("NewIDSystemProviders: %v", err)
 		}
@@ -28,13 +31,13 @@ func (ts *IdsystemFactoryTestSuite) TestNewIDSystemProviders() {
 
 	t.Run("sunbird provider missing config errors", func(t *testing.T) {
 		t.Setenv("MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_AUTH_FACTOR_KBI_REGISTRY_SEARCH_URL", "")
-		if _, _, err := NewIDSystemProviders(&config.AppConfig{Provider: "sunbird"}, nil); err == nil {
+		if _, _, err := NewIDSystemProviders(&config.AppConfig{Provider: "sunbird"}, nil, httpClient); err == nil {
 			t.Error("expected error when sunbird search URL is unconfigured")
 		}
 	})
 
 	t.Run("unsupported provider", func(t *testing.T) {
-		_, _, err := NewIDSystemProviders(&config.AppConfig{Provider: "bogus"}, nil)
+		_, _, err := NewIDSystemProviders(&config.AppConfig{Provider: "bogus"}, nil, httpClient)
 		if err == nil {
 			t.Fatal("expected error for unsupported provider")
 		}

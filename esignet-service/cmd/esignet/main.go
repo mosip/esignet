@@ -9,6 +9,7 @@ package main
 
 import (
 	"fmt"
+	"net"
 	"net/http"
 	"time"
 
@@ -85,7 +86,9 @@ func main() {
 	clientHandler := clientmgmt.NewHandler(clientSvc, logger)
 	clientHandler.RegisterRoutes(mux, getSecurityMiddleware(appCfg, logger))
 
-	authnProvider, observabilityProvider, err := engine.NewIDSystemProviders(appCfg, clientSvc)
+	httpClient := newHTTPClient(appCfg.OutboundHTTPClient)
+
+	authnProvider, observabilityProvider, err := engine.NewIDSystemProviders(appCfg, clientSvc, httpClient)
 	if err != nil {
 		logger.Fatal("plugin providers", applog.Error(err))
 	}
@@ -124,7 +127,7 @@ func main() {
 		thunderidengine.WithRuntimeStoreProvider(runtimeStore),
 		thunderidengine.WithTransactioner(engine.NewNoOpTransactioner()),
 		thunderidengine.WithAttestationProvider(engine.NewAttestationProvider(appCfg)),
-		// TODO Add Captcha Validation Provider
+		thunderidengine.WithCaptchaValidationProvider(engine.NewCaptchaProvider(&appCfg.CaptchaConfig, httpClient)),
 	)
 
 	addr := fmt.Sprintf(":%d", appCfg.Port)
@@ -176,4 +179,22 @@ func getSecurityMiddleware(appCfg *config.AppConfig, logger *applog.Logger) func
 // be applied. Both Issuer and JWKSEndpoint must be set.
 func scopeEnforcementEnabled(appCfg *config.AppConfig) bool {
 	return appCfg.SecurityConfig.IssuerURL != "" && appCfg.SecurityConfig.JwksURL != ""
+}
+
+// newHTTPClient returns a tuned HTTP client for outbound calls, configured
+// from appCfg.OutboundHTTPClient.
+func newHTTPClient(cfg config.HTTPClientConfig) *http.Client {
+	return &http.Client{
+		Timeout: time.Duration(cfg.TimeoutSecs) * time.Second,
+		Transport: &http.Transport{
+			DialContext: (&net.Dialer{
+				Timeout:   time.Duration(cfg.DialTimeoutSecs) * time.Second,
+				KeepAlive: time.Duration(cfg.DialKeepAliveSecs) * time.Second,
+			}).DialContext,
+			TLSHandshakeTimeout:   time.Duration(cfg.TLSHandshakeTimeoutSecs) * time.Second,
+			ResponseHeaderTimeout: time.Duration(cfg.ResponseHeaderTimeoutSecs) * time.Second,
+			IdleConnTimeout:       time.Duration(cfg.IdleConnTimeoutSecs) * time.Second,
+			MaxConnsPerHost:       cfg.MaxConnsPerHost,
+		},
+	}
 }
