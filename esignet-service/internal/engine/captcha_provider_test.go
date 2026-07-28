@@ -38,13 +38,13 @@ func (ts *CaptchaProviderTestSuite) TestCaptchaProvider_Verify_NotConfigured() {
 }
 
 func (ts *CaptchaProviderTestSuite) TestCaptchaProvider_Verify_Success() {
-	var gotBody captchaRequest
+	var gotBody captchaRequestWrapper
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.Equal(ts.T(), http.MethodPost, r.Method)
 		require.Equal(ts.T(), "application/json", r.Header.Get("Content-Type"))
 		require.NoError(ts.T(), json.NewDecoder(r.Body).Decode(&gotBody))
 		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(captchaResponse{Response: &captchaVerdict{Success: true}})
+		_ = json.NewEncoder(w).Encode(captchaResponse{Response: "success"})
 	}))
 	defer server.Close()
 
@@ -54,8 +54,9 @@ func (ts *CaptchaProviderTestSuite) TestCaptchaProvider_Verify_Success() {
 	require.Nil(ts.T(), svcErr)
 	require.NotNil(ts.T(), result)
 	require.True(ts.T(), result.Success)
-	require.Equal(ts.T(), "esignet", gotBody.ModuleName)
-	require.Equal(ts.T(), "valid-token", gotBody.CaptchaToken)
+	require.NotEmpty(ts.T(), gotBody.RequestTime)
+	require.Equal(ts.T(), "esignet", gotBody.Request.ModuleName)
+	require.Equal(ts.T(), "valid-token", gotBody.Request.CaptchaToken)
 }
 
 func (ts *CaptchaProviderTestSuite) TestCaptchaProvider_Verify_ServiceReportsErrors() {
