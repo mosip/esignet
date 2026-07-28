@@ -41,6 +41,9 @@ const (
 	defaultHTTPResponseHeaderTimeoutSecs = 10
 	defaultHTTPIdleConnTimeoutSecs       = 90
 	defaultHTTPMaxConnsPerHost           = 100
+
+	defaultCaptchaModuleName  = "esignet"
+	defaultCaptchaTimeoutSecs = 10
 )
 
 // AppConfig holds core HTTP and infrastructure settings for the service.
@@ -216,6 +219,10 @@ func applyDefaults(cfg *AppConfig) {
 	if cfg.SecurityConfig.RequestTimeLeewaySecs <= 0 {
 		cfg.SecurityConfig.RequestTimeLeewaySecs = defaultRequestTimeLeewaySecs
 	}
+
+	cfg.CaptchaConfig.ValidatorURL = envOrDefault("MOSIP_ESIGNET_CAPTCHA_VALIDATOR_URL", cfg.CaptchaConfig.ValidatorURL)
+	cfg.CaptchaConfig.ModuleName = envOrDefault("MOSIP_ESIGNET_CAPTCHA_MODULE_NAME", defaultCaptchaModuleName)
+	cfg.CaptchaConfig.TimeoutSecs = envIntOrDefault("MOSIP_ESIGNET_CAPTCHA_TIMEOUT_SECS", defaultCaptchaTimeoutSecs)
 
 	if cfg.ClientCacheTTLSecs <= 0 {
 		cfg.ClientCacheTTLSecs = defaultClientCacheTTLSecs
