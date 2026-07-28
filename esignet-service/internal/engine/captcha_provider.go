@@ -19,6 +19,7 @@ import (
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
+	appcommon "github.com/mosip/esignet/internal/common"
 	"github.com/mosip/esignet/internal/config"
 	applog "github.com/mosip/esignet/internal/log"
 )
@@ -69,9 +70,12 @@ func (p captchaProvider) Verify(ctx context.Context, token string) (*providers.C
 		return &providers.CaptchaVerificationResult{Success: true}, nil
 	}
 
-	payload, err := json.Marshal(captchaRequest{
-		ModuleName:   p.config.ModuleName,
-		CaptchaToken: token,
+	payload, err := json.Marshal(captchaRequestWrapper{
+		RequestWrapper: appcommon.RequestWrapper{RequestTime: appcommon.GetResponseTime()},
+		Request: captchaRequest{
+			ModuleName:   p.config.ModuleName,
+			CaptchaToken: token,
+		},
 	})
 	if err != nil {
 		p.logger.Error("captcha: failed to marshal request", applog.Error(err))
@@ -121,7 +125,8 @@ func (p captchaProvider) Verify(ctx context.Context, token string) (*providers.C
 		return nil, errCaptchaProviderServer
 	}
 
-	// Service returned errors or omitted the response body — negative verdict.
+	// A non-empty response with no errors is the only positive verdict; the
+	// service does not report success/failure via a field inside "response".
 	if len(result.Errors) > 0 || result.Response == nil {
 		p.logger.Debug("captcha: validation service returned errors or missing response field",
 			applog.Int("errorCount", len(result.Errors)),
@@ -136,11 +141,7 @@ func (p captchaProvider) Verify(ctx context.Context, token string) (*providers.C
 		return &providers.CaptchaVerificationResult{Success: false}, nil
 	}
 
-	if !result.Response.Success {
-		p.logger.Debug("captcha: validation service returned success=false")
-	}
-
-	return &providers.CaptchaVerificationResult{Success: result.Response.Success}, nil
+	return &providers.CaptchaVerificationResult{Success: true}, nil
 }
 
 // IsEnabled reports whether the provider is configured and should be active.
@@ -150,10 +151,16 @@ func isEnabled(cfg *config.CaptchaConfig) bool {
 }
 
 // captchaRequest is the payload sent to the external captcha validation service.
-// Modelled on the MOSIP CaptchaHelper POST /v1/captcha/validatecaptcha contract.
 type captchaRequest struct {
 	ModuleName   string `json:"moduleName"`
 	CaptchaToken string `json:"captchaToken"`
+}
+
+// captchaRequestWrapper is the MOSIP request envelope expected by the
+// validation service.
+type captchaRequestWrapper struct {
+	appcommon.RequestWrapper
+	Request captchaRequest `json:"request"`
 }
 
 // captchaResponse is the response returned by the external captcha validation service.
@@ -165,12 +172,10 @@ type captchaResponse struct {
 	Errors []captchaServiceError `json:"errors"`
 
 	// Response carries the verification outcome on a successful 2xx with no
-	// errors. It is nil when the service returns errors or an unexpected body.
-	Response *captchaVerdict `json:"response"`
-}
-
-type captchaVerdict struct {
-	Success bool `json:"success"`
+	// errors. Its content isn't inspected — only presence matters, since the
+	// service doesn't report success/failure via a nested field. It is nil
+	// when the service returns errors or an unexpected body.
+	Response any `json:"response"`
 }
 
 type captchaServiceError struct {
