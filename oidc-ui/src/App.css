@@ -249,3 +249,8 @@ input[type="password"]::-ms-clear {
   border-color: var(--primary-color) !important;
   color: var(--primary-color) !important;
 }
+
+/* Workaround: center consent timer text */
+[data-testid="thunderid-signin"] .thunderid-typography:first-child {
+  text-align: center !important;
+}
