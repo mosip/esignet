@@ -4,10 +4,10 @@ This document describes the design and implementation of the Server Profile feat
 
 ## Overview
 
-The Server Profile feature allows deployments to enforce security standards like FAPI 2.0 across all OIDC transactions. On application startup, eSignet reads the global OpenID profile value from `mosip.esignet.server.profile` property and loads the corresponding feature mappings from the database.
+The Server Profile feature allows deployments to enforce security standards like FAPI 2.0 across all OIDC transactions. On application startup, eSignet reads the global OpenID profile value from `mosip.esignet.server.profile` property and loads the corresponding mandatory feature mappings from the database.
 
 The configured profile determines the default standards behavior for the deployment:
-- **fapi2.0** → PAR, DPoP, and PKCE enabled
+- **fapi2.0** → PAR, DPoP, and PKCE mandated
 - **none** → No enforced defaults; behavior is driven by client-level configuration
 
 ## Basic Flow
@@ -79,13 +79,13 @@ MOSIP_ESIGNET_SERVER_PROFILE=fapi2.0
 
 The following features can be enabled via server profile:
 
-| Feature                 | Config Key                               | Description                                |
-|-------------------------|------------------------------------------|--------------------------------------------|
-| PAR                     | `require_pushed_authorization_requests`  | Pushed Authorization Request mandatory     |
-| DPOP                    | `dpop_bound_access_tokens`               | DPoP bound access tokens mandatory         |
-| PKCE                    | `require_pkce`                           | Proof Key for Code Exchange mandatory      |
-| STRICT_AUDIENCE_CHECK   | `client_auth_assertion_audience`         | Strict audience validation enabled         |
-| JWE                     | `userinfo_response_type`                 | UserInfo response encrypted with JWE       |
+| Feature                 | Config Key                               | Description                                                     |
+|-------------------------|------------------------------------------|-----------------------------------------------------------------|
+| PAR                     | `require_pushed_authorization_requests`  | Pushed Authorization Request mandatory                          |
+| DPOP                    | `dpop_bound_access_tokens`               | DPoP bound access tokens mandatory                              |
+| PKCE                    | `require_pkce`                           | Proof Key for Code Exchange mandatory                           |
+| STRICT_AUDIENCE_CHECK   | `client_auth_assertion_audience`         | strict audience check is done with published issuer identifier. |
+| JWE                     | `userinfo_response_type`                 | UserInfo response encrypted with JWE                            |
 
 ## Runtime Behavior
 
