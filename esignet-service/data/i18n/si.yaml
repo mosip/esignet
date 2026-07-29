@@ -86,8 +86,8 @@ system:
   "error.agentservice.missing_agent_id_description": නියෝජිත හැඳුනුම්පත අවශ්‍ය වේ
   "error.agentservice.multiple_oauth_configs": බහු OAuth අභ්‍යන්තර සත්‍යාපන වින්‍යාස අවසර නැත
   "error.agentservice.multiple_oauth_configs_description": ආයතනයකට ප්‍රොටෝකෝලයකට උපරිම එක් අභ්‍යන්තර සත්‍යාපන වින්‍යාසයක් තිබිය හැක
-  "error.agentservice.none_auth_method_cannot_have_cert_or_secret_description": "\"none\" සත්‍යාපන ක්‍රමයට සහතිකයක් හෝ සේවාලාභී රහසක් තිබිය නොහැක"
-  "error.agentservice.none_auth_method_requires_public_client_description": "\"none\" සත්‍යාපන ක්‍රමයට සේවාලාභියා පොදු සේවාලාභියෙකු විය යුතුය"
+  "error.agentservice.none_auth_method_cannot_have_cert_or_secret_description": '"none" සත්‍යාපන ක්‍රමයට සහතිකයක් හෝ සේවාලාභී රහසක් තිබිය නොහැක'
+  "error.agentservice.none_auth_method_requires_public_client_description": '"none" සත්‍යාපන ක්‍රමයට සේවාලාභියා පොදු සේවාලාභියෙකු විය යුතුය'
   "error.agentservice.organization_unit_not_found": සංවිධාන ඒකකය සොයාගත නොහැක
   "error.agentservice.organization_unit_not_found_description": නිශ්චිත සංවිධාන ඒකකය පවතින්නේ නැත
   "error.agentservice.owner_not_found": හිමිකරු සොයාගත නොහැක
@@ -170,7 +170,7 @@ system:
   "error.applicationservice.invalid_jwks_uri": වලංගු නොවන JWKS URI
   "error.applicationservice.invalid_jwks_uri_description": සපයා ඇති JWKS URI වලංගු URI එකක් නොවේ
   "error.applicationservice.invalid_jwks_uri_scheme": වලංගු නොවන JWKS URI scheme
-  "error.applicationservice.invalid_jwks_uri_scheme_description": "\"jwks_uri\" HTTPS ක්‍රමය භාවිතා කළ යුතුය"
+  "error.applicationservice.invalid_jwks_uri_scheme_description": '"jwks_uri" HTTPS ක්‍රමය භාවිතා කළ යුතුය'
   "error.applicationservice.invalid_logo_url": වලංගු නොවන ලාංඡන URL
   "error.applicationservice.invalid_logo_url_description": සපයා ඇති ලාංඡන URL වලංගු URI එකක් නොවේ
   "error.applicationservice.invalid_oauth_configuration": වලංගු නොවන OAuth වින්‍යාසය
@@ -197,8 +197,8 @@ system:
   "error.applicationservice.layout_not_found_description": නිශ්චිත පිරිසැලසුම් වින්‍යාසය පවතින්නේ නැත
   "error.applicationservice.multiple_oauth_configs": බහු OAuth අභ්‍යන්තර සත්‍යාපන වින්‍යාස අවසර නැත
   "error.applicationservice.multiple_oauth_configs_description": යෙදුමකට ප්‍රොටෝකෝලයකට උපරිම එක් අභ්‍යන්තර සත්‍යාපන වින්‍යාසයක් තිබිය හැක
-  "error.applicationservice.none_auth_method_cannot_have_cert_or_secret_description": "\"none\" සත්‍යාපන ක්‍රමයට සහතිකයක් හෝ සේවාලාභී රහසක් තිබිය නොහැක"
-  "error.applicationservice.none_auth_method_requires_public_client_description": "\"none\" සත්‍යාපන ක්‍රමය සඳහා සේවාලාභියා පොදු සේවාලාභියෙකු විය යුතුය"
+  "error.applicationservice.none_auth_method_cannot_have_cert_or_secret_description": '"none" සත්‍යාපන ක්‍රමයට සහතිකයක් හෝ සේවාලාභී රහසක් තිබිය නොහැක'
+  "error.applicationservice.none_auth_method_requires_public_client_description": '"none" සත්‍යාපන ක්‍රමය සඳහා සේවාලාභියා පොදු සේවාලාභියෙකු විය යුතුය'
   "error.applicationservice.pkce_requires_authorization_code_description": authorization_code grant type තෝරාගත් විට පමණක් PKCE සක්‍රිය කළ හැක
   "error.applicationservice.private_key_jwt_cannot_have_client_secret_description": private_key_jwt සත්‍යාපන ක්‍රමයට සේවාලාභී රහසක් තිබිය නොහැක
   "error.applicationservice.private_key_jwt_requires_certificate_description": private_key_jwt සත්‍යාපන ක්‍රමයට සහතිකයක් අවශ්‍යයි
@@ -754,7 +754,7 @@ system:
   "error.ouservice.circular_dependency_detected": චක්‍රීය පරායත්තතාවය හඳුනාගන්නා ලදී
   "error.ouservice.circular_dependency_detected_description": මෙම මව් සැකසීම චක්‍රීය පරායත්තතාවයක් නිර්මාණය කරනු ඇත
   "error.ouservice.invalid_filter": වලංගු නොවන පෙරහන් පරාමිතිය
-  "error.ouservice.invalid_filter_description": "පෙරහන් පරාමිතිය වලංගු නොවේ. ආකෘතිය භාවිතා කරන්න: attribute (eq|gt|lt) \"value\""
+  "error.ouservice.invalid_filter_description": 'පෙරහන් පරාමිතිය වලංගු නොවේ. ආකෘතිය භාවිතා කරන්න: attribute (eq|gt|lt) "value"'
   "error.ouservice.invalid_handle_path": වලංගු නොවන හසුරු මාර්ගය
   "error.ouservice.invalid_handle_path_description": නිශ්චිත හසුරු මාර්ගය නොපවතී
   "error.ouservice.invalid_limit_parameter": වලංගු නොවන සීමා පරාමිතිය
@@ -1280,3 +1280,6 @@ app:
   otp.submit: ඉදිරිපත් කරන්න
   back: ආපසු
   esignet_details: eSignet විස්තර
+
+captcha:
+  config.error: CAPTCHA සැපයුම්කරුගේ වින්‍යාසය වලංගු නොවේ.

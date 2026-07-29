@@ -1,20 +1,17 @@
 import { useRef, useState, useEffect } from "react";
 import {
   type ComponentRenderContext,
-  type EmbeddedFlowComponent,
   Button,
   useTranslation,
 } from "@thunderid/react";
-
-interface EmbeddedFlowComponentWithTimeLeft extends EmbeddedFlowComponent {
-  timeLeft?: number;
-}
+import { CaptchaComponent } from "../index";
+import type { ResendOtpFlowComponent } from "./ResendOtpModel";
 
 export default function ResendOtp({
   component,
   context,
 }: {
-  component: EmbeddedFlowComponentWithTimeLeft;
+  component: ResendOtpFlowComponent;
   context: ComponentRenderContext;
 }) {
   const { t } = useTranslation();
@@ -25,6 +22,8 @@ export default function ResendOtp({
   const [formattedTime, setFormattedTime] = useState<string>("00:00");
   const [timeLeft, setTimeLeft] = useState<boolean>(true);
   const expiresIn = component?.timeLeft ?? 0;
+
+  const captchaId = `${component.id}_captcha`;
 
   useEffect(() => {
     if (expiresIn <= 0) {
@@ -62,8 +61,20 @@ export default function ResendOtp({
 
   const handleClick = () => {
     if (context.onSubmit) {
-      context.resetForm?.();
-      context.onSubmit(component, {}, true);
+      // checking whether captcha has been checked or not
+      context.touchedFields[captchaId] = true;
+      if (!context.formValues[captchaId]) {
+        // if it is not checked, make the value not,
+        // so that it will throw error in ui
+        context.onInputChange(captchaId, "");
+        return;
+      }
+      const payload = {
+        ...context.formValues,
+        captcha_token: context.formValues[captchaId],
+      };
+
+      context.onSubmit(component, payload, true);
     }
   };
 
@@ -73,6 +84,21 @@ export default function ResendOtp({
         <h6 className="thunderid-typography thunderid-typography__h6">
           {t("app.otp.resend_timer")} {formattedTime}
         </h6>
+      )}
+
+      {!timeLeft && component.captcha && (
+        <>
+          <CaptchaComponent
+            component={{ ...component, ref: captchaId }}
+            context={context}
+            key={captchaId}
+          ></CaptchaComponent>
+          {context.formErrors[captchaId] && (
+            <div style={{ color: "red", fontSize: "10px" }}>
+              {context.formErrors[captchaId]}
+            </div>
+          )}
+        </>
       )}
 
       <Button
@@ -90,7 +116,7 @@ export default function ResendOtp({
             ? "primary"
             : "secondary"
         }
-        type="reset"
+        type="button"
       >
         {t(component?.label ?? "otp.resend_otp", {
           defaultValue: t("otp.resend_otp"),

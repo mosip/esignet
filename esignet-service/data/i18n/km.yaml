@@ -1280,3 +1280,6 @@ app:
   otp.submit: ដាក់ស្នើ
   back: ថយក្រោយ
   esignet_details: ព័ត៌មានលម្អិត eSignet
+
+captcha:
+  config.error: ការកំណត់រចនាសម្ព័ន្ធរបស់អ្នកផ្តល់សេវា CAPTCHA មិនត្រឹមត្រូវទេ។

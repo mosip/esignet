@@ -1280,3 +1280,6 @@ app:
   otp.submit: Submit
   back: Back
   esignet_details: eSignet Details
+
+captcha:
+  config.error: CAPTCHA provider configuration is invalid.
