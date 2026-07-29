@@ -1,0 +1,7 @@
+{
+      "trustBindedAuthVerificationToken": true,
+      "allowAuthRequestDelegation": true,
+      "allowKycRequestDelegation": true,
+      "allowKeyBindingDelegation": true,
+      "allowVciRequestDelegation": true
+}

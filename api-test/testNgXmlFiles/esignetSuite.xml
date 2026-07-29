@@ -1167,7 +1167,15 @@
 				name="io.mosip.testrig.apirig.esignet.testscripts.GetWithParam" />
 		</classes>
 	</test>
-	
+	<test name="SendOtpExpiredTransactionNegTC">
+		<parameter name="ymlFile"
+			value="esignet/SendOtpExpiredTransactionNegTC/SendOtpExpiredTransactionNegTC.yml" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignet.testscripts.SimplePost" />
+		</classes>
+	</test>
+
 	<!-- End of end to end v3 with mock flow test cases -->
 
 

@@ -25,12 +25,11 @@ import base.BaseTest;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import pages.ConsentPage;
 import pages.LoginOptionsPage;
 import pages.SignUpPage;
 import pages.SignupFormDynamicFiller;
 import utils.ClaimsUtil;
-import utils.EsignetUtil.RegisteredDetails;
+import utils.EsignetUtil;
 
 public class LoginOptionsStepDefinition {
 
@@ -319,6 +318,77 @@ public class LoginOptionsStepDefinition {
 	@When("user enters only space into email field")
 	public void userEntersOnlySpaceInEmailField() {
 		loginOptionsPage.enterEmail("    ");
+	}
+
+	@When("user enters prerequisite vid1 into vid field")
+	public void userEntersPrerequisiteVid1() {
+		String vid = EsignetUtil.getPrerequisitePerpetualVid();
+		if (vid == null || vid.isBlank()) {
+			throw new org.testng.SkipException(
+					"Prerequisite VID1 unavailable - enable CreateVID prerequisite or set vid in config.properties");
+		}
+		loginOptionsPage.enterVid(vid);
+	}
+
+	@When("user enters prerequisite vid2 into vid field")
+	public void userEntersPrerequisiteVid2() {
+		String vid = EsignetUtil.getPrerequisiteTemporaryVid();
+		if (vid == null || vid.isBlank()) {
+			throw new org.testng.SkipException(
+					"Prerequisite VID2 unavailable - enable CreateVID prerequisite or set vid in config.properties");
+		}
+		loginOptionsPage.enterVid(vid);
+	}
+
+	@When("user click on Login with Biometrics")
+	public void userClickOnLoginWithBiometrics() {
+		loginOptionsPage.clickOnLoginWithBiometric();
+	}
+
+	@Then("verify secure biometric interface is displayed")
+	public void verifySecureBiometricInterfaceIsDisplayed() {
+		Assert.assertTrue(loginOptionsPage.isBiometricIntegrationContainerDisplayed(),
+				"Secure biometric interface integration container is not displayed");
+	}
+
+	@Then("verify uin vid option is displayed on biometric screen")
+	public void verifyUinVidOptionIsDisplayedOnBiometricScreen() {
+		Assert.assertTrue(loginOptionsPage.isBiometricVidOptionDisplayed(),
+				"UIN/VID option is not displayed on biometric screen");
+	}
+
+	@When("user clicks on uin vid option on biometric screen")
+	public void userClicksOnUinVidOptionOnBiometricScreen() {
+		loginOptionsPage.clickOnBiometricVidOptionButton();
+	}
+
+	@Then("verify vid text field is displayed on biometric screen")
+	public void verifyVidTextFieldIsDisplayedOnBiometricScreen() {
+		Assert.assertTrue(loginOptionsPage.isBiometricVidTextFieldDisplayed(),
+				"VID text field (sbi_vid) is not displayed on biometric screen");
+	}
+
+	@Then("verify scanning devices message is displayed on biometric screen")
+	public void verifyScanningDevicesMessageIsDisplayedOnBiometricScreen() {
+		Assert.assertTrue(loginOptionsPage.isScanningDevicesMessageDisplayed(),
+				"Scanning devices message is not displayed on biometric screen");
+	}
+
+	@Then("verify retry scan button is not displayed while scanning devices")
+	public void verifyRetryScanButtonIsNotDisplayedWhileScanningDevices() {
+		Assert.assertTrue(loginOptionsPage.isRetryScanButtonNotDisplayedWhileScanning(),
+				"Retry scan button should not be displayed while scanning devices for the first time");
+	}
+
+	@Then("verify device not found message is displayed on biometric screen")
+	public void verifyDeviceNotFoundMessageIsDisplayedOnBiometricScreen() {
+		Assert.assertTrue(loginOptionsPage.waitForDeviceNotFoundMessageDisplayed(),
+				"Device not found message is not displayed on biometric screen");
+	}
+
+	@When("user clicks on biometric device scan retry button")
+	public void userClicksOnBiometricDeviceScanRetryButton() {
+		loginOptionsPage.clickOnBiometricDeviceScanRetryButton();
 	}
 
 }

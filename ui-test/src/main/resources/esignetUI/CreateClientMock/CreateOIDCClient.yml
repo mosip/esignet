@@ -31,7 +31,7 @@ OIDCClientV3:
       "purpose_subTitle": "{{clientName}} is requesting authentication for verification",
       "signup_banner_required": true,
       "forgot_pwd_link_required": true,
-      "consent_expire_in_mins": 30
+      "consent_expire_in_mins": "30"
 }'
     output: '{
       "status": "ACTIVE"
@@ -68,7 +68,7 @@ OIDCClientV3:
       "purpose_subTitle": "{{clientName}} is requesting authentication for login",
       "signup_banner_required": true,
       "forgot_pwd_link_required": true,
-      "consent_expire_in_mins": 30
+      "consent_expire_in_mins": "30"
 }'
     output: '{
       "status": "ACTIVE"
@@ -105,7 +105,44 @@ OIDCClientV3:
       "purpose_subTitle": "{{clientName}} is requesting authentication to link your account",
       "signup_banner_required": true,
       "forgot_pwd_link_required": true,
-      "consent_expire_in_mins": 30
+      "consent_expire_in_mins": "30"
+}'
+    output: '{
+      "status": "ACTIVE"
+}'
+  ESignetUI_CreateOIDCClient_with_purpose_type_verify_Smoke_sid:
+    endPoint: /v1/esignet/client-mgmt/client
+    uniqueIdentifier: TC_ESignet_OIDCClientV3_10
+    description: To create OIDC Client V3 with verify as a purpose_type
+    role: partner
+    restMethod: post
+    inputTemplate: esignetUI/CreateClientMock/CreateOIDCClient
+    outputTemplate: esignetUI/CreateClientMock/CreateOIDCClientResult
+    input: '{
+      "requestTime": "$TIMESTAMP$",
+      "clientId": "$RANDOMPARTNERID$",
+      "clientName": "MOSIP OIDC Client",
+      "logoUri": "https://health-services.com/logo.png",
+      "relyingPartyId": "Bharathi-Inc",
+      "redirectUris": "$ESIGNET_REDIRECT_URI$",
+      "publicKey": "$OIDC_JWK_KEY_PAR_PURPOSE_VERIFY$",
+      "userClaims1": "name",
+      "userClaims2": "email",
+      "userClaims3": "gender",
+      "userClaims4": "phone_number",
+      "userClaims5": "birthdate",
+      "authContextRefs": [{"acrValues": "mosip:idp:acr:static-code"},{"acrValues": "mosip:idp:acr:generated-code"},{"acrValues": "mosip:idp:acr:biometrics"},{"acrValues": "mosip:idp:acr:linked-wallet"},{"acrValues": "mosip:idp:acr:password"}],
+      "grantTypes": "authorization_code",
+      "clientAuthMethods": "private_key_jwt",
+      "keyLang1": "$1STLANG$",
+      "clientNameLang": "MOSIP OIDC Client",
+      "userinfo_response_type": "JWS",
+      "purpose_title": "Verify using eSignet",
+      "purpose_type": "verify",
+      "purpose_subTitle": "{{clientName}} is requesting authentication for verification",
+      "signup_banner_required": true,
+      "forgot_pwd_link_required": true,
+      "consent_expire_in_mins": "30"
 }'
     output: '{
       "status": "ACTIVE"
@@ -142,7 +179,7 @@ OIDCClientV3:
       "purpose_subTitle": "{{clientName}} is requesting authentication for login",
       "signup_banner_required": true,
       "forgot_pwd_link_required": true,
-      "consent_expire_in_mins": 30
+      "consent_expire_in_mins": "30"
 }'
     output: '{
       "status": "ACTIVE"
@@ -176,7 +213,7 @@ OIDCClientV3:
       "userinfo_response_type": "JWS",
       "signup_banner_required": true,
       "forgot_pwd_link_required": true,
-      "consent_expire_in_mins": 30
+      "consent_expire_in_mins": "30"
 }'
     output: '{
       "status": "ACTIVE"
@@ -213,7 +250,7 @@ OIDCClientV3:
       "purpose_subTitle": null,
       "signup_banner_required": true,
       "forgot_pwd_link_required": true,
-      "consent_expire_in_mins": 30
+      "consent_expire_in_mins": "30"
 }'
     output: '{
       "status": "ACTIVE"
@@ -250,7 +287,7 @@ OIDCClientV3:
       "purpose_subTitle": "",
       "signup_banner_required": true,
       "forgot_pwd_link_required": true,
-      "consent_expire_in_mins": 30
+      "consent_expire_in_mins": "30"
 }'
     output: '{
       "status": "ACTIVE"
@@ -287,7 +324,45 @@ OIDCClientV3:
 	  "purpose_subTitle": "{{clientName}} is requesting authentication for login",
       "signup_banner_required": true,
       "forgot_pwd_link_required": true,
-      "consent_expire_in_mins": 30
+      "consent_expire_in_mins": "30"
+}'
+    output: '{
+      "status": "ACTIVE"
+}'
+  ESignetUI_CreateOIDCClient_par_required_Smoke_sid:
+    endPoint: /v1/esignet/client-mgmt/client
+    uniqueIdentifier: TC_ESignet_OIDCClientV3_09
+    description: To create OIDC Client V3 that mandates the PAR flow
+    role: partner
+    restMethod: post
+    inputTemplate: esignetUI/CreateClientMock/CreateOIDCClientPar
+    outputTemplate: esignetUI/CreateClientMock/CreateOIDCClientResult
+    input: '{
+      "requestTime": "$TIMESTAMP$",
+      "clientId": "$RANDOMPARTNERID$",
+      "clientName": "MOSIP OIDC Client",
+      "logoUri": "https://health-services.com/logo.png",
+      "relyingPartyId": "Bharathi-Inc",
+      "redirectUris": "$ESIGNET_REDIRECT_URI$",
+      "publicKey": "$OIDC_JWK_KEY_PAR_REQUIRED$",
+      "userClaims1": "name",
+      "userClaims2": "email",
+      "userClaims3": "gender",
+      "userClaims4": "phone_number",
+      "userClaims5": "birthdate",
+      "authContextRefs": [{"acrValues": "mosip:idp:acr:static-code"},{"acrValues": "mosip:idp:acr:generated-code"},{"acrValues": "mosip:idp:acr:biometrics"},{"acrValues": "mosip:idp:acr:linked-wallet"},{"acrValues": "mosip:idp:acr:password"}],
+      "grantTypes": "authorization_code",
+      "clientAuthMethods": "private_key_jwt",
+      "keyLang1": "$1STLANG$",
+      "clientNameLang": "MOSIP OIDC Client",
+      "userinfo_response_type": "JWS",
+      "purpose_title": "Verify using eSignet",
+      "purpose_type": "verify",
+      "purpose_subTitle": "{{clientName}} is requesting authentication for verification",
+      "signup_banner_required": true,
+      "forgot_pwd_link_required": true,
+      "consent_expire_in_mins": "30",
+      "require_pushed_authorization_requests": true
 }'
     output: '{
       "status": "ACTIVE"

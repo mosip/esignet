@@ -689,6 +689,96 @@ public class TokenServiceTest {
     }
 
     @Test
+    public void verifyClientAssertionToken_withFapi2StrictCheck_singleAudMatchingIssuer_thenPass() throws JOSEException {
+        Map<String, String> featureMap = new HashMap<>();
+        featureMap.put("client_auth_assertion_audience", "strict_audience_check");
+        Mockito.when(serverProfile.getFeatureMap()).thenReturn(featureMap);
+
+        long now = System.currentTimeMillis();
+        JWSSigner signer = new RSASSASigner(RSA_JWK.toRSAPrivateKey());
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject("client-id")
+                .audience("client-id")
+                .issueTime(new Date(now))
+                .expirationTime(new Date(now + 4000))
+                .issuer("client-id")
+                .jwtID(IdentityProviderUtil.createTransactionId(null))
+                .build();
+        SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
+        jwt.sign(signer);
+
+        tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(), List.of("client-id"));
+    }
+
+    @Test
+    public void verifyClientAssertionToken_withFapi2StrictCheck_multipleAudClaims_thenFail() throws JOSEException {
+        Map<String, String> featureMap = new HashMap<>();
+        featureMap.put("client_auth_assertion_audience", "strict_audience_check");
+        Mockito.when(serverProfile.getFeatureMap()).thenReturn(featureMap);
+
+        long now = System.currentTimeMillis();
+        JWSSigner signer = new RSASSASigner(RSA_JWK.toRSAPrivateKey());
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject("client-id")
+                .audience(List.of("client-id", "extra-audience"))
+                .issueTime(new Date(now))
+                .expirationTime(new Date(now + 4000))
+                .issuer("client-id")
+                .jwtID(IdentityProviderUtil.createTransactionId(null))
+                .build();
+        SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
+        jwt.sign(signer);
+
+        EsignetException ex = Assertions.assertThrows(EsignetException.class, () ->
+                tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(), List.of("client-id")));
+        Assertions.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
+    }
+
+    @Test
+    public void verifyClientAssertionToken_withFapi2StrictCheck_singleAudNotMatchingIssuer_thenFail() throws JOSEException {
+        Map<String, String> featureMap = new HashMap<>();
+        featureMap.put("client_auth_assertion_audience", "strict_audience_check");
+        Mockito.when(serverProfile.getFeatureMap()).thenReturn(featureMap);
+
+        long now = System.currentTimeMillis();
+        JWSSigner signer = new RSASSASigner(RSA_JWK.toRSAPrivateKey());
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject("client-id")
+                .audience("wrong-issuer")
+                .issueTime(new Date(now))
+                .expirationTime(new Date(now + 4000))
+                .issuer("client-id")
+                .jwtID(IdentityProviderUtil.createTransactionId(null))
+                .build();
+        SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
+        jwt.sign(signer);
+
+        EsignetException ex = Assertions.assertThrows(EsignetException.class, () ->
+                tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(), List.of("client-id")));
+        Assertions.assertEquals(ErrorConstants.INVALID_CLIENT, ex.getErrorCode());
+    }
+
+    @Test
+    public void verifyClientAssertionToken_withNonFapi_multipleAudWithOneMatching_thenPass() throws JOSEException {
+        Mockito.when(serverProfile.getFeatureMap()).thenReturn(new HashMap<>());
+
+        long now = System.currentTimeMillis();
+        JWSSigner signer = new RSASSASigner(RSA_JWK.toRSAPrivateKey());
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                .subject("client-id")
+                .audience(List.of("token-endpoint", "other-audience"))
+                .issueTime(new Date(now))
+                .expirationTime(new Date(now + 4000))
+                .issuer("client-id")
+                .jwtID(IdentityProviderUtil.createTransactionId(null))
+                .build();
+        SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claimsSet);
+        jwt.sign(signer);
+
+        tokenService.verifyClientAssertionToken("client-id", RSA_JWK.toPublicJWK().toJSONString(), jwt.serialize(), List.of("token-endpoint", "other-endpoint"));
+    }
+
+    @Test
     public void getValidAudienceForClientAssertion_withStrictAudienceCheckDisabled_thenReturnDefaultAudience() {
         // Setup server profile without strict_audience_check feature
         Map<String, String> featureMap = new HashMap<>();

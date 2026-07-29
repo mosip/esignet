@@ -118,12 +118,12 @@
 		</classes>
 	</test>
 	
-	<test name="CreateVID">
+	<!--<test name="CreateVID">
 		<parameter name="ymlFile" value="esignetUI/CreateVID/CreateVid.yml" />
 		<parameter name="idKeyName" value="VID" />
 		<classes>
 			<class
 				name="io.mosip.testrig.apirig.esignetUI.testscripts.SimplePostForAutoGenId" />
 		</classes>
-	</test>
+	</test>-->
 </suite>

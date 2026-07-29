@@ -86,6 +86,11 @@ public class BasePage {
 		WaitUtil.waitForVisibility(driver, element);
 	}
 
+	public WebElement waitForElementVisible(By locator) {
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(EsignetConfigManager.getTimeout()));
+		return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+	}
+
 	public void clickOnElement(WebElement element, String stepDesc) {
 		try {
 			waitForElementVisible(element);
@@ -98,6 +103,15 @@ public class BasePage {
 			ExtentReportManager.getTest().log(Status.FAIL, "Failed to click on element: " + describeElement(element));
 			throw e;
 		}
+	}
+
+	// Use instead of clickOnElement() when the button sits behind a page transition/loading
+	// overlay - waits for the element to be visible AND interactable, not just present in the DOM.
+	public void clickWhenClickable(WebElement element) {
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+		WebElement stableElement = wait
+				.until(ExpectedConditions.refreshed(ExpectedConditions.elementToBeClickable(element)));
+		stableElement.click();
 	}
 
 	public boolean isElementVisible(WebElement element, String stepDesc) {
