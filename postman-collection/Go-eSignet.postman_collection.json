@@ -605,7 +605,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\",\n  \"inputs\": {\n    \"username\": \"{{individual_id}}\",\n    \"captcha\" : \"test-captcha-token\"\n  }\n}"
+              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\",\n  \"inputs\": {\n    \"username\": \"{{individual_id}}\",\n    \"captcha_token\" : \"test-captcha-token\"\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/flow/execute",
@@ -733,7 +733,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\",\n  \"inputs\": {\n    \"password\": \"{{password}}\",\n    \"captcha\" : \"test-captcha-token\"\n  }\n}"
+              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\",\n  \"inputs\": {\n    \"password\": \"{{password}}\",\n    \"captcha_token\" : \"test-captcha-token\"\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/flow/execute",
@@ -797,7 +797,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\",\n  \"inputs\": {\n    \"username\": \"{{sunbird_individual_id}}\",\n    \"fullName\": \"{{sunbird_full_name}}\",\n    \"dob\": \"{{sunbird_dob}}\",\n    \"captcha\" : \"test-captcha-token\"\n  }\n}"
+              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\",\n  \"inputs\": {\n    \"username\": \"{{sunbird_individual_id}}\",\n    \"fullName\": \"{{sunbird_full_name}}\",\n    \"dob\": \"{{sunbird_dob}}\",\n    \"captcha_token\" : \"test-captcha-token\"\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/flow/execute",
