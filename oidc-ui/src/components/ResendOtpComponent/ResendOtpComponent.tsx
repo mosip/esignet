@@ -62,16 +62,17 @@ export default function ResendOtp({
   const handleClick = () => {
     if (context.onSubmit) {
       // checking whether captcha has been checked or not
-      context.touchedFields[captchaId] = true;
-      if (!context.formValues[captchaId]) {
+      const captchaToken = context.formValues[captchaId];
+      if (component.captcha && !captchaToken) {
         // if it is not checked, make the value not,
         // so that it will throw error in ui
+        context.touchedFields[captchaId] = true;
         context.onInputChange(captchaId, "");
         return;
       }
       const payload = {
         ...context.formValues,
-        captcha_token: context.formValues[captchaId],
+        ...(component.captcha ? { captcha_token: captchaToken } : {}),
       };
 
       context.onSubmit(component, payload, true);
