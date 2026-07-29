@@ -86,8 +86,8 @@ system:
   "error.agentservice.missing_agent_id_description": El ID del agente es obligatorio
   "error.agentservice.multiple_oauth_configs": No se permiten múltiples configuraciones de autenticación entrante OAuth
   "error.agentservice.multiple_oauth_configs_description": Una entidad puede tener como máximo una configuración de autenticación entrante por protocolo
-  "error.agentservice.none_auth_method_cannot_have_cert_or_secret_description": "El método de autenticación \"none\" no puede tener un certificado o secreto de cliente"
-  "error.agentservice.none_auth_method_requires_public_client_description": "El método de autenticación \"none\" requiere que el cliente sea un cliente público"
+  "error.agentservice.none_auth_method_cannot_have_cert_or_secret_description": 'El método de autenticación "none" no puede tener un certificado o secreto de cliente'
+  "error.agentservice.none_auth_method_requires_public_client_description": 'El método de autenticación "none" requiere que el cliente sea un cliente público'
   "error.agentservice.organization_unit_not_found": Unidad organizacional no encontrada
   "error.agentservice.organization_unit_not_found_description": La unidad organizacional especificada no existe
   "error.agentservice.owner_not_found": Propietario no encontrado
@@ -170,7 +170,7 @@ system:
   "error.applicationservice.invalid_jwks_uri": URI JWKS no válida
   "error.applicationservice.invalid_jwks_uri_description": El URI JWKS proporcionado no es un URI válido
   "error.applicationservice.invalid_jwks_uri_scheme": Esquema de URI JWKS no válido
-  "error.applicationservice.invalid_jwks_uri_scheme_description": "\"jwks_uri\" debe usar el esquema HTTPS"
+  "error.applicationservice.invalid_jwks_uri_scheme_description": '"jwks_uri" debe usar el esquema HTTPS'
   "error.applicationservice.invalid_logo_url": URL de logotipo no válida
   "error.applicationservice.invalid_logo_url_description": La URL del logotipo proporcionada no es un URI válido
   "error.applicationservice.invalid_oauth_configuration": Configuración OAuth no válida
@@ -197,8 +197,8 @@ system:
   "error.applicationservice.layout_not_found_description": La configuración de diseño especificada no existe
   "error.applicationservice.multiple_oauth_configs": No se permiten múltiples configuraciones de autenticación entrante OAuth
   "error.applicationservice.multiple_oauth_configs_description": Una aplicación puede tener como máximo una configuración de autenticación entrante por protocolo
-  "error.applicationservice.none_auth_method_cannot_have_cert_or_secret_description": "El método de autenticación \"none\" no puede tener un certificado o secreto de cliente"
-  "error.applicationservice.none_auth_method_requires_public_client_description": "El método de autenticación \"none\" requiere que el cliente sea un cliente público"
+  "error.applicationservice.none_auth_method_cannot_have_cert_or_secret_description": 'El método de autenticación "none" no puede tener un certificado o secreto de cliente'
+  "error.applicationservice.none_auth_method_requires_public_client_description": 'El método de autenticación "none" requiere que el cliente sea un cliente público'
   "error.applicationservice.pkce_requires_authorization_code_description": PKCE solo puede habilitarse cuando se selecciona el tipo de concesión authorization_code
   "error.applicationservice.private_key_jwt_cannot_have_client_secret_description": El método de autenticación private_key_jwt no puede tener un secreto de cliente
   "error.applicationservice.private_key_jwt_requires_certificate_description": El método de autenticación private_key_jwt requiere un certificado
@@ -528,11 +528,11 @@ system:
   "error.flowmetaservice.application_not_found_description": La aplicación especificada no existe
   "error.flowmetaservice.internal_server_error": Error interno del servidor
   "error.flowmetaservice.invalid_request": Solicitud no válida
-  "error.flowmetaservice.invalid_type_description": "El parámetro \"type\" debe ser \"APP\" o \"OU\""
-  "error.flowmetaservice.missing_id_description": "El parámetro de consulta \"id\" es obligatorio"
+  "error.flowmetaservice.invalid_type_description": 'El parámetro "type" debe ser "APP" o "OU"'
+  "error.flowmetaservice.missing_id_description": 'El parámetro de consulta "id" es obligatorio'
   "error.flowmetaservice.missing_id_parameter": Parámetro obligatorio faltante
   "error.flowmetaservice.missing_required_parameter": Parámetro obligatorio faltante
-  "error.flowmetaservice.missing_type_description": "El parámetro de consulta \"type\" es obligatorio"
+  "error.flowmetaservice.missing_type_description": 'El parámetro de consulta "type" es obligatorio'
   "error.flowmetaservice.ou_fetch_failed": Error interno del servidor
   "error.flowmetaservice.ou_fetch_failed_description": Error al recuperar la información de la unidad organizacional
   "error.flowmetaservice.ou_not_found": Recurso no encontrado
@@ -600,7 +600,7 @@ system:
   "error.groupservice.invalid_member_id": ID de miembro no válido
   "error.groupservice.invalid_member_id_description": Uno o más IDs de miembros de usuario o aplicación en la solicitud no existen o no coinciden con el tipo declarado
   "error.groupservice.invalid_member_type": Tipo de miembro no válido
-  "error.groupservice.invalid_member_type_description": "El tipo de miembro debe ser \"user\", \"group\" o \"APP\""
+  "error.groupservice.invalid_member_type_description": 'El tipo de miembro debe ser "user", "group" o "APP"'
   "error.groupservice.invalid_offset_parameter": Parámetro de desplazamiento no válido
   "error.groupservice.invalid_offset_parameter_description": El parámetro de desplazamiento debe ser un número entero no negativo
   "error.groupservice.invalid_ou_id": ID de unidad organizacional no válido
@@ -754,7 +754,7 @@ system:
   "error.ouservice.circular_dependency_detected": Dependencia circular detectada
   "error.ouservice.circular_dependency_detected_description": Establecer este padre crearía una dependencia circular
   "error.ouservice.invalid_filter": Parámetro de filtro no válido
-  "error.ouservice.invalid_filter_description": "El parámetro de filtro no es válido. Use el formato: atributo (eq|gt|lt) \"valor\""
+  "error.ouservice.invalid_filter_description": 'El parámetro de filtro no es válido. Use el formato: atributo (eq|gt|lt) "valor"'
   "error.ouservice.invalid_handle_path": Ruta de identificador no válida
   "error.ouservice.invalid_handle_path_description": La ruta de identificador especificada no existe
   "error.ouservice.invalid_limit_parameter": Parámetro de límite no válido
@@ -868,7 +868,7 @@ system:
   "error.roleservice.empty_assignments_list": Lista de asignaciones vacía
   "error.roleservice.empty_assignments_list_description": Debe proporcionarse al menos una asignación
   "error.roleservice.invalid_assignee_type": Tipo de asignatario no válido
-  "error.roleservice.invalid_assignee_type_description": "El parámetro de tipo debe ser \"user\", \"group\" o \"APP\""
+  "error.roleservice.invalid_assignee_type_description": 'El parámetro de tipo debe ser "user", "group" o "APP"'
   "error.roleservice.invalid_assignment_id": ID de asignación no válido
   "error.roleservice.invalid_assignment_id_description": Uno o más IDs de asignación en la solicitud no existen o no coinciden con el tipo declarado
   "error.roleservice.invalid_limit_parameter": Parámetro de límite no válido
@@ -1280,3 +1280,6 @@ app:
   otp.submit: Enviar
   back: Atrás
   esignet_details: Detalles de eSignet
+
+captcha:
+  config.error: La configuración del proveedor de CAPTCHA no es válida.

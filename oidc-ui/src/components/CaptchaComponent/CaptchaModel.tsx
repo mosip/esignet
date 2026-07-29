@@ -8,7 +8,7 @@ export type CaptchaProvider =
   | "cloudflare-turnstile"
   | "hcaptcha";
 
-export interface CaptchaComponent {
+export interface CaptchaComponentType {
   provider?: CaptchaProvider;
   siteKey?: string;
   theme?: "light" | "dark";
@@ -16,7 +16,7 @@ export interface CaptchaComponent {
 }
 
 export interface CaptchaFlowComponent extends EmbeddedFlowComponent {
-  captcha?: CaptchaComponent;
+  captcha?: CaptchaComponentType;
 }
 
 export interface CaptchaComponentProps {
@@ -25,7 +25,7 @@ export interface CaptchaComponentProps {
 }
 
 export interface CaptchaProps {
-  captcha: CaptchaComponent | undefined;
+  captcha: CaptchaComponentType | undefined;
   handleSuccess: (token: string | null) => void;
   handleError: () => void;
   handleExpire: () => void;

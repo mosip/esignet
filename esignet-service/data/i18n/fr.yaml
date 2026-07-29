@@ -86,8 +86,8 @@ system:
   "error.agentservice.missing_agent_id_description": L'ID de l'agent est obligatoire
   "error.agentservice.multiple_oauth_configs": Les configurations d'authentification OAuth multiples ne sont pas autorisées
   "error.agentservice.multiple_oauth_configs_description": Une entité ne peut avoir qu'une seule configuration d'authentification entrante par protocole
-  "error.agentservice.none_auth_method_cannot_have_cert_or_secret_description": "La méthode d'authentification \"none\" ne peut pas avoir de certificat ou de secret client"
-  "error.agentservice.none_auth_method_requires_public_client_description": "La méthode d'authentification \"none\" requiert que le client soit un client public"
+  "error.agentservice.none_auth_method_cannot_have_cert_or_secret_description": 'La méthode d''authentification "none" ne peut pas avoir de certificat ou de secret client'
+  "error.agentservice.none_auth_method_requires_public_client_description": 'La méthode d''authentification "none" requiert que le client soit un client public'
   "error.agentservice.organization_unit_not_found": Unité organisationnelle introuvable
   "error.agentservice.organization_unit_not_found_description": L'unité organisationnelle spécifiée n'existe pas
   "error.agentservice.owner_not_found": Propriétaire introuvable
@@ -170,7 +170,7 @@ system:
   "error.applicationservice.invalid_jwks_uri": URI JWKS non valide
   "error.applicationservice.invalid_jwks_uri_description": L'URI JWKS fournie n'est pas une URI valide
   "error.applicationservice.invalid_jwks_uri_scheme": Schéma d'URI JWKS non valide
-  "error.applicationservice.invalid_jwks_uri_scheme_description": "\"jwks_uri\" doit utiliser le schéma HTTPS"
+  "error.applicationservice.invalid_jwks_uri_scheme_description": '"jwks_uri" doit utiliser le schéma HTTPS'
   "error.applicationservice.invalid_logo_url": URL de logo non valide
   "error.applicationservice.invalid_logo_url_description": L'URL du logo fournie n'est pas une URI valide
   "error.applicationservice.invalid_oauth_configuration": Configuration OAuth non valide
@@ -197,8 +197,8 @@ system:
   "error.applicationservice.layout_not_found_description": La configuration de mise en page spécifiée n'existe pas
   "error.applicationservice.multiple_oauth_configs": Les configurations d'authentification OAuth multiples ne sont pas autorisées
   "error.applicationservice.multiple_oauth_configs_description": Une application ne peut avoir qu'une seule configuration d'authentification entrante par protocole
-  "error.applicationservice.none_auth_method_cannot_have_cert_or_secret_description": "La méthode d'authentification \"none\" ne peut pas avoir de certificat ou de secret client"
-  "error.applicationservice.none_auth_method_requires_public_client_description": "La méthode d'authentification \"none\" requiert que le client soit un client public"
+  "error.applicationservice.none_auth_method_cannot_have_cert_or_secret_description": 'La méthode d''authentification "none" ne peut pas avoir de certificat ou de secret client'
+  "error.applicationservice.none_auth_method_requires_public_client_description": 'La méthode d''authentification "none" requiert que le client soit un client public'
   "error.applicationservice.pkce_requires_authorization_code_description": PKCE ne peut être activé que lorsque le type d'octroi authorization_code est sélectionné
   "error.applicationservice.private_key_jwt_cannot_have_client_secret_description": La méthode d'authentification private_key_jwt ne peut pas avoir de secret client
   "error.applicationservice.private_key_jwt_requires_certificate_description": La méthode d'authentification private_key_jwt nécessite un certificat
@@ -754,7 +754,7 @@ system:
   "error.ouservice.circular_dependency_detected": Dépendance circulaire détectée
   "error.ouservice.circular_dependency_detected_description": La définition de ce parent créerait une dépendance circulaire
   "error.ouservice.invalid_filter": Paramètre de filtre non valide
-  "error.ouservice.invalid_filter_description": "Le paramètre de filtre est non valide. Utilisez le format : attribut (eq|gt|lt) \"valeur\""
+  "error.ouservice.invalid_filter_description": 'Le paramètre de filtre est non valide. Utilisez le format : attribut (eq|gt|lt) "valeur"'
   "error.ouservice.invalid_handle_path": Chemin d'identifiant non valide
   "error.ouservice.invalid_handle_path_description": Le chemin d'identifiant spécifié n'existe pas
   "error.ouservice.invalid_limit_parameter": Paramètre de limite non valide
@@ -1280,3 +1280,6 @@ app:
   otp.submit: Soumettre
   back: Retour
   esignet_details: Détails eSignet
+
+captcha:
+  config.error: La configuration du fournisseur CAPTCHA n'est pas valide.

@@ -148,7 +148,7 @@ captcha_box: &captcha_box
   resourceType: ELEMENT
   required: true
   captcha:
-    provider: google-recaptcha
+    provider: ${MOSIP_ESIGNET_CAPTCHA_SITE_PROVIDER}
     siteKey: ${MOSIP_ESIGNET_CAPTCHA_SITE_KEY}
     theme: light
     size: normal
@@ -532,6 +532,10 @@ nodes:
                   timeLeft: 20
                   variant: OUTLINE
                   label: "otp.resend_otp"
+                  required: true
+                  captcha:
+                    provider: ${MOSIP_ESIGNET_CAPTCHA_SITE_PROVIDER}
+                    siteKey: ${MOSIP_ESIGNET_CAPTCHA_SITE_KEY}
     prompts:
       - inputs:
           - ref: otp_input
@@ -1041,7 +1045,7 @@ nodes:
           nextNode: consent_check
       - action:
           ref: action_deny
-          nextNode: end
+          nextNode: consent_check
 
   - id: auth_assert
     type: TASK_EXECUTION

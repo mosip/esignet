@@ -1,18 +1,30 @@
-import { FormControl, validateFieldValue } from "@thunderid/react";
+import {
+  FormControl,
+  useTranslation,
+  validateFieldValue,
+} from "@thunderid/react";
 import GoogleReCaptcha from "./GoogleReCaptcha";
 import CloudflareTurnstile from "./CloudflareTurnstile";
 import HCaptcha from "./HCaptcha";
 import type { CaptchaComponentProps } from "./CaptchaModel";
 
+// available captcha provider
+const availableProvider = [
+  "google-recaptcha",
+  "cloudflare-turnstile",
+  "hcaptcha",
+];
+
 export default function CaptchaComponent({
   component,
   context,
 }: CaptchaComponentProps) {
+  const { t } = useTranslation();
   const fieldRef = component.ref ?? component.id;
   const { formValues, formErrors, touchedFields } = context;
   const isTouched = touchedFields[fieldRef] || false;
   const values = formValues[fieldRef];
-  const { provider } = component.captcha ?? {};
+  const { provider, siteKey } = component.captcha ?? {};
 
   const validationError = validateFieldValue(
     values,
@@ -54,18 +66,21 @@ export default function CaptchaComponent({
 
   let providerElement = null;
 
-  if (provider === "google-recaptcha") {
-    providerElement = <GoogleReCaptcha {...captchaProps} />;
-  } else if (provider === "cloudflare-turnstile") {
-    providerElement = <CloudflareTurnstile {...captchaProps} />;
-  } else if (provider === "hcaptcha") {
-    providerElement = <HCaptcha {...captchaProps} />;
+  if (!siteKey || !availableProvider.includes(provider ?? "")) {
+    providerElement = <span role="alert">{t("captcha.config.error")}</span>;
+
+    if (context.formValues[fieldRef]) {
+      context.onInputChange(fieldRef, "");
+    }
+    context.formErrors[fieldRef] = t("captcha.config.error");
   } else {
-    providerElement = (
-      <span role="alert">CAPTCHA provider configuration is invalid.</span>
-    );
-    context.onInputChange(fieldRef, "");
-    context.formErrors[fieldRef] = "CAPTCHA provider configuration is invalid.";
+    if (provider === "google-recaptcha") {
+      providerElement = <GoogleReCaptcha {...captchaProps} />;
+    } else if (provider === "cloudflare-turnstile") {
+      providerElement = <CloudflareTurnstile {...captchaProps} />;
+    } else if (provider === "hcaptcha") {
+      providerElement = <HCaptcha {...captchaProps} />;
+    }
   }
 
   return (

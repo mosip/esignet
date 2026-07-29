@@ -1280,3 +1280,6 @@ app:
   otp.submit: ಸಲ್ಲಿಸಿ
   back: ಹಿಂದೆ
   esignet_details: ಈಸಿಗ್ನೆಟ್ ವಿವರಗಳು
+
+captcha:
+  config.error: CAPTCHA ಪೂರೈಕೆದಾರರ ಕಾನ್ಫಿಗರೇಶನ್ ಅಮಾನ್ಯವಾಗಿದೆ.
