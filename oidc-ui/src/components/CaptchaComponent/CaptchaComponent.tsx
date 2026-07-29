@@ -7,6 +7,7 @@ import GoogleReCaptcha from "./GoogleReCaptcha";
 import CloudflareTurnstile from "./CloudflareTurnstile";
 import HCaptcha from "./HCaptcha";
 import type { CaptchaComponentProps } from "./CaptchaModel";
+import { useEffect } from "react";
 
 // available captcha provider
 const availableProvider = [
@@ -26,12 +27,21 @@ export default function CaptchaComponent({
   const values = formValues[fieldRef];
   const { provider, siteKey } = component.captcha ?? {};
 
+  const isConfigValid = siteKey && availableProvider.includes(provider ?? "");
+
   const validationError = validateFieldValue(
     values,
     "TEXT" as any,
     component.required,
     isTouched,
   );
+
+  useEffect(() => {
+    if (!isConfigValid) {
+      context.onInputChange(fieldRef, "");
+      context.formErrors[fieldRef] = t("captcha.config.error");
+    }
+  }, [isConfigValid]);
 
   const error = formErrors[fieldRef] || validationError || undefined;
 
@@ -66,13 +76,10 @@ export default function CaptchaComponent({
 
   let providerElement = null;
 
-  if (!siteKey || !availableProvider.includes(provider ?? "")) {
+  // if sitekey or provider is not configured
+  // properly then it will throw error
+  if (!isConfigValid) {
     providerElement = <span role="alert">{t("captcha.config.error")}</span>;
-
-    if (context.formValues[fieldRef]) {
-      context.onInputChange(fieldRef, "");
-    }
-    context.formErrors[fieldRef] = t("captcha.config.error");
   } else {
     if (provider === "google-recaptcha") {
       providerElement = <GoogleReCaptcha {...captchaProps} />;
