@@ -47,7 +47,7 @@ func buildCertTemplate(params keystore.CertificateParameters) (*x509.Certificate
 		},
 		NotBefore: params.NotBefore,
 		NotAfter:  params.NotAfter,
-		KeyUsage:  x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment | x509.KeyUsageCertSign,
+		KeyUsage:  x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
 	}, nil
 }
 
@@ -92,6 +92,7 @@ func (s *Store) GenerateAndStoreAsymmetricKey(alias, signKeyAlias string, params
 	if signKeyAlias == alias {
 		template.IsCA = true
 		template.BasicConstraintsValid = true
+		template.KeyUsage |= x509.KeyUsageCertSign
 		certDER, err = x509.CreateCertificate(rand.Reader, template, template, priv.Public(), priv)
 	} else {
 		signEntry, ok := s.entries[signKeyAlias]

@@ -18,6 +18,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/google/uuid"
@@ -295,9 +296,10 @@ func (s *Service) ensureCurrentKey(ctx context.Context, appID, refID string, par
 	// may name ROOT/Component Master Keys explicitly, or just take the
 	// defaults. GetCertificate/GenerateCSR never take DN input; the
 	// certificate subject is always derived structurally instead:
-	if onlyMasterTiers {
+	switch {
+	case onlyMasterTiers:
 		params = s.applyCertSubjectDefaults(params, appID, refID)
-	} else if resident {
+	case resident:
 		// ROOT / Component Master Key: GetCertificate/GenerateCSR only ever
 		// *rotate* these, never originate them (that's GenerateMasterKey's
 		// job) — reuse the whole DN, CommonName included, from the most
@@ -310,12 +312,12 @@ func (s *Service) ensureCurrentKey(ctx context.Context, appID, refID string, par
 		if prev == nil {
 			return nil, resident, fmt.Errorf("%w: application %q, reference %q — generate it via GenerateMasterKey first", ErrKeyNotFound, appID, refID)
 		}
-		prevCert, err := s.certificateForAlias(prev.ID, resident)
+		prevCert, err := s.certificateForAlias(ctx, prev.ID, resident)
 		if err != nil {
 			return nil, resident, err
 		}
 		params = certParamsFromSubject(prevCert.Subject)
-	} else {
+	default:
 		// Component Encryption Key: the O/OU/L/ST/C fields always come
 		// from the signing Component Master Key's current certificate, per
 		// your direction — both on first generation and on every rotation.
@@ -387,7 +389,7 @@ func (s *Service) GenerateMasterKey(ctx context.Context, req GenerateMasterKeyRe
 	if err != nil {
 		return KeyPairResponse{}, err
 	}
-	return s.buildKeyPairResponse(*alias, req.ObjectType, resident)
+	return s.buildKeyPairResponse(ctx, *alias, req.ObjectType, resident)
 }
 
 // persistNewAlias inserts the key_alias row for a freshly generated key,
@@ -395,7 +397,7 @@ func (s *Service) GenerateMasterKey(ctx context.Context, req GenerateMasterKeyRe
 // plan) by re-querying and returning the row the other concurrent request
 // just inserted, rather than propagating the error.
 func (s *Service) persistNewAlias(ctx context.Context, appID, refID, alias string, genTime, expiry time.Time) (*db.KeyAlias, error) {
-	certThumbprint, err := s.certThumbprint(alias, isKeystoreResident(appID, refID))
+	certThumbprint, err := s.certThumbprint(ctx, alias, isKeystoreResident(appID, refID))
 	if err != nil {
 		return nil, err
 	}
@@ -436,8 +438,8 @@ func (s *Service) persistNewAlias(ctx context.Context, appID, refID, alias strin
 	return &ka, nil
 }
 
-func (s *Service) certThumbprint(alias string, keystoreResident bool) (string, error) {
-	cert, err := s.certificateForAlias(alias, keystoreResident)
+func (s *Service) certThumbprint(ctx context.Context, alias string, keystoreResident bool) (string, error) {
+	cert, err := s.certificateForAlias(ctx, alias, keystoreResident)
 	if err != nil {
 		return "", err
 	}
@@ -459,11 +461,11 @@ func ThumbprintForCert(cert *x509.Certificate) string {
 	return thumbprintForCert(cert)
 }
 
-func (s *Service) certificateForAlias(alias string, keystoreResident bool) (*x509.Certificate, error) {
+func (s *Service) certificateForAlias(ctx context.Context, alias string, keystoreResident bool) (*x509.Certificate, error) {
 	if keystoreResident {
 		return s.ks.GetCertificate(alias)
 	}
-	rec, err := s.q.GetKeyStoreRecord(context.Background(), alias)
+	rec, err := s.q.GetKeyStoreRecord(ctx, alias)
 	if err != nil {
 		return nil, fmt.Errorf("get key_store record: %w", err)
 	}
@@ -564,8 +566,8 @@ func (s *Service) decryptDBResidentPrivateKey(rec db.KeyStoreRecord) (*rsa.Priva
 	return rsaKey, nil
 }
 
-func (s *Service) buildKeyPairResponse(alias db.KeyAlias, objectType string, keystoreResident bool) (KeyPairResponse, error) {
-	cert, err := s.certificateForAlias(alias.ID, keystoreResident)
+func (s *Service) buildKeyPairResponse(ctx context.Context, alias db.KeyAlias, objectType string, keystoreResident bool) (KeyPairResponse, error) {
+	cert, err := s.certificateForAlias(ctx, alias.ID, keystoreResident)
 	if err != nil {
 		return KeyPairResponse{}, err
 	}
@@ -577,7 +579,7 @@ func (s *Service) buildKeyPairResponse(alias db.KeyAlias, objectType string, key
 		resp.ExpiryAt = *alias.KeyExpireDtimes
 	}
 	if objectType == ObjectTypeCSR {
-		priv, err := s.privateKeyForAlias(alias.ID, keystoreResident)
+		priv, err := s.privateKeyForAlias(ctx, alias.ID, keystoreResident)
 		if err != nil {
 			return KeyPairResponse{}, err
 		}
@@ -596,11 +598,11 @@ func (s *Service) buildKeyPairResponse(alias db.KeyAlias, objectType string, key
 	return resp, nil
 }
 
-func (s *Service) privateKeyForAlias(alias string, keystoreResident bool) (crypto.PrivateKey, error) {
+func (s *Service) privateKeyForAlias(ctx context.Context, alias string, keystoreResident bool) (crypto.PrivateKey, error) {
 	if keystoreResident {
 		return s.ks.GetPrivateKey(alias)
 	}
-	rec, err := s.q.GetKeyStoreRecord(context.Background(), alias)
+	rec, err := s.q.GetKeyStoreRecord(ctx, alias)
 	if err != nil {
 		return nil, fmt.Errorf("get key_store record: %w", err)
 	}
@@ -615,11 +617,11 @@ func (s *Service) privateKeyForAlias(alias string, keystoreResident bool) (crypt
 // same certificateForAlias/privateKeyForAlias this package already uses
 // internally — no new key-resolution logic, just exposing the pair together.
 func (s *Service) ResolveKeyMaterial(ctx context.Context, alias string, keystoreResident bool) (*x509.Certificate, crypto.PrivateKey, error) {
-	cert, err := s.certificateForAlias(alias, keystoreResident)
+	cert, err := s.certificateForAlias(ctx, alias, keystoreResident)
 	if err != nil {
 		return nil, nil, err
 	}
-	priv, err := s.privateKeyForAlias(alias, keystoreResident)
+	priv, err := s.privateKeyForAlias(ctx, alias, keystoreResident)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -643,7 +645,7 @@ func (s *Service) GetCertificate(ctx context.Context, appID, refID string) (KeyP
 	if err != nil {
 		return KeyPairResponse{}, err
 	}
-	return s.buildKeyPairResponse(*alias, ObjectTypeCertificate, resident)
+	return s.buildKeyPairResponse(ctx, *alias, ObjectTypeCertificate, resident)
 }
 
 // ResolveCurrentKey performs the same lazy generate/rotate resolution as
@@ -658,7 +660,7 @@ func (s *Service) ResolveCurrentKey(ctx context.Context, appID, refID string) (c
 	if err != nil {
 		return nil, "", false, err
 	}
-	cert, err = s.certificateForAlias(a.ID, resident)
+	cert, err = s.certificateForAlias(ctx, a.ID, resident)
 	if err != nil {
 		return nil, "", false, err
 	}
@@ -678,7 +680,7 @@ func (s *Service) GenerateCSR(ctx context.Context, req CSRRequest) (KeyPairRespo
 	if err != nil {
 		return KeyPairResponse{}, err
 	}
-	return s.buildKeyPairResponse(*alias, ObjectTypeCSR, resident)
+	return s.buildKeyPairResponse(ctx, *alias, ObjectTypeCSR, resident)
 }
 
 // UploadCertificate replaces the certificate for the current alias after
@@ -707,7 +709,7 @@ func (s *Service) UploadCertificate(ctx context.Context, req UploadCertificateRe
 	}
 
 	resident := isKeystoreResident(req.ApplicationID, req.ReferenceID)
-	existingPub, err := s.publicKeyForAlias(current.ID, resident)
+	existingPub, err := s.publicKeyForAlias(ctx, current.ID, resident)
 	if err != nil {
 		return UploadCertificateResponse{}, err
 	}
@@ -789,7 +791,14 @@ func (s *Service) UploadOtherDomainCertificate(ctx context.Context, req UploadCe
 		if a.CertThumbprint != nil && *a.CertThumbprint == thumbprint {
 			return UploadCertificateResponse{}, ErrCertificateAlreadyExists
 		}
-		if rec, err := s.q.GetKeyStoreRecord(ctx, a.ID); err == nil && rec.PrivateKey != "NA" {
+		rec, err := s.q.GetKeyStoreRecord(ctx, a.ID)
+		if errors.Is(err, sql.ErrNoRows) {
+			continue
+		}
+		if err != nil {
+			return UploadCertificateResponse{}, fmt.Errorf("get key_store record %q: %w", a.ID, err)
+		}
+		if rec.PrivateKey != ForeignDomainPrivateKeyMarker {
 			return UploadCertificateResponse{}, ErrPrivateKeyExists
 		}
 	}
@@ -799,7 +808,7 @@ func (s *Service) UploadOtherDomainCertificate(ctx context.Context, req UploadCe
 	// master_key is NOT NULL in key_store; Java's storeKeyInDBStore sets it
 	// self-referentially (masterAlias == alias) for foreign-domain, cert-only
 	// entries — there is no real Component Master Key wrapping anything here.
-	rec := db.KeyStoreRecord{ID: alias, CertificateData: encodeCertPEM(cert.Raw), PrivateKey: "NA", MasterKey: &alias}
+	rec := db.KeyStoreRecord{ID: alias, CertificateData: encodeCertPEM(cert.Raw), PrivateKey: ForeignDomainPrivateKeyMarker, MasterKey: &alias}
 	rec.CrBy = "keymanager"
 	rec.CrDtimes = now
 	if err := s.q.InsertKeyStoreRecord(ctx, rec); err != nil {
@@ -856,8 +865,24 @@ func (s *Service) GenerateSymmetricKey(ctx context.Context, req SymmetricKeyRequ
 		ka := db.KeyAlias{ID: alias, AppID: req.ApplicationID, RefID: &refID, KeyGenDtimes: &now, KeyExpireDtimes: &expiry, UniIdent: &uniIdent}
 		ka.CrBy = "keymanager"
 		ka.CrDtimes = now
-		if err := s.q.InsertKeyAlias(ctx, ka); err != nil && !IsDuplicateUniIdent(err) {
-			return SymmetricKeyResponse{}, fmt.Errorf("insert key alias: %w", err)
+		if err := s.q.InsertKeyAlias(ctx, ka); err != nil {
+			if !IsDuplicateUniIdent(err) {
+				return SymmetricKeyResponse{}, fmt.Errorf("insert key alias: %w", err)
+			}
+			// Another request won the race (or a key was already generated
+			// today): the AES key material already written under alias is
+			// now unreferenced — drop it rather than orphaning it in the
+			// keystore, then re-resolve the winning alias.
+			if derr := s.ks.DeleteKey(alias); derr != nil {
+				return SymmetricKeyResponse{}, fmt.Errorf("delete orphaned symmetric key %q: %w", alias, derr)
+			}
+			winner, rerr := s.currentAlias(ctx, req.ApplicationID, req.ReferenceID)
+			if rerr != nil {
+				return SymmetricKeyResponse{}, rerr
+			}
+			if winner == nil {
+				return SymmetricKeyResponse{}, fmt.Errorf("%w: application %q, reference %q", ErrKeyAlreadyGeneratedToday, req.ApplicationID, req.ReferenceID)
+			}
 		}
 	}
 	return SymmetricKeyResponse{Status: statusSuccess, Timestamp: now}, nil
@@ -892,8 +917,9 @@ func (s *Service) GetAllCertificates(ctx context.Context, appID, refID string) (
 	resident := isKeystoreResident(appID, refID)
 	resp := AllCertificatesResponse{AllCertificates: make([]CertificateData, 0, len(aliases))}
 	for _, a := range aliases {
-		cert, err := s.certificateForAlias(a.ID, resident)
+		cert, err := s.certificateForAlias(ctx, a.ID, resident)
 		if err != nil {
+			log.Printf("keymanager: GetAllCertificates: skipping alias %q: %v", a.ID, err)
 			continue
 		}
 		cd := CertificateData{CertificateData: encodeCertPEM(cert.Raw), KeyID: a.ID}
@@ -935,7 +961,7 @@ func (s *Service) GetCertificateChain(ctx context.Context, appID, refID string) 
 		if parentAlias == nil {
 			break
 		}
-		parentCert, err := s.certificateForAlias(parentAlias.ID, isKeystoreResident(parentAppID, parentRefID))
+		parentCert, err := s.certificateForAlias(ctx, parentAlias.ID, isKeystoreResident(parentAppID, parentRefID))
 		if err != nil {
 			break
 		}
@@ -953,7 +979,7 @@ func (s *Service) certificateForAliasByAppRef(ctx context.Context, appID, refID 
 	if alias == nil {
 		return nil, ErrKeyNotFound
 	}
-	return s.certificateForAlias(alias.ID, resident)
+	return s.certificateForAlias(ctx, alias.ID, resident)
 }
 
 // GetSigningCertificate resolves the current signing key for a sign ref id,
@@ -983,11 +1009,11 @@ func (s *Service) GetSigningCertificate(ctx context.Context, appID, refID string
 	return sc, nil
 }
 
-func (s *Service) publicKeyForAlias(alias string, keystoreResident bool) (crypto.PublicKey, error) {
+func (s *Service) publicKeyForAlias(ctx context.Context, alias string, keystoreResident bool) (crypto.PublicKey, error) {
 	if keystoreResident {
 		return s.ks.GetPublicKey(alias)
 	}
-	rec, err := s.q.GetKeyStoreRecord(context.Background(), alias)
+	rec, err := s.q.GetKeyStoreRecord(ctx, alias)
 	if err != nil {
 		return nil, fmt.Errorf("get key_store record: %w", err)
 	}

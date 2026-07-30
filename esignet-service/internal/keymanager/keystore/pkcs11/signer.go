@@ -95,10 +95,10 @@ func (k *privateKey) signRSAPSS(digest []byte, opts *rsa.PSSOptions) ([]byte, er
 	if !ok {
 		return nil, fmt.Errorf("pkcs11: RSA-PSS signing: key %q has no RSA public key on record", k.alias)
 	}
-	h := opts.Hash
-	if h == 0 {
-		h = crypto.SHA256
+	if opts.Hash == 0 {
+		return nil, fmt.Errorf("pkcs11: RSA-PSS signing requires PSSOptions.Hash to be set")
 	}
+	h := opts.Hash
 	modulusSize := (rsaPub.N.BitLen() + 7) / 8
 	saltLen := opts.SaltLength
 	switch saltLen {

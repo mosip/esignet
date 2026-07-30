@@ -3,8 +3,11 @@ package keymanager
 import (
 	"crypto/sha1" //nolint:gosec // sha1 used for value identification only, not for any sensitive data — mirrors KeymanagerUtil.getUniqueIdentifier in the Java service.
 	"encoding/hex"
+	"errors"
 	"strings"
 	"time"
+
+	"github.com/lib/pq"
 
 	"github.com/mosip/esignet/internal/keymanager/db"
 )
@@ -45,6 +48,10 @@ func IsDuplicateUniIdent(err error) bool {
 	if err == nil {
 		return false
 	}
-	msg := err.Error()
+	var pqErr *pq.Error
+	if errors.As(err, &pqErr) {
+		return pqErr.Code == "23505" && pqErr.Constraint == "uni_ident_const"
+	}
+	msg := err.Error() // legacy fallback for non-pq errors (e.g. in tests)
 	return strings.Contains(msg, "23505") && strings.Contains(msg, "uni_ident_const")
 }

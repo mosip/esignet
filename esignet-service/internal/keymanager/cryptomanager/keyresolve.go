@@ -50,7 +50,7 @@ func (s *Service) resolveDecryptionKey(ctx context.Context, requestAppID, reques
 	if err != nil {
 		return nil, "", fmt.Errorf("get key_store record %q: %w", row.ID, err)
 	}
-	if rec.PrivateKey == "NA" {
+	if rec.PrivateKey == keymanager.ForeignDomainPrivateKeyMarker {
 		return nil, "", ErrForeignDomainKeyNotDecryptable
 	}
 

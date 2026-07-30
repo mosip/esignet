@@ -66,23 +66,33 @@ func unpadOAEPSHA256(em []byte, k int) ([]byte, error) {
 	}
 
 	lHash := sha256.Sum256(nil) // empty label, matching envelopeEncrypt's rsa.EncryptOAEP(..., label=nil)
-	lHashOK := subtle.ConstantTimeCompare(db[:hLen], lHash[:]) == 1
+	lHashOK := subtle.ConstantTimeCompare(db[:hLen], lHash[:])
+	firstByteZero := subtle.ConstantTimeByteEq(y, 0)
 	rest := db[hLen:]
-	idx := bytes.IndexByte(rest, 0x01)
-	psOK := idx >= 0
-	if psOK {
-		for _, b := range rest[:idx] {
-			if b != 0 {
-				psOK = false
-				break
-			}
-		}
+
+	// Constant-time scan for the 0x01 separator (mirrors Go stdlib's
+	// crypto/rsa decryptOAEP): visit every byte of rest regardless of
+	// where — or whether — 0x01 appears, and never branch on secret
+	// data, so the time taken cannot leak the separator's position to a
+	// Manger's-attack-style padding oracle.
+	//   lookingForIndex: 1 while still searching for the 0x01 byte
+	//   index: offset of the first 0x01 byte found
+	//   invalid: 1 iff a non-zero byte was seen before the 0x01
+	var lookingForIndex, index, invalid int
+	lookingForIndex = 1
+	for i := 0; i < len(rest); i++ {
+		equals0 := subtle.ConstantTimeByteEq(rest[i], 0)
+		equals1 := subtle.ConstantTimeByteEq(rest[i], 1)
+		index = subtle.ConstantTimeSelect(lookingForIndex&equals1, i, index)
+		lookingForIndex = subtle.ConstantTimeSelect(equals1, 0, lookingForIndex)
+		invalid = subtle.ConstantTimeSelect(lookingForIndex&^equals0, 1, invalid)
 	}
+
 	// Single generic error regardless of which check failed (Y, lHash, or
 	// the PS/0x01 structure) — a Manger's-attack-style padding oracle
 	// exploits exactly this kind of error differentiation.
-	if y != 0 || !lHashOK || !psOK {
+	if firstByteZero&lHashOK&^invalid&^lookingForIndex != 1 {
 		return nil, fmt.Errorf("pkcs11: oaep unpad: decryption error")
 	}
-	return rest[idx+1:], nil
+	return rest[index+1:], nil
 }

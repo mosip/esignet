@@ -13,6 +13,11 @@ const (
 	ObjectTypeCSR         = "csr"
 )
 
+// ForeignDomainPrivateKeyMarker is the key_store.private_key sentinel value
+// for a foreign-domain, cert-only entry (see UploadOtherDomainCertificate) —
+// MOSIP holds no private key material for these.
+const ForeignDomainPrivateKeyMarker = "NA"
+
 // GenerateMasterKeyRequest is the merged request for what was
 // generateMasterKey + generateECSignKey in Java (see hierarchy.go /
 // resolveKeyType for how ReferenceID selects RSA vs EC and, together with

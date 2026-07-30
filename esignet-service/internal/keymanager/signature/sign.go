@@ -28,7 +28,7 @@ func signDigest(signer crypto.Signer, alg string, signingInput []byte) ([]byte, 
 		digest := sha256.Sum256(signingInput)
 		sig, err := signer.Sign(rand.Reader, digest[:], &rsa.PSSOptions{SaltLength: 32, Hash: crypto.SHA256})
 		if err != nil {
-			return nil, fmt.Errorf("%w: %v", ErrSignFailed, err)
+			return nil, fmt.Errorf("%w: %w", ErrSignFailed, err)
 		}
 		return sig, nil
 
@@ -36,7 +36,7 @@ func signDigest(signer crypto.Signer, alg string, signingInput []byte) ([]byte, 
 		digest := sha256.Sum256(signingInput)
 		sig, err := signer.Sign(rand.Reader, digest[:], crypto.SHA256)
 		if err != nil {
-			return nil, fmt.Errorf("%w: %v", ErrSignFailed, err)
+			return nil, fmt.Errorf("%w: %w", ErrSignFailed, err)
 		}
 		return sig, nil
 
@@ -44,11 +44,11 @@ func signDigest(signer crypto.Signer, alg string, signingInput []byte) ([]byte, 
 		digest := sha256.Sum256(signingInput)
 		der, err := signer.Sign(rand.Reader, digest[:], crypto.SHA256)
 		if err != nil {
-			return nil, fmt.Errorf("%w: %v", ErrSignFailed, err)
+			return nil, fmt.Errorf("%w: %w", ErrSignFailed, err)
 		}
 		concat, err := derToConcat(der, ecSignatureLength)
 		if err != nil {
-			return nil, fmt.Errorf("%w: %v", ErrSignFailed, err)
+			return nil, fmt.Errorf("%w: %w", ErrSignFailed, err)
 		}
 		return concat, nil
 
@@ -60,7 +60,7 @@ func signDigest(signer crypto.Signer, alg string, signingInput []byte) ([]byte, 
 		// through whichever backend (pkcs11/pkcs12) produced the key.
 		sig, err := signer.Sign(rand.Reader, signingInput, crypto.Hash(0))
 		if err != nil {
-			return nil, fmt.Errorf("%w: %v", ErrSignFailed, err)
+			return nil, fmt.Errorf("%w: %w", ErrSignFailed, err)
 		}
 		return sig, nil
 

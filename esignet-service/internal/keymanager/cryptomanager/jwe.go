@@ -47,15 +47,15 @@ func buildJWECompact(cert *x509.Certificate, payload []byte, opts jweBuildOption
 	rcpt := jose.Recipient{Algorithm: jose.RSA_OAEP_256, Key: rsaPub, KeyID: kid}
 	encrypter, err := jose.NewEncrypter(jose.A256GCM, rcpt, encOpts)
 	if err != nil {
-		return "", fmt.Errorf("%w: %v", ErrJWEEncryptionFailed, err)
+		return "", fmt.Errorf("%w: %w", ErrJWEEncryptionFailed, err)
 	}
 	jwe, err := encrypter.Encrypt(payload)
 	if err != nil {
-		return "", fmt.Errorf("%w: %v", ErrJWEEncryptionFailed, err)
+		return "", fmt.Errorf("%w: %w", ErrJWEEncryptionFailed, err)
 	}
 	compact, err := jwe.CompactSerialize()
 	if err != nil {
-		return "", fmt.Errorf("%w: %v", ErrJWEEncryptionFailed, err)
+		return "", fmt.Errorf("%w: %w", ErrJWEEncryptionFailed, err)
 	}
 	return compact, nil
 }
@@ -67,11 +67,11 @@ func buildJWECompact(cert *x509.Certificate, payload []byte, opts jweBuildOption
 func parseJWECompact(token string) (*jose.JSONWebEncryption, string, error) {
 	jwe, err := jose.ParseEncryptedCompact(token, []jose.KeyAlgorithm{jose.RSA_OAEP_256}, []jose.ContentEncryption{jose.A256GCM})
 	if err != nil {
-		return nil, "", fmt.Errorf("%w: %v", ErrJWEInvalidCompactSerialization, err)
+		return nil, "", fmt.Errorf("%w: %w", ErrJWEInvalidCompactSerialization, err)
 	}
 	kidBytes, err := base64.RawURLEncoding.DecodeString(jwe.Header.KeyID)
 	if err != nil {
-		return nil, "", fmt.Errorf("%w: invalid kid header: %v", ErrJWEInvalidCompactSerialization, err)
+		return nil, "", fmt.Errorf("%w: invalid kid header: %w", ErrJWEInvalidCompactSerialization, err)
 	}
 	return jwe, hex.EncodeToString(kidBytes), nil
 }
@@ -83,7 +83,7 @@ func parseJWECompact(token string) (*jose.JSONWebEncryption, string, error) {
 func decryptJWE(jwe *jose.JSONWebEncryption, priv *rsa.PrivateKey) ([]byte, error) {
 	plaintext, err := jwe.Decrypt(priv)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrJWEDecryptFailed, err)
+		return nil, fmt.Errorf("%w: %w", ErrJWEDecryptFailed, err)
 	}
 	return plaintext, nil
 }

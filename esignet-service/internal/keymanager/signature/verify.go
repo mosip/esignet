@@ -44,30 +44,34 @@ func certFromHeader(headerB64 string) (*x509.Certificate, bool) {
 	return cert, true
 }
 
-// resolveVerifyCert picks the certificate to verify against, in Java's
-// jwtVerify precedence order: header-embedded x5c, then the caller-supplied
-// PEM, then a keymanager lookup by ApplicationID/ReferenceID.
+// resolveVerifyCert picks the certificate to verify against. Caller-pinned
+// identity always wins over the JWS header's own claim about who signed it:
+// CertificatePEM, then a keymanager lookup by ApplicationID/ReferenceID, and
+// only when the caller supplies neither pinning field does this fall back to
+// the header-embedded x5c — otherwise a token carrying an attacker-controlled
+// self-signed x5c would validate even when the caller expects a specific
+// registered certificate, defeating signer-identity pinning entirely.
 func resolveVerifyCert(ctx context.Context, km *keymanager.Service, headerB64 string, req JWSVerifyRequest) (*x509.Certificate, error) {
-	if cert, ok := certFromHeader(headerB64); ok {
-		return cert, nil
-	}
 	if req.CertificatePEM != "" {
 		cert, err := keymanager.ParseCertPEM(req.CertificatePEM)
 		if err != nil {
-			return nil, fmt.Errorf("%w: parse supplied certificate: %v", ErrVerifyCertificateNotFound, err)
+			return nil, fmt.Errorf("%w: parse supplied certificate: %w", ErrVerifyCertificateNotFound, err)
 		}
 		return cert, nil
 	}
 	if req.ApplicationID == "" || req.ReferenceID == "" {
+		if cert, ok := certFromHeader(headerB64); ok {
+			return cert, nil
+		}
 		return nil, ErrVerifyCertificateNotFound
 	}
 	resp, err := km.GetCertificate(ctx, req.ApplicationID, req.ReferenceID)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrVerifyCertificateNotFound, err)
+		return nil, fmt.Errorf("%w: %w", ErrVerifyCertificateNotFound, err)
 	}
 	cert, err := keymanager.ParseCertPEM(resp.Certificate)
 	if err != nil {
-		return nil, fmt.Errorf("%w: parse resolved certificate: %v", ErrVerifyCertificateNotFound, err)
+		return nil, fmt.Errorf("%w: parse resolved certificate: %w", ErrVerifyCertificateNotFound, err)
 	}
 	return cert, nil
 }
@@ -87,7 +91,7 @@ func verifySignature(alg string, pub crypto.PublicKey, signingInput, sig []byte)
 		digest := sha256.Sum256(signingInput)
 		opts := &rsa.PSSOptions{SaltLength: rsa.PSSSaltLengthAuto, Hash: crypto.SHA256}
 		if err := rsa.VerifyPSS(rsaPub, crypto.SHA256, digest[:], sig, opts); err != nil {
-			return fmt.Errorf("%w: %v", ErrVerifyFailed, err)
+			return fmt.Errorf("%w: %w", ErrVerifyFailed, err)
 		}
 		return nil
 
@@ -98,7 +102,7 @@ func verifySignature(alg string, pub crypto.PublicKey, signingInput, sig []byte)
 		}
 		digest := sha256.Sum256(signingInput)
 		if err := rsa.VerifyPKCS1v15(rsaPub, crypto.SHA256, digest[:], sig); err != nil {
-			return fmt.Errorf("%w: %v", ErrVerifyFailed, err)
+			return fmt.Errorf("%w: %w", ErrVerifyFailed, err)
 		}
 		return nil
 

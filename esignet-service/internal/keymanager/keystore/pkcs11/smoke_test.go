@@ -40,7 +40,11 @@ func TestDecrypt_RSAOAEP_RoundTrip(t *testing.T) {
 	if err := ks.GenerateAndStoreAsymmetricKey(alias, alias, params, "RSA", ""); err != nil {
 		t.Fatalf("generate master key: %v", err)
 	}
-	defer ks.DeleteKey(alias)
+	defer func() {
+		if err := ks.DeleteKey(alias); err != nil {
+			t.Logf("cleanup: delete key %q: %v", alias, err)
+		}
+	}()
 
 	pub, err := ks.GetPublicKey(alias)
 	if err != nil {

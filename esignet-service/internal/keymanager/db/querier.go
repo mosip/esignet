@@ -43,6 +43,13 @@ type Querier interface {
 	// GetKeyPolicy fetches the active key policy for an application id.
 	GetKeyPolicy(ctx context.Context, appID string) (KeyPolicy, error)
 
+	// HasKeyPolicy reports whether any non-deleted key_policy_def row exists
+	// for the given application id, regardless of is_active — unlike
+	// GetKeyPolicy (which only returns active rows), so callers checking
+	// "is this app id already registered" don't mistake an inactive
+	// registration for no registration at all.
+	HasKeyPolicy(ctx context.Context, appID string) (bool, error)
+
 	// GetKeyStoreRecord fetches a DB-resident private key/certificate record by alias id.
 	GetKeyStoreRecord(ctx context.Context, id string) (KeyStoreRecord, error)
 

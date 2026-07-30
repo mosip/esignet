@@ -3,8 +3,6 @@ package keymanager
 import (
 	"context"
 	"crypto"
-	"database/sql"
-	"errors"
 	"fmt"
 )
 
@@ -40,10 +38,12 @@ func (s *Service) validateForeignDomainAppID(ctx context.Context, appID string) 
 	if !allowed {
 		return fmt.Errorf("%w: %q (allowed: %v)", ErrForeignDomainAppIDNotAllowed, appID, s.cfg.ForeignDomainAllowedAppIDs)
 	}
-	if _, err := s.q.GetKeyPolicy(ctx, appID); err == nil {
-		return fmt.Errorf("%w: %q", ErrForeignDomainAppIDRegistered, appID)
-	} else if !errors.Is(err, sql.ErrNoRows) {
+	registered, err := s.q.HasKeyPolicy(ctx, appID)
+	if err != nil {
 		return fmt.Errorf("validate foreign domain application id %q: %w", appID, err)
+	}
+	if registered {
+		return fmt.Errorf("%w: %q", ErrForeignDomainAppIDRegistered, appID)
 	}
 	return nil
 }

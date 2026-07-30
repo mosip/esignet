@@ -278,3 +278,54 @@ func TestJWTDecrypt_RejectsBlankEncData(t *testing.T) {
 	})
 	require.ErrorIs(t, err, cryptomanager.ErrInvalidRequest)
 }
+
+// TestJWTDecrypt_RejectsTamperedCiphertext exercises the GCM-auth-failure
+// branch of JWTDecrypt: flipping a bit in the compact JWE's ciphertext
+// segment must fail decryption with ErrJWEDecryptFailed, not silently
+// succeed or panic.
+func TestJWTDecrypt_RejectsTamperedCiphertext(t *testing.T) {
+	env := newTestEnv(t, "TESTAPP")
+	ctx := context.Background()
+	payload := []byte(`{"hello":"world"}`)
+
+	encResp, err := env.CM.JWTEncrypt(ctx, cryptomanager.JWTEncryptRequest{
+		ApplicationID: env.AppID, ReferenceID: "JWE_ENC_KEY",
+		Data: base64.RawURLEncoding.EncodeToString(payload),
+	})
+	require.NoError(t, err)
+
+	segments := strings.Split(encResp.Data, ".")
+	require.Len(t, segments, 5, "compact JWE must be 5 dot-separated segments")
+	ciphertext, err := base64.RawURLEncoding.DecodeString(segments[3])
+	require.NoError(t, err)
+	require.NotEmpty(t, ciphertext)
+	ciphertext[0] ^= 0xFF // flip a bit — must break GCM authentication
+	segments[3] = base64.RawURLEncoding.EncodeToString(ciphertext)
+	tampered := strings.Join(segments, ".")
+
+	_, err = env.CM.JWTDecrypt(ctx, cryptomanager.JWTDecryptRequest{
+		ApplicationID: env.AppID, ReferenceID: "JWE_ENC_KEY", EncData: tampered,
+	})
+	require.ErrorIs(t, err, cryptomanager.ErrJWEDecryptFailed)
+}
+
+// TestJWTDecrypt_RejectsReferenceIDMismatch exercises the kid/thumbprint
+// mismatch branch: decrypting a valid JWE under a ReferenceID other than the
+// one its key was generated for must fail, not silently decrypt under the
+// wrong key's identity.
+func TestJWTDecrypt_RejectsReferenceIDMismatch(t *testing.T) {
+	env := newTestEnv(t, "TESTAPP")
+	ctx := context.Background()
+	payload := []byte(`{"hello":"world"}`)
+
+	encResp, err := env.CM.JWTEncrypt(ctx, cryptomanager.JWTEncryptRequest{
+		ApplicationID: env.AppID, ReferenceID: "JWE_ENC_KEY",
+		Data: base64.RawURLEncoding.EncodeToString(payload),
+	})
+	require.NoError(t, err)
+
+	_, err = env.CM.JWTDecrypt(ctx, cryptomanager.JWTDecryptRequest{
+		ApplicationID: env.AppID, ReferenceID: "JWE_ENC_KEY_OTHER", EncData: encResp.Data,
+	})
+	require.ErrorIs(t, err, cryptomanager.ErrKeyIdentifierMismatch)
+}

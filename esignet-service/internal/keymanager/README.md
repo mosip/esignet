@@ -17,8 +17,14 @@ Each application (`ApplicationID`) needs a `key_policy_def` row before any key c
 
 ```go
 cfg := keymanager.LoadConfig()
-ks, _ := keystore.New(cfg.KeystoreType, cfg.KeystoreParams)
-conn, _ := sqlx.Connect("postgres", cfg.DSN())
+ks, err := keystore.New(cfg.KeystoreType, cfg.KeystoreParams)
+if err != nil {
+    log.Fatal(err)
+}
+conn, err := sqlx.Connect("postgres", cfg.DSN())
+if err != nil {
+    log.Fatal(err)
+}
 svc := keymanager.NewService(conn, ks, cfg)
 ```
 

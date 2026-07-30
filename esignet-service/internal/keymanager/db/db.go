@@ -39,6 +39,7 @@ type Queries struct {
 	insertKeyAlias             string
 	updateKeyAlias             string
 	selectKeyPolicy            string
+	selectKeyPolicyExists      string
 	selectKeyStore             string
 	insertKeyStore             string
 	updateKeyStore             string
@@ -77,6 +78,10 @@ func New(conn DBTX, schema string) *Queries {
 		cr_by, cr_dtimes, upd_by, upd_dtimes, is_deleted, del_dtimes
 		FROM %s.key_policy_def
 		WHERE app_id = $1 AND is_active = TRUE`, schema)
+
+	q.selectKeyPolicyExists = fmt.Sprintf(`SELECT EXISTS(
+		SELECT 1 FROM %s.key_policy_def
+		WHERE app_id = $1 AND (is_deleted IS NULL OR is_deleted = FALSE))`, schema)
 
 	q.selectKeyStore = fmt.Sprintf(`SELECT %s FROM %s.key_store WHERE id = $1`, keyStoreColumns, schema)
 
@@ -152,6 +157,14 @@ func (q *Queries) GetKeyPolicy(ctx context.Context, appID string) (KeyPolicy, er
 		return KeyPolicy{}, fmt.Errorf("select key_policy_def: %w", err)
 	}
 	return p, nil
+}
+
+func (q *Queries) HasKeyPolicy(ctx context.Context, appID string) (bool, error) {
+	var exists bool
+	if err := q.db.GetContext(ctx, &exists, q.selectKeyPolicyExists, appID); err != nil {
+		return false, fmt.Errorf("select key_policy_def exists: %w", err)
+	}
+	return exists, nil
 }
 
 func (q *Queries) GetKeyStoreRecord(ctx context.Context, id string) (KeyStoreRecord, error) {

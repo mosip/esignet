@@ -21,6 +21,7 @@ type fakeQuerier struct {
 	insertKeyAliasFn              func(ctx context.Context, k db.KeyAlias) error
 	updateKeyAliasFn              func(ctx context.Context, k db.KeyAlias) error
 	getKeyPolicyFn                func(ctx context.Context, appID string) (db.KeyPolicy, error)
+	hasKeyPolicyFn                func(ctx context.Context, appID string) (bool, error)
 	getKeyStoreRecordFn           func(ctx context.Context, id string) (db.KeyStoreRecord, error)
 	insertKeyStoreRecordFn        func(ctx context.Context, k db.KeyStoreRecord) error
 	updateKeyStoreRecordFn        func(ctx context.Context, k db.KeyStoreRecord) error
@@ -68,9 +69,16 @@ func (f *fakeQuerier) GetKeyPolicy(ctx context.Context, appID string) (db.KeyPol
 	return f.getKeyPolicyFn(ctx, appID)
 }
 
+func (f *fakeQuerier) HasKeyPolicy(ctx context.Context, appID string) (bool, error) {
+	if f.hasKeyPolicyFn == nil {
+		return false, nil
+	}
+	return f.hasKeyPolicyFn(ctx, appID)
+}
+
 func (f *fakeQuerier) GetKeyStoreRecord(ctx context.Context, id string) (db.KeyStoreRecord, error) {
 	if f.getKeyStoreRecordFn == nil {
-		return db.KeyStoreRecord{}, nil
+		return db.KeyStoreRecord{}, sql.ErrNoRows
 	}
 	return f.getKeyStoreRecordFn(ctx, id)
 }
@@ -161,7 +169,7 @@ func (f *fakeKeyStore) GetAllAlias() ([]string, error) {
 }
 
 func (f *fakeKeyStore) GenerateAndStoreSymmetricKey(alias string) error {
-	f.syms[alias] = []byte("fake-symmetric-key-bytes-000000")
+	f.syms[alias] = []byte("fake-symmetric-key-bytes-32-byte") // exactly 32 bytes (AES-256)
 	return nil
 }
 

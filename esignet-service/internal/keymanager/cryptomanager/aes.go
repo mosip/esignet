@@ -116,6 +116,10 @@ func (s *Service) EncryptAES(ctx context.Context, req EncryptAESRequest) (Encryp
 	if err != nil {
 		return EncryptAESResponse{}, err
 	}
+	if len(nonce) != gcmNonceLength {
+		return EncryptAESResponse{}, fmt.Errorf("%w: nonce must be %d bytes", ErrInvalidRequest, gcmNonceLength)
+	}
+
 	aad, aadGenerated, err := resolveOrGenerate(req.AAD, gcmAADLength)
 	if err != nil {
 		return EncryptAESResponse{}, err
@@ -266,7 +270,7 @@ func buildAESEnvelope(uniIdent string, nonce, aad []byte, nonceGenerated, aadGen
 func parseAESEnvelope(wireFormat string, extractNonce, extractAAD bool) (uniIdent string, nonce, aad, ciphertext []byte, err error) {
 	raw, err := base64.RawURLEncoding.DecodeString(wireFormat)
 	if err != nil {
-		return "", nil, nil, nil, fmt.Errorf("%w: %v", ErrEnvelopeMalformed, err)
+		return "", nil, nil, nil, fmt.Errorf("%w: %w", ErrEnvelopeMalformed, err)
 	}
 	if len(raw) < symmetricUniIdentLength {
 		return "", nil, nil, nil, fmt.Errorf("%w: shorter than the unique identifier field", ErrEnvelopeMalformed)

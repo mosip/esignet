@@ -28,7 +28,6 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
-	"crypto/sha256"
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
@@ -38,6 +37,7 @@ import (
 	"path/filepath"
 	"sync"
 
+	"golang.org/x/crypto/scrypt"
 	gopkcs12 "software.sslmate.com/src/go-pkcs12"
 
 	"github.com/mosip/esignet/internal/keymanager/keystore"
@@ -63,6 +63,7 @@ type fileEntry struct {
 
 type fileFormat struct {
 	Version int                  `json:"version"`
+	Salt    string               `json:"salt,omitempty"` // base64 scrypt salt, see Store.aesKey
 	Entries map[string]fileEntry `json:"entries"`
 }
 
@@ -74,6 +75,7 @@ type Store struct {
 
 	mu      sync.Mutex
 	entries map[string]fileEntry
+	salt    []byte // scrypt salt for aesKey, persisted in fileFormat.Salt
 }
 
 // New constructs a PKCS#12-backed keystore.KeyStore from config params:
@@ -94,6 +96,19 @@ func New(params map[string]string) (keystore.KeyStore, error) {
 	s := &Store{path: path, password: password, entries: map[string]fileEntry{}}
 	if err := s.load(); err != nil {
 		return nil, err
+	}
+	if len(s.salt) == 0 {
+		salt := make([]byte, 16)
+		if _, err := rand.Read(salt); err != nil {
+			return nil, fmt.Errorf("pkcs12: generate salt: %w", err)
+		}
+		s.salt = salt
+		s.mu.Lock()
+		err := s.saveLocked()
+		s.mu.Unlock()
+		if err != nil {
+			return nil, err
+		}
 	}
 	return s, nil
 }
@@ -116,34 +131,77 @@ func (s *Store) load() error {
 		ff.Entries = map[string]fileEntry{}
 	}
 	s.entries = ff.Entries
+	if ff.Salt != "" {
+		salt, err := base64.StdEncoding.DecodeString(ff.Salt)
+		if err != nil {
+			return fmt.Errorf("pkcs12: decode salt: %w", err)
+		}
+		s.salt = salt
+	}
 	return nil
 }
 
-// saveLocked persists s.entries to disk. Caller must hold s.mu.
+// saveLocked persists s.entries to disk, atomically: the JSON container is
+// written to a temp file in the same directory and renamed into place, so a
+// crash/partial write during saveLocked never corrupts s.path — a torn write
+// there would otherwise be unparsable, and every alias in the file
+// unrecoverable. Caller must hold s.mu.
 func (s *Store) saveLocked() error {
 	if err := os.MkdirAll(filepath.Dir(s.path), 0o700); err != nil {
 		return fmt.Errorf("pkcs12: create keystore directory: %w", err)
 	}
-	ff := fileFormat{Version: entryVersion, Entries: s.entries}
+	ff := fileFormat{Version: entryVersion, Salt: base64.StdEncoding.EncodeToString(s.salt), Entries: s.entries}
 	data, err := json.MarshalIndent(ff, "", "  ")
 	if err != nil {
 		return fmt.Errorf("pkcs12: marshal keystore: %w", err)
 	}
-	if err := os.WriteFile(s.path, data, 0o600); err != nil {
-		return fmt.Errorf("pkcs12: write %s: %w", s.path, err)
+	tmp, err := os.CreateTemp(filepath.Dir(s.path), ".keystore-*.tmp")
+	if err != nil {
+		return fmt.Errorf("pkcs12: create temp file: %w", err)
+	}
+	defer func() { _ = os.Remove(tmp.Name()) }()
+	if err := tmp.Chmod(0o600); err != nil {
+		_ = tmp.Close()
+		return fmt.Errorf("pkcs12: chmod temp file: %w", err)
+	}
+	if _, err := tmp.Write(data); err != nil {
+		_ = tmp.Close()
+		return fmt.Errorf("pkcs12: write temp file: %w", err)
+	}
+	if err := tmp.Sync(); err != nil {
+		_ = tmp.Close()
+		return fmt.Errorf("pkcs12: sync temp file: %w", err)
+	}
+	if err := tmp.Close(); err != nil {
+		return fmt.Errorf("pkcs12: close temp file: %w", err)
+	}
+	if err := os.Rename(tmp.Name(), s.path); err != nil {
+		return fmt.Errorf("pkcs12: replace %s: %w", s.path, err)
 	}
 	return nil
 }
 
-// aesKey derives a 32-byte AES-256 key from the keystore password. Simple
-// SHA-256 derivation, consistent with this backend's "dev/test only, not
-// for production" status (same caveat the Java PKCS12KeyStoreImpl carries).
-func (s *Store) aesKey() [32]byte {
-	return sha256.Sum256([]byte(s.password))
+// aesKey derives a 32-byte AES-256 key from the keystore password using
+// scrypt with the per-file random salt persisted in fileFormat.Salt — unlike
+// a bare hash, this is deliberately slow/memory-hard so the AES-GCM key
+// protecting every stored symmetric key isn't brute-forceable offline at
+// hashing speed, and a per-file salt means identical passwords across
+// deployments don't yield identical keys.
+func (s *Store) aesKey() ([32]byte, error) {
+	var out [32]byte
+	dk, err := scrypt.Key([]byte(s.password), s.salt, 1<<15, 8, 1, 32)
+	if err != nil {
+		return out, fmt.Errorf("pkcs12: derive key: %w", err)
+	}
+	copy(out[:], dk)
+	return out, nil
 }
 
 func (s *Store) encryptSymmetric(raw []byte) (string, error) {
-	key := s.aesKey()
+	key, err := s.aesKey()
+	if err != nil {
+		return "", err
+	}
 	block, err := aes.NewCipher(key[:])
 	if err != nil {
 		return "", err
@@ -165,7 +223,10 @@ func (s *Store) decryptSymmetric(encoded string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	key := s.aesKey()
+	key, err := s.aesKey()
+	if err != nil {
+		return nil, err
+	}
 	block, err := aes.NewCipher(key[:])
 	if err != nil {
 		return nil, err
@@ -182,7 +243,7 @@ func (s *Store) decryptSymmetric(encoded string) ([]byte, error) {
 }
 
 func (s *Store) encodePFX(priv crypto.PrivateKey, cert *x509.Certificate) (string, error) {
-	pfx, err := gopkcs12.Encode(rand.Reader, priv, cert, nil, s.password)
+	pfx, err := gopkcs12.Modern.WithRand(rand.Reader).Encode(priv, cert, nil, s.password)
 	if err != nil {
 		return "", fmt.Errorf("pkcs12: encode PFX: %w", err)
 	}

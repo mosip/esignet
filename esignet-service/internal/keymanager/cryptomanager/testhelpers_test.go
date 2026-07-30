@@ -144,6 +144,13 @@ func (q *memQuerier) GetKeyPolicy(ctx context.Context, appID string) (db.KeyPoli
 	return p, nil
 }
 
+func (q *memQuerier) HasKeyPolicy(ctx context.Context, appID string) (bool, error) {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	_, ok := q.policies[appID]
+	return ok, nil
+}
+
 func (q *memQuerier) GetKeyStoreRecord(ctx context.Context, id string) (db.KeyStoreRecord, error) {
 	q.mu.Lock()
 	defer q.mu.Unlock()

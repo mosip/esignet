@@ -3,6 +3,7 @@
 package pkcs11
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"sync"
@@ -176,15 +177,15 @@ func (s *Store) withSession(fn func(sh pkcs11.SessionHandle) error) error {
 		}
 		if rerr := s.reloadSessionLocked(); rerr != nil {
 			// Reload itself failed (likely cooldown) — surface the original error.
-			return fmt.Errorf("%w (reload attempt: %v)", lastErr, rerr)
+			return fmt.Errorf("%w (reload attempt: %w)", lastErr, rerr)
 		}
 	}
 	return fmt.Errorf("pkcs11: exhausted %d retries: %w", maxRetries, lastErr)
 }
 
 func isTransient(err error) bool {
-	perr, ok := err.(pkcs11.Error)
-	if !ok {
+	var perr pkcs11.Error
+	if !errors.As(err, &perr) {
 		return false
 	}
 	switch uint(perr) {

@@ -187,7 +187,8 @@ func (c Config) DSN() string {
 	}
 	return fmt.Sprintf(
 		"host=%s port=%s dbname=%s user=%s password=%s sslmode=%s",
-		c.DBHost, c.DBPort, c.DBName, c.DBUser, c.DBPassword, c.DBSSLMode,
+		quoteDSN(c.DBHost), quoteDSN(c.DBPort), quoteDSN(c.DBName),
+		quoteDSN(c.DBUser), quoteDSN(c.DBPassword), quoteDSN(c.DBSSLMode),
 	)
 }
 
@@ -225,4 +226,9 @@ func splitAndTrim(s string) []string {
 		}
 	}
 	return out
+}
+
+// quoteDSN escapes a libpq key=value DSN component.
+func quoteDSN(v string) string {
+	return "'" + strings.NewReplacer(`\`, `\\`, `'`, `\'`).Replace(v) + "'"
 }

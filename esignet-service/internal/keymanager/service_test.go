@@ -597,7 +597,24 @@ func TestUploadOtherDomainCertificate_RejectsAppIDNotInAllowList(t *testing.T) {
 
 func TestUploadOtherDomainCertificate_RejectsAppIDRegisteredInKeyPolicyDef(t *testing.T) {
 	q := &fakeQuerier{
-		getKeyPolicyFn: func(ctx context.Context, appID string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		hasKeyPolicyFn: func(ctx context.Context, appID string) (bool, error) { return true, nil },
+	}
+	svc := keymanager.NewServiceWithQuerier(q, newFakeKeyStore(), testConfig())
+	_, err := svc.UploadOtherDomainCertificate(context.Background(), keymanager.UploadCertificateRequest{
+		ApplicationID: "PARTNER", ReferenceID: "RSA_2048", CertificateData: "irrelevant",
+	})
+	assert.ErrorIs(t, err, keymanager.ErrForeignDomainAppIDRegistered)
+}
+
+// TestUploadOtherDomainCertificate_RejectsAppIDWithInactiveKeyPolicy covers
+// the gap GetKeyPolicy alone would miss: GetKeyPolicy only returns *active*
+// rows, so an allow-listed app id with an inactive (but not deleted)
+// key_policy_def row must still be rejected as "already registered" — it
+// must not be treated as available for a foreign-domain, cert-only entry.
+func TestUploadOtherDomainCertificate_RejectsAppIDWithInactiveKeyPolicy(t *testing.T) {
+	q := &fakeQuerier{
+		getKeyPolicyFn: func(ctx context.Context, appID string) (db.KeyPolicy, error) { return db.KeyPolicy{}, sql.ErrNoRows },
+		hasKeyPolicyFn: func(ctx context.Context, appID string) (bool, error) { return true, nil },
 	}
 	svc := keymanager.NewServiceWithQuerier(q, newFakeKeyStore(), testConfig())
 	_, err := svc.UploadOtherDomainCertificate(context.Background(), keymanager.UploadCertificateRequest{
@@ -620,7 +637,7 @@ func TestUploadOtherDomainCertificate_AllowsSigningRefIDs(t *testing.T) {
 		getKeyPolicyFn:          func(ctx context.Context, appID string) (db.KeyPolicy, error) { return db.KeyPolicy{}, sql.ErrNoRows },
 		getKeyAliasesByAppRefFn: func(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) { return nil, nil },
 		insertKeyStoreRecordFn: func(ctx context.Context, k db.KeyStoreRecord) error {
-			assert.Equal(t, "NA", k.PrivateKey, "foreign-domain uploads must never store a real private key")
+			assert.Equal(t, keymanager.ForeignDomainPrivateKeyMarker, k.PrivateKey, "foreign-domain uploads must never store a real private key")
 			require.NotNil(t, k.MasterKey, "master_key is NOT NULL in key_store; must be set even with no real Component Master Key")
 			assert.Equal(t, k.ID, *k.MasterKey, "master_key is self-referential (== alias) for foreign-domain entries, mirroring Java's storeKeyInDBStore(alias, alias, ...)")
 			return nil
@@ -654,7 +671,7 @@ func TestUploadOtherDomainCertificate_RejectsDuplicateThumbprint(t *testing.T) {
 			return []db.KeyAlias{{ID: "existing", CertThumbprint: &thumbprint}}, nil
 		},
 		getKeyStoreRecordFn: func(ctx context.Context, id string) (db.KeyStoreRecord, error) {
-			return db.KeyStoreRecord{PrivateKey: "NA"}, nil
+			return db.KeyStoreRecord{PrivateKey: keymanager.ForeignDomainPrivateKeyMarker}, nil
 		},
 	}
 	svc := keymanager.NewServiceWithQuerier(q, newFakeKeyStore(), testConfig())
@@ -740,6 +757,99 @@ func TestGenerateSymmetricKey_AllowsListedRefID(t *testing.T) {
 	})
 	require.NoError(t, err)
 	assert.Equal(t, "success", resp.Status)
+}
+
+// TestRevokeKey_MovesExpiryIntoPast confirms RevokeKey invalidates the
+// current key by moving its expiry into the past (no keystore deletion),
+// and that a subsequent generation isn't blocked by the revoked alias still
+// being "current".
+func TestRevokeKey_MovesExpiryIntoPast(t *testing.T) {
+	ks := newFakeKeyStore()
+	require.NoError(t, ks.GenerateAndStoreAsymmetricKey("root-alias", "root-alias", testCertTemplateParams(), "RSA", ""))
+
+	var updated db.KeyAlias
+	q := &fakeQuerier{
+		getKeyPolicyFn: func(ctx context.Context, appID string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyAliasesByAppRefFn: func(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) {
+			return []db.KeyAlias{validAliasRow("root-alias")}, nil
+		},
+		updateKeyAliasFn: func(ctx context.Context, k db.KeyAlias) error {
+			updated = k
+			return nil
+		},
+	}
+	svc := keymanager.NewServiceWithQuerier(q, ks, testConfig())
+
+	resp, err := svc.RevokeKey(context.Background(), keymanager.RevokeKeyRequest{ApplicationID: "ROOT", ReferenceID: ""})
+	require.NoError(t, err)
+	assert.Equal(t, "success", resp.Status)
+	require.Equal(t, "root-alias", updated.ID)
+	require.NotNil(t, updated.KeyExpireDtimes)
+	assert.True(t, updated.KeyExpireDtimes.Before(time.Now().UTC()), "revoked key's expiry must be in the past")
+}
+
+func TestRevokeKey_NoCurrentKey_ReturnsErrKeyNotFound(t *testing.T) {
+	q := &fakeQuerier{
+		getKeyPolicyFn:          func(ctx context.Context, appID string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyAliasesByAppRefFn: func(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) { return nil, nil },
+	}
+	svc := keymanager.NewServiceWithQuerier(q, newFakeKeyStore(), testConfig())
+
+	_, err := svc.RevokeKey(context.Background(), keymanager.RevokeKeyRequest{ApplicationID: "ROOT", ReferenceID: ""})
+	assert.ErrorIs(t, err, keymanager.ErrKeyNotFound)
+}
+
+// TestGetAllCertificates_ReturnsFullAliasHistory covers the loop in
+// GetAllCertificates, including its continue-on-unreadable-certificate path.
+func TestGetAllCertificates_ReturnsFullAliasHistory(t *testing.T) {
+	ks := newFakeKeyStore()
+	require.NoError(t, ks.GenerateAndStoreAsymmetricKey("root-alias-1", "root-alias-1", testCertTemplateParams(), "RSA", ""))
+	require.NoError(t, ks.GenerateAndStoreAsymmetricKey("root-alias-2", "root-alias-2", testCertTemplateParams(), "RSA", ""))
+
+	q := &fakeQuerier{
+		getKeyAliasesByAppRefFn: func(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) {
+			return []db.KeyAlias{
+				validAliasRow("root-alias-1"),
+				validAliasRow("root-alias-2"),
+				validAliasRow("root-alias-missing"), // unreadable — must be skipped, not fail the whole call
+			}, nil
+		},
+	}
+	svc := keymanager.NewServiceWithQuerier(q, ks, testConfig())
+
+	resp, err := svc.GetAllCertificates(context.Background(), "ROOT", "")
+	require.NoError(t, err)
+	require.Len(t, resp.AllCertificates, 2)
+	gotIDs := []string{resp.AllCertificates[0].KeyID, resp.AllCertificates[1].KeyID}
+	assert.ElementsMatch(t, []string{"root-alias-1", "root-alias-2"}, gotIDs)
+}
+
+// TestGetCertificateChain_WalksSigningHierarchyToRoot covers the
+// parent-walking loop in GetCertificateChain: a Component Master Key's
+// chain must include both its own certificate and ROOT's, and stop there.
+func TestGetCertificateChain_WalksSigningHierarchyToRoot(t *testing.T) {
+	ks := newFakeKeyStore()
+	require.NoError(t, ks.GenerateAndStoreAsymmetricKey("root-alias", "root-alias", testCertTemplateParams(), "RSA", ""))
+	require.NoError(t, ks.GenerateAndStoreAsymmetricKey("master-alias", "root-alias", testCertTemplateParams(), "RSA", ""))
+
+	q := &fakeQuerier{
+		getKeyPolicyFn: func(ctx context.Context, appID string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyAliasesByAppRefFn: func(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) {
+			switch {
+			case appID == "ROOT" && refID == "":
+				return []db.KeyAlias{validAliasRow("root-alias")}, nil
+			case appID == "TESTAPP" && refID == "RSA_2048":
+				return []db.KeyAlias{validAliasRow("master-alias")}, nil
+			default:
+				return nil, nil
+			}
+		},
+	}
+	svc := keymanager.NewServiceWithQuerier(q, ks, testConfig())
+
+	resp, err := svc.GetCertificateChain(context.Background(), "TESTAPP", "RSA_2048")
+	require.NoError(t, err)
+	assert.NotEmpty(t, resp.CertificatesTrustPath)
 }
 
 // --- test-local helpers ---

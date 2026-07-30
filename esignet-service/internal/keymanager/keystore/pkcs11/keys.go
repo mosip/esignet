@@ -64,7 +64,7 @@ func (s *Store) findObject(sh pkcs11.SessionHandle, class uint, alias string) (p
 	if err := s.ctx.FindObjectsInit(sh, tmpl); err != nil {
 		return 0, false, err
 	}
-	defer s.ctx.FindObjectsFinal(sh)
+	defer func() { _ = s.ctx.FindObjectsFinal(sh) }()
 	handles, _, err := s.ctx.FindObjects(sh, 1)
 	if err != nil {
 		return 0, false, err
@@ -79,7 +79,7 @@ func (s *Store) findAllObjectsWithLabel(sh pkcs11.SessionHandle, alias string) (
 	if err := s.ctx.FindObjectsInit(sh, labelAttr(alias)); err != nil {
 		return nil, err
 	}
-	defer s.ctx.FindObjectsFinal(sh)
+	defer func() { _ = s.ctx.FindObjectsFinal(sh) }()
 	handles, _, err := s.ctx.FindObjects(sh, 100)
 	return handles, err
 }
@@ -172,6 +172,7 @@ func (s *Store) GenerateAndStoreAsymmetricKey(alias, signKeyAlias string, params
 		// Self-signed (ROOT tier, §6.1 of the implementation plan).
 		template.IsCA = true
 		template.BasicConstraintsValid = true
+		template.KeyUsage |= x509.KeyUsageCertSign
 		certDER, err = x509.CreateCertificate(rand.Reader, template, template, pub, priv)
 	} else {
 		signerCert, gerr := s.GetCertificate(signKeyAlias)
@@ -226,7 +227,7 @@ func buildCertTemplate(params keystore.CertificateParameters) (*x509.Certificate
 		},
 		NotBefore:   params.NotBefore,
 		NotAfter:    params.NotAfter,
-		KeyUsage:    x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment | x509.KeyUsageCertSign,
+		KeyUsage:    x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
 		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth, x509.ExtKeyUsageClientAuth},
 	}, nil
 }
@@ -359,8 +360,12 @@ func (s *Store) GetPrivateKey(alias string) (crypto.PrivateKey, error) {
 		var pub crypto.PublicKey
 		if err == nil && ok {
 			algoName, curveName, aerr := algoAndCurveFor(s.ctx, sh, pubHandle, keyType)
-			if aerr == nil {
-				pub, _ = readPublicKey(s.ctx, sh, pubHandle, algoName, curveName)
+			if aerr != nil {
+				return fmt.Errorf("pkcs11: resolve algo/curve for alias %q: %w", alias, aerr)
+			}
+			pub, err = readPublicKey(s.ctx, sh, pubHandle, algoName, curveName)
+			if err != nil {
+				return fmt.Errorf("pkcs11: reconstruct public key for alias %q: %w", alias, err)
 			}
 		}
 		priv = &privateKey{store: s, alias: alias, handle: h, keyType: keyType, pub: pub}
@@ -457,7 +462,7 @@ func (s *Store) GetAllAlias() ([]string, error) {
 		if err := s.ctx.FindObjectsInit(sh, tmpl); err != nil {
 			return err
 		}
-		defer s.ctx.FindObjectsFinal(sh)
+		defer func() { _ = s.ctx.FindObjectsFinal(sh) }()
 		handles, _, err := s.ctx.FindObjects(sh, 1000)
 		if err != nil {
 			return err

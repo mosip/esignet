@@ -49,7 +49,7 @@ type Config struct {
 func LoadConfig() Config {
 	return Config{
 		DataKeySplitter:         envOrDefault("CRYPTOMANAGER_DATA_KEY_SPLITTER", defaultDataKeySplitter),
-		SessionKeyLength:        envIntOrDefault("CRYPTOMANAGER_SESSION_KEY_LENGTH_BYTES", defaultSessionKeyLength),
+		SessionKeyLength:        defaultSessionKeyLength,
 		EnforceJWTCertKeyLength: envBoolOrDefault("CRYPTOMANAGER_JWT_ENFORCE_2048", true),
 		ThumbprintCacheExpiry:   time.Duration(envIntOrDefault("CRYPTOMANAGER_THUMBPRINT_CACHE_EXPIRE_MINS", 0)) * time.Minute,
 	}

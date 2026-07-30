@@ -23,6 +23,9 @@ package signature
 import (
 	"context"
 	"crypto"
+	"crypto/ecdsa"
+	"crypto/ed25519"
+	"crypto/rsa"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -121,11 +124,15 @@ func boolOrDefault(b *bool, def bool) bool {
 	return *b
 }
 
+// decodeBase64URL only accepts unpadded base64url. Unlike
+// cryptomanager.decodeBase64 (which falls back to padded encodings for
+// caller-supplied ciphertext that's never echoed back on the wire),
+// req.DataToSign is used verbatim as the compact JWS payload segment when
+// B64 defaults to true — accepting padded input here would let it leak into
+// the wire output, violating RFC 7515's unpadded-base64url requirement for
+// JOSE segments.
 func decodeBase64URL(s string) ([]byte, error) {
-	if b, err := base64.RawURLEncoding.DecodeString(s); err == nil {
-		return b, nil
-	}
-	return base64.URLEncoding.DecodeString(s)
+	return base64.RawURLEncoding.DecodeString(s)
 }
 
 // validateSigningKeyTier restricts JWSSign to keystore-resident (PKCS#11/
@@ -144,6 +151,28 @@ func (s *Service) validateSigningKeyTier(appID, refID string) error {
 		return ErrAESNotAllowedForSigning
 	}
 	return ErrEncryptionKeyNotAllowedForSigning
+}
+
+// validateAlgorithmForKey fails closed when the (possibly caller-overridden)
+// JWS algorithm doesn't match the resolved signing key's type, so a bad
+// override is reported clearly here rather than surfacing as a confusing
+// failure deep inside signDigest or at the verifier.
+func validateAlgorithmForKey(alg string, pub crypto.PublicKey) error {
+	switch alg {
+	case algPS256, algRS256:
+		if _, ok := pub.(*rsa.PublicKey); !ok {
+			return fmt.Errorf("%w: %q requires an RSA key", ErrUnsupportedAlgorithm, alg)
+		}
+	case algES256, algES256K:
+		if _, ok := pub.(*ecdsa.PublicKey); !ok {
+			return fmt.Errorf("%w: %q requires an EC key", ErrUnsupportedAlgorithm, alg)
+		}
+	case algEdDSA:
+		if _, ok := pub.(ed25519.PublicKey); !ok {
+			return fmt.Errorf("%w: %q requires an Ed25519 key", ErrUnsupportedAlgorithm, alg)
+		}
+	}
+	return nil
 }
 
 // JWSSign signs req.DataToSign and returns a compact JWS — ports Java's
@@ -195,6 +224,17 @@ func (s *Service) JWSSign(ctx context.Context, req JWSSignRequest) (JWSSignRespo
 	signer, ok := sc.KeyPairEntry.PrivateKey.(crypto.Signer)
 	if !ok {
 		return JWSSignResponse{}, fmt.Errorf("%w: resolved private key does not support signing", ErrSignFailed)
+	}
+	// Only checked when the caller explicitly overrides SignAlgorithm — the
+	// default, algorithmForRefID(req.ReferenceID), is always consistent with
+	// the resolved key by construction. Without this, an incompatible
+	// override (e.g. PS256 against an EC key) fails later inside
+	// signDigest/verification with an error that doesn't point at the real
+	// cause.
+	if req.SignAlgorithm != "" {
+		if err := validateAlgorithmForKey(signAlg, sc.KeyPairEntry.Certificate.PublicKey); err != nil {
+			return JWSSignResponse{}, err
+		}
 	}
 
 	includePayload := boolOrDefault(req.IncludePayload, true)

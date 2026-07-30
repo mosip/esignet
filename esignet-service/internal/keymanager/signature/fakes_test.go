@@ -88,6 +88,12 @@ func (q *stateQuerier) GetKeyPolicy(_ context.Context, _ string) (db.KeyPolicy, 
 	return db.KeyPolicy{KeyValidityDuration: 3650, PreExpireDays: 30, IsActive: true}, nil
 }
 
+// HasKeyPolicy mirrors GetKeyPolicy's permissiveness: every appID is
+// "registered" in these tests.
+func (q *stateQuerier) HasKeyPolicy(_ context.Context, _ string) (bool, error) {
+	return true, nil
+}
+
 func (q *stateQuerier) GetKeyStoreRecord(_ context.Context, _ string) (db.KeyStoreRecord, error) {
 	return db.KeyStoreRecord{}, sql.ErrNoRows
 }

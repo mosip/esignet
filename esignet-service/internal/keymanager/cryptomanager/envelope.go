@@ -117,7 +117,7 @@ func buildEnvelope(splitter string, thumbprint [32]byte, encryptedSessionKey, en
 func parseEnvelope(splitter, wireFormat string) (thumbprintHex string, encryptedSessionKey, encryptedData []byte, err error) {
 	raw, err := base64.RawURLEncoding.DecodeString(wireFormat)
 	if err != nil {
-		return "", nil, nil, fmt.Errorf("%w: %v", ErrEnvelopeMalformed, err)
+		return "", nil, nil, fmt.Errorf("%w: %w", ErrEnvelopeMalformed, err)
 	}
 	idx := bytes.Index(raw, []byte(splitter))
 	if idx < 0 {
@@ -142,7 +142,7 @@ func decodeBase64(data string) ([]byte, error) {
 	}
 	b, err := base64.StdEncoding.DecodeString(data)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", ErrInvalidData, err)
+		return nil, fmt.Errorf("%w: %w", ErrInvalidData, err)
 	}
 	return b, nil
 }
