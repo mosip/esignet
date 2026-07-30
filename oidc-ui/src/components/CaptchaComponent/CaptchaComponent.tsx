@@ -1,18 +1,33 @@
-import { FormControl, validateFieldValue } from "@thunderid/react";
+import {
+  FormControl,
+  useTranslation,
+  validateFieldValue,
+} from "@thunderid/react";
 import GoogleReCaptcha from "./GoogleReCaptcha";
 import CloudflareTurnstile from "./CloudflareTurnstile";
 import HCaptcha from "./HCaptcha";
 import type { CaptchaComponentProps } from "./CaptchaModel";
+import { useEffect } from "react";
+
+// available captcha provider
+const availableProvider = [
+  "google-recaptcha",
+  "cloudflare-turnstile",
+  "hcaptcha",
+];
 
 export default function CaptchaComponent({
   component,
   context,
 }: CaptchaComponentProps) {
+  const { t } = useTranslation();
   const fieldRef = component.ref ?? component.id;
   const { formValues, formErrors, touchedFields } = context;
   const isTouched = touchedFields[fieldRef] || false;
   const values = formValues[fieldRef];
-  const { provider } = component.captcha ?? {};
+  const { provider, siteKey } = component.captcha ?? {};
+
+  const isConfigValid = siteKey && availableProvider.includes(provider ?? "");
 
   const validationError = validateFieldValue(
     values,
@@ -20,6 +35,13 @@ export default function CaptchaComponent({
     component.required,
     isTouched,
   );
+
+  useEffect(() => {
+    if (!isConfigValid) {
+      context.onInputChange(fieldRef, "");
+      context.formErrors[fieldRef] = t("captcha.config.error");
+    }
+  }, [isConfigValid]);
 
   const error = formErrors[fieldRef] || validationError || undefined;
 
@@ -54,18 +76,18 @@ export default function CaptchaComponent({
 
   let providerElement = null;
 
-  if (provider === "google-recaptcha") {
-    providerElement = <GoogleReCaptcha {...captchaProps} />;
-  } else if (provider === "cloudflare-turnstile") {
-    providerElement = <CloudflareTurnstile {...captchaProps} />;
-  } else if (provider === "hcaptcha") {
-    providerElement = <HCaptcha {...captchaProps} />;
+  // if sitekey or provider is not configured
+  // properly then it will throw error
+  if (!isConfigValid) {
+    providerElement = <span role="alert">{t("captcha.config.error")}</span>;
   } else {
-    providerElement = (
-      <span role="alert">CAPTCHA provider configuration is invalid.</span>
-    );
-    context.onInputChange(fieldRef, "");
-    context.formErrors[fieldRef] = "CAPTCHA provider configuration is invalid.";
+    if (provider === "google-recaptcha") {
+      providerElement = <GoogleReCaptcha {...captchaProps} />;
+    } else if (provider === "cloudflare-turnstile") {
+      providerElement = <CloudflareTurnstile {...captchaProps} />;
+    } else if (provider === "hcaptcha") {
+      providerElement = <HCaptcha {...captchaProps} />;
+    }
   }
 
   return (

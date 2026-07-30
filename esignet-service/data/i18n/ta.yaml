@@ -1280,3 +1280,6 @@ app:
   otp.submit: சமர்ப்பிக்கவும்
   back: பின்னால்
   esignet_details: ஈசிக்னெட் விவரங்கள்
+
+captcha:
+  config.error: கேப்ட்சா வழங்கி உள்ளமைப்பு செல்லாதது.

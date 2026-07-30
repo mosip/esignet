@@ -1279,3 +1279,6 @@ app:
   otp.submit: सबमिट करें
   back: पीछे
   esignet_details: ईसिग्नेट विवरण
+
+captcha:
+  config.error: CAPTCHA प्रदाता कॉन्फ़िगरेशन अमान्य है।

@@ -1,15 +1,9 @@
-import type {
-  ComponentRenderContext,
-  EmbeddedFlowComponent,
-} from "@thunderid/react";
+import type { ComponentRenderContext } from "@thunderid/react";
 import ResendOtp from "./ResendOtpComponent";
-
-interface EmbeddedFlowComponentWithTimeLeft extends EmbeddedFlowComponent {
-  timeLeft?: number;
-}
+import type { ResendOtpFlowComponent } from "./ResendOtpModel";
 
 export default function ResendOtpRenderer(
-  component: EmbeddedFlowComponentWithTimeLeft,
+  component: ResendOtpFlowComponent,
   context: ComponentRenderContext,
 ) {
   return (
