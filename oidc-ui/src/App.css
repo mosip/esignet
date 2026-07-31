@@ -254,3 +254,8 @@ input[type="password"]::-ms-clear {
 [data-testid="thunderid-signin"] .thunderid-typography:first-child {
   text-align: center !important;
 }
+
+/* SBI biometric device dropdown to render outside the login card. */
+.thunderid-signin.thunderid-card {
+  overflow: visible !important;
+}
