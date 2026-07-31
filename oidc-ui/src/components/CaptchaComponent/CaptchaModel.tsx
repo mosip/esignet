@@ -22,6 +22,8 @@ export interface CaptchaFlowComponent extends EmbeddedFlowComponent {
 export interface CaptchaComponentProps {
   component: CaptchaFlowComponent;
   context: ComponentRenderContext;
+  // it is used to notify any changes occur in cpatcha token
+  captchaChanged?: (token: string | null | undefined) => void;
 }
 
 export interface CaptchaProps {

@@ -530,9 +530,8 @@ nodes:
                   category: MISCELLANEOUS
                   resourceType: ELEMENT
                   timeLeft: 20
-                  variant: OUTLINE
+                  variant: primary
                   label: "otp.resend_otp"
-                  required: true
                   captcha:
                     provider: ${MOSIP_ESIGNET_CAPTCHA_SITE_PROVIDER}
                     siteKey: ${MOSIP_ESIGNET_CAPTCHA_SITE_KEY}
