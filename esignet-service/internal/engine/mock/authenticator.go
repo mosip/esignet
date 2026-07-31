@@ -62,10 +62,10 @@ func NewMockAuthnProvider(cfg *config.AppConfig, clientSvc *clientmgmt.Service, 
 	}, nil
 }
 
-func (p *mockAuthnProvider) Authenticate(_ context.Context, identifiers, credentials map[string]interface{},
+func (p *mockAuthnProvider) Authenticate(ctx context.Context, identifiers, credentials map[string]interface{},
 	metadata *providers.AuthnMetadata) (*providers.AuthnResult, *common.ServiceError) {
 
-	clientDtl, err := p.getApplicationAndClientID(metadata.RuntimeMetadata)
+	clientDtl, err := p.getApplicationAndClientID(ctx, metadata.RuntimeMetadata)
 	if err != nil {
 		return nil, shared.ClientNotFoundError
 	}
@@ -93,7 +93,7 @@ func (p *mockAuthnProvider) Authenticate(_ context.Context, identifiers, credent
 		return nil, shared.AuthenticationFailedError
 	}
 
-	kycToken, psut, err := p.callKycAuthEndpoint(requestBytes, clientDtl.RpID, clientDtl.ClientID)
+	kycToken, psut, err := p.callKycAuthEndpoint(ctx, requestBytes, clientDtl.RpID, clientDtl.ClientID)
 	if err != nil {
 		return nil, shared.AuthenticationFailedError
 	}
@@ -113,14 +113,14 @@ func (p *mockAuthnProvider) GetEntityReference(_ context.Context, entityReferenc
 	return &providers.EntityReference{EntityID: psut}, nil
 }
 
-func (p *mockAuthnProvider) GetAttributes(_ context.Context, attributeToken any, consentedAttributes *providers.RequestedAttributes,
+func (p *mockAuthnProvider) GetAttributes(ctx context.Context, attributeToken any, consentedAttributes *providers.RequestedAttributes,
 	metadata *providers.GetAttributesMetadata) (*providers.AttributesResponse, *common.ServiceError) {
 
 	if consentedAttributes == nil {
 		return nil, shared.InvalidRequestError
 	}
 
-	clientDtl, err := p.getApplicationAndClientID(metadata.RuntimeMetadata)
+	clientDtl, err := p.getApplicationAndClientID(ctx, metadata.RuntimeMetadata)
 	if err != nil {
 		return nil, shared.ClientNotFoundError
 	}
@@ -156,7 +156,7 @@ func (p *mockAuthnProvider) GetAttributes(_ context.Context, attributeToken any,
 		return nil, shared.InvalidRequestError
 	}
 
-	attributesResponse, err := p.callKycExchangeEndpoint(requestBytes, clientDtl.RpID, clientDtl.ClientID)
+	attributesResponse, err := p.callKycExchangeEndpoint(ctx, requestBytes, clientDtl.RpID, clientDtl.ClientID)
 	if err != nil {
 		return nil, shared.AuthenticationFailedError
 	}
@@ -178,10 +178,10 @@ func (p *mockAuthnProvider) Enroll(_ context.Context, _, _ map[string]interface{
 	return nil, nil
 }
 
-func (p *mockAuthnProvider) SendOTP(_ context.Context, identifiers map[string]any,
+func (p *mockAuthnProvider) SendOTP(ctx context.Context, identifiers map[string]any,
 	metadata *providers.AuthnMetadata) (*shared.SendOTPResult, *common.ServiceError) {
 
-	clientDtl, err := p.getApplicationAndClientID(metadata.RuntimeMetadata)
+	clientDtl, err := p.getApplicationAndClientID(ctx, metadata.RuntimeMetadata)
 	if err != nil {
 		return nil, shared.ClientNotFoundError
 	}
@@ -207,7 +207,7 @@ func (p *mockAuthnProvider) SendOTP(_ context.Context, identifiers map[string]an
 		return nil, shared.InvalidRequestError
 	}
 
-	result, err := p.callSendOtpEndpoint(requestBytes, clientDtl.RpID, clientDtl.ClientID)
+	result, err := p.callSendOtpEndpoint(ctx, requestBytes, clientDtl.RpID, clientDtl.ClientID)
 	if err != nil {
 		return nil, shared.SendOTPFailedError
 	}
@@ -271,7 +271,7 @@ func acceptedClaimsFromRequest(requestedAttributes *providers.RequestedAttribute
 	return claims
 }
 
-func (p *mockAuthnProvider) getApplicationAndClientID(runtimeMetadata map[string][]string) (clientmgmt.ClientResponse, error) {
+func (p *mockAuthnProvider) getApplicationAndClientID(ctx context.Context, runtimeMetadata map[string][]string) (clientmgmt.ClientResponse, error) {
 	if runtimeMetadata == nil {
 		return clientmgmt.ClientResponse{}, errors.New("missing runtime metadata")
 	}
@@ -283,14 +283,14 @@ func (p *mockAuthnProvider) getApplicationAndClientID(runtimeMetadata map[string
 	if len(values) == 0 {
 		return clientmgmt.ClientResponse{}, errors.New("missing client_id in runtime metadata")
 	}
-	client, err := p.clientSvc.GetClient(context.Background(), values[0])
+	client, err := p.clientSvc.GetClient(ctx, values[0])
 	if err != nil {
 		return clientmgmt.ClientResponse{}, fmt.Errorf("failed to resolve client %q: %w", values[0], err)
 	}
 	return client, nil
 }
 
-func (p *mockAuthnProvider) callKycAuthEndpoint(requestBody []byte, relyingPartyID, clientID string) (string, string, error) {
+func (p *mockAuthnProvider) callKycAuthEndpoint(ctx context.Context, requestBody []byte, relyingPartyID, clientID string) (string, string, error) {
 	endpointURL := buildEndpointURL(p.cfg.KycAuthURL, relyingPartyID, clientID)
 
 	req, err := http.NewRequest(http.MethodPost, endpointURL, bytes.NewReader(requestBody))
@@ -322,7 +322,7 @@ func (p *mockAuthnProvider) callKycAuthEndpoint(requestBody []byte, relyingParty
 		return wrapper.Response.KycToken, wrapper.Response.PartnerSpecificUserToken, nil
 	}
 
-	applog.GetLogger().Error("mock-identity-system kyc-auth error response",
+	applog.GetLogger().Error(ctx, "mock-identity-system kyc-auth error response",
 		applog.Any("response", wrapper.Response),
 		applog.Any("errors", wrapper.Errors))
 
@@ -333,7 +333,7 @@ func (p *mockAuthnProvider) callKycAuthEndpoint(requestBody []byte, relyingParty
 	return "", "", fmt.Errorf("%s: %s", firstErr.ErrorCode, firstErr.Message)
 }
 
-func (p *mockAuthnProvider) callKycExchangeEndpoint(requestBody []byte, relyingPartyID, clientID string) (*providers.AttributesResponse, error) {
+func (p *mockAuthnProvider) callKycExchangeEndpoint(ctx context.Context, requestBody []byte, relyingPartyID, clientID string) (*providers.AttributesResponse, error) {
 	endpointURL := buildEndpointURL(p.cfg.KycExchangeV3URL, relyingPartyID, clientID)
 
 	req, err := http.NewRequest(http.MethodPost, endpointURL, bytes.NewReader(requestBody))
@@ -378,7 +378,7 @@ func (p *mockAuthnProvider) callKycExchangeEndpoint(requestBody []byte, relyingP
 		return &providers.AttributesResponse{Attributes: attributes}, nil
 	}
 
-	applog.GetLogger().Error("mock-identity-system kyc-exchange error response",
+	applog.GetLogger().Error(ctx, "mock-identity-system kyc-exchange error response",
 		applog.Any("response", wrapper.Response),
 		applog.Any("errors", wrapper.Errors))
 
@@ -389,7 +389,7 @@ func (p *mockAuthnProvider) callKycExchangeEndpoint(requestBody []byte, relyingP
 	return nil, fmt.Errorf("%s: %s", firstErr.ErrorCode, firstErr.Message)
 }
 
-func (p *mockAuthnProvider) callSendOtpEndpoint(requestBody []byte, relyingPartyID, clientID string) (*shared.SendOTPResult, error) {
+func (p *mockAuthnProvider) callSendOtpEndpoint(ctx context.Context, requestBody []byte, relyingPartyID, clientID string) (*shared.SendOTPResult, error) {
 	endpointURL := buildEndpointURL(p.cfg.SendOtpURL, relyingPartyID, clientID)
 
 	req, err := http.NewRequest(http.MethodPost, endpointURL, bytes.NewReader(requestBody))
@@ -424,7 +424,7 @@ func (p *mockAuthnProvider) callSendOtpEndpoint(requestBody []byte, relyingParty
 		}, nil
 	}
 
-	applog.GetLogger().Error("mock-identity-system send-otp error response",
+	applog.GetLogger().Error(ctx, "mock-identity-system send-otp error response",
 		applog.Any("errors", wrapper.Errors))
 
 	if len(wrapper.Errors) == 0 {

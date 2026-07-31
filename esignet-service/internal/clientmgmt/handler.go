@@ -7,6 +7,7 @@
 package clientmgmt
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -54,27 +55,27 @@ func (h *Handler) createClient(profile Profile) http.HandlerFunc {
 		r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
-			writeSpecError(w, "invalid_input", "malformed request body")
+			writeSpecError(r.Context(), w, "invalid_input", "malformed request body")
 			return
 		}
 		var req CreateRequestWrapper
 		if err := json.Unmarshal(body, &req); err != nil {
-			writeSpecError(w, "invalid_input", "malformed JSON body")
+			writeSpecError(r.Context(), w, "invalid_input", "malformed JSON body")
 			return
 		}
 		if strings.TrimSpace(req.RequestTime) == "" {
-			writeSpecError(w, "invalid_input", "requestTime is required")
+			writeSpecError(r.Context(), w, "invalid_input", "requestTime is required")
 			return
 		}
 
 		resp, err := h.svc.CreateClient(r.Context(), profile, req.Request)
 		if err != nil {
-			h.handleServiceError(w, err, "create client")
+			h.handleServiceError(r.Context(), w, err, "create client")
 			return
 		}
 
-		h.logger.Debug("client created", applog.String("profile", string(profile)))
-		common.WriteJSON(w, http.StatusOK, ResponseWrapper{
+		h.logger.Debug(r.Context(), "client created", applog.String("profile", string(profile)))
+		common.WriteJSON(r.Context(), w, http.StatusOK, ResponseWrapper{
 			ResponseWrapper: common.ResponseWrapper{ResponseTime: common.GetResponseTime()},
 			Response:        resp.APIResponse(),
 		})
@@ -85,34 +86,34 @@ func (h *Handler) updateClient(profile Profile) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		clientID := r.PathValue("client_id")
 		if clientID == "" {
-			writeSpecError(w, "invalid_input", "client_id is required")
+			writeSpecError(r.Context(), w, "invalid_input", "client_id is required")
 			return
 		}
 
 		r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
-			writeSpecError(w, "invalid_input", "malformed request body")
+			writeSpecError(r.Context(), w, "invalid_input", "malformed request body")
 			return
 		}
 		var req UpdateRequestWrapper
 		if err := json.Unmarshal(body, &req); err != nil {
-			writeSpecError(w, "invalid_input", "malformed JSON body")
+			writeSpecError(r.Context(), w, "invalid_input", "malformed JSON body")
 			return
 		}
 		if strings.TrimSpace(req.RequestTime) == "" {
-			writeSpecError(w, "invalid_input", "requestTime is required")
+			writeSpecError(r.Context(), w, "invalid_input", "requestTime is required")
 			return
 		}
 
 		resp, err := h.svc.UpdateClient(r.Context(), profile, clientID, req.Request)
 		if err != nil {
-			h.handleServiceError(w, err, "update client")
+			h.handleServiceError(r.Context(), w, err, "update client")
 			return
 		}
 
-		h.logger.Debug("client updated", applog.String("clientId", clientID), applog.String("profile", string(profile)))
-		common.WriteJSON(w, http.StatusOK, ResponseWrapper{
+		h.logger.Debug(r.Context(), "client updated", applog.String("clientId", clientID), applog.String("profile", string(profile)))
+		common.WriteJSON(r.Context(), w, http.StatusOK, ResponseWrapper{
 			ResponseWrapper: common.ResponseWrapper{ResponseTime: common.GetResponseTime()},
 			Response:        resp.APIResponse(),
 		})
@@ -122,39 +123,39 @@ func (h *Handler) updateClient(profile Profile) http.HandlerFunc {
 func (h *Handler) patchClient(w http.ResponseWriter, r *http.Request) {
 	clientID := r.PathValue("client_id")
 	if clientID == "" {
-		writeSpecError(w, "invalid_input", "client_id is required")
+		writeSpecError(r.Context(), w, "invalid_input", "client_id is required")
 		return
 	}
 
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		writeSpecError(w, "invalid_input", "malformed request body")
+		writeSpecError(r.Context(), w, "invalid_input", "malformed request body")
 		return
 	}
 	var wrapper PatchRequestWrapper
 	if err := json.Unmarshal(body, &wrapper); err != nil {
-		writeSpecError(w, "invalid_input", "malformed JSON body")
+		writeSpecError(r.Context(), w, "invalid_input", "malformed JSON body")
 		return
 	}
 	if strings.TrimSpace(wrapper.RequestTime) == "" {
-		writeSpecError(w, "invalid_input", "requestTime is required")
+		writeSpecError(r.Context(), w, "invalid_input", "requestTime is required")
 		return
 	}
 	req, fields, err := DecodePatchRequest(body)
 	if err != nil {
-		writeSpecError(w, "invalid_input", err.Error())
+		writeSpecError(r.Context(), w, "invalid_input", err.Error())
 		return
 	}
 
 	resp, err := h.svc.PatchClient(r.Context(), clientID, req, fields)
 	if err != nil {
-		h.handleServiceError(w, err, "patch client")
+		h.handleServiceError(r.Context(), w, err, "patch client")
 		return
 	}
 
-	h.logger.Debug("client patched", applog.String("clientId", clientID), applog.Any("fields", fields))
-	common.WriteJSON(w, http.StatusOK, ResponseWrapper{
+	h.logger.Debug(r.Context(), "client patched", applog.String("clientId", clientID), applog.Any("fields", fields))
+	common.WriteJSON(r.Context(), w, http.StatusOK, ResponseWrapper{
 		ResponseWrapper: common.ResponseWrapper{ResponseTime: common.GetResponseTime()},
 		Response:        resp.APIResponse(),
 	})
@@ -163,44 +164,44 @@ func (h *Handler) patchClient(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) getClient(w http.ResponseWriter, r *http.Request) {
 	clientID := r.PathValue("client_id")
 	if clientID == "" {
-		writeSpecError(w, "invalid_input", "client_id is required")
+		writeSpecError(r.Context(), w, "invalid_input", "client_id is required")
 		return
 	}
 
 	resp, err := h.svc.GetClient(r.Context(), clientID)
 	if err != nil {
-		h.handleServiceError(w, err, "get client")
+		h.handleServiceError(r.Context(), w, err, "get client")
 		return
 	}
 
-	h.logger.Debug("client fetched", applog.String("clientId", clientID))
-	common.WriteJSON(w, http.StatusOK, ResponseWrapper{
+	h.logger.Debug(r.Context(), "client fetched", applog.String("clientId", clientID))
+	common.WriteJSON(r.Context(), w, http.StatusOK, ResponseWrapper{
 		ResponseWrapper: common.ResponseWrapper{ResponseTime: common.GetResponseTime()},
 		Response:        resp.APIResponse(),
 	})
 }
 
-func (h *Handler) handleServiceError(w http.ResponseWriter, err error, op string) {
+func (h *Handler) handleServiceError(ctx context.Context, w http.ResponseWriter, err error, op string) {
 	var ve *ValidationError
 	switch {
 	case errors.As(err, &ve):
-		h.logger.Debug(op+": validation error", applog.String("code", ve.Code))
-		writeSpecError(w, ve.Code, ve.Message)
+		h.logger.Debug(ctx, op+": validation error", applog.String("code", ve.Code))
+		writeSpecError(ctx, w, ve.Code, ve.Message)
 	case errors.Is(err, ErrClientNotFound):
-		h.logger.Debug(op + ": client not found")
-		writeSpecError(w, "invalid_client_id", "client not found")
+		h.logger.Debug(ctx, op+": client not found")
+		writeSpecError(ctx, w, "invalid_client_id", "client not found")
 	case errors.Is(err, ErrDuplicateClientID):
-		h.logger.Debug(op + ": duplicate client id")
-		writeSpecError(w, "duplicate_client_id", "client id already exists")
+		h.logger.Debug(ctx, op+": duplicate client id")
+		writeSpecError(ctx, w, "duplicate_client_id", "client id already exists")
 	case errors.Is(err, ErrDuplicatePublicKey):
-		h.logger.Debug(op + ": duplicate public key")
-		writeSpecError(w, "invalid_public_key", "public key is already registered")
+		h.logger.Debug(ctx, op+": duplicate public key")
+		writeSpecError(ctx, w, "invalid_public_key", "public key is already registered")
 	case errors.Is(err, ErrClientConflict):
-		h.logger.Debug(op + ": concurrent modification conflict")
-		writeSpecError(w, "patch_conflict", "client was modified concurrently; retry the request")
+		h.logger.Debug(ctx, op+": concurrent modification conflict")
+		writeSpecError(ctx, w, "patch_conflict", "client was modified concurrently; retry the request")
 	default:
-		h.logger.Error(op, applog.Error(err))
-		common.WriteJSON(w, http.StatusInternalServerError, ResponseWrapper{
+		h.logger.Error(ctx, op, applog.Error(err))
+		common.WriteJSON(ctx, w, http.StatusInternalServerError, ResponseWrapper{
 			ResponseWrapper: common.ResponseWrapper{
 				Errors:       []common.Error{{ErrorCode: "server_error", ErrorMessage: "an unexpected error occurred"}},
 				ResponseTime: common.GetResponseTime(),
@@ -209,11 +210,11 @@ func (h *Handler) handleServiceError(w http.ResponseWriter, err error, op string
 	}
 }
 
-func writeSpecError(w http.ResponseWriter, code, msg string) {
+func writeSpecError(ctx context.Context, w http.ResponseWriter, code, msg string) {
 	if msg == "" {
 		msg = code
 	}
-	common.WriteJSON(w, http.StatusOK, ResponseWrapper{
+	common.WriteJSON(ctx, w, http.StatusOK, ResponseWrapper{
 		ResponseWrapper: common.ResponseWrapper{
 			Errors:       []common.Error{{ErrorCode: code, ErrorMessage: msg}},
 			ResponseTime: common.GetResponseTime(),

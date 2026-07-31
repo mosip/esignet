@@ -47,7 +47,7 @@ func newInMemoryStore(deploymentID string) providers.RuntimeStoreProvider {
 }
 
 // Put stores a value in the in-memory store with the specified TTL.
-func (s *inMemoryStore) Put(_ context.Context, namespace providers.RuntimeStoreNamespace,
+func (s *inMemoryStore) Put(ctx context.Context, namespace providers.RuntimeStoreNamespace,
 	key string, value []byte, ttlSeconds int64) error {
 	e := &entry{value: value}
 	if ttlSeconds > 0 {
@@ -58,12 +58,12 @@ func (s *inMemoryStore) Put(_ context.Context, namespace providers.RuntimeStoreN
 	s.data[s.getFormattedKey(namespace, key)] = e
 	s.mu.Unlock()
 
-	s.logger.Debug("Stored in memory", applog.String("key", key))
+	s.logger.Debug(ctx, "Stored in memory", applog.String("key", key))
 	return nil
 }
 
 // PutIfNotExists atomically stores a value only if the key does not already hold a non-expired value.
-func (s *inMemoryStore) PutIfNotExists(_ context.Context, namespace providers.RuntimeStoreNamespace,
+func (s *inMemoryStore) PutIfNotExists(ctx context.Context, namespace providers.RuntimeStoreNamespace,
 	key string, value []byte, ttlSeconds int64) (bool, error) {
 	e := &entry{value: value}
 	if ttlSeconds > 0 {
@@ -81,7 +81,7 @@ func (s *inMemoryStore) PutIfNotExists(_ context.Context, namespace providers.Ru
 	s.data[fk] = e
 	s.mu.Unlock()
 
-	s.logger.Debug("Stored in memory", applog.String("key", key))
+	s.logger.Debug(ctx, "Stored in memory", applog.String("key", key))
 	return true, nil
 }
 
@@ -124,7 +124,7 @@ func (s *inMemoryStore) Delete(_ context.Context, namespace providers.RuntimeSto
 }
 
 // Take retrieves and removes a value from the in-memory store by its key.
-func (s *inMemoryStore) Take(_ context.Context, namespace providers.RuntimeStoreNamespace,
+func (s *inMemoryStore) Take(ctx context.Context, namespace providers.RuntimeStoreNamespace,
 	key string) ([]byte, error) {
 	fk := s.getFormattedKey(namespace, key)
 
@@ -141,7 +141,7 @@ func (s *inMemoryStore) Take(_ context.Context, namespace providers.RuntimeStore
 		return nil, nil
 	}
 
-	s.logger.Debug("Taken from memory", applog.String("key", key))
+	s.logger.Debug(ctx, "Taken from memory", applog.String("key", key))
 	return e.value, nil
 }
 

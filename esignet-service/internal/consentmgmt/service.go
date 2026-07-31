@@ -46,7 +46,7 @@ func (s *Service) FetchRecord(ctx context.Context, clientID, userID string) (*Co
 	row, err := s.q.GetConsent(ctx, db.GetConsentParams{ClientID: clientID, PsuToken: userID})
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			s.logger.Debug("no stored consent record", applog.String("clientId", clientID))
+			s.logger.Debug(ctx, "no stored consent record", applog.String("clientId", clientID))
 			return nil, nil
 		}
 		return nil, fmt.Errorf("query consent: %w", err)
@@ -165,7 +165,7 @@ func (s *Service) SaveRecord(ctx context.Context, c *ConsentRecord) error {
 			return fmt.Errorf("commit consent tx: %w", err)
 		}
 	}
-	s.logger.Debug("consent record saved",
+	s.logger.Debug(ctx, "consent record saved",
 		applog.String("clientId", c.ClientID),
 		applog.Int("claimCount", len(normalizedClaims)),
 		applog.Int("scopeCount", len(normalizedScopes)))
@@ -179,7 +179,7 @@ func (s *Service) DeleteRecord(ctx context.Context, clientID, userID string) err
 	if err := s.q.DeleteConsent(ctx, db.DeleteConsentParams{ClientID: clientID, PsuToken: userID}); err != nil {
 		return fmt.Errorf("delete consent: %w", err)
 	}
-	s.logger.Debug("consent record deleted", applog.String("clientId", clientID))
+	s.logger.Debug(ctx, "consent record deleted", applog.String("clientId", clientID))
 	return nil
 }
 

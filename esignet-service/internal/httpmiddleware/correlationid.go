@@ -9,11 +9,12 @@
 package httpmiddleware
 
 import (
-	"context"
 	"crypto/rand"
 	"fmt"
 	"net/http"
 	"strings"
+
+	appcontext "github.com/mosip/esignet/internal/context"
 )
 
 // CorrelationIDHeader is the header used to propagate the request's
@@ -33,10 +34,6 @@ const (
 	b3SingleHeader  = "b3"
 	b3TraceIDHeader = "X-B3-TraceId"
 )
-
-type contextKey string
-
-const traceIDContextKey contextKey = "trace_id"
 
 // CorrelationID extracts a correlation/trace ID from the incoming request
 // (checking X-Correlation-ID, X-Request-ID, X-Trace-ID, then falling back to
@@ -58,19 +55,10 @@ func CorrelationID(next http.Handler) http.Handler {
 
 		r.Header.Set(CorrelationIDHeader, id)
 		w.Header().Set(CorrelationIDHeader, id)
-		r = r.WithContext(context.WithValue(r.Context(), traceIDContextKey, id))
+		r = r.WithContext(appcontext.WithTraceID(r.Context(), id))
 
 		next.ServeHTTP(w, r)
 	})
-}
-
-// TraceIDFromContext returns the correlation/trace ID stored in the context
-// by CorrelationID, or "-" if none is present.
-func TraceIDFromContext(ctx context.Context) string {
-	if id, ok := ctx.Value(traceIDContextKey).(string); ok && id != "" {
-		return id
-	}
-	return "-"
 }
 
 func extractTraceID(r *http.Request) string {

@@ -76,7 +76,7 @@ func (r *redisStore) Put(ctx context.Context, namespace providers.RuntimeStoreNa
 		return fmt.Errorf("failed to store in Redis: %w", err)
 	}
 
-	r.logger.Debug("Stored in Redis", applog.String("key", key))
+	r.logger.Debug(ctx, "Stored in Redis", applog.String("key", key))
 	return nil
 }
 
@@ -99,7 +99,7 @@ func (r *redisStore) PutIfNotExists(ctx context.Context, namespace providers.Run
 		return false, fmt.Errorf("failed to store in Redis: %w", err)
 	}
 
-	r.logger.Debug("Stored in Redis", applog.String("key", key))
+	r.logger.Debug(ctx, "Stored in Redis", applog.String("key", key))
 	return ok == "OK", nil
 }
 
@@ -153,7 +153,7 @@ func (r *redisStore) Take(ctx context.Context, namespace providers.RuntimeStoreN
 		return nil, fmt.Errorf("failed to take data from Redis: %w", err)
 	}
 
-	r.logger.Debug("Taken from Redis", applog.String("key", key))
+	r.logger.Debug(ctx, "Taken from Redis", applog.String("key", key))
 	return data, nil
 }
 

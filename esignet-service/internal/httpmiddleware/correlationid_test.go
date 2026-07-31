@@ -7,7 +7,6 @@
 package httpmiddleware
 
 import (
-	"context"
 	"net/http"
 	"net/http/httptest"
 	"regexp"
@@ -15,6 +14,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	appcontext "github.com/mosip/esignet/internal/context"
 )
 
 var uuidV4Pattern = regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`)
@@ -22,7 +23,7 @@ var uuidV4Pattern = regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[8
 func TestCorrelationID_GeneratesWhenAbsent(t *testing.T) {
 	var gotFromContext, gotFromHeader string
 	next := http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
-		gotFromContext = TraceIDFromContext(r.Context())
+		gotFromContext = appcontext.TraceIDFromContext(r.Context())
 		gotFromHeader = r.Header.Get(CorrelationIDHeader)
 	})
 
@@ -38,7 +39,7 @@ func TestCorrelationID_GeneratesWhenAbsent(t *testing.T) {
 func TestCorrelationID_ReusesExistingCorrelationIDHeader(t *testing.T) {
 	var got string
 	next := http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
-		got = TraceIDFromContext(r.Context())
+		got = appcontext.TraceIDFromContext(r.Context())
 	})
 
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -66,7 +67,7 @@ func TestCorrelationID_FallsBackToOtherHeadersInPriorityOrder(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			var got string
 			next := http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
-				got = TraceIDFromContext(r.Context())
+				got = appcontext.TraceIDFromContext(r.Context())
 			})
 
 			req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -97,7 +98,7 @@ func TestCorrelationID_FallsBackToB3Headers(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			var got string
 			next := http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
-				got = TraceIDFromContext(r.Context())
+				got = appcontext.TraceIDFromContext(r.Context())
 			})
 
 			req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -125,10 +126,6 @@ func TestCorrelationID_NormalizesOntoCorrelationIDHeaderForDownstreamReuse(t *te
 	CorrelationID(next).ServeHTTP(httptest.NewRecorder(), req)
 
 	assert.Equal(t, "req-1", gotHeader)
-}
-
-func TestTraceIDFromContext_DefaultsToDash(t *testing.T) {
-	assert.Equal(t, "-", TraceIDFromContext(context.Background()))
 }
 
 func TestGenerateUUIDv4_ProducesValidUniqueUUIDs(t *testing.T) {

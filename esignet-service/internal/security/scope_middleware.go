@@ -7,6 +7,7 @@
 package security
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strings"
@@ -38,31 +39,31 @@ func ScopeMiddleware(cache *JWKSCache, config config.SecurityConfig) func(http.H
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			tokenStr, err := bearerToken(r)
 			if err != nil {
-				logger.Debug("rejected request with missing/malformed Authorization header",
+				logger.Debug(r.Context(), "rejected request with missing/malformed Authorization header",
 					applog.String("path", r.URL.Path), applog.Error(err))
-				common.WriteError(w, http.StatusUnauthorized, "unauthorized", err.Error())
+				common.WriteError(r.Context(), w, http.StatusUnauthorized, "unauthorized", err.Error())
 				return
 			}
 
-			claims, err := parseAndValidate(parser, tokenStr, cache)
+			claims, err := parseAndValidate(r.Context(), parser, tokenStr, cache)
 			if err != nil {
-				logger.Warn("rejected request with invalid or expired token",
+				logger.Warn(r.Context(), "rejected request with invalid or expired token",
 					applog.String("path", r.URL.Path), applog.Error(err))
-				common.WriteError(w, http.StatusUnauthorized, "unauthorized", "invalid or expired token")
+				common.WriteError(r.Context(), w, http.StatusUnauthorized, "unauthorized", "invalid or expired token")
 				return
 			}
 
 			requiredScope, ok := resolveRequiredScope(config.ScopeMapping, r.Method, r.URL.Path)
 			if !ok {
-				logger.Warn("rejected request with no configured scope mapping",
+				logger.Warn(r.Context(), "rejected request with no configured scope mapping",
 					applog.String("path", r.URL.Path), applog.String("method", r.Method))
-				common.WriteError(w, http.StatusForbidden, "forbidden", "no scope mapping configured for this endpoint")
+				common.WriteError(r.Context(), w, http.StatusForbidden, "forbidden", "no scope mapping configured for this endpoint")
 				return
 			}
 			if !claimHasScope(claims, requiredScope) {
-				logger.Warn("rejected request missing required scope",
+				logger.Warn(r.Context(), "rejected request missing required scope",
 					applog.String("path", r.URL.Path), applog.String("requiredScope", requiredScope))
-				common.WriteError(w, http.StatusForbidden, "forbidden",
+				common.WriteError(r.Context(), w, http.StatusForbidden, "forbidden",
 					fmt.Sprintf("token must carry scope %q", requiredScope))
 				return
 			}
@@ -120,13 +121,13 @@ func bearerToken(r *http.Request) (string, error) {
 	return strings.TrimSpace(token), nil
 }
 
-func parseAndValidate(parser *jwt.Parser, tokenStr string, cache *JWKSCache) (jwt.MapClaims, error) {
+func parseAndValidate(ctx context.Context, parser *jwt.Parser, tokenStr string, cache *JWKSCache) (jwt.MapClaims, error) {
 	token, err := parser.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) {
 		kid, _ := t.Header["kid"].(string)
 		if kid == "" {
 			return nil, fmt.Errorf("token header missing kid")
 		}
-		return cache.GetKey(kid)
+		return cache.GetKey(ctx, kid)
 	})
 	if err != nil {
 		return nil, err

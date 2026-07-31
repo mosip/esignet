@@ -63,34 +63,34 @@ func (p *consentProvider) ResolveConsent(ctx context.Context, _, appID string, _
 	clientID := runtimeMetadata[runtimeKeyClientID][0]
 	consentRecord, err := p.consentSvc.FetchRecord(ctx, clientID, userID)
 	if err != nil {
-		p.logger.Error("Failed to read consent record", applog.Error(err))
+		p.logger.Error(ctx, "Failed to read consent record", applog.Error(err))
 		return nil, clientError("consent_fetch_failed", err)
 	}
 
 	req, err := p.readAuthRequest(ctx, runtimeMetadata)
 	if err != nil {
-		p.logger.Error("Failed to read auth request", applog.Error(err))
+		p.logger.Error(ctx, "Failed to read auth request", applog.Error(err))
 		return nil, clientError("consent_record_failed", err)
 	}
 	if req == nil {
-		p.logger.Error("Read auth request is nil", applog.Error(err))
+		p.logger.Error(ctx, "Read auth request is nil", applog.Error(err))
 		return nil, clientError("consent_record_failed", err)
 	}
 
 	if forceReprompt {
-		p.logger.Warn("Force reprompt consent")
+		p.logger.Warn(ctx, "Force reprompt consent")
 		return p.buildPrompt(appID, req, essentialAttributes, optionalAttributes,
 			authorizedPermissions, []string{}), nil
 	}
 
 	if consentRecord == nil {
-		p.logger.Debug("No stored consent found, prompt consent")
+		p.logger.Debug(ctx, "No stored consent found, prompt consent")
 		return p.buildPrompt(appID, req, essentialAttributes, optionalAttributes,
 			authorizedPermissions, []string{}), nil
 	}
 
 	if consentRecord.IsExpired(time.Now().UTC()) {
-		p.logger.Warn("Expired consent found! reprompt consent")
+		p.logger.Warn(ctx, "Expired consent found! reprompt consent")
 		return p.buildPrompt(appID, req, essentialAttributes, optionalAttributes,
 			authorizedPermissions, []string{}), nil
 	}
@@ -101,7 +101,7 @@ func (p *consentProvider) ResolveConsent(ctx context.Context, _, appID string, _
 	}
 
 	if consentRecord.Hash == hash {
-		p.logger.Debug("Requested consent and stored consent match, skip consent prompt")
+		p.logger.Debug(ctx, "Requested consent and stored consent match, skip consent prompt")
 		return nil, nil
 	}
 
@@ -119,11 +119,11 @@ func (p *consentProvider) RecordConsent(ctx context.Context, _, appID, userID st
 
 	req, err := p.readAuthRequest(ctx, runtimeMetadata)
 	if err != nil {
-		p.logger.Error("Failed to read auth request", applog.Error(err))
+		p.logger.Error(ctx, "Failed to read auth request", applog.Error(err))
 		return nil, clientError("consent_record_failed", err)
 	}
 	if req == nil {
-		p.logger.Error("Read auth request is nil", applog.Error(err))
+		p.logger.Error(ctx, "Read auth request is nil", applog.Error(err))
 		return nil, clientError("consent_record_failed", err)
 	}
 
@@ -141,7 +141,7 @@ func (p *consentProvider) RecordConsent(ctx context.Context, _, appID, userID st
 			for _, element := range purpose.Elements {
 				if !element.Approved {
 					if isAttributesPurpose && essentialClaims[element.Name] {
-						p.logger.Warn("Essential attribute consent denied", applog.String("attribute", element.Name))
+						p.logger.Warn(ctx, "Essential attribute consent denied", applog.String("attribute", element.Name))
 						return nil, clientError("essential_consent_denied", nil)
 					}
 					continue
@@ -174,7 +174,7 @@ func (p *consentProvider) RecordConsent(ctx context.Context, _, appID, userID st
 		ExpiresAt:           expiresAt,
 	}
 	if err := p.consentSvc.SaveRecord(ctx, consentRecord); err != nil {
-		p.logger.Error("Failed to save consent record", applog.Error(err))
+		p.logger.Error(ctx, "Failed to save consent record", applog.Error(err))
 		return nil, clientError("consent_persist_failed", err)
 	}
 
@@ -378,11 +378,11 @@ func clientError(errorCode string, err error) *common.ServiceError {
 	return serviceError
 }
 
-func (p *consentProvider) getConsentRequestHash(_ context.Context, req *requestedConsent) string {
+func (p *consentProvider) getConsentRequestHash(ctx context.Context, req *requestedConsent) string {
 	effectiveClaims := mergeScopeClaims(req.claimsRequest, p.claimsFromScopes(req.standardScopes))
 	hash, err := requestHash(effectiveClaims, req.authorizeScopes)
 	if err != nil {
-		p.logger.Error("Failed to hash the claims request", applog.Error(err))
+		p.logger.Error(ctx, "Failed to hash the claims request", applog.Error(err))
 		return ""
 	}
 	return hash

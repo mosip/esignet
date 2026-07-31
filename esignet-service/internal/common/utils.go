@@ -7,6 +7,7 @@
 package common
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"time"
@@ -23,18 +24,18 @@ func GetResponseTime() string {
 }
 
 // WriteError Method write any error
-func WriteError(w http.ResponseWriter, status int, code, msg string) {
-	WriteJSON(w, status, ResponseWrapper{
+func WriteError(ctx context.Context, w http.ResponseWriter, status int, code, msg string) {
+	WriteJSON(ctx, w, status, ResponseWrapper{
 		Errors:       []Error{{ErrorCode: code, ErrorMessage: msg}},
 		ResponseTime: GetResponseTime(),
 	})
 }
 
 // WriteJSON writes the json response
-func WriteJSON(w http.ResponseWriter, status int, body interface{}) {
+func WriteJSON(ctx context.Context, w http.ResponseWriter, status int, body interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	if err := json.NewEncoder(w).Encode(body); err != nil {
-		applog.GetLogger().Error("writeJSON encode error", applog.Error(err))
+		applog.GetLogger().Error(ctx, "writeJSON encode error", applog.Error(err))
 	}
 }

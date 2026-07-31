@@ -8,6 +8,8 @@
 package runtimestores
 
 import (
+	"context"
+
 	"github.com/redis/go-redis/v9"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
@@ -25,11 +27,11 @@ func Initialize(appCfg *config.AppConfig, redisClient *redis.Client) providers.R
 		if err != nil {
 			logger.Fatal("Failed to initialize redis store", applog.Error(err))
 		}
-		logger.Info("runtime store initialized", applog.String("type", "redis"))
+		logger.Info(context.Background(), "runtime store initialized", applog.String("type", "redis"))
 		return store
 	}
 
-	logger.Warn("runtime store initialized", applog.String("type", "in-memory"),
+	logger.Warn(context.Background(), "runtime store initialized", applog.String("type", "in-memory"),
 		applog.String("note", "not shared across replicas; use redis for multi-instance deployments"))
 	return inmemory.Initialize(appCfg.Identifier)
 }

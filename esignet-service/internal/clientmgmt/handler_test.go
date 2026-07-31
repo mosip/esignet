@@ -386,7 +386,7 @@ func (ts *HandlerTestSuite) TestGetClientHandler() {
 func (ts *HandlerTestSuite) TestWriteSpecErrorDefaultsMessageToCode() {
 	t := ts.T()
 	rec := httptest.NewRecorder()
-	writeSpecError(rec, "some_code", "")
+	writeSpecError(context.Background(), rec, "some_code", "")
 
 	decoded := decodeEnvelope(t, rec.Body.Bytes())
 	errs := decoded["errors"].([]any)
@@ -399,7 +399,7 @@ func (ts *HandlerTestSuite) TestHandleServiceErrorDuplicatePublicKey() {
 	t := ts.T()
 	h := newTestHandler(&fakeQuerier{})
 	rec := httptest.NewRecorder()
-	h.handleServiceError(rec, ErrDuplicatePublicKey, "op")
+	h.handleServiceError(context.Background(), rec, ErrDuplicatePublicKey, "op")
 
 	decoded := decodeEnvelope(t, rec.Body.Bytes())
 	errs := decoded["errors"].([]any)

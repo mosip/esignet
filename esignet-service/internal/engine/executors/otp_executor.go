@@ -83,7 +83,7 @@ func (e *otpExecutor) Execute(ctx *providers.NodeContext) (*providers.ExecutorRe
 		BuildProviderMetadata(ctx))
 	if serviceError != nil {
 		// username is the individual's identity number and must not be logged.
-		applog.GetLogger().Warn("failed to send OTP", applog.String("errorCode", serviceError.Code))
+		applog.GetLogger().Warn(ctx.Context, "failed to send OTP", applog.String("errorCode", serviceError.Code))
 		// Return ExecFailure so the engine surfaces the error to the user without terminating the flow session
 		if serviceError.Type == common.ClientErrorType {
 			execResp.Status = providers.ExecFailure

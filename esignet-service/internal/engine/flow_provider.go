@@ -54,14 +54,14 @@ func (p *flowProvider) parseFlowDefinition(ctx context.Context) (*providers.Comp
 	// Read the flow definition from file in the data directory.
 	data, err := os.ReadFile(filepath.Join(p.cfg.DataDir, "flows", p.cfg.AuthFlowID+".yaml"))
 	if err != nil {
-		applog.GetLogger().Warn("flow definition file not found", applog.String("flowId", p.cfg.AuthFlowID), applog.Error(err))
+		applog.GetLogger().Warn(ctx, "flow definition file not found", applog.String("flowId", p.cfg.AuthFlowID), applog.Error(err))
 		return nil, shared.FileNotFoundError
 	}
 	var flowDef providers.CompleteFlowDefinition
 	expanded := os.ExpandEnv(string(data))
 	err = yaml.Unmarshal([]byte(expanded), &flowDef)
 	if err != nil {
-		applog.GetLogger().Warn("failed to parse flow definition file", applog.String("flowId", p.cfg.AuthFlowID), applog.Error(err))
+		applog.GetLogger().Warn(ctx, "failed to parse flow definition file", applog.String("flowId", p.cfg.AuthFlowID), applog.Error(err))
 		return nil, shared.FileUnmarshallError
 	}
 
@@ -78,7 +78,7 @@ func (p *flowProvider) getCached(ctx context.Context) (*providers.CompleteFlowDe
 	}
 	data, err := p.cache.Get(ctx, flowDefinitionCacheNamespace, p.cfg.AuthFlowID)
 	if err != nil {
-		applog.GetLogger().Warn("flow cache get failed", applog.String("flowId", p.cfg.AuthFlowID), applog.Error(err))
+		applog.GetLogger().Warn(ctx, "flow cache get failed", applog.String("flowId", p.cfg.AuthFlowID), applog.Error(err))
 		return nil, false
 	}
 	if data == nil {
@@ -86,7 +86,7 @@ func (p *flowProvider) getCached(ctx context.Context) (*providers.CompleteFlowDe
 	}
 	var flowDef providers.CompleteFlowDefinition
 	if err := json.Unmarshal(data, &flowDef); err != nil {
-		applog.GetLogger().Warn("failed to unmarshal cached flow definition", applog.String("flowId", p.cfg.AuthFlowID), applog.Error(err))
+		applog.GetLogger().Warn(ctx, "failed to unmarshal cached flow definition", applog.String("flowId", p.cfg.AuthFlowID), applog.Error(err))
 		return nil, false
 	}
 	return &flowDef, true
@@ -100,10 +100,10 @@ func (p *flowProvider) setCached(ctx context.Context, flowDef *providers.Complet
 	}
 	data, err := json.Marshal(flowDef)
 	if err != nil {
-		applog.GetLogger().Warn("failed to marshal flow definition for cache", applog.String("flowId", p.cfg.AuthFlowID), applog.Error(err))
+		applog.GetLogger().Warn(ctx, "failed to marshal flow definition for cache", applog.String("flowId", p.cfg.AuthFlowID), applog.Error(err))
 		return
 	}
 	if err := p.cache.Put(ctx, flowDefinitionCacheNamespace, p.cfg.AuthFlowID, data, p.cacheTTLSecs); err != nil {
-		applog.GetLogger().Warn("flow cache put failed", applog.String("flowId", p.cfg.AuthFlowID), applog.Error(err))
+		applog.GetLogger().Warn(ctx, "flow cache put failed", applog.String("flowId", p.cfg.AuthFlowID), applog.Error(err))
 	}
 }

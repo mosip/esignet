@@ -33,8 +33,8 @@ func RequestTimeMiddleware(leeway time.Duration) func(http.Handler) http.Handler
 
 			body, err := io.ReadAll(r.Body)
 			if err != nil {
-				logger.Debug("failed to read request body", applog.String("path", r.URL.Path), applog.Error(err))
-				common.WriteError(w, http.StatusBadRequest, "invalid_input", "malformed request body")
+				logger.Debug(r.Context(), "failed to read request body", applog.String("path", r.URL.Path), applog.Error(err))
+				common.WriteError(r.Context(), w, http.StatusBadRequest, "invalid_input", "malformed request body")
 				return
 			}
 			r.Body = io.NopCloser(bytes.NewReader(body))
@@ -49,17 +49,17 @@ func RequestTimeMiddleware(leeway time.Duration) func(http.Handler) http.Handler
 
 			reqTime, err := time.Parse(common.MOSIPTimeLayout, wrapper.RequestTime)
 			if err != nil {
-				logger.Debug("rejected request with unparseable requestTime",
+				logger.Debug(r.Context(), "rejected request with unparseable requestTime",
 					applog.String("path", r.URL.Path), applog.Error(err))
-				common.WriteError(w, http.StatusBadRequest, "invalid_input", "requestTime must match format "+common.MOSIPTimeLayout)
+				common.WriteError(r.Context(), w, http.StatusBadRequest, "invalid_input", "requestTime must match format "+common.MOSIPTimeLayout)
 				return
 			}
 			if drift := time.Since(reqTime); drift > leeway || drift < -leeway {
-				logger.Warn("rejected request outside requestTime leeway",
+				logger.Warn(r.Context(), "rejected request outside requestTime leeway",
 					applog.String("path", r.URL.Path),
 					applog.String("drift", time.Since(reqTime).String()),
 					applog.String("leeway", leeway.String()))
-				common.WriteError(w, http.StatusBadRequest, "invalid_input", "requestTime is not within the allowed leeway of server time")
+				common.WriteError(r.Context(), w, http.StatusBadRequest, "invalid_input", "requestTime is not within the allowed leeway of server time")
 				return
 			}
 

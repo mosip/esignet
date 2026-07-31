@@ -411,11 +411,11 @@ func (ts *AuthenticatorTestSuite) TestBuildIDAEndpointURL() {
 	// path), so the escaped "%20" is itself re-escaped by u.String(). This
 	// documents the existing (double-escaping) behavior rather than
 	// asserting a "correct" single-escaped URL.
-	u, err := buildIDAEndpointURL("http://host/base/", "rp id", "client id")
+	u, err := buildIDAEndpointURL(context.Background(), "http://host/base/", "rp id", "client id")
 	require.NoError(t, err)
 	require.Equal(t, "http://host/base/rp%2520id/client%2520id", u)
 
-	_, err = buildIDAEndpointURL("http://host/%zz", "rp", "cid")
+	_, err = buildIDAEndpointURL(context.Background(), "http://host/%zz", "rp", "cid")
 	require.Error(t, err)
 }
 
@@ -464,7 +464,7 @@ func (ts *AuthenticatorTestSuite) TestFetchIDAPartnerCertificateSuccess() {
 	p := newProvider(nil)
 	p.cfg.IDAPartnerCertificateURL = srv.URL
 
-	got, err := p.fetchIDAPartnerCertificate()
+	got, err := p.fetchIDAPartnerCertificate(context.Background())
 	require.NoError(t, err)
 	require.Equal(t, cert.Raw, got.Raw)
 }
@@ -476,26 +476,26 @@ func (ts *AuthenticatorTestSuite) TestFetchIDAPartnerCertificateErrors() {
 	closedSrv.Close()
 	p := newProvider(nil)
 	p.cfg.IDAPartnerCertificateURL = closedSrv.URL
-	_, err := p.fetchIDAPartnerCertificate()
+	_, err := p.fetchIDAPartnerCertificate(context.Background())
 	require.Error(t, err)
 
 	nonOKSrv := httptest.NewServer(jsonHandler(http.StatusInternalServerError, "boom"))
 	defer nonOKSrv.Close()
 	p.cfg.IDAPartnerCertificateURL = nonOKSrv.URL
-	_, err = p.fetchIDAPartnerCertificate()
+	_, err = p.fetchIDAPartnerCertificate(context.Background())
 	require.ErrorContains(t, err, "instead of 200 OK")
 
 	badPEMSrv := httptest.NewServer(jsonHandler(http.StatusOK, "not a pem block"))
 	defer badPEMSrv.Close()
 	p.cfg.IDAPartnerCertificateURL = badPEMSrv.URL
-	_, err = p.fetchIDAPartnerCertificate()
+	_, err = p.fetchIDAPartnerCertificate(context.Background())
 	require.ErrorIs(t, err, ErrCertificateParsing)
 
 	badDER := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: []byte("not-a-real-der-cert")})
 	badDERSrv := httptest.NewServer(jsonHandler(http.StatusOK, string(badDER)))
 	defer badDERSrv.Close()
 	p.cfg.IDAPartnerCertificateURL = badDERSrv.URL
-	_, err = p.fetchIDAPartnerCertificate()
+	_, err = p.fetchIDAPartnerCertificate(context.Background())
 	require.ErrorIs(t, err, ErrCertificateParsing)
 }
 
@@ -507,7 +507,7 @@ func (ts *AuthenticatorTestSuite) TestCallSendOtpEndpointInvalidURL() {
 	t := ts.T()
 	p := newProvider(nil)
 	p.cfg.SendOTPBaseURL = "http://host/%zz"
-	_, err := p.callSendOtpEndpoint([]byte("{}"), "sig", "rp", "cid")
+	_, err := p.callSendOtpEndpoint(context.Background(), []byte("{}"), "sig", "rp", "cid")
 	require.ErrorContains(t, err, "invalid send OTP URL")
 }
 
@@ -517,7 +517,7 @@ func (ts *AuthenticatorTestSuite) TestCallSendOtpEndpointRequestFails() {
 	srv.Close()
 	p := newProvider(nil)
 	p.cfg.SendOTPBaseURL = srv.URL
-	_, err := p.callSendOtpEndpoint([]byte("{}"), "sig", "rp", "cid")
+	_, err := p.callSendOtpEndpoint(context.Background(), []byte("{}"), "sig", "rp", "cid")
 	require.ErrorContains(t, err, "send OTP request failed")
 }
 
@@ -527,7 +527,7 @@ func (ts *AuthenticatorTestSuite) TestCallSendOtpEndpointNonOKStatus() {
 	defer srv.Close()
 	p := newProvider(nil)
 	p.cfg.SendOTPBaseURL = srv.URL
-	_, err := p.callSendOtpEndpoint([]byte("{}"), "sig", "rp", "cid")
+	_, err := p.callSendOtpEndpoint(context.Background(), []byte("{}"), "sig", "rp", "cid")
 	require.ErrorContains(t, err, "unexpected send OTP status: 500")
 }
 
@@ -537,7 +537,7 @@ func (ts *AuthenticatorTestSuite) TestCallSendOtpEndpointMalformedBody() {
 	defer srv.Close()
 	p := newProvider(nil)
 	p.cfg.SendOTPBaseURL = srv.URL
-	_, err := p.callSendOtpEndpoint([]byte("{}"), "sig", "rp", "cid")
+	_, err := p.callSendOtpEndpoint(context.Background(), []byte("{}"), "sig", "rp", "cid")
 	require.ErrorContains(t, err, "failed to parse IdaSendOtpResponse")
 }
 
@@ -551,7 +551,7 @@ func (ts *AuthenticatorTestSuite) TestCallSendOtpEndpointResponseMissingAlwaysEr
 	defer srv.Close()
 	p := newProvider(nil)
 	p.cfg.SendOTPBaseURL = srv.URL
-	_, err := p.callSendOtpEndpoint([]byte("{}"), "sig", "rp", "cid")
+	_, err := p.callSendOtpEndpoint(context.Background(), []byte("{}"), "sig", "rp", "cid")
 	require.EqualError(t, err, "response object is missing in wrapper")
 }
 
@@ -561,7 +561,7 @@ func (ts *AuthenticatorTestSuite) TestCallSendOtpEndpointSuccess() {
 	defer srv.Close()
 	p := newProvider(nil)
 	p.cfg.SendOTPBaseURL = srv.URL
-	result, err := p.callSendOtpEndpoint([]byte("{}"), "sig", "rp", "cid")
+	result, err := p.callSendOtpEndpoint(context.Background(), []byte("{}"), "sig", "rp", "cid")
 	require.NoError(t, err)
 	require.Equal(t, "a***@b.com", result.MaskedEmail)
 	require.Equal(t, "***123", result.MaskedMobile)
@@ -575,7 +575,7 @@ func (ts *AuthenticatorTestSuite) TestCallKycAuthEndpointInvalidURL() {
 	t := ts.T()
 	p := newProvider(nil)
 	p.cfg.KYCAuthBaseURL = "http://host/%zz"
-	_, _, err := p.callKycAuthEndpoint([]byte("{}"), "sig", "rp", "cid", false)
+	_, _, err := p.callKycAuthEndpoint(context.Background(), []byte("{}"), "sig", "rp", "cid", false)
 	require.Error(t, err)
 }
 
@@ -585,7 +585,7 @@ func (ts *AuthenticatorTestSuite) TestCallKycAuthEndpointRequestFails() {
 	srv.Close()
 	p := newProvider(nil)
 	p.cfg.KYCAuthBaseURL = srv.URL
-	_, _, err := p.callKycAuthEndpoint([]byte("{}"), "sig", "rp", "cid", false)
+	_, _, err := p.callKycAuthEndpoint(context.Background(), []byte("{}"), "sig", "rp", "cid", false)
 	require.Error(t, err)
 }
 
@@ -595,7 +595,7 @@ func (ts *AuthenticatorTestSuite) TestCallKycAuthEndpointNonOKStatusReturnsError
 	defer srv.Close()
 	p := newProvider(nil)
 	p.cfg.KYCAuthBaseURL = srv.URL
-	psut, kycToken, err := p.callKycAuthEndpoint([]byte("{}"), "sig", "rp", "cid", false)
+	psut, kycToken, err := p.callKycAuthEndpoint(context.Background(), []byte("{}"), "sig", "rp", "cid", false)
 	require.ErrorContains(t, err, "500")
 	require.Empty(t, psut)
 	require.Empty(t, kycToken)
@@ -607,7 +607,7 @@ func (ts *AuthenticatorTestSuite) TestCallKycAuthEndpointMalformedBody() {
 	defer srv.Close()
 	p := newProvider(nil)
 	p.cfg.KYCAuthBaseURL = srv.URL
-	_, _, err := p.callKycAuthEndpoint([]byte("{}"), "sig", "rp", "cid", false)
+	_, _, err := p.callKycAuthEndpoint(context.Background(), []byte("{}"), "sig", "rp", "cid", false)
 	require.Error(t, err)
 }
 
@@ -617,7 +617,7 @@ func (ts *AuthenticatorTestSuite) TestCallKycAuthEndpointResponseMissingReturnsE
 	defer srv.Close()
 	p := newProvider(nil)
 	p.cfg.KYCAuthBaseURL = srv.URL
-	psut, kycToken, err := p.callKycAuthEndpoint([]byte("{}"), "sig", "rp", "cid", false)
+	psut, kycToken, err := p.callKycAuthEndpoint(context.Background(), []byte("{}"), "sig", "rp", "cid", false)
 	require.EqualError(t, err, "response object is missing in wrapper")
 	require.Empty(t, psut)
 	require.Empty(t, kycToken)
@@ -630,7 +630,7 @@ func (ts *AuthenticatorTestSuite) TestCallKycAuthEndpointKycStatusFalseWithError
 	defer srv.Close()
 	p := newProvider(nil)
 	p.cfg.KYCAuthBaseURL = srv.URL
-	_, _, err := p.callKycAuthEndpoint([]byte("{}"), "sig", "rp", "cid", false)
+	_, _, err := p.callKycAuthEndpoint(context.Background(), []byte("{}"), "sig", "rp", "cid", false)
 	require.EqualError(t, err, "denied: retry")
 }
 
@@ -640,7 +640,7 @@ func (ts *AuthenticatorTestSuite) TestCallKycAuthEndpointKycStatusFalseWithoutEr
 	defer srv.Close()
 	p := newProvider(nil)
 	p.cfg.KYCAuthBaseURL = srv.URL
-	psut, kycToken, err := p.callKycAuthEndpoint([]byte("{}"), "sig", "rp", "cid", false)
+	psut, kycToken, err := p.callKycAuthEndpoint(context.Background(), []byte("{}"), "sig", "rp", "cid", false)
 	require.EqualError(t, err, "no errors in response wrapper")
 	require.Empty(t, psut)
 	require.Empty(t, kycToken)
@@ -657,7 +657,7 @@ func (ts *AuthenticatorTestSuite) TestCallKycAuthEndpointSuccess() {
 	p := newProvider(nil)
 	p.cfg.KYCAuthBaseURL = srv.URL
 
-	authToken, kycToken, err := p.callKycAuthEndpoint([]byte("{}"), "sig", "rp-1", "client-1", false)
+	authToken, kycToken, err := p.callKycAuthEndpoint(context.Background(), []byte("{}"), "sig", "rp-1", "client-1", false)
 	require.NoError(t, err)
 	require.Equal(t, "authtok", authToken)
 	require.Equal(t, "kyctok", kycToken)
@@ -672,7 +672,7 @@ func (ts *AuthenticatorTestSuite) TestCallKycExchangeEndpointInvalidURL() {
 	t := ts.T()
 	p := newProvider(nil)
 	p.cfg.KYCExchangeBaseURL = "http://host/%zz"
-	_, err := p.callKycExchangeEndpoint([]byte("{}"), "sig", "rp", "cid")
+	_, err := p.callKycExchangeEndpoint(context.Background(), []byte("{}"), "sig", "rp", "cid")
 	require.ErrorContains(t, err, "invalid KYC exchange URL")
 }
 
@@ -682,7 +682,7 @@ func (ts *AuthenticatorTestSuite) TestCallKycExchangeEndpointNonOKStatus() {
 	defer srv.Close()
 	p := newProvider(nil)
 	p.cfg.KYCExchangeBaseURL = srv.URL
-	_, err := p.callKycExchangeEndpoint([]byte("{}"), "sig", "rp", "cid")
+	_, err := p.callKycExchangeEndpoint(context.Background(), []byte("{}"), "sig", "rp", "cid")
 	require.ErrorContains(t, err, "unexpected KYC exchange status: 502")
 }
 
@@ -692,7 +692,7 @@ func (ts *AuthenticatorTestSuite) TestCallKycExchangeEndpointMalformedBody() {
 	defer srv.Close()
 	p := newProvider(nil)
 	p.cfg.KYCExchangeBaseURL = srv.URL
-	_, err := p.callKycExchangeEndpoint([]byte("{}"), "sig", "rp", "cid")
+	_, err := p.callKycExchangeEndpoint(context.Background(), []byte("{}"), "sig", "rp", "cid")
 	require.ErrorContains(t, err, "failed to parse IdaKycExchangeResponseWrapper")
 }
 
@@ -702,7 +702,7 @@ func (ts *AuthenticatorTestSuite) TestCallKycExchangeEndpointResponseMissing() {
 	defer srv.Close()
 	p := newProvider(nil)
 	p.cfg.KYCExchangeBaseURL = srv.URL
-	_, err := p.callKycExchangeEndpoint([]byte("{}"), "sig", "rp", "cid")
+	_, err := p.callKycExchangeEndpoint(context.Background(), []byte("{}"), "sig", "rp", "cid")
 	require.EqualError(t, err, "response object is missing in wrapper")
 }
 
@@ -713,7 +713,7 @@ func (ts *AuthenticatorTestSuite) TestCallKycExchangeEndpointEmptyEncryptedKycWi
 	defer srv.Close()
 	p := newProvider(nil)
 	p.cfg.KYCExchangeBaseURL = srv.URL
-	_, err := p.callKycExchangeEndpoint([]byte("{}"), "sig", "rp", "cid")
+	_, err := p.callKycExchangeEndpoint(context.Background(), []byte("{}"), "sig", "rp", "cid")
 	require.EqualError(t, err, "denied: retry")
 }
 
@@ -723,7 +723,7 @@ func (ts *AuthenticatorTestSuite) TestCallKycExchangeEndpointEmptyEncryptedKycNo
 	defer srv.Close()
 	p := newProvider(nil)
 	p.cfg.KYCExchangeBaseURL = srv.URL
-	_, err := p.callKycExchangeEndpoint([]byte("{}"), "sig", "rp", "cid")
+	_, err := p.callKycExchangeEndpoint(context.Background(), []byte("{}"), "sig", "rp", "cid")
 	require.EqualError(t, err, "no errors in response wrapper")
 }
 
@@ -733,7 +733,7 @@ func (ts *AuthenticatorTestSuite) TestCallKycExchangeEndpointInvalidJWT() {
 	defer srv.Close()
 	p := newProvider(nil)
 	p.cfg.KYCExchangeBaseURL = srv.URL
-	_, err := p.callKycExchangeEndpoint([]byte("{}"), "sig", "rp", "cid")
+	_, err := p.callKycExchangeEndpoint(context.Background(), []byte("{}"), "sig", "rp", "cid")
 	require.ErrorContains(t, err, "failed to parse KYC JWT payload")
 }
 
@@ -748,7 +748,7 @@ func (ts *AuthenticatorTestSuite) TestCallKycExchangeEndpointSuccess() {
 	p := newProvider(nil)
 	p.cfg.KYCExchangeBaseURL = srv.URL
 
-	resp, callErr := p.callKycExchangeEndpoint([]byte("{}"), "sig", "rp", "cid")
+	resp, callErr := p.callKycExchangeEndpoint(context.Background(), []byte("{}"), "sig", "rp", "cid")
 	require.NoError(t, callErr)
 	require.Equal(t, "user-1", resp.Attributes["sub"].Value)
 	require.Equal(t, "John", resp.Attributes["name"].Value)
@@ -762,25 +762,25 @@ func (ts *AuthenticatorTestSuite) TestGetApplicationAndClientIDErrors() {
 	t := ts.T()
 	p := newProvider(newValidClientService())
 
-	_, err := p.getApplicationAndClientID(nil)
+	_, err := p.getApplicationAndClientID(context.Background(), nil)
 	require.ErrorContains(t, err, "missing runtime metadata")
 
 	pNoSvc := newProvider(nil)
-	_, err = pNoSvc.getApplicationAndClientID(map[string][]string{runtimeKeyClientID: {"client-1"}})
+	_, err = pNoSvc.getApplicationAndClientID(context.Background(), map[string][]string{runtimeKeyClientID: {"client-1"}})
 	require.ErrorContains(t, err, "client service is not initialized")
 
-	_, err = p.getApplicationAndClientID(map[string][]string{})
+	_, err = p.getApplicationAndClientID(context.Background(), map[string][]string{})
 	require.ErrorContains(t, err, "missing client_id")
 
 	pErr := newProvider(newTestClientService(db.ClientDetail{}, errors.New("boom")))
-	_, err = pErr.getApplicationAndClientID(map[string][]string{runtimeKeyClientID: {"client-1"}})
+	_, err = pErr.getApplicationAndClientID(context.Background(), map[string][]string{runtimeKeyClientID: {"client-1"}})
 	require.ErrorContains(t, err, "failed to resolve client")
 }
 
 func (ts *AuthenticatorTestSuite) TestGetApplicationAndClientIDSuccess() {
 	t := ts.T()
 	p := newProvider(newValidClientService())
-	dtl, err := p.getApplicationAndClientID(map[string][]string{runtimeKeyClientID: {"client-1"}})
+	dtl, err := p.getApplicationAndClientID(context.Background(), map[string][]string{runtimeKeyClientID: {"client-1"}})
 	require.NoError(t, err)
 	require.Equal(t, "client-1", dtl.ClientID)
 	require.Equal(t, "rp-1", dtl.RpID)

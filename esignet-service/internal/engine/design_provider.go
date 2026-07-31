@@ -117,12 +117,12 @@ func (p *designProvider) getLayout(ctx context.Context) (json.RawMessage, *commo
 
 	layoutData, err := os.ReadFile(filepath.Join(p.cfg.DataDir, "layouts", p.cfg.LayoutID+".yaml"))
 	if err != nil {
-		applog.GetLogger().Warn("layout file not found", applog.String("layoutId", p.cfg.LayoutID), applog.Error(err))
+		applog.GetLogger().Warn(ctx, "layout file not found", applog.String("layoutId", p.cfg.LayoutID), applog.Error(err))
 		return nil, shared.FileNotFoundError
 	}
 	layout, err := parseToLayout(layoutData)
 	if err != nil {
-		applog.GetLogger().Warn("failed to parse layout file", applog.String("layoutId", p.cfg.LayoutID), applog.Error(err))
+		applog.GetLogger().Warn(ctx, "failed to parse layout file", applog.String("layoutId", p.cfg.LayoutID), applog.Error(err))
 		return nil, shared.FileUnmarshallError
 	}
 
@@ -138,12 +138,12 @@ func (p *designProvider) getTheme(ctx context.Context) (json.RawMessage, *common
 
 	themeData, err := os.ReadFile(filepath.Join(p.cfg.DataDir, "themes", p.cfg.ThemeID+".yaml"))
 	if err != nil {
-		applog.GetLogger().Warn("theme file not found", applog.String("themeId", p.cfg.ThemeID), applog.Error(err))
+		applog.GetLogger().Warn(ctx, "theme file not found", applog.String("themeId", p.cfg.ThemeID), applog.Error(err))
 		return nil, shared.FileNotFoundError
 	}
 	theme, err := parseToTheme(themeData)
 	if err != nil {
-		applog.GetLogger().Warn("failed to parse theme file", applog.String("themeId", p.cfg.ThemeID), applog.Error(err))
+		applog.GetLogger().Warn(ctx, "failed to parse theme file", applog.String("themeId", p.cfg.ThemeID), applog.Error(err))
 		return nil, shared.FileUnmarshallError
 	}
 
@@ -160,7 +160,7 @@ func (p *designProvider) getCached(ctx context.Context, namespace providers.Runt
 	}
 	data, err := p.cache.Get(ctx, namespace, key)
 	if err != nil {
-		applog.GetLogger().Warn("design cache get failed", applog.String("key", key), applog.Error(err))
+		applog.GetLogger().Warn(ctx, "design cache get failed", applog.String("key", key), applog.Error(err))
 		return nil, false
 	}
 	if data == nil {
@@ -176,7 +176,7 @@ func (p *designProvider) setCached(ctx context.Context, namespace providers.Runt
 		return
 	}
 	if err := p.cache.Put(ctx, namespace, key, value, p.cacheTTLSecs); err != nil {
-		applog.GetLogger().Warn("design cache put failed", applog.String("key", key), applog.Error(err))
+		applog.GetLogger().Warn(ctx, "design cache put failed", applog.String("key", key), applog.Error(err))
 	}
 }
 

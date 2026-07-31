@@ -473,32 +473,32 @@ func (ts *AuthenticatorTestSuite) TestGetApplicationAndClientID() {
 
 	t.Run("nil runtime metadata", func(t *testing.T) {
 		p := newTestProvider(t, "", "", "")
-		_, err := p.getApplicationAndClientID(nil)
+		_, err := p.getApplicationAndClientID(context.Background(), nil)
 		require.Error(t, err)
 	})
 
 	t.Run("nil client service", func(t *testing.T) {
 		p := newTestProvider(t, "", "", "")
 		p.clientSvc = nil
-		_, err := p.getApplicationAndClientID(map[string][]string{runtimeKeyClientID: {"client-1"}})
+		_, err := p.getApplicationAndClientID(context.Background(), map[string][]string{runtimeKeyClientID: {"client-1"}})
 		require.Error(t, err)
 	})
 
 	t.Run("missing client id in metadata", func(t *testing.T) {
 		p := newTestProvider(t, "", "", "")
-		_, err := p.getApplicationAndClientID(map[string][]string{})
+		_, err := p.getApplicationAndClientID(context.Background(), map[string][]string{})
 		require.Error(t, err)
 	})
 
 	t.Run("client not found", func(t *testing.T) {
 		p := newTestProvider(t, "", "", "")
-		_, err := p.getApplicationAndClientID(map[string][]string{runtimeKeyClientID: {"missing"}})
+		_, err := p.getApplicationAndClientID(context.Background(), map[string][]string{runtimeKeyClientID: {"missing"}})
 		require.Error(t, err)
 	})
 
 	t.Run("success", func(t *testing.T) {
 		p := newTestProvider(t, "", "", "")
-		clientDtl, err := p.getApplicationAndClientID(map[string][]string{runtimeKeyClientID: {"client-1"}})
+		clientDtl, err := p.getApplicationAndClientID(context.Background(), map[string][]string{runtimeKeyClientID: {"client-1"}})
 		require.NoError(t, err)
 		require.Equal(t, "client-1", clientDtl.ClientID)
 		require.Equal(t, "rp-1", clientDtl.RpID)

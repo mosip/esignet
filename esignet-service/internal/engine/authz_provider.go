@@ -22,7 +22,7 @@ type authorizationProvider struct {
 
 // NewAuthorizationProvider returns a permissive authorization provider for local development.
 func NewAuthorizationProvider(cfg *config.AppConfig) providers.AuthorizationProvider {
-	applog.GetLogger().Warn("authorization provider running in permissive mode: every access evaluation is granted; not for production use")
+	applog.GetLogger().Warn(context.Background(), "authorization provider running in permissive mode: every access evaluation is granted; not for production use")
 	return &authorizationProvider{cfg: cfg}
 }
 

@@ -8,6 +8,7 @@ package log
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"log/slog"
@@ -17,6 +18,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	appcontext "github.com/mosip/esignet/internal/context"
 )
 
 func (ts *LogTestSuite) TestResolveLevel() {
@@ -104,21 +107,23 @@ func (ts *LogTestSuite) TestLoggerMethods() {
 	t := ts.T()
 	l := GetLogger()
 
+	ctx := context.Background()
+
 	// These exercise the wrapper methods and convertFields; correctness of the
 	// underlying slog output is slog's responsibility, not ours.
-	assert.NotPanics(t, func() { l.Debug("debug message", String("k", "v")) })
-	assert.NotPanics(t, func() { l.Info("info message", Int("k", 1)) })
-	assert.NotPanics(t, func() { l.Warn("warn message", Bool("k", true)) })
-	assert.NotPanics(t, func() { l.Error("error message", Error(errors.New("boom"))) })
-	assert.NotPanics(t, func() { l.Access(String("req.method", "GET")) })
+	assert.NotPanics(t, func() { l.Debug(ctx, "debug message", String("k", "v")) })
+	assert.NotPanics(t, func() { l.Info(ctx, "info message", Int("k", 1)) })
+	assert.NotPanics(t, func() { l.Warn(ctx, "warn message", Bool("k", true)) })
+	assert.NotPanics(t, func() { l.Error(ctx, "error message", Error(errors.New("boom"))) })
+	assert.NotPanics(t, func() { l.Access(ctx, String("req.method", "GET")) })
 
 	child := l.With(String("component", "test"))
 	assert.NotNil(t, child)
-	assert.NotPanics(t, func() { child.Info("child logger message") })
+	assert.NotPanics(t, func() { child.Info(ctx, "child logger message") })
 
 	named := l.Named("clientmgmt")
 	assert.NotNil(t, named)
-	assert.NotPanics(t, func() { named.Info("named logger message") })
+	assert.NotPanics(t, func() { named.Info(ctx, "named logger message") })
 }
 
 // newTestLogger builds a Logger around a JSON handler writing to buf, using
@@ -137,7 +142,7 @@ func (ts *LogTestSuite) TestJSONOutputSchema() {
 	buf := &bytes.Buffer{}
 	l := newTestLogger(buf, slog.LevelDebug)
 
-	l.Named("clientmgmt").Info("hello", String("k", "v"))
+	l.Named("clientmgmt").Info(context.Background(), "hello", String("k", "v"))
 
 	var out map[string]any
 	require.NoError(t, json.Unmarshal(buf.Bytes(), &out))
@@ -160,29 +165,57 @@ func (ts *LogTestSuite) TestLevelValueMapping() {
 
 	tests := []struct {
 		name     string
-		log      func(l *Logger)
+		log      func(l *Logger, ctx context.Context)
 		wantName string
 		wantVal  float64
 	}{
-		{"debug", func(l *Logger) { l.Debug("m") }, "DEBUG", levelValueDebug},
-		{"info", func(l *Logger) { l.Info("m") }, "INFO", levelValueInfo},
-		{"warn", func(l *Logger) { l.Warn("m") }, "WARN", levelValueWarn},
-		{"error", func(l *Logger) { l.Error("m") }, "ERROR", levelValueError},
+		{"debug", func(l *Logger, ctx context.Context) { l.Debug(ctx, "m") }, "DEBUG", levelValueDebug},
+		{"info", func(l *Logger, ctx context.Context) { l.Info(ctx, "m") }, "INFO", levelValueInfo},
+		{"warn", func(l *Logger, ctx context.Context) { l.Warn(ctx, "m") }, "WARN", levelValueWarn},
+		{"error", func(l *Logger, ctx context.Context) { l.Error(ctx, "m") }, "ERROR", levelValueError},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			buf := &bytes.Buffer{}
 			l := newTestLogger(buf, slog.LevelDebug)
+			ctx := appcontext.WithTraceID(context.Background(), "trace-xyz")
 
-			tc.log(l)
+			tc.log(l, ctx)
 
 			var out map[string]any
 			require.NoError(t, json.Unmarshal(buf.Bytes(), &out))
 			assert.Equal(t, tc.wantName, out["level"])
 			assert.Equal(t, tc.wantVal, out[levelValueKey])
+			assert.Equal(t, "trace-xyz", out[traceIDFieldKey])
 		})
 	}
+}
+
+func (ts *LogTestSuite) TestLoggerMethodsDefaultTraceIDToDash() {
+	t := ts.T()
+	buf := &bytes.Buffer{}
+	l := newTestLogger(buf, slog.LevelDebug)
+
+	l.Info(context.Background(), "no trace id in context")
+
+	var out map[string]any
+	require.NoError(t, json.Unmarshal(buf.Bytes(), &out))
+	assert.Equal(t, "-", out[traceIDFieldKey])
+}
+
+func (ts *LogTestSuite) TestLoggerMethodsPreserveCallerFields() {
+	t := ts.T()
+	buf := &bytes.Buffer{}
+	l := newTestLogger(buf, slog.LevelDebug)
+	ctx := appcontext.WithTraceID(context.Background(), "trace-xyz")
+
+	l.Info(ctx, "hello", String("clientId", "abc"))
+
+	var out map[string]any
+	require.NoError(t, json.Unmarshal(buf.Bytes(), &out))
+	assert.Equal(t, "trace-xyz", out[traceIDFieldKey])
+	assert.Equal(t, "abc", out["clientId"])
 }
 
 func (ts *LogTestSuite) TestAccessLevelBypassesLogLevelThreshold() {
@@ -191,8 +224,9 @@ func (ts *LogTestSuite) TestAccessLevelBypassesLogLevelThreshold() {
 	// Configure a threshold above every normal app level to prove ACCESS
 	// records are still emitted.
 	l := newTestLogger(buf, slog.LevelError+1)
+	ctx := appcontext.WithTraceID(context.Background(), "trace-xyz")
 
-	l.Access(String("req.method", "GET"), Int("statusCode", 200))
+	l.Access(ctx, String("req.method", "GET"), Int("statusCode", 200))
 
 	var out map[string]any
 	require.NoError(t, json.Unmarshal(buf.Bytes(), &out))
@@ -200,6 +234,7 @@ func (ts *LogTestSuite) TestAccessLevelBypassesLogLevelThreshold() {
 	assert.Equal(t, float64(levelValueAccess), out[levelValueKey])
 	assert.Equal(t, "GET", out["req.method"])
 	assert.Equal(t, float64(200), out["statusCode"])
+	assert.Equal(t, "trace-xyz", out[traceIDFieldKey])
 }
 
 type LogTestSuite struct {

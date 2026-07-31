@@ -7,6 +7,7 @@
 package common
 
 import (
+	"context"
 	"encoding/json"
 	"net/http/httptest"
 	"testing"
@@ -30,7 +31,7 @@ func (ts *UtilsTestSuite) TestGetResponseTime() {
 func (ts *UtilsTestSuite) TestWriteJSON() {
 	t := ts.T()
 	rec := httptest.NewRecorder()
-	WriteJSON(rec, 201, map[string]string{"foo": "bar"})
+	WriteJSON(context.Background(), rec, 201, map[string]string{"foo": "bar"})
 
 	if rec.Code != 201 {
 		t.Errorf("status = %d, want 201", rec.Code)
@@ -50,7 +51,7 @@ func (ts *UtilsTestSuite) TestWriteJSON() {
 func (ts *UtilsTestSuite) TestWriteError() {
 	t := ts.T()
 	rec := httptest.NewRecorder()
-	WriteError(rec, 400, "invalid_input", "something went wrong")
+	WriteError(context.Background(), rec, 400, "invalid_input", "something went wrong")
 
 	if rec.Code != 400 {
 		t.Errorf("status = %d, want 400", rec.Code)

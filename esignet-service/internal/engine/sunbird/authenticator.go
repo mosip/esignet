@@ -123,7 +123,7 @@ func (p *sunbirdAuthnProvider) GetAttributes(ctx context.Context, attributeToken
 		return nil, shared.InvalidRequestError
 	}
 
-	mappedClaims := buildSunbirdMappedClaims(entityData, p.cfg.ClaimsMapping)
+	mappedClaims := buildSunbirdMappedClaims(ctx, entityData, p.cfg.ClaimsMapping)
 
 	mappedClaimsMap := make(map[string]*providers.AttributeResponse, len(mappedClaims))
 	for claim, value := range mappedClaims {
@@ -198,7 +198,7 @@ func (p *sunbirdAuthnProvider) validateKBI(ctx context.Context, individualID str
 	}
 
 	if len(results) != 1 {
-		applog.GetLogger().Debug("sunbird registry search did not match exactly one entity",
+		applog.GetLogger().Debug(ctx, "sunbird registry search did not match exactly one entity",
 			applog.Int("matches", len(results)))
 		return "", errSunbirdKBIAuthFailed
 	}
@@ -265,7 +265,7 @@ func parseSunbirdClaimsMapping(jsonStr string) (map[string]string, error) {
 // mapping is empty or malformed, no claims are released, so unmapped registry
 // fields are never disclosed as OIDC attributes. This mirrors the upstream Java
 // SunbirdRC plugin, which only emits claims that have an explicit mapping.
-func buildSunbirdMappedClaims(entityData map[string]interface{},
+func buildSunbirdMappedClaims(ctx context.Context, entityData map[string]interface{},
 	claimsMappingJSON string) map[string]interface{} {
 
 	if claimsMappingJSON == "" {
@@ -274,7 +274,7 @@ func buildSunbirdMappedClaims(entityData map[string]interface{},
 
 	claimsMapping, err := parseSunbirdClaimsMapping(claimsMappingJSON)
 	if err != nil {
-		applog.GetLogger().Warn("failed to parse SUNBIRD_CLAIMS_MAPPING; dropping all claims to avoid disclosing raw registry fields",
+		applog.GetLogger().Warn(ctx, "failed to parse SUNBIRD_CLAIMS_MAPPING; dropping all claims to avoid disclosing raw registry fields",
 			applog.Error(err))
 		return map[string]interface{}{}
 	}

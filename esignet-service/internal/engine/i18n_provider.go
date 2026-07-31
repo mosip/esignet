@@ -33,11 +33,11 @@ func NewI18nProvider(cfg *config.AppConfig) providers.I18nProvider {
 }
 
 // ListLanguages scans the data/i18n directory and returns all available language codes.
-func (p *i18nProvider) ListLanguages(_ context.Context) ([]string, *common.ServiceError) {
+func (p *i18nProvider) ListLanguages(ctx context.Context) ([]string, *common.ServiceError) {
 	dir := filepath.Join(p.cfg.DataDir, "i18n")
 	entries, err := os.ReadDir(dir)
 	if err != nil {
-		applog.GetLogger().Warn("failed to read i18n directory", applog.String("dir", dir), applog.Error(err))
+		applog.GetLogger().Warn(ctx, "failed to read i18n directory", applog.String("dir", dir), applog.Error(err))
 		return nil, shared.FileNotFoundError
 	}
 
@@ -71,7 +71,7 @@ func (p *i18nProvider) ResolveTranslations(
 
 	data, err := os.ReadFile(filepath.Join(p.cfg.DataDir, "i18n", resolved+".yaml"))
 	if err != nil {
-		applog.GetLogger().Warn("i18n file not found",
+		applog.GetLogger().Warn(ctx, "i18n file not found",
 			applog.String("requested", requestedLang),
 			applog.String("resolved", resolved),
 			applog.Error(err))
@@ -82,7 +82,7 @@ func (p *i18nProvider) ResolveTranslations(
 	// Unmarshal as map[namespace]map[key]value, then build the response.
 	var raw map[string]map[string]string
 	if err := yaml.Unmarshal(data, &raw); err != nil {
-		applog.GetLogger().Warn("failed to parse i18n file",
+		applog.GetLogger().Warn(ctx, "failed to parse i18n file",
 			applog.String("language", resolved),
 			applog.Error(err))
 		return nil, shared.FileUnmarshallError

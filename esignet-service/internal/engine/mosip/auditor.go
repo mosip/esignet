@@ -19,6 +19,7 @@ import (
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
+	appcontext "github.com/mosip/esignet/internal/context"
 	applog "github.com/mosip/esignet/internal/log"
 )
 
@@ -73,20 +74,24 @@ func (a *auditor) IsEnabled() bool {
 
 // PublishEvent maps a flow lifecycle event to an audit record and posts it
 // asynchronously. Errors never propagate to the caller.
-func (a *auditor) PublishEvent(_ context.Context, evt *providers.Event) {
+func (a *auditor) PublishEvent(ctx context.Context, evt *providers.Event) {
 	if evt == nil {
 		return
 	}
 
 	req := a.toAuditRequest(evt)
+	traceID := appcontext.TraceIDFromContext(ctx)
 
 	go func() {
-		ctx, cancel := context.WithTimeout(context.Background(), publishTimeout)
+		// Deliberately derived from context.Background(), not ctx: the publish
+		// must outlive the request that triggered it, so it can't inherit the
+		// request's cancellation. The trace ID is carried over separately so
+		// the fire-and-forget log line still correlates back to that request.
+		publishCtx, cancel := context.WithTimeout(appcontext.WithTraceID(context.Background(), traceID), publishTimeout)
 		defer cancel()
-		if err := a.client.Post(ctx, req); err != nil {
-			a.log.Error("audit: failed to publish event",
+		if err := a.client.Post(publishCtx, req); err != nil {
+			a.log.Error(publishCtx, "audit: failed to publish event",
 				applog.String("event_type", evt.Type),
-				applog.String("trace_id", evt.TraceID),
 				applog.Error(err))
 		}
 	}()
@@ -208,7 +213,7 @@ func (c *Client) Post(ctx context.Context, audit AuditRequest) error {
 
 	// A stale token yields 401/403; purge and retry once with a fresh token.
 	if status == http.StatusUnauthorized || status == http.StatusForbidden {
-		c.log.Warn("audit: auth rejected by audit manager, refreshing token",
+		c.log.Warn(ctx, "audit: auth rejected by audit manager, refreshing token",
 			applog.Int("status", status))
 		c.token.Purge()
 		if status, err = c.send(ctx, body); err != nil {
@@ -217,7 +222,7 @@ func (c *Client) Post(ctx context.Context, audit AuditRequest) error {
 	}
 
 	if status < 200 || status >= 300 {
-		c.log.Error("audit: audit manager returned non-2xx status",
+		c.log.Error(ctx, "audit: audit manager returned non-2xx status",
 			applog.Int("status", status))
 	}
 	return nil
@@ -249,7 +254,7 @@ func (c *Client) send(ctx context.Context, body []byte) (int, error) {
 	if httpResp.StatusCode >= 200 && httpResp.StatusCode < 300 {
 		var wrapper AuditResponseWrapper
 		if json.Unmarshal(bodyBytes, &wrapper) == nil && len(wrapper.Errors) > 0 {
-			c.log.Error("audit: audit manager returned errors",
+			c.log.Error(ctx, "audit: audit manager returned errors",
 				applog.Any("errors", wrapper.Errors))
 		}
 	}
