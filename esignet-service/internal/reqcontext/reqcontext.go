@@ -4,9 +4,9 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-// Package context carries request-scoped values, such as the trace/correlation
-// ID, across API boundaries.
-package context
+// Package reqcontext carries request-scoped values, such as the
+// trace/correlation ID, across API boundaries.
+package reqcontext
 
 import "context"
 

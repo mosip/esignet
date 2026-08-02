@@ -14,7 +14,7 @@ import (
 	"net/http"
 	"strings"
 
-	appcontext "github.com/mosip/esignet/internal/context"
+	"github.com/mosip/esignet/internal/reqcontext"
 )
 
 // CorrelationIDHeader is the header used to propagate the request's
@@ -55,7 +55,7 @@ func CorrelationID(next http.Handler) http.Handler {
 
 		r.Header.Set(CorrelationIDHeader, id)
 		w.Header().Set(CorrelationIDHeader, id)
-		r = r.WithContext(appcontext.WithTraceID(r.Context(), id))
+		r = r.WithContext(reqcontext.WithTraceID(r.Context(), id))
 
 		next.ServeHTTP(w, r)
 	})

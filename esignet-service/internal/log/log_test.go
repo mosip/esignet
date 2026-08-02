@@ -19,7 +19,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	appcontext "github.com/mosip/esignet/internal/context"
+	"github.com/mosip/esignet/internal/reqcontext"
 )
 
 func (ts *LogTestSuite) TestResolveLevel() {
@@ -179,7 +179,7 @@ func (ts *LogTestSuite) TestLevelValueMapping() {
 		t.Run(tc.name, func(t *testing.T) {
 			buf := &bytes.Buffer{}
 			l := newTestLogger(buf, slog.LevelDebug)
-			ctx := appcontext.WithTraceID(context.Background(), "trace-xyz")
+			ctx := reqcontext.WithTraceID(context.Background(), "trace-xyz")
 
 			tc.log(l, ctx)
 
@@ -208,7 +208,7 @@ func (ts *LogTestSuite) TestLoggerMethodsPreserveCallerFields() {
 	t := ts.T()
 	buf := &bytes.Buffer{}
 	l := newTestLogger(buf, slog.LevelDebug)
-	ctx := appcontext.WithTraceID(context.Background(), "trace-xyz")
+	ctx := reqcontext.WithTraceID(context.Background(), "trace-xyz")
 
 	l.Info(ctx, "hello", String("clientId", "abc"))
 
@@ -224,7 +224,7 @@ func (ts *LogTestSuite) TestAccessLevelBypassesLogLevelThreshold() {
 	// Configure a threshold above every normal app level to prove ACCESS
 	// records are still emitted.
 	l := newTestLogger(buf, slog.LevelError+1)
-	ctx := appcontext.WithTraceID(context.Background(), "trace-xyz")
+	ctx := reqcontext.WithTraceID(context.Background(), "trace-xyz")
 
 	l.Access(ctx, String("req.method", "GET"), Int("statusCode", 200))
 

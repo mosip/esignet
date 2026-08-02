@@ -19,8 +19,8 @@ import (
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
-	appcontext "github.com/mosip/esignet/internal/context"
 	applog "github.com/mosip/esignet/internal/log"
+	"github.com/mosip/esignet/internal/reqcontext"
 )
 
 const (
@@ -80,14 +80,14 @@ func (a *auditor) PublishEvent(ctx context.Context, evt *providers.Event) {
 	}
 
 	req := a.toAuditRequest(evt)
-	traceID := appcontext.TraceIDFromContext(ctx)
+	traceID := reqcontext.TraceIDFromContext(ctx)
 
 	go func() {
 		// Deliberately derived from context.Background(), not ctx: the publish
 		// must outlive the request that triggered it, so it can't inherit the
 		// request's cancellation. The trace ID is carried over separately so
 		// the fire-and-forget log line still correlates back to that request.
-		publishCtx, cancel := context.WithTimeout(appcontext.WithTraceID(context.Background(), traceID), publishTimeout)
+		publishCtx, cancel := context.WithTimeout(reqcontext.WithTraceID(context.Background(), traceID), publishTimeout)
 		defer cancel()
 		if err := a.client.Post(publishCtx, req); err != nil {
 			a.log.Error(publishCtx, "audit: failed to publish event",
