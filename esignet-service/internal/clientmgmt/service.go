@@ -330,7 +330,7 @@ func (s *Service) getCachedRow(ctx context.Context, clientID string) (db.ClientD
 	}
 	data, err := s.cache.Get(ctx, clientCacheNamespace, clientID)
 	if err != nil {
-		s.logger.Warn("client cache get failed", applog.String("client_id", clientID), applog.Error(err))
+		s.logger.Warn(ctx, "client cache get failed", applog.String("client_id", clientID), applog.Error(err))
 		return db.ClientDetail{}, false
 	}
 	if data == nil {
@@ -338,10 +338,10 @@ func (s *Service) getCachedRow(ctx context.Context, clientID string) (db.ClientD
 	}
 	var row db.ClientDetail
 	if err := json.Unmarshal(data, &row); err != nil {
-		s.logger.Warn("client cache decode failed", applog.String("client_id", clientID), applog.Error(err))
+		s.logger.Warn(ctx, "client cache decode failed", applog.String("client_id", clientID), applog.Error(err))
 		return db.ClientDetail{}, false
 	}
-	s.logger.Debug("client cache hit", applog.String("client_id", clientID))
+	s.logger.Debug(ctx, "client cache hit", applog.String("client_id", clientID))
 	return row, true
 }
 
@@ -353,11 +353,11 @@ func (s *Service) cacheRow(ctx context.Context, clientID string, row db.ClientDe
 	}
 	data, err := json.Marshal(row)
 	if err != nil {
-		s.logger.Warn("client cache encode failed", applog.String("client_id", clientID), applog.Error(err))
+		s.logger.Warn(ctx, "client cache encode failed", applog.String("client_id", clientID), applog.Error(err))
 		return
 	}
 	if err := s.cache.Put(ctx, clientCacheNamespace, clientID, data, s.cacheTTLSecs); err != nil {
-		s.logger.Warn("client cache put failed", applog.String("client_id", clientID), applog.Error(err))
+		s.logger.Warn(ctx, "client cache put failed", applog.String("client_id", clientID), applog.Error(err))
 	}
 }
 
@@ -371,7 +371,7 @@ func (s *Service) invalidateCache(ctx context.Context, clientID string) error {
 		return nil
 	}
 	if err := s.cache.Delete(ctx, clientCacheNamespace, clientID); err != nil {
-		s.logger.Warn("client cache invalidate failed", applog.String("client_id", clientID), applog.Error(err))
+		s.logger.Warn(ctx, "client cache invalidate failed", applog.String("client_id", clientID), applog.Error(err))
 		return fmt.Errorf("invalidate client cache: %w", err)
 	}
 	return nil

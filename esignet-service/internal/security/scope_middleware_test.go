@@ -7,6 +7,7 @@
 package security
 
 import (
+	"context"
 	"crypto/rand"
 	"crypto/rsa"
 	"encoding/base64"
@@ -398,7 +399,7 @@ func (ts *ScopeMiddlewareTestSuite) TestParseAndValidate_MissingKid() {
 		t.Fatalf("SignedString: %v", err)
 	}
 
-	if _, err := parseAndValidate(parser, signed, cache); err == nil {
+	if _, err := parseAndValidate(context.Background(), parser, signed, cache); err == nil {
 		t.Fatal("expected error when token header has no kid")
 	}
 }
@@ -410,7 +411,7 @@ func (ts *ScopeMiddlewareTestSuite) TestParseAndValidate_MalformedToken() {
 	cache := NewJWKSCache(srv.URL, time.Minute)
 	parser := jwt.NewParser()
 
-	if _, err := parseAndValidate(parser, "not-a-jwt", cache); err == nil {
+	if _, err := parseAndValidate(context.Background(), parser, "not-a-jwt", cache); err == nil {
 		t.Fatal("expected error for malformed token")
 	}
 }

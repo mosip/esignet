@@ -7,6 +7,7 @@
 package mosip
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
@@ -29,6 +30,6 @@ func Init(appConfig *config.AppConfig, clientSvc *clientmgmt.Service, httpClient
 	if err != nil {
 		return nil, nil, err
 	}
-	applog.GetLogger().Info("MOSIP IDA authn provider and audit manager initialized")
+	applog.GetLogger().Info(context.Background(), "MOSIP IDA authn provider and audit manager initialized")
 	return authnProvider, auditor, nil
 }

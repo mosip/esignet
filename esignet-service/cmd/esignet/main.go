@@ -8,6 +8,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"net/http"
@@ -43,12 +44,12 @@ func main() {
 	if err != nil {
 		logger.Fatal("postgres connection failed", applog.Error(err))
 	}
-	logger.Info("postgres connected",
+	logger.Info(context.Background(), "postgres connected",
 		applog.Int("maxOpenConns", appCfg.DB.Pool.MaxOpenConns),
 		applog.Int("maxIdleConns", appCfg.DB.Pool.MaxIdleConns))
 	defer func() {
 		if err := pgConn.Close(); err != nil {
-			logger.Warn("close postgres", applog.Error(err))
+			logger.Warn(context.Background(), "close postgres", applog.Error(err))
 		}
 	}()
 
@@ -63,10 +64,10 @@ func main() {
 		}
 		defer func() {
 			if err := redisClient.Close(); err != nil {
-				logger.Warn("close redis", applog.Error(err))
+				logger.Warn(context.Background(), "close redis", applog.Error(err))
 			}
 		}()
-		logger.Info("redis connected",
+		logger.Info(context.Background(), "redis connected",
 			applog.String("key_prefix", appCfg.Redis.KeyPrefix),
 		)
 	}
@@ -92,7 +93,7 @@ func main() {
 	if err != nil {
 		logger.Fatal("plugin providers", applog.Error(err))
 	}
-	logger.Info("authn provider selected", applog.String("provider", appCfg.Provider))
+	logger.Info(context.Background(), "authn provider selected", applog.String("provider", appCfg.Provider))
 
 	logLevel, err := applog.ConfiguredLevel()
 	if err != nil {
@@ -131,7 +132,7 @@ func main() {
 	)
 
 	addr := fmt.Sprintf(":%d", appCfg.Port)
-	logger.Info("server listening", applog.String("addr", addr), applog.String("issuer", appCfg.Issuer))
+	logger.Info(context.Background(), "server listening", applog.String("addr", addr), applog.String("issuer", appCfg.Issuer))
 	handler := httpmiddleware.CorrelationID(httpmiddleware.AccessLog(mux))
 	if err := http.ListenAndServe(addr, handler); err != nil {
 		logger.Fatal("server", applog.Error(err))
@@ -153,18 +154,18 @@ func getAppConfig() (*config.AppConfig, error) {
 func getSecurityMiddleware(appCfg *config.AppConfig, logger *applog.Logger) func(http.Handler) http.Handler {
 	var scopeMW func(http.Handler) http.Handler
 	if scopeEnforcementEnabled(appCfg) {
-		logger.Info("Scope enforcement enabled",
+		logger.Info(context.Background(), "Scope enforcement enabled",
 			applog.String("jwks_endpoint", appCfg.SecurityConfig.JwksURL),
 			applog.String("issuer", appCfg.SecurityConfig.IssuerURL),
 		)
 		jwksCache := security.NewJWKSCache(appCfg.SecurityConfig.JwksURL, time.Duration(appCfg.SecurityConfig.JwksCacheTTL))
 		scopeMW = security.ScopeMiddleware(jwksCache, appCfg.SecurityConfig)
 	} else {
-		logger.Warn("Scope enforcement disabled; set ISSUER_URL and JWKS_URL in security_config to enable")
+		logger.Warn(context.Background(), "Scope enforcement disabled; set ISSUER_URL and JWKS_URL in security_config to enable")
 	}
 
 	requestTimeLeeway := time.Duration(appCfg.SecurityConfig.RequestTimeLeewaySecs) * time.Second
-	logger.Info("Request time validation enabled", applog.String("leeway", requestTimeLeeway.String()))
+	logger.Info(context.Background(), "Request time validation enabled", applog.String("leeway", requestTimeLeeway.String()))
 	requestTimeMW := security.RequestTimeMiddleware(requestTimeLeeway)
 
 	if scopeMW != nil {

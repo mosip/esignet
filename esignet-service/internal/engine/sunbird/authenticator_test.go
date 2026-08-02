@@ -434,22 +434,22 @@ func (ts *AuthenticatorTestSuite) TestBuildSunbirdMappedClaims() {
 	t := ts.T()
 
 	t.Run("empty mapping json", func(t *testing.T) {
-		claims := buildSunbirdMappedClaims(map[string]interface{}{"fullName": "Jane"}, "")
+		claims := buildSunbirdMappedClaims(context.Background(), map[string]interface{}{"fullName": "Jane"}, "")
 		require.Empty(t, claims)
 	})
 
 	t.Run("malformed mapping json", func(t *testing.T) {
-		claims := buildSunbirdMappedClaims(map[string]interface{}{"fullName": "Jane"}, "not-json")
+		claims := buildSunbirdMappedClaims(context.Background(), map[string]interface{}{"fullName": "Jane"}, "not-json")
 		require.Empty(t, claims)
 	})
 
 	t.Run("missing registry field is skipped", func(t *testing.T) {
-		claims := buildSunbirdMappedClaims(map[string]interface{}{}, `{"name":"fullName"}`)
+		claims := buildSunbirdMappedClaims(context.Background(), map[string]interface{}{}, `{"name":"fullName"}`)
 		require.Empty(t, claims)
 	})
 
 	t.Run("mapped field present", func(t *testing.T) {
-		claims := buildSunbirdMappedClaims(map[string]interface{}{"fullName": "Jane"}, `{"name":"fullName"}`)
+		claims := buildSunbirdMappedClaims(context.Background(), map[string]interface{}{"fullName": "Jane"}, `{"name":"fullName"}`)
 		require.Equal(t, "Jane", claims["name"])
 	})
 }

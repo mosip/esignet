@@ -70,10 +70,10 @@ func NewMosipAuthnProvider(cfg *config.AppConfig, clientSvc *clientmgmt.Service,
 	return provider, nil
 }
 
-func (p *mosipAuthnProvider) Authenticate(_ context.Context, identifiers, credentials map[string]interface{},
+func (p *mosipAuthnProvider) Authenticate(ctx context.Context, identifiers, credentials map[string]interface{},
 	metadata *providers.AuthnMetadata) (*providers.AuthnResult, *common.ServiceError) {
 
-	clientDtl, err := p.getApplicationAndClientID(metadata.RuntimeMetadata)
+	clientDtl, err := p.getApplicationAndClientID(ctx, metadata.RuntimeMetadata)
 	if err != nil {
 		return nil, shared.ClientNotFoundError
 	}
@@ -159,7 +159,7 @@ func (p *mosipAuthnProvider) Authenticate(_ context.Context, identifiers, creden
 	if err != nil {
 		return nil, shared.AuthenticationFailedError
 	}
-	generatedCert, err := p.fetchIDAPartnerCertificate()
+	generatedCert, err := p.fetchIDAPartnerCertificate(ctx)
 	if err != nil {
 		return nil, shared.AuthenticationFailedError
 	}
@@ -187,7 +187,7 @@ func (p *mosipAuthnProvider) Authenticate(_ context.Context, identifiers, creden
 		return nil, shared.AuthenticationFailedError
 	}
 
-	psut, kycToken, err := p.callKycAuthEndpoint(requestBytes, requestSignature, clientDtl.RpID, clientDtl.ClientID, claimsMetadataRequired)
+	psut, kycToken, err := p.callKycAuthEndpoint(ctx, requestBytes, requestSignature, clientDtl.RpID, clientDtl.ClientID, claimsMetadataRequired)
 	if err != nil {
 		return nil, shared.AuthenticationFailedError
 	}
@@ -207,14 +207,14 @@ func (p *mosipAuthnProvider) GetEntityReference(_ context.Context, entityReferen
 	return &providers.EntityReference{EntityID: psut}, nil
 }
 
-func (p *mosipAuthnProvider) GetAttributes(_ context.Context, attributeToken any, consentedAttributes *providers.RequestedAttributes,
+func (p *mosipAuthnProvider) GetAttributes(ctx context.Context, attributeToken any, consentedAttributes *providers.RequestedAttributes,
 	metadata *providers.GetAttributesMetadata) (*providers.AttributesResponse, *common.ServiceError) {
 
 	if consentedAttributes == nil {
 		return nil, shared.InvalidRequestError
 	}
 
-	clientDtl, err := p.getApplicationAndClientID(metadata.RuntimeMetadata)
+	clientDtl, err := p.getApplicationAndClientID(ctx, metadata.RuntimeMetadata)
 	if err != nil {
 		return nil, shared.ClientNotFoundError
 	}
@@ -260,7 +260,7 @@ func (p *mosipAuthnProvider) GetAttributes(_ context.Context, attributeToken any
 	if err != nil {
 		return nil, shared.InvalidRequestError
 	}
-	attributesResponse, err := p.callKycExchangeEndpoint(requestBytes, requestSignature, clientDtl.RpID, clientDtl.ClientID)
+	attributesResponse, err := p.callKycExchangeEndpoint(ctx, requestBytes, requestSignature, clientDtl.RpID, clientDtl.ClientID)
 	if err != nil {
 		return nil, shared.AuthenticationFailedError
 	}
@@ -282,10 +282,10 @@ func (p *mosipAuthnProvider) Enroll(_ context.Context, _, _ map[string]interface
 	return nil, nil
 }
 
-func (p *mosipAuthnProvider) SendOTP(_ context.Context, identifiers map[string]interface{},
+func (p *mosipAuthnProvider) SendOTP(ctx context.Context, identifiers map[string]interface{},
 	metadata *providers.AuthnMetadata) (*shared.SendOTPResult, *common.ServiceError) {
 
-	clientDtl, err := p.getApplicationAndClientID(metadata.RuntimeMetadata)
+	clientDtl, err := p.getApplicationAndClientID(ctx, metadata.RuntimeMetadata)
 	if err != nil {
 		return nil, shared.ClientNotFoundError
 	}
@@ -316,7 +316,7 @@ func (p *mosipAuthnProvider) SendOTP(_ context.Context, identifiers map[string]i
 	if err != nil {
 		return nil, shared.InvalidRequestError
 	}
-	sendOTPResult, err := p.callSendOtpEndpoint(otpRequestBytes, requestSignature, clientDtl.RpID, clientDtl.ClientID)
+	sendOTPResult, err := p.callSendOtpEndpoint(ctx, otpRequestBytes, requestSignature, clientDtl.RpID, clientDtl.ClientID)
 	if err != nil {
 		return nil, shared.SendOTPFailedError
 	}
@@ -325,7 +325,7 @@ func (p *mosipAuthnProvider) SendOTP(_ context.Context, identifiers map[string]i
 	return sendOTPResult, nil
 }
 
-func (p *mosipAuthnProvider) getApplicationAndClientID(runtimeMetadata map[string][]string) (clientmgmt.ClientResponse, error) {
+func (p *mosipAuthnProvider) getApplicationAndClientID(ctx context.Context, runtimeMetadata map[string][]string) (clientmgmt.ClientResponse, error) {
 	if runtimeMetadata == nil {
 		return clientmgmt.ClientResponse{}, errors.New("missing runtime metadata")
 	}
@@ -337,7 +337,7 @@ func (p *mosipAuthnProvider) getApplicationAndClientID(runtimeMetadata map[strin
 	if len(values) == 0 {
 		return clientmgmt.ClientResponse{}, errors.New("missing client_id in runtime metadata")
 	}
-	client, err := p.clientSvc.GetClient(context.Background(), values[0])
+	client, err := p.clientSvc.GetClient(ctx, values[0])
 	if err != nil {
 		return clientmgmt.ClientResponse{}, fmt.Errorf("failed to resolve client %q: %w", values[0], err)
 	}
@@ -462,7 +462,7 @@ func SymmetricEncrypt(plaintext []byte, key []byte) (encrypted []byte, err error
 	return ciphertext, nil
 }
 
-func (p *mosipAuthnProvider) fetchIDAPartnerCertificate() (*x509.Certificate, error) {
+func (p *mosipAuthnProvider) fetchIDAPartnerCertificate(ctx context.Context) (*x509.Certificate, error) {
 	req, err := http.NewRequest(http.MethodGet, p.cfg.IDAPartnerCertificateURL, nil)
 	if err != nil {
 		return nil, err
@@ -490,7 +490,7 @@ func (p *mosipAuthnProvider) fetchIDAPartnerCertificate() (*x509.Certificate, er
 	// Decode PEM
 	block, _ := pem.Decode([]byte(certData))
 	if block == nil {
-		applog.GetLogger().Error("failed to parse certificate: no valid PEM block found")
+		applog.GetLogger().Error(ctx, "failed to parse certificate: no valid PEM block found")
 		return nil, fmt.Errorf("%w: no valid PEM block", ErrCertificateParsing)
 	}
 
@@ -629,12 +629,13 @@ func CreateAndSignJWTWithX5C(
 }
 
 func (p *mosipAuthnProvider) callSendOtpEndpoint(
+	ctx context.Context,
 	requestBody []byte, // already marshaled JSON of IdaKycAuthRequest
 	signature string, // from helperService.getRequestSignature(requestBody)
 	relyingPartyID string,
 	clientID string,
 ) (*shared.SendOTPResult, error) {
-	endpointURL, err := buildIDAEndpointURL(p.cfg.SendOTPBaseURL, relyingPartyID, clientID)
+	endpointURL, err := buildIDAEndpointURL(ctx, p.cfg.SendOTPBaseURL, relyingPartyID, clientID)
 	if err != nil {
 		return nil, fmt.Errorf("invalid send OTP URL: %w", err)
 	}
@@ -679,7 +680,7 @@ func (p *mosipAuthnProvider) callSendOtpEndpoint(
 		}, nil
 	}
 
-	applog.GetLogger().Error("IDA OTP error response",
+	applog.GetLogger().Error(ctx, "IDA OTP error response",
 		applog.Any("response", wrapper.Response),
 		applog.Any("errors", wrapper.Errors))
 
@@ -699,13 +700,14 @@ func (p *mosipAuthnProvider) callSendOtpEndpoint(
 
 // PerformKycAuth sends the KYC auth request to IDA and processes the response
 func (p *mosipAuthnProvider) callKycAuthEndpoint(
+	ctx context.Context,
 	requestBody []byte, // already marshaled JSON of IdaKycAuthRequest
 	signature string, // from helperService.getRequestSignature(requestBody)
 	relyingPartyID string,
 	clientID string,
 	_ bool,
 ) (string, string, error) {
-	endpointURL, err := buildIDAEndpointURL(p.cfg.KYCAuthBaseURL, relyingPartyID, clientID)
+	endpointURL, err := buildIDAEndpointURL(ctx, p.cfg.KYCAuthBaseURL, relyingPartyID, clientID)
 	if err != nil {
 		return "", "", err
 	}
@@ -752,7 +754,7 @@ func (p *mosipAuthnProvider) callKycAuthEndpoint(
 		return "", "", errors.New("response object is missing in wrapper")
 	}
 
-	applog.GetLogger().Error("IDA KYC auth error response",
+	applog.GetLogger().Error(ctx, "IDA KYC auth error response",
 		applog.Bool("kycStatus", wrapper.Response.KycStatus),
 		applog.Any("errors", wrapper.Errors))
 
@@ -767,12 +769,13 @@ func (p *mosipAuthnProvider) callKycAuthEndpoint(
 
 // PerformKycExchange sends the KYC exchange request to IDA and processes the response
 func (p *mosipAuthnProvider) callKycExchangeEndpoint(
+	ctx context.Context,
 	requestBody []byte,
 	signature string,
 	relyingPartyID string,
 	clientID string,
 ) (*providers.AttributesResponse, error) {
-	endpointURL, err := buildIDAEndpointURL(p.cfg.KYCExchangeBaseURL, relyingPartyID, clientID)
+	endpointURL, err := buildIDAEndpointURL(ctx, p.cfg.KYCExchangeBaseURL, relyingPartyID, clientID)
 	if err != nil {
 		return nil, fmt.Errorf("invalid KYC exchange URL: %w", err)
 	}
@@ -831,7 +834,7 @@ func (p *mosipAuthnProvider) callKycExchangeEndpoint(
 		return nil, errors.New("response object is missing in wrapper")
 	}
 
-	applog.GetLogger().Error("IDA KYC exchange error response",
+	applog.GetLogger().Error(ctx, "IDA KYC exchange error response",
 		applog.Any("response", wrapper.Response),
 		applog.Any("errors", wrapper.Errors))
 
@@ -844,14 +847,14 @@ func (p *mosipAuthnProvider) callKycExchangeEndpoint(
 	return nil, fmt.Errorf("%s: %s", firstErr.ErrorMessage, firstErr.ActionMessage)
 }
 
-func buildIDAEndpointURL(baseURL, relyingPartyID, clientID string) (string, error) {
+func buildIDAEndpointURL(ctx context.Context, baseURL, relyingPartyID, clientID string) (string, error) {
 	u, err := url.Parse(baseURL)
 	if err != nil {
 		return "", err
 	}
 	u.Path = strings.TrimRight(u.Path, "/") + "/" + url.PathEscape(relyingPartyID) + "/" + url.PathEscape(clientID)
 
-	applog.GetLogger().Debug("buildIDAEndpointURL",
+	applog.GetLogger().Debug(ctx, "buildIDAEndpointURL",
 		applog.String("baseURL", baseURL),
 		applog.String("relyingPartyID", relyingPartyID),
 		applog.String("clientID", clientID),

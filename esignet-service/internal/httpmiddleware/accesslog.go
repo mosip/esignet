@@ -28,7 +28,7 @@ func AccessLog(next http.Handler) http.Handler {
 		next.ServeHTTP(rec, r)
 
 		applog.GetLogger().Access(
-			applog.String("traceId", TraceIDFromContext(r.Context())),
+			r.Context(),
 			applog.Int("statusCode", rec.statusCode),
 			applog.String("req.requestURI", r.RequestURI),
 			applog.Int("bytesSent", rec.bytesWritten),

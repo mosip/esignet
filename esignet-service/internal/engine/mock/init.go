@@ -7,6 +7,7 @@
 package mock
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
@@ -26,6 +27,6 @@ func Init(appConfig *config.AppConfig, clientSvc *clientmgmt.Service, httpClient
 	if err != nil {
 		return nil, nil, err
 	}
-	applog.GetLogger().Warn("mock identity system provider active: no real OTP/KYC verification is performed; not for production use")
+	applog.GetLogger().Warn(context.Background(), "mock identity system provider active: no real OTP/KYC verification is performed; not for production use")
 	return authnProvider, shared.NewNoopAuditor(), nil
 }

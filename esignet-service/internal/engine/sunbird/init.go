@@ -7,6 +7,7 @@
 package sunbird
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
@@ -25,6 +26,6 @@ func Init(httpClient *http.Client) (
 	if err != nil {
 		return nil, nil, err
 	}
-	applog.GetLogger().Info("Sunbird KBI authn provider initialized")
+	applog.GetLogger().Info(context.Background(), "Sunbird KBI authn provider initialized")
 	return authnProvider, shared.NewNoopAuditor(), nil
 }

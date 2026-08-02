@@ -37,11 +37,11 @@ func (p *noopAuditor) IsEnabled() bool {
 }
 
 // PublishEvent logs the event details at info level.
-func (p *noopAuditor) PublishEvent(_ context.Context, evt *providers.Event) {
+func (p *noopAuditor) PublishEvent(ctx context.Context, evt *providers.Event) {
 	if evt == nil {
 		return
 	}
-	p.log.Info("observability event",
+	p.log.Info(ctx, "observability event",
 		applog.String("event_id", evt.EventID),
 		applog.String("event_type", evt.Type),
 		applog.String("status", evt.Status),

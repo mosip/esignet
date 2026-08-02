@@ -96,7 +96,7 @@ func (t *tokenProvider) fetch(ctx context.Context) (string, error) {
 
 	token := resp.Header.Get(authHeaderName)
 	if token == "" {
-		applog.GetLogger().Warn("audit: authmanager returned empty authorization header")
+		applog.GetLogger().Warn(ctx, "audit: authmanager returned empty authorization header")
 		return "", fmt.Errorf("empty authorization header from authmanager")
 	}
 	return token, nil
