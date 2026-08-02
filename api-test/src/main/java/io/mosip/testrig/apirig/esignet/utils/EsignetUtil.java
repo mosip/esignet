@@ -257,7 +257,12 @@ public class EsignetUtil extends AdminTestUtil {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 			}
 		}
-		
+
+		if (!isFapi2ServerProfile()
+				&& "TC_ESignet_FAPI_OauthDetails_NegTC_02".equals(testCaseDTO.getUniqueIdentifier())) {
+			throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
+		}
+
 		if (getIdentityPluginNameFromEsignetActuator().toLowerCase().contains("mockauthenticationservice")) {
 			// TO DO - need to conform whether esignet distinguishes between UIN and VID. BAsed on that need to remove VID test case from YAML.
 			BaseTestCase.setSupportedIdTypes(Arrays.asList("UIN"));
@@ -916,6 +921,17 @@ public class EsignetUtil extends AdminTestUtil {
 				jwkKey = JWKKeyUtil.getJWKKey(OIDC_JWK_FOR_FAPI);
 			}
 			jsonString = replaceKeywordValue(jsonString, "$OIDC_JWK_KEY_FAPI$", jwkKey);
+		}
+
+		if (jsonString.contains("$OIDC_JWK_KEY_FAPI_NONFAPICLIENT$")) {
+			String jwkKey = "";
+			if (getTriggerESignetKeyGenForFAPINonFapiClient()) {
+				jwkKey = JWKKeyUtil.generateAndCacheJWKKey(OIDC_JWK_FOR_FAPI_NON_FAPI_CLIENT);
+				setTriggerESignetKeyGenForFAPINonFapiClient(false);
+			} else {
+				jwkKey = JWKKeyUtil.getJWKKey(OIDC_JWK_FOR_FAPI_NON_FAPI_CLIENT);
+			}
+			jsonString = replaceKeywordValue(jsonString, "$OIDC_JWK_KEY_FAPI_NONFAPICLIENT$", jwkKey);
 		}
 
 		if (jsonString.contains("$OIDCJWKKEY2$")) {
@@ -2190,6 +2206,7 @@ public class EsignetUtil extends AdminTestUtil {
 	protected static final String OIDC_JWK_FOR_FAPI = "oidcJWKForFAPI";
 	protected static final String OIDC_JWK_FOR_FAPI_JWE = "oidcJWKForFAPIJWE";
 	protected static final String OIDC_JWK_FOR_PKCE_JWE = "oidcJWKForPKCEJWE";
+	protected static final String OIDC_JWK_FOR_FAPI_NON_FAPI_CLIENT = "oidcJWKForFAPINonFapiClient";
 	
 	protected static RSAKey oidcJWKKey1 = null;
 	protected static RSAKey oidcJWKKey3 = null;
@@ -2252,7 +2269,8 @@ public class EsignetUtil extends AdminTestUtil {
 	protected static boolean triggerESignetKeyGenForFAPI = true;
 	protected static boolean triggerESignetKeyGenForFAPIJWE = true;
 	protected static boolean triggerESignetKeyGenForPKCEJWE = true;
-	
+	protected static boolean triggerESignetKeyGenForFAPINonFapiClient = true;
+
 	private static String getFapiJwkKeyName(String testCaseName) {
 		if (testCaseName != null
 				&& (testCaseName.contains("forUserInfoJWE") || testCaseName.contains("_GetUserInfoJWE_"))) {
@@ -2371,6 +2389,14 @@ public class EsignetUtil extends AdminTestUtil {
 	
 	private static void setTriggerESignetKeyGenForFAPIJWE(boolean value) {
 		triggerESignetKeyGenForFAPIJWE = value;
+	}
+
+	private static boolean getTriggerESignetKeyGenForFAPINonFapiClient() {
+		return triggerESignetKeyGenForFAPINonFapiClient;
+	}
+
+	private static void setTriggerESignetKeyGenForFAPINonFapiClient(boolean value) {
+		triggerESignetKeyGenForFAPINonFapiClient = value;
 	}
 
 	private static boolean getTriggerESignetKeyGenForPKCEJWE() {

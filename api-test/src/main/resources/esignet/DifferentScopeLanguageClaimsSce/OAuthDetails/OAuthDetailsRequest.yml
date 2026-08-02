@@ -707,3 +707,32 @@ OAuthDetailsDifferentScopeLanguageClaimsSce:
     }
   ]
 }'
+   ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_AuthToken_Xsrf_VerifiedClaim_InvalidEvidenceType_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_28
+      description: Verified claims request where one evidence.type is an invalid document type
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      inputTemplate: esignet/DifferentScopeLanguageClaimsSce/OAuthDetails/OAuthDetailsVerifiedClaimsInvalidEvidenceType
+      outputTemplate: esignet/error
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:OIDCClient_DifferentScopeLanguageClaimsSce_sid_clientId$",
+        "scope": "openid",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "consent",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "eree2311",
+        "claimsLocales": "en"
+}'
+      output: '{
+       	"errors": [
+    {
+      "errorCode": "invalid_claim"
+    }
+  ]
+}'
