@@ -20,7 +20,7 @@ import (
 	"strings"
 	"sync"
 
-	appcontext "github.com/mosip/esignet/internal/context"
+	"github.com/mosip/esignet/internal/reqcontext"
 )
 
 const (
@@ -55,7 +55,7 @@ const LevelAccess slog.Level = slog.LevelError + 32
 // traceIDFieldKey is the structured logging field name the Logger's logging
 // methods use to carry the trace ID, matching the "traceId" field already
 // emitted by Logger.Access.
-const traceIDFieldKey = "trace_id"
+const traceIDFieldKey = "traceId"
 
 var (
 	logger *Logger
@@ -191,7 +191,7 @@ func (l *Logger) Fatal(msg string, fields ...Field) {
 // slice is never mutated or aliased.
 func withTraceID(ctx context.Context, fields []Field) []Field {
 	out := make([]Field, 0, len(fields)+1)
-	out = append(out, String(traceIDFieldKey, appcontext.TraceIDFromContext(ctx)))
+	out = append(out, String(traceIDFieldKey, reqcontext.TraceIDFromContext(ctx)))
 	return append(out, fields...)
 }
 
