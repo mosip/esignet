@@ -24,13 +24,14 @@ import (
 )
 
 type view struct {
-	Plan           string
-	Provider       string
-	Generated      string
-	ConfigJSON     string
-	PlanConfigJSON string
-	Summary        result.Summary // overall roll-up across every surface
-	Surfaces       []surfaceView  // one section per surface (plan doc §6)
+	Plan        string
+	Provider    string
+	Generated   string
+	ConfigJSON  string
+	PlanConfigs []PlanConfig
+	ShowSecrets bool           // wire trace left unredacted (run.debug_show_secrets)
+	Summary     result.Summary // overall roll-up across every surface
+	Surfaces    []surfaceView  // one section per surface/plan (plan doc §6)
 }
 
 // surfaceView is one surface's section: its label, own tile counts, and rows.
@@ -102,36 +103,72 @@ type detailView struct {
 }
 
 type callView struct {
-	Seq         int
-	Repeat      int
-	Label       string
-	Method      string
-	URL         string
-	Status      int
-	StatusClass string
-	ReqHeaders  string
-	ReqCookies  string
-	ReqBody     string
-	RespHeaders string
-	RespCookies string
-	RespBody    string
+	Seq          int
+	Repeat       int
+	Label        string
+	Method       string
+	URL          string
+	QueryDecoded string // query params with percent-encoding undone, one "key = value" per line; empty when the URL has no query
+	Status       int
+	StatusClass  string
+	ReqHeaders   string
+	ReqCookies   string
+	ReqBody      string
+	RespHeaders  string
+	RespCookies  string
+	RespBody     string
 }
 
-// Write emits <dir>/<plan>_<provider>_<ts>_p-<n>_f-<n>_sk-<n>_ki-<n>.{html,json}
-// and returns the HTML path. configJSON is the redacted effective harness config
-// and planConfigJSON is the redacted suite plan config (client + jwks) — both
-// shown in the report's configuration panel.
-func Write(dir, plan, provider, configJSON, planConfigJSON string, results []result.ModuleResult) (string, error) {
+// PlanConfig is one plan's redacted suite config (the client + jwks POSTed to
+// /api/plan), shown in the report's configuration panel. A run covering two
+// plans carries two of these — each with its own client, so they must stay
+// labelled and separate rather than merged into one blob.
+type PlanConfig struct {
+	Plan string
+	JSON string
+}
+
+// Options is one report's input. Plans lists the conformance plans the run
+// covered, in order; it drives the header and the filename, and may be empty
+// for a report with no conformance surface.
+type Options struct {
+	Dir         string
+	Plans       []string
+	Provider    string
+	ConfigJSON  string // redacted effective harness config
+	PlanConfigs []PlanConfig
+	// ShowSecrets (run.debug_show_secrets) leaves the captured eSignet wire trace
+	// unredacted for local debugging. Callers pass false unless the operator opted
+	// in; see config.Run.DebugShowSecrets for the boundary of what it affects. It
+	// never unmasks ConfigJSON/PlanConfigs, which their callers mask regardless.
+	ShowSecrets bool
+	Results     []result.ModuleResult
+}
+
+// Write emits <dir>/<plan>_<provider>_<ts>_t-<n>_p-<n>_f-<n>_sk-<n>_ki-<n>.{html,json}
+// and returns the HTML path.
+func Write(o Options) (string, error) {
+	dir := o.Dir
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return "", fmt.Errorf("mkdir %s: %w", dir, err)
 	}
-	results = redactCallBodies(results)
+	results := o.Results
+	showSecrets := o.ShowSecrets
+	if !showSecrets {
+		results = redactCallBodies(results)
+	}
 	sum := result.Summarize(results)
+	provider := o.Provider
 	if provider == "" {
 		provider = "na"
 	}
+	plan := planLabel(o.Plans)
 	ts := time.Now().Format("20060102-150405")
-	base := fmt.Sprintf("%s_%s_%s_p-%d_f-%d_sk-%d_ki-%d", plan, provider, ts, sum.Passed, sum.Failed, sum.Skipped, sum.Known)
+	// Total is every module (sum.Passed+Failed+Skipped+Known plus any
+	// Errored/Warning/Review bucket not otherwise called out in the name), so a
+	// reader can tell at a glance whether p/f/sk/ki already account for the whole
+	// run or something else (e.g. ENV_NOT_READY) is hiding in the difference.
+	base := fmt.Sprintf("%s_%s_%s_t-%d_p-%d_f-%d_sk-%d_ki-%d", surfaceSlug(results), provider, ts, sum.Total, sum.Passed, sum.Failed, sum.Skipped, sum.Known)
 	// Never overwrite an existing report: if a same-second run produced the same
 	// counts, add a numeric suffix so both reports are kept.
 	stem := base
@@ -139,32 +176,54 @@ func Write(dir, plan, provider, configJSON, planConfigJSON string, results []res
 		base = fmt.Sprintf("%s-%d", stem, i)
 	}
 
+	// plan_configs is a list because a run can cover several plans; the old
+	// single-plan key is still written when there is exactly one, so a sidecar
+	// stays readable by anything that consumed the previous shape.
+	planConfigs := make([]map[string]any, 0, len(o.PlanConfigs))
+	for _, pc := range o.PlanConfigs {
+		planConfigs = append(planConfigs, map[string]any{
+			"plan":   pc.Plan,
+			"config": json.RawMessage(safeJSON(pc.JSON)),
+		})
+	}
 	sidecar := map[string]any{
-		"config":      json.RawMessage(safeJSON(configJSON)),
-		"plan_config": json.RawMessage(safeJSON(planConfigJSON)),
-		"modules":     results,
+		"config":       json.RawMessage(safeJSON(o.ConfigJSON)),
+		"plan_configs": planConfigs,
+		"modules":      results,
+	}
+	if len(o.PlanConfigs) == 1 {
+		sidecar["plan_config"] = json.RawMessage(safeJSON(o.PlanConfigs[0].JSON))
 	}
 	if data, err := json.MarshalIndent(sidecar, "", "  "); err == nil {
 		_ = os.WriteFile(filepath.Join(dir, base+".json"), data, 0o644)
 	}
 
 	v := view{
-		Plan:           plan,
-		Provider:       provider,
-		Generated:      time.Now().Format("2006-01-02 15:04:05 MST"),
-		ConfigJSON:     configJSON,
-		PlanConfigJSON: planConfigJSON,
-		Summary:        sum,
+		Plan:        plan,
+		Provider:    provider,
+		Generated:   time.Now().Format("2006-01-02 15:04:05 MST"),
+		ConfigJSON:  o.ConfigJSON,
+		PlanConfigs: o.PlanConfigs,
+		ShowSecrets: showSecrets,
+		Summary:     sum,
 	}
+	// Name the plan in a section heading only when the run covered more than one:
+	// a single-plan report already says which plan in its header.
+	multiPlan := len(o.Plans) > 1
 	for _, g := range result.GroupBySurface(results) {
 		label := surfaceLabels[g.Surface]
 		if label == "" {
 			label = g.Surface
 		}
+		anchor := "surface-" + g.Surface
+		if multiPlan && g.Plan != "" {
+			label += " — " + g.Plan
+			anchor += "-" + slug(g.Plan)
+		}
 		v.Surfaces = append(v.Surfaces, surfaceView{
 			Name:    g.Surface,
 			Label:   label,
-			Anchor:  "surface-" + g.Surface,
+			Anchor:  anchor,
 			Summary: g.Summary,
 			Rows:    toRowViews(g.Rows),
 		})
@@ -185,6 +244,87 @@ func Write(dir, plan, provider, configJSON, planConfigJSON string, results []res
 func fileExists(p string) bool {
 	_, err := os.Stat(p)
 	return err == nil
+}
+
+// planLabel is the header text for the plans a run covered: all of them, joined,
+// so the report says up front that it holds two plans' results.
+func planLabel(plans []string) string {
+	switch len(plans) {
+	case 0:
+		return "no plan"
+	case 1:
+		return plans[0]
+	default:
+		return strings.Join(plans, " + ")
+	}
+}
+
+// filenameSurfaces maps a row's surface to the name it goes by in the filename,
+// in the order surfaces run. The two godog surfaces collapse to one "bdd" part:
+// they always run together, and the filename answers "which surfaces are in this
+// report", not "which feature files".
+var filenameSurfaces = []struct{ surface, part string }{
+	{result.SurfaceConformance, "conformance"},
+	{result.SurfaceClientMgmt, "bdd"},
+	{result.SurfaceFlowExecute, "bdd"},
+	{result.SurfaceE2E, "e2e"},
+}
+
+// surfaceSlug is the leading filename part: the surfaces this report actually
+// covers, e.g. conformance_bdd_e2e for a full run or conformance for a
+// conformance-only one. Plan names are deliberately not in the filename — they
+// are long, there can be several, and the report header and its sections name
+// them anyway.
+func surfaceSlug(results []result.ModuleResult) string {
+	present := map[string]bool{}
+	for _, r := range results {
+		s := r.Surface
+		if s == "" {
+			s = result.SurfaceConformance
+		}
+		present[s] = true
+	}
+
+	var parts []string
+	seen := map[string]bool{}
+	for _, fs := range filenameSurfaces {
+		if present[fs.surface] && !seen[fs.part] {
+			seen[fs.part] = true
+			parts = append(parts, fs.part)
+		}
+		delete(present, fs.surface)
+	}
+	// Anything unrecognised still gets named rather than silently dropped, so an
+	// added surface cannot produce two reports that differ only by timestamp.
+	var extra []string
+	for s := range present {
+		extra = append(extra, slug(s))
+	}
+	sort.Strings(extra)
+	parts = append(parts, extra...)
+
+	if len(parts) == 0 {
+		return "run"
+	}
+	return strings.Join(parts, "_")
+}
+
+// slug reduces a plan name to filename/anchor-safe characters.
+func slug(s string) string {
+	var b strings.Builder
+	for _, r := range s {
+		switch {
+		case r >= 'a' && r <= 'z', r >= 'A' && r <= 'Z', r >= '0' && r <= '9', r == '-', r == '_':
+			b.WriteRune(r)
+		default:
+			b.WriteByte('-')
+		}
+	}
+	out := strings.Trim(b.String(), "-")
+	if out == "" {
+		return "plan"
+	}
+	return out
 }
 
 // safeJSON returns s if it is valid JSON, else a JSON string wrapping it, so the
@@ -268,19 +408,20 @@ func toCallViews(calls []result.HTTPCall) []callView {
 	var out []callView
 	for j, c := range calls {
 		out = append(out, callView{
-			Seq:         j + 1,
-			Repeat:      c.Repeat,
-			Label:       c.Label,
-			Method:      c.Method,
-			URL:         c.URL,
-			Status:      c.Status,
-			StatusClass: statusClass(c.Status),
-			ReqHeaders:  headerStr(c.ReqHeaders),
-			ReqCookies:  c.ReqCookies,
-			ReqBody:     truncate(c.ReqBody, 4000),
-			RespHeaders: headerStr(c.RespHeaders),
-			RespCookies: c.RespCookies,
-			RespBody:    truncate(c.RespBody, 8000),
+			Seq:          j + 1,
+			Repeat:       c.Repeat,
+			Label:        c.Label,
+			Method:       c.Method,
+			URL:          c.URL,
+			QueryDecoded: decodedQuery(c.URL),
+			Status:       c.Status,
+			StatusClass:  statusClass(c.Status),
+			ReqHeaders:   headerStr(c.ReqHeaders),
+			ReqCookies:   c.ReqCookies,
+			ReqBody:      truncate(c.ReqBody, 4000),
+			RespHeaders:  headerStr(c.RespHeaders),
+			RespCookies:  c.RespCookies,
+			RespBody:     truncate(c.RespBody, 8000),
 		})
 	}
 	return out
@@ -527,6 +668,65 @@ func redactURL(raw string) string {
 		raw += "#" + frag
 	}
 	return raw
+}
+
+// decodedQuery renders a call's query string with the percent-encoding undone,
+// one "key = value" line per parameter — url.ParseQuery already decodes each
+// value (%XX and "+" for space), so a param like `claims` reads as plain JSON
+// instead of `%7B%22userinfo%22...`. Called AFTER redactCallBodies has already
+// masked sensitive params in the URL, so there is nothing left here that
+// wasn't already safe to show unencoded. Returns "" when the URL has no query
+// or it fails to parse, in which case the report shows only the raw URL, same
+// as before this existed.
+func decodedQuery(raw string) string {
+	i := strings.IndexByte(raw, '?')
+	if i < 0 {
+		return ""
+	}
+	qs := raw[i+1:]
+	if h := strings.IndexByte(qs, '#'); h >= 0 {
+		qs = qs[:h]
+	}
+	q, err := url.ParseQuery(qs)
+	if err != nil || len(q) == 0 {
+		return ""
+	}
+	keys := make([]string, 0, len(q))
+	for k := range q {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	var b strings.Builder
+	for _, k := range keys {
+		for _, v := range q[k] {
+			if p, ok := prettyJSONString(v); ok {
+				fmt.Fprintf(&b, "%s =\n%s\n", k, p)
+			} else {
+				fmt.Fprintf(&b, "%s = %s\n", k, v)
+			}
+		}
+	}
+	return strings.TrimRight(b.String(), "\n")
+}
+
+// prettyJSONString re-indents s if it parses as a JSON object/array, so a
+// query value like the OIDC `claims` param reads as structured JSON rather
+// than one unbroken line. ok is false for anything else (a plain string
+// value), which the caller shows as-is.
+func prettyJSONString(s string) (string, bool) {
+	t := strings.TrimSpace(s)
+	if t == "" || (t[0] != '{' && t[0] != '[') || !json.Valid([]byte(t)) {
+		return "", false
+	}
+	var v any
+	if err := json.Unmarshal([]byte(t), &v); err != nil {
+		return "", false
+	}
+	b, err := json.MarshalIndent(v, "", "  ")
+	if err != nil {
+		return "", false
+	}
+	return string(b), true
 }
 
 // redactQuery masks sensitive values in an encoded query/fragment string,
@@ -791,6 +991,8 @@ const reportHTML = `<!doctype html>
   details { margin-top:6px; }
   summary { cursor:pointer; color:var(--muted); font-size:12px; }
   .panel { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 14px; margin-bottom:20px; }
+  .unredacted { border:2px solid var(--fail); border-left-width:6px; border-radius:10px;
+                padding:10px 14px; margin-bottom:20px; color:var(--fail); line-height:1.5; }
   .panel > summary { font-size:13px; color:var(--fg); font-weight:600; }
   .drill { margin:8px 0 4px; padding:10px 12px; background:var(--bg); border:1px solid var(--line); border-radius:8px; }
   .cond { margin:4px 0; }
@@ -859,16 +1061,28 @@ const reportHTML = `<!doctype html>
     <div class="tile err"><div class="n">{{.Summary.Errored}}</div><div class="l">Errored</div></div>
   </div>
 
-  {{if or .ConfigJSON .PlanConfigJSON}}
+  {{if .ShowSecrets}}
+  <div class="unredacted">
+    <strong>Unredacted report.</strong> run.debug_show_secrets was on, so the captured
+    request/response bodies, URLs, cookies and headers below are shown exactly as they went
+    over the wire — including OTPs, passwords, identity values and bearer tokens. Do not
+    attach this file to a ticket, archive it in CI, or share it. Re-run without the flag to
+    produce a redacted report. (The configuration panel and plan config are masked either way.)
+  </div>
+  {{end}}
+
+  {{if or .ConfigJSON .PlanConfigs}}
   <details class="panel">
     <summary>Configuration used (secrets redacted)</summary>
     {{if .ConfigJSON}}
       <div class="kv">Harness config <button class="copy" onclick="copyPre(this)">copy</button></div>
       <pre>{{.ConfigJSON}}</pre>
     {{end}}
-    {{if .PlanConfigJSON}}
-      <div class="kv">Plan config — sent to the suite (client + jwks, private keys redacted) <button class="copy" onclick="copyPre(this)">copy</button></div>
-      <pre>{{.PlanConfigJSON}}</pre>
+    {{range .PlanConfigs}}
+      {{if .JSON}}
+      <div class="kv">Plan config{{if .Plan}} · {{.Plan}}{{end}} — sent to the suite (client + jwks, private keys redacted) <button class="copy" onclick="copyPre(this)">copy</button></div>
+      <pre>{{.JSON}}</pre>
+      {{end}}
     {{end}}
   </details>
   {{end}}
@@ -1034,6 +1248,7 @@ function toggleAllSections(open){
   <summary><span class="mono">#{{.Seq}} {{.Method}}</span> {{.Label}} <span class="s {{.StatusClass}}">→ {{.Status}}</span>{{if gt .Repeat 1}} <span class="muted">×{{.Repeat}}</span>{{end}}</summary>
   <div class="body">
     <div class="kv">URL</div><pre>{{.URL}}</pre>
+    {{if .QueryDecoded}}<div class="kv">Query params (decoded) <button class="copy" onclick="copyPre(this)">copy</button></div><pre>{{.QueryDecoded}}</pre>{{end}}
     {{if .ReqHeaders}}<div class="kv">Request headers <button class="copy" onclick="copyPre(this)">copy</button></div><pre>{{.ReqHeaders}}</pre>{{end}}
     {{if .ReqCookies}}<div class="kv">Request cookies</div><pre>{{.ReqCookies}}</pre>{{end}}
     {{if .ReqBody}}<div class="kv">Request body <button class="copy" onclick="copyPre(this)">copy</button></div><pre>{{.ReqBody}}</pre>{{end}}

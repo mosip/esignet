@@ -4,10 +4,10 @@
 package orchestrator
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/url"
-	"context"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -56,7 +56,10 @@ type RunResult struct {
 	Modules []result.ModuleResult
 }
 
-// Run executes the plan and returns one ModuleResult per selected module.
+// Run executes every configured plan and returns one ModuleResult per selected
+// module across all of them. The eSignet driver (and the dynamic-OTP listener)
+// is built once and shared: the plans differ in which client and variant the
+// suite drives, not in how the user logs in.
 func (o *Orchestrator) Run() (*RunResult, error) {
 	out := &RunResult{}
 
@@ -66,38 +69,22 @@ func (o *Orchestrator) Run() (*RunResult, error) {
 		return out, fmt.Errorf("ENV_NOT_READY: %w", err)
 	}
 	o.logf("suite is available")
-
-	configBody, err := os.ReadFile(o.cfg.Plan.ConfigFile)
-	if err != nil {
-		return out, fmt.Errorf("read plan config %s: %w", o.cfg.Plan.ConfigFile, err)
-	}
-
-	plan, err := o.client.CreatePlan(o.cfg.Plan.Name, o.cfg.Plan.Variant, configBody)
-	if err != nil {
-		o.client.TakeCalls()
-		return out, err
-	}
-	o.logf("created plan %s (id=%s, %d modules)", plan.Name, plan.ID, len(plan.Modules))
-
-	o.client.TakeCalls() // discard setup calls (available + create plan)
-
-	selected, err := o.selectModules(plan.Modules)
-	if err != nil {
-		return out, err
-	}
-	o.logf("selected %d module(s) for profile=%q filter=%q", len(selected), o.cfg.Run.Profile, o.cfg.Run.Filter)
+	o.client.TakeCalls() // discard the availability call
 
 	answers := esignet.BuildAnswers(o.cfg.Esignet)
 	// Preferred actions: the auth-factor (ACR) choice AND the login-ID-type
 	// choice (uin/vid/phone), since eSignet asks for both in the OTP flow.
 	preferred := append(esignet.AuthFactorTokens(o.cfg.Esignet.AuthFactor), esignet.IDTypeTokens(o.cfg.Esignet.Identity.IDType)...)
-	driver := esignet.New(answers, preferred, o.cfg.Conformance.TLSVerify, time.Duration(o.cfg.Run.TimeoutSeconds)*time.Second)
+	// esignet.tls_verify, NOT conformance.tls_verify: the latter is false in every
+	// shipped config for the suite's self-signed localhost cert, and this driver
+	// talks to the real eSignet deployment with real identities/OTPs/passwords.
+	driver := esignet.New(answers, preferred, o.cfg.Esignet.TLSVerify, time.Duration(o.cfg.Run.TimeoutSeconds)*time.Second)
 
 	// Dynamic OTP: connect the mock-SMTP listener once and share it across all
 	// modules. Connecting before the module loop guarantees we are buffering
 	// before any send-OTP is triggered.
 	if o.cfg.Esignet.OTP.Source == "dynamic" {
-		lst := wsotp.NewListener(o.cfg.Esignet.OTP.WSURL, o.cfg.Conformance.TLSVerify)
+		lst := wsotp.NewListener(o.cfg.Esignet.OTP.WSURL, o.cfg.Esignet.TLSVerify)
 		if err := lst.Start(context.Background()); err != nil {
 			return out, fmt.Errorf("ENV_NOT_READY: %w", err)
 		}
@@ -108,10 +95,64 @@ func (o *Orchestrator) Run() (*RunResult, error) {
 		o.logf("dynamic OTP: listening on mock-SMTP for recipient %q", o.cfg.Esignet.OTP.RecipientEmail)
 	}
 
+	for i, p := range o.cfg.Plans {
+		if len(o.cfg.Plans) > 1 {
+			o.logf("== plan %d/%d: %s ==", i+1, len(o.cfg.Plans), p.Name)
+		}
+		stop, err := o.runPlan(p, driver, out)
+		if err != nil {
+			return out, err
+		}
+		if stop {
+			if left := len(o.cfg.Plans) - i - 1; left > 0 {
+				o.logf("fail-fast: %d plan(s) not run", left)
+			}
+			break
+		}
+	}
+	return out, nil
+}
+
+// runPlan creates one suite plan and runs its selected modules, appending each
+// result to out. stop reports that fail-fast tripped, which abandons the whole
+// run — the remaining plans are not started.
+//
+// A plan that cannot even be created (unreadable config file, a variant the
+// suite rejects) produces one errored row instead of aborting: with several
+// plans configured, a bad fapi variant must not throw away the oidcc results
+// that already ran, and the row keeps the failure in the report rather than
+// only in the logs. err is reserved for what makes the rest of the run
+// pointless.
+func (o *Orchestrator) runPlan(p config.Plan, driver *esignet.Driver, out *RunResult) (bool, error) {
+	configBody, err := os.ReadFile(p.ConfigFile)
+	if err != nil {
+		out.Modules = append(out.Modules, planErrorResult(p.Name, o.cfg.Esignet.Provider, fmt.Errorf("read plan config %s: %w", p.ConfigFile, err)))
+		o.logf("plan %-45s -> ERROR [read plan config %s: %v]", p.Name, p.ConfigFile, err)
+		return o.cfg.Run.FailFast, nil
+	}
+
+	plan, err := o.client.CreatePlan(p.Name, p.Variant, configBody)
+	o.client.TakeCalls() // discard setup calls (create plan)
+	if err != nil {
+		out.Modules = append(out.Modules, planErrorResult(p.Name, o.cfg.Esignet.Provider, err))
+		o.logf("plan %-45s -> ERROR [%v]", p.Name, err)
+		return o.cfg.Run.FailFast, nil
+	}
+	o.logf("created plan %s (id=%s, %d modules)", plan.Name, plan.ID, len(plan.Modules))
+
+	sel := o.cfg.Selection(p)
+	selected, err := o.selectModules(p.Name, sel, plan.Modules)
+	if err != nil {
+		out.Modules = append(out.Modules, planErrorResult(p.Name, o.cfg.Esignet.Provider, err))
+		o.logf("plan %-45s -> ERROR [%v]", p.Name, err)
+		return o.cfg.Run.FailFast, nil
+	}
+	o.logf("selected %d module(s) for profile=%q filter=%q", len(selected), sel.Profile, sel.Filter)
+
 	// known_issues and skip modules are separated out before execution: they are
 	// not run, they just get a report row in the Known / Skipped bucket.
-	known := knownMap(o.cfg.Run.KnownIssues)
-	skip := nameSet(o.cfg.Run.Skip)
+	known := knownMap(sel.KnownIssues)
+	skip := nameSet(sel.Skip)
 
 	for _, m := range selected {
 		if reason, ok := known[m.TestModule]; ok {
@@ -132,10 +173,25 @@ func (o *Orchestrator) Run() (*RunResult, error) {
 		o.logf("module %-45s -> %s / %s%s", res.Module, dash(res.Result), res.HarnessOutcome, errSuffix(res))
 		if o.cfg.Run.FailFast && (res.Result == "FAILED" || res.HarnessError != "") {
 			o.logf("fail-fast: stopping after first failure")
-			break
+			return true, nil
 		}
 	}
-	return out, nil
+	return false, nil
+}
+
+// planErrorResult is the report row for a plan that never got as far as running
+// a module, so the failure is visible in the report (and counted as Errored)
+// rather than only in the harness log.
+func planErrorResult(planName, provider string, err error) result.ModuleResult {
+	return result.ModuleResult{
+		Surface:        result.SurfaceConformance,
+		Plugin:         provider,
+		Plan:           planName,
+		Module:         "(plan setup)",
+		HarnessOutcome: result.OutcomeOK,
+		HarnessError:   err.Error(),
+		Status:         "NOT_STARTED",
+	}
 }
 
 // gatedResult builds a not-run report row for a module excluded by config
@@ -332,7 +388,12 @@ func (o *Orchestrator) esignetBase(authorizeURL string) (string, error) {
 
 	if o.cfg.Esignet.BaseURL != "" {
 		configured := strings.TrimRight(o.cfg.Esignet.BaseURL, "/")
-		if !strings.HasPrefix(derived+"/", configured+"/") && derived != configured {
+		// Exact match only. A prefix test accepted a configured base that is
+		// SHORTER than the derived one (e.g. https://host/v1 against an authorize
+		// URL implying https://host/v1/esignet) and then returned the short value,
+		// pointing /flow/execute at a path that does not exist — precisely the
+		// misconfiguration this guard exists to catch.
+		if derived != configured {
 			return "", fmt.Errorf("ESIGNET_BASE_URL_MISMATCH: configured %q but suite authorize URL implies %q", configured, derived)
 		}
 		return configured, nil
@@ -340,8 +401,10 @@ func (o *Orchestrator) esignetBase(authorizeURL string) (string, error) {
 	return derived, nil
 }
 
-// selectModules applies precedence: explicit modules -> profile subset -> filter.
-func (o *Orchestrator) selectModules(all []conformance.Module) ([]conformance.Module, error) {
+// selectModules applies precedence: explicit modules -> profile subset ->
+// filter, using the selection resolved for one plan (its own overrides, else
+// run.*).
+func (o *Orchestrator) selectModules(planName string, sel config.Selection, all []conformance.Module) ([]conformance.Module, error) {
 	byName := map[string]conformance.Module{}
 	var order []string
 	for _, m := range all {
@@ -353,10 +416,10 @@ func (o *Orchestrator) selectModules(all []conformance.Module) ([]conformance.Mo
 
 	var names []string
 	switch {
-	case len(o.cfg.Run.Modules) > 0:
-		names = o.cfg.Run.Modules
-	case o.cfg.Run.Profile == "smoke":
-		smoke, err := o.loadSmokeProfile()
+	case len(sel.Modules) > 0:
+		names = sel.Modules
+	case sel.Profile == "smoke":
+		smoke, err := loadSmokeProfile(planName)
 		if err != nil {
 			return nil, err
 		}
@@ -367,11 +430,11 @@ func (o *Orchestrator) selectModules(all []conformance.Module) ([]conformance.Mo
 
 	// Apply the filter regex (if any).
 	var re *regexp.Regexp
-	if o.cfg.Run.Filter != "" {
+	if sel.Filter != "" {
 		var err error
-		re, err = regexp.Compile(o.cfg.Run.Filter)
+		re, err = regexp.Compile(sel.Filter)
 		if err != nil {
-			return nil, fmt.Errorf("invalid run.filter regex %q: %w", o.cfg.Run.Filter, err)
+			return nil, fmt.Errorf("invalid filter regex %q: %w", sel.Filter, err)
 		}
 	}
 
@@ -388,7 +451,7 @@ func (o *Orchestrator) selectModules(all []conformance.Module) ([]conformance.Mo
 		}
 	}
 	if len(out) == 0 {
-		return nil, fmt.Errorf("no modules selected (profile=%q filter=%q) — plan has %d modules", o.cfg.Run.Profile, o.cfg.Run.Filter, len(all))
+		return nil, fmt.Errorf("no modules selected for plan %s (profile=%q filter=%q) — plan has %d modules", planName, sel.Profile, sel.Filter, len(all))
 	}
 	return out, nil
 }
@@ -399,8 +462,10 @@ type smokeFile struct {
 	Modules      []string `json:"modules"`
 }
 
-func (o *Orchestrator) loadSmokeProfile() ([]string, error) {
-	path := filepath.Join("profiles", o.cfg.Plan.Name+".smoke.json")
+// loadSmokeProfile reads the smoke module list for one plan. The file is keyed
+// by plan name, so a multi-plan run needs one per plan that uses profile=smoke.
+func loadSmokeProfile(planName string) ([]string, error) {
+	path := filepath.Join("profiles", planName+".smoke.json")
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("read smoke profile %s: %w", path, err)

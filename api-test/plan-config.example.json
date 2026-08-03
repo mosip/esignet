@@ -1,0 +1,48 @@
+{
+  "alias": "esignet-test",
+  "server": {
+    "discoveryUrl": "https://REPLACE-WITH-ESIGNET-HOST/.well-known/openid-configuration"
+  },
+  "client": {
+    "client_id": "REPLACE-WITH-CLIENT-ID-REGISTERED-IN-ESIGNET",
+    "jwks": {
+      "keys": [
+        {
+          "kty": "RSA",
+          "alg": "PS256",
+          "use": "sig",
+          "kid": "REPLACE-WITH-KID",
+          "n": "REPLACE-WITH-MODULUS",
+          "e": "AQAB",
+          "d": "REPLACE-WITH-PRIVATE-EXPONENT",
+          "p": "REPLACE-WITH-FIRST-PRIME",
+          "q": "REPLACE-WITH-SECOND-PRIME",
+          "dp": "REPLACE-WITH-FIRST-CRT-EXPONENT",
+          "dq": "REPLACE-WITH-SECOND-CRT-EXPONENT",
+          "qi": "REPLACE-WITH-CRT-COEFFICIENT"
+        }
+      ]
+    }
+  },
+  "client2": {
+    "client_id": "REPLACE-WITH-SECOND-CLIENT-ID-REGISTERED-IN-ESIGNET",
+    "jwks": {
+      "keys": [
+        {
+          "kty": "RSA",
+          "alg": "PS256",
+          "use": "sig",
+          "kid": "REPLACE-WITH-KID",
+          "n": "REPLACE-WITH-MODULUS",
+          "e": "AQAB",
+          "d": "REPLACE-WITH-PRIVATE-EXPONENT",
+          "p": "REPLACE-WITH-FIRST-PRIME",
+          "q": "REPLACE-WITH-SECOND-PRIME",
+          "dp": "REPLACE-WITH-FIRST-CRT-EXPONENT",
+          "dq": "REPLACE-WITH-SECOND-CRT-EXPONENT",
+          "qi": "REPLACE-WITH-CRT-COEFFICIENT"
+        }
+      ]
+    }
+  }
+}

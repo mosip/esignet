@@ -137,14 +137,32 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: "1.26"
-      - name: build + vet (parent module)
+      # gofmt is checked explicitly: go vet does not look at formatting, and an
+      # unformatted file merges cleanly and then shows up as noise in the next
+      # PR's diff.
+      - name: gofmt
+        working-directory: api-test
+        run: |
+          unformatted="$(gofmt -l . )"
+          if [ -n "$unformatted" ]; then
+            echo "::error::gofmt needed on:"; echo "$unformatted"
+            gofmt -d .
+            exit 1
+          fi
+      - name: build + vet + test (parent module)
         working-directory: api-test
         run: |
           go build ./...
           go vet ./...
-      - name: vet (bdd module)
+          go test ./...
+      # The bdd module's TestFeatures drives a live eSignet, so it is excluded
+      # here: CI has no deployment to point it at. Everything else in the module
+      # (step helpers, assertions, envelope writing) is unit-testable and runs.
+      - name: vet + test (bdd module)
         working-directory: api-test/bdd
-        run: go vet ./...
+        run: |
+          go vet ./...
+          go test ./... -skip TestFeatures
 
   # Image build/publish only — same reusable workflow, same secrets, as every
   # other service image above. Scheduled test execution runs externally

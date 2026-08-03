@@ -78,17 +78,40 @@ services:
     environment:
       # Your credentials overlay is normally mounted (see volumes); these are the
       # ad-hoc escape hatches, and they win over both config layers.
-      ESIGNET_BASE_URL: ${ESIGNET_BASE_URL:-}
-      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET:-}
-      INDIVIDUAL_ID: ${INDIVIDUAL_ID:-}
-      SURFACES: ${SURFACES:-}
-      TEST_PROFILE: ${TEST_PROFILE:-}
+      #
+      # Listed WITHOUT a value on purpose. The harness overrides a config field
+      # whenever the variable is PRESENT, empty included (config.applyEnv uses
+      # LookupEnv), so the map form `FOO: ${FOO:-}` would set FOO="" and blank
+      # out whatever config.local.json said — silently wiping the very secret
+      # the mounted overlay exists to supply. This bare form passes a variable
+      # through only when it is DEFINED at all.
+      #
+      # Defined-but-empty still counts: `FOO=` in .env arrives as FOO="" and
+      # blanks the config just the same (`docker compose config` shows it as ""
+      # rather than null). Hence .env.example ships these commented out, not
+      # empty — "leave it out of .env to use the config files" means the line
+      # must be absent or commented, not blank.
+      - ESIGNET_BASE_URL
+      - KEYCLOAK_CLIENT_SECRET
+      - INDIVIDUAL_ID
+      - SURFACES
+      - TEST_PROFILE
+      # Unlike CONFORMANCE_TLS_VERIFY below, these have no compose-side default:
+      # the eSignet target is whatever ESIGNET_BASE_URL points at, and that is
+      # usually a real deployment whose cert should be verified. They stay on
+      # unless the operator explicitly passes false.
+      - ESIGNET_TLS_VERIFY
+      - BDD_TLS_VERIFY
       # Compose reaches the suite by its network alias rather than the config's
-      # host-side URL, and that cert is the suite's own self-signed one.
-      CONFORMANCE_BASE_URL: ${CONFORMANCE_BASE_URL:-https://localhost.emobix.co.uk:8443}
-      CONFORMANCE_TLS_VERIFY: ${CONFORMANCE_TLS_VERIFY:-false}
-      SUITE_WAIT_SECONDS: ${SUITE_WAIT_SECONDS:-150}
+      # host-side URL, and that cert is the suite's own self-signed one. These
+      # carry real defaults, so they are always set.
+      - CONFORMANCE_BASE_URL=${CONFORMANCE_BASE_URL:-https://localhost.emobix.co.uk:8443}
+      - CONFORMANCE_TLS_VERIFY=${CONFORMANCE_TLS_VERIFY:-false}
+      - SUITE_WAIT_SECONDS=${SUITE_WAIT_SECONDS:-150}
     volumes:
+      # The only path the host sees. REPORT_DIR is deliberately NOT forwarded:
+      # every surface writes into it (run-all.sh threads it through), so pointing
+      # it elsewhere would put the whole report outside this mount and lose it.
       - ./out:/app/out
       - ./${CONFIG_FILE:-config.mock.json}:/app/config.json:ro
       # Mounted at the SAME relative path it has on the host, so the config's

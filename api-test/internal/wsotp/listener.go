@@ -51,7 +51,7 @@ type Listener struct {
 	mu      sync.Mutex
 	records []record
 
-	cancel context.CancelFunc
+	cancel    context.CancelFunc
 	done      chan struct{}
 	started   bool
 	dialErr   error
@@ -99,8 +99,11 @@ func (l *Listener) Start(ctx context.Context) error {
 				return
 			default:
 			}
-			// Bound each read so context cancellation is observed promptly.
-			c.setReadDeadline(time.Now().Add(2 * time.Second))
+			// readMessage bounds its own reads (see conn): a timeout it reports is
+			// always one that happened BETWEEN frames, so resuming is safe and the
+			// loop just re-checks ctx. A deadline that struck mid-frame comes back
+			// as errStreamDesync instead and falls through to the fatal path — a
+			// retry there would read payload bytes as a frame header.
 			data, err := c.readMessage()
 			if err != nil {
 				if isTimeout(err) {

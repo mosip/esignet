@@ -41,10 +41,26 @@ const (
 )
 
 // conn is a minimal client-side WebSocket connection.
+//
+// Read deadlines are managed per frame rather than per readMessage call, and the
+// distinction matters: a deadline that fires while a frame is half-read leaves
+// the stream unaligned, so the next read would parse payload bytes as a frame
+// header. idleTimeout therefore bounds only the wait for a frame's FIRST byte —
+// a safe, resumable place to give up — while frameTimeout bounds the rest of a
+// frame already in progress, and tripping it is fatal.
 type conn struct {
 	net net.Conn
 	br  *bufio.Reader
+
+	idleTimeout  time.Duration
+	frameTimeout time.Duration
 }
+
+// errStreamDesync marks a read that stopped partway through a frame. It is
+// deliberately NOT a net.Error timeout: the listener retries timeouts, and
+// retrying this one would resume mid-frame and desynchronize the stream for
+// good.
+var errStreamDesync = errors.New("websocket: read interrupted mid-frame; stream position lost")
 
 // NormalizeWSURL accepts either a full ws(s):// URL (used verbatim) or an
 // http(s):// SMTP base (e.g. https://smtp.collab.mosip.net/) and derives the
@@ -110,7 +126,14 @@ func dial(rawURL string, tlsVerify bool, timeout time.Duration) (*conn, error) {
 		return nil, fmt.Errorf("dial %s: %w", host, err)
 	}
 
-	c := &conn{net: nc, br: bufio.NewReader(nc)}
+	c := &conn{
+		net: nc,
+		br:  bufio.NewReader(nc),
+		// Short idle wait so the listener notices context cancellation promptly;
+		// generous in-frame wait so only a genuinely stalled peer trips it.
+		idleTimeout:  2 * time.Second,
+		frameTimeout: 30 * time.Second,
+	}
 	if err := c.handshake(u, timeout); err != nil {
 		_ = nc.Close()
 		return nil, err
@@ -185,11 +208,14 @@ func (c *conn) handshake(u *url.URL, timeout time.Duration) error {
 func (c *conn) readMessage() ([]byte, error) {
 	var (
 		msg      []byte
-		fragOp   int
 		assembly bool
 	)
 	for {
-		fin, op, payload, err := c.readFrame()
+		// Only the first frame of a message may time out resumably. Once bytes are
+		// buffered in msg, returning would drop them and the continuation frame
+		// would arrive with no assembly in progress, so the rest of a fragmented
+		// message is read under the in-frame deadline too.
+		fin, op, payload, err := c.readFrame(!assembly)
 		if err != nil {
 			return nil, err
 		}
@@ -213,14 +239,12 @@ func (c *conn) readMessage() ([]byte, error) {
 				return msg, nil
 			}
 			assembly = true
-			fragOp = op
 		case opContinuation:
 			if !assembly {
 				return nil, errors.New("websocket: unexpected continuation frame")
 			}
 			msg = append(msg, payload...)
 			if fin {
-				_ = fragOp
 				return msg, nil
 			}
 		default:
@@ -229,9 +253,46 @@ func (c *conn) readMessage() ([]byte, error) {
 	}
 }
 
+// setReadDeadline bounds the next read by d, or clears the deadline when d is
+// not positive — which is how a directly-constructed conn (tests) opts out.
+func (c *conn) setReadDeadline(d time.Duration) {
+	if d <= 0 {
+		_ = c.net.SetReadDeadline(time.Time{})
+		return
+	}
+	_ = c.net.SetReadDeadline(time.Now().Add(d))
+}
+
 // readFrame reads a single frame header + payload. Server frames must not be
 // masked; a masked server frame is a protocol error.
-func (c *conn) readFrame() (fin bool, opcode int, payload []byte, err error) {
+//
+// resumable says a timeout waiting for this frame to start is acceptable — the
+// caller can simply try again. Once the first byte is in hand the frame is
+// committed: every later read runs under frameTimeout, and failing there is
+// reported as errStreamDesync so no caller retries into the middle of a frame.
+func (c *conn) readFrame(resumable bool) (fin bool, opcode int, payload []byte, err error) {
+	// Wait for the frame to start. Nothing has been consumed yet, so a timeout
+	// here leaves the stream exactly where it was.
+	if resumable {
+		c.setReadDeadline(c.idleTimeout)
+	} else {
+		c.setReadDeadline(c.frameTimeout)
+	}
+	if _, err = c.br.Peek(1); err != nil {
+		if resumable {
+			return false, 0, nil, err
+		}
+		return false, 0, nil, fmt.Errorf("%w: %v", errStreamDesync, err)
+	}
+
+	// Committed: read the whole frame or lose stream alignment.
+	c.setReadDeadline(c.frameTimeout)
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("%w: %v", errStreamDesync, err)
+		}
+	}()
+
 	var h [2]byte
 	if _, err = io.ReadFull(c.br, h[:]); err != nil {
 		return false, 0, nil, err
@@ -325,6 +386,3 @@ func (c *conn) close() error {
 	_ = c.writeFrame(opClose, nil)
 	return c.net.Close()
 }
-
-// setReadDeadline bounds the next readMessage call.
-func (c *conn) setReadDeadline(t time.Time) { _ = c.net.SetReadDeadline(t) }

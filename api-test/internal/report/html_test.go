@@ -1,6 +1,7 @@
 package report
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -58,7 +59,12 @@ func TestWriteRendersReport(t *testing.T) {
 }`
 
 	dir := t.TempDir()
-	path, err := Write(dir, "oidcc-test-plan", "mosip", cfgJSON, planCfgJSON, results)
+	path, err := Write(Options{
+		Dir: dir, Plans: []string{"oidcc-test-plan"}, Provider: "mosip",
+		ConfigJSON:  cfgJSON,
+		PlanConfigs: []PlanConfig{{Plan: "oidcc-test-plan", JSON: planCfgJSON}},
+		Results:     results,
+	})
 	if err != nil {
 		t.Fatalf("Write: %v", err)
 	}
@@ -87,13 +93,124 @@ func TestWriteRendersReport(t *testing.T) {
 			t.Errorf("report should not contain suite plumbing %q", notWant)
 		}
 	}
-	// Unique filename encodes counts (incl. known), and a matching .json sidecar exists.
-	if !strings.Contains(filepath.Base(path), "p-1_f-1_sk-1_ki-1") {
-		t.Errorf("filename missing count suffix: %s", filepath.Base(path))
+	// Unique filename names the surfaces and encodes counts (total, incl. known),
+	// and a matching .json sidecar exists. Total is 5 here, one more than
+	// p+f+sk+ki=4 — the fifth module (oidcc-broken, HarnessError set) falls in the
+	// Errored bucket, which has no letter of its own in the filename, so the
+	// total is what tells a reader that bucket exists at all.
+	if base := filepath.Base(path); !strings.HasPrefix(base, "conformance_mosip_") || !strings.Contains(base, "t-5_p-1_f-1_sk-1_ki-1") {
+		t.Errorf("filename = %s, want conformance_mosip_<ts>_t-5_p-1_f-1_sk-1_ki-1", base)
 	}
 	jsons, _ := filepath.Glob(filepath.Join(dir, "*.json"))
 	if len(jsons) == 0 {
 		t.Errorf("no results json written")
+	}
+}
+
+// A run covering two plans must keep them apart everywhere it matters: one
+// conformance section per plan (their module names overlap, so merging them
+// would show two verdicts under one row), one config panel per plan (each has
+// its own client + keys), and both names in the header.
+func TestWriteSeparatesPlans(t *testing.T) {
+	const (
+		oidcc = "oidcc-test-plan"
+		fapi  = "fapi2-security-profile-final-test-plan"
+	)
+	results := []result.ModuleResult{
+		{Surface: result.SurfaceConformance, Plan: oidcc, Module: "oidcc-server", Result: "PASSED"},
+		{Surface: result.SurfaceConformance, Plan: fapi, Module: "fapi2-security-profile-final-server", Result: "FAILED"},
+		{Surface: result.SurfaceE2E, Module: "otp positive", Result: "PASSED"},
+	}
+
+	dir := t.TempDir()
+	path, err := Write(Options{
+		Dir: dir, Plans: []string{oidcc, fapi}, Provider: "mock",
+		PlanConfigs: []PlanConfig{
+			{Plan: oidcc, JSON: `{"client":{"client_id":"oidcc-client"}}`},
+			{Plan: fapi, JSON: `{"client":{"client_id":"fapi-client"},"client2":{"client_id":"fapi-client2"}}`},
+		},
+		Results: results,
+	})
+	if err != nil {
+		t.Fatalf("Write: %v", err)
+	}
+	data, _ := os.ReadFile(path)
+	html := string(data)
+
+	for _, want := range []string{
+		"Conformance (OpenID suite) — " + oidcc,
+		"Conformance (OpenID suite) — " + fapi,
+		"surface-conformance-" + oidcc,
+		"surface-conformance-fapi2-security-profile-final-test-plan",
+		"oidcc-client", "fapi-client2", // both plan-config panels
+	} {
+		if !strings.Contains(html, want) {
+			t.Errorf("report missing %q", want)
+		}
+	}
+	// The e2e surface carries no plan, so it stays one unlabelled section.
+	if strings.Contains(html, "End-to-end (create client → userinfo claims) — ") {
+		t.Error("e2e section was labelled with a plan")
+	}
+	// The filename names the surfaces in the report, not the plans: two plan
+	// names would not fit, and the header already carries them.
+	if base := filepath.Base(path); !strings.HasPrefix(base, "conformance_e2e_mock_") {
+		t.Errorf("filename = %s, want it to start with conformance_e2e_mock_", base)
+	}
+
+	// The sidecar keeps both plan configs, keyed by plan.
+	jsons, _ := filepath.Glob(filepath.Join(dir, "*.json"))
+	if len(jsons) != 1 {
+		t.Fatalf("expected one sidecar, got %d", len(jsons))
+	}
+	var side struct {
+		PlanConfigs []struct {
+			Plan   string         `json:"plan"`
+			Config map[string]any `json:"config"`
+		} `json:"plan_configs"`
+	}
+	sdata, _ := os.ReadFile(jsons[0])
+	if err := json.Unmarshal(sdata, &side); err != nil {
+		t.Fatalf("sidecar is not valid JSON: %v", err)
+	}
+	if len(side.PlanConfigs) != 2 || side.PlanConfigs[1].Plan != fapi {
+		t.Errorf("sidecar plan_configs = %+v, want one entry per plan in order", side.PlanConfigs)
+	}
+	if side.PlanConfigs[1].Config["client2"] == nil {
+		t.Error("sidecar dropped the fapi plan's second client")
+	}
+}
+
+// The filename says which surfaces a report covers, so a directory of runs can
+// be read at a glance. The two godog surfaces collapse to one "bdd" part.
+func TestSurfaceSlug(t *testing.T) {
+	rows := func(surfaces ...string) []result.ModuleResult {
+		var out []result.ModuleResult
+		for _, s := range surfaces {
+			out = append(out, result.ModuleResult{Surface: s})
+		}
+		return out
+	}
+	cases := []struct {
+		name string
+		in   []result.ModuleResult
+		want string
+	}{
+		{"full run", rows(result.SurfaceConformance, result.SurfaceClientMgmt, result.SurfaceFlowExecute, result.SurfaceE2E), "conformance_bdd_e2e"},
+		{"conformance only", rows(result.SurfaceConformance), "conformance"},
+		{"bdd only", rows(result.SurfaceFlowExecute, result.SurfaceClientMgmt), "bdd"},
+		{"e2e and bdd", rows(result.SurfaceE2E, result.SurfaceClientMgmt), "bdd_e2e"},
+		// Rows written before Surface existed default to conformance.
+		{"blank surface", rows(""), "conformance"},
+		{"unknown surface is still named", rows(result.SurfaceE2E, "load test"), "e2e_load-test"},
+		{"no rows", nil, "run"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := surfaceSlug(tc.in); got != tc.want {
+				t.Errorf("surfaceSlug = %q, want %q", got, tc.want)
+			}
+		})
 	}
 }
 
@@ -121,6 +238,45 @@ func TestRedactCallBodies(t *testing.T) {
 	// The original slice passed in must be untouched.
 	if !strings.Contains(results[0].Calls[0].ReqBody, "111111") {
 		t.Errorf("redactCallBodies mutated the caller's results")
+	}
+}
+
+// The raw authorize URL is what actually went over the wire, but its query
+// values are percent-encoded (spaces as "+", a JSON `claims` param as one
+// unbroken %7B...%7D string) — hard to read at a glance. decodedQuery gives
+// the report a second, human-readable rendering without touching the raw URL.
+func TestDecodedQuery(t *testing.T) {
+	raw := "https://esignet/oauth2/authorize?" +
+		"acr_values=mosip%3Aidp%3Aacr%3Agenerated-code+mosip%3Aidp%3Aacr%3Apassword&" +
+		`claims=%7B%22userinfo%22%3A%7B%22name%22%3A%7B%22essential%22%3Atrue%7D%7D%7D&` +
+		"state=abc123"
+
+	got := decodedQuery(raw)
+
+	if !strings.Contains(got, "acr_values = mosip:idp:acr:generated-code mosip:idp:acr:password") {
+		t.Errorf("acr_values not decoded (%%3A -> :, + -> space): %s", got)
+	}
+	if !strings.Contains(got, "state = abc123") {
+		t.Errorf("plain param missing: %s", got)
+	}
+	// The claims param is JSON, so it should be re-indented, not left as one line.
+	if !strings.Contains(got, "claims =\n{\n") {
+		t.Errorf("JSON query value not pretty-printed: %s", got)
+	}
+	if !strings.Contains(got, `"essential": true`) {
+		t.Errorf("decoded JSON content missing: %s", got)
+	}
+	// No raw percent-encoding should survive into the decoded rendering.
+	if strings.Contains(got, "%") {
+		t.Errorf("decodedQuery left percent-encoding behind: %s", got)
+	}
+}
+
+func TestDecodedQueryEmptyWhenNoQuery(t *testing.T) {
+	for _, raw := range []string{"https://esignet/oauth2/token", "not a url at all", ""} {
+		if got := decodedQuery(raw); got != "" {
+			t.Errorf("decodedQuery(%q) = %q, want empty", raw, got)
+		}
 	}
 }
 
@@ -322,5 +478,125 @@ func TestRedactBodyMasksNonStringScalars(t *testing.T) {
 	}
 	if !strings.Contains(got, `"clientName":"keep"`) {
 		t.Errorf("non-sensitive field altered: %s", got)
+	}
+}
+
+// secretsSpec is one run's worth of trace holding every kind of value the
+// redactor scrubs, so both modes can be asserted against the same input.
+func secretsSpec() []result.ModuleResult {
+	return []result.ModuleResult{{
+		Surface: "e2e", Plugin: "mock", Module: "otp positive", Result: "PASSED",
+		Calls: []result.HTTPCall{{
+			Seq: 1, Label: "flow/execute", Method: "POST",
+			URL:        "https://esignet/v1/esignet/flow/execute?code=AUTHCODE123",
+			ReqHeaders: map[string][]string{"Authorization": {"Bearer BEARERTOK"}},
+			ReqBody:    `{"otp":"111111","password":"Mosip@123","individualId":"+912532509749"}`,
+			Status:     200,
+			RespBody:   `{"sub":"user-1","name":"Test User"}`,
+		}},
+	}}
+}
+
+// secretsOptions is the Write input the redaction cases share: one plan, the
+// trace from secretsSpec, and the mode under test.
+func secretsOptions(dir string, showSecrets bool) Options {
+	return Options{
+		Dir: dir, Plans: []string{"plan"}, Provider: "mock",
+		ConfigJSON:  "{}",
+		PlanConfigs: []PlanConfig{{Plan: "plan", JSON: "{}"}},
+		ShowSecrets: showSecrets,
+		Results:     secretsSpec(),
+	}
+}
+
+// The report must redact by default: a run that nobody configured specially is
+// the one most likely to be attached to a ticket or archived by CI.
+func TestWriteRedactsByDefault(t *testing.T) {
+	dir := t.TempDir()
+	path, err := Write(secretsOptions(dir, false))
+	if err != nil {
+		t.Fatalf("Write: %v", err)
+	}
+	data, _ := os.ReadFile(path)
+	html := string(data)
+
+	for _, secret := range []string{"111111", "Mosip@123", "+912532509749", "AUTHCODE123", "BEARERTOK"} {
+		if strings.Contains(html, secret) {
+			t.Errorf("redacted report leaked %q", secret)
+		}
+	}
+	// The userinfo response claims are the artifact the harness exists to
+	// evidence, so they must survive redaction.
+	if !strings.Contains(html, "Test User") {
+		t.Error("redacted report dropped the userinfo response claims")
+	}
+	// Match the banner's own text — the .unredacted CSS class is always present
+	// in the stylesheet, so the bare word would match every report.
+	if strings.Contains(html, "Unredacted report.") {
+		t.Error("redacted report should not carry the unredacted warning banner")
+	}
+}
+
+// With the debug flag the wire trace comes through verbatim — that is the point
+// of the flag — but the report must say so loudly.
+func TestWriteShowSecretsKeepsTraceAndWarns(t *testing.T) {
+	dir := t.TempDir()
+	path, err := Write(secretsOptions(dir, true))
+	if err != nil {
+		t.Fatalf("Write: %v", err)
+	}
+	data, _ := os.ReadFile(path)
+	html := string(data)
+
+	for _, want := range []string{"111111", "Mosip@123", "AUTHCODE123"} {
+		if !strings.Contains(html, want) {
+			t.Errorf("show-secrets report is missing %q from the wire trace", want)
+		}
+	}
+	if !strings.Contains(html, "Unredacted report.") {
+		t.Error("show-secrets report is missing the warning banner")
+	}
+}
+
+// The debug flag covers the per-run wire trace only. The Keycloak client secret
+// and the private JWKS are long-lived infrastructure credentials that the
+// callers mask before Write ever sees them, so they must stay masked in both
+// modes — otherwise "show me this failing flow" would also dump the keys.
+func TestWriteShowSecretsDoesNotUnmaskConfigPanel(t *testing.T) {
+	cfgJSON := `{"keycloak":{"client_secret":"***redacted***"}}`
+	planJSON := `{"client":{"jwks":{"keys":[{"kty":"RSA","d":"***redacted***"}]}}}`
+
+	for _, showSecrets := range []bool{false, true} {
+		dir := t.TempDir()
+		opts := secretsOptions(dir, showSecrets)
+		opts.ConfigJSON = cfgJSON
+		opts.PlanConfigs = []PlanConfig{{Plan: "plan", JSON: planJSON}}
+		path, err := Write(opts)
+		if err != nil {
+			t.Fatalf("Write(showSecrets=%v): %v", showSecrets, err)
+		}
+		data, _ := os.ReadFile(path)
+		if n := strings.Count(string(data), "***redacted***"); n < 2 {
+			t.Errorf("showSecrets=%v: config/plan panels lost their masking (%d markers)", showSecrets, n)
+		}
+	}
+}
+
+// The sidecar JSON is a separate artifact from the HTML and is just as
+// shareable, so it must follow the same rule.
+func TestSidecarJSONFollowsRedactionMode(t *testing.T) {
+	for _, tc := range []struct{ showSecrets, wantLeak bool }{{false, false}, {true, true}} {
+		dir := t.TempDir()
+		if _, err := Write(secretsOptions(dir, tc.showSecrets)); err != nil {
+			t.Fatalf("Write: %v", err)
+		}
+		matches, _ := filepath.Glob(filepath.Join(dir, "*.json"))
+		if len(matches) != 1 {
+			t.Fatalf("expected one sidecar JSON, got %d", len(matches))
+		}
+		data, _ := os.ReadFile(matches[0])
+		if got := strings.Contains(string(data), "Mosip@123"); got != tc.wantLeak {
+			t.Errorf("showSecrets=%v: sidecar contains password = %v, want %v", tc.showSecrets, got, tc.wantLeak)
+		}
 	}
 }

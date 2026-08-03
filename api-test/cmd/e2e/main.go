@@ -64,7 +64,7 @@ func main() {
 	if base == "" {
 		logger.Fatal("esignet.base_url (ESIGNET_BASE_URL) is required")
 	}
-	tlsVerify := cfg.BDD.TLSVerify
+	tlsVerify := cfg.Esignet.TLSVerify
 
 	// Discovery -> endpoints.
 	disco, err := fetchDiscovery(base+"/.well-known/openid-configuration", tlsVerify)

@@ -4,6 +4,12 @@
 # means you never edit a tracked file to add one, and a dirty config.mosip.json
 # always means a real change worth reviewing.
 config.local.json
+# ...and any editor/manual backup of it, which holds the same secrets.
+config.local.json.*
+config.local.*.json
+# ...except the tracked, placeholder-only template, which the pattern above also
+# matches. Without this a `git mv`/re-add of it silently drops it from the repo.
+!config.local.example.json
 
 # Pre-existing local config from before the per-plugin split.
 config.json
@@ -12,7 +18,9 @@ config.json
 .env
 
 # The suite plan config with PRIVATE jwks must never be committed.
-# Keep it outside the repo (see config_file in config.json) or here if you must:
+# Keep it outside the repo (see config_file in config.json) or here if you must.
+# plan-config.example.json is the tracked, placeholder-only template for these —
+# it is deliberately named so it matches neither pattern below.
 *esignet-config*.json
 conformance-suite-private/
 

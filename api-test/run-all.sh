@@ -84,7 +84,14 @@ else
   run_e2e()         { go run ./cmd/e2e "$@"; }
   run_consolidate() { go run ./cmd/consolidate "$@"; }
   run_cfg()         { go run ./cmd/cfg "$@"; }
-  run_bdd()         { ( cd bdd && go test ./... -run TestFeatures ); }
+  # -count=1 defeats Go's test cache. These are integration tests against a live
+  # eSignet, so their outcome depends on that server, not on the Go sources the
+  # cache keys off. Without it a second run with unchanged sources prints
+  # "ok (cached)" without executing a single scenario, writes no envelope, and
+  # fails the run with "bdd surface produced no envelope" — a message that points
+  # at a missing file rather than at the cache. The BIN_DIR branch above needs no
+  # such flag: it runs the prebuilt bdd.test binary, which is not cached.
+  run_bdd()         { ( cd bdd && go test ./... -run TestFeatures -count=1 ); }
 fi
 
 if (( CHECK_ONLY )); then
@@ -111,6 +118,25 @@ if [[ -z "${SURFACES:-}" ]]; then
   echo "no surfaces selected (run.surfaces resolved empty)" >&2
   exit 2
 fi
+
+# One output directory for every surface. REPORT_DIR comes from the same eval
+# (run.report_dir), and each surface has to be told about it explicitly: only
+# cmd/conformance reads the config, while the bdd module and cmd/e2e default to
+# a hardcoded out/. Under compose only $REPORT_DIR is bind-mounted, so a surface
+# left on the default wrote its results somewhere the host never sees.
+OUT_DIR="${REPORT_DIR:-out}"
+mkdir -p "$OUT_DIR" || { echo "cannot create report dir $OUT_DIR" >&2; exit 2; }
+# The bdd module runs with cwd=bdd/, so a relative path would land in bdd/out.
+OUT_ABS="$(cd "$OUT_DIR" && pwd)"
+export BDD_ENVELOPE_OUT="$OUT_ABS/bdd-envelope.json"
+
+# Clear the envelopes this run is about to produce. The consolidate step below
+# decides a surface ran by testing -f on its envelope, so a surface that dies
+# before writing one (build error, panic, missing env) would otherwise leave the
+# PREVIOUS run's file in place and have it folded into this report as current —
+# stale results presented as fresh, which is worse than the missing-surface
+# error the check is there to raise.
+rm -f "$OUT_DIR/bdd-envelope.json" "$OUT_DIR/e2e-envelope.json"
 
 # wait_for_suite polls the conformance suite's readiness endpoint so a
 # container-started harness doesn't race the suite's ~30s Mongo/Java boot.
@@ -170,22 +196,25 @@ fi
 
 if [[ ",$SURFACES," == *",e2e,"* ]]; then
   echo "-- e2e surface (create client -> login -> token -> userinfo claims) --"
-  run_e2e -config "$CONFIG" || { echo "(e2e reported scenario failures)"; surface_failed=1; }
+  run_e2e -config "$CONFIG" -out "$OUT_DIR/e2e-envelope.json" || { echo "(e2e reported scenario failures)"; surface_failed=1; }
 fi
 
 echo "-- consolidate --"
-args=(-plugin "$PLUGIN" -out out)
+args=(-plugin "$PLUGIN" -out "$OUT_DIR")
+# consolidate has no config of its own; forward the resolved debug flag so the
+# consolidated report redacts exactly like the per-surface ones.
+[[ "${DEBUG_SHOW_SECRETS:-false}" == "true" ]] && args+=(-show-secrets)
 [[ -n "$conf_json" ]] && args+=(-conformance "$conf_json")
-[[ ",$SURFACES," == *",bdd,"* && -f out/bdd-envelope.json ]] && args+=(-bdd out/bdd-envelope.json)
-[[ ",$SURFACES," == *",e2e,"* && -f out/e2e-envelope.json ]] && args+=(-e2e out/e2e-envelope.json)
+[[ ",$SURFACES," == *",bdd,"* && -f "$OUT_DIR/bdd-envelope.json" ]] && args+=(-bdd "$OUT_DIR/bdd-envelope.json")
+[[ ",$SURFACES," == *",e2e,"* && -f "$OUT_DIR/e2e-envelope.json" ]] && args+=(-e2e "$OUT_DIR/e2e-envelope.json")
 
 # Missing envelopes for a requested surface mean it never produced results.
-if [[ ",$SURFACES," == *",bdd,"* && ! -f out/bdd-envelope.json ]]; then
-  echo "bdd surface produced no envelope (out/bdd-envelope.json missing)" >&2
+if [[ ",$SURFACES," == *",bdd,"* && ! -f "$OUT_DIR/bdd-envelope.json" ]]; then
+  echo "bdd surface produced no envelope ($OUT_DIR/bdd-envelope.json missing)" >&2
   surface_failed=1
 fi
-if [[ ",$SURFACES," == *",e2e,"* && ! -f out/e2e-envelope.json ]]; then
-  echo "e2e surface produced no envelope (out/e2e-envelope.json missing)" >&2
+if [[ ",$SURFACES," == *",e2e,"* && ! -f "$OUT_DIR/e2e-envelope.json" ]]; then
+  echo "e2e surface produced no envelope ($OUT_DIR/e2e-envelope.json missing)" >&2
   surface_failed=1
 fi
 

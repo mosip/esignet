@@ -10,11 +10,19 @@ import (
 // (normalized flow-input identifier -> value). The flow response decides which
 // input is actually requested; this only supplies candidate answers.
 func BuildAnswers(c config.Esignet) map[string]string {
-	username := c.Credentials.Username
-	if c.Provider == "mosip" || c.Provider == "sunbird" || username == "" {
-		if c.Identity.IndividualID != "" {
-			username = c.Identity.IndividualID
-		}
+	// The flow's username_input is the subject identifier, not a console login:
+	// every branch that consumes it hangs off a prompt_uin_* node (submit_uin ->
+	// send_mosip_otp, password_authenticate), and the identity system resolves it
+	// as a UIN/VID/phone/email. So the configured identity wins for every
+	// provider; credentials.username is only a fallback for a config that has no
+	// identity at all.
+	//
+	// This used to special-case mock to credentials.username, which sent
+	// "decl-user-1" into send_mosip_otp and failed the whole OTP surface with
+	// send_otp_failed (verified against esdev 2026-07-29).
+	username := c.Identity.IndividualID
+	if username == "" {
+		username = c.Credentials.Username
 	}
 	m := map[string]string{}
 	put := func(k, v string) {
@@ -33,6 +41,16 @@ func BuildAnswers(c config.Esignet) map[string]string {
 	put("fullName", c.Knowledge.FullName)
 	put("name", c.Knowledge.FullName)
 	put("dob", c.Knowledge.DOB)
+	// The login flow requires a captcha_token input on nearly every step
+	// (flow-esignet.yaml's captcha_box). The harness cannot solve a real
+	// CAPTCHA, but it doesn't need to: the server's captcha verifier only
+	// checks that the token is non-empty when
+	// MOSIP_ESIGNET_CAPTCHA_VALIDATOR_URL is unset (captcha_provider.go,
+	// isEnabled) — the default for mock/dev/test deployments. Any non-empty
+	// value clears that step there; an environment with a real validator
+	// configured will reject it at that service instead, same as any other
+	// wrong credential.
+	put("captchaToken", "harness-captcha-bypass")
 	return m
 }
 

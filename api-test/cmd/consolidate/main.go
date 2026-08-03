@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/mosip/esignet/api-test/internal/report"
 	"github.com/mosip/esignet/api-test/internal/result"
@@ -33,22 +34,26 @@ func main() {
 	outDir := flag.String("out", "out", "report output directory")
 	plan := flag.String("plan", "oidcc-test-plan", "plan name (report header/filename)")
 	plugin := flag.String("plugin", "mock", "plugin/provider the run targeted")
+	// This binary does not read the harness config (it merges envelopes produced
+	// by binaries that did), so run.debug_show_secrets reaches it as a flag that
+	// run-all.sh forwards. Default false keeps the safe behaviour for a direct run.
+	showSecrets := flag.Bool("show-secrets", false, "leave the captured wire trace unredacted (run.debug_show_secrets)")
 	flag.Parse()
 
 	var (
-		rows           []result.ModuleResult
-		configJSON     string
-		planConfigJSON string
+		rows        []result.ModuleResult
+		configJSON  string
+		planConfigs []report.PlanConfig
 	)
 
 	if *confPath != "" {
-		cr, cfg, pcfg, err := loadConformance(*confPath)
+		cr, cfg, pcfgs, err := loadConformance(*confPath)
 		if err != nil {
 			log.Fatalf("load conformance %s: %v", *confPath, err)
 		}
 		stampSurface(cr, result.SurfaceConformance)
 		rows = append(rows, cr...)
-		configJSON, planConfigJSON = cfg, pcfg
+		configJSON, planConfigs = cfg, pcfgs
 	}
 
 	if *bddPath != "" {
@@ -80,20 +85,51 @@ func main() {
 		}
 	}
 
-	htmlPath, err := report.Write(*outDir, *plan, *plugin, configJSON, planConfigJSON, rows)
+	// The plans a run covered are recorded on its rows, so a two-plan conformance
+	// sidecar names both here without the caller having to repeat them; -plan is
+	// the fallback for envelopes that carry none.
+	plans := plansFromRows(rows)
+	if len(plans) == 0 {
+		plans = []string{*plan}
+	}
+
+	htmlPath, err := report.Write(report.Options{
+		Dir:         *outDir,
+		Plans:       plans,
+		Provider:    *plugin,
+		ConfigJSON:  configJSON,
+		PlanConfigs: planConfigs,
+		ShowSecrets: *showSecrets,
+		Results:     rows,
+	})
 	if err != nil {
 		log.Fatalf("write report: %v", err)
 	}
 
 	sum := result.Summarize(rows)
-	fmt.Printf("\n== Consolidated report — %s · %s ==\n", *plan, *plugin)
-	for _, g := range result.GroupBySurface(rows) {
-		gs := g.Summary
-		fmt.Printf("  %-14s total=%d passed=%d failed=%d skipped=%d errored=%d\n",
-			g.Surface, gs.Total, gs.Passed, gs.Failed, gs.Skipped, gs.Errored)
+	fmt.Printf("\n== Consolidated report — %s · %s ==\n", strings.Join(plans, " + "), *plugin)
+
+	// One label per group, plan-qualified only for a multi-plan run; the column is
+	// widened to the longest so the counts stay aligned under a plan name that is
+	// far longer than "conformance".
+	groups := result.GroupBySurface(rows)
+	labels := make([]string, len(groups))
+	width := len("ALL")
+	for i, g := range groups {
+		labels[i] = g.Surface
+		if g.Plan != "" && len(plans) > 1 {
+			labels[i] = g.Surface + "/" + g.Plan
+		}
+		width = max(width, len(labels[i]))
 	}
-	fmt.Printf("  %-14s total=%d passed=%d failed=%d skipped=%d errored=%d\n",
-		"ALL", sum.Total, sum.Passed, sum.Failed, sum.Skipped, sum.Errored)
+	line := func(label string, s result.Summary) {
+		fmt.Printf("  %-*s total=%d passed=%d failed=%d skipped=%d errored=%d\n",
+			width, label, s.Total, s.Passed, s.Failed, s.Skipped, s.Errored)
+	}
+	for i, g := range groups {
+		line(labels[i], g.Summary)
+	}
+	line("ALL", sum)
 	fmt.Printf("report: %s\n", htmlPath)
 
 	if sum.HasFailures() {
@@ -126,21 +162,49 @@ func loadEnvelope(path string) ([]result.ModuleResult, error) {
 	return rows, nil
 }
 
-// loadConformance reads a conformance sidecar dump: {config, plan_config,
-// modules:[...]}. Returns the module rows plus the two config blobs (re-marshaled
-// to strings) for the report's configuration panel.
-func loadConformance(path string) (rows []result.ModuleResult, configJSON, planConfigJSON string, err error) {
+// plansFromRows lists the distinct plans the rows came from, in first-seen
+// order. Rows from the bdd/e2e surfaces carry no plan and are ignored.
+func plansFromRows(rows []result.ModuleResult) []string {
+	seen := map[string]bool{}
+	var out []string
+	for _, r := range rows {
+		if r.Plan == "" || seen[r.Plan] {
+			continue
+		}
+		seen[r.Plan] = true
+		out = append(out, r.Plan)
+	}
+	return out
+}
+
+// loadConformance reads a conformance sidecar dump: {config, plan_configs,
+// modules:[...]}. Returns the module rows plus the config blobs (re-marshaled to
+// strings) for the report's configuration panel.
+//
+// plan_config (singular) is the shape written before a run could cover several
+// plans; it is still read so an older sidecar consolidates with its panel intact.
+func loadConformance(path string) (rows []result.ModuleResult, configJSON string, planConfigs []report.PlanConfig, err error) {
 	data, rerr := os.ReadFile(path)
 	if rerr != nil {
-		return nil, "", "", rerr
+		return nil, "", nil, rerr
 	}
 	var side struct {
-		Config     json.RawMessage       `json:"config"`
-		PlanConfig json.RawMessage       `json:"plan_config"`
-		Modules    []result.ModuleResult `json:"modules"`
+		Config      json.RawMessage `json:"config"`
+		PlanConfig  json.RawMessage `json:"plan_config"`
+		PlanConfigs []struct {
+			Plan   string          `json:"plan"`
+			Config json.RawMessage `json:"config"`
+		} `json:"plan_configs"`
+		Modules []result.ModuleResult `json:"modules"`
 	}
 	if uerr := json.Unmarshal(data, &side); uerr != nil {
-		return nil, "", "", uerr
+		return nil, "", nil, uerr
 	}
-	return side.Modules, string(side.Config), string(side.PlanConfig), nil
+	for _, pc := range side.PlanConfigs {
+		planConfigs = append(planConfigs, report.PlanConfig{Plan: pc.Plan, JSON: string(pc.Config)})
+	}
+	if len(planConfigs) == 0 && len(side.PlanConfig) > 0 {
+		planConfigs = append(planConfigs, report.PlanConfig{JSON: string(side.PlanConfig)})
+	}
+	return side.Modules, string(side.Config), planConfigs, nil
 }

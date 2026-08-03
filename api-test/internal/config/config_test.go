@@ -240,6 +240,253 @@ func TestUnknownSurfaceRejected(t *testing.T) {
 	}
 }
 
+// writePlans builds a conformance-only config whose plans[] entries all point at
+// a real (empty) plan config file, and returns its path plus that file's path.
+// $PLAN in plans is replaced with the quoted plan-config path.
+func writePlans(t *testing.T, plans string) (cfgPath, planPath string) {
+	t.Helper()
+	dir := t.TempDir()
+	planPath = filepath.Join(dir, "plan.json")
+	if err := os.WriteFile(planPath, []byte(`{}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	body := `{"conformance":{"base_url":"https://suite.example"},` +
+		`"plans":` + strings.ReplaceAll(plans, "$PLAN", jsonString(planPath)) + `,` +
+		`"run":{"surfaces":["conformance"],"profile":"full"}}`
+	cfgPath = filepath.Join(dir, "config.plugin.json")
+	if err := os.WriteFile(cfgPath, []byte(body), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	return cfgPath, planPath
+}
+
+// Two plans in one run is the whole point of plans[]: each keeps its own name,
+// variant and client/jwks file, and the legacy single `plan` block still loads
+// as a one-entry list.
+func TestPlansListAndLegacyBlock(t *testing.T) {
+	cfg, planPath := writePlans(t, `[
+		{"name":"oidcc-test-plan","config_file":$PLAN},
+		{"name":"fapi2-security-profile-final-test-plan","config_file":$PLAN,
+		 "variant":{"sender_constrain":"dpop","fapi_profile":"plain_fapi"}}]`)
+	c, err := load(t, cfg)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if got := c.PlanNames(); len(got) != 2 || got[1] != "fapi2-security-profile-final-test-plan" {
+		t.Fatalf("PlanNames() = %v, want both plans in order", got)
+	}
+	if c.Plans[0].ConfigFile != planPath {
+		t.Errorf("plans[0].config_file = %q, want %q", c.Plans[0].ConfigFile, planPath)
+	}
+	// The oidcc default variant must not leak onto a plan that named its own.
+	if _, leaked := c.Plans[1].Variant["response_type"]; leaked {
+		t.Errorf("fapi variant inherited oidcc defaults: %v", c.Plans[1].Variant)
+	}
+	if c.Plans[1].Variant["sender_constrain"] != "dpop" {
+		t.Errorf("fapi variant lost its own values: %v", c.Plans[1].Variant)
+	}
+	// ...and the default plan still gets the default variant it always had.
+	if c.Plans[0].Variant["response_type"] != "code" {
+		t.Errorf("oidcc plan lost its default variant: %v", c.Plans[0].Variant)
+	}
+
+	// Legacy single-plan form folds into the same list.
+	legacy := writeLayers(t, `{"conformance":{"base_url":"https://suite.example"},
+		"plan":{"config_file":$PLAN},"run":{"surfaces":["conformance"]}}`, "")
+	c, err = load(t, legacy)
+	if err != nil {
+		t.Fatalf("Load(legacy plan block): %v", err)
+	}
+	if len(c.Plans) != 1 || c.Plans[0].Name != "oidcc-test-plan" {
+		t.Fatalf("legacy plan did not fold into plans: %+v", c.Plans)
+	}
+	if c.Plan != nil {
+		t.Error("legacy plan block should be cleared once folded, so nothing downstream reads it")
+	}
+}
+
+// A config answering "which plan runs" twice is a mistake, not a merge: picking
+// one silently would run a plan the operator did not ask for.
+func TestPlanAndPlansTogetherRejected(t *testing.T) {
+	dir := t.TempDir()
+	planPath := filepath.Join(dir, "plan.json")
+	if err := os.WriteFile(planPath, []byte(`{}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	cfg := filepath.Join(dir, "config.json")
+	body := `{"conformance":{"base_url":"https://suite.example"},
+		"plan":{"config_file":` + jsonString(planPath) + `},
+		"plans":[{"name":"oidcc-test-plan","config_file":` + jsonString(planPath) + `}],
+		"run":{"surfaces":["conformance"]}}`
+	if err := os.WriteFile(cfg, []byte(body), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	_, err := Load(cfg, true)
+	if err == nil || !strings.Contains(err.Error(), "`plans`") {
+		t.Fatalf("err = %v, want one telling the operator to use plans alone", err)
+	}
+}
+
+// Plan names key the report sections and the smoke-profile files, so a duplicate
+// would silently merge two plans' results into one section.
+func TestDuplicatePlanNamesRejected(t *testing.T) {
+	cfg, _ := writePlans(t, `[{"name":"oidcc-test-plan","config_file":$PLAN},
+		{"name":"oidcc-test-plan","config_file":$PLAN}]`)
+	_, err := Load(cfg, true)
+	if err == nil || !strings.Contains(err.Error(), "duplicates") {
+		t.Fatalf("err = %v, want one naming the duplicate plan", err)
+	}
+}
+
+// Each plan narrows its own module set, because two plans in one run rarely want
+// the same list; anything it leaves unset comes from run.*.
+func TestPerPlanSelectionFallsBackToRun(t *testing.T) {
+	dir := t.TempDir()
+	planPath := filepath.Join(dir, "plan.json")
+	if err := os.WriteFile(planPath, []byte(`{}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	cfg := filepath.Join(dir, "config.json")
+	body := `{"conformance":{"base_url":"https://suite.example"},
+		"plans":[{"name":"oidcc-test-plan","config_file":` + jsonString(planPath) + `},
+		         {"name":"fapi2-security-profile-final-test-plan","config_file":` + jsonString(planPath) + `,
+		          "profile":"full","filter":"^fapi2","skip":["fapi2-mtls"]}],
+		"run":{"surfaces":["conformance"],"profile":"smoke","skip":["oidcc-logout"]}}`
+	if err := os.WriteFile(cfg, []byte(body), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	c, err := Load(cfg, true)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+
+	oidcc := c.Selection(c.Plans[0])
+	if oidcc.Profile != "smoke" || oidcc.Filter != "" || len(oidcc.Skip) != 1 || oidcc.Skip[0] != "oidcc-logout" {
+		t.Errorf("plan without overrides = %+v, want run.* values", oidcc)
+	}
+	fapi := c.Selection(c.Plans[1])
+	if fapi.Profile != "full" || fapi.Filter != "^fapi2" {
+		t.Errorf("plan overrides ignored: %+v", fapi)
+	}
+	if len(fapi.Skip) != 1 || fapi.Skip[0] != "fapi2-mtls" {
+		t.Errorf("plan skip = %v, want its own list rather than run.skip", fapi.Skip)
+	}
+}
+
+// PLAN_CONFIG_PATH cannot say WHICH plan it means once there are two, and
+// applying it to the first would run the fapi plan against the oidcc client's
+// keys. The indexed form addresses one plan and is what cfg -print-env emits.
+func TestPlanEnvOverrides(t *testing.T) {
+	cfg, planPath := writePlans(t, `[{"name":"oidcc-test-plan","config_file":$PLAN},
+		{"name":"fapi2-security-profile-final-test-plan","config_file":$PLAN}]`)
+
+	t.Run("unindexed is ambiguous", func(t *testing.T) {
+		t.Setenv("PLAN_CONFIG_PATH", planPath)
+		_, err := Load(cfg, true)
+		if err == nil || !strings.Contains(err.Error(), "PLAN_1_CONFIG_PATH") {
+			t.Fatalf("err = %v, want one pointing at the indexed form", err)
+		}
+	})
+
+	t.Run("indexed addresses one plan", func(t *testing.T) {
+		other := filepath.Join(filepath.Dir(planPath), "fapi.json")
+		if err := os.WriteFile(other, []byte(`{}`), 0o600); err != nil {
+			t.Fatal(err)
+		}
+		t.Setenv("PLAN_2_CONFIG_PATH", other)
+		c, err := Load(cfg, true)
+		if err != nil {
+			t.Fatalf("Load: %v", err)
+		}
+		if c.Plans[0].ConfigFile != planPath {
+			t.Errorf("plans[0].config_file = %q, want it untouched", c.Plans[0].ConfigFile)
+		}
+		if c.Plans[1].ConfigFile != other {
+			t.Errorf("plans[1].config_file = %q, want the override %q", c.Plans[1].ConfigFile, other)
+		}
+	})
+
+	t.Run("out of range is an error", func(t *testing.T) {
+		t.Setenv("PLAN_3_CONFIG_PATH", planPath)
+		_, err := Load(cfg, true)
+		if err == nil || !strings.Contains(err.Error(), "PLAN_3_CONFIG_PATH") {
+			t.Fatalf("err = %v, want one naming the out-of-range override", err)
+		}
+	})
+
+	// `cfg -print-env` emits PLAN_1_* for every config, including one still using
+	// the legacy singular `plan` block — which is exactly what run-all.sh evals
+	// back into the surface binaries. The block therefore has to be folded into
+	// plans[] before the environment is applied, or the documented legacy shape
+	// aborts the run it was just exported from.
+	t.Run("indexed reaches the legacy plan block", func(t *testing.T) {
+		legacyCfg := writeLayers(t, `{"conformance":{"base_url":"https://suite.example"},
+			"plan":{"config_file":$PLAN},"run":{"surfaces":["conformance"]}}`, "")
+
+		other := filepath.Join(t.TempDir(), "override.json")
+		if err := os.WriteFile(other, []byte(`{}`), 0o600); err != nil {
+			t.Fatal(err)
+		}
+		t.Setenv("PLAN_1_NAME", "fapi2-security-profile-final-test-plan")
+		t.Setenv("PLAN_1_CONFIG_PATH", other)
+
+		c, err := Load(legacyCfg, true)
+		if err != nil {
+			t.Fatalf("Load(legacy plan + PLAN_1_*): %v", err)
+		}
+		if len(c.Plans) != 1 {
+			t.Fatalf("plans = %+v, want the legacy block as the only entry", c.Plans)
+		}
+		if c.Plans[0].Name != "fapi2-security-profile-final-test-plan" || c.Plans[0].ConfigFile != other {
+			t.Errorf("plans[0] = %+v, want both indexed overrides applied", c.Plans[0])
+		}
+	})
+}
+
+// json.Unmarshal merges a slice positionally and truncates to the incoming
+// length, which is what makes `plans` overlayable at all — and also means an
+// overlay listing one plan reduces a two-plan run to one. Pinned here because
+// the package doc promises this behaviour to anyone writing config.local.json.
+func TestPlansOverlay(t *testing.T) {
+	dir := t.TempDir()
+	planPath := filepath.Join(dir, "plan.json")
+	otherPath := filepath.Join(dir, "other.json")
+	for _, p := range []string{planPath, otherPath} {
+		if err := os.WriteFile(p, []byte(`{}`), 0o600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	base := `{"conformance":{"base_url":"https://suite.example"},
+		"plans":[{"name":"oidcc-test-plan","config_file":"missing.json"},
+		         {"name":"fapi2-security-profile-final-test-plan","config_file":"missing.json"}],
+		"run":{"surfaces":["conformance"],"profile":"full"}}`
+	cfg := filepath.Join(dir, "config.plugin.json")
+	if err := os.WriteFile(cfg, []byte(base), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	overlay := `{"plans":[{"config_file":` + jsonString(planPath) + `},
+	                      {"config_file":` + jsonString(otherPath) + `}]}`
+	if err := os.WriteFile(filepath.Join(dir, LocalOverlayName), []byte(overlay), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	c, err := Load(cfg, true)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if len(c.Plans) != 2 {
+		t.Fatalf("plans = %d, want the overlay to fill in both entries", len(c.Plans))
+	}
+	// Each entry keeps the name the tracked file gave it and takes the private
+	// path from the overlay.
+	if c.Plans[0].Name != "oidcc-test-plan" || c.Plans[0].ConfigFile != planPath {
+		t.Errorf("plans[0] = %+v, want the base name with the overlay's file", c.Plans[0])
+	}
+	if c.Plans[1].Name != "fapi2-security-profile-final-test-plan" || c.Plans[1].ConfigFile != otherPath {
+		t.Errorf("plans[1] = %+v, want the base name with the overlay's file", c.Plans[1])
+	}
+}
+
 // Reports are archived as CI artifacts, so the configuration panel must never
 // carry the admin grant that can create OIDC clients.
 func TestRedactedMasksKeycloakSecret(t *testing.T) {
@@ -247,5 +494,139 @@ func TestRedactedMasksKeycloakSecret(t *testing.T) {
 	c.Keycloak.ClientSecret = "super-secret-value"
 	if out := c.Redacted(); strings.Contains(out, "super-secret-value") {
 		t.Errorf("Redacted() leaked the keycloak client secret:\n%s", out)
+	}
+}
+
+// esignet.tls_verify is a separate knob from conformance.tls_verify and must
+// fail closed on its own. The two are not interchangeable: every shipped config
+// sets conformance.tls_verify=false for the suite's self-signed localhost cert,
+// and the eSignet connection carries real identities, OTPs and passwords.
+func TestEsignetTLSVerifyIsIndependentOfConformance(t *testing.T) {
+	c, err := load(t, writeConfig(t, `,"tls_verify":false`))
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if c.Conformance.TLSVerify {
+		t.Error("Conformance.TLSVerify = true, want the file's false")
+	}
+	if !c.Esignet.TLSVerify {
+		t.Error("Esignet.TLSVerify = false, want true — conformance.tls_verify must not disable eSignet verification")
+	}
+}
+
+func TestEsignetTLSVerifyEnvOverride(t *testing.T) {
+	t.Setenv("ESIGNET_TLS_VERIFY", "false")
+	c, err := load(t, writeConfig(t, ``))
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if c.Esignet.TLSVerify {
+		t.Error("Esignet.TLSVerify = true, want the env override's false")
+	}
+}
+
+// An env-only container has no config file, so the indexed plan variables are
+// the only declaration of a plan there — and PLAN_1_* is the pair `cfg
+// -print-env` always emits. Rejecting it as out of range made the documented
+// container path unusable.
+func TestIndexedPlanEnvAllocatesWithNoConfigFile(t *testing.T) {
+	plan := filepath.Join(t.TempDir(), "plan.json")
+	if err := os.WriteFile(plan, []byte(`{}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("CONFORMANCE_BASE_URL", "https://suite.example")
+	t.Setenv("SURFACES", "conformance")
+	t.Setenv("PLAN_1_NAME", "oidcc-test-plan")
+	t.Setenv("PLAN_1_CONFIG_PATH", plan)
+
+	c, err := Load("", false)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if len(c.Plans) != 1 {
+		t.Fatalf("plans = %d, want 1 allocated from PLAN_1_*", len(c.Plans))
+	}
+	if c.Plans[0].Name != "oidcc-test-plan" || c.Plans[0].ConfigFile != plan {
+		t.Errorf("plans[0] = %+v, want the env-supplied name and path", c.Plans[0])
+	}
+}
+
+// The bound stays strict when the config really did declare plans: an index
+// past the end is a typo, and inventing a plan for it would hide it.
+func TestIndexedPlanEnvOutOfRangeStillRejected(t *testing.T) {
+	t.Setenv("PLAN_2_CONFIG_PATH", "/nowhere/plan.json")
+	_, err := load(t, writeConfig(t, ``))
+	if err == nil {
+		t.Fatal("Load succeeded, want an out-of-range plan index error")
+	}
+	if !strings.Contains(err.Error(), "PLAN_2_CONFIG_PATH") {
+		t.Errorf("error = %v, want it to name PLAN_2_CONFIG_PATH", err)
+	}
+}
+
+// A validation failure must still hand back the resolved config: `cfg -check` is
+// a dry run whose job is to report what is missing, and it cannot do that from a
+// nil config.
+func TestLoadReturnsConfigAlongsideValidationError(t *testing.T) {
+	dir := t.TempDir()
+	cfg := filepath.Join(dir, "config.json")
+	// Names a plan config that is not mounted — the state of a fresh clone.
+	body := `{"conformance":{"base_url":"https://suite.example"},` +
+		`"esignet":{"provider":"mock"},` +
+		`"plan":{"name":"oidcc-test-plan","config_file":"conformance-suite-private/esignet-config.json"},` +
+		`"run":{"surfaces":["conformance"]}}`
+	if err := os.WriteFile(cfg, []byte(body), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	c, err := Load(cfg, true)
+	if err == nil {
+		t.Fatal("Load succeeded, want a not-readable plan config error")
+	}
+	if c == nil {
+		t.Fatal("Load returned a nil config with a validation error — -check cannot report on it")
+	}
+	if c.Esignet.Provider != "mock" || len(c.Plans) != 1 {
+		t.Errorf("returned config is not fully resolved: %+v", c)
+	}
+}
+
+// A layering/parse failure is different: there is no meaningful config to hand
+// back, so nil is correct and -check must not try to print one.
+func TestLoadReturnsNilOnParseError(t *testing.T) {
+	cfg := filepath.Join(t.TempDir(), "config.json")
+	if err := os.WriteFile(cfg, []byte(`{not json`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	c, err := Load(cfg, true)
+	if err == nil {
+		t.Fatal("Load succeeded on malformed JSON")
+	}
+	if c != nil {
+		t.Errorf("Load returned a config for malformed JSON: %+v", c)
+	}
+}
+
+// Allocating up to a sparse highest index invents empty plans for the gaps,
+// which collide on the default plan name and then fail pointing at a
+// PLAN_1_CONFIG_PATH the operator never set. Name the skipped index instead.
+func TestSparseIndexedPlanEnvIsRejected(t *testing.T) {
+	plan := filepath.Join(t.TempDir(), "plan.json")
+	if err := os.WriteFile(plan, []byte(`{}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("CONFORMANCE_BASE_URL", "https://suite.example")
+	t.Setenv("SURFACES", "conformance")
+	t.Setenv("PLAN_3_NAME", "oidcc-test-plan")
+	t.Setenv("PLAN_3_CONFIG_PATH", plan)
+
+	_, err := Load("", false)
+	if err == nil {
+		t.Fatal("Load succeeded with PLAN_3_* and no PLAN_1_*/PLAN_2_*")
+	}
+	for _, want := range []string{"PLAN_1_CONFIG_PATH", "PLAN_2_CONFIG_PATH", "contiguous"} {
+		if !strings.Contains(err.Error(), want) {
+			t.Errorf("error = %v, want it to mention %q", err, want)
+		}
 	}
 }

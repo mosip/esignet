@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -37,7 +38,12 @@ func main() {
 
 	cfgPath, mustExist := config.ResolvePath(*configPath, config.FlagExplicit("config"))
 	cfg, err := config.Load(cfgPath, mustExist)
-	if err != nil {
+	// -check is a dry run: it must print what a run WOULD do even when the config
+	// is not yet runnable, since "the private plan config is not mounted" is
+	// exactly the answer it exists to give. Load hands back the resolved config
+	// alongside a validation error for this case; anything that would actually
+	// run still dies here.
+	if err != nil && !(*check && cfg != nil) {
 		logger.Printf("config error: %v", err)
 		os.Exit(2)
 	}
@@ -53,8 +59,11 @@ func main() {
 	case *printEnv:
 		fmt.Print(exports(cfg))
 	case *check:
-		if err := printCheck(cfg, cfgPath); err != nil {
-			logger.Printf("%v", err)
+		printCheck(cfg, cfgPath)
+		// Still a failing check — the summary above says what a run would attempt,
+		// this says why it cannot start yet.
+		if err != nil {
+			fmt.Printf("\nNOT RUNNABLE YET\n  %v\n", err)
 			os.Exit(2)
 		}
 	default:
@@ -78,7 +87,7 @@ func lookup(c *config.Config, key string) (string, bool) {
 	case "esignet.auth_factor":
 		return c.Esignet.AuthFactor, true
 	case "plan.name":
-		return c.Plan.Name, true
+		return strings.Join(c.PlanNames(), ","), true
 	case "e2e.spec":
 		return c.E2E.Spec, true
 	}
@@ -101,6 +110,7 @@ func exports(c *config.Config) string {
 	kv("ESIGNET_BASE_URL", c.Esignet.BaseURL)
 	kv("AUTHN_PROVIDER", c.Esignet.Provider)
 	kv("AUTH_FACTOR", c.Esignet.AuthFactor)
+	kv("ESIGNET_TLS_VERIFY", strconv.FormatBool(c.Esignet.TLSVerify))
 	kv("ID_TYPE", c.Esignet.Identity.IDType)
 	kv("INDIVIDUAL_ID", c.Esignet.Identity.IndividualID)
 	kv("TEST_USERNAME", c.Esignet.Credentials.Username)
@@ -125,7 +135,19 @@ func exports(c *config.Config) string {
 
 	kv("CONFORMANCE_BASE_URL", c.Conformance.BaseURL)
 	kv("CONFORMANCE_TLS_VERIFY", strconv.FormatBool(c.Conformance.TLSVerify))
-	kv("PLAN_CONFIG_PATH", c.Plan.ConfigFile)
+	// Plans are exported in the indexed form, which is the only one that can
+	// address more than one. The unindexed PLAN_CONFIG_PATH is emitted for a
+	// single-plan config because that is the spelling docker-compose and the
+	// README document — and it must NOT be emitted for several, where the
+	// conformance binary rejects it as ambiguous when it re-reads the environment.
+	for i, p := range c.Plans {
+		kv(fmt.Sprintf("PLAN_%d_NAME", i+1), p.Name)
+		kv(fmt.Sprintf("PLAN_%d_CONFIG_PATH", i+1), p.ConfigFile)
+	}
+	if len(c.Plans) == 1 {
+		kv("PLAN_NAME", c.Plans[0].Name)
+		kv("PLAN_CONFIG_PATH", c.Plans[0].ConfigFile)
+	}
 	kv("REPORT_DIR", c.Run.ReportDir)
 
 	// run-all.sh branches on these. Emitting them here keeps the whole script on
@@ -134,6 +156,9 @@ func exports(c *config.Config) string {
 	kv("SURFACES", strings.Join(c.Run.Surfaces, ","))
 	kv("PLUGIN", c.Esignet.Provider)
 	kv("TEST_PROFILE", c.Run.Profile)
+	// consolidate takes this as a flag rather than reading the config; run-all.sh
+	// forwards it from here.
+	kv("DEBUG_SHOW_SECRETS", strconv.FormatBool(c.Run.DebugShowSecrets))
 	return b.String()
 }
 
@@ -147,38 +172,58 @@ func shellQuote(s string) string {
 // printCheck reports what a run would actually do — which layers were read,
 // which surfaces are selected, and which e2e scenarios survive the filter — so a
 // long run can be confirmed before it starts rather than after it finishes.
-func printCheck(c *config.Config, path string) error {
+//
+// It never fails: anything it cannot resolve (a missing plan config, an
+// unreadable e2e spec) is printed as an ENV_NOT_READY line, because a dry run
+// that dies on the first missing file answers nothing.
+func printCheck(c *config.Config, path string) {
 	fmt.Printf("config    %s\n", strings.Join(c.Sources, " + "))
 	if len(c.Sources) == 0 {
 		fmt.Printf("          (no file found at %s — using environment + defaults)\n", path)
 	}
 	fmt.Printf("plugin    %s\n", c.Esignet.Provider)
 	fmt.Printf("surfaces  %s\n", strings.Join(c.Run.Surfaces, ", "))
-	fmt.Printf("esignet   %s\n", orDash(c.Esignet.BaseURL))
+	fmt.Printf("esignet   %s (tls_verify=%v)\n", orDash(c.Esignet.BaseURL), c.Esignet.TLSVerify)
+	if !c.Esignet.TLSVerify {
+		fmt.Printf("\n!! esignet.tls_verify is OFF — identities, OTPs and passwords will be sent\n")
+		fmt.Printf("!! to %s without certificate verification.\n", orDash(c.Esignet.BaseURL))
+	}
+	if c.Run.DebugShowSecrets {
+		fmt.Printf("\n!! run.debug_show_secrets is ON — the report will contain unredacted\n")
+		fmt.Printf("!! OTPs, passwords, identity values and bearer tokens. Do not share it.\n")
+	}
 
 	if c.HasSurface(config.SurfaceConformance) {
 		fmt.Printf("\nconformance\n")
 		fmt.Printf("  suite       %s (tls_verify=%v)\n", c.Conformance.BaseURL, c.Conformance.TLSVerify)
-		fmt.Printf("  plan        %s\n", c.Plan.Name)
-		fmt.Printf("  plan config %s\n", c.Plan.ConfigFile)
 		fmt.Printf("  auth factor %s\n", c.Esignet.AuthFactor)
-		if len(c.Run.Modules) > 0 {
-			fmt.Printf("  modules     %d explicitly listed (profile ignored)\n", len(c.Run.Modules))
-			for _, m := range c.Run.Modules {
-				fmt.Printf("                %s\n", m)
+		fmt.Printf("  plans       %d, run in this order\n", len(c.Plans))
+		for i, p := range c.Plans {
+			sel := c.Selection(p)
+			fmt.Printf("\n  %d. plan      %s\n", i+1, p.Name)
+			// The plan config holds the private JWKS and is always mounted, never
+			// baked in, so "it isn't there yet" is the single most common reason a
+			// fresh clone cannot run — name it here rather than only in the error.
+			fmt.Printf("     config    %s%s\n", orDash(p.ConfigFile), planConfigNote(p.ConfigFile))
+			fmt.Printf("     variant   %s\n", variantStr(p.Variant))
+			if len(sel.Modules) > 0 {
+				fmt.Printf("     modules   %d explicitly listed (profile ignored)\n", len(sel.Modules))
+				for _, m := range sel.Modules {
+					fmt.Printf("                 %s\n", m)
+				}
+			} else {
+				fmt.Printf("     modules   profile=%s", sel.Profile)
+				if sel.Filter != "" {
+					fmt.Printf(" filter=%q", sel.Filter)
+				}
+				fmt.Println()
 			}
-		} else {
-			fmt.Printf("  modules     profile=%s", c.Run.Profile)
-			if c.Run.Filter != "" {
-				fmt.Printf(" filter=%q", c.Run.Filter)
+			for _, s := range sel.Skip {
+				fmt.Printf("     skip      %s\n", s)
 			}
-			fmt.Println()
-		}
-		for _, s := range c.Run.Skip {
-			fmt.Printf("  skip        %s\n", s)
-		}
-		for _, k := range c.Run.KnownIssues {
-			fmt.Printf("  known      %s (%s)\n", k.Module, k.Reason)
+			for _, k := range sel.KnownIssues {
+				fmt.Printf("     known     %s (%s)\n", k.Module, k.Reason)
+			}
 		}
 	}
 
@@ -191,17 +236,31 @@ func printCheck(c *config.Config, path string) error {
 
 	if c.HasSurface(config.SurfaceE2E) {
 		fmt.Printf("\ne2e\n")
-		fmt.Printf("  spec        %s\n", c.E2E.Spec)
+		fmt.Printf("  spec        %s\n", orDash(c.E2E.Spec))
+		// An unreadable/unparseable spec is reported in place, not returned: this
+		// is a dry run, and the surrounding summary is still worth printing.
 		names, total, err := selectedScenarios(c)
 		if err != nil {
-			return err
-		}
-		fmt.Printf("  scenarios   %d of %d\n", len(names), total)
-		for _, n := range names {
-			fmt.Printf("                %s\n", n)
+			fmt.Printf("  scenarios   ENV_NOT_READY: %v\n", err)
+		} else {
+			fmt.Printf("  scenarios   %d of %d\n", len(names), total)
+			for _, n := range names {
+				fmt.Printf("                %s\n", n)
+			}
 		}
 	}
-	return nil
+}
+
+// planConfigNote annotates a plan's config_file with why it is not usable yet,
+// so --check answers "what would run" on a fresh clone instead of only erroring.
+func planConfigNote(path string) string {
+	if strings.TrimSpace(path) == "" {
+		return "  <- ENV_NOT_READY: not set"
+	}
+	if _, err := os.Stat(path); err != nil {
+		return "  <- ENV_NOT_READY: not readable (mount the private plan config there)"
+	}
+	return ""
 }
 
 // selectedScenarios loads the spec and applies the configured filter, so --check
@@ -235,6 +294,25 @@ func readiness(ok bool, why string) string {
 		return "will run"
 	}
 	return why
+}
+
+// variantStr renders a plan's variant as sorted k=v pairs, matching how the
+// suite UI prints it — the fastest way to confirm a fapi run is about to use the
+// DPoP/plain_fapi combination that was intended.
+func variantStr(v map[string]any) string {
+	if len(v) == 0 {
+		return "(none)"
+	}
+	keys := make([]string, 0, len(v))
+	for k := range v {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	parts := make([]string, 0, len(keys))
+	for _, k := range keys {
+		parts = append(parts, fmt.Sprintf("%s=%v", k, v[k]))
+	}
+	return strings.Join(parts, ", ")
 }
 
 func orDash(s string) string {

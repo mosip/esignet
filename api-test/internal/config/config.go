@@ -20,6 +20,13 @@
 // sequential unmarshals into the same struct. Slice fields (surfaces,
 // auth_factors, modules) replace wholesale rather than append, which is the
 // behaviour wanted for filters.
+//
+// The one slice that is NOT a plain filter is plans: an overlay's entries merge
+// positionally into the base file's (entry 1 onto entry 1, …) and truncate to
+// the overlay's length, so an overlay listing one plan reduces the run to one
+// plan. That is json.Unmarshal's own behaviour for slices; TestPlansOverlay
+// pins it, since a config.local.json that only means to supply a private
+// config_file must not silently drop the second plan's name.
 package config
 
 import (
@@ -29,6 +36,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -44,14 +52,31 @@ const (
 // the selected config file. Absent is normal (containers use env instead).
 const LocalOverlayName = "config.local.json"
 
+// defaultPlanName is the plan a config with no plans[] entry runs, and the only
+// one whose variant is defaulted (see defaults()).
+const defaultPlanName = "oidcc-test-plan"
+
 type Config struct {
 	Conformance Conformance `json:"conformance"`
-	Plan        Plan        `json:"plan"`
-	Esignet     Esignet     `json:"esignet"`
-	Keycloak    Keycloak    `json:"keycloak"`
-	BDD         BDD         `json:"bdd"`
-	E2E         E2E         `json:"e2e"`
-	Run         Run         `json:"run"`
+
+	// Plan is the legacy single-plan form. Folded into Plans by resolvePlans and
+	// then cleared, so everything downstream reads Plans only. A pointer so an
+	// absent block stays absent (a zero struct is indistinguishable from an
+	// explicit empty one, and the two must not both be set).
+	Plan *Plan `json:"plan,omitempty"`
+
+	// Plans lists the conformance plans one run executes, in order — e.g.
+	// oidcc-test-plan followed by fapi2-security-profile-final-test-plan. Each
+	// carries its own variant and its own suite config file (client + jwks), so
+	// two plans mean two client/key sets; the bdd and e2e surfaces still run once
+	// and everything lands in the same consolidated report.
+	Plans []Plan `json:"plans,omitempty"`
+
+	Esignet  Esignet  `json:"esignet"`
+	Keycloak Keycloak `json:"keycloak"`
+	BDD      BDD      `json:"bdd"`
+	E2E      E2E      `json:"e2e"`
+	Run      Run      `json:"run"`
 
 	// Sources lists the layers that actually contributed, newest last, for the
 	// --check output. Not part of the file format.
@@ -64,16 +89,88 @@ type Conformance struct {
 	Token     string `json:"token"`
 }
 
+// Plan is one conformance plan: which suite plan to create, with which variant,
+// against which client/jwks file. The trailing fields narrow the module set for
+// this plan alone; each falls back to the same-named run.* field when unset,
+// because two plans in one run rarely want the same module list (the smoke
+// profile is per plan too — profiles/<name>.smoke.json).
 type Plan struct {
 	Name       string         `json:"name"`
 	Variant    map[string]any `json:"variant"`
 	ConfigFile string         `json:"config_file"`
+
+	Profile     string       `json:"profile,omitempty"`
+	Modules     []string     `json:"modules,omitempty"`
+	Filter      string       `json:"filter,omitempty"`
+	Skip        []string     `json:"skip,omitempty"`
+	KnownIssues []KnownIssue `json:"known_issues,omitempty"`
+}
+
+// Selection is the resolved module-selection for one plan: its own overrides
+// where set, run.* otherwise. The orchestrator reads this rather than run.*
+// directly, so a two-plan run can give each plan its own profile/filter.
+type Selection struct {
+	Modules     []string
+	Profile     string
+	Filter      string
+	Skip        []string
+	KnownIssues []KnownIssue
+}
+
+// Selection resolves p's module selection against the run-wide defaults.
+func (c *Config) Selection(p Plan) Selection {
+	s := Selection{
+		Modules:     p.Modules,
+		Profile:     p.Profile,
+		Filter:      p.Filter,
+		Skip:        p.Skip,
+		KnownIssues: p.KnownIssues,
+	}
+	if len(s.Modules) == 0 {
+		s.Modules = c.Run.Modules
+	}
+	if s.Profile == "" {
+		s.Profile = c.Run.Profile
+	}
+	if s.Filter == "" {
+		s.Filter = c.Run.Filter
+	}
+	if len(s.Skip) == 0 {
+		s.Skip = c.Run.Skip
+	}
+	if len(s.KnownIssues) == 0 {
+		s.KnownIssues = c.Run.KnownIssues
+	}
+	return s
+}
+
+// PlanNames lists the configured plan names in order, for report headers and
+// log lines.
+func (c *Config) PlanNames() []string {
+	out := make([]string, 0, len(c.Plans))
+	for _, p := range c.Plans {
+		out = append(out, p.Name)
+	}
+	return out
 }
 
 type Esignet struct {
-	BaseURL     string      `json:"base_url"`
-	Provider    string      `json:"provider"`
-	AuthFactor  string      `json:"auth_factor"` // which ACR to select when the flow offers a choice: otp|password|bio|kbi
+	BaseURL    string `json:"base_url"`
+	Provider   string `json:"provider"`
+	AuthFactor string `json:"auth_factor"` // which ACR to select when the flow offers a choice: otp|password|bio|kbi
+
+	// TLSVerify governs certificate verification for every connection to the
+	// eSignet deployment under test — the login flow the conformance surface
+	// drives, the mock-SMTP OTP socket, and the e2e surface's authorize/token/
+	// userinfo calls. It is deliberately NOT conformance.tls_verify: that one is
+	// false in every shipped config because the suite ships a self-signed cert
+	// for localhost.emobix.co.uk, and reusing it here would send identities,
+	// OTPs and passwords to a remote eSignet with verification off.
+	//
+	// bdd.tls_verify is the same policy for the godog surfaces, which live in a
+	// separate Go module and receive it as an environment variable.
+	TLSVerify bool `json:"tls_verify"`
+
 	Identity    Identity    `json:"identity"`
 	Credentials Credentials `json:"credentials"`
 	Knowledge   Knowledge   `json:"knowledge"`
@@ -175,6 +272,19 @@ type Run struct {
 	TimeoutSeconds      int          `json:"timeout_seconds"`
 	FailFast            bool         `json:"fail_fast"`
 	ReportDir           string       `json:"report_dir"`
+
+	// DebugShowSecrets keeps the captured eSignet wire trace unredacted in the
+	// report and its sidecar JSON: request/response bodies, URLs, cookies and
+	// headers appear as they went over the wire. Off by default, and the zero
+	// value is the safe one — an omitted field, a hand-written config, or a
+	// config from before this field existed all redact.
+	//
+	// Intended for local debugging of a flow that fails somewhere the redacted
+	// trace cannot explain. It does NOT unredact the configuration panel or the
+	// suite plan config: the Keycloak client secret and the private JWKS are
+	// long-lived infrastructure credentials, not per-run test data, so they stay
+	// masked regardless. Leave this off for anything CI archives.
+	DebugShowSecrets bool `json:"debug_show_secrets"`
 }
 
 // KnownIssue names a module we already know fails (bug filed, upstream gap, etc.).
@@ -220,6 +330,11 @@ func ResolvePath(flagVal string, flagExplicit bool) (path string, mustExist bool
 //
 // mustExist makes a missing path an error; when false a missing file is fine,
 // which is how a container run supplies everything through the environment.
+//
+// A VALIDATION failure returns the resolved config together with the error, so
+// `cfg -check` can still report what a run would do and what it is missing. A
+// parse/layering failure returns nil. Callers about to run something must treat
+// any non-nil error as fatal.
 func Load(path string, mustExist bool) (*Config, error) {
 	// Fail closed: TLS verification stays on unless a file or env explicitly
 	// disables it. json.Unmarshal leaves absent fields untouched, so seeding true
@@ -227,6 +342,7 @@ func Load(path string, mustExist bool) (*Config, error) {
 	c := &Config{
 		Conformance: Conformance{TLSVerify: true},
 		BDD:         BDD{TLSVerify: true},
+		Esignet:     Esignet{TLSVerify: true},
 	}
 
 	if path != "" {
@@ -265,6 +381,13 @@ func Load(path string, mustExist bool) (*Config, error) {
 		c.Sources = append(c.Sources, localPath)
 	}
 
+	// Folded BEFORE the environment is applied, so PLAN_<n>_* sees the legacy
+	// block as plans[0]. The other order made `plan` plus the indexed overrides
+	// `cfg -print-env` emits for it a hard error on a documented config shape.
+	if err := c.resolvePlans(); err != nil {
+		return nil, err
+	}
+
 	n, err := c.applyEnv()
 	if err != nil {
 		return nil, err
@@ -275,7 +398,13 @@ func Load(path string, mustExist bool) (*Config, error) {
 
 	c.defaults()
 	if err := c.validate(); err != nil {
-		return nil, err
+		// Return the fully-resolved config ALONGSIDE the error. Every caller that
+		// is about to run something treats a non-nil error as fatal and ignores c;
+		// `cfg -check` is the exception, because a dry run's whole job is to report
+		// what is missing. Returning nil here made -check exit 2 on a fresh clone
+		// (no private plan config mounted yet) without printing the readiness lines
+		// that would have said so.
+		return c, err
 	}
 	return c, nil
 }
@@ -304,6 +433,22 @@ func (c *Config) mergeFile(path string) (bool, error) {
 	return true, nil
 }
 
+// resolvePlans folds the legacy singular `plan` block into `plans` so everything
+// downstream reads one list, and rejects a config that sets both — that config
+// has two answers to "which plan runs", and picking one silently would run a
+// plan the operator did not mean to run.
+func (c *Config) resolvePlans() error {
+	if c.Plan == nil {
+		return nil
+	}
+	if len(c.Plans) > 0 {
+		return fmt.Errorf("config sets both `plan` and `plans` — use `plans` alone (it takes the same fields, one entry per plan)")
+	}
+	c.Plans = []Plan{*c.Plan}
+	c.Plan = nil
+	return nil
+}
+
 // ValidateSurface enforces the requirements of one surface. Load applies it to
 // every entry in run.surfaces; a single-surface binary invoked directly calls it
 // for its own surface, so `e2e -config config.mosip.json` still checks the
@@ -314,13 +459,29 @@ func (c *Config) ValidateSurface(name string) error {
 		if c.Conformance.BaseURL == "" {
 			return fmt.Errorf("conformance.base_url (CONFORMANCE_BASE_URL) is required for the conformance surface")
 		}
-		if c.Plan.ConfigFile == "" {
-			return fmt.Errorf("plan.config_file (PLAN_CONFIG_PATH) is required — path to the suite plan config with client jwks")
+		if len(c.Plans) == 0 {
+			return fmt.Errorf("no conformance plan configured — set plans[] (or the legacy plan block)")
 		}
-		// Deliberately never defaulted: this file holds the private JWKS and is
-		// mounted, never baked into the image or committed.
-		if _, err := os.Stat(c.Plan.ConfigFile); err != nil {
-			return fmt.Errorf("plan.config_file %q not readable: %w (mount the private plan config there)", c.Plan.ConfigFile, err)
+		seen := map[string]int{}
+		for i, p := range c.Plans {
+			label := fmt.Sprintf("plans[%d]", i)
+			if p.Name == "" {
+				return fmt.Errorf("%s.name is required (e.g. oidcc-test-plan)", label)
+			}
+			// Plan names key the report sections, anchors and smoke-profile files,
+			// so a duplicate would silently merge two plans' results into one.
+			if j, dup := seen[p.Name]; dup {
+				return fmt.Errorf("%s.name %q duplicates plans[%d] — one run cannot execute the same plan twice", label, p.Name, j)
+			}
+			seen[p.Name] = i
+			if p.ConfigFile == "" {
+				return fmt.Errorf("%s.config_file (PLAN_%d_CONFIG_PATH) is required — path to the suite plan config with client jwks for %q", label, i+1, p.Name)
+			}
+			// Deliberately never defaulted: this file holds the private JWKS and is
+			// mounted, never baked into the image or committed.
+			if _, err := os.Stat(p.ConfigFile); err != nil {
+				return fmt.Errorf("%s.config_file %q not readable: %w (mount the private plan config there)", label, p.ConfigFile, err)
+			}
 		}
 
 	case SurfaceBDD:
@@ -392,12 +553,14 @@ func (c *Config) applyEnv() (int, error) {
 	envStr(&c.Conformance.Token, "CONFORMANCE_TOKEN", &n)
 	envBool(&c.Conformance.TLSVerify, "CONFORMANCE_TLS_VERIFY", &n, &bad)
 
-	envStr(&c.Plan.Name, "PLAN_NAME", &n)
-	envStr(&c.Plan.ConfigFile, "PLAN_CONFIG_PATH", &n)
+	if err := c.applyPlanEnv(&n); err != nil {
+		return n, err
+	}
 
 	envStr(&c.Esignet.BaseURL, "ESIGNET_BASE_URL", &n)
 	envStr(&c.Esignet.Provider, "AUTHN_PROVIDER", &n)
 	envStr(&c.Esignet.AuthFactor, "AUTH_FACTOR", &n)
+	envBool(&c.Esignet.TLSVerify, "ESIGNET_TLS_VERIFY", &n, &bad)
 	envStr(&c.Esignet.Identity.IndividualID, "INDIVIDUAL_ID", &n)
 	envStr(&c.Esignet.Identity.IDType, "ID_TYPE", &n)
 	envStr(&c.Esignet.Credentials.Username, "TEST_USERNAME", &n)
@@ -433,11 +596,108 @@ func (c *Config) applyEnv() (int, error) {
 	envInt(&c.Run.PollIntervalSeconds, "POLL_INTERVAL_SECONDS", &n, &bad)
 	envInt(&c.Run.TimeoutSeconds, "TIMEOUT_SECONDS", &n, &bad)
 	envBool(&c.Run.FailFast, "FAIL_FAST", &n, &bad)
+	envBool(&c.Run.DebugShowSecrets, "DEBUG_SHOW_SECRETS", &n, &bad)
 
 	if len(bad) > 0 {
 		return n, fmt.Errorf("invalid environment override: %s", strings.Join(bad, "; "))
 	}
 	return n, nil
+}
+
+// planEnvRE matches the per-plan environment overrides, PLAN_<n>_NAME and
+// PLAN_<n>_CONFIG_PATH, where <n> is the 1-based position in `plans`.
+var planEnvRE = regexp.MustCompile(`^PLAN_([0-9]+)_(NAME|CONFIG_PATH)$`)
+
+// applyPlanEnv overlays the plan environment overrides.
+//
+// PLAN_NAME / PLAN_CONFIG_PATH stay the spelling for a single-plan config (the
+// only shape that existed before, and the one docker-compose documents). With
+// several plans configured they are rejected rather than guessed at: silently
+// applying a mounted config_file to plans[0] would run the fapi plan against
+// the oidcc client's keys. Use PLAN_1_CONFIG_PATH / PLAN_2_CONFIG_PATH there.
+//
+// The indexed form is checked against the configured length, so a PLAN_3_* that
+// matches no plan is an error rather than an override that never happens. Load
+// folds the legacy `plan` block into plans[] before calling this, so PLAN_1_*
+// addresses that block too — the pair `cfg -print-env` emits for it.
+func (c *Config) applyPlanEnv(n *int) error {
+	_, hasName := os.LookupEnv("PLAN_NAME")
+	_, hasPath := os.LookupEnv("PLAN_CONFIG_PATH")
+	switch {
+	case (hasName || hasPath) && len(c.Plans) > 1:
+		return fmt.Errorf("PLAN_NAME/PLAN_CONFIG_PATH are ambiguous with %d plans configured — use PLAN_1_CONFIG_PATH … PLAN_%d_CONFIG_PATH", len(c.Plans), len(c.Plans))
+	case hasName || hasPath:
+		// Zero or one plan so far: the sole plan is the one being addressed.
+		// Allocate it if the file did not declare one at all (env-only container).
+		if len(c.Plans) == 0 {
+			c.Plans = append(c.Plans, Plan{})
+		}
+		envStr(&c.Plans[0].Name, "PLAN_NAME", n)
+		envStr(&c.Plans[0].ConfigFile, "PLAN_CONFIG_PATH", n)
+	}
+
+	// Collect the indexed overrides first, sorted, so the index set is known
+	// before any of them is applied and the errors below are deterministic rather
+	// than dependent on os.Environ order.
+	var keys []string
+	seenIdx := map[int]bool{}
+	highest := 0
+	for _, kv := range os.Environ() {
+		key, _, ok := strings.Cut(kv, "=")
+		if !ok {
+			continue
+		}
+		m := planEnvRE.FindStringSubmatch(key)
+		if m == nil {
+			continue
+		}
+		keys = append(keys, key)
+		if idx, err := strconv.Atoi(m[1]); err == nil {
+			seenIdx[idx] = true
+			if idx > highest {
+				highest = idx
+			}
+		}
+	}
+	sort.Strings(keys)
+
+	// With no plan declared anywhere (env-only container, no config file), the
+	// indexed variables ARE the plan list — allocate what they address. Without
+	// this the pair `cfg -print-env` always emits (PLAN_1_NAME/PLAN_1_CONFIG_PATH)
+	// is a hard error in exactly the setup it exists to serve, leaving only the
+	// unindexed PLAN_NAME/PLAN_CONFIG_PATH form usable there. A config that DID
+	// declare plans keeps the strict bound below: an out-of-range index against a
+	// real plan list is a typo worth reporting, not a plan to invent.
+	if len(c.Plans) == 0 && highest > 0 {
+		// Only a contiguous 1..n defines a plan list. Allocating up to a sparse
+		// highest index invents empty plans for the gaps, which then collide on the
+		// default plan name and fail pointing at a PLAN_1_CONFIG_PATH the operator
+		// never set — the skipped index, the actual mistake, goes unmentioned.
+		var missing []string
+		for i := 1; i <= highest; i++ {
+			if !seenIdx[i] {
+				missing = append(missing, "PLAN_"+strconv.Itoa(i)+"_CONFIG_PATH")
+			}
+		}
+		if len(missing) > 0 {
+			return fmt.Errorf("PLAN_%d_* is set without %s — with no config file the indexed plan variables define the plan list, so they must start at 1 and be contiguous", highest, strings.Join(missing, ", "))
+		}
+		c.Plans = make([]Plan, highest)
+	}
+
+	for _, key := range keys {
+		m := planEnvRE.FindStringSubmatch(key)
+		idx, err := strconv.Atoi(m[1])
+		if err != nil || idx < 1 || idx > len(c.Plans) {
+			return fmt.Errorf("%s names plan %s but the config has %d plan(s) (indexes are 1-based)", key, m[1], len(c.Plans))
+		}
+		if m[2] == "NAME" {
+			envStr(&c.Plans[idx-1].Name, key, n)
+		} else {
+			envStr(&c.Plans[idx-1].ConfigFile, key, n)
+		}
+	}
+	return nil
 }
 
 // e2eSpecByProvider is the scenario file each plugin runs when e2e.spec is not
@@ -453,15 +713,31 @@ func (c *Config) defaults() {
 	if len(c.Run.Surfaces) == 0 {
 		c.Run.Surfaces = []string{SurfaceConformance, SurfaceBDD, SurfaceE2E}
 	}
-	if c.Plan.Name == "" {
-		c.Plan.Name = "oidcc-test-plan"
+	// A config that names no plan at all still gets one entry, so the conformance
+	// surface reports "config_file is required" rather than "no plan configured".
+	if len(c.Plans) == 0 {
+		c.Plans = []Plan{{}}
 	}
-	if len(c.Plan.Variant) == 0 {
-		c.Plan.Variant = map[string]any{
-			"client_auth_type":    "private_key_jwt",
-			"response_type":       "code",
-			"response_mode":       "default",
-			"client_registration": "static_client",
+	for i := range c.Plans {
+		if c.Plans[i].Name == "" {
+			c.Plans[i].Name = defaultPlanName
+		}
+		if len(c.Plans[i].Variant) == 0 {
+			// Only the default plan gets a default variant: every other plan's
+			// variants are its own (fapi2 takes sender_constrain, fapi_profile, …),
+			// and inheriting oidcc's would create a plan nobody asked for. An empty
+			// map marshals to {}, which the suite reads as "no variants chosen" and
+			// rejects with its own message naming the missing dimension.
+			if c.Plans[i].Name == defaultPlanName {
+				c.Plans[i].Variant = map[string]any{
+					"client_auth_type":    "private_key_jwt",
+					"response_type":       "code",
+					"response_mode":       "default",
+					"client_registration": "static_client",
+				}
+			} else {
+				c.Plans[i].Variant = map[string]any{}
+			}
 		}
 	}
 	if c.Esignet.Provider == "" {

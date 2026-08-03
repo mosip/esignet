@@ -1,0 +1,6 @@
+# Shell scripts must keep LF endings even when checked out on Windows
+# (core.autocrlf=true). run-all.sh is COPYed into the Linux harness image and is
+# its ENTRYPOINT: a CRLF checkout makes the shebang read `bash\r`, and the
+# container dies with exit 127 / "/usr/bin/env: 'bash\r': No such file or
+# directory" before a single test runs.
+*.sh text eol=lf

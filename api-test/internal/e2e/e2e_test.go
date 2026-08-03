@@ -1,7 +1,14 @@
 package e2e
 
 import (
+	"encoding/base64"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"math/big"
+	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/mosip/esignet/api-test/internal/result"
@@ -62,6 +69,48 @@ func TestRegistrationFailureRows_FallbackWhenNoScenarios(t *testing.T) {
 	}
 	if rows[0].Result != "FAILED" {
 		t.Errorf("fallback row Result = %q, want FAILED", rows[0].Result)
+	}
+}
+
+// The client-registration call is real eSignet traffic (unlike conformance's
+// suite plumbing, which is deliberately dropped), so on a successful run it
+// must still show up in the report — attached to the first scenario's row,
+// same as the failure path already does via registrationFailureRows.
+func TestAttachSetupCalls(t *testing.T) {
+	setup := []result.HTTPCall{{Seq: 1, At: 100, Label: "create client", Method: "POST", URL: "https://esignet/client-mgmt/client", Status: 201}}
+	out := []result.ModuleResult{
+		{Module: "otp positive", Calls: []result.HTTPCall{{Seq: 1, At: 200, Label: "flow/execute", Method: "POST"}}},
+		{Module: "otp negative"},
+	}
+
+	attachSetupCalls(out, setup)
+
+	if len(out[0].Calls) != 2 {
+		t.Fatalf("first row Calls = %d, want 2 (registration + scenario)", len(out[0].Calls))
+	}
+	if out[0].Calls[0].Label != "create client" || out[0].Calls[1].Label != "flow/execute" {
+		t.Errorf("Calls not in chronological order: %+v", out[0].Calls)
+	}
+	// CollapseCalls renumbers on its own axis (chronological), which must not
+	// collide: both inputs numbered their own Seq from 1 independently.
+	if out[0].Calls[0].Seq != 1 || out[0].Calls[1].Seq != 2 {
+		t.Errorf("Calls not renumbered: %+v", out[0].Calls)
+	}
+	// The second row is untouched — only the first carries the setup trace.
+	if len(out[1].Calls) != 0 {
+		t.Errorf("second row should not receive the registration call: %+v", out[1].Calls)
+	}
+}
+
+func TestAttachSetupCallsNoopOnEmptyInputs(t *testing.T) {
+	// No rows (e.g. a zero-scenario spec) — nothing to attach to, must not panic.
+	attachSetupCalls(nil, []result.HTTPCall{{Label: "create client"}})
+
+	// No setup calls (e.g. registration wasn't captured) — row must stay as-is.
+	out := []result.ModuleResult{{Module: "otp positive", Calls: []result.HTTPCall{{Label: "flow/execute"}}}}
+	attachSetupCalls(out, nil)
+	if len(out[0].Calls) != 1 || out[0].Calls[0].Label != "flow/execute" {
+		t.Errorf("row mutated with no setup calls to attach: %+v", out[0].Calls)
 	}
 }
 
@@ -209,5 +258,178 @@ func TestSelectEmptyResultIsAnError(t *testing.T) {
 func TestSelectRejectsBadRegex(t *testing.T) {
 	if _, err := mixedSpec().Select(Filter{Include: []string{"("}}); err == nil {
 		t.Fatal("Select accepted an invalid regex")
+	}
+}
+
+// --- consent assertions -----------------------------------------------------
+
+// A scenario with no consent block must assert nothing about consent, so every
+// pre-existing scenario keeps its current pass/fail semantics.
+func TestAssertConsentNoSpecAssertsNothing(t *testing.T) {
+	if got := assertConsent(Scenario{Name: "x"}, consentObservation{prompted: true}); got != nil {
+		t.Fatalf("assertConsent with no spec produced %d assertion(s), want none", len(got))
+	}
+}
+
+func TestAssertConsentExpectPrompt(t *testing.T) {
+	cases := []struct {
+		name     string
+		expect   string
+		prompted bool
+		want     bool // assertion should pass
+	}{
+		{"yes and prompted", "yes", true, true},
+		{"yes but not prompted", "yes", false, false},
+		{"no and not prompted", "no", false, true},
+		{"no but prompted", "no", true, false},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			sc := Scenario{Consent: &ConsentSpec{ExpectPrompt: c.expect}}
+			got := assertConsent(sc, consentObservation{prompted: c.prompted})
+			if len(got) != 1 {
+				t.Fatalf("got %d assertions, want 1", len(got))
+			}
+			if got[0].Passed != c.want {
+				t.Errorf("assertion Passed=%v, want %v (%+v)", got[0].Passed, c.want, got[0])
+			}
+		})
+	}
+}
+
+// An empty ExpectPrompt asserts nothing about prompting — used by deny-only
+// scenarios that don't care whether this was a first or repeat authorization.
+func TestAssertConsentEmptyExpectPromptSkipsThatCheck(t *testing.T) {
+	sc := Scenario{Consent: &ConsentSpec{}}
+	if got := assertConsent(sc, consentObservation{prompted: true}); len(got) != 0 {
+		t.Fatalf("got %d assertions for an empty ConsentSpec, want 0", len(got))
+	}
+}
+
+// A deny that never took effect must FAIL: the scenario's claim assertions would
+// otherwise pass or fail for reasons unrelated to consent.
+func TestAssertConsentDenyRequiresSomethingWithheld(t *testing.T) {
+	sc := Scenario{Consent: &ConsentSpec{Deny: []string{"name"}}}
+
+	got := assertConsent(sc, consentObservation{prompted: true, denied: []string{"name"}})
+	if len(got) != 1 || !got[0].Passed {
+		t.Fatalf("deny that took effect should pass: %+v", got)
+	}
+
+	got = assertConsent(sc, consentObservation{prompted: false})
+	if len(got) != 1 || got[0].Passed {
+		t.Fatalf("deny that never applied must fail: %+v", got)
+	}
+}
+
+// The shipped spec files must parse into the current Scenario/ConsentSpec schema
+// and satisfy the invariants the consent cases depend on. A typo here would
+// otherwise only surface as a confusing mid-run failure against a live
+// deployment, minutes into a run.
+func TestShippedSpecsParseAndAreConsistent(t *testing.T) {
+	for _, f := range []string{"e2e-scenarios.json", "e2e-scenarios-mosip.json", "e2e-scenarios-sunbird.json"} {
+		t.Run(f, func(t *testing.T) {
+			data, err := os.ReadFile(filepath.Join("..", "..", f))
+			if err != nil {
+				t.Fatalf("read: %v", err)
+			}
+			var spec Spec
+			if err := json.Unmarshal(data, &spec); err != nil {
+				t.Fatalf("parse: %v", err)
+			}
+
+			// Every scenario that logs in successfully stores a consent record for
+			// (client, user) keyed by its scopes+claims hash — the whole spec shares
+			// one client per run. So the predecessor set must include ALL succeeding
+			// scenarios, not just the ones carrying a consent block: a plain
+			// "profile scope releases name" positive earlier in the file will
+			// suppress the prompt a later consent case asserts.
+			var sawConsent, sawReuse bool
+			consented := map[string]string{}
+			for _, sc := range spec.Scenarios {
+				if sc.AuthFactor == "" {
+					t.Errorf("scenario %q has no auth_factor", sc.Name)
+				}
+				key := strings.Join(sc.Scopes, " ") + "|" + fmt.Sprint(sc.UserinfoClaims)
+
+				if sc.Consent != nil {
+					sawConsent = true
+					switch strings.ToLower(sc.Consent.ExpectPrompt) {
+					case "", "yes", "no":
+					default:
+						t.Errorf("scenario %q: expect_prompt %q is not yes|no|\"\"", sc.Name, sc.Consent.ExpectPrompt)
+					}
+
+					switch strings.ToLower(sc.Consent.ExpectPrompt) {
+					case "no":
+						// Must repeat an earlier succeeding scenario's exact request, or
+						// the hash differs and the server re-prompts.
+						sawReuse = true
+						if _, ok := consented[key]; !ok {
+							t.Errorf("scenario %q expects NO prompt but no earlier succeeding scenario requested the same scopes/claims (%s)", sc.Name, key)
+						}
+					case "yes":
+						if prev, ok := consented[key]; ok {
+							t.Errorf("scenario %q expects a prompt but %q already consented to the same scopes/claims (%s) earlier in this spec — the stored consent would suppress the prompt",
+								sc.Name, prev, key)
+						}
+					}
+				}
+
+				// A rejected login never reaches RecordConsent, so it stores nothing.
+				if !sc.ExpectLoginFailure {
+					if _, ok := consented[key]; !ok {
+						consented[key] = sc.Name
+					}
+				}
+			}
+			if !sawConsent {
+				t.Error("no consent scenarios found — captcha/consent coverage missing from this spec")
+			}
+			if !sawReuse {
+				t.Error("no stored-consent reuse scenario (expect_prompt=no) found in this spec")
+			}
+		})
+	}
+}
+
+// RFC 7515 mandates unpadded base64url, but padded JWKS values turn up in the
+// wild. Decoding them strictly skipped every key, leaving nothing to verify with
+// and reporting a healthy eSignet as a userinfo signature failure — a formatting
+// quirk surfacing as a compliance defect.
+func TestRSAPubFromJWKAcceptsPaddedBase64(t *testing.T) {
+	key, err := generateRSA()
+	if err != nil {
+		t.Fatal(err)
+	}
+	nRaw := base64.RawURLEncoding.EncodeToString(key.N.Bytes())
+	eRaw := base64.RawURLEncoding.EncodeToString(big.NewInt(int64(key.E)).Bytes())
+	nPad := base64.URLEncoding.EncodeToString(key.N.Bytes())
+	ePad := base64.URLEncoding.EncodeToString(big.NewInt(int64(key.E)).Bytes())
+
+	for _, tc := range []struct{ name, n, e string }{
+		{"unpadded", nRaw, eRaw},
+		{"padded", nPad, ePad},
+		{"mixed", nPad, eRaw},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			pub, err := rsaPubFromJWK(jwksKey{Kid: "k1", N: tc.n, E: tc.e})
+			if err != nil {
+				t.Fatalf("rsaPubFromJWK: %v", err)
+			}
+			if pub.N.Cmp(key.N) != 0 {
+				t.Error("modulus does not round-trip")
+			}
+			if pub.E != key.E {
+				t.Errorf("exponent = %d, want %d", pub.E, key.E)
+			}
+		})
+	}
+}
+
+// Padding tolerance must not extend to genuine garbage.
+func TestRSAPubFromJWKRejectsInvalidBase64(t *testing.T) {
+	if _, err := rsaPubFromJWK(jwksKey{Kid: "k1", N: "not!base64", E: "AQAB"}); err == nil {
+		t.Fatal("rsaPubFromJWK accepted a non-base64 modulus")
 	}
 }

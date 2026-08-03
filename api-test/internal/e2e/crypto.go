@@ -66,7 +66,8 @@ func signRS256(priv *rsa.PrivateKey, kid string, claims map[string]any) (string,
 }
 
 // clientAssertion builds the private_key_jwt client assertion for the token call:
-// iss=sub=client_id, aud=token endpoint (issuer works too), short-lived, unique jti.
+// iss=sub=client_id, short-lived, unique jti. The caller chooses aud — eSignet
+// wants the issuer, not the token endpoint (see the call site in e2e.go).
 func clientAssertion(priv *rsa.PrivateKey, kid, clientID, aud string) (string, error) {
 	now := time.Now()
 	jti := make([]byte, 16)
@@ -190,12 +191,25 @@ func fetchJWKS(url string, tlsVerify bool) ([]jwksKey, error) {
 	return doc.Keys, nil
 }
 
+// b64urlDecode decodes a JWS/JWK base64url value, tolerating the padded form.
+// RFC 7515 §2 mandates unpadded, but padded JWKS values are common enough in the
+// wild that rejecting them here surfaced as a bogus "userinfo JWS signature"
+// failure — every key skipped for a decode error, then no key left to verify
+// with. Accepting both keeps a formatting quirk from being reported as an
+// eSignet compliance defect.
+func b64urlDecode(s string) ([]byte, error) {
+	if strings.ContainsRune(s, base64.StdPadding) {
+		return base64.URLEncoding.DecodeString(s)
+	}
+	return base64.RawURLEncoding.DecodeString(s)
+}
+
 func rsaPubFromJWK(k jwksKey) (*rsa.PublicKey, error) {
-	nb, err := base64.RawURLEncoding.DecodeString(k.N)
+	nb, err := b64urlDecode(k.N)
 	if err != nil {
 		return nil, err
 	}
-	eb, err := base64.RawURLEncoding.DecodeString(k.E)
+	eb, err := b64urlDecode(k.E)
 	if err != nil {
 		return nil, err
 	}

@@ -52,6 +52,33 @@ type OTPProvider interface {
 	OTP(since time.Time) (string, error)
 }
 
+// ConsentPolicy decides how the driver answers the consent step. The zero value
+// approves everything, which is the happy path every other surface relies on.
+type ConsentPolicy struct {
+	// Deny lists element names to withhold approval from, matched
+	// case-insensitively against the prompt's essential+optional elements. A name
+	// that the prompt never offers is a config error rather than a silent no-op:
+	// a scenario asserting "denying email withholds the email claim" proves
+	// nothing if the deny never applied.
+	Deny []string
+	// DenyAll withholds approval from every element the prompt offers. Kept
+	// separate from Deny so a scenario need not enumerate claims it does not
+	// control (the element list follows the authorize request's scopes/claims).
+	DenyAll bool
+}
+
+func (p ConsentPolicy) denies(name string) bool {
+	if p.DenyAll {
+		return true
+	}
+	for _, d := range p.Deny {
+		if strings.EqualFold(strings.TrimSpace(d), name) {
+			return true
+		}
+	}
+	return false
+}
+
 type Driver struct {
 	answers      map[string]string // normalized identifier -> value
 	preferred    []string          // preferred action tokens for ACR / login-id selection
@@ -60,13 +87,24 @@ type Driver struct {
 	maxHops      int
 	maxFlowSteps int
 	debug        bool
-	otp          OTPProvider // dynamic OTP source; nil for static OTP
+	otp          OTPProvider   // dynamic OTP source; nil for static OTP
+	consent      ConsentPolicy // how to answer the consent step; zero value approves all
+
+	// Per-Run observations, reset at the top of Run because the conformance
+	// orchestrator reuses one Driver across every module.
+	consentPrompted bool
+	consentDenied   []string
 }
 
 // SetOTPProvider installs a dynamic OTP source. When set, an "otp" flow input
 // with no configured answer is resolved by fetching a fresh code from the
 // provider instead of failing as a missing input.
 func (d *Driver) SetOTPProvider(p OTPProvider) { d.otp = p }
+
+// SetConsentPolicy installs a non-default consent answer. Only the e2e surface's
+// consent scenarios use this; conformance and the happy-path e2e cases leave the
+// zero value (approve everything) in place.
+func (d *Driver) SetConsentPolicy(p ConsentPolicy) { d.consent = p }
 
 func New(answers map[string]string, preferred []string, tlsVerify bool, timeout time.Duration) *Driver {
 	return &Driver{
@@ -88,6 +126,14 @@ type FlowResult struct {
 	CallbackStatus  int
 	Calls           []result.HTTPCall
 	Error           string
+	// ConsentPrompted reports whether the flow asked for a consent decision.
+	// The server skips the prompt when a stored consent record still covers the
+	// request (consent_provider.go ResolveConsent), so this is the observable
+	// that distinguishes "consent reused" from "consent re-requested".
+	ConsentPrompted bool
+	// ConsentDenied lists the element names the driver withheld approval from,
+	// for the report's evidence trail.
+	ConsentDenied []string
 }
 
 func (r FlowResult) OK() bool { return r.RedirectURI != "" && r.Error == "" }
@@ -103,7 +149,125 @@ type flowResp struct {
 		Actions []struct {
 			Ref string `json:"ref"`
 		} `json:"actions"`
+		// AdditionalData.ConsentPrompt is a JSON *string* holding the purposes the
+		// consent step is asking about. It only appears on the consent prompt.
+		AdditionalData struct {
+			ConsentPrompt string `json:"consentPrompt"`
+		} `json:"additionalData"`
 	} `json:"data"`
+}
+
+// consentPurpose is one entry of data.additionalData.consentPrompt: what the
+// relying party is asking permission for, split into claims it must have and
+// claims it merely wants.
+type consentPurpose struct {
+	PurposeName string           `json:"purposeName"`
+	PurposeID   string           `json:"purposeId"`
+	Type        string           `json:"type"`
+	Essential   []consentElement `json:"essential"`
+	Optional    []consentElement `json:"optional"`
+}
+
+// consentElement is one claim/permission name offered by a consent purpose.
+type consentElement struct {
+	Name string `json:"name"`
+}
+
+// consentDecision is the reply shape the ConsentExecutor expects, sent as a
+// JSON-encoded *string* under the consent_decisions input (see the Go-eSignet
+// Postman collection, "flow/execute — consent").
+type consentDecision struct {
+	Purposes []consentPurposeDecision `json:"purposes"`
+}
+
+type consentPurposeDecision struct {
+	Approved    bool                     `json:"approved"`
+	PurposeName string                   `json:"purposeName"`
+	PurposeID   string                   `json:"purposeId,omitempty"`
+	Elements    []consentElementDecision `json:"elements"`
+}
+
+type consentElementDecision struct {
+	Approved bool   `json:"approved"`
+	Name     string `json:"name"`
+}
+
+// buildConsentDecision answers the consent step from the prompt. By default it
+// approves every purpose and every claim asked about — the harness drives the
+// happy path, and a scenario asserting which claims are released needs them all
+// granted (a withheld claim would look identical to the server failing to
+// release it). A non-zero ConsentPolicy withholds approval from the named
+// elements instead, which is how the consent-deny scenarios exercise
+// essential_consent_denied and optional-claim suppression.
+//
+// It must be derived from the prompt rather than configured: purposeName embeds
+// the per-run client id and the element list follows the scopes/claims that
+// specific authorize request asked for.
+//
+// Returns the encoded decision plus the element names actually denied, so the
+// caller can both evidence the decision and catch a deny that matched nothing.
+func buildConsentDecision(prompt string, policy ConsentPolicy) (string, []string, error) {
+	prompt = strings.TrimSpace(prompt)
+	if prompt == "" {
+		return "", nil, fmt.Errorf("consent step gave no consentPrompt to derive a decision from")
+	}
+	var purposes []consentPurpose
+	if err := json.Unmarshal([]byte(prompt), &purposes); err != nil {
+		return "", nil, fmt.Errorf("parse consentPrompt: %w", err)
+	}
+	if len(purposes) == 0 {
+		return "", nil, fmt.Errorf("consentPrompt listed no purposes")
+	}
+
+	var denied, offered []string
+	out := consentDecision{}
+	for _, p := range purposes {
+		d := consentPurposeDecision{Approved: true, PurposeName: p.PurposeName, PurposeID: p.PurposeID}
+		for _, e := range append(append([]consentElement(nil), p.Essential...), p.Optional...) {
+			offered = append(offered, e.Name)
+			approved := !policy.denies(e.Name)
+			if !approved {
+				denied = append(denied, e.Name)
+			}
+			d.Elements = append(d.Elements, consentElementDecision{Approved: approved, Name: e.Name})
+		}
+		// A purpose with every element withheld is itself not approved, mirroring
+		// what a UI would submit when the user unticks the whole block.
+		if policy.DenyAll {
+			d.Approved = false
+		}
+		out.Purposes = append(out.Purposes, d)
+	}
+
+	// A deny naming an element the prompt never offered means the scenario is
+	// asserting against a claim this request does not consent-gate — the run
+	// would otherwise pass for the wrong reason.
+	for _, name := range policy.Deny {
+		name = strings.TrimSpace(name)
+		if name == "" {
+			continue
+		}
+		if !containsFold(offered, name) {
+			return "", nil, fmt.Errorf("consent deny %q not offered by the prompt (offered: %s)",
+				name, strings.Join(offered, ", "))
+		}
+	}
+
+	// The executor takes the decision as a JSON string, not a nested object.
+	b, err := json.Marshal(out)
+	if err != nil {
+		return "", nil, fmt.Errorf("encode consent decision: %w", err)
+	}
+	return string(b), denied, nil
+}
+
+func containsFold(haystack []string, needle string) bool {
+	for _, h := range haystack {
+		if strings.EqualFold(h, needle) {
+			return true
+		}
+	}
+	return false
 }
 
 // session carries a cookie-jar HTTP client and the captured call trace for one
@@ -192,9 +356,16 @@ func (s *session) do(label, method, u string, body []byte, contentType string, f
 
 // Run drives one authorization request to a redirect_uri.
 func (d *Driver) Run(base, authorizeURL string) FlowResult {
+	// The conformance orchestrator reuses one Driver for every module, so the
+	// per-flow consent observations must start clean or module N reports module
+	// N-1's consent prompt.
+	d.consentPrompted, d.consentDenied = false, nil
+
 	s := d.newSession()
 	fr := d.run(s, base, authorizeURL)
 	fr.Calls = s.calls
+	fr.ConsentPrompted = d.consentPrompted
+	fr.ConsentDenied = d.consentDenied
 	return fr
 }
 
@@ -297,7 +468,7 @@ func (d *Driver) completeLogin(s *session, base, authID, executionID string, fr 
 			return fr
 		}
 
-		inputs, merr := d.resolveInputs(inputIDs, flowStart)
+		inputs, merr := d.resolveInputs(inputIDs, flowStart, r.Data.AdditionalData.ConsentPrompt)
 		if merr != "" {
 			fr.Steps = append(fr.Steps, result.FlowStep{FlowStatus: flowStatus, Inputs: inputIDs, Action: action})
 			fr.Error = merr
@@ -353,12 +524,26 @@ func (d *Driver) completeLogin(s *session, base, authID, executionID string, fr 
 	return fr
 }
 
-func (d *Driver) resolveInputs(identifiers []string, since time.Time) (map[string]string, string) {
+func (d *Driver) resolveInputs(identifiers []string, since time.Time, consentPrompt string) (map[string]string, string) {
 	out := map[string]string{}
 	var missing []string
 	for _, id := range identifiers {
 		if v, ok := d.answers[Normalize(id)]; ok {
 			out[id] = v
+			continue
+		}
+		// Consent is synthesized from the prompt in this same response — it
+		// cannot be a configured answer (see buildConsentDecision). Checked
+		// before the missing-answer path so requesting any scope beyond openid
+		// doesn't dead-end the flow.
+		if Normalize(id) == "consentdecisions" {
+			decision, denied, err := buildConsentDecision(consentPrompt, d.consent)
+			if err != nil {
+				return nil, fmt.Sprintf("consent: %v", err)
+			}
+			d.consentPrompted = true
+			d.consentDenied = append(d.consentDenied, denied...)
+			out[id] = decision
 			continue
 		}
 		// Dynamic OTP fallback: only when no explicit answer is configured, so a

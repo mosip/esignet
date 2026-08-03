@@ -141,6 +141,11 @@ type Scenario struct {
 	// not skipped, so the case stays visible until real credentials exist.
 	ExpectLoginFailure bool `json:"expect_login_failure"`
 
+	// Consent controls how the consent step is answered and what is asserted
+	// about it. Omitted ⇒ approve everything and assert nothing, which is the
+	// happy path every pre-existing scenario relies on.
+	Consent *ConsentSpec `json:"consent"`
+
 	Scopes         []string          `json:"scopes"`
 	UserinfoClaims map[string]any    `json:"userinfo_claims"` // OIDC "claims".userinfo request object
 	ExpectPresent  []string          `json:"expect_present"`
@@ -152,6 +157,92 @@ type Scenario struct {
 	// still shown in the report drill-down. If the scenario starts passing, it
 	// is still reported PASSED (not silently downgraded).
 	KnownIssue string `json:"known_issue"`
+}
+
+// ConsentSpec is a scenario's consent behaviour and expectations.
+//
+// The consent step only appears when the authorize request actually asks for
+// consent-gated claims, so a scenario using this must request scopes/claims
+// beyond bare "openid" — otherwise the server has nothing to prompt for and
+// ExpectPrompt "yes" fails with "consent step never appeared".
+type ConsentSpec struct {
+	// Deny withholds approval from these element names (case-insensitive). A name
+	// the prompt never offers fails the scenario rather than passing vacuously.
+	Deny []string `json:"deny"`
+	// DenyAll withholds approval from every element offered.
+	DenyAll bool `json:"deny_all"`
+
+	// ExpectPrompt asserts whether a consent step appeared at all:
+	//   "yes" — the flow must prompt (first authorization, or a re-prompt)
+	//   "no"  — the flow must NOT prompt (a stored consent still covers it)
+	//   ""    — no assertion
+	// This is the observable for the stored-consent paths in the service's
+	// ResolveConsent: skip on hash match, re-prompt on expiry/claims change.
+	ExpectPrompt string `json:"expect_prompt"`
+}
+
+// consentPolicy maps the scenario's spec onto the driver's policy.
+func (c *ConsentSpec) consentPolicy() esignet.ConsentPolicy {
+	if c == nil {
+		return esignet.ConsentPolicy{}
+	}
+	return esignet.ConsentPolicy{Deny: c.Deny, DenyAll: c.DenyAll}
+}
+
+// consentObservation is what the flow actually did about consent, carried back
+// even when the login fails — deny-an-essential-claim is precisely a case where
+// the prompt appeared, was answered, and the login was then (correctly)
+// rejected.
+type consentObservation struct {
+	prompted bool
+	denied   []string
+}
+
+// assertConsent turns the scenario's consent expectations into report assertions.
+// Returns nil when the scenario asserts nothing about consent.
+func assertConsent(sc Scenario, obs consentObservation) []result.Assertion {
+	if sc.Consent == nil {
+		return nil
+	}
+	var out []result.Assertion
+
+	switch strings.ToLower(strings.TrimSpace(sc.Consent.ExpectPrompt)) {
+	case "yes":
+		out = append(out, result.Assertion{
+			Field: "consent prompt", Expected: "prompted",
+			Actual: promptedWord(obs.prompted), Passed: obs.prompted,
+		})
+	case "no":
+		out = append(out, result.Assertion{
+			Field: "consent prompt", Expected: "not prompted (stored consent reused)",
+			Actual: promptedWord(obs.prompted), Passed: !obs.prompted,
+		})
+	}
+
+	// When a scenario asked to withhold claims, evidence that the withholding
+	// actually happened — otherwise a server that never prompted would make the
+	// claim assertions pass or fail for unrelated reasons.
+	if len(sc.Consent.Deny) > 0 || sc.Consent.DenyAll {
+		want := "withheld: " + strings.Join(sc.Consent.Deny, ", ")
+		if sc.Consent.DenyAll {
+			want = "withheld: all offered elements"
+		}
+		got := "withheld: " + strings.Join(obs.denied, ", ")
+		if len(obs.denied) == 0 {
+			got = "nothing withheld (no consent step reached)"
+		}
+		out = append(out, result.Assertion{
+			Field: "consent decision", Expected: want, Actual: got, Passed: len(obs.denied) > 0,
+		})
+	}
+	return out
+}
+
+func promptedWord(b bool) string {
+	if b {
+		return "prompted"
+	}
+	return "not prompted"
 }
 
 // Runner drives the E2E surface for one plugin.
@@ -187,7 +278,7 @@ type Runner struct {
 func (r *Runner) httpClient() *http.Client {
 	if r.client == nil {
 		r.client = &http.Client{
-			Timeout:   r.Timeout,
+			Timeout: r.Timeout,
 			Transport: &http.Transport{TLSClientConfig: &tls.Config{
 				MinVersion:         tls.VersionTLS12,
 				InsecureSkipVerify: !r.TLSVerify,
@@ -286,15 +377,31 @@ func (r *Runner) Run(spec Spec) []result.ModuleResult {
 		answers := mergeAnswers(r.Answers, sc.Credentials)
 		preferred := append(esignet.AuthFactorTokens(sc.AuthFactor), esignet.IDTypeTokens(r.IDType)...)
 
-		claims, calls, ferr := r.runScenario(priv, kid, clientID, spec.RedirectURI, sc, answers, preferred)
+		claims, calls, consentSeen, ferr := r.runScenario(priv, kid, clientID, spec.RedirectURI, sc, answers, preferred)
 		row.Calls = calls
 		row.DurationMs = time.Since(start).Milliseconds()
+
+		// Consent expectations are asserted on every outcome, including the
+		// expected-rejection path: a deny-an-essential-claim case that "passed"
+		// because the OTP happened to be wrong would evidence nothing about
+		// consent. Folding these in makes the rejection reason itself checkable.
+		consentAssertions := assertConsent(sc, consentSeen)
 
 		loginField := fmt.Sprintf("login (acr=%s)", sc.AuthFactor)
 		switch {
 		case ferr != nil && sc.ExpectLoginFailure:
-			// Negative case: rejection is the expected, correct outcome.
-			row.Assertions = []result.Assertion{{Field: loginField, Expected: "rejected", Actual: "rejected: " + ferr.Error(), Passed: true}}
+			// Negative case: rejection is the expected, correct outcome — provided
+			// anything the scenario asserts about consent also holds.
+			row.Assertions = append([]result.Assertion{
+				{Field: loginField, Expected: "rejected", Actual: "rejected: " + ferr.Error(), Passed: true},
+			}, consentAssertions...)
+			if conds := failedConditions(row.Assertions); len(conds) > 0 {
+				row.Result = "FAILED"
+				row.FailedConditions = conds
+				logf("e2e: %-55s -> FAILED (login rejected as expected, but %d consent assertion(s) failed)", sc.Name, len(conds))
+				out = append(out, row)
+				continue
+			}
 			row.Result = "PASSED"
 			logf("e2e: %-55s -> PASSED (login correctly rejected: %v)", sc.Name, ferr)
 			out = append(out, row)
@@ -302,7 +409,9 @@ func (r *Runner) Run(spec Spec) []result.ModuleResult {
 		case ferr != nil && !sc.ExpectLoginFailure:
 			// Positive case that couldn't log in — real failure (may be a
 			// missing-credential ACR gap; reported, not silently skipped).
-			row.Assertions = []result.Assertion{{Field: loginField, Expected: "accepted", Actual: "rejected: " + ferr.Error(), Passed: false}}
+			row.Assertions = append([]result.Assertion{
+				{Field: loginField, Expected: "accepted", Actual: "rejected: " + ferr.Error(), Passed: false},
+			}, consentAssertions...)
 			row.Result = "FAILED"
 			row.FailedConditions = []result.Condition{{Src: "e2e", Result: "FAILURE", Msg: ferr.Error()}}
 			logf("e2e: %-55s -> FAILED (login: %v)", sc.Name, ferr)
@@ -310,7 +419,9 @@ func (r *Runner) Run(spec Spec) []result.ModuleResult {
 			continue
 		case ferr == nil && sc.ExpectLoginFailure:
 			// Negative case whose bad credential was wrongly accepted.
-			row.Assertions = []result.Assertion{{Field: loginField, Expected: "rejected", Actual: "accepted", Passed: false}}
+			row.Assertions = append([]result.Assertion{
+				{Field: loginField, Expected: "rejected", Actual: "accepted", Passed: false},
+			}, consentAssertions...)
 			row.Result = "FAILED"
 			row.FailedConditions = []result.Condition{{Src: "e2e", Result: "FAILURE", Msg: "expected login to be rejected (negative case), but it was accepted"}}
 			logf("e2e: %-55s -> FAILED (expected rejection, login succeeded)", sc.Name)
@@ -320,7 +431,8 @@ func (r *Runner) Run(spec Spec) []result.ModuleResult {
 
 		// Positive case, login succeeded as expected — proceed to claim checks.
 		loginAssertion := result.Assertion{Field: loginField, Expected: "accepted", Actual: "accepted", Passed: true}
-		assertions := append([]result.Assertion{loginAssertion}, assertClaims(sc, claims)...)
+		assertions := append([]result.Assertion{loginAssertion}, consentAssertions...)
+		assertions = append(assertions, assertClaims(sc, claims)...)
 		row.Assertions = assertions
 		conds := failedConditions(assertions)
 		if len(conds) > 0 {
@@ -339,7 +451,28 @@ func (r *Runner) Run(spec Spec) []result.ModuleResult {
 		}
 		out = append(out, row)
 	}
+
+	// The registration call is real eSignet traffic, not harness plumbing, so it
+	// belongs in the report for debugging — same treatment the failure path
+	// (registrationFailureRows) already gives it.
+	attachSetupCalls(out, setupCalls)
 	return out
+}
+
+// attachSetupCalls folds the client-registration call trace into the first
+// scenario's row. Both setupCalls and a fresh row's own Calls number their Seq
+// from 1 independently, so a plain concatenation would produce two "#1"
+// entries in the same row; CollapseCalls re-sorts by capture time and
+// renumbers, the same normalization the conformance surface already applies to
+// its own per-module trace.
+func attachSetupCalls(out []result.ModuleResult, setupCalls []result.HTTPCall) {
+	if len(out) == 0 || len(setupCalls) == 0 {
+		return
+	}
+	merged := make([]result.HTTPCall, 0, len(setupCalls)+len(out[0].Calls))
+	merged = append(merged, setupCalls...)
+	merged = append(merged, out[0].Calls...)
+	out[0].Calls = result.CollapseCalls(merged)
 }
 
 // mergeAnswers overlays per-scenario credential overrides onto the plugin's base
@@ -491,7 +624,7 @@ func (r *Runner) createClientViaPMS(calls *[]result.HTTPCall, priv *rsa.PrivateK
 // runScenario runs authorize -> login (driver) -> token -> userinfo for one case
 // and returns the parsed userinfo claims plus the full call trace. answers and
 // preferred are the scenario-specific credential/ACR resolution the driver uses.
-func (r *Runner) runScenario(priv *rsa.PrivateKey, kid, clientID, redirectURI string, sc Scenario, answers map[string]string, preferred []string) (map[string]any, []result.HTTPCall, error) {
+func (r *Runner) runScenario(priv *rsa.PrivateKey, kid, clientID, redirectURI string, sc Scenario, answers map[string]string, preferred []string) (map[string]any, []result.HTTPCall, consentObservation, error) {
 	var calls []result.HTTPCall
 	verifier, challenge := pkce()
 	state := "st-" + strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -521,20 +654,35 @@ func (r *Runner) runScenario(priv *rsa.PrivateKey, kid, clientID, redirectURI st
 	if r.OTP != nil {
 		driver.SetOTPProvider(r.OTP)
 	}
+	driver.SetConsentPolicy(sc.Consent.consentPolicy())
 	fr := driver.Run(r.Base, authURL)
 	calls = append(calls, fr.Calls...)
+	consentSeen := consentObservation{prompted: fr.ConsentPrompted, denied: fr.ConsentDenied}
 	if !fr.OK() {
-		return nil, calls, fmt.Errorf("login flow failed: %s", firstNonEmpty(fr.Error, "no redirect_uri"))
+		return nil, calls, consentSeen,
+			fmt.Errorf("login flow failed: %s", firstNonEmpty(fr.Error, "no redirect_uri"))
 	}
 	code, err := codeFromRedirect(fr.RedirectURI)
 	if err != nil {
-		return nil, calls, err
+		return nil, calls, consentSeen, err
 	}
 
-	// token exchange (private_key_jwt + PKCE)
-	assertion, err := clientAssertion(priv, kid, clientID, r.TokenEndpoint)
+	// token exchange (private_key_jwt + PKCE).
+	//
+	// aud is the ISSUER, not the token endpoint. RFC 7523 §3 allows either, and
+	// OIDC Core §9 suggests the token endpoint, but eSignet validates against a
+	// single configured audience that it sets to the issuer
+	// (esignet-service/internal/config/app.go: cfg.JWT.Audience = cfg.Issuer).
+	// Sending the token endpoint is rejected as "invalid_client Invalid client
+	// assertion" (verified against esdev 2026-07-29). Falls back to the token
+	// endpoint if discovery gave no issuer.
+	aud := r.Issuer
+	if aud == "" {
+		aud = r.TokenEndpoint
+	}
+	assertion, err := clientAssertion(priv, kid, clientID, aud)
 	if err != nil {
-		return nil, calls, fmt.Errorf("client assertion: %w", err)
+		return nil, calls, consentSeen, fmt.Errorf("client assertion: %w", err)
 	}
 	form := url.Values{
 		"grant_type":            {"authorization_code"},
@@ -548,7 +696,7 @@ func (r *Runner) runScenario(priv *rsa.PrivateKey, kid, clientID, redirectURI st
 	status, rb, err := r.do(&calls, "token", http.MethodPost, r.TokenEndpoint,
 		map[string]string{"Content-Type": "application/x-www-form-urlencoded"}, form.Encode())
 	if err != nil {
-		return nil, calls, fmt.Errorf("token request: %w", err)
+		return nil, calls, consentSeen, fmt.Errorf("token request: %w", err)
 	}
 	var tok struct {
 		AccessToken string `json:"access_token"`
@@ -558,25 +706,25 @@ func (r *Runner) runScenario(priv *rsa.PrivateKey, kid, clientID, redirectURI st
 	}
 	_ = json.Unmarshal(rb, &tok)
 	if tok.AccessToken == "" {
-		return nil, calls, fmt.Errorf("token exchange failed (HTTP %d): %s", status, firstNonEmpty(tok.Error+" "+tok.ErrorDesc, snippet(rb)))
+		return nil, calls, consentSeen, fmt.Errorf("token exchange failed (HTTP %d): %s", status, firstNonEmpty(tok.Error+" "+tok.ErrorDesc, snippet(rb)))
 	}
 
 	// userinfo
 	ustatus, ub, err := r.do(&calls, "userinfo", http.MethodGet, r.UserinfoEndpoint,
 		map[string]string{"Authorization": "Bearer " + tok.AccessToken}, "")
 	if err != nil {
-		return nil, calls, fmt.Errorf("userinfo request: %w", err)
+		return nil, calls, consentSeen, fmt.Errorf("userinfo request: %w", err)
 	}
 	// A JSON error body would otherwise parse as a claims map and surface later
 	// as a vague "claim X absent" instead of the actual HTTP failure.
 	if ustatus < 200 || ustatus > 299 {
-		return nil, calls, fmt.Errorf("userinfo request failed (HTTP %d): %s", ustatus, snippet(ub))
+		return nil, calls, consentSeen, fmt.Errorf("userinfo request failed (HTTP %d): %s", ustatus, snippet(ub))
 	}
 	claims, err := parseUserinfo(ub, r.JWKSURI, r.TLSVerify)
 	if err != nil {
-		return nil, calls, fmt.Errorf("userinfo parse: %w", err)
+		return nil, calls, consentSeen, fmt.Errorf("userinfo parse: %w", err)
 	}
-	return claims, calls, nil
+	return claims, calls, consentSeen, nil
 }
 
 // acrForClaims returns the client's registered ACRs for the authorize request.

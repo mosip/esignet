@@ -44,7 +44,7 @@ type ModuleResult struct {
 	DurationMs int64
 
 	FailedConditions []Condition
-	LogItems         []LogItem  // full suite condition log, rendered UI-style
+	LogItems         []LogItem // full suite condition log, rendered UI-style
 	FlowTrace        FlowTrace
 	Calls            []HTTPCall // eSignet-thunder request/response trace for manual debugging
 	HarnessError     string
@@ -196,8 +196,15 @@ func (s Summary) HasFailures() bool { return s.Failed > 0 || s.Errored > 0 }
 
 // SurfaceGroup is the rows of one surface plus that surface's own tile counts,
 // so the consolidated report can show a section per surface (plan doc §6).
+//
+// Plan splits a surface further: a run that executes oidcc-test-plan and
+// fapi2-security-profile-final-test-plan gets one conformance section each,
+// because their module lists overlap by name and merging them would show two
+// unrelated verdicts under one row number. It is empty for the bdd/e2e
+// surfaces, whose rows carry no plan, so those stay a single section.
 type SurfaceGroup struct {
 	Surface string
+	Plan    string
 	Summary Summary
 	Rows    []ModuleResult
 }
@@ -210,36 +217,44 @@ var surfaceOrder = map[string]int{
 	SurfaceE2E:         3,
 }
 
-// GroupBySurface splits results into ordered per-surface groups. A blank Surface
-// defaults to conformance so pre-existing runs (rows written before Surface
-// existed) still render.
+// GroupBySurface splits results into ordered groups, one per (surface, plan). A
+// blank Surface defaults to conformance so pre-existing runs (rows written
+// before Surface existed) still render; a blank Plan keeps every row of that
+// surface in one group, which is what the bdd/e2e surfaces do.
+//
+// Surfaces sort in the fixed display order and, within a surface, plans keep the
+// order they were run in.
 func GroupBySurface(rs []ModuleResult) []SurfaceGroup {
-	byName := map[string][]ModuleResult{}
-	var order []string
+	type key struct{ surface, plan string }
+	byKey := map[key][]ModuleResult{}
+	var order []key
 	for _, r := range rs {
-		s := r.Surface
-		if s == "" {
-			s = SurfaceConformance
+		k := key{surface: r.Surface, plan: r.Plan}
+		if k.surface == "" {
+			k.surface = SurfaceConformance
 		}
-		if _, seen := byName[s]; !seen {
-			order = append(order, s)
+		if _, seen := byKey[k]; !seen {
+			order = append(order, k)
 		}
-		byName[s] = append(byName[s], r)
+		byKey[k] = append(byKey[k], r)
 	}
 	sort.SliceStable(order, func(i, j int) bool {
-		oi, iok := surfaceOrder[order[i]]
-		oj, jok := surfaceOrder[order[j]]
-		if iok && jok {
+		oi, iok := surfaceOrder[order[i].surface]
+		oj, jok := surfaceOrder[order[j].surface]
+		if iok && jok && oi != oj {
 			return oi < oj
 		}
 		if iok != jok {
 			return iok // known surfaces before unknown
 		}
-		return order[i] < order[j]
+		if !iok && !jok && order[i].surface != order[j].surface {
+			return order[i].surface < order[j].surface
+		}
+		return false // same surface: keep the plans in run order
 	})
 	out := make([]SurfaceGroup, 0, len(order))
-	for _, s := range order {
-		out = append(out, SurfaceGroup{Surface: s, Summary: Summarize(byName[s]), Rows: byName[s]})
+	for _, k := range order {
+		out = append(out, SurfaceGroup{Surface: k.surface, Plan: k.plan, Summary: Summarize(byKey[k]), Rows: byKey[k]})
 	}
 	return out
 }

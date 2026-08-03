@@ -6,6 +6,7 @@ import (
 	"crypto/sha1" //nolint:gosec // RFC 6455 handshake hash, not security
 	"encoding/base64"
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -180,7 +181,7 @@ func TestReadFrameMaskedRoundTrip(t *testing.T) {
 	}()
 
 	rc := &conn{net: srv, br: bufio.NewReader(srv)}
-	fin, op, got, err := rc.readFrame()
+	fin, op, got, err := rc.readFrame(true)
 	if err != nil {
 		t.Fatalf("readFrame: %v", err)
 	}
@@ -270,4 +271,67 @@ func writeServerTextFrame(w io.Writer, payload []byte) error {
 	}
 	_, err := w.Write(payload)
 	return err
+}
+
+// A read deadline that lands BETWEEN frames is safe to retry: nothing has been
+// consumed, so the listener loops, re-checks its context, and reads the next
+// frame normally. This is the only timeout the listener is allowed to swallow.
+func TestReadMessageIdleTimeoutIsResumable(t *testing.T) {
+	cli, srv := net.Pipe()
+	defer cli.Close()
+	defer srv.Close()
+
+	rc := &conn{net: srv, br: bufio.NewReader(srv), idleTimeout: 50 * time.Millisecond, frameTimeout: 5 * time.Second}
+
+	if _, err := rc.readMessage(); err == nil {
+		t.Fatal("readMessage succeeded with nothing on the wire")
+	} else if !isTimeout(err) {
+		t.Fatalf("readMessage error = %v, want a retryable timeout", err)
+	}
+
+	go func() { _, _ = cli.Write(textFrame([]byte(`{"otp":"123456"}`))) }()
+
+	got, err := rc.readMessage()
+	if err != nil {
+		t.Fatalf("readMessage after an idle timeout: %v", err)
+	}
+	if string(got) != `{"otp":"123456"}` {
+		t.Errorf("payload = %q, want the frame written after the timeout", got)
+	}
+}
+
+// A deadline that strikes PARTWAY THROUGH a frame is not retryable: the stream
+// position is lost, and reading again would parse payload bytes as a frame
+// header. It must not look like a timeout, or the listener would retry it,
+// desynchronize, and then fail every WaitOTP for the rest of the run with no
+// reconnect.
+func TestReadMessageMidFrameTimeoutIsNotRetryable(t *testing.T) {
+	cli, srv := net.Pipe()
+	defer cli.Close()
+	defer srv.Close()
+
+	// A header promising 20 payload bytes, followed by only 5 of them.
+	go func() { _, _ = cli.Write(append([]byte{0x81, 20}, []byte("hello")...)) }()
+
+	rc := &conn{net: srv, br: bufio.NewReader(srv), idleTimeout: 5 * time.Second, frameTimeout: 100 * time.Millisecond}
+
+	_, err := rc.readMessage()
+	if err == nil {
+		t.Fatal("readMessage succeeded on a truncated frame")
+	}
+	if isTimeout(err) {
+		t.Fatalf("mid-frame error = %v, want it NOT to report as a timeout (the listener retries those)", err)
+	}
+	if !errors.Is(err, errStreamDesync) {
+		t.Errorf("mid-frame error = %v, want errStreamDesync", err)
+	}
+}
+
+// textFrame builds an unmasked server->client text frame, the shape the mock
+// sends. Payloads here are small, so only the 7-bit length form is needed.
+func textFrame(payload []byte) []byte {
+	if len(payload) > 125 {
+		panic("textFrame: test payloads must fit the 7-bit length form")
+	}
+	return append([]byte{0x81, byte(len(payload))}, payload...)
 }
