@@ -19,6 +19,7 @@ const availableProvider = [
 export default function CaptchaComponent({
   component,
   context,
+  captchaChanged,
 }: CaptchaComponentProps) {
   const { t } = useTranslation();
   const fieldRef = component.ref ?? component.id;
@@ -51,6 +52,7 @@ export default function CaptchaComponent({
    */
   const handleSuccess = (token: string | null) => {
     context.onInputChange(fieldRef, token ?? "");
+    captchaChanged && captchaChanged(token ?? "");
   };
 
   /**
@@ -58,6 +60,7 @@ export default function CaptchaComponent({
    */
   const handleExpire = () => {
     context.onInputChange(fieldRef, "");
+    captchaChanged && captchaChanged("");
   };
 
   /**
@@ -65,6 +68,7 @@ export default function CaptchaComponent({
    */
   const handleError = () => {
     context.onInputChange(fieldRef, "");
+    captchaChanged && captchaChanged("");
   };
 
   const captchaProps = {
