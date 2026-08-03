@@ -241,7 +241,7 @@ input[type="password"]::-ms-clear {
 
 /* login ID button styles */
 .login-id-button {
-  width: 47% !important;
+  white-space: normal !important;
 }
 
 /* login ID button active state */

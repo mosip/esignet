@@ -811,12 +811,11 @@ system:
   "error.resourceservice.cannot_delete": මකා දැමිය නොහැක
   "error.resourceservice.cannot_delete_description": පරායත්තතා සහිත සම්පත් සේවාදායකයක්/සම්පතක් මකා දැමිය නොහැක
   "error.resourceservice.cannot_modify_declarative_action": ප්‍රකාශන ක්‍රියාව සංශෝධනය කළ නොහැක
-  "error.resourceservice.cannot_modify_declarative_action_description": %s ක්‍රියාව ප්‍රකාශන වින්‍යාසයේ අර්ථ දක්වා ඇති අතර සංශෝධනය කළ නොහැක
+  "error.resourceservice.cannot_modify_declarative_action_description": "%s ක්‍රියාව ප්‍රකාශන වින්‍යාසයේ අර්ථ දක්වා ඇති අතර සංශෝධනය කළ නොහැක"
   "error.resourceservice.cannot_modify_declarative_resource": ප්‍රකාශන සම්පත සංශෝධනය කළ නොහැක
-  "error.resourceservice.cannot_modify_declarative_resource_description": %s සම්පත ප්‍රකාශන වින්‍යාසයේ අර්ථ දක්වා ඇති අතර සංශෝධනය කළ නොහැක
+  "error.resourceservice.cannot_modify_declarative_resource_description": "%s සම්පත ප්‍රකාශන වින්‍යාසයේ අර්ථ දක්වා ඇති අතර සංශෝධනය කළ නොහැක"
   "error.resourceservice.cannot_modify_declarative_resource_server": ප්‍රකාශන සම්පත් සේවාදායකය සංශෝධනය කළ නොහැක
-  "error.resourceservice.cannot_modify_declarative_resource_server_description": %s සම්පත් සේවාදායකය ප්‍රකාශන වින්‍යාසයේ අර්ථ දක්වා ඇති අතර සංශෝධනය කළ නොහැක
-  "error.resourceservice.circular_dependency_detected": චක්‍රීය පරායත්තතාවය හඳුනාගන්නා ලදී
+  "error.resourceservice.cannot_modify_declarative_resource_server_description": "%s සම්පත් සේවාදායකය ප්‍රකාශන වින්‍යාසයේ අර්ථ දක්වා ඇති අතර සංශෝධනය කළ නොහැක"
   "error.resourceservice.circular_dependency_detected_description": මෙම මූලිකයා සැකසීම චක්‍රීය පරායත්තතාවයක් ඇති කරයි
   "error.resourceservice.consent_sync_failed": එකඟතා සමමුහුර්තකරණය අසාර්ථක විය
   "error.resourceservice.consent_sync_failed_description": සම්පත් අවසර වෙනස්කම් එකඟතා සේවාව සමඟ සමමුහුර්ත කිරීම අසාර්ථක විය
@@ -1222,10 +1221,10 @@ button:
   login_password: මුරපදය සමඟ පිවිසෙන්න
   login_biometrics: ජෛවමිතික සමඟ පිවිසෙන්න
   login_kbi: KBI සමඟ පිවිසෙන්න
-  login_id_uin: UIN/VID
+  login_id_uin: යුඅයිඑන්/වීඅයිඩී
   login_id_mobile: ජංගම දුරකථන අංකය
   login_id_email: විද්‍යුත් තැපෑල
-  login_id_nrc: NRC ID
+  login_id_nrc: NRC හැඳුනුම්පත
 
 otp:
   enter_otp_title: OTP ඇතුළත් කරන්න

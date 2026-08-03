@@ -1222,10 +1222,10 @@ button:
   login_password: ចូលដោយពាក្យសម្ងាត់
   login_biometrics: ចូលដោយជីវមាត្រ
   login_kbi: ចូលដោយ KBI
-  login_id_uin: UIN/VID
+  login_id_uin: យូអ៊ីន/វីឌី
   login_id_mobile: លេខទូរស័ព្ទ
   login_id_email: អ៊ីមែល
-  login_id_nrc: អត្តសញ្ញាណប័ណ្ណ NRC
+  login_id_nrc: លេខសម្គាល់ NRC
 
 otp:
   enter_otp_title: បញ្ចូល OTP
