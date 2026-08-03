@@ -38,6 +38,10 @@ CREATE TABLE esignet.client_detail(
 	CONSTRAINT uk_clntdtl_public_key_hash UNIQUE (public_key_hash)
 );
 
+INSERT INTO public.client_detail (id,name,rp_id,logo_uri,redirect_uris,claims,acr_values,public_key,public_key_hash,enc_public_key,enc_public_key_hash,enc_public_key_cert,grant_types,auth_methods,status,additional_config,cr_dtimes,upd_dtimes) VALUES
+	 ('pm-client-1785763493878','{"@none":"Postman Test Client","eng":"Postman Test Client"}','decl-ou-1','https://example.com/logo.png','["http://localhost:3000/userprofile"]','["name","email","picture","phone_number","address"]','["mosip:idp:acr:generated-code","mosip:idp:acr:password","mosip:idp:acr:biometrics"]','{"e":"AQAB","kid":"xYb4pU90OkUSZE__s9J_HqrcXy_OTL-lTItkYUJbBbg","kty":"RSA","n":"2tikMgMFpUuQyYJh9YukgrLzI5pzsM3fqwV8HxRt_9oPPJHcWFhxQYMosxLpOmPcXtulTVAIt-dM56hDvQuJcLy6oJ6c_P37j-sZjbdvrCci1YoEGqTMcynrdBe_sGKRxmft4IZOtC1m4MRXiteQ-kWeI9AaiSEHm8Jjfw_ItrmFaMop0bQxeTBy8aelJd6qU-5f7zWEgygpsTU1tHZY01VmsZMT3c1JmkneX7Doyw-1AAlbKDQWPRLt1seUD7KsXK1syOPmozfxRdO3M3iQuLcvvwYzqPSwD5VKxmelbTFBC_XTz3I7p0TugF2LcOYhpk7qYdI9lbuc8vTEeK210w","use":"sig"}','64e83a770d0f41bcefdfcea1f21118b2c21e99b162a2bd789dfd0b869c6acdc7',NULL,NULL,NULL,'["authorization_code"]','["private_key_jwt"]','ACTIVE','{ "require_pushed_authorization_requests": false, "dpop_bound_access_tokens": false, "pkce_required": true }','2026-08-03 13:24:53.951158',NULL);
+
+
 CREATE TABLE esignet.consent_detail (
     id VARCHAR(36) NOT NULL,
     client_id VARCHAR(256) NOT NULL,
