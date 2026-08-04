@@ -80,9 +80,6 @@ data:
           proxy_set_header   X-Forwarded-Host $server_name;
           add_header Content-Security-Policy "default-src 'none'" always;
           add_header Referrer-Policy "no-referrer" always;
-          add_header 'Access-Control-Allow-Origin' $cors_allowed_origin always;
-          add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS' always;
-          add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
           types {
             text/plain log cer json txt;
           }
