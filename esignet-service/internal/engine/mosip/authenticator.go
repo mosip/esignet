@@ -246,7 +246,7 @@ func (p *mosipAuthnProvider) GetAttributes(ctx context.Context, attributeToken a
 		TransactionID:   transactionID,
 		KycToken:        kycToken,
 		ConsentObtained: keys,
-		Locales:         []string{"eng"},
+		Locales:         shared.NormalizeClaimLocales(metadata.Locale),
 		RespType:        "JWS",
 		IndividualID:    username,
 	}

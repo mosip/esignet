@@ -9,6 +9,8 @@ package mock
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -298,6 +300,59 @@ func (ts *AuthenticatorTestSuite) TestGetAttributes() {
 			&providers.RequestedAttributes{}, getAttributesMetadataWithClientID("client-1"))
 		require.Nil(t, attrs)
 		require.Same(t, shared.AuthenticationFailedError, svcErr)
+	})
+
+	t.Run("uses requested claims_locales", func(t *testing.T) {
+		claims := jwt.MapClaims{"sub": "ind-1"}
+		signed, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte("test-secret"))
+		require.NoError(t, err)
+
+		var capturedBody []byte
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			capturedBody, _ = io.ReadAll(r.Body)
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"response":{"kyc":"` + signed + `"}}`))
+		}))
+		defer server.Close()
+
+		p := newTestProvider(t, "http://unused", server.URL, "http://unused")
+		metadata := getAttributesMetadataWithClientID("client-1")
+		metadata.Locale = "en fr"
+		_, svcErr := p.GetAttributes(context.Background(), "kyc-token||ind-1||txn-1",
+			&providers.RequestedAttributes{}, metadata)
+		require.Nil(t, svcErr)
+
+		var req KycExchangeRequestDto
+		require.NoError(t, json.Unmarshal(capturedBody, &req))
+		require.Equal(t, []string{"eng", "fra"}, req.ClaimLocales)
+	})
+
+	t.Run("sends empty locales when claims_locales not requested", func(t *testing.T) {
+		claims := jwt.MapClaims{"sub": "ind-1"}
+		signed, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte("test-secret"))
+		require.NoError(t, err)
+
+		var capturedBody []byte
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			capturedBody, _ = io.ReadAll(r.Body)
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"response":{"kyc":"` + signed + `"}}`))
+		}))
+		defer server.Close()
+
+		p := newTestProvider(t, "http://unused", server.URL, "http://unused")
+
+		// getAttributesMetadataWithClientID leaves Locale unset, i.e. the RP did
+		// not send claims_locales. eSignet must not inject an "eng" default here
+		// — an empty locales list lets IDA choose.
+		_, svcErr := p.GetAttributes(context.Background(), "kyc-token||ind-1||txn-1",
+			&providers.RequestedAttributes{}, getAttributesMetadataWithClientID("client-1"))
+		require.Nil(t, svcErr)
+
+		var req KycExchangeRequestDto
+		require.NoError(t, json.Unmarshal(capturedBody, &req))
+		require.NotNil(t, req.ClaimLocales)
+		require.Empty(t, req.ClaimLocales)
 	})
 }
 
