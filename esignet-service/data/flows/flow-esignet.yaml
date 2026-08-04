@@ -197,18 +197,8 @@ trigger_button: &trigger_button
   variant: OUTLINE
   eventType: RESET
 
-# Anchor for title for the page
-page_title: &page_title
-  id: acr_text_heading
-  type: TEXT
-  label: "{{t(header:select_login_id)}}"
-  align: left
-  variant: HEADING_5
-  category: DISPLAY
-  resourceType: ELEMENT
-
 # Anchor for title for the page with back button
-page_title_with_back: &page_title_with_back
+page_title: &page_title
   id: BACK_BUTTON
   ref: back_button
   type: CUSTOM
@@ -318,8 +308,13 @@ nodes:
           direction: col
           justify: center
           components:
-            - <<: *page_title
+            - id: acr_text_heading
+              type: TEXT
               label: "{{t(header:select_login_mode)}}"
+              align: left
+              variant: HEADING_5
+              category: DISPLAY
+              resourceType: ELEMENT
             - <<: *trigger_button
               id: acr_otp
               label: "{{t(button:login_otp)}}"
@@ -368,7 +363,7 @@ nodes:
         - type: BLOCK
           id: block_otp
           components:
-            - *page_title_with_back
+            - *page_title
             - *login_id_uin
             - *prompt_uin
             - *captcha_box
@@ -401,7 +396,7 @@ nodes:
         - type: BLOCK
           id: block_otp
           components:
-            - *page_title_with_back
+            - *page_title
             - *login_id_mobile
             - *prompt_mobile
             - *captcha_box
@@ -434,7 +429,7 @@ nodes:
         - type: BLOCK
           id: block_otp
           components:
-            - *page_title_with_back
+            - *page_title
             - *login_id_email
             - *prompt_email
             - *captcha_box
@@ -467,7 +462,7 @@ nodes:
         - type: BLOCK
           id: block_otp
           components:
-            - *page_title_with_back
+            - *page_title
             - *login_id_nrc
             - *prompt_nrc
             - *captcha_box
@@ -508,7 +503,6 @@ nodes:
           category: BLOCK
           components:
             - <<: *page_title
-              id: title_otp
               label: "{{t(otp:enter_otp_title)}}"
             - id: otp_input
               ref: otp
@@ -547,6 +541,19 @@ nodes:
       - action:
           ref: RESEND_OTP
           nextNode: send_mosip_otp
+      - action:
+          ref: BACK_BUTTON
+          nextNode: clear_otp_username
+
+  - id: clear_otp_username
+    type: TASK_EXECUTION
+    executor:
+      name: eSignetClearInputsExecutor
+      inputs:
+        - identifier: username
+          type: TEXT_INPUT
+          required: true
+    onSuccess: prompt_uin_otp
 
   - id: basic_auth
     type: TASK_EXECUTION
@@ -573,7 +580,7 @@ nodes:
           type: BLOCK
           category: BLOCK
           components:
-            - *page_title_with_back
+            - *page_title
             - *login_id_uin
             - *prompt_uin
             - *prompt_password
@@ -609,7 +616,7 @@ nodes:
           type: BLOCK
           category: BLOCK
           components:
-            - *page_title_with_back
+            - *page_title
             - *login_id_mobile
             - *prompt_mobile
             - *prompt_password
@@ -645,7 +652,7 @@ nodes:
           type: BLOCK
           category: BLOCK
           components:
-            - *page_title_with_back
+            - *page_title
             - *login_id_email
             - *prompt_email
             - *prompt_password
@@ -681,7 +688,7 @@ nodes:
           type: BLOCK
           category: BLOCK
           components:
-            - *page_title_with_back
+            - *page_title
             - *login_id_nrc
             - *prompt_nrc
             - *prompt_password
@@ -734,7 +741,7 @@ nodes:
         - type: BLOCK
           id: block_biometrics
           components:
-            - *page_title_with_back
+            - *page_title
             - *login_id_uin
             - *prompt_uin
             - *submit_button
@@ -768,7 +775,7 @@ nodes:
         - type: BLOCK
           id: block_biometrics
           components:
-            - *page_title_with_back
+            - *page_title
             - *login_id_mobile
             - *prompt_mobile
             - *submit_button
@@ -802,7 +809,7 @@ nodes:
         - type: BLOCK
           id: block_biometrics
           components:
-            - *page_title_with_back
+            - *page_title
             - *login_id_email
             - *prompt_email
             - *submit_button
@@ -836,7 +843,7 @@ nodes:
         - type: BLOCK
           id: block_biometrics
           components:
-            - *page_title_with_back
+            - *page_title
             - *login_id_nrc
             - *prompt_nrc
             - *submit_button
@@ -871,7 +878,7 @@ nodes:
           type: BLOCK
           components:
             - <<: *page_title
-              id: title_biometrics
+              label: "{{t(biometric:title)}}"
             - id: SBI_ID
               ref: biometric
               type: CUSTOM
@@ -886,6 +893,19 @@ nodes:
         action:
           ref: SBI_ID
           nextNode: basic_bio_auth
+      - action:
+          ref: BACK_BUTTON
+          nextNode: clear_bio_username
+
+  - id: clear_bio_username
+    type: TASK_EXECUTION
+    executor:
+      name: eSignetClearInputsExecutor
+      inputs:
+        - identifier: username
+          type: TEXT_INPUT
+          required: true
+    onSuccess: prompt_uin_bio
 
   - id: basic_bio_auth
     type: TASK_EXECUTION
@@ -910,7 +930,7 @@ nodes:
         - id: block_kbi
           type: BLOCK
           components:
-            - <<: *page_title_with_back
+            - <<: *page_title
               label: "{{t(button:login_kbi)}}"
             - *prompt_uin
             - id: fullname_input

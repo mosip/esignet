@@ -1232,6 +1232,9 @@ otp:
   otp_sent_msg: "Veuillez entrer l'OTP à 6 chiffres envoyé à votre contact enregistré"
   resend_otp: "Renvoyer l'OTP"
 
+biometric:
+  title: Fournissez vos données biométriques
+
 consent:
   title: "demande l'accès aux éléments suivants :"
   description: Cette application souhaite accéder aux informations suivantes. Veuillez examiner et choisir ce que vous souhaitez partager.
