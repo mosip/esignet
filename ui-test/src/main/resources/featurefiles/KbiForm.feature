@@ -71,23 +71,27 @@ Feature: eSignet KBI login form
   # all 4 cases unmodified - what differs between them is the server-side kbi.field-details schema
   # itself, which must already be reconfigured to the intended variant (default/added field/removed
   # field/single field) before that scenario is run; this suite cannot change server config.
+  #
+  # Because of that, running all 4 in one pass reports 4 passes while only exercising whichever
+  # schema the server currently has. Each carries its own tag so a run can select just the one
+  # matching the deployed schema, e.g. -Dcucumber.filter.tags="@KbiSingleField".
 
-  @smoke @kbi
+  @smoke @kbi @KbiOptionalFields
   Scenario: Verify that fields in KBI form are not mandated when mandatory flag in schema is set to false
     When user clicks on login with KBI
     Then KBI authentication should be successful
 
-  @smoke @kbi
+  @smoke @kbi @KbiAddedFields
   Scenario: Authenticate by adding 1 or more fields to the existing KBI form
     When user clicks on login with KBI
     Then KBI authentication should be successful
 
-  @smoke @kbi
+  @smoke @kbi @KbiRemovedFields
   Scenario: Authenticate by removing existing field from the KBI form
     When user clicks on login with KBI
     Then KBI authentication should be successful
 
-  @smoke @kbi
+  @smoke @kbi @KbiSingleField
   Scenario: Authenticate when only one field is configured in KBI form
     When user clicks on login with KBI
     Then KBI authentication should be successful

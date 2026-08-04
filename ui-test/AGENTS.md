@@ -19,7 +19,7 @@ mvn clean install -Dgpg.skip=true -Dmaven.gitcommitid.skip=true
 **Tests do NOT run via `mvn test`.** Surefire is configured with `skipTests=true`. The suite is driven by a `main()` method:
 
 - Entry point: `runners.Runner.main()` (also the shaded-JAR `Main-Class`).
-- Run from the built JAR: `cd target && java -jar -Denv.endpoint="$ENV_ENDPOINT" uitest-esignet-*.jar`
+- Run from the built JAR: `cd target && java -Denv.endpoint="$ENV_ENDPOINT" -jar uitest-esignet-*.jar` (JVM `-D` flags must precede `-jar`; anything after the JAR name is passed to `main()` as an argument)
 - Run from IDE: run `runners.Runner` as a Java Application with VM arg `-Denv.endpoint=<base_env>`.
 
 Run type ("IDE" vs "JAR") is auto-detected from whether `Runner.class` sits inside a `.jar`, which changes resource-extraction paths and where `testNgXmlFiles` is located.

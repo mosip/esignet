@@ -2,6 +2,7 @@ package stepdefinitions;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -320,8 +321,19 @@ public class KbiStepDefinition {
 		List<String> problems = new ArrayList<>();
 		for (String fieldId : dropdownFields) {
 			List<String> options = kbiPage.getDropdownOptionTexts(fieldId);
-			ExtentReportManager.logStep("Dropdown '" + fieldId + "' options (lang=" + lang + "): " + options);
-			if (options.isEmpty()) {
+			List<String> expected = EsignetUtil.getKbiDropdownOptionLabels(fieldId, lang);
+			ExtentReportManager.logStep("Dropdown '" + fieldId + "' options (lang=" + lang + "): " + options
+					+ " | schema-declared: " + expected);
+
+			// Compared unordered: the schema's allowedValues is a JSON object, so the order we read its
+			// keys in doesn't necessarily match the order the form renders them.
+			if (!expected.isEmpty()) {
+				if (!new HashSet<>(expected).equals(new HashSet<>(options))) {
+					problems.add("Dropdown '" + fieldId + "' options don't match the schema for language '" + lang
+							+ "' - expected " + expected + " but found " + options);
+				}
+			} else if (options.isEmpty()) {
+				// No allowedValues in the schema to compare against - fall back to "it rendered something".
 				problems.add("Dropdown '" + fieldId + "' rendered no option text in language '" + lang + "'");
 			}
 		}
@@ -492,27 +504,31 @@ public class KbiStepDefinition {
 
 	// Maps a KBI schema field id to the matching value stored on the Sunbird RC policy
 	// CreatePolicySunBirdR created, or null if the field isn't one this fixture covers.
+	// Matched on exact schema field ids: substring matching mapped anything containing "policy" to the
+	// policy number, which silently fed policyName (a real field on the created policy) the wrong
+	// value and failed the login. An id this fixture doesn't cover returns null, which skips.
 	private String resolveKnownSunBirdRValue(String fieldId, String individualIdField) {
-		String lower = fieldId.toLowerCase();
-		if (fieldId.equals(individualIdField) || lower.contains("individual") || lower.contains("policy")) {
+		if (fieldId.equals(individualIdField)) {
 			return EsignetUtil.getSunBirdRPolicyNumber();
 		}
-		if (lower.contains("name")) {
+		switch (fieldId.toLowerCase()) {
+		case "policynumber":
+			return EsignetUtil.getSunBirdRPolicyNumber();
+		case "policyname":
+			return EsignetUtil.getSunBirdRPolicyName();
+		case "fullname":
 			return EsignetUtil.getSunBirdRFullName();
-		}
-		if (lower.contains("dob") || lower.contains("birth")) {
+		case "dob":
 			return EsignetUtil.getSunBirdRDob();
-		}
-		if (lower.contains("mobile") || lower.contains("phone")) {
+		case "mobile":
 			return EsignetUtil.getSunBirdRMobile();
-		}
-		if (lower.contains("email")) {
+		case "email":
 			return EsignetUtil.getSunBirdREmail();
-		}
-		if (lower.contains("gender")) {
+		case "gender":
 			return EsignetUtil.getSunBirdRGender();
+		default:
+			return null;
 		}
-		return null;
 	}
 
 	// Logs the reason to the report, then skips into the ignore bucket rather than failing.

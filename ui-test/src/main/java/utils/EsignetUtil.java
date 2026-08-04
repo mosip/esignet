@@ -101,6 +101,11 @@ public class EsignetUtil extends AdminTestUtil {
 	private static final String SUNBIRD_R_MOBILE = "0123456789";
 	private static final String SUNBIRD_R_GENDER = "Male";
 	private static final String SUNBIRD_R_EMAIL = "esignetui.sunbird@example.com";
+	private static final String SUNBIRD_R_POLICY_NAME = "Start Insurance Gold Premium";
+
+	public static String getSunBirdRPolicyName() {
+		return SUNBIRD_R_POLICY_NAME;
+	}
 
 	public static String getSunBirdRMobile() {
 		return SUNBIRD_R_MOBILE;
@@ -216,8 +221,16 @@ public class EsignetUtil extends AdminTestUtil {
 		if (pluginName != null)
 			return pluginName;
 		String serverAuthenticator = getIdentityPluginNameFromEsignetActuator();
-		boolean isMockLike = serverAuthenticator != null && (serverAuthenticator.toLowerCase().contains("mockauthenticationservice")
-				|| serverAuthenticator.toLowerCase().contains("sunbirdrcauthenticationservice"));
+		// A blank value means the actuator didn't answer, not that the server runs mosipid. Fall back
+		// to mosipid for this call but don't cache it, so a transient actuator failure doesn't pin the
+		// whole run to the wrong plugin - the next call re-reads the actuator.
+		if (serverAuthenticator == null || serverAuthenticator.isBlank()) {
+			logger.error("Could not read mosip.esignet.integration.authenticator from the eSignet actuator - "
+					+ "assuming 'mosipid' for this call without caching it");
+			return "mosipid";
+		}
+		boolean isMockLike = serverAuthenticator.toLowerCase().contains("mockauthenticationservice")
+				|| serverAuthenticator.toLowerCase().contains("sunbirdrcauthenticationservice");
 		pluginName = isMockLike ? "mock" : "mosipid";
 		return pluginName;
 	}
@@ -562,6 +575,43 @@ public class EsignetUtil extends AdminTestUtil {
 		JSONObject field = findKbiField(fieldId);
 		JSONObject labelName = field != null ? field.optJSONObject("labelName") : null;
 		return labelName != null ? labelName.optString(langCode, null) : null;
+	}
+
+	/**
+	 * Schema-declared option labels for a dropdown KBI field in the given language, or empty when the
+	 * schema declares none. Mirrors how json-form-builder resolves them: allowedValues is keyed by the
+	 * field's subType (falling back to its id), and each label falls back to English.
+	 */
+	public static List<String> getKbiDropdownOptionLabels(String fieldId, String langCode) {
+		JSONObject configs = ClaimsUtil.getConfigs();
+		JSONObject kbi = configs != null ? configs.optJSONObject("auth.factor.kbi.field-details") : null;
+		JSONObject allowedValues = kbi != null ? kbi.optJSONObject("allowedValues") : null;
+		JSONObject field = findKbiField(fieldId);
+		if (allowedValues == null || field == null) {
+			return new ArrayList<>();
+		}
+		JSONObject values = allowedValues.optJSONObject(field.optString("subType", fieldId));
+		if (values == null) {
+			values = allowedValues.optJSONObject(fieldId);
+		}
+		if (values == null) {
+			return new ArrayList<>();
+		}
+		List<String> labels = new ArrayList<>();
+		for (String key : values.keySet()) {
+			JSONObject label = values.optJSONObject(key);
+			if (label == null) {
+				continue;
+			}
+			String text = label.optString(langCode, null);
+			if (text == null || text.isBlank()) {
+				text = label.optString("eng", null);
+			}
+			if (text != null && !text.isBlank()) {
+				labels.add(text);
+			}
+		}
+		return labels;
 	}
 
 	/** Whether the current transaction's schema marks a KBI field as required. */

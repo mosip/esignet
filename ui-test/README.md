@@ -228,7 +228,7 @@ mvn clean install -Dgpg.skip=true -Dmaven.gitcommitid.skip=true
 #### ▶️ Using JAR
 ```bash
 cd target/
-java -jar -Denv.endpoint="$ENV_ENDPOINT" uitest-esignet-*.jar
+java -Denv.endpoint="$ENV_ENDPOINT" -jar uitest-esignet-*.jar
 ```
 
 #### 🧩 Using Eclipse IDE
@@ -278,7 +278,8 @@ java -jar -Denv.endpoint="$ENV_ENDPOINT" uitest-esignet-*.jar
 Run scenarios with specific tags:
 
 ```bash
-mvn test -Dcucumber.filter.tags="@smoke"
+cd target/
+java -Denv.endpoint="$ENV_ENDPOINT" -Dcucumber.filter.tags="@smoke" -jar uitest-esignet-*.jar
 ```
 
 Or configure in runner class:
