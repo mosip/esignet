@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { init, propChange } from "@mosip/secure-biometric-interface-integrator";
 import { encodeBase64 } from "../../utils/encoding";
+import { useTranslation } from "@thunderid/react";
 import type {
   ComponentRenderContext,
   EmbeddedFlowComponent,
@@ -32,6 +33,18 @@ interface SbiProps {
 
 const SBI_CONTAINER_ID = "secure-biometric-interface-integration";
 
+/** Languages supported by the SBI widget's built-in i18next resources. */
+const SBI_SUPPORTED_LANGS = new Set(["en", "ar", "hi", "kn", "ta"]);
+
+/**
+ * Maps the app's current language to a
+ * 2-letter code the SBI widget understands. Falls back to "en".
+ */
+const toSbiLangCode = (language: string): string => {
+  const base = language.split("-")[0].toLowerCase();
+  return SBI_SUPPORTED_LANGS.has(base) ? base : "en";
+};
+
 const DEFAULT_SBI_ENV = {
   env: "Staging",
   captureTimeout: 30,
@@ -52,6 +65,9 @@ const DEFAULT_SBI_ENV = {
 export default function Sbi({ component, context }: SbiProps) {
   const [, setValue] = useState("");
   const fieldRef = component.ref ?? component.id;
+  const { currentLanguage } = useTranslation();
+  const sbiLangCode = toSbiLangCode(currentLanguage);
+  const isInitialized = useRef(false);
 
   useEffect(() => {
     const primaryColor = getComputedStyle(document.documentElement)
@@ -68,17 +84,24 @@ export default function Sbi({ component, context }: SbiProps) {
       buttonLabel: "scan_and_verify",
       transactionId: "transactionId",
       sbiEnv: DEFAULT_SBI_ENV,
-      langCode: "en",
+      langCode: sbiLangCode,
       disable: false,
       customStyle,
     });
-    // return;
 
     propChange({
       onCapture: (response: BiometricResponse | null) =>
         authenticateBiometricResponse(response),
     });
+
+    isInitialized.current = true;
   }, []);
+
+  // Reactively update the SBI widget language when app language changes
+  useEffect(() => {
+    if (!isInitialized.current) return;
+    propChange({ langCode: sbiLangCode });
+  }, [sbiLangCode]);
 
   const onInputChangeRef = useRef(context.onInputChange);
   onInputChangeRef.current = context.onInputChange;
