@@ -187,7 +187,7 @@ public class Runner extends AbstractTestNGCucumberTests {
 			setLogLevels();
 			otpListener.run();
 
-			// Populates BaseTestCase.languageList from esignetSupportedLanguage - needed by both
+			// Populates BaseTestCase.languageList from the app's supported languages - needed by both
 			// plugins (e.g. $1STLANG$ template resolution during OIDC client creation), not just mock.
 			EsignetUtil.getSupportedLanguage();
 

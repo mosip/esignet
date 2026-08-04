@@ -27,6 +27,7 @@ import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;
 import io.mosip.testrig.apirig.utils.ReportUtil;
 import io.mosip.testrig.apirig.utils.SecurityXSSException;
+import io.mosip.testrig.apirig.testrunner.HealthChecker;
 import io.restassured.response.Response;
 import utils.EsignetConfigManager;
 import utils.EsignetUtil;
@@ -85,24 +86,30 @@ public class SimplePostForAutoGenId extends EsignetUtil implements ITest {
 		testCaseName = testCaseDTO.getTestCaseName();
 		testCaseName = EsignetUtil.isTestCaseValidForExecution(testCaseDTO);
 
+		if (HealthChecker.signalTerminateExecution) {
+			throw new SkipException(
+					GlobalConstants.TARGET_ENV_HEALTH_CHECK_FAILED + HealthChecker.healthCheckFailureMapS);
+		}
+
 		if ("VID".equals(idKeyName)) {
 			writeConfigValueAndSkipIfProvided("vid", testCaseName, idKeyName);
 		}
 
-		// CreateClientMock/CreateOIDCClient.yml (endpoint /v1/esignet/client-mgmt/client) creates
-		// the purpose-type clients that scenarios tagged e.g. @PurposeLogin/@PurposeLink use - but
-		// those same scenarios are already skipped for mosipid (see BaseTest's CLIENT_CONFIG_MAP
-		// check), so creating the clients for them under mosipid is pure waste. This endpoint is
-		// unique to that one yml file, so it's a safe discriminator despite this class being shared
-		// with several other prerequisites.
-		if ("clientId".equals(idKeyName) && testCaseDTO.getEndPoint().contains("/v1/esignet/client-mgmt/client")
-				&& !"mock".equalsIgnoreCase(getPluginName())) {
-			throw new SkipException("Skipped: " + testCaseName + " is only needed for the mock plugin (current: "
-					+ getPluginName() + ")");
+		// V3 /client runs per environment: the Sunbird variant (stripped payload, no additionalConfig)
+		// only on Sunbird RC, the mock/purpose-type clients only on non-Sunbird mock.
+		if ("clientId".equals(idKeyName) && testCaseDTO.getEndPoint().contains("/v1/esignet/client-mgmt/client")) {
+			boolean isSunbirdClientVariant = testCaseDTO.getInputTemplate().contains("SunBird");
+			boolean sunbirdActive = EsignetUtil.isSunbirdAuthenticatorActive();
+
+			if (isSunbirdClientVariant && !sunbirdActive) {
+				throw new SkipException("Skipped: " + testCaseName + " is only needed on a Sunbird RC-backed server");
+			}
+			if (!isSunbirdClientVariant && (sunbirdActive || !"mock".equalsIgnoreCase(getPluginName()))) {
+				throw new SkipException("Skipped: " + testCaseName + " is only needed for the non-Sunbird mock plugin");
+			}
 		}
 
-		// Only the default (non-PAR) client can be supplied via config; the purpose-type and
-		// PAR-mandated clients are scenario-specific and always have to be created.
+		// Only the default client can be supplied via config; purpose-type/PAR clients are always created.
 		if ("clientId".equals(idKeyName) && testCaseName.contains("CreateOIDCClient_all_Valid_Smoke_sid")) {
 			writeConfigValueAndSkipIfProvided("oidcClientId", testCaseName, idKeyName);
 		}
@@ -110,14 +117,54 @@ public class SimplePostForAutoGenId extends EsignetUtil implements ITest {
 		String inputJson = getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate());
 
 		if (testCaseName.contains(ESignetConstants.ESIGNET_STRING)) {
+			if (EsignetConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
+				throw new SkipException("esignet is not deployed hence skipping the testcase");
+			}
 			String tempUrl = null;
 			tempUrl = EsignetConfigManager.getEsignetBaseUrl();
+
+			// Sunbird RC is an external registry - override base URL and use the plain bearer path below.
+			boolean isSunbirdPolicy = testCaseDTO.getEndPoint().startsWith("$SUNBIRDBASEURL$");
+			if (isSunbirdPolicy) {
+				if (!EsignetUtil.isSunbirdAuthenticatorActive()) {
+					throw new SkipException(
+							"Skipped: " + testCaseName + " requires the Sunbird RC authenticator to be active on the server");
+				}
+				tempUrl = EsignetConfigManager.getSunBirdBaseURL();
+				testCaseDTO.setEndPoint(testCaseDTO.getEndPoint().replace("$SUNBIRDBASEURL$", ""));
+			}
+
 			inputJson = EsignetUtil.inputstringKeyWordHandler(inputJson, testCaseName);
-			if (getPluginName().equals("mock") == true) {
-				inputJson = inputJsonKeyWordHandeler(inputJson, testCaseName);
-				response = EsignetUtil.postWithBodyAndBearerToken(tempUrl + testCaseDTO.getEndPoint(), inputJson,
-						COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), idKeyName);
-				if (testCaseName.toLowerCase().contains("_sid")) {
+			if (isSunbirdPolicy || getPluginName().equals("mock") == true) {
+				if (!isSunbirdPolicy) {
+					inputJson = inputJsonKeyWordHandeler(inputJson, testCaseName);
+				}
+				if (isSunbirdPolicy) {
+					// Sunbird RC registry writes can be transiently UNSUCCESSFUL - retry up to 10x.
+					int currLoopCount = 0;
+					do {
+						response = EsignetUtil.postWithBodyAndBearerToken(tempUrl + testCaseDTO.getEndPoint(), inputJson,
+								COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), idKeyName);
+						if (response != null && !response.asString().contains("UNSUCCESSFUL")) {
+							break;
+						}
+						currLoopCount++;
+					} while (currLoopCount < 10);
+				} else {
+					response = EsignetUtil.postWithBodyAndBearerToken(tempUrl + testCaseDTO.getEndPoint(), inputJson,
+							COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), idKeyName);
+				}
+				// Only parse the id on a successful response - a failed body isn't valid JSON.
+				boolean isSuccessResponse = response != null && response.getStatusCode() >= 200
+						&& response.getStatusCode() < 300;
+				if (isSunbirdPolicy) {
+					if (isSuccessResponse) {
+						String osid = extractSunbirdOsid(new JSONObject(response.getBody().asString()));
+						if (osid != null) {
+							writeAutoGeneratedId(testCaseName, idKeyName, osid);
+						}
+					}
+				} else if (testCaseName.toLowerCase().contains("_sid") && isSuccessResponse) {
 					writeAutoGeneratedId(testCaseName, idKeyName, new JSONObject(response.getBody().asString())
 							.getJSONObject(GlobalConstants.RESPONSE).getString(idKeyName).toString());
 				}
@@ -152,9 +199,24 @@ public class SimplePostForAutoGenId extends EsignetUtil implements ITest {
 
 	}
 
+	// Sunbird nests the id under result.<EntityType>.osid; entity name varies, so scan result's keys.
+	private String extractSunbirdOsid(JSONObject responseJson) {
+		JSONObject result = responseJson.optJSONObject("result");
+		if (result == null) {
+			return null;
+		}
+		for (String key : result.keySet()) {
+			JSONObject entity = result.optJSONObject(key);
+			if (entity != null && entity.has("osid")) {
+				return entity.optString("osid", null);
+			}
+		}
+		return null;
+	}
+
 	/**
 	 * The method ser current test name to result
-	 * 
+	 *
 	 * @param result
 	 */
 	@AfterMethod(alwaysRun = true)

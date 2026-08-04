@@ -85,6 +85,11 @@ public class AddIdentity extends EsignetUtil implements ITest {
 		testCaseName = EsignetUtil.isTestCaseValidForExecution(testCaseDTO);
 
 		boolean isMockIdentitySystem = testCaseDTO.getEndPoint().contains("mock-identity-system");
+		// A Sunbird RC-backed server authenticates against its own registry, not the mock-identity-system.
+		if (isMockIdentitySystem && EsignetUtil.isSunbirdAuthenticatorActive()) {
+			throw new SkipException(
+					"Skipped: " + testCaseName + " - mock-identity-system identity is not used on a Sunbird RC-backed server");
+		}
 		writeConfigValueAndSkipIfProvided(isMockIdentitySystem ? "mockUin" : "uin", testCaseName, "UIN");
 
 		// uinPhoneNumber is a single override consumed for both plugins by

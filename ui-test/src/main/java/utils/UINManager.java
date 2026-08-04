@@ -14,7 +14,7 @@ public class UINManager {
 
 	static {
 		String uins = EsignetConfigManager.getproperty("uin");
-		String plugin = EsignetConfigManager.getproperty("pluginToExecute");
+		String plugin = EsignetUtil.getPluginName();
 
 		if (uins != null && !uins.isEmpty()) {
 			String[] uinList = uins.split(",");
@@ -31,8 +31,7 @@ public class UINManager {
 				loadMosipidUINs();
 
 			} else {
-				throw new IllegalStateException(
-						"Invalid pluginToExecute value. Expected: mock or mosipid, Found: " + plugin);
+				throw new IllegalStateException("Could not determine plugin from eSignet actuator, found: " + plugin);
 			}
 
 			if (availableUINs.isEmpty()) {
