@@ -192,6 +192,18 @@ func (ts *ValidateTestSuite) TestValidateCreate() {
 		req.EncPublicKey = map[string]string{"kty": "bogus"}
 		assert.Equal(t, "invalid_public_key", errCode(t, ValidateCreate(ProfileOIDC, req)))
 	})
+
+	t.Run("enc public key missing alg", func(t *testing.T) {
+		req := validCreateRequest()
+		req.EncPublicKey = map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB"}
+		assert.Equal(t, "invalid_public_key", errCode(t, ValidateCreate(ProfileOIDC, req)))
+	})
+
+	t.Run("enc public key with alg accepted", func(t *testing.T) {
+		req := validCreateRequest()
+		req.EncPublicKey = map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB", "alg": "RSA-OAEP-256"}
+		assert.NoError(t, ValidateCreate(ProfileOIDC, req))
+	})
 }
 
 func (ts *ValidateTestSuite) TestValidateUpdate() {
@@ -350,6 +362,12 @@ func (ts *ValidateTestSuite) TestValidatePatch() {
 	t.Run("null enc public key skips validation", func(t *testing.T) {
 		err := ValidatePatch(ProfileOIDC, base, PatchFields{EncPublicKey: true}, NullableJWK{IsNull: true})
 		assert.NoError(t, err)
+	})
+
+	t.Run("patched enc public key missing alg rejected", func(t *testing.T) {
+		err := ValidatePatch(ProfileOIDC, base, PatchFields{EncPublicKey: true},
+			NullableJWK{Value: map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB"}})
+		assert.Equal(t, "invalid_public_key", errCode(t, err))
 	})
 
 	t.Run("status normalized before final ValidateUpdate", func(t *testing.T) {

@@ -93,6 +93,21 @@ var SendOTPFailedError = &common.ServiceError{
 	},
 }
 
+// MissingEncryptionKeyAlgError is returned when a client's userinfo response
+// type is JWE but its encryption key has no alg field.
+var MissingEncryptionKeyAlgError = &common.ServiceError{
+	Code: "missing_encryption_key_alg",
+	Type: common.ClientErrorType,
+	Error: common.I18nMessage{
+		Key:          "missing_encryption_key_alg",
+		DefaultValue: "Missing encryption key alg",
+	},
+	ErrorDescription: common.I18nMessage{
+		Key:          "missing_encryption_key_alg_description",
+		DefaultValue: "The client's encryption key does not have an alg field",
+	},
+}
+
 // FileNotFoundError is returned when a required configuration file is not found.
 var FileNotFoundError = &common.ServiceError{
 	Code: "file_not_found",

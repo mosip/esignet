@@ -256,7 +256,7 @@ func (s *Service) PatchClient(ctx context.Context, clientID string, req PatchCli
 			encPKHash = sql.NullString{}
 			encPKCert = sql.NullString{}
 		} else {
-			if err := validateJWK(req.EncPublicKey.Value); err != nil {
+			if err := validateEncJWK(req.EncPublicKey.Value); err != nil {
 				return ClientResponse{}, err
 			}
 			pkJSON, err := marshalJWK(req.EncPublicKey.Value)
@@ -488,7 +488,7 @@ func encKeyColumns(encKey map[string]string, cert string) (sql.NullString, sql.N
 	if len(encKey) == 0 {
 		return sql.NullString{}, sql.NullString{}, sql.NullString{}, nil
 	}
-	if err := validateJWK(encKey); err != nil {
+	if err := validateEncJWK(encKey); err != nil {
 		return sql.NullString{}, sql.NullString{}, sql.NullString{}, err
 	}
 	pkJSON, err := marshalJWK(encKey)
