@@ -1222,7 +1222,7 @@ button:
   login_password: تسجيل الدخول بكلمة المرور
   login_biometrics: تسجيل الدخول بالقياسات الحيوية
   login_kbi: تسجيل الدخول بـ KBI
-  login_id_uin: UIN/VID
+  login_id_uin: يو آي إن/فيد
   login_id_mobile: رقم الهاتف المحمول
   login_id_email: البريد الإلكتروني
   login_id_nrc: معرف NRC

@@ -211,7 +211,8 @@ login_id_header: &login_id_header
   type: STACK
   direction: col
   resourceType: ELEMENT
-  justify: center
+  justify: stretch
+  items: 2
 
 login_uin_button: &login_uin_button
   <<: *trigger_button

@@ -1222,7 +1222,7 @@ button:
   login_password: கடவுச்சொல் மூலம் உள்நுழையவும்
   login_biometrics: பயோமெட்ரிக்ஸ் மூலம் உள்நுழையவும்
   login_kbi: KBI மூலம் உள்நுழையவும்
-  login_id_uin: UIN/VID
+  login_id_uin: யுஐஎன்/விஐடி
   login_id_mobile: மொபைல் எண்
   login_id_email: மின்னஞ்சல்
   login_id_nrc: NRC ஐடி
