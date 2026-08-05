@@ -221,9 +221,7 @@ public class EsignetUtil extends AdminTestUtil {
 		if (pluginName != null)
 			return pluginName;
 		String serverAuthenticator = getIdentityPluginNameFromEsignetActuator();
-		// A blank value means the actuator didn't answer, not that the server runs mosipid. Fall back
-		// to mosipid for this call but don't cache it, so a transient actuator failure doesn't pin the
-		// whole run to the wrong plugin - the next call re-reads the actuator.
+		// Blank means the actuator didn't answer - fall back to mosipid uncached so the next call retries it.
 		if (serverAuthenticator == null || serverAuthenticator.isBlank()) {
 			logger.error("Could not read mosip.esignet.integration.authenticator from the eSignet actuator - "
 					+ "assuming 'mosipid' for this call without caching it");
@@ -577,11 +575,7 @@ public class EsignetUtil extends AdminTestUtil {
 		return labelName != null ? labelName.optString(langCode, null) : null;
 	}
 
-	/**
-	 * Schema-declared option labels for a dropdown KBI field in the given language, or empty when the
-	 * schema declares none. Mirrors how json-form-builder resolves them: allowedValues is keyed by the
-	 * field's subType (falling back to its id), and each label falls back to English.
-	 */
+	/** Schema-declared option labels for a dropdown KBI field, keyed by subType (or id) and falling back to English. */
 	public static List<String> getKbiDropdownOptionLabels(String fieldId, String langCode) {
 		JSONObject configs = ClaimsUtil.getConfigs();
 		JSONObject kbi = configs != null ? configs.optJSONObject("auth.factor.kbi.field-details") : null;
@@ -1442,7 +1436,9 @@ public class EsignetUtil extends AdminTestUtil {
 			throw new SkipException(GlobalConstants.PRE_REQUISITE_FAILED_MESSAGE);
 		}
 
-		if (pluginName.equals("mock")) {
+		// Via getPluginName(), not the static field - the field can stay null on an uncached fallback.
+		String resolvedPluginName = getPluginName();
+		if (resolvedPluginName.equals("mock")) {
 			BaseTestCase.setSupportedIdTypes(Arrays.asList("UIN"));
 
 			String endpoint = testCaseDTO.getEndPoint();
@@ -1455,7 +1451,7 @@ public class EsignetUtil extends AdminTestUtil {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 			}
 
-		} else if (pluginName.equals("mosipid")) {
+		} else if (resolvedPluginName.equals("mosipid")) {
 			getSupportedIdTypesValueFromActuator();
 
 			logger.info("supportedIdType = " + supportedIdType);

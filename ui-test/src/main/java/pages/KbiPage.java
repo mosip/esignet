@@ -172,8 +172,7 @@ public class KbiPage extends BasePage {
 
 	/** Visible option texts of a native-select dropdown field, excluding the placeholder, or empty. */
 	public List<String> getDropdownOptionTexts(String fieldId) {
-		// The "Select an Option" placeholder carries text of its own, so filtering on empty text alone
-		// isn't enough - exclude it by its class and empty value, as the form builder renders it.
+		// Excludes the "Select an Option" placeholder, which has its own non-empty text.
 		List<WebElement> options = driver.findElements(By.xpath("//select[@id='" + fieldId + "' or @name='" + fieldId
 				+ "' or @data-field-id='" + fieldId + "']//option[not(contains(@class,'select-placeholder'))][@value!='']"));
 		List<String> texts = new ArrayList<>();
@@ -234,8 +233,7 @@ public class KbiPage extends BasePage {
 		clickOnElement(driver.findElement(By.id("try_again")), "Clicked Try Again on the network error screen");
 	}
 
-	// The button label is translated (Form.js passes t1('login') as submitButton.label), so it can't
-	// be matched on text. json-form-builder gives the button a fixed id - match on that instead.
+	// Matched on id, not text - the label is i18n-translated (Form.js: t1('login')).
 	public void clickLoginButton() {
 		clickOnElement(driver.findElement(By.id("form-submit-button")), "Clicked KBI Login button");
 	}

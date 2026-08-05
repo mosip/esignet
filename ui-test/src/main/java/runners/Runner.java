@@ -191,7 +191,7 @@ public class Runner extends AbstractTestNGCucumberTests {
 			// plugins (e.g. $1STLANG$ template resolution during OIDC client creation), not just mock.
 			EsignetUtil.getSupportedLanguage();
 
-			if (EsignetUtil.pluginName.equals("mosipid")) {
+			if (EsignetUtil.getPluginName().equals("mosipid")) {
 				KeycloakUserManager.removeUser();
 				KeycloakUserManager.createUsers();
 				KeycloakUserManager.closeKeycloakInstance();
@@ -241,7 +241,7 @@ public class Runner extends AbstractTestNGCucumberTests {
 		}
 		otpListener.bTerminate = true;
 
-		if (EsignetUtil.pluginName.equals("mosipid")) {
+		if (EsignetUtil.getPluginName().equals("mosipid")) {
 			KeycloakUserManager.removeUser();
 		}
 

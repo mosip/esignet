@@ -143,8 +143,7 @@ public class SimplePostForAutoGenId extends EsignetUtil implements ITest {
 					inputJson = inputJsonKeyWordHandeler(inputJson, testCaseName);
 				}
 				if (isSunbirdPolicy) {
-					// Sunbird RC registry writes can be transiently UNSUCCESSFUL - retry up to 10x, backing
-					// off between attempts so a retry actually gives the registry time to recover.
+					// Sunbird RC writes can be transiently UNSUCCESSFUL - retry with backoff, up to 10x.
 					int currLoopCount = 0;
 					do {
 						response = EsignetUtil.postWithBodyAndBearerToken(tempUrl + testCaseDTO.getEndPoint(), inputJson,
@@ -172,8 +171,7 @@ public class SimplePostForAutoGenId extends EsignetUtil implements ITest {
 				if (isSunbirdPolicy) {
 					if (isSuccessResponse) {
 						String osid = extractSunbirdOsid(new JSONObject(response.getBody().asString()));
-						// Without the osid the postrequisite suite can't delete this policy, so a silent
-						// miss would leak it. Fail here instead.
+						// No osid means the postrequisite suite can't delete this policy - fail instead of leaking it.
 						if (osid == null || osid.isBlank()) {
 							throw new AdminTestException(
 									"Sunbird RC create succeeded but the response carried no osid: " + response.asString());

@@ -325,8 +325,7 @@ public class KbiStepDefinition {
 			ExtentReportManager.logStep("Dropdown '" + fieldId + "' options (lang=" + lang + "): " + options
 					+ " | schema-declared: " + expected);
 
-			// Compared unordered: the schema's allowedValues is a JSON object, so the order we read its
-			// keys in doesn't necessarily match the order the form renders them.
+			// Compared unordered - JSONObject key order isn't guaranteed to match render order.
 			if (!expected.isEmpty()) {
 				if (!new HashSet<>(expected).equals(new HashSet<>(options))) {
 					problems.add("Dropdown '" + fieldId + "' options don't match the schema for language '" + lang
@@ -502,11 +501,8 @@ public class KbiStepDefinition {
 				"KBI authentication did not reach the attention screen - login was not successful");
 	}
 
-	// Maps a KBI schema field id to the matching value stored on the Sunbird RC policy
-	// CreatePolicySunBirdR created, or null if the field isn't one this fixture covers.
-	// Matched on exact schema field ids: substring matching mapped anything containing "policy" to the
-	// policy number, which silently fed policyName (a real field on the created policy) the wrong
-	// value and failed the login. An id this fixture doesn't cover returns null, which skips.
+	// Maps a KBI schema field id (exact match, not substring) to its CreatePolicySunBirdR fixture
+	// value, or null if uncovered. Substring matching previously fed policyName the policy number.
 	private String resolveKnownSunBirdRValue(String fieldId, String individualIdField) {
 		if (fieldId.equals(individualIdField)) {
 			return EsignetUtil.getSunBirdRPolicyNumber();
