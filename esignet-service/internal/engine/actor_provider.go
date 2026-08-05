@@ -34,6 +34,7 @@ const (
 	// Map keys
 	jwks        = "JWKS"
 	name        = "name"
+	nameLangMap = "nameLangMap"
 	description = "description"
 	logoURL     = "logo_url"
 	app         = "app"
@@ -191,6 +192,9 @@ func (p *actorProvider) GetActor(id string) (*providers.Entity, *common.ServiceE
 	clientAttributes := map[string]interface{}{
 		name:        client.ClientName,
 		description: client.ClientName,
+	}
+	if len(client.ClientNameLangMap) > 0 {
+		clientAttributes[nameLangMap] = client.ClientNameLangMap
 	}
 	data, err := json.Marshal(clientAttributes)
 	if err != nil {
