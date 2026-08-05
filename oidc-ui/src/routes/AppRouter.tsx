@@ -1,5 +1,11 @@
 import { Suspense, lazy, useEffect, useState } from "react";
-import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  useLocation,
+  useNavigate,
+  useBlocker,
+} from "react-router-dom";
 import LoadingIndicator from "../components/LoadingIndicator";
 import {
   LOGIN,
@@ -25,6 +31,36 @@ export default function AppRouter() {
   const navigate = useNavigate();
   const pollingConfig = getPollingConfig();
 
+  // Show alert then proceed whenever the user presses the browser back/forward button.
+  const blocker = useBlocker(({ historyAction }) => historyAction === "POP");
+
+  const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+    e.preventDefault();
+    return "";
+  };
+
+  const registerOnFirstGesture = () => {
+    window.onbeforeunload = handleBeforeUnload;
+  };
+
+  useEffect(() => {
+    if (blocker.state === "blocked") {
+      const shouldProceed = window.confirm(
+        "Going back will cancel the current session. Press OK to continue.",
+      );
+
+      if (shouldProceed) {
+        blocker.proceed();
+      } else {
+        blocker.reset();
+      }
+    }
+  }, [blocker]);
+
+  // Browsers block beforeunload dialogs on frames that have never received a user interaction,
+  // so setting window.onbeforeunload immediately on mount would be silently ignored and produce
+  // the "Blocked attempt to show a beforeunload confirmation panel" console error.
+  // Register the tab-close guard only after the first user gesture.
   useEffect(() => {
     const fetchConfig = async () => {
       try {
@@ -37,8 +73,27 @@ export default function AppRouter() {
         setIsLoadingConfig(false); // Always set to false after fetch attempt
       }
     };
+
     fetchConfig();
-  }, []); // Run once on component mount
+  }, []);
+
+  useEffect(() => {
+    if (location.pathname !== LOGIN) {
+      window.onbeforeunload = null; // Remove the tab-close guard when navigating away from the login page
+    } else {
+      document.addEventListener("click", registerOnFirstGesture, {
+        once: true,
+      });
+      document.addEventListener("keydown", registerOnFirstGesture, {
+        once: true,
+      });
+    }
+    return () => {
+      document.removeEventListener("click", registerOnFirstGesture);
+      document.removeEventListener("keydown", registerOnFirstGesture);
+      window.onbeforeunload = null;
+    };
+  }, [location.pathname]);
 
   const checkRoute = (currentRoute: string) =>
     [LOGIN, NETWORK_ERROR].includes(currentRoute);
@@ -47,10 +102,7 @@ export default function AppRouter() {
   if (isLoadingConfig) {
     return (
       <div className="h-screen flex justify-center content-center">
-        <LoadingIndicator
-          size="medium"
-          className="align-loading-center"
-        />
+        <LoadingIndicator size="medium" className="align-loading-center" />
       </div>
     );
   }

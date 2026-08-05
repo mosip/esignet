@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from "react";
-import { BrowserRouter } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { I18nContext } from "@thunderid/react";
 import "./App.css";
@@ -30,6 +30,26 @@ function LanguageDirectionSync() {
 
   return null;
 }
+
+function AppLayout() {
+  return (
+    <>
+      <LanguageDirectionSync />
+      <div className="flex flex-col min-h-screen">
+        <NavHeader />
+        <main className="flex-1">
+          <AppRouter />
+        </main>
+        <Footer />
+      </div>
+    </>
+  );
+}
+
+// createBrowserRouter (data router) is required for useBlocker in AppRouter.
+// path "*" ensures AppLayout renders fir every URL; AppRouter's <Route> handles
+// the specific path matchung internally
+const router = createBrowserRouter([{ path: "*", element: <AppLayout /> }]);
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -62,16 +82,7 @@ export default function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <LanguageDirectionSync />
-        <div className="flex flex-col min-h-screen">
-          <NavHeader />
-          <main className="flex-1">
-            <AppRouter />
-          </main>
-          <Footer />
-        </div>
-      </BrowserRouter>
+      <RouterProvider router={router} />
     </QueryClientProvider>
   );
 }
