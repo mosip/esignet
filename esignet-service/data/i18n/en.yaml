@@ -1232,6 +1232,9 @@ otp:
   otp_sent_msg: Please enter the 6-digit OTP sent to your registered contact
   resend_otp: Resend OTP
 
+biometric:
+  title: Provide your biometrics
+
 consent:
   title: "is requesting access to the following:"
   description: This app would like to access the following information. Please review and choose what you would like to share.
