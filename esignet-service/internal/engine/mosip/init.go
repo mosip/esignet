@@ -15,14 +15,18 @@ import (
 	"github.com/mosip/esignet/internal/clientmgmt"
 	"github.com/mosip/esignet/internal/config"
 	"github.com/mosip/esignet/internal/engine/shared"
+	"github.com/mosip/esignet/internal/keymanager"
+	"github.com/mosip/esignet/internal/keymanager/signature"
 	applog "github.com/mosip/esignet/internal/log"
 )
 
 // Init builds the MOSIP IDA authn provider and the mosip-audit-manager
-// observability provider.
-func Init(appConfig *config.AppConfig, clientSvc *clientmgmt.Service, httpClient *http.Client) (
+// observability provider. svc/sigSvc are the keymanager services outbound
+// IDA requests are signed with (see NewMosipAuthnProvider).
+func Init(appConfig *config.AppConfig, clientSvc *clientmgmt.Service, httpClient *http.Client,
+	svc *keymanager.Service, sigSvc *signature.Service) (
 	shared.ConsolidatedAuthnProvider, providers.ObservabilityProvider, error) {
-	authnProvider, err := NewMosipAuthnProvider(appConfig, clientSvc, httpClient)
+	authnProvider, err := NewMosipAuthnProvider(appConfig, clientSvc, httpClient, svc, sigSvc)
 	if err != nil {
 		return nil, nil, err
 	}

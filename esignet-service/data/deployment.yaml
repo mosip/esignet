@@ -51,27 +51,26 @@ gate_client:
   error_path: /error
 
 jwt:
-  preferred_key_id: default-key
-  audience: application
-  validity_period: 3600
+  preferred_key_id: "${SIGNING_KEY_REF_ID:-RSA_2048}"
+  # validity_period and leeway are set from MOSIP_ESIGNET_JWT_VALIDITY_PERIOD / MOSIP_ESIGNET_JWT_LEEWAY in applyDefaults (internal/config/app.go)
+  validity_period: 120
   leeway: 10
 
 oauth:
   refresh_token:
     renew_on_grant: false
   authorization_code:
-    validity_period: 120
+    validity_period: ${MOSIP_ESIGNET_AUTHORIZATION_CODE_VALIDITY:-60}
   par:
     expires_in: 3600
   dpop:
     required: false
     iat_window: 60
+    # leeway is set from MOSIP_ESIGNET_DPOP_LEEWAY in applyDefaults (internal/config/app.go)
     leeway: 10
     allowed_algs: ["ES256", "PS256", "ES384", "ES512", "EdDSA", "RS256"]
     max_jti_length: 256
 
-crypto:
-  key: "${CRYPTO_ENCRYPTION_KEY}"
 
 security_config:
   issuer_url: ""

@@ -1,5 +1,9 @@
+//go:build cgo
+
 // Package pkcs11 implements the keystore.KeyStore port against a real
-// HSM or SoftHSM2 via PKCS#11, using github.com/miekg/pkcs11.
+// HSM or SoftHSM2 via PKCS#11, using github.com/miekg/pkcs11. This backend
+// depends on cgo (miekg/pkcs11 dlopens the vendor-supplied PKCS#11 module
+// via C) and is unavailable in CGO_ENABLED=0 builds — see stub.go.
 package pkcs11
 
 import (
@@ -81,6 +85,7 @@ func New(params map[string]string) (keystore.KeyStore, error) {
 	return s, nil
 }
 
+// ProviderName implements keystore.KeyStore.
 func (s *Store) ProviderName() string { return "PKCS11" }
 
 // resolveSlot finds the slot by explicit slot-id, or by matching token-label
@@ -195,16 +200,6 @@ func isTransient(err error) bool {
 	default:
 		return false
 	}
-}
-
-func (s *Store) cacheGet(alias string) (pkcs11.ObjectHandle, bool) {
-	if !s.enableCache {
-		return 0, false
-	}
-	s.cacheMu.RLock()
-	defer s.cacheMu.RUnlock()
-	h, ok := s.cache[alias]
-	return h, ok
 }
 
 func (s *Store) cachePut(alias string, h pkcs11.ObjectHandle) {

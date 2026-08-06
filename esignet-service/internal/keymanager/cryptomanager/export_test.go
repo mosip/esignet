@@ -14,7 +14,7 @@ var (
 	IsDataValid      = isDataValid
 
 	ResolveDecryptionKey     = (*Service).resolveDecryptionKey
-	ValidateKeyIdentifierIDs = (*Service).validateKeyIdentifierIds
+	ValidateKeyIdentifierIDs = (*Service).validateKeyIdentifierIDs
 
 	BuildAESEnvelope = buildAESEnvelope
 	ParseAESEnvelope = parseAESEnvelope

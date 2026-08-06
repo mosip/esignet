@@ -23,8 +23,6 @@ func (ts *ConfigTestSuite) TestLoadConfigDefaultsFromAPIBase() {
 	t.Setenv("MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC_EXCHANGE_URL", "")
 	t.Setenv("MOSIP_ESIGNET_DOMAIN_URL", "")
 	t.Setenv("IDA_AUTHENTICATOR_ENV", "")
-	t.Setenv("MOSIP_P12_PATH", "")
-	t.Setenv("MOSIP_P12_PASSWORD", "")
 
 	cfg := LoadConfig()
 
@@ -35,8 +33,6 @@ func (ts *ConfigTestSuite) TestLoadConfigDefaultsFromAPIBase() {
 	require.Equal(t, "http://internal.example.org/idauthentication/v1/kyc-exchange/delegated/misp-key-1/", cfg.KYCExchangeBaseURL)
 	require.Equal(t, "http://internal.example.org", cfg.DomainURI)
 	require.Equal(t, defaultMosipEnv, cfg.Env)
-	require.Empty(t, cfg.P12Path)
-	require.Empty(t, cfg.P12Password)
 }
 
 func (ts *ConfigTestSuite) TestLoadConfigExplicitOverridesWin() {
@@ -49,8 +45,6 @@ func (ts *ConfigTestSuite) TestLoadConfigExplicitOverridesWin() {
 	t.Setenv("MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC_EXCHANGE_URL", "http://override/kyc-exchange")
 	t.Setenv("MOSIP_ESIGNET_DOMAIN_URL", "http://override/domain")
 	t.Setenv("IDA_AUTHENTICATOR_ENV", "Production")
-	t.Setenv("MOSIP_P12_PATH", "/tmp/keystore.p12")
-	t.Setenv("MOSIP_P12_PASSWORD", "secret")
 
 	cfg := LoadConfig()
 
@@ -60,8 +54,6 @@ func (ts *ConfigTestSuite) TestLoadConfigExplicitOverridesWin() {
 	require.Equal(t, "http://override/kyc-exchange", cfg.KYCExchangeBaseURL)
 	require.Equal(t, "http://override/domain", cfg.DomainURI)
 	require.Equal(t, "Production", cfg.Env)
-	require.Equal(t, "/tmp/keystore.p12", cfg.P12Path)
-	require.Equal(t, "secret", cfg.P12Password)
 }
 
 func (ts *ConfigTestSuite) TestLoadConfigNoAPIBaseYieldsBareSuffixes() {

@@ -51,7 +51,7 @@ func (q *memQuerier) seedPolicy(p db.KeyPolicy) {
 	q.policies[p.AppID] = p
 }
 
-func (q *memQuerier) GetKeyAliasesByAppRef(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) {
+func (q *memQuerier) GetKeyAliasesByAppRef(_ context.Context, appID, refID string) ([]db.KeyAlias, error) {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 	var rows []db.KeyAlias
@@ -66,7 +66,7 @@ func (q *memQuerier) GetKeyAliasesByAppRef(ctx context.Context, appID, refID str
 	return rows, nil
 }
 
-func (q *memQuerier) GetKeyAliasByCertThumbprint(ctx context.Context, thumbprintHex string) (db.KeyAlias, error) {
+func (q *memQuerier) GetKeyAliasByCertThumbprint(_ context.Context, thumbprintHex string) (db.KeyAlias, error) {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 	var best *db.KeyAlias
@@ -85,7 +85,7 @@ func (q *memQuerier) GetKeyAliasByCertThumbprint(ctx context.Context, thumbprint
 	return *best, nil
 }
 
-func (q *memQuerier) GetKeyAliasByUniIdent(ctx context.Context, uniIdent string) (db.KeyAlias, error) {
+func (q *memQuerier) GetKeyAliasByUniIdent(_ context.Context, uniIdent string) (db.KeyAlias, error) {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 	var best *db.KeyAlias
@@ -104,7 +104,7 @@ func (q *memQuerier) GetKeyAliasByUniIdent(ctx context.Context, uniIdent string)
 	return *best, nil
 }
 
-func (q *memQuerier) InsertKeyAlias(ctx context.Context, k db.KeyAlias) error {
+func (q *memQuerier) InsertKeyAlias(_ context.Context, k db.KeyAlias) error {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 	if k.UniIdent != nil {
@@ -118,7 +118,7 @@ func (q *memQuerier) InsertKeyAlias(ctx context.Context, k db.KeyAlias) error {
 	return nil
 }
 
-func (q *memQuerier) UpdateKeyAlias(ctx context.Context, k db.KeyAlias) error {
+func (q *memQuerier) UpdateKeyAlias(_ context.Context, k db.KeyAlias) error {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 	existing, ok := q.aliases[k.ID]
@@ -134,7 +134,7 @@ func (q *memQuerier) UpdateKeyAlias(ctx context.Context, k db.KeyAlias) error {
 	return nil
 }
 
-func (q *memQuerier) GetKeyPolicy(ctx context.Context, appID string) (db.KeyPolicy, error) {
+func (q *memQuerier) GetKeyPolicy(_ context.Context, appID string) (db.KeyPolicy, error) {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 	p, ok := q.policies[appID]
@@ -144,14 +144,14 @@ func (q *memQuerier) GetKeyPolicy(ctx context.Context, appID string) (db.KeyPoli
 	return p, nil
 }
 
-func (q *memQuerier) HasKeyPolicy(ctx context.Context, appID string) (bool, error) {
+func (q *memQuerier) HasKeyPolicy(_ context.Context, appID string) (bool, error) {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 	_, ok := q.policies[appID]
 	return ok, nil
 }
 
-func (q *memQuerier) GetKeyStoreRecord(ctx context.Context, id string) (db.KeyStoreRecord, error) {
+func (q *memQuerier) GetKeyStoreRecord(_ context.Context, id string) (db.KeyStoreRecord, error) {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 	r, ok := q.stores[id]
@@ -161,14 +161,14 @@ func (q *memQuerier) GetKeyStoreRecord(ctx context.Context, id string) (db.KeySt
 	return r, nil
 }
 
-func (q *memQuerier) InsertKeyStoreRecord(ctx context.Context, k db.KeyStoreRecord) error {
+func (q *memQuerier) InsertKeyStoreRecord(_ context.Context, k db.KeyStoreRecord) error {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 	q.stores[k.ID] = k
 	return nil
 }
 
-func (q *memQuerier) UpdateKeyStoreRecord(ctx context.Context, k db.KeyStoreRecord) error {
+func (q *memQuerier) UpdateKeyStoreRecord(_ context.Context, k db.KeyStoreRecord) error {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 	existing, ok := q.stores[k.ID]

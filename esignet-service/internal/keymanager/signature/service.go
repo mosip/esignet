@@ -33,7 +33,10 @@ import (
 	"strings"
 	"time"
 
+	jose "github.com/go-jose/go-jose/v4"
+
 	"github.com/mosip/esignet/internal/keymanager"
+	applog "github.com/mosip/esignet/internal/log"
 )
 
 // Sentinel errors for validation/lookup failures (branch via errors.Is),
@@ -58,7 +61,7 @@ var (
 	// configured as a symmetric (AES) key reference id
 	// (keymanager.Config.SymmetricKeyAllowedRefIDs) — an AES key has no
 	// signing capability and can never produce a JWS signature.
-	ErrAESNotAllowedForSigning = errors.New("Not allowed to use AES for JWS Signing.")
+	ErrAESNotAllowedForSigning = errors.New("not allowed to use AES for JWS signing")
 
 	// ErrEncryptionKeyNotAllowedForSigning is returned by JWSSign when
 	// (ApplicationID, ReferenceID) resolves to a DB-resident Component
@@ -107,14 +110,15 @@ var (
 // km; see the package doc comment for exactly what is and isn't ported from
 // Java's SignatureServiceImpl.
 type Service struct {
-	km *keymanager.Service
+	km     *keymanager.Service
+	logger *applog.Logger
 }
 
 // NewService constructs a Service. km would typically be the same
 // keymanager.Service instance the rest of the application already uses —
 // mirrors cryptomanager.NewService's dependency-injection pattern.
 func NewService(km *keymanager.Service) *Service {
-	return &Service{km: km}
+	return &Service{km: km, logger: applog.GetLogger().Named("signature")}
 }
 
 func boolOrDefault(b *bool, def bool) bool {
@@ -289,6 +293,9 @@ func (s *Service) JWSSign(ctx context.Context, req JWSSignRequest) (JWSSignRespo
 	}
 
 	jws := headerB64 + "." + payloadSegment + "." + sigB64
+	s.logger.Debug(ctx, "JWS signed",
+		applog.String("applicationId", req.ApplicationID), applog.String("referenceId", req.ReferenceID),
+		applog.String("algorithm", signAlg))
 	return JWSSignResponse{JWTSignedData: jws, Timestamp: now}, nil
 }
 
@@ -331,20 +338,121 @@ func (s *Service) JWSVerify(ctx context.Context, req JWSVerifyRequest) (JWSVerif
 
 	cert, err := resolveVerifyCert(ctx, s.km, headerB64, req)
 	if err != nil {
+		s.logger.Warn(ctx, "JWS verify: certificate resolution failed", applog.Error(err))
 		return JWSVerifyResponse{SignatureValid: false, Message: err.Error()}, nil
 	}
 	if err := checkCertValidity(cert, time.Now().UTC()); err != nil {
+		s.logger.Warn(ctx, "JWS verify: certificate not valid", applog.Error(err))
 		return JWSVerifyResponse{SignatureValid: false, Message: err.Error()}, nil
 	}
 
 	sigBytes, err := base64.RawURLEncoding.DecodeString(sigB64)
 	if err != nil {
+		s.logger.Warn(ctx, "JWS verify: signature is not valid base64url")
 		return JWSVerifyResponse{SignatureValid: false, Message: "signature is not valid base64url"}, nil
 	}
 
 	signingInput := buildSigningInput(headerB64, []byte(payloadSegment))
 	if err := verifySignature(hdr.Alg, cert.PublicKey, signingInput, sigBytes); err != nil {
+		s.logger.Warn(ctx, "JWS verify: signature verification failed", applog.String("algorithm", hdr.Alg), applog.Error(err))
 		return JWSVerifyResponse{SignatureValid: false, Message: err.Error()}, nil
 	}
+	s.logger.Debug(ctx, "JWS verified", applog.String("algorithm", hdr.Alg))
 	return JWSVerifyResponse{SignatureValid: true, Message: "signature valid"}, nil
+}
+
+// SignRaw signs signingInput with the current signing key for (appID, refID)
+// and returns the raw JOSE-format signature bytes only — the primitive
+// JWSSign builds a compact JWS on top of, exposed directly for callers (e.g.
+// a thunderidengine RuntimeCryptoProvider adapter) that assemble their own
+// JWS/JWT header and payload and only need the detached signature back. alg,
+// if empty, defaults the same way JWSSign does (algorithmForRefID(refID)).
+func (s *Service) SignRaw(ctx context.Context, appID, refID, alg string, signingInput []byte) ([]byte, error) {
+	if strings.TrimSpace(appID) == "" {
+		return nil, ErrBlankApplicationID
+	}
+	if appID != keymanager.AppIDRoot && strings.TrimSpace(refID) == "" {
+		return nil, ErrBlankReferenceID
+	}
+	if err := s.validateSigningKeyTier(appID, refID); err != nil {
+		return nil, err
+	}
+	if alg == "" {
+		alg = algorithmForRefID(refID)
+	}
+
+	sc, err := s.km.GetSigningCertificate(ctx, appID, refID)
+	if err != nil {
+		return nil, fmt.Errorf("resolve signing certificate: %w", err)
+	}
+	if sc.KeyPairEntry == nil || sc.KeyPairEntry.Certificate == nil {
+		return nil, fmt.Errorf("%w: signing key has no certificate", ErrCertificateNotValid)
+	}
+	if err := checkCertValidity(sc.KeyPairEntry.Certificate, time.Now().UTC()); err != nil {
+		return nil, err
+	}
+	signer, ok := sc.KeyPairEntry.PrivateKey.(crypto.Signer)
+	if !ok {
+		return nil, fmt.Errorf("%w: resolved private key does not support signing", ErrSignFailed)
+	}
+	if err := validateAlgorithmForKey(alg, sc.KeyPairEntry.Certificate.PublicKey); err != nil {
+		return nil, err
+	}
+	return signDigest(signer, alg, signingInput)
+}
+
+// VerifyRaw verifies a detached signature over signingInput against the
+// current certificate for (appID, refID) — the primitive JWSVerify's compact-
+// JWS parsing builds on top of, exposed directly for callers that already
+// have the signing input and signature bytes rather than a compact JWS
+// string.
+func (s *Service) VerifyRaw(ctx context.Context, appID, refID, alg string, signingInput, sig []byte) error {
+	if strings.TrimSpace(appID) == "" {
+		return ErrBlankApplicationID
+	}
+	if strings.TrimSpace(refID) == "" {
+		return ErrBlankReferenceID
+	}
+	resp, err := s.km.GetCertificate(ctx, appID, refID)
+	if err != nil {
+		return fmt.Errorf("%w: %w", ErrVerifyCertificateNotFound, err)
+	}
+	cert, err := keymanager.ParseCertPEM(resp.Certificate)
+	if err != nil {
+		return fmt.Errorf("%w: parse resolved certificate: %w", ErrVerifyCertificateNotFound, err)
+	}
+	if err := checkCertValidity(cert, time.Now().UTC()); err != nil {
+		return err
+	}
+	return verifySignature(alg, cert.PublicKey, signingInput, sig)
+}
+
+// VerifyWithJWK verifies a detached signature over signingInput against a
+// caller-supplied JWK — the counterpart to VerifyRaw for callers that hold a
+// public key directly (e.g. from a JWKS endpoint) rather than a certificate
+// resolvable through keymanager.
+func (s *Service) VerifyWithJWK(_ context.Context, jwk, alg string, signingInput, sig []byte) error {
+	if strings.TrimSpace(jwk) == "" {
+		return ErrVerifyCertificateNotFound
+	}
+
+	var key jose.JSONWebKey
+	if err := key.UnmarshalJSON([]byte(jwk)); err != nil {
+		return fmt.Errorf("%w: parse jwk: %w", ErrVerifyCertificateNotFound, err)
+	}
+	if !key.Valid() {
+		return fmt.Errorf("%w: jwk is not valid", ErrVerifyCertificateNotFound)
+	}
+	pub := key.Public()
+	if !pub.IsPublic() {
+		return fmt.Errorf("%w: jwk does not resolve to a public key", ErrVerifyCertificateNotFound)
+	}
+
+	return verifySignature(alg, pub.Key, signingInput, sig)
+}
+
+// SupportedAlgorithms lists the JWS algorithm identifiers SignRaw/VerifyRaw
+// (and, transitively, JWSSign/JWSVerify) support.
+func SupportedAlgorithms() []string {
+	return []string{algPS256, algRS256, algES256, algES256K, algEdDSA}
 }

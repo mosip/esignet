@@ -2,8 +2,6 @@ INSERT INTO key_policy_def (app_id, key_validity_duration, pre_expire_days, acce
 ('ROOT', 2920, 1125, 'NA', TRUE, 'mosipadmin', NOW()),
 ('OIDC_SERVICE', 1095, 60, 'NA', TRUE, 'mosipadmin', NOW()),
 ('OIDC_PARTNER', 1095, 60, 'NA', TRUE, 'mosipadmin', NOW()),
-('BINDING_SERVICE', 1095, 60, 'NA', TRUE, 'mosipadmin', NOW()),
-('MOCK_BINDING_SERVICE', 1095, 50, 'NA', TRUE, 'mosipadmin', NOW()),
 -- BASE governs every Component Encryption Key (any application) and every
 -- symmetric/AES key, regardless of which application owns them — see
 -- esignet-service/internal/keymanager/service.go's policyForKeyTier. Without

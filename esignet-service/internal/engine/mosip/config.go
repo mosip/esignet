@@ -23,8 +23,6 @@ type Config struct {
 	KYCExchangeBaseURL       string
 	DomainURI                string
 	Env                      string
-	P12Path                  string
-	P12Password              string
 }
 
 // LoadConfig reads MOSIP auth settings from environment variables.
@@ -50,10 +48,8 @@ func LoadConfig() Config {
 			"MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC_EXCHANGE_URL",
 			apiBase+"/idauthentication/v1/kyc-exchange/delegated/"+licenseKey+"/",
 		),
-		DomainURI:   envOrDefault("MOSIP_ESIGNET_DOMAIN_URL", apiBase),
-		Env:         envOrDefault("IDA_AUTHENTICATOR_ENV", defaultMosipEnv),
-		P12Path:     envOrDefault("MOSIP_P12_PATH", ""),
-		P12Password: envOrDefault("MOSIP_P12_PASSWORD", ""),
+		DomainURI: envOrDefault("MOSIP_ESIGNET_DOMAIN_URL", apiBase),
+		Env:       envOrDefault("IDA_AUTHENTICATOR_ENV", defaultMosipEnv),
 	}
 }
 

@@ -22,10 +22,14 @@ func TestLoadConfig_SymmetricKeyAllowedRefIDs_ParsedFromCommaSeparatedEnv(t *tes
 		"entries must be trimmed and empty entries from stray/trailing commas dropped")
 }
 
-func TestLoadConfig_SymmetricKeyAllowedRefIDs_UnsetMeansEmpty(t *testing.T) {
-	t.Setenv("KEYMANAGER_SYMMETRIC_KEY_ALLOWED_REF_IDS", "")
+func TestLoadConfig_SymmetricKeyAllowedRefIDs_DefaultsToCacheEncrypt(t *testing.T) {
+	t.Setenv("KEYMANAGER_SYMMETRIC_KEY_ALLOWED_REF_IDS", "") // force the fallback path regardless of ambient env
 	cfg := keymanager.LoadConfig()
-	assert.Empty(t, cfg.SymmetricKeyAllowedRefIDs, "unset allow-list must be empty, not a wildcard-allow-everything default")
+	assert.Equal(t, []string{"CACHE_ENCRYPT"}, cfg.SymmetricKeyAllowedRefIDs,
+		"unset allow-list must default to CACHE_ENCRYPT — esignet's own runtime crypto provider "+
+			"(internal/engine/runtime_crypto_provider.go's defaultSymmetricEncryptReferenceID) generates a "+
+			"CACHE_ENCRYPT symmetric key out of the box and needs it pre-allowed, not an all-empty "+
+			"allow-list requiring extra operator configuration just to boot")
 }
 
 func TestLoadConfig_ForeignDomainAllowedAppIDs_DefaultsToPartnerAndIDA(t *testing.T) {

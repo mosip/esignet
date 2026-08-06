@@ -87,12 +87,6 @@ oauth:
 	require.EqualValues(t, 120, cfg.OAuth.AuthorizationCode.ValidityPeriod)
 }
 
-func TestApplyDefaults_PanicsWithoutEncryptionKey(t *testing.T) {
-	t.Setenv("CRYPTO_ENCRYPTION_KEY", "")
-	cfg := &AppConfig{}
-	require.Panics(t, func() { applyDefaults(cfg) })
-}
-
 func TestApplyDefaults_AuthorizationCodeValidityPeriod(t *testing.T) {
 	t.Run("respects yaml-supplied value", func(t *testing.T) {
 		cfg := &AppConfig{OAuth: engineconfig.OAuthConfig{}}
@@ -132,6 +126,33 @@ func TestApplyDefaults_PARExpiresIn(t *testing.T) {
 		applyDefaults(cfg)
 
 		require.EqualValues(t, 3600, cfg.OAuth.PAR.ExpiresIn)
+	})
+}
+
+func TestApplyDefaults_JWTValidityAndLeeway(t *testing.T) {
+	t.Run("defaults when unset", func(t *testing.T) {
+		cfg := &AppConfig{}
+		t.Setenv("CRYPTO_ENCRYPTION_KEY", "k")
+
+		applyDefaults(cfg)
+
+		require.EqualValues(t, 120, cfg.JWT.ValidityPeriod)
+		require.EqualValues(t, 10, cfg.JWT.Leeway)
+		require.EqualValues(t, 10, cfg.OAuth.DPoP.Leeway)
+	})
+
+	t.Run("respects env override", func(t *testing.T) {
+		cfg := &AppConfig{}
+		t.Setenv("CRYPTO_ENCRYPTION_KEY", "k")
+		t.Setenv("MOSIP_ESIGNET_JWT_VALIDITY_PERIOD", "7200")
+		t.Setenv("MOSIP_ESIGNET_JWT_LEEWAY", "30")
+		t.Setenv("MOSIP_ESIGNET_DPOP_LEEWAY", "20")
+
+		applyDefaults(cfg)
+
+		require.EqualValues(t, 7200, cfg.JWT.ValidityPeriod)
+		require.EqualValues(t, 30, cfg.JWT.Leeway)
+		require.EqualValues(t, 20, cfg.OAuth.DPoP.Leeway)
 	})
 }
 

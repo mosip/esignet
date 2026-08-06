@@ -1,3 +1,5 @@
+//go:build cgo
+
 package pkcs11_test
 
 import (

@@ -1,3 +1,5 @@
+//go:build cgo
+
 package pkcs11
 
 import (
@@ -100,6 +102,7 @@ func (s *Store) findAllObjectsWithLabel(sh pkcs11.SessionHandle, alias string) (
 // unaffected and fully supported.
 var errSECP256K1Unsupported = fmt.Errorf("pkcs11: SECP256K1 certificates are not supported: crypto/x509 only supports NIST curves (P224/P256/P384/P521) for EC certificates; SECP256K1 needs a custom X.509 codec")
 
+// GenerateAndStoreAsymmetricKey implements keystore.KeyStore.
 func (s *Store) GenerateAndStoreAsymmetricKey(alias, signKeyAlias string, params keystore.CertificateParameters, algoName, curveName string) error {
 	if curveName == keystore.CurveSECP256K1 {
 		return errSECP256K1Unsupported
@@ -268,7 +271,10 @@ func readPublicKey(ctx *pkcs11.Ctx, sh pkcs11.SessionHandle, handle pkcs11.Objec
 		if !ok {
 			return nil, fmt.Errorf("pkcs11: unsupported curve %q for public key reconstruction", curveName)
 		}
-		x, y := elliptic.Unmarshal(curve, point)
+		// crypto/ecdh only supports the NIST curves (P224/P256/P384/P521), but
+		// ellipticCurves also carries SECP256K1 (via secp256k1()/btcec), so we
+		// stay on the generic elliptic.Curve-based API here.
+		x, y := elliptic.Unmarshal(curve, point) //nolint:staticcheck
 		if x == nil {
 			return nil, fmt.Errorf("pkcs11: failed to unmarshal EC point for curve %q", curveName)
 		}
@@ -289,6 +295,7 @@ func unwrapECPoint(raw []byte) ([]byte, error) {
 	return octet, nil
 }
 
+// GenerateAndStoreSymmetricKey implements keystore.KeyStore.
 func (s *Store) GenerateAndStoreSymmetricKey(alias string) error {
 	return s.withSession(func(sh pkcs11.SessionHandle) error {
 		mech := []*pkcs11.Mechanism{pkcs11.NewMechanism(pkcs11.CKM_AES_KEY_GEN, nil)}
@@ -340,6 +347,7 @@ func decodeCKULong(b []byte) uint {
 	return uint(v)
 }
 
+// GetPrivateKey implements keystore.KeyStore.
 func (s *Store) GetPrivateKey(alias string) (crypto.PrivateKey, error) {
 	var priv *privateKey
 	err := s.withSession(func(sh pkcs11.SessionHandle) error {
@@ -395,6 +403,7 @@ func algoAndCurveFor(ctx *pkcs11.Ctx, sh pkcs11.SessionHandle, pubHandle pkcs11.
 	return keystore.AlgoEC, name, nil
 }
 
+// GetPublicKey implements keystore.KeyStore.
 func (s *Store) GetPublicKey(alias string) (crypto.PublicKey, error) {
 	priv, err := s.GetPrivateKey(alias)
 	if err != nil {
@@ -403,6 +412,7 @@ func (s *Store) GetPublicKey(alias string) (crypto.PublicKey, error) {
 	return priv.(*privateKey).pub, nil
 }
 
+// GetCertificate implements keystore.KeyStore.
 func (s *Store) GetCertificate(alias string) (*x509.Certificate, error) {
 	var cert *x509.Certificate
 	err := s.withSession(func(sh pkcs11.SessionHandle) error {
@@ -423,6 +433,7 @@ func (s *Store) GetCertificate(alias string) (*x509.Certificate, error) {
 	return cert, err
 }
 
+// GetSymmetricKey implements keystore.KeyStore.
 func (s *Store) GetSymmetricKey(alias string) ([]byte, error) {
 	var key []byte
 	err := s.withSession(func(sh pkcs11.SessionHandle) error {
@@ -443,6 +454,7 @@ func (s *Store) GetSymmetricKey(alias string) ([]byte, error) {
 	return key, err
 }
 
+// GetAsymmetricKey implements keystore.KeyStore.
 func (s *Store) GetAsymmetricKey(alias string) (*keystore.KeyPairEntry, error) {
 	priv, err := s.GetPrivateKey(alias)
 	if err != nil {
@@ -455,6 +467,7 @@ func (s *Store) GetAsymmetricKey(alias string) (*keystore.KeyPairEntry, error) {
 	return &keystore.KeyPairEntry{PrivateKey: priv, Certificate: cert}, nil
 }
 
+// GetAllAlias implements keystore.KeyStore.
 func (s *Store) GetAllAlias() ([]string, error) {
 	var aliases []string
 	err := s.withSession(func(sh pkcs11.SessionHandle) error {
@@ -479,6 +492,7 @@ func (s *Store) GetAllAlias() ([]string, error) {
 	return aliases, err
 }
 
+// DeleteKey implements keystore.KeyStore.
 func (s *Store) DeleteKey(alias string) error {
 	err := s.withSession(func(sh pkcs11.SessionHandle) error {
 		handles, err := s.findAllObjectsWithLabel(sh, alias)

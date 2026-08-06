@@ -41,11 +41,11 @@ func testConfig() keymanager.Config {
 func TestGenerateMasterKey_Root_GeneratesNewSelfSignedKey(t *testing.T) {
 	var inserted *db.KeyAlias
 	q := &fakeQuerier{
-		getKeyPolicyFn: func(ctx context.Context, appID string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
-		getKeyAliasesByAppRefFn: func(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) {
+		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyAliasesByAppRefFn: func(_ context.Context, _, _ string) ([]db.KeyAlias, error) {
 			return nil, nil // no current key yet
 		},
-		insertKeyAliasFn: func(ctx context.Context, k db.KeyAlias) error {
+		insertKeyAliasFn: func(_ context.Context, k db.KeyAlias) error {
 			inserted = &k
 			return nil
 		},
@@ -75,15 +75,15 @@ func TestGenerateMasterKey_UniIdentConflict_SelfHeals(t *testing.T) {
 
 	lookupCount := 0
 	q := &fakeQuerier{
-		getKeyPolicyFn: func(ctx context.Context, appID string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
-		getKeyAliasesByAppRefFn: func(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) {
+		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyAliasesByAppRefFn: func(_ context.Context, _, _ string) ([]db.KeyAlias, error) {
 			lookupCount++
 			if lookupCount == 1 {
 				return nil, nil // first check: no current key, proceed to generate
 			}
 			return []db.KeyAlias{validAliasRow("winner-alias")}, nil // second check (post-conflict): the other request's row
 		},
-		insertKeyAliasFn: func(ctx context.Context, k db.KeyAlias) error {
+		insertKeyAliasFn: func(_ context.Context, _ db.KeyAlias) error {
 			return errors.New(`pq: duplicate key value violates unique constraint "uni_ident_const" (SQLSTATE 23505)`)
 		},
 	}
@@ -107,11 +107,11 @@ func TestGenerateMasterKey_UniIdentConflict_SelfHeals(t *testing.T) {
 // ErrKeyAlreadyGeneratedToday rather than a raw DB constraint error.
 func TestGenerateMasterKey_SameDayRegeneration_ClearError(t *testing.T) {
 	q := &fakeQuerier{
-		getKeyPolicyFn: func(ctx context.Context, appID string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
-		getKeyAliasesByAppRefFn: func(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) {
+		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyAliasesByAppRefFn: func(_ context.Context, _, _ string) ([]db.KeyAlias, error) {
 			return nil, nil // the earlier-today key was revoked; nothing current remains
 		},
-		insertKeyAliasFn: func(ctx context.Context, k db.KeyAlias) error {
+		insertKeyAliasFn: func(_ context.Context, _ db.KeyAlias) error {
 			return errors.New(`pq: duplicate key value violates unique constraint "uni_ident_const" (SQLSTATE 23505)`)
 		},
 	}
@@ -125,8 +125,8 @@ func TestGenerateMasterKey_SameDayRegeneration_ClearError(t *testing.T) {
 
 func TestGenerateMasterKey_ComponentMasterKey_FailsWithoutRoot(t *testing.T) {
 	q := &fakeQuerier{
-		getKeyPolicyFn: func(ctx context.Context, appID string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
-		getKeyAliasesByAppRefFn: func(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) {
+		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyAliasesByAppRefFn: func(_ context.Context, _, _ string) ([]db.KeyAlias, error) {
 			return nil, nil // nothing exists, including ROOT
 		},
 	}
@@ -148,14 +148,14 @@ func TestGenerateMasterKey_ECSignKey_SignedDirectlyByRoot(t *testing.T) {
 	require.NoError(t, ks.GenerateAndStoreAsymmetricKey("root-alias", "root-alias", testCertTemplateParams(), "RSA", ""))
 
 	q := &fakeQuerier{
-		getKeyPolicyFn: func(ctx context.Context, appID string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
-		getKeyAliasesByAppRefFn: func(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) {
+		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyAliasesByAppRefFn: func(_ context.Context, appID, refID string) ([]db.KeyAlias, error) {
 			if appID == "ROOT" && refID == "" {
 				return []db.KeyAlias{validAliasRow("root-alias")}, nil
 			}
 			return nil, nil // no Component Master Key exists — must not be required
 		},
-		insertKeyAliasFn: func(ctx context.Context, k db.KeyAlias) error { return nil },
+		insertKeyAliasFn: func(_ context.Context, _ db.KeyAlias) error { return nil },
 	}
 	svc := keymanager.NewServiceWithQuerier(q, ks, testConfig())
 
@@ -176,8 +176,8 @@ func TestGenerateMasterKey_RejectsEncryptionKeyTier(t *testing.T) {
 	require.NoError(t, ks.GenerateAndStoreAsymmetricKey("master-alias", "root-alias", testCertTemplateParams(), "RSA", ""))
 
 	q := &fakeQuerier{
-		getKeyPolicyFn: func(ctx context.Context, appID string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
-		getKeyAliasesByAppRefFn: func(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) {
+		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyAliasesByAppRefFn: func(_ context.Context, appID, refID string) ([]db.KeyAlias, error) {
 			if appID == "ESIGNET_RSA" && refID == "RSA_2048" {
 				return []db.KeyAlias{validAliasRow("master-alias")}, nil
 			}
@@ -199,8 +199,8 @@ func TestGenerateMasterKey_RejectsEncryptionKeyTier(t *testing.T) {
 // ErrKeyNotFound rather than silently creating one with a blank identity.
 func TestGetCertificate_NeverOriginatesRoot(t *testing.T) {
 	q := &fakeQuerier{
-		getKeyPolicyFn: func(ctx context.Context, appID string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
-		getKeyAliasesByAppRefFn: func(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) {
+		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyAliasesByAppRefFn: func(_ context.Context, _, _ string) ([]db.KeyAlias, error) {
 			return nil, nil // ROOT has never been generated
 		},
 	}
@@ -224,11 +224,11 @@ func TestGetCertificate_RotatesExpiredRootReusingDN(t *testing.T) {
 	longAgo := now.AddDate(-10, 0, 0)
 	pastExpiry := now.Add(-time.Hour) // already past its pre-expiry cutoff
 	q := &fakeQuerier{
-		getKeyPolicyFn: func(ctx context.Context, appID string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
-		getKeyAliasesByAppRefFn: func(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) {
+		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyAliasesByAppRefFn: func(_ context.Context, _, _ string) ([]db.KeyAlias, error) {
 			return []db.KeyAlias{{ID: "expired-root", KeyGenDtimes: &longAgo, KeyExpireDtimes: &pastExpiry}}, nil
 		},
-		insertKeyAliasFn: func(ctx context.Context, k db.KeyAlias) error { return nil },
+		insertKeyAliasFn: func(_ context.Context, _ db.KeyAlias) error { return nil },
 	}
 	svc := keymanager.NewServiceWithQuerier(q, ks, testConfig())
 
@@ -291,8 +291,8 @@ func TestGenerateMasterKey_UnreservedRefIDStillAllowed(t *testing.T) {
 	cfg := testConfig()
 	cfg.SymmetricKeyAllowedRefIDs = []string{"ZK_ENCRYPT"}
 	q := &fakeQuerier{
-		getKeyPolicyFn: func(ctx context.Context, appID string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
-		getKeyAliasesByAppRefFn: func(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) {
+		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyAliasesByAppRefFn: func(_ context.Context, _, _ string) ([]db.KeyAlias, error) {
 			return nil, nil // nothing exists, including ROOT — should fail with ErrRootKeyNotFound, not the reservation error
 		},
 	}
@@ -310,7 +310,7 @@ func TestGenerateMasterKey_UnreservedRefIDStillAllowed(t *testing.T) {
 // outright, not silently handled via a BASE-policy fallback.
 func TestGenerateMasterKey_UnknownApplicationID(t *testing.T) {
 	q := &fakeQuerier{
-		getKeyPolicyFn: func(ctx context.Context, appID string) (db.KeyPolicy, error) {
+		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) {
 			return db.KeyPolicy{}, sql.ErrNoRows // no row for any app id in this test
 		},
 	}
@@ -337,7 +337,7 @@ func TestGetCertificate_EncryptionKeyUsesBasePolicy(t *testing.T) {
 
 	records := map[string]db.KeyStoreRecord{}
 	q := &fakeQuerier{
-		getKeyPolicyFn: func(ctx context.Context, appID string) (db.KeyPolicy, error) {
+		getKeyPolicyFn: func(_ context.Context, appID string) (db.KeyPolicy, error) {
 			switch appID {
 			case "BASE":
 				return db.KeyPolicy{AppID: "BASE", KeyValidityDuration: 730, PreExpireDays: 30, IsActive: true}, nil
@@ -347,17 +347,17 @@ func TestGetCertificate_EncryptionKeyUsesBasePolicy(t *testing.T) {
 				return db.KeyPolicy{}, sql.ErrNoRows
 			}
 		},
-		getKeyAliasesByAppRefFn: func(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) {
+		getKeyAliasesByAppRefFn: func(_ context.Context, appID, refID string) ([]db.KeyAlias, error) {
 			if appID == "ESIGNET_RSA" && refID == "RSA_2048" {
 				return []db.KeyAlias{validAliasRow("master-alias")}, nil
 			}
 			return nil, nil // no current encryption key yet
 		},
-		insertKeyStoreRecordFn: func(ctx context.Context, k db.KeyStoreRecord) error {
+		insertKeyStoreRecordFn: func(_ context.Context, k db.KeyStoreRecord) error {
 			records[k.ID] = k
 			return nil
 		},
-		getKeyStoreRecordFn: func(ctx context.Context, id string) (db.KeyStoreRecord, error) {
+		getKeyStoreRecordFn: func(_ context.Context, id string) (db.KeyStoreRecord, error) {
 			r, ok := records[id]
 			if !ok {
 				return db.KeyStoreRecord{}, sql.ErrNoRows
@@ -399,18 +399,18 @@ func TestGetCertificate_EncryptionKeyDNFromSigningMasterKey(t *testing.T) {
 
 	records := map[string]db.KeyStoreRecord{}
 	q := &fakeQuerier{
-		getKeyPolicyFn: func(ctx context.Context, appID string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
-		getKeyAliasesByAppRefFn: func(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) {
+		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyAliasesByAppRefFn: func(_ context.Context, appID, refID string) ([]db.KeyAlias, error) {
 			if appID == "ESIGNET_RSA" && refID == "RSA_2048" {
 				return []db.KeyAlias{validAliasRow("master-alias")}, nil
 			}
 			return nil, nil
 		},
-		insertKeyStoreRecordFn: func(ctx context.Context, k db.KeyStoreRecord) error {
+		insertKeyStoreRecordFn: func(_ context.Context, k db.KeyStoreRecord) error {
 			records[k.ID] = k
 			return nil
 		},
-		getKeyStoreRecordFn: func(ctx context.Context, id string) (db.KeyStoreRecord, error) {
+		getKeyStoreRecordFn: func(_ context.Context, id string) (db.KeyStoreRecord, error) {
 			r, ok := records[id]
 			if !ok {
 				return db.KeyStoreRecord{}, sql.ErrNoRows
@@ -446,14 +446,14 @@ func TestGenerateMasterKey_SubjectDefaultsAndCNSuffix(t *testing.T) {
 	ks := newFakeKeyStore()
 	var rootAlias *db.KeyAlias // set once GenerateMasterKey(ROOT) actually generates one
 	q := &fakeQuerier{
-		getKeyPolicyFn: func(ctx context.Context, appID string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
-		getKeyAliasesByAppRefFn: func(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) {
+		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyAliasesByAppRefFn: func(_ context.Context, appID, refID string) ([]db.KeyAlias, error) {
 			if appID == "ROOT" && refID == "" && rootAlias != nil {
 				return []db.KeyAlias{*rootAlias}, nil
 			}
 			return nil, nil
 		},
-		insertKeyAliasFn: func(ctx context.Context, k db.KeyAlias) error {
+		insertKeyAliasFn: func(_ context.Context, k db.KeyAlias) error {
 			if k.AppID == "ROOT" {
 				rootAlias = &k
 			}
@@ -496,8 +496,8 @@ func TestUploadCertificate_ThumbprintMismatch(t *testing.T) {
 	require.NoError(t, ks.GenerateAndStoreAsymmetricKey("root-alias", "root-alias", testCertTemplateParams(), "RSA", ""))
 
 	q := &fakeQuerier{
-		getKeyPolicyFn: func(ctx context.Context, appID string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
-		getKeyAliasesByAppRefFn: func(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) {
+		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyAliasesByAppRefFn: func(_ context.Context, _, _ string) ([]db.KeyAlias, error) {
 			return []db.KeyAlias{validAliasRow("root-alias")}, nil
 		},
 	}
@@ -524,8 +524,8 @@ func TestUploadCertificate_RejectsDuplicateCertificate(t *testing.T) {
 	thumbprint := thumbprintFromPEM(t, certPEM)
 
 	q := &fakeQuerier{
-		getKeyPolicyFn: func(ctx context.Context, appID string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
-		getKeyAliasesByAppRefFn: func(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) {
+		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyAliasesByAppRefFn: func(_ context.Context, _, _ string) ([]db.KeyAlias, error) {
 			row := validAliasRow("root-alias")
 			row.CertThumbprint = &thumbprint
 			return []db.KeyAlias{row}, nil
@@ -566,11 +566,11 @@ func TestUploadCertificate_UpdatesKeyGenAndExpiryFromCertificate(t *testing.T) {
 
 	var updated db.KeyAlias
 	q := &fakeQuerier{
-		getKeyPolicyFn: func(ctx context.Context, appID string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
-		getKeyAliasesByAppRefFn: func(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) {
+		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyAliasesByAppRefFn: func(_ context.Context, _, _ string) ([]db.KeyAlias, error) {
 			return []db.KeyAlias{validAliasRow("root-alias")}, nil
 		},
-		updateKeyAliasFn: func(ctx context.Context, k db.KeyAlias) error {
+		updateKeyAliasFn: func(_ context.Context, k db.KeyAlias) error {
 			updated = k
 			return nil
 		},
@@ -597,7 +597,7 @@ func TestUploadOtherDomainCertificate_RejectsAppIDNotInAllowList(t *testing.T) {
 
 func TestUploadOtherDomainCertificate_RejectsAppIDRegisteredInKeyPolicyDef(t *testing.T) {
 	q := &fakeQuerier{
-		hasKeyPolicyFn: func(ctx context.Context, appID string) (bool, error) { return true, nil },
+		hasKeyPolicyFn: func(_ context.Context, _ string) (bool, error) { return true, nil },
 	}
 	svc := keymanager.NewServiceWithQuerier(q, newFakeKeyStore(), testConfig())
 	_, err := svc.UploadOtherDomainCertificate(context.Background(), keymanager.UploadCertificateRequest{
@@ -613,8 +613,8 @@ func TestUploadOtherDomainCertificate_RejectsAppIDRegisteredInKeyPolicyDef(t *te
 // must not be treated as available for a foreign-domain, cert-only entry.
 func TestUploadOtherDomainCertificate_RejectsAppIDWithInactiveKeyPolicy(t *testing.T) {
 	q := &fakeQuerier{
-		getKeyPolicyFn: func(ctx context.Context, appID string) (db.KeyPolicy, error) { return db.KeyPolicy{}, sql.ErrNoRows },
-		hasKeyPolicyFn: func(ctx context.Context, appID string) (bool, error) { return true, nil },
+		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return db.KeyPolicy{}, sql.ErrNoRows },
+		hasKeyPolicyFn: func(_ context.Context, _ string) (bool, error) { return true, nil },
 	}
 	svc := keymanager.NewServiceWithQuerier(q, newFakeKeyStore(), testConfig())
 	_, err := svc.UploadOtherDomainCertificate(context.Background(), keymanager.UploadCertificateRequest{
@@ -634,15 +634,15 @@ func TestUploadOtherDomainCertificate_AllowsSigningRefIDs(t *testing.T) {
 
 	var insertedAlias db.KeyAlias
 	q := &fakeQuerier{
-		getKeyPolicyFn:          func(ctx context.Context, appID string) (db.KeyPolicy, error) { return db.KeyPolicy{}, sql.ErrNoRows },
-		getKeyAliasesByAppRefFn: func(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) { return nil, nil },
-		insertKeyStoreRecordFn: func(ctx context.Context, k db.KeyStoreRecord) error {
+		getKeyPolicyFn:          func(_ context.Context, _ string) (db.KeyPolicy, error) { return db.KeyPolicy{}, sql.ErrNoRows },
+		getKeyAliasesByAppRefFn: func(_ context.Context, _, _ string) ([]db.KeyAlias, error) { return nil, nil },
+		insertKeyStoreRecordFn: func(_ context.Context, k db.KeyStoreRecord) error {
 			assert.Equal(t, keymanager.ForeignDomainPrivateKeyMarker, k.PrivateKey, "foreign-domain uploads must never store a real private key")
 			require.NotNil(t, k.MasterKey, "master_key is NOT NULL in key_store; must be set even with no real Component Master Key")
 			assert.Equal(t, k.ID, *k.MasterKey, "master_key is self-referential (== alias) for foreign-domain entries, mirroring Java's storeKeyInDBStore(alias, alias, ...)")
 			return nil
 		},
-		insertKeyAliasFn: func(ctx context.Context, k db.KeyAlias) error {
+		insertKeyAliasFn: func(_ context.Context, k db.KeyAlias) error {
 			insertedAlias = k
 			return nil
 		},
@@ -666,11 +666,11 @@ func TestUploadOtherDomainCertificate_RejectsDuplicateThumbprint(t *testing.T) {
 	certPEM := generateUnrelatedSelfSignedCertPEM(t)
 	thumbprint := thumbprintFromPEM(t, certPEM)
 	q := &fakeQuerier{
-		getKeyPolicyFn: func(ctx context.Context, appID string) (db.KeyPolicy, error) { return db.KeyPolicy{}, sql.ErrNoRows },
-		getKeyAliasesByAppRefFn: func(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) {
+		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return db.KeyPolicy{}, sql.ErrNoRows },
+		getKeyAliasesByAppRefFn: func(_ context.Context, _, _ string) ([]db.KeyAlias, error) {
 			return []db.KeyAlias{{ID: "existing", CertThumbprint: &thumbprint}}, nil
 		},
-		getKeyStoreRecordFn: func(ctx context.Context, id string) (db.KeyStoreRecord, error) {
+		getKeyStoreRecordFn: func(_ context.Context, _ string) (db.KeyStoreRecord, error) {
 			return db.KeyStoreRecord{PrivateKey: keymanager.ForeignDomainPrivateKeyMarker}, nil
 		},
 	}
@@ -683,11 +683,11 @@ func TestUploadOtherDomainCertificate_RejectsDuplicateThumbprint(t *testing.T) {
 
 func TestUploadOtherDomainCertificate_RejectsWhenPrivateKeyExists(t *testing.T) {
 	q := &fakeQuerier{
-		getKeyPolicyFn: func(ctx context.Context, appID string) (db.KeyPolicy, error) { return db.KeyPolicy{}, sql.ErrNoRows },
-		getKeyAliasesByAppRefFn: func(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) {
+		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return db.KeyPolicy{}, sql.ErrNoRows },
+		getKeyAliasesByAppRefFn: func(_ context.Context, _, _ string) ([]db.KeyAlias, error) {
 			return []db.KeyAlias{validAliasRow("existing")}, nil
 		},
-		getKeyStoreRecordFn: func(ctx context.Context, id string) (db.KeyStoreRecord, error) {
+		getKeyStoreRecordFn: func(_ context.Context, _ string) (db.KeyStoreRecord, error) {
 			return db.KeyStoreRecord{PrivateKey: "some-real-encrypted-key"}, nil
 		},
 	}
@@ -714,7 +714,7 @@ func TestGenerateSymmetricKey_RejectsRefIDNotInAllowList(t *testing.T) {
 	cfg := testConfig()
 	cfg.SymmetricKeyAllowedRefIDs = []string{"ZK_ENCRYPT"}
 	q := &fakeQuerier{
-		getKeyPolicyFn: func(ctx context.Context, appID string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
 	}
 	svc := keymanager.NewServiceWithQuerier(q, newFakeKeyStore(), cfg)
 
@@ -730,7 +730,7 @@ func TestGenerateSymmetricKey_RejectsRefIDNotInAllowList(t *testing.T) {
 func TestGenerateSymmetricKey_UnconfiguredAllowListRejectsEverything(t *testing.T) {
 	cfg := testConfig() // SymmetricKeyAllowedRefIDs left nil
 	q := &fakeQuerier{
-		getKeyPolicyFn: func(ctx context.Context, appID string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
 	}
 	svc := keymanager.NewServiceWithQuerier(q, newFakeKeyStore(), cfg)
 
@@ -746,9 +746,9 @@ func TestGenerateSymmetricKey_AllowsListedRefID(t *testing.T) {
 	cfg := testConfig()
 	cfg.SymmetricKeyAllowedRefIDs = []string{"ZK_ENCRYPT", "VID_ENCRYPT"}
 	q := &fakeQuerier{
-		getKeyPolicyFn:          func(ctx context.Context, appID string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
-		getKeyAliasesByAppRefFn: func(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) { return nil, nil },
-		insertKeyAliasFn:        func(ctx context.Context, k db.KeyAlias) error { return nil },
+		getKeyPolicyFn:          func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyAliasesByAppRefFn: func(_ context.Context, _, _ string) ([]db.KeyAlias, error) { return nil, nil },
+		insertKeyAliasFn:        func(_ context.Context, _ db.KeyAlias) error { return nil },
 	}
 	svc := keymanager.NewServiceWithQuerier(q, newFakeKeyStore(), cfg)
 
@@ -769,11 +769,11 @@ func TestRevokeKey_MovesExpiryIntoPast(t *testing.T) {
 
 	var updated db.KeyAlias
 	q := &fakeQuerier{
-		getKeyPolicyFn: func(ctx context.Context, appID string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
-		getKeyAliasesByAppRefFn: func(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) {
+		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyAliasesByAppRefFn: func(_ context.Context, _, _ string) ([]db.KeyAlias, error) {
 			return []db.KeyAlias{validAliasRow("root-alias")}, nil
 		},
-		updateKeyAliasFn: func(ctx context.Context, k db.KeyAlias) error {
+		updateKeyAliasFn: func(_ context.Context, k db.KeyAlias) error {
 			updated = k
 			return nil
 		},
@@ -790,8 +790,8 @@ func TestRevokeKey_MovesExpiryIntoPast(t *testing.T) {
 
 func TestRevokeKey_NoCurrentKey_ReturnsErrKeyNotFound(t *testing.T) {
 	q := &fakeQuerier{
-		getKeyPolicyFn:          func(ctx context.Context, appID string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
-		getKeyAliasesByAppRefFn: func(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) { return nil, nil },
+		getKeyPolicyFn:          func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyAliasesByAppRefFn: func(_ context.Context, _, _ string) ([]db.KeyAlias, error) { return nil, nil },
 	}
 	svc := keymanager.NewServiceWithQuerier(q, newFakeKeyStore(), testConfig())
 
@@ -807,7 +807,7 @@ func TestGetAllCertificates_ReturnsFullAliasHistory(t *testing.T) {
 	require.NoError(t, ks.GenerateAndStoreAsymmetricKey("root-alias-2", "root-alias-2", testCertTemplateParams(), "RSA", ""))
 
 	q := &fakeQuerier{
-		getKeyAliasesByAppRefFn: func(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) {
+		getKeyAliasesByAppRefFn: func(_ context.Context, _, _ string) ([]db.KeyAlias, error) {
 			return []db.KeyAlias{
 				validAliasRow("root-alias-1"),
 				validAliasRow("root-alias-2"),
@@ -833,8 +833,8 @@ func TestGetCertificateChain_WalksSigningHierarchyToRoot(t *testing.T) {
 	require.NoError(t, ks.GenerateAndStoreAsymmetricKey("master-alias", "root-alias", testCertTemplateParams(), "RSA", ""))
 
 	q := &fakeQuerier{
-		getKeyPolicyFn: func(ctx context.Context, appID string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
-		getKeyAliasesByAppRefFn: func(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) {
+		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyAliasesByAppRefFn: func(_ context.Context, appID, refID string) ([]db.KeyAlias, error) {
 			switch {
 			case appID == "ROOT" && refID == "":
 				return []db.KeyAlias{validAliasRow("root-alias")}, nil

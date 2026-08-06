@@ -17,6 +17,7 @@ import (
 
 	"github.com/mosip/esignet/internal/keymanager"
 	"github.com/mosip/esignet/internal/keymanager/db"
+	applog "github.com/mosip/esignet/internal/log"
 )
 
 // Sentinel errors for validation/lookup failures (branch via errors.Is),
@@ -36,7 +37,7 @@ var (
 	// after ErrBlankApplicationID.
 	ErrBlankReferenceID = errors.New("reference id is required")
 
-	// ErrEncryptionAgainstReservedKey is returned by validateKeyIdentifierIds
+	// ErrEncryptionAgainstReservedKey is returned by validateKeyIdentifierIDs
 	// when (ApplicationID, ReferenceID) resolves to a keystore-resident key
 	// (ROOT, a Component Master Key, or an EC/sign key) — encrypting data
 	// "to" one of these identity keys is never valid; only Component
@@ -113,9 +114,10 @@ var (
 // JWTEncrypt/JWTDecrypt (RSA-OAEP-256 + A256GCM JWE), resolving key
 // material through km rather than duplicating any key-lifecycle logic.
 type Service struct {
-	q   db.Querier
-	km  *keymanager.Service
-	cfg Config
+	q      db.Querier
+	km     *keymanager.Service
+	cfg    Config
+	logger *applog.Logger
 }
 
 // NewService constructs a Service. q and km would typically share the same
@@ -124,15 +126,15 @@ type Service struct {
 // thumbprint-based key resolution keymanager.Service doesn't expose (see
 // keyresolve.go).
 func NewService(q db.Querier, km *keymanager.Service, cfg Config) *Service {
-	return &Service{q: q, km: km, cfg: cfg}
+	return &Service{q: q, km: km, cfg: cfg, logger: applog.GetLogger().Named("cryptomanager")}
 }
 
-// validateKeyIdentifierIds is the shared applicationId/referenceId guard for
+// validateKeyIdentifierIDs is the shared applicationId/referenceId guard for
 // Encrypt, JWTEncrypt, and JWTDecrypt — mirrors Java's
 // CryptomanagerUtils.validateKeyIdentifierIds, broadened per the design
 // doc's Context section: any keystore-resident target is refused, not just
 // KERNEL's own SIGN/identity-cache key.
-func (s *Service) validateKeyIdentifierIds(appID, refID string) error {
+func (s *Service) validateKeyIdentifierIDs(appID, refID string) error {
 	if !isDataValid(appID) {
 		return ErrBlankApplicationID
 	}
@@ -151,8 +153,8 @@ func (s *Service) validateKeyIdentifierIds(appID, refID string) error {
 // Mirrors Java's CryptomanagerServiceImpl.encrypt.
 func (s *Service) Encrypt(ctx context.Context, req EncryptRequest) (EncryptResponse, error) {
 	// Validation order is deliberate: ApplicationID, then ReferenceID
-	// (both via validateKeyIdentifierIds), then Data — not the reverse.
-	if err := s.validateKeyIdentifierIds(req.ApplicationID, req.ReferenceID); err != nil {
+	// (both via validateKeyIdentifierIDs), then Data — not the reverse.
+	if err := s.validateKeyIdentifierIDs(req.ApplicationID, req.ReferenceID); err != nil {
 		return EncryptResponse{}, err
 	}
 	if !isDataValid(req.Data) {
@@ -194,6 +196,8 @@ func (s *Service) Encrypt(ctx context.Context, req EncryptRequest) (EncryptRespo
 	}
 
 	envelope := buildEnvelope(s.cfg.DataKeySplitter, thumbprintRaw(cert), encryptedSessionKey, encryptedData)
+	s.logger.Debug(ctx, "data encrypted",
+		applog.String("applicationId", req.ApplicationID), applog.String("referenceId", req.ReferenceID))
 	return EncryptResponse{Data: envelope}, nil
 }
 
@@ -246,6 +250,8 @@ func (s *Service) Decrypt(ctx context.Context, req DecryptRequest) (DecryptRespo
 	if err != nil {
 		return DecryptResponse{}, fmt.Errorf("symmetric decrypt: %w", err)
 	}
+	s.logger.Debug(ctx, "data decrypted",
+		applog.String("applicationId", req.ApplicationID), applog.String("referenceId", req.ReferenceID))
 	return DecryptResponse{Data: base64.RawURLEncoding.EncodeToString(plaintext)}, nil
 }
 
@@ -256,7 +262,7 @@ func (s *Service) Decrypt(ctx context.Context, req DecryptRequest) (DecryptRespo
 func (s *Service) JWTEncrypt(ctx context.Context, req JWTEncryptRequest) (JWTCipherResponse, error) {
 	// All input validation completes before anything touches the DB/
 	// keystore (or even parses caller-supplied material) — ApplicationID,
-	// then ReferenceID (both via validateKeyIdentifierIds, skipped only
+	// then ReferenceID (both via validateKeyIdentifierIDs, skipped only
 	// when a caller-supplied certificate bypasses key resolution
 	// entirely), then Data. Previously this method resolved the
 	// certificate — a DB call via km.ResolveCurrentKey — before Data had
@@ -266,7 +272,7 @@ func (s *Service) JWTEncrypt(ctx context.Context, req JWTEncryptRequest) (JWTCip
 	// input-validation error.
 	usingSuppliedCert := isDataValid(req.X509Certificate)
 	if !usingSuppliedCert {
-		if err := s.validateKeyIdentifierIds(req.ApplicationID, req.ReferenceID); err != nil {
+		if err := s.validateKeyIdentifierIDs(req.ApplicationID, req.ReferenceID); err != nil {
 			return JWTCipherResponse{}, err
 		}
 	}
@@ -320,6 +326,9 @@ func (s *Service) JWTEncrypt(ctx context.Context, req JWTEncryptRequest) (JWTCip
 	if err != nil {
 		return JWTCipherResponse{}, err
 	}
+	s.logger.Debug(ctx, "JWT encrypted",
+		applog.String("applicationId", req.ApplicationID), applog.String("referenceId", req.ReferenceID),
+		applog.Bool("usingSuppliedCert", usingSuppliedCert))
 	return JWTCipherResponse{Data: compact, Timestamp: time.Now().UTC()}, nil
 }
 
@@ -350,7 +359,7 @@ func (s *Service) resolveJWTEncryptCertificate(ctx context.Context, req JWTEncry
 // is simply resolveDecryptionKey's only behavior (see the design doc's
 // Context section).
 func (s *Service) JWTDecrypt(ctx context.Context, req JWTDecryptRequest) (JWTCipherResponse, error) {
-	if err := s.validateKeyIdentifierIds(req.ApplicationID, req.ReferenceID); err != nil {
+	if err := s.validateKeyIdentifierIDs(req.ApplicationID, req.ReferenceID); err != nil {
 		return JWTCipherResponse{}, err
 	}
 	if !isDataValid(req.EncData) {
@@ -375,6 +384,8 @@ func (s *Service) JWTDecrypt(ctx context.Context, req JWTDecryptRequest) (JWTCip
 	if err != nil {
 		return JWTCipherResponse{}, err
 	}
+	s.logger.Debug(ctx, "JWT decrypted",
+		applog.String("applicationId", req.ApplicationID), applog.String("referenceId", req.ReferenceID))
 	return JWTCipherResponse{Data: base64.RawURLEncoding.EncodeToString(plaintext), Timestamp: time.Now().UTC()}, nil
 }
 

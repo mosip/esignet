@@ -385,7 +385,7 @@ func TestJWSSign_SymmetricKeyRefID_Rejected(t *testing.T) {
 	if !errors.Is(err, signature.ErrAESNotAllowedForSigning) {
 		t.Fatalf("expected ErrAESNotAllowedForSigning, got %v", err)
 	}
-	if err.Error() != "Not allowed to use AES for JWS Signing." {
+	if err.Error() != "not allowed to use AES for JWS signing" {
 		t.Errorf("unexpected error message: %q", err.Error())
 	}
 }

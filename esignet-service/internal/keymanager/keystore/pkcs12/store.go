@@ -24,6 +24,7 @@
 package pkcs12
 
 import (
+	"context"
 	"crypto"
 	"crypto/aes"
 	"crypto/cipher"
@@ -32,7 +33,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"sync"
@@ -41,6 +41,7 @@ import (
 	gopkcs12 "software.sslmate.com/src/go-pkcs12"
 
 	"github.com/mosip/esignet/internal/keymanager/keystore"
+	applog "github.com/mosip/esignet/internal/log"
 )
 
 func init() {
@@ -91,7 +92,8 @@ func New(params map[string]string) (keystore.KeyStore, error) {
 	if password == "" {
 		return nil, fmt.Errorf("pkcs12: keystore-pass is required")
 	}
-	log.Printf("WARNING: pkcs12 keystore backend is not recommended for production use (path=%s)", path)
+	applog.GetLogger().Named("keystore.pkcs12").Warn(context.Background(),
+		"pkcs12 keystore backend is not recommended for production use", applog.String("path", path))
 
 	s := &Store{path: path, password: password, entries: map[string]fileEntry{}}
 	if err := s.load(); err != nil {
@@ -113,6 +115,7 @@ func New(params map[string]string) (keystore.KeyStore, error) {
 	return s, nil
 }
 
+// ProviderName implements keystore.KeyStore.
 func (s *Store) ProviderName() string { return "PKCS12" }
 
 func (s *Store) load() error {

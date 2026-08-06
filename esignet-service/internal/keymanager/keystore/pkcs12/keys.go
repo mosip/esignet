@@ -75,6 +75,7 @@ func generateKeyPair(algoName, curveName string) (crypto.Signer, error) {
 	}
 }
 
+// GenerateAndStoreAsymmetricKey implements keystore.KeyStore.
 func (s *Store) GenerateAndStoreAsymmetricKey(alias, signKeyAlias string, params keystore.CertificateParameters, algoName, curveName string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -121,6 +122,7 @@ func (s *Store) GenerateAndStoreAsymmetricKey(alias, signKeyAlias string, params
 	return s.saveLocked()
 }
 
+// GenerateAndStoreSymmetricKey implements keystore.KeyStore.
 func (s *Store) GenerateAndStoreSymmetricKey(alias string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -137,6 +139,7 @@ func (s *Store) GenerateAndStoreSymmetricKey(alias string) error {
 	return s.saveLocked()
 }
 
+// GetPrivateKey implements keystore.KeyStore.
 func (s *Store) GetPrivateKey(alias string) (crypto.PrivateKey, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -148,6 +151,7 @@ func (s *Store) GetPrivateKey(alias string) (crypto.PrivateKey, error) {
 	return priv, err
 }
 
+// GetPublicKey implements keystore.KeyStore.
 func (s *Store) GetPublicKey(alias string) (crypto.PublicKey, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -162,6 +166,7 @@ func (s *Store) GetPublicKey(alias string) (crypto.PublicKey, error) {
 	return cert.PublicKey, nil
 }
 
+// GetCertificate implements keystore.KeyStore.
 func (s *Store) GetCertificate(alias string) (*x509.Certificate, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -173,6 +178,7 @@ func (s *Store) GetCertificate(alias string) (*x509.Certificate, error) {
 	return cert, err
 }
 
+// GetSymmetricKey implements keystore.KeyStore.
 func (s *Store) GetSymmetricKey(alias string) ([]byte, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -183,6 +189,7 @@ func (s *Store) GetSymmetricKey(alias string) ([]byte, error) {
 	return s.decryptSymmetric(entry.Data)
 }
 
+// GetAsymmetricKey implements keystore.KeyStore.
 func (s *Store) GetAsymmetricKey(alias string) (*keystore.KeyPairEntry, error) {
 	s.mu.Lock()
 	entry, ok := s.entries[alias]
@@ -197,6 +204,7 @@ func (s *Store) GetAsymmetricKey(alias string) (*keystore.KeyPairEntry, error) {
 	return &keystore.KeyPairEntry{PrivateKey: priv, Certificate: cert}, nil
 }
 
+// GetAllAlias implements keystore.KeyStore.
 func (s *Store) GetAllAlias() ([]string, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -207,6 +215,7 @@ func (s *Store) GetAllAlias() ([]string, error) {
 	return aliases, nil
 }
 
+// DeleteKey implements keystore.KeyStore.
 func (s *Store) DeleteKey(alias string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()

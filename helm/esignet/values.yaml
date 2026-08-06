@@ -254,14 +254,8 @@ extraEnvVars: |
       configMapKeyRef:
         name: esignet-global
         key: mosip-api-internal-host
-  - name: MOSIP_P12_PATH
-    value: /home/mosip/keys/secret/esignet.pfx
-  - name: MOSIP_P12_PASSWORD
-    value: localtest
   - name: OIDC_UI_SCHEME
     value: https
-  - name: CRYPTO_ENCRYPTION_KEY
-    value: 0579f866ac7c9273580d0ff163fa01a7b2401a7ff3ddc3e3b14ae3136fa6025e
   - name: OIDC_UI_HOSTNAME
     valueFrom:
       configMapKeyRef:
@@ -273,12 +267,28 @@ extraEnvVars: |
     value: /signin
   - name: OIDC_UI_ERROR_PATH
     value: /error
-  - name: DEFAULT_THEME_ID
-    value: decl-theme-1
-  - name: DEFAULT_LAYOUT_ID
-    value: decl-layout-1
-  - name: DEFAULT_AUTH_FLOW_ID
-    value: decl-mosip-otp-flow-1
+  - name: KEYMANAGER_DB_SCHEMA
+    value: esignet
+  - name: KEYMANAGER_KEYSTORE_TYPE
+    value: PKCS11
+  - name: KEYMANAGER_PKCS11_MODULE_PATH
+    value: /path/to/pkcs11-module.so
+  - name: KEYMANAGER_PKCS11_TOKEN_LABEL
+    value: esignet
+  - name: KEYMANAGER_PKCS11_SLOT_ID
+    value: "0"
+  - name: KEYMANAGER_PKCS11_PIN
+    valueFrom:
+      secretKeyRef:
+        name: esignet-softhsm
+        key: security-pin
+  # PKCS12 (file-based) alternative to the PKCS11 block above; requires a CGO_ENABLED=0 build.
+  #  - name: KEYMANAGER_KEYSTORE_TYPE
+  #    value: PKCS12
+  #  - name: KEYMANAGER_PKCS12_FILE_PATH
+  #    value: /home/mosip/keys/secret/esignet.pfx
+  #  - name: KEYMANAGER_PKCS12_PASSWORD
+  #    value: localtest
   - name: REDIS_HOST
     valueFrom:
       configMapKeyRef:

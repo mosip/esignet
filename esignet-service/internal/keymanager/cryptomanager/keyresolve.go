@@ -8,6 +8,7 @@ import (
 	"fmt"
 
 	"github.com/mosip/esignet/internal/keymanager"
+	applog "github.com/mosip/esignet/internal/log"
 )
 
 // resolveDecryptionKey resolves a certificate-thumbprint-hex (embedded in
@@ -35,6 +36,9 @@ func (s *Service) resolveDecryptionKey(ctx context.Context, requestAppID, reques
 	// the caller — that would disclose which application/reference id the
 	// thumbprint actually belongs to. A plain mismatch message is enough.
 	if row.AppID != requestAppID || rowRefID != requestRefID {
+		s.logger.Warn(ctx, "decryption key resolution: application/reference id mismatch",
+			applog.String("requestApplicationId", requestAppID), applog.String("requestReferenceId", requestRefID),
+			applog.String("keyId", row.ID))
 		return nil, "", ErrKeyIdentifierMismatch
 	}
 
@@ -43,6 +47,9 @@ func (s *Service) resolveDecryptionKey(ctx context.Context, requestAppID, reques
 	// Encrypt-produced envelope should never resolve to one here. Checked
 	// unconditionally anyway, for both Decrypt and JWTDecrypt.
 	if keymanager.IsKeystoreResident(row.AppID, rowRefID) {
+		s.logger.Warn(ctx, "decryption key resolution: refusing keystore-resident key",
+			applog.String("applicationId", requestAppID), applog.String("referenceId", requestRefID),
+			applog.String("keyId", row.ID))
 		return nil, "", ErrDecryptionNotAllowed
 	}
 
@@ -51,6 +58,9 @@ func (s *Service) resolveDecryptionKey(ctx context.Context, requestAppID, reques
 		return nil, "", fmt.Errorf("get key_store record %q: %w", row.ID, err)
 	}
 	if rec.PrivateKey == keymanager.ForeignDomainPrivateKeyMarker {
+		s.logger.Warn(ctx, "decryption key resolution: resolved key is a foreign-domain certificate-only entry",
+			applog.String("applicationId", requestAppID), applog.String("referenceId", requestRefID),
+			applog.String("keyId", row.ID))
 		return nil, "", ErrForeignDomainKeyNotDecryptable
 	}
 

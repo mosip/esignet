@@ -8,9 +8,10 @@ A Go service that embeds the ThunderID authorization engine with PostgreSQL-back
 
 - Go 1.26+
 - Bash (Git Bash on Windows) to run `make.sh`
-- OpenSSL (for signing key generation; bundled with Git Bash)
-- PostgreSQL 14+ (client management persistence)
+- OpenSSL (for local TLS signing-key generation; bundled with Git Bash)
+- PostgreSQL 14+ (client management persistence, and keymanager's key/certificate store)
 - Redis 6.0+ (runtime / session store; requires `KEEPTTL` support)
+- A C toolchain (gcc) for `CGO_ENABLED=1` builds — required for the PKCS#11 (HSM/SoftHSM2) keymanager keystore backend; the default `CGO_ENABLED=0` local build only supports the PKCS#12 backend (see [Key management](#key-management-keymanager))
 - Network access to fetch the Thunder backend module (see `go.mod` `replace` directive)
 
 ## Repository layout
@@ -26,13 +27,17 @@ esignet-service/
     sunbird/                        # SunbirdRC KBI authn provider
     runtimestores/                  # Redis-backed / in-memory flow, session, PAR stores
     shared/                         # Code shared across engine providers
+  internal/keymanager/              # Key lifecycle mgmt: generation, cert/CSR, rotation, crypto ops (see its own README.md)
+    cryptomanager/                  # AES/RSA-OAEP encrypt-decrypt on top of keymanager keys
+    signature/                      # JWS sign/verify on top of keymanager keys
+    keystore/pkcs11/, pkcs12/       # HSM/SoftHSM2 (PKCS#11) or file-based (PKCS#12) key storage backends
   internal/security/                # JWKS validation, scope middleware, request-time checks
   internal/log/                     # Structured logging helpers
   internal/common/                  # Shared models/utils
   data/
     deployment.yaml                 # engine deployment defaults (env-var expanded)
     flows/, i18n/, layouts/, themes/  # declarative YAML (flows, translations, layout, theme)
-  keys/                             # signing.key + signing.crt (local, gitignored)
+  keys/                             # signing.key + signing.crt (local, gitignored; legacy — see note under "Core engine")
   sqlc.yaml                         # SQLC codegen config
   make.sh                           # build/run/test entry point (Linux + Git Bash)
   Dockerfile
@@ -113,7 +118,7 @@ Set `LOG_LEVEL=debug` for verbose tracing.
 | `MOSIP_ESIGNET_HOST` | `http://127.0.0.1:<PORT>` | OIDC issuer, JWT `iss`, discovery base |
 | `MOSIP_ESIGNET_BASE_URL` | `MOSIP_ESIGNET_HOST` | Overrides the server's public URL (used to detect `http://` vs `https://` for cookie/HTTPS-only behavior) |
 | `DATA_DIR` | `./data` | Declarative YAML root (`flows/`, `i18n/`, `layouts/`, `themes/`, `keys/`) |
-| `CRYPTO_ENCRYPTION_KEY` | _(required)_ | Hex key for `crypto.encryption.key` in `data/deployment.yaml`; the process panics at startup if unset |
+| `SIGNING_KEY_REF_ID` | `RSA_2048` | Keymanager reference id JWTs are signed with (`jwt.preferred_key_id` in `data/deployment.yaml`) — see [Key management](#key-management-keymanager) |
 | `RUNTIME_DB_TYPE` | `redis` | Runtime store backend for flow/session/PAR state: `redis` (shared across replicas) or any other value for the in-memory store (single instance only, dev/test use) |
 | `AUTHN_PROVIDER` | `mock` | `mock` (default; talks to esignet-mock-services), `mosip` (MOSIP IDA), or `sunbird` (SunbirdRC registry KBI). `./make.sh run` overrides the default to `mosip`. |
 | `LAYOUT_ID` | `layout-esignet` | Declarative layout id |
@@ -123,7 +128,7 @@ Set `LOG_LEVEL=debug` for verbose tracing.
 | `OAUTH_ACCESS_TOKEN_LIFETIME_SECONDS` | `3600` | Access token lifetime |
 | `OAUTH_PAR_EXPIRY_SECONDS` | `3600` | Pushed authorization request expiry |
 
-Signing keys are generated locally by `./make.sh keys` at `keys/signing.key` and `keys/signing.crt`.
+JWT signing and session/cache encryption are handled by the keymanager module (its own auto-provisioned keys — see [Key management](#key-management-keymanager)), not by a static key file. `./make.sh keys` still generates a local `keys/signing.key` / `keys/signing.crt` pair on every build/run as a legacy step; it is not currently consumed by any code path.
 
 ### OIDC UI (login gate)
 
@@ -151,6 +156,35 @@ Authorize redirects are sent to the Thunder gate client:
 | `DB_MAX_IDLE_CONNS` | `5` | Max idle connections |
 | `DB_CONN_MAX_LIFETIME_SECS` | `0` (no limit) | Connection lifetime |
 | `DB_CONN_MAX_IDLE_TIME_SECS` | `60` | Idle timeout |
+
+### Key management (keymanager)
+
+`internal/keymanager` (with its `cryptomanager` and `signature` sub-packages) owns all cryptographic key lifecycle for the service: JWT signing, cache/session encryption, and MOSIP partner request signing. It reuses the same PostgreSQL connection as the rest of the service (the `DATABASE_*` vars above) — only its schema is separately configurable. Full behavior/config reference: [`internal/keymanager/README.md`](internal/keymanager/README.md).
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `KEYMANAGER_DB_SCHEMA` | `keymgr` | Postgres schema holding `key_alias` / `key_policy_def` / `key_store` (docker-compose's `esignet` schema, seeded via `key_policy_def` rows in `docker-compose/init.sql`) |
+| `KEYMANAGER_KEYSTORE_TYPE` | `PKCS11` | `PKCS11` (HSM/SoftHSM2 — requires a `CGO_ENABLED=1` build) or `PKCS12` (file-based; the only backend that works in the default `CGO_ENABLED=0` local build) |
+| `KEYMANAGER_PKCS12_FILE_PATH` / `KEYMANAGER_PKCS12_PASSWORD` | _(none)_ | Required when `KEYSTORE_TYPE=PKCS12` |
+| `KEYMANAGER_PKCS11_MODULE_PATH`, `KEYMANAGER_PKCS11_TOKEN_LABEL` or `KEYMANAGER_PKCS11_SLOT_ID`, `KEYMANAGER_PKCS11_PIN` | _(none)_ | Required when `KEYSTORE_TYPE=PKCS11` |
+| `KEYMANAGER_SYMMETRIC_KEY_ALLOWED_REF_IDS` | `CACHE_ENCRYPT` | Comma-separated allow-list for symmetric key generation; the default covers esignet's own cache/session encryption key only |
+
+At startup, `main.go`'s `provisionKeyHierarchy` idempotently provisions (safe to run on every restart):
+
+| Application ID | Keys |
+|---|---|
+| `ROOT` | Self-signed root CA |
+| `OIDC_SERVICE` (esignet itself) | RSA_2048 Component Master Key, EC_SECP256R1_SIGN sign key, `CACHE_ENCRYPT` symmetric key — used for JWT signing (`SIGNING_KEY_REF_ID`) and cache/session encryption |
+| `OIDC_PARTNER` | RSA_2048 Component Master Key — used to sign outbound MOSIP IDA requests (replaces the old `MOSIP_P12_PATH`/`MOSIP_P12_PASSWORD` partner keystore) |
+
+Each `ApplicationID` needs a matching `key_policy_def` row before it can provision keys; see the `INSERT INTO ... KEY_POLICY_DEF` statements at the end of `docker-compose/init.sql` for `ROOT`, `OIDC_SERVICE`, `OIDC_PARTNER`, and `BASE`.
+
+Keymanager also exposes its own HTTP endpoints (mirroring the Java service's `SystemInfoController`, subject to the same `security_config` scope enforcement as `/client-mgmt/*`):
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| GET | `/system-info/certificate` | Fetch a certificate/CSR for `applicationId` (+ optional `referenceId`) |
+| POST | `/system-info/uploadCertificate` | Replace the certificate for `applicationId`/`referenceId` |
 
 ### Redis
 
@@ -214,8 +248,8 @@ Used when `AUTHN_PROVIDER=mock`. The mock provider is a thin HTTP client to a ru
 | `MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC_EXCHANGE_URL` | `<host>/idauthentication/v1/kyc-exchange/delegated/<key>/` | KYC exchange endpoint |
 | `MOSIP_ESIGNET_DOMAIN_URL` | `MOSIP_API_INTERNAL_HOST` | Domain URI sent in IDA requests |
 | `IDA_AUTHENTICATOR_ENV` | `Staging` | IDA environment label |
-| `MOSIP_P12_PATH` | _(empty)_ | Partner keystore (required for MOSIP auth) |
-| `MOSIP_P12_PASSWORD` | _(empty)_ | Partner keystore password |
+
+Outbound IDA requests are signed with the keymanager's `OIDC_PARTNER` / `RSA_2048` component master key (provisioned at startup, see [Key management](#key-management-keymanager)) — no separate partner keystore configuration is needed.
 
 ##### Audit publishing (`AUTHN_PROVIDER=mosip` only)
 
@@ -347,7 +381,7 @@ All runtime state is namespaced under `REDIS_KEY_PREFIX` (default `esignet:`):
 ./make.sh coverage-html  # full HTML report → coverage.html
 ```
 
-Unit tests use `miniredis` for Redis (no running Redis required) and mock queriers for the Postgres layer. Run `./make.sh keys` before tests that exercise JWT signing.
+Unit tests use `miniredis` for Redis (no running Redis required) and mock queriers for the Postgres layer. Keymanager tests provision their own keys against a mock querier/keystore, no local `keys/signing.key`/`signing.crt` or running Postgres required.
 
 ## Health check
 
@@ -363,10 +397,12 @@ curl -s http://127.0.0.1:8088/health
 
 docker run --rm -p 8088:8088 \
   -e MOSIP_ESIGNET_HOST=http://127.0.0.1:8088 \
-  -e CRYPTO_ENCRYPTION_KEY=your-64-char-hex-key \
   -e DATABASE_URL=postgres://esignet:secret@host.docker.internal:5455/mosip_esignet?sslmode=disable \
   -e REDIS_URL=redis://host.docker.internal:6379/0 \
   -e AUTHN_PROVIDER=mosip \
+  -e KEYMANAGER_KEYSTORE_TYPE=PKCS12 \
+  -e KEYMANAGER_PKCS12_FILE_PATH=/opt/mosip/test.pfx \
+  -e KEYMANAGER_PKCS12_PASSWORD=your-pkcs12-password \
   esignet:latest
 ```
 

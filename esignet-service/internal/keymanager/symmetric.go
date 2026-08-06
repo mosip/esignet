@@ -35,7 +35,7 @@ func (s *Service) ResolveCurrentSymmetricKey(ctx context.Context, appID, refID s
 // the alias itself (by unique identifier embedded in the ciphertext
 // envelope, not via currentAlias/ensureCurrentKey) and only needs this
 // package for the key material once it has that alias.
-func (s *Service) GetSymmetricKey(ctx context.Context, alias string) ([]byte, error) {
+func (s *Service) GetSymmetricKey(_ context.Context, alias string) ([]byte, error) {
 	return s.ks.GetSymmetricKey(alias)
 }
 

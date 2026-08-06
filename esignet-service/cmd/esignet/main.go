@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/redis/go-redis/v9"
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine"
@@ -26,6 +27,13 @@ import (
 	"github.com/mosip/esignet/internal/engine/executors"
 	"github.com/mosip/esignet/internal/engine/runtimestores"
 	"github.com/mosip/esignet/internal/httpmiddleware"
+	"github.com/mosip/esignet/internal/keymanager"
+	"github.com/mosip/esignet/internal/keymanager/cryptomanager"
+	"github.com/mosip/esignet/internal/keymanager/db"
+	"github.com/mosip/esignet/internal/keymanager/keystore"
+	_ "github.com/mosip/esignet/internal/keymanager/keystore/pkcs11"
+	_ "github.com/mosip/esignet/internal/keymanager/keystore/pkcs12"
+	"github.com/mosip/esignet/internal/keymanager/signature"
 	applog "github.com/mosip/esignet/internal/log"
 	"github.com/mosip/esignet/internal/security"
 )
@@ -52,6 +60,9 @@ func main() {
 			logger.Warn(context.Background(), "close postgres", applog.Error(err))
 		}
 	}()
+	// keymanager's persistence layer is built on sqlx (for GetContext/SelectContext);
+	// wrap the same *sql.DB rather than opening a second connection pool.
+	sqlxConn := sqlx.NewDb(pgConn, "postgres")
 
 	// Setup Redis client. It is shared by the runtime store provider and the consent enforcer
 	// (which reads the engine's authorization requests), so both resolve the same keys. Created
@@ -87,9 +98,20 @@ func main() {
 	clientHandler := clientmgmt.NewHandler(clientSvc, logger)
 	clientHandler.RegisterRoutes(mux, getSecurityMiddleware(appCfg, logger))
 
+	keyMgrSvc, sigSvc, cryptoSvc, err := initializeKeyManager(sqlxConn)
+	if err != nil {
+		logger.Fatal("failed to initialize key manager", applog.Error(err))
+	}
+	if err := provisionKeyHierarchy(keyMgrSvc); err != nil {
+		logger.Fatal("failed to provision key hierarchy", applog.Error(err))
+	}
+
+	keyMgrHandler := keymanager.NewHandler(keyMgrSvc, logger)
+	keyMgrHandler.RegisterRoutes(mux, getSecurityMiddleware(appCfg, logger))
+
 	httpClient := newHTTPClient(appCfg.OutboundHTTPClient)
 
-	authnProvider, observabilityProvider, err := engine.NewIDSystemProviders(appCfg, clientSvc, httpClient)
+	authnProvider, observabilityProvider, err := engine.NewIDSystemProviders(appCfg, clientSvc, httpClient, keyMgrSvc, sigSvc)
 	if err != nil {
 		logger.Fatal("plugin providers", applog.Error(err))
 	}
@@ -103,9 +125,7 @@ func main() {
 	_ = thunderidengine.New(mux,
 		thunderidengine.WithLogConfig(engineconfig.LogConfig{Level: logLevel, Format: "json"}),
 		thunderidengine.WithServerHome(appCfg.DataDir),
-		thunderidengine.WithRuntimeTransientDBType("redis"),
-		thunderidengine.WithKeyConfigs([]engineconfig.KeyConfig{appCfg.KeyConfig}),
-		thunderidengine.WithEncryptionConfig(appCfg.EncryptionConfig),
+		thunderidengine.WithRuntimeTransientDBType(appCfg.RuntimeDBType),
 		thunderidengine.WithServerConfig(appCfg.Server),
 		thunderidengine.WithCacheConfig(appCfg.Cache),
 		thunderidengine.WithOAuthConfig(appCfg.OAuth),
@@ -129,6 +149,7 @@ func main() {
 		thunderidengine.WithTransactioner(engine.NewNoOpTransactioner()),
 		thunderidengine.WithAttestationProvider(engine.NewAttestationProvider(appCfg)),
 		thunderidengine.WithCaptchaValidationProvider(engine.NewCaptchaProvider(&appCfg.CaptchaConfig, httpClient)),
+		thunderidengine.WithRuntimeCryptoProvider(engine.NewRuntimeCryptoProvider(appCfg, keyMgrSvc, sigSvc, cryptoSvc)),
 	)
 
 	addr := fmt.Sprintf(":%d", appCfg.Port)
@@ -198,4 +219,59 @@ func newHTTPClient(cfg config.HTTPClientConfig) *http.Client {
 			MaxConnsPerHost:       cfg.MaxConnsPerHost,
 		},
 	}
+}
+
+func initializeKeyManager(conn *sqlx.DB) (*keymanager.Service, *signature.Service, *cryptomanager.Service, error) {
+	kmCfg := keymanager.LoadConfig()
+	ks, err := keystore.New(kmCfg.KeystoreType, kmCfg.KeystoreParams)
+	if err != nil {
+		applog.GetLogger().Fatal("initialize keystore", applog.Error(err))
+	}
+	svc := keymanager.NewService(conn, ks, kmCfg)
+	sigSvc := signature.NewService(svc)
+	cryptoSvc := cryptomanager.NewService(db.New(conn, kmCfg.DBSchema), svc, cryptomanager.LoadConfig())
+	return svc, sigSvc, cryptoSvc, nil
+}
+
+// provisionKeyHierarchy provisions the ROOT key, the OIDC_SERVICE Component
+// Master Key (intermediate, signed by ROOT), and its EC sign key (leaf,
+// signed directly by ROOT). Each GenerateMasterKey call is idempotent — it
+// returns the existing key unless it's missing or past its pre-expiry cutoff
+// (see ensureCurrentKey) — so running this on every startup is safe and
+// requires no separate "has this run before" tracking; the key hierarchy
+// itself, persisted in keymgr.key_alias, is the source of truth.
+func provisionKeyHierarchy(svc *keymanager.Service) error {
+	if err := generateKey(svc, keymanager.AppIDRoot, "", "MOSIP Root CA"); err != nil {
+		return fmt.Errorf("provision ROOT key: %w", err)
+	}
+	if err := generateKey(svc, config.OIDCServiceAppID, keymanager.RefIDRSA2048, ""); err != nil {
+		return fmt.Errorf("provision %s component master key: %w", config.OIDCServiceAppID, err)
+	}
+	if err := generateKey(svc, config.OIDCServiceAppID, keymanager.RefIDECSECP256R1Sign, ""); err != nil {
+		return fmt.Errorf("provision %s EC sign key: %w", config.OIDCServiceAppID, err)
+	}
+	if _, err := svc.GenerateSymmetricKey(context.Background(), keymanager.SymmetricKeyRequest{
+		ApplicationID: config.OIDCServiceAppID,
+		ReferenceID:   "CACHE_ENCRYPT",
+		Force:         false,
+	}); err != nil {
+		return fmt.Errorf("provision %s symmetric key: %w", config.OIDCServiceAppID, err)
+	}
+	if err := generateKey(svc, config.OIDCPartnerAppID, keymanager.RefIDRSA2048, ""); err != nil {
+		return fmt.Errorf("provision %s component master key: %w", config.OIDCPartnerAppID, err)
+	}
+	return nil
+}
+
+// generateKey provisions the master/intermediate/leaf key for
+// (appID, refID), naming it commonName if given or the configured default
+// otherwise (see Config.CertCommonName / applyCertSubjectDefaults).
+func generateKey(svc *keymanager.Service, appID, refID, commonName string) error {
+	_, err := svc.GenerateMasterKey(context.Background(), keymanager.GenerateMasterKeyRequest{
+		ApplicationID: appID,
+		ReferenceID:   refID,
+		ObjectType:    keymanager.ObjectTypeCertificate,
+		CommonName:    commonName,
+	})
+	return err
 }

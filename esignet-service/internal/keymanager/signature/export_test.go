@@ -5,6 +5,5 @@ package signature
 // Service.JWSSign/JWSVerify flow, mirroring keymanager's own
 // *_export_test.go convention (e.g. hierarchy_export_test.go).
 var (
-	DerToConcat       = derToConcat
-	AlgorithmForRefID = algorithmForRefID
+	DerToConcat = derToConcat
 )

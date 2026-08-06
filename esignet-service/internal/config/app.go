@@ -46,6 +46,17 @@ const (
 	defaultCaptchaTimeoutSecs = 10
 )
 
+// OIDCServiceAppID is esignet's own ApplicationID in the keymanager's
+// key_policy_def table (see db_scripts/mosip_esignet/dml/esignet-key_policy_def.sql),
+// under which its Component Master Key, EC sign key, and Component
+// Encryption Keys are provisioned/resolved.
+const OIDCServiceAppID = "OIDC_SERVICE"
+
+// OIDCPartnerAppID is the ApplicationID under which esignet's MOSIP partner
+// (RSA) signing key is provisioned/resolved, used to sign outgoing requests
+// to MOSIP's authentication APIs (see internal/engine/mosip/authenticator.go).
+const OIDCPartnerAppID = "OIDC_PARTNER"
+
 // AppConfig holds core HTTP and infrastructure settings for the service.
 type AppConfig struct {
 	Identifier          string                           `yaml:"identifier"`
@@ -158,13 +169,9 @@ func applyDefaults(cfg *AppConfig) {
 
 	cfg.JWT.Issuer = cfg.Issuer
 	cfg.JWT.Audience = cfg.Issuer
-	cfg.JWT.PreferredKeyID = "default-key"
-	cfg.JWT.ValidityPeriod = 3600
-
-	cfg.EncryptionConfig.Key = envOrDefault("CRYPTO_ENCRYPTION_KEY", "")
-	if cfg.EncryptionConfig.Key == "" {
-		panic("CRYPTO_ENCRYPTION_KEY must be set")
-	}
+	cfg.JWT.PreferredKeyID = envOrDefault("SIGNING_KEY_REF_ID", "RSA_2048")
+	cfg.JWT.ValidityPeriod = int64(envIntOrDefault("MOSIP_ESIGNET_JWT_VALIDITY_PERIOD", 120))
+	cfg.JWT.Leeway = int64(envIntOrDefault("MOSIP_ESIGNET_JWT_LEEWAY", 10))
 
 	cfg.Cache.Disabled = false
 	cfg.Cache.Type = "redis"
@@ -211,10 +218,7 @@ func applyDefaults(cfg *AppConfig) {
 	cfg.OAuth.AllowWildcardRedirectURI = true
 	cfg.OAuth.TokenRevocation.Enabled = false
 	cfg.OAuth.Logout.Enabled = false
-
-	cfg.KeyConfig.CertFile = defaultSigningCertPath
-	cfg.KeyConfig.KeyFile = defaultSigningKeyPath
-	cfg.KeyConfig.ID = "default-key"
+	cfg.OAuth.DPoP.Leeway = envIntOrDefault("MOSIP_ESIGNET_DPOP_LEEWAY", 10)
 
 	if cfg.SecurityConfig.RequestTimeLeewaySecs <= 0 {
 		cfg.SecurityConfig.RequestTimeLeewaySecs = defaultRequestTimeLeewaySecs

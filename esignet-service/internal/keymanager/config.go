@@ -1,7 +1,6 @@
 package keymanager
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -15,10 +14,9 @@ const (
 	defaultSymmetricKeyValidityDays = 1825
 	defaultAsymmetricKeyLength      = 2048
 	defaultDBSchema                 = "keymgr"
-	defaultDBSSLMode                = "disable"
 
 	defaultCertCommonName       = "www.mosip.io"
-	defaultCertOrganizationUnit = "thunder-tech-team"
+	defaultCertOrganizationUnit = "mosip-esignet"
 	defaultCertOrganization     = "IIITB"
 	defaultCertLocation         = "Bangalore"
 	defaultCertState            = "KA"
@@ -36,28 +34,6 @@ const (
 // keystore backend selection/parameters, algorithm sizing, and cache TTLs.
 // Env-var driven, mirroring internal/clientmgmt's LoadConfig() convention.
 type Config struct {
-	// --- Database ---
-
-	// DatabaseURL, if set, is used as the full Postgres DSN as-is and
-	// overrides every other DB* field below.
-	// Env: KEYMANAGER_DATABASE_URL
-	DatabaseURL string
-
-	// DBHost/DBPort/DBName/DBUser/DBPassword/DBSSLMode build the DSN when
-	// DatabaseURL is unset.
-	// Env: KEYMANAGER_DB_HOST      — default "localhost"
-	// Env: KEYMANAGER_DB_PORT      — default "5432"
-	// Env: KEYMANAGER_DB_NAME      — default "mosip_keymgr"
-	// Env: KEYMANAGER_DB_USER      — default "postgres"
-	// Env: KEYMANAGER_DB_PASSWORD  — no default; required unless DatabaseURL is set
-	// Env: KEYMANAGER_DB_SSLMODE   — default "disable"
-	DBHost     string
-	DBPort     string
-	DBName     string
-	DBUser     string
-	DBPassword string
-	DBSSLMode  string
-
 	// DBSchema is the Postgres schema holding key_alias/key_policy_def/key_store.
 	// The Java service uses "keymgr"; point this at a separate schema (e.g.
 	// "keymgr_go") to test this library without touching the Java service's data.
@@ -122,9 +98,11 @@ type Config struct {
 	// any ReferenceID not in this list is rejected with
 	// ErrSymmetricKeyRefIDNotAllowed. There is no natural registry for
 	// symmetric key reference ids (unlike ApplicationID, checked against
-	// key_policy_def), so this is config-driven; an empty/unset list
-	// allows nothing, requiring explicit configuration.
-	// Env: KEYMANAGER_SYMMETRIC_KEY_ALLOWED_REF_IDS — comma-separated, e.g. "ZK_ENCRYPT,VID_ENCRYPT"
+	// key_policy_def), so this is config-driven; unset defaults to just
+	// "CACHE_ENCRYPT" (matches defaultSymmetricEncryptReferenceID in
+	// internal/engine/runtime_crypto_provider.go, esignet's own cache
+	// encryption key) rather than allowing everything.
+	// Env: KEYMANAGER_SYMMETRIC_KEY_ALLOWED_REF_IDS — comma-separated, e.g. "ZK_ENCRYPT,VID_ENCRYPT" — default "CACHE_ENCRYPT"
 	SymmetricKeyAllowedRefIDs []string
 
 	// ForeignDomainAllowedAppIDs lists the ApplicationIDs permitted for
@@ -141,14 +119,7 @@ type Config struct {
 // LoadConfig reads keymanager service settings from the environment.
 func LoadConfig() Config {
 	return Config{
-		DatabaseURL: os.Getenv("KEYMANAGER_DATABASE_URL"),
-		DBHost:      envOrDefault("KEYMANAGER_DB_HOST", "localhost"),
-		DBPort:      envOrDefault("KEYMANAGER_DB_PORT", "5432"),
-		DBName:      envOrDefault("KEYMANAGER_DB_NAME", "mosip_keymgr"),
-		DBUser:      envOrDefault("KEYMANAGER_DB_USER", "postgres"),
-		DBPassword:  os.Getenv("KEYMANAGER_DB_PASSWORD"),
-		DBSSLMode:   envOrDefault("KEYMANAGER_DB_SSLMODE", defaultDBSSLMode),
-		DBSchema:    envOrDefault("KEYMANAGER_DB_SCHEMA", defaultDBSchema),
+		DBSchema: envOrDefault("KEYMANAGER_DB_SCHEMA", defaultDBSchema),
 
 		KeystoreType: envOrDefault("KEYMANAGER_KEYSTORE_TYPE", "PKCS11"),
 		KeystoreParams: map[string]string{
@@ -173,23 +144,10 @@ func LoadConfig() Config {
 		AsymmetricKeyLength:       envIntOrDefault("KEYMANAGER_ASYMMETRIC_KEY_LENGTH", defaultAsymmetricKeyLength),
 		KeyCacheExpiry:            time.Duration(envIntOrDefault("KEYMANAGER_KEY_CACHE_EXPIRE_MINS", defaultKeyCacheExpireMins)) * time.Minute,
 		SymmetricKeyValidity:      time.Duration(envIntOrDefault("KEYMANAGER_SYMMETRIC_KEY_VALIDITY_DAYS", defaultSymmetricKeyValidityDays)) * 24 * time.Hour,
-		SymmetricKeyAllowedRefIDs: splitAndTrim(os.Getenv("KEYMANAGER_SYMMETRIC_KEY_ALLOWED_REF_IDS")),
+		SymmetricKeyAllowedRefIDs: splitAndTrim(envOrDefault("KEYMANAGER_SYMMETRIC_KEY_ALLOWED_REF_IDS", "CACHE_ENCRYPT")),
 
 		ForeignDomainAllowedAppIDs: splitAndTrim(envOrDefault("KEYMANAGER_FOREIGN_DOMAIN_ALLOWED_APP_IDS", defaultForeignDomainAllowedAppIDs)),
 	}
-}
-
-// DSN builds the Postgres connection string, honoring DatabaseURL as a
-// full override when set.
-func (c Config) DSN() string {
-	if c.DatabaseURL != "" {
-		return c.DatabaseURL
-	}
-	return fmt.Sprintf(
-		"host=%s port=%s dbname=%s user=%s password=%s sslmode=%s",
-		quoteDSN(c.DBHost), quoteDSN(c.DBPort), quoteDSN(c.DBName),
-		quoteDSN(c.DBUser), quoteDSN(c.DBPassword), quoteDSN(c.DBSSLMode),
-	)
 }
 
 func envOrDefault(key, fallback string) string {
@@ -226,9 +184,4 @@ func splitAndTrim(s string) []string {
 		}
 	}
 	return out
-}
-
-// quoteDSN escapes a libpq key=value DSN component.
-func quoteDSN(v string) string {
-	return "'" + strings.NewReplacer(`\`, `\\`, `'`, `\'`).Replace(v) + "'"
 }

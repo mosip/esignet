@@ -18,7 +18,6 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/google/uuid"
@@ -26,6 +25,7 @@ import (
 
 	"github.com/mosip/esignet/internal/keymanager/db"
 	"github.com/mosip/esignet/internal/keymanager/keystore"
+	applog "github.com/mosip/esignet/internal/log"
 )
 
 // Sentinel errors for validation/lookup failures (branch via errors.Is).
@@ -126,20 +126,21 @@ const (
 
 // Service implements the keymanager business logic.
 type Service struct {
-	q   db.Querier
-	ks  keystore.KeyStore
-	cfg Config
+	q      db.Querier
+	ks     keystore.KeyStore
+	cfg    Config
+	logger *applog.Logger
 }
 
 // NewService constructs a Service backed by a real DB connection.
 func NewService(conn *sqlx.DB, ks keystore.KeyStore, cfg Config) *Service {
-	return &Service{q: db.New(conn, cfg.DBSchema), ks: ks, cfg: cfg}
+	return &Service{q: db.New(conn, cfg.DBSchema), ks: ks, cfg: cfg, logger: applog.GetLogger().Named("keymanager")}
 }
 
 // NewServiceWithQuerier constructs a Service with an explicit Querier; used
 // in tests to inject a fake without a real database connection.
 func NewServiceWithQuerier(q db.Querier, ks keystore.KeyStore, cfg Config) *Service {
-	return &Service{q: q, ks: ks, cfg: cfg}
+	return &Service{q: q, ks: ks, cfg: cfg, logger: applog.GetLogger().Named("keymanager")}
 }
 
 // currentAlias returns the current (non-expired, past its pre-expiry
@@ -364,6 +365,10 @@ func (s *Service) ensureCurrentKey(ctx context.Context, appID, refID string, par
 	if err != nil {
 		return nil, resident, err
 	}
+	s.logger.Debug(ctx, "key generated",
+		applog.String("applicationId", appID), applog.String("referenceId", refID),
+		applog.String("keyId", newAlias.ID), applog.Bool("rotated", current != nil),
+		applog.Bool("keystoreResident", resident))
 	return newAlias, resident, nil
 }
 
@@ -836,6 +841,9 @@ func (s *Service) UploadOtherDomainCertificate(ctx context.Context, req UploadCe
 		}
 		return UploadCertificateResponse{}, fmt.Errorf("insert key alias: %w", err)
 	}
+	s.logger.Debug(ctx, "foreign-domain certificate uploaded",
+		applog.String("applicationId", req.ApplicationID), applog.String("referenceId", req.ReferenceID),
+		applog.String("keyId", alias))
 	return UploadCertificateResponse{Status: statusSuccess, Timestamp: now}, nil
 }
 
@@ -883,6 +891,13 @@ func (s *Service) GenerateSymmetricKey(ctx context.Context, req SymmetricKeyRequ
 			if winner == nil {
 				return SymmetricKeyResponse{}, fmt.Errorf("%w: application %q, reference %q", ErrKeyAlreadyGeneratedToday, req.ApplicationID, req.ReferenceID)
 			}
+			s.logger.Debug(ctx, "symmetric key generation lost race to a concurrent request; using winning key",
+				applog.String("applicationId", req.ApplicationID), applog.String("referenceId", req.ReferenceID),
+				applog.String("keyId", winner.ID))
+		} else {
+			s.logger.Debug(ctx, "symmetric key generated",
+				applog.String("applicationId", req.ApplicationID), applog.String("referenceId", req.ReferenceID),
+				applog.String("keyId", alias))
 		}
 	}
 	return SymmetricKeyResponse{Status: statusSuccess, Timestamp: now}, nil
@@ -905,6 +920,9 @@ func (s *Service) RevokeKey(ctx context.Context, req RevokeKeyRequest) (RevokeKe
 	if err := s.q.UpdateKeyAlias(ctx, *current); err != nil {
 		return RevokeKeyResponse{}, fmt.Errorf("update key alias: %w", err)
 	}
+	s.logger.Debug(ctx, "key revoked",
+		applog.String("applicationId", req.ApplicationID), applog.String("referenceId", req.ReferenceID),
+		applog.String("keyId", current.ID))
 	return RevokeKeyResponse{Status: statusSuccess, Timestamp: now}, nil
 }
 
@@ -919,7 +937,9 @@ func (s *Service) GetAllCertificates(ctx context.Context, appID, refID string) (
 	for _, a := range aliases {
 		cert, err := s.certificateForAlias(ctx, a.ID, resident)
 		if err != nil {
-			log.Printf("keymanager: GetAllCertificates: skipping alias %q: %v", a.ID, err)
+			s.logger.Warn(ctx, "GetAllCertificates: skipping alias with unreadable certificate",
+				applog.String("applicationId", appID), applog.String("referenceId", refID),
+				applog.String("keyId", a.ID), applog.Error(err))
 			continue
 		}
 		cd := CertificateData{CertificateData: encodeCertPEM(cert.Raw), KeyID: a.ID}
@@ -944,10 +964,7 @@ func (s *Service) GetCertificateChain(ctx context.Context, appID, refID string) 
 	}
 	chain := []*x509.Certificate{leaf}
 	curAppID, curRefID := appID, refID
-	for {
-		if curAppID == AppIDRoot {
-			break
-		}
+	for curAppID != AppIDRoot {
 		var parentAppID, parentRefID string
 		if curRefID == RefIDRSA2048 {
 			parentAppID, parentRefID = AppIDRoot, ""

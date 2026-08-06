@@ -55,8 +55,8 @@ func TestResolveSignKeyAlias_Root(t *testing.T) {
 
 func TestResolveSignKeyAlias_ComponentMaster(t *testing.T) {
 	q := &fakeQuerier{
-		getKeyPolicyFn: func(ctx context.Context, appID string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
-		getKeyAliasesByAppRefFn: func(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) {
+		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyAliasesByAppRefFn: func(_ context.Context, appID, refID string) ([]db.KeyAlias, error) {
 			if appID == "ROOT" && refID == "" {
 				return []db.KeyAlias{validAliasRow("root-alias-id")}, nil
 			}
@@ -71,8 +71,8 @@ func TestResolveSignKeyAlias_ComponentMaster(t *testing.T) {
 
 func TestResolveSignKeyAlias_ComponentMasterMissing(t *testing.T) {
 	q := &fakeQuerier{
-		getKeyPolicyFn: func(ctx context.Context, appID string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
-		getKeyAliasesByAppRefFn: func(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) {
+		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyAliasesByAppRefFn: func(_ context.Context, _, _ string) ([]db.KeyAlias, error) {
 			return nil, nil // ROOT not found
 		},
 	}
@@ -83,8 +83,8 @@ func TestResolveSignKeyAlias_ComponentMasterMissing(t *testing.T) {
 
 func TestResolveSignKeyAlias_ComponentEncryption(t *testing.T) {
 	q := &fakeQuerier{
-		getKeyPolicyFn: func(ctx context.Context, appID string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
-		getKeyAliasesByAppRefFn: func(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) {
+		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyAliasesByAppRefFn: func(_ context.Context, appID, refID string) ([]db.KeyAlias, error) {
 			if appID == "ESIGNET_RSA" && refID == "RSA_2048" {
 				return []db.KeyAlias{validAliasRow("component-master-alias-id")}, nil
 			}
@@ -99,8 +99,8 @@ func TestResolveSignKeyAlias_ComponentEncryption(t *testing.T) {
 
 func TestResolveSignKeyAlias_ComponentEncryptionMasterMissing(t *testing.T) {
 	q := &fakeQuerier{
-		getKeyPolicyFn: func(ctx context.Context, appID string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
-		getKeyAliasesByAppRefFn: func(ctx context.Context, appID, refID string) ([]db.KeyAlias, error) {
+		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
+		getKeyAliasesByAppRefFn: func(_ context.Context, _, _ string) ([]db.KeyAlias, error) {
 			return nil, nil // component master not found
 		},
 	}

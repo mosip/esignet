@@ -13,9 +13,9 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-// DBTX is satisfied by *sqlx.DB and *sqlx.Tx, allowing Queries to run
+// TX is satisfied by *sqlx.DB and *sqlx.Tx, allowing Queries to run
 // against either a plain connection or a transaction.
-type DBTX interface {
+type TX interface {
 	sqlx.ExtContext
 	GetContext(ctx context.Context, dest interface{}, query string, args ...interface{}) error
 	SelectContext(ctx context.Context, dest interface{}, query string, args ...interface{}) error
@@ -30,7 +30,7 @@ const keyStoreColumns = `id, certificate_data, private_key, master_key,
 // Queries is the sqlx-backed Querier implementation. Query strings are
 // built once in New, qualified with the configured schema.
 type Queries struct {
-	db     DBTX
+	db     TX
 	schema string
 
 	selectKeyAlias             string
@@ -51,7 +51,7 @@ var _ Querier = (*Queries)(nil)
 // from/writing to the given Postgres schema (e.g. "keymgr" for the Java
 // service's schema, or a separate one such as "keymgr_go" to test this
 // library in isolation).
-func New(conn DBTX, schema string) *Queries {
+func New(conn TX, schema string) *Queries {
 	q := &Queries{db: conn, schema: schema}
 
 	q.selectKeyAlias = fmt.Sprintf(`SELECT %s FROM %s.key_alias
@@ -103,6 +103,7 @@ func (q *Queries) WithTx(tx *sqlx.Tx) *Queries {
 	return &q2
 }
 
+// GetKeyAliasesByAppRef implements Querier.
 func (q *Queries) GetKeyAliasesByAppRef(ctx context.Context, appID string, refID string) ([]KeyAlias, error) {
 	var rows []KeyAlias
 	if err := q.db.SelectContext(ctx, &rows, q.selectKeyAlias, appID, refID); err != nil {
@@ -133,6 +134,7 @@ func (q *Queries) GetKeyAliasByUniIdent(ctx context.Context, uniIdent string) (K
 	return row, nil
 }
 
+// InsertKeyAlias implements Querier.
 func (q *Queries) InsertKeyAlias(ctx context.Context, k KeyAlias) error {
 	_, err := q.db.ExecContext(ctx, q.insertKeyAlias,
 		k.ID, k.AppID, k.RefID, k.KeyGenDtimes, k.KeyExpireDtimes, k.StatusCode,
@@ -143,6 +145,7 @@ func (q *Queries) InsertKeyAlias(ctx context.Context, k KeyAlias) error {
 	return nil
 }
 
+// UpdateKeyAlias implements Querier.
 func (q *Queries) UpdateKeyAlias(ctx context.Context, k KeyAlias) error {
 	_, err := q.db.ExecContext(ctx, q.updateKeyAlias, k.ID, k.KeyExpireDtimes, k.StatusCode, k.CertThumbprint, k.UpdBy, k.UpdDtimes)
 	if err != nil {
@@ -151,6 +154,7 @@ func (q *Queries) UpdateKeyAlias(ctx context.Context, k KeyAlias) error {
 	return nil
 }
 
+// GetKeyPolicy implements Querier.
 func (q *Queries) GetKeyPolicy(ctx context.Context, appID string) (KeyPolicy, error) {
 	var p KeyPolicy
 	if err := q.db.GetContext(ctx, &p, q.selectKeyPolicy, appID); err != nil {
@@ -159,6 +163,7 @@ func (q *Queries) GetKeyPolicy(ctx context.Context, appID string) (KeyPolicy, er
 	return p, nil
 }
 
+// HasKeyPolicy implements Querier.
 func (q *Queries) HasKeyPolicy(ctx context.Context, appID string) (bool, error) {
 	var exists bool
 	if err := q.db.GetContext(ctx, &exists, q.selectKeyPolicyExists, appID); err != nil {
@@ -167,6 +172,7 @@ func (q *Queries) HasKeyPolicy(ctx context.Context, appID string) (bool, error) 
 	return exists, nil
 }
 
+// GetKeyStoreRecord implements Querier.
 func (q *Queries) GetKeyStoreRecord(ctx context.Context, id string) (KeyStoreRecord, error) {
 	var r KeyStoreRecord
 	if err := q.db.GetContext(ctx, &r, q.selectKeyStore, id); err != nil {
@@ -175,6 +181,7 @@ func (q *Queries) GetKeyStoreRecord(ctx context.Context, id string) (KeyStoreRec
 	return r, nil
 }
 
+// InsertKeyStoreRecord implements Querier.
 func (q *Queries) InsertKeyStoreRecord(ctx context.Context, k KeyStoreRecord) error {
 	_, err := q.db.ExecContext(ctx, q.insertKeyStore, k.ID, k.CertificateData, k.PrivateKey, k.MasterKey, k.CrBy, k.CrDtimes)
 	if err != nil {
@@ -183,6 +190,7 @@ func (q *Queries) InsertKeyStoreRecord(ctx context.Context, k KeyStoreRecord) er
 	return nil
 }
 
+// UpdateKeyStoreRecord implements Querier.
 func (q *Queries) UpdateKeyStoreRecord(ctx context.Context, k KeyStoreRecord) error {
 	_, err := q.db.ExecContext(ctx, q.updateKeyStore, k.ID, k.CertificateData, k.PrivateKey, k.UpdBy, k.UpdDtimes)
 	if err != nil {

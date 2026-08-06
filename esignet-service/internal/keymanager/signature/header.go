@@ -43,6 +43,13 @@ func algorithmForRefID(refID string) string {
 	}
 }
 
+// AlgorithmForRefID is the exported form of algorithmForRefID, for callers
+// (e.g. a RuntimeCryptoProvider adapter's GetPublicKeys) that need to report
+// a resolved key's JWS algorithm without going through JWSSign/SignRaw.
+func AlgorithmForRefID(refID string) string {
+	return algorithmForRefID(refID)
+}
+
 // jwsHeader is the on-wire JWS protected header shape this port produces —
 // V1 semantics: a single leaf certificate (x5c has at most one entry), no
 // additionalHeaders/custom params. B64 uses *bool so the "b64" member is
