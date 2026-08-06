@@ -29,14 +29,10 @@ describe("NetworkErrorPage", () => {
         replace: replaceMock,
       },
     });
-    // replaceSpy = vi
-    //   .spyOn(window.location, "replace")
-    //   .mockImplementation(() => {});
     window.onbeforeunload = null;
   });
 
   afterEach(() => {
-    // replaceSpy.mockRestore();
     // Restore the original location object after each test
     Object.defineProperty(window, "location", {
       writable: true,

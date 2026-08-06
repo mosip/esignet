@@ -45,7 +45,12 @@ export default function LoginPage() {
       {isLoading ? (
         <LoadingIndicator />
       ) : (
-        <SignIn revalidateOnChangeAfterBlur />
+        <SignIn
+          revalidateOnChangeAfterBlur
+          onSuccess={() => {
+            window.onbeforeunload = null;
+          }}
+        />
       )}
     </div>
   );
