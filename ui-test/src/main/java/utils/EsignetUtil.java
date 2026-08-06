@@ -71,6 +71,60 @@ public class EsignetUtil extends AdminTestUtil {
 	public static String pluginName = null;
 	public static JSONArray signupActiveProfiles = null;
 
+	// Sunbird RC policy fixture (KBI credentials), generated once per run and reused by both the
+	// CreatePolicySunBirdR prerequisite and any scenario driving a real KBI login against it.
+	private static final String[] SUNBIRD_R_FIRST_NAMES = { "Alex", "Jordan", "Taylor", "Morgan", "Casey", "Riley",
+			"Sam", "Jamie" };
+	private static final String[] SUNBIRD_R_LAST_NAMES = { "Smith", "Brown", "Johnson", "Lee", "Clark", "Walker",
+			"Young", "Hill" };
+	private static final String sunBirdRFullName = SUNBIRD_R_FIRST_NAMES[new Random().nextInt(SUNBIRD_R_FIRST_NAMES.length)]
+			+ " " + SUNBIRD_R_LAST_NAMES[new Random().nextInt(SUNBIRD_R_LAST_NAMES.length)];
+	private static final String sunBirdRDob = LocalDate.ofEpochDay(LocalDate.of(1970, 1, 1).toEpochDay()
+			+ (long) (Math.random() * (LocalDate.of(2000, 12, 31).toEpochDay() - LocalDate.of(1970, 1, 1).toEpochDay())))
+			.format(DateTimeFormatter.ISO_LOCAL_DATE);
+	private static final String sunBirdRPolicyNumber = String.valueOf(100000000 + new Random().nextInt(900000000));
+
+	public static String getSunBirdRFullName() {
+		return sunBirdRFullName;
+	}
+
+	public static String getSunBirdRDob() {
+		return sunBirdRDob;
+	}
+
+	public static String getSunBirdRPolicyNumber() {
+		return sunBirdRPolicyNumber;
+	}
+
+	// Static (non-randomized) fixture values embedded as literals in CreatePolicySunBirdR.yml - keep
+	// these in sync with that file if either is changed.
+	private static final String SUNBIRD_R_MOBILE = "0123456789";
+	private static final String SUNBIRD_R_GENDER = "Male";
+	private static final String SUNBIRD_R_EMAIL = "esignetui.sunbird@example.com";
+	private static final String SUNBIRD_R_POLICY_NAME = "Start Insurance Gold Premium";
+
+	public static String getSunBirdRPolicyName() {
+		return SUNBIRD_R_POLICY_NAME;
+	}
+
+	public static String getSunBirdRMobile() {
+		return SUNBIRD_R_MOBILE;
+	}
+
+	public static String getSunBirdRGender() {
+		return SUNBIRD_R_GENDER;
+	}
+
+	public static String getSunBirdREmail() {
+		return SUNBIRD_R_EMAIL;
+	}
+
+	/** Which KBI schema field id is the identity lookup key (maps to the Sunbird policyNumber). */
+	public static String getKbiIndividualIdField() {
+		JSONObject configs = ClaimsUtil.getConfigs();
+		return configs != null ? configs.optString("auth.factor.kbi.individual-id-field", null) : null;
+	}
+
 	private static final String TOKEN_URL = EsignetConfigManager.getproperty("keycloak-external-url")
 			+ EsignetConfigManager.getproperty("keycloakAuthTokenEndPoint");
 	private static final String GRANT_TYPE = "client_credentials";
@@ -160,10 +214,22 @@ public class EsignetUtil extends AdminTestUtil {
 			logger.setLevel(Level.ERROR);
 	}
 
+	// Actuator-derived, mirroring eSignet's own api-test getPluginName() - no local config. Sunbird RC
+	// still returns "mock" here (same orchestration as plain mock); use isSunbirdAuthenticatorActive()
+	// to distinguish them.
 	public static String getPluginName() {
 		if (pluginName != null)
 			return pluginName;
-		pluginName = EsignetConfigManager.getproperty("pluginToExecute");
+		String serverAuthenticator = getIdentityPluginNameFromEsignetActuator();
+		// Blank means the actuator didn't answer - fall back to mosipid uncached so the next call retries it.
+		if (serverAuthenticator == null || serverAuthenticator.isBlank()) {
+			logger.error("Could not read mosip.esignet.integration.authenticator from the eSignet actuator - "
+					+ "assuming 'mosipid' for this call without caching it");
+			return "mosipid";
+		}
+		boolean isMockLike = serverAuthenticator.toLowerCase().contains("mockauthenticationservice")
+				|| serverAuthenticator.toLowerCase().contains("sunbirdrcauthenticationservice");
+		pluginName = isMockLike ? "mock" : "mosipid";
 		return pluginName;
 	}
 
@@ -471,6 +537,108 @@ public class EsignetUtil extends AdminTestUtil {
 
 	public static String getRegexForFullName(String langCode) {
 		return getRegexForField("fullName", langCode);
+	}
+
+	/** KBI form schema for the current transaction (set via {@link ClaimsUtil#parseFromUrl(String)}). */
+	public static JSONArray getKbiFieldSchema() {
+		JSONObject configs = ClaimsUtil.getConfigs();
+		if (configs == null) {
+			return new JSONArray();
+		}
+		JSONObject kbi = configs.optJSONObject("auth.factor.kbi.field-details");
+		if (kbi == null) {
+			return new JSONArray();
+		}
+		JSONArray schema = kbi.optJSONArray("schema");
+		return schema != null ? schema : new JSONArray();
+	}
+
+	/** Ordered list of field ids declared in the current transaction's KBI form schema. */
+	public static List<String> getKbiFieldIds() {
+		JSONArray schema = getKbiFieldSchema();
+		List<String> ids = new ArrayList<>();
+		for (int i = 0; i < schema.length(); i++) {
+			JSONObject field = schema.optJSONObject(i);
+			String id = field != null ? field.optString("id", null) : null;
+			if (id != null && !id.isBlank()) {
+				ids.add(id);
+			}
+		}
+		logger.info("KBI schema field ids: " + ids);
+		return ids;
+	}
+
+	/** The schema-declared label for a KBI field in the given language code (e.g. "eng"), or null. */
+	public static String getKbiFieldLabel(String fieldId, String langCode) {
+		JSONObject field = findKbiField(fieldId);
+		JSONObject labelName = field != null ? field.optJSONObject("labelName") : null;
+		return labelName != null ? labelName.optString(langCode, null) : null;
+	}
+
+	/** Schema-declared option labels for a dropdown KBI field, keyed by subType (or id) and falling back to English. */
+	public static List<String> getKbiDropdownOptionLabels(String fieldId, String langCode) {
+		JSONObject configs = ClaimsUtil.getConfigs();
+		JSONObject kbi = configs != null ? configs.optJSONObject("auth.factor.kbi.field-details") : null;
+		JSONObject allowedValues = kbi != null ? kbi.optJSONObject("allowedValues") : null;
+		JSONObject field = findKbiField(fieldId);
+		if (allowedValues == null || field == null) {
+			return new ArrayList<>();
+		}
+		JSONObject values = allowedValues.optJSONObject(field.optString("subType", fieldId));
+		if (values == null) {
+			values = allowedValues.optJSONObject(fieldId);
+		}
+		if (values == null) {
+			return new ArrayList<>();
+		}
+		List<String> labels = new ArrayList<>();
+		for (String key : values.keySet()) {
+			JSONObject label = values.optJSONObject(key);
+			if (label == null) {
+				continue;
+			}
+			String text = label.optString(langCode, null);
+			if (text == null || text.isBlank()) {
+				text = label.optString("eng", null);
+			}
+			if (text != null && !text.isBlank()) {
+				labels.add(text);
+			}
+		}
+		return labels;
+	}
+
+	/** Whether the current transaction's schema marks a KBI field as required. */
+	public static boolean isKbiFieldRequired(String fieldId) {
+		JSONObject field = findKbiField(fieldId);
+		return field != null && field.optBoolean("required", false);
+	}
+
+	/** Validators (regex + per-language error) declared for a KBI field, or empty. */
+	public static JSONArray getKbiFieldValidators(String fieldId) {
+		JSONObject field = findKbiField(fieldId);
+		JSONArray validators = field != null ? field.optJSONArray("validators") : null;
+		return validators != null ? validators : new JSONArray();
+	}
+
+	/** The schema's generic "this field is required" message, in the given language, or null. */
+	public static String getKbiRequiredErrorMessage(String langCode) {
+		JSONObject configs = ClaimsUtil.getConfigs();
+		JSONObject kbi = configs != null ? configs.optJSONObject("auth.factor.kbi.field-details") : null;
+		JSONObject errors = kbi != null ? kbi.optJSONObject("errors") : null;
+		JSONObject required = errors != null ? errors.optJSONObject("required") : null;
+		return required != null ? required.optString(langCode, null) : null;
+	}
+
+	private static JSONObject findKbiField(String fieldId) {
+		JSONArray schema = getKbiFieldSchema();
+		for (int i = 0; i < schema.length(); i++) {
+			JSONObject field = schema.optJSONObject(i);
+			if (field != null && fieldId.equals(field.optString("id"))) {
+				return field;
+			}
+		}
+		return null;
 	}
 
 	public static class FullName {
@@ -940,15 +1108,23 @@ public class EsignetUtil extends AdminTestUtil {
 	}
 
 	public static void getSupportedLanguage() {
-
-		if (EsignetConfigManager.getproperty("esignetSupportedLanguage") != null) {
-			BaseTestCase.languageList
-					.add(EsignetConfigManager.getproperty(ESignetConstants.ESIGNET_SUPPORTED_LANGUAGE));
-			logger.info("Supported Language = "
-					+ EsignetConfigManager.getproperty(ESignetConstants.ESIGNET_SUPPORTED_LANGUAGE));
-		} else {
-			logger.error("Language not found");
+		// Languages come from the eSignet app itself (locales/default.json via LanguageUtil); this drives
+		// the mock identity's per-language fields (e.g. fullName). Fail fast if the app exposes none.
+		List<String> appLanguages = LanguageUtil.supportedLanguages;
+		if (appLanguages == null || appLanguages.isEmpty()) {
+			throw new IllegalStateException(
+					"No supported languages found from the eSignet app locales (localeUrl + locales/default.json)");
 		}
+		BaseTestCase.languageList.clear();
+		if (appLanguages.contains("eng")) {
+			BaseTestCase.languageList.add("eng"); // eng first so $1STLANG$/preferredLang is deterministic
+		}
+		for (String lang : appLanguages) {
+			if (!"eng".equals(lang) && !BaseTestCase.languageList.contains(lang)) {
+				BaseTestCase.languageList.add(lang);
+			}
+		}
+		logger.info("Supported Language (from application locales) = " + BaseTestCase.languageList);
 	}
 
 	public static String inputstringKeyWordHandler(String jsonString, String testCaseName) {
@@ -1027,6 +1203,18 @@ public class EsignetUtil extends AdminTestUtil {
 		if (jsonString.contains("$ESIGNET_REDIRECT_URI$")) {
 			jsonString = replaceKeywordWithValue(jsonString, "$ESIGNET_REDIRECT_URI$",
 					EsignetConfigManager.getproperty("baseurl") + "userprofile");
+		}
+
+		if (jsonString.contains("$POLICYNUMBERFORSUNBIRDRC$")) {
+			jsonString = replaceKeywordWithValue(jsonString, "$POLICYNUMBERFORSUNBIRDRC$", getSunBirdRPolicyNumber());
+		}
+
+		if (jsonString.contains("$FULLNAMEFORSUNBIRDRC$")) {
+			jsonString = replaceKeywordWithValue(jsonString, "$FULLNAMEFORSUNBIRDRC$", getSunBirdRFullName());
+		}
+
+		if (jsonString.contains("$DOBFORSUNBIRDRC$")) {
+			jsonString = replaceKeywordWithValue(jsonString, "$DOBFORSUNBIRDRC$", getSunBirdRDob());
 		}
 
 		return jsonString;
@@ -1150,6 +1338,11 @@ public class EsignetUtil extends AdminTestUtil {
 		return getEsignetDiscoveryDocument().optBoolean("require_pushed_authorization_requests", false);
 	}
 
+	/** KBI is unsupported only under mosipid. */
+	public static boolean isKbiSupportedPlugin() {
+		return !"mosipid".equalsIgnoreCase(getPluginName());
+	}
+
 	public static String signJWKKey(String clientId, RSAKey jwkKey, String tempUrl) {
 		int idTokenExpirySecs = Integer
 				.parseInt(getValueFromEsignetActuator(EsignetConfigManager.getEsignetActuatorPropertySection(),
@@ -1243,20 +1436,32 @@ public class EsignetUtil extends AdminTestUtil {
 			throw new SkipException(GlobalConstants.PRE_REQUISITE_FAILED_MESSAGE);
 		}
 
-		if (pluginName.equals("mock")) {
+		// Via getPluginName(), not the static field - the field can stay null on an uncached fallback.
+		String resolvedPluginName = getPluginName();
+		if (resolvedPluginName.equals("mock")) {
 			BaseTestCase.setSupportedIdTypes(Arrays.asList("UIN"));
 
 			String endpoint = testCaseDTO.getEndPoint();
-			if (endpoint.contains("/esignet/") == false && endpoint.contains("/mock-identity-system/") == false) {
+			// Sunbird RC registry endpoints (CreatePolicySunBirdR/DeletePolicySunBirdR) are external to
+			// eSignet/mock-identity-system - let them through to their own sunbird-authenticator gate
+			// instead of skipping here unconditionally.
+			boolean isSunbirdRegistryEndpoint = endpoint.startsWith("$SUNBIRDBASEURL$");
+			if (!isSunbirdRegistryEndpoint && endpoint.contains("/esignet/") == false
+					&& endpoint.contains("/mock-identity-system/") == false) {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 			}
 
-		} else if (pluginName.equals("mosipid")) {
+		} else if (resolvedPluginName.equals("mosipid")) {
 			getSupportedIdTypesValueFromActuator();
 
 			logger.info("supportedIdType = " + supportedIdType);
 
 			String endpoint = testCaseDTO.getEndPoint();
+			// Sunbird RC is never relevant under mosipid (a real idrepo-backed identity, not
+			// mock/sunbird), so skip it here with a clear reason rather than falling through.
+			if (endpoint.startsWith("$SUNBIRDBASEURL$")) {
+				throw new SkipException("Skipped: " + testCaseName + " is a Sunbird RC registry call, not applicable under mosipid");
+			}
 			if (endpoint.contains("/mock-identity-system/") == true
 					|| ((testCaseName.equals("ESignetUI_CreateOIDCClient_all_Valid_Smoke_sid"))
 							&& endpoint.contains("/v1/esignet/client-mgmt/client"))) {
@@ -1382,6 +1587,17 @@ public class EsignetUtil extends AdminTestUtil {
 
 	public static String generateParRequestUri(String clientIdKey, String clientAssertionPlaceholder)
 			throws SecurityXSSException, JsonProcessingException {
+		return generateParRequestUri(clientIdKey, clientAssertionPlaceholder, DEFAULT_ACR_VALUES);
+	}
+
+	public static String generateParRequestUri(String clientIdKey, String clientAssertionPlaceholder, String acrValues)
+			throws SecurityXSSException, JsonProcessingException {
+		return generateParRequestUri(clientIdKey, clientAssertionPlaceholder, acrValues, null);
+	}
+
+	/** @param uiLocales see {@link #generateDirectAuthorizeUrl(String, String, String)}. */
+	public static String generateParRequestUri(String clientIdKey, String clientAssertionPlaceholder, String acrValues,
+			String uiLocales) throws SecurityXSSException, JsonProcessingException {
 
 		String baseUrl = EsignetConfigManager.getproperty("eSignetbaseurl");
 		String parUrl = baseUrl + "/v1/esignet/oauth/par";
@@ -1399,10 +1615,12 @@ public class EsignetUtil extends AdminTestUtil {
 		requestBody.put("requestTime", "$TIMESTAMP$");
 		requestBody.put("client_assertion_type", client_assertion_type);
 		requestBody.put("claim_locales", claim_locales);
+		if (uiLocales != null && !uiLocales.isBlank()) {
+			requestBody.put("ui_locales", uiLocales);
+		}
 		requestBody.put("claims", claimRequest.toString());
 		requestBody.put("scope", scope);
-		requestBody.put("acr_values",
-				"mosip:idp:acr:generated-code mosip:idp:acr:biometrics mosip:idp:acr:linked-wallet mosip:idp:acr:password");
+		requestBody.put("acr_values", acrValues);
 		requestBody.put("redirect_uri", "$ESIGNET_REDIRECT_URI$");
 		requestBody.put("state", state);
 		requestBody.put("client_assertion", clientAssertionPlaceholder);
@@ -1431,22 +1649,40 @@ public class EsignetUtil extends AdminTestUtil {
 	 * on this browser-facing leg. Only valid for clients that don't set
 	 * require_pushed_authorization_requests - those are forced down the PAR flow server-side.
 	 */
+	// Space-separated acr_values requested by default. The login page renders a button per auth
+	// factor that is the intersection of these requested values and the values the client registered
+	// (authContextRefs). KBI is deliberately excluded here so existing scenarios are unaffected; the
+	// KBI scenario requests it explicitly via DEFAULT_ACR_VALUES + " " + KBI_ACR_VALUE.
+	public static final String DEFAULT_ACR_VALUES = "mosip:idp:acr:generated-code mosip:idp:acr:biometrics mosip:idp:acr:linked-wallet mosip:idp:acr:password";
+
+	/** acr_value that maps to the KBI (Knowledge-Based Identity) login factor in eSignet. */
+	public static final String KBI_ACR_VALUE = "mosip:idp:acr:knowledge";
+
 	public static String generateDirectAuthorizeUrl(String clientId) throws SecurityXSSException {
-		return generateDirectAuthorizeUrl(clientId, scope, true);
+		return generateDirectAuthorizeUrl(clientId, DEFAULT_ACR_VALUES, null);
+	}
+
+	public static String generateDirectAuthorizeUrl(String clientId, String acrValues) throws SecurityXSSException {
+		return generateDirectAuthorizeUrl(clientId, acrValues, null);
+	}
+
+	/** @param uiLocales OIDC ui_locales (e.g. "en"); null to omit, as most callers do. */
+	public static String generateDirectAuthorizeUrl(String clientId, String acrValues, String uiLocales)
+			throws SecurityXSSException {
+		return buildDirectAuthorizeUrl(clientId, scope, true, acrValues, uiLocales);
 	}
 
 	public static String generateDirectAuthorizeUrlWithoutClaims(String clientId, String customScope)
 			throws SecurityXSSException {
-		return generateDirectAuthorizeUrl(clientId, customScope, false);
+		return buildDirectAuthorizeUrl(clientId, customScope, false, DEFAULT_ACR_VALUES, null);
 	}
 
-	private static String generateDirectAuthorizeUrl(String clientId, String requestedScope, boolean includeClaims)
-			throws SecurityXSSException {
+	private static String buildDirectAuthorizeUrl(String clientId, String requestedScope, boolean includeClaims,
+			String acrValues, String uiLocales) throws SecurityXSSException {
 
 		String baseUrl = EsignetConfigManager.getproperty("eSignetbaseurl");
 		String redirectUri = EsignetConfigManager.getproperty("baseurl") + "userprofile";
 		String nonce = String.valueOf(Calendar.getInstance().getTimeInMillis());
-		String acrValues = "mosip:idp:acr:generated-code mosip:idp:acr:biometrics mosip:idp:acr:linked-wallet mosip:idp:acr:password";
 
 		Charset utf8 = StandardCharsets.UTF_8;
 		StringBuilder url = new StringBuilder(baseUrl + "/authorize?");
@@ -1463,17 +1699,30 @@ public class EsignetUtil extends AdminTestUtil {
 			org.json.simple.JSONObject claimRequest = getRequestJson(CLAIMS_REQUEST);
 			url.append("&claims=").append(URLEncoder.encode(claimRequest.toString(), utf8));
 		}
+		if (uiLocales != null && !uiLocales.isBlank()) {
+			url.append("&ui_locales=").append(URLEncoder.encode(uiLocales, utf8));
+		}
 
 		return url.toString();
 	}
 
+	// Raw actuator string, cached separately from the derived `pluginName` (mock/mosipid) to avoid
+	// the two colliding.
+	private static String serverAuthenticatorPluginName = null;
+
 	public static String getIdentityPluginNameFromEsignetActuator() {
-		if (pluginName != null && !pluginName.isBlank()) {
-			return pluginName;
+		if (serverAuthenticatorPluginName != null && !serverAuthenticatorPluginName.isBlank()) {
+			return serverAuthenticatorPluginName;
 		}
-		pluginName = getValueFromEsignetActuator(ESignetConstants.CLASS_PATH_APPLICATION_PROPERTIES,
+		serverAuthenticatorPluginName = getValueFromEsignetActuator(ESignetConstants.CLASS_PATH_APPLICATION_PROPERTIES,
 				"mosip.esignet.integration.authenticator");
-		return pluginName;
+		return serverAuthenticatorPluginName;
+	}
+
+	/** Whether the eSignet server's actual identity authenticator is Sunbird RC (server-side only). */
+	public static boolean isSunbirdAuthenticatorActive() {
+		String serverPlugin = getIdentityPluginNameFromEsignetActuator();
+		return serverPlugin != null && serverPlugin.toLowerCase().contains("sunbirdrcauthenticationservice");
 	}
 
 	public static String generateParRequestWithoutNonceAndState() throws SecurityXSSException, JsonProcessingException {
