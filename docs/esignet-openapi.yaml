@@ -1,0 +1,4137 @@
+openapi: 3.1.0
+info:
+  version: '1.0'
+  title: eSignet
+  summary: Open ID Connect based identity provider for large scale authentication
+  description: |-
+    This API document details on the below categories of endpoints
+    <ul>
+    <li> Management - Endpoints for creation and updation of OIDC client details </li>
+    <li> OIDC - All OIDC compliant endpoints for performing the Open ID Connect flows</li>
+    <li> UI - All endpoints used by the UI application </li>
+    </ul>
+
+    <b>Abbreviations:</b></br></br>
+    OIDC - Open ID Connect</br>
+    IdP - Identity provider</br>
+    PMP - Partner Management portal</br>
+    KYC - Know Your Customer</br>
+    IDA - Authentication server</br>
+    UIN - Unique Identification Number</br>
+    VID - Virtual Identifier</br>
+    PSUT - Partner(Relying Party) Specific User Token</br>
+    VC - Verifiable Credential</br>
+  contact:
+    name: MOSIP Team
+    email: info@mosip.io
+    url: 'https://www.mosip.io/'
+  license:
+    url: 'https://www.mozilla.org/en-US/MPL/2.0/'
+    name: MPL-2.0
+servers:
+  - url: 'https://esignet.collab.mosip.net/v1/esignet'
+paths:
+  /client-mgmt/oidc-client:
+    post:
+      tags:
+        - Management
+      summary: Create OIDC Client Endpoint
+      description: |-
+        API to add new open ID connect (OIDC) clients, it can be invoked by other modules which manages the relying parties / partners.
+
+        Each relying party can associate to one or multiple OIDC client ids.
+
+        On create, OIDC client status will be by default set to "**active**".
+      operationId: post-client
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              type: object
+              description: OIDC client details
+              properties:
+                requestTime:
+                  type: string
+                  description: Current date and time when the request is sent
+                  format: date-time
+                  pattern: ''
+                request:
+                  type: object
+                  properties:
+                    clientId:
+                      type: string
+                      description: 'Unique OIDC client id (Case-Sensitive). If duplicates found, request will be rejected.'
+                      minLength: 1
+                      maxLength: 50
+                      examples:
+                        - 785b806d0e594657b05aabdb30fff8a4
+                    clientName:
+                      type: string
+                      description: Name of OIDC client.
+                      minLength: 1
+                      maxLength: 256
+                      examples:
+                        - ABC Health Care
+                    relyingPartyId:
+                      type: string
+                      description: |-
+                        Relying Party ID of the client. This will be passed on to authentications servers when KYC is fetched.
+
+                        Note: Use the client Id as relyingPartyId if there is no separate concept of relying party in the ID authentication system.
+                      minLength: 1
+                      maxLength: 50
+                      examples:
+                        - bharathi-inc
+                    logoUri:
+                      type: string
+                      description: Relying party logo URI which will used to display logo in OIDC login and consent pages.
+                      format: uri
+                      minLength: 1
+                      maxLength: 1024
+                    redirectUris:
+                      type: array
+                      description: |-
+                        Valid list of callback Uris of the relying party. 
+                        When OIDC authorize API is called, any one Uri from this list should be sent as redirect_uri. authorization_code will be redirected to this Uri on successful authentication.
+                      items:
+                        type: string
+                    authContextRefs:
+                      type: array
+                      description: The Authentication Context Class Reference is case-sensitive string specifying a list of Authentication Context Class values that identifies the Authentication Context Class. Values that the authentication performed satisfied implying a Level Of Assurance.
+                      minItems: 1
+                      items:
+                        type: string
+                        enum:
+                          - 'mosip:idp:acr:static-code'
+                          - 'mosip:idp:acr:generated-code'
+                          - 'mosip:idp:acr:linked-wallet'
+                          - 'mosip:idp:acr:biometrics'
+                          - 'mosip:idp:acr:knowledge'
+                          - 'mosip:idp:acr:password'
+                          - 'mosip:idp:acr:id-token'
+                    publicKey:
+                      type: object
+                      description: |-
+                        OIDC client's public key used to verify the client's private_key_jwt when OIDC token endpoint is invoked. 
+                        This field will not be allowed to udpate later, if the private key is compromised, then new OIDC client to be created.
+                        Format : Json Web Key (JWK).
+                    userClaims:
+                      type: array
+                      description: 'Allowed user info claims, that can be requested by OIDC client in the authorize API'
+                      minItems: 1
+                      items:
+                        type: string
+                        enum:
+                          - name
+                          - given_name
+                          - middle_name
+                          - preferred_username
+                          - nickname
+                          - gender
+                          - birthdate
+                          - email
+                          - phone_number
+                          - picture
+                          - address
+                    grantTypes:
+                      type: array
+                      description: Form of Authorization Grant presented to token endpoint
+                      minItems: 1
+                      uniqueItems: true
+                      items:
+                        const: authorization_code
+                    clientAuthMethods:
+                      type: array
+                      description: Auth method supported for token endpoint. At present only "private_key_jwt" is supported.
+                      minItems: 1
+                      items:
+                        const: private_key_jwt
+                  required:
+                    - clientId
+                    - clientName
+                    - relyingPartyId
+                    - logoUri
+                    - authContextRefs
+                    - publicKey
+                    - userClaims
+                    - grantTypes
+                    - clientAuthMethods
+              required:
+                - requestTime
+                - request
+            examples:
+              example-1:
+                value:
+                  requestTime: '2011-10-05T14:48:00.000Z'
+                  request:
+                    clientId: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
+                    clientName: Fastlane e-Sim Service
+                    relyingPartyId: Fastlane
+                    logoUri: 'https://fastlane.com/fastline-esim.png'
+                    redirectUris:
+                      - 'https://fastlane.com/homepage'
+                    publicKey:
+                      kty: RSA
+                      e: AQAB
+                      use: sig
+                      alg: RS256
+                      'n': g7KPXZdZ18H2JoW9FhYz8WrSbLeKA5mO8ROW5YQVyzYDfjbRA9sy0FwpF7pa7mBmU1_G0RvD0xbEhSaFtCL5hyNVVZCfgVqNl41C7-F2yUWhfVQPhT5YnT3eH3gV9ZczhP1trNjIzGuH-8D7EDJcoxuwdGaaY-wTmEtHykHRyab08qr62hfwLuSjHAGN6VgV-Na81XIdXmR7Dwnd1U4MxWJxzRvnVlHFCBaZIG6jNJ21vbzM-DBMq1d8tvtrGQx4w3niK_sctUZ5NP1BLkQhYSEGLr-e_mbmHFCnGtuKfnfIm-PVD-6ihfEwX3j_YQT3LhphBZj7AdXg6iyyQn9EJQ
+                    authContextRefs:
+                      - 'mosip:idp:acr:generated-code'
+                      - 'mosip:idp:acr:biometrics'
+                      - 'mosip:idp:acr:linked-wallet'
+                    userClaims:
+                      - name
+                      - email
+                      - phone_number
+                      - address
+                    grantTypes:
+                      - authorization_code
+                    clientAuthMethods:
+                      - private_key_jwt
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  responseTime:
+                    type: string
+                    description: Date and time when the response is generated
+                  response:
+                    type: object
+                    properties:
+                      clientId:
+                        type: string
+                        description: Client id as provided in the request.
+                      status:
+                        type: string
+                        enum:
+                          - ACTIVE
+                          - INACTIVE
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties: false
+                      properties:
+                        errorCode:
+                          type: string
+                          enum:
+                            - duplicate_client_id
+                            - invalid_public_key
+                            - invalid_input
+                            - invalid_client_id
+                            - invalid_client_name
+                            - invalid_rp_id
+                            - invalid_claim
+                            - invalid_acr
+                            - invalid_uri
+                            - invalid_redirect_uri
+                            - invalid_grant_type
+                            - invalid_client_auth
+                        errorMessage:
+                          type: string
+              examples:
+                Example 1:
+                  value:
+                    responseTime: '2023-09-22T08:01:13.000Z'
+                    response:
+                      clientId: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
+                      status: ACTIVE
+        '401':
+          description: Unauthorized
+      deprecated: true
+      security:
+        - Authorization-add_oidc_client: []
+      servers:
+        - url: 'https://esignet.collab.mosip.net/v1/esignet'
+      x-internal: false
+  /client-mgmt/oauth-client:
+    post:
+      tags:
+        - Management
+      summary: Create OAuth/OIDC Client Endpoint
+      description: |-
+        API to add new OAuth or open ID connect (OIDC) clients. This API should be used to create client in esignet by the partner management modules in the integrated ID system.
+
+        Each relying party can associate with one or more client ids.
+
+        On create, client status will be by default set to "**ACTIVE**".
+      operationId: post-oauth-client
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              type: object
+              description: OIDC client details
+              required:
+                - requestTime
+                - request
+              properties:
+                requestTime:
+                  type: string
+                  description: Current date and time when the request is sent
+                  format: date-time
+                  pattern: ''
+                request:
+                  type: object
+                  required:
+                    - clientId
+                    - clientName
+                    - clientNameLangMap
+                    - relyingPartyId
+                    - logoUri
+                    - authContextRefs
+                    - publicKey
+                    - userClaims
+                    - grantTypes
+                    - clientAuthMethods
+                  properties:
+                    clientId:
+                      type: string
+                      description: 'Unique client id (Case-Sensitive). If duplicates found, request will be rejected.'
+                      minLength: 1
+                      maxLength: 50
+                      examples:
+                        - 785b806d0e594657b05aabdb30fff8a4
+                    clientName:
+                      type: string
+                      description: Name of OAuth/OIDC client.
+                      minLength: 1
+                      maxLength: 256
+                      examples:
+                        - ABC Health Care
+                    clientNameLangMap:
+                      type: object
+                      description: |-
+                        Client name in different languages. The language code needs to be passed as key and 
+                        client name in the desired language needs to be passed as value
+                    relyingPartyId:
+                      type: string
+                      description: |-
+                        Relying Party ID of the client. This will be passed on to authentications servers when KYC is fetched.
+
+                        Note: Use the client Id as relyingPartyId if there is no separate concept of relying party in the ID authentication system.
+                      minLength: 1
+                      maxLength: 50
+                      examples:
+                        - bharathi-inc
+                    logoUri:
+                      type: string
+                      description: Relying party logo URI which will used to display logo in the login and consent pages.
+                      format: uri
+                      minLength: 1
+                      maxLength: 1024
+                    redirectUris:
+                      type: array
+                      description: |-
+                        Valid list of callback Uris of the relying party. 
+                        When the authorize API is called, any one Uri from this list should be sent as redirect_uri. authorization_code will be redirected to this Uri on successful authentication.
+                      items:
+                        type: string
+                    authContextRefs:
+                      type: array
+                      description: The Authentication Context Class Reference is case-sensitive string specifying a list of Authentication Context Class values that identifies the Authentication Context Class. Values that the authentication performed satisfied implying a Level Of Assurance.
+                      minItems: 1
+                      items:
+                        type: string
+                        enum:
+                          - 'mosip:idp:acr:static-code'
+                          - 'mosip:idp:acr:generated-code'
+                          - 'mosip:idp:acr:linked-wallet'
+                          - 'mosip:idp:acr:biometrics'
+                          - 'mosip:idp:acr:knowledge'
+                          - 'mosip:idp:acr:id-token'
+                          - 'mosip:idp:acr:password'
+                    publicKey:
+                      type: object
+                      description: |-
+                        OAuth/OIDC client's public key used to verify the client's private_key_jwt when token endpoint is invoked. 
+                        This field will not be allowed to udpate later, if the private key is compromised, then new OAuth/OIDC client to be created.
+                        Format : Json Web Key (JWK).
+                    userClaims:
+                      type: array
+                      description: 'Allowed user info claims, that can be requested by OIDC client in the authorize API'
+                      minItems: 1
+                      items:
+                        type: string
+                        enum:
+                          - name
+                          - given_name
+                          - middle_name
+                          - preferred_username
+                          - nickname
+                          - gender
+                          - birthdate
+                          - email
+                          - phone_number
+                          - picture
+                          - address
+                    grantTypes:
+                      type: array
+                      description: Form of Authorization Grant presented to token endpoint
+                      minItems: 1
+                      uniqueItems: true
+                      items:
+                        const: authorization_code
+                    clientAuthMethods:
+                      type: array
+                      description: Auth method supported for token endpoint. At present only "private_key_jwt" is supported.
+                      minItems: 1
+                      items:
+                        const: private_key_jwt
+            examples:
+              example-1:
+                value:
+                  requestTime: '2011-10-05T14:48:00.000Z'
+                  request:
+                    clientId: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
+                    clientName: Fastlane e-Sim Service
+                    clientNameLangMap:
+                      fra: Service e-Sim de Fastlane
+                      ara: خدمة فاست لين e-SIM
+                    relyingPartyId: Fastlane
+                    logoUri: 'https://fastlane.com/fastlane-esim.png'
+                    redirectUris:
+                      - 'https://fastlane.com/homepage'
+                      - 'io.mosip.residentapp://oauth'
+                    publicKey:
+                      kty: RSA
+                      e: AQAB
+                      use: sig
+                      alg: RS256
+                      'n': g7KPXZdZ18H2JoW9FhYz8WrSbLeKA5mO8ROW5YQVyzYDfjbRA9sy0FwpF7pa7mBmU1_G0RvD0xbEhSaFtCL5hyNVVZCfgVqNl41C7-F2yUWhfVQPhT5YnT3eH3gV9ZczhP1trNjIzGuH-8D7EDJcoxuwdGaaY-wTmEtHykHRyab08qr62hfwLuSjHAGN6VgV-Na81XIdXmR7Dwnd1U4MxWJxzRvnVlHFCBaZIG6jNJ21vbzM-DBMq1d8tvtrGQx4w3niK_sctUZ5NP1BLkQhYSEGLr-e_mbmHFCnGtuKfnfIm-PVD-6ihfEwX3j_YQT3LhphBZj7AdXg6iyyQn9EJQ
+                    authContextRefs:
+                      - 'mosip:idp:acr:generated-code'
+                      - 'mosip:idp:acr:biometrics'
+                      - 'mosip:idp:acr:linked-wallet'
+                    userClaims:
+                      - name
+                      - email
+                      - phone_number
+                      - address
+                    grantTypes:
+                      - authorization_code
+                    clientAuthMethods:
+                      - private_key_jwt
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  responseTime:
+                    type: string
+                    description: Date and time when the response is generated
+                  response:
+                    type: object
+                    properties:
+                      clientId:
+                        type: string
+                        description: Client id as provided in the request.
+                      status:
+                        type: string
+                        enum:
+                          - ACTIVE
+                          - INACTIVE
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties: false
+                      properties:
+                        errorCode:
+                          type: string
+                          enum:
+                            - duplicate_client_id
+                            - invalid_public_key
+                            - invalid_input
+                            - invalid_client_id
+                            - invalid_client_name
+                            - invalid_rp_id
+                            - invalid_claim
+                            - invalid_acr
+                            - invalid_uri
+                            - invalid_redirect_uri
+                            - invalid_grant_type
+                            - invalid_client_auth
+                            - invalid_language_code
+                            - invalid_client_name_value
+                        errorMessage:
+                          type: string
+              examples:
+                Example 1:
+                  value:
+                    responseTime: '2023-09-22T08:01:13.000Z'
+                    response:
+                      clientId: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
+                      status: ACTIVE
+                    errors: []
+        '401':
+          description: Unauthorized
+      security:
+        - Authorization-add_oidc_client: []
+      servers:
+        - url: 'https://esignet.collab.mosip.net/v1/esignet'
+      x-internal: false
+      deprecated: true
+  /client-mgmt/client:
+    post:
+      tags:
+        - Management
+      summary: Create OAuth/OIDC Client Endpoint
+      description: |-
+        API to add new OAuth or open ID connect (OIDC) clients. This API should be used to create client in esignet by the partner management modules in the integrated ID system.
+
+        Each relying party can associate with one or more client ids.
+
+        On create, client status will be by default set to "**ACTIVE**".
+      operationId: post-client-mgmt-client
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              type: object
+              description: OIDC client details
+              required:
+                - requestTime
+                - request
+              properties:
+                requestTime:
+                  type: string
+                  description: Current date and time when the request is sent
+                  format: date-time
+                  pattern: ''
+                request:
+                  type: object
+                  required:
+                    - clientId
+                    - clientName
+                    - clientNameLangMap
+                    - relyingPartyId
+                    - logoUri
+                    - authContextRefs
+                    - publicKey
+                    - userClaims
+                    - grantTypes
+                    - clientAuthMethods
+                  properties:
+                    clientId:
+                      type: string
+                      description: 'Unique client id (Case-Sensitive). If duplicates found, request will be rejected.'
+                      minLength: 1
+                      maxLength: 50
+                      examples:
+                        - 785b806d0e594657b05aabdb30fff8a4
+                    clientName:
+                      type: string
+                      description: Name of OAuth/OIDC client.
+                      minLength: 1
+                      maxLength: 256
+                      examples:
+                        - ABC Health Care
+                    clientNameLangMap:
+                      type: object
+                      description: |-
+                        Client name in different languages. The language code needs to be passed as key and 
+                        client name in the desired language needs to be passed as value
+                    relyingPartyId:
+                      type: string
+                      description: |-
+                        Relying Party ID of the client. This will be passed on to authentications servers when KYC is fetched.
+
+                        Note: Use the client Id as relyingPartyId if there is no separate concept of relying party in the ID authentication system.
+                      minLength: 1
+                      maxLength: 50
+                      examples:
+                        - bharathi-inc
+                    logoUri:
+                      type: string
+                      description: Relying party logo URI which will used to display logo in the login and consent pages.
+                      format: uri
+                      minLength: 1
+                      maxLength: 1024
+                    redirectUris:
+                      type: array
+                      description: |-
+                        Valid list of callback Uris of the relying party. 
+                        When the authorize API is called, any one Uri from this list should be sent as redirect_uri. authorization_code will be redirected to this Uri on successful authentication.
+                      items:
+                        type: string
+                    authContextRefs:
+                      type: array
+                      description: The Authentication Context Class Reference is case-sensitive string specifying a list of Authentication Context Class values that identifies the Authentication Context Class. Values that the authentication performed satisfied implying a Level Of Assurance.
+                      minItems: 1
+                      items:
+                        type: string
+                        enum:
+                          - 'mosip:idp:acr:static-code'
+                          - 'mosip:idp:acr:generated-code'
+                          - 'mosip:idp:acr:linked-wallet'
+                          - 'mosip:idp:acr:biometrics'
+                          - 'mosip:idp:acr:knowledge'
+                          - 'mosip:idp:acr:id-token'
+                          - 'mosip:idp:acr:password'
+                    publicKey:
+                      type: object
+                      description: |-
+                        OAuth/OIDC client's public key used to verify the client's private_key_jwt when token endpoint is invoked. 
+                        This field will not be allowed to udpate later, if the private key is compromised, then new OAuth/OIDC client to be created.
+                        Format : Json Web Key (JWK).
+                    userClaims:
+                      type: array
+                      description: 'Allowed user info claims, that can be requested by OIDC client in the authorize API'
+                      minItems: 1
+                      items:
+                        type: string
+                        enum:
+                          - name
+                          - given_name
+                          - middle_name
+                          - preferred_username
+                          - nickname
+                          - gender
+                          - birthdate
+                          - email
+                          - phone_number
+                          - picture
+                          - address
+                    grantTypes:
+                      type: array
+                      description: Form of Authorization Grant presented to token endpoint
+                      minItems: 1
+                      uniqueItems: true
+                      items:
+                        const: authorization_code
+                    clientAuthMethods:
+                      type: array
+                      description: Auth method supported for token endpoint. At present only "private_key_jwt" is supported.
+                      minItems: 1
+                      items:
+                        const: private_key_jwt
+                    additionalConfig:
+                      type: object
+                      description: 'This parameter allow us to configure the required values based on their specific authentication and integration needs, ensuring efficient implementation of eSignet for ID verification/authentication.'
+                      properties:
+                        userinfo_response_type:
+                          enum:
+                            - JWS
+                            - JWE
+                          description: The response type for the user info endpoint should be configurable to allow the Relying Party to choose between only signed tokens or signed tokens with encryption.
+                        purpose:
+                          $ref: '#/components/schemas/Purpose'
+                        signup_banner_required:
+                          type: boolean
+                          description: Relying Parties should be able to specify whether they require eSignet sign-up. If no signup service is required UI should not have “Sign up with Unified login“ option.
+                        forgot_pwd_link_required:
+                          type: boolean
+                          description: Relying Parties should be able to specify whether they require eSignet forgot password feature. If it is not required UI should not have “Forgot password“ option
+                        consent_expire_in_mins:
+                          type: number
+                          minimum: 10
+                          description: The number of minuets after which a user's given consent will expire.
+                        require_pushed_authorization_requests:
+                          type: boolean
+                          description: 'Boolean parameter indicating whether the only means of initiating an authorization request the client is allowed to use is PAR. If omitted, the default value is false.'
+                        dpop_bound_access_tokens:
+                          type: boolean
+                          description: 'A boolean value specifying whether the client always uses DPoP for token requests. If omitted, the default value is false. If the value is true, the eSignet rejects token request from the client that do not contain the DPoP header.'
+            examples:
+              example-1:
+                value:
+                  requestTime: '2011-10-05T14:48:00.000Z'
+                  request:
+                    clientId: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
+                    clientName: Fastlane e-Sim Service
+                    clientNameLangMap:
+                      fra: Service e-Sim de Fastlane
+                      ara: خدمة فاست لين e-SIM
+                    relyingPartyId: Fastlane
+                    logoUri: 'https://fastlane.com/fastlane-esim.png'
+                    redirectUris:
+                      - 'https://fastlane.com/homepage'
+                      - 'io.mosip.residentapp://oauth'
+                    publicKey:
+                      kty: RSA
+                      e: AQAB
+                      use: sig
+                      alg: RS256
+                      'n': g7KPXZdZ18H2JoW9FhYz8WrSbLeKA5mO8ROW5YQVyzYDfjbRA9sy0FwpF7pa7mBmU1_G0RvD0xbEhSaFtCL5hyNVVZCfgVqNl41C7-F2yUWhfVQPhT5YnT3eH3gV9ZczhP1trNjIzGuH-8D7EDJcoxuwdGaaY-wTmEtHykHRyab08qr62hfwLuSjHAGN6VgV-Na81XIdXmR7Dwnd1U4MxWJxzRvnVlHFCBaZIG6jNJ21vbzM-DBMq1d8tvtrGQx4w3niK_sctUZ5NP1BLkQhYSEGLr-e_mbmHFCnGtuKfnfIm-PVD-6ihfEwX3j_YQT3LhphBZj7AdXg6iyyQn9EJQ
+                    authContextRefs:
+                      - 'mosip:idp:acr:generated-code'
+                      - 'mosip:idp:acr:biometrics'
+                      - 'mosip:idp:acr:linked-wallet'
+                    userClaims:
+                      - name
+                      - email
+                      - phone_number
+                      - address
+                    grantTypes:
+                      - authorization_code
+                    clientAuthMethods:
+                      - private_key_jwt
+                    additionalConfig:
+                      userinfo_response_type: JWS
+                      purpose:
+                        title:
+                          '@none': Title
+                        type: verify
+                        subTitle:
+                          '@none': subTitle
+                      signup_banner_required: true
+                      forgot_pwd_link_required: true
+                      consent_expire_in_mins: 30
+                      require_pushed_authorization_requests: true
+                      dpop_bound_access_tokens: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  responseTime:
+                    type: string
+                    description: Date and time when the response is generated
+                  response:
+                    type: object
+                    properties:
+                      clientId:
+                        type: string
+                        description: Client id as provided in the request.
+                      status:
+                        type: string
+                        enum:
+                          - ACTIVE
+                          - INACTIVE
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties: false
+                      properties:
+                        errorCode:
+                          type: string
+                          enum:
+                            - duplicate_client_id
+                            - invalid_public_key
+                            - invalid_input
+                            - invalid_client_id
+                            - invalid_client_name
+                            - invalid_rp_id
+                            - invalid_claim
+                            - invalid_acr
+                            - invalid_uri
+                            - invalid_redirect_uri
+                            - invalid_grant_type
+                            - invalid_client_auth
+                            - invalid_language_code
+                            - invalid_client_name_value
+                            - invalid_additional_config
+                        errorMessage:
+                          type: string
+              examples:
+                Example 1:
+                  value:
+                    responseTime: '2023-09-22T08:01:13.000Z'
+                    response:
+                      clientId: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
+                      status: ACTIVE
+                    errors: []
+        '401':
+          description: Unauthorized
+      security:
+        - Authorization-add_oidc_client: []
+      servers:
+        - url: 'https://esignet.collab.mosip.net/v1/esignet'
+      x-internal: false
+  '/client-mgmt/oidc-client/{client_id}':
+    put:
+      tags:
+        - Management
+      summary: Update OIDC Client Endpoint
+      description: |-
+        API to update existing Open ID Connect (OIDC) client, it can be invoked by other modules which manages the relying parties / partners when there any updates on the fields accepted in this API.
+
+        **Authentication and authorization** is based on a valid JWT issued by a trusted IAM system including "**update_oidc_client**" scope.
+      operationId: put-oidc-client-client_id
+      parameters:
+        - name: client_id
+          in: path
+          description: Client Identifier
+          required: true
+          schema:
+            type: string
+            examples:
+              - WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                requestTime:
+                  type: string
+                  description: Current date and time when the request is sent
+                  pattern: ''
+                request:
+                  type: object
+                  properties:
+                    clientName:
+                      type: string
+                      description: Name of the OIDC client.
+                      minLength: 1
+                      maxLength: 256
+                      examples:
+                        - ABC Health Care
+                    status:
+                      type: string
+                      enum:
+                        - active
+                        - inactive
+                      description: Status of OIDC client.
+                    logoUri:
+                      type: string
+                      description: Relying party logo URI which will used to display logo in OIDC login and consent pages.
+                      format: uri
+                      minLength: 1
+                      maxLength: 1024
+                    redirectUris:
+                      type: array
+                      description: 'Valid list of callback Uris of the relying party. When OIDC authorize API is called, any one Uri from this list should be sent as redirect_uri. authorization_code will be redirected to this Uri on successful authentication.'
+                      minItems: 1
+                      uniqueItems: true
+                      items:
+                        type: string
+                        format: uri
+                    userClaims:
+                      type: array
+                      description: 'Allowed user info claims, that can be requested by OIDC client in the authorize API'
+                      minItems: 1
+                      items:
+                        type: string
+                        enum:
+                          - name
+                          - given_name
+                          - middle_name
+                          - preferred_username
+                          - nickname
+                          - gender
+                          - birthdate
+                          - email
+                          - phone_number
+                          - picture
+                          - address
+                    authContextRefs:
+                      type: array
+                      description: The Authentication Context Class Reference is case-sensitive string specifying a list of Authentication Context Class values that identifies the Authentication Context Class. Values that the authentication performed satisfied implying a Level Of Assurance.
+                      minItems: 1
+                      uniqueItems: true
+                      items:
+                        type: string
+                        enum:
+                          - 'mosip:idp:acr:static-code'
+                          - 'mosip:idp:acr:generated-code'
+                          - 'mosip:idp:acr:linked-wallet'
+                          - 'mosip:idp:acr:biometrics'
+                    grantTypes:
+                      type: array
+                      description: Form of Authorization Grant presented to token endpoint.
+                      minItems: 1
+                      items:
+                        const: authorization_code
+                    clientAuthMethods:
+                      type: array
+                      description: Auth method supported for token endpoint. At present only "private_key_jwt" is supported.
+                      minItems: 1
+                      items:
+                        const: private_key_jwt
+                  required:
+                    - clientName
+                    - status
+                    - logoUri
+                    - redirectUris
+                    - userClaims
+                    - authContextRefs
+                    - grantTypes
+                    - clientAuthMethods
+              required:
+                - requestTime
+                - request
+            examples:
+              example-1:
+                value:
+                  requestTime: '2011-10-05T14:48:00.000Z'
+                  request:
+                    clientName: Fastlane e-Sim Service
+                    status: active
+                    logoUri: 'https://fastline.com/logo.png'
+                    redirectUris:
+                      - 'https://fastlane.com/homepage'
+                      - 'https://fastlane-dev.com/*'
+                      - 'fastlaneapp://oauth/*'
+                    authContextRefs:
+                      - 'mosip:idp:acr:biometrics'
+                      - 'mosip:idp:acr:generated-code'
+                      - 'mosip:idp:acr:linked-wallet'
+                    userClaims:
+                      - name
+                      - email
+                      - phone_number
+                      - address
+                    grantTypes:
+                      - authorization_code
+                    clientAuthMethods:
+                      - private_key_jwt
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  responseTime:
+                    type: string
+                    description: Date and time when the response is generated
+                  response:
+                    type: object
+                    properties:
+                      clientId:
+                        type: string
+                        description: OIDC client identifier.
+                      status:
+                        type: string
+                        enum:
+                          - ACTIVE
+                          - INACTIVE
+                    required:
+                      - clientId
+                  errors:
+                    type: array
+                    description: 'List of Errors in case of request validation / processing failure in Idp server. When request processing is fully successful, this array will be empty.'
+                    items:
+                      type: object
+                      properties:
+                        errorCode:
+                          type: string
+                          enum:
+                            - invalid_client_id
+                            - invalid_client_name
+                            - invalid_claim
+                            - invalid_acr
+                            - invalid_uri
+                            - invalid_redirect_uri
+                            - invalid_grant_type
+                            - invalid_client_auth
+                        errorMessage:
+                          type: string
+              examples:
+                Example 1:
+                  value:
+                    responseTime: '2023-09-22T08:01:13.000Z'
+                    response:
+                      clientId: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
+                      status: ACTIVE
+                    errors: []
+      deprecated: true
+      security:
+        - Authorization-update_oidc_client: []
+      servers:
+        - url: 'https://esignet.collab.mosip.net/v1/esignet'
+  '/client-mgmt/oauth-client/{client_id}':
+    put:
+      tags:
+        - Management
+      summary: Update OAuth/OIDC Client Endpoint
+      description: |-
+        API to update existing OAuth/Open ID Connect (OIDC) client, it can be invoked by other modules which manages the relying parties / partners when there any updates on the fields accepted in this API.
+
+        **Authentication and authorization** is based on a valid JWT issued by a trusted IAM system including "**update_oidc_client**" scope.
+      operationId: put-oauth-client-client_id
+      parameters:
+        - name: client_id
+          in: path
+          description: Client Identifier
+          required: true
+          schema:
+            type: string
+            examples:
+              - WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                requestTime:
+                  type: string
+                  description: Current date and time when the request is sent
+                  pattern: ''
+                request:
+                  type: object
+                  properties:
+                    clientName:
+                      type: string
+                      description: Name of the OAuth/OIDC client.
+                      minLength: 1
+                      maxLength: 256
+                      examples:
+                        - ABC Health Care
+                    clientNameLangMap:
+                      type: object
+                      description: |-
+                        Client name in different languages. The 3 letter language code needs to be passed as key and 
+                        client name in the desired language needs to be passed as value
+                    status:
+                      type: string
+                      enum:
+                        - active
+                        - inactive
+                      description: Status of the Client.
+                    logoUri:
+                      type: string
+                      description: Relying party logo URI which will used to display logo in the login and consent pages.
+                      format: uri
+                      minLength: 1
+                      maxLength: 1024
+                    redirectUris:
+                      type: array
+                      description: 'Valid list of callback Uris of the relying party. When the authorize API is called, any one Uri from this list should be sent as redirect_uri. authorization_code will be redirected to this Uri on successful authentication.'
+                      minItems: 1
+                      uniqueItems: true
+                      items:
+                        type: string
+                        format: uri
+                    userClaims:
+                      type: array
+                      description: 'Allowed user info claims, that can be requested by OIDC client in the authorize API'
+                      minItems: 1
+                      items:
+                        type: string
+                        enum:
+                          - name
+                          - given_name
+                          - middle_name
+                          - preferred_username
+                          - nickname
+                          - gender
+                          - birthdate
+                          - email
+                          - phone_number
+                          - picture
+                          - address
+                    authContextRefs:
+                      type: array
+                      description: The Authentication Context Class Reference is case-sensitive string specifying a list of Authentication Context Class values that identifies the Authentication Context Class. Values that the authentication performed satisfied implying a Level Of Assurance.
+                      minItems: 1
+                      uniqueItems: true
+                      items:
+                        type: string
+                        enum:
+                          - 'mosip:idp:acr:static-code'
+                          - 'mosip:idp:acr:generated-code'
+                          - 'mosip:idp:acr:linked-wallet'
+                          - 'mosip:idp:acr:biometrics'
+                          - 'mosip:idp:acr:id-token'
+                          - 'mosip:idp:acr:password'
+                          - 'mosip:idp:acr:knowledge'
+                    grantTypes:
+                      type: array
+                      description: Form of Authorization Grant presented to token endpoint.
+                      minItems: 1
+                      items:
+                        const: authorization_code
+                    clientAuthMethods:
+                      type: array
+                      description: Auth method supported for token endpoint. At present only "private_key_jwt" is supported.
+                      minItems: 1
+                      items:
+                        const: private_key_jwt
+                  required:
+                    - clientName
+                    - clientNameLangMap
+                    - status
+                    - logoUri
+                    - redirectUris
+                    - userClaims
+                    - authContextRefs
+                    - grantTypes
+                    - clientAuthMethods
+              required:
+                - requestTime
+                - request
+            examples:
+              Example 1:
+                value:
+                  requestTime: '2011-10-05T14:48:00.000Z'
+                  request:
+                    clientName: Fastlane e-Sim Service
+                    status: active
+                    clientNameLangMap:
+                      fra: Service e-Sim de Fastlane
+                      ara: خدمة فاست لين e-SIM
+                    logoUri: 'https://fastlane.com/logo.png'
+                    redirectUris:
+                      - 'https://fastlane.com/homepage'
+                      - 'http://fastlane-dev.com/*'
+                      - 'fastlaneapp://oauth/*'
+                    authContextRefs:
+                      - 'mosip:idp:acr:biometrics'
+                      - 'mosip:idp:acr:generated-code'
+                      - 'mosip:idp:acr:linked-wallet'
+                    userClaims:
+                      - name
+                      - email
+                      - phone_number
+                      - address
+                    grantTypes:
+                      - authorization_code
+                    clientAuthMethods:
+                      - private_key_jwt
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  responseTime:
+                    type: string
+                    description: Date and time when the response is generated
+                  response:
+                    type: object
+                    properties:
+                      clientId:
+                        type: string
+                        description: Client identifier.
+                      status:
+                        type: string
+                        enum:
+                          - ACTIVE
+                          - INACTIVE
+                    required:
+                      - clientId
+                  errors:
+                    type: array
+                    description: 'List of Errors in case of request validation / processing failure in Idp server. When request processing is fully successful, this array will be empty.'
+                    items:
+                      type: object
+                      properties:
+                        errorCode:
+                          type: string
+                          enum:
+                            - invalid_client_id
+                            - invalid_client_name
+                            - invalid_claim
+                            - invalid_acr
+                            - invalid_uri
+                            - invalid_redirect_uri
+                            - invalid_grant_type
+                            - invalid_client_auth
+                            - invalid_client_name_value
+                            - invalid_language_code
+                        errorMessage:
+                          type: string
+              examples:
+                Example 1:
+                  value:
+                    responseTime: '2023-09-22T08:01:13.000Z'
+                    response:
+                      clientId: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
+                      status: ACTIVE
+                    errors: []
+      security:
+        - Authorization-update_oidc_client: []
+      servers:
+        - url: 'https://esignet.collab.mosip.net/v1/esignet'
+      deprecated: true
+  '/client-mgmt/client/{client_id}':
+    put:
+      tags:
+        - Management
+      summary: Update OAuth/OIDC Client Endpoint
+      description: |-
+        API to update existing OAuth/Open ID Connect (OIDC) client, it can be invoked by other modules which manages the relying parties / partners when there any updates on the fields accepted in this API.
+
+        **Authentication and authorization** is based on a valid JWT issued by a trusted IAM system including "**update_oidc_client**" scope.
+      operationId: put-client-client_id
+      parameters:
+        - name: client_id
+          in: path
+          description: Client Identifier
+          required: true
+          schema:
+            type: string
+            examples:
+              - WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - requestTime
+                - request
+              properties:
+                requestTime:
+                  type: string
+                  description: Current date and time when the request is sent
+                  pattern: ''
+                request:
+                  type: object
+                  required:
+                    - clientName
+                    - clientNameLangMap
+                    - status
+                    - logoUri
+                    - redirectUris
+                    - userClaims
+                    - authContextRefs
+                    - grantTypes
+                    - clientAuthMethods
+                  properties:
+                    clientName:
+                      type: string
+                      description: Name of the OAuth/OIDC client.
+                      minLength: 1
+                      maxLength: 256
+                      examples:
+                        - ABC Health Care
+                    clientNameLangMap:
+                      type: object
+                      description: |-
+                        Client name in different languages. The 3 letter language code needs to be passed as key and 
+                        client name in the desired language needs to be passed as value
+                    status:
+                      type: string
+                      enum:
+                        - active
+                        - inactive
+                      description: Status of the Client.
+                    logoUri:
+                      type: string
+                      description: Relying party logo URI which will used to display logo in the login and consent pages.
+                      format: uri
+                      minLength: 1
+                      maxLength: 1024
+                    redirectUris:
+                      type: array
+                      description: 'Valid list of callback Uris of the relying party. When the authorize API is called, any one Uri from this list should be sent as redirect_uri. authorization_code will be redirected to this Uri on successful authentication.'
+                      minItems: 1
+                      uniqueItems: true
+                      items:
+                        type: string
+                        format: uri
+                    userClaims:
+                      type: array
+                      description: 'Allowed user info claims, that can be requested by OIDC client in the authorize API'
+                      minItems: 1
+                      items:
+                        type: string
+                        enum:
+                          - name
+                          - given_name
+                          - middle_name
+                          - preferred_username
+                          - nickname
+                          - gender
+                          - birthdate
+                          - email
+                          - phone_number
+                          - picture
+                          - address
+                    authContextRefs:
+                      type: array
+                      description: The Authentication Context Class Reference is case-sensitive string specifying a list of Authentication Context Class values that identifies the Authentication Context Class. Values that the authentication performed satisfied implying a Level Of Assurance.
+                      minItems: 1
+                      uniqueItems: true
+                      items:
+                        type: string
+                        enum:
+                          - 'mosip:idp:acr:static-code'
+                          - 'mosip:idp:acr:generated-code'
+                          - 'mosip:idp:acr:linked-wallet'
+                          - 'mosip:idp:acr:biometrics'
+                          - 'mosip:idp:acr:id-token'
+                          - 'mosip:idp:acr:password'
+                          - 'mosip:idp:acr:knowledge'
+                    grantTypes:
+                      type: array
+                      description: Form of Authorization Grant presented to token endpoint.
+                      minItems: 1
+                      items:
+                        const: authorization_code
+                    clientAuthMethods:
+                      type: array
+                      description: Auth method supported for token endpoint. At present only "private_key_jwt" is supported.
+                      minItems: 1
+                      items:
+                        const: private_key_jwt
+                    additionalConfig:
+                      type: object
+                      description: 'This parameter allow us to configure the required values based on their specific authentication and integration needs, ensuring efficient implementation of eSignet for ID verification/authentication.'
+                      properties:
+                        userinfo_response_type:
+                          enum:
+                            - JWS
+                            - JWE
+                          description: The response type for the user info endpoint should be configurable to allow the Relying Party to choose between only signed tokens or signed tokens with encryption.
+                        purpose:
+                          $ref: '#/components/schemas/Purpose'
+                        signup_banner_required:
+                          type: boolean
+                          description: Relying Parties should be able to specify whether they require eSignet sign-up. If no signup service is required UI should not have “Sign up with Unified login“ option.
+                        forgot_pwd_link_required:
+                          type: boolean
+                          description: Relying Parties should be able to specify whether they require eSignet forgot password feature. If it is not required UI should not have “Forgot password“ option
+                        consent_expire_in_mins:
+                          type: number
+                          minimum: 10
+                          description: The number of minuets after which a user's given consent will expire.
+                        require_pushed_authorization_requests:
+                          type: boolean
+                          description: 'Boolean parameter indicating whether the only means of initiating an authorization request the client is allowed to use is PAR. If omitted, the default value is false.'
+                        dpop_bound_access_tokens:
+                          type: boolean
+                          description: 'A boolean value specifying whether the client always uses DPoP for token requests. If omitted, the default value is false. If the value is true, the eSignet rejects token request from the client that do not contain the DPoP header.'
+            examples:
+              Example 1:
+                value:
+                  requestTime: '2011-10-05T14:48:00.000Z'
+                  request:
+                    clientName: Fastlane e-Sim Service
+                    status: active
+                    clientNameLangMap:
+                      fra: Service e-Sim de Fastlane
+                      ara: خدمة فاست لين e-SIM
+                    logoUri: 'https://fastlane.com/logo.png'
+                    redirectUris:
+                      - 'https://fastlane.com/homepage'
+                      - 'http://fastlane-dev.com/*'
+                      - 'fastlaneapp://oauth/*'
+                    authContextRefs:
+                      - 'mosip:idp:acr:biometrics'
+                      - 'mosip:idp:acr:generated-code'
+                      - 'mosip:idp:acr:linked-wallet'
+                    userClaims:
+                      - name
+                      - email
+                      - phone_number
+                      - address
+                    grantTypes:
+                      - authorization_code
+                    clientAuthMethods:
+                      - private_key_jwt
+                    additionalConfig:
+                      userinfo_response_type: JWS
+                      purpose:
+                        title:
+                          '@none': Title
+                        type: verify
+                        subTitle:
+                          '@none': subTitle
+                      signup_banner_required: true
+                      forgot_pwd_link_required: true
+                      consent_expire_in_mins: 30
+                      require_pushed_authorization_requests: false
+                      dpop_bound_access_tokens: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  responseTime:
+                    type: string
+                    description: Date and time when the response is generated
+                  response:
+                    type: object
+                    properties:
+                      clientId:
+                        type: string
+                        description: Client identifier.
+                      status:
+                        type: string
+                        enum:
+                          - ACTIVE
+                          - INACTIVE
+                    required:
+                      - clientId
+                  errors:
+                    type: array
+                    description: 'List of Errors in case of request validation / processing failure in Idp server. When request processing is fully successful, this array will be empty.'
+                    items:
+                      type: object
+                      properties:
+                        errorCode:
+                          type: string
+                          enum:
+                            - invalid_client_id
+                            - invalid_client_name
+                            - invalid_claim
+                            - invalid_acr
+                            - invalid_uri
+                            - invalid_redirect_uri
+                            - invalid_grant_type
+                            - invalid_client_auth
+                            - invalid_client_name_value
+                            - invalid_language_code
+                            - invalid_additional_config
+                        errorMessage:
+                          type: string
+              examples:
+                Example 1:
+                  value:
+                    responseTime: '2023-09-22T08:01:13.000Z'
+                    response:
+                      clientId: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
+                      status: ACTIVE
+                    errors: []
+      security:
+        - Authorization-update_oidc_client: []
+      servers:
+        - url: 'https://esignet.collab.mosip.net/v1/esignet'
+    patch:
+      tags:
+        - Management
+      summary: Partially Update OAuth/OIDC Client Endpoint
+      description: |-
+        API to partially update existing OAuth/Open ID Connect (OIDC) client. Only provided fields will be updated.
+        
+        **Special handling for encPublicKey:**
+        - When set/updated: validates format and computes enc_public_key_hash
+        - When explicitly set to null: clears both enc_public_key and enc_public_key_hash
+        - When not present in request: leaves both fields unchanged
+
+        **Authentication and authorization** is based on a valid JWT issued by a trusted IAM system including "**update_oidc_client**" scope.
+      operationId: patch-client-client_id
+      parameters:
+        - name: client_id
+          in: path
+          description: Client Identifier
+          required: true
+          schema:
+            type: string
+            examples:
+              - WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
+      requestBody:
+        description: Partial update request - only include fields to update
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - requestTime
+                - request
+              properties:
+                requestTime:
+                  type: string
+                  description: Current date and time when the request is sent
+                request:
+                  type: object
+                  description: All fields are optional. Only provided fields will be updated.
+                  properties:
+                    clientName:
+                      type: string
+                      description: Name of the OAuth/OIDC client.
+                      minLength: 1
+                      maxLength: 256
+                    clientNameLangMap:
+                      type: object
+                      description: Client name in different languages.
+                      additionalProperties:
+                        type: string
+                        minLength: 1
+                        maxLength: 50
+                    status:
+                      type: string
+                      enum:
+                        - ACTIVE
+                        - INACTIVE
+                      description: Status of the Client.
+                    logoUri:
+                      type: string
+                      description: Relying party logo URI.
+                      format: uri
+                    redirectUris:
+                      type: array
+                      description: Valid list of callback URIs.
+                      minItems: 1
+                      maxItems: 5
+                      uniqueItems: true
+                      items:
+                        type: string
+                        format: uri
+                    userClaims:
+                      type: array
+                      description: Allowed user info claims that can be requested by OIDC client.
+                      minItems: 1
+                      maxItems: 30
+                      uniqueItems: true
+                      items:
+                        type: string
+                        enum:
+                          - name
+                          - given_name
+                          - middle_name
+                          - preferred_username
+                          - nickname
+                          - gender
+                          - birthdate
+                          - email
+                          - phone_number
+                          - picture
+                          - address
+                    authContextRefs:
+                      type: array
+                      description: Authentication Context Class Reference values.
+                      minItems: 1
+                      maxItems: 30
+                      uniqueItems: true
+                      items:
+                        type: string
+                        enum:
+                          - 'mosip:idp:acr:static-code'
+                          - 'mosip:idp:acr:generated-code'
+                          - 'mosip:idp:acr:linked-wallet'
+                          - 'mosip:idp:acr:biometrics'
+                          - 'mosip:idp:acr:knowledge'
+                          - 'mosip:idp:acr:password'
+                          - 'mosip:idp:acr:id-token'
+                    grantTypes:
+                      type: array
+                      description: Form of Authorization Grant presented to token endpoint.
+                      minItems: 1
+                      maxItems: 3
+                      uniqueItems: true
+                      items:
+                        type: string
+                        enum:
+                          - authorization_code
+                    clientAuthMethods:
+                      type: array
+                      description: Auth method supported for token endpoint. At present only "private_key_jwt" is supported.
+                      minItems: 1
+                      maxItems: 3
+                      uniqueItems: true
+                      items:
+                        type: string
+                        enum:
+                          - private_key_jwt
+                    additionalConfig:
+                      type: object
+                      description: 'This parameter allow us to configure the required values based on their specific authentication and integration needs, ensuring efficient implementation of eSignet for ID verification/authentication.'
+                      properties:
+                        userinfo_response_type:
+                          type: string
+                          enum:
+                            - JWS
+                            - JWE
+                          description: The response type for the user info endpoint should be configurable to allow the Relying Party to choose between only signed tokens or signed tokens with encryption.
+                        purpose:
+                          $ref: '#/components/schemas/Purpose'
+                        signup_banner_required:
+                          type: boolean
+                          description: Relying Parties should be able to specify whether they require eSignet sign-up. If no signup service is required UI should not have "Sign up with Unified login" option.
+                        forgot_pwd_link_required:
+                          type: boolean
+                          description: Relying Parties should be able to specify whether they require eSignet forgot password feature. If it is not required UI should not have "Forgot password" option.
+                        consent_expire_in_mins:
+                          type: number
+                          minimum: 10
+                          description: The number of minutes after which a user's given consent will expire.
+                        require_pushed_authorization_requests:
+                          type: boolean
+                          description: 'Boolean parameter indicating whether the only means of initiating an authorization request the client is allowed to use is PAR. If omitted, the default value is false.'
+                        dpop_bound_access_tokens:
+                          type: boolean
+                          description: 'A boolean value specifying whether the client always uses DPoP for token requests. If omitted, the default value is false. If the value is true, the eSignet rejects token request from the client that do not contain the DPoP header.'
+                    encPublicKey:
+                      description: |-
+                        Encryption public key in JWK format for userinfo JWE encryption.
+                        - Set to a valid JWK object to update
+                        - Set to null to clear the encryption key
+                        - Omit to leave unchanged
+                      oneOf:
+                        - type: 'null'
+                        - title: RSA Encryption Key
+                          type: object
+                          description: RSA public key for encryption
+                          properties:
+                            kty:
+                              type: string
+                              description: Key type (RSA)
+                              enum:
+                                - RSA
+                            n:
+                              type: string
+                              description: RSA modulus (Base64URL encoded)
+                              minLength: 1
+                            e:
+                              type: string
+                              description: RSA exponent
+                              enum:
+                                - AQAB
+                            use:
+                              type: string
+                              description: Key use (enc for encryption)
+                              enum:
+                                - enc
+                            alg:
+                              type: string
+                              description: Algorithm for key management
+                              enum:
+                                - RSA-OAEP-256
+                                - RSA-OAEP
+                            kid:
+                              type: string
+                              description: Key ID
+                          required:
+                            - kty
+                            - n
+                            - e
+                        - title: EC Encryption Key
+                          type: object
+                          description: Elliptic Curve public key for encryption
+                          properties:
+                            kty:
+                              type: string
+                              description: Key type (EC)
+                              enum:
+                                - EC
+                            crv:
+                              type: string
+                              description: Curve name
+                              enum:
+                                - P-256
+                                - P-384
+                                - P-521
+                            x:
+                              type: string
+                              description: X coordinate (Base64URL encoded)
+                              minLength: 1
+                            y:
+                              type: string
+                              description: Y coordinate (Base64URL encoded)
+                              minLength: 1
+                            use:
+                              type: string
+                              description: Key use (enc for encryption)
+                              enum:
+                                - enc
+                            alg:
+                              type: string
+                              description: Algorithm for key management
+                              enum:
+                                - ECDH-ES
+                                - ECDH-ES+A128KW
+                                - ECDH-ES+A192KW
+                                - ECDH-ES+A256KW
+                            kid:
+                              type: string
+                              description: Key ID
+                          required:
+                            - kty
+                            - crv
+                            - x
+                            - y
+            examples:
+              Update Status Only:
+                value:
+                  requestTime: '2024-01-15T10:30:00.000Z'
+                  request:
+                    status: INACTIVE
+              Update RSA Encryption Key:
+                value:
+                  requestTime: '2024-01-15T10:30:00.000Z'
+                  request:
+                    encPublicKey:
+                      kty: RSA
+                      n: 0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4cbbfAAtVT86zwu1RK7aPFFxuhDR1L6tSoc_BJECPebWKRXjBZCiFV4n3oknjhMstn64tZ_2W-5JsGY4Hc5n9yBXArwl93lqt7_RN5w6Cf0h4QyQ5v-65YGjQR0_FDW2QvzqY368QQMicAtaSqzs8KJZgnYb9c7d0zgdAZHzu6qMQvRL5hajrn1n91CbOpbISD08qNLyrdkt-bFTWhAI4vMQFh6WeZu0fM4lFd2NcRwr3XPksINHaQ-G_xBniIqbw0Ls1jF44-csFCur-kEgU8awapJzKnqDKgw
+                      e: AQAB
+                      use: enc
+                      alg: RSA-OAEP-256
+                      kid: enc-key-rsa-1
+              Update EC Encryption Key:
+                value:
+                  requestTime: '2024-01-15T10:30:00.000Z'
+                  request:
+                    encPublicKey:
+                      kty: EC
+                      crv: P-256
+                      x: WbbkPq9chKwjFGa9U7CmEEIb3FJ0yHEaGrMsC3E6iKA
+                      y: 8NKNqnR7v29K7NsMFhV9C0e-RYlBN0tA7qhwj4ZjxpU
+                      use: enc
+                      alg: ECDH-ES+A256KW
+                      kid: enc-key-ec-1
+              Clear Encryption Key:
+                value:
+                  requestTime: '2024-01-15T10:30:00.000Z'
+                  request:
+                    encPublicKey: null
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  responseTime:
+                    type: string
+                    description: Date and time when the response is generated
+                  response:
+                    type: object
+                    properties:
+                      clientId:
+                        type: string
+                        description: Client identifier.
+                      status:
+                        type: string
+                        enum:
+                          - ACTIVE
+                          - INACTIVE
+                    required:
+                      - clientId
+                  errors:
+                    type: array
+                    description: List of Errors in case of request validation / processing failure.
+                    items:
+                      type: object
+                      properties:
+                        errorCode:
+                          type: string
+                          enum:
+                            - invalid_client_id
+                            - invalid_client_name
+                            - invalid_claim
+                            - invalid_acr
+                            - invalid_uri
+                            - invalid_redirect_uri
+                            - invalid_grant_type
+                            - invalid_client_auth
+                            - invalid_public_key
+                            - invalid_additional_config
+                        errorMessage:
+                          type: string
+              examples:
+                Success:
+                  value:
+                    responseTime: '2024-01-15T10:30:05.000Z'
+                    response:
+                      clientId: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
+                      status: ACTIVE
+                    errors: []
+      security:
+        - Authorization-update_oidc_client: []
+      servers:
+        - url: 'https://esignet.collab.mosip.net/v1/esignet'
+  /oauth2/par:
+    post:
+      tags:
+        - OIDC
+      summary: PAR Endpoint
+      description: |-
+        **PAR - Pushed Authorization Request**
+
+        1. Message body of an this request with parameters formatted with x-www-form-urlencoded using a character encoding of UTF-8
+        2. Add "pushed_authorization_request_endpoint" in the authorization server metadata.
+        3. Client must adds its authentication credentials to the request body using the same rules as for token endpoint request.
+        4. Authenticate the client in the same way as at the token endpoint.
+        5. Reject the request if the request_uri authorization request parameter is provided.
+        6. Validate the request parmeters in the body as it would be validated in oauth-details request.
+        7. Upon successful verification, the server MUST generate a request URI and provide it in the response with a 201 HTTP status code.
+
+        **request_uri** should be in this format: 'urn:ietf:params:oauth:request_uri:<secure random alpha-numeric string with max length of 25>'
+
+        Successfully verified request parameters should be stored in the "par" cache with request_uri as the key. Objects in the "par" cache are set with TTL.
+        TTL should be configurable and the expires_in parameter in the response should return same value.
+
+        **Not supported:**
+          1. client authentication parameters in the PAR request header.
+          2. The request parameter as defined in JAR [RFC9101].
+          3. API rate limit is left to the infra to handle.
+          4. Use of non-registered redirect_uri's are not allowed.
+      operationId: post-oauth-par
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - scope
+                - response_type
+                - client_id
+                - redirect_uri
+                - client_assertion
+                - client_assertion_type
+              properties:
+                scope:
+                  type: string
+                  description: Specifies what access privileges are being requested for Access Tokens. The scopes associated with Access Tokens determine what resources will be available when they are used to access OAuth 2.0 protected endpoints. OpenID Connect requests MUST contain the OpenID scope value.
+                  enum:
+                    - openid
+                    - profile
+                    - email
+                    - address
+                    - phone
+                    - offline_access
+                response_type:
+                  type: string
+                  description: 'Value that determines the authorization processing flow to be used. When using the Authorization Code Flow, this value is code.'
+                  x-stoplight:
+                    id: 06op369n6ipx2
+                  enum:
+                    - code
+                client_id:
+                  type: string
+                  description: OAuth 2.0 Client Identifier valid at the Authorization Server
+                  x-stoplight:
+                    id: loecaliscjne7
+                  example: 785b806d0e594657b05aabdb30fff8a4
+                redirect_uri:
+                  type: string
+                  description: Redirection URI to which the response will be sent. This URI MUST exactly match one of the Redirection URI values for the Client pre-registered
+                  x-stoplight:
+                    id: obnx0myaatag7
+                  examples:
+                    - 'https://relying-party-portal/callback'
+                    - 'app://oauth/redirect'
+                state:
+                  type: string
+                  description: client state value echoed.
+                nonce:
+                  type: string
+                  description: Client's nonce value echoed.
+                display:
+                  type: string
+                  description: ASCII string value that specifies how the Authorization Server displays the authentication and consent user interface pages to the End-User.
+                prompt:
+                  type: string
+                  description: 'Space delimited, case sensitive list of ASCII string values that specifies whether the Authorization Server prompts the End-User for re-authentication and consent.'
+                  examples:
+                    - consent
+                acr_values:
+                  type: string
+                  description: |-
+                    Space separated ACR values, Unknown ACR are ignored. Only registered ACR values will be considered.
+                    If none of the provided acr value is among the registered values, all the registered ACR's will be considered.
+                  examples:
+                    - 'mosip:idp:acr:biometrics'
+                    - 'mosip:idp:acr:password mosip:idp:acr:biometrics'
+                claims:
+                  $ref: '#/components/schemas/Claim'
+                max_age:
+                  type: number
+                  description: 'Maximum Authentication Age. Specifies the allowable elapsed time in seconds since the last time the End-User was actively authenticated by the OP. If the elapsed time is greater than this value, the OP MUST attempt to actively re-authenticate the End-User. (The max_age request parameter corresponds to the OpenID 2.0 PAPE [OpenID.PAPE] max_auth_age request parameter.) When max_age is used, the ID Token returned MUST include an auth_time Claim Value.'
+                claims_locales:
+                  type: string
+                  description: 'End-User''s preferred languages and scripts for Claims being returned, represented as a space-separated list of BCP47 [RFC5646] language tag values, ordered by preference. An error SHOULD NOT result if some or all of the requested locales are not supported by the OpenID Provider.'
+                ui_locales:
+                  type: string
+                  description: 'End-User''s preferred languages and scripts for the user interface, represented as a space-separated list of BCP47 [RFC5646] language tag values, ordered by preference. For instance, the value "fr-CA fr en" represents a preference for French as spoken in Canada, then French (without a region designation), followed by English (without a region designation). An error SHOULD NOT result if some or all of the requested locales are not supported by the OpenID Provider.'
+                code_challenge:
+                  type: string
+                  description: 'A challenge derived from the code verifier, to be verified against later.'
+                code_challenge_method:
+                  const: S256
+                  description: A method that was used to derive code challenge.
+                  type: string
+                id_token_hint:
+                  type: string
+                  description: ID Token previously issued by the Authorization Server being passed as a hint about the End-User's current or past authenticated session with the Client.
+                client_assertion_type:
+                  const: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
+                  description: Type of the client assertion part of this request.
+                  type: string
+                client_assertion:
+                  type: string
+                  description: The value of the "client_assertion" parameter contains a single JWT.
+                dpop_jkt:
+                  type: string
+                  description: 'The value of the dpop_jkt authorization request parameter is the JWK Thumbprint [RFC7638] of the proof-of-possession public key using the SHA-256 hash function.'
+            examples:
+              example-1:
+                value:
+                  client_id: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv
+                  scope: openid
+                  response_type: code
+                  redirect_uri: 'https://fastlane.com/homepage'
+                  display: popup
+                  prompt: login
+                  acr_values: 'mosip:idp:acr:generated-code'
+                  claims:
+                    userinfo:
+                      name:
+                        essential: true
+                      phone_number:
+                        essential: true
+                      email:
+                        essential: false
+                      address:
+                        essential: true
+                    id_token: {}
+                  nonce: 973eieljzng
+                  state: eree2311
+                  claims_locales: en
+                  code_challenge: UK95aVX_y3R44DF3hssd3wATvtZmO_WejE0P33-pwTs
+                  code_challenge_method: S256
+                  client_assertion: 
+                  client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
+      responses:
+        '201':
+          description: CREATED
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  request_uri:
+                    type: string
+                    description: The request URI corresponding to the authorization request posted. This URI is a single-use reference to the respective request data in the subsequent authorization request.
+                  expires_in:
+                    type: number
+                    description: A JSON number that represents the lifetime of the request URI in seconds as a positive integer.
+              examples:
+                example-1:
+                  value:
+                    request_uri: 'urn:ietf:params:oauth:request_uri:6esc_11ACC5bwc014ltc14eY22c'
+                    expires_in: 10
+        '400':
+          description: Bad Request
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+              description: 'no-cache, no-store'
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                  - error_description
+                properties:
+                  error:
+                    type: string
+                    description: 'Error code, available in error response.'
+                    enum:
+                      - invalid_request
+                      - invalid_client_id
+                      - invalid_redirect_uri
+                      - invalid_scope
+                      - invalid_acr
+                      - invalid_response_type
+                      - invalid_display
+                      - invalid_prompt
+                  error_description:
+                    type: string
+                    description: 'Error description, available in error response.'
+        '405':
+          description: Method Not Allowed
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+              description: 'no-cache, no-store'
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                  - error_description
+                properties:
+                  error:
+                    type: string
+                    description: 'Error code, available in error response.'
+                    enum:
+                      - method_not_allowed
+                  error_description:
+                    type: string
+                    description: 'Error description, available in error response.'
+      security: []
+      servers:
+        - url: 'https://esignet.collab.mosip.net/v1/esignet'
+      x-stoplight:
+        id: 9zp5uhyyzp9w6
+    parameters:
+      - schema:
+          type: string
+        in: header
+        name: DPoP
+        description: 'A DPoP proof is a JWT [RFC7519] that is signed (using JSON Web Signature (JWS) [RFC7515]) with a private key chosen by the client.          For more details refer - https://datatracker.ietf.org/doc/html/rfc9449#section-4.2'
+  /oauth2/authorize:
+    get:
+      tags:
+        - OIDC
+      summary: Authorization Endpoint
+      description: |-
+        This is the authorize endpoint of Open ID Connect (OIDC). The relying party applications will do a browser redirect to this endpoint with all required details passed as query parameters.
+
+        This endpoint responds with a redirect to the UI application's login page, with `authId` and `executionId` query parameters identifying the authorization session and the underlying ThunderID flow execution respectively. The UI application then calls the "/flow/meta" endpoint to fetch rendering metadata, and drives the authentication ceremony step by step via the "/flow/execute" endpoint using the `executionId`. Once the flow reaches `flowStatus: COMPLETE`, the UI application calls "/oauth2/auth/callback" with the `authId` and the flow's signed assertion to obtain the authorization code redirect.
+
+        **Authentication & Authroization**: None
+      operationId: get-authorize
+      parameters:
+        - name: scope
+          in: query
+          description: Specifies what access privileges are being requested for Access Tokens. The scopes associated with Access Tokens determine what resources will be available when they are used to access OAuth 2.0 protected endpoints. OpenID Connect requests MUST contain the OpenID scope value.
+          required: true
+          schema:
+            type: string
+            description: 'Space delimited list of scope values. Supported values: openid, profile, email, address, phone, offline_access.'
+            examples:
+              - openid profile
+              - openid email
+              - openid
+        - name: response_type
+          in: query
+          description: 'The value set here determines the authorization processing flow. To use the Authorization Code Flow, the value should be configured to "code".'
+          required: true
+          schema:
+            const: code
+        - name: client_id
+          in: query
+          description: Valid OAuth 2.0 Client Identifier in the Authorization Server.
+          required: true
+          schema:
+            type: string
+            maxLength: 256
+        - name: redirect_uri
+          in: query
+          description: Redirection URI to which the response would be sent. This URI must match one of the redirection URI values during the client ID creation.
+          required: true
+          schema:
+            type: string
+            format: uri
+        - name: state
+          in: query
+          description: 'Opaque value used to maintain state between the request and the callback. Typically, Cross-Site Request Forgery (CSRF, XSRF) mitigation is done by cryptographically binding the value of this parameter with a browser cookie.'
+          schema:
+            type: string
+            maxLength: 256
+        - name: nonce
+          in: query
+          description: 'String value used to associate a Client session with an ID Token, and to mitigate replay attacks. The value is passed through unmodified from the Authentication Request to the ID Token.'
+          schema:
+            type: string
+        - name: display
+          in: query
+          description: ASCII string value that specifies how the Authorization Server displays the authentication and consent user interface pages to the end user.
+          schema:
+            type: string
+            enum:
+              - page
+              - popup
+              - touch
+              - wap
+        - name: prompt
+          in: query
+          description: Space delimited case-sensitive list of ASCII string values that specifies whether the Authorization Server prompts the End-User for re-authentication and consent.
+          schema:
+            type: string
+            enum:
+              - consent
+            examples:
+              - consent
+        - name: max_age
+          in: query
+          description: 'Maximum Authentication Age. This specifies the allowable elapsed time in seconds since the last time the end user was actively authenticated by the OP. If the elapsed time is greater than this value, then the OP MUST attempt to actively re-authenticate the end user. The max_age request parameter corresponds to the OpenID 2.0 PAPE [OpenID.PAPE] max_auth_age request parameter. When max_age is used, the ID Token returned MUST include an auth_time claim value.'
+          schema:
+            type: number
+        - name: ui_locales
+          in: query
+          description: 'End user''s preferred languages and scripts for the user interface, represented as a space-separated list of BCP47 [RFC5646] language tag values, ordered by preference. For instance, the value "fr-CA fr en" represents a preference for French as spoken in Canada, then French (without a region designation), followed by English (without a region designation). An error SHOULD NOT result if some or all of the requested locales are not supported by the OpenID Provider.'
+          schema:
+            type: string
+        - name: acr_values
+          in: query
+          description: 'Requested Authentication Context Class Reference values. Space-separated string that specifies the acr values that the Authorization Server is being requested to use for processing this Authentication Request, with the values appearing in order of preference. The Authentication Context Class satisfied by the authentication performed is returned as the acr Claim Value, as specified in Section 2. The acr Claim is requested as a Voluntary Claim by this parameter.'
+          schema:
+            type: string
+            enum:
+              - 'mosip:idp:acr:password'
+              - 'mosip:idp:acr:generated-code'
+              - 'mosip:idp:acr:biometrics'
+              - 'mosip:idp:acr:knowledge'
+        - name: claims_locales
+          in: query
+          description: 'End-User''s preferred languages and scripts for Claims being returned, represented as a space-separated list of BCP47 [RFC5646] language tag values, ordered by preference. An error SHOULD NOT result if some or all of the requested locales are not supported by the OpenID Provider.'
+          schema:
+            type: string
+        - name: claims
+          in: query
+          description: This parameter is used to request specific claims to be returned. The value is a JSON object listing the requested claims. The claims parameter value is represented in an OAuth 2.0 request as UTF-8 encoded JSON.
+          schema:
+            type: string
+        - name: code_challenge
+          in: query
+          description: 'A challenge derived from the code_verifier, This is required if its a VC scoped request.'
+          schema:
+            type: string
+        - name: code_challenge_method
+          in: query
+          description: 'A method that was used to derive code challenge, This will be required if code_challenge is provided.'
+          schema:
+            type: string
+        - schema:
+            type: string
+          in: query
+          description: ID Token previously issued by the Authorization Server being passed as a hint about the End-User's current or past authenticated session with the Client.
+          name: id_token_hint
+        - schema:
+            type: string
+          in: query
+          description: The request URI corresponding to the pushed authorization request posted. This URI is a single-use reference to the respective request data in the subsequent authorization request.
+          name: request_uri
+      responses:
+        '302':
+          description: |-
+            Redirect to the UI application's login page, with `authId` and `executionId` identifying the authorization session, or to the client's registered redirect_uri on error.
+          headers:
+            Location:
+              schema:
+                type: string
+        '400':
+          description: 'Bad Request: malformed or duplicate query parameters.'
+      security: []
+      servers:
+        - url: 'https://esignet.collab.mosip.net/v1/esignet'
+  /flow/meta:
+    get:
+      tags:
+        - UI
+      summary: Get flow metadata
+      operationId: getFlowMetadata
+      description: |-
+        Retrieves the application details, design (theme/layout), and i18n translations the UI application needs to render an authentication flow. Called immediately after being redirected here by the "/authorize" endpoint, using the `client_id` echoed back in the redirect as the `id` query parameter. eSignet always passes `type=APP` and `namespace=auth`.
+
+        **Authentication & Authroization**: None
+      parameters:
+        - name: type
+          in: query
+          required: true
+          description: The type of entity to retrieve metadata for. eSignet always requests application-level metadata for the client initiating the flow.
+          schema:
+            type: string
+            const: APP
+          example: APP
+        - name: id
+          in: query
+          required: true
+          description: 'The `client_id` of the OAuth/OIDC client initiating the flow. Opaque string, not necessarily a UUID.'
+          schema:
+            type: string
+          example: 'p9K4Qm7Z2xVeWq0Lc3TbDf6NsYh1JgArE5Ru8oXiMw'
+        - name: language
+          in: query
+          required: false
+          description: 'Language tag in BCP 47 format for i18n translations (e.g. `en`, `es`, `fr-CA`).'
+          schema:
+            type: string
+            pattern: '^[a-z]{2}(-[A-Z]{2})?(-[A-Za-z]+)?$'
+          example: en
+        - name: namespace
+          in: query
+          required: true
+          description: Translation namespace to retrieve. eSignet always requests the `auth` namespace.
+          schema:
+            type: string
+            const: auth
+          example: auth
+      responses:
+        '200':
+          description: Flow metadata retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlowMetadataResponse'
+              examples:
+                app-metadata:
+                  summary: Application metadata with i18n
+                  description: '`design.theme`/`design.layout` are opaque, pass-through objects (trimmed here). `i18n.translations` is keyed by eSignet''s several `auth`-group namespaces (`app`, `button`, `errors`, `system`, ...), not a single `auth` key.'
+                  value:
+                    isRegistrationFlowEnabled: false
+                    isRecoveryFlowEnabled: false
+                    application:
+                      id: 'p9K4Qm7Z2xVeWq0Lc3TbDf6NsYh1JgArE5Ru8oXiMw'
+                      name: 'Postman Test Client'
+                      description: 'Postman Test Client'
+                      logoUrl: 'https://myapp.example.com/logo.png'
+                    design:
+                      theme:
+                        direction: ltr
+                        defaultColorScheme: light
+                        shape:
+                          borderRadius: 6
+                        shadows:
+                          small: '0px 1px 3px rgba(0, 0, 0, 0.2)'
+                          medium: '0px 4px 6px rgba(0, 0, 0, 0.3)'
+                          large: '0px 10px 20px rgba(0, 0, 0, 0.4)'
+                        typography:
+                          fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif"
+                          fontSize: 14
+                        colorSchemes:
+                          light:
+                            palette:
+                              mode: light
+                              primary:
+                                main: '#EB6F2D'
+                          dark:
+                            palette:
+                              mode: dark
+                              primary:
+                                main: '#ff7300'
+                      layout:
+                        type: centered
+                        components:
+                          - position: top
+                            type: logo
+                          - position: center
+                            type: form
+                          - position: bottom
+                            type: footer
+                    i18n:
+                      languages:
+                        - ar
+                        - en
+                        - es
+                        - fr
+                        - hi
+                        - km
+                        - kn
+                        - si
+                        - ta
+                      language: en
+                      totalResults: 1259
+                      translations:
+                        app:
+                          back: Back
+                        button:
+                          login_otp: Login with OTP
+                        errors:
+                          something_went_wrong: Something went wrong
+                        validation:
+                          uin.numeric: UIN/VID must contain numbers only
+        '400':
+          description: "Bad Request: the 'type' or 'id' query parameter is missing or invalid."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlowMetaError'
+        '404':
+          description: 'Not Found: the specified application or organization unit does not exist.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlowMetaError'
+        '500':
+          description: 'Internal Server Error: an unexpected error occurred while retrieving flow metadata.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlowMetaError'
+      security: []
+  /flow/execute:
+    post:
+      tags:
+        - UI
+      summary: Execute a flow step
+      operationId: executeFlow
+      description: |-
+        Drives an app-native authentication flow step by step. The UI application initiates the flow (or resumes the `executionId` returned by the "/authorize" redirect), receives a step descriptor describing the inputs/actions to present, submits the required input, and repeats until the flow reaches a `COMPLETE` or `ERROR` terminal state.
+
+        On `COMPLETE`, the response carries a signed `assertion` JWT which the UI application then posts to "/oauth2/auth/callback", together with the `authId` received from the "/authorize" redirect, to obtain the authorization code redirect.
+
+        **Authentication & Authorization**: None.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/InitialFlowRequest'
+                - $ref: '#/components/schemas/SubSequentFlowRequest'
+            examples:
+              startAfterRedirect:
+                summary: Resume the execution created by the "/authorize" redirect
+                value:
+                  executionId: '2c6d4c45-3de9-4a70-ae6b-ba1d034af6bc'
+              initialRequestBackendApp:
+                summary: Initial request from a backend/server-side application (requires the Flow-Secret header)
+                value:
+                  applicationId: '550e8400-e29b-41d4-a716-446655440000'
+                  flowType: AUTHENTICATION
+              selectAcr:
+                summary: Select the authentication method (acr) offered by the previous step
+                value:
+                  executionId: '2c6d4c45-3de9-4a70-ae6b-ba1d034af6bc'
+                  challengeToken: 'a3f2e1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2'
+                  action: acr_otp
+              enterIndividualId:
+                summary: Submit the individual ID / UIN and captcha to trigger an OTP challenge
+                value:
+                  executionId: '2c6d4c45-3de9-4a70-ae6b-ba1d034af6bc'
+                  challengeToken: 'a3f2e1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2'
+                  action: submit_uin
+                  inputs:
+                    username: '9012345678'
+                    captcha_token: test-captcha-token
+              enterOtp:
+                summary: Submit the OTP received on the registered channel
+                value:
+                  executionId: '2c6d4c45-3de9-4a70-ae6b-ba1d034af6bc'
+                  challengeToken: 'b4f3e2c1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3'
+                  action: action_submit_otp
+                  inputs:
+                    otp: '111111'
+              enterPassword:
+                summary: Submit username/password credentials (illustrative — action refs are flow-definition-specific)
+                value:
+                  executionId: '2c6d4c45-3de9-4a70-ae6b-ba1d034af6bc'
+                  challengeToken: 'b4f3e2c1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3'
+                  action: credentials_auth
+                  inputs:
+                    username: thor
+                    password: 'thor@123'
+                    captcha_token: test-captcha-token
+              enterKbi:
+                summary: Submit knowledge-based (KBI) inputs against a registry such as Sunbird (illustrative — action refs are flow-definition-specific)
+                value:
+                  executionId: '2c6d4c45-3de9-4a70-ae6b-ba1d034af6bc'
+                  challengeToken: 'b4f3e2c1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3'
+                  action: kbi_auth
+                  inputs:
+                    username: '123456789'
+                    fullName: Maria Garcia
+                    dob: '1990-05-14'
+                    captcha_token: test-captcha-token
+              submitConsent:
+                summary: Submit the user's consent decisions for the requested claims
+                value:
+                  executionId: '2c6d4c45-3de9-4a70-ae6b-ba1d034af6bc'
+                  challengeToken: 'b4f3e2c1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3'
+                  action: submit_consent
+                  inputs:
+                    consent_decisions: '{"purposes":[{"approved":true,"elements":[{"approved":true,"name":"email"},{"approved":true,"name":"name"}],"purposeName":"attributes:my-client-id"}]}'
+      responses:
+        '200':
+          description: |-
+            Flow step executed successfully. Flow-level failures are returned with HTTP 200 and `flowStatus: ERROR` in the response body.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/IncompleteFlowResponse'
+                  - $ref: '#/components/schemas/CompleteFlowResponse'
+                  - $ref: '#/components/schemas/ErrorFlowResponse'
+                discriminator:
+                  propertyName: flowStatus
+                  mapping:
+                    INCOMPLETE: '#/components/schemas/IncompleteFlowResponse'
+                    COMPLETE: '#/components/schemas/CompleteFlowResponse'
+                    ERROR: '#/components/schemas/ErrorFlowResponse'
+              examples:
+                incompleteFlow:
+                  summary: Incomplete flow (prompt for individual ID and captcha)
+                  description: '`data.meta` is a nested component tree (`BLOCK`/`TEXT`/`CUSTOM`/`ACTION`/...) for rendering; trimmed here to one field.'
+                  value:
+                    executionId: '2c6d4c45-3de9-4a70-ae6b-ba1d034af6bc'
+                    flowStatus: INCOMPLETE
+                    type: VIEW
+                    challengeToken: 'b4f3e2c1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3'
+                    data:
+                      inputs:
+                        - ref: username_input
+                          identifier: username
+                          type: TEXT_INPUT
+                          required: true
+                          validation:
+                            - type: regex
+                              value: '^[0-9]+$'
+                              message: validation.uin.numeric
+                        - ref: CAPTCHA_BOX
+                          identifier: captcha_token
+                          type: CUSTOM
+                          required: true
+                      actions:
+                        - ref: submit_uin
+                          nextNode: send_mosip_otp
+                      meta:
+                        components:
+                          - id: username_input
+                            type: TEXT_INPUT
+                            ref: username
+                            required: true
+                            label: '{{t(input:uin_label)}}'
+                validationFailedFlow:
+                  summary: Incomplete flow (input validation failed)
+                  value:
+                    executionId: '2c6d4c45-3de9-4a70-ae6b-ba1d034af6bc'
+                    flowStatus: INCOMPLETE
+                    challengeToken: 'b4f3e2c1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3'
+                    type: VIEW
+                    data:
+                      inputs:
+                        - ref: username_input
+                          identifier: username
+                          type: TEXT_INPUT
+                          required: true
+                        - ref: CAPTCHA_BOX
+                          identifier: captcha_token
+                          type: CUSTOM
+                          required: true
+                      actions:
+                        - ref: submit_uin
+                          nextNode: send_mosip_otp
+                      fieldErrors:
+                        - identifier: username
+                          message: validation.uin.numeric
+                completeFlow:
+                  summary: Complete flow
+                  value:
+                    executionId: '2c6d4c45-3de9-4a70-ae6b-ba1d034af6bc'
+                    flowStatus: COMPLETE
+                    data: {}
+                    assertion: <jwt_token>
+                errorFlow:
+                  summary: Erroneous flow
+                  value:
+                    executionId: '2c6d4c45-3de9-4a70-ae6b-ba1d034af6bc'
+                    flowStatus: ERROR
+                    error:
+                      code: FET-20002
+                      message:
+                        key: flows.executor.errors.invalid_credentials
+                        defaultValue: Invalid credentials provided
+                      description:
+                        key: flows.executor.errors.invalid_credentials_desc
+                        defaultValue: The credentials provided are invalid
+        '400':
+          description: 'Bad Request: the request body is malformed or contains invalid data.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlowExecutionError'
+        '401':
+          description: >-
+            Unauthorized: the application must present a valid credential to initiate a new flow —
+            a Flow Secret for backend applications, or a platform attestation token for mobile
+            applications — and the presented credential was missing or invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlowExecutionError'
+        '403':
+          description: 'Forbidden: direct flow initiation is not permitted for this application type.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlowExecutionError'
+        '500':
+          description: 'Internal Server Error: an unexpected error occurred while processing the request.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlowExecutionError'
+  /oauth2/auth/callback:
+    post:
+      tags:
+        - UI
+      summary: Authorization callback
+      operationId: authCallback
+      description: |-
+        Invoked by the UI application once "/flow/execute" reports `flowStatus: COMPLETE` for the authentication flow. Submits the `authId` (received from the "/authorize" redirect) together with the flow's signed `assertion` JWT; this endpoint validates the assertion, issues an authorization code, and returns the redirect URI the UI application must navigate the browser to, handing control back to the relying party.
+
+        **Authentication & Authroization**: None
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthCallbackRequest'
+            example:
+              authId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890'
+              assertion: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...'
+      responses:
+        '200':
+          description: Authorization code issued. The redirect_uri includes the code and state.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthCallbackResponse'
+              example:
+                redirect_uri: 'https://client.example.com/callback?code=SplxlOBeZQQYbYS6WxSbIA&state=xyz&iss=https%3A%2F%2Fserver.example.com'
+        '400':
+          description: 'Bad Request: missing or invalid authId / assertion.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthCallbackError'
+      security: []
+
+  /oauth2/token:
+    post:
+      tags:
+        - OIDC
+      summary: Token Endpoint V2
+      description: |-
+        Once the client / relying party application receives the authorization code through redirect, this OIDC complaint endpoint will be called from the relying party backend application to get the ID and access token.
+
+        1. The only supported client authentication methods : <b>private_key_jwt</b>
+        2. clientAssertion is a signed JWT with Clients private key, corresponding public key should be shared with IdP during the OIDC client registration process.
+        3. clientAssertion JWT payload must be as below: 
+
+        The JWT MUST contain the following REQUIRED Claim Values and MAY contain the additional OPTIONAL Claim Values:
+
+        **iss**<span style="color:#FF0000">*</span> (Issuer): This MUST contain the client_id of the OAuth Client.
+
+        **sub**<span style="color:#FF0000">*</span> (Subject): This MUST contain the client_id of the OAuth Client.
+
+        **aud**<span style="color:#FF0000">*</span> (Audience): Value that identifies the authorization server as an intended audience. The authorization server MUST verify that it is an intended audience for the token. The audience SHOULD be the URL of the authorization server's token endpoint.
+
+        **exp**<span style="color:#FF0000">*</span> (Expiration): Time on or after which the ID token MUST NOT be accepted for processing.
+
+        **iat**<span style="color:#FF0000">*</span>: Time at which the JWT was issued.</p>
+
+        **jti**<span style="color:#FF0000">*</span> (JWT ID): This MUST be unique for each client assertion generated.
+
+        **Note**: The Client Assertion JWT can contain other Claims. Any Claims used that are not understood WILL be ignored.</p>
+      operationId: post-token-v2
+      requestBody:
+        description: ''
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                grant_type:
+                  const: authorization_code
+                  description: Authorization code grant type.
+                code:
+                  type: string
+                  description: 'Authorization code, sent as query param in the client''s redirect URI.'
+                client_id:
+                  type: string
+                  description: Client Id of the OIDC client.
+                client_assertion_type:
+                  const: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
+                  description: Type of the client assertion part of this request.
+                client_assertion:
+                  type: string
+                  description: 'Private key signed JWT, This JWT payload structure is defined above as part of request description.'
+                redirect_uri:
+                  type: string
+                  description: Valid client redirect_uri. Must be same as the one sent in the authorize call.
+                code_verifier:
+                  type: string
+                  description: |-
+                    A cryptographically random string that is used to correlate the
+                          authorization request to the token request.
+              required:
+                - grant_type
+                - code
+                - client_assertion_type
+                - client_assertion
+                - redirect_uri
+            examples:
+              Example 1:
+                value:
+                  grant_type: authorization_code
+                  code: tyemdnjdfornfedg
+                  client_id: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv-kV7VBcnzvY
+                  client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
+                  client_assertion: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE2OTg2MzE0NjAsIm5iZiI6MTY5ODYzMTQ2MCwiZXhwIjoxNjk4NjMxNTI1LCJqdGkiOiI1ZFFjaWhtb2lfQTlXMmlERGpYcDgiLCJzdWIiOiJXTVg1cE82ZFlkQ0ZSM2lhVldHY2xWUE54VE5TQUREdi1rVjdWQmNuenZZIiwiaXNzIjoiV01YNXBPNmRZZENGUjNpYVZXR2NsVlBOeFROU0FERHYta1Y3VkJjbnp2WSIsImF1ZCI6Imh0dHBzOi8vZXNpZ25ldC5jb2xsYWIubW9zaXAubmV0L3YxL2VzaWduZXQvb2F1dGgvdG9rZW4ifQ.G-OxPmb2wBq7R52PELNss9FCwvv_i2456FE4oag25BuZjwH6CgB8LDLmfCJdzeLGRuFp_MrKskGTkpsWI0RWLNtqZ7jvQTvSq8zQICusIFh9kcciWbkMsOZQqN91gPtdrn3WRS6xD7TxzwvrAeuqx4lTBbWNYTF2GQ3Zagq0t6ogOtPWg0wNioW3m11jWIdwooJ8jI2Z5oN772Lerrs1AXMnipLxQm4rdMM54taeHFrrXyxqFjoiq-bglrpHtCqeG6QFqhpQrRlIsLLoli8F1LU8Mu3Fw7ifCd6KEj9JNM_sPHjAy-JRg_dgjNdHL5tqtHzUsD5sSmLop33U4WH3Ow
+                  redirect_uri: 'https://fastlane.com/homepage'
+                  code_verifier: MN1Q0nNAKkqOu5EaNBKf2gYD4maYv9ZxLd-48N2_kTM
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id_token:
+                    type: string
+                    description: |-
+                      Identity token in JWT format. Will have the below claims in the payload.
+                      <ul>
+                      <li>iss</li>
+                      <li>sub - (PSUT)</li>
+                      <li>aud</li>
+                      <li>exp</li>
+                      <li>iat</li>
+                      <li>auth_time</li>
+                      <li>nonce</li>
+                      <li>acr</li>
+                      <li>at_hash</li>
+                      </ul>
+
+                      It is non-null only in OIDC flow. otherwise the id_token is not returned.
+                  access_token:
+                    type: string
+                    description: The access token in JWT format. This token that will be used to call the UserInfo endpoint.
+                  token_type:
+                    enum:
+                      - Bearer
+                      - DPoP
+                    description: 'The type of the access token, set to either Bearer or DPoP'
+                  expires_in:
+                    type: number
+                    description: 'The lifetime of the access token, in seconds.'
+                    format: duration
+                  c_nonce:
+                    type: string
+                    description: JSON string containing a nonce to be used to create a proof of possession of key material when requesting a Credential.
+                  c_nonce_expires_in:
+                    type: number
+                    description: JSON integer denoting the lifetime in seconds of the c_nonce.
+                required:
+                  - access_token
+                  - token_type
+                  - expires_in
+              examples:
+                Example 1:
+                  value:
+                    token_type: Bearer
+                    access_token: eyJraWQiOiJLT19tVHBfc1QwemxGRVVkX25UdGhmbzl0RTlTX21GQnJ6OTFwZjd5RFFBIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJQVlJtZkRwZ1pKcXZMTWZZcTZwcUItTDNZQTZXR3dYZmxiTlJpVWF6THJjIiwiYXVkIjoiaHR0cHM6XC9cL2VzaWduZXQtbW9jay5jb2xsYWIubW9zaXAubmV0XC92MVwvZXNpZ25ldFwvdmNpXC9jcmVkZW50aWFsIiwiY19ub25jZV9leHBpcmVzX2luIjo0MCwiY19ub25jZSI6IkN0OXJwUUZiOTZRU1N3Z0hBZkRPIiwic2NvcGUiOiJzYW1wbGVfdmNfbGRwIiwiaXNzIjoiaHR0cHM6XC9cL2VzaWduZXQtbW9jay5jb2xsYWIubW9zaXAubmV0XC92MVwvZXNpZ25ldCIsImV4cCI6MTY5ODYzNTczOSwiaWF0IjoxNjk4NjMyMTM5LCJjbGllbnRfaWQiOiI4OFZqdDM0YzVUd3oxb0oifQ.EAWkcaDUTMH1FcrXdsj4s-y9t8gVB1YBiIZ6VqZD3ZSGR3OrkIQUN2y8vbtvXJv8WAVV_0pvphFjIa9gVRP63_vdZipJ3h04vYcpyfTn50Yml-77uhB_JgHeQWZ0rnCQ1LQGSdSYKro9A1smevVCb1vyPf6QoQPumzKHJ9Jg7SojyhXON2sdIn94Xc5-gok-jGQEapbIBm3RhUEsFPGl7MjaMqBpodV-JOuEi0j_7VfxhLTXXoYZm_-h2aZCWJ9MQDtUC8TwNp-ap5f-O4lQx_M79jyn2mXa0NtoPPIQeffnCPq-uS43C0LZ9CQTfwIC4xV8-x2ema2fHWvtebSsmQ
+                    expires_in: 3600
+                    c_nonce: Ct9rpQFb96QSSwgHAfDO
+                    c_nonce_expires_in: 40
+          headers:
+            Cache-Control:
+              schema:
+                const: no-store
+            Pragma:
+              schema:
+                const: no-cache
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    enum:
+                      - invalid_transaction
+                      - invalid_assertion
+                      - invalid_redirect_uri
+                      - invalid_input
+                      - unknown_error
+                      - invalid_request
+                      - invalid_grant
+                      - invalid_assertion_type
+                      - unsupported_pkce_challenge_method
+                      - invalid_dpop_proof
+                      - use_dpop_nonce
+                    description: The error code.
+                  error_description:
+                    type: string
+                    description: Optional text providing additional information about the error that occurred.
+                required:
+                  - error
+      security: []
+      servers:
+        - url: 'https://esignet.collab.mosip.net/v1/esignet'
+    parameters:
+      - schema:
+          type: string
+        in: header
+        name: DPoP
+        description: 'A DPoP proof is a JWT [RFC7519] that is signed (using JSON Web Signature (JWS) [RFC7515]) with a private key chosen by the client.          For more details refer - https://datatracker.ietf.org/doc/html/rfc9449#section-4.2'
+  /oauth2/userinfo:
+    get:
+      tags:
+        - OIDC
+      summary: UserInfo Endpoint
+      description: |-
+        Once the access token is received via the token endpoint, relying party backend application can call this OIDC compliant endpoint to request for the user claims.
+
+        Consented user claims will be returned as a JWT. This JWT will be a nested JWT which is a signed using JWS and then encrypted using JWE. 
+
+
+        **Example**: Assuming the below are the requested claims by the relying party
+
+        name : { "essential" : true }
+
+        phone: { "essential" : true }
+
+        **Response 1**: When consent is provided for both name and phone number:
+
+        { "name" : "John Doe", "phone" : "033456743" }
+
+        **Response 2**: When consent is provided for only name:
+
+        { "name" : "John Doe" }
+
+        **Response 3**: When Claims are requested with claims_locales : "en fr"
+
+        { "name#en" : "John Doe", "name#fr" : "Jean Doe", "phone" : "033456743" } 
+
+        **Supported User Info Claims**
+        <ul>
+        <li>sub - Partner Specific User Token (PSUT)</li>
+        <li>name</li>
+        <li>address</li>
+        <li>gender</li>
+        <li>birthdate</li>
+        <li>profile photo</li>
+        <li>email</li>
+        <li>phone</li>
+        <li>locale</li>
+        <li>Custom - individual_id (You share this claim as a system-level config and it can be UIN, perceptual VID or temporary VID)</li>
+        </ul>
+      operationId: get-userinfo
+      responses:
+        '200':
+          description: OK
+          content:
+            application/jwt:
+              schema:
+                type: string
+                description: 'The response is signed and then encrypted, with the result being a Nested JWT. Signed using the authentication system''s private key. Signed full JWT will then be encrypted using OIDC client''s public key.'
+                format: jwt
+              examples:
+                Example 1:
+                  value: eyJraWQiOiJlU0dtNm5LcGppUHRJMnAzbVVWNHBWWm9nY0VHaExMV2dCNXNuUzNvbUNzIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiIyNTgwMDg2NDcxMDgzMDEzNjAzMjA2NDYwMDYwMDU4NDE3NTEiLCJhZGRyZXNzIjp7ImxvY2FsaXR5IjoiUmFiYXQgIn0sIm5hbWUiOiJhcnZpbmQiLCJwaG9uZV9udW1iZXIiOiI3ODY0ODQ2MzQzIiwiZW1haWwiOiJhcmF2aW5kaDIwOTBAZ21haWwuY29tIn0.WqkXaalFJu1nzAgoSmLKOHddX7_tkgcTEZRK8uedfl6rbNRZ7Lv0uayTT--3r4Z0Wlnjh1pUMreFvKd1yfirIf0LaPvuTBe5AVRRUMGPhPkSCq_ietytg75uNUH-Z91jLluh8mIZ5BlsGf_MfdkKD10pvzG9cWowWeWlD2hj-YNw05SUAdvZtHeN8ayMTaPOa-Jc0Sv3kXS0xM6Geizq5QCpIWaavZNw9GJF8GEizGK3klq3od9PfHKrh8XruUFM849iyAShIUTgr9mFlWzHVuTqbpcc2ZptLY_egOq8qKA5guBEplB92PlaxQQeyxRvMezZtDiRdzf5BSpM_1ok0g
+        '401':
+          description: Unauthorized
+          headers:
+            WWW-AUTHENTICATE:
+              schema:
+                type: string
+                enum:
+                  - invalid_token
+                  - unknown_error
+                  - invalid_dpop_proof
+                  - use_dpop_nonce
+              description: 'Bearer error=invalid_token,  error_description=MOSIPIDP123: A user info request was made with an access token that was not recognized.'
+      security:
+        - Authorization-access_token: []
+        - Authorization-DPoP: []
+      servers:
+        - url: 'https://esignet.collab.mosip.net/v1/esignet'
+    parameters:
+      - schema:
+          type: string
+        in: header
+        name: DPoP
+        description: 'A DPoP proof is a JWT [RFC7519] that is signed (using JSON Web Signature (JWS) [RFC7515]) with a private key chosen by the client.          For more details refer - https://datatracker.ietf.org/doc/html/rfc9449#section-4.2'
+
+  /oauth2/jwks:
+    get:
+      tags:
+        - OIDC
+      summary: JSON Web Key Set Endpoint
+      description: Endpoint to fetch all the public keys of the eSignet server. Returns public key set in the JWKS format.
+      operationId: get-certs
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  keys:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        kid:
+                          type: string
+                          description: The certificate's Key ID
+                        use:
+                          const: sig
+                          description: 'How the Key is used. Valid value: sig'
+                        kty:
+                          const: RSA
+                          description: 'Cryptographic algorithm family for the certificate''s Key pair. Valid value: RSA'
+                        e:
+                          type: string
+                          description: RSA Key value (exponent) for Key blinding
+                        'n':
+                          type: string
+                          description: RSA modulus value
+                        x5t#S256:
+                          type: string
+                          description: SHA-256 thumbprint of the certificate.
+                        x5c:
+                          type: array
+                          description: Certificate to validate the Oauth server trust.
+                          items:
+                            type: string
+                        exp:
+                          type: string
+                          description: Expire datetime of the key. Given in ISO format.
+                          format: date-time
+                          examples:
+                            - '2026-02-05T13:43:07.979Z'
+                      required:
+                        - kid
+                        - use
+                        - kty
+                        - e
+                        - 'n'
+                        - x5t#S256
+                        - x5c
+                        - exp
+              examples:
+                Example 1:
+                  value:
+                    keys:
+                      - kty: RSA
+                        x5t#S256: Apdg6S6RmjkiBjvEUYYCa-KF-yrJbl6x1wzKrc4smt0
+                        e: AQAB
+                        use: sig
+                        kid: GTERCOmvD5PlZ65lo2Na-4Udc2xgA6EkaHuEsnMevRA
+                        x5c:
+                          - MIIDvTCCAqWgAwIBAgIIvSVFZ0ayWuswDQYJKoZIhvcNAQELBQAwdzELMAkGA1UEBhMCSU4xCzAJBgNVBAgMAktBMRIwEAYDVQQHDAlCQU5HQUxPUkUxDTALBgNVBAoMBElJVEIxGjAYBgNVBAsMEU1PU0lQLVRFQ0gtQ0VOVEVSMRwwGgYDVQQDDBN3d3cubW9zaXAuaW8gKFJPT1QpMB4XDTIzMDcxNDA0MTI0NFoXDTI2MDcxMzA0MTI0NFowfzELMAkGA1UEBhMCSU4xCzAJBgNVBAgMAktBMRIwEAYDVQQHDAlCQU5HQUxPUkUxDTALBgNVBAoMBElJVEIxGjAYBgNVBAsMEU1PU0lQLVRFQ0gtQ0VOVEVSMSQwIgYDVQQDDBt3d3cubW9zaXAuaW8gKE9JRENfU0VSVklDRSkwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCupTNBR7kbfC0V8FBOnVgjKcgISV4BebWsmQNvTiM4So4kgOU8Tcg1ER+Qk5+/v6c3NGZ8ZuAF8oxEW75xs6ltN2z6NIA3Q9fE6pYJXf9ixPsOzZsn5bjYMJw8C1NmE5UiYfzQCARh8dXY+8eA9WigoDzCFIWeAdb33X4S86yiDsIuY1V8mxA4PWER929Ssg/Nnr04ZHdFFbctPLfnG1xJMhelTc+v0H95FwY5CotKfipFy6wUW1ZEJL1uDjnsfBrgNH1HbTvYOzRNyW/TtQFI74xShRoThYs9gGcHPENhof8KSPRVwRztP7AWFJqAKhAnXGmrYyDObUZWa2LczuoLAgMBAAGjRTBDMBIGA1UdEwEB/wQIMAYBAf8CAQEwHQYDVR0OBBYEFKzJuyUw9RQffaJaMNvPMGU5bSRtMA4GA1UdDwEB/wQEAwIChDANBgkqhkiG9w0BAQsFAAOCAQEAmGEzeokV0q6sNkpbslncnFi7Map33bGv94VvWPgA2fFqc1OQq/fHYar8S8hgQeqQeyFF8RQPa8Ga/RJfA6a0VS280nO3Q/ITHfuGz1g6QNxcfE1d5OOdQwe1sdAbc53kAX7ZasTEuam7II1H/O0wftFWU369mAWVfmp/8DCtF7I6ir84SnPyNFxINhggSLxqPLGuZDK8xbz0DsB2eBklf+B+dwUM48CfwQ3sAFBrU8lxqrUXMK/fKV+BZLyec7+7G1J8upxUGDvVgWoA7jfStA8jdqWNffi64+1GU+KtVha7PjnyabkmLwmm8TSVUHewXa1P7PiuzKfPHltoijGQyw==
+                        exp: '2026-02-05T13:43:07.979Z'
+                        'n': rqUzQUe5G3wtFfBQTp1YIynICEleAXm1rJkDb04jOEqOJIDlPE3INREfkJOfv7-nNzRmfGbgBfKMRFu-cbOpbTds-jSAN0PXxOqWCV3_YsT7Ds2bJ-W42DCcPAtTZhOVImH80AgEYfHV2PvHgPVooKA8whSFngHW991-EvOsog7CLmNVfJsQOD1hEfdvUrIPzZ69OGR3RRW3LTy35xtcSTIXpU3Pr9B_eRcGOQqLSn4qRcusFFtWRCS9bg457Hwa4DR9R2072Ds0Tclv07UBSO-MUoUaE4WLPYBnBzxDYaH_Ckj0VcEc7T-wFhSagCoQJ1xpq2Mgzm1GVmti3M7qCw
+                      - kty: RSA
+                        x5t#S256: 2r6FoSf1IrA1Mn1hTtO50Le2SeiDO3dxT24oeAPCISA
+                        e: AQAB
+                        use: sig
+                        kid: R3V2vggI0S-98bJabimOEpZIE0vPkk2uhxRzmPsqX4w
+                        x5c:
+                          - MIIDrTCCApWgAwIBAgIIi2nvBziQ2uMwDQYJKoZIhvcNAQELBQAwcDELMAkGA1UEBhMCSU4xCzAJBgNVBAgMAktBMRIwEAYDVQQHDAlCQU5HQUxPUkUxDTALBgNVBAoMBElJVEIxGjAYBgNVBAsMEU1PU0lQLVRFQ0gtQ0VOVEVSMRUwEwYDVQQDDAx3d3cubW9zaXAuaW8wHhcNMjMwNzEzMTU1OTQwWhcNMjYwNzEyMTU1OTQwWjB2MQswCQYDVQQGEwJJTjELMAkGA1UECAwCS0ExEjAQBgNVBAcMCUJBTkdBTE9SRTENMAsGA1UECgwESUlUQjEgMB4GA1UECwwXTU9TSVAtVEVDSC1DRU5URVIgKElEQSkxFTATBgNVBAMMDHd3dy5tb3NpcC5pbzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALGOdFQsHmCelxq8ZdJG0DbGU7dV8MJhuCi8KYdOQpXgzd2qUWY7V31OVlyTFs+YWHDR5KRkfw7pUAI+jswMWC32qn2R+BsOzMs16tZ8C3sVIpkUeZ8XhIBIugVkXMpuIbkoZ7CBcm2zetRVRdNGQC5Vdi5vZnyjsQv7ULiDAkWtOibaeDjprj0lHxaDffmWPukcBBpyOaAVLyk98hUbgDwHxBfnn2edjkDlYt07VVU+EWQoolE1MQvn8kgDN+kSicecJ8IBpJBs8i9MJDor2+PgC63lAgb6vr2/bXyswlF8V4UGQHSrGgFAxIMc6PlouagwhiwOLXyAMiNJa/8N5ccCAwEAAaNFMEMwEgYDVR0TAQH/BAgwBgEB/wIBATAdBgNVHQ4EFgQUAjl/vGghgtS+VWEU0ozokioAHxQwDgYDVR0PAQH/BAQDAgKEMA0GCSqGSIb3DQEBCwUAA4IBAQAXCpz+2p93DNR8G/XtjmZAB62r6aYWMhrRPM8BwBvfZ5z9LNLhhxC1K4V5JFE5yX2HtcHiVBFq8bJitGgDZH+3QEj2yLK5donfIEcQxX+h3QqVmkOTkphyAOydT+fMFKqWMg9zfqwD3v3rASP9/XkqubjqaE2g8BYlJGue3S26TkjBCXsuA42hnk34YkmX3kxhn3irqxBW4JcZgqj2tVy57MSp3m8BY9DzL24QCud7FHzzg0mos+Pb1FdGU/5Lmcbu9UAgBEvThyWMhOWKz0Sr2XJZtNtghBfzQ/ed/dS4o43xPHe9Sx6hCYIfR4gc/ppYUUv+yGrTH5ecPVauc8+8
+                        exp: '2026-02-05T13:43:07.979Z'
+                        'n': sY50VCweYJ6XGrxl0kbQNsZTt1XwwmG4KLwph05CleDN3apRZjtXfU5WXJMWz5hYcNHkpGR_DulQAj6OzAxYLfaqfZH4Gw7MyzXq1nwLexUimRR5nxeEgEi6BWRcym4huShnsIFybbN61FVF00ZALlV2Lm9mfKOxC_tQuIMCRa06Jtp4OOmuPSUfFoN9-ZY-6RwEGnI5oBUvKT3yFRuAPAfEF-efZ52OQOVi3TtVVT4RZCiiUTUxC-fySAM36RKJx5wnwgGkkGzyL0wkOivb4-ALreUCBvq-vb9tfKzCUXxXhQZAdKsaAUDEgxzo-Wi5qDCGLA4tfIAyI0lr_w3lxw
+      security: []
+      servers:
+        - url: 'https://esignet.collab.mosip.net/v1/esignet'
+  /.well-known/openid-configuration:
+    get:
+      tags:
+        - OIDC
+      summary: Configuration Endpoint
+      description: |-
+        Open ID Connect dynamic provider discovery is not supported currently, this endpoint is only for facilitating the OIDC provider details in a standard way.
+
+        **Reference**: https://openid.net/specs/openid-connect-discovery-1_0.html
+      operationId: get-.well-known-openid-configuration
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - issuer
+                  - authorization_endpoint
+                  - token_endpoint
+                  - userinfo_endpoint
+                  - jwks_uri
+                  - registration_endpoint
+                  - scopes_supported
+                  - response_types_supported
+                properties:
+                  issuer:
+                    type: string
+                    description: URL using the https scheme with no query or fragment component that the RP asserts as its Issuer Identifier. This also MUST be identical to the iss Claim value in ID Tokens issued from this Issuer.
+                  authorization_endpoint:
+                    type: string
+                    description: URL of the OAuth 2.0 Authorization Endpoint.
+                  token_endpoint:
+                    type: string
+                    description: URL of the OAuth 2.0 Token Endpoint.
+                  userinfo_endpoint:
+                    type: string
+                    description: URL of the OP's UserInfo Endpoint.
+                  jwks_uri:
+                    type: string
+                    description: 'URL of the OP''s JSON Web Key Set [JWK] document.'
+                  registration_endpoint:
+                    type: string
+                    description: URL of Client Registration Endpoint.
+                  scopes_supported:
+                    type: array
+                    description: 'JSON array containing a list of the OAuth 2.0 [RFC6749] scope values that this server supports.'
+                    items: {}
+                  response_types_supported:
+                    type: array
+                    description: JSON array containing a list of the OAuth 2.0 response_type values that this OP supports.
+                    items: {}
+                  acr_values_supported:
+                    type: array
+                    description: JSON array containing a list of the Authentication Context Class References that IDP supports.
+                    items: {}
+                  userinfo_signing_alg_values_supported:
+                    type: array
+                    description: 'JSON array containing a list of the JWS [JWS] signing algorithms.'
+                    items: {}
+                  userinfo_encryption_alg_values_supported:
+                    type: array
+                    description: 'JSON array containing a list of the JWE [JWE] encryption algorithms.'
+                    items: {}
+                  userinfo_encryption_enc_values_supported:
+                    type: array
+                    description: 'JSON array containing a list of the JWE encryption algorithms (enc values) [JWA] supported by the UserInfo Endpoint to encode the Claims in a JWT.'
+                    items: {}
+                  token_endpoint_auth_methods_supported:
+                    type: array
+                    description: JSON array containing a list of Client Authentication methods supported by this Token Endpoint.
+                    items: {}
+                  display_values_supported:
+                    type: array
+                    description: JSON array containing a list of the display parameter values that the OpenID Provider supports.
+                    items: {}
+                  claim_types_supported:
+                    type: array
+                    description: JSON array containing a list of the Claim Types that the OpenID Provider supports.
+                    items: {}
+                  claims_parameter_supported:
+                    type: boolean
+                    description: Boolean value specifying whether the OP supports use of the claims parameter.
+                  subject_types_supported:
+                    type: array
+                    description: JSON array containing a list of the Subject Identifier types that this OP supports.
+                    items:
+                      type: string
+                  claims_supported:
+                    type: array
+                    description: JSON array containing a list of the Claim Names of the Claims that the OpenID Provider MAY be able to supply values for.
+                    items:
+                      type: string
+                  claims_locales_supported:
+                    type: array
+                    description: Languages and scripts supported for values in Claims being returned.
+                    items:
+                      type: string
+                  ui_locales_supported:
+                    type: array
+                    description: Languages and scripts supported for the user interface.
+                    items:
+                      type: string
+                  response_modes_supported:
+                    type: array
+                    description: Mechanism to be used for returning parameters from the Authorization Endpoint.
+                    items:
+                      const: query
+                  token_endpoint_auth_signing_alg_values_supported:
+                    type: array
+                    items:
+                      const: RS256
+                  id_token_signing_alg_values_supported:
+                    type: array
+                    items:
+                      const: RS256
+                  verified_claims_supported:
+                    type: boolean
+                    description: 'Boolean value indicating support for verified_claims, i.e., the OpenID Connect for Identity Assurance extension.'
+                  claims_in_verified_claims_supported:
+                    type: array
+                    description: JSON array containing all Claims supported within verified_claims. Claims that are not present in this array MUST NOT be returned within the verified_claims object.
+                    items:
+                      type: string
+                  trust_frameworks_supported:
+                    type: array
+                    description: JSON array containing all supported trust frameworks.
+                    items:
+                      type: string
+                  evidence_supported:
+                    type: array
+                    description: JSON array containing all types of identity evidence the OP uses.
+                    items:
+                      type: string
+                  documents_supported:
+                    type: array
+                    description: JSON array containing all identity document types utilized by the OP for identity verification.
+                    items:
+                      type: string
+                  attachments_supported:
+                    type: array
+                    description: JSON array containing all attachment types supported by the OP. Possible values are external and embedded.
+                    items:
+                      type: string
+                  digest_algorithms_supported:
+                    type: array
+                    description: JSON array containing all supported digest algorithms which can be used as alg property within the digest object of external attachments.
+                    items:
+                      type: string
+                  pushed_authorization_request_endpoint:
+                    type: string
+                    x-stoplight:
+                      id: j3027e7heyy3d
+                    description: The URL of the pushed authorization request endpoint at which a client can post an authorization request to exchange for a request_uri value usable at the authorization server.
+                  require_pushed_authorization_requests:
+                    type: boolean
+                    x-stoplight:
+                      id: t2awg0vvwdtxe
+                    description: 'Boolean parameter indicating whether the authorization server accepts authorization request data only via PAR. If omitted, the default value is false'
+                  request_parameter_supported:
+                    type: boolean
+                    description: Boolean value specifying whether the OP supports use of the request parameter.
+                  dpop_signing_alg_values_supported:
+                    type: array
+                    items: {}
+                    description: JSON array containing a list of the JWS algorithms supported for DPoP proof JWTs
+              examples:
+                Example 1:
+                  value:
+                    issuer: 'https://esignet.collab.mosip.net'
+                    authorization_endpoint: 'https://esignet.collab.mosip.net/v1/esignet/authorize'
+                    token_endpoint: 'https://esignet.collab.mosip.net/v1/esignet/oauth/token'
+                    userinfo_endpoint: 'https://esignet.collab.mosip.net/v1/esignet/oidc/userinfo'
+                    jwks_uri: 'https://esignet.collab.mosip.net/.well-known/jwks.json'
+                    registration_endpoint: 'https://esignet.collab.mosip.net/v1/esignet/client-mgmt/oauth-client'
+                    scopes_supported:
+                      - email
+                    response_types_supported:
+                      - code
+                    response_modes_supported:
+                      - query
+                    token_endpoint_auth_methods_supported:
+                      - private_key_jwt
+                    token_endpoint_auth_signing_alg_values_supported:
+                      - RS256
+                    userinfo_signing_alg_values_supported:
+                      - RS256
+                    userinfo_encryption_alg_values_supported:
+                      - RSAXXXXX
+                    userinfo_encryption_enc_values_supported:
+                      - A128GCM
+                    id_token_signing_alg_values_supported:
+                      - RS256
+                    claim_types_supported:
+                      - normal
+                    claims_parameter_supported: true
+                    display_values_supported:
+                      - page
+                    subject_types_supported:
+                      - pairwise
+                    claims_supported:
+                      - name
+                      - picture
+                      - gender
+                      - birthdate
+                      - address
+                      - email
+                      - phone_number
+                    acr_values_supported:
+                      - 'mosip:idp:acr:static-code'
+                      - 'mosip:idp:acr:generated-code'
+                      - 'mosip:idp:acr:linked-wallet'
+                      - 'mosip:idp:acr:biometrics'
+                    request_parameter_supported: false
+                    require_pushed_authorization_requests: true
+                    dpop_signing_alg_values_supported:
+                      - PS256
+      security: []
+      servers:
+        - url: 'https://esignet.collab.mosip.net/v1/esignet'
+  /oauth2/introspect:
+    post:
+      tags:
+        - OIDC
+      summary: Introspect Endpoint
+      description: |-
+        This endpoint takes an access token or ID token and returns metadata about it. If the token is active, additional data such as scope, client_id, exp, iat, sub, aud, iss and jti is also returned. If the token is invalid, expired, or revoked, the response contains only "active": false. Requires client authentication.
+
+        1. The only supported client authentication method: <b>private_key_jwt</b>
+        2. clientAssertion is a signed JWT with the client's private key, corresponding public key should be shared with IdP during the OIDC client registration process.
+
+        **Reference**: https://www.rfc-editor.org/rfc/rfc7662.html
+      operationId: post-introspect
+      requestBody:
+        description: ''
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  description: An access token or ID token to introspect.
+                token_type_hint:
+                  type: string
+                  description: 'Optional hint about the type of the submitted token. Valid values: access_token, id_token'
+                  enum:
+                    - access_token
+                    - id_token
+                client_id:
+                  type: string
+                  description: Client Id of the OIDC client.
+                client_assertion_type:
+                  const: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
+                  description: Type of the client assertion part of this request.
+                client_assertion:
+                  type: string
+                  description: 'Private key signed JWT, used for client authentication.'
+              required:
+                - token
+                - client_assertion_type
+                - client_assertion
+            examples:
+              Example 1:
+                value:
+                  token: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
+                  token_type_hint: access_token
+                  client_id: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv-kV7VBcnzvY
+                  client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
+                  client_assertion: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9...
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  active:
+                    type: boolean
+                    description: Indicates whether the token is currently active.
+                  scope:
+                    type: string
+                  client_id:
+                    type: string
+                  username:
+                    type: string
+                  token_type:
+                    type: string
+                  exp:
+                    type: integer
+                    format: int64
+                  iat:
+                    type: integer
+                    format: int64
+                  nbf:
+                    type: integer
+                    format: int64
+                  sub:
+                    type: string
+                  aud:
+                    description: Audience — may be a string or an array of strings.
+                    oneOf:
+                      - type: string
+                      - type: array
+                        items:
+                          type: string
+                  iss:
+                    type: string
+                  jti:
+                    type: string
+                required:
+                  - active
+              examples:
+                active:
+                  summary: Active token
+                  value:
+                    active: true
+                    scope: openid profile
+                    client_id: WMX5pO6dYdCFR3iaVWGclVPNxTNSADDv-kV7VBcnzvY
+                    token_type: Bearer
+                    exp: 1735689600
+                    iat: 1735686000
+                    sub: PVRmfDpgZJqvLMfYq6pqB-L3YA6WGwXflbNRiUazLrc
+                    iss: 'https://esignet.collab.mosip.net/v1/esignet'
+                inactive:
+                  summary: Inactive or expired token
+                  value:
+                    active: false
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  error_description:
+                    type: string
+                required:
+                  - error
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  error_description:
+                    type: string
+                required:
+                  - error
+                  - error_description
+      security: []
+      servers:
+        - url: 'https://esignet.collab.mosip.net/v1/esignet'
+
+tags:
+  - name: Management
+    description: Management level API's used for internal use.
+  - name: OIDC
+    description: API's that are supposed to be compliant to OIDC.
+  - name: UI
+    description: UI related API's, backed by the ThunderID flow engine ("/flow/meta", "/flow/execute") and the OIDC authorization callback ("/oauth2/auth/callback").
+components:
+  securitySchemes:
+    Authorization-DPoP:
+      type: http
+      scheme: DPoP
+      description: A DPoP-bound access token is sent using the Authorization request header field with an authentication scheme of DPoP.
+    Authorization-add_oidc_client:
+      type: http
+      description: Valid JWT issued by a trusted IAM system with "**add_oidc_client**" scope.
+      scheme: bearer
+    Authorization-update_oidc_client:
+      type: http
+      description: Valid JWT issued by a trusted IAM system including "**update_oidc_client**" scope.
+      scheme: bearer
+    Authorization-access_token:
+      type: http
+      description: Access token received from /token endpoint
+      scheme: bearer
+  schemas:
+    Claim:
+      type: object
+      title: Claim
+      description: |
+        The userinfo and id_token members of the claims request both are JSON object. if null, Indicates that this Claim is being requested as Voluntary Claim.
+
+        **Note:** Unknown claim names either in userinfo or id_token are ignored.
+      x-stoplight:
+        id: ia7rtr773oztz
+      properties:
+        userinfo:
+          type: object
+          properties:
+            name:
+              $ref: '#/components/schemas/ClaimDetail'
+            given_name:
+              $ref: '#/components/schemas/ClaimDetail'
+            email:
+              $ref: '#/components/schemas/ClaimDetail'
+            gender:
+              $ref: '#/components/schemas/ClaimDetail'
+            birthdate:
+              $ref: '#/components/schemas/ClaimDetail'
+            phone_number:
+              $ref: '#/components/schemas/ClaimDetail'
+            profile_photo:
+              $ref: '#/components/schemas/ClaimDetail'
+            address:
+              $ref: '#/components/schemas/ClaimDetail'
+            locale:
+              $ref: '#/components/schemas/ClaimDetail'
+            individual_id:
+              $ref: '#/components/schemas/ClaimDetail'
+            verified_claims:
+              type: array
+              x-stoplight:
+                id: hv9p69214uhf2
+              items:
+                $ref: '#/components/schemas/VerifiedClaimDetail'
+                x-stoplight:
+                  id: 15ypbmicw15jx
+        id_token:
+          type: object
+          properties:
+            name:
+              $ref: '#/components/schemas/ClaimDetail'
+            acrs:
+              $ref: '#/components/schemas/ClaimDetail'
+    ClaimDetail:
+      type: object
+      title: ClaimDetail
+      x-stoplight:
+        id: 6fpl3ntftytb2
+      properties:
+        essential:
+          type: boolean
+          description: |
+            Indicates whether the Claim being requested is an Essential Claim. If the value is true, this indicates that the Claim is an Essential Claim. The default is false.
+        value:
+          type: string
+          description: |-
+            Requests that the Claim be returned with a particular value. For instance the Claim request.
+
+            "sub": {"value": "248289761001"} can be used to specify that the request apply to the End-User with Subject Identifier 248289761001.
+        values:
+          type: array
+          description: 'Requests that the Claim be returned with one of a set of values, with the values appearing in order of preference.'
+          items:
+            type: string
+        purpose:
+          type: string
+          x-stoplight:
+            id: 09xoyys6jceae
+          description: Reason for requesting claim.
+          minLength: 3
+          maxLength: 300
+    VerifiedClaimDetail:
+      title: VerifiedClaimDetail
+      x-stoplight:
+        id: aam5fhnleu0tk
+      type: object
+      description: |-
+        Verified claim detail that can be requested by the RP
+
+        **How should OP beahve when requested verified claims cannot be fulfilled? **
+        Refer : https://openid.net/specs/openid-connect-4-identity-assurance-1_0.html#section-6.5
+
+
+        ** Sample requests: **
+        The RP MUST set fields one step deeper into the structure if it wants to obtain evidence. One or more entries in the evidence array are used as filter criteria and templates for all entries in the result array.
+
+        If multiple entries are present in evidence, these filters are linked by a logical OR.
+
+        Eg: The following example shows that the RP wants to obtain an attestation based on the German Anti Money Laundering Law (trust framework de_aml) and limited to End-Users who were identified in a bank branch in person (physical in person proofing - method pipp) using either an idcard or a passport.
+
+        {
+          "userinfo": {
+            "verified_claims": {
+              "verification": {
+                "trust_framework": {
+                  "value": "de_aml"
+                },
+                "evidence": [
+                  {
+                    "type": {
+                      "value": "document"
+                    },
+                    "method": {
+                      "value": "pipp"
+                    },
+                    "document_details": {
+                      "type": {
+                        "values": [
+                          "idcard",
+                          "passport"
+                        ]
+                      }
+                    }
+                  }
+                ]
+              },
+              "claims": {
+                "given_name": null,
+                "birthdate": null
+              }
+            }
+          }
+        }
+
+
+        The following is an example of a request for Claims where the verification process of the data is not allowed to be older than 63113852 seconds:
+
+        {
+          "userinfo": {
+            "verified_claims": {
+              "verification": {
+                "trust_framework": {
+                  "value": "jp_aml"
+                },
+                "time": {
+                  "max_age": 63113852
+                }
+              },
+              "claims": {
+                "given_name": null,
+                "birthdate": null
+              }
+            }
+          }
+        }
+
+        **NOTE:** eKYC working group has documented some of the predefined values  for trust frameworks, documents, methods, validation methods or verification methods in the below wikipage.
+        https://bitbucket.org/openid/ekyc-ida/wiki/identifiers
+        Values is NOT restricted to list in the wiki page, This is left to adopters of the technical specification, e.g., implementers, identity schemes, or jurisdictions.
+      required:
+        - verification
+        - claims
+      properties:
+        verification:
+          type: object
+          x-stoplight:
+            id: 0p4yvay9n1kxc
+          description: Object that contains data about the verification process.
+          required:
+            - trust_framework
+          properties:
+            trust_framework:
+              $ref: '#/components/schemas/FilterCriteria'
+              x-stoplight:
+                id: gcros2a8f4lxr
+              description: 'String determining the trust framework governing the identity verification process of the OP. An example value is eidas, which denotes a notified eID system under eIDAS '
+            time:
+              type: object
+              x-stoplight:
+                id: a1y7epmxba1w5
+              description: 'Date time when the identity verification process is completed. '
+              properties:
+                max_age:
+                  type: integer
+                  x-stoplight:
+                    id: y0j56rtgtnscw
+                  description: Number value only applicable to Claims that contain dates or timestamps. It defines the maximum time (in seconds) to be allowed to elapse since the value of the date/timestamp up to the point in time of the request.
+            assurance_level:
+              $ref: '#/components/schemas/FilterCriteria'
+              x-stoplight:
+                id: e9w8ta6wqgkai
+              description: |-
+                String determining the assurance level associated with the End-User Claims in the respective verified_claims. The value range depends on the respective trust_framework value.
+
+                For example, the trust framework eidas can have the identity assurance levels low, substantial and high.
+            evidence:
+              type: array
+              x-stoplight:
+                id: tyg6zddjj1kqn
+              description: 'JSON array containing information about the evidence the OP used to verify the End-User''s identity as separate JSON objects. Every object contains the property type which determines the type of the evidence. '
+              items:
+                x-stoplight:
+                  id: l7oe5pu3cvxx8
+                type: object
+                required:
+                  - type
+                properties:
+                  type:
+                    type: object
+                    x-stoplight:
+                      id: va3ctpg5755pi
+                    description: The value defines the type of the evidence.
+                    properties:
+                      value:
+                        x-stoplight:
+                          id: pfa4rkymsjxrg
+                        enum:
+                          - document
+                          - electronic_record
+                          - vouch
+                          - electronic_signature
+                  method:
+                    $ref: '#/components/schemas/FilterCriteria'
+                    x-stoplight:
+                      id: 4m1hvww6d4gnc
+                    description: The method used to validate the document and verify the person is the owner of it.
+                  time:
+                    type: object
+                    x-stoplight:
+                      id: z4dktuoe6kiux
+                    properties:
+                      max_age:
+                        type: integer
+                        x-stoplight:
+                          id: nbjzzkvvemdjf
+                  verification_method:
+                    type: object
+                    x-stoplight:
+                      id: 16etedvsvpkv7
+                    properties:
+                      type:
+                        $ref: '#/components/schemas/FilterCriteria'
+                        x-stoplight:
+                          id: jscciizlg7uf6
+                  check_details:
+                    type: array
+                    x-stoplight:
+                      id: 5q6luh9khretn
+                    description: |
+                      JSON array representing the checks done in relation to the evidence. When present this array MUST have at least one member. This is applicable only for below evidence types:
+                      1. document
+                      2. electronic_record
+                      3. vouch
+                    items:
+                      $ref: '#/components/schemas/EvidenceCheckDetail'
+                      x-stoplight:
+                        id: 6n1fv8kuv77mx
+                  document_details:
+                    type: object
+                    x-stoplight:
+                      id: r6fvhast33dys
+                    description: ' JSON object representing the document used to perform the identity verification.'
+                    required:
+                      - type
+                    properties:
+                      type:
+                        $ref: '#/components/schemas/FilterCriteria'
+                        x-stoplight:
+                          id: sakbs0r95tafk
+                      document_number:
+                        type: string
+                        x-stoplight:
+                          id: arcqb0lrkoosa
+                      date_of_issuance:
+                        type: object
+                        x-stoplight:
+                          id: pslya7hdgxhlc
+                        properties:
+                          max_age:
+                            type: number
+                            x-stoplight:
+                              id: 1oenvxpjnf5gw
+                      date_of_expiry:
+                        type: object
+                        x-stoplight:
+                          id: e6qkjwvk2pzwu
+                        properties:
+                          max_age:
+                            type: number
+                            x-stoplight:
+                              id: 82er6gon40ego
+                      issuer:
+                        $ref: '#/components/schemas/EvidenceIssuer'
+                        x-stoplight:
+                          id: pkoj6hufcua2e
+                  attestation:
+                    type: string
+                    x-stoplight:
+                      id: 0itl6t5pm567h
+                    description: Represents the attestation that is the basis of the vouch. Applicable only when evidence type is `vouch`
+                  signature_type:
+                    $ref: '#/components/schemas/FilterCriteria'
+                    x-stoplight:
+                      id: q7czpfhq252hx
+                    description: Applicable when evidence type is `electronic_signature`. String denoting the type of signature used as evidence. The value range might be restricted by the respective trust framework.
+                  issuer:
+                    $ref: '#/components/schemas/FilterCriteria'
+                    x-stoplight:
+                      id: 84dozda2ulyba
+                    description: Applicable when evidence type is `electronic_signature`.String denoting the certification authority that issued the signer's certificate.
+                  serial_number:
+                    type: string
+                    x-stoplight:
+                      id: isycr5qez9g92
+                    description: Applicable when evidence type is `electronic_signature`.String containing the serial number of the certificate used to sign.
+                  created_at:
+                    type: object
+                    x-stoplight:
+                      id: 1cd9oehznrvzb
+                    description: Applicable when evidence type is `electronic_signature`. The time the signature was created
+                    properties:
+                      max_age:
+                        type: number
+                        x-stoplight:
+                          id: hohtnxky11gon
+                  record:
+                    $ref: '#/components/schemas/ElectronicRecord'
+                    x-stoplight:
+                      id: 1n1fhhi6tviyl
+                    description: |-
+                      Applicable when the evidence type is `electronic_record`
+                      object representing the record used to perform the identity verification.
+        claims:
+          type: object
+          x-stoplight:
+            id: 28jhv2raf2jvs
+          description: Object that is the container for the Verified Claims about the End-User.
+          properties:
+            name:
+              $ref: '#/components/schemas/ClaimDetail'
+              x-stoplight:
+                id: wf28zzg23ot6k
+            email:
+              $ref: '#/components/schemas/ClaimDetail'
+              x-stoplight:
+                id: qbvq1021aj5co
+            phone_number:
+              $ref: '#/components/schemas/ClaimDetail'
+              x-stoplight:
+                id: kia24gddr7x4f
+            birthDate:
+              $ref: '#/components/schemas/ClaimDetail'
+              x-stoplight:
+                id: 2qhojqimhh30o
+            address:
+              $ref: '#/components/schemas/ClaimDetail'
+              x-stoplight:
+                id: 9glxctd41qha9
+            given_name:
+              $ref: '#/components/schemas/ClaimDetail'
+              x-stoplight:
+                id: f0t2dh3t1tq2u
+            gender:
+              $ref: '#/components/schemas/ClaimDetail'
+              x-stoplight:
+                id: neefygyrp53y7
+            profile_photo:
+              $ref: '#/components/schemas/ClaimDetail'
+              x-stoplight:
+                id: nlr9b6e1t2a0q
+    EvidenceCheckDetail:
+      title: EvidenceCheckDetail
+      x-stoplight:
+        id: z3endvsasoabe
+      type: object
+      description: |-
+        Object representing the checks done in relation to the evidence.
+
+        The eKYC and Identity Assurance Working Group maintains a wiki page
+      required:
+        - check_method
+      properties:
+        check_method:
+          type: string
+          x-stoplight:
+            id: 4126zn3cgys2x
+          description: 'String representing the check done, this includes processes such as checking the authenticity of the document, or verifying the user''s biometric against an identity document.'
+        organization:
+          type: string
+          x-stoplight:
+            id: nyope33fgcfhw
+          description: String denoting the legal entity that performed the check. This SHOULD be included if the OP did not perform the check itself.
+        txn:
+          type: string
+          x-stoplight:
+            id: 8f3iuc2p4n00x
+          description: Identifier referring to the identity verification transaction.
+        time:
+          type: object
+          x-stoplight:
+            id: 3zxijsb5y1r1m
+          properties:
+            max_age:
+              type: number
+              x-stoplight:
+                id: zgmtczhmyuevp
+              description: when the check was completed.
+    FilterCriteria:
+      title: FilterCriteria
+      x-stoplight:
+        id: tl65ie7ligsw6
+      type: object
+      description: Value or values used to filter the verified claims. if provided in the values parameter its a logical OR condition.
+      properties:
+        value:
+          type: string
+          x-stoplight:
+            id: jjhci731oeh17
+        values:
+          type: array
+          x-stoplight:
+            id: cutrh4azzqe5g
+          items:
+            x-stoplight:
+              id: e62l9ek9qjcwb
+            type: string
+    EvidenceIssuer:
+      title: EvidenceIssuer
+      x-stoplight:
+        id: e24cvlea7chj3
+      type: object
+      description: ' JSON object containing information about the issuer of this document.'
+      properties:
+        name:
+          type: string
+          x-stoplight:
+            id: 8vn2u1ygayf23
+          description: Designation of the issuer of the document.
+        country:
+          type: string
+          x-stoplight:
+            id: v9uqjvs18sash
+          description: String denoting the country or supranational organization that issued the document.
+        country_code:
+          type: string
+          x-stoplight:
+            id: bhbrve82cwf8t
+          description: 'String denoting the country or supranational organization that issued the document as ISO 3166/ICAO 3-letter codes [ICAO-Doc9303], e.g., "USA" or "JPN". 2-letter ICAO codes MAY be used in some circumstances for compatibility reasons.'
+        jurisdiction:
+          type: string
+          x-stoplight:
+            id: 1vmpmmd5w2bqm
+          description: 'String containing the name of the region(s)/state(s)/province(s)/municipality(ies) that issuer has jurisdiction over '
+    ElectronicRecord:
+      title: ElectronicRecord
+      x-stoplight:
+        id: 85iwcimsvb5yr
+      type: object
+      description: 'JSON object representing the record used to perform the identity verification. It consists of the following properties:'
+      properties:
+        type:
+          $ref: '#/components/schemas/FilterCriteria'
+          x-stoplight:
+            id: 5fxslmmpxsaps
+          description: 'String denoting the type of electronic record. '
+        personal_number:
+          type: string
+          x-stoplight:
+            id: ka93nqnawpip4
+          description: 'String representing an identifier that is assigned to the End-User and is not limited to being used in one record, for example a national identification number, personal identity number, citizen number, social security number, driver number, account number, customer number, licensee number, etc.'
+        created_at:
+          type: object
+          x-stoplight:
+            id: wscjw3gpoophf
+          properties:
+            max_age:
+              type: number
+              x-stoplight:
+                id: z5nkrvp5n7kbj
+        date_of_expiry:
+          type: object
+          x-stoplight:
+            id: 34fz8pvnwebhc
+          properties:
+            max_age:
+              type: number
+              x-stoplight:
+                id: oqz5k5ft6jwjl
+        source:
+          $ref: '#/components/schemas/EvidenceIssuer'
+          x-stoplight:
+            id: yq1ybrzyy1u9s
+    Purpose:
+      type: object
+      description: 'Relying Parties should indicate the purpose of using eSignet (e.g., for login, verification) during registration, allowing for specific customisation.'
+      properties:
+        type:
+          type: string
+          enum:
+            - none
+            - verify
+            - link
+            - login
+        title:
+          type: object
+          description: 'It will appear in the screen as the title of login page. It will be multilingual language map and @none when no language map is present, @none is compulsory if you are providing title object.'
+        subTitle:
+          type: object
+          description: 'It will appear in the screen below the title of login page. It will also be multilingual language map and @none when no language map is present, @none is compulsory if you are providing subTitle object.'
+      required:
+        - type
+    FlowMetadataResponse:
+      type: object
+      required:
+        - isRegistrationFlowEnabled
+        - isRecoveryFlowEnabled
+        - design
+        - i18n
+      properties:
+        isRegistrationFlowEnabled:
+          type: boolean
+          description: Indicates if registration flow is enabled for the entity.
+          example: true
+        isRecoveryFlowEnabled:
+          type: boolean
+          description: Indicates if recovery flow is enabled for the entity.
+          example: true
+        application:
+          $ref: '#/components/schemas/ApplicationMetadata'
+        ou:
+          $ref: '#/components/schemas/OUMetadata'
+        design:
+          $ref: '#/components/schemas/DesignMetadata'
+        i18n:
+          $ref: '#/components/schemas/I18nMetadata'
+    ApplicationMetadata:
+      type: object
+      description: Application metadata (only present when type=APP).
+      properties:
+        id:
+          type: string
+          description: 'Application ID (the OAuth/OIDC `client_id`). Opaque string, not necessarily a UUID.'
+        name:
+          type: string
+          description: Application name.
+        description:
+          type: string
+          description: Application description.
+        logoUrl:
+          type: string
+          format: uri
+          description: Application logo URL.
+        url:
+          type: string
+          format: uri
+          description: Application URL.
+        tosUri:
+          type: string
+          format: uri
+          description: Terms of Service URI.
+        policyUri:
+          type: string
+          format: uri
+          description: Privacy Policy URI.
+    OUMetadata:
+      type: object
+      description: |-
+        Organization unit metadata.
+          - Always present when type=OU
+          - For type=APP, only included when the deployment has exactly one OU
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Organization unit ID.
+        handle:
+          type: string
+          description: Organization unit handle.
+        name:
+          type: string
+          description: Organization unit name.
+        description:
+          type: string
+          description: Organization unit description.
+        logoUrl:
+          type: string
+          format: uri
+          description: Organization unit logo URL.
+        tosUri:
+          type: string
+          format: uri
+          description: Terms of Service URI.
+        policyUri:
+          type: string
+          format: uri
+          description: Privacy Policy URI.
+        cookiePolicyUri:
+          type: string
+          format: uri
+          description: Cookie Policy URI.
+    DesignMetadata:
+      type: object
+      required:
+        - theme
+        - layout
+      properties:
+        theme:
+          type: object
+          description: Resolved theme configuration.
+          additionalProperties: true
+        layout:
+          type: object
+          description: Resolved layout configuration.
+          additionalProperties: true
+    I18nMetadata:
+      type: object
+      required:
+        - languages
+        - language
+        - translations
+      properties:
+        languages:
+          type: array
+          items:
+            type: string
+          description: List of available languages.
+        language:
+          type: string
+          description: The language used for translations (defaults to 'en' if not specified).
+        totalResults:
+          type: integer
+          description: Total number of translation keys returned.
+        translations:
+          type: object
+          description: Translations organized by namespace.
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: string
+    FlowMetaError:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: "Error code. Codes follow the FLM-XXXX convention."
+          example: FLM-1001
+        message:
+          $ref: '#/components/schemas/I18nMessage'
+        description:
+          $ref: '#/components/schemas/I18nMessage'
+    InitialFlowRequest:
+      type: object
+      required:
+        - applicationId
+        - flowType
+      properties:
+        applicationId:
+          type: string
+          description: Identifier of the application initiating the flow.
+        flowType:
+          type: string
+          description: Type of the flow to execute.
+          enum:
+            - AUTHENTICATION
+            - REGISTRATION
+            - RECOVERY
+        verbose:
+          type: boolean
+          description: 'When true, the response includes the full `data.meta` UI component tree for prompt nodes. eSignet''s UI always sets this to `true`.'
+    SubSequentFlowRequest:
+      type: object
+      required:
+        - executionId
+      properties:
+        executionId:
+          type: string
+          description: Identifier of an existing flow execution.
+        challengeToken:
+          type: string
+          description: Per-step challenge token received from the previous flow response.
+        action:
+          type: string
+          description: Reference of the action to execute in the flow.
+        inputs:
+          type: object
+          description: Input data provided for the flow step execution.
+          additionalProperties:
+            type: string
+        verbose:
+          type: boolean
+          description: 'When true, the response includes the full `data.meta` UI component tree for prompt nodes. eSignet''s UI always sets this to `true`.'
+    IncompleteFlowResponse:
+      type: object
+      required:
+        - executionId
+        - flowStatus
+        - type
+      properties:
+        executionId:
+          type: string
+          description: Unique identifier of the flow execution.
+        flowStatus:
+          type: string
+          enum:
+            - INCOMPLETE
+        stepId:
+          type: string
+          description: Identifier of the current flow step. Not present in eSignet's responses observed to date.
+        challengeToken:
+          type: string
+          description: Per-step challenge token to be included in the next request.
+        type:
+          type: string
+          description: Type of flow step response.
+        data:
+          allOf:
+            - $ref: '#/components/schemas/FlowStepData'
+          description: Data for the next step in the flow.
+    CompleteFlowResponse:
+      type: object
+      required:
+        - executionId
+        - flowStatus
+        - assertion
+      properties:
+        executionId:
+          type: string
+          description: Unique identifier of the flow execution.
+        flowStatus:
+          type: string
+          enum:
+            - COMPLETE
+        data:
+          type: object
+          description: Present as an empty object on completion; reserved for future use.
+        assertion:
+          type: string
+          description: Authentication assertion. This is the JWT to present to "/oauth2/auth/callback".
+    ErrorFlowResponse:
+      type: object
+      required:
+        - executionId
+        - flowStatus
+        - error
+      properties:
+        executionId:
+          type: string
+          description: Unique identifier of the flow execution.
+        flowStatus:
+          type: string
+          enum:
+            - ERROR
+        error:
+          $ref: '#/components/schemas/FlowExecutionError'
+    FlowStepData:
+      type: object
+      properties:
+        inputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlowStepInput'
+          description: Required input data for the next flow step.
+        redirectURL:
+          type: string
+          description: Redirect URL for the next step in the flow, if applicable.
+        additionalData:
+          type: object
+          additionalProperties:
+            type: string
+          description: Additional information provided by the flow step.
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlowStepAction'
+          description: Available actions for the current flow step.
+        meta:
+          type: object
+          description: >-
+            Full UI rendering tree for the step (nested `BLOCK`/`STACK`/`TEXT`/`FIELD`/`ACTION`/...
+            components), returned because eSignet's UI always sets `verbose: true`. Labels may use
+            `{{t(namespace:key)}}` / `{{meta(path)}}` templating resolved via "/flow/meta".
+        fieldErrors:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlowFieldError'
+          description: >-
+            Per-field validation failures returned when one or more submitted values violate the
+            rules declared on `data.inputs[].validation`. The server discards the submitted values
+            for the failing fields and re-presents the same step so the client can re-render the
+            form and the user can resubmit corrected values.
+    FlowStepAction:
+      type: object
+      properties:
+        ref:
+          type: string
+          description: Reference name of the action, used for mapping user actions to the flow definition.
+        nextNode:
+          type: string
+          description: Identifier of the next node in the flow to execute when this action is taken.
+        type:
+          type: string
+          description: |-
+            Action type forwarded from the PROMPT node definition. Predefined values are `SUBMIT`
+            (approve/confirm) and `REJECT` (deny/cancel). Custom strings are also accepted for
+            executor-specific routing.
+    FlowStepInput:
+      type: object
+      properties:
+        ref:
+          type: string
+          description: Reference name of the input field, used for mapping user inputs to the meta components.
+        identifier:
+          type: string
+          description: Name of the input field.
+        type:
+          type: string
+          description: Type of the input field.
+        required:
+          type: boolean
+          description: Whether the input is required.
+        options:
+          type: array
+          items:
+            type: string
+          description: Allowed values for SELECT-type inputs.
+        validation:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlowValidationRule'
+          description: >-
+            Server-enforced validation rules applied to the submitted value after the
+            required-input presence check. When any rule fails, the response returns
+            `flowStatus: INCOMPLETE` with the failing rules listed under `data.fieldErrors`.
+    FlowValidationRule:
+      type: object
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          description: Constraint type. Each rule object carries exactly one constraint.
+          enum:
+            - regex
+            - minLength
+            - maxLength
+        value:
+          description: |-
+            Constraint parameter. `regex` takes a regex pattern string. `minLength` and
+            `maxLength` take a non-negative integer applied to the Unicode code point count of
+            the submitted value.
+          oneOf:
+            - type: string
+            - type: integer
+              minimum: 0
+        message:
+          type: string
+          description: 'Message returned in `data.fieldErrors` when the rule fails. A flat `namespace.key` i18n key (e.g. `validation.uin.numeric`), resolved via "/flow/meta" — not the `{{t(...)}}` syntax used by `data.meta` labels.'
+          example: validation.uin.numeric
+    FlowFieldError:
+      type: object
+      required:
+        - identifier
+        - message
+      properties:
+        identifier:
+          type: string
+          description: Identifier of the input field whose validation rule failed.
+        message:
+          type: string
+          description: 'Message from the failing validation rule. A flat i18n key in `namespace.key` form (e.g. `validation.uin.numeric`).'
+          example: validation.uin.numeric
+    FlowExecutionError:
+      type: object
+      properties:
+        code:
+          type: string
+          description: "Error code. Client errors follow the FES-XXXX convention; server errors use SSE-XXXX."
+          example: FES-1003
+        message:
+          $ref: '#/components/schemas/I18nMessage'
+        description:
+          $ref: '#/components/schemas/I18nMessage'
+    AuthCallbackRequest:
+      type: object
+      required:
+        - authId
+        - assertion
+      properties:
+        authId:
+          type: string
+          description: The authorization session identifier returned by the "/authorize" redirect.
+        assertion:
+          type: string
+          description: Signed JWT assertion from the flow engine containing the authentication result.
+    AuthCallbackResponse:
+      type: object
+      required:
+        - redirect_uri
+      properties:
+        redirect_uri:
+          type: string
+          description: The full redirect URI for the client, including the authorization code and state.
+    AuthCallbackError:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: OAuth 2.0 error code.
+          example: invalid_request
+        error_description:
+          type: string
+          description: Human-readable error description.
+    I18nMessage:
+      type: object
+      description: Internationalized message with translation key and default value.
+      required:
+        - key
+        - defaultValue
+      properties:
+        key:
+          type: string
+          description: Translation key for fetching localized message.
+        defaultValue:
+          type: string
+          description: Default message in English (fallback).
