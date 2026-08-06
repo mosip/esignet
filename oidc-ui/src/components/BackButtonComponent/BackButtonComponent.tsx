@@ -4,7 +4,7 @@ import type {
 } from "@thunderid/react";
 import { useTranslation, resolveFlowTemplateLiterals } from "@thunderid/react";
 
-export default function BackButton({
+export default function BackButtonComponent({
   component,
   context,
 }: {

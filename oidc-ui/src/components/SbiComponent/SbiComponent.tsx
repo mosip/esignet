@@ -62,7 +62,7 @@ const DEFAULT_SBI_ENV = {
   domainUri: window.origin,
 } as const;
 
-export default function Sbi({ component, context }: SbiProps) {
+export default function SbiComponent({ component, context }: SbiProps) {
   const [, setValue] = useState("");
   const fieldRef = component.ref ?? component.id;
   const { currentLanguage } = useTranslation();
