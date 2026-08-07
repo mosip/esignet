@@ -377,6 +377,9 @@ extraEnvVarsSecret: []
 ##   - name: esignet-keystore
 ##     secret:
 ##       secretName: esignet-keystore
+##       items:
+##         - key: esignet.pfx
+##           path: esignet.pfx
 ##
 extraVolumes: []
 
