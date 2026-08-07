@@ -34,7 +34,30 @@ func parseCertificateTolerant(der []byte) (*x509.Certificate, error) {
 		return nil, err
 	}
 	cert.Raw = der
+	// x509.ParseCertificate(fixed) set RawTBSCertificate from the re-encoded
+	// (padded-serial) bytes, not the originally signed ones. CheckSignatureFrom
+	// hashes RawTBSCertificate, so it must reflect exactly what the CA signed.
+	originalTBS, tbsErr := extractTBSCertificate(der)
+	if tbsErr != nil {
+		return nil, tbsErr
+	}
+	cert.RawTBSCertificate = originalTBS
 	return cert, nil
+}
+
+// extractTBSCertificate returns the tbsCertificate SEQUENCE's exact DER
+// encoding (tag, length, and content bytes) as it appears in der, byte-for-byte.
+func extractTBSCertificate(der []byte) ([]byte, error) {
+	input := cryptobyte.String(der)
+	var certSeq cryptobyte.String
+	if !input.ReadASN1(&certSeq, cryptobyte_asn1.SEQUENCE) {
+		return nil, errors.New("malformed certificate")
+	}
+	var tbs cryptobyte.String
+	if !certSeq.ReadASN1Element(&tbs, cryptobyte_asn1.SEQUENCE) {
+		return nil, errors.New("malformed tbs certificate")
+	}
+	return tbs, nil
 }
 
 // reencodeNonNegativeSerial rebuilds a certificate's DER with its

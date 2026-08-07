@@ -6,6 +6,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"golang.org/x/crypto/cryptobyte"
+	cryptobyte_asn1 "golang.org/x/crypto/cryptobyte/asn1"
 
 	"github.com/mosip/esignet/internal/keymanager"
 )
@@ -55,4 +57,23 @@ func TestParseCertPEM_ToleratesNegativeSerialNumber(t *testing.T) {
 	// must match what a Java peer computes from the same bytes.
 	gotSum := sha256.Sum256(cert.Raw)
 	require.Equal(t, wantSum, gotSum, "cert.Raw must equal the original DER, not a re-encoded copy")
+
+	// RawTBSCertificate must be the original signed bytes (with the
+	// unpadded serial), not the re-encoded ones — CheckSignatureFrom hashes
+	// RawTBSCertificate, and it must match what the CA actually signed.
+	wantTBS := extractTBSCertificateForTest(t, block.Bytes)
+	require.Equal(t, wantTBS, cert.RawTBSCertificate, "RawTBSCertificate must equal the original TBSCertificate DER, not a re-encoded copy")
+}
+
+// extractTBSCertificateForTest independently extracts the tbsCertificate
+// SEQUENCE's raw DER bytes from a certificate, mirroring what a correct
+// implementation must preserve after re-encoding the serial number.
+func extractTBSCertificateForTest(t *testing.T, der []byte) []byte {
+	t.Helper()
+	input := cryptobyte.String(der)
+	var certSeq cryptobyte.String
+	require.True(t, input.ReadASN1(&certSeq, cryptobyte_asn1.SEQUENCE))
+	var tbs cryptobyte.String
+	require.True(t, certSeq.ReadASN1Element(&tbs, cryptobyte_asn1.SEQUENCE))
+	return tbs
 }
