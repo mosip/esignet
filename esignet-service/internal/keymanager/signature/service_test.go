@@ -83,6 +83,13 @@ func b64url(s string) string { return base64.RawURLEncoding.EncodeToString([]byt
 // verification logic is identical to ES256's (see sign.go's signDigest —
 // both share the same case) and is covered by that path plus
 // TestAlgorithmForRefID_MatchesJavaMapping/TestDerToConcat_* in sign_test.go.
+func (ts *SignatureTestSuite) TestSupportedAlgorithms() {
+	ts.Require().ElementsMatch(
+		[]string{"PS256", "RS256", "ES256", "ES256K", "EdDSA"},
+		signature.SupportedAlgorithms(),
+	)
+}
+
 func (ts *SignatureTestSuite) TestJWSSignVerify_RoundTrip_AllAlgorithms() {
 	t := ts.T()
 	cases := []struct {

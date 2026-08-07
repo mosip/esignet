@@ -44,34 +44,26 @@ const minimalDeploymentYAML = `
 identifier: esignet
 port: 8088
 issuer: http://127.0.0.1:8088
-crypto:
-  key: "test-key"
 `
 
 func (ts *AppConfigTestSuite) TestLoadAppConfigMissingFile() {
-	t := ts.T()
 	ts.chdirTemp()
-	t.Setenv("CRYPTO_ENCRYPTION_KEY", "test-key")
 
 	_, err := LoadAppConfig()
 	ts.Require().Error(err)
 }
 
 func (ts *AppConfigTestSuite) TestLoadAppConfigMalformedYAML() {
-	t := ts.T()
 	dir := ts.chdirTemp()
 	ts.writeDeploymentYAML(dir, "not: [valid: yaml")
-	t.Setenv("CRYPTO_ENCRYPTION_KEY", "test-key")
 
 	_, err := LoadAppConfig()
 	ts.Require().Error(err)
 }
 
 func (ts *AppConfigTestSuite) TestLoadAppConfigUnknownFieldRejected() {
-	t := ts.T()
 	dir := ts.chdirTemp()
 	ts.writeDeploymentYAML(dir, minimalDeploymentYAML+"\nnot_a_real_field: true\n")
-	t.Setenv("CRYPTO_ENCRYPTION_KEY", "test-key")
 
 	_, err := LoadAppConfig()
 	ts.Require().Error(err)
@@ -84,37 +76,31 @@ func (ts *AppConfigTestSuite) TestLoadAppConfigExpandsEnvAndAppliesDefaults() {
 identifier: "${NAMESPACE}"
 port: 8088
 issuer: "${MOSIP_ESIGNET_HOST:-http://localhost:8088}"
-crypto:
-  key: "${CRYPTO_ENCRYPTION_KEY}"
 oauth:
   authorization_code:
     validity_period: 120
 `)
-	t.Setenv("CRYPTO_ENCRYPTION_KEY", "abc123")
 	t.Setenv("NAMESPACE", "my-namespace")
 
 	cfg, err := LoadAppConfig()
 	ts.Require().NoError(err)
 	ts.Require().Equal("my-namespace", cfg.Identifier)
-	ts.Require().Equal("abc123", cfg.EncryptionConfig.Key)
 	ts.Require().EqualValues(120, cfg.OAuth.AuthorizationCode.ValidityPeriod)
 }
 
 func (ts *AppConfigTestSuite) TestApplyDefaultsAuthorizationCodeValidityPeriod() {
 	t := ts.T()
-	t.Run("respects yaml-supplied value", func(t *testing.T) {
+	t.Run("respects yaml-supplied value", func(_ *testing.T) {
 		cfg := &AppConfig{OAuth: engineconfig.OAuthConfig{}}
 		cfg.OAuth.AuthorizationCode.ValidityPeriod = 120
-		t.Setenv("CRYPTO_ENCRYPTION_KEY", "k")
 
 		applyDefaults(cfg)
 
 		ts.Require().EqualValues(120, cfg.OAuth.AuthorizationCode.ValidityPeriod)
 	})
 
-	t.Run("defaults to 3600 when unset", func(t *testing.T) {
+	t.Run("defaults to 3600 when unset", func(_ *testing.T) {
 		cfg := &AppConfig{}
-		t.Setenv("CRYPTO_ENCRYPTION_KEY", "k")
 
 		applyDefaults(cfg)
 
@@ -124,19 +110,17 @@ func (ts *AppConfigTestSuite) TestApplyDefaultsAuthorizationCodeValidityPeriod()
 
 func (ts *AppConfigTestSuite) TestApplyDefaultsPARExpiresIn() {
 	t := ts.T()
-	t.Run("respects yaml-supplied value", func(t *testing.T) {
+	t.Run("respects yaml-supplied value", func(_ *testing.T) {
 		cfg := &AppConfig{}
 		cfg.OAuth.PAR.ExpiresIn = 900
-		t.Setenv("CRYPTO_ENCRYPTION_KEY", "k")
 
 		applyDefaults(cfg)
 
 		ts.Require().EqualValues(900, cfg.OAuth.PAR.ExpiresIn)
 	})
 
-	t.Run("defaults to 3600 when unset", func(t *testing.T) {
+	t.Run("defaults to 3600 when unset", func(_ *testing.T) {
 		cfg := &AppConfig{}
-		t.Setenv("CRYPTO_ENCRYPTION_KEY", "k")
 
 		applyDefaults(cfg)
 
@@ -146,9 +130,8 @@ func (ts *AppConfigTestSuite) TestApplyDefaultsPARExpiresIn() {
 
 func (ts *AppConfigTestSuite) TestApplyDefaultsJWTValidityAndLeeway() {
 	t := ts.T()
-	t.Run("defaults when unset", func(t *testing.T) {
+	t.Run("defaults when unset", func(_ *testing.T) {
 		cfg := &AppConfig{}
-		t.Setenv("CRYPTO_ENCRYPTION_KEY", "k")
 
 		applyDefaults(cfg)
 
@@ -159,7 +142,6 @@ func (ts *AppConfigTestSuite) TestApplyDefaultsJWTValidityAndLeeway() {
 
 	t.Run("respects env override", func(t *testing.T) {
 		cfg := &AppConfig{}
-		t.Setenv("CRYPTO_ENCRYPTION_KEY", "k")
 		t.Setenv("MOSIP_ESIGNET_JWT_VALIDITY_PERIOD", "7200")
 		t.Setenv("MOSIP_ESIGNET_JWT_LEEWAY", "30")
 		t.Setenv("MOSIP_ESIGNET_DPOP_LEEWAY", "20")
@@ -174,10 +156,9 @@ func (ts *AppConfigTestSuite) TestApplyDefaultsJWTValidityAndLeeway() {
 
 func (ts *AppConfigTestSuite) TestApplyDefaultsCoreFields() {
 	t := ts.T()
-	t.Setenv("CRYPTO_ENCRYPTION_KEY", "k")
 	t.Setenv("PORT", "9999")
 	t.Setenv("MOSIP_ESIGNET_HOST", "https://issuer.example")
-	t.Setenv("AUTHN_PROVIDER", "mosip")
+	t.Setenv("MOSIP_ESIGNET_AUTHN_PROVIDER", "mosip")
 
 	cfg := &AppConfig{}
 	applyDefaults(cfg)
@@ -190,9 +171,38 @@ func (ts *AppConfigTestSuite) TestApplyDefaultsCoreFields() {
 	ts.Require().False(cfg.Server.HTTPOnly, "https:// public URL should not be flagged http-only")
 }
 
+func (ts *AppConfigTestSuite) TestApplyDefaultsSupportedAlgorithms() {
+	cfg := &AppConfig{}
+	applyDefaults(cfg)
+
+	ts.Require().Equal([]string{"PS256", "ES256", "ES256K", "EdDSA"}, cfg.SupportedSigningAlgorithms)
+	ts.Require().Equal([]string{"RSA-OAEP", "RSA-OAEP-256"}, cfg.SupportedEncAlgorithms)
+}
+
+func (ts *AppConfigTestSuite) TestApplyDefaultsCacheType() {
+	t := ts.T()
+	t.Run("defaults to redis and loads redis config", func(_ *testing.T) {
+		cfg := &AppConfig{}
+
+		applyDefaults(cfg)
+
+		ts.Require().Equal("redis", cfg.Flow.Store)
+		ts.Require().NotEmpty(cfg.Redis.Host, "redis config should be loaded when cache type is redis")
+	})
+
+	t.Run("non-redis cache type skips loading redis config", func(t *testing.T) {
+		t.Setenv("MOSIP_ESIGNET_CACHE_TYPE", "memory")
+		cfg := &AppConfig{}
+
+		applyDefaults(cfg)
+
+		ts.Require().Equal("memory", cfg.Flow.Store)
+		ts.Require().Zero(cfg.Redis, "redis config should not be loaded for a non-redis cache type")
+	})
+}
+
 func (ts *AppConfigTestSuite) TestApplyDefaultsHTTPOnlyDetection() {
 	t := ts.T()
-	t.Setenv("CRYPTO_ENCRYPTION_KEY", "k")
 	t.Setenv("MOSIP_ESIGNET_HOST", "http://127.0.0.1:8088")
 
 	cfg := &AppConfig{}
@@ -202,7 +212,6 @@ func (ts *AppConfigTestSuite) TestApplyDefaultsHTTPOnlyDetection() {
 }
 
 func (ts *AppConfigTestSuite) TestApplyDefaultsTTLGuards() {
-	ts.T().Setenv("CRYPTO_ENCRYPTION_KEY", "k")
 
 	cfg := &AppConfig{
 		ClientCacheTTLSecs: 42,
@@ -217,7 +226,6 @@ func (ts *AppConfigTestSuite) TestApplyDefaultsTTLGuards() {
 }
 
 func (ts *AppConfigTestSuite) TestApplyDefaultsOutboundHTTPClient() {
-	ts.T().Setenv("CRYPTO_ENCRYPTION_KEY", "k")
 
 	cfg := &AppConfig{
 		OutboundHTTPClient: HTTPClientConfig{
@@ -239,11 +247,11 @@ func (ts *AppConfigTestSuite) TestApplyDefaultsOutboundHTTPClient() {
 func (ts *AppConfigTestSuite) TestApplyEnvOverridesGateClient() {
 	t := ts.T()
 	cfg := &AppConfig{}
-	t.Setenv("OIDC_UI_SCHEME", "https")
-	t.Setenv("OIDC_UI_HOSTNAME", "gate.example")
-	t.Setenv("OIDC_UI_PORT", "4443")
-	t.Setenv("OIDC_UI_LOGIN_PATH", "/login")
-	t.Setenv("OIDC_UI_ERROR_PATH", "/oops")
+	t.Setenv("MOSIP_ESIGNET_OIDC_UI_SCHEME", "https")
+	t.Setenv("MOSIP_ESIGNET_OIDC_UI_HOSTNAME", "gate.example")
+	t.Setenv("MOSIP_ESIGNET_OIDC_UI_PORT", "4443")
+	t.Setenv("MOSIP_ESIGNET_OIDC_UI_LOGIN_PATH", "/login")
+	t.Setenv("MOSIP_ESIGNET_OIDC_UI_ERROR_PATH", "/oops")
 
 	ts.Require().NoError(ApplyEnvOverrides(cfg))
 
@@ -256,14 +264,14 @@ func (ts *AppConfigTestSuite) TestApplyEnvOverridesGateClient() {
 
 func (ts *AppConfigTestSuite) TestApplyEnvOverridesInvalidPort() {
 	cfg := &AppConfig{}
-	ts.T().Setenv("OIDC_UI_PORT", "not-a-number")
+	ts.T().Setenv("MOSIP_ESIGNET_OIDC_UI_PORT", "not-a-number")
 
 	ts.Require().Error(ApplyEnvOverrides(cfg))
 }
 
 func (ts *AppConfigTestSuite) TestApplyEnvOverridesPortOutOfRange() {
 	cfg := &AppConfig{}
-	ts.T().Setenv("OIDC_UI_PORT", "70000")
+	ts.T().Setenv("MOSIP_ESIGNET_OIDC_UI_PORT", "70000")
 
 	ts.Require().Error(ApplyEnvOverrides(cfg))
 }
@@ -271,9 +279,9 @@ func (ts *AppConfigTestSuite) TestApplyEnvOverridesPortOutOfRange() {
 func (ts *AppConfigTestSuite) TestApplyEnvOverridesOAuthLifetimes() {
 	t := ts.T()
 	cfg := &AppConfig{}
-	t.Setenv("OAUTH_AUTH_CODE_LIFETIME_SECONDS", "60")
-	t.Setenv("OAUTH_PAR_EXPIRY_SECONDS", "120")
-	t.Setenv("OAUTH_ACCESS_TOKEN_LIFETIME_SECONDS", "7200")
+	t.Setenv("MOSIP_ESIGNET_OAUTH_AUTH_CODE_LIFETIME_SECONDS", "60")
+	t.Setenv("MOSIP_ESIGNET_OAUTH_PAR_EXPIRY_SECONDS", "120")
+	t.Setenv("MOSIP_ESIGNET_OAUTH_ACCESS_TOKEN_LIFETIME_SECONDS", "7200")
 
 	ts.Require().NoError(ApplyEnvOverrides(cfg))
 
@@ -285,7 +293,7 @@ func (ts *AppConfigTestSuite) TestApplyEnvOverridesOAuthLifetimes() {
 func (ts *AppConfigTestSuite) TestApplyEnvOverridesNonPositiveLifetimesIgnored() {
 	cfg := &AppConfig{}
 	cfg.OAuth.AuthorizationCode.ValidityPeriod = 120
-	ts.T().Setenv("OAUTH_AUTH_CODE_LIFETIME_SECONDS", "0")
+	ts.T().Setenv("MOSIP_ESIGNET_OAUTH_AUTH_CODE_LIFETIME_SECONDS", "0")
 
 	ts.Require().NoError(ApplyEnvOverrides(cfg))
 
@@ -294,21 +302,21 @@ func (ts *AppConfigTestSuite) TestApplyEnvOverridesNonPositiveLifetimesIgnored()
 
 func (ts *AppConfigTestSuite) TestApplyEnvOverridesInvalidOAuthLifetime() {
 	cfg := &AppConfig{}
-	ts.T().Setenv("OAUTH_AUTH_CODE_LIFETIME_SECONDS", "abc")
+	ts.T().Setenv("MOSIP_ESIGNET_OAUTH_AUTH_CODE_LIFETIME_SECONDS", "abc")
 
 	ts.Require().Error(ApplyEnvOverrides(cfg))
 }
 
 func (ts *AppConfigTestSuite) TestApplyEnvOverridesInvalidPARLifetime() {
 	cfg := &AppConfig{}
-	ts.T().Setenv("OAUTH_PAR_EXPIRY_SECONDS", "abc")
+	ts.T().Setenv("MOSIP_ESIGNET_OAUTH_PAR_EXPIRY_SECONDS", "abc")
 
 	ts.Require().Error(ApplyEnvOverrides(cfg))
 }
 
 func (ts *AppConfigTestSuite) TestApplyEnvOverridesInvalidAccessTokenLifetime() {
 	cfg := &AppConfig{}
-	ts.T().Setenv("OAUTH_ACCESS_TOKEN_LIFETIME_SECONDS", "abc")
+	ts.T().Setenv("MOSIP_ESIGNET_OAUTH_ACCESS_TOKEN_LIFETIME_SECONDS", "abc")
 
 	ts.Require().Error(ApplyEnvOverrides(cfg))
 }
@@ -316,8 +324,9 @@ func (ts *AppConfigTestSuite) TestApplyEnvOverridesInvalidAccessTokenLifetime() 
 func (ts *AppConfigTestSuite) TestApplyEnvOverridesNoEnvSetLeavesDefaults() {
 	t := ts.T()
 	for _, envVar := range []string{
-		"OIDC_UI_SCHEME", "OIDC_UI_HOSTNAME", "OIDC_UI_PORT", "OIDC_UI_LOGIN_PATH", "OIDC_UI_ERROR_PATH",
-		"OAUTH_AUTH_CODE_LIFETIME_SECONDS", "OAUTH_PAR_EXPIRY_SECONDS", "OAUTH_ACCESS_TOKEN_LIFETIME_SECONDS",
+		"MOSIP_ESIGNET_OIDC_UI_SCHEME", "MOSIP_ESIGNET_OIDC_UI_HOSTNAME", "MOSIP_ESIGNET_OIDC_UI_PORT", "MOSIP_ESIGNET_OIDC_UI_LOGIN_PATH", "MOSIP_ESIGNET_OIDC_UI_ERROR_PATH",
+		"MOSIP_ESIGNET_OAUTH_AUTH_CODE_LIFETIME_SECONDS", "MOSIP_ESIGNET_OAUTH_PAR_EXPIRY_SECONDS", "MOSIP_ESIGNET_OAUTH_ACCESS_TOKEN_LIFETIME_SECONDS",
+		"MOSIP_ESIGNET_OAUTH_SUPPORTED_SIGNING_ALGORITHMS", "MOSIP_ESIGNET_OAUTH_SUPPORTED_ENCRYPTION_ALGORITHMS",
 	} {
 		t.Setenv(envVar, "")
 	}
@@ -325,6 +334,20 @@ func (ts *AppConfigTestSuite) TestApplyEnvOverridesNoEnvSetLeavesDefaults() {
 	cfg := &AppConfig{}
 	ts.Require().NoError(ApplyEnvOverrides(cfg))
 	ts.Require().Zero(cfg.GateClient.Scheme)
+	ts.Require().Nil(cfg.SupportedSigningAlgorithms)
+	ts.Require().Nil(cfg.SupportedEncAlgorithms)
+}
+
+func (ts *AppConfigTestSuite) TestApplyEnvOverridesSupportedAlgorithms() {
+	t := ts.T()
+	cfg := &AppConfig{}
+	t.Setenv("MOSIP_ESIGNET_OAUTH_SUPPORTED_SIGNING_ALGORITHMS", "PS256, ES256 ,EdDSA")
+	t.Setenv("MOSIP_ESIGNET_OAUTH_SUPPORTED_ENCRYPTION_ALGORITHMS", "AES-GCM, RSA-OAEP-256")
+
+	ts.Require().NoError(ApplyEnvOverrides(cfg))
+
+	ts.Require().Equal([]string{"PS256", "ES256", "EdDSA"}, cfg.SupportedSigningAlgorithms)
+	ts.Require().Equal([]string{"AES-GCM", "RSA-OAEP-256"}, cfg.SupportedEncAlgorithms)
 }
 
 func (ts *AppConfigTestSuite) TestEnvOrDefault() {

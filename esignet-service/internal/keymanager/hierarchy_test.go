@@ -24,7 +24,7 @@ func (ts *KeymanagerTestSuite) TestResolveKeyType() {
 		{"SOME_APP_ENCRYPTION_KEY", "RSA", ""},
 	}
 	for _, tt := range tests {
-		ts.T().Run(tt.refID, func(t *testing.T) {
+		ts.T().Run(tt.refID, func(_ *testing.T) {
 			algo, curve := keymanager.ResolveKeyType(tt.refID)
 			ts.Assert().Equal(tt.wantAlgo, algo)
 			ts.Assert().Equal(tt.wantCurve, curve)

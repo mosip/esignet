@@ -180,7 +180,7 @@ func (s *Store) openSession() (pkcs11.SessionHandle, error) {
 	if s.pin != "" {
 		if err := s.ctx.Login(sh, pkcs11.CKU_USER, s.pin); err != nil {
 			var perr pkcs11.Error
-			if !(errors.As(err, &perr) && uint(perr) == pkcs11.CKR_USER_ALREADY_LOGGED_IN) {
+			if !errors.As(err, &perr) || uint(perr) != pkcs11.CKR_USER_ALREADY_LOGGED_IN {
 				_ = s.ctx.CloseSession(sh)
 				return 0, fmt.Errorf("pkcs11: login: %w", err)
 			}

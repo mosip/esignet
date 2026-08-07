@@ -94,7 +94,7 @@ func validClientRow(clientID, rpID string) db.ClientDetail {
 // newTestClientService builds a clientmgmt.Service backed by the fake Querier
 // above and the module-standard in-memory RuntimeStoreProvider fake.
 func newTestClientService(row db.ClientDetail, err error) *clientmgmt.Service {
-	return clientmgmt.NewServiceWithQuerier(&fakeQuerier{row: row, err: err}, inmemory.Initialize("test"), 0)
+	return clientmgmt.NewServiceWithQuerier(&fakeQuerier{row: row, err: err}, inmemory.Initialize("test"), 0, nil)
 }
 
 func newValidClientService() *clientmgmt.Service {

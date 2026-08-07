@@ -24,7 +24,7 @@ import (
 )
 
 func newTestHandler(q db.Querier) *Handler {
-	svc := NewServiceWithQuerier(q, nil, 0)
+	svc := NewServiceWithQuerier(q, nil, 0, nil)
 	return NewHandler(svc, applog.GetLogger().Named("clientmgmt-test"))
 }
 

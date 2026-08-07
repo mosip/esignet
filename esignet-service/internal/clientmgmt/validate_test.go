@@ -56,153 +56,166 @@ func (ts *ValidateTestSuite) TestValidateCreate() {
 	t := ts.T()
 	t.Run("valid oidc profile", func(t *testing.T) {
 		req := validCreateRequest()
-		assert.NoError(t, ValidateCreate(ProfileOIDC, req))
+		assert.NoError(t, ValidateCreate(ProfileOIDC, req, nil))
 	})
 
 	t.Run("oidc profile rejects client name lang map", func(t *testing.T) {
 		req := validCreateRequest()
 		req.ClientNameLangMap = map[string]string{"eng": "x"}
-		assert.Equal(t, "invalid_input", errCode(t, ValidateCreate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_input", errCode(t, ValidateCreate(ProfileOIDC, req, nil)))
 	})
 
 	t.Run("oidc profile rejects additional config", func(t *testing.T) {
 		req := validCreateRequest()
 		req.AdditionalConfig = json.RawMessage(`{}`)
-		assert.Equal(t, "invalid_input", errCode(t, ValidateCreate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_input", errCode(t, ValidateCreate(ProfileOIDC, req, nil)))
 	})
 
 	t.Run("non-oidc profile requires client name lang map", func(t *testing.T) {
 		req := validCreateRequest()
-		assert.Equal(t, "invalid_input", errCode(t, ValidateCreate(ProfileOAuth, req)))
+		assert.Equal(t, "invalid_input", errCode(t, ValidateCreate(ProfileOAuth, req, nil)))
 	})
 
 	t.Run("oauth profile rejects additional config", func(t *testing.T) {
 		req := validCreateRequest()
 		req.ClientNameLangMap = map[string]string{"eng": "x"}
 		req.AdditionalConfig = json.RawMessage(`{}`)
-		assert.Equal(t, "invalid_input", errCode(t, ValidateCreate(ProfileOAuth, req)))
+		assert.Equal(t, "invalid_input", errCode(t, ValidateCreate(ProfileOAuth, req, nil)))
 	})
 
 	t.Run("client profile with additional config", func(t *testing.T) {
 		req := validCreateRequest()
 		req.ClientNameLangMap = map[string]string{"eng": "x"}
 		req.AdditionalConfig = json.RawMessage(`{"consent_expire_in_mins":30}`)
-		assert.NoError(t, ValidateCreate(ProfileClient, req))
+		assert.NoError(t, ValidateCreate(ProfileClient, req, nil))
 	})
 
 	t.Run("invalid client id", func(t *testing.T) {
 		req := validCreateRequest()
 		req.ClientID = ""
-		assert.Equal(t, "invalid_client_id", errCode(t, ValidateCreate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_client_id", errCode(t, ValidateCreate(ProfileOIDC, req, nil)))
 	})
 
 	t.Run("invalid client name", func(t *testing.T) {
 		req := validCreateRequest()
 		req.ClientName = ""
-		assert.Equal(t, "invalid_client_name", errCode(t, ValidateCreate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_client_name", errCode(t, ValidateCreate(ProfileOIDC, req, nil)))
 	})
 
 	t.Run("invalid rp id", func(t *testing.T) {
 		req := validCreateRequest()
 		req.RpID = ""
-		assert.Equal(t, "invalid_rp_id", errCode(t, ValidateCreate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_rp_id", errCode(t, ValidateCreate(ProfileOIDC, req, nil)))
 	})
 
 	t.Run("invalid logo uri", func(t *testing.T) {
 		req := validCreateRequest()
 		req.LogoURI = "not a uri"
-		assert.Equal(t, "invalid_uri", errCode(t, ValidateCreate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_uri", errCode(t, ValidateCreate(ProfileOIDC, req, nil)))
 	})
 
 	t.Run("empty redirect uris", func(t *testing.T) {
 		req := validCreateRequest()
 		req.RedirectURIs = nil
-		assert.Equal(t, "invalid_redirect_uri", errCode(t, ValidateCreate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_redirect_uri", errCode(t, ValidateCreate(ProfileOIDC, req, nil)))
 	})
 
 	t.Run("invalid redirect uri", func(t *testing.T) {
 		req := validCreateRequest()
 		req.RedirectURIs = []string{"not a uri"}
-		assert.Equal(t, "invalid_redirect_uri", errCode(t, ValidateCreate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_redirect_uri", errCode(t, ValidateCreate(ProfileOIDC, req, nil)))
 	})
 
 	t.Run("empty claims", func(t *testing.T) {
 		req := validCreateRequest()
 		req.Claims = nil
-		assert.Equal(t, "invalid_claim", errCode(t, ValidateCreate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_claim", errCode(t, ValidateCreate(ProfileOIDC, req, nil)))
 	})
 
 	t.Run("invalid claims", func(t *testing.T) {
 		req := validCreateRequest()
 		req.Claims = []string{"not_allowed"}
-		assert.Equal(t, "invalid_claim", errCode(t, ValidateCreate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_claim", errCode(t, ValidateCreate(ProfileOIDC, req, nil)))
 	})
 
 	t.Run("empty acr values", func(t *testing.T) {
 		req := validCreateRequest()
 		req.AcrValues = nil
-		assert.Equal(t, "invalid_acr", errCode(t, ValidateCreate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_acr", errCode(t, ValidateCreate(ProfileOIDC, req, nil)))
 	})
 
 	t.Run("invalid acr values", func(t *testing.T) {
 		req := validCreateRequest()
 		req.AcrValues = []string{"not_allowed"}
-		assert.Equal(t, "invalid_acr", errCode(t, ValidateCreate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_acr", errCode(t, ValidateCreate(ProfileOIDC, req, nil)))
 	})
 
 	t.Run("invalid public key", func(t *testing.T) {
 		req := validCreateRequest()
 		req.PublicKey = nil
-		assert.Equal(t, "invalid_public_key", errCode(t, ValidateCreate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_public_key", errCode(t, ValidateCreate(ProfileOIDC, req, nil)))
 	})
 
 	t.Run("empty grant types", func(t *testing.T) {
 		req := validCreateRequest()
 		req.GrantTypes = nil
-		assert.Equal(t, "invalid_grant_type", errCode(t, ValidateCreate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_grant_type", errCode(t, ValidateCreate(ProfileOIDC, req, nil)))
 	})
 
 	t.Run("invalid grant types", func(t *testing.T) {
 		req := validCreateRequest()
 		req.GrantTypes = []string{"implicit"}
-		assert.Equal(t, "invalid_grant_type", errCode(t, ValidateCreate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_grant_type", errCode(t, ValidateCreate(ProfileOIDC, req, nil)))
 	})
 
 	t.Run("empty auth methods", func(t *testing.T) {
 		req := validCreateRequest()
 		req.AuthMethods = nil
-		assert.Equal(t, "invalid_client_auth", errCode(t, ValidateCreate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_client_auth", errCode(t, ValidateCreate(ProfileOIDC, req, nil)))
 	})
 
 	t.Run("invalid auth methods", func(t *testing.T) {
 		req := validCreateRequest()
 		req.AuthMethods = []string{"client_secret_basic"}
-		assert.Equal(t, "invalid_client_auth", errCode(t, ValidateCreate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_client_auth", errCode(t, ValidateCreate(ProfileOIDC, req, nil)))
 	})
 
 	t.Run("client profile invalid additional config", func(t *testing.T) {
 		req := validCreateRequest()
 		req.ClientNameLangMap = map[string]string{"eng": "x"}
 		req.AdditionalConfig = json.RawMessage(`not-json`)
-		assert.Equal(t, "invalid_additional_config", errCode(t, ValidateCreate(ProfileClient, req)))
+		assert.Equal(t, "invalid_additional_config", errCode(t, ValidateCreate(ProfileClient, req, nil)))
 	})
 
 	t.Run("invalid enc public key", func(t *testing.T) {
 		req := validCreateRequest()
 		req.EncPublicKey = map[string]string{"kty": "bogus"}
-		assert.Equal(t, "invalid_public_key", errCode(t, ValidateCreate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_public_key", errCode(t, ValidateCreate(ProfileOIDC, req, nil)))
 	})
 
 	t.Run("enc public key missing alg", func(t *testing.T) {
 		req := validCreateRequest()
 		req.EncPublicKey = map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB"}
-		assert.Equal(t, "invalid_public_key", errCode(t, ValidateCreate(ProfileOIDC, req)))
+		assert.Equal(t, "invalid_public_key", errCode(t, ValidateCreate(ProfileOIDC, req, nil)))
 	})
 
 	t.Run("enc public key with alg accepted", func(t *testing.T) {
 		req := validCreateRequest()
 		req.EncPublicKey = map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB", "alg": "RSA-OAEP-256"}
-		assert.NoError(t, ValidateCreate(ProfileOIDC, req))
+		assert.NoError(t, ValidateCreate(ProfileOIDC, req, nil))
+	})
+
+	t.Run("enc public key alg not in supported list rejected", func(t *testing.T) {
+		req := validCreateRequest()
+		req.EncPublicKey = map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB", "alg": "RSA-OAEP"}
+		err := ValidateCreate(ProfileOIDC, req, []string{"RSA-OAEP-256", "AES-GCM"})
+		assert.Equal(t, "invalid_public_key", errCode(t, err))
+	})
+
+	t.Run("enc public key alg in supported list accepted", func(t *testing.T) {
+		req := validCreateRequest()
+		req.EncPublicKey = map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB", "alg": "RSA-OAEP-256"}
+		assert.NoError(t, ValidateCreate(ProfileOIDC, req, []string{"RSA-OAEP-256", "AES-GCM"}))
 	})
 }
 
@@ -329,57 +342,64 @@ func (ts *ValidateTestSuite) TestValidatePatch() {
 	base := validUpdateRequest()
 
 	t.Run("no fields set falls through to ValidateUpdate", func(t *testing.T) {
-		assert.NoError(t, ValidatePatch(ProfileOIDC, base, PatchFields{}, NullableJWK{}))
+		assert.NoError(t, ValidatePatch(ProfileOIDC, base, PatchFields{}, NullableJWK{}, nil))
 	})
 
 	t.Run("patched client name validated", func(t *testing.T) {
 		merged := base
 		merged.ClientName = ""
-		err := ValidatePatch(ProfileOIDC, merged, PatchFields{ClientName: true}, NullableJWK{})
+		err := ValidatePatch(ProfileOIDC, merged, PatchFields{ClientName: true}, NullableJWK{}, nil)
 		assert.Equal(t, "invalid_client_name", errCode(t, err))
 	})
 
 	t.Run("patched status validated", func(t *testing.T) {
 		merged := base
 		merged.Status = "bogus"
-		err := ValidatePatch(ProfileOIDC, merged, PatchFields{Status: true}, NullableJWK{})
+		err := ValidatePatch(ProfileOIDC, merged, PatchFields{Status: true}, NullableJWK{}, nil)
 		assert.Equal(t, "invalid_input", errCode(t, err))
 	})
 
 	t.Run("patched redirect uris validated", func(t *testing.T) {
 		merged := base
 		merged.RedirectURIs = []string{"not a uri"}
-		err := ValidatePatch(ProfileOIDC, merged, PatchFields{RedirectURIs: true}, NullableJWK{})
+		err := ValidatePatch(ProfileOIDC, merged, PatchFields{RedirectURIs: true}, NullableJWK{}, nil)
 		assert.Equal(t, "invalid_redirect_uri", errCode(t, err))
 	})
 
 	t.Run("patched enc public key validated", func(t *testing.T) {
 		err := ValidatePatch(ProfileOIDC, base, PatchFields{EncPublicKey: true},
-			NullableJWK{Value: map[string]string{"kty": "bogus"}})
+			NullableJWK{Value: map[string]string{"kty": "bogus"}}, nil)
 		assert.Equal(t, "invalid_public_key", errCode(t, err))
 	})
 
 	t.Run("null enc public key skips validation", func(t *testing.T) {
-		err := ValidatePatch(ProfileOIDC, base, PatchFields{EncPublicKey: true}, NullableJWK{IsNull: true})
+		err := ValidatePatch(ProfileOIDC, base, PatchFields{EncPublicKey: true}, NullableJWK{IsNull: true}, nil)
 		assert.NoError(t, err)
 	})
 
 	t.Run("patched enc public key missing alg rejected", func(t *testing.T) {
 		err := ValidatePatch(ProfileOIDC, base, PatchFields{EncPublicKey: true},
-			NullableJWK{Value: map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB"}})
+			NullableJWK{Value: map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB"}}, nil)
+		assert.Equal(t, "invalid_public_key", errCode(t, err))
+	})
+
+	t.Run("patched enc public key alg not in supported list rejected", func(t *testing.T) {
+		err := ValidatePatch(ProfileOIDC, base, PatchFields{EncPublicKey: true},
+			NullableJWK{Value: map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB", "alg": "RSA-OAEP"}},
+			[]string{"RSA-OAEP-256"})
 		assert.Equal(t, "invalid_public_key", errCode(t, err))
 	})
 
 	t.Run("status normalized before final ValidateUpdate", func(t *testing.T) {
 		merged := base
 		merged.Status = "ACTIVE"
-		assert.NoError(t, ValidatePatch(ProfileOIDC, merged, PatchFields{}, NullableJWK{}))
+		assert.NoError(t, ValidatePatch(ProfileOIDC, merged, PatchFields{}, NullableJWK{}, nil))
 	})
 
 	t.Run("patched client name lang map validated", func(t *testing.T) {
 		merged := base
 		merged.ClientNameLangMap = map[string]string{"xx": "bad code"}
-		err := ValidatePatch(ProfileOIDC, merged, PatchFields{ClientNameLangMap: true}, NullableJWK{})
+		err := ValidatePatch(ProfileOIDC, merged, PatchFields{ClientNameLangMap: true}, NullableJWK{}, nil)
 		assert.Equal(t, "invalid_language_code", errCode(t, err))
 	})
 
@@ -390,7 +410,7 @@ func (ts *ValidateTestSuite) TestValidatePatch() {
 			many = append(many, "name")
 		}
 		merged.Claims = many
-		err := ValidatePatch(ProfileOIDC, merged, PatchFields{Claims: true}, NullableJWK{})
+		err := ValidatePatch(ProfileOIDC, merged, PatchFields{Claims: true}, NullableJWK{}, nil)
 		assert.Equal(t, "invalid_claim", errCode(t, err))
 	})
 
@@ -401,21 +421,21 @@ func (ts *ValidateTestSuite) TestValidatePatch() {
 			many = append(many, "mosip:idp:acr:static-code")
 		}
 		merged.AcrValues = many
-		err := ValidatePatch(ProfileOIDC, merged, PatchFields{AcrValues: true}, NullableJWK{})
+		err := ValidatePatch(ProfileOIDC, merged, PatchFields{AcrValues: true}, NullableJWK{}, nil)
 		assert.Equal(t, "invalid_acr", errCode(t, err))
 	})
 
 	t.Run("patched grant types exceeding max rejected", func(t *testing.T) {
 		merged := base
 		merged.GrantTypes = []string{"authorization_code", "authorization_code", "authorization_code", "authorization_code"}
-		err := ValidatePatch(ProfileOIDC, merged, PatchFields{GrantTypes: true}, NullableJWK{})
+		err := ValidatePatch(ProfileOIDC, merged, PatchFields{GrantTypes: true}, NullableJWK{}, nil)
 		assert.Equal(t, "invalid_grant_type", errCode(t, err))
 	})
 
 	t.Run("patched auth methods exceeding max rejected", func(t *testing.T) {
 		merged := base
 		merged.AuthMethods = []string{"private_key_jwt", "private_key_jwt", "private_key_jwt", "private_key_jwt"}
-		err := ValidatePatch(ProfileOIDC, merged, PatchFields{AuthMethods: true}, NullableJWK{})
+		err := ValidatePatch(ProfileOIDC, merged, PatchFields{AuthMethods: true}, NullableJWK{}, nil)
 		assert.Equal(t, "invalid_client_auth", errCode(t, err))
 	})
 
@@ -423,7 +443,7 @@ func (ts *ValidateTestSuite) TestValidatePatch() {
 		merged := base
 		merged.ClientNameLangMap = map[string]string{"eng": "x"}
 		merged.AdditionalConfig = json.RawMessage(`not-json`)
-		err := ValidatePatch(ProfileClient, merged, PatchFields{AdditionalConfig: true}, NullableJWK{})
+		err := ValidatePatch(ProfileClient, merged, PatchFields{AdditionalConfig: true}, NullableJWK{}, nil)
 		assert.Equal(t, "invalid_additional_config", errCode(t, err))
 	})
 }

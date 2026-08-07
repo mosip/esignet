@@ -502,5 +502,5 @@ func (s *Service) VerifyWithJWK(_ context.Context, jwk, alg string, signingInput
 // SupportedAlgorithms lists the JWS algorithm identifiers SignRaw/VerifyRaw
 // (and, transitively, JWSSign/JWSVerify) support.
 func SupportedAlgorithms() []string {
-	return []string{algPS256, algES256, algES256K, algEdDSA}
+	return []string{algPS256, algRS256, algES256, algES256K, algEdDSA}
 }

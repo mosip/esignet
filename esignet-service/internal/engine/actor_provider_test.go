@@ -44,7 +44,7 @@ func (q *dbErrorQuerier) GetClient(_ context.Context, _ string) (db.ClientDetail
 }
 
 func newActorTestService(client db.ClientDetail) *clientmgmt.Service {
-	return clientmgmt.NewServiceWithQuerier(&stubQuerier{client: client, found: true}, nil, 0)
+	return clientmgmt.NewServiceWithQuerier(&stubQuerier{client: client, found: true}, nil, 0, nil)
 }
 
 func testClientRow() db.ClientDetail {

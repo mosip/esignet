@@ -40,7 +40,7 @@ Everything goes through `./make.sh` (run from this directory):
 
 ```bash
 ./make.sh build            # compiles out/esignet[.exe]; generates signing keys first
-./make.sh run               # go run for development (AUTHN_PROVIDER defaults to mosip)
+./make.sh run               # go run for development (MOSIP_ESIGNET_AUTHN_PROVIDER defaults to mosip)
 ./make.sh test               # go test -race -cover ./...
 ./make.sh coverage          # coverage.out + summary
 ./make.sh lint               # golangci-lint run ./...
@@ -70,6 +70,11 @@ End-to-end / client-mgmt API checks are done via the [Postman collection](../pos
 - Env-driven configuration lives in `internal/config/`; add new settings there
   with sane defaults, and document them in `README.md`'s environment-variable
   tables when user-facing.
+- Service-specific env vars are prefixed `MOSIP_ESIGNET_` (e.g.
+  `MOSIP_ESIGNET_LAYOUT_ID`, `MOSIP_ESIGNET_OIDC_UI_SCHEME`,
+  `MOSIP_ESIGNET_OAUTH_PAR_EXPIRY_SECONDS`) to avoid collisions with other
+  MOSIP services and generic infra vars (`DATABASE_URL`, `REDIS_HOST`, etc.,
+  which stay unprefixed). Name new settings accordingly.
 - Auth providers (`mosip`, `sunbird`, `mock`) are added under
   `internal/engine/<provider>/` and follow the same `authenticator.go` /
   `config.go` / `init.go` / `model.go` shape as existing providers.

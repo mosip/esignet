@@ -3,10 +3,10 @@ port: 8088
 issuer: "${MOSIP_ESIGNET_HOST:-http://localhost:8088}"
 data_dir: "${DATA_DIR:-./data}"
 
-provider: "${AUTHN_PROVIDER:-mock}"
-auth_flow_id: "${AUTH_FLOW_ID:-flow-esignet}"
-theme_id: "${THEME_ID:-theme-esignet}"
-layout_id: "${LAYOUT_ID:-layout-esignet}"
+provider: "${MOSIP_ESIGNET_AUTHN_PROVIDER:-mock}"
+auth_flow_id: "${MOSIP_ESIGNET_AUTH_FLOW_ID:-flow-esignet}"
+theme_id: "${MOSIP_ESIGNET_THEME_ID:-theme-esignet}"
+layout_id: "${MOSIP_ESIGNET_LAYOUT_ID:-layout-esignet}"
 runtime_db_type: "${RUNTIME_DB_TYPE:-redis}"
 
 server:
@@ -51,7 +51,7 @@ gate_client:
   error_path: /error
 
 jwt:
-  preferred_key_id: "${SIGNING_KEY_REF_ID:-RSA_2048}"
+  preferred_key_id: "${MOSIP_ESIGNET_SIGNING_KEY_REF_ID:-RSA_2048}"
   # validity_period and leeway are set from MOSIP_ESIGNET_JWT_VALIDITY_PERIOD / MOSIP_ESIGNET_JWT_LEEWAY in applyDefaults (internal/config/app.go)
   validity_period: 120
   leeway: 10

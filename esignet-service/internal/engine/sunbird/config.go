@@ -66,7 +66,7 @@ func LoadConfig() Config {
 // It is called at provider construction rather than in LoadSunbirdAuthn, which
 // runs unconditionally for every provider; failing there would also break the
 // catalog/mosip providers. Gating here means a missing SearchURL only fails when
-// AUTHN_PROVIDER=sunbird.
+// MOSIP_ESIGNET_AUTHN_PROVIDER=sunbird.
 func (c Config) Validate() error {
 	if strings.TrimSpace(c.SearchURL) == "" {
 		return errors.New("SUNBIRD_SEARCH_URL is required for the sunbird authn provider")

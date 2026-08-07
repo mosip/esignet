@@ -47,7 +47,7 @@ func (ts *JwkInputTestSuite) TestCreateRequest_PublicKeyAsJWKObject() {
 	assert.Equal(t, "RSA", wrapper.Request.PublicKey["kty"])
 	assert.Equal(t, "6h6WQOY6JCd1msuooMtj80z_YqwJmWcjoQnL5xJkNVw", wrapper.Request.PublicKey["kid"])
 
-	require.NoError(t, ValidateCreate(ProfileClient, wrapper.Request))
+	require.NoError(t, ValidateCreate(ProfileClient, wrapper.Request, nil))
 
 	pkJSON, err := marshalJWK(wrapper.Request.PublicKey)
 	require.NoError(t, err)

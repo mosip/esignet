@@ -67,7 +67,7 @@ A flow is a state machine of nodes:
 
 ### 2.3 Pluggable Identity-System Providers
 
-`internal/engine/idsystem_factory.go` selects one concrete authenticator at startup, keyed by the `AUTHN_PROVIDER` environment variable (default `mock`). All three implementations satisfy the same `ConsolidatedAuthnProvider` contract (`Authenticate`, `GetEntityReference`, `GetAttributes`, `SendOTP`, `InitiateAuthentication`/`Enrollment`), so the flow executors remain provider-agnostic.
+`internal/engine/idsystem_factory.go` selects one concrete authenticator at startup, keyed by the `MOSIP_ESIGNET_AUTHN_PROVIDER` environment variable (default `mock`). All three implementations satisfy the same `ConsolidatedAuthnProvider` contract (`Authenticate`, `GetEntityReference`, `GetAttributes`, `SendOTP`, `InitiateAuthentication`/`Enrollment`), so the flow executors remain provider-agnostic.
 
 | Provider | Backend | Notes |
 |---|---|---|
@@ -240,9 +240,9 @@ Standard OIDC/OAuth endpoints (`/authorize`, `/token`, `/.well-known/openid-conf
 |---|---|
 | `PORT` | HTTP listen port (default 8088) |
 | `MOSIP_ESIGNET_HOST` | OIDC issuer URL |
-| `AUTHN_PROVIDER` | Selects the identity backend: `mosip` \| `sunbird` \| `mock` |
-| `AUTH_FLOW_ID` | Selects the active flow YAML under `data/flows/` |
-| `LAYOUT_ID`, `THEME_ID` | Selects the active layout/theme YAML under `data/` |
+| `MOSIP_ESIGNET_AUTHN_PROVIDER` | Selects the identity backend: `mosip` \| `sunbird` \| `mock` |
+| `MOSIP_ESIGNET_AUTH_FLOW_ID` | Selects the active flow YAML under `data/flows/` |
+| `MOSIP_ESIGNET_LAYOUT_ID`, `MOSIP_ESIGNET_THEME_ID` | Selects the active layout/theme YAML under `data/` |
 | `RuntimeDBType` (config) | Selects Redis vs. in-memory runtime store |
 | `CRYPTO_ENCRYPTION_KEY` | Required; service fails to start if unset |
 | `ISSUER_URL`, `JWKS_URL` (security_config) | Enable scope-enforcement middleware when both are set |

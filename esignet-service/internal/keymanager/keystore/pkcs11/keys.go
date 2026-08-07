@@ -117,7 +117,7 @@ func (s *Store) GenerateAndStoreAsymmetricKey(alias, signKeyAlias string, params
 	defer func() {
 		if retErr != nil && keyGenerated {
 			if derr := s.DeleteKey(alias); derr != nil {
-				retErr = fmt.Errorf("%w (cleanup of orphaned key %q failed: %v)", retErr, alias, derr)
+				retErr = fmt.Errorf("%w (cleanup of orphaned key %q failed: %w)", retErr, alias, derr)
 			}
 		}
 	}()

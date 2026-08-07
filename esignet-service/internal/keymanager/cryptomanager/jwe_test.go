@@ -188,7 +188,7 @@ func (ts *CryptomanagerTestSuite) TestJWTEncrypt_RejectsWhitespaceOnlyDecodedDat
 		{"two spaces, ValidateJSON=true", "  ", true},
 		{"tabs and newlines, ValidateJSON=false", "\t\n\t", false},
 	} {
-		ts.T().Run(tc.name, func(t *testing.T) {
+		ts.T().Run(tc.name, func(_ *testing.T) {
 			// The base64 STRING itself is well-formed and non-blank — only
 			// the decoded content is blank. Must be rejected regardless of
 			// ValidateJSON, since "nothing to encrypt" isn't a JSON-shape

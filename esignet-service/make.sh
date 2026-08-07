@@ -107,7 +107,7 @@ target_run() { ## Run with go run (development)
   PORT="$PORT" \
   MOSIP_ESIGNET_HOST="$MOSIP_ESIGNET_HOST" \
   DATA_DIR="$DATA_DIR" \
-  AUTHN_PROVIDER="${AUTHN_PROVIDER:-mosip}" \
+  MOSIP_ESIGNET_AUTHN_PROVIDER="${MOSIP_ESIGNET_AUTHN_PROVIDER:-mosip}" \
     go run "$CMD"
 }
 
@@ -165,7 +165,7 @@ target_docker_run() { ## Run container mapped to PORT (default 8080)
   target_docker_build
   docker run --rm -p "$PORT:8088" \
     -e MOSIP_ESIGNET_HOST="$MOSIP_ESIGNET_HOST" \
-    -e AUTHN_PROVIDER="${AUTHN_PROVIDER:-mosip}" \
+    -e MOSIP_ESIGNET_AUTHN_PROVIDER="${MOSIP_ESIGNET_AUTHN_PROVIDER:-mosip}" \
     -e CRYPTO_ENCRYPTION_KEY="${CRYPTO_ENCRYPTION_KEY:-}" \
     "$DOCKER_IMAGE"
 }
@@ -271,7 +271,7 @@ Environment (override on the command line or in .env):
   PORT=$PORT
   MOSIP_ESIGNET_HOST=$MOSIP_ESIGNET_HOST
   DATA_DIR=$DATA_DIR
-  AUTHN_PROVIDER=${AUTHN_PROVIDER:-} (mosip|sunbird, default mosip)
+  MOSIP_ESIGNET_AUTHN_PROVIDER=${MOSIP_ESIGNET_AUTHN_PROVIDER:-} (mosip|sunbird, default mosip)
   MOSIP_API_INTERNAL_HOST (optional, used to derive IDA endpoint URLs)
   MOSIP_ESIGNET_MISP_KEY (optional, used in IDA endpoint paths)
   MOSIP_ESIGNET_AUTHENTICATOR_IDA_CERT_URL (optional override)

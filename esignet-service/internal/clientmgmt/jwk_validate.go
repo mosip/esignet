@@ -11,6 +11,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"slices"
 )
 
 func validateJWK(key map[string]string) error {
@@ -51,12 +52,18 @@ func validateJWK(key map[string]string) error {
 }
 
 // validateEncJWK validates an encryption key JWK, additionally requiring the
-// alg field so the JWE key-management algorithm is always known.
-func validateEncJWK(key map[string]string) error {
+// alg field so the JWE key-management algorithm is always known, and — when
+// supportedAlgs is non-empty — that alg is one of the configured supported
+// encryption algorithms (config.AppConfig.SupportedEncAlgorithms).
+func validateEncJWK(key map[string]string, supportedAlgs []string) error {
 	if err := validateJWK(key); err != nil {
 		return err
 	}
-	if key["alg"] == "" {
+	alg := key["alg"]
+	if alg == "" {
+		return validationErr("invalid_public_key")
+	}
+	if len(supportedAlgs) > 0 && !slices.Contains(supportedAlgs, alg) {
 		return validationErr("invalid_public_key")
 	}
 	return nil
