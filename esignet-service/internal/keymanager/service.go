@@ -1161,9 +1161,9 @@ func encodePEM(tag string, der []byte) string {
 func parseCertPEM(data string) (*x509.Certificate, error) {
 	block, _ := pem.Decode([]byte(data))
 	if block == nil {
-		return parseCertificateTolerant([]byte(data)) // tolerate raw DER too
+		return keystore.ParseCertificateTolerant([]byte(data)) // tolerate raw DER too
 	}
-	return parseCertificateTolerant(block.Bytes)
+	return keystore.ParseCertificateTolerant(block.Bytes)
 }
 
 // ParseCertPEM is the exported form of parseCertPEM, for cryptomanager's

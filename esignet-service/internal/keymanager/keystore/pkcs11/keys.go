@@ -422,7 +422,7 @@ func (s *Store) GetCertificate(alias string) (*x509.Certificate, error) {
 		if err != nil {
 			return fmt.Errorf("read certificate value: %w", err)
 		}
-		cert, err = x509.ParseCertificate(attrs[0].Value)
+		cert, err = keystore.ParseCertificateTolerant(attrs[0].Value)
 		return err
 	})
 	return cert, err
