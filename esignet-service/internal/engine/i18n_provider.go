@@ -10,6 +10,7 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"golang.org/x/text/language"
@@ -22,6 +23,9 @@ import (
 	"github.com/mosip/esignet/internal/engine/shared"
 	applog "github.com/mosip/esignet/internal/log"
 )
+
+// fallbackLanguage is returned by bestMatchLanguage when no confident match is found.
+const fallbackLanguage = "en"
 
 type i18nProvider struct {
 	cfg *config.AppConfig
@@ -101,18 +105,24 @@ func (p *i18nProvider) ResolveTranslations(
 }
 
 // bestMatchLanguage returns the closest available language for the requested tag
-// using BCP47 matching. Falls back to the first available language if no match.
+// using BCP47 matching. available is reordered with fallbackLanguage first.
 func bestMatchLanguage(requested string, available []string) string {
 	if len(available) == 0 {
-		return "en"
+		return fallbackLanguage
 	}
 
-	tags := make([]language.Tag, len(available))
-	for i, l := range available {
+	ordered := make([]string, len(available))
+	copy(ordered, available)
+	sort.SliceStable(ordered, func(i, j int) bool {
+		return ordered[i] == fallbackLanguage && ordered[j] != fallbackLanguage
+	})
+
+	tags := make([]language.Tag, len(ordered))
+	for i, l := range ordered {
 		tags[i] = language.Make(l)
 	}
 
 	matcher := language.NewMatcher(tags)
 	_, idx, _ := matcher.Match(language.Make(requested))
-	return available[idx]
+	return ordered[idx]
 }

@@ -105,8 +105,20 @@ func (ts *I18nProviderTestSuite) TestBestMatchLanguage() {
 		require.Equal(t, "hi", bestMatchLanguage("hi", []string{"en", "hi"}))
 	})
 
-	t.Run("no match falls back to first available", func(t *testing.T) {
+	t.Run("no match falls back to english regardless of available-language order", func(t *testing.T) {
 		require.Equal(t, "en", bestMatchLanguage("zz", []string{"en", "hi"}))
+		// "ar" sorts before "en" alphabetically, which is the exact order
+		// ListLanguages returns from os.ReadDir in production (data/i18n has
+		// ar, en, es, fr, hi, km, kn, si, ta). The fallback must still resolve
+		// to "en", not "ar", for a language none of them match.
+		production := []string{"ar", "en", "es", "fr", "hi", "km", "kn", "si", "ta"}
+		require.Equal(t, "en", bestMatchLanguage("zz", production))
+		require.Equal(t, "en", bestMatchLanguage("de", production))
+		require.Equal(t, "en", bestMatchLanguage("", production))
+	})
+
+	t.Run("no match falls back to first available when english isn't configured", func(t *testing.T) {
+		require.Equal(t, "ar", bestMatchLanguage("zz", []string{"ar", "hi"}))
 	})
 }
 
