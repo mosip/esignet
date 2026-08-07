@@ -24,7 +24,7 @@ func (ts *CryptomanagerTestSuite) TestSymmetricEncryptDecryptRoundTrip() {
 	ts.Require().NoError(err)
 
 	for _, tc := range cases {
-		ts.T().Run(tc.name, func(t *testing.T) {
+		ts.T().Run(tc.name, func(_ *testing.T) {
 			plaintext := make([]byte, tc.size)
 			_, err := rand.Read(plaintext)
 			ts.Require().NoError(err)

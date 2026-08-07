@@ -39,27 +39,37 @@ const clientCacheNamespace providers.RuntimeStoreNamespace = "client:detail"
 
 // Service handles client management business logic.
 type Service struct {
-	q            db.Querier
-	cache        providers.RuntimeStoreProvider
-	cacheTTLSecs int64
-	logger       *applog.Logger
+	q                db.Querier
+	cache            providers.RuntimeStoreProvider
+	cacheTTLSecs     int64
+	logger           *applog.Logger
+	supportedEncAlgs []string
 }
 
 // NewService creates a Service backed by the given database connection. Client
 // lookups are cached in cache under the given TTL and invalidated on write.
-func NewService(conn *sql.DB, cache providers.RuntimeStoreProvider, cacheTTLSecs int64) *Service {
-	return &Service{q: db.New(conn), cache: cache, cacheTTLSecs: cacheTTLSecs, logger: applog.GetLogger().Named("clientmgmt")}
+// supportedEncAlgs restricts which "alg" values an EncPublicKey JWK may
+// declare (config.AppConfig.SupportedEncAlgorithms); pass nil to leave "alg"
+// unrestricted.
+func NewService(conn *sql.DB, cache providers.RuntimeStoreProvider, cacheTTLSecs int64, supportedEncAlgs []string) *Service {
+	return &Service{
+		q: db.New(conn), cache: cache, cacheTTLSecs: cacheTTLSecs,
+		logger: applog.GetLogger().Named("clientmgmt"), supportedEncAlgs: supportedEncAlgs,
+	}
 }
 
 // NewServiceWithQuerier creates a Service with an explicit Querier; use in tests
 // to inject a mock without a real database connection.
-func NewServiceWithQuerier(q db.Querier, cache providers.RuntimeStoreProvider, cacheTTLSecs int64) *Service {
-	return &Service{q: q, cache: cache, cacheTTLSecs: cacheTTLSecs, logger: applog.GetLogger().Named("clientmgmt")}
+func NewServiceWithQuerier(q db.Querier, cache providers.RuntimeStoreProvider, cacheTTLSecs int64, supportedEncAlgs []string) *Service {
+	return &Service{
+		q: q, cache: cache, cacheTTLSecs: cacheTTLSecs,
+		logger: applog.GetLogger().Named("clientmgmt"), supportedEncAlgs: supportedEncAlgs,
+	}
 }
 
 // CreateClient registers a new OIDC client.
 func (s *Service) CreateClient(ctx context.Context, profile Profile, req CreateClientRequest) (ClientResponse, error) {
-	if err := ValidateCreate(profile, req); err != nil {
+	if err := ValidateCreate(profile, req, s.supportedEncAlgs); err != nil {
 		return ClientResponse{}, err
 	}
 
@@ -94,7 +104,7 @@ func (s *Service) CreateClient(ctx context.Context, profile Profile, req CreateC
 		return ClientResponse{}, fmt.Errorf("additional_config: %w", err)
 	}
 
-	encPK, encPKHash, encPKCert, err := encKeyColumns(req.EncPublicKey, req.EncPublicKeyCert)
+	encPK, encPKHash, encPKCert, err := encKeyColumns(req.EncPublicKey, req.EncPublicKeyCert, s.supportedEncAlgs)
 	if err != nil {
 		return ClientResponse{}, err
 	}
@@ -210,7 +220,7 @@ func (s *Service) PatchClient(ctx context.Context, clientID string, req PatchCli
 	if err != nil {
 		return ClientResponse{}, err
 	}
-	if err := ValidatePatch(ProfileClient, merged, fields, req.EncPublicKey); err != nil {
+	if err := ValidatePatch(ProfileClient, merged, fields, req.EncPublicKey, s.supportedEncAlgs); err != nil {
 		return ClientResponse{}, err
 	}
 
@@ -256,7 +266,7 @@ func (s *Service) PatchClient(ctx context.Context, clientID string, req PatchCli
 			encPKHash = sql.NullString{}
 			encPKCert = sql.NullString{}
 		} else {
-			if err := validateEncJWK(req.EncPublicKey.Value); err != nil {
+			if err := validateEncJWK(req.EncPublicKey.Value, s.supportedEncAlgs); err != nil {
 				return ClientResponse{}, err
 			}
 			pkJSON, err := marshalJWK(req.EncPublicKey.Value)
@@ -484,11 +494,11 @@ func parseClientName(name string) (string, map[string]string, error) {
 	return clientName, withoutNone, nil
 }
 
-func encKeyColumns(encKey map[string]string, cert string) (sql.NullString, sql.NullString, sql.NullString, error) {
+func encKeyColumns(encKey map[string]string, cert string, supportedEncAlgs []string) (sql.NullString, sql.NullString, sql.NullString, error) {
 	if len(encKey) == 0 {
 		return sql.NullString{}, sql.NullString{}, sql.NullString{}, nil
 	}
-	if err := validateEncJWK(encKey); err != nil {
+	if err := validateEncJWK(encKey, supportedEncAlgs); err != nil {
 		return sql.NullString{}, sql.NullString{}, sql.NullString{}, err
 	}
 	pkJSON, err := marshalJWK(encKey)

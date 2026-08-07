@@ -50,7 +50,7 @@ Initiate PAR → Initiate Authorization → Flow meta → Flow execute — start
 
 The PAR request generates a fresh DPoP key pair (`dpop_*` variables) and reuses it for the token and userinfo DPoP proofs — DPoP applies to every branch, including Sunbird KBI. `Flow meta` is keyed by `client_id` (not a separate application id). `Flow execute — enter uin` submits a hardcoded placeholder captcha token (`test-captcha-token`) alongside `individual_id`; this only works if the server's captcha check accepts/skips it in your environment. Requires the server's Redis to be **6.2+** (PAR uses `GETDEL`).
 
-**Server requirements:** `AUTHN_PROVIDER=mosip` and MOSIP variables (see `esignet-service/.env.example`); client registered with `require_pushed_authorization_requests: true` and `dpop_bound_access_tokens: true` (see Client Management above). Set `individual_id` and `otp` (OTP branch) or `individual_id` and `password` (password branch) in the environment before running.
+**Server requirements:** `MOSIP_ESIGNET_AUTHN_PROVIDER=mosip` and MOSIP variables (see `esignet-service/.env.example`); client registered with `require_pushed_authorization_requests: true` and `dpop_bound_access_tokens: true` (see Client Management above). Set `individual_id` and `otp` (OTP branch) or `individual_id` and `password` (password branch) in the environment before running.
 
 ### Sunbird Registry
 
@@ -123,7 +123,7 @@ Both **Initiate PAR** and **Exchange Code for Token** sign their own `private_ke
 | DPoP proof rejected (`invalid_dpop_proof`) | A DPoP `htu` (from `audience` / `par_audience` / `userinfo_audience`) does not match the URL the request was sent to — clear it to use the `{{baseUrl}}`-derived fallback |
 | Client Management returns 401 | `security_config.issuer_url`/`jwks_url` are set in `esignet-service/data/deployment.yaml` (enforcement on) — supply a valid `client_mgmt_token`, or clear those settings to disable enforcement |
 | Discovery / health fails | Server not running, or `baseUrl` does not match `MOSIP_ESIGNET_HOST` |
-| `Flow execute — enter uin`/`enter OTP` fails | `AUTHN_PROVIDER` not set to `mosip`, or `individual_id`/`otp` not set |
+| `Flow execute — enter uin`/`enter OTP` fails | `MOSIP_ESIGNET_AUTHN_PROVIDER` not set to `mosip`, or `individual_id`/`otp` not set |
 | `Flow execute — enter password` blocks with a "Set otp…" error | Its pre-request guard checks `otp`, not `password` — set any non-empty `otp` value to satisfy it even though the password branch doesn't use it |
 | FAPI2.0 flow fails at PAR or token | Server's Redis is older than 6.2, or the client wasn't created with `require_pushed_authorization_requests`/`dpop_bound_access_tokens` |
 | `Flow execute — sunbird KBI` fails with a "Set sunbird_*" error | Run **Sunbird Registry → Create Policy (Identity)** first to seed `sunbird_individual_id`/`sunbird_full_name`/`sunbird_dob`, and make sure `authContextRefs` on the client includes `"mosip:idp:acr:knowledge"` |

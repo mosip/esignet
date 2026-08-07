@@ -247,25 +247,25 @@ extraEnvVars: |
       configMapKeyRef:
         name: keycloak-host
         key: keycloak-external-url
-  - name: AUTHN_PROVIDER
+  - name: MOSIP_ESIGNET_AUTHN_PROVIDER
     value: mosip
   - name: MOSIP_API_INTERNAL_HOST
     valueFrom:
       configMapKeyRef:
         name: esignet-global
         key: mosip-api-internal-host
-  - name: OIDC_UI_SCHEME
+  - name: MOSIP_ESIGNET_OIDC_UI_SCHEME
     value: https
-  - name: OIDC_UI_HOSTNAME
+  - name: MOSIP_ESIGNET_OIDC_UI_HOSTNAME
     valueFrom:
       configMapKeyRef:
         name: esignet-global
         key: mosip-esignet-host
-  - name: OIDC_UI_PORT
+  - name: MOSIP_ESIGNET_OIDC_UI_PORT
     value: '443'
-  - name: OIDC_UI_LOGIN_PATH
+  - name: MOSIP_ESIGNET_OIDC_UI_LOGIN_PATH
     value: /signin
-  - name: OIDC_UI_ERROR_PATH
+  - name: MOSIP_ESIGNET_OIDC_UI_ERROR_PATH
     value: /error
   - name: KEYMANAGER_DB_SCHEMA
     value: esignet

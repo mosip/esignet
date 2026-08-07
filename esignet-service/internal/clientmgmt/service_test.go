@@ -94,7 +94,7 @@ func (ts *ServiceTestSuite) TestCreateClient() {
 
 	t.Run("validation error short circuits", func(t *testing.T) {
 		q := &fakeQuerier{}
-		s := NewServiceWithQuerier(q, nil, 0)
+		s := NewServiceWithQuerier(q, nil, 0, nil)
 		req := validCreateRequest()
 		req.ClientID = ""
 		_, err := s.CreateClient(context.Background(), ProfileOIDC, req)
@@ -106,16 +106,36 @@ func (ts *ServiceTestSuite) TestCreateClient() {
 
 	t.Run("invalid enc public key", func(t *testing.T) {
 		q := &fakeQuerier{}
-		s := NewServiceWithQuerier(q, nil, 0)
+		s := NewServiceWithQuerier(q, nil, 0, nil)
 		req := validCreateRequest()
 		req.EncPublicKey = map[string]string{"kty": "bogus"}
 		_, err := s.CreateClient(context.Background(), ProfileOIDC, req)
 		require.Error(t, err)
 	})
 
+	t.Run("enc public key alg outside configured supported algorithms rejected", func(t *testing.T) {
+		q := &fakeQuerier{}
+		s := NewServiceWithQuerier(q, nil, 0, []string{"AES-GCM"})
+		req := validCreateRequest()
+		req.EncPublicKey = validJWK() // alg "RSA-OAEP-256", not in the supported list above
+		_, err := s.CreateClient(context.Background(), ProfileOIDC, req)
+		var ve *ValidationError
+		require.ErrorAs(t, err, &ve)
+		require.Equal(t, "invalid_public_key", ve.Code)
+	})
+
+	t.Run("enc public key alg within configured supported algorithms accepted", func(t *testing.T) {
+		q := &fakeQuerier{createRow: existingClientRow()}
+		s := NewServiceWithQuerier(q, nil, 0, []string{"RSA-OAEP-256"})
+		req := validCreateRequest()
+		req.EncPublicKey = validJWK()
+		_, err := s.CreateClient(context.Background(), ProfileOIDC, req)
+		require.NoError(t, err)
+	})
+
 	t.Run("success", func(t *testing.T) {
 		q := &fakeQuerier{createRow: existingClientRow()}
-		s := NewServiceWithQuerier(q, nil, 0)
+		s := NewServiceWithQuerier(q, nil, 0, nil)
 		req := validCreateRequest()
 		resp, err := s.CreateClient(context.Background(), ProfileOIDC, req)
 		require.NoError(t, err)
@@ -128,14 +148,14 @@ func (ts *ServiceTestSuite) TestCreateClient() {
 
 	t.Run("duplicate client id", func(t *testing.T) {
 		q := &fakeQuerier{createErr: errors.New(`pq: duplicate key value violates unique constraint "pk_clntdtl_id" (SQLSTATE 23505)`)}
-		s := NewServiceWithQuerier(q, nil, 0)
+		s := NewServiceWithQuerier(q, nil, 0, nil)
 		_, err := s.CreateClient(context.Background(), ProfileOIDC, validCreateRequest())
 		require.ErrorIs(t, err, ErrDuplicateClientID)
 	})
 
 	t.Run("duplicate public key hash", func(t *testing.T) {
 		q := &fakeQuerier{createErr: errors.New(`pq: duplicate key value violates unique constraint "uk_clntdtl_public_key_hash"`)}
-		s := NewServiceWithQuerier(q, nil, 0)
+		s := NewServiceWithQuerier(q, nil, 0, nil)
 		_, err := s.CreateClient(context.Background(), ProfileOIDC, validCreateRequest())
 		var ve *ValidationError
 		require.ErrorAs(t, err, &ve)
@@ -144,7 +164,7 @@ func (ts *ServiceTestSuite) TestCreateClient() {
 
 	t.Run("generic db error", func(t *testing.T) {
 		q := &fakeQuerier{createErr: errors.New("connection refused")}
-		s := NewServiceWithQuerier(q, nil, 0)
+		s := NewServiceWithQuerier(q, nil, 0, nil)
 		_, err := s.CreateClient(context.Background(), ProfileOIDC, validCreateRequest())
 		require.Error(t, err)
 		require.False(t, errors.Is(err, ErrDuplicateClientID))
@@ -156,7 +176,7 @@ func (ts *ServiceTestSuite) TestUpdateClient() {
 
 	t.Run("validation error", func(t *testing.T) {
 		q := &fakeQuerier{}
-		s := NewServiceWithQuerier(q, nil, 0)
+		s := NewServiceWithQuerier(q, nil, 0, nil)
 		req := validUpdateRequest()
 		req.Status = "not-a-status"
 		_, err := s.UpdateClient(context.Background(), ProfileOIDC, "client-1", req)
@@ -171,7 +191,7 @@ func (ts *ServiceTestSuite) TestUpdateClient() {
 		require.NoError(t, cache.Put(context.Background(), clientCacheNamespace, "client-1", data, 60))
 
 		q := &fakeQuerier{updateRow: row}
-		s := NewServiceWithQuerier(q, cache, 60)
+		s := NewServiceWithQuerier(q, cache, 60, nil)
 		resp, err := s.UpdateClient(context.Background(), ProfileOIDC, "client-1", validUpdateRequest())
 		require.NoError(t, err)
 		require.Equal(t, "client-1", resp.ClientID)
@@ -184,14 +204,14 @@ func (ts *ServiceTestSuite) TestUpdateClient() {
 
 	t.Run("not found", func(t *testing.T) {
 		q := &fakeQuerier{updateErr: sql.ErrNoRows}
-		s := NewServiceWithQuerier(q, nil, 0)
+		s := NewServiceWithQuerier(q, nil, 0, nil)
 		_, err := s.UpdateClient(context.Background(), ProfileOIDC, "missing", validUpdateRequest())
 		require.ErrorIs(t, err, ErrClientNotFound)
 	})
 
 	t.Run("generic db error", func(t *testing.T) {
 		q := &fakeQuerier{updateErr: errors.New("boom")}
-		s := NewServiceWithQuerier(q, nil, 0)
+		s := NewServiceWithQuerier(q, nil, 0, nil)
 		_, err := s.UpdateClient(context.Background(), ProfileOIDC, "client-1", validUpdateRequest())
 		require.Error(t, err)
 		require.False(t, errors.Is(err, ErrClientNotFound))
@@ -203,14 +223,14 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 
 	t.Run("client not found", func(t *testing.T) {
 		q := &fakeQuerier{getErr: sql.ErrNoRows}
-		s := NewServiceWithQuerier(q, nil, 0)
+		s := NewServiceWithQuerier(q, nil, 0, nil)
 		_, err := s.PatchClient(context.Background(), "missing", PatchClientRequest{}, PatchFields{})
 		require.ErrorIs(t, err, ErrClientNotFound)
 	})
 
 	t.Run("get client generic error", func(t *testing.T) {
 		q := &fakeQuerier{getErr: errors.New("boom")}
-		s := NewServiceWithQuerier(q, nil, 0)
+		s := NewServiceWithQuerier(q, nil, 0, nil)
 		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
 		require.Error(t, err)
 		require.False(t, errors.Is(err, ErrClientNotFound))
@@ -220,14 +240,14 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		row := existingClientRow()
 		row.RedirectUris = "not-json"
 		q := &fakeQuerier{getRow: row}
-		s := NewServiceWithQuerier(q, nil, 0)
+		s := NewServiceWithQuerier(q, nil, 0, nil)
 		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
 		require.Error(t, err)
 	})
 
 	t.Run("validation error on patched field", func(t *testing.T) {
 		q := &fakeQuerier{getRow: existingClientRow()}
-		s := NewServiceWithQuerier(q, nil, 0)
+		s := NewServiceWithQuerier(q, nil, 0, nil)
 		req := PatchClientRequest{LogoURI: "not-a-uri"}
 		fields := PatchFields{LogoURI: true}
 		_, err := s.PatchClient(context.Background(), "client-1", req, fields)
@@ -239,7 +259,7 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 
 	t.Run("success with no field changes", func(t *testing.T) {
 		q := &fakeQuerier{getRow: existingClientRow(), patchRow: existingClientRow()}
-		s := NewServiceWithQuerier(q, nil, 0)
+		s := NewServiceWithQuerier(q, nil, 0, nil)
 		resp, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
 		require.NoError(t, err)
 		require.Equal(t, "client-1", resp.ClientID)
@@ -251,7 +271,7 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		patched := existingClientRow()
 		patched.Status = "INACTIVE"
 		q := &fakeQuerier{getRow: existing, patchRow: patched}
-		s := NewServiceWithQuerier(q, nil, 0)
+		s := NewServiceWithQuerier(q, nil, 0, nil)
 		req := PatchClientRequest{Status: "inactive"}
 		fields := PatchFields{Status: true}
 		resp, err := s.PatchClient(context.Background(), "client-1", req, fields)
@@ -262,7 +282,7 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 
 	t.Run("invalid status value", func(t *testing.T) {
 		q := &fakeQuerier{getRow: existingClientRow()}
-		s := NewServiceWithQuerier(q, nil, 0)
+		s := NewServiceWithQuerier(q, nil, 0, nil)
 		req := PatchClientRequest{Status: "bogus"}
 		fields := PatchFields{Status: true}
 		_, err := s.PatchClient(context.Background(), "client-1", req, fields)
@@ -275,7 +295,7 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		existing.EncPublicKeyHash = sql.NullString{String: "hash", Valid: true}
 		existing.EncPublicKeyCert = sql.NullString{String: "cert", Valid: true}
 		q := &fakeQuerier{getRow: existing, patchRow: existingClientRow()}
-		s := NewServiceWithQuerier(q, nil, 0)
+		s := NewServiceWithQuerier(q, nil, 0, nil)
 		req := PatchClientRequest{EncPublicKey: NullableJWK{Defined: true, IsNull: true}}
 		fields := PatchFields{EncPublicKey: true}
 		_, err := s.PatchClient(context.Background(), "client-1", req, fields)
@@ -287,7 +307,7 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 
 	t.Run("enc public key updated with new value", func(t *testing.T) {
 		q := &fakeQuerier{getRow: existingClientRow(), patchRow: existingClientRow()}
-		s := NewServiceWithQuerier(q, nil, 0)
+		s := NewServiceWithQuerier(q, nil, 0, nil)
 		req := PatchClientRequest{EncPublicKey: NullableJWK{Defined: true, Value: validJWK()}}
 		fields := PatchFields{EncPublicKey: true}
 		_, err := s.PatchClient(context.Background(), "client-1", req, fields)
@@ -298,7 +318,7 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 
 	t.Run("enc public key invalid new value", func(t *testing.T) {
 		q := &fakeQuerier{getRow: existingClientRow()}
-		s := NewServiceWithQuerier(q, nil, 0)
+		s := NewServiceWithQuerier(q, nil, 0, nil)
 		req := PatchClientRequest{EncPublicKey: NullableJWK{Defined: true, Value: map[string]string{"kty": "bogus"}}}
 		fields := PatchFields{EncPublicKey: true}
 		_, err := s.PatchClient(context.Background(), "client-1", req, fields)
@@ -307,14 +327,14 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 
 	t.Run("patch conflict", func(t *testing.T) {
 		q := &fakeQuerier{getRow: existingClientRow(), patchErr: sql.ErrNoRows}
-		s := NewServiceWithQuerier(q, nil, 0)
+		s := NewServiceWithQuerier(q, nil, 0, nil)
 		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
 		require.ErrorIs(t, err, ErrClientConflict)
 	})
 
 	t.Run("duplicate public key hash on patch", func(t *testing.T) {
 		q := &fakeQuerier{getRow: existingClientRow(), patchErr: errors.New(`duplicate key value violates unique constraint "uk_clntdtl_public_key_hash"`)}
-		s := NewServiceWithQuerier(q, nil, 0)
+		s := NewServiceWithQuerier(q, nil, 0, nil)
 		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
 		var ve *ValidationError
 		require.ErrorAs(t, err, &ve)
@@ -323,7 +343,7 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 
 	t.Run("generic patch db error", func(t *testing.T) {
 		q := &fakeQuerier{getRow: existingClientRow(), patchErr: errors.New("boom")}
-		s := NewServiceWithQuerier(q, nil, 0)
+		s := NewServiceWithQuerier(q, nil, 0, nil)
 		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
 		require.Error(t, err)
 		require.False(t, errors.Is(err, ErrClientConflict))
@@ -337,7 +357,7 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 		require.NoError(t, cache.Put(context.Background(), clientCacheNamespace, "client-1", data, 60))
 
 		q := &fakeQuerier{getRow: row, patchRow: row}
-		s := NewServiceWithQuerier(q, cache, 60)
+		s := NewServiceWithQuerier(q, cache, 60, nil)
 		_, err = s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
 		require.NoError(t, err)
 
@@ -352,7 +372,7 @@ func (ts *ServiceTestSuite) TestGetClient() {
 
 	t.Run("no cache configured queries db", func(t *testing.T) {
 		q := &fakeQuerier{getRow: existingClientRow()}
-		s := NewServiceWithQuerier(q, nil, 0)
+		s := NewServiceWithQuerier(q, nil, 0, nil)
 		resp, err := s.GetClient(context.Background(), "client-1")
 		require.NoError(t, err)
 		require.Equal(t, "client-1", resp.ClientID)
@@ -360,14 +380,14 @@ func (ts *ServiceTestSuite) TestGetClient() {
 
 	t.Run("not found", func(t *testing.T) {
 		q := &fakeQuerier{getErr: sql.ErrNoRows}
-		s := NewServiceWithQuerier(q, nil, 0)
+		s := NewServiceWithQuerier(q, nil, 0, nil)
 		_, err := s.GetClient(context.Background(), "missing")
 		require.ErrorIs(t, err, ErrClientNotFound)
 	})
 
 	t.Run("generic db error", func(t *testing.T) {
 		q := &fakeQuerier{getErr: errors.New("boom")}
-		s := NewServiceWithQuerier(q, nil, 0)
+		s := NewServiceWithQuerier(q, nil, 0, nil)
 		_, err := s.GetClient(context.Background(), "client-1")
 		require.Error(t, err)
 		require.False(t, errors.Is(err, ErrClientNotFound))
@@ -382,7 +402,7 @@ func (ts *ServiceTestSuite) TestGetClient() {
 		require.NoError(t, cache.Put(context.Background(), clientCacheNamespace, "cached-client", data, 60))
 
 		q := &fakeQuerier{getErr: errors.New("db should not be called")}
-		s := NewServiceWithQuerier(q, cache, 60)
+		s := NewServiceWithQuerier(q, cache, 60, nil)
 		resp, err := s.GetClient(context.Background(), "cached-client")
 		require.NoError(t, err)
 		require.Equal(t, "cached-client", resp.ClientID)
@@ -391,7 +411,7 @@ func (ts *ServiceTestSuite) TestGetClient() {
 	t.Run("cache miss populates cache", func(t *testing.T) {
 		cache := inmemory.Initialize("test")
 		q := &fakeQuerier{getRow: existingClientRow()}
-		s := NewServiceWithQuerier(q, cache, 60)
+		s := NewServiceWithQuerier(q, cache, 60, nil)
 		resp, err := s.GetClient(context.Background(), "client-1")
 		require.NoError(t, err)
 		require.Equal(t, "client-1", resp.ClientID)
@@ -406,7 +426,7 @@ func (ts *ServiceTestSuite) TestGetClient() {
 		require.NoError(t, cache.Put(context.Background(), clientCacheNamespace, "client-1", []byte("not-json"), 60))
 
 		q := &fakeQuerier{getRow: existingClientRow()}
-		s := NewServiceWithQuerier(q, cache, 60)
+		s := NewServiceWithQuerier(q, cache, 60, nil)
 		resp, err := s.GetClient(context.Background(), "client-1")
 		require.NoError(t, err)
 		require.Equal(t, "client-1", resp.ClientID)
@@ -483,7 +503,7 @@ func (ts *ServiceTestSuite) TestMarshalUnmarshalHelpers() {
 	})
 
 	t.Run("encKeyColumns empty key", func(t *testing.T) {
-		pk, hash, cert, err := encKeyColumns(nil, "")
+		pk, hash, cert, err := encKeyColumns(nil, "", nil)
 		require.NoError(t, err)
 		require.False(t, pk.Valid)
 		require.False(t, hash.Valid)
@@ -491,7 +511,7 @@ func (ts *ServiceTestSuite) TestMarshalUnmarshalHelpers() {
 	})
 
 	t.Run("encKeyColumns with cert", func(t *testing.T) {
-		pk, hash, cert, err := encKeyColumns(validJWK(), "cert-data")
+		pk, hash, cert, err := encKeyColumns(validJWK(), "cert-data", nil)
 		require.NoError(t, err)
 		require.True(t, pk.Valid)
 		require.True(t, hash.Valid)
@@ -500,7 +520,7 @@ func (ts *ServiceTestSuite) TestMarshalUnmarshalHelpers() {
 	})
 
 	t.Run("encKeyColumns invalid key", func(t *testing.T) {
-		_, _, _, err := encKeyColumns(map[string]string{"kty": "bogus"}, "")
+		_, _, _, err := encKeyColumns(map[string]string{"kty": "bogus"}, "", nil)
 		require.Error(t, err)
 	})
 }
@@ -527,7 +547,7 @@ func (ts *ServiceTestSuite) TestToResponse() {
 func (ts *ServiceTestSuite) TestNewService() {
 	t := ts.T()
 	require.NotPanics(t, func() {
-		_ = NewService(nil, nil, 0)
+		_ = NewService(nil, nil, 0, nil)
 	})
 }
 

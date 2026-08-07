@@ -5,7 +5,7 @@
  */
 
 // Package mock provides a client for the MOSIP mock-identity-system, used as the
-// default AUTHN_PROVIDER for local development and testing.
+// default MOSIP_ESIGNET_AUTHN_PROVIDER for local development and testing.
 package mock
 
 import "os"

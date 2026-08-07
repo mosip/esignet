@@ -33,7 +33,7 @@ func (ts *KeymanagerTestSuite) TestIsCurrent() {
 		{"past hard expiry", expiry.Add(time.Hour), false},
 	}
 	for _, tt := range tests {
-		ts.T().Run(tt.name, func(t *testing.T) {
+		ts.T().Run(tt.name, func(_ *testing.T) {
 			got := keymanager.IsCurrent(tt.now, gen, expiry, preExpireDays)
 			ts.Assert().Equal(tt.want, got)
 		})
@@ -65,7 +65,7 @@ func (ts *KeymanagerTestSuite) TestIsDuplicateUniIdent() {
 		{"uni_ident conflict", assertErr("pq: duplicate key value violates unique constraint \"uni_ident_const\" (SQLSTATE 23505)"), true},
 	}
 	for _, tt := range tests {
-		ts.T().Run(tt.name, func(t *testing.T) {
+		ts.T().Run(tt.name, func(_ *testing.T) {
 			ts.Assert().Equal(tt.want, keymanager.IsDuplicateUniIdent(tt.err))
 		})
 	}

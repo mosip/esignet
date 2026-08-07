@@ -97,7 +97,7 @@ func main() {
 	// used by clientSvc below to cache GetClient lookups.
 	runtimeStore := runtimestores.Initialize(appCfg, redisClient)
 
-	clientSvc := clientmgmt.NewService(pgConn, runtimeStore, appCfg.ClientCacheTTLSecs)
+	clientSvc := clientmgmt.NewService(pgConn, runtimeStore, appCfg.ClientCacheTTLSecs, appCfg.SupportedEncAlgorithms)
 	clientHandler := clientmgmt.NewHandler(clientSvc, logger)
 	clientHandler.RegisterRoutes(mux, getSecurityMiddleware(appCfg, logger))
 
@@ -135,7 +135,6 @@ func main() {
 		thunderidengine.WithServerHome(appCfg.DataDir),
 		thunderidengine.WithRuntimeTransientDBType(appCfg.RuntimeDBType),
 		thunderidengine.WithServerConfig(appCfg.Server),
-		thunderidengine.WithCacheConfig(appCfg.Cache),
 		thunderidengine.WithOAuthConfig(appCfg.OAuth),
 		thunderidengine.WithJWTConfig(appCfg.JWT),
 		thunderidengine.WithGateClientConfig(appCfg.GateClient),

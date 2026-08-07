@@ -38,7 +38,10 @@ var allowedACROIDCPut = map[string]struct{}{
 }
 
 // ValidateCreate validates a create request for the given API profile.
-func ValidateCreate(profile Profile, req CreateClientRequest) error {
+// supportedEncAlgs restricts req.EncPublicKey's alg to the runtime crypto
+// provider's supported encryption algorithms; pass nil/empty to skip that
+// restriction.
+func ValidateCreate(profile Profile, req CreateClientRequest, supportedEncAlgs []string) error {
 	if profile == ProfileOIDC {
 		if req.ClientNameLangMap != nil {
 			return validationErr("invalid_input")
@@ -111,7 +114,7 @@ func ValidateCreate(profile Profile, req CreateClientRequest) error {
 		}
 	}
 	if len(req.EncPublicKey) > 0 {
-		if err := validateEncJWK(req.EncPublicKey); err != nil {
+		if err := validateEncJWK(req.EncPublicKey, supportedEncAlgs); err != nil {
 			return err
 		}
 	}
@@ -193,7 +196,10 @@ func ValidateUpdate(profile Profile, req UpdateClientRequest) error {
 }
 
 // ValidatePatch validates a merged client state after applying PATCH fields.
-func ValidatePatch(profile Profile, merged UpdateClientRequest, fields PatchFields, encPublicKey NullableJWK) error {
+// supportedEncAlgs restricts encPublicKey's alg to the runtime crypto
+// provider's supported encryption algorithms; pass nil/empty to skip that
+// restriction.
+func ValidatePatch(profile Profile, merged UpdateClientRequest, fields PatchFields, encPublicKey NullableJWK, supportedEncAlgs []string) error {
 	if fields.ClientName {
 		if err := validateClientName(merged.ClientName); err != nil {
 			return err
@@ -245,7 +251,7 @@ func ValidatePatch(profile Profile, merged UpdateClientRequest, fields PatchFiel
 		}
 	}
 	if fields.EncPublicKey && !encPublicKey.IsNull {
-		if err := validateEncJWK(encPublicKey.Value); err != nil {
+		if err := validateEncJWK(encPublicKey.Value, supportedEncAlgs); err != nil {
 			return err
 		}
 	}

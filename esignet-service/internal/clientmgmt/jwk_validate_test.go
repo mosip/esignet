@@ -63,6 +63,31 @@ func (ts *JwkValidateTestSuite) TestValidateJWK() {
 	}
 }
 
+func (ts *JwkValidateTestSuite) TestValidateEncJWK() {
+	t := ts.T()
+	key := func(alg string) map[string]string {
+		return map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB", "alg": alg}
+	}
+
+	t.Run("missing alg rejected regardless of supported list", func(t *testing.T) {
+		err := validateEncJWK(map[string]string{"kty": "RSA", "n": "abc", "e": "AQAB"}, nil)
+		assert.Equal(t, "invalid_public_key", errCode(t, err))
+	})
+
+	t.Run("nil supported list leaves alg unrestricted", func(t *testing.T) {
+		assert.NoError(t, validateEncJWK(key("RSA-OAEP"), nil))
+	})
+
+	t.Run("alg in supported list accepted", func(t *testing.T) {
+		assert.NoError(t, validateEncJWK(key("RSA-OAEP-256"), []string{"AES-GCM", "RSA-OAEP-256"}))
+	})
+
+	t.Run("alg not in supported list rejected", func(t *testing.T) {
+		err := validateEncJWK(key("RSA-OAEP"), []string{"AES-GCM", "RSA-OAEP-256"})
+		assert.Equal(t, "invalid_public_key", errCode(t, err))
+	})
+}
+
 func (ts *JwkValidateTestSuite) TestMarshalJWK() {
 	t := ts.T()
 	empty, err := marshalJWK(nil)

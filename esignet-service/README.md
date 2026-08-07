@@ -87,7 +87,7 @@ export DATABASE_USERNAME=esignet
 export DB_DBUSER_PASSWORD=secret
 export DATABASE_NAME=mosip_esignet
 export REDIS_HOST=localhost
-export AUTHN_PROVIDER=mosip
+export MOSIP_ESIGNET_AUTHN_PROVIDER=mosip
 
 ./out/esignet.exe   # ./out/esignet on Linux
 ```
@@ -118,15 +118,18 @@ Set `LOG_LEVEL=debug` for verbose tracing.
 | `MOSIP_ESIGNET_HOST` | `http://127.0.0.1:<PORT>` | OIDC issuer, JWT `iss`, discovery base |
 | `MOSIP_ESIGNET_BASE_URL` | `MOSIP_ESIGNET_HOST` | Overrides the server's public URL (used to detect `http://` vs `https://` for cookie/HTTPS-only behavior) |
 | `DATA_DIR` | `./data` | Declarative YAML root (`flows/`, `i18n/`, `layouts/`, `themes/`, `keys/`) |
-| `SIGNING_KEY_REF_ID` | `RSA_2048` | Keymanager reference id JWTs are signed with (`jwt.preferred_key_id` in `data/deployment.yaml`) — see [Key management](#key-management-keymanager) |
+| `MOSIP_ESIGNET_SIGNING_KEY_REF_ID` | `RSA_2048` | Keymanager reference id JWTs are signed with (`jwt.preferred_key_id` in `data/deployment.yaml`) — see [Key management](#key-management-keymanager) |
 | `RUNTIME_DB_TYPE` | `redis` | Runtime store backend for flow/session/PAR state: `redis` (shared across replicas) or any other value for the in-memory store (single instance only, dev/test use) |
-| `AUTHN_PROVIDER` | `mock` | `mock` (default; talks to esignet-mock-services), `mosip` (MOSIP IDA), or `sunbird` (SunbirdRC registry KBI). `./make.sh run` overrides the default to `mosip`. |
-| `LAYOUT_ID` | `layout-esignet` | Declarative layout id |
-| `THEME_ID` | `theme-esignet` | Declarative theme id |
-| `AUTH_FLOW_ID` | `flow-esignet` | Declarative authentication flow id |
-| `OAUTH_AUTH_CODE_LIFETIME_SECONDS` | `120` | Authorization code lifetime |
-| `OAUTH_ACCESS_TOKEN_LIFETIME_SECONDS` | `3600` | Access token lifetime |
-| `OAUTH_PAR_EXPIRY_SECONDS` | `3600` | Pushed authorization request expiry |
+| `MOSIP_ESIGNET_AUTHN_PROVIDER` | `mock` | `mock` (default; talks to esignet-mock-services), `mosip` (MOSIP IDA), or `sunbird` (SunbirdRC registry KBI). `./make.sh run` overrides the default to `mosip`. |
+| `MOSIP_ESIGNET_LAYOUT_ID` | `layout-esignet` | Declarative layout id |
+| `MOSIP_ESIGNET_THEME_ID` | `theme-esignet` | Declarative theme id |
+| `MOSIP_ESIGNET_AUTH_FLOW_ID` | `flow-esignet` | Declarative authentication flow id |
+| `MOSIP_ESIGNET_OAUTH_AUTH_CODE_LIFETIME_SECONDS` | `120` | Authorization code lifetime |
+| `MOSIP_ESIGNET_OAUTH_ACCESS_TOKEN_LIFETIME_SECONDS` | `3600` | Access token lifetime |
+| `MOSIP_ESIGNET_OAUTH_PAR_EXPIRY_SECONDS` | `3600` | Pushed authorization request expiry |
+| `MOSIP_ESIGNET_CACHE_TYPE` | `redis` | Cache backend selector: `redis` loads the Redis config below; any other value skips it |
+| `MOSIP_ESIGNET_OAUTH_SUPPORTED_SIGNING_ALGORITHMS` | `PS256,ES256,ES256K,EdDSA` | Comma-separated JWS algorithms advertised/accepted for signing |
+| `MOSIP_ESIGNET_OAUTH_SUPPORTED_ENCRYPTION_ALGORITHMS` | `RSA-OAEP,RSA-OAEP-256` | Comma-separated JWE algorithms advertised/accepted for encryption |
 
 JWT signing and session/cache encryption are handled by the keymanager module (its own auto-provisioned keys — see [Key management](#key-management-keymanager)), not by a static key file. `./make.sh keys` still generates a local `keys/signing.key` / `keys/signing.crt` pair on every build/run as a legacy step; it is not currently consumed by any code path.
 
@@ -136,11 +139,11 @@ Authorize redirects are sent to the Thunder gate client:
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
-| `OIDC_UI_SCHEME` | `http` | Gate UI scheme |
-| `OIDC_UI_HOSTNAME` | `127.0.0.1` | Gate UI hostname |
-| `OIDC_UI_PORT` | `3000` | Gate UI port |
-| `OIDC_UI_LOGIN_PATH` | `/signin` | Login page path |
-| `OIDC_UI_ERROR_PATH` | `/error` | Error page path |
+| `MOSIP_ESIGNET_OIDC_UI_SCHEME` | `http` | Gate UI scheme |
+| `MOSIP_ESIGNET_OIDC_UI_HOSTNAME` | `127.0.0.1` | Gate UI hostname |
+| `MOSIP_ESIGNET_OIDC_UI_PORT` | `3000` | Gate UI port |
+| `MOSIP_ESIGNET_OIDC_UI_LOGIN_PATH` | `/signin` | Login page path |
+| `MOSIP_ESIGNET_OIDC_UI_ERROR_PATH` | `/error` | Error page path |
 
 ### PostgreSQL
 
@@ -177,7 +180,7 @@ At startup, `main.go`'s `provisionKeyHierarchy` idempotently provisions (safe to
 | Application ID | Keys |
 |---|---|
 | `ROOT` | Self-signed root CA |
-| `OIDC_SERVICE` (esignet itself) | RSA_2048 Component Master Key, EC_SECP256R1_SIGN sign key, `CACHE_ENCRYPT` symmetric key — used for JWT signing (`SIGNING_KEY_REF_ID`) and cache/session encryption |
+| `OIDC_SERVICE` (esignet itself) | RSA_2048 Component Master Key, EC_SECP256R1_SIGN sign key, `CACHE_ENCRYPT` symmetric key — used for JWT signing (`MOSIP_ESIGNET_SIGNING_KEY_REF_ID`) and cache/session encryption |
 | `OIDC_PARTNER` | RSA_2048 Component Master Key — used to sign outbound MOSIP IDA requests (replaces the old `MOSIP_P12_PATH`/`MOSIP_P12_PASSWORD` partner keystore) |
 
 Each `ApplicationID` needs a matching `key_policy_def` row before it can provision keys; see the `INSERT INTO ... KEY_POLICY_DEF` statements at the end of `docker-compose/init.sql` for `ROOT`, `OIDC_SERVICE`, `OIDC_PARTNER`, and `BASE`.
@@ -225,11 +228,11 @@ Enforcement is enabled only when both `issuer_url` and `jwks_url` are non-empty 
 
 ### Authentication provider
 
-`AUTHN_PROVIDER` selects the plugin: `mock` (default in the binary; talks to a running [esignet-mock-services](https://github.com/mosip/esignet-mock-services) instance), `mosip` (MOSIP IDA — `./make.sh run` defaults to this), or `sunbird` (SunbirdRC registry KBI).
+`MOSIP_ESIGNET_AUTHN_PROVIDER` selects the plugin: `mock` (default in the binary; talks to a running [esignet-mock-services](https://github.com/mosip/esignet-mock-services) instance), `mosip` (MOSIP IDA — `./make.sh run` defaults to this), or `sunbird` (SunbirdRC registry KBI).
 
 #### Mock authentication
 
-Used when `AUTHN_PROVIDER=mock`. The mock provider is a thin HTTP client to a running mock-identity-system instance; it does not validate credentials or store identities itself.
+Used when `MOSIP_ESIGNET_AUTHN_PROVIDER=mock`. The mock provider is a thin HTTP client to a running mock-identity-system instance; it does not validate credentials or store identities itself.
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
@@ -254,9 +257,9 @@ Used when `AUTHN_PROVIDER=mock`. The mock provider is a thin HTTP client to a ru
 
 Outbound IDA requests are signed with the keymanager's `OIDC_PARTNER` / `RSA_2048` component master key (provisioned at startup, see [Key management](#key-management-keymanager)) — no separate partner keystore configuration is needed.
 
-##### Audit publishing (`AUTHN_PROVIDER=mosip` only)
+##### Audit publishing (`MOSIP_ESIGNET_AUTHN_PROVIDER=mosip` only)
 
-Flow lifecycle events are published to mosip-audit-manager. A token is fetched from authmanager (client id/secret/app id) and sent to the audit endpoint as a `Cookie: Authorization=<token>` header; when the secret is unset, audits are posted without that cookie. For any other `AUTHN_PROVIDER`, events are just logged via the application logger.
+Flow lifecycle events are published to mosip-audit-manager. A token is fetched from authmanager (client id/secret/app id) and sent to the audit endpoint as a `Cookie: Authorization=<token>` header; when the secret is unset, audits are posted without that cookie. For any other `MOSIP_ESIGNET_AUTHN_PROVIDER`, events are just logged via the application logger.
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
@@ -282,7 +285,7 @@ See `.env.example` for copy-paste values including optional MOSIP URL overrides.
 
 ### SunbirdRC (KBI) authentication
 
-With `AUTHN_PROVIDER=sunbird`, the user authenticates by knowledge-based identity: they enter an
+With `MOSIP_ESIGNET_AUTHN_PROVIDER=sunbird`, the user authenticates by knowledge-based identity: they enter an
 `individualId` plus KBI fields (default `fullName` and `dob`), which are POSTed as exact-match filters to the
 registry search URL. Authentication succeeds only when the registry returns **exactly one** matching entity;
 its entity-id field (default `osid`) becomes the user id. Attributes are then fetched from the registry
@@ -402,7 +405,7 @@ docker run --rm -p 8088:8088 \
   -e MOSIP_ESIGNET_HOST=http://127.0.0.1:8088 \
   -e DATABASE_URL=postgres://esignet:secret@host.docker.internal:5455/mosip_esignet?sslmode=disable \
   -e REDIS_URL=redis://host.docker.internal:6379/0 \
-  -e AUTHN_PROVIDER=mosip \
+  -e MOSIP_ESIGNET_AUTHN_PROVIDER=mosip \
   -e KEYMANAGER_KEYSTORE_TYPE=PKCS12 \
   -e KEYMANAGER_PKCS12_FILE_PATH=/opt/mosip/test.pfx \
   -e KEYMANAGER_PKCS12_PASSWORD=your-pkcs12-password \
@@ -432,7 +435,7 @@ The collection lives in [`postman-collection/`](../postman-collection/README.md)
 3. Run **Client Management → Create client** — its pre-request script generates a fresh RSA key and `clientId` entirely inside Postman, no external tooling needed.
 4. Run one of the numbered OAuth flow folders (1 — MOSIP OTP, 2 — MOSIP Credentials, 3 — MOSIP FAPI2) top to bottom.
 
-Folders 1 and 2 require `AUTHN_PROVIDER=mosip` and MOSIP variables (see `.env.example`); folder 3 additionally requires Redis 6.0+ (PAR storage) and a client registered with `require_pushed_authorization_requests`/`dpop_bound_access_tokens`. See the [collection README](../postman-collection/README.md) for the full per-folder breakdown.
+Folders 1 and 2 require `MOSIP_ESIGNET_AUTHN_PROVIDER=mosip` and MOSIP variables (see `.env.example`); folder 3 additionally requires Redis 6.0+ (PAR storage) and a client registered with `require_pushed_authorization_requests`/`dpop_bound_access_tokens`. See the [collection README](../postman-collection/README.md) for the full per-folder breakdown.
 
 ## OAuth
 

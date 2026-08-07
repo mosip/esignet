@@ -47,20 +47,24 @@ func NewStateQuerier() *StateQuerier {
 
 func aliasMapKey(appID, refID string) string { return appID + "|" + refID }
 
+// GetKeyAliasesByAppRef implements db.Querier.
 func (q *StateQuerier) GetKeyAliasesByAppRef(_ context.Context, appID, refID string) ([]db.KeyAlias, error) {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 	return append([]db.KeyAlias(nil), q.aliases[aliasMapKey(appID, refID)]...), nil
 }
 
+// GetKeyAliasByCertThumbprint implements db.Querier; unused by these tests.
 func (q *StateQuerier) GetKeyAliasByCertThumbprint(_ context.Context, _ string) (db.KeyAlias, error) {
 	return db.KeyAlias{}, sql.ErrNoRows
 }
 
+// GetKeyAliasByUniIdent implements db.Querier; unused by these tests.
 func (q *StateQuerier) GetKeyAliasByUniIdent(_ context.Context, _ string) (db.KeyAlias, error) {
 	return db.KeyAlias{}, sql.ErrNoRows
 }
 
+// InsertKeyAlias implements db.Querier.
 func (q *StateQuerier) InsertKeyAlias(_ context.Context, k db.KeyAlias) error {
 	q.mu.Lock()
 	defer q.mu.Unlock()
@@ -73,6 +77,7 @@ func (q *StateQuerier) InsertKeyAlias(_ context.Context, k db.KeyAlias) error {
 	return nil
 }
 
+// UpdateKeyAlias implements db.Querier.
 func (q *StateQuerier) UpdateKeyAlias(_ context.Context, k db.KeyAlias) error {
 	q.mu.Lock()
 	defer q.mu.Unlock()
@@ -103,11 +108,15 @@ func (q *StateQuerier) HasKeyPolicy(_ context.Context, _ string) (bool, error) {
 	return true, nil
 }
 
+// GetKeyStoreRecord implements db.Querier; unused by these tests.
 func (q *StateQuerier) GetKeyStoreRecord(_ context.Context, _ string) (db.KeyStoreRecord, error) {
 	return db.KeyStoreRecord{}, sql.ErrNoRows
 }
 
+// InsertKeyStoreRecord implements db.Querier; unused by these tests.
 func (q *StateQuerier) InsertKeyStoreRecord(_ context.Context, _ db.KeyStoreRecord) error { return nil }
+
+// UpdateKeyStoreRecord implements db.Querier; unused by these tests.
 func (q *StateQuerier) UpdateKeyStoreRecord(_ context.Context, _ db.KeyStoreRecord) error { return nil }
 
 // FakeKeyStore is a hand-written in-memory keystore.KeyStore — real crypto
@@ -124,10 +133,13 @@ func NewFakeKeyStore() *FakeKeyStore {
 	return &FakeKeyStore{keys: map[string]crypto.PrivateKey{}, certs: map[string]*x509.Certificate{}}
 }
 
+// ProviderName implements keystore.KeyStore.
 func (f *FakeKeyStore) ProviderName() string { return "FAKE" }
 
+// Close implements keystore.KeyStore.
 func (f *FakeKeyStore) Close() error { return nil }
 
+// GetPrivateKey implements keystore.KeyStore.
 func (f *FakeKeyStore) GetPrivateKey(alias string) (crypto.PrivateKey, error) {
 	k, ok := f.keys[alias]
 	if !ok {
@@ -136,6 +148,7 @@ func (f *FakeKeyStore) GetPrivateKey(alias string) (crypto.PrivateKey, error) {
 	return k, nil
 }
 
+// GetPublicKey implements keystore.KeyStore.
 func (f *FakeKeyStore) GetPublicKey(alias string) (crypto.PublicKey, error) {
 	c, ok := f.certs[alias]
 	if !ok {
@@ -144,6 +157,7 @@ func (f *FakeKeyStore) GetPublicKey(alias string) (crypto.PublicKey, error) {
 	return c.PublicKey, nil
 }
 
+// GetCertificate implements keystore.KeyStore.
 func (f *FakeKeyStore) GetCertificate(alias string) (*x509.Certificate, error) {
 	c, ok := f.certs[alias]
 	if !ok {
@@ -152,10 +166,12 @@ func (f *FakeKeyStore) GetCertificate(alias string) (*x509.Certificate, error) {
 	return c, nil
 }
 
+// GetSymmetricKey implements keystore.KeyStore; unsupported by this fake.
 func (f *FakeKeyStore) GetSymmetricKey(_ string) ([]byte, error) {
 	return nil, fmt.Errorf("kmtest.FakeKeyStore: symmetric keys not supported")
 }
 
+// GetAsymmetricKey implements keystore.KeyStore.
 func (f *FakeKeyStore) GetAsymmetricKey(alias string) (*keystore.KeyPairEntry, error) {
 	priv, err := f.GetPrivateKey(alias)
 	if err != nil {
@@ -168,6 +184,7 @@ func (f *FakeKeyStore) GetAsymmetricKey(alias string) (*keystore.KeyPairEntry, e
 	return &keystore.KeyPairEntry{PrivateKey: priv, Certificate: cert}, nil
 }
 
+// GetAllAlias implements keystore.KeyStore.
 func (f *FakeKeyStore) GetAllAlias() ([]string, error) {
 	aliases := make([]string, 0, len(f.certs))
 	for a := range f.certs {
@@ -176,10 +193,12 @@ func (f *FakeKeyStore) GetAllAlias() ([]string, error) {
 	return aliases, nil
 }
 
+// GenerateAndStoreSymmetricKey implements keystore.KeyStore; unsupported by this fake.
 func (f *FakeKeyStore) GenerateAndStoreSymmetricKey(_ string) error {
 	return fmt.Errorf("kmtest.FakeKeyStore: symmetric keys not supported")
 }
 
+// GenerateAndStoreAsymmetricKey implements keystore.KeyStore.
 func (f *FakeKeyStore) GenerateAndStoreAsymmetricKey(alias, signKeyAlias string, params keystore.CertificateParameters, algoName, curveName string) error {
 	priv, pub, err := GenerateTestKeyPair(algoName, curveName)
 	if err != nil {
@@ -211,12 +230,14 @@ func (f *FakeKeyStore) GenerateAndStoreAsymmetricKey(alias, signKeyAlias string,
 	return nil
 }
 
+// DeleteKey implements keystore.KeyStore.
 func (f *FakeKeyStore) DeleteKey(alias string) error {
 	delete(f.keys, alias)
 	delete(f.certs, alias)
 	return nil
 }
 
+// StoreCertificate implements keystore.KeyStore.
 func (f *FakeKeyStore) StoreCertificate(alias string, privateKey crypto.PrivateKey, cert *x509.Certificate) error {
 	if privateKey != nil {
 		f.keys[alias] = privateKey

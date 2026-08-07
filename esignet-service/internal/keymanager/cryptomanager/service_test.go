@@ -37,7 +37,7 @@ func (ts *CryptomanagerTestSuite) TestEncryptDecryptRoundTrip() {
 	}
 
 	for _, tc := range cases {
-		ts.T().Run(tc.name, func(t *testing.T) {
+		ts.T().Run(tc.name, func(_ *testing.T) {
 			plaintext := make([]byte, tc.size)
 			if tc.name == "single-byte" {
 				plaintext[0] = 'A'
@@ -133,7 +133,7 @@ func (ts *CryptomanagerTestSuite) TestEncrypt_RejectsBlankData() {
 		{"only spaces", "   "},
 		{"only tabs and newlines", "\t\n  \t"},
 	} {
-		ts.T().Run(tc.name, func(t *testing.T) {
+		ts.T().Run(tc.name, func(_ *testing.T) {
 			_, err := env.CM.Encrypt(context.Background(), cryptomanager.EncryptRequest{
 				ApplicationID: env.AppID, ReferenceID: "SOME_ENC_KEY", Data: tc.data,
 			})
@@ -151,7 +151,7 @@ func (ts *CryptomanagerTestSuite) TestEncrypt_RejectsWhitespaceOnlyDecodedData()
 		{"three spaces", "   "},
 		{"tabs and newlines", "\t\n\t"},
 	} {
-		ts.T().Run(tc.name, func(t *testing.T) {
+		ts.T().Run(tc.name, func(_ *testing.T) {
 			// The base64 STRING itself is well-formed and non-blank (this
 			// is exactly what a CLI/caller gets from base64-encoding
 			// whitespace) — only the decoded content is blank.

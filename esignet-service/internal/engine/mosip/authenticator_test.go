@@ -94,7 +94,7 @@ func validClientRow(clientID, rpID string) db.ClientDetail {
 // newTestClientService builds a clientmgmt.Service backed by the fake Querier
 // above and the module-standard in-memory RuntimeStoreProvider fake.
 func newTestClientService(row db.ClientDetail, err error) *clientmgmt.Service {
-	return clientmgmt.NewServiceWithQuerier(&fakeQuerier{row: row, err: err}, inmemory.Initialize("test"), 0)
+	return clientmgmt.NewServiceWithQuerier(&fakeQuerier{row: row, err: err}, inmemory.Initialize("test"), 0, nil)
 }
 
 func newValidClientService() *clientmgmt.Service {
@@ -1156,8 +1156,6 @@ func (ts *AuthenticatorTestSuite) TestGetAttributesDefaultsToSubWhenNoAttributes
 
 func (ts *AuthenticatorTestSuite) TestGetAttributesUsesRequestedClaimLocales() {
 	t := ts.T()
-	signKey, signCert := genRSAKeyAndCert(t, "signer")
-	p12Path := writeTestP12(t, signKey, signCert, "pw")
 
 	var capturedBody []byte
 	jwtStr := unsignedJWT(t, map[string]interface{}{"sub": "user-1"})
@@ -1170,8 +1168,7 @@ func (ts *AuthenticatorTestSuite) TestGetAttributesUsesRequestedClaimLocales() {
 	defer exchangeSrv.Close()
 
 	p := newProvider(newValidClientService())
-	p.cfg.P12Path = p12Path
-	p.cfg.P12Password = "pw"
+	configureSigning(t, p)
 	p.cfg.KYCExchangeBaseURL = exchangeSrv.URL
 
 	attributeToken := strings.Join([]string{"kyctok", "user-1", "txn-1"}, "||")
@@ -1188,8 +1185,6 @@ func (ts *AuthenticatorTestSuite) TestGetAttributesUsesRequestedClaimLocales() {
 
 func (ts *AuthenticatorTestSuite) TestGetAttributesSendsEmptyLocalesWhenClaimsLocalesNotRequested() {
 	t := ts.T()
-	signKey, signCert := genRSAKeyAndCert(t, "signer")
-	p12Path := writeTestP12(t, signKey, signCert, "pw")
 
 	var capturedBody []byte
 	jwtStr := unsignedJWT(t, map[string]interface{}{"sub": "user-1"})
@@ -1202,8 +1197,7 @@ func (ts *AuthenticatorTestSuite) TestGetAttributesSendsEmptyLocalesWhenClaimsLo
 	defer exchangeSrv.Close()
 
 	p := newProvider(newValidClientService())
-	p.cfg.P12Path = p12Path
-	p.cfg.P12Password = "pw"
+	configureSigning(t, p)
 	p.cfg.KYCExchangeBaseURL = exchangeSrv.URL
 
 	attributeToken := strings.Join([]string{"kyctok", "user-1", "txn-1"}, "||")

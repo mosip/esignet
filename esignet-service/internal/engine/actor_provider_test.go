@@ -44,7 +44,7 @@ func (q *dbErrorQuerier) GetClient(_ context.Context, _ string) (db.ClientDetail
 }
 
 func newActorTestService(client db.ClientDetail) *clientmgmt.Service {
-	return clientmgmt.NewServiceWithQuerier(&stubQuerier{client: client, found: true}, nil, 0)
+	return clientmgmt.NewServiceWithQuerier(&stubQuerier{client: client, found: true}, nil, 0, nil)
 }
 
 func testClientRow() db.ClientDetail {
@@ -135,7 +135,7 @@ func (ts *ActorProviderTestSuite) TestActorProvider_GetOAuthClientByClientID_JWE
 
 func (ts *ActorProviderTestSuite) TestActorProvider_GetOAuthClientByClientID_ServerError() {
 	t := ts.T()
-	svc := clientmgmt.NewServiceWithQuerier(&dbErrorQuerier{}, nil, 0)
+	svc := clientmgmt.NewServiceWithQuerier(&dbErrorQuerier{}, nil, 0, nil)
 	p := NewActorProvider(svc, &config.AppConfig{})
 
 	client, svcErr := p.GetOAuthClientByClientID(context.Background(), "any-client")
@@ -173,7 +173,7 @@ func (ts *ActorProviderTestSuite) TestActorProvider_GetOAuthProfileByID() {
 
 func (ts *ActorProviderTestSuite) TestActorProvider_GetOAuthProfileByID_ServerError() {
 	t := ts.T()
-	svc := clientmgmt.NewServiceWithQuerier(&dbErrorQuerier{}, nil, 0)
+	svc := clientmgmt.NewServiceWithQuerier(&dbErrorQuerier{}, nil, 0, nil)
 	p := NewActorProvider(svc, &config.AppConfig{})
 
 	profile, svcErr := p.GetOAuthProfileByID(context.Background(), "any-client")
@@ -217,7 +217,7 @@ func (ts *ActorProviderTestSuite) TestActorProvider_GetInboundClientByID() {
 
 func (ts *ActorProviderTestSuite) TestActorProvider_GetInboundClientByID_ServerError() {
 	t := ts.T()
-	svc := clientmgmt.NewServiceWithQuerier(&dbErrorQuerier{}, nil, 0)
+	svc := clientmgmt.NewServiceWithQuerier(&dbErrorQuerier{}, nil, 0, nil)
 	p := NewActorProvider(svc, &config.AppConfig{})
 
 	client, svcErr := p.GetInboundClientByID(context.Background(), "any-client")
@@ -262,7 +262,7 @@ func (ts *ActorProviderTestSuite) TestActorProvider_GetActor() {
 
 func (ts *ActorProviderTestSuite) TestActorProvider_GetActor_ServerError() {
 	t := ts.T()
-	svc := clientmgmt.NewServiceWithQuerier(&dbErrorQuerier{}, nil, 0)
+	svc := clientmgmt.NewServiceWithQuerier(&dbErrorQuerier{}, nil, 0, nil)
 	p := NewActorProvider(svc, &config.AppConfig{})
 
 	entity, svcErr := p.GetActor("any-client")

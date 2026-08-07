@@ -26,23 +26,6 @@ import (
 	"github.com/mosip/esignet/internal/keymanager/signature"
 )
 
-// cryptomanagerEnvelopeAlgorithm identifies the single hybrid-envelope
-// scheme cryptomanager.Service.Encrypt/Decrypt implement (RSA-OAEP-256 key
-// wrap + AES-256-GCM content encryption, MOSIP's VER_R2 wire format) — the
-// only value GetSupportedEncryptionAlgorithms reports and Encrypt/Decrypt
-// accept. cryptomanager doesn't negotiate per-call JOSE algorithms the way a
-// spec-compliant JWE key-wrap provider would (RSA-OAEP/ECDH-ES/AES-GCM-KW
-// are not implemented here), so this provider only ever exposes the one
-// scheme cryptomanager actually has.
-const cryptomanagerEnvelopeAlgorithm = "RSA-OAEP-256+A256GCM"
-
-// cryptomanagerSymmetricAlgorithm identifies the AES-GCM symmetric
-// encryption scheme cryptomanager.Service.EncryptAES/DecryptAES implement,
-// as distinct from cryptomanagerEnvelopeAlgorithm's RSA hybrid envelope.
-// Encrypt/Decrypt route to EncryptAES/DecryptAES when the caller passes this
-// value, and to the hybrid envelope otherwise.
-const cryptomanagerSymmetricAlgorithm = "A256GCM"
-
 // defaultSymmetricEncryptReferenceID is the reference id Encrypt/Decrypt
 // fall back to for the symmetric (AES) path when a KeyRef doesn't specify
 // one — matches keymanager.Config's own default for
@@ -96,7 +79,7 @@ func NewRuntimeCryptoProvider(cfg *config.AppConfig, svc *keymanager.Service, si
 
 // referenceID resolves a KeyRef/PublicKeyFilter KeyID to the keymanager
 // reference id to operate on, defaulting to p.signReferenceID when unset.
-func (p *runtimeCryptoProvider) referenceID(keyID string) string {
+func (p *runtimeCryptoProvider) referenceID(_ string) string {
 	// TODO: a thumbprint supplied as the kid does not yet resolve to a reference id,
 	// so keyID is ignored and the configured signing key is always used.
 	return p.signReferenceID
@@ -276,14 +259,26 @@ func (p *runtimeCryptoProvider) GetPublicKeys(ctx context.Context, filter provid
 	}}, nil
 }
 
-// GetSupportedSigningAlgorithms returns the list of signing algorithms supported by Sign and Verify.
 func (p *runtimeCryptoProvider) GetSupportedSigningAlgorithms() []string {
-	return signature.SupportedAlgorithms()
+	algorithms := signature.SupportedAlgorithms()
+
+	configured := make(map[string]bool, len(p.cfg.SupportedSigningAlgorithms))
+	for _, alg := range p.cfg.SupportedSigningAlgorithms {
+		configured[alg] = true
+	}
+
+	supported := make([]string, 0, len(algorithms))
+	for _, alg := range algorithms {
+		if configured[alg] {
+			supported = append(supported, alg)
+		}
+	}
+	return supported
 }
 
 // GetSupportedEncryptionAlgorithms returns the list of algorithms supported by Encrypt and Decrypt.
 func (p *runtimeCryptoProvider) GetSupportedEncryptionAlgorithms() []string {
-	return []string{"AES-GCM", "RSA-OAEP", "RSA-OAEP-256"}
+	return p.cfg.SupportedEncAlgorithms
 }
 
 func getPublicKey(keyRef providers.KeyRef) (*jose.JSONWebKey, error) {
