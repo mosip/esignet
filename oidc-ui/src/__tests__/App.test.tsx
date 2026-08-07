@@ -28,8 +28,8 @@ vi.mock("../components/Footer", () => ({
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const capturedQC = vi.hoisted(() => ({ instance: null as any }));
 
-vi.mock("@tanstack/react-query", async () => {
-  const actual = await import("@tanstack/react-query");
+vi.mock("@tanstack/react-query", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@tanstack/react-query")>();
   return {
     ...actual,
     QueryClientProvider: ({

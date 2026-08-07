@@ -140,6 +140,45 @@ describe("ApiService request interceptor — CSRF token", () => {
     axiosGetSpy.mockRestore();
   });
 
+  it.each(["put", "patch", "delete"])(
+    "injects X-XSRF-TOKEN from sessionStorage on %s without fetching",
+    async (method) => {
+      sessionStorage.setItem("csrfToken", "cached-token");
+
+      let capturedHeaders: Record<string, string> = {};
+      setMockAdapter((config) => {
+        capturedHeaders = config.headers as Record<string, string>;
+        return { data: {}, status: 200 };
+      });
+
+      await ApiService.request({ method, url: "/test" });
+      expect(capturedHeaders["X-XSRF-TOKEN"]).toBe("cached-token");
+    },
+  );
+
+  it.each(["put", "patch", "delete"])(
+    "fetches and caches a new CSRF token on %s when none is cached",
+    async (method) => {
+      const axiosGetSpy = vi
+        .spyOn(axios, "get")
+        .mockResolvedValue({ data: { token: "fresh-token" } });
+
+      let capturedHeaders: Record<string, string> = {};
+      setMockAdapter((config) => {
+        capturedHeaders = config.headers as Record<string, string>;
+        return { data: {}, status: 200 };
+      });
+
+      await ApiService.request({ method, url: "/test" });
+
+      expect(axiosGetSpy).toHaveBeenCalled();
+      expect(sessionStorage.getItem("csrfToken")).toBe("fresh-token");
+      expect(capturedHeaders["X-XSRF-TOKEN"]).toBe("fresh-token");
+
+      axiosGetSpy.mockRestore();
+    },
+  );
+
   it("does NOT inject X-XSRF-TOKEN on GET requests", async () => {
     sessionStorage.setItem("csrfToken", "cached-token");
 
@@ -351,7 +390,7 @@ describe("CSRF request interceptor logic", () => {
       method: "post",
       headers: {},
     };
-    if (config.method?.toLowerCase() === "post") {
+    if (["post", "put", "patch", "delete"].includes(config.method?.toLowerCase() ?? "")) {
       const t = sessionStorage.getItem("csrfToken");
       if (t) config.headers["X-XSRF-TOKEN"] = t;
     }
@@ -364,10 +403,45 @@ describe("CSRF request interceptor logic", () => {
       method: "get",
       headers: {},
     };
-    if (config.method?.toLowerCase() === "post") {
+    if (["post", "put", "patch", "delete"].includes(config.method?.toLowerCase() ?? "")) {
       const t = sessionStorage.getItem("csrfToken");
       if (t) config.headers["X-XSRF-TOKEN"] = t;
     }
     expect(config.headers["X-XSRF-TOKEN"]).toBeUndefined();
+  });
+});
+
+// ── config.method undefined — covers ?. null and ?? right branches (line 34) ────
+//
+// Axios always sets config.method before calling interceptors, so there is no
+// normal request path where it arrives as undefined.  A pre-interceptor
+// (registered after the module-level one; LIFO → runs first) strips the field,
+// exercising the optional-chain null branch and the ?? "" fallback.
+
+describe("ApiService request interceptor — undefined config.method (line 34 branches)", () => {
+  let preId: number;
+
+  afterEach(() => {
+    ApiService.interceptors.request.eject(preId);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    delete (ApiService.defaults as any).adapter;
+    sessionStorage.clear();
+  });
+
+  it("skips CSRF injection and returns config when config.method is undefined", async () => {
+    preId = ApiService.interceptors.request.use(async (config) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (config as any).method = undefined;
+      return config;
+    });
+
+    let capturedHeaders: Record<string, string> = {};
+    setMockAdapter((config) => {
+      capturedHeaders = config.headers as Record<string, string>;
+      return { data: {}, status: 200 };
+    });
+
+    await ApiService.get("/test");
+    expect(capturedHeaders["X-XSRF-TOKEN"]).toBeUndefined();
   });
 });

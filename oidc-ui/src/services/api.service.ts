@@ -31,7 +31,7 @@ export const ApiService = axios.create({
 
 ApiService.interceptors.request.use(
   async (config) => {
-    if (config.method?.toLowerCase() === "post") {
+    if (["post", "put", "patch", "delete"].includes(config.method?.toLowerCase() ?? "")) {
       let csrfToken = sessionStorage.getItem("csrfToken");
       if (!csrfToken) {
         try {

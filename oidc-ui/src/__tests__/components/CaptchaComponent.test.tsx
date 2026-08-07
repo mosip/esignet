@@ -12,9 +12,7 @@ import {
 import type { ComponentRenderContext } from "@thunderid/react";
 
 const mockT = vi.fn((key: string) => key);
-const mockValidateFieldValue = vi.fn((...args: unknown[]) =>
-  console.log(...args),
-);
+const mockValidateFieldValue = vi.fn();
 
 vi.mock("@thunderid/react", () => ({
   useTranslation: () => ({ t: mockT }),
