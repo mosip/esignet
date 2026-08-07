@@ -9,10 +9,12 @@ package engine
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/suite"
+	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
 
 	"github.com/mosip/esignet/internal/clientmgmt"
 	"github.com/mosip/esignet/internal/clientmgmt/db"
@@ -30,6 +32,15 @@ func (s *stubQuerier) GetClient(_ context.Context, id string) (db.ClientDetail, 
 		return db.ClientDetail{}, sql.ErrNoRows
 	}
 	return s.client, nil
+}
+
+// dbErrorQuerier simulates an infrastructure failure (e.g. connection refused).
+type dbErrorQuerier struct {
+	db.Querier
+}
+
+func (q *dbErrorQuerier) GetClient(_ context.Context, _ string) (db.ClientDetail, error) {
+	return db.ClientDetail{}, errors.New("connection refused")
 }
 
 func newActorTestService(client db.ClientDetail) *clientmgmt.Service {
@@ -72,9 +83,13 @@ func (ts *ActorProviderTestSuite) TestActorProvider_GetOAuthClientByClientID() {
 		}
 	})
 
-	t.Run("not found", func(t *testing.T) {
-		if _, svcErr := p.GetOAuthClientByClientID(context.Background(), "no-such-client"); svcErr == nil {
-			t.Fatal("expected error for unknown client")
+	t.Run("not found returns nil without error", func(t *testing.T) {
+		client, svcErr := p.GetOAuthClientByClientID(context.Background(), "no-such-client")
+		if svcErr != nil {
+			t.Fatalf("expected nil error for unknown client, got %v", svcErr)
+		}
+		if client != nil {
+			t.Fatalf("expected nil client for unknown client, got %v", client)
 		}
 	})
 }
@@ -118,6 +133,26 @@ func (ts *ActorProviderTestSuite) TestActorProvider_GetOAuthClientByClientID_JWE
 	})
 }
 
+func (ts *ActorProviderTestSuite) TestActorProvider_GetOAuthClientByClientID_ServerError() {
+	t := ts.T()
+	svc := clientmgmt.NewServiceWithQuerier(&dbErrorQuerier{}, nil, 0)
+	p := NewActorProvider(svc, &config.AppConfig{})
+
+	client, svcErr := p.GetOAuthClientByClientID(context.Background(), "any-client")
+	if client != nil {
+		t.Fatalf("expected nil client on server error, got %v", client)
+	}
+	if svcErr == nil {
+		t.Fatal("expected non-nil error on server error")
+	}
+	if svcErr.Type != common.ServerErrorType {
+		t.Errorf("expected ServerErrorType, got %v", svcErr.Type)
+	}
+	if svcErr.Code != "server_error" {
+		t.Errorf("expected Code \"server_error\", got %q", svcErr.Code)
+	}
+}
+
 func (ts *ActorProviderTestSuite) TestActorProvider_GetOAuthProfileByID() {
 	t := ts.T()
 	svc := newActorTestService(testClientRow())
@@ -133,6 +168,26 @@ func (ts *ActorProviderTestSuite) TestActorProvider_GetOAuthProfileByID() {
 
 	if _, svcErr := p.GetOAuthProfileByID(context.Background(), "no-such-client"); svcErr == nil {
 		t.Fatal("expected error for unknown client")
+	}
+}
+
+func (ts *ActorProviderTestSuite) TestActorProvider_GetOAuthProfileByID_ServerError() {
+	t := ts.T()
+	svc := clientmgmt.NewServiceWithQuerier(&dbErrorQuerier{}, nil, 0)
+	p := NewActorProvider(svc, &config.AppConfig{})
+
+	profile, svcErr := p.GetOAuthProfileByID(context.Background(), "any-client")
+	if profile != nil {
+		t.Fatalf("expected nil profile on server error, got %v", profile)
+	}
+	if svcErr == nil {
+		t.Fatal("expected non-nil error on server error")
+	}
+	if svcErr.Type != common.ServerErrorType {
+		t.Errorf("expected ServerErrorType, got %v", svcErr.Type)
+	}
+	if svcErr.Code != "server_error" {
+		t.Errorf("expected Code \"server_error\", got %q", svcErr.Code)
 	}
 }
 
@@ -160,6 +215,26 @@ func (ts *ActorProviderTestSuite) TestActorProvider_GetInboundClientByID() {
 	}
 }
 
+func (ts *ActorProviderTestSuite) TestActorProvider_GetInboundClientByID_ServerError() {
+	t := ts.T()
+	svc := clientmgmt.NewServiceWithQuerier(&dbErrorQuerier{}, nil, 0)
+	p := NewActorProvider(svc, &config.AppConfig{})
+
+	client, svcErr := p.GetInboundClientByID(context.Background(), "any-client")
+	if client != nil {
+		t.Fatalf("expected nil client on server error, got %v", client)
+	}
+	if svcErr == nil {
+		t.Fatal("expected non-nil error on server error")
+	}
+	if svcErr.Type != common.ServerErrorType {
+		t.Errorf("expected ServerErrorType, got %v", svcErr.Type)
+	}
+	if svcErr.Code != "server_error" {
+		t.Errorf("expected Code \"server_error\", got %q", svcErr.Code)
+	}
+}
+
 func (ts *ActorProviderTestSuite) TestActorProvider_AuthenticateActor() {
 	t := ts.T()
 	p := NewActorProvider(newActorTestService(testClientRow()), &config.AppConfig{})
@@ -182,6 +257,26 @@ func (ts *ActorProviderTestSuite) TestActorProvider_GetActor() {
 
 	if _, svcErr := p.GetActor("no-such-client"); svcErr == nil {
 		t.Fatal("expected error for unknown client")
+	}
+}
+
+func (ts *ActorProviderTestSuite) TestActorProvider_GetActor_ServerError() {
+	t := ts.T()
+	svc := clientmgmt.NewServiceWithQuerier(&dbErrorQuerier{}, nil, 0)
+	p := NewActorProvider(svc, &config.AppConfig{})
+
+	entity, svcErr := p.GetActor("any-client")
+	if entity != nil {
+		t.Fatalf("expected nil entity on server error, got %v", entity)
+	}
+	if svcErr == nil {
+		t.Fatal("expected non-nil error on server error")
+	}
+	if svcErr.Type != common.ServerErrorType {
+		t.Errorf("expected ServerErrorType, got %v", svcErr.Type)
+	}
+	if svcErr.Code != "server_error" {
+		t.Errorf("expected Code \"server_error\", got %q", svcErr.Code)
 	}
 }
 

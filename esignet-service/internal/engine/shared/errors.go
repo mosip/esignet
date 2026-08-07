@@ -135,3 +135,17 @@ var FileUnmarshallError = &common.ServiceError{
 		DefaultValue: "The file could not be unmarshalled",
 	},
 }
+
+// InternalServerError is returned when an unexpected server-side failure occurs.
+var InternalServerError = &common.ServiceError{
+	Code: "server_error",
+	Type: common.ServerErrorType,
+	Error: common.I18nMessage{
+		Key:          "server_error",
+		DefaultValue: "Internal server error",
+	},
+	ErrorDescription: common.I18nMessage{
+		Key:          "server_error_description",
+		DefaultValue: "An unexpected error occurred while processing the request",
+	},
+}
