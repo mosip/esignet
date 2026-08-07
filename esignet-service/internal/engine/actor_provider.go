@@ -29,6 +29,7 @@ const (
 	dpopRequired               = "dpop_bound_access_tokens"
 	pkceRequired               = "require_pkce"
 	userinfoResponseType       = "userinfo_response_type"
+	idTokenResponseType        = "id_token_response_type"
 	consentExpireInMins        = "consent_expire_in_mins"
 	allowedAuthorizationScopes = "allowed_authorization_scopes"
 
@@ -39,6 +40,10 @@ const (
 	description = "description"
 	logoURL     = "logo_url"
 	app         = "app"
+
+	// encryptionEncA256GCM is the fixed JWE "enc" algorithm used for
+	// userinfo and id_token encryption.
+	encryptionEncA256GCM = "A256GCM"
 )
 
 type actorProvider struct {
@@ -70,6 +75,10 @@ func (p *actorProvider) GetOAuthClientByClientID(
 	if svcErr != nil {
 		return nil, svcErr
 	}
+	idToken, svcErr := getIDTokenConfig(client.AdditionalConfig, client.EncPublicKey)
+	if svcErr != nil {
+		return nil, svcErr
+	}
 	return &providers.OAuthClient{
 		ID:                      client.ClientID,
 		OUID:                    client.RpID,
@@ -96,9 +105,7 @@ func (p *actorProvider) GetOAuthClientByClientID(
 					Attributes: []string{},
 				},
 			},
-			IDToken: &providers.IDTokenConfig{
-				UserAttributes: []string{},
-			},
+			IDToken: idToken,
 		},
 	}, nil
 }
@@ -121,6 +128,10 @@ func (p *actorProvider) GetOAuthProfileByID(
 	if svcErr != nil {
 		return nil, svcErr
 	}
+	idToken, svcErr := getIDTokenConfig(client.AdditionalConfig, client.EncPublicKey)
+	if svcErr != nil {
+		return nil, svcErr
+	}
 	return &providers.OAuthProfile{
 		RedirectURIs:                       client.RedirectURIs,
 		GrantTypes:                         client.GrantTypes,
@@ -137,9 +148,7 @@ func (p *actorProvider) GetOAuthProfileByID(
 					Attributes: []string{},
 				},
 			},
-			IDToken: &providers.IDTokenConfig{
-				UserAttributes: []string{},
-			},
+			IDToken: idToken,
 		},
 		UserInfo:    userInfo,
 		Scopes:      getAllowedScopes(p.config.ScopeClaims, client.AdditionalConfig),
@@ -336,9 +345,35 @@ func getUserInfoConfig(
 			return nil, shared.MissingEncryptionKeyAlgError
 		}
 		userInfo.EncryptionAlg = alg
-		userInfo.EncryptionEnc = "A256GCM"
+		userInfo.EncryptionEnc = encryptionEncA256GCM
 	}
 	return userInfo, nil
+}
+
+// getIDTokenConfig builds the ID token configuration. When the response type
+// is JWE, the client's encryption key must already carry an alg field
+// (enforced at client registration time by clientmgmt), which is propagated
+// as the id_token encryption alg alongside a fixed A256GCM enc.
+func getIDTokenConfig(
+	additionalConfig map[string]any, encPublicKey string,
+) (*providers.IDTokenConfig, *common.ServiceError) {
+	responseType := providers.IDTokenResponseTypeJWT
+	if respType, _ := additionalConfig[idTokenResponseType].(string); respType == "JWE" {
+		responseType = providers.IDTokenResponseTypeNESTEDJWT
+	}
+	idToken := &providers.IDTokenConfig{
+		ResponseType:   responseType,
+		UserAttributes: []string{},
+	}
+	if responseType == providers.IDTokenResponseTypeNESTEDJWT {
+		alg, ok := encryptionKeyAlg(encPublicKey)
+		if !ok {
+			return nil, shared.MissingEncryptionKeyAlgError
+		}
+		idToken.EncryptionAlg = alg
+		idToken.EncryptionEnc = encryptionEncA256GCM
+	}
+	return idToken, nil
 }
 
 // encryptionKeyAlg extracts the alg field from a client's encryption key JWK.

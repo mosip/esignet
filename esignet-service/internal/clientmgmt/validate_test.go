@@ -494,6 +494,15 @@ func (ts *ValidateTestSuite) TestValidateAdditionalConfig() {
 		assert.Equal(t, "invalid_additional_config", errCode(t, err))
 	})
 
+	t.Run("valid id_token_response_type", func(t *testing.T) {
+		assert.NoError(t, validateAdditionalConfig(json.RawMessage(`{"id_token_response_type":"JWE"}`)))
+	})
+
+	t.Run("invalid id_token_response_type", func(t *testing.T) {
+		err := validateAdditionalConfig(json.RawMessage(`{"id_token_response_type":"XML"}`))
+		assert.Equal(t, "invalid_additional_config", errCode(t, err))
+	})
+
 	t.Run("consent_expire_in_mins too low", func(t *testing.T) {
 		err := validateAdditionalConfig(json.RawMessage(`{"consent_expire_in_mins":5}`))
 		assert.Equal(t, "invalid_additional_config", errCode(t, err))
