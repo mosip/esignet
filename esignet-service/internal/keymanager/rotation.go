@@ -24,7 +24,7 @@ func expiryFor(genTime time.Time, policy db.KeyPolicy) time.Time {
 // preExpireDays before its hard expiry, so a replacement starts being
 // generated ahead of the actual cutoff.
 func isCurrent(now, genTime, expiryTime time.Time, preExpireDays int) bool {
-	return now.After(genTime) && now.Before(expiryTime.AddDate(0, 0, -preExpireDays))
+	return !now.Before(genTime) && now.Before(expiryTime.AddDate(0, 0, -preExpireDays))
 }
 
 // uniqueIdentifier computes key_alias.uni_ident exactly as
