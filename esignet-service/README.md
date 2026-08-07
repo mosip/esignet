@@ -127,6 +127,9 @@ Set `LOG_LEVEL=debug` for verbose tracing.
 | `MOSIP_ESIGNET_OAUTH_AUTH_CODE_LIFETIME_SECONDS` | `120` | Authorization code lifetime |
 | `MOSIP_ESIGNET_OAUTH_ACCESS_TOKEN_LIFETIME_SECONDS` | `3600` | Access token lifetime |
 | `MOSIP_ESIGNET_OAUTH_PAR_EXPIRY_SECONDS` | `3600` | Pushed authorization request expiry |
+| `MOSIP_ESIGNET_CACHE_TYPE` | `redis` | Cache backend selector: `redis` loads the Redis config below; any other value skips it |
+| `MOSIP_ESIGNET_OAUTH_SUPPORTED_SIGNING_ALGORITHMS` | `PS256,ES256,ES256K,EdDSA` | Comma-separated JWS algorithms advertised/accepted for signing |
+| `MOSIP_ESIGNET_OAUTH_SUPPORTED_ENCRYPTION_ALGORITHMS` | `RSA-OAEP,RSA-OAEP-256` | Comma-separated JWE algorithms advertised/accepted for encryption |
 
 JWT signing and session/cache encryption are handled by the keymanager module (its own auto-provisioned keys — see [Key management](#key-management-keymanager)), not by a static key file. `./make.sh keys` still generates a local `keys/signing.key` / `keys/signing.crt` pair on every build/run as a legacy step; it is not currently consumed by any code path.
 
