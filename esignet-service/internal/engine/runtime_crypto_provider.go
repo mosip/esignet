@@ -46,8 +46,10 @@ const cryptomanagerSymmetricAlgorithm = "A256GCM"
 // defaultSymmetricEncryptReferenceID is the reference id Encrypt/Decrypt
 // fall back to for the symmetric (AES) path when a KeyRef doesn't specify
 // one — matches keymanager.Config's own default for
-// KEYMANAGER_SYMMETRIC_KEY_ALLOWED_REF_IDS (see keymanager/config.go).
-const defaultSymmetricEncryptReferenceID = "CACHE_ENCRYPT"
+// KEYMANAGER_SYMMETRIC_KEY_ALLOWED_REF_IDS (see keymanager/config.go), and
+// keymanager.RefIDCacheEncrypt, the same reference id
+// cmd/esignet/main.go's provisionKeyHierarchy provisions at startup.
+const defaultSymmetricEncryptReferenceID = keymanager.RefIDCacheEncrypt
 
 // defaultSignReferenceID is the reference id Sign/Verify/GetPublicKeys fall
 // back to when a KeyRef doesn't specify one — esignet's own EC sign key,
@@ -95,11 +97,8 @@ func NewRuntimeCryptoProvider(cfg *config.AppConfig, svc *keymanager.Service, si
 // referenceID resolves a KeyRef/PublicKeyFilter KeyID to the keymanager
 // reference id to operate on, defaulting to p.signReferenceID when unset.
 func (p *runtimeCryptoProvider) referenceID(keyID string) string {
-	if keyID != "" {
-		return p.signReferenceID
-	}
-	// TODO currently thumbprint passed as KID is not working, hence always return p.signReferenceID.
-	// Once the thumbprint is working, we can remove this and return keyID.
+	// TODO: a thumbprint supplied as the kid does not yet resolve to a reference id,
+	// so keyID is ignored and the configured signing key is always used.
 	return p.signReferenceID
 }
 
@@ -142,18 +141,32 @@ func (p *runtimeCryptoProvider) Encrypt(
 		return []byte(jsonResult), nil, nil
 
 	case "RSA-OAEP":
+		if keyRef == nil {
+			return nil, nil, fmt.Errorf("%w: a KeyRef is required for RSA-OAEP", providers.ErrKeyNotFound)
+		}
 		rsaPub, err := getPublicKey(*keyRef)
 		if err != nil {
 			return nil, nil, err
 		}
-		return encryptRSAOAEP(rsaPub.Key.(*rsa.PublicKey), params)
+		pub, ok := rsaPub.Key.(*rsa.PublicKey)
+		if !ok {
+			return nil, nil, fmt.Errorf("%w: RSA-OAEP requires an RSA jwk", providers.ErrUnsupportedAlgorithm)
+		}
+		return encryptRSAOAEP(pub, params)
 
 	case "RSA-OAEP-256":
+		if keyRef == nil {
+			return nil, nil, fmt.Errorf("%w: a KeyRef is required for RSA-OAEP-256", providers.ErrKeyNotFound)
+		}
 		rsaPub, err := getPublicKey(*keyRef)
 		if err != nil {
 			return nil, nil, err
 		}
-		return encryptRSAOAEP256(rsaPub.Key.(*rsa.PublicKey), params)
+		pub, ok := rsaPub.Key.(*rsa.PublicKey)
+		if !ok {
+			return nil, nil, fmt.Errorf("%w: RSA-OAEP-256 requires an RSA jwk", providers.ErrUnsupportedAlgorithm)
+		}
+		return encryptRSAOAEP256(pub, params)
 	default:
 		return nil, nil, fmt.Errorf("unsupported algorithm: %s", algorithm)
 	}
@@ -270,7 +283,7 @@ func (p *runtimeCryptoProvider) GetSupportedSigningAlgorithms() []string {
 
 // GetSupportedEncryptionAlgorithms returns the list of algorithms supported by Encrypt and Decrypt.
 func (p *runtimeCryptoProvider) GetSupportedEncryptionAlgorithms() []string {
-	return []string{cryptomanagerEnvelopeAlgorithm, cryptomanagerSymmetricAlgorithm}
+	return []string{"AES-GCM", "RSA-OAEP", "RSA-OAEP-256"}
 }
 
 func getPublicKey(keyRef providers.KeyRef) (*jose.JSONWebKey, error) {
@@ -298,10 +311,11 @@ func getPublicKey(keyRef providers.KeyRef) (*jose.JSONWebKey, error) {
 }
 
 func encryptRSAOAEP256(rsaPub *rsa.PublicKey, params map[string]interface{}) ([]byte, *providers.CryptoDetails, error) {
-	if params["contentEncryptionAlgorithm"] == "" {
+	cea, ok := params["contentEncryptionAlgorithm"].(string)
+	if !ok || cea == "" {
 		return nil, nil, errors.New("ContentEncryptionAlgorithm required for RSA-OAEP-256 CEK generation")
 	}
-	cekLen, err := contentEncKeyLen(params["contentEncryptionAlgorithm"].(string))
+	cekLen, err := contentEncKeyLen(cea)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -320,10 +334,11 @@ func encryptRSAOAEP256(rsaPub *rsa.PublicKey, params map[string]interface{}) ([]
 }
 
 func encryptRSAOAEP(rsaPub *rsa.PublicKey, params map[string]interface{}) ([]byte, *providers.CryptoDetails, error) {
-	if params["contentEncryptionAlgorithm"] == "" {
+	cea, ok := params["contentEncryptionAlgorithm"].(string)
+	if !ok || cea == "" {
 		return nil, nil, errors.New("ContentEncryptionAlgorithm required for RSA-OAEP CEK generation")
 	}
-	cekLen, err := contentEncKeyLen(params["contentEncryptionAlgorithm"].(string))
+	cekLen, err := contentEncKeyLen(cea)
 	if err != nil {
 		return nil, nil, err
 	}

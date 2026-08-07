@@ -166,8 +166,11 @@ Authorize redirects are sent to the Thunder gate client:
 | `KEYMANAGER_DB_SCHEMA` | `keymgr` | Postgres schema holding `key_alias` / `key_policy_def` / `key_store` (docker-compose's `esignet` schema, seeded via `key_policy_def` rows in `docker-compose/init.sql`) |
 | `KEYMANAGER_KEYSTORE_TYPE` | `PKCS11` | `PKCS11` (HSM/SoftHSM2 — requires a `CGO_ENABLED=1` build) or `PKCS12` (file-based; the only backend that works in the default `CGO_ENABLED=0` local build) |
 | `KEYMANAGER_PKCS12_FILE_PATH` / `KEYMANAGER_PKCS12_PASSWORD` | _(none)_ | Required when `KEYSTORE_TYPE=PKCS12` |
+| `KEYMANAGER_PKCS12_ALLOW_INSECURE_SOFTWARE_KEYSTORE` | `false` | Must be set to `true` to use `KEYSTORE_TYPE=PKCS12`; this backend stores private keys as PFX blobs in a plaintext-adjacent JSON file and is not suitable for production — see [`internal/keymanager/keystore/pkcs12`](internal/keymanager/keystore/pkcs12) |
 | `KEYMANAGER_PKCS11_MODULE_PATH`, `KEYMANAGER_PKCS11_TOKEN_LABEL` or `KEYMANAGER_PKCS11_SLOT_ID`, `KEYMANAGER_PKCS11_PIN` | _(none)_ | Required when `KEYSTORE_TYPE=PKCS11` |
+| `KEYMANAGER_PKCS11_SESSION_POOL_SIZE` | `4` | Number of concurrently open PKCS#11 sessions; caps how many signing/decryption operations the HSM backend can serve in parallel |
 | `KEYMANAGER_SYMMETRIC_KEY_ALLOWED_REF_IDS` | `CACHE_ENCRYPT` | Comma-separated allow-list for symmetric key generation; the default covers esignet's own cache/session encryption key only |
+| `KEYMANAGER_CERTIFICATE_ALLOWED_REF_IDS` | _(none)_ | Comma-separated allow-list for `GET /system-info/certificate`'s `referenceId`; ROOT/Component Master Key/EC sign reference ids are always allowed, but a Component Encryption Key `referenceId` is rejected unless listed here — otherwise any registered `applicationId` could mint unbounded RSA key pairs via unseen `referenceId` values |
 
 At startup, `main.go`'s `provisionKeyHierarchy` idempotently provisions (safe to run on every restart):
 
@@ -403,6 +406,7 @@ docker run --rm -p 8088:8088 \
   -e KEYMANAGER_KEYSTORE_TYPE=PKCS12 \
   -e KEYMANAGER_PKCS12_FILE_PATH=/opt/mosip/test.pfx \
   -e KEYMANAGER_PKCS12_PASSWORD=your-pkcs12-password \
+  -e KEYMANAGER_PKCS12_ALLOW_INSECURE_SOFTWARE_KEYSTORE=true \
   esignet:latest
 ```
 

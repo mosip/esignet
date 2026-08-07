@@ -122,6 +122,17 @@ var (
 const (
 	statusSuccess     = "success"
 	certificatePEMTag = "CERTIFICATE"
+
+	// RefIDCacheEncrypt is the reference id esignet's own runtime crypto
+	// provider (internal/engine/runtime_crypto_provider.go) defaults to for
+	// symmetric (AES) session/cache encryption, and the default
+	// provisionKeyHierarchy (cmd/esignet/main.go) uses to provision that
+	// key at startup — kept as a single exported constant so the two never
+	// drift apart; if they did, KEYMANAGER_SYMMETRIC_KEY_ALLOWED_REF_IDS
+	// could exclude the id the provider actually needs, and provisioning
+	// would fail with "reference id not in the configured symmetric key
+	// allow-list".
+	RefIDCacheEncrypt = "CACHE_ENCRYPT"
 )
 
 // Service implements the keymanager business logic.
@@ -417,6 +428,18 @@ func (s *Service) persistNewAlias(ctx context.Context, appID, refID, alias strin
 
 	if err := s.q.InsertKeyAlias(ctx, ka); err != nil {
 		if IsDuplicateUniIdent(err) {
+			// The key material written under alias is now unreferenced —
+			// drop it rather than orphaning it in the keystore. Only
+			// keystore-resident keys live in s.ks; the DB-resident
+			// (Component Encryption Key) key_store row already inserted by
+			// generateDBResidentKey is left in place — see the known gap
+			// noted in ensureCurrentKey's doc comment.
+			if isKeystoreResident(appID, refID) {
+				if derr := s.ks.DeleteKey(alias); derr != nil {
+					s.logger.Warn(ctx, "delete orphaned key after uni_ident conflict",
+						applog.String("keyId", alias), applog.Error(derr))
+				}
+			}
 			existing, rerr := s.currentAlias(ctx, appID, refID)
 			if rerr != nil {
 				return nil, rerr
@@ -502,7 +525,7 @@ func (s *Service) generateDBResidentKey(ctx context.Context, alias, masterAlias 
 		return fmt.Errorf("component master key %q does not support signing", masterAlias)
 	}
 
-	template, err := buildCertTemplate(params)
+	template, err := keystore.BuildCertificateTemplate(params)
 	if err != nil {
 		return err
 	}
@@ -966,7 +989,9 @@ func (s *Service) GetCertificateChain(ctx context.Context, appID, refID string) 
 	curAppID, curRefID := appID, refID
 	for curAppID != AppIDRoot {
 		var parentAppID, parentRefID string
-		if curRefID == RefIDRSA2048 {
+		if isKeystoreResident(curAppID, curRefID) {
+			// ROOT signs Component Master Keys and EC/ED25519 sign keys
+			// directly — mirrors resolveSignKeyAlias.
 			parentAppID, parentRefID = AppIDRoot, ""
 		} else {
 			parentAppID, parentRefID = curAppID, RefIDRSA2048
@@ -985,7 +1010,11 @@ func (s *Service) GetCertificateChain(ctx context.Context, appID, refID string) 
 		chain = append(chain, parentCert)
 		curAppID, curRefID = parentAppID, parentRefID
 	}
-	return CertificateChainResponse{CertificatesTrustPath: buildPKCS7TrustPath(chain), Timestamp: time.Now().UTC()}, nil
+	trustPath, err := buildPKCS7TrustPath(chain)
+	if err != nil {
+		return CertificateChainResponse{}, err
+	}
+	return CertificateChainResponse{CertificatesTrustPath: trustPath, Timestamp: time.Now().UTC()}, nil
 }
 
 func (s *Service) certificateForAliasByAppRef(ctx context.Context, appID, refID string, resident bool) (*x509.Certificate, error) {

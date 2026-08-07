@@ -37,8 +37,8 @@ func selfSignedCertPEM(t *testing.T, bits int) (certPEM string, priv *rsa.Privat
 	return string(pem.EncodeToMemory(block)), priv
 }
 
-func TestJWTEncryptDecryptRoundTrip(t *testing.T) {
-	env := newTestEnv(t, "TESTAPP")
+func (ts *CryptomanagerTestSuite) TestJWTEncryptDecryptRoundTrip() {
+	env := newTestEnv(ts.T(), "TESTAPP")
 	ctx := context.Background()
 	payload := []byte(`{"hello":"world"}`)
 
@@ -46,21 +46,21 @@ func TestJWTEncryptDecryptRoundTrip(t *testing.T) {
 		ApplicationID: env.AppID, ReferenceID: "JWE_ENC_KEY",
 		Data: base64.RawURLEncoding.EncodeToString(payload),
 	})
-	require.NoError(t, err)
-	require.NotEmpty(t, encResp.Data)
+	ts.Require().NoError(err)
+	ts.Require().NotEmpty(encResp.Data)
 
 	decResp, err := env.CM.JWTDecrypt(ctx, cryptomanager.JWTDecryptRequest{
 		ApplicationID: env.AppID, ReferenceID: "JWE_ENC_KEY", EncData: encResp.Data,
 	})
-	require.NoError(t, err)
+	ts.Require().NoError(err)
 
 	got, err := base64.RawURLEncoding.DecodeString(decResp.Data)
-	require.NoError(t, err)
-	require.JSONEq(t, string(payload), string(got))
+	ts.Require().NoError(err)
+	ts.Require().JSONEq(string(payload), string(got))
 }
 
-func TestJWTEncrypt_HeadersMatchRequestFlags(t *testing.T) {
-	env := newTestEnv(t, "TESTAPP")
+func (ts *CryptomanagerTestSuite) TestJWTEncrypt_HeadersMatchRequestFlags() {
+	env := newTestEnv(ts.T(), "TESTAPP")
 	ctx := context.Background()
 	payload := base64.RawURLEncoding.EncodeToString([]byte(`{"a":1}`))
 	includeCert := true
@@ -70,19 +70,19 @@ func TestJWTEncrypt_HeadersMatchRequestFlags(t *testing.T) {
 		ApplicationID: env.AppID, ReferenceID: "JWE_ENC_KEY_2", Data: payload,
 		IncludeCertificate: includeCert, IncludeCertHash: includeHash, JWKSetURL: "https://example.test/jwks",
 	})
-	require.NoError(t, err)
+	ts.Require().NoError(err)
 
 	jwe, err := jose.ParseEncryptedCompact(encResp.Data, []jose.KeyAlgorithm{jose.RSA_OAEP_256}, []jose.ContentEncryption{jose.A256GCM})
-	require.NoError(t, err)
-	require.NotEmpty(t, jwe.Header.KeyID)
+	ts.Require().NoError(err)
+	ts.Require().NotEmpty(jwe.Header.KeyID)
 	// go-jose treats "x5c" specially at parse time (available only via
 	// Header.Certificates(), which performs full chain verification) —
 	// excluded from ExtraHeaders by design, so it's checked here by
 	// decoding the raw protected header JSON directly instead.
-	protected := decodeProtectedHeader(t, encResp.Data)
-	require.Contains(t, protected, "x5c")
-	require.Contains(t, jwe.Header.ExtraHeaders, jose.HeaderKey("x5t#S256"))
-	require.Contains(t, jwe.Header.ExtraHeaders, jose.HeaderKey("jku"))
+	protected := decodeProtectedHeader(ts.T(), encResp.Data)
+	ts.Require().Contains(protected, "x5c")
+	ts.Require().Contains(jwe.Header.ExtraHeaders, jose.HeaderKey("x5t#S256"))
+	ts.Require().Contains(jwe.Header.ExtraHeaders, jose.HeaderKey("jku"))
 }
 
 // decodeProtectedHeader base64url-decodes and JSON-unmarshals a compact
@@ -98,9 +98,9 @@ func decodeProtectedHeader(t *testing.T, compact string) map[string]any {
 	return m
 }
 
-func TestJWTEncrypt_CallerSuppliedCertificateBypassesResolution(t *testing.T) {
-	env := newTestEnv(t, "TESTAPP")
-	certPEM, _ := selfSignedCertPEM(t, 2048)
+func (ts *CryptomanagerTestSuite) TestJWTEncrypt_CallerSuppliedCertificateBypassesResolution() {
+	env := newTestEnv(ts.T(), "TESTAPP")
+	certPEM, _ := selfSignedCertPEM(ts.T(), 2048)
 
 	// Neither ApplicationID nor ReferenceID correspond to anything
 	// provisioned in env — this must still succeed because X509Certificate
@@ -110,35 +110,35 @@ func TestJWTEncrypt_CallerSuppliedCertificateBypassesResolution(t *testing.T) {
 		Data:            base64.RawURLEncoding.EncodeToString([]byte(`{"x":true}`)),
 		X509Certificate: certPEM,
 	})
-	require.NoError(t, err)
-	require.NotEmpty(t, encResp.Data)
+	ts.Require().NoError(err)
+	ts.Require().NotEmpty(encResp.Data)
 	_ = env
 }
 
-func TestJWTEncrypt_RejectsNon2048BitCertificate(t *testing.T) {
-	env := newTestEnv(t, "TESTAPP")
-	certPEM, _ := selfSignedCertPEM(t, 3072)
+func (ts *CryptomanagerTestSuite) TestJWTEncrypt_RejectsNon2048BitCertificate() {
+	env := newTestEnv(ts.T(), "TESTAPP")
+	certPEM, _ := selfSignedCertPEM(ts.T(), 3072)
 
 	_, err := env.CM.JWTEncrypt(context.Background(), cryptomanager.JWTEncryptRequest{
 		ApplicationID: "NONEXISTENT", ReferenceID: "",
 		Data:            base64.RawURLEncoding.EncodeToString([]byte(`{"x":true}`)),
 		X509Certificate: certPEM,
 	})
-	require.ErrorIs(t, err, cryptomanager.ErrJWECertificateKeyLengthInvalid)
+	ts.Require().ErrorIs(err, cryptomanager.ErrJWECertificateKeyLengthInvalid)
 	_ = env
 }
 
-func TestJWTEncrypt_RejectsBlankApplicationID(t *testing.T) {
-	env := newTestEnv(t, "TESTAPP")
+func (ts *CryptomanagerTestSuite) TestJWTEncrypt_RejectsBlankApplicationID() {
+	env := newTestEnv(ts.T(), "TESTAPP")
 	_, err := env.CM.JWTEncrypt(context.Background(), cryptomanager.JWTEncryptRequest{
 		ApplicationID: "", ReferenceID: "JWE_ENC_KEY",
 		Data: base64.RawURLEncoding.EncodeToString([]byte(`{"a":1}`)),
 	})
-	require.ErrorIs(t, err, cryptomanager.ErrBlankApplicationID)
+	ts.Require().ErrorIs(err, cryptomanager.ErrBlankApplicationID)
 }
 
-func TestJWTEncrypt_ValidatesApplicationIDBeforeReferenceIDBeforeData(t *testing.T) {
-	env := newTestEnv(t, "TESTAPP")
+func (ts *CryptomanagerTestSuite) TestJWTEncrypt_ValidatesApplicationIDBeforeReferenceIDBeforeData() {
+	env := newTestEnv(ts.T(), "TESTAPP")
 	// All three invalid at once — ApplicationID must be reported first,
 	// exactly the ordering issue reported: running jwt-encrypt with
 	// neither -app nor -ref set previously surfaced "reference id is
@@ -146,16 +146,16 @@ func TestJWTEncrypt_ValidatesApplicationIDBeforeReferenceIDBeforeData(t *testing
 	_, err := env.CM.JWTEncrypt(context.Background(), cryptomanager.JWTEncryptRequest{
 		ApplicationID: "", ReferenceID: "", Data: "",
 	})
-	require.ErrorIs(t, err, cryptomanager.ErrBlankApplicationID)
+	ts.Require().ErrorIs(err, cryptomanager.ErrBlankApplicationID)
 
 	_, err = env.CM.JWTEncrypt(context.Background(), cryptomanager.JWTEncryptRequest{
 		ApplicationID: env.AppID, ReferenceID: "", Data: "",
 	})
-	require.ErrorIs(t, err, cryptomanager.ErrBlankReferenceID)
+	ts.Require().ErrorIs(err, cryptomanager.ErrBlankReferenceID)
 }
 
-func TestJWTEncrypt_ValidatesDataBeforeResolvingCertificate(t *testing.T) {
-	env := newTestEnv(t, "TESTAPP")
+func (ts *CryptomanagerTestSuite) TestJWTEncrypt_ValidatesDataBeforeResolvingCertificate() {
+	env := newTestEnv(ts.T(), "TESTAPP")
 	// "abc" has no key_policy_def row at all — resolving a certificate for
 	// it would fail with a DB-layer "application id not found" error. With
 	// invalid Data, that DB call must never happen: the Data error must
@@ -164,21 +164,21 @@ func TestJWTEncrypt_ValidatesDataBeforeResolvingCertificate(t *testing.T) {
 	_, err := env.CM.JWTEncrypt(context.Background(), cryptomanager.JWTEncryptRequest{
 		ApplicationID: "abc", ReferenceID: "565", Data: "",
 	})
-	require.ErrorIs(t, err, cryptomanager.ErrInvalidRequest)
-	require.NotContains(t, err.Error(), "key_policy_def")
-	require.NotContains(t, err.Error(), "resolve encryption certificate")
+	ts.Require().ErrorIs(err, cryptomanager.ErrInvalidRequest)
+	ts.Require().NotContains(err.Error(), "key_policy_def")
+	ts.Require().NotContains(err.Error(), "resolve encryption certificate")
 }
 
-func TestJWTEncrypt_RejectsBlankData(t *testing.T) {
-	env := newTestEnv(t, "TESTAPP")
+func (ts *CryptomanagerTestSuite) TestJWTEncrypt_RejectsBlankData() {
+	env := newTestEnv(ts.T(), "TESTAPP")
 	_, err := env.CM.JWTEncrypt(context.Background(), cryptomanager.JWTEncryptRequest{
 		ApplicationID: env.AppID, ReferenceID: "JWE_ENC_KEY_3", Data: "",
 	})
-	require.ErrorIs(t, err, cryptomanager.ErrInvalidRequest)
+	ts.Require().ErrorIs(err, cryptomanager.ErrInvalidRequest)
 }
 
-func TestJWTEncrypt_RejectsWhitespaceOnlyDecodedData(t *testing.T) {
-	env := newTestEnv(t, "TESTAPP")
+func (ts *CryptomanagerTestSuite) TestJWTEncrypt_RejectsWhitespaceOnlyDecodedData() {
+	env := newTestEnv(ts.T(), "TESTAPP")
 	for _, tc := range []struct {
 		name         string
 		plaintext    string
@@ -188,24 +188,24 @@ func TestJWTEncrypt_RejectsWhitespaceOnlyDecodedData(t *testing.T) {
 		{"two spaces, ValidateJSON=true", "  ", true},
 		{"tabs and newlines, ValidateJSON=false", "\t\n\t", false},
 	} {
-		t.Run(tc.name, func(t *testing.T) {
+		ts.T().Run(tc.name, func(t *testing.T) {
 			// The base64 STRING itself is well-formed and non-blank — only
 			// the decoded content is blank. Must be rejected regardless of
 			// ValidateJSON, since "nothing to encrypt" isn't a JSON-shape
 			// concern.
 			data := base64.RawURLEncoding.EncodeToString([]byte(tc.plaintext))
-			require.NotEmpty(t, data)
+			ts.Require().NotEmpty(data)
 
 			_, err := env.CM.JWTEncrypt(context.Background(), cryptomanager.JWTEncryptRequest{
 				ApplicationID: env.AppID, ReferenceID: "JWE_ENC_KEY_9", Data: data, ValidateJSON: tc.validateJSON,
 			})
-			require.ErrorIs(t, err, cryptomanager.ErrInvalidRequest)
+			ts.Require().ErrorIs(err, cryptomanager.ErrInvalidRequest)
 		})
 	}
 }
 
-func TestJWTEncrypt_AcceptsAlreadySignedJWSWithoutJSONValidation(t *testing.T) {
-	env := newTestEnv(t, "TESTAPP")
+func (ts *CryptomanagerTestSuite) TestJWTEncrypt_AcceptsAlreadySignedJWSWithoutJSONValidation() {
+	env := newTestEnv(ts.T(), "TESTAPP")
 	// 3 dot-separated segments — treated as already-signed JWS data, used
 	// as-is without base64-decoding or JSON validation.
 	jwsLike := "header.payload.signature"
@@ -213,29 +213,29 @@ func TestJWTEncrypt_AcceptsAlreadySignedJWSWithoutJSONValidation(t *testing.T) {
 	encResp, err := env.CM.JWTEncrypt(context.Background(), cryptomanager.JWTEncryptRequest{
 		ApplicationID: env.AppID, ReferenceID: "JWE_ENC_KEY_4", Data: jwsLike,
 	})
-	require.NoError(t, err)
+	ts.Require().NoError(err)
 
 	decResp, err := env.CM.JWTDecrypt(context.Background(), cryptomanager.JWTDecryptRequest{
 		ApplicationID: env.AppID, ReferenceID: "JWE_ENC_KEY_4", EncData: encResp.Data,
 	})
-	require.NoError(t, err)
+	ts.Require().NoError(err)
 	got, err := base64.RawURLEncoding.DecodeString(decResp.Data)
-	require.NoError(t, err)
-	require.Equal(t, jwsLike, string(got))
+	ts.Require().NoError(err)
+	ts.Require().Equal(jwsLike, string(got))
 }
 
-func TestJWTEncrypt_RejectsInvalidJSON_WhenValidateJSONTrue(t *testing.T) {
-	env := newTestEnv(t, "TESTAPP")
+func (ts *CryptomanagerTestSuite) TestJWTEncrypt_RejectsInvalidJSON_WhenValidateJSONTrue() {
+	env := newTestEnv(ts.T(), "TESTAPP")
 	_, err := env.CM.JWTEncrypt(context.Background(), cryptomanager.JWTEncryptRequest{
 		ApplicationID: env.AppID, ReferenceID: "JWE_ENC_KEY_5",
 		Data:         base64.RawURLEncoding.EncodeToString([]byte("not json at all")),
 		ValidateJSON: true,
 	})
-	require.ErrorIs(t, err, cryptomanager.ErrInvalidJSON)
+	ts.Require().ErrorIs(err, cryptomanager.ErrInvalidJSON)
 }
 
-func TestJWTEncrypt_AllowsNonJSON_WhenValidateJSONFalse(t *testing.T) {
-	env := newTestEnv(t, "TESTAPP")
+func (ts *CryptomanagerTestSuite) TestJWTEncrypt_AllowsNonJSON_WhenValidateJSONFalse() {
+	env := newTestEnv(ts.T(), "TESTAPP")
 	ctx := context.Background()
 	plaintext := "not json at all"
 
@@ -244,47 +244,47 @@ func TestJWTEncrypt_AllowsNonJSON_WhenValidateJSONFalse(t *testing.T) {
 		Data:         base64.RawURLEncoding.EncodeToString([]byte(plaintext)),
 		ValidateJSON: false,
 	})
-	require.NoError(t, err)
+	ts.Require().NoError(err)
 
 	decResp, err := env.CM.JWTDecrypt(ctx, cryptomanager.JWTDecryptRequest{
 		ApplicationID: env.AppID, ReferenceID: "JWE_ENC_KEY_8", EncData: encResp.Data,
 	})
-	require.NoError(t, err)
+	ts.Require().NoError(err)
 	got, err := base64.RawURLEncoding.DecodeString(decResp.Data)
-	require.NoError(t, err)
-	require.Equal(t, plaintext, string(got))
+	ts.Require().NoError(err)
+	ts.Require().Equal(plaintext, string(got))
 }
 
-func TestJWTDecrypt_RejectsInvalidCompactSerialization(t *testing.T) {
-	env := newTestEnv(t, "TESTAPP")
+func (ts *CryptomanagerTestSuite) TestJWTDecrypt_RejectsInvalidCompactSerialization() {
+	env := newTestEnv(ts.T(), "TESTAPP")
 	_, err := env.CM.JWTDecrypt(context.Background(), cryptomanager.JWTDecryptRequest{
 		ApplicationID: env.AppID, ReferenceID: "JWE_ENC_KEY_6", EncData: "not.a.valid.jwe.token",
 	})
-	require.ErrorIs(t, err, cryptomanager.ErrJWEInvalidCompactSerialization)
+	ts.Require().ErrorIs(err, cryptomanager.ErrJWEInvalidCompactSerialization)
 }
 
-func TestJWTDecrypt_RejectsBlankApplicationID(t *testing.T) {
-	env := newTestEnv(t, "TESTAPP")
+func (ts *CryptomanagerTestSuite) TestJWTDecrypt_RejectsBlankApplicationID() {
+	env := newTestEnv(ts.T(), "TESTAPP")
 	_, err := env.CM.JWTDecrypt(context.Background(), cryptomanager.JWTDecryptRequest{
 		ApplicationID: "", ReferenceID: "JWE_ENC_KEY", EncData: "irrelevant",
 	})
-	require.ErrorIs(t, err, cryptomanager.ErrBlankApplicationID)
+	ts.Require().ErrorIs(err, cryptomanager.ErrBlankApplicationID)
 }
 
-func TestJWTDecrypt_RejectsBlankEncData(t *testing.T) {
-	env := newTestEnv(t, "TESTAPP")
+func (ts *CryptomanagerTestSuite) TestJWTDecrypt_RejectsBlankEncData() {
+	env := newTestEnv(ts.T(), "TESTAPP")
 	_, err := env.CM.JWTDecrypt(context.Background(), cryptomanager.JWTDecryptRequest{
 		ApplicationID: env.AppID, ReferenceID: "JWE_ENC_KEY_7", EncData: "",
 	})
-	require.ErrorIs(t, err, cryptomanager.ErrInvalidRequest)
+	ts.Require().ErrorIs(err, cryptomanager.ErrInvalidRequest)
 }
 
 // TestJWTDecrypt_RejectsTamperedCiphertext exercises the GCM-auth-failure
 // branch of JWTDecrypt: flipping a bit in the compact JWE's ciphertext
 // segment must fail decryption with ErrJWEDecryptFailed, not silently
 // succeed or panic.
-func TestJWTDecrypt_RejectsTamperedCiphertext(t *testing.T) {
-	env := newTestEnv(t, "TESTAPP")
+func (ts *CryptomanagerTestSuite) TestJWTDecrypt_RejectsTamperedCiphertext() {
+	env := newTestEnv(ts.T(), "TESTAPP")
 	ctx := context.Background()
 	payload := []byte(`{"hello":"world"}`)
 
@@ -292,13 +292,13 @@ func TestJWTDecrypt_RejectsTamperedCiphertext(t *testing.T) {
 		ApplicationID: env.AppID, ReferenceID: "JWE_ENC_KEY",
 		Data: base64.RawURLEncoding.EncodeToString(payload),
 	})
-	require.NoError(t, err)
+	ts.Require().NoError(err)
 
 	segments := strings.Split(encResp.Data, ".")
-	require.Len(t, segments, 5, "compact JWE must be 5 dot-separated segments")
+	ts.Require().Len(segments, 5, "compact JWE must be 5 dot-separated segments")
 	ciphertext, err := base64.RawURLEncoding.DecodeString(segments[3])
-	require.NoError(t, err)
-	require.NotEmpty(t, ciphertext)
+	ts.Require().NoError(err)
+	ts.Require().NotEmpty(ciphertext)
 	ciphertext[0] ^= 0xFF // flip a bit — must break GCM authentication
 	segments[3] = base64.RawURLEncoding.EncodeToString(ciphertext)
 	tampered := strings.Join(segments, ".")
@@ -306,15 +306,15 @@ func TestJWTDecrypt_RejectsTamperedCiphertext(t *testing.T) {
 	_, err = env.CM.JWTDecrypt(ctx, cryptomanager.JWTDecryptRequest{
 		ApplicationID: env.AppID, ReferenceID: "JWE_ENC_KEY", EncData: tampered,
 	})
-	require.ErrorIs(t, err, cryptomanager.ErrJWEDecryptFailed)
+	ts.Require().ErrorIs(err, cryptomanager.ErrJWEDecryptFailed)
 }
 
 // TestJWTDecrypt_RejectsReferenceIDMismatch exercises the kid/thumbprint
 // mismatch branch: decrypting a valid JWE under a ReferenceID other than the
 // one its key was generated for must fail, not silently decrypt under the
 // wrong key's identity.
-func TestJWTDecrypt_RejectsReferenceIDMismatch(t *testing.T) {
-	env := newTestEnv(t, "TESTAPP")
+func (ts *CryptomanagerTestSuite) TestJWTDecrypt_RejectsReferenceIDMismatch() {
+	env := newTestEnv(ts.T(), "TESTAPP")
 	ctx := context.Background()
 	payload := []byte(`{"hello":"world"}`)
 
@@ -322,10 +322,10 @@ func TestJWTDecrypt_RejectsReferenceIDMismatch(t *testing.T) {
 		ApplicationID: env.AppID, ReferenceID: "JWE_ENC_KEY",
 		Data: base64.RawURLEncoding.EncodeToString(payload),
 	})
-	require.NoError(t, err)
+	ts.Require().NoError(err)
 
 	_, err = env.CM.JWTDecrypt(ctx, cryptomanager.JWTDecryptRequest{
 		ApplicationID: env.AppID, ReferenceID: "JWE_ENC_KEY_OTHER", EncData: encResp.Data,
 	})
-	require.ErrorIs(t, err, cryptomanager.ErrKeyIdentifierMismatch)
+	ts.Require().ErrorIs(err, cryptomanager.ErrKeyIdentifierMismatch)
 }

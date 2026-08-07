@@ -114,6 +114,19 @@ type Config struct {
 	// default (PARTNER, IDA) rather than requiring explicit configuration.
 	// Env: KEYMANAGER_FOREIGN_DOMAIN_ALLOWED_APP_IDS — comma-separated, default "PARTNER,IDA"
 	ForeignDomainAllowedAppIDs []string
+
+	// CertificateAllowedRefIDs lists the reference ids permitted for
+	// GetCertificate/GenerateCSR's on-demand Component Encryption Key
+	// generation (see IsAllowedCertificateRefID in service.go). ROOT and the
+	// fixed Component Master Key/EC sign reference ids are always allowed —
+	// only the open-ended Component Encryption Key case is gated by this
+	// list, since GetCertificate mints a brand new key pair for any
+	// (applicationId, referenceId) pair it hasn't seen before, and
+	// GetCertificate's HTTP handler takes referenceId directly from the
+	// caller. Unset (the default) allows none, so this must be configured
+	// explicitly before any Component Encryption Key can be generated.
+	// Env: KEYMANAGER_CERTIFICATE_ALLOWED_REF_IDS — comma-separated, e.g. "ZK_ENCRYPT,VID_ENCRYPT" — default ""
+	CertificateAllowedRefIDs []string
 }
 
 // LoadConfig reads keymanager service settings from the environment.
@@ -129,9 +142,15 @@ func LoadConfig() Config {
 			"slot-id":                    os.Getenv("KEYMANAGER_PKCS11_SLOT_ID"),
 			"pin":                        os.Getenv("KEYMANAGER_PKCS11_PIN"),
 			"enable-key-reference-cache": envOrDefault("KEYMANAGER_PKCS11_ENABLE_KEY_REFERENCE_CACHE", "true"),
+			"session-pool-size":          os.Getenv("KEYMANAGER_PKCS11_SESSION_POOL_SIZE"),
 			// PKCS#12
 			"config-path":   os.Getenv("KEYMANAGER_PKCS12_FILE_PATH"),
 			"keystore-pass": os.Getenv("KEYMANAGER_PKCS12_PASSWORD"),
+			// allow-insecure-software-keystore is a required opt-in: the
+			// PKCS#12 backend stores private keys as base64 PFX blobs in a
+			// plaintext-adjacent JSON file and must never be selected by
+			// accident in production. Defaults to "false" (disabled).
+			"allow-insecure-software-keystore": envOrDefault("KEYMANAGER_PKCS12_ALLOW_INSECURE_SOFTWARE_KEYSTORE", "false"),
 		},
 
 		CertCommonName:       envOrDefault("KEYMANAGER_CERT_CN", defaultCertCommonName),
@@ -147,6 +166,7 @@ func LoadConfig() Config {
 		SymmetricKeyAllowedRefIDs: splitAndTrim(envOrDefault("KEYMANAGER_SYMMETRIC_KEY_ALLOWED_REF_IDS", "CACHE_ENCRYPT")),
 
 		ForeignDomainAllowedAppIDs: splitAndTrim(envOrDefault("KEYMANAGER_FOREIGN_DOMAIN_ALLOWED_APP_IDS", defaultForeignDomainAllowedAppIDs)),
+		CertificateAllowedRefIDs:   splitAndTrim(os.Getenv("KEYMANAGER_CERTIFICATE_ALLOWED_REF_IDS")),
 	}
 }
 

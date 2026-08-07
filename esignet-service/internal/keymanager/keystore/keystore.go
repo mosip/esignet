@@ -7,8 +7,11 @@ package keystore
 
 import (
 	"crypto"
+	"crypto/rand"
 	"crypto/x509"
+	"crypto/x509/pkix"
 	"fmt"
+	"math/big"
 	"time"
 )
 
@@ -23,6 +26,35 @@ type CertificateParameters struct {
 	Country          string
 	NotBefore        time.Time
 	NotAfter         time.Time
+}
+
+// BuildCertificateTemplate builds the *x509.Certificate template used for
+// every key generated through this port — the PKCS#11 backend, the PKCS#12
+// backend, and the keymanager package's own DB-resident (Component
+// Encryption) key path all call this instead of keeping their own copies, so
+// subject encoding and key usage cannot drift apart between them.
+//
+// ExtKeyUsage is deliberately left unset: these are eSignet signing and
+// encryption keys, not TLS server/client certificates.
+func BuildCertificateTemplate(params CertificateParameters) (*x509.Certificate, error) {
+	serial, err := rand.Int(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
+	if err != nil {
+		return nil, fmt.Errorf("keystore: generate serial: %w", err)
+	}
+	return &x509.Certificate{
+		SerialNumber: serial,
+		Subject: pkix.Name{
+			CommonName:         params.CommonName,
+			OrganizationalUnit: []string{params.OrganizationUnit},
+			Organization:       []string{params.Organization},
+			Locality:           []string{params.Location},
+			Province:           []string{params.State},
+			Country:            []string{params.Country},
+		},
+		NotBefore: params.NotBefore,
+		NotAfter:  params.NotAfter,
+		KeyUsage:  x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
+	}, nil
 }
 
 // KeyPairEntry bundles a private key with its certificate (and any
@@ -69,6 +101,12 @@ type KeyStore interface {
 	DeleteKey(alias string) error
 	StoreCertificate(alias string, privateKey crypto.PrivateKey, cert *x509.Certificate) error
 	ProviderName() string
+
+	// Close releases backend resources (PKCS#11 sessions/module handles,
+	// open file descriptors, etc). Callers should invoke it once during
+	// service shutdown. Backends with nothing to release implement it as a
+	// no-op that returns nil.
+	Close() error
 }
 
 // Factory constructs a KeyStore backend from its configuration parameters.

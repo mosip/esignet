@@ -4,20 +4,18 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
-
 	"github.com/mosip/esignet/internal/keymanager"
 	"github.com/mosip/esignet/internal/keymanager/db"
 )
 
-func TestExpiryFor(t *testing.T) {
+func (ts *KeymanagerTestSuite) TestExpiryFor() {
 	gen := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
 	policy := db.KeyPolicy{KeyValidityDuration: 730}
 	got := keymanager.ExpiryFor(gen, policy)
-	assert.Equal(t, time.Date(2028, 1, 1, 0, 0, 0, 0, time.UTC), got)
+	ts.Assert().Equal(time.Date(2028, 1, 1, 0, 0, 0, 0, time.UTC), got)
 }
 
-func TestIsCurrent(t *testing.T) {
+func (ts *KeymanagerTestSuite) TestIsCurrent() {
 	gen := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
 	expiry := time.Date(2028, 1, 1, 0, 0, 0, 0, time.UTC) // 730 days validity
 	preExpireDays := 30
@@ -35,9 +33,9 @@ func TestIsCurrent(t *testing.T) {
 		{"past hard expiry", expiry.Add(time.Hour), false},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		ts.T().Run(tt.name, func(t *testing.T) {
 			got := keymanager.IsCurrent(tt.now, gen, expiry, preExpireDays)
-			assert.Equal(t, tt.want, got)
+			ts.Assert().Equal(tt.want, got)
 		})
 	}
 }
@@ -45,17 +43,17 @@ func TestIsCurrent(t *testing.T) {
 // TestUniqueIdentifier pins the hash formula against independently computed
 // (via `shasum -a1`, not the code under test) SHA1 values, catching any
 // drift in the date format or hex/case conversion.
-func TestUniqueIdentifier(t *testing.T) {
+func (ts *KeymanagerTestSuite) TestUniqueIdentifier() {
 	date := time.Date(2026, 7, 6, 0, 0, 0, 0, time.UTC)
 	got := keymanager.UniqueIdentifier("ROOT", "", date)
-	assert.Equal(t, "6926E251F1E7578CFFDA583E0DC7B38C1DE2C642", got)
+	ts.Assert().Equal("6926E251F1E7578CFFDA583E0DC7B38C1DE2C642", got)
 
 	date2 := time.Date(2030, 1, 15, 0, 0, 0, 0, time.UTC)
 	got2 := keymanager.UniqueIdentifier("ESIGNET_RSA", "RSA_2048", date2)
-	assert.Equal(t, "32981FDB2FC4B3360CCC4ED7F3D6E03A4EECA371", got2)
+	ts.Assert().Equal("32981FDB2FC4B3360CCC4ED7F3D6E03A4EECA371", got2)
 }
 
-func TestIsDuplicateUniIdent(t *testing.T) {
+func (ts *KeymanagerTestSuite) TestIsDuplicateUniIdent() {
 	tests := []struct {
 		name string
 		err  error
@@ -67,8 +65,8 @@ func TestIsDuplicateUniIdent(t *testing.T) {
 		{"uni_ident conflict", assertErr("pq: duplicate key value violates unique constraint \"uni_ident_const\" (SQLSTATE 23505)"), true},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, keymanager.IsDuplicateUniIdent(tt.err))
+		ts.T().Run(tt.name, func(t *testing.T) {
+			ts.Assert().Equal(tt.want, keymanager.IsDuplicateUniIdent(tt.err))
 		})
 	}
 }

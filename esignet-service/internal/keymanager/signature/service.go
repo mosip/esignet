@@ -26,6 +26,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/ed25519"
 	"crypto/rsa"
+	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -323,13 +324,25 @@ func (s *Service) JWSVerify(ctx context.Context, req JWSVerifyRequest) (JWSVerif
 		return JWSVerifyResponse{}, fmt.Errorf("%w: header is not valid base64url", ErrMalformedJWS)
 	}
 	var hdr struct {
-		Alg string `json:"alg"`
+		Alg  string   `json:"alg"`
+		Crit []string `json:"crit"`
 	}
 	if err := json.Unmarshal(rawHeader, &hdr); err != nil {
 		return JWSVerifyResponse{}, fmt.Errorf("%w: header is not valid JSON", ErrMalformedJWS)
 	}
 	if hdr.Alg == "" {
 		return JWSVerifyResponse{}, fmt.Errorf("%w: header has no alg", ErrMalformedJWS)
+	}
+	// RFC 7515 §4.1.11: a verifier MUST reject a JWS whose crit list names a
+	// header parameter it doesn't understand/process. "b64" (RFC 7797) is
+	// the only extension this package produces (buildHeader) or interprets;
+	// the payload-segment handling below already applies b64=false semantics
+	// unconditionally (payloadSegment is used verbatim either way), so no
+	// further branching is needed once crit is validated.
+	for _, c := range hdr.Crit {
+		if c != "b64" {
+			return JWSVerifyResponse{}, fmt.Errorf("%w: unsupported critical header parameter %q", ErrMalformedJWS, c)
+		}
 	}
 
 	if req.ActualData != "" {
@@ -368,34 +381,59 @@ func (s *Service) JWSVerify(ctx context.Context, req JWSVerifyRequest) (JWSVerif
 // JWS/JWT header and payload and only need the detached signature back. alg,
 // if empty, defaults the same way JWSSign does (algorithmForRefID(refID)).
 func (s *Service) SignRaw(ctx context.Context, appID, refID, alg string, signingInput []byte) ([]byte, error) {
-	if strings.TrimSpace(appID) == "" {
-		return nil, ErrBlankApplicationID
-	}
-	if appID != keymanager.AppIDRoot && strings.TrimSpace(refID) == "" {
-		return nil, ErrBlankReferenceID
-	}
-	if err := s.validateSigningKeyTier(appID, refID); err != nil {
-		return nil, err
-	}
 	if alg == "" {
 		alg = algorithmForRefID(refID)
+	}
+	cert, signer, err := s.ResolveSigner(ctx, appID, refID)
+	if err != nil {
+		return nil, err
+	}
+	return s.SignWithKey(signer, cert.PublicKey, alg, signingInput)
+}
+
+// ResolveSigner resolves the current signing key for (appID, refID) — the
+// same resolution SignRaw performs internally — and returns its certificate
+// together with a crypto.Signer view of the private key. Use this plus
+// SignWithKey, instead of a separate GetCertificate + SignRaw pair, when the
+// caller must build something from the certificate (e.g. an x5c header)
+// before it has the signing input to pass to SignRaw: two independent
+// resolutions can straddle a key rotation, so a certificate fetched
+// separately may not match the key SignRaw signs with, producing a
+// signature that doesn't validate against the attached certificate.
+func (s *Service) ResolveSigner(ctx context.Context, appID, refID string) (*x509.Certificate, crypto.Signer, error) {
+	if strings.TrimSpace(appID) == "" {
+		return nil, nil, ErrBlankApplicationID
+	}
+	if appID != keymanager.AppIDRoot && strings.TrimSpace(refID) == "" {
+		return nil, nil, ErrBlankReferenceID
+	}
+	if err := s.validateSigningKeyTier(appID, refID); err != nil {
+		return nil, nil, err
 	}
 
 	sc, err := s.km.GetSigningCertificate(ctx, appID, refID)
 	if err != nil {
-		return nil, fmt.Errorf("resolve signing certificate: %w", err)
+		return nil, nil, fmt.Errorf("resolve signing certificate: %w", err)
 	}
 	if sc.KeyPairEntry == nil || sc.KeyPairEntry.Certificate == nil {
-		return nil, fmt.Errorf("%w: signing key has no certificate", ErrCertificateNotValid)
+		return nil, nil, fmt.Errorf("%w: signing key has no certificate", ErrCertificateNotValid)
 	}
 	if err := checkCertValidity(sc.KeyPairEntry.Certificate, time.Now().UTC()); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	signer, ok := sc.KeyPairEntry.PrivateKey.(crypto.Signer)
 	if !ok {
-		return nil, fmt.Errorf("%w: resolved private key does not support signing", ErrSignFailed)
+		return nil, nil, fmt.Errorf("%w: resolved private key does not support signing", ErrSignFailed)
 	}
-	if err := validateAlgorithmForKey(alg, sc.KeyPairEntry.Certificate.PublicKey); err != nil {
+	return sc.KeyPairEntry.Certificate, signer, nil
+}
+
+// SignWithKey signs signingInput with signer using alg, validating alg
+// against pub first — pub is normally the PublicKey of the certificate
+// ResolveSigner returned alongside signer, so the two must come from the
+// same ResolveSigner call.
+func (s *Service) SignWithKey(signer crypto.Signer, pub crypto.PublicKey, alg string, signingInput []byte) ([]byte, error) {
+	if err := validateAlgorithmForKey(alg, pub); err != nil {
 		return nil, err
 	}
 	return signDigest(signer, alg, signingInput)
@@ -447,6 +485,16 @@ func (s *Service) VerifyWithJWK(_ context.Context, jwk, alg string, signingInput
 	if !pub.IsPublic() {
 		return fmt.Errorf("%w: jwk does not resolve to a public key", ErrVerifyCertificateNotFound)
 	}
+	// Bind verification to the algorithm the key owner published, not the
+	// one the caller (often deriving alg from an untrusted token header)
+	// asks for — otherwise a JWKS entry published for one algorithm (e.g.
+	// PS256) could be used to verify a token claiming another (e.g. RS256).
+	if key.Algorithm != "" && key.Algorithm != alg {
+		return fmt.Errorf("%w: jwk declares alg %q, requested %q", ErrUnsupportedAlgorithm, key.Algorithm, alg)
+	}
+	if key.Use != "" && key.Use != "sig" {
+		return fmt.Errorf("%w: jwk use is %q, not \"sig\"", ErrUnsupportedAlgorithm, key.Use)
+	}
 
 	return verifySignature(alg, pub.Key, signingInput, sig)
 }
@@ -454,5 +502,5 @@ func (s *Service) VerifyWithJWK(_ context.Context, jwk, alg string, signingInput
 // SupportedAlgorithms lists the JWS algorithm identifiers SignRaw/VerifyRaw
 // (and, transitively, JWSSign/JWSVerify) support.
 func SupportedAlgorithms() []string {
-	return []string{algPS256, algRS256, algES256, algES256K, algEdDSA}
+	return []string{algPS256, algES256, algES256K, algEdDSA}
 }

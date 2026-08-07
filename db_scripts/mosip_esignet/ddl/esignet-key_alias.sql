@@ -30,6 +30,8 @@ CREATE TABLE key_alias(
     CONSTRAINT uni_ident_const UNIQUE (uni_ident)
 );
 
+CREATE INDEX idx_key_alias_cert_thumbprint ON key_alias(cert_thumbprint);
+
 -- COMMENT ON TABLE key_alias IS 'Contains key alias and  metadata of all the keys used in MOSIP system.';
 -- COMMENT ON COLUMN key_alias.id IS 'Unique identifier (UUID) used for referencing keys in key_store table and HSM';
 -- COMMENT ON COLUMN key_alias.app_id IS 'To reference a Module key';

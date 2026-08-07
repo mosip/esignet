@@ -17,8 +17,11 @@ import (
 // prefix for each supported hash, per PKCS#1 v1.5 (used with CKM_RSA_PKCS,
 // which performs only the raw RSA private-key operation and expects the
 // caller to supply the full DigestInfo structure).
+// crypto.SHA1 is deliberately not supported: SHA-1 is collision-broken and
+// does not meet MOSIP's SHA-256 signature baseline. If a partner integration
+// documents a hard SHA-1 interoperability requirement, gate it behind
+// explicit, audited configuration rather than re-adding it unconditionally.
 var digestInfoPrefixes = map[crypto.Hash][]byte{
-	crypto.SHA1:   {0x30, 0x21, 0x30, 0x09, 0x06, 0x05, 0x2b, 0x0e, 0x03, 0x02, 0x1a, 0x05, 0x00, 0x04, 0x14},
 	crypto.SHA224: {0x30, 0x2d, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x04, 0x05, 0x00, 0x04, 0x1c},
 	crypto.SHA256: {0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01, 0x05, 0x00, 0x04, 0x20},
 	crypto.SHA384: {0x30, 0x41, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x02, 0x05, 0x00, 0x04, 0x30},
@@ -161,6 +164,9 @@ func (k *privateKey) signECDSA(digest []byte) ([]byte, error) {
 	}
 	// PKCS#11 CKM_ECDSA returns raw r||s (each half the field size); Go's
 	// x509/ecdsa signature encoding expects an ASN.1 SEQUENCE{r, s}.
+	if len(raw) == 0 || len(raw)%2 != 0 {
+		return nil, fmt.Errorf("pkcs11: CKM_ECDSA returned %d bytes, want a non-empty even-length r||s", len(raw))
+	}
 	half := len(raw) / 2
 	r := new(big.Int).SetBytes(raw[:half])
 	s := new(big.Int).SetBytes(raw[half:])

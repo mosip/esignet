@@ -91,6 +91,7 @@ CREATE TABLE esignet.key_alias(
     CONSTRAINT pk_keymals_id PRIMARY KEY (id),
     CONSTRAINT uni_ident_const UNIQUE (uni_ident)
 );
+CREATE INDEX idx_key_alias_cert_thumbprint ON esignet.key_alias(cert_thumbprint);
 
 CREATE TABLE esignet.key_policy_def(
     app_id varchar(36) NOT NULL,

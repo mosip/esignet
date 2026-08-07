@@ -5,8 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/mosip/esignet/internal/keymanager"
 	"github.com/mosip/esignet/internal/keymanager/cryptomanager"
 	"github.com/mosip/esignet/internal/keymanager/db"
@@ -28,48 +26,48 @@ func newBareCryptomanagerService(t *testing.T) (*cryptomanager.Service, *memQuer
 
 func strPtr(s string) *string { return &s }
 
-func TestResolveDecryptionKey_ThumbprintNotFound(t *testing.T) {
-	svc, _ := newBareCryptomanagerService(t)
+func (ts *CryptomanagerTestSuite) TestResolveDecryptionKey_ThumbprintNotFound() {
+	svc, _ := newBareCryptomanagerService(ts.T())
 	_, _, err := cryptomanager.ResolveDecryptionKey(svc, context.Background(), "TESTAPP", "ENC_KEY", "deadbeef")
-	require.ErrorIs(t, err, cryptomanager.ErrKeyNotFoundForThumbprint)
+	ts.Require().ErrorIs(err, cryptomanager.ErrKeyNotFoundForThumbprint)
 }
 
-func TestResolveDecryptionKey_AppRefMismatch(t *testing.T) {
-	svc, q := newBareCryptomanagerService(t)
+func (ts *CryptomanagerTestSuite) TestResolveDecryptionKey_AppRefMismatch() {
+	svc, q := newBareCryptomanagerService(ts.T())
 	now := time.Now().UTC()
-	require.NoError(t, q.InsertKeyAlias(context.Background(), db.KeyAlias{
+	ts.Require().NoError(q.InsertKeyAlias(context.Background(), db.KeyAlias{
 		ID: "alias-1", AppID: "OTHERAPP", RefID: strPtr("OTHER_ENC_KEY"),
 		KeyGenDtimes: &now, CertThumbprint: strPtr("aabbcc"), UniIdent: strPtr("u1"),
 	}))
 
 	_, _, err := cryptomanager.ResolveDecryptionKey(svc, context.Background(), "TESTAPP", "ENC_KEY", "aabbcc")
-	require.ErrorIs(t, err, cryptomanager.ErrKeyIdentifierMismatch)
-	require.NotContains(t, err.Error(), "OTHERAPP")
-	require.NotContains(t, err.Error(), "OTHER_ENC_KEY")
+	ts.Require().ErrorIs(err, cryptomanager.ErrKeyIdentifierMismatch)
+	ts.Require().NotContains(err.Error(), "OTHERAPP")
+	ts.Require().NotContains(err.Error(), "OTHER_ENC_KEY")
 }
 
-func TestResolveDecryptionKey_RejectsKeystoreResidentResult(t *testing.T) {
-	svc, q := newBareCryptomanagerService(t)
+func (ts *CryptomanagerTestSuite) TestResolveDecryptionKey_RejectsKeystoreResidentResult() {
+	svc, q := newBareCryptomanagerService(ts.T())
 	now := time.Now().UTC()
 	// A Component Master Key row (RefID=RSA_2048) — keystore-resident.
-	require.NoError(t, q.InsertKeyAlias(context.Background(), db.KeyAlias{
+	ts.Require().NoError(q.InsertKeyAlias(context.Background(), db.KeyAlias{
 		ID: "master-alias", AppID: "TESTAPP", RefID: strPtr(keymanager.RefIDRSA2048),
 		KeyGenDtimes: &now, CertThumbprint: strPtr("ffeedd"), UniIdent: strPtr("u2"),
 	}))
 
 	_, _, err := cryptomanager.ResolveDecryptionKey(svc, context.Background(), "TESTAPP", keymanager.RefIDRSA2048, "ffeedd")
-	require.ErrorIs(t, err, cryptomanager.ErrDecryptionNotAllowed)
-	require.NotContains(t, err.Error(), "master-alias")
+	ts.Require().ErrorIs(err, cryptomanager.ErrDecryptionNotAllowed)
+	ts.Require().NotContains(err.Error(), "master-alias")
 }
 
-func TestResolveDecryptionKey_RejectsForeignDomainKey(t *testing.T) {
-	svc, q := newBareCryptomanagerService(t)
+func (ts *CryptomanagerTestSuite) TestResolveDecryptionKey_RejectsForeignDomainKey() {
+	svc, q := newBareCryptomanagerService(ts.T())
 	now := time.Now().UTC()
-	require.NoError(t, q.InsertKeyAlias(context.Background(), db.KeyAlias{
+	ts.Require().NoError(q.InsertKeyAlias(context.Background(), db.KeyAlias{
 		ID: "foreign-alias", AppID: "PARTNER", RefID: strPtr("RSA_2048"),
 		KeyGenDtimes: &now, CertThumbprint: strPtr("112233"), UniIdent: strPtr("u3"),
 	}))
-	require.NoError(t, q.InsertKeyStoreRecord(context.Background(), db.KeyStoreRecord{
+	ts.Require().NoError(q.InsertKeyStoreRecord(context.Background(), db.KeyStoreRecord{
 		ID: "foreign-alias", CertificateData: "irrelevant", PrivateKey: "NA", MasterKey: strPtr("foreign-alias"),
 	}))
 
@@ -80,20 +78,20 @@ func TestResolveDecryptionKey_RejectsForeignDomainKey(t *testing.T) {
 	// Component Master Key. See the non-master-refID case below for the
 	// "NA" check itself.
 	_, _, err := cryptomanager.ResolveDecryptionKey(svc, context.Background(), "PARTNER", "RSA_2048", "112233")
-	require.ErrorIs(t, err, cryptomanager.ErrDecryptionNotAllowed)
+	ts.Require().ErrorIs(err, cryptomanager.ErrDecryptionNotAllowed)
 }
 
-func TestResolveDecryptionKey_RejectsForeignDomainKey_NonMasterRefID(t *testing.T) {
-	svc, q := newBareCryptomanagerService(t)
+func (ts *CryptomanagerTestSuite) TestResolveDecryptionKey_RejectsForeignDomainKey_NonMasterRefID() {
+	svc, q := newBareCryptomanagerService(ts.T())
 	now := time.Now().UTC()
-	require.NoError(t, q.InsertKeyAlias(context.Background(), db.KeyAlias{
+	ts.Require().NoError(q.InsertKeyAlias(context.Background(), db.KeyAlias{
 		ID: "foreign-alias-2", AppID: "PARTNER", RefID: strPtr("SOME_CERT"),
 		KeyGenDtimes: &now, CertThumbprint: strPtr("445566"), UniIdent: strPtr("u4"),
 	}))
-	require.NoError(t, q.InsertKeyStoreRecord(context.Background(), db.KeyStoreRecord{
+	ts.Require().NoError(q.InsertKeyStoreRecord(context.Background(), db.KeyStoreRecord{
 		ID: "foreign-alias-2", CertificateData: "irrelevant", PrivateKey: "NA", MasterKey: strPtr("foreign-alias-2"),
 	}))
 
 	_, _, err := cryptomanager.ResolveDecryptionKey(svc, context.Background(), "PARTNER", "SOME_CERT", "445566")
-	require.ErrorIs(t, err, cryptomanager.ErrForeignDomainKeyNotDecryptable)
+	ts.Require().ErrorIs(err, cryptomanager.ErrForeignDomainKeyNotDecryptable)
 }

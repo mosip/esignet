@@ -7,6 +7,8 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/stretchr/testify/suite"
+
 	"github.com/mosip/esignet/internal/keymanager"
 	"github.com/mosip/esignet/internal/keymanager/signature"
 )
@@ -81,7 +83,8 @@ func b64url(s string) string { return base64.RawURLEncoding.EncodeToString([]byt
 // verification logic is identical to ES256's (see sign.go's signDigest —
 // both share the same case) and is covered by that path plus
 // TestAlgorithmForRefID_MatchesJavaMapping/TestDerToConcat_* in sign_test.go.
-func TestJWSSignVerify_RoundTrip_AllAlgorithms(t *testing.T) {
+func (ts *SignatureTestSuite) TestJWSSignVerify_RoundTrip_AllAlgorithms() {
+	t := ts.T()
 	cases := []struct {
 		name  string
 		appID string
@@ -125,7 +128,8 @@ func TestJWSSignVerify_RoundTrip_AllAlgorithms(t *testing.T) {
 	}
 }
 
-func TestJWSSignVerify_DetachedPayload_RoundTrip(t *testing.T) {
+func (ts *SignatureTestSuite) TestJWSSignVerify_DetachedPayload_RoundTrip() {
+	t := ts.T()
 	km, sig := newTestServices(t)
 	provisionSignKey(t, km, "TESTAPP", keymanager.RefIDECSECP256R1Sign)
 
@@ -165,7 +169,8 @@ func TestJWSSignVerify_DetachedPayload_RoundTrip(t *testing.T) {
 	}
 }
 
-func TestJWSSignVerify_B64False_RFC7797_RoundTrip(t *testing.T) {
+func (ts *SignatureTestSuite) TestJWSSignVerify_B64False_RFC7797_RoundTrip() {
+	t := ts.T()
 	km, sig := newTestServices(t)
 	provisionSignKey(t, km, "TESTAPP", keymanager.RefIDED25519Sign)
 
@@ -191,7 +196,8 @@ func TestJWSSignVerify_B64False_RFC7797_RoundTrip(t *testing.T) {
 	}
 }
 
-func TestJWSVerify_TamperedSignature_Invalid(t *testing.T) {
+func (ts *SignatureTestSuite) TestJWSVerify_TamperedSignature_Invalid() {
+	t := ts.T()
 	km, sig := newTestServices(t)
 	provisionSignKey(t, km, "TESTAPP", keymanager.RefIDECSECP256R1Sign)
 
@@ -216,7 +222,8 @@ func TestJWSVerify_TamperedSignature_Invalid(t *testing.T) {
 	}
 }
 
-func TestJWSVerify_EmbeddedCertificate_NoKeymanagerLookupNeeded(t *testing.T) {
+func (ts *SignatureTestSuite) TestJWSVerify_EmbeddedCertificate_NoKeymanagerLookupNeeded() {
+	t := ts.T()
 	km, sig := newTestServices(t)
 	provisionSignKey(t, km, "TESTAPP", keymanager.RefIDECSECP256R1Sign)
 
@@ -232,9 +239,13 @@ func TestJWSVerify_EmbeddedCertificate_NoKeymanagerLookupNeeded(t *testing.T) {
 	// No ApplicationID/ReferenceID/CertificatePEM given — verification must
 	// still succeed by extracting the leaf certificate embedded in the
 	// header's x5c (explicitly requested above; IncludeCertificate now
-	// defaults to false — certificate embedding is opt-in).
+	// defaults to false — certificate embedding is opt-in). Falling back to
+	// the header-embedded certificate itself requires an explicit opt-in
+	// too (AllowHeaderCertificate) since it's otherwise an unpinned,
+	// unverified trust source.
 	verifyResp, err := sig.JWSVerify(context.Background(), signature.JWSVerifyRequest{
-		JWTSignatureData: signResp.JWTSignedData,
+		JWTSignatureData:       signResp.JWTSignedData,
+		AllowHeaderCertificate: true,
 	})
 	if err != nil {
 		t.Fatalf("JWSVerify: %v", err)
@@ -244,7 +255,8 @@ func TestJWSVerify_EmbeddedCertificate_NoKeymanagerLookupNeeded(t *testing.T) {
 	}
 }
 
-func TestJWSSign_BlankDataToSign_Rejected(t *testing.T) {
+func (ts *SignatureTestSuite) TestJWSSign_BlankDataToSign_Rejected() {
+	t := ts.T()
 	_, sig := newTestServices(t)
 	_, err := sig.JWSSign(context.Background(), signature.JWSSignRequest{
 		ApplicationID: "TESTAPP", ReferenceID: keymanager.RefIDECSECP256R1Sign,
@@ -254,7 +266,8 @@ func TestJWSSign_BlankDataToSign_Rejected(t *testing.T) {
 	}
 }
 
-func TestJWSSign_InvalidJSON_RejectedByDefault(t *testing.T) {
+func (ts *SignatureTestSuite) TestJWSSign_InvalidJSON_RejectedByDefault() {
+	t := ts.T()
 	km, sig := newTestServices(t)
 	provisionSignKey(t, km, "TESTAPP", keymanager.RefIDECSECP256R1Sign)
 
@@ -267,7 +280,8 @@ func TestJWSSign_InvalidJSON_RejectedByDefault(t *testing.T) {
 	}
 }
 
-func TestJWSSign_InvalidJSON_AllowedWhenValidateJSONFalse(t *testing.T) {
+func (ts *SignatureTestSuite) TestJWSSign_InvalidJSON_AllowedWhenValidateJSONFalse() {
+	t := ts.T()
 	km, sig := newTestServices(t)
 	provisionSignKey(t, km, "TESTAPP", keymanager.RefIDECSECP256R1Sign)
 
@@ -288,7 +302,8 @@ func TestJWSSign_InvalidJSON_AllowedWhenValidateJSONFalse(t *testing.T) {
 // DataToSign are validated first, and in that order — ApplicationID before
 // ReferenceID before DataToSign — before any other business-logic check
 // (e.g. key-tier restriction) runs.
-func TestJWSSign_InputValidationOrder(t *testing.T) {
+func (ts *SignatureTestSuite) TestJWSSign_InputValidationOrder() {
+	t := ts.T()
 	_, sig := newTestServices(t)
 
 	_, err := sig.JWSSign(context.Background(), signature.JWSSignRequest{})
@@ -312,7 +327,8 @@ func TestJWSSign_InputValidationOrder(t *testing.T) {
 // keymanager.Service's own ensureCurrentKey convention, and that ROOT (a
 // keystore-resident tier) is an allowed signing key per the resolved key-tier
 // scope.
-func TestJWSSign_ROOT_BlankReferenceID_Allowed(t *testing.T) {
+func (ts *SignatureTestSuite) TestJWSSign_ROOT_BlankReferenceID_Allowed() {
+	t := ts.T()
 	_, sig := newTestServices(t)
 	resp, err := sig.JWSSign(context.Background(), signature.JWSSignRequest{
 		ApplicationID: keymanager.AppIDRoot,
@@ -329,7 +345,8 @@ func TestJWSSign_ROOT_BlankReferenceID_Allowed(t *testing.T) {
 // TestJWSSign_DefaultHeader_ContainsOnlyAlg confirms certificate embedding
 // is opt-in: with every other flag left at its default, the JWS header must
 // contain nothing but "alg".
-func TestJWSSign_DefaultHeader_ContainsOnlyAlg(t *testing.T) {
+func (ts *SignatureTestSuite) TestJWSSign_DefaultHeader_ContainsOnlyAlg() {
+	t := ts.T()
 	km, sig := newTestServices(t)
 	provisionSignKey(t, km, "TESTAPP", keymanager.RefIDECSECP256R1Sign)
 
@@ -362,7 +379,8 @@ func TestJWSSign_DefaultHeader_ContainsOnlyAlg(t *testing.T) {
 // resolves to a DB-resident Component Encryption Key (not keystore-resident,
 // not reserved for symmetric use either) is rejected before any key
 // material is touched.
-func TestJWSSign_ComponentEncryptionKey_Rejected(t *testing.T) {
+func (ts *SignatureTestSuite) TestJWSSign_ComponentEncryptionKey_Rejected() {
+	t := ts.T()
 	_, sig := newTestServices(t)
 	_, err := sig.JWSSign(context.Background(), signature.JWSSignRequest{
 		ApplicationID: "TESTAPP", ReferenceID: "SOME_ENCRYPTION_KEY",
@@ -376,7 +394,8 @@ func TestJWSSign_ComponentEncryptionKey_Rejected(t *testing.T) {
 // TestJWSSign_SymmetricKeyRefID_Rejected confirms a reference id configured
 // as an AES/symmetric key (Config.SymmetricKeyAllowedRefIDs) is rejected
 // with the specific AES message rather than the generic encryption-key one.
-func TestJWSSign_SymmetricKeyRefID_Rejected(t *testing.T) {
+func (ts *SignatureTestSuite) TestJWSSign_SymmetricKeyRefID_Rejected() {
+	t := ts.T()
 	_, sig := newTestServicesWithConfig(t, []string{"ZK_ENCRYPT"})
 	_, err := sig.JWSSign(context.Background(), signature.JWSSignRequest{
 		ApplicationID: "TESTAPP", ReferenceID: "ZK_ENCRYPT",
@@ -394,7 +413,8 @@ func TestJWSSign_SymmetricKeyRefID_Rejected(t *testing.T) {
 // RefIDED25519Sign coverage in TestJWSSignVerify_RoundTrip_AllAlgorithms
 // together confirm every keystore-resident tier remains usable for signing
 // (only Component Encryption Keys and AES reference ids are rejected).
-func TestJWSSign_ComponentMasterKey_Allowed(t *testing.T) {
+func (ts *SignatureTestSuite) TestJWSSign_ComponentMasterKey_Allowed() {
+	t := ts.T()
 	km, sig := newTestServices(t)
 	provisionSignKey(t, km, "TESTAPP", keymanager.RefIDRSA2048)
 	_, err := sig.JWSSign(context.Background(), signature.JWSSignRequest{
@@ -406,21 +426,24 @@ func TestJWSSign_ComponentMasterKey_Allowed(t *testing.T) {
 	}
 }
 
-func TestJWSVerify_BlankData_Rejected(t *testing.T) {
+func (ts *SignatureTestSuite) TestJWSVerify_BlankData_Rejected() {
+	t := ts.T()
 	_, sig := newTestServices(t)
 	if _, err := sig.JWSVerify(context.Background(), signature.JWSVerifyRequest{}); err == nil {
 		t.Fatal("expected an error for blank JWTSignatureData")
 	}
 }
 
-func TestJWSVerify_MalformedJWS_Rejected(t *testing.T) {
+func (ts *SignatureTestSuite) TestJWSVerify_MalformedJWS_Rejected() {
+	t := ts.T()
 	_, sig := newTestServices(t)
 	if _, err := sig.JWSVerify(context.Background(), signature.JWSVerifyRequest{JWTSignatureData: "not-a-jws"}); err == nil {
 		t.Fatal("expected an error for a non-3-segment JWS")
 	}
 }
 
-func TestJWSVerify_NoCertificateResolvable(t *testing.T) {
+func (ts *SignatureTestSuite) TestJWSVerify_NoCertificateResolvable() {
+	t := ts.T()
 	_, sig := newTestServices(t)
 	verifyResp, err := sig.JWSVerify(context.Background(), signature.JWSVerifyRequest{
 		JWTSignatureData: "eyJhbGciOiJQUzI1NiJ9.eyJhIjoxfQ.c2ln",
@@ -436,7 +459,8 @@ func TestJWSVerify_NoCertificateResolvable(t *testing.T) {
 // TestJWSSign_KeyIDAndIssuerPrepend covers IncludeKeyID plus the
 // PAYLOAD_ISSUER kid-prepend feature (deriving the kid prefix from the
 // payload's "iss" claim).
-func TestJWSSign_KeyIDAndIssuerPrepend(t *testing.T) {
+func (ts *SignatureTestSuite) TestJWSSign_KeyIDAndIssuerPrepend() {
+	t := ts.T()
 	km, sig := newTestServices(t)
 	provisionSignKey(t, km, "TESTAPP", keymanager.RefIDECSECP256R1Sign)
 
@@ -476,4 +500,12 @@ func indexOf(s string, b byte) int {
 		}
 	}
 	return -1
+}
+
+type SignatureTestSuite struct {
+	suite.Suite
+}
+
+func TestSignatureTestSuite(t *testing.T) {
+	suite.Run(t, new(SignatureTestSuite))
 }

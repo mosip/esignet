@@ -23,7 +23,8 @@ func (ts *InitTestSuite) TestInitSucceedsWithAuditConfigured() {
 	t.Setenv("MOSIP_ESIGNET_AUTH_TOKEN_URL", "http://audit.example.org/token")
 	t.Setenv("MOSIP_ESIGNET_IDA_CLIENT_SECRET", "secret")
 
-	authnProvider, auditor, err := Init(&config.AppConfig{}, nil, &http.Client{Timeout: 30 * time.Second}, nil, nil)
+	km, sigSvc := newTestKeyManagerServices(t, false)
+	authnProvider, auditor, err := Init(&config.AppConfig{}, nil, &http.Client{Timeout: 30 * time.Second}, km, sigSvc)
 
 	require.NoError(t, err)
 	require.NotNil(t, authnProvider)
@@ -37,9 +38,32 @@ func (ts *InitTestSuite) TestInitFailsWhenAuditNotConfigured() {
 	t.Setenv("MOSIP_ESIGNET_AUDIT_MANAGER_URL", "")
 	t.Setenv("MOSIP_ESIGNET_AUTH_TOKEN_URL", "")
 
-	authnProvider, auditor, err := Init(&config.AppConfig{}, nil, &http.Client{Timeout: 30 * time.Second}, nil, nil)
+	km, sigSvc := newTestKeyManagerServices(t, false)
+	authnProvider, auditor, err := Init(&config.AppConfig{}, nil, &http.Client{Timeout: 30 * time.Second}, km, sigSvc)
 
 	require.Error(t, err)
+	require.Nil(t, authnProvider)
+	require.Nil(t, auditor)
+}
+
+func (ts *InitTestSuite) TestInitFailsWithNilKeymanagerService() {
+	t := ts.T()
+	_, sigSvc := newTestKeyManagerServices(t, false)
+
+	authnProvider, auditor, err := Init(&config.AppConfig{}, nil, &http.Client{Timeout: 30 * time.Second}, nil, sigSvc)
+
+	require.ErrorIs(t, err, ErrNilCryptoService)
+	require.Nil(t, authnProvider)
+	require.Nil(t, auditor)
+}
+
+func (ts *InitTestSuite) TestInitFailsWithNilSignatureService() {
+	t := ts.T()
+	km, _ := newTestKeyManagerServices(t, false)
+
+	authnProvider, auditor, err := Init(&config.AppConfig{}, nil, &http.Client{Timeout: 30 * time.Second}, km, nil)
+
+	require.ErrorIs(t, err, ErrNilCryptoService)
 	require.Nil(t, authnProvider)
 	require.Nil(t, auditor)
 }

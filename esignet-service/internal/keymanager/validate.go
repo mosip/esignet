@@ -62,6 +62,37 @@ func (s *Service) validateSymmetricKeyRefID(refID string) error {
 	return fmt.Errorf("%w: %q (allowed: %v)", ErrSymmetricKeyRefIDNotAllowed, refID, s.cfg.SymmetricKeyAllowedRefIDs)
 }
 
+// IsAllowedCertificateRefID reports whether refID is safe to pass to
+// GetCertificate on the public HTTP read path (system-info/certificate)
+// without risking unbounded key generation — either a bounded, fixed
+// key-hierarchy tier (blank/ROOT, or one of the Component Master Key/EC
+// sign reference ids) or a Component Encryption Key reference id explicitly
+// present in Config.CertificateAllowedRefIDs. An empty/unset allow-list
+// allows no Component Encryption Key reference id, same "no silent default"
+// stance as validateSymmetricKeyRefID.
+//
+// This is a caller-side gate used by Handler.getCertificate, not enforced
+// inside GetCertificate/ensureCurrentKey itself: GetCertificate still mints
+// a Component Encryption Key for any (appID, refID) pair it hasn't seen
+// before when called directly (e.g. by cryptomanager.Service.Encrypt via
+// ResolveCurrentKey, which resolves its own internal reference ids and has
+// no caller-facing referenceId query parameter to restrict).
+func (s *Service) IsAllowedCertificateRefID(refID string) bool {
+	if refID == "" {
+		return true
+	}
+	switch refID {
+	case RefIDRSA2048, RefIDECSECP256K1Sign, RefIDECSECP256R1Sign, RefIDED25519Sign:
+		return true
+	}
+	for _, allowed := range s.cfg.CertificateAllowedRefIDs {
+		if refID == allowed {
+			return true
+		}
+	}
+	return false
+}
+
 // validateAsymmetricRefIDNotReserved rejects an asymmetric key generation
 // (GenerateMasterKey/GetCertificate/GenerateCSR, any tier — ROOT, Component
 // Master Key, EC sign key, or Component Encryption Key) whose refID is

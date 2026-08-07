@@ -9,6 +9,7 @@ package db
 import (
 	"context"
 	"fmt"
+	"regexp"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -47,15 +48,30 @@ type Queries struct {
 
 var _ Querier = (*Queries)(nil)
 
+// schemaIdentifier restricts the (operator-controlled, env-var sourced)
+// schema name to a safe SQL identifier before it is interpolated into raw
+// query text below — placeholders cannot bind identifiers, so this check is
+// the only guard against SQL injection via KEYMANAGER_DB_SCHEMA.
+var schemaIdentifier = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
+
 // New returns a Queries backed by conn (a *sqlx.DB or *sqlx.Tx), reading
 // from/writing to the given Postgres schema (e.g. "keymgr" for the Java
 // service's schema, or a separate one such as "keymgr_go" to test this
 // library in isolation).
 func New(conn TX, schema string) *Queries {
+	if !schemaIdentifier.MatchString(schema) {
+		panic(fmt.Sprintf("keymanager/db: invalid schema identifier %q", schema))
+	}
 	q := &Queries{db: conn, schema: schema}
 
+	// ref_id is nullable, and ROOT rows are persisted with ref_id NULL (see
+	// persistNewAlias/ensureCurrentKey, which blank ReferenceID for ROOT) —
+	// "ref_id = $2" alone can never match a NULL column value, even when
+	// $2 is the empty string, so the OR clause covers that case
+	// explicitly. Without it, a NULL-stored ROOT row would look like it
+	// doesn't exist yet and a duplicate could be generated.
 	q.selectKeyAlias = fmt.Sprintf(`SELECT %s FROM %s.key_alias
-		WHERE app_id = $1 AND ref_id = $2 AND (is_deleted IS NULL OR is_deleted = FALSE)
+		WHERE app_id = $1 AND (ref_id = $2 OR (ref_id IS NULL AND $2 = '')) AND (is_deleted IS NULL OR is_deleted = FALSE)
 		ORDER BY key_gen_dtimes DESC`, keyAliasColumns, schema)
 
 	q.selectKeyAliasByThumbprint = fmt.Sprintf(`SELECT %s FROM %s.key_alias
@@ -83,7 +99,8 @@ func New(conn TX, schema string) *Queries {
 		SELECT 1 FROM %s.key_policy_def
 		WHERE app_id = $1 AND (is_deleted IS NULL OR is_deleted = FALSE))`, schema)
 
-	q.selectKeyStore = fmt.Sprintf(`SELECT %s FROM %s.key_store WHERE id = $1`, keyStoreColumns, schema)
+	q.selectKeyStore = fmt.Sprintf(`SELECT %s FROM %s.key_store
+		WHERE id = $1 AND (is_deleted IS NULL OR is_deleted = FALSE)`, keyStoreColumns, schema)
 
 	q.insertKeyStore = fmt.Sprintf(`INSERT INTO %s.key_store
 		(id, certificate_data, private_key, master_key, cr_by, cr_dtimes)

@@ -7,6 +7,8 @@ import (
 	"crypto/sha256"
 	"math/big"
 	"testing"
+
+	"github.com/stretchr/testify/suite"
 )
 
 // rawRSADecrypt computes c^d mod n directly (what a PKCS#11 CKM_RSA_X_509
@@ -22,52 +24,47 @@ func rawRSADecrypt(t *testing.T, priv *rsa.PrivateKey, ciphertext []byte) []byte
 	return out
 }
 
-func TestUnpadOAEPSHA256_RoundTripsWithRSAEncryptOAEP(t *testing.T) {
+func (ts *PKCS11TestSuite) TestUnpadOAEPSHA256_RoundTripsWithRSAEncryptOAEP() {
+	t := ts.T()
 	priv, err := rsa.GenerateKey(rand.Reader, 2048)
-	if err != nil {
-		t.Fatalf("generate key: %v", err)
-	}
+	ts.Require().NoError(err, "generate key")
 	plaintext := make([]byte, 32) // a real DEK, envelope.go's actual use case
-	if _, err := rand.Read(plaintext); err != nil {
-		t.Fatalf("generate plaintext: %v", err)
-	}
+	_, err = rand.Read(plaintext)
+	ts.Require().NoError(err, "generate plaintext")
 	ciphertext, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, &priv.PublicKey, plaintext, nil)
-	if err != nil {
-		t.Fatalf("EncryptOAEP: %v", err)
-	}
+	ts.Require().NoError(err, "EncryptOAEP")
 
 	raw := rawRSADecrypt(t, priv, ciphertext)
 	k := (priv.N.BitLen() + 7) / 8
 	got, err := unpadOAEPSHA256(raw, k)
-	if err != nil {
-		t.Fatalf("unpadOAEPSHA256: %v", err)
-	}
-	if !bytes.Equal(got, plaintext) {
-		t.Fatalf("unpadOAEPSHA256 = %q, want %q", got, plaintext)
-	}
+	ts.Require().NoError(err, "unpadOAEPSHA256")
+	ts.Assert().True(bytes.Equal(got, plaintext), "unpadOAEPSHA256 = %q, want %q", got, plaintext)
 }
 
-func TestUnpadOAEPSHA256_RejectsCorruptedBlock(t *testing.T) {
+func (ts *PKCS11TestSuite) TestUnpadOAEPSHA256_RejectsCorruptedBlock() {
+	t := ts.T()
 	priv, err := rsa.GenerateKey(rand.Reader, 2048)
-	if err != nil {
-		t.Fatalf("generate key: %v", err)
-	}
+	ts.Require().NoError(err, "generate key")
 	plaintext := []byte("this is a 32-byte test DEK!!!!!")
 	ciphertext, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, &priv.PublicKey, plaintext, nil)
-	if err != nil {
-		t.Fatalf("EncryptOAEP: %v", err)
-	}
+	ts.Require().NoError(err, "EncryptOAEP")
 	raw := rawRSADecrypt(t, priv, ciphertext)
 	raw[len(raw)-1] ^= 0xFF // flip a byte inside the encoded message
 
 	k := (priv.N.BitLen() + 7) / 8
-	if _, err := unpadOAEPSHA256(raw, k); err == nil {
-		t.Fatal("expected an error unpadding a corrupted block, got nil")
-	}
+	_, err = unpadOAEPSHA256(raw, k)
+	ts.Require().Error(err, "expected an error unpadding a corrupted block, got nil")
 }
 
-func TestUnpadOAEPSHA256_RejectsWrongLength(t *testing.T) {
-	if _, err := unpadOAEPSHA256(make([]byte, 10), 256); err == nil {
-		t.Fatal("expected an error for a block shorter than k, got nil")
-	}
+func (ts *PKCS11TestSuite) TestUnpadOAEPSHA256_RejectsWrongLength() {
+	_, err := unpadOAEPSHA256(make([]byte, 10), 256)
+	ts.Require().Error(err, "expected an error for a block shorter than k, got nil")
+}
+
+type PKCS11TestSuite struct {
+	suite.Suite
+}
+
+func TestPKCS11TestSuite(t *testing.T) {
+	suite.Run(t, new(PKCS11TestSuite))
 }

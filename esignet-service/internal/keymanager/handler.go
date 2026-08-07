@@ -27,6 +27,12 @@ const (
 	errCodeInvalidCertificate = "invalid_certificate"
 )
 
+// maxReferenceIDLength bounds the caller-supplied referenceId query
+// parameter on getCertificate, ahead of the semantic allow-list check
+// (Service.IsAllowedCertificateRefID) — cheap input-size defense in depth
+// before the DB/allow-list lookup.
+const maxReferenceIDLength = 128
+
 // Handler exposes client management HTTP endpoints.
 type Handler struct {
 	svc    *Service
@@ -43,10 +49,10 @@ func NewHandler(svc *Service, logger *applog.Logger) *Handler {
 // enforcement is not configured. Mirrors SystemInfoController's mapping
 // (/system-info/certificate, /system-info/uploadCertificate).
 func (h *Handler) RegisterRoutes(mux *http.ServeMux, middleware func(http.Handler) http.Handler) {
+	if middleware == nil {
+		panic("keymanager: RegisterRoutes requires non-nil middleware; getCertificate can mint new key material for any caller-supplied referenceId and must not be exposed unprotected")
+	}
 	wrap := func(hf http.HandlerFunc) http.Handler {
-		if middleware == nil {
-			return hf
-		}
 		return middleware(hf)
 	}
 
@@ -108,7 +114,15 @@ func (h *Handler) getCertificate(w http.ResponseWriter, r *http.Request) {
 		common.WriteError(r.Context(), w, http.StatusOK, errCodeInvalidRequest, "applicationId is required")
 		return
 	}
-	referenceID := r.URL.Query().Get("referenceId")
+	referenceID := strings.TrimSpace(r.URL.Query().Get("referenceId"))
+	if len(referenceID) > maxReferenceIDLength {
+		common.WriteError(r.Context(), w, http.StatusOK, errCodeInvalidRequest, "referenceId is too long")
+		return
+	}
+	if !h.svc.IsAllowedCertificateRefID(referenceID) {
+		common.WriteError(r.Context(), w, http.StatusOK, errCodeInvalidRequest, "referenceId is not permitted")
+		return
+	}
 
 	resp, err := h.svc.GetCertificate(r.Context(), applicationID, referenceID)
 	if err != nil {

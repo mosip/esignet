@@ -6,13 +6,14 @@ import (
 	"encoding/base64"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
 
 	"github.com/mosip/esignet/internal/keymanager"
 	"github.com/mosip/esignet/internal/keymanager/cryptomanager"
 )
 
-func TestEncryptDecryptRoundTrip(t *testing.T) {
+func (ts *CryptomanagerTestSuite) TestEncryptDecryptRoundTrip() {
+	t := ts.T()
 	env := newTestEnv(t, "TESTAPP")
 	ctx := context.Background()
 
@@ -36,94 +37,94 @@ func TestEncryptDecryptRoundTrip(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
+		ts.T().Run(tc.name, func(t *testing.T) {
 			plaintext := make([]byte, tc.size)
 			if tc.name == "single-byte" {
 				plaintext[0] = 'A'
 			} else {
 				_, err := rand.Read(plaintext)
-				require.NoError(t, err)
+				ts.Require().NoError(err)
 			}
 			dataB64 := base64.RawURLEncoding.EncodeToString(plaintext)
 
 			encResp, err := env.CM.Encrypt(ctx, cryptomanager.EncryptRequest{
 				ApplicationID: env.AppID, ReferenceID: "SOME_ENC_KEY", Data: dataB64,
 			})
-			require.NoError(t, err)
-			require.NotEmpty(t, encResp.Data)
+			ts.Require().NoError(err)
+			ts.Require().NotEmpty(encResp.Data)
 
 			decResp, err := env.CM.Decrypt(ctx, cryptomanager.DecryptRequest{
 				ApplicationID: env.AppID, ReferenceID: "SOME_ENC_KEY", Data: encResp.Data,
 			})
-			require.NoError(t, err)
+			ts.Require().NoError(err)
 
 			got, err := base64.RawURLEncoding.DecodeString(decResp.Data)
-			require.NoError(t, err)
-			require.Equal(t, plaintext, got)
+			ts.Require().NoError(err)
+			ts.Require().Equal(plaintext, got)
 		})
 	}
 }
 
-func TestEncrypt_RejectsBlankReferenceID(t *testing.T) {
-	env := newTestEnv(t, "TESTAPP")
+func (ts *CryptomanagerTestSuite) TestEncrypt_RejectsBlankReferenceID() {
+	env := newTestEnv(ts.T(), "TESTAPP")
 	_, err := env.CM.Encrypt(context.Background(), cryptomanager.EncryptRequest{
 		ApplicationID: env.AppID, ReferenceID: "", Data: "ZGF0YQ",
 	})
-	require.ErrorIs(t, err, cryptomanager.ErrBlankReferenceID)
+	ts.Require().ErrorIs(err, cryptomanager.ErrBlankReferenceID)
 }
 
-func TestEncrypt_RejectsBlankApplicationID(t *testing.T) {
-	env := newTestEnv(t, "TESTAPP")
+func (ts *CryptomanagerTestSuite) TestEncrypt_RejectsBlankApplicationID() {
+	env := newTestEnv(ts.T(), "TESTAPP")
 	_, err := env.CM.Encrypt(context.Background(), cryptomanager.EncryptRequest{
 		ApplicationID: "", ReferenceID: "SOME_ENC_KEY", Data: "ZGF0YQ",
 	})
-	require.ErrorIs(t, err, cryptomanager.ErrBlankApplicationID)
+	ts.Require().ErrorIs(err, cryptomanager.ErrBlankApplicationID)
 }
 
-func TestEncrypt_ValidatesApplicationIDBeforeReferenceIDBeforeData(t *testing.T) {
-	env := newTestEnv(t, "TESTAPP")
+func (ts *CryptomanagerTestSuite) TestEncrypt_ValidatesApplicationIDBeforeReferenceIDBeforeData() {
+	env := newTestEnv(ts.T(), "TESTAPP")
 	// All three are invalid at once — ApplicationID must be reported first.
 	_, err := env.CM.Encrypt(context.Background(), cryptomanager.EncryptRequest{
 		ApplicationID: "", ReferenceID: "", Data: "",
 	})
-	require.ErrorIs(t, err, cryptomanager.ErrBlankApplicationID)
+	ts.Require().ErrorIs(err, cryptomanager.ErrBlankApplicationID)
 
 	// ApplicationID valid, ReferenceID and Data both invalid — ReferenceID
 	// must be reported next, before Data is ever looked at.
 	_, err = env.CM.Encrypt(context.Background(), cryptomanager.EncryptRequest{
 		ApplicationID: env.AppID, ReferenceID: "", Data: "",
 	})
-	require.ErrorIs(t, err, cryptomanager.ErrBlankReferenceID)
+	ts.Require().ErrorIs(err, cryptomanager.ErrBlankReferenceID)
 }
 
-func TestEncrypt_RejectsMasterKeyTarget(t *testing.T) {
-	env := newTestEnv(t, "TESTAPP")
+func (ts *CryptomanagerTestSuite) TestEncrypt_RejectsMasterKeyTarget() {
+	env := newTestEnv(ts.T(), "TESTAPP")
 	_, err := env.CM.Encrypt(context.Background(), cryptomanager.EncryptRequest{
 		ApplicationID: env.AppID, ReferenceID: keymanager.RefIDRSA2048, Data: "ZGF0YQ",
 	})
-	require.ErrorIs(t, err, cryptomanager.ErrEncryptionAgainstReservedKey)
+	ts.Require().ErrorIs(err, cryptomanager.ErrEncryptionAgainstReservedKey)
 	// Error message must be a plain, static message — no echoed appID/refID.
-	require.Equal(t, "not allowed to use Component Master Key/Root for encryption purpose", err.Error())
+	ts.Require().Equal("not allowed to use Component Master Key/Root for encryption purpose", err.Error())
 }
 
-func TestEncrypt_RejectsRootTarget(t *testing.T) {
-	env := newTestEnv(t, "TESTAPP")
+func (ts *CryptomanagerTestSuite) TestEncrypt_RejectsRootTarget() {
+	env := newTestEnv(ts.T(), "TESTAPP")
 	_, err := env.CM.Encrypt(context.Background(), cryptomanager.EncryptRequest{
 		ApplicationID: keymanager.AppIDRoot, ReferenceID: "anything", Data: "ZGF0YQ",
 	})
-	require.ErrorIs(t, err, cryptomanager.ErrEncryptionAgainstReservedKey)
+	ts.Require().ErrorIs(err, cryptomanager.ErrEncryptionAgainstReservedKey)
 }
 
-func TestEncrypt_RejectsInvalidBase64Data(t *testing.T) {
-	env := newTestEnv(t, "TESTAPP")
+func (ts *CryptomanagerTestSuite) TestEncrypt_RejectsInvalidBase64Data() {
+	env := newTestEnv(ts.T(), "TESTAPP")
 	_, err := env.CM.Encrypt(context.Background(), cryptomanager.EncryptRequest{
 		ApplicationID: env.AppID, ReferenceID: "SOME_ENC_KEY", Data: "not base64!!!",
 	})
-	require.ErrorIs(t, err, cryptomanager.ErrInvalidData)
+	ts.Require().ErrorIs(err, cryptomanager.ErrInvalidData)
 }
 
-func TestEncrypt_RejectsBlankData(t *testing.T) {
-	env := newTestEnv(t, "TESTAPP")
+func (ts *CryptomanagerTestSuite) TestEncrypt_RejectsBlankData() {
+	env := newTestEnv(ts.T(), "TESTAPP")
 	for _, tc := range []struct {
 		name string
 		data string
@@ -132,17 +133,17 @@ func TestEncrypt_RejectsBlankData(t *testing.T) {
 		{"only spaces", "   "},
 		{"only tabs and newlines", "\t\n  \t"},
 	} {
-		t.Run(tc.name, func(t *testing.T) {
+		ts.T().Run(tc.name, func(t *testing.T) {
 			_, err := env.CM.Encrypt(context.Background(), cryptomanager.EncryptRequest{
 				ApplicationID: env.AppID, ReferenceID: "SOME_ENC_KEY", Data: tc.data,
 			})
-			require.ErrorIs(t, err, cryptomanager.ErrInvalidRequest)
+			ts.Require().ErrorIs(err, cryptomanager.ErrInvalidRequest)
 		})
 	}
 }
 
-func TestEncrypt_RejectsWhitespaceOnlyDecodedData(t *testing.T) {
-	env := newTestEnv(t, "TESTAPP")
+func (ts *CryptomanagerTestSuite) TestEncrypt_RejectsWhitespaceOnlyDecodedData() {
+	env := newTestEnv(ts.T(), "TESTAPP")
 	for _, tc := range []struct {
 		name      string
 		plaintext string
@@ -150,63 +151,71 @@ func TestEncrypt_RejectsWhitespaceOnlyDecodedData(t *testing.T) {
 		{"three spaces", "   "},
 		{"tabs and newlines", "\t\n\t"},
 	} {
-		t.Run(tc.name, func(t *testing.T) {
+		ts.T().Run(tc.name, func(t *testing.T) {
 			// The base64 STRING itself is well-formed and non-blank (this
 			// is exactly what a CLI/caller gets from base64-encoding
 			// whitespace) — only the decoded content is blank.
 			data := base64.RawURLEncoding.EncodeToString([]byte(tc.plaintext))
-			require.NotEmpty(t, data)
+			ts.Require().NotEmpty(data)
 
 			_, err := env.CM.Encrypt(context.Background(), cryptomanager.EncryptRequest{
 				ApplicationID: env.AppID, ReferenceID: "SOME_ENC_KEY", Data: data,
 			})
-			require.ErrorIs(t, err, cryptomanager.ErrInvalidRequest)
+			ts.Require().ErrorIs(err, cryptomanager.ErrInvalidRequest)
 		})
 	}
 }
 
-func TestDecrypt_RejectsBlankApplicationID(t *testing.T) {
-	env := newTestEnv(t, "TESTAPP")
+func (ts *CryptomanagerTestSuite) TestDecrypt_RejectsBlankApplicationID() {
+	env := newTestEnv(ts.T(), "TESTAPP")
 	_, err := env.CM.Decrypt(context.Background(), cryptomanager.DecryptRequest{
 		ApplicationID: "", ReferenceID: "SOME_ENC_KEY", Data: "irrelevant-checked-after-appid",
 	})
-	require.ErrorIs(t, err, cryptomanager.ErrBlankApplicationID)
+	ts.Require().ErrorIs(err, cryptomanager.ErrBlankApplicationID)
 }
 
-func TestDecrypt_RejectsMalformedEnvelope(t *testing.T) {
-	env := newTestEnv(t, "TESTAPP")
+func (ts *CryptomanagerTestSuite) TestDecrypt_RejectsMalformedEnvelope() {
+	env := newTestEnv(ts.T(), "TESTAPP")
 	_, err := env.CM.Decrypt(context.Background(), cryptomanager.DecryptRequest{
 		ApplicationID: env.AppID, ReferenceID: "SOME_ENC_KEY", Data: "not-a-real-envelope",
 	})
-	require.ErrorIs(t, err, cryptomanager.ErrEnvelopeMalformed)
+	ts.Require().ErrorIs(err, cryptomanager.ErrEnvelopeMalformed)
 }
 
-func TestDecrypt_RejectsBlankData(t *testing.T) {
-	env := newTestEnv(t, "TESTAPP")
+func (ts *CryptomanagerTestSuite) TestDecrypt_RejectsBlankData() {
+	env := newTestEnv(ts.T(), "TESTAPP")
 	// Previously fell through to parseEnvelope and surfaced the generic
 	// "envelope is malformed: splitter not found" instead of a clear
 	// blank-data error.
 	_, err := env.CM.Decrypt(context.Background(), cryptomanager.DecryptRequest{
 		ApplicationID: env.AppID, ReferenceID: "SOME_ENC_KEY", Data: "",
 	})
-	require.ErrorIs(t, err, cryptomanager.ErrInvalidRequest)
+	ts.Require().ErrorIs(err, cryptomanager.ErrInvalidRequest)
 }
 
-func TestDecrypt_DifferentReferenceIDFails(t *testing.T) {
-	env := newTestEnv(t, "TESTAPP")
+func (ts *CryptomanagerTestSuite) TestDecrypt_DifferentReferenceIDFails() {
+	env := newTestEnv(ts.T(), "TESTAPP")
 	ctx := context.Background()
 
 	encResp, err := env.CM.Encrypt(ctx, cryptomanager.EncryptRequest{
 		ApplicationID: env.AppID, ReferenceID: "ENC_KEY_A", Data: base64.RawURLEncoding.EncodeToString([]byte("secret")),
 	})
-	require.NoError(t, err)
+	ts.Require().NoError(err)
 
 	_, err = env.CM.Decrypt(ctx, cryptomanager.DecryptRequest{
 		ApplicationID: env.AppID, ReferenceID: "ENC_KEY_B", Data: encResp.Data,
 	})
-	require.ErrorIs(t, err, cryptomanager.ErrKeyIdentifierMismatch)
+	ts.Require().ErrorIs(err, cryptomanager.ErrKeyIdentifierMismatch)
 	// Error message must not disclose which (appID, refID) the thumbprint
 	// actually resolved to.
-	require.Equal(t, "mismatch of application id and reference id", err.Error())
-	require.NotContains(t, err.Error(), "ENC_KEY_A")
+	ts.Require().Equal("mismatch of application id and reference id", err.Error())
+	ts.Require().NotContains(err.Error(), "ENC_KEY_A")
+}
+
+type CryptomanagerTestSuite struct {
+	suite.Suite
+}
+
+func TestCryptomanagerTestSuite(t *testing.T) {
+	suite.Run(t, new(CryptomanagerTestSuite))
 }

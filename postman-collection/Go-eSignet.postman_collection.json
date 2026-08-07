@@ -234,7 +234,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"requestTime\": \"{{client_mgmt_request_time}}\",\n  \"request\": {\n    \"clientName\": \"Postman Test Client (patched)\",\n    \"status\": \"active\"\n  }\n}"
+              "raw": "{\n  \"requestTime\": \"{{client_mgmt_request_time}}\",\n  \"request\": {\n    \"clientName\": \"Postman Test Client (patched)\",\n    \"status\": \"ACTIVE\"\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/client-mgmt/client/{{client_id}}",

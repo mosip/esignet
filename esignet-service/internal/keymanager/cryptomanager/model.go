@@ -50,6 +50,15 @@ type JWTEncryptRequest struct {
 	// bool, because the Java default is true and a plain Go bool's zero
 	// value can't express "unset, use default" — nil means "use the
 	// default (true)"; explicit false disables compression.
+	//
+	// SECURITY: compressing before encrypting makes ciphertext length a
+	// function of plaintext redundancy (the CRIME/BREACH class of attack,
+	// see RFC 8725 §3.4). If a caller ever encrypts a payload that mixes
+	// attacker-influenced and secret data through this path, leave this
+	// explicitly false. The default stays true only to match the Java
+	// service's wire behavior for existing MOSIP consumers — this is a
+	// deliberately accepted risk, not an oversight; callers that control
+	// their own payload shape should default to disabling it.
 	EnableDeflateCompression *bool
 
 	// IncludeCertificate embeds the signing certificate chain (x5c header).

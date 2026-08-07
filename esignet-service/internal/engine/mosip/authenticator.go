@@ -584,6 +584,17 @@ func buildX5CHeader(cert *x509.Certificate) (string, error) {
 	return base64.RawURLEncoding.EncodeToString(headerJSON), nil
 }
 
+// errorCodes extracts just the ErrorCode field from a MOSIP IDA error list —
+// a fixed enum value, safe to log — leaving ErrorMessage and any other
+// echoed request context out of logs/error strings.
+func errorCodes(errs []Error) []string {
+	codes := make([]string, len(errs))
+	for i, e := range errs {
+		codes[i] = e.ErrorCode
+	}
+	return codes
+}
+
 func (p *mosipAuthnProvider) callSendOtpEndpoint(
 	ctx context.Context,
 	requestBody []byte, // already marshaled JSON of IdaKycAuthRequest
@@ -617,12 +628,21 @@ func (p *mosipAuthnProvider) callSendOtpEndpoint(
 		return nil, fmt.Errorf("failed to read send OTP response: %w", err)
 	}
 
-	// Check status
+	// Check status. The response body is never logged or included in the
+	// returned error here: MOSIP IDA error payloads for the OTP flow echo
+	// request context (individualId, masked email/mobile) — personal
+	// identifiers that must not reach application logs or error strings
+	// that themselves might get logged upstream. Only the status code and
+	// the IDA errorCode values (a fixed enum, not caller data) are
+	// surfaced, best-effort — a non-2xx body isn't guaranteed to parse as
+	// IdaSendOtpResponse at all.
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		var errWrapper IdaSendOtpResponse
+		_ = json.Unmarshal(bodyBytes, &errWrapper)
 		applog.GetLogger().Error(ctx, "unexpected send OTP status",
-			applog.Any("response", resp.StatusCode),
-			applog.Any("errors", string(bodyBytes)))
-		return nil, fmt.Errorf("unexpected send OTP status: %d - %s", resp.StatusCode, string(bodyBytes))
+			applog.Int("status", resp.StatusCode),
+			applog.Any("errorCodes", errorCodes(errWrapper.Errors)))
+		return nil, fmt.Errorf("unexpected send OTP status: %d (codes: %v)", resp.StatusCode, errorCodes(errWrapper.Errors))
 	}
 
 	// Parse response
@@ -640,8 +660,7 @@ func (p *mosipAuthnProvider) callSendOtpEndpoint(
 	}
 
 	applog.GetLogger().Error(ctx, "IDA OTP error response",
-		applog.Any("response", wrapper.Response),
-		applog.Any("errors", wrapper.Errors))
+		applog.Any("errorCodes", errorCodes(wrapper.Errors)))
 
 	// Error path
 	if wrapper.Response == nil {
@@ -826,13 +845,15 @@ func buildIDAEndpointURL(ctx context.Context, baseURL, relyingPartyID, clientID 
 // MOSIP IDA expects in the outbound "signature" header, signing requestBody
 // with the keymanager's OIDC_PARTNER / RSA_2048 component master key.
 func (p *mosipAuthnProvider) getRequestSignature(ctx context.Context, requestBody []byte) (string, error) {
-	certResp, err := p.svc.GetCertificate(ctx, config.OIDCPartnerAppID, keymanager.RefIDRSA2048)
+	// The certificate embedded in the x5c header and the signature must come
+	// from the same key resolution: resolving the certificate and signing
+	// independently each perform their own lazy-rotation lookup, and a
+	// rotation landing between the two calls would attach the old
+	// certificate to a signature produced by the new key, which MOSIP IDA
+	// rejects. ResolveSigner+SignWithKey resolve once and reuse the result.
+	cert, signer, err := p.sigSvc.ResolveSigner(ctx, config.OIDCPartnerAppID, keymanager.RefIDRSA2048)
 	if err != nil {
 		return "", fmt.Errorf("failed to resolve %s signing certificate: %w", config.OIDCPartnerAppID, err)
-	}
-	cert, err := keymanager.ParseCertPEM(certResp.Certificate)
-	if err != nil {
-		return "", fmt.Errorf("failed to parse %s signing certificate: %w", config.OIDCPartnerAppID, err)
 	}
 
 	headerB64, err := buildX5CHeader(cert)
@@ -843,7 +864,7 @@ func (p *mosipAuthnProvider) getRequestSignature(ctx context.Context, requestBod
 	payloadB64 := B64EncodeBytes(requestBody)
 	signingInput := headerB64 + "." + payloadB64
 
-	sigBytes, err := p.sigSvc.SignRaw(ctx, config.OIDCPartnerAppID, keymanager.RefIDRSA2048, mosipRequestSignAlgorithm, []byte(signingInput))
+	sigBytes, err := p.sigSvc.SignWithKey(signer, cert.PublicKey, mosipRequestSignAlgorithm, []byte(signingInput))
 	if err != nil {
 		return "", fmt.Errorf("failed to sign request: %w", err)
 	}

@@ -43,7 +43,11 @@ func newAESTestEnv(t *testing.T, appID string, allowedRefIDs ...string) *aesTest
 	}
 	km := keymanager.NewServiceWithQuerier(q, ks, kmCfg)
 
-	cm := cryptomanager.NewService(q, km, cryptomanager.LoadConfig())
+	// CallerNonceAllowedRefIDs reuses allowedRefIDs: any ref id a test opts
+	// into symmetric key generation for is also one it may exercise a
+	// caller-supplied EncryptAES Nonce against (see
+	// TestEncryptAESDecryptAESRoundTrip_CallerSuppliedNonceAndAAD).
+	cm := cryptomanager.NewService(q, km, cryptomanager.Config{CallerNonceAllowedRefIDs: allowedRefIDs})
 
 	return &aesTestEnv{Q: q, KS: ks, KM: km, CM: cm, AppID: appID}
 }

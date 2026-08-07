@@ -8,9 +8,7 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
-	"crypto/x509/pkix"
 	"fmt"
-	"math/big"
 
 	"github.com/mosip/esignet/internal/keymanager/keystore"
 )
@@ -29,27 +27,6 @@ import (
 var errSECP256K1Unsupported = fmt.Errorf("pkcs12: SECP256K1 certificates are not supported: %w", errCryptoX509CurveLimitation)
 
 var errCryptoX509CurveLimitation = fmt.Errorf("crypto/x509 only supports NIST curves (P224/P256/P384/P521) for EC certificates; SECP256K1 needs a custom X.509 codec")
-
-func buildCertTemplate(params keystore.CertificateParameters) (*x509.Certificate, error) {
-	serial, err := rand.Int(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
-	if err != nil {
-		return nil, fmt.Errorf("pkcs12: generate serial: %w", err)
-	}
-	return &x509.Certificate{
-		SerialNumber: serial,
-		Subject: pkix.Name{
-			CommonName:         params.CommonName,
-			OrganizationalUnit: []string{params.OrganizationUnit},
-			Organization:       []string{params.Organization},
-			Locality:           []string{params.Location},
-			Province:           []string{params.State},
-			Country:            []string{params.Country},
-		},
-		NotBefore: params.NotBefore,
-		NotAfter:  params.NotAfter,
-		KeyUsage:  x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
-	}, nil
-}
 
 func generateKeyPair(algoName, curveName string) (crypto.Signer, error) {
 	switch algoName {
@@ -75,6 +52,29 @@ func generateKeyPair(algoName, curveName string) (crypto.Signer, error) {
 	}
 }
 
+// commitLocked applies the given entry change to s.entries and persists the
+// result. If next is nil, alias is deleted; otherwise s.entries[alias] is set
+// to *next. If saveLocked fails, the previous entry state (present or
+// absent) is restored so memory and disk never diverge. Caller must hold
+// s.mu.
+func (s *Store) commitLocked(alias string, next *fileEntry) error {
+	prev, had := s.entries[alias]
+	if next == nil {
+		delete(s.entries, alias)
+	} else {
+		s.entries[alias] = *next
+	}
+	if err := s.saveLocked(); err != nil {
+		if had {
+			s.entries[alias] = prev
+		} else {
+			delete(s.entries, alias)
+		}
+		return err
+	}
+	return nil
+}
+
 // GenerateAndStoreAsymmetricKey implements keystore.KeyStore.
 func (s *Store) GenerateAndStoreAsymmetricKey(alias, signKeyAlias string, params keystore.CertificateParameters, algoName, curveName string) error {
 	s.mu.Lock()
@@ -84,7 +84,7 @@ func (s *Store) GenerateAndStoreAsymmetricKey(alias, signKeyAlias string, params
 	if err != nil {
 		return err
 	}
-	template, err := buildCertTemplate(params)
+	template, err := keystore.BuildCertificateTemplate(params)
 	if err != nil {
 		return err
 	}
@@ -118,8 +118,7 @@ func (s *Store) GenerateAndStoreAsymmetricKey(alias, signKeyAlias string, params
 	if err != nil {
 		return err
 	}
-	s.entries[alias] = fileEntry{Type: entryAsymmetric, Data: encoded}
-	return s.saveLocked()
+	return s.commitLocked(alias, &fileEntry{Type: entryAsymmetric, Data: encoded})
 }
 
 // GenerateAndStoreSymmetricKey implements keystore.KeyStore.
@@ -135,8 +134,7 @@ func (s *Store) GenerateAndStoreSymmetricKey(alias string) error {
 	if err != nil {
 		return err
 	}
-	s.entries[alias] = fileEntry{Type: entrySymmetric, Data: encoded}
-	return s.saveLocked()
+	return s.commitLocked(alias, &fileEntry{Type: entrySymmetric, Data: encoded})
 }
 
 // GetPrivateKey implements keystore.KeyStore.
@@ -219,8 +217,7 @@ func (s *Store) GetAllAlias() ([]string, error) {
 func (s *Store) DeleteKey(alias string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	delete(s.entries, alias)
-	return s.saveLocked()
+	return s.commitLocked(alias, nil)
 }
 
 // StoreCertificate replaces the certificate for an existing asymmetric
@@ -233,18 +230,19 @@ func (s *Store) StoreCertificate(alias string, privateKey crypto.PrivateKey, cer
 	defer s.mu.Unlock()
 
 	if privateKey == nil {
-		if entry, ok := s.entries[alias]; ok && entry.Type == entryAsymmetric {
-			existingPriv, _, err := s.decodePFX(entry.Data)
-			if err != nil {
-				return err
-			}
-			privateKey = existingPriv
+		entry, ok := s.entries[alias]
+		if !ok || entry.Type != entryAsymmetric {
+			return fmt.Errorf("pkcs12: StoreCertificate: alias %q has no existing private key; a certificate-only entry is not supported by this backend", alias)
 		}
+		existingPriv, _, err := s.decodePFX(entry.Data)
+		if err != nil {
+			return err
+		}
+		privateKey = existingPriv
 	}
 	encoded, err := s.encodePFX(privateKey, cert)
 	if err != nil {
 		return err
 	}
-	s.entries[alias] = fileEntry{Type: entryAsymmetric, Data: encoded}
-	return s.saveLocked()
+	return s.commitLocked(alias, &fileEntry{Type: entryAsymmetric, Data: encoded})
 }

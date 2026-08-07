@@ -5,14 +5,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-
 	"github.com/mosip/esignet/internal/keymanager"
 	"github.com/mosip/esignet/internal/keymanager/db"
 )
 
-func TestResolveKeyType(t *testing.T) {
+func (ts *KeymanagerTestSuite) TestResolveKeyType() {
 	tests := []struct {
 		refID     string
 		wantAlgo  string
@@ -27,10 +24,10 @@ func TestResolveKeyType(t *testing.T) {
 		{"SOME_APP_ENCRYPTION_KEY", "RSA", ""},
 	}
 	for _, tt := range tests {
-		t.Run(tt.refID, func(t *testing.T) {
+		ts.T().Run(tt.refID, func(t *testing.T) {
 			algo, curve := keymanager.ResolveKeyType(tt.refID)
-			assert.Equal(t, tt.wantAlgo, algo)
-			assert.Equal(t, tt.wantCurve, curve)
+			ts.Assert().Equal(tt.wantAlgo, algo)
+			ts.Assert().Equal(tt.wantCurve, curve)
 		})
 	}
 }
@@ -46,14 +43,14 @@ func alwaysActivePolicy() db.KeyPolicy {
 	return db.KeyPolicy{KeyValidityDuration: 3650, PreExpireDays: 30, IsActive: true}
 }
 
-func TestResolveSignKeyAlias_Root(t *testing.T) {
+func (ts *KeymanagerTestSuite) TestResolveSignKeyAlias_Root() {
 	svc := keymanager.NewServiceWithQuerier(&fakeQuerier{}, newFakeKeyStore(), keymanager.Config{})
 	alias, err := keymanager.ResolveSignKeyAlias(svc, context.Background(), "ROOT", "")
-	require.NoError(t, err)
-	assert.Equal(t, "", alias) // self-signed
+	ts.Require().NoError(err)
+	ts.Assert().Equal("", alias) // self-signed
 }
 
-func TestResolveSignKeyAlias_ComponentMaster(t *testing.T) {
+func (ts *KeymanagerTestSuite) TestResolveSignKeyAlias_ComponentMaster() {
 	q := &fakeQuerier{
 		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
 		getKeyAliasesByAppRefFn: func(_ context.Context, appID, refID string) ([]db.KeyAlias, error) {
@@ -65,11 +62,11 @@ func TestResolveSignKeyAlias_ComponentMaster(t *testing.T) {
 	}
 	svc := keymanager.NewServiceWithQuerier(q, newFakeKeyStore(), keymanager.Config{})
 	alias, err := keymanager.ResolveSignKeyAlias(svc, context.Background(), "ESIGNET_RSA", "RSA_2048")
-	require.NoError(t, err)
-	assert.Equal(t, "root-alias-id", alias)
+	ts.Require().NoError(err)
+	ts.Assert().Equal("root-alias-id", alias)
 }
 
-func TestResolveSignKeyAlias_ComponentMasterMissing(t *testing.T) {
+func (ts *KeymanagerTestSuite) TestResolveSignKeyAlias_ComponentMasterMissing() {
 	q := &fakeQuerier{
 		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
 		getKeyAliasesByAppRefFn: func(_ context.Context, _, _ string) ([]db.KeyAlias, error) {
@@ -78,10 +75,10 @@ func TestResolveSignKeyAlias_ComponentMasterMissing(t *testing.T) {
 	}
 	svc := keymanager.NewServiceWithQuerier(q, newFakeKeyStore(), keymanager.Config{})
 	_, err := keymanager.ResolveSignKeyAlias(svc, context.Background(), "ESIGNET_RSA", "RSA_2048")
-	assert.ErrorIs(t, err, keymanager.ErrRootKeyNotFound)
+	ts.Assert().ErrorIs(err, keymanager.ErrRootKeyNotFound)
 }
 
-func TestResolveSignKeyAlias_ComponentEncryption(t *testing.T) {
+func (ts *KeymanagerTestSuite) TestResolveSignKeyAlias_ComponentEncryption() {
 	q := &fakeQuerier{
 		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
 		getKeyAliasesByAppRefFn: func(_ context.Context, appID, refID string) ([]db.KeyAlias, error) {
@@ -93,11 +90,11 @@ func TestResolveSignKeyAlias_ComponentEncryption(t *testing.T) {
 	}
 	svc := keymanager.NewServiceWithQuerier(q, newFakeKeyStore(), keymanager.Config{})
 	alias, err := keymanager.ResolveSignKeyAlias(svc, context.Background(), "ESIGNET_RSA", "XYZ")
-	require.NoError(t, err)
-	assert.Equal(t, "component-master-alias-id", alias)
+	ts.Require().NoError(err)
+	ts.Assert().Equal("component-master-alias-id", alias)
 }
 
-func TestResolveSignKeyAlias_ComponentEncryptionMasterMissing(t *testing.T) {
+func (ts *KeymanagerTestSuite) TestResolveSignKeyAlias_ComponentEncryptionMasterMissing() {
 	q := &fakeQuerier{
 		getKeyPolicyFn: func(_ context.Context, _ string) (db.KeyPolicy, error) { return alwaysActivePolicy(), nil },
 		getKeyAliasesByAppRefFn: func(_ context.Context, _, _ string) ([]db.KeyAlias, error) {
@@ -106,5 +103,5 @@ func TestResolveSignKeyAlias_ComponentEncryptionMasterMissing(t *testing.T) {
 	}
 	svc := keymanager.NewServiceWithQuerier(q, newFakeKeyStore(), keymanager.Config{})
 	_, err := keymanager.ResolveSignKeyAlias(svc, context.Background(), "ESIGNET_RSA", "XYZ")
-	assert.ErrorIs(t, err, keymanager.ErrComponentMasterKeyNotFound)
+	ts.Assert().ErrorIs(err, keymanager.ErrComponentMasterKeyNotFound)
 }

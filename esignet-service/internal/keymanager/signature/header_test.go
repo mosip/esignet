@@ -12,6 +12,8 @@ import (
 	"math/big"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/suite"
 )
 
 func testLeafCert(t *testing.T) *x509.Certificate {
@@ -50,7 +52,8 @@ func decodeHeader(t *testing.T, headerB64 string) jwsHeader {
 	return h
 }
 
-func TestBuildHeader_MinimalFlags(t *testing.T) {
+func (ts *HeaderTestSuite) TestBuildHeader_MinimalFlags() {
+	t := ts.T()
 	headerB64, err := buildHeader(headerParams{signAlgorithm: algPS256, b64: true})
 	if err != nil {
 		t.Fatalf("buildHeader: %v", err)
@@ -64,7 +67,8 @@ func TestBuildHeader_MinimalFlags(t *testing.T) {
 	}
 }
 
-func TestBuildHeader_B64False_SetsCriticalParam(t *testing.T) {
+func (ts *HeaderTestSuite) TestBuildHeader_B64False_SetsCriticalParam() {
+	t := ts.T()
 	headerB64, err := buildHeader(headerParams{signAlgorithm: algES256, b64: false})
 	if err != nil {
 		t.Fatalf("buildHeader: %v", err)
@@ -78,7 +82,8 @@ func TestBuildHeader_B64False_SetsCriticalParam(t *testing.T) {
 	}
 }
 
-func TestBuildHeader_IncludesCertAndHash(t *testing.T) {
+func (ts *HeaderTestSuite) TestBuildHeader_IncludesCertAndHash() {
+	t := ts.T()
 	cert := testLeafCert(t)
 	headerB64, err := buildHeader(headerParams{
 		signAlgorithm: algRS256, b64: true,
@@ -104,7 +109,8 @@ func TestBuildHeader_IncludesCertAndHash(t *testing.T) {
 	}
 }
 
-func TestBuildHeader_CertificateURL(t *testing.T) {
+func (ts *HeaderTestSuite) TestBuildHeader_CertificateURL() {
+	t := ts.T()
 	headerB64, err := buildHeader(headerParams{signAlgorithm: algRS256, b64: true, certificateURL: "https://example.test/cert"})
 	if err != nil {
 		t.Fatalf("buildHeader: %v", err)
@@ -115,7 +121,8 @@ func TestBuildHeader_CertificateURL(t *testing.T) {
 	}
 }
 
-func TestBuildHeader_KeyID(t *testing.T) {
+func (ts *HeaderTestSuite) TestBuildHeader_KeyID() {
+	t := ts.T()
 	headerB64, err := buildHeader(headerParams{
 		signAlgorithm: algPS256, b64: true,
 		includeKeyID: true, uniqueIdentifier: "ABCDEF0123456789", kidPrepend: "prefix:",
@@ -133,7 +140,8 @@ func TestBuildHeader_KeyID(t *testing.T) {
 	}
 }
 
-func TestBuildHeader_KeyID_InvalidUniqueIdentifier_OmitsKid(t *testing.T) {
+func (ts *HeaderTestSuite) TestBuildHeader_KeyID_InvalidUniqueIdentifier_OmitsKid() {
+	t := ts.T()
 	headerB64, err := buildHeader(headerParams{
 		signAlgorithm: algPS256, b64: true,
 		includeKeyID: true, uniqueIdentifier: "not-hex!!", kidPrepend: "prefix:",
@@ -147,7 +155,8 @@ func TestBuildHeader_KeyID_InvalidUniqueIdentifier_OmitsKid(t *testing.T) {
 	}
 }
 
-func TestBuildSigningInput(t *testing.T) {
+func (ts *HeaderTestSuite) TestBuildSigningInput() {
+	t := ts.T()
 	got := buildSigningInput("HEADER", []byte("PAYLOAD"))
 	want := "HEADER.PAYLOAD"
 	if string(got) != want {
@@ -155,7 +164,8 @@ func TestBuildSigningInput(t *testing.T) {
 	}
 }
 
-func TestKidFromUniqueIdentifier_DeterministicSHA256(t *testing.T) {
+func (ts *HeaderTestSuite) TestKidFromUniqueIdentifier_DeterministicSHA256() {
+	t := ts.T()
 	raw, _ := hex.DecodeString("ABCDEF0123456789")
 	sum := sha256.Sum256(raw)
 	want := base64.RawURLEncoding.EncodeToString(sum[:])
@@ -169,13 +179,15 @@ func TestKidFromUniqueIdentifier_DeterministicSHA256(t *testing.T) {
 	}
 }
 
-func TestKidFromUniqueIdentifier_InvalidHex(t *testing.T) {
+func (ts *HeaderTestSuite) TestKidFromUniqueIdentifier_InvalidHex() {
+	t := ts.T()
 	if _, err := kidFromUniqueIdentifier("not hex"); err == nil {
 		t.Fatal("expected an error for non-hex input")
 	}
 }
 
-func TestCheckCertValidity(t *testing.T) {
+func (ts *HeaderTestSuite) TestCheckCertValidity() {
+	t := ts.T()
 	cert := &x509.Certificate{
 		NotBefore: time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
 		NotAfter:  time.Date(2020, 12, 31, 0, 0, 0, 0, time.UTC),
@@ -191,7 +203,8 @@ func TestCheckCertValidity(t *testing.T) {
 	}
 }
 
-func TestIssuerFromPayload(t *testing.T) {
+func (ts *HeaderTestSuite) TestIssuerFromPayload() {
+	t := ts.T()
 	if got := issuerFromPayload([]byte(`{"iss":"https://issuer.example"}`)); got != "https://issuer.example" {
 		t.Errorf("issuerFromPayload = %q, want the iss claim", got)
 	}
@@ -201,4 +214,12 @@ func TestIssuerFromPayload(t *testing.T) {
 	if got := issuerFromPayload([]byte(`not json`)); got != "" {
 		t.Errorf("issuerFromPayload = %q, want empty for invalid JSON", got)
 	}
+}
+
+type HeaderTestSuite struct {
+	suite.Suite
+}
+
+func TestHeaderTestSuite(t *testing.T) {
+	suite.Run(t, new(HeaderTestSuite))
 }

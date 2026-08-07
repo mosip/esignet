@@ -18,6 +18,11 @@ func init() {
 	keystore.Register("PKCS11", New)
 }
 
+// ErrCgoRequired is returned by New in a CGO_ENABLED=0 build. Exported so
+// callers (and tests) can distinguish "PKCS11 selected without cgo" from any
+// other error via errors.Is, instead of matching on error text.
+var ErrCgoRequired = errors.New("PKCS11 keystore requires a build with cgo enabled (CGO_ENABLED=1); use KEYMANAGER_KEYSTORE_TYPE=PKCS12 or rebuild with CGO_ENABLED=1")
+
 func New(map[string]string) (keystore.KeyStore, error) {
-	return nil, errors.New("PKCS11 keystore requires a build with cgo enabled (CGO_ENABLED=1); use KEYMANAGER_KEYSTORE_TYPE=PKCS12 or rebuild with CGO_ENABLED=1")
+	return nil, ErrCgoRequired
 }

@@ -7,7 +7,6 @@ import (
 	"crypto/sha256"
 	"encoding/asn1"
 	"math/big"
-	"testing"
 
 	"github.com/mosip/esignet/internal/keymanager/signature"
 )
@@ -16,7 +15,8 @@ import (
 // it, converts it via the exported test hook (see export_test.go), and
 // confirms the resulting r||s decodes back to the original r,s — the same
 // property Java's EcdsaUsingShaAlgorithm.convertDerToConcatenated must hold.
-func TestDerToConcat_RoundTrip(t *testing.T) {
+func (ts *SignatureTestSuite) TestDerToConcat_RoundTrip() {
+	t := ts.T()
 	priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
 		t.Fatalf("generate key: %v", err)
@@ -57,7 +57,8 @@ func TestDerToConcat_RoundTrip(t *testing.T) {
 // TestDerToConcat_LeftZeroPadded confirms small R/S values are left-padded
 // to the full half-length, not left short — JOSE requires fixed-length
 // components.
-func TestDerToConcat_LeftZeroPadded(t *testing.T) {
+func (ts *SignatureTestSuite) TestDerToConcat_LeftZeroPadded() {
+	t := ts.T()
 	// R and S both small enough to encode in far fewer than 32 bytes.
 	der, err := asn1.Marshal(struct{ R, S *big.Int }{big.NewInt(1), big.NewInt(2)})
 	if err != nil {
@@ -81,7 +82,8 @@ func TestDerToConcat_LeftZeroPadded(t *testing.T) {
 	}
 }
 
-func TestDerToConcat_MalformedInput(t *testing.T) {
+func (ts *SignatureTestSuite) TestDerToConcat_MalformedInput() {
+	t := ts.T()
 	if _, err := signature.DerToConcat([]byte("not DER"), 64); err == nil {
 		t.Fatal("expected an error for malformed DER input")
 	}
@@ -89,7 +91,8 @@ func TestDerToConcat_MalformedInput(t *testing.T) {
 
 // TestAlgorithmForRefID_MatchesJavaMapping confirms the refID -> JWS
 // algorithm mapping matches Java's SignatureUtil.getSignAlgorithm exactly.
-func TestAlgorithmForRefID_MatchesJavaMapping(t *testing.T) {
+func (ts *SignatureTestSuite) TestAlgorithmForRefID_MatchesJavaMapping() {
+	t := ts.T()
 	cases := []struct {
 		refID, want string
 	}{

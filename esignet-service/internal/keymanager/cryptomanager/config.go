@@ -9,6 +9,7 @@ package cryptomanager
 import (
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -35,6 +36,18 @@ type Config struct {
 	// Env: CRYPTOMANAGER_JWT_ENFORCE_2048 — default true
 	EnforceJWTCertKeyLength bool
 
+	// CallerNonceAllowedRefIDs lists the reference ids EncryptAES permits a
+	// caller-supplied Nonce for (see EncryptAESRequest.Nonce). A
+	// caller-supplied nonce is reused verbatim with the current long-lived
+	// symmetric key; if a caller ever repeats one under the same key,
+	// AES-GCM catastrophically loses confidentiality and leaks the
+	// authentication subkey. Only a documented interop wire format that
+	// itself guarantees per-key nonce uniqueness should ever be listed
+	// here. Unset (the default) rejects every caller-supplied nonce —
+	// EncryptAES always generates its own.
+	// Env: CRYPTOMANAGER_CALLER_NONCE_ALLOWED_REF_IDS — comma-separated — default ""
+	CallerNonceAllowedRefIDs []string
+
 	// ThumbprintCacheExpiry is a forward-looking hook for caching the
 	// thumbprint -> key_alias resolution (the one thing the Java reference
 	// caches — see resolveDecryptionKey's doc comment), mirroring the
@@ -48,10 +61,11 @@ type Config struct {
 // LoadConfig reads cryptomanager service settings from the environment.
 func LoadConfig() Config {
 	return Config{
-		DataKeySplitter:         envOrDefault("CRYPTOMANAGER_DATA_KEY_SPLITTER", defaultDataKeySplitter),
-		SessionKeyLength:        defaultSessionKeyLength,
-		EnforceJWTCertKeyLength: envBoolOrDefault("CRYPTOMANAGER_JWT_ENFORCE_2048", true),
-		ThumbprintCacheExpiry:   time.Duration(envIntOrDefault("CRYPTOMANAGER_THUMBPRINT_CACHE_EXPIRE_MINS", 0)) * time.Minute,
+		DataKeySplitter:          envOrDefault("CRYPTOMANAGER_DATA_KEY_SPLITTER", defaultDataKeySplitter),
+		SessionKeyLength:         defaultSessionKeyLength,
+		EnforceJWTCertKeyLength:  envBoolOrDefault("CRYPTOMANAGER_JWT_ENFORCE_2048", true),
+		CallerNonceAllowedRefIDs: splitAndTrim(os.Getenv("CRYPTOMANAGER_CALLER_NONCE_ALLOWED_REF_IDS")),
+		ThumbprintCacheExpiry:    time.Duration(envIntOrDefault("CRYPTOMANAGER_THUMBPRINT_CACHE_EXPIRE_MINS", 0)) * time.Minute,
 	}
 }
 
@@ -72,6 +86,23 @@ func envIntOrDefault(key string, fallback int) int {
 		return fallback
 	}
 	return n
+}
+
+// splitAndTrim splits a comma-separated env var value into a trimmed,
+// non-empty slice — mirrors keymanager.Config's LoadConfig helper of the
+// same name.
+func splitAndTrim(s string) []string {
+	if s == "" {
+		return nil
+	}
+	parts := strings.Split(s, ",")
+	out := make([]string, 0, len(parts))
+	for _, p := range parts {
+		if p = strings.TrimSpace(p); p != "" {
+			out = append(out, p)
+		}
+	}
+	return out
 }
 
 func envBoolOrDefault(key string, fallback bool) bool {

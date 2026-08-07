@@ -116,6 +116,8 @@ func newFakeKeyStore() *fakeKeyStore {
 
 func (f *fakeKeyStore) ProviderName() string { return "FAKE" }
 
+func (f *fakeKeyStore) Close() error { return nil }
+
 func (f *fakeKeyStore) GetPrivateKey(alias string) (crypto.PrivateKey, error) {
 	k, ok := f.keys[alias]
 	if !ok {

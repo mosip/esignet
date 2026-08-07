@@ -10,7 +10,6 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
-	"crypto/x509/pkix"
 	"encoding/asn1"
 	"fmt"
 	"math/big"
@@ -103,12 +102,25 @@ func (s *Store) findAllObjectsWithLabel(sh pkcs11.SessionHandle, alias string) (
 var errSECP256K1Unsupported = fmt.Errorf("pkcs11: SECP256K1 certificates are not supported: crypto/x509 only supports NIST curves (P224/P256/P384/P521) for EC certificates; SECP256K1 needs a custom X.509 codec")
 
 // GenerateAndStoreAsymmetricKey implements keystore.KeyStore.
-func (s *Store) GenerateAndStoreAsymmetricKey(alias, signKeyAlias string, params keystore.CertificateParameters, algoName, curveName string) error {
+func (s *Store) GenerateAndStoreAsymmetricKey(alias, signKeyAlias string, params keystore.CertificateParameters, algoName, curveName string) (retErr error) {
 	if curveName == keystore.CurveSECP256K1 {
 		return errSECP256K1Unsupported
 	}
 	var pub crypto.PublicKey
 	var privHandle pkcs11.ObjectHandle
+	var keyGenerated bool
+
+	// Any failure past key generation must not leave an orphaned token
+	// object: the private (and public) key objects are written with
+	// CKA_TOKEN=true by GenerateKeyPair, so they persist on the HSM even if
+	// this function returns early.
+	defer func() {
+		if retErr != nil && keyGenerated {
+			if derr := s.DeleteKey(alias); derr != nil {
+				retErr = fmt.Errorf("%w (cleanup of orphaned key %q failed: %v)", retErr, alias, derr)
+			}
+		}
+	}()
 
 	err := s.withSession(func(sh pkcs11.SessionHandle) error {
 		var mech []*pkcs11.Mechanism
@@ -155,6 +167,7 @@ func (s *Store) GenerateAndStoreAsymmetricKey(alias, signKeyAlias string, params
 			return fmt.Errorf("generate key pair: %w", err)
 		}
 		privHandle = ph
+		keyGenerated = true
 
 		pub, err = readPublicKey(s.ctx, sh, pubHandle, algoName, curveName)
 		return err
@@ -165,7 +178,7 @@ func (s *Store) GenerateAndStoreAsymmetricKey(alias, signKeyAlias string, params
 
 	priv := &privateKey{store: s, alias: alias, handle: privHandle, keyType: pkcs11KeyType(algoName, curveName), pub: pub}
 
-	template, err := buildCertTemplate(params)
+	template, err := keystore.BuildCertificateTemplate(params)
 	if err != nil {
 		return err
 	}
@@ -199,7 +212,6 @@ func (s *Store) GenerateAndStoreAsymmetricKey(alias, signKeyAlias string, params
 	if err := s.StoreCertificate(alias, priv, cert); err != nil {
 		return err
 	}
-	s.cachePut(alias, privHandle)
 	return nil
 }
 
@@ -211,28 +223,6 @@ func pkcs11KeyType(algoName, curveName string) uint {
 		return ckkECEdwards
 	}
 	return pkcs11.CKK_EC
-}
-
-func buildCertTemplate(params keystore.CertificateParameters) (*x509.Certificate, error) {
-	serial, err := rand.Int(rand.Reader, new(big.Int).Lsh(big.NewInt(1), 128))
-	if err != nil {
-		return nil, fmt.Errorf("pkcs11: generate serial: %w", err)
-	}
-	return &x509.Certificate{
-		SerialNumber: serial,
-		Subject: pkix.Name{
-			CommonName:         params.CommonName,
-			OrganizationalUnit: []string{params.OrganizationUnit},
-			Organization:       []string{params.Organization},
-			Locality:           []string{params.Location},
-			Province:           []string{params.State},
-			Country:            []string{params.Country},
-		},
-		NotBefore:   params.NotBefore,
-		NotAfter:    params.NotAfter,
-		KeyUsage:    x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
-		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth, x509.ExtKeyUsageClientAuth},
-	}, nil
 }
 
 // readPublicKey reads a freshly generated public-key object's attributes and
@@ -315,11 +305,9 @@ func (s *Store) GenerateAndStoreSymmetricKey(alias string) error {
 			pkcs11.NewAttribute(pkcs11.CKA_SENSITIVE, false),
 			pkcs11.NewAttribute(pkcs11.CKA_EXTRACTABLE, true),
 		}
-		h, err := s.ctx.GenerateKey(sh, mech, tmpl)
-		if err != nil {
+		if _, err := s.ctx.GenerateKey(sh, mech, tmpl); err != nil {
 			return fmt.Errorf("generate symmetric key: %w", err)
 		}
-		s.cachePut(alias, h)
 		return nil
 	})
 }
@@ -365,8 +353,11 @@ func (s *Store) GetPrivateKey(alias string) (crypto.PrivateKey, error) {
 		keyType := decodeCKULong(attrs[0].Value)
 
 		pubHandle, ok, err := s.findObject(sh, pkcs11.CKO_PUBLIC_KEY, alias)
+		if err != nil {
+			return fmt.Errorf("pkcs11: find public key for alias %q: %w", alias, err)
+		}
 		var pub crypto.PublicKey
-		if err == nil && ok {
+		if ok {
 			algoName, curveName, aerr := algoAndCurveFor(s.ctx, sh, pubHandle, keyType)
 			if aerr != nil {
 				return fmt.Errorf("pkcs11: resolve algo/curve for alias %q: %w", alias, aerr)
@@ -409,7 +400,11 @@ func (s *Store) GetPublicKey(alias string) (crypto.PublicKey, error) {
 	if err != nil {
 		return nil, err
 	}
-	return priv.(*privateKey).pub, nil
+	pub := priv.(*privateKey).pub
+	if pub == nil {
+		return nil, fmt.Errorf("pkcs11: no public key object for alias %q", alias)
+	}
+	return pub, nil
 }
 
 // GetCertificate implements keystore.KeyStore.
@@ -476,25 +471,29 @@ func (s *Store) GetAllAlias() ([]string, error) {
 			return err
 		}
 		defer func() { _ = s.ctx.FindObjectsFinal(sh) }()
-		handles, _, err := s.ctx.FindObjects(sh, 1000)
-		if err != nil {
-			return err
-		}
-		for _, h := range handles {
-			attrs, err := s.ctx.GetAttributeValue(sh, h, []*pkcs11.Attribute{pkcs11.NewAttribute(pkcs11.CKA_LABEL, nil)})
+		for {
+			handles, _, err := s.ctx.FindObjects(sh, 256)
 			if err != nil {
-				continue
+				return err
 			}
-			aliases = append(aliases, string(attrs[0].Value))
+			if len(handles) == 0 {
+				return nil
+			}
+			for _, h := range handles {
+				attrs, aerr := s.ctx.GetAttributeValue(sh, h, []*pkcs11.Attribute{pkcs11.NewAttribute(pkcs11.CKA_LABEL, nil)})
+				if aerr != nil {
+					return fmt.Errorf("pkcs11: read label of private key object: %w", aerr)
+				}
+				aliases = append(aliases, string(attrs[0].Value))
+			}
 		}
-		return nil
 	})
 	return aliases, err
 }
 
 // DeleteKey implements keystore.KeyStore.
 func (s *Store) DeleteKey(alias string) error {
-	err := s.withSession(func(sh pkcs11.SessionHandle) error {
+	return s.withSession(func(sh pkcs11.SessionHandle) error {
 		handles, err := s.findAllObjectsWithLabel(sh, alias)
 		if err != nil {
 			return err
@@ -506,10 +505,6 @@ func (s *Store) DeleteKey(alias string) error {
 		}
 		return nil
 	})
-	if err == nil {
-		s.cacheInvalidate(alias)
-	}
-	return err
 }
 
 // StoreCertificate stores/replaces the certificate object for alias. The
@@ -520,8 +515,9 @@ func (s *Store) DeleteKey(alias string) error {
 // here — only the certificate object is written.
 func (s *Store) StoreCertificate(alias string, _ crypto.PrivateKey, cert *x509.Certificate) error {
 	return s.withSession(func(sh pkcs11.SessionHandle) error {
-		if h, ok, err := s.findObject(sh, pkcs11.CKO_CERTIFICATE, alias); err == nil && ok {
-			_ = s.ctx.DestroyObject(sh, h)
+		oldHandle, hasOld, err := s.findObject(sh, pkcs11.CKO_CERTIFICATE, alias)
+		if err != nil {
+			return fmt.Errorf("pkcs11: find existing certificate for alias %q: %w", alias, err)
 		}
 		tmpl := []*pkcs11.Attribute{
 			pkcs11.NewAttribute(pkcs11.CKA_CLASS, pkcs11.CKO_CERTIFICATE),
@@ -531,9 +527,13 @@ func (s *Store) StoreCertificate(alias string, _ crypto.PrivateKey, cert *x509.C
 			pkcs11.NewAttribute(pkcs11.CKA_SUBJECT, cert.RawSubject),
 			pkcs11.NewAttribute(pkcs11.CKA_VALUE, cert.Raw),
 		}
-		_, err := s.ctx.CreateObject(sh, tmpl)
-		if err != nil {
+		if _, err := s.ctx.CreateObject(sh, tmpl); err != nil {
 			return fmt.Errorf("create certificate object: %w", err)
+		}
+		if hasOld {
+			if err := s.ctx.DestroyObject(sh, oldHandle); err != nil {
+				return fmt.Errorf("destroy superseded certificate object: %w", err)
+			}
 		}
 		return nil
 	})

@@ -107,6 +107,28 @@ var (
 	// ErrJWEDecryptFailed is returned by JWTDecrypt when JWE decryption
 	// itself fails (wrong key, tampered data, auth-tag mismatch).
 	ErrJWEDecryptFailed = errors.New("JWE decryption failed")
+
+	// ErrCallerNonceNotAllowed is returned by EncryptAES when a
+	// caller-supplied Nonce is used with a ReferenceID that isn't in the
+	// configured allow-list (Config.CallerNonceAllowedRefIDs). A
+	// caller-supplied nonce is reused verbatim with the current long-lived
+	// symmetric key, so an application that repeats one under the same key
+	// catastrophically loses AES-GCM confidentiality; only a documented
+	// interop wire format that itself guarantees per-key uniqueness should
+	// ever be allow-listed. An empty/unset list rejects every
+	// caller-supplied nonce, same "no silent default" stance as
+	// keymanager.Config.SymmetricKeyAllowedRefIDs.
+	ErrCallerNonceNotAllowed = errors.New("caller-supplied nonce not allowed for this reference id")
+
+	// ErrDecryptionFailed is returned for every cryptographic failure in
+	// Decrypt after key resolution — deliberately does not distinguish an
+	// RSA-OAEP session-key unwrap failure from an AES-GCM authentication
+	// failure. Decrypt performs no authorization check by design, so
+	// leaking which stage failed would hand an adaptive attacker the
+	// distinguishing oracle a Manger-style attack on RSA-OAEP needs. The
+	// underlying error is still logged, just not returned across the API
+	// boundary.
+	ErrDecryptionFailed = errors.New("decryption failed")
 )
 
 // Service implements the cryptomanager business logic: Encrypt/Decrypt
@@ -190,6 +212,15 @@ func (s *Service) Encrypt(ctx context.Context, req EncryptRequest) (EncryptRespo
 	if !ok {
 		return EncryptResponse{}, fmt.Errorf("certificate for %q/%q does not have an RSA public key", req.ApplicationID, req.ReferenceID)
 	}
+	// parseEnvelope only accepts a rsa2048CipherLen (256-byte) wrapped
+	// session key — a Component Encryption Key provisioned at any other RSA
+	// modulus size would encrypt successfully here and then be permanently
+	// unreadable by Decrypt. Refuse to produce an envelope this service
+	// cannot decrypt.
+	if rsaPub.Size() != rsa2048CipherLen {
+		return EncryptResponse{}, fmt.Errorf("certificate for %q/%q has a %d-bit RSA key; the VER_R2 envelope format requires 2048 bits",
+			req.ApplicationID, req.ReferenceID, rsaPub.N.BitLen())
+	}
 	encryptedSessionKey, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, rsaPub, sessionKey, nil)
 	if err != nil {
 		return EncryptResponse{}, fmt.Errorf("wrap session key: %w", err)
@@ -243,12 +274,14 @@ func (s *Service) Decrypt(ctx context.Context, req DecryptRequest) (DecryptRespo
 	}
 	sessionKey, err := decrypter.Decrypt(rand.Reader, encryptedSessionKey, &rsa.OAEPOptions{Hash: crypto.SHA256})
 	if err != nil {
-		return DecryptResponse{}, fmt.Errorf("unwrap session key: %w", err)
+		s.logger.Warn(ctx, "decrypt: session key unwrap failed", applog.Error(err))
+		return DecryptResponse{}, ErrDecryptionFailed
 	}
 
 	plaintext, err := symmetricDecrypt(sessionKey, encryptedData)
 	if err != nil {
-		return DecryptResponse{}, fmt.Errorf("symmetric decrypt: %w", err)
+		s.logger.Warn(ctx, "decrypt: payload decryption failed", applog.Error(err))
+		return DecryptResponse{}, ErrDecryptionFailed
 	}
 	s.logger.Debug(ctx, "data decrypted",
 		applog.String("applicationId", req.ApplicationID), applog.String("referenceId", req.ReferenceID))
@@ -318,7 +351,12 @@ func (s *Service) JWTEncrypt(ctx context.Context, req JWTEncryptRequest) (JWTCip
 	}
 
 	compact, err := buildJWECompact(cert, payload, jweBuildOptions{
-		compress:           boolOrDefault(req.EnableDeflateCompression, true),
+		// Default off: DEFLATE before encryption makes ciphertext length a
+		// function of plaintext redundancy (RFC 8725 §3.6, the CRIME/BREACH
+		// class of attack applied to JWE) — a real risk here since MOSIP
+		// identity payloads mix attacker-influenced and secret fields.
+		// Callers must opt in explicitly via EnableDeflateCompression.
+		compress:           boolOrDefault(req.EnableDeflateCompression, false),
 		includeCertificate: req.IncludeCertificate,
 		includeCertHash:    req.IncludeCertHash,
 		jwkSetURL:          req.JWKSetURL,
@@ -342,6 +380,16 @@ func (s *Service) resolveJWTEncryptCertificate(ctx context.Context, req JWTEncry
 		c, err := keymanager.ParseCertPEM(req.X509Certificate)
 		if err != nil {
 			return nil, fmt.Errorf("parse supplied certificate: %w", err)
+		}
+		// A caller-supplied certificate bypasses key resolution entirely, so
+		// nothing else here checks its validity window — JWTEncrypt only
+		// checks RSA modulus size, and only when EnforceJWTCertKeyLength is
+		// set. Without this, the service would happily encrypt identity data
+		// to an expired or not-yet-valid certificate and report success.
+		now := time.Now().UTC()
+		if now.Before(c.NotBefore) || now.After(c.NotAfter) {
+			return nil, fmt.Errorf("supplied certificate is not valid at %s (valid %s to %s)",
+				now.Format(time.RFC3339), c.NotBefore.Format(time.RFC3339), c.NotAfter.Format(time.RFC3339))
 		}
 		return c, nil
 	}
@@ -408,8 +456,10 @@ func isJSONValid(data []byte) bool {
 }
 
 // boolOrDefault returns v if set, else fallback — used for
-// JWTEncryptRequest.EnableDeflateCompression, whose Java counterpart
-// defaults to true (a plain Go bool's zero value can't express that).
+// JWTEncryptRequest.EnableDeflateCompression (a plain Go bool's zero value
+// can't distinguish "unset" from "explicitly false"). Unlike its Java
+// counterpart, this defaults to false, not true — see the compress option
+// at JWTEncrypt's call site for why.
 func boolOrDefault(v *bool, fallback bool) bool {
 	if v == nil {
 		return fallback

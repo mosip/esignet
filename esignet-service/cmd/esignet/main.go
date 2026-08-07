@@ -12,6 +12,9 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -98,10 +101,15 @@ func main() {
 	clientHandler := clientmgmt.NewHandler(clientSvc, logger)
 	clientHandler.RegisterRoutes(mux, getSecurityMiddleware(appCfg, logger))
 
-	keyMgrSvc, sigSvc, cryptoSvc, err := initializeKeyManager(sqlxConn)
+	keyMgrSvc, sigSvc, cryptoSvc, ks, err := initializeKeyManager(sqlxConn)
 	if err != nil {
 		logger.Fatal("failed to initialize key manager", applog.Error(err))
 	}
+	defer func() {
+		if err := ks.Close(); err != nil {
+			logger.Warn(context.Background(), "close keystore", applog.Error(err))
+		}
+	}()
 	if err := provisionKeyHierarchy(keyMgrSvc); err != nil {
 		logger.Fatal("failed to provision key hierarchy", applog.Error(err))
 	}
@@ -153,10 +161,32 @@ func main() {
 	)
 
 	addr := fmt.Sprintf(":%d", appCfg.Port)
-	logger.Info(context.Background(), "server listening", applog.String("addr", addr), applog.String("issuer", appCfg.Issuer))
 	handler := httpmiddleware.CorrelationID(httpmiddleware.AccessLog(mux))
-	if err := http.ListenAndServe(addr, handler); err != nil {
-		logger.Fatal("server", applog.Error(err))
+	srv := &http.Server{Addr: addr, Handler: handler}
+
+	go func() {
+		logger.Info(context.Background(), "server listening", applog.String("addr", addr), applog.String("issuer", appCfg.Issuer))
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			logger.Fatal("server", applog.Error(err))
+		}
+	}()
+
+	// Block until an orchestrator (Docker/Kubernetes) asks us to stop, then
+	// shut the HTTP server down gracefully — letting in-flight requests
+	// finish — before this function returns and the deferred pgConn/
+	// redisClient/keystore Close() calls above run. A bare os.Exit path
+	// (logger.Fatal, an unhandled signal) skips all of those; this is the
+	// only path that reaches them.
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
+	<-quit
+	logger.Info(context.Background(), "shutdown signal received, draining in-flight requests")
+
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(shutdownCtx); err != nil {
+		logger.Warn(context.Background(), "graceful shutdown timed out, closing forcibly", applog.Error(err))
+		_ = srv.Close()
 	}
 }
 
@@ -221,7 +251,7 @@ func newHTTPClient(cfg config.HTTPClientConfig) *http.Client {
 	}
 }
 
-func initializeKeyManager(conn *sqlx.DB) (*keymanager.Service, *signature.Service, *cryptomanager.Service, error) {
+func initializeKeyManager(conn *sqlx.DB) (*keymanager.Service, *signature.Service, *cryptomanager.Service, keystore.KeyStore, error) {
 	kmCfg := keymanager.LoadConfig()
 	ks, err := keystore.New(kmCfg.KeystoreType, kmCfg.KeystoreParams)
 	if err != nil {
@@ -230,7 +260,7 @@ func initializeKeyManager(conn *sqlx.DB) (*keymanager.Service, *signature.Servic
 	svc := keymanager.NewService(conn, ks, kmCfg)
 	sigSvc := signature.NewService(svc)
 	cryptoSvc := cryptomanager.NewService(db.New(conn, kmCfg.DBSchema), svc, cryptomanager.LoadConfig())
-	return svc, sigSvc, cryptoSvc, nil
+	return svc, sigSvc, cryptoSvc, ks, nil
 }
 
 // provisionKeyHierarchy provisions the ROOT key, the OIDC_SERVICE Component
@@ -252,7 +282,7 @@ func provisionKeyHierarchy(svc *keymanager.Service) error {
 	}
 	if _, err := svc.GenerateSymmetricKey(context.Background(), keymanager.SymmetricKeyRequest{
 		ApplicationID: config.OIDCServiceAppID,
-		ReferenceID:   "CACHE_ENCRYPT",
+		ReferenceID:   keymanager.RefIDCacheEncrypt,
 		Force:         false,
 	}); err != nil {
 		return fmt.Errorf("provision %s symmetric key: %w", config.OIDCServiceAppID, err)

@@ -272,7 +272,7 @@ extraEnvVars: |
   - name: KEYMANAGER_KEYSTORE_TYPE
     value: PKCS11
   - name: KEYMANAGER_PKCS11_MODULE_PATH
-    value: /path/to/pkcs11-module.so
+    value: /usr/lib/softhsm/libsofthsm2.so
   - name: KEYMANAGER_PKCS11_TOKEN_LABEL
     value: esignet
   - name: KEYMANAGER_PKCS11_SLOT_ID
@@ -288,7 +288,10 @@ extraEnvVars: |
   #  - name: KEYMANAGER_PKCS12_FILE_PATH
   #    value: /home/mosip/keys/secret/esignet.pfx
   #  - name: KEYMANAGER_PKCS12_PASSWORD
-  #    value: localtest
+  #    valueFrom:
+  #      secretKeyRef:
+  #        name: esignet-keymanager
+  #        key: pkcs12-password
   - name: REDIS_HOST
     valueFrom:
       configMapKeyRef:

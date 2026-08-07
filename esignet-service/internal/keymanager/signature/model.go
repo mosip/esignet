@@ -95,6 +95,17 @@ type JWSVerifyRequest struct {
 	// ApplicationID/ReferenceID — only consulted when the JWS header has no
 	// embedded certificate (see resolveVerifyCert's precedence).
 	CertificatePEM string
+
+	// AllowHeaderCertificate must be set for JWSVerify to fall back to the
+	// certificate embedded in the JWS header's own x5c claim when the caller
+	// supplies neither CertificatePEM nor ApplicationID/ReferenceID. Without
+	// a pinned certificate, that fallback trusts whatever certificate the
+	// token itself carries — this package performs no trust-chain
+	// validation, so verification then proves only that the token is
+	// internally consistent, not that it came from a trusted issuer. Any
+	// caller that genuinely wants unpinned, header-only verification must
+	// opt in explicitly.
+	AllowHeaderCertificate bool
 }
 
 // JWSVerifyResponse ports JWTSignatureVerifyResponseDto minus TrustValid

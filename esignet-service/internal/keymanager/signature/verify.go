@@ -60,6 +60,9 @@ func resolveVerifyCert(ctx context.Context, km *keymanager.Service, headerB64 st
 		return cert, nil
 	}
 	if req.ApplicationID == "" || req.ReferenceID == "" {
+		if !req.AllowHeaderCertificate {
+			return nil, fmt.Errorf("%w: no pinned certificate supplied and header x5c is not permitted", ErrVerifyCertificateNotFound)
+		}
 		if cert, ok := certFromHeader(headerB64); ok {
 			return cert, nil
 		}

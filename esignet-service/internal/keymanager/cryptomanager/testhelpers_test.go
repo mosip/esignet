@@ -217,6 +217,8 @@ func newMemKeyStore() *memKeyStore {
 
 func (f *memKeyStore) ProviderName() string { return "MEM" }
 
+func (f *memKeyStore) Close() error { return nil }
+
 func (f *memKeyStore) GetPrivateKey(alias string) (crypto.PrivateKey, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()

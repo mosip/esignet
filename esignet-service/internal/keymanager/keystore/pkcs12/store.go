@@ -77,6 +77,10 @@ type Store struct {
 	mu      sync.Mutex
 	entries map[string]fileEntry
 	salt    []byte // scrypt salt for aesKey, persisted in fileFormat.Salt
+
+	keyOnce sync.Once
+	key     [32]byte
+	keyErr  error
 }
 
 // New constructs a PKCS#12-backed keystore.KeyStore from config params:
@@ -91,6 +95,9 @@ func New(params map[string]string) (keystore.KeyStore, error) {
 	password := params["keystore-pass"]
 	if password == "" {
 		return nil, fmt.Errorf("pkcs12: keystore-pass is required")
+	}
+	if params["allow-insecure-software-keystore"] != "true" {
+		return nil, fmt.Errorf("pkcs12: the software keystore stores private keys on the local filesystem and is not permitted by default; set allow-insecure-software-keystore=true to use it in a development environment")
 	}
 	applog.GetLogger().Named("keystore.pkcs12").Warn(context.Background(),
 		"pkcs12 keystore backend is not recommended for production use", applog.String("path", path))
@@ -118,6 +125,11 @@ func New(params map[string]string) (keystore.KeyStore, error) {
 // ProviderName implements keystore.KeyStore.
 func (s *Store) ProviderName() string { return "PKCS12" }
 
+// Close implements keystore.KeyStore. The PKCS#12 backend holds no
+// persistent connections or handles (each operation opens/reads/writes
+// s.path directly), so there is nothing to release.
+func (s *Store) Close() error { return nil }
+
 func (s *Store) load() error {
 	data, err := os.ReadFile(s.path)
 	if os.IsNotExist(err) {
@@ -130,6 +142,9 @@ func (s *Store) load() error {
 	if err := json.Unmarshal(data, &ff); err != nil {
 		return fmt.Errorf("pkcs12: parse %s: %w", s.path, err)
 	}
+	if ff.Version > entryVersion {
+		return fmt.Errorf("pkcs12: %s has format version %d, this build supports at most %d", s.path, ff.Version, entryVersion)
+	}
 	if ff.Entries == nil {
 		ff.Entries = map[string]fileEntry{}
 	}
@@ -140,6 +155,11 @@ func (s *Store) load() error {
 			return fmt.Errorf("pkcs12: decode salt: %w", err)
 		}
 		s.salt = salt
+	}
+	if len(s.salt) == 0 && len(s.entries) > 0 {
+		// Generating a new salt here would silently make every existing
+		// symmetric entry undecryptable, with no way back.
+		return fmt.Errorf("pkcs12: %s contains %d entries but no salt; refusing to generate a new salt because that would destroy every stored symmetric key", s.path, len(s.entries))
 	}
 	return nil
 }
@@ -191,13 +211,19 @@ func (s *Store) saveLocked() error {
 // hashing speed, and a per-file salt means identical passwords across
 // deployments don't yield identical keys.
 func (s *Store) aesKey() ([32]byte, error) {
-	var out [32]byte
-	dk, err := scrypt.Key([]byte(s.password), s.salt, 1<<15, 8, 1, 32)
-	if err != nil {
-		return out, fmt.Errorf("pkcs12: derive key: %w", err)
-	}
-	copy(out[:], dk)
-	return out, nil
+	// The password and the per-file salt are both fixed for the lifetime of
+	// the Store, so the derivation is done exactly once. scrypt with these
+	// parameters costs ~32 MB and ~100 ms; paying that per operation would
+	// make every symmetric key retrieval a memory and latency hazard.
+	s.keyOnce.Do(func() {
+		dk, err := scrypt.Key([]byte(s.password), s.salt, 1<<15, 8, 1, 32)
+		if err != nil {
+			s.keyErr = fmt.Errorf("pkcs12: derive key: %w", err)
+			return
+		}
+		copy(s.key[:], dk)
+	})
+	return s.key, s.keyErr
 }
 
 func (s *Store) encryptSymmetric(raw []byte) (string, error) {

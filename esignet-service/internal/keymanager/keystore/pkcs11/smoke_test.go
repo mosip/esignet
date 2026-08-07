@@ -3,11 +3,14 @@
 package pkcs11_test
 
 import (
+	"bytes"
 	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/suite"
 
 	"github.com/mosip/esignet/internal/keymanager/keystore"
 	pkcs11store "github.com/mosip/esignet/internal/keymanager/keystore/pkcs11"
@@ -23,62 +26,53 @@ import (
 //
 //	SOFTHSM2_CONF=... PKCS11_SMOKE_MODULE=... PKCS11_SMOKE_TOKEN_LABEL=... PKCS11_SMOKE_PIN=... \
 //	  go test ./internal/keymanager/keystore/pkcs11/... -run TestDecrypt_RSAOAEP_RoundTrip -v
-func TestDecrypt_RSAOAEP_RoundTrip(t *testing.T) {
+func (ts *SmokeTestSuite) TestDecrypt_RSAOAEP_RoundTrip() {
 	modulePath := os.Getenv("PKCS11_SMOKE_MODULE")
 	if modulePath == "" {
-		t.Skip("PKCS11_SMOKE_MODULE not set; skipping real-PKCS#11 smoke test")
+		ts.T().Skip("PKCS11_SMOKE_MODULE not set; skipping real-PKCS#11 smoke test")
 	}
 	ks, err := pkcs11store.New(map[string]string{
 		"module-path": modulePath,
 		"token-label": os.Getenv("PKCS11_SMOKE_TOKEN_LABEL"),
 		"pin":         os.Getenv("PKCS11_SMOKE_PIN"),
 	})
-	if err != nil {
-		t.Fatalf("open keystore: %v", err)
-	}
+	ts.Require().NoError(err, "open keystore")
 
 	alias := "oaep-smoke-master"
 	params := keystore.CertificateParameters{CommonName: "oaep-smoke"}
-	if err := ks.GenerateAndStoreAsymmetricKey(alias, alias, params, "RSA", ""); err != nil {
-		t.Fatalf("generate master key: %v", err)
-	}
-	defer func() {
+	err = ks.GenerateAndStoreAsymmetricKey(alias, alias, params, "RSA", "")
+	ts.Require().NoError(err, "generate master key")
+	ts.T().Cleanup(func() {
 		if err := ks.DeleteKey(alias); err != nil {
-			t.Logf("cleanup: delete key %q: %v", alias, err)
+			ts.T().Logf("cleanup: delete key %q: %v", alias, err)
 		}
-	}()
+	})
 
 	pub, err := ks.GetPublicKey(alias)
-	if err != nil {
-		t.Fatalf("get public key: %v", err)
-	}
-	rsaPub := pub.(*rsa.PublicKey)
+	ts.Require().NoError(err, "get public key")
+	rsaPub, ok := pub.(*rsa.PublicKey)
+	ts.Require().True(ok, "public key is not an *rsa.PublicKey: %T", pub)
 
 	dek := make([]byte, 32)
-	if _, err := rand.Read(dek); err != nil {
-		t.Fatalf("generate dek: %v", err)
-	}
+	_, err = rand.Read(dek)
+	ts.Require().NoError(err, "generate dek")
 	// Mirrors envelopeEncrypt exactly: SHA-256 OAEP wrap in software.
 	wrapped, err := rsa.EncryptOAEP(crypto.SHA256.New(), rand.Reader, rsaPub, dek, nil)
-	if err != nil {
-		t.Fatalf("wrap dek: %v", err)
-	}
+	ts.Require().NoError(err, "wrap dek")
 
 	priv, err := ks.GetPrivateKey(alias)
-	if err != nil {
-		t.Fatalf("get private key: %v", err)
-	}
-	decrypter := priv.(crypto.Decrypter)
+	ts.Require().NoError(err, "get private key")
+	decrypter, ok := priv.(crypto.Decrypter)
+	ts.Require().True(ok, "private key is not a crypto.Decrypter: %T", priv)
 	unwrapped, err := decrypter.Decrypt(rand.Reader, wrapped, &rsa.OAEPOptions{Hash: crypto.SHA256})
-	if err != nil {
-		t.Fatalf("unwrap dek (this is the exact failure mode found against SoftHSM2 — CKM_RSA_PKCS_OAEP/SHA-256 rejected with CKR_ARGUMENTS_BAD): %v", err)
-	}
-	if len(unwrapped) != len(dek) {
-		t.Fatalf("unwrapped DEK length = %d, want %d", len(unwrapped), len(dek))
-	}
-	for i := range dek {
-		if dek[i] != unwrapped[i] {
-			t.Fatalf("unwrapped DEK does not match original at byte %d", i)
-		}
-	}
+	ts.Require().NoError(err, "unwrap dek (this is the exact failure mode found against SoftHSM2 — CKM_RSA_PKCS_OAEP/SHA-256 rejected with CKR_ARGUMENTS_BAD)")
+	ts.Require().True(bytes.Equal(dek, unwrapped), "unwrapped DEK does not match original")
+}
+
+type SmokeTestSuite struct {
+	suite.Suite
+}
+
+func TestSmokeTestSuite(t *testing.T) {
+	suite.Run(t, new(SmokeTestSuite))
 }

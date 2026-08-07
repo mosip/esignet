@@ -11,26 +11,20 @@ import (
 	"crypto"
 	"crypto/aes"
 	"crypto/cipher"
-	"crypto/ecdsa"
-	"crypto/ed25519"
-	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
 	"crypto/x509"
 	"crypto/x509/pkix"
-	"database/sql"
 	"encoding/base64"
 	"encoding/json"
 	"encoding/pem"
 	"errors"
-	"fmt"
 	"io"
 	"math/big"
 	"net/http"
 	"net/http/httptest"
 	"strings"
-	"sync"
 	"testing"
 	"time"
 
@@ -45,8 +39,7 @@ import (
 	"github.com/mosip/esignet/internal/engine/runtimestores/inmemory"
 	"github.com/mosip/esignet/internal/engine/shared"
 	"github.com/mosip/esignet/internal/keymanager"
-	kmdb "github.com/mosip/esignet/internal/keymanager/db"
-	"github.com/mosip/esignet/internal/keymanager/keystore"
+	"github.com/mosip/esignet/internal/keymanager/kmtest"
 	"github.com/mosip/esignet/internal/keymanager/signature"
 )
 
@@ -196,254 +189,17 @@ func configureSigning(t *testing.T, p *mosipAuthnProvider) {
 	p.svc, p.sigSvc = newTestKeyManagerServices(t, true)
 }
 
-// ---------------------------------------------------------------------------
-// stateQuerier / fakeKeyStore: hand-written, stateful in-memory fakes for
-// keymanager's db.Querier and keystore.KeyStore ports — copied from
-// internal/keymanager/signature/fakes_test.go (unexported there, so not
-// importable from this sibling package). Real crypto key generation and
-// real x509.CreateCertificate calls, so signing round-trips exercise genuine
-// cryptography rather than mocked behavior.
-// ---------------------------------------------------------------------------
+// stateQuerier and fakeKeyStore are shared, hand-written in-memory fakes for
+// keymanager's db.Querier and keystore.KeyStore ports, used by both this
+// package's tests and internal/keymanager/signature's — see kmtest's
+// package doc. Real crypto key generation and real x509.CreateCertificate
+// calls, so signing round-trips exercise genuine cryptography rather than
+// mocked behavior.
+type stateQuerier = kmtest.StateQuerier
+type fakeKeyStore = kmtest.FakeKeyStore
 
-type stateQuerier struct {
-	mu      sync.Mutex
-	aliases map[string][]kmdb.KeyAlias // key: appID+"|"+refID, index 0 = most recently inserted
-}
-
-func newStateQuerier() *stateQuerier {
-	return &stateQuerier{aliases: map[string][]kmdb.KeyAlias{}}
-}
-
-func aliasMapKey(appID, refID string) string { return appID + "|" + refID }
-
-func (q *stateQuerier) GetKeyAliasesByAppRef(_ context.Context, appID, refID string) ([]kmdb.KeyAlias, error) {
-	q.mu.Lock()
-	defer q.mu.Unlock()
-	return append([]kmdb.KeyAlias(nil), q.aliases[aliasMapKey(appID, refID)]...), nil
-}
-
-func (q *stateQuerier) GetKeyAliasByCertThumbprint(_ context.Context, _ string) (kmdb.KeyAlias, error) {
-	return kmdb.KeyAlias{}, sql.ErrNoRows
-}
-
-func (q *stateQuerier) GetKeyAliasByUniIdent(_ context.Context, _ string) (kmdb.KeyAlias, error) {
-	return kmdb.KeyAlias{}, sql.ErrNoRows
-}
-
-func (q *stateQuerier) InsertKeyAlias(_ context.Context, k kmdb.KeyAlias) error {
-	q.mu.Lock()
-	defer q.mu.Unlock()
-	refID := ""
-	if k.RefID != nil {
-		refID = *k.RefID
-	}
-	key := aliasMapKey(k.AppID, refID)
-	q.aliases[key] = append([]kmdb.KeyAlias{k}, q.aliases[key]...)
-	return nil
-}
-
-func (q *stateQuerier) UpdateKeyAlias(_ context.Context, k kmdb.KeyAlias) error {
-	q.mu.Lock()
-	defer q.mu.Unlock()
-	refID := ""
-	if k.RefID != nil {
-		refID = *k.RefID
-	}
-	key := aliasMapKey(k.AppID, refID)
-	for i, existing := range q.aliases[key] {
-		if existing.ID == k.ID {
-			q.aliases[key][i] = k
-			return nil
-		}
-	}
-	return nil
-}
-
-// GetKeyPolicy always returns a permissive, active policy — sufficient for
-// these tests, which don't exercise policy-driven rejection paths.
-func (q *stateQuerier) GetKeyPolicy(_ context.Context, _ string) (kmdb.KeyPolicy, error) {
-	return kmdb.KeyPolicy{KeyValidityDuration: 3650, PreExpireDays: 30, IsActive: true}, nil
-}
-
-func (q *stateQuerier) HasKeyPolicy(_ context.Context, _ string) (bool, error) {
-	return true, nil
-}
-
-func (q *stateQuerier) GetKeyStoreRecord(_ context.Context, _ string) (kmdb.KeyStoreRecord, error) {
-	return kmdb.KeyStoreRecord{}, sql.ErrNoRows
-}
-
-func (q *stateQuerier) InsertKeyStoreRecord(_ context.Context, _ kmdb.KeyStoreRecord) error {
-	return nil
-}
-func (q *stateQuerier) UpdateKeyStoreRecord(_ context.Context, _ kmdb.KeyStoreRecord) error {
-	return nil
-}
-
-type fakeKeyStore struct {
-	keys  map[string]crypto.PrivateKey
-	certs map[string]*x509.Certificate
-}
-
-func newFakeKeyStore() *fakeKeyStore {
-	return &fakeKeyStore{keys: map[string]crypto.PrivateKey{}, certs: map[string]*x509.Certificate{}}
-}
-
-func (f *fakeKeyStore) ProviderName() string { return "FAKE" }
-
-func (f *fakeKeyStore) GetPrivateKey(alias string) (crypto.PrivateKey, error) {
-	k, ok := f.keys[alias]
-	if !ok {
-		return nil, errNotFound(alias)
-	}
-	return k, nil
-}
-
-func (f *fakeKeyStore) GetPublicKey(alias string) (crypto.PublicKey, error) {
-	c, ok := f.certs[alias]
-	if !ok {
-		return nil, errNotFound(alias)
-	}
-	return c.PublicKey, nil
-}
-
-func (f *fakeKeyStore) GetCertificate(alias string) (*x509.Certificate, error) {
-	c, ok := f.certs[alias]
-	if !ok {
-		return nil, errNotFound(alias)
-	}
-	return c, nil
-}
-
-func (f *fakeKeyStore) GetSymmetricKey(_ string) ([]byte, error) {
-	return nil, fmt.Errorf("fakeKeyStore: symmetric keys not used by these tests")
-}
-
-func (f *fakeKeyStore) GetAsymmetricKey(alias string) (*keystore.KeyPairEntry, error) {
-	priv, err := f.GetPrivateKey(alias)
-	if err != nil {
-		return nil, err
-	}
-	cert, err := f.GetCertificate(alias)
-	if err != nil {
-		return nil, err
-	}
-	return &keystore.KeyPairEntry{PrivateKey: priv, Certificate: cert}, nil
-}
-
-func (f *fakeKeyStore) GetAllAlias() ([]string, error) {
-	aliases := make([]string, 0, len(f.certs))
-	for a := range f.certs {
-		aliases = append(aliases, a)
-	}
-	return aliases, nil
-}
-
-func (f *fakeKeyStore) GenerateAndStoreSymmetricKey(_ string) error {
-	return fmt.Errorf("fakeKeyStore: symmetric keys not used by these tests")
-}
-
-func (f *fakeKeyStore) GenerateAndStoreAsymmetricKey(alias, signKeyAlias string, params keystore.CertificateParameters, algoName, curveName string) error {
-	priv, pub, err := generateTestKeyPair(algoName, curveName)
-	if err != nil {
-		return err
-	}
-	template := testCertTemplate(params)
-	var certDER []byte
-	if signKeyAlias == alias {
-		template.IsCA = true
-		template.BasicConstraintsValid = true
-		certDER, err = x509.CreateCertificate(rand.Reader, template, template, pub, priv)
-	} else {
-		signerCert, ok := f.certs[signKeyAlias]
-		if !ok {
-			return errNotFound(signKeyAlias)
-		}
-		signerPriv := f.keys[signKeyAlias]
-		certDER, err = x509.CreateCertificate(rand.Reader, template, signerCert, pub, signerPriv)
-	}
-	if err != nil {
-		return err
-	}
-	cert, err := x509.ParseCertificate(certDER)
-	if err != nil {
-		return err
-	}
-	f.keys[alias] = priv
-	f.certs[alias] = cert
-	return nil
-}
-
-func (f *fakeKeyStore) DeleteKey(alias string) error {
-	delete(f.keys, alias)
-	delete(f.certs, alias)
-	return nil
-}
-
-func (f *fakeKeyStore) StoreCertificate(alias string, privateKey crypto.PrivateKey, cert *x509.Certificate) error {
-	if privateKey != nil {
-		f.keys[alias] = privateKey
-	}
-	f.certs[alias] = cert
-	return nil
-}
-
-type notFoundErr string
-
-func (e notFoundErr) Error() string  { return "not found: " + string(e) }
-func errNotFound(alias string) error { return notFoundErr(alias) }
-
-func generateTestKeyPair(algoName, curveName string) (crypto.Signer, crypto.PublicKey, error) {
-	switch algoName {
-	case keystore.AlgoRSA, "":
-		priv, err := rsa.GenerateKey(rand.Reader, 2048)
-		if err != nil {
-			return nil, nil, err
-		}
-		return priv, &priv.PublicKey, nil
-	case keystore.AlgoEC:
-		switch curveName {
-		case keystore.CurveED25519:
-			pub, priv, err := ed25519.GenerateKey(rand.Reader)
-			if err != nil {
-				return nil, nil, err
-			}
-			return priv, pub, nil
-		default:
-			priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-			if err != nil {
-				return nil, nil, err
-			}
-			return priv, &priv.PublicKey, nil
-		}
-	default:
-		return nil, nil, fmt.Errorf("unsupported algo %q", algoName)
-	}
-}
-
-func testCertTemplate(params keystore.CertificateParameters) *x509.Certificate {
-	notBefore, notAfter := params.NotBefore, params.NotAfter
-	if notBefore.IsZero() {
-		notBefore = time.Now().UTC()
-	}
-	if notAfter.IsZero() {
-		notAfter = notBefore.AddDate(1, 0, 0)
-	}
-	return &x509.Certificate{
-		SerialNumber: big.NewInt(time.Now().UnixNano()),
-		Subject: pkix.Name{
-			CommonName:         params.CommonName,
-			OrganizationalUnit: []string{params.OrganizationUnit},
-			Organization:       []string{params.Organization},
-			Locality:           []string{params.Location},
-			Province:           []string{params.State},
-			Country:            []string{params.Country},
-		},
-		NotBefore: notBefore,
-		NotAfter:  notAfter,
-		KeyUsage:  x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment | x509.KeyUsageCertSign,
-	}
-}
+func newStateQuerier() *stateQuerier { return kmtest.NewStateQuerier() }
+func newFakeKeyStore() *fakeKeyStore { return kmtest.NewFakeKeyStore() }
 
 func jsonHandler(status int, body string) http.HandlerFunc {
 	return func(w http.ResponseWriter, _ *http.Request) {

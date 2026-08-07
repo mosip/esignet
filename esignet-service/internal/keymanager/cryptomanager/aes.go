@@ -45,6 +45,16 @@ type EncryptAESRequest struct {
 
 	// Nonce is base64url-encoded, optional. If blank, a random 12-byte
 	// nonce is generated and embedded in the envelope.
+	//
+	// WARNING: a caller-supplied Nonce is reused verbatim with the current
+	// long-lived symmetric key. AES-GCM catastrophically loses
+	// confidentiality — and leaks the authentication subkey, enabling
+	// ciphertext forgery — if the same (key, nonce) pair is ever used
+	// twice. Rejected with ErrCallerNonceNotAllowed unless ReferenceID is
+	// in the configured allow-list (Config.CallerNonceAllowedRefIDs) — only
+	// a documented interop wire format that itself guarantees per-key
+	// nonce uniqueness should ever be listed there; otherwise leave this
+	// blank and let EncryptAES generate one.
 	Nonce string
 
 	// AAD is base64url-encoded, optional. If blank, a random 32-byte AAD
@@ -100,6 +110,9 @@ func (s *Service) EncryptAES(ctx context.Context, req EncryptAESRequest) (Encryp
 	}
 	if err := s.km.ValidateSymmetricKeyRefID(req.ReferenceID); err != nil {
 		return EncryptAESResponse{}, err
+	}
+	if isDataValid(req.Nonce) && !s.callerNonceAllowed(req.ReferenceID) {
+		return EncryptAESResponse{}, ErrCallerNonceNotAllowed
 	}
 	if !isDataValid(req.Data) {
 		return EncryptAESResponse{}, ErrInvalidRequest
@@ -170,6 +183,9 @@ func (s *Service) DecryptAES(ctx context.Context, req DecryptAESRequest) (Decryp
 		if callerNonce, err = decodeBase64(req.Nonce); err != nil {
 			return DecryptAESResponse{}, err
 		}
+		if len(callerNonce) != gcmNonceLength {
+			return DecryptAESResponse{}, fmt.Errorf("%w: nonce must be %d bytes", ErrInvalidRequest, gcmNonceLength)
+		}
 	}
 	if callerSuppliedAAD {
 		if callerAAD, err = decodeBase64(req.AAD); err != nil {
@@ -228,6 +244,17 @@ func (s *Service) DecryptAES(ctx context.Context, req DecryptAESRequest) (Decryp
 		return DecryptAESResponse{}, fmt.Errorf("aes-gcm decrypt: %w", err)
 	}
 	return DecryptAESResponse{Data: base64.RawURLEncoding.EncodeToString(plaintext)}, nil
+}
+
+// callerNonceAllowed reports whether refID is in the configured allow-list
+// for a caller-supplied EncryptAES Nonce (Config.CallerNonceAllowedRefIDs).
+func (s *Service) callerNonceAllowed(refID string) bool {
+	for _, allowed := range s.cfg.CallerNonceAllowedRefIDs {
+		if refID == allowed {
+			return true
+		}
+	}
+	return false
 }
 
 // resolveOrGenerate decodes value (base64) if non-blank, else generates

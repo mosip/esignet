@@ -23,46 +23,59 @@ func init() {
 }
 
 const (
-	sessionReloadCooldown = 60 * time.Second
-	maxRetries            = 3
+	sessionReloadCooldown  = 60 * time.Second
+	maxRetries             = 3
+	defaultSessionPoolSize = 4
 )
 
-// Store implements keystore.KeyStore against a PKCS#11 module.
+// Store implements keystore.KeyStore against a PKCS#11 module. Every
+// withSession call is served by one session checked out of a fixed-size
+// pool (poolSize), rather than a single session serialized behind a mutex —
+// signing/decryption throughput under concurrent load would otherwise be
+// capped at one HSM operation at a time regardless of how many requests
+// arrive concurrently. Initialize is called with the library default
+// CKF_OS_LOCKING_OK, which requires a PKCS#11-compliant module to be safe
+// under concurrent calls across sessions — pooling relies on that.
 type Store struct {
-	modulePath  string
-	tokenLabel  string
-	slotID      *uint
-	pin         string
-	enableCache bool
+	modulePath string
+	tokenLabel string
+	slotID     *uint
+	pin        string
+	poolSize   int
 
-	mu          sync.Mutex
-	ctx         *pkcs11.Ctx
-	session     pkcs11.SessionHandle
-	sessionOpen bool
-	lastReload  time.Time
+	ctx *pkcs11.Ctx
 
-	cacheMu sync.RWMutex
-	cache   map[string]pkcs11.ObjectHandle
+	// sessions holds exactly poolSize open, logged-in session handles when
+	// none are checked out — acquire()/release() are the only way sessions
+	// leave/return to it.
+	sessions chan pkcs11.SessionHandle
+
+	// reloadMu/lastReload rate-limit session reloads store-wide (not
+	// per-session): if the token is genuinely down, every pooled session
+	// will hit transient errors around the same time, and without a shared
+	// cooldown that becomes poolSize independent reconnect storms instead
+	// of one.
+	reloadMu   sync.Mutex
+	lastReload time.Time
 }
 
 // New constructs a PKCS#11-backed keystore.KeyStore from config params:
 //
-//	module-path — path to the PKCS#11 shared library (.so)
-//	token-label — token label to select a slot (used if slot-id is unset)
-//	slot-id     — numeric slot id (takes precedence over token-label)
-//	pin         — user PIN for login
-//	enable-key-reference-cache — "true"/"false", default "true"
+//	module-path      — path to the PKCS#11 shared library (.so)
+//	token-label      — token label to select a slot (used if slot-id is unset)
+//	slot-id          — numeric slot id (takes precedence over token-label)
+//	pin              — user PIN for login
+//	session-pool-size — number of concurrently open PKCS#11 sessions (default 4)
 func New(params map[string]string) (keystore.KeyStore, error) {
 	modulePath := params["module-path"]
 	if modulePath == "" {
 		return nil, fmt.Errorf("pkcs11: module-path is required")
 	}
 	s := &Store{
-		modulePath:  modulePath,
-		tokenLabel:  params["token-label"],
-		pin:         params["pin"],
-		enableCache: params["enable-key-reference-cache"] != "false",
-		cache:       make(map[string]pkcs11.ObjectHandle),
+		modulePath: modulePath,
+		tokenLabel: params["token-label"],
+		pin:        params["pin"],
+		poolSize:   defaultSessionPoolSize,
 	}
 	if v := params["slot-id"]; v != "" {
 		id, err := strconv.ParseUint(v, 10, 32)
@@ -72,17 +85,50 @@ func New(params map[string]string) (keystore.KeyStore, error) {
 		u := uint(id)
 		s.slotID = &u
 	}
+	if s.slotID == nil && s.tokenLabel == "" {
+		return nil, fmt.Errorf("pkcs11: one of slot-id or token-label is required; refusing to select an arbitrary token")
+	}
+	if v := params["session-pool-size"]; v != "" {
+		n, err := strconv.Atoi(v)
+		if err != nil || n < 1 {
+			return nil, fmt.Errorf("pkcs11: invalid session-pool-size %q: must be a positive integer", v)
+		}
+		s.poolSize = n
+	}
 	s.ctx = pkcs11.New(modulePath)
 	if s.ctx == nil {
 		return nil, fmt.Errorf("pkcs11: failed to load module %q", modulePath)
 	}
 	if err := s.ctx.Initialize(); err != nil {
+		s.ctx.Destroy()
 		return nil, fmt.Errorf("pkcs11: initialize: %w", err)
 	}
-	if err := s.openSessionLocked(); err != nil {
-		return nil, err
+
+	s.sessions = make(chan pkcs11.SessionHandle, s.poolSize)
+	for i := 0; i < s.poolSize; i++ {
+		sh, err := s.openSession()
+		if err != nil {
+			s.closeSessionsOpenedSoFar()
+			_ = s.ctx.Finalize()
+			s.ctx.Destroy()
+			return nil, err
+		}
+		s.sessions <- sh
 	}
 	return s, nil
+}
+
+// closeSessionsOpenedSoFar drains and closes whatever sessions New managed
+// to open before a later one failed — cleanup for New's own error path.
+func (s *Store) closeSessionsOpenedSoFar() {
+	for {
+		select {
+		case sh := <-s.sessions:
+			_ = s.ctx.CloseSession(sh)
+		default:
+			return
+		}
+	}
 }
 
 // ProviderName implements keystore.KeyStore.
@@ -103,11 +149,11 @@ func (s *Store) resolveSlot() (uint, error) {
 		if err != nil {
 			continue
 		}
-		if s.tokenLabel == "" || trimPadded(info.Label) == s.tokenLabel {
+		if trimPadded(info.Label) == s.tokenLabel {
 			return slot, nil
 		}
 	}
-	return 0, fmt.Errorf("pkcs11: no slot found for token-label %q", s.tokenLabel)
+	return 0, fmt.Errorf("pkcs11: no slot found for token-label %q among %d present slots", s.tokenLabel, len(slots))
 }
 
 func trimPadded(s string) string {
@@ -117,62 +163,72 @@ func trimPadded(s string) string {
 	return s
 }
 
-// openSessionLocked opens a new session and logs in. Caller must hold s.mu.
-func (s *Store) openSessionLocked() error {
+// openSession opens and logs in a brand new session. Login is token-wide,
+// not session-wide (PKCS#11 §5.6.4): once any session on this token has
+// logged in, a second Login on another session returns
+// CKR_USER_ALREADY_LOGGED_IN, which is expected here (every pooled session
+// after the first hits it) and is not an error.
+func (s *Store) openSession() (pkcs11.SessionHandle, error) {
 	slot, err := s.resolveSlot()
 	if err != nil {
-		return err
+		return 0, err
 	}
 	sh, err := s.ctx.OpenSession(slot, pkcs11.CKF_SERIAL_SESSION|pkcs11.CKF_RW_SESSION)
 	if err != nil {
-		return fmt.Errorf("pkcs11: open session: %w", err)
+		return 0, fmt.Errorf("pkcs11: open session: %w", err)
 	}
 	if s.pin != "" {
 		if err := s.ctx.Login(sh, pkcs11.CKU_USER, s.pin); err != nil {
-			_ = s.ctx.CloseSession(sh)
-			return fmt.Errorf("pkcs11: login: %w", err)
+			var perr pkcs11.Error
+			if !(errors.As(err, &perr) && uint(perr) == pkcs11.CKR_USER_ALREADY_LOGGED_IN) {
+				_ = s.ctx.CloseSession(sh)
+				return 0, fmt.Errorf("pkcs11: login: %w", err)
+			}
 		}
 	}
-	s.session = sh
-	s.sessionOpen = true
+	return sh, nil
+}
+
+// acquire checks out one session from the pool, blocking if every session
+// is currently in use.
+func (s *Store) acquire() pkcs11.SessionHandle {
+	return <-s.sessions
+}
+
+// release returns sh to the pool.
+func (s *Store) release(sh pkcs11.SessionHandle) {
+	s.sessions <- sh
+}
+
+// reloadSession replaces a session that hit a transient error with a fresh
+// one, subject to the store-wide cooldown so a storm of transient errors
+// across the pool doesn't hammer the token with reconnects. The bad session
+// is closed but never logged out — logout is token-wide and would
+// deauthenticate every other session still checked out of the pool.
+func (s *Store) reloadSession(bad pkcs11.SessionHandle) (pkcs11.SessionHandle, error) {
+	s.reloadMu.Lock()
+	if wait := time.Since(s.lastReload); wait < sessionReloadCooldown {
+		s.reloadMu.Unlock()
+		return 0, fmt.Errorf("pkcs11: session reload on cooldown (last reload %s ago)", wait)
+	}
 	s.lastReload = time.Now()
-	return nil
+	s.reloadMu.Unlock()
+
+	_ = s.ctx.CloseSession(bad)
+	return s.openSession()
 }
 
-// reloadSessionLocked closes the current session (best-effort) and reopens
-// it, subject to the 60s cooldown so a storm of transient errors doesn't
-// hammer the token with reconnects. Caller must hold s.mu.
-func (s *Store) reloadSessionLocked() error {
-	if time.Since(s.lastReload) < sessionReloadCooldown {
-		return fmt.Errorf("pkcs11: session reload on cooldown (last reload %s ago)", time.Since(s.lastReload))
-	}
-	if s.sessionOpen {
-		_ = s.ctx.Logout(s.session)
-		_ = s.ctx.CloseSession(s.session)
-		s.sessionOpen = false
-	}
-	s.cacheMu.Lock()
-	s.cache = make(map[string]pkcs11.ObjectHandle)
-	s.cacheMu.Unlock()
-	return s.openSessionLocked()
-}
-
-// withSession runs fn against the current session, retrying up to
-// maxRetries times with a session reload (rate-limited by the cooldown) on
-// transient PKCS#11 errors.
+// withSession runs fn against a pooled session, retrying up to maxRetries
+// times with a session reload (rate-limited by the cooldown) on transient
+// PKCS#11 errors. The session — the original or, after a reload, its
+// replacement — is always returned to the pool before withSession returns.
 func (s *Store) withSession(fn func(sh pkcs11.SessionHandle) error) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	sh := s.acquire()
+	defer func() { s.release(sh) }()
 
 	var lastErr error
 	for attempt := 0; attempt < maxRetries; attempt++ {
-		if !s.sessionOpen {
-			if err := s.openSessionLocked(); err != nil {
-				lastErr = err
-				continue
-			}
-		}
-		err := fn(s.session)
+		err := fn(sh)
 		if err == nil {
 			return nil
 		}
@@ -180,10 +236,12 @@ func (s *Store) withSession(fn func(sh pkcs11.SessionHandle) error) error {
 		if !isTransient(err) {
 			return err
 		}
-		if rerr := s.reloadSessionLocked(); rerr != nil {
+		newSh, rerr := s.reloadSession(sh)
+		if rerr != nil {
 			// Reload itself failed (likely cooldown) — surface the original error.
 			return fmt.Errorf("%w (reload attempt: %w)", lastErr, rerr)
 		}
+		sh = newSh
 	}
 	return fmt.Errorf("pkcs11: exhausted %d retries: %w", maxRetries, lastErr)
 }
@@ -202,17 +260,32 @@ func isTransient(err error) bool {
 	}
 }
 
-func (s *Store) cachePut(alias string, h pkcs11.ObjectHandle) {
-	if !s.enableCache {
-		return
+// Close implements keystore.KeyStore. It logs out (once — logout is
+// token-wide) and closes every pooled session, then finalizes and destroys
+// the module context, releasing the token sessions so a graceful restart
+// doesn't leave them open until the HSM reclaims them. Safe to call once
+// during service shutdown; not safe to call concurrently with in-flight
+// withSession callers — it drains exactly poolSize sessions from the pool,
+// which only holds all of them when nothing is currently checked out.
+func (s *Store) Close() error {
+	var errs []error
+	loggedOut := false
+	for i := 0; i < s.poolSize; i++ {
+		sh := <-s.sessions
+		if !loggedOut {
+			if err := s.ctx.Logout(sh); err != nil {
+				errs = append(errs, fmt.Errorf("pkcs11: logout: %w", err))
+			}
+			loggedOut = true
+		}
+		if err := s.ctx.CloseSession(sh); err != nil {
+			errs = append(errs, fmt.Errorf("pkcs11: close session: %w", err))
+		}
 	}
-	s.cacheMu.Lock()
-	defer s.cacheMu.Unlock()
-	s.cache[alias] = h
-}
+	if err := s.ctx.Finalize(); err != nil {
+		errs = append(errs, fmt.Errorf("pkcs11: finalize: %w", err))
+	}
+	s.ctx.Destroy()
 
-func (s *Store) cacheInvalidate(alias string) {
-	s.cacheMu.Lock()
-	defer s.cacheMu.Unlock()
-	delete(s.cache, alias)
+	return errors.Join(errs...)
 }
