@@ -8,6 +8,9 @@ package shared
 
 import (
 	"crypto/rand"
+	"strings"
+
+	"golang.org/x/text/language"
 )
 
 const (
@@ -32,4 +35,30 @@ func GenerateTransactionID(runtimeMetadata map[string][]string) (string, error) 
 		b[i] = '0' + b[i]%10
 	}
 	return string(b), nil
+}
+
+// NormalizeClaimLocales parses a raw claims_locales value (a space-separated list
+// of BCP-47 language tags, per the OIDC spec) into IDA-compatible ISO 639-2/T
+// 3-letter codes. 2-letter codes are converted (e.g. "en" -> "eng"); 3-letter
+// codes pass through unchanged; codes that fail conversion are dropped. Returns
+// a non-nil empty slice when raw is empty or every token is dropped, so callers
+// get an empty (not omitted) locales list and let IDA choose the default language.
+func NormalizeClaimLocales(raw string) []string {
+	locales := make([]string, 0)
+	for tok := range strings.FieldsSeq(raw) {
+		if len(tok) == 3 { // already ISO 639-2/T (e.g. "eng", "fra")
+			locales = append(locales, tok)
+			continue
+		}
+		// Use Parse, not Make: Make guesses "en" for unrecognized input, which
+		// would silently coerce garbage codes to English.
+		if tag, err := language.Parse(tok); err == nil {
+			if base, conf := tag.Base(); conf >= language.High {
+				if iso3 := base.ISO3(); iso3 != "" {
+					locales = append(locales, iso3)
+				}
+			}
+		}
+	}
+	return locales
 }

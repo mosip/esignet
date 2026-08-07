@@ -1154,6 +1154,72 @@ func (ts *AuthenticatorTestSuite) TestGetAttributesDefaultsToSubWhenNoAttributes
 	require.Equal(t, []string{"sub"}, req.ConsentObtained)
 }
 
+func (ts *AuthenticatorTestSuite) TestGetAttributesUsesRequestedClaimLocales() {
+	t := ts.T()
+	signKey, signCert := genRSAKeyAndCert(t, "signer")
+	p12Path := writeTestP12(t, signKey, signCert, "pw")
+
+	var capturedBody []byte
+	jwtStr := unsignedJWT(t, map[string]interface{}{"sub": "user-1"})
+	respBody, err := json.Marshal(map[string]interface{}{"response": map[string]string{"encryptedKyc": jwtStr}})
+	require.NoError(t, err)
+	exchangeSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		capturedBody, _ = readAll(r)
+		_, _ = w.Write(respBody)
+	}))
+	defer exchangeSrv.Close()
+
+	p := newProvider(newValidClientService())
+	p.cfg.P12Path = p12Path
+	p.cfg.P12Password = "pw"
+	p.cfg.KYCExchangeBaseURL = exchangeSrv.URL
+
+	attributeToken := strings.Join([]string{"kyctok", "user-1", "txn-1"}, "||")
+	metadata := getAttributesMetadataFor("client-1")
+	metadata.Locale = "en fr"
+
+	_, svcErr := p.GetAttributes(context.Background(), attributeToken, &providers.RequestedAttributes{}, metadata)
+	require.Nil(t, svcErr)
+
+	var req IdaKycExchangeRequest
+	require.NoError(t, json.Unmarshal(capturedBody, &req))
+	require.Equal(t, []string{"eng", "fra"}, req.Locales)
+}
+
+func (ts *AuthenticatorTestSuite) TestGetAttributesSendsEmptyLocalesWhenClaimsLocalesNotRequested() {
+	t := ts.T()
+	signKey, signCert := genRSAKeyAndCert(t, "signer")
+	p12Path := writeTestP12(t, signKey, signCert, "pw")
+
+	var capturedBody []byte
+	jwtStr := unsignedJWT(t, map[string]interface{}{"sub": "user-1"})
+	respBody, err := json.Marshal(map[string]interface{}{"response": map[string]string{"encryptedKyc": jwtStr}})
+	require.NoError(t, err)
+	exchangeSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		capturedBody, _ = readAll(r)
+		_, _ = w.Write(respBody)
+	}))
+	defer exchangeSrv.Close()
+
+	p := newProvider(newValidClientService())
+	p.cfg.P12Path = p12Path
+	p.cfg.P12Password = "pw"
+	p.cfg.KYCExchangeBaseURL = exchangeSrv.URL
+
+	attributeToken := strings.Join([]string{"kyctok", "user-1", "txn-1"}, "||")
+
+	// getAttributesMetadataFor leaves Locale unset, i.e. the RP did not send
+	// claims_locales. eSignet must not inject an "eng" default here — an empty
+	// locales list lets IDA choose.
+	_, svcErr := p.GetAttributes(context.Background(), attributeToken, &providers.RequestedAttributes{}, getAttributesMetadataFor("client-1"))
+	require.Nil(t, svcErr)
+
+	var req IdaKycExchangeRequest
+	require.NoError(t, json.Unmarshal(capturedBody, &req))
+	require.NotNil(t, req.Locales)
+	require.Empty(t, req.Locales)
+}
+
 // ---------------------------------------------------------------------------
 // NewMosipAuthnProvider
 // ---------------------------------------------------------------------------

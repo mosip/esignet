@@ -31,7 +31,6 @@ import (
 
 const (
 	utcDateTimeFormat  = "2006-01-02T15:04:05.000Z"
-	defaultClaimLocale = "eng"
 	runtimeKeyClientID = "initiator_query_client_id"
 
 	// Credential/identifier keys sent by the esignet flows (see data/flows/flow-esignet.yaml).
@@ -136,10 +135,7 @@ func (p *mockAuthnProvider) GetAttributes(ctx context.Context, attributeToken an
 	kycToken, individualID, transactionID := tokenParts[0], tokenParts[1], tokenParts[2]
 
 	acceptedClaims := acceptedClaimsFromRequest(consentedAttributes)
-	claimLocales := []string{defaultClaimLocale}
-	if metadata.Locale != "" {
-		claimLocales = []string{metadata.Locale}
-	}
+	claimLocales := shared.NormalizeClaimLocales(metadata.Locale)
 
 	kycExchangeRequest := &KycExchangeRequestDto{
 		RequestDateTime: getUTCDateTime(),

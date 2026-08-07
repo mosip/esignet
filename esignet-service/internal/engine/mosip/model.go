@@ -120,7 +120,7 @@ type IdaKycExchangeRequest struct {
 	TransactionID             string                   `json:"transactionID,omitempty"`
 	KycToken                  string                   `json:"kycToken,omitempty"`
 	ConsentObtained           []string                 `json:"consentObtained,omitempty"`
-	Locales                   []string                 `json:"locales,omitempty"`
+	Locales                   []string                 `json:"locales"`
 	RespType                  string                   `json:"respType,omitempty"`
 	IndividualID              string                   `json:"individualId,omitempty"`
 	Metadata                  map[string]interface{}   `json:"metadata,omitempty"`

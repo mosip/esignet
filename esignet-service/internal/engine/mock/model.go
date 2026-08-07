@@ -36,7 +36,7 @@ type KycExchangeRequestDto struct {
 	KycToken        string   `json:"kycToken,omitempty"`
 	IndividualID    string   `json:"individualId,omitempty"`
 	AcceptedClaims  []string `json:"acceptedClaims,omitempty"`
-	ClaimLocales    []string `json:"claimLocales,omitempty"`
+	ClaimLocales    []string `json:"claimLocales"`
 	RespType        string   `json:"respType,omitempty"`
 }
 
