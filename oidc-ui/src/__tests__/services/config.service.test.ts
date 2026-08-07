@@ -1,10 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import axios from 'axios';
-import { fetchThemeConfig } from '../../services/config.service';
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import axios from "axios";
+import { fetchThemeConfig } from "../../services/config.service";
 
-vi.mock('axios');
+vi.mock("axios");
 
-describe('config.service', () => {
+describe("config.service", () => {
   const mockConfig = {
     otp_info_icon: true,
     biometrics_info_icon: true,
@@ -21,7 +21,7 @@ describe('config.service', () => {
     vi.clearAllMocks();
   });
 
-  it('fetches theme config from the correct URL', async () => {
+  it("fetches theme config from the correct URL", async () => {
     vi.mocked(axios.get).mockResolvedValue({ data: mockConfig });
 
     const result = await fetchThemeConfig();
@@ -30,9 +30,9 @@ describe('config.service', () => {
     expect(result).toEqual(mockConfig);
   });
 
-  it('throws when the request fails', async () => {
-    vi.mocked(axios.get).mockRejectedValue(new Error('Network error'));
+  it("throws when the request fails", async () => {
+    vi.mocked(axios.get).mockRejectedValue(new Error("Network error"));
 
-    await expect(fetchThemeConfig()).rejects.toThrow('Network error');
+    await expect(fetchThemeConfig()).rejects.toThrow("Network error");
   });
 });

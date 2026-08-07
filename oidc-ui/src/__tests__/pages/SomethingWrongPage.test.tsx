@@ -1,19 +1,19 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
-import SomethingWrongPage from '../../pages/SomethingWrongPage';
+import { describe, it, expect } from "vitest";
+import { render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
+import SomethingWrongPage from "../../pages/SomethingWrongPage";
 
-describe('SomethingWrongPage', () => {
-  it('renders the error image', () => {
+describe("SomethingWrongPage", () => {
+  it("renders the error image", () => {
     render(
       <MemoryRouter>
         <SomethingWrongPage />
       </MemoryRouter>,
     );
-    expect(screen.getByAltText('something_went_wrong')).toBeDefined();
+    expect(screen.getByAltText("something_went_wrong")).toBeDefined();
   });
 
-  it('renders the error heading', () => {
+  it("renders the error heading", () => {
     render(
       <MemoryRouter>
         <SomethingWrongPage />
@@ -22,22 +22,22 @@ describe('SomethingWrongPage', () => {
     expect(screen.getByText(/Something went wrong/)).toBeDefined();
   });
 
-  it('renders the error detail', () => {
+  it("renders the error detail", () => {
     render(
       <MemoryRouter>
         <SomethingWrongPage />
       </MemoryRouter>,
     );
     expect(
-      screen.getByText('An unexpected error occurred. Please try again later.'),
+      screen.getByText("An unexpected error occurred. Please try again later."),
     ).toBeDefined();
   });
 
-  it('displays the status code from location state', () => {
+  it("displays the status code from location state", () => {
     render(
       <MemoryRouter
         initialEntries={[
-          { pathname: '/something-went-wrong', state: { code: 500 } },
+          { pathname: "/something-went-wrong", state: { code: 500 } },
         ]}
       >
         <SomethingWrongPage />

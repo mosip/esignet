@@ -7,7 +7,7 @@ import {
 import { CaptchaComponent } from "../index";
 import type { ResendOtpFlowComponent } from "./ResendOtpModel";
 
-export default function ResendOtp({
+export default function ResendOtpComponent({
   component,
   context,
 }: {
