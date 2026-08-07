@@ -1,4 +1,4 @@
-package keymanager
+package keystore
 
 import (
 	"crypto/x509"
@@ -9,7 +9,7 @@ import (
 	cryptobyte_asn1 "golang.org/x/crypto/cryptobyte/asn1"
 )
 
-// parseCertificateTolerant parses a DER-encoded certificate like
+// ParseCertificateTolerant parses a DER-encoded certificate like
 // x509.ParseCertificate, but also accepts certificates whose serial number
 // is DER-encoded as a negative two's-complement INTEGER (top bit of the
 // first content byte set, no leading 0x00 padding). RFC 5280 §4.1.2.2
@@ -17,10 +17,15 @@ import (
 // encoding outright ("x509: negative serial number"), but OpenSSL and Java
 // both parse it leniently, and some CA tooling (including at least one
 // MOSIP partner cert we've seen in the wild) still produces it. The
-// returned certificate's Raw is always the original, unmodified input, so
-// callers hashing/storing Raw (cert_thumbprint, key_store.certificate_data)
-// see exactly the bytes that were uploaded.
-func parseCertificateTolerant(der []byte) (*x509.Certificate, error) {
+// returned certificate's Raw is always the original, unmodified input, and
+// RawTBSCertificate is the original TBSCertificate bytes (not the
+// re-encoded ones), so callers hashing/storing/signature-verifying against
+// either field see exactly what was actually signed and uploaded.
+//
+// Shared by the keymanager package (partner certs stored in key_store) and
+// the PKCS#11 backend (component master/ROOT certs read back from the
+// HSM) — both can hit a pre-existing certificate with this encoding.
+func ParseCertificateTolerant(der []byte) (*x509.Certificate, error) {
 	cert, err := x509.ParseCertificate(der)
 	if err == nil || err.Error() != "x509: negative serial number" {
 		return cert, err
