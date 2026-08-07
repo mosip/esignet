@@ -42,7 +42,6 @@
                   "      kid: kid, use: 'sig'",
                   "    };",
                   "    pm.environment.set('client_private_key', JSON.stringify(privateJwk));",
-                  "    //pm.environment.set('client_id', 'pm-client-' + Date.now());",
                   "    pm.environment.set('client_public_key', JSON.stringify({ kty: jwk.kty, n: jwk.n, e: jwk.e, kid: kid, use: 'sig' }));",
                   "    pm.environment.set('client_mgmt_request_time', new Date().toISOString());",
                   "  })",
@@ -201,9 +200,40 @@
               "listen": "prerequest",
               "script": {
                 "exec": [
-                  "pm.environment.set('client_mgmt_request_time', new Date().toISOString());"
+                  "// Generates a fresh RSA-OAEP-256 encryption key pair for encPublicKey.",
+                  "// The private JWK is stored in the environment (client_enc_private_key) for decrypting",
+                  "// anything encrypted to encPublicKey; it is never sent in the request body.",
+                  "if (!(crypto && crypto.subtle && crypto.subtle.generateKey)) {",
+                  "  throw new Error('Update Postman, or set client_enc_public_key + client_enc_private_key manually.');",
+                  "}",
+                  "function b64url(bytes) {",
+                  "  const v = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);",
+                  "  return btoa(String.fromCharCode(...v)).replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=/g, '');",
+                  "}",
+                  "pm.environment.set('client_mgmt_request_time', new Date().toISOString());",
+                  "return crypto.subtle.generateKey(",
+                  "  { name: 'RSA-OAEP', modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: 'SHA-256' },",
+                  "  true, ['encrypt', 'decrypt']",
+                  ").then((pair) => Promise.all([",
+                  "  crypto.subtle.exportKey('jwk', pair.publicKey),",
+                  "  crypto.subtle.exportKey('jwk', pair.privateKey)",
+                  "])).then(([pubJwk, privJwk]) =>",
+                  "  crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify({ e: pubJwk.e, kty: pubJwk.kty, n: pubJwk.n }))).then((thumb) => {",
+                  "    const kid = b64url(new Uint8Array(thumb));",
+                  "    const encPublicKey = { kty: pubJwk.kty, e: pubJwk.e, n: pubJwk.n, use: 'enc', alg: 'RSA-OAEP-256', kid: kid };",
+                  "    const encPrivateKey = {",
+                  "      kty: privJwk.kty, n: privJwk.n, e: privJwk.e, d: privJwk.d,",
+                  "      p: privJwk.p, q: privJwk.q, dp: privJwk.dp, dq: privJwk.dq, qi: privJwk.qi,",
+                  "      use: 'enc', alg: 'RSA-OAEP-256', kid: kid",
+                  "    };",
+                  "    pm.environment.set('client_enc_public_key', JSON.stringify(encPublicKey));",
+                  "    pm.environment.set('client_enc_private_key', JSON.stringify(encPrivateKey));",
+                  "  })",
+                  ");"
                 ],
-                "type": "text/javascript"
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             },
             {
@@ -234,7 +264,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"requestTime\": \"{{client_mgmt_request_time}}\",\n  \"request\": {\n    \"clientName\": \"Postman Test Client (patched)\",\n    \"status\": \"ACTIVE\"\n  }\n}"
+              "raw": "{\n  \"requestTime\": \"{{client_mgmt_request_time}}\",\n  \"request\": {\n    \"encPublicKey\": {{client_enc_public_key}},\n    \"clientName\": \"Postman Test Client (patched)\",\n    \"additionalConfig\": {\n      \"require_pushed_authorization_requests\": false,\n      \"dpop_bound_access_tokens\": false,\n      \"pkce_required\": true,\n      \"userinfo_response_type\": \"JWE\"\n    }\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/client-mgmt/client/{{client_id}}",
