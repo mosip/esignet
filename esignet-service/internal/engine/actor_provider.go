@@ -61,6 +61,10 @@ func (p *actorProvider) GetOAuthClientByClientID(
 	requirePushedAuthorizationRequests, _ := client.AdditionalConfig[parRequired].(bool)
 	dpopBoundAccessTokens, _ := client.AdditionalConfig[dpopRequired].(bool)
 	isPKCERequired, _ := client.AdditionalConfig[pkceRequired].(bool)
+	userInfo, svcErr := getUserInfoConfig(client.AdditionalConfig, client.Claims, client.EncPublicKey)
+	if svcErr != nil {
+		return nil, svcErr
+	}
 	return &providers.OAuthClient{
 		ID:                      client.ClientID,
 		OUID:                    client.RpID,
@@ -78,12 +82,9 @@ func (p *actorProvider) GetOAuthClientByClientID(
 		RequirePushedAuthorizationRequests: requirePushedAuthorizationRequests,
 		DPoPBoundAccessTokens:              dpopBoundAccessTokens,
 		AcrValues:                          client.AcrValues,
-		UserInfo: &providers.UserInfoConfig{
-			ResponseType:   getUserinfoResponseType(client.AdditionalConfig),
-			UserAttributes: client.Claims,
-		},
-		Scopes:      getAllowedScopes(p.config.ScopeClaims, client.AdditionalConfig),
-		ScopeClaims: getScopeClaimsMapping(p.config.ScopeClaims, client.Claims),
+		UserInfo:                           userInfo,
+		Scopes:                             getAllowedScopes(p.config.ScopeClaims, client.AdditionalConfig),
+		ScopeClaims:                        getScopeClaimsMapping(p.config.ScopeClaims, client.Claims),
 		Token: &providers.OAuthTokenConfig{
 			AccessToken: &providers.AccessTokenConfig{
 				UserConfig: &providers.AccessTokenSubConfig{
@@ -108,6 +109,10 @@ func (p *actorProvider) GetOAuthProfileByID(
 	requirePushedAuthorizationRequests, _ := client.AdditionalConfig[parRequired].(bool)
 	dpopBoundAccessTokens, _ := client.AdditionalConfig[dpopRequired].(bool)
 	isPKCERequired, _ := client.AdditionalConfig[pkceRequired].(bool)
+	userInfo, svcErr := getUserInfoConfig(client.AdditionalConfig, client.Claims, client.EncPublicKey)
+	if svcErr != nil {
+		return nil, svcErr
+	}
 	return &providers.OAuthProfile{
 		RedirectURIs:                       client.RedirectURIs,
 		GrantTypes:                         client.GrantTypes,
@@ -128,10 +133,7 @@ func (p *actorProvider) GetOAuthProfileByID(
 				UserAttributes: []string{},
 			},
 		},
-		UserInfo: &providers.UserInfoConfig{
-			ResponseType:   getUserinfoResponseType(client.AdditionalConfig),
-			UserAttributes: client.Claims,
-		},
+		UserInfo:    userInfo,
 		Scopes:      getAllowedScopes(p.config.ScopeClaims, client.AdditionalConfig),
 		ScopeClaims: getScopeClaimsMapping(p.config.ScopeClaims, client.Claims),
 		Certificate: &providers.Certificate{
@@ -296,12 +298,44 @@ func getScopeClaimsMapping(standardScopeClaims map[string][]string, claims []str
 	return mapping
 }
 
-func getUserinfoResponseType(additionalConfig map[string]any) providers.UserInfoResponseType {
-	respType, _ := additionalConfig[userinfoResponseType].(string)
-	if respType == "JWE" {
-		return providers.UserInfoResponseTypeJWE
+// getUserInfoConfig builds the userinfo endpoint configuration. When the
+// response type is JWE, the client's encryption key must already carry an alg
+// field (enforced at client registration time by clientmgmt), which is
+// propagated as the userinfo encryption alg alongside a fixed A256GCM enc.
+func getUserInfoConfig(
+	additionalConfig map[string]any, claims []string, encPublicKey string,
+) (*providers.UserInfoConfig, *common.ServiceError) {
+	responseType := providers.UserInfoResponseTypeJWS
+	if respType, _ := additionalConfig[userinfoResponseType].(string); respType == "JWE" {
+		responseType = providers.UserInfoResponseTypeJWE
 	}
-	return providers.UserInfoResponseTypeJWS
+	userInfo := &providers.UserInfoConfig{
+		ResponseType:   responseType,
+		UserAttributes: claims,
+	}
+	if responseType == providers.UserInfoResponseTypeJWE {
+		alg, ok := encryptionKeyAlg(encPublicKey)
+		if !ok {
+			return nil, shared.MissingEncryptionKeyAlgError
+		}
+		userInfo.EncryptionAlg = alg
+		userInfo.EncryptionEnc = "A256GCM"
+	}
+	return userInfo, nil
+}
+
+// encryptionKeyAlg extracts the alg field from a client's encryption key JWK.
+func encryptionKeyAlg(encPublicKey string) (string, bool) {
+	if encPublicKey == "" {
+		return "", false
+	}
+	var jwk struct {
+		Alg string `json:"alg"`
+	}
+	if err := json.Unmarshal([]byte(encPublicKey), &jwk); err != nil || jwk.Alg == "" {
+		return "", false
+	}
+	return jwk.Alg, true
 }
 
 func configInt64(cfg map[string]any, key string, defaultValue int64) int64 {

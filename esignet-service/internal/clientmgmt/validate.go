@@ -111,7 +111,7 @@ func ValidateCreate(profile Profile, req CreateClientRequest) error {
 		}
 	}
 	if len(req.EncPublicKey) > 0 {
-		if err := validateJWK(req.EncPublicKey); err != nil {
+		if err := validateEncJWK(req.EncPublicKey); err != nil {
 			return err
 		}
 	}
@@ -245,7 +245,7 @@ func ValidatePatch(profile Profile, merged UpdateClientRequest, fields PatchFiel
 		}
 	}
 	if fields.EncPublicKey && !encPublicKey.IsNull {
-		if err := validateJWK(encPublicKey.Value); err != nil {
+		if err := validateEncJWK(encPublicKey.Value); err != nil {
 			return err
 		}
 	}

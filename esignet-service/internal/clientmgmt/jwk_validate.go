@@ -50,6 +50,18 @@ func validateJWK(key map[string]string) error {
 	return nil
 }
 
+// validateEncJWK validates an encryption key JWK, additionally requiring the
+// alg field so the JWE key-management algorithm is always known.
+func validateEncJWK(key map[string]string) error {
+	if err := validateJWK(key); err != nil {
+		return err
+	}
+	if key["alg"] == "" {
+		return validationErr("invalid_public_key")
+	}
+	return nil
+}
+
 func decodeBase64URL(s string) ([]byte, error) {
 	return base64.RawURLEncoding.DecodeString(s)
 }

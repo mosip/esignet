@@ -67,7 +67,7 @@ func b64(s string) string {
 }
 
 func validJWK() map[string]string {
-	return map[string]string{"kty": "RSA", "n": b64("modulus-bytes"), "e": b64("AQAB")}
+	return map[string]string{"kty": "RSA", "n": b64("modulus-bytes"), "e": b64("AQAB"), "alg": "RSA-OAEP-256"}
 }
 
 func existingClientRow() db.ClientDetail {
