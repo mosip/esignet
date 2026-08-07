@@ -24,15 +24,12 @@ import (
 	"math/big"
 	"net/http"
 	"net/http/httptest"
-	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
-	"software.sslmate.com/src/go-pkcs12"
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
@@ -41,13 +38,17 @@ import (
 	"github.com/mosip/esignet/internal/config"
 	"github.com/mosip/esignet/internal/engine/runtimestores/inmemory"
 	"github.com/mosip/esignet/internal/engine/shared"
+	"github.com/mosip/esignet/internal/keymanager"
+	"github.com/mosip/esignet/internal/keymanager/kmtest"
+	"github.com/mosip/esignet/internal/keymanager/signature"
 )
 
 // ---------------------------------------------------------------------------
-// Test fixtures: a fake clientmgmt.db.Querier, RSA keys/certs, and a P12
-// keystore generated on the fly (in t.TempDir()) since no fixture keystore
-// exists anywhere in the repo (verified: no *.p12 files, no MOSIP_P12
-// references outside authenticator.go/config.go).
+// Test fixtures: a fake clientmgmt.db.Querier, RSA keys/certs, and an
+// in-memory keymanager.Service/signature.Service pair (stateQuerier +
+// fakeKeyStore, mirroring internal/keymanager/signature's own test fakes —
+// unexported there, so reimplemented here) that provisions the OIDC_PARTNER
+// / RSA_2048 signing key getRequestSignature signs against.
 // ---------------------------------------------------------------------------
 
 type fakeQuerier struct {
@@ -142,25 +143,63 @@ func certToPEM(cert *x509.Certificate) []byte {
 	return pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: cert.Raw})
 }
 
-// writeTestP12 encodes key/cert into a PKCS#12 file in t.TempDir() and
-// returns its path.
-func writeTestP12(t *testing.T, key *rsa.PrivateKey, cert *x509.Certificate, password string) string {
+// newTestKeyManagerServices builds an in-memory keymanager.Service (backed by
+// stateQuerier + fakeKeyStore below, no postgres/HSM involved) and its
+// signature.Service, provisioning ROOT and, when withPartnerKey is true, the
+// OIDC_PARTNER / RSA_2048 component master key getRequestSignature signs
+// against — mirrors internal/keymanager/signature/service_test.go's
+// newTestServices setup.
+func newTestKeyManagerServices(t *testing.T, withPartnerKey bool) (*keymanager.Service, *signature.Service) {
 	t.Helper()
-	data, err := pkcs12.Modern.Encode(key, cert, nil, password)
+	ctx := context.Background()
+	km := keymanager.NewServiceWithQuerier(newStateQuerier(), newFakeKeyStore(), keymanager.Config{
+		AsymmetricKeyLength:  2048,
+		CertCommonName:       "www.mosip.io",
+		CertOrganizationUnit: "thunder-tech-team",
+		CertOrganization:     "IIITB",
+		CertLocation:         "Bangalore",
+		CertState:            "KA",
+		CertCountry:          "IN",
+	})
+
+	_, err := km.GenerateMasterKey(ctx, keymanager.GenerateMasterKeyRequest{
+		ApplicationID: keymanager.AppIDRoot,
+		ObjectType:    keymanager.ObjectTypeCertificate,
+		CommonName:    "MOSIP Root CA",
+	})
 	require.NoError(t, err)
-	path := filepath.Join(t.TempDir(), "keystore.p12")
-	require.NoError(t, os.WriteFile(path, data, 0o600))
-	return path
+
+	if withPartnerKey {
+		_, err := km.GenerateMasterKey(ctx, keymanager.GenerateMasterKeyRequest{
+			ApplicationID: config.OIDCPartnerAppID,
+			ReferenceID:   keymanager.RefIDRSA2048,
+			ObjectType:    keymanager.ObjectTypeCertificate,
+			CommonName:    "test partner signing key",
+		})
+		require.NoError(t, err)
+	}
+
+	return km, signature.NewService(km)
 }
 
-// configureSigning generates a throwaway signing keystore and wires it into
-// p.cfg so getRequestSignature succeeds.
+// configureSigning provisions an in-memory OIDC_PARTNER / RSA_2048 signing
+// key and wires it into p, so getRequestSignature succeeds.
 func configureSigning(t *testing.T, p *mosipAuthnProvider) {
 	t.Helper()
-	key, cert := genRSAKeyAndCert(t, "signer")
-	p.cfg.P12Path = writeTestP12(t, key, cert, "pw")
-	p.cfg.P12Password = "pw"
+	p.svc, p.sigSvc = newTestKeyManagerServices(t, true)
 }
+
+// stateQuerier and fakeKeyStore are shared, hand-written in-memory fakes for
+// keymanager's db.Querier and keystore.KeyStore ports, used by both this
+// package's tests and internal/keymanager/signature's — see kmtest's
+// package doc. Real crypto key generation and real x509.CreateCertificate
+// calls, so signing round-trips exercise genuine cryptography rather than
+// mocked behavior.
+type stateQuerier = kmtest.StateQuerier
+type fakeKeyStore = kmtest.FakeKeyStore
+
+func newStateQuerier() *stateQuerier { return kmtest.NewStateQuerier() }
+func newFakeKeyStore() *fakeKeyStore { return kmtest.NewFakeKeyStore() }
 
 func jsonHandler(status int, body string) http.HandlerFunc {
 	return func(w http.ResponseWriter, _ *http.Request) {
@@ -352,56 +391,24 @@ func (ts *AuthenticatorTestSuite) TestAsymmetricEncryptRoundTrips() {
 	require.Equal(t, plaintext, decrypted)
 }
 
-func (ts *AuthenticatorTestSuite) TestLoadRSAPrivateKeyAndCertFromP12() {
+func (ts *AuthenticatorTestSuite) TestBuildX5CHeader() {
 	t := ts.T()
-	_, err := os.Stat("/nonexistent/keystore.p12")
-	require.Error(t, err)
+	_, cert := genRSAKeyAndCert(t, "x5c-test")
 
-	_, _, err = LoadRSAPrivateKeyAndCertFromP12("/nonexistent/keystore.p12", "pw")
-	require.ErrorContains(t, err, "failed to read .p12 file")
-
-	key, cert := genRSAKeyAndCert(t, "p12-test")
-	path := writeTestP12(t, key, cert, "correct-pw")
-
-	_, _, err = LoadRSAPrivateKeyAndCertFromP12(path, "wrong-pw")
-	require.ErrorContains(t, err, "decode .p12")
-
-	loadedKey, loadedCert, err := LoadRSAPrivateKeyAndCertFromP12(path, "correct-pw")
+	headerB64, err := buildX5CHeader(cert)
 	require.NoError(t, err)
-	require.True(t, key.Equal(loadedKey))
-	require.Equal(t, cert.Raw, loadedCert.Raw)
-}
 
-func (ts *AuthenticatorTestSuite) TestCreateAndSignJWTWithX5C() {
-	t := ts.T()
-	key, cert := genRSAKeyAndCert(t, "jwt-test")
-	payload := base64.RawURLEncoding.EncodeToString([]byte(`{"foo":"bar"}`))
-
-	jwtStr, err := CreateAndSignJWTWithX5C(payload, key, cert, "")
-	require.NoError(t, err)
-	parts := strings.Split(jwtStr, ".")
-	require.Len(t, parts, 3)
-	require.Empty(t, parts[1])
-
-	headerJSON, err := base64.RawURLEncoding.DecodeString(parts[0])
+	headerJSON, err := base64.RawURLEncoding.DecodeString(headerB64)
 	require.NoError(t, err)
 	var header map[string]interface{}
 	require.NoError(t, json.Unmarshal(headerJSON, &header))
 	require.Equal(t, "RS256", header["alg"])
-	require.NotContains(t, header, "kid")
+	require.Equal(t, "JWT", header["typ"])
 
-	hash := sha256.Sum256([]byte(parts[0] + "." + payload))
-	sig, err := base64.RawURLEncoding.DecodeString(parts[2])
-	require.NoError(t, err)
-	require.NoError(t, rsa.VerifyPKCS1v15(&key.PublicKey, cryptoSHA256(), hash[:], sig))
-
-	jwtWithKid, err := CreateAndSignJWTWithX5C(payload, key, cert, "kid-1")
-	require.NoError(t, err)
-	headerJSON2, err := base64.RawURLEncoding.DecodeString(strings.Split(jwtWithKid, ".")[0])
-	require.NoError(t, err)
-	var header2 map[string]interface{}
-	require.NoError(t, json.Unmarshal(headerJSON2, &header2))
-	require.Equal(t, "kid-1", header2["kid"])
+	x5c, ok := header["x5c"].([]interface{})
+	require.True(t, ok)
+	require.Len(t, x5c, 1)
+	require.Equal(t, base64.StdEncoding.EncodeToString(cert.Raw), x5c[0])
 }
 
 func (ts *AuthenticatorTestSuite) TestBuildIDAEndpointURL() {
@@ -423,30 +430,45 @@ func (ts *AuthenticatorTestSuite) TestBuildIDAEndpointURL() {
 // getRequestSignature
 // ---------------------------------------------------------------------------
 
-func (ts *AuthenticatorTestSuite) TestGetRequestSignatureConfigErrors() {
+func (ts *AuthenticatorTestSuite) TestGetRequestSignatureFailsWhenKeyNotProvisioned() {
 	t := ts.T()
+	svc, sigSvc := newTestKeyManagerServices(t, false) // ROOT only, no OIDC_PARTNER/RSA_2048 key
 	p := newProvider(nil)
+	p.svc, p.sigSvc = svc, sigSvc
 
-	_, err := p.getRequestSignature([]byte("body"))
-	require.ErrorContains(t, err, "MOSIP_P12_PATH is not configured")
-
-	p.cfg.P12Path = "/some/path.p12"
-	_, err = p.getRequestSignature([]byte("body"))
-	require.ErrorContains(t, err, "MOSIP_P12_PASSWORD is not configured")
+	_, err := p.getRequestSignature(context.Background(), []byte("body"))
+	require.Error(t, err)
 }
 
 func (ts *AuthenticatorTestSuite) TestGetRequestSignatureSuccess() {
 	t := ts.T()
-	key, cert := genRSAKeyAndCert(t, "signer")
-	path := writeTestP12(t, key, cert, "p12-pass")
-
 	p := newProvider(nil)
-	p.cfg.P12Path = path
-	p.cfg.P12Password = "p12-pass"
+	configureSigning(t, p)
 
-	sig, err := p.getRequestSignature([]byte(`{"a":"b"}`))
+	requestBody := []byte(`{"a":"b"}`)
+	sig, err := p.getRequestSignature(context.Background(), requestBody)
 	require.NoError(t, err)
-	require.Len(t, strings.Split(sig, "."), 3)
+
+	parts := strings.Split(sig, ".")
+	require.Len(t, parts, 3)
+	require.Empty(t, parts[1])
+
+	headerJSON, err := base64.RawURLEncoding.DecodeString(parts[0])
+	require.NoError(t, err)
+	var header map[string]interface{}
+	require.NoError(t, json.Unmarshal(headerJSON, &header))
+	require.Equal(t, "RS256", header["alg"])
+
+	certResp, err := p.svc.GetCertificate(context.Background(), config.OIDCPartnerAppID, keymanager.RefIDRSA2048)
+	require.NoError(t, err)
+	cert, err := keymanager.ParseCertPEM(certResp.Certificate)
+	require.NoError(t, err)
+
+	payloadB64 := B64EncodeBytes(requestBody)
+	hash := sha256.Sum256([]byte(parts[0] + "." + payloadB64))
+	sigBytes, err := base64.RawURLEncoding.DecodeString(parts[2])
+	require.NoError(t, err)
+	require.NoError(t, rsa.VerifyPKCS1v15(cert.PublicKey.(*rsa.PublicKey), cryptoSHA256(), hash[:], sigBytes))
 }
 
 // ---------------------------------------------------------------------------
@@ -897,7 +919,8 @@ func (ts *AuthenticatorTestSuite) TestAuthenticateFailsWhenRequestSigningFails()
 
 	p := newProvider(newValidClientService())
 	p.cfg.IDAPartnerCertificateURL = certSrv.URL
-	// P12Path/P12Password left empty on purpose.
+	// p.svc/p.sigSvc left nil-backed (only ROOT provisioned, no OIDC_PARTNER/RSA_2048 key) on purpose.
+	p.svc, p.sigSvc = newTestKeyManagerServices(t, false)
 
 	result, svcErr := p.Authenticate(context.Background(),
 		map[string]interface{}{"username": "ind-1"},
@@ -916,16 +939,12 @@ func (ts *AuthenticatorTestSuite) TestAuthenticateFailsWhenKycAuthCallErrors() {
 	}))
 	defer certSrv.Close()
 
-	signKey, signCert := genRSAKeyAndCert(t, "signer")
-	p12Path := writeTestP12(t, signKey, signCert, "pw")
-
 	kycAuthSrv := httptest.NewServer(jsonHandler(http.StatusOK, "not-json"))
 	defer kycAuthSrv.Close()
 
 	p := newProvider(newValidClientService())
 	p.cfg.IDAPartnerCertificateURL = certSrv.URL
-	p.cfg.P12Path = p12Path
-	p.cfg.P12Password = "pw"
+	configureSigning(t, p)
 	p.cfg.KYCAuthBaseURL = kycAuthSrv.URL
 
 	result, svcErr := p.Authenticate(context.Background(),
@@ -945,18 +964,15 @@ func (ts *AuthenticatorTestSuite) TestAuthenticateSuccess() {
 	}))
 	defer certSrv.Close()
 
-	signKey, signCert := genRSAKeyAndCert(t, "signer")
-	p12Path := writeTestP12(t, signKey, signCert, "pw")
-
 	kycAuthSrv := httptest.NewServer(jsonHandler(http.StatusOK,
 		`{"response":{"kycStatus":true,"kycToken":"kyctok","authToken":"authtok"}}`))
 	defer kycAuthSrv.Close()
 
+	svc, sigSvc := newTestKeyManagerServices(t, true)
 	newTestProvider := func() *mosipAuthnProvider {
 		p := newProvider(newValidClientService())
 		p.cfg.IDAPartnerCertificateURL = certSrv.URL
-		p.cfg.P12Path = p12Path
-		p.cfg.P12Password = "pw"
+		p.svc, p.sigSvc = svc, sigSvc
 		p.cfg.KYCAuthBaseURL = kycAuthSrv.URL
 		return p
 	}
@@ -1091,9 +1107,6 @@ func (ts *AuthenticatorTestSuite) TestGetAttributesValidationErrors() {
 
 func (ts *AuthenticatorTestSuite) TestGetAttributesSuccess() {
 	t := ts.T()
-	signKey, signCert := genRSAKeyAndCert(t, "signer")
-	p12Path := writeTestP12(t, signKey, signCert, "pw")
-
 	jwtStr := unsignedJWT(t, map[string]interface{}{"sub": "user-1", "name": "John"})
 	body, err := json.Marshal(map[string]interface{}{"response": map[string]string{"encryptedKyc": jwtStr}})
 	require.NoError(t, err)
@@ -1101,8 +1114,7 @@ func (ts *AuthenticatorTestSuite) TestGetAttributesSuccess() {
 	defer exchangeSrv.Close()
 
 	p := newProvider(newValidClientService())
-	p.cfg.P12Path = p12Path
-	p.cfg.P12Password = "pw"
+	configureSigning(t, p)
 	p.cfg.KYCExchangeBaseURL = exchangeSrv.URL
 
 	reqAttrs := &providers.RequestedAttributes{
@@ -1118,9 +1130,6 @@ func (ts *AuthenticatorTestSuite) TestGetAttributesSuccess() {
 
 func (ts *AuthenticatorTestSuite) TestGetAttributesDefaultsToSubWhenNoAttributesRequested() {
 	t := ts.T()
-	signKey, signCert := genRSAKeyAndCert(t, "signer")
-	p12Path := writeTestP12(t, signKey, signCert, "pw")
-
 	var capturedBody []byte
 	jwtStr := unsignedJWT(t, map[string]interface{}{"sub": "user-1"})
 	respBody, err := json.Marshal(map[string]interface{}{"response": map[string]string{"encryptedKyc": jwtStr}})
@@ -1132,8 +1141,7 @@ func (ts *AuthenticatorTestSuite) TestGetAttributesDefaultsToSubWhenNoAttributes
 	defer exchangeSrv.Close()
 
 	p := newProvider(newValidClientService())
-	p.cfg.P12Path = p12Path
-	p.cfg.P12Password = "pw"
+	configureSigning(t, p)
 	p.cfg.KYCExchangeBaseURL = exchangeSrv.URL
 
 	attributeToken := strings.Join([]string{"kyctok", "user-1", "txn-1"}, "||")
@@ -1155,7 +1163,7 @@ func (ts *AuthenticatorTestSuite) TestNewMosipAuthnProviderWiresConfig() {
 	t.Setenv("MOSIP_API_INTERNAL_HOST", "http://internal.example.org")
 	t.Setenv("MOSIP_ESIGNET_MISP_KEY", "misp-1")
 
-	provider, err := NewMosipAuthnProvider(&config.AppConfig{}, nil, &http.Client{})
+	provider, err := NewMosipAuthnProvider(&config.AppConfig{}, nil, &http.Client{}, nil, nil)
 	require.NoError(t, err)
 	require.NotNil(t, provider)
 

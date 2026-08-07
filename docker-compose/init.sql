@@ -91,6 +91,7 @@ CREATE TABLE esignet.key_alias(
     CONSTRAINT pk_keymals_id PRIMARY KEY (id),
     CONSTRAINT uni_ident_const UNIQUE (uni_ident)
 );
+CREATE INDEX idx_key_alias_cert_thumbprint ON esignet.key_alias(cert_thumbprint);
 
 CREATE TABLE esignet.key_policy_def(
     app_id varchar(36) NOT NULL,
@@ -157,6 +158,12 @@ CREATE TABLE esignet.ca_cert_store(
 	CONSTRAINT pk_cacs_id PRIMARY KEY (cert_id),
 	CONSTRAINT cert_thumbprint_unique UNIQUE (cert_thumbprint,partner_domain)
 );
+
+INSERT INTO esignet.KEY_POLICY_DEF(APP_ID,KEY_VALIDITY_DURATION,PRE_EXPIRE_DAYS,ACCESS_ALLOWED,IS_ACTIVE,CR_BY,CR_DTIMES) VALUES('ROOT', 2920, 1125, 'NA', true, 'mosipadmin', now());
+INSERT INTO esignet.KEY_POLICY_DEF(APP_ID,KEY_VALIDITY_DURATION,PRE_EXPIRE_DAYS,ACCESS_ALLOWED,IS_ACTIVE,CR_BY,CR_DTIMES) VALUES('OIDC_SERVICE', 1095, 50, 'NA', true, 'mosipadmin', now());
+INSERT INTO esignet.KEY_POLICY_DEF(APP_ID,KEY_VALIDITY_DURATION,PRE_EXPIRE_DAYS,ACCESS_ALLOWED,IS_ACTIVE,CR_BY,CR_DTIMES) VALUES('OIDC_PARTNER', 1095, 50, 'NA', true, 'mosipadmin', now());
+INSERT INTO esignet.KEY_POLICY_DEF(APP_ID,KEY_VALIDITY_DURATION,PRE_EXPIRE_DAYS,ACCESS_ALLOWED,IS_ACTIVE,CR_BY,CR_DTIMES) VALUES('BASE', 1095, 50, 'NA', true, 'mosipadmin', now());
+
 
 CREATE DATABASE mosip_mockidentitysystem
   ENCODING = 'UTF8' 

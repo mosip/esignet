@@ -14,6 +14,15 @@ import (
 
 func (ts *ConfigTestSuite) TestLoadConfigDefaults() {
 	t := ts.T()
+	// Force the fallback path regardless of ambient env — a dev .env file
+	// (sourced by make.sh) commonly sets MOSIP_ESIGNET_MOCK_DOMAIN_URL to
+	// point at a local mock-identity-system instance, which would otherwise
+	// leak into this test and mask the actual hardcoded defaults.
+	t.Setenv("MOSIP_ESIGNET_MOCK_DOMAIN_URL", "")
+	t.Setenv("MOSIP_ESIGNET_MOCK_KYC_AUTH_URL", "")
+	t.Setenv("MOSIP_ESIGNET_MOCK_KYC_EXCHANGE_URL", "")
+	t.Setenv("MOSIP_ESIGNET_MOCK_KYC_EXCHANGE_V3_URL", "")
+	t.Setenv("MOSIP_ESIGNET_MOCK_SEND_OTP_URL", "")
 	cfg := LoadConfig()
 
 	if cfg.KycAuthURL != "http://mock-identity-system.mockid/v1/mock-identity-system/v2/kyc-auth" {

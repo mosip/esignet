@@ -19,11 +19,17 @@ internal/engine/             Thunder engine providers/executors
   sunbird/                   SunbirdRC KBI authn provider
   runtimestores/             Redis-backed flow/session/PAR stores
   shared/                    Code shared across engine providers
+internal/keymanager/         Key lifecycle mgmt: JWT signing key, cache-encryption key, MOSIP partner
+                              signing key (see internal/keymanager/README.md)
+  cryptomanager/             AES/RSA-OAEP encrypt-decrypt on top of keymanager keys
+  signature/                 JWS sign/verify on top of keymanager keys
+  keystore/pkcs11/, pkcs12/  HSM/SoftHSM2 (cgo-only) or file-based key storage backends
 internal/security/           JWKS validation, scope middleware, request-time checks
 internal/log/                Structured logging helpers
 internal/common/             Shared models/utils
 data/                        Declarative YAML (deployment.yaml, flows/, i18n/, layouts/, themes/)
-keys/                        signing.key + signing.crt (generated locally, gitignored)
+keys/                        signing.key + signing.crt (generated locally, gitignored) — legacy;
+                              JWT signing now goes through internal/keymanager, not this file pair
 sqlc.yaml                    SQLC codegen config for internal/clientmgmt/db
 make.sh                      build/run/test entry point (Linux + Git Bash)
 ```
@@ -43,8 +49,13 @@ Everything goes through `./make.sh` (run from this directory):
 End-to-end / client-mgmt API checks are done via the [Postman collection](../postman-collection/README.md) (a sibling directory, outside `esignet-service`), not a shell script.
 
 - Tests use `miniredis` (no live Redis needed) and mock queriers for the
-  Postgres layer, so `./make.sh test` runs standalone. Run `./make.sh keys`
-  first if a test exercises JWT signing (build targets do this automatically).
+  Postgres layer, so `./make.sh test` runs standalone. `internal/keymanager`
+  tests provision their own keys against a mock querier/keystore — no live
+  Postgres or `keys/signing.key` needed there either.
+- `CGO_ENABLED=0` by default (see `make.sh`); this stubs out the PKCS#11
+  keystore backend at startup, so local runs need
+  `KEYMANAGER_KEYSTORE_TYPE=PKCS12`. Build/test with `CGO_ENABLED=1` (and a
+  C toolchain) to exercise the real PKCS#11 backend.
 - After changing `internal/clientmgmt/db/query.sql` or `schema.sql`, regenerate
   the generated Go DB layer with `./make.sh sqlc-install` (one-time) then
   `./make.sh sqlc` — never hand-edit `internal/clientmgmt/db/*.go` generated files.

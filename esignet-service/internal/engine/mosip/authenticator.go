@@ -9,7 +9,6 @@ package mosip
 import (
 	"bytes"
 	"context"
-	"crypto"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
@@ -25,12 +24,10 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"software.sslmate.com/src/go-pkcs12"
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
@@ -38,6 +35,8 @@ import (
 	"github.com/mosip/esignet/internal/clientmgmt"
 	"github.com/mosip/esignet/internal/config"
 	"github.com/mosip/esignet/internal/engine/shared"
+	"github.com/mosip/esignet/internal/keymanager"
+	"github.com/mosip/esignet/internal/keymanager/signature"
 	applog "github.com/mosip/esignet/internal/log"
 )
 
@@ -50,21 +49,36 @@ const (
 	mosipRequestVersion       = "1.0"
 	mosipEnvStaging           = "Staging" // default MOSIP_ENV; see config.LoadMosipAuthn
 	runtimeKeyClientID        = "initiator_query_client_id"
+
+	// mosipRequestSignAlgorithm is the JWS algorithm the "signature" header
+	// on outbound IDA requests is signed with — MOSIP IDA's partner request
+	// signing contract expects RS256 specifically (RSA PKCS#1 v1.5), not the
+	// PS256 that signature.AlgorithmForRefID would otherwise default an
+	// RSA_2048 key to.
+	mosipRequestSignAlgorithm = "RS256"
 )
 
 type mosipAuthnProvider struct {
 	appConfig *config.AppConfig
 	client    *http.Client
 	clientSvc *clientmgmt.Service
+	svc       *keymanager.Service
+	sigSvc    *signature.Service
 	cfg       Config
 }
 
-// NewMosipAuthnProvider creates a MOSIP providers.AuthnProviderManager with OTP send support.
-func NewMosipAuthnProvider(cfg *config.AppConfig, clientSvc *clientmgmt.Service, client *http.Client) (shared.ConsolidatedAuthnProvider, error) {
+// NewMosipAuthnProvider creates a MOSIP providers.AuthnProviderManager with
+// OTP send support. Outbound IDA requests are signed with the keymanager's
+// OIDC_PARTNER / RSA_2048 component master key via svc/sigSvc (see
+// getRequestSignature).
+func NewMosipAuthnProvider(cfg *config.AppConfig, clientSvc *clientmgmt.Service, client *http.Client,
+	svc *keymanager.Service, sigSvc *signature.Service) (shared.ConsolidatedAuthnProvider, error) {
 	provider := &mosipAuthnProvider{
 		appConfig: cfg,
 		client:    client,
 		clientSvc: clientSvc,
+		svc:       svc,
+		sigSvc:    sigSvc,
 		cfg:       LoadConfig(),
 	}
 	return provider, nil
@@ -182,7 +196,7 @@ func (p *mosipAuthnProvider) Authenticate(ctx context.Context, identifiers, cred
 		return nil, shared.AuthenticationFailedError
 	}
 
-	requestSignature, err := p.getRequestSignature(requestBytes)
+	requestSignature, err := p.getRequestSignature(ctx, requestBytes)
 	if err != nil {
 		return nil, shared.AuthenticationFailedError
 	}
@@ -256,7 +270,7 @@ func (p *mosipAuthnProvider) GetAttributes(ctx context.Context, attributeToken a
 		return nil, shared.InvalidRequestError
 	}
 
-	requestSignature, err := p.getRequestSignature(requestBytes)
+	requestSignature, err := p.getRequestSignature(ctx, requestBytes)
 	if err != nil {
 		return nil, shared.InvalidRequestError
 	}
@@ -312,7 +326,7 @@ func (p *mosipAuthnProvider) SendOTP(ctx context.Context, identifiers map[string
 		return nil, shared.InvalidRequestError
 	}
 
-	requestSignature, err := p.getRequestSignature(otpRequestBytes)
+	requestSignature, err := p.getRequestSignature(ctx, otpRequestBytes)
 	if err != nil {
 		return nil, shared.InvalidRequestError
 	}
@@ -554,78 +568,31 @@ func AsymmetricEncrypt(pubKey *rsa.PublicKey, data []byte) ([]byte, error) {
 	return ciphertext, nil
 }
 
-// LoadRSAPrivateKeyAndCertFromP12 loads an RSA private key and certificate from a PKCS#12 file.
-func LoadRSAPrivateKeyAndCertFromP12(
-	p12Path string,
-	password string,
-) (*rsa.PrivateKey, *x509.Certificate, error) {
-	pfxData, err := os.ReadFile(p12Path)
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to read .p12 file: %w", err)
-	}
-
-	// Decode → gets private key + the (single) certificate
-	privateKeyAny, cert, err := pkcs12.Decode(pfxData, password)
-	if err != nil {
-		return nil, nil, fmt.Errorf("decode .p12 (check password and file format): %w", err)
-	}
-
-	rsaKey, ok := privateKeyAny.(*rsa.PrivateKey)
-	if !ok {
-		return nil, nil, errors.New("private key is not RSA")
-	}
-
-	if cert == nil {
-		return nil, nil, errors.New("no certificate found in .p12")
-	}
-
-	return rsaKey, cert, nil
-}
-
-// CreateAndSignJWTWithX5C builds and signs JWT with x5c header
-func CreateAndSignJWTWithX5C(
-	base64Payload string, // pre-encoded base64url payload
-	privateKey *rsa.PrivateKey,
-	signedCertificate *x509.Certificate, // signed certificate (the leaf)
-	kid string,
-) (string, error) {
-	// Prepare x5c values: base64(der) for each certificate
-	x5c := make([]string, 1)
-	der := signedCertificate.Raw
-	x5c[0] = base64.StdEncoding.EncodeToString(der) // **standard** base64, **not** url-safe
-
-	// Header with x5c
+// buildX5CHeader builds the base64url-encoded JWS protected header used by
+// getRequestSignature — mosipRequestSignAlgorithm plus a single-entry x5c
+// carrying cert, matching MOSIP IDA's expected "signature" header shape.
+func buildX5CHeader(cert *x509.Certificate) (string, error) {
 	header := map[string]interface{}{
-		"alg": "RS256",
+		"alg": mosipRequestSignAlgorithm,
 		"typ": "JWT",
-		"x5c": x5c,
+		"x5c": []string{base64.StdEncoding.EncodeToString(cert.Raw)}, // standard base64, not url-safe
 	}
-	if kid != "" {
-		header["kid"] = kid
-	}
-
 	headerJSON, err := json.Marshal(header)
 	if err != nil {
 		return "", err
 	}
-	headerB64 := base64.RawURLEncoding.EncodeToString(headerJSON)
+	return base64.RawURLEncoding.EncodeToString(headerJSON), nil
+}
 
-	payloadB64 := base64Payload
-
-	input := headerB64 + "." + payloadB64
-
-	// RS256 signature
-	hash := sha256.Sum256([]byte(input))
-	signature, err := rsa.SignPKCS1v15(nil, privateKey, crypto.SHA256, hash[:])
-	if err != nil {
-		return "", fmt.Errorf("rsa sign failed: %w", err)
+// errorCodes extracts just the ErrorCode field from a MOSIP IDA error list —
+// a fixed enum value, safe to log — leaving ErrorMessage and any other
+// echoed request context out of logs/error strings.
+func errorCodes(errs []Error) []string {
+	codes := make([]string, len(errs))
+	for i, e := range errs {
+		codes[i] = e.ErrorCode
 	}
-
-	sigB64 := base64.RawURLEncoding.EncodeToString(signature)
-
-	// Final JWT: header.payload.signature
-	// Note: the payload is not add in the JWT on return
-	return headerB64 + ".." + sigB64, nil
+	return codes
 }
 
 func (p *mosipAuthnProvider) callSendOtpEndpoint(
@@ -661,9 +628,21 @@ func (p *mosipAuthnProvider) callSendOtpEndpoint(
 		return nil, fmt.Errorf("failed to read send OTP response: %w", err)
 	}
 
-	// Check status
+	// Check status. The response body is never logged or included in the
+	// returned error here: MOSIP IDA error payloads for the OTP flow echo
+	// request context (individualId, masked email/mobile) — personal
+	// identifiers that must not reach application logs or error strings
+	// that themselves might get logged upstream. Only the status code and
+	// the IDA errorCode values (a fixed enum, not caller data) are
+	// surfaced, best-effort — a non-2xx body isn't guaranteed to parse as
+	// IdaSendOtpResponse at all.
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return nil, fmt.Errorf("unexpected send OTP status: %d - %s", resp.StatusCode, string(bodyBytes))
+		var errWrapper IdaSendOtpResponse
+		_ = json.Unmarshal(bodyBytes, &errWrapper)
+		applog.GetLogger().Error(ctx, "unexpected send OTP status",
+			applog.Int("status", resp.StatusCode),
+			applog.Any("errorCodes", errorCodes(errWrapper.Errors)))
+		return nil, fmt.Errorf("unexpected send OTP status: %d (codes: %v)", resp.StatusCode, errorCodes(errWrapper.Errors))
 	}
 
 	// Parse response
@@ -681,8 +660,7 @@ func (p *mosipAuthnProvider) callSendOtpEndpoint(
 	}
 
 	applog.GetLogger().Error(ctx, "IDA OTP error response",
-		applog.Any("response", wrapper.Response),
-		applog.Any("errors", wrapper.Errors))
+		applog.Any("errorCodes", errorCodes(wrapper.Errors)))
 
 	// Error path
 	if wrapper.Response == nil {
@@ -863,24 +841,34 @@ func buildIDAEndpointURL(ctx context.Context, baseURL, relyingPartyID, clientID 
 	return u.String(), nil
 }
 
-func (p *mosipAuthnProvider) getRequestSignature(requestBody []byte) (string, error) {
-	if p.cfg.P12Path == "" {
-		return "", errors.New("MOSIP_P12_PATH is not configured")
-	}
-	if p.cfg.P12Password == "" {
-		return "", errors.New("MOSIP_P12_PASSWORD is not configured")
-	}
-
-	encodedRequestBody := B64EncodeBytes(requestBody)
-
-	privateKey, signedCertificate, err := LoadRSAPrivateKeyAndCertFromP12(p.cfg.P12Path, p.cfg.P12Password)
+// getRequestSignature builds the detached-payload JWS ("header..signature")
+// MOSIP IDA expects in the outbound "signature" header, signing requestBody
+// with the keymanager's OIDC_PARTNER / RSA_2048 component master key.
+func (p *mosipAuthnProvider) getRequestSignature(ctx context.Context, requestBody []byte) (string, error) {
+	// The certificate embedded in the x5c header and the signature must come
+	// from the same key resolution: resolving the certificate and signing
+	// independently each perform their own lazy-rotation lookup, and a
+	// rotation landing between the two calls would attach the old
+	// certificate to a signature produced by the new key, which MOSIP IDA
+	// rejects. ResolveSigner+SignWithKey resolve once and reuse the result.
+	cert, signer, err := p.sigSvc.ResolveSigner(ctx, config.OIDCPartnerAppID, keymanager.RefIDRSA2048)
 	if err != nil {
-		return "", fmt.Errorf("failed to load RSA private key and certificate from P12: %w", err)
+		return "", fmt.Errorf("failed to resolve %s signing certificate: %w", config.OIDCPartnerAppID, err)
 	}
 
-	jwtWithoutPayload, err := CreateAndSignJWTWithX5C(encodedRequestBody, privateKey, signedCertificate, "")
+	headerB64, err := buildX5CHeader(cert)
 	if err != nil {
-		return "", fmt.Errorf("failed to create and sign JWT: %w", err)
+		return "", fmt.Errorf("failed to build JWT header: %w", err)
 	}
-	return jwtWithoutPayload, nil
+
+	payloadB64 := B64EncodeBytes(requestBody)
+	signingInput := headerB64 + "." + payloadB64
+
+	sigBytes, err := p.sigSvc.SignWithKey(signer, cert.PublicKey, mosipRequestSignAlgorithm, []byte(signingInput))
+	if err != nil {
+		return "", fmt.Errorf("failed to sign request: %w", err)
+	}
+
+	// Detached-payload JWS: header..signature (the payload is not embedded in the return value)
+	return headerB64 + ".." + base64.RawURLEncoding.EncodeToString(sigBytes), nil
 }

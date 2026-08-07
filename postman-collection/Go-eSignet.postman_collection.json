@@ -193,9 +193,66 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Patch client",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set('client_mgmt_request_time', new Date().toISOString());"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('patch 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "if (j.errors && j.errors.length) { throw new Error('client patch failed: ' + JSON.stringify(j.errors)); }",
+                  "pm.test('response envelope', () => pm.expect(j.response).to.be.an('object'));",
+                  "pm.test('client_id matches', () => pm.expect(j.response.clientId).to.eql(pm.environment.get('client_id')));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{client_mgmt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"requestTime\": \"{{client_mgmt_request_time}}\",\n  \"request\": {\n    \"clientName\": \"Postman Test Client (patched)\",\n    \"status\": \"ACTIVE\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/client-mgmt/client/{{client_id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "client-mgmt",
+                "client",
+                "{{client_id}}"
+              ]
+            },
+            "description": "Partially updates a client. Only the fields present in `request` are applied; omitted fields are left unchanged. Set `encPublicKey` to `null` to clear it."
+          },
+          "response": []
         }
       ],
-      "description": "Create / Get / Update an OAuth client. Run 'Create client' first, then a flow folder — every flow uses {{client_id}} + {{client_private_key}}. Toggle additionalConfig in the Create body per client type: normal OAuth = pkce_required only; FAPI2 = also require_pushed_authorization_requests + dpop_bound_access_tokens = true.",
+      "description": "Create / Get / Update an OAuth client. Run 'Create client' first, then a flow folder \u2014 every flow uses {{client_id}} + {{client_private_key}}. Toggle additionalConfig in the Create body per client type: normal OAuth = pkce_required only; FAPI2 = also require_pushed_authorization_requests + dpop_bound_access_tokens = true.",
       "event": [
         {
           "listen": "prerequest",
@@ -208,6 +265,202 @@
               "else { pm.request.headers.remove('Authorization'); }"
             ]
           }
+        }
+      ]
+    },
+    {
+      "name": "System Info",
+      "item": [
+        {
+          "name": "Get certificate",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('get certificate 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "if (j.errors && j.errors.length) { throw new Error('get certificate failed: ' + JSON.stringify(j.errors)); }",
+                  "pm.test('certificate present', () => pm.expect(j.response.certificate).to.be.a('string'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{client_mgmt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/system-info/certificate?applicationId={{system_info_application_id}}&referenceId={{system_info_reference_id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "system-info",
+                "certificate"
+              ],
+              "query": [
+                {
+                  "key": "applicationId",
+                  "value": "{{system_info_application_id}}"
+                },
+                {
+                  "key": "referenceId",
+                  "value": "{{system_info_reference_id}}"
+                }
+              ]
+            },
+            "description": "Fetches the current certificate for the given (applicationId, referenceId). applicationId is required; referenceId is optional (blank is meaningful only for ROOT)."
+          },
+          "response": []
+        },
+        {
+          "name": "Upload certificate",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('upload certificate 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "if (j.errors && j.errors.length) { throw new Error('upload certificate failed: ' + JSON.stringify(j.errors)); }",
+                  "pm.test('status present', () => pm.expect(j.response.status).to.be.a('string'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{client_mgmt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"requestTime\": \"{{client_mgmt_request_time}}\",\n  \"request\": {\n    \"applicationId\": \"{{system_info_application_id}}\",\n    \"referenceId\": \"{{system_info_reference_id}}\",\n    \"certificateData\": \"{{system_info_certificate_data}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/system-info/uploadCertificate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "system-info",
+                "uploadCertificate"
+              ]
+            },
+            "description": "Replaces the certificate for the current alias identified by (applicationId, referenceId). certificateData is a PEM-encoded certificate string."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Well Known",
+      "item": [
+        {
+          "name": "OpenID Connect discovery",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('OpenID Connect discovery 200', () => pm.response.to.have.status(200));",
+                  "pm.test('response is JSON', () => { pm.response.to.be.json; });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/.well-known/openid-configuration",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                ".well-known",
+                "openid-configuration"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "OAuth2 authorization server metadata",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('OAuth2 authorization server metadata 200', () => pm.response.to.have.status(200));",
+                  "pm.test('response is JSON', () => { pm.response.to.be.json; });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/.well-known/oauth-authorization-server",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                ".well-known",
+                "oauth-authorization-server"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "JWKS",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('JWKS 200', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('keys array present', () => pm.expect(j.keys).to.be.an('array'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/oauth2/jwks",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "oauth2",
+                "jwks"
+              ]
+            },
+            "description": "JSON Web Key Set referenced by jwks_uri in the discovery metadata."
+          },
+          "response": []
         }
       ]
     },
@@ -471,7 +724,7 @@
           "response": []
         },
         {
-          "name": "Flow execute — start",
+          "name": "Flow execute \u2014 start",
           "event": [
             {
               "listen": "test",
@@ -515,7 +768,7 @@
           "response": []
         },
         {
-          "name": "Flow execute — select acr",
+          "name": "Flow execute \u2014 select acr",
           "event": [
             {
               "listen": "test",
@@ -558,7 +811,7 @@
           "response": []
         },
         {
-          "name": "Flow execute — enter uin",
+          "name": "Flow execute \u2014 enter uin",
           "event": [
             {
               "listen": "prerequest",
@@ -621,7 +874,7 @@
           "response": []
         },
         {
-          "name": "Flow execute — enter OTP",
+          "name": "Flow execute \u2014 enter OTP",
           "event": [
             {
               "listen": "prerequest",
@@ -685,7 +938,7 @@
           "response": []
         },
         {
-          "name": "Flow execute — enter password",
+          "name": "Flow execute \u2014 enter password",
           "event": [
             {
               "listen": "prerequest",
@@ -749,7 +1002,7 @@
           "response": []
         },
         {
-          "name": "Flow execute — sunbird KBI",
+          "name": "Flow execute \u2014 sunbird KBI",
           "event": [
             {
               "listen": "prerequest",
@@ -813,7 +1066,7 @@
           "response": []
         },
         {
-          "name": "Flow execute — consent",
+          "name": "Flow execute \u2014 consent",
           "event": [
             {
               "listen": "prerequest",
@@ -1137,7 +1390,7 @@
               "script": {
                 "exec": [
                   "// Generate the identity (name / dob / policy number) once and reuse it across",
-                  "// Search Policy and the KBI authentication in the '5 — Sunbird KBI' folder.",
+                  "// Search Policy and the KBI authentication in the '5 \u2014 Sunbird KBI' folder.",
                   "function pad(n){ return n < 10 ? '0' + n : '' + n; }",
                   "const first = ['Alex','Maria','John','Priya','Liang','Omar','Sara','David'][Math.floor(Math.random()*8)];",
                   "const last  = ['Smith','Kumar','Garcia','Chen','Khan','Mueller','Rossi','Lopez'][Math.floor(Math.random()*8)];",
@@ -1271,10 +1524,10 @@
               "script": {
                 "exec": [
                   "// Opt-in cleanup: skipped by default so a top-to-bottom 'Run collection' does",
-                  "// not delete the seeded record before '5 — Sunbird KBI' consumes it. Set",
+                  "// not delete the seeded record before '5 \u2014 Sunbird KBI' consumes it. Set",
                   "// sunbird_cleanup=true (and run this request manually, after KBI) to enable.",
                   "if (!pm.environment.get('sunbird_cleanup')) {",
-                  "  console.log('Skipping Delete Policy — set sunbird_cleanup=true to enable.');",
+                  "  console.log('Skipping Delete Policy \u2014 set sunbird_cleanup=true to enable.');",
                   "  pm.execution.skipRequest();",
                   "}"
                 ],
@@ -1311,7 +1564,7 @@
           "response": []
         }
       ],
-      "description": "CRUD against the Sunbird registry (Insurance schema) used by the KBI flow. Run 'Create Policy (Identity)' first: it generates a random identity and stores it in the environment as sunbird_individual_id (policy number) / sunbird_full_name / sunbird_dob, then '5 — Sunbird KBI' authenticates against it. These dedicated vars keep the MOSIP individual_id (folders 1-3) untouched. 'Delete Policy' is opt-in (sunbird_cleanup=true) so it does not run automatically before KBI. Requires {{sunbird_url}} reachable."
+      "description": "CRUD against the Sunbird registry (Insurance schema) used by the KBI flow. Run 'Create Policy (Identity)' first: it generates a random identity and stores it in the environment as sunbird_individual_id (policy number) / sunbird_full_name / sunbird_dob, then '5 \u2014 Sunbird KBI' authenticates against it. These dedicated vars keep the MOSIP individual_id (folders 1-3) untouched. 'Delete Policy' is opt-in (sunbird_cleanup=true) so it does not run automatically before KBI. Requires {{sunbird_url}} reachable."
     }
   ],
   "event": [
@@ -1341,8 +1594,8 @@
           "const clientId = pm.environment.get('client_id');",
           "const clientJwkRaw = pm.environment.get('client_private_key');",
           "const audience = pm.environment.get('audience') || (pm.environment.get('baseUrl').replace(/\\/$/, '') + '/oauth2/token');",
-          "if (!clientId) { throw new Error('client_id is not set — run Client Management > Create client first'); }",
-          "if (!clientJwkRaw) { throw new Error('client_private_key is not set — run Client Management > Create client first'); }",
+          "if (!clientId) { throw new Error('client_id is not set \u2014 run Client Management > Create client first'); }",
+          "if (!clientJwkRaw) { throw new Error('client_private_key is not set \u2014 run Client Management > Create client first'); }",
           "",
           "const jwk = parsePrivateJwk(clientJwkRaw);",
           "if (!jwk.kid) { throw new Error('Private JWK must include kid'); }",

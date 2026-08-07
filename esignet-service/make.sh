@@ -57,8 +57,14 @@ SIGNING_CERT=$KEY_DIR/signing.crt
 : "${DOCKER_IMAGE:=esignet:latest}"
 : "${GOLANGCI_LINT_VERSION:=latest}"
 : "${SQLC_VERSION:=v1.29.0}"
-: "${THUNDER_BRANCH:=release}"
+: "${THUNDER_BRANCH:=main}"
 : "${RACE:=1}"   # set RACE=0 if no C toolchain (go test -race needs gcc on Windows)
+# Local builds default to a static, cgo-free binary, which drops the PKCS11
+# (HSM) keystore backend down to a stub that errors at startup — use
+# KEYMANAGER_KEYSTORE_TYPE=PKCS12 locally, or override with CGO_ENABLED=1 to
+# build with real PKCS11/HSM support (what docker-build does implicitly,
+# since it never sets CGO_ENABLED and the build image has a C toolchain).
+: "${CGO_ENABLED:=0}"
 THUNDER_MODULE=github.com/thunder-id/thunderid/backend 
 
 need() {
@@ -92,7 +98,7 @@ target_build() { ## Compile production binary (out/esignet[.exe])
   need go
   target_keys
   mkdir -p "$OUT_DIR"
-  CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o "$BINARY" "$CMD"
+  CGO_ENABLED="$CGO_ENABLED" go build -trimpath -ldflags="-s -w" -o "$BINARY" "$CMD"
   echo "build: wrote $BINARY"
 }
 
@@ -233,7 +239,10 @@ Usage: ./make.sh <target> [<target> ...] [VAR=VALUE ...]
 Build
   all                Alias for build
   keys               Generate local TLS signing key and certificate
-  build              Compile production binary ($BINARY)
+  build              Compile production binary ($BINARY, CGO_ENABLED=$CGO_ENABLED — set
+                     CGO_ENABLED=1 for real PKCS11/HSM support; default is a
+                     static binary where PKCS11 stubs out to a startup error
+                     and only PKCS12 works)
 
 Run
   run                Run with go run (development)
