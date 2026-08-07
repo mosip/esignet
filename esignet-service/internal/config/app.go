@@ -23,8 +23,6 @@ const (
 	defaultDataDir               = "./data"
 	appConfigFileName            = "deployment.yaml"
 	defaultGatePort              = 3000
-	defaultSigningKeyPath        = "keys/signing.key"
-	defaultSigningCertPath       = "keys/signing.crt"
 	defaultGateScheme            = "http"
 	defaultGateHostname          = "127.0.0.1"
 	defaultGateLoginPath         = "/signin"
@@ -145,7 +143,7 @@ func LoadAppConfig() (*AppConfig, error) {
 func applyDefaults(cfg *AppConfig) {
 	cfg.Identifier = envOrDefault("NAMESPACE", "esignet")
 	cfg.Port = envIntOrDefault("PORT", defaultPort)
-	cfg.Issuer = envOrDefault("MOSIP_ESIGNET_HOST", fmt.Sprintf("http://127.0.0.1:%d", cfg.Port))
+	cfg.Issuer = envOrDefault("MOSIP_ESIGNET_HOST", fmt.Sprintf("http://localhost:%d", cfg.Port))
 	cfg.DataDir = envOrDefault("DATA_DIR", defaultDataDir)
 	yamlDB := cfg.DB
 	cfg.DB = loadDB()
@@ -157,6 +155,7 @@ func applyDefaults(cfg *AppConfig) {
 	}
 
 	cacheType := envOrDefault("MOSIP_ESIGNET_CACHE_TYPE", "redis")
+	cfg.RuntimeDBType = cacheType
 	if cacheType == "redis" {
 		cfg.Redis = loadRedis()
 	}

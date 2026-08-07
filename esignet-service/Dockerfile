@@ -24,7 +24,6 @@ ARG MOSIP_ESIGNET_HOST
 ARG container_user=mosip
 
 ARG DATA_DIR=/home/${container_user}/data
-ARG SIGNING_KEY_PATH=/home/${container_user}/data/keys/signing.key
 
 # can be passed during Docker build as build time environment for github branch to pickup configuration from.
 ARG container_user_group=mosip
@@ -39,32 +38,36 @@ ENV MOSIP_ESIGNET_HOST_ENV=${MOSIP_ESIGNET_HOST}
 
 ENV DATA_DIR_ENV=${DATA_DIR}
 
-ENV SIGNING_KEY_PATH_ENV=${SIGNING_KEY_PATH}
-
 # set working directory for the user
 WORKDIR /home/${container_user}
 
-# install packages and create user
-RUN groupadd -g ${container_user_gid} ${container_user_group} \
-    && useradd -u ${container_user_uid} -g ${container_user_group} -s /bin/sh -m ${container_user} \
-    && chown -R ${container_user}:${container_user} /home/${container_user} \
-    && apt-get update && apt-get install -y --no-install-recommends ca-certificates openssl && rm -rf /var/lib/apt/lists/*
+ENV work_dir=/home/${container_user}
+# can be passed during Docker build as build time environment for hsm client zip file path
+ARG hsm_client_zip_url
+# environment variable to pass hsm client zip file path, at docker runtime
+ENV hsm_client_zip_url_env=${hsm_client_zip_url}
+ARG hsm_local_dir=hsm-client
+ENV hsm_local_dir_env=${hsm_local_dir}
 
 COPY --from=build /out/esignet.exe /home/${container_user}/esignet.exe
-
 COPY data /home/${container_user}/data
-
 COPY docker-entrypoint.sh /home/${container_user}/entrypoint.sh
 
-RUN chmod +x /home/${container_user}/entrypoint.sh \
-    && mkdir -p /home/${container_user}/data/keys \
-    && chown -R ${container_user}:${container_user_group} /home/${container_user} /home/${container_user}/data
+# install packages and create user
+RUN apt-get -y update \
+&& apt-get install -y --no-install-recommends wget unzip file sudo ca-certificates \
+&& groupadd -g ${container_user_gid} ${container_user_group} \
+&& useradd -u ${container_user_uid} -g ${container_user_group} -s /bin/sh -m ${container_user} \
+&& echo "${container_user} ALL=(ALL) NOPASSWD:/home/${container_user}/${hsm_local_dir}/install.sh" >> /etc/sudoers \
+&& chmod +x /home/${container_user}/entrypoint.sh \
+&& chown -R ${container_user}:${container_user_group} /home/${container_user} /home/${container_user}/data \
+&& rm -rf /var/lib/apt/lists/*
+
 # select container user for runtime
 USER ${container_user_uid}:${container_user_gid}
 
 ENV DATA_DIR=${DATA_DIR_ENV} \
     MOSIP_ESIGNET_HOST=${MOSIP_ESIGNET_HOST_ENV} \
-    SIGNING_KEY_PATH=${SIGNING_KEY_PATH_ENV} \
     PORT=8088
 
 EXPOSE 8088

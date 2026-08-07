@@ -1,19 +1,19 @@
 identifier: "${NAMESPACE}"
-port: 8088
-issuer: "${MOSIP_ESIGNET_HOST:-http://localhost:8088}"
+port: 8080
+issuer: "${MOSIP_ESIGNET_HOST:-http://localhost:8080}"
 data_dir: "${DATA_DIR:-./data}"
 
 provider: "${MOSIP_ESIGNET_AUTHN_PROVIDER:-mock}"
 auth_flow_id: "${MOSIP_ESIGNET_AUTH_FLOW_ID:-flow-esignet}"
 theme_id: "${MOSIP_ESIGNET_THEME_ID:-theme-esignet}"
 layout_id: "${MOSIP_ESIGNET_LAYOUT_ID:-layout-esignet}"
-runtime_db_type: "${RUNTIME_DB_TYPE:-redis}"
+runtime_db_type: "${MOSIP_ESIGNET_CACHE_TYPE:-redis}"
 
 server:
   hostname: "0.0.0.0"
-  port: 8088
+  port: 8080
   http_only: true
-  public_url: "${MOSIP_ESIGNET_HOST:-http://localhost:8088}"
+  public_url: "${MOSIP_ESIGNET_HOST:-http://localhost:8080}"
   identifier: ${NAMESPACE:-esignet}
 
 redis:
