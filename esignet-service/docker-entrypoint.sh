@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #installs the pkcs11 libraries.
 set -e
@@ -6,7 +6,7 @@ set -e
 # Check if $hsm_client_zip_url_env is not empty
 if [[ -n "$hsm_client_zip_url_env" ]]; then
     echo "Download the client from $hsm_client_zip_url_env"
-    wget -q --show-progress "$hsm_client_zip_url_env" -O client.zip
+    wget --show-progress "$hsm_client_zip_url_env" -O client.zip
     echo "Downloaded $hsm_client_zip_url_env"
 fi
 

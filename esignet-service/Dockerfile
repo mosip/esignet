@@ -55,11 +55,10 @@ COPY docker-entrypoint.sh /home/${container_user}/entrypoint.sh
 
 # install packages and create user
 RUN apt-get -y update \
-&& apt-get install -y --no-install-recommends wget unzip file sudo \
+&& apt-get install -y --no-install-recommends wget unzip file sudo ca-certificates \
 && groupadd -g ${container_user_gid} ${container_user_group} \
 && useradd -u ${container_user_uid} -g ${container_user_group} -s /bin/sh -m ${container_user} \
-&& adduser ${container_user} sudo \
-&& echo "%sudo ALL=(ALL) NOPASSWD:/home/${container_user}/${hsm_local_dir}/install.sh" >> /etc/sudoers \
+&& echo "${container_user} ALL=(ALL) NOPASSWD:/home/${container_user}/${hsm_local_dir}/install.sh" >> /etc/sudoers \
 && chmod +x /home/${container_user}/entrypoint.sh \
 && chown -R ${container_user}:${container_user_group} /home/${container_user} /home/${container_user}/data \
 && rm -rf /var/lib/apt/lists/*
