@@ -133,10 +133,12 @@ func (p *mosipAuthnProvider) Authenticate(ctx context.Context, identifiers, cred
 	} else if encodedBiometric, ok := biometricCredential(credentials); ok {
 		decodedBiometric, err := B64Decode(encodedBiometric)
 		if err != nil {
+			applog.GetLogger().Error(ctx, "Biometric decode failed", applog.Error(err))
 			return nil, shared.InvalidRequestError
 		}
 		var biometrics []Biometric
 		if err := json.Unmarshal(decodedBiometric, &biometrics); err != nil {
+			applog.GetLogger().Error(ctx, "Biometric unmarshal failed", applog.Error(err))
 			return nil, shared.InvalidRequestError
 		}
 		if len(biometrics) == 0 {
@@ -150,39 +152,53 @@ func (p *mosipAuthnProvider) Authenticate(ctx context.Context, identifiers, cred
 	}
 	authRequestBytes, err := json.Marshal(authRequest)
 	if err != nil {
+		applog.GetLogger().Error(ctx, "Auth request marshal failed", applog.Error(err))
 		return nil, shared.AuthenticationFailedError
 	}
 
 	requestHash, err := GenerateHashWithErr(authRequestBytes)
 	if err != nil {
+		applog.GetLogger().Error(ctx, "Auth request hash generation failed", applog.Error(err))
 		return nil, shared.AuthenticationFailedError
 	}
 	hexEncodedRequestHash, err := EncodeBytesToHexUpper(requestHash)
 	if err != nil {
+		applog.GetLogger().Error(ctx, "Auth request hash encoding failed", applog.Error(err))
 		return nil, shared.AuthenticationFailedError
 	}
+
 	symmetricKey, err := GenerateAESKey()
 	if err != nil {
+		applog.GetLogger().Error(ctx, "Auth request symmetric key generation failed", applog.Error(err))
 		return nil, shared.AuthenticationFailedError
 	}
+
+	applog.GetLogger().Debug(ctx, "kyc-auth symmetric key generated successfully")
+
 	encryptedRequest, err := SymmetricEncrypt(authRequestBytes, symmetricKey)
 	if err != nil {
+		applog.GetLogger().Error(ctx, "Auth request encryption failed", applog.Error(err))
 		return nil, shared.AuthenticationFailedError
 	}
+
 	encryptedRequestHash, err := SymmetricEncrypt(hexEncodedRequestHash, symmetricKey)
 	if err != nil {
+		applog.GetLogger().Error(ctx, "Auth request hash encryption failed", applog.Error(err))
 		return nil, shared.AuthenticationFailedError
 	}
 	generatedCert, err := p.fetchIDAPartnerCertificate(ctx)
 	if err != nil {
+		applog.GetLogger().Error(ctx, "IDA partner certificate fetch failed", applog.Error(err))
 		return nil, shared.AuthenticationFailedError
 	}
 	encryptedSessionKey, err := AsymmetricEncrypt(generatedCert.PublicKey.(*rsa.PublicKey), symmetricKey)
 	if err != nil {
+		applog.GetLogger().Error(ctx, "Auth request session key encryption failed", applog.Error(err))
 		return nil, shared.AuthenticationFailedError
 	}
 	certThumbprint, err := GetCertificateThumbprint(generatedCert)
 	if err != nil {
+		applog.GetLogger().Error(ctx, "Auth request certificate thumbprint generation failed", applog.Error(err))
 		return nil, shared.AuthenticationFailedError
 	}
 
@@ -193,16 +209,19 @@ func (p *mosipAuthnProvider) Authenticate(ctx context.Context, identifiers, cred
 
 	requestBytes, err := json.Marshal(idaKycAuthRequest)
 	if err != nil {
+		applog.GetLogger().Error(ctx, "Auth request marshal failed", applog.Error(err))
 		return nil, shared.AuthenticationFailedError
 	}
 
 	requestSignature, err := p.getRequestSignature(ctx, requestBytes)
 	if err != nil {
+		applog.GetLogger().Error(ctx, "Auth request signature generation failed", applog.Error(err))
 		return nil, shared.AuthenticationFailedError
 	}
 
 	psut, kycToken, err := p.callKycAuthEndpoint(ctx, requestBytes, requestSignature, clientDtl.RpID, clientDtl.ClientID, claimsMetadataRequired)
 	if err != nil {
+		applog.GetLogger().Error(ctx, "KYC auth endpoint call failed", applog.Error(err))
 		return nil, shared.AuthenticationFailedError
 	}
 
