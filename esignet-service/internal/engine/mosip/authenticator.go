@@ -36,6 +36,7 @@ import (
 	"github.com/mosip/esignet/internal/config"
 	"github.com/mosip/esignet/internal/engine/shared"
 	"github.com/mosip/esignet/internal/keymanager"
+	"github.com/mosip/esignet/internal/keymanager/keystore"
 	"github.com/mosip/esignet/internal/keymanager/signature"
 	applog "github.com/mosip/esignet/internal/log"
 )
@@ -528,7 +529,7 @@ func (p *mosipAuthnProvider) fetchIDAPartnerCertificate(ctx context.Context) (*x
 	}
 
 	// The block.Bytes is the DER-encoded certificate
-	cert, err := x509.ParseCertificate(block.Bytes)
+	cert, err := keystore.ParseCertificateTolerant(block.Bytes)
 	if err != nil {
 		// Append original error message (similar to your Java concatenation)
 		return nil, fmt.Errorf("%w: %w", ErrCertificateParsing, err)
