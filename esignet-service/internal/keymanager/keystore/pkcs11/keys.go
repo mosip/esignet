@@ -205,7 +205,7 @@ func (s *Store) GenerateAndStoreAsymmetricKey(alias, signKeyAlias string, params
 		return fmt.Errorf("pkcs11: create certificate: %w", err)
 	}
 
-	cert, err := x509.ParseCertificate(certDER)
+	cert, err := keystore.ParseCertificateTolerant(certDER)
 	if err != nil {
 		return fmt.Errorf("pkcs11: parse generated certificate: %w", err)
 	}

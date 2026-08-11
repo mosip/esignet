@@ -14,6 +14,7 @@ import (
 	"math/big"
 
 	"github.com/mosip/esignet/internal/keymanager"
+	"github.com/mosip/esignet/internal/keymanager/keystore"
 )
 
 // certFromHeader extracts the leaf certificate embedded in a JWS header's
@@ -37,7 +38,7 @@ func certFromHeader(headerB64 string) (*x509.Certificate, bool) {
 	if err != nil {
 		return nil, false
 	}
-	cert, err := x509.ParseCertificate(der)
+	cert, err := keystore.ParseCertificateTolerant(der)
 	if err != nil {
 		return nil, false
 	}
