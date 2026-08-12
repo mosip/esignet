@@ -84,7 +84,7 @@
       "bdd",
       "e2e"
     ],
-    "profile": "smoke",
+    "profile": "full",
     "debug_show_secrets": false
   }
 }

@@ -18,9 +18,9 @@ import (
 	"sort"
 	"strings"
 	"time"
-	"unicode/utf8"
 
 	"github.com/mosip/esignet/api-test/internal/result"
+	"github.com/mosip/esignet/api-test/internal/textx"
 )
 
 type view struct {
@@ -450,6 +450,9 @@ func displayResult(r result.ModuleResult) string {
 	}
 	if r.HarnessOutcome == result.OutcomeSkippedByHarness {
 		return "SKIPPED (harness)"
+	}
+	if r.HarnessOutcome == result.OutcomeEnvNotReady {
+		return "ENV_NOT_READY"
 	}
 	if r.Result == "" {
 		return r.Status
@@ -940,18 +943,8 @@ func variantStr(v map[string]any) string {
 	return strings.Join(parts, ", ")
 }
 
-// truncate cuts s to at most n bytes, backing off to the last full rune so a
-// multi-byte UTF-8 character (e.g. non-Latin claim values) is never split.
-func truncate(s string, n int) string {
-	if len(s) <= n {
-		return s
-	}
-	cut := n
-	for cut > 0 && !utf8.RuneStart(s[cut]) {
-		cut--
-	}
-	return s[:cut] + "\n…(truncated)"
-}
+// truncate cuts s to at most n bytes for a report detail value.
+func truncate(s string, n int) string { return textx.Truncate(s, n, "\n…(truncated)") }
 
 var tmpl = template.Must(template.New("report").Parse(reportHTML))
 

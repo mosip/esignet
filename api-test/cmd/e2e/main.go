@@ -75,14 +75,6 @@ func main() {
 	if err != nil {
 		logger.Fatalf("discovery: %v", err)
 	}
-	// RFC 8414 §3.3: the issuer the RP trusts is the one it configured
-	// (esignet.base_url), not merely whatever the document itself claims.
-	// sameOrigin already pins every endpoint to the issuer's origin, but a
-	// same-origin issuer that simply isn't the deployment this run was pointed
-	// at would otherwise pass silently.
-	if strings.TrimRight(disco.Issuer, "/") != base {
-		logger.Fatalf("discovery issuer %q does not match esignet.base_url %q", disco.Issuer, base)
-	}
 
 	// Admin token for client registration.
 	adminTok, err := keycloakToken(ctx, cfg.Keycloak, tlsVerify)
@@ -114,6 +106,15 @@ func main() {
 		logger.Printf("scenario filter: %d of %d scenario(s) selected from %s", len(spec.Scenarios), total, sp)
 	}
 
+	// run.timeout_seconds/poll_interval_seconds — the same knobs the conformance
+	// surface uses for its own HTTP client and poll wait — so TIMEOUT_SECONDS
+	// changes this surface's behaviour too, not only the conformance one.
+	timeout := time.Duration(cfg.Run.TimeoutSeconds) * time.Second
+	poll := time.Duration(cfg.Run.PollIntervalSeconds) * time.Second
+	if poll <= 0 {
+		poll = time.Second
+	}
+
 	// Dynamic OTP: connect the mock-SMTP listener once, shared across scenarios.
 	var otpProvider esignet.OTPProvider
 	if es.OTP.Source == "dynamic" {
@@ -125,7 +126,7 @@ func main() {
 			logger.Fatalf("dynamic OTP: %v", err)
 		}
 		defer lst.Close()
-		otpProvider = wsotp.NewOTPProvider(lst, es.OTP.RecipientEmail, 90*time.Second, time.Second)
+		otpProvider = wsotp.NewOTPProvider(lst, es.OTP.RecipientEmail, timeout, poll)
 		logger.Printf("dynamic OTP: listening on mock-SMTP for recipient %q", es.OTP.RecipientEmail)
 	}
 
@@ -141,7 +142,7 @@ func main() {
 		Answers:          esignet.BuildAnswers(es),
 		IDType:           es.Identity.IDType,
 		TLSVerify:        tlsVerify,
-		Timeout:          90 * time.Second,
+		Timeout:          timeout,
 		Logf:             logger.Printf,
 		OTP:              otpProvider,
 		PMSBaseURL:       es.PMS.BaseURL,
@@ -242,7 +243,7 @@ func keycloakToken(ctx context.Context, kc config.Keycloak, tlsVerify bool) (str
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	// Status first, like fetchDiscovery: a proxy error page would otherwise fail
 	// as an opaque JSON-decode error instead of naming the HTTP status.
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"crypto/rsa"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -278,13 +277,7 @@ type Runner struct {
 
 func (r *Runner) httpClient() *http.Client {
 	if r.client == nil {
-		r.client = &http.Client{
-			Timeout: r.Timeout,
-			Transport: &http.Transport{TLSClientConfig: &tls.Config{
-				MinVersion:         tls.VersionTLS12,
-				InsecureSkipVerify: !r.TLSVerify,
-			}},
-		}
+		r.client = httpx.NewClient(r.TLSVerify, r.Timeout)
 	}
 	return r.client
 }
@@ -309,7 +302,7 @@ func (r *Runner) do(ctx context.Context, calls *[]result.HTTPCall, label, method
 		return 0, nil, err
 	}
 	rb, _ := io.ReadAll(resp.Body)
-	resp.Body.Close()
+	_ = resp.Body.Close()
 	rec.Status = resp.StatusCode
 	rec.RespHeaders = httpx.CloneHeader(resp.Header)
 	rec.RespBody = string(rb)

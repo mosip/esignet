@@ -10,6 +10,24 @@ import (
 	"github.com/mosip/esignet/api-test/internal/result"
 )
 
+// A gated BDD/E2E surface (no suite preflight to fail against) reports
+// HarnessOutcome=ENV_NOT_READY with Result and Status both empty — displayResult
+// must not render that as a blank badge, which would be indistinguishable from a
+// row nobody populated.
+func TestDisplayResultRendersEnvNotReady(t *testing.T) {
+	for _, surface := range []string{result.SurfaceClientMgmt, result.SurfaceE2E} {
+		t.Run(surface, func(t *testing.T) {
+			r := result.ModuleResult{Surface: surface, HarnessOutcome: result.OutcomeEnvNotReady}
+			if got := displayResult(r); got != "ENV_NOT_READY" {
+				t.Errorf("displayResult = %q, want ENV_NOT_READY", got)
+			}
+			if got := resultClass(r); got != "err" {
+				t.Errorf("resultClass = %q, want err (matches the Errored summary bucket)", got)
+			}
+		})
+	}
+}
+
 func TestWriteRendersReport(t *testing.T) {
 	results := []result.ModuleResult{
 		{

@@ -92,8 +92,10 @@ services:
       # empty — "leave it out of .env to use the config files" means the line
       # must be absent or commented, not blank.
       - ESIGNET_BASE_URL
+      - KEYCLOAK_TOKEN_URL
       - KEYCLOAK_CLIENT_SECRET
       - INDIVIDUAL_ID
+      - FLOW_CLIENT_ID
       - SURFACES
       - TEST_PROFILE
       # Unlike CONFORMANCE_TLS_VERIFY below, these have no compose-side default:

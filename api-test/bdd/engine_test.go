@@ -80,6 +80,15 @@ func TestFeatures(t *testing.T) {
 				OutcomeDetail:  "FLOW_CLIENT_ID not set — authorize-endpoint negatives need a pre-registered client",
 			})
 		}
+		if strings.EqualFold(plugin, "mosip") && os.Getenv("PMS_BASE_URL") == "" {
+			rows = append(rows, Envelope{
+				Surface:        "client-mgmt",
+				Plugin:         plugin,
+				Module:         "create-update-client-pms (not run)",
+				HarnessOutcome: "ENV_NOT_READY",
+				OutcomeDetail:  "PMS_BASE_URL not set — PMS-backed client-mgmt needs an onboarded partner+policy",
+			})
+		}
 	}
 
 	out := os.Getenv("BDD_ENVELOPE_OUT")

@@ -16,7 +16,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 
 	"github.com/mosip/esignet/api-test/internal/config"
 	"github.com/mosip/esignet/api-test/internal/orchestrator"
@@ -55,8 +57,16 @@ func main() {
 		ShowSecrets: cfg.Run.DebugShowSecrets,
 	}
 
+	// A plain context.Background() is never cancelled, so Ctrl-C (or a
+	// scheduler's SIGTERM) would kill the process outright — losing even the
+	// partial report the error branch below exists to write. NotifyContext lets
+	// the in-flight HTTP call return promptly and the run fall through to that
+	// branch instead.
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
 	orch := orchestrator.New(cfg, logf)
-	run, err := orch.Run(context.Background())
+	run, err := orch.Run(ctx)
 	if err != nil {
 		logger.Printf("run error: %v", err)
 		// Still try to write whatever we have.
