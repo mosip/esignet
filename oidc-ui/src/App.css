@@ -220,9 +220,10 @@ input[type="password"]::-ms-clear {
     background-color: white !important;
   }
 
-  /* size of icon in ACR selection button */
+  /* size of icon in ACR selection and Multiple LoginID Types button */
   & .thunderid-button__start-icon > img {
     width: 24px !important;
+    height: auto !important;
   }
 }
 
@@ -242,12 +243,21 @@ input[type="password"]::-ms-clear {
 /* login ID button styles */
 .login-id-button {
   white-space: normal !important;
+  padding: 0.5rem !important;
+  color: var(--login_id_label_color) !important;
+  font-size: 0.875rem !important;
 }
 
 /* login ID button active state */
 .login-id-button--active {
   border-color: var(--primary-color) !important;
   color: var(--primary-color) !important;
+}
+
+/* center the Captcha Widget */
+.captcha-renderer {
+  display: flex;
+  justify-content: center;
 }
 
 /* Workaround: center consent timer text */
