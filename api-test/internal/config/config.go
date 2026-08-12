@@ -523,7 +523,10 @@ func (c *Config) ValidateSurface(name string) error {
 	// identity under test explicitly. Without this, a run against a live
 	// environment authenticates as — and reports claims for — whoever owns
 	// whatever identifier happened to be left in the config.
-	if name != SurfaceBDD && !strings.EqualFold(c.Esignet.Provider, "mock") && c.Esignet.Identity.IndividualID == "" {
+	// defaults() normalizes Provider to lowercase before any caller reaches
+	// ValidateSurface, so an exact compare is enough here (matches the switch
+	// in validate() below rather than re-deriving the case-insensitivity).
+	if name != SurfaceBDD && c.Esignet.Provider != "mock" && c.Esignet.Identity.IndividualID == "" {
 		return fmt.Errorf("esignet.identity.individual_id (INDIVIDUAL_ID) is required for the %q plugin", c.Esignet.Provider)
 	}
 	return nil
