@@ -29,6 +29,10 @@ func TestSelectAction(t *testing.T) {
 		// Stage 5: a step offering only tab switches is progressable, so the
 		// first navigation action is taken rather than aborting as ambiguous.
 		{"nav-only-fallback", []string{"login_id_mobile", "login_id_email"}, nil, "login_id_mobile", false},
+		// Stage 5 must still honour the caller preference (IDTypeTokens) among
+		// navigation-only candidates: picking the server's first tab regardless
+		// would authenticate against the wrong login-id type.
+		{"nav-honours-preference", []string{"login_id_mobile", "login_id_email"}, []string{"otp", "email"}, "login_id_email", false},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
@@ -162,6 +166,28 @@ func TestBuildConsentDecisionDenyAll(t *testing.T) {
 		if e.Approved {
 			t.Errorf("element %q approved despite DenyAll", e.Name)
 		}
+	}
+}
+
+// Denying every element BY NAME must reach the same submission as DenyAll: the
+// consent executor would otherwise receive Approved:true over an all-denied
+// element list, and an essential_consent_denied assertion could pass for the
+// wrong reason.
+func TestBuildConsentDecisionDenyEveryElementByName(t *testing.T) {
+	prompt := `[{"purposeName":"attributes:c1","essential":[{"name":"name"}],"optional":[{"name":"email"}]}]`
+	got, denied, err := buildConsentDecision(prompt, ConsentPolicy{Deny: []string{"name", "email"}})
+	if err != nil {
+		t.Fatalf("buildConsentDecision: %v", err)
+	}
+	if len(denied) != 2 {
+		t.Fatalf("denied = %v, want both elements", denied)
+	}
+	var d consentDecision
+	if err := json.Unmarshal([]byte(got), &d); err != nil {
+		t.Fatalf("not a JSON string: %v", err)
+	}
+	if d.Purposes[0].Approved {
+		t.Error("purpose approved although every element was denied by name")
 	}
 }
 

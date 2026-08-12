@@ -75,6 +75,14 @@ func main() {
 	if err != nil {
 		logger.Fatalf("discovery: %v", err)
 	}
+	// RFC 8414 §3.3: the issuer the RP trusts is the one it configured
+	// (esignet.base_url), not merely whatever the document itself claims.
+	// sameOrigin already pins every endpoint to the issuer's origin, but a
+	// same-origin issuer that simply isn't the deployment this run was pointed
+	// at would otherwise pass silently.
+	if strings.TrimRight(disco.Issuer, "/") != base {
+		logger.Fatalf("discovery issuer %q does not match esignet.base_url %q", disco.Issuer, base)
+	}
 
 	// Admin token for client registration.
 	adminTok, err := keycloakToken(ctx, cfg.Keycloak, tlsVerify)
@@ -185,16 +193,18 @@ func fetchDiscovery(ctx context.Context, url string, tlsVerify bool) (*discovery
 	if d.Issuer == "" {
 		return nil, fmt.Errorf("discovery %s: no issuer", url)
 	}
-	if err := sameHost(url, d.Issuer, d.AuthorizationEndpoint, d.TokenEndpoint, d.UserinfoEndpoint, d.JWKSURI); err != nil {
+	if err := sameOrigin(url, d.Issuer, d.AuthorizationEndpoint, d.TokenEndpoint, d.UserinfoEndpoint, d.JWKSURI); err != nil {
 		return nil, fmt.Errorf("discovery %s: %w", url, err)
 	}
 	return &d, nil
 }
 
-// sameHost reports whether every non-empty URL in others resolves to the same
-// host as ref, so a tampered or misconfigured discovery document cannot redirect
-// credentials to an unrelated origin.
-func sameHost(ref string, others ...string) error {
+// sameOrigin reports whether every non-empty URL in others shares ref's scheme
+// AND host, so a tampered or misconfigured discovery document cannot redirect
+// credentials to an unrelated origin, nor downgrade them to cleartext on this
+// one (a host-only check would let token_endpoint declare http:// and still
+// pass, sending the signed client assertion and access token unencrypted).
+func sameOrigin(ref string, others ...string) error {
 	base, err := url.Parse(ref)
 	if err != nil {
 		return fmt.Errorf("parse %q: %w", ref, err)
@@ -209,6 +219,9 @@ func sameHost(ref string, others ...string) error {
 		}
 		if !strings.EqualFold(u.Host, base.Host) {
 			return fmt.Errorf("%q is on %q, not the discovery host %q", o, u.Host, base.Host)
+		}
+		if !strings.EqualFold(u.Scheme, base.Scheme) {
+			return fmt.Errorf("%q uses scheme %q, not the discovery scheme %q — a downgrade would send the client assertion and access token in cleartext", o, u.Scheme, base.Scheme)
 		}
 	}
 	return nil
@@ -266,8 +279,10 @@ func httpGet(ctx context.Context, url string, tlsVerify bool) ([]byte, int, erro
 	if err != nil {
 		return nil, 0, err
 	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
+	defer func() { _ = resp.Body.Close() }()
+	// A discovery document is a few KB. Cap the read so a misbehaving endpoint
+	// cannot exhaust memory before the payload is even parsed.
+	body, err := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
 	return body, resp.StatusCode, err
 }
 

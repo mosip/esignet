@@ -104,5 +104,21 @@ func writeEnvelope(path string, rows []Envelope) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(path, data, 0o600)
+	// os.WriteFile does not change the mode of a file that already exists, so a
+	// prior permissive envelope (e.g. from before this 0600 policy) would stay
+	// readable even though this rewrite is 0600. OpenFile + Chmod enforces it
+	// either way.
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	if err != nil {
+		return err
+	}
+	if err := f.Chmod(0o600); err != nil {
+		_ = f.Close()
+		return err
+	}
+	if _, err := f.Write(data); err != nil {
+		_ = f.Close()
+		return err
+	}
+	return f.Close()
 }

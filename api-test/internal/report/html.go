@@ -347,7 +347,7 @@ func safeJSON(s string) []byte {
 	if json.Valid([]byte(s)) {
 		return []byte(s)
 	}
-	b, _ := json.Marshal(s)
+	b, _ := json.Marshal(s) //nolint:errchkjson // marshalling a string cannot fail
 	return b
 }
 
@@ -899,6 +899,12 @@ func redactSensitiveMode(v any, isRequest bool) {
 					}
 					continue
 				case float64, bool:
+					t[k] = "***redacted***"
+					continue
+				case map[string]any, []any:
+					// A composite under a sensitive key (a JWKS under "secret",
+					// {"otp":["111111"]}) must be masked whole: recursing would only
+					// re-test the inner key names, which are not themselves sensitive.
 					t[k] = "***redacted***"
 					continue
 				}

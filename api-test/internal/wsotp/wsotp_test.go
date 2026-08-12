@@ -168,28 +168,73 @@ func TestDialReadMessageAndListener(t *testing.T) {
 	}
 }
 
-func TestReadFrameMaskedRoundTrip(t *testing.T) {
-	// A client-written (masked) frame must decode back to the same payload.
+// writeFrame must mask every client frame (RFC 6455 §5.3): read the raw bytes
+// off the wire, confirm the mask bit and key are present, and unmask by hand to
+// verify the payload round-trips.
+func TestWriteFrameMasksPayload(t *testing.T) {
 	cli, srv := net.Pipe()
 	defer cli.Close()
 	defer srv.Close()
 
 	payload := []byte("hello websocket masking")
+	done := make(chan error, 1)
 	go func() {
 		c := &conn{net: cli}
-		_ = c.writeFrame(opText, payload)
+		done <- c.writeFrame(opText, payload)
 	}()
 
-	rc := &conn{net: srv, br: bufio.NewReader(srv)}
-	fin, op, got, err := rc.readFrame(true)
-	if err != nil {
-		t.Fatalf("readFrame: %v", err)
+	br := bufio.NewReader(srv)
+	var h [2]byte
+	if _, err := io.ReadFull(br, h[:]); err != nil {
+		t.Fatalf("read header: %v", err)
 	}
-	if !fin || op != opText {
-		t.Fatalf("fin=%v op=%d, want fin=true op=%d", fin, op, opText)
+	if h[0]&0x80 == 0 || int(h[0]&0x0f) != opText {
+		t.Fatalf("header = %08b, want FIN + opText", h[0])
+	}
+	if h[1]&0x80 == 0 {
+		t.Fatal("client frame is not masked")
+	}
+	length := int(h[1] & 0x7f)
+	var maskKey [4]byte
+	if _, err := io.ReadFull(br, maskKey[:]); err != nil {
+		t.Fatalf("read mask key: %v", err)
+	}
+	masked := make([]byte, length)
+	if _, err := io.ReadFull(br, masked); err != nil {
+		t.Fatalf("read payload: %v", err)
+	}
+	got := make([]byte, length)
+	for i := range got {
+		got[i] = masked[i] ^ maskKey[i%4]
 	}
 	if string(got) != string(payload) {
 		t.Fatalf("payload = %q, want %q", got, payload)
+	}
+	if err := <-done; err != nil {
+		t.Fatalf("writeFrame: %v", err)
+	}
+}
+
+// RFC 6455 §5.1 forbids a server from masking its frames. readFrame must reject
+// one outright rather than silently unmask it, which would let a desynchronized
+// or corrupted stream parse as valid data.
+func TestReadFrameRejectsMaskedServerFrame(t *testing.T) {
+	cli, srv := net.Pipe()
+	defer cli.Close()
+	defer srv.Close()
+
+	go func() {
+		c := &conn{net: cli}
+		_ = c.writeFrame(opText, []byte("hello"))
+	}()
+
+	rc := &conn{net: srv, br: bufio.NewReader(srv)}
+	_, _, _, err := rc.readFrame(true)
+	if err == nil {
+		t.Fatal("readFrame accepted a masked server frame")
+	}
+	if !strings.Contains(err.Error(), "masked") {
+		t.Fatalf("readFrame error = %v, want a masked-frame rejection", err)
 	}
 }
 

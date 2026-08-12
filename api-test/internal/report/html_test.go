@@ -481,6 +481,19 @@ func TestRedactBodyMasksNonStringScalars(t *testing.T) {
 	}
 }
 
+// A sensitive key holding a composite (object or array) must be masked whole,
+// not walked into — recursing would only re-test the inner key names, which
+// carry no sensitivity of their own (a JWK's "d" under "secret", or a bare
+// array element under "otp").
+func TestRedactBodyMasksCompositeUnderSensitiveKey(t *testing.T) {
+	got := redactBody(`{"secret":{"kty":"RSA","d":"live-private-key"},"otp":["111111"]}`)
+	for _, leak := range []string{"live-private-key", "111111"} {
+		if strings.Contains(got, leak) {
+			t.Errorf("%q survived redaction: %s", leak, got)
+		}
+	}
+}
+
 // secretsSpec is one run's worth of trace holding every kind of value the
 // redactor scrubs, so both modes can be asserted against the same input.
 func secretsSpec() []result.ModuleResult {

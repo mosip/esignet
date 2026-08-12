@@ -19,7 +19,11 @@ Feature: Client management — create (negative/edge)
     And the JSON value at "errors.0.errorCode" should be "invalid_input"
     And the JSON path "response" should be null
 
+  # Only clientId is missing here; a malformed publicKey in the same body would
+  # make the outcome depend on the server's validation order (see the redirect-URI
+  # scenario below).
   Scenario: Create rejects a missing clientId
+    Given a generated RSA public key as "pubjwk"
     When I send a "POST" request to "/client-mgmt/client" with body:
       """
       {
@@ -29,7 +33,7 @@ Feature: Client management — create (negative/edge)
           "relyingPartyId": "bdd-rp",
           "logoUri": "https://example.org/logo.png",
           "redirectUris": ["https://example.org/cb"],
-          "publicKey": { "kty": "RSA", "e": "AQAB", "n": "invalid" },
+          "publicKey": {{pubjwk}},
           "userClaims": ["name"],
           "authContextRefs": ["mosip:idp:acr:static-code"],
           "grantTypes": ["authorization_code"],

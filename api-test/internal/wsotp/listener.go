@@ -69,10 +69,13 @@ func NewListener(smtpURL string, tlsVerify bool) *Listener {
 // blocks only until the connection is established (or fails), so callers know
 // the listener is live before triggering send-OTP. Safe to call once.
 func (l *Listener) Start(ctx context.Context) error {
+	l.mu.Lock()
 	if l.started {
+		l.mu.Unlock()
 		return nil
 	}
 	l.started = true
+	l.mu.Unlock()
 
 	if os.Getenv("WSOTP_DEBUG") != "" {
 		l.dbgFrames = 3 // log the first few raw frames so the JSON shape can be eyeballed
@@ -82,17 +85,20 @@ func (l *Listener) Start(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	c, err := dial(wsURL, l.tlsVerify, 15*time.Second)
+	c, err := dial(ctx, wsURL, l.tlsVerify, 15*time.Second)
 	if err != nil {
 		return fmt.Errorf("connect mock-smtp websocket %s: %w", wsURL, err)
 	}
 
 	ctx, cancel := context.WithCancel(ctx)
+	l.mu.Lock()
 	l.cancel = cancel
 	l.done = make(chan struct{})
+	done := l.done
+	l.mu.Unlock()
 
 	go func() {
-		defer close(l.done)
+		defer close(done)
 		defer func() { _ = c.close() }()
 		for {
 			select {
@@ -123,11 +129,14 @@ func (l *Listener) Start(ctx context.Context) error {
 
 // Close stops the background reader and closes the connection.
 func (l *Listener) Close() {
-	if l.cancel != nil {
-		l.cancel()
+	l.mu.Lock()
+	cancel, done := l.cancel, l.done
+	l.mu.Unlock()
+	if cancel != nil {
+		cancel()
 	}
-	if l.done != nil {
-		<-l.done
+	if done != nil {
+		<-done
 	}
 }
 

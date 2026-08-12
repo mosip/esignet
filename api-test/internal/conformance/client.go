@@ -6,6 +6,7 @@ package conformance
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -14,10 +15,10 @@ import (
 	"regexp"
 	"strings"
 	"time"
-	"unicode/utf8"
 
 	"github.com/mosip/esignet/api-test/internal/httpx"
 	"github.com/mosip/esignet/api-test/internal/result"
+	"github.com/mosip/esignet/api-test/internal/textx"
 )
 
 type Client struct {
@@ -77,16 +78,9 @@ type Browser struct {
 	Visited []string `json:"visited"`
 }
 
-type LogEntry struct {
-	Src          string          `json:"src"`
-	Msg          string          `json:"msg"`
-	Result       string          `json:"result"`
-	Requirements json.RawMessage `json:"requirements"`
-}
-
 // Available polls GET /api/runner/available (200 => suite ready).
-func (c *Client) Available() error {
-	body, status, err := c.do("suite /api/runner/available", http.MethodGet, "/api/runner/available", nil, "")
+func (c *Client) Available(ctx context.Context) error {
+	body, status, err := c.do(ctx, "suite /api/runner/available", http.MethodGet, "/api/runner/available", nil, "")
 	if err != nil {
 		return err
 	}
@@ -98,7 +92,7 @@ func (c *Client) Available() error {
 
 // CreatePlan POSTs the exported suite config as the body and the variant as a
 // url-encoded query param, returning the planId + module list.
-func (c *Client) CreatePlan(planName string, variant map[string]any, configBody []byte) (*PlanResponse, error) {
+func (c *Client) CreatePlan(ctx context.Context, planName string, variant map[string]any, configBody []byte) (*PlanResponse, error) {
 	variantJSON, err := json.Marshal(variant)
 	if err != nil {
 		return nil, fmt.Errorf("marshal variant: %w", err)
@@ -108,7 +102,7 @@ func (c *Client) CreatePlan(planName string, variant map[string]any, configBody 
 	q.Set("variant", string(variantJSON))
 	path := "/api/plan?" + q.Encode()
 
-	body, status, err := c.do("suite /api/plan (create plan)", http.MethodPost, path, configBody, "application/json")
+	body, status, err := c.do(ctx, "suite /api/plan (create plan)", http.MethodPost, path, configBody, "application/json")
 	if err != nil {
 		return nil, err
 	}
@@ -126,13 +120,13 @@ func (c *Client) CreatePlan(planName string, variant map[string]any, configBody 
 }
 
 // CreateTest starts one module (no body) and returns its testId.
-func (c *Client) CreateTest(module, planID string) (*TestResponse, error) {
+func (c *Client) CreateTest(ctx context.Context, module, planID string) (*TestResponse, error) {
 	q := url.Values{}
 	q.Set("test", module)
 	q.Set("plan", planID)
 	path := "/api/runner?" + q.Encode()
 
-	body, status, err := c.do("suite /api/runner (start "+module+")", http.MethodPost, path, nil, "")
+	body, status, err := c.do(ctx, "suite /api/runner (start "+module+")", http.MethodPost, path, nil, "")
 	if err != nil {
 		return nil, err
 	}
@@ -149,8 +143,8 @@ func (c *Client) CreateTest(module, planID string) (*TestResponse, error) {
 	return &tr, nil
 }
 
-func (c *Client) GetInfo(testID string) (*Info, error) {
-	body, status, err := c.do("suite /api/info", http.MethodGet, "/api/info/"+testID, nil, "")
+func (c *Client) GetInfo(ctx context.Context, testID string) (*Info, error) {
+	body, status, err := c.do(ctx, "suite /api/info", http.MethodGet, "/api/info/"+testID, nil, "")
 	if err != nil {
 		return nil, err
 	}
@@ -164,8 +158,8 @@ func (c *Client) GetInfo(testID string) (*Info, error) {
 	return &i, nil
 }
 
-func (c *Client) GetRunner(testID string) (*Runner, error) {
-	body, status, err := c.do("suite /api/runner (browser urls)", http.MethodGet, "/api/runner/"+testID, nil, "")
+func (c *Client) GetRunner(ctx context.Context, testID string) (*Runner, error) {
+	body, status, err := c.do(ctx, "suite /api/runner (browser urls)", http.MethodGet, "/api/runner/"+testID, nil, "")
 	if err != nil {
 		return nil, err
 	}
@@ -179,26 +173,11 @@ func (c *Client) GetRunner(testID string) (*Runner, error) {
 	return &r, nil
 }
 
-func (c *Client) GetLog(testID string) ([]LogEntry, error) {
-	body, status, err := c.do("suite /api/log", http.MethodGet, "/api/log/"+testID, nil, "")
-	if err != nil {
-		return nil, err
-	}
-	if status != http.StatusOK {
-		return nil, fmt.Errorf("get log HTTP %d: %s", status, snippet(body))
-	}
-	var entries []LogEntry
-	if err := json.Unmarshal(body, &entries); err != nil {
-		return nil, fmt.Errorf("parse log: %w (%s)", err, snippet(body))
-	}
-	return entries, nil
-}
-
 // GetRawLog returns the per-test condition log as raw objects, preserving every
 // field so the report can reproduce the suite UI's log view (badges + "+N more"
 // detail). The suite schema drifts across releases, hence map[string]any.
-func (c *Client) GetRawLog(testID string) ([]map[string]any, error) {
-	body, status, err := c.do("suite /api/log", http.MethodGet, "/api/log/"+testID, nil, "")
+func (c *Client) GetRawLog(ctx context.Context, testID string) ([]map[string]any, error) {
+	body, status, err := c.do(ctx, "suite /api/log", http.MethodGet, "/api/log/"+testID, nil, "")
 	if err != nil {
 		return nil, err
 	}
@@ -229,10 +208,10 @@ var implicitPathRe = regexp.MustCompile(`https?://[^"'\s]+/implicit/[^"'\s]+`)
 //  2. Parse implicitSubmitUrl from that HTML and POST it (empty, text/plain),
 //     which triggers the suite's token/userinfo exchange. Without (2) the test
 //     stays WAITING forever.
-func (c *Client) DeliverCallback(redirectURI string) (DeliverResult, error) {
+func (c *Client) DeliverCallback(ctx context.Context, redirectURI string) (DeliverResult, error) {
 	var res DeliverResult
 
-	body, status, err := c.doAbs("suite callback (deliver code)", http.MethodGet, redirectURI, nil, "")
+	body, status, err := c.doAbs(ctx, "suite callback (deliver code)", http.MethodGet, redirectURI, nil, "")
 	res.SuiteCallbackStatus = status
 	if err != nil {
 		return res, fmt.Errorf("deliver code (GET callback): %w", err)
@@ -244,7 +223,7 @@ func (c *Client) DeliverCallback(redirectURI string) (DeliverResult, error) {
 		return res, fmt.Errorf("could not find implicitSubmitUrl in callback response (status %d)", status)
 	}
 
-	sbody, sstatus, err := c.doAbs("suite implicit-submit", http.MethodPost, submitURL, []byte{}, "text/plain")
+	sbody, sstatus, err := c.doAbs(ctx, "suite implicit-submit", http.MethodPost, submitURL, []byte{}, "text/plain")
 	res.ImplicitSubmitStatus = sstatus
 	if err != nil {
 		return res, fmt.Errorf("implicit submit POST: %w", err)
@@ -272,20 +251,29 @@ func parseImplicitSubmitURL(html string) string {
 
 // ----- low-level helpers -----
 
-func (c *Client) do(label, method, path string, body []byte, contentType string) ([]byte, int, error) {
-	return c.doAbs(label, method, c.baseURL+path, body, contentType)
+func (c *Client) do(ctx context.Context, label, method, path string, body []byte, contentType string) ([]byte, int, error) {
+	return c.doAbs(ctx, label, method, c.baseURL+path, body, contentType)
+}
+
+// isSuiteHost reports whether u addresses the configured conformance suite.
+func (c *Client) isSuiteHost(u *url.URL) bool {
+	base, err := url.Parse(c.baseURL)
+	if err != nil {
+		return false
+	}
+	return strings.EqualFold(u.Scheme, base.Scheme) && strings.EqualFold(u.Host, base.Host)
 }
 
 // doAbs performs the request and records it (headers/cookies/bodies) into the
 // client's call trace for the debug report.
-func (c *Client) doAbs(label, method, absURL string, body []byte, contentType string) ([]byte, int, error) {
+func (c *Client) doAbs(ctx context.Context, label, method, absURL string, body []byte, contentType string) ([]byte, int, error) {
 	var rdr io.Reader
 	if body != nil {
 		rdr = bytes.NewReader(body)
 	}
 	// Seq is assigned up front so the error paths below record an ordered row too.
 	call := result.HTTPCall{Seq: len(c.calls) + 1, At: time.Now().UnixNano(), Label: label, Method: method, URL: absURL, ReqBody: string(body)}
-	req, err := http.NewRequest(method, absURL, rdr)
+	req, err := http.NewRequestWithContext(ctx, method, absURL, rdr)
 	if err != nil {
 		call.RespBody = "ERROR: " + err.Error()
 		c.calls = append(c.calls, call)
@@ -294,7 +282,11 @@ func (c *Client) doAbs(label, method, absURL string, body []byte, contentType st
 	if contentType != "" {
 		req.Header.Set("Content-Type", contentType)
 	}
-	if c.token != "" {
+	// The token authenticates us to the conformance suite only. DeliverCallback
+	// passes absolute URLs taken from the deployment under test (redirect_uri)
+	// and scraped from its HTML, so an unscoped header would hand the suite
+	// admin token to whatever host that deployment names.
+	if c.token != "" && c.isSuiteHost(req.URL) {
 		req.Header.Set("Authorization", "Bearer "+c.token)
 	}
 	call.ReqHeaders = httpx.CloneHeader(req.Header)
@@ -309,7 +301,7 @@ func (c *Client) doAbs(label, method, absURL string, body []byte, contentType st
 		c.calls = append(c.calls, call)
 		return nil, 0, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	rb, _ := io.ReadAll(resp.Body)
 	call.Status = resp.StatusCode
 	call.RespHeaders = httpx.CloneHeader(resp.Header)
@@ -319,16 +311,7 @@ func (c *Client) doAbs(label, method, absURL string, body []byte, contentType st
 	return rb, resp.StatusCode, nil
 }
 
-// snippet cuts to at most 400 bytes, backing off to the last full rune so a
-// multi-byte UTF-8 character is never split.
+// snippet cuts to at most 400 bytes for an error message.
 func snippet(b []byte) string {
-	s := strings.TrimSpace(string(b))
-	if len(s) <= 400 {
-		return s
-	}
-	cut := 400
-	for cut > 0 && !utf8.RuneStart(s[cut]) {
-		cut--
-	}
-	return s[:cut] + "…"
+	return textx.Truncate(strings.TrimSpace(string(b)), 400, "…")
 }

@@ -120,6 +120,10 @@ services:
       # override, and one config file for both.
       - ./conformance-suite-private:/app/conformance-suite-private:ro
       # Your gitignored credentials overlay. Comment out to rely on env instead.
+      # This file must EXIST before `docker compose up`: Docker creates a
+      # directory at a missing bind-mount source, which then breaks the overlay
+      # read and blocks creating the real file afterward. Run
+      # `cp config.local.example.json config.local.json` (or `touch` it) first.
       - ./config.local.json:/app/config.local.json:ro
     extra_hosts:
       # Lets ESIGNET_BASE_URL=http://host.docker.internal:<port> reach a

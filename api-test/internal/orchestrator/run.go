@@ -15,12 +15,12 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"unicode/utf8"
 
 	"github.com/mosip/esignet/api-test/internal/config"
 	"github.com/mosip/esignet/api-test/internal/conformance"
 	"github.com/mosip/esignet/api-test/internal/esignet"
 	"github.com/mosip/esignet/api-test/internal/result"
+	"github.com/mosip/esignet/api-test/internal/textx"
 	"github.com/mosip/esignet/api-test/internal/wsotp"
 )
 
@@ -60,11 +60,11 @@ type RunResult struct {
 // module across all of them. The eSignet driver (and the dynamic-OTP listener)
 // is built once and shared: the plans differ in which client and variant the
 // suite drives, not in how the user logs in.
-func (o *Orchestrator) Run() (*RunResult, error) {
+func (o *Orchestrator) Run(ctx context.Context) (*RunResult, error) {
 	out := &RunResult{}
 
 	// Preflight: suite reachable.
-	if err := o.client.Available(); err != nil {
+	if err := o.client.Available(ctx); err != nil {
 		o.client.TakeCalls()
 		return out, fmt.Errorf("ENV_NOT_READY: %w", err)
 	}
@@ -85,7 +85,7 @@ func (o *Orchestrator) Run() (*RunResult, error) {
 	// before any send-OTP is triggered.
 	if o.cfg.Esignet.OTP.Source == "dynamic" {
 		lst := wsotp.NewListener(o.cfg.Esignet.OTP.WSURL, o.cfg.Esignet.TLSVerify)
-		if err := lst.Start(context.Background()); err != nil {
+		if err := lst.Start(ctx); err != nil {
 			return out, fmt.Errorf("ENV_NOT_READY: %w", err)
 		}
 		defer lst.Close()
@@ -99,7 +99,7 @@ func (o *Orchestrator) Run() (*RunResult, error) {
 		if len(o.cfg.Plans) > 1 {
 			o.logf("== plan %d/%d: %s ==", i+1, len(o.cfg.Plans), p.Name)
 		}
-		stop, err := o.runPlan(p, driver, out)
+		stop, err := o.runPlan(ctx, p, driver, out)
 		if err != nil {
 			return out, err
 		}
@@ -123,7 +123,7 @@ func (o *Orchestrator) Run() (*RunResult, error) {
 // that already ran, and the row keeps the failure in the report rather than
 // only in the logs. err is reserved for what makes the rest of the run
 // pointless.
-func (o *Orchestrator) runPlan(p config.Plan, driver *esignet.Driver, out *RunResult) (bool, error) {
+func (o *Orchestrator) runPlan(ctx context.Context, p config.Plan, driver *esignet.Driver, out *RunResult) (bool, error) {
 	configBody, err := os.ReadFile(p.ConfigFile)
 	if err != nil {
 		out.Modules = append(out.Modules, planErrorResult(p.Name, o.cfg.Esignet.Provider, fmt.Errorf("read plan config %s: %w", p.ConfigFile, err)))
@@ -131,7 +131,7 @@ func (o *Orchestrator) runPlan(p config.Plan, driver *esignet.Driver, out *RunRe
 		return o.cfg.Run.FailFast, nil
 	}
 
-	plan, err := o.client.CreatePlan(p.Name, p.Variant, configBody)
+	plan, err := o.client.CreatePlan(ctx, p.Name, p.Variant, configBody)
 	o.client.TakeCalls() // discard setup calls (create plan)
 	if err != nil {
 		out.Modules = append(out.Modules, planErrorResult(p.Name, o.cfg.Esignet.Provider, err))
@@ -168,7 +168,7 @@ func (o *Orchestrator) runPlan(p config.Plan, driver *esignet.Driver, out *RunRe
 			o.logf("module %-45s -> SKIPPED (config)", res.Module)
 			continue
 		}
-		res := o.runModule(plan, m, driver)
+		res := o.runModule(ctx, plan, m, driver)
 		out.Modules = append(out.Modules, res)
 		o.logf("module %-45s -> %s / %s%s", res.Module, dash(res.Result), res.HarnessOutcome, errSuffix(res))
 		if o.cfg.Run.FailFast && (res.Result == "FAILED" || res.HarnessError != "") {
@@ -236,7 +236,7 @@ func reasonSuffix(reason string) string {
 	return " (" + reason + ")"
 }
 
-func (o *Orchestrator) runModule(plan *conformance.PlanResponse, m conformance.Module, driver *esignet.Driver) result.ModuleResult {
+func (o *Orchestrator) runModule(ctx context.Context, plan *conformance.PlanResponse, m conformance.Module, driver *esignet.Driver) result.ModuleResult {
 	res := result.ModuleResult{
 		Surface:        result.SurfaceConformance,
 		Plugin:         o.cfg.Esignet.Provider,
@@ -257,7 +257,7 @@ func (o *Orchestrator) runModule(plan *conformance.PlanResponse, m conformance.M
 	o.client.TakeCalls() // discard any stray calls before this module
 
 	start := time.Now()
-	test, err := o.client.CreateTest(m.TestModule, plan.ID)
+	test, err := o.client.CreateTest(ctx, m.TestModule, plan.ID)
 	if err != nil {
 		res.HarnessError = err.Error()
 		o.client.TakeCalls() // discard suite plumbing calls (not shown in report)
@@ -276,7 +276,7 @@ func (o *Orchestrator) runModule(plan *conformance.PlanResponse, m conformance.M
 	handled := map[string]bool{}
 
 	for {
-		info, err := o.client.GetInfo(test.ID)
+		info, err := o.client.GetInfo(ctx, test.ID)
 		if err != nil {
 			res.HarnessError = err.Error()
 			break
@@ -287,7 +287,7 @@ func (o *Orchestrator) runModule(plan *conformance.PlanResponse, m conformance.M
 			break
 		}
 
-		runner, err := o.client.GetRunner(test.ID)
+		runner, err := o.client.GetRunner(ctx, test.ID)
 		if err != nil {
 			res.HarnessError = err.Error()
 			break
@@ -295,7 +295,7 @@ func (o *Orchestrator) runModule(plan *conformance.PlanResponse, m conformance.M
 		pending := pendingURLs(runner.Browser, handled)
 		if len(pending) > 0 {
 			for _, u := range pending {
-				o.driveOne(driver, u, &res)
+				o.driveOne(ctx, driver, u, &res)
 				handled[u] = true
 				if res.HarnessError != "" {
 					break
@@ -320,7 +320,7 @@ func (o *Orchestrator) runModule(plan *conformance.PlanResponse, m conformance.M
 	// Final verdict: re-fetch in case the loop exited before reaching a terminal
 	// status (deadline, or a harness error mid-drive). Falls back to whatever the
 	// loop already captured rather than blanking it out on a transient failure.
-	if info, err := o.client.GetInfo(test.ID); err == nil {
+	if info, err := o.client.GetInfo(ctx, test.ID); err == nil {
 		// Only overwrite with a populated field: a transient/partial payload
 		// would otherwise blank an already-captured verdict into a report dash.
 		if info.Status != "" {
@@ -334,7 +334,7 @@ func (o *Orchestrator) runModule(plan *conformance.PlanResponse, m conformance.M
 	}
 	// Full condition log (best effort): rendered UI-style in the report, and
 	// distilled into the FAILURE/WARNING summary.
-	if raw, err := o.client.GetRawLog(test.ID); err == nil {
+	if raw, err := o.client.GetRawLog(ctx, test.ID); err == nil {
 		res.LogItems = buildLogItems(raw)
 		res.FailedConditions = failedFromItems(res.LogItems)
 	}
@@ -349,14 +349,14 @@ func (o *Orchestrator) runModule(plan *conformance.PlanResponse, m conformance.M
 // driveOne drives a single authorize URL through eSignet and hands the code back
 // to the suite. It derives the eSignet base from the authorize URL (or validates
 // a configured base against it).
-func (o *Orchestrator) driveOne(driver *esignet.Driver, authorizeURL string, res *result.ModuleResult) {
+func (o *Orchestrator) driveOne(ctx context.Context, driver *esignet.Driver, authorizeURL string, res *result.ModuleResult) {
 	base, err := o.esignetBase(authorizeURL)
 	if err != nil {
 		res.HarnessError = err.Error()
 		return
 	}
 
-	flow := driver.Run(base, authorizeURL)
+	flow := driver.Run(ctx, base, authorizeURL)
 	res.FlowTrace.AuthorizeStatus = flow.AuthorizeStatus
 	res.FlowTrace.Steps = append(res.FlowTrace.Steps, flow.Steps...)
 	res.FlowTrace.EsignetCallbackStatus = flow.CallbackStatus
@@ -366,7 +366,7 @@ func (o *Orchestrator) driveOne(driver *esignet.Driver, authorizeURL string, res
 		return
 	}
 
-	deliver, err := o.client.DeliverCallback(flow.RedirectURI)
+	deliver, err := o.client.DeliverCallback(ctx, flow.RedirectURI)
 	res.FlowTrace.SuiteCallbackStatus = deliver.SuiteCallbackStatus
 	res.FlowTrace.ImplicitSubmitStatus = deliver.ImplicitSubmitStatus
 	// (deliver's HTTP calls land on the client trace and are discarded at the end
@@ -676,17 +676,9 @@ func asString(v any) string {
 	}
 }
 
-// truncateStr cuts s to at most n bytes, backing off to the last full rune so a
-// multi-byte UTF-8 character is never split.
+// truncateStr cuts s to at most n bytes for a log detail value.
 func truncateStr(s string, n int) string {
-	if len(s) <= n {
-		return s
-	}
-	cut := n
-	for cut > 0 && !utf8.RuneStart(s[cut]) {
-		cut--
-	}
-	return s[:cut] + "\n…(truncated)"
+	return textx.Truncate(s, n, "\n…(truncated)")
 }
 
 func dash(s string) string {

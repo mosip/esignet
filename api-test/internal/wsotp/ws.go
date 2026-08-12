@@ -13,6 +13,7 @@ package wsotp
 
 import (
 	"bufio"
+	"context"
 	"crypto/rand"
 	"crypto/sha1"
 	"crypto/tls"
@@ -94,8 +95,9 @@ func NormalizeWSURL(raw string) (string, error) {
 
 // dial performs the opening handshake and returns a ready connection. tlsVerify
 // toggles certificate verification for wss (dev environments use self-signed
-// certs, so callers pass false there).
-func dial(rawURL string, tlsVerify bool, timeout time.Duration) (*conn, error) {
+// certs, so callers pass false there). ctx bounds the dial itself, so a
+// cancelled run aborts a hanging handshake rather than waiting out timeout.
+func dial(ctx context.Context, rawURL string, tlsVerify bool, timeout time.Duration) (*conn, error) {
 	u, err := url.Parse(rawURL)
 	if err != nil {
 		return nil, fmt.Errorf("parse %q: %w", rawURL, err)
@@ -113,12 +115,14 @@ func dial(rawURL string, tlsVerify bool, timeout time.Duration) (*conn, error) {
 	var nc net.Conn
 	switch u.Scheme {
 	case "wss":
-		nc, err = tls.DialWithDialer(d, "tcp", host, &tls.Config{
+		td := &tls.Dialer{NetDialer: d, Config: &tls.Config{
+			MinVersion:         tls.VersionTLS12,
 			InsecureSkipVerify: !tlsVerify, //nolint:gosec // dev environments use self-signed certs; gated by tlsVerify
 			ServerName:         u.Hostname(),
-		})
+		}}
+		nc, err = td.DialContext(ctx, "tcp", host)
 	case "ws":
-		nc, err = d.Dial("tcp", host)
+		nc, err = d.DialContext(ctx, "tcp", host)
 	default:
 		return nil, fmt.Errorf("unsupported scheme %q", u.Scheme)
 	}
@@ -312,6 +316,12 @@ func (c *conn) readFrame(resumable bool) (fin bool, opcode int, payload []byte, 
 	opcode = int(h[0] & 0x0f)
 	masked := h[1]&0x80 != 0
 	length := uint64(h[1] & 0x7f)
+	if masked {
+		// RFC 6455 §5.1: a server MUST NOT mask its frames. A masked "server"
+		// frame means the stream isn't a compliant peer — reject rather than
+		// silently unmask, which would let a corrupted stream parse as data.
+		return false, 0, nil, errors.New("websocket: server frame is masked")
+	}
 
 	switch length {
 	case 126:
@@ -332,21 +342,9 @@ func (c *conn) readFrame(resumable bool) (fin bool, opcode int, payload []byte, 
 		return false, 0, nil, fmt.Errorf("websocket: frame too large (%d bytes)", length)
 	}
 
-	var maskKey [4]byte
-	if masked {
-		if _, err = io.ReadFull(c.br, maskKey[:]); err != nil {
-			return false, 0, nil, err
-		}
-	}
-
 	payload = make([]byte, length)
 	if _, err = io.ReadFull(c.br, payload); err != nil {
 		return false, 0, nil, err
-	}
-	if masked {
-		for i := range payload {
-			payload[i] ^= maskKey[i%4]
-		}
 	}
 	return fin, opcode, payload, nil
 }
@@ -363,16 +361,18 @@ func (c *conn) writeFrame(opcode int, payload []byte) error {
 		defer func() { _ = c.net.SetWriteDeadline(time.Time{}) }()
 	}
 	var header []byte
-	header = append(header, byte(0x80|opcode)) // FIN + opcode
+	// opcode is always one of the package opXxx constants (<=0xA), so this fits
+	// a byte; each length write below is bounded by its case guard.
+	header = append(header, byte(0x80|opcode)) //nolint:gosec // bounded by the opXxx constants
 
 	length := len(payload)
 	switch {
 	case length < 126:
-		header = append(header, byte(0x80|length))
+		header = append(header, byte(0x80|length)) //nolint:gosec // bounded by the case guard
 	case length < 1<<16:
 		header = append(header, 0x80|126)
 		var ext [2]byte
-		binary.BigEndian.PutUint16(ext[:], uint16(length))
+		binary.BigEndian.PutUint16(ext[:], uint16(length)) //nolint:gosec // bounded by the case guard
 		header = append(header, ext[:]...)
 	default:
 		header = append(header, 0x80|127)

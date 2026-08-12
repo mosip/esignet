@@ -214,7 +214,7 @@ func (s *state) doClient(ctx context.Context, client *http.Client, label, method
 		return fmt.Errorf("%s %s: %w", method, fullURL, err)
 	}
 	respBody, _ := io.ReadAll(resp.Body)
-	resp.Body.Close()
+	_ = resp.Body.Close()
 
 	s.lastStatus = resp.StatusCode
 	s.lastBody = respBody
@@ -288,7 +288,7 @@ func iAuthenticateAsAdmin(ctx context.Context) error {
 		return fmt.Errorf("keycloak token request: %w", err)
 	}
 	body, _ := io.ReadAll(resp.Body)
-	resp.Body.Close()
+	_ = resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		// Status only: a gateway can echo the posted form (client_secret included)
 		// in its error payload, and this error is archived in the envelope.
@@ -309,9 +309,16 @@ func iAuthenticateAsAdmin(ctx context.Context) error {
 func pmsRegistrationIsConfigured(ctx context.Context) error {
 	s := getState(ctx)
 	var missing []string
-	for _, k := range []string{"pms_base", "auth_partner_id", "policy_id"} {
-		if s.stash[k] == "" {
-			missing = append(missing, strings.ToUpper(k))
+	// The stash keys don't uppercase into their env var names (pms_base is
+	// PMS_BASE_URL, policy_id is AUTH_POLICY_ID) — naming the wrong two of three
+	// vars here is the only signal an operator gets for a skipped PMS surface.
+	for _, kv := range []struct{ stash, env string }{
+		{"pms_base", "PMS_BASE_URL"},
+		{"auth_partner_id", "AUTH_PARTNER_ID"},
+		{"policy_id", "AUTH_POLICY_ID"},
+	} {
+		if s.stash[kv.stash] == "" {
+			missing = append(missing, kv.env)
 		}
 	}
 	if len(missing) > 0 {

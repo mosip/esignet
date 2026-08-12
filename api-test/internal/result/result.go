@@ -111,9 +111,14 @@ type HTTPCall struct {
 // ones (same method/URL/status/bodies) into a single entry with a Repeat count,
 // so polled /api/info calls don't flood the report. Seq is renumbered.
 func CollapseCalls(calls []HTTPCall) []HTTPCall {
-	sort.SliceStable(calls, func(i, j int) bool { return calls[i].At < calls[j].At })
+	// Sort a copy: every other transform in this harness (redactCallBodies,
+	// Collector.Rows) leaves the caller's slice untouched, and a caller that
+	// captures a trace, collapses it for one report, then re-reads the original
+	// would otherwise see it silently reordered.
+	sorted := append([]HTTPCall(nil), calls...)
+	sort.SliceStable(sorted, func(i, j int) bool { return sorted[i].At < sorted[j].At })
 	var out []HTTPCall
-	for _, c := range calls {
+	for _, c := range sorted {
 		if n := len(out); n > 0 {
 			p := &out[n-1]
 			if p.Method == c.Method && p.URL == c.URL && p.Status == c.Status &&

@@ -13,6 +13,7 @@ package esignet
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -22,10 +23,10 @@ import (
 	"os"
 	"strings"
 	"time"
-	"unicode/utf8"
 
 	"github.com/mosip/esignet/api-test/internal/httpx"
 	"github.com/mosip/esignet/api-test/internal/result"
+	"github.com/mosip/esignet/api-test/internal/textx"
 )
 
 // excludeActions are never auto-selected (they abort/deny the flow).
@@ -309,12 +310,12 @@ func (s *session) dbg(format string, args ...any) {
 // do performs one request, records it (headers/cookies/body), and returns the
 // response body, status, and Location header. When follow is false, redirects
 // are not followed (so we can read the Location).
-func (s *session) do(label, method, u string, body []byte, contentType string, follow bool) ([]byte, int, string, error) {
+func (s *session) do(ctx context.Context, label, method, u string, body []byte, contentType string, follow bool) ([]byte, int, string, error) {
 	var rdr io.Reader
 	if body != nil {
 		rdr = bytes.NewReader(body)
 	}
-	req, err := http.NewRequest(method, u, rdr)
+	req, err := http.NewRequestWithContext(ctx, method, u, rdr)
 	if err != nil {
 		return nil, 0, "", err
 	}
@@ -348,7 +349,7 @@ func (s *session) do(label, method, u string, body []byte, contentType string, f
 		s.calls = append(s.calls, call)
 		return nil, 0, "", err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	rb, _ := io.ReadAll(resp.Body)
 
 	call.Status = resp.StatusCode
@@ -361,26 +362,26 @@ func (s *session) do(label, method, u string, body []byte, contentType string, f
 }
 
 // Run drives one authorization request to a redirect_uri.
-func (d *Driver) Run(base, authorizeURL string) FlowResult {
+func (d *Driver) Run(ctx context.Context, base, authorizeURL string) FlowResult {
 	// The conformance orchestrator reuses one Driver for every module, so the
 	// per-flow consent observations must start clean or module N reports module
 	// N-1's consent prompt.
 	d.consentPrompted, d.consentDenied = false, nil
 
 	s := d.newSession()
-	fr := d.run(s, base, authorizeURL)
+	fr := d.run(ctx, s, base, authorizeURL)
 	fr.Calls = s.calls
 	fr.ConsentPrompted = d.consentPrompted
 	fr.ConsentDenied = d.consentDenied
 	return fr
 }
 
-func (d *Driver) run(s *session, base, authorizeURL string) FlowResult {
+func (d *Driver) run(ctx context.Context, s *session, base, authorizeURL string) FlowResult {
 	var fr FlowResult
 
 	current := authorizeURL
 	for hop := 0; hop < d.maxHops; hop++ {
-		body, status, loc, err := s.do(fmt.Sprintf("authorize (hop %d)", hop), http.MethodGet, current, nil, "", false)
+		body, status, loc, err := s.do(ctx, fmt.Sprintf("authorize (hop %d)", hop), http.MethodGet, current, nil, "", false)
 		if hop == 0 {
 			fr.AuthorizeStatus = status
 		}
@@ -396,7 +397,7 @@ func (d *Driver) run(s *session, base, authorizeURL string) FlowResult {
 			target := resolve(current, loc)
 			q := queryOf(target)
 			if q.Get("authId") != "" && q.Get("executionId") != "" {
-				return d.completeLogin(s, base, q.Get("authId"), q.Get("executionId"), fr)
+				return d.completeLogin(ctx, s, base, q.Get("authId"), q.Get("executionId"), fr)
 			}
 			if q.Get("code") != "" || q.Get("error") != "" {
 				fr.RedirectURI = target
@@ -412,7 +413,7 @@ func (d *Driver) run(s *session, base, authorizeURL string) FlowResult {
 	return fr
 }
 
-func (d *Driver) completeLogin(s *session, base, authID, executionID string, fr FlowResult) FlowResult {
+func (d *Driver) completeLogin(ctx context.Context, s *session, base, authID, executionID string, fr FlowResult) FlowResult {
 	var challengeToken, assertion, flowStatus string
 	payload := map[string]any{"executionId": executionID}
 	// Boundary for dynamic OTP freshness: any OTP delivered before login started
@@ -421,9 +422,13 @@ func (d *Driver) completeLogin(s *session, base, authID, executionID string, fr 
 	flowStart := time.Now()
 
 	for step := 0; step < d.maxFlowSteps; step++ {
-		pj, _ := json.Marshal(payload)
+		pj, err := json.Marshal(payload)
+		if err != nil {
+			fr.Error = fmt.Sprintf("flow/execute step %d encode payload: %v", step, err)
+			return fr
+		}
 		s.dbg("step %d REQUEST %s", step, string(pj))
-		respBody, status, _, err := s.do(fmt.Sprintf("flow/execute #%d", step), http.MethodPost, base+"/flow/execute", pj, "application/json", true)
+		respBody, status, _, err := s.do(ctx, fmt.Sprintf("flow/execute #%d", step), http.MethodPost, base+"/flow/execute", pj, "application/json", true)
 		if err != nil {
 			fr.Error = fmt.Sprintf("flow/execute step %d: %v", step, err)
 			return fr
@@ -503,7 +508,7 @@ func (d *Driver) completeLogin(s *session, base, authID, executionID string, fr 
 		return fr
 	}
 
-	cbBody, cbStatus, _, err := s.do("oauth2/auth/callback", http.MethodPost, base+"/oauth2/auth/callback", mustJSON(map[string]any{
+	cbBody, cbStatus, _, err := s.do(ctx, "oauth2/auth/callback", http.MethodPost, base+"/oauth2/auth/callback", mustJSON(map[string]any{
 		"authId": authID, "assertion": assertion,
 	}), "application/json", true)
 	fr.CallbackStatus = cbStatus
@@ -638,8 +643,22 @@ func selectAction(actions, preferred []string) (string, string) {
 		return nonNav[0], ""
 	}
 	// 5. navigation (tab switches) only as a last resort: a step offering just
-	// login_id_* tabs is progressable, so take the first rather than aborting.
+	// login_id_* tabs is progressable, so take one rather than aborting. Apply
+	// the caller preference first: IDTypeTokens exists to choose this tab (e.g.
+	// "email" vs "mobile"), and picking the server's first tab regardless would
+	// authenticate against the wrong login-id type.
 	if len(nonNav) == 0 && len(candidates) > 0 {
+		for _, pref := range preferred {
+			pref = strings.ToLower(pref)
+			if pref == "" {
+				continue
+			}
+			for _, c := range candidates {
+				if strings.Contains(strings.ToLower(c), pref) {
+					return c, ""
+				}
+			}
+		}
 		return candidates[0], ""
 	}
 	return "", fmt.Sprintf("AMBIGUOUS_FLOW_ACTION: %d non-navigation actions available=%v (set esignet.auth_factor to disambiguate)", len(nonNav), candidates)
@@ -647,7 +666,16 @@ func selectAction(actions, preferred []string) (string, string) {
 
 // ----- utils -----
 
-func mustJSON(v any) []byte { b, _ := json.Marshal(v); return b }
+// mustJSON encodes v, panicking on failure: every call site in this file passes
+// a literal map of strings, so a marshal error means a programming mistake, not
+// bad input that a caller should recover from.
+func mustJSON(v any) []byte {
+	b, err := json.Marshal(v)
+	if err != nil {
+		panic(fmt.Sprintf("mustJSON: %v", err))
+	}
+	return b
+}
 
 func resolve(base, ref string) string {
 	b, err := url.Parse(base)
@@ -689,18 +717,8 @@ func firstNonEmpty(vals ...string) string {
 
 func snippet(b []byte) string { return truncate(strings.TrimSpace(string(b)), 300) }
 
-// truncate cuts s to at most n bytes, backing off to the last full rune so a
-// multi-byte UTF-8 character is never split.
-func truncate(s string, n int) string {
-	if len(s) <= n {
-		return s
-	}
-	cut := n
-	for cut > 0 && !utf8.RuneStart(s[cut]) {
-		cut--
-	}
-	return s[:cut] + "…"
-}
+// truncate cuts s to at most n bytes for a debug/error message.
+func truncate(s string, n int) string { return textx.Truncate(s, n, "…") }
 
 // Normalize lowercases and strips non-alphanumerics so "fullName", "full_name"
 // and "FullName" all resolve to the same answer key.

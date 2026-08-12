@@ -15,7 +15,10 @@ import (
 func NewClient(tlsVerify bool, timeout time.Duration) *http.Client {
 	return &http.Client{
 		Transport: &http.Transport{TLSClientConfig: &tls.Config{
-			MinVersion:         tls.VersionTLS12,
+			MinVersion: tls.VersionTLS12,
+			//nolint:gosec // operator-controlled: only the conformance suite's
+			// self-signed localhost cert is exempted via tlsVerify; esignet.tls_verify
+			// stays on for the real deployment.
 			InsecureSkipVerify: !tlsVerify,
 		}},
 		Timeout: timeout,

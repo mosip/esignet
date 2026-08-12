@@ -392,10 +392,13 @@ func (r *Runner) Run(ctx context.Context, spec Spec) []result.ModuleResult {
 		switch {
 		case ferr != nil && sc.ExpectLoginFailure:
 			// Negative case: rejection is the expected, correct outcome — provided
-			// anything the scenario asserts about consent also holds.
+			// anything the scenario asserts about consent AND the protocol echoes
+			// (state/nonce) also holds. Without protoAsserts here, a state-mismatch
+			// rejection would report PASSED with no trace of the mismatch it caught.
 			row.Assertions = append([]result.Assertion{
 				{Field: loginField, Expected: "rejected", Actual: "rejected: " + ferr.Error(), Passed: true},
 			}, consentAssertions...)
+			row.Assertions = append(row.Assertions, protoAsserts...)
 			if conds := failedConditions(row.Assertions); len(conds) > 0 {
 				row.Result = "FAILED"
 				row.FailedConditions = conds
@@ -413,6 +416,7 @@ func (r *Runner) Run(ctx context.Context, spec Spec) []result.ModuleResult {
 			row.Assertions = append([]result.Assertion{
 				{Field: loginField, Expected: "accepted", Actual: "rejected: " + ferr.Error(), Passed: false},
 			}, consentAssertions...)
+			row.Assertions = append(row.Assertions, protoAsserts...)
 			row.Result = "FAILED"
 			row.FailedConditions = []result.Condition{{Src: "e2e", Result: "FAILURE", Msg: ferr.Error()}}
 			logf("e2e: %-55s -> FAILED (login: %v)", sc.Name, ferr)
@@ -423,6 +427,7 @@ func (r *Runner) Run(ctx context.Context, spec Spec) []result.ModuleResult {
 			row.Assertions = append([]result.Assertion{
 				{Field: loginField, Expected: "rejected", Actual: "accepted", Passed: false},
 			}, consentAssertions...)
+			row.Assertions = append(row.Assertions, protoAsserts...)
 			row.Result = "FAILED"
 			row.FailedConditions = []result.Condition{{Src: "e2e", Result: "FAILURE", Msg: "expected login to be rejected (negative case), but it was accepted"}}
 			logf("e2e: %-55s -> FAILED (expected rejection, login succeeded)", sc.Name)
@@ -671,7 +676,7 @@ func (r *Runner) runScenario(ctx context.Context, priv *rsa.PrivateKey, kid, cli
 		driver.SetOTPProvider(r.OTP)
 	}
 	driver.SetConsentPolicy(sc.Consent.consentPolicy())
-	fr := driver.Run(r.Base, authURL)
+	fr := driver.Run(ctx, r.Base, authURL)
 	calls = append(calls, fr.Calls...)
 	consentSeen := consentObservation{prompted: fr.ConsentPrompted, denied: fr.ConsentDenied}
 	if !fr.OK() {

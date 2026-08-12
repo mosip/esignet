@@ -11,6 +11,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -55,7 +56,7 @@ func main() {
 	}
 
 	orch := orchestrator.New(cfg, logf)
-	run, err := orch.Run()
+	run, err := orch.Run(context.Background())
 	if err != nil {
 		logger.Printf("run error: %v", err)
 		// Still try to write whatever we have.
