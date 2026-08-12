@@ -61,7 +61,12 @@ func main() {
 		// Still try to write whatever we have.
 		if run != nil && len(run.Modules) > 0 {
 			opts.Results = run.Modules
-			if p, werr := report.Write(opts); werr == nil {
+			// Log the write failure too: without it the operator sees only the
+			// run error and cannot tell the partial report was lost as well.
+			p, werr := report.Write(opts)
+			if werr != nil {
+				logger.Printf("partial report error: %v", werr)
+			} else {
 				logger.Printf("partial report: %s", p)
 			}
 		}

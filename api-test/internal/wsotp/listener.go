@@ -34,8 +34,9 @@ type mailMessage struct {
 
 // record is one buffered message with the local time we received it (used for
 // freshness rather than the frame's own date, which avoids date-format parsing).
+// Only the fields match() reads are kept: buffering the whole message would
+// retain every recipient address and body for the life of the run for nothing.
 type record struct {
-	msg  mailMessage
 	at   time.Time
 	otp  string
 	dest []string // normalized recipient identifiers (addresses + to.text)
@@ -149,7 +150,7 @@ func (l *Listener) ingest(data []byte, at time.Time) {
 		return
 	}
 	l.mu.Lock()
-	l.records = append(l.records, record{msg: m, at: at, otp: otp, dest: recipients(m)})
+	l.records = append(l.records, record{at: at, otp: otp, dest: recipients(m)})
 	l.mu.Unlock()
 }
 

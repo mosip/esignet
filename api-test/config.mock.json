@@ -14,7 +14,12 @@
     "",
     "bdd.flow_client_id is a client id registered on YOUR deployment, so it is left",
     "empty here — the authorize-negative scenarios report ENV_NOT_READY until you",
-    "set it in config.local.json or via FLOW_CLIENT_ID."
+    "set it in config.local.json or via FLOW_CLIENT_ID.",
+    "",
+    "Also required from config.local.json or the environment, because this file",
+    "selects all three surfaces: esignet.base_url (bdd + e2e) and",
+    "keycloak.token_url + keycloak.client_secret (e2e registers a throwaway",
+    "client before it runs). Without them the run stops at config validation."
   ],
   "conformance": {
     "base_url": "https://localhost.emobix.co.uk:8443",

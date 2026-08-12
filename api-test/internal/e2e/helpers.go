@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/url"
@@ -15,7 +16,7 @@ import (
 // it as plain JSON or as a signed JWT (JWS RS256); handle both. When it is a JWS,
 // verify the signature against the published JWKS (a real E2E check) but don't
 // fail claim extraction if verification can't run — record it as a claim instead.
-func parseUserinfo(body []byte, jwksURI string, tlsVerify bool) (map[string]any, error) {
+func parseUserinfo(ctx context.Context, body []byte, jwksURI string, tlsVerify bool) (map[string]any, error) {
 	s := strings.TrimSpace(string(body))
 	if strings.HasPrefix(s, "{") {
 		var m map[string]any
@@ -30,12 +31,19 @@ func parseUserinfo(body []byte, jwksURI string, tlsVerify bool) (map[string]any,
 		return nil, fmt.Errorf("userinfo is neither JSON nor JWT: %w", err)
 	}
 	if jwksURI != "" {
-		if verr := verifyJWS(s, jwksURI, tlsVerify); verr != nil {
+		if verr := verifyJWS(ctx, s, jwksURI, tlsVerify); verr != nil {
 			claims["_jws_verified"] = false
 			claims["_jws_error"] = verr.Error()
 		} else {
 			claims["_jws_verified"] = true
 		}
+	} else {
+		// Without a jwks_uri there is nothing to verify against. Say so rather
+		// than omitting the marker: assertClaims only emits the signature
+		// assertion when it is present, so silence would report a JWT that was
+		// never verified as a clean PASS.
+		claims["_jws_verified"] = false
+		claims["_jws_error"] = "no jwks_uri in discovery; userinfo JWS signature was not verified"
 	}
 	return claims, nil
 }
@@ -131,15 +139,30 @@ func presentKeys(claims map[string]any) string {
 	return strings.Join(keys, ", ")
 }
 
+// stateFromRedirect returns the state the callback echoed back, or "" if the
+// redirect_uri is unparseable or carried none.
+func stateFromRedirect(redirectURI string) string {
+	u, err := url.Parse(redirectURI)
+	if err != nil {
+		return ""
+	}
+	return u.Query().Get("state")
+}
+
 // codeFromRedirect extracts the authorization code from the callback redirect_uri
-// eSignet returns (…redirect_uri?code=…&state=…).
-func codeFromRedirect(redirectURI string) (string, error) {
+// eSignet returns (…redirect_uri?code=…&state=…). wantState is the state this
+// run sent: a code arriving with a different state belongs to another
+// authorization request and must not be exchanged (RFC 6749 §10.12).
+func codeFromRedirect(redirectURI, wantState string) (string, error) {
 	u, err := url.Parse(redirectURI)
 	if err != nil {
 		return "", fmt.Errorf("parse redirect_uri: %w", err)
 	}
 	if e := u.Query().Get("error"); e != "" {
 		return "", fmt.Errorf("authorize returned error=%s %s", e, u.Query().Get("error_description"))
+	}
+	if got := u.Query().Get("state"); got != wantState {
+		return "", fmt.Errorf("state mismatch in redirect_uri: got %q, want %q", got, wantState)
 	}
 	code := u.Query().Get("code")
 	if code == "" {

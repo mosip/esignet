@@ -104,12 +104,20 @@ fi
 # resolved values as environment variables — this eval is the only bridge.
 # Values are already fully resolved (file + overlay + env), so an operator's own
 # override was folded in before this ran and survives it.
+# Tracing off across the substitution and the eval: with `set -x` in the caller's
+# environment, bash would echo every resolved export — TEST_PASSWORD, TEST_OTP,
+# KEYCLOAK_CLIENT_SECRET — into the CI log. Restored afterwards only if it was on.
+__xtrace_was_on=0
+case "$-" in *x*) __xtrace_was_on=1 ;; esac
+set +x
 CFG_ENV="$(run_cfg -config "$CONFIG" -print-env)" || {
   echo "config error (see above)" >&2
   exit 2
 }
 eval "$CFG_ENV"
 unset CFG_ENV
+[[ "$__xtrace_was_on" == "1" ]] && set -x
+unset __xtrace_was_on
 
 # PLUGIN and SURFACES come from that same eval, so there is no second config load
 # that could fail on its own and leave SURFACES empty — which would run nothing
@@ -151,8 +159,14 @@ wait_for_suite() {
   fi
   [[ "$wait_s" -eq 0 ]] && return 0
   local base="${CONFORMANCE_BASE_URL:-https://localhost.emobix.co.uk:8443}"
+  # Follow the configured TLS policy instead of always passing -k: the harness
+  # centralizes that decision in httpx.NewClient, and CONFORMANCE_TLS_VERIFY
+  # comes from the same eval above. (The suite's default self-signed localhost
+  # cert is why every shipped config sets it false.)
+  local curl_opts=(-sf -o /dev/null --max-time 3)
+  [[ "${CONFORMANCE_TLS_VERIFY:-true}" == "false" ]] && curl_opts+=(-k)
   local deadline=$((SECONDS + wait_s))
-  until curl -skf -o /dev/null --max-time 3 "$base/api/runner/available" 2>/dev/null; do
+  until curl "${curl_opts[@]}" "$base/api/runner/available" 2>/dev/null; do
     if (( SECONDS >= deadline )); then
       echo "(conformance suite not reachable at $base after ${wait_s}s — proceeding anyway)" >&2
       return 0

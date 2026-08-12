@@ -2,6 +2,7 @@ package e2e
 
 import (
 	"bytes"
+	"context"
 	"crypto/rsa"
 	"crypto/tls"
 	"encoding/json"
@@ -289,12 +290,12 @@ func (r *Runner) httpClient() *http.Client {
 }
 
 // do performs an HTTP call and records it (Authorization redacted) into calls.
-func (r *Runner) do(calls *[]result.HTTPCall, label, method, u string, headers map[string]string, body string) (int, []byte, error) {
+func (r *Runner) do(ctx context.Context, calls *[]result.HTTPCall, label, method, u string, headers map[string]string, body string) (int, []byte, error) {
 	var rdr io.Reader
 	if body != "" {
 		rdr = bytes.NewBufferString(body)
 	}
-	req, err := http.NewRequest(method, u, rdr)
+	req, err := http.NewRequestWithContext(ctx, method, u, rdr)
 	if err != nil {
 		return 0, nil, err
 	}
@@ -330,7 +331,7 @@ func redactHeaders(h http.Header) map[string][]string {
 
 // Run registers a throwaway client, executes every scenario against it, and
 // returns one ModuleResult per scenario (Surface=e2e).
-func (r *Runner) Run(spec Spec) []result.ModuleResult {
+func (r *Runner) Run(ctx context.Context, spec Spec) []result.ModuleResult {
 	logf := r.Logf
 	if logf == nil {
 		logf = func(string, ...any) {}
@@ -350,7 +351,7 @@ func (r *Runner) Run(spec Spec) []result.ModuleResult {
 	requestedID := "bdd-e2e-" + strconv.FormatInt(time.Now().UnixNano(), 10)
 
 	var setupCalls []result.HTTPCall
-	clientID, err := r.createClient(&setupCalls, priv, kid, requestedID, spec)
+	clientID, err := r.createClient(ctx, &setupCalls, priv, kid, requestedID, spec)
 	if err != nil {
 		// Keep every scenario visible in the report rather than collapsing to a
 		// single error row: when the mosipid partner/policy aren't configured
@@ -377,7 +378,7 @@ func (r *Runner) Run(spec Spec) []result.ModuleResult {
 		answers := mergeAnswers(r.Answers, sc.Credentials)
 		preferred := append(esignet.AuthFactorTokens(sc.AuthFactor), esignet.IDTypeTokens(r.IDType)...)
 
-		claims, calls, consentSeen, ferr := r.runScenario(priv, kid, clientID, spec.RedirectURI, sc, answers, preferred)
+		claims, calls, consentSeen, protoAsserts, ferr := r.runScenario(ctx, priv, kid, clientID, spec.RedirectURI, sc, answers, preferred)
 		row.Calls = calls
 		row.DurationMs = time.Since(start).Milliseconds()
 
@@ -432,6 +433,7 @@ func (r *Runner) Run(spec Spec) []result.ModuleResult {
 		// Positive case, login succeeded as expected — proceed to claim checks.
 		loginAssertion := result.Assertion{Field: loginField, Expected: "accepted", Actual: "accepted", Passed: true}
 		assertions := append([]result.Assertion{loginAssertion}, consentAssertions...)
+		assertions = append(assertions, protoAsserts...)
 		assertions = append(assertions, assertClaims(sc, claims)...)
 		row.Assertions = assertions
 		conds := failedConditions(assertions)
@@ -530,16 +532,16 @@ func (r *Runner) errRow(name string, err error) result.ModuleResult {
 // use for the rest of the flow. For mosip it registers through PMS /oauth/client
 // (which generates the id); for every other plugin it registers directly against
 // eSignet client-mgmt with the harness-chosen requestedID.
-func (r *Runner) createClient(calls *[]result.HTTPCall, priv *rsa.PrivateKey, kid, requestedID string, spec Spec) (string, error) {
+func (r *Runner) createClient(ctx context.Context, calls *[]result.HTTPCall, priv *rsa.PrivateKey, kid, requestedID string, spec Spec) (string, error) {
 	if r.Plugin == "mosip" {
-		return r.createClientViaPMS(calls, priv, kid, spec)
+		return r.createClientViaPMS(ctx, calls, priv, kid, spec)
 	}
-	return r.createClientViaClientMgmt(calls, priv, kid, requestedID, spec)
+	return r.createClientViaClientMgmt(ctx, calls, priv, kid, requestedID, spec)
 }
 
 // createClientViaClientMgmt registers the test client via eSignet client-mgmt
 // (admin bearer token). The harness picks the clientId and it is echoed back.
-func (r *Runner) createClientViaClientMgmt(calls *[]result.HTTPCall, priv *rsa.PrivateKey, kid, clientID string, spec Spec) (string, error) {
+func (r *Runner) createClientViaClientMgmt(ctx context.Context, calls *[]result.HTTPCall, priv *rsa.PrivateKey, kid, clientID string, spec Spec) (string, error) {
 	reqBody := map[string]any{
 		"requestTime": time.Now().UTC().Format("2006-01-02T15:04:05.000Z"),
 		"request": map[string]any{
@@ -556,8 +558,11 @@ func (r *Runner) createClientViaClientMgmt(calls *[]result.HTTPCall, priv *rsa.P
 			"clientAuthMethods": []string{"private_key_jwt"},
 		},
 	}
-	body, _ := json.Marshal(reqBody)
-	status, rb, err := r.do(calls, "create client", http.MethodPost, r.Base+"/client-mgmt/client",
+	body, err := json.Marshal(reqBody)
+	if err != nil {
+		return "", fmt.Errorf("marshal client-mgmt request: %w", err)
+	}
+	status, rb, err := r.do(ctx, calls, "create client", http.MethodPost, r.Base+"/client-mgmt/client",
 		map[string]string{"Content-Type": "application/json", "Authorization": "Bearer " + r.AdminToken}, string(body))
 	if err != nil {
 		return "", fmt.Errorf("create client: %w", err)
@@ -576,7 +581,7 @@ func (r *Runner) createClientViaClientMgmt(calls *[]result.HTTPCall, priv *rsa.P
 // generates the clientId (hash of the public key), which it returns in
 // response.clientId — the harness uses that id for authorize + private_key_jwt.
 // userClaims/authContextRefs are NOT sent here: they are governed by the policy.
-func (r *Runner) createClientViaPMS(calls *[]result.HTTPCall, priv *rsa.PrivateKey, kid string, spec Spec) (string, error) {
+func (r *Runner) createClientViaPMS(ctx context.Context, calls *[]result.HTTPCall, priv *rsa.PrivateKey, kid string, spec Spec) (string, error) {
 	if r.PMSBaseURL == "" || r.AuthPartnerID == "" || r.PolicyID == "" {
 		return "", fmt.Errorf("mosip client registration needs PMS_BASE_URL, AUTH_PARTNER_ID and AUTH_POLICY_ID")
 	}
@@ -594,9 +599,12 @@ func (r *Runner) createClientViaPMS(calls *[]result.HTTPCall, priv *rsa.PrivateK
 			"clientAuthMethods": []string{"private_key_jwt"},
 		},
 	}
-	body, _ := json.Marshal(reqBody)
+	body, err := json.Marshal(reqBody)
+	if err != nil {
+		return "", fmt.Errorf("marshal PMS request: %w", err)
+	}
 	url := strings.TrimRight(r.PMSBaseURL, "/") + "/oauth/client"
-	status, rb, err := r.do(calls, "create client (PMS)", http.MethodPost, url,
+	status, rb, err := r.do(ctx, calls, "create client (PMS)", http.MethodPost, url,
 		map[string]string{"Content-Type": "application/json", "Authorization": "Bearer " + r.AdminToken}, string(body))
 	if err != nil {
 		return "", fmt.Errorf("create client via PMS: %w", err)
@@ -622,11 +630,16 @@ func (r *Runner) createClientViaPMS(calls *[]result.HTTPCall, priv *rsa.PrivateK
 }
 
 // runScenario runs authorize -> login (driver) -> token -> userinfo for one case
-// and returns the parsed userinfo claims plus the full call trace. answers and
-// preferred are the scenario-specific credential/ACR resolution the driver uses.
-func (r *Runner) runScenario(priv *rsa.PrivateKey, kid, clientID, redirectURI string, sc Scenario, answers map[string]string, preferred []string) (map[string]any, []result.HTTPCall, consentObservation, error) {
+// and returns the parsed userinfo claims, the full call trace, and the protocol
+// assertions this surface makes as the relying party (the state/nonce echoes).
+// answers and preferred are the scenario-specific credential/ACR resolution the
+// driver uses.
+func (r *Runner) runScenario(ctx context.Context, priv *rsa.PrivateKey, kid, clientID, redirectURI string, sc Scenario, answers map[string]string, preferred []string) (map[string]any, []result.HTTPCall, consentObservation, []result.Assertion, error) {
 	var calls []result.HTTPCall
 	verifier, challenge := pkce()
+	// proto collects the RP-side protocol checks (state, nonce) so they land in
+	// the report's Validation tab rather than only aborting the run.
+	var proto []result.Assertion
 	state := "st-" + strconv.FormatInt(time.Now().UnixNano(), 10)
 	nonce := "no-" + strconv.FormatInt(time.Now().UnixNano(), 10)
 
@@ -644,7 +657,10 @@ func (r *Runner) runScenario(priv *rsa.PrivateKey, kid, clientID, redirectURI st
 		q.Set("acr_values", strings.Join(r.acrForClaims(), " "))
 	}
 	if len(sc.UserinfoClaims) > 0 {
-		cj, _ := json.Marshal(map[string]any{"userinfo": sc.UserinfoClaims})
+		cj, cerr := json.Marshal(map[string]any{"userinfo": sc.UserinfoClaims})
+		if cerr != nil {
+			return nil, nil, consentObservation{}, proto, fmt.Errorf("marshal claims request: %w", cerr)
+		}
 		q.Set("claims", string(cj))
 	}
 	authURL := r.AuthEndpoint + "?" + q.Encode()
@@ -659,12 +675,19 @@ func (r *Runner) runScenario(priv *rsa.PrivateKey, kid, clientID, redirectURI st
 	calls = append(calls, fr.Calls...)
 	consentSeen := consentObservation{prompted: fr.ConsentPrompted, denied: fr.ConsentDenied}
 	if !fr.OK() {
-		return nil, calls, consentSeen,
+		return nil, calls, consentSeen, proto,
 			fmt.Errorf("login flow failed: %s", firstNonEmpty(fr.Error, "no redirect_uri"))
 	}
-	code, err := codeFromRedirect(fr.RedirectURI)
+	// state echo: an RP must reject a callback whose state is not the one it
+	// sent, otherwise a code from another authorization request is accepted.
+	gotState := stateFromRedirect(fr.RedirectURI)
+	proto = append(proto, result.Assertion{
+		Field: "authorize state echo", Expected: state, Actual: firstNonEmpty(gotState, "(absent)"),
+		Passed: gotState == state,
+	})
+	code, err := codeFromRedirect(fr.RedirectURI, state)
 	if err != nil {
-		return nil, calls, consentSeen, err
+		return nil, calls, consentSeen, proto, err
 	}
 
 	// token exchange (private_key_jwt + PKCE).
@@ -682,7 +705,7 @@ func (r *Runner) runScenario(priv *rsa.PrivateKey, kid, clientID, redirectURI st
 	}
 	assertion, err := clientAssertion(priv, kid, clientID, aud)
 	if err != nil {
-		return nil, calls, consentSeen, fmt.Errorf("client assertion: %w", err)
+		return nil, calls, consentSeen, proto, fmt.Errorf("client assertion: %w", err)
 	}
 	form := url.Values{
 		"grant_type":            {"authorization_code"},
@@ -693,10 +716,10 @@ func (r *Runner) runScenario(priv *rsa.PrivateKey, kid, clientID, redirectURI st
 		"client_assertion":      {assertion},
 		"code_verifier":         {verifier},
 	}
-	status, rb, err := r.do(&calls, "token", http.MethodPost, r.TokenEndpoint,
+	status, rb, err := r.do(ctx, &calls, "token", http.MethodPost, r.TokenEndpoint,
 		map[string]string{"Content-Type": "application/x-www-form-urlencoded"}, form.Encode())
 	if err != nil {
-		return nil, calls, consentSeen, fmt.Errorf("token request: %w", err)
+		return nil, calls, consentSeen, proto, fmt.Errorf("token request: %w", err)
 	}
 	var tok struct {
 		AccessToken string `json:"access_token"`
@@ -706,25 +729,39 @@ func (r *Runner) runScenario(priv *rsa.PrivateKey, kid, clientID, redirectURI st
 	}
 	_ = json.Unmarshal(rb, &tok)
 	if tok.AccessToken == "" {
-		return nil, calls, consentSeen, fmt.Errorf("token exchange failed (HTTP %d): %s", status, firstNonEmpty(tok.Error+" "+tok.ErrorDesc, snippet(rb)))
+		return nil, calls, consentSeen, proto, fmt.Errorf("token exchange failed (HTTP %d): %s", status, firstNonEmpty(tok.Error+" "+tok.ErrorDesc, snippet(rb)))
+	}
+
+	// nonce echo: OIDC Core 3.1.3.7 requires the ID token to carry back the nonce
+	// the authorize request sent. Only asserted when an ID token was issued —
+	// a scenario that does not request openid gets none.
+	if tok.IDToken != "" {
+		got := ""
+		if payload, derr := decodeJWTPayload(tok.IDToken); derr == nil {
+			got, _ = payload["nonce"].(string)
+		}
+		proto = append(proto, result.Assertion{
+			Field: "id_token nonce echo", Expected: nonce, Actual: firstNonEmpty(got, "(absent)"),
+			Passed: got == nonce,
+		})
 	}
 
 	// userinfo
-	ustatus, ub, err := r.do(&calls, "userinfo", http.MethodGet, r.UserinfoEndpoint,
+	ustatus, ub, err := r.do(ctx, &calls, "userinfo", http.MethodGet, r.UserinfoEndpoint,
 		map[string]string{"Authorization": "Bearer " + tok.AccessToken}, "")
 	if err != nil {
-		return nil, calls, consentSeen, fmt.Errorf("userinfo request: %w", err)
+		return nil, calls, consentSeen, proto, fmt.Errorf("userinfo request: %w", err)
 	}
 	// A JSON error body would otherwise parse as a claims map and surface later
 	// as a vague "claim X absent" instead of the actual HTTP failure.
 	if ustatus < 200 || ustatus > 299 {
-		return nil, calls, consentSeen, fmt.Errorf("userinfo request failed (HTTP %d): %s", ustatus, snippet(ub))
+		return nil, calls, consentSeen, proto, fmt.Errorf("userinfo request failed (HTTP %d): %s", ustatus, snippet(ub))
 	}
-	claims, err := parseUserinfo(ub, r.JWKSURI, r.TLSVerify)
+	claims, err := parseUserinfo(ctx, ub, r.JWKSURI, r.TLSVerify)
 	if err != nil {
-		return nil, calls, consentSeen, fmt.Errorf("userinfo parse: %w", err)
+		return nil, calls, consentSeen, proto, fmt.Errorf("userinfo parse: %w", err)
 	}
-	return claims, calls, consentSeen, nil
+	return claims, calls, consentSeen, proto, nil
 }
 
 // acrForClaims returns the client's registered ACRs for the authorize request.

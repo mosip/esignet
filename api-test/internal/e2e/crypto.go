@@ -8,6 +8,7 @@
 package e2e
 
 import (
+	"context"
 	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
@@ -17,6 +18,7 @@ import (
 	"fmt"
 	"math"
 	"math/big"
+	"net/http"
 	"strings"
 	"time"
 
@@ -31,7 +33,7 @@ func generateRSA() (*rsa.PrivateKey, error) { return rsa.GenerateKey(rand.Reader
 
 // publicJWK renders the public half as a JWK object (for client registration).
 func publicJWK(priv *rsa.PrivateKey, kid string) map[string]any {
-	pub := priv.Public().(*rsa.PublicKey)
+	pub := &priv.PublicKey
 	return map[string]any{
 		"kty": "RSA",
 		"e":   b64(big.NewInt(int64(pub.E)).Bytes()),
@@ -122,7 +124,7 @@ type jwksKey struct {
 // verifyJWS verifies a compact RS256 JWS against the keys at jwksURL, matching by
 // kid when present. Returns nil on a good signature. Used to confirm eSignet
 // actually signed the userinfo response with a key from its published JWKS.
-func verifyJWS(token, jwksURL string, tlsVerify bool) error {
+func verifyJWS(ctx context.Context, token, jwksURL string, tlsVerify bool) error {
 	parts := strings.Split(strings.TrimSpace(token), ".")
 	if len(parts) != 3 {
 		return fmt.Errorf("not a 3-part JWS")
@@ -141,7 +143,7 @@ func verifyJWS(token, jwksURL string, tlsVerify bool) error {
 		return fmt.Errorf("unexpected alg %q (want RS256)", hdr.Alg)
 	}
 
-	keys, err := fetchJWKS(jwksURL, tlsVerify)
+	keys, err := fetchJWKS(ctx, jwksURL, tlsVerify)
 	if err != nil {
 		return err
 	}
@@ -169,9 +171,13 @@ func verifyJWS(token, jwksURL string, tlsVerify bool) error {
 	return fmt.Errorf("no JWKS key verified the signature")
 }
 
-func fetchJWKS(url string, tlsVerify bool) ([]jwksKey, error) {
+func fetchJWKS(ctx context.Context, url string, tlsVerify bool) ([]jwksKey, error) {
 	// Shared client so the TLS-verify policy and floor live in one place.
-	resp, err := httpx.NewClient(tlsVerify, 15*time.Second).Get(url)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("fetch jwks: %w", err)
+	}
+	resp, err := httpx.NewClient(tlsVerify, 15*time.Second).Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("fetch jwks: %w", err)
 	}

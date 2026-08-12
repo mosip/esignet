@@ -433,3 +433,22 @@ func TestRSAPubFromJWKRejectsInvalidBase64(t *testing.T) {
 		t.Fatal("rsaPubFromJWK accepted a non-base64 modulus")
 	}
 }
+
+// A degenerate key must be rejected outright rather than built and then failing
+// verification for an unrelated-looking reason ("no JWKS key verified the
+// signature"), which would read as an eSignet signing defect.
+func TestRSAPubFromJWKRejectsDegenerateKeys(t *testing.T) {
+	n := base64.RawURLEncoding.EncodeToString([]byte{0x01, 0x02, 0x03})
+	for _, tc := range []struct{ name, n, e string }{
+		{"empty exponent", n, ""},
+		{"empty modulus", "", "AQAB"},
+		{"exponent 1", n, base64.RawURLEncoding.EncodeToString([]byte{0x01})},
+		{"exponent too large", n, base64.RawURLEncoding.EncodeToString([]byte{0x01, 0x02, 0x03, 0x04, 0x05})},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if _, err := rsaPubFromJWK(jwksKey{Kid: "k1", N: tc.n, E: tc.e}); err == nil {
+				t.Fatalf("rsaPubFromJWK accepted %s", tc.name)
+			}
+		})
+	}
+}

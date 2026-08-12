@@ -2,8 +2,10 @@
 Feature: Client management — create + get + update (positive, happy path)
   The positive counterpart to the create/get/update negative features: valid
   requests register a client, read it back, and update it cleanly. client-mgmt is
-  admin-authenticated (Keycloak bearer) and plugin-independent — the same PMS
-  endpoint serves the mock, sunbird and mosip plugins — so these run unchanged
+  admin-authenticated (Keycloak bearer) and plugin-independent — the same
+  /client-mgmt/client endpoint serves the mock, sunbird and mosip plugins (PMS
+  /oauth/client is the mosipid-specific alternative, covered in
+  create-update-client-pms.feature) — so these run unchanged
   under any AUTHN_PROVIDER and are the create/get/update checklist to green before
   standing up a new identity plugin (e.g. mosipid).
 

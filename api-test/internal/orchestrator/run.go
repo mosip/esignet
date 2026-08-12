@@ -268,6 +268,11 @@ func (o *Orchestrator) runModule(plan *conformance.PlanResponse, m conformance.M
 
 	deadline := time.Now().Add(time.Duration(o.cfg.Run.TimeoutSeconds) * time.Second)
 	poll := time.Duration(o.cfg.Run.PollIntervalSeconds) * time.Second
+	// A zero interval would turn the wait below into a hot loop that hammers the
+	// suite for the whole timeout window (wsotp.WaitOTP applies the same floor).
+	if poll <= 0 {
+		poll = time.Second
+	}
 	handled := map[string]bool{}
 
 	for {

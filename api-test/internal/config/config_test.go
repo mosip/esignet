@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -189,11 +190,18 @@ func TestExplicitMissingConfigIsFatal(t *testing.T) {
 // requirements of the surfaces it actually selected.
 func TestValidationIsScopedToSelectedSurfaces(t *testing.T) {
 	// e2e only: no conformance base_url and no plan config, which would have been
-	// hard requirements before.
+	// hard requirements before. The spec fixture is written into the temp dir
+	// like every other case here — ValidateSurface stats e2e.spec against the
+	// process working directory, so a repo-relative path would tie this test to
+	// where `go test` happens to run from.
+	spec := filepath.Join(t.TempDir(), "e2e-scenarios.json")
+	if err := os.WriteFile(spec, []byte(`{"scenarios":[]}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
 	cfg := writeLayers(t,
 		`{"esignet":{"provider":"mock","base_url":"https://esignet.example"},
 		  "keycloak":{"token_url":"https://iam.example","client_id":"c","client_secret":"s"},
-		  "e2e":{"spec":"../../e2e-scenarios.json"},
+		  "e2e":{"spec":`+jsonString(spec)+`},
 		  "run":{"surfaces":["e2e"]}}`, "")
 	if _, err := Load(cfg, true); err != nil {
 		t.Fatalf("e2e-only config rejected: %v", err)
@@ -494,6 +502,57 @@ func TestRedactedMasksKeycloakSecret(t *testing.T) {
 	c.Keycloak.ClientSecret = "super-secret-value"
 	if out := c.Redacted(); strings.Contains(out, "super-secret-value") {
 		t.Errorf("Redacted() leaked the keycloak client secret:\n%s", out)
+	}
+}
+
+// Every field the configuration panel must never carry, pinned in one place so a
+// new secret or identity field cannot be added to Config without being masked.
+func TestRedactedMasksEveryIdentityAndSecretField(t *testing.T) {
+	c := &Config{}
+	c.Conformance.Token = "tok-leak"
+	c.Keycloak.ClientSecret = "kc-leak"
+	c.Esignet.Credentials.Username = "user-leak"
+	c.Esignet.Credentials.Password = "pw-leak"
+	c.Esignet.OTP.Value = "otp-leak"
+	c.Esignet.OTP.RecipientEmail = "mail-leak"
+	c.Esignet.Identity.IndividualID = "id-leak"
+	c.Esignet.Knowledge.FullName = "name-leak"
+	c.Esignet.Knowledge.DOB = "dob-leak"
+
+	out := c.Redacted()
+	for _, want := range []string{
+		"tok-leak", "kc-leak", "user-leak", "pw-leak",
+		"otp-leak", "mail-leak", "id-leak", "name-leak", "dob-leak",
+	} {
+		if strings.Contains(out, want) {
+			t.Errorf("Redacted() leaked %q:\n%s", want, out)
+		}
+	}
+}
+
+// RFC 7518 defines `oth` as an ARRAY of other-primes info on a multi-prime RSA
+// key, so masking only string values would leave real key material in the report.
+func TestRedactJWKMaterialMasksNonStringValues(t *testing.T) {
+	var v any
+	body := `{"kty":"RSA","n":"pub","d":"priv",
+	          "oth":[{"r":"r1","d":"d1","t":"t1"}],
+	          "client_secret":{"value":"nested-leak"}}`
+	if err := json.Unmarshal([]byte(body), &v); err != nil {
+		t.Fatal(err)
+	}
+	RedactJWKMaterial(v)
+	out, err := json.Marshal(v)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{`"priv"`, "d1", "r1", "nested-leak"} {
+		if strings.Contains(string(out), want) {
+			t.Errorf("RedactJWKMaterial left %s in:\n%s", want, out)
+		}
+	}
+	// The public half stays readable — it is what the report is there to show.
+	if !strings.Contains(string(out), `"pub"`) {
+		t.Errorf("RedactJWKMaterial masked the public modulus:\n%s", out)
 	}
 }
 

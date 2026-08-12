@@ -223,17 +223,23 @@ func buildConsentDecision(prompt string, policy ConsentPolicy) (string, []string
 	out := consentDecision{}
 	for _, p := range purposes {
 		d := consentPurposeDecision{Approved: true, PurposeName: p.PurposeName, PurposeID: p.PurposeID}
+		anyApproved := false
 		for _, e := range append(append([]consentElement(nil), p.Essential...), p.Optional...) {
 			offered = append(offered, e.Name)
 			approved := !policy.denies(e.Name)
-			if !approved {
+			if approved {
+				anyApproved = true
+			} else {
 				denied = append(denied, e.Name)
 			}
 			d.Elements = append(d.Elements, consentElementDecision{Approved: approved, Name: e.Name})
 		}
 		// A purpose with every element withheld is itself not approved, mirroring
-		// what a UI would submit when the user unticks the whole block.
-		if policy.DenyAll {
+		// what a UI would submit when the user unticks the whole block. Derived
+		// from the element decisions so denying every element BY NAME reaches the
+		// same submission as DenyAll — otherwise the executor would receive
+		// Approved:true over an all-denied element list.
+		if policy.DenyAll || (len(d.Elements) > 0 && !anyApproved) {
 			d.Approved = false
 		}
 		out.Purposes = append(out.Purposes, d)

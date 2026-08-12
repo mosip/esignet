@@ -92,13 +92,17 @@ func TestFeatures(t *testing.T) {
 	t.Logf("bdd: wrote %d envelope row(s) to %s", len(rows), out)
 }
 
+// writeEnvelope persists the collected rows for the consolidation runner. The
+// envelope carries the raw request/response trace, so it is owner-only: it is an
+// intermediate artifact that the report's own redaction pass has not run over
+// yet (that happens in internal/report on the consolidated results).
 func writeEnvelope(path string, rows []Envelope) error {
-	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(path), 0o750); err != nil {
 		return err
 	}
 	data, err := json.MarshalIndent(rows, "", "  ")
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(path, data, 0o644)
+	return os.WriteFile(path, data, 0o600)
 }

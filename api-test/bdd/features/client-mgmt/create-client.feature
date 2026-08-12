@@ -40,7 +40,11 @@ Feature: Client management — create (negative/edge)
     Then the response status should be 200
     And the JSON value at "errors.0.errorCode" should be "invalid_input"
 
-  Scenario: Create rejects an invalid redirect URI and public key
+  # Only the redirect URI is malformed here: with a bad public key in the same
+  # body the outcome would depend on the server's validation order, and
+  # create-client-validation.feature asserts invalid_public_key for that field.
+  Scenario: Create rejects an invalid redirect URI
+    Given a generated RSA public key as "pubjwk"
     When I send a "POST" request to "/client-mgmt/client" with body:
       """
       {
@@ -51,7 +55,7 @@ Feature: Client management — create (negative/edge)
           "relyingPartyId": "bdd-rp",
           "logoUri": "https://example.org/logo.png",
           "redirectUris": ["not-a-valid-uri"],
-          "publicKey": { "kty": "RSA", "e": "AQAB", "n": "invalid" },
+          "publicKey": {{pubjwk}},
           "userClaims": ["name"],
           "authContextRefs": ["mosip:idp:acr:static-code"],
           "grantTypes": ["authorization_code"],

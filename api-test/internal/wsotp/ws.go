@@ -235,6 +235,9 @@ func (c *conn) readMessage() ([]byte, error) {
 				return nil, errors.New("websocket: new data frame before continuation finished")
 			}
 			msg = append(msg, payload...)
+			if len(msg) > maxFrame {
+				return nil, fmt.Errorf("websocket: reassembled message too large (%d bytes)", len(msg))
+			}
 			if fin {
 				return msg, nil
 			}
@@ -244,6 +247,9 @@ func (c *conn) readMessage() ([]byte, error) {
 				return nil, errors.New("websocket: unexpected continuation frame")
 			}
 			msg = append(msg, payload...)
+			if len(msg) > maxFrame {
+				return nil, fmt.Errorf("websocket: reassembled message too large (%d bytes)", len(msg))
+			}
 			if fin {
 				return msg, nil
 			}
@@ -252,6 +258,11 @@ func (c *conn) readMessage() ([]byte, error) {
 		}
 	}
 }
+
+// maxFrame caps both a single frame and a reassembled message: without the
+// second cap a peer that never sets FIN grows the buffer until the process runs
+// out of memory. Mock emails are tiny, so 8 MiB is generous.
+const maxFrame = 8 << 20
 
 // setReadDeadline bounds the next read by d, or clears the deadline when d is
 // not positive — which is how a directly-constructed conn (tests) opts out.
@@ -317,7 +328,6 @@ func (c *conn) readFrame(resumable bool) (fin bool, opcode int, payload []byte, 
 		length = binary.BigEndian.Uint64(ext[:])
 	}
 
-	const maxFrame = 8 << 20 // 8 MiB guard — mock emails are tiny
 	if length > maxFrame {
 		return false, 0, nil, fmt.Errorf("websocket: frame too large (%d bytes)", length)
 	}
@@ -344,6 +354,14 @@ func (c *conn) readFrame(resumable bool) (fin bool, opcode int, payload []byte, 
 // writeFrame writes a single, final client frame. Per RFC 6455 every
 // client→server frame is masked.
 func (c *conn) writeFrame(opcode int, payload []byte) error {
+	// The handshake clears every deadline, so bound each write here: a peer that
+	// stops reading would otherwise block close() forever, and with it
+	// Listener.Close() — hanging the whole run with no report. A
+	// directly-constructed conn (tests) has no timeout and opts out.
+	if c.frameTimeout > 0 {
+		_ = c.net.SetWriteDeadline(time.Now().Add(c.frameTimeout))
+		defer func() { _ = c.net.SetWriteDeadline(time.Time{}) }()
+	}
 	var header []byte
 	header = append(header, byte(0x80|opcode)) // FIN + opcode
 

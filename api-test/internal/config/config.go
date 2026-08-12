@@ -710,6 +710,13 @@ var e2eSpecByProvider = map[string]string{
 }
 
 func (c *Config) defaults() {
+	// Normalize the enum-valued fields once, here, so validate's exact-match
+	// switches, ValidateSurface's EqualFold comparisons and the provider-keyed
+	// lookups below cannot disagree about casing: AUTHN_PROVIDER=Mock was
+	// accepted or rejected depending on which entry point ran first.
+	c.Esignet.Provider = strings.ToLower(strings.TrimSpace(c.Esignet.Provider))
+	c.Esignet.OTP.Source = strings.ToLower(strings.TrimSpace(c.Esignet.OTP.Source))
+	c.Run.Profile = strings.ToLower(strings.TrimSpace(c.Run.Profile))
 	if len(c.Run.Surfaces) == 0 {
 		c.Run.Surfaces = []string{SurfaceConformance, SurfaceBDD, SurfaceE2E}
 	}
@@ -771,7 +778,7 @@ func (c *Config) defaults() {
 		c.Run.ReportDir = "out"
 	}
 	if c.E2E.Spec == "" {
-		c.E2E.Spec = e2eSpecByProvider[strings.ToLower(c.Esignet.Provider)]
+		c.E2E.Spec = e2eSpecByProvider[c.Esignet.Provider]
 	}
 }
 
@@ -905,6 +912,10 @@ func (c *Config) Redacted() string {
 	}
 	clone.Conformance.Token = mask(clone.Conformance.Token)
 	clone.Keycloak.ClientSecret = mask(clone.Keycloak.ClientSecret)
+	// The username is a login identifier on every plugin but mock, and the wire
+	// trace already masks it (report.identityKeys) — leaving it readable one
+	// panel above would undo that.
+	clone.Esignet.Credentials.Username = mask(clone.Esignet.Credentials.Username)
 	clone.Esignet.Credentials.Password = mask(clone.Esignet.Credentials.Password)
 	// Authenticator + personal data: reports are archived as CI artifacts.
 	clone.Esignet.OTP.Value = mask(clone.Esignet.OTP.Value)
@@ -960,7 +971,10 @@ func RedactJWKMaterial(v any) {
 		isJWK := t["kty"] != nil
 		for k, val := range t {
 			if (isJWK && privateJWKParams[k]) || strings.Contains(strings.ToLower(k), "secret") {
-				if s, ok := val.(string); ok && s != "" {
+				// Any non-nil value, not just a string: RFC 7518 defines `oth` as
+				// an ARRAY of other-primes info, so a string-only mask would walk
+				// past real private key material.
+				if val != nil {
 					t[k] = "***redacted***"
 				}
 				continue

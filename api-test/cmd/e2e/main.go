@@ -66,14 +66,18 @@ func main() {
 	}
 	tlsVerify := cfg.Esignet.TLSVerify
 
+	// One root context for the whole run, so every outbound call is cancellable
+	// rather than bounded only by the per-client timeout.
+	ctx := context.Background()
+
 	// Discovery -> endpoints.
-	disco, err := fetchDiscovery(base+"/.well-known/openid-configuration", tlsVerify)
+	disco, err := fetchDiscovery(ctx, base+"/.well-known/openid-configuration", tlsVerify)
 	if err != nil {
 		logger.Fatalf("discovery: %v", err)
 	}
 
 	// Admin token for client registration.
-	adminTok, err := keycloakToken(cfg.Keycloak, tlsVerify)
+	adminTok, err := keycloakToken(ctx, cfg.Keycloak, tlsVerify)
 	if err != nil {
 		logger.Fatalf("keycloak admin token: %v", err)
 	}
@@ -109,7 +113,7 @@ func main() {
 			logger.Fatal("OTP_SOURCE=dynamic requires OTP_WS_URL")
 		}
 		lst := wsotp.NewListener(es.OTP.WSURL, tlsVerify)
-		if err := lst.Start(context.Background()); err != nil {
+		if err := lst.Start(ctx); err != nil {
 			logger.Fatalf("dynamic OTP: %v", err)
 		}
 		defer lst.Close()
@@ -137,7 +141,7 @@ func main() {
 		PolicyID:         es.PMS.PolicyID,
 	}
 
-	rows := runner.Run(spec)
+	rows := runner.Run(ctx, spec)
 	if err := writeEnvelope(*outPath, rows); err != nil {
 		logger.Fatalf("write envelope: %v", err)
 	}
@@ -159,8 +163,8 @@ type discovery struct {
 	JWKSURI               string `json:"jwks_uri"`
 }
 
-func fetchDiscovery(url string, tlsVerify bool) (*discovery, error) {
-	body, status, err := httpGet(url, tlsVerify)
+func fetchDiscovery(ctx context.Context, url string, tlsVerify bool) (*discovery, error) {
+	body, status, err := httpGet(ctx, url, tlsVerify)
 	if err != nil {
 		return nil, err
 	}
@@ -175,17 +179,53 @@ func fetchDiscovery(url string, tlsVerify bool) (*discovery, error) {
 	if d.TokenEndpoint == "" || d.AuthorizationEndpoint == "" {
 		return nil, fmt.Errorf("discovery missing endpoints")
 	}
+	// An RP must not follow a discovery document to hosts it did not configure:
+	// the access token is sent to userinfo, and the token exchange carries the
+	// signed client assertion. Both stay on the host the document came from.
+	if d.Issuer == "" {
+		return nil, fmt.Errorf("discovery %s: no issuer", url)
+	}
+	if err := sameHost(url, d.Issuer, d.AuthorizationEndpoint, d.TokenEndpoint, d.UserinfoEndpoint, d.JWKSURI); err != nil {
+		return nil, fmt.Errorf("discovery %s: %w", url, err)
+	}
 	return &d, nil
 }
 
-func keycloakToken(kc config.Keycloak, tlsVerify bool) (string, error) {
+// sameHost reports whether every non-empty URL in others resolves to the same
+// host as ref, so a tampered or misconfigured discovery document cannot redirect
+// credentials to an unrelated origin.
+func sameHost(ref string, others ...string) error {
+	base, err := url.Parse(ref)
+	if err != nil {
+		return fmt.Errorf("parse %q: %w", ref, err)
+	}
+	for _, o := range others {
+		if o == "" {
+			continue
+		}
+		u, err := url.Parse(o)
+		if err != nil {
+			return fmt.Errorf("parse %q: %w", o, err)
+		}
+		if !strings.EqualFold(u.Host, base.Host) {
+			return fmt.Errorf("%q is on %q, not the discovery host %q", o, u.Host, base.Host)
+		}
+	}
+	return nil
+}
+
+func keycloakToken(ctx context.Context, kc config.Keycloak, tlsVerify bool) (string, error) {
 	tokenURL := kc.TokenURL
 	if tokenURL == "" || kc.ClientID == "" || kc.ClientSecret == "" {
 		return "", fmt.Errorf("keycloak.token_url/client_id/client_secret (KEYCLOAK_*) required")
 	}
 	form := url.Values{"grant_type": {"client_credentials"}, "client_id": {kc.ClientID}, "client_secret": {kc.ClientSecret}}
-	client := httpClient(tlsVerify)
-	resp, err := client.Post(tokenURL, "application/x-www-form-urlencoded", strings.NewReader(form.Encode()))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, tokenURL, strings.NewReader(form.Encode()))
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	resp, err := httpClient(tlsVerify).Do(req)
 	if err != nil {
 		return "", err
 	}
@@ -217,8 +257,12 @@ func httpClient(tlsVerify bool) *http.Client {
 
 // httpGet returns the body along with the status code so callers can tell an
 // error page apart from a malformed payload.
-func httpGet(url string, tlsVerify bool) ([]byte, int, error) {
-	resp, err := httpClient(tlsVerify).Get(url)
+func httpGet(ctx context.Context, url string, tlsVerify bool) ([]byte, int, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return nil, 0, err
+	}
+	resp, err := httpClient(tlsVerify).Do(req)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -240,10 +284,12 @@ func writeEnvelope(path string, rows []result.ModuleResult) error {
 	if err != nil {
 		return err
 	}
+	// Owner-only: this intermediate envelope holds the raw call trace (token and
+	// userinfo bodies) before internal/report's redaction pass runs over it.
 	if dir := filepath.Dir(path); dir != "" && dir != "." {
-		if err := os.MkdirAll(dir, 0o755); err != nil {
+		if err := os.MkdirAll(dir, 0o750); err != nil {
 			return err
 		}
 	}
-	return os.WriteFile(path, data, 0o644)
+	return os.WriteFile(path, data, 0o600)
 }

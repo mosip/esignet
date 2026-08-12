@@ -98,9 +98,19 @@ func lookup(c *config.Config, key string) (string, bool) {
 // which the config reaches the bdd module, so every variable bdd/steps.go and
 // bdd/engine_test.go read must appear here.
 //
+// Scope: everything here comes from the resolved config. Run-time plumbing the
+// config does not own is NOT emitted — BDD_ENVELOPE_OUT is set by run-all.sh
+// from the report directory. The conformance and e2e binaries load the config
+// themselves (config.Load), so their own settings need no export; the ones that
+// do appear (CONFORMANCE_*, PLAN_*) are there for run-all.sh and compose.
+//
 // The values are already fully resolved (file + overlay + env), so re-exporting
 // them is idempotent: an operator's own env override survives, because it was
 // folded in before this ran.
+//
+// Several of these carry credentials (TEST_PASSWORD, TEST_OTP,
+// KEYCLOAK_CLIENT_SECRET), which is why run-all.sh disables shell tracing around
+// the eval that consumes this output.
 func exports(c *config.Config) string {
 	var b strings.Builder
 	kv := func(k, v string) {

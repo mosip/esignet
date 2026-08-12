@@ -88,10 +88,14 @@ Feature: Client management via PMS — create + get + update (mosipid, positive)
       }
       """
     Then the response status should be 200
+    And the JSON path "errors" should be null
 
-    # confirm the update landed in eSignet
+    # The GET response exposes only clientId and status, so the new name is not
+    # observable there — the PUT accepting it (errors null) is the update
+    # evidence; this only confirms the client is still retrievable and ACTIVE.
     When I send a "GET" request to "/client-mgmt/client/{{cid}}"
     Then the response status should be 200
+    And the JSON value at "response.clientId" should be "{{cid}}"
     And the JSON value at "response.status" should be "ACTIVE"
 
   Scenario: Deactivate then reactivate a client via PMS update

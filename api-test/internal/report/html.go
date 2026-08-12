@@ -149,7 +149,9 @@ type Options struct {
 // and returns the HTML path.
 func Write(o Options) (string, error) {
 	dir := o.Dir
-	if err := os.MkdirAll(dir, 0o755); err != nil {
+	// Owner-only: the report and its sidecar carry the userinfo claims this
+	// surface retains as evidence, and ShowSecrets adds the unredacted wire trace.
+	if err := os.MkdirAll(dir, 0o750); err != nil {
 		return "", fmt.Errorf("mkdir %s: %w", dir, err)
 	}
 	results := o.Results
@@ -194,8 +196,15 @@ func Write(o Options) (string, error) {
 	if len(o.PlanConfigs) == 1 {
 		sidecar["plan_config"] = json.RawMessage(safeJSON(o.PlanConfigs[0].JSON))
 	}
-	if data, err := json.MarshalIndent(sidecar, "", "  "); err == nil {
-		_ = os.WriteFile(filepath.Join(dir, base+".json"), data, 0o644)
+	// The consolidation runner reads this sidecar by a path derived from the HTML
+	// name, so a silent write failure surfaces there as a confusing
+	// "no such file or directory" instead of the real cause.
+	data, err := json.MarshalIndent(sidecar, "", "  ")
+	if err != nil {
+		return "", fmt.Errorf("marshal sidecar: %w", err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, base+".json"), data, 0o600); err != nil {
+		return "", fmt.Errorf("write sidecar: %w", err)
 	}
 
 	v := view{
@@ -230,13 +239,18 @@ func Write(o Options) (string, error) {
 	}
 
 	htmlPath := filepath.Join(dir, base+".html")
-	f, err := os.Create(htmlPath)
+	f, err := os.OpenFile(htmlPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
 	if err != nil {
 		return "", fmt.Errorf("create %s: %w", htmlPath, err)
 	}
-	defer f.Close()
 	if err := tmpl.Execute(f, v); err != nil {
+		_ = f.Close()
 		return "", fmt.Errorf("render report: %w", err)
+	}
+	// Closed explicitly: a disk-full or buffered-write failure only surfaces
+	// here, and a truncated report must not be returned as a good one.
+	if err := f.Close(); err != nil {
+		return "", fmt.Errorf("close %s: %w", htmlPath, err)
 	}
 	return htmlPath, nil
 }

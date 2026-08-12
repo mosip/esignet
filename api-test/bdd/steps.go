@@ -64,9 +64,14 @@ type Assertion struct {
 	Passed   bool
 }
 
-// Call mirrors the fields of result.HTTPCall that the report renders.
+// Call mirrors the fields of result.HTTPCall that the report renders. At is
+// carried so result.CollapseCalls can order a bdd row chronologically if the
+// consolidation runner ever collapses these the way it does conformance/e2e
+// rows. ReqCookies/RespCookies are deliberately absent: redactHeaders already
+// masks Cookie/Set-Cookie, so there is no cookie value to carry.
 type Call struct {
 	Seq         int
+	At          int64 // capture time (unix nanos), as in result.HTTPCall
 	Label       string
 	Method      string
 	URL         string
@@ -168,17 +173,19 @@ func (s *state) resolve(in string) string {
 
 // do executes one HTTP call (following redirects), records it for the report
 // trace, and stores the response as the "last response" the assertion steps read.
-func (s *state) do(label, method, path, body string) error {
-	return s.doClient(httpClient, label, method, path, body)
+func (s *state) do(ctx context.Context, label, method, path, body string) error {
+	return s.doClient(ctx, httpClient, label, method, path, body)
 }
 
 // doNoFollow is like do but does not follow redirects, so the 302 status and its
 // Location header are observable (for authorize-endpoint negative assertions).
-func (s *state) doNoFollow(label, method, path, body string) error {
-	return s.doClient(noFollowClient, label, method, path, body)
+func (s *state) doNoFollow(ctx context.Context, label, method, path, body string) error {
+	return s.doClient(ctx, noFollowClient, label, method, path, body)
 }
 
-func (s *state) doClient(client *http.Client, label, method, path, body string) error {
+// doClient carries the scenario context so a suite-level cancellation aborts an
+// in-flight call instead of waiting out the client timeout.
+func (s *state) doClient(ctx context.Context, client *http.Client, label, method, path, body string) error {
 	fullURL := s.resolve(path)
 	if !strings.HasPrefix(fullURL, "http") {
 		fullURL = strings.TrimRight(s.base, "/") + "/" + strings.TrimLeft(fullURL, "/")
@@ -189,7 +196,7 @@ func (s *state) doClient(client *http.Client, label, method, path, body string) 
 	if resolvedBody != "" {
 		rdr = bytes.NewBufferString(resolvedBody)
 	}
-	req, err := http.NewRequest(method, fullURL, rdr)
+	req, err := http.NewRequestWithContext(ctx, method, fullURL, rdr)
 	if err != nil {
 		return err
 	}
@@ -244,6 +251,7 @@ func redactHeaders(h http.Header) map[string][]string {
 func (s *state) record(label, method, u string, reqH http.Header, reqBody string, status int, respH http.Header, respBody []byte) {
 	s.calls = append(s.calls, Call{
 		Seq:         len(s.calls) + 1,
+		At:          time.Now().UnixNano(),
 		Label:       label,
 		Method:      method,
 		URL:         u,
@@ -270,7 +278,7 @@ func iAuthenticateAsAdmin(ctx context.Context) error {
 		"client_id":     {clientID},
 		"client_secret": {secret},
 	}
-	req, err := http.NewRequest(http.MethodPost, tokenURL, strings.NewReader(form.Encode()))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, tokenURL, strings.NewReader(form.Encode()))
 	if err != nil {
 		return err
 	}
@@ -282,7 +290,9 @@ func iAuthenticateAsAdmin(ctx context.Context) error {
 	body, _ := io.ReadAll(resp.Body)
 	resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("keycloak token HTTP %d: %s", resp.StatusCode, snippet(body))
+		// Status only: a gateway can echo the posted form (client_secret included)
+		// in its error payload, and this error is archived in the envelope.
+		return fmt.Errorf("keycloak token HTTP %d", resp.StatusCode)
 	}
 	tok := gjson.GetBytes(body, "access_token").String()
 	if tok == "" {
@@ -355,17 +365,17 @@ func iSetHeaderTo(ctx context.Context, name, value string) error {
 
 func iSendRequestToWithBody(ctx context.Context, method, path string, body *godog.DocString) error {
 	s := getState(ctx)
-	return s.do(fmt.Sprintf("%s %s", method, path), strings.ToUpper(method), path, body.Content)
+	return s.do(ctx, fmt.Sprintf("%s %s", method, path), strings.ToUpper(method), path, body.Content)
 }
 
 func iSendRequestTo(ctx context.Context, method, path string) error {
 	s := getState(ctx)
-	return s.do(fmt.Sprintf("%s %s", method, path), strings.ToUpper(method), path, "")
+	return s.do(ctx, fmt.Sprintf("%s %s", method, path), strings.ToUpper(method), path, "")
 }
 
 func iSendRequestToWithoutFollowingRedirects(ctx context.Context, method, path string) error {
 	s := getState(ctx)
-	return s.doNoFollow(fmt.Sprintf("%s %s", method, path), strings.ToUpper(method), path, "")
+	return s.doNoFollow(ctx, fmt.Sprintf("%s %s", method, path), strings.ToUpper(method), path, "")
 }
 
 // aRegisteredClientIDIsConfigured guards the authorize-negative feature: it needs
@@ -402,7 +412,7 @@ func theResponseStatusShouldBe(ctx context.Context, code int) error {
 
 func theResponseStatusShouldBeClass(ctx context.Context, class string) error {
 	s := getState(ctx)
-	ok := false
+	var ok bool
 	switch strings.ToLower(class) {
 	case "2xx":
 		ok = s.lastStatus >= 200 && s.lastStatus < 300
