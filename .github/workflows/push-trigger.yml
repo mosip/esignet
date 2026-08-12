@@ -43,7 +43,7 @@ jobs:
     with:
       SERVICE_LOCATION: ./esignet-service
       GO_VERSION: '1.26'
-      SONAR_EXCLUSIONS: '**/vendor/**,**/*_test.go,internal/clientmgmt/db/**,internal/consentmgmt/db/**'
+      SONAR_EXCLUSIONS: '**/vendor/**,**/*_test.go,internal/clientmgmt/db/**,internal/consentmgmt/db/**,internal/keymanager/db/**'
 
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
