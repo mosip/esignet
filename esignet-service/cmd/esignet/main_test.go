@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -18,36 +17,6 @@ import (
 	"github.com/mosip/esignet/internal/config"
 	applog "github.com/mosip/esignet/internal/log"
 )
-
-func testHTTPClientConfig() config.HTTPClientConfig {
-	return config.HTTPClientConfig{
-		TimeoutSecs:               30,
-		DialTimeoutSecs:           5,
-		DialKeepAliveSecs:         30,
-		TLSHandshakeTimeoutSecs:   10,
-		ResponseHeaderTimeoutSecs: 10,
-		IdleConnTimeoutSecs:       90,
-		MaxConnsPerHost:           100,
-	}
-}
-
-func (ts *MainTestSuite) TestNewHTTPClient() {
-	cfg := testHTTPClientConfig()
-	c := newHTTPClient(cfg)
-	require.Equal(ts.T(), 30*time.Second, c.Timeout)
-
-	transport, ok := c.Transport.(*http.Transport)
-	require.True(ts.T(), ok)
-	require.Equal(ts.T(), 10*time.Second, transport.TLSHandshakeTimeout)
-	require.Equal(ts.T(), 10*time.Second, transport.ResponseHeaderTimeout)
-	require.Equal(ts.T(), 90*time.Second, transport.IdleConnTimeout)
-	require.Equal(ts.T(), 100, transport.MaxConnsPerHost)
-}
-
-func (ts *MainTestSuite) TestNewHTTPClientReturnsDistinctInstances() {
-	cfg := testHTTPClientConfig()
-	require.NotSame(ts.T(), newHTTPClient(cfg), newHTTPClient(cfg))
-}
 
 func (ts *MainTestSuite) TestGetSecurityMiddleware() {
 	logger := applog.GetLogger()

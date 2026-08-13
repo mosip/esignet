@@ -225,23 +225,42 @@ func (ts *AppConfigTestSuite) TestApplyDefaultsTTLGuards() {
 	ts.Require().EqualValues(defaultFlowCacheTTLSecs, cfg.FlowCacheTTLSecs)
 }
 
-func (ts *AppConfigTestSuite) TestApplyDefaultsOutboundHTTPClient() {
+func (ts *AppConfigTestSuite) TestApplyHTTPClientDefaults() {
+	cfg := &HTTPClientConfig{
+		TimeoutSecs:     15,
+		MaxConnsPerHost: -1,
+	}
+	applyHTTPClientDefaults(cfg)
 
+	ts.Require().EqualValues(15, cfg.TimeoutSecs, "positive value preserved")
+	ts.Require().EqualValues(defaultHTTPDialTimeoutSecs, cfg.DialTimeoutSecs)
+	ts.Require().EqualValues(defaultHTTPDialKeepAliveSecs, cfg.DialKeepAliveSecs)
+	ts.Require().EqualValues(defaultHTTPTLSHandshakeTimeoutSecs, cfg.TLSHandshakeTimeoutSecs)
+	ts.Require().EqualValues(defaultHTTPResponseHeaderTimeoutSecs, cfg.ResponseHeaderTimeoutSecs)
+	ts.Require().EqualValues(defaultHTTPIdleConnTimeoutSecs, cfg.IdleConnTimeoutSecs)
+	ts.Require().EqualValues(defaultHTTPMaxConnsPerHost, cfg.MaxConnsPerHost)
+	ts.Require().EqualValues(defaultHTTPMaxIdleConns, cfg.MaxIdleConns)
+	ts.Require().EqualValues(defaultHTTPMaxIdleConnsPerHost, cfg.MaxIdleConnsPerHost)
+}
+
+func (ts *AppConfigTestSuite) TestApplyDefaultsCoversAllOutboundHTTPClientBlocks() {
 	cfg := &AppConfig{
-		OutboundHTTPClient: HTTPClientConfig{
-			TimeoutSecs:     15,
-			MaxConnsPerHost: -1,
-		},
+		OutboundIDSystemHTTPClient: HTTPClientConfig{TimeoutSecs: 11},
+		OutboundHTTPClient:         HTTPClientConfig{TimeoutSecs: 12},
 	}
 	applyDefaults(cfg)
 
-	ts.Require().EqualValues(15, cfg.OutboundHTTPClient.TimeoutSecs, "positive yaml value preserved")
-	ts.Require().EqualValues(defaultHTTPDialTimeoutSecs, cfg.OutboundHTTPClient.DialTimeoutSecs)
-	ts.Require().EqualValues(defaultHTTPDialKeepAliveSecs, cfg.OutboundHTTPClient.DialKeepAliveSecs)
-	ts.Require().EqualValues(defaultHTTPTLSHandshakeTimeoutSecs, cfg.OutboundHTTPClient.TLSHandshakeTimeoutSecs)
-	ts.Require().EqualValues(defaultHTTPResponseHeaderTimeoutSecs, cfg.OutboundHTTPClient.ResponseHeaderTimeoutSecs)
-	ts.Require().EqualValues(defaultHTTPIdleConnTimeoutSecs, cfg.OutboundHTTPClient.IdleConnTimeoutSecs)
-	ts.Require().EqualValues(defaultHTTPMaxConnsPerHost, cfg.OutboundHTTPClient.MaxConnsPerHost)
+	ts.Require().EqualValues(11, cfg.OutboundIDSystemHTTPClient.TimeoutSecs, "positive yaml value preserved")
+	ts.Require().EqualValues(12, cfg.OutboundHTTPClient.TimeoutSecs, "positive yaml value preserved")
+
+	for name, c := range map[string]HTTPClientConfig{
+		"idsystem": cfg.OutboundIDSystemHTTPClient,
+		"outbound": cfg.OutboundHTTPClient,
+	} {
+		ts.Require().EqualValues(defaultHTTPMaxConnsPerHost, c.MaxConnsPerHost, name)
+		ts.Require().EqualValues(defaultHTTPMaxIdleConns, c.MaxIdleConns, name)
+		ts.Require().EqualValues(defaultHTTPMaxIdleConnsPerHost, c.MaxIdleConnsPerHost, name)
+	}
 }
 
 func (ts *AppConfigTestSuite) TestApplyDefaultsInboundHTTPServer() {

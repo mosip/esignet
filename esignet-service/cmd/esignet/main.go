@@ -10,7 +10,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -117,9 +116,9 @@ func main() {
 	keyMgrHandler := keymanager.NewHandler(keyMgrSvc, logger)
 	keyMgrHandler.RegisterRoutes(mux, getSecurityMiddleware(appCfg, logger))
 
-	httpClient := newHTTPClient(appCfg.OutboundHTTPClient)
+	commonHTTPClient := config.NewHTTPClient(appCfg.OutboundHTTPClient)
 
-	authnProvider, observabilityProvider, err := engine.NewIDSystemProviders(appCfg, clientSvc, httpClient, keyMgrSvc, sigSvc)
+	authnProvider, observabilityProvider, err := engine.NewIDSystemProviders(appCfg, clientSvc, keyMgrSvc, sigSvc)
 	if err != nil {
 		logger.Fatal("plugin providers", applog.Error(err))
 	}
@@ -155,7 +154,7 @@ func main() {
 		thunderidengine.WithRuntimeStoreProvider(runtimeStore),
 		thunderidengine.WithTransactioner(engine.NewNoOpTransactioner()),
 		thunderidengine.WithAttestationProvider(engine.NewAttestationProvider(appCfg)),
-		thunderidengine.WithCaptchaValidationProvider(engine.NewCaptchaProvider(&appCfg.CaptchaConfig, httpClient)),
+		thunderidengine.WithCaptchaValidationProvider(engine.NewCaptchaProvider(&appCfg.CaptchaConfig, commonHTTPClient)),
 		thunderidengine.WithRuntimeCryptoProvider(engine.NewRuntimeCryptoProvider(appCfg, keyMgrSvc, sigSvc, cryptoSvc)),
 	)
 
@@ -237,24 +236,6 @@ func getSecurityMiddleware(appCfg *config.AppConfig, logger *applog.Logger) func
 // be applied. Both Issuer and JWKSEndpoint must be set.
 func scopeEnforcementEnabled(appCfg *config.AppConfig) bool {
 	return appCfg.SecurityConfig.IssuerURL != "" && appCfg.SecurityConfig.JwksURL != ""
-}
-
-// newHTTPClient returns a tuned HTTP client for outbound calls, configured
-// from appCfg.OutboundHTTPClient.
-func newHTTPClient(cfg config.HTTPClientConfig) *http.Client {
-	return &http.Client{
-		Timeout: time.Duration(cfg.TimeoutSecs) * time.Second,
-		Transport: &http.Transport{
-			DialContext: (&net.Dialer{
-				Timeout:   time.Duration(cfg.DialTimeoutSecs) * time.Second,
-				KeepAlive: time.Duration(cfg.DialKeepAliveSecs) * time.Second,
-			}).DialContext,
-			TLSHandshakeTimeout:   time.Duration(cfg.TLSHandshakeTimeoutSecs) * time.Second,
-			ResponseHeaderTimeout: time.Duration(cfg.ResponseHeaderTimeoutSecs) * time.Second,
-			IdleConnTimeout:       time.Duration(cfg.IdleConnTimeoutSecs) * time.Second,
-			MaxConnsPerHost:       cfg.MaxConnsPerHost,
-		},
-	}
 }
 
 func initializeKeyManager(conn *sqlx.DB) (*keymanager.Service, *signature.Service, *cryptomanager.Service, keystore.KeyStore, error) {

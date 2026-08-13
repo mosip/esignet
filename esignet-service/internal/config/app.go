@@ -38,12 +38,15 @@ const (
 	defaultHTTPTLSHandshakeTimeoutSecs   = 10
 	defaultHTTPResponseHeaderTimeoutSecs = 10
 	defaultHTTPIdleConnTimeoutSecs       = 90
-	defaultHTTPMaxConnsPerHost           = 100
+	defaultHTTPMaxConnsPerHost           = 500
+	defaultHTTPMaxIdleConns              = 500
+	defaultHTTPMaxIdleConnsPerHost       = 200
 
 	// defaultInboundServerWriteTimeoutSecs must exceed the outbound HTTP
-	// client's TimeoutSecs (see HTTPClientConfig), since handling a request
-	// can involve one or more outbound calls to the identity backend; otherwise
-	// the server would abort responses that are still legitimately in flight.
+	// clients' TimeoutSecs (see HTTPClientConfig / OutboundIDSystemHTTPClient /
+	// OutboundHTTPClient), since handling a request can involve one or more
+	// outbound calls to the identity backend; otherwise the server would
+	// abort responses that are still legitimately in flight.
 	defaultInboundServerReadHeaderTimeoutSecs = 10
 	defaultInboundServerReadTimeoutSecs       = 30
 	defaultInboundServerWriteTimeoutSecs      = 60
@@ -90,6 +93,7 @@ type AppConfig struct {
 	DesignCacheTTLSecs         int64                            `yaml:"design_cache_ttl_secs"`
 	FlowCacheTTLSecs           int64                            `yaml:"flow_cache_ttl_secs"`
 	CaptchaConfig              CaptchaConfig                    `yaml:"captcha_config"`
+	OutboundIDSystemHTTPClient HTTPClientConfig                 `yaml:"outbound_idsystem_http_client"`
 	OutboundHTTPClient         HTTPClientConfig                 `yaml:"outbound_http_client"`
 	InboundHTTPServer          InboundHTTPServerConfig          `yaml:"inbound_http_server"`
 	SupportedSigningAlgorithms []string                         `yaml:"supported_signing_algorithms"`
@@ -128,6 +132,8 @@ type HTTPClientConfig struct {
 	ResponseHeaderTimeoutSecs int `yaml:"response_header_timeout_secs"`
 	IdleConnTimeoutSecs       int `yaml:"idle_conn_timeout_secs"`
 	MaxConnsPerHost           int `yaml:"max_conns_per_host"`
+	MaxIdleConns              int `yaml:"max_idle_conns"`
+	MaxIdleConnsPerHost       int `yaml:"max_idle_conns_per_host"`
 }
 
 // InboundHTTPServerConfig tunes the inbound http.Server's timeouts, guarding
@@ -255,27 +261,8 @@ func applyDefaults(cfg *AppConfig) {
 		cfg.FlowCacheTTLSecs = defaultFlowCacheTTLSecs
 	}
 
-	if cfg.OutboundHTTPClient.TimeoutSecs <= 0 {
-		cfg.OutboundHTTPClient.TimeoutSecs = defaultHTTPClientTimeoutSecs
-	}
-	if cfg.OutboundHTTPClient.DialTimeoutSecs <= 0 {
-		cfg.OutboundHTTPClient.DialTimeoutSecs = defaultHTTPDialTimeoutSecs
-	}
-	if cfg.OutboundHTTPClient.DialKeepAliveSecs <= 0 {
-		cfg.OutboundHTTPClient.DialKeepAliveSecs = defaultHTTPDialKeepAliveSecs
-	}
-	if cfg.OutboundHTTPClient.TLSHandshakeTimeoutSecs <= 0 {
-		cfg.OutboundHTTPClient.TLSHandshakeTimeoutSecs = defaultHTTPTLSHandshakeTimeoutSecs
-	}
-	if cfg.OutboundHTTPClient.ResponseHeaderTimeoutSecs <= 0 {
-		cfg.OutboundHTTPClient.ResponseHeaderTimeoutSecs = defaultHTTPResponseHeaderTimeoutSecs
-	}
-	if cfg.OutboundHTTPClient.IdleConnTimeoutSecs <= 0 {
-		cfg.OutboundHTTPClient.IdleConnTimeoutSecs = defaultHTTPIdleConnTimeoutSecs
-	}
-	if cfg.OutboundHTTPClient.MaxConnsPerHost <= 0 {
-		cfg.OutboundHTTPClient.MaxConnsPerHost = defaultHTTPMaxConnsPerHost
-	}
+	applyHTTPClientDefaults(&cfg.OutboundIDSystemHTTPClient)
+	applyHTTPClientDefaults(&cfg.OutboundHTTPClient)
 
 	if cfg.InboundHTTPServer.ReadHeaderTimeoutSecs <= 0 {
 		cfg.InboundHTTPServer.ReadHeaderTimeoutSecs = defaultInboundServerReadHeaderTimeoutSecs
@@ -288,6 +275,40 @@ func applyDefaults(cfg *AppConfig) {
 	}
 	if cfg.InboundHTTPServer.IdleTimeoutSecs <= 0 {
 		cfg.InboundHTTPServer.IdleTimeoutSecs = defaultInboundServerIdleTimeoutSecs
+	}
+}
+
+// applyHTTPClientDefaults fills unset (<= 0) fields of an outbound
+// HTTPClientConfig block with the package defaults. Applied independently
+// to each of OutboundIDSystemHTTPClient/OutboundHTTPClient so each can be
+// tuned separately via its own yaml block.
+func applyHTTPClientDefaults(cfg *HTTPClientConfig) {
+	if cfg.TimeoutSecs <= 0 {
+		cfg.TimeoutSecs = defaultHTTPClientTimeoutSecs
+	}
+	if cfg.DialTimeoutSecs <= 0 {
+		cfg.DialTimeoutSecs = defaultHTTPDialTimeoutSecs
+	}
+	if cfg.DialKeepAliveSecs <= 0 {
+		cfg.DialKeepAliveSecs = defaultHTTPDialKeepAliveSecs
+	}
+	if cfg.TLSHandshakeTimeoutSecs <= 0 {
+		cfg.TLSHandshakeTimeoutSecs = defaultHTTPTLSHandshakeTimeoutSecs
+	}
+	if cfg.ResponseHeaderTimeoutSecs <= 0 {
+		cfg.ResponseHeaderTimeoutSecs = defaultHTTPResponseHeaderTimeoutSecs
+	}
+	if cfg.IdleConnTimeoutSecs <= 0 {
+		cfg.IdleConnTimeoutSecs = defaultHTTPIdleConnTimeoutSecs
+	}
+	if cfg.MaxConnsPerHost <= 0 {
+		cfg.MaxConnsPerHost = defaultHTTPMaxConnsPerHost
+	}
+	if cfg.MaxIdleConns <= 0 {
+		cfg.MaxIdleConns = defaultHTTPMaxIdleConns
+	}
+	if cfg.MaxIdleConnsPerHost <= 0 {
+		cfg.MaxIdleConnsPerHost = defaultHTTPMaxIdleConnsPerHost
 	}
 }
 
