@@ -118,6 +118,11 @@ public class ClaimsUtil {
 		return factors;
 	}
 
+	/** The 'configs' object from the currently parsed transaction, or null. */
+	public static JSONObject getConfigs() {
+		return root != null ? root.optJSONObject("configs") : null;
+	}
+
 	public static String normalizeFactor(String factor) {
 
 		switch (factor) {
@@ -136,6 +141,10 @@ public class ClaimsUtil {
 		case "PWD":
 		case "mosip:idp:acr:password":
 			return "PWD";
+
+		case "KBI":
+		case "mosip:idp:acr:knowledge":
+			return "KBI";
 
 		default:
 			return factor;

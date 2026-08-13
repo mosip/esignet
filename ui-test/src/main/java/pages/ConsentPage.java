@@ -303,6 +303,19 @@ public class ConsentPage extends BasePage {
 		return isElementVisible(allowButton, "Verified is navigated to consent scrren");
 	}
 
+	// A successful authentication lands on the "Attention" screen (its Proceed button) before consent.
+	// Waits up to timeoutSeconds for it - used as the login-success signal for flows like KBI whose
+	// auth round-trip can exceed the default explicit wait.
+	public boolean isOnAttentionScreen(int timeoutSeconds) {
+		try {
+			new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds))
+					.until(ExpectedConditions.visibilityOfElementLocated(By.id("proceed-button")));
+			return true;
+		} catch (org.openqa.selenium.TimeoutException e) {
+			return false;
+		}
+	}
+
 	public boolean isVoluntaryClaimsMasterToggleVisible() {
 		return voluntaryClaimsElements.size() > 1
 				&& isElementVisible(voluntaryClaimsMasterToggle, "Verified voluntary claims master toggle button");

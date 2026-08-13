@@ -234,6 +234,22 @@ public class LoginOptionsPage extends BasePage {
 		return !moreWaysToSignIn.isEmpty() && moreWaysToSignIn.get(0).isDisplayed();
 	}
 
+	public boolean isLoginWithKbiDisplayed() {
+		return isElementDisplayed(loginWithKbiBtn);
+	}
+
+	// KBI can sit behind the "more ways to sign in" expander when the client offers more than a few
+	// auth factors; reveal it first so clickOnLoginWithKbi() finds the button.
+	public void revealMoreOptionsIfPresent() {
+		if (!isElementDisplayed(loginWithKbiBtn) && isMoreWaysToSignInOptionDisplayed()) {
+			clickOnElement(moreWaysToSignIn.get(0), "Clicked on more ways to sign in");
+		}
+	}
+
+	public void clickOnLoginWithKbi() {
+		clickOnElement(loginWithKbiBtn, "Clicked on login with KBI");
+	}
+
 	public Map<String, WebElement> getAcrToElementMap() {
 		Map<String, WebElement> map = new HashMap<>();
 		map.put("PWD", loginWithPasswordBtn);

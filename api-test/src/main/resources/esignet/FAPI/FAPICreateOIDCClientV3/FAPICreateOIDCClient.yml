@@ -40,6 +40,46 @@ FAPICreateOIDCClientV3:
     output: '{
       "status": "ACTIVE"
 }'
+  ESignet_CreateOIDCClientFAPI_NonFapiConfig_Smoke_sid:
+    endPoint: /v1/esignet/client-mgmt/client
+    uniqueIdentifier: TC_ESignet_FAPI_CreateOIDCClient_03
+    description: Create an OIDC client without PAR, DPoP, or PKCE configuration, for TC_ESignet_FAPI_OauthDetails_NegTC_02 to confirm it is rejected under an active fapi2.0 server profile
+    role: partner
+    restMethod: post
+    inputTemplate: esignet/FAPI/FAPICreateOIDCClientV3/FAPICreateOIDCClient
+    outputTemplate: esignet/FAPI/FAPICreateOIDCClientV3/FAPICreateOIDCClientResult
+    input: '{
+      "requestTime": "$TIMESTAMP$",
+      "clientId": "$RANDOMPARTNERID$",
+      "clientName": "MOSIP OIDC Client",
+      "logoUri": "https://health-services.com/logo.png",
+      "relyingPartyId": "mock-relying-party-id",
+      "redirectUris": "$IDPREDIRECTURI$",
+      "publicKey": "$OIDC_JWK_KEY_FAPI_NONFAPICLIENT$",
+      "userClaims1": "name",
+      "userClaims2": "email",
+      "userClaims3": "gender",
+      "userClaims4": "phone_number",
+      "userClaims5": "birthdate",
+      "authContextRefs": [{"acrValues": "mosip:idp:acr:static-code"},{"acrValues": "mosip:idp:acr:generated-code"},{"acrValues": "mosip:idp:acr:biometrics"}],
+      "grantTypes": "authorization_code",
+      "clientAuthMethods": "private_key_jwt",
+      "keyLang1": "$1STLANG$",
+      "clientNameLang": "MOSIP OIDC Client",
+      "userinfo_response_type": "JWS",
+      "purpose_title": "title",
+      "purpose_type": "verify",
+      "purpose_subTitle": "subtitle",
+      "signup_banner_required": true,
+      "forgot_pwd_link_required": true,
+      "consent_expire_in_mins": 120,
+      "require_pushed_authorization_requests": false,
+      "dpop_bound_access_tokens": false,
+      "require_pkce": false
+}'
+    output: '{
+      "status": "ACTIVE"
+}'
   ESignet_CreateOIDCClientFAPI_all_Valid_forUserInfoJWE_Smoke_sid:
     endPoint: /v1/esignet/client-mgmt/client
     uniqueIdentifier: TC_ESignet_FAPI_CreateOIDCClient_02
