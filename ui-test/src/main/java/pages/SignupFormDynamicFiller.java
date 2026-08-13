@@ -100,6 +100,11 @@ public class SignupFormDynamicFiller {
 					} else if ("khm".equalsIgnoreCase(lang)) {
 						nameField.sendKeys(names.khmer);
 						RegisteredDetails.setFullName(names.khmer);
+					} else if ("ar".equalsIgnoreCase(lang) || "ara".equalsIgnoreCase(lang)) {
+						// The rest of this codebase isn't consistent between the 2-letter ("ar") and
+						// 3-letter ("ara") Arabic code - see ClaimsUtil's "ar"/"ara" case - so match
+						// both rather than gambling on the one this specific form actually renders.
+						nameField.sendKeys(names.arabic);
 					}
 				}
 				continue;

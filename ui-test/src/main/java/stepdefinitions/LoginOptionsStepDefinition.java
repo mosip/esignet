@@ -1,8 +1,5 @@
 package stepdefinitions;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-
 import org.testng.Assert;
 
 import java.io.BufferedReader;
@@ -18,6 +15,7 @@ import org.apache.log4j.Logger;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chromium.HasCdp;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -25,11 +23,15 @@ import base.BaseTest;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import pages.ConsentPage;
 import pages.LoginOptionsPage;
 import pages.SignUpPage;
 import pages.SignupFormDynamicFiller;
 import utils.ClaimsUtil;
 import utils.EsignetUtil;
+
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNotNull;
 
 public class LoginOptionsStepDefinition {
 
@@ -45,6 +47,50 @@ public class LoginOptionsStepDefinition {
 		signUpPage = new SignUpPage(driver);
 		formFiller = new SignupFormDynamicFiller(driver);
 
+	}
+
+	// Uses the raw executeCdpCommand API (HasCdp) instead of the typed DevTools/Network bindings
+	// from a specific selenium-devtools-vNN jar: that jar is pinned to one CDP protocol version
+	// (v134 here), and Selenium falls back to a no-op CDP implementation - silently doing nothing -
+	// when the running Chrome's major version drifts far enough from it. executeCdpCommand talks to
+	// whatever Chrome is actually running, so it isn't tied to a pinned protocol version at all.
+	private void enableNetworkDomainIfNeeded() {
+		if (!networkDomainEnabled) {
+			((HasCdp) driver).executeCdpCommand("Network.enable", Map.of());
+			networkDomainEnabled = true;
+		}
+	}
+
+	private boolean networkDomainEnabled;
+
+	@When("user's internet connection is disconnected")
+	public void userInternetConnectionIsDisconnected() {
+		enableNetworkDomainIfNeeded();
+		((HasCdp) driver).executeCdpCommand("Network.emulateNetworkConditions", Map.of("offline", true, "latency", 0,
+				"downloadThroughput", 0, "uploadThroughput", 0));
+	}
+
+	@When("user's internet connection is restored")
+	public void userInternetConnectionIsRestored() {
+		enableNetworkDomainIfNeeded();
+		((HasCdp) driver).executeCdpCommand("Network.emulateNetworkConditions", Map.of("offline", false, "latency", 0,
+				"downloadThroughput", -1, "uploadThroughput", -1));
+	}
+
+	@Then("verify the network error screen is displayed")
+	public void verifyNetworkErrorScreenIsDisplayed() {
+		Assert.assertTrue(loginOptionsPage.isNetworkErrorScreenDisplayed(), "Network error screen is not displayed");
+	}
+
+	@Then("verify language dropdown is not displayed on the network error screen")
+	public void verifyLanguageDropdownNotDisplayedOnNetworkErrorScreen() {
+		Assert.assertFalse(loginOptionsPage.isLanguageDropdownDisplayed(),
+				"Language dropdown should not be displayed on the network error screen");
+	}
+
+	@When("user clicks on try again button on the network error screen")
+	public void userClicksOnTryAgainButtonOnNetworkErrorScreen() {
+		loginOptionsPage.clickTryAgainOnNetworkErrorScreen();
 	}
 
 	private String authorizeUrl;
@@ -173,6 +219,54 @@ public class LoginOptionsStepDefinition {
 				"Mobile number option is not displayed for authentication");
 	}
 
+	@When("user clicks on mobile number option")
+	public void userClicksOnMobileNumberOption() {
+		loginOptionsPage.clickOnMobileNumberOption();
+	}
+
+	@Then("verify the postfix for mobile number option is {string}")
+	public void verifyPostfixForMobileNumberOption(String expectedPostfix) {
+		verifyPostfixForLoginIdOption("mobile", expectedPostfix);
+	}
+
+	@Then("verify the postfix for {string} option is {string}")
+	public void verifyPostfixForLoginIdOption(String optionId, String expectedPostfix) {
+		ClaimsUtil.parseFromUrl(authorizeUrl);
+		String actualPostfix = ClaimsUtil.getPostfixForLoginIdOption(optionId);
+		Assert.assertEquals(actualPostfix, expectedPostfix,
+				"Postfix for the '" + optionId + "' login-id option did not match expected value");
+	}
+
+	@When("user clicks on mobile prefix dropdown button in password login screen")
+	public void userClicksOnMobilePrefixDropdownButtonInPasswordLoginScreen() {
+		loginOptionsPage.clickOnPasswordScreenMobilePrefixDropdownButton();
+	}
+
+	/**
+	 * Types a string longer than the effective maxLength (per the config's
+	 * prefix-over-outer precedence, mirroring InputWithPrefix.js exactly) and
+	 * confirms the field actually enforces that limit: extra characters are
+	 * rejected when a limit applies, or all characters are accepted when
+	 * neither level configures one.
+	 */
+	@Then("verify the maxLength precedence is honored for mobile number with {string} prefix")
+	public void verifyMaxLengthPrecedenceForMobileNumberWithPrefix(String prefixLabel) {
+		ClaimsUtil.parseFromUrl(authorizeUrl);
+		String effectiveMaxLength = ClaimsUtil.getEffectiveMaxLength("mobile", prefixLabel);
+
+		int typedLength = (effectiveMaxLength != null ? Integer.parseInt(effectiveMaxLength) : 10) + 5;
+		String digitsToType = "1".repeat(typedLength);
+
+		loginOptionsPage.typeIntoMobileNumberFieldOnPasswordScreen(digitsToType);
+		String actualValue = loginOptionsPage.getMobileNumberFieldValueOnPasswordScreen();
+
+		int expectedAcceptedLength = effectiveMaxLength != null ? Integer.parseInt(effectiveMaxLength) : typedLength;
+		Assert.assertEquals(actualValue.length(), expectedAcceptedLength,
+				"Mobile number field did not enforce the expected effective maxLength (prefix='" + prefixLabel
+						+ "', effective maxLength=" + effectiveMaxLength + "): typed " + typedLength
+						+ " characters but field held '" + actualValue + "'");
+	}
+
 	@Then("verify nrc id option is present for authentication")
 	public void verifyNrcIdOptionForAuthentication() {
 		Assert.assertTrue(loginOptionsPage.isNrcIdOptionDisplayed(),
@@ -198,6 +292,11 @@ public class LoginOptionsStepDefinition {
 
 	@Then("clicks on back button in authentication screen page")
 	public void clicksOnBackButtonInAuthenticationScreen() {
+		loginOptionsPage.clickOnBackButton();
+	}
+
+	@When("user clicks on back button in authentication screen page")
+	public void userClicksOnBackButtonInAuthenticationScreen() {
 		loginOptionsPage.clickOnBackButton();
 	}
 
@@ -318,6 +417,108 @@ public class LoginOptionsStepDefinition {
 	@When("user enters only space into email field")
 	public void userEntersOnlySpaceInEmailField() {
 		loginOptionsPage.enterEmail("    ");
+	}
+
+	@Then("verify login header is displayed in authentication screen")
+	public void verifyLoginHeaderIsDisplayedInAuthenticationScreen() {
+		Assert.assertTrue(loginOptionsPage.isLoginHeaderIsDisplayed(),
+				"Login header is not displayed");
+	}
+
+	@Then("verify login sub header is displayed in authentication screen")
+	public void verifyLoginSubHeaderIsDisplayedInAuthenticationScreen() {
+		Assert.assertTrue(loginOptionsPage.isLoginSubHeaderIsDisplayed(),
+				"Login sub header is not displayed");
+	}
+
+	@Then("verify select preferred id header is displayed in authentication screen")
+	public void verifySelectPreferredIdHeaderIsDisplayedInAuthenticationScreen() {
+		Assert.assertTrue(loginOptionsPage.isSelectPreferredIdHeaderIsDisplayed(),
+				"Select preferred id header is not displayed");
+	}
+
+	@Then("verify login header is displayed in verification screen")
+	public void verifyLoginHeaderIsDisplayedInVerificationScreen() {
+		Assert.assertTrue(loginOptionsPage.isLoginHeaderIsDisplayed(),
+				"Login header is not displayed");
+	}
+
+	@Then("verify login sub header is displayed in verification screen")
+	public void verifyLoginSubHeaderIsDisplayedInVerificationScreen() {
+		Assert.assertTrue(loginOptionsPage.isLoginSubHeaderIsDisplayed(),
+				"Login sub header is not displayed");
+	}
+
+	@When("user enters valid email into email field")
+	public void userEntersValidEmailInEmailField() {
+		String email = EsignetUtil.getEmailFromAddIdentity();
+		loginOptionsPage.enterEmail(email);
+	}
+
+	@Then("user enters invalid mobile number into the mobile number field")
+	public void userEntersInvalidMobileNumber() {
+		loginOptionsPage.enterMobileNumberInPasswordScreen("123456");
+	}
+
+	// RegisteredDetails.registeredPassword is only ever set by SignupFormDynamicFiller, as a side
+	// effect of a signup scenario running earlier in the same JVM (it's a plain static, not even
+	// thread-local). Scenarios run in parallel with no guaranteed ordering, so a password-login
+	// scenario can easily execute before any signup scenario has populated it, leaving this null -
+	// which previously reached WebElement.sendKeys(null) and blew up with a cryptic
+	// "Keys to send should be a not null CharSequence" IllegalArgumentException. Skip with a clear
+	// reason instead, mirroring how the prerequisite-VID steps below handle the same class of problem.
+	private String requireRegisteredPassword() {
+		String password = EsignetUtil.RegisteredDetails.getPassword();
+		if (password == null || password.isBlank()) {
+			throw new org.testng.SkipException(
+					"Registered password unavailable - a signup scenario must run earlier in this suite to populate it");
+		}
+		return password;
+	}
+
+	@Then("user enters valid password into mobile password field")
+	public void userEnterPasswordForMobileId() {
+		loginOptionsPage.enterPasswordForMobileId(requireRegisteredPassword());
+	}
+
+	@Then("clicks on login button with password in authentication screen page")
+	public void clicksOnLoginButtonWithPasswordButtonInAuthenticationScreen() {
+		loginOptionsPage.clickOnLoginButtonWithPasswordButton();
+	}
+
+	@Then("verify password with login button is disabled in authentication screen")
+	public void verifyPasswordWithLoginButtonDisabledInAuthenticationScreen() {
+		Assert.assertFalse(loginOptionsPage.isPasswordWithLoginButtonEnabled(), "Password with login button is enabled");
+	}
+
+	@Then("user enters valid password into vid password field")
+	public void userEnterPasswordForVidId() {
+		loginOptionsPage.enterPasswordForVidId(requireRegisteredPassword());
+	}
+
+	@Then("user enters valid password into email password field")
+	public void userEnterPasswordForEmailId() {
+		loginOptionsPage.enterPasswordForEmailId(requireRegisteredPassword());
+	}
+
+	@Then("clicks on prefix number button in password authentication screen page")
+	public void clicksOnPrefixNumberButtonInPasswordAuthenticationScreen() {
+		loginOptionsPage.clickOnPrefixNumberFieldButtonInPasswordScreen();
+	}
+
+	@When("user enters invalid vid into vid field in password authentication screen page")
+	public void userEntersInvalidVidInPasswordScreen() {
+		loginOptionsPage.enterVidInPasswordScreen("8957093658024750");
+	}
+
+	@When("user enters special characters into vid field in password authentication screen page")
+	public void userEntersSpecialCharactersInVidFieldInPasswordScreen() {
+		loginOptionsPage.enterVidInPasswordScreen("&*&%#@%)");
+	}
+
+	@When("user enters only space into vid field in password authentication screen page")
+	public void userEntersOnlySpaceInVidFieldInPasswordScreen() {
+		loginOptionsPage.enterVidInPasswordScreen("    ");
 	}
 
 	@When("user enters prerequisite vid1 into vid field")

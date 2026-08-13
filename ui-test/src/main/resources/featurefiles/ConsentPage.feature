@@ -147,9 +147,9 @@ Feature: Esignet Consent Page
     Then all auth factors should start with login
 
   @smoke @NoTitleAndSubTitle
-  Scenario: Verifying title and subtitle are not displayed when purpose title and subtitle values are null
+  Scenario: Verifying default title and subtitle are displayed when purpose title and subtitle values are null
     When user creates the client with null title and subtitle values
-    Then verify no title or subtitle should be displayed
+    Then verify default title and subtitle should be displayed when both title and subtitle are not configured
 
   @smoke @EmptyTitleAndSubTitle
   Scenario: Verifying title and subtitle are not displayed when purpose title and subtitle values are empty

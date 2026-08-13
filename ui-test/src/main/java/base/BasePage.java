@@ -18,6 +18,7 @@ import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
@@ -119,7 +120,7 @@ public class BasePage {
 			waitForElementVisible(element);
 			logStep(stepDesc + " - Verified visibility", element);
 			return element.isDisplayed();
-		} catch (NoSuchElementException e) {
+		} catch (NoSuchElementException | TimeoutException e) {
 			LOGGER.warn("Element not visible: {}", element);
 			ExtentReportManager.getTest().log(Status.WARNING, "Element not visible: " + describeElement(element));
 			return false;

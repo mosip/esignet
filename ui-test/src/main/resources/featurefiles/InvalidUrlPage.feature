@@ -14,7 +14,7 @@ Feature: Invalid Url Page
    When user change the language to "<kannada>" from dropdown
    Then verify "<error>" message is displayed in chosen language
    When user remove the nonce and state value in esignet url
-   And verify user remain on same esignet page without any error
+   And verify unable to process Please try again error is displayed
    When user modify the state value in esignet url
    And verify user remain on same esignet page without any error
    When user modify the login value in esignet url

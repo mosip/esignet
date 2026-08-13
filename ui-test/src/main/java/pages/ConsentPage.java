@@ -256,7 +256,11 @@ public class ConsentPage extends BasePage {
 	}
 
 	public void clickOnProceedButtonInTermsAndConditionPage() {
-		clickOnElement(proceedBtnInTandCPage, "Clicked on proceed button in terms and condition screen");
+		// Same reasoning as clickOnProceedButtonInServiceProviderPage(): this button sits right
+		// behind the terms-and-condition checkbox's onChange re-render, so it can still be
+		// disabled/covered for a moment after checkTermsAndCondition() clicks the box - a plain
+		// clickOnElement() (visibility only) races that and intermittently throws.
+		clickWhenClickable(proceedBtnInTandCPage);
 	}
 
 	public void clickOnProceedButtonInCameraPreviewPage() {
@@ -571,6 +575,22 @@ public class ConsentPage extends BasePage {
 	public String getLoginSubTitleText() {
 		waitForElementVisible(loginSubTitle);
 		return loginSubTitle.getText().trim();
+	}
+
+	/**
+	 * The subtitle briefly renders with a placeholder value while Login.js's async purpose/language
+	 * effects settle (its initial state seeds subheading from the title's translation key, not the
+	 * subtitle's), before updating to the real text. A plain visibility-then-read can catch that
+	 * placeholder, so poll for the expected substring instead of reading once.
+	 */
+	public boolean waitForLoginSubTitleToContain(String expectedSubstring) {
+		try {
+			new WebDriverWait(driver, Duration.ofSeconds(15))
+					.until(ExpectedConditions.textToBePresentInElement(loginSubTitle, expectedSubstring));
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
 	public String getSelectPreferredModeHeaderText() {

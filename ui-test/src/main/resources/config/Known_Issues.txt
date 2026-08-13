@@ -1,3 +1,4 @@
 #Add the Known Issue scenario with its bug id here
 #Ex:bugId------scenario
 #Ex:ES-1234------Verify the notification when OTP requested
+ES-3008------TC_51,TC_61,TC_49 - Verify the postfix for mobile/email fields and maxLength precedence for mobile number

@@ -17,9 +17,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.lang3.StringUtils;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.chromium.ChromiumDriver;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -201,6 +203,7 @@ public class BaseTestUtil {
 
 			LOGGER.info("Chrome args: " + chromeOptions);
 			driver = new ChromeDriver(chromeOptions);
+			applyCdpLocaleOverride(driver);
 			break;
 
 		case "firefox":
@@ -227,6 +230,7 @@ public class BaseTestUtil {
 			if (isHeadless)
 				edgeOptions.addArguments("--headless=new");
 			driver = new EdgeDriver(edgeOptions);
+			applyCdpLocaleOverride(driver);
 			break;
 
 		case "safari":
@@ -290,6 +294,38 @@ public class BaseTestUtil {
 			edgeOptions.addArguments("--lang=" + locale);
 		}
 		LOGGER.info("Browser locale configured to: " + locale);
+	}
+
+	/**
+	 * The --lang command-line switch only reliably drives navigator.language on
+	 * Linux; on Windows, Chromium falls back to the OS locale (e.g. en-US)
+	 * unless the value is a locale it has a pak for. Emulation.setLocaleOverride
+	 * only affects Intl/date-formatting APIs, not navigator.language - that is
+	 * driven by the Accept-Language override, which must be set explicitly via
+	 * setUserAgentOverride's acceptLanguage param (keeping the real userAgent so
+	 * we don't also spoof the browser identity).
+	 */
+	private static void applyCdpLocaleOverride(WebDriver driver) {
+		if (!(driver instanceof ChromiumDriver chromiumDriver)) {
+			return;
+		}
+		String locale = LanguageUtil.getNeutralBrowserLocale();
+		if (locale == null || locale.isBlank()) {
+			return;
+		}
+		try {
+			chromiumDriver.executeCdpCommand("Emulation.setLocaleOverride", Map.of("locale", locale));
+
+			String userAgent = (String) ((JavascriptExecutor) driver).executeScript("return navigator.userAgent;");
+			Map<String, Object> userAgentOverrideParams = new HashMap<>();
+			userAgentOverrideParams.put("userAgent", userAgent);
+			userAgentOverrideParams.put("acceptLanguage", locale);
+			chromiumDriver.executeCdpCommand("Emulation.setUserAgentOverride", userAgentOverrideParams);
+
+			LOGGER.info("CDP locale override applied: " + locale);
+		} catch (Exception e) {
+			LOGGER.warning("Failed to apply CDP locale override for " + locale + ": " + e.getMessage());
+		}
 	}
 
 }
