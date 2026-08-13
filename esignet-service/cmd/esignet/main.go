@@ -161,7 +161,14 @@ func main() {
 
 	addr := fmt.Sprintf(":%d", appCfg.Port)
 	handler := httpmiddleware.CorrelationID(httpmiddleware.AccessLog(mux))
-	srv := &http.Server{Addr: addr, Handler: handler}
+	srv := &http.Server{
+		Addr:              addr,
+		Handler:           handler,
+		ReadHeaderTimeout: time.Duration(appCfg.InboundHTTPServer.ReadHeaderTimeoutSecs) * time.Second,
+		ReadTimeout:       time.Duration(appCfg.InboundHTTPServer.ReadTimeoutSecs) * time.Second,
+		WriteTimeout:      time.Duration(appCfg.InboundHTTPServer.WriteTimeoutSecs) * time.Second,
+		IdleTimeout:       time.Duration(appCfg.InboundHTTPServer.IdleTimeoutSecs) * time.Second,
+	}
 
 	go func() {
 		logger.Info(context.Background(), "server listening", applog.String("addr", addr), applog.String("issuer", appCfg.Issuer))

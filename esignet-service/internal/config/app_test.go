@@ -244,6 +244,20 @@ func (ts *AppConfigTestSuite) TestApplyDefaultsOutboundHTTPClient() {
 	ts.Require().EqualValues(defaultHTTPMaxConnsPerHost, cfg.OutboundHTTPClient.MaxConnsPerHost)
 }
 
+func (ts *AppConfigTestSuite) TestApplyDefaultsInboundHTTPServer() {
+	cfg := &AppConfig{
+		InboundHTTPServer: InboundHTTPServerConfig{
+			ReadTimeoutSecs: 15,
+		},
+	}
+	applyDefaults(cfg)
+
+	ts.Require().EqualValues(15, cfg.InboundHTTPServer.ReadTimeoutSecs, "positive yaml value preserved")
+	ts.Require().EqualValues(defaultInboundServerReadHeaderTimeoutSecs, cfg.InboundHTTPServer.ReadHeaderTimeoutSecs)
+	ts.Require().EqualValues(defaultInboundServerWriteTimeoutSecs, cfg.InboundHTTPServer.WriteTimeoutSecs)
+	ts.Require().EqualValues(defaultInboundServerIdleTimeoutSecs, cfg.InboundHTTPServer.IdleTimeoutSecs)
+}
+
 func (ts *AppConfigTestSuite) TestApplyEnvOverridesGateClient() {
 	t := ts.T()
 	cfg := &AppConfig{}

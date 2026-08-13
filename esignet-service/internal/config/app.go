@@ -40,6 +40,15 @@ const (
 	defaultHTTPIdleConnTimeoutSecs       = 90
 	defaultHTTPMaxConnsPerHost           = 100
 
+	// defaultInboundServerWriteTimeoutSecs must exceed the outbound HTTP
+	// client's TimeoutSecs (see HTTPClientConfig), since handling a request
+	// can involve one or more outbound calls to the identity backend; otherwise
+	// the server would abort responses that are still legitimately in flight.
+	defaultInboundServerReadHeaderTimeoutSecs = 10
+	defaultInboundServerReadTimeoutSecs       = 30
+	defaultInboundServerWriteTimeoutSecs      = 60
+	defaultInboundServerIdleTimeoutSecs       = 120
+
 	defaultCaptchaModuleName  = "esignet"
 	defaultCaptchaTimeoutSecs = 10
 )
@@ -82,6 +91,7 @@ type AppConfig struct {
 	FlowCacheTTLSecs           int64                            `yaml:"flow_cache_ttl_secs"`
 	CaptchaConfig              CaptchaConfig                    `yaml:"captcha_config"`
 	OutboundHTTPClient         HTTPClientConfig                 `yaml:"outbound_http_client"`
+	InboundHTTPServer          InboundHTTPServerConfig          `yaml:"inbound_http_server"`
 	SupportedSigningAlgorithms []string                         `yaml:"supported_signing_algorithms"`
 	SupportedEncAlgorithms     []string                         `yaml:"supported_enc_algorithms"`
 }
@@ -118,6 +128,15 @@ type HTTPClientConfig struct {
 	ResponseHeaderTimeoutSecs int `yaml:"response_header_timeout_secs"`
 	IdleConnTimeoutSecs       int `yaml:"idle_conn_timeout_secs"`
 	MaxConnsPerHost           int `yaml:"max_conns_per_host"`
+}
+
+// InboundHTTPServerConfig tunes the inbound http.Server's timeouts, guarding
+// against slow-client and stalled-backend goroutine/connection leaks.
+type InboundHTTPServerConfig struct {
+	ReadHeaderTimeoutSecs int `yaml:"read_header_timeout_secs"`
+	ReadTimeoutSecs       int `yaml:"read_timeout_secs"`
+	WriteTimeoutSecs      int `yaml:"write_timeout_secs"`
+	IdleTimeoutSecs       int `yaml:"idle_timeout_secs"`
 }
 
 // LoadAppConfig loads the application configuration from the default data directory.
@@ -256,6 +275,19 @@ func applyDefaults(cfg *AppConfig) {
 	}
 	if cfg.OutboundHTTPClient.MaxConnsPerHost <= 0 {
 		cfg.OutboundHTTPClient.MaxConnsPerHost = defaultHTTPMaxConnsPerHost
+	}
+
+	if cfg.InboundHTTPServer.ReadHeaderTimeoutSecs <= 0 {
+		cfg.InboundHTTPServer.ReadHeaderTimeoutSecs = defaultInboundServerReadHeaderTimeoutSecs
+	}
+	if cfg.InboundHTTPServer.ReadTimeoutSecs <= 0 {
+		cfg.InboundHTTPServer.ReadTimeoutSecs = defaultInboundServerReadTimeoutSecs
+	}
+	if cfg.InboundHTTPServer.WriteTimeoutSecs <= 0 {
+		cfg.InboundHTTPServer.WriteTimeoutSecs = defaultInboundServerWriteTimeoutSecs
+	}
+	if cfg.InboundHTTPServer.IdleTimeoutSecs <= 0 {
+		cfg.InboundHTTPServer.IdleTimeoutSecs = defaultInboundServerIdleTimeoutSecs
 	}
 }
 
