@@ -1198,6 +1198,8 @@ header:
 input:
   uin_label: UIN/VID
   uin_placeholder: បញ្ចូល UIN/VID របស់អ្នក
+  policy_number_label: លេខប័ណ្ណធានារ៉ាប់រង
+  policy_number_placeholder: បញ្ចូលលេខប័ណ្ណធានារ៉ាប់រងរបស់អ្នក
   mobile_label: លេខទូរស័ព្ទ
   mobile_placeholder: បញ្ចូលលេខទូរស័ព្ទ
   email_label: អ៊ីមែល

@@ -1198,6 +1198,8 @@ header:
 input:
   uin_label: UIN/VID
   uin_placeholder: Entrez votre UIN/VID
+  policy_number_label: Numéro de police
+  policy_number_placeholder: Entrez votre numéro de police
   mobile_label: Numéro de téléphone
   mobile_placeholder: Entrez le numéro de téléphone
   email_label: E-mail

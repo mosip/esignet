@@ -1198,6 +1198,8 @@ header:
 input:
   uin_label: UIN/VID
   uin_placeholder: ನಿಮ್ಮ UIN/VID ನಮೂದಿಸಿ
+  policy_number_label: ಪಾಲಿಸಿ ಸಂಖ್ಯೆ
+  policy_number_placeholder: ನಿಮ್ಮ ಪಾಲಿಸಿ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ
   mobile_label: ಮೊಬೈಲ್ ಸಂಖ್ಯೆ
   mobile_placeholder: ಮೊಬೈಲ್ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ
   email_label: ಇಮೇಲ್
