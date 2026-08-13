@@ -933,7 +933,9 @@ nodes:
           components:
             - <<: *page_title
               label: "{{t(button:login_kbi)}}"
-            - *prompt_uin
+            - <<: *prompt_uin
+              label: "{{t(input:policy_number_label)}}"
+              placeholder: "{{t(input:policy_number_placeholder)}}"
             - id: fullname_input
               ref: fullName
               type: TEXT_INPUT

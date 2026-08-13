@@ -1198,6 +1198,8 @@ header:
 input:
   uin_label: UIN/VID
   uin_placeholder: أدخل UIN/VID الخاص بك
+  policy_number_label: رقم البوليصة
+  policy_number_placeholder: أدخل رقم البوليصة الخاص بك
   mobile_label: رقم الهاتف المحمول
   mobile_placeholder: أدخل رقم الهاتف المحمول
   email_label: البريد الإلكتروني

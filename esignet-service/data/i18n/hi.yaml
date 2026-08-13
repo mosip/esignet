@@ -1197,6 +1197,8 @@ header:
 input:
   uin_label: यूआईएन/वीआईडी
   uin_placeholder: अपना यूआईएन/वीआईडी दर्ज करें
+  policy_number_label: पॉलिसी नंबर
+  policy_number_placeholder: अपना पॉलिसी नंबर दर्ज करें
   mobile_label: मोबाइल नंबर
   mobile_placeholder: मोबाइल नंबर दर्ज करें
   email_label: ईमेल

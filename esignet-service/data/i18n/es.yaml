@@ -1198,6 +1198,8 @@ header:
 input:
   uin_label: UIN/VID
   uin_placeholder: Ingrese su UIN/VID
+  policy_number_label: Número de póliza
+  policy_number_placeholder: Ingrese su número de póliza
   mobile_label: Número de teléfono
   mobile_placeholder: Ingrese el número de teléfono
   email_label: Correo electrónico

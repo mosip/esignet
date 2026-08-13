@@ -1198,6 +1198,8 @@ header:
 input:
   uin_label: UIN/VID
   uin_placeholder: Enter your UIN/VID
+  policy_number_label: Policy Number
+  policy_number_placeholder: Enter your Policy Number
   mobile_label: Mobile Number
   mobile_placeholder: Enter Mobile Number
   email_label: Email

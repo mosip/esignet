@@ -1197,6 +1197,8 @@ header:
 input:
   uin_label: UIN/VID
   uin_placeholder: ඔබේ UIN/VID ඇතුළත් කරන්න
+  policy_number_label: ප්‍රතිපත්ති අංකය
+  policy_number_placeholder: ඔබේ ප්‍රතිපත්ති අංකය ඇතුළත් කරන්න
   mobile_label: ජංගම දුරකථන අංකය
   mobile_placeholder: ජංගම දුරකථන අංකය ඇතුළත් කරන්න
   email_label: විද්‍යුත් තැපෑල
