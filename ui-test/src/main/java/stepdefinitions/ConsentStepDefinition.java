@@ -489,7 +489,7 @@ public class ConsentStepDefinition {
 	public void verifyTitleAndSubtitleDisplayedAsPerUpdatedClientDetails() {
 		Assert.assertEquals(consentPage.getLoginTitleText(), "Updated eSignet Login Title",
 				"Title was not displayed as per the updated client details");
-		Assert.assertTrue(consentPage.getLoginSubTitleText().contains("Updated eSignet subtitle text"),
+		Assert.assertTrue(consentPage.waitForLoginSubTitleToContain("Updated eSignet subtitle text"),
 				"Subtitle was not displayed as per the updated client details");
 	}
 
@@ -502,7 +502,7 @@ public class ConsentStepDefinition {
 
 	@Then("verify default subtitle {string} should be displayed when subtitle is not configured")
 	public void verifyDefaultSubtitleWhenNotConfigured(String expectedSubtitle) {
-		Assert.assertTrue(consentPage.getLoginSubTitleText().contains(expectedSubtitle),
+		Assert.assertTrue(consentPage.waitForLoginSubTitleToContain(expectedSubtitle),
 				"Default subtitle was not displayed as expected. Expected to contain: " + expectedSubtitle);
 	}
 

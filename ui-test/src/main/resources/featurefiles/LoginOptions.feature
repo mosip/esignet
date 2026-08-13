@@ -113,7 +113,7 @@ Feature: Esignet Login Options Page
    When user enters special characters into vid field in password authentication screen page
    And clicks on login button with password in authentication screen page
    Then verify user should get invalid individual id error message in authentication screen
-   When user enters special characters into vid field in password authentication screen page
+   When user enters only space into vid field in password authentication screen page
    Then verify password with login button is disabled in authentication screen
    Then clicks on email option button in authentication screen page
    When user enters invalid email into email field

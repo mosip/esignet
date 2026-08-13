@@ -14,7 +14,7 @@ import java.util.Base64;
 public class ClaimsUtil {
 
 	private static String emptyToNull(String value) {
-		return (value == null || value.isEmpty()) ? null : value;
+		return (value == null || value.isBlank()) ? null : value;
 	}
 
 	private static JSONObject root;

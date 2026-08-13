@@ -460,18 +460,23 @@ public class LoginOptionsStepDefinition {
 		loginOptionsPage.enterMobileNumberInPasswordScreen("123456");
 	}
 
-	// RegisteredDetails.registeredPassword is only ever set by SignupFormDynamicFiller, as a side
-	// effect of a signup scenario running earlier in the same JVM (it's a plain static, not even
-	// thread-local). Scenarios run in parallel with no guaranteed ordering, so a password-login
-	// scenario can easily execute before any signup scenario has populated it, leaving this null -
-	// which previously reached WebElement.sendKeys(null) and blew up with a cryptic
-	// "Keys to send should be a not null CharSequence" IllegalArgumentException. Skip with a clear
-	// reason instead, mirroring how the prerequisite-VID steps below handle the same class of problem.
+	// Prefer EsignetUtil.getPrerequisiteRegisteredPassword() - sourced from the AddIdentity
+	// prerequisite cache the same way phone/email already are, so it's available regardless of
+	// scenario order or parallelism. It only covers the mock plugin though (mosipid's AddIdentity
+	// prerequisite has no password field), so fall back to RegisteredDetails.registeredPassword,
+	// which is only ever set by SignupFormDynamicFiller as a side effect of a signup scenario
+	// running earlier in the same JVM (a plain static, not even thread-local - scenarios run in
+	// parallel with no guaranteed ordering, so this can still be null for mosipid runs). Skip with a
+	// clear reason rather than reaching WebElement.sendKeys(null), which previously blew up with a
+	// cryptic "Keys to send should be a not null CharSequence" IllegalArgumentException.
 	private String requireRegisteredPassword() {
-		String password = EsignetUtil.RegisteredDetails.getPassword();
+		String password = EsignetUtil.getPrerequisiteRegisteredPassword();
+		if (password == null || password.isBlank()) {
+			password = EsignetUtil.RegisteredDetails.getPassword();
+		}
 		if (password == null || password.isBlank()) {
 			throw new org.testng.SkipException(
-					"Registered password unavailable - a signup scenario must run earlier in this suite to populate it");
+					"Registered password unavailable - no AddIdentity prerequisite password for this plugin, and no signup scenario has populated one yet");
 		}
 		return password;
 	}

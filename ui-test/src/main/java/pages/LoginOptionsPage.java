@@ -362,10 +362,6 @@ public class LoginOptionsPage extends BasePage {
 		clickOnElement(loginWithPasswordBtn, "Clicked on login with password");
 	}
 
-	public void clickOnLoginWithKbi() {
-		clickOnElement(loginWithKbiBtn, "Clicked on login with KBI");
-	}
-
 	public boolean isGetOtpButtonEnabled() {
 		return isButtonEnabled(getOtpButton, "Verified get otp button is enabled");
 	}
