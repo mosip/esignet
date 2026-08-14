@@ -94,6 +94,14 @@ spec:
           env:
             - name: container_user
               value: {{ .Values.containerSecurityContext.runAsUser }}
+            - name: GOMAXPROCS
+              valueFrom:
+                resourceFieldRef:
+                  resource: limits.cpu
+            {{- if .Values.additionalResources.goMemLimit }}
+            - name: GOMEMLIMIT
+              value: {{ .Values.additionalResources.goMemLimit | quote }}
+            {{- end }}
             {{- if .Values.additionalResources.javaOpts }}
             - name: SPRING_KAFKA_CONSUMER_GROUP_ID
               value: esignet-consumer-{{ .Release.Namespace }} # Using the namespace dynamically
