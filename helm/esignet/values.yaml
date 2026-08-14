@@ -133,9 +133,6 @@ resources:
     memory: 1500Mi
 
 additionalResources:
-  ## Specify any JAVA_OPTS string here. These typically will be specified in conjunction with above resources
-  ## Example: java_opts: "-Xms500M -Xmx500M"
-  javaOpts: "-Xms1500M -Xmx1500M"
   ## GOMEMLIMIT for the Go esignet-service binary. Should track resources.limits.memory
   ## above, set to ~90% of it to leave headroom for non-Go/GC overhead. Set to "" to
   ## disable (GOMAXPROCS above is always set, container-aware, independent of this).

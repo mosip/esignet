@@ -102,12 +102,8 @@ spec:
             - name: GOMEMLIMIT
               value: {{ .Values.additionalResources.goMemLimit | quote }}
             {{- end }}
-            {{- if .Values.additionalResources.javaOpts }}
             - name: SPRING_KAFKA_CONSUMER_GROUP_ID
               value: esignet-consumer-{{ .Release.Namespace }} # Using the namespace dynamically
-            - name: JDK_JAVA_OPTIONS
-              value: {{ .Values.additionalResources.javaOpts }}
-            {{- end }}
             {{- if .Values.springConfigNameEnv }}
             - name: spring_config_name_env
               value: {{ .Values.springConfigNameEnv }}
