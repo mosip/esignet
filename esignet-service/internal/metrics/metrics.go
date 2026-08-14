@@ -4,6 +4,8 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+// Package metrics registers Prometheus collectors for the esignet service and
+// exposes the HTTP handler used by the private metrics listener.
 package metrics
 
 import (
@@ -20,7 +22,9 @@ func Handler() http.Handler {
 	return promhttp.Handler()
 }
 
-// RegisterDBStats registers five GaugeFunc metrics exposing the sql.DB pool state.
+// RegisterDBStats registers Prometheus collectors for the sql.DB pool.
+// OpenConnections, InUse, and Idle are gauges (point-in-time pool state).
+// WaitCount and WaitDuration are counters (monotonically increasing totals).
 // Call once after pgConn is open.
 func RegisterDBStats(db *sql.DB) {
 	prometheus.MustRegister(
@@ -39,40 +43,42 @@ func RegisterDBStats(db *sql.DB) {
 			Help: "Current number of idle connections.",
 		}, func() float64 { return float64(db.Stats().Idle) }),
 
-		prometheus.NewGaugeFunc(prometheus.GaugeOpts{
-			Name: "esignet_db_wait_count",
-			Help: "Total number of connections waited for.",
+		prometheus.NewCounterFunc(prometheus.CounterOpts{
+			Name: "esignet_db_wait_count_total",
+			Help: "Total number of times a caller waited for a database connection.",
 		}, func() float64 { return float64(db.Stats().WaitCount) }),
 
-		prometheus.NewGaugeFunc(prometheus.GaugeOpts{
-			Name: "esignet_db_wait_duration_seconds",
-			Help: "Total time blocked waiting for a new connection, in seconds.",
+		prometheus.NewCounterFunc(prometheus.CounterOpts{
+			Name: "esignet_db_wait_duration_seconds_total",
+			Help: "Total time blocked waiting for a new database connection, in seconds.",
 		}, func() float64 { return db.Stats().WaitDuration.Seconds() }),
 	)
 }
 
-// RegisterRedisStats registers four GaugeFunc metrics exposing the redis.Client pool state.
+// RegisterRedisStats registers Prometheus collectors for the redis.Client pool.
+// TotalConns and IdleConns are gauges (point-in-time pool state).
+// Timeouts and StaleConns are counters (monotonically increasing totals).
 // Call once after redisClient is open (only when RuntimeDBType == "redis").
 func RegisterRedisStats(c *redis.Client) {
 	prometheus.MustRegister(
 		prometheus.NewGaugeFunc(prometheus.GaugeOpts{
 			Name: "esignet_redis_total_conns",
-			Help: "Total number of connections in the Redis pool.",
+			Help: "Current total number of connections in the Redis pool.",
 		}, func() float64 { return float64(c.PoolStats().TotalConns) }),
 
 		prometheus.NewGaugeFunc(prometheus.GaugeOpts{
 			Name: "esignet_redis_idle_conns",
-			Help: "Number of idle connections in the Redis pool.",
+			Help: "Current number of idle connections in the Redis pool.",
 		}, func() float64 { return float64(c.PoolStats().IdleConns) }),
 
-		prometheus.NewGaugeFunc(prometheus.GaugeOpts{
-			Name: "esignet_redis_pool_timeouts",
-			Help: "Number of times a wait timeout occurred in the Redis pool.",
+		prometheus.NewCounterFunc(prometheus.CounterOpts{
+			Name: "esignet_redis_pool_timeouts_total",
+			Help: "Total number of times a wait timeout occurred in the Redis pool.",
 		}, func() float64 { return float64(c.PoolStats().Timeouts) }),
 
-		prometheus.NewGaugeFunc(prometheus.GaugeOpts{
-			Name: "esignet_redis_stale_conns",
-			Help: "Number of stale connections removed from the Redis pool.",
+		prometheus.NewCounterFunc(prometheus.CounterOpts{
+			Name: "esignet_redis_stale_conns_total",
+			Help: "Total number of stale connections removed from the Redis pool.",
 		}, func() float64 { return float64(c.PoolStats().StaleConns) }),
 	)
 }
