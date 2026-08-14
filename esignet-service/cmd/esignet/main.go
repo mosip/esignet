@@ -161,7 +161,7 @@ func main() {
 		thunderidengine.WithConsentProvider(engine.NewConsentProvider(consentmgmt.NewService(pgConn), appCfg)),
 		thunderidengine.WithDesignResolveProvider(engine.NewDesignProvider(appCfg, runtimeStore, appCfg.DesignCacheTTLSecs)),
 		thunderidengine.WithFlowProvider(engine.NewFlowProvider(appCfg, runtimeStore, appCfg.FlowCacheTTLSecs)),
-		thunderidengine.WithI18nProvider(engine.NewI18nProvider(appCfg)),
+		thunderidengine.WithI18nProvider(engine.NewI18nProvider(appCfg, clientSvc)),
 		thunderidengine.WithOUProvider(engine.NewOUProvider(appCfg)),
 		thunderidengine.WithResourceProvider(engine.NewResourceProvider(appCfg)),
 		thunderidengine.WithObservabilityProvider(observabilityProvider),
