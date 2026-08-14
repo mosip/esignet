@@ -25,7 +25,7 @@ const (
 	defaultRedisDialTimeoutSecs     = 5
 	defaultRedisReadTimeoutSecs     = 3
 	defaultRedisWriteTimeoutSecs    = 3
-	defaultRedisConnMaxLifetimeSecs = 0 // no limit
+	defaultRedisConnMaxLifetimeSecs = 1800 // 30 min (Hikari parity)
 	defaultRedisKeyPrefix           = "esignet:"
 	redisPingTimeout                = 5 * time.Second
 	defaultRedisDB                  = 0
@@ -45,7 +45,7 @@ const (
 //	REDIS_POOL_SIZE             — default 10
 //	REDIS_MIN_IDLE_CONNS        — default 2
 //	REDIS_CONN_MAX_IDLE_TIME_SECS — default 300
-//	REDIS_CONN_MAX_LIFETIME_SECS  — default 0 (no limit)
+//	REDIS_CONN_MAX_LIFETIME_SECS  — default 1800
 //	REDIS_DIAL_TIMEOUT_SECS     — default 5
 //	REDIS_READ_TIMEOUT_SECS     — default 3
 //	REDIS_WRITE_TIMEOUT_SECS    — default 3

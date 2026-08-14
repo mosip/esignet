@@ -81,6 +81,12 @@ func TestLoadRedis_EnvOverrides(t *testing.T) {
 	require.Equal(t, []string{"a:1", "b:2", "c:3"}, r.SentinelAddrs)
 }
 
+func TestLoadRedis_ZeroLifetimeOptOut(t *testing.T) {
+	t.Setenv("REDIS_CONN_MAX_LIFETIME_SECS", "0")
+	r := loadRedis()
+	require.Equal(t, time.Duration(0), r.ConnMaxLifetime)
+}
+
 func TestLoadRedis_NonPositivePoolValuesFallBackToDefaults(t *testing.T) {
 	t.Setenv("REDIS_POOL_SIZE", "0")
 	t.Setenv("REDIS_MIN_IDLE_CONNS", "-1")

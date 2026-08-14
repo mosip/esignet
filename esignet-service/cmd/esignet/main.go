@@ -57,7 +57,8 @@ func main() {
 	}
 	logger.Info(context.Background(), "postgres connected",
 		applog.Int("maxOpenConns", appCfg.DB.Pool.MaxOpenConns),
-		applog.Int("maxIdleConns", appCfg.DB.Pool.MaxIdleConns))
+		applog.Int("maxIdleConns", appCfg.DB.Pool.MaxIdleConns),
+		applog.String("connMaxLifetime", appCfg.DB.Pool.ConnMaxLifetime.String()))
 	defer func() {
 		if err := pgConn.Close(); err != nil {
 			logger.Warn(context.Background(), "close postgres", applog.Error(err))
@@ -83,6 +84,7 @@ func main() {
 		}()
 		logger.Info(context.Background(), "redis connected",
 			applog.String("key_prefix", appCfg.Redis.KeyPrefix),
+			applog.String("connMaxLifetime", appCfg.Redis.ConnMaxLifetime.String()),
 		)
 	}
 
@@ -90,6 +92,20 @@ func main() {
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("ok"))
+	})
+	mux.HandleFunc("GET /debug/pool-config", func(w http.ResponseWriter, _ *http.Request) {
+		stats := pgConn.Stats()
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(w, `{"db":{"connMaxLifetime":%q,"maxOpenConns":%d,"maxIdleConns":%d,"openConns":%d,"inUse":%d,"idle":%d},"redis":{"connMaxLifetime":%q,"enabled":%v}}`,
+			appCfg.DB.Pool.ConnMaxLifetime.String(),
+			appCfg.DB.Pool.MaxOpenConns,
+			appCfg.DB.Pool.MaxIdleConns,
+			stats.OpenConnections,
+			stats.InUse,
+			stats.Idle,
+			appCfg.Redis.ConnMaxLifetime.String(),
+			appCfg.RuntimeDBType == "redis",
+		)
 	})
 
 	// The runtime store is shared between the engine and the consent enforcer (which reads the

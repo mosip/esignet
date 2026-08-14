@@ -8,6 +8,7 @@ package config
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -129,6 +130,12 @@ func TestLoadDB_PoolTuningOverrides(t *testing.T) {
 	require.Equal(t, 10, db.Pool.MaxIdleConns)
 	require.Equal(t, 600, int(db.Pool.ConnMaxLifetime.Seconds()))
 	require.Equal(t, 120, int(db.Pool.ConnMaxIdleTime.Seconds()))
+}
+
+func TestLoadDB_ZeroLifetimeOptOut(t *testing.T) {
+	t.Setenv("DB_CONN_MAX_LIFETIME_SECS", "0")
+	db := loadDB()
+	require.Equal(t, time.Duration(0), db.Pool.ConnMaxLifetime)
 }
 
 func TestLoadDB_NonPositivePoolValuesFallBackToDefaults(t *testing.T) {

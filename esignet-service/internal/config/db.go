@@ -24,7 +24,7 @@ const (
 	defaultDBUser                = "postgres"
 	defaultDBMaxOpenConns        = 25
 	defaultDBMaxIdleConns        = 5
-	defaultDBConnMaxLifetimeSecs = 0 // no limit
+	defaultDBConnMaxLifetimeSecs = 1800 // 30 min (Hikari parity)
 	defaultDBConnMaxIdleTimeSecs = 60
 	dbPingTimeout                = 5 * time.Second
 )
@@ -100,7 +100,7 @@ func resolveDBDSN() string {
 //
 //	DB_MAX_OPEN_CONNS         — default 25
 //	DB_MAX_IDLE_CONNS         — default 5
-//	DB_CONN_MAX_LIFETIME_SECS — default 300
+//	DB_CONN_MAX_LIFETIME_SECS — default 1800
 //	DB_CONN_MAX_IDLE_TIME_SECS — default 60
 func loadDB() DB {
 	dsn := resolveDBDSN()
@@ -117,9 +117,8 @@ func loadDB() DB {
 	var lifetime time.Duration
 	if lifetimeSecs > 0 {
 		lifetime = time.Duration(lifetimeSecs) * time.Second
-	} else {
-		lifetime = defaultDBConnMaxLifetimeSecs
 	}
+	// lifetimeSecs == 0 leaves lifetime = 0 (no limit; explicit opt-out)
 	idleSecs := envIntOrDefault("DB_CONN_MAX_IDLE_TIME_SECS", defaultDBConnMaxIdleTimeSecs)
 	var idleTime time.Duration
 	if idleSecs > 0 {
