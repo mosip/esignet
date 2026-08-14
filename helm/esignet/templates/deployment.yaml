@@ -139,6 +139,10 @@ spec:
                 name: {{ .  }}
             {{- end }}
             {{- end }}
+            {{- if .Values.metrics.enabled }}
+            - name: METRICS_PORT
+              value: {{ .Values.metrics.port | quote }}
+            {{- end }}
           ports:
             - name: spring-service
               containerPort: {{ .Values.springServicePort }}

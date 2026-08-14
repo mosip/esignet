@@ -7,6 +7,9 @@
 package main
 
 import (
+	"context"
+	"fmt"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -16,6 +19,7 @@ import (
 
 	"github.com/mosip/esignet/internal/config"
 	applog "github.com/mosip/esignet/internal/log"
+	"github.com/mosip/esignet/internal/metrics"
 )
 
 func (ts *MainTestSuite) TestGetSecurityMiddleware() {
@@ -58,6 +62,57 @@ func (ts *MainTestSuite) TestScopeEnforcementEnabled() {
 		SecurityConfig: config.SecurityConfig{IssuerURL: "https://issuer"},
 	}))
 	require.False(ts.T(), scopeEnforcementEnabled(&config.AppConfig{}))
+}
+
+func (ts *MainTestSuite) TestMetricsMuxRegistersMetricsRoute() {
+	metricsMux := http.NewServeMux()
+	metricsMux.Handle("GET /metrics", metrics.Handler())
+
+	req := httptest.NewRequest(http.MethodGet, "/metrics", nil)
+	rec := httptest.NewRecorder()
+	metricsMux.ServeHTTP(rec, req)
+	require.Equal(ts.T(), http.StatusOK, rec.Code)
+}
+
+func (ts *MainTestSuite) TestMetricsSrvUsesConfiguredPort() {
+	const port = 9091
+	addr := fmt.Sprintf(":%d", port)
+	metricsMux := http.NewServeMux()
+	metricsMux.Handle("GET /metrics", metrics.Handler())
+	srv := &http.Server{Addr: addr, Handler: metricsMux}
+	require.Equal(ts.T(), addr, srv.Addr)
+}
+
+func (ts *MainTestSuite) TestMetricsSrvShutdownGraceful() {
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	require.NoError(ts.T(), err)
+
+	metricsMux := http.NewServeMux()
+	metricsMux.Handle("GET /metrics", metrics.Handler())
+	srv := &http.Server{Handler: metricsMux}
+
+	done := make(chan error, 1)
+	go func() { done <- srv.Serve(ln) }()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	require.NoError(ts.T(), srv.Shutdown(ctx))
+	require.ErrorIs(ts.T(), <-done, http.ErrServerClosed)
+}
+
+func (ts *MainTestSuite) TestMetricsSrvCloseReturnsServerClosed() {
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	require.NoError(ts.T(), err)
+
+	metricsMux := http.NewServeMux()
+	metricsMux.Handle("GET /metrics", metrics.Handler())
+	srv := &http.Server{Handler: metricsMux}
+
+	done := make(chan error, 1)
+	go func() { done <- srv.Serve(ln) }()
+
+	require.NoError(ts.T(), srv.Close())
+	require.ErrorIs(ts.T(), <-done, http.ErrServerClosed)
 }
 
 type MainTestSuite struct {

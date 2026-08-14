@@ -193,7 +193,14 @@ func main() {
 	metricsMux := http.NewServeMux()
 	metricsMux.Handle("GET /metrics", metrics.Handler())
 	metricsAddr := fmt.Sprintf(":%d", appCfg.MetricsPort)
-	metricsSrv := &http.Server{Addr: metricsAddr, Handler: metricsMux}
+	metricsSrv := &http.Server{
+		Addr:              metricsAddr,
+		Handler:           metricsMux,
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       10 * time.Second,
+		WriteTimeout:      30 * time.Second,
+		IdleTimeout:       120 * time.Second,
+	}
 	go func() {
 		logger.Info(context.Background(), "metrics listener", applog.String("addr", metricsAddr))
 		if err := metricsSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
