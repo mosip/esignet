@@ -93,21 +93,6 @@ func main() {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("ok"))
 	})
-	mux.HandleFunc("GET /debug/pool-config", func(w http.ResponseWriter, _ *http.Request) {
-		stats := pgConn.Stats()
-		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, `{"db":{"connMaxLifetime":%q,"maxOpenConns":%d,"maxIdleConns":%d,"openConns":%d,"inUse":%d,"idle":%d},"redis":{"connMaxLifetime":%q,"enabled":%v}}`,
-			appCfg.DB.Pool.ConnMaxLifetime.String(),
-			appCfg.DB.Pool.MaxOpenConns,
-			appCfg.DB.Pool.MaxIdleConns,
-			stats.OpenConnections,
-			stats.InUse,
-			stats.Idle,
-			appCfg.Redis.ConnMaxLifetime.String(),
-			appCfg.RuntimeDBType == "redis",
-		)
-	})
-
 	// The runtime store is shared between the engine and the consent enforcer (which reads the
 	// engine's stored authorization requests from it), so both resolve the same keys. It's also
 	// used by clientSvc below to cache GetClient lookups.
@@ -115,7 +100,8 @@ func main() {
 
 	clientSvc := clientmgmt.NewService(pgConn, runtimeStore, appCfg.ClientCacheTTLSecs, appCfg.SupportedEncAlgorithms)
 	clientHandler := clientmgmt.NewHandler(clientSvc, logger)
-	clientHandler.RegisterRoutes(mux, getSecurityMiddleware(appCfg, logger))
+	securityMW := getSecurityMiddleware(appCfg, logger)
+	clientHandler.RegisterRoutes(mux, securityMW)
 
 	keyMgrSvc, sigSvc, cryptoSvc, ks, err := initializeKeyManager(sqlxConn)
 	if err != nil {
@@ -131,7 +117,23 @@ func main() {
 	}
 
 	keyMgrHandler := keymanager.NewHandler(keyMgrSvc, logger)
-	keyMgrHandler.RegisterRoutes(mux, getSecurityMiddleware(appCfg, logger))
+	keyMgrHandler.RegisterRoutes(mux, securityMW)
+	mux.Handle("GET /debug/pool-config", securityMW(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		stats := pgConn.Stats()
+		w.Header().Set("Content-Type", "application/json")
+		if _, err := fmt.Fprintf(w, `{"db":{"connMaxLifetime":%q,"maxOpenConns":%d,"maxIdleConns":%d,"openConns":%d,"inUse":%d,"idle":%d},"redis":{"connMaxLifetime":%q,"enabled":%v}}`,
+			appCfg.DB.Pool.ConnMaxLifetime.String(),
+			appCfg.DB.Pool.MaxOpenConns,
+			appCfg.DB.Pool.MaxIdleConns,
+			stats.OpenConnections,
+			stats.InUse,
+			stats.Idle,
+			appCfg.Redis.ConnMaxLifetime.String(),
+			appCfg.RuntimeDBType == "redis",
+		); err != nil {
+			logger.Warn(context.Background(), "write pool-config response", applog.Error(err))
+		}
+	})))
 
 	httpClient := newHTTPClient(appCfg.OutboundHTTPClient)
 
