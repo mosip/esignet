@@ -98,9 +98,10 @@ spec:
               valueFrom:
                 resourceFieldRef:
                   resource: limits.cpu
-            {{- if .Values.additionalResources.goMemLimit }}
+            {{- $goMemLimit := include "esignet.goMemLimit" . }}
+            {{- if $goMemLimit }}
             - name: GOMEMLIMIT
-              value: {{ .Values.additionalResources.goMemLimit | quote }}
+              value: {{ $goMemLimit | quote }}
             {{- end }}
             - name: SPRING_KAFKA_CONSUMER_GROUP_ID
               value: esignet-consumer-{{ .Release.Namespace }} # Using the namespace dynamically
