@@ -256,10 +256,6 @@ public class ConsentPage extends BasePage {
 	}
 
 	public void clickOnProceedButtonInTermsAndConditionPage() {
-		// Same reasoning as clickOnProceedButtonInServiceProviderPage(): this button sits right
-		// behind the terms-and-condition checkbox's onChange re-render, so it can still be
-		// disabled/covered for a moment after checkTermsAndCondition() clicks the box - a plain
-		// clickOnElement() (visibility only) races that and intermittently throws.
 		clickWhenClickable(proceedBtnInTandCPage);
 	}
 
@@ -267,13 +263,6 @@ public class ConsentPage extends BasePage {
 		clickWhenClickable(proceedBtnInCameraPreviewPage);
 	}
 
-	/**
-	 * Waits for eKYC identity verification to finish. Signup polls its status endpoint for up to
-	 * 200s by design (mosip.signup.status.request.limit=10 x status.request.delay=20s), so the
-	 * timeout must outlast that budget rather than cutting the app off mid-poll. Rather than always
-	 * burning the full timeout, this resolves as soon as either outcome is reached: the eSignet
-	 * consent screen (success), or one of signup's failure paths (fails fast with the reason).
-	 */
 	public void waitUntilLivenessCheckCompletes() {
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(240));
 		wait.pollingEvery(Duration.ofSeconds(2));
@@ -303,9 +292,6 @@ public class ConsentPage extends BasePage {
 		return isElementVisible(allowButton, "Verified is navigated to consent scrren");
 	}
 
-	// A successful authentication lands on the "Attention" screen (its Proceed button) before consent.
-	// Waits up to timeoutSeconds for it - used as the login-success signal for flows like KBI whose
-	// auth round-trip can exceed the default explicit wait.
 	public boolean isOnAttentionScreen(int timeoutSeconds) {
 		try {
 			new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds))
@@ -565,11 +551,6 @@ public class ConsentPage extends BasePage {
 		return loginWithOtpButton.getText().trim().startsWith(expectedText);
 	}
 
-	/**
-	 * These back the "no title/subtitle should be displayed" assertions. They wait for the login
-	 * page itself to render first - otherwise, on a page that is still loading, the title is
-	 * trivially absent and the assertion would pass for the wrong reason.
-	 */
 	public boolean isLoginTitleDisplayed() {
 		waitForElementVisible(loginWithOtpButton);
 		return isElementDisplayed(loginTitle);
@@ -590,12 +571,6 @@ public class ConsentPage extends BasePage {
 		return loginSubTitle.getText().trim();
 	}
 
-	/**
-	 * The subtitle briefly renders with a placeholder value while Login.js's async purpose/language
-	 * effects settle (its initial state seeds subheading from the title's translation key, not the
-	 * subtitle's), before updating to the real text. A plain visibility-then-read can catch that
-	 * placeholder, so poll for the expected substring instead of reading once.
-	 */
 	public boolean waitForLoginSubTitleToContain(String expectedSubstring) {
 		try {
 			new WebDriverWait(driver, Duration.ofSeconds(15))

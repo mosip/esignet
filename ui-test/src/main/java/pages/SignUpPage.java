@@ -50,10 +50,6 @@ public class SignUpPage extends BasePage {
 	@FindBy(id = "form-submit-button")
 	WebElement setupContinueButton;
 
-	// This wrapper class is shared by both the success and the failure result screens - the
-	// heading text inside it ("Sign-Up Failed!" vs. the success message) is what actually
-	// distinguishes them, so isAccountCreatedSuccessfullyMessageDisplayed() must check that text
-	// rather than treating the mere presence of this element as success.
 	@FindBy(xpath = "//div[@class='text-center text-lg font-semibold']")
 	WebElement resultScreenHeading;
 

@@ -167,28 +167,10 @@ public class LoginOptionsPage extends BasePage {
 		return isElementVisible(languageDropdown, "Verified language dropdown is visible");
 	}
 
-	/**
-	 * The NetworkError page (see oidc-ui/src/pages/NetworkError.js) doesn't render a NavHeader,
-	 * so it has no language dropdown at all - isLanguageDropdownDisplayed() correctly returns
-	 * false there without needing a page-specific locator.
-	 */
 	public boolean isNetworkErrorScreenDisplayed() {
 		return isElementVisible(networkErrorTryAgainButton, "Verified network error screen is displayed");
 	}
 
-	/**
-	 * NetworkError.js's tryAgain() calls window.location.replace(location.state.path) - a full
-	 * browser navigation, not a React Router route change - so it doesn't happen automatically once
-	 * the network is back. location.state.path is the URL of the last screen visited before going
-	 * offline, captured by AppRouter's currentUrl effect; it identifies the login-mode-selection
-	 * screen, not whichever login-option sub-view (e.g. the OTP identifier field) was open within it,
-	 * since that's in-memory React state with no URL of its own. So the reload always lands back on
-	 * mode selection ("Select a preferred mode to continue") - confirmed via the failure screenshot
-	 * of an earlier attempt that waited on the OTP identifier field and never saw it appear. Wait on
-	 * that screen's own button, with a longer, dedicated timeout since a full SPA reboot (re-fetches
-	 * config/i18n) routinely takes longer than the suite's default explicit-wait - document.readyState
-	 * turns "complete" as soon as the raw HTML loads, well before the SPA has actually re-rendered.
-	 */
 	public void clickTryAgainOnNetworkErrorScreen() {
 		clickOnElement(networkErrorTryAgainButton, "Clicked try again on the network error screen");
 		new WebDriverWait(driver, Duration.ofSeconds(30))
@@ -296,12 +278,6 @@ public class LoginOptionsPage extends BasePage {
 				"Clicked on mobile prefix dropdown button on the password login screen");
 	}
 
-	/**
-	 * Types text into the Mobile Number identifier field on the password login screen once the IND
-	 * prefix is selected. InputWithPrefix.js gives this input the id "Password_" + the selected
-	 * country label (e.g. "Password_IND"), not the "mobile" selector-button id - see
-	 * mobileNumberFieldInPasswordScreen, already used elsewhere in this class for that same field.
-	 */
 	public void typeIntoMobileNumberFieldOnPasswordScreen(String text) {
 		mobileNumberFieldInPasswordScreen.sendKeys(text);
 	}
@@ -322,13 +298,6 @@ public class LoginOptionsPage extends BasePage {
 		return isElementVisible(emailOption, "Verified email option is displayed for authentication");
 	}
 
-	/**
-	 * Counts how many of the known login-ID-option buttons (mobile, nrc, vid,
-	 * email) are currently rendered. Uses the non-waiting isElementDisplayed()
-	 * check (not isMobileNumberOptionDisplayed() etc., which wait for
-	 * visibility and would throw rather than return false for an option that
-	 * is legitimately absent from the configured set).
-	 */
 	public int getDisplayedLoginIdOptionsCount() {
 		int count = 0;
 		if (isElementDisplayed(mobileNumberOption)) {
