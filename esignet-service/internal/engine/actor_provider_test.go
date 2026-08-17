@@ -124,10 +124,10 @@ func (ts *ActorProviderTestSuite) TestActorProvider_GetOAuthClientByClientID_JWE
 		p := NewActorProvider(svc, &config.AppConfig{})
 
 		_, svcErr := p.GetOAuthClientByClientID(context.Background(), "client-001")
-		if svcErr == nil {
+		if svcErr == nil { //nolint:staticcheck // SA5011 false positive: t.Fatal below exits before the later dereference
 			t.Fatal("expected error for JWE userinfo without an alg on the encryption key")
 		}
-		if svcErr.Code != "missing_encryption_key_alg" {
+		if svcErr.Code != "missing_encryption_key_alg" { //nolint:staticcheck // SA5011 false positive: t.Fatal above exits before this dereference
 			t.Errorf("error code = %q, want missing_encryption_key_alg", svcErr.Code)
 		}
 	})
@@ -142,10 +142,10 @@ func (ts *ActorProviderTestSuite) TestActorProvider_GetOAuthClientByClientID_Ser
 	if client != nil {
 		t.Fatalf("expected nil client on server error, got %v", client)
 	}
-	if svcErr == nil {
+	if svcErr == nil { //nolint:staticcheck // SA5011 false positive: t.Fatal below exits before the later dereference
 		t.Fatal("expected non-nil error on server error")
 	}
-	if svcErr.Type != common.ServerErrorType {
+	if svcErr.Type != common.ServerErrorType { //nolint:staticcheck // SA5011 false positive: t.Fatal above exits before this dereference
 		t.Errorf("expected ServerErrorType, got %v", svcErr.Type)
 	}
 	if svcErr.Code != "server_error" {
@@ -180,10 +180,10 @@ func (ts *ActorProviderTestSuite) TestActorProvider_GetOAuthProfileByID_ServerEr
 	if profile != nil {
 		t.Fatalf("expected nil profile on server error, got %v", profile)
 	}
-	if svcErr == nil {
+	if svcErr == nil { //nolint:staticcheck // SA5011 false positive: t.Fatal below exits before the later dereference
 		t.Fatal("expected non-nil error on server error")
 	}
-	if svcErr.Type != common.ServerErrorType {
+	if svcErr.Type != common.ServerErrorType { //nolint:staticcheck // SA5011 false positive: t.Fatal above exits before this dereference
 		t.Errorf("expected ServerErrorType, got %v", svcErr.Type)
 	}
 	if svcErr.Code != "server_error" {
@@ -224,10 +224,10 @@ func (ts *ActorProviderTestSuite) TestActorProvider_GetInboundClientByID_ServerE
 	if client != nil {
 		t.Fatalf("expected nil client on server error, got %v", client)
 	}
-	if svcErr == nil {
+	if svcErr == nil { //nolint:staticcheck // SA5011 false positive: t.Fatal below exits before the later dereference
 		t.Fatal("expected non-nil error on server error")
 	}
-	if svcErr.Type != common.ServerErrorType {
+	if svcErr.Type != common.ServerErrorType { //nolint:staticcheck // SA5011 false positive: t.Fatal above exits before this dereference
 		t.Errorf("expected ServerErrorType, got %v", svcErr.Type)
 	}
 	if svcErr.Code != "server_error" {
@@ -269,10 +269,10 @@ func (ts *ActorProviderTestSuite) TestActorProvider_GetActor_ServerError() {
 	if entity != nil {
 		t.Fatalf("expected nil entity on server error, got %v", entity)
 	}
-	if svcErr == nil {
+	if svcErr == nil { //nolint:staticcheck // SA5011 false positive: t.Fatal below exits before the later dereference
 		t.Fatal("expected non-nil error on server error")
 	}
-	if svcErr.Type != common.ServerErrorType {
+	if svcErr.Type != common.ServerErrorType { //nolint:staticcheck // SA5011 false positive: t.Fatal above exits before this dereference
 		t.Errorf("expected ServerErrorType, got %v", svcErr.Type)
 	}
 	if svcErr.Code != "server_error" {

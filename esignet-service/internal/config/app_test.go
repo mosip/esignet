@@ -23,6 +23,35 @@ func TestAppConfigTestSuite(t *testing.T) {
 	suite.Run(t, new(AppConfigTestSuite))
 }
 
+// SetupTest clears the HTTP tuning env vars applyDefaults reads via
+// applyHTTPClientEnvOverrides/applyInboundServerEnvOverrides before every
+// test, so a name exported by the CI environment or a developer shell can't
+// make tests that exercise applyDefaults's yaml/compiled-default fallback
+// fail for reasons unrelated to the change under test. t.Setenv restores the
+// prior value after each test, and tests that need a specific value still
+// set it themselves after this runs.
+func (ts *AppConfigTestSuite) SetupTest() {
+	t := ts.T()
+	for _, prefix := range []string{"OUTBOUND_IDSYSTEM_HTTP_CLIENT", "OUTBOUND_HTTP_CLIENT"} {
+		for _, suffix := range []string{
+			"_TIMEOUT_SECS", "_DIAL_TIMEOUT_SECS", "_DIAL_KEEP_ALIVE_SECS",
+			"_TLS_HANDSHAKE_TIMEOUT_SECS", "_RESPONSE_HEADER_TIMEOUT_SECS",
+			"_IDLE_CONN_TIMEOUT_SECS", "_MAX_CONNS_PER_HOST", "_MAX_IDLE_CONNS",
+			"_MAX_IDLE_CONNS_PER_HOST",
+		} {
+			t.Setenv(prefix+suffix, "")
+		}
+	}
+	for _, key := range []string{
+		"INBOUND_HTTP_SERVER_READ_HEADER_TIMEOUT_SECS",
+		"INBOUND_HTTP_SERVER_READ_TIMEOUT_SECS",
+		"INBOUND_HTTP_SERVER_WRITE_TIMEOUT_SECS",
+		"INBOUND_HTTP_SERVER_IDLE_TIMEOUT_SECS",
+	} {
+		t.Setenv(key, "")
+	}
+}
+
 func (ts *AppConfigTestSuite) chdirTemp() string {
 	t := ts.T()
 	t.Helper()
@@ -99,12 +128,12 @@ func (ts *AppConfigTestSuite) TestApplyDefaultsAuthorizationCodeValidityPeriod()
 		ts.Require().EqualValues(120, cfg.OAuth.AuthorizationCode.ValidityPeriod)
 	})
 
-	t.Run("defaults to 3600 when unset", func(_ *testing.T) {
+	t.Run("defaults to 60 when unset", func(_ *testing.T) {
 		cfg := &AppConfig{}
 
 		applyDefaults(cfg)
 
-		ts.Require().EqualValues(3600, cfg.OAuth.AuthorizationCode.ValidityPeriod)
+		ts.Require().EqualValues(60, cfg.OAuth.AuthorizationCode.ValidityPeriod)
 	})
 }
 
@@ -152,6 +181,74 @@ func (ts *AppConfigTestSuite) TestApplyDefaultsJWTValidityAndLeeway() {
 		ts.Require().EqualValues(30, cfg.JWT.Leeway)
 		ts.Require().EqualValues(20, cfg.OAuth.DPoP.Leeway)
 	})
+}
+
+func (ts *AppConfigTestSuite) TestApplyDefaultsYAMLValuesUsedWhenEnvUnset() {
+	cfg := &AppConfig{
+		Identifier: "yaml-namespace",
+		Issuer:     "https://yaml-issuer.example",
+		Provider:   "yaml-provider",
+		LayoutID:   "yaml-layout",
+		ThemeID:    "yaml-theme",
+		AuthFlowID: "yaml-flow",
+	}
+
+	applyDefaults(cfg)
+
+	ts.Require().Equal("yaml-namespace", cfg.Identifier)
+	ts.Require().Equal("https://yaml-issuer.example", cfg.Issuer)
+	ts.Require().Equal("yaml-provider", cfg.Provider)
+	ts.Require().Equal("yaml-layout", cfg.LayoutID)
+	ts.Require().Equal("yaml-theme", cfg.ThemeID)
+	ts.Require().Equal("yaml-flow", cfg.AuthFlowID)
+}
+
+func (ts *AppConfigTestSuite) TestApplyDefaultsEnvTakesPrecedenceOverYAML() {
+	t := ts.T()
+	t.Setenv("NAMESPACE", "env-namespace")
+
+	cfg := &AppConfig{Identifier: "yaml-namespace"}
+	applyDefaults(cfg)
+
+	ts.Require().Equal("env-namespace", cfg.Identifier)
+}
+
+func (ts *AppConfigTestSuite) TestApplyDefaultsGateClientRespectsYAML() {
+	cfg := &AppConfig{}
+	cfg.GateClient.Scheme = "https"
+	cfg.GateClient.Hostname = "yaml-gate.example"
+	cfg.GateClient.Port = 4000
+	cfg.GateClient.LoginPath = "/yaml-signin"
+	cfg.GateClient.ErrorPath = "/yaml-error"
+
+	applyDefaults(cfg)
+
+	ts.Require().Equal("https", cfg.GateClient.Scheme)
+	ts.Require().Equal("yaml-gate.example", cfg.GateClient.Hostname)
+	ts.Require().Equal(4000, cfg.GateClient.Port)
+	ts.Require().Equal("/yaml-signin", cfg.GateClient.LoginPath)
+	ts.Require().Equal("/yaml-error", cfg.GateClient.ErrorPath)
+}
+
+func (ts *AppConfigTestSuite) TestApplyDefaultsGateClientFallsBackWhenUnset() {
+	cfg := &AppConfig{}
+
+	applyDefaults(cfg)
+
+	ts.Require().Equal(defaultGateScheme, cfg.GateClient.Scheme)
+	ts.Require().Equal(defaultGateHostname, cfg.GateClient.Hostname)
+	ts.Require().Equal(defaultGatePort, cfg.GateClient.Port)
+	ts.Require().Equal(defaultGateLoginPath, cfg.GateClient.LoginPath)
+	ts.Require().Equal(defaultGateErrorPath, cfg.GateClient.ErrorPath)
+}
+
+func (ts *AppConfigTestSuite) TestApplyDefaultsJWTPreferredKeyIDRespectsYAML() {
+	cfg := &AppConfig{}
+	cfg.JWT.PreferredKeyID = "yaml-key-ref"
+
+	applyDefaults(cfg)
+
+	ts.Require().Equal("yaml-key-ref", cfg.JWT.PreferredKeyID)
 }
 
 func (ts *AppConfigTestSuite) TestApplyDefaultsCoreFields() {
@@ -225,23 +322,90 @@ func (ts *AppConfigTestSuite) TestApplyDefaultsTTLGuards() {
 	ts.Require().EqualValues(defaultFlowCacheTTLSecs, cfg.FlowCacheTTLSecs)
 }
 
-func (ts *AppConfigTestSuite) TestApplyDefaultsOutboundHTTPClient() {
+func (ts *AppConfigTestSuite) TestApplyHTTPClientDefaults() {
+	cfg := &HTTPClientConfig{
+		TimeoutSecs:     15,
+		MaxConnsPerHost: -1,
+	}
+	applyHTTPClientDefaults(cfg)
 
+	ts.Require().EqualValues(15, cfg.TimeoutSecs, "positive value preserved")
+	ts.Require().EqualValues(defaultHTTPDialTimeoutSecs, cfg.DialTimeoutSecs)
+	ts.Require().EqualValues(defaultHTTPDialKeepAliveSecs, cfg.DialKeepAliveSecs)
+	ts.Require().EqualValues(defaultHTTPTLSHandshakeTimeoutSecs, cfg.TLSHandshakeTimeoutSecs)
+	ts.Require().EqualValues(defaultHTTPResponseHeaderTimeoutSecs, cfg.ResponseHeaderTimeoutSecs)
+	ts.Require().EqualValues(defaultHTTPIdleConnTimeoutSecs, cfg.IdleConnTimeoutSecs)
+	ts.Require().EqualValues(defaultHTTPMaxConnsPerHost, cfg.MaxConnsPerHost)
+	ts.Require().EqualValues(defaultHTTPMaxIdleConns, cfg.MaxIdleConns)
+	ts.Require().EqualValues(defaultHTTPMaxIdleConnsPerHost, cfg.MaxIdleConnsPerHost)
+}
+
+func (ts *AppConfigTestSuite) TestApplyDefaultsCoversAllOutboundHTTPClientBlocks() {
 	cfg := &AppConfig{
-		OutboundHTTPClient: HTTPClientConfig{
-			TimeoutSecs:     15,
-			MaxConnsPerHost: -1,
+		OutboundIDSystemHTTPClient: HTTPClientConfig{TimeoutSecs: 11},
+		OutboundHTTPClient:         HTTPClientConfig{TimeoutSecs: 12},
+	}
+	applyDefaults(cfg)
+
+	ts.Require().EqualValues(11, cfg.OutboundIDSystemHTTPClient.TimeoutSecs, "positive yaml value preserved")
+	ts.Require().EqualValues(12, cfg.OutboundHTTPClient.TimeoutSecs, "positive yaml value preserved")
+
+	for name, c := range map[string]HTTPClientConfig{
+		"idsystem": cfg.OutboundIDSystemHTTPClient,
+		"outbound": cfg.OutboundHTTPClient,
+	} {
+		ts.Require().EqualValues(defaultHTTPMaxConnsPerHost, c.MaxConnsPerHost, name)
+		ts.Require().EqualValues(defaultHTTPMaxIdleConns, c.MaxIdleConns, name)
+		ts.Require().EqualValues(defaultHTTPMaxIdleConnsPerHost, c.MaxIdleConnsPerHost, name)
+	}
+}
+
+func (ts *AppConfigTestSuite) TestApplyDefaultsInboundHTTPServer() {
+	cfg := &AppConfig{
+		InboundHTTPServer: InboundHTTPServerConfig{
+			ReadTimeoutSecs: 15,
 		},
 	}
 	applyDefaults(cfg)
 
-	ts.Require().EqualValues(15, cfg.OutboundHTTPClient.TimeoutSecs, "positive yaml value preserved")
-	ts.Require().EqualValues(defaultHTTPDialTimeoutSecs, cfg.OutboundHTTPClient.DialTimeoutSecs)
-	ts.Require().EqualValues(defaultHTTPDialKeepAliveSecs, cfg.OutboundHTTPClient.DialKeepAliveSecs)
-	ts.Require().EqualValues(defaultHTTPTLSHandshakeTimeoutSecs, cfg.OutboundHTTPClient.TLSHandshakeTimeoutSecs)
-	ts.Require().EqualValues(defaultHTTPResponseHeaderTimeoutSecs, cfg.OutboundHTTPClient.ResponseHeaderTimeoutSecs)
-	ts.Require().EqualValues(defaultHTTPIdleConnTimeoutSecs, cfg.OutboundHTTPClient.IdleConnTimeoutSecs)
-	ts.Require().EqualValues(defaultHTTPMaxConnsPerHost, cfg.OutboundHTTPClient.MaxConnsPerHost)
+	ts.Require().EqualValues(15, cfg.InboundHTTPServer.ReadTimeoutSecs, "positive yaml value preserved")
+	ts.Require().EqualValues(defaultInboundServerReadHeaderTimeoutSecs, cfg.InboundHTTPServer.ReadHeaderTimeoutSecs)
+	ts.Require().EqualValues(defaultInboundServerWriteTimeoutSecs, cfg.InboundHTTPServer.WriteTimeoutSecs)
+	ts.Require().EqualValues(defaultInboundServerIdleTimeoutSecs, cfg.InboundHTTPServer.IdleTimeoutSecs)
+}
+
+func (ts *AppConfigTestSuite) TestApplyHTTPClientEnvOverrides() {
+	t := ts.T()
+	t.Setenv("OUTBOUND_IDSYSTEM_HTTP_CLIENT_TIMEOUT_SECS", "45")
+	t.Setenv("OUTBOUND_IDSYSTEM_HTTP_CLIENT_MAX_IDLE_CONNS", "999")
+
+	cfg := &HTTPClientConfig{TimeoutSecs: 11, MaxConnsPerHost: 22}
+	applyHTTPClientEnvOverrides("OUTBOUND_IDSYSTEM_HTTP_CLIENT", cfg)
+
+	ts.Require().EqualValues(45, cfg.TimeoutSecs, "env var overrides yaml value")
+	ts.Require().EqualValues(999, cfg.MaxIdleConns, "env var sets unset field")
+	ts.Require().EqualValues(22, cfg.MaxConnsPerHost, "field without a matching env var is left untouched")
+}
+
+func (ts *AppConfigTestSuite) TestApplyInboundServerEnvOverrides() {
+	t := ts.T()
+	t.Setenv("INBOUND_HTTP_SERVER_WRITE_TIMEOUT_SECS", "90")
+
+	cfg := &InboundHTTPServerConfig{ReadTimeoutSecs: 15}
+	applyInboundServerEnvOverrides(cfg)
+
+	ts.Require().EqualValues(90, cfg.WriteTimeoutSecs, "env var overrides default")
+	ts.Require().EqualValues(15, cfg.ReadTimeoutSecs, "field without a matching env var is left untouched")
+}
+
+func (ts *AppConfigTestSuite) TestApplyDefaultsHTTPClientEnvOverrideTakesPrecedenceOverYAML() {
+	t := ts.T()
+	t.Setenv("OUTBOUND_HTTP_CLIENT_TIMEOUT_SECS", "77")
+
+	cfg := &AppConfig{OutboundHTTPClient: HTTPClientConfig{TimeoutSecs: 12}}
+	applyDefaults(cfg)
+
+	ts.Require().EqualValues(77, cfg.OutboundHTTPClient.TimeoutSecs, "env var takes precedence over yaml-set value")
 }
 
 func (ts *AppConfigTestSuite) TestApplyEnvOverridesGateClient() {
@@ -364,6 +528,38 @@ func (ts *AppConfigTestSuite) TestEnvIntOrDefault() {
 
 	t.Setenv("ESIGNET_TEST_ENV_INT_BAD", "not-a-number")
 	ts.Require().Equal(999, envIntOrDefault("ESIGNET_TEST_ENV_INT_BAD", 999))
+}
+
+func (ts *AppConfigTestSuite) TestEnvOrConfigOrDefault() {
+	t := ts.T()
+	t.Setenv("ESIGNET_TEST_ENV_OR_CONFIG", "from-env")
+	ts.Require().Equal("from-env", envOrConfigOrDefault("ESIGNET_TEST_ENV_OR_CONFIG", "from-yaml", "fallback"), "env wins over yaml")
+
+	t.Setenv("ESIGNET_TEST_ENV_OR_CONFIG_UNSET", "")
+	ts.Require().Equal("from-yaml", envOrConfigOrDefault("ESIGNET_TEST_ENV_OR_CONFIG_UNSET", "from-yaml", "fallback"), "yaml wins when env unset")
+	ts.Require().Equal("fallback", envOrConfigOrDefault("ESIGNET_TEST_ENV_OR_CONFIG_UNSET", "", "fallback"), "fallback used when both env and yaml unset")
+}
+
+func (ts *AppConfigTestSuite) TestEnvIntOrConfigOrDefault() {
+	t := ts.T()
+	t.Setenv("ESIGNET_TEST_ENV_INT_OR_CONFIG", "111")
+	ts.Require().Equal(111, envIntOrConfigOrDefault("ESIGNET_TEST_ENV_INT_OR_CONFIG", 222, 333), "env wins over yaml")
+
+	t.Setenv("ESIGNET_TEST_ENV_INT_OR_CONFIG_UNSET", "")
+	ts.Require().Equal(222, envIntOrConfigOrDefault("ESIGNET_TEST_ENV_INT_OR_CONFIG_UNSET", 222, 333), "yaml wins when env unset")
+	ts.Require().Equal(333, envIntOrConfigOrDefault("ESIGNET_TEST_ENV_INT_OR_CONFIG_UNSET", 0, 333), "fallback used when both env and yaml unset")
+}
+
+func (ts *AppConfigTestSuite) TestEnvIntOrConfigOrDefaultAllowEnvZero() {
+	t := ts.T()
+	t.Setenv("ESIGNET_TEST_ALLOW_ZERO", "0")
+	ts.Require().Equal(0, envIntOrConfigOrDefaultAllowEnvZero("ESIGNET_TEST_ALLOW_ZERO", 222, 333), "explicit env zero honored")
+
+	t.Setenv("ESIGNET_TEST_ALLOW_ZERO", "not-a-number")
+	ts.Require().Equal(222, envIntOrConfigOrDefaultAllowEnvZero("ESIGNET_TEST_ALLOW_ZERO", 222, 333), "unparsable env falls through to yaml")
+
+	t.Setenv("ESIGNET_TEST_ALLOW_ZERO", "")
+	ts.Require().Equal(333, envIntOrConfigOrDefaultAllowEnvZero("ESIGNET_TEST_ALLOW_ZERO", 0, 333), "fallback when env and yaml unset")
 }
 
 func (ts *AppConfigTestSuite) TestEnvBool() {

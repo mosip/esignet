@@ -1,36 +1,112 @@
+# Config precedence: for every setting below, the effective value is
+# 1. the matching env var, if set (see internal/config/*.go for names),
+# 2. otherwise the value in this file, if set (`${VAR}` expands to "" and
+#    is treated as "not set" when VAR isn't in the environment — do NOT use
+#    bash-style "${VAR:-default}" here, os.ExpandEnv does not support it and
+#    the whole expression would silently resolve to "" as the variable name),
+# 3. otherwise the compiled-in default in internal/config/app.go.
+# A few fields (noted inline) are env-var-only or fully derived and are never
+# read from this file; they're documented here for operators anyway.
 identifier: "${NAMESPACE}"
 port: 8080
-issuer: "${MOSIP_ESIGNET_HOST:-http://localhost:8080}"
-data_dir: "${DATA_DIR:-./data}"
+issuer: "${MOSIP_ESIGNET_HOST}"
+data_dir: "${DATA_DIR}"
 
-provider: "${MOSIP_ESIGNET_AUTHN_PROVIDER:-mock}"
-auth_flow_id: "${MOSIP_ESIGNET_AUTH_FLOW_ID:-flow-esignet}"
-theme_id: "${MOSIP_ESIGNET_THEME_ID:-theme-esignet}"
-layout_id: "${MOSIP_ESIGNET_LAYOUT_ID:-layout-esignet}"
-runtime_db_type: "${MOSIP_ESIGNET_CACHE_TYPE:-redis}"
+provider: "${MOSIP_ESIGNET_AUTHN_PROVIDER}"
+auth_flow_id: "${MOSIP_ESIGNET_AUTH_FLOW_ID}"
+theme_id: "${MOSIP_ESIGNET_THEME_ID}"
+layout_id: "${MOSIP_ESIGNET_LAYOUT_ID}"
+runtime_db_type: "${MOSIP_ESIGNET_CACHE_TYPE}"
 
 server:
   hostname: "0.0.0.0"
+  # port/identifier always mirror the top-level port/identifier above (see
+  # applyDefaults in internal/config/app.go); not independently settable here.
   port: 8080
+  identifier: ${NAMESPACE}
+  # public_url falls back to `issuer` above when unset here and
+  # MOSIP_ESIGNET_BASE_URL is unset.
+  public_url: "${MOSIP_ESIGNET_HOST}"
+  # http_only is always derived from public_url's scheme; not read from here.
   http_only: true
-  public_url: "${MOSIP_ESIGNET_HOST:-http://localhost:8080}"
-  identifier: ${NAMESPACE:-esignet}
 
 redis:
-  host: "${REDIS_HOST:-localhost}"
-  port: "${REDIS_PORT:-6379}"
-  password: "${REDIS_PASSWORD:-}"
-  db: ${REDIS_DB:-0}
-  tls: ${REDIS_TLS:-false}
+  host: "${REDIS_HOST}"
+  port: "${REDIS_PORT}"
+  password: "${REDIS_PASSWORD}"
+  # Override with REDIS_DB / REDIS_TLS_ENABLED (env wins over these values).
+  db: 0
+  tls: false
+  # key_prefix, sentinel_master, and sentinel_addrs (comma-separated via
+  # REDIS_SENTINEL_ADDRS) are also settable here; see internal/config/redis.go.
+  #
+  # Pool/timeout tuning (REDIS_POOL_SIZE, REDIS_MIN_IDLE_CONNS,
+  # REDIS_CONN_MAX_IDLE_TIME_SECS, REDIS_CONN_MAX_LIFETIME_SECS,
+  # REDIS_DIAL_TIMEOUT_SECS, REDIS_READ_TIMEOUT_SECS, REDIS_WRITE_TIMEOUT_SECS,
+  # REDIS_POOL_TIMEOUT_SECS) is env-var-driven only and cannot be set here —
+  # see the Redis doc comment in internal/config/redis.go.
 
 db:
   dsn: "${DATABASE_URL}"
+  # Pool tuning: env var (DB_MAX_OPEN_CONNS, DB_MAX_IDLE_CONNS,
+  # DB_CONN_MAX_LIFETIME_SECS, DB_CONN_MAX_IDLE_TIME_SECS) > these values >
+  # compiled-in default (see loadDB in internal/config/db.go). Only an env
+  # var of "0" opts *_lifetime_secs out to "no limit"; 0 here is treated as
+  # "not set".
   pool:
-    max_open_conns: ${DATABASE_MAX_OPEN_CONNS:-10}
-    max_idle_conns: ${DATABASE_MAX_IDLE_CONNS:-10}
-    conn_max_lifetime: ${DATABASE_CONN_MAX_LIFETIME:-0}
-    conn_max_idle_time: ${DATABASE_CONN_MAX_IDLE_TIME:-300}
+    max_open_conns: 25
+    max_idle_conns: 5       # kept well below max_open_conns: pgxpool eagerly
+                             # opens this many connections at startup (unlike
+                             # database/sql's lazy MaxIdleConns), so a value
+                             # equal to max_open_conns would force every
+                             # instance to open its full connection budget
+                             # immediately, multiplied by replica count
+    conn_max_lifetime_secs: 1800
+    conn_max_idle_time_secs: 300
 
+# Outbound HTTP client tuning (optional, fully honored: env var >
+# these values > internal/config/app.go's compiled-in defaults). Override via
+# OUTBOUND_IDSYSTEM_HTTP_CLIENT_*/OUTBOUND_HTTP_CLIENT_*/INBOUND_HTTP_SERVER_*
+# env vars (see applyHTTPClientEnvOverrides/applyInboundServerEnvOverrides in
+# internal/config/app.go), or by editing the numbers below directly.
+# outbound_idsystem_http_client tunes calls to the ID-system backend (MOSIP
+# IDA / SunbirdRC); outbound_http_client tunes both captcha validation and
+# JWKS fetching for Bearer-token scope enforcement (they share one
+# *http.Client/connection pool — see commonHTTPClient in cmd/esignet/main.go).
+# write_timeout_secs under inbound_http_server must exceed the combined
+# timeout_secs of both clients below (see warnIfWriteTimeoutTooLow).
+outbound_idsystem_http_client:
+  timeout_secs: 30
+  dial_timeout_secs: 5
+  dial_keep_alive_secs: 30
+  tls_handshake_timeout_secs: 10
+  response_header_timeout_secs: 10
+  idle_conn_timeout_secs: 90
+  max_conns_per_host: 500
+  max_idle_conns: 500
+  max_idle_conns_per_host: 200
+
+outbound_http_client:
+  timeout_secs: 30
+  dial_timeout_secs: 5
+  dial_keep_alive_secs: 30
+  tls_handshake_timeout_secs: 10
+  response_header_timeout_secs: 10
+  idle_conn_timeout_secs: 90
+  max_conns_per_host: 500
+  max_idle_conns: 500
+  max_idle_conns_per_host: 200
+
+inbound_http_server:
+  read_header_timeout_secs: 10
+  read_timeout_secs: 30
+  write_timeout_secs: 90    # must exceed both outbound clients' timeout_secs
+                             # combined (30+30=60); 90 leaves a 30s margin
+  idle_timeout_secs: 120
+
+# gate_client is fully honored (env var > these values > compiled-in
+# default); env overrides are MOSIP_ESIGNET_OIDC_UI_SCHEME/_HOSTNAME/_PORT/
+# _LOGIN_PATH/_ERROR_PATH, applied in ApplyEnvOverrides.
 gate_client:
   scheme: http
   hostname: "127.0.0.1"
@@ -39,23 +115,21 @@ gate_client:
   error_path: /error
 
 jwt:
-  preferred_key_id: "${MOSIP_ESIGNET_SIGNING_KEY_REF_ID:-RSA_2048}"
-  # validity_period and leeway are set from MOSIP_ESIGNET_JWT_VALIDITY_PERIOD / MOSIP_ESIGNET_JWT_LEEWAY in applyDefaults (internal/config/app.go)
-  validity_period: 120
-  leeway: 10
+  preferred_key_id: "${MOSIP_ESIGNET_SIGNING_KEY_REF_ID}"
+  validity_period: 120  # override via MOSIP_ESIGNET_JWT_VALIDITY_PERIOD
+  leeway: 10             # override via MOSIP_ESIGNET_JWT_LEEWAY
 
 oauth:
   refresh_token:
     renew_on_grant: false
   authorization_code:
-    validity_period: ${MOSIP_ESIGNET_AUTHORIZATION_CODE_VALIDITY:-60}
+    validity_period: 60  # override via MOSIP_ESIGNET_OAUTH_AUTH_CODE_LIFETIME_SECONDS
   par:
-    expires_in: 3600
+    expires_in: 3600     # override via MOSIP_ESIGNET_OAUTH_PAR_EXPIRY_SECONDS
   dpop:
     required: false
     iat_window: 60
-    # leeway is set from MOSIP_ESIGNET_DPOP_LEEWAY in applyDefaults (internal/config/app.go)
-    leeway: 10
+    leeway: 10  # override via MOSIP_ESIGNET_DPOP_LEEWAY
     allowed_algs: ["ES256", "PS256", "ES384", "ES512", "EdDSA", "RS256"]
     max_jti_length: 256
 
@@ -92,7 +166,7 @@ security_config:
 
 scope_claims:
   openid:
-  profile: 
+  profile:
     - name
     - given_name
     - middle_name

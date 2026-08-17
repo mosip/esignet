@@ -78,32 +78,14 @@ go_mod_write() {
 
 # --- targets -----------------------------------------------------------------
 
-target_keys() { ## Generate local TLS signing key and certificate
-  need openssl
-  mkdir -p "$KEY_DIR"
-  if [ -f "$SIGNING_KEY" ] && [ -f "$SIGNING_CERT" ]; then
-    echo "keys: $SIGNING_KEY and $SIGNING_CERT already exist"
-  else
-    # MSYS_NO_PATHCONV / MSYS2_ARG_CONV_EXCL stop Git Bash from rewriting
-    # "/CN=esignet" into "C:/Program Files/Git/CN=esignet".
-    MSYS_NO_PATHCONV=1 MSYS2_ARG_CONV_EXCL='*' \
-      openssl req -x509 -newkey rsa:2048 \
-        -keyout "$SIGNING_KEY" -out "$SIGNING_CERT" \
-        -days 3650 -nodes -subj "/CN=esignet"
-    echo "keys: wrote $SIGNING_KEY and $SIGNING_CERT"
-  fi
-}
-
 target_build() { ## Compile production binary (out/esignet[.exe])
   need go
-  target_keys
   mkdir -p "$OUT_DIR"
   CGO_ENABLED="$CGO_ENABLED" go build -trimpath -ldflags="-s -w" -o "$BINARY" "$CMD"
   echo "build: wrote $BINARY"
 }
 
 target_run() { ## Run with go run (development)
-  target_keys
   PORT="$PORT" \
   MOSIP_ESIGNET_HOST="$MOSIP_ESIGNET_HOST" \
   DATA_DIR="$DATA_DIR" \
@@ -112,7 +94,6 @@ target_run() { ## Run with go run (development)
 }
 
 target_test() { ## Run unit tests (race + coverage; RACE=0 to disable race)
-  target_keys
   if [ "$RACE" = "1" ]; then
     go test -race -cover ./...
   else
@@ -121,7 +102,6 @@ target_test() { ## Run unit tests (race + coverage; RACE=0 to disable race)
 }
 
 target_coverage() { ## Run tests and write coverage profile (coverage.out)
-  target_keys
   if [ "$RACE" = "1" ]; then
     go test -race -coverprofile=coverage.out -covermode=atomic ./...
   else
@@ -238,7 +218,6 @@ Usage: ./make.sh <target> [<target> ...] [VAR=VALUE ...]
 
 Build
   all                Alias for build
-  keys               Generate local TLS signing key and certificate
   build              Compile production binary ($BINARY, CGO_ENABLED=$CGO_ENABLED — set
                      CGO_ENABLED=1 for real PKCS11/HSM support; default is a
                      static binary where PKCS11 stubs out to a startup error
@@ -291,7 +270,6 @@ for t in "${targets[@]}"; do
   case "$t" in
     help)            target_help ;;
     all|build)       target_build ;;
-    keys)            target_keys ;;
     run|dev)         target_run ;;
     test)            target_test ;;
     coverage)        target_coverage ;;

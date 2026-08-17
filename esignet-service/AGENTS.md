@@ -70,6 +70,17 @@ End-to-end / client-mgmt API checks are done via the [Postman collection](../pos
 - Env-driven configuration lives in `internal/config/`; add new settings there
   with sane defaults, and document them in `README.md`'s environment-variable
   tables when user-facing.
+- Config precedence: most settings resolve env var > `data/deployment.yaml` >
+  compiled-in default, via `envOrConfigOrDefault`/`envIntOrConfigOrDefault`/
+  `envBoolOrConfig` in `internal/config/app.go`. A zero/negative value at any
+  tier is treated as "not set" and falls through — if a new setting needs a
+  "0 = no limit"-style opt-out, follow `envIntOrConfigOrDefaultAllowEnvZero`'s
+  pattern (env-var-only; a yaml `0` still can't be told apart from an omitted
+  field) rather than inventing a new precedence scheme. See README's
+  [Configuration precedence](README.md#configuration-precedence) section for
+  the user-facing version, including the two documented exceptions (Redis
+  pool/timeout fields are env-only; the Postgres DSN resolves as a whole
+  rather than per-field).
 - Service-specific env vars are prefixed `MOSIP_ESIGNET_` (e.g.
   `MOSIP_ESIGNET_LAYOUT_ID`, `MOSIP_ESIGNET_OIDC_UI_SCHEME`,
   `MOSIP_ESIGNET_OAUTH_PAR_EXPIRY_SECONDS`) to avoid collisions with other
