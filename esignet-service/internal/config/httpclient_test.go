@@ -11,8 +11,16 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
 )
+
+type HTTPClientTestSuite struct {
+	suite.Suite
+}
+
+func TestHTTPClientTestSuite(t *testing.T) {
+	suite.Run(t, new(HTTPClientTestSuite))
+}
 
 func testHTTPClientConfig() HTTPClientConfig {
 	return HTTPClientConfig{
@@ -28,22 +36,23 @@ func testHTTPClientConfig() HTTPClientConfig {
 	}
 }
 
-func TestNewHTTPClient(t *testing.T) {
+func (ts *HTTPClientTestSuite) TestNewHTTPClient() {
 	cfg := testHTTPClientConfig()
 	c := NewHTTPClient(cfg)
-	require.Equal(t, 30*time.Second, c.Timeout)
+	ts.Require().Equal(30*time.Second, c.Timeout)
 
 	transport, ok := c.Transport.(*http.Transport)
-	require.True(t, ok)
-	require.Equal(t, 10*time.Second, transport.TLSHandshakeTimeout)
-	require.Equal(t, 10*time.Second, transport.ResponseHeaderTimeout)
-	require.Equal(t, 90*time.Second, transport.IdleConnTimeout)
-	require.Equal(t, 500, transport.MaxConnsPerHost)
-	require.Equal(t, 500, transport.MaxIdleConns)
-	require.Equal(t, 200, transport.MaxIdleConnsPerHost)
+	ts.Require().True(ok)
+	ts.Require().Equal(10*time.Second, transport.TLSHandshakeTimeout)
+	ts.Require().Equal(10*time.Second, transport.ResponseHeaderTimeout)
+	ts.Require().Equal(90*time.Second, transport.IdleConnTimeout)
+	ts.Require().Equal(500, transport.MaxConnsPerHost)
+	ts.Require().Equal(500, transport.MaxIdleConns)
+	ts.Require().Equal(200, transport.MaxIdleConnsPerHost)
+	ts.Require().True(transport.ForceAttemptHTTP2)
 }
 
-func TestNewHTTPClientReturnsDistinctInstances(t *testing.T) {
+func (ts *HTTPClientTestSuite) TestNewHTTPClientReturnsDistinctInstances() {
 	cfg := testHTTPClientConfig()
-	require.NotSame(t, NewHTTPClient(cfg), NewHTTPClient(cfg))
+	ts.Require().NotSame(NewHTTPClient(cfg), NewHTTPClient(cfg))
 }

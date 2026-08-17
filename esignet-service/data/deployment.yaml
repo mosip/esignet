@@ -34,8 +34,9 @@ redis:
   host: "${REDIS_HOST}"
   port: "${REDIS_PORT}"
   password: "${REDIS_PASSWORD}"
-  db: ${REDIS_DB}
-  tls: ${REDIS_TLS_ENABLED}
+  # Override with REDIS_DB / REDIS_TLS_ENABLED (env wins over these values).
+  db: 0
+  tls: false
   # key_prefix, sentinel_master, and sentinel_addrs (comma-separated via
   # REDIS_SENTINEL_ADDRS) are also settable here; see internal/config/redis.go.
   #

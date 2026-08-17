@@ -310,31 +310,31 @@ func applyDefaults(cfg *AppConfig) {
 // doesn't support that bash syntax, so a literal env var name never matches
 // and every such expression in the file silently resolves to "".
 func applyHTTPClientEnvOverrides(prefix string, cfg *HTTPClientConfig) {
-	if v := envIntOrDefault(prefix+"_TIMEOUT_SECS", 0); v > 0 {
+	if v, ok := envPositiveInt(prefix + "_TIMEOUT_SECS"); ok {
 		cfg.TimeoutSecs = v
 	}
-	if v := envIntOrDefault(prefix+"_DIAL_TIMEOUT_SECS", 0); v > 0 {
+	if v, ok := envPositiveInt(prefix + "_DIAL_TIMEOUT_SECS"); ok {
 		cfg.DialTimeoutSecs = v
 	}
-	if v := envIntOrDefault(prefix+"_DIAL_KEEP_ALIVE_SECS", 0); v > 0 {
+	if v, ok := envPositiveInt(prefix + "_DIAL_KEEP_ALIVE_SECS"); ok {
 		cfg.DialKeepAliveSecs = v
 	}
-	if v := envIntOrDefault(prefix+"_TLS_HANDSHAKE_TIMEOUT_SECS", 0); v > 0 {
+	if v, ok := envPositiveInt(prefix + "_TLS_HANDSHAKE_TIMEOUT_SECS"); ok {
 		cfg.TLSHandshakeTimeoutSecs = v
 	}
-	if v := envIntOrDefault(prefix+"_RESPONSE_HEADER_TIMEOUT_SECS", 0); v > 0 {
+	if v, ok := envPositiveInt(prefix + "_RESPONSE_HEADER_TIMEOUT_SECS"); ok {
 		cfg.ResponseHeaderTimeoutSecs = v
 	}
-	if v := envIntOrDefault(prefix+"_IDLE_CONN_TIMEOUT_SECS", 0); v > 0 {
+	if v, ok := envPositiveInt(prefix + "_IDLE_CONN_TIMEOUT_SECS"); ok {
 		cfg.IdleConnTimeoutSecs = v
 	}
-	if v := envIntOrDefault(prefix+"_MAX_CONNS_PER_HOST", 0); v > 0 {
+	if v, ok := envPositiveInt(prefix + "_MAX_CONNS_PER_HOST"); ok {
 		cfg.MaxConnsPerHost = v
 	}
-	if v := envIntOrDefault(prefix+"_MAX_IDLE_CONNS", 0); v > 0 {
+	if v, ok := envPositiveInt(prefix + "_MAX_IDLE_CONNS"); ok {
 		cfg.MaxIdleConns = v
 	}
-	if v := envIntOrDefault(prefix+"_MAX_IDLE_CONNS_PER_HOST", 0); v > 0 {
+	if v, ok := envPositiveInt(prefix + "_MAX_IDLE_CONNS_PER_HOST"); ok {
 		cfg.MaxIdleConnsPerHost = v
 	}
 }
@@ -344,18 +344,38 @@ func applyHTTPClientEnvOverrides(prefix string, cfg *HTTPClientConfig) {
 // applyHTTPClientEnvOverrides for why this reads os.Getenv directly instead
 // of relying on deployment.yaml's (non-functional) "${VAR:-default}" syntax.
 func applyInboundServerEnvOverrides(cfg *InboundHTTPServerConfig) {
-	if v := envIntOrDefault("INBOUND_HTTP_SERVER_READ_HEADER_TIMEOUT_SECS", 0); v > 0 {
+	if v, ok := envPositiveInt("INBOUND_HTTP_SERVER_READ_HEADER_TIMEOUT_SECS"); ok {
 		cfg.ReadHeaderTimeoutSecs = v
 	}
-	if v := envIntOrDefault("INBOUND_HTTP_SERVER_READ_TIMEOUT_SECS", 0); v > 0 {
+	if v, ok := envPositiveInt("INBOUND_HTTP_SERVER_READ_TIMEOUT_SECS"); ok {
 		cfg.ReadTimeoutSecs = v
 	}
-	if v := envIntOrDefault("INBOUND_HTTP_SERVER_WRITE_TIMEOUT_SECS", 0); v > 0 {
+	if v, ok := envPositiveInt("INBOUND_HTTP_SERVER_WRITE_TIMEOUT_SECS"); ok {
 		cfg.WriteTimeoutSecs = v
 	}
-	if v := envIntOrDefault("INBOUND_HTTP_SERVER_IDLE_TIMEOUT_SECS", 0); v > 0 {
+	if v, ok := envPositiveInt("INBOUND_HTTP_SERVER_IDLE_TIMEOUT_SECS"); ok {
 		cfg.IdleTimeoutSecs = v
 	}
+}
+
+// envPositiveInt returns the parsed value when key is set to a positive
+// integer. A key that is set but not a positive integer (a typo, a negative
+// value) is logged and ignored rather than silently discarded — without
+// this, ApplyEnvOverrides's own validation for other settings would
+// disagree with these HTTP-tuning env vars, which previously failed silent.
+func envPositiveInt(key string) (int, bool) {
+	raw := strings.TrimSpace(os.Getenv(key))
+	if raw == "" {
+		return 0, false
+	}
+	n, err := strconv.Atoi(raw)
+	if err != nil || n <= 0 {
+		applog.GetLogger().Warn(context.Background(),
+			"ignoring invalid http tuning env var",
+			applog.String("key", key), applog.String("value", raw))
+		return 0, false
+	}
+	return n, true
 }
 
 // warnIfWriteTimeoutTooLow logs if InboundHTTPServer.WriteTimeoutSecs doesn't
@@ -559,14 +579,25 @@ func envBool(key string) bool {
 }
 
 // envBoolOrConfig returns the env var's boolean value if it is explicitly
-// set (any non-empty value, including a falsy one like "false"), else
-// fromYAML. Like the other envXOrConfigOrDefault helpers, a false fromYAML
-// is indistinguishable from "not set in YAML" — since the compiled default
-// for every current bool setting is also false, this has no observable
-// effect.
+// set to a recognized form (case-insensitive 1/true/yes/on, or
+// 0/false/no/off), else fromYAML. An unrecognized non-empty value is logged
+// and ignored rather than silently treated as false — for a setting like
+// REDIS_TLS_ENABLED, silently converting a typo (e.g. "garbage") to false
+// would disable TLS even though YAML has it enabled.
 func envBoolOrConfig(key string, fromYAML bool) bool {
-	if strings.TrimSpace(os.Getenv(key)) != "" {
-		return envBool(key)
+	raw := strings.TrimSpace(os.Getenv(key))
+	if raw == "" {
+		return fromYAML
 	}
-	return fromYAML
+	switch strings.ToLower(raw) {
+	case "1", "true", "yes", "on":
+		return true
+	case "0", "false", "no", "off":
+		return false
+	default:
+		applog.GetLogger().Warn(context.Background(),
+			"ignoring unrecognized boolean env var; keeping configured value",
+			applog.String("key", key), applog.String("value", raw))
+		return fromYAML
+	}
 }

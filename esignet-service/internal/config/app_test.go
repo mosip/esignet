@@ -23,6 +23,35 @@ func TestAppConfigTestSuite(t *testing.T) {
 	suite.Run(t, new(AppConfigTestSuite))
 }
 
+// SetupTest clears the HTTP tuning env vars applyDefaults reads via
+// applyHTTPClientEnvOverrides/applyInboundServerEnvOverrides before every
+// test, so a name exported by the CI environment or a developer shell can't
+// make tests that exercise applyDefaults's yaml/compiled-default fallback
+// fail for reasons unrelated to the change under test. t.Setenv restores the
+// prior value after each test, and tests that need a specific value still
+// set it themselves after this runs.
+func (ts *AppConfigTestSuite) SetupTest() {
+	t := ts.T()
+	for _, prefix := range []string{"OUTBOUND_IDSYSTEM_HTTP_CLIENT", "OUTBOUND_HTTP_CLIENT"} {
+		for _, suffix := range []string{
+			"_TIMEOUT_SECS", "_DIAL_TIMEOUT_SECS", "_DIAL_KEEP_ALIVE_SECS",
+			"_TLS_HANDSHAKE_TIMEOUT_SECS", "_RESPONSE_HEADER_TIMEOUT_SECS",
+			"_IDLE_CONN_TIMEOUT_SECS", "_MAX_CONNS_PER_HOST", "_MAX_IDLE_CONNS",
+			"_MAX_IDLE_CONNS_PER_HOST",
+		} {
+			t.Setenv(prefix+suffix, "")
+		}
+	}
+	for _, key := range []string{
+		"INBOUND_HTTP_SERVER_READ_HEADER_TIMEOUT_SECS",
+		"INBOUND_HTTP_SERVER_READ_TIMEOUT_SECS",
+		"INBOUND_HTTP_SERVER_WRITE_TIMEOUT_SECS",
+		"INBOUND_HTTP_SERVER_IDLE_TIMEOUT_SECS",
+	} {
+		t.Setenv(key, "")
+	}
+}
+
 func (ts *AppConfigTestSuite) chdirTemp() string {
 	t := ts.T()
 	t.Helper()
@@ -519,6 +548,18 @@ func (ts *AppConfigTestSuite) TestEnvIntOrConfigOrDefault() {
 	t.Setenv("ESIGNET_TEST_ENV_INT_OR_CONFIG_UNSET", "")
 	ts.Require().Equal(222, envIntOrConfigOrDefault("ESIGNET_TEST_ENV_INT_OR_CONFIG_UNSET", 222, 333), "yaml wins when env unset")
 	ts.Require().Equal(333, envIntOrConfigOrDefault("ESIGNET_TEST_ENV_INT_OR_CONFIG_UNSET", 0, 333), "fallback used when both env and yaml unset")
+}
+
+func (ts *AppConfigTestSuite) TestEnvIntOrConfigOrDefaultAllowEnvZero() {
+	t := ts.T()
+	t.Setenv("ESIGNET_TEST_ALLOW_ZERO", "0")
+	ts.Require().Equal(0, envIntOrConfigOrDefaultAllowEnvZero("ESIGNET_TEST_ALLOW_ZERO", 222, 333), "explicit env zero honored")
+
+	t.Setenv("ESIGNET_TEST_ALLOW_ZERO", "not-a-number")
+	ts.Require().Equal(222, envIntOrConfigOrDefaultAllowEnvZero("ESIGNET_TEST_ALLOW_ZERO", 222, 333), "unparsable env falls through to yaml")
+
+	t.Setenv("ESIGNET_TEST_ALLOW_ZERO", "")
+	ts.Require().Equal(333, envIntOrConfigOrDefaultAllowEnvZero("ESIGNET_TEST_ALLOW_ZERO", 0, 333), "fallback when env and yaml unset")
 }
 
 func (ts *AppConfigTestSuite) TestEnvBool() {

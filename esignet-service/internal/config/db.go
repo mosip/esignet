@@ -10,12 +10,15 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"math"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/stdlib"
+
+	applog "github.com/mosip/esignet/internal/log"
 )
 
 const (
@@ -136,21 +139,21 @@ func resolveDBDSN(yamlDSN string) string {
 // Pool tuning (all optional):
 //
 //	DB_MAX_OPEN_CONNS         — default 25
-//	DB_MAX_IDLE_CONNS         — default 25
+//	DB_MAX_IDLE_CONNS         — default 5
 //	DB_CONN_MAX_LIFETIME_SECS — default 1800 (0 = no limit, explicit env-var-only opt-out)
 //	DB_CONN_MAX_IDLE_TIME_SECS — default 300
 func loadDB(yamlDB DB) DB {
 	dsn := resolveDBDSN(yamlDB.DSN)
 
-	maxOpen := envIntOrConfigOrDefault("DB_MAX_OPEN_CONNS", yamlDB.Pool.MaxOpenConns, defaultDBMaxOpenConns)
-	maxIdle := envIntOrConfigOrDefault("DB_MAX_IDLE_CONNS", yamlDB.Pool.MaxIdleConns, defaultDBMaxIdleConns)
+	maxOpen := clampPositiveInt32("DB_MAX_OPEN_CONNS", envIntOrConfigOrDefault("DB_MAX_OPEN_CONNS", yamlDB.Pool.MaxOpenConns, defaultDBMaxOpenConns))
+	maxIdle := clampPositiveInt32("DB_MAX_IDLE_CONNS", envIntOrConfigOrDefault("DB_MAX_IDLE_CONNS", yamlDB.Pool.MaxIdleConns, defaultDBMaxIdleConns))
 	// An explicit env var of "0" means "no limit" — same convention as
 	// database/sql and Redis. See effectiveMaxConnLifetime in Open() for why
 	// pgxpool needs this translated rather than passed through. A yaml value
 	// of 0 (or an omitted field, which decodes to the same zero value) can't
 	// be distinguished from "not configured", so only the env var can opt out.
-	lifetimeSecs := envIntOrConfigOrDefaultAllowEnvZero("DB_CONN_MAX_LIFETIME_SECS", yamlDB.Pool.ConnMaxLifetimeSecs, defaultDBConnMaxLifetimeSecs)
-	idleSecs := envIntOrConfigOrDefault("DB_CONN_MAX_IDLE_TIME_SECS", yamlDB.Pool.ConnMaxIdleTimeSecs, defaultDBConnMaxIdleTimeSecs)
+	lifetimeSecs := clampDurationSecs("DB_CONN_MAX_LIFETIME_SECS", envIntOrConfigOrDefaultAllowEnvZero("DB_CONN_MAX_LIFETIME_SECS", yamlDB.Pool.ConnMaxLifetimeSecs, defaultDBConnMaxLifetimeSecs))
+	idleSecs := clampDurationSecs("DB_CONN_MAX_IDLE_TIME_SECS", envIntOrConfigOrDefault("DB_CONN_MAX_IDLE_TIME_SECS", yamlDB.Pool.ConnMaxIdleTimeSecs, defaultDBConnMaxIdleTimeSecs))
 
 	return DB{
 		DSN: dsn,
@@ -161,6 +164,40 @@ func loadDB(yamlDB DB) DB {
 			ConnMaxIdleTimeSecs: idleSecs,
 		},
 	}
+}
+
+// clampPositiveInt32 clamps a resolved connection-count setting to the range
+// pgxpool.Config's MaxConns/MinConns (both int32) can hold. Without this, a
+// value like 2147483648 would wrap negative on conversion in
+// buildPoolConfig, and pgxpool would reject the pool as too small.
+func clampPositiveInt32(key string, v int) int {
+	if v > math.MaxInt32 {
+		applog.GetLogger().Warn(context.Background(),
+			"clamping out-of-range pool size env var",
+			applog.String("key", key), applog.Int("configured", v), applog.Int("clampedTo", math.MaxInt32))
+		return math.MaxInt32
+	}
+	if v < 0 {
+		return 0
+	}
+	return v
+}
+
+// maxDurationSecs is the largest number of seconds representable as a
+// time.Duration (int64 nanoseconds) without overflowing on conversion.
+const maxDurationSecs = int(math.MaxInt64 / int64(time.Second))
+
+// clampDurationSecs clamps a resolved seconds setting so its later
+// `time.Duration(v) * time.Second` conversion (in buildPoolConfig) cannot
+// overflow and wrap into a small or negative duration.
+func clampDurationSecs(key string, v int) int {
+	if v > maxDurationSecs {
+		applog.GetLogger().Warn(context.Background(),
+			"clamping out-of-range duration env var",
+			applog.String("key", key), applog.Int("configuredSecs", v), applog.Int("clampedToSecs", maxDurationSecs))
+		return maxDurationSecs
+	}
+	return v
 }
 
 // buildPoolConfig translates dsn/pool into a pgxpool.Config, applying the

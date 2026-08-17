@@ -30,9 +30,9 @@ func NewHTTPClient(cfg HTTPClientConfig) *http.Client {
 		applog.Int("tlsHandshakeTimeoutSecs", cfg.TLSHandshakeTimeoutSecs),
 		applog.Int("responseHeaderTimeoutSecs", cfg.ResponseHeaderTimeoutSecs),
 		applog.Int("idleConnTimeoutSecs", cfg.IdleConnTimeoutSecs),
-		applog.Int("MaxConnsPerHost", cfg.MaxConnsPerHost),
-		applog.Int("MaxIdleConnsPerHost", cfg.MaxIdleConnsPerHost),
-		applog.Int("MaxIdleConns", cfg.MaxIdleConns),
+		applog.Int("maxConnsPerHost", cfg.MaxConnsPerHost),
+		applog.Int("maxIdleConnsPerHost", cfg.MaxIdleConnsPerHost),
+		applog.Int("maxIdleConns", cfg.MaxIdleConns),
 	)
 
 	return &http.Client{
@@ -42,6 +42,7 @@ func NewHTTPClient(cfg HTTPClientConfig) *http.Client {
 				Timeout:   time.Duration(cfg.DialTimeoutSecs) * time.Second,
 				KeepAlive: time.Duration(cfg.DialKeepAliveSecs) * time.Second,
 			}).DialContext,
+			ForceAttemptHTTP2:     true,
 			TLSHandshakeTimeout:   time.Duration(cfg.TLSHandshakeTimeoutSecs) * time.Second,
 			ResponseHeaderTimeout: time.Duration(cfg.ResponseHeaderTimeoutSecs) * time.Second,
 			IdleConnTimeout:       time.Duration(cfg.IdleConnTimeoutSecs) * time.Second,

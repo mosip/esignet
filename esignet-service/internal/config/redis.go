@@ -106,6 +106,9 @@ func loadRedis(yamlRedis Redis) Redis {
 	// it can't use envIntOrConfigOrDefault (which treats <=0 at every tier as
 	// "not set") — an explicit env var of "0" must be honored as-is.
 	lifetimeSecs := envIntOrDefault("REDIS_CONN_MAX_LIFETIME_SECS", defaultRedisConnMaxLifetimeSecs)
+	if lifetimeSecs < 0 {
+		lifetimeSecs = defaultRedisConnMaxLifetimeSecs
+	}
 	lifetime := time.Duration(lifetimeSecs) * time.Second // 0 = no limit
 
 	dialTimeout := time.Duration(envIntOrConfigOrDefault("REDIS_DIAL_TIMEOUT_SECS", 0, defaultRedisDialTimeoutSecs)) * time.Second
