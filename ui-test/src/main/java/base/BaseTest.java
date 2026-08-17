@@ -397,11 +397,7 @@ public class BaseTest extends AdminTestUtil {
 		try {
 			String status = scenario.getStatus().toString();
 
-			// Cucumber's Scenario.isFailed() is true ONLY for status == FAILED - it does NOT cover
-			// UNDEFINED (unmatched step), PENDING, or AMBIGUOUS (duplicate step match). Branching on
-			// isFailed() let those statuses fall through to the "else" below and get reported as
-			// "✅ Scenario Passed", even though the scenario never actually ran to completion. Branch
-			// on status directly so anything that isn't PASSED or SKIPPED is treated as a failure.
+			// Branch on status directly, not isFailed() - it misses UNDEFINED/PENDING/AMBIGUOUS
 			if (status.equalsIgnoreCase("SKIPPED") && runners.Runner.knownIssues.containsKey(scenario.getName())) {
 
 				String bugId = runners.Runner.knownIssues.get(scenario.getName());

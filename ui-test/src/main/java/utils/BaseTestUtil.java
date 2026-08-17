@@ -296,15 +296,7 @@ public class BaseTestUtil {
 		LOGGER.info("Browser locale configured to: " + locale);
 	}
 
-	/**
-	 * The --lang command-line switch only reliably drives navigator.language on
-	 * Linux; on Windows, Chromium falls back to the OS locale (e.g. en-US)
-	 * unless the value is a locale it has a pak for. Emulation.setLocaleOverride
-	 * only affects Intl/date-formatting APIs, not navigator.language - that is
-	 * driven by the Accept-Language override, which must be set explicitly via
-	 * setUserAgentOverride's acceptLanguage param (keeping the real userAgent so
-	 * we don't also spoof the browser identity).
-	 */
+	// --lang doesn't reliably drive navigator.language on Windows, so set it explicitly via CDP
 	private static void applyCdpLocaleOverride(WebDriver driver) {
 		if (!(driver instanceof ChromiumDriver chromiumDriver)) {
 			return;

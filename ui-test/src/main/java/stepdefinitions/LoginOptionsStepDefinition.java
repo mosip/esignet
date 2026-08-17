@@ -49,11 +49,7 @@ public class LoginOptionsStepDefinition {
 
 	}
 
-	// Uses the raw executeCdpCommand API (HasCdp) instead of the typed DevTools/Network bindings
-	// from a specific selenium-devtools-vNN jar: that jar is pinned to one CDP protocol version
-	// (v134 here), and Selenium falls back to a no-op CDP implementation - silently doing nothing -
-	// when the running Chrome's major version drifts far enough from it. executeCdpCommand talks to
-	// whatever Chrome is actually running, so it isn't tied to a pinned protocol version at all.
+	// Raw executeCdpCommand (not typed DevTools bindings) avoids being pinned to one CDP protocol version
 	private void enableNetworkDomainIfNeeded() {
 		if (!networkDomainEnabled) {
 			((HasCdp) driver).executeCdpCommand("Network.enable", Map.of());
@@ -242,13 +238,7 @@ public class LoginOptionsStepDefinition {
 		loginOptionsPage.clickOnPasswordScreenMobilePrefixDropdownButton();
 	}
 
-	/**
-	 * Types a string longer than the effective maxLength (per the config's
-	 * prefix-over-outer precedence, mirroring InputWithPrefix.js exactly) and
-	 * confirms the field actually enforces that limit: extra characters are
-	 * rejected when a limit applies, or all characters are accepted when
-	 * neither level configures one.
-	 */
+	// Effective maxLength follows prefix-over-outer precedence (mirrors InputWithPrefix.js)
 	@Then("verify the maxLength precedence is honored for mobile number with {string} prefix")
 	public void verifyMaxLengthPrecedenceForMobileNumberWithPrefix(String prefixLabel) {
 		ClaimsUtil.parseFromUrl(authorizeUrl);
@@ -460,15 +450,7 @@ public class LoginOptionsStepDefinition {
 		loginOptionsPage.enterMobileNumberInPasswordScreen("123456");
 	}
 
-	// Prefer EsignetUtil.getPrerequisiteRegisteredPassword() - sourced from the AddIdentity
-	// prerequisite cache the same way phone/email already are, so it's available regardless of
-	// scenario order or parallelism. It only covers the mock plugin though (mosipid's AddIdentity
-	// prerequisite has no password field), so fall back to RegisteredDetails.registeredPassword,
-	// which is only ever set by SignupFormDynamicFiller as a side effect of a signup scenario
-	// running earlier in the same JVM (a plain static, not even thread-local - scenarios run in
-	// parallel with no guaranteed ordering, so this can still be null for mosipid runs). Skip with a
-	// clear reason rather than reaching WebElement.sendKeys(null), which previously blew up with a
-	// cryptic "Keys to send should be a not null CharSequence" IllegalArgumentException.
+	// Falls back to RegisteredDetails (mosipid has no password prerequisite); skips instead of sendKeys(null)
 	private String requireRegisteredPassword() {
 		String password = EsignetUtil.getPrerequisiteRegisteredPassword();
 		if (password == null || password.isBlank()) {

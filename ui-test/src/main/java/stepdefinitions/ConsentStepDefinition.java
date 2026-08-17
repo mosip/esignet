@@ -496,8 +496,7 @@ public class ConsentStepDefinition {
 
 	@Given("user creates the client with a title but no subtitle for purpose type {string}")
 	public void userCreateClientWithTitleOnly(String purposeType) {
-		// Client is already created via scenario tags in BaseTest (see CLIENT_CONFIG_MAP);
-		// purposeType selects which @TitleOnlyPurpose<X> tagged scenario is running
+		// purposeType selects which @TitleOnlyPurpose<X> tagged scenario is running (see CLIENT_CONFIG_MAP)
 		logger.info("Creating client with title only for purpose type: " + purposeType);
 	}
 
@@ -509,8 +508,7 @@ public class ConsentStepDefinition {
 
 	@Given("user creates the client with a subtitle but no title for purpose type {string}")
 	public void userCreateClientWithSubtitleOnly(String purposeType) {
-		// Client is already created via scenario tags in BaseTest (see CLIENT_CONFIG_MAP);
-		// purposeType selects which @SubtitleOnlyPurpose<X> tagged scenario is running
+		// purposeType selects which @SubtitleOnlyPurpose<X> tagged scenario is running (see CLIENT_CONFIG_MAP)
 		logger.info("Creating client with subtitle only for purpose type: " + purposeType);
 	}
 

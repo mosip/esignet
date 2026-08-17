@@ -464,10 +464,7 @@ public class EsignetUtil extends AdminTestUtil {
 						MediaType.APPLICATION_JSON);
 				signupUISpecResponse = new JSONObject(response.getBody().asString());
 			} catch (Exception e) {
-				// Only cache on success - caching the empty fallback here would turn one transient
-				// hiccup (network blip, momentary 5xx) into every signup-form field silently coming
-				// back empty for the rest of the JVM's life, since this field is never invalidated.
-				// Returning without assigning it lets the next caller retry instead.
+				// Don't cache the empty fallback, so the next caller retries instead of being stuck empty
 				logger.error("Failed to load Signup UI Spec from URL.", e);
 				return new JSONObject();
 			}
@@ -757,13 +754,7 @@ public class EsignetUtil extends AdminTestUtil {
 		return name.toString();
 	}
 
-	/**
-	 * Arabic base letters only (U+0627-U+064A, alef through yeh) - standalone characters valid at
-	 * any position. Deliberately excludes the hamza-family letters below U+0627 (valid only in
-	 * specific combining positions) and the diacritic/tashkil marks above U+064A, for the same
-	 * reason generateKhmerName() excludes Khmer's combining vowel signs: they don't form valid
-	 * standalone name characters on their own.
-	 */
+	// Arabic base letters only (U+0627-U+064A, alef through yeh); excludes hamza/diacritic marks, which aren't valid standalone characters
 	public static String generateArabicName(int minLength, int maxLength) {
 		Random random = new Random();
 		int targetLength = targetNameLength(minLength, maxLength, random);
@@ -842,17 +833,7 @@ public class EsignetUtil extends AdminTestUtil {
 		return stripCountryCode(phoneNumber, schemaSource);
 	}
 
-	/**
-	 * Login-password source for password-based login scenarios, avoiding the dependency on
-	 * {@link RegisteredDetails#getPassword()} (only ever populated as a side effect of the
-	 * real self-registration UI scenario, with no ordering guarantee against it in a parallel run).
-	 * Mirrors {@link #getPrerequisiteRegisteredPhoneNumber()}: mock's AddIdentity prerequisite
-	 * (AddIdentityMock/AddIdentity.yml) substitutes a "$PASSWORDFORMOCKIDENTITY$" placeholder into
-	 * its request body, which the framework caches the same way it caches EMAIL/PHONE/UIN. mosipid's
-	 * AddIdentity prerequisite (AddIdentity/AddIdentity.yml, idrepository) has no password field at
-	 * all - a real password only ever comes from actually running the self-registration UI flow, so
-	 * there's no prerequisite-cache equivalent to fall back to there.
-	 */
+	// Only mock's AddIdentity prerequisite caches a password; mosipid has no equivalent to fall back to
 	public static String getPrerequisiteRegisteredPassword() {
 		if (!"mock".equalsIgnoreCase(getPluginName())) {
 			return null;
