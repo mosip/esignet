@@ -45,6 +45,12 @@ type runtimeCryptoProvider struct {
 	sigSvc          *signature.Service
 	cryptoSvc       *cryptomanager.Service
 	signReferenceID string
+
+	// jwkCache caches getPublicKey's parsed result — see its doc comment.
+	// nil is a valid zero value (caching just disabled, not a nil-pointer
+	// panic — see getPublicKey), so tests constructing a runtimeCryptoProvider
+	// literal directly don't need to set it.
+	jwkCache *jwkCache
 }
 
 // NewRuntimeCryptoProvider returns a providers.RuntimeCryptoProvider backed
@@ -54,12 +60,11 @@ type runtimeCryptoProvider struct {
 // ReferenceID within that fixed application, defaulting to
 // defaultSignReferenceID for Sign/Verify/GetPublicKeys when unset.
 //
-// It is not currently wired into thunderidengine.New: the pinned
-// thunder-id/thunderid engine version has no public Option to override its
-// built-in file-based crypto provider (see WithKeyConfigs / WithServerHome),
-// only an internal one. Constructing it here keeps the adapter ready for
-// when that hook lands, and it's independently usable by any esignet code
-// that already speaks providers.RuntimeCryptoProvider.
+// Wired into thunderidengine.New via thunderidengine.WithRuntimeCryptoProvider
+// (see cmd/esignet/main.go) — it now serves the engine's own token/ID-token/
+// userinfo signing (Sign -> signature.Service.SignRaw) in addition to being
+// independently usable by any esignet code that already speaks
+// providers.RuntimeCryptoProvider.
 func NewRuntimeCryptoProvider(cfg *config.AppConfig, svc *keymanager.Service, sigSvc *signature.Service,
 	cryptoSvc *cryptomanager.Service) providers.RuntimeCryptoProvider {
 
@@ -74,6 +79,7 @@ func NewRuntimeCryptoProvider(cfg *config.AppConfig, svc *keymanager.Service, si
 		sigSvc:          sigSvc,
 		cryptoSvc:       cryptoSvc,
 		signReferenceID: referenceID,
+		jwkCache:        newJWKCache(),
 	}
 }
 
@@ -127,7 +133,7 @@ func (p *runtimeCryptoProvider) Encrypt(
 		if keyRef == nil {
 			return nil, nil, fmt.Errorf("%w: a KeyRef is required for RSA-OAEP", providers.ErrKeyNotFound)
 		}
-		rsaPub, err := getPublicKey(*keyRef)
+		rsaPub, err := p.getPublicKey(*keyRef)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -141,7 +147,7 @@ func (p *runtimeCryptoProvider) Encrypt(
 		if keyRef == nil {
 			return nil, nil, fmt.Errorf("%w: a KeyRef is required for RSA-OAEP-256", providers.ErrKeyNotFound)
 		}
-		rsaPub, err := getPublicKey(*keyRef)
+		rsaPub, err := p.getPublicKey(*keyRef)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -281,18 +287,31 @@ func (p *runtimeCryptoProvider) GetSupportedEncryptionAlgorithms() []string {
 	return p.cfg.SupportedEncAlgorithms
 }
 
-func getPublicKey(keyRef providers.KeyRef) (*jose.JSONWebKey, error) {
+// getPublicKey parses/validates keyRef.PublicKeyJWK into a public
+// jose.JSONWebKey. Encrypt calls this on every RSA-OAEP/RSA-OAEP-256
+// request (e.g. userinfo JWE for a client registered with an encryption
+// key), so the parsed result is cached by the JWK's own content digest
+// (p.jwkCache) — re-marshaling, re-parsing, and re-validating the same
+// client's registered key on every single call is pure avoidable overhead.
+func (p *runtimeCryptoProvider) getPublicKey(keyRef providers.KeyRef) (*jose.JSONWebKey, error) {
 	if len(keyRef.PublicKeyJWK) == 0 {
 		return nil, fmt.Errorf("%w: a PublicKeyJWK is required", providers.ErrKeyNotFound)
 	}
 
-	jwk, err := json.Marshal(keyRef.PublicKeyJWK)
+	jwkBytes, err := json.Marshal(keyRef.PublicKeyJWK)
 	if err != nil {
 		return nil, fmt.Errorf("marshal public key jwk: %w", err)
 	}
 
+	digest := sha256.Sum256(jwkBytes)
+	if p.jwkCache != nil {
+		if cached, ok := p.jwkCache.get(digest); ok {
+			return cached, nil
+		}
+	}
+
 	var key jose.JSONWebKey
-	if err := key.UnmarshalJSON([]byte(string(jwk))); err != nil {
+	if err := key.UnmarshalJSON(jwkBytes); err != nil {
 		return nil, fmt.Errorf("%w: parse jwk: %w", providers.ErrKeyNotFound, err)
 	}
 	if !key.Valid() {
@@ -301,6 +320,9 @@ func getPublicKey(keyRef providers.KeyRef) (*jose.JSONWebKey, error) {
 	pub := key.Public()
 	if !pub.IsPublic() {
 		return nil, fmt.Errorf("%w: jwk does not resolve to a public key", providers.ErrKeyNotFound)
+	}
+	if p.jwkCache != nil {
+		p.jwkCache.set(digest, &pub)
 	}
 	return &pub, nil
 }

@@ -16,8 +16,12 @@
 //
 // All key material is resolved through keymanager.Service.GetSigningCertificate
 // / GetCertificate — this package never duplicates key-lifecycle or rotation
-// logic, and adds no caching (every call resolves fresh, respecting lazy
-// rotation), mirroring the cryptomanager package's relationship to keymanager.
+// logic, and adds no caching of its own (every call here calls straight
+// through). GetSigningCertificate itself now caches its DB/keystore
+// resolution internally, bounded by keymanager.Config.KeyCacheExpiry — see
+// that method's doc comment — so this package still always sees a
+// rotation-respecting result without needing to know whether it came from
+// cache, mirroring the cryptomanager package's relationship to keymanager.
 package signature
 
 import (

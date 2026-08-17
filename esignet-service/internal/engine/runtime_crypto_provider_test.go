@@ -7,12 +7,39 @@
 package engine
 
 import (
+	"crypto/rand"
+	"crypto/rsa"
+	"encoding/json"
 	"testing"
 
+	jose "github.com/go-jose/go-jose/v4"
 	"github.com/stretchr/testify/suite"
+	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
 	"github.com/mosip/esignet/internal/config"
 )
+
+// testRSAJWKMap builds the map[string]interface{} shape a providers.KeyRef.
+// PublicKeyJWK carries — round-tripped through jose.JSONWebKey's own
+// marshaling, so it matches exactly what getPublicKey has to parse in
+// production.
+func testRSAJWKMap(t *testing.T) map[string]interface{} {
+	t.Helper()
+	priv, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		t.Fatalf("generate RSA key: %v", err)
+	}
+	jwk := jose.JSONWebKey{Key: &priv.PublicKey, KeyID: "test-key", Algorithm: "RSA-OAEP-256", Use: "enc"}
+	raw, err := jwk.MarshalJSON()
+	if err != nil {
+		t.Fatalf("marshal jwk: %v", err)
+	}
+	var m map[string]interface{}
+	if err := json.Unmarshal(raw, &m); err != nil {
+		t.Fatalf("unmarshal jwk into map: %v", err)
+	}
+	return m
+}
 
 type RuntimeCryptoProviderTestSuite struct {
 	suite.Suite
@@ -91,4 +118,54 @@ func (ts *RuntimeCryptoProviderTestSuite) TestGetSupportedEncryptionAlgorithms_E
 	p := &runtimeCryptoProvider{cfg: &config.AppConfig{}}
 
 	ts.Require().Empty(p.GetSupportedEncryptionAlgorithms())
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestGetPublicKey_RejectsEmptyJWK() {
+	p := &runtimeCryptoProvider{jwkCache: newJWKCache()}
+
+	_, err := p.getPublicKey(providers.KeyRef{})
+	ts.Require().ErrorIs(err, providers.ErrKeyNotFound)
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestGetPublicKey_CachesParsedResult() {
+	p := &runtimeCryptoProvider{jwkCache: newJWKCache()}
+	jwkMap := testRSAJWKMap(ts.T())
+
+	first, err := p.getPublicKey(providers.KeyRef{PublicKeyJWK: jwkMap})
+	ts.Require().NoError(err)
+
+	second, err := p.getPublicKey(providers.KeyRef{PublicKeyJWK: jwkMap})
+	ts.Require().NoError(err)
+
+	ts.Assert().Same(first, second, "the second call for the same JWK bytes must be served from the cache, not re-parsed")
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestGetPublicKey_DifferentJWKs_AreNotConfused() {
+	p := &runtimeCryptoProvider{jwkCache: newJWKCache()}
+	jwkA := testRSAJWKMap(ts.T())
+	jwkB := testRSAJWKMap(ts.T())
+
+	keyA, err := p.getPublicKey(providers.KeyRef{PublicKeyJWK: jwkA})
+	ts.Require().NoError(err)
+	keyB, err := p.getPublicKey(providers.KeyRef{PublicKeyJWK: jwkB})
+	ts.Require().NoError(err)
+
+	ts.Assert().NotSame(keyA, keyB, "distinct JWK content must not collide on the same cache entry")
+	rsaA, ok := keyA.Key.(*rsa.PublicKey)
+	ts.Require().True(ok)
+	rsaB, ok := keyB.Key.(*rsa.PublicKey)
+	ts.Require().True(ok)
+	ts.Assert().False(rsaA.Equal(rsaB), "the two fixtures must carry genuinely different key material")
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestGetPublicKey_NilCache_DisablesCachingWithoutPanic() {
+	p := &runtimeCryptoProvider{jwkCache: nil}
+	jwkMap := testRSAJWKMap(ts.T())
+
+	first, err := p.getPublicKey(providers.KeyRef{PublicKeyJWK: jwkMap})
+	ts.Require().NoError(err)
+	second, err := p.getPublicKey(providers.KeyRef{PublicKeyJWK: jwkMap})
+	ts.Require().NoError(err)
+
+	ts.Assert().NotSame(first, second, "a nil jwkCache must disable caching entirely, not panic or silently reuse state")
 }
