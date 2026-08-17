@@ -334,7 +334,7 @@ Requests and responses use the MOSIP envelope: `{"requestTime": "...", "request"
 
 v3 create requires `clientId`, `clientName`, `clientNameLangMap`, `relyingPartyId`, `logoUri`, `authContextRefs`, `publicKey`, `userClaims`, `grantTypes`, and `clientAuthMethods`. `redirectUris` and `additionalConfig` are optional. `clientNameLangMap` is stored in `client_detail.name` as JSON with `@none` set to `clientName`.
 
-`additionalConfig` supports `userinfo_response_type` (`JWS`/`JWE`), `purpose`, consent/UI flags, PAR, and DPoP settings. The JSON object is validated and persisted verbatim.
+`additionalConfig` supports `userinfo_response_type` (`JWS`/`JWE`), `id_token_response_type` (`JWS`/`JWE`), `purpose`, consent/UI flags, PAR, and DPoP settings. The JSON object is validated and persisted verbatim. For either response type, `JWE` requires the client's `encPublicKey` JWK to carry an `alg`; the id_token/userinfo is then encrypted with that algorithm and a fixed `A256GCM` content encryption.
 
 ### Deprecated aliases (backward compatibility)
 

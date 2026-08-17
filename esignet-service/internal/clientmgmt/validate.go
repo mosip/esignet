@@ -492,6 +492,12 @@ func validateAdditionalConfig(raw json.RawMessage) error {
 			return validationErr("invalid_additional_config")
 		}
 	}
+	if v, ok := cfg["id_token_response_type"]; ok {
+		var rt string
+		if err := json.Unmarshal(v, &rt); err != nil || (rt != "JWS" && rt != "JWE") {
+			return validationErr("invalid_additional_config")
+		}
+	}
 	if v, ok := cfg["consent_expire_in_mins"]; ok {
 		var mins float64
 		if err := json.Unmarshal(v, &mins); err != nil || mins < 10 {

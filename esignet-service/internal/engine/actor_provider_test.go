@@ -115,8 +115,8 @@ func (ts *ActorProviderTestSuite) TestActorProvider_GetOAuthClientByClientID_JWE
 		if client.UserInfo.EncryptionAlg != "RSA-OAEP-256" {
 			t.Errorf("EncryptionAlg = %q, want RSA-OAEP-256", client.UserInfo.EncryptionAlg)
 		}
-		if client.UserInfo.EncryptionEnc != "A256GCM" {
-			t.Errorf("EncryptionEnc = %q, want A256GCM", client.UserInfo.EncryptionEnc)
+		if client.UserInfo.EncryptionEnc != encryptionEncA256GCM {
+			t.Errorf("EncryptionEnc = %q, want %q", client.UserInfo.EncryptionEnc, encryptionEncA256GCM)
 		}
 	})
 
@@ -157,6 +157,64 @@ func (ts *ActorProviderTestSuite) TestActorProvider_GetOAuthClientByClientID_Ser
 	}
 }
 
+func (ts *ActorProviderTestSuite) TestActorProvider_GetOAuthClientByClientID_JWEIDToken() {
+	t := ts.T()
+
+	t.Run("default response type is JWT with no encryption", func(t *testing.T) {
+		svc := newActorTestService(testClientRow())
+		p := NewActorProvider(svc, &config.AppConfig{})
+
+		client, svcErr := p.GetOAuthClientByClientID(context.Background(), "client-001")
+		if svcErr != nil {
+			t.Fatalf("GetOAuthClientByClientID: %v", svcErr)
+		}
+		if client.Token.IDToken.ResponseType != providers.IDTokenResponseTypeJWT {
+			t.Errorf("ResponseType = %q, want %q", client.Token.IDToken.ResponseType, providers.IDTokenResponseTypeJWT)
+		}
+		if client.Token.IDToken.EncryptionAlg != "" || client.Token.IDToken.EncryptionEnc != "" {
+			t.Errorf("expected no encryption fields, got %+v", client.Token.IDToken)
+		}
+	})
+
+	t.Run("JWE with alg propagates encryption alg and fixed enc", func(t *testing.T) {
+		row := testClientRow()
+		row.AdditionalConfig = sql.NullString{String: `{"id_token_response_type":"JWE"}`, Valid: true}
+		row.EncPublicKey = sql.NullString{String: `{"kty":"RSA","n":"abc","e":"AQAB","alg":"RSA-OAEP-256"}`, Valid: true}
+		svc := newActorTestService(row)
+		p := NewActorProvider(svc, &config.AppConfig{})
+
+		client, svcErr := p.GetOAuthClientByClientID(context.Background(), "client-001")
+		if svcErr != nil {
+			t.Fatalf("GetOAuthClientByClientID: %v", svcErr)
+		}
+		if client.Token.IDToken.ResponseType != providers.IDTokenResponseTypeNESTEDJWT {
+			t.Errorf("ResponseType = %q, want %q", client.Token.IDToken.ResponseType, providers.IDTokenResponseTypeNESTEDJWT)
+		}
+		if client.Token.IDToken.EncryptionAlg != "RSA-OAEP-256" {
+			t.Errorf("EncryptionAlg = %q, want RSA-OAEP-256", client.Token.IDToken.EncryptionAlg)
+		}
+		if client.Token.IDToken.EncryptionEnc != encryptionEncA256GCM {
+			t.Errorf("EncryptionEnc = %q, want %q", client.Token.IDToken.EncryptionEnc, encryptionEncA256GCM)
+		}
+	})
+
+	t.Run("JWE without alg on encryption key is rejected", func(t *testing.T) {
+		row := testClientRow()
+		row.AdditionalConfig = sql.NullString{String: `{"id_token_response_type":"JWE"}`, Valid: true}
+		row.EncPublicKey = sql.NullString{String: `{"kty":"RSA","n":"abc","e":"AQAB"}`, Valid: true}
+		svc := newActorTestService(row)
+		p := NewActorProvider(svc, &config.AppConfig{})
+
+		_, svcErr := p.GetOAuthClientByClientID(context.Background(), "client-001")
+		if svcErr == nil {
+			t.Fatal("expected error for JWE id_token without an alg on the encryption key")
+		}
+		if svcErr.Code != "missing_encryption_key_alg" {
+			t.Errorf("error code = %q, want missing_encryption_key_alg", svcErr.Code)
+		}
+	})
+}
+
 func (ts *ActorProviderTestSuite) TestActorProvider_GetOAuthProfileByID() {
 	t := ts.T()
 	svc := newActorTestService(testClientRow())
@@ -168,6 +226,9 @@ func (ts *ActorProviderTestSuite) TestActorProvider_GetOAuthProfileByID() {
 	}
 	if len(profile.Token.AccessToken.UserConfig.Attributes) != 0 {
 		t.Errorf("Attributes = %v, want empty", profile.Token.AccessToken.UserConfig.Attributes)
+	}
+	if profile.Token.IDToken.ResponseType != providers.IDTokenResponseTypeJWT {
+		t.Errorf("ResponseType = %q, want %q", profile.Token.IDToken.ResponseType, providers.IDTokenResponseTypeJWT)
 	}
 
 	if _, svcErr := p.GetOAuthProfileByID(context.Background(), "no-such-client"); svcErr == nil {
