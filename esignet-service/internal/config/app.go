@@ -35,6 +35,8 @@ const (
 	defaultDesignCacheTTLSecs    = 86400
 	defaultFlowCacheTTLSecs      = 86400
 
+	defaultMetricsPort = 9090
+
 	defaultHTTPClientTimeoutSecs         = 30
 	defaultHTTPDialTimeoutSecs           = 5
 	defaultHTTPDialKeepAliveSecs         = 30
@@ -79,6 +81,7 @@ const OIDCPartnerAppID = "OIDC_PARTNER"
 type AppConfig struct {
 	Identifier                 string                           `yaml:"identifier"`
 	Port                       int                              `yaml:"port"`
+	MetricsPort                int                              `yaml:"metrics_port"`
 	Issuer                     string                           `yaml:"issuer"`
 	DataDir                    string                           `yaml:"data_dir"`
 	RuntimeDBType              string                           `yaml:"runtime_db_type"`
@@ -178,6 +181,7 @@ func applyDefaults(cfg *AppConfig) {
 	cfg.Port = envIntOrConfigOrDefault("PORT", cfg.Port, defaultPort)
 	cfg.Issuer = envOrConfigOrDefault("MOSIP_ESIGNET_HOST", cfg.Issuer, fmt.Sprintf("http://localhost:%d", cfg.Port))
 	cfg.DataDir = envOrConfigOrDefault("DATA_DIR", cfg.DataDir, defaultDataDir)
+	cfg.MetricsPort = envIntOrDefault("METRICS_PORT", defaultMetricsPort)
 	cfg.DB = loadDB(cfg.DB)
 
 	cacheType := envOrConfigOrDefault("MOSIP_ESIGNET_CACHE_TYPE", cfg.RuntimeDBType, "redis")

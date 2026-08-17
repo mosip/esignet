@@ -14,8 +14,8 @@ metadata:
     {{- end }}
 spec:
   endpoints:
-    - targetPort: {{ .Values.springServicePort }}
-      path: {{ .Values.metrics.endpointPath }} 
+    - port: metrics
+      path: {{ .Values.metrics.endpointPath }}
       {{- if .Values.metrics.serviceMonitor.interval }}
       interval: {{ .Values.metrics.serviceMonitor.interval }}
       {{- end }}

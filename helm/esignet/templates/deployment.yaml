@@ -142,6 +142,10 @@ spec:
           ports:
             - name: spring-service
               containerPort: {{ .Values.springServicePort }}
+            {{- if .Values.metrics.enabled }}
+            - name: metrics
+              containerPort: {{ .Values.metrics.port }}
+            {{- end }}
            
           {{- if .Values.resources }}
           resources: {{- toYaml .Values.resources | nindent 12 }}
