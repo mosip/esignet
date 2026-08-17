@@ -87,6 +87,7 @@ func main() {
 		}()
 		logger.Info(context.Background(), "redis connected",
 			applog.String("key_prefix", appCfg.Redis.KeyPrefix),
+			applog.String("connMaxLifetime", appCfg.Redis.ConnMaxLifetime.String()),
 		)
 	}
 
