@@ -315,22 +315,21 @@ func getScopeClaimsMapping(standardScopeClaims map[string][]string, claims []str
 	return mapping
 }
 
-// getUserInfoConfig builds the userinfo endpoint configuration. When the
-// response type is JWE, the client's encryption key must already carry an alg
-// field (enforced at client registration time by clientmgmt), which is
-// propagated as the userinfo encryption alg alongside a fixed A256GCM enc.
+// getUserInfoConfig builds the userinfo endpoint configuration. The client-facing
+// "JWE" option is served as a sign-then-encrypt Nested JWT: decrypting the response
+// must yield a signed JWT carrying the claims.
 func getUserInfoConfig(
 	additionalConfig map[string]any, claims []string, encPublicKey string,
 ) (*providers.UserInfoConfig, *common.ServiceError) {
 	responseType := providers.UserInfoResponseTypeJWS
 	if respType, _ := additionalConfig[userinfoResponseType].(string); respType == "JWE" {
-		responseType = providers.UserInfoResponseTypeJWE
+		responseType = providers.UserInfoResponseTypeNESTEDJWT
 	}
 	userInfo := &providers.UserInfoConfig{
 		ResponseType:   responseType,
 		UserAttributes: claims,
 	}
-	if responseType == providers.UserInfoResponseTypeJWE {
+	if responseType == providers.UserInfoResponseTypeNESTEDJWT {
 		alg, ok := encryptionKeyAlg(encPublicKey)
 		if !ok {
 			return nil, shared.MissingEncryptionKeyAlgError

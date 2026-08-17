@@ -15,6 +15,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
+	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
 	"github.com/mosip/esignet/internal/clientmgmt"
 	"github.com/mosip/esignet/internal/clientmgmt/db"
@@ -107,6 +108,9 @@ func (ts *ActorProviderTestSuite) TestActorProvider_GetOAuthClientByClientID_JWE
 		client, svcErr := p.GetOAuthClientByClientID(context.Background(), "client-001")
 		if svcErr != nil {
 			t.Fatalf("GetOAuthClientByClientID: %v", svcErr)
+		}
+		if client.UserInfo.ResponseType != providers.UserInfoResponseTypeNESTEDJWT {
+			t.Errorf("ResponseType = %q, want %q", client.UserInfo.ResponseType, providers.UserInfoResponseTypeNESTEDJWT)
 		}
 		if client.UserInfo.EncryptionAlg != "RSA-OAEP-256" {
 			t.Errorf("EncryptionAlg = %q, want RSA-OAEP-256", client.UserInfo.EncryptionAlg)
