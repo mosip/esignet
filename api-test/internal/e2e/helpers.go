@@ -12,10 +12,7 @@ import (
 	"github.com/mosip/esignet/api-test/internal/result"
 )
 
-// parseUserinfo turns a userinfo response into a claims map. eSignet may return
-// it as plain JSON or as a signed JWT (JWS RS256); handle both. When it is a JWS,
-// verify the signature against the published JWKS (a real E2E check) but don't
-// fail claim extraction if verification can't run — record it as a claim instead.
+// parseUserinfo turns a userinfo response into a claims map.
 func parseUserinfo(ctx context.Context, body []byte, jwksURI string, tlsVerify bool) (map[string]any, error) {
 	s := strings.TrimSpace(string(body))
 	if strings.HasPrefix(s, "{") {
@@ -38,26 +35,17 @@ func parseUserinfo(ctx context.Context, body []byte, jwksURI string, tlsVerify b
 			claims["_jws_verified"] = true
 		}
 	} else {
-		// Without a jwks_uri there is nothing to verify against. Say so rather
-		// than omitting the marker: assertClaims only emits the signature
-		// assertion when it is present, so silence would report a JWT that was
-		// never verified as a clean PASS.
+		// Without a jwks_uri there is nothing to verify against.
 		claims["_jws_verified"] = false
 		claims["_jws_error"] = "no jwks_uri in discovery; userinfo JWS signature was not verified"
 	}
 	return claims, nil
 }
 
-// assertClaims checks the scenario's expectations against the userinfo claims
-// and returns the full expected-vs-actual trace — one Assertion per check,
-// whether it passed or failed — for the report's Validation tab. Field
-// validation, not just the HTTP/status-code level.
+// assertClaims checks the scenario's expectations and returns the full expected-vs-actual trace.
 func assertClaims(sc Scenario, claims map[string]any) []result.Assertion {
 	var out []result.Assertion
-	// A signed userinfo response is the in-transit integrity evidence this
-	// surface exists to produce, so the verification result is a first-class
-	// assertion — recording it only as a claim would let a JWT signed by an
-	// unknown key still report PASSED.
+	// The signature verification is a first-class assertion, not merely a recorded claim.
 	if v, ok := claims["_jws_verified"]; ok {
 		verified, _ := v.(bool)
 		actual := "signature verified against JWKS"
@@ -100,9 +88,7 @@ func assertClaims(sc Scenario, claims map[string]any) []result.Assertion {
 	return out
 }
 
-// failedConditions converts the failing entries of an Assertion trace into
-// Conditions, for the legacy "failure finding(s)" summary alongside the new
-// per-field Validation tab.
+// failedConditions converts the failing entries of an Assertion trace into Conditions.
 func failedConditions(assertions []result.Assertion) []result.Condition {
 	var conds []result.Condition
 	for _, a := range assertions {
@@ -149,10 +135,7 @@ func stateFromRedirect(redirectURI string) string {
 	return u.Query().Get("state")
 }
 
-// codeFromRedirect extracts the authorization code from the callback redirect_uri
-// eSignet returns (…redirect_uri?code=…&state=…). wantState is the state this
-// run sent: a code arriving with a different state belongs to another
-// authorization request and must not be exchanged (RFC 6749 §10.12).
+// codeFromRedirect extracts the authorization code from the callback redirect_uri.
 func codeFromRedirect(redirectURI, wantState string) (string, error) {
 	u, err := url.Parse(redirectURI)
 	if err != nil {

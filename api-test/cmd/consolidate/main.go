@@ -1,18 +1,4 @@
-// Command consolidate merges the results of the three test surfaces into ONE
-// per-plugin HTML report (plan doc §6). It reads:
-//
-//   - the bdd envelope JSON (client-mgmt + flow/execute), produced by the godog
-//     module as a JSON array of result.ModuleResult-shaped rows, and
-//   - optionally a conformance sidecar JSON (the {config, plan_config, modules}
-//     dump a conformance run already writes),
-//
-// tags any surface-less/plugin-less rows with sane defaults, and renders them
-// through the same report package the conformance run uses. The renderer only
-// ever sees result.ModuleResult — it does not know godog exists.
-//
-// Usage:
-//
-//	consolidate -bdd out/bdd-envelope.json -conformance out/<run>.json -plugin mock -out out
+// Command consolidate merges the three test surfaces' envelopes into one per-plugin HTML report.
 package main
 
 import (
@@ -34,9 +20,7 @@ func main() {
 	outDir := flag.String("out", "out", "report output directory")
 	plan := flag.String("plan", "oidcc-test-plan", "plan name (report header/filename)")
 	plugin := flag.String("plugin", "mock", "plugin/provider the run targeted")
-	// This binary does not read the harness config (it merges envelopes produced
-	// by binaries that did), so run.debug_show_secrets reaches it as a flag that
-	// run-all.sh forwards. Default false keeps the safe behaviour for a direct run.
+	// This binary reads no harness config, so run.debug_show_secrets arrives as a flag from run-all.sh.
 	showSecrets := flag.Bool("show-secrets", false, "leave the captured wire trace unredacted (run.debug_show_secrets)")
 	flag.Parse()
 
@@ -85,9 +69,7 @@ func main() {
 		}
 	}
 
-	// The plans a run covered are recorded on its rows, so a two-plan conformance
-	// sidecar names both here without the caller having to repeat them; -plan is
-	// the fallback for envelopes that carry none.
+	// Plans are recorded on the rows themselves; -plan is the fallback for envelopes that carry none.
 	plans := plansFromRows(rows)
 	if len(plans) == 0 {
 		plans = []string{*plan}
@@ -109,9 +91,7 @@ func main() {
 	sum := result.Summarize(rows)
 	fmt.Printf("\n== Consolidated report — %s · %s ==\n", strings.Join(plans, " + "), *plugin)
 
-	// One label per group, plan-qualified only for a multi-plan run; the column is
-	// widened to the longest so the counts stay aligned under a plan name that is
-	// far longer than "conformance".
+	// One label per group, plan-qualified only for a multi-plan run, padded so the counts stay aligned.
 	groups := result.GroupBySurface(rows)
 	labels := make([]string, len(groups))
 	width := len("ALL")
@@ -137,9 +117,7 @@ func main() {
 	}
 }
 
-// stampSurface defaults any surface-less row to the surface of the source it was
-// loaded from, so a partial writer can never land e2e/bdd rows in the
-// conformance section of the report.
+// stampSurface defaults a surface-less row to the surface of the source it was loaded from.
 func stampSurface(rows []result.ModuleResult, surface string) {
 	for i := range rows {
 		if rows[i].Surface == "" {
@@ -177,12 +155,7 @@ func plansFromRows(rows []result.ModuleResult) []string {
 	return out
 }
 
-// loadConformance reads a conformance sidecar dump: {config, plan_configs,
-// modules:[...]}. Returns the module rows plus the config blobs (re-marshaled to
-// strings) for the report's configuration panel.
-//
-// plan_config (singular) is the shape written before a run could cover several
-// plans; it is still read so an older sidecar consolidates with its panel intact.
+// loadConformance reads a conformance sidecar dump: {config, plan_configs, modules:[...]}.
 func loadConformance(path string) (rows []result.ModuleResult, configJSON string, planConfigs []report.PlanConfig, err error) {
 	data, rerr := os.ReadFile(path)
 	if rerr != nil {

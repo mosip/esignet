@@ -8,9 +8,7 @@ import (
 	"testing"
 )
 
-// writeConfig writes a minimal conformance-only config that passes validate(),
-// with extra conformance fields spliced in, and returns its path. Scoping it to
-// the conformance surface keeps these cases off the bdd/e2e requirements.
+// writeConfig writes a minimal conformance-only config with extra fields spliced in and returns its path.
 func writeConfig(t *testing.T, conformance string) string {
 	t.Helper()
 	dir := t.TempDir()
@@ -62,9 +60,7 @@ func TestTLSVerifyFailsClosed(t *testing.T) {
 	}
 }
 
-// A typo'd override must fail the run rather than leave verification wherever
-// the file left it — the shipped example config disables it for the suite's
-// self-signed localhost cert.
+// A typo'd override must fail the run rather than leave verification wherever the file left it.
 func TestMalformedEnvOverrideIsRejected(t *testing.T) {
 	for _, tc := range []struct{ key, val string }{
 		{"CONFORMANCE_TLS_VERIFY", "ture"},
@@ -89,9 +85,7 @@ func TestNonPositivePollingRejected(t *testing.T) {
 	}
 }
 
-// ID_TYPE reaches the conformance surface only through applyEnv; without the
-// mapping IDTypeTokens("") returns nil and the login-id-type preference is
-// silently dropped on that surface while cmd/e2e still honours the same var.
+// ID_TYPE reaches the conformance surface only through applyEnv.
 func TestIDTypeEnvOverride(t *testing.T) {
 	t.Setenv("ID_TYPE", "uin")
 	c, err := load(t, writeConfig(t, ``))
@@ -125,9 +119,7 @@ func writeLayers(t *testing.T, plugin, overlay string) string {
 	return cfg
 }
 
-// The overlay must override only the keys it names, at any depth, and the
-// environment must override both. This is the whole contract that lets a tracked
-// per-plugin file hold the test definition while credentials stay untracked.
+// The overlay must override only the keys it names, at any depth, and the environment must override both.
 func TestLayerPrecedence(t *testing.T) {
 	cfg := writeLayers(t,
 		`{"conformance":{"base_url":"https://suite.example"},
@@ -162,9 +154,7 @@ func TestLayerPrecedence(t *testing.T) {
 	}
 }
 
-// A config named explicitly must not silently fall through to defaults: a typo'd
-// CONFIG would otherwise run mock while the operator believes mosip ran, and the
-// green report would be read as mosip passing.
+// A config named explicitly must not silently fall through to defaults.
 func TestExplicitMissingConfigIsFatal(t *testing.T) {
 	missing := filepath.Join(t.TempDir(), "config.msoip.json")
 
@@ -189,11 +179,7 @@ func TestExplicitMissingConfigIsFatal(t *testing.T) {
 // One config now drives all three surfaces, so a run must only be held to the
 // requirements of the surfaces it actually selected.
 func TestValidationIsScopedToSelectedSurfaces(t *testing.T) {
-	// e2e only: no conformance base_url and no plan config, which would have been
-	// hard requirements before. The spec fixture is written into the temp dir
-	// like every other case here — ValidateSurface stats e2e.spec against the
-	// process working directory, so a repo-relative path would tie this test to
-	// where `go test` happens to run from.
+	// e2e only: no conformance base_url and no plan config, which used to be hard requirements.
 	spec := filepath.Join(t.TempDir(), "e2e-scenarios.json")
 	if err := os.WriteFile(spec, []byte(`{"scenarios":[]}`), 0o600); err != nil {
 		t.Fatal(err)
@@ -225,9 +211,7 @@ func TestValidationIsScopedToSelectedSurfaces(t *testing.T) {
 	}
 }
 
-// A run against a real deployment must name the identity under test, or it
-// authenticates as — and reports claims for — whoever owns whatever identifier
-// was left in the config.
+// A run against a real deployment must name the identity under test.
 func TestNonMockProviderRequiresIdentity(t *testing.T) {
 	cfg := writeLayers(t,
 		`{"conformance":{"base_url":"https://suite.example"},
@@ -248,9 +232,7 @@ func TestUnknownSurfaceRejected(t *testing.T) {
 	}
 }
 
-// writePlans builds a conformance-only config whose plans[] entries all point at
-// a real (empty) plan config file, and returns its path plus that file's path.
-// $PLAN in plans is replaced with the quoted plan-config path.
+// writePlans builds a conformance-only config whose plans[] all point at a real (empty) plan config file.
 func writePlans(t *testing.T, plans string) (cfgPath, planPath string) {
 	t.Helper()
 	dir := t.TempDir()
@@ -268,9 +250,7 @@ func writePlans(t *testing.T, plans string) (cfgPath, planPath string) {
 	return cfgPath, planPath
 }
 
-// Two plans in one run is the whole point of plans[]: each keeps its own name,
-// variant and client/jwks file, and the legacy single `plan` block still loads
-// as a one-entry list.
+// Two plans in one run: each keeps its own name, variant and client/jwks file.
 func TestPlansListAndLegacyBlock(t *testing.T) {
 	cfg, planPath := writePlans(t, `[
 		{"name":"oidcc-test-plan","config_file":$PLAN},
@@ -381,9 +361,7 @@ func TestPerPlanSelectionFallsBackToRun(t *testing.T) {
 	}
 }
 
-// PLAN_CONFIG_PATH cannot say WHICH plan it means once there are two, and
-// applying it to the first would run the fapi plan against the oidcc client's
-// keys. The indexed form addresses one plan and is what cfg -print-env emits.
+// PLAN_CONFIG_PATH cannot say which plan it means once there are two.
 func TestPlanEnvOverrides(t *testing.T) {
 	cfg, planPath := writePlans(t, `[{"name":"oidcc-test-plan","config_file":$PLAN},
 		{"name":"fapi2-security-profile-final-test-plan","config_file":$PLAN}]`)
@@ -422,11 +400,7 @@ func TestPlanEnvOverrides(t *testing.T) {
 		}
 	})
 
-	// `cfg -print-env` emits PLAN_1_* for every config, including one still using
-	// the legacy singular `plan` block — which is exactly what run-all.sh evals
-	// back into the surface binaries. The block therefore has to be folded into
-	// plans[] before the environment is applied, or the documented legacy shape
-	// aborts the run it was just exported from.
+	// `cfg -print-env` emits PLAN_1_* for every config, including the legacy singular `plan` block.
 	t.Run("indexed reaches the legacy plan block", func(t *testing.T) {
 		legacyCfg := writeLayers(t, `{"conformance":{"base_url":"https://suite.example"},
 			"plan":{"config_file":$PLAN},"run":{"surfaces":["conformance"]}}`, "")
@@ -451,10 +425,7 @@ func TestPlanEnvOverrides(t *testing.T) {
 	})
 }
 
-// json.Unmarshal merges a slice positionally and truncates to the incoming
-// length, which is what makes `plans` overlayable at all — and also means an
-// overlay listing one plan reduces a two-plan run to one. Pinned here because
-// the package doc promises this behaviour to anyone writing config.local.json.
+// json.Unmarshal merges a slice positionally and truncates to the incoming length.
 func TestPlansOverlay(t *testing.T) {
 	dir := t.TempDir()
 	planPath := filepath.Join(dir, "plan.json")
@@ -556,10 +527,7 @@ func TestRedactJWKMaterialMasksNonStringValues(t *testing.T) {
 	}
 }
 
-// esignet.tls_verify is a separate knob from conformance.tls_verify and must
-// fail closed on its own. The two are not interchangeable: every shipped config
-// sets conformance.tls_verify=false for the suite's self-signed localhost cert,
-// and the eSignet connection carries real identities, OTPs and passwords.
+// esignet.tls_verify is a separate knob from conformance.tls_verify and must fail closed on its own.
 func TestEsignetTLSVerifyIsIndependentOfConformance(t *testing.T) {
 	c, err := load(t, writeConfig(t, `,"tls_verify":false`))
 	if err != nil {
@@ -584,10 +552,7 @@ func TestEsignetTLSVerifyEnvOverride(t *testing.T) {
 	}
 }
 
-// An env-only container has no config file, so the indexed plan variables are
-// the only declaration of a plan there — and PLAN_1_* is the pair `cfg
-// -print-env` always emits. Rejecting it as out of range made the documented
-// container path unusable.
+// An env-only container declares its plan solely through the indexed PLAN_1_* variables.
 func TestIndexedPlanEnvAllocatesWithNoConfigFile(t *testing.T) {
 	plan := filepath.Join(t.TempDir(), "plan.json")
 	if err := os.WriteFile(plan, []byte(`{}`), 0o600); err != nil {
@@ -623,9 +588,7 @@ func TestIndexedPlanEnvOutOfRangeStillRejected(t *testing.T) {
 	}
 }
 
-// A validation failure must still hand back the resolved config: `cfg -check` is
-// a dry run whose job is to report what is missing, and it cannot do that from a
-// nil config.
+// A validation failure must still hand back the resolved config, since `cfg -check` reports from it.
 func TestLoadReturnsConfigAlongsideValidationError(t *testing.T) {
 	dir := t.TempDir()
 	cfg := filepath.Join(dir, "config.json")
@@ -666,9 +629,7 @@ func TestLoadReturnsNilOnParseError(t *testing.T) {
 	}
 }
 
-// Allocating up to a sparse highest index invents empty plans for the gaps,
-// which collide on the default plan name and then fail pointing at a
-// PLAN_1_CONFIG_PATH the operator never set. Name the skipped index instead.
+// Allocating up to a sparse highest index would invent empty plans for the gaps.
 func TestSparseIndexedPlanEnvIsRejected(t *testing.T) {
 	plan := filepath.Join(t.TempDir(), "plan.json")
 	if err := os.WriteFile(plan, []byte(`{}`), 0o600); err != nil {

@@ -1,10 +1,4 @@
-// Package e2e drives a full end-to-end OAuth/OIDC flow against eSignet as a real
-// client — create client → authorize → flow/execute login (via internal/esignet)
-// → token (private_key_jwt) → userinfo — and asserts the claims that come back.
-// This is the one surface where the harness *is* the relying party (unlike the
-// conformance surface, where the suite is). Stdlib-only crypto: RS256 signing and
-// JWS verification with crypto/rsa; no JWE (the client registers no encryption
-// key, so userinfo is a signed JWT).
+// Package e2e drives a full end-to-end OAuth/OIDC flow against eSignet as a real client.
 package e2e
 
 import (
@@ -67,9 +61,7 @@ func signRS256(priv *rsa.PrivateKey, kid string, claims map[string]any) (string,
 	return signingInput + "." + b64(sig), nil
 }
 
-// clientAssertion builds the private_key_jwt client assertion for the token call:
-// iss=sub=client_id, short-lived, unique jti. The caller chooses aud — eSignet
-// wants the issuer, not the token endpoint (see the call site in e2e.go).
+// clientAssertion builds the private_key_jwt client assertion for the token call.
 func clientAssertion(priv *rsa.PrivateKey, kid, clientID, aud string) (string, error) {
 	now := time.Now()
 	jti := make([]byte, 16)
@@ -94,9 +86,7 @@ func pkce() (verifier, challenge string) {
 	return verifier, challenge
 }
 
-// decodeJWTPayload decodes (without verifying) the claims segment of a compact
-// JWS. eSignet may return userinfo either as a signed JWT or as plain JSON; the
-// caller handles the plain-JSON case before calling this.
+// decodeJWTPayload decodes (without verifying) the claims segment of a compact JWS.
 func decodeJWTPayload(token string) (map[string]any, error) {
 	parts := strings.Split(strings.TrimSpace(token), ".")
 	if len(parts) < 2 {
@@ -121,9 +111,7 @@ type jwksKey struct {
 	E   string `json:"e"`
 }
 
-// verifyJWS verifies a compact RS256 JWS against the keys at jwksURL, matching by
-// kid when present. Returns nil on a good signature. Used to confirm eSignet
-// actually signed the userinfo response with a key from its published JWKS.
+// verifyJWS verifies a compact RS256 JWS against the keys at jwksURL, matching by kid when present.
 func verifyJWS(ctx context.Context, token, jwksURL string, tlsVerify bool) error {
 	parts := strings.Split(strings.TrimSpace(token), ".")
 	if len(parts) != 3 {
@@ -182,9 +170,7 @@ func fetchJWKS(ctx context.Context, url string, tlsVerify bool) ([]jwksKey, erro
 		return nil, fmt.Errorf("fetch jwks: %w", err)
 	}
 	defer resp.Body.Close()
-	// An error page decodes into an empty key set, which would otherwise surface
-	// as "no JWKS key verified the signature" — a verification failure must be
-	// distinguishable from an unreachable endpoint in a compliance report.
+	// An error page decodes into an empty key set, so distinguish it from a real verification failure.
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
 		return nil, fmt.Errorf("fetch jwks %s: HTTP %d", url, resp.StatusCode)
 	}
@@ -198,11 +184,6 @@ func fetchJWKS(ctx context.Context, url string, tlsVerify bool) ([]jwksKey, erro
 }
 
 // b64urlDecode decodes a JWS/JWK base64url value, tolerating the padded form.
-// RFC 7515 §2 mandates unpadded, but padded JWKS values are common enough in the
-// wild that rejecting them here surfaced as a bogus "userinfo JWS signature"
-// failure — every key skipped for a decode error, then no key left to verify
-// with. Accepting both keeps a formatting quirk from being reported as an
-// eSignet compliance defect.
 func b64urlDecode(s string) ([]byte, error) {
 	if strings.ContainsRune(s, base64.StdPadding) {
 		return base64.URLEncoding.DecodeString(s)

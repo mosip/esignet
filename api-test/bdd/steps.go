@@ -1,9 +1,4 @@
-// Package bdd is the data-driven godog engine for the extended test surfaces
-// (client-mgmt + flow/execute negative), kept as its OWN module so its godog +
-// gjson dependencies never enter the stdlib-only conformance orchestrator. It
-// speaks to the report only through the ModuleResult-shaped Envelope JSON, which
-// the consolidation runner unmarshals into the parent's result.ModuleResult
-// (plan doc §9). The generic steps are written once; PO/QA author .feature files.
+// Package bdd is the godog engine for the client-mgmt and flow/execute negative surfaces, kept as its own module.
 package bdd
 
 import (
@@ -28,10 +23,7 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-// Envelope mirrors the JSON field names (not tags) of the parent module's
-// result.ModuleResult, so the consolidation runner can unmarshal a slice of
-// these straight into []result.ModuleResult. Only the fields the godog surfaces
-// populate are reproduced; the rest default.
+// Envelope mirrors result.ModuleResult's JSON field names so the consolidation runner can unmarshal it directly.
 type Envelope struct {
 	Surface          string
 	Plugin           string
@@ -54,9 +46,7 @@ type Condition struct {
 	Requirement string
 }
 
-// Assertion mirrors result.Assertion: one expected-vs-actual check, recorded
-// whether it passed or failed, so the report's Validation tab shows the full
-// field-level trace — not just the status code, and not just the failure.
+// Assertion mirrors result.Assertion: one expected-vs-actual check, recorded pass or fail.
 type Assertion struct {
 	Field    string
 	Expected string
@@ -64,11 +54,7 @@ type Assertion struct {
 	Passed   bool
 }
 
-// Call mirrors the fields of result.HTTPCall that the report renders. At is
-// carried so result.CollapseCalls can order a bdd row chronologically if the
-// consolidation runner ever collapses these the way it does conformance/e2e
-// rows. ReqCookies/RespCookies are deliberately absent: redactHeaders already
-// masks Cookie/Set-Cookie, so there is no cookie value to carry.
+// Call mirrors the fields of result.HTTPCall that the report renders.
 type Call struct {
 	Seq         int
 	At          int64 // capture time (unix nanos), as in result.HTTPCall
@@ -135,9 +121,7 @@ func getState(ctx context.Context) *state {
 	return nil
 }
 
-// tlsConfig fails closed: certificate verification is only skipped when
-// BDD_TLS_VERIFY is explicitly "false" (self-signed dev certs), so a run against
-// a real deployment never silently posts client secrets over an unverified link.
+// tlsConfig fails closed: verification is skipped only when BDD_TLS_VERIFY is explicitly "false".
 func tlsConfig() *tls.Config {
 	return &tls.Config{
 		MinVersion:         tls.VersionTLS12,
@@ -159,10 +143,7 @@ var noFollowClient = &http.Client{
 	CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse },
 }
 
-// resolve replaces {{name}} placeholders from the stash. {{now}} is re-stamped
-// on every substitution rather than read from the stash: eSignet validates
-// requestTime against a freshness window, so a multi-request scenario that
-// reused the Background's timestamp would start failing as runs get slower.
+// resolve replaces {{name}} placeholders from the stash.
 func (s *state) resolve(in string) string {
 	in = strings.ReplaceAll(in, "{{now}}", requestTime())
 	for k, v := range s.stash {
@@ -302,16 +283,11 @@ func iAuthenticateAsAdmin(ctx context.Context) error {
 	return nil
 }
 
-// pmsRegistrationIsConfigured guards the mosipid PMS client-mgmt feature: it
-// surfaces a clear ENV_NOT_READY (reported, not a hard failure) when the PMS
-// base/partner/policy are not configured, instead of letting the create call
-// fail obscurely.
+// pmsRegistrationIsConfigured reports ENV_NOT_READY when the PMS base/partner/policy are unset.
 func pmsRegistrationIsConfigured(ctx context.Context) error {
 	s := getState(ctx)
 	var missing []string
-	// The stash keys don't uppercase into their env var names (pms_base is
-	// PMS_BASE_URL, policy_id is AUTH_POLICY_ID) — naming the wrong two of three
-	// vars here is the only signal an operator gets for a skipped PMS surface.
+	// Stash keys do not uppercase into their env var names (pms_base is PMS_BASE_URL, policy_id is AUTH_POLICY_ID).
 	for _, kv := range []struct{ stash, env string }{
 		{"pms_base", "PMS_BASE_URL"},
 		{"auth_partner_id", "AUTH_PARTNER_ID"},
@@ -330,27 +306,20 @@ func pmsRegistrationIsConfigured(ctx context.Context) error {
 // requestTime is the MOSIP service request timestamp format.
 func requestTime() string { return time.Now().UTC().Format("2006-01-02T15:04:05.000Z") }
 
-// aFreshRequestTimestamp keeps {{now}} readable as a declared Background step;
-// the value itself is re-stamped per request by resolve, so a scenario that
-// spans several calls never sends a stale requestTime.
+// aFreshRequestTimestamp declares {{now}} as a Background step; resolve re-stamps it per request.
 func aFreshRequestTimestamp(ctx context.Context) error {
 	getState(ctx).stash["now"] = requestTime()
 	return nil
 }
 
-// aNewClientIDAs stashes a per-run-unique clientId so a positive create can be
-// re-run without colliding with a client left behind by an earlier run
-// (client-mgmt create rejects a duplicate clientId). The value is reused across
-// the later steps of the scenario via {{name}}.
+// aNewClientIDAs stashes a per-run-unique clientId so a positive create can be re-run.
 func aNewClientIDAs(ctx context.Context, name string) error {
 	s := getState(ctx)
 	s.stash[name] = fmt.Sprintf("bdd-pos-%d", time.Now().UnixNano())
 	return nil
 }
 
-// aGeneratedRSAPublicKeyAs stashes a fresh, valid RSA public JWK (as a JSON
-// object) so a feature can supply an otherwise-valid publicKey and isolate a
-// different validation error (e.g. invalid additionalConfig).
+// aGeneratedRSAPublicKeyAs stashes a fresh, valid RSA public JWK so a feature can isolate another error.
 func aGeneratedRSAPublicKeyAs(ctx context.Context, name string) error {
 	s := getState(ctx)
 	key, err := rsa.GenerateKey(rand.Reader, 2048)
@@ -385,9 +354,7 @@ func iSendRequestToWithoutFollowingRedirects(ctx context.Context, method, path s
 	return s.doNoFollow(ctx, fmt.Sprintf("%s %s", method, path), strings.ToUpper(method), path, "")
 }
 
-// aRegisteredClientIDIsConfigured guards the authorize-negative feature: it needs
-// a pre-registered client (FLOW_CLIENT_ID) so the redirect/param validation is
-// exercised against a real client rather than an unknown one.
+// aRegisteredClientIDIsConfigured guards the authorize-negative feature, which needs FLOW_CLIENT_ID.
 func aRegisteredClientIDIsConfigured(ctx context.Context) error {
 	s := getState(ctx)
 	if s.stash["client_id"] == "" {
@@ -488,9 +455,7 @@ func theJSONPathShouldExist(ctx context.Context, path string) error {
 	return nil
 }
 
-// theJSONPathShouldBeNull asserts an explicit JSON null. gjson reports a null as
-// existing, so "should exist" cannot distinguish it from a populated value —
-// which matters for the MOSIP convention of returning "response": null on reject.
+// theJSONPathShouldBeNull asserts an explicit JSON null.
 func theJSONPathShouldBeNull(ctx context.Context, path string) error {
 	s := getState(ctx)
 	v := gjson.GetBytes(s.lastBody, path)
@@ -530,10 +495,7 @@ func InitScenario(sc *godog.ScenarioContext, coll *Collector) {
 			headers: map[string]string{},
 			start:   time.Now(),
 		}
-		// PMS registration context for the mosipid client-mgmt feature. Features
-		// reference these as {{pms_base}}/{{auth_partner_id}}/{{policy_id}};
-		// pms_base is a full URL so the request step uses it verbatim (it is not
-		// prefixed with the eSignet base).
+		// PMS registration context for the mosipid client-mgmt feature.
 		st.stash["pms_base"] = strings.TrimRight(os.Getenv("PMS_BASE_URL"), "/")
 		st.stash["auth_partner_id"] = os.Getenv("AUTH_PARTNER_ID")
 		st.stash["policy_id"] = os.Getenv("AUTH_POLICY_ID")

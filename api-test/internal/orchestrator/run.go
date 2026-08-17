@@ -1,6 +1,4 @@
-// Package orchestrator ties the suite client and the eSignet driver together:
-// preflight, module selection, per-module drive-and-poll, and result collection.
-// See plan doc §2 and §8d.
+// Package orchestrator ties the suite client and the eSignet driver together.
 package orchestrator
 
 import (
@@ -56,10 +54,7 @@ type RunResult struct {
 	Modules []result.ModuleResult
 }
 
-// Run executes every configured plan and returns one ModuleResult per selected
-// module across all of them. The eSignet driver (and the dynamic-OTP listener)
-// is built once and shared: the plans differ in which client and variant the
-// suite drives, not in how the user logs in.
+// Run executes every configured plan and returns one ModuleResult per selected module.
 func (o *Orchestrator) Run(ctx context.Context) (*RunResult, error) {
 	out := &RunResult{}
 
@@ -75,14 +70,10 @@ func (o *Orchestrator) Run(ctx context.Context) (*RunResult, error) {
 	// Preferred actions: the auth-factor (ACR) choice AND the login-ID-type
 	// choice (uin/vid/phone), since eSignet asks for both in the OTP flow.
 	preferred := append(esignet.AuthFactorTokens(o.cfg.Esignet.AuthFactor), esignet.IDTypeTokens(o.cfg.Esignet.Identity.IDType)...)
-	// esignet.tls_verify, NOT conformance.tls_verify: the latter is false in every
-	// shipped config for the suite's self-signed localhost cert, and this driver
-	// talks to the real eSignet deployment with real identities/OTPs/passwords.
+	// esignet.tls_verify, not conformance.tls_verify: this driver talks to the real deployment.
 	driver := esignet.New(answers, preferred, o.cfg.Esignet.TLSVerify, time.Duration(o.cfg.Run.TimeoutSeconds)*time.Second)
 
-	// Dynamic OTP: connect the mock-SMTP listener once and share it across all
-	// modules. Connecting before the module loop guarantees we are buffering
-	// before any send-OTP is triggered.
+	// Dynamic OTP: connect the mock-SMTP listener once and share it across all modules.
 	if o.cfg.Esignet.OTP.Source == "dynamic" {
 		lst := wsotp.NewListener(o.cfg.Esignet.OTP.WSURL, o.cfg.Esignet.TLSVerify)
 		if err := lst.Start(ctx); err != nil {
@@ -113,16 +104,7 @@ func (o *Orchestrator) Run(ctx context.Context) (*RunResult, error) {
 	return out, nil
 }
 
-// runPlan creates one suite plan and runs its selected modules, appending each
-// result to out. stop reports that fail-fast tripped, which abandons the whole
-// run — the remaining plans are not started.
-//
-// A plan that cannot even be created (unreadable config file, a variant the
-// suite rejects) produces one errored row instead of aborting: with several
-// plans configured, a bad fapi variant must not throw away the oidcc results
-// that already ran, and the row keeps the failure in the report rather than
-// only in the logs. err is reserved for what makes the rest of the run
-// pointless.
+// runPlan creates one suite plan and runs its selected modules, appending each result to out.
 func (o *Orchestrator) runPlan(ctx context.Context, p config.Plan, driver *esignet.Driver, out *RunResult) (bool, error) {
 	configBody, err := os.ReadFile(p.ConfigFile)
 	if err != nil {
@@ -179,9 +161,7 @@ func (o *Orchestrator) runPlan(ctx context.Context, p config.Plan, driver *esign
 	return false, nil
 }
 
-// planErrorResult is the report row for a plan that never got as far as running
-// a module, so the failure is visible in the report (and counted as Errored)
-// rather than only in the harness log.
+// planErrorResult is the report row for a plan that never got as far as running a module.
 func planErrorResult(planName, provider string, err error) result.ModuleResult {
 	return result.ModuleResult{
 		Surface:        result.SurfaceConformance,
@@ -317,9 +297,7 @@ func (o *Orchestrator) runModule(ctx context.Context, plan *conformance.PlanResp
 	}
 	res.DurationMs = time.Since(start).Milliseconds()
 
-	// Final verdict: re-fetch in case the loop exited before reaching a terminal
-	// status (deadline, or a harness error mid-drive). Falls back to whatever the
-	// loop already captured rather than blanking it out on a transient failure.
+	// Final verdict: re-fetch in case the loop exited before reaching a terminal status.
 	if info, err := o.client.GetInfo(ctx, test.ID); err == nil {
 		// Only overwrite with a populated field: a transient/partial payload
 		// would otherwise blank an already-captured verdict into a report dash.
@@ -346,9 +324,7 @@ func (o *Orchestrator) runModule(ctx context.Context, plan *conformance.PlanResp
 	return res
 }
 
-// driveOne drives a single authorize URL through eSignet and hands the code back
-// to the suite. It derives the eSignet base from the authorize URL (or validates
-// a configured base against it).
+// driveOne drives a single authorize URL through eSignet and hands the code back to the suite.
 func (o *Orchestrator) driveOne(ctx context.Context, driver *esignet.Driver, authorizeURL string, res *result.ModuleResult) {
 	base, err := o.esignetBase(authorizeURL)
 	if err != nil {
@@ -369,17 +345,13 @@ func (o *Orchestrator) driveOne(ctx context.Context, driver *esignet.Driver, aut
 	deliver, err := o.client.DeliverCallback(ctx, flow.RedirectURI)
 	res.FlowTrace.SuiteCallbackStatus = deliver.SuiteCallbackStatus
 	res.FlowTrace.ImplicitSubmitStatus = deliver.ImplicitSubmitStatus
-	// (deliver's HTTP calls land on the client trace and are discarded at the end
-	// of runModule — see the TakeCalls() comment there; only eSignet-thunder
-	// traffic reaches the report)
+	// deliver's HTTP calls land on the client trace and are discarded at the end of runModule.
 	if err != nil {
 		res.HarnessError = "deliver callback: " + err.Error()
 	}
 }
 
-// esignetBase returns the eSignet base URL: the configured one if set (validated
-// against the authorize URL's scheme+host+prefix), otherwise derived from the
-// authorize URL by trimming /oauth2/authorize.
+// esignetBase returns the configured eSignet base URL, or derives it from the authorize URL.
 func (o *Orchestrator) esignetBase(authorizeURL string) (string, error) {
 	au, err := url.Parse(authorizeURL)
 	if err != nil {
@@ -393,11 +365,7 @@ func (o *Orchestrator) esignetBase(authorizeURL string) (string, error) {
 
 	if o.cfg.Esignet.BaseURL != "" {
 		configured := strings.TrimRight(o.cfg.Esignet.BaseURL, "/")
-		// Exact match only. A prefix test accepted a configured base that is
-		// SHORTER than the derived one (e.g. https://host/v1 against an authorize
-		// URL implying https://host/v1/esignet) and then returned the short value,
-		// pointing /flow/execute at a path that does not exist — precisely the
-		// misconfiguration this guard exists to catch.
+		// Exact match only.
 		if derived != configured {
 			return "", fmt.Errorf("ESIGNET_BASE_URL_MISMATCH: configured %q but suite authorize URL implies %q", configured, derived)
 		}
@@ -406,9 +374,7 @@ func (o *Orchestrator) esignetBase(authorizeURL string) (string, error) {
 	return derived, nil
 }
 
-// selectModules applies precedence: explicit modules -> profile subset ->
-// filter, using the selection resolved for one plan (its own overrides, else
-// run.*).
+// selectModules applies precedence: explicit modules, then profile subset, then filter.
 func (o *Orchestrator) selectModules(planName string, sel config.Selection, all []conformance.Module) ([]conformance.Module, error) {
 	byName := map[string]conformance.Module{}
 	var order []string
@@ -524,10 +490,7 @@ var detailOrder = map[string]int{
 	"response_status_code": 5, "response_status_text": 6, "response_headers": 7, "response_body": 8,
 }
 
-// buildLogItems converts the raw suite condition log into report LogItems,
-// reproducing the suite UI's log view: section banners ("-START-BLOCK-"), a
-// per-entry badge, and expandable detail fields with JSON values pretty-printed
-// (re-indented and unescaped) rather than dumped as one escaped blob.
+// buildLogItems converts the raw suite condition log into report LogItems.
 func buildLogItems(raw []map[string]any) []result.LogItem {
 	var out []result.LogItem
 	for _, e := range raw {
@@ -565,10 +528,7 @@ func buildLogItems(raw []map[string]any) []result.LogItem {
 	return out
 }
 
-// prettyValue renders a detail value: a JSON string/object is re-indented (and
-// its escaped quotes unescaped), other values are shown as-is. Private JWK
-// material is redacted here too — the suite echoes the POSTed client config
-// (jwks and all) back into its condition log.
+// prettyValue re-indents a JSON string or object and shows other values as-is.
 func prettyValue(v any) string {
 	switch t := v.(type) {
 	case string:

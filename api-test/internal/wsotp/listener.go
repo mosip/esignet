@@ -17,9 +17,7 @@ import (
 // functional tests use (\b(\d{6})\b).
 var otpPattern = regexp.MustCompile(`\b(\d{6})\b`)
 
-// mailMessage is the subset of the mock-SMTP JSON frame we need: the body the
-// OTP lives in (text or html) and the recipient (email address(es) or, for SMS,
-// the plain phone in to.text).
+// mailMessage is the subset of the mock-SMTP JSON frame we need: the body and the recipient.
 type mailMessage struct {
 	Text    string `json:"text"`
 	HTML    string `json:"html"`
@@ -32,19 +30,14 @@ type mailMessage struct {
 	} `json:"to"`
 }
 
-// record is one buffered message with the local time we received it (used for
-// freshness rather than the frame's own date, which avoids date-format parsing).
-// Only the fields match() reads are kept: buffering the whole message would
-// retain every recipient address and body for the life of the run for nothing.
+// record is one buffered message with the local time we received it, used for freshness.
 type record struct {
 	at   time.Time
 	otp  string
 	dest []string // normalized recipient identifiers (addresses + to.text)
 }
 
-// Listener maintains a live WebSocket to the mock-SMTP server, buffering
-// received messages so WaitOTP can return the newest fresh code for a
-// recipient. It is safe for concurrent use and shared across flows/modules.
+// Listener maintains a live WebSocket to the mock-SMTP server, buffering received messages.
 type Listener struct {
 	wsURL     string
 	tlsVerify bool
@@ -65,9 +58,7 @@ func NewListener(smtpURL string, tlsVerify bool) *Listener {
 	return &Listener{wsURL: smtpURL, tlsVerify: tlsVerify}
 }
 
-// Start dials the mock and begins buffering messages in the background. It
-// blocks only until the connection is established (or fails), so callers know
-// the listener is live before triggering send-OTP. Safe to call once.
+// Start dials the mock and begins buffering messages in the background.
 func (l *Listener) Start(ctx context.Context) error {
 	l.mu.Lock()
 	if l.started {
@@ -106,11 +97,7 @@ func (l *Listener) Start(ctx context.Context) error {
 				return
 			default:
 			}
-			// readMessage bounds its own reads (see conn): a timeout it reports is
-			// always one that happened BETWEEN frames, so resuming is safe and the
-			// loop just re-checks ctx. A deadline that struck mid-frame comes back
-			// as errStreamDesync instead and falls through to the fatal path — a
-			// retry there would read payload bytes as a frame header.
+			// readMessage bounds its own reads, so a timeout it reports always happened between frames.
 			data, err := c.readMessage()
 			if err != nil {
 				if isTimeout(err) {
@@ -163,9 +150,7 @@ func (l *Listener) ingest(data []byte, at time.Time) {
 	l.mu.Unlock()
 }
 
-// WaitOTP returns the newest OTP received at or after `since` for `recipient`,
-// polling until `timeout`. An empty recipient matches any message (newest fresh
-// code wins). It also reports a background read error if the socket dropped.
+// WaitOTP returns the newest OTP received at or after `since` for `recipient`, polling until `timeout`.
 func (l *Listener) WaitOTP(recipient string, since time.Time, timeout, poll time.Duration) (string, error) {
 	if poll <= 0 {
 		poll = 500 * time.Millisecond

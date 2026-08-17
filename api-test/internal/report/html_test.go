@@ -10,10 +10,7 @@ import (
 	"github.com/mosip/esignet/api-test/internal/result"
 )
 
-// A gated BDD/E2E surface (no suite preflight to fail against) reports
-// HarnessOutcome=ENV_NOT_READY with Result and Status both empty — displayResult
-// must not render that as a blank badge, which would be indistinguishable from a
-// row nobody populated.
+// A gated surface reports ENV_NOT_READY with empty Result and Status, which must not render blank.
 func TestDisplayResultRendersEnvNotReady(t *testing.T) {
 	for _, surface := range []string{result.SurfaceClientMgmt, result.SurfaceE2E} {
 		t.Run(surface, func(t *testing.T) {
@@ -111,11 +108,7 @@ func TestWriteRendersReport(t *testing.T) {
 			t.Errorf("report should not contain suite plumbing %q", notWant)
 		}
 	}
-	// Unique filename names the surfaces and encodes counts (total, incl. known),
-	// and a matching .json sidecar exists. Total is 5 here, one more than
-	// p+f+sk+ki=4 — the fifth module (oidcc-broken, HarnessError set) falls in the
-	// Errored bucket, which has no letter of its own in the filename, so the
-	// total is what tells a reader that bucket exists at all.
+	// The unique filename names the surfaces and encodes the counts, and a matching .json sidecar exists.
 	if base := filepath.Base(path); !strings.HasPrefix(base, "conformance_mosip_") || !strings.Contains(base, "t-5_p-1_f-1_sk-1_ki-1") {
 		t.Errorf("filename = %s, want conformance_mosip_<ts>_t-5_p-1_f-1_sk-1_ki-1", base)
 	}
@@ -125,10 +118,7 @@ func TestWriteRendersReport(t *testing.T) {
 	}
 }
 
-// A run covering two plans must keep them apart everywhere it matters: one
-// conformance section per plan (their module names overlap, so merging them
-// would show two verdicts under one row), one config panel per plan (each has
-// its own client + keys), and both names in the header.
+// A two-plan run keeps them apart: one section and one config panel each, both names in the header.
 func TestWriteSeparatesPlans(t *testing.T) {
 	const (
 		oidcc = "oidcc-test-plan"
@@ -259,10 +249,7 @@ func TestRedactCallBodies(t *testing.T) {
 	}
 }
 
-// The raw authorize URL is what actually went over the wire, but its query
-// values are percent-encoded (spaces as "+", a JSON `claims` param as one
-// unbroken %7B...%7D string) — hard to read at a glance. decodedQuery gives
-// the report a second, human-readable rendering without touching the raw URL.
+// The raw authorize URL is what went over the wire, but its percent-encoded query is hard to read.
 func TestDecodedQuery(t *testing.T) {
 	raw := "https://esignet/oauth2/authorize?" +
 		"acr_values=mosip%3Aidp%3Aacr%3Agenerated-code+mosip%3Aidp%3Aacr%3Apassword&" +
@@ -499,10 +486,7 @@ func TestRedactBodyMasksNonStringScalars(t *testing.T) {
 	}
 }
 
-// A sensitive key holding a composite (object or array) must be masked whole,
-// not walked into — recursing would only re-test the inner key names, which
-// carry no sensitivity of their own (a JWK's "d" under "secret", or a bare
-// array element under "otp").
+// A sensitive key holding a composite must be masked whole, not walked into.
 func TestRedactBodyMasksCompositeUnderSensitiveKey(t *testing.T) {
 	got := redactBody(`{"secret":{"kty":"RSA","d":"live-private-key"},"otp":["111111"]}`)
 	for _, leak := range []string{"live-private-key", "111111"} {
@@ -589,10 +573,7 @@ func TestWriteShowSecretsKeepsTraceAndWarns(t *testing.T) {
 	}
 }
 
-// The debug flag covers the per-run wire trace only. The Keycloak client secret
-// and the private JWKS are long-lived infrastructure credentials that the
-// callers mask before Write ever sees them, so they must stay masked in both
-// modes — otherwise "show me this failing flow" would also dump the keys.
+// The debug flag covers the per-run wire trace only.
 func TestWriteShowSecretsDoesNotUnmaskConfigPanel(t *testing.T) {
 	cfgJSON := `{"keycloak":{"client_secret":"***redacted***"}}`
 	planJSON := `{"client":{"jwks":{"keys":[{"kty":"RSA","d":"***redacted***"}]}}}`

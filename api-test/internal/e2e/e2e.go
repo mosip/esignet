@@ -29,9 +29,7 @@ type Spec struct {
 	Scenarios   []Scenario `json:"scenarios"`
 }
 
-// Filter narrows a Spec's scenarios for a focused run. A spec file carries
-// scenarios across several ACRs and one run drives them all by default; these
-// criteria are AND-ed, and an empty criterion matches everything.
+// Filter narrows a Spec's scenarios for a focused run.
 type Filter struct {
 	AuthFactors []string // keep only these auth_factors (case insensitive)
 	Include     []string // keep only names matching at least one regex
@@ -43,14 +41,7 @@ func (f Filter) Empty() bool {
 	return len(f.AuthFactors) == 0 && len(f.Include) == 0 && len(f.Exclude) == 0
 }
 
-// Select returns a copy of s holding only the scenarios the filter keeps. The
-// client registration fields (redirect URI, claims, ACRs) are carried over
-// unchanged: the test client must still be registered with the full ACR set, or
-// a narrowed run would fail on client capability rather than on the behaviour
-// under test.
-//
-// An empty result is an error rather than a silently empty run — a typo'd filter
-// that produced zero scenarios would otherwise report a green "0 failed".
+// Select returns a copy of s holding only the scenarios the filter keeps.
 func (s Spec) Select(f Filter) (Spec, error) {
 	if f.Empty() {
 		return s, nil
@@ -110,40 +101,20 @@ func matchAny(res []*regexp.Regexp, s string) bool {
 	return false
 }
 
-// Scenario is one full-flow case: which ACR/credentials to drive the login with,
-// which scopes/claims to request, and what the resulting userinfo must (and must
-// not) contain.
+// Scenario is one full-flow case: the ACR and credentials to drive, the scopes/claims to request.
 type Scenario struct {
 	Name string `json:"name"`
 
-	// AuthFactor selects the ACR this scenario drives at the flow's login-method
-	// step: otp | password | bio | kbi. Required — a scenario with no AuthFactor
-	// fails immediately with a clear config error rather than silently falling
-	// back to some default, since ACR coverage (one scenario per factor) is the
-	// point of this surface.
+	// AuthFactor selects the ACR this scenario drives: otp | password | bio | kbi.
 	AuthFactor string `json:"auth_factor"`
 
-	// Credentials overrides the plugin's base identity answers for just this
-	// scenario (e.g. {"otp":"000000"} for a wrong-OTP negative case, or
-	// {"password":"wrong-value"} when the base config has no real password).
-	// Merged over the base answers; only the listed keys are replaced. When an
-	// ACR's required input has no answer at all (base or override) — e.g. `bio`,
-	// which has no configured biometric capture — the flow driver fails cleanly
-	// with "no configured answer for flow input(s): <name>", which is the
-	// expected outcome for those scenarios (see ExpectLoginFailure).
+	// Credentials overrides the plugin's base identity answers for just this scenario.
 	Credentials map[string]string `json:"credentials"`
 
-	// ExpectLoginFailure marks a negative auth case: the login is EXPECTED to be
-	// rejected (wrong credential, or no credential configured for this ACR yet).
-	// The scenario PASSES when the login fails and FAILS if it unexpectedly
-	// succeeds — the inverse of a positive scenario, where success is required
-	// and failure (including "no config for this ACR yet") is reported FAILED,
-	// not skipped, so the case stays visible until real credentials exist.
+	// ExpectLoginFailure marks a negative auth case: the login is expected to be rejected.
 	ExpectLoginFailure bool `json:"expect_login_failure"`
 
-	// Consent controls how the consent step is answered and what is asserted
-	// about it. Omitted ⇒ approve everything and assert nothing, which is the
-	// happy path every pre-existing scenario relies on.
+	// Consent controls how the consent step is answered and what is asserted about it.
 	Consent *ConsentSpec `json:"consent"`
 
 	Scopes         []string          `json:"scopes"`
@@ -151,20 +122,11 @@ type Scenario struct {
 	ExpectPresent  []string          `json:"expect_present"`
 	ExpectValues   map[string]string `json:"expect_values"`
 	ExpectAbsent   []string          `json:"expect_absent"`
-	// KnownIssue, if set, marks this scenario as an already-tracked environment
-	// gap: a claim-assertion failure is reported in the Known bucket (not
-	// Failed/exit-code-affecting) with this reason, while the claim detail is
-	// still shown in the report drill-down. If the scenario starts passing, it
-	// is still reported PASSED (not silently downgraded).
+	// KnownIssue marks the scenario as a tracked environment gap, reported in the Known bucket.
 	KnownIssue string `json:"known_issue"`
 }
 
 // ConsentSpec is a scenario's consent behaviour and expectations.
-//
-// The consent step only appears when the authorize request actually asks for
-// consent-gated claims, so a scenario using this must request scopes/claims
-// beyond bare "openid" — otherwise the server has nothing to prompt for and
-// ExpectPrompt "yes" fails with "consent step never appeared".
 type ConsentSpec struct {
 	// Deny withholds approval from these element names (case-insensitive). A name
 	// the prompt never offers fails the scenario rather than passing vacuously.
@@ -172,12 +134,7 @@ type ConsentSpec struct {
 	// DenyAll withholds approval from every element offered.
 	DenyAll bool `json:"deny_all"`
 
-	// ExpectPrompt asserts whether a consent step appeared at all:
-	//   "yes" — the flow must prompt (first authorization, or a re-prompt)
-	//   "no"  — the flow must NOT prompt (a stored consent still covers it)
-	//   ""    — no assertion
-	// This is the observable for the stored-consent paths in the service's
-	// ResolveConsent: skip on hash match, re-prompt on expiry/claims change.
+	// ExpectPrompt asserts whether a consent step appeared: "yes", "no", or "" for no assertion.
 	ExpectPrompt string `json:"expect_prompt"`
 }
 
@@ -189,10 +146,7 @@ func (c *ConsentSpec) consentPolicy() esignet.ConsentPolicy {
 	return esignet.ConsentPolicy{Deny: c.Deny, DenyAll: c.DenyAll}
 }
 
-// consentObservation is what the flow actually did about consent, carried back
-// even when the login fails — deny-an-essential-claim is precisely a case where
-// the prompt appeared, was answered, and the login was then (correctly)
-// rejected.
+// consentObservation is what the flow actually did about consent, carried back even on login failure.
 type consentObservation struct {
 	prompted bool
 	denied   []string
@@ -219,9 +173,7 @@ func assertConsent(sc Scenario, obs consentObservation) []result.Assertion {
 		})
 	}
 
-	// When a scenario asked to withhold claims, evidence that the withholding
-	// actually happened — otherwise a server that never prompted would make the
-	// claim assertions pass or fail for unrelated reasons.
+	// Evidence that a scenario's requested withholding actually happened.
 	if len(sc.Consent.Deny) > 0 || sc.Consent.DenyAll {
 		want := "withheld: " + strings.Join(sc.Consent.Deny, ", ")
 		if sc.Consent.DenyAll {
@@ -262,11 +214,7 @@ type Runner struct {
 	Logf             func(string, ...any)
 	OTP              esignet.OTPProvider // dynamic OTP source; nil for static OTP
 
-	// PMS registration (mosip plugin only). When Plugin == "mosip" the test
-	// client is registered through partner-management-service /oauth/client
-	// instead of eSignet client-mgmt, so IDA gets the partner+policy binding.
-	// PMS generates the clientId (hash of the public key); the harness reads it
-	// back and uses it for the rest of the flow. See config.PMS.
+	// PMS registration (mosip plugin only).
 	PMSBaseURL    string
 	AuthPartnerID string
 	PolicyID      string
@@ -338,18 +286,13 @@ func (r *Runner) Run(ctx context.Context, spec Spec) []result.ModuleResult {
 		return []result.ModuleResult{r.errRow("e2e client keygen", fmt.Errorf("keygen: %w", err))}
 	}
 	kid := "e2e-" + strconv.FormatInt(time.Now().Unix(), 10)
-	// requestedID is the harness-chosen id used when registering directly against
-	// eSignet client-mgmt (mock/sunbird). For mosip, PMS derives the id from the
-	// public key, so createClient returns the effective id to use downstream.
+	// requestedID is the harness-chosen id used when registering against eSignet client-mgmt.
 	requestedID := "bdd-e2e-" + strconv.FormatInt(time.Now().UnixNano(), 10)
 
 	var setupCalls []result.HTTPCall
 	clientID, err := r.createClient(ctx, &setupCalls, priv, kid, requestedID, spec)
 	if err != nil {
-		// Keep every scenario visible in the report rather than collapsing to a
-		// single error row: when the mosipid partner/policy aren't configured
-		// (expected while onboarding is pending) the cases show ENV_NOT_READY;
-		// a real PMS rejection shows FAILED. Either way the testcases stay in place.
+		// Keep every scenario visible in the report rather than collapsing to a single error row.
 		logf("e2e: client registration failed (%v) — reporting %d scenario(s) as blocked", err, len(spec.Scenarios))
 		return r.registrationFailureRows(spec, setupCalls, err)
 	}
@@ -375,19 +318,13 @@ func (r *Runner) Run(ctx context.Context, spec Spec) []result.ModuleResult {
 		row.Calls = calls
 		row.DurationMs = time.Since(start).Milliseconds()
 
-		// Consent expectations are asserted on every outcome, including the
-		// expected-rejection path: a deny-an-essential-claim case that "passed"
-		// because the OTP happened to be wrong would evidence nothing about
-		// consent. Folding these in makes the rejection reason itself checkable.
+		// Consent expectations are asserted on every outcome, including the expected-rejection path.
 		consentAssertions := assertConsent(sc, consentSeen)
 
 		loginField := fmt.Sprintf("login (acr=%s)", sc.AuthFactor)
 		switch {
 		case ferr != nil && sc.ExpectLoginFailure:
-			// Negative case: rejection is the expected, correct outcome — provided
-			// anything the scenario asserts about consent AND the protocol echoes
-			// (state/nonce) also holds. Without protoAsserts here, a state-mismatch
-			// rejection would report PASSED with no trace of the mismatch it caught.
+			// Negative case: rejection is the expected outcome, provided the consent and echo assertions hold.
 			row.Assertions = append([]result.Assertion{
 				{Field: loginField, Expected: "rejected", Actual: "rejected: " + ferr.Error(), Passed: true},
 			}, consentAssertions...)
@@ -452,19 +389,12 @@ func (r *Runner) Run(ctx context.Context, spec Spec) []result.ModuleResult {
 		out = append(out, row)
 	}
 
-	// The registration call is real eSignet traffic, not harness plumbing, so it
-	// belongs in the report for debugging — same treatment the failure path
-	// (registrationFailureRows) already gives it.
+	// The registration call is real eSignet traffic, so it belongs in the report for debugging.
 	attachSetupCalls(out, setupCalls)
 	return out
 }
 
-// attachSetupCalls folds the client-registration call trace into the first
-// scenario's row. Both setupCalls and a fresh row's own Calls number their Seq
-// from 1 independently, so a plain concatenation would produce two "#1"
-// entries in the same row; CollapseCalls re-sorts by capture time and
-// renumbers, the same normalization the conformance surface already applies to
-// its own per-module trace.
+// attachSetupCalls folds the client-registration call trace into the first scenario's row.
 func attachSetupCalls(out []result.ModuleResult, setupCalls []result.HTTPCall) {
 	if len(out) == 0 || len(setupCalls) == 0 {
 		return
@@ -486,11 +416,7 @@ func mergeAnswers(base, overrides map[string]string) map[string]string {
 	return out
 }
 
-// registrationFailureRows turns a client-registration failure into one report
-// row per scenario, so the testcases stay visible. A missing mosipid PMS config
-// (partner/policy/base not set) is reported ENV_NOT_READY (not run); any other
-// failure — e.g. PMS rejecting the request — is reported FAILED. The registration
-// call trace is attached to the first row.
+// registrationFailureRows turns a registration failure into one report row per scenario.
 func (r *Runner) registrationFailureRows(spec Spec, calls []result.HTTPCall, err error) []result.ModuleResult {
 	if len(spec.Scenarios) == 0 {
 		row := r.errRow("e2e client registration", err)
@@ -526,10 +452,7 @@ func (r *Runner) errRow(name string, err error) result.ModuleResult {
 	}
 }
 
-// createClient registers the test client and returns the effective clientId to
-// use for the rest of the flow. For mosip it registers through PMS /oauth/client
-// (which generates the id); for every other plugin it registers directly against
-// eSignet client-mgmt with the harness-chosen requestedID.
+// createClient registers the test client and returns the effective clientId for the rest of the flow.
 func (r *Runner) createClient(ctx context.Context, calls *[]result.HTTPCall, priv *rsa.PrivateKey, kid, requestedID string, spec Spec) (string, error) {
 	if r.Plugin == "mosip" {
 		return r.createClientViaPMS(ctx, calls, priv, kid, spec)
@@ -574,11 +497,7 @@ func (r *Runner) createClientViaClientMgmt(ctx context.Context, calls *[]result.
 	return clientID, nil
 }
 
-// createClientViaPMS registers the test client through partner-management-service
-// /oauth/client (v2). PMS binds it to the configured Auth partner + policy and
-// generates the clientId (hash of the public key), which it returns in
-// response.clientId — the harness uses that id for authorize + private_key_jwt.
-// userClaims/authContextRefs are NOT sent here: they are governed by the policy.
+// createClientViaPMS registers the test client through partner-management-service /oauth/client (v2).
 func (r *Runner) createClientViaPMS(ctx context.Context, calls *[]result.HTTPCall, priv *rsa.PrivateKey, kid string, spec Spec) (string, error) {
 	if r.PMSBaseURL == "" || r.AuthPartnerID == "" || r.PolicyID == "" {
 		return "", fmt.Errorf("mosip client registration needs PMS_BASE_URL, AUTH_PARTNER_ID and AUTH_POLICY_ID")
@@ -627,11 +546,7 @@ func (r *Runner) createClientViaPMS(ctx context.Context, calls *[]result.HTTPCal
 	return resp.Response.ClientID, nil
 }
 
-// runScenario runs authorize -> login (driver) -> token -> userinfo for one case
-// and returns the parsed userinfo claims, the full call trace, and the protocol
-// assertions this surface makes as the relying party (the state/nonce echoes).
-// answers and preferred are the scenario-specific credential/ACR resolution the
-// driver uses.
+// runScenario drives authorize/login/token/userinfo and returns claims, trace and protocol assertions.
 func (r *Runner) runScenario(ctx context.Context, priv *rsa.PrivateKey, kid, clientID, redirectURI string, sc Scenario, answers map[string]string, preferred []string) (map[string]any, []result.HTTPCall, consentObservation, []result.Assertion, error) {
 	var calls []result.HTTPCall
 	verifier, challenge := pkce()
@@ -688,15 +603,7 @@ func (r *Runner) runScenario(ctx context.Context, priv *rsa.PrivateKey, kid, cli
 		return nil, calls, consentSeen, proto, err
 	}
 
-	// token exchange (private_key_jwt + PKCE).
-	//
-	// aud is the ISSUER, not the token endpoint. RFC 7523 §3 allows either, and
-	// OIDC Core §9 suggests the token endpoint, but eSignet validates against a
-	// single configured audience that it sets to the issuer
-	// (esignet-service/internal/config/app.go: cfg.JWT.Audience = cfg.Issuer).
-	// Sending the token endpoint is rejected as "invalid_client Invalid client
-	// assertion" (verified against esdev 2026-07-29). Falls back to the token
-	// endpoint if discovery gave no issuer.
+	// token exchange (private_key_jwt + PKCE): aud is the ISSUER, which is what eSignet validates against.
 	aud := r.Issuer
 	if aud == "" {
 		aud = r.TokenEndpoint
@@ -730,9 +637,7 @@ func (r *Runner) runScenario(ctx context.Context, priv *rsa.PrivateKey, kid, cli
 		return nil, calls, consentSeen, proto, fmt.Errorf("token exchange failed (HTTP %d): %s", status, firstNonEmpty(tok.Error+" "+tok.ErrorDesc, snippet(rb)))
 	}
 
-	// nonce echo: OIDC Core 3.1.3.7 requires the ID token to carry back the nonce
-	// the authorize request sent. Only asserted when an ID token was issued —
-	// a scenario that does not request openid gets none.
+	// nonce echo: OIDC Core 3.1.3.7 requires the ID token to carry back the authorize request's nonce.
 	if tok.IDToken != "" {
 		got := ""
 		if payload, derr := decodeJWTPayload(tok.IDToken); derr == nil {

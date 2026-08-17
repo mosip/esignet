@@ -1,7 +1,4 @@
-// Package conformance is a thin client over the OpenID Conformance Suite's
-// container API (create plan, start a module, poll status, fetch the authorize
-// URL, read the condition log, and deliver the authorization code back to the
-// suite callback). See plan doc §4 and §8b.
+// Package conformance is a thin client over the OpenID Conformance Suite's container API.
 package conformance
 
 import (
@@ -173,9 +170,7 @@ func (c *Client) GetRunner(ctx context.Context, testID string) (*Runner, error) 
 	return &r, nil
 }
 
-// GetRawLog returns the per-test condition log as raw objects, preserving every
-// field so the report can reproduce the suite UI's log view (badges + "+N more"
-// detail). The suite schema drifts across releases, hence map[string]any.
+// GetRawLog returns the per-test condition log as raw objects, preserving every field for the report.
 func (c *Client) GetRawLog(ctx context.Context, testID string) ([]map[string]any, error) {
 	body, status, err := c.do(ctx, "suite /api/log", http.MethodGet, "/api/log/"+testID, nil, "")
 	if err != nil {
@@ -202,12 +197,7 @@ type DeliverResult struct {
 var implicitSubmitRe = regexp.MustCompile(`"implicitSubmitUrl"\s*:\s*"([^"]+)"`)
 var implicitPathRe = regexp.MustCompile(`https?://[^"'\s]+/implicit/[^"'\s]+`)
 
-// DeliverCallback performs the mandatory two-request hand-off (plan doc §2):
-//  1. GET the eSignet-provided redirect_uri (the suite callback with code+state)
-//     — the suite stores the params and returns an implicitCallback HTML page.
-//  2. Parse implicitSubmitUrl from that HTML and POST it (empty, text/plain),
-//     which triggers the suite's token/userinfo exchange. Without (2) the test
-//     stays WAITING forever.
+// DeliverCallback performs the suite's two-request hand-off: GET the redirect_uri, then POST implicitSubmitUrl.
 func (c *Client) DeliverCallback(ctx context.Context, redirectURI string) (DeliverResult, error) {
 	var res DeliverResult
 
@@ -239,9 +229,7 @@ func parseImplicitSubmitURL(html string) string {
 	if m := implicitSubmitRe.FindStringSubmatch(html); len(m) == 2 {
 		return strings.ReplaceAll(m[1], "\\/", "/")
 	}
-	// Current suite: the URL is a JS string in an xhr.open("POST", "…/implicit/…")
-	// call with backslash-escaped slashes (https:\/\/…\/implicit\/token). Unescape
-	// the slashes first, then match.
+	// Current suite: the URL is a JS string in an xhr.open("POST", …) call with backslash-escaped slashes.
 	un := strings.ReplaceAll(html, "\\/", "/")
 	if m := implicitPathRe.FindString(un); m != "" {
 		return m
@@ -282,10 +270,7 @@ func (c *Client) doAbs(ctx context.Context, label, method, absURL string, body [
 	if contentType != "" {
 		req.Header.Set("Content-Type", contentType)
 	}
-	// The token authenticates us to the conformance suite only. DeliverCallback
-	// passes absolute URLs taken from the deployment under test (redirect_uri)
-	// and scraped from its HTML, so an unscoped header would hand the suite
-	// admin token to whatever host that deployment names.
+	// The token authenticates us to the conformance suite only.
 	if c.token != "" && c.isSuiteHost(req.URL) {
 		req.Header.Set("Authorization", "Bearer "+c.token)
 	}

@@ -13,12 +13,7 @@ func newTestOrchestrator(base string) *Orchestrator {
 	return &Orchestrator{cfg: cfg, logf: func(string, ...any) {}}
 }
 
-// The suite's authorize URL is the authority on where eSignet lives; a
-// configured esignet.base_url is only allowed to agree with it. The mismatch
-// cases matter more than the happy one: /flow/execute is driven against whatever
-// this returns, so a base that merely LOOKS compatible sends the login flow to a
-// path that does not exist, and the run fails with a 404 rather than the config
-// error that explains it.
+// The suite's authorize URL is the authority on where eSignet lives; a configured one may only agree.
 func TestEsignetBase(t *testing.T) {
 	const authorize = "https://esignet.example/v1/esignet/oauth2/authorize?client_id=x"
 

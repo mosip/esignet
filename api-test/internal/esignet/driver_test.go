@@ -29,9 +29,7 @@ func TestSelectAction(t *testing.T) {
 		// Stage 5: a step offering only tab switches is progressable, so the
 		// first navigation action is taken rather than aborting as ambiguous.
 		{"nav-only-fallback", []string{"login_id_mobile", "login_id_email"}, nil, "login_id_mobile", false},
-		// Stage 5 must still honour the caller preference (IDTypeTokens) among
-		// navigation-only candidates: picking the server's first tab regardless
-		// would authenticate against the wrong login-id type.
+		// Stage 5 must honour the caller's IDTypeTokens preference among navigation-only candidates.
 		{"nav-honours-preference", []string{"login_id_mobile", "login_id_email"}, []string{"otp", "email"}, "login_id_email", false},
 	}
 	for _, c := range cases {
@@ -76,10 +74,7 @@ func TestResolveInputs(t *testing.T) {
 	}
 }
 
-// The consent decision must approve every purpose and every claim: the harness
-// drives the happy path, and a scenario asserting which claims userinfo releases
-// needs them all granted — a withheld claim is indistinguishable from the server
-// failing to release one.
+// The consent decision must approve every purpose and every claim on the happy path.
 func TestBuildConsentDecision(t *testing.T) {
 	prompt := `[{"purposeName":"attributes:client-1","purposeId":"","type":"attributes",
 	             "essential":[{"name":"name"}],
@@ -116,10 +111,7 @@ func TestBuildConsentDecision(t *testing.T) {
 	}
 }
 
-// A ConsentPolicy withholds approval from exactly the named elements, leaving
-// the rest approved — this is what the consent-deny scenarios rely on to prove
-// the server honours a withheld optional claim (and rejects a withheld essential
-// one).
+// A ConsentPolicy withholds approval from exactly the named elements, leaving the rest approved.
 func TestBuildConsentDecisionDeny(t *testing.T) {
 	prompt := `[{"purposeName":"attributes:client-1","type":"attributes",
 	             "essential":[{"name":"name"}],
@@ -169,10 +161,7 @@ func TestBuildConsentDecisionDenyAll(t *testing.T) {
 	}
 }
 
-// Denying every element BY NAME must reach the same submission as DenyAll: the
-// consent executor would otherwise receive Approved:true over an all-denied
-// element list, and an essential_consent_denied assertion could pass for the
-// wrong reason.
+// Denying every element by name must reach the same submission as DenyAll.
 func TestBuildConsentDecisionDenyEveryElementByName(t *testing.T) {
 	prompt := `[{"purposeName":"attributes:c1","essential":[{"name":"name"}],"optional":[{"name":"email"}]}]`
 	got, denied, err := buildConsentDecision(prompt, ConsentPolicy{Deny: []string{"name", "email"}})
@@ -191,9 +180,7 @@ func TestBuildConsentDecisionDenyEveryElementByName(t *testing.T) {
 	}
 }
 
-// A deny naming a claim the prompt never offered must be a loud error: the
-// scenario would otherwise "pass" while asserting nothing, because the claim it
-// meant to withhold was never consent-gated by that authorize request.
+// A deny naming a claim the prompt never offered must be a loud error.
 func TestBuildConsentDecisionDenyUnofferedIsError(t *testing.T) {
 	prompt := `[{"purposeName":"attributes:c1","essential":[{"name":"name"}],"optional":[]}]`
 	_, _, err := buildConsentDecision(prompt, ConsentPolicy{Deny: []string{"email"}})

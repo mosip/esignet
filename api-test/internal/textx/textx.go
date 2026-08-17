@@ -1,6 +1,4 @@
-// Package textx holds the one text-truncation helper shared by every
-// call-trace and log renderer in the harness (conformance, esignet, and the
-// orchestrator each captured their own copy, with a different limit/suffix).
+// Package textx holds the text-truncation helper shared by every call-trace and log renderer.
 package textx
 
 import "unicode/utf8"

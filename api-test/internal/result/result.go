@@ -1,6 +1,4 @@
-// Package result holds the shared outcome types produced by the orchestrator
-// and consumed by the report renderer. Kept in its own package to avoid an
-// import cycle between orchestrator and report.
+// Package result holds the outcome types produced by the orchestrator and consumed by the report.
 package result
 
 import "sort"
@@ -15,9 +13,7 @@ const (
 	OutcomeEnvNotReady      = "ENV_NOT_READY"
 )
 
-// Surface names the test surface a row came from, so one consolidated report can
-// carry all three (plan doc §5, §9). The godog surfaces reach the report as the
-// same ModuleResult envelope via the cucumber->envelope adapter.
+// Surface names the test surface a row came from, so one report can carry all three.
 const (
 	SurfaceConformance = "conformance"
 	SurfaceClientMgmt  = "client-mgmt"
@@ -49,13 +45,7 @@ type ModuleResult struct {
 	Calls            []HTTPCall // eSignet-thunder request/response trace for manual debugging
 	HarnessError     string
 
-	// Assertions is the full field-level validation trace for this case — one
-	// entry per check performed (status code, JSON field, claim, …), pass or
-	// fail, each with what was expected and what was actually observed. Unlike
-	// FailedConditions (failures only), this shows the complete "what did we
-	// validate and why did it pass/fail" picture. Populated by the client-mgmt,
-	// flow-execute, and e2e surfaces; left empty for conformance rows, which
-	// already carry the suite's own structured log (LogItems).
+	// Assertions is the full field-level validation trace for this case, one entry per check.
 	Assertions []Assertion
 }
 
@@ -67,10 +57,7 @@ type Assertion struct {
 	Passed   bool
 }
 
-// LogItem is one entry of the suite's per-test condition log (GET /api/log),
-// carried in full so the report can reproduce the suite UI's log view: a badge
-// (result or HTTP request/response), the source, the message, and collapsible
-// "+N more" detail fields (each pretty-printed) for the remaining fields.
+// LogItem is one entry of the suite's per-test condition log, carried in full for the report.
 type LogItem struct {
 	Time        string
 	Src         string
@@ -107,14 +94,9 @@ type HTTPCall struct {
 	RespBody    string
 }
 
-// CollapseCalls sorts calls chronologically and merges consecutive identical
-// ones (same method/URL/status/bodies) into a single entry with a Repeat count,
-// so polled /api/info calls don't flood the report. Seq is renumbered.
+// CollapseCalls sorts calls chronologically and merges consecutive identical ones with a Repeat count.
 func CollapseCalls(calls []HTTPCall) []HTTPCall {
-	// Sort a copy: every other transform in this harness (redactCallBodies,
-	// Collector.Rows) leaves the caller's slice untouched, and a caller that
-	// captures a trace, collapses it for one report, then re-reads the original
-	// would otherwise see it silently reordered.
+	// Sort a copy: every other transform in this harness leaves the caller's slice untouched.
 	sorted := append([]HTTPCall(nil), calls...)
 	sort.SliceStable(sorted, func(i, j int) bool { return sorted[i].At < sorted[j].At })
 	var out []HTTPCall
@@ -166,9 +148,7 @@ type Summary struct {
 	Total, Passed, Failed, Warning, Review, Skipped, Known, Errored int
 }
 
-// Summarize computes the tile counts. "Skipped" folds suite SKIPPED and
-// harness SKIPPED_BY_HARNESS together; "Known" holds modules gated by the
-// known_issues config (plan doc §6).
+// Summarize computes the tile counts.
 func Summarize(rs []ModuleResult) Summary {
 	var s Summary
 	for _, r := range rs {
@@ -199,14 +179,7 @@ func Summarize(rs []ModuleResult) Summary {
 // any harness error.
 func (s Summary) HasFailures() bool { return s.Failed > 0 || s.Errored > 0 }
 
-// SurfaceGroup is the rows of one surface plus that surface's own tile counts,
-// so the consolidated report can show a section per surface (plan doc §6).
-//
-// Plan splits a surface further: a run that executes oidcc-test-plan and
-// fapi2-security-profile-final-test-plan gets one conformance section each,
-// because their module lists overlap by name and merging them would show two
-// unrelated verdicts under one row number. It is empty for the bdd/e2e
-// surfaces, whose rows carry no plan, so those stay a single section.
+// SurfaceGroup is the rows of one surface plus that surface's own tile counts.
 type SurfaceGroup struct {
 	Surface string
 	Plan    string
@@ -222,13 +195,7 @@ var surfaceOrder = map[string]int{
 	SurfaceE2E:         3,
 }
 
-// GroupBySurface splits results into ordered groups, one per (surface, plan). A
-// blank Surface defaults to conformance so pre-existing runs (rows written
-// before Surface existed) still render; a blank Plan keeps every row of that
-// surface in one group, which is what the bdd/e2e surfaces do.
-//
-// Surfaces sort in the fixed display order and, within a surface, plans keep the
-// order they were run in.
+// GroupBySurface splits results into ordered groups, one per (surface, plan).
 func GroupBySurface(rs []ModuleResult) []SurfaceGroup {
 	type key struct{ surface, plan string }
 	byKey := map[key][]ModuleResult{}

@@ -1,17 +1,4 @@
-// Command e2e runs the end-to-end surface: register a throwaway OIDC client, then
-// for each scenario drive authorize -> flow/execute login -> token
-// (private_key_jwt) -> userinfo, and assert the returned claims. It writes a
-// result.ModuleResult envelope (Surface=e2e) to out/e2e-envelope.json for the
-// consolidation runner. Here the harness IS the relying party (unlike the
-// conformance surface, where the suite is).
-//
-// Configuration comes from the same layered source as every other surface —
-// config.<plugin>.json, config.local.json, then environment overrides (see
-// internal/config). Which scenarios run is narrowed by e2e.auth_factors /
-// e2e.include / e2e.exclude; by default every scenario in the spec runs, each
-// driving the ACR it declares.
-//
-//	e2e -config config.mosip.json
+// Command e2e registers a throwaway OIDC client, drives authorize/login/token/userinfo, and asserts claims.
 package main
 
 import (
@@ -82,9 +69,7 @@ func main() {
 		logger.Fatalf("keycloak admin token: %v", err)
 	}
 
-	// Each scenario declares its own auth_factor (ACR) and may override the base
-	// identity answers via its credentials map — there is no single global auth
-	// factor here, since one run drives every ACR the spec covers.
+	// Each scenario declares its own auth_factor and may override the base identity answers.
 	sp := cfg.E2E.Spec
 	if *specPath != "" {
 		sp = *specPath
@@ -106,9 +91,7 @@ func main() {
 		logger.Printf("scenario filter: %d of %d scenario(s) selected from %s", len(spec.Scenarios), total, sp)
 	}
 
-	// run.timeout_seconds/poll_interval_seconds — the same knobs the conformance
-	// surface uses for its own HTTP client and poll wait — so TIMEOUT_SECONDS
-	// changes this surface's behaviour too, not only the conformance one.
+	// run.timeout_seconds/poll_interval_seconds are shared with the conformance surface's HTTP client.
 	timeout := time.Duration(cfg.Run.TimeoutSeconds) * time.Second
 	poll := time.Duration(cfg.Run.PollIntervalSeconds) * time.Second
 	if poll <= 0 {
@@ -188,9 +171,7 @@ func fetchDiscovery(ctx context.Context, url string, tlsVerify bool) (*discovery
 	if d.TokenEndpoint == "" || d.AuthorizationEndpoint == "" {
 		return nil, fmt.Errorf("discovery missing endpoints")
 	}
-	// An RP must not follow a discovery document to hosts it did not configure:
-	// the access token is sent to userinfo, and the token exchange carries the
-	// signed client assertion. Both stay on the host the document came from.
+	// An RP must not follow a discovery document to hosts it did not configure.
 	if d.Issuer == "" {
 		return nil, fmt.Errorf("discovery %s: no issuer", url)
 	}
@@ -200,11 +181,7 @@ func fetchDiscovery(ctx context.Context, url string, tlsVerify bool) (*discovery
 	return &d, nil
 }
 
-// sameOrigin reports whether every non-empty URL in others shares ref's scheme
-// AND host, so a tampered or misconfigured discovery document cannot redirect
-// credentials to an unrelated origin, nor downgrade them to cleartext on this
-// one (a host-only check would let token_endpoint declare http:// and still
-// pass, sending the signed client assertion and access token unencrypted).
+// sameOrigin reports whether every non-empty URL in others shares ref's scheme and host.
 func sameOrigin(ref string, others ...string) error {
 	base, err := url.Parse(ref)
 	if err != nil {

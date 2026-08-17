@@ -72,10 +72,7 @@ func TestRegistrationFailureRows_FallbackWhenNoScenarios(t *testing.T) {
 	}
 }
 
-// The client-registration call is real eSignet traffic (unlike conformance's
-// suite plumbing, which is deliberately dropped), so on a successful run it
-// must still show up in the report — attached to the first scenario's row,
-// same as the failure path already does via registrationFailureRows.
+// The client-registration call is real eSignet traffic, so a successful run must still report it.
 func TestAttachSetupCalls(t *testing.T) {
 	setup := []result.HTTPCall{{Seq: 1, At: 100, Label: "create client", Method: "POST", URL: "https://esignet/client-mgmt/client", Status: 201}}
 	out := []result.ModuleResult{
@@ -114,9 +111,7 @@ func TestAttachSetupCallsNoopOnEmptyInputs(t *testing.T) {
 	}
 }
 
-// A userinfo JWT signed by an unknown key must fail the scenario, not merely
-// record a claim: this is the in-transit integrity evidence the surface exists
-// to produce.
+// A userinfo JWT signed by an unknown key must fail the scenario, not merely record a claim.
 func TestAssertClaimsFailsOnUnverifiedJWS(t *testing.T) {
 	sc := Scenario{Name: "userinfo", ExpectPresent: []string{"sub"}}
 	claims := map[string]any{"sub": "abc", "_jws_verified": false, "_jws_error": "no JWKS key verified the signature"}
@@ -232,9 +227,7 @@ func TestSelectFilters(t *testing.T) {
 	}
 }
 
-// The client is registered once for the whole run, so narrowing the scenarios
-// must not narrow the ACRs/claims it is registered with — a filtered run would
-// then fail on client capability rather than on the behaviour under test.
+// Narrowing the scenarios must not narrow the ACRs and claims the shared client is registered with.
 func TestSelectKeepsClientRegistrationFields(t *testing.T) {
 	got, err := mixedSpec().Select(Filter{AuthFactors: []string{"otp"}})
 	if err != nil {
@@ -245,9 +238,7 @@ func TestSelectKeepsClientRegistrationFields(t *testing.T) {
 	}
 }
 
-// A filter that matches nothing must fail loudly. Returning an empty spec would
-// produce a report reading "0 scenarios, 0 failed" — indistinguishable from a
-// clean pass.
+// A filter that matches nothing must fail loudly.
 func TestSelectEmptyResultIsAnError(t *testing.T) {
 	_, err := mixedSpec().Select(Filter{AuthFactors: []string{"kbi"}})
 	if err == nil {
@@ -322,10 +313,7 @@ func TestAssertConsentDenyRequiresSomethingWithheld(t *testing.T) {
 	}
 }
 
-// The shipped spec files must parse into the current Scenario/ConsentSpec schema
-// and satisfy the invariants the consent cases depend on. A typo here would
-// otherwise only surface as a confusing mid-run failure against a live
-// deployment, minutes into a run.
+// The shipped spec files must parse into the current schema and satisfy the consent invariants.
 func TestShippedSpecsParseAndAreConsistent(t *testing.T) {
 	for _, f := range []string{"e2e-scenarios.json", "e2e-scenarios-mosip.json", "e2e-scenarios-sunbird.json"} {
 		t.Run(f, func(t *testing.T) {
@@ -338,12 +326,7 @@ func TestShippedSpecsParseAndAreConsistent(t *testing.T) {
 				t.Fatalf("parse: %v", err)
 			}
 
-			// Every scenario that logs in successfully stores a consent record for
-			// (client, user) keyed by its scopes+claims hash — the whole spec shares
-			// one client per run. So the predecessor set must include ALL succeeding
-			// scenarios, not just the ones carrying a consent block: a plain
-			// "profile scope releases name" positive earlier in the file will
-			// suppress the prompt a later consent case asserts.
+			// Every successful login stores a consent record keyed by its scopes+claims hash for the shared client.
 			var sawConsent, sawReuse bool
 			consented := map[string]string{}
 			for _, sc := range spec.Scenarios {
@@ -393,10 +376,7 @@ func TestShippedSpecsParseAndAreConsistent(t *testing.T) {
 	}
 }
 
-// RFC 7515 mandates unpadded base64url, but padded JWKS values turn up in the
-// wild. Decoding them strictly skipped every key, leaving nothing to verify with
-// and reporting a healthy eSignet as a userinfo signature failure — a formatting
-// quirk surfacing as a compliance defect.
+// RFC 7515 mandates unpadded base64url, but padded JWKS values turn up in the wild.
 func TestRSAPubFromJWKAcceptsPaddedBase64(t *testing.T) {
 	key, err := generateRSA()
 	if err != nil {
@@ -434,9 +414,7 @@ func TestRSAPubFromJWKRejectsInvalidBase64(t *testing.T) {
 	}
 }
 
-// A degenerate key must be rejected outright rather than built and then failing
-// verification for an unrelated-looking reason ("no JWKS key verified the
-// signature"), which would read as an eSignet signing defect.
+// A degenerate key must be rejected outright rather than failing later as a signature mismatch.
 func TestRSAPubFromJWKRejectsDegenerateKeys(t *testing.T) {
 	n := base64.RawURLEncoding.EncodeToString([]byte{0x01, 0x02, 0x03})
 	for _, tc := range []struct{ name, n, e string }{

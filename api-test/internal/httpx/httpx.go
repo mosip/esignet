@@ -1,6 +1,4 @@
-// Package httpx holds the tiny bits of HTTP plumbing shared by the conformance
-// client and the eSignet driver, so the InsecureSkipVerify policy and the
-// header-cloning used to capture the debug call trace each live in one place.
+// Package httpx holds the HTTP plumbing shared by the conformance client and the eSignet driver.
 package httpx
 
 import (
@@ -10,15 +8,11 @@ import (
 )
 
 // NewClient builds an *http.Client with the harness's shared TLS-verify policy.
-// Callers that need a cookie jar or a CheckRedirect override set those fields
-// on the returned client (or a shallow copy of it) afterward.
 func NewClient(tlsVerify bool, timeout time.Duration) *http.Client {
 	return &http.Client{
 		Transport: &http.Transport{TLSClientConfig: &tls.Config{
 			MinVersion: tls.VersionTLS12,
-			//nolint:gosec // operator-controlled: only the conformance suite's
-			// self-signed localhost cert is exempted via tlsVerify; esignet.tls_verify
-			// stays on for the real deployment.
+			//nolint:gosec // operator-controlled: only the suite's self-signed localhost cert is exempted via tlsVerify.
 			InsecureSkipVerify: !tlsVerify,
 		}},
 		Timeout: timeout,

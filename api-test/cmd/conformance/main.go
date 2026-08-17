@@ -1,13 +1,4 @@
-// Command conformance runs the eSignet ⇄ OpenID Conformance Suite pure-API test
-// harness (Phase 1 / v1.0): drive the suite's oidcc-test-plan modules through
-// eSignet's flow-execute login and produce a consolidated HTML report.
-//
-// Usage:
-//
-//	conformance -config config.json
-//
-// Config may come from the JSON file, environment variables (which override the
-// file), or a mix. See README.md and plan doc §8b/§8f.
+// Command conformance drives the OpenID Conformance Suite's plan modules through eSignet and reports.
 package main
 
 import (
@@ -57,11 +48,7 @@ func main() {
 		ShowSecrets: cfg.Run.DebugShowSecrets,
 	}
 
-	// A plain context.Background() is never cancelled, so Ctrl-C (or a
-	// scheduler's SIGTERM) would kill the process outright — losing even the
-	// partial report the error branch below exists to write. NotifyContext lets
-	// the in-flight HTTP call return promptly and the run fall through to that
-	// branch instead.
+	// A cancellable context lets Ctrl-C or SIGTERM still write the partial report.
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 

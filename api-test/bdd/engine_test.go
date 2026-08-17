@@ -10,11 +10,7 @@ import (
 	"github.com/cucumber/godog"
 )
 
-// TestFeatures is the godog entry point. It runs the .feature files against the
-// live eSignet base (ESIGNET_BASE_URL), collects one Envelope per scenario, and
-// writes them to BDD_ENVELOPE_OUT (default ../out/bdd-envelope.json) for the
-// consolidation runner to fold into the report. Scenario failures do NOT fail
-// the test binary — the report is the source of truth for pass/fail.
+// TestFeatures is the godog entry point.
 func TestFeatures(t *testing.T) {
 	base := os.Getenv("ESIGNET_BASE_URL")
 	if base == "" {
@@ -34,9 +30,7 @@ func TestFeatures(t *testing.T) {
 		}
 		if os.Getenv("KEYCLOAK_CLIENT_SECRET") != "" {
 			tags += ",@client-mgmt" // godog: comma = OR
-			// The PMS-backed client-mgmt feature is mosipid-only (needs an
-			// onboarded partner+policy); include it only for the mosip provider
-			// with a PMS base configured, so it never runs for mock/sunbird.
+			// The PMS-backed client-mgmt feature is mosipid-only: it needs an onboarded partner and policy.
 			if strings.EqualFold(os.Getenv("AUTHN_PROVIDER"), "mosip") && os.Getenv("PMS_BASE_URL") != "" {
 				tags += ",@client-mgmt-pms"
 			}
@@ -54,9 +48,7 @@ func TestFeatures(t *testing.T) {
 	_ = suite.Run() // capture results regardless of pass/fail
 
 	rows := coll.Rows()
-	// If a surface was gated out, surface it as an explicit ENV_NOT_READY row so
-	// the report shows the section instead of silently omitting it — an omitted
-	// section reads as a false green during conformance sign-off.
+	// A gated-out surface becomes an explicit ENV_NOT_READY row, so the report never silently omits it.
 	if os.Getenv("GODOG_TAGS") == "" {
 		plugin := os.Getenv("AUTHN_PROVIDER")
 		if plugin == "" {
@@ -101,10 +93,7 @@ func TestFeatures(t *testing.T) {
 	t.Logf("bdd: wrote %d envelope row(s) to %s", len(rows), out)
 }
 
-// writeEnvelope persists the collected rows for the consolidation runner. The
-// envelope carries the raw request/response trace, so it is owner-only: it is an
-// intermediate artifact that the report's own redaction pass has not run over
-// yet (that happens in internal/report on the consolidated results).
+// writeEnvelope persists the collected rows for the consolidation runner.
 func writeEnvelope(path string, rows []Envelope) error {
 	if err := os.MkdirAll(filepath.Dir(path), 0o750); err != nil {
 		return err
@@ -113,10 +102,7 @@ func writeEnvelope(path string, rows []Envelope) error {
 	if err != nil {
 		return err
 	}
-	// os.WriteFile does not change the mode of a file that already exists, so a
-	// prior permissive envelope (e.g. from before this 0600 policy) would stay
-	// readable even though this rewrite is 0600. OpenFile + Chmod enforces it
-	// either way.
+	// os.WriteFile leaves an existing file's mode alone, so re-apply 0600 explicitly.
 	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
 	if err != nil {
 		return err

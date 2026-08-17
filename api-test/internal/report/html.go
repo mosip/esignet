@@ -1,10 +1,4 @@
-// Package report renders the consolidated, self-contained HTML report (plus a
-// sidecar JSON dump). The filename is unique per run and encodes plan, provider,
-// timestamp and pass/fail/skip/known counts. The report mirrors the OpenID
-// Conformance Suite UI: an expandable per-module test log (from /api/log) plus
-// the eSignet-thunder request/response trace. Conformance-suite plumbing calls
-// (/api/runner, /api/plan, /api/info, deliver) are intentionally not shown — use
-// the harness logs for those. See plan doc §6.
+// Package report renders the consolidated, self-contained HTML report plus a sidecar JSON dump.
 package report
 
 import (
@@ -73,9 +67,7 @@ type rowView struct {
 	AssertionFails int
 }
 
-// assertionView is one expected-vs-actual validation check, rendered in the
-// per-testcase Validation tab (client-mgmt / flow-execute / e2e; conformance
-// rows carry no Assertions and so render no Validation tab).
+// assertionView is one expected-vs-actual check, rendered in the per-testcase Validation tab.
 type assertionView struct {
 	Field       string
 	Expected    string
@@ -119,28 +111,20 @@ type callView struct {
 	RespBody     string
 }
 
-// PlanConfig is one plan's redacted suite config (the client + jwks POSTed to
-// /api/plan), shown in the report's configuration panel. A run covering two
-// plans carries two of these — each with its own client, so they must stay
-// labelled and separate rather than merged into one blob.
+// PlanConfig is one plan's redacted suite config, shown in the report's configuration panel.
 type PlanConfig struct {
 	Plan string
 	JSON string
 }
 
-// Options is one report's input. Plans lists the conformance plans the run
-// covered, in order; it drives the header and the filename, and may be empty
-// for a report with no conformance surface.
+// Options is one report's input.
 type Options struct {
 	Dir         string
 	Plans       []string
 	Provider    string
 	ConfigJSON  string // redacted effective harness config
 	PlanConfigs []PlanConfig
-	// ShowSecrets (run.debug_show_secrets) leaves the captured eSignet wire trace
-	// unredacted for local debugging. Callers pass false unless the operator opted
-	// in; see config.Run.DebugShowSecrets for the boundary of what it affects. It
-	// never unmasks ConfigJSON/PlanConfigs, which their callers mask regardless.
+	// ShowSecrets leaves the captured eSignet wire trace unredacted for local debugging.
 	ShowSecrets bool
 	Results     []result.ModuleResult
 }
@@ -166,10 +150,7 @@ func Write(o Options) (string, error) {
 	}
 	plan := planLabel(o.Plans)
 	ts := time.Now().Format("20060102-150405")
-	// Total is every module (sum.Passed+Failed+Skipped+Known plus any
-	// Errored/Warning/Review bucket not otherwise called out in the name), so a
-	// reader can tell at a glance whether p/f/sk/ki already account for the whole
-	// run or something else (e.g. ENV_NOT_READY) is hiding in the difference.
+	// Total is every module, so a reader can tell whether p/f/sk/ki account for the whole run.
 	base := fmt.Sprintf("%s_%s_%s_t-%d_p-%d_f-%d_sk-%d_ki-%d", surfaceSlug(results), provider, ts, sum.Total, sum.Passed, sum.Failed, sum.Skipped, sum.Known)
 	// Never overwrite an existing report: if a same-second run produced the same
 	// counts, add a numeric suffix so both reports are kept.
@@ -178,9 +159,7 @@ func Write(o Options) (string, error) {
 		base = fmt.Sprintf("%s-%d", stem, i)
 	}
 
-	// plan_configs is a list because a run can cover several plans; the old
-	// single-plan key is still written when there is exactly one, so a sidecar
-	// stays readable by anything that consumed the previous shape.
+	// plan_configs is a list; the old single-plan key is still written when there is exactly one.
 	planConfigs := make([]map[string]any, 0, len(o.PlanConfigs))
 	for _, pc := range o.PlanConfigs {
 		planConfigs = append(planConfigs, map[string]any{
@@ -196,9 +175,7 @@ func Write(o Options) (string, error) {
 	if len(o.PlanConfigs) == 1 {
 		sidecar["plan_config"] = json.RawMessage(safeJSON(o.PlanConfigs[0].JSON))
 	}
-	// The consolidation runner reads this sidecar by a path derived from the HTML
-	// name, so a silent write failure surfaces there as a confusing
-	// "no such file or directory" instead of the real cause.
+	// The consolidation runner derives this sidecar's path from the HTML name, so report a write failure.
 	data, err := json.MarshalIndent(sidecar, "", "  ")
 	if err != nil {
 		return "", fmt.Errorf("marshal sidecar: %w", err)
@@ -273,10 +250,7 @@ func planLabel(plans []string) string {
 	}
 }
 
-// filenameSurfaces maps a row's surface to the name it goes by in the filename,
-// in the order surfaces run. The two godog surfaces collapse to one "bdd" part:
-// they always run together, and the filename answers "which surfaces are in this
-// report", not "which feature files".
+// filenameSurfaces maps a row's surface to its filename name, in the order surfaces run.
 var filenameSurfaces = []struct{ surface, part string }{
 	{result.SurfaceConformance, "conformance"},
 	{result.SurfaceClientMgmt, "bdd"},
@@ -284,11 +258,7 @@ var filenameSurfaces = []struct{ surface, part string }{
 	{result.SurfaceE2E, "e2e"},
 }
 
-// surfaceSlug is the leading filename part: the surfaces this report actually
-// covers, e.g. conformance_bdd_e2e for a full run or conformance for a
-// conformance-only one. Plan names are deliberately not in the filename — they
-// are long, there can be several, and the report header and its sections name
-// them anyway.
+// surfaceSlug is the leading filename part: the surfaces this report actually covers.
 func surfaceSlug(results []result.ModuleResult) string {
 	present := map[string]bool{}
 	for _, r := range results {
@@ -529,10 +499,7 @@ func isSensitiveHeader(k string) bool {
 	return false
 }
 
-// redactHeaderMap returns a copy of a captured header map with the
-// credential- and session-bearing values masked. headerStr masks the same
-// headers when rendering, but the sidecar JSON serialises the map itself, so
-// the mask has to be applied to the data — not only to the HTML view.
+// redactHeaderMap copies a captured header map with credential- and session-bearing values masked.
 func redactHeaderMap(h map[string][]string) map[string][]string {
 	if len(h) == 0 {
 		return h
@@ -572,19 +539,10 @@ func headerStr(h map[string][]string) string {
 	return strings.TrimRight(b.String(), "\n")
 }
 
-// sensitiveBodyKeys are JSON field names scrubbed from captured request/response
-// bodies before they reach the report or its sidecar JSON — the eSignet wire
-// trace exists to debug flow mechanics, not to archive live credentials
-// (password, OTP, the signed client assertion) into a file CI keeps around.
+// sensitiveBodyKeys are JSON field names scrubbed from captured bodies before they reach the report.
 var sensitiveBodyKeys = []string{"password", "otp", "assertion", "secret", "token"}
 
-// identityKeys are the login inputs the driver posts to /flow/execute
-// (answers.go builds them): the subject identifier and the KBI answers. They are
-// authenticators, so they are scrubbed from REQUEST bodies by exact key match —
-// exact rather than substring so the client-mgmt trace keeps `clientName` etc.
-//
-// Deliberately request-only: the userinfo RESPONSE claims are the artifact this
-// harness exists to evidence, so they stay readable in the report.
+// identityKeys are the login inputs the driver posts to /flow/execute.
 var identityKeys = []string{"individualid", "individual_id", "username", "fullname", "full_name", "name", "dob"}
 
 func isIdentityKey(k string) bool {
@@ -597,9 +555,7 @@ func isIdentityKey(k string) bool {
 	return false
 }
 
-// redactCallBodies returns a copy of results with sensitive fields scrubbed from
-// every captured HTTPCall body and suite log item. Applied once here so both the
-// sidecar JSON dump and the HTML table see the same redacted data.
+// redactCallBodies copies results with sensitive fields scrubbed from every body and log item.
 func redactCallBodies(results []result.ModuleResult) []result.ModuleResult {
 	out := make([]result.ModuleResult, len(results))
 	for i, r := range results {
@@ -623,10 +579,7 @@ func redactCallBodies(results []result.ModuleResult) []result.ModuleResult {
 	return out
 }
 
-// redactLogItems scrubs the conformance suite's /api/log entries. buildLogItems
-// keeps every non-primary field of a log entry verbatim, and the suite parks
-// whole HTTP exchanges in them — including token-endpoint responses — so these
-// need the same treatment as a captured call before being archived.
+// redactLogItems scrubs the conformance suite's /api/log entries.
 func redactLogItems(items []result.LogItem) []result.LogItem {
 	if len(items) == 0 {
 		return items
@@ -646,9 +599,7 @@ func redactLogItems(items []result.LogItem) []result.LogItem {
 	return out
 }
 
-// redactLogValue masks a single log detail: outright when the key itself names a
-// credential, otherwise by running the body and URL scrubbers over the value,
-// which leaves prose and non-matching payloads byte-identical.
+// redactLogValue masks a log detail outright by key, else runs the body and URL scrubbers over it.
 func redactLogValue(key, value string) string {
 	if strings.TrimSpace(value) == "" {
 		return value
@@ -663,9 +614,7 @@ func redactLogValue(key, value string) string {
 	return value
 }
 
-// redactURL masks credential-bearing values in both the query string
-// (authorize/callback captures carry code, state and id_token_hint) and the
-// fragment, which for implicit/hybrid responses carries id_token/access_token.
+// redactURL masks credential-bearing values in both the query string and the fragment.
 func redactURL(raw string) string {
 	// Fragment first: url.ParseQuery does not treat '#' as a delimiter, so a
 	// fragment left attached would ride along inside the last query value.
@@ -687,14 +636,7 @@ func redactURL(raw string) string {
 	return raw
 }
 
-// decodedQuery renders a call's query string with the percent-encoding undone,
-// one "key = value" line per parameter — url.ParseQuery already decodes each
-// value (%XX and "+" for space), so a param like `claims` reads as plain JSON
-// instead of `%7B%22userinfo%22...`. Called AFTER redactCallBodies has already
-// masked sensitive params in the URL, so there is nothing left here that
-// wasn't already safe to show unencoded. Returns "" when the URL has no query
-// or it fails to parse, in which case the report shows only the raw URL, same
-// as before this existed.
+// decodedQuery renders a call's query string with the percent-encoding undone, one line per parameter.
 func decodedQuery(raw string) string {
 	i := strings.IndexByte(raw, '?')
 	if i < 0 {
@@ -726,10 +668,7 @@ func decodedQuery(raw string) string {
 	return strings.TrimRight(b.String(), "\n")
 }
 
-// prettyJSONString re-indents s if it parses as a JSON object/array, so a
-// query value like the OIDC `claims` param reads as structured JSON rather
-// than one unbroken line. ok is false for anything else (a plain string
-// value), which the caller shows as-is.
+// prettyJSONString re-indents s if it parses as a JSON object or array.
 func prettyJSONString(s string) (string, bool) {
 	t := strings.TrimSpace(s)
 	if t == "" || (t[0] != '{' && t[0] != '[') || !json.Valid([]byte(t)) {
@@ -771,9 +710,7 @@ func redactQuery(s string) (string, bool) {
 	return q.Encode(), true
 }
 
-// sensitiveParams are query/fragment/form keys that carry credentials but do not
-// match sensitiveBodyKeys by substring. code_verifier is the PKCE secret the
-// token POST carries alongside the code.
+// sensitiveParams are query/fragment/form keys that sensitiveBodyKeys does not match by substring.
 var sensitiveParams = []string{"code", "code_verifier", "id_token", "access_token", "refresh_token"}
 
 func isSensitiveParam(k string) bool {
@@ -785,10 +722,7 @@ func isSensitiveParam(k string) bool {
 	return false
 }
 
-// redactCookies masks cookie values while keeping the names visible, so the
-// report still shows which cookies were exchanged without archiving live
-// eSignet session identifiers. Handles both the "a=1; b=2" request form and the
-// newline-joined Set-Cookie response form.
+// redactCookies masks cookie values while keeping the names visible.
 func redactCookies(s string) string {
 	if strings.TrimSpace(s) == "" {
 		return s
@@ -827,9 +761,7 @@ func isCookieValueField(name string) bool {
 	return true
 }
 
-// redactBody masks sensitiveBodyKeys values in a JSON body or an
-// application/x-www-form-urlencoded body (the Keycloak client_credentials POST
-// and the token request both carry secrets that way).
+// redactBody masks sensitiveBodyKeys values in a JSON or x-www-form-urlencoded body.
 func redactBody(s string) string { return redactBodyMode(s, false) }
 
 // redactBodyMode is redactBody with the request/response distinction that scopes
@@ -857,9 +789,7 @@ func redactBodyMode(s string, isRequest bool) string {
 	return string(b)
 }
 
-// redactFormBody masks sensitive values in an x-www-form-urlencoded body. orig is
-// returned unchanged when the body does not parse as a form or holds nothing
-// sensitive, so arbitrary text bodies pass through untouched.
+// redactFormBody masks sensitive values in an x-www-form-urlencoded body.
 func redactFormBody(trimmed, orig string) string {
 	if !strings.Contains(trimmed, "=") || strings.ContainsAny(trimmed, " \n\t") {
 		return orig
@@ -905,9 +835,7 @@ func redactSensitiveMode(v any, isRequest bool) {
 					t[k] = "***redacted***"
 					continue
 				case map[string]any, []any:
-					// A composite under a sensitive key (a JWKS under "secret",
-					// {"otp":["111111"]}) must be masked whole: recursing would only
-					// re-test the inner key names, which are not themselves sensitive.
+					// A composite under a sensitive key must be masked whole; recursing would only re-test inner keys.
 					t[k] = "***redacted***"
 					continue
 				}

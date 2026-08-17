@@ -1,14 +1,4 @@
-// Package esignet drives the eSignet (thunder-go) user-authentication flow that
-// sits behind the conformance suite's authorize URL — purely over HTTP/JSON, no
-// browser. Given the suite's authorize URL it runs:
-//
-//	GET  /oauth2/authorize        -> 302 with authId + executionId
-//	POST /flow/execute (loop)     -> COMPLETE + assertion
-//	POST /oauth2/auth/callback    -> { redirect_uri: "<suite-cb>?code&state" }
-//
-// and returns that redirect_uri for the orchestrator to hand back to the suite.
-// Every HTTP call is captured (headers + cookies + bodies) for the debug report.
-// See plan doc §2.
+// Package esignet drives the eSignet user-authentication flow over HTTP/JSON, with no browser.
 package esignet
 
 import (
@@ -43,10 +33,7 @@ var navHints = []string{"login_id", "resend", "tab_", "switch"}
 // actionPreference orders generic happy-path actions when nothing else matches.
 var actionPreference = []string{"login", "authenticate", "verify", "consent", "complete", "continue"}
 
-// OTPProvider supplies a one-time password captured out-of-band (the dynamic OTP
-// source: mosipid delivers a live OTP to email/SMS). It is consulted only when
-// no explicit "otp" answer is configured, so negative "wrong OTP" cases (which
-// set an explicit value) still work.
+// OTPProvider supplies a one-time password captured out-of-band.
 type OTPProvider interface {
 	// OTP returns the OTP delivered at or after `since` (when the login flow that
 	// will request it began), or an error if none arrives in time.
@@ -56,15 +43,9 @@ type OTPProvider interface {
 // ConsentPolicy decides how the driver answers the consent step. The zero value
 // approves everything, which is the happy path every other surface relies on.
 type ConsentPolicy struct {
-	// Deny lists element names to withhold approval from, matched
-	// case-insensitively against the prompt's essential+optional elements. A name
-	// that the prompt never offers is a config error rather than a silent no-op:
-	// a scenario asserting "denying email withholds the email claim" proves
-	// nothing if the deny never applied.
+	// Deny lists element names to withhold approval from, matched case-insensitively.
 	Deny []string
-	// DenyAll withholds approval from every element the prompt offers. Kept
-	// separate from Deny so a scenario need not enumerate claims it does not
-	// control (the element list follows the authorize request's scopes/claims).
+	// DenyAll withholds approval from every element the prompt offers.
 	DenyAll bool
 }
 
@@ -97,14 +78,10 @@ type Driver struct {
 	consentDenied   []string
 }
 
-// SetOTPProvider installs a dynamic OTP source. When set, an "otp" flow input
-// with no configured answer is resolved by fetching a fresh code from the
-// provider instead of failing as a missing input.
+// SetOTPProvider installs a dynamic OTP source.
 func (d *Driver) SetOTPProvider(p OTPProvider) { d.otp = p }
 
-// SetConsentPolicy installs a non-default consent answer. Only the e2e surface's
-// consent scenarios use this; conformance and the happy-path e2e cases leave the
-// zero value (approve everything) in place.
+// SetConsentPolicy installs a non-default consent answer.
 func (d *Driver) SetConsentPolicy(p ConsentPolicy) { d.consent = p }
 
 func New(answers map[string]string, preferred []string, tlsVerify bool, timeout time.Duration) *Driver {
@@ -128,9 +105,6 @@ type FlowResult struct {
 	Calls           []result.HTTPCall
 	Error           string
 	// ConsentPrompted reports whether the flow asked for a consent decision.
-	// The server skips the prompt when a stored consent record still covers the
-	// request (consent_provider.go ResolveConsent), so this is the observable
-	// that distinguishes "consent reused" from "consent re-requested".
 	ConsentPrompted bool
 	// ConsentDenied lists the element names the driver withheld approval from,
 	// for the report's evidence trail.
@@ -158,9 +132,7 @@ type flowResp struct {
 	} `json:"data"`
 }
 
-// consentPurpose is one entry of data.additionalData.consentPrompt: what the
-// relying party is asking permission for, split into claims it must have and
-// claims it merely wants.
+// consentPurpose is one entry of data.additionalData.consentPrompt: essential and optional claims.
 type consentPurpose struct {
 	PurposeName string           `json:"purposeName"`
 	PurposeID   string           `json:"purposeId"`
@@ -174,9 +146,7 @@ type consentElement struct {
 	Name string `json:"name"`
 }
 
-// consentDecision is the reply shape the ConsentExecutor expects, sent as a
-// JSON-encoded *string* under the consent_decisions input (see the Go-eSignet
-// Postman collection, "flow/execute — consent").
+// consentDecision is the reply shape the ConsentExecutor expects, sent as a JSON-encoded string.
 type consentDecision struct {
 	Purposes []consentPurposeDecision `json:"purposes"`
 }
@@ -193,20 +163,7 @@ type consentElementDecision struct {
 	Name     string `json:"name"`
 }
 
-// buildConsentDecision answers the consent step from the prompt. By default it
-// approves every purpose and every claim asked about — the harness drives the
-// happy path, and a scenario asserting which claims are released needs them all
-// granted (a withheld claim would look identical to the server failing to
-// release it). A non-zero ConsentPolicy withholds approval from the named
-// elements instead, which is how the consent-deny scenarios exercise
-// essential_consent_denied and optional-claim suppression.
-//
-// It must be derived from the prompt rather than configured: purposeName embeds
-// the per-run client id and the element list follows the scopes/claims that
-// specific authorize request asked for.
-//
-// Returns the encoded decision plus the element names actually denied, so the
-// caller can both evidence the decision and catch a deny that matched nothing.
+// buildConsentDecision answers the consent step from the prompt.
 func buildConsentDecision(prompt string, policy ConsentPolicy) (string, []string, error) {
 	prompt = strings.TrimSpace(prompt)
 	if prompt == "" {
@@ -235,20 +192,14 @@ func buildConsentDecision(prompt string, policy ConsentPolicy) (string, []string
 			}
 			d.Elements = append(d.Elements, consentElementDecision{Approved: approved, Name: e.Name})
 		}
-		// A purpose with every element withheld is itself not approved, mirroring
-		// what a UI would submit when the user unticks the whole block. Derived
-		// from the element decisions so denying every element BY NAME reaches the
-		// same submission as DenyAll — otherwise the executor would receive
-		// Approved:true over an all-denied element list.
+		// A purpose with every element withheld is itself not approved.
 		if policy.DenyAll || (len(d.Elements) > 0 && !anyApproved) {
 			d.Approved = false
 		}
 		out.Purposes = append(out.Purposes, d)
 	}
 
-	// A deny naming an element the prompt never offered means the scenario is
-	// asserting against a claim this request does not consent-gate — the run
-	// would otherwise pass for the wrong reason.
+	// A deny naming an element the prompt never offered means the scenario asserts against nothing.
 	for _, name := range policy.Deny {
 		name = strings.TrimSpace(name)
 		if name == "" {
@@ -277,10 +228,7 @@ func containsFold(haystack []string, needle string) bool {
 	return false
 }
 
-// session carries a cookie-jar HTTP client and the captured call trace for one
-// Run (each authorization gets a fresh jar so modules don't leak cookies).
-// noFollow is the same client with redirects disabled, built once so
-// (*session).do doesn't allocate a new client on every non-follow request.
+// session carries a cookie-jar HTTP client and the captured call trace for one Run.
 type session struct {
 	client   *http.Client
 	noFollow *http.Client
@@ -307,9 +255,7 @@ func (s *session) dbg(format string, args ...any) {
 	}
 }
 
-// do performs one request, records it (headers/cookies/body), and returns the
-// response body, status, and Location header. When follow is false, redirects
-// are not followed (so we can read the Location).
+// do performs one request, records it, and returns the body, status and Location header.
 func (s *session) do(ctx context.Context, label, method, u string, body []byte, contentType string, follow bool) ([]byte, int, string, error) {
 	var rdr io.Reader
 	if body != nil {
@@ -363,9 +309,7 @@ func (s *session) do(ctx context.Context, label, method, u string, body []byte, 
 
 // Run drives one authorization request to a redirect_uri.
 func (d *Driver) Run(ctx context.Context, base, authorizeURL string) FlowResult {
-	// The conformance orchestrator reuses one Driver for every module, so the
-	// per-flow consent observations must start clean or module N reports module
-	// N-1's consent prompt.
+	// One Driver is reused for every module, so per-flow consent observations must start clean.
 	d.consentPrompted, d.consentDenied = false, nil
 
 	s := d.newSession()
@@ -416,9 +360,7 @@ func (d *Driver) run(ctx context.Context, s *session, base, authorizeURL string)
 func (d *Driver) completeLogin(ctx context.Context, s *session, base, authID, executionID string, fr FlowResult) FlowResult {
 	var challengeToken, assertion, flowStatus string
 	payload := map[string]any{"executionId": executionID}
-	// Boundary for dynamic OTP freshness: any OTP delivered before login started
-	// belongs to a previous flow and is ignored (the send happens later in this
-	// loop, well after this point).
+	// Freshness boundary: an OTP delivered before login started belongs to a previous flow.
 	flowStart := time.Now()
 
 	for step := 0; step < d.maxFlowSteps; step++ {
@@ -543,10 +485,7 @@ func (d *Driver) resolveInputs(identifiers []string, since time.Time, consentPro
 			out[id] = v
 			continue
 		}
-		// Consent is synthesized from the prompt in this same response — it
-		// cannot be a configured answer (see buildConsentDecision). Checked
-		// before the missing-answer path so requesting any scope beyond openid
-		// doesn't dead-end the flow.
+		// Consent is synthesized from the prompt in this same response, not from a configured answer.
 		if Normalize(id) == "consentdecisions" {
 			decision, denied, err := buildConsentDecision(consentPrompt, d.consent)
 			if err != nil {
@@ -575,15 +514,7 @@ func (d *Driver) resolveInputs(identifiers []string, since time.Time, consentPro
 	return out, ""
 }
 
-// selectAction picks the happy-path action. Order of preference:
-//  1. caller-preferred tokens (ACR / auth-factor), excluding navigation
-//  2. submit/send/proceed actions (they advance the flow)
-//  3. generic happy-path list, excluding navigation
-//  4. any non-navigation candidate
-//  5. navigation (tab switches) only as a last resort
-//
-// Reject/cancel/deny are removed outright. This stops the harness from picking a
-// tab switch (e.g. login_id_mobile) over the actual submit that sends the OTP.
+// selectAction picks the happy-path action.
 func selectAction(actions, preferred []string) (string, string) {
 	if len(actions) == 0 {
 		return "", ""
@@ -614,9 +545,7 @@ func selectAction(actions, preferred []string) (string, string) {
 			}
 		}
 	}
-	// 2. submit-like actions advance the flow (skip navigation — "send" is a
-	// substring of "resend", so without this filter a resend action could win
-	// over the real submit before stage 4/5 ever defers it).
+	// 2. submit-like actions advance the flow, skipping navigation so a resend cannot beat the real submit.
 	for _, hint := range submitHints {
 		for _, c := range candidates {
 			if !isNav(c) && strings.Contains(strings.ToLower(c), hint) {
@@ -642,11 +571,7 @@ func selectAction(actions, preferred []string) (string, string) {
 	if len(nonNav) == 1 {
 		return nonNav[0], ""
 	}
-	// 5. navigation (tab switches) only as a last resort: a step offering just
-	// login_id_* tabs is progressable, so take one rather than aborting. Apply
-	// the caller preference first: IDTypeTokens exists to choose this tab (e.g.
-	// "email" vs "mobile"), and picking the server's first tab regardless would
-	// authenticate against the wrong login-id type.
+	// 5. navigation tabs as a last resort, honouring the caller's IDTypeTokens preference first.
 	if len(nonNav) == 0 && len(candidates) > 0 {
 		for _, pref := range preferred {
 			pref = strings.ToLower(pref)
@@ -666,9 +591,7 @@ func selectAction(actions, preferred []string) (string, string) {
 
 // ----- utils -----
 
-// mustJSON encodes v, panicking on failure: every call site in this file passes
-// a literal map of strings, so a marshal error means a programming mistake, not
-// bad input that a caller should recover from.
+// mustJSON encodes v, panicking on failure: every call site passes a literal map of strings.
 func mustJSON(v any) []byte {
 	b, err := json.Marshal(v)
 	if err != nil {

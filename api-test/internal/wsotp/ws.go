@@ -1,14 +1,4 @@
-// Package wsotp reads one-time passwords from the MOSIP mock-SMTP server over a
-// WebSocket, for the dynamic OTP source (mosipid sends a live OTP to email/SMS
-// rather than accepting a static test value). It contains a minimal, read-only
-// RFC 6455 client implemented on the standard library only, so the api-test
-// module stays dependency-free (see the module's design note in the README).
-//
-// The mock relays every captured message as a JSON frame; the listener buffers
-// them and WaitOTP returns the newest fresh 6-digit code for a recipient. Only
-// the client behaviour needed here is implemented: the opening handshake, text
-// frame reassembly, and automatic ping/pong + close handling. Client→server
-// frames are masked as the RFC requires; server→client frames are never masked.
+// Package wsotp reads one-time passwords from the MOSIP mock-SMTP server over a WebSocket.
 package wsotp
 
 import (
@@ -42,13 +32,6 @@ const (
 )
 
 // conn is a minimal client-side WebSocket connection.
-//
-// Read deadlines are managed per frame rather than per readMessage call, and the
-// distinction matters: a deadline that fires while a frame is half-read leaves
-// the stream unaligned, so the next read would parse payload bytes as a frame
-// header. idleTimeout therefore bounds only the wait for a frame's FIRST byte —
-// a safe, resumable place to give up — while frameTimeout bounds the rest of a
-// frame already in progress, and tripping it is fatal.
 type conn struct {
 	net net.Conn
 	br  *bufio.Reader
@@ -57,17 +40,10 @@ type conn struct {
 	frameTimeout time.Duration
 }
 
-// errStreamDesync marks a read that stopped partway through a frame. It is
-// deliberately NOT a net.Error timeout: the listener retries timeouts, and
-// retrying this one would resume mid-frame and desynchronize the stream for
-// good.
+// errStreamDesync marks a read that stopped partway through a frame.
 var errStreamDesync = errors.New("websocket: read interrupted mid-frame; stream position lost")
 
-// NormalizeWSURL accepts either a full ws(s):// URL (used verbatim) or an
-// http(s):// SMTP base (e.g. https://smtp.collab.mosip.net/) and derives the
-// mock-SMTP WebSocket URL from it: scheme http→ws / https→wss, and the default
-// path /mocksmtp/websocket when none is given. Returns an error for anything
-// else.
+// NormalizeWSURL accepts a ws(s):// URL verbatim or derives one from an http(s):// SMTP base.
 func NormalizeWSURL(raw string) (string, error) {
 	raw = strings.TrimSpace(raw)
 	if raw == "" {
@@ -93,10 +69,7 @@ func NormalizeWSURL(raw string) (string, error) {
 	return u.String(), nil
 }
 
-// dial performs the opening handshake and returns a ready connection. tlsVerify
-// toggles certificate verification for wss (dev environments use self-signed
-// certs, so callers pass false there). ctx bounds the dial itself, so a
-// cancelled run aborts a hanging handshake rather than waiting out timeout.
+// dial performs the opening handshake and returns a ready connection.
 func dial(ctx context.Context, rawURL string, tlsVerify bool, timeout time.Duration) (*conn, error) {
 	u, err := url.Parse(rawURL)
 	if err != nil {
@@ -206,19 +179,14 @@ func (c *conn) handshake(u *url.URL, timeout time.Duration) error {
 	return nil
 }
 
-// readMessage returns the next application (text/binary) message, transparently
-// answering pings and honoring close frames. It reassembles fragmented
-// messages. A deadline set via SetReadDeadline surfaces as a timeout error.
+// readMessage returns the next application message, answering pings and honoring close frames.
 func (c *conn) readMessage() ([]byte, error) {
 	var (
 		msg      []byte
 		assembly bool
 	)
 	for {
-		// Only the first frame of a message may time out resumably. Once bytes are
-		// buffered in msg, returning would drop them and the continuation frame
-		// would arrive with no assembly in progress, so the rest of a fragmented
-		// message is read under the in-frame deadline too.
+		// Only the first frame of a message may time out resumably.
 		fin, op, payload, err := c.readFrame(!assembly)
 		if err != nil {
 			return nil, err
@@ -263,9 +231,7 @@ func (c *conn) readMessage() ([]byte, error) {
 	}
 }
 
-// maxFrame caps both a single frame and a reassembled message: without the
-// second cap a peer that never sets FIN grows the buffer until the process runs
-// out of memory. Mock emails are tiny, so 8 MiB is generous.
+// maxFrame caps both a single frame and a reassembled message, bounding a peer that never sets FIN.
 const maxFrame = 8 << 20
 
 // setReadDeadline bounds the next read by d, or clears the deadline when d is
@@ -278,13 +244,7 @@ func (c *conn) setReadDeadline(d time.Duration) {
 	_ = c.net.SetReadDeadline(time.Now().Add(d))
 }
 
-// readFrame reads a single frame header + payload. Server frames must not be
-// masked; a masked server frame is a protocol error.
-//
-// resumable says a timeout waiting for this frame to start is acceptable — the
-// caller can simply try again. Once the first byte is in hand the frame is
-// committed: every later read runs under frameTimeout, and failing there is
-// reported as errStreamDesync so no caller retries into the middle of a frame.
+// readFrame reads a single frame header and payload.
 func (c *conn) readFrame(resumable bool) (fin bool, opcode int, payload []byte, err error) {
 	// Wait for the frame to start. Nothing has been consumed yet, so a timeout
 	// here leaves the stream exactly where it was.
@@ -317,9 +277,7 @@ func (c *conn) readFrame(resumable bool) (fin bool, opcode int, payload []byte, 
 	masked := h[1]&0x80 != 0
 	length := uint64(h[1] & 0x7f)
 	if masked {
-		// RFC 6455 §5.1: a server MUST NOT mask its frames. A masked "server"
-		// frame means the stream isn't a compliant peer — reject rather than
-		// silently unmask, which would let a corrupted stream parse as data.
+		// RFC 6455 §5.1: a server MUST NOT mask its frames.
 		return false, 0, nil, errors.New("websocket: server frame is masked")
 	}
 
@@ -352,10 +310,7 @@ func (c *conn) readFrame(resumable bool) (fin bool, opcode int, payload []byte, 
 // writeFrame writes a single, final client frame. Per RFC 6455 every
 // client→server frame is masked.
 func (c *conn) writeFrame(opcode int, payload []byte) error {
-	// The handshake clears every deadline, so bound each write here: a peer that
-	// stops reading would otherwise block close() forever, and with it
-	// Listener.Close() — hanging the whole run with no report. A
-	// directly-constructed conn (tests) has no timeout and opts out.
+	// The handshake clears every deadline, so bound each write here or close() can block forever.
 	if c.frameTimeout > 0 {
 		_ = c.net.SetWriteDeadline(time.Now().Add(c.frameTimeout))
 		defer func() { _ = c.net.SetWriteDeadline(time.Time{}) }()

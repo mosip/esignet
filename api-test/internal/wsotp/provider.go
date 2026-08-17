@@ -2,10 +2,7 @@ package wsotp
 
 import "time"
 
-// OTPProvider adapts a Listener to the driver's dynamic-OTP hook: it captures a
-// fixed recipient and timeouts so the driver only has to supply the flow's start
-// time. It structurally satisfies the driver's OTPProvider interface (no import
-// of the esignet package, avoiding a cycle).
+// OTPProvider adapts a Listener to the driver's dynamic-OTP hook.
 type OTPProvider struct {
 	l         *Listener
 	recipient string
@@ -13,9 +10,7 @@ type OTPProvider struct {
 	poll      time.Duration
 }
 
-// NewOTPProvider builds a provider over a started Listener. recipient may be
-// empty (then the newest fresh code from any recipient is used). timeout bounds
-// the wait per OTP; poll is the check interval.
+// NewOTPProvider builds a provider over a started Listener.
 func NewOTPProvider(l *Listener, recipient string, timeout, poll time.Duration) *OTPProvider {
 	return &OTPProvider{l: l, recipient: recipient, timeout: timeout, poll: poll}
 }

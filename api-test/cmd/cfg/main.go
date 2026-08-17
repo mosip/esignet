@@ -1,16 +1,4 @@
-// Command cfg renders the layered harness config for consumers that cannot load
-// it themselves:
-//
-//	-print-env   shell `export` lines, for `eval` by run-all.sh. The bdd/ tree is
-//	             a separate Go module and cannot import internal/config, so this
-//	             is how the file reaches the godog surfaces.
-//	-get KEY     one resolved value (dotted path), for shell branching.
-//	-check       human-readable summary of what a run would do, secrets masked.
-//
-// Usage:
-//
-//	cfg -config config.mosip.json -check
-//	eval "$(cfg -config config.mosip.json -print-env)"
+// Command cfg renders the layered harness config for consumers that cannot load it themselves.
 package main
 
 import (
@@ -38,11 +26,7 @@ func main() {
 
 	cfgPath, mustExist := config.ResolvePath(*configPath, config.FlagExplicit("config"))
 	cfg, err := config.Load(cfgPath, mustExist)
-	// -check is a dry run: it must print what a run WOULD do even when the config
-	// is not yet runnable, since "the private plan config is not mounted" is
-	// exactly the answer it exists to give. Load hands back the resolved config
-	// alongside a validation error for this case; anything that would actually
-	// run still dies here.
+	// -check is a dry run: it prints what a run would do even when the config is not yet runnable.
 	if err != nil && !(*check && cfg != nil) {
 		logger.Printf("config error: %v", err)
 		os.Exit(2)
@@ -71,9 +55,7 @@ func main() {
 	}
 }
 
-// lookup resolves the dotted keys run-all.sh branches on. Deliberately a small
-// explicit set rather than reflection — these are a shell contract, so adding
-// one should be a visible change here.
+// lookup resolves the dotted keys run-all.sh branches on.
 func lookup(c *config.Config, key string) (string, bool) {
 	switch key {
 	case "run.surfaces":
@@ -94,23 +76,7 @@ func lookup(c *config.Config, key string) (string, bool) {
 	return "", false
 }
 
-// exports renders the resolved config as shell exports. This is the ONLY path by
-// which the config reaches the bdd module, so every variable bdd/steps.go and
-// bdd/engine_test.go read must appear here.
-//
-// Scope: everything here comes from the resolved config. Run-time plumbing the
-// config does not own is NOT emitted — BDD_ENVELOPE_OUT is set by run-all.sh
-// from the report directory. The conformance and e2e binaries load the config
-// themselves (config.Load), so their own settings need no export; the ones that
-// do appear (CONFORMANCE_*, PLAN_*) are there for run-all.sh and compose.
-//
-// The values are already fully resolved (file + overlay + env), so re-exporting
-// them is idempotent: an operator's own env override survives, because it was
-// folded in before this ran.
-//
-// Several of these carry credentials (TEST_PASSWORD, TEST_OTP,
-// KEYCLOAK_CLIENT_SECRET), which is why run-all.sh disables shell tracing around
-// the eval that consumes this output.
+// exports renders the resolved config as shell exports, the only path by which it reaches the bdd module.
 func exports(c *config.Config) string {
 	var b strings.Builder
 	kv := func(k, v string) {
@@ -145,11 +111,7 @@ func exports(c *config.Config) string {
 
 	kv("CONFORMANCE_BASE_URL", c.Conformance.BaseURL)
 	kv("CONFORMANCE_TLS_VERIFY", strconv.FormatBool(c.Conformance.TLSVerify))
-	// Plans are exported in the indexed form, which is the only one that can
-	// address more than one. The unindexed PLAN_CONFIG_PATH is emitted for a
-	// single-plan config because that is the spelling docker-compose and the
-	// README document — and it must NOT be emitted for several, where the
-	// conformance binary rejects it as ambiguous when it re-reads the environment.
+	// Plans are exported in the indexed form, the only one that can address more than one.
 	for i, p := range c.Plans {
 		kv(fmt.Sprintf("PLAN_%d_NAME", i+1), p.Name)
 		kv(fmt.Sprintf("PLAN_%d_CONFIG_PATH", i+1), p.ConfigFile)
@@ -160,9 +122,7 @@ func exports(c *config.Config) string {
 	}
 	kv("REPORT_DIR", c.Run.ReportDir)
 
-	// run-all.sh branches on these. Emitting them here keeps the whole script on
-	// ONE config load: a second `-get` call could fail on its own and leave the
-	// surface list empty, which would run nothing and still consolidate green.
+	// run-all.sh branches on these.
 	kv("SURFACES", strings.Join(c.Run.Surfaces, ","))
 	kv("PLUGIN", c.Esignet.Provider)
 	kv("TEST_PROFILE", c.Run.Profile)
@@ -172,20 +132,12 @@ func exports(c *config.Config) string {
 	return b.String()
 }
 
-// shellQuote wraps a value in single quotes, which suppress every form of shell
-// expansion, and escapes any embedded single quote by closing/reopening. Without
-// this a password containing $ or a backtick would be expanded by the `eval`.
+// shellQuote single-quotes a value and escapes embedded quotes by closing and reopening.
 func shellQuote(s string) string {
 	return "'" + strings.ReplaceAll(s, "'", `'\''`) + "'"
 }
 
-// printCheck reports what a run would actually do — which layers were read,
-// which surfaces are selected, and which e2e scenarios survive the filter — so a
-// long run can be confirmed before it starts rather than after it finishes.
-//
-// It never fails: anything it cannot resolve (a missing plan config, an
-// unreadable e2e spec) is printed as an ENV_NOT_READY line, because a dry run
-// that dies on the first missing file answers nothing.
+// printCheck reports what a run would actually do: layers read, surfaces selected, scenarios kept.
 func printCheck(c *config.Config, path string) {
 	fmt.Printf("config    %s\n", strings.Join(c.Sources, " + "))
 	if len(c.Sources) == 0 {
@@ -211,9 +163,7 @@ func printCheck(c *config.Config, path string) {
 		for i, p := range c.Plans {
 			sel := c.Selection(p)
 			fmt.Printf("\n  %d. plan      %s\n", i+1, p.Name)
-			// The plan config holds the private JWKS and is always mounted, never
-			// baked in, so "it isn't there yet" is the single most common reason a
-			// fresh clone cannot run — name it here rather than only in the error.
+			// The plan config holds the private JWKS and is always mounted, so name it as the likely missing piece.
 			fmt.Printf("     config    %s%s\n", orDash(p.ConfigFile), planConfigNote(p.ConfigFile))
 			fmt.Printf("     variant   %s\n", variantStr(p.Variant))
 			if len(sel.Modules) > 0 {
@@ -306,9 +256,7 @@ func readiness(ok bool, why string) string {
 	return why
 }
 
-// variantStr renders a plan's variant as sorted k=v pairs, matching how the
-// suite UI prints it — the fastest way to confirm a fapi run is about to use the
-// DPoP/plain_fapi combination that was intended.
+// variantStr renders a plan's variant as sorted k=v pairs, matching how the suite UI prints it.
 func variantStr(v map[string]any) string {
 	if len(v) == 0 {
 		return "(none)"

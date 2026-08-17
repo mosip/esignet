@@ -69,9 +69,7 @@ func TestExtractOTP(t *testing.T) {
 	}
 }
 
-// realMosipSMS is a verbatim MOSIP OTP SMS body (multiple languages; untranslated
-// $-placeholders in some). OTP is 979690; the only other digit runs are the date
-// 22-07-2026 and time 16:28:40, neither of which is 6 consecutive digits.
+// realMosipSMS is a verbatim MOSIP OTP SMS body (multiple languages, some untranslated placeholders).
 const realMosipSMS = "OTP for UIN XXXXXXXX59 is 979690 and is valid for 3 minutes. " +
 	"(Generated on 22-07-2026 at 16:28:40 Hrs) " +
 	"OTP لـ $ idvidType $ idvid هو $ otp وهو صالح لمدة $ validTime دقيقة. (تم إنشاؤه في $ date في $ time Hrs) " +
@@ -168,9 +166,7 @@ func TestDialReadMessageAndListener(t *testing.T) {
 	}
 }
 
-// writeFrame must mask every client frame (RFC 6455 §5.3): read the raw bytes
-// off the wire, confirm the mask bit and key are present, and unmask by hand to
-// verify the payload round-trips.
+// writeFrame must mask every client frame (RFC 6455 §5.3), verified by unmasking off the wire by hand.
 func TestWriteFrameMasksPayload(t *testing.T) {
 	cli, srv := net.Pipe()
 	defer cli.Close()
@@ -215,9 +211,7 @@ func TestWriteFrameMasksPayload(t *testing.T) {
 	}
 }
 
-// RFC 6455 §5.1 forbids a server from masking its frames. readFrame must reject
-// one outright rather than silently unmask it, which would let a desynchronized
-// or corrupted stream parse as valid data.
+// RFC 6455 §5.1 forbids a server from masking its frames.
 func TestReadFrameRejectsMaskedServerFrame(t *testing.T) {
 	cli, srv := net.Pipe()
 	defer cli.Close()
@@ -238,9 +232,7 @@ func TestReadFrameRejectsMaskedServerFrame(t *testing.T) {
 	}
 }
 
-// startTestWSServer starts a minimal RFC 6455 server on localhost that completes
-// the opening handshake and sends each message as an unmasked text frame, then
-// blocks (keeping the connection open) until stop() is called.
+// startTestWSServer runs a minimal RFC 6455 server that echoes each message as an unmasked text frame.
 func startTestWSServer(t *testing.T, messages []string) (wsURL string, stop func()) {
 	t.Helper()
 	ln, err := net.Listen("tcp", "127.0.0.1:0")
@@ -318,9 +310,7 @@ func writeServerTextFrame(w io.Writer, payload []byte) error {
 	return err
 }
 
-// A read deadline that lands BETWEEN frames is safe to retry: nothing has been
-// consumed, so the listener loops, re-checks its context, and reads the next
-// frame normally. This is the only timeout the listener is allowed to swallow.
+// A read deadline that lands between frames is safe to retry.
 func TestReadMessageIdleTimeoutIsResumable(t *testing.T) {
 	cli, srv := net.Pipe()
 	defer cli.Close()
@@ -345,11 +335,7 @@ func TestReadMessageIdleTimeoutIsResumable(t *testing.T) {
 	}
 }
 
-// A deadline that strikes PARTWAY THROUGH a frame is not retryable: the stream
-// position is lost, and reading again would parse payload bytes as a frame
-// header. It must not look like a timeout, or the listener would retry it,
-// desynchronize, and then fail every WaitOTP for the rest of the run with no
-// reconnect.
+// A deadline that strikes partway through a frame is not retryable: the stream position is lost.
 func TestReadMessageMidFrameTimeoutIsNotRetryable(t *testing.T) {
 	cli, srv := net.Pipe()
 	defer cli.Close()
