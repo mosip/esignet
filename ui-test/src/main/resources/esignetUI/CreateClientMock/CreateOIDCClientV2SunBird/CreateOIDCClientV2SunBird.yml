@@ -1,0 +1,31 @@
+OIDCClientV2SunBird:
+  ESignetUI_CreateOIDCClient_all_Valid_Smoke_sid:
+    endPoint: /v1/esignet/client-mgmt/client
+    uniqueIdentifier: TC_ESignetUI_OIDCClientV2SunBird_01
+    description: To create OIDC Client for a Sunbird RC-backed environment (V3 /client endpoint, stripped payload without additionalConfig)
+    role: partner
+    restMethod: post
+    inputTemplate: esignetUI/CreateClientMock/CreateOIDCClientV2SunBird/CreateOIDCClientV2SunBird
+    outputTemplate: esignetUI/CreateClientMock/CreateOIDCClientV2SunBird/CreateOIDCClientV2SunBirdResult
+    input: '{
+      "requestTime": "$TIMESTAMP$",
+      "clientId": "$RANDOMPARTNERID$",
+      "clientName": "MOSIP OIDC Client",
+      "logoUri": "https://health-services.com/logo.png",
+      "relyingPartyId": "Bharathi-Inc",
+      "redirectUris": "$ESIGNET_REDIRECT_URI$",
+      "publicKey": "$OIDC_JWK_KEY_PAR$",
+      "userClaims1": "name",
+      "userClaims2": "email",
+      "userClaims3": "gender",
+      "userClaims4": "phone_number",
+      "userClaims5": "birthdate",
+      "authContextRefs": [{"acrValues": "mosip:idp:acr:static-code"},{"acrValues": "mosip:idp:acr:generated-code"},{"acrValues": "mosip:idp:acr:biometrics"},{"acrValues": "mosip:idp:acr:linked-wallet"},{"acrValues": "mosip:idp:acr:password"},{"acrValues": "mosip:idp:acr:knowledge"}],
+      "grantTypes": "authorization_code",
+      "clientAuthMethods": "private_key_jwt",
+      "keyLang1": "$1STLANG$",
+      "clientNameLang": "MOSIP OIDC Client"
+}'
+    output: '{
+      "status": "ACTIVE"
+}'

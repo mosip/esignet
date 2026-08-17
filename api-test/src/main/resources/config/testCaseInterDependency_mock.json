@@ -1752,6 +1752,7 @@
         "TC_ESignet_OAuthDetailsRequestConsent_08"
     ],
     "TC_ESignet_OAuthDetailsRequestV3VerifiedClaims_01": ["TC_ESignet_OIDCClientV3VerifiedClaims_01"],
+    "TC_ESignet_OAuthDetailsDifferentScopeLanguageClaimsSce_28": ["TC_ESignet_DifferentScopeLanguageClaimsSce_OIDCClientV3_01"],
     "TC_ESignet_AuthorizationCodeConsent_06": [
         "TC_ESignet_AuthenticateUserConsent_11",
         "TC_ESignet_OAuthDetailsRequestConsent_08"

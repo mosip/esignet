@@ -19,3 +19,32 @@ FAPIOauthDetailsNegTC:
     }
   ]
 }'
+   ESignet_OAuthDetailsRequest_V3_NonFapiClient_UnderFapiProfile_Neg:
+      endPoint: /v1/esignet/authorization/v3/oauth-details
+      uniqueIdentifier: TC_ESignet_FAPI_OauthDetails_NegTC_02
+      description: Verify that a client without PAR, DPoP, or PKCE configuration is rejected by the normal (non-PAR) oauth-details endpoint when the fapi2.0 server profile is active - expected, invalid_request error
+      role: resident
+      restMethod: post
+      additionalDependencies: TC_ESignet_FAPI_CreateOIDCClient_03
+      inputTemplate: esignet/OAuthDetailsRequest/OAuthDetailsRequest
+      outputTemplate: esignet/error
+      input: '{
+        "requestTime": "$TIMESTAMP$",
+        "clientId": "$ID:CreateOIDCClientFAPI_NonFapiConfig_Smoke_sid_clientId$",
+        "scope": "openid profile",
+        "responseType": "code",
+        "redirectUri": "$IDPREDIRECTURI$",
+        "display": "popup",
+        "prompt": "consent",
+        "acrValues": "mosip:idp:acr:generated-code",
+        "nonce": "$UNIQUENONCEVALUEFORESIGNET$",
+        "state": "eree2311",
+        "claimsLocales": "en"
+}'
+      output: '{
+        "errors": [
+    {
+      "errorCode": "invalid_request"
+    }
+  ]
+}'

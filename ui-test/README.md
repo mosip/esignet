@@ -67,7 +67,6 @@ project-root/
 
 ```properties
 baseurl=<base_environment_url> # e.g., https://healthservices-mock.es-qa1.mosip.net/
-pluginToExecute=mosipid  # or mock - see "Plugin modes" below
 runOnBrowserStack=true/false
 runMultipleBrowsers=true/false
 threadCount=1             # See "Known gaps" - parallel scenario execution (>1) is not currently safe
@@ -89,14 +88,18 @@ uinPhoneNumber=           # Local number only, no country code - overrides the l
 
 ---
 
-## 🔌 Plugin modes (`pluginToExecute`)
+## 🔌 Plugin modes
+
+The plugin is **auto-detected** from the eSignet server's actuator (`EsignetUtil.getPluginName()` /
+`isSunbirdAuthenticatorActive()`) — there is no config property to set.
 
 | Mode | Identity source | Client creation |
 |------|------------------|------------------|
 | `mosipid` | Real ID Repository identity, created by the `AddIdentity` prerequisite | Real partner/policy chain: `CreatePolicyGroup → DefinePolicy → PublishPolicy → CreatePartner → UploadCACertificate → UploadPartnerCertificate → RequestAPIKeyForAuthPartner → ApproveAPIKey → OIDCClient` (`/v1/partnermanager/oidc/client`) |
-| `mock` | MOSIP mock-identity-system, created by `AddIdentityMock` | Lighter-weight direct client creation (`OIDCClientV3MOCK`, `/v1/esignet/client-mgmt/client`) |
+| `mock` | MOSIP mock-identity-system, created by `AddIdentityMock` | `OIDCClientV3MOCK`, `/v1/esignet/client-mgmt/client` |
+| `mock` + Sunbird RC-backed | Same as `mock` | `/v1/esignet/client-mgmt/oauth-client` (V3 500s against Sunbird) + `CreatePolicySunBirdR`, a registry policy used as KBI credentials |
 
-Prerequisites specific to one plugin are skipped for the other automatically (`EsignetUtil.isTestCaseValidForExecution`), so the same `esignetPrerequisiteSuite.xml` runs unmodified for either mode.
+Prerequisites specific to one plugin are skipped for the others automatically (`EsignetUtil.isTestCaseValidForExecution`), so the same `esignetPrerequisiteSuite.xml` runs unmodified regardless of which plugin the server turns out to be.
 
 ## 🪪 Login identity sourcing
 
@@ -225,7 +228,7 @@ mvn clean install -Dgpg.skip=true -Dmaven.gitcommitid.skip=true
 #### ▶️ Using JAR
 ```bash
 cd target/
-java -jar -Denv.endpoint="$ENV_ENDPOINT" uitest-esignet-*.jar
+java -Denv.endpoint="$ENV_ENDPOINT" -jar uitest-esignet-*.jar
 ```
 
 #### 🧩 Using Eclipse IDE
@@ -275,7 +278,8 @@ java -jar -Denv.endpoint="$ENV_ENDPOINT" uitest-esignet-*.jar
 Run scenarios with specific tags:
 
 ```bash
-mvn test -Dcucumber.filter.tags="@smoke"
+cd target/
+java -Denv.endpoint="$ENV_ENDPOINT" -Dcucumber.filter.tags="@smoke" -jar uitest-esignet-*.jar
 ```
 
 Or configure in runner class:

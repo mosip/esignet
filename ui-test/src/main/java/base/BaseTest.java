@@ -162,6 +162,11 @@ public class BaseTest extends AdminTestUtil {
 
 		String pluginName = EsignetUtil.getPluginName();
 
+		// KBI is only offered by the mock and sunbird plugins - never mosipid.
+		if (scenario.getSourceTagNames().contains("@kbi") && !EsignetUtil.isKbiSupportedPlugin()) {
+			skipWithReason("KBI is only supported under the mock and sunbird plugins, not '" + pluginName + "'");
+		}
+
 		if ("mosipid".equalsIgnoreCase(pluginName)) {
 			Set<String> skipTags = new HashSet<>(CLIENT_CONFIG_MAP.keySet());
 
@@ -218,12 +223,26 @@ public class BaseTest extends AdminTestUtil {
 				skipWithReason("Skipped: PAR is not supported in this environment");
 			}
 
+			boolean isKbiScenario = scenario.getSourceTagNames().contains("@kbi");
+
+			// KBI acr must be requested explicitly - it's not in the default acr_values.
+			String acrValues = isKbiScenario ? EsignetUtil.DEFAULT_ACR_VALUES + " " + EsignetUtil.KBI_ACR_VALUE
+					: EsignetUtil.DEFAULT_ACR_VALUES;
+
+			// ui_locales: without it, the KBI form renders no label text (just the required "*").
+			String uiLocales = null;
+			if (isKbiScenario) {
+				String lang = BaseTestUtil.getThreadLocalLanguage();
+				String iso = lang != null ? utils.LanguageUtil.getIsoLanguageCode(lang) : null;
+				uiLocales = iso != null ? iso : "en";
+			}
+
 			// PAR-tagged scenarios drive a client that mandates PAR. Everything else uses the direct
 			// (non-PAR) /authorize flow - unless the environment mandates PAR for every client, in
 			// which case the direct flow would be rejected server-side and PAR is the only option.
 			String authorizeUrl;
 			if (isParScenario || EsignetUtil.isParRequired()) {
-				String requestUri = EsignetUtil.generateParRequestUri(clientIdKey, clientAssertion);
+				String requestUri = EsignetUtil.generateParRequestUri(clientIdKey, clientAssertion, acrValues, uiLocales);
 				String clientId = EsignetUtil.resolveClientId(clientIdKey);
 				String updatedTemplate = template.replace("$REQUEST_URI$", requestUri).replace("$CLIENT_ID$", clientId);
 				authorizeUrl = baseUrl + updatedTemplate;
@@ -233,7 +252,7 @@ public class BaseTest extends AdminTestUtil {
 					authorizeUrl = EsignetUtil.generateDirectAuthorizeUrlWithoutClaims(clientId,
 							EsignetUtil.AUTHORIZE_SCOPE_ONLY);
 				} else {
-					authorizeUrl = EsignetUtil.generateDirectAuthorizeUrl(clientId);
+					authorizeUrl = EsignetUtil.generateDirectAuthorizeUrl(clientId, acrValues, uiLocales);
 				}
 			}
 
