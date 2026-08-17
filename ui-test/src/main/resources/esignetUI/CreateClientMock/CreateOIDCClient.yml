@@ -224,7 +224,7 @@ OIDCClientV3:
     description: To create OIDC Client V3 with title and subtile as null
     role: partner
     restMethod: post
-    inputTemplate: esignetUI/CreateClientMock/CreateOIDCClientNoTitleNoSubtitle
+    inputTemplate: esignetUI/CreateClientMock/CreateOIDCClientConditionalPurpose
     outputTemplate: esignetUI/CreateClientMock/CreateOIDCClientResult
     input: '{
       "requestTime": "$TIMESTAMP$",
@@ -373,7 +373,7 @@ OIDCClientV3:
     description: To create OIDC Client V3 with a title but no subtitle, purpose type login
     role: partner
     restMethod: post
-    inputTemplate: esignetUI/CreateClientMock/CreateOIDCClientTitleOnly
+    inputTemplate: esignetUI/CreateClientMock/CreateOIDCClientConditionalPurpose
     outputTemplate: esignetUI/CreateClientMock/CreateOIDCClientResult
     input: '{
       "requestTime": "$TIMESTAMP$",
@@ -410,7 +410,7 @@ OIDCClientV3:
     description: To create OIDC Client V3 with a title but no subtitle, purpose type verify
     role: partner
     restMethod: post
-    inputTemplate: esignetUI/CreateClientMock/CreateOIDCClientTitleOnly
+    inputTemplate: esignetUI/CreateClientMock/CreateOIDCClientConditionalPurpose
     outputTemplate: esignetUI/CreateClientMock/CreateOIDCClientResult
     input: '{
       "requestTime": "$TIMESTAMP$",
@@ -447,7 +447,7 @@ OIDCClientV3:
     description: To create OIDC Client V3 with a title but no subtitle, purpose type link
     role: partner
     restMethod: post
-    inputTemplate: esignetUI/CreateClientMock/CreateOIDCClientTitleOnly
+    inputTemplate: esignetUI/CreateClientMock/CreateOIDCClientConditionalPurpose
     outputTemplate: esignetUI/CreateClientMock/CreateOIDCClientResult
     input: '{
       "requestTime": "$TIMESTAMP$",
@@ -484,7 +484,7 @@ OIDCClientV3:
     description: To create OIDC Client V3 with a subtitle but no title, purpose type login
     role: partner
     restMethod: post
-    inputTemplate: esignetUI/CreateClientMock/CreateOIDCClientSubtitleOnly
+    inputTemplate: esignetUI/CreateClientMock/CreateOIDCClientConditionalPurpose
     outputTemplate: esignetUI/CreateClientMock/CreateOIDCClientResult
     input: '{
       "requestTime": "$TIMESTAMP$",
@@ -521,7 +521,7 @@ OIDCClientV3:
     description: To create OIDC Client V3 with a subtitle but no title, purpose type verify
     role: partner
     restMethod: post
-    inputTemplate: esignetUI/CreateClientMock/CreateOIDCClientSubtitleOnly
+    inputTemplate: esignetUI/CreateClientMock/CreateOIDCClientConditionalPurpose
     outputTemplate: esignetUI/CreateClientMock/CreateOIDCClientResult
     input: '{
       "requestTime": "$TIMESTAMP$",
@@ -558,7 +558,7 @@ OIDCClientV3:
     description: To create OIDC Client V3 with a subtitle but no title, purpose type link
     role: partner
     restMethod: post
-    inputTemplate: esignetUI/CreateClientMock/CreateOIDCClientSubtitleOnly
+    inputTemplate: esignetUI/CreateClientMock/CreateOIDCClientConditionalPurpose
     outputTemplate: esignetUI/CreateClientMock/CreateOIDCClientResult
     input: '{
       "requestTime": "$TIMESTAMP$",

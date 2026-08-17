@@ -483,6 +483,7 @@ public class ConsentStepDefinition {
 	@Given("user creates the client with updated title and subtitle values")
 	public void userCreateClientWithUpdatedTitleAndSubtitle() {
 		// Client is already created via scenario tags in BaseTest (see CLIENT_CONFIG_MAP)
+		logger.info("Creating client with updated title and subtitle values");
 	}
 
 	@Then("verify title and subtitle should be displayed as per updated client details")

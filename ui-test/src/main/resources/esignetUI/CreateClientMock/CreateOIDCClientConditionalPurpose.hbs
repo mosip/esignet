@@ -35,10 +35,17 @@
     "additionalConfig": {
       "userinfo_response_type": "{{userinfo_response_type}}",
       "purpose": {
-        "type": "{{purpose_type}}",
-        "subTitle": {
+        {{#if purpose_title}}
+        "title": {
+          "@none": "{{purpose_title}}"
+        },
+        {{/if}}
+        "type": "{{purpose_type}}"
+        {{#if purpose_subTitle}}
+        ,"subTitle": {
           "@none": "{{purpose_subTitle}}"
         }
+        {{/if}}
       },
       "signup_banner_required": {{signup_banner_required}},
       "forgot_pwd_link_required": {{forgot_pwd_link_required}},
