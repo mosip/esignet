@@ -218,7 +218,6 @@ Usage: ./make.sh <target> [<target> ...] [VAR=VALUE ...]
 
 Build
   all                Alias for build
-  keys               Generate local TLS signing key and certificate
   build              Compile production binary ($BINARY, CGO_ENABLED=$CGO_ENABLED — set
                      CGO_ENABLED=1 for real PKCS11/HSM support; default is a
                      static binary where PKCS11 stubs out to a startup error

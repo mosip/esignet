@@ -99,12 +99,12 @@ func (ts *AppConfigTestSuite) TestApplyDefaultsAuthorizationCodeValidityPeriod()
 		ts.Require().EqualValues(120, cfg.OAuth.AuthorizationCode.ValidityPeriod)
 	})
 
-	t.Run("defaults to 3600 when unset", func(_ *testing.T) {
+	t.Run("defaults to 60 when unset", func(_ *testing.T) {
 		cfg := &AppConfig{}
 
 		applyDefaults(cfg)
 
-		ts.Require().EqualValues(3600, cfg.OAuth.AuthorizationCode.ValidityPeriod)
+		ts.Require().EqualValues(60, cfg.OAuth.AuthorizationCode.ValidityPeriod)
 	})
 }
 
@@ -152,6 +152,74 @@ func (ts *AppConfigTestSuite) TestApplyDefaultsJWTValidityAndLeeway() {
 		ts.Require().EqualValues(30, cfg.JWT.Leeway)
 		ts.Require().EqualValues(20, cfg.OAuth.DPoP.Leeway)
 	})
+}
+
+func (ts *AppConfigTestSuite) TestApplyDefaultsYAMLValuesUsedWhenEnvUnset() {
+	cfg := &AppConfig{
+		Identifier: "yaml-namespace",
+		Issuer:     "https://yaml-issuer.example",
+		Provider:   "yaml-provider",
+		LayoutID:   "yaml-layout",
+		ThemeID:    "yaml-theme",
+		AuthFlowID: "yaml-flow",
+	}
+
+	applyDefaults(cfg)
+
+	ts.Require().Equal("yaml-namespace", cfg.Identifier)
+	ts.Require().Equal("https://yaml-issuer.example", cfg.Issuer)
+	ts.Require().Equal("yaml-provider", cfg.Provider)
+	ts.Require().Equal("yaml-layout", cfg.LayoutID)
+	ts.Require().Equal("yaml-theme", cfg.ThemeID)
+	ts.Require().Equal("yaml-flow", cfg.AuthFlowID)
+}
+
+func (ts *AppConfigTestSuite) TestApplyDefaultsEnvTakesPrecedenceOverYAML() {
+	t := ts.T()
+	t.Setenv("NAMESPACE", "env-namespace")
+
+	cfg := &AppConfig{Identifier: "yaml-namespace"}
+	applyDefaults(cfg)
+
+	ts.Require().Equal("env-namespace", cfg.Identifier)
+}
+
+func (ts *AppConfigTestSuite) TestApplyDefaultsGateClientRespectsYAML() {
+	cfg := &AppConfig{}
+	cfg.GateClient.Scheme = "https"
+	cfg.GateClient.Hostname = "yaml-gate.example"
+	cfg.GateClient.Port = 4000
+	cfg.GateClient.LoginPath = "/yaml-signin"
+	cfg.GateClient.ErrorPath = "/yaml-error"
+
+	applyDefaults(cfg)
+
+	ts.Require().Equal("https", cfg.GateClient.Scheme)
+	ts.Require().Equal("yaml-gate.example", cfg.GateClient.Hostname)
+	ts.Require().Equal(4000, cfg.GateClient.Port)
+	ts.Require().Equal("/yaml-signin", cfg.GateClient.LoginPath)
+	ts.Require().Equal("/yaml-error", cfg.GateClient.ErrorPath)
+}
+
+func (ts *AppConfigTestSuite) TestApplyDefaultsGateClientFallsBackWhenUnset() {
+	cfg := &AppConfig{}
+
+	applyDefaults(cfg)
+
+	ts.Require().Equal(defaultGateScheme, cfg.GateClient.Scheme)
+	ts.Require().Equal(defaultGateHostname, cfg.GateClient.Hostname)
+	ts.Require().Equal(defaultGatePort, cfg.GateClient.Port)
+	ts.Require().Equal(defaultGateLoginPath, cfg.GateClient.LoginPath)
+	ts.Require().Equal(defaultGateErrorPath, cfg.GateClient.ErrorPath)
+}
+
+func (ts *AppConfigTestSuite) TestApplyDefaultsJWTPreferredKeyIDRespectsYAML() {
+	cfg := &AppConfig{}
+	cfg.JWT.PreferredKeyID = "yaml-key-ref"
+
+	applyDefaults(cfg)
+
+	ts.Require().Equal("yaml-key-ref", cfg.JWT.PreferredKeyID)
 }
 
 func (ts *AppConfigTestSuite) TestApplyDefaultsCoreFields() {
@@ -277,6 +345,40 @@ func (ts *AppConfigTestSuite) TestApplyDefaultsInboundHTTPServer() {
 	ts.Require().EqualValues(defaultInboundServerIdleTimeoutSecs, cfg.InboundHTTPServer.IdleTimeoutSecs)
 }
 
+func (ts *AppConfigTestSuite) TestApplyHTTPClientEnvOverrides() {
+	t := ts.T()
+	t.Setenv("OUTBOUND_IDSYSTEM_HTTP_CLIENT_TIMEOUT_SECS", "45")
+	t.Setenv("OUTBOUND_IDSYSTEM_HTTP_CLIENT_MAX_IDLE_CONNS", "999")
+
+	cfg := &HTTPClientConfig{TimeoutSecs: 11, MaxConnsPerHost: 22}
+	applyHTTPClientEnvOverrides("OUTBOUND_IDSYSTEM_HTTP_CLIENT", cfg)
+
+	ts.Require().EqualValues(45, cfg.TimeoutSecs, "env var overrides yaml value")
+	ts.Require().EqualValues(999, cfg.MaxIdleConns, "env var sets unset field")
+	ts.Require().EqualValues(22, cfg.MaxConnsPerHost, "field without a matching env var is left untouched")
+}
+
+func (ts *AppConfigTestSuite) TestApplyInboundServerEnvOverrides() {
+	t := ts.T()
+	t.Setenv("INBOUND_HTTP_SERVER_WRITE_TIMEOUT_SECS", "90")
+
+	cfg := &InboundHTTPServerConfig{ReadTimeoutSecs: 15}
+	applyInboundServerEnvOverrides(cfg)
+
+	ts.Require().EqualValues(90, cfg.WriteTimeoutSecs, "env var overrides default")
+	ts.Require().EqualValues(15, cfg.ReadTimeoutSecs, "field without a matching env var is left untouched")
+}
+
+func (ts *AppConfigTestSuite) TestApplyDefaultsHTTPClientEnvOverrideTakesPrecedenceOverYAML() {
+	t := ts.T()
+	t.Setenv("OUTBOUND_HTTP_CLIENT_TIMEOUT_SECS", "77")
+
+	cfg := &AppConfig{OutboundHTTPClient: HTTPClientConfig{TimeoutSecs: 12}}
+	applyDefaults(cfg)
+
+	ts.Require().EqualValues(77, cfg.OutboundHTTPClient.TimeoutSecs, "env var takes precedence over yaml-set value")
+}
+
 func (ts *AppConfigTestSuite) TestApplyEnvOverridesGateClient() {
 	t := ts.T()
 	cfg := &AppConfig{}
@@ -397,6 +499,26 @@ func (ts *AppConfigTestSuite) TestEnvIntOrDefault() {
 
 	t.Setenv("ESIGNET_TEST_ENV_INT_BAD", "not-a-number")
 	ts.Require().Equal(999, envIntOrDefault("ESIGNET_TEST_ENV_INT_BAD", 999))
+}
+
+func (ts *AppConfigTestSuite) TestEnvOrConfigOrDefault() {
+	t := ts.T()
+	t.Setenv("ESIGNET_TEST_ENV_OR_CONFIG", "from-env")
+	ts.Require().Equal("from-env", envOrConfigOrDefault("ESIGNET_TEST_ENV_OR_CONFIG", "from-yaml", "fallback"), "env wins over yaml")
+
+	t.Setenv("ESIGNET_TEST_ENV_OR_CONFIG_UNSET", "")
+	ts.Require().Equal("from-yaml", envOrConfigOrDefault("ESIGNET_TEST_ENV_OR_CONFIG_UNSET", "from-yaml", "fallback"), "yaml wins when env unset")
+	ts.Require().Equal("fallback", envOrConfigOrDefault("ESIGNET_TEST_ENV_OR_CONFIG_UNSET", "", "fallback"), "fallback used when both env and yaml unset")
+}
+
+func (ts *AppConfigTestSuite) TestEnvIntOrConfigOrDefault() {
+	t := ts.T()
+	t.Setenv("ESIGNET_TEST_ENV_INT_OR_CONFIG", "111")
+	ts.Require().Equal(111, envIntOrConfigOrDefault("ESIGNET_TEST_ENV_INT_OR_CONFIG", 222, 333), "env wins over yaml")
+
+	t.Setenv("ESIGNET_TEST_ENV_INT_OR_CONFIG_UNSET", "")
+	ts.Require().Equal(222, envIntOrConfigOrDefault("ESIGNET_TEST_ENV_INT_OR_CONFIG_UNSET", 222, 333), "yaml wins when env unset")
+	ts.Require().Equal(333, envIntOrConfigOrDefault("ESIGNET_TEST_ENV_INT_OR_CONFIG_UNSET", 0, 333), "fallback used when both env and yaml unset")
 }
 
 func (ts *AppConfigTestSuite) TestEnvBool() {

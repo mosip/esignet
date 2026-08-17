@@ -19,13 +19,13 @@ func TestLoadRedis_Defaults(t *testing.T) {
 		"REDIS_URL", "REDIS_HOST", "REDIS_PORT", "REDIS_PASSWORD", "REDIS_DB", "REDIS_TLS_ENABLED",
 		"REDIS_POOL_SIZE", "REDIS_MIN_IDLE_CONNS", "REDIS_KEY_PREFIX",
 		"REDIS_SENTINEL_MASTER", "REDIS_SENTINEL_ADDRS",
-		"REDIS_DIAL_TIMEOUT_SECS", "REDIS_READ_TIMEOUT_SECS", "REDIS_WRITE_TIMEOUT_SECS",
+		"REDIS_DIAL_TIMEOUT_SECS", "REDIS_READ_TIMEOUT_SECS", "REDIS_WRITE_TIMEOUT_SECS", "REDIS_POOL_TIMEOUT_SECS",
 		"REDIS_CONN_MAX_IDLE_TIME_SECS", "REDIS_CONN_MAX_LIFETIME_SECS",
 	} {
 		t.Setenv(envVar, "")
 	}
 
-	r := loadRedis()
+	r := loadRedis(Redis{})
 
 	require.Equal(t, defaultRedisHost, r.Host)
 	require.Equal(t, defaultRedisPort, r.Port)
@@ -39,8 +39,29 @@ func TestLoadRedis_Defaults(t *testing.T) {
 	require.Equal(t, time.Duration(defaultRedisDialTimeoutSecs)*time.Second, r.DialTimeout)
 	require.Equal(t, time.Duration(defaultRedisReadTimeoutSecs)*time.Second, r.ReadTimeout)
 	require.Equal(t, time.Duration(defaultRedisWriteTimeoutSecs)*time.Second, r.WriteTimeout)
+	require.Equal(t, time.Duration(defaultRedisPoolTimeoutSecs)*time.Second, r.PoolTimeout)
 	require.Equal(t, time.Duration(defaultRedisConnMaxIdleTime)*time.Second, r.ConnMaxIdleTime)
 	require.Equal(t, time.Duration(defaultRedisConnMaxLifetimeSecs)*time.Second, r.ConnMaxLifetime)
+}
+
+func TestLoadRedis_ExplicitZeroLifetimeIsOptOut(t *testing.T) {
+	t.Setenv("REDIS_CONN_MAX_LIFETIME_SECS", "0")
+
+	r := loadRedis(Redis{})
+
+	require.Zero(t, r.ConnMaxLifetime)
+}
+
+// Regression test: unlike ConnMaxLifetime, ConnMaxIdleTime has no "0 = no
+// limit" opt-out — REDIS_CONN_MAX_IDLE_TIME_SECS=0 must fall back to the
+// default (in seconds), not resolve to the raw constant misinterpreted as
+// nanoseconds.
+func TestLoadRedis_ExplicitZeroIdleTimeFallsBackToDefault(t *testing.T) {
+	t.Setenv("REDIS_CONN_MAX_IDLE_TIME_SECS", "0")
+
+	r := loadRedis(Redis{})
+
+	require.Equal(t, time.Duration(defaultRedisConnMaxIdleTime)*time.Second, r.ConnMaxIdleTime)
 }
 
 func TestLoadRedis_EnvOverrides(t *testing.T) {
@@ -56,12 +77,13 @@ func TestLoadRedis_EnvOverrides(t *testing.T) {
 	t.Setenv("REDIS_DIAL_TIMEOUT_SECS", "1")
 	t.Setenv("REDIS_READ_TIMEOUT_SECS", "2")
 	t.Setenv("REDIS_WRITE_TIMEOUT_SECS", "3")
+	t.Setenv("REDIS_POOL_TIMEOUT_SECS", "9")
 	t.Setenv("REDIS_CONN_MAX_IDLE_TIME_SECS", "111")
 	t.Setenv("REDIS_CONN_MAX_LIFETIME_SECS", "222")
 	t.Setenv("REDIS_SENTINEL_MASTER", "mymaster")
 	t.Setenv("REDIS_SENTINEL_ADDRS", "a:1,b:2, ,c:3")
 
-	r := loadRedis()
+	r := loadRedis(Redis{})
 
 	require.Equal(t, "redis://:pw@myhost:1234/2", r.URL)
 	require.Equal(t, "otherhost", r.Host)
@@ -75,6 +97,7 @@ func TestLoadRedis_EnvOverrides(t *testing.T) {
 	require.Equal(t, time.Second, r.DialTimeout)
 	require.Equal(t, 2*time.Second, r.ReadTimeout)
 	require.Equal(t, 3*time.Second, r.WriteTimeout)
+	require.Equal(t, 9*time.Second, r.PoolTimeout)
 	require.Equal(t, 111*time.Second, r.ConnMaxIdleTime)
 	require.Equal(t, 222*time.Second, r.ConnMaxLifetime)
 	require.Equal(t, "mymaster", r.SentinelMaster)
@@ -85,14 +108,53 @@ func TestLoadRedis_NonPositivePoolValuesFallBackToDefaults(t *testing.T) {
 	t.Setenv("REDIS_POOL_SIZE", "0")
 	t.Setenv("REDIS_MIN_IDLE_CONNS", "-1")
 
-	r := loadRedis()
+	r := loadRedis(Redis{})
 
 	require.Equal(t, defaultRedisPoolSize, r.PoolSize)
 	require.Equal(t, defaultRedisMinIdleConns, r.MinIdleConns)
 }
 
+func TestLoadRedis_YAMLValuesUsedWhenEnvUnset(t *testing.T) {
+	for _, envVar := range []string{
+		"REDIS_URL", "REDIS_HOST", "REDIS_PORT", "REDIS_PASSWORD", "REDIS_DB", "REDIS_TLS_ENABLED",
+		"REDIS_KEY_PREFIX", "REDIS_SENTINEL_MASTER", "REDIS_SENTINEL_ADDRS",
+	} {
+		t.Setenv(envVar, "")
+	}
+
+	yamlRedis := Redis{
+		Host:           "yaml-host",
+		Port:           "6400",
+		Password:       "yaml-pass",
+		DB:             7,
+		TLS:            true,
+		KeyPrefix:      "yaml:",
+		SentinelMaster: "yaml-master",
+		SentinelAddrs:  []string{"y1:1", "y2:2"},
+	}
+
+	r := loadRedis(yamlRedis)
+
+	require.Equal(t, "yaml-host", r.Host)
+	require.Equal(t, "6400", r.Port)
+	require.Equal(t, "yaml-pass", r.Password)
+	require.Equal(t, 7, r.DB)
+	require.True(t, r.TLS)
+	require.Equal(t, "yaml:", r.KeyPrefix)
+	require.Equal(t, "yaml-master", r.SentinelMaster)
+	require.Equal(t, []string{"y1:1", "y2:2"}, r.SentinelAddrs)
+}
+
+func TestLoadRedis_EnvTakesPrecedenceOverYAML(t *testing.T) {
+	t.Setenv("REDIS_HOST", "env-host")
+
+	r := loadRedis(Redis{Host: "yaml-host"})
+
+	require.Equal(t, "env-host", r.Host)
+}
+
 func TestRedisNewClient_FullDSN(t *testing.T) {
-	r := Redis{URL: "redis://:pw@dsnhost:9999/3", PoolSize: 7, MinIdleConns: 2}
+	r := Redis{URL: "redis://:pw@dsnhost:9999/3", PoolSize: 7, MinIdleConns: 2, PoolTimeout: 9 * time.Second}
 
 	client, err := r.newClient()
 	require.NoError(t, err)
@@ -103,6 +165,7 @@ func TestRedisNewClient_FullDSN(t *testing.T) {
 	require.Equal(t, "pw", opts.Password)
 	require.Equal(t, 3, opts.DB)
 	require.Equal(t, 7, opts.PoolSize)
+	require.Equal(t, 9*time.Second, opts.PoolTimeout)
 }
 
 func TestRedisNewClient_InvalidURL(t *testing.T) {
@@ -118,16 +181,19 @@ func TestRedisNewClient_Sentinel(t *testing.T) {
 		SentinelAddrs:  []string{"s1:26379", "s2:26379"},
 		DB:             1,
 		PoolSize:       5,
+		PoolTimeout:    8 * time.Second,
 		TLS:            true,
 	}
 
 	client, err := r.newClient()
 	require.NoError(t, err)
 	defer func() { _ = client.Close() }()
+
+	require.Equal(t, 8*time.Second, client.Options().PoolTimeout)
 }
 
 func TestRedisNewClient_SingleNode(t *testing.T) {
-	r := Redis{Host: "singlehost", Port: "6390", DB: 4, PoolSize: 9}
+	r := Redis{Host: "singlehost", Port: "6390", DB: 4, PoolSize: 9, PoolTimeout: 6 * time.Second}
 
 	client, err := r.newClient()
 	require.NoError(t, err)
@@ -137,6 +203,7 @@ func TestRedisNewClient_SingleNode(t *testing.T) {
 	require.Equal(t, "singlehost:6390", opts.Addr)
 	require.Equal(t, 4, opts.DB)
 	require.Equal(t, 9, opts.PoolSize)
+	require.Equal(t, 6*time.Second, opts.PoolTimeout)
 	require.Nil(t, opts.TLSConfig)
 }
 
@@ -159,6 +226,7 @@ func TestRedisApplyPool(t *testing.T) {
 		DialTimeout:     time.Second,
 		ReadTimeout:     2 * time.Second,
 		WriteTimeout:    3 * time.Second,
+		PoolTimeout:     4 * time.Second,
 		TLS:             true,
 	}
 	opts := &redis.Options{}
@@ -166,5 +234,6 @@ func TestRedisApplyPool(t *testing.T) {
 
 	require.Equal(t, 11, opts.PoolSize)
 	require.Equal(t, 3, opts.MinIdleConns)
+	require.Equal(t, 4*time.Second, opts.PoolTimeout)
 	require.NotNil(t, opts.TLSConfig)
 }

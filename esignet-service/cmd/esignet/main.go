@@ -50,21 +50,23 @@ func main() {
 	}
 
 	// Setup DB connection
-	pgConn, err := appCfg.DB.Open()
+	pgConn, closeDB, err := appCfg.DB.Open()
 	if err != nil {
 		logger.Fatal("postgres connection failed", applog.Error(err))
 	}
 	logger.Info(context.Background(), "postgres connected",
 		applog.Int("maxOpenConns", appCfg.DB.Pool.MaxOpenConns),
-		applog.Int("maxIdleConns", appCfg.DB.Pool.MaxIdleConns))
+		applog.Int("maxIdleConns", appCfg.DB.Pool.MaxIdleConns),
+		applog.Int("connMaxLifetimeSecs", appCfg.DB.Pool.ConnMaxLifetimeSecs),
+		applog.Int("connMaxIdleTimeSecs", appCfg.DB.Pool.ConnMaxIdleTimeSecs))
 	defer func() {
-		if err := pgConn.Close(); err != nil {
+		if err := closeDB(); err != nil {
 			logger.Warn(context.Background(), "close postgres", applog.Error(err))
 		}
 	}()
 	// keymanager's persistence layer is built on sqlx (for GetContext/SelectContext);
 	// wrap the same *sql.DB rather than opening a second connection pool.
-	sqlxConn := sqlx.NewDb(pgConn, "postgres")
+	sqlxConn := sqlx.NewDb(pgConn, "pgx")
 
 	// Setup Redis client. It is shared by the runtime store provider and the consent enforcer
 	// (which reads the engine's authorization requests), so both resolve the same keys. Created
@@ -91,15 +93,20 @@ func main() {
 		_, _ = w.Write([]byte("ok"))
 	})
 
+	commonHTTPClient := config.NewHTTPClient(appCfg.OutboundHTTPClient)
+
 	// The runtime store is shared between the engine and the consent enforcer (which reads the
 	// engine's stored authorization requests from it), so both resolve the same keys. It's also
 	// used by clientSvc below to cache GetClient lookups.
 	runtimeStore := runtimestores.Initialize(appCfg, redisClient)
 
+	// Security middleware wraps all engine routes, enforcing request time validation and (if enabled) Bearer token scope validation.
+	// It is applied to the client management and key management endpoints below, so those endpoints are also protected.
+	securityMiddleware := getSecurityMiddleware(appCfg, commonHTTPClient, logger)
+
 	clientSvc := clientmgmt.NewService(pgConn, runtimeStore, appCfg.ClientCacheTTLSecs, appCfg.SupportedEncAlgorithms)
 	clientHandler := clientmgmt.NewHandler(clientSvc, logger)
-	clientHandler.RegisterRoutes(mux, getSecurityMiddleware(appCfg, logger))
-
+	clientHandler.RegisterRoutes(mux, securityMiddleware)
 	keyMgrSvc, sigSvc, cryptoSvc, ks, err := initializeKeyManager(sqlxConn)
 	if err != nil {
 		logger.Fatal("failed to initialize key manager", applog.Error(err))
@@ -114,9 +121,7 @@ func main() {
 	}
 
 	keyMgrHandler := keymanager.NewHandler(keyMgrSvc, logger)
-	keyMgrHandler.RegisterRoutes(mux, getSecurityMiddleware(appCfg, logger))
-
-	commonHTTPClient := config.NewHTTPClient(appCfg.OutboundHTTPClient)
+	keyMgrHandler.RegisterRoutes(mux, securityMiddleware)
 
 	authnProvider, observabilityProvider, err := engine.NewIDSystemProviders(appCfg, clientSvc, keyMgrSvc, sigSvc)
 	if err != nil {
@@ -207,14 +212,16 @@ func getAppConfig() (*config.AppConfig, error) {
 	return appCfg, err
 }
 
-func getSecurityMiddleware(appCfg *config.AppConfig, logger *applog.Logger) func(http.Handler) http.Handler {
+func getSecurityMiddleware(appCfg *config.AppConfig, commonHTTPClient *http.Client,
+	logger *applog.Logger) func(http.Handler) http.Handler {
 	var scopeMW func(http.Handler) http.Handler
 	if scopeEnforcementEnabled(appCfg) {
 		logger.Info(context.Background(), "Scope enforcement enabled",
 			applog.String("jwks_endpoint", appCfg.SecurityConfig.JwksURL),
 			applog.String("issuer", appCfg.SecurityConfig.IssuerURL),
 		)
-		jwksCache := security.NewJWKSCache(appCfg.SecurityConfig.JwksURL, time.Duration(appCfg.SecurityConfig.JwksCacheTTL))
+		jwksCache := security.NewJWKSCache(appCfg.SecurityConfig.JwksURL,
+			time.Duration(appCfg.SecurityConfig.JwksCacheTTL), commonHTTPClient)
 		scopeMW = security.ScopeMiddleware(jwksCache, appCfg.SecurityConfig)
 	} else {
 		logger.Warn(context.Background(), "Scope enforcement disabled; set ISSUER_URL and JWKS_URL in security_config to enable")

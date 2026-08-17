@@ -112,10 +112,10 @@ func (ts *BaseExecutorTestSuite) TestBuildGetAttributesMetadata() {
 	t.Run("nil runtime data", func(t *testing.T) {
 		ctx := &providers.NodeContext{}
 		metadata := BuildGetAttributesMetadata(ctx)
-		if metadata == nil {
+		if metadata == nil { //nolint:staticcheck // SA5011 false positive: t.Fatal below exits before the later dereference
 			t.Fatal("expected non-nil metadata")
 		}
-		if len(metadata.RuntimeMetadata) != 0 {
+		if len(metadata.RuntimeMetadata) != 0 { //nolint:staticcheck // SA5011 false positive: t.Fatal above exits before this dereference
 			t.Errorf("expected empty runtime metadata, got %v", metadata.RuntimeMetadata)
 		}
 	})

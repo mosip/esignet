@@ -25,13 +25,18 @@ const (
 	defaultRedisDialTimeoutSecs     = 5
 	defaultRedisReadTimeoutSecs     = 3
 	defaultRedisWriteTimeoutSecs    = 3
-	defaultRedisConnMaxLifetimeSecs = 0 // no limit
+	defaultRedisPoolTimeoutSecs     = 4
+	defaultRedisConnMaxLifetimeSecs = 1800
 	defaultRedisKeyPrefix           = "esignet:"
 	redisPingTimeout                = 5 * time.Second
 	defaultRedisDB                  = 0
 )
 
 // Redis holds all settings needed to open and configure a Redis client.
+//
+// Precedence for each field is: env var, then the value already parsed from
+// deployment.yaml's redis: block (KnownFields(true) means only the fields
+// tagged below can be set there), then the compiled-in default.
 //
 // Environment variables (all optional):
 //
@@ -42,86 +47,73 @@ const (
 //	REDIS_DB                    — default 0
 //	REDIS_TLS_ENABLED           — "true" to enable TLS (automatically on for rediss:// URLs)
 //
-//	REDIS_POOL_SIZE             — default 10
-//	REDIS_MIN_IDLE_CONNS        — default 2
-//	REDIS_CONN_MAX_IDLE_TIME_SECS — default 300
-//	REDIS_CONN_MAX_LIFETIME_SECS  — default 0 (no limit)
-//	REDIS_DIAL_TIMEOUT_SECS     — default 5
-//	REDIS_READ_TIMEOUT_SECS     — default 3
-//	REDIS_WRITE_TIMEOUT_SECS    — default 3
-//
 //	REDIS_KEY_PREFIX            — default "esignet:"
 //
 //	REDIS_SENTINEL_MASTER       — master name for Sentinel mode
 //	REDIS_SENTINEL_ADDRS        — comma-separated sentinel addresses (enables Sentinel mode)
+//
+// Pool/timeout tuning (all optional, env-var-driven only — like DBPool in
+// db.go, deployment.yaml documents these but they are never read from YAML,
+// keeping a single source of truth for pool sizing):
+//
+//	REDIS_POOL_SIZE             — default 10
+//	REDIS_MIN_IDLE_CONNS        — default 2
+//	REDIS_CONN_MAX_IDLE_TIME_SECS — default 300
+//	REDIS_CONN_MAX_LIFETIME_SECS  — default 1800 (0 = no limit, explicit opt-out)
+//	REDIS_DIAL_TIMEOUT_SECS     — default 5
+//	REDIS_READ_TIMEOUT_SECS     — default 3
+//	REDIS_WRITE_TIMEOUT_SECS    — default 3
+//	REDIS_POOL_TIMEOUT_SECS     — default 4; how long a caller blocks waiting
+//	                              for a pooled connection before failing with
+//	                              a pool-timeout error (go-redis's default is
+//	                              ReadTimeout+1s, made explicit here)
 type Redis struct {
-	URL      string // full DSN if provided
-	Host     string
-	Port     string
-	Password string
-	DB       int
-	TLS      bool
+	URL      string `yaml:"url"`
+	Host     string `yaml:"host"`
+	Port     string `yaml:"port"`
+	Password string `yaml:"password"`
+	DB       int    `yaml:"db"`
+	TLS      bool   `yaml:"tls"`
 
-	PoolSize        int
-	MinIdleConns    int
-	ConnMaxIdleTime time.Duration
-	ConnMaxLifetime time.Duration
-	DialTimeout     time.Duration
-	ReadTimeout     time.Duration
-	WriteTimeout    time.Duration
+	PoolSize        int           `yaml:"-"`
+	MinIdleConns    int           `yaml:"-"`
+	ConnMaxIdleTime time.Duration `yaml:"-"`
+	ConnMaxLifetime time.Duration `yaml:"-"`
+	DialTimeout     time.Duration `yaml:"-"`
+	ReadTimeout     time.Duration `yaml:"-"`
+	WriteTimeout    time.Duration `yaml:"-"`
+	PoolTimeout     time.Duration `yaml:"-"`
 
-	KeyPrefix string
+	KeyPrefix string `yaml:"key_prefix"`
 
-	SentinelMaster string
-	SentinelAddrs  []string
+	SentinelMaster string   `yaml:"sentinel_master"`
+	SentinelAddrs  []string `yaml:"sentinel_addrs"`
 }
 
-func loadRedis() Redis {
-	poolSize := envIntOrDefault("REDIS_POOL_SIZE", defaultRedisPoolSize)
-	if poolSize <= 0 {
-		poolSize = defaultRedisPoolSize
-	}
-	minIdle := envIntOrDefault("REDIS_MIN_IDLE_CONNS", defaultRedisMinIdleConns)
-	if minIdle <= 0 {
-		minIdle = defaultRedisMinIdleConns
-	}
+// loadRedis resolves Redis settings using env var > yamlRedis (already
+// parsed from deployment.yaml) > compiled-in default, except for the
+// pool/timeout fields which are env-var-driven only (see the Redis doc
+// comment above).
+func loadRedis(yamlRedis Redis) Redis {
+	// These fields are never read from yaml (yaml:"-", see the Redis doc
+	// comment above), so fromYAML is always 0 — envIntOrConfigOrDefault
+	// collapses to "env wins if positive, else the compiled default".
+	poolSize := envIntOrConfigOrDefault("REDIS_POOL_SIZE", 0, defaultRedisPoolSize)
+	minIdle := envIntOrConfigOrDefault("REDIS_MIN_IDLE_CONNS", 0, defaultRedisMinIdleConns)
+	idleTime := time.Duration(envIntOrConfigOrDefault("REDIS_CONN_MAX_IDLE_TIME_SECS", 0, defaultRedisConnMaxIdleTime)) * time.Second
 
-	idleSecs := envIntOrDefault("REDIS_CONN_MAX_IDLE_TIME_SECS", defaultRedisConnMaxIdleTime)
-	var idleTime time.Duration
-	if idleSecs > 0 {
-		idleTime = time.Duration(idleSecs) * time.Second
-	} else {
-		idleTime = defaultRedisConnMaxIdleTime
-	}
-
+	// Unlike the fields above, lifetimeSecs has a "0 = no limit" opt-out, so
+	// it can't use envIntOrConfigOrDefault (which treats <=0 at every tier as
+	// "not set") — an explicit env var of "0" must be honored as-is.
 	lifetimeSecs := envIntOrDefault("REDIS_CONN_MAX_LIFETIME_SECS", defaultRedisConnMaxLifetimeSecs)
 	lifetime := time.Duration(lifetimeSecs) * time.Second // 0 = no limit
 
-	dialSecs := envIntOrDefault("REDIS_DIAL_TIMEOUT_SECS", defaultRedisDialTimeoutSecs)
-	var dialTimeout time.Duration
-	if dialSecs > 0 {
-		dialTimeout = time.Duration(dialSecs) * time.Second
-	} else {
-		dialTimeout = time.Duration(defaultRedisDialTimeoutSecs) * time.Second
-	}
+	dialTimeout := time.Duration(envIntOrConfigOrDefault("REDIS_DIAL_TIMEOUT_SECS", 0, defaultRedisDialTimeoutSecs)) * time.Second
+	readTimeout := time.Duration(envIntOrConfigOrDefault("REDIS_READ_TIMEOUT_SECS", 0, defaultRedisReadTimeoutSecs)) * time.Second
+	writeTimeout := time.Duration(envIntOrConfigOrDefault("REDIS_WRITE_TIMEOUT_SECS", 0, defaultRedisWriteTimeoutSecs)) * time.Second
+	poolTimeout := time.Duration(envIntOrConfigOrDefault("REDIS_POOL_TIMEOUT_SECS", 0, defaultRedisPoolTimeoutSecs)) * time.Second
 
-	readSecs := envIntOrDefault("REDIS_READ_TIMEOUT_SECS", defaultRedisReadTimeoutSecs)
-	var readTimeout time.Duration
-	if readSecs > 0 {
-		readTimeout = time.Duration(readSecs) * time.Second
-	} else {
-		readTimeout = time.Duration(defaultRedisReadTimeoutSecs) * time.Second
-	}
-
-	writeSecs := envIntOrDefault("REDIS_WRITE_TIMEOUT_SECS", defaultRedisWriteTimeoutSecs)
-	var writeTimeout time.Duration
-	if writeSecs > 0 {
-		writeTimeout = time.Duration(writeSecs) * time.Second
-	} else {
-		writeTimeout = time.Duration(defaultRedisWriteTimeoutSecs) * time.Second
-	}
-
-	keyPrefix := envOrDefault("REDIS_KEY_PREFIX", defaultRedisKeyPrefix)
+	keyPrefix := envOrConfigOrDefault("REDIS_KEY_PREFIX", yamlRedis.KeyPrefix, defaultRedisKeyPrefix)
 
 	sentinelAddrsRaw := envOrDefault("REDIS_SENTINEL_ADDRS", "")
 	var sentinelAddrs []string
@@ -132,14 +124,17 @@ func loadRedis() Redis {
 			}
 		}
 	}
+	if len(sentinelAddrs) == 0 {
+		sentinelAddrs = yamlRedis.SentinelAddrs
+	}
 
 	return Redis{
-		URL:             envOrDefault("REDIS_URL", ""),
-		Host:            envOrDefault("REDIS_HOST", defaultRedisHost),
-		Port:            envOrDefault("REDIS_PORT", defaultRedisPort),
-		Password:        envOrDefault("REDIS_PASSWORD", ""),
-		DB:              envIntOrDefault("REDIS_DB", defaultRedisDB),
-		TLS:             envBool("REDIS_TLS_ENABLED"),
+		URL:             envOrConfigOrDefault("REDIS_URL", yamlRedis.URL, ""),
+		Host:            envOrConfigOrDefault("REDIS_HOST", yamlRedis.Host, defaultRedisHost),
+		Port:            envOrConfigOrDefault("REDIS_PORT", yamlRedis.Port, defaultRedisPort),
+		Password:        envOrConfigOrDefault("REDIS_PASSWORD", yamlRedis.Password, ""),
+		DB:              envIntOrConfigOrDefault("REDIS_DB", yamlRedis.DB, defaultRedisDB),
+		TLS:             envBoolOrConfig("REDIS_TLS_ENABLED", yamlRedis.TLS),
 		PoolSize:        poolSize,
 		MinIdleConns:    minIdle,
 		ConnMaxIdleTime: idleTime,
@@ -147,8 +142,9 @@ func loadRedis() Redis {
 		DialTimeout:     dialTimeout,
 		ReadTimeout:     readTimeout,
 		WriteTimeout:    writeTimeout,
+		PoolTimeout:     poolTimeout,
 		KeyPrefix:       keyPrefix,
-		SentinelMaster:  envOrDefault("REDIS_SENTINEL_MASTER", ""),
+		SentinelMaster:  envOrConfigOrDefault("REDIS_SENTINEL_MASTER", yamlRedis.SentinelMaster, ""),
 		SentinelAddrs:   sentinelAddrs,
 	}
 }
@@ -198,6 +194,7 @@ func (r Redis) newClient() (*redis.Client, error) {
 			DialTimeout:     r.DialTimeout,
 			ReadTimeout:     r.ReadTimeout,
 			WriteTimeout:    r.WriteTimeout,
+			PoolTimeout:     r.PoolTimeout,
 		}
 		if r.TLS {
 			opts.TLSConfig = &tls.Config{MinVersion: tls.VersionTLS12}
@@ -217,6 +214,7 @@ func (r Redis) newClient() (*redis.Client, error) {
 		DialTimeout:     r.DialTimeout,
 		ReadTimeout:     r.ReadTimeout,
 		WriteTimeout:    r.WriteTimeout,
+		PoolTimeout:     r.PoolTimeout,
 	}
 	if r.TLS {
 		opts.TLSConfig = &tls.Config{MinVersion: tls.VersionTLS12}
@@ -234,6 +232,7 @@ func (r Redis) applyPool(opts *redis.Options) {
 	opts.DialTimeout = r.DialTimeout
 	opts.ReadTimeout = r.ReadTimeout
 	opts.WriteTimeout = r.WriteTimeout
+	opts.PoolTimeout = r.PoolTimeout
 	if r.TLS && opts.TLSConfig == nil {
 		opts.TLSConfig = &tls.Config{MinVersion: tls.VersionTLS12}
 	}

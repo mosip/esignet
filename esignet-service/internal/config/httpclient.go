@@ -16,9 +16,12 @@ import (
 )
 
 // NewHTTPClient returns a tuned HTTP client for outbound calls, configured
-// from cfg. Each outbound consumer (a given ID-system provider, or captcha
-// validation) builds its own client from its own HTTPClientConfig block, so
-// they don't share a connection pool.
+// from cfg. Each HTTPClientConfig block gets its own client/connection pool:
+// OutboundIDSystemHTTPClient is built once for ID-system calls, and
+// OutboundHTTPClient is built once and shared by both captcha validation and
+// JWKS fetching (see commonHTTPClient in cmd/esignet/main.go) — those two
+// consumers do share a pool with each other, so tuning OutboundHTTPClient
+// affects both.
 func NewHTTPClient(cfg HTTPClientConfig) *http.Client {
 	applog.GetLogger().Debug(context.Background(), "building http client",
 		applog.Int("timeoutSecs", cfg.TimeoutSecs),

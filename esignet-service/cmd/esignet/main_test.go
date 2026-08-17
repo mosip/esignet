@@ -23,7 +23,7 @@ func (ts *MainTestSuite) TestGetSecurityMiddleware() {
 
 	t := ts.T()
 	t.Run("scope enforcement disabled", func(t *testing.T) {
-		mw := getSecurityMiddleware(&config.AppConfig{}, logger)
+		mw := getSecurityMiddleware(&config.AppConfig{}, http.DefaultClient, logger)
 		require.NotNil(t, mw)
 
 		called := false
@@ -38,7 +38,7 @@ func (ts *MainTestSuite) TestGetSecurityMiddleware() {
 	t.Run("scope enforcement enabled wraps request time middleware", func(t *testing.T) {
 		mw := getSecurityMiddleware(&config.AppConfig{
 			SecurityConfig: config.SecurityConfig{IssuerURL: "https://issuer", JwksURL: "https://jwks.invalid/jwks.json"},
-		}, logger)
+		}, http.DefaultClient, logger)
 		require.NotNil(t, mw)
 
 		h := mw(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {

@@ -97,10 +97,10 @@ func TestFetchRecord_DecodesStoredRow(t *testing.T) {
 	if err != nil {
 		t.Fatalf("fetch: %v", err)
 	}
-	if rec == nil {
+	if rec == nil { //nolint:staticcheck // SA5011 false positive: t.Fatal below exits before the later dereference
 		t.Fatal("expected a non-nil record")
 	}
-	if rec.ID != "consent-1" || rec.ClientID != "client-1" || rec.UserID != "user-1" {
+	if rec.ID != "consent-1" || rec.ClientID != "client-1" || rec.UserID != "user-1" { //nolint:staticcheck // SA5011 false positive: t.Fatal above exits before this dereference
 		t.Errorf("unexpected identity fields: %#v", rec)
 	}
 	if rec.Hash != "hash-value" {

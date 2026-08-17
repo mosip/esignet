@@ -52,7 +52,7 @@ func signTestToken(t *testing.T, key *rsa.PrivateKey, kid string, claims jwt.Map
 func newTestMiddleware(t *testing.T, key *rsa.PrivateKey, kid, issuer string) func(http.Handler) http.Handler {
 	t.Helper()
 	srv := newTestJWKSServer(t, key, kid)
-	cache := NewJWKSCache(srv.URL, time.Minute)
+	cache := NewJWKSCache(srv.URL, time.Minute, http.DefaultClient)
 	return ScopeMiddleware(cache, config.SecurityConfig{
 		IssuerURL: issuer,
 		ScopeMapping: []config.AuthorizationConfig{
@@ -248,7 +248,7 @@ func (ts *ScopeMiddlewareTestSuite) TestScopeMiddleware_NoScopeMappingConfigured
 		t.Fatalf("GenerateKey: %v", err)
 	}
 	srv := newTestJWKSServer(t, key, "kid-1")
-	cache := NewJWKSCache(srv.URL, time.Minute)
+	cache := NewJWKSCache(srv.URL, time.Minute, http.DefaultClient)
 	mw := ScopeMiddleware(cache, config.SecurityConfig{IssuerURL: "https://issuer.example.com"})
 
 	claims := jwt.MapClaims{
@@ -387,7 +387,7 @@ func (ts *ScopeMiddlewareTestSuite) TestParseAndValidate_MissingKid() {
 	t := ts.T()
 	key, _ := rsa.GenerateKey(rand.Reader, 2048)
 	srv := newTestJWKSServer(t, key, "kid-1")
-	cache := NewJWKSCache(srv.URL, time.Minute)
+	cache := NewJWKSCache(srv.URL, time.Minute, http.DefaultClient)
 	parser := jwt.NewParser(jwt.WithExpirationRequired())
 
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.MapClaims{
@@ -408,7 +408,7 @@ func (ts *ScopeMiddlewareTestSuite) TestParseAndValidate_MalformedToken() {
 	t := ts.T()
 	key, _ := rsa.GenerateKey(rand.Reader, 2048)
 	srv := newTestJWKSServer(t, key, "kid-1")
-	cache := NewJWKSCache(srv.URL, time.Minute)
+	cache := NewJWKSCache(srv.URL, time.Minute, http.DefaultClient)
 	parser := jwt.NewParser()
 
 	if _, err := parseAndValidate(context.Background(), parser, "not-a-jwt", cache); err == nil {
