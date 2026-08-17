@@ -37,6 +37,7 @@ import (
 	_ "github.com/mosip/esignet/internal/keymanager/keystore/pkcs12"
 	"github.com/mosip/esignet/internal/keymanager/signature"
 	applog "github.com/mosip/esignet/internal/log"
+	"github.com/mosip/esignet/internal/metrics"
 	"github.com/mosip/esignet/internal/security"
 )
 
@@ -92,6 +93,11 @@ func main() {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("ok"))
 	})
+	mux.Handle("GET /metrics", metrics.Handler())
+	metrics.RegisterDBStats(pgConn)
+	if redisClient != nil {
+		metrics.RegisterRedisStats(redisClient)
+	}
 
 	commonHTTPClient := config.NewHTTPClient(appCfg.OutboundHTTPClient)
 
