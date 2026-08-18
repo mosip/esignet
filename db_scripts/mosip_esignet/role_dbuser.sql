@@ -1,4 +1,4 @@
-CREATE ROLE esignetuser WITH
-	INHERIT
-	LOGIN
-	PASSWORD :dbuserpwd;
+CREATE ROLE :dbuname WITH
+    INHERIT
+    LOGIN
+    PASSWORD :dbuserpwd;
