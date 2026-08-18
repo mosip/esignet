@@ -1,5 +1,5 @@
 @client-mgmt
-Feature: Client management — consent configuration (positive + negative)
+Feature: Client consent configuration — additionalConfig validation
   Consent is configured per client, in additionalConfig, and validated at
   registration time by clientmgmt's validateAdditionalConfig/validatePurpose:
 
@@ -29,9 +29,9 @@ Feature: Client management — consent configuration (positive + negative)
         "requestTime": "{{now}}",
         "request": {
           "clientId": "{{cid}}",
-          "clientName": "bdd consent config",
-          "clientNameLangMap": { "eng": "bdd consent config" },
-          "relyingPartyId": "bdd-e2e-rp",
+          "clientName": "api consent config",
+          "clientNameLangMap": { "eng": "api consent config" },
+          "relyingPartyId": "api-e2e-rp",
           "logoUri": "https://example.org/logo.png",
           "redirectUris": ["https://example.org/cb"],
           "publicKey": {{pubjwk}},
@@ -61,9 +61,9 @@ Feature: Client management — consent configuration (positive + negative)
         "requestTime": "{{now}}",
         "request": {
           "clientId": "{{cid}}",
-          "clientName": "bdd consent expiry low",
-          "clientNameLangMap": { "eng": "bdd consent expiry low" },
-          "relyingPartyId": "bdd-e2e-rp",
+          "clientName": "api consent expiry low",
+          "clientNameLangMap": { "eng": "api consent expiry low" },
+          "relyingPartyId": "api-e2e-rp",
           "logoUri": "https://example.org/logo.png",
           "redirectUris": ["https://example.org/cb"],
           "publicKey": {{pubjwk}},
@@ -85,9 +85,9 @@ Feature: Client management — consent configuration (positive + negative)
         "requestTime": "{{now}}",
         "request": {
           "clientId": "{{cid}}",
-          "clientName": "bdd consent expiry type",
-          "clientNameLangMap": { "eng": "bdd consent expiry type" },
-          "relyingPartyId": "bdd-e2e-rp",
+          "clientName": "api consent expiry type",
+          "clientNameLangMap": { "eng": "api consent expiry type" },
+          "relyingPartyId": "api-e2e-rp",
           "logoUri": "https://example.org/logo.png",
           "redirectUris": ["https://example.org/cb"],
           "publicKey": {{pubjwk}},
@@ -109,9 +109,9 @@ Feature: Client management — consent configuration (positive + negative)
         "requestTime": "{{now}}",
         "request": {
           "clientId": "{{cid}}",
-          "clientName": "bdd purpose no type",
-          "clientNameLangMap": { "eng": "bdd purpose no type" },
-          "relyingPartyId": "bdd-e2e-rp",
+          "clientName": "api purpose no type",
+          "clientNameLangMap": { "eng": "api purpose no type" },
+          "relyingPartyId": "api-e2e-rp",
           "logoUri": "https://example.org/logo.png",
           "redirectUris": ["https://example.org/cb"],
           "publicKey": {{pubjwk}},
@@ -133,9 +133,9 @@ Feature: Client management — consent configuration (positive + negative)
         "requestTime": "{{now}}",
         "request": {
           "clientId": "{{cid}}",
-          "clientName": "bdd purpose empty type",
-          "clientNameLangMap": { "eng": "bdd purpose empty type" },
-          "relyingPartyId": "bdd-e2e-rp",
+          "clientName": "api purpose empty type",
+          "clientNameLangMap": { "eng": "api purpose empty type" },
+          "relyingPartyId": "api-e2e-rp",
           "logoUri": "https://example.org/logo.png",
           "redirectUris": ["https://example.org/cb"],
           "publicKey": {{pubjwk}},
@@ -160,9 +160,9 @@ Feature: Client management — consent configuration (positive + negative)
         "requestTime": "{{now}}",
         "request": {
           "clientId": "{{cid}}",
-          "clientName": "bdd consent update",
-          "clientNameLangMap": { "eng": "bdd consent update" },
-          "relyingPartyId": "bdd-e2e-rp",
+          "clientName": "api consent update",
+          "clientNameLangMap": { "eng": "api consent update" },
+          "relyingPartyId": "api-e2e-rp",
           "logoUri": "https://example.org/logo.png",
           "redirectUris": ["https://example.org/cb"],
           "publicKey": {{pubjwk}},
@@ -182,8 +182,8 @@ Feature: Client management — consent configuration (positive + negative)
       {
         "requestTime": "{{now}}",
         "request": {
-          "clientName": "bdd consent update",
-          "clientNameLangMap": { "eng": "bdd consent update" },
+          "clientName": "api consent update",
+          "clientNameLangMap": { "eng": "api consent update" },
           "status": "ACTIVE",
           "logoUri": "https://example.org/logo.png",
           "redirectUris": ["https://example.org/cb"],
@@ -208,9 +208,9 @@ Feature: Client management — consent configuration (positive + negative)
         "requestTime": "{{now}}",
         "request": {
           "clientId": "{{cid}}",
-          "clientName": "bdd purpose no none",
-          "clientNameLangMap": { "eng": "bdd purpose no none" },
-          "relyingPartyId": "bdd-e2e-rp",
+          "clientName": "api purpose no none",
+          "clientNameLangMap": { "eng": "api purpose no none" },
+          "relyingPartyId": "api-e2e-rp",
           "logoUri": "https://example.org/logo.png",
           "redirectUris": ["https://example.org/cb"],
           "publicKey": {{pubjwk}},

@@ -1,26 +1,36 @@
 # Your credentials overlay — the ONLY config file that should hold a secret.
-# The per-plugin files (config.mock/mosip/sunbird.json) ARE tracked: they define
-# what the tests do, so they belong under review. Keeping secrets out of them
-# means you never edit a tracked file to add one, and a dirty config.mosip.json
-# always means a real change worth reviewing.
-config.local.json
+# The per-plugin files (data/config/config.{mock,mosip,sunbird}.json) ARE tracked:
+# they define what the tests do, so they belong under review. Keeping secrets out
+# of them means you never edit a tracked file to add one, and a dirty
+# config.mosip.json always means a real change worth reviewing.
+data/config/config.local.json
 # ...and any editor/manual backup of it, which holds the same secrets.
-config.local.json.*
-config.local.*.json
+data/config/config.local.json.*
+data/config/config.local.*.json
 # ...except the tracked, placeholder-only template, which the pattern above also
 # matches. Without this a `git mv`/re-add of it silently drops it from the repo.
-!config.local.example.json
+!data/config/config.local.example.json
 
 # Pre-existing local config from before the per-plugin split.
-config.json
+data/config/config.json
+
+# Safety net for the pre-data/ layout: a clone that still has the overlay at the
+# old root path must not be able to commit it just because the patterns above
+# moved. These are the same secret-bearing files, one directory up.
+/config.local.json
+/config.local.json.*
+/config.local.*.json
+/config.json
 
 # docker compose env overrides (secrets: KEYCLOAK_CLIENT_SECRET etc.)
 .env
 
-# The suite plan config with PRIVATE jwks must never be committed.
-# Keep it outside the repo (see config_file in config.json) or here if you must.
-# plan-config.example.json is the tracked, placeholder-only template for these —
-# it is deliberately named so it matches neither pattern below.
+# The suite plan config with PRIVATE jwks must never be committed. Keep it
+# outside the repo entirely (mount it — see the README's "Providing the
+# conformance plan config securely"), or here if you must.
+# data/conformance/conformance-config.example.json is the tracked,
+# placeholder-only template for these — it is deliberately named so it matches
+# neither pattern below.
 *esignet-config*.json
 conformance-suite-private/
 

@@ -16,7 +16,7 @@ import (
 )
 
 func main() {
-	configPath := flag.String("config", "config.json", "path to the harness config")
+	configPath := flag.String("config", "data/config/config.json", "path to the harness config")
 	printEnv := flag.Bool("print-env", false, "emit shell export lines for the resolved config")
 	get := flag.String("get", "", "print one resolved value by dotted key (e.g. run.surfaces)")
 	check := flag.Bool("check", false, "print what a run would do, then exit")
@@ -76,7 +76,7 @@ func lookup(c *config.Config, key string) (string, bool) {
 	return "", false
 }
 
-// exports renders the resolved config as shell exports, the only path by which it reaches the bdd module.
+// exports renders the resolved config as shell exports, the only path by which it reaches the api module.
 func exports(c *config.Config) string {
 	var b strings.Builder
 	kv := func(k, v string) {
@@ -105,9 +105,9 @@ func exports(c *config.Config) string {
 	kv("KEYCLOAK_CLIENT_ID", c.Keycloak.ClientID)
 	kv("KEYCLOAK_CLIENT_SECRET", c.Keycloak.ClientSecret)
 
-	kv("GODOG_TAGS", c.BDD.Tags)
-	kv("FLOW_CLIENT_ID", c.BDD.FlowClientID)
-	kv("BDD_TLS_VERIFY", strconv.FormatBool(c.BDD.TLSVerify))
+	kv("GODOG_TAGS", c.API.Tags)
+	kv("FLOW_CLIENT_ID", c.API.FlowClientID)
+	kv("API_TLS_VERIFY", strconv.FormatBool(c.API.TLSVerify))
 
 	kv("CONFORMANCE_BASE_URL", c.Conformance.BaseURL)
 	kv("CONFORMANCE_TLS_VERIFY", strconv.FormatBool(c.Conformance.TLSVerify))
@@ -187,11 +187,11 @@ func printCheck(c *config.Config, path string) {
 		}
 	}
 
-	if c.HasSurface(config.SurfaceBDD) {
-		fmt.Printf("\nbdd\n")
-		fmt.Printf("  tags        %s\n", orDefault(c.BDD.Tags, "(auto — chosen from configured credentials)"))
+	if c.HasSurface(config.SurfaceAPI) {
+		fmt.Printf("\napi\n")
+		fmt.Printf("  tags        %s\n", orDefault(c.API.Tags, "(auto — chosen from configured credentials)"))
 		fmt.Printf("  client-mgmt %s\n", readiness(c.Keycloak.ClientSecret != "", "ENV_NOT_READY: no keycloak.client_secret"))
-		fmt.Printf("  authz-neg   %s\n", readiness(c.BDD.FlowClientID != "", "ENV_NOT_READY: no bdd.flow_client_id"))
+		fmt.Printf("  authz-neg   %s\n", readiness(c.API.FlowClientID != "", "ENV_NOT_READY: no api.flow_client_id"))
 	}
 
 	if c.HasSurface(config.SurfaceE2E) {

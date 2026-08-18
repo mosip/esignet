@@ -24,7 +24,7 @@ import (
 )
 
 func main() {
-	configPath := flag.String("config", "config.json", "path to the harness config (env vars override its values)")
+	configPath := flag.String("config", "data/config/config.json", "path to the harness config (env vars override its values)")
 	specPath := flag.String("spec", "", "override e2e.spec from the config")
 	outPath := flag.String("out", "out/e2e-envelope.json", "envelope output path")
 	flag.Parse()

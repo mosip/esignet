@@ -1,5 +1,7 @@
-// Package bdd is the godog engine for the client-mgmt and flow/execute negative surfaces, kept as its own module.
-package bdd
+// Package api is the godog engine for the API surface — endpoint-level scenarios
+// over client-mgmt and flow/execute — kept as its own module because godog and
+// gjson are the harness's only non-stdlib dependencies.
+package api
 
 import (
 	"bytes"
@@ -121,11 +123,11 @@ func getState(ctx context.Context) *state {
 	return nil
 }
 
-// tlsConfig fails closed: verification is skipped only when BDD_TLS_VERIFY is explicitly "false".
+// tlsConfig fails closed: verification is skipped only when API_TLS_VERIFY is explicitly "false".
 func tlsConfig() *tls.Config {
 	return &tls.Config{
 		MinVersion:         tls.VersionTLS12,
-		InsecureSkipVerify: strings.EqualFold(os.Getenv("BDD_TLS_VERIFY"), "false"),
+		InsecureSkipVerify: strings.EqualFold(os.Getenv("API_TLS_VERIFY"), "false"),
 	}
 }
 
@@ -315,7 +317,7 @@ func aFreshRequestTimestamp(ctx context.Context) error {
 // aNewClientIDAs stashes a per-run-unique clientId so a positive create can be re-run.
 func aNewClientIDAs(ctx context.Context, name string) error {
 	s := getState(ctx)
-	s.stash[name] = fmt.Sprintf("bdd-pos-%d", time.Now().UnixNano())
+	s.stash[name] = fmt.Sprintf("api-pos-%d", time.Now().UnixNano())
 	return nil
 }
 
@@ -329,7 +331,7 @@ func aGeneratedRSAPublicKeyAs(ctx context.Context, name string) error {
 	pub := key.PublicKey
 	n := base64.RawURLEncoding.EncodeToString(pub.N.Bytes())
 	e := base64.RawURLEncoding.EncodeToString(big.NewInt(int64(pub.E)).Bytes())
-	s.stash[name] = fmt.Sprintf(`{"kty":"RSA","e":%q,"n":%q,"use":"sig","alg":"RS256","kid":"bdd-test"}`, e, n)
+	s.stash[name] = fmt.Sprintf(`{"kty":"RSA","e":%q,"n":%q,"use":"sig","alg":"RS256","kid":"api-test"}`, e, n)
 	return nil
 }
 
@@ -382,41 +384,6 @@ func theResponseStatusShouldBe(ctx context.Context, code int) error {
 		return fmt.Errorf("expected HTTP %d, got %d (body: %s)", code, s.lastStatus, snippet(s.lastBody))
 	}
 	return nil
-}
-
-func theResponseStatusShouldBeClass(ctx context.Context, class string) error {
-	s := getState(ctx)
-	var ok bool
-	switch strings.ToLower(class) {
-	case "2xx":
-		ok = s.lastStatus >= 200 && s.lastStatus < 300
-	case "4xx":
-		ok = s.lastStatus >= 400 && s.lastStatus < 500
-	case "5xx":
-		ok = s.lastStatus >= 500 && s.lastStatus < 600
-	default:
-		return fmt.Errorf("unknown status class %q (want 2xx|4xx|5xx)", class)
-	}
-	s.recordAssertion("HTTP status class", class, fmt.Sprintf("%d (%s)", s.lastStatus, statusClass(s.lastStatus)), ok)
-	if !ok {
-		return fmt.Errorf("expected %s, got HTTP %d", class, s.lastStatus)
-	}
-	return nil
-}
-
-func statusClass(code int) string {
-	switch {
-	case code >= 200 && code < 300:
-		return "2xx"
-	case code >= 300 && code < 400:
-		return "3xx"
-	case code >= 400 && code < 500:
-		return "4xx"
-	case code >= 500 && code < 600:
-		return "5xx"
-	default:
-		return "?"
-	}
 }
 
 func iSaveTheJSONValueAtAs(ctx context.Context, path, name string) error {
@@ -547,7 +514,6 @@ func InitScenario(sc *godog.ScenarioContext, coll *Collector) {
 	sc.Step(`^a registered client id is configured$`, aRegisteredClientIDIsConfigured)
 	sc.Step(`^the redirect location should contain "([^"]*)"$`, theRedirectLocationShouldContain)
 	sc.Step(`^the response status should be (\d+)$`, theResponseStatusShouldBe)
-	sc.Step(`^the response status should be "([^"]*)"$`, theResponseStatusShouldBeClass)
 	sc.Step(`^I save the JSON value at "([^"]*)" as "([^"]*)"$`, iSaveTheJSONValueAtAs)
 	sc.Step(`^the JSON value at "([^"]*)" should be "([^"]*)"$`, theJSONValueAtShouldBe)
 	sc.Step(`^the JSON path "([^"]*)" should exist$`, theJSONPathShouldExist)

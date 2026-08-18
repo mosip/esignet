@@ -317,7 +317,7 @@ func TestAssertConsentDenyRequiresSomethingWithheld(t *testing.T) {
 func TestShippedSpecsParseAndAreConsistent(t *testing.T) {
 	for _, f := range []string{"e2e-scenarios.json", "e2e-scenarios-mosip.json", "e2e-scenarios-sunbird.json"} {
 		t.Run(f, func(t *testing.T) {
-			data, err := os.ReadFile(filepath.Join("..", "..", f))
+			data, err := os.ReadFile(filepath.Join("..", "..", "data", "scenarios", f))
 			if err != nil {
 				t.Fatalf("read: %v", err)
 			}

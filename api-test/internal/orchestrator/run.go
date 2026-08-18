@@ -436,7 +436,7 @@ type smokeFile struct {
 // loadSmokeProfile reads the smoke module list for one plan. The file is keyed
 // by plan name, so a multi-plan run needs one per plan that uses profile=smoke.
 func loadSmokeProfile(planName string) ([]string, error) {
-	path := filepath.Join("profiles", planName+".smoke.json")
+	path := filepath.Join("data", "conformance", planName+".smoke.json")
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("read smoke profile %s: %w", path, err)

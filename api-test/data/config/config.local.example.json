@@ -28,7 +28,7 @@
     "  sunbird  esignet.identity.individual_id, esignet.knowledge.{full_name,dob}",
     "  mock     nothing — its seed identity/login ship in config.mock.json",
     "",
-    "Optional, any plugin: bdd.flow_client_id — a client id already registered on",
+    "Optional, any plugin: api.flow_client_id — a client id already registered on",
     "your deployment. Without it the @flow-authz-neg scenarios report",
     "ENV_NOT_READY (reported, not failed) because they have no client to drive.",
     "",

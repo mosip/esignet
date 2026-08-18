@@ -1,7 +1,8 @@
 @flow-authz-neg
-Feature: authorize endpoint — negative validation (uses a pre-registered client)
-  Negative cases the conformance suite cannot reach: they assert eSignet rejects a
-  malformed /oauth2/authorize request before any login begins. Driven with a real,
+Feature: GET /oauth2/authorize — request validation
+  Rejection cases the conformance suite cannot reach: they assert eSignet rejects a
+  malformed authorize request before any login begins. The accepted-request path is
+  covered by the e2e surface, which drives authorize through to a code. Driven with a real,
   pre-registered client id (FLOW_CLIENT_ID) so redirect/param validation runs
   against a genuine client — no partner/policy or OTP needed. Requests are made
   without following redirects so the 302 and its Location (errorCode) are asserted

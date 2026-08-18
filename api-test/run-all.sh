@@ -8,17 +8,19 @@
 # Environment variables still override any value in it, which is how containers
 # (compose / Rancher) inject secrets and per-deployment URLs.
 #
-#   ./run-all.sh -c config.mosip.json --check    # what would run
-#   ./run-all.sh -c config.mosip.json            # run it
+#   ./run-all.sh -c data/config/config.mosip.json --check    # what would run
+#   ./run-all.sh -c data/config/config.mosip.json            # run it
 #
 #   Surfaces (run.surfaces in the config):
 #     conformance  — cmd/conformance drives the OpenID suite (suite must be up)
-#     bdd          — godog client-mgmt + flow/execute (eSignet must be reachable)
+#     api          — godog endpoint scenarios: client-mgmt + flow/execute
+#                    (eSignet must be reachable)
 #     e2e          — cmd/e2e drives register -> authorize -> token -> userinfo
 #                    (eSignet must be reachable)
 #
 #   Flags:
-#     -c, --config PATH   config file (default: $CONFIG, else config.json).
+#     -c, --config PATH   config file (default: $CONFIG, else
+#                         data/config/config.json).
 #                         An explicitly named file that does not exist is an
 #                         error — silently falling back would run the wrong
 #                         plugin and report it as the one you asked for.
@@ -30,7 +32,7 @@
 #     CONFIG_LOCAL          overlay path (default: config.local.json beside -c)
 #     ESIGNET_BASE_URL, KEYCLOAK_*, INDIVIDUAL_ID, SURFACES, TEST_PROFILE, ...
 #     BIN_DIR               dir with prebuilt conformance/e2e/consolidate/cfg/
-#                           bdd.test binaries (set by the container image);
+#                           api.test binaries (set by the container image);
 #                           unset -> `go run`/`go test` from source.
 #     SUITE_WAIT_SECONDS    seconds to poll the conformance suite's
 #                           /api/runner/available before the conformance surface
@@ -43,7 +45,7 @@ cd "$(dirname "$0")" || exit 1
 # must be decided BEFORE the default is applied.
 CONFIG_EXPLICIT=0
 [[ -n "${CONFIG:-}" ]] && CONFIG_EXPLICIT=1
-CONFIG="${CONFIG:-config.json}"
+CONFIG="${CONFIG:-data/config/config.json}"
 SURFACES_OVERRIDE=""
 CHECK_ONLY=0
 BIN_DIR="${BIN_DIR:-}"
@@ -78,7 +80,10 @@ if [[ -n "$BIN_DIR" ]]; then
   run_e2e()         { "$BIN_DIR/e2e" "$@"; }
   run_consolidate() { "$BIN_DIR/consolidate" "$@"; }
   run_cfg()         { "$BIN_DIR/cfg" "$@"; }
-  run_bdd()         { ( cd bdd && "$BIN_DIR/bdd.test" -test.run TestFeatures ); }
+  # Runs from the harness root, not from api/: the prebuilt binary carries no
+  # module directory with it, so the image points API_FEATURES_DIR at the
+  # features tree instead.
+  run_api()         { "$BIN_DIR/api.test" -test.run TestFeatures; }
 else
   run_conformance() { go run ./cmd/conformance "$@"; }
   run_e2e()         { go run ./cmd/e2e "$@"; }
@@ -88,10 +93,10 @@ else
   # eSignet, so their outcome depends on that server, not on the Go sources the
   # cache keys off. Without it a second run with unchanged sources prints
   # "ok (cached)" without executing a single scenario, writes no envelope, and
-  # fails the run with "bdd surface produced no envelope" — a message that points
+  # fails the run with "api surface produced no envelope" — a message that points
   # at a missing file rather than at the cache. The BIN_DIR branch above needs no
-  # such flag: it runs the prebuilt bdd.test binary, which is not cached.
-  run_bdd()         { ( cd bdd && go test ./... -run TestFeatures -count=1 ); }
+  # such flag: it runs the prebuilt api.test binary, which is not cached.
+  run_api()         { ( cd api && go test ./... -run TestFeatures -count=1 ); }
 fi
 
 if (( CHECK_ONLY )); then
@@ -99,7 +104,7 @@ if (( CHECK_ONLY )); then
   exit $?
 fi
 
-# Resolve the config once and hand it to every surface. The bdd tree is a
+# Resolve the config once and hand it to every surface. The api tree is a
 # separate Go module that cannot import internal/config, so it receives the
 # resolved values as environment variables — this eval is the only bridge.
 # Values are already fully resolved (file + overlay + env), so an operator's own
@@ -129,14 +134,14 @@ fi
 
 # One output directory for every surface. REPORT_DIR comes from the same eval
 # (run.report_dir), and each surface has to be told about it explicitly: only
-# cmd/conformance reads the config, while the bdd module and cmd/e2e default to
+# cmd/conformance reads the config, while the api module and cmd/e2e default to
 # a hardcoded out/. Under compose only $REPORT_DIR is bind-mounted, so a surface
 # left on the default wrote its results somewhere the host never sees.
 OUT_DIR="${REPORT_DIR:-out}"
 mkdir -p "$OUT_DIR" || { echo "cannot create report dir $OUT_DIR" >&2; exit 2; }
-# The bdd module runs with cwd=bdd/, so a relative path would land in bdd/out.
+# The api module runs with cwd=api/, so a relative path would land in api/out.
 OUT_ABS="$(cd "$OUT_DIR" && pwd)"
-export BDD_ENVELOPE_OUT="$OUT_ABS/bdd-envelope.json"
+export API_ENVELOPE_OUT="$OUT_ABS/api-envelope.json"
 
 # Clear the envelopes this run is about to produce. The consolidate step below
 # decides a surface ran by testing -f on its envelope, so a surface that dies
@@ -144,7 +149,7 @@ export BDD_ENVELOPE_OUT="$OUT_ABS/bdd-envelope.json"
 # PREVIOUS run's file in place and have it folded into this report as current —
 # stale results presented as fresh, which is worse than the missing-surface
 # error the check is there to raise.
-rm -f "$OUT_DIR/bdd-envelope.json" "$OUT_DIR/e2e-envelope.json"
+rm -f "$OUT_DIR/api-envelope.json" "$OUT_DIR/e2e-envelope.json"
 
 # wait_for_suite polls the conformance suite's readiness endpoint so a
 # container-started harness doesn't race the suite's ~30s Mongo/Java boot.
@@ -192,20 +197,20 @@ if [[ ",$SURFACES," == *",conformance,"* ]]; then
   conf_html="$(printf '%s\n' "$conf_out" | sed -n 's/^report: //p' | tail -1)"
   [[ -n "$conf_html" ]] && conf_json="${conf_html%.html}.json"
   # No report at all means it died before writing one (config error, or a run
-  # error with zero modules) — the same silent-green hole guarded for bdd/e2e.
+  # error with zero modules) — the same silent-green hole guarded for api/e2e.
   if [[ -z "$conf_json" ]]; then
     echo "conformance surface produced no report (crashed before writing one)" >&2
     surface_failed=1
   fi
 fi
 
-if [[ ",$SURFACES," == *",bdd,"* ]]; then
-  echo "-- bdd surfaces (client-mgmt + flow/execute) --"
+if [[ ",$SURFACES," == *",api,"* ]]; then
+  echo "-- api surface (client-mgmt + flow/execute endpoints) --"
   if [[ -z "${ESIGNET_BASE_URL:-}" ]]; then
-    echo "esignet.base_url (ESIGNET_BASE_URL) is required for the bdd surfaces" >&2
+    echo "esignet.base_url (ESIGNET_BASE_URL) is required for the api surfaces" >&2
     exit 2
   fi
-  run_bdd || { echo "(bdd reported scenario failures)"; surface_failed=1; }
+  run_api || { echo "(api reported scenario failures)"; surface_failed=1; }
 fi
 
 if [[ ",$SURFACES," == *",e2e,"* ]]; then
@@ -219,12 +224,12 @@ args=(-plugin "$PLUGIN" -out "$OUT_DIR")
 # consolidated report redacts exactly like the per-surface ones.
 [[ "${DEBUG_SHOW_SECRETS:-false}" == "true" ]] && args+=(-show-secrets)
 [[ -n "$conf_json" ]] && args+=(-conformance "$conf_json")
-[[ ",$SURFACES," == *",bdd,"* && -f "$OUT_DIR/bdd-envelope.json" ]] && args+=(-bdd "$OUT_DIR/bdd-envelope.json")
+[[ ",$SURFACES," == *",api,"* && -f "$OUT_DIR/api-envelope.json" ]] && args+=(-api "$OUT_DIR/api-envelope.json")
 [[ ",$SURFACES," == *",e2e,"* && -f "$OUT_DIR/e2e-envelope.json" ]] && args+=(-e2e "$OUT_DIR/e2e-envelope.json")
 
 # Missing envelopes for a requested surface mean it never produced results.
-if [[ ",$SURFACES," == *",bdd,"* && ! -f "$OUT_DIR/bdd-envelope.json" ]]; then
-  echo "bdd surface produced no envelope ($OUT_DIR/bdd-envelope.json missing)" >&2
+if [[ ",$SURFACES," == *",api,"* && ! -f "$OUT_DIR/api-envelope.json" ]]; then
+  echo "api surface produced no envelope ($OUT_DIR/api-envelope.json missing)" >&2
   surface_failed=1
 fi
 if [[ ",$SURFACES," == *",e2e,"* && ! -f "$OUT_DIR/e2e-envelope.json" ]]; then

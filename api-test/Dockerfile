@@ -1,35 +1,33 @@
 # syntax=docker/dockerfile:1
 #
-# api-test harness image — runs the conformance/bdd/e2e surfaces + consolidate
+# api-test harness image — runs the conformance/api/e2e surfaces + consolidate
 # via run-all.sh (see #2209; design: mosip/esignet#2120). Build
 # from api-test/: docker build -t apitest-esignet:latest .
 #
-# Two build stages compile ahead of time so the runtime image needs no Go
-# toolchain (README §"Build/test": the parent module is stdlib-only; bdd/ is a
-# separate module pinning godog+gjson):
-#   builder-main — stdlib-only orchestrator: conformance, e2e, consolidate.
-#   builder-bdd  — the nested bdd/ module, compiled to a standalone test binary
-#                  (`go test -c`) so godog runs without `go test` at runtime.
+# One builder stage compiles everything ahead of time so the runtime image needs
+# no Go toolchain. It spans two Go modules — the stdlib-only parent (conformance,
+# e2e, consolidate, cfg) and the nested api/ module pinning godog+gjson — which
+# is why the module files are copied and downloaded before the sources: the
+# dependency layer then caches independently of every source edit. The godog
+# module is built with `go test -c` into a standalone binary so the runtime needs
+# no `go test`. Both modules emit into /out/bin; the names never collide.
 
-FROM golang:1.26-bookworm AS builder-main
+FROM golang:1.26-bookworm AS builder
 WORKDIR /src
+
 COPY go.mod ./
-RUN go mod download
+COPY api/go.mod api/go.sum ./api/
+RUN go mod download && cd api && go mod download
+
 COPY cmd ./cmd
 COPY internal ./internal
-COPY profiles ./profiles
+COPY api ./api
 RUN mkdir -p /out/bin && \
     go build -trimpath -ldflags="-s -w" -o /out/bin/conformance ./cmd/conformance && \
     go build -trimpath -ldflags="-s -w" -o /out/bin/e2e ./cmd/e2e && \
     go build -trimpath -ldflags="-s -w" -o /out/bin/consolidate ./cmd/consolidate && \
-    go build -trimpath -ldflags="-s -w" -o /out/bin/cfg ./cmd/cfg
-
-FROM golang:1.26-bookworm AS builder-bdd
-WORKDIR /src/bdd
-COPY bdd/go.mod bdd/go.sum ./
-RUN go mod download
-COPY bdd/ ./
-RUN mkdir -p /out/bin && go test -c -trimpath -o /out/bin/bdd.test .
+    go build -trimpath -ldflags="-s -w" -o /out/bin/cfg ./cmd/cfg && \
+    cd api && go test -c -trimpath -o /out/bin/api.test .
 
 FROM debian:bookworm-slim
 
@@ -47,20 +45,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
     groupadd -g 1001 apitest && useradd -u 1001 -g apitest -m -s /usr/sbin/nologin apitest
 
 WORKDIR /app
-COPY --from=builder-main /out/bin/ ./bin/
-COPY --from=builder-bdd /out/bin/bdd.test ./bin/bdd.test
-COPY profiles ./profiles
-COPY bdd/features ./bdd/features
-COPY e2e-scenarios.json e2e-scenarios-mosip.json e2e-scenarios-sunbird.json ./
-# The tracked per-plugin configs ship with the image so `docker run
-# apitest-esignet -c config.mosip.json` works with nothing mounted but the plan
+COPY --from=builder /out/bin/ ./bin/
+# Everything the run reads that is not code: Gherkin features, the per-plugin
+# configs, the e2e scenario specs and the conformance profiles. The tracked
+# configs ship with the image so `docker run apitest-esignet -c
+# data/config/config.mosip.json` works with nothing mounted but the suite plan
 # config and the target URL. They hold no secrets — credentials arrive as env or
 # a mounted config.local.json, both of which override these.
-COPY config.mock.json config.mosip.json config.sunbird.json ./
+COPY data ./data
 COPY run-all.sh ./
 RUN chmod +x run-all.sh && mkdir -p out && chown -R apitest:apitest /app
 
 ENV BIN_DIR=/app/bin
+# The prebuilt api.test runs from /app rather than from the module directory it
+# was compiled in, so point it at the features tree explicitly.
+ENV API_FEATURES_DIR=/app/data/features
 USER apitest:apitest
 
 ENTRYPOINT ["./run-all.sh"]

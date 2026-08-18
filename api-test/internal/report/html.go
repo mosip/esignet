@@ -253,8 +253,8 @@ func planLabel(plans []string) string {
 // filenameSurfaces maps a row's surface to its filename name, in the order surfaces run.
 var filenameSurfaces = []struct{ surface, part string }{
 	{result.SurfaceConformance, "conformance"},
-	{result.SurfaceClientMgmt, "bdd"},
-	{result.SurfaceFlowExecute, "bdd"},
+	{result.SurfaceClientMgmt, "api"},
+	{result.SurfaceFlowExecute, "api"},
 	{result.SurfaceE2E, "e2e"},
 }
 

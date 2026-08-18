@@ -67,7 +67,7 @@ services:
         max-file: "5"
 
   # Configuration comes from the per-plugin config file (CONFIG_FILE, default
-  # config.mock.json), not from a wall of environment variables. Only secrets and
+  # data/config/config.mock.json), not from a wall of environment variables. Only secrets and
   # things that genuinely differ per run are listed below — env still overrides
   # any config value, so anything here can be added back ad hoc.
   harness:
@@ -103,7 +103,7 @@ services:
       # usually a real deployment whose cert should be verified. They stay on
       # unless the operator explicitly passes false.
       - ESIGNET_TLS_VERIFY
-      - BDD_TLS_VERIFY
+      - API_TLS_VERIFY
       # Compose reaches the suite by its network alias rather than the config's
       # host-side URL, and that cert is the suite's own self-signed one. These
       # carry real defaults, so they are always set.
@@ -115,7 +115,7 @@ services:
       # every surface writes into it (run-all.sh threads it through), so pointing
       # it elsewhere would put the whole report outside this mount and lose it.
       - ./out:/app/out
-      - ./${CONFIG_FILE:-config.mock.json}:/app/config.json:ro
+      - ./${CONFIG_FILE:-data/config/config.mock.json}:/app/config.json:ro
       # Mounted at the SAME relative path it has on the host, so the config's
       # plan.config_file ("conformance-suite-private/esignet-config.json")
       # resolves identically here and on a native run — no PLAN_CONFIG_PATH
@@ -125,8 +125,9 @@ services:
       # This file must EXIST before `docker compose up`: Docker creates a
       # directory at a missing bind-mount source, which then breaks the overlay
       # read and blocks creating the real file afterward. Run
-      # `cp config.local.example.json config.local.json` (or `touch` it) first.
-      - ./config.local.json:/app/config.local.json:ro
+      # `cp data/config/config.local.example.json data/config/config.local.json`
+      # (or `touch` it) first.
+      - ./data/config/config.local.json:/app/data/config/config.local.json:ro
     extra_hosts:
       # Lets ESIGNET_BASE_URL=http://host.docker.internal:<port> reach a
       # self-managed eSignet running on the host (e.g. `make.sh run` in

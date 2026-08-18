@@ -1,7 +1,8 @@
 @flow-execute
-Feature: flow/execute negative and edge cases
-  These are the cases the OpenID conformance suite cannot reach — it only drives
-  the happy path to obtain a code. All are pure API calls against eSignet.
+Feature: POST /flow/execute — entry-point validation
+  Entry-point rejection cases the OpenID conformance suite cannot reach — it only
+  drives the happy path to obtain a code. The accepted path (a real execution that
+  proceeds to login) is covered by the e2e surface. All are pure API calls.
   Entry-point validation errors use the flat {code, message:{key}} error shape
   with HTTP 400 (distinct from the client-mgmt MOSIP-200-with-errors shape).
 

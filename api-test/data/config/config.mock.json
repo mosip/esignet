@@ -6,18 +6,18 @@
     "",
     "Two conformance plans run back to back here, each with its own client/jwks",
     "file (both gitignored — see conformance-suite-private/). The fapi2 entry pins",
-    "profile=full because only profiles/oidcc-test-plan.smoke.json exists. bdd and",
+    "profile=full because only data/conformance/oidcc-test-plan.smoke.json exists. api and",
     "e2e still run once, and everything lands in one report. To run only one of",
     "them: ./run-all.sh -c config.mock.json --check to see the order, then drop the",
     "entry you do not want (or point both at the same config_file if the same",
     "clients are registered for both profiles).",
     "",
-    "bdd.flow_client_id is a client id registered on YOUR deployment, so it is left",
+    "api.flow_client_id is a client id registered on YOUR deployment, so it is left",
     "empty here — the authorize-negative scenarios report ENV_NOT_READY until you",
     "set it in config.local.json or via FLOW_CLIENT_ID.",
     "",
     "Also required from config.local.json or the environment, because this file",
-    "selects all three surfaces: esignet.base_url (bdd + e2e) and",
+    "selects all three surfaces: esignet.base_url (api + e2e) and",
     "keycloak.token_url + keycloak.client_secret (e2e registers a throwaway",
     "client before it runs). Without them the run stops at config validation."
   ],
@@ -68,12 +68,12 @@
       "value": "111111"
     }
   },
-  "bdd": {
+  "api": {
     "tags": "",
     "flow_client_id": ""
   },
   "e2e": {
-    "spec": "e2e-scenarios.json",
+    "spec": "data/scenarios/e2e-scenarios.json",
     "auth_factors": [],
     "include": [],
     "exclude": []
@@ -81,7 +81,7 @@
   "run": {
     "surfaces": [
       "conformance",
-      "bdd",
+      "api",
       "e2e"
     ],
     "profile": "full",

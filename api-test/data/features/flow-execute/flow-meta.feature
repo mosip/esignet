@@ -1,5 +1,5 @@
 @flow-execute
-Feature: flow metadata endpoint (positive read)
+Feature: GET /flow/meta — flow metadata
   A read of /flow/meta — the flow module's public metadata. Not a login flow, so
   it needs no session; it confirms the endpoint is reachable and well-formed.
 

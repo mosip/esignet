@@ -4,7 +4,7 @@
     "auth_factor is kbi and the identity answers are full_name + dob. Those name a",
     "real person in the registry, so they are left empty here: put them in",
     "config.local.json (gitignored) along with individual_id, or pass",
-    "INDIVIDUAL_ID / KBI_FULL_NAME / KBI_DOB. Same for bdd.flow_client_id, which",
+    "INDIVIDUAL_ID / KBI_FULL_NAME / KBI_DOB. Same for api.flow_client_id, which",
     "names a client registered on your own deployment.",
     "",
     "The KBI flow and a seeded registry must exist on the target environment; if",
@@ -14,7 +14,7 @@
     "Two conformance plans run back to back, each with its own client/jwks file",
     "(both gitignored — see conformance-suite-private/, and plan-config.example.json",
     "for the template). The fapi2 entry pins profile=full because only",
-    "profiles/oidcc-test-plan.smoke.json exists; leaving it on run.profile=smoke",
+    "data/conformance/oidcc-test-plan.smoke.json exists; leaving it on run.profile=smoke",
     "would look for a smoke list it has none of. FAPI also drives two clients, so",
     "its config_file needs client AND client2 filled in.",
     "",
@@ -70,12 +70,12 @@
       "value": "111111"
     }
   },
-  "bdd": {
+  "api": {
     "tags": "",
     "flow_client_id": ""
   },
   "e2e": {
-    "spec": "e2e-scenarios-sunbird.json",
+    "spec": "data/scenarios/e2e-scenarios-sunbird.json",
     "auth_factors": [],
     "include": [],
     "exclude": []
@@ -83,7 +83,7 @@
   "run": {
     "surfaces": [
       "conformance",
-      "bdd",
+      "api",
       "e2e"
     ],
     "profile": "smoke",

@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	bddPath := flag.String("bdd", "", "path to the bdd envelope JSON (godog surfaces)")
+	apiPath := flag.String("api", "", "path to the api envelope JSON (godog surfaces)")
 	e2ePath := flag.String("e2e", "", "path to the e2e envelope JSON (optional)")
 	confPath := flag.String("conformance", "", "path to a conformance sidecar JSON (optional)")
 	outDir := flag.String("out", "out", "report output directory")
@@ -40,10 +40,10 @@ func main() {
 		configJSON, planConfigs = cfg, pcfgs
 	}
 
-	if *bddPath != "" {
-		br, err := loadEnvelope(*bddPath)
+	if *apiPath != "" {
+		br, err := loadEnvelope(*apiPath)
 		if err != nil {
-			log.Fatalf("load bdd envelope %s: %v", *bddPath, err)
+			log.Fatalf("load api envelope %s: %v", *apiPath, err)
 		}
 		stampSurface(br, result.SurfaceClientMgmt)
 		rows = append(rows, br...)
@@ -59,7 +59,7 @@ func main() {
 	}
 
 	if len(rows) == 0 {
-		log.Fatalf("nothing to consolidate: pass -conformance, -bdd and/or -e2e")
+		log.Fatalf("nothing to consolidate: pass -conformance, -api and/or -e2e")
 	}
 
 	// Stamp defaults so pre-existing/plain rows still group correctly.
@@ -141,7 +141,7 @@ func loadEnvelope(path string) ([]result.ModuleResult, error) {
 }
 
 // plansFromRows lists the distinct plans the rows came from, in first-seen
-// order. Rows from the bdd/e2e surfaces carry no plan and are ignored.
+// order. Rows from the api/e2e surfaces carry no plan and are ignored.
 func plansFromRows(rows []result.ModuleResult) []string {
 	seen := map[string]bool{}
 	var out []string

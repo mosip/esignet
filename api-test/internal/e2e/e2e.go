@@ -287,7 +287,7 @@ func (r *Runner) Run(ctx context.Context, spec Spec) []result.ModuleResult {
 	}
 	kid := "e2e-" + strconv.FormatInt(time.Now().Unix(), 10)
 	// requestedID is the harness-chosen id used when registering against eSignet client-mgmt.
-	requestedID := "bdd-e2e-" + strconv.FormatInt(time.Now().UnixNano(), 10)
+	requestedID := "api-e2e-" + strconv.FormatInt(time.Now().UnixNano(), 10)
 
 	var setupCalls []result.HTTPCall
 	clientID, err := r.createClient(ctx, &setupCalls, priv, kid, requestedID, spec)
@@ -467,9 +467,9 @@ func (r *Runner) createClientViaClientMgmt(ctx context.Context, calls *[]result.
 		"requestTime": time.Now().UTC().Format("2006-01-02T15:04:05.000Z"),
 		"request": map[string]any{
 			"clientId":          clientID,
-			"clientName":        "bdd e2e",
-			"clientNameLangMap": map[string]any{"eng": "bdd e2e"},
-			"relyingPartyId":    "bdd-e2e-rp",
+			"clientName":        "api e2e",
+			"clientNameLangMap": map[string]any{"eng": "api e2e"},
+			"relyingPartyId":    "api-e2e-rp",
 			"logoUri":           "https://example.org/logo.png",
 			"redirectUris":      []string{spec.RedirectURI},
 			"publicKey":         publicJWK(priv, kid),
@@ -505,8 +505,8 @@ func (r *Runner) createClientViaPMS(ctx context.Context, calls *[]result.HTTPCal
 	reqBody := map[string]any{
 		"requestTime": time.Now().UTC().Format("2006-01-02T15:04:05.000Z"),
 		"request": map[string]any{
-			"name":              "bdd e2e",
-			"clientNameLangMap": map[string]any{"eng": "bdd e2e"},
+			"name":              "api e2e",
+			"clientNameLangMap": map[string]any{"eng": "api e2e"},
 			"authPartnerId":     r.AuthPartnerID,
 			"policyId":          r.PolicyID,
 			"logoUri":           "https://example.org/logo.png",

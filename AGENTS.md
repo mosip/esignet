@@ -16,7 +16,7 @@ own `README.md`/`AGENTS.md` over guessing conventions from a sibling.
 | `deploy/`, `helm/` | Kubernetes manifests, Helm charts | Deployment. |
 | `db_scripts/`, `db_upgrade_script/` | SQL | Schema creation and version-named migrations. |
 | `partner-onboarder/` | Shell + config | MISP partner certificate exchange. |
-| `api-test/` | Go (two modules: stdlib-only parent + nested `bdd/` on godog) | Black-box API test harness for a *running* deployment — conformance, client-mgmt, flow/execute, e2e. Config-file driven; has its own [`README.md`](api-test/README.md). |
+| `api-test/` | Go (two modules: stdlib-only parent + nested `api/` on godog) | Black-box API test harness for a *running* deployment — conformance, api (client-mgmt + flow/execute), e2e. Config-file driven; has its own [`README.md`](api-test/README.md). |
 | `ui-test/` | Java (Maven, Selenium + Cucumber/TestNG) | UI automation suite. |
 | `performance-test/` | JMeter | Load/performance scripts. |
 

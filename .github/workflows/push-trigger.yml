@@ -121,7 +121,7 @@ jobs:
       RELEASE_DOCKER_HUB: ${{ secrets.RELEASE_DOCKER_HUB }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
-  # api-test: two Go modules (stdlib-only parent + nested bdd/, godog+gjson) in
+  # api-test: two Go modules (stdlib-only parent + nested api/, godog+gjson) in
   # one directory, so this stays a plain build/vet job rather than the
   # single-module go-build.yml reusable workflow (mirrors build_maven_apitest_esignet
   # from the retired Java rig — mosip/esignet#2209).
@@ -155,11 +155,11 @@ jobs:
           go build ./...
           go vet ./...
           go test ./...
-      # The bdd module's TestFeatures drives a live eSignet, so it is excluded
+      # The api module's TestFeatures drives a live eSignet, so it is excluded
       # here: CI has no deployment to point it at. Everything else in the module
       # (step helpers, assertions, envelope writing) is unit-testable and runs.
-      - name: vet + test (bdd module)
-        working-directory: api-test/bdd
+      - name: vet + test (api module)
+        working-directory: api-test/api
         run: |
           go vet ./...
           go test ./... -skip TestFeatures

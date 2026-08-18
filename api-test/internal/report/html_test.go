@@ -190,7 +190,7 @@ func TestWriteSeparatesPlans(t *testing.T) {
 }
 
 // The filename says which surfaces a report covers, so a directory of runs can
-// be read at a glance. The two godog surfaces collapse to one "bdd" part.
+// be read at a glance. The two godog surfaces collapse to one "api" part.
 func TestSurfaceSlug(t *testing.T) {
 	rows := func(surfaces ...string) []result.ModuleResult {
 		var out []result.ModuleResult
@@ -204,10 +204,10 @@ func TestSurfaceSlug(t *testing.T) {
 		in   []result.ModuleResult
 		want string
 	}{
-		{"full run", rows(result.SurfaceConformance, result.SurfaceClientMgmt, result.SurfaceFlowExecute, result.SurfaceE2E), "conformance_bdd_e2e"},
+		{"full run", rows(result.SurfaceConformance, result.SurfaceClientMgmt, result.SurfaceFlowExecute, result.SurfaceE2E), "conformance_api_e2e"},
 		{"conformance only", rows(result.SurfaceConformance), "conformance"},
-		{"bdd only", rows(result.SurfaceFlowExecute, result.SurfaceClientMgmt), "bdd"},
-		{"e2e and bdd", rows(result.SurfaceE2E, result.SurfaceClientMgmt), "bdd_e2e"},
+		{"api only", rows(result.SurfaceFlowExecute, result.SurfaceClientMgmt), "api"},
+		{"e2e and api", rows(result.SurfaceE2E, result.SurfaceClientMgmt), "api_e2e"},
 		// Rows written before Surface existed default to conformance.
 		{"blank surface", rows(""), "conformance"},
 		{"unknown surface is still named", rows(result.SurfaceE2E, "load test"), "e2e_load-test"},
@@ -346,7 +346,7 @@ func TestRedactCallBodiesIdentityIsRequestOnly(t *testing.T) {
 			RespBody: `{"name":"Ada Lovelace","email":"ada@example.org"}`,
 		}, {
 			Label:   "create client",
-			ReqBody: `{"request":{"clientName":"bdd e2e","relyingPartyId":"bdd-e2e-rp"}}`,
+			ReqBody: `{"request":{"clientName":"api e2e","relyingPartyId":"api-e2e-rp"}}`,
 		}},
 	}}
 	out := redactCallBodies(results)[0].Calls
@@ -361,7 +361,7 @@ func TestRedactCallBodiesIdentityIsRequestOnly(t *testing.T) {
 		t.Errorf("userinfo claim was redacted, report loses its evidence: %s", out[0].RespBody)
 	}
 	// Exact-match keying must not swallow clientName in the client-mgmt trace.
-	if !strings.Contains(out[1].ReqBody, "bdd e2e") {
+	if !strings.Contains(out[1].ReqBody, "api e2e") {
 		t.Errorf("clientName wrongly redacted: %s", out[1].ReqBody)
 	}
 }

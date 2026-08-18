@@ -1,4 +1,4 @@
-module github.com/mosip/esignet/api-test/bdd
+module github.com/mosip/esignet/api-test/api
 
 go 1.24
 

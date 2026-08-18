@@ -12,7 +12,7 @@
     "Two conformance plans run back to back, each with its own client/jwks file",
     "(both gitignored — see conformance-suite-private/, and plan-config.example.json",
     "for the template). The fapi2 entry pins profile=full because only",
-    "profiles/oidcc-test-plan.smoke.json exists; leaving it on run.profile=smoke",
+    "data/conformance/oidcc-test-plan.smoke.json exists; leaving it on run.profile=smoke",
     "would look for a smoke list it has none of. FAPI also drives two clients, so",
     "its config_file needs client AND client2 filled in — both registered through",
     "PMS, same as the oidcc one.",
@@ -66,19 +66,19 @@
     "pms": { "base_url": "", "auth_partner_id": "", "policy_id": "" }
   },
 
-  "bdd": {
+  "api": {
     "tags": ""
   },
 
   "e2e": {
-    "spec": "e2e-scenarios-mosip.json",
+    "spec": "data/scenarios/e2e-scenarios-mosip.json",
     "auth_factors": [],
     "include": [],
     "exclude": []
   },
 
   "run": {
-    "surfaces": ["conformance", "bdd", "e2e"],
+    "surfaces": ["conformance", "api", "e2e"],
     "profile": "smoke",
     "debug_show_secrets": false
   }

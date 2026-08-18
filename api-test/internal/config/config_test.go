@@ -193,7 +193,7 @@ func TestValidationIsScopedToSelectedSurfaces(t *testing.T) {
 		t.Fatalf("e2e-only config rejected: %v", err)
 	}
 
-	// conformance only: no esignet.base_url, which e2e/bdd would have required.
+	// conformance only: no esignet.base_url, which e2e/api would have required.
 	cfg = writeLayers(t,
 		`{"conformance":{"base_url":"https://suite.example"},
 		  "plan":{"config_file":$PLAN},
@@ -204,7 +204,7 @@ func TestValidationIsScopedToSelectedSurfaces(t *testing.T) {
 
 	// ...but the surface's OWN requirement still fires.
 	cfg = writeLayers(t,
-		`{"esignet":{"provider":"mock"},"run":{"surfaces":["bdd"]}}`, "")
+		`{"esignet":{"provider":"mock"},"run":{"surfaces":["api"]}}`, "")
 	_, err := Load(cfg, true)
 	if err == nil || !strings.Contains(err.Error(), "esignet.base_url") {
 		t.Fatalf("err = %v, want one naming esignet.base_url", err)

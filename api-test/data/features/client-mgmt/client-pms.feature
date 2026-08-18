@@ -1,5 +1,5 @@
 @client-mgmt-pms
-Feature: Client management via PMS — create + get + update (mosipid, positive)
+Feature: POST/PUT {pms}/oauth/client — client management via PMS (mosipid)
   The mosipid counterpart to the plugin-independent client-mgmt feature. Real IDA
   auth needs the OIDC client bound to an onboarded partner + published policy, and
   that binding only exists when the client is registered through
@@ -27,8 +27,8 @@ Feature: Client management via PMS — create + get + update (mosipid, positive)
       {
         "requestTime": "{{now}}",
         "request": {
-          "name": "bdd pms create",
-          "clientNameLangMap": { "eng": "bdd pms create" },
+          "name": "api pms create",
+          "clientNameLangMap": { "eng": "api pms create" },
           "authPartnerId": "{{auth_partner_id}}",
           "policyId": "{{policy_id}}",
           "logoUri": "https://example.org/logo.png",
@@ -55,8 +55,8 @@ Feature: Client management via PMS — create + get + update (mosipid, positive)
       {
         "requestTime": "{{now}}",
         "request": {
-          "name": "bdd pms update",
-          "clientNameLangMap": { "eng": "bdd pms update" },
+          "name": "api pms update",
+          "clientNameLangMap": { "eng": "api pms update" },
           "authPartnerId": "{{auth_partner_id}}",
           "policyId": "{{policy_id}}",
           "logoUri": "https://example.org/logo.png",
@@ -77,8 +77,8 @@ Feature: Client management via PMS — create + get + update (mosipid, positive)
       {
         "requestTime": "{{now}}",
         "request": {
-          "clientName": "bdd pms updated",
-          "clientNameLangMap": { "eng": "bdd pms updated" },
+          "clientName": "api pms updated",
+          "clientNameLangMap": { "eng": "api pms updated" },
           "status": "ACTIVE",
           "logoUri": "https://example.org/logo.png",
           "redirectUris": ["https://example.org/cb", "https://example.org/cb2"],
@@ -104,8 +104,8 @@ Feature: Client management via PMS — create + get + update (mosipid, positive)
       {
         "requestTime": "{{now}}",
         "request": {
-          "name": "bdd pms status",
-          "clientNameLangMap": { "eng": "bdd pms status" },
+          "name": "api pms status",
+          "clientNameLangMap": { "eng": "api pms status" },
           "authPartnerId": "{{auth_partner_id}}",
           "policyId": "{{policy_id}}",
           "logoUri": "https://example.org/logo.png",
@@ -125,8 +125,8 @@ Feature: Client management via PMS — create + get + update (mosipid, positive)
       {
         "requestTime": "{{now}}",
         "request": {
-          "clientName": "bdd pms status",
-          "clientNameLangMap": { "eng": "bdd pms status" },
+          "clientName": "api pms status",
+          "clientNameLangMap": { "eng": "api pms status" },
           "status": "INACTIVE",
           "logoUri": "https://example.org/logo.png",
           "redirectUris": ["https://example.org/cb"],
@@ -146,8 +146,8 @@ Feature: Client management via PMS — create + get + update (mosipid, positive)
       {
         "requestTime": "{{now}}",
         "request": {
-          "clientName": "bdd pms status",
-          "clientNameLangMap": { "eng": "bdd pms status" },
+          "clientName": "api pms status",
+          "clientNameLangMap": { "eng": "api pms status" },
           "status": "ACTIVE",
           "logoUri": "https://example.org/logo.png",
           "redirectUris": ["https://example.org/cb"],

@@ -16,7 +16,7 @@ import (
 // Surface names a test surface that can be listed in run.surfaces.
 const (
 	SurfaceConformance = "conformance"
-	SurfaceBDD         = "bdd"
+	SurfaceAPI         = "api"
 	SurfaceE2E         = "e2e"
 )
 
@@ -39,7 +39,7 @@ type Config struct {
 
 	Esignet  Esignet  `json:"esignet"`
 	Keycloak Keycloak `json:"keycloak"`
-	BDD      BDD      `json:"bdd"`
+	API      API      `json:"api"`
 	E2E      E2E      `json:"e2e"`
 	Run      Run      `json:"run"`
 
@@ -165,8 +165,8 @@ type Keycloak struct {
 	ClientSecret string `json:"client_secret"`
 }
 
-// BDD configures the godog surfaces.
-type BDD struct {
+// API configures the godog API-surface run.
+type API struct {
 	// Tags is the godog tag expression (comma = OR). Empty lets the suite pick
 	// its own default set based on which credentials are configured.
 	Tags string `json:"tags"`
@@ -192,7 +192,7 @@ type E2E struct {
 
 type Run struct {
 	// Surfaces selects which test surfaces this run executes: any of
-	// conformance, bdd, e2e. Defaults to all three.
+	// conformance, api, e2e. Defaults to all three.
 	Surfaces            []string     `json:"surfaces"`
 	Modules             []string     `json:"modules"`
 	Profile             string       `json:"profile"`
@@ -242,7 +242,7 @@ func Load(path string, mustExist bool) (*Config, error) {
 	// Fail closed: TLS verification stays on unless a file or env explicitly disables it.
 	c := &Config{
 		Conformance: Conformance{TLSVerify: true},
-		BDD:         BDD{TLSVerify: true},
+		API:         API{TLSVerify: true},
 		Esignet:     Esignet{TLSVerify: true},
 	}
 
@@ -305,7 +305,7 @@ func Load(path string, mustExist bool) (*Config, error) {
 func (c *Config) mergeFile(path string) (bool, error) {
 	// A missing bind-mount source makes Docker create a directory at the target, so treat that as absent.
 	if st, err := os.Stat(path); err == nil && st.IsDir() {
-		return false, fmt.Errorf("config %s is a directory, not a file — if this is a container, the bind mount source does not exist on the host (create it, e.g. cp config.local.example.json config.local.json)", path)
+		return false, fmt.Errorf("config %s is a directory, not a file — if this is a container, the bind mount source does not exist on the host (create it, e.g. cp data/config/config.local.example.json data/config/config.local.json)", path)
 	}
 	data, err := os.ReadFile(path)
 	if os.IsNotExist(err) {
@@ -365,9 +365,9 @@ func (c *Config) ValidateSurface(name string) error {
 			}
 		}
 
-	case SurfaceBDD:
+	case SurfaceAPI:
 		if c.Esignet.BaseURL == "" {
-			return fmt.Errorf("esignet.base_url (ESIGNET_BASE_URL) is required for the bdd surface")
+			return fmt.Errorf("esignet.base_url (ESIGNET_BASE_URL) is required for the api surface")
 		}
 		// Keycloak is deliberately not required: client-mgmt degrades to an ENV_NOT_READY row without it.
 
@@ -375,7 +375,7 @@ func (c *Config) ValidateSurface(name string) error {
 		if c.Esignet.BaseURL == "" {
 			return fmt.Errorf("esignet.base_url (ESIGNET_BASE_URL) is required for the e2e surface")
 		}
-		// Unlike bdd, e2e cannot degrade: it registers a throwaway OIDC client
+		// Unlike api, e2e cannot degrade: it registers a throwaway OIDC client
 		// before it can drive anything, and that needs the admin grant.
 		if c.Keycloak.TokenURL == "" || c.Keycloak.ClientID == "" || c.Keycloak.ClientSecret == "" {
 			return fmt.Errorf("keycloak.token_url/client_id/client_secret (KEYCLOAK_*) are required for the e2e surface — it registers a test client before running")
@@ -395,11 +395,11 @@ func (c *Config) ValidateSurface(name string) error {
 		}
 
 	default:
-		return fmt.Errorf("unknown surface %q (want conformance|bdd|e2e)", name)
+		return fmt.Errorf("unknown surface %q (want conformance|api|e2e)", name)
 	}
 
 	// The seeded mock identity is synthetic; a real deployment must name the identity under test.
-	if name != SurfaceBDD && c.Esignet.Provider != "mock" && c.Esignet.Identity.IndividualID == "" {
+	if name != SurfaceAPI && c.Esignet.Provider != "mock" && c.Esignet.Identity.IndividualID == "" {
 		return fmt.Errorf("esignet.identity.individual_id (INDIVIDUAL_ID) is required for the %q plugin", c.Esignet.Provider)
 	}
 	return nil
@@ -450,9 +450,9 @@ func (c *Config) applyEnv() (int, error) {
 	envStr(&c.Keycloak.ClientID, "KEYCLOAK_CLIENT_ID", &n)
 	envStr(&c.Keycloak.ClientSecret, "KEYCLOAK_CLIENT_SECRET", &n)
 
-	envStr(&c.BDD.Tags, "GODOG_TAGS", &n)
-	envStr(&c.BDD.FlowClientID, "FLOW_CLIENT_ID", &n)
-	envBool(&c.BDD.TLSVerify, "BDD_TLS_VERIFY", &n, &bad)
+	envStr(&c.API.Tags, "GODOG_TAGS", &n)
+	envStr(&c.API.FlowClientID, "FLOW_CLIENT_ID", &n)
+	envBool(&c.API.TLSVerify, "API_TLS_VERIFY", &n, &bad)
 
 	envStr(&c.E2E.Spec, "E2E_SPEC", &n)
 	envList(&c.E2E.AuthFactors, "E2E_AUTH_FACTORS", &n)
@@ -551,9 +551,9 @@ func (c *Config) applyPlanEnv(n *int) error {
 
 // e2eSpecByProvider is the scenario file each plugin runs when e2e.spec is not set explicitly.
 var e2eSpecByProvider = map[string]string{
-	"mock":    "e2e-scenarios.json",
-	"mosip":   "e2e-scenarios-mosip.json",
-	"sunbird": "e2e-scenarios-sunbird.json",
+	"mock":    "data/scenarios/e2e-scenarios.json",
+	"mosip":   "data/scenarios/e2e-scenarios-mosip.json",
+	"sunbird": "data/scenarios/e2e-scenarios-sunbird.json",
 }
 
 func (c *Config) defaults() {
@@ -562,7 +562,7 @@ func (c *Config) defaults() {
 	c.Esignet.OTP.Source = strings.ToLower(strings.TrimSpace(c.Esignet.OTP.Source))
 	c.Run.Profile = strings.ToLower(strings.TrimSpace(c.Run.Profile))
 	if len(c.Run.Surfaces) == 0 {
-		c.Run.Surfaces = []string{SurfaceConformance, SurfaceBDD, SurfaceE2E}
+		c.Run.Surfaces = []string{SurfaceConformance, SurfaceAPI, SurfaceE2E}
 	}
 	// A config that names no plan at all still gets one entry, so the conformance
 	// surface reports "config_file is required" rather than "no plan configured".
@@ -626,9 +626,9 @@ func (c *Config) defaults() {
 func (c *Config) validate() error {
 	for _, s := range c.Run.Surfaces {
 		switch strings.ToLower(strings.TrimSpace(s)) {
-		case SurfaceConformance, SurfaceBDD, SurfaceE2E:
+		case SurfaceConformance, SurfaceAPI, SurfaceE2E:
 		default:
-			return fmt.Errorf("unknown run.surfaces entry %q (want conformance|bdd|e2e)", s)
+			return fmt.Errorf("unknown run.surfaces entry %q (want conformance|api|e2e)", s)
 		}
 	}
 

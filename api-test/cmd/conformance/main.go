@@ -18,7 +18,7 @@ import (
 )
 
 func main() {
-	configPath := flag.String("config", "config.json", "path to the harness config (env vars override its values)")
+	configPath := flag.String("config", "data/config/config.json", "path to the harness config (env vars override its values)")
 	flag.Parse()
 
 	logger := log.New(os.Stderr, "", log.LstdFlags)

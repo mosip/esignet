@@ -1,6 +1,6 @@
 {
   "_comment": "End-to-end scenarios for AUTHN_PROVIDER=sunbird (KBI). Only one ACR applies -- knowledge-based auth (policy number + full name + DOB). Positive uses the configured identity/knowledge answers (INDIVIDUAL_ID, KBI_FULL_NAME, KBI_DOB); negative overrides full name + DOB with deliberately wrong values and expects rejection. CONSENT/CAPTCHA CASES (appended): the consent cases are ORDER-DEPENDENT and share one registered client per run -- 'stored consent is reused' asserts NO prompt, which only holds because the identical-scope case ran immediately before it and saved a consent record for (client,user). Each other consent case deliberately uses a DISTINCT scope set so its request hash differs and the server re-prompts; reordering them, or narrowing the run with e2e.include so the approve-all case is skipped, will make the reuse case fail. Captcha: an empty token is rejected by the server before the validator-configured check, so that negative is portable to any deployment; a non-empty token is accepted when no MOSIP_ESIGNET_CAPTCHA_VALIDATOR_URL is configured (the dev/test default) and validated for real when one is.",
-  "redirect_uri": "https://bdd-e2e.example.org/callback",
+  "redirect_uri": "https://api-e2e.example.org/callback",
   "user_claims": ["name", "email", "phone_number", "gender", "birthdate"],
   "acr": ["mosip:idp:acr:knowledge"],
   "scenarios": [

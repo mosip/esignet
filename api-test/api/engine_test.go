@@ -1,4 +1,4 @@
-package bdd
+package api
 
 import (
 	"encoding/json"
@@ -14,7 +14,7 @@ import (
 func TestFeatures(t *testing.T) {
 	base := os.Getenv("ESIGNET_BASE_URL")
 	if base == "" {
-		t.Skip("ESIGNET_BASE_URL not set — skipping bdd surfaces")
+		t.Skip("ESIGNET_BASE_URL not set — skipping api surfaces")
 	}
 
 	coll := &Collector{}
@@ -41,7 +41,7 @@ func TestFeatures(t *testing.T) {
 		ScenarioInitializer: func(sc *godog.ScenarioContext) { InitScenario(sc, coll) },
 		Options: &godog.Options{
 			Format: "pretty",
-			Paths:  []string{"features"},
+			Paths:  []string{featuresDir()},
 			Tags:   tags,
 		},
 	}
@@ -83,14 +83,25 @@ func TestFeatures(t *testing.T) {
 		}
 	}
 
-	out := os.Getenv("BDD_ENVELOPE_OUT")
+	out := os.Getenv("API_ENVELOPE_OUT")
 	if out == "" {
-		out = filepath.Join("..", "out", "bdd-envelope.json")
+		out = filepath.Join("..", "out", "api-envelope.json")
 	}
 	if err := writeEnvelope(out, rows); err != nil {
 		t.Fatalf("write envelope: %v", err)
 	}
-	t.Logf("bdd: wrote %d envelope row(s) to %s", len(rows), out)
+	t.Logf("api: wrote %d envelope row(s) to %s", len(rows), out)
+}
+
+// featuresDir locates the Gherkin tree. The feature files live in the shared
+// data/ folder rather than inside this module, so the default is relative to the
+// module directory this test runs from; API_FEATURES_DIR overrides it for a
+// container layout that puts them elsewhere.
+func featuresDir() string {
+	if d := os.Getenv("API_FEATURES_DIR"); d != "" {
+		return d
+	}
+	return filepath.Join("..", "data", "features")
 }
 
 // writeEnvelope persists the collected rows for the consolidation runner.

@@ -37,12 +37,12 @@
   "//plans": [
     "The conformance plans ONE run executes, in order. Each entry is a separate",
     "suite plan: its own variant and its own config_file (client + jwks), so two",
-    "entries mean two client/key sets. The bdd and e2e surfaces still run once,",
+    "entries mean two client/key sets. The api and e2e surfaces still run once,",
     "and every plan's modules land in the same consolidated report under its own",
     "section.",
     "",
     "profile/modules/filter/skip/known_issues are optional per plan and fall back",
-    "to the same-named run.* field. profile=smoke reads profiles/<name>.smoke.json,",
+    "to the same-named run.* field. profile=smoke reads data/conformance/<name>.smoke.json,",
     "so a plan with no profile file of its own needs profile=full here.",
     "",
     "config_file paths are secrets-adjacent (the file holds the private jwks):",
@@ -140,7 +140,7 @@
     "pms": { "base_url": "", "auth_partner_id": "", "policy_id": "" }
   },
 
-  "bdd": {
+  "api": {
     "tags": "",
     "flow_client_id": "",
     "tls_verify": true
@@ -154,7 +154,7 @@
   },
 
   "run": {
-    "surfaces": ["conformance", "bdd", "e2e"],
+    "surfaces": ["conformance", "api", "e2e"],
 
     "//selection": [
       "Run-wide module selection. Every plans[] entry falls back to these, so",
@@ -162,7 +162,7 @@
       "different module sets. Same precedence as documented in plans[] above.",
       "",
       "  modules       explicit allow-list; replaces profile entirely.",
-      "  profile       smoke = profiles/<plan name>.smoke.json, full = every",
+      "  profile       smoke = data/conformance/<plan name>.smoke.json, full = every",
       "                module the plan declares.            (env TEST_PROFILE)",
       "  filter        regex over whatever modules/profile produced.",
       "                                                     (env TEST_RUN)",
