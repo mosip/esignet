@@ -513,6 +513,43 @@ func (ts *ValidateTestSuite) TestValidateAdditionalConfig() {
 		assert.Equal(t, "invalid_additional_config", errCode(t, err))
 	})
 
+	t.Run("valid require_pkce", func(t *testing.T) {
+		assert.NoError(t, validateAdditionalConfig(json.RawMessage(`{"require_pkce":true}`)))
+	})
+
+	t.Run("invalid require_pkce", func(t *testing.T) {
+		err := validateAdditionalConfig(json.RawMessage(`{"require_pkce":"not-a-bool"}`))
+		assert.Equal(t, "invalid_additional_config", errCode(t, err))
+	})
+
+	t.Run("unknown key rejected", func(t *testing.T) {
+		err := validateAdditionalConfig(json.RawMessage(`{"unknown_field":true}`))
+		assert.Equal(t, "invalid_additional_config", errCode(t, err))
+	})
+
+	t.Run("valid allowed_authorization_scopes", func(t *testing.T) {
+		assert.NoError(t, validateAdditionalConfig(json.RawMessage(`{"allowed_authorization_scopes":["custom_scope","other_scope"]}`)))
+	})
+
+	t.Run("empty allowed_authorization_scopes accepted", func(t *testing.T) {
+		assert.NoError(t, validateAdditionalConfig(json.RawMessage(`{"allowed_authorization_scopes":[]}`)))
+	})
+
+	t.Run("duplicate allowed_authorization_scopes rejected", func(t *testing.T) {
+		err := validateAdditionalConfig(json.RawMessage(`{"allowed_authorization_scopes":["custom_scope","custom_scope"]}`))
+		assert.Equal(t, "invalid_additional_config", errCode(t, err))
+	})
+
+	t.Run("blank allowed_authorization_scopes entry rejected", func(t *testing.T) {
+		err := validateAdditionalConfig(json.RawMessage(`{"allowed_authorization_scopes":["custom_scope"," "]}`))
+		assert.Equal(t, "invalid_additional_config", errCode(t, err))
+	})
+
+	t.Run("non-array allowed_authorization_scopes rejected", func(t *testing.T) {
+		err := validateAdditionalConfig(json.RawMessage(`{"allowed_authorization_scopes":"not-an-array"}`))
+		assert.Equal(t, "invalid_additional_config", errCode(t, err))
+	})
+
 	t.Run("purpose validated", func(t *testing.T) {
 		assert.NoError(t, validateAdditionalConfig(json.RawMessage(
 			`{"purpose":{"type":"consent","title":{"@none":"Title"}}}`)))

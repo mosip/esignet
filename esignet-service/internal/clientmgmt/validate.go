@@ -481,10 +481,28 @@ func isAlpha(s string) bool {
 	return true
 }
 
+var allowedAdditionalConfigKeys = map[string]struct{}{
+	"userinfo_response_type":                {},
+	"id_token_response_type":                {},
+	"consent_expire_in_mins":                {},
+	"signup_banner_required":                {},
+	"forgot_pwd_link_required":              {},
+	"require_pushed_authorization_requests": {},
+	"dpop_bound_access_tokens":              {},
+	"require_pkce":                          {},
+	"purpose":                               {},
+	"allowed_authorization_scopes":          {},
+}
+
 func validateAdditionalConfig(raw json.RawMessage) error {
 	var cfg map[string]json.RawMessage
 	if err := json.Unmarshal(raw, &cfg); err != nil {
 		return validationErr("invalid_additional_config")
+	}
+	for key := range cfg {
+		if _, ok := allowedAdditionalConfigKeys[key]; !ok {
+			return validationErr("invalid_additional_config")
+		}
 	}
 	if v, ok := cfg["userinfo_response_type"]; ok {
 		var rt string
@@ -504,7 +522,7 @@ func validateAdditionalConfig(raw json.RawMessage) error {
 			return validationErr("invalid_additional_config")
 		}
 	}
-	for _, key := range []string{"signup_banner_required", "forgot_pwd_link_required", "require_pushed_authorization_requests", "dpop_bound_access_tokens"} {
+	for _, key := range []string{"signup_banner_required", "forgot_pwd_link_required", "require_pushed_authorization_requests", "dpop_bound_access_tokens", "require_pkce"} {
 		if v, ok := cfg[key]; ok {
 			var b bool
 			if err := json.Unmarshal(v, &b); err != nil {
@@ -515,6 +533,29 @@ func validateAdditionalConfig(raw json.RawMessage) error {
 	if v, ok := cfg["purpose"]; ok {
 		if err := validatePurpose(v); err != nil {
 			return err
+		}
+	}
+	if v, ok := cfg["allowed_authorization_scopes"]; ok {
+		if err := validateAllowedAuthorizationScopes(v); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// validateAllowedAuthorizationScopes validates the allowed_authorization_scopes
+// additional_config value: an array of unique, non-blank scope names.
+func validateAllowedAuthorizationScopes(raw json.RawMessage) error {
+	var scopes []string
+	if err := json.Unmarshal(raw, &scopes); err != nil {
+		return validationErr("invalid_additional_config")
+	}
+	if !hasUniqueStrings(scopes) {
+		return validationErr("invalid_additional_config")
+	}
+	for _, s := range scopes {
+		if strings.TrimSpace(s) == "" {
+			return validationErr("invalid_additional_config")
 		}
 	}
 	return nil

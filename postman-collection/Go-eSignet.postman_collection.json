@@ -82,7 +82,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"requestTime\": \"{{client_mgmt_request_time}}\",\n  \"request\": {\n    \"clientId\": \"{{client_id}}\",\n    \"clientName\": \"Postman Test Client\",\n    \"clientNameLangMap\": { \"eng\": \"Postman Test Client\" },\n    \"relyingPartyId\": \"{{relying_party_id}}\",\n    \"logoUri\": \"https://example.com/logo.png\",\n    \"redirectUris\": [\"{{redirect_uri}}\"],\n    \"userClaims\": [\"name\", \"email\", \"picture\", \"phone_number\", \"address\"],\n    \"authContextRefs\": [\"mosip:idp:acr:generated-code\", \"mosip:idp:acr:password\",\"mosip:idp:acr:biometrics\"],\n    \"publicKey\": {{client_public_key}},\n    \"grantTypes\": [\"authorization_code\"],\n    \"clientAuthMethods\": [\"private_key_jwt\"],\n    \"additionalConfig\": { \"require_pushed_authorization_requests\": false, \"dpop_bound_access_tokens\": false, \"pkce_required\": true }\n  }\n}"
+              "raw": "{\n  \"requestTime\": \"{{client_mgmt_request_time}}\",\n  \"request\": {\n    \"clientId\": \"{{client_id}}\",\n    \"clientName\": \"Postman Test Client\",\n    \"clientNameLangMap\": { \"eng\": \"Postman Test Client\" },\n    \"relyingPartyId\": \"{{relying_party_id}}\",\n    \"logoUri\": \"https://example.com/logo.png\",\n    \"redirectUris\": [\"{{redirect_uri}}\"],\n    \"userClaims\": [\"name\", \"email\", \"picture\", \"phone_number\", \"address\"],\n    \"authContextRefs\": [\"mosip:idp:acr:generated-code\", \"mosip:idp:acr:password\",\"mosip:idp:acr:biometrics\"],\n    \"publicKey\": {{client_public_key}},\n    \"grantTypes\": [\"authorization_code\"],\n    \"clientAuthMethods\": [\"private_key_jwt\"],\n    \"additionalConfig\": { \"require_pushed_authorization_requests\": false, \"dpop_bound_access_tokens\": false, \"require_pkce\": true }\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/client-mgmt/client",
@@ -264,7 +264,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"requestTime\": \"{{client_mgmt_request_time}}\",\n  \"request\": {\n    \"encPublicKey\": {{client_enc_public_key}},\n    \"clientName\": \"Postman Test Client (patched)\",\n    \"additionalConfig\": {\n      \"require_pushed_authorization_requests\": false,\n      \"dpop_bound_access_tokens\": false,\n      \"pkce_required\": true,\n      \"userinfo_response_type\": \"JWE\"\n    }\n  }\n}"
+              "raw": "{\n  \"requestTime\": \"{{client_mgmt_request_time}}\",\n  \"request\": {\n    \"encPublicKey\": {{client_enc_public_key}},\n    \"clientName\": \"Postman Test Client (patched)\",\n    \"additionalConfig\": {\n      \"require_pushed_authorization_requests\": false,\n      \"dpop_bound_access_tokens\": false,\n      \"require_pkce\": true,\n      \"userinfo_response_type\": \"JWE\"\n    }\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/client-mgmt/client/{{client_id}}",
@@ -282,7 +282,7 @@
           "response": []
         }
       ],
-      "description": "Create / Get / Update an OAuth client. Run 'Create client' first, then a flow folder \u2014 every flow uses {{client_id}} + {{client_private_key}}. Toggle additionalConfig in the Create body per client type: normal OAuth = pkce_required only; FAPI2 = also require_pushed_authorization_requests + dpop_bound_access_tokens = true.",
+      "description": "Create / Get / Update an OAuth client. Run 'Create client' first, then a flow folder \u2014 every flow uses {{client_id}} + {{client_private_key}}. Toggle additionalConfig in the Create body per client type: normal OAuth = require_pkce only; FAPI2 = also require_pushed_authorization_requests + dpop_bound_access_tokens = true.",
       "event": [
         {
           "listen": "prerequest",

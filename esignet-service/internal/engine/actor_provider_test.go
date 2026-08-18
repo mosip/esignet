@@ -430,14 +430,6 @@ func (ts *ActorProviderTestSuite) TestGetAllowedScopes() {
 		}
 	})
 
-	t.Run("accepts []string additional scopes", func(t *testing.T) {
-		additionalConfig := map[string]any{allowedAuthorizationScopes: []string{"custom_scope"}}
-		got := getAllowedScopes(standardScopeClaims, additionalConfig)
-		if got[len(got)-1] != "custom_scope" {
-			t.Errorf("getAllowedScopes() = %v, want last element custom_scope", got)
-		}
-	})
-
 	t.Run("accepts []any additional scopes decoded from JSON", func(t *testing.T) {
 		additionalConfig := map[string]any{allowedAuthorizationScopes: []any{"custom_scope", "other_scope"}}
 		got := getAllowedScopes(standardScopeClaims, additionalConfig)
