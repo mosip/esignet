@@ -9,8 +9,10 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"net/http"
+	"net/http/pprof"
 	"os"
 	"os/signal"
 	"syscall"
@@ -168,6 +170,10 @@ func main() {
 		thunderidengine.WithRuntimeCryptoProvider(engine.NewRuntimeCryptoProvider(appCfg, keyMgrSvc, sigSvc, cryptoSvc)),
 	)
 
+	if appCfg.PprofEnabled {
+		go startDebugServer(logger, newPoolConfigHandler(pgConn, appCfg))
+	}
+
 	addr := fmt.Sprintf(":%d", appCfg.Port)
 	handler := httpmiddleware.CorrelationID(httpmiddleware.AccessLog(mux))
 	srv := &http.Server{
@@ -234,6 +240,56 @@ func startMetricsServer(appCfg *config.AppConfig, logger *applog.Logger) *http.S
 		}
 	}()
 	return metricsSrv
+}
+
+func startDebugServer(logger *applog.Logger, poolConfigHandler http.Handler) {
+	const addr = "127.0.0.1:6060"
+	logger.Info(context.Background(), "starting debug pprof server", applog.String("addr", addr))
+	if err := http.ListenAndServe(addr, newDebugMux(poolConfigHandler)); err != nil {
+		logger.Warn(context.Background(), "debug pprof server stopped", applog.Error(err))
+	}
+}
+
+// dbStatter is the subset of *sql.DB used by newPoolConfigHandler; extracted
+// so the handler can be exercised in tests without a live database connection.
+type dbStatter interface {
+	Stats() sql.DBStats
+}
+
+// newPoolConfigHandler returns an HTTP handler that writes a JSON snapshot of
+// DB and Redis connection pool configuration and live counters.
+func newPoolConfigHandler(db dbStatter, appCfg *config.AppConfig) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		stats := db.Stats()
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = fmt.Fprintf(w,
+			`{"db":{"connMaxLifetime":%q,"maxOpenConns":%d,"maxIdleConns":%d,"openConns":%d,"inUse":%d,"idle":%d},"redis":{"connMaxLifetime":%q,"enabled":%v}}`,
+			(time.Duration(appCfg.DB.Pool.ConnMaxLifetimeSecs)*time.Second).String(),
+			appCfg.DB.Pool.MaxOpenConns,
+			appCfg.DB.Pool.MaxIdleConns,
+			stats.OpenConnections,
+			stats.InUse,
+			stats.Idle,
+			appCfg.Redis.ConnMaxLifetime.String(),
+			appCfg.RuntimeDBType == "redis",
+		)
+	})
+}
+
+// newDebugMux builds the debug ServeMux with all pprof routes and
+// /debug/pool-config. Separated from startDebugServer so it can be
+// exercised in tests without binding a port.
+func newDebugMux(poolConfigHandler http.Handler) *http.ServeMux {
+	dbg := http.NewServeMux()
+	dbg.HandleFunc("/debug/pprof/", pprof.Index)
+	dbg.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
+	dbg.HandleFunc("/debug/pprof/profile", pprof.Profile)
+	dbg.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
+	dbg.HandleFunc("/debug/pprof/trace", pprof.Trace)
+	dbg.Handle("/debug/pprof/goroutine", pprof.Handler("goroutine"))
+	dbg.Handle("/debug/pprof/heap", pprof.Handler("heap"))
+	dbg.Handle("GET /debug/pool-config", poolConfigHandler)
+	return dbg
 }
 
 func getAppConfig() (*config.AppConfig, error) {
