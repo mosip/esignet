@@ -109,6 +109,7 @@ type AppConfig struct {
 	InboundHTTPServer          InboundHTTPServerConfig          `yaml:"inbound_http_server"`
 	SupportedSigningAlgorithms []string                         `yaml:"supported_signing_algorithms"`
 	SupportedEncAlgorithms     []string                         `yaml:"supported_enc_algorithms"`
+	PprofEnabled               bool                             `yaml:"-"`
 }
 
 // SecurityConfig defines application security configuration
@@ -184,6 +185,7 @@ func applyDefaults(cfg *AppConfig) {
 	cfg.Issuer = envOrConfigOrDefault("MOSIP_ESIGNET_HOST", cfg.Issuer, fmt.Sprintf("http://localhost:%d", cfg.Port))
 	cfg.DataDir = envOrConfigOrDefault("DATA_DIR", cfg.DataDir, defaultDataDir)
 	cfg.MetricsPort = envIntOrDefault("METRICS_PORT", defaultMetricsPort)
+	cfg.PprofEnabled = envBool("MOSIP_ESIGNET_PPROF_ENABLED")
 	cfg.DB = loadDB(cfg.DB)
 
 	cacheType := envOrConfigOrDefault("MOSIP_ESIGNET_CACHE_TYPE", cfg.RuntimeDBType, "redis")
