@@ -121,12 +121,16 @@ func TestParseCertificateTolerant_NegativeSerialNumber(t *testing.T) {
 	assert.Equal(t, big.NewInt(0x80), got.SerialNumber, "original serial magnitude must be recovered")
 	assert.Equal(t, malformed, got.Raw, "Raw must be the original malformed input, unmodified")
 
-	assert.NotEmpty(t, got.RawTBSCertificate)
-	assert.NotEqual(t, malformed, got.RawTBSCertificate, "RawTBSCertificate must be the inner TBS bytes, not the whole certificate")
+	wantTBS, err := extractTBSCertificate(malformed)
+	require.NoError(t, err)
+	assert.Equal(t, wantTBS, got.RawTBSCertificate)
 }
 
 func TestParseCertificateTolerant_OtherErrorsPassThrough(t *testing.T) {
-	_, err := ParseCertificateTolerant([]byte("not a certificate"))
-	require.Error(t, err)
-	assert.NotEqual(t, "x509: negative serial number", err.Error())
+	input := []byte("not a certificate")
+	_, wantErr := x509.ParseCertificate(input)
+	require.Error(t, wantErr)
+
+	_, err := ParseCertificateTolerant(input)
+	require.EqualError(t, err, wantErr.Error())
 }

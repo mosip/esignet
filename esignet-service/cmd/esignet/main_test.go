@@ -12,9 +12,11 @@ import (
 	"database/sql/driver"
 	"errors"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -192,7 +194,11 @@ func (ts *MainTestSuite) TestStartMetricsServer() {
 			return false
 		}
 		defer func() { _ = resp.Body.Close() }()
-		return resp.StatusCode == http.StatusOK
+		body, err := io.ReadAll(resp.Body)
+		return err == nil &&
+			resp.StatusCode == http.StatusOK &&
+			strings.Contains(string(body), "esignet_db_open_connections") &&
+			strings.Contains(string(body), "esignet_redis_total_conns")
 	}, 2*time.Second, 20*time.Millisecond, "metrics server did not become ready")
 }
 
