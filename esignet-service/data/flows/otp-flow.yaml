@@ -94,6 +94,7 @@ nodes:
     executor:
       name: MosipOtpExecutor
     onSuccess: prompt_otp
+    onFailure: prompt_individual_id
 
   - id: prompt_otp
     type: PROMPT

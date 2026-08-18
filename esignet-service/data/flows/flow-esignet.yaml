@@ -493,6 +493,7 @@ nodes:
     executor:
       name: eSignetOtpExecutor
     onSuccess: prompt_otp
+    onFailure: prompt_uin_otp
 
   - id: prompt_otp
     type: PROMPT

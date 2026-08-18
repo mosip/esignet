@@ -85,7 +85,7 @@ var SendOTPFailedError = &common.ServiceError{
 	Type: common.ClientErrorType,
 	Error: common.I18nMessage{
 		Key:          "send_otp_failed",
-		DefaultValue: "Send OTP failed",
+		DefaultValue: "Please enter valid credentials",
 	},
 	ErrorDescription: common.I18nMessage{
 		Key:          "send_otp_failed_description",
