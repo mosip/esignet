@@ -133,9 +133,12 @@ resources:
     memory: 1500Mi
 
 additionalResources:
-  ## Specify any JAVA_OPTS string here. These typically will be specified in conjunction with above resources
-  ## Example: java_opts: "-Xms500M -Xmx500M"
-  javaOpts: "-Xms1500M -Xmx1500M"
+  ## GOMEMLIMIT for the Go esignet-service binary. Leave empty ("") to auto-derive
+  ## ~90% of resources.limits.memory above on every render, so it never goes stale if
+  ## you change the memory limit. Set explicitly (e.g. "2025MiB") to override the 90%
+  ## default, or if resources.limits.memory uses a unit auto-derivation can't parse
+  ## (only Ki/Mi/Gi/Ti and unitless bytes are supported).
+  goMemLimit: ""
 
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
 ## Clamav container already runs as 'mosip' user, so we may not need to enable this
