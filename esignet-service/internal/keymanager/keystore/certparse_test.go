@@ -18,6 +18,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
 	"golang.org/x/crypto/cryptobyte"
 	cryptobyte_asn1 "golang.org/x/crypto/cryptobyte/asn1"
 )
@@ -91,46 +92,54 @@ func stripSerialPadding(t *testing.T, der []byte) []byte {
 	return malformed
 }
 
-func TestParseCertificateTolerant_WellFormedCertificate(t *testing.T) {
-	der := selfSignedDER(t, big.NewInt(42))
-
-	got, err := ParseCertificateTolerant(der)
-	require.NoError(t, err)
-
-	want, err := x509.ParseCertificate(der)
-	require.NoError(t, err)
-
-	assert.Equal(t, want.SerialNumber, got.SerialNumber)
-	assert.Equal(t, want.Raw, got.Raw)
-	assert.Equal(t, want.RawTBSCertificate, got.RawTBSCertificate)
+type CertParseTestSuite struct {
+	suite.Suite
 }
 
-func TestParseCertificateTolerant_NegativeSerialNumber(t *testing.T) {
+func TestCertParseTestSuite(t *testing.T) {
+	suite.Run(t, new(CertParseTestSuite))
+}
+
+func (ts *CertParseTestSuite) TestParseCertificateTolerant_WellFormedCertificate() {
+	der := selfSignedDER(ts.T(), big.NewInt(42))
+
+	got, err := ParseCertificateTolerant(der)
+	require.NoError(ts.T(), err)
+
+	want, err := x509.ParseCertificate(der)
+	require.NoError(ts.T(), err)
+
+	assert.Equal(ts.T(), want.SerialNumber, got.SerialNumber)
+	assert.Equal(ts.T(), want.Raw, got.Raw)
+	assert.Equal(ts.T(), want.RawTBSCertificate, got.RawTBSCertificate)
+}
+
+func (ts *CertParseTestSuite) TestParseCertificateTolerant_NegativeSerialNumber() {
 	// Serial 0x80 (128) is DER-encoded by Go as [0x00, 0x80] (padded, since
 	// the top bit of 0x80 is set); stripping the padding reproduces the
 	// malformed two's-complement encoding this function tolerates.
-	valid := selfSignedDER(t, big.NewInt(0x80))
-	malformed := stripSerialPadding(t, valid)
+	valid := selfSignedDER(ts.T(), big.NewInt(0x80))
+	malformed := stripSerialPadding(ts.T(), valid)
 
 	_, err := x509.ParseCertificate(malformed)
-	require.EqualError(t, err, "x509: negative serial number", "test fixture must reproduce stdlib's rejection")
+	require.EqualError(ts.T(), err, "x509: negative serial number", "test fixture must reproduce stdlib's rejection")
 
 	got, err := ParseCertificateTolerant(malformed)
-	require.NoError(t, err)
+	require.NoError(ts.T(), err)
 
-	assert.Equal(t, big.NewInt(0x80), got.SerialNumber, "original serial magnitude must be recovered")
-	assert.Equal(t, malformed, got.Raw, "Raw must be the original malformed input, unmodified")
+	assert.Equal(ts.T(), big.NewInt(0x80), got.SerialNumber, "original serial magnitude must be recovered")
+	assert.Equal(ts.T(), malformed, got.Raw, "Raw must be the original malformed input, unmodified")
 
 	wantTBS, err := extractTBSCertificate(malformed)
-	require.NoError(t, err)
-	assert.Equal(t, wantTBS, got.RawTBSCertificate)
+	require.NoError(ts.T(), err)
+	assert.Equal(ts.T(), wantTBS, got.RawTBSCertificate)
 }
 
-func TestParseCertificateTolerant_OtherErrorsPassThrough(t *testing.T) {
+func (ts *CertParseTestSuite) TestParseCertificateTolerant_OtherErrorsPassThrough() {
 	input := []byte("not a certificate")
 	_, wantErr := x509.ParseCertificate(input)
-	require.Error(t, wantErr)
+	require.Error(ts.T(), wantErr)
 
 	_, err := ParseCertificateTolerant(input)
-	require.EqualError(t, err, wantErr.Error())
+	require.EqualError(ts.T(), err, wantErr.Error())
 }
