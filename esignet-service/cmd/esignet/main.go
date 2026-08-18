@@ -265,7 +265,7 @@ func newPoolConfigHandler(db dbStatter, appCfg *config.AppConfig) http.Handler {
 		w.Header().Set("Content-Type", "application/json")
 		_, _ = fmt.Fprintf(w,
 			`{"db":{"connMaxLifetime":%q,"maxOpenConns":%d,"maxIdleConns":%d,"openConns":%d,"inUse":%d,"idle":%d},"redis":{"connMaxLifetime":%q,"enabled":%v}}`,
-			(time.Duration(appCfg.DB.Pool.ConnMaxLifetimeSecs)*time.Second).String(),
+			(time.Duration(appCfg.DB.Pool.ConnMaxLifetimeSecs) * time.Second).String(),
 			appCfg.DB.Pool.MaxOpenConns,
 			appCfg.DB.Pool.MaxIdleConns,
 			stats.OpenConnections,
