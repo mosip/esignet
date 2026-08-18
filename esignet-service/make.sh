@@ -57,7 +57,7 @@ SIGNING_CERT=$KEY_DIR/signing.crt
 : "${DOCKER_IMAGE:=esignet:latest}"
 : "${GOLANGCI_LINT_VERSION:=latest}"
 : "${SQLC_VERSION:=v1.29.0}"
-: "${THUNDER_BRANCH:=main}"
+: "${THUNDER_BRANCH:=v1.0.0}"
 : "${RACE:=1}"   # set RACE=0 if no C toolchain (go test -race needs gcc on Windows)
 # Local builds default to a static, cgo-free binary, which drops the PKCS11
 # (HSM) keystore backend down to a stub that errors at startup — use
@@ -168,13 +168,19 @@ target_sqlc_install() { ## Install sqlc
   echo "installed: $(go env GOPATH)/bin/sqlc"
 }
 
-target_update_thunder() { ## Update thunder replace directive to latest commit on THUNDER_BRANCH
+target_update_thunder() { ## Update thunder replace directive to latest commit on THUNDER_BRANCH (branch or tag name)
   need go
   need git
-  echo "Fetching latest commit on branch '$THUNDER_BRANCH'..."
+  echo "Fetching latest commit on ref '$THUNDER_BRANCH'..."
   local sha version
+  # THUNDER_BRANCH may name a branch or a tag; try both. An annotated tag
+  # resolves to two ls-remote rows (the tag object and a "^{}" peeled row
+  # for the commit it points at) — take the peeled one when present.
   sha="$(git ls-remote https://github.com/thunder-id/thunderid.git "refs/heads/$THUNDER_BRANCH" | awk '{print $1}')"
-  if [ -z "$sha" ]; then echo "error: branch '$THUNDER_BRANCH' not found"; exit 1; fi
+  if [ -z "$sha" ]; then
+    sha="$(git ls-remote https://github.com/thunder-id/thunderid.git "refs/tags/$THUNDER_BRANCH" "refs/tags/$THUNDER_BRANCH^{}" | awk '{print $1}' | tail -1)"
+  fi
+  if [ -z "$sha" ]; then echo "error: branch or tag '$THUNDER_BRANCH' not found"; exit 1; fi
   # Resolve the exact SHA we just fetched (the Makefile resolved the branch
   # name again, which could race with new pushes).
   version="$(GOPROXY=direct go_mod_write list -m -f '{{.Version}}' "$THUNDER_MODULE@$sha")"
@@ -250,15 +256,7 @@ Environment (override on the command line or in .env):
   PORT=$PORT
   MOSIP_ESIGNET_HOST=$MOSIP_ESIGNET_HOST
   DATA_DIR=$DATA_DIR
-  MOSIP_ESIGNET_AUTHN_PROVIDER=${MOSIP_ESIGNET_AUTHN_PROVIDER:-} (mosip|sunbird, default mosip)
-  MOSIP_API_INTERNAL_HOST (optional, used to derive IDA endpoint URLs)
-  MOSIP_ESIGNET_MISP_KEY (optional, used in IDA endpoint paths)
-  MOSIP_ESIGNET_AUTHENTICATOR_IDA_CERT_URL (optional override)
-  MOSIP_ESIGNET_AUTHENTICATOR_IDA_SEND_OTP_URL (optional override)
-  MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC_AUTH_URL (optional override)
-  MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC_EXCHANGE_URL (optional override)
-  MOSIP_P12_PATH (required for MOSIP auth)
-  MOSIP_P12_PASSWORD (required for MOSIP auth)
+  MOSIP_ESIGNET_AUTHN_PROVIDER=${MOSIP_ESIGNET_AUTHN_PROVIDER:-} (mosip|sunbird|mock, default mosip)
 
 EOF
 }

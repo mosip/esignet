@@ -82,8 +82,16 @@ type Config struct {
 	// Env: KEYMANAGER_ASYMMETRIC_KEY_LENGTH — default 2048
 	AsymmetricKeyLength int
 
-	// KeyCacheExpiry controls how long a "current key" lookup is cached
-	// before being re-checked against the DB.
+	// KeyCacheExpiry bounds how long GetSigningCertificate/ResolveCurrentKey/
+	// ResolveCurrentSymmetricKey cache their resolved "current key" for an
+	// (appID, refID) — see each method's doc comment and cache.go — before
+	// re-resolving fresh against the DB/keystore. A cache entry is also
+	// invalidated immediately, on the pod that made the write, by
+	// RevokeKey/UploadCertificate/key generation-or-rotation/
+	// GenerateSymmetricKey; this TTL is the backstop bounding staleness
+	// everywhere else (a different pod's cache, or this pod's cache for a
+	// key rotated by another pod's DB write). <= 0 disables caching
+	// entirely — every call resolves fresh, as before this existed.
 	// Env: KEYMANAGER_KEY_CACHE_EXPIRE_MINS — default 1440 (24h)
 	KeyCacheExpiry time.Duration
 

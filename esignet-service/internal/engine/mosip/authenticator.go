@@ -25,6 +25,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -57,6 +58,11 @@ const (
 	// PS256 that signature.AlgorithmForRefID would otherwise default an
 	// RSA_2048 key to.
 	mosipRequestSignAlgorithm = "RS256"
+
+	// idaPartnerCertExpiryBuffer is how far ahead of its NotAfter a cached
+	// IDA partner certificate is treated as expired, so a refetch has time
+	// to land before IDA actually rejects encryption under the old cert.
+	idaPartnerCertExpiryBuffer = 5 * time.Minute
 )
 
 type mosipAuthnProvider struct {
@@ -66,6 +72,12 @@ type mosipAuthnProvider struct {
 	svc       *keymanager.Service
 	sigSvc    *signature.Service
 	cfg       Config
+
+	// certMu guards cachedCert, the last IDA partner certificate fetched by
+	// fetchIDAPartnerCertificate. Cached until it nears its own NotAfter, so
+	// Authenticate stops paying an HTTP round-trip per call.
+	certMu     sync.RWMutex
+	cachedCert *x509.Certificate
 }
 
 // NewMosipAuthnProvider creates a MOSIP providers.AuthnProviderManager with
@@ -192,37 +204,15 @@ func (p *mosipAuthnProvider) Authenticate(ctx context.Context, identifiers, cred
 		applog.GetLogger().Error(ctx, "IDA partner certificate fetch failed", applog.Error(err))
 		return nil, shared.AuthenticationFailedError
 	}
-	encryptedSessionKey, err := AsymmetricEncrypt(generatedCert.PublicKey.(*rsa.PublicKey), symmetricKey)
-	if err != nil {
-		applog.GetLogger().Error(ctx, "Auth request session key encryption failed", applog.Error(err))
-		return nil, shared.AuthenticationFailedError
-	}
-	certThumbprint, err := GetCertificateThumbprint(generatedCert)
-	if err != nil {
-		applog.GetLogger().Error(ctx, "Auth request certificate thumbprint generation failed", applog.Error(err))
-		return nil, shared.AuthenticationFailedError
-	}
 
-	idaKycAuthRequest.RequestSessionKey = B64EncodeBytes(encryptedSessionKey)
-	idaKycAuthRequest.Request = B64EncodeBytes(encryptedRequest)
-	idaKycAuthRequest.RequestHMAC = B64EncodeBytes(encryptedRequestHash)
-	idaKycAuthRequest.Thumbprint = B64EncodeBytes(certThumbprint)
-
-	requestBytes, err := json.Marshal(idaKycAuthRequest)
-	if err != nil {
-		applog.GetLogger().Error(ctx, "Auth request marshal failed", applog.Error(err))
-		return nil, shared.AuthenticationFailedError
-	}
-
-	requestSignature, err := p.getRequestSignature(ctx, requestBytes)
-	if err != nil {
-		applog.GetLogger().Error(ctx, "Auth request signature generation failed", applog.Error(err))
-		return nil, shared.AuthenticationFailedError
-	}
-
-	psut, kycToken, err := p.callKycAuthEndpoint(ctx, requestBytes, requestSignature, clientDtl.RpID, clientDtl.ClientID, claimsMetadataRequired)
-	if err != nil {
+	psut, kycToken, err := p.performKycAuth(ctx, idaKycAuthRequest, generatedCert, encryptedRequest, encryptedRequestHash,
+		symmetricKey, clientDtl.RpID, clientDtl.ClientID, claimsMetadataRequired)
+	if err != nil { // TODO check for specific error code returned from IDA
 		applog.GetLogger().Error(ctx, "KYC auth endpoint call failed", applog.Error(err))
+		// The cached certificate may be stale (e.g. IDA rotated it
+		// out-of-band); drop it so the next Authenticate call fetches a
+		// fresh one instead of repeatedly failing against the same cert.
+		p.invalidateCachedIDAPartnerCertificate(ctx)
 		return nil, shared.AuthenticationFailedError
 	}
 
@@ -496,7 +486,41 @@ func SymmetricEncrypt(plaintext []byte, key []byte) (encrypted []byte, err error
 	return ciphertext, nil
 }
 
+// fetchIDAPartnerCertificate returns the IDA partner encryption certificate,
+// serving it from cache while it remains valid.
 func (p *mosipAuthnProvider) fetchIDAPartnerCertificate(ctx context.Context) (*x509.Certificate, error) {
+	p.certMu.RLock()
+	cached := p.cachedCert
+	p.certMu.RUnlock()
+	if cached != nil && time.Now().Before(cached.NotAfter.Add(-idaPartnerCertExpiryBuffer)) {
+		return cached, nil
+	}
+
+	cert, err := p.doFetchIDAPartnerCertificate(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	p.certMu.Lock()
+	p.cachedCert = cert
+	p.certMu.Unlock()
+
+	return cert, nil
+}
+
+// invalidateCachedIDAPartnerCertificate drops the cached IDA partner
+// certificate, forcing the next fetchIDAPartnerCertificate call to fetch a
+// fresh one instead of reusing one IDA has just rejected.
+func (p *mosipAuthnProvider) invalidateCachedIDAPartnerCertificate(ctx context.Context) {
+	applog.GetLogger().Warn(ctx, "clearing cached IDA partner certificate after KYC auth rejection")
+	p.certMu.Lock()
+	p.cachedCert = nil
+	p.certMu.Unlock()
+}
+
+// doFetchIDAPartnerCertificate performs the actual HTTP GET + PEM/X.509
+// parse against p.cfg.IDAPartnerCertificateURL, unconditionally.
+func (p *mosipAuthnProvider) doFetchIDAPartnerCertificate(ctx context.Context) (*x509.Certificate, error) {
 	req, err := http.NewRequest(http.MethodGet, p.cfg.IDAPartnerCertificateURL, nil)
 	if err != nil {
 		return nil, err
@@ -694,6 +718,40 @@ func (p *mosipAuthnProvider) callSendOtpEndpoint(
 	// Take first error (common pattern)
 	firstErr := wrapper.Errors[0]
 	return nil, fmt.Errorf("%s: %s", firstErr.ErrorCode, firstErr.ErrorMessage)
+}
+
+// performKycAuth encrypts the session key and computes the thumbprint under
+// cert, finishes assembling idaKycAuthRequest, signs it, and sends it to the
+// KYC auth endpoint. Split out from Authenticate so the cached-certificate
+// rejection fallback can rebuild and resend the request under a freshly
+// fetched certificate without duplicating the assembly steps.
+func (p *mosipAuthnProvider) performKycAuth(ctx context.Context, idaKycAuthRequest *IdaKycAuthRequest, cert *x509.Certificate,
+	encryptedRequest, encryptedRequestHash, symmetricKey []byte, rpID, clientID string, claimsMetadataRequired bool) (string, string, error) {
+	encryptedSessionKey, err := AsymmetricEncrypt(cert.PublicKey.(*rsa.PublicKey), symmetricKey)
+	if err != nil {
+		return "", "", fmt.Errorf("session key encryption failed: %w", err)
+	}
+	certThumbprint, err := GetCertificateThumbprint(cert)
+	if err != nil {
+		return "", "", fmt.Errorf("certificate thumbprint generation failed: %w", err)
+	}
+
+	idaKycAuthRequest.RequestSessionKey = B64EncodeBytes(encryptedSessionKey)
+	idaKycAuthRequest.Request = B64EncodeBytes(encryptedRequest)
+	idaKycAuthRequest.RequestHMAC = B64EncodeBytes(encryptedRequestHash)
+	idaKycAuthRequest.Thumbprint = B64EncodeBytes(certThumbprint)
+
+	requestBytes, err := json.Marshal(idaKycAuthRequest)
+	if err != nil {
+		return "", "", fmt.Errorf("request marshal failed: %w", err)
+	}
+
+	requestSignature, err := p.getRequestSignature(ctx, requestBytes)
+	if err != nil {
+		return "", "", fmt.Errorf("request signature generation failed: %w", err)
+	}
+
+	return p.callKycAuthEndpoint(ctx, requestBytes, requestSignature, rpID, clientID, claimsMetadataRequired)
 }
 
 // PerformKycAuth sends the KYC auth request to IDA and processes the response

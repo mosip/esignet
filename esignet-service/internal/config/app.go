@@ -176,6 +176,8 @@ func LoadAppConfig() (*AppConfig, error) {
 	return &cfg, nil
 }
 
+func boolPtr(b bool) *bool { return &b }
+
 func applyDefaults(cfg *AppConfig) {
 	cfg.Identifier = envOrConfigOrDefault("NAMESPACE", cfg.Identifier, "esignet")
 	cfg.Port = envIntOrConfigOrDefault("PORT", cfg.Port, defaultPort)
@@ -261,8 +263,8 @@ func applyDefaults(cfg *AppConfig) {
 	cfg.OAuth.AllowedGrantTypes = []string{"authorization_code"}
 	cfg.OAuth.AllowedResponseTypes = []string{"code"}
 	cfg.OAuth.AllowWildcardRedirectURI = true
-	cfg.OAuth.TokenRevocation.Enabled = false
-	cfg.OAuth.Logout.Enabled = false
+	cfg.OAuth.TokenRevocation.Enabled = boolPtr(false)
+	cfg.OAuth.Logout.Enabled = boolPtr(false)
 	cfg.OAuth.DPoP.Leeway = envIntOrConfigOrDefault("MOSIP_ESIGNET_DPOP_LEEWAY", cfg.OAuth.DPoP.Leeway, 10)
 
 	if cfg.SecurityConfig.RequestTimeLeewaySecs <= 0 {
