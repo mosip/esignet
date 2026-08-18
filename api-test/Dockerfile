@@ -15,9 +15,16 @@
 FROM golang:1.26-bookworm AS builder
 WORKDIR /src
 
+# Module files first, so the dependency layers cache independently of any
+# source edit. Directory changes go through WORKDIR rather than `cd` inside a
+# RUN: Trivy flags the latter (DS-0013), and WORKDIR is what later layers inherit.
 COPY go.mod ./
 COPY api/go.mod api/go.sum ./api/
-RUN go mod download && cd api && go mod download
+RUN go mod download
+WORKDIR /src/api
+RUN go mod download
+
+WORKDIR /src
 
 COPY cmd ./cmd
 COPY internal ./internal
@@ -26,8 +33,12 @@ RUN mkdir -p /out/bin && \
     go build -trimpath -ldflags="-s -w" -o /out/bin/conformance ./cmd/conformance && \
     go build -trimpath -ldflags="-s -w" -o /out/bin/e2e ./cmd/e2e && \
     go build -trimpath -ldflags="-s -w" -o /out/bin/consolidate ./cmd/consolidate && \
-    go build -trimpath -ldflags="-s -w" -o /out/bin/cfg ./cmd/cfg && \
-    cd api && go test -c -trimpath -o /out/bin/api.test .
+    go build -trimpath -ldflags="-s -w" -o /out/bin/cfg ./cmd/cfg
+
+# Same stage, second module: `go test -c` produces a standalone godog binary
+# so the runtime image needs no Go toolchain. Both modules emit into /out/bin.
+WORKDIR /src/api
+RUN go test -c -trimpath -o /out/bin/api.test .
 
 FROM debian:bookworm-slim
 
