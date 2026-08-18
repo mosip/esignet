@@ -186,27 +186,7 @@ func main() {
 		}
 	}()
 
-	// Private metrics listener — not routed through the public ingress; only
-	// reachable within the cluster by Prometheus. Keeping it on a separate
-	// port means no authentication middleware is needed and no scrape traffic
-	// reaches the main application mux.
-	metricsMux := http.NewServeMux()
-	metricsMux.Handle("GET /metrics", metrics.Handler())
-	metricsAddr := fmt.Sprintf(":%d", appCfg.MetricsPort)
-	metricsSrv := &http.Server{
-		Addr:              metricsAddr,
-		Handler:           metricsMux,
-		ReadHeaderTimeout: 5 * time.Second,
-		ReadTimeout:       10 * time.Second,
-		WriteTimeout:      30 * time.Second,
-		IdleTimeout:       120 * time.Second,
-	}
-	go func() {
-		logger.Info(context.Background(), "metrics listener", applog.String("addr", metricsAddr))
-		if err := metricsSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			logger.Fatal("metrics server", applog.Error(err))
-		}
-	}()
+	metricsSrv := startMetricsServer(appCfg, logger)
 
 	// Block until an orchestrator (Docker/Kubernetes) asks us to stop, then
 	// shut the HTTP server down gracefully — letting in-flight requests
@@ -229,6 +209,31 @@ func main() {
 		logger.Warn(context.Background(), "metrics server graceful shutdown timed out, closing forcibly", applog.Error(err))
 		_ = metricsSrv.Close()
 	}
+}
+
+// startMetricsServer starts a private metrics listener — not routed through
+// the public ingress; only reachable within the cluster by Prometheus.
+// Keeping it on a separate port means no authentication middleware is needed
+// and no scrape traffic reaches the main application mux.
+func startMetricsServer(appCfg *config.AppConfig, logger *applog.Logger) *http.Server {
+	metricsMux := http.NewServeMux()
+	metricsMux.Handle("GET /metrics", metrics.Handler())
+	metricsAddr := fmt.Sprintf(":%d", appCfg.MetricsPort)
+	metricsSrv := &http.Server{
+		Addr:              metricsAddr,
+		Handler:           metricsMux,
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       10 * time.Second,
+		WriteTimeout:      30 * time.Second,
+		IdleTimeout:       120 * time.Second,
+	}
+	go func() {
+		logger.Info(context.Background(), "metrics listener", applog.String("addr", metricsAddr))
+		if err := metricsSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			logger.Fatal("metrics server", applog.Error(err))
+		}
+	}()
+	return metricsSrv
 }
 
 func getAppConfig() (*config.AppConfig, error) {

@@ -207,7 +207,7 @@ func (p *mosipAuthnProvider) Authenticate(ctx context.Context, identifiers, cred
 
 	psut, kycToken, err := p.performKycAuth(ctx, idaKycAuthRequest, generatedCert, encryptedRequest, encryptedRequestHash,
 		symmetricKey, clientDtl.RpID, clientDtl.ClientID, claimsMetadataRequired)
-	if err != nil {
+	if err != nil { // TODO check for specific error code returned from IDA
 		applog.GetLogger().Error(ctx, "KYC auth endpoint call failed", applog.Error(err))
 		// The cached certificate may be stale (e.g. IDA rotated it
 		// out-of-band); drop it so the next Authenticate call fetches a

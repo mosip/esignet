@@ -140,3 +140,34 @@ func TestTTLCache_GetOrLoad_ConcurrentMissesCollapseIntoOneLoad(t *testing.T) {
 		require.Equal(t, "fresh", v)
 	}
 }
+
+func TestTTLCache_GetOrLoad_InvalidateDuringLoadIsNotOverwritten(t *testing.T) {
+	c := newTTLCache[string]()
+	loadStarted := make(chan struct{})
+	release := make(chan struct{})
+	load := func() (string, time.Time, error) {
+		close(loadStarted)
+		<-release // simulate a slow DB/keystore call the invalidate races against
+		return "stale-pre-revocation-value", time.Now().UTC().Add(time.Hour), nil
+	}
+
+	var wg sync.WaitGroup
+	wg.Add(1)
+	var loadedValue string
+	go func() {
+		defer wg.Done()
+		v, err := c.getOrLoad("k", load)
+		require.NoError(t, err)
+		loadedValue = v
+	}()
+
+	<-loadStarted     // load is now in flight, holding data read before the invalidate below
+	c.invalidate("k") // e.g. RevokeKey committing and invalidating concurrently
+	close(release)    // let the in-flight load finish and attempt to cache its (now-stale) result
+	wg.Wait()
+
+	require.Equal(t, "stale-pre-revocation-value", loadedValue, "the in-flight caller still gets its own load's result")
+
+	_, ok := c.get("k")
+	require.False(t, ok, "a load that started before invalidate() must not repopulate the cache after it — doing so would resurrect the invalidated (e.g. revoked) value")
+}

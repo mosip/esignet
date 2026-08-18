@@ -18,6 +18,13 @@ type ttlCache[V any] struct {
 	mu      sync.RWMutex
 	entries map[string]ttlCacheEntry[V]
 	sf      singleflight.Group
+	// epoch is bumped by every invalidate() call. getOrLoad captures it
+	// before starting a load and re-checks it before writing the loaded
+	// value back, so an invalidate() that lands while a load is in flight
+	// (e.g. RevokeKey racing a concurrent GetSigningCertificate resolving
+	// the about-to-be-revoked key) isn't clobbered by that load's stale
+	// result — see getOrLoad.
+	epoch uint64
 }
 
 type ttlCacheEntry[V any] struct {
@@ -47,16 +54,19 @@ func (c *ttlCache[V]) set(key string, value V, expiresAt time.Time) {
 	c.mu.Unlock()
 }
 
-// invalidate removes key, if present. Called by every write path that
-// changes what "current" resolves to for a given (appID, refID): key
-// generation/rotation (ensureCurrentKey), RevokeKey, UploadCertificate, and
-// GenerateSymmetricKey — see invalidateCurrentKeyCaches (service.go). These
-// caches are in-process only, so invalidation here only ever affects the pod
-// that made the write; KeyCacheExpiry is the backstop bounding how stale
-// another pod's cache entry can be.
+// invalidate removes key, if present, and bumps epoch so any load() already
+// in flight for this key (started before the invalidation but finishing
+// after it) skips writing its now-stale result back — see getOrLoad. Called
+// by every write path that changes what "current" resolves to for a given
+// (appID, refID): key generation/rotation (ensureCurrentKey), RevokeKey,
+// UploadCertificate, and GenerateSymmetricKey — see invalidateCurrentKeyCaches
+// (service.go). These caches are in-process only, so invalidation here only
+// ever affects the pod that made the write; KeyCacheExpiry is the backstop
+// bounding how stale another pod's cache entry can be.
 func (c *ttlCache[V]) invalidate(key string) {
 	c.mu.Lock()
 	delete(c.entries, key)
+	c.epoch++
 	c.mu.Unlock()
 }
 
@@ -66,6 +76,12 @@ func (c *ttlCache[V]) invalidate(key string) {
 // right after invalidate, or at process start) doesn't fan out into
 // redundant DB/keystore work. load returns the value together with its
 // absolute expiry time.
+//
+// If invalidate(key) runs while load is in flight, the loaded value is
+// still returned to this call's caller but is not written back to the
+// cache — it was resolved from data that may predate the invalidation
+// (e.g. RevokeKey racing a concurrent load that read the key before it was
+// revoked), so caching it would silently undo the invalidation.
 func (c *ttlCache[V]) getOrLoad(key string, load func() (V, time.Time, error)) (V, error) {
 	if v, ok := c.get(key); ok {
 		return v, nil
@@ -77,11 +93,19 @@ func (c *ttlCache[V]) getOrLoad(key string, load func() (V, time.Time, error)) (
 		if v, ok := c.get(key); ok {
 			return v, nil
 		}
+		c.mu.RLock()
+		startEpoch := c.epoch
+		c.mu.RUnlock()
+
 		v, expiresAt, err := load()
 		if err != nil {
 			return nil, err
 		}
-		c.set(key, v, expiresAt)
+		c.mu.Lock()
+		if c.epoch == startEpoch {
+			c.entries[key] = ttlCacheEntry[V]{value: v, expiresAt: expiresAt}
+		}
+		c.mu.Unlock()
 		return v, nil
 	})
 	if err != nil {
