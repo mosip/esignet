@@ -91,8 +91,7 @@ function installing_esignet_with_plugins() {
     pkcs12_env_file=$(mktemp)
     cat <<EOF > "$pkcs12_env_file"
 extraEnvVarsAdditional:
-  - name: MOSIP_KERNEL_KEYMANAGER_HSM_KEYSTORE-TYPE
-    value: "PKCS12"
+  MOSIP_KERNEL_KEYMANAGER_HSM_KEYSTORE-TYPE: "PKCS12"
 EOF
 
     PVC_CLAIM_NAME='esignet-pkcs12'
@@ -154,10 +153,10 @@ EOF
           read -p "Default (${urls[$key]}) - Provide custom value (if applicable) to override the default url: " user_input
         fi
         value="${user_input:-${urls[$key]}}"
-        extra_env_vars_additional+="  - name: \"$key\""$'\n'"    value: \"$value\""$'\n'
+        extra_env_vars_additional+="  \"$key\": \"$value\""$'\n'
       done
       # MOSIP_LICENSE_KEY references the existing esignet-misp-onboarder-key secret
-      extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_MISP_KEY\""$'\n'
+      extra_env_vars_additional+="  MOSIP_ESIGNET_MISP_KEY:"$'\n'
       extra_env_vars_additional+="    valueFrom:"$'\n'
       extra_env_vars_additional+="      secretKeyRef:"$'\n'
       extra_env_vars_additional+="        name: esignet-misp-onboarder-key"$'\n'
@@ -167,12 +166,12 @@ EOF
     elif [[ "$plugin_no" == "3" ]]; then
       plugin_name="sunbird-rc-plugin"
       read -p "Provide the URL for Sunbird registry: " sunbird_registry_url
-      extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_REGISTRY_GET_URL\""$'\n'"    value: \"$sunbird_registry_url\""$'\n'
-      extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_AUTH_FACTOR_KBI_REGISTRY_SEARCH_URL\""$'\n'"    value: \"$sunbird_registry_url/api/v1/Insurance/search\""$'\n'
-      extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_INTEGRATION_AUDIT_PLUGIN\""$'\n'"    value: \"LoggerAuditService\""$'\n'
-      extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_INTEGRATION_KEY_BINDER\""$'\n'"    value: \"NoOpKeyBinder\""$'\n'
-      extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_AUTHENTICATOR_DEFAULT_AUTH_FACTOR_KBI_INDIVIDUAL_ID_FIELD\""$'\n'"    value: \"\${mosip.esignet.authenticator.sunbird-rc.auth-factor.kbi.individual-id-field}\""$'\n'
-      extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_AUTHENTICATOR_DEFAULT_AUTH_FACTOR_KBI_FIELD_DETAILS\""$'\n'"    value: \"\${mosip.esignet.authenticator.sunbird-rc.auth-factor.kbi.field-details}\""$'\n'
+      extra_env_vars_additional+="  \"MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_REGISTRY_GET_URL\": \"$sunbird_registry_url\""$'\n'
+      extra_env_vars_additional+="  \"MOSIP_ESIGNET_AUTHENTICATOR_SUNBIRD_RC_AUTH_FACTOR_KBI_REGISTRY_SEARCH_URL\": \"$sunbird_registry_url/api/v1/Insurance/search\""$'\n'
+      extra_env_vars_additional+="  \"MOSIP_ESIGNET_INTEGRATION_AUDIT_PLUGIN\": \"LoggerAuditService\""$'\n'
+      extra_env_vars_additional+="  \"MOSIP_ESIGNET_INTEGRATION_KEY_BINDER\": \"NoOpKeyBinder\""$'\n'
+      extra_env_vars_additional+="  \"MOSIP_ESIGNET_AUTHENTICATOR_DEFAULT_AUTH_FACTOR_KBI_INDIVIDUAL_ID_FIELD\": \"\${mosip.esignet.authenticator.sunbird-rc.auth-factor.kbi.individual-id-field}\""$'\n'
+      extra_env_vars_additional+="  \"MOSIP_ESIGNET_AUTHENTICATOR_DEFAULT_AUTH_FACTOR_KBI_FIELD_DETAILS\": \"\${mosip.esignet.authenticator.sunbird-rc.auth-factor.kbi.field-details}\""$'\n'
       break
     else
       echo "Please provide the correct plugin number (1, 2, or 3)."
@@ -181,16 +180,14 @@ EOF
   done
 
   if kubectl get secret esignet-captcha -n "$NS" &>/dev/null; then
-    extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_CAPTCHA_SITE_KEY\""$'\n'
+    extra_env_vars_additional+="  MOSIP_ESIGNET_CAPTCHA_SITE_KEY:"$'\n'
     extra_env_vars_additional+="    valueFrom:"$'\n'
     extra_env_vars_additional+="      secretKeyRef:"$'\n'
     extra_env_vars_additional+="        name: esignet-captcha"$'\n'
     extra_env_vars_additional+="        key: esignet-captcha-site-key"$'\n'
   else
-    extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_CAPTCHA_REQUIRED\""$'\n'
-    extra_env_vars_additional+="    value: \"\""$'\n'
-    extra_env_vars_additional+="  - name: \"MOSIP_ESIGNET_CAPTCHA_SITE-KEY\""$'\n'
-    extra_env_vars_additional+="    value: \"\""$'\n'
+    extra_env_vars_additional+="  MOSIP_ESIGNET_CAPTCHA_REQUIRED: \"\""$'\n'
+    extra_env_vars_additional+="  \"MOSIP_ESIGNET_CAPTCHA_SITE-KEY\": \"\""$'\n'
   fi
 
 

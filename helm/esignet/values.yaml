@@ -234,132 +234,124 @@ customReadinessProbe: {}
 updateStrategy:
   type: RollingUpdate
 
-## Additional environment variables to set
+## Additional environment variables to set, keyed by env var name.
 ## Example:
 ## extraEnvVars:
-##   - name: FOO
-##     value: "bar"
+##   FOO: "bar"
+##   BAZ:
+##     valueFrom:
+##       configMapKeyRef:
+##         name: some-configmap
+##         key: some-key
 ##
 
-extraEnvVars: |
-  - name: KEYCLOAK_EXTERNAL_URL
+extraEnvVars:
+  KEYCLOAK_EXTERNAL_URL:
     valueFrom:
       configMapKeyRef:
         name: keycloak-host
         key: keycloak-external-url
-  - name: MOSIP_ESIGNET_AUTHN_PROVIDER
-    value: mosip
-  - name: MOSIP_API_INTERNAL_HOST
+  MOSIP_ESIGNET_AUTHN_PROVIDER: mosip
+  MOSIP_API_INTERNAL_HOST:
     valueFrom:
       configMapKeyRef:
         name: esignet-global
         key: mosip-api-internal-host
-  - name: MOSIP_ESIGNET_OIDC_UI_SCHEME
-    value: https
-  - name: MOSIP_ESIGNET_OIDC_UI_HOSTNAME
+  MOSIP_ESIGNET_OIDC_UI_SCHEME: https
+  MOSIP_ESIGNET_OIDC_UI_HOSTNAME:
     valueFrom:
       configMapKeyRef:
         name: esignet-global
         key: mosip-esignet-host
-  - name: MOSIP_ESIGNET_OIDC_UI_PORT
-    value: '443'
-  - name: MOSIP_ESIGNET_OIDC_UI_LOGIN_PATH
-    value: /signin
-  - name: MOSIP_ESIGNET_OIDC_UI_ERROR_PATH
-    value: /error
-  - name: KEYMANAGER_DB_SCHEMA
-    value: esignet
-  - name: KEYMANAGER_KEYSTORE_TYPE
-    value: PKCS11
-  - name: KEYMANAGER_PKCS11_MODULE_PATH
-    value: /usr/local/lib/softhsm/libpkcs11-proxy.so
-  - name: KEYMANAGER_PKCS11_TOKEN_LABEL
-    value: pkcs11-proxy
-  - name: KEYMANAGER_PKCS11_SLOT_ID
-    value: "0"
-  - name: KEYMANAGER_PKCS11_PIN
+  MOSIP_ESIGNET_OIDC_UI_PORT: '443'
+  MOSIP_ESIGNET_OIDC_UI_LOGIN_PATH: /signin
+  MOSIP_ESIGNET_OIDC_UI_ERROR_PATH: /error
+  KEYMANAGER_DB_SCHEMA: esignet
+  KEYMANAGER_KEYSTORE_TYPE: PKCS11
+  KEYMANAGER_PKCS11_MODULE_PATH: /usr/local/lib/softhsm/libpkcs11-proxy.so
+  KEYMANAGER_PKCS11_TOKEN_LABEL: pkcs11-proxy
+  KEYMANAGER_PKCS11_SLOT_ID: "0"
+  KEYMANAGER_PKCS11_PIN:
     valueFrom:
       secretKeyRef:
         name: esignet-softhsm
         key: security-pin
-  # PKCS12 (file-based) alternative to the PKCS11 block above; requires a CGO_ENABLED=0 build.
-  #  - name: KEYMANAGER_KEYSTORE_TYPE
-  #    value: PKCS12
-  #  - name: KEYMANAGER_PKCS12_FILE_PATH
-  #    value: /home/mosip/keys/secret/esignet.pfx
-  #  - name: KEYMANAGER_PKCS12_PASSWORD
-  #    valueFrom:
-  #      secretKeyRef:
-  #        name: esignet-keymanager
-  #        key: pkcs12-password
-  - name: REDIS_HOST
+  # PKCS12 (file-based) alternative to the PKCS11 keys above; requires a CGO_ENABLED=0 build.
+  # KEYMANAGER_KEYSTORE_TYPE: PKCS12
+  # KEYMANAGER_PKCS12_FILE_PATH: /home/mosip/keys/secret/esignet.pfx
+  # KEYMANAGER_PKCS12_PASSWORD:
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: esignet-keymanager
+  #       key: pkcs12-password
+  REDIS_HOST:
     valueFrom:
       configMapKeyRef:
         name: redis-config
         key: redis-host
-  - name: REDIS_PORT
+  REDIS_PORT:
     valueFrom:
       configMapKeyRef:
         name: redis-config
         key: redis-port
-  - name: REDIS_PASSWORD
+  REDIS_PASSWORD:
     valueFrom:
       secretKeyRef:
         name: redis
         key: redis-password
-  - name: DATABASE_HOST
+  DATABASE_HOST:
     valueFrom:
       configMapKeyRef:
         name: postgres-config
         key: database-host
-  - name: DATABASE_PORT
+  DATABASE_PORT:
     valueFrom:
       configMapKeyRef:
         name: postgres-config
         key: database-port
-  - name: DATABASE_NAME
+  DATABASE_NAME:
     valueFrom:
       configMapKeyRef:
         name: postgres-config
         key: database-name
-  - name: DATABASE_USERNAME
+  DATABASE_USERNAME:
     valueFrom:
       configMapKeyRef:
         name: postgres-config
         key: database-username
-  - name: DB_DBUSER_PASSWORD
+  DB_DBUSER_PASSWORD:
     valueFrom:
       secretKeyRef:
         name: db-common-secrets
         key: db-dbuser-password
-  - name: SOFTHSM_ESIGNET_SECURITY_PIN
+  SOFTHSM_ESIGNET_SECURITY_PIN:
     valueFrom:
       secretKeyRef:
         name: esignet-softhsm
         key: security-pin
-  - name: MOSIP_ESIGNET_HOST
+  MOSIP_ESIGNET_HOST:
     valueFrom:
       configMapKeyRef:
         name: esignet-global
         key: mosip-esignet-host
-  - name: MOSIP_SIGNUP_HOST
+  MOSIP_SIGNUP_HOST:
     valueFrom:
       configMapKeyRef:
         name: esignet-global
         key: mosip-signup-host
-  - name: MOSIP_IDA_CLIENT_SECRET
+  MOSIP_IDA_CLIENT_SECRET:
     valueFrom:
       secretKeyRef:
         name: keycloak-client-secrets
         key: mosip_ida_client_secret
 
-#  - name: MOSIP_ESIGNET_MISP_KEY
-#    valueFrom:
-#      secretKeyRef:
-#        name: esignet-misp-onboarder-key
-#        key: mosip-esignet-misp-key
+  # MOSIP_ESIGNET_MISP_KEY:
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: esignet-misp-onboarder-key
+  #       key: mosip-esignet-misp-key
 
-extraEnvVarsAdditional: []
+extraEnvVarsAdditional: {}
 
 ## ConfigMap with extra environment variables that used
 ##
