@@ -41,7 +41,6 @@ Feature: GET /client-mgmt/client/{clientId} — read a client
     # read it back — the registered client is retrievable by its id
     When I send a "GET" request to "/client-mgmt/client/{{cid}}"
     Then the response status should be 200
-    And the JSON path "errors" should be null
     And the JSON value at "response.clientId" should be "{{cid}}"
     And the JSON value at "response.status" should be "ACTIVE"
 

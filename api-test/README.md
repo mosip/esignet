@@ -260,6 +260,10 @@ docker compose run --rm harness -c /app/config.json --check   # dry run
 docker compose up --build --abort-on-container-exit --exit-code-from harness
 ```
 
+> **On Git Bash (Windows)**, prefix these with `MSYS_NO_PATHCONV=1`. MSYS rewrites the
+> container-side `/app/config.json` into a Windows path before Docker sees it, and the run fails
+> with `config file not found: C:/Program Files/Git/app/config.json`.
+
 The report appears in `./out` on the host. `docker compose down -v` tears everything down.
 
 Compose does **not** start eSignet itself — point `ESIGNET_BASE_URL` at a deployed environment, or
@@ -269,10 +273,18 @@ at `http://host.docker.internal:8080` for one running on your own machine.
 |---|---|
 | `CONFIG_FILE` | Which plugin config is mounted (default `data/config/config.mock.json`) |
 | `ESIGNET_BASE_URL` | The deployment under test |
-| `KEYCLOAK_CLIENT_SECRET`, `INDIVIDUAL_ID` | Secret and identity escape hatches |
+| `KEYCLOAK_TOKEN_URL`, `KEYCLOAK_CLIENT_SECRET` | Admin credentials |
+| `INDIVIDUAL_ID`, `FLOW_CLIENT_ID` | Test identity and the pre-registered client for authorize validation |
 | `SURFACES`, `TEST_PROFILE` | Narrow the run without editing a config |
+| `ESIGNET_TLS_VERIFY`, `API_TLS_VERIFY` | Certificate verification for the deployment under test — on unless set `false` |
+| `CONFORMANCE_BASE_URL`, `CONFORMANCE_TLS_VERIFY` | The suite; compose defaults these to the bundled one |
 | `SUITE_IMAGE_TAG` | Conformance suite image version |
 | `SUITE_WAIT_SECONDS` | How long to wait for the suite to boot (default 150s under compose) |
+
+`CONFIG_FILE` and `SUITE_IMAGE_TAG` are read by Compose itself, to pick the bind-mount source and
+the image tag. The rest are passed into the container, and **only** variables listed in the
+`harness` service's `environment:` block are — so anything not above has to be added there before
+`.env` can reach the harness.
 
 > **An empty value in `.env` is not "unset".** `KEYCLOAK_CLIENT_SECRET=` reaches the container as
 > an empty string and *overrides* your config file, blanking the secret. To fall back to the config

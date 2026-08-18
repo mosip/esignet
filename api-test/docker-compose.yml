@@ -127,7 +127,11 @@ services:
       # read and blocks creating the real file afterward. Run
       # `cp data/config/config.local.example.json data/config/config.local.json`
       # (or `touch` it) first.
-      - ./data/config/config.local.json:/app/data/config/config.local.json:ro
+      # Target is /app/config.local.json, NOT the data/config/ path it has on the
+      # host: the overlay is looked up beside the SELECTED config, and the config
+      # above is mounted at /app/config.json. Mounting it under data/config/ here
+      # would leave it unread and silently drop every credential in it.
+      - ./data/config/config.local.json:/app/config.local.json:ro
     extra_hosts:
       # Lets ESIGNET_BASE_URL=http://host.docker.internal:<port> reach a
       # self-managed eSignet running on the host (e.g. `make.sh run` in

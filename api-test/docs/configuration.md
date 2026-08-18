@@ -41,7 +41,7 @@ what "passing" means.
 | `plans[]` | `conformance` | One entry per plan: `name`, `variant`, `config_file`, plus optional `profile`/`modules`/`filter`/`skip`/`known_issues` — see [Conformance suite setup](conformance-suite.md#running-several-plans) |
 | `api` | `api` | `tags` (Gherkin expression, comma = OR), `flow_client_id`, `tls_verify` |
 | `e2e` | `e2e` | `spec`, `auth_factors`, `include`, `exclude` — see [e2e scenario model](e2e-scenarios.md) |
-| `run` | all | `surfaces`, `profile`, `modules`, `filter`, `skip`, `known_issues`, `report_dir`, `debug_show_secrets`, timeouts |
+| `run` | all | `surfaces`, `profile`, `modules`, `filter`, `skip`, `known_issues`, `report_dir`, `debug_show_secrets`, `fail_fast`, `timeout_seconds`, `poll_interval_seconds` |
 
 ### `esignet`
 
@@ -123,6 +123,20 @@ override**, so a container needing to change those must mount the config file it
 > override whenever the variable is defined, empty included, so `KEYCLOAK_CLIENT_SECRET=` blanks
 > whatever your config file supplies. To fall back to the files, leave the variable **undefined** —
 > in a `.env`, that means commenting the line out rather than setting it to `""`.
+
+### Path and diagnostic variables
+
+These are not config overrides — they point the harness at files, or turn on output.
+
+| Variable | Effect |
+|---|---|
+| `BIN_DIR` | Directory of prebuilt binaries. Set by the image; unset means run from source |
+| `API_FEATURES_DIR` | The Gherkin tree. Defaults to `data/features` under the harness root; `run-all.sh` exports it, and the image overrides it |
+| `SUITE_WAIT_SECONDS` | How long `run-all.sh` polls the suite's readiness endpoint (default 90; 0 disables) |
+| `ESIGNET_DEBUG` | Stream each `/flow/execute` request and response to stderr |
+| `WSOTP_DEBUG` | Print the first few raw OTP WebSocket frames |
+
+### Plan-config path variables
 
 `PLAN_NAME` / `PLAN_CONFIG_PATH` without an index address a **single-plan** config. With several
 plans configured they are rejected rather than guessed at — applying one mounted `config_file` to

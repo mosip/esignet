@@ -143,6 +143,12 @@ mkdir -p "$OUT_DIR" || { echo "cannot create report dir $OUT_DIR" >&2; exit 2; }
 OUT_ABS="$(cd "$OUT_DIR" && pwd)"
 export API_ENVELOPE_OUT="$OUT_ABS/api-envelope.json"
 
+# The feature files live in the shared data/ tree rather than inside the api
+# module, so the surface has to be told where they are. Absolute, so it resolves
+# the same whether the module runs from source (cwd=api/) or as the prebuilt
+# binary (cwd=harness root). The image exports its own value; honour it.
+export API_FEATURES_DIR="${API_FEATURES_DIR:-$PWD/data/features}"
+
 # Clear the envelopes this run is about to produce. The consolidate step below
 # decides a surface ran by testing -f on its envelope, so a surface that dies
 # before writing one (build error, panic, missing env) would otherwise leave the

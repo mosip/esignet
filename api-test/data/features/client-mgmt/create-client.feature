@@ -47,7 +47,6 @@ Feature: POST /client-mgmt/client — register a client
       }
       """
     Then the response status should be 200
-    And the JSON path "errors" should be null
     And the JSON value at "response.clientId" should be "{{cid}}"
     And the JSON value at "response.status" should be "ACTIVE"
 

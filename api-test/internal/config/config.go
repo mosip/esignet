@@ -237,6 +237,27 @@ func ResolvePath(flagVal string, flagExplicit bool) (path string, mustExist bool
 	return flagVal, false
 }
 
+// legacyKeyRenames maps config keys this harness used to accept to their current
+// names. json.Unmarshal ignores unknown keys, so without this an overlay still
+// carrying the old name loses that whole block in silence — and api.tls_verify
+// defaults back to true, which fails closed against a self-signed deployment and
+// reads as a certificate problem rather than a stale config.
+var legacyKeyRenames = map[string]string{"bdd": "api"}
+
+// rejectLegacyKeys reports a config still using a pre-rename top-level key.
+func rejectLegacyKeys(path string, data []byte) error {
+	var top map[string]json.RawMessage
+	if err := json.Unmarshal(data, &top); err != nil {
+		return nil // malformed JSON is reported by the real decode
+	}
+	for old, current := range legacyKeyRenames {
+		if _, ok := top[old]; ok {
+			return fmt.Errorf("%s uses the old %q block — rename it to %q (the surface was renamed; see the README)", path, old, current)
+		}
+	}
+	return nil
+}
+
 // Load reads the plugin config, overlays config.local.json and the environment, defaults, and validates.
 func Load(path string, mustExist bool) (*Config, error) {
 	// Fail closed: TLS verification stays on unless a file or env explicitly disables it.
@@ -313,6 +334,9 @@ func (c *Config) mergeFile(path string) (bool, error) {
 	}
 	if err != nil {
 		return false, fmt.Errorf("read %s: %w", path, err)
+	}
+	if err := rejectLegacyKeys(path, data); err != nil {
+		return false, err
 	}
 	if err := json.Unmarshal(data, c); err != nil {
 		return false, fmt.Errorf("parse %s: %w", path, err)

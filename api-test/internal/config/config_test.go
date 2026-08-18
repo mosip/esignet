@@ -650,3 +650,47 @@ func TestSparseIndexedPlanEnvIsRejected(t *testing.T) {
 		}
 	}
 }
+
+// A config still using the pre-rename "bdd" block must be rejected, not silently
+// dropped: json.Unmarshal ignores unknown keys, so the whole block — including
+// tls_verify:false — would vanish and api.tls_verify would default back to true.
+func TestLoadRejectsLegacyBDDBlock(t *testing.T) {
+	dir := t.TempDir()
+	cfg := filepath.Join(dir, "config.json")
+	body := `{"esignet":{"provider":"mock","base_url":"https://e.example"},` +
+		`"bdd":{"flow_client_id":"c1","tls_verify":false},` +
+		`"run":{"surfaces":["api"]}}`
+	if err := os.WriteFile(cfg, []byte(body), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	_, err := Load(cfg, true)
+	if err == nil {
+		t.Fatal("expected an error naming the renamed block, got nil")
+	}
+	for _, want := range []string{"bdd", "api"} {
+		if !strings.Contains(err.Error(), want) {
+			t.Errorf("error should name %q so the fix is obvious; got: %v", want, err)
+		}
+	}
+}
+
+// The current name must still load, so the rejection above cannot be overbroad.
+func TestLoadAcceptsAPIBlock(t *testing.T) {
+	dir := t.TempDir()
+	cfg := filepath.Join(dir, "config.json")
+	body := `{"esignet":{"provider":"mock","base_url":"https://e.example"},` +
+		`"api":{"flow_client_id":"c1","tls_verify":false},` +
+		`"run":{"surfaces":["api"]}}`
+	if err := os.WriteFile(cfg, []byte(body), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	c, err := Load(cfg, true)
+	if err != nil {
+		t.Fatalf("load: %v", err)
+	}
+	if c.API.FlowClientID != "c1" || c.API.TLSVerify {
+		t.Errorf("api block not applied: flow_client_id=%q tls_verify=%v", c.API.FlowClientID, c.API.TLSVerify)
+	}
+}

@@ -17,6 +17,15 @@ func TestFeatures(t *testing.T) {
 		t.Skip("ESIGNET_BASE_URL not set — skipping api surfaces")
 	}
 
+	// A missing features tree is a setup error, not an empty test run: godog
+	// reports "0 scenarios" for it, suite.Run's status is intentionally
+	// discarded below, and the envelope would then be written empty — passing
+	// run-all.sh's exists-check and consolidating to a green report with no api
+	// rows at all. Fail here instead, naming the path that was not found.
+	if dir := featuresDir(); !isDir(dir) {
+		t.Fatalf("features directory %q not found (set API_FEATURES_DIR to the data/features tree)", dir)
+	}
+
 	coll := &Collector{}
 	tags := os.Getenv("GODOG_TAGS")
 	if tags == "" {
@@ -102,6 +111,12 @@ func featuresDir() string {
 		return d
 	}
 	return filepath.Join("..", "data", "features")
+}
+
+// isDir reports whether path exists and is a directory.
+func isDir(path string) bool {
+	st, err := os.Stat(path)
+	return err == nil && st.IsDir()
 }
 
 // writeEnvelope persists the collected rows for the consolidation runner.

@@ -36,6 +36,8 @@ Its detail line names the setting to supply.
 
 | Symptom | Likely cause |
 |---|---|
+| `… uses the old "bdd" block — rename it to "api"` | The surface was renamed. Rename the block in your config; the harness rejects the old name rather than dropping it in silence, which would also reset `tls_verify` to `true` |
+| `features directory … not found` | The Gherkin tree could not be located. Run from the harness root, or set `API_FEATURES_DIR` |
 | `config file not found: …` | A config named with `-c` must exist. There is no silent fallback — otherwise a typo would run `mock` while you believed `mosip` ran, and the green report would be read as `mosip` passing. |
 | Client-management cases report as not run | `keycloak.token_url` / `client_id` / `client_secret` unset, so no admin token can be obtained |
 | Authorize-validation cases report as not run | `api.flow_client_id` unset — those cases need a pre-registered client to drive |
