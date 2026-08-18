@@ -248,7 +248,7 @@ func startMetricsServer(pgConn *sql.DB, redisClient *redis.Client, appCfg *confi
 }
 
 func startDebugServer(appCfg *config.AppConfig, logger *applog.Logger) {
-	addr := fmt.Sprintf(":%d", appCfg.PProfConfig.Port)
+	addr := fmt.Sprintf("127.0.0.1:%d", appCfg.PProfConfig.Port)
 	logger.Info(context.Background(), "starting debug pprof server", applog.String("addr", addr))
 	if err := http.ListenAndServe(addr, newDebugMux()); err != nil {
 		logger.Warn(context.Background(), "debug pprof server stopped", applog.Error(err))

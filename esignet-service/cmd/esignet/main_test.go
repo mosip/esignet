@@ -8,6 +8,9 @@ package main
 
 import (
 	"context"
+	"database/sql"
+	"database/sql/driver"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -15,6 +18,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
@@ -22,6 +26,28 @@ import (
 	applog "github.com/mosip/esignet/internal/log"
 	"github.com/mosip/esignet/internal/metrics"
 )
+
+// fakeDriver is a minimal database/sql driver that never actually connects.
+// sql.Open() only registers a name/dsn pair lazily, so this is enough to
+// exercise startMetricsServer's metrics.RegisterDBStats wiring without a
+// real database.
+type fakeDriver struct{}
+
+func (fakeDriver) Open(_ string) (driver.Conn, error) {
+	return nil, errors.New("fakeDriver: connections are not supported")
+}
+
+func init() {
+	sql.Register("esignet-cmd-fake-driver", fakeDriver{})
+}
+
+func freePort(t *testing.T) int {
+	t.Helper()
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	require.NoError(t, err)
+	defer func() { _ = ln.Close() }()
+	return ln.Addr().(*net.TCPAddr).Port
+}
 
 func testHTTPClientConfig() config.HTTPClientConfig {
 	return config.HTTPClientConfig{
@@ -137,6 +163,55 @@ func (ts *MainTestSuite) TestScopeEnforcementEnabled() {
 		SecurityConfig: config.SecurityConfig{IssuerURL: "https://issuer"},
 	}))
 	require.False(ts.T(), scopeEnforcementEnabled(&config.AppConfig{}))
+}
+
+func (ts *MainTestSuite) TestStartMetricsServer() {
+	t := ts.T()
+
+	db, err := sql.Open("esignet-cmd-fake-driver", "unused-dsn")
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = db.Close() })
+
+	redisClient := redis.NewClient(&redis.Options{Addr: "127.0.0.1:0"})
+	t.Cleanup(func() { _ = redisClient.Close() })
+
+	port := freePort(t)
+	appCfg := &config.AppConfig{MetricsPort: port}
+
+	srv := startMetricsServer(db, redisClient, appCfg, applog.GetLogger())
+	require.Equal(t, fmt.Sprintf(":%d", port), srv.Addr)
+	t.Cleanup(func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+		_ = srv.Shutdown(ctx)
+	})
+
+	require.Eventually(t, func() bool {
+		resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%d/metrics", port))
+		if err != nil {
+			return false
+		}
+		defer func() { _ = resp.Body.Close() }()
+		return resp.StatusCode == http.StatusOK
+	}, 2*time.Second, 20*time.Millisecond, "metrics server did not become ready")
+}
+
+func (ts *MainTestSuite) TestStartDebugServer() {
+	t := ts.T()
+
+	port := freePort(t)
+	appCfg := &config.AppConfig{PProfConfig: config.PProfConfig{Enabled: true, Port: port}}
+
+	go startDebugServer(appCfg, applog.GetLogger())
+
+	require.Eventually(t, func() bool {
+		resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%d/debug/pprof/", port))
+		if err != nil {
+			return false
+		}
+		defer func() { _ = resp.Body.Close() }()
+		return resp.StatusCode == http.StatusOK
+	}, 2*time.Second, 20*time.Millisecond, "debug pprof server did not become ready")
 }
 
 func (ts *MainTestSuite) TestMetricsMuxRegistersMetricsRoute() {
