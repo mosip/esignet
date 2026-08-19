@@ -268,8 +268,8 @@ func (ts *ActorProviderTestSuite) TestActorProvider_GetInboundClientByID() {
 	if client.AuthFlowID != "flow-1" || client.ThemeID != "theme-1" || client.LayoutID != "layout-1" {
 		t.Errorf("client = %+v, unexpected flow/theme/layout ids", client)
 	}
-	if client.LoginConsent.ValidityPeriod != 30 {
-		t.Errorf("LoginConsent.ValidityPeriod = %d, want 30", client.LoginConsent.ValidityPeriod)
+	if client.LoginConsent.ValidityPeriod != 30*60 {
+		t.Errorf("LoginConsent.ValidityPeriod = %d, want %d", client.LoginConsent.ValidityPeriod, 30*60)
 	}
 	if client.Properties["name"] != "Test App" {
 		t.Errorf("Properties[name] = %v, want Test App", client.Properties["name"])
