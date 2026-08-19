@@ -36,7 +36,7 @@ on:
       - master
       - 1.*
       - 0.*
-      - develop
+      - develop*
       - MOSIP*
       - release*
     paths:
