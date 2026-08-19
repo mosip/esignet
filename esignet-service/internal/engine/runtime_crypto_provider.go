@@ -21,9 +21,11 @@ import (
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
 	"github.com/mosip/esignet/internal/config"
+	"github.com/mosip/esignet/internal/engine/shared"
 	"github.com/mosip/esignet/internal/keymanager"
 	"github.com/mosip/esignet/internal/keymanager/cryptomanager"
 	"github.com/mosip/esignet/internal/keymanager/signature"
+	applog "github.com/mosip/esignet/internal/log"
 )
 
 // defaultSymmetricEncryptReferenceID is the reference id Encrypt/Decrypt
@@ -44,6 +46,7 @@ type runtimeCryptoProvider struct {
 	svc             *keymanager.Service
 	sigSvc          *signature.Service
 	cryptoSvc       *cryptomanager.Service
+	authnProvider   shared.ConsolidatedAuthnProvider
 	signReferenceID string
 
 	// jwkCache caches getPublicKey's parsed result — see its doc comment.
@@ -66,7 +69,7 @@ type runtimeCryptoProvider struct {
 // independently usable by any esignet code that already speaks
 // providers.RuntimeCryptoProvider.
 func NewRuntimeCryptoProvider(cfg *config.AppConfig, svc *keymanager.Service, sigSvc *signature.Service,
-	cryptoSvc *cryptomanager.Service) providers.RuntimeCryptoProvider {
+	cryptoSvc *cryptomanager.Service, authnProvider shared.ConsolidatedAuthnProvider) providers.RuntimeCryptoProvider {
 
 	referenceID := cfg.JWT.PreferredKeyID
 	if referenceID == "" {
@@ -78,6 +81,7 @@ func NewRuntimeCryptoProvider(cfg *config.AppConfig, svc *keymanager.Service, si
 		svc:             svc,
 		sigSvc:          sigSvc,
 		cryptoSvc:       cryptoSvc,
+		authnProvider:   authnProvider,
 		signReferenceID: referenceID,
 		jwkCache:        newJWKCache(),
 	}
@@ -256,13 +260,48 @@ func (p *runtimeCryptoProvider) GetPublicKeys(ctx context.Context, filter provid
 	if err != nil {
 		return nil, fmt.Errorf("parse resolved certificate: %w", err)
 	}
-	return []providers.PublicKeyInfo{{
+	keys := []providers.PublicKeyInfo{{
 		KeyID:          refID,
 		Algorithm:      signature.AlgorithmForRefID(refID),
 		PublicKey:      cert.PublicKey,
 		Thumbprint:     keymanager.ThumbprintForCert(cert),
 		CertificateDER: cert.Raw,
-	}}, nil
+	}}
+	return append(keys, p.idSystemPublicKeys(ctx)...), nil
+}
+
+// idSystemPublicKeys fetches the signing certificates of the configured ID
+// system backend (mosip, mock, or sunbird — whichever NewIDSystemProviders
+// selected) and converts them into providers.PublicKeyInfo entries. Fetch
+// failures are logged and skipped rather than propagated, since they'd
+// otherwise take down JWKS/discovery for esignet's own signing key over a
+// dependency that is auxiliary to it.
+func (p *runtimeCryptoProvider) idSystemPublicKeys(ctx context.Context) []providers.PublicKeyInfo {
+	if p.authnProvider == nil {
+		return nil
+	}
+	certs, svcErr := p.authnProvider.GetSigningCertificates(ctx)
+	if svcErr != nil {
+		applog.GetLogger().Warn(ctx, "failed to fetch ID system signing certificates", applog.String("error", svcErr.Code))
+		return nil
+	}
+	keys := make([]providers.PublicKeyInfo, 0, len(certs))
+	for _, certData := range certs {
+		cert, err := keymanager.ParseCertPEM(certData.Certificate)
+		if err != nil {
+			applog.GetLogger().Warn(ctx, "failed to parse ID system signing certificate",
+				applog.String("keyId", certData.KeyId), applog.Error(err))
+			continue
+		}
+		keys = append(keys, providers.PublicKeyInfo{
+			KeyID:          certData.KeyId,
+			Algorithm:      signature.AlgorithmForRefID(certData.KeyId),
+			PublicKey:      cert.PublicKey,
+			Thumbprint:     keymanager.ThumbprintForCert(cert),
+			CertificateDER: cert.Raw,
+		})
+	}
+	return keys
 }
 
 func (p *runtimeCryptoProvider) GetSupportedSigningAlgorithms() []string {

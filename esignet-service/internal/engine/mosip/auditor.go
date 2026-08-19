@@ -49,19 +49,14 @@ type auditor struct {
 
 // NewAuditor builds an audit-manager observability provider. It fails if no
 // audit manager endpoint is configured.
-func NewAuditor(client *http.Client) (providers.ObservabilityProvider, error) {
-	auditCfg, err := LoadAuditConfig()
-	if err != nil {
-		return nil, err
-	}
-
+func NewAuditor(client *http.Client, pluginConfig Config, tokenProvider *tokenProvider) (providers.ObservabilityProvider, error) {
 	hostName, err := os.Hostname()
 	if err != nil || hostName == "" {
 		hostName = defaultHost
 	}
 
 	return &auditor{
-		client:   NewClient(auditCfg, client),
+		client:   NewClient(pluginConfig, client, tokenProvider),
 		hostName: hostName,
 		log:      applog.GetLogger(),
 	}, nil
@@ -177,19 +172,19 @@ func firstNonEmpty(values ...string) string {
 
 // Client posts audit records to mosip-audit-manager.
 type Client struct {
-	cfg    AuditConfig
-	client *http.Client
-	token  *tokenProvider
-	log    *applog.Logger
+	cfg           Config
+	client        *http.Client
+	tokenProvider *tokenProvider
+	log           *applog.Logger
 }
 
 // NewClient builds an audit manager client from the given config and HTTP client.
-func NewClient(cfg AuditConfig, client *http.Client) *Client {
+func NewClient(cfg Config, client *http.Client, tokenProvider *tokenProvider) *Client {
 	return &Client{
-		cfg:    cfg,
-		client: client,
-		token:  newTokenProvider(cfg, client),
-		log:    applog.GetLogger(),
+		cfg:           cfg,
+		client:        client,
+		tokenProvider: tokenProvider,
+		log:           applog.GetLogger(),
 	}
 }
 
@@ -215,7 +210,7 @@ func (c *Client) Post(ctx context.Context, audit AuditRequest) error {
 	if status == http.StatusUnauthorized || status == http.StatusForbidden {
 		c.log.Warn(ctx, "audit: auth rejected by audit manager, refreshing token",
 			applog.Int("status", status))
-		c.token.Purge()
+		c.tokenProvider.Purge()
 		if status, err = c.send(ctx, body); err != nil {
 			return err
 		}
@@ -237,7 +232,7 @@ func (c *Client) send(ctx context.Context, body []byte) (int, error) {
 	}
 	req.Header.Set("Content-Type", "application/json")
 
-	token, tErr := c.token.GetAuthToken(ctx)
+	token, tErr := c.tokenProvider.GetAuthToken(ctx)
 	if tErr != nil {
 		return 0, fmt.Errorf("acquire audit auth token: %w", tErr)
 	}

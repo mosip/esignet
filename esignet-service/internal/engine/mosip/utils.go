@@ -24,14 +24,14 @@ const authHeaderName = "authorization"
 // tokenProvider fetches and caches an authmanager token in memory. The token
 // is reused across audit calls and refetched after Purge (called on 401/403).
 type tokenProvider struct {
-	cfg    AuditConfig
+	cfg    Config
 	client *http.Client
 
 	mu     sync.RWMutex
 	cached string
 }
 
-func newTokenProvider(cfg AuditConfig, client *http.Client) *tokenProvider {
+func newTokenProvider(cfg Config, client *http.Client) *tokenProvider {
 	return &tokenProvider{cfg: cfg, client: client}
 }
 

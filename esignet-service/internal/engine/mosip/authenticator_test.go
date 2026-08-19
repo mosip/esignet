@@ -1314,8 +1314,13 @@ func (ts *AuthenticatorTestSuite) TestNewMosipAuthnProviderWiresConfig() {
 	t := ts.T()
 	t.Setenv("MOSIP_API_INTERNAL_HOST", "http://internal.example.org")
 	t.Setenv("MOSIP_ESIGNET_MISP_KEY", "misp-1")
+	t.Setenv("MOSIP_ESIGNET_AUTHENTICATOR_IDA_CLIENT_SECRET", "shh")
 
-	provider, err := NewMosipAuthnProvider(&config.AppConfig{}, nil, &http.Client{}, nil, nil)
+	pluginConfig, err := LoadConfig()
+	require.NoError(t, err)
+
+	client := &http.Client{}
+	provider, err := NewMosipAuthnProvider(&config.AppConfig{}, nil, client, nil, nil, pluginConfig, newTokenProvider(pluginConfig, client))
 	require.NoError(t, err)
 	require.NotNil(t, provider)
 

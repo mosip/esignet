@@ -19,9 +19,11 @@ import (
 
 func (ts *InitTestSuite) TestInitSucceedsWithAuditConfigured() {
 	t := ts.T()
-	t.Setenv("MOSIP_ESIGNET_AUDIT_MANAGER_URL", "http://audit.example.org/audits")
-	t.Setenv("MOSIP_ESIGNET_AUTH_TOKEN_URL", "http://audit.example.org/token")
-	t.Setenv("MOSIP_ESIGNET_IDA_CLIENT_SECRET", "secret")
+	t.Setenv("MOSIP_API_INTERNAL_HOST", "http://internal.example.org")
+	t.Setenv("MOSIP_ESIGNET_MISP_KEY", "misp-1")
+	t.Setenv("MOSIP_ESIGNET_AUTHENTICATOR_IDA_CLIENT_SECRET", "secret")
+	t.Setenv("MOSIP_ESIGNET_AUTHENTICATOR_IDA_AUDIT_MANAGER_URL", "http://audit.example.org/audits")
+	t.Setenv("MOSIP_ESIGNET_AUTHENTICATOR_IDA_AUTH_TOKEN_URL", "http://audit.example.org/token")
 
 	km, sigSvc := newTestKeyManagerServices(t, false)
 	authnProvider, auditor, err := Init(&config.AppConfig{}, nil, &http.Client{Timeout: 30 * time.Second}, km, sigSvc)

@@ -162,6 +162,10 @@ func (p *sunbirdAuthnProvider) SendOTP(_ context.Context, _ map[string]interface
 	return nil, shared.NotImplementedError
 }
 
+func (p *sunbirdAuthnProvider) GetSigningCertificates(ctx context.Context) ([]shared.CertificateData, *common.ServiceError) {
+	return nil, nil
+}
+
 func (p *sunbirdAuthnProvider) validateKBI(ctx context.Context, individualID string, kbiFields map[string]string) (string, error) {
 
 	filters := make(map[string]sunbirdSearchFilter, len(kbiFields)+1)

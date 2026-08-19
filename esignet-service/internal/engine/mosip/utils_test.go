@@ -26,7 +26,7 @@ func (ts *UtilsTestSuite) TestTokenProviderFetchAndCache() {
 	}))
 	defer srv.Close()
 
-	tp := newTokenProvider(AuditConfig{AuthTokenURL: srv.URL, SecretKey: "s"}, srv.Client())
+	tp := newTokenProvider(Config{AuthTokenURL: srv.URL, SecretKey: "s"}, srv.Client())
 
 	token, err := tp.GetAuthToken(context.Background())
 	if err != nil {
@@ -61,7 +61,7 @@ func (ts *UtilsTestSuite) TestTokenProviderEmptyHeader() {
 	}))
 	defer srv.Close()
 
-	tp := newTokenProvider(AuditConfig{AuthTokenURL: srv.URL, SecretKey: "s"}, srv.Client())
+	tp := newTokenProvider(Config{AuthTokenURL: srv.URL, SecretKey: "s"}, srv.Client())
 	if _, err := tp.GetAuthToken(context.Background()); err == nil {
 		t.Fatal("expected error for empty authorization header")
 	}

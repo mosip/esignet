@@ -74,3 +74,20 @@ type Error struct {
 	ErrorCode string `json:"errorCode,omitempty"`
 	Message   string `json:"message,omitempty"`
 }
+
+type CertificateResponseWrapper struct {
+	ID           string                      `json:"id,omitempty"`
+	Version      string                      `json:"version,omitempty"`
+	ResponseTime string                      `json:"responsetime,omitempty"` // usually ISO8601 / RFC3339
+	Response     *GetAllCertificatesResponse `json:"response,omitempty"`
+	Errors       []Error                     `json:"errors,omitempty"`
+}
+
+type GetAllCertificatesResponse struct {
+	AllCertificates []KycSigningCertificateData `json:"allCertificates"`
+}
+
+type KycSigningCertificateData struct {
+	KeyId           string `json:"keyId"`
+	CertificateData string `json:"certificateData"` //X509 certificate
+}

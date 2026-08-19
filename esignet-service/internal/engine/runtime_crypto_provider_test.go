@@ -7,17 +7,99 @@
 package engine
 
 import (
+	"context"
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/x509"
+	"crypto/x509/pkix"
 	"encoding/json"
+	"math/big"
 	"testing"
+	"time"
 
 	jose "github.com/go-jose/go-jose/v4"
 	"github.com/stretchr/testify/suite"
+	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
 	"github.com/mosip/esignet/internal/config"
+	"github.com/mosip/esignet/internal/engine/shared"
+	"github.com/mosip/esignet/internal/keymanager"
 )
+
+// fakeAuthnProviderForCrypto is a hand-written stub of
+// shared.ConsolidatedAuthnProvider used only to drive
+// runtimeCryptoProvider.idSystemPublicKeys — every method besides
+// GetSigningCertificates is unreachable from that code path.
+type fakeAuthnProviderForCrypto struct {
+	certs  []shared.CertificateData
+	svcErr *common.ServiceError
+}
+
+func (f *fakeAuthnProviderForCrypto) InitiateAuthentication(context.Context, string, any,
+	*providers.AuthnMetadata) (any, *common.ServiceError) {
+	return nil, nil
+}
+
+func (f *fakeAuthnProviderForCrypto) Authenticate(context.Context, map[string]interface{}, map[string]interface{},
+	*providers.AuthnMetadata) (*providers.AuthnResult, *common.ServiceError) {
+	return nil, nil
+}
+
+func (f *fakeAuthnProviderForCrypto) GetEntityReference(context.Context, any) (*providers.EntityReference,
+	*common.ServiceError) {
+	return nil, nil
+}
+
+func (f *fakeAuthnProviderForCrypto) GetAttributes(context.Context, any, *providers.RequestedAttributes,
+	*providers.GetAttributesMetadata) (*providers.AttributesResponse, *common.ServiceError) {
+	return nil, nil
+}
+
+func (f *fakeAuthnProviderForCrypto) InitiateEnrollment(context.Context, string, any,
+	*providers.AuthnMetadata) (any, *common.ServiceError) {
+	return nil, nil
+}
+
+func (f *fakeAuthnProviderForCrypto) Enroll(context.Context, map[string]interface{}, map[string]interface{},
+	*providers.AuthnMetadata) (*providers.AuthnResult, *common.ServiceError) {
+	return nil, nil
+}
+
+func (f *fakeAuthnProviderForCrypto) SendOTP(context.Context, map[string]interface{},
+	*providers.AuthnMetadata) (*shared.SendOTPResult, *common.ServiceError) {
+	return nil, nil
+}
+
+func (f *fakeAuthnProviderForCrypto) GetSigningCertificates(context.Context) ([]shared.CertificateData, *common.ServiceError) {
+	return f.certs, f.svcErr
+}
+
+var _ shared.ConsolidatedAuthnProvider = (*fakeAuthnProviderForCrypto)(nil)
+
+// testCertPEM generates a self-signed RSA certificate PEM for a given
+// CommonName, so idSystemPublicKeys tests exercise genuine
+// keymanager.ParseCertPEM/ThumbprintForCert calls rather than mocked ones.
+func testCertPEM(t *testing.T, cn string) string {
+	t.Helper()
+	key, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		t.Fatalf("generate RSA key: %v", err)
+	}
+	tmpl := &x509.Certificate{
+		SerialNumber:          big.NewInt(time.Now().UnixNano()),
+		Subject:               pkix.Name{CommonName: cn},
+		NotBefore:             time.Now().Add(-time.Hour),
+		NotAfter:              time.Now().Add(time.Hour),
+		KeyUsage:              x509.KeyUsageDigitalSignature,
+		BasicConstraintsValid: true,
+	}
+	der, err := x509.CreateCertificate(rand.Reader, tmpl, tmpl, &key.PublicKey, key)
+	if err != nil {
+		t.Fatalf("create certificate: %v", err)
+	}
+	return keymanager.EncodeCertPEM(der)
+}
 
 // testRSAJWKMap builds the map[string]interface{} shape a providers.KeyRef.
 // PublicKeyJWK carries — round-tripped through jose.JSONWebKey's own
@@ -52,7 +134,7 @@ func TestRuntimeCryptoProviderTestSuite(t *testing.T) {
 func (ts *RuntimeCryptoProviderTestSuite) TestNewRuntimeCryptoProvider_DefaultsSignReferenceIDWhenUnset() {
 	cfg := &config.AppConfig{}
 
-	p := NewRuntimeCryptoProvider(cfg, nil, nil, nil).(*runtimeCryptoProvider)
+	p := NewRuntimeCryptoProvider(cfg, nil, nil, nil, nil).(*runtimeCryptoProvider)
 
 	ts.Require().Equal(defaultSignReferenceID, p.signReferenceID)
 }
@@ -61,7 +143,7 @@ func (ts *RuntimeCryptoProviderTestSuite) TestNewRuntimeCryptoProvider_UsesConfi
 	cfg := &config.AppConfig{}
 	cfg.JWT.PreferredKeyID = "RSA_2048"
 
-	p := NewRuntimeCryptoProvider(cfg, nil, nil, nil).(*runtimeCryptoProvider)
+	p := NewRuntimeCryptoProvider(cfg, nil, nil, nil, nil).(*runtimeCryptoProvider)
 
 	ts.Require().Equal("RSA_2048", p.signReferenceID)
 }
@@ -156,6 +238,50 @@ func (ts *RuntimeCryptoProviderTestSuite) TestGetPublicKey_DifferentJWKs_AreNotC
 	rsaB, ok := keyB.Key.(*rsa.PublicKey)
 	ts.Require().True(ok)
 	ts.Assert().False(rsaA.Equal(rsaB), "the two fixtures must carry genuinely different key material")
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestIdSystemPublicKeys_NilAuthnProvider_ReturnsNil() {
+	p := &runtimeCryptoProvider{authnProvider: nil}
+
+	ts.Require().Nil(p.idSystemPublicKeys(context.Background()))
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestIdSystemPublicKeys_ServiceErrorFromProvider_ReturnsNil() {
+	p := &runtimeCryptoProvider{authnProvider: &fakeAuthnProviderForCrypto{
+		svcErr: &common.ServiceError{Code: "certificate_fetch_failed"},
+	}}
+
+	ts.Require().Nil(p.idSystemPublicKeys(context.Background()))
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestIdSystemPublicKeys_ConvertsEachCertificate() {
+	certPEM := testCertPEM(ts.T(), "id-system-key")
+	p := &runtimeCryptoProvider{authnProvider: &fakeAuthnProviderForCrypto{
+		certs: []shared.CertificateData{{KeyId: "id-system-ref", Certificate: certPEM}},
+	}}
+
+	keys := p.idSystemPublicKeys(context.Background())
+
+	ts.Require().Len(keys, 1)
+	ts.Assert().Equal("id-system-ref", keys[0].KeyID)
+	ts.Assert().NotEmpty(keys[0].Thumbprint)
+	ts.Assert().NotNil(keys[0].PublicKey)
+	ts.Assert().NotEmpty(keys[0].CertificateDER)
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestIdSystemPublicKeys_SkipsUnparsableCertificatesButKeepsOthers() {
+	certPEM := testCertPEM(ts.T(), "id-system-key")
+	p := &runtimeCryptoProvider{authnProvider: &fakeAuthnProviderForCrypto{
+		certs: []shared.CertificateData{
+			{KeyId: "bad-ref", Certificate: "not a certificate"},
+			{KeyId: "good-ref", Certificate: certPEM},
+		},
+	}}
+
+	keys := p.idSystemPublicKeys(context.Background())
+
+	ts.Require().Len(keys, 1)
+	ts.Assert().Equal("good-ref", keys[0].KeyID)
 }
 
 func (ts *RuntimeCryptoProviderTestSuite) TestGetPublicKey_NilCache_DisablesCachingWithoutPanic() {
