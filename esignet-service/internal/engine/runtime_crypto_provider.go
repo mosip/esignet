@@ -295,7 +295,7 @@ func (p *runtimeCryptoProvider) idSystemPublicKeys(ctx context.Context) []provid
 		}
 		keys = append(keys, providers.PublicKeyInfo{
 			KeyID:          certData.KeyID,
-			Algorithm:      signature.AlgorithmForRefID(certData.KeyID),
+			Algorithm:      signature.AlgorithmForPublicKey(cert.PublicKey),
 			PublicKey:      cert.PublicKey,
 			Thumbprint:     keymanager.ThumbprintForCert(cert),
 			CertificateDER: cert.Raw,
