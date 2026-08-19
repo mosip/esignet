@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	engineconfig "github.com/thunder-id/thunderid/pkg/thunderidengine/config"
 )
@@ -274,6 +275,38 @@ func (ts *AppConfigTestSuite) TestApplyDefaultsSupportedAlgorithms() {
 
 	ts.Require().Equal([]string{"PS256", "ES256", "ES256K", "EdDSA"}, cfg.SupportedSigningAlgorithms)
 	ts.Require().Equal([]string{"RSA-OAEP", "RSA-OAEP-256"}, cfg.SupportedEncAlgorithms)
+}
+
+func (ts *AppConfigTestSuite) TestApplyDefaultsAllowedOriginRegex() {
+	t := ts.T()
+
+	t.Run("env var sets regex", func(t *testing.T) {
+		t.Setenv("MOSIP_ESIGNET_CORS_ALLOWED_ORIGIN_REGEX", `^https://.*\.example\.com$`)
+		cfg := &AppConfig{}
+		applyDefaults(cfg)
+		require.Equal(t, `^https://.*\.example\.com$`, cfg.AllowedOriginRegex)
+	})
+
+	t.Run("yaml value used when env unset", func(t *testing.T) {
+		t.Setenv("MOSIP_ESIGNET_CORS_ALLOWED_ORIGIN_REGEX", "")
+		cfg := &AppConfig{AllowedOriginRegex: `^https://app\.example\.com$`}
+		applyDefaults(cfg)
+		require.Equal(t, `^https://app\.example\.com$`, cfg.AllowedOriginRegex)
+	})
+
+	t.Run("empty when neither env nor yaml set", func(t *testing.T) {
+		t.Setenv("MOSIP_ESIGNET_CORS_ALLOWED_ORIGIN_REGEX", "")
+		cfg := &AppConfig{}
+		applyDefaults(cfg)
+		require.Empty(t, cfg.AllowedOriginRegex)
+	})
+
+	t.Run("env var overrides yaml value", func(t *testing.T) {
+		t.Setenv("MOSIP_ESIGNET_CORS_ALLOWED_ORIGIN_REGEX", `^https://env\.example\.com$`)
+		cfg := &AppConfig{AllowedOriginRegex: `^https://yaml\.example\.com$`}
+		applyDefaults(cfg)
+		require.Equal(t, `^https://env\.example\.com$`, cfg.AllowedOriginRegex)
+	})
 }
 
 func (ts *AppConfigTestSuite) TestApplyDefaultsCacheType() {

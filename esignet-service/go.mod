@@ -13,7 +13,7 @@ require (
 	github.com/prometheus/client_golang v1.24.1
 	github.com/redis/go-redis/v9 v9.18.0
 	github.com/stretchr/testify v1.11.1
-	github.com/thunder-id/thunderid v0.0.0-20260701124159-a8f0fb52b5c5
+	github.com/thunder-id/thunderid v0.0.0-20260818151849-bceae5bbc1ad
 	go.mozilla.org/pkcs7 v0.9.0
 	golang.org/x/crypto v0.54.0
 	golang.org/x/sync v0.22.0
@@ -72,4 +72,4 @@ require (
 	modernc.org/sqlite v1.53.0 // indirect
 )
 
-replace github.com/thunder-id/thunderid => github.com/thunder-id/thunderid/backend v0.0.0-20260813100030-757b5ff6d8a5
+replace github.com/thunder-id/thunderid => github.com/thunder-id/thunderid/backend v0.0.0-20260818151849-bceae5bbc1ad

@@ -208,8 +208,7 @@ func (ts *ActorProviderTestSuite) TestActorProvider_GetOAuthClientByClientID_JWE
 		_, svcErr := p.GetOAuthClientByClientID(context.Background(), "client-001")
 		if svcErr == nil {
 			t.Fatal("expected error for JWE id_token without an alg on the encryption key")
-		}
-		if svcErr.Code != "missing_encryption_key_alg" {
+		} else if svcErr.Code != "missing_encryption_key_alg" {
 			t.Errorf("error code = %q, want missing_encryption_key_alg", svcErr.Code)
 		}
 	})
