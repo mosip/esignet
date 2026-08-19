@@ -1045,11 +1045,6 @@ nodes:
             - id: input_consent
               type: CONSENT
               category: DISPLAY
-              config:
-                essential: "{{t(consent:essential)}}"
-                optional: "{{t(consent:optional)}}"
-                essentialInfo: "{{t(consent:essential_info)}}"
-                optionalInfo: "{{t(consent:optional_info)}}"
             - <<: *submit_button
               id: action_allow
               label: "{{t(consent:allow)}}"
