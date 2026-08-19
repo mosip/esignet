@@ -75,6 +75,7 @@ type Error struct {
 	Message   string `json:"message,omitempty"`
 }
 
+// CertificateResponseWrapper is the getAllCertificates API response envelope.
 type CertificateResponseWrapper struct {
 	ID           string                      `json:"id,omitempty"`
 	Version      string                      `json:"version,omitempty"`
@@ -83,11 +84,14 @@ type CertificateResponseWrapper struct {
 	Errors       []Error                     `json:"errors,omitempty"`
 }
 
+// GetAllCertificatesResponse is the getAllCertificates API success payload.
 type GetAllCertificatesResponse struct {
 	AllCertificates []KycSigningCertificateData `json:"allCertificates"`
 }
 
+// KycSigningCertificateData is a single signing certificate entry returned
+// by the getAllCertificates API.
 type KycSigningCertificateData struct {
-	KeyId           string `json:"keyId"`
-	CertificateData string `json:"certificateData"` //X509 certificate
+	KeyID           string `json:"keyId"`
+	CertificateData string `json:"certificateData"` // X509 certificate
 }

@@ -39,10 +39,10 @@ type Config struct {
 func LoadConfig() (Config, error) {
 	licenseKey := envOrDefault("MOSIP_ESIGNET_MISP_KEY", "")
 	apiBase := trimTrailingSlash(envOrDefault("MOSIP_API_INTERNAL_HOST", ""))
-	clientSecret := trimTrailingSlash(envOrDefault("MOSIP_ESIGNET_AUTHENTICATOR_IDA_CLIENT_SECRET", ""))
+	clientSecret := envOrDefault("MOSIP_IDA_CLIENT_SECRET", "")
 
 	if clientSecret == "" {
-		return Config{}, errors.New("mosip: MOSIP_ESIGNET_AUTHENTICATOR_IDA_CLIENT_SECRET is required")
+		return Config{}, errors.New("mosip: MOSIP_IDA_CLIENT_SECRET is required")
 	}
 	if licenseKey == "" {
 		return Config{}, errors.New("mosip: MOSIP_ESIGNET_MISP_KEY is required")

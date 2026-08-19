@@ -162,7 +162,7 @@ func (p *sunbirdAuthnProvider) SendOTP(_ context.Context, _ map[string]interface
 	return nil, shared.NotImplementedError
 }
 
-func (p *sunbirdAuthnProvider) GetSigningCertificates(ctx context.Context) ([]shared.CertificateData, *common.ServiceError) {
+func (p *sunbirdAuthnProvider) GetSigningCertificates(_ context.Context) ([]shared.CertificateData, *common.ServiceError) {
 	return nil, nil
 }
 

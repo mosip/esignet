@@ -18,6 +18,7 @@ import (
 	"time"
 
 	jose "github.com/go-jose/go-jose/v4"
+	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
@@ -25,6 +26,7 @@ import (
 	"github.com/mosip/esignet/internal/config"
 	"github.com/mosip/esignet/internal/engine/shared"
 	"github.com/mosip/esignet/internal/keymanager"
+	"github.com/mosip/esignet/internal/keymanager/kmtest"
 )
 
 // fakeAuthnProviderForCrypto is a hand-written stub of
@@ -257,7 +259,7 @@ func (ts *RuntimeCryptoProviderTestSuite) TestIdSystemPublicKeys_ServiceErrorFro
 func (ts *RuntimeCryptoProviderTestSuite) TestIdSystemPublicKeys_ConvertsEachCertificate() {
 	certPEM := testCertPEM(ts.T(), "id-system-key")
 	p := &runtimeCryptoProvider{authnProvider: &fakeAuthnProviderForCrypto{
-		certs: []shared.CertificateData{{KeyId: "id-system-ref", Certificate: certPEM}},
+		certs: []shared.CertificateData{{KeyID: "id-system-ref", Certificate: certPEM}},
 	}}
 
 	keys := p.idSystemPublicKeys(context.Background())
@@ -273,8 +275,8 @@ func (ts *RuntimeCryptoProviderTestSuite) TestIdSystemPublicKeys_SkipsUnparsable
 	certPEM := testCertPEM(ts.T(), "id-system-key")
 	p := &runtimeCryptoProvider{authnProvider: &fakeAuthnProviderForCrypto{
 		certs: []shared.CertificateData{
-			{KeyId: "bad-ref", Certificate: "not a certificate"},
-			{KeyId: "good-ref", Certificate: certPEM},
+			{KeyID: "bad-ref", Certificate: "not a certificate"},
+			{KeyID: "good-ref", Certificate: certPEM},
 		},
 	}}
 
@@ -282,6 +284,90 @@ func (ts *RuntimeCryptoProviderTestSuite) TestIdSystemPublicKeys_SkipsUnparsable
 
 	ts.Require().Len(keys, 1)
 	ts.Assert().Equal("good-ref", keys[0].KeyID)
+}
+
+// newTestKeyManagerService builds an in-memory keymanager.Service (backed by
+// kmtest's StateQuerier/FakeKeyStore, no postgres/HSM involved) with ROOT and
+// the OIDC_SERVICE/defaultSignReferenceID EC sign key provisioned — mirrors
+// cmd/esignet/main.go's provisionKeyHierarchy, just scoped to what
+// GetPublicKeys needs.
+func newTestKeyManagerService(t *testing.T) *keymanager.Service {
+	t.Helper()
+	ctx := context.Background()
+	km := keymanager.NewServiceWithQuerier(kmtest.NewStateQuerier(), kmtest.NewFakeKeyStore(), keymanager.Config{
+		AsymmetricKeyLength:  2048,
+		CertCommonName:       "www.mosip.io",
+		CertOrganizationUnit: "thunder-tech-team",
+		CertOrganization:     "IIITB",
+		CertLocation:         "Bangalore",
+		CertState:            "KA",
+		CertCountry:          "IN",
+	})
+
+	_, err := km.GenerateMasterKey(ctx, keymanager.GenerateMasterKeyRequest{
+		ApplicationID: keymanager.AppIDRoot,
+		ObjectType:    keymanager.ObjectTypeCertificate,
+		CommonName:    "MOSIP Root CA",
+	})
+	require.NoError(t, err)
+
+	_, err = km.GenerateMasterKey(ctx, keymanager.GenerateMasterKeyRequest{
+		ApplicationID: config.OIDCServiceAppID,
+		ReferenceID:   defaultSignReferenceID,
+		ObjectType:    keymanager.ObjectTypeCertificate,
+		CommonName:    "test esignet sign key",
+	})
+	require.NoError(t, err)
+
+	return km
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestGetPublicKeys_ReturnsOwnKeyMergedWithIDSystemKeys() {
+	t := ts.T()
+	idCertPEM := testCertPEM(t, "id-system-key")
+	p := &runtimeCryptoProvider{
+		svc:             newTestKeyManagerService(t),
+		signReferenceID: defaultSignReferenceID,
+		authnProvider: &fakeAuthnProviderForCrypto{
+			certs: []shared.CertificateData{{KeyID: "id-system-ref", Certificate: idCertPEM}},
+		},
+	}
+
+	keys, err := p.GetPublicKeys(context.Background(), providers.PublicKeyFilter{})
+
+	ts.Require().NoError(err)
+	ts.Require().Len(keys, 2, "esignet's own key plus the merged ID-system key")
+	ts.Assert().Equal(defaultSignReferenceID, keys[0].KeyID)
+	ts.Assert().NotNil(keys[0].PublicKey)
+	ts.Assert().NotEmpty(keys[0].Thumbprint)
+	ts.Assert().Equal("id-system-ref", keys[1].KeyID)
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestGetPublicKeys_NoIDSystemProvider_ReturnsOnlyOwnKey() {
+	t := ts.T()
+	p := &runtimeCryptoProvider{
+		svc:             newTestKeyManagerService(t),
+		signReferenceID: defaultSignReferenceID,
+	}
+
+	keys, err := p.GetPublicKeys(context.Background(), providers.PublicKeyFilter{})
+
+	ts.Require().NoError(err)
+	ts.Require().Len(keys, 1)
+	ts.Assert().Equal(defaultSignReferenceID, keys[0].KeyID)
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestGetPublicKeys_CertificateLookupFailure_WrapsErrKeyNotFound() {
+	// No ROOT/master key provisioned on this Service, so GetCertificate has
+	// nothing to lazily rotate from and returns an error.
+	p := &runtimeCryptoProvider{
+		svc:             keymanager.NewServiceWithQuerier(kmtest.NewStateQuerier(), kmtest.NewFakeKeyStore(), keymanager.Config{}),
+		signReferenceID: defaultSignReferenceID,
+	}
+
+	_, err := p.GetPublicKeys(context.Background(), providers.PublicKeyFilter{})
+
+	ts.Require().ErrorIs(err, providers.ErrKeyNotFound)
 }
 
 func (ts *RuntimeCryptoProviderTestSuite) TestGetPublicKey_NilCache_DisablesCachingWithoutPanic() {

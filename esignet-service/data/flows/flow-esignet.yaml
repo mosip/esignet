@@ -287,8 +287,14 @@ interceptors:
     mode: PRE_NODE
     scope: SELECTED
     applyto:
-      - send_mosip_otp
-      - basic_cred_auth
+      - send_mosip_otp_email
+      - send_mosip_otp_mobile
+      - send_mosip_otp_uin
+      - send_mosip_otp_nrc
+      - basic_cred_auth_uin
+      - basic_cred_auth_mobile
+      - basic_cred_auth_email
+      - basic_cred_auth_nrc
       - basic_kbi_auth
 
 nodes:

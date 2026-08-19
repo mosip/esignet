@@ -28,6 +28,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
@@ -596,6 +597,215 @@ func (ts *AuthenticatorTestSuite) TestInvalidateCachedIDAPartnerCertificateForce
 	require.NoError(t, err)
 
 	require.Equal(t, 2, hits, "a cleared cache should be refetched on the next call")
+}
+
+// newSigningCertsFixture starts a test IDA "getAllCertificates" server
+// returning a single certificate, and a test authmanager token server
+// returning a JWT whose exp claim is now+ttl. It wires both into a fresh
+// provider and returns hit counters for each.
+func newSigningCertsFixture(t *testing.T, tokenTTL time.Duration) (p *mosipAuthnProvider, certHits, tokenHits *int) {
+	t.Helper()
+	certHits = new(int)
+	tokenHits = new(int)
+
+	certSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		*certHits++
+		wrapper := CertificateResponseWrapper{
+			Response: &GetAllCertificatesResponse{
+				AllCertificates: []KycSigningCertificateData{
+					{KeyID: "ida-signing", CertificateData: "-----BEGIN CERTIFICATE-----\ntest\n-----END CERTIFICATE-----"},
+				},
+			},
+		}
+		w.Header().Set("Content-Type", "application/json")
+		require.NoError(t, json.NewEncoder(w).Encode(wrapper))
+	}))
+	t.Cleanup(certSrv.Close)
+
+	tokenSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		*tokenHits++
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+			"exp": time.Now().Add(tokenTTL).Unix(),
+		})
+		signed, err := token.SignedString([]byte("test-signing-key"))
+		require.NoError(t, err)
+		w.Header().Set(authHeaderName, signed)
+		w.WriteHeader(http.StatusOK)
+	}))
+	t.Cleanup(tokenSrv.Close)
+
+	cfg := Config{IDACertificateURL: certSrv.URL, AuthTokenURL: tokenSrv.URL}
+	p = newProvider(nil)
+	p.cfg = cfg
+	p.tokenProvider = newTokenProvider(cfg, certSrv.Client())
+	return p, certHits, tokenHits
+}
+
+func (ts *AuthenticatorTestSuite) TestGetSigningCertificatesCachesUntilTokenExpiry() {
+	t := ts.T()
+	p, certHits, tokenHits := newSigningCertsFixture(t, time.Hour) // well outside signingCertsExpiryBuffer
+
+	got1, svcErr := p.GetSigningCertificates(context.Background())
+	require.Nil(t, svcErr)
+	got2, svcErr := p.GetSigningCertificates(context.Background())
+	require.Nil(t, svcErr)
+
+	require.Equal(t, got1, got2)
+	require.Equal(t, 1, *certHits, "second call should be served from cache, not hit the server again")
+	require.Equal(t, 1, *tokenHits, "cached certs shouldn't need a fresh auth token either")
+}
+
+func (ts *AuthenticatorTestSuite) TestGetSigningCertificatesRefetchesNearTokenExpiry() {
+	t := ts.T()
+	// The token's exp falls inside signingCertsExpiryBuffer, so the cached
+	// certs should be treated as expired and refetched on the next call.
+	p, certHits, _ := newSigningCertsFixture(t, signingCertsExpiryBuffer/2)
+
+	_, svcErr := p.GetSigningCertificates(context.Background())
+	require.Nil(t, svcErr)
+	_, svcErr = p.GetSigningCertificates(context.Background())
+	require.Nil(t, svcErr)
+
+	require.Equal(t, 2, *certHits, "certs cached past the token's near-expiry window should be refetched")
+}
+
+func (ts *AuthenticatorTestSuite) TestGetSigningCertificatesFallsBackToDefaultTTLWithoutTokenExpiry() {
+	t := ts.T()
+	var certHits int
+	certSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		certHits++
+		wrapper := CertificateResponseWrapper{Response: &GetAllCertificatesResponse{
+			AllCertificates: []KycSigningCertificateData{{KeyID: "k", CertificateData: "c"}},
+		}}
+		w.Header().Set("Content-Type", "application/json")
+		require.NoError(t, json.NewEncoder(w).Encode(wrapper))
+	}))
+	defer certSrv.Close()
+
+	// Token server returns a non-JWT token, so its expiry is unknown and the
+	// signingCertsDefaultTTL fallback applies.
+	tokenSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set(authHeaderName, "opaque-token")
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer tokenSrv.Close()
+
+	cfg := Config{IDACertificateURL: certSrv.URL, AuthTokenURL: tokenSrv.URL}
+	p := newProvider(nil)
+	p.cfg = cfg
+	p.tokenProvider = newTokenProvider(cfg, certSrv.Client())
+
+	_, svcErr := p.GetSigningCertificates(context.Background())
+	require.Nil(t, svcErr)
+	_, svcErr = p.GetSigningCertificates(context.Background())
+	require.Nil(t, svcErr)
+
+	require.Equal(t, 1, certHits, "unknown token expiry should still cache certs, via the default TTL")
+}
+
+func (ts *AuthenticatorTestSuite) TestGetSigningCertificatesInvalidatesCacheOn401() {
+	t := ts.T()
+	p, certHits, _ := newSigningCertsFixture(t, time.Hour)
+
+	_, svcErr := p.GetSigningCertificates(context.Background())
+	require.Nil(t, svcErr)
+	require.Equal(t, 1, *certHits)
+
+	// Force the next fetch to hit a 401, which should purge both the token
+	// and the certs cache.
+	rejectSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusUnauthorized)
+	}))
+	defer rejectSrv.Close()
+	p.certsMu.Lock()
+	p.cachedCerts = nil // simulate the cache having already expired
+	p.certsMu.Unlock()
+	p.cfg.IDACertificateURL = rejectSrv.URL
+
+	_, svcErr = p.GetSigningCertificates(context.Background())
+	require.NotNil(t, svcErr)
+
+	p.certsMu.RLock()
+	cleared := p.cachedCerts == nil && p.certsExpiry.IsZero()
+	p.certsMu.RUnlock()
+	require.True(t, cleared, "a 401 should invalidate the signing-certs cache")
+}
+
+func (ts *AuthenticatorTestSuite) TestDoFetchSigningCertificatesErrors() {
+	t := ts.T()
+
+	t.Run("request creation error", func(t *testing.T) {
+		p := newProvider(nil)
+		p.cfg.IDACertificateURL = "://bad-url"
+		certs, svcErr := p.doFetchSigningCertificates(context.Background())
+		require.Nil(t, certs)
+		require.Same(t, shared.CertificateFetchFailed, svcErr)
+	})
+
+	t.Run("auth token fetch error", func(t *testing.T) {
+		certSrv := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {
+			t.Fatal("certificate endpoint should not be called when the token fetch fails")
+		}))
+		defer certSrv.Close()
+		tokenSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusInternalServerError)
+		}))
+		defer tokenSrv.Close()
+
+		cfg := Config{IDACertificateURL: certSrv.URL, AuthTokenURL: tokenSrv.URL}
+		p := newProvider(nil)
+		p.cfg = cfg
+		p.tokenProvider = newTokenProvider(cfg, certSrv.Client())
+
+		certs, svcErr := p.doFetchSigningCertificates(context.Background())
+		require.Nil(t, certs)
+		require.Same(t, shared.AuthTokenFetchFailed, svcErr)
+	})
+
+	t.Run("connection error", func(t *testing.T) {
+		p, _, _ := newSigningCertsFixture(t, time.Hour)
+		closedSrv := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}))
+		closedSrv.Close()
+		p.cfg.IDACertificateURL = closedSrv.URL
+
+		certs, svcErr := p.doFetchSigningCertificates(context.Background())
+		require.Nil(t, certs)
+		require.Same(t, shared.CertificateFetchFailed, svcErr)
+	})
+
+	t.Run("non-2xx status", func(t *testing.T) {
+		p, _, _ := newSigningCertsFixture(t, time.Hour)
+		nonOKSrv := httptest.NewServer(jsonHandler(http.StatusInternalServerError, "boom"))
+		defer nonOKSrv.Close()
+		p.cfg.IDACertificateURL = nonOKSrv.URL
+
+		certs, svcErr := p.doFetchSigningCertificates(context.Background())
+		require.Nil(t, certs)
+		require.Same(t, shared.CertificateFetchFailed, svcErr)
+	})
+
+	t.Run("invalid json body", func(t *testing.T) {
+		p, _, _ := newSigningCertsFixture(t, time.Hour)
+		badJSONSrv := httptest.NewServer(jsonHandler(http.StatusOK, "not json"))
+		defer badJSONSrv.Close()
+		p.cfg.IDACertificateURL = badJSONSrv.URL
+
+		certs, svcErr := p.doFetchSigningCertificates(context.Background())
+		require.Nil(t, certs)
+		require.Same(t, shared.CertificateFetchFailed, svcErr)
+	})
+
+	t.Run("error response with no certificates", func(t *testing.T) {
+		p, _, _ := newSigningCertsFixture(t, time.Hour)
+		errSrv := httptest.NewServer(jsonHandler(http.StatusOK,
+			`{"errors":[{"errorCode":"IDA-003","errorMessage":"fetch failed"}]}`))
+		defer errSrv.Close()
+		p.cfg.IDACertificateURL = errSrv.URL
+
+		certs, svcErr := p.doFetchSigningCertificates(context.Background())
+		require.Nil(t, certs)
+		require.Same(t, shared.CertificateFetchFailed, svcErr)
+	})
 }
 
 // ---------------------------------------------------------------------------
@@ -1314,7 +1524,7 @@ func (ts *AuthenticatorTestSuite) TestNewMosipAuthnProviderWiresConfig() {
 	t := ts.T()
 	t.Setenv("MOSIP_API_INTERNAL_HOST", "http://internal.example.org")
 	t.Setenv("MOSIP_ESIGNET_MISP_KEY", "misp-1")
-	t.Setenv("MOSIP_ESIGNET_AUTHENTICATOR_IDA_CLIENT_SECRET", "shh")
+	t.Setenv("MOSIP_IDA_CLIENT_SECRET", "shh")
 
 	pluginConfig, err := LoadConfig()
 	require.NoError(t, err)

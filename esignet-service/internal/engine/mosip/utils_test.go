@@ -12,7 +12,10 @@ import (
 	"net/http/httptest"
 	"sync/atomic"
 	"testing"
+	"time"
 
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -52,6 +55,40 @@ func (ts *UtilsTestSuite) TestTokenProviderFetchAndCache() {
 	if got := atomic.LoadInt32(&calls); got != 2 {
 		t.Fatalf("auth server calls = %d, want 2 (refetch after purge)", got)
 	}
+}
+
+func (ts *UtilsTestSuite) TestTokenExpiry() {
+	t := ts.T()
+
+	t.Run("valid JWT with exp claim", func(t *testing.T) {
+		exp := time.Now().Add(time.Hour)
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"exp": exp.Unix()})
+		signed, err := token.SignedString([]byte("test-key"))
+		require.NoError(t, err)
+
+		got := tokenExpiry(signed)
+		require.WithinDuration(t, exp, got, time.Second)
+	})
+
+	t.Run("not a JWT", func(t *testing.T) {
+		require.True(t, tokenExpiry("opaque-token").IsZero())
+	})
+
+	t.Run("valid JWT without exp claim", func(t *testing.T) {
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"sub": "someone"})
+		signed, err := token.SignedString([]byte("test-key"))
+		require.NoError(t, err)
+
+		require.True(t, tokenExpiry(signed).IsZero())
+	})
+}
+
+func (ts *UtilsTestSuite) TestTokenProviderRequestCreationError() {
+	t := ts.T()
+	tp := newTokenProvider(Config{AuthTokenURL: "://bad-url", SecretKey: "s"}, http.DefaultClient)
+
+	_, err := tp.GetAuthToken(context.Background())
+	require.ErrorContains(t, err, "create auth token request")
 }
 
 func (ts *UtilsTestSuite) TestTokenProviderEmptyHeader() {

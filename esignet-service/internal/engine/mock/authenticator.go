@@ -245,7 +245,7 @@ func (p *mockAuthnProvider) GetSigningCertificates(ctx context.Context) ([]share
 		certs := make([]shared.CertificateData, 0, len(wrapper.Response.AllCertificates))
 		for _, certData := range wrapper.Response.AllCertificates {
 			certs = append(certs, shared.CertificateData{
-				KeyId:       certData.KeyId,
+				KeyID:       certData.KeyID,
 				Certificate: certData.CertificateData})
 		}
 		return certs, nil

@@ -290,12 +290,12 @@ func (p *runtimeCryptoProvider) idSystemPublicKeys(ctx context.Context) []provid
 		cert, err := keymanager.ParseCertPEM(certData.Certificate)
 		if err != nil {
 			applog.GetLogger().Warn(ctx, "failed to parse ID system signing certificate",
-				applog.String("keyId", certData.KeyId), applog.Error(err))
+				applog.String("keyId", certData.KeyID), applog.Error(err))
 			continue
 		}
 		keys = append(keys, providers.PublicKeyInfo{
-			KeyID:          certData.KeyId,
-			Algorithm:      signature.AlgorithmForRefID(certData.KeyId),
+			KeyID:          certData.KeyID,
+			Algorithm:      signature.AlgorithmForRefID(certData.KeyID),
 			PublicKey:      cert.PublicKey,
 			Thumbprint:     keymanager.ThumbprintForCert(cert),
 			CertificateDER: cert.Raw,

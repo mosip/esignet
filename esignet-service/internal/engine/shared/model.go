@@ -15,6 +15,6 @@ type SendOTPResult struct {
 
 // CertificateData holds Certificates from ID systems
 type CertificateData struct {
-	KeyId       string
+	KeyID       string
 	Certificate string
 }

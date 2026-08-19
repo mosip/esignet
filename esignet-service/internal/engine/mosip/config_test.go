@@ -17,7 +17,7 @@ func (ts *ConfigTestSuite) TestLoadConfigDefaultsFromAPIBase() {
 	t := ts.T()
 	t.Setenv("MOSIP_API_INTERNAL_HOST", "http://internal.example.org/")
 	t.Setenv("MOSIP_ESIGNET_MISP_KEY", "misp-key-1")
-	t.Setenv("MOSIP_ESIGNET_AUTHENTICATOR_IDA_CLIENT_SECRET", "shh")
+	t.Setenv("MOSIP_IDA_CLIENT_SECRET", "shh")
 	t.Setenv("MOSIP_ESIGNET_AUTHENTICATOR_IDA_CERT_URL", "")
 	t.Setenv("MOSIP_ESIGNET_AUTHENTICATOR_IDA_SEND_OTP_URL", "")
 	t.Setenv("MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC_AUTH_URL", "")
@@ -52,7 +52,7 @@ func (ts *ConfigTestSuite) TestLoadConfigExplicitOverridesWin() {
 	t := ts.T()
 	t.Setenv("MOSIP_API_INTERNAL_HOST", "http://internal.example.org")
 	t.Setenv("MOSIP_ESIGNET_MISP_KEY", "misp-key-1")
-	t.Setenv("MOSIP_ESIGNET_AUTHENTICATOR_IDA_CLIENT_SECRET", "shh")
+	t.Setenv("MOSIP_IDA_CLIENT_SECRET", "shh")
 	t.Setenv("MOSIP_ESIGNET_AUTHENTICATOR_IDA_CERT_URL", "http://override/cert")
 	t.Setenv("MOSIP_ESIGNET_AUTHENTICATOR_IDA_SEND_OTP_URL", "http://override/otp")
 	t.Setenv("MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC_AUTH_URL", "http://override/kyc-auth")
@@ -85,7 +85,7 @@ func (ts *ConfigTestSuite) TestLoadConfigFailsWithoutAPIBase() {
 	t := ts.T()
 	t.Setenv("MOSIP_API_INTERNAL_HOST", "")
 	t.Setenv("MOSIP_ESIGNET_MISP_KEY", "misp-key-1")
-	t.Setenv("MOSIP_ESIGNET_AUTHENTICATOR_IDA_CLIENT_SECRET", "shh")
+	t.Setenv("MOSIP_IDA_CLIENT_SECRET", "shh")
 
 	_, err := LoadConfig()
 
@@ -96,7 +96,7 @@ func (ts *ConfigTestSuite) TestLoadConfigFailsWithoutMispKey() {
 	t := ts.T()
 	t.Setenv("MOSIP_API_INTERNAL_HOST", "http://internal.example.org")
 	t.Setenv("MOSIP_ESIGNET_MISP_KEY", "")
-	t.Setenv("MOSIP_ESIGNET_AUTHENTICATOR_IDA_CLIENT_SECRET", "shh")
+	t.Setenv("MOSIP_IDA_CLIENT_SECRET", "shh")
 
 	_, err := LoadConfig()
 
@@ -107,7 +107,7 @@ func (ts *ConfigTestSuite) TestLoadConfigFailsWithoutClientSecret() {
 	t := ts.T()
 	t.Setenv("MOSIP_API_INTERNAL_HOST", "http://internal.example.org")
 	t.Setenv("MOSIP_ESIGNET_MISP_KEY", "misp-key-1")
-	t.Setenv("MOSIP_ESIGNET_AUTHENTICATOR_IDA_CLIENT_SECRET", "")
+	t.Setenv("MOSIP_IDA_CLIENT_SECRET", "")
 
 	_, err := LoadConfig()
 

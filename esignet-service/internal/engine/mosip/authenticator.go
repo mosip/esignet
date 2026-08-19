@@ -63,6 +63,17 @@ const (
 	// IDA partner certificate is treated as expired, so a refetch has time
 	// to land before IDA actually rejects encryption under the old cert.
 	idaPartnerCertExpiryBuffer = 5 * time.Minute
+
+	// signingCertsExpiryBuffer is how far ahead of the auth token's expiry a
+	// cached signing-certificate list is treated as expired: the list was
+	// fetched using that token, so there's no point caching it past the
+	// point where the token needs to be refreshed anyway.
+	signingCertsExpiryBuffer = 1 * time.Minute
+
+	// signingCertsDefaultTTL is the cache lifetime used when the auth
+	// token's expiry can't be determined (e.g. it isn't a JWT, or carries no
+	// exp claim).
+	signingCertsDefaultTTL = 5 * time.Minute
 )
 
 type mosipAuthnProvider struct {
@@ -79,6 +90,14 @@ type mosipAuthnProvider struct {
 	// Authenticate stops paying an HTTP round-trip per call.
 	certMu     sync.RWMutex
 	cachedCert *x509.Certificate
+
+	// certsMu guards cachedCerts, the last IDA signing-certificate list
+	// fetched by GetSigningCertificates. Cached until the auth token used to
+	// fetch it is due to expire, so JWKS/discovery calls stop paying an
+	// HTTP round-trip (plus an auth-token fetch) on every request.
+	certsMu     sync.RWMutex
+	cachedCerts []shared.CertificateData
+	certsExpiry time.Time
 }
 
 // NewMosipAuthnProvider creates a MOSIP providers.AuthnProviderManager with
@@ -402,7 +421,55 @@ func (p *mosipAuthnProvider) SendOTP(ctx context.Context, identifiers map[string
 	return sendOTPResult, nil
 }
 
+// GetSigningCertificates returns the ID system's signing certificates,
+// serving them from cache while the auth token they were fetched with
+// remains valid.
 func (p *mosipAuthnProvider) GetSigningCertificates(ctx context.Context) ([]shared.CertificateData, *common.ServiceError) {
+	p.certsMu.RLock()
+	cached := p.cachedCerts
+	expiry := p.certsExpiry
+	p.certsMu.RUnlock()
+	if cached != nil && time.Now().Before(expiry) {
+		return cached, nil
+	}
+
+	certs, svcErr := p.doFetchSigningCertificates(ctx)
+	if svcErr != nil {
+		return nil, svcErr
+	}
+
+	p.certsMu.Lock()
+	p.cachedCerts = certs
+	p.certsExpiry = p.signingCertsCacheExpiry()
+	p.certsMu.Unlock()
+
+	return certs, nil
+}
+
+// signingCertsCacheExpiry derives how long a just-fetched signing
+// certificate list should be cached for, tied to the auth token's own
+// expiry — falling back to a fixed TTL if that expiry can't be determined.
+func (p *mosipAuthnProvider) signingCertsCacheExpiry() time.Time {
+	if exp, ok := p.tokenProvider.TokenExpiry(); ok {
+		return exp.Add(-signingCertsExpiryBuffer)
+	}
+	return time.Now().Add(signingCertsDefaultTTL)
+}
+
+// invalidateCachedSigningCertificates drops the cached signing certificates,
+// forcing the next GetSigningCertificates call to fetch a fresh list instead
+// of reusing one IDA has just rejected.
+func (p *mosipAuthnProvider) invalidateCachedSigningCertificates(ctx context.Context) {
+	applog.GetLogger().Warn(ctx, "clearing cached IDA signing certificates after fetch rejection")
+	p.certsMu.Lock()
+	p.cachedCerts = nil
+	p.certsExpiry = time.Time{}
+	p.certsMu.Unlock()
+}
+
+// doFetchSigningCertificates performs the actual HTTP GET + JSON parse
+// against p.cfg.IDACertificateURL, unconditionally.
+func (p *mosipAuthnProvider) doFetchSigningCertificates(ctx context.Context) ([]shared.CertificateData, *common.ServiceError) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, p.cfg.IDACertificateURL, nil)
 	if err != nil {
 		applog.GetLogger().Error(ctx, "Failed to certificates create request", applog.Error(err))
@@ -425,6 +492,7 @@ func (p *mosipAuthnProvider) GetSigningCertificates(ctx context.Context) ([]shar
 
 	if resp.StatusCode == 401 || resp.StatusCode == 403 {
 		p.tokenProvider.Purge()
+		p.invalidateCachedSigningCertificates(ctx)
 		return nil, shared.CertificateFetchFailed
 	}
 
@@ -447,7 +515,7 @@ func (p *mosipAuthnProvider) GetSigningCertificates(ctx context.Context) ([]shar
 		certs := make([]shared.CertificateData, 0, len(wrapper.Response.AllCertificates))
 		for _, certData := range wrapper.Response.AllCertificates {
 			certs = append(certs, shared.CertificateData{
-				KeyId:       certData.KeyId,
+				KeyID:       certData.KeyID,
 				Certificate: certData.CertificateData})
 		}
 		return certs, nil
