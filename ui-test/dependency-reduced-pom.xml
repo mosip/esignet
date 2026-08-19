@@ -4,7 +4,7 @@
   <groupId>io.mosip.esignet</groupId>
   <artifactId>uitest-esignet</artifactId>
   <name>uitest-esignet</name>
-  <version>1.6.0-SNAPSHOT</version>
+  <version>1.7.1-SNAPSHOT</version>
   <description>UI test automation project for MOSIP eSignet</description>
   <url>https://github.com/mosip/esignet</url>
   <developers>
