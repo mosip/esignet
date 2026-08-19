@@ -8,6 +8,7 @@ out/
 data/config/config.local.json
 data/config/config.local.*.json
 data/config/config.local.json.*
+data/config/config.local.*.json.*
 !data/config/config.local.example.json
 data/config/config.json
 # Same shape one directory up, for a working tree predating the data/ move.

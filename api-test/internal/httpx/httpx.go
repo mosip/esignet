@@ -10,11 +10,17 @@ import (
 // NewClient builds an *http.Client with the harness's shared TLS-verify policy.
 func NewClient(tlsVerify bool, timeout time.Duration) *http.Client {
 	return &http.Client{
-		Transport: &http.Transport{TLSClientConfig: &tls.Config{
-			MinVersion: tls.VersionTLS12,
-			//nolint:gosec // operator-controlled: only the suite's self-signed localhost cert is exempted via tlsVerify.
-			InsecureSkipVerify: !tlsVerify,
-		}},
+		Transport: &http.Transport{
+			// Replacing http.DefaultTransport drops its proxy support with it, and
+			// a CI network that only reaches the deployment through a proxy would
+			// then fail every call with a bare connection error.
+			Proxy: http.ProxyFromEnvironment,
+			TLSClientConfig: &tls.Config{
+				MinVersion: tls.VersionTLS12,
+				//nolint:gosec // operator-controlled: only the suite's self-signed localhost cert is exempted via tlsVerify.
+				InsecureSkipVerify: !tlsVerify,
+			},
+		},
 		Timeout: timeout,
 	}
 }

@@ -85,3 +85,21 @@ func TestEsignetBaseRejectsNonAuthorizeURL(t *testing.T) {
 		t.Fatal("esignetBase succeeded on a URL with no /oauth2/authorize segment")
 	}
 }
+
+// form_post is not a module name: the suite runs the ordinary modules and puts
+// the mode in the plan variant, so only the variant can reveal it.
+func TestUnsupportedReasonReadsTheResponseModeVariant(t *testing.T) {
+	if got := unsupportedReason("oidcc-server", map[string]any{"response_mode": "form_post"}); got != "form_post" {
+		t.Errorf("unsupportedReason(form_post variant) = %q, want form_post", got)
+	}
+	if got := unsupportedReason("oidcc-server", map[string]any{"response_mode": "default"}); got != "" {
+		t.Errorf("unsupportedReason(default variant) = %q, want it supported", got)
+	}
+	if got := unsupportedReason("oidcc-server", nil); got != "" {
+		t.Errorf("unsupportedReason(no variant) = %q, want it supported", got)
+	}
+	// The name-substring hints still apply.
+	if got := unsupportedReason("oidcc-rp-initiated-logout", nil); got != "logout" {
+		t.Errorf("unsupportedReason(logout module) = %q, want logout", got)
+	}
+}

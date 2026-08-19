@@ -81,13 +81,17 @@ func TestFeatures(t *testing.T) {
 				OutcomeDetail:  "FLOW_CLIENT_ID not set — authorize-endpoint negatives need a pre-registered client",
 			})
 		}
-		if strings.EqualFold(plugin, "mosip") && os.Getenv("PMS_BASE_URL") == "" {
+		// Either half missing hides this surface: the tag is only added inside the
+		// KEYCLOAK_CLIENT_SECRET branch above, so an empty secret drops it just as
+		// silently as an unset PMS_BASE_URL would.
+		if strings.EqualFold(plugin, "mosip") &&
+			(os.Getenv("PMS_BASE_URL") == "" || os.Getenv("KEYCLOAK_CLIENT_SECRET") == "") {
 			rows = append(rows, Envelope{
 				Surface:        "client-mgmt",
 				Plugin:         plugin,
 				Module:         "create-update-client-pms (not run)",
 				HarnessOutcome: "ENV_NOT_READY",
-				OutcomeDetail:  "PMS_BASE_URL not set — PMS-backed client-mgmt needs an onboarded partner+policy",
+				OutcomeDetail:  "PMS_BASE_URL/KEYCLOAK_CLIENT_SECRET not set — PMS-backed client-mgmt needs admin auth plus an onboarded partner+policy",
 			})
 		}
 	}

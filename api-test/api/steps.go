@@ -16,6 +16,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"sync"
@@ -438,12 +439,29 @@ func theJSONPathShouldBeNull(ctx context.Context, path string) error {
 	return nil
 }
 
+// sensitiveValueRe matches a JSON "key": "value" pair whose key names a
+// credential. Prose-wrapped bodies (see snippet) are not parseable JSON, so
+// this is a scan rather than a decode. "code" is deliberately absent:
+// flow/execute answers with {code, message} and the features assert FES-1004
+// on it, so masking it would blank the value the failure is read for — and no
+// feature on this surface calls /token or /userinfo, so no OAuth code lands here.
+var sensitiveValueRe = regexp.MustCompile(
+	`(?i)("[a-z_]*(?:password|otp|secret|assertion|token)[a-z_]*"\s*:\s*)"[^"]*"`)
+
+// redactSnippet masks credential values in a body excerpt. The report applies
+// its own redactor to captured call bodies, but not to condition messages, and
+// this excerpt is embedded in one — so it is masked here, at the source.
+func redactSnippet(s string) string {
+	return sensitiveValueRe.ReplaceAllString(s, `${1}"***redacted***"`)
+}
+
 func snippet(b []byte) string {
 	const n = 400
-	if len(b) > n {
-		return string(b[:n]) + "…"
+	s := redactSnippet(string(b))
+	if len(s) > n {
+		return s[:n] + "…"
 	}
-	return string(b)
+	return s
 }
 
 // InitScenario registers the generic steps and the per-scenario collector hooks.

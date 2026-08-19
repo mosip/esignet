@@ -30,7 +30,6 @@ var unsupportedModuleHints = map[string]string{
 	"qr":           "qr",
 	"backchannel":  "backchannel",
 	"ciba":         "ciba",
-	"form-post":    "form_post_fragment",
 }
 
 type Orchestrator struct {
@@ -226,7 +225,7 @@ func (o *Orchestrator) runModule(ctx context.Context, plan *conformance.PlanResp
 		HarnessOutcome: result.OutcomeOK,
 	}
 
-	if reason := unsupportedReason(m.TestModule); reason != "" {
+	if reason := unsupportedReason(m.TestModule, m.Variant); reason != "" {
 		res.HarnessOutcome = result.OutcomeSkippedByHarness
 		res.OutcomeDetail = "UNSUPPORTED_INTERACTION, detail: " + reason
 		res.Result = "SKIPPED"
@@ -451,7 +450,14 @@ func loadSmokeProfile(planName string) ([]string, error) {
 	return sf.Modules, nil
 }
 
-func unsupportedReason(module string) string {
+func unsupportedReason(module string, variant map[string]any) string {
+	// form_post is not a module name: the suite runs the ordinary modules and
+	// carries the mode in the plan variant, so a name-substring hint would never
+	// fire. The harness reads the code from the redirect query, which a form-post
+	// response body does not have.
+	if mode, ok := variant["response_mode"].(string); ok && strings.EqualFold(mode, "form_post") {
+		return "form_post"
+	}
 	lm := strings.ToLower(module)
 	for hint, reason := range unsupportedModuleHints {
 		if strings.Contains(lm, hint) {

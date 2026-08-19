@@ -29,7 +29,7 @@ own `README.md`/`AGENTS.md` over guessing conventions from a sibling.
 - Two API test paths, for different jobs: `postman-collection/` is the manual
   one (see its [README](postman-collection/README.md)); `api-test/` is the
   automated one, driven by a per-plugin config file rather than a wall of env
-  vars. `./run-all.sh -c config.mock.json --check` prints what a run would do
+  vars. `./run-all.sh -c data/config/config.mock.json --check` prints what a run would do
   and what is still missing, without running anything or needing a deployment
   up. On a fresh clone it reports the unmounted private plan config and exits
   non-zero — that output is the setup checklist.

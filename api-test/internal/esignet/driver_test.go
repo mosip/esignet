@@ -2,6 +2,7 @@ package esignet
 
 import (
 	"encoding/json"
+	"errors"
 	"strings"
 	"testing"
 	"time"
@@ -71,6 +72,38 @@ func TestResolveInputs(t *testing.T) {
 	}
 	if _, errMsg := d.resolveInputs([]string{"password"}, time.Now(), ""); errMsg == "" {
 		t.Fatalf("expected error for missing input")
+	}
+}
+
+// fakeOTP stands in for the mock-SMTP listener.
+type fakeOTP struct {
+	code string
+	err  error
+}
+
+func (f fakeOTP) OTP(time.Time) (string, error) { return f.code, f.err }
+
+// The provider fills otp only when no explicit answer is configured. The
+// "wrong OTP" negative scenario depends on that precedence: if the live OTP
+// won, the case would silently start passing a valid code and assert nothing.
+func TestResolveInputsDynamicOTP(t *testing.T) {
+	d := &Driver{answers: map[string]string{}, otp: fakeOTP{code: "424242"}}
+	got, errMsg := d.resolveInputs([]string{"otp"}, time.Now(), "")
+	if errMsg != "" {
+		t.Fatalf("resolveInputs: %s", errMsg)
+	}
+	if got["otp"] != "424242" {
+		t.Errorf("otp = %q, want the provider value", got["otp"])
+	}
+
+	d = &Driver{answers: map[string]string{"otp": "000000"}, otp: fakeOTP{code: "424242"}}
+	if got, errMsg := d.resolveInputs([]string{"otp"}, time.Now(), ""); errMsg != "" || got["otp"] != "000000" {
+		t.Errorf("otp = %q (err %q), want the configured value to win", got["otp"], errMsg)
+	}
+
+	d = &Driver{answers: map[string]string{}, otp: fakeOTP{err: errors.New("no OTP arrived")}}
+	if _, errMsg := d.resolveInputs([]string{"otp"}, time.Now(), ""); !strings.Contains(errMsg, "dynamic OTP") {
+		t.Errorf("errMsg = %q, want one naming the dynamic OTP source", errMsg)
 	}
 }
 

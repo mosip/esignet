@@ -44,8 +44,10 @@ Feature: GET /client-mgmt/client/{clientId} — read a client
     And the JSON value at "response.clientId" should be "{{cid}}"
     And the JSON value at "response.status" should be "ACTIVE"
 
+  # {{cid}}, not a literal: the Background mints a fresh id per scenario and this
+  # one never registers it, so the id is unknown even on a long-lived deployment.
   Scenario: Get a client that does not exist is reported as not found
-    When I send a "GET" request to "/client-mgmt/client/does-not-exist-xyz"
+    When I send a "GET" request to "/client-mgmt/client/{{cid}}"
     Then the response status should be 200
     And the JSON value at "errors.0.errorCode" should be "invalid_client_id"
     And the JSON path "errors.0.errorMessage" should exist

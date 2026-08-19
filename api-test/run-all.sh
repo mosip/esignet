@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #
 # run-all.sh — run the selected test surfaces for ONE plugin and produce a single
-# consolidated HTML report (plan doc §6). Runs in git-bash on Windows or any
-# POSIX shell.
+# consolidated HTML report (plan doc §6). Requires Bash (arrays, [[ ]], =~,
+# SECONDS) — Git Bash on Windows, not a bare POSIX shell such as dash.
 #
 # Everything is configured by a per-plugin JSON file; no exports needed locally.
 # Environment variables still override any value in it, which is how containers

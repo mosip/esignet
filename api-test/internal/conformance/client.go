@@ -18,6 +18,10 @@ import (
 	"github.com/mosip/esignet/api-test/internal/textx"
 )
 
+// maxRespBytes caps a single response read. Sized for the suite's /api/log
+// dumps, which are the largest thing this client legitimately fetches.
+const maxRespBytes = 64 << 20
+
 type Client struct {
 	baseURL string
 	token   string
@@ -287,7 +291,10 @@ func (c *Client) doAbs(ctx context.Context, label, method, absURL string, body [
 		return nil, 0, err
 	}
 	defer func() { _ = resp.Body.Close() }()
-	rb, _ := io.ReadAll(resp.Body)
+	// Generous, because the suite's /api/log dumps are large — but not unbounded:
+	// DeliverCallback sends this at absolute URLs taken from the deployment under
+	// test, and a host on that path could otherwise stream until the harness dies.
+	rb, _ := io.ReadAll(io.LimitReader(resp.Body, maxRespBytes))
 	call.Status = resp.StatusCode
 	call.RespHeaders = httpx.CloneHeader(resp.Header)
 	call.RespCookies = strings.Join(resp.Header["Set-Cookie"], "\n")

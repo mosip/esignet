@@ -95,6 +95,7 @@ services:
       - KEYCLOAK_TOKEN_URL
       - KEYCLOAK_CLIENT_SECRET
       - INDIVIDUAL_ID
+      - ID_TYPE
       - FLOW_CLIENT_ID
       - SURFACES
       - TEST_PROFILE

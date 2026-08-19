@@ -133,7 +133,7 @@ func (l *Listener) ingest(data []byte, at time.Time) {
 	l.mu.Lock()
 	if l.dbgFrames > 0 {
 		l.dbgFrames--
-		fmt.Fprintf(os.Stderr, "[wsotp-debug] raw frame: %s\n", string(data))
+		fmt.Fprintf(os.Stderr, "[wsotp-debug] frame (%d bytes): %s\n", len(data), maskFrame(data))
 	}
 	l.mu.Unlock()
 
@@ -147,7 +147,40 @@ func (l *Listener) ingest(data []byte, at time.Time) {
 	}
 	l.mu.Lock()
 	l.records = append(l.records, record{at: at, otp: otp, dest: recipients(m)})
+	l.pruneLocked(at)
 	l.mu.Unlock()
+}
+
+// retention bounds the buffer. One listener serves every module for the whole
+// run, and match never reads a record older than the current flow start, so
+// anything past this window is live OTPs and recipient identifiers held in
+// memory for nothing.
+const retention = 10 * time.Minute
+
+// pruneLocked drops records too old to satisfy any future match. Caller holds l.mu.
+func (l *Listener) pruneLocked(now time.Time) {
+	cutoff := now.Add(-retention)
+	kept := l.records[:0]
+	for _, r := range l.records {
+		if r.at.After(cutoff) {
+			kept = append(kept, r)
+		}
+	}
+	l.records = kept
+}
+
+// maskFrame renders a frame for WSOTP_DEBUG with the OTP digits removed. The
+// flag exists to eyeball the JSON shape, which survives the mask, whereas a CI
+// job with it set would otherwise retain live OTPs in its build log. The
+// recipient is left readable on purpose: diagnosing why a message did not match
+// a recipient is the other half of what the flag is for.
+func maskFrame(data []byte) string {
+	s := otpPattern.ReplaceAllString(string(data), "******")
+	const n = 400
+	if len(s) > n {
+		return s[:n] + "…"
+	}
+	return s
 }
 
 // WaitOTP returns the newest OTP received at or after `since` for `recipient`, polling until `timeout`.

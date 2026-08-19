@@ -157,7 +157,7 @@ func printCheck(c *config.Config, path string) {
 
 	if c.HasSurface(config.SurfaceConformance) {
 		fmt.Printf("\nconformance\n")
-		fmt.Printf("  suite       %s (tls_verify=%v)\n", c.Conformance.BaseURL, c.Conformance.TLSVerify)
+		fmt.Printf("  suite       %s (tls_verify=%v)\n", orDash(c.Conformance.BaseURL), c.Conformance.TLSVerify)
 		fmt.Printf("  auth factor %s\n", c.Esignet.AuthFactor)
 		fmt.Printf("  plans       %d, run in this order\n", len(c.Plans))
 		for i, p := range c.Plans {

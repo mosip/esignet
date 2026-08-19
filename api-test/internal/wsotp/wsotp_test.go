@@ -366,3 +366,28 @@ func textFrame(payload []byte) []byte {
 	}
 	return append([]byte{0x81, byte(len(payload))}, payload...)
 }
+
+// One listener serves every module for the whole run, and each record holds a
+// live OTP plus the recipient's phone/email. match never looks further back than
+// the current flow start, so anything past the retention window is identity data
+// kept for nothing.
+func TestIngestPrunesRecordsPastRetention(t *testing.T) {
+	base := time.Now()
+	l := &Listener{}
+	l.ingestAt(`{"text":"old 000000","to":{"value":[{"address":"me@x.io"}]}}`, base.Add(-2*retention))
+	l.ingestAt(`{"text":"recent 111111","to":{"value":[{"address":"me@x.io"}]}}`, base.Add(-time.Minute))
+	l.ingestAt(`{"text":"now 222222","to":{"value":[{"address":"me@x.io"}]}}`, base)
+
+	if len(l.records) != 2 {
+		t.Fatalf("records = %d, want the two inside the retention window", len(l.records))
+	}
+	for _, r := range l.records {
+		if r.otp == "000000" {
+			t.Error("the record past the retention window was kept")
+		}
+	}
+	// Pruning must not disturb a match that is still in range.
+	if got := l.match("me@x.io", base.Add(-5*time.Minute)); got != "222222" {
+		t.Errorf("match = %q, want 222222", got)
+	}
+}

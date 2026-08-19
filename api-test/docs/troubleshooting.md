@@ -90,7 +90,7 @@ Full setup: [Conformance suite setup](conformance-suite.md).
 | Symptom | Likely cause |
 |---|---|
 | The harness reports a config path is a directory | A bind mount whose source does not exist: Docker creates a **directory** at the target. Create the file first — `cp data/config/config.local.example.json data/config/config.local.json` |
-| The run fails at the very end, writing the report | `./out` is not writable by the image's non-root uid 1001. Either `mkdir -p out && chown 1001:1001 out`, or add `user: "$(id -u):$(id -g)"` to the `harness` service. Docker Desktop handles this for you |
+| The run fails at the very end, writing the report | `./out` is not writable by the image's non-root uid 1001. Either `mkdir -p out && chown 1001:1001 out`, or put `user: "${HOST_UID}:${HOST_GID}"` on the `harness` service and start Compose with `HOST_UID=$(id -u) HOST_GID=$(id -g) docker compose up` — Compose interpolates variables but does not run command substitution, so `$(id -u)` written into the YAML reaches Docker literally. Docker Desktop handles this for you |
 | A value set in `.env` seems to be ignored | Only variables listed in the `harness` service's `environment:` block are passed through. Add it there first |
 | A config file change has no effect in the container | Mounted files change without a rebuild; anything baked into the image (Go code, `run-all.sh`, the `data/` tree) needs a rebuild |
 

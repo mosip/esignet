@@ -19,7 +19,10 @@ Feature: GET /oauth2/authorize — request validation
     Then the response status should be 302
     And the redirect location should contain "errorCode=invalid_request"
 
+  # A freshly minted id rather than a literal: nothing registers it, so it stays
+  # unknown even on a deployment that has been up for a long time.
   Scenario: An unknown client id is rejected
-    When I send a "GET" request to "{{authz_endpoint}}?response_type=code&client_id=does-not-exist-e2e&scope=openid&redirect_uri=https://evil.example.org/cb&state=s1&nonce=n1&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256" without following redirects
+    Given a new client id as "unknown_client_id"
+    When I send a "GET" request to "{{authz_endpoint}}?response_type=code&client_id={{unknown_client_id}}&scope=openid&redirect_uri=https://evil.example.org/cb&state=s1&nonce=n1&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256" without following redirects
     Then the response status should be 302
     And the redirect location should contain "/error"

@@ -132,8 +132,10 @@ Feature: PUT /client-mgmt/client/{clientId} — update a client
     Then the response status should be 200
     And the JSON value at "response.status" should be "ACTIVE"
 
+  # {{cid}}, not a literal: the Background mints a fresh id per scenario and this
+  # one never registers it, so the id is unknown even on a long-lived deployment.
   Scenario: Update a client that does not exist is reported as not found
-    When I send a "PUT" request to "/client-mgmt/client/does-not-exist-xyz" with body:
+    When I send a "PUT" request to "/client-mgmt/client/{{cid}}" with body:
       """
       {
         "requestTime": "{{now}}",

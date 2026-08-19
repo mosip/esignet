@@ -169,7 +169,7 @@ func fetchJWKS(ctx context.Context, url string, tlsVerify bool) ([]jwksKey, erro
 	if err != nil {
 		return nil, fmt.Errorf("fetch jwks: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	// An error page decodes into an empty key set, so distinguish it from a real verification failure.
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
 		return nil, fmt.Errorf("fetch jwks %s: HTTP %d", url, resp.StatusCode)

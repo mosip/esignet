@@ -34,7 +34,7 @@
     "",
     "Check your overlay landed the way you expect before a long run — it prints",
     "the merged result, runs nothing, and needs no suite:",
-    "  ./run-all.sh -c config.mosip.json --check"
+    "  ./run-all.sh -c data/config/config.mosip.json --check"
   ],
 
   "esignet": {

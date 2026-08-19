@@ -248,7 +248,8 @@ var legacyKeyRenames = map[string]string{"bdd": "api"}
 func rejectLegacyKeys(path string, data []byte) error {
 	var top map[string]json.RawMessage
 	if err := json.Unmarshal(data, &top); err != nil {
-		return nil // malformed JSON is reported by the real decode
+		//nolint:nilerr // deliberate: malformed JSON is reported by the real decode in mergeFile, so a second message here would only duplicate it.
+		return nil
 	}
 	for old, current := range legacyKeyRenames {
 		if _, ok := top[old]; ok {
@@ -328,6 +329,7 @@ func (c *Config) mergeFile(path string) (bool, error) {
 	if st, err := os.Stat(path); err == nil && st.IsDir() {
 		return false, fmt.Errorf("config %s is a directory, not a file — if this is a container, the bind mount source does not exist on the host (create it, e.g. cp data/config/config.local.example.json data/config/config.local.json)", path)
 	}
+	//nolint:gosec // G304: operator-supplied by design — the path comes from -config, CONFIG or CONFIG_LOCAL, never from the deployment under test.
 	data, err := os.ReadFile(path)
 	if os.IsNotExist(err) {
 		return false, nil
@@ -787,6 +789,7 @@ func RedactedPlanConfig(path string) string {
 	if path == "" {
 		return ""
 	}
+	//nolint:gosec // G304: operator-supplied by design — the path comes from plans[].config_file, never from the deployment under test.
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return fmt.Sprintf("(could not read plan config %s: %v)", path, err)

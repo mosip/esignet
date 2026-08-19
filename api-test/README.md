@@ -74,7 +74,7 @@ Then widen one step at a time, running `--check` first each time:
 
 ## Project structure
 
-```
+```text
 api-test/
   run-all.sh            run selected surfaces + merge into one report
   Dockerfile            harness image
@@ -319,7 +319,7 @@ plan config. Only image *contents* need a merge and an image build: Go code, `ru
 One self-contained HTML file per run, in `out/`. The filename records which surfaces ran, the
 plugin, the timestamp and the result counts, so a directory of runs reads at a glance:
 
-```
+```text
 out/conformance_api_e2e_mock_20260818-195317_t-57_p-42_f-12_sk-3_ki-0.html
 ```
 

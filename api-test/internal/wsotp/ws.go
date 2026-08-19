@@ -257,14 +257,17 @@ func (c *conn) readFrame(resumable bool) (fin bool, opcode int, payload []byte, 
 		if resumable {
 			return false, 0, nil, err
 		}
-		return false, 0, nil, fmt.Errorf("%w: %v", errStreamDesync, err)
+		// %v, not %w, for the transport error: isTimeout walks the chain with
+		// errors.As, and exposing the net.Error would make a mid-frame desync
+		// look retryable.
+		return false, 0, nil, fmt.Errorf("%w: %v", errStreamDesync, err) //nolint:errorlint // see above: the transport error stays opaque to errors.As
 	}
 
 	// Committed: read the whole frame or lose stream alignment.
 	c.setReadDeadline(c.frameTimeout)
 	defer func() {
 		if err != nil {
-			err = fmt.Errorf("%w: %v", errStreamDesync, err)
+			err = fmt.Errorf("%w: %v", errStreamDesync, err) //nolint:errorlint // %v keeps the transport error opaque to isTimeout's errors.As
 		}
 	}()
 
