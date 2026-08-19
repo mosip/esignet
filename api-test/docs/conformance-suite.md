@@ -63,7 +63,7 @@ suite's create-plan API — the suite's own static-client plan-registration form
 
 | Field | Value |
 |---|---|
-| `alias` | The suite's callback path segment: `<conformance.base_url>/test/a/<alias>/callback`. Keep the template's `esignet-test` unless you have a reason to change it — the redirect URI you register must match. |
+| `alias` | The suite's callback path segment: `<conformance.base_url>/test/a/<alias>/callback`, i.e. `https://localhost.emobix.co.uk:8443/test/a/esignet-test/callback` for the template's `esignet-test` against the bundled suite. Keep that value unless you have a reason to change it: whatever it says has to appear verbatim in the redirect URI you register in eSignet (step 2 below), and changing it means re-registering every client. |
 | `server.discoveryUrl` | `<esignet.base_url>/.well-known/openid-configuration` |
 | `client.client_id`, `client2.client_id` | The client ids you register in eSignet (step 2 below) |
 | `client.jwks`, `client2.jwks` | The **full private** RSA JWK — `n`, `e`, `d`, `p`, `q`, `dp`, `dq`, `qi` — with `alg: PS256`, one per client |
@@ -73,12 +73,39 @@ both, so one template serves both files.
 
 ### Producing the values, once per environment
 
-1. **Generate an RSA keypair per client as a JWK** (`PS256`, matching what eSignet expects for
-   `private_key_jwt`). Keep the **private** JWK for this file and the **public** half for step 2.
-   Two keypairs for the FAPI plan, one for an oidcc-only run. The key is test-only, but it is still
-   a key — generate it locally rather than pasting into a web service.
+1. **Generate an RSA keypair per client as a JWK.** Two keypairs for the FAPI plan, one for an
+   oidcc-only run. Whatever generator you use, these are the settings that matter:
+
+   | Setting | Value |
+   |---|---|
+   | Key type | RSA |
+   | Key size | 2048 |
+   | Key use | Signature (`use: "sig"`) |
+   | Algorithm | **PS256** — what eSignet expects for `private_key_jwt` |
+   | Key ID | any stable value; SHA-256 thumbprint is a fine default |
+   | Show X.509 | optional — the extra `x5c`/`x5t` fields are ignored here |
+
+   [mkjwk.org](https://mkjwk.org) is the usual tool and emits both halves side by side. It is a
+   third-party site, so treat anything generated there as test-only and never reuse such a key
+   outside a test environment. To stay local instead, `openssl genrsa 2048` plus any PEM-to-JWK
+   converter produces the same thing.
+
+   Keep the **private** JWK (`n`, `e`, `d`, `p`, `q`, `dp`, `dq`, `qi`) for the plan config, and the
+   **public** half (`n`, `e` only) for step 2. Note the template wraps the key in a **set** —
+   `"jwks": { "keys": [ { … } ] }` — so paste the keypair *set* form, or wrap the bare JWK in
+   `keys: []` yourself. A bare JWK dropped straight into `jwks` is the most common way this file
+   ends up rejected by the suite.
 2. **Register each `client_id` in eSignet** via client management, as `private_key_jwt`, with the
-   **public** JWK from step 1 and a redirect URI matching the `alias` callback path above.
+   **public** JWK from step 1 and a redirect URI whose path segment is the `alias` value from this
+   same file. With the template's `alias: "esignet-test"` and the bundled suite, that is exactly:
+
+   ```
+   https://localhost.emobix.co.uk:8443/test/a/esignet-test/callback
+   ```
+
+   The suite builds its callback as `<conformance.base_url>/test/a/<alias>/callback` and sends the
+   client there, so a redirect URI that does not match this — including a different `alias` — makes
+   eSignet reject the authorize request before any test module runs.
 3. **Fill in the copies** you made with the `cp` commands.
 
 The suite signs the `private_key_jwt` client assertion itself when it drives the flow, which is why

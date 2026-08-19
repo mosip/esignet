@@ -50,6 +50,7 @@ Its detail line names the setting to supply.
 
 | Symptom | Likely cause |
 |---|---|
+| `NOT RUNNABLE YET` … `config_file "conformance-suite-private/…" not readable` | The plan config has not been created yet. It is git-ignored and holds a private JWKS, so no script generates it — make it once per environment ([setup](conformance-suite.md#creating-the-plan-config)), or run `-s api,e2e` until you have. Under Compose a missing `conformance-suite-private/` is recreated by the bind mount as an *empty directory*, so the symptom is this message rather than a mount error |
 | Suite reported unavailable | The suite is not up. Its nginx front end returns 502 until the Java server finishes booting — allow ~30s, or raise `SUITE_WAIT_SECONDS` |
 | `create plan HTTP 400 … server_metadata` | Remove `server_metadata` from that plan's `variant` — the plan sets it itself |
 | One errored `(plan setup)` row | The suite refused to create that plan: an unreadable `config_file`, a rejected variant, or `profile: "smoke"` with no curated list for that plan. Remaining plans still run |

@@ -248,17 +248,30 @@ Any of the three inputs may be omitted; whatever you pass is merged.
 ### D. Docker Compose — conformance suite and harness together
 
 Brings up the OpenID Conformance Suite (MongoDB + server + nginx) alongside the harness and runs
-everything. This is the easiest way to get the conformance surface going, since the suite comes
-with it.
+everything. It starts the suite *process* for you, but it does **not** create the plan config the
+`conformance` surface needs — that stays a one-time manual step per environment, because the file
+holds a private JWKS ([Conformance suite setup](docs/conformance-suite.md)).
 
 ```bash
 cp data/config/config.local.example.json data/config/config.local.json   # required: it is mounted
 cp .env.example .env
-# In .env: set CONFIG_FILE and ESIGNET_BASE_URL.
+# In .env: set ESIGNET_BASE_URL, and SURFACES=api,e2e for a first run (see below).
 
-docker compose run --rm harness -c /app/config.json --check   # dry run
+docker compose run --rm --no-deps harness -c /app/config.json --check   # dry run
 docker compose up --build --abort-on-container-exit --exit-code-from harness
 ```
+
+> **Start with `SURFACES=api,e2e`.** Every shipped plugin config selects all three surfaces, so an
+> out-of-the-box compose run includes `conformance` and stops at `NOT RUNNABLE YET` until a plan
+> config exists in `conformance-suite-private/`. `api` and `e2e` need only `ESIGNET_BASE_URL` plus
+> the Keycloak credentials, so get those green first and widen once the conformance setup is done.
+> For those two, `docker compose run --rm --no-deps --build harness -c /app/config.json` runs them
+> and writes the same report to `./out` without starting the suite at all — `up` would boot mongodb,
+> server and nginx regardless, since `harness` declares them as dependencies.
+
+> **`--no-deps` on the dry run.** `--check` resolves configuration and executes nothing, so it does
+> not need the suite. Without the flag Compose pulls and starts mongodb, server and nginx just to
+> print the plan.
 
 > **On Git Bash (Windows)**, prefix these with `MSYS_NO_PATHCONV=1`. MSYS rewrites the
 > container-side `/app/config.json` into a Windows path before Docker sees it, and the run fails

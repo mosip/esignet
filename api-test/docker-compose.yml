@@ -29,7 +29,7 @@ services:
         max-file: "5"
 
   server:
-    image: registry.gitlab.com/openid/conformance-suite:${SUITE_IMAGE_TAG:-release-v5.1.41}
+    image: registry.gitlab.com/openid/conformance-suite:${SUITE_IMAGE_TAG:-release-v5.1.42}
     depends_on:
       - mongodb
     environment:
@@ -51,7 +51,7 @@ services:
         max-file: "5"
 
   httpd:
-    image: registry.gitlab.com/openid/conformance-suite/nginx:${SUITE_IMAGE_TAG:-release-v5.1.41}
+    image: registry.gitlab.com/openid/conformance-suite/nginx:${SUITE_IMAGE_TAG:-release-v5.1.42}
     depends_on:
       - server
     ports:
@@ -121,6 +121,12 @@ services:
       # plan.config_file ("conformance-suite-private/esignet-config.json")
       # resolves identically here and on a native run — no PLAN_CONFIG_PATH
       # override, and one config file for both.
+      #
+      # Same missing-source trap as config.local.json below, but quieter: Docker
+      # creates this path as an empty DIRECTORY when it does not exist, so the
+      # mount succeeds and the run instead stops at "config_file ... not
+      # readable". Create the plan config first (docs/conformance-suite.md), or
+      # select SURFACES=api,e2e and leave conformance out of the run.
       - ./conformance-suite-private:/app/conformance-suite-private:ro
       # Your gitignored credentials overlay. Comment out to rely on env instead.
       # This file must EXIST before `docker compose up`: Docker creates a
