@@ -138,6 +138,13 @@ func main() {
 		logger.Fatal("resolve log level", applog.Error(err))
 	}
 
+	var originConfig engineconfig.OriginConfig
+	if appCfg.AllowedOriginRegex != "" {
+		originConfig = engineconfig.OriginConfig{
+			AllowedOrigins: []engineconfig.OriginEntry{{Regex: appCfg.AllowedOriginRegex}},
+		}
+	}
+
 	_ = thunderidengine.New(mux,
 		thunderidengine.WithLogConfig(engineconfig.LogConfig{Level: logLevel, Format: "json"}),
 		thunderidengine.WithServerHome(appCfg.DataDir),
@@ -165,6 +172,7 @@ func main() {
 		thunderidengine.WithAttestationProvider(engine.NewAttestationProvider(appCfg)),
 		thunderidengine.WithCaptchaValidationProvider(engine.NewCaptchaProvider(&appCfg.CaptchaConfig, commonHTTPClient)),
 		thunderidengine.WithRuntimeCryptoProvider(engine.NewRuntimeCryptoProvider(appCfg, keyMgrSvc, sigSvc, cryptoSvc)),
+		thunderidengine.WithOriginConfig(originConfig),
 	)
 
 	addr := fmt.Sprintf(":%d", appCfg.Port)
