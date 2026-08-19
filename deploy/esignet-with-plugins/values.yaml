@@ -97,6 +97,13 @@
 #  prefix: /v1/esignet/
 
 #enable_insecure: false
+
+#customCA:
+#  enabled: true
+#  secretName: company-internal-ca
+#  secretKey: ca.crt
+#  # configMapName: company-internal-ca
+#  # configMapKey: ca.crt
 #springConfigNameEnv:
 #activeProfileEnv:
 #pluginNameEnv: esignet-mock-plugin.jar

@@ -37,11 +37,48 @@ Compile all warnings into a single message.
 {{- $messages := list -}}
 {{- $messages := append $messages (include "esignet.validateValues.foo" .) -}}
 {{- $messages := append $messages (include "esignet.validateValues.bar" .) -}}
+{{- $messages := append $messages (include "esignet.validateValues.customCA" .) -}}
 {{- $messages := without $messages "" -}}
 {{- $message := join "\n" $messages -}}
 
 {{- if $message -}}
-{{-   printf "\nVALUES VALIDATION:\n%s" $message -}}
+{{- fail $message -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return true when a custom Java truststore should be mounted into the container.
+*/}}
+{{- define "esignet.truststoreRequired" -}}
+{{- or .Values.enable_insecure .Values.customCA.enabled -}}
+{{- end -}}
+
+{{/*
+Return the image used by the company-internal CA init container.
+*/}}
+{{- define "esignet.customCAInitImage" -}}
+{{- $image := .Values.customCA.initContainerImage -}}
+{{- if .Values.global.imageRegistry -}}
+{{- printf "%s/%s:%s" .Values.global.imageRegistry $image.repository $image.tag -}}
+{{- else if $image.registry -}}
+{{- printf "%s/%s:%s" $image.registry $image.repository $image.tag -}}
+{{- else -}}
+{{- printf "%s:%s" $image.repository $image.tag -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Validate customCA configuration.
+*/}}
+{{- define "esignet.validateValues.customCA" -}}
+{{- if and .Values.customCA.enabled (and (not .Values.customCA.secretName) (not .Values.customCA.configMapName)) -}}
+{{- fail "When customCA.enabled is true, set either customCA.secretName or customCA.configMapName." -}}
+{{- end -}}
+{{- if and .Values.customCA.enabled .Values.customCA.secretName .Values.customCA.configMapName -}}
+{{- fail "When customCA.enabled is true, set either customCA.secretName or customCA.configMapName, not both." -}}
+{{- end -}}
+{{- if and .Values.enable_insecure .Values.customCA.enabled -}}
+{{- fail "enable_insecure and customCA.enabled cannot be used together. Use customCA for company-internal PKI." -}}
 {{- end -}}
 {{- end -}}
 

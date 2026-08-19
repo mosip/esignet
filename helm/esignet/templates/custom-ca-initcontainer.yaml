@@ -1,0 +1,55 @@
+{{- define "esignet.customCAInitContainer" -}}
+- name: company-ca-truststore
+  image: {{ include "esignet.customCAInitImage" . }}
+  imagePullPolicy: {{ .Values.customCA.initContainerImage.pullPolicy }}
+  securityContext:
+    runAsUser: 0
+  command:
+    - /bin/bash
+    - -c
+    - |
+      set -euo pipefail
+      JAVA_HOME="{{ .Values.customCA.javaHome }}"
+      KEYSTORE="/cacerts/cacerts"
+      STOREPASS="{{ .Values.customCA.keystorePassword }}"
+      ALIAS_PREFIX="{{ .Values.customCA.aliasPrefix }}"
+      CA_FILE="{{ .Values.customCA.mountPath }}/{{ if .Values.customCA.secretName }}{{ .Values.customCA.secretKey }}{{ else }}{{ .Values.customCA.configMapKey }}{{ end }}"
+
+      if [[ ! -f "${JAVA_HOME}/lib/security/cacerts" ]]; then
+        echo "Java cacerts not found at ${JAVA_HOME}/lib/security/cacerts"
+        echo "Verify that customCA.javaHome (${JAVA_HOME}) matches the Java installation in this image"
+        exit 1
+      fi
+
+      cp "${JAVA_HOME}/lib/security/cacerts" "${KEYSTORE}"
+
+      if [[ ! -f "${CA_FILE}" ]]; then
+        echo "Company CA bundle not found at ${CA_FILE}; EXITING"
+        exit 1
+      fi
+
+      awk '/BEGIN CERTIFICATE/{n++} {print > ("/tmp/company-ca-" n ".pem")}' "${CA_FILE}"
+
+      idx=0
+      for pem in /tmp/company-ca-*; do
+        [[ -s "${pem}" ]] || continue
+        grep -q "BEGIN CERTIFICATE" "${pem}" || continue
+        alias="${ALIAS_PREFIX}-${idx}"
+        keytool -delete -alias "${alias}" -keystore "${KEYSTORE}" -storepass "${STOREPASS}" >/dev/null 2>&1 || true
+        keytool -importcert -trustcacerts -keystore "${KEYSTORE}" -storepass "${STOREPASS}" -noprompt -alias "${alias}" -file "${pem}"
+        idx=$((idx + 1))
+      done
+
+      if [[ "${idx}" -eq 0 ]]; then
+        echo "No certificates found in ${CA_FILE}; EXITING"
+        exit 1
+      fi
+
+      echo "Imported ${idx} company CA certificate(s) into Java truststore"
+  volumeMounts:
+    - name: cacerts
+      mountPath: /cacerts
+    - name: company-ca-bundle
+      mountPath: {{ .Values.customCA.mountPath }}
+      readOnly: true
+{{- end -}}

@@ -55,19 +55,8 @@ function installing_esignet() {
     fi
   done
 
-  echo "Do you have public domain & valid SSL? (Y/n) "
-  echo "Y: if you have public domain & valid ssl certificate"
-  echo "n: If you don't have a public domain and a valid SSL certificate. Note: It is recommended to use this option only in development environments."
-  read -p "" flag
-
-  if [ -z "$flag" ]; then
-    echo "'flag' was provided; EXITING;"
-    exit 1;
-  fi
-  ENABLE_INSECURE=''
-  if [ "$flag" = "n" ]; then
-    ENABLE_INSECURE='--set enable_insecure=true';
-  fi
+  source ../configure_tls_trust.sh
+  configure_tls_trust "$NS"
 
   while true; do
     read -p "For PKCS12, opt 'y' to enable volume (y/n) [ default: n ]: " enable_volume
@@ -116,7 +105,7 @@ function installing_esignet() {
   helm -n $NS install esignet mosip/esignet --version $CHART_VERSION \
   $ESIGNET_HELM_ARGS \
   --set image.repository=mosipdev/esignet --set image.tag=develop \
-  $ENABLE_INSECURE $plugin_option \
+  $TRUST_HELM_ARGS $plugin_option \
   --set metrics.serviceMonitor.enabled=$servicemonitorflag -f values.yaml --wait
 
   kubectl -n $NS  get deploy -o name |  xargs -n1 -t  kubectl -n $NS rollout status
