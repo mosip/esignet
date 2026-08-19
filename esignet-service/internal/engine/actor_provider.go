@@ -190,7 +190,7 @@ func (p *actorProvider) GetInboundClientByID(
 			UserAttributes: client.Claims,
 		},
 		LoginConsent: &providers.LoginConsentConfig{
-			ValidityPeriod: configInt64(client.AdditionalConfig, consentExpireInMins, 0),
+			ValidityPeriod: configInt64(client.AdditionalConfig, consentExpireInMins, 0) * 60,
 		},
 		Properties: properties,
 		IsReadOnly: false,
