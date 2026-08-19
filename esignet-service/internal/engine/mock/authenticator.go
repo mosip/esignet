@@ -205,10 +205,26 @@ func (p *mockAuthnProvider) SendOTP(ctx context.Context, identifiers map[string]
 
 	result, err := p.callSendOtpEndpoint(ctx, requestBytes, clientDtl.RpID, clientDtl.ClientID)
 	if err != nil {
-		return nil, shared.SendOTPFailedError
+		return nil, mapSendOTPError(err)
 	}
 	result.TransactionID = transactionID
 	return result, nil
+}
+
+type mockOTPError struct{ code string }
+
+func (e *mockOTPError) Error() string { return "mock send-otp error: " + e.code }
+
+func mapSendOTPError(err error) *common.ServiceError {
+	var otpErr *mockOTPError
+	if !errors.As(err, &otpErr) || otpErr.code == "" {
+		return shared.SendOTPFailedError
+	}
+	svcErr := *shared.SendOTPFailedError // re-key the base error to the mock code
+	svcErr.Code = otpErr.code
+	svcErr.Error.Key = otpErr.code
+	svcErr.ErrorDescription.Key = otpErr.code + "_description"
+	return &svcErr
 }
 
 // setChallenge inspects identifiers and credentials for a supported auth factor and
@@ -426,8 +442,7 @@ func (p *mockAuthnProvider) callSendOtpEndpoint(ctx context.Context, requestBody
 	if len(wrapper.Errors) == 0 {
 		return nil, errors.New("send otp failed")
 	}
-	firstErr := wrapper.Errors[0]
-	return nil, fmt.Errorf("%s: %s", firstErr.ErrorCode, firstErr.Message)
+	return nil, &mockOTPError{code: wrapper.Errors[0].ErrorCode}
 }
 
 // ---------------------------------------------------------------------------------------------------------

@@ -402,10 +402,27 @@ func (ts *AuthenticatorTestSuite) TestSendOTP() {
 		require.Same(t, shared.SendOTPFailedError, svcErr)
 	})
 
-	t.Run("endpoint returns errors array", func(t *testing.T) {
+	t.Run("endpoint errors array is forwarded", func(t *testing.T) {
+		// The mock-identity-system returns invalid_individual_id for an unknown ID;
+		// the code is forwarded to the client as ServiceError code + i18n key.
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			w.Header().Set("Content-Type", "application/json")
-			_, _ = w.Write([]byte(`{"errors":[{"errorCode":"IDA-003","message":"otp failed"}]}`))
+			_, _ = w.Write([]byte(`{"errors":[{"errorCode":"invalid_individual_id","message":"Invalid Individual ID"}]}`))
+		}))
+		defer server.Close()
+
+		p := newTestProvider(t, "http://unused", "http://unused", server.URL)
+		result, svcErr := p.SendOTP(context.Background(), map[string]any{identifierKeyIndividualID: "ind-1"}, metadataWithClientID("client-1"))
+		require.Nil(t, result)
+		require.NotNil(t, svcErr)
+		require.Equal(t, "invalid_individual_id", svcErr.Code)
+		require.Equal(t, "invalid_individual_id", svcErr.Error.Key)
+	})
+
+	t.Run("endpoint errors array without code falls back", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"errors":[{"message":"boom"}]}`))
 		}))
 		defer server.Close()
 

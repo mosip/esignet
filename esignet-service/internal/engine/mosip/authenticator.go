@@ -342,7 +342,7 @@ func (p *mosipAuthnProvider) SendOTP(ctx context.Context, identifiers map[string
 	}
 	sendOTPResult, err := p.callSendOtpEndpoint(ctx, otpRequestBytes, requestSignature, clientDtl.RpID, clientDtl.ClientID)
 	if err != nil {
-		return nil, shared.SendOTPFailedError
+		return nil, mapSendOTPError(err)
 	}
 
 	sendOTPResult.TransactionID = transactionID
@@ -639,6 +639,25 @@ func errorCodes(errs []Error) []string {
 	return codes
 }
 
+// idaOTPError carries MOSIP IDA error codes from a failed send-OTP response
+// so that SendOTP can distinguish a "bad individual ID" from infrastructure failures.
+type idaOTPError struct{ codes []string }
+
+func (e *idaOTPError) Error() string { return fmt.Sprintf("IDA OTP error: %v", e.codes) }
+
+func mapSendOTPError(err error) *common.ServiceError {
+	var idaErr *idaOTPError
+	if !errors.As(err, &idaErr) || len(idaErr.codes) == 0 || idaErr.codes[0] == "" {
+		return shared.SendOTPFailedError
+	}
+	code := idaErr.codes[0]
+	svcErr := *shared.SendOTPFailedError // re-key the base error to the IDA code
+	svcErr.Code = code
+	svcErr.Error.Key = code
+	svcErr.ErrorDescription.Key = code + "_description"
+	return &svcErr
+}
+
 func (p *mosipAuthnProvider) callSendOtpEndpoint(
 	ctx context.Context,
 	requestBody []byte, // already marshaled JSON of IdaKycAuthRequest
@@ -686,7 +705,7 @@ func (p *mosipAuthnProvider) callSendOtpEndpoint(
 		applog.GetLogger().Error(ctx, "unexpected send OTP status",
 			applog.Int("status", resp.StatusCode),
 			applog.Any("errorCodes", errorCodes(errWrapper.Errors)))
-		return nil, fmt.Errorf("unexpected send OTP status: %d (codes: %v)", resp.StatusCode, errorCodes(errWrapper.Errors))
+		return nil, &idaOTPError{codes: errorCodes(errWrapper.Errors)}
 	}
 
 	// Parse response
@@ -705,19 +724,7 @@ func (p *mosipAuthnProvider) callSendOtpEndpoint(
 
 	applog.GetLogger().Error(ctx, "IDA OTP error response",
 		applog.Any("errorCodes", errorCodes(wrapper.Errors)))
-
-	// Error path
-	if wrapper.Response == nil {
-		return nil, errors.New("response object is missing in wrapper")
-	}
-
-	if len(wrapper.Errors) == 0 {
-		return nil, errors.New("no errors in response wrapper")
-	}
-
-	// Take first error (common pattern)
-	firstErr := wrapper.Errors[0]
-	return nil, fmt.Errorf("%s: %s", firstErr.ErrorCode, firstErr.ErrorMessage)
+	return nil, &idaOTPError{codes: errorCodes(wrapper.Errors)}
 }
 
 // performKycAuth encrypts the session key and computes the thumbprint under
