@@ -95,6 +95,9 @@ public class LoginOptionsPage extends BasePage {
 	@FindBy(id = "Otp_login_dropdown_button")
 	WebElement prefixNumberField;
 
+	@FindBy(id = "Password_login_dropdown_button")
+	WebElement passwordScreenMobilePrefixDropdownButton;
+
 	@FindBy(id = "KHM")
 	WebElement khmCountryCode;
 
@@ -122,11 +125,35 @@ public class LoginOptionsPage extends BasePage {
 	@FindBy(id = "Otp_email")
 	WebElement emailField;
 
+	@FindBy(id = "Password_mobile")
+	WebElement mobilePasswordField;
+
+	@FindBy(id = "Password_IND")
+	WebElement mobileNumberFieldInPasswordScreen;
+
+	@FindBy(id = "verify_password")
+	WebElement passwordWithLoginButton;
+
+	@FindBy(id = "Password_vid")
+	WebElement vidPasswordField;
+
+	@FindBy(id = "Password_email")
+	WebElement emailPasswordField;
+
+	@FindBy(id = "Password_login_dropdown_button")
+	WebElement prefixNumberFieldInPasswordScreen;
+
+	@FindBy(xpath = "//input[@id='vid' and @placeholder='Enter UIN/VID']")
+	WebElement vidFieldInPasswordScreen;
+
 	@FindBy(id = "sbi_vid")
 	WebElement biometricVidField;
 
 	@FindBy(id = "secure-biometric-interface-integration")
 	WebElement biometricIntegrationContainer;
+
+	@FindBy(id = "try_again")
+	WebElement networkErrorTryAgainButton;
 
 	public boolean isLogoDisplayed() {
 		return isElementVisible(brandLogo, "Verified is logo displayed");
@@ -138,6 +165,16 @@ public class LoginOptionsPage extends BasePage {
 
 	public boolean isLanguageDropdownDisplayed() {
 		return isElementVisible(languageDropdown, "Verified language dropdown is visible");
+	}
+
+	public boolean isNetworkErrorScreenDisplayed() {
+		return isElementVisible(networkErrorTryAgainButton, "Verified network error screen is displayed");
+	}
+
+	public void clickTryAgainOnNetworkErrorScreen() {
+		clickOnElement(networkErrorTryAgainButton, "Clicked try again on the network error screen");
+		new WebDriverWait(driver, Duration.ofSeconds(30))
+				.until(ExpectedConditions.visibilityOf(loginWithOtpBtn));
 	}
 
 	public void clickOnLanguageDropdown() {
@@ -232,6 +269,23 @@ public class LoginOptionsPage extends BasePage {
 		return isElementVisible(mobileNumberOption, "Verified mobile number option is displayed for authentication");
 	}
 
+	public void clickOnMobileNumberOption() {
+		clickOnElement(mobileNumberOption, "Clicked on mobile number option");
+	}
+
+	public void clickOnPasswordScreenMobilePrefixDropdownButton() {
+		clickOnElement(passwordScreenMobilePrefixDropdownButton,
+				"Clicked on mobile prefix dropdown button on the password login screen");
+	}
+
+	public void typeIntoMobileNumberFieldOnPasswordScreen(String text) {
+		mobileNumberFieldInPasswordScreen.sendKeys(text);
+	}
+
+	public String getMobileNumberFieldValueOnPasswordScreen() {
+		return mobileNumberFieldInPasswordScreen.getAttribute("value");
+	}
+
 	public boolean isNrcIdOptionDisplayed() {
 		return isElementVisible(nrcIdOption, "Verified nrc option is displayed for authentication");
 	}
@@ -242,6 +296,23 @@ public class LoginOptionsPage extends BasePage {
 
 	public boolean isEmailOptionDisplayed() {
 		return isElementVisible(emailOption, "Verified email option is displayed for authentication");
+	}
+
+	public int getDisplayedLoginIdOptionsCount() {
+		int count = 0;
+		if (isElementDisplayed(mobileNumberOption)) {
+			count++;
+		}
+		if (isElementDisplayed(nrcIdOption)) {
+			count++;
+		}
+		if (isElementDisplayed(vidOption)) {
+			count++;
+		}
+		if (isElementDisplayed(emailOption)) {
+			count++;
+		}
+		return count;
 	}
 
 	public boolean isBackButtonDisplayed() {
@@ -327,6 +398,59 @@ public class LoginOptionsPage extends BasePage {
 		waitForElementVisible(emailField);
 		emailField.clear();
 		enterText(emailField, email, "Entered email in email field");
+	}
+
+	public boolean isLoginHeaderIsDisplayed() {
+		return isElementVisible(loginHeader,
+				"Verified login header is displayed");
+	}
+
+	public boolean isLoginSubHeaderIsDisplayed() {
+		return isElementVisible(loginSubHeader,
+				"Verified invalid login sub header is displayed");
+	}
+
+	public boolean isSelectPreferredIdHeaderIsDisplayed() {
+		return isElementVisible(selectPreferredIdHeader,
+				"Verified select preferred id header is displayed");
+	}
+
+	public void enterPasswordForMobileId(String password) {
+		mobilePasswordField.clear();
+		enterText(mobilePasswordField, password, "Entered password in password field");
+	}
+
+	public void enterMobileNumberInPasswordScreen(String mobileNumber) {
+		waitForElementVisible(mobileNumberFieldInPasswordScreen);
+		mobileNumberFieldInPasswordScreen.clear();
+		enterText(mobileNumberFieldInPasswordScreen, mobileNumber, "Entered mobile number in mobile number field");
+	}
+
+	public void clickOnLoginButtonWithPasswordButton() {
+		clickOnElement(passwordWithLoginButton, "Clicked on password with login button");
+	}
+
+	public boolean isPasswordWithLoginButtonEnabled() {
+		return isButtonEnabled(passwordWithLoginButton, "Verified password with login button is enabled");
+	}
+
+	public void enterPasswordForVidId(String password) {
+		vidPasswordField.clear();
+		enterText(vidPasswordField, password, "Entered password in password field");
+	}
+
+	public void enterPasswordForEmailId(String password) {
+		emailPasswordField.clear();
+		enterText(emailPasswordField, password, "Entered password in password field");
+	}
+
+	public void clickOnPrefixNumberFieldButtonInPasswordScreen() {
+		clickOnElement(prefixNumberFieldInPasswordScreen, "Clicked on Prefix Number Field button");
+	}
+
+	public void enterVidInPasswordScreen(String vid) {
+		vidFieldInPasswordScreen.clear();
+		enterText(vidFieldInPasswordScreen, vid, "Entered vid in vid field");
 	}
 
 	public boolean isBiometricIntegrationContainerDisplayed() {

@@ -224,7 +224,7 @@ OIDCClientV3:
     description: To create OIDC Client V3 with title and subtile as null
     role: partner
     restMethod: post
-    inputTemplate: esignetUI/CreateClientMock/CreateOIDCClient
+    inputTemplate: esignetUI/CreateClientMock/CreateOIDCClientConditionalPurpose
     outputTemplate: esignetUI/CreateClientMock/CreateOIDCClientResult
     input: '{
       "requestTime": "$TIMESTAMP$",
@@ -363,6 +363,265 @@ OIDCClientV3:
       "forgot_pwd_link_required": true,
       "consent_expire_in_mins": "30",
       "require_pushed_authorization_requests": true
+}'
+    output: '{
+      "status": "ACTIVE"
+}'
+  ESignetUI_CreateOIDCClient_with_title_only_purpose_login_Smoke_sid:
+    endPoint: /v1/esignet/client-mgmt/client
+    uniqueIdentifier: TC_ESignet_OIDCClientV3_11
+    description: To create OIDC Client V3 with a title but no subtitle, purpose type login
+    role: partner
+    restMethod: post
+    inputTemplate: esignetUI/CreateClientMock/CreateOIDCClientConditionalPurpose
+    outputTemplate: esignetUI/CreateClientMock/CreateOIDCClientResult
+    input: '{
+      "requestTime": "$TIMESTAMP$",
+      "clientId": "$RANDOMPARTNERID$",
+      "clientName": "MOSIP OIDC Client",
+      "logoUri": "https://health-services.com/logo.png",
+      "relyingPartyId": "Bharathi-Inc",
+      "redirectUris": "$ESIGNET_REDIRECT_URI$",
+      "publicKey": "$OIDC_JWK_KEY_PAR_TITLE_ONLY_LOGIN$",
+      "userClaims1": "name",
+      "userClaims2": "email",
+      "userClaims3": "gender",
+      "userClaims4": "phone_number",
+      "userClaims5": "birthdate",
+      "authContextRefs": [{"acrValues": "mosip:idp:acr:static-code"},{"acrValues": "mosip:idp:acr:generated-code"},{"acrValues": "mosip:idp:acr:biometrics"},{"acrValues": "mosip:idp:acr:linked-wallet"},{"acrValues": "mosip:idp:acr:password"}],
+      "grantTypes": "authorization_code",
+      "clientAuthMethods": "private_key_jwt",
+      "keyLang1": "$1STLANG$",
+      "clientNameLang": "MOSIP OIDC Client",
+      "userinfo_response_type": "JWS",
+      "purpose_title": "Login using eSignet",
+      "purpose_type": "login",
+      "purpose_subTitle": null,
+      "signup_banner_required": true,
+      "forgot_pwd_link_required": true,
+      "consent_expire_in_mins": "30"
+}'
+    output: '{
+      "status": "ACTIVE"
+}'
+  ESignetUI_CreateOIDCClient_with_title_only_purpose_verify_Smoke_sid:
+    endPoint: /v1/esignet/client-mgmt/client
+    uniqueIdentifier: TC_ESignet_OIDCClientV3_12
+    description: To create OIDC Client V3 with a title but no subtitle, purpose type verify
+    role: partner
+    restMethod: post
+    inputTemplate: esignetUI/CreateClientMock/CreateOIDCClientConditionalPurpose
+    outputTemplate: esignetUI/CreateClientMock/CreateOIDCClientResult
+    input: '{
+      "requestTime": "$TIMESTAMP$",
+      "clientId": "$RANDOMPARTNERID$",
+      "clientName": "MOSIP OIDC Client",
+      "logoUri": "https://health-services.com/logo.png",
+      "relyingPartyId": "Bharathi-Inc",
+      "redirectUris": "$ESIGNET_REDIRECT_URI$",
+      "publicKey": "$OIDC_JWK_KEY_PAR_TITLE_ONLY_VERIFY$",
+      "userClaims1": "name",
+      "userClaims2": "email",
+      "userClaims3": "gender",
+      "userClaims4": "phone_number",
+      "userClaims5": "birthdate",
+      "authContextRefs": [{"acrValues": "mosip:idp:acr:static-code"},{"acrValues": "mosip:idp:acr:generated-code"},{"acrValues": "mosip:idp:acr:biometrics"},{"acrValues": "mosip:idp:acr:linked-wallet"},{"acrValues": "mosip:idp:acr:password"}],
+      "grantTypes": "authorization_code",
+      "clientAuthMethods": "private_key_jwt",
+      "keyLang1": "$1STLANG$",
+      "clientNameLang": "MOSIP OIDC Client",
+      "userinfo_response_type": "JWS",
+      "purpose_title": "Verify using eSignet",
+      "purpose_type": "verify",
+      "purpose_subTitle": null,
+      "signup_banner_required": true,
+      "forgot_pwd_link_required": true,
+      "consent_expire_in_mins": "30"
+}'
+    output: '{
+      "status": "ACTIVE"
+}'
+  ESignetUI_CreateOIDCClient_with_title_only_purpose_link_Smoke_sid:
+    endPoint: /v1/esignet/client-mgmt/client
+    uniqueIdentifier: TC_ESignet_OIDCClientV3_13
+    description: To create OIDC Client V3 with a title but no subtitle, purpose type link
+    role: partner
+    restMethod: post
+    inputTemplate: esignetUI/CreateClientMock/CreateOIDCClientConditionalPurpose
+    outputTemplate: esignetUI/CreateClientMock/CreateOIDCClientResult
+    input: '{
+      "requestTime": "$TIMESTAMP$",
+      "clientId": "$RANDOMPARTNERID$",
+      "clientName": "MOSIP OIDC Client",
+      "logoUri": "https://health-services.com/logo.png",
+      "relyingPartyId": "Bharathi-Inc",
+      "redirectUris": "$ESIGNET_REDIRECT_URI$",
+      "publicKey": "$OIDC_JWK_KEY_PAR_TITLE_ONLY_LINK$",
+      "userClaims1": "name",
+      "userClaims2": "email",
+      "userClaims3": "gender",
+      "userClaims4": "phone_number",
+      "userClaims5": "birthdate",
+      "authContextRefs": [{"acrValues": "mosip:idp:acr:static-code"},{"acrValues": "mosip:idp:acr:generated-code"},{"acrValues": "mosip:idp:acr:biometrics"},{"acrValues": "mosip:idp:acr:linked-wallet"},{"acrValues": "mosip:idp:acr:password"}],
+      "grantTypes": "authorization_code",
+      "clientAuthMethods": "private_key_jwt",
+      "keyLang1": "$1STLANG$",
+      "clientNameLang": "MOSIP OIDC Client",
+      "userinfo_response_type": "JWS",
+      "purpose_title": "Link using eSignet",
+      "purpose_type": "link",
+      "purpose_subTitle": null,
+      "signup_banner_required": true,
+      "forgot_pwd_link_required": true,
+      "consent_expire_in_mins": "30"
+}'
+    output: '{
+      "status": "ACTIVE"
+}'
+  ESignetUI_CreateOIDCClient_with_subtitle_only_purpose_login_Smoke_sid:
+    endPoint: /v1/esignet/client-mgmt/client
+    uniqueIdentifier: TC_ESignet_OIDCClientV3_14
+    description: To create OIDC Client V3 with a subtitle but no title, purpose type login
+    role: partner
+    restMethod: post
+    inputTemplate: esignetUI/CreateClientMock/CreateOIDCClientConditionalPurpose
+    outputTemplate: esignetUI/CreateClientMock/CreateOIDCClientResult
+    input: '{
+      "requestTime": "$TIMESTAMP$",
+      "clientId": "$RANDOMPARTNERID$",
+      "clientName": "MOSIP OIDC Client",
+      "logoUri": "https://health-services.com/logo.png",
+      "relyingPartyId": "Bharathi-Inc",
+      "redirectUris": "$ESIGNET_REDIRECT_URI$",
+      "publicKey": "$OIDC_JWK_KEY_PAR_SUBTITLE_ONLY_LOGIN$",
+      "userClaims1": "name",
+      "userClaims2": "email",
+      "userClaims3": "gender",
+      "userClaims4": "phone_number",
+      "userClaims5": "birthdate",
+      "authContextRefs": [{"acrValues": "mosip:idp:acr:static-code"},{"acrValues": "mosip:idp:acr:generated-code"},{"acrValues": "mosip:idp:acr:biometrics"},{"acrValues": "mosip:idp:acr:linked-wallet"},{"acrValues": "mosip:idp:acr:password"}],
+      "grantTypes": "authorization_code",
+      "clientAuthMethods": "private_key_jwt",
+      "keyLang1": "$1STLANG$",
+      "clientNameLang": "MOSIP OIDC Client",
+      "userinfo_response_type": "JWS",
+      "purpose_title": null,
+      "purpose_type": "login",
+      "purpose_subTitle": "{{clientName}} is requesting authentication for login",
+      "signup_banner_required": true,
+      "forgot_pwd_link_required": true,
+      "consent_expire_in_mins": "30"
+}'
+    output: '{
+      "status": "ACTIVE"
+}'
+  ESignetUI_CreateOIDCClient_with_subtitle_only_purpose_verify_Smoke_sid:
+    endPoint: /v1/esignet/client-mgmt/client
+    uniqueIdentifier: TC_ESignet_OIDCClientV3_15
+    description: To create OIDC Client V3 with a subtitle but no title, purpose type verify
+    role: partner
+    restMethod: post
+    inputTemplate: esignetUI/CreateClientMock/CreateOIDCClientConditionalPurpose
+    outputTemplate: esignetUI/CreateClientMock/CreateOIDCClientResult
+    input: '{
+      "requestTime": "$TIMESTAMP$",
+      "clientId": "$RANDOMPARTNERID$",
+      "clientName": "MOSIP OIDC Client",
+      "logoUri": "https://health-services.com/logo.png",
+      "relyingPartyId": "Bharathi-Inc",
+      "redirectUris": "$ESIGNET_REDIRECT_URI$",
+      "publicKey": "$OIDC_JWK_KEY_PAR_SUBTITLE_ONLY_VERIFY$",
+      "userClaims1": "name",
+      "userClaims2": "email",
+      "userClaims3": "gender",
+      "userClaims4": "phone_number",
+      "userClaims5": "birthdate",
+      "authContextRefs": [{"acrValues": "mosip:idp:acr:static-code"},{"acrValues": "mosip:idp:acr:generated-code"},{"acrValues": "mosip:idp:acr:biometrics"},{"acrValues": "mosip:idp:acr:linked-wallet"},{"acrValues": "mosip:idp:acr:password"}],
+      "grantTypes": "authorization_code",
+      "clientAuthMethods": "private_key_jwt",
+      "keyLang1": "$1STLANG$",
+      "clientNameLang": "MOSIP OIDC Client",
+      "userinfo_response_type": "JWS",
+      "purpose_title": null,
+      "purpose_type": "verify",
+      "purpose_subTitle": "{{clientName}} is requesting authentication for verification",
+      "signup_banner_required": true,
+      "forgot_pwd_link_required": true,
+      "consent_expire_in_mins": "30"
+}'
+    output: '{
+      "status": "ACTIVE"
+}'
+  ESignetUI_CreateOIDCClient_with_subtitle_only_purpose_link_Smoke_sid:
+    endPoint: /v1/esignet/client-mgmt/client
+    uniqueIdentifier: TC_ESignet_OIDCClientV3_16
+    description: To create OIDC Client V3 with a subtitle but no title, purpose type link
+    role: partner
+    restMethod: post
+    inputTemplate: esignetUI/CreateClientMock/CreateOIDCClientConditionalPurpose
+    outputTemplate: esignetUI/CreateClientMock/CreateOIDCClientResult
+    input: '{
+      "requestTime": "$TIMESTAMP$",
+      "clientId": "$RANDOMPARTNERID$",
+      "clientName": "MOSIP OIDC Client",
+      "logoUri": "https://health-services.com/logo.png",
+      "relyingPartyId": "Bharathi-Inc",
+      "redirectUris": "$ESIGNET_REDIRECT_URI$",
+      "publicKey": "$OIDC_JWK_KEY_PAR_SUBTITLE_ONLY_LINK$",
+      "userClaims1": "name",
+      "userClaims2": "email",
+      "userClaims3": "gender",
+      "userClaims4": "phone_number",
+      "userClaims5": "birthdate",
+      "authContextRefs": [{"acrValues": "mosip:idp:acr:static-code"},{"acrValues": "mosip:idp:acr:generated-code"},{"acrValues": "mosip:idp:acr:biometrics"},{"acrValues": "mosip:idp:acr:linked-wallet"},{"acrValues": "mosip:idp:acr:password"}],
+      "grantTypes": "authorization_code",
+      "clientAuthMethods": "private_key_jwt",
+      "keyLang1": "$1STLANG$",
+      "clientNameLang": "MOSIP OIDC Client",
+      "userinfo_response_type": "JWS",
+      "purpose_title": null,
+      "purpose_type": "link",
+      "purpose_subTitle": "{{clientName}} is requesting authentication to link your account",
+      "signup_banner_required": true,
+      "forgot_pwd_link_required": true,
+      "consent_expire_in_mins": "30"
+}'
+    output: '{
+      "status": "ACTIVE"
+}'
+  ESignetUI_CreateOIDCClient_with_updated_title_and_subtitle_Smoke_sid:
+    endPoint: /v1/esignet/client-mgmt/client
+    uniqueIdentifier: TC_ESignet_OIDCClientV3_18
+    description: To create OIDC Client V3 with custom (updated) title and subtitle text
+    role: partner
+    restMethod: post
+    inputTemplate: esignetUI/CreateClientMock/CreateOIDCClient
+    outputTemplate: esignetUI/CreateClientMock/CreateOIDCClientResult
+    input: '{
+      "requestTime": "$TIMESTAMP$",
+      "clientId": "$RANDOMPARTNERID$",
+      "clientName": "MOSIP OIDC Client",
+      "logoUri": "https://health-services.com/logo.png",
+      "relyingPartyId": "Bharathi-Inc",
+      "redirectUris": "$ESIGNET_REDIRECT_URI$",
+      "publicKey": "$OIDC_JWK_KEY_PAR_UPDATED_TITLE$",
+      "userClaims1": "name",
+      "userClaims2": "email",
+      "userClaims3": "gender",
+      "userClaims4": "phone_number",
+      "userClaims5": "birthdate",
+      "authContextRefs": [{"acrValues": "mosip:idp:acr:static-code"},{"acrValues": "mosip:idp:acr:generated-code"},{"acrValues": "mosip:idp:acr:biometrics"},{"acrValues": "mosip:idp:acr:linked-wallet"},{"acrValues": "mosip:idp:acr:password"}],
+      "grantTypes": "authorization_code",
+      "clientAuthMethods": "private_key_jwt",
+      "keyLang1": "$1STLANG$",
+      "clientNameLang": "MOSIP OIDC Client",
+      "userinfo_response_type": "JWS",
+      "purpose_title": "Updated eSignet Login Title",
+      "purpose_type": "login",
+      "purpose_subTitle": "Updated eSignet subtitle text for this client",
+      "signup_banner_required": true,
+      "forgot_pwd_link_required": true,
+      "consent_expire_in_mins": "30"
 }'
     output: '{
       "status": "ACTIVE"

@@ -125,6 +125,34 @@ public class BaseTest extends AdminTestUtil {
 
 		CLIENT_CONFIG_MAP.put(PAR_TAG, new String[] { "$ID:CreateOIDCClient_par_required_Smoke_sid_clientId$",
 				"$CLIENT_ASSERTION_PAR_JWT_PAR_REQUIRED$" });
+
+		CLIENT_CONFIG_MAP.put("@TitleOnlyPurposeLogin",
+				new String[] { "$ID:CreateOIDCClient_with_title_only_purpose_login_Smoke_sid_clientId$",
+						"$CLIENT_ASSERTION_PAR_JWT_TITLE_ONLY_LOGIN$" });
+
+		CLIENT_CONFIG_MAP.put("@TitleOnlyPurposeVerify",
+				new String[] { "$ID:CreateOIDCClient_with_title_only_purpose_verify_Smoke_sid_clientId$",
+						"$CLIENT_ASSERTION_PAR_JWT_TITLE_ONLY_VERIFY$" });
+
+		CLIENT_CONFIG_MAP.put("@TitleOnlyPurposeLink",
+				new String[] { "$ID:CreateOIDCClient_with_title_only_purpose_link_Smoke_sid_clientId$",
+						"$CLIENT_ASSERTION_PAR_JWT_TITLE_ONLY_LINK$" });
+
+		CLIENT_CONFIG_MAP.put("@SubtitleOnlyPurposeLogin",
+				new String[] { "$ID:CreateOIDCClient_with_subtitle_only_purpose_login_Smoke_sid_clientId$",
+						"$CLIENT_ASSERTION_PAR_JWT_SUBTITLE_ONLY_LOGIN$" });
+
+		CLIENT_CONFIG_MAP.put("@SubtitleOnlyPurposeVerify",
+				new String[] { "$ID:CreateOIDCClient_with_subtitle_only_purpose_verify_Smoke_sid_clientId$",
+						"$CLIENT_ASSERTION_PAR_JWT_SUBTITLE_ONLY_VERIFY$" });
+
+		CLIENT_CONFIG_MAP.put("@SubtitleOnlyPurposeLink",
+				new String[] { "$ID:CreateOIDCClient_with_subtitle_only_purpose_link_Smoke_sid_clientId$",
+						"$CLIENT_ASSERTION_PAR_JWT_SUBTITLE_ONLY_LINK$" });
+
+		CLIENT_CONFIG_MAP.put("@UpdatedTitleAndSubTitle",
+				new String[] { "$ID:CreateOIDCClient_with_updated_title_and_subtitle_Smoke_sid_clientId$",
+						"$CLIENT_ASSERTION_PAR_JWT_UPDATED_TITLE$" });
 	}
 
 	// Runs before every other @Before hook (lowest order), unconditionally, so every scenario -
@@ -367,7 +395,30 @@ public class BaseTest extends AdminTestUtil {
 		}
 
 		try {
-			if (scenario.isFailed()) {
+			String status = scenario.getStatus().toString();
+
+			// Branch on status directly, not isFailed() - it misses UNDEFINED/PENDING/AMBIGUOUS
+			if (status.equalsIgnoreCase("SKIPPED") && runners.Runner.knownIssues.containsKey(scenario.getName())) {
+
+				String bugId = runners.Runner.knownIssues.get(scenario.getName());
+				String bugUrl = "https://mosip.atlassian.net/browse/" + bugId;
+
+				ExtentReportManager.incrementKnownIssue();
+				ExtentReportManager.getTest().skip(
+						"🟠 Skipped due to Known Issue → <a href='" + bugUrl + "' target='_blank'>" + bugId + "</a>");
+
+			} else if (status.equalsIgnoreCase("SKIPPED")) {
+
+				ExtentReportManager.incrementSkipped();
+				ExtentReportManager.getTest().skip("⚠️ Scenario Skipped: " + scenario.getName());
+
+			} else if (status.equalsIgnoreCase("PASSED")) {
+
+				passedCount++;
+				ExtentReportManager.incrementPassed();
+				ExtentReportManager.getTest().pass("✅ Scenario Passed: " + scenario.getName());
+
+			} else {
 
 				failedCount++;
 				ExtentReportManager.incrementFailed();
@@ -382,27 +433,7 @@ public class BaseTest extends AdminTestUtil {
 					ExtentReportManager.getTest().warning("Screenshot skipped because WebDriver was not initialized.");
 				}
 
-				ExtentReportManager.getTest().fail("❌ Scenario Failed: " + scenario.getName());
-
-			} else if (scenario.getStatus().toString().equalsIgnoreCase("SKIPPED")
-					&& runners.Runner.knownIssues.containsKey(scenario.getName())) {
-
-				String bugId = runners.Runner.knownIssues.get(scenario.getName());
-				String bugUrl = "https://mosip.atlassian.net/browse/" + bugId;
-
-				ExtentReportManager.incrementKnownIssue();
-				ExtentReportManager.getTest().skip(
-						"🟠 Skipped due to Known Issue → <a href='" + bugUrl + "' target='_blank'>" + bugId + "</a>");
-
-			} else if (scenario.getStatus().toString().equalsIgnoreCase("SKIPPED")) {
-
-				ExtentReportManager.incrementSkipped();
-				ExtentReportManager.getTest().skip("⚠️ Scenario Skipped: " + scenario.getName());
-
-			} else {
-				passedCount++;
-				ExtentReportManager.incrementPassed();
-				ExtentReportManager.getTest().pass("✅ Scenario Passed: " + scenario.getName());
+				ExtentReportManager.getTest().fail("❌ Scenario " + status + ": " + scenario.getName());
 			}
 
 			ExtentReportManager.flushReport();

@@ -100,6 +100,8 @@ public class SignupFormDynamicFiller {
 					} else if ("khm".equalsIgnoreCase(lang)) {
 						nameField.sendKeys(names.khmer);
 						RegisteredDetails.setFullName(names.khmer);
+					} else if ("ar".equalsIgnoreCase(lang) || "ara".equalsIgnoreCase(lang)) {
+						nameField.sendKeys(names.arabic);
 					}
 				}
 				continue;
@@ -128,10 +130,6 @@ public class SignupFormDynamicFiller {
 				Select dropdown = new Select(element);
 				List<WebElement> options = dropdown.getOptions();
 				if (options.size() > 1) {
-					// A language/locale dropdown (e.g. preferredLang) must not be picked at random:
-					// this deployment supports eng+khm but has no SMS/notification template for khm
-					// (IDA-MLC-007 on the next OTP send), so pin it to English the same way
-					// mockIdentityValueMapping.properties already does for the mock identity path.
 					if (fieldId.toLowerCase().contains("lang") && selectEnglishOption(dropdown, options)) {
 						continue;
 					}

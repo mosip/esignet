@@ -13,6 +13,10 @@ import java.util.Base64;
 
 public class ClaimsUtil {
 
+	private static String emptyToNull(String value) {
+		return (value == null || value.isBlank()) ? null : value;
+	}
+
 	private static JSONObject root;
 	private static final Logger logger = Logger.getLogger(ClaimsUtil.class);
 
@@ -145,5 +149,59 @@ public class ClaimsUtil {
 		default:
 			return factor;
 		}
+	}
+
+	public static String getPostfixForLoginIdOption(String optionId) {
+		JSONObject option = getLoginIdOption(optionId);
+		return option == null ? null : option.optString("postfix", null);
+	}
+
+	private static JSONObject getLoginIdOption(String optionId) {
+		if (root == null)
+			return null;
+		JSONObject configs = root.optJSONObject("configs");
+		if (configs == null)
+			return null;
+		JSONArray options = configs.optJSONArray("login-id.options");
+		if (options == null)
+			return null;
+		for (int i = 0; i < options.length(); i++) {
+			JSONObject option = options.optJSONObject(i);
+			if (option != null && optionId.equalsIgnoreCase(option.optString("id"))) {
+				return option;
+			}
+		}
+		return null;
+	}
+
+	public static String getEffectiveMaxLength(String optionId, String prefixLabel) {
+		String prefixMaxLength = getPrefixMaxLength(optionId, prefixLabel);
+		if (prefixMaxLength != null) {
+			return prefixMaxLength;
+		}
+		return getOuterMaxLengthForLoginIdOption(optionId);
+	}
+
+	/** The login-id option's own (outer-scope) maxLength, or null if unset/blank. */
+	public static String getOuterMaxLengthForLoginIdOption(String optionId) {
+		JSONObject option = getLoginIdOption(optionId);
+		return option == null ? null : emptyToNull(option.optString("maxLength", null));
+	}
+
+	/** The maxLength configured on a specific prefix (e.g. "IND"), or null if unset/blank. */
+	public static String getPrefixMaxLength(String optionId, String prefixLabel) {
+		JSONObject option = getLoginIdOption(optionId);
+		if (option == null)
+			return null;
+		JSONArray prefixes = option.optJSONArray("prefixes");
+		if (prefixes == null)
+			return null;
+		for (int i = 0; i < prefixes.length(); i++) {
+			JSONObject prefix = prefixes.optJSONObject(i);
+			if (prefix != null && prefixLabel.equalsIgnoreCase(prefix.optString("label"))) {
+				return emptyToNull(prefix.optString("maxLength", null));
+			}
+		}
+		return null;
 	}
 }

@@ -467,9 +467,60 @@ public class ConsentStepDefinition {
 		// Title is already handled via scenario tags in BaseTest
 	}
 
+	@Then("verify default title and subtitle should be displayed when both title and subtitle are not configured")
+	public void verifyDefaultTitleAndSubtitleWhenNotConfigured() {
+		Assert.assertEquals(consentPage.getLoginTitleText(), "Login using eSignet",
+				"Default title was not displayed as expected");
+		Assert.assertTrue(consentPage.waitForLoginSubTitleToContain("is requesting authentication for login"),
+				"Default subtitle was not displayed as expected");
+	}
+
 	@When("user creates the client with empty title and subtitle values")
 	public void userCreateClientIdWithEmptyTitle() {
 		// Title is already handled via scenario tags in BaseTest
+	}
+
+	@Given("user creates the client with updated title and subtitle values")
+	public void userCreateClientWithUpdatedTitleAndSubtitle() {
+		// Client is already created via scenario tags in BaseTest (see CLIENT_CONFIG_MAP)
+		logger.info("Creating client with updated title and subtitle values");
+	}
+
+	@Then("verify title and subtitle should be displayed as per updated client details")
+	public void verifyTitleAndSubtitleDisplayedAsPerUpdatedClientDetails() {
+		Assert.assertEquals(consentPage.getLoginTitleText(), "Updated eSignet Login Title",
+				"Title was not displayed as per the updated client details");
+		Assert.assertTrue(consentPage.waitForLoginSubTitleToContain("Updated eSignet subtitle text"),
+				"Subtitle was not displayed as per the updated client details");
+	}
+
+	@Given("user creates the client with a title but no subtitle for purpose type {string}")
+	public void userCreateClientWithTitleOnly(String purposeType) {
+		// purposeType selects which @TitleOnlyPurpose<X> tagged scenario is running (see CLIENT_CONFIG_MAP)
+		logger.info("Creating client with title only for purpose type: " + purposeType);
+	}
+
+	@Then("verify default subtitle {string} should be displayed when subtitle is not configured")
+	public void verifyDefaultSubtitleWhenNotConfigured(String expectedSubtitle) {
+		Assert.assertTrue(consentPage.waitForLoginSubTitleToContain(expectedSubtitle),
+				"Default subtitle was not displayed as expected. Expected to contain: " + expectedSubtitle);
+	}
+
+	@Given("user creates the client with a subtitle but no title for purpose type {string}")
+	public void userCreateClientWithSubtitleOnly(String purposeType) {
+		// purposeType selects which @SubtitleOnlyPurpose<X> tagged scenario is running (see CLIENT_CONFIG_MAP)
+		logger.info("Creating client with subtitle only for purpose type: " + purposeType);
+	}
+
+	@Then("verify default title {string} should be displayed when title is not configured")
+	public void verifyDefaultTitleWhenNotConfigured(String expectedTitle) {
+		Assert.assertEquals(consentPage.getLoginTitleText(), expectedTitle,
+				"Default title was not displayed as expected");
+	}
+
+	@Given("user creates the client with an empty purpose type")
+	public void userCreateClientWithEmptyPurposeType() {
+		// Client is already created via scenario tags in BaseTest (see CLIENT_CONFIG_MAP)
 	}
 
 	@Then("verify select preferred mode text is displayed")
