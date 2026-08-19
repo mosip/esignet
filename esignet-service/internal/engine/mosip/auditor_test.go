@@ -41,11 +41,17 @@ func newTestAuditor(t *testing.T) (providers.ObservabilityProvider, <-chan Audit
 	}))
 	t.Cleanup(tokenSrv.Close)
 
-	t.Setenv("MOSIP_ESIGNET_AUDIT_MANAGER_URL", srv.URL)
-	t.Setenv("MOSIP_ESIGNET_AUTH_TOKEN_URL", tokenSrv.URL)
-	t.Setenv("MOSIP_ESIGNET_IDA_CLIENT_SECRET", "secret")
+	client := &http.Client{}
+	cfg := Config{
+		AuditManagerURL: srv.URL,
+		AuthTokenURL:    tokenSrv.URL,
+		SecretKey:       "secret",
+		ClientID:        defaultClientID,
+		AppID:           defaultAppID,
+	}
+	tokenProvider := newTokenProvider(cfg, client)
 
-	p, err := NewAuditor(&http.Client{})
+	p, err := NewAuditor(client, cfg, tokenProvider)
 	if err != nil {
 		t.Fatalf("NewAuditor: %v", err)
 	}
@@ -138,13 +144,15 @@ func (ts *AuditorTestSuite) TestClientPostSendsWrappedBodyAndCookie() {
 	}))
 	defer auditSrv.Close()
 
-	c := NewClient(AuditConfig{
+	client := &http.Client{}
+	cfg := Config{
 		AuditManagerURL: auditSrv.URL,
 		AuthTokenURL:    tokenSrv.URL,
 		SecretKey:       "secret",
 		ClientID:        "cid",
 		AppID:           "ida",
-	}, &http.Client{})
+	}
+	c := NewClient(cfg, client, newTokenProvider(cfg, client))
 
 	err := c.Post(context.Background(), AuditRequest{EventID: "FLOW_FAILED", EventType: "ERROR"})
 	if err != nil {
@@ -185,11 +193,13 @@ func (ts *AuditorTestSuite) TestClientPostPurgesAndRetriesOn401() {
 	}))
 	defer auditSrv.Close()
 
-	c := NewClient(AuditConfig{
+	client := &http.Client{}
+	cfg := Config{
 		AuditManagerURL: auditSrv.URL,
 		AuthTokenURL:    tokenSrv.URL,
 		SecretKey:       "secret",
-	}, &http.Client{})
+	}
+	c := NewClient(cfg, client, newTokenProvider(cfg, client))
 
 	if err := c.Post(context.Background(), AuditRequest{}); err != nil {
 		t.Fatalf("Post: %v", err)
@@ -210,7 +220,9 @@ func (ts *AuditorTestSuite) TestClientPostFailsWithoutAuthTokenURL() {
 	}))
 	defer auditSrv.Close()
 
-	c := NewClient(AuditConfig{AuditManagerURL: auditSrv.URL}, &http.Client{})
+	client := &http.Client{}
+	cfg := Config{AuditManagerURL: auditSrv.URL}
+	c := NewClient(cfg, client, newTokenProvider(cfg, client))
 	if err := c.Post(context.Background(), AuditRequest{}); err == nil {
 		t.Fatal("Post: want error when auth token URL is not configured")
 	}

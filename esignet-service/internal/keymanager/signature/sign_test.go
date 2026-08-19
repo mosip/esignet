@@ -2,11 +2,15 @@ package signature_test
 
 import (
 	"crypto/ecdsa"
+	"crypto/ed25519"
 	"crypto/elliptic"
 	"crypto/rand"
+	"crypto/rsa"
 	"crypto/sha256"
 	"encoding/asn1"
 	"math/big"
+
+	"github.com/btcsuite/btcd/btcec/v2"
 
 	"github.com/mosip/esignet/internal/keymanager/signature"
 )
@@ -106,6 +110,49 @@ func (ts *SignatureTestSuite) TestAlgorithmForRefID_MatchesJavaMapping() {
 	for _, c := range cases {
 		if got := signature.AlgorithmForRefID(c.refID); got != c.want {
 			t.Errorf("algorithmForRefID(%q) = %q, want %q", c.refID, got, c.want)
+		}
+	}
+}
+
+// TestAlgorithmForPublicKey_MatchesKeyType confirms the public-key -> JWS
+// algorithm mapping used for keys with no refID of ours to resolve (e.g. an
+// external ID system's signing certificate): it must inspect the actual key
+// material rather than any string hint, since callers have no refID to go on.
+func (ts *SignatureTestSuite) TestAlgorithmForPublicKey_MatchesKeyType() {
+	t := ts.T()
+
+	rsaKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		t.Fatalf("generate RSA key: %v", err)
+	}
+	ecP256Key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		t.Fatalf("generate P-256 key: %v", err)
+	}
+	ecSecp256k1Key, err := ecdsa.GenerateKey(btcec.S256(), rand.Reader)
+	if err != nil {
+		t.Fatalf("generate secp256k1 key: %v", err)
+	}
+	edKey, _, err := ed25519.GenerateKey(rand.Reader)
+	if err != nil {
+		t.Fatalf("generate Ed25519 key: %v", err)
+	}
+
+	cases := []struct {
+		name string
+		key  any
+		want string
+	}{
+		{"RSA", &rsaKey.PublicKey, "PS256"},
+		{"EC P-256", &ecP256Key.PublicKey, "ES256"},
+		{"EC secp256k1", &ecSecp256k1Key.PublicKey, "ES256K"},
+		{"Ed25519", edKey, "EdDSA"},
+		{"unsupported key type", "not a key", ""},
+		{"nil", nil, ""},
+	}
+	for _, c := range cases {
+		if got := signature.AlgorithmForPublicKey(c.key); got != c.want {
+			t.Errorf("%s: AlgorithmForPublicKey() = %q, want %q", c.name, got, c.want)
 		}
 	}
 }

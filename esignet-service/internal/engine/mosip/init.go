@@ -36,11 +36,17 @@ func Init(appConfig *config.AppConfig, clientSvc *clientmgmt.Service, httpClient
 	if svc == nil || sigSvc == nil {
 		return nil, nil, ErrNilCryptoService
 	}
-	authnProvider, err := NewMosipAuthnProvider(appConfig, clientSvc, httpClient, svc, sigSvc)
+	pluginConfig, err := LoadConfig()
 	if err != nil {
 		return nil, nil, err
 	}
-	auditor, err := NewAuditor(httpClient)
+
+	tokenProvider := newTokenProvider(pluginConfig, httpClient)
+	authnProvider, err := NewMosipAuthnProvider(appConfig, clientSvc, httpClient, svc, sigSvc, pluginConfig, tokenProvider)
+	if err != nil {
+		return nil, nil, err
+	}
+	auditor, err := NewAuditor(httpClient, pluginConfig, tokenProvider)
 	if err != nil {
 		return nil, nil, err
 	}

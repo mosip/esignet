@@ -1,6 +1,10 @@
 package signature
 
 import (
+	"crypto"
+	"crypto/ecdsa"
+	"crypto/ed25519"
+	"crypto/rsa"
 	"crypto/sha256"
 	"crypto/x509"
 	"encoding/base64"
@@ -8,6 +12,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
+
+	"github.com/btcsuite/btcd/btcec/v2"
 
 	"github.com/mosip/esignet/internal/keymanager"
 )
@@ -48,6 +54,28 @@ func algorithmForRefID(refID string) string {
 // a resolved key's JWS algorithm without going through JWSSign/SignRaw.
 func AlgorithmForRefID(refID string) string {
 	return algorithmForRefID(refID)
+}
+
+// AlgorithmForPublicKey maps a public key to its JWS algorithm, using the
+// same RSA/EC/Ed25519 defaults as algorithmForRefID. Callers use this for
+// keys with no refID of ours to resolve (e.g. an external ID system's
+// signing certificate), where cert.SignatureAlgorithm.String() would report
+// Go's x509 algorithm name (e.g. "SHA256-RSA") rather than a JWA identifier.
+// Returns "" for key types with no corresponding JWS algorithm.
+func AlgorithmForPublicKey(pub crypto.PublicKey) string {
+	switch key := pub.(type) {
+	case *rsa.PublicKey:
+		return algPS256
+	case *ecdsa.PublicKey:
+		if key.Curve == btcec.S256() {
+			return algES256K
+		}
+		return algES256
+	case ed25519.PublicKey:
+		return algEdDSA
+	default:
+		return ""
+	}
 }
 
 // jwsHeader is the on-wire JWS protected header shape this port produces —
