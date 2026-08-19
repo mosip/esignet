@@ -438,7 +438,7 @@ docker run --rm -p 8088:8088 \
   esignet:latest
 ```
 
-On first start the entrypoint generates signing keys if absent. Data is baked in at `/home/mosip/data`.
+On first start the entrypoint installs the PKCS#11 HSM client (`libpkcs11-proxy.so`) unless `KEYMANAGER_KEYSTORE_TYPE=PKCS12`. Local/mock runs should use PKCS12 (as above) so SoftHSM is not required. Cluster/helm defaults to PKCS11 and expects SoftHSM plus `PKCS11_PROXY_SOCKET` from `esignet-softhsm-share`.
 
 ## Demo credentials
 

@@ -36,10 +36,18 @@ function installing_esignet() {
   helm repo update
 
   COPY_UTIL=../copy_cm_func.sh
-  $COPY_UTIL configmap esignet-softhsm-share softhsm $NS
+  # SoftHSM may be installed in the softhsm namespace (collab) or esignet
+  # namespace (install-prereq.sh). Copy into $NS when the source is elsewhere.
+  if kubectl -n softhsm get configmap esignet-softhsm-share >/dev/null 2>&1; then
+    $COPY_UTIL configmap esignet-softhsm-share softhsm $NS
+    $COPY_UTIL secret esignet-softhsm softhsm $NS
+  elif kubectl -n $NS get configmap esignet-softhsm-share >/dev/null 2>&1; then
+    echo "Using esignet-softhsm-share already present in $NS"
+  else
+    echo "Warning: esignet-softhsm-share not found. PKCS11 needs libpkcs11-proxy.so from the HSM client zip (baked into the image, or set hsm_client_zip_url_env)."
+  fi
   $COPY_UTIL configmap postgres-config postgres $NS
   $COPY_UTIL configmap redis-config redis $NS
-  $COPY_UTIL secret esignet-softhsm softhsm $NS
   $COPY_UTIL secret redis redis $NS
 
   while true; do
@@ -102,7 +110,10 @@ function installing_esignet() {
             --set persistence.mountDir=\"$volume_mount_path\" \
             --set persistence.pvc_claim_name=\"$PVC_CLAIM_NAME\"  \
             --set extraEnvVarsCM={'esignet-global','config-server-share','artifactory-share'} \
-            --set extraEnvVarsAdditional.MOSIP_KERNEL_KEYMANAGER_HSM_KEYSTORE-TYPE=PKCS12 \
+            --set extraEnvVarsAdditional.KEYMANAGER_KEYSTORE_TYPE=PKCS12 \
+            --set extraEnvVarsAdditional.KEYMANAGER_PKCS12_FILE_PATH=${volume_mount_path}/esignet.p12 \
+            --set extraEnvVarsAdditional.KEYMANAGER_PKCS12_PASSWORD=localtest \
+            --set extraEnvVarsAdditional.KEYMANAGER_PKCS12_ALLOW_INSECURE_SOFTWARE_KEYSTORE=true \
             "
   fi
   echo "ESIGNET HELM ARGS $ESIGNET_HELM_ARGS"
@@ -114,7 +125,6 @@ function installing_esignet() {
   echo Installing esignet
   helm -n $NS install esignet mosip/esignet --version $CHART_VERSION \
   $ESIGNET_HELM_ARGS \
-  --set image.repository=mosipdev/esignet --set image.tag=develop \
   $ENABLE_INSECURE $plugin_option \
   --set metrics.serviceMonitor.enabled=$servicemonitorflag -f values.yaml --wait
 

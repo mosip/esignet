@@ -34,6 +34,14 @@ function installing_esignet_with_plugins() {
   $COPY_UTIL configmap postgres-config postgres $NS
   $COPY_UTIL configmap redis-config redis $NS
   $COPY_UTIL secret redis redis $NS
+  if kubectl -n softhsm get configmap esignet-softhsm-share >/dev/null 2>&1; then
+    $COPY_UTIL configmap esignet-softhsm-share softhsm $NS
+    $COPY_UTIL secret esignet-softhsm softhsm $NS
+  elif kubectl -n $NS get configmap esignet-softhsm-share >/dev/null 2>&1; then
+    echo "Using esignet-softhsm-share already present in $NS"
+  else
+    echo "Warning: esignet-softhsm-share not found. PKCS11 needs libpkcs11-proxy.so from the HSM client zip (baked into the image, or set hsm_client_zip_url_env)."
+  fi
 
   while true; do
     read -p "Is Prometheus Service Monitor Operator deployed in the k8s cluster? (y/n): " response
@@ -91,7 +99,10 @@ function installing_esignet_with_plugins() {
     pkcs12_env_file=$(mktemp)
     cat <<EOF > "$pkcs12_env_file"
 extraEnvVarsAdditional:
-  MOSIP_KERNEL_KEYMANAGER_HSM_KEYSTORE-TYPE: "PKCS12"
+  KEYMANAGER_KEYSTORE_TYPE: "PKCS12"
+  KEYMANAGER_PKCS12_FILE_PATH: "$volume_mount_path/esignet.p12"
+  KEYMANAGER_PKCS12_PASSWORD: "localtest"
+  KEYMANAGER_PKCS12_ALLOW_INSECURE_SOFTWARE_KEYSTORE: "true"
 EOF
 
     PVC_CLAIM_NAME='esignet-pkcs12'
@@ -116,6 +127,8 @@ EOF
   while true; do
     if [[ "$plugin_no" == "1" ]]; then
       plugin_option="--set pluginNameEnv=esignet-mock-plugin"
+      extra_env_vars_additional+="  MOSIP_ESIGNET_AUTHN_PROVIDER: mock"$'\n'
+      extra_env_vars_additional+="  MOSIP_ESIGNET_MOCK_DOMAIN_URL: http://mock-identity-system.esignet"$'\n'
       break
 
     elif [[ "$plugin_no" == "2" ]]; then

@@ -270,6 +270,10 @@ extraEnvVars:
   MOSIP_ESIGNET_OIDC_UI_LOGIN_PATH: /signin
   MOSIP_ESIGNET_OIDC_UI_ERROR_PATH: /error
   KEYMANAGER_DB_SCHEMA: esignet
+  # PKCS11 is the cluster default and requires the pkcs11-proxy client
+  # (libpkcs11-proxy.so). The esignet image bakes client.zip and the
+  # entrypoint installs it unless KEYMANAGER_KEYSTORE_TYPE=PKCS12.
+  # hsm_client_zip_url_env from esignet-softhsm-share overrides that zip.
   KEYMANAGER_KEYSTORE_TYPE: PKCS11
   KEYMANAGER_PKCS11_MODULE_PATH: /usr/local/lib/softhsm/libpkcs11-proxy.so
   KEYMANAGER_PKCS11_TOKEN_LABEL: pkcs11-proxy
@@ -279,14 +283,13 @@ extraEnvVars:
       secretKeyRef:
         name: esignet-softhsm
         key: security-pin
-  # PKCS12 (file-based) alternative to the PKCS11 keys above; requires a CGO_ENABLED=0 build.
+  # PKCS12 (file-based) alternative for mock/dev without SoftHSM.
+  # Switch KEYMANAGER_KEYSTORE_TYPE to PKCS12 and set the three keys below;
+  # extraEnvVarsAdditional can override KEYMANAGER_KEYSTORE_TYPE at install time.
   # KEYMANAGER_KEYSTORE_TYPE: PKCS12
-  # KEYMANAGER_PKCS12_FILE_PATH: /home/mosip/keys/secret/esignet.pfx
-  # KEYMANAGER_PKCS12_PASSWORD:
-  #   valueFrom:
-  #     secretKeyRef:
-  #       name: esignet-keymanager
-  #       key: pkcs12-password
+  # KEYMANAGER_PKCS12_FILE_PATH: /home/mosip/config/esignet.p12
+  # KEYMANAGER_PKCS12_PASSWORD: localtest
+  # KEYMANAGER_PKCS12_ALLOW_INSECURE_SOFTWARE_KEYSTORE: "true"
   REDIS_HOST:
     valueFrom:
       configMapKeyRef:

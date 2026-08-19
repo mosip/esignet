@@ -8,9 +8,71 @@ services:
       - POSTGRES_PASSWORD=postgres
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
 
   redis:
     image: redis:7.4
     ports:
       - "6379:6379"
     restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Mock identity system used when MOSIP_ESIGNET_AUTHN_PROVIDER=mock
+  mock-identity-system:
+    image: "mosipdev/mock-identity-system:develop"
+    user: root
+    ports:
+      - 8082:8082
+    environment:
+      - container_user=mosip
+      - active_profile_env=default,local
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/mosip_mockidentitysystem?currentSchema=mockidentitysystem
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - MOSIP_ESIGNET_HOST=localhost:8088
+    depends_on:
+      database:
+        condition: service_healthy
+
+  # Local/mock eSignet uses PKCS12 so SoftHSM / libpkcs11-proxy.so is not required.
+  # Cluster/helm deployments keep PKCS11 and install the HSM client at container start.
+  esignet:
+    image: "mosipqa/esignet:develop-go"
+    ports:
+      - 8088:8088
+    environment:
+      - MOSIP_ESIGNET_HOST=http://localhost:8088
+      - MOSIP_ESIGNET_AUTHN_PROVIDER=mock
+      - MOSIP_ESIGNET_MOCK_DOMAIN_URL=http://mock-identity-system:8082
+      - DATABASE_HOST=database
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=mosip_esignet
+      - DATABASE_USERNAME=postgres
+      - DB_DBUSER_PASSWORD=postgres
+      - KEYMANAGER_DB_SCHEMA=esignet
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - KEYMANAGER_KEYSTORE_TYPE=PKCS12
+      - KEYMANAGER_PKCS12_FILE_PATH=/home/mosip/keys/esignet.p12
+      - KEYMANAGER_PKCS12_PASSWORD=localtest
+      - KEYMANAGER_PKCS12_ALLOW_INSECURE_SOFTWARE_KEYSTORE=true
+    volumes:
+      - esignet-keys:/home/mosip/keys
+    depends_on:
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      mock-identity-system:
+        condition: service_started
+
+volumes:
+  esignet-keys:

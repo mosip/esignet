@@ -42,9 +42,10 @@ ENV DATA_DIR_ENV=${DATA_DIR}
 WORKDIR /home/${container_user}
 
 ENV work_dir=/home/${container_user}
-# can be passed during Docker build as build time environment for hsm client zip file path
+# Runtime override for the HSM client zip (artifactory / cluster URL). Empty by
+# default — the image bakes a fallback client.zip used by docker-entrypoint.sh
+# when this is unset, matching the Java esignet image.
 ARG hsm_client_zip_url
-# environment variable to pass hsm client zip file path, at docker runtime
 ENV hsm_client_zip_url_env=${hsm_client_zip_url}
 ARG hsm_local_dir=hsm-client
 ENV hsm_local_dir_env=${hsm_local_dir}
@@ -53,6 +54,11 @@ COPY --from=build /out/esignet.exe /home/${container_user}/esignet.exe
 COPY data /home/${container_user}/data
 COPY docker-entrypoint.sh /home/${container_user}/entrypoint.sh
 
+# Default HSM client zip baked into the image so PKCS11 (helm default) can load
+# /usr/local/lib/softhsm/libpkcs11-proxy.so even when hsm_client_zip_url_env is
+# not provided by esignet-softhsm-share. Override at runtime via that env var.
+ARG hsm_client_zip_fallback_url=https://raw.githubusercontent.com/mosip/artifactory-ref-impl/master/artifacts/src/hsm/client.zip
+
 # install packages and create user
 RUN apt-get -y update \
 && apt-get install -y --no-install-recommends wget unzip file sudo ca-certificates \
@@ -60,6 +66,7 @@ RUN apt-get -y update \
 && useradd -u ${container_user_uid} -g ${container_user_group} -s /bin/sh -m ${container_user} \
 && echo "${container_user} ALL=(ALL) NOPASSWD:/home/${container_user}/${hsm_local_dir}/install.sh" >> /etc/sudoers \
 && chmod +x /home/${container_user}/entrypoint.sh \
+&& wget -q "${hsm_client_zip_fallback_url}" -O /home/${container_user}/client.zip \
 && chown -R ${container_user}:${container_user_group} /home/${container_user} /home/${container_user}/data \
 && rm -rf /var/lib/apt/lists/*
 

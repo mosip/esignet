@@ -86,9 +86,12 @@ function installing_prerequisites() {
           prompt_for_input externalhsmpassword "Please provide the password for the externalhsm: "
 
           echo "Creating ConfigMap for external HSM client and host URL"
+          kubectl create ns softhsm || true
+          kubectl create configmap esignet-softhsm-share --from-literal=hsm_client_zip_url_env="$externalhsmclient" --from-literal=PKCS11_PROXY_SOCKET="$externalhsmhosturl" -n $NS --dry-run=client -o yaml | kubectl apply -f -
           kubectl create configmap esignet-softhsm-share --from-literal=hsm_client_zip_url_env="$externalhsmclient" --from-literal=PKCS11_PROXY_SOCKET="$externalhsmhosturl" -n softhsm --dry-run=client -o yaml | kubectl apply -f -
 
           echo "Creating Secret for external HSM password"
+          kubectl create secret generic esignet-softhsm --from-literal=security-pin="$externalhsmpassword" -n $NS --dry-run=client -o yaml | kubectl apply -f -
           kubectl create secret generic esignet-softhsm --from-literal=security-pin="$externalhsmpassword" -n softhsm --dry-run=client -o yaml | kubectl apply -f -
 
         elif [[ "$response" == "p" ]]; then

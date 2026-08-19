@@ -143,10 +143,16 @@ target_docker_build() { ## Build container image (esignet:latest by default)
 
 target_docker_run() { ## Run container mapped to PORT (default 8080)
   target_docker_build
+  # Local docker-run has no SoftHSM sidecar, so use the file-based PKCS12
+  # keystore. PKCS11 is the helm/k8s default and needs libpkcs11-proxy.so.
   docker run --rm -p "$PORT:8088" \
     -e MOSIP_ESIGNET_HOST="$MOSIP_ESIGNET_HOST" \
-    -e MOSIP_ESIGNET_AUTHN_PROVIDER="${MOSIP_ESIGNET_AUTHN_PROVIDER:-mosip}" \
+    -e MOSIP_ESIGNET_AUTHN_PROVIDER="${MOSIP_ESIGNET_AUTHN_PROVIDER:-mock}" \
     -e CRYPTO_ENCRYPTION_KEY="${CRYPTO_ENCRYPTION_KEY:-}" \
+    -e KEYMANAGER_KEYSTORE_TYPE="${KEYMANAGER_KEYSTORE_TYPE:-PKCS12}" \
+    -e KEYMANAGER_PKCS12_FILE_PATH="${KEYMANAGER_PKCS12_FILE_PATH:-/home/mosip/keys/esignet.p12}" \
+    -e KEYMANAGER_PKCS12_PASSWORD="${KEYMANAGER_PKCS12_PASSWORD:-localtest}" \
+    -e KEYMANAGER_PKCS12_ALLOW_INSECURE_SOFTWARE_KEYSTORE="${KEYMANAGER_PKCS12_ALLOW_INSECURE_SOFTWARE_KEYSTORE:-true}" \
     "$DOCKER_IMAGE"
 }
 
