@@ -84,9 +84,13 @@ func (e *otpExecutor) Execute(ctx *providers.NodeContext) (*providers.ExecutorRe
 	if serviceError != nil {
 		// username is the individual's identity number and must not be logged.
 		applog.GetLogger().Warn(ctx.Context, "failed to send OTP", applog.String("errorCode", serviceError.Code))
-		// Return ExecFailure so the engine surfaces the error to the user without terminating the flow session
+		// Return ExecUserInputRequired (not ExecFailure) so the flow stays alive and re-prompts for
+		// the individual ID: ExecFailure maps to NodeStatusFailure, and since this node has no
+		// onFailure target configured, that would terminate the flow session (flowStatus: ERROR)
+		// instead of letting the user correct a mistyped username and retry.
 		if serviceError.Type == common.ClientErrorType {
-			execResp.Status = providers.ExecFailure
+			execResp.Status = providers.ExecUserInputRequired
+			execResp.Inputs = []providers.Input{individualIDInput}
 			execResp.Error = serviceError
 			return execResp, nil
 		}
