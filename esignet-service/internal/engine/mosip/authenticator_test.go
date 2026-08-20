@@ -895,6 +895,11 @@ func (ts *AuthenticatorTestSuite) TestMapSendOTPErrorForwardsIDACode() {
 	require.Equal(t, shared.SendOTPFailedError.Type, svcErr.Type)
 	// The IDA errorMessage is never surfaced; only a neutral fallback is used.
 	require.Equal(t, shared.SendOTPFailedError.Error.DefaultValue, svcErr.Error.DefaultValue)
+
+	// Regression: a blank leading code must not mask a valid later one.
+	skip := mapSendOTPError(&idaOTPError{codes: []string{"", "IDA-MLC-018"}})
+	require.Equal(t, "IDA-MLC-018", skip.Code)
+	require.Equal(t, "IDA-MLC-018", skip.Error.Key)
 }
 
 func (ts *AuthenticatorTestSuite) TestMapSendOTPErrorFallsBackWithoutCode() {

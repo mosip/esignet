@@ -227,6 +227,17 @@ func mapSendOTPError(err error) *common.ServiceError {
 	return &svcErr
 }
 
+// firstNonEmptyErrorCode returns the first non-empty ErrorCode in errs, or "" if
+// there is none, so a blank leading code does not mask a valid later one.
+func firstNonEmptyErrorCode(errs []Error) string {
+	for _, e := range errs {
+		if e.ErrorCode != "" {
+			return e.ErrorCode
+		}
+	}
+	return ""
+}
+
 func (p *mockAuthnProvider) GetSigningCertificates(ctx context.Context) ([]shared.CertificateData, *common.ServiceError) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, p.cfg.CertificateURL, nil)
 	if err != nil {
@@ -485,7 +496,7 @@ func (p *mockAuthnProvider) callSendOtpEndpoint(ctx context.Context, requestBody
 	if len(wrapper.Errors) == 0 {
 		return nil, errors.New("send otp failed")
 	}
-	return nil, &mockOTPError{code: wrapper.Errors[0].ErrorCode}
+	return nil, &mockOTPError{code: firstNonEmptyErrorCode(wrapper.Errors)}
 }
 
 // ---------------------------------------------------------------------------------------------------------

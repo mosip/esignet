@@ -431,6 +431,20 @@ func (ts *AuthenticatorTestSuite) TestSendOTP() {
 		require.Nil(t, result)
 		require.Same(t, shared.SendOTPFailedError, svcErr)
 	})
+
+	t.Run("blank leading error code does not mask a valid later one", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"errors":[{"errorCode":"","message":"blank"},{"errorCode":"invalid_individual_id","message":"Invalid Individual ID"}]}`))
+		}))
+		defer server.Close()
+
+		p := newTestProvider(t, "http://unused", "http://unused", server.URL)
+		result, svcErr := p.SendOTP(context.Background(), map[string]any{identifierKeyIndividualID: "ind-1"}, metadataWithClientID("client-1"))
+		require.Nil(t, result)
+		require.NotNil(t, svcErr)
+		require.Equal(t, "invalid_individual_id", svcErr.Code)
+	})
 }
 
 func (ts *AuthenticatorTestSuite) TestGetSigningCertificates() {

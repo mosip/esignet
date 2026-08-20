@@ -825,10 +825,15 @@ func (e *idaOTPError) Error() string { return fmt.Sprintf("IDA OTP error: %v", e
 
 func mapSendOTPError(err error) *common.ServiceError {
 	var idaErr *idaOTPError
-	if !errors.As(err, &idaErr) || len(idaErr.codes) == 0 || idaErr.codes[0] == "" {
+	if !errors.As(err, &idaErr) {
 		return shared.SendOTPFailedError
 	}
-	code := idaErr.codes[0]
+	// Forward the first non-empty IDA code (reusing the variadic firstNonEmpty
+	// helper); a blank leading entry must not mask a valid later one.
+	code := firstNonEmpty(idaErr.codes...)
+	if code == "" {
+		return shared.SendOTPFailedError
+	}
 	svcErr := *shared.SendOTPFailedError // re-key the base error to the IDA code
 	svcErr.Code = code
 	svcErr.Error.Key = code
