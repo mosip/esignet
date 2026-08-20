@@ -1,14 +1,14 @@
 system:
   "design.resolve.error.app_no_design": កម្មវិធីមិនមានការកំណត់រចនាសម្ព័ន្ធការរចនា
-  "design.resolve.error.app_no_design_description": កម្មវិធីដែលបានระบុ​មិនមានការកំណត់រចនា​ theme ឬ layout ដែលពាក់ព័ន្ធ
+  "design.resolve.error.app_no_design_description": កម្មវិធីដែលបានបញ្ជាក់មិនមានការកំណត់រចនា theme ឬ layout ដែលពាក់ព័ន្ធ
   "design.resolve.error.app_not_found": រកមិនឃើញកម្មវិធី
-  "design.resolve.error.app_not_found_description": កម្មវិធីដែលមាន id ដែលបានระบុ​មិនមានស្ថិតក្នុងប្រព័ន្ធ
+  "design.resolve.error.app_not_found_description": កម្មវិធីដែលមាន id ដែលបានបញ្ជាក់មិនមានស្ថិតក្នុងប្រព័ន្ធ
   "design.resolve.error.invalid_type": ទម្រង់សំណើមិនត្រឹមត្រូវ
   "design.resolve.error.invalid_type_description": ប៉ារ៉ាម៉ែត្រ \"type\" ជា query ត្រូវបានទាមទារ ហើយត្រូវតែជា \"APP\" ឬ \"OU\"
   "design.resolve.error.missing_id": ទម្រង់សំណើមិនត្រឹមត្រូវ
   "design.resolve.error.missing_id_description": ប៉ារ៉ាម៉ែត្រ \"id\" ជា query ត្រូវបានទាមទារ
   "design.resolve.error.unsupported_type": ប្រភេទ resolve មិនត្រូវបានគាំទ្រ
-  "design.resolve.error.unsupported_type_description": ប្រភេទ resolve ដែលបានระบុ​មិនទាន់ត្រូវបានគាំទ្រ។ បច្ចុប្បន្នគាំទ្រតែប្រភេទ \"APP\" ប៉ុណ្ណោះ
+  "design.resolve.error.unsupported_type_description": ប្រភេទ resolve ដែលបានបញ្ជាក់មិនទាន់ត្រូវបានគាំទ្រ។ បច្ចុប្បន្នគាំទ្រតែប្រភេទ \"APP\" ប៉ុណ្ណោះ
   "error.actor_not_found": រកមិនឃើញតួអង្គ
   "error.actor_not_found_description": តួអង្គដែលបានស្នើសុំមិនមានស្ថិតក្នុងប្រព័ន្ធ
   "error.agentservice.agent_already_exists_with_client_id": Client ID ត្រូវបានប្រើប្រាស់រួចហើយ
@@ -16,7 +16,7 @@ system:
   "error.agentservice.agent_already_exists_with_name": Agent មានស្ថិតក្នុងប្រព័ន្ធរួចហើយ
   "error.agentservice.agent_already_exists_with_name_description": Agent ដែលមានឈ្មោះដូចគ្នានេះស្ថិតក្នុងប្រព័ន្ធរួចហើយ
   "error.agentservice.agent_not_found": រកមិនឃើញ Agent
-  "error.agentservice.agent_not_found_description": Agent ដែលមាន id ដែលបានระบុ​មិនមានស្ថិតក្នុងប្រព័ន្ធ
+  "error.agentservice.agent_not_found_description": Agent ដែលមាន id ដែលបានបញ្ជាក់មិនមានស្ថិតក្នុងប្រព័ន្ធ
   "error.agentservice.attribute_conflict": ជម្លោះ Attribute
   "error.agentservice.attribute_conflict_description": Agent ដែលមានតម្លៃ attribute តែមួយគត់ដូចគ្នានេះស្ថិតក្នុងប្រព័ន្ធរួចហើយ
   "error.agentservice.auth_code_requires_code_response_type_description": ប្រភេទ grant authorization_code ទាមទារ response type 'code'
@@ -28,10 +28,10 @@ system:
   "error.agentservice.client_credentials_cannot_use_none_auth_description": ប្រភេទ grant client_credentials មិនអាចប្រើវិធីសាស្ត្រផ្ទៀងផ្ទាត់ \"none\" បាន
   "error.agentservice.client_credentials_cannot_use_response_types_description": ប្រភេទ grant client_credentials មិនអាចប្រើជាមួយ response types បាន
   "error.agentservice.client_secret_cannot_have_certificate_description": វិធីសាស្ត្រផ្ទៀងផ្ទាត់ client_secret មិនអាចមានវិញ្ញាបនប័ត្របាន
-  "error.agentservice.consent_sync_failed": ការ​ធ្វើ​សមកាលកម្ម​ការ​យល់​ព្រម​បរាជ័យ
-  "error.agentservice.consent_sync_failed_description": ការ​ធ្វើ​សមកាលកម្ម​ការ​ផ្លាស់ប្ដូរ​ attribute ​របស់ Agent ជាមួយ​សេវា​ការ​យល់​ព្រម​បរាជ័យ
-  "error.agentservice.error_retrieving_flow_definition": កំហុស​ក្នុង​ការ​ទទួល​យក​និយមន័យ​លំហូរ
-  "error.agentservice.error_retrieving_flow_definition_description": មានកំហុស​កើតឡើង​ខណៈ​ពេល​ទទួល​យក​និយមន័យ​លំហូរ
+  "error.agentservice.consent_sync_failed": ការធ្វើសមកាលកម្មការយល់ព្រមបរាជ័យ
+  "error.agentservice.consent_sync_failed_description": ការធ្វើសមកាលកម្មការផ្លាស់ប្ដូរ attribute របស់ Agent ជាមួយសេវាការយល់ព្រមបរាជ័យ
+  "error.agentservice.error_retrieving_flow_definition": កំហុសក្នុងការទទួលយកនិយមន័យលំហូរ
+  "error.agentservice.error_retrieving_flow_definition_description": មានកំហុសកើតឡើងខណៈពេលទទួលយកនិយមន័យលំហូរ
   "error.agentservice.idtoken_encryption_alg_requires_enc_description": idToken encryptionEnc ត្រូវបានទាមទារនៅពេល encryptionAlg ត្រូវបានកំណត់
   "error.agentservice.idtoken_encryption_enc_requires_alg_description": idToken encryptionAlg ត្រូវបានទាមទារនៅពេល encryptionEnc ត្រូវបានកំណត់
   "error.agentservice.idtoken_encryption_fields_not_allowed_description": idToken encryptionAlg និង encryptionEnc មិនត្រូវតែកំណត់នៅពេល responseType គឺ JWT
@@ -58,246 +58,246 @@ system:
   "error.agentservice.invalid_grant_type_description": ប្រភេទ grant មួយ ឬច្រើនមិនត្រូវបានគាំទ្រ
   "error.agentservice.invalid_jwks_uri": JWKS URI មិនត្រឹមត្រូវ
   "error.agentservice.invalid_jwks_uri_description": JWKS URI ត្រូវតែជា URL HTTPS ដែលអាចចូលប្រើបានជាសាធារណៈ
-  "error.agentservice.invalid_limit": ប៉ារ៉ាម៉ែត្រការ​ជំ​ន្រ្ដ​ទំព័រ​មិន​ត្រឹម​ត្រូវ
+  "error.agentservice.invalid_limit": ប៉ារ៉ាម៉ែត្រការជំន្រ្ដទំព័រមិនត្រឹមត្រូវ
   "error.agentservice.invalid_limit_description": ប៉ារ៉ាម៉ែត្រ limit ត្រូវតែស្ថិតរវាង 1 និង 100
-  "error.agentservice.invalid_oauth_configuration": ការ​កំ​ណត់ OAuth មិន​ត្រឹម​ត្រូវ
-  "error.agentservice.invalid_oauth_configuration_description": ការ​កំ​ណត់ OAuth ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ
-  "error.agentservice.invalid_offset": ប៉ារ៉ាម៉ែត្រ​ការ​ជំ​ន្រ្ដ​ទំព័រ​មិន​ត្រឹម​ត្រូវ
-  "error.agentservice.invalid_offset_description": ប៉ារ៉ាម៉ែត្រ offset ត្រូវ​តែ​ជា​អន្តរ​ចំនួន​គត់​ដែល​មិន​អវិជ្ជមាន
-  "error.agentservice.invalid_public_client_configuration": ការ​កំ​ណត់​ client សាធារណៈ​មិន​ត្រឹម​ត្រូវ
-  "error.agentservice.invalid_public_client_configuration_description": ការ​កំ​ណត់​ client សាធារណៈ​មិន​ត្រឹម​ត្រូវ
-  "error.agentservice.invalid_redirect_uri": redirect URI មិន​ត្រឹម​ត្រូវ
-  "error.agentservice.invalid_redirect_uri_description": redirect URI មួយ​ ឬ​ច្រើន​មិន​ត្រឹម​ត្រូវ
-  "error.agentservice.invalid_registration_flow_id": registration flow ID មិន​ត្រឹម​ត្រូវ
-  "error.agentservice.invalid_registration_flow_id_description": registration flow ID ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ
-  "error.agentservice.invalid_request_format": ទម្រង់​សំណើ​មិន​ត្រឹម​ត្រូវ
-  "error.agentservice.invalid_request_format_description": ខ្លឹមសារ​នៃ​សំណើ​មាន​ទ្រង់ទ្រាយ​ខុស ឬ​មាន​ទិន្នន័យ​មិន​ត្រឹម​ត្រូវ
-  "error.agentservice.invalid_response_type": response type មិន​ត្រឹម​ត្រូវ
-  "error.agentservice.invalid_response_type_description": response type មួយ​ ឬ​ច្រើន​ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ
-  "error.agentservice.invalid_token_endpoint_auth_method": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់​ token endpoint មិន​ត្រឹម​ត្រូវ
-  "error.agentservice.invalid_token_endpoint_auth_method_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់​ token endpoint ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រូវ​បាន​គាំ​ទ្រ
-  "error.agentservice.invalid_user_attribute": user attribute មិន​ត្រឹម​ត្រូវ
-  "error.agentservice.invalid_user_attribute_description": user attribute មួយ​ ឬ​ច្រើន​មិន​ត្រឹម​ត្រូវ​សម្រាប់​ប្រភេទ​អ្នក​ប្រើ​ប្រាស់​ដែល​បាន​អនុញ្ញាត
-  "error.agentservice.invalid_user_type": ប្រភេទ​អ្នក​ប្រើ​ប្រាស់​មិន​ត្រឹម​ត្រូវ
-  "error.agentservice.invalid_user_type_description": ប្រភេទ​អ្នក​ប្រើ​ប្រាស់​ដែល​បាន​ระบុ​មួយ ​ឬ​ច្រើន​មិន​ត្រឹម​ត្រូវ
-  "error.agentservice.layout_not_found": រក​មិន​ឃើញ Layout
-  "error.agentservice.layout_not_found_description": layout ដែល​បាន​ระบុ​មិន​មាន​ស្ថិត​ក្នុង​ប្រព័ន្ធ
+  "error.agentservice.invalid_oauth_configuration": ការកំណត់ OAuth មិនត្រឹមត្រូវ
+  "error.agentservice.invalid_oauth_configuration_description": ការកំណត់ OAuth ដែលបានផ្ដល់ជូនមិនត្រឹមត្រូវ
+  "error.agentservice.invalid_offset": ប៉ារ៉ាម៉ែត្រការជំន្រ្ដទំព័រមិនត្រឹមត្រូវ
+  "error.agentservice.invalid_offset_description": ប៉ារ៉ាម៉ែត្រ offset ត្រូវតែជាអន្តរចំនួនគត់ដែលមិនអវិជ្ជមាន
+  "error.agentservice.invalid_public_client_configuration": ការកំណត់ client សាធារណៈមិនត្រឹមត្រូវ
+  "error.agentservice.invalid_public_client_configuration_description": ការកំណត់ client សាធារណៈមិនត្រឹមត្រូវ
+  "error.agentservice.invalid_redirect_uri": redirect URI មិនត្រឹមត្រូវ
+  "error.agentservice.invalid_redirect_uri_description": redirect URI មួយ ឬច្រើនមិនត្រឹមត្រូវ
+  "error.agentservice.invalid_registration_flow_id": registration flow ID មិនត្រឹមត្រូវ
+  "error.agentservice.invalid_registration_flow_id_description": registration flow ID ដែលបានផ្ដល់ជូនមិនត្រឹមត្រូវ
+  "error.agentservice.invalid_request_format": ទម្រង់សំណើមិនត្រឹមត្រូវ
+  "error.agentservice.invalid_request_format_description": ខ្លឹមសារនៃសំណើមានទ្រង់ទ្រាយខុស ឬមានទិន្នន័យមិនត្រឹមត្រូវ
+  "error.agentservice.invalid_response_type": response type មិនត្រឹមត្រូវ
+  "error.agentservice.invalid_response_type_description": response type មួយ ឬច្រើនដែលបានផ្ដល់ជូនមិនត្រឹមត្រូវ
+  "error.agentservice.invalid_token_endpoint_auth_method": វិធីសាស្ត្រផ្ទៀងផ្ទាត់ token endpoint មិនត្រឹមត្រូវ
+  "error.agentservice.invalid_token_endpoint_auth_method_description": វិធីសាស្ត្រផ្ទៀងផ្ទាត់ token endpoint ដែលបានផ្ដល់ជូនមិនត្រូវបានគាំទ្រ
+  "error.agentservice.invalid_user_attribute": user attribute មិនត្រឹមត្រូវ
+  "error.agentservice.invalid_user_attribute_description": user attribute មួយ ឬច្រើនមិនត្រឹមត្រូវសម្រាប់ប្រភេទអ្នកប្រើប្រាស់ដែលបានអនុញ្ញាត
+  "error.agentservice.invalid_user_type": ប្រភេទអ្នកប្រើប្រាស់មិនត្រឹមត្រូវ
+  "error.agentservice.invalid_user_type_description": ប្រភេទអ្នកប្រើប្រាស់ដែលបានបញ្ជាក់មួយ ឬច្រើនមិនត្រឹមត្រូវ
+  "error.agentservice.layout_not_found": រកមិនឃើញ Layout
+  "error.agentservice.layout_not_found_description": layout ដែលបានបញ្ជាក់មិនមានស្ថិតក្នុងប្រព័ន្ធ
   "error.agentservice.missing_agent_id": Agent ID បាត់
-  "error.agentservice.missing_agent_id_description": Agent ID ត្រូវ​បាន​ទាម​ទារ
-  "error.agentservice.multiple_oauth_configs": OAuth inbound auth config ច្រើន​មិន​ត្រូវ​បាន​អនុញ្ញាត
-  "error.agentservice.multiple_oauth_configs_description": អង្គ​ភាព​មួយ​អាច​មាន​ inbound auth config តែ​មួយ​ក្នុង​មួយ​ protocol
-  "error.agentservice.none_auth_method_cannot_have_cert_or_secret_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ \"none\" មិន​អាច​មាន​វិញ្ញាបន​ប័ត្រ ឬ​ client secret បាន
-  "error.agentservice.none_auth_method_requires_public_client_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ \"none\" ទាម​ទារ​ឱ្យ client ជា public client
-  "error.agentservice.organization_unit_not_found": រក​មិន​ឃើញ​អង្គ​ភាព​អង្គការ
-  "error.agentservice.organization_unit_not_found_description": អង្គ​ភាព​អង្គការ​ដែល​បាន​ระบុ​មិន​មាន​ស្ថិត​ក្នុង​ប្រព័ន្ធ
-  "error.agentservice.owner_not_found": រក​មិន​ឃើញ​ម្ចាស់
-  "error.agentservice.owner_not_found_description": ម្ចាស់​ដែល​បាន​ระบុ​មិន​ត្រង​ទៅ​នឹង​អ្នក​ប្រើ​ប្រាស់ ​កម្មវិធី ​ឬ Agent ណា​មួយ​ដែល​ស្គាល់
-  "error.agentservice.pkce_requires_authorization_code_description": PKCE អាច​ធ្វើ​ឱ្យ​ដំ​ណើរ​ការ​បាន​តែ​នៅ​ពេល​ជ្រើស​រើស​ប្រភេទ grant authorization_code
-  "error.agentservice.private_key_jwt_cannot_have_client_secret_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ private_key_jwt មិន​អាច​មាន client secret បាន
-  "error.agentservice.private_key_jwt_requires_certificate_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ private_key_jwt ទាម​ទារ​វិញ្ញាបន​ប័ត្រ
-  "error.agentservice.public_client_must_have_pkce_description": Public client ត្រូវ​តែ​មាន PKCE ដែល​ត្រូវ​បាន​ដំ​ណើរ​ការ​ដែល​ស្មើ​នឹង true
-  "error.agentservice.public_client_must_use_none_auth_description": Public client ត្រូវ​តែ​ប្រើ \"none\" ជា​វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ token endpoint
-  "error.agentservice.redirect_uri_fragment_not_allowed_description": redirect URI មិន​ត្រូវ​មាន​ fragment component
-  "error.agentservice.refresh_token_cannot_be_sole_grant_description": ប្រភេទ grant refresh_token មិន​អាច​ប្រើ​បាន​ដោយ​គ្មាន​ប្រភេទ grant ផ្សេង​ទៀត
-  "error.agentservice.response_types_require_authorization_code_description": Response type អាច​ត្រូវ​បាន​កំ​ណត់​ត្រឹម​តែ​ជា​មួយ​ប្រភេទ grant authorization_code ប៉ុណ្ណោះ
-  "error.agentservice.schema_validation_failed": ការ​ត្រួត​ពិនិត្យ Schema បរាជ័យ
-  "error.agentservice.schema_validation_failed_description": attribute ដែល​បាន​ផ្ដល់​ជូន​មិន​ប្រព្រឹ​ត្ត​ទៅ​ក្នុង Schema
-  "error.agentservice.theme_not_found": រក​មិន​ឃើញ Theme
-  "error.agentservice.theme_not_found_description": theme ដែល​បាន​ระบุ​មិន​មាន​ស្ថិត​ក្នុង​ប្រព័ន្ធ
-  "error.agentservice.userinfo_alg_requires_response_type_description": userinfo responseType ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល signingAlg ឬ encryptionAlg ត្រូវ​បាន​កំ​ណត់
-  "error.agentservice.userinfo_encryption_alg_requires_enc_description": userinfo encryptionEnc ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល encryptionAlg ត្រូវ​បាន​កំ​ណត់
-  "error.agentservice.userinfo_encryption_enc_requires_alg_description": userinfo encryptionAlg ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល encryptionEnc ត្រូវ​បាន​កំ​ណត់
-  "error.agentservice.userinfo_encryption_requires_certificate_description": វិញ្ញាបន​ប័ត្រ (JWKS ឬ JWKS_URI) ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល​ការ​អ៊ិន​គ្រីប userinfo ត្រូវ​បាន​កំ​ណត់
-  "error.agentservice.userinfo_jwe_requires_encryption_description": encryptionAlg និង encryptionEnc ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល userinfo responseType គឺ JWE
-  "error.agentservice.userinfo_jwks_uri_not_ssrf_safe_description": userinfo JWKS URI ត្រូវ​តែ​ជា URL HTTPS ដែល​អាច​ចូល​ប្រើ​បាន​ជា​សាធារណៈ
-  "error.agentservice.userinfo_jws_requires_signing_alg_description": signingAlg ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល userinfo responseType គឺ JWS
-  "error.agentservice.userinfo_nested_jwt_requires_all_description": signingAlg, encryptionAlg, និង encryptionEnc ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល userinfo responseType គឺ NESTED_JWT
-  "error.agentservice.userinfo_unsupported_encryption_alg_description": ក្បួន​ដោះ​ស្រាយ​ការ​អ៊ិន​គ្រីប userinfo មិន​ត្រូវ​បាន​គាំ​ទ្រ
-  "error.agentservice.userinfo_unsupported_encryption_enc_description": ក្បួន​ដោះ​ស្រាយ​ការ​អ៊ិន​គ្រីប​ខ្លឹម​សារ userinfo មិន​ត្រូវ​បាន​គាំ​ទ្រ
-  "error.agentservice.userinfo_unsupported_response_type_description": userinfo responseType មិន​ត្រូវ​បាន​គាំ​ទ្រ
-  "error.agentservice.userinfo_unsupported_signing_alg_description": ក្បួន​ដោះ​ស្រាយ​ការ​ចុះ​ហត្ថ​លេខា userinfo មិន​ត្រូវ​បាន​គាំ​ទ្រ
-  "error.applicationservice.application_already_exists": កម្ម​វិធី​មាន​ស្ថិត​ក្នុង​ប្រព័ន្ធ​រួច​ហើយ
-  "error.applicationservice.application_already_exists_description": កម្ម​វិធី​ដែល​មាន​ឈ្មោះ​ដូច​គ្នា​នេះ​ស្ថិត​ក្នុង​ប្រព័ន្ធ​រួច​ហើយ
-  "error.applicationservice.application_is_nil": កម្ម​វិធី​គឺ nil
-  "error.applicationservice.application_is_nil_description": object កម្ម​វិធី​ដែល​បាន​ផ្ដល់​ជូន​គឺ nil
-  "error.applicationservice.application_not_found": រក​មិន​ឃើញ​កម្ម​វិធី
-  "error.applicationservice.application_not_found_description": មិន​អាច​រក​ឃើញ​កម្ម​វិធី​ដែល​បាន​ស្នើ​សុំ
-  "error.applicationservice.application_with_client_id_already_exists": កម្ម​វិធី​ដែល​មាន client ID ស្ថិត​ក្នុង​ប្រព័ន្ធ​រួច​ហើយ
-  "error.applicationservice.application_with_client_id_already_exists_description": កម្ម​វិធី​ដែល​មាន client ID ដូច​គ្នា​នេះ​ស្ថិត​ក្នុង​ប្រព័ន្ធ​រួច​ហើយ
-  "error.applicationservice.auth_code_requires_code_response_type_description": ប្រភេទ grant authorization_code ទាម​ទារ response type 'code'
-  "error.applicationservice.auth_code_requires_redirect_uris_description": ប្រភេទ grant authorization_code ទាម​ទារ redirect URI
-  "error.applicationservice.cannot_modify_declarative_resource": មិន​អាច​កែ​ប្រែ​ធន​ធាន​ដែល​ប្រកាស
-  "error.applicationservice.cannot_modify_declarative_resource_description": កម្ម​វិធី​ត្រូវ​បាន​ប្រកាស ហើយ​មិន​អាច​កែ​ប្រែ ឬ​លុប​បាន
-  "error.applicationservice.certificate_operation_failed": ប្រតិ​បត្តិ​ការ​វិញ្ញាបន​ប័ត្រ​បរាជ័យ
-  "error.applicationservice.certificate_operation_failed_description": មាន​កំ​ហុស​កើត​ឡើង​ខណៈ​ពេល​ដំ​ណើរ​ការ​វិញ្ញាបន​ប័ត្រ​របស់​កម្ម​វិធី
-  "error.applicationservice.client_credentials_cannot_use_none_auth_description": ប្រភេទ grant client_credentials មិន​អាច​ប្រើ​វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ \"none\" បាន
-  "error.applicationservice.client_credentials_cannot_use_response_types_description": ប្រភេទ grant client_credentials មិន​អាច​ប្រើ​ជា​មួយ response types បាន
-  "error.applicationservice.client_secret_cannot_have_certificate_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ client_secret មិន​អាច​មាន​វិញ្ញាបន​ប័ត្រ​បាន
-  "error.applicationservice.consent_service_not_enabled": សេវា​ការ​យល់​ព្រម​មិន​ត្រូវ​បាន​ដំ​ណើរ​ការ
-  "error.applicationservice.consent_service_not_enabled_description": មិន​អាច​ដំ​ណើរ​ការ​ការ​យល់​ព្រម​សម្រាប់​កម្ម​វិធី​បាន ព្រោះ​សេវា​ការ​យល់​ព្រម​មិន​ត្រូវ​បាន​ដំ​ណើរ​ការ
-  "error.applicationservice.consent_synchronization_failed": ការ​ធ្វើ​សមកាល​កម្ម​ការ​យល់​ព្រម​បរាជ័យ
-  "error.applicationservice.consent_synchronization_failed_description": ការ​ធ្វើ​សមកាល​កម្ម​ការ​កំ​ណត់​ការ​យល់​ព្រម​សម្រាប់​កម្ម​វិធី​បរាជ័យ
-  "error.applicationservice.error_retrieving_flow_definition": កំ​ហុស​ក្នុង​ការ​ទទួល​យក​និយ​មន័យ​លំ​ហូរ
-  "error.applicationservice.error_retrieving_flow_definition_description": មាន​កំ​ហុស​កើត​ឡើង​ខណៈ​ពេល​ទទួល​យក​និយ​មន័យ​លំ​ហូរ
-  "error.applicationservice.idtoken_encryption_alg_requires_enc_description": idToken encryptionEnc ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល encryptionAlg ត្រូវ​បាន​កំ​ណត់
-  "error.applicationservice.idtoken_encryption_enc_requires_alg_description": idToken encryptionAlg ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល encryptionEnc ត្រូវ​បាន​កំ​ណត់
-  "error.applicationservice.idtoken_encryption_fields_not_allowed_description": idToken encryptionAlg និង encryptionEnc មិន​ត្រូវ​តែ​កំ​ណត់​នៅ​ពេល responseType គឺ JWT
-  "error.applicationservice.idtoken_encryption_requires_certificate_description": វិញ្ញាបន​ប័ត្រ (JWKS ឬ JWKS_URI) ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល​ការ​អ៊ិន​គ្រីប ID token ត្រូវ​បាន​កំ​ណត់
-  "error.applicationservice.idtoken_jwks_uri_not_ssrf_safe_description": idToken JWKS URI ត្រូវ​តែ​ជា URL HTTPS ដែល​អាច​ចូល​ប្រើ​បាន​ជា​សាធារណៈ
-  "error.applicationservice.idtoken_unsupported_encryption_alg_description": ក្បួន​ដោះ​ស្រាយ​ការ​អ៊ិន​គ្រីប ID token មិន​ត្រូវ​បាន​គាំ​ទ្រ
-  "error.applicationservice.idtoken_unsupported_encryption_enc_description": ក្បួន​ដោះ​ស្រាយ​ការ​អ៊ិន​គ្រីប​ខ្លឹម​សារ ID token មិន​ត្រូវ​បាន​គាំ​ទ្រ
-  "error.applicationservice.idtoken_unsupported_response_type_description": responseType នៃ ID token មិន​ត្រូវ​បាន​គាំ​ទ្រ
-  "error.applicationservice.invalid_acr_values": តម្លៃ ACR មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_acr_values_description": តម្លៃ ACR មួយ ​ឬ​ច្រើន​ក្នុង acr_values មិន​ត្រូវ​បាន​ទទួល​ស្គាល់​ដោយ​ប្រព័ន្ធ
-  "error.applicationservice.invalid_application_id": application ID មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_application_id_description": application ID ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ​ ឬ​ទទេ
-  "error.applicationservice.invalid_application_name": ឈ្មោះ​កម្ម​វិធី​មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_application_name_description": ឈ្មោះ​កម្ម​វិធី​ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ ​ឬ​ទទេ
-  "error.applicationservice.invalid_application_url": URL កម្ម​វិធី​មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_application_url_description": URL កម្ម​វិធី​ដែល​បាន​ផ្ដល់​ជូន​មិន​មែន​ជា URI ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_auth_flow_id": auth flow ID មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_auth_flow_id_description": auth flow ID ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_certificate_type": ប្រភេទ​វិញ្ញាបន​ប័ត្រ​មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_certificate_type_description": ប្រភេទ​វិញ្ញាបន​ប័ត្រ​ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រូវ​បាន​គាំ​ទ្រ
-  "error.applicationservice.invalid_certificate_value": តម្លៃ​វិញ្ញាបន​ប័ត្រ​មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_certificate_value_description": តម្លៃ​វិញ្ញាបន​ប័ត្រ​ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_client_id": client ID មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_client_id_description": client ID ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ ​ឬ​ទទេ
-  "error.applicationservice.invalid_grant_type": ប្រភេទ grant មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_grant_type_description": ប្រភេទ grant មួយ ​ឬ​ច្រើន​ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_inbound_auth_config": inbound auth config មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_inbound_auth_config_description": ការ​កំ​ណត់​ inbound authentication ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_jwks_uri": JWKS URI មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_jwks_uri_description": JWKS URI ដែល​បាន​ផ្ដល់​ជូន​មិន​មែន​ជា URI ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_jwks_uri_scheme": គ្រោង JWKS URI មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_jwks_uri_scheme_description": '"jwks_uri" ត្រូវ​តែ​ប្រើ​គ្រោង HTTPS'
-  "error.applicationservice.invalid_logo_url": URL រូប​សញ្ញា​មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_logo_url_description": URL រូប​សញ្ញា​ដែល​បាន​ផ្ដល់​ជូន​មិន​មែន​ជា URI ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_oauth_configuration": ការ​កំ​ណត់ OAuth មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_oauth_configuration_description": ការ​កំ​ណត់ OAuth មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_public_client_configuration": ការ​កំ​ណត់ client សាធារណៈ​មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_public_client_configuration_description": ការ​កំ​ណត់ client សាធារណៈ​មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_recovery_flow_id": recovery flow ID មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_recovery_flow_id_description": recovery flow ID ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_redirect_uri": redirect URI មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_redirect_uri_description": redirect URI មួយ ​ឬ​ច្រើន​ដែល​បាន​ផ្ដល់​ជូន​មិន​មែន​ជា URI ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_registration_flow_id": registration flow ID មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_registration_flow_id_description": registration flow ID ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_request_format": ទម្រង់​សំណើ​មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_request_format_description": ខ្លឹម​សារ​នៃ​សំណើ​មាន​ទ្រង់​ទ្រាយ​ខុស ​ឬ​មាន​ទិន្នន័យ​មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_response_type": response type មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_response_type_description": response type មួយ ​ឬ​ច្រើន​ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_token_endpoint_auth_method": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ token endpoint មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_token_endpoint_auth_method_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ token endpoint ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_user_attribute": user attribute មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_user_attribute_description": user attribute មួយ ​ឬ​ច្រើន​មិន​ត្រឹម​ត្រូវ​សម្រាប់​ប្រភេទ​អ្នក​ប្រើ​ប្រាស់​ដែល​បាន​អនុញ្ញាត
-  "error.applicationservice.invalid_user_type": ប្រភេទ​អ្នក​ប្រើ​ប្រាស់​មិន​ត្រឹម​ត្រូវ
-  "error.applicationservice.invalid_user_type_description": ប្រភេទ​អ្នក​ប្រើ​ប្រាស់​មួយ ​ឬ​ច្រើន​ក្នុង allowed_user_types មិន​មាន​ស្ថិត​ក្នុង​ប្រព័ន្ធ
-  "error.applicationservice.layout_not_found": រក​មិន​ឃើញ Layout
-  "error.applicationservice.layout_not_found_description": ការ​កំ​ណត់ layout ដែល​បាន​ระบุ​មិន​មាន​ស្ថិត​ក្នុង​ប្រព័ន្ធ
-  "error.applicationservice.multiple_oauth_configs": OAuth inbound auth config ច្រើន​មិន​ត្រូវ​បាន​អនុញ្ញាត
-  "error.applicationservice.multiple_oauth_configs_description": កម្ម​វិធី​មួយ​អាច​មាន inbound auth config តែ​មួយ​ក្នុង​មួយ protocol
-  "error.applicationservice.none_auth_method_cannot_have_cert_or_secret_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ \"none\" មិន​អាច​មាន​វិញ្ញាបន​ប័ត្រ ​ឬ client secret បាន
-  "error.applicationservice.none_auth_method_requires_public_client_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ \"none\" ទាម​ទារ​ឱ្យ client ជា public client
-  "error.applicationservice.pkce_requires_authorization_code_description": PKCE អាច​ធ្វើ​ឱ្យ​ដំ​ណើរ​ការ​បាន​តែ​នៅ​ពេល​ជ្រើស​រើស​ប្រភេទ grant authorization_code
-  "error.applicationservice.private_key_jwt_cannot_have_client_secret_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ private_key_jwt មិន​អាច​មាន client secret បាន
-  "error.applicationservice.private_key_jwt_requires_certificate_description": វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ private_key_jwt ទាម​ទារ​វិញ្ញាបន​ប័ត្រ
-  "error.applicationservice.public_client_must_have_pkce_description": Public client ត្រូវ​តែ​មាន PKCE ដែល​ត្រូវ​បាន​ដំ​ណើរ​ការ​ស្មើ​នឹង true
-  "error.applicationservice.public_client_must_use_none_auth_description": Public client ត្រូវ​តែ​ប្រើ \"none\" ជា​វិធី​សាស្ត្រ​ផ្ទៀង​ផ្ទាត់ token endpoint
-  "error.applicationservice.redirect_uri_fragment_not_allowed_description": redirect URI មិន​ត្រូវ​មាន fragment component
-  "error.applicationservice.refresh_token_cannot_be_sole_grant_description": ប្រភេទ grant refresh_token មិន​អាច​ប្រើ​បាន​ដោយ​គ្មាន​ប្រភេទ grant ផ្សេង​ទៀត
-  "error.applicationservice.response_types_require_authorization_code_description": Response type អាច​ត្រូវ​បាន​កំ​ណត់​ត្រឹម​តែ​ជា​មួយ​ប្រភេទ grant authorization_code ប៉ុណ្ណោះ
-  "error.applicationservice.result_limit_exceeded": លើស​កំ​រិត​លទ្ធ​ផល
-  "error.applicationservice.theme_not_found": រក​មិន​ឃើញ Theme
-  "error.applicationservice.theme_not_found_description": ការ​កំ​ណត់ theme ដែល​បាន​ระบุ​មិន​មាន​ស្ថិត​ក្នុង​ប្រព័ន្ធ
-  "error.applicationservice.userinfo_alg_requires_response_type_description": userinfo responseType ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល signingAlg ​ឬ encryptionAlg ត្រូវ​បាន​កំ​ណត់
-  "error.applicationservice.userinfo_encryption_alg_requires_enc_description": userinfo encryptionEnc ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល encryptionAlg ត្រូវ​បាន​កំ​ណត់
-  "error.applicationservice.userinfo_encryption_enc_requires_alg_description": userinfo encryptionAlg ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល encryptionEnc ត្រូវ​បាន​កំ​ណត់
-  "error.applicationservice.userinfo_encryption_requires_certificate_description": វិញ្ញាបន​ប័ត្រ (JWKS ​ឬ JWKS_URI) ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល​ការ​អ៊ិន​គ្រីប userinfo ត្រូវ​បាន​កំ​ណត់
-  "error.applicationservice.userinfo_jwe_requires_encryption_description": encryptionAlg និង encryptionEnc ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល userinfo responseType គឺ JWE
-  "error.applicationservice.userinfo_jwks_uri_not_ssrf_safe_description": userinfo JWKS URI ត្រូវ​តែ​ជា URL HTTPS ដែល​អាច​ចូល​ប្រើ​បាន​ជា​សាធារណៈ
-  "error.applicationservice.userinfo_jws_requires_signing_alg_description": signingAlg ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល userinfo responseType គឺ JWS
-  "error.applicationservice.userinfo_nested_jwt_requires_all_description": signingAlg, encryptionAlg, និង encryptionEnc ត្រូវ​បាន​ទាម​ទារ​នៅ​ពេល userinfo responseType គឺ NESTED_JWT
-  "error.applicationservice.userinfo_unsupported_encryption_alg_description": ក្បួន​ដោះ​ស្រាយ​ការ​អ៊ិន​គ្រីប userinfo មិន​ត្រូវ​បាន​គាំ​ទ្រ
-  "error.applicationservice.userinfo_unsupported_encryption_enc_description": ក្បួន​ដោះ​ស្រាយ​ការ​អ៊ិន​គ្រីប​ខ្លឹម​សារ userinfo មិន​ត្រូវ​បាន​គាំ​ទ្រ
-  "error.applicationservice.userinfo_unsupported_response_type_description": userinfo responseType មិន​ត្រូវ​បាន​គាំ​ទ្រ
-  "error.applicationservice.userinfo_unsupported_signing_alg_description": ក្បួន​ដោះ​ស្រាយ​ការ​ចុះ​ហត្ថ​លេខា userinfo មិន​ត្រូវ​បាន​គាំ​ទ្រ
-  "error.assertservice.invalid_authenticator": authenticator មិន​ត្រឹម​ត្រូវ
-  "error.assertservice.invalid_authenticator_description": ឈ្មោះ authenticator មិន​អាច​ទទេ​បាន
+  "error.agentservice.missing_agent_id_description": Agent ID ត្រូវបានទាមទារ
+  "error.agentservice.multiple_oauth_configs": OAuth inbound auth config ច្រើនមិនត្រូវបានអនុញ្ញាត
+  "error.agentservice.multiple_oauth_configs_description": អង្គភាពមួយអាចមាន inbound auth config តែមួយក្នុងមួយ protocol
+  "error.agentservice.none_auth_method_cannot_have_cert_or_secret_description": វិធីសាស្ត្រផ្ទៀងផ្ទាត់ \"none\" មិនអាចមានវិញ្ញាបនប័ត្រ ឬ client secret បាន
+  "error.agentservice.none_auth_method_requires_public_client_description": វិធីសាស្ត្រផ្ទៀងផ្ទាត់ \"none\" ទាមទារឱ្យ client ជា public client
+  "error.agentservice.organization_unit_not_found": រកមិនឃើញអង្គភាពអង្គការ
+  "error.agentservice.organization_unit_not_found_description": អង្គភាពអង្គការដែលបានបញ្ជាក់មិនមានស្ថិតក្នុងប្រព័ន្ធ
+  "error.agentservice.owner_not_found": រកមិនឃើញម្ចាស់
+  "error.agentservice.owner_not_found_description": ម្ចាស់ដែលបានបញ្ជាក់មិនត្រងទៅនឹងអ្នកប្រើប្រាស់ កម្មវិធី ឬ Agent ណាមួយដែលស្គាល់
+  "error.agentservice.pkce_requires_authorization_code_description": PKCE អាចធ្វើឱ្យដំណើរការបានតែនៅពេលជ្រើសរើសប្រភេទ grant authorization_code
+  "error.agentservice.private_key_jwt_cannot_have_client_secret_description": វិធីសាស្ត្រផ្ទៀងផ្ទាត់ private_key_jwt មិនអាចមាន client secret បាន
+  "error.agentservice.private_key_jwt_requires_certificate_description": វិធីសាស្ត្រផ្ទៀងផ្ទាត់ private_key_jwt ទាមទារវិញ្ញាបនប័ត្រ
+  "error.agentservice.public_client_must_have_pkce_description": Public client ត្រូវតែមាន PKCE ដែលត្រូវបានដំណើរការដែលស្មើនឹង true
+  "error.agentservice.public_client_must_use_none_auth_description": Public client ត្រូវតែប្រើ \"none\" ជាវិធីសាស្ត្រផ្ទៀងផ្ទាត់ token endpoint
+  "error.agentservice.redirect_uri_fragment_not_allowed_description": redirect URI មិនត្រូវមាន fragment component
+  "error.agentservice.refresh_token_cannot_be_sole_grant_description": ប្រភេទ grant refresh_token មិនអាចប្រើបានដោយគ្មានប្រភេទ grant ផ្សេងទៀត
+  "error.agentservice.response_types_require_authorization_code_description": Response type អាចត្រូវបានកំណត់ត្រឹមតែជាមួយប្រភេទ grant authorization_code ប៉ុណ្ណោះ
+  "error.agentservice.schema_validation_failed": ការត្រួតពិនិត្យ Schema បរាជ័យ
+  "error.agentservice.schema_validation_failed_description": attribute ដែលបានផ្ដល់ជូនមិនប្រព្រឹត្តទៅក្នុង Schema
+  "error.agentservice.theme_not_found": រកមិនឃើញ Theme
+  "error.agentservice.theme_not_found_description": theme ដែលបានបញ្ជាក់មិនមានស្ថិតក្នុងប្រព័ន្ធ
+  "error.agentservice.userinfo_alg_requires_response_type_description": userinfo responseType ត្រូវបានទាមទារនៅពេល signingAlg ឬ encryptionAlg ត្រូវបានកំណត់
+  "error.agentservice.userinfo_encryption_alg_requires_enc_description": userinfo encryptionEnc ត្រូវបានទាមទារនៅពេល encryptionAlg ត្រូវបានកំណត់
+  "error.agentservice.userinfo_encryption_enc_requires_alg_description": userinfo encryptionAlg ត្រូវបានទាមទារនៅពេល encryptionEnc ត្រូវបានកំណត់
+  "error.agentservice.userinfo_encryption_requires_certificate_description": វិញ្ញាបនប័ត្រ (JWKS ឬ JWKS_URI) ត្រូវបានទាមទារនៅពេលការអ៊ិនគ្រីប userinfo ត្រូវបានកំណត់
+  "error.agentservice.userinfo_jwe_requires_encryption_description": encryptionAlg និង encryptionEnc ត្រូវបានទាមទារនៅពេល userinfo responseType គឺ JWE
+  "error.agentservice.userinfo_jwks_uri_not_ssrf_safe_description": userinfo JWKS URI ត្រូវតែជា URL HTTPS ដែលអាចចូលប្រើបានជាសាធារណៈ
+  "error.agentservice.userinfo_jws_requires_signing_alg_description": signingAlg ត្រូវបានទាមទារនៅពេល userinfo responseType គឺ JWS
+  "error.agentservice.userinfo_nested_jwt_requires_all_description": signingAlg, encryptionAlg, និង encryptionEnc ត្រូវបានទាមទារនៅពេល userinfo responseType គឺ NESTED_JWT
+  "error.agentservice.userinfo_unsupported_encryption_alg_description": ក្បួនដោះស្រាយការអ៊ិនគ្រីប userinfo មិនត្រូវបានគាំទ្រ
+  "error.agentservice.userinfo_unsupported_encryption_enc_description": ក្បួនដោះស្រាយការអ៊ិនគ្រីបខ្លឹមសារ userinfo មិនត្រូវបានគាំទ្រ
+  "error.agentservice.userinfo_unsupported_response_type_description": userinfo responseType មិនត្រូវបានគាំទ្រ
+  "error.agentservice.userinfo_unsupported_signing_alg_description": ក្បួនដោះស្រាយការចុះហត្ថលេខា userinfo មិនត្រូវបានគាំទ្រ
+  "error.applicationservice.application_already_exists": កម្មវិធីមានស្ថិតក្នុងប្រព័ន្ធរួចហើយ
+  "error.applicationservice.application_already_exists_description": កម្មវិធីដែលមានឈ្មោះដូចគ្នានេះស្ថិតក្នុងប្រព័ន្ធរួចហើយ
+  "error.applicationservice.application_is_nil": កម្មវិធីគឺ nil
+  "error.applicationservice.application_is_nil_description": object កម្មវិធីដែលបានផ្ដល់ជូនគឺ nil
+  "error.applicationservice.application_not_found": រកមិនឃើញកម្មវិធី
+  "error.applicationservice.application_not_found_description": មិនអាចរកឃើញកម្មវិធីដែលបានស្នើសុំ
+  "error.applicationservice.application_with_client_id_already_exists": កម្មវិធីដែលមាន client ID ស្ថិតក្នុងប្រព័ន្ធរួចហើយ
+  "error.applicationservice.application_with_client_id_already_exists_description": កម្មវិធីដែលមាន client ID ដូចគ្នានេះស្ថិតក្នុងប្រព័ន្ធរួចហើយ
+  "error.applicationservice.auth_code_requires_code_response_type_description": ប្រភេទ grant authorization_code ទាមទារ response type 'code'
+  "error.applicationservice.auth_code_requires_redirect_uris_description": ប្រភេទ grant authorization_code ទាមទារ redirect URI
+  "error.applicationservice.cannot_modify_declarative_resource": មិនអាចកែប្រែធនធានដែលប្រកាស
+  "error.applicationservice.cannot_modify_declarative_resource_description": កម្មវិធីត្រូវបានប្រកាស ហើយមិនអាចកែប្រែ ឬលុបបាន
+  "error.applicationservice.certificate_operation_failed": ប្រតិបត្តិការវិញ្ញាបនប័ត្របរាជ័យ
+  "error.applicationservice.certificate_operation_failed_description": មានកំហុសកើតឡើងខណៈពេលដំណើរការវិញ្ញាបនប័ត្ររបស់កម្មវិធី
+  "error.applicationservice.client_credentials_cannot_use_none_auth_description": ប្រភេទ grant client_credentials មិនអាចប្រើវិធីសាស្ត្រផ្ទៀងផ្ទាត់ \"none\" បាន
+  "error.applicationservice.client_credentials_cannot_use_response_types_description": ប្រភេទ grant client_credentials មិនអាចប្រើជាមួយ response types បាន
+  "error.applicationservice.client_secret_cannot_have_certificate_description": វិធីសាស្ត្រផ្ទៀងផ្ទាត់ client_secret មិនអាចមានវិញ្ញាបនប័ត្របាន
+  "error.applicationservice.consent_service_not_enabled": សេវាការយល់ព្រមមិនត្រូវបានដំណើរការ
+  "error.applicationservice.consent_service_not_enabled_description": មិនអាចដំណើរការការយល់ព្រមសម្រាប់កម្មវិធីបាន ព្រោះសេវាការយល់ព្រមមិនត្រូវបានដំណើរការ
+  "error.applicationservice.consent_synchronization_failed": ការធ្វើសមកាលកម្មការយល់ព្រមបរាជ័យ
+  "error.applicationservice.consent_synchronization_failed_description": ការធ្វើសមកាលកម្មការកំណត់ការយល់ព្រមសម្រាប់កម្មវិធីបរាជ័យ
+  "error.applicationservice.error_retrieving_flow_definition": កំហុសក្នុងការទទួលយកនិយមន័យលំហូរ
+  "error.applicationservice.error_retrieving_flow_definition_description": មានកំហុសកើតឡើងខណៈពេលទទួលយកនិយមន័យលំហូរ
+  "error.applicationservice.idtoken_encryption_alg_requires_enc_description": idToken encryptionEnc ត្រូវបានទាមទារនៅពេល encryptionAlg ត្រូវបានកំណត់
+  "error.applicationservice.idtoken_encryption_enc_requires_alg_description": idToken encryptionAlg ត្រូវបានទាមទារនៅពេល encryptionEnc ត្រូវបានកំណត់
+  "error.applicationservice.idtoken_encryption_fields_not_allowed_description": idToken encryptionAlg និង encryptionEnc មិនត្រូវតែកំណត់នៅពេល responseType គឺ JWT
+  "error.applicationservice.idtoken_encryption_requires_certificate_description": វិញ្ញាបនប័ត្រ (JWKS ឬ JWKS_URI) ត្រូវបានទាមទារនៅពេលការអ៊ិនគ្រីប ID token ត្រូវបានកំណត់
+  "error.applicationservice.idtoken_jwks_uri_not_ssrf_safe_description": idToken JWKS URI ត្រូវតែជា URL HTTPS ដែលអាចចូលប្រើបានជាសាធារណៈ
+  "error.applicationservice.idtoken_unsupported_encryption_alg_description": ក្បួនដោះស្រាយការអ៊ិនគ្រីប ID token មិនត្រូវបានគាំទ្រ
+  "error.applicationservice.idtoken_unsupported_encryption_enc_description": ក្បួនដោះស្រាយការអ៊ិនគ្រីបខ្លឹមសារ ID token មិនត្រូវបានគាំទ្រ
+  "error.applicationservice.idtoken_unsupported_response_type_description": responseType នៃ ID token មិនត្រូវបានគាំទ្រ
+  "error.applicationservice.invalid_acr_values": តម្លៃ ACR មិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_acr_values_description": តម្លៃ ACR មួយ ឬច្រើនក្នុង acr_values មិនត្រូវបានទទួលស្គាល់ដោយប្រព័ន្ធ
+  "error.applicationservice.invalid_application_id": application ID មិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_application_id_description": application ID ដែលបានផ្ដល់ជូនមិនត្រឹមត្រូវ ឬទទេ
+  "error.applicationservice.invalid_application_name": ឈ្មោះកម្មវិធីមិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_application_name_description": ឈ្មោះកម្មវិធីដែលបានផ្ដល់ជូនមិនត្រឹមត្រូវ ឬទទេ
+  "error.applicationservice.invalid_application_url": URL កម្មវិធីមិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_application_url_description": URL កម្មវិធីដែលបានផ្ដល់ជូនមិនមែនជា URI ត្រឹមត្រូវ
+  "error.applicationservice.invalid_auth_flow_id": auth flow ID មិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_auth_flow_id_description": auth flow ID ដែលបានផ្ដល់ជូនមិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_certificate_type": ប្រភេទវិញ្ញាបនប័ត្រមិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_certificate_type_description": ប្រភេទវិញ្ញាបនប័ត្រដែលបានផ្ដល់ជូនមិនត្រូវបានគាំទ្រ
+  "error.applicationservice.invalid_certificate_value": តម្លៃវិញ្ញាបនប័ត្រមិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_certificate_value_description": តម្លៃវិញ្ញាបនប័ត្រដែលបានផ្ដល់ជូនមិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_client_id": client ID មិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_client_id_description": client ID ដែលបានផ្ដល់ជូនមិនត្រឹមត្រូវ ឬទទេ
+  "error.applicationservice.invalid_grant_type": ប្រភេទ grant មិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_grant_type_description": ប្រភេទ grant មួយ ឬច្រើនដែលបានផ្ដល់ជូនមិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_inbound_auth_config": inbound auth config មិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_inbound_auth_config_description": ការកំណត់ inbound authentication ដែលបានផ្ដល់ជូនមិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_jwks_uri": JWKS URI មិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_jwks_uri_description": JWKS URI ដែលបានផ្ដល់ជូនមិនមែនជា URI ត្រឹមត្រូវ
+  "error.applicationservice.invalid_jwks_uri_scheme": គ្រោង JWKS URI មិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_jwks_uri_scheme_description": '"jwks_uri" ត្រូវតែប្រើគ្រោង HTTPS'
+  "error.applicationservice.invalid_logo_url": URL រូបសញ្ញាមិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_logo_url_description": URL រូបសញ្ញាដែលបានផ្ដល់ជូនមិនមែនជា URI ត្រឹមត្រូវ
+  "error.applicationservice.invalid_oauth_configuration": ការកំណត់ OAuth មិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_oauth_configuration_description": ការកំណត់ OAuth មិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_public_client_configuration": ការកំណត់ client សាធារណៈមិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_public_client_configuration_description": ការកំណត់ client សាធារណៈមិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_recovery_flow_id": recovery flow ID មិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_recovery_flow_id_description": recovery flow ID ដែលបានផ្ដល់ជូនមិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_redirect_uri": redirect URI មិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_redirect_uri_description": redirect URI មួយ ឬច្រើនដែលបានផ្ដល់ជូនមិនមែនជា URI ត្រឹមត្រូវ
+  "error.applicationservice.invalid_registration_flow_id": registration flow ID មិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_registration_flow_id_description": registration flow ID ដែលបានផ្ដល់ជូនមិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_request_format": ទម្រង់សំណើមិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_request_format_description": ខ្លឹមសារនៃសំណើមានទ្រង់ទ្រាយខុស ឬមានទិន្នន័យមិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_response_type": response type មិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_response_type_description": response type មួយ ឬច្រើនដែលបានផ្ដល់ជូនមិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_token_endpoint_auth_method": វិធីសាស្ត្រផ្ទៀងផ្ទាត់ token endpoint មិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_token_endpoint_auth_method_description": វិធីសាស្ត្រផ្ទៀងផ្ទាត់ token endpoint ដែលបានផ្ដល់ជូនមិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_user_attribute": user attribute មិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_user_attribute_description": user attribute មួយ ឬច្រើនមិនត្រឹមត្រូវសម្រាប់ប្រភេទអ្នកប្រើប្រាស់ដែលបានអនុញ្ញាត
+  "error.applicationservice.invalid_user_type": ប្រភេទអ្នកប្រើប្រាស់មិនត្រឹមត្រូវ
+  "error.applicationservice.invalid_user_type_description": ប្រភេទអ្នកប្រើប្រាស់មួយ ឬច្រើនក្នុង allowed_user_types មិនមានស្ថិតក្នុងប្រព័ន្ធ
+  "error.applicationservice.layout_not_found": រកមិនឃើញ Layout
+  "error.applicationservice.layout_not_found_description": ការកំណត់ layout ដែលបានបញ្ជាក់មិនមានស្ថិតក្នុងប្រព័ន្ធ
+  "error.applicationservice.multiple_oauth_configs": OAuth inbound auth config ច្រើនមិនត្រូវបានអនុញ្ញាត
+  "error.applicationservice.multiple_oauth_configs_description": កម្មវិធីមួយអាចមាន inbound auth config តែមួយក្នុងមួយ protocol
+  "error.applicationservice.none_auth_method_cannot_have_cert_or_secret_description": វិធីសាស្ត្រផ្ទៀងផ្ទាត់ \"none\" មិនអាចមានវិញ្ញាបនប័ត្រ ឬ client secret បាន
+  "error.applicationservice.none_auth_method_requires_public_client_description": វិធីសាស្ត្រផ្ទៀងផ្ទាត់ \"none\" ទាមទារឱ្យ client ជា public client
+  "error.applicationservice.pkce_requires_authorization_code_description": PKCE អាចធ្វើឱ្យដំណើរការបានតែនៅពេលជ្រើសរើសប្រភេទ grant authorization_code
+  "error.applicationservice.private_key_jwt_cannot_have_client_secret_description": វិធីសាស្ត្រផ្ទៀងផ្ទាត់ private_key_jwt មិនអាចមាន client secret បាន
+  "error.applicationservice.private_key_jwt_requires_certificate_description": វិធីសាស្ត្រផ្ទៀងផ្ទាត់ private_key_jwt ទាមទារវិញ្ញាបនប័ត្រ
+  "error.applicationservice.public_client_must_have_pkce_description": Public client ត្រូវតែមាន PKCE ដែលត្រូវបានដំណើរការស្មើនឹង true
+  "error.applicationservice.public_client_must_use_none_auth_description": Public client ត្រូវតែប្រើ \"none\" ជាវិធីសាស្ត្រផ្ទៀងផ្ទាត់ token endpoint
+  "error.applicationservice.redirect_uri_fragment_not_allowed_description": redirect URI មិនត្រូវមាន fragment component
+  "error.applicationservice.refresh_token_cannot_be_sole_grant_description": ប្រភេទ grant refresh_token មិនអាចប្រើបានដោយគ្មានប្រភេទ grant ផ្សេងទៀត
+  "error.applicationservice.response_types_require_authorization_code_description": Response type អាចត្រូវបានកំណត់ត្រឹមតែជាមួយប្រភេទ grant authorization_code ប៉ុណ្ណោះ
+  "error.applicationservice.result_limit_exceeded": លើសកំរិតលទ្ធផល
+  "error.applicationservice.theme_not_found": រកមិនឃើញ Theme
+  "error.applicationservice.theme_not_found_description": ការកំណត់ theme ដែលបានបញ្ជាក់មិនមានស្ថិតក្នុងប្រព័ន្ធ
+  "error.applicationservice.userinfo_alg_requires_response_type_description": userinfo responseType ត្រូវបានទាមទារនៅពេល signingAlg ឬ encryptionAlg ត្រូវបានកំណត់
+  "error.applicationservice.userinfo_encryption_alg_requires_enc_description": userinfo encryptionEnc ត្រូវបានទាមទារនៅពេល encryptionAlg ត្រូវបានកំណត់
+  "error.applicationservice.userinfo_encryption_enc_requires_alg_description": userinfo encryptionAlg ត្រូវបានទាមទារនៅពេល encryptionEnc ត្រូវបានកំណត់
+  "error.applicationservice.userinfo_encryption_requires_certificate_description": វិញ្ញាបនប័ត្រ (JWKS ឬ JWKS_URI) ត្រូវបានទាមទារនៅពេលការអ៊ិនគ្រីប userinfo ត្រូវបានកំណត់
+  "error.applicationservice.userinfo_jwe_requires_encryption_description": encryptionAlg និង encryptionEnc ត្រូវបានទាមទារនៅពេល userinfo responseType គឺ JWE
+  "error.applicationservice.userinfo_jwks_uri_not_ssrf_safe_description": userinfo JWKS URI ត្រូវតែជា URL HTTPS ដែលអាចចូលប្រើបានជាសាធារណៈ
+  "error.applicationservice.userinfo_jws_requires_signing_alg_description": signingAlg ត្រូវបានទាមទារនៅពេល userinfo responseType គឺ JWS
+  "error.applicationservice.userinfo_nested_jwt_requires_all_description": signingAlg, encryptionAlg, និង encryptionEnc ត្រូវបានទាមទារនៅពេល userinfo responseType គឺ NESTED_JWT
+  "error.applicationservice.userinfo_unsupported_encryption_alg_description": ក្បួនដោះស្រាយការអ៊ិនគ្រីប userinfo មិនត្រូវបានគាំទ្រ
+  "error.applicationservice.userinfo_unsupported_encryption_enc_description": ក្បួនដោះស្រាយការអ៊ិនគ្រីបខ្លឹមសារ userinfo មិនត្រូវបានគាំទ្រ
+  "error.applicationservice.userinfo_unsupported_response_type_description": userinfo responseType មិនត្រូវបានគាំទ្រ
+  "error.applicationservice.userinfo_unsupported_signing_alg_description": ក្បួនដោះស្រាយការចុះហត្ថលេខា userinfo មិនត្រូវបានគាំទ្រ
+  "error.assertservice.invalid_authenticator": authenticator មិនត្រឹមត្រូវ
+  "error.assertservice.invalid_authenticator_description": ឈ្មោះ authenticator មិនអាចទទេបាន
   "error.assertservice.nil_assurance_context": assurance context គឺ nil
-  "error.assertservice.nil_assurance_context_description": assurance context មិន​អាច​ជា nil​ សម្រាប់​ការ​ផ្ទៀង​ផ្ទាត់
-  "error.assertservice.no_assurance_requirements": មិន​មាន​តម្រូវ​ការ assurance
-  "error.assertservice.no_assurance_requirements_description": ត្រូវ​តែ​ระบุ​កម្រិត assurance យ៉ាង​ហោច​ណាស់​មួយ (AAL ​ឬ IAL) សម្រាប់​ការ​ផ្ទៀង​ផ្ទាត់
-  "error.assertservice.no_authenticators": មិន​មាន authenticator
-  "error.assertservice.no_authenticators_description": មិន​អាច​បង្កើត assertion ដោយ​គ្មាន authenticator បាន
-  "error.attributecache.cache_not_found": រក​មិន​ឃើញ​ cache attribute
-  "error.attributecache.cache_not_found_description": ធាតុ​ cache attribute ដែល​មាន ID ដែល​បាន​ระบุ​មិន​មាន​ស្ថិត​ក្នុង​ប្រព័ន្ធ
-  "error.attributecache.invalid_expiry_time": ពេល​វេលា​ផុត​កំ​ណត់​មិន​ត្រឹម​ត្រូវ
-  "error.attributecache.invalid_expiry_time_description": ពេល​វេលា​ផុត​កំ​ណត់​ត្រូវ​តែ​ស្ថិត​ក្នុង​ពេល​អនា​គត
-  "error.attributecache.invalid_request_format": ទម្រង់​សំណើ​មិន​ត្រឹម​ត្រូវ
-  "error.attributecache.invalid_request_format_description": ខ្លឹម​សារ​នៃ​សំណើ​មាន​ទ្រង់​ទ្រាយ​ខុស ​ឬ​មាន​ទិន្នន័យ​មិន​ត្រឹម​ត្រូវ
-  "error.attributecache.missing_attributes": attribute ​បាត់
-  "error.attributecache.missing_attributes_description": attribute ត្រូវ​បាន​ទាម​ទារ
-  "error.attributecache.missing_cache_id": cache ID ​បាត់
-  "error.attributecache.missing_cache_id_description": cache ID ត្រូវ​បាន​ទាម​ទារ
-  "error.auth.forbidden": ហាម​ឃាត់
-  "error.auth.forbidden_description": អ្នក​មិន​មាន​សិទ្ធិ​គ្រប់​គ្រាន់​ដើម្បី​ចូល​ប្រើ​ធន​ធាន​នេះ​បាន
-  "error.auth.unauthorized": មិន​ត្រូវ​បាន​អនុញ្ញាត
-  "error.auth.unauthorized_description": ការ​ផ្ទៀង​ផ្ទាត់​ត្រូវ​បាន​ទាម​ទារ​ដើម្បី​ចូល​ប្រើ​ធន​ធាន​នេះ
-  "error.authncredservice.invalid_request_format": ទម្រង់​សំណើ​មិន​ត្រឹម​ត្រូវ
-  "error.authncredservice.invalid_request_format_description": ខ្លឹម​សារ​នៃ​សំណើ​មាន​ទ្រង់​ទ្រាយ​ខុស ​ឬ​មាន​ទិន្នន័យ​មិន​ត្រឹម​ត្រូវ
-  "error.authnmgrservice.ambiguous_user": អ្នក​ប្រើ​ប្រាស់​មិន​ច្បាស់
-  "error.authnmgrservice.ambiguous_user_description": រក​ឃើញ​អ្នក​ប្រើ​ប្រាស់​ច្រើន​នាក់​ដែល​ត្រង​ទៅ​នឹង​អ្នក​កំ​ណត់​អត្ត​សញ្ញាណ​ដែល​បាន​ផ្ដល់​ជូន
-  "error.authnmgrservice.authentication_failed": ការ​ផ្ទៀង​ផ្ទាត់​ខ្លួន​បរាជ័យ
-  "error.authnmgrservice.authentication_failed_description": ការ​ព្យាយាម​ផ្ទៀង​ផ្ទាត់​ខ្លួន​បរាជ័យ
-  "error.authnmgrservice.failed_to_get_attributes": ទទួល attribute ​បរាជ័យ
-  "error.authnmgrservice.failed_to_get_attributes_description": ការ​ទទួល attribute ​ត្រូវ​បាន​បដិ​សេធ​ដោយ​អ្នក​ផ្ដល់​សេវា
-  "error.authnmgrservice.get_entity_reference_client_error": ទទួល entity reference ​បរាជ័យ
-  "error.authnmgrservice.get_entity_reference_client_error_description": ការ​ទទួល entity reference ​ត្រូវ​បាន​បដិ​សេធ​ដោយ​អ្នក​ផ្ដល់​សេវា
-  "error.authnmgrservice.invalid_request": សំណើ​មិន​ត្រឹម​ត្រូវ
-  "error.authnmgrservice.invalid_request_description": សំណើ​ផ្ទៀង​ផ្ទាត់​ខ្លួន​មិន​ត្រឹម​ត្រូវ
-  "error.authnmgrservice.user_not_found": រក​មិន​ឃើញ​អ្នក​ប្រើ​ប្រាស់
-  "error.authnmgrservice.user_not_found_description": រក​មិន​ឃើញ​អ្នក​ប្រើ​ប្រាស់​ណា​ដែល​ត្រង​ទៅ​នឹង​អ្នក​កំ​ណត់​អត្ត​សញ្ញាណ​ដែល​បាន​ផ្ដល់​ជូន
-  "error.authnotpservice.error_processing_otp": កំ​ហុស​ក្នុង​ការ​ដំ​ណើរ​ការ OTP
-  "error.authnotpservice.error_processing_otp_description": មាន​កំ​ហុស​កើត​ឡើង​ខណៈ​ពេល​ដំ​ណើរ​ការ​សំណើ OTP
-  "error.authnotpservice.error_resolving_user": កំ​ហុស​ក្នុង​ការ​ដោះ​ស្រាយ​អ្នក​ប្រើ​ប្រាស់
-  "error.authnotpservice.error_resolving_user_description": មាន​កំ​ហុស​កើត​ឡើង​ខណៈ​ពេល​ដោះ​ស្រាយ​អ្នក​ប្រើ​ប្រាស់​សម្រាប់​អ្នក​ទទួល
-  "error.authnotpservice.incorrect_otp": OTP មិន​ត្រឹម​ត្រូវ
-  "error.authnotpservice.incorrect_otp_description": OTP ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ ​ឬ​ផុត​កំ​ណត់​ហើយ
-  "error.authnotpservice.invalid_otp": OTP មិន​ត្រឹម​ត្រូវ
-  "error.authnotpservice.invalid_otp_description": OTP ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ ​ឬ​ទទេ
-  "error.authnotpservice.invalid_recipient": អ្នក​ទទួល​មិន​ត្រឹម​ត្រូវ
-  "error.authnotpservice.invalid_recipient_description": អ្នក​ទទួល​ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ ​ឬ​ទទេ
-  "error.authnotpservice.invalid_sender_id": sender ID មិន​ត្រឹម​ត្រូវ
-  "error.authnotpservice.invalid_sender_id_description": sender ID ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ ​ឬ​ទទេ
-  "error.authnotpservice.invalid_session_token": session token មិន​ត្រឹម​ត្រូវ
-  "error.authnotpservice.invalid_session_token_description": session token ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ ​ឬ​ទទេ
-  "error.authnotpservice.unsupported_channel": channel មិន​ត្រូវ​បាន​គាំ​ទ្រ
-  "error.authnotpservice.unsupported_channel_description": channel ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រូវ​បាន​គាំ​ទ្រ​សម្រាប់​ការ​ផ្ទៀង​ផ្ទាត់ OTP
-  "error.authnservice.ambiguous_user": អ្នក​ប្រើ​ប្រាស់​មិន​ច្បាស់
-  "error.authnservice.ambiguous_user_description": អ្នក​ប្រើ​ប្រាស់​ច្រើន​នាក់​ត្រង​ទៅ​នឹង attribute ដែល​បាន​ផ្ដល់​ជូន
-  "error.authnservice.assertion_subject_mismatch": subject ​នៃ assertion ​មិន​ត្រូវ​គ្នា
-  "error.authnservice.assertion_subject_mismatch_description": subject ​ក្នុង assertion ​មិន​ត្រូវ​គ្នា​ជា​មួយ​អ្នក​ប្រើ​ប្រាស់​ដែល​ត្រូវ​បាន​ផ្ទៀង​ផ្ទាត់
-  "error.authnservice.authentication_failed": ការ​ផ្ទៀង​ផ្ទាត់​ខ្លួន​បរាជ័យ
-  "error.authnservice.authentication_failed_description": មាន​កំ​ហុស​កើត​ឡើង​ខណៈ​ពេល​ផ្ទៀង​ផ្ទាត់​ខ្លួន​អ្នក​ប្រើ​ប្រាស់
-  "error.authnservice.empty_attributes_or_credentials": attribute ​ឬ​ព័ត៌​មាន​សម្ងាត់​ទទេ
-  "error.authnservice.empty_attributes_or_credentials_description": attribute ​ឬ​ព័ត៌​មាន​សម្ងាត់​របស់​អ្នក​ប្រើ​ប្រាស់​មិន​អាច​ទទេ​បាន
-  "error.authnservice.empty_auth_code": authorization code ​ទទេ
-  "error.authnservice.empty_auth_code_description": authorization code ​ដែល​បាន​ផ្ដល់​ជូន​ទទេ
-  "error.authnservice.empty_session_token": session token ​ទទេ
-  "error.authnservice.empty_session_token_description": session token ​ដែល​បាន​ផ្ដល់​ជូន​ទទេ
-  "error.authnservice.error_retrieving_idp": កំ​ហុស​ក្នុង​ការ​ទទួល identity provider
-  "error.authnservice.error_retrieving_idp_description": មាន​កំ​ហុស​កើត​ឡើង​ខណៈ​ពេល​ទទួល identity provider
-  "error.authnservice.federated_authentication_failed": ការ​ផ្ទៀង​ផ្ទាត់​ខ្លួន federated ​បរាជ័យ
-  "error.authnservice.federated_authentication_failed_description": ការ​ព្យាយាម​ផ្ទៀង​ផ្ទាត់​ខ្លួន federated ​បរាជ័យ
-  "error.authnservice.google.invalid_id_token_audience_description": ទស្សនិក​ជន ID token ​មិន​ត្រូវ​គ្នា​ជា​មួយ client ID ​ដែល​បាន​រំ​ពឹង
-  "error.authnservice.google.invalid_id_token_exp_claim_description": ការ​ទទួល​ ID token ​expiration claim ​បាត់ ​ឬ​មិន​ត្រឹម​ត្រូវ
-  "error.authnservice.google.invalid_id_token_expired_description": ID token ​ផុត​កំ​ណត់​ហើយ
-  "error.authnservice.google.invalid_id_token_future_iat_description": ID token ​ត្រូវ​បាន​ចេញ​ក្នុង​ពេល​អនា​គត
-  "error.authnservice.google.invalid_id_token_iat_claim_description": ID token issued-at (iat) claim ​បាត់ ​ឬ​មិន​ត្រឹម​ត្រូវ
-  "error.authnservice.google.invalid_id_token_issuer_description": អ្នក​ចេញ ID token ​មិន​មែន​ជា Google issuer ​ត្រឹម​ត្រូវ
-  "error.authnservice.invalid_assertion": assertion ​មិន​ត្រឹម​ត្រូវ
-  "error.authnservice.invalid_assertion_description": assertion token ​ដែល​បាន​ផ្ដល់​ជូន​មិន​ត្រឹម​ត្រូវ
+  "error.assertservice.nil_assurance_context_description": assurance context មិនអាចជា nil សម្រាប់ការផ្ទៀងផ្ទាត់
+  "error.assertservice.no_assurance_requirements": មិនមានតម្រូវការ assurance
+  "error.assertservice.no_assurance_requirements_description": ត្រូវតែបញ្ជាក់កម្រិត assurance យ៉ាងហោចណាស់មួយ (AAL ឬ IAL) សម្រាប់ការផ្ទៀងផ្ទាត់
+  "error.assertservice.no_authenticators": មិនមាន authenticator
+  "error.assertservice.no_authenticators_description": មិនអាចបង្កើត assertion ដោយគ្មាន authenticator បាន
+  "error.attributecache.cache_not_found": រកមិនឃើញ cache attribute
+  "error.attributecache.cache_not_found_description": ធាតុ cache attribute ដែលមាន ID ដែលបានបញ្ជាក់មិនមានស្ថិតក្នុងប្រព័ន្ធ
+  "error.attributecache.invalid_expiry_time": ពេលវេលាផុតកំណត់មិនត្រឹមត្រូវ
+  "error.attributecache.invalid_expiry_time_description": ពេលវេលាផុតកំណត់ត្រូវតែស្ថិតក្នុងពេលអនាគត
+  "error.attributecache.invalid_request_format": ទម្រង់សំណើមិនត្រឹមត្រូវ
+  "error.attributecache.invalid_request_format_description": ខ្លឹមសារនៃសំណើមានទ្រង់ទ្រាយខុស ឬមានទិន្នន័យមិនត្រឹមត្រូវ
+  "error.attributecache.missing_attributes": attribute បាត់
+  "error.attributecache.missing_attributes_description": attribute ត្រូវបានទាមទារ
+  "error.attributecache.missing_cache_id": cache ID បាត់
+  "error.attributecache.missing_cache_id_description": cache ID ត្រូវបានទាមទារ
+  "error.auth.forbidden": ហាមឃាត់
+  "error.auth.forbidden_description": អ្នកមិនមានសិទ្ធិគ្រប់គ្រាន់ដើម្បីចូលប្រើធនធាននេះបាន
+  "error.auth.unauthorized": មិនត្រូវបានអនុញ្ញាត
+  "error.auth.unauthorized_description": ការផ្ទៀងផ្ទាត់ត្រូវបានទាមទារដើម្បីចូលប្រើធនធាននេះ
+  "error.authncredservice.invalid_request_format": ទម្រង់សំណើមិនត្រឹមត្រូវ
+  "error.authncredservice.invalid_request_format_description": ខ្លឹមសារនៃសំណើមានទ្រង់ទ្រាយខុស ឬមានទិន្នន័យមិនត្រឹមត្រូវ
+  "error.authnmgrservice.ambiguous_user": អ្នកប្រើប្រាស់មិនច្បាស់
+  "error.authnmgrservice.ambiguous_user_description": រកឃើញអ្នកប្រើប្រាស់ច្រើននាក់ដែលត្រងទៅនឹងអ្នកកំណត់អត្តសញ្ញាណដែលបានផ្ដល់ជូន
+  "error.authnmgrservice.authentication_failed": ការផ្ទៀងផ្ទាត់ខ្លួនបរាជ័យ
+  "error.authnmgrservice.authentication_failed_description": ការព្យាយាមផ្ទៀងផ្ទាត់ខ្លួនបរាជ័យ
+  "error.authnmgrservice.failed_to_get_attributes": ទទួល attribute បរាជ័យ
+  "error.authnmgrservice.failed_to_get_attributes_description": ការទទួល attribute ត្រូវបានបដិសេធដោយអ្នកផ្ដល់សេវា
+  "error.authnmgrservice.get_entity_reference_client_error": ទទួល entity reference បរាជ័យ
+  "error.authnmgrservice.get_entity_reference_client_error_description": ការទទួល entity reference ត្រូវបានបដិសេធដោយអ្នកផ្ដល់សេវា
+  "error.authnmgrservice.invalid_request": សំណើមិនត្រឹមត្រូវ
+  "error.authnmgrservice.invalid_request_description": សំណើផ្ទៀងផ្ទាត់ខ្លួនមិនត្រឹមត្រូវ
+  "error.authnmgrservice.user_not_found": រកមិនឃើញអ្នកប្រើប្រាស់
+  "error.authnmgrservice.user_not_found_description": រកមិនឃើញអ្នកប្រើប្រាស់ណាដែលត្រងទៅនឹងអ្នកកំណត់អត្តសញ្ញាណដែលបានផ្ដល់ជូន
+  "error.authnotpservice.error_processing_otp": កំហុសក្នុងការដំណើរការ OTP
+  "error.authnotpservice.error_processing_otp_description": មានកំហុសកើតឡើងខណៈពេលដំណើរការសំណើ OTP
+  "error.authnotpservice.error_resolving_user": កំហុសក្នុងការដោះស្រាយអ្នកប្រើប្រាស់
+  "error.authnotpservice.error_resolving_user_description": មានកំហុសកើតឡើងខណៈពេលដោះស្រាយអ្នកប្រើប្រាស់សម្រាប់អ្នកទទួល
+  "error.authnotpservice.incorrect_otp": OTP មិនត្រឹមត្រូវ
+  "error.authnotpservice.incorrect_otp_description": OTP ដែលបានផ្ដល់ជូនមិនត្រឹមត្រូវ ឬផុតកំណត់ហើយ
+  "error.authnotpservice.invalid_otp": OTP មិនត្រឹមត្រូវ
+  "error.authnotpservice.invalid_otp_description": OTP ដែលបានផ្ដល់ជូនមិនត្រឹមត្រូវ ឬទទេ
+  "error.authnotpservice.invalid_recipient": អ្នកទទួលមិនត្រឹមត្រូវ
+  "error.authnotpservice.invalid_recipient_description": អ្នកទទួលដែលបានផ្ដល់ជូនមិនត្រឹមត្រូវ ឬទទេ
+  "error.authnotpservice.invalid_sender_id": sender ID មិនត្រឹមត្រូវ
+  "error.authnotpservice.invalid_sender_id_description": sender ID ដែលបានផ្ដល់ជូនមិនត្រឹមត្រូវ ឬទទេ
+  "error.authnotpservice.invalid_session_token": session token មិនត្រឹមត្រូវ
+  "error.authnotpservice.invalid_session_token_description": session token ដែលបានផ្ដល់ជូនមិនត្រឹមត្រូវ ឬទទេ
+  "error.authnotpservice.unsupported_channel": channel មិនត្រូវបានគាំទ្រ
+  "error.authnotpservice.unsupported_channel_description": channel ដែលបានផ្ដល់ជូនមិនត្រូវបានគាំទ្រសម្រាប់ការផ្ទៀងផ្ទាត់ OTP
+  "error.authnservice.ambiguous_user": អ្នកប្រើប្រាស់មិនច្បាស់
+  "error.authnservice.ambiguous_user_description": អ្នកប្រើប្រាស់ច្រើននាក់ត្រងទៅនឹង attribute ដែលបានផ្ដល់ជូន
+  "error.authnservice.assertion_subject_mismatch": subject នៃ assertion មិនត្រូវគ្នា
+  "error.authnservice.assertion_subject_mismatch_description": subject ក្នុង assertion មិនត្រូវគ្នាជាមួយអ្នកប្រើប្រាស់ដែលត្រូវបានផ្ទៀងផ្ទាត់
+  "error.authnservice.authentication_failed": ការផ្ទៀងផ្ទាត់ខ្លួនបរាជ័យ
+  "error.authnservice.authentication_failed_description": មានកំហុសកើតឡើងខណៈពេលផ្ទៀងផ្ទាត់ខ្លួនអ្នកប្រើប្រាស់
+  "error.authnservice.empty_attributes_or_credentials": attribute ឬព័ត៌មានសម្ងាត់ទទេ
+  "error.authnservice.empty_attributes_or_credentials_description": attribute ឬព័ត៌មានសម្ងាត់របស់អ្នកប្រើប្រាស់មិនអាចទទេបាន
+  "error.authnservice.empty_auth_code": authorization code ទទេ
+  "error.authnservice.empty_auth_code_description": authorization code ដែលបានផ្ដល់ជូនទទេ
+  "error.authnservice.empty_session_token": session token ទទេ
+  "error.authnservice.empty_session_token_description": session token ដែលបានផ្ដល់ជូនទទេ
+  "error.authnservice.error_retrieving_idp": កំហុសក្នុងការទទួល identity provider
+  "error.authnservice.error_retrieving_idp_description": មានកំហុសកើតឡើងខណៈពេលទទួល identity provider
+  "error.authnservice.federated_authentication_failed": ការផ្ទៀងផ្ទាត់ខ្លួន federated បរាជ័យ
+  "error.authnservice.federated_authentication_failed_description": ការព្យាយាមផ្ទៀងផ្ទាត់ខ្លួន federated បរាជ័យ
+  "error.authnservice.google.invalid_id_token_audience_description": ទស្សនិកជន ID token មិនត្រូវគ្នាជាមួយ client ID ដែលបានរំពឹង
+  "error.authnservice.google.invalid_id_token_exp_claim_description": ការទទួល ID token expiration claim បាត់ ឬមិនត្រឹមត្រូវ
+  "error.authnservice.google.invalid_id_token_expired_description": ID token ផុតកំណត់ហើយ
+  "error.authnservice.google.invalid_id_token_future_iat_description": ID token ត្រូវបានចេញក្នុងពេលអនាគត
+  "error.authnservice.google.invalid_id_token_iat_claim_description": ID token issued-at (iat) claim បាត់ ឬមិនត្រឹមត្រូវ
+  "error.authnservice.google.invalid_id_token_issuer_description": អ្នកចេញ ID token មិនមែនជា Google issuer ត្រឹមត្រូវ
+  "error.authnservice.invalid_assertion": assertion មិនត្រឹមត្រូវ
+  "error.authnservice.invalid_assertion_description": assertion token ដែលបានផ្ដល់ជូនមិនត្រឹមត្រូវ
   "error.authnservice.invalid_credentials": លិខិតបញ្ជាក់មិនត្រឹមត្រូវ
   "error.authnservice.invalid_credentials_description": លិខិតបញ្ជាក់ដែលបានផ្តល់មិនត្រឹមត្រូវ
   "error.authnservice.invalid_idp_id": លេខសម្គាល់អ្នកផ្តល់អត្តសញ្ញាណមិនត្រឹមត្រូវ
@@ -1238,15 +1238,36 @@ biometric:
   title: ផ្តល់ជីវមាត្ររបស់អ្នក
 
 consent:
-  title: "កំពុងស្នើសុំការចូលប្រើប្រាស់ដូចខាងក្រោម:"
-  description: កម្មវិធីនេះចង់ចូលប្រើប្រាស់ព័ត៌មានខាងក្រោម។ សូមពិនិត្យ និងជ្រើសរើសអ្វីដែលអ្នកចង់ចែករំលែក។
+  title: "កំពុងស្នើសុំចូលប្រើព័ត៌មានដូចខាងក្រោម៖"
+  description: កម្មវិធីនេះចង់ចូលប្រើព័ត៌មានដូចខាងក្រោម។ សូមពិនិត្យ និងជ្រើសរើសអ្វីដែលអ្នកចង់ចែករំលែក។
   allow: អនុញ្ញាត
   deny: បដិសេធ
-  timer_label: សូមចាត់វិធានការសមស្រប
-  essential: ការទាមទារសំខាន់ៗ
-  optional: ការទាមទារស្ម័គ្រចិត្ត
-  essential_info: ព័ត៌មានអ្នកប្រើប្រាស់ជាចាំបាច់ដែលអ្នកផ្តល់សេវាត្រូវការ
-  optional_info: ព័ត៌មានអ្នកប្រើប្រាស់បន្ថែមដែលអ្នករស់នៅអាចជ្រើសរើសចែករំលែកជាមួយអ្នកផ្តល់សេវា
+  timer_label: សូមធ្វើសកម្មភាពសមស្របក្នុងរយៈពេល
+  essential_claims: ព័ត៌មានចាំបាច់
+  optional_claims: ព័ត៌មានស្ម័គ្រចិត្ត
+  authorize_scope: អនុញ្ញាតវិសាលភាព
+  essential_claims.info: ព័ត៌មានអ្នកប្រើប្រាស់ចាំបាច់ដែលតម្រូវដោយអ្នកផ្តល់សេវា
+  optional_claims.info: ព័ត៌មានអ្នកប្រើប្រាស់បន្ថែមដែលអ្នករស់នៅអាចជ្រើសរើសចែករំលែកជាមួយអ្នកផ្តល់សេវា
+  authorize_scope.info: អនុញ្ញាតឱ្យអ្នកផ្តល់សេវាចូលប្រើសេវាកម្មដែលបានការពារទាំងនេះក្នុងនាមអ្នក
+  name: ឈ្មោះពេញ
+  given_name: ឈ្មោះ
+  middle_name: ឈ្មោះកណ្តាល
+  phone: ទូរស័ព្ទ
+  phone_number: លេខទូរស័ព្ទ
+  phone_number_verified: លេខទូរស័ព្ទបានផ្ទៀងផ្ទាត់
+  email: អាសយដ្ឋានអ៊ីមែល
+  email_verified: អាសយដ្ឋានអ៊ីមែលបានផ្ទៀងផ្ទាត់
+  address: អាសយដ្ឋាន
+  birthdate: ថ្ងៃខែឆ្នាំកំណើត
+  gender: ភេទ
+  picture: រូបភាព
+  preferred_username: ឈ្មោះអ្នកប្រើប្រាស់ដែលពេញចិត្ត
+  locale: មូលដ្ឋាន
+  nickname: ឈ្មោះហៅក្រៅ
+  family_name: នាមត្រកូល
+  zoneinfo: តំបន់ពេលវេលា
+  profile: ទម្រង់
+  required: ចាំបាច់
 
 signin:
   images.app_logo.alt: រូបសញ្ញាកម្មវិធី

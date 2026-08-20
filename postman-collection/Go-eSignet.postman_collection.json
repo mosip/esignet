@@ -82,7 +82,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"requestTime\": \"{{client_mgmt_request_time}}\",\n  \"request\": {\n    \"clientId\": \"{{client_id}}\",\n    \"clientName\": \"Postman Test Client\",\n    \"clientNameLangMap\": { \"eng\": \"Postman Test Client\" },\n    \"relyingPartyId\": \"{{relying_party_id}}\",\n    \"logoUri\": \"https://example.com/logo.png\",\n    \"redirectUris\": [\"{{redirect_uri}}\"],\n    \"userClaims\": [\"name\", \"email\", \"picture\", \"phone_number\", \"address\"],\n    \"authContextRefs\": [\"mosip:idp:acr:generated-code\", \"mosip:idp:acr:password\",\"mosip:idp:acr:biometrics\"],\n    \"publicKey\": {{client_public_key}},\n    \"grantTypes\": [\"authorization_code\"],\n    \"clientAuthMethods\": [\"private_key_jwt\"],\n    \"additionalConfig\": { \"require_pushed_authorization_requests\": false, \"dpop_bound_access_tokens\": false, \"pkce_required\": true }\n  }\n}"
+              "raw": "{\n  \"requestTime\": \"{{client_mgmt_request_time}}\",\n  \"request\": {\n    \"clientId\": \"{{client_id}}\",\n    \"clientName\": \"Postman Test Client\",\n    \"clientNameLangMap\": { \"eng\": \"Postman Test Client\" },\n    \"relyingPartyId\": \"{{relying_party_id}}\",\n    \"logoUri\": \"https://example.com/logo.png\",\n    \"redirectUris\": [\"{{redirect_uri}}\"],\n    \"userClaims\": [\"name\", \"email\", \"picture\", \"phone_number\", \"address\"],\n    \"authContextRefs\": [\"mosip:idp:acr:generated-code\", \"mosip:idp:acr:password\",\"mosip:idp:acr:biometrics\"],\n    \"publicKey\": {{client_public_key}},\n    \"grantTypes\": [\"authorization_code\"],\n    \"clientAuthMethods\": [\"private_key_jwt\"],\n    \"additionalConfig\": { \"require_pushed_authorization_requests\": false, \"dpop_bound_access_tokens\": false, \"require_pkce\": true }\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/client-mgmt/client",
@@ -264,7 +264,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"requestTime\": \"{{client_mgmt_request_time}}\",\n  \"request\": {\n    \"encPublicKey\": {{client_enc_public_key}},\n    \"clientName\": \"Postman Test Client (patched)\",\n    \"additionalConfig\": {\n      \"require_pushed_authorization_requests\": false,\n      \"dpop_bound_access_tokens\": false,\n      \"pkce_required\": true,\n      \"userinfo_response_type\": \"JWE\"\n    }\n  }\n}"
+              "raw": "{\n  \"requestTime\": \"{{client_mgmt_request_time}}\",\n  \"request\": {\n    \"encPublicKey\": {{client_enc_public_key}},\n    \"clientName\": \"Postman Test Client (patched)\",\n    \"additionalConfig\": {\n      \"require_pushed_authorization_requests\": false,\n      \"dpop_bound_access_tokens\": false,\n      \"require_pkce\": true,\n      \"userinfo_response_type\": \"JWE\"\n    }\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/client-mgmt/client/{{client_id}}",
@@ -282,7 +282,7 @@
           "response": []
         }
       ],
-      "description": "Create / Get / Update an OAuth client. Run 'Create client' first, then a flow folder \u2014 every flow uses {{client_id}} + {{client_private_key}}. Toggle additionalConfig in the Create body per client type: normal OAuth = pkce_required only; FAPI2 = also require_pushed_authorization_requests + dpop_bound_access_tokens = true.",
+      "description": "Create / Get / Update an OAuth client. Run 'Create client' first, then a flow folder \u2014 every flow uses {{client_id}} + {{client_private_key}}. Toggle additionalConfig in the Create body per client type: normal OAuth = require_pkce only; FAPI2 = also require_pushed_authorization_requests + dpop_bound_access_tokens = true.",
       "event": [
         {
           "listen": "prerequest",
@@ -1402,9 +1402,113 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Introspect Token",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// PS256 private_key_jwt (introspect_client_assertion) signed with client_private_key.",
+                  "// No DPoP is required by the introspect endpoint. The audience (assertion aud) comes",
+                  "// from the introspect_audience env var.",
+                  "function b64url(bytes) {",
+                  "  const arr = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);",
+                  "  let s = ''; for (let i = 0; i < arr.length; i++) s += String.fromCharCode(arr[i]);",
+                  "  return btoa(s).replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, '');",
+                  "}",
+                  "function b64urlStr(str) { return b64url(new TextEncoder().encode(str)); }",
+                  "async function sha256b64url(input) {",
+                  "  const data = typeof input === 'string' ? new TextEncoder().encode(input) : input;",
+                  "  return b64url(new Uint8Array(await crypto.subtle.digest('SHA-256', data)));",
+                  "}",
+                  "async function generateJKT(jwk) { return await sha256b64url(JSON.stringify({ e: jwk.e, kty: jwk.kty, n: jwk.n })); }",
+                  "const introspectAudience = pm.environment.get('introspect_audience') || `${pm.environment.get('baseUrl')}/oauth2/introspect`;",
+                  "",
+                  "async function buildClientAssertion() {",
+                  "  const privateJwk = JSON.parse(pm.environment.get('client_private_key'));",
+                  "  const clientId = pm.environment.get('client_id');",
+                  "  const audience = introspectAudience;",
+                  "  const privateKey = await crypto.subtle.importKey('jwk', privateJwk, { name: 'RSA-PSS', hash: 'SHA-256' }, false, ['sign']);",
+                  "  const kid = privateJwk.kid || await generateJKT(privateJwk);",
+                  "  const header = { alg: 'PS256', typ: 'JWT', kid };",
+                  "  const now = Math.floor(Date.now() / 1000);",
+                  "  const payload = { iss: clientId, sub: clientId, aud: audience, jti: crypto.randomUUID(), iat: now, exp: now + 60 };",
+                  "  const signingInput = `${b64urlStr(JSON.stringify(header))}.${b64urlStr(JSON.stringify(payload))}`;",
+                  "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, privateKey, new TextEncoder().encode(signingInput));",
+                  "  return `${signingInput}.${b64url(new Uint8Array(sig))}`;",
+                  "}",
+                  "pm.collectionVariables.set('introspect_client_assertion', await buildClientAssertion());"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('introspect 200', () => pm.response.to.have.status(200));",
+                  "const t = pm.response.json();",
+                  "pm.test('active is boolean', () => pm.expect(t.active).to.be.a('boolean'));",
+                  "console.log('introspect body:', pm.response.text());"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "text"
+                },
+                {
+                  "key": "token_type_hint",
+                  "value": "access_token",
+                  "type": "text"
+                },
+                {
+                  "key": "client_id",
+                  "value": "{{client_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "client_assertion_type",
+                  "value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+                  "type": "text"
+                },
+                {
+                  "key": "client_assertion",
+                  "value": "{{introspect_client_assertion}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/oauth2/introspect",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "oauth2",
+                "introspect"
+              ]
+            }
+          },
+          "response": []
         }
       ],
-      "description": "Run Client Management > Create client first with additionalConfig require_pushed_authorization_requests=true AND dpop_bound_access_tokens=true. Then run this folder top-to-bottom. Requires Redis >= 6.2 (PAR uses GETDEL). The PAR/token/userinfo audiences (DPoP htu + client_assertion aud) are read from the par_audience / audience / userinfo_audience environment variables.",
+      "description": "Run Client Management > Create client first with additionalConfig require_pushed_authorization_requests=true AND dpop_bound_access_tokens=true. Then run this folder top-to-bottom. The PAR/token/userinfo/introspect audiences (DPoP htu + client_assertion aud) are read from the par_audience / audience / userinfo_audience / introspect_audience environment variables.",
       "auth": {
         "type": "noauth"
       }
@@ -1658,6 +1762,11 @@
     },
     {
       "key": "par_client_assertion",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "introspect_client_assertion",
       "value": "",
       "type": "string"
     }

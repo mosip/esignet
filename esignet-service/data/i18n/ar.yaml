@@ -1239,14 +1239,35 @@ biometric:
 
 consent:
   title: "يطلب الوصول إلى ما يلي:"
-  description: يرغب هذا التطبيق في الوصول إلى المعلومات التالية. يرجى المراجعة واختيار ما تريد مشاركته.
-  allow: سماح
+  description: يرغب هذا التطبيق في الوصول إلى المعلومات التالية. يرجى المراجعة واختيار ما ترغب في مشاركته.
+  allow: السماح
   deny: رفض
-  timer_label: يرجى اتخاذ الإجراء المناسب في
-  essential: المطالبات الأساسية
-  optional: المطالبات الطوعية
-  essential_info: معلومات المستخدم الإلزامية المطلوبة من قِبَل مزود الخدمة
-  optional_info: معلومات إضافية للمستخدم يمكن للمقيم اختيار مشاركتها مع مزود الخدمة
+  timer_label: يرجى اتخاذ الإجراء المناسب خلال
+  essential_claims: البيانات الأساسية
+  optional_claims: البيانات الاختيارية
+  authorize_scope: تفويض النطاقات
+  essential_claims.info: معلومات المستخدم الإلزامية المطلوبة من مزود الخدمة
+  optional_claims.info: معلومات إضافية للمستخدم يمكن للمقيم اختيار مشاركتها مع مزود الخدمة
+  authorize_scope.info: يسمح لمزود الخدمة بالوصول إلى هذه الخدمات المحمية نيابة عنك
+  name: الاسم الكامل
+  given_name: الاسم
+  middle_name: الاسم الأوسط
+  phone: الهاتف
+  phone_number: رقم الهاتف
+  phone_number_verified: تم التحقق من رقم الهاتف
+  email: البريد الإلكتروني
+  email_verified: تم التحقق من البريد الإلكتروني
+  address: العنوان
+  birthdate: تاريخ الميلاد
+  gender: الجنس
+  picture: الصورة
+  preferred_username: اسم المستخدم المفضل
+  locale: اللغة/المنطقة
+  nickname: الاسم المستعار
+  family_name: اسم العائلة
+  zoneinfo: المنطقة الزمنية
+  profile: الملف الشخصي
+  required: مطلوب
 
 signin:
   images.app_logo.alt: شعار التطبيق

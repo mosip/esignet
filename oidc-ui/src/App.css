@@ -44,6 +44,17 @@ select {
   fill: var(--language-icon-bg-color);
 }
 
+.checkIcon {
+  stroke: var(--language-check-icon-color);
+  stroke-width: 2px;
+}
+
+.selectedLang,
+.langDropdown:hover {
+  font-weight: 500;
+  color: var(--selected-lang-text-color);
+}
+
 .brand-logo {
   content: var(--brand-logo-url);
   height: 40px;

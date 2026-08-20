@@ -37,7 +37,7 @@ function AppLayout() {
       <LanguageDirectionSync />
       <div className="flex flex-col min-h-screen">
         <NavHeader />
-        <main className="flex-1">
+        <main className="flex-1 z-0">
           <AppRouter />
         </main>
         <Footer />

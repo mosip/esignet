@@ -141,28 +141,34 @@ security_config:
   scope_mapping:
     - endpoint: "/client-mgmt/oidc-client"
       method: POST
-      scope: client_mgmt
+      scope: add_oidc_client
     - endpoint: "/client-mgmt/oidc-client/{client_id}"
       method: PUT
-      scope: client_mgmt
+      scope: update_oidc_client
     - endpoint: "/client-mgmt/oauth-client"
       method: POST
-      scope: client_mgmt
+      scope: add_oidc_client
     - endpoint: "/client-mgmt/oauth-client/{client_id}"
       method: PUT
-      scope: client_mgmt
+      scope: update_oidc_client
     - endpoint: "/client-mgmt/client"
       method: POST
-      scope: client_mgmt
+      scope: add_oidc_client
     - endpoint: "/client-mgmt/client/{client_id}"
       method: PUT
-      scope: client_mgmt
+      scope: update_oidc_client
     - endpoint: "/client-mgmt/client/{client_id}"
       method: PATCH
-      scope: client_mgmt
+      scope: update_oidc_client
     - endpoint: "/client-mgmt/client/{client_id}"
       method: GET
-      scope: client_mgmt
+      scope: get_oidc_client
+    - endpoint: "/system-info/certificate"
+      method: GET
+      scope: get_certificate
+    - endpoint: "/system-info/uploadCertificate"
+      method: POST
+      scope: upload_certificate
 
 scope_claims:
   openid:

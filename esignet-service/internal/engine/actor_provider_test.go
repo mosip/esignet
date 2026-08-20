@@ -208,8 +208,7 @@ func (ts *ActorProviderTestSuite) TestActorProvider_GetOAuthClientByClientID_JWE
 		_, svcErr := p.GetOAuthClientByClientID(context.Background(), "client-001")
 		if svcErr == nil {
 			t.Fatal("expected error for JWE id_token without an alg on the encryption key")
-		}
-		if svcErr.Code != "missing_encryption_key_alg" {
+		} else if svcErr.Code != "missing_encryption_key_alg" {
 			t.Errorf("error code = %q, want missing_encryption_key_alg", svcErr.Code)
 		}
 	})
@@ -268,8 +267,8 @@ func (ts *ActorProviderTestSuite) TestActorProvider_GetInboundClientByID() {
 	if client.AuthFlowID != "flow-1" || client.ThemeID != "theme-1" || client.LayoutID != "layout-1" {
 		t.Errorf("client = %+v, unexpected flow/theme/layout ids", client)
 	}
-	if client.LoginConsent.ValidityPeriod != 30 {
-		t.Errorf("LoginConsent.ValidityPeriod = %d, want 30", client.LoginConsent.ValidityPeriod)
+	if client.LoginConsent.ValidityPeriod != 30*60 {
+		t.Errorf("LoginConsent.ValidityPeriod = %d, want %d", client.LoginConsent.ValidityPeriod, 30*60)
 	}
 	if client.Properties["name"] != "Test App" {
 		t.Errorf("Properties[name] = %v, want Test App", client.Properties["name"])
@@ -427,14 +426,6 @@ func (ts *ActorProviderTestSuite) TestGetAllowedScopes() {
 				t.Errorf("getAllowedScopes() = %v, want %v", got, want)
 				break
 			}
-		}
-	})
-
-	t.Run("accepts []string additional scopes", func(t *testing.T) {
-		additionalConfig := map[string]any{allowedAuthorizationScopes: []string{"custom_scope"}}
-		got := getAllowedScopes(standardScopeClaims, additionalConfig)
-		if got[len(got)-1] != "custom_scope" {
-			t.Errorf("getAllowedScopes() = %v, want last element custom_scope", got)
 		}
 	})
 

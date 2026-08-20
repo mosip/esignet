@@ -143,14 +143,14 @@ describe("LanguageDropdown — multiple languages", () => {
   it("calls onLanguageChange with the correct code when an option is clicked", () => {
     renderWithI18n();
     fireEvent.click(screen.getByRole("button", { name: /English/i }));
-    fireEvent.click(screen.getByRole("option", { name: "French" }));
+    fireEvent.click(screen.getByRole("option", { name: "français" }));
     expect(state.onLanguageChange).toHaveBeenCalledWith("fr");
   });
 
   it("closes the listbox after a language is selected", () => {
     renderWithI18n();
     fireEvent.click(screen.getByRole("button", { name: /English/i }));
-    fireEvent.click(screen.getByRole("option", { name: "French" }));
+    fireEvent.click(screen.getByRole("option", { name: "français" }));
     expect(screen.queryByRole("listbox")).toBeNull();
   });
 
@@ -165,7 +165,7 @@ describe("LanguageDropdown — multiple languages", () => {
     fireEvent.click(screen.getByRole("button", { name: /English/i }));
     const englishOption = screen.getByRole("option", { name: "English" });
     expect(englishOption.getAttribute("aria-selected")).toBe("true");
-    const frenchOption = screen.getByRole("option", { name: "French" });
+    const frenchOption = screen.getByRole("option", { name: "français" });
     expect(frenchOption.getAttribute("aria-selected")).toBe("false");
   });
 

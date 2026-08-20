@@ -9,13 +9,18 @@ package main
 import (
 	"context"
 	"database/sql"
+	"database/sql/driver"
+	"errors"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
@@ -24,10 +29,27 @@ import (
 	"github.com/mosip/esignet/internal/metrics"
 )
 
-// fakeDB implements dbStatter with configurable stats for testing.
-type fakeDB struct{ stats sql.DBStats }
+// fakeDriver is a minimal database/sql driver that never actually connects.
+// sql.Open() only registers a name/dsn pair lazily, so this is enough to
+// exercise startMetricsServer's metrics.RegisterDBStats wiring without a
+// real database.
+type fakeDriver struct{}
 
-func (f fakeDB) Stats() sql.DBStats { return f.stats }
+func (fakeDriver) Open(_ string) (driver.Conn, error) {
+	return nil, errors.New("fakeDriver: connections are not supported")
+}
+
+func init() {
+	sql.Register("esignet-cmd-fake-driver", fakeDriver{})
+}
+
+func freePort(t *testing.T) int {
+	t.Helper()
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	require.NoError(t, err)
+	defer func() { _ = ln.Close() }()
+	return ln.Addr().(*net.TCPAddr).Port
+}
 
 func testHTTPClientConfig() config.HTTPClientConfig {
 	return config.HTTPClientConfig{
@@ -42,8 +64,7 @@ func testHTTPClientConfig() config.HTTPClientConfig {
 }
 
 func (ts *MainTestSuite) TestNewDebugMux() {
-	stub := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusOK) })
-	mux := newDebugMux(stub)
+	mux := newDebugMux()
 
 	paths := []string{
 		"/debug/pprof/",
@@ -51,7 +72,6 @@ func (ts *MainTestSuite) TestNewDebugMux() {
 		"/debug/pprof/goroutine",
 		"/debug/pprof/heap",
 		"/debug/pprof/symbol",
-		"/debug/pool-config",
 	}
 	for _, p := range paths {
 		rec := httptest.NewRecorder()
@@ -64,8 +84,7 @@ func (ts *MainTestSuite) TestNewDebugMux_BoundedProfileAndTrace() {
 	if testing.Short() {
 		ts.T().Skip("skipping blocking CPU/trace endpoints in short mode")
 	}
-	stub := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusOK) })
-	mux := newDebugMux(stub)
+	mux := newDebugMux()
 
 	for _, p := range []string{"/debug/pprof/profile?seconds=1", "/debug/pprof/trace?seconds=1"} {
 		rec := httptest.NewRecorder()
@@ -74,44 +93,15 @@ func (ts *MainTestSuite) TestNewDebugMux_BoundedProfileAndTrace() {
 	}
 }
 
-func (ts *MainTestSuite) TestPoolConfigHandler() {
-	db := fakeDB{stats: sql.DBStats{OpenConnections: 3, InUse: 1, Idle: 2}}
-	appCfg := &config.AppConfig{RuntimeDBType: "redis"}
-	appCfg.DB.Pool.ConnMaxLifetimeSecs = 1800
-	appCfg.DB.Pool.MaxOpenConns = 25
-	appCfg.DB.Pool.MaxIdleConns = 5
-	appCfg.Redis.ConnMaxLifetime = 30 * time.Minute
-
-	rec := httptest.NewRecorder()
-	newPoolConfigHandler(db, appCfg).ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/debug/pool-config", nil))
-
-	ts.Equal(http.StatusOK, rec.Code)
-	ts.Equal("application/json", rec.Header().Get("Content-Type"))
-	body := rec.Body.String()
-	ts.Contains(body, `"connMaxLifetime":"30m0s"`)
-	ts.Contains(body, `"maxOpenConns":25`)
-	ts.Contains(body, `"maxIdleConns":5`)
-	ts.Contains(body, `"openConns":3`)
-	ts.Contains(body, `"inUse":1`)
-	ts.Contains(body, `"idle":2`)
-	ts.Contains(body, `"enabled":true`)
-}
-
-func (ts *MainTestSuite) TestPoolConfigHandler_RedisDisabled() {
-	rec := httptest.NewRecorder()
-	newPoolConfigHandler(fakeDB{}, &config.AppConfig{RuntimeDBType: "inmemory"}).
-		ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/debug/pool-config", nil))
-	ts.Contains(rec.Body.String(), `"enabled":false`)
-}
-
 func (ts *MainTestSuite) TestPprofEnabled_DefaultOff() {
-	ts.False((&config.AppConfig{}).PprofEnabled, "pprof must be opt-in; default should be false")
+	ts.False((&config.AppConfig{}).PProfConfig.Enabled, "pprof must be opt-in; default should be false")
 }
 
 func (ts *MainTestSuite) TestPprofEnabled_MuxReadyWhenEnabled() {
-	appCfg := &config.AppConfig{PprofEnabled: true}
-	mux := newDebugMux(newPoolConfigHandler(fakeDB{}, appCfg))
+	appCfg := &config.AppConfig{PProfConfig: config.PProfConfig{Enabled: true}}
+	ts.True(appCfg.PProfConfig.Enabled)
 
+	mux := newDebugMux()
 	rec := httptest.NewRecorder()
 	mux.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/debug/pprof/", nil))
 	ts.Equal(http.StatusOK, rec.Code)
@@ -175,6 +165,59 @@ func (ts *MainTestSuite) TestScopeEnforcementEnabled() {
 		SecurityConfig: config.SecurityConfig{IssuerURL: "https://issuer"},
 	}))
 	require.False(ts.T(), scopeEnforcementEnabled(&config.AppConfig{}))
+}
+
+func (ts *MainTestSuite) TestStartMetricsServer() {
+	t := ts.T()
+
+	db, err := sql.Open("esignet-cmd-fake-driver", "unused-dsn")
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = db.Close() })
+
+	redisClient := redis.NewClient(&redis.Options{Addr: "127.0.0.1:0"})
+	t.Cleanup(func() { _ = redisClient.Close() })
+
+	port := freePort(t)
+	appCfg := &config.AppConfig{MetricsPort: port}
+
+	srv := startMetricsServer(db, redisClient, appCfg, applog.GetLogger())
+	require.Equal(t, fmt.Sprintf(":%d", port), srv.Addr)
+	t.Cleanup(func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+		_ = srv.Shutdown(ctx)
+	})
+
+	require.Eventually(t, func() bool {
+		resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%d/metrics", port))
+		if err != nil {
+			return false
+		}
+		defer func() { _ = resp.Body.Close() }()
+		body, err := io.ReadAll(resp.Body)
+		return err == nil &&
+			resp.StatusCode == http.StatusOK &&
+			strings.Contains(string(body), "esignet_db_open_connections") &&
+			strings.Contains(string(body), "esignet_redis_total_conns")
+	}, 2*time.Second, 20*time.Millisecond, "metrics server did not become ready")
+}
+
+func (ts *MainTestSuite) TestStartDebugServer() {
+	t := ts.T()
+
+	port := freePort(t)
+	appCfg := &config.AppConfig{PProfConfig: config.PProfConfig{Enabled: true, Port: port}}
+
+	go startDebugServer(appCfg, applog.GetLogger())
+
+	require.Eventually(t, func() bool {
+		resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%d/debug/pprof/", port))
+		if err != nil {
+			return false
+		}
+		defer func() { _ = resp.Body.Close() }()
+		return resp.StatusCode == http.StatusOK
+	}, 2*time.Second, 20*time.Millisecond, "debug pprof server did not become ready")
 }
 
 func (ts *MainTestSuite) TestMetricsMuxRegistersMetricsRoute() {

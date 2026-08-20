@@ -109,7 +109,14 @@ type AppConfig struct {
 	InboundHTTPServer          InboundHTTPServerConfig          `yaml:"inbound_http_server"`
 	SupportedSigningAlgorithms []string                         `yaml:"supported_signing_algorithms"`
 	SupportedEncAlgorithms     []string                         `yaml:"supported_enc_algorithms"`
-	PprofEnabled               bool                             `yaml:"-"`
+	AllowedOriginRegex         string                           `yaml:"allowed_origin_regex"`
+	PProfConfig                PProfConfig                      `yaml:"-"`
+}
+
+// PProfConfig defines application pprof configuration
+type PProfConfig struct {
+	Enabled bool `yaml:"enabled"`
+	Port    int  `yaml:"port"`
 }
 
 // SecurityConfig defines application security configuration
@@ -185,8 +192,12 @@ func applyDefaults(cfg *AppConfig) {
 	cfg.Issuer = envOrConfigOrDefault("MOSIP_ESIGNET_HOST", cfg.Issuer, fmt.Sprintf("http://localhost:%d", cfg.Port))
 	cfg.DataDir = envOrConfigOrDefault("DATA_DIR", cfg.DataDir, defaultDataDir)
 	cfg.MetricsPort = envIntOrDefault("METRICS_PORT", defaultMetricsPort)
-	cfg.PprofEnabled = envBool("MOSIP_ESIGNET_PPROF_ENABLED")
 	cfg.DB = loadDB(cfg.DB)
+
+	cfg.PProfConfig = PProfConfig{
+		Enabled: envBool("MOSIP_ESIGNET_PPROF_ENABLED"),
+		Port:    envIntOrDefault("MOSIP_ESIGNET_PPROF_PORT", 6060),
+	}
 
 	cacheType := envOrConfigOrDefault("MOSIP_ESIGNET_CACHE_TYPE", cfg.RuntimeDBType, "redis")
 	cfg.RuntimeDBType = cacheType
@@ -204,6 +215,7 @@ func applyDefaults(cfg *AppConfig) {
 	if len(cfg.SupportedEncAlgorithms) == 0 {
 		cfg.SupportedEncAlgorithms = []string{"RSA-OAEP", "RSA-OAEP-256"}
 	}
+	cfg.AllowedOriginRegex = envOrConfigOrDefault("MOSIP_ESIGNET_CORS_ALLOWED_ORIGIN_REGEX", cfg.AllowedOriginRegex, "")
 
 	cfg.Server.Port = cfg.Port
 	cfg.Server.Identifier = cfg.Identifier

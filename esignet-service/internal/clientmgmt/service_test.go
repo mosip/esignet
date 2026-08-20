@@ -15,6 +15,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
@@ -147,14 +148,14 @@ func (ts *ServiceTestSuite) TestCreateClient() {
 	})
 
 	t.Run("duplicate client id", func(t *testing.T) {
-		q := &fakeQuerier{createErr: errors.New(`pq: duplicate key value violates unique constraint "pk_clntdtl_id" (SQLSTATE 23505)`)}
+		q := &fakeQuerier{createErr: &pgconn.PgError{Code: "23505", ConstraintName: "pk_clntdtl_id"}}
 		s := NewServiceWithQuerier(q, nil, 0, nil)
 		_, err := s.CreateClient(context.Background(), ProfileOIDC, validCreateRequest())
 		require.ErrorIs(t, err, ErrDuplicateClientID)
 	})
 
 	t.Run("duplicate public key hash", func(t *testing.T) {
-		q := &fakeQuerier{createErr: errors.New(`pq: duplicate key value violates unique constraint "uk_clntdtl_public_key_hash"`)}
+		q := &fakeQuerier{createErr: &pgconn.PgError{Code: "23505", ConstraintName: "uk_clntdtl_public_key_hash"}}
 		s := NewServiceWithQuerier(q, nil, 0, nil)
 		_, err := s.CreateClient(context.Background(), ProfileOIDC, validCreateRequest())
 		var ve *ValidationError
@@ -333,7 +334,7 @@ func (ts *ServiceTestSuite) TestPatchClient() {
 	})
 
 	t.Run("duplicate public key hash on patch", func(t *testing.T) {
-		q := &fakeQuerier{getRow: existingClientRow(), patchErr: errors.New(`duplicate key value violates unique constraint "uk_clntdtl_public_key_hash"`)}
+		q := &fakeQuerier{getRow: existingClientRow(), patchErr: &pgconn.PgError{Code: "23505", ConstraintName: "uk_clntdtl_public_key_hash"}}
 		s := NewServiceWithQuerier(q, nil, 0, nil)
 		_, err := s.PatchClient(context.Background(), "client-1", PatchClientRequest{}, PatchFields{})
 		var ve *ValidationError
@@ -492,13 +493,15 @@ func (ts *ServiceTestSuite) TestMarshalUnmarshalHelpers() {
 	})
 
 	t.Run("isDuplicateClientID matches constraint variants", func(t *testing.T) {
-		require.True(t, isDuplicateClientID(errors.New(`SQLSTATE 23505 pk_clntdtl_id`)))
-		require.True(t, isDuplicateClientID(errors.New(`SQLSTATE 23505 client_detail_pkey`)))
+		require.True(t, isDuplicateClientID(&pgconn.PgError{Code: "23505", ConstraintName: "pk_clntdtl_id"}))
+		require.True(t, isDuplicateClientID(&pgconn.PgError{Code: "23505", ConstraintName: "client_detail_pkey"}))
+		require.False(t, isDuplicateClientID(&pgconn.PgError{Code: "23505", ConstraintName: "other_constraint"}))
 		require.False(t, isDuplicateClientID(errors.New("some other error")))
 	})
 
 	t.Run("isDuplicatePublicKeyHash", func(t *testing.T) {
-		require.True(t, isDuplicatePublicKeyHash(errors.New("uk_clntdtl_public_key_hash violation")))
+		require.True(t, isDuplicatePublicKeyHash(&pgconn.PgError{Code: "23505", ConstraintName: "uk_clntdtl_public_key_hash"}))
+		require.False(t, isDuplicatePublicKeyHash(&pgconn.PgError{Code: "23505", ConstraintName: "other_constraint"}))
 		require.False(t, isDuplicatePublicKeyHash(errors.New("some other error")))
 	})
 

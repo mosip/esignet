@@ -254,7 +254,7 @@ func (ts *AuthenticatorTestSuite) TestGetAttributes() {
 		require.Same(t, shared.AuthenticationFailedError, svcErr)
 	})
 
-	t.Run("successful kyc exchange maps claims", func(t *testing.T) {
+	t.Run("successful kyc exchange passes through raw jwt", func(t *testing.T) {
 		claims := jwt.MapClaims{"sub": "ind-1", "name": "Jane Doe"}
 		signed, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte("test-secret"))
 		require.NoError(t, err)
@@ -271,8 +271,8 @@ func (ts *AuthenticatorTestSuite) TestGetAttributes() {
 			&providers.RequestedAttributes{}, getAttributesMetadataWithClientID("client-1"))
 		require.Nil(t, svcErr)
 		require.NotNil(t, attrs)
-		require.Equal(t, "Jane Doe", attrs.Attributes["name"].Value)
-		require.Equal(t, "ind-1", attrs.Attributes["sub"].Value)
+		require.Len(t, attrs.Attributes, 1)
+		require.Equal(t, signed, attrs.Attributes[providers.RawJWTAttributeKey].Value)
 	})
 
 	t.Run("kyc exchange error", func(t *testing.T) {
@@ -402,10 +402,27 @@ func (ts *AuthenticatorTestSuite) TestSendOTP() {
 		require.Same(t, shared.SendOTPFailedError, svcErr)
 	})
 
-	t.Run("endpoint returns errors array", func(t *testing.T) {
+	t.Run("endpoint errors array is forwarded", func(t *testing.T) {
+		// The mock-identity-system returns invalid_individual_id for an unknown ID;
+		// the code is forwarded to the client as ServiceError code + i18n key.
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			w.Header().Set("Content-Type", "application/json")
-			_, _ = w.Write([]byte(`{"errors":[{"errorCode":"IDA-003","message":"otp failed"}]}`))
+			_, _ = w.Write([]byte(`{"errors":[{"errorCode":"invalid_individual_id","message":"Invalid Individual ID"}]}`))
+		}))
+		defer server.Close()
+
+		p := newTestProvider(t, "http://unused", "http://unused", server.URL)
+		result, svcErr := p.SendOTP(context.Background(), map[string]any{identifierKeyIndividualID: "ind-1"}, metadataWithClientID("client-1"))
+		require.Nil(t, result)
+		require.NotNil(t, svcErr)
+		require.Equal(t, "invalid_individual_id", svcErr.Code)
+		require.Equal(t, "invalid_individual_id", svcErr.Error.Key)
+	})
+
+	t.Run("endpoint errors array without code falls back", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"errors":[{"message":"boom"}]}`))
 		}))
 		defer server.Close()
 
@@ -413,6 +430,104 @@ func (ts *AuthenticatorTestSuite) TestSendOTP() {
 		result, svcErr := p.SendOTP(context.Background(), map[string]any{identifierKeyIndividualID: "ind-1"}, metadataWithClientID("client-1"))
 		require.Nil(t, result)
 		require.Same(t, shared.SendOTPFailedError, svcErr)
+	})
+
+	t.Run("blank leading error code does not mask a valid later one", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"errors":[{"errorCode":"","message":"blank"},{"errorCode":"invalid_individual_id","message":"Invalid Individual ID"}]}`))
+		}))
+		defer server.Close()
+
+		p := newTestProvider(t, "http://unused", "http://unused", server.URL)
+		result, svcErr := p.SendOTP(context.Background(), map[string]any{identifierKeyIndividualID: "ind-1"}, metadataWithClientID("client-1"))
+		require.Nil(t, result)
+		require.NotNil(t, svcErr)
+		require.Equal(t, "invalid_individual_id", svcErr.Code)
+	})
+}
+
+func (ts *AuthenticatorTestSuite) TestGetSigningCertificates() {
+	t := ts.T()
+
+	t.Run("success", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			require.Equal(t, http.MethodGet, r.Method)
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"response":{"allCertificates":[
+				{"keyId":"key-1","certificateData":"cert-1"},
+				{"keyId":"key-2","certificateData":"cert-2"}
+			]}}`))
+		}))
+		defer server.Close()
+
+		p := newTestProvider(t, "http://unused", "http://unused", "http://unused")
+		p.cfg.CertificateURL = server.URL
+		certs, svcErr := p.GetSigningCertificates(context.Background())
+		require.Nil(t, svcErr)
+		require.Equal(t, []shared.CertificateData{
+			{KeyID: "key-1", Certificate: "cert-1"},
+			{KeyID: "key-2", Certificate: "cert-2"},
+		}, certs)
+	})
+
+	t.Run("request creation error", func(t *testing.T) {
+		p := newTestProvider(t, "http://unused", "http://unused", "http://unused")
+		p.cfg.CertificateURL = "://bad-url"
+		certs, svcErr := p.GetSigningCertificates(context.Background())
+		require.Nil(t, certs)
+		require.Same(t, shared.CertificateFetchFailed, svcErr)
+	})
+
+	t.Run("connection error", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}))
+		server.Close()
+
+		p := newTestProvider(t, "http://unused", "http://unused", "http://unused")
+		p.cfg.CertificateURL = server.URL
+		certs, svcErr := p.GetSigningCertificates(context.Background())
+		require.Nil(t, certs)
+		require.Same(t, shared.CertificateFetchFailed, svcErr)
+	})
+
+	t.Run("non-2xx status", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusInternalServerError)
+		}))
+		defer server.Close()
+
+		p := newTestProvider(t, "http://unused", "http://unused", "http://unused")
+		p.cfg.CertificateURL = server.URL
+		certs, svcErr := p.GetSigningCertificates(context.Background())
+		require.Nil(t, certs)
+		require.Same(t, shared.CertificateFetchFailed, svcErr)
+	})
+
+	t.Run("invalid json body", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			_, _ = w.Write([]byte("not json"))
+		}))
+		defer server.Close()
+
+		p := newTestProvider(t, "http://unused", "http://unused", "http://unused")
+		p.cfg.CertificateURL = server.URL
+		certs, svcErr := p.GetSigningCertificates(context.Background())
+		require.Nil(t, certs)
+		require.Same(t, shared.CertificateFetchFailed, svcErr)
+	})
+
+	t.Run("error response with no certificates", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"errors":[{"errorCode":"IDA-003","message":"fetch failed"}]}`))
+		}))
+		defer server.Close()
+
+		p := newTestProvider(t, "http://unused", "http://unused", "http://unused")
+		p.cfg.CertificateURL = server.URL
+		certs, svcErr := p.GetSigningCertificates(context.Background())
+		require.Nil(t, certs)
+		require.Same(t, shared.CertificateFetchFailed, svcErr)
 	})
 }
 

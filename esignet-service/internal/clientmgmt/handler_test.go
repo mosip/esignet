@@ -16,6 +16,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
@@ -139,7 +140,7 @@ func (ts *HandlerTestSuite) TestCreateClientHandler() {
 	})
 
 	t.Run("duplicate client id", func(t *testing.T) {
-		h := newTestHandler(&fakeQuerier{createErr: errors.New(`SQLSTATE 23505 pk_clntdtl_id`)})
+		h := newTestHandler(&fakeQuerier{createErr: &pgconn.PgError{Code: "23505", ConstraintName: "pk_clntdtl_id"}})
 		body := []byte(`{"requestTime":"2026-07-27T00:00:00.000Z","request":` + validCreateRequestJSON() + `}`)
 		req := httptest.NewRequest(http.MethodPost, "/client-mgmt/oidc-client", bytes.NewReader(body))
 		rec := httptest.NewRecorder()

@@ -12,3 +12,9 @@ type SendOTPResult struct {
 	MaskedEmail   string `json:"maskedEmail,omitempty"`
 	MaskedMobile  string `json:"maskedMobile,omitempty"`
 }
+
+// CertificateData holds Certificates from ID systems
+type CertificateData struct {
+	KeyID       string
+	Certificate string
+}

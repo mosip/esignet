@@ -190,7 +190,7 @@ func (p *actorProvider) GetInboundClientByID(
 			UserAttributes: client.Claims,
 		},
 		LoginConsent: &providers.LoginConsentConfig{
-			ValidityPeriod: configInt64(client.AdditionalConfig, consentExpireInMins, 0),
+			ValidityPeriod: configInt64(client.AdditionalConfig, consentExpireInMins, 0) * 60,
 		},
 		Properties: properties,
 		IsReadOnly: false,
@@ -282,24 +282,20 @@ func getAllowedScopes(standardScopeClaims map[string][]string, additionalConfig 
 }
 
 // additionalAuthorizationScopes extracts allowedAuthorizationScopes from
-// additionalConfig. The value is []string when set programmatically, but
-// []any when decoded from JSON (e.g. read back from the database), so both
-// representations are accepted.
+// additionalConfig. additionalConfig is always decoded from JSON, so the
+// value is []any rather than []string.
 func additionalAuthorizationScopes(additionalConfig map[string]any) []string {
-	switch v := additionalConfig[allowedAuthorizationScopes].(type) {
-	case []string:
-		return v
-	case []any:
-		scopes := make([]string, 0, len(v))
-		for _, item := range v {
-			if s, ok := item.(string); ok {
-				scopes = append(scopes, s)
-			}
-		}
-		return scopes
-	default:
+	v, ok := additionalConfig[allowedAuthorizationScopes].([]any)
+	if !ok {
 		return nil
 	}
+	scopes := make([]string, 0, len(v))
+	for _, item := range v {
+		if s, ok := item.(string); ok {
+			scopes = append(scopes, s)
+		}
+	}
+	return scopes
 }
 
 // getScopeClaimsMapping builds a scope-to-claims mapping for the standard

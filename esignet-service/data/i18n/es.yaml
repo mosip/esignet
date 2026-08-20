@@ -1238,15 +1238,36 @@ biometric:
   title: Proporcione sus datos biométricos
 
 consent:
-  title: "está solicitando acceso a lo siguiente:"
-  description: Esta aplicación desea acceder a la siguiente información. Por favor revise y elija qué desea compartir.
+  title: "solicita acceso a lo siguiente:"
+  description: Esta aplicación desea acceder a la siguiente información. Por favor, revise y elija lo que desea compartir.
   allow: Permitir
   deny: Denegar
-  timer_label: Por favor tome la acción apropiada en
-  essential: Reclamaciones Esenciales
-  optional: Reclamaciones Opcionales
-  essential_info: Información de usuario obligatoria requerida por el proveedor de servicios
-  optional_info: Información adicional del usuario que el residente puede elegir compartir con el proveedor de servicios
+  timer_label: Por favor, realice la acción correspondiente en
+  essential_claims: Datos Esenciales
+  optional_claims: Datos Voluntarios
+  authorize_scope: Autorizar Alcances
+  essential_claims.info: Información obligatoria del usuario requerida por el proveedor del servicio
+  optional_claims.info: Información adicional del usuario que el residente puede optar por compartir con el proveedor del servicio
+  authorize_scope.info: Permite al proveedor de servicios acceder a estos servicios protegidos en su nombre
+  name: Nombre Completo
+  given_name: Nombre
+  middle_name: Segundo Nombre
+  phone: Teléfono
+  phone_number: Número de Teléfono
+  phone_number_verified: Número de Teléfono Verificado
+  email: Correo Electrónico
+  email_verified: Correo Electrónico Verificado
+  address: Dirección
+  birthdate: Fecha de Nacimiento
+  gender: Género
+  picture: Foto
+  preferred_username: Nombre de Usuario Preferido
+  locale: Configuración Regional
+  nickname: Apodo
+  family_name: Apellido
+  zoneinfo: Zona Horaria
+  profile: Perfil
+  required: Obligatorio
 
 signin:
   images.app_logo.alt: Logo de la aplicación

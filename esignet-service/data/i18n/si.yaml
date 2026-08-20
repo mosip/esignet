@@ -202,7 +202,7 @@ system:
   "error.applicationservice.pkce_requires_authorization_code_description": authorization_code grant type තෝරාගත් විට පමණක් PKCE සක්‍රිය කළ හැක
   "error.applicationservice.private_key_jwt_cannot_have_client_secret_description": private_key_jwt සත්‍යාපන ක්‍රමයට සේවාලාභී රහසක් තිබිය නොහැක
   "error.applicationservice.private_key_jwt_requires_certificate_description": private_key_jwt සත්‍යාපන ක්‍රමයට සහතිකයක් අවශ්‍යයි
-  "error.applicationservice.public_client_must_have_pkce_description": පොදු සේවාලාභීන්ට PKCE අවශ්‍ය සත්‍ය ලෙස සැකසිය යුතුය
+  "error.applicationservice.public_client_must_have_pkce_description": පොදු සේවාලාභීන්ට PKCE අවශ්‍ය true ලෙස සැකසිය යුතුය
   "error.applicationservice.public_client_must_use_none_auth_description": පොදු සේවාලාභීන් token endpoint සත්‍යාපන ක්‍රමය ලෙස \"none\" භාවිතා කළ යුතුය
   "error.applicationservice.redirect_uri_fragment_not_allowed_description": redirect URI වල කොටස් සංරචකයක් අඩංගු නොවිය යුතුය
   "error.applicationservice.refresh_token_cannot_be_sole_grant_description": refresh_token grant type වෙනත් grant type එකක් නොමැතිව භාවිතා කළ නොහැක
@@ -518,8 +518,8 @@ system:
   "error.flowexecservice.invalid_flow_type_description": ඉල්ලීමේ සපයන ලද ප්‍රවාහ වර්ගය වලංගු නොවේ
   "error.flowexecservice.invalid_node_response": වලංගු නොවන නෝඩ් ප්‍රතිචාරය
   "error.flowexecservice.invalid_node_response_description": නෝඩ් වෙතින් ලැබුණු දෝෂ ප්‍රතිචාරය
-  "error.flowexecservice.invalid_request_payload": වලංගු නොවන ඉල්ලීම් ෙපේලෝඩ්
-  "error.flowexecservice.invalid_request_payload_description": ඉල්ලීම් ෙපේලෝඩ් විකේතනය කිරීම අසාර්ථක විය
+  "error.flowexecservice.invalid_request_payload": වලංගු නොවන ඉල්ලීම් පේලෝඩ්
+  "error.flowexecservice.invalid_request_payload_description": ඉල්ලීම් පේලෝඩ් විකේතනය කිරීම අසාර්ථක විය
   "error.flowexecservice.recovery_not_allowed": ප්‍රතිසාධනය අවසර නොදෙනු ලැබේ
   "error.flowexecservice.recovery_not_allowed_description": යෙදුම සඳහා ප්‍රතිසාධන ප්‍රවාහය අක්‍රිය කර ඇත
   "error.flowexecservice.registration_not_allowed": ලියාපදිංචිය අවසර නොදෙනු ලැබේ
@@ -694,7 +694,7 @@ system:
   "error.jwtservice.decoding_header_error": JWT විකේතන දෝෂය
   "error.jwtservice.decoding_header_error_description": JWT ශීර්ෂය විකේතනය කිරීමේදී දෝෂයක් ඇති විය
   "error.jwtservice.decoding_payload_error": JWT විකේතන දෝෂය
-  "error.jwtservice.decoding_payload_error_description": JWT ෙපේලෝඩ් විකේතනය කිරීමේදී දෝෂයක් ඇති විය
+  "error.jwtservice.decoding_payload_error_description": JWT පේලෝඩ් විකේතනය කිරීමේදී දෝෂයක් ඇති විය
   "error.jwtservice.failed_to_get_jwks": JWKS ලබාගැනීම අසාර්ථක විය
   "error.jwtservice.failed_to_get_jwks_description": නිශ්චිත URL වෙතින් JWKS ලබාගැනීම අසාර්ථක විය
   "error.jwtservice.failed_to_parse_jwks": JWKS විග්‍රහ කිරීම අසාර්ථක විය
@@ -816,6 +816,7 @@ system:
   "error.resourceservice.cannot_modify_declarative_resource_description": "%s සම්පත ප්‍රකාශන වින්‍යාසයේ අර්ථ දක්වා ඇති අතර සංශෝධනය කළ නොහැක"
   "error.resourceservice.cannot_modify_declarative_resource_server": ප්‍රකාශන සම්පත් සේවාදායකය සංශෝධනය කළ නොහැක
   "error.resourceservice.cannot_modify_declarative_resource_server_description": "%s සම්පත් සේවාදායකය ප්‍රකාශන වින්‍යාසයේ අර්ථ දක්වා ඇති අතර සංශෝධනය කළ නොහැක"
+  "error.resourceservice.circular_dependency_detected": චක්‍රීය පරායත්තතාවය හඳුනාගන්නා ලදී
   "error.resourceservice.circular_dependency_detected_description": මෙම මූලිකයා සැකසීම චක්‍රීය පරායත්තතාවයක් ඇති කරයි
   "error.resourceservice.consent_sync_failed": එකඟතා සමමුහුර්තකරණය අසාර්ථක විය
   "error.resourceservice.consent_sync_failed_description": සම්පත් අවසර වෙනස්කම් එකඟතා සේවාව සමඟ සමමුහුර්ත කිරීම අසාර්ථක විය
@@ -1237,15 +1238,36 @@ biometric:
   title: ඔබගේ ජෛවමිතික ලබා දෙන්න
 
 consent:
-  title: "පහත සඳහන් දේ සඳහා ප්‍රවේශය ඉල්ලා සිටී:"
-  description: මෙම යෙදුම පහත තොරතුරු වෙත ප්‍රවේශ වීමට කැමැත්තෙන් සිටී. කරුණාකර සමාලෝචනය කර ඔබ බෙදා ගැනීමට කැමති දේ තෝරාගන්න.
+  title: "පහත සඳහන් දේවලට ප්‍රවේශය ඉල්ලා සිටී:"
+  description: මෙම යෙදුමට පහත තොරතුරු වෙත ප්‍රවේශ වීමට අවශ්‍යයි. කරුණාකර සමාලෝචනය කර ඔබ බෙදාගැනීමට කැමති දේ තෝරන්න.
   allow: ඉඩ දෙන්න
   deny: ප්‍රතික්ෂේප කරන්න
   timer_label: කරුණාකර සුදුසු ක්‍රියාමාර්ගය ගන්න
-  essential: අත්‍යවශ්‍ය හිමිකම්
-  optional: ස්වේච්ඡා හිමිකම්
-  essential_info: සේවා සැපයුම්කරු විසින් අවශ්‍ය අනිවාර්ය පරිශීලක තොරතුරු
-  optional_info: පදිංචිකරු සේවා සැපයුම්කරු සමඟ බෙදා ගැනීමට තෝරාගත හැකි අතිරේක පරිශීලක තොරතුරු
+  essential_claims: අත්‍යවශ්‍ය තොරතුරු
+  optional_claims: කැමැත්ත මත ලබාදෙන තොරතුරු
+  authorize_scope: විෂය පථ අවසර දෙන්න
+  essential_claims.info: සේවා සපයන්නා විසින් අවශ්‍ය කරන අනිවාර්ය පරිශීලක තොරතුරු
+  optional_claims.info: වැසියාට සේවා සපයන්නා සමඟ බෙදාගැනීමට තෝරාගත හැකි අමතර පරිශීලක තොරතුරු
+  authorize_scope.info: ඔබ වෙනුවෙන් මෙම ආරක්ෂිත සේවාවන් වෙත ප්‍රවේශ වීමට සේවා සපයන්නාට ඉඩ දෙයි
+  name: සම්පූර්ණ නම
+  given_name: නම
+  middle_name: මැද නම
+  phone: දුරකථනය
+  phone_number: දුරකථන අංකය
+  phone_number_verified: දුරකථන අංකය තහවුරු කර ඇත
+  email: විද්‍යුත් තැපැල් ලිපිනය
+  email_verified: විද්‍යුත් තැපැල් ලිපිනය තහවුරු කර ඇත
+  address: ලිපිනය
+  birthdate: උපන් දිනය
+  gender: ස්ත්‍රී පුරුෂ භාවය
+  picture: රූපය
+  preferred_username: කැමති පරිශීලක නාමය
+  locale: ප්‍රාදේශීය සැකසුම
+  nickname: අන්වර්ථ නාමය
+  family_name: පවුලේ නම
+  zoneinfo: වේලා කලාපය
+  profile: පැතිකඩ
+  required: අවශ්‍යයි
 
 signin:
   images.app_logo.alt: යෙදුම් ලාංඡනය
@@ -1279,7 +1301,7 @@ app:
   network_error.title: අන්තර්ජාල සම්බන්ධතාවක් නැත
   network_error.description: කරුණාකර ඔබේ ජාල සම්බන්ධතාවය පරීක්ෂා කර නැවත උත්සාහ කරන්න.
   network_error.try_again: නැවත උත්සාහ කරන්න
-  otp.resend_timer: ඔබට OTP නැවත යැවිය හැක
+  otp.resend_timer: ඔබට OTP නැවත යැවිය හැක්කේ
   otp.timed_out: කාලය ඉකුත්වී ඇත
   otp.submit: ඉදිරිපත් කරන්න
   back: ආපසු
