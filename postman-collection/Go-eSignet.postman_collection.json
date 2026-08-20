@@ -1144,7 +1144,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\",\n  \"inputs\": {\n    \"consent_decisions\": \"{\\\"purposes\\\":[{\\\"approved\\\":true,\\\"elements\\\":[{\\\"approved\\\":true,\\\"name\\\":\\\"email\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"given_name\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"address\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"birthdate\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"gender\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"name\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"phone_number\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"picture\\\"}],\\\"purposeName\\\":\\\"attributes:{{client_id}}\\\"}]}\"\n  }\n}"
+              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\",\n  \"inputs\": {\n    \"consent_decisions\": \"{\\\"approved\\\":true,\\\"purposes\\\":[{\\\"approved\\\":true,\\\"elements\\\":[{\\\"approved\\\":true,\\\"name\\\":\\\"email\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"given_name\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"address\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"birthdate\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"gender\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"name\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"phone_number\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"picture\\\"}],\\\"purposeName\\\":\\\"attributes:{{client_id}}\\\"}]}\"\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/flow/execute",
