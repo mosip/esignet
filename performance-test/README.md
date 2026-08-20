@@ -1,178 +1,103 @@
+This module describes how to conduct load test of the eSignet OIDC/DPoP authentication flow (OTP-based and Biometric-based) using the provided JMeter script (`eSignetGo_script_v0.3.jmx`).
 
-### Contains
-* This folder contains performance test script of below API endpoint categories.
+# Contains
+* This directory contains Performance Test script of below API endpoint categories grouped inside "Thread Groups".
+	01. A00 Auth Token Generation (Setup)
+	02. A01 Create Mock Identities (Setup)
+	03. A02 Create OIDC Client (Setup)
+	04. S01 OTP Authentication (Execution)
+	05. S02 Biometric Authentication (Execution)
 
-  *esignet_mockida_test_script.jmx
-    1. Create OIDC Client in Mock Authentication System (Setup)
-    2. Create Identities in Mock Identity System (Setup)
-    3. S01 OTP Authentication (Execution)
-  
-  *esignet_mosipida_test_script.jmx
-	1. Create Identities in MOSIP Identity System (Setup)
-	2. Create OIDC Client in MOSIP Authentication System (Setup)
-	3. S01 OTP Authentication (Execution)
-	4. S02 Password Authentication (Execution) 
+* Open source tools used,
+	01. [Java 21](https://www.oracle.com/java/technologies/downloads/#java21)
+	02. [Apache JMeter 5.6.3](https://jmeter.apache.org/download_jmeter.cgi)
+	03. Libraries
+		* [nimbus-jose-jwt](https://mvnrepository.com/artifact/com.nimbusds/nimbus-jose-jwt)
+		* [BouncyCastle - bcprov](https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on)
+		* [BouncyCastle - bcpkix](https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk18on)
 
-* Open source Tools used,
-    1. [Apache JMeter](https://jmeter.apache.org/)
 
-### How to run performance scripts using Apache JMeter tool
-* Download Apache JMeter from https://jmeter.apache.org/download_jmeter.cgi
-* Download scripts for the required module.
-* Start JMeter by running the jmeter.bat file for Windows or jmeter file for Unix. 
-* Validate the scripts for one user.
-* Execute a dry run for 10 min.
-* Execute performance run with various loads in order to achieve targeted NFR's.
+# How to run performance scripts using Apache JMeter tool
+* Download tools and components
+  * Download Apache JMeter from https://jmeter.apache.org/download_jmeter.cgi
+  * Download JMeter Plugin Manager jar file from https://jmeter-plugins.org/get/ , and install by placing the it in "Jmeter/apache-jmeter-X.X.X/lib/ext"
+  * Download following JARs and place them in the same "Jmeter/apache-jmeter-X.X.X/lib/ext" folder.
+    * `nimbus-jose-jwt` and 
+    * BouncyCastle (`bcprov-jdk18on`, `bcpkix-jdk18on`) 
+  * Download script for the required module from the [script](script/) folder of this repo.
+* Setup Jmeter
+  * Start JMeter by running the jmeter.bat/jmeter.sh as per your OS. 
+  * Load downloaded *.jmx script onto JMeter. 
+    * If script requires additional plugins, a prompt will appear. Install the required plugins.
+    * If plugins were installed, restart JMeter.
+  * Update "User Defined Variables - ____" within the JMeter scripts. This list holds environment endpoint URL, protocols, users, secret keys, passwords, runtime file path, support file path etc.
+* Validate the script is working functionally. 
+    * Disable all "Thread Group(s)" within the test plan by clicking 'Disable'/'Toggle'. 
+    * Select the first "Thread Group"and enable it. 
+    * In Thread Properties, set "Number of Threads (users)" and "Loop Count" to 1.
+    * Execute 1 iteration and validate it ran without errors.  
+    * Sequentially, execute each "Thread Group" for 1 iteration, one at a time to validate script is fully functional.
+    * Go to [script execution steps](#script-execution-steps) for further detail.
+* Setup workload for Performance Test.
+  * Execute all scenarios (i.e. S01, S02 labeled thread groups) for multiple iterations (10 or 100 iterations should suffice).
+  * Take note of average scenario response time obtained from above test for each scenario. 
+  * Open the [MOSIP_TPS_Thread_setting_calculator](MOSIP_TPS_Thread_setting_calculator-200_ESignetThunder.xlsx) provided for this module and update "Total Target TPS" and "Scenario Response time" column.
+  * The excel applies Little's law to recommend required "No. of Threads" and "Constant Throughput Timer" value for each scenario. Apply these values to each scenario in jMeter.
+  * Execute a dry run for 10 min. The execution duration is controlled by "testDuration" variable.
+  * Use "Scenario level report" within Jmeter GUI, to validate the actual throughput attained during test is as expected. 
+    * The throughput can change as per environment performance. "No. of Threads" value may need to be tweaked if throughput is not attained.
+* Execute performance run with various loads in order to achieve targeted NFR's. 
+  * For a performance run, only Execution scenarios (S01, S02) should be enabled and executed concurrently.
 
-### Setup points for Execution
 
-* We need some jar files which needs to be added in lib folder of jmeter, PFA dependency links for your reference : 
+# Setup points before execution
+* `A01 Create Mock Identities` creates identities within [mock-identity-system](https://github.com/mosip/esignet-mock-services/tree/master/mock-identity-system). mock-identity-system's mock delay should be configured as per requirement. This release simulated 5 seconds delay as the worst case production scenario.
+* Update the "User Defined Variables - Loadgenerator", "User Defined Variables - Server" and "User Defined Variables - Others" groups with your environment's host names (`serverIP`, `serverIP_Internal`, `serverIP_IAM`), `runTimeFilePath`, and `supportFilePath` before running any Thread Group.
+* Execution order matters — each Setup group produces a file consumed by later groups:
+  * `A00 Auth Token Generation` obtains an auth token used by `A02 Create OIDC Client`.
+  * `A01 Create Mock Identities` writes `{runTimeFilePath}/A01_credential_password_auth.txt` (VID, password, full name), which `S01`/`S02` read via the "Load User Credentials From File" CSV Data Set.
+  * `A02 Create OIDC Client` generates an RSA key pair per client and writes `{runTimeFilePath}/A02_client_id_esignet.csv` (client ID + keys), which `S01`/`S02` read via the "Load ClientID From File" CSV Data Set.
+  * Run A00 → A01 → A02 to completion before enabling S01 or S02.
+* Delete runtime files created during previous execution from `{runTimeFilePath}` folder before a fresh run, so stale identities/clients aren't reused.
+* Note: as shipped, this script has only "S01 OTP Authentication" and "S02 Biometric Authentication" are enabled by default; "A00", "A01" and "A02" are disabled. Enable each Thread Group deliberately per the validation steps above rather than assuming all groups are active.
 
-   * bcprov-jdk15on-1.66.jar
-      * <!-- https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on -->
-<dependency>
-    <groupId>org.bouncycastle</groupId>
-    <artifactId>bcprov-jdk15on</artifactId>
-    <version>1.66</version>
-</dependency>
 
-   * jjwt-api-0.11.2.jar
-      * <!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api -->
-<dependency>
-    <groupId>io.jsonwebtoken</groupId>
-    <artifactId>jjwt-api</artifactId>
-    <version>0.11.2</version>
-</dependency>
+# Script execution steps:
 
-   * jjwt-impl-0.11.2.jar
-       * <!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-impl -->
-<dependency>
-    <groupId>io.jsonwebtoken</groupId>
-    <artifactId>jjwt-impl</artifactId>
-    <version>0.11.2</version>
-    <scope>runtime</scope>
-</dependency>
+  01. A00 Auth Token Generation (Preparation) - In this thread group we are creating the authorization token - Using User Id which will be saved to a file within user defined path - "runTimeFilePath". The authorization token has expiration time which is controlled by MOSIP settings. Ensure the tokens remain valid throughout the duration of the test execution.
+    
+  02. A01 Create Mock Identities (Setup) - Creates list of unique mock identities and store the details in a file named - A01_credential_password_auth.txt. The VID (individualId), password and first name is stored that will be later used during test scenario execution.  
 
-   * jjwt-jackson-0.11.2.jar
-       * <!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-jackson -->
-<dependency>
-    <groupId>io.jsonwebtoken</groupId>
-    <artifactId>jjwt-jackson</artifactId>
-    <version>0.11.2</version>
-    <scope>runtime</scope>
-</dependency>
+  03. A02 Create OIDC Client (Setup) - Creates list of OIDC clients. Uses token generated by A00. Also generates a pair of unique private and public RSA keys that will be used for authentication. All data is stored in A02_client_id_esignet.csv.
 
-   * nimbus-jose-jwt-9.25.6.jar  
-       * <!-- https://mvnrepository.com/artifact/com.nimbusds/nimbus-jose-jwt -->
-<dependency>
-    <groupId>com.nimbusds</groupId>
-    <artifactId>nimbus-jose-jwt</artifactId>
-    <version>9.25.6</version>
-</dependency>
+  04. S01 OTP Authentication (Execution) - Authentication flow scenario that uses OTP for validation.
+      * S01 T01 Initiate PAR — POSTs to `/oauth2/par` with PKCE, DPoP proof, and client assertion; server returns a `request_uri`.
+      * S01 T02 Send Authorize — GETs `/oauth2/authorize` with the `request_uri`; server redirects to sign-in and returns `authId`/`executionId`.
+      * S01 T03 Flow Meta — would fetch flow metadata via `/flow/execute` before starting the login UI flow.
+      * S01 T04 1 Authentication Flow - Start — POSTs `executionId` to `/flow/execute`, kicking off the flow and getting back the ACR (login mode) choices.
+      * S01 T04 2 Authentication Flow - ACR — POSTs `action=acr_otp` to `/flow/execute`, selecting OTP as the login mode.
+      * S01 T04 3 Authentication Flow - Individual ID — POSTs the UIN/VID and captcha token to `/flow/execute`, triggering OTP dispatch.
+      * S01 T04 4 Authentication Flow - OTP — POSTs the OTP value to `/flow/execute` to verify the user.
+      * S01 T04 5 Authentication Flow - Consent — POSTs the approved consent decisions to `/flow/execute`, completing the flow and returning a signed assertion.
+      * S01 T05 Obtain Authorization Code — POSTs the `authId` + assertion to `/oauth2/auth/callback`, getting back the redirect URI with the auth `code`.
+      * S01 T06 Obtain Access Token — POSTs the auth code (+ PKCE verifier, DPoP proof, client assertion) to `/oauth2/token`, getting back the access/ID tokens.
 
-### Mosip Config changes for Mock IDA
 
-* eSignet-default properties: eSignet will be pointing to MockIDA services after performing following changes
-		*mosip.esignet.integration.authenticator=MockAuthenticationService
-		*mosip.esignet.integration.key-binder=MockKeyBindingWrapperService
-		
-   *Removing Auth token dependency for the eSignet client ID generation
-		*mosip.esignet.security.auth.post-urls={}
-		*mosip.esignet.security.auth.put-urls={}
-		*mosip.esignet.security.auth.get-urls={}
-		*spring.security.oauth2.resourceserver.jwt.issuer-uri=
-		
-### Mosip Config changes for Mosip IDA
+  05. S02 Biometric Authentication (Execution) - Authentication flow scenario that uses Biometric data for validation.
+      * S02 T01 Initiate PAR — POSTs to `/oauth2/par` with PKCE, DPoP proof, and client assertion; server returns a `request_uri`.
+      * S02 T02 Send Authorize — GETs `/oauth2/authorize` with the `request_uri`; server redirects to sign-in and returns `authId`/`executionId`.
+      * S02 T03 Flow Meta — POSTs `executionId` to `/flow/execute` to fetch flow metadata before starting the login UI flow.
+      * S02 T04 1 Authentication Flow - Start — POSTs to `/flow/execute`, kicking off the flow and getting back the ACR (login mode) choices.
+      * S02 T04 2 Authentication Flow - Select acr — POSTs `action=acr_bio` to `/flow/execute`, selecting biometrics as the login mode.
+      * S02 T04 3 Authentication Flow - Individual ID — POSTs the UIN/VID to `/flow/execute`, advancing to the biometric capture step.
+      * S02 T04 4 Authentication Flow - Bio — generates the transaction ID hash, digital ID JWT, and biometric challenge, then POSTs the biometric assertion to `/flow/execute` to verify the user.
+      * S02 T04 5 Authentication Flow - Consent — POSTs the approved consent decisions to `/flow/execute`, completing the flow and returning a signed assertion.
+      * S02 T05 Obtain Authorization Code — POSTs the `authId` + assertion to `/oauth2/auth/callback`, getting back the redirect URI with the auth `code`.
+      * S02 T06 Obtain Access Token — POSTs the auth code (+ PKCE verifier, DPoP proof, client assertion) to `/oauth2/token`, getting back the access/ID tokens.
+      * S02 T07 User Info — GETs `/oauth2/userinfo` with the DPoP-bound access token to fetch the authenticated user's claims. 
 
-* eSignet-default properties: eSignet will be pointing to Mosip IDA services after performing following changes
-		*mosip.esignet.integration.authenticator=IdaAuthenticatorImpl
-		*mosip.esignet.integration.key-binder=IdaKeyBinderImpl
-				
-   *Adding Auth token dependency for the eSignet client ID generation
-		*mosip.esignet.security.auth.post-urls={'${server.servlet.path}/client-mgmt/**' : {'SCOPE_add_oidc_client'} , \
-			* \ '${server.servlet.path}/system-info/**' : { 'SCOPE_upload_certificate'},\
-            * \ '${server.servlet.path}/binding/wallet-binding' : { 'SCOPE_wallet_binding'}, \
-			* \ '${server.servlet.path}/binding/binding-otp' : { 'SCOPE_send_binding_otp'}}
-		*mosip.esignet.security.auth.put-urls={'${server.servlet.path}/client-mgmt/**' : { 'SCOPE_update_oidc_client'} }
-		*mosip.esignet.security.auth.get-urls={'${server.servlet.path}/system-info/**' : { 'SCOPE_get_certificate'}
-		*spring.security.oauth2.resourceserver.jwt.issuer-uri=${keycloak.external.url}/auth/realms/mosip
 
-### Schema update for the Password authentication.
+## Support files required for this test execution:
 
-* We have created new schema with version 0.4 in cellbox1 environment to support password authentication where default schema does not support password authentication.
-
-### Execution points for eSignet Authentication API's
-
-*esignet_mockida_test_script.jmx
-	
-	* Create OIDC Client in Mock Authentication System (Setup) : This threadgroup generates client id and encoded private key pair and stored in csv file. 
-	* Create Identities in Mock Identity System (Setup) : This threadgroup generates mock identities and stores in mock identity database. These identities are used for authentication in eSignet portal.
-    * S01 OTP authentication (Execution)
-		*S01 T01 GetCsrf: This API endpoint generates CSRF token.
-		*S01 T02 Oauthdetails : This API endpoint hits Oauthdetails endpoint of eSignet.
-		*S01 T03 Send OTP : This API endpoint sends OTP request for authentication.
-		*S01 T04 Authentication : This API endpoint performs authentication in eSignet portal
-		*S01 T05 Authorization : This API endpoint performs authorization in eSignet portal
-		*S01 T06 Token: Code created in the preparation will be used only once and a signed JWT key value is also required for which we are using a JSR223 Pre-processor. The Pre-processor(Generate Client Assertion) will generate a signed JWT token value using the client id and its private key from the file created in Create OIDC Client in Mock Authentication System (Setup). An access token will be generated in the response body.
-		*S01 T07 Userinfo: For execution the generated access token from the token end point api is used. Till the token is not expired it can be used for multiple samples.
-		
-*esignet_mosipida_test_script.jmx
-	
-	* Create Identities in MOSIP Identity System (Setup) : This threadgroup generates VIDs and passwords for eSignet authentication and stored in csv file. 
-	* Create OIDC Client in MOSIP Authentication System (Setup): This threadgroup generates client Id and encoded private key for eSignet authentication.
-    * S01 OTP authentication (Execution)
-		*S01 T01 Get Csrf Token: This API endpoint generates CSRF token.
-		*S01 T02 Oauth Details : This API endpoint hits Oauthdetails endpoint of eSignet.
-		*S01 T03 Send OTP : This API endpoint sends OTP request for authentication.
-		*S01 T04 Authentication : This API endpoint performs OTP authentication in eSignet portal
-		*S01 T05 Authorization Code : This API endpoint performs authorization in eSignet portal
-		*S01 T06 Token: Code created in the preparation will be used only once and a signed JWT key value is also required for which we are using a JSR223 Pre-processor. The Pre-processor(Generate Client Assertion) will generate a signed JWT token value using the client id and its private key from the file created in Create OIDC Client in MOSIP Authentication System (Setup). An access token will be generated in the response body.
-		*S01 T07 Userinfo: For execution the generated access token from the token end point api is used. Till the token is not expired it can be used for multiple samples.
-	* S02 Password Authentication (Execution)
-		*S02 T01 Get Csrf Token: This API endpoint generates CSRF token.
-		*S02 T02 Oauth Details : This API endpoint hits Oauthdetails endpoint of eSignet.
-		*S02 T03 Authentication : This API endpoint performs Password authentication in eSignet portal
-		*S02 T04 Authorization Code : This API endpoint performs authorization in eSignet portal
-		*S02 T05 Token: Code created in the preparation will be used only once and a signed JWT key value is also required for which we are using a JSR223 Pre-processor. The Pre-processor(Generate Client Assertion) will generate a signed JWT token value using the client id and its private key from the file created in Create OIDC Client in MOSIP Authentication System (Setup). An access token will be generated in the response body.
-		*S02 T06 Userinfo: For execution the generated access token from the token end point api is used. Till the token is not expired it can be used for multiple samples.
-	
-### Downloading Plugin manager jar file for the purpose of installing other JMeter specific plugins
-
-* Download JMeter plugin manager from below url links.
-	*https://jmeter-plugins.org/get/
-
-* After downloading the jar file place it in below folder path.
-	*lib/ext
-
-* Please refer to following link to download JMeter jars.
-	https://mosip.atlassian.net/wiki/spaces/PT/pages/1227751491/Steps+to+set+up+the+local+system#PluginManager
-		
-### Designing the workload model for performance test execution
-* Calculation of number of users depending on Transactions per second (TPS) provided by client
-
-* Applying little's law
-	* Users = TPS * (SLA of transaction + think time + pacing)
-	* TPS --> Transaction per second.
-	
-* For the realistic approach we can keep (Think time + Pacing) = 1 second for API testing
-	* Calculating number of users for 10 TPS
-		* Users= 10 X (SLA of transaction + 1)
-		       = 10 X (1 + 1)
-			   = 20
-			   
-### Usage of Constant Throughput timer to control Hits/sec from JMeter
-* In order to control hits/ minute in JMeter, it is better to use Timer called Constant Throughput Timer.
-
-* If we are performing load test with 10TPS as hits / sec in one thread group. Then we need to provide value hits / minute as in Constant Throughput Timer
-	* Value = 10 X 60
-			= 600
-
-* Dropdown option in Constant Throughput Timer
-	* Calculate Throughput based on as = All active threads in current thread group
-		* If we are performing load test with 10TPS as hits / sec in one thread group. Then we need to provide value hits / minute as in Constant Throughput Timer
-	 			Value = 10 X 60
-					  = 600
-		  
-	* Calculate Throughput based on as = this thread
-		* If we are performing scalability testing we need to calculate throughput for 10 TPS as 
-          Value = (10 * 60 )/(Number of users)
+1. [addIdentityRequestDetails.csv](support-files/addIdentityRequestDetails.csv) - Contain list of basic identity detail that is used to create unique mockIds.
+2. [encodedPhotoData.txt](support-files/encodedPhotoData.txt) - This support file contains sample encrypted biometric data. 
