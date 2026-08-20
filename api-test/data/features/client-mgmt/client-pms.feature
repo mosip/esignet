@@ -8,7 +8,7 @@ Feature: POST/PUT {pms}/oauth/client — client management via PMS (mosipid)
   the clientId from the public key (so we read it back), then persists the client
   into eSignet, where we verify it via client-mgmt GET.
 
-  # Runs only for AUTHN_PROVIDER=mosip with PMS_BASE_URL/AUTH_PARTNER_ID/
+  # Runs only for MOSIP_ESIGNET_AUTHN_PROVIDER=mosip with PMS_BASE_URL/AUTH_PARTNER_ID/
   # AUTH_POLICY_ID configured (gated by the @client-mgmt-pms tag + the guard
   # step). userClaims/authContextRefs are NOT sent at registration for mosipid —
   # they are governed by the policy (policyId). PMS reuses the same Keycloak

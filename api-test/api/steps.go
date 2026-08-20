@@ -466,8 +466,8 @@ func snippet(b []byte) string {
 
 // InitScenario registers the generic steps and the per-scenario collector hooks.
 func InitScenario(sc *godog.ScenarioContext, coll *Collector) {
-	base := strings.TrimRight(os.Getenv("ESIGNET_BASE_URL"), "/")
-	plugin := os.Getenv("AUTHN_PROVIDER")
+	base := strings.TrimRight(os.Getenv("MOSIP_ESIGNET_BASE_URL"), "/")
+	plugin := os.Getenv("MOSIP_ESIGNET_AUTHN_PROVIDER")
 	if plugin == "" {
 		plugin = "mock"
 	}

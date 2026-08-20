@@ -30,7 +30,7 @@
 #   Env (all optional; each overrides the same-named config field):
 #     CONFIG                config path, same as -c
 #     CONFIG_LOCAL          overlay path (default: config.local.json beside -c)
-#     ESIGNET_BASE_URL, KEYCLOAK_*, INDIVIDUAL_ID, SURFACES, TEST_PROFILE, ...
+#     MOSIP_ESIGNET_BASE_URL, KEYCLOAK_*, INDIVIDUAL_ID, SURFACES, TEST_PROFILE, ...
 #     BIN_DIR               dir with prebuilt conformance/e2e/consolidate/cfg/
 #                           api.test binaries (set by the container image);
 #                           unset -> `go run`/`go test` from source.
@@ -212,8 +212,8 @@ fi
 
 if [[ ",$SURFACES," == *",api,"* ]]; then
   echo "-- api surface (client-mgmt + flow/execute endpoints) --"
-  if [[ -z "${ESIGNET_BASE_URL:-}" ]]; then
-    echo "esignet.base_url (ESIGNET_BASE_URL) is required for the api surfaces" >&2
+  if [[ -z "${MOSIP_ESIGNET_BASE_URL:-}" ]]; then
+    echo "esignet.base_url (MOSIP_ESIGNET_BASE_URL) is required for the api surfaces" >&2
     exit 2
   fi
   run_api || { echo "(api reported scenario failures)"; surface_failed=1; }

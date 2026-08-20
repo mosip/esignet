@@ -393,13 +393,13 @@ func (c *Config) ValidateSurface(name string) error {
 
 	case SurfaceAPI:
 		if c.Esignet.BaseURL == "" {
-			return fmt.Errorf("esignet.base_url (ESIGNET_BASE_URL) is required for the api surface")
+			return fmt.Errorf("esignet.base_url (MOSIP_ESIGNET_BASE_URL) is required for the api surface")
 		}
 		// Keycloak is deliberately not required: client-mgmt degrades to an ENV_NOT_READY row without it.
 
 	case SurfaceE2E:
 		if c.Esignet.BaseURL == "" {
-			return fmt.Errorf("esignet.base_url (ESIGNET_BASE_URL) is required for the e2e surface")
+			return fmt.Errorf("esignet.base_url (MOSIP_ESIGNET_BASE_URL) is required for the e2e surface")
 		}
 		// Unlike api, e2e cannot degrade: it registers a throwaway OIDC client
 		// before it can drive anything, and that needs the admin grant.
@@ -454,8 +454,8 @@ func (c *Config) applyEnv() (int, error) {
 		return n, err
 	}
 
-	envStr(&c.Esignet.BaseURL, "ESIGNET_BASE_URL", &n)
-	envStr(&c.Esignet.Provider, "AUTHN_PROVIDER", &n)
+	envStr(&c.Esignet.BaseURL, "MOSIP_ESIGNET_BASE_URL", &n)
+	envStr(&c.Esignet.Provider, "MOSIP_ESIGNET_AUTHN_PROVIDER", &n)
 	envStr(&c.Esignet.AuthFactor, "AUTH_FACTOR", &n)
 	envBool(&c.Esignet.TLSVerify, "ESIGNET_TLS_VERIFY", &n, &bad)
 	envStr(&c.Esignet.Identity.IndividualID, "INDIVIDUAL_ID", &n)

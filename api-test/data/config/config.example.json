@@ -115,9 +115,9 @@
   "//esignet": [
     "The eSignet deployment under test — every surface drives this one.",
     "",
-    "  base_url    where eSignet is               (env ESIGNET_BASE_URL)",
+    "  base_url    where eSignet is               (env MOSIP_ESIGNET_BASE_URL)",
     "  provider    which plugin is deployed: mock|mosip|sunbird",
-    "                                             (env AUTHN_PROVIDER)",
+    "                                             (env MOSIP_ESIGNET_AUTHN_PROVIDER)",
     "  auth_factor which ACR to pick when the flow offers a choice",
     "                                             (env AUTH_FACTOR)",
     "  tls_verify  certificate verification for eSignet. Defaults to TRUE and",

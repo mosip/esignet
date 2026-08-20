@@ -49,7 +49,7 @@ func main() {
 
 	base := strings.TrimRight(es.BaseURL, "/")
 	if base == "" {
-		logger.Fatal("esignet.base_url (ESIGNET_BASE_URL) is required")
+		logger.Fatal("esignet.base_url (MOSIP_ESIGNET_BASE_URL) is required")
 	}
 	tlsVerify := cfg.Esignet.TLSVerify
 

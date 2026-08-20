@@ -255,7 +255,7 @@ holds a private JWKS ([Conformance suite setup](docs/conformance-suite.md)).
 ```bash
 cp data/config/config.local.example.json data/config/config.local.json   # required: it is mounted
 cp .env.example .env
-# In .env: set ESIGNET_BASE_URL, and SURFACES=api,e2e for a first run (see below).
+# In .env: set MOSIP_ESIGNET_BASE_URL, and SURFACES=api,e2e for a first run (see below).
 
 docker compose run --rm --no-deps harness -c /app/config.json --check   # dry run
 docker compose up --build --abort-on-container-exit --exit-code-from harness
@@ -263,7 +263,7 @@ docker compose up --build --abort-on-container-exit --exit-code-from harness
 
 > **Start with `SURFACES=api,e2e`.** Every shipped plugin config selects all three surfaces, so an
 > out-of-the-box compose run includes `conformance` and stops at `NOT RUNNABLE YET` until a plan
-> config exists in `conformance-suite-private/`. `api` and `e2e` need only `ESIGNET_BASE_URL` plus
+> config exists in `conformance-suite-private/`. `api` and `e2e` need only `MOSIP_ESIGNET_BASE_URL` plus
 > the Keycloak credentials, so get those green first and widen once the conformance setup is done.
 > For those two, `docker compose run --rm --no-deps --build harness -c /app/config.json` runs them
 > and writes the same report to `./out` without starting the suite at all — `up` would boot mongodb,
@@ -279,13 +279,13 @@ docker compose up --build --abort-on-container-exit --exit-code-from harness
 
 The report appears in `./out` on the host. `docker compose down -v` tears everything down.
 
-Compose does **not** start eSignet itself — point `ESIGNET_BASE_URL` at a deployed environment, or
+Compose does **not** start eSignet itself — point `MOSIP_ESIGNET_BASE_URL` at a deployed environment, or
 at `http://host.docker.internal:8080` for one running on your own machine.
 
 | `.env` knob | Effect |
 |---|---|
 | `CONFIG_FILE` | Which plugin config is mounted (default `data/config/config.mock.json`) |
-| `ESIGNET_BASE_URL` | The deployment under test |
+| `MOSIP_ESIGNET_BASE_URL` | The deployment under test |
 | `KEYCLOAK_TOKEN_URL`, `KEYCLOAK_CLIENT_SECRET` | Admin credentials |
 | `INDIVIDUAL_ID`, `FLOW_CLIENT_ID` | Test identity and the pre-registered client for authorize validation |
 | `SURFACES`, `TEST_PROFILE` | Narrow the run without editing a config |
@@ -311,7 +311,7 @@ docker run --rm \
   -v /opt/esignet-harness/config.mosip.json:/app/config.json:ro \
   -v /opt/esignet-harness/out:/app/out \
   -e CONFIG=/app/config.json \
-  -e ESIGNET_BASE_URL=https://esignet-thunder1.esdev.mosip.net/v1/esignet \
+  -e MOSIP_ESIGNET_BASE_URL=https://esignet-thunder1.esdev.mosip.net/v1/esignet \
   -e KEYCLOAK_CLIENT_SECRET=*** \
   apitest-esignet:<tag> -c /app/config.json
 ```

@@ -83,8 +83,8 @@ func exports(c *config.Config) string {
 		fmt.Fprintf(&b, "export %s=%s\n", k, shellQuote(v))
 	}
 
-	kv("ESIGNET_BASE_URL", c.Esignet.BaseURL)
-	kv("AUTHN_PROVIDER", c.Esignet.Provider)
+	kv("MOSIP_ESIGNET_BASE_URL", c.Esignet.BaseURL)
+	kv("MOSIP_ESIGNET_AUTHN_PROVIDER", c.Esignet.Provider)
 	kv("AUTH_FACTOR", c.Esignet.AuthFactor)
 	kv("ESIGNET_TLS_VERIFY", strconv.FormatBool(c.Esignet.TLSVerify))
 	kv("ID_TYPE", c.Esignet.Identity.IDType)

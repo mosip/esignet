@@ -1,4 +1,4 @@
-# MOSIP ID plugin (`AUTHN_PROVIDER=mosip`)
+# MOSIP ID plugin (`MOSIP_ESIGNET_AUTHN_PROVIDER=mosip`)
 
 Everything specific to running the harness against a deployment using the **MOSIP ID** identity
 plugin. Nothing here applies to the `mock` or `sunbird` plugins.
@@ -113,7 +113,7 @@ change when extraction stops finding a code. It is off by default and never set 
 
 | Config field | Environment | Purpose |
 |---|---|---|
-| `esignet.provider` | `AUTHN_PROVIDER` | Set to `mosip` |
+| `esignet.provider` | `MOSIP_ESIGNET_AUTHN_PROVIDER` | Set to `mosip` |
 | `esignet.identity.individual_id` | `INDIVIDUAL_ID` | The test identity — **required**; there is no fallback outside `mock` |
 | `esignet.identity.id_type` | `ID_TYPE` | `uin` \| `vid` \| `phone` \| `email` — selects the matching login-id tab |
 | `esignet.pms.base_url` | `PMS_BASE_URL` | partner-management-service base URL |

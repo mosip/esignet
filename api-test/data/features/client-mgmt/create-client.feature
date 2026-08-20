@@ -6,7 +6,7 @@ Feature: POST /client-mgmt/client — register a client
 
   client-mgmt is admin-authenticated (Keycloak bearer) and plugin-independent —
   the same /client-mgmt/client endpoint serves the mock, sunbird and mosip
-  plugins, so these run unchanged under any AUTHN_PROVIDER. (PMS /oauth/client
+  plugins, so these run unchanged under any MOSIP_ESIGNET_AUTHN_PROVIDER. (PMS /oauth/client
   is the mosipid-specific alternative, covered in client-pms.feature.) The
   endpoint is not exercised by the conformance suite, and runs only when the
   KEYCLOAK_* admin credentials are set.

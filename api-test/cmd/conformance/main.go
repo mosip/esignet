@@ -12,7 +12,7 @@ import (
 	"syscall"
 
 	"github.com/mosip/esignet/api-test/internal/config"
-	"github.com/mosip/esignet/api-test/internal/orchestrator"
+	"github.com/mosip/esignet/api-test/internal/conformance"
 	"github.com/mosip/esignet/api-test/internal/report"
 	"github.com/mosip/esignet/api-test/internal/result"
 )
@@ -52,7 +52,7 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	orch := orchestrator.New(cfg, logf)
+	orch := conformance.New(cfg, logf)
 	run, err := orch.Run(ctx)
 	if err != nil {
 		logger.Printf("run error: %v", err)

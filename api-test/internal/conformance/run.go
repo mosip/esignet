@@ -1,5 +1,4 @@
-// Package orchestrator ties the suite client and the eSignet driver together.
-package orchestrator
+package conformance
 
 import (
 	"context"
@@ -15,7 +14,6 @@ import (
 	"time"
 
 	"github.com/mosip/esignet/api-test/internal/config"
-	"github.com/mosip/esignet/api-test/internal/conformance"
 	"github.com/mosip/esignet/api-test/internal/esignet"
 	"github.com/mosip/esignet/api-test/internal/result"
 	"github.com/mosip/esignet/api-test/internal/textx"
@@ -34,7 +32,7 @@ var unsupportedModuleHints = map[string]string{
 
 type Orchestrator struct {
 	cfg    *config.Config
-	client *conformance.Client
+	client *Client
 	logf   func(string, ...any)
 }
 
@@ -42,7 +40,7 @@ func New(cfg *config.Config, logf func(string, ...any)) *Orchestrator {
 	httpTimeout := time.Duration(cfg.Run.TimeoutSeconds) * time.Second
 	return &Orchestrator{
 		cfg:    cfg,
-		client: conformance.New(cfg.Conformance.BaseURL, cfg.Conformance.Token, cfg.Conformance.TLSVerify, httpTimeout),
+		client: newClient(cfg.Conformance.BaseURL, cfg.Conformance.Token, cfg.Conformance.TLSVerify, httpTimeout),
 		logf:   logf,
 	}
 }
@@ -175,7 +173,7 @@ func planErrorResult(planName, provider string, err error) result.ModuleResult {
 
 // gatedResult builds a not-run report row for a module excluded by config
 // (known_issues -> Known bucket, skip -> Skipped bucket).
-func gatedResult(plan, provider string, m conformance.Module, outcome, detail string) result.ModuleResult {
+func gatedResult(plan, provider string, m Module, outcome, detail string) result.ModuleResult {
 	return result.ModuleResult{
 		Surface:        result.SurfaceConformance,
 		Plugin:         provider,
@@ -215,7 +213,7 @@ func reasonSuffix(reason string) string {
 	return " (" + reason + ")"
 }
 
-func (o *Orchestrator) runModule(ctx context.Context, plan *conformance.PlanResponse, m conformance.Module, driver *esignet.Driver) result.ModuleResult {
+func (o *Orchestrator) runModule(ctx context.Context, plan *PlanResponse, m Module, driver *esignet.Driver) result.ModuleResult {
 	res := result.ModuleResult{
 		Surface:        result.SurfaceConformance,
 		Plugin:         o.cfg.Esignet.Provider,
@@ -374,8 +372,8 @@ func (o *Orchestrator) esignetBase(authorizeURL string) (string, error) {
 }
 
 // selectModules applies precedence: explicit modules, then profile subset, then filter.
-func (o *Orchestrator) selectModules(planName string, sel config.Selection, all []conformance.Module) ([]conformance.Module, error) {
-	byName := map[string]conformance.Module{}
+func (o *Orchestrator) selectModules(planName string, sel config.Selection, all []Module) ([]Module, error) {
+	byName := map[string]Module{}
 	var order []string
 	for _, m := range all {
 		if _, seen := byName[m.TestModule]; !seen {
@@ -408,7 +406,7 @@ func (o *Orchestrator) selectModules(planName string, sel config.Selection, all 
 		}
 	}
 
-	var out []conformance.Module
+	var out []Module
 	for _, n := range names {
 		if re != nil && !re.MatchString(n) {
 			continue
@@ -417,7 +415,7 @@ func (o *Orchestrator) selectModules(planName string, sel config.Selection, all 
 			out = append(out, m)
 		} else {
 			// Named module not in the plan — keep it so the operator sees the miss.
-			out = append(out, conformance.Module{TestModule: n})
+			out = append(out, Module{TestModule: n})
 		}
 	}
 	if len(out) == 0 {
@@ -467,7 +465,7 @@ func unsupportedReason(module string, variant map[string]any) string {
 	return ""
 }
 
-func pendingURLs(b conformance.Browser, handled map[string]bool) []string {
+func pendingURLs(b Browser, handled map[string]bool) []string {
 	visited := map[string]bool{}
 	for _, v := range b.Visited {
 		visited[v] = true

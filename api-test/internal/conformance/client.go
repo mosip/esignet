@@ -1,4 +1,6 @@
-// Package conformance is a thin client over the OpenID Conformance Suite's container API.
+// Package conformance runs the OpenID Conformance Suite surface: a thin client
+// over the suite's container API (client.go) plus the orchestration that drives
+// each plan's modules against the eSignet deployment (run.go).
 package conformance
 
 import (
@@ -29,7 +31,9 @@ type Client struct {
 	calls   []result.HTTPCall // accumulated call trace; drained via TakeCalls
 }
 
-func New(baseURL, token string, tlsVerify bool, timeout time.Duration) *Client {
+// newClient is package-internal: the surface entry point is New, which builds
+// the client it needs from the run's config.
+func newClient(baseURL, token string, tlsVerify bool, timeout time.Duration) *Client {
 	return &Client{
 		baseURL: strings.TrimRight(baseURL, "/"),
 		token:   token,
@@ -37,8 +41,8 @@ func New(baseURL, token string, tlsVerify bool, timeout time.Duration) *Client {
 	}
 }
 
-// TakeCalls returns and clears the accumulated call trace (so the orchestrator
-// can attach run-level calls to a setup section and per-module calls to a module).
+// TakeCalls returns and clears the accumulated call trace, so Orchestrator can
+// attach run-level calls to a setup section and per-module calls to a module.
 func (c *Client) TakeCalls() []result.HTTPCall {
 	out := c.calls
 	c.calls = nil

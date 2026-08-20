@@ -12,9 +12,9 @@ import (
 
 // TestFeatures is the godog entry point.
 func TestFeatures(t *testing.T) {
-	base := os.Getenv("ESIGNET_BASE_URL")
+	base := os.Getenv("MOSIP_ESIGNET_BASE_URL")
 	if base == "" {
-		t.Skip("ESIGNET_BASE_URL not set — skipping api surfaces")
+		t.Skip("MOSIP_ESIGNET_BASE_URL not set — skipping api surfaces")
 	}
 
 	// A missing features tree is a setup error, not an empty test run: godog
@@ -40,7 +40,7 @@ func TestFeatures(t *testing.T) {
 		if os.Getenv("KEYCLOAK_CLIENT_SECRET") != "" {
 			tags += ",@client-mgmt" // godog: comma = OR
 			// The PMS-backed client-mgmt feature is mosipid-only: it needs an onboarded partner and policy.
-			if strings.EqualFold(os.Getenv("AUTHN_PROVIDER"), "mosip") && os.Getenv("PMS_BASE_URL") != "" {
+			if strings.EqualFold(os.Getenv("MOSIP_ESIGNET_AUTHN_PROVIDER"), "mosip") && os.Getenv("PMS_BASE_URL") != "" {
 				tags += ",@client-mgmt-pms"
 			}
 		}
@@ -59,7 +59,7 @@ func TestFeatures(t *testing.T) {
 	rows := coll.Rows()
 	// A gated-out surface becomes an explicit ENV_NOT_READY row, so the report never silently omits it.
 	if os.Getenv("GODOG_TAGS") == "" {
-		plugin := os.Getenv("AUTHN_PROVIDER")
+		plugin := os.Getenv("MOSIP_ESIGNET_AUTHN_PROVIDER")
 		if plugin == "" {
 			plugin = "mock"
 		}

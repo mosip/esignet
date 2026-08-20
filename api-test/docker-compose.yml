@@ -5,7 +5,7 @@
 # and writes the consolidated report to ./out.
 #
 # Usage:
-#   cp .env.example .env   # fill in ESIGNET_BASE_URL, KEYCLOAK_*, etc.
+#   cp .env.example .env   # fill in MOSIP_ESIGNET_BASE_URL, KEYCLOAK_*, etc.
 #   docker compose up --build --abort-on-container-exit --exit-code-from harness
 #
 # Prerequisites (README "Prerequisites"): the suite's two pre-registered static
@@ -91,7 +91,7 @@ services:
       # rather than null). Hence .env.example ships these commented out, not
       # empty — "leave it out of .env to use the config files" means the line
       # must be absent or commented, not blank.
-      - ESIGNET_BASE_URL
+      - MOSIP_ESIGNET_BASE_URL
       - KEYCLOAK_TOKEN_URL
       - KEYCLOAK_CLIENT_SECRET
       - INDIVIDUAL_ID
@@ -100,7 +100,7 @@ services:
       - SURFACES
       - TEST_PROFILE
       # Unlike CONFORMANCE_TLS_VERIFY below, these have no compose-side default:
-      # the eSignet target is whatever ESIGNET_BASE_URL points at, and that is
+      # the eSignet target is whatever MOSIP_ESIGNET_BASE_URL points at, and that is
       # usually a real deployment whose cert should be verified. They stay on
       # unless the operator explicitly passes false.
       - ESIGNET_TLS_VERIFY
@@ -140,11 +140,11 @@ services:
       # would leave it unread and silently drop every credential in it.
       - ./data/config/config.local.json:/app/config.local.json:ro
     extra_hosts:
-      # Lets ESIGNET_BASE_URL=http://host.docker.internal:<port> reach a
+      # Lets MOSIP_ESIGNET_BASE_URL=http://host.docker.internal:<port> reach a
       # self-managed eSignet running on the host (e.g. `make.sh run` in
       # ../esignet-service). Docker Desktop (Windows/Mac) already resolves
       # this; host-gateway makes it work on Linux too. No effect when
-      # ESIGNET_BASE_URL points at a deployed remote environment instead.
+      # MOSIP_ESIGNET_BASE_URL points at a deployed remote environment instead.
       - "host.docker.internal:host-gateway"
 
 volumes:

@@ -108,8 +108,8 @@ override**, so a container needing to change those must mount the config file it
 | `PLAN_<n>_CONFIG_PATH` | `plans[n-1].config_file` | | `POLL_INTERVAL_SECONDS` | `run.poll_interval_seconds` |
 | `PLAN_<n>_NAME` | `plans[n-1].name` | | `REPORT_DIR` | `run.report_dir` |
 | `DEBUG_SHOW_SECRETS` | `run.debug_show_secrets` | | | |
-| `ESIGNET_BASE_URL` | `esignet.base_url` | | `KEYCLOAK_TOKEN_URL` | `keycloak.token_url` |
-| `AUTHN_PROVIDER` | `esignet.provider` | | `KEYCLOAK_CLIENT_ID` | `keycloak.client_id` |
+| `MOSIP_ESIGNET_BASE_URL` | `esignet.base_url` | | `KEYCLOAK_TOKEN_URL` | `keycloak.token_url` |
+| `MOSIP_ESIGNET_AUTHN_PROVIDER` | `esignet.provider` | | `KEYCLOAK_CLIENT_ID` | `keycloak.client_id` |
 | `AUTH_FACTOR` | `esignet.auth_factor` | | `KEYCLOAK_CLIENT_SECRET` | `keycloak.client_secret` |
 | `ESIGNET_TLS_VERIFY` | `esignet.tls_verify` | | | |
 | `INDIVIDUAL_ID` / `ID_TYPE` | `esignet.identity.*` | | `GODOG_TAGS` | `api.tags` |
@@ -118,6 +118,14 @@ override**, so a container needing to change those must mount the config file it
 | `OTP_SOURCE` / `TEST_OTP` | `esignet.otp.*` | | `E2E_SPEC` | `e2e.spec` |
 | `OTP_WS_URL` / `OTP_RECIPIENT_EMAIL` | `esignet.otp.*` | | `E2E_AUTH_FACTORS` | `e2e.auth_factors` |
 | `PMS_BASE_URL` / `AUTH_PARTNER_ID` / `AUTH_POLICY_ID` | `esignet.pms.*` | | `E2E_INCLUDE` / `E2E_EXCLUDE` | `e2e.*` |
+
+> **`MOSIP_ESIGNET_BASE_URL` and `MOSIP_ESIGNET_AUTHN_PROVIDER` are deliberately the same names
+> eSignet itself reads** (`server.public_url` and the provider selector — see
+> `esignet-service/data/deployment.yaml`), so one environment block can configure both the
+> deployment and the harness pointed at it. Every other variable here is harness-only: the test
+> identity, the suite connection and the run selection have no eSignet-side counterpart. Note
+> `ESIGNET_TLS_VERIFY` is *not* one of the shared names — it governs how the harness verifies the
+> deployment's certificate, which is a client-side concern eSignet has no setting for.
 
 > **An environment variable that is *present but empty* still overrides.** The harness applies an
 > override whenever the variable is defined, empty included, so `KEYCLOAK_CLIENT_SECRET=` blanks

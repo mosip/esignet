@@ -1,4 +1,4 @@
-// Package result holds the outcome types produced by the orchestrator and consumed by the report.
+// Package result holds the outcome types every test surface produces and the report consumes.
 package result
 
 import "sort"

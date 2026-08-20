@@ -11,7 +11,7 @@ Feature: Client consent configuration — additionalConfig validation
 
   These are pure API calls with no login flow, so unlike the consent *behaviour*
   cases (e2e surface: prompt/reuse/deny) they need no session, no identity and no
-  captcha — they run unchanged under any AUTHN_PROVIDER.
+  captcha — they run unchanged under any MOSIP_ESIGNET_AUTHN_PROVIDER.
 
   eSignet returns HTTP 200 with "errors" populated on a validation reject (MOSIP
   API convention), so every negative here asserts 200 + an errorCode, not a 4xx.
