@@ -254,7 +254,7 @@ func (ts *AuthenticatorTestSuite) TestGetAttributes() {
 		require.Same(t, shared.AuthenticationFailedError, svcErr)
 	})
 
-	t.Run("successful kyc exchange maps claims", func(t *testing.T) {
+	t.Run("successful kyc exchange passes through raw jwt", func(t *testing.T) {
 		claims := jwt.MapClaims{"sub": "ind-1", "name": "Jane Doe"}
 		signed, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte("test-secret"))
 		require.NoError(t, err)
@@ -271,8 +271,8 @@ func (ts *AuthenticatorTestSuite) TestGetAttributes() {
 			&providers.RequestedAttributes{}, getAttributesMetadataWithClientID("client-1"))
 		require.Nil(t, svcErr)
 		require.NotNil(t, attrs)
-		require.Equal(t, "Jane Doe", attrs.Attributes["name"].Value)
-		require.Equal(t, "ind-1", attrs.Attributes["sub"].Value)
+		require.Len(t, attrs.Attributes, 1)
+		require.Equal(t, signed, attrs.Attributes[providers.RawJWTAttributeKey].Value)
 	})
 
 	t.Run("kyc exchange error", func(t *testing.T) {

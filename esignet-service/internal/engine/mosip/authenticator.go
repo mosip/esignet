@@ -28,8 +28,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
-
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
@@ -1046,20 +1044,12 @@ func (p *mosipAuthnProvider) callKycExchangeEndpoint(
 		return nil, fmt.Errorf("failed to parse IdaKycExchangeResponseWrapper: %w", err)
 	}
 
-	// Success path, currently parses the payload and returns the claims
-	// This should instead return signed JWT as is, but this can be done only when
-	// thunderID SDK supports "JWT" key in the Attributes map.
+	// Success path: the signed JWT is passed through as-is, undecoded, under
+	// providers.RawJWTAttributeKey.
 	if wrapper.Response != nil && wrapper.Response.EncryptedKyc != "" {
-		claims := jwt.MapClaims{}
-		if _, _, err := jwt.NewParser().ParseUnverified(wrapper.Response.EncryptedKyc, claims); err != nil {
-			return nil, fmt.Errorf("failed to parse KYC JWT payload: %w", err)
+		attributes := map[string]*providers.AttributeResponse{
+			providers.RawJWTAttributeKey: {Value: wrapper.Response.EncryptedKyc},
 		}
-
-		attributes := make(map[string]*providers.AttributeResponse, len(claims))
-		for k, v := range claims {
-			attributes[k] = &providers.AttributeResponse{Value: v}
-		}
-
 		return &providers.AttributesResponse{Attributes: attributes}, nil
 	}
 
