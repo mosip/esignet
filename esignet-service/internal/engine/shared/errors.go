@@ -39,7 +39,7 @@ var ClientNotFoundError = &common.ServiceError{
 
 // InvalidIndividualIDError is returned when the individual_id in identifiers is missing or invalid.
 var InvalidIndividualIDError = &common.ServiceError{
-	Code: "missing_or_invalid_individual_id",
+	Code: "AUTHN-MGR-1007",
 	Type: common.ClientErrorType,
 	Error: common.I18nMessage{
 		Key:          "missing_or_invalid_individual_id",
@@ -53,7 +53,7 @@ var InvalidIndividualIDError = &common.ServiceError{
 
 // InvalidRequestError is returned when the request is invalid.
 var InvalidRequestError = &common.ServiceError{
-	Code: "invalid_request",
+	Code: "AUTHN-MGR-1008",
 	Type: common.ClientErrorType,
 	Error: common.I18nMessage{
 		Key:          "invalid_request",
@@ -67,7 +67,7 @@ var InvalidRequestError = &common.ServiceError{
 
 // AuthenticationFailedError is returned when the authentication failed.
 var AuthenticationFailedError = &common.ServiceError{
-	Code: "authentication_failed",
+	Code: "AUTHN-MGR-1001",
 	Type: common.ClientErrorType,
 	Error: common.I18nMessage{
 		Key:          "authentication_failed",
@@ -133,6 +133,34 @@ var FileUnmarshallError = &common.ServiceError{
 	ErrorDescription: common.I18nMessage{
 		Key:          "file_unmarshall_error_description",
 		DefaultValue: "The file could not be unmarshalled",
+	},
+}
+
+// CertificateFetchFailed is returned when a failed to fetch certificate from IDA.
+var CertificateFetchFailed = &common.ServiceError{
+	Code: "certificate_fetch_failed",
+	Type: common.ClientErrorType,
+	Error: common.I18nMessage{
+		Key:          "certificate_fetch_failed",
+		DefaultValue: "Certificate fetch failed",
+	},
+	ErrorDescription: common.I18nMessage{
+		Key:          "certificate_fetch_failed_description",
+		DefaultValue: "The certificate could not be fetched",
+	},
+}
+
+// AuthTokenFetchFailed is returned when a failed to fetch auth token from authmanager.
+var AuthTokenFetchFailed = &common.ServiceError{
+	Code: "auth_token_fetch_failed",
+	Type: common.ClientErrorType,
+	Error: common.I18nMessage{
+		Key:          "auth_token_fetch_failed",
+		DefaultValue: "Auth token fetch failed",
+	},
+	ErrorDescription: common.I18nMessage{
+		Key:          "auth_token_fetch_failed_description",
+		DefaultValue: "The auth token could not be fetched",
 	},
 }
 

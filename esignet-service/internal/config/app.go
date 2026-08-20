@@ -109,6 +109,7 @@ type AppConfig struct {
 	InboundHTTPServer          InboundHTTPServerConfig          `yaml:"inbound_http_server"`
 	SupportedSigningAlgorithms []string                         `yaml:"supported_signing_algorithms"`
 	SupportedEncAlgorithms     []string                         `yaml:"supported_enc_algorithms"`
+	AllowedOriginRegex         string                           `yaml:"allowed_origin_regex"`
 	PProfConfig                PProfConfig                      `yaml:"-"`
 }
 
@@ -214,6 +215,7 @@ func applyDefaults(cfg *AppConfig) {
 	if len(cfg.SupportedEncAlgorithms) == 0 {
 		cfg.SupportedEncAlgorithms = []string{"RSA-OAEP", "RSA-OAEP-256"}
 	}
+	cfg.AllowedOriginRegex = envOrConfigOrDefault("MOSIP_ESIGNET_CORS_ALLOWED_ORIGIN_REGEX", cfg.AllowedOriginRegex, "")
 
 	cfg.Server.Port = cfg.Port
 	cfg.Server.Identifier = cfg.Identifier

@@ -64,6 +64,10 @@ func (f *fakeAuthnProvider) SendOTP(_ context.Context, identifiers map[string]in
 	return f.sendOTPResult, f.sendOTPErr
 }
 
+func (f *fakeAuthnProvider) GetSigningCertificates(_ context.Context) ([]shared.CertificateData, *common.ServiceError) {
+	return nil, nil
+}
+
 func newOtpNodeContext(userInputs, runtimeData map[string]string) *providers.NodeContext {
 	if runtimeData == nil {
 		runtimeData = map[string]string{}
@@ -199,7 +203,7 @@ func (ts *OtpExecutorTestSuite) TestExecuteSuccessViaRuntimeData() {
 	}
 }
 
-func (ts *OtpExecutorTestSuite) TestExecuteClientErrorReturnsFailureStatus() {
+func (ts *OtpExecutorTestSuite) TestExecuteClientErrorReturnsUserInputRequiredStatus() {
 	t := ts.T()
 	provider := &fakeAuthnProvider{sendOTPErr: shared.SendOTPFailedError}
 	e := NewOtpExecutor(provider)
@@ -209,8 +213,13 @@ func (ts *OtpExecutorTestSuite) TestExecuteClientErrorReturnsFailureStatus() {
 	if err != nil {
 		t.Fatalf("Execute() error = %v, want nil (client error surfaces via response)", err)
 	}
-	if resp.Status != providers.ExecFailure {
-		t.Errorf("Status = %q, want %q", resp.Status, providers.ExecFailure)
+	// ExecUserInputRequired (not ExecFailure) keeps the flow session alive so the user can
+	// correct the individual ID and retry, instead of terminating with flowStatus: ERROR.
+	if resp.Status != providers.ExecUserInputRequired {
+		t.Errorf("Status = %q, want %q", resp.Status, providers.ExecUserInputRequired)
+	}
+	if len(resp.Inputs) != 1 || resp.Inputs[0].Identifier != usernameAttr {
+		t.Errorf("Inputs = %v, want [%s]", resp.Inputs, usernameAttr)
 	}
 	if resp.Error != shared.SendOTPFailedError {
 		t.Errorf("Error = %v, want %v", resp.Error, shared.SendOTPFailedError)

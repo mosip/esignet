@@ -227,6 +227,49 @@ func mapSendOTPError(err error) *common.ServiceError {
 	return &svcErr
 }
 
+func (p *mockAuthnProvider) GetSigningCertificates(ctx context.Context) ([]shared.CertificateData, *common.ServiceError) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, p.cfg.CertificateURL, nil)
+	if err != nil {
+		applog.GetLogger().Error(ctx, "Failed to certificates create request", applog.Error(err))
+		return nil, shared.CertificateFetchFailed
+	}
+	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+
+	resp, err := p.client.Do(req)
+	if err != nil {
+		applog.GetLogger().Error(ctx, "Failed to fetch certificates", applog.Error(err))
+		return nil, shared.CertificateFetchFailed
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	// check the response status code before parsing the body
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		applog.GetLogger().Error(ctx, "Failed to parse certificate response",
+			applog.Any("statusCode", resp.StatusCode))
+		return nil, shared.CertificateFetchFailed
+	}
+
+	// Parse response
+	var wrapper CertificateResponseWrapper
+	if err := json.NewDecoder(resp.Body).Decode(&wrapper); err != nil {
+		applog.GetLogger().Error(ctx, "Failed to parse certificate response", applog.Error(err))
+		return nil, shared.CertificateFetchFailed
+	}
+
+	// Success path
+	if wrapper.Response != nil {
+		certs := make([]shared.CertificateData, 0, len(wrapper.Response.AllCertificates))
+		for _, certData := range wrapper.Response.AllCertificates {
+			certs = append(certs, shared.CertificateData{
+				KeyID:       certData.KeyID,
+				Certificate: certData.CertificateData})
+		}
+		return certs, nil
+	}
+
+	return nil, shared.CertificateFetchFailed
+}
+
 // setChallenge inspects identifiers and credentials for a supported auth factor and
 // populates the corresponding field on the kyc-auth request. Only otp/password (which
 // arrive as sensitive PASSWORD_INPUT/OTP_INPUT flow inputs) reach the credentials map;
