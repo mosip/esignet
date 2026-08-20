@@ -1,4 +1,4 @@
-﻿system:
+system:
   "design.resolve.error.app_no_design": ಅಪ್ಲಿಕೇಶನ್‌ಗೆ ಯಾವುದೇ ವಿನ್ಯಾಸ ಸಂರಚನೆ ಇಲ್ಲ
   "design.resolve.error.app_no_design_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ಅಪ್ಲಿಕೇಶನ್‌ಗೆ ಯಾವುದೇ ಸಂಬಂಧಿತ ಥೀಮ್ ಅಥವಾ ಲೇಔಟ್ ಸಂರಚನೆ ಇಲ್ಲ
   "design.resolve.error.app_not_found": ಅಪ್ಲಿಕೇಶನ್ ಕಂಡುಬಂದಿಲ್ಲ
@@ -9,8 +9,8 @@
   "design.resolve.error.missing_id_description": '"id" ಕ್ವೆರಿ ಪ್ಯಾರಾಮೀಟರ್ ಅಗತ್ಯವಿದೆ'
   "design.resolve.error.unsupported_type": ಬೆಂಬಲಿಸದ ರಿಸಾಲ್ವ್ ಪ್ರಕಾರ
   "design.resolve.error.unsupported_type_description": ನಿರ್ದಿಷ್ಟಪಡಿಸಿದ ರಿಸಾಲ್ವ್ ಪ್ರಕಾರವನ್ನು ಇನ್ನೂ ಬೆಂಬಲಿಸಲಾಗಿಲ್ಲ. ಪ್ರಸ್ತುತ ಕೇವಲ \"APP\" ಪ್ರಕಾರ ಮಾತ್ರ ಬೆಂಬಲಿತವಾಗಿದೆ
-  "error.actor_not_found": ನಟ ಕಂಡುಬಂದಿಲ್ಲ
-  "error.actor_not_found_description": ವಿನಂತಿಸಿದ ನಟ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
+  "error.actor_not_found": ಆಕ್ಟರ್ ಕಂಡುಬಂದಿಲ್ಲ
+  "error.actor_not_found_description": ವಿನಂತಿಸಿದ ಆಕ್ಟರ್ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ
   "error.agentservice.agent_already_exists_with_client_id": Client ID ಈಗಾಗಲೇ ಬಳಕೆಯಲ್ಲಿದೆ
   "error.agentservice.agent_already_exists_with_client_id_description": ಅದೇ client ID ಹೊಂದಿರುವ ಒಂದು ಘಟಕ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
   "error.agentservice.agent_already_exists_with_name": ಏಜೆಂಟ್ ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿದೆ
@@ -282,8 +282,8 @@
   "error.authnservice.authentication_failed_description": ಬಳಕೆದಾರನನ್ನು ದೃಢೀಕರಿಸುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
   "error.authnservice.empty_attributes_or_credentials": ಖಾಲಿ ಗುಣಲಕ್ಷಣಗಳು ಅಥವಾ ರುಜುವಾತುಗಳು
   "error.authnservice.empty_attributes_or_credentials_description": ಬಳಕೆದಾರ ಗುಣಲಕ್ಷಣಗಳು ಅಥವಾ ರುಜುವಾತುಗಳು ಖಾಲಿ ಆಗಿರಲು ಸಾಧ್ಯವಿಲ್ಲ
-  "error.authnservice.empty_auth_code": ಖಾಲಿ ದೃಢೀಕರಣ ಕೋಡ್
-  "error.authnservice.empty_auth_code_description": ಒದಗಿಸಿದ ದೃಢೀಕರಣ ಕೋಡ್ ಖಾಲಿ ಆಗಿದೆ
+  "error.authnservice.empty_auth_code": ಖಾಲಿ ಅಧಿಕಾರ ಕೋಡ್
+  "error.authnservice.empty_auth_code_description": ಒದಗಿಸಿದ ಅಧಿಕಾರ ಕೋಡ್ ಖಾಲಿ ಆಗಿದೆ
   "error.authnservice.empty_session_token": ಖಾಲಿ ಸೆಶನ್ ಟೋಕನ್
   "error.authnservice.empty_session_token_description": ಒದಗಿಸಿದ ಸೆಶನ್ ಟೋಕನ್ ಖಾಲಿ ಆಗಿದೆ
   "error.authnservice.error_retrieving_idp": ಗುರುತಿನ ಪ್ರದಾನಕರ್ತ ಮರುಪಡೆಯುವಲ್ಲಿ ದೋಷ
@@ -318,8 +318,8 @@
   "error.authnservice.user_not_found_description": ಒದಗಿಸಿದ ಗುಣಲಕ್ಷಣಗಳೊಂದಿಗೆ ಯಾವುದೇ ಬಳಕೆದಾರ ಕಂಡುಬಂದಿಲ್ಲ
   "error.authoauthservice.empty_access_token": ಖಾಲಿ ಪ್ರವೇಶ ಟೋಕನ್
   "error.authoauthservice.empty_access_token_description": ಪ್ರವೇಶ ಟೋಕನ್ ಖಾಲಿ ಆಗಿರಲು ಸಾಧ್ಯವಿಲ್ಲ
-  "error.authoauthservice.empty_authorization_code": ಖಾಲಿ ದೃಢೀಕರಣ ಕೋಡ್
-  "error.authoauthservice.empty_authorization_code_description": ದೃಢೀಕರಣ ಕೋಡ್ ಖಾಲಿ ಆಗಿರಲು ಸಾಧ್ಯವಿಲ್ಲ
+  "error.authoauthservice.empty_authorization_code": ಖಾಲಿ ಅಧಿಕಾರ ಕೋಡ್
+  "error.authoauthservice.empty_authorization_code_description": ಅಧಿಕಾರ ಕೋಡ್ ಖಾಲಿ ಆಗಿರಲು ಸಾಧ್ಯವಿಲ್ಲ
   "error.authoauthservice.empty_idp_id": IDP id ಖಾಲಿ ಆಗಿದೆ
   "error.authoauthservice.empty_idp_id_description": ಗುರುತಿನ ಪ್ರದಾನಕರ್ತ id ಖಾಲಿ ಆಗಿರಲು ಸಾಧ್ಯವಿಲ್ಲ
   "error.authoauthservice.empty_sub_claim": ಖಾಲಿ sub ಕ್ಲೇಮ್
@@ -864,11 +864,11 @@
   "error.roleservice.cannot_modify_declarative_assignment_description": ನಿಯೋಜನೆ ಘೋಷಣಾತ್ಮಕ ಸಂರಚನೆಯಲ್ಲಿ ವ್ಯಾಖ್ಯಾನಿಸಲ್ಪಟ್ಟಿದ್ದು ಮಾರ್ಪಡಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ
   "error.roleservice.cannot_modify_declarative_role": ಘೋಷಣಾತ್ಮಕ ಪಾತ್ರ ಮಾರ್ಪಡಿಸಲಾಗುವುದಿಲ್ಲ
   "error.roleservice.cannot_modify_declarative_role_description": ಪಾತ್ರ ಘೋಷಣಾತ್ಮಕ ಸಂರಚನೆಯಲ್ಲಿ ವ್ಯಾಖ್ಯಾನಿಸಲ್ಪಟ್ಟಿದ್ದು ಮಾರ್ಪಡಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ
-  "error.roleservice.either_entity_id_or_groups_must_be_provided_for_authorization_check_description": ದೃಢೀಕರಣ ಪರಿಶೀಲನೆಗಾಗಿ entityId ಅಥವಾ groups ಒದಗಿಸಬೇಕು
+  "error.roleservice.either_entity_id_or_groups_must_be_provided_for_authorization_check_description": ಅಧಿಕಾರ ಪರಿಶೀಲನೆಗಾಗಿ entityId ಅಥವಾ groups ಒದಗಿಸಬೇಕು
   "error.roleservice.empty_assignments_list": ಖಾಲಿ ನಿಯೋಜನೆಗಳ ಪಟ್ಟಿ
   "error.roleservice.empty_assignments_list_description": ಕನಿಷ್ಠ ಒಂದು ನಿಯೋಜನೆ ಒದಗಿಸಬೇಕು
   "error.roleservice.invalid_assignee_type": ಅಮಾನ್ಯ ನಿಯೋಜಿತ ಪ್ರಕಾರ
-  "error.roleservice.invalid_assignee_type_description": type ಪ್ಯಾರಾಮೀಟರ್ \"user\", \"group\", ಅಥವಾ \"app\" ಆಗಿರಬೇಕು
+  "error.roleservice.invalid_assignee_type_description": type ಪ್ಯಾರಾಮೀಟರ್ \"user\", \"group\", ಅಥವಾ \"APP\" ಆಗಿರಬೇಕು
   "error.roleservice.invalid_assignment_id": ಅಮಾನ್ಯ ನಿಯೋಜನೆ ID
   "error.roleservice.invalid_assignment_id_description": ವಿನಂತಿಯಲ್ಲಿ ಒಂದು ಅಥವಾ ಹೆಚ್ಚಿನ ನಿಯೋಜನೆ IDs ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ ಅಥವಾ ಹೇಳಿಕೊಂಡ ಪ್ರಕಾರಕ್ಕೆ ಹೊಂದಿಕೆಯಾಗುವುದಿಲ್ಲ
   "error.roleservice.invalid_limit_parameter": ಅಮಾನ್ಯ ಲಿಮಿಟ್ ಪ್ಯಾರಾಮೀಟರ್
@@ -964,8 +964,8 @@
   "flows.executor.errors.attribute_retrieval_failed_desc": ಬಳಕೆದಾರ ಗುಣಲಕ್ಷಣಗಳು ಮರುಪಡೆಯುವಾಗ ದೋಷ ಸಂಭವಿಸಿದೆ
   "flows.executor.errors.auth_not_available_for_app": ಈ ಅಪ್ಲಿಕೇಶನ್‌ಗೆ ದೃಢೀಕರಣ ಲಭ್ಯವಿಲ್ಲ
   "flows.executor.errors.auth_not_available_for_app_desc": ವಿನಂತಿಸಿದ ದೃಢೀಕರಣ ವಿಧಾನ ಈ ಅಪ್ಲಿಕೇಶನ್‌ಗೆ ಲಭ್ಯವಿಲ್ಲ
-  "flows.executor.errors.authorization_failed": ದೃಢೀಕರಣ ಮಾನ್ಯೀಕರಣ ವಿಫಲವಾಗಿದೆ
-  "flows.executor.errors.authorization_failed_desc": ಪ್ರಸ್ತುತ ಬಳಕೆದಾರನಿಗಾಗಿ ದೃಢೀಕರಣ ಮಾನ್ಯೀಕರಣ ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.authorization_failed": ಅಧಿಕಾರ ಮಾನ್ಯೀಕರಣ ವಿಫಲವಾಗಿದೆ
+  "flows.executor.errors.authorization_failed_desc": ಪ್ರಸ್ತುತ ಬಳಕೆದಾರನಿಗಾಗಿ ಅಧಿಕಾರ ಮಾನ್ಯೀಕರಣ ವಿಫಲವಾಗಿದೆ
   "flows.executor.errors.cannot_provision_automatically": ಬಳಕೆದಾರನನ್ನು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಪ್ರೊವಿಶನ್ ಮಾಡಲಾಗುವುದಿಲ್ಲ
   "flows.executor.errors.cannot_provision_automatically_desc": ಒದಗಿಸಿದ ಮಾಹಿತಿಯೊಂದಿಗೆ ಬಳಕೆದಾರನನ್ನು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಪ್ರೊವಿಶನ್ ಮಾಡಲು ಸಾಧ್ಯವಿಲ್ಲ
   "flows.executor.errors.consent_decisions_missing": ಒಪ್ಪಿಗೆ ನಿರ್ಧಾರಗಳ ಇನ್‌ಪುಟ್ ಕಾಣೆಯಾಗಿದೆ ಅಥವಾ ಖಾಲಿ ಆಗಿದೆ
@@ -1018,8 +1018,8 @@
   "flows.executor.errors.invalid_invite_token_desc": ಒದಗಿಸಿದ ಆಮಂತ್ರಣ ಟೋಕನ್ ಅಮಾನ್ಯ ಅಥವಾ ಅವಧಿ ಮೀರಿದೆ
   "flows.executor.errors.invalid_magic_link_token": ಅಮಾನ್ಯ ಮ್ಯಾಜಿಕ್ ಲಿಂಕ್ ಟೋಕನ್
   "flows.executor.errors.invalid_magic_link_token_desc": ಮ್ಯಾಜಿಕ್ ಲಿಂಕ್ ಟೋಕನ್ ಅಮಾನ್ಯ ಅಥವಾ ಅವಧಿ ಮೀರಿದೆ
-  "flows.executor.errors.invalid_oauth_code": ಅಮಾನ್ಯ OAuth ದೃಢೀಕರಣ ಕೋಡ್
-  "flows.executor.errors.invalid_oauth_code_desc": OAuth ದೃಢೀಕರಣ ಕೋಡ್ ಅಮಾನ್ಯ ಅಥವಾ ಟೋಕನ್‌ಗಳಿಗೆ ವಿನಿಮಯ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ
+  "flows.executor.errors.invalid_oauth_code": ಅಮಾನ್ಯ OAuth ಅಧಿಕಾರ ಕೋಡ್
+  "flows.executor.errors.invalid_oauth_code_desc": OAuth ಅಧಿಕಾರ ಕೋಡ್ ಅಮಾನ್ಯ ಅಥವಾ ಟೋಕನ್‌ಗಳಿಗೆ ವಿನಿಮಯ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ
   "flows.executor.errors.invalid_oauth_state": ಅಮಾನ್ಯ OAuth ಸ್ಥಿತಿ ಪ್ಯಾರಾಮೀಟರ್
   "flows.executor.errors.invalid_oauth_state_desc": OAuth ಸ್ಥಿತಿ ಪ್ಯಾರಾಮೀಟರ್ ಅಮಾನ್ಯ ಅಥವಾ ನಿರೀಕ್ಷಿತ ಮೌಲ್ಯಕ್ಕೆ ಹೊಂದಿಕೆಯಾಗುತ್ತಿಲ್ಲ
   "flows.executor.errors.invalid_otp": ಅಮಾನ್ಯ OTP ಒದಗಿಸಲ್ಪಟ್ಟಿದೆ
@@ -1301,7 +1301,7 @@ app:
   network_error.title: ಇಂಟರ್ನೆಟ್ ಸಂಪರ್ಕವಿಲ್ಲ
   network_error.description: ನಿಮ್ಮ ನೆಟ್‌ವರ್ಕ್ ಸಂಪರ್ಕವನ್ನು ಪರಿಶೀಲಿಸಿ ಮತ್ತು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.
   network_error.try_again: ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ
-  otp.resend_timer: ನೀವು OTP ಮರುಕಳುಹಿಸಬಹುದು
+  otp.resend_timer: ಇಷ್ಟು ಸಮಯದ ನಂತರ ನೀವು OTP ಅನ್ನು ಮರುಕಳುಹಿಸಬಹುದು
   otp.timed_out: ಸಮಯ ಮೀರಿದೆ
   otp.submit: ಸಲ್ಲಿಸಿ
   back: ಹಿಂದೆ
