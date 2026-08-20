@@ -93,6 +93,21 @@ var SendOTPFailedError = &common.ServiceError{
 	},
 }
 
+// MaxOTPAttemptsReachedError is returned when the maximum number of OTP generation/resend
+// attempts has been reached for a flow session.
+var MaxOTPAttemptsReachedError = &common.ServiceError{
+	Code: "max_otp_attempts_reached",
+	Type: common.ClientErrorType,
+	Error: common.I18nMessage{
+		Key:          "flows.executor.errors.max_otp_attempts_reached",
+		DefaultValue: "Maximum OTP attempts reached",
+	},
+	ErrorDescription: common.I18nMessage{
+		Key:          "flows.executor.errors.max_otp_attempts_reached_desc",
+		DefaultValue: "The maximum number of OTP verification attempts has been reached",
+	},
+}
+
 // MissingEncryptionKeyAlgError is returned when a client's userinfo response
 // type is JWE but its encryption key has no alg field.
 var MissingEncryptionKeyAlgError = &common.ServiceError{

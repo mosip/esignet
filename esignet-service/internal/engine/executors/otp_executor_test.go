@@ -241,6 +241,104 @@ func (ts *OtpExecutorTestSuite) TestExecuteServerErrorPropagatesAsGoError() {
 	}
 }
 
+func (ts *OtpExecutorTestSuite) TestGetMetaDeclaresMaxAttemptsProperty() {
+	t := ts.T()
+	e := NewOtpExecutor(&fakeAuthnProvider{})
+
+	meta := e.GetMeta()
+	if len(meta.SupportedProperties) != 1 || meta.SupportedProperties[0].Property != propertyKeyMaxAttempts {
+		t.Errorf("GetMeta().SupportedProperties = %v, want single %q property", meta.SupportedProperties, propertyKeyMaxAttempts)
+	}
+}
+
+func (ts *OtpExecutorTestSuite) TestExecuteAttemptCountIncrementsOnSuccess() {
+	t := ts.T()
+	provider := &fakeAuthnProvider{sendOTPResult: &shared.SendOTPResult{TransactionID: "txn-1"}}
+	e := NewOtpExecutor(provider)
+	ctx := newOtpNodeContext(map[string]string{usernameAttr: "user1"}, map[string]string{})
+
+	if _, err := e.Execute(ctx); err != nil {
+		t.Fatalf("Execute() error = %v", err)
+	}
+	if got := ctx.RuntimeData[otpAttemptCountKey]; got != "1" {
+		t.Errorf("RuntimeData[otpAttemptCountKey] = %q, want %q", got, "1")
+	}
+
+	if _, err := e.Execute(ctx); err != nil {
+		t.Fatalf("Execute() error = %v", err)
+	}
+	if got := ctx.RuntimeData[otpAttemptCountKey]; got != "2" {
+		t.Errorf("RuntimeData[otpAttemptCountKey] = %q, want %q", got, "2")
+	}
+}
+
+func (ts *OtpExecutorTestSuite) TestExecuteBlocksAtDefaultMaxAttempts() {
+	t := ts.T()
+	provider := &fakeAuthnProvider{sendOTPResult: &shared.SendOTPResult{TransactionID: "txn-1"}}
+	e := NewOtpExecutor(provider)
+	ctx := newOtpNodeContext(map[string]string{usernameAttr: "user1"},
+		map[string]string{otpAttemptCountKey: "3"})
+
+	resp, err := e.Execute(ctx)
+	if err != nil {
+		t.Fatalf("Execute() error = %v", err)
+	}
+	if resp.Status != providers.ExecFailure {
+		t.Errorf("Status = %q, want %q", resp.Status, providers.ExecFailure)
+	}
+	if resp.Error != shared.MaxOTPAttemptsReachedError {
+		t.Errorf("Error = %v, want %v", resp.Error, shared.MaxOTPAttemptsReachedError)
+	}
+	if provider.lastIdentifiers != nil {
+		t.Errorf("SendOTP was called, want no call once max attempts reached")
+	}
+}
+
+func (ts *OtpExecutorTestSuite) TestExecuteRespectsConfiguredMaxAttempts() {
+	t := ts.T()
+	provider := &fakeAuthnProvider{sendOTPResult: &shared.SendOTPResult{TransactionID: "txn-1"}}
+	e := NewOtpExecutor(provider)
+	ctx := newOtpNodeContext(map[string]string{usernameAttr: "user1"},
+		map[string]string{otpAttemptCountKey: "1"})
+	ctx.NodeProperties = map[string]interface{}{propertyKeyMaxAttempts: "1"}
+
+	resp, err := e.Execute(ctx)
+	if err != nil {
+		t.Fatalf("Execute() error = %v", err)
+	}
+	if resp.Status != providers.ExecFailure {
+		t.Errorf("Status = %q, want %q", resp.Status, providers.ExecFailure)
+	}
+	if provider.lastIdentifiers != nil {
+		t.Errorf("SendOTP was called, want no call once configured max attempts reached")
+	}
+}
+
+func (ts *OtpExecutorTestSuite) TestMaxOTPAttemptsFromContext() {
+	t := ts.T()
+
+	cases := []struct {
+		name       string
+		properties map[string]interface{}
+		want       int
+	}{
+		{"absent falls back to default", nil, defaultMaxOTPAttempts},
+		{"string value", map[string]interface{}{propertyKeyMaxAttempts: "5"}, 5},
+		{"int value", map[string]interface{}{propertyKeyMaxAttempts: 5}, 5},
+		{"float64 value", map[string]interface{}{propertyKeyMaxAttempts: float64(5)}, 5},
+		{"invalid string falls back to default", map[string]interface{}{propertyKeyMaxAttempts: "not-a-number"}, defaultMaxOTPAttempts},
+		{"zero falls back to default", map[string]interface{}{propertyKeyMaxAttempts: 0}, defaultMaxOTPAttempts},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			ctx := &providers.NodeContext{NodeProperties: c.properties}
+			if got := maxOTPAttemptsFromContext(ctx); got != c.want {
+				t.Errorf("maxOTPAttemptsFromContext() = %d, want %d", got, c.want)
+			}
+		})
+	}
+}
+
 type OtpExecutorTestSuite struct {
 	suite.Suite
 }
