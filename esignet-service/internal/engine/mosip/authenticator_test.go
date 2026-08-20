@@ -1036,16 +1036,6 @@ func (ts *AuthenticatorTestSuite) TestCallKycExchangeEndpointEmptyEncryptedKycNo
 	require.EqualError(t, err, "no errors in response wrapper")
 }
 
-func (ts *AuthenticatorTestSuite) TestCallKycExchangeEndpointInvalidJWT() {
-	t := ts.T()
-	srv := httptest.NewServer(jsonHandler(http.StatusOK, `{"response":{"encryptedKyc":"not-a-jwt"}}`))
-	defer srv.Close()
-	p := newProvider(nil)
-	p.cfg.KYCExchangeBaseURL = srv.URL
-	_, err := p.callKycExchangeEndpoint(context.Background(), []byte("{}"), "sig", "rp", "cid")
-	require.ErrorContains(t, err, "failed to parse KYC JWT payload")
-}
-
 func (ts *AuthenticatorTestSuite) TestCallKycExchangeEndpointSuccess() {
 	t := ts.T()
 	jwtStr := unsignedJWT(t, map[string]interface{}{"sub": "user-1", "name": "John"})
@@ -1059,8 +1049,8 @@ func (ts *AuthenticatorTestSuite) TestCallKycExchangeEndpointSuccess() {
 
 	resp, callErr := p.callKycExchangeEndpoint(context.Background(), []byte("{}"), "sig", "rp", "cid")
 	require.NoError(t, callErr)
-	require.Equal(t, "user-1", resp.Attributes["sub"].Value)
-	require.Equal(t, "John", resp.Attributes["name"].Value)
+	require.Len(t, resp.Attributes, 1)
+	require.Equal(t, jwtStr, resp.Attributes[providers.RawJWTAttributeKey].Value)
 }
 
 // ---------------------------------------------------------------------------
@@ -1426,8 +1416,7 @@ func (ts *AuthenticatorTestSuite) TestGetAttributesSuccess() {
 
 	resp, svcErr := p.GetAttributes(context.Background(), attributeToken, reqAttrs, getAttributesMetadataFor("client-1"))
 	require.Nil(t, svcErr)
-	require.Equal(t, "user-1", resp.Attributes["sub"].Value)
-	require.Equal(t, "John", resp.Attributes["name"].Value)
+	require.Equal(t, jwtStr, resp.Attributes[providers.RawJWTAttributeKey].Value)
 }
 
 func (ts *AuthenticatorTestSuite) TestGetAttributesDefaultsToSubWhenNoAttributesRequested() {
@@ -1449,7 +1438,7 @@ func (ts *AuthenticatorTestSuite) TestGetAttributesDefaultsToSubWhenNoAttributes
 	attributeToken := strings.Join([]string{"kyctok", "user-1", "txn-1"}, "||")
 	resp, svcErr := p.GetAttributes(context.Background(), attributeToken, &providers.RequestedAttributes{}, getAttributesMetadataFor("client-1"))
 	require.Nil(t, svcErr)
-	require.Equal(t, "user-1", resp.Attributes["sub"].Value)
+	require.Equal(t, jwtStr, resp.Attributes[providers.RawJWTAttributeKey].Value)
 
 	var req IdaKycExchangeRequest
 	require.NoError(t, json.Unmarshal(capturedBody, &req))
