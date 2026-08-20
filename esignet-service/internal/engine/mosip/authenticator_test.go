@@ -837,7 +837,10 @@ func (ts *AuthenticatorTestSuite) TestCallSendOtpEndpointNonOKStatus() {
 	p := newProvider(nil)
 	p.cfg.SendOTPBaseURL = srv.URL
 	_, err := p.callSendOtpEndpoint(context.Background(), []byte("{}"), "sig", "rp", "cid")
-	require.ErrorContains(t, err, "unexpected send OTP status: 500")
+	// Non-2xx surfaces an *idaOTPError; a plain-text body yields no parseable codes.
+	var idaErr *idaOTPError
+	require.ErrorAs(t, err, &idaErr)
+	require.Empty(t, idaErr.codes)
 }
 
 func (ts *AuthenticatorTestSuite) TestCallSendOtpEndpointMalformedBody() {
@@ -850,18 +853,19 @@ func (ts *AuthenticatorTestSuite) TestCallSendOtpEndpointMalformedBody() {
 	require.ErrorContains(t, err, "failed to parse IdaSendOtpResponse")
 }
 
-func (ts *AuthenticatorTestSuite) TestCallSendOtpEndpointResponseMissingAlwaysErrors() {
+func (ts *AuthenticatorTestSuite) TestCallSendOtpEndpointResponseMissingSurfacesErrorCodes() {
 	t := ts.T()
-	// Documents existing behavior: when "response" is absent, the function
-	// always returns "response object is missing in wrapper", even when
-	// "errors" is populated (the later error-formatting branch is dead code
-	// because the nil-response check above it always matches first).
+	// When "response" is absent, the IDA error codes are surfaced to the caller
+	// via *idaOTPError so SendOTP can map an invalid-identifier code to a
+	// field-specific message.
 	srv := httptest.NewServer(jsonHandler(http.StatusOK, `{"errors":[{"errorCode":"E1","errorMessage":"bad"}]}`))
 	defer srv.Close()
 	p := newProvider(nil)
 	p.cfg.SendOTPBaseURL = srv.URL
 	_, err := p.callSendOtpEndpoint(context.Background(), []byte("{}"), "sig", "rp", "cid")
-	require.EqualError(t, err, "response object is missing in wrapper")
+	var idaErr *idaOTPError
+	require.ErrorAs(t, err, &idaErr)
+	require.Equal(t, []string{"E1"}, idaErr.codes)
 }
 
 func (ts *AuthenticatorTestSuite) TestCallSendOtpEndpointSuccess() {
@@ -874,6 +878,36 @@ func (ts *AuthenticatorTestSuite) TestCallSendOtpEndpointSuccess() {
 	require.NoError(t, err)
 	require.Equal(t, "a***@b.com", result.MaskedEmail)
 	require.Equal(t, "***123", result.MaskedMobile)
+}
+
+// ---------------------------------------------------------------------------
+// mapSendOTPError — forwards the IDA error code to the client
+// ---------------------------------------------------------------------------
+
+func (ts *AuthenticatorTestSuite) TestMapSendOTPErrorForwardsIDACode() {
+	t := ts.T()
+	svcErr := mapSendOTPError(&idaOTPError{codes: []string{"IDA-MLC-018", "IDA-MLC-009"}})
+	// The first IDA code is forwarded as both the ServiceError code and i18n key,
+	// so the frontend/i18n layer owns translation (no code list hardcoded here).
+	require.Equal(t, "IDA-MLC-018", svcErr.Code)
+	require.Equal(t, "IDA-MLC-018", svcErr.Error.Key)
+	require.Equal(t, "IDA-MLC-018_description", svcErr.ErrorDescription.Key)
+	require.Equal(t, shared.SendOTPFailedError.Type, svcErr.Type)
+	// The IDA errorMessage is never surfaced; only a neutral fallback is used.
+	require.Equal(t, shared.SendOTPFailedError.Error.DefaultValue, svcErr.Error.DefaultValue)
+
+	// Regression: a blank leading code must not mask a valid later one.
+	skip := mapSendOTPError(&idaOTPError{codes: []string{"", "IDA-MLC-018"}})
+	require.Equal(t, "IDA-MLC-018", skip.Code)
+	require.Equal(t, "IDA-MLC-018", skip.Error.Key)
+}
+
+func (ts *AuthenticatorTestSuite) TestMapSendOTPErrorFallsBackWithoutCode() {
+	t := ts.T()
+	// No parseable IDA code (nil/blank) or a non-IDA error → generic failure.
+	require.Same(t, shared.SendOTPFailedError, mapSendOTPError(&idaOTPError{codes: nil}))
+	require.Same(t, shared.SendOTPFailedError, mapSendOTPError(&idaOTPError{codes: []string{""}}))
+	require.Same(t, shared.SendOTPFailedError, mapSendOTPError(errors.New("network down")))
 }
 
 // ---------------------------------------------------------------------------
