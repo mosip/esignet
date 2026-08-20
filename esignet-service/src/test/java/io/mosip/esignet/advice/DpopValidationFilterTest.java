@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -61,7 +62,7 @@ public class DpopValidationFilterTest {
 
         accessToken = generateAccessTokenForUserinfo(true);
 
-        when(cacheUtilService.checkAndMarkJti(anyString())).thenReturn(false);
+        when(cacheUtilService.checkAndMarkJti(anyString(), anyLong())).thenReturn(false);
         ReflectionTestUtils.setField(filter, "discoveryMap", Map.ofEntries(
                 Map.entry("dpop_signing_alg_values_supported", Arrays.asList("ES256", "RS256")),
                 Map.entry("pushed_authorization_request_endpoint", "http://localhost/oauth/par"),
@@ -148,7 +149,7 @@ public class DpopValidationFilterTest {
         addAuthorizationHeader(request, accessToken);
         request.setMethod("GET");
 
-        when(cacheUtilService.checkAndMarkJti(anyString())).thenReturn(true); // simulate replay
+        when(cacheUtilService.checkAndMarkJti(anyString(), anyLong())).thenReturn(true); // simulate replay
 
         filter.doFilterInternal(request, response, filterChain);
 
@@ -400,6 +401,132 @@ public class DpopValidationFilterTest {
         String wwwAuthenticate = response.getHeader("WWW-Authenticate");
         assertNotNull(wwwAuthenticate);
         assertTrue(wwwAuthenticate.contains("error=\"invalid_request\""));
+    }
+
+    /**
+     * Builds a DPoP proof JWT with a caller-controlled iat so we can drive the
+     * iat-anchored TTL formula in {@code replayCheck}.
+     */
+    private String createDpopJwtWithCustomIat(String httpMethod, String htuClaim, Instant iat) throws Exception {
+        JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.ES256)
+                .type(new JOSEObjectType("dpop+jwt"))
+                .jwk(ecJwk.toPublicJWK())
+                .build();
+
+        JWTClaimsSet claims = new JWTClaimsSet.Builder()
+                .jwtID(UUID.randomUUID().toString())
+                .claim("htm", httpMethod)
+                .claim("htu", htuClaim)
+                .issueTime(Date.from(iat))
+                .build();
+
+        SignedJWT signedJWT = new SignedJWT(header, claims);
+        signedJWT.sign(new ECDSASigner(ecJwk.toECPrivateKey()));
+        return signedJWT.serialize();
+    }
+
+    /**
+     * Happy path — verifies that the TTL handed to the JTI cache equals
+     * {@code maxDPOPIatAgeSeconds + maxClockSkewSeconds} when iat = now and exp is absent.
+     * With the configured defaults (60 + 10), the expected TTL is ~70s.
+     */
+    @Test
+    public void testDpopHeader_replayCheck_capturesIatAnchoredTtl() throws Exception {
+        String dpopJwt = createDpopJwtWithAllClaims("POST", "http://localhost/oauth/par", null, false);
+
+        request.setRequestURI("/oauth/par");
+        request.addHeader("DPoP", dpopJwt);
+        request.setMethod("POST");
+
+        ArgumentCaptor<Long> ttlCaptor = ArgumentCaptor.forClass(Long.class);
+        when(cacheUtilService.checkAndMarkJti(anyString(), ttlCaptor.capture())).thenReturn(false);
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
+        long ttl = ttlCaptor.getValue();
+        // iat ≈ now, no exp ⇒ acceptanceCloseSec = now + 60 + 10 ⇒ TTL ≈ 70s (allow ±2s for scheduling jitter)
+        assertTrue(ttl >= 68 && ttl <= 70,
+                "Expected TTL ~70s (maxDPOPIatAgeSeconds + maxClockSkewSeconds), got " + ttl);
+    }
+
+    /**
+     * Confirms TTL is anchored to {@code iat}, not to "now":
+     * a proof issued 30s ago must shrink the cache entry's lifetime by ~30s.
+     * Expected TTL = (iat - 30) + 60 + 10 - now  ≈  40s.
+     */
+    @Test
+    public void testDpopHeader_replayCheck_olderIat_shortensTtl() throws Exception {
+        String dpopJwt = createDpopJwtWithCustomIat("POST", "http://localhost/oauth/par",
+                Instant.now().minusSeconds(30));
+
+        request.setRequestURI("/oauth/par");
+        request.addHeader("DPoP", dpopJwt);
+        request.setMethod("POST");
+
+        ArgumentCaptor<Long> ttlCaptor = ArgumentCaptor.forClass(Long.class);
+        when(cacheUtilService.checkAndMarkJti(anyString(), ttlCaptor.capture())).thenReturn(false);
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
+        long ttl = ttlCaptor.getValue();
+        // acceptanceCloseSec = (now-30) + 60 + 10 = now + 40 ⇒ TTL ≈ 40s
+        assertTrue(ttl >= 38 && ttl <= 40,
+                "Expected TTL ~40s for iat=now-30s, got " + ttl);
+    }
+
+    /**
+     * Bound-A coverage — verifies that when the DPoP JWT declares a short {@code exp},
+     * the TTL tightens to the exp-anchored bound instead of the iat-anchored server policy.
+     * With iat = now, exp = iat + 20s: acceptanceCloseSec = min(now+70, iat+20+10) = iat+30
+     * ⇒ TTL ≈ 30s.
+     */
+    @Test
+    public void testDpopHeader_replayCheck_shortExp_tightensTtl() throws Exception {
+        Instant iat = Instant.now();
+        String dpopJwt = createDpopJwtWithIatAndExp("POST", "http://localhost/oauth/par",
+                iat, iat.plusSeconds(20));
+
+        request.setRequestURI("/oauth/par");
+        request.addHeader("DPoP", dpopJwt);
+        request.setMethod("POST");
+
+        ArgumentCaptor<Long> ttlCaptor = ArgumentCaptor.forClass(Long.class);
+        when(cacheUtilService.checkAndMarkJti(anyString(), ttlCaptor.capture())).thenReturn(false);
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
+        long ttl = ttlCaptor.getValue();
+        // acceptanceCloseSec = min(now+70, iat+20+10) = iat+30 ⇒ TTL ≈ 30s (allow ±2s for jitter)
+        assertTrue(ttl >= 28 && ttl <= 30,
+                "Expected TTL ~30s when exp binds, got " + ttl);
+    }
+
+    /**
+     * Builds a DPoP proof JWT with caller-controlled iat AND exp claims so we can
+     * exercise the bound-A path in {@code replayCheck} (where JWT self-exp tightens
+     * the TTL below the iat-anchored server policy).
+     */
+    private String createDpopJwtWithIatAndExp(String httpMethod, String htuClaim,
+                                              Instant iat, Instant exp) throws Exception {
+        JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.ES256)
+                .type(new JOSEObjectType("dpop+jwt"))
+                .jwk(ecJwk.toPublicJWK())
+                .build();
+
+        JWTClaimsSet claims = new JWTClaimsSet.Builder()
+                .jwtID(UUID.randomUUID().toString())
+                .claim("htm", httpMethod)
+                .claim("htu", htuClaim)
+                .issueTime(Date.from(iat))
+                .expirationTime(Date.from(exp))
+                .build();
+
+        SignedJWT signedJWT = new SignedJWT(header, claims);
+        signedJWT.sign(new ECDSASigner(ecJwk.toECPrivateKey()));
+        return signedJWT.serialize();
     }
 
 }

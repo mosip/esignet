@@ -5,14 +5,12 @@
  */
 package io.mosip.esignet.services;
 
-import io.mosip.esignet.core.constants.ErrorConstants;
 import io.mosip.esignet.core.dto.OIDCTransaction;
 import io.mosip.esignet.core.dto.LinkTransactionMetadata;
 import io.mosip.esignet.core.dto.ApiRateLimit;
 import io.mosip.esignet.core.dto.PushedAuthorizationRequest;
 import io.mosip.esignet.core.exception.DuplicateLinkCodeException;
 import io.mosip.esignet.core.constants.Constants;
-import io.mosip.esignet.core.exception.EsignetException;
 import io.mosip.esignet.core.util.IdentityProviderUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +21,10 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.Objects;
 
 import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
@@ -34,8 +34,19 @@ import static io.mosip.esignet.core.util.IdentityProviderUtil.ALGO_SHA3_256;
 @Service
 public class CacheUtilService {
 
+    @Value("${spring.cache.type}")
+    private String cacheType;
+
+    @Value("${mosip.esignet.cache.keyprefix:esignet}")
+    private String cacheKeyPrefix;
+
+    private static final String JTI_KEY_FORMAT = "%s:jti::%s";
+
     @Autowired
     CacheManager cacheManager;
+
+    @Autowired(required = false)
+    private StringRedisTemplate stringRedisTemplate;
 
     @Cacheable(value = Constants.PRE_AUTH_SESSION_CACHE, key = "#transactionId")
     public OIDCTransaction setTransaction(String transactionId, OIDCTransaction oidcTransaction) {
@@ -155,18 +166,32 @@ public class CacheUtilService {
     }
 
     /**
-     * Check if JTI is used.
-     * Returns true if already used (replay detected), false otherwise.
+     * Check if JTI is used. Redis-only: simple cache type is dev-only and skips
+     * Returns true if already used (replay detected), false otherwise or in simple mode.
      */
-    public boolean checkAndMarkJti(String jti) {
-        Cache jtiCache = cacheManager.getCache(Constants.JTI_CACHE);
-        if(Objects.isNull(jtiCache)) throw new EsignetException(ErrorConstants.UNKNOWN_ERROR);
-        if (jtiCache.get(jti) != null) {
-            log.error("Replay detected for jti: {}", jti);
+    public boolean checkAndMarkJti(String jti, long ttlSeconds) {
+        if (!"redis".equalsIgnoreCase(cacheType)) {
+            return false;
+        }
+
+        if (ttlSeconds <= 0) {
+            log.error("Non-positive ttl for jti {} — treating as replay", jti);
             return true;
         }
-        jtiCache.put(jti, true);
-        return false;
+
+        try {
+            String key = JTI_KEY_FORMAT.formatted(cacheKeyPrefix, jti);
+            Boolean inserted = stringRedisTemplate.opsForValue()
+                    .setIfAbsent(key, "1", Duration.ofSeconds(ttlSeconds));
+            if (Boolean.FALSE.equals(inserted)) {
+                log.error("Replay detected for jti: {}", jti);
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            log.error("Redis JTI check failed, rejecting jti", e);
+            return true;   // fail-safe posture
+        }
     }
 
     public void updateNonceInCachedTransaction(String cacheKey, String newNonce, Long newExpiryTime, String cacheName) {
