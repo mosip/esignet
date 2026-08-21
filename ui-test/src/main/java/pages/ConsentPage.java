@@ -85,12 +85,6 @@ public class ConsentPage extends BasePage {
 	@FindBy(css = "input.thunderid-toggle__input[id^='consent_opt__']:not(#consent_opt__all)")
 	List<WebElement> voluntaryClaimsSubToggles;
 
-	@FindBy(id = "consent_opt__all")
-	WebElement voluntaryClaimsMasterCheckbox;
-
-	@FindBy(xpath = "(//div[contains(concat(' ',normalize-space(@class),' '),' thunderid-consent-checkbox-list ')])[1]//div[contains(@class,'thunderid-consent-checkbox-list__item')]")
-	List<WebElement> mandatoryClaimsElements;
-
 	@FindBy(xpath = "(//div[contains(concat(' ',normalize-space(@class),' '),' thunderid-consent-checkbox-list ')])[2]//div[contains(@class,'thunderid-consent-checkbox-list__item')]")
 	List<WebElement> voluntaryClaimsElements;
 
@@ -101,16 +95,13 @@ public class ConsentPage extends BasePage {
 	private List<WebElement> voluntaryClaims;
 
 	@FindBy(id = "action_allow")
-	WebElement allowButtonInConsentScreen;
+	WebElement allowButton;
 
 	@FindBy(xpath = "//p[contains(text(),'appropriate action')]")
 	WebElement consentTimer;
 
 	@FindBy(xpath = "//div[@role='menuitem']")
 	List<WebElement> languageDropdownItems;
-
-	@FindBy(id = "action_allow")
-	WebElement allowButton;
 
 	@FindBy(xpath = "//div[@class=' css-1dimb5e-singleValue']")
 	WebElement selectedLanguageDropdown;
@@ -216,20 +207,15 @@ public class ConsentPage extends BasePage {
 
 	public void enterOtp(String otp) {
 		waitForElementVisible(By.cssSelector("input.thunderid-otp-field__input"));
-		if (otp.length() > otpInputFields.size()) {
-			throw new IllegalArgumentException(
-					"OTP length " + otp.length() + " exceeds rendered inputs " + otpInputFields.size());
-		}
 		for (WebElement field : otpInputFields) {
 			field.click();
 			field.sendKeys(Keys.chord(Keys.CONTROL, "a"));
 			field.sendKeys(Keys.BACK_SPACE);
 		}
-		for (int i = 0; i < otp.length(); i++) {
-			WebElement field = otpInputFields.get(i);
+		enterOtpDigits(otpInputFields, otp, (field, digit) -> {
 			field.click();
-			field.sendKeys(String.valueOf(otp.charAt(i)));
-		}
+			field.sendKeys(String.valueOf(digit));
+		});
 	}
 
 	public void clickOnVerifyButton() {
@@ -358,14 +344,14 @@ public class ConsentPage extends BasePage {
 
 	public void disableVoluntaryClaimsMasterToggle() {
 		waitForElementVisible(voluntaryClaimsMasterToggle);
-		if (voluntaryClaimsMasterCheckbox.isSelected()) {
+		if (voluntaryClaimsMasterToggle.isSelected()) {
 			clickOnElement(voluntaryClaimsMasterToggle, "Disabled the voluntary claims master toggle button");
 		}
 	}
 
 	public boolean isVoluntaryClaimsMasterToggleSelected() {
 		waitForElementVisible(voluntaryClaimsMasterToggle);
-		return voluntaryClaimsMasterCheckbox.isSelected();
+		return voluntaryClaimsMasterToggle.isSelected();
 	}
 
 	public String getVoluntaryClaimsTooltipText() {
@@ -397,7 +383,7 @@ public class ConsentPage extends BasePage {
 	}
 
 	public void clickOnAllowBtnInConsentScreen() {
-		clickOnElement(allowButtonInConsentScreen, "Clicked on allow button in consent screen");
+		clickOnElement(allowButton, "Clicked on allow button in consent screen");
 	}
 
 	public void enterVid(String vid) {

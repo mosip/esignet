@@ -101,12 +101,10 @@ public class BasePage {
 			}
 
 			try {
-				element.click();
+				clickWithJsFallback(element);
 			} catch (org.openqa.selenium.StaleElementReferenceException stale) {
 				waitForElementVisible(element);
-				element.click();
-			} catch (org.openqa.selenium.ElementClickInterceptedException intercepted) {
-				((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+				clickWithJsFallback(element);
 			}
 			logStep(stepDesc, element);
 			LOGGER.info("Clicking on element: {}", element);
@@ -114,6 +112,50 @@ public class BasePage {
 
 			ExtentReportManager.getTest().log(Status.FAIL, "Failed to click on element: " + describeElement(element));
 			throw e;
+		}
+	}
+
+	private void clickWithJsFallback(WebElement element) {
+		try {
+			element.click();
+		} catch (org.openqa.selenium.ElementClickInterceptedException intercepted) {
+			((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+		}
+	}
+
+	/** Quote-safe XPath string literal - falls back to concat() when the value contains both a
+	 *  single and a double quote. */
+	protected static String toXpathLiteral(String value) {
+		if (!value.contains("'")) {
+			return "'" + value + "'";
+		}
+		if (!value.contains("\"")) {
+			return "\"" + value + "\"";
+		}
+		String[] parts = value.split("'", -1);
+		StringBuilder concatExpr = new StringBuilder("concat('");
+		for (int i = 0; i < parts.length; i++) {
+			concatExpr.append(parts[i]);
+			if (i < parts.length - 1) {
+				concatExpr.append("', \"'\", '");
+			}
+		}
+		concatExpr.append("')");
+		return concatExpr.toString();
+	}
+
+	// Shared by every per-page OTP entry method (same rendered input.thunderid-otp-field__input
+	// boxes everywhere) so a DOM/length-validation change only needs to be made once; each caller
+	// still supplies its own per-digit interaction since pages differ on whether the boxes need
+	// clearing first.
+	protected void enterOtpDigits(List<WebElement> otpInputFields, String otp,
+			java.util.function.BiConsumer<WebElement, Character> digitEntry) {
+		if (otp.length() > otpInputFields.size()) {
+			throw new IllegalArgumentException(
+					"OTP length " + otp.length() + " exceeds rendered inputs " + otpInputFields.size());
+		}
+		for (int i = 0; i < otp.length(); i++) {
+			digitEntry.accept(otpInputFields.get(i), otp.charAt(i));
 		}
 	}
 

@@ -205,25 +205,6 @@ public class LoginOptionsPage extends BasePage {
 		return map;
 	}
 
-	private static String toXpathLiteral(String value) {
-		if (!value.contains("'")) {
-			return "'" + value + "'";
-		}
-		if (!value.contains("\"")) {
-			return "\"" + value + "\"";
-		}
-		String[] parts = value.split("'", -1);
-		StringBuilder concatExpr = new StringBuilder("concat('");
-		for (int i = 0; i < parts.length; i++) {
-			concatExpr.append(parts[i]);
-			if (i < parts.length - 1) {
-				concatExpr.append("', \"'\", '");
-			}
-		}
-		concatExpr.append("')");
-		return concatExpr.toString();
-	}
-
 	public void selectLanguage(String language) {
 		WebElement langOption = waitForElementVisible(
 				By.xpath("//button[@role='option' and normalize-space()=" + toXpathLiteral(language) + "]"));
@@ -343,14 +324,8 @@ public class LoginOptionsPage extends BasePage {
 
 	/** Types one OTP digit per box, in order - the OTP field is 6 separate single-character inputs. */
 	public void enterOtp(String otp) {
-		if (otp.length() > otpInputFields.size()) {
-			throw new IllegalStateException(
-					"OTP length " + otp.length() + " exceeds rendered inputs " + otpInputFields.size());
-		}
-		for (int i = 0; i < otp.length(); i++) {
-			WebElement field = otpInputFields.get(i);
-			enterText(field, String.valueOf(otp.charAt(i)), "Entered OTP digit " + (i + 1));
-		}
+		enterOtpDigits(otpInputFields, otp,
+				(field, digit) -> enterText(field, String.valueOf(digit), "Entered OTP digit"));
 	}
 
 	public void clickOnSubmitOtpButton() {

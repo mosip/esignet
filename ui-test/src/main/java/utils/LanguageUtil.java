@@ -121,7 +121,10 @@ public class LanguageUtil {
             return mapped;
         }
         mapped = langCodeMappingMap.get(primary);
-        return mapped != null ? mapped : primary;
+        if (mapped != null) {
+            return mapped;
+        }
+        return FRONTEND_ISO2_BY_CODE.getOrDefault(primary, primary);
     }
 
     public static boolean matchesLanguageCode(String actual, String expected) {
@@ -142,7 +145,11 @@ public class LanguageUtil {
     }
 
     public static String fetchDefaultLangFromEnvConfig() {
-        String url = EsignetConfigManager.getproperty("eSignetbaseurl") + "/env-config.js";
+        String baseUrl = EsignetConfigManager.getProperty("eSignetbaseurl", "").trim();
+        if (baseUrl.isEmpty()) {
+            throw new IllegalStateException("eSignetbaseurl is not configured; cannot read DEFAULT_LANG");
+        }
+        String url = (baseUrl.endsWith("/") ? baseUrl : baseUrl + "/") + "env-config.js";
         try {
             String content = downloadJson(url);
             Matcher matcher = Pattern.compile("DEFAULT_LANG\\s*:\\s*['\"]([^'\"]+)['\"]").matcher(content);
@@ -152,7 +159,7 @@ public class LanguageUtil {
             String defaultLang = matcher.group(1);
             logger.info("DEFAULT_LANG from env-config.js: " + defaultLang);
             return defaultLang;
-        } catch (IOException e) {
+        } catch (IOException | IllegalArgumentException e) {
             throw new IllegalStateException("Failed to fetch env-config.js from " + url, e);
         }
     }

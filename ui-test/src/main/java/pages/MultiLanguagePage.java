@@ -26,8 +26,8 @@ public class MultiLanguagePage extends BasePage {
 
     public void clickOnLanguage() {
         String langCode = BaseTestUtil.getThreadLocalLanguage();
-        By optionLocator = By.xpath(
-                "//button[@role='option' and normalize-space()='" + LanguageUtil.getDisplayName(langCode) + "']");
+        By optionLocator = By.xpath("//button[@role='option' and normalize-space()="
+                + toXpathLiteral(LanguageUtil.getDisplayName(langCode)) + "]");
         WebElement language;
         try {
             language = waitForElementVisible(optionLocator);

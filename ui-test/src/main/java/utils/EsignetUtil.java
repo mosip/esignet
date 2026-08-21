@@ -159,6 +159,13 @@ public class EsignetUtil extends AdminTestUtil {
 	private static final String scope = "openid profile";
 	public static final String AUTHORIZE_SCOPE_ONLY = "openid Manage-VID";
 	private static final String state = "eree2311";
+	// Used on every authorize URL, including LoginOptions.feature's re-login scenario that asserts
+	// consent is skipped on repeat login - prompt=consent forces a fresh consent screen every time,
+	// which would invalidate that assertion. Not changed here: this constant feeds every scenario's
+	// authorize URL, so switching it risks regressing the (many) scenarios that rely on prompt=consent
+	// actually showing consent. That specific assertion is currently a no-op outside the "mosipid"
+	// plugin (see ConsentStepDefinition#prerequisiteVidsAvailableForConsentRegistry), so this is inert
+	// under the mock-plugin config this module runs against.
 	private static final String prompt = "consent";
 	private static final String aud_key = "pushed_authorization_request_endpoint";
 
@@ -1296,8 +1303,8 @@ public class EsignetUtil extends AdminTestUtil {
 			esignetDiscoveryDocument = new JSONObject(response.getBody().asString());
 		} catch (Exception e) {
 			logger.warn("Could not fetch/parse the eSignet discovery document from " + url
-					+ " - assuming PAR is not supported/required unless overridden via parSupported/"
-					+ "parRequired in config. Cause: " + e.getMessage());
+					+ " - assuming PAR is not supported/required. Check esignetWellKnownEndPoint in config. "
+					+ "Cause: " + e.getMessage());
 			esignetDiscoveryDocument = new JSONObject();
 		}
 		return esignetDiscoveryDocument;
@@ -1305,8 +1312,8 @@ public class EsignetUtil extends AdminTestUtil {
 
 	/**
 	 * Whether the environment supports the PAR flow, i.e. advertises a pushed authorization request
-	 * endpoint in its discovery document. Prefers the local `parSupported` config value; falls back to
-	 * the discovery document (which itself falls back to false if unreachable).
+	 * endpoint in its discovery document, fetched from the configurable `esignetWellKnownEndPoint`.
+	 * Falls back to false if the discovery document is unreachable.
 	 */
 	public static boolean isParSupported() {
 		String parEndpoint = getEsignetDiscoveryDocument().optString("pushed_authorization_request_endpoint", "");
@@ -1316,9 +1323,9 @@ public class EsignetUtil extends AdminTestUtil {
 	/**
 	 * Whether the environment mandates PAR for every client. When true, even clients that don't set
 	 * require_pushed_authorization_requests must go through PAR - the direct /authorize flow is
-	 * rejected server-side (see AuthorizationServiceImpl#assertPARRequiredIsFalse). Prefers the local
-	 * `parRequired` config value; falls back to the discovery document (which itself falls back to
-	 * false if unreachable).
+	 * rejected server-side (see AuthorizationServiceImpl#assertPARRequiredIsFalse). Derived from the
+	 * discovery document, fetched from the configurable `esignetWellKnownEndPoint`. Falls back to
+	 * false if the discovery document is unreachable.
 	 */
 	public static boolean isParRequired() {
 		return getEsignetDiscoveryDocument().optBoolean("require_pushed_authorization_requests", false);
@@ -1995,7 +2002,9 @@ public class EsignetUtil extends AdminTestUtil {
 				}
 				logger.warn("Could not generate a value satisfying pattern '" + originalPattern
 						+ "' after stripping lookaheads; falling back.");
-			} catch (Exception ignored) {
+			} catch (Exception e) {
+				logger.warn("Could not generate a value for field '" + field + "' from schema pattern: "
+						+ e.getMessage() + " - falling back to enum/literal");
 			}
 		}
 

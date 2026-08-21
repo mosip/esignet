@@ -230,11 +230,15 @@ public class Runner extends AbstractTestNGCucumberTests {
 		} catch (Exception e) {
 			LOGGER.severe("Exception " + e.getMessage());
 			setupFailed = true;
-		}
-		otpListener.bTerminate = true;
-
-		if (EsignetUtil.getPluginName().equals("mosipid")) {
-			KeycloakUserManager.removeUser();
+		} finally {
+			otpListener.bTerminate = true;
+			try {
+				if (EsignetUtil.getPluginName().equals("mosipid")) {
+					KeycloakUserManager.removeUser();
+				}
+			} catch (Exception cleanupEx) {
+				LOGGER.severe("Keycloak teardown failed: " + cleanupEx.getMessage());
+			}
 		}
 
 		System.exit(setupFailed ? 1 : 0);

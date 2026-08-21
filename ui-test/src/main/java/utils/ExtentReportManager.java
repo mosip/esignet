@@ -128,8 +128,7 @@ public class ExtentReportManager {
 			return host;
 
 		} catch (MalformedURLException e) {
-			LOGGER.error("Error getting env name: {}", e.getMessage());
-			e.printStackTrace();
+			LOGGER.error("Error getting env name: {}", url, e);
 			return "unknown";
 		}
 	}

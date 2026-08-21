@@ -150,16 +150,16 @@ public class SimplePostForAutoGenId extends EsignetUtil implements ITest {
 						if (response != null && !response.asString().contains("UNSUCCESSFUL")) {
 							break;
 						}
-						// A null response means the request's fate is unknown (e.g. a client-side timeout) -
-						// Sunbird RC may have already accepted it, so a retry here risks creating a duplicate
-						// policy. An explicit "UNSUCCESSFUL" body is unambiguous - nothing was created, retry
-						// is safe. Neither this codebase nor Sunbird RC's API (as used here) exposes a
-						// deterministic policy id or idempotency key to de-duplicate against, so this only
-						// makes the risk visible rather than eliminating it.
+						// Only an explicit "UNSUCCESSFUL" body is safe to retry: it confirms nothing was
+						// created. A null response means the outcome is unknown - Sunbird RC may already
+						// have accepted it. Neither this codebase nor Sunbird RC's API exposes a
+						// deterministic policy id or idempotency key, and the postrequisite delete stores a
+						// single osid, so a duplicate record would be undeletable. Stop instead of retrying.
 						if (response == null) {
-							logger.warn(testCaseName
-									+ ": Sunbird RC create got no response (ambiguous outcome) - retrying risks a "
-									+ "duplicate policy that the postrequisite delete (single stored osid) won't clean up.");
+							logger.error(testCaseName + ": Sunbird RC create returned no response - the policy may or "
+									+ "may not exist. Not retrying, to avoid an undeletable duplicate record. "
+									+ "Verify the registry manually.");
+							break;
 						}
 						currLoopCount++;
 						if (currLoopCount < SUNBIRD_CREATE_MAX_RETRIES) {
@@ -246,6 +246,6 @@ public class SimplePostForAutoGenId extends EsignetUtil implements ITest {
 	 */
 	@AfterMethod(alwaysRun = true)
 	public void setResultTestName(ITestResult result) {
-		result.setAttribute("TestCaseName", testCaseName);
+		result.setTestName(testCaseName);
 	}
 }

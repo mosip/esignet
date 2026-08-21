@@ -47,14 +47,7 @@ public class ConsentStepDefinition {
 	}
 
 	private boolean notApplicableUnderMockPlugin(String featureDescription) {
-		if (EsignetUtil.isMockPlugin()) {
-			String reason = featureDescription + " does not exist under this environment's mock-plugin flow "
-					+ "- verified live.";
-			logger.info("Not checking (this step only, not the scenario) - " + reason);
-			ExtentReportManager.notApplicable(reason);
-			return true;
-		}
-		return false;
+		return EsignetUtil.notApplicableUnderMockPlugin(featureDescription, logger);
 	}
 
 	private boolean notApplicableForReLoginUnderMockPlugin() {
@@ -561,7 +554,8 @@ public class ConsentStepDefinition {
 
 	@Then("verify no title or subtitle should be displayed")
 	public void verifyTitleNotDisplayed() {
-		verifyDefaultLoginTitleAndSubtitle();
+		Assert.assertFalse(consentPage.isLoginTitleDisplayed(), "Login title was displayed");
+		Assert.assertFalse(consentPage.isLoginSubTitleDisplayed(), "Login subtitle was displayed");
 	}
 
 	@Then("verify title and subtitle should be displayed as per text given during client creation")
