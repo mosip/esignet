@@ -120,3 +120,78 @@ jobs:
       ACTOR_DOCKER_HUB: ${{ secrets.ACTOR_DOCKER_HUB }}
       RELEASE_DOCKER_HUB: ${{ secrets.RELEASE_DOCKER_HUB }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  # api-test: two Go modules (stdlib-only parent + nested api/, godog+gjson) in
+  # one directory, so this stays a plain build/vet job rather than the
+  # single-module go-build.yml reusable workflow (mirrors build_maven_apitest_esignet
+  # from the retired Java rig — mosip/esignet#2209).
+  build_go_apitest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.26"
+      # gofmt is checked explicitly: go vet does not look at formatting, and an
+      # unformatted file merges cleanly and then shows up as noise in the next
+      # PR's diff.
+      - name: gofmt
+        working-directory: api-test
+        run: |
+          unformatted="$(gofmt -l . )"
+          if [ -n "$unformatted" ]; then
+            echo "::error::gofmt needed on:"; echo "$unformatted"
+            gofmt -d .
+            exit 1
+          fi
+      - name: build + vet + test (parent module)
+        working-directory: api-test
+        run: |
+          go build ./...
+          go vet ./...
+          go test ./...
+      # The api module's TestFeatures drives a live eSignet, so it is excluded
+      # here: CI has no deployment to point it at. Everything else in the module
+      # (step helpers, assertions, envelope writing) is unit-testable and runs.
+      - name: vet + test (api module)
+        working-directory: api-test/api
+        run: |
+          go vet ./...
+          go test ./... -skip TestFeatures
+
+  # Image build/publish only — same reusable workflow, same secrets, as every
+  # other service image above. Scheduled test execution runs externally
+  # against this image (Rancher docker run), not in GitHub Actions.
+  build_dockers_apitest:
+    needs: build_go_apitest
+
+    strategy:
+      matrix:
+        include:
+          - SERVICE_LOCATION: "api-test"
+            SERVICE_NAME: "apitest-esignet"
+            ONLY_DOCKER: true
+            PLATFORMS: "linux/amd64,linux/arm64"
+
+      fail-fast: false
+
+    name: ${{ matrix.SERVICE_NAME }}
+
+    uses: mosip/kattu/.github/workflows/docker-build.yml@master
+
+    with:
+      SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
+      SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
+      ONLY_DOCKER: ${{ matrix.ONLY_DOCKER }}
+      PLATFORMS: ${{ matrix.PLATFORMS }}
+
+    secrets:
+      DEV_NAMESPACE_DOCKER_HUB: ${{ secrets.DEV_NAMESPACE_DOCKER_HUB }}
+      ACTOR_DOCKER_HUB: ${{ secrets.ACTOR_DOCKER_HUB }}
+      RELEASE_DOCKER_HUB: ${{ secrets.RELEASE_DOCKER_HUB }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}

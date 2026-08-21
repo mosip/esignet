@@ -15,7 +15,7 @@ Open ID Connect based identity provider for large-scale authentication, from [MO
 | [`db_scripts/`](db_scripts/README.md) | SQL scripts to create the database and tables. |
 | [`db_upgrade_script/`](db_upgrade_script/README.md) | SQL migration (upgrade/rollback) scripts, named by version. |
 | [`partner-onboarder/`](partner-onboarder/README.md) | Exchanges certificates for the eSignet MISP partner. |
-| [`api-test/`](api-test/README.md) | Java (REST Assured + TestNG) API automation test rig. |
+| [`api-test/`](api-test/README.md) | Go black-box API test harness for a running deployment: OpenID Conformance Suite, client-mgmt + flow/execute (godog), and an end-to-end OAuth client — consolidated into one HTML report. |
 | [`ui-test/`](ui-test/README.md) | Cucumber + TestNG + Selenium UI automation framework. |
 | [`performance-test/`](performance-test/README.md) | JMeter performance test scripts. |
 
