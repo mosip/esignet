@@ -227,7 +227,7 @@ public class LoginOptionsPage extends BasePage {
 	public void selectLanguage(String language) {
 		WebElement langOption = waitForElementVisible(
 				By.xpath("//button[@role='option' and normalize-space()=" + toXpathLiteral(language) + "]"));
-		langOption.click();
+		clickOnElement(langOption, "Selected language option: " + language);
 		By navLanguageButton = By.cssSelector("nav button[aria-haspopup='listbox']");
 		new WebDriverWait(driver, Duration.ofSeconds(EsignetConfigManager.getTimeout())).until(d -> {
 			List<WebElement> buttons = d.findElements(navLanguageButton);

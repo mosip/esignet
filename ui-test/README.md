@@ -231,8 +231,15 @@ mvn clean install -Dgpg.skip=true -Dmaven.gitcommitid.skip=true
 #### ▶️ Using JAR
 ```bash
 cd target/
-java -Denv.endpoint="$ENV_ENDPOINT" -jar uitest-esignet-*.jar
+java -Denv.endpoint="$ENV_ENDPOINT" -Denv.testLevel="smoke" -jar uitest-esignet-*.jar
 ```
+
+> ⚠️ **`-Denv.testLevel=smoke` is required.** Without it, `apitest-commons`'s
+> `AdminTestUtil.getYmlTestData()` NPEs on a null `testLevel` while filtering each yml's
+> testcases (every testcase in this module is tagged `_Smoke_`). The failure happens inside
+> a TestNG `@DataProvider`, so it's swallowed silently — every prerequisite testcase (client,
+> policy, partner creation, etc.) produces zero rows instead of throwing, and every downstream
+> scenario then skips with `required field is empty $ID:...$` instead of a clear error.
 
 #### 🧩 Using Eclipse IDE
 
@@ -251,7 +258,7 @@ java -Denv.endpoint="$ENV_ENDPOINT" -jar uitest-esignet-*.jar
    - **Main class**: `runners.Runner`  
    - **VM Arguments**:
      ```bash
-     -Denv.endpoint=<base_env>
+     -Denv.endpoint=<base_env> -Denv.testLevel=smoke
      ```
 
 5. **Run the Configuration**  
@@ -282,7 +289,7 @@ Run scenarios with specific tags:
 
 ```bash
 cd target/
-java -Denv.endpoint="$ENV_ENDPOINT" -Dcucumber.filter.tags="@smoke" -jar uitest-esignet-*.jar
+java -Denv.endpoint="$ENV_ENDPOINT" -Denv.testLevel="smoke" -Dcucumber.filter.tags="@smoke" -jar uitest-esignet-*.jar
 ```
 
 Or configure in runner class:
