@@ -1281,6 +1281,8 @@ validation:
   pattern.invalid: ಅಮಾನ್ಯ ಸ್ವರೂಪ
   minLength.invalid: ಮೌಲ್ಯ ತುಂಬಾ ಚಿಕ್ಕದಾಗಿದೆ
   maxLength.invalid: ಮೌಲ್ಯ ತುಂಬಾ ಉದ್ದವಾಗಿದೆ
+  policy.numeric: ಪಾಲಿಸಿ ಸಂಖ್ಯೆಯಲ್ಲಿ ಅಂಕೆಗಳು ಮಾತ್ರ ಇರಬೇಕು
+  policy.length: ಪಾಲಿಸಿ ಸಂಖ್ಯೆಯು 8 ಮತ್ತು 50 ಅಂಕೆಗಳ ನಡುವೆ ಇರಬೇಕು
 
 validations:
   required.field.error: ಈ ಕ್ಷೇತ್ರ ಅಗತ್ಯವಿದೆ

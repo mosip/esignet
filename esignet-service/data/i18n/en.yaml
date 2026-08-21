@@ -1281,6 +1281,8 @@ validation:
   pattern.invalid: Invalid format
   minLength.invalid: Value is too short
   maxLength.invalid: Value is too long
+  policy.numeric: Policy No. must contain number only
+  policy.length: Policy No. must between 8 and 50 digits
 
 validations:
   required.field.error: This field is required

@@ -1281,6 +1281,8 @@ validation:
   pattern.invalid: تنسيق غير صالح
   minLength.invalid: القيمة قصيرة جدًا
   maxLength.invalid: القيمة طويلة جدًا
+  policy.numeric: يجب أن يحتوي رقم الوثيقة على أرقام فقط
+  policy.length: يجب أن يكون رقم الوثيقة بين 8 و 50 رقمًا
 
 validations:
   required.field.error: هذا الحقل مطلوب
