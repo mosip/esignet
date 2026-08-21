@@ -30,6 +30,11 @@ public class MultiLanguageStepDef {
 
     @When("click on Language selection option")
     public void clickOnLanguageSelection() {
+        if (multiLanguagePage.isAlreadyOnRelyingParty()) {
+            logger.info("Not clicking (this step only, not the scenario) - already on the relying party's page, "
+                    + "not a real esignet screen - the mock-plugin re-login/discontinue flow doesn't return here.");
+            return;
+        }
         multiLanguagePage.clickOnLanguageSelection();
     }
 

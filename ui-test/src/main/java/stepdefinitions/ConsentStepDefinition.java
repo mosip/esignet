@@ -160,6 +160,13 @@ public class ConsentStepDefinition {
 		if (notApplicableForReLoginUnderMockPlugin()) {
 			return;
 		}
+		if (consentPage.isAlreadyOnRelyingParty()) {
+			String reason = "clicking Login with Otp - already on the relying party's page, not a real login "
+					+ "screen - the mock-plugin re-login/discontinue flow doesn't return here.";
+			logger.info("Not clicking (this step only, not the scenario) - " + reason);
+			ExtentReportManager.notApplicable(reason);
+			return;
+		}
 		expectedDefaultLang = consentPage.getCurrentLanguage();
 		consentPage.clickOnLoginWithOtp();
 	}
