@@ -1,0 +1,42 @@
+DBValidator:
+  Esignet_DBValidator_All_Valid_Smoke_data_created_for_OIDCClient:
+    endPoint: SELECT * FROM pms.oidc_client where
+    uniqueIdentifier: TC_Esignet_DBValidator_01
+    description: Validate that data created for OIDCClient is correctly stored and consistent in the pms database
+    role: pms
+    restMethod: post
+    inputTemplate: esignet/DBValidatorAndAuditValidator/DBValidatorTest
+    outputTemplate: esignet/DBValidatorAndAuditValidator/DBValidatorTestResult
+    input: '{
+      "id": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$"
+    }'
+    output: '{
+    }'
+
+  Esignet_DBValidator_All_Valid_Smoke_data_created_for_OIDCClient_Client_detail:
+    endPoint: SELECT * FROM esignet.client_detail where
+    uniqueIdentifier: TC_Esignet_DBValidator_02
+    description: Validate that data created for OIDCClient client details is correctly stored and consistent in the esignet database
+    role: partner
+    restMethod: post
+    inputTemplate: esignet/DBValidatorAndAuditValidator/DBValidatorTest
+    outputTemplate: esignet/DBValidatorAndAuditValidator/DBValidatorTestResult
+    input: '{
+      "id": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$"
+    }'
+    output: '{
+    }'
+
+  Esignet_DBValidator_All_Valid_Smoke_data_created_for_OIDCClient_Using_IDA:
+    endPoint: SELECT * FROM ida.oidc_client_data where
+    uniqueIdentifier: TC_Esignet_DBValidator_03
+    description: Validate that data created for OIDCClient client details is correctly stored and consistent in the ida database
+    role: partner
+    restMethod: post
+    inputTemplate: esignet/DBValidatorAndAuditValidator/DBValidatorTest
+    outputTemplate: esignet/DBValidatorAndAuditValidator/DBValidatorTestResult
+    input: '{
+      "oidc_client_id": "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$"
+    }'
+    output: '{
+    }'

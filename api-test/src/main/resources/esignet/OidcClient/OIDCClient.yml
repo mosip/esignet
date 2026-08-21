@@ -787,3 +787,199 @@ CreateOIDCClient:
       output: '{
         "status": "ACTIVE"
 }'
+   Esignet_CreateOIDCClient_With_DataSharePlocy_Neg:
+      endPoint: /v1/partnermanager/oidc/client
+      uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_31
+      description: Create OIDC client With Data Share Policy
+      role: partner
+      restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_08
+      inputTemplate: esignet/OidcClient/OIDCClient
+      outputTemplate: esignet/error
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_For_DataShare_sid_id$",
+        "publicKey": "$JWKKEY$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_For_Credential_Partner_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+	  "errors": [
+	    {
+	      "errorCode": "PMS_PRT_059"
+	    }
+	  ]
+}'
+   Esignet_CreateOIDCClient_With_MISP_Policy_Neg:
+      endPoint: /v1/partnermanager/oidc/client
+      uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_32
+      description: Create OIDC client With MISP Policy
+      role: partner
+      restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_08
+      inputTemplate: esignet/OidcClient/OIDCClient
+      outputTemplate: esignet/error
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_Misp_Valid_Smoke_sid_id$",
+        "publicKey": "$JWKKEY$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+	  "errors": [
+	    {
+	      "errorCode": "PMS_PRT_057"
+	    }
+	  ]
+}'
+   Esignet_CreateOIDCClient_With_Not_Approved_Policy_Neg:
+      endPoint: /v1/partnermanager/oidc/client
+      uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_33
+      description: Create OIDC client With Not Approved Policy
+      role: partner
+      restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_08
+      inputTemplate: esignet/OidcClient/OIDCClient
+      outputTemplate: esignet/error
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_Which_For_Not_Approval_sid_id$",
+        "publicKey": "$JWKKEY$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+	  "errors": [
+	    {
+	      "errorCode": "PMS_PRT_061"
+	    }
+	  ]
+}'
+   Esignet_CreateOIDCClient_With_Same_AuthPartner_With_Diff_Policy_Neg:
+      endPoint: /v1/partnermanager/oidc/client
+      uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_34
+      description: Create OIDC client With Not Approved Policy
+      role: partner
+      restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_08
+      inputTemplate: esignet/OidcClient/OIDCClient
+      outputTemplate: esignet/OidcClient/OIDCClientResult
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_For_AuthPartner_sid_id$",
+        "publicKey": "$JWKKEY$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "status": "ACTIVE"
+}'
+   Esignet_CreateOIDCClient_With_More_Than_One_RedirectedUri_sid:
+      endPoint: /v1/partnermanager/oidc/client
+      uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_35
+      description: Create OIDC client with all valid details
+      role: partner
+      restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
+      inputTemplate: esignet/OidcClient/OIDCClient2
+      outputTemplate: esignet/OidcClient/OIDCClientResult
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_All_Valid_Smoke_sid_id$",
+        "publicKey": "$JWKKEY$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "[\"$IDPREDIRECTURI$\",\"$IDPREDIRECTURI$\"]",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "status": "ACTIVE"
+}'
+   Esignet_CreateOIDCClient_For_Policy_WithOut_FullName_Email_Gender_sid:
+      endPoint: /v1/partnermanager/oidc/client
+      uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_36
+      description: Create OIDC client with all valid details
+      role: partner
+      restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
+      inputTemplate: esignet/OidcClient/OIDCClient
+      outputTemplate: esignet/OidcClient/OIDCClientResult
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_WithOut_FullName_Email_Gender_sid_id$",
+        "publicKey": "$JWKKEY$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+        "status": "ACTIVE"
+}'
+   Esignet_CreateOIDCClient_For_Policy_WithOut_AllowedAuthTypes_Neg:
+      endPoint: /v1/partnermanager/oidc/client
+      uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_37
+      description: Create OIDC client with all valid details
+      role: partner
+      restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
+      inputTemplate: esignet/OidcClient/OIDCClient
+      outputTemplate: esignet/error
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_WithOut_AllowedAuthTypes_sid_id$",
+        "publicKey": "$JWKKEY$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "authorization_code",
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+      "errors": [
+       {
+          "errorCode": "PMS_ESI_006"
+       }
+    ]
+}'
+   Esignet_CreateOIDCClient_For_Policy_WithOut_AllowedKycAttributes_Neg:
+      endPoint: /v1/partnermanager/oidc/client
+      uniqueIdentifier: TC_ESignet_CreateOIDCClient_MOSIPID_38
+      description: Create OIDC client with all valid details
+      role: partner
+      restMethod: post
+      additionalDependencies: Dependent_Idrepo_uploadPartnerCert_01, Dependent_Idrepo_GenerateApiKey_01, Dependent_Idrepo_RequestAPIKeyForAuthPartner_01,Dependent_Idrepo_ApproveAPIKey_01
+      inputTemplate: esignet/OidcClient/OIDCClient
+      outputTemplate: esignet/error
+      input: '{
+        "name": "$RANDOMID$",
+        "policyId": "$ID:DefinePolicy_WithOut_AllowedKycAttributes_sid_id$",
+        "publicKey": "$JWKKEY$",
+        "authPartnerId": "$ID:PartnerSelfRegistration_All_Valid_Smoke_sid_partnerId$",
+        "logoUri": "https://health-services.com/logo.png",
+        "redirectUris": "$IDPREDIRECTURI$",
+        "grantTypes": "authorization_code",                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+        "clientAuthMethods": "private_key_jwt"
+}'
+      output: '{
+      "errors": [
+       {
+          "errorCode": "PMS_ESI_005"
+       }
+     ]
+}'

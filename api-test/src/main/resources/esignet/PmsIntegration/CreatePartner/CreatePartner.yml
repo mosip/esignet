@@ -174,3 +174,25 @@ createPartnerSelfRegistration:
       output: ' {
         "status": "InProgress"
 }'
+
+   Esignet_PartnerSelfRegistration_For_Credential_Partner_sid:
+      endPoint: /v1/partnermanager/partners
+      uniqueIdentifier: Dependent_Idrepo_createPartnerSelfRegistration_09
+      description: PartnerSelfRegistration For Data Share With valid details 
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/CreatePartner/createPartner
+      outputTemplate: esignet/PmsIntegration/CreatePartner/createPartnerResult
+      input: '{
+    "address": "Bangalore",
+    "contactNumber": "8553967372",
+    "emailId": "$DATASHAREPARTNEREMAIL$",
+    "organizationName": "$RANDOMPARTNERID$",
+    "partnerId": "$RANDOMPARTNERID$",
+    "partnerType": "Credential_Partner",
+    "policyGroup": "$ID:DefinePolicyGroup_For_DataShare_Policy_Sid_name$",
+    "requesttime": "$TIMESTAMP$"
+  }'
+      output: ' {
+        "status": "InProgress"
+}'

@@ -1,0 +1,16 @@
+addContact:
+  Esignet_AddContact_All_Valid_Smoke:
+    endPoint: SELECT module_name,cr_by FROM audit.app_audit_log where module_name LIKE 'esignet%' order by action_dtimes desc LIMIT 5
+    uniqueIdentifier: TC_Esignet_addContact_01
+    description: Validate that a contact is successfully added when all input parameters are valid
+    role: audit
+    templateFields: ["partnerQuery","partner service"]
+    restMethod: post
+    inputTemplate: esignet/AuditLog/auditlog
+    outputTemplate: esignet/AuditLog/AuditLogResult
+    input: '{
+  }'
+    output: '{
+      "module_name": "esignet-service"
+      "cr_by": "111997"
+   }'
