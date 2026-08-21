@@ -409,7 +409,7 @@ func (p *mockAuthnProvider) callKycAuthEndpoint(ctx context.Context, requestBody
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		bodyBytes, _ := io.ReadAll(resp.Body)
+		bodyBytes, _ := io.ReadAll(io.LimitReader(resp.Body, 64<<10))
 		return "", "", fmt.Errorf("unexpected kyc-auth status: %d - %s", resp.StatusCode, string(bodyBytes))
 	}
 
@@ -449,7 +449,7 @@ func (p *mockAuthnProvider) callKycExchangeEndpoint(ctx context.Context, request
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		bodyBytes, _ := io.ReadAll(resp.Body)
+		bodyBytes, _ := io.ReadAll(io.LimitReader(resp.Body, 64<<10))
 		return nil, fmt.Errorf("unexpected kyc-exchange status: %d - %s", resp.StatusCode, string(bodyBytes))
 	}
 
@@ -494,7 +494,7 @@ func (p *mockAuthnProvider) callSendOtpEndpoint(ctx context.Context, requestBody
 	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		bodyBytes, _ := io.ReadAll(resp.Body)
+		bodyBytes, _ := io.ReadAll(io.LimitReader(resp.Body, 64<<10))
 		return nil, fmt.Errorf("unexpected send-otp status: %d - %s", resp.StatusCode, string(bodyBytes))
 	}
 

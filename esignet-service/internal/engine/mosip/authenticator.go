@@ -50,6 +50,14 @@ const (
 	mosipEnvStaging           = "Staging" // default MOSIP_ENV; see config.LoadMosipAuthn
 	runtimeKeyClientID        = "initiator_query_client_id"
 
+	// idaMPACertMismatchCode and idaMPACertExpiredCode are the IDA error
+	// codes indicating the cached IDA partner certificate is no longer
+	// valid for a KYC auth request (wrong/stale cert vs. an expired one).
+	// Only these codes should trigger dropping the cache; other KYC auth
+	// failures (bad OTP, unknown individual, etc.) don't mean the cert is bad.
+	idaMPACertMismatchCode = "IDA-MPA-003"
+	idaMPACertExpiredCode  = "IDA-MPA-004"
+
 	// mosipRequestSignAlgorithm is the JWS algorithm the "signature" header
 	// on outbound IDA requests is signed with — MOSIP IDA's partner request
 	// signing contract expects RS256 specifically (RSA PKCS#1 v1.5), not the
@@ -247,12 +255,16 @@ func (p *mosipAuthnProvider) Authenticate(ctx context.Context, identifiers, cred
 
 	psut, kycToken, err := p.performKycAuth(ctx, idaKycAuthRequest, generatedCert, encryptedRequest, encryptedRequestHash,
 		symmetricKey, clientDtl.RpID, clientDtl.ClientID, claimsMetadataRequired)
-	if err != nil { // TODO check for specific error code returned from IDA
+	if err != nil {
 		applog.GetLogger().Error(ctx, "KYC auth endpoint call failed", applog.Error(err))
 		// The cached certificate may be stale (e.g. IDA rotated it
 		// out-of-band); drop it so the next Authenticate call fetches a
 		// fresh one instead of repeatedly failing against the same cert.
-		p.invalidateCachedIDAPartnerCertificate(ctx)
+		// Only these two IDA error codes indicate a bad/expired cert — other
+		// KYC auth failures don't warrant discarding a still-valid cache.
+		if strings.Contains(err.Error(), idaMPACertMismatchCode) || strings.Contains(err.Error(), idaMPACertExpiredCode) {
+			p.invalidateCachedIDAPartnerCertificate(ctx)
+		}
 		return nil, shared.AuthenticationFailedError
 	}
 
@@ -815,6 +827,16 @@ func errorCodes(errs []Error) []string {
 	return codes
 }
 
+// idaErrorCodes is errorCodes for the IdaError variant used by the KYC
+// auth/exchange response wrappers.
+func idaErrorCodes(errs []IdaError) []string {
+	codes := make([]string, len(errs))
+	for i, e := range errs {
+		codes[i] = e.ErrorCode
+	}
+	return codes
+}
+
 // idaOTPError carries MOSIP IDA error codes from a failed send-OTP response
 // so that SendOTP can distinguish a "bad individual ID" from infrastructure failures.
 type idaOTPError struct{ codes []string }
@@ -866,12 +888,6 @@ func (p *mosipAuthnProvider) callSendOtpEndpoint(
 	}
 	defer func() { _ = resp.Body.Close() }()
 
-	// Read body once
-	bodyBytes, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read send OTP response: %w", err)
-	}
-
 	// Check status. The response body is never logged or included in the
 	// returned error here: MOSIP IDA error payloads for the OTP flow echo
 	// request context (individualId, masked email/mobile) — personal
@@ -881,6 +897,7 @@ func (p *mosipAuthnProvider) callSendOtpEndpoint(
 	// surfaced, best-effort — a non-2xx body isn't guaranteed to parse as
 	// IdaSendOtpResponse at all.
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		bodyBytes, _ := io.ReadAll(io.LimitReader(resp.Body, 64<<10))
 		var errWrapper IdaSendOtpResponse
 		_ = json.Unmarshal(bodyBytes, &errWrapper)
 		applog.GetLogger().Error(ctx, "unexpected send OTP status",
@@ -891,7 +908,7 @@ func (p *mosipAuthnProvider) callSendOtpEndpoint(
 
 	// Parse response
 	var wrapper IdaSendOtpResponse
-	if err := json.Unmarshal(bodyBytes, &wrapper); err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(&wrapper); err != nil {
 		return nil, fmt.Errorf("failed to parse IdaSendOtpResponse: %w", err)
 	}
 
@@ -971,20 +988,15 @@ func (p *mosipAuthnProvider) callKycAuthEndpoint(
 	}
 	defer func() { _ = resp.Body.Close() }()
 
-	// Read body once
-	bodyBytes, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", "", err
-	}
-
 	// Check status
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		bodyBytes, _ := io.ReadAll(io.LimitReader(resp.Body, 64<<10))
 		return "", "", fmt.Errorf("unexpected KYC auth status: %d - %s", resp.StatusCode, string(bodyBytes))
 	}
 
 	// Parse response
 	var wrapper IdaResponseWrapper
-	if err := json.Unmarshal(bodyBytes, &wrapper); err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(&wrapper); err != nil {
 		return "", "", fmt.Errorf("failed to parse IdaResponseWrapper: %w", err)
 	}
 
@@ -1006,9 +1018,7 @@ func (p *mosipAuthnProvider) callKycAuthEndpoint(
 		return "", "", errors.New("no errors in response wrapper")
 	}
 
-	// Take first error (common pattern)
-	firstErr := wrapper.Errors[0]
-	return "", "", fmt.Errorf("%s: %s", firstErr.ErrorMessage, firstErr.ActionMessage)
+	return "", "", fmt.Errorf("%s", strings.Join(idaErrorCodes(wrapper.Errors), ","))
 }
 
 // PerformKycExchange sends the KYC exchange request to IDA and processes the response
@@ -1039,20 +1049,15 @@ func (p *mosipAuthnProvider) callKycExchangeEndpoint(
 	}
 	defer func() { _ = resp.Body.Close() }()
 
-	// Read body once
-	bodyBytes, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read KYC exchange response: %w", err)
-	}
-
 	// Check status
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		bodyBytes, _ := io.ReadAll(io.LimitReader(resp.Body, 64<<10))
 		return nil, fmt.Errorf("unexpected KYC exchange status: %d - %s", resp.StatusCode, string(bodyBytes))
 	}
 
 	// Parse response
 	var wrapper IdaKycExchangeResponseWrapper
-	if err := json.Unmarshal(bodyBytes, &wrapper); err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(&wrapper); err != nil {
 		return nil, fmt.Errorf("failed to parse IdaKycExchangeResponseWrapper: %w", err)
 	}
 
