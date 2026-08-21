@@ -21,6 +21,7 @@ data:
     http {
       access_log /var/log/nginx/access1.log;
       error_log /var/log/nginx/error1.log;
+
       server {
         listen {{ .Values.oidc_ui.oidc_ui_port }};
         server_name  localhost;
@@ -54,6 +55,9 @@ data:
           proxy_set_header   X-Forwarded-Host $server_name;
           add_header Content-Security-Policy "default-src 'none'" always;
           add_header Referrer-Policy "no-referrer" always;
+          add_header 'Access-Control-Allow-Origin' '*' always;
+          add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS' always;
+          add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
           types {
             text/plain log cer json txt;
           }
@@ -68,6 +72,9 @@ data:
           proxy_set_header   X-Forwarded-Host $server_name;
           add_header Content-Security-Policy "default-src 'none'" always;
           add_header Referrer-Policy "no-referrer" always;
+          add_header 'Access-Control-Allow-Origin' '*' always;
+          add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS' always;
+          add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
           types {
             text/plain log cer json txt;
           }
@@ -82,6 +89,9 @@ data:
           proxy_set_header   X-Forwarded-Host $server_name;
           add_header Content-Security-Policy "default-src 'none'" always;
           add_header Referrer-Policy "no-referrer" always;
+          add_header 'Access-Control-Allow-Origin' '*' always;
+          add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS' always;
+          add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
           types {
             text/plain log cer json txt;
           }
@@ -96,6 +106,9 @@ data:
           proxy_set_header   X-Forwarded-Host $server_name;
           add_header Content-Security-Policy "default-src 'none'" always;
           add_header Referrer-Policy "no-referrer" always;
+          add_header 'Access-Control-Allow-Origin' '*' always;
+          add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS' always;
+          add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
           types {
             text/plain log cer json txt;
           }
