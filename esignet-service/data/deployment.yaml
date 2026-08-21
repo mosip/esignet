@@ -132,7 +132,22 @@ oauth:
     leeway: 10  # override via MOSIP_ESIGNET_DPOP_LEEWAY
     allowed_algs: ["ES256", "PS256", "ES384", "ES512", "EdDSA", "RS256"]
     max_jti_length: 256
-
+  allowed_subject_types: ["pairwise"]
+  allowed_grant_types: ["authorization_code"]
+  allowed_response_types: ["code"]
+  allowed_auth_methods: ["private_key_jwt"]
+  allowed_scopes: ["openid","profile","email","phone"]
+  allowed_claims: ["name","address","gender","birthdate","picture","email","phone_number"]
+  default_scope_claims_mapping: 
+    openid: ["sub"]
+    profile: ["name","address","gender","birthdate","picture","email","phone_number"]
+    email: ["email"]
+    phone: ["phone_number"]
+  send_server_errors_to_client: false
+  token_revocation: 
+    enabled: false
+  logout:
+    enabled: false  
 
 security_config:
   issuer_url: ""

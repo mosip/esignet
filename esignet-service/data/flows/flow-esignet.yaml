@@ -297,6 +297,11 @@ interceptors:
       - basic_cred_auth_nrc
       - basic_kbi_auth
 
+# Anchor for the per-flow-session cap on OTP generate/resend calls, applied to every
+# eSignetOtpExecutor node so RESEND_OTP can't be clicked unboundedly.
+otp_max_attempts: &otp_max_attempts
+  maxAttempts: "3"
+
 nodes:
   - id: start
     type: START
@@ -496,6 +501,7 @@ nodes:
 
   - id: send_mosip_otp_uin
     type: TASK_EXECUTION
+    properties: *otp_max_attempts
     executor:
       name: eSignetOtpExecutor
     onSuccess: prompt_otp
@@ -503,6 +509,7 @@ nodes:
 
   - id: send_mosip_otp_mobile
     type: TASK_EXECUTION
+    properties: *otp_max_attempts
     executor:
       name: eSignetOtpExecutor
     onSuccess: prompt_otp
@@ -510,6 +517,7 @@ nodes:
 
   - id: send_mosip_otp_email
     type: TASK_EXECUTION
+    properties: *otp_max_attempts
     executor:
       name: eSignetOtpExecutor
     onSuccess: prompt_otp
@@ -517,6 +525,7 @@ nodes:
 
   - id: send_mosip_otp_nrc
     type: TASK_EXECUTION
+    properties: *otp_max_attempts
     executor:
       name: eSignetOtpExecutor
     onSuccess: prompt_otp
@@ -527,6 +536,7 @@ nodes:
   # routes back to prompt_otp itself rather than to a channel-specific prompt.
   - id: send_mosip_otp
     type: TASK_EXECUTION
+    properties: *otp_max_attempts
     executor:
       name: eSignetOtpExecutor
     onSuccess: prompt_otp

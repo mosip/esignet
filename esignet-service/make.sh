@@ -57,7 +57,7 @@ SIGNING_CERT=$KEY_DIR/signing.crt
 : "${DOCKER_IMAGE:=esignet:latest}"
 : "${GOLANGCI_LINT_VERSION:=latest}"
 : "${SQLC_VERSION:=v1.29.0}"
-: "${THUNDER_BRANCH:=v1.0.0}"
+: "${THUNDER_BRANCH:=1.0.x}"
 : "${RACE:=1}"   # set RACE=0 if no C toolchain (go test -race needs gcc on Windows)
 # Local builds default to a static, cgo-free binary, which drops the PKCS11
 # (HSM) keystore backend down to a stub that errors at startup — use
@@ -89,7 +89,7 @@ target_run() { ## Run with go run (development)
   PORT="$PORT" \
   MOSIP_ESIGNET_HOST="$MOSIP_ESIGNET_HOST" \
   DATA_DIR="$DATA_DIR" \
-  MOSIP_ESIGNET_AUTHN_PROVIDER="${MOSIP_ESIGNET_AUTHN_PROVIDER:-mosip}" \
+  MOSIP_ESIGNET_AUTHN_PROVIDER="${MOSIP_ESIGNET_AUTHN_PROVIDER:-mock}" \
     go run "$CMD"
 }
 
@@ -145,7 +145,7 @@ target_docker_run() { ## Run container mapped to PORT (default 8080)
   target_docker_build
   docker run --rm -p "$PORT:8088" \
     -e MOSIP_ESIGNET_HOST="$MOSIP_ESIGNET_HOST" \
-    -e MOSIP_ESIGNET_AUTHN_PROVIDER="${MOSIP_ESIGNET_AUTHN_PROVIDER:-mosip}" \
+    -e MOSIP_ESIGNET_AUTHN_PROVIDER="${MOSIP_ESIGNET_AUTHN_PROVIDER:-mock}" \
     -e CRYPTO_ENCRYPTION_KEY="${CRYPTO_ENCRYPTION_KEY:-}" \
     "$DOCKER_IMAGE"
 }

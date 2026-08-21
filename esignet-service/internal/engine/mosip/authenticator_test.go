@@ -969,12 +969,12 @@ func (ts *AuthenticatorTestSuite) TestCallKycAuthEndpointResponseMissingReturnsE
 func (ts *AuthenticatorTestSuite) TestCallKycAuthEndpointKycStatusFalseWithErrors() {
 	t := ts.T()
 	srv := httptest.NewServer(jsonHandler(http.StatusOK,
-		`{"response":{"kycStatus":false},"errors":[{"errorMessage":"denied","actionMessage":"retry"}]}`))
+		`{"response":{"kycStatus":false},"errors":[{"errorCode":"IDA-KYC-001","actionMessage":"retry"},{"errorCode":"IDA-KYC-002","actionMessage":"retry"}]}`))
 	defer srv.Close()
 	p := newProvider(nil)
 	p.cfg.KYCAuthBaseURL = srv.URL
 	_, _, err := p.callKycAuthEndpoint(context.Background(), []byte("{}"), "sig", "rp", "cid", false)
-	require.EqualError(t, err, "denied: retry")
+	require.EqualError(t, err, "IDA-KYC-001,IDA-KYC-002")
 }
 
 func (ts *AuthenticatorTestSuite) TestCallKycAuthEndpointKycStatusFalseWithoutErrorsReturnsError() {
@@ -1256,7 +1256,7 @@ func (ts *AuthenticatorTestSuite) TestAuthenticateFailsWhenKycAuthCallErrors() {
 	kycAuthSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		kycCalls++
 		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte("not-json"))
+		_, _ = w.Write([]byte(`{"response":{"kycStatus":false},"errors":[{"errorCode":"IDA-MPA-003","actionMessage":"retry"}]}`))
 	}))
 	defer kycAuthSrv.Close()
 
@@ -1275,11 +1275,50 @@ func (ts *AuthenticatorTestSuite) TestAuthenticateFailsWhenKycAuthCallErrors() {
 	require.Equal(t, 1, certCalls, "the failing request itself should not retry the cert fetch inline")
 	require.Equal(t, 1, kycCalls)
 
-	// The rejection should have cleared the cache, so the next fetch hits
-	// the server again instead of reusing the rejected certificate.
+	// An IDA-MPA-003 rejection means the cached cert is bad, so it should
+	// have been cleared; the next fetch hits the server again instead of
+	// reusing the rejected certificate.
 	_, err := p.fetchIDAPartnerCertificate(context.Background())
 	require.NoError(t, err)
-	require.Equal(t, 2, certCalls, "cached certificate should have been invalidated after the KYC auth rejection")
+	require.Equal(t, 2, certCalls, "cached certificate should have been invalidated after an IDA-MPA-003/004 KYC auth rejection")
+}
+
+func (ts *AuthenticatorTestSuite) TestAuthenticateKeepsCacheOnUnrelatedKycAuthError() {
+	t := ts.T()
+	_, cert := genRSAKeyAndCert(t, "ida-partner")
+	var certCalls int
+	certSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		certCalls++
+		_, _ = w.Write(certToPEM(cert))
+	}))
+	defer certSrv.Close()
+
+	kycAuthSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"response":{"kycStatus":false},"errors":[{"errorCode":"IDA-KYC-001","actionMessage":"retry"}]}`))
+	}))
+	defer kycAuthSrv.Close()
+
+	p := newProvider(newValidClientService())
+	p.cfg.IDAPartnerCertificateURL = certSrv.URL
+	configureSigning(t, p)
+	p.cfg.KYCAuthBaseURL = kycAuthSrv.URL
+
+	result, svcErr := p.Authenticate(context.Background(),
+		map[string]interface{}{"username": "ind-1"},
+		map[string]interface{}{"otp": "111111"},
+		authnMetadataFor("client-1"))
+
+	require.Nil(t, result)
+	require.Same(t, shared.AuthenticationFailedError, svcErr)
+	require.Equal(t, 1, certCalls)
+
+	// A KYC auth failure unrelated to the certificate should leave the
+	// cache intact, so the next fetch is served from cache without another
+	// round trip to the server.
+	_, err := p.fetchIDAPartnerCertificate(context.Background())
+	require.NoError(t, err)
+	require.Equal(t, 1, certCalls, "cached certificate should not be invalidated on a non IDA-MPA-003/004 KYC auth rejection")
 }
 
 func (ts *AuthenticatorTestSuite) TestAuthenticateSuccess() {

@@ -84,7 +84,7 @@ export DATABASE_USERNAME=esignet
 export DB_DBUSER_PASSWORD=secret
 export DATABASE_NAME=mosip_esignet
 export REDIS_HOST=localhost
-export MOSIP_ESIGNET_AUTHN_PROVIDER=mosip
+export MOSIP_ESIGNET_AUTHN_PROVIDER=mock
 
 ./out/esignet.exe   # ./out/esignet on Linux
 ```

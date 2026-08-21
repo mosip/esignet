@@ -529,6 +529,52 @@ func (ts *AuthenticatorTestSuite) TestGetSigningCertificates() {
 		require.Nil(t, certs)
 		require.Same(t, shared.CertificateFetchFailed, svcErr)
 	})
+
+	t.Run("subsequent calls are served from cache", func(t *testing.T) {
+		var requestCount int
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			requestCount++
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"response":{"allCertificates":[{"keyId":"key-1","certificateData":"cert-1"}]}}`))
+		}))
+		defer server.Close()
+
+		p := newTestProvider(t, "http://unused", "http://unused", "http://unused")
+		p.cfg.CertificateURL = server.URL
+
+		first, svcErr := p.GetSigningCertificates(context.Background())
+		require.Nil(t, svcErr)
+		second, svcErr := p.GetSigningCertificates(context.Background())
+		require.Nil(t, svcErr)
+
+		require.Equal(t, 1, requestCount, "second call should be served from cache, not hit the server again")
+		require.Equal(t, first, second)
+	})
+
+	t.Run("refetches once the cache expires", func(t *testing.T) {
+		var requestCount int
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			requestCount++
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"response":{"allCertificates":[{"keyId":"key-1","certificateData":"cert-1"}]}}`))
+		}))
+		defer server.Close()
+
+		p := newTestProvider(t, "http://unused", "http://unused", "http://unused")
+		p.cfg.CertificateURL = server.URL
+
+		_, svcErr := p.GetSigningCertificates(context.Background())
+		require.Nil(t, svcErr)
+
+		p.certsMu.Lock()
+		p.certsExpiry = time.Now().Add(-time.Second)
+		p.certsMu.Unlock()
+
+		_, svcErr = p.GetSigningCertificates(context.Background())
+		require.Nil(t, svcErr)
+
+		require.Equal(t, 2, requestCount, "expired cache should trigger a fresh fetch")
+	})
 }
 
 func (ts *AuthenticatorTestSuite) TestNoOpMethods() {
