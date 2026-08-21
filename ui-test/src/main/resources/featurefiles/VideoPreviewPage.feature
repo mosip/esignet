@@ -20,7 +20,7 @@ Feature: Esignet Video Preview Page
    And user select the check box in terms and condition page
    And user clicks on proceed button in terms and condition page
    Then verify user should be navigated to video preview screen page
-   Then verify key information header is displayed in video preview screen page 
+   Then verify key information header is displayed in video preview screen page
    Then verify scrollable present in video preview screen page
    Then verify list of instructions displayed in video preview screen page
    Then verify cancel button present in video preview screen page

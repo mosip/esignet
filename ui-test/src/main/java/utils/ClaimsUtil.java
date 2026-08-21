@@ -3,6 +3,9 @@ package utils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 
 import base.BaseTest;
 
@@ -16,7 +19,6 @@ public class ClaimsUtil {
 	private static JSONObject root;
 	private static final Logger logger = Logger.getLogger(ClaimsUtil.class);
 
-	// Decode and parse the base64 part from the URL (after #)
 	public static void parseFromUrl(String url) {
 		try {
 			if (url == null || !url.contains("#")) {
@@ -96,6 +98,48 @@ public class ClaimsUtil {
 		return normalized;
 	}
 
+	private static final Map<String, String> ACR_BUTTON_SUFFIX_TO_FACTOR = Map.of(
+			"otp", "OTP",
+			"password", "PWD",
+			"bio", "BIO",
+			"kbi", "KBI",
+			"wallet", "WLA",
+			"pin", "PIN");
+
+	public static List<String> getRenderedAuthFactors(WebDriver driver) {
+		List<WebElement> buttons = driver.findElements(By.cssSelector("[id^='acr_']"));
+		List<String> factors = new ArrayList<>();
+		for (WebElement button : buttons) {
+			String id = button.getAttribute("id");
+			if (id == null) {
+				continue;
+			}
+			String suffix = id.substring("acr_".length());
+			String factor = ACR_BUTTON_SUFFIX_TO_FACTOR.get(suffix);
+			if (factor != null) {
+				factors.add(factor);
+			}
+		}
+		if (factors.isEmpty() && !driver.findElements(By.id("username_input")).isEmpty()) {
+			factors.add("SINGLE_FACTOR");
+		}
+		return factors;
+	}
+
+	private static List<String> cachedRenderedAuthFactors = null;
+
+	public static void captureRenderedAuthFactors(WebDriver driver) {
+		cachedRenderedAuthFactors = getRenderedAuthFactors(driver);
+	}
+
+	public static List<String> getCachedRenderedAuthFactors() {
+		return cachedRenderedAuthFactors != null ? cachedRenderedAuthFactors : Collections.emptyList();
+	}
+
+	public static void clearCachedRenderedAuthFactors() {
+		cachedRenderedAuthFactors = null;
+	}
+
 	public static List<String> getAuthFactors() {
 		if (root == null)
 			return Collections.emptyList();
@@ -112,6 +156,11 @@ public class ClaimsUtil {
 			}
 		}
 		return factors;
+	}
+
+	/** The 'configs' object from the currently parsed transaction, or null. */
+	public static JSONObject getConfigs() {
+		return root != null ? root.optJSONObject("configs") : null;
 	}
 
 	public static String normalizeFactor(String factor) {
@@ -132,6 +181,10 @@ public class ClaimsUtil {
 		case "PWD":
 		case "mosip:idp:acr:password":
 			return "PWD";
+
+		case "KBI":
+		case "mosip:idp:acr:knowledge":
+			return "KBI";
 
 		default:
 			return factor;

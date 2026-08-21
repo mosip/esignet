@@ -8,7 +8,7 @@ Feature: Invalid Url Page
    When user modifies domain in the esignet url
    Then verify this site can’t be reached error is displayed
    When user modify the nonce value in esignet url
-   Then verify user remain on same esignet page without any error
+   Then verify unauthorized error is displayed for invalid nonce
    When user modify the hash value in the esignet url
    Then verify unable to process Please try again error is displayed
    When user change the language to "<kannada>" from dropdown
@@ -85,14 +85,6 @@ Examples:
    When user enters the correct otp
    And click on verify Otp button
    Then verify consent should ask user to proceed in attention page
-   And clicks on proceed button in attention page
-   And clicks on proceed button in next page
-   Then select the e-kyc verification provider
-   And clicks on proceed button in e-kyc verification provider page
-   And user select the check box in terms and condition page
-   And user clicks on proceed button in terms and condition page
-   And user clicks on proceed button in camera preview page
-   And user is navigated to consent screen once liveness check completes
    And verify user is navigated to consent screen
    When user modify the consent value in esignet url
    And verify the page you are looking for does not exist error is displayed

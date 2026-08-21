@@ -1,9 +1,13 @@
 package pages;
 
+import java.time.Duration;
+
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import base.BasePage;
 
@@ -123,6 +127,12 @@ public class EkycPage extends BasePage {
 	WebElement eKycTermsAndConditionsProceedButton;
 
 	public boolean isEkycProcessStepsScreenLabelDisplayed() {
+		try {
+			new WebDriverWait(driver, Duration.ofSeconds(utils.EsignetConfigManager.getTimeout()))
+					.until(ExpectedConditions.visibilityOf(ekycProcessStepsScreenLabel));
+		} catch (org.openqa.selenium.TimeoutException e) {
+			return false;
+		}
 		return isElementVisible(ekycProcessStepsScreenLabel, "Verified eKyc screen is displayed");
 	}
 
@@ -204,7 +214,7 @@ public class EkycPage extends BasePage {
 	}
 
 	public void clickOnSignInWithEsignetButton() {
-		clickOnElement(signInWithEsignetButton, "Clicked on sign in with eSignet button");
+		clickWhenClickable(signInWithEsignetButton);
 	}
 
 	public boolean isProceedButtonVisible() {
@@ -212,7 +222,7 @@ public class EkycPage extends BasePage {
 	}
 
 	public void clickOnProceedButton() {
-		clickOnElement(proceedButton, "Clicked on proceed button");
+		clickWhenClickable(proceedButton);
 	}
 
 	public boolean isEkycServiceProviderScreenVisible() {
@@ -280,7 +290,7 @@ public class EkycPage extends BasePage {
 	}
 
 	public void clickOnProceedButtonInEkycProviderScreen() {
-		clickOnElement(ekycProviderProceedButton, "Clicked on proceed button");
+		clickWhenClickable(ekycProviderProceedButton);
 	}
 
 	public boolean isEkycTermsAndConditionsScreenVisible() {
@@ -307,8 +317,9 @@ public class EkycPage extends BasePage {
 	}
 
 	public boolean isTermsAndConditionCheckboxNotSelected() {
-		return !ekycTermsAndConditionsCheckbox.isSelected() && isElementVisible(ekycTermsAndConditionsCheckbox,
-				"Verified terms and conditions checkbox is not selected by default");
+		return isElementVisible(ekycTermsAndConditionsCheckbox,
+				"Verified terms and conditions checkbox is not selected by default")
+				&& !ekycTermsAndConditionsCheckbox.isSelected();
 	}
 
 	public void clickOnTermsAndConditionCheckBox() {

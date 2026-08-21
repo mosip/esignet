@@ -1,9 +1,14 @@
 package utils;
 
+import java.io.InputStream;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -12,9 +17,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Consumer;
 
 import javax.ws.rs.core.MediaType;
 
@@ -60,6 +71,56 @@ public class EsignetUtil extends AdminTestUtil {
 	public static String pluginName = null;
 	public static JSONArray signupActiveProfiles = null;
 
+	private static final String[] SUNBIRD_R_FIRST_NAMES = { "Alex", "Jordan", "Taylor", "Morgan", "Casey", "Riley",
+			"Sam", "Jamie" };
+	private static final String[] SUNBIRD_R_LAST_NAMES = { "Smith", "Brown", "Johnson", "Lee", "Clark", "Walker",
+			"Young", "Hill" };
+	private static final String sunBirdRFullName = SUNBIRD_R_FIRST_NAMES[new Random().nextInt(SUNBIRD_R_FIRST_NAMES.length)]
+			+ " " + SUNBIRD_R_LAST_NAMES[new Random().nextInt(SUNBIRD_R_LAST_NAMES.length)];
+	private static final String sunBirdRDob = LocalDate.ofEpochDay(LocalDate.of(1970, 1, 1).toEpochDay()
+			+ (long) (Math.random() * (LocalDate.of(2000, 12, 31).toEpochDay() - LocalDate.of(1970, 1, 1).toEpochDay())))
+			.format(DateTimeFormatter.ISO_LOCAL_DATE);
+	private static final String sunBirdRPolicyNumber = String.valueOf(100000000 + new Random().nextInt(900000000));
+
+	public static String getSunBirdRFullName() {
+		return sunBirdRFullName;
+	}
+
+	public static String getSunBirdRDob() {
+		return sunBirdRDob;
+	}
+
+	public static String getSunBirdRPolicyNumber() {
+		return sunBirdRPolicyNumber;
+	}
+
+	private static final String SUNBIRD_R_MOBILE = "0123456789";
+	private static final String SUNBIRD_R_GENDER = "Male";
+	private static final String SUNBIRD_R_EMAIL = "esignetui.sunbird@example.com";
+	private static final String SUNBIRD_R_POLICY_NAME = "Start Insurance Gold Premium";
+
+	public static String getSunBirdRPolicyName() {
+		return SUNBIRD_R_POLICY_NAME;
+	}
+
+	public static String getSunBirdRMobile() {
+		return SUNBIRD_R_MOBILE;
+	}
+
+	public static String getSunBirdRGender() {
+		return SUNBIRD_R_GENDER;
+	}
+
+	public static String getSunBirdREmail() {
+		return SUNBIRD_R_EMAIL;
+	}
+
+	/** Which KBI schema field id is the identity lookup key (maps to the Sunbird policyNumber). */
+	public static String getKbiIndividualIdField() {
+		JSONObject configs = ClaimsUtil.getConfigs();
+		return configs != null ? configs.optString("auth.factor.kbi.individual-id-field", null) : null;
+	}
+
 	private static final String TOKEN_URL = EsignetConfigManager.getproperty("keycloak-external-url")
 			+ EsignetConfigManager.getproperty("keycloakAuthTokenEndPoint");
 	private static final String GRANT_TYPE = "client_credentials";
@@ -71,7 +132,23 @@ public class EsignetUtil extends AdminTestUtil {
 	private static String partnerCookie = null;
 	private static String mobileAuthCookie = null;
 	protected static boolean triggerESignetKeyGenForPAR = true;
+	protected static boolean triggerESignetKeyGenForPARPurposeLogin = true;
+	protected static boolean triggerESignetKeyGenForPARPurposeLink = true;
+	protected static boolean triggerESignetKeyGenForPARPurposeNone = true;
+	protected static boolean triggerESignetKeyGenForPARNoPurpose = true;
+	protected static boolean triggerESignetKeyGenForPARNoTitle = true;
+	protected static boolean triggerESignetKeyGenForPAREmptyTitle = true;
+	protected static boolean triggerESignetKeyGenForPARSingleAcrValue = true;
 	protected static final String OIDC_JWK_FOR_PAR = "oidcJWKForPAR";
+	protected static final String OIDC_JWK_FOR_PAR_PURPOSE_LOGIN = "oidcJWKForPARPurposeLogin";
+	protected static final String OIDC_JWK_FOR_PAR_PURPOSE_LINK = "oidcJWKForPARPurposeLink";
+	protected static final String OIDC_JWK_FOR_PAR_PURPOSE_VERIFY = "oidcJWKForPARPurposeVerify";
+	protected static final String OIDC_JWK_FOR_PAR_PURPOSE_NONE = "oidcJWKForPARPurposeNone";
+	protected static final String OIDC_JWK_FOR_PAR_NO_PURPOSE = "oidcJWKForPARNoPurposeType";
+	protected static final String OIDC_JWK_FOR_PAR_NO_TITLE = "oidcJWKForPARNoTitle";
+	protected static final String OIDC_JWK_FOR_PAR_EMPTY_TITLE = "oidcJWKForPAREmptyTitle";
+	protected static final String OIDC_JWK_FOR_PAR_SINGLE_ACR_VALUE = "oidcJWKForPARSingleAcrValue";
+	protected static final String OIDC_JWK_FOR_PAR_REQUIRED = "oidcJWKForParRequired";
 	protected static RSAKey oidc_JWK_Key_For_PAR = null;
 	protected static final String CLAIMS_REQUEST = "config/claims.json";
 
@@ -80,8 +157,9 @@ public class EsignetUtil extends AdminTestUtil {
 	private static final String client_assertion_type = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
 	private static final String claim_locales = "en";
 	private static final String scope = "openid profile";
+	public static final String AUTHORIZE_SCOPE_ONLY = "openid Manage-VID";
 	private static final String state = "eree2311";
-	private static final String prompt = "login";
+	private static final String prompt = "consent";
 	private static final String aud_key = "pushed_authorization_request_endpoint";
 
 	private static Response sendPostRequest(String url, Map<String, String> params) {
@@ -101,7 +179,6 @@ public class EsignetUtil extends AdminTestUtil {
 		driver = webDriver;
 	}
 
-	// Initialize ChromeDriver with Network capture
 	public static WebDriver startDriverWithNetwork() {
 		driver = new ChromeDriver();
 		devTools = ((ChromeDriver) driver).getDevTools();
@@ -115,12 +192,10 @@ public class EsignetUtil extends AdminTestUtil {
 		return driver;
 	}
 
-	// Get last response status
 	public static int getLastStatusCode() {
 		return (lastResponse != null) ? lastResponse.getStatus() : -1;
 	}
 
-	// Check if a network request was made to a given endpoint
 	public static boolean verifyRequestMade(String endpointPath) {
 		return (lastResponse != null && lastResponse.getUrl().contains(endpointPath));
 	}
@@ -132,11 +207,68 @@ public class EsignetUtil extends AdminTestUtil {
 			logger.setLevel(Level.ERROR);
 	}
 
+	public static boolean isMockPlugin() {
+		return "mock".equalsIgnoreCase(getPluginName());
+	}
+
+	/** Shared by step-definition classes whose feature doesn't exist under the mock-plugin flow. */
+	public static boolean notApplicableUnderMockPlugin(String featureDescription, Logger callerLogger) {
+		if (isMockPlugin()) {
+			String reason = featureDescription
+					+ " does not exist under this environment's mock-plugin flow - verified live.";
+			callerLogger.info("Not checking (this step only, not the scenario) - " + reason);
+			ExtentReportManager.notApplicable(reason);
+			return true;
+		}
+		return false;
+	}
+
 	public static String getPluginName() {
 		if (pluginName != null)
 			return pluginName;
-		pluginName = EsignetConfigManager.getproperty("pluginToExecute");
+
+		String configuredPlugin = EsignetConfigManager.getProperty("pluginToExecute", "").trim().toLowerCase();
+		if (configuredPlugin.equals("mosipid") || configuredPlugin.equals("mock")) {
+			pluginName = configuredPlugin;
+			return pluginName;
+		}
+		if (!configuredPlugin.isBlank()) {
+			logger.warn("Ignoring pluginToExecute='" + configuredPlugin
+					+ "' - expected 'mosipid' or 'mock'; falling back to actuator auto-detection");
+		}
+
+		String serverAuthenticator = getIdentityPluginNameFromEsignetActuator();
+		if (serverAuthenticator == null || serverAuthenticator.isBlank()) {
+			logger.error("Could not read mosip.esignet.integration.authenticator from the eSignet actuator - "
+					+ "assuming 'mosipid' for this call without caching it");
+			return "mosipid";
+		}
+		boolean isMockLike = serverAuthenticator.toLowerCase().contains("mockauthenticationservice")
+				|| serverAuthenticator.toLowerCase().contains("sunbirdrcauthenticationservice");
+		pluginName = isMockLike ? "mock" : "mosipid";
 		return pluginName;
+	}
+
+	private static Boolean captchaEnabled = null;
+
+	public static boolean isCaptchaEnabled() {
+		if (captchaEnabled != null) {
+			return captchaEnabled;
+		}
+
+		String configuredValue = EsignetConfigManager.getProperty("captchaEnabled", "").trim();
+		if (!configuredValue.isEmpty()) {
+			captchaEnabled = parseConfiguredBoolean("captchaEnabled", false);
+			return captchaEnabled;
+		}
+
+		if (!isEsignetActuatorEnabled()) {
+			captchaEnabled = false;
+			return captchaEnabled;
+		}
+
+		captchaEnabled = AdminTestUtil.isCaptchaEnabled();
+		return captchaEnabled;
 	}
 
 	public static JSONArray signupActuatorResponseArray = null;
@@ -144,20 +276,16 @@ public class EsignetUtil extends AdminTestUtil {
 	public static String getValueFromSignupActuator(String section, String key) {
 
 		String value = null;
-		// Normalize the key for environment variables
 		String keyForEnvVariableSection = key.toUpperCase().replace("-", "_").replace(".", "_");
 
-		// Try to fetch profiles if not already fetched
 		if (signupActiveProfiles == null || signupActiveProfiles.length() == 0) {
 			signupActiveProfiles = getActiveProfilesFromActuator(UiConstants.SIGNUP_ACTUATOR_URL,
 					UiConstants.ACTIVE_PROFILES);
 		}
 
-		// First try to fetch the value from system environment
 		value = getValueFromSignupActuatorWithUrl(UiConstants.SYSTEM_ENV_SECTION, keyForEnvVariableSection,
 				UiConstants.SIGNUP_ACTUATOR_URL);
 
-		// Fallback to other sections if value is not found
 		if (value == null || value.isBlank()) {
 			value = getValueFromSignupActuatorWithUrl(UiConstants.CLASS_PATH_APPLICATION_PROPERTIES, key,
 					UiConstants.SIGNUP_ACTUATOR_URL);
@@ -168,7 +296,6 @@ public class EsignetUtil extends AdminTestUtil {
 					UiConstants.SIGNUP_ACTUATOR_URL);
 		}
 
-		// Try fetching from active profiles if available
 		if (value == null || value.isBlank()) {
 			if (signupActiveProfiles != null && signupActiveProfiles.length() > 0) {
 				for (int i = 0; i < signupActiveProfiles.length(); i++) {
@@ -188,18 +315,15 @@ public class EsignetUtil extends AdminTestUtil {
 			}
 		}
 
-		// Fallback to a default section if no value found
 		if (value == null || value.isBlank()) {
 			value = getValueFromSignupActuatorWithUrl(EsignetConfigManager.getEsignetActuatorPropertySection(), key,
 					UiConstants.SIGNUP_ACTUATOR_URL);
 		}
 
-		// Final fallback to the original section if no value was found
 		if (value == null || value.isBlank()) {
 			value = getValueFromSignupActuatorWithUrl(section, key, UiConstants.SIGNUP_ACTUATOR_URL);
 		}
 
-		// Log the final result or an error message if not found
 		if (value == null || value.isBlank()) {
 			logger.error("Value not found for section: " + section + ", key: " + key);
 		}
@@ -208,23 +332,20 @@ public class EsignetUtil extends AdminTestUtil {
 	}
 
 	public static String getValueFromSignupActuatorWithUrl(String section, String key, String url) {
-		// Generate cache key based on the url, section, and key
 		String actuatorCacheKey = url + section + key;
 		String value = actuatorValueCache.get(actuatorCacheKey);
 
 		if (value != null && !value.isEmpty()) {
-			return value; // Return cached value if available
+			return value;
 		}
 
 		try {
-			// Fetch the actuator response array if not already populated
 			if (signupActuatorResponseArray == null) {
 				Response response = RestClient.getRequest(url, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
 				JSONObject responseJson = new JSONObject(response.getBody().asString());
 				signupActuatorResponseArray = responseJson.getJSONArray("propertySources");
 			}
 
-			// Search through the property sources for the section
 			for (int i = 0, size = signupActuatorResponseArray.length(); i < size; i++) {
 				JSONObject eachJson = signupActuatorResponseArray.getJSONObject(i);
 				if (eachJson.get("name").toString().contains(section)) {
@@ -238,7 +359,6 @@ public class EsignetUtil extends AdminTestUtil {
 				}
 			}
 
-			// Cache the retrieved value
 			if (value != null && !value.isEmpty()) {
 				actuatorValueCache.put(actuatorCacheKey, value);
 			}
@@ -253,6 +373,33 @@ public class EsignetUtil extends AdminTestUtil {
 		}
 	}
 
+	private static Boolean signupServiceDeployed = null;
+
+	/**
+	 * Cached reachability probe for the signup service actuator. The end-to-end registration
+	 * scenario (and every scenario that reuses its phone number) needs this to fail fast with a
+	 * skip rather than an NPE/timeout when signup isn't deployed in the environment.
+	 *
+	 * Confirmed live for this environment two independent ways: this actuator call 404s (no
+	 * signupUrl configured, and Thunder has no Spring actuator at all regardless), AND navigating a
+	 * real browser to https://esignet-go.esqa.mosip.net/signup renders the SPA's own client-side
+	 * "Page Not Found" page. Signup genuinely isn't deployed here, not just unreachable by this check.
+	 */
+	public static boolean isSignupServiceDeployed() {
+		if (signupServiceDeployed == null) {
+			try {
+				Response response = RestClient.getRequest(UiConstants.SIGNUP_ACTUATOR_URL, MediaType.APPLICATION_JSON,
+						MediaType.APPLICATION_JSON);
+				signupServiceDeployed = response != null && response.getStatusCode() == 200;
+			} catch (Exception e) {
+				logger.warn("Signup service actuator unreachable at " + UiConstants.SIGNUP_ACTUATOR_URL
+						+ " - treating signup service as not deployed: " + e.getMessage());
+				signupServiceDeployed = false;
+			}
+		}
+		return signupServiceDeployed;
+	}
+
 	public static JSONArray getActiveProfilesFromActuator(String url, String key) {
 		JSONArray activeProfiles = null;
 
@@ -260,7 +407,6 @@ public class EsignetUtil extends AdminTestUtil {
 			Response response = RestClient.getRequest(url, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
 			JSONObject responseJson = new JSONObject(response.getBody().asString());
 
-			// If the key exists in the response, return the associated JSONArray
 			if (responseJson.has(key)) {
 				activeProfiles = responseJson.getJSONArray(key);
 			} else {
@@ -268,7 +414,6 @@ public class EsignetUtil extends AdminTestUtil {
 			}
 
 		} catch (Exception e) {
-			// Handle other errors like network issues, etc.
 			logger.error("Error fetching active profiles from the actuator: " + e.getMessage());
 		}
 
@@ -286,10 +431,7 @@ public class EsignetUtil extends AdminTestUtil {
 			logger.info("Phone Number is not generated with regex: " + e);
 		}
 
-		String countryCode = regex.substring(regex.indexOf('\\') + 1, regex.indexOf('['));
-		phoneNumber = phoneNumber.replace(countryCode, "");
-
-		return phoneNumber;
+		return stripCountryCode(phoneNumber, regex);
 	}
 
 	public static String getPasswordPattern() {
@@ -426,6 +568,108 @@ public class EsignetUtil extends AdminTestUtil {
 		return getRegexForField("fullName", langCode);
 	}
 
+	/** KBI form schema for the current transaction (set via {@link ClaimsUtil#parseFromUrl(String)}). */
+	public static JSONArray getKbiFieldSchema() {
+		JSONObject configs = ClaimsUtil.getConfigs();
+		if (configs == null) {
+			return new JSONArray();
+		}
+		JSONObject kbi = configs.optJSONObject("auth.factor.kbi.field-details");
+		if (kbi == null) {
+			return new JSONArray();
+		}
+		JSONArray schema = kbi.optJSONArray("schema");
+		return schema != null ? schema : new JSONArray();
+	}
+
+	/** Ordered list of field ids declared in the current transaction's KBI form schema. */
+	public static List<String> getKbiFieldIds() {
+		JSONArray schema = getKbiFieldSchema();
+		List<String> ids = new ArrayList<>();
+		for (int i = 0; i < schema.length(); i++) {
+			JSONObject field = schema.optJSONObject(i);
+			String id = field != null ? field.optString("id", null) : null;
+			if (id != null && !id.isBlank()) {
+				ids.add(id);
+			}
+		}
+		logger.info("KBI schema field ids: " + ids);
+		return ids;
+	}
+
+	/** The schema-declared label for a KBI field in the given language code (e.g. "eng"), or null. */
+	public static String getKbiFieldLabel(String fieldId, String langCode) {
+		JSONObject field = findKbiField(fieldId);
+		JSONObject labelName = field != null ? field.optJSONObject("labelName") : null;
+		return labelName != null ? labelName.optString(langCode, null) : null;
+	}
+
+	/** Schema-declared option labels for a dropdown KBI field, keyed by subType (or id) and falling back to English. */
+	public static List<String> getKbiDropdownOptionLabels(String fieldId, String langCode) {
+		JSONObject configs = ClaimsUtil.getConfigs();
+		JSONObject kbi = configs != null ? configs.optJSONObject("auth.factor.kbi.field-details") : null;
+		JSONObject allowedValues = kbi != null ? kbi.optJSONObject("allowedValues") : null;
+		JSONObject field = findKbiField(fieldId);
+		if (allowedValues == null || field == null) {
+			return new ArrayList<>();
+		}
+		JSONObject values = allowedValues.optJSONObject(field.optString("subType", fieldId));
+		if (values == null) {
+			values = allowedValues.optJSONObject(fieldId);
+		}
+		if (values == null) {
+			return new ArrayList<>();
+		}
+		List<String> labels = new ArrayList<>();
+		for (String key : values.keySet()) {
+			JSONObject label = values.optJSONObject(key);
+			if (label == null) {
+				continue;
+			}
+			String text = label.optString(langCode, null);
+			if (text == null || text.isBlank()) {
+				text = label.optString("eng", null);
+			}
+			if (text != null && !text.isBlank()) {
+				labels.add(text);
+			}
+		}
+		return labels;
+	}
+
+	/** Whether the current transaction's schema marks a KBI field as required. */
+	public static boolean isKbiFieldRequired(String fieldId) {
+		JSONObject field = findKbiField(fieldId);
+		return field != null && field.optBoolean("required", false);
+	}
+
+	/** Validators (regex + per-language error) declared for a KBI field, or empty. */
+	public static JSONArray getKbiFieldValidators(String fieldId) {
+		JSONObject field = findKbiField(fieldId);
+		JSONArray validators = field != null ? field.optJSONArray("validators") : null;
+		return validators != null ? validators : new JSONArray();
+	}
+
+	/** The schema's generic "this field is required" message, in the given language, or null. */
+	public static String getKbiRequiredErrorMessage(String langCode) {
+		JSONObject configs = ClaimsUtil.getConfigs();
+		JSONObject kbi = configs != null ? configs.optJSONObject("auth.factor.kbi.field-details") : null;
+		JSONObject errors = kbi != null ? kbi.optJSONObject("errors") : null;
+		JSONObject required = errors != null ? errors.optJSONObject("required") : null;
+		return required != null ? required.optString(langCode, null) : null;
+	}
+
+	private static JSONObject findKbiField(String fieldId) {
+		JSONArray schema = getKbiFieldSchema();
+		for (int i = 0; i < schema.length(); i++) {
+			JSONObject field = schema.optJSONObject(i);
+			if (field != null && fieldId.equals(field.optString("id"))) {
+				return field;
+			}
+		}
+		return null;
+	}
+
 	public static class FullName {
 		public String english;
 		public String khmer;
@@ -435,12 +679,14 @@ public class EsignetUtil extends AdminTestUtil {
 		String enRegex = getRegexForFullName("en");
 		String kmRegex = getRegexForFullName("km");
 
+		int enMin = extractMinLength(enRegex);
 		int enMax = extractMaxLength(enRegex);
+		int kmMin = extractMinLength(kmRegex);
 		int kmMax = extractMaxLength(kmRegex);
 
 		FullName fullName = new FullName();
-		fullName.english = generateEnglishName(enMax);
-		fullName.khmer = generateKhmerName(kmMax);
+		fullName.english = generateEnglishName(enMin, enMax);
+		fullName.khmer = generateKhmerName(kmMin, kmMax);
 
 		return fullName;
 	}
@@ -467,29 +713,53 @@ public class EsignetUtil extends AdminTestUtil {
 		return extractLength(regex, false);
 	}
 
-	public static String generateEnglishName(int maxLength) {
-		String letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ";
-		Random random = new Random();
-		int length = 2 + random.nextInt(Math.max(1, maxLength - 1));
-		StringBuilder name = new StringBuilder();
-		name.append((char) ('A' + random.nextInt(26)));
-		for (int i = 1; i < length; i++) {
-			name.append(letters.charAt(random.nextInt(letters.length())));
-		}
-		return name.toString().trim();
+	private static int targetNameLength(int minLength, int maxLength, Random random) {
+		int min = Math.max(minLength, 2);
+		int max = Math.max(min, maxLength);
+		return min + random.nextInt(max - min + 1);
 	}
 
-	public static String generateKhmerName(int maxLength) {
+	/**
+	 * Letters only, plus single spaces between "words" - never a leading/trailing/doubled space,
+	 * and always exactly targetLength characters, so trimming can never silently drop the result
+	 * below the schema's minimum length (extractMinLength was previously computed but unused).
+	 */
+	public static String generateEnglishName(int minLength, int maxLength) {
+		String letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 		Random random = new Random();
-		int length = 2 + random.nextInt(Math.max(1, maxLength - 1));
+		int targetLength = targetNameLength(minLength, maxLength, random);
+
 		StringBuilder name = new StringBuilder();
+		name.append((char) ('A' + random.nextInt(26)));
+		while (name.length() < targetLength) {
+			boolean canInsertSpace = name.length() < targetLength - 1 && name.charAt(name.length() - 1) != ' ';
+			if (canInsertSpace && random.nextInt(6) == 0) {
+				name.append(' ');
+			} else {
+				name.append(letters.charAt(random.nextInt(letters.length())));
+			}
+		}
+		return name.toString();
+	}
 
-		int[][] ranges = { { 0x1780, 0x17FF }, { 0x19E0, 0x19FF }, };
+	/**
+	 * Khmer independent consonants only (U+1780-U+17A2) - these are valid standalone base
+	 * characters. Deliberately excludes: combining vowel signs/diacritics elsewhere in the Khmer
+	 * block, which are only valid *following* a consonant and produce malformed sequences on their
+	 * own; and the separate Khmer Symbols block (U+19E0-U+19FF), which is lunar calendar date
+	 * glyphs, not name characters at all - the previous version drew from both, which is the likely
+	 * cause of "invalid name" validation failures.
+	 */
+	public static String generateKhmerName(int minLength, int maxLength) {
+		Random random = new Random();
+		int targetLength = targetNameLength(minLength, maxLength, random);
 
-		for (int i = 0; i < length; i++) {
-			int[] range = ranges[random.nextInt(ranges.length)];
-			int codePoint = range[0] + random.nextInt(range[1] - range[0] + 1);
+		int consonantStart = 0x1780;
+		int consonantEnd = 0x17A2;
 
+		StringBuilder name = new StringBuilder();
+		for (int i = 0; i < targetLength; i++) {
+			int codePoint = consonantStart + random.nextInt(consonantEnd - consonantStart + 1);
 			name.append((char) codePoint);
 		}
 		return name.toString();
@@ -524,6 +794,109 @@ public class EsignetUtil extends AdminTestUtil {
 		public static void setFullName(String reisteredFullName) {
 			registeredFullName = reisteredFullName;
 		}
+	}
+
+	/**
+	 * Login-phone source for every scenario except the end-to-end registration flow itself: reads
+	 * the phone number the "Adding Identity" prerequisite generated (mosipid: AddIdentity.yml,
+	 * mock: AddIdentityMock/AddIdentity.yml) instead of depending on the real signup UI having run.
+	 * The cache key mirrors AdminTestUtil#getAutogenIdKeyName, which strips the testcase name down
+	 * to everything after its first underscore before appending the field name.
+	 */
+	public static String getPrerequisiteRegisteredPhoneNumber() {
+		String configuredPhoneNumber = EsignetConfigManager.getproperty("uinPhoneNumber");
+		if (configuredPhoneNumber != null && !configuredPhoneNumber.isBlank()) {
+			return configuredPhoneNumber.trim();
+		}
+
+		boolean isMock = "mock".equalsIgnoreCase(getPluginName());
+		String cacheKey = isMock ? "AddIdentity_Valid_Parameters_smoke_Pos_UIN"
+				: "AddIdentity_withValidParameters_smoke_Pos_PHONE";
+		String phoneNumber = autoGeneratedIDValueCache.get(cacheKey);
+		String schemaSource = isMock ? getMockIdentityFieldPattern("individualId") : phoneSchemaRegex;
+		return stripCountryCode(phoneNumber, schemaSource);
+	}
+
+	public static final String PERPETUAL_VID_CACHE_KEY = "Generate_Perpetual_VID_Valid_Smoke_sid_vid";
+	public static final String TEMPORARY_VID_CACHE_KEY = "Generate_Temporary_VID_Valid_Smoke_sid_vid";
+
+	public static String getPrerequisitePerpetualVid() {
+		return getPrerequisiteVidFromConfigOrCache(0, PERPETUAL_VID_CACHE_KEY);
+	}
+
+	public static String getPrerequisiteTemporaryVid() {
+		return getPrerequisiteVidFromConfigOrCache(1, TEMPORARY_VID_CACHE_KEY);
+	}
+
+	public static boolean arePrerequisiteVidsAvailable() {
+		String vid1 = getPrerequisitePerpetualVid();
+		String vid2 = getPrerequisiteTemporaryVid();
+		return vid1 != null && !vid1.isBlank() && vid2 != null && !vid2.isBlank();
+	}
+
+	private static String getPrerequisiteVidFromConfigOrCache(int configIndex, String cacheKey) {
+		String configuredVids = EsignetConfigManager.getproperty("vid");
+		if (configuredVids != null && !configuredVids.isBlank()) {
+			String[] vidList = configuredVids.split(",");
+			if (configIndex < vidList.length) {
+				return vidList[configIndex].trim();
+			}
+			return null;
+		}
+		return autoGeneratedIDValueCache.get(cacheKey);
+	}
+
+	private static final Map<String, String> mockIdentityFieldPatternCache = new ConcurrentHashMap<>();
+
+	private static String getMockIdentityFieldPattern(String fieldName) {
+		return mockIdentityFieldPatternCache.computeIfAbsent(fieldName, field -> {
+			try {
+				String schemaStr = getMockIdentitySchema();
+				Matcher matcher = Pattern
+						.compile("\"" + field + "\"\\s*:\\s*\\{[^{}]*\"pattern\"\\s*:\\s*\"([^\"]+)\"",
+								Pattern.CASE_INSENSITIVE)
+						.matcher(schemaStr);
+				String pattern = matcher.find() ? matcher.group(1) : "";
+				if (pattern.isEmpty()) {
+					logger.warn("Could not find a \"" + field
+							+ "\" field with a \"pattern\" in the mock identity schema - country code stripping "
+							+ "will be skipped for the mock-generated value");
+				}
+				return pattern;
+			} catch (Exception e) {
+				logger.warn("Failed to extract " + field + " pattern from mock identity schema: " + e.getMessage());
+				return "";
+			}
+		});
+	}
+
+	private static final Pattern COUNTRY_CODE_PATTERN = Pattern.compile("\\+\\]?(\\d+)");
+
+	/**
+	 * AddIdentity generates the phone number straight off the ID schema's validator regex (E.164,
+	 * country code included) because that's what the identity-creation API requires. The esignet
+	 * login field expects only the local number - the UI selects the country code separately - so
+	 * whatever country code this deployment's schema actually uses has to be stripped here. Derived
+	 * live from the same regex rather than a hardcoded country list, since that regex is the
+	 * environment's actual source of truth and can differ per deployment.
+	 */
+	private static String stripCountryCode(String phoneNumber, String schemaRegex) {
+		if (phoneNumber == null || phoneNumber.isBlank()) {
+			return phoneNumber;
+		}
+		if (schemaRegex != null && !schemaRegex.isBlank()) {
+			Matcher matcher = COUNTRY_CODE_PATTERN.matcher(schemaRegex);
+			if (matcher.find()) {
+				String countryCode = "+" + matcher.group(1);
+				if (phoneNumber.startsWith(countryCode)) {
+					return phoneNumber.substring(countryCode.length());
+				}
+				logger.warn("Derived country code does not prefix the phone number; returning it unchanged");
+				return phoneNumber;
+			}
+		}
+		logger.warn("Could not derive a country code from the phone schema regex; returning the phone number unchanged");
+		return phoneNumber;
 	}
 
 	public static String getRegexForField(String fieldId) {
@@ -575,7 +948,14 @@ public class EsignetUtil extends AdminTestUtil {
 	}
 
 	public static String generateValueFromRegex(String regex) {
+		return generateValueFromRegex(regex, -1);
+	}
+
+	public static String generateValueFromRegex(String regex, int exactLength) {
 		if (regex == null || regex.isEmpty()) {
+			if (exactLength > 0) {
+				throw new IllegalArgumentException("Regex is required when exactLength is specified");
+			}
 			return "defaultValue";
 		}
 
@@ -594,7 +974,9 @@ public class EsignetUtil extends AdminTestUtil {
 		}
 
 		int min = 8, max = 8;
-		if (regex.contains("{") && regex.contains("}")) {
+		if (exactLength > 0) {
+			min = max = exactLength;
+		} else if (regex.contains("{") && regex.contains("}")) {
 			String range = regex.substring(regex.indexOf('{') + 1, regex.indexOf('}'));
 			String[] parts = range.split(",");
 			try {
@@ -612,6 +994,10 @@ public class EsignetUtil extends AdminTestUtil {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < length; i++) {
 			sb.append(chars.charAt(random.nextInt(chars.length())));
+		}
+
+		if (exactLength > 0 && sb.length() > 0 && sb.charAt(0) == '0' && chars.toString().equals("0123456789")) {
+			sb.setCharAt(0, (char) ('1' + random.nextInt(9)));
 		}
 
 		return sb.toString();
@@ -651,7 +1037,7 @@ public class EsignetUtil extends AdminTestUtil {
 		long randomDays = ThreadLocalRandom.current().nextLong(daysRange);
 		LocalDate dob = earliest.plusDays(randomDays);
 
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd", Locale.ENGLISH);
 		return dob.format(formatter);
 	}
 
@@ -663,16 +1049,78 @@ public class EsignetUtil extends AdminTestUtil {
 		triggerESignetKeyGenForPAR = value;
 	}
 
-	public static void getSupportedLanguage() {
+	private static boolean getTriggerESignetKeyGenForPARPurposeLogin() {
+		return triggerESignetKeyGenForPARPurposeLogin;
+	}
 
-		if (EsignetConfigManager.getproperty("esignetSupportedLanguage") != null) {
-			BaseTestCase.languageList
-					.add(EsignetConfigManager.getproperty(ESignetConstants.ESIGNET_SUPPORTED_LANGUAGE));
-			logger.info("Supported Language = "
-					+ EsignetConfigManager.getproperty(ESignetConstants.ESIGNET_SUPPORTED_LANGUAGE));
-		} else {
-			logger.error("Language not found");
+	private static void setTriggerESignetKeyGenForPARPurposeLogin(boolean value) {
+		triggerESignetKeyGenForPARPurposeLogin = value;
+	}
+
+	private static boolean getTriggerESignetKeyGenForPARPurposeLink() {
+		return triggerESignetKeyGenForPARPurposeLink;
+	}
+
+	private static void setTriggerESignetKeyGenForPARPurposeLink(boolean value) {
+		triggerESignetKeyGenForPARPurposeLink = value;
+	}
+
+	private static boolean getTriggerESignetKeyGenForPARPurposeNone() {
+		return triggerESignetKeyGenForPARPurposeNone;
+	}
+
+	private static void setTriggerESignetKeyGenForPARPurposeNone(boolean value) {
+		triggerESignetKeyGenForPARPurposeNone = value;
+	}
+
+	private static boolean getTriggerESignetKeyGenForPARNoPurpose() {
+		return triggerESignetKeyGenForPARNoPurpose;
+	}
+
+	private static void setTriggerESignetKeyGenForPARNoPurpose(boolean value) {
+		triggerESignetKeyGenForPARNoPurpose = value;
+	}
+
+	private static boolean getTriggerESignetKeyGenForPARNoTitle() {
+		return triggerESignetKeyGenForPARNoTitle;
+	}
+
+	private static void setTriggerESignetKeyGenForPARNoTitle(boolean value) {
+		triggerESignetKeyGenForPARNoTitle = value;
+	}
+
+	private static boolean getTriggerESignetKeyGenForPARSingleAcrValue() {
+		return triggerESignetKeyGenForPARSingleAcrValue;
+	}
+
+	private static void setTriggerESignetKeyGenForPARSingleAcrValue(boolean value) {
+		triggerESignetKeyGenForPARSingleAcrValue = value;
+	}
+
+	private static boolean getTriggerESignetKeyGenForPAREmptyTitle() {
+		return triggerESignetKeyGenForPAREmptyTitle;
+	}
+
+	private static void setTriggerESignetKeyGenForPAREmptyTitle(boolean value) {
+		triggerESignetKeyGenForPAREmptyTitle = value;
+	}
+
+	public static void getSupportedLanguage() {
+		List<String> appLanguages = LanguageUtil.supportedLanguages;
+		if (appLanguages == null || appLanguages.isEmpty()) {
+			throw new IllegalStateException(
+					"No supported languages found from the eSignet app locales (localeUrl + locales/default.json)");
 		}
+		BaseTestCase.languageList.clear();
+		if (appLanguages.contains("eng")) {
+			BaseTestCase.languageList.add("eng");
+		}
+		for (String lang : appLanguages) {
+			if (!"eng".equals(lang) && !BaseTestCase.languageList.contains(lang)) {
+				BaseTestCase.languageList.add(lang);
+			}
+		}
+		logger.info("Supported Language (from application locales) = " + BaseTestCase.languageList);
 	}
 
 	public static String inputstringKeyWordHandler(String jsonString, String testCaseName) {
@@ -689,15 +1137,95 @@ public class EsignetUtil extends AdminTestUtil {
 					String.valueOf(Calendar.getInstance().getTimeInMillis()));
 		}
 
-		if (jsonString.contains("$CLIENT_ASSERTION_PAR_JWT$")) {
-			String oidcJWKKeyString = JWKKeyUtil.getJWKKey(OIDC_JWK_FOR_PAR);
-			logger.info("oidcJWKKeyString =" + oidcJWKKeyString);
+		jsonString = processClientAssertion(jsonString, "$CLIENT_ASSERTION_PAR_JWT$", OIDC_JWK_FOR_PAR);
+
+		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR$", OIDC_JWK_FOR_PAR);
+
+		jsonString = processClientAssertion(jsonString, "$CLIENT_ASSERTION_PAR_JWT_PURPOSE_LOGIN$",
+				OIDC_JWK_FOR_PAR_PURPOSE_LOGIN);
+
+		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_PURPOSE_LOGIN$", OIDC_JWK_FOR_PAR_PURPOSE_LOGIN);
+
+		jsonString = processClientAssertion(jsonString, "$CLIENT_ASSERTION_PAR_JWT_PURPOSE_LINK$",
+				OIDC_JWK_FOR_PAR_PURPOSE_LINK);
+
+		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_PURPOSE_LINK$", OIDC_JWK_FOR_PAR_PURPOSE_LINK);
+
+		jsonString = processClientAssertion(jsonString, "$CLIENT_ASSERTION_PAR_JWT_PURPOSE_VERIFY$",
+				OIDC_JWK_FOR_PAR_PURPOSE_VERIFY);
+
+		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_PURPOSE_VERIFY$", OIDC_JWK_FOR_PAR_PURPOSE_VERIFY);
+
+		jsonString = processClientAssertion(jsonString, "$CLIENT_ASSERTION_PAR_JWT_PURPOSE_NONE$",
+				OIDC_JWK_FOR_PAR_PURPOSE_NONE);
+
+		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_PURPOSE_NONE$", OIDC_JWK_FOR_PAR_PURPOSE_NONE);
+
+		jsonString = processClientAssertion(jsonString, "$CLIENT_ASSERTION_PAR_JWT_NO_PURPOSE$",
+				OIDC_JWK_FOR_PAR_NO_PURPOSE);
+
+		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_NO_PURPOSE$", OIDC_JWK_FOR_PAR_NO_PURPOSE);
+
+		jsonString = processClientAssertion(jsonString, "$CLIENT_ASSERTION_PAR_JWT_NO_TITLE$",
+				OIDC_JWK_FOR_PAR_NO_TITLE);
+
+		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_NO_TITLE$", OIDC_JWK_FOR_PAR_NO_TITLE);
+
+		jsonString = processClientAssertion(jsonString, "$CLIENT_ASSERTION_PAR_JWT_EMPTY_TITLE$",
+				OIDC_JWK_FOR_PAR_EMPTY_TITLE);
+
+		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_EMPTY_TITLE$", OIDC_JWK_FOR_PAR_EMPTY_TITLE);
+
+		jsonString = processClientAssertion(jsonString, "$CLIENT_ASSERTION_PAR_JWT_SINGLE_ACR_VALUE$",
+				OIDC_JWK_FOR_PAR_SINGLE_ACR_VALUE);
+
+		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_SINGLE_ACR_VALUE$",
+				OIDC_JWK_FOR_PAR_SINGLE_ACR_VALUE);
+
+		jsonString = processClientAssertion(jsonString, "$CLIENT_ASSERTION_PAR_JWT_PAR_REQUIRED$",
+				OIDC_JWK_FOR_PAR_REQUIRED);
+
+		jsonString = processJWKKey(jsonString, "$OIDC_JWK_KEY_PAR_REQUIRED$", OIDC_JWK_FOR_PAR_REQUIRED);
+
+		if (jsonString.contains("$ESIGNET_REDIRECT_URI$")) {
+			jsonString = replaceKeywordWithValue(jsonString, "$ESIGNET_REDIRECT_URI$",
+					EsignetConfigManager.getproperty("baseurl") + "userprofile");
+		}
+
+		if (jsonString.contains("$POLICYNUMBERFORSUNBIRDRC$")) {
+			jsonString = replaceKeywordWithValue(jsonString, "$POLICYNUMBERFORSUNBIRDRC$", getSunBirdRPolicyNumber());
+		}
+
+		if (jsonString.contains("$FULLNAMEFORSUNBIRDRC$")) {
+			jsonString = replaceKeywordWithValue(jsonString, "$FULLNAMEFORSUNBIRDRC$", getSunBirdRFullName());
+		}
+
+		if (jsonString.contains("$DOBFORSUNBIRDRC$")) {
+			jsonString = replaceKeywordWithValue(jsonString, "$DOBFORSUNBIRDRC$", getSunBirdRDob());
+		}
+
+		return jsonString;
+
+	}
+
+	private static String processClientAssertion(String jsonString, String placeholder, String jwkKeyName) {
+
+		if (jsonString.contains(placeholder)) {
+
+			String keyString = JWKKeyUtil.getJWKKey(jwkKeyName);
+			if (keyString == null) {
+				logger.warn("No cached JWK for key=" + jwkKeyName
+						+ " - generating one now (its client-creation testcase was likely skipped)");
+				JWKKeyUtil.generateAndCacheJWKKey(jwkKeyName);
+				keyString = JWKKeyUtil.getJWKKey(jwkKeyName);
+			}
+			RSAKey rsaKey;
+
 			try {
-				oidc_JWK_Key_For_PAR = RSAKey.parse(oidcJWKKeyString);
-				logger.info("oidc_JWK_Key_For_PAR =" + oidc_JWK_Key_For_PAR);
-			} catch (java.text.ParseException e) {
-				logger.error(e.getMessage());
-				throw new RuntimeException("Failed to parse OIDC JWK key for PAR", e);
+				rsaKey = RSAKey.parse(keyString);
+			} catch (Exception e) {
+				throw new RuntimeException(
+						"Failed to parse JWK for placeholder " + placeholder + " (key=" + jwkKeyName + ")", e);
 			}
 
 			JSONObject root = new JSONObject(jsonString);
@@ -710,34 +1238,29 @@ public class EsignetUtil extends AdminTestUtil {
 				jsonString = root.toString();
 			}
 
-			String tempUrl = getValueFromEsignetWellKnownEndPoint(audKey, EsignetConfigManager.getEsignetBaseUrl());
+			String url = getValueFromEsignetWellKnownEndPoint(audKey, EsignetConfigManager.getEsignetBaseUrl());
 
 			if (clientId != null) {
-				jsonString = replaceKeywordWithValue(jsonString, "$CLIENT_ASSERTION_PAR_JWT$",
-						signJWKKey(clientId, oidc_JWK_Key_For_PAR, tempUrl));
-			} else {
-				logger.error("Client ID not found in JSON for $CLIENT_ASSERTION_PAR_JWT$.");
+				jsonString = replaceKeywordWithValue(jsonString, placeholder, signJWKKey(clientId, rsaKey, url));
 			}
-		}
-
-		if (jsonString.contains("$OIDC_JWK_KEY_PAR$")) {
-			String jwkKey = "";
-			if (getTriggerESignetKeyGenForPAR()) {
-				jwkKey = JWKKeyUtil.generateAndCacheJWKKey(OIDC_JWK_FOR_PAR);
-				setTriggerESignetKeyGenForPAR(false);
-			} else {
-				jwkKey = JWKKeyUtil.getJWKKey(OIDC_JWK_FOR_PAR);
-			}
-			jsonString = replaceKeywordWithValue(jsonString, "$OIDC_JWK_KEY_PAR$", jwkKey);
-		}
-
-		if (jsonString.contains("$ESIGNET_REDIRECT_URI$")) {
-			jsonString = replaceKeywordWithValue(jsonString, "$ESIGNET_REDIRECT_URI$",
-					EsignetConfigManager.getproperty("baseurl") + "userprofile");
 		}
 
 		return jsonString;
+	}
 
+	private static final Set<String> generatedJwkKeys = ConcurrentHashMap.newKeySet();
+
+	private static String processJWKKey(String jsonString, String placeholder, String jwkKeyName) {
+		if (!jsonString.contains(placeholder))
+			return jsonString;
+		String jwkKey = generatedJwkKeys.add(jwkKeyName) ? JWKKeyUtil.generateAndCacheJWKKey(jwkKeyName)
+				: JWKKeyUtil.getJWKKey(jwkKeyName);
+		try {
+			jwkKey = RSAKey.parse(jwkKey).toPublicJWK().toJSONString();
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to derive public JWK for placeholder " + placeholder, e);
+		}
+		return replaceKeywordWithValue(jsonString, placeholder, jwkKey);
 	}
 
 	public static String getValueFromEsignetWellKnownEndPoint(String key, String baseURL) {
@@ -753,10 +1276,93 @@ public class EsignetUtil extends AdminTestUtil {
 		}
 	}
 
+
+	private static JSONObject esignetDiscoveryDocument = null;
+
+	/**
+	 * The OIDC discovery document, fetched once per run. Never throws - some deployments (e.g. the
+	 * Thunder/eSignet-go build) 500 on this endpoint server-side; on any failure this logs a warning
+	 * and caches an empty JSONObject, so isParSupported()/isParRequired() fall back to their own safe
+	 * defaults (false) below unless overridden via config.
+	 */
+	private static synchronized JSONObject getEsignetDiscoveryDocument() {
+		if (esignetDiscoveryDocument != null) {
+			return esignetDiscoveryDocument;
+		}
+		String url = EsignetConfigManager.getEsignetBaseUrl()
+				+ EsignetConfigManager.getproperty("esignetWellKnownEndPoint");
+		try {
+			Response response = RestClient.getRequest(url, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
+			esignetDiscoveryDocument = new JSONObject(response.getBody().asString());
+		} catch (Exception e) {
+			logger.warn("Could not fetch/parse the eSignet discovery document from " + url
+					+ " - assuming PAR is not supported/required unless overridden via parSupported/"
+					+ "parRequired in config. Cause: " + e.getMessage());
+			esignetDiscoveryDocument = new JSONObject();
+		}
+		return esignetDiscoveryDocument;
+	}
+
+	/**
+	 * Whether the environment supports the PAR flow, i.e. advertises a pushed authorization request
+	 * endpoint in its discovery document. Prefers the local `parSupported` config value; falls back to
+	 * the discovery document (which itself falls back to false if unreachable).
+	 */
+	public static boolean isParSupported() {
+		String parEndpoint = getEsignetDiscoveryDocument().optString("pushed_authorization_request_endpoint", "");
+		return !parEndpoint.isEmpty();
+	}
+
+	/**
+	 * Whether the environment mandates PAR for every client. When true, even clients that don't set
+	 * require_pushed_authorization_requests must go through PAR - the direct /authorize flow is
+	 * rejected server-side (see AuthorizationServiceImpl#assertPARRequiredIsFalse). Prefers the local
+	 * `parRequired` config value; falls back to the discovery document (which itself falls back to
+	 * false if unreachable).
+	 */
+	public static boolean isParRequired() {
+		return getEsignetDiscoveryDocument().optBoolean("require_pushed_authorization_requests", false);
+	}
+
+	/** KBI is unsupported only under mosipid. */
+	public static boolean isKbiSupportedPlugin() {
+		return !"mosipid".equalsIgnoreCase(getPluginName());
+	}
+
+	private static Integer idTokenExpirySeconds = null;
+
+	public static int getIdTokenExpirySeconds() {
+		if (idTokenExpirySeconds != null) {
+			return idTokenExpirySeconds;
+		}
+
+		String configuredValue = EsignetConfigManager.getProperty("idTokenExpirySeconds", "").trim();
+		if (!configuredValue.isEmpty()) {
+			try {
+				idTokenExpirySeconds = Integer.parseInt(configuredValue);
+				return idTokenExpirySeconds;
+			} catch (NumberFormatException e) {
+				logger.warn("Ignoring idTokenExpirySeconds='" + configuredValue
+						+ "' - not a valid integer; falling back to the eSignet actuator");
+			}
+		}
+
+		String actuatorValue = isEsignetActuatorEnabled()
+				? getValueFromEsignetActuator(EsignetConfigManager.getEsignetActuatorPropertySection(),
+						GlobalConstants.MOSIP_ESIGNET_ID_TOKEN_EXPIRE_SECONDS)
+				: null;
+		if (actuatorValue == null || actuatorValue.isBlank()) {
+			throw new IllegalStateException(
+					"Could not resolve the ID token expiry seconds from config (idTokenExpirySeconds) or the "
+							+ "eSignet actuator (mosip.esignet.id-token-expire-seconds). Set idTokenExpirySeconds "
+							+ "in config.properties for environments without a working eSignet actuator.");
+		}
+		idTokenExpirySeconds = Integer.parseInt(actuatorValue);
+		return idTokenExpirySeconds;
+	}
+
 	public static String signJWKKey(String clientId, RSAKey jwkKey, String tempUrl) {
-		int idTokenExpirySecs = Integer
-				.parseInt(getValueFromEsignetActuator(EsignetConfigManager.getEsignetActuatorPropertySection(),
-						GlobalConstants.MOSIP_ESIGNET_ID_TOKEN_EXPIRE_SECONDS));
+		int idTokenExpirySecs = getIdTokenExpirySeconds();
 		JWSSigner signer;
 
 		try {
@@ -817,8 +1423,20 @@ public class EsignetUtil extends AdminTestUtil {
 		return null;
 	}
 
+	public void writeConfigValueAndSkipIfProvided(String configKey, String testCaseName, String idKeyName) {
+		String configValue = EsignetConfigManager.getproperty(configKey);
+		if (configValue == null || configValue.trim().isEmpty()) {
+			return;
+		}
+		String value = configValue.split(",")[0].trim();
+		writeAutoGeneratedId(testCaseName, idKeyName, value);
+		throw new SkipException(
+				idKeyName + " value is provided in config, skipping " + testCaseName + " generation test case");
+	}
+
 	public static String isTestCaseValidForExecution(TestCaseDTO testCaseDTO) {
 		String testCaseName = testCaseDTO.getTestCaseName();
+		currentTestCaseName = testCaseName;
 
 		int indexof = testCaseName.indexOf("_");
 		String modifiedTestCaseName = testCaseName.substring(indexof + 1);
@@ -834,28 +1452,46 @@ public class EsignetUtil extends AdminTestUtil {
 			throw new SkipException(GlobalConstants.PRE_REQUISITE_FAILED_MESSAGE);
 		}
 
-		if (pluginName.equals("mock")) {
+		String resolvedPluginName = getPluginName();
+		if (resolvedPluginName.equals("mock")) {
 			BaseTestCase.setSupportedIdTypes(Arrays.asList("UIN"));
 
 			String endpoint = testCaseDTO.getEndPoint();
-			if (endpoint.contains("/esignet/") == false && endpoint.contains("/mock-identity-system/") == false) {
+			boolean isSunbirdRegistryEndpoint = endpoint.startsWith("$SUNBIRDBASEURL$");
+			if (!isSunbirdRegistryEndpoint && endpoint.contains("/esignet/") == false
+					&& endpoint.contains("/mock-identity-system/") == false) {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 			}
 
-		} else if (pluginName.equals("mosipid")) {
+		} else if (resolvedPluginName.equals("mosipid")) {
 			getSupportedIdTypesValueFromActuator();
 
 			logger.info("supportedIdType = " + supportedIdType);
 
 			String endpoint = testCaseDTO.getEndPoint();
+			if (endpoint.startsWith("$SUNBIRDBASEURL$")) {
+				throw new SkipException("Skipped: " + testCaseName + " is a Sunbird RC registry call, not applicable under mosipid");
+			}
 			if (endpoint.contains("/mock-identity-system/") == true
 					|| ((testCaseName.equals("ESignetUI_CreateOIDCClient_all_Valid_Smoke_sid"))
 							&& endpoint.contains("/v1/esignet/client-mgmt/client"))) {
 				throw new SkipException(GlobalConstants.FEATURE_NOT_SUPPORTED_MESSAGE);
 			}
+
+			String preconfiguredOidcClientId = EsignetConfigManager.getproperty("oidcClientId");
+			if (preconfiguredOidcClientId != null && !preconfiguredOidcClientId.isBlank()
+					&& OIDC_CLIENT_CHAIN_TESTCASE_PREFIXES.stream().anyMatch(modifiedTestCaseName::startsWith)) {
+				throw new SkipException("oidcClientId is provided in config - skipping " + testCaseName
+						+ " (only needed to create a new OIDC client)");
+			}
 		}
 		return testCaseName;
 	}
+
+	private static final Set<String> OIDC_CLIENT_CHAIN_TESTCASE_PREFIXES = Set.of("DefinePolicyGroup_",
+			"DefinePolicy_", "PublishPolicy_", "PartnerSelfRegistration_", "UploadCACertificate_",
+			"UploadCInterCertificate_", "UploadPartnerCert_", "SubmitPartnerApiKeyRequest_",
+			"ApproveRejectPartnerAPIKeyReq_");
 
 	public static String getAuthTokenFromKeyCloak(String clientId, String clientSecret) {
 		Map<String, String> params = new HashMap<>();
@@ -950,10 +1586,22 @@ public class EsignetUtil extends AdminTestUtil {
 		}
 	}
 
-	public static String generateParRequestUri() throws SecurityXSSException, JsonProcessingException {
+	public static String generateParRequestUri(String clientIdKey, String clientAssertionPlaceholder)
+			throws SecurityXSSException, JsonProcessingException {
+		return generateParRequestUri(clientIdKey, clientAssertionPlaceholder, DEFAULT_ACR_VALUES);
+	}
+
+	public static String generateParRequestUri(String clientIdKey, String clientAssertionPlaceholder, String acrValues)
+			throws SecurityXSSException, JsonProcessingException {
+		return generateParRequestUri(clientIdKey, clientAssertionPlaceholder, acrValues, null);
+	}
+
+	/** @param uiLocales see {@link #generateDirectAuthorizeUrl(String, String, String)}. */
+	public static String generateParRequestUri(String clientIdKey, String clientAssertionPlaceholder, String acrValues,
+			String uiLocales) throws SecurityXSSException, JsonProcessingException {
 
 		String baseUrl = EsignetConfigManager.getproperty("eSignetbaseurl");
-		String parUrl = baseUrl + "/v1/esignet/oauth/par";
+		String parUrl = baseUrl + EsignetConfigManager.getProperty("esignetParEndpoint", "/v1/esignet/oauth/par");
 
 		org.json.simple.JSONObject claimRequest = getRequestJson(CLAIMS_REQUEST);
 		JSONObject requestBody = new JSONObject();
@@ -961,18 +1609,22 @@ public class EsignetUtil extends AdminTestUtil {
 		requestBody.put("display", display);
 		requestBody.put("response_type", responseType);
 		requestBody.put("nonce", "$UNIQUENONCEVALUEFORESIGNET$");
-		requestBody.put("client_id", AdminTestUtil
-				.replaceIdWithAutogeneratedId("$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$", "$ID:"));
+		if (clientIdKey == null || clientIdKey.isEmpty()) {
+			clientIdKey = "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$";
+		}
+		requestBody.put("client_id", AdminTestUtil.replaceIdWithAutogeneratedId(clientIdKey, "$ID:"));
 		requestBody.put("requestTime", "$TIMESTAMP$");
 		requestBody.put("client_assertion_type", client_assertion_type);
 		requestBody.put("claim_locales", claim_locales);
+		if (uiLocales != null && !uiLocales.isBlank()) {
+			requestBody.put("ui_locales", uiLocales);
+		}
 		requestBody.put("claims", claimRequest.toString());
 		requestBody.put("scope", scope);
-		requestBody.put("acr_values",
-				"mosip:idp:acr:generated-code mosip:idp:acr:biometrics mosip:idp:acr:linked-wallet mosip:idp:acr:password");
+		requestBody.put("acr_values", acrValues);
 		requestBody.put("redirect_uri", "$ESIGNET_REDIRECT_URI$");
 		requestBody.put("state", state);
-		requestBody.put("client_assertion", "$CLIENT_ASSERTION_PAR_JWT$");
+		requestBody.put("client_assertion", clientAssertionPlaceholder);
 		requestBody.put("prompt", prompt);
 		requestBody.put("aud_key", aud_key);
 
@@ -992,19 +1644,115 @@ public class EsignetUtil extends AdminTestUtil {
 		return responseJson.getString("request_uri");
 	}
 
-	public static String getIdentityPluginNameFromEsignetActuator() {
-		if (pluginName != null && !pluginName.isBlank()) {
-			return pluginName;
+	/**
+	 * Builds a direct (non-PAR) /authorize URL, carrying every parameter in the query string rather
+	 * than behind a request_uri. Requires no client_assertion, since the client isn't authenticated
+	 * on this browser-facing leg. Only valid for clients that don't set
+	 * require_pushed_authorization_requests - those are forced down the PAR flow server-side.
+	 */
+	public static final String DEFAULT_ACR_VALUES = "mosip:idp:acr:generated-code mosip:idp:acr:biometrics mosip:idp:acr:linked-wallet mosip:idp:acr:password";
+
+	/** acr_value that maps to the KBI (Knowledge-Based Identity) login factor in eSignet. */
+	public static final String KBI_ACR_VALUE = "mosip:idp:acr:knowledge";
+
+	public static String generateDirectAuthorizeUrl(String clientId) throws SecurityXSSException {
+		return generateDirectAuthorizeUrl(clientId, DEFAULT_ACR_VALUES, null);
+	}
+
+	public static String generateDirectAuthorizeUrl(String clientId, String acrValues) throws SecurityXSSException {
+		return generateDirectAuthorizeUrl(clientId, acrValues, null);
+	}
+
+	/** @param uiLocales OIDC ui_locales (e.g. "en"); null to omit, as most callers do. */
+	public static String generateDirectAuthorizeUrl(String clientId, String acrValues, String uiLocales)
+			throws SecurityXSSException {
+		return buildDirectAuthorizeUrl(clientId, scope, true, acrValues, uiLocales);
+	}
+
+	public static String generateDirectAuthorizeUrlWithoutClaims(String clientId, String customScope)
+			throws SecurityXSSException {
+		return buildDirectAuthorizeUrl(clientId, customScope, false, DEFAULT_ACR_VALUES, null);
+	}
+
+	private static String buildDirectAuthorizeUrl(String clientId, String requestedScope, boolean includeClaims,
+			String acrValues, String uiLocales) throws SecurityXSSException {
+
+		String baseUrl = EsignetConfigManager.getproperty("eSignetbaseurl");
+		String redirectUri = EsignetConfigManager.getproperty("baseurl") + "userprofile";
+		String nonce = String.valueOf(Calendar.getInstance().getTimeInMillis());
+
+		Charset utf8 = StandardCharsets.UTF_8;
+		StringBuilder url = new StringBuilder(
+				baseUrl + EsignetConfigManager.getProperty("esignetAuthorizeEndpoint", "/authorize") + "?");
+		url.append("client_id=").append(URLEncoder.encode(clientId, utf8));
+		url.append("&response_type=").append(responseType);
+		url.append("&scope=").append(URLEncoder.encode(requestedScope, utf8));
+		url.append("&redirect_uri=").append(URLEncoder.encode(redirectUri, utf8));
+		url.append("&display=").append(display);
+		url.append("&prompt=").append(prompt);
+		url.append("&nonce=").append(nonce);
+		url.append("&state=").append(state);
+		url.append("&acr_values=").append(URLEncoder.encode(acrValues, utf8));
+		if (includeClaims) {
+			org.json.simple.JSONObject claimRequest = getRequestJson(CLAIMS_REQUEST);
+			url.append("&claims=").append(URLEncoder.encode(claimRequest.toString(), utf8));
 		}
-		pluginName = getValueFromEsignetActuator(ESignetConstants.CLASS_PATH_APPLICATION_PROPERTIES,
+		if (uiLocales != null && !uiLocales.isBlank()) {
+			url.append("&ui_locales=").append(URLEncoder.encode(uiLocales, utf8));
+		}
+
+		return url.toString();
+	}
+
+	private static String serverAuthenticatorPluginName = null;
+
+	private static Boolean esignetActuatorEnabled = null;
+
+	/** Single boolean-config-flag convention for this file: only "true" (case-insensitive) is truthy. */
+	private static boolean parseConfiguredBoolean(String key, boolean defaultWhenBlank) {
+		String value = EsignetConfigManager.getProperty(key, "").trim();
+		return value.isEmpty() ? defaultWhenBlank : Boolean.parseBoolean(value);
+	}
+
+	public static boolean isEsignetActuatorEnabled() {
+		if (esignetActuatorEnabled == null) {
+			esignetActuatorEnabled = parseConfiguredBoolean("esignetActuatorEnabled", true);
+		}
+		return esignetActuatorEnabled;
+	}
+
+	public static String getIdentityPluginNameFromEsignetActuator() {
+		if (serverAuthenticatorPluginName != null && !serverAuthenticatorPluginName.isBlank()) {
+			return serverAuthenticatorPluginName;
+		}
+		if (!isEsignetActuatorEnabled()) {
+			return null;
+		}
+		serverAuthenticatorPluginName = getValueFromEsignetActuator(ESignetConstants.CLASS_PATH_APPLICATION_PROPERTIES,
 				"mosip.esignet.integration.authenticator");
-		return pluginName;
+		return serverAuthenticatorPluginName;
+	}
+
+	/**
+	 * Whether the eSignet server's actual identity authenticator is Sunbird RC (server-side only).
+	 * Prefers the local `sunbirdAuthenticatorActive` config override (true/false) to skip the
+	 * actuator round-trip - needed for deployments with no actuator (esignetActuatorEnabled=false),
+	 * where the actuator-only detection below always reports false regardless of the real server.
+	 */
+	public static boolean isSunbirdAuthenticatorActive() {
+		String configuredValue = EsignetConfigManager.getProperty("sunbirdAuthenticatorActive", "").trim();
+		if (!configuredValue.isEmpty()) {
+			return parseConfiguredBoolean("sunbirdAuthenticatorActive", false);
+		}
+
+		String serverPlugin = getIdentityPluginNameFromEsignetActuator();
+		return serverPlugin != null && serverPlugin.toLowerCase().contains("sunbirdrcauthenticationservice");
 	}
 
 	public static String generateParRequestWithoutNonceAndState() throws SecurityXSSException, JsonProcessingException {
 
 		String baseUrl = EsignetConfigManager.getproperty("eSignetbaseurl");
-		String parUrl = baseUrl + "/v1/esignet/oauth/par";
+		String parUrl = baseUrl + EsignetConfigManager.getProperty("esignetParEndpoint", "/v1/esignet/oauth/par");
 
 		org.json.simple.JSONObject claimRequest = getRequestJson(CLAIMS_REQUEST);
 		JSONObject requestBody = new JSONObject();
@@ -1041,4 +1789,301 @@ public class EsignetUtil extends AdminTestUtil {
 		return responseJson.getString("request_uri");
 	}
 
+
+	private static JSONObject mockIdentitySchemaJson = null;
+
+	private static final Properties MOCK_IDENTITY_VALUE_MAP = new Properties();
+
+	static {
+		try (InputStream is = Thread.currentThread().getContextClassLoader()
+				.getResourceAsStream("config/mockIdentityValueMapping.properties")) {
+			if (is == null) {
+				throw new RuntimeException("mockIdentityValueMapping.properties NOT FOUND in classpath");
+			}
+			MOCK_IDENTITY_VALUE_MAP.load(is);
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to load mockIdentityValueMapping.properties", e);
+		}
+	}
+
+	public static String getMockIdentitySchema() {
+		try {
+			if (mockIdentitySchemaJson != null) {
+				return mockIdentitySchemaJson.toString();
+			}
+
+			String endpoint = properties.getProperty("mockIdentityIdentitySchemaEndpoint");
+			String url = ApplnURI.replace("-internal", "") + endpoint;
+			Response response = RestClient.getRequest(url, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
+
+			mockIdentitySchemaJson = new JSONObject(response.asString());
+
+			return mockIdentitySchemaJson.toString();
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to fetch mock identity schema", e);
+		}
+	}
+
+	public static String generateDynamicMockIdentityRequest(String schemaStr, String testCaseName) {
+		try {
+			JSONObject fullSchema = new JSONObject(schemaStr);
+			JSONObject schemaRoot = fullSchema.has(GlobalConstants.RESPONSE)
+					? fullSchema.getJSONObject(GlobalConstants.RESPONSE)
+					: fullSchema;
+
+			JSONObject identity = (JSONObject) processMockIdentitySchema(schemaRoot, fullSchema,
+					GlobalConstants.REQUEST, null, true, testCaseName);
+
+			return new JSONObject().put(GlobalConstants.REQUEST, identity)
+					.put("requestTime", GlobalConstants.TIMESTAMP).toString();
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to generate dynamic request from schema", e);
+		}
+	}
+
+	private static Object processMockIdentitySchema(JSONObject schema, JSONObject root, String field,
+			String parentField, boolean required, String testCaseName) {
+
+		schema = resolveMockIdentitySchema(schema, root);
+
+		String type = schema.optString("type", "string");
+
+		if (schema.has("type") && schema.get("type") instanceof JSONArray) {
+			JSONArray types = schema.getJSONArray("type");
+			for (int i = 0; i < types.length(); i++) {
+				String candidate = types.getString(i);
+				if ("array".equals(candidate) || "object".equals(candidate)) {
+					type = candidate;
+					break;
+				}
+			}
+		}
+
+		switch (type) {
+
+		case "object":
+			JSONObject obj = new JSONObject();
+			JSONObject props = schema.optJSONObject("properties");
+			JSONArray req = schema.optJSONArray("required");
+
+			if (props != null) {
+				for (String key : props.keySet()) {
+					boolean isReq = req != null && req.toList().contains(key);
+					obj.put(key, processMockIdentitySchema(props.getJSONObject(key), root, key, key, isReq,
+							testCaseName));
+				}
+			}
+			return obj;
+
+		case "array":
+			JSONArray arr = new JSONArray();
+			JSONObject items = schema.optJSONObject("items");
+
+			if (items == null && schema.has("allOf")) {
+				JSONArray allOf = schema.getJSONArray("allOf");
+				for (int i = 0; i < allOf.length(); i++) {
+					JSONObject part = resolveMockIdentitySchema(allOf.getJSONObject(i), root);
+					if (part.has("items")) {
+						items = part.getJSONObject("items");
+						break;
+					}
+				}
+				// Fallback: some schemas express the items schema as the allOf entry itself
+				// (no nested "items" wrapper) rather than wrapping it under an "items" key.
+				if (items == null) {
+					items = allOf.getJSONObject(allOf.length() - 1);
+				}
+			}
+
+			if (items == null)
+				return arr;
+
+			items = resolveMockIdentitySchema(items, root);
+			JSONObject propsArr = items.optJSONObject("properties");
+
+			if (propsArr != null && propsArr.has("language") && propsArr.has("value")) {
+
+				JSONArray langArr = new JSONArray();
+				JSONObject row = new JSONObject();
+				row.put("language", "eng");
+
+				String keyToUse = resolveMockIdentitySchemaKey(field, parentField);
+
+				String propValue = null;
+				if (!"phone".equalsIgnoreCase(keyToUse) && !"individualId".equalsIgnoreCase(keyToUse)) {
+					propValue = MOCK_IDENTITY_VALUE_MAP.getProperty(keyToUse);
+					if (propValue == null) {
+						propValue = MOCK_IDENTITY_VALUE_MAP.getProperty(keyToUse.toLowerCase());
+					}
+				}
+
+				Object val;
+				if (propValue != null && !propValue.trim().isEmpty()) {
+					if ("fullname".equalsIgnoreCase(keyToUse) || "givenname".equalsIgnoreCase(keyToUse)
+							|| "familyname".equalsIgnoreCase(keyToUse)) {
+						propValue = propValue.replaceAll("[^a-zA-Z\\s]", "");
+					}
+					val = propValue;
+				} else {
+					val = generateMockIdentitySchemaValue(propsArr.getJSONObject("value"), keyToUse, testCaseName);
+				}
+
+				row.put("value", val);
+				langArr.put(row);
+				return langArr;
+			}
+
+			arr.put(processMockIdentitySchema(items, root, field, parentField, true, testCaseName));
+			return arr;
+
+		default:
+
+			String keyToUse = resolveMockIdentitySchemaKey(field, parentField);
+
+			String propValue = null;
+			if (!"phone".equalsIgnoreCase(keyToUse) && !"individualId".equalsIgnoreCase(keyToUse)) {
+				propValue = MOCK_IDENTITY_VALUE_MAP.getProperty(keyToUse);
+				if (propValue == null) {
+					propValue = MOCK_IDENTITY_VALUE_MAP.getProperty(keyToUse.toLowerCase());
+				}
+			}
+
+			if (propValue != null && !propValue.trim().isEmpty()) {
+				return propValue;
+			}
+
+			if ("email".equalsIgnoreCase(keyToUse)) {
+				return testCaseName + "@mosip.net";
+			}
+
+			return generateMockIdentitySchemaValue(schema, keyToUse, testCaseName);
+		}
+	}
+
+	private static Object generateMockIdentitySchemaValue(JSONObject schema, String field, String testCaseName) {
+
+		if ("email".equalsIgnoreCase(field)) {
+			return testCaseName + "@mosip.net";
+		}
+
+		if (!"phone".equalsIgnoreCase(field) && !"individualId".equalsIgnoreCase(field)) {
+			String propValue = MOCK_IDENTITY_VALUE_MAP.getProperty(field);
+			if (propValue == null) {
+				propValue = MOCK_IDENTITY_VALUE_MAP.getProperty(field.toLowerCase());
+			}
+			if (propValue != null && !propValue.trim().isEmpty()) {
+				if ("fullname".equalsIgnoreCase(field) || "givenname".equalsIgnoreCase(field)
+						|| "familyname".equalsIgnoreCase(field)) {
+					propValue = propValue.replaceAll("[^a-zA-Z\\s]", "");
+				}
+				return propValue;
+			}
+		}
+
+		if (schema.has("pattern")) {
+			try {
+				String originalPattern = schema.getString("pattern");
+				String strippedPattern = originalPattern.replaceAll("\\(\\?=.*?\\)", "");
+				Pattern compiledOriginal = Pattern.compile(originalPattern);
+
+				String candidate = null;
+				for (int attempt = 0; attempt < 10; attempt++) {
+					candidate = genStringAsperRegex(strippedPattern);
+					if (compiledOriginal.matcher(candidate).matches()) {
+						return candidate;
+					}
+				}
+				logger.warn("Could not generate a value satisfying pattern '" + originalPattern
+						+ "' after stripping lookaheads; falling back.");
+			} catch (Exception ignored) {
+			}
+		}
+
+		if (schema.has("enum")) {
+			JSONArray arr = schema.getJSONArray("enum");
+			return arr.get(0);
+		}
+
+		return "Test_" + field;
+	}
+
+	private static JSONObject resolveMockIdentitySchema(JSONObject schema, JSONObject root) {
+
+		JSONObject result = new JSONObject();
+		JSONObject effectiveRoot = root.has(GlobalConstants.RESPONSE) ? root.getJSONObject(GlobalConstants.RESPONSE)
+				: root;
+
+		if (schema.has("$ref")) {
+			String ref = schema.getString("$ref");
+			Object current = effectiveRoot;
+			for (String part : ref.substring(2).split("/")) {
+				current = ((JSONObject) current).get(part);
+			}
+			result = mergeMockIdentitySchema(result, (JSONObject) current);
+		}
+
+		if (schema.has("allOf")) {
+			JSONArray arr = schema.getJSONArray("allOf");
+			for (int i = 0; i < arr.length(); i++) {
+				result = mergeMockIdentitySchema(result, resolveMockIdentitySchema(arr.getJSONObject(i), effectiveRoot));
+			}
+		}
+
+		JSONObject copy = new JSONObject(schema.toString());
+		copy.remove("$ref");
+		copy.remove("allOf");
+
+		return mergeMockIdentitySchema(result, copy);
+	}
+
+	private static JSONObject mergeMockIdentitySchema(JSONObject base, JSONObject override) {
+		JSONObject result = new JSONObject(base.toString());
+		for (String key : override.keySet()) {
+			Object val = override.get(key);
+			if (result.has(key) && result.get(key) instanceof JSONObject && val instanceof JSONObject) {
+				result.put(key, mergeMockIdentitySchema(result.getJSONObject(key), (JSONObject) val));
+			} else {
+				result.put(key, val);
+			}
+		}
+		return result;
+	}
+
+	private static String resolveMockIdentitySchemaKey(String field, String parentField) {
+		if ("value".equalsIgnoreCase(field) || "items".equalsIgnoreCase(field) || "request".equalsIgnoreCase(field)) {
+			return parentField != null ? parentField : field;
+		}
+		return field;
+	}
+
+	// Ported from apitest-commons' AdminTestUtil (unreleased 1.7.0) rather than depending on it
+	// directly, since Maven Central only publishes through 1.6.0 (see PR #2432 review discussion).
+	public void extractAndStoreMockIdentityDetails(String testCaseName, String requestBody) {
+		try {
+			JSONObject root = new JSONObject(requestBody);
+			JSONObject request = root.has(GlobalConstants.REQUEST) ? root.getJSONObject(GlobalConstants.REQUEST)
+					: root;
+
+			String individualId = request.optString("individualId", null);
+			String email = request.optString("email", null);
+			String phone = request.optString("phone", null);
+
+			if (individualId != null && !individualId.isEmpty()) {
+				writeAutoGeneratedId(testCaseName, "UIN", individualId);
+			}
+			if (email != null && !email.isEmpty()) {
+				writeAutoGeneratedId(testCaseName, "EMAIL", email);
+			}
+			if (phone != null && !phone.isEmpty()) {
+				writeAutoGeneratedId(testCaseName, "PHONE", phone);
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to extract identity details from request", e);
+		}
+	}
+
+	public static String getIdentifierFieldId() {
+		return getValueFromSignupActuator("applicationConfig: [classpath:/application-default.properties]",
+				"mosip.signup.identifier.name");
+	}
 }

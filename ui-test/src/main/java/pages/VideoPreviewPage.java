@@ -1,6 +1,5 @@
 package pages;
 
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -67,7 +66,7 @@ public class VideoPreviewPage extends BasePage {
 	}
 
 	public void clickOnCancelButton() {
-		clickOnElement(cancelButton, "Clicked on cancel button");
+		clickWhenClickable(cancelButton);
 	}
 
 	public boolean isAttentionWarningPopupDisplayed() {
@@ -87,7 +86,7 @@ public class VideoPreviewPage extends BasePage {
 	}
 
 	public void clickOnSignInWithEsignetButton() {
-		clickOnElement(signInWithEsignetButton, "Clicked on sign in with esignet button");
+		clickWhenClickable(signInWithEsignetButton);
 	}
 
 	public boolean isListOfInstructionsDisplayed() {

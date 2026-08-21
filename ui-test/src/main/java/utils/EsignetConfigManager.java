@@ -21,7 +21,6 @@ public class EsignetConfigManager extends io.mosip.testrig.apirig.utils.ConfigMa
 		configManagerLogger.setLevel(Level.WARN);
 
 		Map<String, Object> moduleSpecificPropertiesMap = new HashMap<>();
-		// Load scope specific properties
 		try {
 			Properties configProps = new Properties();
 			try (InputStream inputStream = EsignetConfigManager.class.getClassLoader()
@@ -37,14 +36,12 @@ public class EsignetConfigManager extends io.mosip.testrig.apirig.utils.ConfigMa
 				throw new RuntimeException("Failed to load config.properties file", e);
 			}
 
-			// Convert Properties to Map and add to moduleSpecificPropertiesMap
 			for (String key : configProps.stringPropertyNames()) {
 				moduleSpecificPropertiesMap.put(key, configProps.getProperty(key));
 			}
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 		}
-		// Add module specific properties as well.
 		init(moduleSpecificPropertiesMap);
 	}
 
@@ -68,5 +65,9 @@ public class EsignetConfigManager extends io.mosip.testrig.apirig.utils.ConfigMa
 
 	public static String getDocker() {
 		return getProperty("runDocker", "");
+	}
+
+	public static String getSunBirdBaseURL() {
+		return getProperty("sunBirdBaseURL", "");
 	}
 }

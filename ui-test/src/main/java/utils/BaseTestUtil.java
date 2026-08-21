@@ -90,8 +90,9 @@ public class BaseTestUtil {
 
 			if (browser.equalsIgnoreCase("chrome")) {
 				ChromeOptions chromeOptions = new ChromeOptions();
-				chromeOptions.addArguments("--use-fake-ui-for-media-stream"); // auto allow camera
+				chromeOptions.addArguments("--use-fake-ui-for-media-stream");
 				chromeOptions.addArguments("--use-fake-device-for-media-stream");
+				applyBrowserLocale(chromeOptions, null, null);
 
 				caps.setCapability(ChromeOptions.CAPABILITY, chromeOptions);
 			}
@@ -100,6 +101,7 @@ public class BaseTestUtil {
 				FirefoxOptions firefoxOptions = new FirefoxOptions();
 				firefoxOptions.addPreference("media.navigator.streams.fake", true);
 				firefoxOptions.addPreference("media.navigator.permission.disabled", true);
+				applyBrowserLocale(null, firefoxOptions, null);
 				caps.setCapability(FirefoxOptions.FIREFOX_OPTIONS, firefoxOptions);
 			}
 
@@ -107,6 +109,7 @@ public class BaseTestUtil {
 				EdgeOptions edgeOptions = new EdgeOptions();
 				edgeOptions.addArguments("--use-fake-ui-for-media-stream");
 				edgeOptions.addArguments("--use-fake-device-for-media-stream");
+				applyBrowserLocale(null, null, edgeOptions);
 				caps.setCapability(EdgeOptions.CAPABILITY, edgeOptions);
 			}
 
@@ -124,11 +127,37 @@ public class BaseTestUtil {
 		List<DesiredCapabilities> allCaps = getAllCapabilities();
 		DesiredCapabilities caps = allCaps.stream()
 				.filter(c -> c.getCapability("browserName").toString().equalsIgnoreCase(browserName)).findFirst()
-				.orElse(allCaps.get(0)); // fallback
+				.orElse(allCaps.get(0));
 
 		LOGGER.info("Running on BrowserStack with browser: " + browserName);
 		LOGGER.info("Running with capabilities: " + caps.toString());
 		return new RemoteWebDriver(remoteUrl, caps);
+	}
+
+	private static final Map<String, Object[]> MOBILE_DEVICE_PROFILES = new HashMap<>();
+	static {
+		MOBILE_DEVICE_PROFILES.put("pixel 5", new Object[] { 393, 851, 2.75,
+				"Mozilla/5.0 (Linux; Android 11; Pixel 5) AppleWebKit/537.36 (KHTML, like Gecko) "
+						+ "Chrome/126.0.0.0 Mobile Safari/537.36" });
+	}
+
+	private static Map<String, Object> buildMobileEmulationSettings(String deviceName) {
+		Object[] profile = MOBILE_DEVICE_PROFILES.get(deviceName == null ? "" : deviceName.trim().toLowerCase());
+		if (profile == null) {
+			LOGGER.warning("No deviceMetrics profile for mobileDevice='" + deviceName
+					+ "' - falling back to the Pixel 5 profile. Add an entry to MOBILE_DEVICE_PROFILES for it.");
+			profile = MOBILE_DEVICE_PROFILES.get("pixel 5");
+		}
+
+		Map<String, Object> deviceMetrics = new HashMap<>();
+		deviceMetrics.put("width", profile[0]);
+		deviceMetrics.put("height", profile[1]);
+		deviceMetrics.put("pixelRatio", profile[2]);
+
+		Map<String, Object> mobileEmulation = new HashMap<>();
+		mobileEmulation.put("deviceMetrics", deviceMetrics);
+		mobileEmulation.put("userAgent", profile[3]);
+		return mobileEmulation;
 	}
 
 	public static WebDriver getLocalWebDriverInstance(String browser, boolean isMobile, String deviceName)
@@ -161,9 +190,10 @@ public class BaseTestUtil {
 			logPrefs.enable(LogType.PERFORMANCE, Level.ALL);
 			chromeOptions.setCapability("goog:loggingPrefs", logPrefs);
 
-			chromeOptions.addArguments("--use-fake-ui-for-media-stream"); // auto-allow camera
+			chromeOptions.addArguments("--use-fake-ui-for-media-stream");
 			chromeOptions.addArguments("--use-fake-device-for-media-stream");
 			chromeOptions.addArguments("--enable-media-stream");
+			applyBrowserLocale(chromeOptions, null, null);
 
 			Map<String, Object> prefs = new HashMap<>();
 			Map<String, Object> profile = new HashMap<>();
@@ -173,14 +203,10 @@ public class BaseTestUtil {
 			prefs.put("profile", profile);
 			chromeOptions.setExperimentalOption("prefs", prefs);
 
-			// Enable mobile emulation if requested
 			if (isMobile) {
-				Map<String, String> mobileEmulation = new HashMap<>();
-				mobileEmulation.put("deviceName", deviceName);
-				chromeOptions.setExperimentalOption("mobileEmulation", mobileEmulation);
+				chromeOptions.setExperimentalOption("mobileEmulation", buildMobileEmulationSettings(deviceName));
 			}
 
-			// Always set headless flags if needed
 			if (isHeadless) {
 				LOGGER.info("Running in headless mode");
 				chromeOptions.addArguments("--headless=new");
@@ -188,11 +214,9 @@ public class BaseTestUtil {
 				chromeOptions.addArguments("--window-size=1920x1080");
 			}
 
-			// Always add these for Docker safety
 			chromeOptions.addArguments("--no-sandbox");
 			chromeOptions.addArguments("--disable-dev-shm-usage");
 
-			// Optional: allow Chrome to open a debugging port (harmless)
 			chromeOptions.addArguments("--remote-debugging-port=0");
 
 			LOGGER.info("Chrome args: " + chromeOptions);
@@ -204,6 +228,7 @@ public class BaseTestUtil {
 			FirefoxOptions firefoxOptions = new FirefoxOptions();
 			firefoxOptions.addPreference("media.navigator.streams.fake", true);
 			firefoxOptions.addPreference("media.navigator.permission.disabled", true);
+			applyBrowserLocale(null, firefoxOptions, null);
 
 			if (isHeadless)
 				firefoxOptions.addArguments("--headless");
@@ -217,6 +242,7 @@ public class BaseTestUtil {
 			edgeOptions.addArguments("--use-fake-ui-for-media-stream");
 			edgeOptions.addArguments("--use-fake-device-for-media-stream");
 			edgeOptions.addArguments("--enable-media-stream");
+			applyBrowserLocale(null, null, edgeOptions);
 
 			if (isHeadless)
 				edgeOptions.addArguments("--headless=new");
@@ -266,6 +292,24 @@ public class BaseTestUtil {
 
 	public static String getThreadLocalLanguage() {
 		return threadLocalLanguage.get();
+	}
+
+	private static void applyBrowserLocale(ChromeOptions chromeOptions, FirefoxOptions firefoxOptions,
+			EdgeOptions edgeOptions) {
+		String locale = LanguageUtil.getNeutralBrowserLocale();
+		if (locale == null || locale.isBlank()) {
+			return;
+		}
+		if (chromeOptions != null) {
+			chromeOptions.addArguments("--lang=" + locale);
+		}
+		if (firefoxOptions != null) {
+			firefoxOptions.addPreference("intl.accept_languages", locale);
+		}
+		if (edgeOptions != null) {
+			edgeOptions.addArguments("--lang=" + locale);
+		}
+		LOGGER.info("Browser locale configured to: " + locale);
 	}
 
 }

@@ -16,22 +16,44 @@ public class MultiLanguagePage extends BasePage {
         super(driver);
     }
 
-    @FindBy(id = "language_selection")
+    @FindBy(css = "nav button[aria-haspopup='listbox']")
     WebElement languageSelection;
 
     public void clickOnLanguageSelection() {
+        ensureFreshEsignetLoginPage(By.cssSelector("nav button[aria-haspopup='listbox']"));
         clickOnElement(languageSelection,"Clicked on language selection option");
     }
 
     public void clickOnLanguage() {
         String langCode = BaseTestUtil.getThreadLocalLanguage();
-        WebElement language = driver.findElement(By.xpath("//div[text()='" + LanguageUtil.getDisplayName(langCode) +"']"));
+        By optionLocator = By.xpath(
+                "//button[@role='option' and normalize-space()='" + LanguageUtil.getDisplayName(langCode) + "']");
+        WebElement language;
+        try {
+            language = waitForElementVisible(optionLocator);
+        } catch (org.openqa.selenium.TimeoutException e) {
+            clickOnElement(languageSelection, "Re-clicked language selection option (retry)");
+            language = waitForElementVisible(optionLocator);
+        }
         clickOnElement(language,"Selected the given language");
     }
 
     public String getLanguageFromCookie() {
+        org.openqa.selenium.Cookie cookie = driver.manage().getCookieNamed("thunderid-i18n-language");
+        if (cookie == null) {
+            cookie = driver.manage().getCookieNamed("i18nextLng");
+        }
+        return cookie != null ? cookie.getValue() : null;
+    }
+
+    public String getNavigatorLanguage() {
         JavascriptExecutor js = (JavascriptExecutor) driver;
-        return (String) js.executeScript("return window.localStorage.getItem('i18nextLng');");
+        return (String) js.executeScript("return navigator.language || navigator.userLanguage;");
+    }
+
+    public String getDisplayedLanguageSelection() {
+        waitForElementVisible(languageSelection);
+        return languageSelection.getText().trim();
     }
 
 }

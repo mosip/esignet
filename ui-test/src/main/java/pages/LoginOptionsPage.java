@@ -9,19 +9,30 @@ import java.util.List;
 import java.util.Map;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import utils.EsignetConfigManager;
+import utils.ResourceBundleLoader;
+
 public class LoginOptionsPage extends BasePage {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(LoginOptionsPage.class);
 
 	public LoginOptionsPage(WebDriver driver) {
 		super(driver);
 	}
 
-	@FindBy(id = "signup-url-button")
+	@FindBy(id = "text_heading")
 	WebElement loginButton;
 
 	@FindBy(xpath = "//img[@class='brand-logo']")
@@ -30,22 +41,22 @@ public class LoginOptionsPage extends BasePage {
 	@FindBy(id = "login_with_walletname")
 	WebElement loginWithInji;
 
-	@FindBy(id = "language_selection")
+	@FindBy(css = "nav button[aria-haspopup='listbox']")
 	WebElement languageDropdown;
 
-	@FindBy(id = "hi1")
+	@FindBy(xpath = "//button[@role='option' and normalize-space()='हिन्दी']")
 	WebElement hindiLanguage;
 
-	@FindBy(id = "login_with_otp")
+	@FindBy(id = "acr_otp")
 	WebElement loginWithOtpBtn;
 
-	@FindBy(id = "login_with_bio")
+	@FindBy(id = "acr_bio")
 	WebElement loginWithBiometricBtn;
 
 	@FindBy(id = "login_with_walletname")
 	WebElement loginWithInjiBtn;
 
-	@FindBy(id = "login_with_pwd")
+	@FindBy(id = "acr_password")
 	WebElement loginWithPasswordBtn;
 
 	@FindBy(id = "login_with_pin")
@@ -57,16 +68,16 @@ public class LoginOptionsPage extends BasePage {
 	@FindBy(id = "show-more-options")
 	List<WebElement> moreWaysToSignIn;
 
-	@FindBy(id = "mobile")
+	@FindBy(id = "login_id_mobile")
 	WebElement mobileNumberOption;
 
-	@FindBy(id = "nrc")
+	@FindBy(id = "login_id_nrc")
 	WebElement nrcIdOption;
 
-	@FindBy(id = "vid")
+	@FindBy(id = "login_id_uin")
 	WebElement vidOption;
 
-	@FindBy(id = "email")
+	@FindBy(id = "login_id_email")
 	WebElement emailOption;
 
 	@FindBy(id = "back-button")
@@ -81,25 +92,22 @@ public class LoginOptionsPage extends BasePage {
 	@FindBy(xpath = "//div[contains(@class,'font-semibold') and contains(@class,'mx-2')]")
 	WebElement selectPreferredIdHeader;
 
-	@FindBy(id = "get_otp")
+	@FindBy(id = "submit_uin")
 	WebElement getOtpButton;
 
-	@FindBy(xpath = "//button[@id='mobile' and contains(@class,'selected_login_id')]")
+	@FindBy(xpath = "//button[@id='login_id_mobile' and contains(@class,'login-id-button--active')]")
 	WebElement mobileSelected;
 
-	@FindBy(id = "Otp_login_dropdown_button")
+	@FindBy(css = "select.thunderid-affixed-field__prefix-select")
 	WebElement prefixNumberField;
 
-	@FindBy(id = "KHM")
-	WebElement khmCountryCode;
+	@FindBy(css = "input.thunderid-otp-field__input")
+	List<WebElement> otpInputFields;
 
-	@FindBy(id = "IND")
-	WebElement indCountryCode;
+	@FindBy(id = "action_submit_otp")
+	WebElement submitOtpButton;
 
-	@FindBy(id = "otp_verify_input")
-	WebElement otpInputField;
-
-	@FindBy(xpath = "//div[contains(@class,'header my-2')]")
+	@FindBy(id = "action_allow")
 	WebElement attentionScreen;
 
 	@FindBy(id = "cancel-button")
@@ -108,14 +116,18 @@ public class LoginOptionsPage extends BasePage {
 	@FindBy(id = "discontinue-button")
 	WebElement attentionDiscontinueButton;
 
-	@FindBy(id = "Otp_vid")
-	WebElement vidField;
+	// ID-type login buttons (UIN/VID/mobile/email) all share this one input.
+	@FindBy(id = "username_input")
+	WebElement idInputField;
 
 	@FindBy(id = "error-banner-message")
 	WebElement invalidIndividualIdErrorMessage;
 
-	@FindBy(id = "Otp_email")
-	WebElement emailField;
+	@FindBy(id = "sbi_vid")
+	WebElement biometricVidField;
+
+	@FindBy(id = "secure-biometric-interface-integration")
+	WebElement biometricIntegrationContainer;
 
 	public boolean isLogoDisplayed() {
 		return isElementVisible(brandLogo, "Verified is logo displayed");
@@ -168,6 +180,20 @@ public class LoginOptionsPage extends BasePage {
 		return !moreWaysToSignIn.isEmpty() && moreWaysToSignIn.get(0).isDisplayed();
 	}
 
+	public boolean isLoginWithKbiDisplayed() {
+		return isElementDisplayed(loginWithKbiBtn);
+	}
+
+	public void revealMoreOptionsIfPresent() {
+		if (!isElementDisplayed(loginWithKbiBtn) && isMoreWaysToSignInOptionDisplayed()) {
+			clickOnElement(moreWaysToSignIn.get(0), "Clicked on more ways to sign in");
+		}
+	}
+
+	public void clickOnLoginWithKbi() {
+		clickOnElement(loginWithKbiBtn, "Clicked on login with KBI");
+	}
+
 	public Map<String, WebElement> getAcrToElementMap() {
 		Map<String, WebElement> map = new HashMap<>();
 		map.put("PWD", loginWithPasswordBtn);
@@ -179,11 +205,45 @@ public class LoginOptionsPage extends BasePage {
 		return map;
 	}
 
-	public void selectLanguage(String language) {
-		WebElement langOption = driver
-				.findElement(By.xpath("//div[@role='menuitem' and normalize-space()='" + language + "']"));
+	private static String toXpathLiteral(String value) {
+		if (!value.contains("'")) {
+			return "'" + value + "'";
+		}
+		if (!value.contains("\"")) {
+			return "\"" + value + "\"";
+		}
+		String[] parts = value.split("'", -1);
+		StringBuilder concatExpr = new StringBuilder("concat('");
+		for (int i = 0; i < parts.length; i++) {
+			concatExpr.append(parts[i]);
+			if (i < parts.length - 1) {
+				concatExpr.append("', \"'\", '");
+			}
+		}
+		concatExpr.append("')");
+		return concatExpr.toString();
+	}
 
+	public void selectLanguage(String language) {
+		WebElement langOption = waitForElementVisible(
+				By.xpath("//button[@role='option' and normalize-space()=" + toXpathLiteral(language) + "]"));
 		langOption.click();
+		By navLanguageButton = By.cssSelector("nav button[aria-haspopup='listbox']");
+		new WebDriverWait(driver, Duration.ofSeconds(EsignetConfigManager.getTimeout())).until(d -> {
+			List<WebElement> buttons = d.findElements(navLanguageButton);
+			return !buttons.isEmpty() && buttons.get(0).getText().trim().contains(language);
+		});
+	}
+
+	/** Opens the dropdown and switches the UI to the given 3-letter language code's display name;
+	 *  no-ops if unmapped. */
+	public void selectLanguageByCode(String languageCode) {
+		String displayName = utils.LanguageUtil.getDisplayName(languageCode);
+		if (displayName == null || displayName.equals(languageCode)) {
+			return;
+		}
+		clickOnLanguageDropdown();
+		selectLanguage(displayName);
 	}
 
 	public boolean isUILanguageChanged(String text) {
@@ -196,8 +256,17 @@ public class LoginOptionsPage extends BasePage {
 		return loginWithOtpBtn;
 	}
 
+	public String getLoginWithOtpButtonText() {
+		waitForElementVisible(loginWithOtpBtn);
+		return loginWithOtpBtn.getText().trim();
+	}
+
 	public boolean isMobileNumberOptionDisplayed() {
 		return isElementVisible(mobileNumberOption, "Verified mobile number option is displayed for authentication");
+	}
+
+	public void clickOnMobileNumberOption() {
+		clickOnElement(mobileNumberOption, "Selected mobile number as the login ID type");
 	}
 
 	public boolean isNrcIdOptionDisplayed() {
@@ -237,27 +306,55 @@ public class LoginOptionsPage extends BasePage {
 	}
 
 	public boolean isKhmCountryCodePrefixDisplayed() {
-		return isElementVisible(khmCountryCode, "Verified khm country code prefix is displayed");
+		waitForElementVisible(prefixNumberField);
+		return new Select(prefixNumberField).getOptions().stream()
+				.anyMatch(option -> "+855".equals(option.getAttribute("value")));
 	}
 
 	public boolean isIndCountryCodePrefixDisplayed() {
-		return isElementVisible(indCountryCode, "Verified ind country code prefix is displayed");
+		waitForElementVisible(prefixNumberField);
+		return new Select(prefixNumberField).getOptions().stream()
+				.anyMatch(option -> "+91".equals(option.getAttribute("value")));
 	}
 
 	public void clickOnPrefixNumberFieldButton() {
-		clickOnElement(prefixNumberField, "Clicked on Prefix Number Field button");
+		clickOnElement(prefixNumberField, "Clicked on Prefix Number select field");
 	}
 
 	public void clickOnIndCountryCodePrefix() {
-		clickOnElement(indCountryCode, "Clicked on ind country code prefix button");
+		waitForElementVisible(prefixNumberField);
+		new Select(prefixNumberField).selectByValue("+91");
 	}
 
 	public void clickOnKhmCountryCodePrefix() {
-		clickOnElement(khmCountryCode, "Clicked on khm country code prefix button");
+		waitForElementVisible(prefixNumberField);
+		new Select(prefixNumberField).selectByValue("+855");
 	}
 
 	public boolean isOtpInputFieldIsDisplayed() {
-		return isElementVisible(otpInputField, "Verified otp input field is displayed");
+		try {
+			new WebDriverWait(driver, Duration.ofSeconds(EsignetConfigManager.getTimeout()))
+					.until(d -> !otpInputFields.isEmpty());
+		} catch (TimeoutException e) {
+			return false;
+		}
+		return isElementVisible(otpInputFields.get(0), "Verified otp input field is displayed");
+	}
+
+	/** Types one OTP digit per box, in order - the OTP field is 6 separate single-character inputs. */
+	public void enterOtp(String otp) {
+		if (otp.length() > otpInputFields.size()) {
+			throw new IllegalStateException(
+					"OTP length " + otp.length() + " exceeds rendered inputs " + otpInputFields.size());
+		}
+		for (int i = 0; i < otp.length(); i++) {
+			WebElement field = otpInputFields.get(i);
+			enterText(field, String.valueOf(otp.charAt(i)), "Entered OTP digit " + (i + 1));
+		}
+	}
+
+	public void clickOnSubmitOtpButton() {
+		clickOnElement(submitOtpButton, "Clicked on submit OTP button");
 	}
 
 	public boolean isAttentionScreenIsDisplayed() {
@@ -282,8 +379,9 @@ public class LoginOptionsPage extends BasePage {
 	}
 
 	public void enterVid(String vid) {
-		vidField.clear();
-		enterText(vidField, vid, "Entered vid in vid field");
+		waitForElementVisible(idInputField);
+		idInputField.clear();
+		enterText(idInputField, vid, "Entered vid in vid field");
 	}
 
 	public void clickOnEmailOptionButton() {
@@ -291,8 +389,177 @@ public class LoginOptionsPage extends BasePage {
 	}
 
 	public void enterEmail(String email) {
-		emailField.clear();
-		enterText(emailField, email, "Entered email in email field");
+		waitForElementVisible(idInputField);
+		idInputField.clear();
+		enterText(idInputField, email, "Entered email in email field");
+	}
+
+	public boolean isBiometricIntegrationContainerDisplayed() {
+		return isElementVisible(biometricIntegrationContainer,
+				"Verified secure biometric interface integration container is displayed");
+	}
+
+	public boolean isBiometricVidOptionDisplayed() {
+		return isElementVisible(vidOption, "Verified UIN/VID option is displayed on biometric screen");
+	}
+
+	public void clickOnBiometricVidOptionButton() {
+		clickOnElement(vidOption, "Clicked on UIN/VID option on biometric screen");
+	}
+
+	public boolean isBiometricVidTextFieldDisplayed() {
+		return isElementVisible(biometricVidField, "Verified VID text field is displayed on biometric screen");
+	}
+
+	private static final String SCANNING_DEVICES_MSG_KEY = "loadingMsgs.scanning_devices_msg";
+
+	public boolean isScanningDevicesMessageDisplayed() {
+		return waitForLocalizedTextWithinBiometricContainer(SCANNING_DEVICES_MSG_KEY, getBiometricScanningWaitSeconds());
+	}
+
+	public boolean isRetryScanButtonNotDisplayedWhileScanning() {
+		int waitSeconds = getBiometricScanningWaitSeconds();
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(waitSeconds));
+		try {
+			wait.until(driver -> isLocalizedTextVisibleWithinBiometricContainer(SCANNING_DEVICES_MSG_KEY)
+					&& !isRetryScanButtonVisible());
+			return true;
+		} catch (TimeoutException e) {
+			return false;
+		}
+	}
+
+	public boolean waitForDeviceNotFoundMessageDisplayed() {
+		int waitSeconds = getBiometricDeviceDiscoveryTimeoutSeconds();
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(waitSeconds));
+		try {
+			wait.until(driver -> isDeviceNotFoundMessageVisible());
+			return true;
+		} catch (TimeoutException e) {
+			return false;
+		}
+	}
+
+	private static final By ICON_RETRY_BUTTON_SELECTOR = By.cssSelector(
+			"#secure-biometric-interface-integration button[type='button'].sbd-cursor-pointer.sbd-ml-1, "
+					+ "#secure-biometric-interface-integration div.sbd-dropdown_container + button[type='button'], "
+					+ "#secure-biometric-interface-integration div.sbd-flex button[type='button'].sbd-cursor-pointer");
+
+	public void clickOnBiometricDeviceScanRetryButton() {
+		int waitSeconds = getBiometricDeviceDiscoveryTimeoutSeconds();
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(waitSeconds));
+		WebElement retryButton = wait.until(ExpectedConditions.elementToBeClickable(ICON_RETRY_BUTTON_SELECTOR));
+		clickOnElement(retryButton, "Clicked on biometric device scan retry button");
+	}
+
+	private int getBiometricScanningWaitSeconds() {
+		return parseTimeoutProperty("biometricScanningWaitSeconds", 15);
+	}
+
+	private int getBiometricDeviceDiscoveryTimeoutSeconds() {
+		return parseTimeoutProperty("biometricDeviceDiscoveryTimeoutSeconds", 30);
+	}
+
+	private int parseTimeoutProperty(String propertyName, int defaultValue) {
+		try {
+			String value = EsignetConfigManager.getproperty(propertyName);
+			if (value == null || value.isBlank()) {
+				return defaultValue;
+			}
+			return Integer.parseInt(value.trim());
+		} catch (NumberFormatException e) {
+			return defaultValue;
+		}
+	}
+
+	private boolean waitForLocalizedTextWithinBiometricContainer(String resourceKey, int timeoutSeconds) {
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
+		try {
+			wait.until(driver -> isLocalizedTextVisibleWithinBiometricContainer(resourceKey));
+			return true;
+		} catch (TimeoutException e) {
+			return false;
+		}
+	}
+
+	private boolean isDeviceNotFoundMessageVisible() {
+		String containerText = getBiometricContainerText();
+		if (containerText.contains("device not found") && containerText.contains("connectivity")) {
+			return true;
+		}
+
+		try {
+			List<WebElement> alerts = driver.findElements(
+					By.cssSelector("#secure-biometric-interface-integration div[role='alert']"));
+			for (WebElement alert : alerts) {
+				if (alert.isDisplayed()) {
+					String alertText = normalizeMessage(safeGetText(alert));
+					if (alertText.contains("device not found") && alertText.contains("connectivity")) {
+						return true;
+					}
+				}
+			}
+		} catch (StaleElementReferenceException ignored) {
+		}
+
+		String expectedMessage = ResourceBundleLoader.get("errors.no_devices_found_msg");
+		if (expectedMessage.startsWith("!!MISSING_KEY:")) {
+			LOGGER.warn("errors.no_devices_found_msg is missing from the resource bundle - "
+					+ "device-not-found detection relied only on the English literal check above.");
+			return false;
+		}
+		return containerText.contains(normalizeMessage(expectedMessage));
+	}
+
+	private boolean isTextVisibleWithinBiometricContainer(String normalizedPartialText) {
+		if (normalizedPartialText == null || normalizedPartialText.isBlank()) {
+			return false;
+		}
+		return getBiometricContainerText().contains(normalizeMessage(normalizedPartialText));
+	}
+
+	private String getBiometricContainerText() {
+		try {
+			if (!biometricIntegrationContainer.isDisplayed()) {
+				return "";
+			}
+			return normalizeMessage(safeGetText(biometricIntegrationContainer));
+		} catch (StaleElementReferenceException e) {
+			return "";
+		}
+	}
+
+	private String safeGetText(WebElement element) {
+		try {
+			return element.getText();
+		} catch (StaleElementReferenceException e) {
+			return "";
+		}
+	}
+
+	private boolean isLocalizedTextVisibleWithinBiometricContainer(String resourceKey) {
+		String expectedMessage = ResourceBundleLoader.get(resourceKey);
+		if (expectedMessage == null || expectedMessage.startsWith("!!MISSING_KEY:")) {
+			return false;
+		}
+		return isTextVisibleWithinBiometricContainer(normalizeMessage(expectedMessage));
+	}
+
+	private boolean isRetryScanButtonVisible() {
+		List<WebElement> retryButtons = driver.findElements(
+				By.xpath("//div[@id='secure-biometric-interface-integration']//button[contains("
+						+ "translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),"
+						+ "'retry')]"));
+		if (retryButtons.stream().anyMatch(WebElement::isDisplayed)) {
+			return true;
+		}
+
+		List<WebElement> iconRetryButtons = driver.findElements(ICON_RETRY_BUTTON_SELECTOR);
+		return iconRetryButtons.stream().anyMatch(WebElement::isDisplayed);
+	}
+
+	private String normalizeMessage(String message) {
+		return message == null ? "" : message.replaceAll("\\s+", " ").trim().toLowerCase();
 	}
 
 }

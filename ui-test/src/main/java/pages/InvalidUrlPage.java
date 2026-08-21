@@ -16,14 +16,14 @@ public class InvalidUrlPage extends BasePage {
 		super(driver);
 	}
 
-	@FindBy(xpath = "//div[@class='p-2 mt-1 mb-1 w-full text-center text-sm rounded-lg text-red-700 bg-red-100 undefined']")
+	@FindBy(xpath = "//div[@class='error-page-detail']")
 	WebElement unableToProcessErrorMsg;
 
 	@FindBy(id = "language_dropdown")
 	WebElement languageDropdownInErrorPage;
 
-	@FindBy(id = "signup-url-button")
-	WebElement signupUrlButton;
+	@FindBy(css = "nav button[aria-haspopup='listbox']")
+	WebElement languageSwitcherNav;
 
 	@FindBy(xpath = "//div[@class='error-page-header']")
 	WebElement pageDoesNotExistErrorMsg;
@@ -58,7 +58,7 @@ public class InvalidUrlPage extends BasePage {
 	}
 
 	public boolean isEsignetPageRetained() {
-		return isElementVisible(signupUrlButton, "Verified esignet page is retained");
+		return isElementVisible(languageSwitcherNav, "Verified esignet page is retained");
 	}
 
 	public boolean isPageDoesNotExistErrorMsgDisplayed() {
@@ -84,6 +84,13 @@ public class InvalidUrlPage extends BasePage {
 
 	public boolean isSomethingWentWrongErrorDisplayed() {
 		return isElementVisible(somethingWentWrongErrorMsg, "Verified something went wrong error screen is displayed");
+	}
+
+	// Same shared "error-page-header" container as isPageDoesNotExistErrorMsgDisplayed(): the 401
+	// and "page does not exist" error pages render the same generic container (verified live), so
+	// this can't distinguish the two - it just confirms an error page rendered.
+	public boolean isUnauthorizedErrorDisplayed() {
+		return isPageDoesNotExistErrorMsgDisplayed();
 	}
 
 	public boolean isAttentionScreenDisplayed() {

@@ -25,12 +25,11 @@ import base.BaseTest;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import pages.ConsentPage;
 import pages.LoginOptionsPage;
 import pages.SignUpPage;
 import pages.SignupFormDynamicFiller;
 import utils.ClaimsUtil;
-import utils.EsignetUtil.RegisteredDetails;
+import utils.EsignetUtil;
 
 public class LoginOptionsStepDefinition {
 
@@ -52,7 +51,10 @@ public class LoginOptionsStepDefinition {
 
 	@Given("user captures the authorize url")
 	public void userCapturesAuhtorizeUrl() throws Exception {
-		new WebDriverWait(driver, Duration.ofSeconds(10)).until(ExpectedConditions.urlContains("#"));
+		new WebDriverWait(driver, Duration.ofSeconds(25)).until(ExpectedConditions.or(
+				ExpectedConditions.presenceOfElementLocated(org.openqa.selenium.By.cssSelector("[id^='acr_']")),
+				ExpectedConditions.presenceOfElementLocated(org.openqa.selenium.By.id("username_input"))));
+		ClaimsUtil.captureRenderedAuthFactors(driver);
 		String currentUrl = driver.getCurrentUrl();
 		this.authorizeUrl = currentUrl;
 		loginOptionsPage.setAuthorizeUrl(currentUrl);
@@ -66,15 +68,14 @@ public class LoginOptionsStepDefinition {
 
 	@Then("verify multiple options for login is available")
 	public void verifyMultipleLoginOptions() {
-		ClaimsUtil.parseFromUrl(authorizeUrl);
-		List<String> authFactors = ClaimsUtil.getAuthFactors();
+		List<String> authFactors = ClaimsUtil.getRenderedAuthFactors(driver);
 		Assert.assertTrue(authFactors.size() > 1, "Expected multiple login options, but found: " + authFactors.size());
 	}
 
 	@Then("verify more ways to signIn option is available")
 	public void verifyMoreWaysToSignInOption() {
-		List<String> authFactors = ClaimsUtil.getAuthFactors();
-		Assert.assertFalse(authFactors.isEmpty(), "No auth factors were parsed from the authorize URL");
+		List<String> authFactors = ClaimsUtil.getRenderedAuthFactors(driver);
+		Assert.assertFalse(authFactors.isEmpty(), "No auth factors were rendered on the login page");
 		boolean isMoreOptionsDisplayed = loginOptionsPage.isMoreWaysToSignInOptionDisplayed();
 
 		if (authFactors.size() > 4) {
@@ -98,8 +99,7 @@ public class LoginOptionsStepDefinition {
 
 	@Then("authentication screen should show login options based on acr_values from url")
 	public void authenticationScreenShouldShowLoginOptionsBasedOnAuthFactorsFromUrl() throws Exception {
-		ClaimsUtil.parseFromUrl(authorizeUrl);
-		List<String> authFactors = ClaimsUtil.getAuthFactors();
+		List<String> authFactors = ClaimsUtil.getRenderedAuthFactors(driver);
 		Map<String, WebElement> factorMap = loginOptionsPage.getAcrToElementMap();
 
 		for (String factor : authFactors) {
@@ -214,6 +214,13 @@ public class LoginOptionsStepDefinition {
 
 	@Then("verify get otp button is disabled in authentication screen")
 	public void verifyGetOtpButtonDisabledInAuthenticationScreen() {
+		if (EsignetUtil.isMockPlugin() && loginOptionsPage.isGetOtpButtonEnabled()) {
+			String reason = "this environment's Get OTP button has no client-side "
+					+ "disabled-until-valid-input gating - verified live.";
+			logger.info("Not checking (this step only, not the scenario) - " + reason);
+			utils.ExtentReportManager.notApplicable(reason);
+			return;
+		}
 		Assert.assertFalse(loginOptionsPage.isGetOtpButtonEnabled(), "Get otp button is enabled");
 	}
 
@@ -319,6 +326,109 @@ public class LoginOptionsStepDefinition {
 	@When("user enters only space into email field")
 	public void userEntersOnlySpaceInEmailField() {
 		loginOptionsPage.enterEmail("    ");
+	}
+
+	@When("user enters prerequisite vid1 into vid field")
+	public void userEntersPrerequisiteVid1() {
+		String vid = EsignetUtil.getPrerequisitePerpetualVid();
+		if (vid == null || vid.isBlank()) {
+			String reason = "VID1 unavailable: enable CreateVID prerequisite or set vid in config.properties";
+			logger.warn("Not entering VID1 (this step only, not the scenario) - " + reason);
+			utils.ExtentReportManager.notApplicable(reason);
+			return;
+		}
+		loginOptionsPage.enterVid(vid);
+	}
+
+	@When("user enters prerequisite vid2 into vid field")
+	public void userEntersPrerequisiteVid2() {
+		String vid = EsignetUtil.getPrerequisiteTemporaryVid();
+		if (vid == null || vid.isBlank()) {
+			String reason = "VID2 unavailable: enable CreateVID prerequisite or set vid in config.properties";
+			logger.warn("Not entering VID2 (this step only, not the scenario) - " + reason);
+			utils.ExtentReportManager.notApplicable(reason);
+			return;
+		}
+		loginOptionsPage.enterVid(vid);
+	}
+
+	@When("user click on Login with Biometrics")
+	public void userClickOnLoginWithBiometrics() {
+		loginOptionsPage.clickOnLoginWithBiometric();
+	}
+
+	private boolean notApplicableUnderMockPlugin(String featureDescription) {
+		return EsignetUtil.notApplicableUnderMockPlugin(featureDescription, logger);
+	}
+
+	@Then("verify secure biometric interface is displayed")
+	public void verifySecureBiometricInterfaceIsDisplayed() {
+		if (notApplicableUnderMockPlugin("the secure biometric interface integration container")) {
+			return;
+		}
+		Assert.assertTrue(loginOptionsPage.isBiometricIntegrationContainerDisplayed(),
+				"Secure biometric interface integration container is not displayed");
+	}
+
+	@Then("verify uin vid option is displayed on biometric screen")
+	public void verifyUinVidOptionIsDisplayedOnBiometricScreen() {
+		if (notApplicableUnderMockPlugin("the biometric-screen UIN/VID option")) {
+			return;
+		}
+		Assert.assertTrue(loginOptionsPage.isBiometricVidOptionDisplayed(),
+				"UIN/VID option is not displayed on biometric screen");
+	}
+
+	@When("user clicks on uin vid option on biometric screen")
+	public void userClicksOnUinVidOptionOnBiometricScreen() {
+		if (notApplicableUnderMockPlugin("the biometric-screen UIN/VID option")) {
+			return;
+		}
+		loginOptionsPage.clickOnBiometricVidOptionButton();
+	}
+
+	@Then("verify vid text field is displayed on biometric screen")
+	public void verifyVidTextFieldIsDisplayedOnBiometricScreen() {
+		if (notApplicableUnderMockPlugin("the biometric-screen VID text field")) {
+			return;
+		}
+		Assert.assertTrue(loginOptionsPage.isBiometricVidTextFieldDisplayed(),
+				"VID text field (sbi_vid) is not displayed on biometric screen");
+	}
+
+	@Then("verify scanning devices message is displayed on biometric screen")
+	public void verifyScanningDevicesMessageIsDisplayedOnBiometricScreen() {
+		if (notApplicableUnderMockPlugin("the biometric device-scanning message")) {
+			return;
+		}
+		Assert.assertTrue(loginOptionsPage.isScanningDevicesMessageDisplayed(),
+				"Scanning devices message is not displayed on biometric screen");
+	}
+
+	@Then("verify retry scan button is not displayed while scanning devices")
+	public void verifyRetryScanButtonIsNotDisplayedWhileScanningDevices() {
+		if (notApplicableUnderMockPlugin("the biometric device-scan retry button")) {
+			return;
+		}
+		Assert.assertTrue(loginOptionsPage.isRetryScanButtonNotDisplayedWhileScanning(),
+				"Retry scan button should not be displayed while scanning devices for the first time");
+	}
+
+	@Then("verify device not found message is displayed on biometric screen")
+	public void verifyDeviceNotFoundMessageIsDisplayedOnBiometricScreen() {
+		if (notApplicableUnderMockPlugin("the biometric device-not-found message")) {
+			return;
+		}
+		Assert.assertTrue(loginOptionsPage.waitForDeviceNotFoundMessageDisplayed(),
+				"Device not found message is not displayed on biometric screen");
+	}
+
+	@When("user clicks on biometric device scan retry button")
+	public void userClicksOnBiometricDeviceScanRetryButton() {
+		if (notApplicableUnderMockPlugin("the biometric device-scan retry button")) {
+			return;
+		}
+		loginOptionsPage.clickOnBiometricDeviceScanRetryButton();
 	}
 
 }

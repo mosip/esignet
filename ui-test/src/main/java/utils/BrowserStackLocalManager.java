@@ -32,7 +32,6 @@ public class BrowserStackLocalManager {
 
 		bsLocal.start(args);
 
-		// Wait till tunnel is fully running
 		int retries = 0;
 		while (!bsLocal.isRunning() && retries < 15) {
 			Thread.sleep(1000);

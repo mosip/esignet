@@ -1,6 +1,5 @@
 package io.mosip.testrig.apirig.esignetUI.testscripts;
 
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
@@ -17,8 +16,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.testng.internal.BaseTestMethod;
-import org.testng.internal.TestResult;
 
 import io.mosip.testrig.apirig.dto.OutputValidationDto;
 import io.mosip.testrig.apirig.dto.TestCaseDTO;
@@ -59,7 +56,7 @@ public class PostWithAutogenIdWithOtpGenerate extends EsignetUtil implements ITe
 
 	/**
 	 * Data provider class provides test case list
-	 * 
+	 *
 	 * @return object of data provider
 	 */
 	@DataProvider(name = "testcaselist")
@@ -72,7 +69,7 @@ public class PostWithAutogenIdWithOtpGenerate extends EsignetUtil implements ITe
 
 	/**
 	 * Test method for OTP Generation execution
-	 * 
+	 *
 	 * @param objTestParameters
 	 * @param testScenario
 	 * @param testcaseName
@@ -211,22 +208,12 @@ public class PostWithAutogenIdWithOtpGenerate extends EsignetUtil implements ITe
 
 	/**
 	 * The method ser current test name to result
-	 * 
+	 *
 	 * @param result
 	 */
 	@AfterMethod(alwaysRun = true)
 	public void setResultTestName(ITestResult result) {
-		try {
-			Field method = TestResult.class.getDeclaredField("m_method");
-			method.setAccessible(true);
-			method.set(result, result.getMethod().clone());
-			BaseTestMethod baseTestMethod = (BaseTestMethod) result.getMethod();
-			Field f = baseTestMethod.getClass().getSuperclass().getDeclaredField("m_methodName");
-			f.setAccessible(true);
-			f.set(baseTestMethod, testCaseName);
-		} catch (Exception e) {
-			Reporter.log("Exception : " + e.getMessage());
-		}
+		result.setAttribute("TestCaseName", testCaseName);
 	}
 
 	@AfterClass(alwaysRun = true)

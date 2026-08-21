@@ -18,6 +18,7 @@ import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
@@ -73,7 +74,7 @@ public class BasePage {
 			} else if (text != null && !text.isEmpty()) {
 				return "\"" + text + "\"";
 			} else if (id != null && !id.isEmpty()) {
-				return "\"" + id.substring(id.lastIndexOf("/") + 1) + "\""; // just the id name
+				return "\"" + id.substring(id.lastIndexOf("/") + 1) + "\"";
 			} else {
 				return "[Unnamed element]";
 			}
@@ -86,11 +87,27 @@ public class BasePage {
 		WaitUtil.waitForVisibility(driver, element);
 	}
 
+	public WebElement waitForElementVisible(By locator) {
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(EsignetConfigManager.getTimeout()));
+		return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+	}
+
 	public void clickOnElement(WebElement element, String stepDesc) {
 		try {
-			waitForElementVisible(element);
+			try {
+				waitForElementVisible(element);
+			} catch (org.openqa.selenium.StaleElementReferenceException stale) {
+				waitForElementVisible(element);
+			}
 
-			element.click();
+			try {
+				element.click();
+			} catch (org.openqa.selenium.StaleElementReferenceException stale) {
+				waitForElementVisible(element);
+				element.click();
+			} catch (org.openqa.selenium.ElementClickInterceptedException intercepted) {
+				((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+			}
 			logStep(stepDesc, element);
 			LOGGER.info("Clicking on element: {}", element);
 		} catch (Exception e) {
@@ -100,12 +117,98 @@ public class BasePage {
 		}
 	}
 
+	public void clickWhenClickable(WebElement element) {
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+		WebElement stableElement = wait
+				.until(ExpectedConditions.refreshed(ExpectedConditions.elementToBeClickable(element)));
+		stableElement.click();
+	}
+
+	public void solveRecaptchaIfPresent() {
+		List<WebElement> frames = driver.findElements(By.cssSelector("iframe[title*='captcha' i]"));
+		if (frames.isEmpty()) {
+			return;
+		}
+		try {
+			driver.switchTo().frame(frames.get(0));
+			WebElement checkbox = new WebDriverWait(driver, Duration.ofSeconds(EsignetConfigManager.getTimeout()))
+					.until(ExpectedConditions.elementToBeClickable(By.cssSelector("#recaptcha-anchor, #checkbox")));
+			checkbox.click();
+		} catch (Exception e) {
+			LOGGER.warn("Could not click the captcha checkbox - proceeding anyway since submission isn't "
+					+ "gated on it: {}", e.getMessage());
+		} finally {
+			driver.switchTo().defaultContent();
+		}
+		try {
+			new WebDriverWait(driver, Duration.ofSeconds(10)).until(driver -> {
+				Object tokenLength = ((JavascriptExecutor) driver).executeScript(
+						"var el = document.querySelector(\"[name='g-recaptcha-response'], [name='h-captcha-response']\");"
+								+ " return el ? el.value.length : 0;");
+				return tokenLength instanceof Long && (Long) tokenLength > 0;
+			});
+		} catch (TimeoutException e) {
+			LOGGER.warn("No captcha token obtained within 10s - proceeding anyway since submission isn't "
+					+ "gated on it.");
+			new Actions(driver).sendKeys(Keys.ESCAPE).perform();
+		}
+	}
+
+	public boolean isAlreadyOnRelyingParty() {
+		String currentUrl = driver.getCurrentUrl();
+		String eSignetBaseUrl = EsignetConfigManager.getproperty("eSignetbaseurl");
+		if (currentUrl == null || eSignetBaseUrl == null || eSignetBaseUrl.isBlank()) {
+			return false;
+		}
+		try {
+			String currentHost = URI.create(currentUrl).getHost();
+			String eSignetHost = URI.create(eSignetBaseUrl).getHost();
+			return currentHost != null && eSignetHost != null && !currentHost.equalsIgnoreCase(eSignetHost)
+					&& !currentUrl.contains("/authorize");
+		} catch (IllegalArgumentException e) {
+			return false;
+		}
+	}
+
+	public void ensureFreshEsignetLoginPage(By landmark) {
+		boolean landmarkPresent;
+		try {
+			landmarkPresent = new WebDriverWait(driver, Duration.ofSeconds(3))
+					.until(d -> !d.findElements(landmark).isEmpty());
+		} catch (TimeoutException e) {
+			landmarkPresent = false;
+		}
+		if (!landmarkPresent && authorizeUrl != null) {
+			String freshUrl = authorizeUrl.replaceFirst("nonce=[^&]*", "nonce=" + System.currentTimeMillis());
+			driver.manage().deleteAllCookies();
+			driver.get(freshUrl);
+		}
+	}
+
+	public boolean waitForRelyingPartyRedirectQuietly() {
+		try {
+			new WebDriverWait(driver, Duration.ofSeconds(45)).until(d -> isAlreadyOnRelyingParty());
+			return true;
+		} catch (TimeoutException e) {
+			return false;
+		}
+	}
+
+	public boolean waitForRelyingPartyRedirectOrElement(By elementLocator, int timeoutSeconds) {
+		try {
+			new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds)).until(d ->
+					isAlreadyOnRelyingParty() || !d.findElements(elementLocator).isEmpty());
+		} catch (TimeoutException ignored) {
+		}
+		return isAlreadyOnRelyingParty();
+	}
+
 	public boolean isElementVisible(WebElement element, String stepDesc) {
 		try {
 			waitForElementVisible(element);
 			logStep(stepDesc + " - Verified visibility", element);
 			return element.isDisplayed();
-		} catch (NoSuchElementException e) {
+		} catch (NoSuchElementException | TimeoutException e) {
 			LOGGER.warn("Element not visible: {}", element);
 			ExtentReportManager.getTest().log(Status.WARNING, "Element not visible: " + describeElement(element));
 			return false;
@@ -354,9 +457,26 @@ public class BasePage {
 
 		WebElement icon = wait.until(ExpectedConditions.visibilityOfElementLocated(iconLocator));
 		new Actions(driver).moveToElement(icon).perform();
+		String dispatchScript = "var el = arguments[0]; el.focus();"
+				+ "el.dispatchEvent(new MouseEvent('mouseover', {bubbles:true}));"
+				+ "el.dispatchEvent(new MouseEvent('mouseenter', {bubbles:true}));"
+				+ "el.dispatchEvent(new FocusEvent('focus', {bubbles:true}));";
+		((JavascriptExecutor) driver).executeScript(dispatchScript, icon);
 
-		WebElement tooltip = wait.until(ExpectedConditions.visibilityOfElementLocated(tooltipLocator));
-		return tooltip.getText();
+		WebElement tooltip;
+		try {
+			tooltip = wait.until(ExpectedConditions.visibilityOfElementLocated(tooltipLocator));
+		} catch (org.openqa.selenium.TimeoutException firstTimeout) {
+			icon = wait.until(ExpectedConditions.visibilityOfElementLocated(iconLocator));
+			((JavascriptExecutor) driver).executeScript(dispatchScript, icon);
+			tooltip = wait.until(ExpectedConditions.visibilityOfElementLocated(tooltipLocator));
+		}
+		try {
+			return tooltip.getText();
+		} catch (org.openqa.selenium.StaleElementReferenceException stale) {
+			tooltip = wait.until(ExpectedConditions.visibilityOfElementLocated(tooltipLocator));
+			return tooltip.getText();
+		}
 	}
 
 	public static String getOtp() {

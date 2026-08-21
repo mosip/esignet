@@ -6,9 +6,9 @@ public class ESignetConstants {
 	public static final String TESTCLASSES = "test-classes";
 	public static final String DSL = "dsl";
 	public static final String ESIGNETUI_MODULENAME = "esignetUI";
-	public static final String ESIGNET_SUPPORTED_LANGUAGE = "esignetSupportedLanguage";
 	public static final String ESIGNET_STRING = "ESignetUI_";
 	public static final String DPOP_KEY = "dpop_key";
 	public static final String DPOP_VALUE = "dpop_value";
 	public static final String CLASS_PATH_APPLICATION_PROPERTIES = "classpath:/application.properties";
+	public static final String KBI_FIELD_DETAILS_KEY = "mosip.esignet.authenticator.default.auth-factor.kbi.field-details";
 }

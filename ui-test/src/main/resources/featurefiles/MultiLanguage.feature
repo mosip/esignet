@@ -4,6 +4,8 @@ Feature: Multi language scenario's in eSignet
 
   @smoke
   Scenario: Verify the language in browser cookie
+    Given user captures the authorize url
+    Then verify IDP UI uses default language configured in env-config
     When click on Language selection option
     And select the mandatory language
     And get the cookies

@@ -7,9 +7,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -49,14 +52,15 @@ import utils.LanguageUtil;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(
-        features = {"classpath:featurefiles"},
-        glue = {"stepdefinitions", "base"},
+		features = {
+				"classpath:featurefiles"
+		},
+		glue = {"stepdefinitions", "base"},
         monochrome = true,
         plugin = {"pretty",
                 "html:reports",
                 "html:target/cucumber.html", "json:target/cucumber.json",
                 "summary", "com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:"}
-//      tags = "@smoke"
 )
 public class Runner extends AbstractTestNGCucumberTests {
 	private static final Logger LOGGER = Logger.getLogger(BaseTestUtil.class.getName());
@@ -75,7 +79,7 @@ public class Runner extends AbstractTestNGCucumberTests {
 
 		System.setProperty("dataproviderthreadcount", String.valueOf(threadCount));
 
-		Object[][] base = super.scenarios();
+		Object[][] base = filterByFeatureFiles(super.scenarios());
 		boolean runMultipleBrowsers = Boolean.parseBoolean(EsignetConfigManager.getproperty("runMultipleBrowsers"));
 		List<String> browsers = BaseTestUtil.getSupportedLocalBrowsers();
 
@@ -91,7 +95,6 @@ public class Runner extends AbstractTestNGCucumberTests {
 			return expanded.toArray(new Object[0][]);
 		}
 
-		// Single browser fallback
 		List<Object[]> fallback = new ArrayList<>();
 		for (Object[] scenario : base) {
 			fallback.add(new Object[] { scenario[0], scenario[1], browsers.getFirst(), lang });
@@ -100,6 +103,49 @@ public class Runner extends AbstractTestNGCucumberTests {
 		System.setProperty("testng.threadcount", String.valueOf(EsignetConfigManager.getproperty("threadCount")));
 
 		return fallback.toArray(new Object[0][]);
+	}
+
+	private static Object[][] filterByFeatureFiles(Object[][] scenarios) {
+		String featureFilesToExecute = EsignetConfigManager.getproperty("featureFilesToExecute");
+		if (featureFilesToExecute == null || featureFilesToExecute.trim().isEmpty()) {
+			return scenarios;
+		}
+
+		Set<String> requestedFeatures = new HashSet<>();
+		for (String name : featureFilesToExecute.split(",")) {
+			if (!name.trim().isEmpty()) {
+				requestedFeatures.add(name.trim().toLowerCase(Locale.ROOT));
+			}
+		}
+
+		if (requestedFeatures.isEmpty()) {
+			return scenarios;
+		}
+
+		List<Object[]> filtered = new ArrayList<>();
+		for (Object[] scenario : scenarios) {
+			PickleWrapper pickle = (PickleWrapper) scenario[0];
+			String uri = pickle.getPickle().getUri().toString();
+			String fileName = uri.substring(Math.max(uri.lastIndexOf('/'), uri.lastIndexOf('\\')) + 1);
+			if (fileName.toLowerCase(Locale.ROOT).endsWith(".feature")) {
+				fileName = fileName.substring(0, fileName.length() - ".feature".length());
+			}
+			if (requestedFeatures.contains(fileName.toLowerCase(Locale.ROOT))) {
+				filtered.add(scenario);
+			}
+		}
+
+		if (filtered.isEmpty()) {
+			LOGGER.warning("featureFilesToExecute=" + requestedFeatures
+					+ " matched no scenarios out of " + scenarios.length
+					+ " - check for a typo/stale entry; running all scenarios instead of silently running none.");
+			return scenarios;
+		}
+
+		LOGGER.info("featureFilesToExecute=" + requestedFeatures + " selected " + filtered.size() + "/"
+				+ scenarios.length + " scenarios");
+
+		return filtered.toArray(new Object[0][]);
 	}
 
 	@Test(dataProvider = "scenarios")
@@ -113,11 +159,11 @@ public class Runner extends AbstractTestNGCucumberTests {
 	@Override
 	@Test(enabled = false)
 	public void runScenario(PickleWrapper pickle, FeatureWrapper feature) {
-		// Disable default runner to avoid conflict
 	}
 
 	public static void main(String[] args) {
 		OTPListener otpListener = new OTPListener();
+		boolean setupFailed = false;
 		try {
 			LOGGER.info("** ------------- Esignet UI Automation run started---------------------------- **");
 
@@ -134,8 +180,11 @@ public class Runner extends AbstractTestNGCucumberTests {
 			EsignetUtil.getPluginName();
 			suiteSetup(getRunType());
 			setLogLevels();
+			otpListener.run();
 
-			if (EsignetUtil.pluginName.equals("mosipid")) {
+			EsignetUtil.getSupportedLanguage();
+
+			if (EsignetUtil.getPluginName().equals("mosipid")) {
 				KeycloakUserManager.removeUser();
 				KeycloakUserManager.createUsers();
 				KeycloakUserManager.closeKeycloakInstance();
@@ -145,13 +194,8 @@ public class Runner extends AbstractTestNGCucumberTests {
 				AdminTestUtil.createAndPublishPolicy();
 				AdminTestUtil.createEditAndPublishPolicy();
 				PartnerRegistration.deviceGeneration();
-				otpListener.run();
 
 				BiometricDataProvider.generateBiometricTestData("Registration");
-			}
-
-			else if (EsignetUtil.pluginName.equals("mock")) {
-				EsignetUtil.getSupportedLanguage();
 			}
 
 			List<String> languages = new ArrayList<>();
@@ -159,7 +203,6 @@ public class Runner extends AbstractTestNGCucumberTests {
 
 			if (runLang != null && !runLang.trim().isEmpty()) {
 				LOGGER.info("Using runLanguage from config: " + runLang);
-				// split by comma and trim spaces
 				String[] langs = runLang.split(",");
 				for (String lang : langs) {
 					if (!lang.trim().isEmpty()) {
@@ -179,7 +222,6 @@ public class Runner extends AbstractTestNGCucumberTests {
 				LOGGER.info("=== Starting run for language: " + lang + " ===");
 				startTestRunner();
 
-				// flush & upload this language report
 				ExtentReportManager.flushReport();
 				BaseTest.pushReportsToS3(lang);
 			}
@@ -187,14 +229,15 @@ public class Runner extends AbstractTestNGCucumberTests {
 
 		} catch (Exception e) {
 			LOGGER.severe("Exception " + e.getMessage());
+			setupFailed = true;
 		}
 		otpListener.bTerminate = true;
 
-		if (EsignetUtil.pluginName.equals("mosipid")) {
+		if (EsignetUtil.getPluginName().equals("mosipid")) {
 			KeycloakUserManager.removeUser();
 		}
 
-		System.exit(0);
+		System.exit(setupFailed ? 1 : 0);
 	}
 
 	public static void suiteSetup(String runType) {
@@ -205,8 +248,9 @@ public class Runner extends AbstractTestNGCucumberTests {
 			AuthTestsUtil.removeOldMosipTempTestResource();
 		}
 
-		BaseTestCase.currentModule = ESignetConstants.ESIGNETUI_MODULENAME;
-		BaseTestCase.certsForModule = ESignetConstants.ESIGNETUI_MODULENAME;
+		BaseTestCase.currentModule = ESignetConstants.ESIGNETUI_MODULENAME + BaseTestCase.runContext;
+		BaseTestCase.certsForModule = ESignetConstants.ESIGNETUI_MODULENAME + BaseTestCase.runContext;
+		BaseTestCase.initializePMSDetails();
 		AdminTestUtil.copymoduleSpecificAndConfigFile(ESignetConstants.ESIGNETUI_MODULENAME);
 	}
 

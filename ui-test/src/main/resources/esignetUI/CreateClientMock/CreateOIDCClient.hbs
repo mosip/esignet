@@ -36,11 +36,11 @@
       "userinfo_response_type": "{{userinfo_response_type}}",
       "purpose": {
         "title": {
-          "@none": "{{purpose_title}}"
+          "@none": {{#if purpose_title_is_null}}null{{else}}"{{purpose_title}}"{{/if}}
         },
         "type": "{{purpose_type}}",
         "subTitle": {
-          "@none": "{{purpose_subTitle}}"
+          "@none": {{#if purpose_subTitle_is_null}}null{{else}}"{{purpose_subTitle}}"{{/if}}
         }
       },
       "signup_banner_required": {{signup_banner_required}},
