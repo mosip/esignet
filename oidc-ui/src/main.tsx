@@ -40,6 +40,7 @@ createRoot(document.getElementById("root")!).render(
       <ThunderIDProvider
         baseUrl={baseUrl}
         applicationId={applicationId}
+        namespace={applicationId}
         preferences={
           initialLanguage ? { i18n: { language: initialLanguage } } : undefined
         }

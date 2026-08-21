@@ -9,6 +9,7 @@ package engine
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"testing"
 	"time"
@@ -322,6 +323,44 @@ func (ts *ActorProviderTestSuite) TestActorProvider_GetActor() {
 	if _, svcErr := p.GetActor("no-such-client"); svcErr == nil {
 		t.Fatal("expected error for unknown client")
 	}
+}
+
+func (ts *ActorProviderTestSuite) TestActorProvider_GetActor_NameLangMap() {
+	t := ts.T()
+
+	t.Run("no lang map: name stays plain", func(t *testing.T) {
+		p := NewActorProvider(newActorTestService(testClientRow()), &config.AppConfig{})
+		entity, svcErr := p.GetActor("client-001")
+		if svcErr != nil {
+			t.Fatalf("GetActor: %v", svcErr)
+		}
+		var attrs map[string]interface{}
+		if err := json.Unmarshal(entity.SystemAttributes, &attrs); err != nil {
+			t.Fatalf("unmarshal SystemAttributes: %v", err)
+		}
+		if attrs["name"] != "Test App" {
+			t.Errorf("name = %v, want plain \"Test App\"", attrs["name"])
+		}
+	})
+
+	t.Run("lang map present: name becomes an i18n reference", func(t *testing.T) {
+		row := testClientRow()
+		row.Name = `{"@none":"Test App","hin":"टेस्ट ऐप"}`
+		p := NewActorProvider(newActorTestService(row), &config.AppConfig{})
+
+		entity, svcErr := p.GetActor("client-001")
+		if svcErr != nil {
+			t.Fatalf("GetActor: %v", svcErr)
+		}
+		var attrs map[string]interface{}
+		if err := json.Unmarshal(entity.SystemAttributes, &attrs); err != nil {
+			t.Fatalf("unmarshal SystemAttributes: %v", err)
+		}
+		want := "{{t(client:name)}}"
+		if attrs["name"] != want {
+			t.Errorf("name = %v, want %q", attrs["name"], want)
+		}
+	})
 }
 
 func (ts *ActorProviderTestSuite) TestActorProvider_GetActor_ServerError() {

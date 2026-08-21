@@ -36,7 +36,6 @@ const (
 	// Map keys
 	jwks        = "JWKS"
 	name        = "name"
-	nameLangMap = "nameLangMap"
 	description = "description"
 	logoURL     = "logo_url"
 	app         = "app"
@@ -218,7 +217,8 @@ func (p *actorProvider) GetActor(id string) (*providers.Entity, *common.ServiceE
 		description: client.ClientName,
 	}
 	if len(client.ClientNameLangMap) > 0 {
-		clientAttributes[nameLangMap] = client.ClientNameLangMap
+		// Fixed reference; ResolveTranslations resolves it per-request via namespace=clientID.
+		clientAttributes[name] = "{{t(" + clientNameNamespace + ":name)}}"
 	}
 	data, err := json.Marshal(clientAttributes)
 	if err != nil {
