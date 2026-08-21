@@ -1,4 +1,4 @@
-\c mosip_esignet
+\c :mosipdbname
 
 truncate table consent_detail;
 truncate table consent_history;
