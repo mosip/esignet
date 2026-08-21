@@ -1281,6 +1281,8 @@ validation:
   pattern.invalid: වලංගු නොවන ආකෘතිය
   minLength.invalid: අගය ඉතා කෙටිය
   maxLength.invalid: අගය ඉතා දිගය
+  policy.numeric: ප්‍රතිපත්ති අංකයේ අංක පමණක් අඩංගු විය යුතුය
+  policy.length: ප්‍රතිපත්ති අංකය ඉලක්කම් 8ත් 50ත් අතර විය යුතුය
 
 validations:
   required.field.error: මෙම ක්ෂේත්‍රය අවශ්‍යයි

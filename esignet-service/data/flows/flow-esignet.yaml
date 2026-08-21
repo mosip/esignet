@@ -1044,9 +1044,22 @@ nodes:
           components:
             - <<: *page_title
               label: "{{t(button:login_kbi)}}"
-            - <<: *prompt_uin
+            - id: username_input
+              ref: username
               label: "{{t(input:policy_number_label)}}"
               placeholder: "{{t(input:policy_number_placeholder)}}"
+              type: TEXT_INPUT
+              required: true
+              validation:
+                - type: regex
+                  value: ^[0-9]+$
+                  message: "validation.policy.numeric"
+                - type: maxLength
+                  value: 50
+                  message: "validation.policy.length"
+                - type: minLength
+                  value: 8
+                  message: "validation.policy.length"
             - id: fullname_input
               ref: fullName
               type: TEXT_INPUT

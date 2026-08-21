@@ -1281,6 +1281,8 @@ validation:
   pattern.invalid: अमान्य प्रारूप
   minLength.invalid: मान बहुत छोटा है
   maxLength.invalid: मान बहुत लंबा है
+  policy.numeric: पॉलिसी नंबर में केवल संख्याएँ होनी चाहिए
+  policy.length: पॉलिसी नंबर 8 से 50 अंकों के बीच होना चाहिए
 
 validations:
   required.field.error: यह फ़ील्ड आवश्यक है

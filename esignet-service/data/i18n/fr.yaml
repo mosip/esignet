@@ -1281,6 +1281,8 @@ validation:
   pattern.invalid: Format non valide
   minLength.invalid: La valeur est trop courte
   maxLength.invalid: La valeur est trop longue
+  policy.numeric: Le numéro de police ne doit contenir que des chiffres
+  policy.length: Le numéro de police doit comporter entre 8 et 50 chiffres
 
 validations:
   required.field.error: Ce champ est obligatoire
