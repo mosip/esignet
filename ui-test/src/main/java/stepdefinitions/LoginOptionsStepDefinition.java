@@ -226,6 +226,9 @@ public class LoginOptionsStepDefinition {
 
 	@Then("verify mobile number selected for authentication")
 	public void verifyMobileNumberSelectedForAuthentication() {
+		if (!loginOptionsPage.isMobileNumberSelected()) {
+			loginOptionsPage.clickOnMobileNumberOption();
+		}
 		Assert.assertTrue(loginOptionsPage.isMobileNumberSelected(),
 				"Mobile number not seleted in authentication screen");
 	}

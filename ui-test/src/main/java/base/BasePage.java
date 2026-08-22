@@ -222,8 +222,15 @@ public class BasePage {
 		}
 		if (!landmarkPresent && authorizeUrl != null) {
 			String freshUrl = authorizeUrl.replaceFirst("nonce=[^&]*", "nonce=" + System.currentTimeMillis());
-			driver.manage().deleteAllCookies();
+			// Cookie deletion is domain-scoped: deleteAllCookies() before navigating only clears
+			// whatever domain the browser is CURRENTLY on (e.g. the relying party's), not esignet-go's -
+			// esignet-go's own session cookies never actually get cleared, so the "fresh" navigation
+			// below lands on the same still-authenticated session instead of a real login screen.
+			// Navigate to esignet-go's domain first, delete ITS cookies now that they're actually
+			// reachable, then reload so the page renders in the now-cookie-free state.
 			driver.get(freshUrl);
+			driver.manage().deleteAllCookies();
+			driver.navigate().refresh();
 			// Give the fresh navigation genuine time to render before returning - driver.get() only
 			// blocks for the load event, not for this SPA's own async client-side render, so a caller
 			// that clicks immediately after this returns can still race a landmark that's a moment away.
@@ -231,14 +238,6 @@ public class BasePage {
 				new WebDriverWait(driver, Duration.ofSeconds(EsignetConfigManager.getTimeout()))
 						.until(d -> !d.findElements(landmark).isEmpty());
 			} catch (TimeoutException e) {
-				// Confirmed live 2026-08-21/22: after a Deny -> discontinue -> "redirected to relying
-				// party" chain that's a no-op under mock-plugin (that flow doesn't exist here), replaying
-				// the authorize URL with a fresh nonce lands on a bare /signin route without the expected
-				// acr_*/username_input landmark - not a client-side timing issue (a longer wait here
-				// doesn't help) and not stale localStorage/sessionStorage (clearing both and retrying
-				// doesn't help either). Looks like a genuine server-side rejection of replaying the
-				// authorize request in the same session after a completed prior transaction. Left as a
-				// known gap - the caller's own subsequent wait will surface a clear timeout.
 				LOGGER.warn("Fresh esignet login page navigation to {} did not surface landmark {} within {}s",
 						freshUrl, landmark, EsignetConfigManager.getTimeout());
 			}
