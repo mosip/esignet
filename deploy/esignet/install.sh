@@ -259,12 +259,13 @@ function installing_esignet() {
     volume_mount_path=${volume_mount_path:-$default_volume_mount_path}
 
     PVC_CLAIM_NAME='esignet-pkcs12'
-    ESIGNET_HELM_ARGS="--set persistence.enabled=true  \
-                       --set volumePermissions.enabled=true \
-                       --set persistence.size=$volume_size \
-                       --set persistence.mountDir=\"$volume_mount_path\" \
-                       --set persistence.pvc_claim_name=\"$PVC_CLAIM_NAME\"  \
-                      "
+    ESIGNET_HELM_ARGS=(
+      --set persistence.enabled=true
+      --set volumePermissions.enabled=true
+      --set persistence.size=$volume_size
+      --set persistence.mountDir=\"$volume_mount_path\"
+      --set persistence.pvc_claim_name=\"$PVC_CLAIM_NAME\"
+    )
 
     keystore_env_vars+="  KEYMANAGER_KEYSTORE_TYPE: \"PKCS12\""$'\n'
 
