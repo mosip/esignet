@@ -23,7 +23,7 @@ function initialize_db() {
   done
 
   while true; do
-      read -p "CAUTION: all existing data if any for mosip_esignet will be lost. Are you sure? (Y/n)" yn
+      read -p "CAUTION: Please ensure Postgres is installed. If the esignet DB already exists, it will be skipped and not overwritten. Do you still want to continue? (Y/N): " yn
       if [ $yn = "Y" ] || [ $yn = "y" ];
         then
           echo Removing existing mosip_esignet installation and secret
