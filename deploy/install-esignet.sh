@@ -12,6 +12,10 @@ ROOT_DIR=$(pwd)
 function installing_eSignet() {
   helm repo add mosip https://mosip.github.io/mosip-helm
 
+  export PLUGIN_NO_FILE
+  PLUGIN_NO_FILE=$(mktemp)
+  trap 'rm -f "$PLUGIN_NO_FILE"' EXIT
+
   # esignet/install.sh prompts for the required plugin (mock/mosip/sunbird)
   # itself, so install it along with oidc-ui.
   declare -a modules=("esignet" "oidc-ui")
@@ -25,9 +29,9 @@ function installing_eSignet() {
 
   echo "All selected eSignet services deployed successfully."
 
-  if [ -f /tmp/plugin_no.txt ]; then
-    plugin_no=$(cat /tmp/plugin_no.txt)
-    rm /tmp/plugin_no.txt
+  plugin_no=""
+  if [ -s "$PLUGIN_NO_FILE" ]; then
+    plugin_no=$(cat "$PLUGIN_NO_FILE")
   fi
   #echo "DEBUG: plugin_no=$plugin_no"
 

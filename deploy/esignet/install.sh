@@ -154,7 +154,8 @@ function installing_esignet() {
   echo "2. mosip"
   echo "3. sunbird"
   read -p "Enter the plugin number: " plugin_no
-  echo "$plugin_no" > /tmp/plugin_no.txt
+  PLUGIN_NO_FILE=${PLUGIN_NO_FILE:-$(mktemp)}
+    echo "$plugin_no" > "$PLUGIN_NO_FILE"
 
   while true; do
     if [[ "$plugin_no" == "1" ]]; then
@@ -501,7 +502,7 @@ function installing_esignet() {
   plugin_option="--set pluginNameEnv=$plugin_name -f $plugin_env_file"
 
   echo Installing esignet
-  helm -n $NS install $ESIGNET_SERVICE_NAME /home/techno-467/IdeaProjects/esignet/helm/esignet --version $CHART_VERSION  \
+  helm -n $NS install $ESIGNET_SERVICE_NAME mosip/esignet --version $CHART_VERSION  \
     $ENABLE_INSECURE $plugin_option \
     $ESIGNET_HELM_ARGS \
     --set metrics.serviceMonitor.enabled=$servicemonitorflag -f values.yaml --wait
