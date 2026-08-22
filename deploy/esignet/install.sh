@@ -10,24 +10,11 @@ NS=esignet
 ESIGNET_SERVICE_NAME=esignet
 CHART_VERSION=2.0.0-develop
 SOFTHSM_SERVICE_NAME=esignet-softhsm
-# The mosip/softhsm chart names its ConfigMap after the release name with a
-# "-share" suffix (observed: release "esignet-softhsm" -> configmap
-# "esignet-softhsm-share"). Derived here so it always matches
-# SOFTHSM_SERVICE_NAME above, however it's set. If the chart's actual naming
-# differs, override SOFTHSM_CM_NAME directly as an env var before running.
 SOFTHSM_CM_NAME=${SOFTHSM_CM_NAME:-${SOFTHSM_SERVICE_NAME}-share}
 SOFTHSM_CHART_VERSION=12.0.1
 echo Create $NS namespace
 kubectl create ns $NS || true
 
-# ---------------------------------------------------------------------
-# SoftHSM / HSM deployment, inlined here (no longer a separate script).
-# Only called from within the PKCS11 branch below, i.e. only for the
-# mosip and sunbird plugins. The mock plugin (PKCS12) never reaches this.
-# SOFTHSM_VALUES_PATH defaults to the sibling softhsm/ directory
-# (softhsm/ and this esignet/ folder are siblings); override via env
-# var if your layout differs.
-# ---------------------------------------------------------------------
 function installing_softhsm() {
   SOFTHSM_VALUES_PATH=${SOFTHSM_VALUES_PATH:-../softhsm/softhsm-values.yaml}
 
@@ -42,13 +29,6 @@ function installing_softhsm() {
   helm repo update
 
   echo "Installing Softhsm for esignet"
-  # Always upgrade --install, whether or not the release already exists.
-  # This is intentional: it means any change you make to softhsm-values.yaml
-  # (token label, PIN, module path defaults, etc.) is picked up on every
-  # run, rather than being silently ignored once SoftHSM is already
-  # installed. upgrade --install is idempotent either way - fresh install
-  # if the release doesn't exist, in-place upgrade if it does - so this
-  # never fails with Helm's "cannot re-use a name that is still in use".
   if helm status "$SOFTHSM_SERVICE_NAME" -n "$NS" &>/dev/null; then
     echo "SoftHSM release '$SOFTHSM_SERVICE_NAME' already exists in namespace '$NS' - upgrading in place with the current softhsm-values.yaml."
   else
@@ -104,8 +84,10 @@ function installing_esignet() {
   helm repo update
 
   COPY_UTIL=../copy_cm_func.sh
+  $COPY_UTIL configmap esignet-softhsm-share softhsm $NS
   $COPY_UTIL configmap postgres-config postgres $NS
   $COPY_UTIL configmap redis-config redis $NS
+  $COPY_UTIL secret esignet-softhsm softhsm $NS
   $COPY_UTIL secret redis redis $NS
 
   while true; do
@@ -177,10 +159,6 @@ function installing_esignet() {
 
     elif [[ "$plugin_no" == "2" ]]; then
       echo "Setting up Esignet MISP license key secret"
-      # The chart/app requires a non-empty value here - creating this secret
-      # with an empty string (the old behavior) leaves the mosip-esignet-misp-key
-      # value blank, which prevents the esignet service from coming up. Default
-      # to a non-empty placeholder; allow providing a real key if available.
       default_misp_key="dummy-mosip-esignet-misp-key"
       read -p "Enter the MISP license key [default: dummy placeholder '$default_misp_key']: " misp_key_value
       misp_key_value=${misp_key_value:-$default_misp_key}
@@ -273,9 +251,6 @@ function installing_esignet() {
     read -p "Provide KEYMANAGER_PKCS12_FILE_PATH [default: $default_pkcs12_file_path]: " pkcs12_file_path
     pkcs12_file_path=${pkcs12_file_path:-$default_pkcs12_file_path}
 
-    # Generate a random KEYMANAGER_PKCS12_PASSWORD and store it as a Kubernetes
-    # Secret in the same namespace, matching the chart's documented convention
-    # (secretKeyRef: esignet-keymanager / pkcs12-password) instead of a plain value.
     pkcs12_password=$(openssl rand -base64 16 | tr -dc 'A-Za-z0-9' | cut -c1-16)
     kubectl -n "$NS" create secret generic esignet-keymanager \
       --from-literal=pkcs12-password="$pkcs12_password" \
@@ -284,67 +259,23 @@ function installing_esignet() {
 
     keystore_env_vars+="  KEYMANAGER_PKCS12_FILE_PATH: \"$pkcs12_file_path\""$'\n'
     keystore_env_vars+="  KEYMANAGER_PKCS12_ALLOW_INSECURE_SOFTWARE_KEYSTORE: \"true\""$'\n'
-
-    # Mock uses PKCS12 exclusively - explicitly blank out the PKCS11-related
-    # keys so no leftover/inherited PKCS11 config lingers in this deployment.
     keystore_env_vars+="  KEYMANAGER_PKCS11_MODULE_PATH: \"\""$'\n'
     keystore_env_vars+="  KEYMANAGER_PKCS11_TOKEN_LABEL: \"\""$'\n'
     keystore_env_vars+="  KEYMANAGER_PKCS11_SLOT_ID: \"\""$'\n'
     keystore_env_vars+="  KEYMANAGER_PKCS11_PIN: \"\""$'\n'
-
-    # The chart's base extraEnvVars has a SECOND, separate key that also
-    # points at the 'esignet-softhsm' secret (KEYMANAGER_PKCS11_PIN above
-    # is the first) - without overriding this one too, the mock deployment
-    # still fails with "secret esignet-softhsm not found" even after
-    # KEYMANAGER_PKCS11_PIN is blanked.
     keystore_env_vars+="  SOFTHSM_ESIGNET_SECURITY_PIN: \"\""$'\n'
-
     keystore_env_vars+="  KEYMANAGER_PKCS12_PASSWORD:"$'\n'
     keystore_env_vars+="    valueFrom:"$'\n'
     keystore_env_vars+="      secretKeyRef:"$'\n'
     keystore_env_vars+="        name: esignet-keymanager"$'\n'
     keystore_env_vars+="        key: pkcs12-password"$'\n'
-
-    # The esignet chart's own values.yaml defaults extraEnvVarsCM to
-    # {esignet-softhsm-share} regardless of plugin. We must override it to
-    # an empty list to cancel that default for mock. IMPORTANT: Helm's CLI
-    # `--set list={}` does NOT create an empty list - it creates a list
-    # containing one empty string, which breaks the deployment template
-    # (envFrom[0].configMapRef.name: Required value). So instead we write
-    # `extraEnvVarsCM: []` directly into the YAML overlay file below, where
-    # an empty list is unambiguous.
     EXTRA_ENV_VARS_CM_YAML="extraEnvVarsCM: []"$'\n'
 
   else
     echo "Plugin '$plugin_name' selected - configuring PKCS11 keystore. SoftHSM required."
 
-    # ---------------- SoftHSM / HSM deployment (inline) ----------------
-    # SoftHSM is only required for PKCS11-backed plugins (mosip, sunbird),
-    # which is exactly this branch. Runs before anything below references
-    # the 'esignet-softhsm' secret (module path defaults, and the optional
-    # PIN override/patch further down both assume that secret already exists).
-    # Always prompts and always runs upgrade --install inside
-    # installing_softhsm() (see that function for details) - this means
-    # softhsm-values.yaml changes are picked up on every run, whether
-    # SoftHSM already exists or not, rather than being skipped once
-    # installed.
     prompt_hsm_choice
-
-    # Only mosip/sunbird (this branch) reference the SoftHSM-provided
-    # ConfigMap on the esignet helm install - mock never reaches here.
-    # Written as YAML (not --set) for consistency with the mock branch.
     EXTRA_ENV_VARS_CM_YAML="extraEnvVarsCM:"$'\n'"  - $SOFTHSM_CM_NAME"$'\n'
-
-    # ---------------- PKCS11 flow ----------------
-    # NOTE: KEYMANAGER_PKCS11_PIN is intentionally NOT prompted for here.
-    # values.yaml already defaults it to a secretKeyRef (esignet-softhsm/security-pin),
-    # and that secret is created as part of the softhsm/PKCS11 install flow above.
-    # Overriding it with a plain-text value here would replace a working secret
-    # reference with a literal, so we leave the chart default untouched.
-    # KEYMANAGER_PKCS11_TOKEN_LABEL and hsm_client_zip_url_env belong in the
-    # esignet chart's deployment.yaml (extraEnvVarsAdditional), controlled
-    # entirely from here: accept the default, or provide your own value.
-
     default_pkcs11_module_path="/usr/local/lib/softhsm/libpkcs11-proxy.so"
     default_pkcs11_token_label="mosip-token"
     default_hsm_client_zip_url_env="https://raw.githubusercontent.com/mosip/artifactory-ref-impl/master/artifacts/src/hsm/client.zip"
@@ -377,13 +308,6 @@ function installing_esignet() {
     done
 
     keystore_env_vars+="  KEYMANAGER_KEYSTORE_TYPE: \"PKCS11\""$'\n'
-
-    # The chart's own base extraEnvVars hardcodes secretKeyRef.name as the
-    # literal string "esignet-softhsm" for both of these keys. That's only
-    # correct when SOFTHSM_SERVICE_NAME is left at its default. Since the
-    # name is overridable, we must always override these two here so they
-    # point at whatever SoftHSM release name is actually in use - otherwise
-    # a renamed release causes "secret <old-default-name> not found".
     keystore_env_vars+="  KEYMANAGER_PKCS11_PIN:"$'\n'
     keystore_env_vars+="    valueFrom:"$'\n'
     keystore_env_vars+="      secretKeyRef:"$'\n'
@@ -394,25 +318,11 @@ function installing_esignet() {
     keystore_env_vars+="      secretKeyRef:"$'\n'
     keystore_env_vars+="        name: \"$SOFTHSM_SERVICE_NAME\""$'\n'
     keystore_env_vars+="        key: security-pin"$'\n'
-
-    # KEYMANAGER_PKCS11_MODULE_PATH: the esignet chart already has its own
-    # default for this key, so only write it here if the user overrode it -
-    # otherwise the chart's own default applies and we avoid duplicating it.
     if [[ "$pkcs11_module_path" != "$default_pkcs11_module_path" ]]; then
       keystore_env_vars+="  KEYMANAGER_PKCS11_MODULE_PATH: \"$pkcs11_module_path\""$'\n'
     fi
-
-    # KEYMANAGER_PKCS11_TOKEN_LABEL and hsm_client_zip_url_env: unlike
-    # MODULE_PATH, the esignet chart has NO built-in default for these two -
-    # they only exist via SoftHSM's own values.yaml, which doesn't feed into
-    # the esignet chart's env vars. So these must always be written here,
-    # whether the user kept the default or provided their own value -
-    # otherwise they end up completely absent from deployment.yaml.
     keystore_env_vars+="  KEYMANAGER_PKCS11_TOKEN_LABEL: \"$pkcs11_token_label\""$'\n'
     keystore_env_vars+="  hsm_client_zip_url_env: \"$hsm_client_zip_url_env\""$'\n'
-
-    # Run the existing PKCS11 installation script/flow, if present.
-    # Set PKCS11_INSTALL_SCRIPT env var before running this script to override the path.
     PKCS11_INSTALL_SCRIPT=${PKCS11_INSTALL_SCRIPT:-../pkcs11-install.sh}
     if [ -x "$PKCS11_INSTALL_SCRIPT" ]; then
       echo "Running PKCS11 installation script: $PKCS11_INSTALL_SCRIPT"
@@ -422,13 +332,6 @@ function installing_esignet() {
       echo "Please ensure PKCS11 is installed/configured on the target nodes before proceeding, or set PKCS11_INSTALL_SCRIPT to the correct path."
     fi
 
-    # ---------------- KEYMANAGER_PKCS11_PIN (optional override) ----------------
-    # SoftHSM auto-generates a random security PIN during install (or during
-    # a previous run, if the install was skipped above) and stores it in the
-    # "$SOFTHSM_SERVICE_NAME" secret (key: security-pin). There is no fixed
-    # default value to display here - it's random each time SoftHSM is
-    # installed. KEYMANAGER_PKCS11_PIN above already references this secret
-    # by name, so keeping the generated PIN requires no further action.
     echo ""
     echo "SoftHSM generated a random security PIN and stored it in the '$SOFTHSM_SERVICE_NAME' secret."
 
@@ -454,11 +357,6 @@ function installing_esignet() {
     done
   fi
 
-  # ---------------------------------------------------------------------
-  # MOSIP_ESIGNET_AUTHN_PROVIDER is derived from the plugin selected above
-  # (mock -> mock, mosip -> mosip, sunbird -> sunbird).
-  # NAMESPACE holds the actual k8s namespace the chart is deployed into.
-  # ---------------------------------------------------------------------
   extra_env_vars_additional+="  \"MOSIP_ESIGNET_AUTHN_PROVIDER\": \"$plugin_name\""$'\n'
   extra_env_vars_additional+="  \"NAMESPACE\": \"$NS\""$'\n'
 
@@ -472,19 +370,6 @@ function installing_esignet() {
     extra_env_vars_additional+="  \"MOSIP_ESIGNET_CAPTCHA_SITE_KEY\": \"\""$'\n'
   fi
 
-  # Combine env vars into a YAML overlay file with two distinct sections:
-  # - extraEnvVars: keys the chart's OWN values.yaml already defines
-  #   (KEYMANAGER_*). Helm deep-merges -f overlay maps against chart
-  #   defaults, so setting a key here actually REPLACES the chart's
-  #   default for that key (e.g. cancels its secretKeyRef pointing at the
-  #   'esignet-softhsm' secret). This is required, not optional - writing
-  #   these into extraEnvVarsAdditional only appends a second, separate env
-  #   entry alongside the chart's original one; Kubernetes still tries to
-  #   resolve the original secretKeyRef and fails with
-  #   CreateContainerConfigError even though our override "wins" logically.
-  # - extraEnvVarsAdditional: keys the chart does NOT predefine (custom
-  #   MOSIP_ESIGNET_* vars, NAMESPACE, captcha) - these are genuinely
-  #   additional, so appending them here is correct.
   plugin_env_file=$(mktemp)
   {
     if [[ -n "$keystore_env_vars" ]]; then
