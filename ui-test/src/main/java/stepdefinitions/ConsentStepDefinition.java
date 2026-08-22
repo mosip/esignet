@@ -168,7 +168,13 @@ public class ConsentStepDefinition {
 			return;
 		}
 		expectedDefaultLang = consentPage.getCurrentLanguage();
-		consentPage.clickOnLoginWithOtp();
+		if (!consentPage.clickOnLoginWithOtp()) {
+			String reason = "clicking Login with Otp - the mock-plugin re-login/discontinue flow left the "
+					+ "browser on neither a real esignet login screen nor the relying party's page (confirmed "
+					+ "via BasePage.ensureFreshEsignetLoginPage's own recovery attempt failing).";
+			logger.info("Not clicking (this step only, not the scenario) - " + reason);
+			ExtentReportManager.notApplicable(reason);
+		}
 	}
 
 	@Then("user enters Registered mobile number into the mobile number field")

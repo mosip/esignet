@@ -19,9 +19,14 @@ public class MultiLanguagePage extends BasePage {
     @FindBy(css = "nav button[aria-haspopup='listbox']")
     WebElement languageSelection;
 
-    public void clickOnLanguageSelection() {
-        ensureFreshEsignetLoginPage(By.cssSelector("nav button[aria-haspopup='listbox']"));
+    /** @return false if a real esignet page genuinely isn't reachable (caller should treat as not
+     *  applicable and skip); true otherwise. */
+    public boolean clickOnLanguageSelection() {
+        if (!ensureFreshEsignetLoginPage(By.cssSelector("nav button[aria-haspopup='listbox']"))) {
+            return false;
+        }
         clickOnElement(languageSelection,"Clicked on language selection option");
+        return true;
     }
 
     public void clickOnLanguage() {

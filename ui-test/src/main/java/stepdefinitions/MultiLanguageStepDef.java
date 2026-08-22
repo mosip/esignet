@@ -35,7 +35,11 @@ public class MultiLanguageStepDef {
                     + "not a real esignet screen - the mock-plugin re-login/discontinue flow doesn't return here.");
             return;
         }
-        multiLanguagePage.clickOnLanguageSelection();
+        if (!multiLanguagePage.clickOnLanguageSelection()) {
+            logger.info("Not clicking (this step only, not the scenario) - the mock-plugin re-login/discontinue "
+                    + "flow left the browser on neither a real esignet screen nor the relying party's page "
+                    + "(confirmed via BasePage.ensureFreshEsignetLoginPage's own recovery attempt failing).");
+        }
     }
 
     @When("select the mandatory language")

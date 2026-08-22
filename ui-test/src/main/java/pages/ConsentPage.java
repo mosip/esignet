@@ -178,14 +178,20 @@ public class ConsentPage extends BasePage {
 	@FindBy(id = "discontinue-button")
 	WebElement discontinueButtonInConsentUpdateProfileScreen;
 
-	public void clickOnLoginWithOtp() {
-		ensureFreshEsignetLoginPage(By.cssSelector("[id^='acr_'], #username_input"));
+	/** @return false if a real login screen genuinely isn't reachable (caller should treat as
+	 *  not applicable and skip); true otherwise, including the single-factor-skip case below. */
+	public boolean clickOnLoginWithOtp() {
+		boolean landmarkReached = ensureFreshEsignetLoginPage(By.cssSelector("[id^='acr_'], #username_input"));
+		if (!landmarkReached) {
+			return false;
+		}
 		if (driver.findElements(By.id("acr_otp")).isEmpty() && !driver.findElements(By.id("username_input")).isEmpty()) {
 			LOGGER.info("Login-with-Otp chooser not present but username_input already is - "
 					+ "single-factor screen, nothing to click, proceeding directly.");
-			return;
+			return true;
 		}
 		clickOnElement(loginWithOtpButton, "Clicked on login with Otp button");
+		return true;
 	}
 
 	public void enterRegisteredMobileNumber(String number) {
