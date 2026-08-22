@@ -6,9 +6,9 @@ databases:
     enabled: true
     scriptsDir: mosip_esignet      # fixed - must match db_scripts/ folder in repo
     dbName: mosip_esignet        # customize e.g. mosip_esignet02
-    dbUser: esignetuser          # customize e.g. esignetuser02
+    dbUser: esignetuser         # customize e.g. esignetuser02
     defaultDb: postgres
-    host: "postgres-postgresql"
+    host: "postgres-postgresql.postgres"
     port: 5432
     su:
       user: postgres

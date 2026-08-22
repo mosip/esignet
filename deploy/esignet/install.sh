@@ -84,11 +84,11 @@ function installing_esignet() {
   helm repo update
 
   COPY_UTIL=../copy_cm_func.sh
-  $COPY_UTIL configmap esignet-softhsm-share softhsm $NS
   $COPY_UTIL configmap postgres-config postgres $NS
   $COPY_UTIL configmap redis-config redis $NS
-  $COPY_UTIL secret esignet-softhsm softhsm $NS
+  $COPY_UTIL configmap keycloak-host keycloak $NS
   $COPY_UTIL secret redis redis $NS
+  $COPY_UTIL secret keycloak-client-secrets keycloak $NS
 
   while true; do
     read -p "Is Prometheus Service Monitor Operator deployed in the k8s cluster? (y/n): " response
@@ -261,7 +261,6 @@ function installing_esignet() {
     keystore_env_vars+="  KEYMANAGER_PKCS12_ALLOW_INSECURE_SOFTWARE_KEYSTORE: \"true\""$'\n'
     keystore_env_vars+="  KEYMANAGER_PKCS11_MODULE_PATH: \"\""$'\n'
     keystore_env_vars+="  KEYMANAGER_PKCS11_TOKEN_LABEL: \"\""$'\n'
-    keystore_env_vars+="  KEYMANAGER_PKCS11_SLOT_ID: \"\""$'\n'
     keystore_env_vars+="  KEYMANAGER_PKCS11_PIN: \"\""$'\n'
     keystore_env_vars+="  SOFTHSM_ESIGNET_SECURITY_PIN: \"\""$'\n'
     keystore_env_vars+="  KEYMANAGER_PKCS12_PASSWORD:"$'\n'
