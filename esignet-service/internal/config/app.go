@@ -9,6 +9,7 @@ package config
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -22,7 +23,7 @@ import (
 )
 
 const (
-	defaultPort                  = 8088
+	defaultPort                  = 8080
 	defaultDataDir               = "./data"
 	appConfigFileName            = "deployment.yaml"
 	defaultGatePort              = 3000
@@ -88,7 +89,7 @@ type AppConfig struct {
 	DB                         DB                               `yaml:"db"`
 	Redis                      Redis                            `yaml:"redis"`
 	ScopeClaims                map[string][]string              `yaml:"scope_claims"`
-	AuthorizationScopes        map[string]string                `yaml:"authorization_scopes"`
+	ResourceServers            []ResourceServerConfig           `yaml:"resource_servers"`
 	Provider                   string                           `yaml:"provider"`
 	AuthFlowID                 string                           `yaml:"auth_flow_id"`
 	ThemeID                    string                           `yaml:"theme_id"`
@@ -117,6 +118,65 @@ type AppConfig struct {
 type PProfConfig struct {
 	Enabled bool `yaml:"enabled"`
 	Port    int  `yaml:"port"`
+}
+
+// ResourceServerConfig declares one resource server this deployment issues access tokens for.
+// Identifier is the RFC 8707 `resource` request-parameter value and the access token's `aud`
+// claim; it must be an absolute URI. Scopes maps each permission scope name this resource server
+// defines to a human-readable description.
+//
+// The whole resource_servers list can be overridden per-environment (without rebuilding the
+// image) via the MOSIP_ESIGNET_RESOURCE_SERVERS_JSON env var, set to a JSON array matching this
+// shape, e.g.:
+//
+//	[{"id":"esignet-default","identifier":"https://esignet.example.com/resource","default":true,"scopes":{"payment:pay":"Make payments"}}]
+//
+// When set, it fully replaces (not merges with) the deployment.yaml value and is subject to the
+// same validateResourceServers checks (at most one default, no duplicate id/identifier).
+type ResourceServerConfig struct {
+	ID         string            `yaml:"id"         json:"id"`
+	Identifier string            `yaml:"identifier" json:"identifier"`
+	Default    bool              `yaml:"default"     json:"default"`
+	Scopes     map[string]string `yaml:"scopes"      json:"scopes"`
+}
+
+// ResourceServerByIdentifier returns the resource server registered under identifier. An empty
+// identifier resolves to the resource server marked Default, or nil if none is configured.
+func (c *AppConfig) ResourceServerByIdentifier(identifier string) *ResourceServerConfig {
+	for i := range c.ResourceServers {
+		rs := &c.ResourceServers[i]
+		if identifier == "" {
+			if rs.Default {
+				return rs
+			}
+			continue
+		}
+		if rs.Identifier == identifier {
+			return rs
+		}
+	}
+	return nil
+}
+
+// ResourceServerByID returns the resource server with the given internal ID, or nil if none matches.
+func (c *AppConfig) ResourceServerByID(id string) *ResourceServerConfig {
+	for i := range c.ResourceServers {
+		if c.ResourceServers[i].ID == id {
+			return &c.ResourceServers[i]
+		}
+	}
+	return nil
+}
+
+// IsAuthorizationScope reports whether name is a permission scope defined on any configured
+// resource server.
+func (c *AppConfig) IsAuthorizationScope(name string) bool {
+	for _, rs := range c.ResourceServers {
+		if _, ok := rs.Scopes[name]; ok {
+			return true
+		}
+	}
+	return false
 }
 
 // SecurityConfig defines application security configuration
@@ -181,7 +241,38 @@ func LoadAppConfig() (*AppConfig, error) {
 	}
 
 	applyDefaults(&cfg)
+	if err := validateResourceServers(cfg.ResourceServers); err != nil {
+		return nil, fmt.Errorf("resource_servers: %w", err)
+	}
 	return &cfg, nil
+}
+
+// validateResourceServers rejects an ambiguous resource_servers configuration: at most one entry
+// may be marked default (an empty `resource` request parameter cannot otherwise resolve which one
+// to bind to), and no two entries may share an id or identifier.
+func validateResourceServers(resourceServers []ResourceServerConfig) error {
+	seenIDs := make(map[string]bool, len(resourceServers))
+	seenIdentifiers := make(map[string]bool, len(resourceServers))
+	defaultID := ""
+	for _, rs := range resourceServers {
+		if seenIDs[rs.ID] {
+			return fmt.Errorf("duplicate resource server id %q", rs.ID)
+		}
+		seenIDs[rs.ID] = true
+
+		if seenIdentifiers[rs.Identifier] {
+			return fmt.Errorf("duplicate resource server identifier %q", rs.Identifier)
+		}
+		seenIdentifiers[rs.Identifier] = true
+
+		if rs.Default {
+			if defaultID != "" {
+				return fmt.Errorf("multiple resource servers marked default: %q and %q", defaultID, rs.ID)
+			}
+			defaultID = rs.ID
+		}
+	}
+	return nil
 }
 
 func boolPtr(b bool) *bool { return &b }
@@ -199,7 +290,10 @@ func applyDefaults(cfg *AppConfig) {
 		Port:    envIntOrDefault("MOSIP_ESIGNET_PPROF_PORT", 6060),
 	}
 
-	cacheType := envOrConfigOrDefault("MOSIP_ESIGNET_CACHE_TYPE", cfg.RuntimeDBType, "redis")
+	cacheType := envOrConfigOrDefault("MOSIP_ESIGNET_CACHE_TYPE", cfg.RuntimeDBType, "inmemory")
+	if cacheType != "redis" {
+		cacheType = "inmemory"
+	}
 	cfg.RuntimeDBType = cacheType
 	if cacheType == "redis" {
 		cfg.Redis = loadRedis(cfg.Redis)
@@ -273,9 +367,6 @@ func applyDefaults(cfg *AppConfig) {
 		"mosip:idp:acr:password":       {},
 	}
 	cfg.OAuth.AuthClass.Amrs = []string{}
-	cfg.OAuth.AllowedAuthMethods = []string{"private_key_jwt"}
-	cfg.OAuth.AllowedGrantTypes = []string{"authorization_code"}
-	cfg.OAuth.AllowedResponseTypes = []string{"code"}
 	cfg.OAuth.AllowWildcardRedirectURI = true
 	cfg.OAuth.TokenRevocation.Enabled = boolPtr(false)
 	cfg.OAuth.Logout.Enabled = boolPtr(false)
@@ -516,6 +607,16 @@ func ApplyEnvOverrides(cfg *AppConfig) error {
 			algorithms[i] = strings.TrimSpace(algorithms[i])
 		}
 		cfg.SupportedEncAlgorithms = algorithms
+	}
+	if v := os.Getenv("MOSIP_ESIGNET_RESOURCE_SERVERS_JSON"); v != "" {
+		var resourceServers []ResourceServerConfig
+		if err := json.Unmarshal([]byte(v), &resourceServers); err != nil {
+			return fmt.Errorf("invalid MOSIP_ESIGNET_RESOURCE_SERVERS_JSON: %w", err)
+		}
+		if err := validateResourceServers(resourceServers); err != nil {
+			return fmt.Errorf("invalid MOSIP_ESIGNET_RESOURCE_SERVERS_JSON: %w", err)
+		}
+		cfg.ResourceServers = resourceServers
 	}
 	return nil
 }

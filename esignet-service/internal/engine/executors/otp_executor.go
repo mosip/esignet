@@ -115,6 +115,9 @@ func (e *otpExecutor) Execute(ctx *providers.NodeContext) (*providers.ExecutorRe
 		// onFailure target configured, that would terminate the flow session (flowStatus: ERROR)
 		// instead of letting the user correct a mistyped username and retry.
 		if serviceError.Type == common.ClientErrorType {
+			// Count client-error attempts (e.g. invalid/unknown individual ID) against the same
+			// cap as successful sends, so maxAttempts also bounds repeated probing.
+			ctx.RuntimeData[otpAttemptCountKey] = strconv.Itoa(attemptCount + 1)
 			execResp.Status = providers.ExecUserInputRequired
 			execResp.Inputs = []providers.Input{individualIDInput}
 			execResp.Error = serviceError

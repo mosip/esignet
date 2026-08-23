@@ -204,3 +204,21 @@ scope_claims:
     - phone_number_verified
   address:
     - address
+
+# resource_servers declares the resource server(s) this deployment issues access tokens for.
+# identifier is the RFC 8707 `resource` request-parameter value and the token's `aud` claim.
+# The resource server marked `default: true` is used when a request carries permission scopes
+# but no `resource` parameter. A client is only granted a requested scope when it is both listed
+# here and in that client's additional_config.allowed_authorization_scopes. Example:
+# resource_servers:
+#   - id: esignet-default
+#     identifier: "https://esignet.example.com/resource"
+#     default: true
+#     scopes:
+#       payment:pay: "Make payments on the user's behalf"
+resource_servers:
+  - id: vci-credential
+    identifier: "${MOSIP_ESIGNET_HOST}/v1/esignet/vci/credential"
+    default: true
+    scopes:
+      mosip_identity_vc_ldp: "Issue a Verifiable Credential"

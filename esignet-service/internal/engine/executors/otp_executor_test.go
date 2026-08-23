@@ -226,6 +226,20 @@ func (ts *OtpExecutorTestSuite) TestExecuteClientErrorReturnsUserInputRequiredSt
 	}
 }
 
+func (ts *OtpExecutorTestSuite) TestExecuteClientErrorIncrementsAttemptCount() {
+	t := ts.T()
+	provider := &fakeAuthnProvider{sendOTPErr: shared.SendOTPFailedError}
+	e := NewOtpExecutor(provider)
+	ctx := newOtpNodeContext(map[string]string{usernameAttr: "user1"}, map[string]string{})
+
+	if _, err := e.Execute(ctx); err != nil {
+		t.Fatalf("Execute() error = %v", err)
+	}
+	if got := ctx.RuntimeData[otpAttemptCountKey]; got != "1" {
+		t.Errorf("RuntimeData[otpAttemptCountKey] = %q, want %q", got, "1")
+	}
+}
+
 func (ts *OtpExecutorTestSuite) TestExecuteServerErrorPropagatesAsGoError() {
 	t := ts.T()
 	provider := &fakeAuthnProvider{sendOTPErr: &common.ServiceError{Code: "internal_error", Type: common.ServerErrorType}}

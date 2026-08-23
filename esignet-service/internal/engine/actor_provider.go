@@ -25,13 +25,12 @@ import (
 const (
 
 	// Keys used in the client additionalConfig map
-	parRequired                = "require_pushed_authorization_requests"
-	dpopRequired               = "dpop_bound_access_tokens"
-	pkceRequired               = "require_pkce"
-	userinfoResponseType       = "userinfo_response_type"
-	idTokenResponseType        = "id_token_response_type"
-	consentExpireInMins        = "consent_expire_in_mins"
-	allowedAuthorizationScopes = "allowed_authorization_scopes"
+	parRequired          = "require_pushed_authorization_requests"
+	dpopRequired         = "dpop_bound_access_tokens"
+	pkceRequired         = "require_pkce"
+	userinfoResponseType = "userinfo_response_type"
+	idTokenResponseType  = "id_token_response_type"
+	consentExpireInMins  = "consent_expire_in_mins"
 
 	// Map keys
 	jwks        = "JWKS"
@@ -78,6 +77,7 @@ func (p *actorProvider) GetOAuthClientByClientID(
 	if svcErr != nil {
 		return nil, svcErr
 	}
+
 	return &providers.OAuthClient{
 		ID:                      client.ClientID,
 		OUID:                    client.RpID,
@@ -100,6 +100,7 @@ func (p *actorProvider) GetOAuthClientByClientID(
 		ScopeClaims:                        getScopeClaimsMapping(p.config.ScopeClaims, client.Claims),
 		Token: &providers.OAuthTokenConfig{
 			AccessToken: &providers.AccessTokenConfig{
+				DefaultAudience: p.config.Issuer,
 				UserConfig: &providers.AccessTokenSubConfig{
 					Attributes: []string{},
 				},
@@ -146,6 +147,7 @@ func (p *actorProvider) GetOAuthProfileByID(
 				UserConfig: &providers.AccessTokenSubConfig{
 					Attributes: []string{},
 				},
+				DefaultAudience: p.config.Issuer,
 			},
 			IDToken: idToken,
 		},
@@ -278,24 +280,7 @@ func getAllowedScopes(standardScopeClaims map[string][]string, additionalConfig 
 	}
 	sort.Strings(scopes)
 
-	return append(scopes, additionalAuthorizationScopes(additionalConfig)...)
-}
-
-// additionalAuthorizationScopes extracts allowedAuthorizationScopes from
-// additionalConfig. additionalConfig is always decoded from JSON, so the
-// value is []any rather than []string.
-func additionalAuthorizationScopes(additionalConfig map[string]any) []string {
-	v, ok := additionalConfig[allowedAuthorizationScopes].([]any)
-	if !ok {
-		return nil
-	}
-	scopes := make([]string, 0, len(v))
-	for _, item := range v {
-		if s, ok := item.(string); ok {
-			scopes = append(scopes, s)
-		}
-	}
-	return scopes
+	return append(scopes, shared.AllowedAuthorizationScopes(additionalConfig)...)
 }
 
 // getScopeClaimsMapping builds a scope-to-claims mapping for the standard

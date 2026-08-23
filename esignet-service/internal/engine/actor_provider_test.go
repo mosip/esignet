@@ -21,6 +21,7 @@ import (
 	"github.com/mosip/esignet/internal/clientmgmt"
 	"github.com/mosip/esignet/internal/clientmgmt/db"
 	"github.com/mosip/esignet/internal/config"
+	"github.com/mosip/esignet/internal/engine/shared"
 )
 
 type stubQuerier struct {
@@ -469,7 +470,7 @@ func (ts *ActorProviderTestSuite) TestGetAllowedScopes() {
 	})
 
 	t.Run("accepts []any additional scopes decoded from JSON", func(t *testing.T) {
-		additionalConfig := map[string]any{allowedAuthorizationScopes: []any{"custom_scope", "other_scope"}}
+		additionalConfig := map[string]any{shared.AllowedAuthorizationScopesKey: []any{"custom_scope", "other_scope"}}
 		got := getAllowedScopes(standardScopeClaims, additionalConfig)
 		if got[len(got)-2] != "custom_scope" || got[len(got)-1] != "other_scope" {
 			t.Errorf("getAllowedScopes() = %v, want trailing [custom_scope other_scope]", got)
