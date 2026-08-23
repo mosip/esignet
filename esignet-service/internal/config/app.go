@@ -11,6 +11,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -249,7 +250,8 @@ func LoadAppConfig() (*AppConfig, error) {
 
 // validateResourceServers rejects an ambiguous resource_servers configuration: at most one entry
 // may be marked default (an empty `resource` request parameter cannot otherwise resolve which one
-// to bind to), and no two entries may share an id or identifier.
+// to bind to), no two entries may share an id or identifier, and every identifier must be an
+// absolute URI (it becomes the access token's `aud` claim).
 func validateResourceServers(resourceServers []ResourceServerConfig) error {
 	seenIDs := make(map[string]bool, len(resourceServers))
 	seenIdentifiers := make(map[string]bool, len(resourceServers))
@@ -265,6 +267,10 @@ func validateResourceServers(resourceServers []ResourceServerConfig) error {
 		}
 		seenIdentifiers[rs.Identifier] = true
 
+		if !isAbsoluteURI(rs.Identifier) {
+			return fmt.Errorf("resource server %q: identifier %q must be an absolute URI", rs.ID, rs.Identifier)
+		}
+
 		if rs.Default {
 			if defaultID != "" {
 				return fmt.Errorf("multiple resource servers marked default: %q and %q", defaultID, rs.ID)
@@ -273,6 +279,17 @@ func validateResourceServers(resourceServers []ResourceServerConfig) error {
 		}
 	}
 	return nil
+}
+
+// isAbsoluteURI reports whether identifier is an absolute URI, i.e. it has both a scheme and a
+// host (e.g. "https://esignet.example.com/resource"). A relative path such as
+// "/v1/esignet/vci/credential" — which is what an unset host env var expands to — is rejected.
+func isAbsoluteURI(identifier string) bool {
+	u, err := url.Parse(identifier)
+	if err != nil {
+		return false
+	}
+	return u.Scheme != "" && u.Host != ""
 }
 
 func boolPtr(b bool) *bool { return &b }

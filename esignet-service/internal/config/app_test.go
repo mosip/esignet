@@ -291,6 +291,20 @@ func TestValidateResourceServers(t *testing.T) {
 			},
 			wantErr: "duplicate resource server identifier",
 		},
+		{
+			name: "empty identifier rejected",
+			servers: []ResourceServerConfig{
+				{ID: "rs-1", Identifier: ""},
+			},
+			wantErr: "must be an absolute URI",
+		},
+		{
+			name: "relative identifier rejected",
+			servers: []ResourceServerConfig{
+				{ID: "rs-1", Identifier: "/v1/esignet/vci/credential"},
+			},
+			wantErr: "must be an absolute URI",
+		},
 	}
 
 	for _, c := range cases {
