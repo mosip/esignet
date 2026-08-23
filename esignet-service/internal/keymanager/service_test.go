@@ -839,6 +839,10 @@ func (ts *KeymanagerTestSuite) TestGetAllCertificates_ReturnsFullAliasHistory() 
 	ks := newFakeKeyStore()
 	ts.Require().NoError(ks.GenerateAndStoreAsymmetricKey("root-alias-1", "root-alias-1", testCertTemplateParams(), "RSA", ""))
 	ts.Require().NoError(ks.GenerateAndStoreAsymmetricKey("root-alias-2", "root-alias-2", testCertTemplateParams(), "RSA", ""))
+	cert1, err := ks.GetCertificate("root-alias-1")
+	ts.Require().NoError(err)
+	cert2, err := ks.GetCertificate("root-alias-2")
+	ts.Require().NoError(err)
 
 	q := &fakeQuerier{
 		getKeyAliasesByAppRefFn: func(_ context.Context, _, _ string) ([]db.KeyAlias, error) {
@@ -855,7 +859,8 @@ func (ts *KeymanagerTestSuite) TestGetAllCertificates_ReturnsFullAliasHistory() 
 	ts.Require().NoError(err)
 	ts.Require().Len(resp.AllCertificates, 2)
 	gotIDs := []string{resp.AllCertificates[0].KeyID, resp.AllCertificates[1].KeyID}
-	ts.Assert().ElementsMatch([]string{"root-alias-1", "root-alias-2"}, gotIDs)
+	wantIDs := []string{keymanager.ThumbprintForCert(cert1), keymanager.ThumbprintForCert(cert2)}
+	ts.Assert().ElementsMatch(wantIDs, gotIDs)
 }
 
 // TestGetCertificateChain_WalksSigningHierarchyToRoot covers the

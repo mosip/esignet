@@ -252,21 +252,28 @@ func (p *runtimeCryptoProvider) Verify(ctx context.Context, keyRef providers.Key
 // itself, not selectable by the caller.
 func (p *runtimeCryptoProvider) GetPublicKeys(ctx context.Context, filter providers.PublicKeyFilter) ([]providers.PublicKeyInfo, error) {
 	refID := p.referenceID(filter.KeyID)
-	resp, err := p.svc.GetCertificate(ctx, config.OIDCServiceAppID, refID)
+	allCerts, err := p.svc.GetAllCertificates(ctx, config.OIDCServiceAppID, refID)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w", providers.ErrKeyNotFound, err)
 	}
-	cert, err := keymanager.ParseCertPEM(resp.Certificate)
-	if err != nil {
-		return nil, fmt.Errorf("parse resolved certificate: %w", err)
+	if len(allCerts.AllCertificates) == 0 {
+		return nil, fmt.Errorf("%w: no certificates found for reference id %q", providers.ErrKeyNotFound, refID)
 	}
-	keys := []providers.PublicKeyInfo{{
-		KeyID:          refID,
-		Algorithm:      signature.AlgorithmForRefID(refID),
-		PublicKey:      cert.PublicKey,
-		Thumbprint:     keymanager.ThumbprintForCert(cert),
-		CertificateDER: cert.Raw,
-	}}
+
+	keys := []providers.PublicKeyInfo{}
+	for _, entry := range allCerts.AllCertificates {
+		cert, err := keymanager.ParseCertPEM(entry.CertificateData)
+		if err != nil {
+			return nil, fmt.Errorf("parse resolved certificate: %w", err)
+		}
+		keys = append(keys, providers.PublicKeyInfo{
+			KeyID:          entry.KeyID,
+			Algorithm:      signature.AlgorithmForRefID(refID),
+			PublicKey:      cert.PublicKey,
+			Thumbprint:     keymanager.ThumbprintForCert(cert),
+			CertificateDER: cert.Raw,
+		})
+	}
 	return append(keys, p.idSystemPublicKeys(ctx)...), nil
 }
 

@@ -12,6 +12,8 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/sha1"
+	"crypto/sha256"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/json"
@@ -29,6 +31,7 @@ import (
 	"github.com/mosip/esignet/internal/engine/shared"
 	"github.com/mosip/esignet/internal/keymanager"
 	"github.com/mosip/esignet/internal/keymanager/kmtest"
+	"github.com/mosip/esignet/internal/keymanager/signature"
 )
 
 // fakeAuthnProviderForCrypto is a hand-written stub of
@@ -135,11 +138,38 @@ func testECCertPEM(t *testing.T, cn string) string {
 // production.
 func testRSAJWKMap(t *testing.T) map[string]interface{} {
 	t.Helper()
+	m, _ := testRSAJWKMapWithKey(t)
+	return m
+}
+
+// testRSAJWKMapWithKey is testRSAJWKMap, additionally returning the
+// generated private key so Encrypt's RSA-OAEP/RSA-OAEP-256 output can be
+// decrypted back and verified in a round trip.
+func testRSAJWKMapWithKey(t *testing.T) (map[string]interface{}, *rsa.PrivateKey) {
+	t.Helper()
 	priv, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		t.Fatalf("generate RSA key: %v", err)
 	}
 	jwk := jose.JSONWebKey{Key: &priv.PublicKey, KeyID: "test-key", Algorithm: "RSA-OAEP-256", Use: "enc"}
+	raw, err := jwk.MarshalJSON()
+	if err != nil {
+		t.Fatalf("marshal jwk: %v", err)
+	}
+	var m map[string]interface{}
+	if err := json.Unmarshal(raw, &m); err != nil {
+		t.Fatalf("unmarshal jwk into map: %v", err)
+	}
+	return m, priv
+}
+
+// testECJWKMap builds the map[string]interface{} shape of a public EC
+// (P-256) JWK — used both to exercise Encrypt's "RSA-OAEP requires an RSA
+// jwk" rejection, and (with pub == a cert's actual public key) Verify's
+// PublicKeyJWK path.
+func testECJWKMap(t *testing.T, pub *ecdsa.PublicKey) map[string]interface{} {
+	t.Helper()
+	jwk := jose.JSONWebKey{Key: pub, KeyID: "test-ec-key", Algorithm: "ES256", Use: "sig"}
 	raw, err := jwk.MarshalJSON()
 	if err != nil {
 		t.Fatalf("marshal jwk: %v", err)
@@ -399,7 +429,10 @@ func (ts *RuntimeCryptoProviderTestSuite) TestGetPublicKeys_ReturnsOwnKeyMergedW
 
 	ts.Require().NoError(err)
 	ts.Require().Len(keys, 2, "esignet's own key plus the merged ID-system key")
-	ts.Assert().Equal(defaultSignReferenceID, keys[0].KeyID)
+	// kid is the certificate thumbprint, not the stable reference id: GetAllCertificates can
+	// return multiple historical certs for one reference id in a single JWKS response, so a
+	// per-cert thumbprint is required to keep each entry's kid unique.
+	ts.Assert().Equal(keys[0].Thumbprint, keys[0].KeyID)
 	ts.Assert().NotNil(keys[0].PublicKey)
 	ts.Assert().NotEmpty(keys[0].Thumbprint)
 	ts.Assert().Equal("id-system-ref", keys[1].KeyID)
@@ -416,12 +449,14 @@ func (ts *RuntimeCryptoProviderTestSuite) TestGetPublicKeys_NoIDSystemProvider_R
 
 	ts.Require().NoError(err)
 	ts.Require().Len(keys, 1)
-	ts.Assert().Equal(defaultSignReferenceID, keys[0].KeyID)
+	ts.Assert().Equal(keys[0].Thumbprint, keys[0].KeyID)
+	ts.Assert().NotEmpty(keys[0].KeyID)
 }
 
 func (ts *RuntimeCryptoProviderTestSuite) TestGetPublicKeys_CertificateLookupFailure_WrapsErrKeyNotFound() {
-	// No ROOT/master key provisioned on this Service, so GetCertificate has
-	// nothing to lazily rotate from and returns an error.
+	// No ROOT/master key provisioned on this Service, so GetAllCertificates
+	// resolves to an empty alias history and GetPublicKeys must report
+	// ErrKeyNotFound rather than silently returning an empty key set.
 	p := &runtimeCryptoProvider{
 		svc:             keymanager.NewServiceWithQuerier(kmtest.NewStateQuerier(), kmtest.NewFakeKeyStore(), keymanager.Config{}),
 		signReferenceID: defaultSignReferenceID,
@@ -442,4 +477,241 @@ func (ts *RuntimeCryptoProviderTestSuite) TestGetPublicKey_NilCache_DisablesCach
 	ts.Require().NoError(err)
 
 	ts.Assert().NotSame(first, second, "a nil jwkCache must disable caching entirely, not panic or silently reuse state")
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestContentEncKeyLen_KnownAlgorithms() {
+	cases := []struct {
+		alg     string
+		wantLen int
+	}{
+		{"A128GCM", 16},
+		{"A192GCM", 24},
+		{"A256GCM", 32},
+		{"A128CBC-HS256", 32},
+		{"A192CBC-HS384", 48},
+		{"A256CBC-HS512", 64},
+	}
+	for _, c := range cases {
+		got, err := contentEncKeyLen(c.alg)
+		ts.Require().NoError(err)
+		ts.Assert().Equal(c.wantLen, got)
+	}
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestContentEncKeyLen_UnsupportedAlgorithm_ReturnsError() {
+	_, err := contentEncKeyLen("BOGUS")
+	ts.Require().Error(err)
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestSymmetricEncryptReferenceID() {
+	ts.Assert().Equal(defaultSymmetricEncryptReferenceID, symmetricEncryptReferenceID(""))
+	ts.Assert().Equal("custom-ref-id", symmetricEncryptReferenceID("custom-ref-id"))
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestEncryptRSAOAEP256_Success() {
+	t := ts.T()
+	priv, err := rsa.GenerateKey(rand.Reader, 2048)
+	require.NoError(t, err)
+
+	encryptedCEK, details, err := encryptRSAOAEP256(&priv.PublicKey, map[string]interface{}{"contentEncryptionAlgorithm": "A256GCM"})
+	ts.Require().NoError(err)
+	ts.Require().NotNil(details)
+	ts.Require().Len(details.CEK, 32)
+
+	decrypted, err := rsa.DecryptOAEP(sha256.New(), rand.Reader, priv, encryptedCEK, nil)
+	ts.Require().NoError(err)
+	ts.Assert().Equal(details.CEK, decrypted)
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestEncryptRSAOAEP256_MissingContentEncryptionAlgorithm_ReturnsError() {
+	t := ts.T()
+	priv, err := rsa.GenerateKey(rand.Reader, 2048)
+	require.NoError(t, err)
+
+	_, _, err = encryptRSAOAEP256(&priv.PublicKey, map[string]interface{}{})
+	ts.Require().Error(err)
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestEncryptRSAOAEP256_UnsupportedContentEncryptionAlgorithm_ReturnsError() {
+	t := ts.T()
+	priv, err := rsa.GenerateKey(rand.Reader, 2048)
+	require.NoError(t, err)
+
+	_, _, err = encryptRSAOAEP256(&priv.PublicKey, map[string]interface{}{"contentEncryptionAlgorithm": "BOGUS"})
+	ts.Require().Error(err)
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestEncryptRSAOAEP_Success() {
+	t := ts.T()
+	priv, err := rsa.GenerateKey(rand.Reader, 2048)
+	require.NoError(t, err)
+
+	encryptedCEK, details, err := encryptRSAOAEP(&priv.PublicKey, map[string]interface{}{"contentEncryptionAlgorithm": "A128GCM"})
+	ts.Require().NoError(err)
+	ts.Require().NotNil(details)
+	ts.Require().Len(details.CEK, 16)
+
+	decrypted, err := rsa.DecryptOAEP(sha1.New(), rand.Reader, priv, encryptedCEK, nil) //nolint:gosec
+	ts.Require().NoError(err)
+	ts.Assert().Equal(details.CEK, decrypted)
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestEncryptRSAOAEP_MissingContentEncryptionAlgorithm_ReturnsError() {
+	t := ts.T()
+	priv, err := rsa.GenerateKey(rand.Reader, 2048)
+	require.NoError(t, err)
+
+	_, _, err = encryptRSAOAEP(&priv.PublicKey, map[string]interface{}{})
+	ts.Require().Error(err)
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestEncrypt_UnsupportedAlgorithm_ReturnsError() {
+	p := &runtimeCryptoProvider{}
+
+	_, _, err := p.Encrypt(context.Background(), nil, "BOGUS", nil, []byte("data"))
+	ts.Require().Error(err)
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestEncrypt_RSAOAEP256_NilKeyRef_ReturnsError() {
+	p := &runtimeCryptoProvider{}
+
+	_, _, err := p.Encrypt(context.Background(), nil, "RSA-OAEP-256", nil, []byte("data"))
+	ts.Require().ErrorIs(err, providers.ErrKeyNotFound)
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestEncrypt_RSAOAEP256_NonRSAJWK_ReturnsError() {
+	t := ts.T()
+	ecPriv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	require.NoError(t, err)
+	p := &runtimeCryptoProvider{jwkCache: newJWKCache()}
+	keyRef := &providers.KeyRef{PublicKeyJWK: testECJWKMap(t, &ecPriv.PublicKey)}
+
+	_, _, err = p.Encrypt(context.Background(), keyRef, "RSA-OAEP-256",
+		map[string]interface{}{"contentEncryptionAlgorithm": "A256GCM"}, []byte("data"))
+	ts.Require().ErrorIs(err, providers.ErrUnsupportedAlgorithm)
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestEncrypt_RSAOAEP256_Success() {
+	t := ts.T()
+	jwkMap, priv := testRSAJWKMapWithKey(t)
+	p := &runtimeCryptoProvider{jwkCache: newJWKCache()}
+	keyRef := &providers.KeyRef{PublicKeyJWK: jwkMap}
+
+	encryptedCEK, details, err := p.Encrypt(context.Background(), keyRef, "RSA-OAEP-256",
+		map[string]interface{}{"contentEncryptionAlgorithm": "A256GCM"}, []byte("data"))
+	ts.Require().NoError(err)
+	ts.Require().NotNil(details)
+
+	decrypted, err := rsa.DecryptOAEP(sha256.New(), rand.Reader, priv, encryptedCEK, nil)
+	ts.Require().NoError(err)
+	ts.Assert().Equal(details.CEK, decrypted)
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestEncrypt_RSAOAEP_NilKeyRef_ReturnsError() {
+	p := &runtimeCryptoProvider{}
+
+	_, _, err := p.Encrypt(context.Background(), nil, "RSA-OAEP", nil, []byte("data"))
+	ts.Require().ErrorIs(err, providers.ErrKeyNotFound)
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestEncrypt_RSAOAEP_Success() {
+	t := ts.T()
+	jwkMap, priv := testRSAJWKMapWithKey(t)
+	p := &runtimeCryptoProvider{jwkCache: newJWKCache()}
+	keyRef := &providers.KeyRef{PublicKeyJWK: jwkMap}
+
+	encryptedCEK, details, err := p.Encrypt(context.Background(), keyRef, "RSA-OAEP",
+		map[string]interface{}{"contentEncryptionAlgorithm": "A128GCM"}, []byte("data"))
+	ts.Require().NoError(err)
+	ts.Require().NotNil(details)
+
+	decrypted, err := rsa.DecryptOAEP(sha1.New(), rand.Reader, priv, encryptedCEK, nil) //nolint:gosec
+	ts.Require().NoError(err)
+	ts.Assert().Equal(details.CEK, decrypted)
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestDecrypt_UnsupportedAlgorithm_ReturnsError() {
+	p := &runtimeCryptoProvider{}
+
+	_, err := p.Decrypt(context.Background(), nil, "BOGUS", nil, []byte("data"))
+	ts.Require().ErrorIs(err, providers.ErrUnsupportedAlgorithm)
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestDecrypt_AESGCM_InvalidJSONContent_ReturnsError() {
+	p := &runtimeCryptoProvider{}
+
+	_, err := p.Decrypt(context.Background(), nil, "AES-GCM", nil, []byte("not json"))
+	ts.Require().Error(err)
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestDecrypt_AESGCM_MissingCipherField_ReturnsError() {
+	p := &runtimeCryptoProvider{}
+
+	content, err := json.Marshal(map[string]string{"alg": "AES-GCM"})
+	ts.Require().NoError(err)
+
+	_, err = p.Decrypt(context.Background(), nil, "AES-GCM", nil, content)
+	ts.Require().Error(err)
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestSignAndVerify_RoundTrip() {
+	t := ts.T()
+	km := newTestKeyManagerService(t)
+	p := &runtimeCryptoProvider{svc: km, sigSvc: signature.NewService(km), signReferenceID: defaultSignReferenceID}
+	content := []byte("signing-input")
+
+	sig, err := p.Sign(context.Background(), providers.KeyRef{}, "ES256", content)
+	ts.Require().NoError(err)
+	ts.Require().NotEmpty(sig)
+
+	err = p.Verify(context.Background(), providers.KeyRef{}, "ES256", content, sig)
+	ts.Require().NoError(err)
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestSign_UnsupportedAlgorithm_WrapsErrUnsupportedAlgorithm() {
+	t := ts.T()
+	km := newTestKeyManagerService(t)
+	p := &runtimeCryptoProvider{svc: km, sigSvc: signature.NewService(km), signReferenceID: defaultSignReferenceID}
+
+	// defaultSignReferenceID provisions an EC key; RS256 requires an RSA key.
+	_, err := p.Sign(context.Background(), providers.KeyRef{}, "RS256", []byte("data"))
+	ts.Require().ErrorIs(err, providers.ErrUnsupportedAlgorithm)
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestVerify_WithPublicKeyJWK_RoundTrip() {
+	t := ts.T()
+	km := newTestKeyManagerService(t)
+	p := &runtimeCryptoProvider{svc: km, sigSvc: signature.NewService(km), signReferenceID: defaultSignReferenceID}
+	content := []byte("signing-input")
+
+	sig, err := p.Sign(context.Background(), providers.KeyRef{}, "ES256", content)
+	ts.Require().NoError(err)
+
+	certResp, err := km.GetCertificate(context.Background(), config.OIDCServiceAppID, defaultSignReferenceID)
+	ts.Require().NoError(err)
+	cert, err := keymanager.ParseCertPEM(certResp.Certificate)
+	ts.Require().NoError(err)
+	ecPub, ok := cert.PublicKey.(*ecdsa.PublicKey)
+	ts.Require().True(ok)
+
+	keyRef := providers.KeyRef{PublicKeyJWK: testECJWKMap(t, ecPub)}
+	err = p.Verify(context.Background(), keyRef, "ES256", content, sig)
+	ts.Require().NoError(err)
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestVerify_WithoutJWK_CertificateNotFound_WrapsErrKeyNotFound() {
+	emptyKM := keymanager.NewServiceWithQuerier(kmtest.NewStateQuerier(), kmtest.NewFakeKeyStore(), keymanager.Config{})
+	p := &runtimeCryptoProvider{sigSvc: signature.NewService(emptyKM), signReferenceID: defaultSignReferenceID}
+
+	err := p.Verify(context.Background(), providers.KeyRef{}, "ES256", []byte("data"), []byte("sig"))
+	ts.Require().ErrorIs(err, providers.ErrKeyNotFound)
+}
+
+func (ts *RuntimeCryptoProviderTestSuite) TestVerify_WithoutJWK_UnsupportedAlgorithm_WrapsErrUnsupportedAlgorithm() {
+	t := ts.T()
+	km := newTestKeyManagerService(t)
+	p := &runtimeCryptoProvider{sigSvc: signature.NewService(km), signReferenceID: defaultSignReferenceID}
+
+	err := p.Verify(context.Background(), providers.KeyRef{}, "BOGUS", []byte("data"), []byte("sig"))
+	ts.Require().ErrorIs(err, providers.ErrUnsupportedAlgorithm)
 }
