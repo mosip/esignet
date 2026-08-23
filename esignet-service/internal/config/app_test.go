@@ -305,6 +305,20 @@ func TestValidateResourceServers(t *testing.T) {
 			},
 			wantErr: "must be an absolute URI",
 		},
+		{
+			name: "scheme without host rejected",
+			servers: []ResourceServerConfig{
+				{ID: "rs-1", Identifier: "https:///no-host-path"},
+			},
+			wantErr: "must be an absolute URI",
+		},
+		{
+			name: "unparsable identifier rejected",
+			servers: []ResourceServerConfig{
+				{ID: "rs-1", Identifier: "https://example.com/%zz"},
+			},
+			wantErr: "must be an absolute URI",
+		},
 	}
 
 	for _, c := range cases {

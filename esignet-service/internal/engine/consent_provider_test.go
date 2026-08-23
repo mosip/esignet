@@ -292,6 +292,46 @@ func (ts *ConsentProviderTestSuite) TestRecordConsent_FiltersUnrequestedDecision
 	ts.Require().Equal([]string{"mosip_identity_vc_ldp"}, permitted)
 }
 
+// TestRecordConsent_AllowsClaimFromStandardScope covers allowedClaims' contribution from
+// claimsFromScopes(req.standardScopes): a claim that was never named explicitly in the claims
+// request parameter, but is implied by a requested standard scope (e.g. "profile" implying
+// "name" via the configured scope_claims table), must still be accepted rather than filtered out
+// as unrequested.
+func (ts *ConsentProviderTestSuite) TestRecordConsent_AllowsClaimFromStandardScope() {
+	q := &consentStubQuerier{}
+	cfg := &config.AppConfig{ScopeClaims: map[string][]string{"profile": {"name"}}}
+	p := newConsentTestProvider(q, cfg)
+
+	meta := clientIDMeta("client-1")
+	meta[runtimeKeyScopes] = []string{"openid profile"}
+
+	decisions := &providers.ConsentDecisions{
+		Purposes: []providers.PurposeDecision{
+			{
+				PurposeName: "attributes:app-1",
+				Approved:    true,
+				Elements: []providers.ElementDecision{
+					{Name: "name", Approved: true},
+				},
+			},
+		},
+	}
+
+	consent, svcErr := p.RecordConsent(context.Background(), "ou-1", "app-1", "user-1",
+		decisions, "session-token", 3600, meta)
+	ts.Require().Nil(svcErr)
+	ts.Require().NotNil(consent)
+
+	ts.Require().Equal("attributes:app-1", consent.Purposes[0].Name)
+	ts.Require().Equal([]providers.ConsentElementApproval{
+		{Name: "name", Namespace: providers.NamespaceAttribute, IsUserApproved: true},
+	}, consent.Purposes[0].Elements, "a claim implied by a requested standard scope must not be filtered out as unrequested")
+
+	var accepted []string
+	ts.Require().NoError(json.Unmarshal([]byte(q.lastUpsert.AcceptedClaims.String), &accepted))
+	ts.Require().Equal([]string{"name"}, accepted)
+}
+
 func (ts *ConsentProviderTestSuite) TestRecordConsent_NilDecisions() {
 	q := &consentStubQuerier{}
 	p := newConsentTestProvider(q, nil)

@@ -38,6 +38,11 @@ import (
 type StateQuerier struct {
 	mu      sync.Mutex
 	aliases map[string][]db.KeyAlias // key: appID+"|"+refID, index 0 = most recently inserted
+
+	// GetKeyAliasesErr, when non-nil, is returned by GetKeyAliasesByAppRef instead of its normal
+	// result, letting callers exercise the error-wrapping paths of keymanager.Service methods
+	// built on top of it (e.g. GetAllCertificates, ResolveCurrentKey).
+	GetKeyAliasesErr error
 }
 
 // NewStateQuerier constructs an empty StateQuerier.
@@ -51,6 +56,9 @@ func aliasMapKey(appID, refID string) string { return appID + "|" + refID }
 func (q *StateQuerier) GetKeyAliasesByAppRef(_ context.Context, appID, refID string) ([]db.KeyAlias, error) {
 	q.mu.Lock()
 	defer q.mu.Unlock()
+	if q.GetKeyAliasesErr != nil {
+		return nil, q.GetKeyAliasesErr
+	}
 	return append([]db.KeyAlias(nil), q.aliases[aliasMapKey(appID, refID)]...), nil
 }
 

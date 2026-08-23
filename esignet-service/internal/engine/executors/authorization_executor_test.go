@@ -215,6 +215,39 @@ func TestAuthorizationExecutor_NoResourceServerBound_DropsPermissions(t *testing
 	assert.Empty(t, resp.RuntimeData["authorized_permissions"])
 }
 
+func TestAuthorizationExecutor_NilResourceServerProvider_DropsPermissions(t *testing.T) {
+	row := testAuthzClientRow(`{"allowed_authorization_scopes":["read","write"]}`)
+	svc := clientmgmt.NewServiceWithQuerier(&stubClientQuerier{client: row, found: true}, nil, 0, nil)
+	e := NewAuthorizationExecutor(svc, nil)
+
+	resp, err := e.Execute(nodeCtx(map[string]string{
+		"clientId":              "client-001",
+		"requested_permissions": "read write",
+	}))
+	require.NoError(t, err)
+	assert.Equal(t, providers.ExecComplete, resp.Status)
+	assert.Empty(t, resp.RuntimeData["authorized_permissions"])
+}
+
+func TestAuthorizationExecutor_AllPermissionsInvalidForResourceServer_DropsPermissions(t *testing.T) {
+	row := testAuthzClientRow(`{"allowed_authorization_scopes":["read","write"]}`)
+	svc := clientmgmt.NewServiceWithQuerier(&stubClientQuerier{client: row, found: true}, nil, 0, nil)
+	resourceSvc := &stubResourceServerProvider{
+		rs:      &providers.ResourceServer{ID: "rs-1"},
+		invalid: []string{"read", "write"}, // none of the requested scopes are defined on this resource server
+	}
+	e := NewAuthorizationExecutor(svc, resourceSvc)
+
+	resp, err := e.Execute(nodeCtx(map[string]string{
+		"clientId":                   "client-001",
+		"requested_permissions":      "read write",
+		"resource_server_identifier": "https://api.example.com",
+	}))
+	require.NoError(t, err)
+	assert.Equal(t, providers.ExecComplete, resp.Status)
+	assert.Empty(t, resp.RuntimeData["authorized_permissions"])
+}
+
 func TestAuthorizationExecutor_ResourceServerFiltersOutOfScopePermissions(t *testing.T) {
 	row := testAuthzClientRow(`{"allowed_authorization_scopes":["read","write","admin"]}`)
 	svc := clientmgmt.NewServiceWithQuerier(&stubClientQuerier{client: row, found: true}, nil, 0, nil)

@@ -17,6 +17,7 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/json"
+	"errors"
 	"math/big"
 	"testing"
 	"time"
@@ -465,6 +466,44 @@ func (ts *RuntimeCryptoProviderTestSuite) TestGetPublicKeys_CertificateLookupFai
 	_, err := p.GetPublicKeys(context.Background(), providers.PublicKeyFilter{})
 
 	ts.Require().ErrorIs(err, providers.ErrKeyNotFound)
+}
+
+// TestGetPublicKeys_AllCertificatesLookupError_WrapsErrKeyNotFound covers GetPublicKeys wrapping
+// a GetAllCertificates failure (e.g. a DB error) as providers.ErrKeyNotFound rather than
+// propagating the raw error.
+func (ts *RuntimeCryptoProviderTestSuite) TestGetPublicKeys_AllCertificatesLookupError_WrapsErrKeyNotFound() {
+	q := kmtest.NewStateQuerier()
+	q.GetKeyAliasesErr = errors.New("db down")
+	p := &runtimeCryptoProvider{
+		svc:             keymanager.NewServiceWithQuerier(q, kmtest.NewFakeKeyStore(), keymanager.Config{}),
+		signReferenceID: defaultSignReferenceID,
+	}
+
+	_, err := p.GetPublicKeys(context.Background(), providers.PublicKeyFilter{})
+
+	ts.Require().ErrorIs(err, providers.ErrKeyNotFound)
+}
+
+// TestGetPublicKeys_UnparsableCertificate_ReturnsError covers the loop's
+// keymanager.ParseCertPEM error path: a stored certificate whose raw DER can't be
+// re-parsed must fail the whole call rather than silently dropping the entry.
+func (ts *RuntimeCryptoProviderTestSuite) TestGetPublicKeys_UnparsableCertificate_ReturnsError() {
+	t := ts.T()
+	ctx := context.Background()
+	km := newTestKeyManagerService(t)
+
+	sc, err := km.GetSigningCertificate(ctx, config.OIDCServiceAppID, defaultSignReferenceID)
+	require.NoError(t, err)
+	sc.KeyPairEntry.Certificate.Raw = []byte("not a valid certificate")
+
+	p := &runtimeCryptoProvider{
+		svc:             km,
+		signReferenceID: defaultSignReferenceID,
+	}
+
+	_, err = p.GetPublicKeys(ctx, providers.PublicKeyFilter{})
+
+	ts.Require().ErrorContains(err, "parse resolved certificate")
 }
 
 func (ts *RuntimeCryptoProviderTestSuite) TestGetPublicKey_NilCache_DisablesCachingWithoutPanic() {
