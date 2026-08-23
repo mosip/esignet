@@ -201,7 +201,7 @@ nodes:
   - id: authorization_check
     type: TASK_EXECUTION
     executor:
-      name: AuthorizationExecutor
+      name: eSignetAuthorizationExecutor
     onSuccess: auth_assert
 
   - id: auth_assert

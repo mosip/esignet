@@ -1129,7 +1129,7 @@ nodes:
   - id: authorization_check
     type: TASK_EXECUTION
     executor:
-      name: AuthorizationExecutor
+      name: eSignetAuthorizationExecutor
     onSuccess: consent_check
 
   - id: consent_check

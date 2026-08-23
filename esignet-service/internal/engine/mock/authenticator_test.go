@@ -665,14 +665,14 @@ func (ts *AuthenticatorTestSuite) TestKbiChallenge() {
 func (ts *AuthenticatorTestSuite) TestAcceptedClaimsFromRequest() {
 	t := ts.T()
 
-	t.Run("nil requested attributes defaults to sub and name", func(t *testing.T) {
+	t.Run("nil requested attributes defaults to sub", func(t *testing.T) {
 		claims := acceptedClaimsFromRequest(nil)
-		require.ElementsMatch(t, []string{"sub", "name"}, claims)
+		require.ElementsMatch(t, []string{"sub"}, claims)
 	})
 
-	t.Run("empty attributes defaults to sub and name", func(t *testing.T) {
+	t.Run("empty attributes defaults to sub", func(t *testing.T) {
 		claims := acceptedClaimsFromRequest(&providers.RequestedAttributes{})
-		require.ElementsMatch(t, []string{"sub", "name"}, claims)
+		require.ElementsMatch(t, []string{"sub"}, claims)
 	})
 
 	t.Run("explicit attributes are used", func(t *testing.T) {

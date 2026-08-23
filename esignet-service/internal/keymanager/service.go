@@ -151,18 +151,20 @@ type Service struct {
 	// ensureCurrentKey generating/rotating a key, RevokeKey,
 	// UploadCertificate, GenerateSymmetricKey — invalidates the
 	// corresponding entry via invalidateCurrentKeyCaches.
-	signingCertCache  *ttlCache[SigningCertificate]
-	currentKeyCache   *ttlCache[resolvedCurrentKey]
-	symmetricKeyCache *ttlCache[resolvedSymmetricKey]
+	signingCertCache     *ttlCache[SigningCertificate]
+	currentKeyCache      *ttlCache[resolvedCurrentKey]
+	symmetricKeyCache    *ttlCache[resolvedSymmetricKey]
+	allCertificatesCache *ttlCache[AllCertificatesResponse]
 }
 
 // NewService constructs a Service backed by a real DB connection.
 func NewService(conn *sqlx.DB, ks keystore.KeyStore, cfg Config) *Service {
 	return &Service{
 		q: db.New(conn, cfg.DBSchema), ks: ks, cfg: cfg, logger: applog.GetLogger().Named("keymanager"),
-		signingCertCache:  newTTLCache[SigningCertificate](),
-		currentKeyCache:   newTTLCache[resolvedCurrentKey](),
-		symmetricKeyCache: newTTLCache[resolvedSymmetricKey](),
+		signingCertCache:     newTTLCache[SigningCertificate](),
+		currentKeyCache:      newTTLCache[resolvedCurrentKey](),
+		symmetricKeyCache:    newTTLCache[resolvedSymmetricKey](),
+		allCertificatesCache: newTTLCache[AllCertificatesResponse](),
 	}
 }
 
@@ -171,9 +173,10 @@ func NewService(conn *sqlx.DB, ks keystore.KeyStore, cfg Config) *Service {
 func NewServiceWithQuerier(q db.Querier, ks keystore.KeyStore, cfg Config) *Service {
 	return &Service{
 		q: q, ks: ks, cfg: cfg, logger: applog.GetLogger().Named("keymanager"),
-		signingCertCache:  newTTLCache[SigningCertificate](),
-		currentKeyCache:   newTTLCache[resolvedCurrentKey](),
-		symmetricKeyCache: newTTLCache[resolvedSymmetricKey](),
+		signingCertCache:     newTTLCache[SigningCertificate](),
+		currentKeyCache:      newTTLCache[resolvedCurrentKey](),
+		symmetricKeyCache:    newTTLCache[resolvedSymmetricKey](),
+		allCertificatesCache: newTTLCache[AllCertificatesResponse](),
 	}
 }
 
@@ -204,6 +207,7 @@ func (s *Service) invalidateCurrentKeyCaches(appID, refID string) {
 	s.signingCertCache.invalidate(key)
 	s.currentKeyCache.invalidate(key)
 	s.symmetricKeyCache.invalidate(key)
+	s.allCertificatesCache.invalidate(key)
 }
 
 // currentAlias returns the current (non-expired, past its pre-expiry
@@ -1047,7 +1051,32 @@ func (s *Service) RevokeKey(ctx context.Context, req RevokeKeyRequest) (RevokeKe
 }
 
 // GetAllCertificates returns the full alias history for (appID, refID).
+// GetAllCertificates is cached above getAllCertificatesUncached (see
+// Service.allCertificatesCache) — Config.KeyCacheExpiry <= 0 disables
+// caching, resolving fresh every call as before. Cached the same way as
+// GetCertificate/ResolveCurrentKey, since it's just as much a per-request
+// DB/keystore scan (one query plus one certificateForAlias round trip per
+// historical alias) and is on the hot JWKS/discovery path.
 func (s *Service) GetAllCertificates(ctx context.Context, appID, refID string) (AllCertificatesResponse, error) {
+	if s.cfg.KeyCacheExpiry <= 0 {
+		return s.getAllCertificatesUncached(ctx, appID, refID)
+	}
+	return s.allCertificatesCache.getOrLoad(cacheKey(appID, refID), func() (AllCertificatesResponse, time.Time, error) {
+		resp, err := s.getAllCertificatesUncached(ctx, appID, refID)
+		if err != nil {
+			return AllCertificatesResponse{}, time.Time{}, err
+		}
+		// Unlike cacheExpiry's single-key hardExpiry cap, this list mixes
+		// current and already-expired historical certs (kept around for
+		// verifier compatibility), so an entry's own ExpiryAt isn't a
+		// meaningful cap here — just apply the flat TTL.
+		return resp, time.Now().UTC().Add(s.cfg.KeyCacheExpiry), nil
+	})
+}
+
+// getAllCertificatesUncached is GetAllCertificates' uncached implementation
+// — always resolves fresh against the DB/keystore.
+func (s *Service) getAllCertificatesUncached(ctx context.Context, appID, refID string) (AllCertificatesResponse, error) {
 	aliases, err := s.q.GetKeyAliasesByAppRef(ctx, appID, refID)
 	if err != nil {
 		return AllCertificatesResponse{}, fmt.Errorf("get key aliases: %w", err)
@@ -1062,7 +1091,7 @@ func (s *Service) GetAllCertificates(ctx context.Context, appID, refID string) (
 				applog.String("keyId", a.ID), applog.Error(err))
 			continue
 		}
-		cd := CertificateData{CertificateData: encodeCertPEM(cert.Raw), KeyID: a.ID}
+		cd := CertificateData{CertificateData: encodeCertPEM(cert.Raw), KeyID: thumbprintForCert(cert)}
 		if a.KeyGenDtimes != nil {
 			cd.IssuedAt = *a.KeyGenDtimes
 		}

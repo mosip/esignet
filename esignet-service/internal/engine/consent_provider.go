@@ -128,17 +128,52 @@ func (p *consentProvider) RecordConsent(ctx context.Context, _, appID, userID st
 	}
 
 	essentialClaims := map[string]bool{}
+	allowedClaims := map[string]bool{}
 	for name, v := range requestedClaims(req) {
+		allowedClaims[name] = true
 		if isEssentialClaim(v) {
 			essentialClaims[name] = true
 		}
 	}
+	for _, name := range p.claimsFromScopes(req.standardScopes) {
+		allowedClaims[name] = true
+	}
+	allowedScopes := map[string]bool{}
+	for _, s := range req.authorizeScopes {
+		allowedScopes[s] = true
+	}
 
+	// filteredDecisions drops any purpose element the caller approved/denied that was never part
+	// of the original authorize request's claims/scopes, so a consent-decision submission cannot
+	// grant claims or permissions beyond what was actually requested.
 	var acceptedClaims, permittedScopes []string
+	var filteredDecisions *providers.ConsentDecisions
 	if decisions != nil {
+		filteredPurposes := make([]providers.PurposeDecision, 0, len(decisions.Purposes))
 		for _, purpose := range decisions.Purposes {
 			isAttributesPurpose := strings.HasPrefix(purpose.PurposeName, attributesPurpose)
-			for _, element := range purpose.Elements {
+			isPermissionsPurpose := strings.HasPrefix(purpose.PurposeName, permissionsPurpose)
+
+			elements := purpose.Elements
+			if isAttributesPurpose || isPermissionsPurpose {
+				filteredElements := make([]providers.ElementDecision, 0, len(purpose.Elements))
+				for _, element := range purpose.Elements {
+					if isAttributesPurpose && !allowedClaims[element.Name] {
+						p.logger.Warn(ctx, "Ignoring consent decision for unrequested claim",
+							applog.String("claim", element.Name))
+						continue
+					}
+					if isPermissionsPurpose && !allowedScopes[element.Name] {
+						p.logger.Warn(ctx, "Ignoring consent decision for unrequested scope",
+							applog.String("scope", element.Name))
+						continue
+					}
+					filteredElements = append(filteredElements, element)
+				}
+				elements = filteredElements
+			}
+
+			for _, element := range elements {
 				if !element.Approved {
 					if isAttributesPurpose && essentialClaims[element.Name] {
 						p.logger.Warn(ctx, "Essential attribute consent denied", applog.String("attribute", element.Name))
@@ -149,10 +184,21 @@ func (p *consentProvider) RecordConsent(ctx context.Context, _, appID, userID st
 				if isAttributesPurpose {
 					acceptedClaims = append(acceptedClaims, element.Name)
 				}
-				if strings.HasPrefix(purpose.PurposeName, permissionsPurpose) {
+				if isPermissionsPurpose {
 					permittedScopes = append(permittedScopes, element.Name)
 				}
 			}
+
+			filteredPurposes = append(filteredPurposes, providers.PurposeDecision{
+				PurposeName: purpose.PurposeName,
+				Approved:    purpose.Approved,
+				Elements:    elements,
+			})
+		}
+		filteredDecisions = &providers.ConsentDecisions{
+			Approved: decisions.Approved,
+			Reason:   decisions.Reason,
+			Purposes: filteredPurposes,
 		}
 	}
 
@@ -178,7 +224,7 @@ func (p *consentProvider) RecordConsent(ctx context.Context, _, appID, userID st
 		return nil, clientError("consent_persist_failed", err)
 	}
 
-	return buildRecord(consentRecord.ID, appID, decisions), nil
+	return buildRecord(consentRecord.ID, appID, filteredDecisions), nil
 }
 
 // buildPrompt constructs the consent prompt for the requested attributes and permissions. It
@@ -456,7 +502,7 @@ func (p *consentProvider) readAuthRequest(_ context.Context, runtimeMetadata map
 	}
 
 	for _, scope := range strings.Fields(firstValue(runtimeMetadata[runtimeKeyScopes])) {
-		if _, ok := p.config.AuthorizationScopes[scope]; ok {
+		if p.config.IsAuthorizationScope(scope) {
 			req.authorizeScopes = append(req.authorizeScopes, scope)
 			continue
 		}

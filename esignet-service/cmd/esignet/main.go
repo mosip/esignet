@@ -145,6 +145,8 @@ func main() {
 		}
 	}
 
+	resourceProvider := engine.NewResourceProvider(appCfg)
+
 	_ = thunderidengine.New(mux,
 		thunderidengine.WithLogConfig(engineconfig.LogConfig{Level: logLevel, Format: "json"}),
 		thunderidengine.WithServerHome(appCfg.DataDir),
@@ -163,10 +165,10 @@ func main() {
 		thunderidengine.WithFlowProvider(engine.NewFlowProvider(appCfg, runtimeStore, appCfg.FlowCacheTTLSecs)),
 		thunderidengine.WithI18nProvider(engine.NewI18nProvider(appCfg, clientSvc)),
 		thunderidengine.WithOUProvider(engine.NewOUProvider(appCfg)),
-		thunderidengine.WithResourceProvider(engine.NewResourceProvider(appCfg)),
+		thunderidengine.WithResourceProvider(resourceProvider),
 		thunderidengine.WithObservabilityProvider(observabilityProvider),
 		thunderidengine.WithIDPProvider(engine.NewIDPProvider(appCfg)),
-		thunderidengine.WithCustomExecutors(executors.Initialize(authnProvider)),
+		thunderidengine.WithCustomExecutors(executors.Initialize(authnProvider, clientSvc, resourceProvider)),
 		thunderidengine.WithRuntimeStoreProvider(runtimeStore),
 		thunderidengine.WithTransactioner(engine.NewNoOpTransactioner()),
 		thunderidengine.WithAttestationProvider(engine.NewAttestationProvider(appCfg)),

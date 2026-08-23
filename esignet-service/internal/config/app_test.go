@@ -118,6 +118,221 @@ oauth:
 	ts.Require().EqualValues(120, cfg.OAuth.AuthorizationCode.ValidityPeriod)
 }
 
+func (ts *AppConfigTestSuite) TestLoadAppConfigRejectsMultipleDefaultResourceServers() {
+	dir := ts.chdirTemp()
+	ts.writeDeploymentYAML(dir, minimalDeploymentYAML+`
+resource_servers:
+  - id: rs-1
+    identifier: "https://rs-1.example.com"
+    default: true
+  - id: rs-2
+    identifier: "https://rs-2.example.com"
+    default: true
+`)
+
+	_, err := LoadAppConfig()
+	ts.Require().Error(err)
+	ts.Require().ErrorContains(err, "multiple resource servers marked default")
+}
+
+func (ts *AppConfigTestSuite) TestLoadAppConfigAcceptsSingleDefaultResourceServer() {
+	dir := ts.chdirTemp()
+	ts.writeDeploymentYAML(dir, minimalDeploymentYAML+`
+resource_servers:
+  - id: rs-1
+    identifier: "https://rs-1.example.com"
+  - id: rs-2
+    identifier: "https://rs-2.example.com"
+    default: true
+`)
+
+	cfg, err := LoadAppConfig()
+	ts.Require().NoError(err)
+	ts.Require().Len(cfg.ResourceServers, 2)
+}
+
+func TestResourceServerByIdentifier(t *testing.T) {
+	withDefault := []ResourceServerConfig{
+		{ID: "rs-default", Identifier: "https://default.example.com", Default: true},
+		{ID: "rs-other", Identifier: "https://other.example.com"},
+	}
+	noDefault := []ResourceServerConfig{
+		{ID: "rs-1", Identifier: "https://rs-1.example.com"},
+		{ID: "rs-2", Identifier: "https://rs-2.example.com"},
+	}
+
+	cases := []struct {
+		name       string
+		servers    []ResourceServerConfig
+		identifier string
+		wantID     string
+	}{
+		{name: "no resource servers configured, empty identifier", servers: nil, identifier: "", wantID: ""},
+		{name: "no resource servers configured, non-empty identifier", servers: nil, identifier: "https://rs-1.example.com", wantID: ""},
+		{name: "configured but none marked default, empty identifier", servers: noDefault, identifier: "", wantID: ""},
+		{name: "configured but none marked default, known identifier", servers: noDefault, identifier: "https://rs-2.example.com", wantID: "rs-2"},
+		{name: "default configured, empty identifier resolves default", servers: withDefault, identifier: "", wantID: "rs-default"},
+		{name: "default configured, unknown identifier", servers: withDefault, identifier: "https://unknown.example.com", wantID: ""},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			cfg := &AppConfig{ResourceServers: c.servers}
+			rs := cfg.ResourceServerByIdentifier(c.identifier)
+			if c.wantID == "" {
+				require.Nil(t, rs)
+				return
+			}
+			require.NotNil(t, rs)
+			require.Equal(t, c.wantID, rs.ID)
+		})
+	}
+}
+
+func TestResourceServerByID(t *testing.T) {
+	servers := []ResourceServerConfig{
+		{ID: "rs-1", Identifier: "https://rs-1.example.com"},
+		{ID: "rs-2", Identifier: "https://rs-2.example.com"},
+	}
+
+	cases := []struct {
+		name    string
+		servers []ResourceServerConfig
+		id      string
+		wantID  string
+	}{
+		{name: "no resource servers configured", servers: nil, id: "rs-1", wantID: ""},
+		{name: "known id", servers: servers, id: "rs-2", wantID: "rs-2"},
+		{name: "unknown id", servers: servers, id: "rs-unknown", wantID: ""},
+		{name: "empty id with none matching", servers: servers, id: "", wantID: ""},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			cfg := &AppConfig{ResourceServers: c.servers}
+			rs := cfg.ResourceServerByID(c.id)
+			if c.wantID == "" {
+				require.Nil(t, rs)
+				return
+			}
+			require.NotNil(t, rs)
+			require.Equal(t, c.wantID, rs.ID)
+		})
+	}
+}
+
+func TestIsAuthorizationScope(t *testing.T) {
+	servers := []ResourceServerConfig{
+		{ID: "rs-1", Identifier: "https://rs-1.example.com", Scopes: map[string]string{"payment:pay": "Make payments"}},
+		{ID: "rs-2", Identifier: "https://rs-2.example.com", Scopes: map[string]string{"profile:read": "Read profile"}},
+	}
+
+	cases := []struct {
+		name    string
+		servers []ResourceServerConfig
+		scope   string
+		want    bool
+	}{
+		{name: "no resource servers configured", servers: nil, scope: "payment:pay", want: false},
+		{name: "scope defined on first resource server", servers: servers, scope: "payment:pay", want: true},
+		{name: "scope defined on second resource server", servers: servers, scope: "profile:read", want: true},
+		{name: "scope not defined on any resource server", servers: servers, scope: "unknown:scope", want: false},
+		{name: "empty scope name not defined", servers: servers, scope: "", want: false},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			cfg := &AppConfig{ResourceServers: c.servers}
+			require.Equal(t, c.want, cfg.IsAuthorizationScope(c.scope))
+		})
+	}
+}
+
+func TestValidateResourceServers(t *testing.T) {
+	cases := []struct {
+		name    string
+		servers []ResourceServerConfig
+		wantErr string
+	}{
+		{name: "empty is valid"},
+		{
+			name: "single default is valid",
+			servers: []ResourceServerConfig{
+				{ID: "rs-1", Identifier: "https://rs-1.example.com", Default: true},
+			},
+		},
+		{
+			name: "no default is valid",
+			servers: []ResourceServerConfig{
+				{ID: "rs-1", Identifier: "https://rs-1.example.com"},
+			},
+		},
+		{
+			name: "duplicate default rejected",
+			servers: []ResourceServerConfig{
+				{ID: "rs-1", Identifier: "https://rs-1.example.com", Default: true},
+				{ID: "rs-2", Identifier: "https://rs-2.example.com", Default: true},
+			},
+			wantErr: "multiple resource servers marked default",
+		},
+		{
+			name: "duplicate id rejected",
+			servers: []ResourceServerConfig{
+				{ID: "rs-1", Identifier: "https://rs-1.example.com"},
+				{ID: "rs-1", Identifier: "https://rs-2.example.com"},
+			},
+			wantErr: "duplicate resource server id",
+		},
+		{
+			name: "duplicate identifier rejected",
+			servers: []ResourceServerConfig{
+				{ID: "rs-1", Identifier: "https://rs.example.com"},
+				{ID: "rs-2", Identifier: "https://rs.example.com"},
+			},
+			wantErr: "duplicate resource server identifier",
+		},
+		{
+			name: "empty identifier rejected",
+			servers: []ResourceServerConfig{
+				{ID: "rs-1", Identifier: ""},
+			},
+			wantErr: "must be an absolute URI",
+		},
+		{
+			name: "relative identifier rejected",
+			servers: []ResourceServerConfig{
+				{ID: "rs-1", Identifier: "/v1/esignet/vci/credential"},
+			},
+			wantErr: "must be an absolute URI",
+		},
+		{
+			name: "scheme without host rejected",
+			servers: []ResourceServerConfig{
+				{ID: "rs-1", Identifier: "https:///no-host-path"},
+			},
+			wantErr: "must be an absolute URI",
+		},
+		{
+			name: "unparsable identifier rejected",
+			servers: []ResourceServerConfig{
+				{ID: "rs-1", Identifier: "https://example.com/%zz"},
+			},
+			wantErr: "must be an absolute URI",
+		},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			err := validateResourceServers(c.servers)
+			if c.wantErr == "" {
+				require.NoError(t, err)
+				return
+			}
+			require.ErrorContains(t, err, c.wantErr)
+		})
+	}
+}
+
 func (ts *AppConfigTestSuite) TestApplyDefaultsAuthorizationCodeValidityPeriod() {
 	t := ts.T()
 	t.Run("respects yaml-supplied value", func(_ *testing.T) {
@@ -311,13 +526,12 @@ func (ts *AppConfigTestSuite) TestApplyDefaultsAllowedOriginRegex() {
 
 func (ts *AppConfigTestSuite) TestApplyDefaultsCacheType() {
 	t := ts.T()
-	t.Run("defaults to redis and loads redis config", func(_ *testing.T) {
+	t.Run("defaults to inmemory", func(_ *testing.T) {
 		cfg := &AppConfig{}
 
 		applyDefaults(cfg)
 
-		ts.Require().Equal("redis", cfg.Flow.Store)
-		ts.Require().NotEmpty(cfg.Redis.Host, "redis config should be loaded when cache type is redis")
+		ts.Require().Equal("inmemory", cfg.Flow.Store)
 	})
 
 	t.Run("non-redis cache type skips loading redis config", func(t *testing.T) {
@@ -326,7 +540,7 @@ func (ts *AppConfigTestSuite) TestApplyDefaultsCacheType() {
 
 		applyDefaults(cfg)
 
-		ts.Require().Equal("memory", cfg.Flow.Store)
+		ts.Require().Equal("inmemory", cfg.Flow.Store)
 		ts.Require().Zero(cfg.Redis, "redis config should not be loaded for a non-redis cache type")
 	})
 }
@@ -545,6 +759,52 @@ func (ts *AppConfigTestSuite) TestApplyEnvOverridesSupportedAlgorithms() {
 
 	ts.Require().Equal([]string{"PS256", "ES256", "EdDSA"}, cfg.SupportedSigningAlgorithms)
 	ts.Require().Equal([]string{"AES-GCM", "RSA-OAEP-256"}, cfg.SupportedEncAlgorithms)
+}
+
+func (ts *AppConfigTestSuite) TestApplyEnvOverridesResourceServersJSON() {
+	t := ts.T()
+	cfg := &AppConfig{ResourceServers: []ResourceServerConfig{
+		{ID: "from-yaml", Identifier: "https://from-yaml.example.com"},
+	}}
+	t.Setenv("MOSIP_ESIGNET_RESOURCE_SERVERS_JSON",
+		`[{"id":"rs-1","identifier":"https://rs-1.example.com","default":true,"scopes":{"read":"Read"}}]`)
+
+	ts.Require().NoError(ApplyEnvOverrides(cfg))
+
+	ts.Require().Equal([]ResourceServerConfig{
+		{ID: "rs-1", Identifier: "https://rs-1.example.com", Default: true, Scopes: map[string]string{"read": "Read"}},
+	}, cfg.ResourceServers)
+}
+
+func (ts *AppConfigTestSuite) TestApplyEnvOverridesResourceServersJSONInvalidJSON() {
+	t := ts.T()
+	cfg := &AppConfig{}
+	t.Setenv("MOSIP_ESIGNET_RESOURCE_SERVERS_JSON", "not json")
+
+	ts.Require().Error(ApplyEnvOverrides(cfg))
+}
+
+func (ts *AppConfigTestSuite) TestApplyEnvOverridesResourceServersJSONAmbiguousDefaultRejected() {
+	t := ts.T()
+	cfg := &AppConfig{}
+	t.Setenv("MOSIP_ESIGNET_RESOURCE_SERVERS_JSON",
+		`[{"id":"rs-1","identifier":"https://rs-1.example.com","default":true},`+
+			`{"id":"rs-2","identifier":"https://rs-2.example.com","default":true}]`)
+
+	err := ApplyEnvOverrides(cfg)
+	ts.Require().Error(err)
+	ts.Require().ErrorContains(err, "multiple resource servers marked default")
+}
+
+func (ts *AppConfigTestSuite) TestApplyEnvOverridesResourceServersJSONUnsetLeavesYAMLValue() {
+	t := ts.T()
+	cfg := &AppConfig{ResourceServers: []ResourceServerConfig{
+		{ID: "from-yaml", Identifier: "https://from-yaml.example.com"},
+	}}
+	t.Setenv("MOSIP_ESIGNET_RESOURCE_SERVERS_JSON", "")
+
+	ts.Require().NoError(ApplyEnvOverrides(cfg))
+	ts.Require().Equal("from-yaml", cfg.ResourceServers[0].ID)
 }
 
 func (ts *AppConfigTestSuite) TestEnvOrDefault() {

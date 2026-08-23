@@ -365,7 +365,7 @@ func kbiChallenge(credentials map[string]any) (string, bool) {
 
 func acceptedClaimsFromRequest(requestedAttributes *providers.RequestedAttributes) []string {
 	if requestedAttributes == nil || len(requestedAttributes.Attributes) == 0 {
-		return []string{"sub", "name"}
+		return []string{"sub"}
 	}
 	claims := make([]string, 0, len(requestedAttributes.Attributes))
 	for claim := range requestedAttributes.Attributes {
