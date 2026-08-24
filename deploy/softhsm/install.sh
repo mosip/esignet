@@ -1,5 +1,5 @@
 #!/bin/bash
-# Installs HSM service for Esignet (SoftHSM or Hardware HSM)
+# Installs SoftHSM service for Esignet (SoftHSM or Hardware HSM)
 ## Usage: ./install.sh [kubeconfig]
 
 if [ $# -ge 1 ] ; then

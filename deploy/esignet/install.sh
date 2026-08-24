@@ -90,6 +90,14 @@ function installing_esignet() {
   $COPY_UTIL secret redis redis $NS
   $COPY_UTIL secret keycloak-client-secrets keycloak $NS
 
+  MOSIP_ESIGNET_HOST_DOMAIN=$(kubectl -n $NS get cm esignet-global -o jsonpath={.data.mosip-esignet-host})
+  if [[ -z "$MOSIP_ESIGNET_HOST_DOMAIN" ]]; then
+    echo "ERROR: could not read 'mosip-esignet-host' from the 'esignet-global' configmap in namespace '$NS'."
+    exit 1
+  fi
+  MOSIP_ESIGNET_HOST="https://$MOSIP_ESIGNET_HOST_DOMAIN"
+  MOSIP_ESIGNET_BASE_URL="https://$MOSIP_ESIGNET_HOST_DOMAIN/v1/esignet"
+
   while true; do
     read -p "Is Prometheus Service Monitor Operator deployed in the k8s cluster? (y/n): " response
     if [[ "$response" == "y" || "$response" == "Y" ]]; then
@@ -387,10 +395,14 @@ function installing_esignet() {
   plugin_option="--set pluginNameEnv=$plugin_name -f $plugin_env_file"
 
   echo Installing esignet
-  helm -n $NS install $ESIGNET_SERVICE_NAME mosip/esignet --version $CHART_VERSION  \
-    $ENABLE_INSECURE $plugin_option \
-    $ESIGNET_HELM_ARGS \
-    --set metrics.serviceMonitor.enabled=$servicemonitorflag -f values.yaml --wait
+  helm -n $NS install $ESIGNET_SERVICE_NAME /home/techno-467/IdeaProjects/esignet/helm/esignet --version $CHART_VERSION  \
+    -f values.yaml \
+    $ENABLE_INSECURE \
+    "${ESIGNET_HELM_ARGS[@]}" \
+    --set metrics.serviceMonitor.enabled=$servicemonitorflag \
+    --set-string extraEnvVars.MOSIP_ESIGNET_HOST="$MOSIP_ESIGNET_HOST" \
+    --set-string extraEnvVars.MOSIP_ESIGNET_BASE_URL="$MOSIP_ESIGNET_BASE_URL" \
+    $plugin_option --wait
 
   kubectl -n $NS get deploy $ESIGNET_SERVICE_NAME -o name | xargs -n1 -t kubectl -n $NS rollout status
 
