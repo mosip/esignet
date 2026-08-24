@@ -747,6 +747,56 @@ func (ts *AppConfigTestSuite) TestApplyEnvOverridesInvalidAccessTokenLifetime() 
 	ts.Require().Error(ApplyEnvOverrides(cfg))
 }
 
+func (ts *AppConfigTestSuite) TestApplyEnvOverridesSecurityConfig() {
+	t := ts.T()
+	cfg := &AppConfig{SecurityConfig: SecurityConfig{IssuerURL: "https://yaml-issuer", JwksURL: "https://yaml-jwks"}}
+	t.Setenv("MOSIP_ESIGNET_SECURITY_ISSUER_URL", "https://issuer.example.com")
+	t.Setenv("MOSIP_ESIGNET_SECURITY_JWKS_URL", "https://issuer.example.com/jwks.json")
+
+	ts.Require().NoError(ApplyEnvOverrides(cfg))
+
+	ts.Require().Equal("https://issuer.example.com", cfg.SecurityConfig.IssuerURL, "env var takes precedence over yaml-set value")
+	ts.Require().Equal("https://issuer.example.com/jwks.json", cfg.SecurityConfig.JwksURL, "env var takes precedence over yaml-set value")
+}
+
+func (ts *AppConfigTestSuite) TestApplyEnvOverridesSecurityConfigNoEnvSetPreservesYAML() {
+	t := ts.T()
+	t.Setenv("MOSIP_ESIGNET_SECURITY_ISSUER_URL", "")
+	t.Setenv("MOSIP_ESIGNET_SECURITY_JWKS_URL", "")
+	cfg := &AppConfig{SecurityConfig: SecurityConfig{IssuerURL: "https://yaml-issuer", JwksURL: "https://yaml-jwks"}}
+
+	ts.Require().NoError(ApplyEnvOverrides(cfg))
+
+	ts.Require().Equal("https://yaml-issuer", cfg.SecurityConfig.IssuerURL, "yaml value preserved when env var unset")
+	ts.Require().Equal("https://yaml-jwks", cfg.SecurityConfig.JwksURL, "yaml value preserved when env var unset")
+}
+
+func (ts *AppConfigTestSuite) TestApplyEnvOverridesClientCacheTTLSecs() {
+	t := ts.T()
+	cfg := &AppConfig{ClientCacheTTLSecs: 42}
+	t.Setenv("MOSIP_ESIGNET_CLIENT_CACHE_TTL_SECS", "99")
+
+	ts.Require().NoError(ApplyEnvOverrides(cfg))
+
+	ts.Require().EqualValues(99, cfg.ClientCacheTTLSecs, "env var takes precedence over yaml-set value")
+}
+
+func (ts *AppConfigTestSuite) TestApplyEnvOverridesClientCacheTTLSecsNonPositiveIgnored() {
+	cfg := &AppConfig{ClientCacheTTLSecs: 42}
+	ts.T().Setenv("MOSIP_ESIGNET_CLIENT_CACHE_TTL_SECS", "0")
+
+	ts.Require().NoError(ApplyEnvOverrides(cfg))
+
+	ts.Require().EqualValues(42, cfg.ClientCacheTTLSecs, "0 or negative override should be ignored")
+}
+
+func (ts *AppConfigTestSuite) TestApplyEnvOverridesInvalidClientCacheTTLSecs() {
+	cfg := &AppConfig{}
+	ts.T().Setenv("MOSIP_ESIGNET_CLIENT_CACHE_TTL_SECS", "abc")
+
+	ts.Require().Error(ApplyEnvOverrides(cfg))
+}
+
 func (ts *AppConfigTestSuite) TestApplyEnvOverridesNoEnvSetLeavesDefaults() {
 	t := ts.T()
 	for _, envVar := range []string{

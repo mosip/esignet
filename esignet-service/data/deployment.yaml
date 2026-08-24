@@ -150,8 +150,8 @@ oauth:
     enabled: false  
 
 security_config:
-  issuer_url: ""
-  jwks_url: ""
+  issuer_url: ""  # override via MOSIP_ESIGNET_SECURITY_ISSUER_URL
+  jwks_url: ""    # override via MOSIP_ESIGNET_SECURITY_JWKS_URL
   jwks_cache_ttl: 3000
   scope_mapping:
     - endpoint: "/client-mgmt/oidc-client"

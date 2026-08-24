@@ -272,8 +272,8 @@ extraEnvVars:
   KEYMANAGER_DB_SCHEMA: esignet
   KEYMANAGER_KEYSTORE_TYPE: PKCS11
   KEYMANAGER_PKCS11_MODULE_PATH: /usr/local/lib/softhsm/libpkcs11-proxy.so
-  KEYMANAGER_PKCS11_TOKEN_LABEL: pkcs11-proxy
-  KEYMANAGER_PKCS11_SLOT_ID: "0"
+#  KEYMANAGER_PKCS11_TOKEN_LABEL: mosip-token
+#  hsm_client_zip_url_env: https://raw.githubusercontent.com/mosip/artifactory-ref-impl/master/artifacts/src/hsm/client.zip
   KEYMANAGER_PKCS11_PIN:
     valueFrom:
       secretKeyRef:
