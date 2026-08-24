@@ -20,6 +20,7 @@ import (
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
+	"github.com/mosip/esignet/internal/clientmgmt"
 	"github.com/mosip/esignet/internal/config"
 	"github.com/mosip/esignet/internal/consentmgmt"
 	applog "github.com/mosip/esignet/internal/log"
@@ -41,16 +42,18 @@ const (
 
 type consentProvider struct {
 	consentSvc *consentmgmt.Service
+	clientSvc  *clientmgmt.Service
 	config     *config.AppConfig
 	logger     *applog.Logger
 }
 
 // NewConsentProvider builds a providers.ConsentProvider backed by consentSvc.
-func NewConsentProvider(consentSvc *consentmgmt.Service, config *config.AppConfig) providers.ConsentProvider {
+func NewConsentProvider(consentSvc *consentmgmt.Service, clientSvc *clientmgmt.Service, config *config.AppConfig) providers.ConsentProvider {
 
 	return &consentProvider{consentSvc: consentSvc,
-		config: config,
-		logger: applog.GetLogger().Named("consentProvider"),
+		config:    config,
+		clientSvc: clientSvc,
+		logger:    applog.GetLogger().Named("consentProvider"),
 	}
 }
 
@@ -95,7 +98,12 @@ func (p *consentProvider) ResolveConsent(ctx context.Context, _, appID string, _
 			authorizedPermissions, []string{}), nil
 	}
 
-	hash := p.getConsentRequestHash(ctx, req)
+	client, err := p.clientSvc.GetClient(ctx, clientID)
+	if err != nil {
+		p.logger.Error(ctx, "Failed to read client record", applog.Error(err))
+		return nil, clientError("consent_fetch_failed", err)
+	}
+	hash := p.getConsentRequestHash(ctx, req, client.Claims)
 	if hash == "" {
 		return nil, clientError("consent_check_failed", nil)
 	}
@@ -135,7 +143,14 @@ func (p *consentProvider) RecordConsent(ctx context.Context, _, appID, userID st
 			essentialClaims[name] = true
 		}
 	}
-	for _, name := range p.claimsFromScopes(req.standardScopes) {
+
+	client, err := p.clientSvc.GetClient(ctx, clientID)
+	if err != nil {
+		p.logger.Error(ctx, "Failed to read client record", applog.Error(err))
+		return nil, clientError("consent_record_failed", err)
+	}
+	claimsFromScopes := p.claimsFromScopes(req.standardScopes, client.Claims)
+	for _, name := range claimsFromScopes {
 		allowedClaims[name] = true
 	}
 	allowedScopes := map[string]bool{}
@@ -212,7 +227,7 @@ func (p *consentProvider) RecordConsent(ctx context.Context, _, appID, userID st
 		ID:                  uuid.NewString(),
 		ClientID:            clientID,
 		UserID:              userID,
-		Claims:              mergeScopeClaims(req.claimsRequest, p.claimsFromScopes(req.standardScopes)),
+		Claims:              mergeScopeClaims(req.claimsRequest, claimsFromScopes),
 		AuthorizationScopes: req.authorizeScopes,
 		AcceptedClaims:      acceptedClaims,
 		PermittedScopes:     permittedScopes,
@@ -424,8 +439,8 @@ func clientError(errorCode string, err error) *common.ServiceError {
 	return serviceError
 }
 
-func (p *consentProvider) getConsentRequestHash(ctx context.Context, req *requestedConsent) string {
-	effectiveClaims := mergeScopeClaims(req.claimsRequest, p.claimsFromScopes(req.standardScopes))
+func (p *consentProvider) getConsentRequestHash(ctx context.Context, req *requestedConsent, registeredClaims []string) string {
+	effectiveClaims := mergeScopeClaims(req.claimsRequest, p.claimsFromScopes(req.standardScopes, registeredClaims))
 	hash, err := requestHash(effectiveClaims, req.authorizeScopes)
 	if err != nil {
 		p.logger.Error(ctx, "Failed to hash the claims request", applog.Error(err))
@@ -443,19 +458,23 @@ func requestHash(claimsRequest map[string]any, authorizeScopes []string) (string
 	)
 }
 
-// claimsFromScopes flattens the claim names mapped to scopes by the configured ScopeClaims table
-// (esignet's scope_claims deployment config), deduplicated. Scopes with no mapping entry (or an
-// empty one, e.g. "openid") contribute nothing.
-func (p *consentProvider) claimsFromScopes(scopes []string) []string {
-	seen := map[string]bool{}
+// claimsFromScopes flattens the claim names mapped to scopes by the registered client claims,
+// deduplicated.
+func (p *consentProvider) claimsFromScopes(scopes []string, registeredClaims []string) []string {
+	registered := make(map[string]bool, len(registeredClaims))
+	for _, claim := range registeredClaims {
+		registered[claim] = true
+	}
+
+	seen := make(map[string]bool, len(registeredClaims))
 	var claims []string
 	for _, scope := range scopes {
-		for _, claim := range p.config.ScopeClaims[scope] {
-			if seen[claim] {
+		for _, scopeClaim := range p.config.ScopeClaims[scope] {
+			if !registered[scopeClaim] || seen[scopeClaim] {
 				continue
 			}
-			seen[claim] = true
-			claims = append(claims, claim)
+			seen[scopeClaim] = true
+			claims = append(claims, scopeClaim)
 		}
 	}
 	return claims
