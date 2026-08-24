@@ -236,6 +236,111 @@
       "expect_login_failure": true,
       "expect_error_contains": "userinfo request failed",
       "scopes": ["openid"]
+    },
+    {
+      "_comment": "RFC 7662 token introspection. The cases run after the flow has completed, against tokens it has just proven usable at userinfo, so a failure here belongs to the introspection endpoint rather than to a stale or never-valid token. Each case is one POST to /oauth2/introspect and prefixes its own assertions, so a row says which case failed. {{client_id}}, {{sub}} and {{dpop_jkt}} are substituted with what this run actually obtained. The mismatched-hint case is not a mistake: RFC 7662 s2.1 makes token_type_hint an optimization the server may ignore, so a wrong hint must not stop it finding the token.",
+      "name": "introspection positive: an issued access token is reported active with its client, subject and scope",
+      "auth_factor": "otp",
+      "scopes": ["openid", "profile"],
+      "expect_present": ["sub"],
+      "introspect": [
+        {
+          "name": "access token with hint",
+          "token": "access_token",
+          "hint": "access_token",
+          "expect_active": true,
+          "expect_present": ["client_id", "sub", "scope", "iss", "exp", "iat"],
+          "expect_values": { "client_id": "{{client_id}}", "sub": "{{sub}}", "scope": "openid profile" }
+        },
+        {
+          "name": "access token without a hint",
+          "token": "access_token",
+          "expect_active": true,
+          "expect_values": { "client_id": "{{client_id}}", "sub": "{{sub}}" }
+        },
+        {
+          "name": "access token under a mismatched hint",
+          "token": "access_token",
+          "hint": "id_token",
+          "expect_active": true,
+          "expect_values": { "client_id": "{{client_id}}", "sub": "{{sub}}" }
+        }
+      ]
+    },
+    {
+      "_comment": "docs/esignet-openapi.yaml documents /oauth2/introspect as taking an access token OR an id_token, and lists id_token among the token_type_hint values. KNOWN ISSUE on esignet-thunder1.esdev (2026-08-24): a freshly issued, unexpired id_token comes back active=false under every hint (id_token, access_token, and none), while the same call for the access token of the same flow reports it active. The case is kept rather than dropped so the gap stays visible and flips to a pass the day the engine honours it.",
+      "name": "introspection positive: an issued id token is reported active under the id_token hint",
+      "auth_factor": "otp",
+      "scopes": ["openid", "profile"],
+      "expect_present": ["sub"],
+      "known_issue": "eSignet reports a freshly issued id_token as active=false at /oauth2/introspect, though the documented contract accepts an id_token and defines the id_token token_type_hint",
+      "introspect": [
+        {
+          "name": "id token with hint",
+          "token": "id_token",
+          "hint": "id_token",
+          "expect_active": true,
+          "expect_present": ["aud", "iss", "exp"],
+          "expect_values": { "sub": "{{sub}}", "aud": "{{client_id}}" }
+        }
+      ]
+    },
+    {
+      "_comment": "The two axes pointed away from the positive. A token this deployment never issued must come back inactive rather than as an error (RFC 7662 s2.2) and must carry no metadata with it (s4), or introspection becomes an oracle for guessed tokens. A request whose client authentication does not hold up must be refused outright, before the submitted token is looked at.",
+      "name": "introspection negative: unissued tokens and failed client authentication are refused",
+      "auth_factor": "otp",
+      "scopes": ["openid"],
+      "expect_present": ["sub"],
+      "introspect": [
+        {
+          "name": "a token this deployment never issued",
+          "token": "unissued",
+          "expect_status": 200,
+          "expect_active": false,
+          "expect_absent": ["sub", "client_id", "scope", "exp", "iat", "iss"]
+        },
+        {
+          "name": "no token parameter",
+          "token": "none",
+          "expect_status": 400,
+          "expect_error": "invalid_request"
+        },
+        {
+          "name": "client id with no assertion",
+          "client_auth": "no_assertion",
+          "expect_status": 401,
+          "expect_error": "invalid_client"
+        },
+        {
+          "name": "assertion signed with an unregistered key",
+          "client_auth": "wrong_key",
+          "expect_status": 401,
+          "expect_error": "invalid_client"
+        },
+        {
+          "name": "assertion issued for another audience",
+          "client_auth": "wrong_audience",
+          "expect_status": 401,
+          "expect_error": "invalid_client"
+        }
+      ]
+    },
+    {
+      "_comment": "A DPoP-bound access token carries its binding as cnf.jkt. Introspection has to report the same thumbprint, otherwise a resource server that consults introspection instead of reading the token would have no way to know a proof of possession is required at all.",
+      "name": "introspection positive: a DPoP-bound access token reports its cnf.jkt binding",
+      "auth_factor": "otp",
+      "client_config": { "dpop_bound_access_tokens": true },
+      "scopes": ["openid"],
+      "expect_present": ["sub"],
+      "introspect": [
+        {
+          "name": "dpop-bound access token",
+          "token": "access_token",
+          "hint": "access_token",
+          "expect_active": true,
+          "expect_values": { "client_id": "{{client_id}}", "cnf.jkt": "{{dpop_jkt}}" }
+        }
+      ]
     }
   ]
 }

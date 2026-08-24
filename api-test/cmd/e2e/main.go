@@ -114,25 +114,26 @@ func main() {
 	}
 
 	runner := &e2e.Runner{
-		Base:             base,
-		Issuer:           disco.Issuer,
-		AuthEndpoint:     disco.AuthorizationEndpoint,
-		TokenEndpoint:    disco.TokenEndpoint,
-		UserinfoEndpoint: disco.UserinfoEndpoint,
-		JWKSURI:          disco.JWKSURI,
-		PAREndpoint:      disco.PAREndpoint,
-		DPoPAlgs:         disco.DPoPAlgs,
-		AdminToken:       adminTok,
-		Plugin:           es.Provider,
-		Answers:          esignet.BuildAnswers(es),
-		IDType:           es.Identity.IDType,
-		TLSVerify:        tlsVerify,
-		Timeout:          timeout,
-		Logf:             logger.Printf,
-		OTP:              otpProvider,
-		PMSBaseURL:       es.PMS.BaseURL,
-		AuthPartnerID:    es.PMS.AuthPartnerID,
-		PolicyID:         es.PMS.PolicyID,
+		Base:               base,
+		Issuer:             disco.Issuer,
+		AuthEndpoint:       disco.AuthorizationEndpoint,
+		TokenEndpoint:      disco.TokenEndpoint,
+		UserinfoEndpoint:   disco.UserinfoEndpoint,
+		JWKSURI:            disco.JWKSURI,
+		PAREndpoint:        disco.PAREndpoint,
+		IntrospectEndpoint: disco.IntrospectionEndpoint,
+		DPoPAlgs:           disco.DPoPAlgs,
+		AdminToken:         adminTok,
+		Plugin:             es.Provider,
+		Answers:            esignet.BuildAnswers(es),
+		IDType:             es.Identity.IDType,
+		TLSVerify:          tlsVerify,
+		Timeout:            timeout,
+		Logf:               logger.Printf,
+		OTP:                otpProvider,
+		PMSBaseURL:         es.PMS.BaseURL,
+		AuthPartnerID:      es.PMS.AuthPartnerID,
+		PolicyID:           es.PMS.PolicyID,
 	}
 
 	rows := runner.Run(ctx, spec)
@@ -161,6 +162,10 @@ type discovery struct {
 	// every scenario that does not ask for them.
 	PAREndpoint string   `json:"pushed_authorization_request_endpoint"`
 	DPoPAlgs    []string `json:"dpop_signing_alg_values_supported"`
+
+	// IntrospectionEndpoint is RFC 7662 token introspection, likewise optional:
+	// only the introspection scenarios need it.
+	IntrospectionEndpoint string `json:"introspection_endpoint"`
 }
 
 func fetchDiscovery(ctx context.Context, url string, tlsVerify bool) (*discovery, error) {
@@ -183,7 +188,7 @@ func fetchDiscovery(ctx context.Context, url string, tlsVerify bool) (*discovery
 	if d.Issuer == "" {
 		return nil, fmt.Errorf("discovery %s: no issuer", url)
 	}
-	if err := sameOrigin(url, d.Issuer, d.AuthorizationEndpoint, d.TokenEndpoint, d.UserinfoEndpoint, d.JWKSURI, d.PAREndpoint); err != nil {
+	if err := sameOrigin(url, d.Issuer, d.AuthorizationEndpoint, d.TokenEndpoint, d.UserinfoEndpoint, d.JWKSURI, d.PAREndpoint, d.IntrospectionEndpoint); err != nil {
 		return nil, fmt.Errorf("discovery %s: %w", url, err)
 	}
 	return &d, nil

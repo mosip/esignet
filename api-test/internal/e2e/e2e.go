@@ -134,6 +134,12 @@ type Scenario struct {
 	// demands — which is what a positive combination case wants.
 	Flow *FlowSpec `json:"flow"`
 
+	// Introspect asks the scenario to submit the tokens the flow obtained to
+	// /oauth2/introspect once the flow has completed, one request per case.
+	// Only meaningful on a scenario that expects the flow to succeed: a
+	// rejected login has no token to inspect.
+	Introspect []IntrospectCase `json:"introspect"`
+
 	Scopes         []string          `json:"scopes"`
 	UserinfoClaims map[string]any    `json:"userinfo_claims"` // OIDC "claims".userinfo request object
 	ExpectPresent  []string          `json:"expect_present"`
@@ -225,6 +231,10 @@ type Runner struct {
 	// PAREndpoint is discovery's pushed_authorization_request_endpoint. Empty
 	// when the deployment advertises none, which blocks the PAR scenarios only.
 	PAREndpoint string
+	// IntrospectEndpoint is discovery's introspection_endpoint (RFC 7662).
+	// Empty when the deployment advertises none, which blocks the
+	// introspection scenarios only.
+	IntrospectEndpoint string
 	// DPoPAlgs is discovery's dpop_signing_alg_values_supported, narrowed to
 	// one alg the harness can produce.
 	DPoPAlgs   []string
@@ -327,10 +337,10 @@ func (r *Runner) Run(ctx context.Context, spec Spec) []result.ModuleResult {
 		start := time.Now()
 		row := result.ModuleResult{Surface: result.SurfaceE2E, Plugin: r.Plugin, Module: sc.Name, HarnessOutcome: result.OutcomeOK}
 
-		if sc.AuthFactor == "" {
+		if msg := scenarioConfigError(sc); msg != "" {
 			row.Result = "FAILED"
-			row.FailedConditions = []result.Condition{{Src: "e2e", Result: "FAILURE", Msg: "scenario config error: auth_factor is required (otp|password|bio|kbi)"}}
-			logf("e2e: %-55s -> FAILED (no auth_factor configured)", sc.Name)
+			row.FailedConditions = []result.Condition{{Src: "e2e", Result: "FAILURE", Msg: "scenario config error: " + msg}}
+			logf("e2e: %-55s -> FAILED (%s)", sc.Name, msg)
 			out = append(out, row)
 			continue
 		}
@@ -658,6 +668,22 @@ func (r *Runner) createClientViaPMS(ctx context.Context, calls *[]result.HTTPCal
 	return resp.Response.ClientID, nil
 }
 
+// scenarioConfigError reports why a scenario cannot be run at all, or "" when
+// it is well formed. These are mistakes in the spec file rather than eSignet
+// behaviour, so they are caught before the flow is driven.
+func scenarioConfigError(sc Scenario) string {
+	if sc.AuthFactor == "" {
+		return "auth_factor is required (otp|password|bio|kbi)"
+	}
+	// A rejected flow reaches no introspection, and the expected-rejection
+	// branch would report the scenario PASSED without a single introspection
+	// call having been made.
+	if len(sc.Introspect) > 0 && sc.ExpectLoginFailure {
+		return "introspect and expect_login_failure are mutually exclusive — a rejected flow issues no token to introspect"
+	}
+	return ""
+}
+
 // runScenario drives authorize/login/token/userinfo and returns claims, trace and protocol assertions.
 func (r *Runner) runScenario(ctx context.Context, cl *testClient, redirectURI string, sc Scenario, answers map[string]string, preferred []string) (map[string]any, []result.HTTPCall, consentObservation, []result.Assertion, error) {
 	var calls []result.HTTPCall
@@ -669,6 +695,12 @@ func (r *Runner) runScenario(ctx context.Context, cl *testClient, redirectURI st
 	plan, perr := resolveFlow(cl.cfg, sc.Flow)
 	if perr != nil {
 		return nil, nil, consentObservation{}, proto, perr
+	}
+	// Validated before the flow is driven, so a mistyped selector costs a
+	// config error rather than a full login that then cannot be introspected.
+	introspectCases, ierr := resolveIntrospect(sc.Introspect)
+	if ierr != nil {
+		return nil, nil, consentObservation{}, proto, ierr
 	}
 	// One DPoP key for the whole flow: the proof at PAR binds the auth code, and
 	// the proof at token must present the same thumbprint to redeem it.
@@ -771,7 +803,7 @@ func (r *Runner) runScenario(ctx context.Context, cl *testClient, redirectURI st
 		"code":                  {code},
 		"redirect_uri":          {redirectURI},
 		"client_id":             {cl.clientID},
-		"client_assertion_type": {"urn:ietf:params:oauth:client-assertion-type:jwt-bearer"},
+		"client_assertion_type": {clientAssertionTypeJWTBearer},
 		"client_assertion":      {assertion},
 	}
 	// A flow that sent no challenge has no verifier to present.
@@ -805,6 +837,11 @@ func (r *Runner) runScenario(ctx context.Context, cl *testClient, redirectURI st
 	if tok.AccessToken == "" {
 		return nil, calls, consentSeen, proto, fmt.Errorf("token exchange failed (HTTP %d): %s", status, firstNonEmpty(tok.Error+" "+tok.ErrorDesc, snippet(rb)))
 	}
+	// What the introspection cases submit and are cross-checked against.
+	tk := tokenSet{accessToken: tok.AccessToken, idToken: tok.IDToken}
+	if plan.useDPoP {
+		tk.dpopJKT = tokenSigner.jkt
+	}
 
 	// A DPoP-bound token must be issued as token_type=DPoP: a Bearer token here
 	// would be usable without any proof, silently undoing the binding.
@@ -833,6 +870,8 @@ func (r *Runner) runScenario(ctx context.Context, cl *testClient, redirectURI st
 		got := ""
 		if payload, derr := decodeJWTPayload(tok.IDToken); derr == nil {
 			got, _ = payload["nonce"].(string)
+			// The subject the introspection response must agree with.
+			tk.sub, _ = payload["sub"].(string)
 		}
 		proto = append(proto, result.Assertion{
 			Field: "id_token nonce echo", Expected: nonce, Actual: firstNonEmpty(got, "(absent)"),
@@ -865,6 +904,12 @@ func (r *Runner) runScenario(ctx context.Context, cl *testClient, redirectURI st
 	if err != nil {
 		return nil, calls, consentSeen, proto, fmt.Errorf("userinfo parse: %w", err)
 	}
+
+	// Introspection runs last, on tokens the flow has just proven usable: a
+	// failure here is the endpoint's, not a stale or never-valid token's.
+	if len(introspectCases) > 0 {
+		proto = append(proto, r.introspect(ctx, &calls, cl, introspectCases, tk)...)
+	}
 	return claims, calls, consentSeen, proto, nil
 }
 
@@ -894,7 +939,7 @@ func (r *Runner) pushAuthorizationRequest(ctx context.Context, calls *[]result.H
 	}
 	form := url.Values{}
 	maps.Copy(form, params)
-	form.Set("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
+	form.Set("client_assertion_type", clientAssertionTypeJWTBearer)
 	form.Set("client_assertion", assertion)
 	if dp != nil {
 		// dpop_jkt states the binding in the request as well as the proof. The
