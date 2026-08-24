@@ -883,15 +883,14 @@ func (r *Runner) runScenario(ctx context.Context, cl *testClient, redirectURI st
 	// the token is bound, with Bearer otherwise. A scenario can force Bearer on
 	// a bound token to check the resource endpoint honours the binding.
 	uheaders := map[string]string{"Authorization": "Bearer " + tok.AccessToken}
+	usigner := tokenSigner
 	if plan.useDPoP && !plan.bearerAtUserinfo {
 		uheaders["Authorization"] = "DPoP " + tok.AccessToken
-		uproof, perr := tokenSigner.proof(http.MethodGet, r.UserinfoEndpoint, tok.AccessToken)
-		if perr != nil {
-			return nil, calls, consentSeen, proto, fmt.Errorf("userinfo dpop proof: %w", perr)
-		}
-		uheaders["DPoP"] = uproof
+	} else {
+		// Bearer: no proof to sign, and none to retry with a nonce.
+		usigner = nil
 	}
-	ustatus, ub, err := r.do(ctx, &calls, "userinfo", http.MethodGet, r.UserinfoEndpoint, uheaders, "")
+	ustatus, ub, err := r.getWithDPoP(ctx, &calls, "userinfo", r.UserinfoEndpoint, uheaders, usigner, tok.AccessToken)
 	if err != nil {
 		return nil, calls, consentSeen, proto, fmt.Errorf("userinfo request: %w", err)
 	}
@@ -999,4 +998,33 @@ func (r *Runner) postWithDPoP(ctx context.Context, calls *[]result.HTTPCall, lab
 }
 
 // acrForClaims returns the client's registered ACRs for the authorize request.
+// getWithDPoP is postWithDPoP for a resource read: it signs a proof over the
+// GET, and retries once when the resource server answers use_dpop_nonce with a
+// DPoP-Nonce of its own. RFC 9449 s8 lets it demand one, and without the retry
+// every DPoP scenario would fail at userinfo against such a deployment — a
+// harness gap reported as an eSignet conformance failure.
+//
+// dp nil means the token is presented as a Bearer: there is no proof to sign
+// and nothing a nonce could be folded into, so the call is made once.
+func (r *Runner) getWithDPoP(ctx context.Context, calls *[]result.HTTPCall, label, endpoint string, headers map[string]string, dp *dpopSigner, accessToken string) (int, []byte, error) {
+	if dp == nil {
+		return r.do(ctx, calls, label, http.MethodGet, endpoint, headers, "")
+	}
+	for attempt := 0; ; attempt++ {
+		proof, err := dp.proof(http.MethodGet, endpoint, accessToken)
+		if err != nil {
+			return 0, nil, fmt.Errorf("%s dpop proof: %w", label, err)
+		}
+		headers["DPoP"] = proof
+		status, rb, respHeaders, err := r.doWithHeaders(ctx, calls, label, http.MethodGet, endpoint, headers, "")
+		if err != nil {
+			return status, rb, err
+		}
+		if attempt == 0 && isDPoPNonceError(rb) && dp.dpopNonceFrom(respHeaders) {
+			continue
+		}
+		return status, rb, nil
+	}
+}
+
 func (r *Runner) acrForClaims() []string { return r.acr }

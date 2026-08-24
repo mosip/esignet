@@ -397,11 +397,15 @@ func TestDPoPJWKExponentRoundTrips(t *testing.T) {
 	if err != nil {
 		t.Fatalf("newDPoPSigner: %v", err)
 	}
-	eb, err := b64urlDecode(d.jwk["e"].(string))
+	e, ok := d.jwk["e"].(string)
+	if !ok {
+		t.Fatalf("jwk e is %T, want string", d.jwk["e"])
+	}
+	eb, err := b64urlDecode(e)
 	if err != nil {
 		t.Fatalf("decode e: %v", err)
 	}
-	if got := int(new(big.Int).SetBytes(eb).Int64()); got != d.priv.PublicKey.E {
-		t.Errorf("e round-tripped to %d, want %d", got, d.priv.PublicKey.E)
+	if got := int(new(big.Int).SetBytes(eb).Int64()); got != d.priv.E {
+		t.Errorf("e round-tripped to %d, want %d", got, d.priv.E)
 	}
 }
