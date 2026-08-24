@@ -1,4 +1,4 @@
-This module describes how to conduct load test of the eSignet OIDC/DPoP authentication flow (OTP-based and Biometric-based) using the provided JMeter script (`eSignetGo_script_v0.3.jmx`).
+This module describes how to conduct load test of the eSignet OIDC/DPoP authentication flow (OTP-based and Biometric-based) using the provided JMeter script (`200eSignetGo_script.jmx`).
 
 # Contains
 * This directory contains Performance Test script of below API endpoint categories grouped inside "Thread Groups".
