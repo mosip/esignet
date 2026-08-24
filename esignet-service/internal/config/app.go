@@ -625,6 +625,21 @@ func ApplyEnvOverrides(cfg *AppConfig) error {
 		}
 		cfg.SupportedEncAlgorithms = algorithms
 	}
+	if v := os.Getenv("MOSIP_ESIGNET_SECURITY_ISSUER_URL"); v != "" {
+		cfg.SecurityConfig.IssuerURL = v
+	}
+	if v := os.Getenv("MOSIP_ESIGNET_SECURITY_JWKS_URL"); v != "" {
+		cfg.SecurityConfig.JwksURL = v
+	}
+	if v := os.Getenv("MOSIP_ESIGNET_CLIENT_CACHE_TTL_SECS"); v != "" {
+		secs, err := strconv.ParseInt(v, 10, 64)
+		if err != nil {
+			return fmt.Errorf("invalid MOSIP_ESIGNET_CLIENT_CACHE_TTL_SECS: %w", err)
+		}
+		if secs > 0 {
+			cfg.ClientCacheTTLSecs = secs
+		}
+	}
 	if v := os.Getenv("MOSIP_ESIGNET_RESOURCE_SERVERS_JSON"); v != "" {
 		var resourceServers []ResourceServerConfig
 		if err := json.Unmarshal([]byte(v), &resourceServers); err != nil {
