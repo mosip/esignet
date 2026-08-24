@@ -17,11 +17,11 @@ import { fetchThemeConfig } from "../services/config.service";
 import { getPollingConfig } from "../utils/parsing";
 import type { ThemeConfig } from "../types";
 import { Detector } from "react-detect-offline";
+import NetworkErrorPage from "../pages/NetworkErrorPage";
 
 const EsignetDetailsPage = lazy(() => import("../pages/EsignetDetailsPage"));
 const LoginPage = lazy(() => import("../pages/LoginPage"));
 const SomethingWrongPage = lazy(() => import("../pages/SomethingWrongPage"));
-const NetworkErrorPage = lazy(() => import("../pages/NetworkErrorPage"));
 const PageNotFoundPage = lazy(() => import("../pages/PageNotFoundPage"));
 
 export default function AppRouter() {

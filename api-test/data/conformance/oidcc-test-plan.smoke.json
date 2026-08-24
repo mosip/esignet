@@ -1,0 +1,9 @@
+{
+  "_comment": "Curated smoke allow-list for oidcc-test-plan, pinned to the conformance-suite version below. Kept as data (not in the design doc) so it doesn't rot when the suite renames/adds/removes modules. Update alongside the pinned suite image. Both modules verified PASSED in the 2026-07-17 manual run.",
+  "suite_version": "5.1.41",
+  "plan": "oidcc-test-plan",
+  "modules": [
+    "oidcc-discovery-endpoint-verification",
+    "oidcc-server"
+  ]
+}

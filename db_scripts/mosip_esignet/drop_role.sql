@@ -1,1 +1,1 @@
-drop role if exists esignetuser;
+drop role if exists :dbuname;

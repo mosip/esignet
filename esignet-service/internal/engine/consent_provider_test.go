@@ -9,6 +9,7 @@ package engine
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"testing"
 	"time"
@@ -18,6 +19,8 @@ import (
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
+	"github.com/mosip/esignet/internal/clientmgmt"
+	clientdb "github.com/mosip/esignet/internal/clientmgmt/db"
 	"github.com/mosip/esignet/internal/config"
 	"github.com/mosip/esignet/internal/consentmgmt"
 	"github.com/mosip/esignet/internal/consentmgmt/db"
@@ -50,12 +53,39 @@ func (q *consentStubQuerier) UpsertConsent(_ context.Context, arg db.UpsertConse
 	return q.upsertErr
 }
 
-func newConsentTestProvider(q db.Querier, cfg *config.AppConfig) *consentProvider {
+type clientStubQuerier struct {
+	clientdb.Querier
+
+	getRow clientdb.ClientDetail
+	getErr error
+}
+
+func (q *clientStubQuerier) GetClient(_ context.Context, _ string) (clientdb.ClientDetail, error) {
+	return q.getRow, q.getErr
+}
+
+// registeredClientRow builds a minimal, otherwise-empty client row whose Claims list is the
+// given registered claims, for consentProvider tests that only care about claim filtering.
+func registeredClientRow(claims []string) clientdb.ClientDetail {
+	claimsJSON, _ := json.Marshal(claims)
+	return clientdb.ClientDetail{
+		ID:           "client-1",
+		RedirectUris: "[]",
+		Claims:       string(claimsJSON),
+		AcrValues:    "[]",
+		GrantTypes:   "[]",
+		AuthMethods:  "[]",
+		Status:       "ACTIVE",
+	}
+}
+
+func newConsentTestProvider(q db.Querier, cfg *config.AppConfig, registeredClaims ...string) *consentProvider {
 	if cfg == nil {
 		cfg = &config.AppConfig{}
 	}
 	svc := consentmgmt.NewServiceWithQuerier(q)
-	return NewConsentProvider(svc, cfg).(*consentProvider)
+	clientSvc := clientmgmt.NewServiceWithQuerier(&clientStubQuerier{getRow: registeredClientRow(registeredClaims)}, nil, 0, nil)
+	return NewConsentProvider(svc, clientSvc, cfg).(*consentProvider)
 }
 
 func clientIDMeta(clientID string) map[string][]string {
@@ -183,7 +213,14 @@ func (ts *ConsentProviderTestSuite) TestResolveConsent_HashMismatch_ReturnsPromp
 
 func (ts *ConsentProviderTestSuite) TestRecordConsent_Success() {
 	q := &consentStubQuerier{}
-	p := newConsentTestProvider(q, nil)
+	cfg := &config.AppConfig{ResourceServers: []config.ResourceServerConfig{
+		{ID: "rs-1", Identifier: "https://rs.example.com", Scopes: map[string]string{"perm.read": "read"}},
+	}}
+	p := newConsentTestProvider(q, cfg)
+
+	meta := clientIDMeta("client-1")
+	meta[runtimeKeyClaims] = []string{`{"userinfo":{"email":null,"phone":null}}`}
+	meta[runtimeKeyScopes] = []string{"openid perm.read"}
 
 	decisions := &providers.ConsentDecisions{
 		Purposes: []providers.PurposeDecision{
@@ -206,7 +243,7 @@ func (ts *ConsentProviderTestSuite) TestRecordConsent_Success() {
 	}
 
 	consent, svcErr := p.RecordConsent(context.Background(), "ou-1", "app-1", "user-1",
-		decisions, "session-token", 3600, clientIDMeta("client-1"))
+		decisions, "session-token", 3600, meta)
 	ts.Require().Nil(svcErr)
 	ts.Require().NotNil(consent)
 	ts.Require().Equal("app-1", consent.GroupID)
@@ -227,6 +264,101 @@ func (ts *ConsentProviderTestSuite) TestRecordConsent_Success() {
 	ts.Require().Equal("client-1", q.lastUpsert.ClientID)
 	ts.Require().Equal("user-1", q.lastUpsert.PsuToken)
 	ts.Require().True(q.lastUpsert.ExpireDtimes.Valid)
+}
+
+// TestRecordConsent_FiltersUnrequestedDecisions reproduces the reported bug: a consent decision
+// approving claims/scopes that were never part of the original authorize request must not be
+// persisted or returned, even though the caller marked them Approved.
+func (ts *ConsentProviderTestSuite) TestRecordConsent_FiltersUnrequestedDecisions() {
+	q := &consentStubQuerier{}
+	cfg := &config.AppConfig{ResourceServers: []config.ResourceServerConfig{
+		{ID: "rs-1", Identifier: "https://rs.example.com", Scopes: map[string]string{"mosip_identity_vc_ldp": "vc"}},
+	}}
+	p := newConsentTestProvider(q, cfg)
+
+	meta := clientIDMeta("client-1")
+	meta[runtimeKeyScopes] = []string{"openid mosip_identity_vc_ldp"}
+
+	decisions := &providers.ConsentDecisions{
+		Purposes: []providers.PurposeDecision{
+			{
+				PurposeName: "attributes:app-1",
+				Approved:    true,
+				Elements: []providers.ElementDecision{
+					{Name: "email", Approved: true},
+					{Name: "phone_number", Approved: true},
+					{Name: "gender", Approved: true},
+				},
+			},
+			{
+				PurposeName: "permissions:app-1",
+				Approved:    true,
+				Elements: []providers.ElementDecision{
+					{Name: "mosip_identity_vc_ldp", Approved: true},
+					{Name: "unrequested_scope", Approved: true},
+				},
+			},
+		},
+	}
+
+	consent, svcErr := p.RecordConsent(context.Background(), "ou-1", "app-1", "user-1",
+		decisions, "session-token", 3600, meta)
+	ts.Require().Nil(svcErr)
+	ts.Require().NotNil(consent)
+
+	ts.Require().Equal("attributes:app-1", consent.Purposes[0].Name)
+	ts.Require().Empty(consent.Purposes[0].Elements, "no attribute was requested, so none should be consented")
+
+	ts.Require().Equal("permissions:app-1", consent.Purposes[1].Name)
+	ts.Require().Equal([]providers.ConsentElementApproval{
+		{Name: "mosip_identity_vc_ldp", Namespace: providers.NamespacePermission, IsUserApproved: true},
+	}, consent.Purposes[1].Elements)
+
+	var accepted, permitted []string
+	ts.Require().NoError(json.Unmarshal([]byte(q.lastUpsert.AcceptedClaims.String), &accepted))
+	ts.Require().NoError(json.Unmarshal([]byte(q.lastUpsert.PermittedScopes.String), &permitted))
+	ts.Require().Empty(accepted, "unrequested claims must not be persisted as accepted")
+	ts.Require().Equal([]string{"mosip_identity_vc_ldp"}, permitted)
+}
+
+// TestRecordConsent_AllowsClaimFromStandardScope covers allowedClaims' contribution from
+// claimsFromScopes(req.standardScopes): a claim that was never named explicitly in the claims
+// request parameter, but is implied by a requested standard scope (e.g. "profile" implying
+// "name" via the configured scope_claims table), must still be accepted rather than filtered out
+// as unrequested.
+func (ts *ConsentProviderTestSuite) TestRecordConsent_AllowsClaimFromStandardScope() {
+	q := &consentStubQuerier{}
+	cfg := &config.AppConfig{ScopeClaims: map[string][]string{"profile": {"name"}}}
+	p := newConsentTestProvider(q, cfg, "name")
+
+	meta := clientIDMeta("client-1")
+	meta[runtimeKeyScopes] = []string{"openid profile"}
+
+	decisions := &providers.ConsentDecisions{
+		Purposes: []providers.PurposeDecision{
+			{
+				PurposeName: "attributes:app-1",
+				Approved:    true,
+				Elements: []providers.ElementDecision{
+					{Name: "name", Approved: true},
+				},
+			},
+		},
+	}
+
+	consent, svcErr := p.RecordConsent(context.Background(), "ou-1", "app-1", "user-1",
+		decisions, "session-token", 3600, meta)
+	ts.Require().Nil(svcErr)
+	ts.Require().NotNil(consent)
+
+	ts.Require().Equal("attributes:app-1", consent.Purposes[0].Name)
+	ts.Require().Equal([]providers.ConsentElementApproval{
+		{Name: "name", Namespace: providers.NamespaceAttribute, IsUserApproved: true},
+	}, consent.Purposes[0].Elements, "a claim implied by a requested standard scope must not be filtered out as unrequested")
+
+	var accepted []string
+	ts.Require().NoError(json.Unmarshal([]byte(q.lastUpsert.AcceptedClaims.String), &accepted))
+	ts.Require().Equal([]string{"name"}, accepted)
 }
 
 func (ts *ConsentProviderTestSuite) TestRecordConsent_NilDecisions() {
@@ -391,20 +523,22 @@ func (ts *ConsentProviderTestSuite) TestClientError() {
 func (ts *ConsentProviderTestSuite) TestGetConsentRequestHash() {
 	p := newConsentTestProvider(&consentStubQuerier{}, &config.AppConfig{})
 	req := &requestedConsent{claimsRequest: map[string]any{}, standardScopes: []string{"openid"}}
-	hash := p.getConsentRequestHash(context.Background(), req)
+	hash := p.getConsentRequestHash(context.Background(), req, nil)
 	ts.Require().NotEmpty(hash)
 }
 
 func (ts *ConsentProviderTestSuite) TestClaimsFromScopes() {
 	cfg := &config.AppConfig{ScopeClaims: map[string][]string{
-		"profile": {"name", "family_name"},
+		"profile": {"name", "family_name", "unregistered_claim"},
 		"email":   {"email", "name"},
 		"openid":  nil,
 	}}
 	p := newConsentTestProvider(&consentStubQuerier{}, cfg)
 
-	claims := p.claimsFromScopes([]string{"profile", "email", "openid"})
+	claims := p.claimsFromScopes([]string{"profile", "email", "openid"},
+		[]string{"name", "family_name", "email"})
 	ts.Require().ElementsMatch([]string{"name", "family_name", "email"}, claims)
+	ts.Require().NotContains(claims, "unregistered_claim")
 }
 
 func (ts *ConsentProviderTestSuite) TestMergeScopeClaims() {
@@ -435,7 +569,9 @@ func (ts *ConsentProviderTestSuite) TestToPromptElements() {
 }
 
 func (ts *ConsentProviderTestSuite) TestReadAuthRequest() {
-	cfg := &config.AppConfig{AuthorizationScopes: map[string]string{"perm.read": "read"}}
+	cfg := &config.AppConfig{ResourceServers: []config.ResourceServerConfig{
+		{ID: "rs-1", Identifier: "https://rs.example.com", Scopes: map[string]string{"perm.read": "read"}},
+	}}
 	p := newConsentTestProvider(&consentStubQuerier{}, cfg)
 	req, err := p.readAuthRequest(context.Background(), map[string][]string{
 		"initiator_query_claims": {`{"userinfo":{"name":{"essential":true}}}`},

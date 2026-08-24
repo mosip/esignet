@@ -1,6 +1,6 @@
 services:
   database:
-    image: "postgres:bookworm"
+    image: 'postgres:bookworm'
     ports:
       - 5455:5432
     environment:
@@ -8,9 +8,68 @@ services:
       - POSTGRES_PASSWORD=postgres
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
 
-  redis:
-    image: redis:7.4
+  mock-identity-system:
+    image: 'mosipdev/mock-identity-system:release-0.14.x'
+    user: root
     ports:
-      - "6379:6379"
-    restart: always
+      - 8082:8082
+    environment:
+      - container_user=mosip
+      - active_profile_env=default,local
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/mosip_mockidentitysystem?currentSchema=mockidentitysystem
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - MOSIP_ESIGNET_HOST=localhost:8080
+    depends_on:
+      database:
+        condition: service_healthy
+
+  esignet:
+    image: "mosipdev/esignet:develop-go"
+    user: root
+    ports:
+      - 8080:8080
+    environment:
+      - container_user=mosip
+      - PORT=8080
+      - DATABASE_HOST=database
+      - DATABASE_PORT=5432
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=postgres
+      - KEYMANAGER_KEYSTORE_TYPE=PKCS12
+      - KEYMANAGER_DB_SCHEMA=esignet
+      - KEYMANAGER_PKCS12_FILE_PATH=/opt/mosip/test.pfx
+      - KEYMANAGER_PKCS12_PASSWORD=localtest
+      - KEYMANAGER_PKCS12_ALLOW_INSECURE_SOFTWARE_KEYSTORE=true
+      - MOSIP_ESIGNET_CACHE_TYPE=memory
+      - MOSIP_ESIGNET_HOST=http://localhost:8080
+      - MOSIP_ESIGNET_OIDC_UI_HOSTNAME=localhost
+      - MOSIP_ESIGNET_CAPTCHA_SITE_PROVIDER=hcaptcha
+      - MOSIP_ESIGNET_CAPTCHA_SITE_KEY=10000000-ffff-ffff-ffff-000000000001
+      - MOSIP_ESIGNET_AUTHN_PROVIDER=mock
+      - MOSIP_ESIGNET_MOCK_DOMAIN_URL=http://mock-identity-system:8082
+    depends_on:
+      database:
+        condition: service_healthy
+      mock-identity-system:
+        condition: service_started
+
+  esignet-ui:
+    image: "mosipdev/oidc-ui:develop-go"
+    user: root
+    ports:
+      - 3000:3000
+    environment:
+      - container_user=mosip
+      - DEFAULT_LANG=en
+      - DEFAULT_WELLKNOWN=%5B%7B%22name%22%3A%22OpenID%20Configuration%22%2C%22value%22%3A%22%2F.well-known%2Fopenid-configuration%22%7D%2C%7B%22name%22%3A%22Jwks%20Json%22%2C%22value%22%3A%22%2F.well-known%2Fjwks.json%22%7D%2C%7B%22name%22%3A%22Authorization%20Server%22%2C%22value%22%3A%22%2F.well-known%2Foauth-authorization-server%22%7D%5D
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - esignet

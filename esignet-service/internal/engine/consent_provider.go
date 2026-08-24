@@ -20,6 +20,7 @@ import (
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
+	"github.com/mosip/esignet/internal/clientmgmt"
 	"github.com/mosip/esignet/internal/config"
 	"github.com/mosip/esignet/internal/consentmgmt"
 	applog "github.com/mosip/esignet/internal/log"
@@ -41,16 +42,18 @@ const (
 
 type consentProvider struct {
 	consentSvc *consentmgmt.Service
+	clientSvc  *clientmgmt.Service
 	config     *config.AppConfig
 	logger     *applog.Logger
 }
 
 // NewConsentProvider builds a providers.ConsentProvider backed by consentSvc.
-func NewConsentProvider(consentSvc *consentmgmt.Service, config *config.AppConfig) providers.ConsentProvider {
+func NewConsentProvider(consentSvc *consentmgmt.Service, clientSvc *clientmgmt.Service, config *config.AppConfig) providers.ConsentProvider {
 
 	return &consentProvider{consentSvc: consentSvc,
-		config: config,
-		logger: applog.GetLogger().Named("consentProvider"),
+		config:    config,
+		clientSvc: clientSvc,
+		logger:    applog.GetLogger().Named("consentProvider"),
 	}
 }
 
@@ -95,7 +98,12 @@ func (p *consentProvider) ResolveConsent(ctx context.Context, _, appID string, _
 			authorizedPermissions, []string{}), nil
 	}
 
-	hash := p.getConsentRequestHash(ctx, req)
+	client, err := p.clientSvc.GetClient(ctx, clientID)
+	if err != nil {
+		p.logger.Error(ctx, "Failed to read client record", applog.Error(err))
+		return nil, clientError("consent_fetch_failed", err)
+	}
+	hash := p.getConsentRequestHash(ctx, req, client.Claims)
 	if hash == "" {
 		return nil, clientError("consent_check_failed", nil)
 	}
@@ -128,17 +136,59 @@ func (p *consentProvider) RecordConsent(ctx context.Context, _, appID, userID st
 	}
 
 	essentialClaims := map[string]bool{}
+	allowedClaims := map[string]bool{}
 	for name, v := range requestedClaims(req) {
+		allowedClaims[name] = true
 		if isEssentialClaim(v) {
 			essentialClaims[name] = true
 		}
 	}
 
+	client, err := p.clientSvc.GetClient(ctx, clientID)
+	if err != nil {
+		p.logger.Error(ctx, "Failed to read client record", applog.Error(err))
+		return nil, clientError("consent_record_failed", err)
+	}
+	claimsFromScopes := p.claimsFromScopes(req.standardScopes, client.Claims)
+	for _, name := range claimsFromScopes {
+		allowedClaims[name] = true
+	}
+	allowedScopes := map[string]bool{}
+	for _, s := range req.authorizeScopes {
+		allowedScopes[s] = true
+	}
+
+	// filteredDecisions drops any purpose element the caller approved/denied that was never part
+	// of the original authorize request's claims/scopes, so a consent-decision submission cannot
+	// grant claims or permissions beyond what was actually requested.
 	var acceptedClaims, permittedScopes []string
+	var filteredDecisions *providers.ConsentDecisions
 	if decisions != nil {
+		filteredPurposes := make([]providers.PurposeDecision, 0, len(decisions.Purposes))
 		for _, purpose := range decisions.Purposes {
 			isAttributesPurpose := strings.HasPrefix(purpose.PurposeName, attributesPurpose)
-			for _, element := range purpose.Elements {
+			isPermissionsPurpose := strings.HasPrefix(purpose.PurposeName, permissionsPurpose)
+
+			elements := purpose.Elements
+			if isAttributesPurpose || isPermissionsPurpose {
+				filteredElements := make([]providers.ElementDecision, 0, len(purpose.Elements))
+				for _, element := range purpose.Elements {
+					if isAttributesPurpose && !allowedClaims[element.Name] {
+						p.logger.Warn(ctx, "Ignoring consent decision for unrequested claim",
+							applog.String("claim", element.Name))
+						continue
+					}
+					if isPermissionsPurpose && !allowedScopes[element.Name] {
+						p.logger.Warn(ctx, "Ignoring consent decision for unrequested scope",
+							applog.String("scope", element.Name))
+						continue
+					}
+					filteredElements = append(filteredElements, element)
+				}
+				elements = filteredElements
+			}
+
+			for _, element := range elements {
 				if !element.Approved {
 					if isAttributesPurpose && essentialClaims[element.Name] {
 						p.logger.Warn(ctx, "Essential attribute consent denied", applog.String("attribute", element.Name))
@@ -149,10 +199,21 @@ func (p *consentProvider) RecordConsent(ctx context.Context, _, appID, userID st
 				if isAttributesPurpose {
 					acceptedClaims = append(acceptedClaims, element.Name)
 				}
-				if strings.HasPrefix(purpose.PurposeName, permissionsPurpose) {
+				if isPermissionsPurpose {
 					permittedScopes = append(permittedScopes, element.Name)
 				}
 			}
+
+			filteredPurposes = append(filteredPurposes, providers.PurposeDecision{
+				PurposeName: purpose.PurposeName,
+				Approved:    purpose.Approved,
+				Elements:    elements,
+			})
+		}
+		filteredDecisions = &providers.ConsentDecisions{
+			Approved: decisions.Approved,
+			Reason:   decisions.Reason,
+			Purposes: filteredPurposes,
 		}
 	}
 
@@ -166,7 +227,7 @@ func (p *consentProvider) RecordConsent(ctx context.Context, _, appID, userID st
 		ID:                  uuid.NewString(),
 		ClientID:            clientID,
 		UserID:              userID,
-		Claims:              mergeScopeClaims(req.claimsRequest, p.claimsFromScopes(req.standardScopes)),
+		Claims:              mergeScopeClaims(req.claimsRequest, claimsFromScopes),
 		AuthorizationScopes: req.authorizeScopes,
 		AcceptedClaims:      acceptedClaims,
 		PermittedScopes:     permittedScopes,
@@ -178,7 +239,7 @@ func (p *consentProvider) RecordConsent(ctx context.Context, _, appID, userID st
 		return nil, clientError("consent_persist_failed", err)
 	}
 
-	return buildRecord(consentRecord.ID, appID, decisions), nil
+	return buildRecord(consentRecord.ID, appID, filteredDecisions), nil
 }
 
 // buildPrompt constructs the consent prompt for the requested attributes and permissions. It
@@ -378,8 +439,8 @@ func clientError(errorCode string, err error) *common.ServiceError {
 	return serviceError
 }
 
-func (p *consentProvider) getConsentRequestHash(ctx context.Context, req *requestedConsent) string {
-	effectiveClaims := mergeScopeClaims(req.claimsRequest, p.claimsFromScopes(req.standardScopes))
+func (p *consentProvider) getConsentRequestHash(ctx context.Context, req *requestedConsent, registeredClaims []string) string {
+	effectiveClaims := mergeScopeClaims(req.claimsRequest, p.claimsFromScopes(req.standardScopes, registeredClaims))
 	hash, err := requestHash(effectiveClaims, req.authorizeScopes)
 	if err != nil {
 		p.logger.Error(ctx, "Failed to hash the claims request", applog.Error(err))
@@ -397,19 +458,23 @@ func requestHash(claimsRequest map[string]any, authorizeScopes []string) (string
 	)
 }
 
-// claimsFromScopes flattens the claim names mapped to scopes by the configured ScopeClaims table
-// (esignet's scope_claims deployment config), deduplicated. Scopes with no mapping entry (or an
-// empty one, e.g. "openid") contribute nothing.
-func (p *consentProvider) claimsFromScopes(scopes []string) []string {
-	seen := map[string]bool{}
+// claimsFromScopes flattens the claim names mapped to scopes by the registered client claims,
+// deduplicated.
+func (p *consentProvider) claimsFromScopes(scopes []string, registeredClaims []string) []string {
+	registered := make(map[string]bool, len(registeredClaims))
+	for _, claim := range registeredClaims {
+		registered[claim] = true
+	}
+
+	seen := make(map[string]bool, len(registeredClaims))
 	var claims []string
 	for _, scope := range scopes {
-		for _, claim := range p.config.ScopeClaims[scope] {
-			if seen[claim] {
+		for _, scopeClaim := range p.config.ScopeClaims[scope] {
+			if !registered[scopeClaim] || seen[scopeClaim] {
 				continue
 			}
-			seen[claim] = true
-			claims = append(claims, claim)
+			seen[scopeClaim] = true
+			claims = append(claims, scopeClaim)
 		}
 	}
 	return claims
@@ -456,7 +521,7 @@ func (p *consentProvider) readAuthRequest(_ context.Context, runtimeMetadata map
 	}
 
 	for _, scope := range strings.Fields(firstValue(runtimeMetadata[runtimeKeyScopes])) {
-		if _, ok := p.config.AuthorizationScopes[scope]; ok {
+		if p.config.IsAuthorizationScope(scope) {
 			req.authorizeScopes = append(req.authorizeScopes, scope)
 			continue
 		}

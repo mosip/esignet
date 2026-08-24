@@ -619,13 +619,19 @@ paths:
                         const: private_key_jwt
                     additionalConfig:
                       type: object
-                      description: 'This parameter allow us to configure the required values based on their specific authentication and integration needs, ensuring efficient implementation of eSignet for ID verification/authentication.'
+                      description: 'This parameter allow us to configure the required values based on their specific authentication and integration needs, ensuring efficient implementation of eSignet for ID verification/authentication. Only the properties listed below are accepted; any unrecognized property results in an invalid_additional_config error.'
+                      additionalProperties: false
                       properties:
                         userinfo_response_type:
                           enum:
                             - JWS
                             - JWE
                           description: The response type for the user info endpoint should be configurable to allow the Relying Party to choose between only signed tokens or signed tokens with encryption.
+                        id_token_response_type:
+                          enum:
+                            - JWS
+                            - JWE
+                          description: The response type for the id token should be configurable to allow the Relying Party to choose between only signed tokens or signed tokens with encryption.
                         purpose:
                           $ref: '#/components/schemas/Purpose'
                         signup_banner_required:
@@ -644,6 +650,15 @@ paths:
                         dpop_bound_access_tokens:
                           type: boolean
                           description: 'A boolean value specifying whether the client always uses DPoP for token requests. If omitted, the default value is false. If the value is true, the eSignet rejects token request from the client that do not contain the DPoP header.'
+                        require_pkce:
+                          type: boolean
+                          description: 'A boolean value specifying whether the client is required to use PKCE for the authorization code flow. If omitted, the default value is false.'
+                        allowed_authorization_scopes:
+                          type: array
+                          uniqueItems: true
+                          items:
+                            type: string
+                          description: Additional OAuth scopes, beyond the standard scope claims, that this client is allowed to request.
             examples:
               example-1:
                 value:
@@ -1283,13 +1298,19 @@ paths:
                         const: private_key_jwt
                     additionalConfig:
                       type: object
-                      description: 'This parameter allow us to configure the required values based on their specific authentication and integration needs, ensuring efficient implementation of eSignet for ID verification/authentication.'
+                      description: 'This parameter allow us to configure the required values based on their specific authentication and integration needs, ensuring efficient implementation of eSignet for ID verification/authentication. Only the properties listed below are accepted; any unrecognized property results in an invalid_additional_config error.'
+                      additionalProperties: false
                       properties:
                         userinfo_response_type:
                           enum:
                             - JWS
                             - JWE
                           description: The response type for the user info endpoint should be configurable to allow the Relying Party to choose between only signed tokens or signed tokens with encryption.
+                        id_token_response_type:
+                          enum:
+                            - JWS
+                            - JWE
+                          description: The response type for the id token should be configurable to allow the Relying Party to choose between only signed tokens or signed tokens with encryption.
                         purpose:
                           $ref: '#/components/schemas/Purpose'
                         signup_banner_required:
@@ -1308,6 +1329,15 @@ paths:
                         dpop_bound_access_tokens:
                           type: boolean
                           description: 'A boolean value specifying whether the client always uses DPoP for token requests. If omitted, the default value is false. If the value is true, the eSignet rejects token request from the client that do not contain the DPoP header.'
+                        require_pkce:
+                          type: boolean
+                          description: 'A boolean value specifying whether the client is required to use PKCE for the authorization code flow. If omitted, the default value is false.'
+                        allowed_authorization_scopes:
+                          type: array
+                          uniqueItems: true
+                          items:
+                            type: string
+                          description: Additional OAuth scopes, beyond the standard scope claims, that this client is allowed to request.
             examples:
               Example 1:
                 value:
@@ -1536,7 +1566,8 @@ paths:
                           - private_key_jwt
                     additionalConfig:
                       type: object
-                      description: 'This parameter allow us to configure the required values based on their specific authentication and integration needs, ensuring efficient implementation of eSignet for ID verification/authentication.'
+                      description: 'This parameter allow us to configure the required values based on their specific authentication and integration needs, ensuring efficient implementation of eSignet for ID verification/authentication. Only the properties listed below are accepted; any unrecognized property results in an invalid_additional_config error.'
+                      additionalProperties: false
                       properties:
                         userinfo_response_type:
                           type: string
@@ -1544,6 +1575,12 @@ paths:
                             - JWS
                             - JWE
                           description: The response type for the user info endpoint should be configurable to allow the Relying Party to choose between only signed tokens or signed tokens with encryption.
+                        id_token_response_type:
+                          type: string
+                          enum:
+                            - JWS
+                            - JWE
+                          description: The response type for the id token should be configurable to allow the Relying Party to choose between only signed tokens or signed tokens with encryption.
                         purpose:
                           $ref: '#/components/schemas/Purpose'
                         signup_banner_required:
@@ -1562,6 +1599,15 @@ paths:
                         dpop_bound_access_tokens:
                           type: boolean
                           description: 'A boolean value specifying whether the client always uses DPoP for token requests. If omitted, the default value is false. If the value is true, the eSignet rejects token request from the client that do not contain the DPoP header.'
+                        require_pkce:
+                          type: boolean
+                          description: 'A boolean value specifying whether the client is required to use PKCE for the authorization code flow. If omitted, the default value is false.'
+                        allowed_authorization_scopes:
+                          type: array
+                          uniqueItems: true
+                          items:
+                            type: string
+                          description: Additional OAuth scopes, beyond the standard scope claims, that this client is allowed to request.
                     encPublicKey:
                       description: |-
                         Encryption public key in JWK format for userinfo JWE encryption.

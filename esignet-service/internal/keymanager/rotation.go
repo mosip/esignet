@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/lib/pq"
+	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/mosip/esignet/internal/keymanager/db"
 )
@@ -48,10 +48,10 @@ func IsDuplicateUniIdent(err error) bool {
 	if err == nil {
 		return false
 	}
-	var pqErr *pq.Error
-	if errors.As(err, &pqErr) {
-		return pqErr.Code == "23505" && pqErr.Constraint == "uni_ident_const"
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) {
+		return pgErr.Code == "23505" && pgErr.ConstraintName == "uni_ident_const"
 	}
-	msg := err.Error() // legacy fallback for non-pq errors (e.g. in tests)
+	msg := err.Error() // string-match fallback for non-*pgconn.PgError errors (e.g. in tests)
 	return strings.Contains(msg, "23505") && strings.Contains(msg, "uni_ident_const")
 }

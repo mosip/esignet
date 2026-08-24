@@ -1198,6 +1198,8 @@ header:
 input:
   uin_label: UIN/VID
   uin_placeholder: Enter your UIN/VID
+  policy_number_label: Policy Number
+  policy_number_placeholder: Enter your Policy Number
   mobile_label: Mobile Number
   mobile_placeholder: Enter Mobile Number
   email_label: Email
@@ -1241,10 +1243,31 @@ consent:
   allow: Allow
   deny: Deny
   timer_label: Please take appropriate action in
-  essential: Essential Claims
-  optional: Voluntary Claims
-  essential_info: Mandatory user information required by the Service provider
-  optional_info: Additional user information that the resident can choose to share with the Service provider
+  essential_claims: Essential Claims
+  optional_claims: Voluntary Claims
+  authorize_scope: Authorize Scopes
+  essential_claims.info: Mandatory user information required by the Service provider
+  optional_claims.info: Additional user information that the resident can choose to share with the Service provider
+  authorize_scope.info: Allows Service provider to access these protected services on your behalf
+  name: Full Name
+  given_name: Name
+  middle_name: Middle Name
+  phone: Phone
+  phone_number: Phone Number
+  phone_number_verified: Phone Number Verified
+  email: Email Address
+  email_verified: Email Address
+  address: Address
+  birthdate: Birthdate
+  gender: Gender
+  picture: Picture
+  preferred_username: Preferred User Name
+  locale: Locale
+  nickname: Nickname
+  family_name: Family Name
+  zoneinfo: Zone Info
+  profile: Profile
+  required: Required
 
 signin:
   images.app_logo.alt: Application Logo
@@ -1258,6 +1281,8 @@ validation:
   pattern.invalid: Invalid format
   minLength.invalid: Value is too short
   maxLength.invalid: Value is too long
+  policy.numeric: Policy Number must contain numbers only
+  policy.length: Policy Number must be between 8 and 50 digits
 
 validations:
   required.field.error: This field is required

@@ -1,0 +1,151 @@
+# api-test/docker-compose.yml — one command to run the harness locally/in CI
+# (#2209). Brings up the OpenID Conformance Suite (mongodb + server + nginx,
+# service definitions mirror the suite's own docker-compose-prebuilt.yml,
+# pinned via SUITE_IMAGE_TAG) plus the harness image, which runs run-all.sh
+# and writes the consolidated report to ./out.
+#
+# Usage:
+#   cp .env.example .env   # fill in MOSIP_ESIGNET_BASE_URL, KEYCLOAK_*, etc.
+#   docker compose up --build --abort-on-container-exit --exit-code-from harness
+#
+# Prerequisites (README "Prerequisites"): the suite's two pre-registered static
+# clients + conformance-suite-private/esignet-config.json (private jwks) must
+# already exist — this compose file only brings the suite process up, it does
+# not provision the plan config.
+#
+# httpd is given the network alias `localhost.emobix.co.uk` (the suite's own
+# BASE_URL) so any container on this network — including harness — resolves it
+# to the suite instead of its own loopback.
+
+services:
+  mongodb:
+    image: ${MONGODB_IMAGE:-mongo:6.0.13}
+    volumes:
+      - suite-mongodb-data:/data/db
+    logging:
+      driver: json-file
+      options:
+        max-size: "500k"
+        max-file: "5"
+
+  server:
+    image: registry.gitlab.com/openid/conformance-suite:${SUITE_IMAGE_TAG:-release-v5.1.42}
+    depends_on:
+      - mongodb
+    environment:
+      BASE_URL: https://localhost.emobix.co.uk:8443
+      MONGODB_HOST: mongodb
+      SPRING_PROFILES_ACTIVE: ${SUITE_SPRING_PROFILE:-dev}
+      # The suite's dev profile declares an optional GitLab-login OAuth2 client;
+      # Spring validates registrations eagerly even when unused, so it refuses to
+      # boot without a non-empty client-id/secret. Dummy values are enough since
+      # the harness never exercises GitLab login.
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GITLAB_CLIENTID: unused
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GITLAB_CLIENTSECRET: unused
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENTID: unused
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENTSECRET: unused
+    logging:
+      driver: json-file
+      options:
+        max-size: "500k"
+        max-file: "5"
+
+  httpd:
+    image: registry.gitlab.com/openid/conformance-suite/nginx:${SUITE_IMAGE_TAG:-release-v5.1.42}
+    depends_on:
+      - server
+    ports:
+      - "8443:8443"
+    networks:
+      default:
+        aliases:
+          - localhost.emobix.co.uk
+    logging:
+      driver: json-file
+      options:
+        max-size: "500k"
+        max-file: "5"
+
+  # Configuration comes from the per-plugin config file (CONFIG_FILE, default
+  # data/config/config.mock.json), not from a wall of environment variables. Only secrets and
+  # things that genuinely differ per run are listed below — env still overrides
+  # any config value, so anything here can be added back ad hoc.
+  harness:
+    build: .
+    depends_on:
+      - httpd
+    command: ["-c", "/app/config.json"]
+    environment:
+      # Your credentials overlay is normally mounted (see volumes); these are the
+      # ad-hoc escape hatches, and they win over both config layers.
+      #
+      # Listed WITHOUT a value on purpose. The harness overrides a config field
+      # whenever the variable is PRESENT, empty included (config.applyEnv uses
+      # LookupEnv), so the map form `FOO: ${FOO:-}` would set FOO="" and blank
+      # out whatever config.local.json said — silently wiping the very secret
+      # the mounted overlay exists to supply. This bare form passes a variable
+      # through only when it is DEFINED at all.
+      #
+      # Defined-but-empty still counts: `FOO=` in .env arrives as FOO="" and
+      # blanks the config just the same (`docker compose config` shows it as ""
+      # rather than null). Hence .env.example ships these commented out, not
+      # empty — "leave it out of .env to use the config files" means the line
+      # must be absent or commented, not blank.
+      - MOSIP_ESIGNET_BASE_URL
+      - KEYCLOAK_TOKEN_URL
+      - KEYCLOAK_CLIENT_SECRET
+      - INDIVIDUAL_ID
+      - ID_TYPE
+      - FLOW_CLIENT_ID
+      - SURFACES
+      - TEST_PROFILE
+      # Unlike CONFORMANCE_TLS_VERIFY below, these have no compose-side default:
+      # the eSignet target is whatever MOSIP_ESIGNET_BASE_URL points at, and that is
+      # usually a real deployment whose cert should be verified. They stay on
+      # unless the operator explicitly passes false.
+      - ESIGNET_TLS_VERIFY
+      - API_TLS_VERIFY
+      # Compose reaches the suite by its network alias rather than the config's
+      # host-side URL, and that cert is the suite's own self-signed one. These
+      # carry real defaults, so they are always set.
+      - CONFORMANCE_BASE_URL=${CONFORMANCE_BASE_URL:-https://localhost.emobix.co.uk:8443}
+      - CONFORMANCE_TLS_VERIFY=${CONFORMANCE_TLS_VERIFY:-false}
+      - SUITE_WAIT_SECONDS=${SUITE_WAIT_SECONDS:-150}
+    volumes:
+      # The only path the host sees. REPORT_DIR is deliberately NOT forwarded:
+      # every surface writes into it (run-all.sh threads it through), so pointing
+      # it elsewhere would put the whole report outside this mount and lose it.
+      - ./out:/app/out
+      - ./${CONFIG_FILE:-data/config/config.mock.json}:/app/config.json:ro
+      # Mounted at the SAME relative path it has on the host, so the config's
+      # plan.config_file ("conformance-suite-private/esignet-config.json")
+      # resolves identically here and on a native run — no PLAN_CONFIG_PATH
+      # override, and one config file for both.
+      #
+      # Same missing-source trap as config.local.json below, but quieter: Docker
+      # creates this path as an empty DIRECTORY when it does not exist, so the
+      # mount succeeds and the run instead stops at "config_file ... not
+      # readable". Create the plan config first (docs/conformance-suite.md), or
+      # select SURFACES=api,e2e and leave conformance out of the run.
+      - ./conformance-suite-private:/app/conformance-suite-private:ro
+      # Your gitignored credentials overlay. Comment out to rely on env instead.
+      # This file must EXIST before `docker compose up`: Docker creates a
+      # directory at a missing bind-mount source, which then breaks the overlay
+      # read and blocks creating the real file afterward. Run
+      # `cp data/config/config.local.example.json data/config/config.local.json`
+      # (or `touch` it) first.
+      # Target is /app/config.local.json, NOT the data/config/ path it has on the
+      # host: the overlay is looked up beside the SELECTED config, and the config
+      # above is mounted at /app/config.json. Mounting it under data/config/ here
+      # would leave it unread and silently drop every credential in it.
+      - ./data/config/config.local.json:/app/config.local.json:ro
+    extra_hosts:
+      # Lets MOSIP_ESIGNET_BASE_URL=http://host.docker.internal:<port> reach a
+      # self-managed eSignet running on the host (e.g. `make.sh run` in
+      # ../esignet-service). Docker Desktop (Windows/Mac) already resolves
+      # this; host-gateway makes it work on Linux too. No effect when
+      # MOSIP_ESIGNET_BASE_URL points at a deployed remote environment instead.
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  suite-mongodb-data:

@@ -13,9 +13,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"strings"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
 	"github.com/mosip/esignet/internal/clientmgmt/db"
@@ -552,13 +552,15 @@ func unmarshalAdditionalConfig(s sql.NullString) (map[string]any, error) {
 }
 
 func isDuplicateClientID(err error) bool {
-	msg := err.Error()
-	return strings.Contains(msg, "23505") &&
-		(strings.Contains(msg, "pk_clntdtl_id") || strings.Contains(msg, "client_detail_pkey"))
+	var pgErr *pgconn.PgError
+	return errors.As(err, &pgErr) && pgErr.Code == "23505" &&
+		(pgErr.ConstraintName == "pk_clntdtl_id" || pgErr.ConstraintName == "client_detail_pkey")
 }
 
 func isDuplicatePublicKeyHash(err error) bool {
-	return strings.Contains(err.Error(), "uk_clntdtl_public_key_hash")
+	var pgErr *pgconn.PgError
+	return errors.As(err, &pgErr) && pgErr.Code == "23505" &&
+		pgErr.ConstraintName == "uk_clntdtl_public_key_hash"
 }
 
 func toResponse(row db.ClientDetail) (ClientResponse, error) {

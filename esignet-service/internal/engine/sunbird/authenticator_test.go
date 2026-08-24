@@ -354,6 +354,10 @@ func (ts *AuthenticatorTestSuite) TestNoOpMethods() {
 	otpResult, svcErr := p.SendOTP(context.Background(), nil, nil)
 	require.Nil(t, otpResult)
 	require.Same(t, shared.NotImplementedError, svcErr)
+
+	certs, svcErr := p.GetSigningCertificates(context.Background())
+	require.Nil(t, certs)
+	require.Nil(t, svcErr)
 }
 
 func (ts *AuthenticatorTestSuite) TestValidateKBIRequestBuildError() {

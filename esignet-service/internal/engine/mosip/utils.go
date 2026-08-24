@@ -14,6 +14,9 @@ import (
 	"io"
 	"net/http"
 	"sync"
+	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 
 	applog "github.com/mosip/esignet/internal/log"
 )
@@ -24,14 +27,15 @@ const authHeaderName = "authorization"
 // tokenProvider fetches and caches an authmanager token in memory. The token
 // is reused across audit calls and refetched after Purge (called on 401/403).
 type tokenProvider struct {
-	cfg    AuditConfig
+	cfg    Config
 	client *http.Client
 
 	mu     sync.RWMutex
 	cached string
+	expiry time.Time
 }
 
-func newTokenProvider(cfg AuditConfig, client *http.Client) *tokenProvider {
+func newTokenProvider(cfg Config, client *http.Client) *tokenProvider {
 	return &tokenProvider{cfg: cfg, client: client}
 }
 
@@ -45,13 +49,14 @@ func (t *tokenProvider) GetAuthToken(ctx context.Context) (string, error) {
 		return token, nil
 	}
 
-	token, err := t.fetch(ctx)
+	token, expiry, err := t.fetch(ctx)
 	if err != nil {
 		return "", err
 	}
 
 	t.mu.Lock()
 	t.cached = token
+	t.expiry = expiry
 	t.mu.Unlock()
 	return token, nil
 }
@@ -60,10 +65,25 @@ func (t *tokenProvider) GetAuthToken(ctx context.Context) (string, error) {
 func (t *tokenProvider) Purge() {
 	t.mu.Lock()
 	t.cached = ""
+	t.expiry = time.Time{}
 	t.mu.Unlock()
 }
 
-func (t *tokenProvider) fetch(ctx context.Context) (string, error) {
+// TokenExpiry returns the expiry of the currently cached auth token and
+// whether it's known — i.e. the token parses as a JWT with an exp claim.
+// Callers that cache data fetched using this token (e.g. signing
+// certificates) can use this to avoid caching that data past the point
+// where the token itself needs to be refreshed anyway.
+func (t *tokenProvider) TokenExpiry() (time.Time, bool) {
+	t.mu.RLock()
+	defer t.mu.RUnlock()
+	return t.expiry, !t.expiry.IsZero()
+}
+
+// fetch requests a fresh authmanager token and returns it alongside its
+// expiry, parsed from the token's own exp claim (zero time if the token
+// isn't a JWT or carries no exp claim — callers treat that as "unknown").
+func (t *tokenProvider) fetch(ctx context.Context) (string, time.Time, error) {
 	body, err := json.Marshal(AuditRequestWrapper[ClientIDSecretKeyRequest]{
 		ID:          "ida",
 		RequestTime: GetUTCDateTime(),
@@ -74,30 +94,45 @@ func (t *tokenProvider) fetch(ctx context.Context) (string, error) {
 		},
 	})
 	if err != nil {
-		return "", fmt.Errorf("marshal auth token request: %w", err)
+		return "", time.Time{}, fmt.Errorf("marshal auth token request: %w", err)
 	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, t.cfg.AuthTokenURL, bytes.NewReader(body))
 	if err != nil {
-		return "", fmt.Errorf("create auth token request: %w", err)
+		return "", time.Time{}, fmt.Errorf("create auth token request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := t.client.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("auth token request failed: %w", err)
+		return "", time.Time{}, fmt.Errorf("auth token request failed: %w", err)
 	}
 	defer func() { _ = resp.Body.Close() }()
 	_, _ = io.Copy(io.Discard, resp.Body)
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return "", fmt.Errorf("unexpected auth token status: %d", resp.StatusCode)
+		return "", time.Time{}, fmt.Errorf("unexpected auth token status: %d", resp.StatusCode)
 	}
 
 	token := resp.Header.Get(authHeaderName)
 	if token == "" {
 		applog.GetLogger().Warn(ctx, "audit: authmanager returned empty authorization header")
-		return "", fmt.Errorf("empty authorization header from authmanager")
+		return "", time.Time{}, fmt.Errorf("empty authorization header from authmanager")
 	}
-	return token, nil
+	return token, tokenExpiry(token), nil
+}
+
+// tokenExpiry parses the exp claim from a JWT without verifying its
+// signature — authmanager issues the token, esignet only needs to know when
+// it stops being usable, not to authenticate it.
+func tokenExpiry(token string) time.Time {
+	claims := jwt.MapClaims{}
+	if _, _, err := jwt.NewParser().ParseUnverified(token, claims); err != nil {
+		return time.Time{}
+	}
+	expiresAt, err := claims.GetExpirationTime()
+	if err != nil || expiresAt == nil {
+		return time.Time{}
+	}
+	return expiresAt.Time
 }

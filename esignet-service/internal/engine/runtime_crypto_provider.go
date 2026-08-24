@@ -21,9 +21,11 @@ import (
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
 	"github.com/mosip/esignet/internal/config"
+	"github.com/mosip/esignet/internal/engine/shared"
 	"github.com/mosip/esignet/internal/keymanager"
 	"github.com/mosip/esignet/internal/keymanager/cryptomanager"
 	"github.com/mosip/esignet/internal/keymanager/signature"
+	applog "github.com/mosip/esignet/internal/log"
 )
 
 // defaultSymmetricEncryptReferenceID is the reference id Encrypt/Decrypt
@@ -44,7 +46,14 @@ type runtimeCryptoProvider struct {
 	svc             *keymanager.Service
 	sigSvc          *signature.Service
 	cryptoSvc       *cryptomanager.Service
+	authnProvider   shared.ConsolidatedAuthnProvider
 	signReferenceID string
+
+	// jwkCache caches getPublicKey's parsed result — see its doc comment.
+	// nil is a valid zero value (caching just disabled, not a nil-pointer
+	// panic — see getPublicKey), so tests constructing a runtimeCryptoProvider
+	// literal directly don't need to set it.
+	jwkCache *jwkCache
 }
 
 // NewRuntimeCryptoProvider returns a providers.RuntimeCryptoProvider backed
@@ -54,14 +63,13 @@ type runtimeCryptoProvider struct {
 // ReferenceID within that fixed application, defaulting to
 // defaultSignReferenceID for Sign/Verify/GetPublicKeys when unset.
 //
-// It is not currently wired into thunderidengine.New: the pinned
-// thunder-id/thunderid engine version has no public Option to override its
-// built-in file-based crypto provider (see WithKeyConfigs / WithServerHome),
-// only an internal one. Constructing it here keeps the adapter ready for
-// when that hook lands, and it's independently usable by any esignet code
-// that already speaks providers.RuntimeCryptoProvider.
+// Wired into thunderidengine.New via thunderidengine.WithRuntimeCryptoProvider
+// (see cmd/esignet/main.go) — it now serves the engine's own token/ID-token/
+// userinfo signing (Sign -> signature.Service.SignRaw) in addition to being
+// independently usable by any esignet code that already speaks
+// providers.RuntimeCryptoProvider.
 func NewRuntimeCryptoProvider(cfg *config.AppConfig, svc *keymanager.Service, sigSvc *signature.Service,
-	cryptoSvc *cryptomanager.Service) providers.RuntimeCryptoProvider {
+	cryptoSvc *cryptomanager.Service, authnProvider shared.ConsolidatedAuthnProvider) providers.RuntimeCryptoProvider {
 
 	referenceID := cfg.JWT.PreferredKeyID
 	if referenceID == "" {
@@ -73,7 +81,9 @@ func NewRuntimeCryptoProvider(cfg *config.AppConfig, svc *keymanager.Service, si
 		svc:             svc,
 		sigSvc:          sigSvc,
 		cryptoSvc:       cryptoSvc,
+		authnProvider:   authnProvider,
 		signReferenceID: referenceID,
+		jwkCache:        newJWKCache(),
 	}
 }
 
@@ -127,7 +137,7 @@ func (p *runtimeCryptoProvider) Encrypt(
 		if keyRef == nil {
 			return nil, nil, fmt.Errorf("%w: a KeyRef is required for RSA-OAEP", providers.ErrKeyNotFound)
 		}
-		rsaPub, err := getPublicKey(*keyRef)
+		rsaPub, err := p.getPublicKey(*keyRef)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -141,7 +151,7 @@ func (p *runtimeCryptoProvider) Encrypt(
 		if keyRef == nil {
 			return nil, nil, fmt.Errorf("%w: a KeyRef is required for RSA-OAEP-256", providers.ErrKeyNotFound)
 		}
-		rsaPub, err := getPublicKey(*keyRef)
+		rsaPub, err := p.getPublicKey(*keyRef)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -242,21 +252,63 @@ func (p *runtimeCryptoProvider) Verify(ctx context.Context, keyRef providers.Key
 // itself, not selectable by the caller.
 func (p *runtimeCryptoProvider) GetPublicKeys(ctx context.Context, filter providers.PublicKeyFilter) ([]providers.PublicKeyInfo, error) {
 	refID := p.referenceID(filter.KeyID)
-	resp, err := p.svc.GetCertificate(ctx, config.OIDCServiceAppID, refID)
+	allCerts, err := p.svc.GetAllCertificates(ctx, config.OIDCServiceAppID, refID)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w", providers.ErrKeyNotFound, err)
 	}
-	cert, err := keymanager.ParseCertPEM(resp.Certificate)
-	if err != nil {
-		return nil, fmt.Errorf("parse resolved certificate: %w", err)
+	if len(allCerts.AllCertificates) == 0 {
+		return nil, fmt.Errorf("%w: no certificates found for reference id %q", providers.ErrKeyNotFound, refID)
 	}
-	return []providers.PublicKeyInfo{{
-		KeyID:          refID,
-		Algorithm:      signature.AlgorithmForRefID(refID),
-		PublicKey:      cert.PublicKey,
-		Thumbprint:     keymanager.ThumbprintForCert(cert),
-		CertificateDER: cert.Raw,
-	}}, nil
+
+	keys := []providers.PublicKeyInfo{}
+	for _, entry := range allCerts.AllCertificates {
+		cert, err := keymanager.ParseCertPEM(entry.CertificateData)
+		if err != nil {
+			return nil, fmt.Errorf("parse resolved certificate: %w", err)
+		}
+		keys = append(keys, providers.PublicKeyInfo{
+			KeyID:          entry.KeyID,
+			Algorithm:      signature.AlgorithmForRefID(refID),
+			PublicKey:      cert.PublicKey,
+			Thumbprint:     keymanager.ThumbprintForCert(cert),
+			CertificateDER: cert.Raw,
+		})
+	}
+	return append(keys, p.idSystemPublicKeys(ctx)...), nil
+}
+
+// idSystemPublicKeys fetches the signing certificates of the configured ID
+// system backend (mosip, mock, or sunbird — whichever NewIDSystemProviders
+// selected) and converts them into providers.PublicKeyInfo entries. Fetch
+// failures are logged and skipped rather than propagated, since they'd
+// otherwise take down JWKS/discovery for esignet's own signing key over a
+// dependency that is auxiliary to it.
+func (p *runtimeCryptoProvider) idSystemPublicKeys(ctx context.Context) []providers.PublicKeyInfo {
+	if p.authnProvider == nil {
+		return nil
+	}
+	certs, svcErr := p.authnProvider.GetSigningCertificates(ctx)
+	if svcErr != nil {
+		applog.GetLogger().Warn(ctx, "failed to fetch ID system signing certificates", applog.String("error", svcErr.Code))
+		return nil
+	}
+	keys := make([]providers.PublicKeyInfo, 0, len(certs))
+	for _, certData := range certs {
+		cert, err := keymanager.ParseCertPEM(certData.Certificate)
+		if err != nil {
+			applog.GetLogger().Warn(ctx, "failed to parse ID system signing certificate",
+				applog.String("keyId", certData.KeyID), applog.Error(err))
+			continue
+		}
+		keys = append(keys, providers.PublicKeyInfo{
+			KeyID:          certData.KeyID,
+			Algorithm:      signature.AlgorithmForPublicKey(cert.PublicKey),
+			PublicKey:      cert.PublicKey,
+			Thumbprint:     keymanager.ThumbprintForCert(cert),
+			CertificateDER: cert.Raw,
+		})
+	}
+	return keys
 }
 
 func (p *runtimeCryptoProvider) GetSupportedSigningAlgorithms() []string {
@@ -281,18 +333,31 @@ func (p *runtimeCryptoProvider) GetSupportedEncryptionAlgorithms() []string {
 	return p.cfg.SupportedEncAlgorithms
 }
 
-func getPublicKey(keyRef providers.KeyRef) (*jose.JSONWebKey, error) {
+// getPublicKey parses/validates keyRef.PublicKeyJWK into a public
+// jose.JSONWebKey. Encrypt calls this on every RSA-OAEP/RSA-OAEP-256
+// request (e.g. userinfo JWE for a client registered with an encryption
+// key), so the parsed result is cached by the JWK's own content digest
+// (p.jwkCache) — re-marshaling, re-parsing, and re-validating the same
+// client's registered key on every single call is pure avoidable overhead.
+func (p *runtimeCryptoProvider) getPublicKey(keyRef providers.KeyRef) (*jose.JSONWebKey, error) {
 	if len(keyRef.PublicKeyJWK) == 0 {
 		return nil, fmt.Errorf("%w: a PublicKeyJWK is required", providers.ErrKeyNotFound)
 	}
 
-	jwk, err := json.Marshal(keyRef.PublicKeyJWK)
+	jwkBytes, err := json.Marshal(keyRef.PublicKeyJWK)
 	if err != nil {
 		return nil, fmt.Errorf("marshal public key jwk: %w", err)
 	}
 
+	digest := sha256.Sum256(jwkBytes)
+	if p.jwkCache != nil {
+		if cached, ok := p.jwkCache.get(digest); ok {
+			return cached, nil
+		}
+	}
+
 	var key jose.JSONWebKey
-	if err := key.UnmarshalJSON([]byte(string(jwk))); err != nil {
+	if err := key.UnmarshalJSON(jwkBytes); err != nil {
 		return nil, fmt.Errorf("%w: parse jwk: %w", providers.ErrKeyNotFound, err)
 	}
 	if !key.Valid() {
@@ -301,6 +366,9 @@ func getPublicKey(keyRef providers.KeyRef) (*jose.JSONWebKey, error) {
 	pub := key.Public()
 	if !pub.IsPublic() {
 		return nil, fmt.Errorf("%w: jwk does not resolve to a public key", providers.ErrKeyNotFound)
+	}
+	if p.jwkCache != nil {
+		p.jwkCache.set(digest, &pub)
 	}
 	return &pub, nil
 }

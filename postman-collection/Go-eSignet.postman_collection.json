@@ -82,7 +82,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"requestTime\": \"{{client_mgmt_request_time}}\",\n  \"request\": {\n    \"clientId\": \"{{client_id}}\",\n    \"clientName\": \"Postman Test Client\",\n    \"clientNameLangMap\": { \"eng\": \"Postman Test Client\" },\n    \"relyingPartyId\": \"{{relying_party_id}}\",\n    \"logoUri\": \"https://example.com/logo.png\",\n    \"redirectUris\": [\"{{redirect_uri}}\"],\n    \"userClaims\": [\"name\", \"email\", \"picture\", \"phone_number\", \"address\"],\n    \"authContextRefs\": [\"mosip:idp:acr:generated-code\", \"mosip:idp:acr:password\",\"mosip:idp:acr:biometrics\"],\n    \"publicKey\": {{client_public_key}},\n    \"grantTypes\": [\"authorization_code\"],\n    \"clientAuthMethods\": [\"private_key_jwt\"],\n    \"additionalConfig\": { \"require_pushed_authorization_requests\": false, \"dpop_bound_access_tokens\": false, \"pkce_required\": true }\n  }\n}"
+              "raw": "{\n  \"requestTime\": \"{{client_mgmt_request_time}}\",\n  \"request\": {\n    \"clientId\": \"{{client_id}}\",\n    \"clientName\": \"Postman Test Client\",\n    \"clientNameLangMap\": { \"eng\": \"Postman Test Client\" },\n    \"relyingPartyId\": \"{{relying_party_id}}\",\n    \"logoUri\": \"https://example.com/logo.png\",\n    \"redirectUris\": [\"{{redirect_uri}}\"],\n    \"userClaims\": [\"name\", \"email\", \"picture\", \"phone_number\", \"address\"],\n    \"authContextRefs\": [\"mosip:idp:acr:generated-code\", \"mosip:idp:acr:password\",\"mosip:idp:acr:biometrics\"],\n    \"publicKey\": {{client_public_key}},\n    \"grantTypes\": [\"authorization_code\"],\n    \"clientAuthMethods\": [\"private_key_jwt\"],\n    \"additionalConfig\": { \"require_pushed_authorization_requests\": false, \"dpop_bound_access_tokens\": false, \"require_pkce\": true }\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/client-mgmt/client",
@@ -264,7 +264,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"requestTime\": \"{{client_mgmt_request_time}}\",\n  \"request\": {\n    \"encPublicKey\": {{client_enc_public_key}},\n    \"clientName\": \"Postman Test Client (patched)\",\n    \"additionalConfig\": {\n      \"require_pushed_authorization_requests\": false,\n      \"dpop_bound_access_tokens\": false,\n      \"pkce_required\": true,\n      \"userinfo_response_type\": \"JWE\"\n    }\n  }\n}"
+              "raw": "{\n  \"requestTime\": \"{{client_mgmt_request_time}}\",\n  \"request\": {\n    \"encPublicKey\": {{client_enc_public_key}},\n    \"clientName\": \"Postman Test Client (patched)\",\n    \"additionalConfig\": {\n      \"require_pushed_authorization_requests\": false,\n      \"dpop_bound_access_tokens\": false,\n      \"require_pkce\": true,\n      \"userinfo_response_type\": \"JWE\"\n    }\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/client-mgmt/client/{{client_id}}",
@@ -282,7 +282,7 @@
           "response": []
         }
       ],
-      "description": "Create / Get / Update an OAuth client. Run 'Create client' first, then a flow folder \u2014 every flow uses {{client_id}} + {{client_private_key}}. Toggle additionalConfig in the Create body per client type: normal OAuth = pkce_required only; FAPI2 = also require_pushed_authorization_requests + dpop_bound_access_tokens = true.",
+      "description": "Create / Get / Update an OAuth client. Run 'Create client' first, then a flow folder \u2014 every flow uses {{client_id}} + {{client_private_key}}. Toggle additionalConfig in the Create body per client type: normal OAuth = require_pkce only; FAPI2 = also require_pushed_authorization_requests + dpop_bound_access_tokens = true.",
       "event": [
         {
           "listen": "prerequest",
@@ -297,6 +297,74 @@
           }
         }
       ]
+    },
+    {
+      "name": "User Mgmt",
+      "item": [
+        {
+          "name": "Mock",
+          "item": [
+            {
+              "name": "Create User",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "// Seeds a mock identity (esignet-mock-services) for the OTP/password branches of the FAPI2.0 flow.",
+                      "// Only relevant when MOSIP_ESIGNET_AUTHN_PROVIDER=mock (see esignet-service/.env.example).",
+                      "if (!pm.environment.get('individual_id')) pm.environment.set('individual_id', String(Math.floor(1000000000 + Math.random() * 8999999999)));",
+                      "if (!pm.environment.get('password')) pm.environment.set('password', 'Mosip@123');"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('create user 200/201', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+                      "const j = pm.response.json();",
+                      "if (j.errors && j.errors.length) { throw new Error('mock identity create failed: ' + JSON.stringify(j.errors)); }"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"requestTime\": \"{{$isoTimestamp}}\",\n  \"request\": {\n    \"individualId\": \"{{individual_id}}\",\n    \"pin\": \"111111\",\n    \"password\": \"{{password}}\",\n    \"email\": \"postman.test@example.com\",\n    \"phone\": \"+919876543210\",\n    \"fullName\": [{ \"language\": \"eng\", \"value\": \"Postman Test User\" }],\n    \"nickName\": [{ \"language\": \"eng\", \"value\": \"Postman Test User\" }],\n    \"preferredUsername\": [{ \"language\": \"eng\", \"value\": \"Postman Test User\" }],\n    \"givenName\": [{ \"language\": \"eng\", \"value\": \"Postman\" }],\n    \"middleName\": [{ \"language\": \"eng\", \"value\": \"Test\" }],\n    \"familyName\": [{ \"language\": \"eng\", \"value\": \"User\" }],\n    \"gender\": [{ \"language\": \"eng\", \"value\": \"Female\" }],\n    \"dateOfBirth\": \"1990/01/01\",\n    \"streetAddress\": [{ \"language\": \"eng\", \"value\": \"123 Test Street\" }],\n    \"locality\": [{ \"language\": \"eng\", \"value\": \"Test City\" }],\n    \"region\": [{ \"language\": \"eng\", \"value\": \"Test Region\" }],\n    \"country\": [{ \"language\": \"eng\", \"value\": \"Test Country\" }],\n    \"postalCode\": \"110001\",\n    \"preferredLang\": \"eng\",\n    \"locale\": \"en\",\n    \"zoneInfo\": \"Asia/Kolkata\",\n    \"encodedPhoto\": \"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAEElEQVR4nGM4YWQERAwQCgAjNgSxRnwWMwAAAABJRU5ErkJggg==\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{mock_identity_system_url}}/v1/mock-identity-system/identity",
+                  "host": [
+                    "{{mock_identity_system_url}}"
+                  ],
+                  "path": [
+                    "v1",
+                    "mock-identity-system",
+                    "identity"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ],
+      "description": "Seeds identities in esignet-mock-services (https://github.com/mosip/esignet-mock-services) for local testing when MOSIP_ESIGNET_AUTHN_PROVIDER=mock. Run Create User before the FAPI2.0 flow's OTP or password branch — it reuses {{individual_id}} and {{password}} from the environment (generating sensible defaults if unset) so the seeded identity matches what the flow submits. The mock provider returns a fixed test OTP; {{otp}} does not need to be set here."
     },
     {
       "name": "System Info",
@@ -1144,7 +1212,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\",\n  \"inputs\": {\n    \"consent_decisions\": \"{\\\"purposes\\\":[{\\\"approved\\\":true,\\\"elements\\\":[{\\\"approved\\\":true,\\\"name\\\":\\\"email\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"given_name\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"address\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"birthdate\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"gender\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"name\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"phone_number\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"picture\\\"}],\\\"purposeName\\\":\\\"attributes:{{client_id}}\\\"}]}\"\n  }\n}"
+              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"action\": \"{{action_ref}}\",\n  \"inputs\": {\n    \"consent_decisions\": \"{\\\"approved\\\":true,\\\"purposes\\\":[{\\\"approved\\\":true,\\\"elements\\\":[{\\\"approved\\\":true,\\\"name\\\":\\\"email\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"given_name\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"address\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"birthdate\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"gender\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"name\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"phone_number\\\"},{\\\"approved\\\":true,\\\"name\\\":\\\"picture\\\"}],\\\"purposeName\\\":\\\"attributes:{{client_id}}\\\"}]}\"\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/flow/execute",
@@ -1402,9 +1470,113 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Introspect Token",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// PS256 private_key_jwt (introspect_client_assertion) signed with client_private_key.",
+                  "// No DPoP is required by the introspect endpoint. The audience (assertion aud) comes",
+                  "// from the introspect_audience env var.",
+                  "function b64url(bytes) {",
+                  "  const arr = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);",
+                  "  let s = ''; for (let i = 0; i < arr.length; i++) s += String.fromCharCode(arr[i]);",
+                  "  return btoa(s).replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, '');",
+                  "}",
+                  "function b64urlStr(str) { return b64url(new TextEncoder().encode(str)); }",
+                  "async function sha256b64url(input) {",
+                  "  const data = typeof input === 'string' ? new TextEncoder().encode(input) : input;",
+                  "  return b64url(new Uint8Array(await crypto.subtle.digest('SHA-256', data)));",
+                  "}",
+                  "async function generateJKT(jwk) { return await sha256b64url(JSON.stringify({ e: jwk.e, kty: jwk.kty, n: jwk.n })); }",
+                  "const introspectAudience = pm.environment.get('introspect_audience') || `${pm.environment.get('baseUrl')}/oauth2/introspect`;",
+                  "",
+                  "async function buildClientAssertion() {",
+                  "  const privateJwk = JSON.parse(pm.environment.get('client_private_key'));",
+                  "  const clientId = pm.environment.get('client_id');",
+                  "  const audience = introspectAudience;",
+                  "  const privateKey = await crypto.subtle.importKey('jwk', privateJwk, { name: 'RSA-PSS', hash: 'SHA-256' }, false, ['sign']);",
+                  "  const kid = privateJwk.kid || await generateJKT(privateJwk);",
+                  "  const header = { alg: 'PS256', typ: 'JWT', kid };",
+                  "  const now = Math.floor(Date.now() / 1000);",
+                  "  const payload = { iss: clientId, sub: clientId, aud: audience, jti: crypto.randomUUID(), iat: now, exp: now + 60 };",
+                  "  const signingInput = `${b64urlStr(JSON.stringify(header))}.${b64urlStr(JSON.stringify(payload))}`;",
+                  "  const sig = await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, privateKey, new TextEncoder().encode(signingInput));",
+                  "  return `${signingInput}.${b64url(new Uint8Array(sig))}`;",
+                  "}",
+                  "pm.collectionVariables.set('introspect_client_assertion', await buildClientAssertion());"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('introspect 200', () => pm.response.to.have.status(200));",
+                  "const t = pm.response.json();",
+                  "pm.test('active is boolean', () => pm.expect(t.active).to.be.a('boolean'));",
+                  "console.log('introspect body:', pm.response.text());"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "text"
+                },
+                {
+                  "key": "token_type_hint",
+                  "value": "access_token",
+                  "type": "text"
+                },
+                {
+                  "key": "client_id",
+                  "value": "{{client_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "client_assertion_type",
+                  "value": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+                  "type": "text"
+                },
+                {
+                  "key": "client_assertion",
+                  "value": "{{introspect_client_assertion}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/oauth2/introspect",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "oauth2",
+                "introspect"
+              ]
+            }
+          },
+          "response": []
         }
       ],
-      "description": "Run Client Management > Create client first with additionalConfig require_pushed_authorization_requests=true AND dpop_bound_access_tokens=true. Then run this folder top-to-bottom. Requires Redis >= 6.2 (PAR uses GETDEL). The PAR/token/userinfo audiences (DPoP htu + client_assertion aud) are read from the par_audience / audience / userinfo_audience environment variables.",
+      "description": "Run Client Management > Create client first with additionalConfig require_pushed_authorization_requests=true AND dpop_bound_access_tokens=true. Then run this folder top-to-bottom. The PAR/token/userinfo/introspect audiences (DPoP htu + client_assertion aud) are read from the par_audience / audience / userinfo_audience / introspect_audience environment variables.",
       "auth": {
         "type": "noauth"
       }
@@ -1658,6 +1830,11 @@
     },
     {
       "key": "par_client_assertion",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "introspect_client_assertion",
       "value": "",
       "type": "string"
     }

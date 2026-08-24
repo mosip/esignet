@@ -494,6 +494,15 @@ func (ts *ValidateTestSuite) TestValidateAdditionalConfig() {
 		assert.Equal(t, "invalid_additional_config", errCode(t, err))
 	})
 
+	t.Run("valid id_token_response_type", func(t *testing.T) {
+		assert.NoError(t, validateAdditionalConfig(json.RawMessage(`{"id_token_response_type":"JWE"}`)))
+	})
+
+	t.Run("invalid id_token_response_type", func(t *testing.T) {
+		err := validateAdditionalConfig(json.RawMessage(`{"id_token_response_type":"XML"}`))
+		assert.Equal(t, "invalid_additional_config", errCode(t, err))
+	})
+
 	t.Run("consent_expire_in_mins too low", func(t *testing.T) {
 		err := validateAdditionalConfig(json.RawMessage(`{"consent_expire_in_mins":5}`))
 		assert.Equal(t, "invalid_additional_config", errCode(t, err))
@@ -501,6 +510,43 @@ func (ts *ValidateTestSuite) TestValidateAdditionalConfig() {
 
 	t.Run("bool fields validated", func(t *testing.T) {
 		err := validateAdditionalConfig(json.RawMessage(`{"signup_banner_required":"not-a-bool"}`))
+		assert.Equal(t, "invalid_additional_config", errCode(t, err))
+	})
+
+	t.Run("valid require_pkce", func(t *testing.T) {
+		assert.NoError(t, validateAdditionalConfig(json.RawMessage(`{"require_pkce":true}`)))
+	})
+
+	t.Run("invalid require_pkce", func(t *testing.T) {
+		err := validateAdditionalConfig(json.RawMessage(`{"require_pkce":"not-a-bool"}`))
+		assert.Equal(t, "invalid_additional_config", errCode(t, err))
+	})
+
+	t.Run("unknown key rejected", func(t *testing.T) {
+		err := validateAdditionalConfig(json.RawMessage(`{"unknown_field":true}`))
+		assert.Equal(t, "invalid_additional_config", errCode(t, err))
+	})
+
+	t.Run("valid allowed_authorization_scopes", func(t *testing.T) {
+		assert.NoError(t, validateAdditionalConfig(json.RawMessage(`{"allowed_authorization_scopes":["custom_scope","other_scope"]}`)))
+	})
+
+	t.Run("empty allowed_authorization_scopes accepted", func(t *testing.T) {
+		assert.NoError(t, validateAdditionalConfig(json.RawMessage(`{"allowed_authorization_scopes":[]}`)))
+	})
+
+	t.Run("duplicate allowed_authorization_scopes rejected", func(t *testing.T) {
+		err := validateAdditionalConfig(json.RawMessage(`{"allowed_authorization_scopes":["custom_scope","custom_scope"]}`))
+		assert.Equal(t, "invalid_additional_config", errCode(t, err))
+	})
+
+	t.Run("blank allowed_authorization_scopes entry rejected", func(t *testing.T) {
+		err := validateAdditionalConfig(json.RawMessage(`{"allowed_authorization_scopes":["custom_scope"," "]}`))
+		assert.Equal(t, "invalid_additional_config", errCode(t, err))
+	})
+
+	t.Run("non-array allowed_authorization_scopes rejected", func(t *testing.T) {
+		err := validateAdditionalConfig(json.RawMessage(`{"allowed_authorization_scopes":"not-an-array"}`))
 		assert.Equal(t, "invalid_additional_config", errCode(t, err))
 	})
 

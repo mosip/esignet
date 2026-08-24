@@ -9,9 +9,10 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
-	"net"
 	"net/http"
+	"net/http/pprof"
 	"os"
 	"os/signal"
 	"syscall"
@@ -38,6 +39,7 @@ import (
 	_ "github.com/mosip/esignet/internal/keymanager/keystore/pkcs12"
 	"github.com/mosip/esignet/internal/keymanager/signature"
 	applog "github.com/mosip/esignet/internal/log"
+	"github.com/mosip/esignet/internal/metrics"
 	"github.com/mosip/esignet/internal/security"
 )
 
@@ -51,21 +53,23 @@ func main() {
 	}
 
 	// Setup DB connection
-	pgConn, err := appCfg.DB.Open()
+	pgConn, closeDB, err := appCfg.DB.Open()
 	if err != nil {
 		logger.Fatal("postgres connection failed", applog.Error(err))
 	}
 	logger.Info(context.Background(), "postgres connected",
 		applog.Int("maxOpenConns", appCfg.DB.Pool.MaxOpenConns),
-		applog.Int("maxIdleConns", appCfg.DB.Pool.MaxIdleConns))
+		applog.Int("maxIdleConns", appCfg.DB.Pool.MaxIdleConns),
+		applog.Int("connMaxLifetimeSecs", appCfg.DB.Pool.ConnMaxLifetimeSecs),
+		applog.Int("connMaxIdleTimeSecs", appCfg.DB.Pool.ConnMaxIdleTimeSecs))
 	defer func() {
-		if err := pgConn.Close(); err != nil {
+		if err := closeDB(); err != nil {
 			logger.Warn(context.Background(), "close postgres", applog.Error(err))
 		}
 	}()
 	// keymanager's persistence layer is built on sqlx (for GetContext/SelectContext);
 	// wrap the same *sql.DB rather than opening a second connection pool.
-	sqlxConn := sqlx.NewDb(pgConn, "postgres")
+	sqlxConn := sqlx.NewDb(pgConn, "pgx")
 
 	// Setup Redis client. It is shared by the runtime store provider and the consent enforcer
 	// (which reads the engine's authorization requests), so both resolve the same keys. Created
@@ -83,6 +87,7 @@ func main() {
 		}()
 		logger.Info(context.Background(), "redis connected",
 			applog.String("key_prefix", appCfg.Redis.KeyPrefix),
+			applog.String("connMaxLifetime", appCfg.Redis.ConnMaxLifetime.String()),
 		)
 	}
 
@@ -92,15 +97,20 @@ func main() {
 		_, _ = w.Write([]byte("ok"))
 	})
 
+	commonHTTPClient := config.NewHTTPClient(appCfg.OutboundHTTPClient)
+
 	// The runtime store is shared between the engine and the consent enforcer (which reads the
 	// engine's stored authorization requests from it), so both resolve the same keys. It's also
 	// used by clientSvc below to cache GetClient lookups.
 	runtimeStore := runtimestores.Initialize(appCfg, redisClient)
 
+	// Security middleware wraps all engine routes, enforcing request time validation and (if enabled) Bearer token scope validation.
+	// It is applied to the client management and key management endpoints below, so those endpoints are also protected.
+	securityMiddleware := getSecurityMiddleware(appCfg, commonHTTPClient, logger)
+
 	clientSvc := clientmgmt.NewService(pgConn, runtimeStore, appCfg.ClientCacheTTLSecs, appCfg.SupportedEncAlgorithms)
 	clientHandler := clientmgmt.NewHandler(clientSvc, logger)
-	clientHandler.RegisterRoutes(mux, getSecurityMiddleware(appCfg, logger))
-
+	clientHandler.RegisterRoutes(mux, securityMiddleware)
 	keyMgrSvc, sigSvc, cryptoSvc, ks, err := initializeKeyManager(sqlxConn)
 	if err != nil {
 		logger.Fatal("failed to initialize key manager", applog.Error(err))
@@ -115,11 +125,9 @@ func main() {
 	}
 
 	keyMgrHandler := keymanager.NewHandler(keyMgrSvc, logger)
-	keyMgrHandler.RegisterRoutes(mux, getSecurityMiddleware(appCfg, logger))
+	keyMgrHandler.RegisterRoutes(mux, securityMiddleware)
 
-	httpClient := newHTTPClient(appCfg.OutboundHTTPClient)
-
-	authnProvider, observabilityProvider, err := engine.NewIDSystemProviders(appCfg, clientSvc, httpClient, keyMgrSvc, sigSvc)
+	authnProvider, observabilityProvider, err := engine.NewIDSystemProviders(appCfg, clientSvc, keyMgrSvc, sigSvc)
 	if err != nil {
 		logger.Fatal("plugin providers", applog.Error(err))
 	}
@@ -129,6 +137,15 @@ func main() {
 	if err != nil {
 		logger.Fatal("resolve log level", applog.Error(err))
 	}
+
+	var originConfig engineconfig.OriginConfig
+	if appCfg.AllowedOriginRegex != "" {
+		originConfig = engineconfig.OriginConfig{
+			AllowedOrigins: []engineconfig.OriginEntry{{Regex: appCfg.AllowedOriginRegex}},
+		}
+	}
+
+	resourceProvider := engine.NewResourceProvider(appCfg)
 
 	_ = thunderidengine.New(mux,
 		thunderidengine.WithLogConfig(engineconfig.LogConfig{Level: logLevel, Format: "json"}),
@@ -143,25 +160,33 @@ func main() {
 		thunderidengine.WithActorProvider(engine.NewActorProvider(clientSvc, appCfg)),
 		thunderidengine.WithDefaultAuthnProvider(authnProvider),
 		thunderidengine.WithAuthorizationProvider(engine.NewAuthorizationProvider(appCfg)),
-		thunderidengine.WithConsentProvider(engine.NewConsentProvider(consentmgmt.NewService(pgConn), appCfg)),
+		thunderidengine.WithConsentProvider(engine.NewConsentProvider(consentmgmt.NewService(pgConn), clientSvc, appCfg)),
 		thunderidengine.WithDesignResolveProvider(engine.NewDesignProvider(appCfg, runtimeStore, appCfg.DesignCacheTTLSecs)),
 		thunderidengine.WithFlowProvider(engine.NewFlowProvider(appCfg, runtimeStore, appCfg.FlowCacheTTLSecs)),
-		thunderidengine.WithI18nProvider(engine.NewI18nProvider(appCfg)),
+		thunderidengine.WithI18nProvider(engine.NewI18nProvider(appCfg, clientSvc)),
 		thunderidengine.WithOUProvider(engine.NewOUProvider(appCfg)),
-		thunderidengine.WithResourceProvider(engine.NewResourceProvider(appCfg)),
+		thunderidengine.WithResourceProvider(resourceProvider),
 		thunderidengine.WithObservabilityProvider(observabilityProvider),
 		thunderidengine.WithIDPProvider(engine.NewIDPProvider(appCfg)),
-		thunderidengine.WithCustomExecutors(executors.Initialize(authnProvider)),
+		thunderidengine.WithCustomExecutors(executors.Initialize(authnProvider, clientSvc, resourceProvider)),
 		thunderidengine.WithRuntimeStoreProvider(runtimeStore),
 		thunderidengine.WithTransactioner(engine.NewNoOpTransactioner()),
 		thunderidengine.WithAttestationProvider(engine.NewAttestationProvider(appCfg)),
-		thunderidengine.WithCaptchaValidationProvider(engine.NewCaptchaProvider(&appCfg.CaptchaConfig, httpClient)),
-		thunderidengine.WithRuntimeCryptoProvider(engine.NewRuntimeCryptoProvider(appCfg, keyMgrSvc, sigSvc, cryptoSvc)),
+		thunderidengine.WithCaptchaValidationProvider(engine.NewCaptchaProvider(&appCfg.CaptchaConfig, commonHTTPClient)),
+		thunderidengine.WithRuntimeCryptoProvider(engine.NewRuntimeCryptoProvider(appCfg, keyMgrSvc, sigSvc, cryptoSvc, authnProvider)),
+		thunderidengine.WithOriginConfig(originConfig),
 	)
 
 	addr := fmt.Sprintf(":%d", appCfg.Port)
 	handler := httpmiddleware.CorrelationID(httpmiddleware.AccessLog(mux))
-	srv := &http.Server{Addr: addr, Handler: handler}
+	srv := &http.Server{
+		Addr:              addr,
+		Handler:           handler,
+		ReadHeaderTimeout: time.Duration(appCfg.InboundHTTPServer.ReadHeaderTimeoutSecs) * time.Second,
+		ReadTimeout:       time.Duration(appCfg.InboundHTTPServer.ReadTimeoutSecs) * time.Second,
+		WriteTimeout:      time.Duration(appCfg.InboundHTTPServer.WriteTimeoutSecs) * time.Second,
+		IdleTimeout:       time.Duration(appCfg.InboundHTTPServer.IdleTimeoutSecs) * time.Second,
+	}
 
 	go func() {
 		logger.Info(context.Background(), "server listening", applog.String("addr", addr), applog.String("issuer", appCfg.Issuer))
@@ -169,6 +194,14 @@ func main() {
 			logger.Fatal("server", applog.Error(err))
 		}
 	}()
+
+	// Start a private metrics listener — not routed through the public ingress; only reachable within the cluster by Prometheus.
+	metricsSrv := startMetricsServer(pgConn, redisClient, appCfg, logger)
+
+	// Start a debug pprof listener if enabled.
+	if appCfg.PProfConfig.Enabled {
+		go startDebugServer(appCfg, logger)
+	}
 
 	// Block until an orchestrator (Docker/Kubernetes) asks us to stop, then
 	// shut the HTTP server down gracefully — letting in-flight requests
@@ -187,6 +220,63 @@ func main() {
 		logger.Warn(context.Background(), "graceful shutdown timed out, closing forcibly", applog.Error(err))
 		_ = srv.Close()
 	}
+	if err := metricsSrv.Shutdown(shutdownCtx); err != nil {
+		logger.Warn(context.Background(), "metrics server graceful shutdown timed out, closing forcibly", applog.Error(err))
+		_ = metricsSrv.Close()
+	}
+}
+
+// startMetricsServer starts a private metrics listener — not routed through
+// the public ingress; only reachable within the cluster by Prometheus.
+// Keeping it on a separate port means no authentication middleware is needed
+// and no scrape traffic reaches the main application mux.
+func startMetricsServer(pgConn *sql.DB, redisClient *redis.Client, appCfg *config.AppConfig,
+	logger *applog.Logger) *http.Server {
+	metrics.RegisterDBStats(pgConn)
+	if redisClient != nil {
+		metrics.RegisterRedisStats(redisClient)
+	}
+
+	metricsMux := http.NewServeMux()
+	metricsMux.Handle("GET /metrics", metrics.Handler())
+	metricsAddr := fmt.Sprintf(":%d", appCfg.MetricsPort)
+	metricsSrv := &http.Server{
+		Addr:              metricsAddr,
+		Handler:           metricsMux,
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       10 * time.Second,
+		WriteTimeout:      30 * time.Second,
+		IdleTimeout:       120 * time.Second,
+	}
+	go func() {
+		logger.Info(context.Background(), "metrics listener", applog.String("addr", metricsAddr))
+		if err := metricsSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			logger.Fatal("metrics server", applog.Error(err))
+		}
+	}()
+	return metricsSrv
+}
+
+func startDebugServer(appCfg *config.AppConfig, logger *applog.Logger) {
+	addr := fmt.Sprintf("127.0.0.1:%d", appCfg.PProfConfig.Port)
+	logger.Info(context.Background(), "starting debug pprof server", applog.String("addr", addr))
+	if err := http.ListenAndServe(addr, newDebugMux()); err != nil {
+		logger.Warn(context.Background(), "debug pprof server stopped", applog.Error(err))
+	}
+}
+
+// newDebugMux builds the debug ServeMux with all pprof routes. Separated
+// from startDebugServer so it can be exercised in tests without binding a port.
+func newDebugMux() *http.ServeMux {
+	dbg := http.NewServeMux()
+	dbg.HandleFunc("/debug/pprof/", pprof.Index)
+	dbg.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
+	dbg.HandleFunc("/debug/pprof/profile", pprof.Profile)
+	dbg.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
+	dbg.HandleFunc("/debug/pprof/trace", pprof.Trace)
+	dbg.Handle("/debug/pprof/goroutine", pprof.Handler("goroutine"))
+	dbg.Handle("/debug/pprof/heap", pprof.Handler("heap"))
+	return dbg
 }
 
 func getAppConfig() (*config.AppConfig, error) {
@@ -201,14 +291,16 @@ func getAppConfig() (*config.AppConfig, error) {
 	return appCfg, err
 }
 
-func getSecurityMiddleware(appCfg *config.AppConfig, logger *applog.Logger) func(http.Handler) http.Handler {
+func getSecurityMiddleware(appCfg *config.AppConfig, commonHTTPClient *http.Client,
+	logger *applog.Logger) func(http.Handler) http.Handler {
 	var scopeMW func(http.Handler) http.Handler
 	if scopeEnforcementEnabled(appCfg) {
 		logger.Info(context.Background(), "Scope enforcement enabled",
 			applog.String("jwks_endpoint", appCfg.SecurityConfig.JwksURL),
 			applog.String("issuer", appCfg.SecurityConfig.IssuerURL),
 		)
-		jwksCache := security.NewJWKSCache(appCfg.SecurityConfig.JwksURL, time.Duration(appCfg.SecurityConfig.JwksCacheTTL))
+		jwksCache := security.NewJWKSCache(appCfg.SecurityConfig.JwksURL,
+			time.Duration(appCfg.SecurityConfig.JwksCacheTTL), commonHTTPClient)
 		scopeMW = security.ScopeMiddleware(jwksCache, appCfg.SecurityConfig)
 	} else {
 		logger.Warn(context.Background(), "Scope enforcement disabled; set ISSUER_URL and JWKS_URL in security_config to enable")
@@ -230,24 +322,6 @@ func getSecurityMiddleware(appCfg *config.AppConfig, logger *applog.Logger) func
 // be applied. Both Issuer and JWKSEndpoint must be set.
 func scopeEnforcementEnabled(appCfg *config.AppConfig) bool {
 	return appCfg.SecurityConfig.IssuerURL != "" && appCfg.SecurityConfig.JwksURL != ""
-}
-
-// newHTTPClient returns a tuned HTTP client for outbound calls, configured
-// from appCfg.OutboundHTTPClient.
-func newHTTPClient(cfg config.HTTPClientConfig) *http.Client {
-	return &http.Client{
-		Timeout: time.Duration(cfg.TimeoutSecs) * time.Second,
-		Transport: &http.Transport{
-			DialContext: (&net.Dialer{
-				Timeout:   time.Duration(cfg.DialTimeoutSecs) * time.Second,
-				KeepAlive: time.Duration(cfg.DialKeepAliveSecs) * time.Second,
-			}).DialContext,
-			TLSHandshakeTimeout:   time.Duration(cfg.TLSHandshakeTimeoutSecs) * time.Second,
-			ResponseHeaderTimeout: time.Duration(cfg.ResponseHeaderTimeoutSecs) * time.Second,
-			IdleConnTimeout:       time.Duration(cfg.IdleConnTimeoutSecs) * time.Second,
-			MaxConnsPerHost:       cfg.MaxConnsPerHost,
-		},
-	}
 }
 
 func initializeKeyManager(conn *sqlx.DB) (*keymanager.Service, *signature.Service, *cryptomanager.Service, keystore.KeyStore, error) {

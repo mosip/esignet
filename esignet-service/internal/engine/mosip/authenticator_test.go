@@ -28,6 +28,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
@@ -121,6 +122,13 @@ func newProvider(clientSvc *clientmgmt.Service) *mosipAuthnProvider {
 // genRSAKeyAndCert generates a self-signed RSA certificate/key pair for tests.
 func genRSAKeyAndCert(t *testing.T, cn string) (*rsa.PrivateKey, *x509.Certificate) {
 	t.Helper()
+	return genRSAKeyAndCertWithValidity(t, cn, time.Now().Add(time.Hour))
+}
+
+// genRSAKeyAndCertWithValidity is genRSAKeyAndCert with a caller-chosen
+// NotAfter, so certificate-expiry-driven behavior can be exercised.
+func genRSAKeyAndCertWithValidity(t *testing.T, cn string, notAfter time.Time) (*rsa.PrivateKey, *x509.Certificate) {
+	t.Helper()
 	key, err := rsa.GenerateKey(rand.Reader, 2048)
 	require.NoError(t, err)
 
@@ -128,7 +136,7 @@ func genRSAKeyAndCert(t *testing.T, cn string) (*rsa.PrivateKey, *x509.Certifica
 		SerialNumber:          big.NewInt(time.Now().UnixNano()),
 		Subject:               pkix.Name{CommonName: cn},
 		NotBefore:             time.Now().Add(-time.Hour),
-		NotAfter:              time.Now().Add(time.Hour),
+		NotAfter:              notAfter,
 		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
 		BasicConstraintsValid: true,
 	}
@@ -521,6 +529,285 @@ func (ts *AuthenticatorTestSuite) TestFetchIDAPartnerCertificateErrors() {
 	require.ErrorIs(t, err, ErrCertificateParsing)
 }
 
+func (ts *AuthenticatorTestSuite) TestFetchIDAPartnerCertificateCachesUntilNearExpiry() {
+	t := ts.T()
+	_, cert := genRSAKeyAndCert(t, "ida-partner") // valid for 1h, well outside the cache buffer
+	var hits int
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		hits++
+		_, _ = w.Write(certToPEM(cert))
+	}))
+	defer srv.Close()
+
+	p := newProvider(nil)
+	p.cfg.IDAPartnerCertificateURL = srv.URL
+
+	got1, err := p.fetchIDAPartnerCertificate(context.Background())
+	require.NoError(t, err)
+	got2, err := p.fetchIDAPartnerCertificate(context.Background())
+	require.NoError(t, err)
+
+	require.Equal(t, cert.Raw, got1.Raw)
+	require.Equal(t, cert.Raw, got2.Raw)
+	require.Equal(t, 1, hits, "second call should be served from cache, not hit the server again")
+}
+
+func (ts *AuthenticatorTestSuite) TestFetchIDAPartnerCertificateRefetchesNearExpiry() {
+	t := ts.T()
+	// NotAfter is inside idaPartnerCertExpiryBuffer, so the cached cert
+	// should be treated as expired and refetched even without forceRefresh.
+	_, cert := genRSAKeyAndCertWithValidity(t, "ida-partner", time.Now().Add(idaPartnerCertExpiryBuffer/2))
+	var hits int
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		hits++
+		_, _ = w.Write(certToPEM(cert))
+	}))
+	defer srv.Close()
+
+	p := newProvider(nil)
+	p.cfg.IDAPartnerCertificateURL = srv.URL
+
+	_, err := p.fetchIDAPartnerCertificate(context.Background())
+	require.NoError(t, err)
+	_, err = p.fetchIDAPartnerCertificate(context.Background())
+	require.NoError(t, err)
+
+	require.Equal(t, 2, hits, "a cert within the expiry buffer should be refetched, not served from cache")
+}
+
+func (ts *AuthenticatorTestSuite) TestInvalidateCachedIDAPartnerCertificateForcesRefetch() {
+	t := ts.T()
+	_, cert := genRSAKeyAndCert(t, "ida-partner")
+	var hits int
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		hits++
+		_, _ = w.Write(certToPEM(cert))
+	}))
+	defer srv.Close()
+
+	p := newProvider(nil)
+	p.cfg.IDAPartnerCertificateURL = srv.URL
+
+	_, err := p.fetchIDAPartnerCertificate(context.Background())
+	require.NoError(t, err)
+
+	p.invalidateCachedIDAPartnerCertificate(context.Background())
+
+	_, err = p.fetchIDAPartnerCertificate(context.Background())
+	require.NoError(t, err)
+
+	require.Equal(t, 2, hits, "a cleared cache should be refetched on the next call")
+}
+
+// newSigningCertsFixture starts a test IDA "getAllCertificates" server
+// returning a single certificate, and a test authmanager token server
+// returning a JWT whose exp claim is now+ttl. It wires both into a fresh
+// provider and returns hit counters for each.
+func newSigningCertsFixture(t *testing.T, tokenTTL time.Duration) (p *mosipAuthnProvider, certHits, tokenHits *int) {
+	t.Helper()
+	certHits = new(int)
+	tokenHits = new(int)
+
+	certSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		*certHits++
+		wrapper := CertificateResponseWrapper{
+			Response: &GetAllCertificatesResponse{
+				AllCertificates: []KycSigningCertificateData{
+					{KeyID: "ida-signing", CertificateData: "-----BEGIN CERTIFICATE-----\ntest\n-----END CERTIFICATE-----"},
+				},
+			},
+		}
+		w.Header().Set("Content-Type", "application/json")
+		require.NoError(t, json.NewEncoder(w).Encode(wrapper))
+	}))
+	t.Cleanup(certSrv.Close)
+
+	tokenSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		*tokenHits++
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+			"exp": time.Now().Add(tokenTTL).Unix(),
+		})
+		signed, err := token.SignedString([]byte("test-signing-key"))
+		require.NoError(t, err)
+		w.Header().Set(authHeaderName, signed)
+		w.WriteHeader(http.StatusOK)
+	}))
+	t.Cleanup(tokenSrv.Close)
+
+	cfg := Config{IDACertificateURL: certSrv.URL, AuthTokenURL: tokenSrv.URL}
+	p = newProvider(nil)
+	p.cfg = cfg
+	p.tokenProvider = newTokenProvider(cfg, certSrv.Client())
+	return p, certHits, tokenHits
+}
+
+func (ts *AuthenticatorTestSuite) TestGetSigningCertificatesCachesUntilTokenExpiry() {
+	t := ts.T()
+	p, certHits, tokenHits := newSigningCertsFixture(t, time.Hour) // well outside signingCertsExpiryBuffer
+
+	got1, svcErr := p.GetSigningCertificates(context.Background())
+	require.Nil(t, svcErr)
+	got2, svcErr := p.GetSigningCertificates(context.Background())
+	require.Nil(t, svcErr)
+
+	require.Equal(t, got1, got2)
+	require.Equal(t, 1, *certHits, "second call should be served from cache, not hit the server again")
+	require.Equal(t, 1, *tokenHits, "cached certs shouldn't need a fresh auth token either")
+}
+
+func (ts *AuthenticatorTestSuite) TestGetSigningCertificatesRefetchesNearTokenExpiry() {
+	t := ts.T()
+	// The token's exp falls inside signingCertsExpiryBuffer, so the cached
+	// certs should be treated as expired and refetched on the next call.
+	p, certHits, _ := newSigningCertsFixture(t, signingCertsExpiryBuffer/2)
+
+	_, svcErr := p.GetSigningCertificates(context.Background())
+	require.Nil(t, svcErr)
+	_, svcErr = p.GetSigningCertificates(context.Background())
+	require.Nil(t, svcErr)
+
+	require.Equal(t, 2, *certHits, "certs cached past the token's near-expiry window should be refetched")
+}
+
+func (ts *AuthenticatorTestSuite) TestGetSigningCertificatesFallsBackToDefaultTTLWithoutTokenExpiry() {
+	t := ts.T()
+	var certHits int
+	certSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		certHits++
+		wrapper := CertificateResponseWrapper{Response: &GetAllCertificatesResponse{
+			AllCertificates: []KycSigningCertificateData{{KeyID: "k", CertificateData: "c"}},
+		}}
+		w.Header().Set("Content-Type", "application/json")
+		require.NoError(t, json.NewEncoder(w).Encode(wrapper))
+	}))
+	defer certSrv.Close()
+
+	// Token server returns a non-JWT token, so its expiry is unknown and the
+	// signingCertsDefaultTTL fallback applies.
+	tokenSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set(authHeaderName, "opaque-token")
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer tokenSrv.Close()
+
+	cfg := Config{IDACertificateURL: certSrv.URL, AuthTokenURL: tokenSrv.URL}
+	p := newProvider(nil)
+	p.cfg = cfg
+	p.tokenProvider = newTokenProvider(cfg, certSrv.Client())
+
+	_, svcErr := p.GetSigningCertificates(context.Background())
+	require.Nil(t, svcErr)
+	_, svcErr = p.GetSigningCertificates(context.Background())
+	require.Nil(t, svcErr)
+
+	require.Equal(t, 1, certHits, "unknown token expiry should still cache certs, via the default TTL")
+}
+
+func (ts *AuthenticatorTestSuite) TestGetSigningCertificatesInvalidatesCacheOn401() {
+	t := ts.T()
+	p, certHits, _ := newSigningCertsFixture(t, time.Hour)
+
+	_, svcErr := p.GetSigningCertificates(context.Background())
+	require.Nil(t, svcErr)
+	require.Equal(t, 1, *certHits)
+
+	// Force the next fetch to hit a 401, which should purge both the token
+	// and the certs cache.
+	rejectSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusUnauthorized)
+	}))
+	defer rejectSrv.Close()
+	p.certsMu.Lock()
+	p.cachedCerts = nil // simulate the cache having already expired
+	p.certsMu.Unlock()
+	p.cfg.IDACertificateURL = rejectSrv.URL
+
+	_, svcErr = p.GetSigningCertificates(context.Background())
+	require.NotNil(t, svcErr)
+
+	p.certsMu.RLock()
+	cleared := p.cachedCerts == nil && p.certsExpiry.IsZero()
+	p.certsMu.RUnlock()
+	require.True(t, cleared, "a 401 should invalidate the signing-certs cache")
+}
+
+func (ts *AuthenticatorTestSuite) TestDoFetchSigningCertificatesErrors() {
+	t := ts.T()
+
+	t.Run("request creation error", func(t *testing.T) {
+		p := newProvider(nil)
+		p.cfg.IDACertificateURL = "://bad-url"
+		certs, svcErr := p.doFetchSigningCertificates(context.Background())
+		require.Nil(t, certs)
+		require.Same(t, shared.CertificateFetchFailed, svcErr)
+	})
+
+	t.Run("auth token fetch error", func(t *testing.T) {
+		certSrv := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {
+			t.Fatal("certificate endpoint should not be called when the token fetch fails")
+		}))
+		defer certSrv.Close()
+		tokenSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusInternalServerError)
+		}))
+		defer tokenSrv.Close()
+
+		cfg := Config{IDACertificateURL: certSrv.URL, AuthTokenURL: tokenSrv.URL}
+		p := newProvider(nil)
+		p.cfg = cfg
+		p.tokenProvider = newTokenProvider(cfg, certSrv.Client())
+
+		certs, svcErr := p.doFetchSigningCertificates(context.Background())
+		require.Nil(t, certs)
+		require.Same(t, shared.AuthTokenFetchFailed, svcErr)
+	})
+
+	t.Run("connection error", func(t *testing.T) {
+		p, _, _ := newSigningCertsFixture(t, time.Hour)
+		closedSrv := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {}))
+		closedSrv.Close()
+		p.cfg.IDACertificateURL = closedSrv.URL
+
+		certs, svcErr := p.doFetchSigningCertificates(context.Background())
+		require.Nil(t, certs)
+		require.Same(t, shared.CertificateFetchFailed, svcErr)
+	})
+
+	t.Run("non-2xx status", func(t *testing.T) {
+		p, _, _ := newSigningCertsFixture(t, time.Hour)
+		nonOKSrv := httptest.NewServer(jsonHandler(http.StatusInternalServerError, "boom"))
+		defer nonOKSrv.Close()
+		p.cfg.IDACertificateURL = nonOKSrv.URL
+
+		certs, svcErr := p.doFetchSigningCertificates(context.Background())
+		require.Nil(t, certs)
+		require.Same(t, shared.CertificateFetchFailed, svcErr)
+	})
+
+	t.Run("invalid json body", func(t *testing.T) {
+		p, _, _ := newSigningCertsFixture(t, time.Hour)
+		badJSONSrv := httptest.NewServer(jsonHandler(http.StatusOK, "not json"))
+		defer badJSONSrv.Close()
+		p.cfg.IDACertificateURL = badJSONSrv.URL
+
+		certs, svcErr := p.doFetchSigningCertificates(context.Background())
+		require.Nil(t, certs)
+		require.Same(t, shared.CertificateFetchFailed, svcErr)
+	})
+
+	t.Run("error response with no certificates", func(t *testing.T) {
+		p, _, _ := newSigningCertsFixture(t, time.Hour)
+		errSrv := httptest.NewServer(jsonHandler(http.StatusOK,
+			`{"errors":[{"errorCode":"IDA-003","errorMessage":"fetch failed"}]}`))
+		defer errSrv.Close()
+		p.cfg.IDACertificateURL = errSrv.URL
+
+		certs, svcErr := p.doFetchSigningCertificates(context.Background())
+		require.Nil(t, certs)
+		require.Same(t, shared.CertificateFetchFailed, svcErr)
+	})
+}
+
 // ---------------------------------------------------------------------------
 // callSendOtpEndpoint
 // ---------------------------------------------------------------------------
@@ -550,7 +837,10 @@ func (ts *AuthenticatorTestSuite) TestCallSendOtpEndpointNonOKStatus() {
 	p := newProvider(nil)
 	p.cfg.SendOTPBaseURL = srv.URL
 	_, err := p.callSendOtpEndpoint(context.Background(), []byte("{}"), "sig", "rp", "cid")
-	require.ErrorContains(t, err, "unexpected send OTP status: 500")
+	// Non-2xx surfaces an *idaOTPError; a plain-text body yields no parseable codes.
+	var idaErr *idaOTPError
+	require.ErrorAs(t, err, &idaErr)
+	require.Empty(t, idaErr.codes)
 }
 
 func (ts *AuthenticatorTestSuite) TestCallSendOtpEndpointMalformedBody() {
@@ -563,18 +853,19 @@ func (ts *AuthenticatorTestSuite) TestCallSendOtpEndpointMalformedBody() {
 	require.ErrorContains(t, err, "failed to parse IdaSendOtpResponse")
 }
 
-func (ts *AuthenticatorTestSuite) TestCallSendOtpEndpointResponseMissingAlwaysErrors() {
+func (ts *AuthenticatorTestSuite) TestCallSendOtpEndpointResponseMissingSurfacesErrorCodes() {
 	t := ts.T()
-	// Documents existing behavior: when "response" is absent, the function
-	// always returns "response object is missing in wrapper", even when
-	// "errors" is populated (the later error-formatting branch is dead code
-	// because the nil-response check above it always matches first).
+	// When "response" is absent, the IDA error codes are surfaced to the caller
+	// via *idaOTPError so SendOTP can map an invalid-identifier code to a
+	// field-specific message.
 	srv := httptest.NewServer(jsonHandler(http.StatusOK, `{"errors":[{"errorCode":"E1","errorMessage":"bad"}]}`))
 	defer srv.Close()
 	p := newProvider(nil)
 	p.cfg.SendOTPBaseURL = srv.URL
 	_, err := p.callSendOtpEndpoint(context.Background(), []byte("{}"), "sig", "rp", "cid")
-	require.EqualError(t, err, "response object is missing in wrapper")
+	var idaErr *idaOTPError
+	require.ErrorAs(t, err, &idaErr)
+	require.Equal(t, []string{"E1"}, idaErr.codes)
 }
 
 func (ts *AuthenticatorTestSuite) TestCallSendOtpEndpointSuccess() {
@@ -587,6 +878,36 @@ func (ts *AuthenticatorTestSuite) TestCallSendOtpEndpointSuccess() {
 	require.NoError(t, err)
 	require.Equal(t, "a***@b.com", result.MaskedEmail)
 	require.Equal(t, "***123", result.MaskedMobile)
+}
+
+// ---------------------------------------------------------------------------
+// mapSendOTPError — forwards the IDA error code to the client
+// ---------------------------------------------------------------------------
+
+func (ts *AuthenticatorTestSuite) TestMapSendOTPErrorForwardsIDACode() {
+	t := ts.T()
+	svcErr := mapSendOTPError(&idaOTPError{codes: []string{"IDA-MLC-018", "IDA-MLC-009"}})
+	// The first IDA code is forwarded as both the ServiceError code and i18n key,
+	// so the frontend/i18n layer owns translation (no code list hardcoded here).
+	require.Equal(t, "IDA-MLC-018", svcErr.Code)
+	require.Equal(t, "IDA-MLC-018", svcErr.Error.Key)
+	require.Equal(t, "IDA-MLC-018_description", svcErr.ErrorDescription.Key)
+	require.Equal(t, shared.SendOTPFailedError.Type, svcErr.Type)
+	// The IDA errorMessage is never surfaced; only a neutral fallback is used.
+	require.Equal(t, shared.SendOTPFailedError.Error.DefaultValue, svcErr.Error.DefaultValue)
+
+	// Regression: a blank leading code must not mask a valid later one.
+	skip := mapSendOTPError(&idaOTPError{codes: []string{"", "IDA-MLC-018"}})
+	require.Equal(t, "IDA-MLC-018", skip.Code)
+	require.Equal(t, "IDA-MLC-018", skip.Error.Key)
+}
+
+func (ts *AuthenticatorTestSuite) TestMapSendOTPErrorFallsBackWithoutCode() {
+	t := ts.T()
+	// No parseable IDA code (nil/blank) or a non-IDA error → generic failure.
+	require.Same(t, shared.SendOTPFailedError, mapSendOTPError(&idaOTPError{codes: nil}))
+	require.Same(t, shared.SendOTPFailedError, mapSendOTPError(&idaOTPError{codes: []string{""}}))
+	require.Same(t, shared.SendOTPFailedError, mapSendOTPError(errors.New("network down")))
 }
 
 // ---------------------------------------------------------------------------
@@ -648,12 +969,12 @@ func (ts *AuthenticatorTestSuite) TestCallKycAuthEndpointResponseMissingReturnsE
 func (ts *AuthenticatorTestSuite) TestCallKycAuthEndpointKycStatusFalseWithErrors() {
 	t := ts.T()
 	srv := httptest.NewServer(jsonHandler(http.StatusOK,
-		`{"response":{"kycStatus":false},"errors":[{"errorMessage":"denied","actionMessage":"retry"}]}`))
+		`{"response":{"kycStatus":false},"errors":[{"errorCode":"IDA-KYC-001","actionMessage":"retry"},{"errorCode":"IDA-KYC-002","actionMessage":"retry"}]}`))
 	defer srv.Close()
 	p := newProvider(nil)
 	p.cfg.KYCAuthBaseURL = srv.URL
 	_, _, err := p.callKycAuthEndpoint(context.Background(), []byte("{}"), "sig", "rp", "cid", false)
-	require.EqualError(t, err, "denied: retry")
+	require.EqualError(t, err, "IDA-KYC-001,IDA-KYC-002")
 }
 
 func (ts *AuthenticatorTestSuite) TestCallKycAuthEndpointKycStatusFalseWithoutErrorsReturnsError() {
@@ -749,16 +1070,6 @@ func (ts *AuthenticatorTestSuite) TestCallKycExchangeEndpointEmptyEncryptedKycNo
 	require.EqualError(t, err, "no errors in response wrapper")
 }
 
-func (ts *AuthenticatorTestSuite) TestCallKycExchangeEndpointInvalidJWT() {
-	t := ts.T()
-	srv := httptest.NewServer(jsonHandler(http.StatusOK, `{"response":{"encryptedKyc":"not-a-jwt"}}`))
-	defer srv.Close()
-	p := newProvider(nil)
-	p.cfg.KYCExchangeBaseURL = srv.URL
-	_, err := p.callKycExchangeEndpoint(context.Background(), []byte("{}"), "sig", "rp", "cid")
-	require.ErrorContains(t, err, "failed to parse KYC JWT payload")
-}
-
 func (ts *AuthenticatorTestSuite) TestCallKycExchangeEndpointSuccess() {
 	t := ts.T()
 	jwtStr := unsignedJWT(t, map[string]interface{}{"sub": "user-1", "name": "John"})
@@ -772,8 +1083,8 @@ func (ts *AuthenticatorTestSuite) TestCallKycExchangeEndpointSuccess() {
 
 	resp, callErr := p.callKycExchangeEndpoint(context.Background(), []byte("{}"), "sig", "rp", "cid")
 	require.NoError(t, callErr)
-	require.Equal(t, "user-1", resp.Attributes["sub"].Value)
-	require.Equal(t, "John", resp.Attributes["name"].Value)
+	require.Len(t, resp.Attributes, 1)
+	require.Equal(t, jwtStr, resp.Attributes[providers.RawJWTAttributeKey].Value)
 }
 
 // ---------------------------------------------------------------------------
@@ -934,12 +1245,19 @@ func (ts *AuthenticatorTestSuite) TestAuthenticateFailsWhenRequestSigningFails()
 func (ts *AuthenticatorTestSuite) TestAuthenticateFailsWhenKycAuthCallErrors() {
 	t := ts.T()
 	_, cert := genRSAKeyAndCert(t, "ida-partner")
+	var certCalls int
 	certSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		certCalls++
 		_, _ = w.Write(certToPEM(cert))
 	}))
 	defer certSrv.Close()
 
-	kycAuthSrv := httptest.NewServer(jsonHandler(http.StatusOK, "not-json"))
+	var kycCalls int
+	kycAuthSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		kycCalls++
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"response":{"kycStatus":false},"errors":[{"errorCode":"IDA-MPA-003","actionMessage":"retry"}]}`))
+	}))
 	defer kycAuthSrv.Close()
 
 	p := newProvider(newValidClientService())
@@ -954,6 +1272,53 @@ func (ts *AuthenticatorTestSuite) TestAuthenticateFailsWhenKycAuthCallErrors() {
 
 	require.Nil(t, result)
 	require.Same(t, shared.AuthenticationFailedError, svcErr)
+	require.Equal(t, 1, certCalls, "the failing request itself should not retry the cert fetch inline")
+	require.Equal(t, 1, kycCalls)
+
+	// An IDA-MPA-003 rejection means the cached cert is bad, so it should
+	// have been cleared; the next fetch hits the server again instead of
+	// reusing the rejected certificate.
+	_, err := p.fetchIDAPartnerCertificate(context.Background())
+	require.NoError(t, err)
+	require.Equal(t, 2, certCalls, "cached certificate should have been invalidated after an IDA-MPA-003/004 KYC auth rejection")
+}
+
+func (ts *AuthenticatorTestSuite) TestAuthenticateKeepsCacheOnUnrelatedKycAuthError() {
+	t := ts.T()
+	_, cert := genRSAKeyAndCert(t, "ida-partner")
+	var certCalls int
+	certSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		certCalls++
+		_, _ = w.Write(certToPEM(cert))
+	}))
+	defer certSrv.Close()
+
+	kycAuthSrv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"response":{"kycStatus":false},"errors":[{"errorCode":"IDA-KYC-001","actionMessage":"retry"}]}`))
+	}))
+	defer kycAuthSrv.Close()
+
+	p := newProvider(newValidClientService())
+	p.cfg.IDAPartnerCertificateURL = certSrv.URL
+	configureSigning(t, p)
+	p.cfg.KYCAuthBaseURL = kycAuthSrv.URL
+
+	result, svcErr := p.Authenticate(context.Background(),
+		map[string]interface{}{"username": "ind-1"},
+		map[string]interface{}{"otp": "111111"},
+		authnMetadataFor("client-1"))
+
+	require.Nil(t, result)
+	require.Same(t, shared.AuthenticationFailedError, svcErr)
+	require.Equal(t, 1, certCalls)
+
+	// A KYC auth failure unrelated to the certificate should leave the
+	// cache intact, so the next fetch is served from cache without another
+	// round trip to the server.
+	_, err := p.fetchIDAPartnerCertificate(context.Background())
+	require.NoError(t, err)
+	require.Equal(t, 1, certCalls, "cached certificate should not be invalidated on a non IDA-MPA-003/004 KYC auth rejection")
 }
 
 func (ts *AuthenticatorTestSuite) TestAuthenticateSuccess() {
@@ -1124,8 +1489,7 @@ func (ts *AuthenticatorTestSuite) TestGetAttributesSuccess() {
 
 	resp, svcErr := p.GetAttributes(context.Background(), attributeToken, reqAttrs, getAttributesMetadataFor("client-1"))
 	require.Nil(t, svcErr)
-	require.Equal(t, "user-1", resp.Attributes["sub"].Value)
-	require.Equal(t, "John", resp.Attributes["name"].Value)
+	require.Equal(t, jwtStr, resp.Attributes[providers.RawJWTAttributeKey].Value)
 }
 
 func (ts *AuthenticatorTestSuite) TestGetAttributesDefaultsToSubWhenNoAttributesRequested() {
@@ -1147,7 +1511,7 @@ func (ts *AuthenticatorTestSuite) TestGetAttributesDefaultsToSubWhenNoAttributes
 	attributeToken := strings.Join([]string{"kyctok", "user-1", "txn-1"}, "||")
 	resp, svcErr := p.GetAttributes(context.Background(), attributeToken, &providers.RequestedAttributes{}, getAttributesMetadataFor("client-1"))
 	require.Nil(t, svcErr)
-	require.Equal(t, "user-1", resp.Attributes["sub"].Value)
+	require.Equal(t, jwtStr, resp.Attributes[providers.RawJWTAttributeKey].Value)
 
 	var req IdaKycExchangeRequest
 	require.NoError(t, json.Unmarshal(capturedBody, &req))
@@ -1222,8 +1586,13 @@ func (ts *AuthenticatorTestSuite) TestNewMosipAuthnProviderWiresConfig() {
 	t := ts.T()
 	t.Setenv("MOSIP_API_INTERNAL_HOST", "http://internal.example.org")
 	t.Setenv("MOSIP_ESIGNET_MISP_KEY", "misp-1")
+	t.Setenv("MOSIP_IDA_CLIENT_SECRET", "shh")
 
-	provider, err := NewMosipAuthnProvider(&config.AppConfig{}, nil, &http.Client{}, nil, nil)
+	pluginConfig, err := LoadConfig()
+	require.NoError(t, err)
+
+	client := &http.Client{}
+	provider, err := NewMosipAuthnProvider(&config.AppConfig{}, nil, client, nil, nil, pluginConfig, newTokenProvider(pluginConfig, client))
 	require.NoError(t, err)
 	require.NotNil(t, provider)
 
