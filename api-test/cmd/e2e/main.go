@@ -120,6 +120,8 @@ func main() {
 		TokenEndpoint:    disco.TokenEndpoint,
 		UserinfoEndpoint: disco.UserinfoEndpoint,
 		JWKSURI:          disco.JWKSURI,
+		PAREndpoint:      disco.PAREndpoint,
+		DPoPAlgs:         disco.DPoPAlgs,
 		AdminToken:       adminTok,
 		Plugin:           es.Provider,
 		Answers:          esignet.BuildAnswers(es),
@@ -153,6 +155,12 @@ type discovery struct {
 	TokenEndpoint         string `json:"token_endpoint"`
 	UserinfoEndpoint      string `json:"userinfo_endpoint"`
 	JWKSURI               string `json:"jwks_uri"`
+
+	// PAR and DPoP support, for the scenarios that register clients requiring
+	// them. Both are optional: a deployment advertising neither still runs
+	// every scenario that does not ask for them.
+	PAREndpoint string   `json:"pushed_authorization_request_endpoint"`
+	DPoPAlgs    []string `json:"dpop_signing_alg_values_supported"`
 }
 
 func fetchDiscovery(ctx context.Context, url string, tlsVerify bool) (*discovery, error) {
@@ -175,7 +183,7 @@ func fetchDiscovery(ctx context.Context, url string, tlsVerify bool) (*discovery
 	if d.Issuer == "" {
 		return nil, fmt.Errorf("discovery %s: no issuer", url)
 	}
-	if err := sameOrigin(url, d.Issuer, d.AuthorizationEndpoint, d.TokenEndpoint, d.UserinfoEndpoint, d.JWKSURI); err != nil {
+	if err := sameOrigin(url, d.Issuer, d.AuthorizationEndpoint, d.TokenEndpoint, d.UserinfoEndpoint, d.JWKSURI, d.PAREndpoint); err != nil {
 		return nil, fmt.Errorf("discovery %s: %w", url, err)
 	}
 	return &d, nil

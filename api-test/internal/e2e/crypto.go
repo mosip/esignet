@@ -10,6 +10,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"maps"
 	"math"
 	"math/big"
 	"net/http"
@@ -38,13 +39,21 @@ func publicJWK(priv *rsa.PrivateKey, kid string) map[string]any {
 	}
 }
 
-// signRS256 builds and signs a compact JWS (JWT) with the given claims.
-func signRS256(priv *rsa.PrivateKey, kid string, claims map[string]any) (string, error) {
-	header := map[string]any{"alg": "RS256", "typ": "JWT"}
-	if kid != "" {
-		header["kid"] = kid
+// signJWS builds and signs a compact JWS with an explicit header. The caller
+// owns every header member except "alg", which is set from alg so the header
+// and the signature scheme can never disagree.
+//
+// Both supported algs sign with the same RSA key and differ only in padding:
+// RS256 is PKCS#1 v1.5, PS256 is RSA-PSS. Which one a deployment accepts for a
+// DPoP proof comes from its dpop_signing_alg_values_supported, so the harness
+// has to be able to produce either.
+func signJWS(priv *rsa.PrivateKey, alg string, header, claims map[string]any) (string, error) {
+	hdr := maps.Clone(header)
+	if hdr == nil {
+		hdr = map[string]any{}
 	}
-	h, err := json.Marshal(header)
+	hdr["alg"] = alg
+	h, err := json.Marshal(hdr)
 	if err != nil {
 		return "", err
 	}
@@ -54,11 +63,30 @@ func signRS256(priv *rsa.PrivateKey, kid string, claims map[string]any) (string,
 	}
 	signingInput := b64(h) + "." + b64(p)
 	sum := sha256.Sum256([]byte(signingInput))
-	sig, err := rsa.SignPKCS1v15(rand.Reader, priv, crypto.SHA256, sum[:])
+	var sig []byte
+	switch alg {
+	case "RS256":
+		sig, err = rsa.SignPKCS1v15(rand.Reader, priv, crypto.SHA256, sum[:])
+	case "PS256":
+		// RFC 7518 fixes the PS256 salt length at the hash length.
+		sig, err = rsa.SignPSS(rand.Reader, priv, crypto.SHA256, sum[:],
+			&rsa.PSSOptions{SaltLength: rsa.PSSSaltLengthEqualsHash, Hash: crypto.SHA256})
+	default:
+		return "", fmt.Errorf("unsupported signing alg %q (want RS256 or PS256)", alg)
+	}
 	if err != nil {
 		return "", err
 	}
 	return signingInput + "." + b64(sig), nil
+}
+
+// signRS256 builds and signs a compact JWS (JWT) with the given claims.
+func signRS256(priv *rsa.PrivateKey, kid string, claims map[string]any) (string, error) {
+	header := map[string]any{"typ": "JWT"}
+	if kid != "" {
+		header["kid"] = kid
+	}
+	return signJWS(priv, "RS256", header, claims)
 }
 
 // clientAssertion builds the private_key_jwt client assertion for the token call.
