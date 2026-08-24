@@ -395,7 +395,7 @@ function installing_esignet() {
   plugin_option="--set pluginNameEnv=$plugin_name -f $plugin_env_file"
 
   echo Installing esignet
-  helm -n $NS install $ESIGNET_SERVICE_NAME /home/techno-467/IdeaProjects/esignet/helm/esignet --version $CHART_VERSION  \
+  helm -n $NS install $ESIGNET_SERVICE_NAME mosip/esignet --version $CHART_VERSION  \
     -f values.yaml \
     $ENABLE_INSECURE \
     "${ESIGNET_HELM_ARGS[@]}" \
