@@ -147,7 +147,12 @@ type consentElement struct {
 }
 
 // consentDecision is the reply shape the ConsentExecutor expects, sent as a JSON-encoded string.
+//
+// Approved is the overall verdict and must be sent explicitly: the executor reads
+// an absent field as false and rejects the whole decision with FET-1066
+// ("User denied consent"), however many per-element approvals it carries.
 type consentDecision struct {
+	Approved bool                     `json:"approved"`
 	Purposes []consentPurposeDecision `json:"purposes"`
 }
 
@@ -195,6 +200,9 @@ func buildConsentDecision(prompt string, policy ConsentPolicy) (string, []string
 		// A purpose with every element withheld is itself not approved.
 		if policy.DenyAll || (len(d.Elements) > 0 && !anyApproved) {
 			d.Approved = false
+		}
+		if d.Approved {
+			out.Approved = true
 		}
 		out.Purposes = append(out.Purposes, d)
 	}
