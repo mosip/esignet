@@ -7,13 +7,13 @@ if [ $# -ge 1 ] ; then
 fi
 
 NS=esignet
-CHART_VERSION=12.0.1
+CHART_VERSION=0.0.1-develop
 
 helm repo add mosip https://mosip.github.io/mosip-helm
 helm repo update
 
 while true; do
-    read -p "CAUTION: Do we already have Postgres installed? Also make sure the esignet DB is backed up as the same will be overriden. Do you still want to continue?" yn
+    read -p "CAUTION: Please ensure Postgres is installed. If the esignet DB already exists, it will be skipped and not overwritten. Do you still want to continue? (Y/N): " yn
     if [ $yn = "Y" ]
       then
         DB_USER_PASSWORD=$( kubectl -n postgres get secrets db-common-secrets -o jsonpath={.data.db-dbuser-password} | base64 -d )

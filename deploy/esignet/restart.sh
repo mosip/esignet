@@ -7,11 +7,12 @@ fi
 
 function Restarting_esignet() {
   NS=esignet
-  kubectl -n $NS rollout restart deploy  esignet
+  ESIGNET_SERVICE_NAME=esignet
+  kubectl -n $NS rollout restart deploy $ESIGNET_SERVICE_NAME
 
-  kubectl -n $NS  get deploy esignet -o name  |  xargs -n1 -t  kubectl -n $NS rollout status
+  kubectl -n $NS  get deploy $ESIGNET_SERVICE_NAME -o name  |  xargs -n1 -t  kubectl -n $NS rollout status
 
-  echo Retarted esignet services
+  echo Restarted esignet services
   return 0
 }
 

@@ -16,20 +16,6 @@ function prompt_for_deployment() {
   local prompt_message=$2
   local response
 
-  if [[ "$module_name" == "hsm" ]]; then
-    while true; do
-      read -p "$prompt_message" response
-      response=${response,,}  # convert to lowercase
-      if [[ "$response" =~ ^[sepn]$ ]]; then
-        break
-      else
-        echo "Incorrect input. Please enter one of the following: 's' for SoftHSM, 'e' for External HSM, 'p' for PKCS12, or 'n' to skip." >&2
-      fi
-    done
-    echo "$response"
-    return 0
-  fi
-
   while true; do
     read -p "$prompt_message" response
     response=${response:-y}
@@ -63,9 +49,8 @@ function installing_prerequisites() {
   echo "Creating esignet-global configmap in esignet namespace"
   kubectl -n $NS apply -f esignet-global-cm.yaml
 
-  declare -a modules=("istio-gateway" "postgres" "redis" "hsm" "captcha" "apiaccesscontrol")
+  declare -a modules=("istio-gateway" "postgres" "redis" "captcha" "apiaccesscontrol")
   declare -A prompts=(
-    ["hsm"]="Do you want to deploy hsm for esignet service? Please opt for 'n' if you already have hsm installed :(s - for softhsm, e - external, p - for pkcs12 based key management from mounted file): "
     ["redis"]="Do you want to deploy redis in the redis namespace? Please opt for 'n' if you already have a redis deployed  : Press enter for default y: "
     ["apiaccesscontrol"]="Do you want to access control the esignet client management APIs: Please opt for 'n' if not required. Press enter for default y: "
   )
@@ -78,26 +63,6 @@ function installing_prerequisites() {
       ./install.sh
     elif [[ -n "${prompts[$module]}"  ]]; then
       response=$(prompt_for_deployment "$module" "${prompts[$module]}")
-
-      if [[ "$module" == "hsm" ]]; then
-        if [[ "$response" == "e" ]]; then
-          prompt_for_input externalhsmclient "Please provide the URL where externalhsm client zip is located: "
-          prompt_for_input externalhsmhosturl "Please provide the host URL for externalhsm: "
-          prompt_for_input externalhsmpassword "Please provide the password for the externalhsm: "
-
-          echo "Creating ConfigMap for external HSM client and host URL"
-          kubectl create configmap esignet-softhsm-share --from-literal=hsm_client_zip_url_env="$externalhsmclient" --from-literal=PKCS11_PROXY_SOCKET="$externalhsmhosturl" -n softhsm --dry-run=client -o yaml | kubectl apply -f -
-
-          echo "Creating Secret for external HSM password"
-          kubectl create secret generic esignet-softhsm --from-literal=security-pin="$externalhsmpassword" -n softhsm --dry-run=client -o yaml | kubectl apply -f -
-
-        elif [[ "$response" == "p" ]]; then
-          echo "To proceed with PKCS12, you will be asked to enable volume mounting during eSignet installation. Please make sure to enable it when prompted."
-        elif [[ "$response" == "s" ]]; then
-          cd "$ROOT_DIR/softhsm"
-          ./install.sh
-        fi
-      fi
 
       if [[ "$module" == "redis" && "$response" == "n" ]]; then
         read -p "Do you want to configure Redis? (y/n): " configure_redis
