@@ -94,6 +94,114 @@
       "scopes": ["openid"],
       "userinfo_claims": { "name": { "essential": true } },
       "consent": { "expect_prompt": "yes", "deny": ["name"] }
+    },
+
+    {
+      "_comment": "PROTOCOL COMBINATIONS. Each client_config registers its own client (clients are pooled by config, so a config appearing twice is registered once) with the additionalConfig switches eSignet enforces at authorize, /oauth2/par, token and userinfo. The positives drive the flow those switches demand, all the way to userinfo; the negatives drive it wrong on purpose and expect rejection. Scenarios with no client_config keep sharing the single unhardened client, which is what the consent cases above depend on. These cases are protocol-level and plugin-independent -- they mirror the block in data/scenarios/e2e-scenarios.json with otp as the auth factor and scopes kept to openid, since claim release is already covered above. MOSIPID CAVEAT: clients here are registered through PMS /oauth/client, not eSignet client-mgmt. The harness sends additionalConfig on that request, but PMS owns whether it forwards the switches to eSignet. If it drops them the positives still pass (an unhardened client accepts a hardened flow), and the negatives are what will show it, by not being rejected. Also requires a deployment whose discovery advertises pushed_authorization_request_endpoint (PAR cases) and dpop_signing_alg_values_supported (DPoP cases).",
+      "name": "protocol positive: require_pkce completes to userinfo",
+      "auth_factor": "otp",
+      "client_config": { "require_pkce": true },
+      "scopes": ["openid"],
+      "expect_present": ["sub"]
+    },
+    {
+      "name": "protocol positive: PAR-required client completes to userinfo",
+      "auth_factor": "otp",
+      "client_config": { "require_pushed_authorization_requests": true },
+      "scopes": ["openid"],
+      "expect_present": ["sub"]
+    },
+    {
+      "name": "protocol positive: DPoP-bound client completes to userinfo",
+      "auth_factor": "otp",
+      "client_config": { "dpop_bound_access_tokens": true },
+      "scopes": ["openid"],
+      "expect_present": ["sub"]
+    },
+    {
+      "name": "protocol positive: PKCE + PAR completes to userinfo",
+      "auth_factor": "otp",
+      "client_config": { "require_pkce": true, "require_pushed_authorization_requests": true },
+      "scopes": ["openid"],
+      "expect_present": ["sub"]
+    },
+    {
+      "name": "protocol positive: PKCE + DPoP completes to userinfo",
+      "auth_factor": "otp",
+      "client_config": { "require_pkce": true, "dpop_bound_access_tokens": true },
+      "scopes": ["openid"],
+      "expect_present": ["sub"]
+    },
+    {
+      "name": "protocol positive: PAR + DPoP completes to userinfo (proof at PAR binds the code)",
+      "auth_factor": "otp",
+      "client_config": { "require_pushed_authorization_requests": true, "dpop_bound_access_tokens": true },
+      "scopes": ["openid"],
+      "expect_present": ["sub"]
+    },
+    {
+      "name": "protocol positive: PKCE + PAR + DPoP completes to userinfo",
+      "auth_factor": "otp",
+      "client_config": {
+        "require_pkce": true,
+        "require_pushed_authorization_requests": true,
+        "dpop_bound_access_tokens": true
+      },
+      "scopes": ["openid"],
+      "expect_present": ["sub"]
+    },
+
+    {
+      "_comment": "NEGATIVES. Each reuses a client registered above, so no extra registration happens; only the RP's behaviour changes. expect_error_contains is asserted only on messages the harness itself produces, so these do not depend on a particular server error string.",
+      "name": "protocol negative: require_pkce rejects an authorize with no code_challenge",
+      "auth_factor": "otp",
+      "client_config": { "require_pkce": true },
+      "flow": { "pkce": "none" },
+      "expect_login_failure": true,
+      "scopes": ["openid"]
+    },
+    {
+      "name": "protocol negative: require_pkce rejects the plain challenge method",
+      "auth_factor": "otp",
+      "client_config": { "require_pkce": true },
+      "flow": { "pkce": "plain" },
+      "expect_login_failure": true,
+      "scopes": ["openid"]
+    },
+    {
+      "name": "protocol negative: PAR-required client rejects a direct authorize",
+      "auth_factor": "otp",
+      "client_config": { "require_pushed_authorization_requests": true },
+      "flow": { "use_par": false },
+      "expect_login_failure": true,
+      "scopes": ["openid"]
+    },
+    {
+      "name": "protocol negative: DPoP-bound client rejects a token call with no proof",
+      "auth_factor": "otp",
+      "client_config": { "dpop_bound_access_tokens": true },
+      "flow": { "use_dpop": false },
+      "expect_login_failure": true,
+      "expect_error_contains": "token exchange failed",
+      "scopes": ["openid"]
+    },
+    {
+      "name": "protocol negative: a DPoP proof from a different key cannot redeem the code",
+      "auth_factor": "otp",
+      "client_config": { "require_pushed_authorization_requests": true, "dpop_bound_access_tokens": true },
+      "flow": { "dpop_key_mismatch": true },
+      "expect_login_failure": true,
+      "expect_error_contains": "token exchange failed",
+      "scopes": ["openid"]
+    },
+    {
+      "name": "protocol negative: a DPoP-bound token is refused at userinfo with the Bearer scheme",
+      "auth_factor": "otp",
+      "client_config": { "dpop_bound_access_tokens": true },
+      "flow": { "bearer_at_userinfo": true },
+      "expect_login_failure": true,
+      "expect_error_contains": "userinfo request failed",
+      "scopes": ["openid"]
     }
   ]
 }

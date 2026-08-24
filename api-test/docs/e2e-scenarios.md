@@ -1,8 +1,9 @@
 # e2e scenario model
 
-The `e2e` surface reads a scenario file, registers one throwaway OIDC client, then drives each
-scenario through the full relying-party journey — `authorize` (PKCE) → login → `token`
-(`private_key_jwt`) → `userinfo` — and asserts the outcome.
+The `e2e` surface reads a scenario file, registers a throwaway OIDC client for each distinct client
+configuration the scenarios ask for, then drives each scenario through the full relying-party
+journey — optional `/oauth2/par` → `authorize` (PKCE) → login → `token` (`private_key_jwt`, with a
+DPoP proof when the client is bound) → `userinfo` — and asserts the outcome.
 
 One scenario file ships per plugin:
 
@@ -15,7 +16,7 @@ One scenario file ships per plugin:
 Selected by `e2e.spec`, or overridden for one run with `-spec`.
 
 **Contents:** [File shape](#file-shape) · [Scenario fields](#scenario-fields) · [Filtering](#filtering) ·
-[Consent](#consent-coverage) · [Captcha](#captcha-coverage)
+[Protocol combinations](#protocol-combinations) · [Consent](#consent-coverage) · [Captcha](#captcha-coverage)
 
 ---
 
@@ -49,7 +50,10 @@ one authentication factor against it.
 | `name` | Shown in the report; also what `include`/`exclude` match against |
 | `auth_factor` | **Required.** `otp` \| `password` \| `bio` \| `kbi` — selects the ACR at the login step |
 | `credentials` | Overrides the base identity answers for this scenario only. Keys: `username`, `password`, `otp`, `fullName`, `dob`, `captchaToken` |
-| `expect_login_failure` | Negative case: **passes when login is correctly rejected**, fails if a bad credential is wrongly accepted. Omitted means positive — login must succeed |
+| `expect_login_failure` | Negative case: **passes when the flow is correctly rejected**, fails if a bad credential or an unhardened request is wrongly accepted. Rejection anywhere in the chain counts, not only at login. Omitted means positive — the flow must complete |
+| `expect_error_contains` | On a negative case, additionally requires the rejection message to contain this substring, so the case cannot pass on an unrelated failure. Ignored without `expect_login_failure` |
+| `client_config` | The `additionalConfig` protocol switches the scenario's client is registered with — see [Protocol combinations](#protocol-combinations) |
+| `flow` | Overrides what the relying party actually sends, independently of what the client requires — see [Protocol combinations](#protocol-combinations) |
 | `scopes` | Scopes requested at `authorize` |
 | `userinfo_claims` | Per-claim request object, e.g. `{"name": {"essential": true}}` |
 | `expect_present` / `expect_absent` | Claims that must / must not come back from `userinfo` |
@@ -77,11 +81,81 @@ one authentication factor against it.
 
 A filter matching zero scenarios is an **error**, not an empty run.
 
-> **The consent scenarios are order-dependent.** One client is registered per run and every scenario
-> shares it, so each successful login stores a consent record. The consent-reuse case asserts "no
-> prompt" precisely because the identical-request case ran immediately before it. Narrowing a run
-> with `include` so an earlier case is skipped can therefore break it. A build-time test enforces
-> these invariants on the shipped files.
+> **The consent scenarios are order-dependent.** Scenarios that name no `client_config` all share
+> one registered client, so each successful login stores a consent record. The consent-reuse case
+> asserts "no prompt" precisely because the identical-request case ran immediately before it.
+> Narrowing a run with `include` so an earlier case is skipped can therefore break it. A build-time
+> test enforces these invariants on the shipped files.
+
+---
+
+## Protocol combinations
+
+eSignet exposes three protocol switches in a client's `additionalConfig`, enforced by the engine at
+`authorize`, `/oauth2/par`, `token` and `userinfo` respectively:
+
+| Switch | What the client then requires |
+|---|---|
+| `require_pkce` | A `code_challenge` on the authorization request, and `S256` — the `plain` method is refused |
+| `require_pushed_authorization_requests` | The request pushed to `/oauth2/par` first; a direct `authorize` is refused |
+| `dpop_bound_access_tokens` | A DPoP proof (RFC 9449) at `token`, and the resulting token presented with the `DPoP` scheme plus a fresh proof at `userinfo` |
+
+A scenario declares the client it wants; the harness registers **one client per distinct
+`client_config`**, on first use, and reuses it for every later scenario asking for the same one. A
+scenario with no `client_config` gets the plain unhardened client — the same one it always got.
+
+```jsonc
+{ "name": "protocol positive: PKCE + PAR + DPoP completes to userinfo",
+  "auth_factor": "otp",
+  "client_config": {
+    "require_pkce": true,
+    "require_pushed_authorization_requests": true,
+    "dpop_bound_access_tokens": true
+  },
+  "scopes": ["openid"], "expect_present": ["sub"] }
+```
+
+By default the relying party does whatever the client requires: it pushes when PAR is required,
+proves possession when the client is DPoP-bound, and always sends `S256` PKCE. That is all a
+**positive** combination case needs.
+
+A **negative** case is written by making the RP disagree with the client, through `flow`:
+
+| `flow` field | Effect |
+|---|---|
+| `use_par` | Force the push on or off, against what the client requires |
+| `use_dpop` | Force proofs on or off |
+| `pkce` | `S256` (default), `plain`, or `none` |
+| `dpop_key_mismatch` | Redeem the code with a proof from a *different* key than the one bound at PAR |
+| `bearer_at_userinfo` | Present a DPoP-bound token with the `Bearer` scheme |
+
+```jsonc
+{ "name": "protocol negative: DPoP-bound client rejects a token call with no proof",
+  "auth_factor": "otp",
+  "client_config": { "dpop_bound_access_tokens": true },
+  "flow": { "use_dpop": false },
+  "expect_login_failure": true,
+  "expect_error_contains": "token exchange failed",
+  "scopes": ["openid"] }
+```
+
+Alongside the claim checks, these scenarios add protocol assertions to the report: the PAR
+`request_uri` is in the RFC 9126 URN namespace, `token_type` comes back as `DPoP`, and the access
+token's `cnf.jkt` is the thumbprint of the key that proved possession.
+
+**What they need from the deployment.** PAR cases need discovery to advertise
+`pushed_authorization_request_endpoint`; DPoP cases read `dpop_signing_alg_values_supported` and
+sign with `PS256` or `RS256`, whichever it lists. A deployment advertising neither still runs every
+other scenario — the affected ones fail with an explicit message rather than being skipped.
+
+> **mosipid caveat.** With the `mosip` plugin, clients are registered through PMS `/oauth/client`,
+> not eSignet client-mgmt. The harness sends `additionalConfig` on that request, but whether PMS
+> forwards the switches to eSignet is PMS's call. If it drops them, the positives still pass (an
+> unhardened client happily accepts a hardened flow) and the **negatives** are what expose it, by
+> not being rejected.
+
+Registration-side validation of these same keys — allowlisting, type checking, the update path — is
+covered by the `api` surface in `additional-config.feature`, where no login is needed.
 
 ---
 

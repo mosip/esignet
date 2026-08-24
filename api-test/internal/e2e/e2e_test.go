@@ -326,14 +326,21 @@ func TestShippedSpecsParseAndAreConsistent(t *testing.T) {
 				t.Fatalf("parse: %v", err)
 			}
 
-			// Every successful login stores a consent record keyed by its scopes+claims hash for the shared client.
+			// Every successful login stores a consent record keyed by its
+			// scopes+claims hash — per client, so the client config is part of
+			// the key: the same scopes against a differently-configured client
+			// are a different client and get prompted afresh.
 			var sawConsent, sawReuse bool
 			consented := map[string]string{}
 			for _, sc := range spec.Scenarios {
 				if sc.AuthFactor == "" {
 					t.Errorf("scenario %q has no auth_factor", sc.Name)
 				}
-				key := strings.Join(sc.Scopes, " ") + "|" + fmt.Sprint(sc.UserinfoClaims)
+				cfg := ClientConfig{}
+				if sc.ClientConfig != nil {
+					cfg = *sc.ClientConfig
+				}
+				key := cfg.key() + "|" + strings.Join(sc.Scopes, " ") + "|" + fmt.Sprint(sc.UserinfoClaims)
 
 				if sc.Consent != nil {
 					sawConsent = true
