@@ -227,7 +227,7 @@ To narrow the `api` surface to particular endpoints, set `api.tags` in the confi
 |---|---|
 | `@flow-execute` | `/flow/meta`, `/flow/execute`, `/oauth2/introspect` request and client-authentication validation |
 | `@flow-authz-neg` | `/oauth2/authorize` request validation |
-| `@client-mgmt` | client create / get / update, consent configuration |
+| `@client-mgmt` | client create / get / update, consent configuration, protocol `additionalConfig` validation (PKCE, PAR, DPoP) |
 | `@client-mgmt-pms` | client registration via PMS ([MOSIP ID only](docs/mosip-id.md)) |
 
 Leaving `api.tags` empty runs whatever your configured credentials can actually drive; anything

@@ -191,6 +191,7 @@
       "client_config": { "require_pkce": true },
       "flow": { "pkce": "none" },
       "expect_login_failure": true,
+      "expect_error_contains": "authorize returned error=invalid_request",
       "scopes": ["openid"]
     },
     {
@@ -199,6 +200,7 @@
       "client_config": { "require_pkce": true },
       "flow": { "pkce": "plain" },
       "expect_login_failure": true,
+      "expect_error_contains": "authorize returned error=invalid_request",
       "scopes": ["openid"]
     },
     {
@@ -207,6 +209,7 @@
       "client_config": { "require_pushed_authorization_requests": true },
       "flow": { "use_par": false },
       "expect_login_failure": true,
+      "expect_error_contains": "authorize returned",
       "scopes": ["openid"]
     },
     {
