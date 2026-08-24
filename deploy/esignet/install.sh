@@ -126,7 +126,7 @@ function installing_esignet() {
     ENABLE_INSECURE='--set enable_insecure=true';
   fi
 
-  ESIGNET_HELM_ARGS=''
+  ESIGNET_HELM_ARGS=()
   EXTRA_ENV_VARS_CM_YAML=''
   keystore_env_vars=""
   extra_env_vars_additional=""
