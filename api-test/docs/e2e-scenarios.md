@@ -16,7 +16,8 @@ One scenario file ships per plugin:
 Selected by `e2e.spec`, or overridden for one run with `-spec`.
 
 **Contents:** [File shape](#file-shape) · [Scenario fields](#scenario-fields) · [Filtering](#filtering) ·
-[Protocol combinations](#protocol-combinations) · [Consent](#consent-coverage) · [Captcha](#captcha-coverage)
+[Protocol combinations](#protocol-combinations) · [Introspection](#introspection-coverage) ·
+[Consent](#consent-coverage) · [Captcha](#captcha-coverage)
 
 ---
 
@@ -58,6 +59,7 @@ one authentication factor against it.
 | `userinfo_claims` | Per-claim request object, e.g. `{"name": {"essential": true}}` |
 | `expect_present` / `expect_absent` | Claims that must / must not come back from `userinfo` |
 | `expect_values` | Exact claim values that must match |
+| `introspect` | Introspection cases to run once the flow has completed — see [Introspection](#introspection-coverage) |
 | `consent` | How to answer the consent step and what to assert — see below |
 | `known_issue` | A reason string for an already-tracked environment gap. A **claim-assertion** failure then lands in the **Known** bucket with that reason instead of Failed, leaving the exit code alone; the failing check is still shown. It does not cover login failures, and a scenario that starts passing is still reported as passed |
 
@@ -156,6 +158,65 @@ other scenario — the affected ones fail with an explicit message rather than b
 
 Registration-side validation of these same keys — allowlisting, type checking, the update path — is
 covered by the `api` surface in `additional-config.feature`, where no login is needed.
+
+---
+
+## Introspection coverage
+
+`/oauth2/introspect` (RFC 7662) answers *is this token still good, and what is it for*. It takes the
+token as a form parameter, authenticates the caller with `private_key_jwt` exactly like `token`, and
+returns `active` either way: a token it never issued is reported **inactive rather than as an
+error**, and that answer carries no other metadata — otherwise introspection becomes an oracle for
+guessed tokens (RFC 7662 §2.2, §4).
+
+Reaching it needs a token the deployment actually issued, so the scenarios add `introspect` to a
+flow that has already completed through `userinfo`. Each entry is one POST, and prefixes its own
+assertions with its `name`, so a row says *which* case failed:
+
+```json
+{ "name": "introspection positive: an issued access token is reported active …",
+  "auth_factor": "otp",
+  "scopes": ["openid", "profile"],
+  "expect_present": ["sub"],
+  "introspect": [
+    { "name": "access token with hint",
+      "token": "access_token", "hint": "access_token",
+      "expect_active": true,
+      "expect_present": ["client_id", "sub", "scope", "iss", "exp", "iat"],
+      "expect_values": { "client_id": "{{client_id}}", "sub": "{{sub}}" } }
+  ]
+}
+```
+
+| Field | Meaning |
+|---|---|
+| `name` | Labels the case in the report; defaults to `<token>/<client_auth>` |
+| `token` | What is submitted: `access_token` (default) \| `id_token` \| `unissued` (a value this deployment never minted) \| `none` (the parameter is left out) |
+| `hint` | `token_type_hint`. Omitted when empty — RFC 7662 §2.1 makes it an optimization the server may ignore, so a *mismatched* hint must still resolve the token |
+| `client_auth` | `private_key_jwt` (default) \| `no_assertion` (a `client_id` alone) \| `wrong_key` (an assertion signed with a key the client never registered) \| `wrong_audience` (a correctly signed assertion made out to somebody else) |
+| `expect_status` | HTTP status the call must answer with. Defaults to `200` |
+| `expect_active` | Asserts the `active` member. Left unset, nothing is asserted about it — which is what an error case wants, since a 400/401 body has none |
+| `expect_present` / `expect_absent` | Response members that must / must not be there |
+| `expect_values` | Exact member values. Dotted paths work (`cnf.jkt`), and an array member matches when any element does (RFC 7662 lets `aud` be either) |
+| `expect_error` | The OAuth `error` member a rejection must carry |
+
+Four values are substituted from what the run obtained, since a spec file cannot know them ahead of
+time: `{{client_id}}`, `{{issuer}}`, `{{sub}}` (the `id_token` subject) and `{{dpop_jkt}}` (the
+thumbprint a DPoP-bound access token is bound to). One check is added rather than declared: an
+`active` token whose `exp` is already in the past fails, because a resource server would otherwise
+accept a token the authorization server considers dead.
+
+The negatives are written by pointing one axis away from the positive — an unissued token behind
+good client authentication, or a good token behind an assertion that does not verify. Client
+authentication is checked **first**, so `wrong_key` and `wrong_audience` are refused before the
+token is ever looked at.
+
+**What it needs from the deployment.** Discovery must advertise `introspection_endpoint`; without it
+the introspection scenarios fail with an explicit message and everything else still runs.
+
+Endpoint-shape validation that needs no token — a request naming no client, a `client_id` with no
+assertion, an unverifiable assertion, and the endpoint not being exposed over `GET` — is covered by
+the `api` surface in `introspect.feature`, where no login is needed.
 
 ---
 

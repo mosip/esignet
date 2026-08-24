@@ -89,6 +89,10 @@ func signRS256(priv *rsa.PrivateKey, kid string, claims map[string]any) (string,
 	return signJWS(priv, "RS256", header, claims)
 }
 
+// clientAssertionTypeJWTBearer is the RFC 7523 client_assertion_type every
+// private_key_jwt call carries — token, PAR and introspection alike.
+const clientAssertionTypeJWTBearer = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
+
 // clientAssertion builds the private_key_jwt client assertion for the token call.
 func clientAssertion(priv *rsa.PrivateKey, kid, clientID, aud string) (string, error) {
 	now := time.Now()
