@@ -19,6 +19,8 @@ import (
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
+	"github.com/mosip/esignet/internal/clientmgmt"
+	clientdb "github.com/mosip/esignet/internal/clientmgmt/db"
 	"github.com/mosip/esignet/internal/config"
 	"github.com/mosip/esignet/internal/consentmgmt"
 	"github.com/mosip/esignet/internal/consentmgmt/db"
@@ -51,12 +53,39 @@ func (q *consentStubQuerier) UpsertConsent(_ context.Context, arg db.UpsertConse
 	return q.upsertErr
 }
 
-func newConsentTestProvider(q db.Querier, cfg *config.AppConfig) *consentProvider {
+type clientStubQuerier struct {
+	clientdb.Querier
+
+	getRow clientdb.ClientDetail
+	getErr error
+}
+
+func (q *clientStubQuerier) GetClient(_ context.Context, _ string) (clientdb.ClientDetail, error) {
+	return q.getRow, q.getErr
+}
+
+// registeredClientRow builds a minimal, otherwise-empty client row whose Claims list is the
+// given registered claims, for consentProvider tests that only care about claim filtering.
+func registeredClientRow(claims []string) clientdb.ClientDetail {
+	claimsJSON, _ := json.Marshal(claims)
+	return clientdb.ClientDetail{
+		ID:           "client-1",
+		RedirectUris: "[]",
+		Claims:       string(claimsJSON),
+		AcrValues:    "[]",
+		GrantTypes:   "[]",
+		AuthMethods:  "[]",
+		Status:       "ACTIVE",
+	}
+}
+
+func newConsentTestProvider(q db.Querier, cfg *config.AppConfig, registeredClaims ...string) *consentProvider {
 	if cfg == nil {
 		cfg = &config.AppConfig{}
 	}
 	svc := consentmgmt.NewServiceWithQuerier(q)
-	return NewConsentProvider(svc, cfg).(*consentProvider)
+	clientSvc := clientmgmt.NewServiceWithQuerier(&clientStubQuerier{getRow: registeredClientRow(registeredClaims)}, nil, 0, nil)
+	return NewConsentProvider(svc, clientSvc, cfg).(*consentProvider)
 }
 
 func clientIDMeta(clientID string) map[string][]string {
@@ -300,7 +329,7 @@ func (ts *ConsentProviderTestSuite) TestRecordConsent_FiltersUnrequestedDecision
 func (ts *ConsentProviderTestSuite) TestRecordConsent_AllowsClaimFromStandardScope() {
 	q := &consentStubQuerier{}
 	cfg := &config.AppConfig{ScopeClaims: map[string][]string{"profile": {"name"}}}
-	p := newConsentTestProvider(q, cfg)
+	p := newConsentTestProvider(q, cfg, "name")
 
 	meta := clientIDMeta("client-1")
 	meta[runtimeKeyScopes] = []string{"openid profile"}
@@ -494,20 +523,22 @@ func (ts *ConsentProviderTestSuite) TestClientError() {
 func (ts *ConsentProviderTestSuite) TestGetConsentRequestHash() {
 	p := newConsentTestProvider(&consentStubQuerier{}, &config.AppConfig{})
 	req := &requestedConsent{claimsRequest: map[string]any{}, standardScopes: []string{"openid"}}
-	hash := p.getConsentRequestHash(context.Background(), req)
+	hash := p.getConsentRequestHash(context.Background(), req, nil)
 	ts.Require().NotEmpty(hash)
 }
 
 func (ts *ConsentProviderTestSuite) TestClaimsFromScopes() {
 	cfg := &config.AppConfig{ScopeClaims: map[string][]string{
-		"profile": {"name", "family_name"},
+		"profile": {"name", "family_name", "unregistered_claim"},
 		"email":   {"email", "name"},
 		"openid":  nil,
 	}}
 	p := newConsentTestProvider(&consentStubQuerier{}, cfg)
 
-	claims := p.claimsFromScopes([]string{"profile", "email", "openid"})
+	claims := p.claimsFromScopes([]string{"profile", "email", "openid"},
+		[]string{"name", "family_name", "email"})
 	ts.Require().ElementsMatch([]string{"name", "family_name", "email"}, claims)
+	ts.Require().NotContains(claims, "unregistered_claim")
 }
 
 func (ts *ConsentProviderTestSuite) TestMergeScopeClaims() {

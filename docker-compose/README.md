@@ -26,6 +26,15 @@ Now the setup is completely ready to start the OIDC flow. [Refer eSignet user gu
 
 `Note: To know more about the relying party onboard and query parameters used in the eSignet authorize URL `[refer eSignet docs](https://docs.esignet.io/integration/relying-party)
 
+### Logging in with the bootstrapped demo UIN
+
+`init.sql` pre-seeds the mock identity system with a ready-to-use identity, so you don't have to create one before trying out the login flow:
+
+- **UIN**: `1774231323`
+- **OTP**: `111111` (the mock OTP channel always accepts this static value)
+
+To try it out, start the relying party flow (e.g. via the [Mock relying party portal](https://github.com/mosip/esignet-mock-services/blob/release-0.14.x/docker-compose/README.md) or the Postman collection's FAPI2.0 flow), enter `1774231323` as the individual ID/UIN when prompted, then complete the challenge with OTP.
+
 ## How to create an OIDC client?
 
 1. Import files under [postman-collection](../postman-collection) folder into your postman.
