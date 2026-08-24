@@ -257,8 +257,9 @@ func TestIntrospectOneAssertsAgainstTheResponse(t *testing.T) {
 		t.Error("no exp assertion was produced for an active token")
 	}
 
-	// RFC 7662 s4: an inactive answer must not leak metadata, so expect_absent
-	// has to actually fail when the server sends some.
+	// RFC 7662 s4: an inactive answer must not leak metadata. The stub sends
+	// nothing but "active" for a token it did not issue, so this is the
+	// passing direction; the failing one is exercised below.
 	inactive := run(IntrospectCase{
 		Name: "unissued", Token: introspectUnissued, ExpectActive: boolPtr(false),
 		ExpectAbsent: []string{"sub"},
@@ -279,6 +280,12 @@ func TestIntrospectOneAssertsAgainstTheResponse(t *testing.T) {
 	}
 	if !anyFailed(run(IntrospectCase{Name: "absent-member", ExpectPresent: []string{"username"}})) {
 		t.Error("expect_present passed for a member the response omits")
+	}
+	// The other direction for expect_absent: the active response does carry
+	// sub, so a case demanding its absence has to fail. Without this an
+	// expect_absent that always passed would keep the s4 leak check green.
+	if !anyFailed(run(IntrospectCase{Name: "leaked-member", ExpectAbsent: []string{"sub"}})) {
+		t.Error("expect_absent passed for a member the response returns")
 	}
 }
 
