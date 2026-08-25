@@ -57,7 +57,7 @@ SIGNING_CERT=$KEY_DIR/signing.crt
 : "${DOCKER_IMAGE:=esignet:latest}"
 : "${GOLANGCI_LINT_VERSION:=latest}"
 : "${SQLC_VERSION:=v1.29.0}"
-: "${THUNDER_BRANCH:=1.0.x}"
+: "${THUNDER_BRANCH:=v1.0.1}"
 : "${RACE:=1}"   # set RACE=0 if no C toolchain (go test -race needs gcc on Windows)
 # Local builds default to a static, cgo-free binary, which drops the PKCS11
 # (HSM) keystore backend down to a stub that errors at startup — use
