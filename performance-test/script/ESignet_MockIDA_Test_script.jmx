@@ -35,7 +35,7 @@
         </collectionProp>
       </Arguments>
       <hashTree/>
-      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables - Server" enabled="true">
+      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables - Server">
         <collectionProp name="Arguments.arguments">
           <elementProp name="protocol" elementType="Argument">
             <stringProp name="Argument.name">protocol</stringProp>
@@ -71,7 +71,7 @@
         </collectionProp>
       </Arguments>
       <hashTree/>
-      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables - Others" enabled="true">
+      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables - Others">
         <collectionProp name="Arguments.arguments">
           <elementProp name="logoUri" elementType="Argument">
             <stringProp name="Argument.name">logoUri</stringProp>
@@ -105,30 +105,6 @@
           </elementProp>
         </collectionProp>
       </Arguments>
-      <hashTree/>
-      <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Load ClientID From File" enabled="true">
-        <stringProp name="delimiter">&amp;&amp;</stringProp>
-        <stringProp name="fileEncoding">UTF-8</stringProp>
-        <stringProp name="filename">${runTimeFilePath}/A02_client_id_esignet.csv</stringProp>
-        <boolProp name="ignoreFirstLine">true</boolProp>
-        <boolProp name="quotedData">false</boolProp>
-        <boolProp name="recycle">true</boolProp>
-        <stringProp name="shareMode">shareMode.all</stringProp>
-        <boolProp name="stopThread">false</boolProp>
-        <stringProp name="variableNames">userInfoClientId,userInfoEncodedPrivateKey,unencryptedPrivateKey</stringProp>
-      </CSVDataSet>
-      <hashTree/>
-      <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Load User Credentials From File" enabled="true">
-        <stringProp name="delimiter">,</stringProp>
-        <stringProp name="fileEncoding">UTF-8</stringProp>
-        <stringProp name="filename">${runTimeFilePath}/A01_credential_password_auth.txt</stringProp>
-        <boolProp name="ignoreFirstLine">true</boolProp>
-        <boolProp name="quotedData">false</boolProp>
-        <boolProp name="recycle">true</boolProp>
-        <stringProp name="shareMode">shareMode.all</stringProp>
-        <boolProp name="stopThread">false</boolProp>
-        <stringProp name="variableNames">vid,passwordPwdAuth,fullName</stringProp>
-      </CSVDataSet>
       <hashTree/>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="A00 Auth Token Generation (Setup)" enabled="false">
         <intProp name="ThreadGroup.num_threads">1</intProp>
@@ -235,7 +211,7 @@ vars.put(&quot;utcTime&quot;, utcTime);</stringProp>
           </BeanShellPostProcessor>
           <hashTree/>
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Generate Auth Token For PMS From IAM Endpoint " enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Generate Auth Token For PMS From IAM Endpoint ">
           <stringProp name="HTTPSampler.domain">${serverIP_IAM}</stringProp>
           <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
           <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
@@ -345,7 +321,7 @@ vars.put(&quot;utcTime&quot;, utcTime);</stringProp>
         </elementProp>
       </ThreadGroup>
       <hashTree>
-        <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Load Add Identity Request Details From File" enabled="true">
+        <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Load Add Identity Request Details From File">
           <stringProp name="filename">${supportFilePath}/add_identity_request_details.csv</stringProp>
           <stringProp name="fileEncoding"></stringProp>
           <stringProp name="variableNames">firstName,dateOfBirth,gender</stringProp>
@@ -357,7 +333,7 @@ vars.put(&quot;utcTime&quot;, utcTime);</stringProp>
           <stringProp name="shareMode">shareMode.all</stringProp>
         </CSVDataSet>
         <hashTree/>
-        <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Load encodedPhotoData From File" enabled="true">
+        <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Load encodedPhotoData From File">
           <stringProp name="filename">${supportFilePath}/encoded_photo_data.txt</stringProp>
           <stringProp name="fileEncoding"></stringProp>
           <stringProp name="variableNames">encodedPhotoData</stringProp>
@@ -369,7 +345,7 @@ vars.put(&quot;utcTime&quot;, utcTime);</stringProp>
           <stringProp name="shareMode">shareMode.all</stringProp>
         </CSVDataSet>
         <hashTree/>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Add Mock Identity Endpoint" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Add Mock Identity Endpoint">
           <stringProp name="HTTPSampler.domain">${serverIP_Internal}</stringProp>
           <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
           <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
@@ -599,6 +575,18 @@ vars.put(&quot;vid&quot;, epochMillis.toString())</stringProp>
           <hashTree/>
         </hashTree>
       </hashTree>
+      <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Load A01 User Credentials From File">
+        <stringProp name="delimiter">,</stringProp>
+        <stringProp name="fileEncoding">UTF-8</stringProp>
+        <stringProp name="filename">${runTimeFilePath}/A01_credential_password_auth.txt</stringProp>
+        <boolProp name="ignoreFirstLine">true</boolProp>
+        <boolProp name="quotedData">false</boolProp>
+        <boolProp name="recycle">true</boolProp>
+        <stringProp name="shareMode">shareMode.all</stringProp>
+        <boolProp name="stopThread">false</boolProp>
+        <stringProp name="variableNames">vid,passwordPwdAuth,fullName</stringProp>
+      </CSVDataSet>
+      <hashTree/>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="A02 Create OIDC Client (Setup)" enabled="false">
         <stringProp name="TestPlan.comments">create only 10</stringProp>
         <intProp name="ThreadGroup.num_threads">1</intProp>
@@ -872,7 +860,19 @@ vars.put(&quot;utcTime&quot;, utcTime);</stringProp>
           <hashTree/>
         </hashTree>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="S01 OTP Authentication (Execution)" enabled="true">
+      <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Load A02 ClientID From File">
+        <stringProp name="delimiter">&amp;&amp;</stringProp>
+        <stringProp name="fileEncoding">UTF-8</stringProp>
+        <stringProp name="filename">${runTimeFilePath}/A02_client_id_esignet.csv</stringProp>
+        <boolProp name="ignoreFirstLine">true</boolProp>
+        <boolProp name="quotedData">false</boolProp>
+        <boolProp name="recycle">true</boolProp>
+        <stringProp name="shareMode">shareMode.all</stringProp>
+        <boolProp name="stopThread">false</boolProp>
+        <stringProp name="variableNames">userInfoClientId,userInfoEncodedPrivateKey,unencryptedPrivateKey</stringProp>
+      </CSVDataSet>
+      <hashTree/>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="S01 OTP Authentication (Execution)">
         <boolProp name="ThreadGroup.delayedStart">true</boolProp>
         <intProp name="ThreadGroup.num_threads">1361</intProp>
         <stringProp name="ThreadGroup.ramp_time">${rampUpTime}</stringProp>
@@ -886,7 +886,7 @@ vars.put(&quot;utcTime&quot;, utcTime);</stringProp>
         </elementProp>
       </ThreadGroup>
       <hashTree>
-        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="S01 OTP Authentication" enabled="true">
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="S01 OTP Authentication">
           <boolProp name="TransactionController.includeTimers">true</boolProp>
         </TransactionController>
         <hashTree>
@@ -2005,7 +2005,7 @@ else
             <hashTree/>
           </hashTree>
         </hashTree>
-        <ConstantThroughputTimer guiclass="TestBeanGUI" testclass="ConstantThroughputTimer" testname="Constant Throughput Timer" enabled="true">
+        <ConstantThroughputTimer guiclass="TestBeanGUI" testclass="ConstantThroughputTimer" testname="Constant Throughput Timer">
           <doubleProp>
             <name>throughput</name>
             <value>52800.0</value>
@@ -2015,7 +2015,7 @@ else
         </ConstantThroughputTimer>
         <hashTree/>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="S02 Biometric Authentication (Execution)" enabled="true">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="S02 Biometric Authentication (Execution)">
         <boolProp name="ThreadGroup.delayedStart">true</boolProp>
         <intProp name="ThreadGroup.num_threads">240</intProp>
         <stringProp name="ThreadGroup.ramp_time">${rampUpTime}</stringProp>
@@ -2029,11 +2029,11 @@ else
         </elementProp>
       </ThreadGroup>
       <hashTree>
-        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="S02 Biometric Authentication" enabled="true">
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="S02 Biometric Authentication">
           <boolProp name="TransactionController.includeTimers">false</boolProp>
         </TransactionController>
         <hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S02 T01 Initiate PAR Endpoint" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S02 T01 Initiate PAR Endpoint">
             <stringProp name="HTTPSampler.domain">${serverIP}</stringProp>
             <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
             <stringProp name="HTTPSampler.protocol">https</stringProp>
@@ -2270,7 +2270,7 @@ vars.put(&quot;clientAssertionPAR&quot;, jwt.serialize())</stringProp>
             </JSONPostProcessor>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S02 T02 Send Authorize Endpoint" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S02 T02 Send Authorize Endpoint">
             <stringProp name="HTTPSampler.domain">${serverIP}</stringProp>
             <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
             <stringProp name="HTTPSampler.protocol">https</stringProp>
@@ -2343,7 +2343,7 @@ vars.put(&quot;clientAssertionPAR&quot;, jwt.serialize())</stringProp>
             </HeaderManager>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S02 T03 Flow Meta Endpoint" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S02 T03 Flow Meta Endpoint">
             <stringProp name="HTTPSampler.domain">${serverIP}</stringProp>
             <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
             <stringProp name="HTTPSampler.protocol">https</stringProp>
@@ -2418,7 +2418,7 @@ vars.put(&quot;clientAssertionPAR&quot;, jwt.serialize())</stringProp>
             </ResponseAssertion>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S02 T04 1 Authentication Flow - Start Endpoint" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S02 T04 1 Authentication Flow - Start Endpoint">
             <stringProp name="HTTPSampler.domain">${serverIP}</stringProp>
             <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
             <stringProp name="HTTPSampler.protocol">https</stringProp>
@@ -2483,7 +2483,7 @@ vars.put(&quot;clientAssertionPAR&quot;, jwt.serialize())</stringProp>
             </JSONPostProcessor>
             <hashTree/>
           </hashTree>
-          <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If Select Bio Needed" enabled="true">
+          <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If Select Bio Needed">
             <stringProp name="IfController.condition">${__groovy(vars.get(&quot;nextAction_1&quot;) == &quot;acr_bio&quot;||vars.get(&quot;nextAction_2&quot;) == &quot;acr_bio&quot;||vars.get(&quot;nextAction_3&quot;) == &quot;acr_bio&quot;)}</stringProp>
             <boolProp name="IfController.evaluateAll">false</boolProp>
             <boolProp name="IfController.useExpression">true</boolProp>
@@ -2550,7 +2550,7 @@ vars.put(&quot;clientAssertionPAR&quot;, jwt.serialize())</stringProp>
               <hashTree/>
             </hashTree>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S02 T04 3 Authentication Flow - Individual ID Endpoint" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S02 T04 3 Authentication Flow - Individual ID Endpoint">
             <stringProp name="HTTPSampler.domain">${serverIP}</stringProp>
             <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
             <stringProp name="HTTPSampler.protocol">https</stringProp>
@@ -2614,7 +2614,7 @@ vars.put(&quot;clientAssertionPAR&quot;, jwt.serialize())</stringProp>
             </JSONPostProcessor>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S02 T04 4 Authentication Flow - Bio Endpoint" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S02 T04 4 Authentication Flow - Bio Endpoint">
             <stringProp name="HTTPSampler.domain">${serverIP}</stringProp>
             <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
             <stringProp name="HTTPSampler.protocol">https</stringProp>
@@ -2932,7 +2932,7 @@ vars.put(&quot;bioChallenge&quot;, bioChallenge)
             </JSONPostProcessor>
             <hashTree/>
           </hashTree>
-          <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If Consent Needed" enabled="true">
+          <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If Consent Needed">
             <stringProp name="IfController.condition">${__groovy(vars.get(&quot;nextAction_1&quot;) == &quot;action_allow&quot;||vars.get(&quot;nextAction_2&quot;) == &quot;action_allow&quot;||vars.get(&quot;nextAction_3&quot;) == &quot;action_allow&quot;)}</stringProp>
             <boolProp name="IfController.evaluateAll">false</boolProp>
             <boolProp name="IfController.useExpression">true</boolProp>
@@ -3375,7 +3375,7 @@ else
             <hashTree/>
           </hashTree>
         </hashTree>
-        <ConstantThroughputTimer guiclass="TestBeanGUI" testclass="ConstantThroughputTimer" testname="Constant Throughput Timer" enabled="true">
+        <ConstantThroughputTimer guiclass="TestBeanGUI" testclass="ConstantThroughputTimer" testname="Constant Throughput Timer">
           <doubleProp>
             <name>throughput</name>
             <value>13200.0</value>
