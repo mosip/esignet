@@ -245,7 +245,7 @@ vars.put(&quot;utcTime&quot;, utcTime);</stringProp>
             <collectionProp name="Arguments.arguments">
               <elementProp name="client_secret" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">LDwzdKSg7m53V9qy</stringProp>
+                <stringProp name="Argument.value">${pmsSecretKey}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
                 <boolProp name="HTTPArgument.use_equals">true</boolProp>
                 <stringProp name="Argument.name">client_secret</stringProp>
