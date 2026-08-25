@@ -37,3 +37,4 @@ Each subproject is independently built and tested; see its own README (linked ab
 ## License
 
 Mozilla Public License 2.0 — see [LICENSE](LICENSE).
+Third-party dependency licenses — see [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt).
