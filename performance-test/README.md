@@ -1,4 +1,4 @@
-This module describes how to conduct load test of the eSignet OIDC/DPoP authentication flow (OTP-based and Biometric-based) using the provided JMeter script (`200eSignetGo_script.jmx`).
+This module describes how to conduct load test of the eSignet OIDC(FAPI2.0) flow (OTP-based and Biometric-based) using the provided JMeter script. (`ESignet_MockIDA_Test_script.jmx`).
 
 # Contains
 * This directory contains Performance Test script of below API endpoint categories grouped inside "Thread Groups".
@@ -41,7 +41,7 @@ This module describes how to conduct load test of the eSignet OIDC/DPoP authenti
 * Setup workload for Performance Test.
   * Execute all scenarios (i.e. S01, S02 labeled thread groups) for multiple iterations (10 or 100 iterations should suffice).
   * Take note of average scenario response time obtained from above test for each scenario. 
-  * Open the [MOSIP_TPS_Thread_setting_calculator](MOSIP_TPS_Thread_setting_calculator-200_ESignetThunder.xlsx) provided for this module and update "Total Target TPS" and "Scenario Response time" column.
+  * Open the [MOSIP_TPS_Thread_setting_calculator](MOSIP_TPS_Thread_setting_calculator-ESignet.xlsx) provided for this module and update "Total Target TPS" and "Scenario Response time" column.
   * The excel applies Little's law to recommend required "No. of Threads" and "Constant Throughput Timer" value for each scenario. Apply these values to each scenario in jMeter.
   * Execute a dry run for 10 min. The execution duration is controlled by "testDuration" variable.
   * Use "Scenario level report" within Jmeter GUI, to validate the actual throughput attained during test is as expected. 
@@ -51,14 +51,16 @@ This module describes how to conduct load test of the eSignet OIDC/DPoP authenti
 
 
 # Setup points before execution
-* `A01 Create Mock Identities` creates identities within [mock-identity-system](https://github.com/mosip/esignet-mock-services/tree/master/mock-identity-system). mock-identity-system's mock delay should be configured as per requirement. This release simulated 5 seconds delay as the worst case production scenario.
+* `A01 Create Mock Identities` creates identities within [mock-identity-system](https://github.com/mosip/esignet-mock-services/tree/master/mock-identity-system). mock-identity-system's mock delay should be configured as per requirement. This release simulated 5 seconds delay as the worst case production scenario. 
+  * set "MOSIP_MOCKIDENTITYSYSTEM_RESPONSE_DELAY" = 5000 in YAML.
 * Update the "User Defined Variables - Loadgenerator", "User Defined Variables - Server" and "User Defined Variables - Others" groups with your environment's host names (`serverIP`, `serverIP_Internal`, `serverIP_IAM`), `runTimeFilePath`, and `supportFilePath` before running any Thread Group.
 * Execution order matters — each Setup group produces a file consumed by later groups:
   * `A00 Auth Token Generation` obtains an auth token used by `A02 Create OIDC Client`.
-  * `A01 Create Mock Identities` writes `{runTimeFilePath}/A01_credential_password_auth.txt` (VID, password, full name), which `S01`/`S02` read via the "Load User Credentials From File" CSV Data Set.
-  * `A02 Create OIDC Client` generates an RSA key pair per client and writes `{runTimeFilePath}/A02_client_id_esignet.csv` (client ID + keys), which `S01`/`S02` read via the "Load ClientID From File" CSV Data Set.
+  * `A01 Create Mock Identities` writes `{runTimeFilePath}/A01_credential_password_auth.txt` (VID, password, full name), which `S01`/`S02` read via the "Load A01 User Credentials From File" CSV Data Set. Disable 'Load A01 User Credentials From File' until A01 execution is complete.
+  * `A02 Create OIDC Client` generates an RSA key pair per client and writes `{runTimeFilePath}/A02_client_id_esignet.csv` (client ID + keys), which `S01`/`S02` read via the "Load A02 ClientID From File" CSV Data Set. Disable 'Load A02 ClientID From File' until A02 execution is complete.
   * Run A00 → A01 → A02 to completion before enabling S01 or S02.
-* Delete runtime files created during previous execution from `{runTimeFilePath}` folder before a fresh run, so stale identities/clients aren't reused.
+  * Keep 'Load A01 User Credentials From File' and 'Load A02 ClientID From File' enabled when enabling S01 or S02..
+* Delete runtime files created during previous setup from `{runTimeFilePath}` folder before a fresh setup in a new/updated environment, so stale identities/clients aren't reused.
 * Note: as shipped, this script has only "S01 OTP Authentication" and "S02 Biometric Authentication" are enabled by default; "A00", "A01" and "A02" are disabled. Enable each Thread Group deliberately per the validation steps above rather than assuming all groups are active.
 
 
@@ -73,7 +75,7 @@ This module describes how to conduct load test of the eSignet OIDC/DPoP authenti
   04. S01 OTP Authentication (Execution) - Authentication flow scenario that uses OTP for validation.
       * S01 T01 Initiate PAR — POSTs to `/oauth2/par` with PKCE, DPoP proof, and client assertion; server returns a `request_uri`.
       * S01 T02 Send Authorize — GETs `/oauth2/authorize` with the `request_uri`; server redirects to sign-in and returns `authId`/`executionId`.
-      * S01 T03 Flow Meta — would fetch flow metadata via `/flow/execute` before starting the login UI flow.
+      * S01 T03 Flow Meta — would fetch flow metadata via `/flow/meta` before starting the login UI flow.
       * S01 T04 1 Authentication Flow - Start — POSTs `executionId` to `/flow/execute`, kicking off the flow and getting back the ACR (login mode) choices.
       * S01 T04 2 Authentication Flow - ACR — POSTs `action=acr_otp` to `/flow/execute`, selecting OTP as the login mode.
       * S01 T04 3 Authentication Flow - Individual ID — POSTs the UIN/VID and captcha token to `/flow/execute`, triggering OTP dispatch.
@@ -81,12 +83,13 @@ This module describes how to conduct load test of the eSignet OIDC/DPoP authenti
       * S01 T04 5 Authentication Flow - Consent — POSTs the approved consent decisions to `/flow/execute`, completing the flow and returning a signed assertion.
       * S01 T05 Obtain Authorization Code — POSTs the `authId` + assertion to `/oauth2/auth/callback`, getting back the redirect URI with the auth `code`.
       * S01 T06 Obtain Access Token — POSTs the auth code (+ PKCE verifier, DPoP proof, client assertion) to `/oauth2/token`, getting back the access/ID tokens.
+      * S02 T07 User Info — GETs `/oauth2/userinfo` with the DPoP-bound access token to fetch the authenticated user's claims.
 
 
   05. S02 Biometric Authentication (Execution) - Authentication flow scenario that uses Biometric data for validation.
       * S02 T01 Initiate PAR — POSTs to `/oauth2/par` with PKCE, DPoP proof, and client assertion; server returns a `request_uri`.
       * S02 T02 Send Authorize — GETs `/oauth2/authorize` with the `request_uri`; server redirects to sign-in and returns `authId`/`executionId`.
-      * S02 T03 Flow Meta — POSTs `executionId` to `/flow/execute` to fetch flow metadata before starting the login UI flow.
+      * S02 T03 Flow Meta — POSTs `executionId` to `/flow/meta` to fetch flow metadata before starting the login UI flow.
       * S02 T04 1 Authentication Flow - Start — POSTs to `/flow/execute`, kicking off the flow and getting back the ACR (login mode) choices.
       * S02 T04 2 Authentication Flow - Select acr — POSTs `action=acr_bio` to `/flow/execute`, selecting biometrics as the login mode.
       * S02 T04 3 Authentication Flow - Individual ID — POSTs the UIN/VID to `/flow/execute`, advancing to the biometric capture step.
@@ -99,5 +102,5 @@ This module describes how to conduct load test of the eSignet OIDC/DPoP authenti
 
 ## Support files required for this test execution:
 
-1. [addIdentityRequestDetails.csv](support-files/addIdentityRequestDetails.csv) - Contain list of basic identity detail that is used to create unique mockIds.
-2. [encodedPhotoData.txt](support-files/encodedPhotoData.txt) - This support file contains sample encrypted biometric data. 
+1. [add_identity_request_details.csv](support-files/add_identity_request_details.csv) - Contain list of basic identity detail that is used to create unique mockIds.
+2. [encoded_photo_data.txt](support-files/encoded_photo_data.txt) - This support file contains sample encrypted biometric data. 

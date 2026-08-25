@@ -35,7 +35,7 @@
         </collectionProp>
       </Arguments>
       <hashTree/>
-      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables - Server">
+      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables - Server" enabled="true">
         <collectionProp name="Arguments.arguments">
           <elementProp name="protocol" elementType="Argument">
             <stringProp name="Argument.name">protocol</stringProp>
@@ -71,16 +71,16 @@
         </collectionProp>
       </Arguments>
       <hashTree/>
-      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables - Others">
+      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables - Others" enabled="true">
         <collectionProp name="Arguments.arguments">
           <elementProp name="logoUri" elementType="Argument">
             <stringProp name="Argument.name">logoUri</stringProp>
-            <stringProp name="Argument.value">https://healthservices-thunder.......mosip.net/logo.png</stringProp>
+            <stringProp name="Argument.value">https://healthservices.......mosip.net/logo.png</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="redirectUri" elementType="Argument">
             <stringProp name="Argument.name">redirectUri</stringProp>
-            <stringProp name="Argument.value">https://healthservices-thunder.......mosip.net/userprofile</stringProp>
+            <stringProp name="Argument.value">https://healthservices.......mosip.net/userprofile</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="otpApplicationId" elementType="Argument">
@@ -106,7 +106,7 @@
         </collectionProp>
       </Arguments>
       <hashTree/>
-      <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Load ClientID From File">
+      <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Load ClientID From File" enabled="true">
         <stringProp name="delimiter">&amp;&amp;</stringProp>
         <stringProp name="fileEncoding">UTF-8</stringProp>
         <stringProp name="filename">${runTimeFilePath}/A02_client_id_esignet.csv</stringProp>
@@ -118,7 +118,7 @@
         <stringProp name="variableNames">userInfoClientId,userInfoEncodedPrivateKey,unencryptedPrivateKey</stringProp>
       </CSVDataSet>
       <hashTree/>
-      <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Load User Credentials From File">
+      <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Load User Credentials From File" enabled="true">
         <stringProp name="delimiter">,</stringProp>
         <stringProp name="fileEncoding">UTF-8</stringProp>
         <stringProp name="filename">${runTimeFilePath}/A01_credential_password_auth.txt</stringProp>
@@ -142,6 +142,9 @@
       </ThreadGroup>
       <hashTree>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Generate Auth Token For PMS Endpoint" enabled="false">
+          <stringProp name="TestPlan.comments"> ----------- DEPRECATED FOR MOCKIDA  ----------- 
+
+</stringProp>
           <stringProp name="HTTPSampler.domain">${serverIP_Internal}</stringProp>
           <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
           <stringProp name="HTTPSampler.protocol">${protocol}</stringProp>
@@ -343,7 +346,7 @@ vars.put(&quot;utcTime&quot;, utcTime);</stringProp>
       </ThreadGroup>
       <hashTree>
         <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Load Add Identity Request Details From File" enabled="true">
-          <stringProp name="filename">${supportFilePath}/addIdentityRequestDetails.csv</stringProp>
+          <stringProp name="filename">${supportFilePath}/add_identity_request_details.csv</stringProp>
           <stringProp name="fileEncoding"></stringProp>
           <stringProp name="variableNames">firstName,dateOfBirth,gender</stringProp>
           <boolProp name="ignoreFirstLine">true</boolProp>
@@ -355,7 +358,7 @@ vars.put(&quot;utcTime&quot;, utcTime);</stringProp>
         </CSVDataSet>
         <hashTree/>
         <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Load encodedPhotoData From File" enabled="true">
-          <stringProp name="filename">${supportFilePath}/encodedPhotoData.txt</stringProp>
+          <stringProp name="filename">${supportFilePath}/encoded_photo_data.txt</stringProp>
           <stringProp name="fileEncoding"></stringProp>
           <stringProp name="variableNames">encodedPhotoData</stringProp>
           <boolProp name="ignoreFirstLine">false</boolProp>
@@ -663,7 +666,7 @@ vars.put(&quot;utcTime&quot;, utcTime);</stringProp>
         </BeanShellPreProcessor>
         <hashTree/>
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="PMS OIDC Client POST Endpoint" enabled="false">
-          <stringProp name="TestPlan.comments"> ----------- DEPRECATED ----------- 
+          <stringProp name="TestPlan.comments"> ----------- DEPRECATED FOR MOCKIDA  ----------- 
 
 </stringProp>
           <stringProp name="HTTPSampler.domain">${serverIP_Internal}</stringProp>
@@ -889,7 +892,7 @@ vars.put(&quot;utcTime&quot;, utcTime);</stringProp>
         <hashTree>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S01 T01 Initiate PAR Endpoint" enabled="true">
             <stringProp name="HTTPSampler.domain">${serverIP}</stringProp>
-            <stringProp name="HTTPSampler.port">${thunder_port}</stringProp>
+            <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
             <stringProp name="HTTPSampler.protocol">https</stringProp>
             <stringProp name="HTTPSampler.path">/v1/esignet/oauth2/par</stringProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
@@ -1130,7 +1133,7 @@ vars.put(&quot;clientAssertionPAR&quot;, jwt.serialize())</stringProp>
           </hashTree>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S01 T02 Send Authorize Endpoint" enabled="true">
             <stringProp name="HTTPSampler.domain">${serverIP}</stringProp>
-            <stringProp name="HTTPSampler.port">${thunder_port}</stringProp>
+            <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
             <stringProp name="HTTPSampler.protocol">https</stringProp>
             <stringProp name="HTTPSampler.path">/v1/esignet/oauth2/authorize</stringProp>
             <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -1203,7 +1206,7 @@ vars.put(&quot;clientAssertionPAR&quot;, jwt.serialize())</stringProp>
           </hashTree>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S01 T03 Flow Meta Endpoint" enabled="true">
             <stringProp name="HTTPSampler.domain">${serverIP}</stringProp>
-            <stringProp name="HTTPSampler.port">${thunder_port}</stringProp>
+            <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
             <stringProp name="HTTPSampler.protocol">https</stringProp>
             <stringProp name="HTTPSampler.path">/v1/esignet/flow/meta</stringProp>
             <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -1278,7 +1281,7 @@ vars.put(&quot;clientAssertionPAR&quot;, jwt.serialize())</stringProp>
           </hashTree>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S01 T04 1 Authentication Flow - Start Endpoint" enabled="true">
             <stringProp name="HTTPSampler.domain">${serverIP}</stringProp>
-            <stringProp name="HTTPSampler.port">${thunder_port}</stringProp>
+            <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
             <stringProp name="HTTPSampler.protocol">https</stringProp>
             <stringProp name="HTTPSampler.path">/v1/esignet/flow/execute</stringProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
@@ -1349,7 +1352,7 @@ vars.put(&quot;clientAssertionPAR&quot;, jwt.serialize())</stringProp>
           <hashTree>
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S01 T04 2 Authentication Flow - ACR Endpoint" enabled="true">
               <stringProp name="HTTPSampler.domain">${serverIP}</stringProp>
-              <stringProp name="HTTPSampler.port">${thunder_port}</stringProp>
+              <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
               <stringProp name="HTTPSampler.protocol">https</stringProp>
               <stringProp name="HTTPSampler.path">/v1/esignet/flow/execute</stringProp>
               <stringProp name="HTTPSampler.method">POST</stringProp>
@@ -1410,7 +1413,7 @@ vars.put(&quot;clientAssertionPAR&quot;, jwt.serialize())</stringProp>
           </hashTree>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S01 T04 3 Authentication Flow - Individual ID Endpoint" enabled="true">
             <stringProp name="HTTPSampler.domain">${serverIP}</stringProp>
-            <stringProp name="HTTPSampler.port">${thunder_port}</stringProp>
+            <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
             <stringProp name="HTTPSampler.protocol">https</stringProp>
             <stringProp name="HTTPSampler.path">/v1/esignet/flow/execute</stringProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
@@ -1474,7 +1477,7 @@ vars.put(&quot;clientAssertionPAR&quot;, jwt.serialize())</stringProp>
           </hashTree>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S01 T04 4 Authentication Flow - OTP Endpoint" enabled="true">
             <stringProp name="HTTPSampler.domain">${serverIP}</stringProp>
-            <stringProp name="HTTPSampler.port">${thunder_port}</stringProp>
+            <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
             <stringProp name="HTTPSampler.protocol">https</stringProp>
             <stringProp name="HTTPSampler.path">/v1/esignet/flow/execute</stringProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
@@ -1566,7 +1569,7 @@ vars.put(&quot;clientAssertionPAR&quot;, jwt.serialize())</stringProp>
           <hashTree>
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S01 T04 5 Authentication Flow - Consent Endpoint" enabled="true">
               <stringProp name="HTTPSampler.domain">${serverIP}</stringProp>
-              <stringProp name="HTTPSampler.port">${thunder_port}</stringProp>
+              <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
               <stringProp name="HTTPSampler.protocol">https</stringProp>
               <stringProp name="HTTPSampler.path">/v1/esignet/flow/execute</stringProp>
               <stringProp name="HTTPSampler.method">POST</stringProp>
@@ -1630,7 +1633,7 @@ vars.put(&quot;clientAssertionPAR&quot;, jwt.serialize())</stringProp>
           </hashTree>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S01 T05 Obtain Authorization Code Endpoint" enabled="true">
             <stringProp name="HTTPSampler.domain">${serverIP}</stringProp>
-            <stringProp name="HTTPSampler.port">${thunder_port}</stringProp>
+            <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
             <stringProp name="HTTPSampler.protocol">https</stringProp>
             <stringProp name="HTTPSampler.path">/v1/esignet/oauth2/auth/callback</stringProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
@@ -1693,7 +1696,7 @@ vars.put(&quot;clientAssertionPAR&quot;, jwt.serialize())</stringProp>
           </hashTree>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S01 T06 Obtain Access Token Endpoint" enabled="true">
             <stringProp name="HTTPSampler.domain">${serverIP}</stringProp>
-            <stringProp name="HTTPSampler.port">${thunder_port}</stringProp>
+            <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
             <stringProp name="HTTPSampler.protocol">https</stringProp>
             <stringProp name="HTTPSampler.path">/v1/esignet/oauth2/token</stringProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
@@ -1874,7 +1877,7 @@ vars.put(&quot;clientAssertionToken&quot;, jwt.serialize())</stringProp>
           </hashTree>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S01 T07 User Info Endpoint" enabled="true">
             <stringProp name="HTTPSampler.domain">${serverIP}</stringProp>
-            <stringProp name="HTTPSampler.port">${thunder_port}</stringProp>
+            <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
             <stringProp name="HTTPSampler.protocol">https</stringProp>
             <stringProp name="HTTPSampler.path">/v1/esignet/oauth2/userinfo</stringProp>
             <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -2008,7 +2011,7 @@ else
             <value>52800.0</value>
             <savedValue>0.0</savedValue>
           </doubleProp>
-          <intProp name="calcMode">0</intProp>
+          <intProp name="calcMode">2</intProp>
         </ConstantThroughputTimer>
         <hashTree/>
       </hashTree>
@@ -2032,7 +2035,7 @@ else
         <hashTree>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S02 T01 Initiate PAR Endpoint" enabled="true">
             <stringProp name="HTTPSampler.domain">${serverIP}</stringProp>
-            <stringProp name="HTTPSampler.port">${thunder_port}</stringProp>
+            <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
             <stringProp name="HTTPSampler.protocol">https</stringProp>
             <stringProp name="HTTPSampler.path">/v1/esignet/oauth2/par</stringProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
@@ -2269,7 +2272,7 @@ vars.put(&quot;clientAssertionPAR&quot;, jwt.serialize())</stringProp>
           </hashTree>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S02 T02 Send Authorize Endpoint" enabled="true">
             <stringProp name="HTTPSampler.domain">${serverIP}</stringProp>
-            <stringProp name="HTTPSampler.port">${thunder_port}</stringProp>
+            <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
             <stringProp name="HTTPSampler.protocol">https</stringProp>
             <stringProp name="HTTPSampler.path">/v1/esignet/oauth2/authorize</stringProp>
             <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -2342,7 +2345,7 @@ vars.put(&quot;clientAssertionPAR&quot;, jwt.serialize())</stringProp>
           </hashTree>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S02 T03 Flow Meta Endpoint" enabled="true">
             <stringProp name="HTTPSampler.domain">${serverIP}</stringProp>
-            <stringProp name="HTTPSampler.port">${thunder_port}</stringProp>
+            <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
             <stringProp name="HTTPSampler.protocol">https</stringProp>
             <stringProp name="HTTPSampler.path">/v1/esignet/flow/meta</stringProp>
             <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -2417,7 +2420,7 @@ vars.put(&quot;clientAssertionPAR&quot;, jwt.serialize())</stringProp>
           </hashTree>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S02 T04 1 Authentication Flow - Start Endpoint" enabled="true">
             <stringProp name="HTTPSampler.domain">${serverIP}</stringProp>
-            <stringProp name="HTTPSampler.port">${thunder_port}</stringProp>
+            <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
             <stringProp name="HTTPSampler.protocol">https</stringProp>
             <stringProp name="HTTPSampler.path">/v1/esignet/flow/execute</stringProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
@@ -2488,7 +2491,7 @@ vars.put(&quot;clientAssertionPAR&quot;, jwt.serialize())</stringProp>
           <hashTree>
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S02 T04 2 Authentication Flow - Select acr Endpoint" enabled="true">
               <stringProp name="HTTPSampler.domain">${serverIP}</stringProp>
-              <stringProp name="HTTPSampler.port">${thunder_port}</stringProp>
+              <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
               <stringProp name="HTTPSampler.protocol">https</stringProp>
               <stringProp name="HTTPSampler.path">/v1/esignet/flow/execute</stringProp>
               <stringProp name="HTTPSampler.method">POST</stringProp>
@@ -2549,7 +2552,7 @@ vars.put(&quot;clientAssertionPAR&quot;, jwt.serialize())</stringProp>
           </hashTree>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S02 T04 3 Authentication Flow - Individual ID Endpoint" enabled="true">
             <stringProp name="HTTPSampler.domain">${serverIP}</stringProp>
-            <stringProp name="HTTPSampler.port">${thunder_port}</stringProp>
+            <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
             <stringProp name="HTTPSampler.protocol">https</stringProp>
             <stringProp name="HTTPSampler.path">/v1/esignet/flow/execute</stringProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
@@ -2613,7 +2616,7 @@ vars.put(&quot;clientAssertionPAR&quot;, jwt.serialize())</stringProp>
           </hashTree>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S02 T04 4 Authentication Flow - Bio Endpoint" enabled="true">
             <stringProp name="HTTPSampler.domain">${serverIP}</stringProp>
-            <stringProp name="HTTPSampler.port">${thunder_port}</stringProp>
+            <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
             <stringProp name="HTTPSampler.protocol">https</stringProp>
             <stringProp name="HTTPSampler.path">/v1/esignet/flow/execute</stringProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
@@ -2935,9 +2938,9 @@ vars.put(&quot;bioChallenge&quot;, bioChallenge)
             <boolProp name="IfController.useExpression">true</boolProp>
           </IfController>
           <hashTree>
-            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S02 T04 5 Authentication Flow - Consent Endpoint" enabled="true">
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S02 T04 5 Authentication Flow - Consent Endpoint">
               <stringProp name="HTTPSampler.domain">${serverIP}</stringProp>
-              <stringProp name="HTTPSampler.port">${thunder_port}</stringProp>
+              <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
               <stringProp name="HTTPSampler.protocol">https</stringProp>
               <stringProp name="HTTPSampler.path">/v1/esignet/flow/execute</stringProp>
               <stringProp name="HTTPSampler.method">POST</stringProp>
@@ -2952,7 +2955,7 @@ vars.put(&quot;bioChallenge&quot;, bioChallenge)
 	&quot;executionId&quot;:&quot;${executionId}&quot;,&#xd;
 	&quot;challengeToken&quot;:&quot;${challengeToken}&quot;,&#xd;
 	&quot;inputs&quot;:{&#xd;
-		&quot;consent_decisions&quot;:&quot;{\&quot;purposes\&quot;:[{\&quot;approved\&quot;:true,\&quot;elements\&quot;:[{\&quot;approved\&quot;:true,\&quot;name\&quot;:\&quot;email\&quot;},{\&quot;approved\&quot;:true,\&quot;name\&quot;:\&quot;given_name\&quot;},{\&quot;approved\&quot;:true,\&quot;name\&quot;:\&quot;address\&quot;},{\&quot;approved\&quot;:true,\&quot;name\&quot;:\&quot;birthdate\&quot;},{\&quot;approved\&quot;:true,\&quot;name\&quot;:\&quot;gender\&quot;},{\&quot;approved\&quot;:true,\&quot;name\&quot;:\&quot;name\&quot;},{\&quot;approved\&quot;:true,\&quot;name\&quot;:\&quot;phone_number\&quot;},{\&quot;approved\&quot;:true,\&quot;name\&quot;:\&quot;picture\&quot;}],\&quot;purposeName\&quot;:\&quot;attributes:${userInfoClientId}\&quot;}]}&quot;&#xd;
+		&quot;consent_decisions&quot;:&quot;{\&quot;approved\&quot;:true,\&quot;purposes\&quot;:[{\&quot;approved\&quot;:true,\&quot;elements\&quot;:[{\&quot;approved\&quot;:true,\&quot;name\&quot;:\&quot;email\&quot;},{\&quot;approved\&quot;:true,\&quot;name\&quot;:\&quot;given_name\&quot;},{\&quot;approved\&quot;:true,\&quot;name\&quot;:\&quot;address\&quot;},{\&quot;approved\&quot;:true,\&quot;name\&quot;:\&quot;birthdate\&quot;},{\&quot;approved\&quot;:true,\&quot;name\&quot;:\&quot;gender\&quot;},{\&quot;approved\&quot;:true,\&quot;name\&quot;:\&quot;name\&quot;},{\&quot;approved\&quot;:true,\&quot;name\&quot;:\&quot;phone_number\&quot;},{\&quot;approved\&quot;:true,\&quot;name\&quot;:\&quot;picture\&quot;}],\&quot;purposeName\&quot;:\&quot;attributes:${userInfoClientId}\&quot;}]}&quot;&#xd;
 	}&#xd;
 }</stringProp>
                     <stringProp name="Argument.metadata">=</stringProp>
@@ -3000,7 +3003,7 @@ vars.put(&quot;bioChallenge&quot;, bioChallenge)
           </hashTree>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S02 T05 Obtain Authorization Code Endpoint" enabled="true">
             <stringProp name="HTTPSampler.domain">${serverIP}</stringProp>
-            <stringProp name="HTTPSampler.port">${thunder_port}</stringProp>
+            <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
             <stringProp name="HTTPSampler.protocol">https</stringProp>
             <stringProp name="HTTPSampler.path">/v1/esignet/oauth2/auth/callback</stringProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
@@ -3063,7 +3066,7 @@ vars.put(&quot;bioChallenge&quot;, bioChallenge)
           </hashTree>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S02 T06 Obtain Access Token Endpoint" enabled="true">
             <stringProp name="HTTPSampler.domain">${serverIP}</stringProp>
-            <stringProp name="HTTPSampler.port">${thunder_port}</stringProp>
+            <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
             <stringProp name="HTTPSampler.protocol">https</stringProp>
             <stringProp name="HTTPSampler.path">/v1/esignet/oauth2/token</stringProp>
             <stringProp name="HTTPSampler.method">POST</stringProp>
@@ -3244,7 +3247,7 @@ vars.put(&quot;clientAssertionToken&quot;, jwt.serialize())</stringProp>
           </hashTree>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="S02 T07 User Info Endpoint" enabled="true">
             <stringProp name="HTTPSampler.domain">${serverIP}</stringProp>
-            <stringProp name="HTTPSampler.port">${thunder_port}</stringProp>
+            <stringProp name="HTTPSampler.port">${serverPortNo}</stringProp>
             <stringProp name="HTTPSampler.protocol">https</stringProp>
             <stringProp name="HTTPSampler.path">/v1/esignet/oauth2/userinfo</stringProp>
             <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -3378,7 +3381,7 @@ else
             <value>13200.0</value>
             <savedValue>0.0</savedValue>
           </doubleProp>
-          <intProp name="calcMode">0</intProp>
+          <intProp name="calcMode">2</intProp>
         </ConstantThroughputTimer>
         <hashTree/>
       </hashTree>
