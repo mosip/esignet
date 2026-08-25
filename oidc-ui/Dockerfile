@@ -1,4 +1,4 @@
-FROM node:20-alpine AS build_esignet_ui
+FROM node:20-slim AS build_esignet_ui
 
 WORKDIR /app
 
