@@ -103,4 +103,4 @@ This module describes how to conduct load test of the eSignet OIDC(FAPI2.0) flow
 ## Support files required for this test execution:
 
 1. [add_identity_request_details.csv](support-files/add_identity_request_details.csv) - Contain list of basic identity detail that is used to create unique mockIds.
-2. [encoded_photo_data.txt](support-files/encoded_photo_data.txt) - This support file contains sample encrypted biometric data. 
+2. [encoded_photo_data.txt](support-files/encoded_photo_data.txt) - This support file contains sample encoded biometric data. 
