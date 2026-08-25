@@ -9,14 +9,8 @@ services:
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
-  redis:
-    image: redis:7.4
-    ports:
-      - "6379:6379"
-    restart: always
-
   mock-identity-system:
-    image: 'mosipdev/mock-identity-system:develop'
+    image: 'mosipqa/mock-identity-system:release-0.14.x'
     user: root
     ports:
       - 8082:8082
@@ -26,56 +20,6 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/mosip_mockidentitysystem?currentSchema=mockidentitysystem
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
-      - MOSIP_ESIGNET_HOST=localhost:8088
+      - MOSIP_ESIGNET_HOST=localhost:8080
     depends_on:
       - database
-
-  mock-relying-party-service:
-    image: 'mosipdev/mock-relying-party-service:develop'
-    user: root
-    ports:
-      - 8888:8888
-    environment:
-      - ESIGNET_SERVICE_URL=http://localhost:8088
-      - ESIGNET_AUD_URL=http://localhost:8088/oauth2/token
-      - ESIGNET_PAR_ENDPOINT=https://localhost:8088/oauth2/par
-      - ESIGNET_PAR_AUD_URL=http://localhost:8088
-      - CLIENT_PRIVATE_KEY=eyJrdHkiOiJSU0EiLCJuIjoiMnRpa01nTUZwVXVReVlKaDlZdWtnckx6STVwenNNM2Zxd1Y4SHhSdF85b1BQSkhjV0ZoeFFZTW9zeExwT21QY1h0dWxUVkFJdC1kTTU2aER2UXVKY0x5Nm9KNmNfUDM3ai1zWmpiZHZyQ2NpMVlvRUdxVE1jeW5yZEJlX3NHS1J4bWZ0NElaT3RDMW00TVJYaXRlUS1rV2VJOUFhaVNFSG04Smpmd19JdHJtRmFNb3AwYlF4ZVRCeThhZWxKZDZxVS01Zjd6V0VneWdwc1RVMXRIWlkwMVZtc1pNVDNjMUpta25lWDdEb3l3LTFBQWxiS0RRV1BSTHQxc2VVRDdLc1hLMXN5T1Btb3pmeFJkTzNNM2lRdUxjdnZ3WXpxUFN3RDVWS3htZWxiVEZCQ19YVHozSTdwMFR1Z0YyTGNPWWhwazdxWWRJOWxidWM4dlRFZUsyMTB3IiwiZSI6IkFRQUIiLCJkIjoiYkg0LVdIVGJGYWt5ckZPeEVMUWI2SmVpcGlIcF9OcnphYXVjYnlRSHJIR0VZRGpIamh5NmVRbjI0V0FjczhfUjdremgxRVE3TGtEREJZMkxsMnJpeGpzcUlucV94VVI4dEVxUExveWtGaXFJd0doZHhILXl3OTBpVnpsMjFKRHBSXzA2RnJjLXlXQkF3bWxVSlFiZFh0V29vb1NHd3pqV3RzZFY0Q1lKRVZ4WXZ4T04zcnQ4NHE0cU1IeExqNnlFLVpMc0lpbGxlejFxdkphOTNaZGhHZHBHZnVTM1ZZUVI5V1lyajBkYXlmS0JJRHpYcGhZX0NTbWdKRkV6Q0tYVHdaVDlLczdPSl9XMGVQaG4tOHNkb3JjNmNPUzdYV2RQdTQ3R0pmanVIM21xQlJCbEtRSFZNUXVKYWhhZ0Q3b29WRUhGbnpJaTFMY1pEZzgtd0RxVWdRIiwicCI6Ii03Nl9DVmUwdUh3WkxzY3RmMno2VzJXeVYwQV90cDlEMUdtcTVKX1dWeE9sZ3FHanlLU2ZiTE9iV1JwRUFyRkdTN0VFcFhBOTlla2t5THY5TXBselM1YmxRWDZKQXpzM2I0U0tTcU5JbWFIQThlLUhLQ25la3kyVVRmT0JQTWJ3Q2wxbG1TdFVoZ0p1akFVNzI2SmZHZXd4Mmx2S0FmLVJ3T0haRWtVS3FhRSIsInEiOiIzb3VNU3g0SkJvQVpzN2R6V3VCbDh6TFJNVGpXTWZQeFpiTXhLb3hGWDRUaGF1NkVTbDdjNWh1OWYtTFU3LXlFZ1lJWHN6Q2NYeVdNRllVT2ZySUxoMXJDUE9rSGtJSnVMeGhvNHZ6LUUtSFZINUdTTkpnVEItcTY3VC1VU2hzYmJhQnd1Y1ZzRDJvTlFMcVRabnFRTzVuekFPdEtvOEsyd290Y25aUGxjdk0iLCJkcCI6InBlR2FuOTFiQl9VOTRzVDhCZXNaVFFCRjg1Z3lZM091amxqU2NyT2YyT0RwUHBxa0FhSDRLdmh1ZE5nSjJIeFhoYWl2RnhST3Y2dFF3YlNkc3FuS2Z4Ul9IQmowejF4RnV3WHEyaU9kd3g0Q3RXalA5bmNnWW5xMkxtYzEwWWFFeFUtbGtyZ3FpZU13VkxOZUxldGdId1MwRk41R3plcEpjSDloT2Rpa25nRSIsImRxIjoiT0YyUjZBaXdjb1FKZm5wTmJrdjlwbTVOaTdFQWwyQlkyTkJjLUpEVWxVX2JwRERMTXViNV9oSXltZXlDMEUzUWRkalVWZDlQQzg0X3Y4ZVdsMEpUSnpJMmxpVFRkS2VFYnNzNDdaejBZV2JHaXh0Y3M1Tjg1bmx1Wk43QW1WQnFUd2JlNWo1NWt5SGlQMjNDSGFlWFZuRTBtaHYtS0tJTmxoS2tINGt4Q1Q4IiwicWkiOiJHdnd6MnJYeUhZZ0EyRU44azViVnY3QUVDZXFWRTNQQl9kVWNldk1VX3V1cjNVOUQ5RmxUbzZUU09yM0lIZWZyUHVLYXFDdTRwZy1PZ3pDUFlKdm9Jc0RNS1F0ck5XR1luQWxLODdJN3ZHSEZOUlhaQ1BUQVJDODZOQUFUZElxMHVBQTdaM2VxX0FKenpIQ3RRbEpQOHY1UngxaFhuVG1yRy01N1gycjVadWciLCJraWQiOiJ4WWI0cFU5ME9rVVNaRV9fczlKX0hxcmNYeV9PVEwtbFRJdGtZVUpiQmJnIiwidXNlIjoic2lnIn0
-      - JWE_USERINFO_PRIVATE_KEY=ewogICAgInAiOiAieF8zWXBZejI2aE1ZNVRleUhtRmVDeHFGMEotTzRIWnd4b0hsV3VkZlVDYV9vQktfeXJhQWxJOWtQYUF0Y1d1cV83S2V5SzFnS2FRQ005LWVUYnE4cnRGc3ZSRU15OW9ORk5scnlxMmVjTjVWSTBxMGMzM2gyd1NzM3FwWDBuVXNMMC13TTIzaWcyWkkzUkE1NWpWUzdEV3laTkJLdFF6TS1wRUVfU2RRTldrIiwKICAgICJrdHkiOiAiUlNBIiwKICAgICJxIjogInZJdnJtZE9wMEZUX3cxSUg0M2tjdG1VeEJWRUdScVdKcy1DZ0tuU1hTaFRmam93c3AtZ09CalVoRE1yNC13b0dyZVZyMkRaeDVPeGNtbDJ4eExHekJKSzMxLWZxQTFyYWN6S3F2M3RBbnpPMnhoOVJUSGtnZDR0c01CMGFlalAtTFVEajM4eGxhSWtyQlZ2b0NlN1ZpS29iSW12YVZweUdlM1hidV9hSWoxMCIsCiAgICAiZCI6ICJVQ0dCUTZ2aUtjWTVTc3E0YzdiTFUwbUVBWjAteXdrT3AteXpkWGppNGZ0LXlRRXpKMVdtQWp1dTlmcWh4ZVBKdkpWekZQLWduY0NVZzc0dEpiY2F3Q0IzMVIxUHJycDhKY1VnYk9fcFJmT3lwWFI3Zm1yYkpyWjRMc0ZkZURyUzVBdUFJS0NOVy1RQTRZajQxcnFBSEw4OEtOQXRvR01IdGQ5VDZ5dkhZUUVpMmtSbUUxZHQ4OXhqRjRHR2E2MFBzaml3RVJvdm9EUWxjWmtwekM5QXpPRm80NXZ6a2RtSWlLRlFVR1hkRWJjSFhVOVRmWFdSc3RhOFlsdGRWVWM3NHhsbk13MDJtNm4tWjU3VG5kdVFOSFJHMVhZd3lGZEh3RFI5S0pDU0lCR3htRDRDWVNVdTc1b0JRLWdVZUtYQ1Y2UENiQVRoT1J4ZG9sako2SkhtNFEiLAogICAgImUiOiAiQVFBQiIsCiAgICAidXNlIjogInNpZyIsCiAgICAicWkiOiAiSDRWd2JHQkR3UFJkenJzZVpYSFo4M29kakwwNnJhWnEybzZaQ1FnMzdTUFVpVHY4dWZNMHNJaHJGdEhKd0xUN1ZXVlRIMy0xZ00xOEZvcVBHekVUNGhnN252UE1FaVpaQmVzUGJ6NWpQb2VLeTFHczFfSWVxWVRjbkxKRzM0azZfck1KVXFzeUZWQ001bjY5Ykcyaml5SzEzcjFRVVNWcGdYOFJqX1RrMGRNIiwKICAgICJkcCI6ICJyQzN4SW42ZGFlTXRNTkxscC1BLUhpTWtoX3VHXzlzWXR0N0lmcDNxWWxBcDlILVAzYy1JSGQ3aDkyaDdGMFlSXzNoaDJmWGliNWREU2pQQXo3endpelhFZjNZNVpSd0MzU3RlOFN6TzF1LWpydkczTUNOMW1xR0l6MThxb3dlOEZiTnV5S2hYTnJlT0RielZqRXZtYTNURGRLWWJXNHA4dzFDdFVlSlIzTmsiLAogICAgImFsZyI6ICJSUzI1NiIsCiAgICAiZHEiOiAiRklNOGZKM1VpYl9WbTVCZkgxWmIwMVFyQXlNUGhid1l3U01kQ2NGcGZEdk5IcHNOZUs3OFo1eDhIZ0l2R0ZDODdVcGFjMGxwRnJqSVVsc0RMaDBQRnQ1SGRndmJIOFpRb2R2UFM4bkNfQThLUVhfQ3Zva25DUnA0Q0x3QjEyMjBwNE81eHUxYjB3V3BVb252TXJWek1jMGY2cHpGUWtzQkxvbGlBSThQeUZrIiwKICAgICJuIjogImswdTVfR2RhTkRRbXNlS240UWgxYlhTblV1ODhvOHZpRFAza1NRTVJqRG9xaG9RYXpRRUItVWJxREI0UnhKS1A0Y2VFWnJLemVaQnl6U0hqN0pZU2Nxb0Q3b3V4RXY0X1FxMnQxREFuR21GYTUycGVjU29VclIxbFBvQmZGRE5LTndFSzJiS25TbEdsVXRhYnJudjNsRXBkck1EM2xOX1RYNlJrVjJXT0k5NF9PT09tU29mTEFuWVlkUGN0QmVGLW0tb0JOczBCcklSRUVqRkc3Y2dZYlpIVE55Y0lnNnJnVVVMVVNTeVE4blhFSFNRUy1DWUF6ek9HTlFvTUdGdmMyazNwLTgya1pZNHY2NXowX2s3RWVlZjU4UDI3TDhVY1plVEh5YUp3LUJjYjFXMThQNGJRakU1dVVybFEtUjBZNGdBeGE5d3dSaGtrQVFXUFc4RU9KUSIKfQ==
-      - USERINFO_RESPONSE_TYPE=jwt
-      - SCOPE_USER_PROFILE=openid profile
-      - REDIRECT_URI=http://localhost:3000/userprofile
-      - ACRS=mosip:idp:acr:linked-wallet mosip:idp:acr:knowledge mosip:idp:acr:generated-code mosip:idp:acr:password
-      - CLAIMS_USER_PROFILE={"userinfo":{"name":{"essential":true},"phone_number":{"essential":true},"verified_claims":[{"verification":{"trust_framework":{"value":"ABC TF"}},"claims":{"phone_number":{"essential":true}}},{"verification":{"trust_framework":{"value":"XYZ TF"}},"claims":{"name":{"essential":true}}}]},"id_token":{}}
-
-  mock-relying-party-ui:
-    image: 'mosipdev/mock-relying-party-ui:develop'
-    user: root
-    ports:
-      - 3000:3000
-    depends_on:
-      - mock-relying-party-service
-    environment:
-      - container_user=mosip
-      - ESIGNET_UI_BASE_URL=http://localhost:8088
-      - MOCK_RELYING_PARTY_SERVER_URL=http://localhost:8888
-      - REDIRECT_URI=http://localhost:3000/userprofile
-      - CLIENT_ID=pm-client-1785763493878
-      - ACRS=mosip:idp:acr:static-code%20mosip:idp:acr:generated-code%20mosip:idp:acr:biometrics%20mosip:idp:acr:linked-wallet%20mosip:idp:acr:password%20mosip:idp:acr:knowledge
-      - REDIRECT_URI_REGISTRATION=http://localhost:3000/registration
-      - SIGN_IN_BUTTON_PLUGIN_URL=http://localhost:8088/plugins/sign-in-button-plugin.js
-      - DISPLAY=page
-      - GRANT_TYPE=authorization_code
-      - CLAIMS_LOCALES=en
-      - SCOPE_USER_PROFILE=openid profile
-      - CLAIMS_USER_PROFILE=%7B%22userinfo%22%3A%7B%22birthdate%22%3A%7B%22essential%22%3Atrue%7D%2C%22verified_claims%22%3A%5B%7B%22verification%22%3A%7B%22trust_framework%22%3A%7B%22value%22%3A%22ABC%20TF%22%7D%2C%22verification_process%22%3Anull%7D%2C%22claims%22%3A%7B%22phone_number%22%3A%7B%22essential%22%3Atrue%7D%7D%7D%2C%7B%22verification%22%3A%7B%22trust_framework%22%3A%7B%22value%22%3A%22XYZ%20TF%22%7D%7D%2C%22claims%22%3A%7B%22name%22%3A%7B%22essential%22%3Atrue%7D%7D%7D%5D%7D%2C%22id_token%22%3A%7B%7D%7D
-      - CLAIMS_REGISTRATION=%7B%22userinfo%22:%7B%22given_name%22:%7B%22essential%22:true%7D,%22phone_number%22:%7B%22essential%22:false%7D,%22email%22:%7B%22essential%22:true%7D,%22picture%22:%7B%22essential%22:false%7D,%22gender%22:%7B%22essential%22:false%7D,%22birthdate%22:%7B%22essential%22:false%7D,%22address%22:%7B%22essential%22:false%7D%7D,%22id_token%22:%7B%7D%7D
-      - DEFAULT_LANG=en
-      - FALLBACK_LANG=%7B%22label%22%3A%22English%22%2C%22value%22%3A%22en%22%7D
-      - PAR_CALLBACK_NAME=get_requestUri1
-      - PAR_CALLBACK_TIMEOUT=5000
-      - DPOP_CALLBACK_NAME=get_dpop_jkt1
-      - CODE_CHALLENGE=get_code_challenge
-      - AUTHORIZE_ENDPOINT=/oauth2/authorize
-    volumes:
-      - ./rp-nginx.conf:/etc/nginx/nginx.conf 

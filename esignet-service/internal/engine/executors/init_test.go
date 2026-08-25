@@ -10,14 +10,17 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/suite"
+
+	"github.com/mosip/esignet/internal/clientmgmt"
 )
 
 func (ts *InitTestSuite) TestInitializeRegistersAllExecutors() {
 	t := ts.T()
-	registered := Initialize(&fakeAuthnProvider{})
+	clientSvc := clientmgmt.NewServiceWithQuerier(&stubClientQuerier{}, nil, 0, nil)
+	registered := Initialize(&fakeAuthnProvider{}, clientSvc, passthroughResourceServerProvider())
 
-	if len(registered) != 2 {
-		t.Fatalf("len(registered) = %d, want 2", len(registered))
+	if len(registered) != 3 {
+		t.Fatalf("len(registered) = %d, want 3", len(registered))
 	}
 
 	clearInputs, ok := registered[ExecutorNameEsignetClearInputs]
@@ -34,6 +37,14 @@ func (ts *InitTestSuite) TestInitializeRegistersAllExecutors() {
 	}
 	if otp.GetName() != ExecutorNameEsignetOTP {
 		t.Errorf("GetName() = %q, want %q", otp.GetName(), ExecutorNameEsignetOTP)
+	}
+
+	authz, ok := registered[ExecutorNameEsignetAuthorization]
+	if !ok {
+		t.Fatal("expected authorization executor to be registered")
+	}
+	if authz.GetName() != ExecutorNameEsignetAuthorization {
+		t.Errorf("GetName() = %q, want %q", authz.GetName(), ExecutorNameEsignetAuthorization)
 	}
 }
 

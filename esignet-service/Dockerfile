@@ -71,6 +71,9 @@ ENV DATA_DIR=${DATA_DIR_ENV} \
     PORT=8088
 
 EXPOSE 8088
+EXPOSE 9090
+EXPOSE 6060
+
 
 ENTRYPOINT ["/home/mosip/entrypoint.sh"]
 

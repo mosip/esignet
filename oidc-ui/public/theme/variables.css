@@ -1,6 +1,7 @@
 /* Default theme variables */
 :root {
   --primary-color: var(--thunderid-color-primary-main);
+  --secondary-color: var(--thunderid-color-secondary-main);
   --login-card-box-color: #bcc0c7;
   --login-card-box-hover-color: var(--primary-color);
   --login-card-box-focus-color: var(--primary-color);
@@ -162,6 +163,7 @@
   --no-record-banner-color: var(--primary-color);
   --no-record-banner-padding: 1em 1.5em;
   --selected_login_id_border_color: var(--primary-color);
+  --login_id_label_color: var(--secondary-color);
   --selected_login_id_color: var(--primary-color);
   --login_id_hover_border_color: var(--primary-color);
   --login_id_hover_color: var(--primary-color);

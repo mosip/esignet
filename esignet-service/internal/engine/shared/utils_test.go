@@ -107,6 +107,54 @@ func (ts *UtilsTestSuite) TestNormalizeClaimLocales() {
 	}
 }
 
+func (ts *UtilsTestSuite) TestAllowedAuthorizationScopes() {
+	t := ts.T()
+
+	tests := []struct {
+		name             string
+		additionalConfig map[string]any
+		want             []string
+	}{
+		{name: "nil additional_config yields nil", additionalConfig: nil, want: nil},
+		{name: "key absent yields nil", additionalConfig: map[string]any{}, want: nil},
+		{name: "value is not a []any yields nil", additionalConfig: map[string]any{AllowedAuthorizationScopesKey: "payment:pay"}, want: nil},
+		{name: "empty []any yields empty (non-nil) slice", additionalConfig: map[string]any{AllowedAuthorizationScopesKey: []any{}}, want: []string{}},
+		{
+			name:             "[]any of strings extracted in order",
+			additionalConfig: map[string]any{AllowedAuthorizationScopesKey: []any{"payment:pay", "profile:read"}},
+			want:             []string{"payment:pay", "profile:read"},
+		},
+		{
+			name:             "non-string items in []any are dropped",
+			additionalConfig: map[string]any{AllowedAuthorizationScopesKey: []any{"payment:pay", 42, "profile:read"}},
+			want:             []string{"payment:pay", "profile:read"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := AllowedAuthorizationScopes(tt.additionalConfig)
+			if tt.want == nil {
+				if got != nil {
+					t.Fatalf("AllowedAuthorizationScopes(%v) = %v, want nil", tt.additionalConfig, got)
+				}
+				return
+			}
+			if got == nil {
+				t.Fatalf("AllowedAuthorizationScopes(%v) returned nil, want non-nil slice", tt.additionalConfig)
+			}
+			if len(got) != len(tt.want) {
+				t.Fatalf("AllowedAuthorizationScopes(%v) = %v, want %v", tt.additionalConfig, got, tt.want)
+			}
+			for i := range got {
+				if got[i] != tt.want[i] {
+					t.Fatalf("AllowedAuthorizationScopes(%v) = %v, want %v", tt.additionalConfig, got, tt.want)
+				}
+			}
+		})
+	}
+}
+
 func assertTenDigitNumeric(t *testing.T, id string) {
 	t.Helper()
 	if len(id) != 10 {

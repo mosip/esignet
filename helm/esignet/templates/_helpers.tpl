@@ -20,6 +20,35 @@ Return the proper Docker Image Registry Secret Names
 {{- end -}}
 
 {{/*
+Return GOMEMLIMIT for the Go esignet-service binary.
+Uses additionalResources.goMemLimit verbatim if explicitly set. Otherwise derives
+~90% of resources.limits.memory on every render, so it can never go stale when the
+memory limit changes. Only Ki/Mi/Gi/Ti suffixes (or unitless bytes) are supported
+for auto-derivation, matching every memory value used across this chart's values
+files; anything else requires an explicit additionalResources.goMemLimit override.
+Returns "" if neither is set/derivable, meaning GOMEMLIMIT is omitted.
+*/}}
+{{- define "esignet.goMemLimit" -}}
+{{- $limits := (.Values.resources | default dict).limits | default dict -}}
+{{- if .Values.additionalResources.goMemLimit -}}
+{{- .Values.additionalResources.goMemLimit -}}
+{{- else if $limits.memory -}}
+{{- $mem := $limits.memory | toString -}}
+{{- $num := regexFind "^[0-9]+" $mem -}}
+{{- $unit := regexFind "[A-Za-z]+$" $mem -}}
+{{- if and $num (or (eq $unit "Ki") (eq $unit "Mi") (eq $unit "Gi") (eq $unit "Ti") (eq $unit "")) -}}
+{{- $suffix := "" -}}
+{{- if $unit -}}
+{{- $suffix = printf "%sB" $unit -}}
+{{- end -}}
+{{- printf "%d%s" (div (mul (atoi $num) 9) 10) $suffix -}}
+{{- else -}}
+{{- fail (printf "additionalResources.goMemLimit: cannot auto-derive GOMEMLIMIT from resources.limits.memory %q (unsupported unit %q); set additionalResources.goMemLimit explicitly instead, e.g. \"2025MiB\"" $mem $unit) -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Create the name of the service account to use
 */}}
 {{- define "esignet.serviceAccountName" -}}

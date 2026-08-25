@@ -1,0 +1,85 @@
+{
+  "_comment": [
+    "mosipid plugin. Everything identifying a real person or environment is left",
+    "empty here on purpose — put it in config.local.json (gitignored) or the",
+    "environment. Required there: esignet.base_url, esignet.identity.individual_id,",
+    "esignet.otp.ws_url, esignet.pms.*, keycloak.token_url, keycloak.client_secret.",
+    "",
+    "Test OIDC clients are registered through PMS (not eSignet client-mgmt) so IDA",
+    "gets the partner+policy binding; the partner and policy must already be",
+    "onboarded on the target environment.",
+    "",
+    "Two conformance plans run back to back, each with its own client/jwks file",
+    "(both gitignored — see conformance-suite-private/, and data/conformance/conformance-config.example.json",
+    "for the template). The fapi2 entry pins profile=full because only",
+    "data/conformance/oidcc-test-plan.smoke.json exists; leaving it on run.profile=smoke",
+    "would look for a smoke list it has none of. FAPI also drives two clients, so",
+    "its config_file needs client AND client2 filled in — both registered through",
+    "PMS, same as the oidcc one.",
+    "",
+    "To run just the oidcc plan: drop the second entry (or point both config_file",
+    "values at the same file if the same clients are registered for both).",
+    "",
+    "Run: ./run-all.sh -c data/config/config.mosip.json"
+  ],
+
+  "conformance": {
+    "base_url": "https://localhost.emobix.co.uk:8443",
+    "tls_verify": false
+  },
+
+  "plans": [
+    {
+      "name": "oidcc-test-plan",
+      "variant": {
+        "client_auth_type": "private_key_jwt",
+        "response_type": "code",
+        "response_mode": "default",
+        "client_registration": "static_client"
+      },
+      "config_file": "conformance-suite-private/esignet-config.json"
+    },
+    {
+      "name": "fapi2-security-profile-final-test-plan",
+      "variant": {
+        "client_auth_type": "private_key_jwt",
+        "sender_constrain": "dpop",
+        "authorization_request_type": "simple",
+        "openid": "openid_connect",
+        "fapi_profile": "plain_fapi"
+      },
+      "config_file": "conformance-suite-private/esignet-fapi2-config.json",
+      "profile": "full"
+    }
+  ],
+
+  "keycloak": {
+    "client_id": "mosip-pms-client"
+  },
+
+  "esignet": {
+    "provider": "mosip",
+    "auth_factor": "otp",
+    "identity": { "individual_id": "", "id_type": "uin" },
+    "credentials": { "username": "", "password": "" },
+    "otp": { "source": "dynamic", "ws_url": "", "recipient_email": "" },
+    "pms": { "base_url": "", "auth_partner_id": "", "policy_id": "" }
+  },
+
+  "api": {
+    "tags": ""
+  },
+
+  "e2e": {
+    "spec": "data/scenarios/e2e-scenarios-mosip.json",
+    "auth_factors": [],
+    "include": [],
+    "exclude": []
+  },
+
+  "run": {
+    "surfaces": ["conformance", "api", "e2e"],
+    "profile": "smoke",
+    "debug_show_secrets": false
+  }
+}

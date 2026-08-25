@@ -9,8 +9,8 @@ system:
   "design.resolve.error.missing_id_description": '"id" வினவல் அளவுரு தேவை'
   "design.resolve.error.unsupported_type": ஆதரிக்கப்படாத தீர்மான வகை
   "design.resolve.error.unsupported_type_description": குறிப்பிட்ட தீர்மான வகை இன்னும் ஆதரிக்கப்படவில்லை. தற்போது \"APP\" வகை மட்டுமே ஆதரிக்கப்படுகிறது
-  "error.actor_not_found": நடிகர் கண்டுபிடிக்கப்படவில்லை
-  "error.actor_not_found_description": கோரப்பட்ட நடிகர் இல்லை
+  "error.actor_not_found": செயற்படுநர் கண்டுபிடிக்கப்படவில்லை
+  "error.actor_not_found_description": கோரப்பட்ட செயற்படுநர் இல்லை
   "error.agentservice.agent_already_exists_with_client_id": கிளையன்ட் ID ஏற்கனவே பயன்பாட்டில் உள்ளது
   "error.agentservice.agent_already_exists_with_client_id_description": அதே கிளையன்ட் ID கொண்ட ஒரு நிறுவனம் ஏற்கனவே உள்ளது
   "error.agentservice.agent_already_exists_with_name": முகவர் ஏற்கனவே உள்ளது
@@ -677,8 +677,8 @@ system:
   "error.internal_server_error_description": கோரிக்கையை செயலாக்கும் போது எதிர்பாராத பிழை ஏற்பட்டது
   "error.jweservice.decoding_jwe_error": JWE டிகோட் பிழை
   "error.jweservice.decoding_jwe_error_description": JWE டோக்கனை டிகோட் செய்யும் போது பிழை ஏற்பட்டது
-  "error.jweservice.decryption_failed": JWE மறைகுறியாக்கம் தோல்வியடைந்தது
-  "error.jweservice.decryption_failed_description": JWE டோக்கனை மறைகுறியாக்குவதில் தோல்வி
+  "error.jweservice.decryption_failed": JWE மறைகுறி நீக்கம் தோல்வியடைந்தது
+  "error.jweservice.decryption_failed_description": JWE டோக்கனை மறைகுறி நீக்குவதில் தோல்வி
   "error.jweservice.unsupported_algorithm": ஆதரிக்கப்படாத JWE வழிமுறை
   "error.jweservice.unsupported_algorithm_description": குறிப்பிட்ட JWE வழிமுறை ஆதரிக்கப்படவில்லை
   "error.jweservice.unsupported_encryption_algorithm": ஆதரிக்கப்படாத குறியாக்க வழிமுறை
@@ -1198,6 +1198,8 @@ header:
 input:
   uin_label: UIN/VID
   uin_placeholder: உங்கள் UIN/VID ஐ உள்ளிடவும்
+  policy_number_label: பாலிசி எண்
+  policy_number_placeholder: உங்கள் பாலிசி எண்ணை உள்ளிடவும்
   mobile_label: மொபைல் எண்
   mobile_placeholder: மொபைல் எண்ணை உள்ளிடவும்
   email_label: மின்னஞ்சல்
@@ -1236,15 +1238,36 @@ biometric:
   title: உங்கள் பயோமெட்ரிக்ஸை வழங்கவும்
 
 consent:
-  title: "பின்வருவனவற்றுக்கு அணுகல் கோருகிறது:"
-  description: இந்த ஆப் பின்வரும் தகவல்களை அணுக விரும்புகிறது. தயவுசெய்து மதிப்பாய்வு செய்து நீங்கள் என்ன பகிர விரும்புகிறீர்கள் என்பதைத் தேர்வுசெய்யுங்கள்.
+  title: "பின்வருவனவற்றை அணுக விரும்புகிறது:"
+  description: இந்த பயன்பாடு பின்வரும் தகவலை அணுக விரும்புகிறது. மதிப்பாய்வு செய்து நீங்கள் பகிர விரும்புவதைத் தேர்ந்தெடுக்கவும்.
   allow: அனுமதி
-  deny: மறுக்கவும்
-  timer_label: தயவுசெய்து உரிய நடவடிக்கை எடுங்கள்
-  essential: அத்தியாவசிய உரிமைகோரல்கள்
-  optional: தன்னார்வ உரிமைகோரல்கள்
-  essential_info: சேவை வழங்குநரால் தேவைப்படும் கட்டாய பயனர் தகவல்
-  optional_info: குடியிருப்பாளர் சேவை வழங்குநருடன் பகிர்ந்துகொள்ள தேர்வுசெய்யக்கூடிய கூடுதல் பயனர் தகவல்
+  deny: மறு
+  timer_label: தயவுசெய்து பொருத்தமான நடவடிக்கையை எடுக்கவும்
+  essential_claims: அத்தியாவசிய தகவல்கள்
+  optional_claims: விருப்பத் தகவல்கள்
+  authorize_scope: நோக்கங்களை அங்கீகரிக்கவும்
+  essential_claims.info: சேவை வழங்குநரால் தேவைப்படும் கட்டாய பயனர் தகவல்
+  optional_claims.info: சேவை வழங்குநருடன் பகிர்ந்துகொள்ள குடியிருப்பாளர் தேர்வு செய்யக்கூடிய கூடுதல் பயனர் தகவல்
+  authorize_scope.info: உங்களுக்காக இந்த பாதுகாக்கப்பட்ட சேவைகளை அணுக சேவை வழங்குநரை அனுமதிக்கிறது
+  name: முழு பெயர்
+  given_name: பெயர்
+  middle_name: நடுப்பெயர்
+  phone: தொலைபேசி
+  phone_number: தொலைபேசி எண்
+  phone_number_verified: தொலைபேசி எண் சரிபார்க்கப்பட்டது
+  email: மின்னஞ்சல் முகவரி
+  email_verified: மின்னஞ்சல் முகவரி சரிபார்க்கப்பட்டது
+  address: முகவரி
+  birthdate: பிறந்த தேதி
+  gender: பாலினம்
+  picture: படம்
+  preferred_username: விருப்பமான பயனர்பெயர்
+  locale: மொழி/பிராந்திய அமைப்பு
+  nickname: புனைப்பெயர்
+  family_name: குடும்பப் பெயர்
+  zoneinfo: நேர மண்டலம்
+  profile: சுயவிவரம்
+  required: தேவை
 
 signin:
   images.app_logo.alt: பயன்பாட்டு லோகோ
@@ -1258,6 +1281,8 @@ validation:
   pattern.invalid: தவறான வடிவம்
   minLength.invalid: மதிப்பு மிகவும் குறுகியது
   maxLength.invalid: மதிப்பு மிகவும் நீளமானது
+  policy.numeric: பாலிசி எண்ணில் எண்கள் மட்டுமே இருக்க வேண்டும்
+  policy.length: பாலிசி எண் 8 முதல் 50 இலக்கங்களுக்கு இடையில் இருக்க வேண்டும்
 
 validations:
   required.field.error: இந்த புலம் தேவை
@@ -1278,7 +1303,7 @@ app:
   network_error.title: இணைய இணைப்பு இல்லை
   network_error.description: உங்கள் நெட்வொர்க் இணைப்பை சரிபார்த்து மீண்டும் முயற்சிக்கவும்.
   network_error.try_again: மீண்டும் முயற்சிக்கவும்
-  otp.resend_timer: நீங்கள் OTP ஐ மீண்டும் அனுப்பலாம்
+  otp.resend_timer: OTP ஐ மீண்டும் அனுப்ப மீதமுள்ள நேரம்
   otp.timed_out: நேரம் முடிந்தது
   otp.submit: சமர்ப்பிக்கவும்
   back: பின்னால்

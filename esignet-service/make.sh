@@ -57,7 +57,7 @@ SIGNING_CERT=$KEY_DIR/signing.crt
 : "${DOCKER_IMAGE:=esignet:latest}"
 : "${GOLANGCI_LINT_VERSION:=latest}"
 : "${SQLC_VERSION:=v1.29.0}"
-: "${THUNDER_BRANCH:=main}"
+: "${THUNDER_BRANCH:=1.0.x}"
 : "${RACE:=1}"   # set RACE=0 if no C toolchain (go test -race needs gcc on Windows)
 # Local builds default to a static, cgo-free binary, which drops the PKCS11
 # (HSM) keystore backend down to a stub that errors at startup — use
@@ -78,41 +78,22 @@ go_mod_write() {
 
 # --- targets -----------------------------------------------------------------
 
-target_keys() { ## Generate local TLS signing key and certificate
-  need openssl
-  mkdir -p "$KEY_DIR"
-  if [ -f "$SIGNING_KEY" ] && [ -f "$SIGNING_CERT" ]; then
-    echo "keys: $SIGNING_KEY and $SIGNING_CERT already exist"
-  else
-    # MSYS_NO_PATHCONV / MSYS2_ARG_CONV_EXCL stop Git Bash from rewriting
-    # "/CN=esignet" into "C:/Program Files/Git/CN=esignet".
-    MSYS_NO_PATHCONV=1 MSYS2_ARG_CONV_EXCL='*' \
-      openssl req -x509 -newkey rsa:2048 \
-        -keyout "$SIGNING_KEY" -out "$SIGNING_CERT" \
-        -days 3650 -nodes -subj "/CN=esignet"
-    echo "keys: wrote $SIGNING_KEY and $SIGNING_CERT"
-  fi
-}
-
 target_build() { ## Compile production binary (out/esignet[.exe])
   need go
-  target_keys
   mkdir -p "$OUT_DIR"
   CGO_ENABLED="$CGO_ENABLED" go build -trimpath -ldflags="-s -w" -o "$BINARY" "$CMD"
   echo "build: wrote $BINARY"
 }
 
 target_run() { ## Run with go run (development)
-  target_keys
   PORT="$PORT" \
   MOSIP_ESIGNET_HOST="$MOSIP_ESIGNET_HOST" \
   DATA_DIR="$DATA_DIR" \
-  MOSIP_ESIGNET_AUTHN_PROVIDER="${MOSIP_ESIGNET_AUTHN_PROVIDER:-mosip}" \
+  MOSIP_ESIGNET_AUTHN_PROVIDER="${MOSIP_ESIGNET_AUTHN_PROVIDER:-mock}" \
     go run "$CMD"
 }
 
 target_test() { ## Run unit tests (race + coverage; RACE=0 to disable race)
-  target_keys
   if [ "$RACE" = "1" ]; then
     go test -race -cover ./...
   else
@@ -121,7 +102,6 @@ target_test() { ## Run unit tests (race + coverage; RACE=0 to disable race)
 }
 
 target_coverage() { ## Run tests and write coverage profile (coverage.out)
-  target_keys
   if [ "$RACE" = "1" ]; then
     go test -race -coverprofile=coverage.out -covermode=atomic ./...
   else
@@ -165,7 +145,7 @@ target_docker_run() { ## Run container mapped to PORT (default 8080)
   target_docker_build
   docker run --rm -p "$PORT:8088" \
     -e MOSIP_ESIGNET_HOST="$MOSIP_ESIGNET_HOST" \
-    -e MOSIP_ESIGNET_AUTHN_PROVIDER="${MOSIP_ESIGNET_AUTHN_PROVIDER:-mosip}" \
+    -e MOSIP_ESIGNET_AUTHN_PROVIDER="${MOSIP_ESIGNET_AUTHN_PROVIDER:-mock}" \
     -e CRYPTO_ENCRYPTION_KEY="${CRYPTO_ENCRYPTION_KEY:-}" \
     "$DOCKER_IMAGE"
 }
@@ -188,13 +168,19 @@ target_sqlc_install() { ## Install sqlc
   echo "installed: $(go env GOPATH)/bin/sqlc"
 }
 
-target_update_thunder() { ## Update thunder replace directive to latest commit on THUNDER_BRANCH
+target_update_thunder() { ## Update thunder replace directive to latest commit on THUNDER_BRANCH (branch or tag name)
   need go
   need git
-  echo "Fetching latest commit on branch '$THUNDER_BRANCH'..."
+  echo "Fetching latest commit on ref '$THUNDER_BRANCH'..."
   local sha version
+  # THUNDER_BRANCH may name a branch or a tag; try both. An annotated tag
+  # resolves to two ls-remote rows (the tag object and a "^{}" peeled row
+  # for the commit it points at) — take the peeled one when present.
   sha="$(git ls-remote https://github.com/thunder-id/thunderid.git "refs/heads/$THUNDER_BRANCH" | awk '{print $1}')"
-  if [ -z "$sha" ]; then echo "error: branch '$THUNDER_BRANCH' not found"; exit 1; fi
+  if [ -z "$sha" ]; then
+    sha="$(git ls-remote https://github.com/thunder-id/thunderid.git "refs/tags/$THUNDER_BRANCH" "refs/tags/$THUNDER_BRANCH^{}" | awk '{print $1}' | tail -1)"
+  fi
+  if [ -z "$sha" ]; then echo "error: branch or tag '$THUNDER_BRANCH' not found"; exit 1; fi
   # Resolve the exact SHA we just fetched (the Makefile resolved the branch
   # name again, which could race with new pushes).
   version="$(GOPROXY=direct go_mod_write list -m -f '{{.Version}}' "$THUNDER_MODULE@$sha")"
@@ -238,7 +224,6 @@ Usage: ./make.sh <target> [<target> ...] [VAR=VALUE ...]
 
 Build
   all                Alias for build
-  keys               Generate local TLS signing key and certificate
   build              Compile production binary ($BINARY, CGO_ENABLED=$CGO_ENABLED — set
                      CGO_ENABLED=1 for real PKCS11/HSM support; default is a
                      static binary where PKCS11 stubs out to a startup error
@@ -271,15 +256,7 @@ Environment (override on the command line or in .env):
   PORT=$PORT
   MOSIP_ESIGNET_HOST=$MOSIP_ESIGNET_HOST
   DATA_DIR=$DATA_DIR
-  MOSIP_ESIGNET_AUTHN_PROVIDER=${MOSIP_ESIGNET_AUTHN_PROVIDER:-} (mosip|sunbird, default mosip)
-  MOSIP_API_INTERNAL_HOST (optional, used to derive IDA endpoint URLs)
-  MOSIP_ESIGNET_MISP_KEY (optional, used in IDA endpoint paths)
-  MOSIP_ESIGNET_AUTHENTICATOR_IDA_CERT_URL (optional override)
-  MOSIP_ESIGNET_AUTHENTICATOR_IDA_SEND_OTP_URL (optional override)
-  MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC_AUTH_URL (optional override)
-  MOSIP_ESIGNET_AUTHENTICATOR_IDA_KYC_EXCHANGE_URL (optional override)
-  MOSIP_P12_PATH (required for MOSIP auth)
-  MOSIP_P12_PASSWORD (required for MOSIP auth)
+  MOSIP_ESIGNET_AUTHN_PROVIDER=${MOSIP_ESIGNET_AUTHN_PROVIDER:-} (mosip|sunbird|mock, default mosip)
 
 EOF
 }
@@ -291,7 +268,6 @@ for t in "${targets[@]}"; do
   case "$t" in
     help)            target_help ;;
     all|build)       target_build ;;
-    keys)            target_keys ;;
     run|dev)         target_run ;;
     test)            target_test ;;
     coverage)        target_coverage ;;

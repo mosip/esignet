@@ -30,7 +30,7 @@ func (ts *JwksTestSuite) TestJWKSCache_GetKey_RSA() {
 	}))
 	defer srv.Close()
 
-	cache := NewJWKSCache(srv.URL, time.Minute)
+	cache := NewJWKSCache(srv.URL, time.Minute, http.DefaultClient)
 	key, err := cache.GetKey(context.Background(), "rsa-1")
 	if err != nil {
 		t.Fatalf("GetKey: %v", err)
@@ -58,7 +58,7 @@ func (ts *JwksTestSuite) TestJWKSCache_GetKey_UnknownKidForcesRefresh() {
 	}))
 	defer srv.Close()
 
-	cache := NewJWKSCache(srv.URL, time.Minute)
+	cache := NewJWKSCache(srv.URL, time.Minute, http.DefaultClient)
 	if _, err := cache.GetKey(context.Background(), "rsa-1"); err != nil {
 		t.Fatalf("GetKey: %v", err)
 	}
@@ -80,7 +80,7 @@ func (ts *JwksTestSuite) TestJWKSCache_GetKey_ExpiredTTLRefetches() {
 	}))
 	defer srv.Close()
 
-	cache := NewJWKSCache(srv.URL, time.Millisecond)
+	cache := NewJWKSCache(srv.URL, time.Millisecond, http.DefaultClient)
 	if _, err := cache.GetKey(context.Background(), "rsa-1"); err != nil {
 		t.Fatalf("GetKey: %v", err)
 	}
@@ -100,7 +100,7 @@ func (ts *JwksTestSuite) TestJWKSCache_GetKey_HTTPError() {
 	}))
 	defer srv.Close()
 
-	cache := NewJWKSCache(srv.URL, time.Minute)
+	cache := NewJWKSCache(srv.URL, time.Minute, http.DefaultClient)
 	if _, err := cache.GetKey(context.Background(), "rsa-1"); err == nil {
 		t.Fatal("expected error on non-200 response")
 	}
@@ -108,7 +108,7 @@ func (ts *JwksTestSuite) TestJWKSCache_GetKey_HTTPError() {
 
 func (ts *JwksTestSuite) TestJWKSCache_GetKey_TransportError() {
 	t := ts.T()
-	cache := NewJWKSCache("http://127.0.0.1:0", time.Minute)
+	cache := NewJWKSCache("http://127.0.0.1:0", time.Minute, http.DefaultClient)
 	if _, err := cache.GetKey(context.Background(), "rsa-1"); err == nil {
 		t.Fatal("expected error on transport failure")
 	}
@@ -121,7 +121,7 @@ func (ts *JwksTestSuite) TestJWKSCache_GetKey_InvalidJSON() {
 	}))
 	defer srv.Close()
 
-	cache := NewJWKSCache(srv.URL, time.Minute)
+	cache := NewJWKSCache(srv.URL, time.Minute, http.DefaultClient)
 	if _, err := cache.GetKey(context.Background(), "rsa-1"); err == nil {
 		t.Fatal("expected error on invalid JSON")
 	}
@@ -139,7 +139,7 @@ func (ts *JwksTestSuite) TestJWKSCache_SkipsEncryptionKeysAndUnparsableKeys() {
 	}))
 	defer srv.Close()
 
-	cache := NewJWKSCache(srv.URL, time.Minute)
+	cache := NewJWKSCache(srv.URL, time.Minute, http.DefaultClient)
 	for _, kid := range []string{"enc-1", "bad-1", "unsupported-1"} {
 		if _, err := cache.GetKey(context.Background(), kid); err == nil {
 			t.Errorf("expected %q to be excluded from the cache", kid)

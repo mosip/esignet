@@ -50,10 +50,13 @@ type Config struct {
 
 	// ThumbprintCacheExpiry is a forward-looking hook for caching the
 	// thumbprint -> key_alias resolution (the one thing the Java reference
-	// caches — see resolveDecryptionKey's doc comment), mirroring the
-	// precedent already set by keymanager.Config.KeyCacheExpiry (itself
-	// defined but unused today). Not read anywhere yet — resolveDecryptionKey
-	// always queries GetKeyAliasByCertThumbprint directly.
+	// caches — see resolveDecryptionKey's doc comment), mirroring the same
+	// pattern keymanager.Config.KeyCacheExpiry now uses for its own
+	// (appID, refID) -> current-key resolution caches. Not read anywhere
+	// yet — resolveDecryptionKey always queries GetKeyAliasByCertThumbprint
+	// directly; unlike KeyCacheExpiry's caches, this would need to key on
+	// a per-alias identifier that Decrypt/JWTDecrypt (not just "current")
+	// can also resolve by, which is out of scope here.
 	// Env: CRYPTOMANAGER_THUMBPRINT_CACHE_EXPIRE_MINS — default 0 (disabled)
 	ThumbprintCacheExpiry time.Duration
 }

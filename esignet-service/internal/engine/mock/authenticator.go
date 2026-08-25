@@ -17,9 +17,9 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
 
@@ -41,6 +41,12 @@ const (
 
 	// identifierKeyIndividualID is the identifiers-map key that carries the individual ID.
 	identifierKeyIndividualID = "username"
+
+	// signingCertsCacheTTL is how long a fetched signing-certificate list is
+	// served from cache before GetSigningCertificates fetches a fresh one.
+	// Unlike the mosip provider, mock's certificate endpoint isn't gated by
+	// an auth token with its own expiry, so a fixed TTL is used instead.
+	signingCertsCacheTTL = 5 * time.Minute
 )
 
 type mockAuthnProvider struct {
@@ -48,6 +54,14 @@ type mockAuthnProvider struct {
 	client    *http.Client
 	clientSvc *clientmgmt.Service
 	cfg       Config
+
+	// certsMu guards cachedCerts/certsExpiry, the last signing-certificate
+	// list fetched by GetSigningCertificates. Cached for signingCertsCacheTTL
+	// so callers (e.g. JWKS/discovery) stop paying an HTTP round-trip on
+	// every request.
+	certsMu     sync.RWMutex
+	cachedCerts []shared.CertificateData
+	certsExpiry time.Time
 }
 
 // NewMockAuthnProvider creates a new mock authentication provider that talks to the
@@ -205,10 +219,103 @@ func (p *mockAuthnProvider) SendOTP(ctx context.Context, identifiers map[string]
 
 	result, err := p.callSendOtpEndpoint(ctx, requestBytes, clientDtl.RpID, clientDtl.ClientID)
 	if err != nil {
-		return nil, shared.SendOTPFailedError
+		return nil, mapSendOTPError(err)
 	}
 	result.TransactionID = transactionID
 	return result, nil
+}
+
+type mockOTPError struct{ code string }
+
+func (e *mockOTPError) Error() string { return "mock send-otp error: " + e.code }
+
+func mapSendOTPError(err error) *common.ServiceError {
+	var otpErr *mockOTPError
+	if !errors.As(err, &otpErr) || otpErr.code == "" {
+		return shared.SendOTPFailedError
+	}
+	svcErr := *shared.SendOTPFailedError // re-key the base error to the mock code
+	svcErr.Code = otpErr.code
+	svcErr.Error.Key = otpErr.code
+	svcErr.ErrorDescription.Key = otpErr.code + "_description"
+	return &svcErr
+}
+
+// firstNonEmptyErrorCode returns the first non-empty ErrorCode in errs, or "" if
+// there is none, so a blank leading code does not mask a valid later one.
+func firstNonEmptyErrorCode(errs []Error) string {
+	for _, e := range errs {
+		if e.ErrorCode != "" {
+			return e.ErrorCode
+		}
+	}
+	return ""
+}
+
+func (p *mockAuthnProvider) GetSigningCertificates(ctx context.Context) ([]shared.CertificateData, *common.ServiceError) {
+	p.certsMu.RLock()
+	cached, expiry := p.cachedCerts, p.certsExpiry
+	p.certsMu.RUnlock()
+	if cached != nil && time.Now().Before(expiry) {
+		return cached, nil
+	}
+
+	certs, svcErr := p.fetchSigningCertificates(ctx)
+	if svcErr != nil {
+		return nil, svcErr
+	}
+
+	p.certsMu.Lock()
+	p.cachedCerts = certs
+	p.certsExpiry = time.Now().Add(signingCertsCacheTTL)
+	p.certsMu.Unlock()
+
+	return certs, nil
+}
+
+// fetchSigningCertificates performs the actual HTTP GET + JSON parse against
+// p.cfg.CertificateURL, unconditionally (no cache check).
+func (p *mockAuthnProvider) fetchSigningCertificates(ctx context.Context) ([]shared.CertificateData, *common.ServiceError) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, p.cfg.CertificateURL, nil)
+	if err != nil {
+		applog.GetLogger().Error(ctx, "Failed to certificates create request", applog.Error(err))
+		return nil, shared.CertificateFetchFailed
+	}
+	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+
+	resp, err := p.client.Do(req)
+	if err != nil {
+		applog.GetLogger().Error(ctx, "Failed to fetch certificates", applog.Error(err))
+		return nil, shared.CertificateFetchFailed
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	// check the response status code before parsing the body
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		applog.GetLogger().Error(ctx, "Failed to parse certificate response",
+			applog.Any("statusCode", resp.StatusCode))
+		return nil, shared.CertificateFetchFailed
+	}
+
+	// Parse response
+	var wrapper CertificateResponseWrapper
+	if err := json.NewDecoder(resp.Body).Decode(&wrapper); err != nil {
+		applog.GetLogger().Error(ctx, "Failed to parse certificate response", applog.Error(err))
+		return nil, shared.CertificateFetchFailed
+	}
+
+	// Success path
+	if wrapper.Response != nil {
+		certs := make([]shared.CertificateData, 0, len(wrapper.Response.AllCertificates))
+		for _, certData := range wrapper.Response.AllCertificates {
+			certs = append(certs, shared.CertificateData{
+				KeyID:       certData.KeyID,
+				Certificate: certData.CertificateData})
+		}
+		return certs, nil
+	}
+
+	return nil, shared.CertificateFetchFailed
 }
 
 // setChallenge inspects identifiers and credentials for a supported auth factor and
@@ -258,7 +365,7 @@ func kbiChallenge(credentials map[string]any) (string, bool) {
 
 func acceptedClaimsFromRequest(requestedAttributes *providers.RequestedAttributes) []string {
 	if requestedAttributes == nil || len(requestedAttributes.Attributes) == 0 {
-		return []string{"sub", "name"}
+		return []string{"sub"}
 	}
 	claims := make([]string, 0, len(requestedAttributes.Attributes))
 	for claim := range requestedAttributes.Attributes {
@@ -289,7 +396,7 @@ func (p *mockAuthnProvider) getApplicationAndClientID(ctx context.Context, runti
 func (p *mockAuthnProvider) callKycAuthEndpoint(ctx context.Context, requestBody []byte, relyingPartyID, clientID string) (string, string, error) {
 	endpointURL := buildEndpointURL(p.cfg.KycAuthURL, relyingPartyID, clientID)
 
-	req, err := http.NewRequest(http.MethodPost, endpointURL, bytes.NewReader(requestBody))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpointURL, bytes.NewReader(requestBody))
 	if err != nil {
 		return "", "", err
 	}
@@ -301,16 +408,13 @@ func (p *mockAuthnProvider) callKycAuthEndpoint(ctx context.Context, requestBody
 	}
 	defer func() { _ = resp.Body.Close() }()
 
-	bodyBytes, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", "", err
-	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		bodyBytes, _ := io.ReadAll(io.LimitReader(resp.Body, 64<<10))
 		return "", "", fmt.Errorf("unexpected kyc-auth status: %d - %s", resp.StatusCode, string(bodyBytes))
 	}
 
 	var wrapper ResponseWrapper[KycAuthResponseDtoV2]
-	if err := json.Unmarshal(bodyBytes, &wrapper); err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(&wrapper); err != nil {
 		return "", "", fmt.Errorf("failed to parse kyc-auth response: %w", err)
 	}
 
@@ -332,7 +436,7 @@ func (p *mockAuthnProvider) callKycAuthEndpoint(ctx context.Context, requestBody
 func (p *mockAuthnProvider) callKycExchangeEndpoint(ctx context.Context, requestBody []byte, relyingPartyID, clientID string) (*providers.AttributesResponse, error) {
 	endpointURL := buildEndpointURL(p.cfg.KycExchangeV3URL, relyingPartyID, clientID)
 
-	req, err := http.NewRequest(http.MethodPost, endpointURL, bytes.NewReader(requestBody))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpointURL, bytes.NewReader(requestBody))
 	if err != nil {
 		return nil, err
 	}
@@ -344,33 +448,22 @@ func (p *mockAuthnProvider) callKycExchangeEndpoint(ctx context.Context, request
 	}
 	defer func() { _ = resp.Body.Close() }()
 
-	bodyBytes, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read kyc-exchange response: %w", err)
-	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		bodyBytes, _ := io.ReadAll(io.LimitReader(resp.Body, 64<<10))
 		return nil, fmt.Errorf("unexpected kyc-exchange status: %d - %s", resp.StatusCode, string(bodyBytes))
 	}
 
 	var wrapper ResponseWrapper[KycExchangeResponseDto]
-	if err := json.Unmarshal(bodyBytes, &wrapper); err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(&wrapper); err != nil {
 		return nil, fmt.Errorf("failed to parse kyc-exchange response: %w", err)
 	}
 
-	// Success path, currently parses the payload and returns the claims
-	// This should instead return signed JWT as is, but this can be done only when
-	// thunderID SDK supports "JWT" key in the Attributes map.
+	// Success path: the signed JWT is passed through as-is, undecoded, under
+	// providers.RawJWTAttributeKey.
 	if wrapper.Response != nil && wrapper.Response.Kyc != "" {
-		claims := jwt.MapClaims{}
-		if _, _, err := jwt.NewParser().ParseUnverified(wrapper.Response.Kyc, claims); err != nil {
-			return nil, fmt.Errorf("failed to parse KYC JWT payload: %w", err)
+		attributes := map[string]*providers.AttributeResponse{
+			providers.RawJWTAttributeKey: {Value: wrapper.Response.Kyc},
 		}
-
-		attributes := make(map[string]*providers.AttributeResponse, len(claims))
-		for k, v := range claims {
-			attributes[k] = &providers.AttributeResponse{Value: v}
-		}
-
 		return &providers.AttributesResponse{Attributes: attributes}, nil
 	}
 
@@ -388,7 +481,7 @@ func (p *mockAuthnProvider) callKycExchangeEndpoint(ctx context.Context, request
 func (p *mockAuthnProvider) callSendOtpEndpoint(ctx context.Context, requestBody []byte, relyingPartyID, clientID string) (*shared.SendOTPResult, error) {
 	endpointURL := buildEndpointURL(p.cfg.SendOtpURL, relyingPartyID, clientID)
 
-	req, err := http.NewRequest(http.MethodPost, endpointURL, bytes.NewReader(requestBody))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpointURL, bytes.NewReader(requestBody))
 	if err != nil {
 		return nil, err
 	}
@@ -400,16 +493,13 @@ func (p *mockAuthnProvider) callSendOtpEndpoint(ctx context.Context, requestBody
 	}
 	defer func() { _ = resp.Body.Close() }()
 
-	bodyBytes, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read send-otp response: %w", err)
-	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		bodyBytes, _ := io.ReadAll(io.LimitReader(resp.Body, 64<<10))
 		return nil, fmt.Errorf("unexpected send-otp status: %d - %s", resp.StatusCode, string(bodyBytes))
 	}
 
 	var wrapper ResponseWrapper[SendOtpResult]
-	if err := json.Unmarshal(bodyBytes, &wrapper); err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(&wrapper); err != nil {
 		return nil, fmt.Errorf("failed to parse send-otp response: %w", err)
 	}
 
@@ -426,8 +516,7 @@ func (p *mockAuthnProvider) callSendOtpEndpoint(ctx context.Context, requestBody
 	if len(wrapper.Errors) == 0 {
 		return nil, errors.New("send otp failed")
 	}
-	firstErr := wrapper.Errors[0]
-	return nil, fmt.Errorf("%s: %s", firstErr.ErrorCode, firstErr.Message)
+	return nil, &mockOTPError{code: firstNonEmptyErrorCode(wrapper.Errors)}
 }
 
 // ---------------------------------------------------------------------------------------------------------

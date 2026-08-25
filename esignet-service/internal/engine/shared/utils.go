@@ -15,7 +15,28 @@ import (
 
 const (
 	transactionIDKey = "provider_ext_TransactionID"
+
+	// AllowedAuthorizationScopesKey is the client additional_config key listing the
+	// authorization (non-OIDC) scopes a client is allowed to request.
+	AllowedAuthorizationScopesKey = "allowed_authorization_scopes"
 )
+
+// AllowedAuthorizationScopes extracts AllowedAuthorizationScopesKey from a client's decoded
+// additional_config. additionalConfig is always decoded from JSON, so the value is []any
+// rather than []string.
+func AllowedAuthorizationScopes(additionalConfig map[string]any) []string {
+	v, ok := additionalConfig[AllowedAuthorizationScopesKey].([]any)
+	if !ok {
+		return nil
+	}
+	scopes := make([]string, 0, len(v))
+	for _, item := range v {
+		if s, ok := item.(string); ok {
+			scopes = append(scopes, s)
+		}
+	}
+	return scopes
+}
 
 // GenerateTransactionID generates a cryptographically random 10-digit numeric string,
 // reusing any transaction id already established for this runtime context (so

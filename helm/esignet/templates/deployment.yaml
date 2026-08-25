@@ -94,12 +94,17 @@ spec:
           env:
             - name: container_user
               value: {{ .Values.containerSecurityContext.runAsUser }}
-            {{- if .Values.additionalResources.javaOpts }}
+            - name: GOMAXPROCS
+              valueFrom:
+                resourceFieldRef:
+                  resource: limits.cpu
+            {{- $goMemLimit := include "esignet.goMemLimit" . }}
+            {{- if $goMemLimit }}
+            - name: GOMEMLIMIT
+              value: {{ $goMemLimit | quote }}
+            {{- end }}
             - name: SPRING_KAFKA_CONSUMER_GROUP_ID
               value: esignet-consumer-{{ .Release.Namespace }} # Using the namespace dynamically
-            - name: JDK_JAVA_OPTIONS
-              value: {{ .Values.additionalResources.javaOpts }}
-            {{- end }}
             {{- if .Values.springConfigNameEnv }}
             - name: spring_config_name_env
               value: {{ .Values.springConfigNameEnv }}
@@ -116,11 +121,21 @@ spec:
             - name: active_profile_env
               value: {{ .Values.activeProfileEnv }}
             {{- end}}
-            {{- if .Values.extraEnvVars }}
-            {{- include "common.tplvalues.render" (dict "value" .Values.extraEnvVars "context" $) | nindent 12 }}
+            {{- range $key, $val := .Values.extraEnvVars }}
+            - name: {{ $key }}
+              {{- if kindIs "map" $val }}
+              {{- include "common.tplvalues.render" (dict "value" $val "context" $) | nindent 14 }}
+              {{- else }}
+              value: {{ $val | quote }}
+              {{- end }}
             {{- end }}
-            {{- if .Values.extraEnvVarsAdditional }}
-            {{- include "common.tplvalues.render" (dict "value" .Values.extraEnvVarsAdditional "context" $) | nindent 12 }}
+            {{- range $key, $val := .Values.extraEnvVarsAdditional }}
+            - name: {{ $key }}
+              {{- if kindIs "map" $val }}
+              {{- include "common.tplvalues.render" (dict "value" $val "context" $) | nindent 14 }}
+              {{- else }}
+              value: {{ $val | quote }}
+              {{- end }}
             {{- end }}
             {{- range $key, $val := .Values.domainConfig }}
             - name: {{ $key }}
@@ -139,9 +154,17 @@ spec:
                 name: {{ .  }}
             {{- end }}
             {{- end }}
+            {{- if .Values.metrics.enabled }}
+            - name: METRICS_PORT
+              value: {{ .Values.metrics.port | quote }}
+            {{- end }}
           ports:
             - name: spring-service
               containerPort: {{ .Values.springServicePort }}
+            {{- if .Values.metrics.enabled }}
+            - name: metrics
+              containerPort: {{ .Values.metrics.port }}
+            {{- end }}
            
           {{- if .Values.resources }}
           resources: {{- toYaml .Values.resources | nindent 12 }}

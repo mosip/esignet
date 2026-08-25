@@ -55,13 +55,11 @@ type JWKSCache struct {
 }
 
 // NewJWKSCache creates a JWKSCache that fetches keys from url and caches them for ttl.
-func NewJWKSCache(url string, ttl time.Duration) *JWKSCache {
+func NewJWKSCache(url string, ttl time.Duration, httpClient *http.Client) *JWKSCache {
 	return &JWKSCache{
-		url: url,
-		ttl: ttl,
-		client: &http.Client{
-			Timeout: 10 * time.Second,
-		},
+		url:    url,
+		ttl:    ttl,
+		client: httpClient,
 	}
 }
 

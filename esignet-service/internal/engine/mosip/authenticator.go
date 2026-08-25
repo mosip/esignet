@@ -25,9 +25,8 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
-
-	"github.com/golang-jwt/jwt/v5"
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
@@ -51,21 +50,60 @@ const (
 	mosipEnvStaging           = "Staging" // default MOSIP_ENV; see config.LoadMosipAuthn
 	runtimeKeyClientID        = "initiator_query_client_id"
 
+	// idaMPACertMismatchCode and idaMPACertExpiredCode are the IDA error
+	// codes indicating the cached IDA partner certificate is no longer
+	// valid for a KYC auth request (wrong/stale cert vs. an expired one).
+	// Only these codes should trigger dropping the cache; other KYC auth
+	// failures (bad OTP, unknown individual, etc.) don't mean the cert is bad.
+	idaMPACertMismatchCode = "IDA-MPA-003"
+	idaMPACertExpiredCode  = "IDA-MPA-004"
+
 	// mosipRequestSignAlgorithm is the JWS algorithm the "signature" header
 	// on outbound IDA requests is signed with — MOSIP IDA's partner request
 	// signing contract expects RS256 specifically (RSA PKCS#1 v1.5), not the
 	// PS256 that signature.AlgorithmForRefID would otherwise default an
 	// RSA_2048 key to.
 	mosipRequestSignAlgorithm = "RS256"
+
+	// idaPartnerCertExpiryBuffer is how far ahead of its NotAfter a cached
+	// IDA partner certificate is treated as expired, so a refetch has time
+	// to land before IDA actually rejects encryption under the old cert.
+	idaPartnerCertExpiryBuffer = 5 * time.Minute
+
+	// signingCertsExpiryBuffer is how far ahead of the auth token's expiry a
+	// cached signing-certificate list is treated as expired: the list was
+	// fetched using that token, so there's no point caching it past the
+	// point where the token needs to be refreshed anyway.
+	signingCertsExpiryBuffer = 1 * time.Minute
+
+	// signingCertsDefaultTTL is the cache lifetime used when the auth
+	// token's expiry can't be determined (e.g. it isn't a JWT, or carries no
+	// exp claim).
+	signingCertsDefaultTTL = 5 * time.Minute
 )
 
 type mosipAuthnProvider struct {
-	appConfig *config.AppConfig
-	client    *http.Client
-	clientSvc *clientmgmt.Service
-	svc       *keymanager.Service
-	sigSvc    *signature.Service
-	cfg       Config
+	appConfig     *config.AppConfig
+	client        *http.Client
+	clientSvc     *clientmgmt.Service
+	svc           *keymanager.Service
+	sigSvc        *signature.Service
+	cfg           Config
+	tokenProvider *tokenProvider
+
+	// certMu guards cachedCert, the last IDA partner certificate fetched by
+	// fetchIDAPartnerCertificate. Cached until it nears its own NotAfter, so
+	// Authenticate stops paying an HTTP round-trip per call.
+	certMu     sync.RWMutex
+	cachedCert *x509.Certificate
+
+	// certsMu guards cachedCerts, the last IDA signing-certificate list
+	// fetched by GetSigningCertificates. Cached until the auth token used to
+	// fetch it is due to expire, so JWKS/discovery calls stop paying an
+	// HTTP round-trip (plus an auth-token fetch) on every request.
+	certsMu     sync.RWMutex
+	cachedCerts []shared.CertificateData
+	certsExpiry time.Time
 }
 
 // NewMosipAuthnProvider creates a MOSIP providers.AuthnProviderManager with
@@ -73,14 +111,16 @@ type mosipAuthnProvider struct {
 // OIDC_PARTNER / RSA_2048 component master key via svc/sigSvc (see
 // getRequestSignature).
 func NewMosipAuthnProvider(cfg *config.AppConfig, clientSvc *clientmgmt.Service, client *http.Client,
-	svc *keymanager.Service, sigSvc *signature.Service) (shared.ConsolidatedAuthnProvider, error) {
+	svc *keymanager.Service, sigSvc *signature.Service, pluginConfig Config,
+	tokenProvider *tokenProvider) (shared.ConsolidatedAuthnProvider, error) {
 	provider := &mosipAuthnProvider{
-		appConfig: cfg,
-		client:    client,
-		clientSvc: clientSvc,
-		svc:       svc,
-		sigSvc:    sigSvc,
-		cfg:       LoadConfig(),
+		appConfig:     cfg,
+		client:        client,
+		clientSvc:     clientSvc,
+		svc:           svc,
+		sigSvc:        sigSvc,
+		cfg:           pluginConfig,
+		tokenProvider: tokenProvider,
 	}
 	return provider, nil
 }
@@ -88,38 +128,16 @@ func NewMosipAuthnProvider(cfg *config.AppConfig, clientSvc *clientmgmt.Service,
 func (p *mosipAuthnProvider) Authenticate(ctx context.Context, identifiers, credentials map[string]interface{},
 	metadata *providers.AuthnMetadata) (*providers.AuthnResult, *common.ServiceError) {
 
-	clientDtl, err := p.getApplicationAndClientID(ctx, metadata.RuntimeMetadata)
-	if err != nil {
-		return nil, shared.ClientNotFoundError
-	}
-
 	individualID, ok := identifiers["username"].(string)
 	if !ok || individualID == "" {
 		return nil, shared.InvalidIndividualIDError
 	}
 
-	transactionID, err := shared.GenerateTransactionID(metadata.RuntimeMetadata)
-	if err != nil {
-		return nil, shared.InvalidRequestError
-	}
-
-	claimsMetadataRequired := false
-	requestTime := GetUTCDateTime()
-	idaKycAuthRequest := &IdaKycAuthRequest{
-		ID:                     mosipKycAuthRequestID,
-		Version:                mosipRequestVersion,
-		RequestTime:            requestTime,
-		DomainURI:              p.cfg.DomainURI,
-		Env:                    p.cfg.Env,
-		ConsentObtained:        true,
-		IndividualID:           individualID,
-		TransactionID:          transactionID,
-		ClaimsMetadataRequired: &claimsMetadataRequired,
-	}
-
 	if len(credentials) == 0 {
 		return nil, shared.InvalidRequestError
 	}
+
+	requestTime := GetUTCDateTime()
 	authRequest := &AuthRequest{
 		Timestamp: requestTime,
 	}
@@ -151,6 +169,44 @@ func (p *mosipAuthnProvider) Authenticate(ctx context.Context, identifiers, cred
 	if !credentialSet {
 		return nil, shared.InvalidRequestError
 	}
+
+	transactionID, err := shared.GenerateTransactionID(metadata.RuntimeMetadata)
+	if err != nil {
+		return nil, shared.InvalidRequestError
+	}
+
+	claimsMetadataRequired := false
+	idaKycAuthRequest := &IdaKycAuthRequest{
+		ID:                     mosipKycAuthRequestID,
+		Version:                mosipRequestVersion,
+		RequestTime:            requestTime,
+		DomainURI:              p.cfg.DomainURI,
+		Env:                    p.cfg.Env,
+		ConsentObtained:        true,
+		IndividualID:           individualID,
+		TransactionID:          transactionID,
+		ClaimsMetadataRequired: &claimsMetadataRequired,
+	}
+
+	// Resolve the client and fetch the IDA partner certificate concurrently
+	// with each other and with the request-encryption work below: neither
+	// depends on the other's result, and both only gate performKycAuth at
+	// the end. clientErr takes precedence over any later error, matching
+	// the sequential lookup-then-validate order this replaces.
+	var (
+		clientDtl     clientmgmt.ClientResponse
+		clientErr     error
+		generatedCert *x509.Certificate
+		certErr       error
+		wg            sync.WaitGroup
+	)
+	wg.Go(func() {
+		clientDtl, clientErr = p.getApplicationAndClientID(ctx, metadata.RuntimeMetadata)
+	})
+	wg.Go(func() {
+		generatedCert, certErr = p.fetchIDAPartnerCertificate(ctx)
+	})
+
 	authRequestBytes, err := json.Marshal(authRequest)
 	if err != nil {
 		applog.GetLogger().Error(ctx, "Auth request marshal failed", applog.Error(err))
@@ -187,42 +243,28 @@ func (p *mosipAuthnProvider) Authenticate(ctx context.Context, identifiers, cred
 		applog.GetLogger().Error(ctx, "Auth request hash encryption failed", applog.Error(err))
 		return nil, shared.AuthenticationFailedError
 	}
-	generatedCert, err := p.fetchIDAPartnerCertificate(ctx)
-	if err != nil {
-		applog.GetLogger().Error(ctx, "IDA partner certificate fetch failed", applog.Error(err))
-		return nil, shared.AuthenticationFailedError
+
+	wg.Wait()
+	if clientErr != nil {
+		return nil, shared.ClientNotFoundError
 	}
-	encryptedSessionKey, err := AsymmetricEncrypt(generatedCert.PublicKey.(*rsa.PublicKey), symmetricKey)
-	if err != nil {
-		applog.GetLogger().Error(ctx, "Auth request session key encryption failed", applog.Error(err))
-		return nil, shared.AuthenticationFailedError
-	}
-	certThumbprint, err := GetCertificateThumbprint(generatedCert)
-	if err != nil {
-		applog.GetLogger().Error(ctx, "Auth request certificate thumbprint generation failed", applog.Error(err))
+	if certErr != nil {
+		applog.GetLogger().Error(ctx, "IDA partner certificate fetch failed", applog.Error(certErr))
 		return nil, shared.AuthenticationFailedError
 	}
 
-	idaKycAuthRequest.RequestSessionKey = B64EncodeBytes(encryptedSessionKey)
-	idaKycAuthRequest.Request = B64EncodeBytes(encryptedRequest)
-	idaKycAuthRequest.RequestHMAC = B64EncodeBytes(encryptedRequestHash)
-	idaKycAuthRequest.Thumbprint = B64EncodeBytes(certThumbprint)
-
-	requestBytes, err := json.Marshal(idaKycAuthRequest)
-	if err != nil {
-		applog.GetLogger().Error(ctx, "Auth request marshal failed", applog.Error(err))
-		return nil, shared.AuthenticationFailedError
-	}
-
-	requestSignature, err := p.getRequestSignature(ctx, requestBytes)
-	if err != nil {
-		applog.GetLogger().Error(ctx, "Auth request signature generation failed", applog.Error(err))
-		return nil, shared.AuthenticationFailedError
-	}
-
-	psut, kycToken, err := p.callKycAuthEndpoint(ctx, requestBytes, requestSignature, clientDtl.RpID, clientDtl.ClientID, claimsMetadataRequired)
+	psut, kycToken, err := p.performKycAuth(ctx, idaKycAuthRequest, generatedCert, encryptedRequest, encryptedRequestHash,
+		symmetricKey, clientDtl.RpID, clientDtl.ClientID, claimsMetadataRequired)
 	if err != nil {
 		applog.GetLogger().Error(ctx, "KYC auth endpoint call failed", applog.Error(err))
+		// The cached certificate may be stale (e.g. IDA rotated it
+		// out-of-band); drop it so the next Authenticate call fetches a
+		// fresh one instead of repeatedly failing against the same cert.
+		// Only these two IDA error codes indicate a bad/expired cert — other
+		// KYC auth failures don't warrant discarding a still-valid cache.
+		if strings.Contains(err.Error(), idaMPACertMismatchCode) || strings.Contains(err.Error(), idaMPACertExpiredCode) {
+			p.invalidateCachedIDAPartnerCertificate(ctx)
+		}
 		return nil, shared.AuthenticationFailedError
 	}
 
@@ -248,17 +290,37 @@ func (p *mosipAuthnProvider) GetAttributes(ctx context.Context, attributeToken a
 		return nil, shared.InvalidRequestError
 	}
 
-	clientDtl, err := p.getApplicationAndClientID(ctx, metadata.RuntimeMetadata)
-	if err != nil {
-		return nil, shared.ClientNotFoundError
+	// Resolve the client concurrently with building, marshaling and signing
+	// the KYC exchange request below: the client lookup is only needed for
+	// the final IDA call, so it can overlap with everything up to that
+	// point. clientFailed still takes precedence over any attributeToken
+	// issue, matching the sequential lookup-then-validate order this
+	// replaces.
+	var (
+		clientDtl clientmgmt.ClientResponse
+		clientErr error
+		wg        sync.WaitGroup
+	)
+	wg.Go(func() {
+		clientDtl, clientErr = p.getApplicationAndClientID(ctx, metadata.RuntimeMetadata)
+	})
+	clientFailed := func() bool {
+		wg.Wait()
+		return clientErr != nil
 	}
 
 	if attributeToken == nil || attributeToken == "" {
+		if clientFailed() {
+			return nil, shared.ClientNotFoundError
+		}
 		return nil, nil
 	}
 
 	tokenParts := strings.Split(attributeToken.(string), "||") // Extract KYC token, username and transaction ID from token (format "kycToken||username||transactionID")
 	if len(tokenParts) != 3 {
+		if clientFailed() {
+			return nil, shared.ClientNotFoundError
+		}
 		return nil, shared.AuthenticationFailedError
 	}
 	kycToken, username, transactionID := tokenParts[0], tokenParts[1], tokenParts[2]
@@ -287,12 +349,22 @@ func (p *mosipAuthnProvider) GetAttributes(ctx context.Context, attributeToken a
 
 	requestBytes, err := json.Marshal(idaKycExchangeRequest)
 	if err != nil {
+		if clientFailed() {
+			return nil, shared.ClientNotFoundError
+		}
 		return nil, shared.InvalidRequestError
 	}
 
 	requestSignature, err := p.getRequestSignature(ctx, requestBytes)
 	if err != nil {
+		if clientFailed() {
+			return nil, shared.ClientNotFoundError
+		}
 		return nil, shared.InvalidRequestError
+	}
+
+	if clientFailed() {
+		return nil, shared.ClientNotFoundError
 	}
 	attributesResponse, err := p.callKycExchangeEndpoint(ctx, requestBytes, requestSignature, clientDtl.RpID, clientDtl.ClientID)
 	if err != nil {
@@ -352,11 +424,117 @@ func (p *mosipAuthnProvider) SendOTP(ctx context.Context, identifiers map[string
 	}
 	sendOTPResult, err := p.callSendOtpEndpoint(ctx, otpRequestBytes, requestSignature, clientDtl.RpID, clientDtl.ClientID)
 	if err != nil {
-		return nil, shared.SendOTPFailedError
+		return nil, mapSendOTPError(err)
 	}
 
 	sendOTPResult.TransactionID = transactionID
 	return sendOTPResult, nil
+}
+
+// GetSigningCertificates returns the ID system's signing certificates,
+// serving them from cache while the auth token they were fetched with
+// remains valid.
+func (p *mosipAuthnProvider) GetSigningCertificates(ctx context.Context) ([]shared.CertificateData, *common.ServiceError) {
+	p.certsMu.RLock()
+	cached := p.cachedCerts
+	expiry := p.certsExpiry
+	p.certsMu.RUnlock()
+	if cached != nil && time.Now().Before(expiry) {
+		return cached, nil
+	}
+
+	certs, svcErr := p.doFetchSigningCertificates(ctx)
+	if svcErr != nil {
+		return nil, svcErr
+	}
+
+	p.certsMu.Lock()
+	p.cachedCerts = certs
+	p.certsExpiry = p.signingCertsCacheExpiry()
+	p.certsMu.Unlock()
+
+	return certs, nil
+}
+
+// signingCertsCacheExpiry derives how long a just-fetched signing
+// certificate list should be cached for, tied to the auth token's own
+// expiry — falling back to a fixed TTL if that expiry can't be determined.
+func (p *mosipAuthnProvider) signingCertsCacheExpiry() time.Time {
+	if exp, ok := p.tokenProvider.TokenExpiry(); ok {
+		return exp.Add(-signingCertsExpiryBuffer)
+	}
+	return time.Now().Add(signingCertsDefaultTTL)
+}
+
+// invalidateCachedSigningCertificates drops the cached signing certificates,
+// forcing the next GetSigningCertificates call to fetch a fresh list instead
+// of reusing one IDA has just rejected.
+func (p *mosipAuthnProvider) invalidateCachedSigningCertificates(ctx context.Context) {
+	applog.GetLogger().Warn(ctx, "clearing cached IDA signing certificates after fetch rejection")
+	p.certsMu.Lock()
+	p.cachedCerts = nil
+	p.certsExpiry = time.Time{}
+	p.certsMu.Unlock()
+}
+
+// doFetchSigningCertificates performs the actual HTTP GET + JSON parse
+// against p.cfg.IDACertificateURL, unconditionally.
+func (p *mosipAuthnProvider) doFetchSigningCertificates(ctx context.Context) ([]shared.CertificateData, *common.ServiceError) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, p.cfg.IDACertificateURL, nil)
+	if err != nil {
+		applog.GetLogger().Error(ctx, "Failed to certificates create request", applog.Error(err))
+		return nil, shared.CertificateFetchFailed
+	}
+	token, tErr := p.tokenProvider.GetAuthToken(ctx)
+	if tErr != nil {
+		applog.GetLogger().Error(ctx, "Failed to fetch auth token", applog.Error(tErr))
+		return nil, shared.AuthTokenFetchFailed
+	}
+	req.Header.Set("Cookie", "Authorization="+token)
+	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+
+	resp, err := p.client.Do(req)
+	if err != nil {
+		applog.GetLogger().Error(ctx, "Failed to fetch certificates", applog.Error(err))
+		return nil, shared.CertificateFetchFailed
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	if resp.StatusCode == 401 || resp.StatusCode == 403 {
+		p.tokenProvider.Purge()
+		p.invalidateCachedSigningCertificates(ctx)
+		return nil, shared.CertificateFetchFailed
+	}
+
+	// check the response status code before parsing the body
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		applog.GetLogger().Error(ctx, "Failed to parse certificate response",
+			applog.Any("statusCode", resp.StatusCode))
+		return nil, shared.CertificateFetchFailed
+	}
+
+	// Parse response
+	var wrapper CertificateResponseWrapper
+	if err := json.NewDecoder(resp.Body).Decode(&wrapper); err != nil {
+		applog.GetLogger().Error(ctx, "Failed to parse certificate response", applog.Error(err))
+		return nil, shared.CertificateFetchFailed
+	}
+
+	// Success path
+	if wrapper.Response != nil {
+		certs := make([]shared.CertificateData, 0, len(wrapper.Response.AllCertificates))
+		for _, certData := range wrapper.Response.AllCertificates {
+			certs = append(certs, shared.CertificateData{
+				KeyID:       certData.KeyID,
+				Certificate: certData.CertificateData})
+		}
+		return certs, nil
+	}
+
+	applog.GetLogger().Error(ctx, "IDA Get all certificate error response",
+		applog.Any("errorCodes", errorCodes(wrapper.Errors)))
+
+	return nil, shared.CertificateFetchFailed
 }
 
 func (p *mosipAuthnProvider) getApplicationAndClientID(ctx context.Context, runtimeMetadata map[string][]string) (clientmgmt.ClientResponse, error) {
@@ -496,8 +674,42 @@ func SymmetricEncrypt(plaintext []byte, key []byte) (encrypted []byte, err error
 	return ciphertext, nil
 }
 
+// fetchIDAPartnerCertificate returns the IDA partner encryption certificate,
+// serving it from cache while it remains valid.
 func (p *mosipAuthnProvider) fetchIDAPartnerCertificate(ctx context.Context) (*x509.Certificate, error) {
-	req, err := http.NewRequest(http.MethodGet, p.cfg.IDAPartnerCertificateURL, nil)
+	p.certMu.RLock()
+	cached := p.cachedCert
+	p.certMu.RUnlock()
+	if cached != nil && time.Now().Before(cached.NotAfter.Add(-idaPartnerCertExpiryBuffer)) {
+		return cached, nil
+	}
+
+	cert, err := p.doFetchIDAPartnerCertificate(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	p.certMu.Lock()
+	p.cachedCert = cert
+	p.certMu.Unlock()
+
+	return cert, nil
+}
+
+// invalidateCachedIDAPartnerCertificate drops the cached IDA partner
+// certificate, forcing the next fetchIDAPartnerCertificate call to fetch a
+// fresh one instead of reusing one IDA has just rejected.
+func (p *mosipAuthnProvider) invalidateCachedIDAPartnerCertificate(ctx context.Context) {
+	applog.GetLogger().Warn(ctx, "clearing cached IDA partner certificate after KYC auth rejection")
+	p.certMu.Lock()
+	p.cachedCert = nil
+	p.certMu.Unlock()
+}
+
+// doFetchIDAPartnerCertificate performs the actual HTTP GET + PEM/X.509
+// parse against p.cfg.IDAPartnerCertificateURL, unconditionally.
+func (p *mosipAuthnProvider) doFetchIDAPartnerCertificate(ctx context.Context) (*x509.Certificate, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, p.cfg.IDAPartnerCertificateURL, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -615,6 +827,40 @@ func errorCodes(errs []Error) []string {
 	return codes
 }
 
+// idaErrorCodes is errorCodes for the IdaError variant used by the KYC
+// auth/exchange response wrappers.
+func idaErrorCodes(errs []IdaError) []string {
+	codes := make([]string, len(errs))
+	for i, e := range errs {
+		codes[i] = e.ErrorCode
+	}
+	return codes
+}
+
+// idaOTPError carries MOSIP IDA error codes from a failed send-OTP response
+// so that SendOTP can distinguish a "bad individual ID" from infrastructure failures.
+type idaOTPError struct{ codes []string }
+
+func (e *idaOTPError) Error() string { return fmt.Sprintf("IDA OTP error: %v", e.codes) }
+
+func mapSendOTPError(err error) *common.ServiceError {
+	var idaErr *idaOTPError
+	if !errors.As(err, &idaErr) {
+		return shared.SendOTPFailedError
+	}
+	// Forward the first non-empty IDA code (reusing the variadic firstNonEmpty
+	// helper); a blank leading entry must not mask a valid later one.
+	code := firstNonEmpty(idaErr.codes...)
+	if code == "" {
+		return shared.SendOTPFailedError
+	}
+	svcErr := *shared.SendOTPFailedError // re-key the base error to the IDA code
+	svcErr.Code = code
+	svcErr.Error.Key = code
+	svcErr.ErrorDescription.Key = code + "_description"
+	return &svcErr
+}
+
 func (p *mosipAuthnProvider) callSendOtpEndpoint(
 	ctx context.Context,
 	requestBody []byte, // already marshaled JSON of IdaKycAuthRequest
@@ -627,7 +873,7 @@ func (p *mosipAuthnProvider) callSendOtpEndpoint(
 		return nil, fmt.Errorf("invalid send OTP URL: %w", err)
 	}
 
-	req, err := http.NewRequest(http.MethodPost, endpointURL, bytes.NewReader(requestBody))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpointURL, bytes.NewReader(requestBody))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create send OTP request: %w", err)
 	}
@@ -642,12 +888,6 @@ func (p *mosipAuthnProvider) callSendOtpEndpoint(
 	}
 	defer func() { _ = resp.Body.Close() }()
 
-	// Read body once
-	bodyBytes, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read send OTP response: %w", err)
-	}
-
 	// Check status. The response body is never logged or included in the
 	// returned error here: MOSIP IDA error payloads for the OTP flow echo
 	// request context (individualId, masked email/mobile) — personal
@@ -657,17 +897,18 @@ func (p *mosipAuthnProvider) callSendOtpEndpoint(
 	// surfaced, best-effort — a non-2xx body isn't guaranteed to parse as
 	// IdaSendOtpResponse at all.
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		bodyBytes, _ := io.ReadAll(io.LimitReader(resp.Body, 64<<10))
 		var errWrapper IdaSendOtpResponse
 		_ = json.Unmarshal(bodyBytes, &errWrapper)
 		applog.GetLogger().Error(ctx, "unexpected send OTP status",
 			applog.Int("status", resp.StatusCode),
 			applog.Any("errorCodes", errorCodes(errWrapper.Errors)))
-		return nil, fmt.Errorf("unexpected send OTP status: %d (codes: %v)", resp.StatusCode, errorCodes(errWrapper.Errors))
+		return nil, &idaOTPError{codes: errorCodes(errWrapper.Errors)}
 	}
 
 	// Parse response
 	var wrapper IdaSendOtpResponse
-	if err := json.Unmarshal(bodyBytes, &wrapper); err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(&wrapper); err != nil {
 		return nil, fmt.Errorf("failed to parse IdaSendOtpResponse: %w", err)
 	}
 
@@ -681,19 +922,41 @@ func (p *mosipAuthnProvider) callSendOtpEndpoint(
 
 	applog.GetLogger().Error(ctx, "IDA OTP error response",
 		applog.Any("errorCodes", errorCodes(wrapper.Errors)))
+	return nil, &idaOTPError{codes: errorCodes(wrapper.Errors)}
+}
 
-	// Error path
-	if wrapper.Response == nil {
-		return nil, errors.New("response object is missing in wrapper")
+// performKycAuth encrypts the session key and computes the thumbprint under
+// cert, finishes assembling idaKycAuthRequest, signs it, and sends it to the
+// KYC auth endpoint. Split out from Authenticate so the cached-certificate
+// rejection fallback can rebuild and resend the request under a freshly
+// fetched certificate without duplicating the assembly steps.
+func (p *mosipAuthnProvider) performKycAuth(ctx context.Context, idaKycAuthRequest *IdaKycAuthRequest, cert *x509.Certificate,
+	encryptedRequest, encryptedRequestHash, symmetricKey []byte, rpID, clientID string, claimsMetadataRequired bool) (string, string, error) {
+	encryptedSessionKey, err := AsymmetricEncrypt(cert.PublicKey.(*rsa.PublicKey), symmetricKey)
+	if err != nil {
+		return "", "", fmt.Errorf("session key encryption failed: %w", err)
+	}
+	certThumbprint, err := GetCertificateThumbprint(cert)
+	if err != nil {
+		return "", "", fmt.Errorf("certificate thumbprint generation failed: %w", err)
 	}
 
-	if len(wrapper.Errors) == 0 {
-		return nil, errors.New("no errors in response wrapper")
+	idaKycAuthRequest.RequestSessionKey = B64EncodeBytes(encryptedSessionKey)
+	idaKycAuthRequest.Request = B64EncodeBytes(encryptedRequest)
+	idaKycAuthRequest.RequestHMAC = B64EncodeBytes(encryptedRequestHash)
+	idaKycAuthRequest.Thumbprint = B64EncodeBytes(certThumbprint)
+
+	requestBytes, err := json.Marshal(idaKycAuthRequest)
+	if err != nil {
+		return "", "", fmt.Errorf("request marshal failed: %w", err)
 	}
 
-	// Take first error (common pattern)
-	firstErr := wrapper.Errors[0]
-	return nil, fmt.Errorf("%s: %s", firstErr.ErrorCode, firstErr.ErrorMessage)
+	requestSignature, err := p.getRequestSignature(ctx, requestBytes)
+	if err != nil {
+		return "", "", fmt.Errorf("request signature generation failed: %w", err)
+	}
+
+	return p.callKycAuthEndpoint(ctx, requestBytes, requestSignature, rpID, clientID, claimsMetadataRequired)
 }
 
 // PerformKycAuth sends the KYC auth request to IDA and processes the response
@@ -710,7 +973,7 @@ func (p *mosipAuthnProvider) callKycAuthEndpoint(
 		return "", "", err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, endpointURL, bytes.NewReader(requestBody))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpointURL, bytes.NewReader(requestBody))
 	if err != nil {
 		return "", "", err
 	}
@@ -725,20 +988,15 @@ func (p *mosipAuthnProvider) callKycAuthEndpoint(
 	}
 	defer func() { _ = resp.Body.Close() }()
 
-	// Read body once
-	bodyBytes, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", "", err
-	}
-
 	// Check status
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		bodyBytes, _ := io.ReadAll(io.LimitReader(resp.Body, 64<<10))
 		return "", "", fmt.Errorf("unexpected KYC auth status: %d - %s", resp.StatusCode, string(bodyBytes))
 	}
 
 	// Parse response
 	var wrapper IdaResponseWrapper
-	if err := json.Unmarshal(bodyBytes, &wrapper); err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(&wrapper); err != nil {
 		return "", "", fmt.Errorf("failed to parse IdaResponseWrapper: %w", err)
 	}
 
@@ -760,9 +1018,7 @@ func (p *mosipAuthnProvider) callKycAuthEndpoint(
 		return "", "", errors.New("no errors in response wrapper")
 	}
 
-	// Take first error (common pattern)
-	firstErr := wrapper.Errors[0]
-	return "", "", fmt.Errorf("%s: %s", firstErr.ErrorMessage, firstErr.ActionMessage)
+	return "", "", fmt.Errorf("%s", strings.Join(idaErrorCodes(wrapper.Errors), ","))
 }
 
 // PerformKycExchange sends the KYC exchange request to IDA and processes the response
@@ -778,7 +1034,7 @@ func (p *mosipAuthnProvider) callKycExchangeEndpoint(
 		return nil, fmt.Errorf("invalid KYC exchange URL: %w", err)
 	}
 
-	req, err := http.NewRequest(http.MethodPost, endpointURL, bytes.NewReader(requestBody))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpointURL, bytes.NewReader(requestBody))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create KYC exchange request: %w", err)
 	}
@@ -793,37 +1049,24 @@ func (p *mosipAuthnProvider) callKycExchangeEndpoint(
 	}
 	defer func() { _ = resp.Body.Close() }()
 
-	// Read body once
-	bodyBytes, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read KYC exchange response: %w", err)
-	}
-
 	// Check status
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		bodyBytes, _ := io.ReadAll(io.LimitReader(resp.Body, 64<<10))
 		return nil, fmt.Errorf("unexpected KYC exchange status: %d - %s", resp.StatusCode, string(bodyBytes))
 	}
 
 	// Parse response
 	var wrapper IdaKycExchangeResponseWrapper
-	if err := json.Unmarshal(bodyBytes, &wrapper); err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(&wrapper); err != nil {
 		return nil, fmt.Errorf("failed to parse IdaKycExchangeResponseWrapper: %w", err)
 	}
 
-	// Success path, currently parses the payload and returns the claims
-	// This should instead return signed JWT as is, but this can be done only when
-	// thunderID SDK supports "JWT" key in the Attributes map.
+	// Success path: the signed JWT is passed through as-is, undecoded, under
+	// providers.RawJWTAttributeKey.
 	if wrapper.Response != nil && wrapper.Response.EncryptedKyc != "" {
-		claims := jwt.MapClaims{}
-		if _, _, err := jwt.NewParser().ParseUnverified(wrapper.Response.EncryptedKyc, claims); err != nil {
-			return nil, fmt.Errorf("failed to parse KYC JWT payload: %w", err)
+		attributes := map[string]*providers.AttributeResponse{
+			providers.RawJWTAttributeKey: {Value: wrapper.Response.EncryptedKyc},
 		}
-
-		attributes := make(map[string]*providers.AttributeResponse, len(claims))
-		for k, v := range claims {
-			attributes[k] = &providers.AttributeResponse{Value: v}
-		}
-
 		return &providers.AttributesResponse{Attributes: attributes}, nil
 	}
 

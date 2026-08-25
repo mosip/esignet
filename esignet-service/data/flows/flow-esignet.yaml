@@ -287,9 +287,20 @@ interceptors:
     mode: PRE_NODE
     scope: SELECTED
     applyto:
-      - send_mosip_otp
-      - basic_cred_auth
+      - send_mosip_otp_email
+      - send_mosip_otp_mobile
+      - send_mosip_otp_uin
+      - send_mosip_otp_nrc
+      - basic_cred_auth_uin
+      - basic_cred_auth_mobile
+      - basic_cred_auth_email
+      - basic_cred_auth_nrc
       - basic_kbi_auth
+
+# Anchor for the per-flow-session cap on OTP generate/resend calls, applied to every
+# eSignetOtpExecutor node so RESEND_OTP can't be clicked unboundedly.
+otp_max_attempts: &otp_max_attempts
+  maxAttempts: "3"
 
 nodes:
   - id: start
@@ -375,7 +386,7 @@ nodes:
       - inputs: *otp_inputs
         action:
           ref: submit_uin
-          nextNode: send_mosip_otp
+          nextNode: send_mosip_otp_uin
       - action:
           ref: login_id_mobile
           nextNode: prompt_mobile_otp
@@ -408,7 +419,7 @@ nodes:
       - inputs: *otp_inputs
         action:
           ref: submit_uin
-          nextNode: send_mosip_otp
+          nextNode: send_mosip_otp_mobile
       - action:
           ref: login_id_uin
           nextNode: prompt_uin_otp
@@ -441,7 +452,7 @@ nodes:
       - inputs: *otp_inputs
         action:
           ref: submit_uin
-          nextNode: send_mosip_otp
+          nextNode: send_mosip_otp_email
       - action:
           ref: login_id_uin
           nextNode: prompt_uin_otp
@@ -474,7 +485,7 @@ nodes:
       - inputs: *otp_inputs
         action:
           ref: submit_uin
-          nextNode: send_mosip_otp
+          nextNode: send_mosip_otp_nrc
       - action:
           ref: login_id_uin
           nextNode: prompt_uin_otp
@@ -488,11 +499,48 @@ nodes:
           ref: BACK_BUTTON
           nextNode: prompt_acr
 
-  - id: send_mosip_otp
+  - id: send_mosip_otp_uin
     type: TASK_EXECUTION
+    properties: *otp_max_attempts
     executor:
       name: eSignetOtpExecutor
     onSuccess: prompt_otp
+    onIncomplete: prompt_uin_otp
+
+  - id: send_mosip_otp_mobile
+    type: TASK_EXECUTION
+    properties: *otp_max_attempts
+    executor:
+      name: eSignetOtpExecutor
+    onSuccess: prompt_otp
+    onIncomplete: prompt_mobile_otp
+
+  - id: send_mosip_otp_email
+    type: TASK_EXECUTION
+    properties: *otp_max_attempts
+    executor:
+      name: eSignetOtpExecutor
+    onSuccess: prompt_otp
+    onIncomplete: prompt_email_otp
+
+  - id: send_mosip_otp_nrc
+    type: TASK_EXECUTION
+    properties: *otp_max_attempts
+    executor:
+      name: eSignetOtpExecutor
+    onSuccess: prompt_otp
+    onIncomplete: prompt_nrc_otp
+
+  # Dedicated to the RESEND_OTP action from prompt_otp: the user is already on the OTP-entry
+  # screen at that point (not one of the four identifier prompts above), so a failed resend
+  # routes back to prompt_otp itself rather than to a channel-specific prompt.
+  - id: send_mosip_otp
+    type: TASK_EXECUTION
+    properties: *otp_max_attempts
+    executor:
+      name: eSignetOtpExecutor
+    onSuccess: prompt_otp
+    onIncomplete: prompt_otp
 
   - id: prompt_otp
     type: PROMPT
@@ -570,6 +618,7 @@ nodes:
           type: OTP_INPUT
           required: true
     onSuccess: authorization_check
+    onIncomplete: prompt_otp
 
   - id: prompt_uin_credentials
     type: PROMPT
@@ -593,7 +642,7 @@ nodes:
       - inputs: *password_inputs
         action:
           ref: password_authenticate
-          nextNode: basic_cred_auth
+          nextNode: basic_cred_auth_uin
       - action:
           ref: login_id_mobile
           nextNode: prompt_mobile_credentials
@@ -629,7 +678,7 @@ nodes:
       - inputs: *password_inputs
         action:
           ref: password_authenticate
-          nextNode: basic_cred_auth
+          nextNode: basic_cred_auth_mobile
       - action:
           ref: login_id_uin
           nextNode: prompt_uin_credentials
@@ -665,7 +714,7 @@ nodes:
       - inputs: *password_inputs
         action:
           ref: password_authenticate
-          nextNode: basic_cred_auth
+          nextNode: basic_cred_auth_email
       - action:
           ref: login_id_uin
           nextNode: prompt_uin_credentials
@@ -701,7 +750,7 @@ nodes:
       - inputs: *password_inputs
         action:
           ref: password_authenticate
-          nextNode: basic_cred_auth
+          nextNode: basic_cred_auth_nrc
       - action:
           ref: login_id_uin
           nextNode: prompt_uin_credentials
@@ -715,7 +764,7 @@ nodes:
           ref: BACK_BUTTON
           nextNode: prompt_acr
 
-  - id: basic_cred_auth
+  - id: basic_cred_auth_uin
     type: TASK_EXECUTION
     executor:
       name: CredentialsAuthExecutor
@@ -733,6 +782,67 @@ nodes:
           type: PASSWORD_INPUT
           required: true
     onSuccess: authorization_check
+    onIncomplete: prompt_uin_credentials
+
+  - id: basic_cred_auth_mobile
+    type: TASK_EXECUTION
+    executor:
+      name: CredentialsAuthExecutor
+      inputs:
+        - ref: username_input
+          identifier: username
+          type: TEXT_INPUT
+          required: true
+        - ref: password_input
+          identifier: password
+          type: PASSWORD_INPUT
+          required: true
+        - ref: CAPTCHA_BOX
+          identifier: captcha_token
+          type: PASSWORD_INPUT
+          required: true
+    onSuccess: authorization_check
+    onIncomplete: prompt_mobile_credentials
+
+  - id: basic_cred_auth_email
+    type: TASK_EXECUTION
+    executor:
+      name: CredentialsAuthExecutor
+      inputs:
+        - ref: username_input
+          identifier: username
+          type: TEXT_INPUT
+          required: true
+        - ref: password_input
+          identifier: password
+          type: PASSWORD_INPUT
+          required: true
+        - ref: CAPTCHA_BOX
+          identifier: captcha_token
+          type: PASSWORD_INPUT
+          required: true
+    onSuccess: authorization_check
+    onIncomplete: prompt_email_credentials
+
+  - id: basic_cred_auth_nrc
+    type: TASK_EXECUTION
+    executor:
+      name: CredentialsAuthExecutor
+      inputs:
+        - ref: username_input
+          identifier: username
+          type: TEXT_INPUT
+          required: true
+        - ref: password_input
+          identifier: password
+          type: PASSWORD_INPUT
+          required: true
+        - ref: CAPTCHA_BOX
+          identifier: captcha_token
+          type: PASSWORD_INPUT
+          required: true
+    onSuccess: authorization_check
+    onIncomplete: prompt_nrc_credentials
 
   - id: prompt_uin_bio
     type: PROMPT
@@ -922,6 +1032,7 @@ nodes:
           type: PASSWORD_INPUT
           required: true
     onSuccess: authorization_check
+    onIncomplete: prompt_biometric
 
   - id: prompt_kbi_details
     type: PROMPT
@@ -933,7 +1044,22 @@ nodes:
           components:
             - <<: *page_title
               label: "{{t(button:login_kbi)}}"
-            - *prompt_uin
+            - id: username_input
+              ref: username
+              label: "{{t(input:policy_number_label)}}"
+              placeholder: "{{t(input:policy_number_placeholder)}}"
+              type: TEXT_INPUT
+              required: true
+              validation:
+                - type: regex
+                  value: ^[0-9]+$
+                  message: "validation.policy.numeric"
+                - type: maxLength
+                  value: 50
+                  message: "validation.policy.length"
+                - type: minLength
+                  value: 8
+                  message: "validation.policy.length"
             - id: fullname_input
               ref: fullName
               type: TEXT_INPUT
@@ -998,17 +1124,19 @@ nodes:
           type: PASSWORD_INPUT
           required: true
     onSuccess: authorization_check
+    onIncomplete: prompt_kbi_details
 
   - id: authorization_check
     type: TASK_EXECUTION
     executor:
-      name: AuthorizationExecutor
+      name: eSignetAuthorizationExecutor
     onSuccess: consent_check
 
   - id: consent_check
     type: TASK_EXECUTION
     properties:
       timeout: "120"
+      failOnDeny: true
     executor:
       name: ConsentExecutor
       inputs:
@@ -1043,11 +1171,6 @@ nodes:
             - id: input_consent
               type: CONSENT
               category: DISPLAY
-              config:
-                essential: "{{t(consent:essential)}}"
-                optional: "{{t(consent:optional)}}"
-                essentialInfo: "{{t(consent:essential_info)}}"
-                optionalInfo: "{{t(consent:optional_info)}}"
             - <<: *submit_button
               id: action_allow
               label: "{{t(consent:allow)}}"

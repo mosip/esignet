@@ -1,0 +1,219 @@
+{
+  "_comment": [
+    "Schema reference for the per-plugin config files. You do not run this file —",
+    "run config.mock.json / config.mosip.json / config.sunbird.json, which are",
+    "tracked alongside it, and put your credentials in config.local.json (copy",
+    "config.local.example.json).",
+    "",
+    "Layering: config.<plugin>.json -> config.local.json -> environment -> defaults.",
+    "",
+    "Almost every field has an environment override that wins over both files;",
+    "the README's 'Env overrides' table is the complete list. The exceptions —",
+    "no env override at all, so a container must mount the config file to change",
+    "them — are run.modules, run.known_issues, and every plans[] field except",
+    "name and config_file (PLAN_<n>_NAME / PLAN_<n>_CONFIG_PATH).",
+    "",
+    "Nothing here is worth guessing at: ./run-all.sh -c <config> --check prints",
+    "the fully resolved result, runs nothing, and needs no suite up."
+  ],
+
+  "//conformance": [
+    "The OpenID Conformance Suite instance the conformance surface drives.",
+    "",
+    "  base_url    where the suite is             (env CONFORMANCE_BASE_URL)",
+    "  tls_verify  false for the suite's self-signed local cert",
+    "                                             (env CONFORMANCE_TLS_VERIFY)",
+    "  token       bearer token, ONLY for a suite instance that requires auth.",
+    "              Leave empty for the local/prebuilt suite, which does not.",
+    "              A credential — set it via the env var or config.local.json,",
+    "              never in a tracked file.       (env CONFORMANCE_TOKEN)"
+  ],
+  "conformance": {
+    "base_url": "https://localhost.emobix.co.uk:8443",
+    "tls_verify": false,
+    "token": ""
+  },
+
+  "//plans": [
+    "The conformance plans ONE run executes, in order. Each entry is a separate",
+    "suite plan: its own variant and its own config_file (client + jwks), so two",
+    "entries mean two client/key sets. The api and e2e surfaces still run once,",
+    "and every plan's modules land in the same consolidated report under its own",
+    "section.",
+    "",
+    "profile/modules/filter/skip/known_issues are optional per plan and fall back",
+    "to the same-named run.* field. profile=smoke reads data/conformance/<name>.smoke.json,",
+    "so a plan with no profile file of its own needs profile=full here.",
+    "",
+    "config_file paths are secrets-adjacent (the file holds the private jwks):",
+    "keep them out of this tracked file if they differ per machine — an overlay's",
+    "plans[] merges entry-by-entry, so config.local.json can list just the",
+    "config_file of each. Env: PLAN_1_CONFIG_PATH, PLAN_2_CONFIG_PATH, …",
+    "(PLAN_CONFIG_PATH without an index only works for a single-plan config).",
+    "",
+    "The legacy singular \"plan\": {...} block still works and is read as a",
+    "one-entry plans list; setting both is an error."
+  ],
+  "plans": [
+    {
+      "name": "oidcc-test-plan",
+      "variant": {
+        "client_auth_type": "private_key_jwt",
+        "response_type": "code",
+        "response_mode": "default",
+        "client_registration": "static_client"
+      },
+      "config_file": "conformance-suite-private/esignet-config.json",
+
+      "//selection": [
+        "The four keys below are the per-plan module selection. All optional:",
+        "each falls back to the same-named run.* field, so delete them to run",
+        "the profile as-is. They are shown here because prose is not enough to",
+        "guess known_issues' element shape.",
+        "",
+        "Order: modules (or profile) picks a list -> filter narrows it -> skip",
+        "and known_issues subtract from it.",
+        "",
+        "modules REPLACES the profile rather than narrowing it: set it and",
+        "profile is never consulted (--check prints 'modules N explicitly",
+        "listed (profile ignored)'). A name that is not in the plan still gets",
+        "a report row, so a typo is visible instead of silently selecting less.",
+        "",
+        "skip and known_issues do not run the module but still report it — in",
+        "the Skipped and Known buckets respectively, neither of which affects",
+        "the Failed count or the exit code. They subtract from whatever was",
+        "already selected, so naming a module the plan never selected is a",
+        "silent no-op."
+      ],
+      "modules": [],
+      "filter": "",
+      "skip": [],
+      "known_issues": [
+        { "module": "oidcc-refresh-token", "reason": "ES-1234 refresh_token not implemented" }
+      ]
+    },
+    {
+      "name": "fapi2-security-profile-final-test-plan",
+      "variant": {
+        "client_auth_type": "private_key_jwt",
+        "sender_constrain": "dpop",
+        "authorization_request_type": "simple",
+        "openid": "openid_connect",
+        "fapi_profile": "plain_fapi"
+      },
+      "config_file": "conformance-suite-private/esignet-fapi2-config.json",
+      "profile": "full"
+    }
+  ],
+
+  "keycloak": {
+    "token_url": "https://iam.esdev.mosip.net/auth/realms/mosip/protocol/openid-connect/token",
+    "client_id": "mosip-pms-client",
+    "client_secret": ""
+  },
+
+  "//esignet": [
+    "The eSignet deployment under test — every surface drives this one.",
+    "",
+    "  base_url    where eSignet is               (env MOSIP_ESIGNET_BASE_URL)",
+    "  provider    which plugin is deployed: mock|mosip|sunbird",
+    "                                             (env MOSIP_ESIGNET_AUTHN_PROVIDER)",
+    "  auth_factor which ACR to pick when the flow offers a choice",
+    "                                             (env AUTH_FACTOR)",
+    "  tls_verify  certificate verification for eSignet. Defaults to TRUE and",
+    "              should stay there: this connection carries the test",
+    "              identity, its OTP and its password. It is deliberately",
+    "              separate from conformance.tls_verify, which is false only",
+    "              for the suite's self-signed localhost cert. Set false only",
+    "              for a deployment with a self-signed cert of its own.",
+    "                                             (env ESIGNET_TLS_VERIFY)"
+  ],
+  "esignet": {
+    "base_url": "",
+    "provider": "mock",
+    "auth_factor": "otp",
+    "tls_verify": true,
+    "identity": { "individual_id": "", "id_type": "uin" },
+    "credentials": { "username": "", "password": "" },
+    "knowledge": { "full_name": "", "dob": "" },
+    "otp": { "source": "static", "value": "111111", "ws_url": "", "recipient_email": "" },
+    "pms": { "base_url": "", "auth_partner_id": "", "policy_id": "" }
+  },
+
+  "api": {
+    "tags": "",
+    "flow_client_id": "",
+    "tls_verify": true
+  },
+
+  "e2e": {
+    "spec": "",
+    "auth_factors": [],
+    "include": [],
+    "exclude": []
+  },
+
+  "run": {
+    "surfaces": ["conformance", "api", "e2e"],
+
+    "//selection": [
+      "Run-wide module selection. Every plans[] entry falls back to these, so",
+      "set them here for a one-plan config and per plan when two plans want",
+      "different module sets. Same precedence as documented in plans[] above.",
+      "",
+      "  modules       explicit allow-list; replaces profile entirely.",
+      "  profile       smoke = data/conformance/<plan name>.smoke.json, full = every",
+      "                module the plan declares.            (env TEST_PROFILE)",
+      "  filter        regex over whatever modules/profile produced.",
+      "                                                     (env TEST_RUN)",
+      "  skip          not run -> Skipped bucket.           (env SKIP_MODULES)",
+      "  known_issues  not run -> Known bucket, shown with its reason.",
+      "",
+      "filter applies AFTER the list is chosen: with profile=smoke it filters",
+      "INSIDE the smoke list, not across the plan. To regex over a plan's full",
+      "module set, set profile=full as well.",
+      "",
+      "modules and known_issues have no env override, and no plans[] field has",
+      "one beyond name/config_file (PLAN_<n>_NAME, PLAN_<n>_CONFIG_PATH) — a",
+      "container that needs to change the rest must mount the config file itself.",
+      "",
+      "Module names come from the suite when the plan is created, so they",
+      "track SUITE_IMAGE_TAG: run once with profile=full and read the report",
+      "to see the real names for a plan.",
+      "",
+      "Preview all of this without running anything:",
+      "  ./run-all.sh -c <config> --check"
+    ],
+    "modules": [],
+    "profile": "smoke",
+    "filter": "",
+    "skip": [],
+    "known_issues": [],
+    "//pacing": [
+      "  poll_interval_seconds  how often to poll the suite for a module's",
+      "                         status.        (env POLL_INTERVAL_SECONDS)",
+      "  timeout_seconds        per-module ceiling; a module still WAITING at",
+      "                         the end is reported as a timeout, not a pass.",
+      "                                        (env TIMEOUT_SECONDS)",
+      "  fail_fast              stop the WHOLE run on the first failure —",
+      "                         remaining plans included.  (env FAIL_FAST)",
+      "  report_dir             where the HTML + .json sidecar are written.",
+      "                                        (env REPORT_DIR)"
+    ],
+    "poll_interval_seconds": 2,
+    "timeout_seconds": 120,
+    "fail_fast": false,
+    "report_dir": "out",
+
+    "//debug_show_secrets": [
+      "Local debugging only. Leaves the captured eSignet wire trace unredacted in",
+      "the report and its sidecar JSON — request/response bodies, URLs, cookies and",
+      "headers exactly as they went over the wire, including OTPs, passwords,",
+      "identity values and bearer tokens. The report carries a red warning banner",
+      "when this is on. Never leave it on for a run CI archives.",
+      "The configuration panel and the suite plan config stay masked either way.",
+      "Env override: DEBUG_SHOW_SECRETS=true"
+    ],
+    "debug_show_secrets": false
+  }
+}

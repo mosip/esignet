@@ -1,0 +1,48 @@
+{
+  "_comment": [
+    "Copy to config.local.json (gitignored) and edit. This overlay is applied on",
+    "top of whichever config.<plugin>.json you run, so one copy serves all three.",
+    "",
+    "IMPORTANT — only include keys you actually want to CHANGE. There is no way to",
+    "say 'unset' in JSON: an empty string is a value and it OVERWRITES whatever the",
+    "plugin config had. Leaving a placeholder like \"individual_id\": \"\" here will",
+    "blank out config.mock.json's seeded identity and the run will fail in a way",
+    "that looks nothing like a config problem. Delete a line rather than empty it.",
+    "",
+    "This is the ONLY config file that should ever hold a credential. The",
+    "per-plugin files are tracked; never put a secret in one, even temporarily.",
+    "",
+    "In containers this file is usually absent — compose and Rancher inject the",
+    "same values as environment variables, which take precedence over both files.",
+    "",
+    "plans[] is the one array that merges entry by entry rather than replacing:",
+    "an overlay listing {\"config_file\": ...} twice keeps both plans' names from",
+    "the plugin file and only swaps their client/jwks paths. Listing FEWER entries",
+    "than the plugin file truncates the run to that many plans, which is a way to",
+    "run just the first plan locally — and a trap if you did not mean to.",
+    "",
+    "Commonly needed, by plugin:",
+    "  all      esignet.base_url, keycloak.token_url, keycloak.client_secret",
+    "  mosip    esignet.identity.individual_id, esignet.otp.ws_url,",
+    "           esignet.pms.{base_url,auth_partner_id,policy_id}",
+    "  sunbird  esignet.identity.individual_id, esignet.knowledge.{full_name,dob}",
+    "  mock     nothing — its seed identity/login ship in config.mock.json",
+    "",
+    "Optional, any plugin: api.flow_client_id — a client id already registered on",
+    "your deployment. Without it the @flow-authz-neg scenarios report",
+    "ENV_NOT_READY (reported, not failed) because they have no client to drive.",
+    "",
+    "Check your overlay landed the way you expect before a long run — it prints",
+    "the merged result, runs nothing, and needs no suite:",
+    "  ./run-all.sh -c data/config/config.mosip.json --check"
+  ],
+
+  "esignet": {
+    "base_url": "https://esignet-thunder1.esdev.mosip.net/v1/esignet"
+  },
+
+  "keycloak": {
+    "token_url": "https://iam.esdev.mosip.net/auth/realms/mosip/protocol/openid-connect/token",
+    "client_secret": "PUT-YOUR-SECRET-HERE"
+  }
+}

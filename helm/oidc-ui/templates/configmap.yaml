@@ -58,7 +58,7 @@ data:
         }
     
         location /.well-known/jwks.json {
-          proxy_pass         http://{{ .Values.oidc_ui.oidc_service_host }}/.well-known/jwks.json;
+          proxy_pass         http://{{ .Values.oidc_ui.oidc_service_host }}/oauth2/jwks;
           proxy_redirect     off;
           proxy_set_header   Host $host;
           proxy_set_header   X-Real-IP $remote_addr;

@@ -839,6 +839,10 @@ func (ts *KeymanagerTestSuite) TestGetAllCertificates_ReturnsFullAliasHistory() 
 	ks := newFakeKeyStore()
 	ts.Require().NoError(ks.GenerateAndStoreAsymmetricKey("root-alias-1", "root-alias-1", testCertTemplateParams(), "RSA", ""))
 	ts.Require().NoError(ks.GenerateAndStoreAsymmetricKey("root-alias-2", "root-alias-2", testCertTemplateParams(), "RSA", ""))
+	cert1, err := ks.GetCertificate("root-alias-1")
+	ts.Require().NoError(err)
+	cert2, err := ks.GetCertificate("root-alias-2")
+	ts.Require().NoError(err)
 
 	q := &fakeQuerier{
 		getKeyAliasesByAppRefFn: func(_ context.Context, _, _ string) ([]db.KeyAlias, error) {
@@ -855,7 +859,56 @@ func (ts *KeymanagerTestSuite) TestGetAllCertificates_ReturnsFullAliasHistory() 
 	ts.Require().NoError(err)
 	ts.Require().Len(resp.AllCertificates, 2)
 	gotIDs := []string{resp.AllCertificates[0].KeyID, resp.AllCertificates[1].KeyID}
-	ts.Assert().ElementsMatch([]string{"root-alias-1", "root-alias-2"}, gotIDs)
+	wantIDs := []string{keymanager.ThumbprintForCert(cert1), keymanager.ThumbprintForCert(cert2)}
+	ts.Assert().ElementsMatch(wantIDs, gotIDs)
+}
+
+// TestGetAllCertificates_CachesResolution covers GetAllCertificates' cached path (KeyCacheExpiry
+// > 0): a second call for the same (appID, refID) must be served from allCertificatesCache
+// rather than re-querying the DB.
+func (ts *KeymanagerTestSuite) TestGetAllCertificates_CachesResolution() {
+	ks := newFakeKeyStore()
+	ts.Require().NoError(ks.GenerateAndStoreAsymmetricKey("root-alias", "root-alias", testCertTemplateParams(), "RSA", ""))
+	q := newCountingAliasQuerier([]db.KeyAlias{validAliasRow("root-alias")}, alwaysActivePolicy())
+	svc := keymanager.NewServiceWithQuerier(q, ks, cachingTestConfig())
+
+	_, err := svc.GetAllCertificates(context.Background(), "ROOT", "")
+	ts.Require().NoError(err)
+	firstDBCalls := q.getKeyAliasesByAppRefCalls
+	ts.Require().Positive(firstDBCalls)
+
+	_, err = svc.GetAllCertificates(context.Background(), "ROOT", "")
+	ts.Require().NoError(err)
+	ts.Assert().Equal(firstDBCalls, q.getKeyAliasesByAppRefCalls, "second call must be served from cache, not re-query the DB")
+}
+
+// TestGetAllCertificates_AliasQueryError covers GetAllCertificates' (via
+// getAllCertificatesUncached) error path when the underlying alias-history query fails.
+func (ts *KeymanagerTestSuite) TestGetAllCertificates_AliasQueryError() {
+	q := &fakeQuerier{
+		getKeyAliasesByAppRefFn: func(_ context.Context, _, _ string) ([]db.KeyAlias, error) {
+			return nil, errors.New("db down")
+		},
+	}
+	svc := keymanager.NewServiceWithQuerier(q, newFakeKeyStore(), testConfig())
+
+	_, err := svc.GetAllCertificates(context.Background(), "ROOT", "")
+	ts.Require().ErrorContains(err, "get key aliases")
+}
+
+// TestGetAllCertificates_CachedPath_AliasQueryError covers the cached path's (KeyCacheExpiry > 0)
+// own error propagation from getOrLoad's loader closure — a failed resolve must return the error,
+// not a zero-value AllCertificatesResponse, and must not poison the cache with it.
+func (ts *KeymanagerTestSuite) TestGetAllCertificates_CachedPath_AliasQueryError() {
+	q := &fakeQuerier{
+		getKeyAliasesByAppRefFn: func(_ context.Context, _, _ string) ([]db.KeyAlias, error) {
+			return nil, errors.New("db down")
+		},
+	}
+	svc := keymanager.NewServiceWithQuerier(q, newFakeKeyStore(), cachingTestConfig())
+
+	_, err := svc.GetAllCertificates(context.Background(), "ROOT", "")
+	ts.Require().ErrorContains(err, "get key aliases")
 }
 
 // TestGetCertificateChain_WalksSigningHierarchyToRoot covers the

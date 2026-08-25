@@ -1,0 +1,22 @@
+out/
+# Never bake a developer's credentials into the image. The Dockerfile copies the
+# whole data/ tree, so the overlay patterns must be excluded by SHAPE, not by
+# listing the two names that happen to exist today: config.local.mosip.json is
+# exactly as secret-bearing as config.local.json, and an allow-list silently
+# ships the next one someone creates. Mirrors the .gitignore patterns, negation
+# for the tracked placeholder-only template included.
+data/config/config.local.json
+data/config/config.local.*.json
+data/config/config.local.json.*
+data/config/config.local.*.json.*
+!data/config/config.local.example.json
+data/config/config.json
+# Same shape one directory up, for a working tree predating the data/ move.
+config.local.json
+config.local.*.json
+config.json
+conformance-suite-private/
+*esignet-config*.json
+api/**/*.test
+.env
+.git

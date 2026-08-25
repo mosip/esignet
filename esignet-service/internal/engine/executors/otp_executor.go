@@ -8,6 +8,7 @@ package executors
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/common"
 	"github.com/thunder-id/thunderid/pkg/thunderidengine/providers"
@@ -22,6 +23,15 @@ const (
 	usernameAttr           = "username"
 	maskedEmail            = "maskedEmail"
 	maskedMobile           = "maskedMobile"
+
+	// propertyKeyMaxAttempts is the NodeProperties key for the per-flow-session cap on OTP
+	// generate/resend calls, mirroring the ThunderID engine's own default OTP executor.
+	propertyKeyMaxAttempts = "maxAttempts"
+	// otpAttemptCountKey stores the running OTP generate/resend count in RuntimeData across
+	// node executions within a flow session.
+	otpAttemptCountKey = "otpAttemptCount"
+	// defaultMaxOTPAttempts is used when the maxAttempts node property is absent or invalid.
+	defaultMaxOTPAttempts = 3
 )
 
 var individualIDInput = providers.Input{
@@ -48,6 +58,14 @@ func (e *otpExecutor) GetName() string {
 
 func (e *otpExecutor) GetType() providers.ExecutorType {
 	return providers.ExecutorTypeAuthentication
+}
+
+func (e *otpExecutor) GetMeta() *providers.ExecutorMeta {
+	return &providers.ExecutorMeta{
+		SupportedProperties: []providers.ExecutorSupportedProperties{
+			{Property: propertyKeyMaxAttempts},
+		},
+	}
 }
 
 func (e *otpExecutor) GetPrerequisites() []providers.Input {
@@ -79,14 +97,29 @@ func (e *otpExecutor) Execute(ctx *providers.NodeContext) (*providers.ExecutorRe
 		return nil, err
 	}
 
+	attemptCount := otpAttemptCountFromContext(ctx)
+	if attemptCount >= maxOTPAttemptsFromContext(ctx) {
+		applog.GetLogger().Warn(ctx.Context, "maximum OTP attempts reached")
+		execResp.Status = providers.ExecFailure
+		execResp.Error = shared.MaxOTPAttemptsReachedError
+		return execResp, nil
+	}
+
 	result, serviceError := e.authn.SendOTP(ctx.Context, map[string]any{usernameAttr: username},
 		BuildProviderMetadata(ctx))
 	if serviceError != nil {
 		// username is the individual's identity number and must not be logged.
 		applog.GetLogger().Warn(ctx.Context, "failed to send OTP", applog.String("errorCode", serviceError.Code))
-		// Return ExecFailure so the engine surfaces the error to the user without terminating the flow session
+		// Return ExecUserInputRequired (not ExecFailure) so the flow stays alive and re-prompts for
+		// the individual ID: ExecFailure maps to NodeStatusFailure, and since this node has no
+		// onFailure target configured, that would terminate the flow session (flowStatus: ERROR)
+		// instead of letting the user correct a mistyped username and retry.
 		if serviceError.Type == common.ClientErrorType {
-			execResp.Status = providers.ExecFailure
+			// Count client-error attempts (e.g. invalid/unknown individual ID) against the same
+			// cap as successful sends, so maxAttempts also bounds repeated probing.
+			ctx.RuntimeData[otpAttemptCountKey] = strconv.Itoa(attemptCount + 1)
+			execResp.Status = providers.ExecUserInputRequired
+			execResp.Inputs = []providers.Input{individualIDInput}
 			execResp.Error = serviceError
 			return execResp, nil
 		}
@@ -98,6 +131,7 @@ func (e *otpExecutor) Execute(ctx *providers.NodeContext) (*providers.ExecutorRe
 	// Set transaction ID in RuntimeData, all the keys prefixed providerExtendedKeyPrefix will be
 	// passed to Authenticate and GetAttribute method of AuthnProvider
 	ctx.RuntimeData[providerExtendedKeyPrefix+"TransactionID"] = result.TransactionID
+	ctx.RuntimeData[otpAttemptCountKey] = strconv.Itoa(attemptCount + 1)
 
 	execResp.ForwardedData[maskedEmail] = result.MaskedEmail
 	execResp.ForwardedData[maskedMobile] = result.MaskedMobile
@@ -115,6 +149,36 @@ func (e *otpExecutor) ensurePrerequisites(
 	execResp.Status = providers.ExecUserInputRequired
 	execResp.Inputs = []providers.Input{individualIDInput}
 	return false
+}
+
+// otpAttemptCountFromContext reads the running OTP generate/resend count from RuntimeData,
+// defaulting to 0 if absent or unparsable.
+func otpAttemptCountFromContext(ctx *providers.NodeContext) int {
+	count, err := strconv.Atoi(ctx.RuntimeData[otpAttemptCountKey])
+	if err != nil {
+		return 0
+	}
+	return count
+}
+
+// maxOTPAttemptsFromContext returns the configured maxAttempts NodeProperty, falling back to
+// defaultMaxOTPAttempts if not set or invalid.
+func maxOTPAttemptsFromContext(ctx *providers.NodeContext) int {
+	switch v := ctx.NodeProperties[propertyKeyMaxAttempts].(type) {
+	case string:
+		if n, err := strconv.Atoi(v); err == nil && n > 0 {
+			return n
+		}
+	case int:
+		if v > 0 {
+			return v
+		}
+	case float64:
+		if n := int(v); n > 0 {
+			return n
+		}
+	}
+	return defaultMaxOTPAttempts
 }
 
 func usernameFromContext(ctx *providers.NodeContext) (string, error) {

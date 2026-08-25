@@ -141,17 +141,73 @@ type Service struct {
 	ks     keystore.KeyStore
 	cfg    Config
 	logger *applog.Logger
+
+	// signingCertCache/currentKeyCache/symmetricKeyCache cache
+	// GetSigningCertificate/ResolveCurrentKey/ResolveCurrentSymmetricKey's
+	// resolution above the DB/keystore, bounded by Config.KeyCacheExpiry —
+	// see cache.go and each method's doc comment. KeyCacheExpiry <= 0
+	// disables caching (every call resolves fresh, as before). Every write
+	// path that changes what "current" means for an (appID, refID) —
+	// ensureCurrentKey generating/rotating a key, RevokeKey,
+	// UploadCertificate, GenerateSymmetricKey — invalidates the
+	// corresponding entry via invalidateCurrentKeyCaches.
+	signingCertCache     *ttlCache[SigningCertificate]
+	currentKeyCache      *ttlCache[resolvedCurrentKey]
+	symmetricKeyCache    *ttlCache[resolvedSymmetricKey]
+	allCertificatesCache *ttlCache[AllCertificatesResponse]
 }
 
 // NewService constructs a Service backed by a real DB connection.
 func NewService(conn *sqlx.DB, ks keystore.KeyStore, cfg Config) *Service {
-	return &Service{q: db.New(conn, cfg.DBSchema), ks: ks, cfg: cfg, logger: applog.GetLogger().Named("keymanager")}
+	return &Service{
+		q: db.New(conn, cfg.DBSchema), ks: ks, cfg: cfg, logger: applog.GetLogger().Named("keymanager"),
+		signingCertCache:     newTTLCache[SigningCertificate](),
+		currentKeyCache:      newTTLCache[resolvedCurrentKey](),
+		symmetricKeyCache:    newTTLCache[resolvedSymmetricKey](),
+		allCertificatesCache: newTTLCache[AllCertificatesResponse](),
+	}
 }
 
 // NewServiceWithQuerier constructs a Service with an explicit Querier; used
 // in tests to inject a fake without a real database connection.
 func NewServiceWithQuerier(q db.Querier, ks keystore.KeyStore, cfg Config) *Service {
-	return &Service{q: q, ks: ks, cfg: cfg, logger: applog.GetLogger().Named("keymanager")}
+	return &Service{
+		q: q, ks: ks, cfg: cfg, logger: applog.GetLogger().Named("keymanager"),
+		signingCertCache:     newTTLCache[SigningCertificate](),
+		currentKeyCache:      newTTLCache[resolvedCurrentKey](),
+		symmetricKeyCache:    newTTLCache[resolvedSymmetricKey](),
+		allCertificatesCache: newTTLCache[AllCertificatesResponse](),
+	}
+}
+
+// cacheExpiry returns the absolute expiry for a just-resolved cache entry:
+// Config.KeyCacheExpiry from now, capped at hardExpiry (the resolved key/
+// certificate's own NotAfter) so an entry is never served past outright
+// expiry. The real lazy-rotation cutoff currentAlias uses is earlier still
+// (hardExpiry minus the owning policy's PreExpireDays), but that value isn't
+// available at these cache call sites without an extra DB round trip that
+// would defeat the point of caching — KeyCacheExpiry (24h by default) is
+// comfortably inside any realistic PreExpireDays window, so a cache entry is
+// always refreshed well before rotation actually becomes due.
+func (s *Service) cacheExpiry(hardExpiry time.Time) time.Time {
+	soft := time.Now().UTC().Add(s.cfg.KeyCacheExpiry)
+	if soft.Before(hardExpiry) {
+		return soft
+	}
+	return hardExpiry
+}
+
+// invalidateCurrentKeyCaches drops any cached resolution for (appID, refID)
+// across all three key-resolution caches. A no-op for a cache that never had
+// an entry for this key, so it's safe to call unconditionally from every
+// write path that changes what "current" resolves to, regardless of which
+// cache(s) that (appID, refID) pair would actually populate.
+func (s *Service) invalidateCurrentKeyCaches(appID, refID string) {
+	key := cacheKey(appID, refID)
+	s.signingCertCache.invalidate(key)
+	s.currentKeyCache.invalidate(key)
+	s.symmetricKeyCache.invalidate(key)
+	s.allCertificatesCache.invalidate(key)
 }
 
 // currentAlias returns the current (non-expired, past its pre-expiry
@@ -376,6 +432,10 @@ func (s *Service) ensureCurrentKey(ctx context.Context, appID, refID string, par
 	if err != nil {
 		return nil, resident, err
 	}
+	// A new alias is now current (whether generated here or, on a
+	// uni_ident race, by the concurrent request persistNewAlias self-healed
+	// against) — any cached resolution for (appID, refID) predates it.
+	s.invalidateCurrentKeyCaches(appID, refID)
 	s.logger.Debug(ctx, "key generated",
 		applog.String("applicationId", appID), applog.String("referenceId", refID),
 		applog.String("keyId", newAlias.ID), applog.Bool("rotated", current != nil),
@@ -676,6 +736,14 @@ func (s *Service) GetCertificate(ctx context.Context, appID, refID string) (KeyP
 	return s.buildKeyPairResponse(ctx, *alias, ObjectTypeCertificate, resident)
 }
 
+// resolvedCurrentKey is ResolveCurrentKey's cached value — the three values
+// it returns alongside cert, bundled so ttlCache[V] has a single V to store.
+type resolvedCurrentKey struct {
+	cert     *x509.Certificate
+	alias    string
+	resident bool
+}
+
 // ResolveCurrentKey performs the same lazy generate/rotate resolution as
 // GetCertificate, but returns the parsed certificate plus the resolved
 // alias id and keystore-residency flag directly, instead of a PEM-wrapped
@@ -683,7 +751,30 @@ func (s *Service) GetCertificate(ctx context.Context, appID, refID string) (KeyP
 // need the certificate's public key and alias id, not just its PEM
 // encoding. GetCertificate itself is unchanged; this shares ensureCurrentKey
 // with it rather than duplicating its lazy-rotation logic.
+//
+// Cached above resolveCurrentKeyUncached (see Service.currentKeyCache) —
+// Config.KeyCacheExpiry <= 0 disables caching, resolving fresh every call as
+// before.
 func (s *Service) ResolveCurrentKey(ctx context.Context, appID, refID string) (cert *x509.Certificate, alias string, keystoreResident bool, err error) {
+	if s.cfg.KeyCacheExpiry <= 0 {
+		return s.resolveCurrentKeyUncached(ctx, appID, refID)
+	}
+	rck, err := s.currentKeyCache.getOrLoad(cacheKey(appID, refID), func() (resolvedCurrentKey, time.Time, error) {
+		cert, alias, resident, err := s.resolveCurrentKeyUncached(ctx, appID, refID)
+		if err != nil {
+			return resolvedCurrentKey{}, time.Time{}, err
+		}
+		return resolvedCurrentKey{cert: cert, alias: alias, resident: resident}, s.cacheExpiry(cert.NotAfter), nil
+	})
+	if err != nil {
+		return nil, "", false, err
+	}
+	return rck.cert, rck.alias, rck.resident, nil
+}
+
+// resolveCurrentKeyUncached is ResolveCurrentKey's uncached implementation —
+// always resolves fresh against the DB/keystore, respecting lazy rotation.
+func (s *Service) resolveCurrentKeyUncached(ctx context.Context, appID, refID string) (cert *x509.Certificate, alias string, keystoreResident bool, err error) {
 	a, resident, err := s.ensureCurrentKey(ctx, appID, refID, keystore.CertificateParameters{}, false, false)
 	if err != nil {
 		return nil, "", false, err
@@ -782,6 +873,7 @@ func (s *Service) UploadCertificate(ctx context.Context, req UploadCertificateRe
 	if err := s.q.UpdateKeyAlias(ctx, *current); err != nil {
 		return UploadCertificateResponse{}, fmt.Errorf("update key alias: %w", err)
 	}
+	s.invalidateCurrentKeyCaches(req.ApplicationID, req.ReferenceID)
 	return UploadCertificateResponse{Status: statusSuccess, Timestamp: now}, nil
 }
 
@@ -922,12 +1014,20 @@ func (s *Service) GenerateSymmetricKey(ctx context.Context, req SymmetricKeyRequ
 				applog.String("applicationId", req.ApplicationID), applog.String("referenceId", req.ReferenceID),
 				applog.String("keyId", alias))
 		}
+		// Either branch above means (appID, refID)'s current key just
+		// changed — this pod's own or a concurrent request's.
+		s.invalidateCurrentKeyCaches(req.ApplicationID, req.ReferenceID)
 	}
 	return SymmetricKeyResponse{Status: statusSuccess, Timestamp: now}, nil
 }
 
 // RevokeKey immediately invalidates the current key by moving its expiry
-// into the past — no deletion from the keystore.
+// into the past — no deletion from the keystore. This pod's own cache is
+// invalidated synchronously (see invalidateCurrentKeyCaches), so it never
+// serves the revoked key again; other pods still holding a cached
+// resolution for (appID, refID) will keep serving it until their own
+// entries expire, bounded by Config.KeyCacheExpiry — these caches are
+// in-process only, with no cross-pod invalidation.
 func (s *Service) RevokeKey(ctx context.Context, req RevokeKeyRequest) (RevokeKeyResponse, error) {
 	current, err := s.currentAlias(ctx, req.ApplicationID, req.ReferenceID)
 	if err != nil {
@@ -943,6 +1043,7 @@ func (s *Service) RevokeKey(ctx context.Context, req RevokeKeyRequest) (RevokeKe
 	if err := s.q.UpdateKeyAlias(ctx, *current); err != nil {
 		return RevokeKeyResponse{}, fmt.Errorf("update key alias: %w", err)
 	}
+	s.invalidateCurrentKeyCaches(req.ApplicationID, req.ReferenceID)
 	s.logger.Debug(ctx, "key revoked",
 		applog.String("applicationId", req.ApplicationID), applog.String("referenceId", req.ReferenceID),
 		applog.String("keyId", current.ID))
@@ -950,7 +1051,32 @@ func (s *Service) RevokeKey(ctx context.Context, req RevokeKeyRequest) (RevokeKe
 }
 
 // GetAllCertificates returns the full alias history for (appID, refID).
+// GetAllCertificates is cached above getAllCertificatesUncached (see
+// Service.allCertificatesCache) — Config.KeyCacheExpiry <= 0 disables
+// caching, resolving fresh every call as before. Cached the same way as
+// GetCertificate/ResolveCurrentKey, since it's just as much a per-request
+// DB/keystore scan (one query plus one certificateForAlias round trip per
+// historical alias) and is on the hot JWKS/discovery path.
 func (s *Service) GetAllCertificates(ctx context.Context, appID, refID string) (AllCertificatesResponse, error) {
+	if s.cfg.KeyCacheExpiry <= 0 {
+		return s.getAllCertificatesUncached(ctx, appID, refID)
+	}
+	return s.allCertificatesCache.getOrLoad(cacheKey(appID, refID), func() (AllCertificatesResponse, time.Time, error) {
+		resp, err := s.getAllCertificatesUncached(ctx, appID, refID)
+		if err != nil {
+			return AllCertificatesResponse{}, time.Time{}, err
+		}
+		// Unlike cacheExpiry's single-key hardExpiry cap, this list mixes
+		// current and already-expired historical certs (kept around for
+		// verifier compatibility), so an entry's own ExpiryAt isn't a
+		// meaningful cap here — just apply the flat TTL.
+		return resp, time.Now().UTC().Add(s.cfg.KeyCacheExpiry), nil
+	})
+}
+
+// getAllCertificatesUncached is GetAllCertificates' uncached implementation
+// — always resolves fresh against the DB/keystore.
+func (s *Service) getAllCertificatesUncached(ctx context.Context, appID, refID string) (AllCertificatesResponse, error) {
 	aliases, err := s.q.GetKeyAliasesByAppRef(ctx, appID, refID)
 	if err != nil {
 		return AllCertificatesResponse{}, fmt.Errorf("get key aliases: %w", err)
@@ -965,7 +1091,7 @@ func (s *Service) GetAllCertificates(ctx context.Context, appID, refID string) (
 				applog.String("keyId", a.ID), applog.Error(err))
 			continue
 		}
-		cd := CertificateData{CertificateData: encodeCertPEM(cert.Raw), KeyID: a.ID}
+		cd := CertificateData{CertificateData: encodeCertPEM(cert.Raw), KeyID: thumbprintForCert(cert)}
 		if a.KeyGenDtimes != nil {
 			cd.IssuedAt = *a.KeyGenDtimes
 		}
@@ -1033,7 +1159,31 @@ func (s *Service) certificateForAliasByAppRef(ctx context.Context, appID, refID 
 // GetCertificate/GenerateCSR (not GenerateMasterKey, which is restricted to
 // ROOT/Component Master Key tiers only) if expired/absent, and returns the
 // private key entry for use by a future signing component.
+//
+// This is the hot path for every outbound JWS signature (esignet's own
+// token/ID-token/userinfo signing via the runtime crypto provider, plus
+// every outbound IDA request signature) — cached above
+// resolveSigningCertificate (see Service.signingCertCache) so a cache hit
+// costs neither the ~5 DB queries ensureCurrentKey's hierarchy resolution
+// otherwise makes nor a keystore/HSM round trip. Config.KeyCacheExpiry <= 0
+// disables caching, resolving fresh every call as before.
 func (s *Service) GetSigningCertificate(ctx context.Context, appID, refID string) (SigningCertificate, error) {
+	if s.cfg.KeyCacheExpiry <= 0 {
+		return s.resolveSigningCertificate(ctx, appID, refID)
+	}
+	return s.signingCertCache.getOrLoad(cacheKey(appID, refID), func() (SigningCertificate, time.Time, error) {
+		sc, err := s.resolveSigningCertificate(ctx, appID, refID)
+		if err != nil {
+			return SigningCertificate{}, time.Time{}, err
+		}
+		return sc, s.cacheExpiry(sc.ExpiryTime), nil
+	})
+}
+
+// resolveSigningCertificate is GetSigningCertificate's uncached
+// implementation — always resolves fresh against the DB/keystore,
+// respecting lazy rotation.
+func (s *Service) resolveSigningCertificate(ctx context.Context, appID, refID string) (SigningCertificate, error) {
 	alias, _, err := s.ensureCurrentKey(ctx, appID, refID, keystore.CertificateParameters{}, false, false)
 	if err != nil {
 		return SigningCertificate{}, err

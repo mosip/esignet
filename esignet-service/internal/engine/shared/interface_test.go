@@ -58,6 +58,10 @@ func (f *fakeConsolidatedAuthnProvider) SendOTP(_ context.Context, _ map[string]
 	return f.sendOTPResult, nil
 }
 
+func (f *fakeConsolidatedAuthnProvider) GetSigningCertificates(_ context.Context) ([]CertificateData, *common.ServiceError) {
+	return nil, nil
+}
+
 var _ ConsolidatedAuthnProvider = (*fakeConsolidatedAuthnProvider)(nil)
 
 func (ts *InterfaceTestSuite) TestConsolidatedAuthnProviderExtendsAuthnProviderInterface() {
