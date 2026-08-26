@@ -126,10 +126,10 @@ resources:
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
   limits:
-    cpu: 500m
-    memory: 2250Mi
+    cpu: '4'
+    memory: 3000Mi
   requests:
-    cpu: 100m
+    cpu: '2'
     memory: 1500Mi
 
 additionalResources:
@@ -138,7 +138,7 @@ additionalResources:
   ## you change the memory limit. Set explicitly (e.g. "2025MiB") to override the 90%
   ## default, or if resources.limits.memory uses a unit auto-derivation can't parse
   ## (only Ki/Mi/Gi/Ti and unitless bytes are supported).
-  goMemLimit: ""
+  goMemLimit: "2700MiB"
 
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
 ## Clamav container already runs as 'mosip' user, so we may not need to enable this
