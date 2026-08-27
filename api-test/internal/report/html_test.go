@@ -109,8 +109,10 @@ func TestWriteRendersReport(t *testing.T) {
 		}
 	}
 	// The unique filename names the surfaces and encodes the counts, and a matching .json sidecar exists.
-	if base := filepath.Base(path); !strings.HasPrefix(base, "conformance_mosip_") || !strings.Contains(base, "t-5_p-1_f-1_sk-1_ki-1") {
-		t.Errorf("filename = %s, want conformance_mosip_<ts>_t-5_p-1_f-1_sk-1_ki-1", base)
+	// f is every module that did not pass, so the errored one is counted there
+	// rather than going unnamed: 1 passed + 2 not passed + 1 skipped + 1 known = 5.
+	if base := filepath.Base(path); !strings.HasPrefix(base, "conformance_mosip_") || !strings.Contains(base, "t-5_p-1_f-2_sk-1_ki-1") {
+		t.Errorf("filename = %s, want conformance_mosip_<ts>_t-5_p-1_f-2_sk-1_ki-1", base)
 	}
 	jsons, _ := filepath.Glob(filepath.Join(dir, "*.json"))
 	if len(jsons) == 0 {
@@ -406,6 +408,35 @@ func TestSummarize(t *testing.T) {
 	}
 	if !s.HasFailures() {
 		t.Errorf("expected HasFailures = true")
+	}
+	// NotPassed folds in errored, warning and review — the four numbers the
+	// report filename carries must account for every module, or a reader is left
+	// hunting for the difference.
+	if got := s.NotPassed(); got != 4 {
+		t.Errorf("NotPassed() = %d, want 4 (failed + warning + review + errored)", got)
+	}
+	if s.Passed+s.NotPassed()+s.Skipped+s.Known != s.Total {
+		t.Errorf("p+f+sk+ki = %d, want Total %d", s.Passed+s.NotPassed()+s.Skipped+s.Known, s.Total)
+	}
+}
+
+// The filename invariant has to hold for any mix of outcomes, not just the one
+// the fixture above happens to use.
+func TestNotPassedAlwaysAccountsForTheTotal(t *testing.T) {
+	for _, rs := range [][]result.ModuleResult{
+		{},
+		{{Result: "PASSED", HarnessOutcome: result.OutcomeOK}},
+		{{HarnessError: "boom"}, {HarnessError: "boom"}},
+		{{HarnessOutcome: result.OutcomeEnvNotReady}, {Result: "SKIPPED", HarnessOutcome: result.OutcomeSkippedByHarness}},
+		{{HarnessOutcome: result.OutcomeKnownIssue}, {Result: "WARNING", HarnessOutcome: result.OutcomeOK}, {Result: "WEIRD"}},
+	} {
+		s := result.Summarize(rs)
+		if s.Passed+s.NotPassed()+s.Skipped+s.Known != s.Total {
+			t.Errorf("summary %+v: p+f+sk+ki != Total", s)
+		}
+		if s.NotPassed() < 0 {
+			t.Errorf("summary %+v: NotPassed() is negative", s)
+		}
 	}
 }
 
