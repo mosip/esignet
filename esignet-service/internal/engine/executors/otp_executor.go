@@ -20,7 +20,6 @@ import (
 const (
 	// ExecutorNameEsignetOTP sends OTP.
 	ExecutorNameEsignetOTP = "eSignetOtpExecutor"
-	usernameAttr           = "username"
 	maskedEmail            = "maskedEmail"
 	maskedMobile           = "maskedMobile"
 
@@ -34,8 +33,10 @@ const (
 	defaultMaxOTPAttempts = 3
 )
 
-var individualIDInput = providers.Input{
-	Identifier: usernameAttr,
+// defaultIndividualIDInput is used by flows that do not declare their own identifier input,
+// i.e. those that offer a single, untyped login ID.
+var defaultIndividualIDInput = providers.Input{
+	Identifier: shared.LoginIDUsername,
 	Type:       providers.InputTypeText,
 	Required:   true,
 }
@@ -69,7 +70,12 @@ func (e *otpExecutor) GetMeta() *providers.ExecutorMeta {
 }
 
 func (e *otpExecutor) GetPrerequisites() []providers.Input {
-	return []providers.Input{individualIDInput}
+	return []providers.Input{defaultIndividualIDInput}
+}
+
+// GetDefaultInputs returns the untyped identifier input used when a node declares none.
+func (e *otpExecutor) GetDefaultInputs() []providers.Input {
+	return []providers.Input{defaultIndividualIDInput}
 }
 
 func (e *otpExecutor) GetRequiredInputs(ctx *providers.NodeContext) []providers.Input {
@@ -81,7 +87,7 @@ func (e *otpExecutor) GetRequiredInputs(ctx *providers.NodeContext) []providers.
 
 func (e *otpExecutor) ValidatePrerequisites(ctx *providers.NodeContext, _ *providers.ExecutorResponse,
 	_ providers.AuthnProviderManager) bool {
-	_, err := usernameFromContext(ctx)
+	_, _, err := e.individualIDFromContext(ctx)
 	return err == nil
 }
 
@@ -92,7 +98,7 @@ func (e *otpExecutor) Execute(ctx *providers.NodeContext) (*providers.ExecutorRe
 		return execResp, nil
 	}
 
-	username, err := usernameFromContext(ctx)
+	individualID, loginIDKey, err := e.individualIDFromContext(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -105,21 +111,21 @@ func (e *otpExecutor) Execute(ctx *providers.NodeContext) (*providers.ExecutorRe
 		return execResp, nil
 	}
 
-	result, serviceError := e.authn.SendOTP(ctx.Context, map[string]any{usernameAttr: username},
+	result, serviceError := e.authn.SendOTP(ctx.Context, map[string]any{loginIDKey: individualID},
 		BuildProviderMetadata(ctx))
 	if serviceError != nil {
-		// username is the individual's identity number and must not be logged.
+		// The individual ID is the user's identity number and must not be logged.
 		applog.GetLogger().Warn(ctx.Context, "failed to send OTP", applog.String("errorCode", serviceError.Code))
 		// Return ExecUserInputRequired (not ExecFailure) so the flow stays alive and re-prompts for
 		// the individual ID: ExecFailure maps to NodeStatusFailure, and since this node has no
 		// onFailure target configured, that would terminate the flow session (flowStatus: ERROR)
-		// instead of letting the user correct a mistyped username and retry.
+		// instead of letting the user correct a mistyped identifier and retry.
 		if serviceError.Type == common.ClientErrorType {
 			// Count client-error attempts (e.g. invalid/unknown individual ID) against the same
 			// cap as successful sends, so maxAttempts also bounds repeated probing.
 			ctx.RuntimeData[otpAttemptCountKey] = strconv.Itoa(attemptCount + 1)
 			execResp.Status = providers.ExecUserInputRequired
-			execResp.Inputs = []providers.Input{individualIDInput}
+			execResp.Inputs = e.GetRequiredInputs(ctx)
 			execResp.Error = serviceError
 			return execResp, nil
 		}
@@ -132,6 +138,7 @@ func (e *otpExecutor) Execute(ctx *providers.NodeContext) (*providers.ExecutorRe
 	// passed to Authenticate and GetAttribute method of AuthnProvider
 	ctx.RuntimeData[providerExtendedKeyPrefix+"TransactionID"] = result.TransactionID
 	ctx.RuntimeData[otpAttemptCountKey] = strconv.Itoa(attemptCount + 1)
+	clearOtherLoginIDs(ctx, loginIDKey)
 
 	execResp.ForwardedData[maskedEmail] = result.MaskedEmail
 	execResp.ForwardedData[maskedMobile] = result.MaskedMobile
@@ -147,7 +154,7 @@ func (e *otpExecutor) ensurePrerequisites(
 	}
 
 	execResp.Status = providers.ExecUserInputRequired
-	execResp.Inputs = []providers.Input{individualIDInput}
+	execResp.Inputs = e.GetRequiredInputs(ctx)
 	return false
 }
 
@@ -181,12 +188,44 @@ func maxOTPAttemptsFromContext(ctx *providers.NodeContext) int {
 	return defaultMaxOTPAttempts
 }
 
-func usernameFromContext(ctx *providers.NodeContext) (string, error) {
-	if username := ctx.UserInputs[usernameAttr]; username != "" {
-		return username, nil
+// individualIDFromContext returns the individual ID supplied for this node along with the
+// identifier key that carried it, so the login ID type is preserved for the authn provider.
+// The node's declared inputs are tried first; nodes reachable from several identifier prompts
+// declare none and fall back to whichever login ID the flow already holds.
+func (e *otpExecutor) individualIDFromContext(ctx *providers.NodeContext) (string, string, error) {
+	for _, input := range e.GetRequiredInputs(ctx) {
+		if value, ok := lookupIdentifier(ctx, input.Identifier); ok {
+			return value, input.Identifier, nil
+		}
 	}
-	if username := ctx.RuntimeData[usernameAttr]; username != "" {
-		return username, nil
+	for _, key := range shared.LoginIDKeys {
+		if value, ok := lookupIdentifier(ctx, key); ok {
+			return value, key, nil
+		}
 	}
-	return "", fmt.Errorf("username not found in context")
+	return "", "", fmt.Errorf("individual id not found in context")
+}
+
+// lookupIdentifier reads an identifier from the current submission, falling back to values
+// collected earlier in the flow.
+func lookupIdentifier(ctx *providers.NodeContext, identifier string) (string, bool) {
+	if value := ctx.UserInputs[identifier]; value != "" {
+		return value, true
+	}
+	if value := ctx.RuntimeData[identifier]; value != "" {
+		return value, true
+	}
+	return "", false
+}
+
+// clearOtherLoginIDs drops every login identifier except the one just used, so a shared
+// downstream node is not left with an identifier abandoned during an earlier attempt.
+func clearOtherLoginIDs(ctx *providers.NodeContext, inUse string) {
+	for _, key := range shared.LoginIDKeys {
+		if key == inUse {
+			continue
+		}
+		delete(ctx.UserInputs, key)
+		delete(ctx.RuntimeData, key)
+	}
 }

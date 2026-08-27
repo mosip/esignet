@@ -90,8 +90,8 @@ func (ts *OtpExecutorTestSuite) TestNameTypeAndPrerequisites() {
 		t.Errorf("GetType() = %q, want %q", e.GetType(), providers.ExecutorTypeAuthentication)
 	}
 	prereqs := e.GetPrerequisites()
-	if len(prereqs) != 1 || prereqs[0].Identifier != usernameAttr {
-		t.Errorf("GetPrerequisites() = %v, want single %q input", prereqs, usernameAttr)
+	if len(prereqs) != 1 || prereqs[0].Identifier != "username" {
+		t.Errorf("GetPrerequisites() = %v, want single %q input", prereqs, "username")
 	}
 }
 
@@ -107,11 +107,11 @@ func (ts *OtpExecutorTestSuite) TestGetRequiredInputs() {
 		}
 	})
 
-	t.Run("without configured node inputs falls back to defaults", func(t *testing.T) {
+	t.Run("without configured node inputs falls back to the untyped identifier", func(t *testing.T) {
 		ctx := &providers.NodeContext{}
 		got := e.GetRequiredInputs(ctx)
-		if got != nil {
-			t.Errorf("GetRequiredInputs() = %v, want nil default", got)
+		if len(got) != 1 || got[0].Identifier != shared.LoginIDUsername {
+			t.Errorf("GetRequiredInputs() = %v, want the default identifier input", got)
 		}
 	})
 }
@@ -121,7 +121,7 @@ func (ts *OtpExecutorTestSuite) TestValidatePrerequisites() {
 	e := NewOtpExecutor(&fakeAuthnProvider{})
 
 	t.Run("username in user inputs", func(t *testing.T) {
-		ctx := newOtpNodeContext(map[string]string{usernameAttr: "user1"}, nil)
+		ctx := newOtpNodeContext(map[string]string{"username": "user1"}, nil)
 		if !e.ValidatePrerequisites(ctx, &providers.ExecutorResponse{}, nil) {
 			t.Error("expected ValidatePrerequisites to be true")
 		}
@@ -147,8 +147,8 @@ func (ts *OtpExecutorTestSuite) TestExecuteMissingUsernameRequestsInput() {
 	if resp.Status != providers.ExecUserInputRequired {
 		t.Errorf("Status = %q, want %q", resp.Status, providers.ExecUserInputRequired)
 	}
-	if len(resp.Inputs) != 1 || resp.Inputs[0].Identifier != usernameAttr {
-		t.Errorf("Inputs = %v, want single %q input", resp.Inputs, usernameAttr)
+	if len(resp.Inputs) != 1 || resp.Inputs[0].Identifier != "username" {
+		t.Errorf("Inputs = %v, want single %q input", resp.Inputs, "username")
 	}
 }
 
@@ -162,7 +162,7 @@ func (ts *OtpExecutorTestSuite) TestExecuteSuccessViaUserInputs() {
 		},
 	}
 	e := NewOtpExecutor(provider)
-	ctx := newOtpNodeContext(map[string]string{usernameAttr: "user1"}, map[string]string{})
+	ctx := newOtpNodeContext(map[string]string{"username": "user1"}, map[string]string{})
 
 	resp, err := e.Execute(ctx)
 	if err != nil {
@@ -180,8 +180,8 @@ func (ts *OtpExecutorTestSuite) TestExecuteSuccessViaUserInputs() {
 	if got := ctx.RuntimeData[providerExtendedKeyPrefix+"TransactionID"]; got != "txn-1" {
 		t.Errorf("RuntimeData transaction id = %q, want txn-1", got)
 	}
-	if provider.lastIdentifiers[usernameAttr] != "user1" {
-		t.Errorf("SendOTP identifiers[username] = %v, want user1", provider.lastIdentifiers[usernameAttr])
+	if provider.lastIdentifiers["username"] != "user1" {
+		t.Errorf("SendOTP identifiers[username] = %v, want user1", provider.lastIdentifiers["username"])
 	}
 }
 
@@ -189,7 +189,7 @@ func (ts *OtpExecutorTestSuite) TestExecuteSuccessViaRuntimeData() {
 	t := ts.T()
 	provider := &fakeAuthnProvider{sendOTPResult: &shared.SendOTPResult{TransactionID: "txn-2"}}
 	e := NewOtpExecutor(provider)
-	ctx := newOtpNodeContext(map[string]string{}, map[string]string{usernameAttr: "user2"})
+	ctx := newOtpNodeContext(map[string]string{}, map[string]string{"username": "user2"})
 
 	resp, err := e.Execute(ctx)
 	if err != nil {
@@ -198,8 +198,8 @@ func (ts *OtpExecutorTestSuite) TestExecuteSuccessViaRuntimeData() {
 	if resp.Status != providers.ExecComplete {
 		t.Errorf("Status = %q, want %q", resp.Status, providers.ExecComplete)
 	}
-	if provider.lastIdentifiers[usernameAttr] != "user2" {
-		t.Errorf("SendOTP identifiers[username] = %v, want user2", provider.lastIdentifiers[usernameAttr])
+	if provider.lastIdentifiers["username"] != "user2" {
+		t.Errorf("SendOTP identifiers[username] = %v, want user2", provider.lastIdentifiers["username"])
 	}
 }
 
@@ -207,7 +207,7 @@ func (ts *OtpExecutorTestSuite) TestExecuteClientErrorReturnsUserInputRequiredSt
 	t := ts.T()
 	provider := &fakeAuthnProvider{sendOTPErr: shared.SendOTPFailedError}
 	e := NewOtpExecutor(provider)
-	ctx := newOtpNodeContext(map[string]string{usernameAttr: "user1"}, map[string]string{})
+	ctx := newOtpNodeContext(map[string]string{"username": "user1"}, map[string]string{})
 
 	resp, err := e.Execute(ctx)
 	if err != nil {
@@ -218,8 +218,8 @@ func (ts *OtpExecutorTestSuite) TestExecuteClientErrorReturnsUserInputRequiredSt
 	if resp.Status != providers.ExecUserInputRequired {
 		t.Errorf("Status = %q, want %q", resp.Status, providers.ExecUserInputRequired)
 	}
-	if len(resp.Inputs) != 1 || resp.Inputs[0].Identifier != usernameAttr {
-		t.Errorf("Inputs = %v, want [%s]", resp.Inputs, usernameAttr)
+	if len(resp.Inputs) != 1 || resp.Inputs[0].Identifier != "username" {
+		t.Errorf("Inputs = %v, want [%s]", resp.Inputs, "username")
 	}
 	if resp.Error != shared.SendOTPFailedError {
 		t.Errorf("Error = %v, want %v", resp.Error, shared.SendOTPFailedError)
@@ -230,7 +230,7 @@ func (ts *OtpExecutorTestSuite) TestExecuteClientErrorIncrementsAttemptCount() {
 	t := ts.T()
 	provider := &fakeAuthnProvider{sendOTPErr: shared.SendOTPFailedError}
 	e := NewOtpExecutor(provider)
-	ctx := newOtpNodeContext(map[string]string{usernameAttr: "user1"}, map[string]string{})
+	ctx := newOtpNodeContext(map[string]string{"username": "user1"}, map[string]string{})
 
 	if _, err := e.Execute(ctx); err != nil {
 		t.Fatalf("Execute() error = %v", err)
@@ -244,7 +244,7 @@ func (ts *OtpExecutorTestSuite) TestExecuteServerErrorPropagatesAsGoError() {
 	t := ts.T()
 	provider := &fakeAuthnProvider{sendOTPErr: &common.ServiceError{Code: "internal_error", Type: common.ServerErrorType}}
 	e := NewOtpExecutor(provider)
-	ctx := newOtpNodeContext(map[string]string{usernameAttr: "user1"}, map[string]string{})
+	ctx := newOtpNodeContext(map[string]string{"username": "user1"}, map[string]string{})
 
 	resp, err := e.Execute(ctx)
 	if err == nil {
@@ -269,7 +269,7 @@ func (ts *OtpExecutorTestSuite) TestExecuteAttemptCountIncrementsOnSuccess() {
 	t := ts.T()
 	provider := &fakeAuthnProvider{sendOTPResult: &shared.SendOTPResult{TransactionID: "txn-1"}}
 	e := NewOtpExecutor(provider)
-	ctx := newOtpNodeContext(map[string]string{usernameAttr: "user1"}, map[string]string{})
+	ctx := newOtpNodeContext(map[string]string{"username": "user1"}, map[string]string{})
 
 	if _, err := e.Execute(ctx); err != nil {
 		t.Fatalf("Execute() error = %v", err)
@@ -290,7 +290,7 @@ func (ts *OtpExecutorTestSuite) TestExecuteBlocksAtDefaultMaxAttempts() {
 	t := ts.T()
 	provider := &fakeAuthnProvider{sendOTPResult: &shared.SendOTPResult{TransactionID: "txn-1"}}
 	e := NewOtpExecutor(provider)
-	ctx := newOtpNodeContext(map[string]string{usernameAttr: "user1"},
+	ctx := newOtpNodeContext(map[string]string{"username": "user1"},
 		map[string]string{otpAttemptCountKey: "3"})
 
 	resp, err := e.Execute(ctx)
@@ -312,7 +312,7 @@ func (ts *OtpExecutorTestSuite) TestExecuteRespectsConfiguredMaxAttempts() {
 	t := ts.T()
 	provider := &fakeAuthnProvider{sendOTPResult: &shared.SendOTPResult{TransactionID: "txn-1"}}
 	e := NewOtpExecutor(provider)
-	ctx := newOtpNodeContext(map[string]string{usernameAttr: "user1"},
+	ctx := newOtpNodeContext(map[string]string{"username": "user1"},
 		map[string]string{otpAttemptCountKey: "1"})
 	ctx.NodeProperties = map[string]interface{}{propertyKeyMaxAttempts: "1"}
 
@@ -359,4 +359,91 @@ type OtpExecutorTestSuite struct {
 
 func TestOtpExecutorTestSuite(t *testing.T) {
 	suite.Run(t, new(OtpExecutorTestSuite))
+}
+
+func (ts *OtpExecutorTestSuite) TestExecutePassesLoginIDUnderItsOwnKey() {
+	t := ts.T()
+	authn := &fakeAuthnProvider{sendOTPResult: &shared.SendOTPResult{TransactionID: "txn-1"}}
+	e := NewOtpExecutor(authn)
+
+	ctx := &providers.NodeContext{
+		NodeInputs:  []providers.Input{{Identifier: shared.LoginIDPhone, Type: providers.InputTypeText}},
+		UserInputs:  map[string]string{shared.LoginIDPhone: "+919876543210@phone"},
+		RuntimeData: map[string]string{},
+	}
+
+	resp, err := e.Execute(ctx)
+	if err != nil {
+		t.Fatalf("Execute() error = %v", err)
+	}
+	if resp.Status != providers.ExecComplete {
+		t.Fatalf("Execute() status = %v, want %v", resp.Status, providers.ExecComplete)
+	}
+	if got := authn.lastIdentifiers[shared.LoginIDPhone]; got != "+919876543210@phone" {
+		t.Errorf("identifiers = %v, want the value under the phone key", authn.lastIdentifiers)
+	}
+}
+
+func (ts *OtpExecutorTestSuite) TestExecuteClearsAbandonedLoginIDs() {
+	t := ts.T()
+	e := NewOtpExecutor(&fakeAuthnProvider{sendOTPResult: &shared.SendOTPResult{TransactionID: "txn-1"}})
+
+	// The user tried a UIN first, then switched to mobile; only the mobile ID must survive.
+	ctx := &providers.NodeContext{
+		NodeInputs: []providers.Input{{Identifier: shared.LoginIDPhone, Type: providers.InputTypeText}},
+		UserInputs: map[string]string{
+			shared.LoginIDUIN:   "4358192047",
+			shared.LoginIDPhone: "+919876543210@phone",
+		},
+		RuntimeData: map[string]string{},
+	}
+
+	if _, err := e.Execute(ctx); err != nil {
+		t.Fatalf("Execute() error = %v", err)
+	}
+	if _, stale := ctx.UserInputs[shared.LoginIDUIN]; stale {
+		t.Errorf("UserInputs = %v, want the abandoned uin cleared", ctx.UserInputs)
+	}
+	if ctx.UserInputs[shared.LoginIDPhone] == "" {
+		t.Errorf("UserInputs = %v, want the phone in use retained", ctx.UserInputs)
+	}
+}
+
+func (ts *OtpExecutorTestSuite) TestExecuteFallsBackToUntypedIdentifier() {
+	t := ts.T()
+	authn := &fakeAuthnProvider{sendOTPResult: &shared.SendOTPResult{TransactionID: "txn-1"}}
+	e := NewOtpExecutor(authn)
+
+	// A flow that declares no inputs keeps the untyped "username" identifier.
+	ctx := &providers.NodeContext{
+		UserInputs:  map[string]string{shared.LoginIDUsername: "ind-1"},
+		RuntimeData: map[string]string{},
+	}
+
+	if _, err := e.Execute(ctx); err != nil {
+		t.Fatalf("Execute() error = %v", err)
+	}
+	if got := authn.lastIdentifiers[shared.LoginIDUsername]; got != "ind-1" {
+		t.Errorf("identifiers = %v, want the value under the username key", authn.lastIdentifiers)
+	}
+}
+
+// A node reachable from several identifier prompts (the resend node) declares no inputs, so
+// that a failed resend does not clear the identifier the flow already holds.
+func (ts *OtpExecutorTestSuite) TestExecuteResolvesLoginIDWithoutDeclaredInputs() {
+	t := ts.T()
+	authn := &fakeAuthnProvider{sendOTPResult: &shared.SendOTPResult{TransactionID: "txn-1"}}
+	e := NewOtpExecutor(authn)
+
+	ctx := &providers.NodeContext{
+		UserInputs:  map[string]string{shared.LoginIDEmail: "alice@example.com@email"},
+		RuntimeData: map[string]string{},
+	}
+
+	if _, err := e.Execute(ctx); err != nil {
+		t.Fatalf("Execute() error = %v", err)
+	}
+	if got := authn.lastIdentifiers[shared.LoginIDEmail]; got != "alice@example.com@email" {
+		t.Errorf("identifiers = %v, want the value under the email key", authn.lastIdentifiers)
+	}
 }

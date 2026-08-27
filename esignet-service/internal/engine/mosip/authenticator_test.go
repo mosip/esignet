@@ -1630,3 +1630,58 @@ func readAll(r *http.Request) ([]byte, error) {
 	defer func() { _ = r.Body.Close() }()
 	return io.ReadAll(r.Body)
 }
+
+// ---------------------------------------------------------------------------
+// Login ID type
+// ---------------------------------------------------------------------------
+
+// TestSendOTPSetsIndividualIDType asserts the outbound send-otp body carries the
+// individualIdType implied by the identifier key the flow supplied. The uin key is left
+// unset because that field accepts both a UIN and a VID, so IDA resolves it.
+func (ts *AuthenticatorTestSuite) TestSendOTPSetsIndividualIDType() {
+	tests := []struct {
+		identifierKey string
+		wantIDType    string
+	}{
+		{shared.LoginIDPhone, "HANDLE"},
+		{shared.LoginIDEmail, "HANDLE"},
+		{shared.LoginIDNRC, "HANDLE"},
+		{shared.LoginIDUIN, ""},
+		{shared.LoginIDUsername, ""},
+	}
+
+	for _, tc := range tests {
+		ts.Run(tc.identifierKey, func() {
+			t := ts.T()
+			var sent IdaSendOtpRequest
+			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				require.NoError(t, json.NewDecoder(r.Body).Decode(&sent))
+				w.Header().Set("Content-Type", "application/json")
+				_, _ = w.Write([]byte(`{"response":{"maskedEmail":"a***@b.com"}}`))
+			}))
+			defer srv.Close()
+
+			p := newProvider(newValidClientService())
+			configureSigning(t, p)
+			p.cfg.SendOTPBaseURL = srv.URL
+
+			_, svcErr := p.SendOTP(context.Background(),
+				map[string]interface{}{tc.identifierKey: "ind-1"}, authnMetadataFor("client-1"))
+			require.Nil(t, svcErr)
+			require.Equal(t, "ind-1", sent.IndividualID)
+			require.Equal(t, tc.wantIDType, sent.IndividualIDType)
+			require.Equal(t, []string{"phone", "email"}, sent.OtpChannel)
+		})
+	}
+}
+
+// TestSendOTPRejectsUnknownIdentifierKey asserts an identifiers map carrying no known login
+// ID key is rejected rather than silently authenticating without an identifier.
+func (ts *AuthenticatorTestSuite) TestSendOTPRejectsUnknownIdentifierKey() {
+	t := ts.T()
+	p := newProvider(newValidClientService())
+
+	_, svcErr := p.SendOTP(context.Background(),
+		map[string]interface{}{"passport": "ind-1"}, authnMetadataFor("client-1"))
+	require.Same(t, shared.InvalidRequestError, svcErr)
+}
