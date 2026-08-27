@@ -143,7 +143,10 @@ type jwksKey struct {
 	E   string `json:"e"`
 }
 
-// verifyJWS verifies a compact RS256 JWS against the keys at jwksURL, matching by kid when present.
+// verifyJWS verifies a compact JWS against the keys at jwksURL, matching by kid
+// when present. Both RSA signature families are accepted, mirroring signJWS:
+// eSignet's discovery advertises whichever it signs with, and a deployment
+// publishing PS256 only (RSA-PSS) is as valid as one on RS256 (PKCS#1 v1.5).
 func verifyJWS(ctx context.Context, token, jwksURL string, tlsVerify bool) error {
 	parts := strings.Split(strings.TrimSpace(token), ".")
 	if len(parts) != 3 {
@@ -159,8 +162,8 @@ func verifyJWS(ctx context.Context, token, jwksURL string, tlsVerify bool) error
 		Alg string `json:"alg"`
 	}
 	_ = json.Unmarshal(hb, &hdr)
-	if hdr.Alg != "RS256" {
-		return fmt.Errorf("unexpected alg %q (want RS256)", hdr.Alg)
+	if hdr.Alg != "RS256" && hdr.Alg != "PS256" {
+		return fmt.Errorf("unexpected alg %q (want RS256 or PS256)", hdr.Alg)
 	}
 
 	keys, err := fetchJWKS(ctx, jwksURL, tlsVerify)
@@ -184,7 +187,16 @@ func verifyJWS(ctx context.Context, token, jwksURL string, tlsVerify bool) error
 		if err != nil {
 			continue
 		}
-		if rsa.VerifyPKCS1v15(pub, crypto.SHA256, sum[:], sig) == nil {
+		// The header alg picked above decides the scheme; a key that does not
+		// verify falls through to the next one exactly as before.
+		var verr error
+		if hdr.Alg == "PS256" {
+			verr = rsa.VerifyPSS(pub, crypto.SHA256, sum[:], sig,
+				&rsa.PSSOptions{SaltLength: rsa.PSSSaltLengthAuto, Hash: crypto.SHA256})
+		} else {
+			verr = rsa.VerifyPKCS1v15(pub, crypto.SHA256, sum[:], sig)
+		}
+		if verr == nil {
 			return nil
 		}
 	}
