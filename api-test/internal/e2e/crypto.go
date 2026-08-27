@@ -191,8 +191,12 @@ func verifyJWS(ctx context.Context, token, jwksURL string, tlsVerify bool) error
 		// verify falls through to the next one exactly as before.
 		var verr error
 		if hdr.Alg == "PS256" {
+			// Same salt policy signJWS signs under: RFC 7518 fixes the PS256
+			// salt at the hash length, so auto-detecting it here would accept a
+			// signature the spec does not allow — the opposite of what a
+			// harness looking for target-side deviations should do.
 			verr = rsa.VerifyPSS(pub, crypto.SHA256, sum[:], sig,
-				&rsa.PSSOptions{SaltLength: rsa.PSSSaltLengthAuto, Hash: crypto.SHA256})
+				&rsa.PSSOptions{SaltLength: rsa.PSSSaltLengthEqualsHash, Hash: crypto.SHA256})
 		} else {
 			verr = rsa.VerifyPKCS1v15(pub, crypto.SHA256, sum[:], sig)
 		}

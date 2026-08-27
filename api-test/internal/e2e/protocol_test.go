@@ -1,12 +1,15 @@
 package e2e
 
 import (
+	"context"
 	"crypto"
+	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha256"
 	"encoding/json"
 	"math/big"
 	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 )
@@ -325,6 +328,50 @@ func TestSignJWSPS256VerifiesAsPSS(t *testing.T) {
 	// And must NOT verify as PKCS#1 v1.5, or the alg header would be a lie.
 	if err := rsa.VerifyPKCS1v15(&priv.PublicKey, crypto.SHA256, sum[:], sig); err == nil {
 		t.Error("a PS256 signature verified as PKCS#1 v1.5")
+	}
+}
+
+// verifyJWS must hold a PS256 signature to the salt length RFC 7518 fixes it
+// at. Auto-detecting the salt would verify the maximal-salt signature below,
+// which no conforming JWS producer emits — and a harness that exists to surface
+// target-side deviations must not be the thing that hides one.
+func TestVerifyJWSRejectsANonStandardPS256Salt(t *testing.T) {
+	priv, err := generateRSA()
+	if err != nil {
+		t.Fatalf("keygen: %v", err)
+	}
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{"keys": []jwksKey{{
+			Kid: "k1",
+			Kty: "RSA",
+			N:   b64(priv.PublicKey.N.Bytes()),
+			E:   b64(big.NewInt(int64(priv.PublicKey.E)).Bytes()),
+		}}})
+	}))
+	defer srv.Close()
+
+	// Same signing input either way; only the salt length differs.
+	signWithSalt := func(saltLen int) string {
+		hdr := b64([]byte(`{"alg":"PS256","kid":"k1"}`))
+		pl := b64([]byte(`{"sub":"u1"}`))
+		sum := sha256.Sum256([]byte(hdr + "." + pl))
+		sig, serr := rsa.SignPSS(rand.Reader, priv, crypto.SHA256, sum[:],
+			&rsa.PSSOptions{SaltLength: saltLen, Hash: crypto.SHA256})
+		if serr != nil {
+			t.Fatalf("SignPSS(salt=%d): %v", saltLen, serr)
+		}
+		return hdr + "." + pl + "." + b64(sig)
+	}
+
+	// The conforming signature is the control: if this does not verify, the
+	// rejection below proves nothing.
+	if err := verifyJWS(context.Background(), signWithSalt(rsa.PSSSaltLengthEqualsHash), srv.URL, true); err != nil {
+		t.Fatalf("a hash-length-salt PS256 JWS failed to verify: %v", err)
+	}
+	if err := verifyJWS(context.Background(), signWithSalt(rsa.PSSSaltLengthAuto), srv.URL, true); err == nil {
+		t.Error("a PS256 JWS with a maximal salt was accepted; RFC 7518 fixes the salt at the hash length")
 	}
 }
 
