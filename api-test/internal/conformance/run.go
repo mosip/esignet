@@ -30,6 +30,60 @@ var unsupportedModuleHints = map[string]string{
 	"ciba":         "ciba",
 }
 
+// moduleBehavior describes the non-default driving a particular module needs.
+// The zero value is the ordinary happy path: approve consent, authenticate on
+// the first visit, drive each browser URL once.
+type moduleBehavior struct {
+	// consent answers the consent step; the zero value approves everything.
+	consent esignet.ConsentPolicy
+	// followRejection posts the flow's errorAssertion so the RP receives the
+	// error redirect instead of the flow being reported as merely failed.
+	followRejection bool
+	// loadOnlyVisits is how many leading browser visits load the login page
+	// without authenticating.
+	loadOnlyVisits int
+	// maxVisits is how many times the same browser URL may be driven; 0 means 1.
+	maxVisits int
+}
+
+// moduleBehaviors maps a module-name substring to the behaviour it needs,
+// matched the same way as unsupportedModuleHints.
+var moduleBehaviors = map[string]moduleBehavior{
+	// The suite waits for error=access_denied at the RP: "the tester MUST press
+	// 'cancel' on the login screen or deny consent". Denying every consent
+	// element ends the flow in ERROR with an errorAssertion, and following that
+	// through to the callback is what turns it into the redirect the suite wants.
+	"user-rejects-authentication": {
+		consent:         esignet.ConsentPolicy{DenyAll: true},
+		followRejection: true,
+	},
+	// Proves a request_uri can be reused before authentication completes. The
+	// first visit must reach the login page and stop — authenticating there makes
+	// the suite abort with "The user was authenticated on the initial visit to
+	// login page" — and the second visit completes the login.
+	"par-ensure-reused-request-uri-prior-to-auth-completion-succeeds": {
+		loadOnlyVisits: 1,
+		maxVisits:      2,
+	},
+}
+
+// behaviorFor returns the behaviour configured for a module, or the zero value.
+func behaviorFor(module string) moduleBehavior {
+	for hint, b := range moduleBehaviors {
+		if strings.Contains(module, hint) {
+			return b
+		}
+	}
+	return moduleBehavior{}
+}
+
+func (b moduleBehavior) visitBudget() int {
+	if b.maxVisits < 1 {
+		return 1
+	}
+	return b.maxVisits
+}
+
 type Orchestrator struct {
 	cfg    *config.Config
 	client *Client
@@ -250,7 +304,19 @@ func (o *Orchestrator) runModule(ctx context.Context, plan *PlanResponse, m Modu
 	if poll <= 0 {
 		poll = time.Second
 	}
-	handled := map[string]bool{}
+	// Per-module driving. One Driver is shared across every module, so both
+	// switches are restored before returning — leaving DenyAll on would silently
+	// deny consent for every module that follows.
+	behavior := behaviorFor(m.TestModule)
+	driver.SetConsentPolicy(behavior.consent)
+	driver.SetFollowRejection(behavior.followRejection)
+	defer func() {
+		driver.SetConsentPolicy(esignet.ConsentPolicy{})
+		driver.SetFollowRejection(false)
+	}()
+
+	visits := map[string]int{}
+	visitCount := 0
 
 	for {
 		info, err := o.client.GetInfo(ctx, test.ID)
@@ -269,11 +335,12 @@ func (o *Orchestrator) runModule(ctx context.Context, plan *PlanResponse, m Modu
 			res.HarnessError = err.Error()
 			break
 		}
-		pending := pendingURLs(runner.Browser, handled)
+		pending := pendingURLs(runner.Browser, visits, behavior.visitBudget())
 		if len(pending) > 0 {
 			for _, u := range pending {
-				o.driveOne(ctx, driver, u, &res)
-				handled[u] = true
+				o.driveOne(ctx, driver, u, &res, visitCount < behavior.loadOnlyVisits)
+				visits[u]++
+				visitCount++
 				if res.HarnessError != "" {
 					break
 				}
@@ -322,10 +389,26 @@ func (o *Orchestrator) runModule(ctx context.Context, plan *PlanResponse, m Modu
 }
 
 // driveOne drives a single authorize URL through eSignet and hands the code back to the suite.
-func (o *Orchestrator) driveOne(ctx context.Context, driver *esignet.Driver, authorizeURL string, res *result.ModuleResult) {
+func (o *Orchestrator) driveOne(ctx context.Context, driver *esignet.Driver, authorizeURL string,
+	res *result.ModuleResult, loadOnly bool) {
 	base, err := o.esignetBase(authorizeURL)
 	if err != nil {
 		res.HarnessError = err.Error()
+		return
+	}
+
+	// A load-only visit stops at the login page on purpose, so there is no
+	// assertion and no redirect to deliver — the suite drives the next visit.
+	if loadOnly {
+		flow := driver.RunToLogin(ctx, base, authorizeURL)
+		res.FlowTrace.AuthorizeStatus = flow.AuthorizeStatus
+		res.FlowTrace.Steps = append(res.FlowTrace.Steps, flow.Steps...)
+		res.Calls = append(res.Calls, flow.Calls...)
+		if flow.Error != "" {
+			res.HarnessError = "eSignet flow: " + flow.Error
+		} else if !flow.LoginReached {
+			res.HarnessError = "eSignet flow: login page not reached on the load-only visit"
+		}
 		return
 	}
 
@@ -465,14 +548,23 @@ func unsupportedReason(module string, variant map[string]any) string {
 	return ""
 }
 
-func pendingURLs(b Browser, handled map[string]bool) []string {
+// pendingURLs returns the browser URLs still to be driven. visits counts how
+// many times this run has already driven each URL and budget caps that count —
+// with the default budget of 1 this is the original "drive each URL once"
+// behaviour. A budget above 1 lets a module be sent to the same authorize URL
+// again, which par-ensure-reused-request-uri needs: its first visit deliberately
+// does not authenticate, so the same request_uri must be drivable a second time.
+func pendingURLs(b Browser, visits map[string]int, budget int) []string {
+	if budget < 1 {
+		budget = 1
+	}
 	visited := map[string]bool{}
 	for _, v := range b.Visited {
 		visited[v] = true
 	}
 	var out []string
 	for _, u := range b.URLs {
-		if !visited[u] && !handled[u] {
+		if !visited[u] && visits[u] < budget {
 			out = append(out, u)
 		}
 	}

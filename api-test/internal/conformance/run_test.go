@@ -103,3 +103,65 @@ func TestUnsupportedReasonReadsTheResponseModeVariant(t *testing.T) {
 		t.Errorf("unsupportedReason(logout module) = %q, want logout", got)
 	}
 }
+
+// The visit budget defaults to 1, which must reproduce the original
+// "drive each browser URL once" behaviour exactly: a URL already driven, or one
+// the suite has marked visited, is not returned again.
+func TestPendingURLsDefaultBudgetDrivesEachURLOnce(t *testing.T) {
+	b := Browser{URLs: []string{"https://a/authorize", "https://b/authorize"}}
+	visits := map[string]int{}
+
+	got := pendingURLs(b, visits, 1)
+	if len(got) != 2 {
+		t.Fatalf("first pass = %v, want both URLs", got)
+	}
+	for _, u := range got {
+		visits[u]++
+	}
+	if got := pendingURLs(b, visits, 1); got != nil {
+		t.Errorf("second pass = %v, want none (budget of 1 already spent)", got)
+	}
+
+	// A URL the suite reports as visited is never offered, budget notwithstanding.
+	b2 := Browser{URLs: []string{"https://a/authorize"}, Visited: []string{"https://a/authorize"}}
+	if got := pendingURLs(b2, map[string]int{}, 1); got != nil {
+		t.Errorf("suite-visited URL = %v, want none", got)
+	}
+}
+
+// A budget above 1 is what par-ensure-reused-request-uri needs: the same
+// authorize URL has to be drivable a second time, because the first visit
+// deliberately does not authenticate.
+func TestPendingURLsBudgetAllowsASecondVisit(t *testing.T) {
+	b := Browser{URLs: []string{"https://a/authorize"}}
+	visits := map[string]int{"https://a/authorize": 1}
+
+	if got := pendingURLs(b, visits, 2); len(got) != 1 {
+		t.Errorf("budget 2 after 1 visit = %v, want the URL again", got)
+	}
+	visits["https://a/authorize"]++
+	if got := pendingURLs(b, visits, 2); got != nil {
+		t.Errorf("budget 2 after 2 visits = %v, want none", got)
+	}
+}
+
+// Only the two modules that need special driving get it; everything else must
+// keep the zero value, or a stray DenyAll would deny consent across the run.
+func TestBehaviorForLeavesOtherModulesOnTheDefault(t *testing.T) {
+	// moduleBehavior holds a ConsentPolicy (which carries a slice), so it is not
+	// comparable with ==; check the fields that change driving instead.
+	if b := behaviorFor("fapi2-security-profile-final-happy-flow"); b.consent.DenyAll ||
+		len(b.consent.Deny) != 0 || b.followRejection || b.loadOnlyVisits != 0 || b.visitBudget() != 1 {
+		t.Errorf("happy-flow behaviour = %+v, want the default driving", b)
+	}
+	if b := behaviorFor("fapi2-security-profile-final-user-rejects-authentication"); !b.consent.DenyAll || !b.followRejection {
+		t.Errorf("user-rejects behaviour = %+v, want DenyAll + followRejection", b)
+	}
+	reuse := behaviorFor("fapi2-security-profile-final-par-ensure-reused-request-uri-prior-to-auth-completion-succeeds")
+	if reuse.loadOnlyVisits != 1 || reuse.visitBudget() != 2 {
+		t.Errorf("par-reuse behaviour = %+v, want 1 load-only visit and a budget of 2", reuse)
+	}
+	if got := (moduleBehavior{}).visitBudget(); got != 1 {
+		t.Errorf("default visitBudget() = %d, want 1", got)
+	}
+}
