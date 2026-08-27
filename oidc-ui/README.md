@@ -79,7 +79,7 @@ Optional polling configuration:
 | `npm run build` | TypeScript check + production build |
 | `npm run preview` | Preview production build locally |
 | `npm run test` | Run all tests with Vitest |
-| `npm run test:coverage` | Run tests with coverage report |
+| `npm run test:ci` | Run tests with coverage report |
 | `npm run typecheck` | TypeScript type checking only |
 | `npm run lint` | Run ESLint |
 
