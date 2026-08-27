@@ -16,7 +16,7 @@ services:
     restart: always
 
   mock-identity-system:
-    image: 'mosipdev/mock-identity-system:develop'
+    image: 'mosipid/mock-identity-system:0.14.0-beta.1'
     user: root
     ports:
       - 8082:8082
@@ -31,7 +31,7 @@ services:
       - database
 
   mock-relying-party-service:
-    image: 'mosipdev/mock-relying-party-service:develop'
+    image: 'mosipid/mock-relying-party-service:0.14.0-beta.1'
     user: root
     ports:
       - 8888:8888
@@ -49,7 +49,7 @@ services:
       - CLAIMS_USER_PROFILE={"userinfo":{"name":{"essential":true},"phone_number":{"essential":true},"verified_claims":[{"verification":{"trust_framework":{"value":"ABC TF"}},"claims":{"phone_number":{"essential":true}}},{"verification":{"trust_framework":{"value":"XYZ TF"}},"claims":{"name":{"essential":true}}}]},"id_token":{}}
 
   mock-relying-party-ui:
-    image: 'mosipdev/mock-relying-party-ui:develop'
+    image: 'mosipid/mock-relying-party-ui:0.14.0-beta.1'
     user: root
     ports:
       - 3000:3000
