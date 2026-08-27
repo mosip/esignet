@@ -185,10 +185,13 @@ cp .env.example .env
 # Windows CMD (if not using Git Bash)
 copy .env.example .env
 
-# Edit .env if needed — defaults work for local dev with the dependent compose
+# The .env.example defaults do not match the dependent compose — update these lines:
+#   DATABASE_PORT=5455          (compose maps postgres to host port 5455, not 5432)
+#   DATABASE_USERNAME=postgres  (compose user is postgres, not esignet)
+#   DB_DBUSER_PASSWORD=postgres
+#   KEYMANAGER_PKCS12_FILE_PATH=./keystore.pfx  (keymanager auto-provisions this file on first startup; /opt/mosip/test.pfx does not exist locally)
 
-# 3. Generate keys and run (Linux / macOS / Git Bash)
-./make.sh keys   # creates keystore.pfx for local PKCS12 keystore
+# 3. Run the service (Linux / macOS / Git Bash) — keymanager provisions its own keys on first start
 ./make.sh run    # starts the service on port 8080
 ```
 
@@ -200,7 +203,7 @@ For the UI, run separately:
 # all platforms
 cd ../oidc-ui
 npm install
-npm run dev   # starts on port 3001 (Vite dev server)
+npm run dev   # starts on port 3000 (Vite dev server)
 ```
 
 ---
@@ -339,6 +342,10 @@ The compose file uses hCaptcha test key `10000000-ffff-ffff-ffff-000000000001`, 
 
 ## Tearing Down / Resetting
 
+Run all commands from the `docker-compose/` directory.
+
+### Full demo (docker-compose.yaml)
+
 Stop all services and keep the database volume (data is preserved across restarts):
 
 ```bash
@@ -355,6 +362,14 @@ Remove pulled images as well (frees disk space):
 
 ```bash
 docker compose down -v --rmi all
+```
+
+### Developer mode (dependent-docker-compose.yaml)
+
+```bash
+docker compose -f dependent-docker-compose.yaml down
+docker compose -f dependent-docker-compose.yaml down -v
+docker compose -f dependent-docker-compose.yaml down -v --rmi all
 ```
 
 ---
