@@ -19,17 +19,18 @@ Open ID Connect based identity provider for large-scale authentication, from [MO
 | [`ui-test/`](ui-test/README.md) | Cucumber + TestNG + Selenium UI automation framework. |
 | [`performance-test/`](performance-test/README.md) | JMeter performance test scripts. |
 
-## Quick start (local dev)
+## Local setup
+
+**[docker-compose/README.md](docker-compose/README.md)** — step-by-step guide covering prerequisites, which services come up in each compose file, health verification, database initialization, the OIDC happy flow, troubleshooting, and teardown.
+
+Quick reference:
 
 ```bash
-# 1. Infra: Postgres (host port 5455) + Redis (6379)
+# Full demo (PostgreSQL + Mock ID + eSignet service + OIDC UI)
 cd docker-compose && docker compose up -d
 
-# 2. Service — see esignet-service/README.md for the full environment-variable reference
-cd ../esignet-service
-./make.sh keys && ./make.sh run
-
-# 3. Exercise the API — import both files from postman-collection/ into Postman
+# Dev dependencies only (PostgreSQL + Mock ID, for running the service from source)
+cd docker-compose && docker compose -f dependent-docker-compose.yaml up -d
 ```
 
 Each subproject is independently built and tested; see its own README (linked above) for its specific prerequisites and commands.
