@@ -55,6 +55,7 @@ Its detail line names the setting to supply.
 | `create plan HTTP 400 … server_metadata` | Remove `server_metadata` from that plan's `variant` — the plan sets it itself |
 | One errored `(plan setup)` row | The suite refused to create that plan: an unreadable `config_file`, a rejected variant, or `profile: "smoke"` with no curated list for that plan. Remaining plans still run |
 | Module stuck, then `timeout … WAITING` | The login did not complete, or the implicit submit never fired — check the flow trace in the report |
+| `The user was authenticated on the initial visit to login page`, or a module waiting for `error=access_denied` | A few modules need driving that is not the happy path, and the harness carries a per-module table for them (`moduleBehaviors` in `internal/conformance/run.go`): `user-rejects-authentication` denies consent and follows the resulting error redirect back to the client, and `par-ensure-reused-request-uri…` stops at the login page on its first visit so the same `request_uri` can be driven a second time. A new module needing either has to be added there |
 | `ESIGNET_BASE_URL_MISMATCH` | `esignet.base_url` disagrees with the authorize URL the suite discovered. Either correct it or leave it empty for a conformance-only run |
 | Image pull fails for `server` / `httpd` | The pinned suite tag was pruned. Pick a current one from the [releases page](https://gitlab.com/openid/conformance-suite/-/releases) and set `SUITE_IMAGE_TAG` |
 
@@ -78,7 +79,9 @@ Full setup: [Conformance suite setup](conformance-suite.md).
 | Symptom | Likely cause |
 |---|---|
 | `no configured answer for flow input(s): …` | The flow asked for an input with no configured value. Expected for factors you have not credentialed; add them under `esignet.credentials` / `.knowledge`, or the scenario's `credentials` |
-| Login loops `INCOMPLETE`, then fails | The submitted credential is not authenticating — the user is not seeded, or the password is wrong. This is distinct from a clean rejection |
+| `flow step rejected: FET-… (…)` | The deployment refused the submitted credential and left the flow `INCOMPLETE`. The driver reports the code rather than re-submitting the same step, which on the OTP path would spend a real attempt per retry and can trip a max-attempts lockout. Usually an unseeded user or a wrong password — distinct from a clean, asserted rejection |
+| `authorize returned eSignet's error page: … ` | eSignet refused the authorize request and sent the browser to its own `/error` route instead of redirecting to the client. The named `errorCode` is the server's reason — a required `code_challenge`, a PAR-only client approached directly, an unregistered `redirect_uri` |
+| `unexpected alg "…" (want RS256 or PS256)` | A signed `userinfo` or ID token was issued under an algorithm the harness does not verify. Both RSA families are accepted; anything else is a target-side registration question |
 | A negative case fails | Read it the right way round: `expect_login_failure` cases **pass when login is rejected**. A failure means a bad credential was wrongly *accepted* |
 | A filter runs nothing | A filter matching zero scenarios is an error, not an empty run — a green "0 of 0" is indistinguishable from a real pass |
 | The consent-reuse case fails after narrowing a run | Those cases are order-dependent; see [e2e scenario model](e2e-scenarios.md#filtering) |

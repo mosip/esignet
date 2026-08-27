@@ -72,6 +72,14 @@ type Driver struct {
 	otp          OTPProvider   // dynamic OTP source; nil for static OTP
 	consent      ConsentPolicy // how to answer the consent step; zero value approves all
 
+	// followRejection makes a flow that ends in ERROR with an errorAssertion
+	// post that assertion to /oauth2/auth/callback, so the resulting
+	// error=access_denied redirect can be handed back to the caller instead of
+	// the flow simply being reported as failed. Off by default: the e2e surface
+	// asserts a denied consent is *rejected*, and following through to the
+	// redirect would change what that assertion means.
+	followRejection bool
+
 	// Per-Run observations, reset at the top of Run because the conformance
 	// orchestrator reuses one Driver across every module.
 	consentPrompted bool
@@ -83,6 +91,10 @@ func (d *Driver) SetOTPProvider(p OTPProvider) { d.otp = p }
 
 // SetConsentPolicy installs a non-default consent answer.
 func (d *Driver) SetConsentPolicy(p ConsentPolicy) { d.consent = p }
+
+// SetFollowRejection controls whether a flow ending in ERROR with an
+// errorAssertion is carried through to the client redirect (see followRejection).
+func (d *Driver) SetFollowRejection(v bool) { d.followRejection = v }
 
 func New(answers map[string]string, preferred []string, tlsVerify bool, timeout time.Duration) *Driver {
 	return &Driver{
@@ -109,6 +121,14 @@ type FlowResult struct {
 	// ConsentDenied lists the element names the driver withheld approval from,
 	// for the report's evidence trail.
 	ConsentDenied []string
+	// AuthorizeErrorCode is the errorCode eSignet put on its /error page when it
+	// rejected the authorize request, so the report names the server's reason
+	// rather than just recording that no redirect arrived.
+	AuthorizeErrorCode string
+	// LoginReached reports that the authorize chain arrived at the login page.
+	// Only meaningful for RunToLogin, where it is the success signal: that call
+	// deliberately produces no RedirectURI, so OK() cannot be used.
+	LoginReached bool
 }
 
 func (r FlowResult) OK() bool { return r.RedirectURI != "" && r.Error == "" }
@@ -117,7 +137,24 @@ type flowResp struct {
 	FlowStatus     string `json:"flowStatus"`
 	ChallengeToken string `json:"challengeToken"`
 	Assertion      string `json:"assertion"`
-	Data           struct {
+	// ErrorAssertion is the signed assertion eSignet returns when a flow ends in
+	// ERROR (the user denied consent, say). Posting it to /oauth2/auth/callback
+	// in place of Assertion makes eSignet redirect back to the RP carrying an
+	// OAuth error — access_denied for an end-user rejection, which is what the
+	// conformance suite's user-rejects-authentication module waits for.
+	ErrorAssertion string `json:"errorAssertion"`
+	// Error is the per-step rejection eSignet reports while the flow is still
+	// INCOMPLETE (FET-1005 "Invalid credentials provided", say). Without it the
+	// driver cannot tell a rejected step from an unchanged view, so it re-submits
+	// the same step until maxFlowSteps runs out — which on the OTP path spends a
+	// real OTP attempt per retry and can trip the deployment's max-attempts lockout.
+	Error *struct {
+		Code    string `json:"code"`
+		Message struct {
+			DefaultValue string `json:"defaultValue"`
+		} `json:"message"`
+	} `json:"error"`
+	Data struct {
 		Inputs []struct {
 			Identifier string `json:"identifier"`
 		} `json:"inputs"`
@@ -317,18 +354,32 @@ func (s *session) do(ctx context.Context, label, method, u string, body []byte, 
 
 // Run drives one authorization request to a redirect_uri.
 func (d *Driver) Run(ctx context.Context, base, authorizeURL string) FlowResult {
+	return d.runFlow(ctx, base, authorizeURL, false)
+}
+
+// RunToLogin follows the authorize chain until the login page is reached and
+// stops, without submitting a credential — the flow is left un-authenticated on
+// purpose. The conformance suite's par-ensure-reused-request-uri module requires
+// exactly this: the first visit to a request_uri must NOT authenticate, so that
+// the second visit can prove the request_uri survived being reused. Success is
+// LoginReached, not OK(): no redirect is produced.
+func (d *Driver) RunToLogin(ctx context.Context, base, authorizeURL string) FlowResult {
+	return d.runFlow(ctx, base, authorizeURL, true)
+}
+
+func (d *Driver) runFlow(ctx context.Context, base, authorizeURL string, stopAtLogin bool) FlowResult {
 	// One Driver is reused for every module, so per-flow consent observations must start clean.
 	d.consentPrompted, d.consentDenied = false, nil
 
 	s := d.newSession()
-	fr := d.run(ctx, s, base, authorizeURL)
+	fr := d.run(ctx, s, base, authorizeURL, stopAtLogin)
 	fr.Calls = s.calls
 	fr.ConsentPrompted = d.consentPrompted
 	fr.ConsentDenied = d.consentDenied
 	return fr
 }
 
-func (d *Driver) run(ctx context.Context, s *session, base, authorizeURL string) FlowResult {
+func (d *Driver) run(ctx context.Context, s *session, base, authorizeURL string, stopAtLogin bool) FlowResult {
 	var fr FlowResult
 
 	current := authorizeURL
@@ -349,10 +400,27 @@ func (d *Driver) run(ctx context.Context, s *session, base, authorizeURL string)
 			target := resolve(current, loc)
 			q := queryOf(target)
 			if q.Get("authId") != "" && q.Get("executionId") != "" {
+				fr.LoginReached = true
+				if stopAtLogin {
+					return fr
+				}
 				return d.completeLogin(ctx, s, base, q.Get("authId"), q.Get("executionId"), fr)
 			}
 			if q.Get("code") != "" || q.Get("error") != "" {
 				fr.RedirectURI = target
+				return fr
+			}
+			// eSignet sends the browser to its own /error page (an HTML SPA
+			// route, not a redirect back to the RP) when it rejects the
+			// authorize request. Report the errorCode it carries: following the
+			// hop would just fetch the HTML and fail with an unhelpful
+			// "expected redirect, got <!doctype html>".
+			// Phrased to keep the "authorize returned" prefix the e2e protocol
+			// negatives assert on (expect_error_contains); only the tail is new.
+			if code := q.Get("errorCode"); code != "" {
+				fr.AuthorizeErrorCode = code
+				fr.Error = fmt.Sprintf("authorize returned eSignet's error page: %s (%s)",
+					code, q.Get("errorMessage"))
 				return fr
 			}
 			current = target
@@ -418,7 +486,21 @@ func (d *Driver) completeLogin(ctx context.Context, s *session, base, authID, ex
 		}
 		if flowStatus != "" && flowStatus != "INCOMPLETE" {
 			fr.Steps = append(fr.Steps, result.FlowStep{FlowStatus: flowStatus, Inputs: inputIDs})
+			// A rejected flow still has something to hand the RP: the signed
+			// errorAssertion turns into an error=access_denied redirect.
+			if d.followRejection && r.ErrorAssertion != "" {
+				return d.deliverAssertion(ctx, s, base, authID, r.ErrorAssertion, fr)
+			}
 			fr.Error = fmt.Sprintf("flow terminated with status %q", flowStatus)
+			return fr
+		}
+
+		// The step was rejected but the flow is still INCOMPLETE, so the response
+		// is the same view again. Re-submitting it cannot succeed — report what
+		// eSignet said rather than looping to maxFlowSteps.
+		if r.Error != nil && r.Error.Code != "" {
+			fr.Steps = append(fr.Steps, result.FlowStep{FlowStatus: flowStatus, Inputs: inputIDs})
+			fr.Error = fmt.Sprintf("flow step rejected: %s (%s)", r.Error.Code, r.Error.Message.DefaultValue)
 			return fr
 		}
 
@@ -458,6 +540,15 @@ func (d *Driver) completeLogin(ctx context.Context, s *session, base, authID, ex
 		return fr
 	}
 
+	return d.deliverAssertion(ctx, s, base, authID, assertion, fr)
+}
+
+// deliverAssertion posts a flow assertion to /oauth2/auth/callback and records
+// the client redirect it returns. eSignet routes on the assertion's claims, so
+// the same call serves both a successful login (a code lands on the redirect)
+// and a rejected one (an errorAssertion yields error=access_denied) — see
+// handleFailedCallback in the engine's authz service.
+func (d *Driver) deliverAssertion(ctx context.Context, s *session, base, authID, assertion string, fr FlowResult) FlowResult {
 	cbBody, cbStatus, _, err := s.do(ctx, "oauth2/auth/callback", http.MethodPost, base+"/oauth2/auth/callback", mustJSON(map[string]any{
 		"authId": authID, "assertion": assertion,
 	}), "application/json", true)
