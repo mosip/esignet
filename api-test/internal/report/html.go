@@ -130,7 +130,8 @@ type Options struct {
 }
 
 // Write emits <dir>/<plan>_<provider>_<ts>_t-<n>_p-<n>_f-<n>_sk-<n>_ki-<n>.{html,json}
-// and returns the HTML path.
+// and returns the HTML path. f is every module that did not pass — errored
+// included — so p+f+sk+ki always sums to t.
 func Write(o Options) (string, error) {
 	dir := o.Dir
 	// Owner-only: the report and its sidecar carry the userinfo claims this
@@ -150,8 +151,9 @@ func Write(o Options) (string, error) {
 	}
 	plan := planLabel(o.Plans)
 	ts := time.Now().Format("20060102-150405")
-	// Total is every module, so a reader can tell whether p/f/sk/ki account for the whole run.
-	base := fmt.Sprintf("%s_%s_%s_t-%d_p-%d_f-%d_sk-%d_ki-%d", surfaceSlug(results), provider, ts, sum.Total, sum.Passed, sum.Failed, sum.Skipped, sum.Known)
+	// p/f/sk/ki always account for the whole run: f is Summary.NotPassed, which
+	// carries the errored modules too rather than leaving them unnamed.
+	base := fmt.Sprintf("%s_%s_%s_t-%d_p-%d_f-%d_sk-%d_ki-%d", surfaceSlug(results), provider, ts, sum.Total, sum.Passed, sum.NotPassed(), sum.Skipped, sum.Known)
 	// Never overwrite an existing report: if a same-second run produced the same
 	// counts, add a numeric suffix so both reports are kept.
 	stem := base

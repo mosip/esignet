@@ -179,6 +179,19 @@ func Summarize(rs []ModuleResult) Summary {
 // any harness error.
 func (s Summary) HasFailures() bool { return s.Failed > 0 || s.Errored > 0 }
 
+// NotPassed is every module that did not pass, was not deliberately skipped and
+// is not a tracked known issue — so Passed + NotPassed + Skipped + Known is
+// always Total, by construction rather than by keeping a list of buckets in
+// step. It folds in Errored, Warning and Review.
+//
+// This is what the report filename carries as its failure count. The filename
+// used to print Failed alone, which silently dropped the Errored modules: a run
+// of 170 with 71 errored was named t-170_p-68_f-28_sk-3_ki-0, whose parts sum
+// to 99 and leave a reader hunting for the other 71. An errored module is still
+// a test that did not pass. The tiles in the report keep the buckets separate,
+// which is where the failed/errored distinction actually helps.
+func (s Summary) NotPassed() int { return s.Total - s.Passed - s.Skipped - s.Known }
+
 // SurfaceGroup is the rows of one surface plus that surface's own tile counts.
 type SurfaceGroup struct {
 	Surface string
