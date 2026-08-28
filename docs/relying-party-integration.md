@@ -4,7 +4,7 @@ This guide provides a step-by-step approach for developers who want to integrate
 
 > **Migrating from the Java-based eSignet?** See [Changes from the Java Implementation](#changes-from-the-java-implementation) at the bottom — several endpoint paths and behaviours have changed.
 
-### Prerequisites
+## Prerequisites
 
 Before integrating your Relying Party application with eSignet, ensure the following are in place:
 
@@ -12,20 +12,20 @@ Before integrating your Relying Party application with eSignet, ensure the follo
 |---|---|
 | **Client registered with eSignet** | RP must be onboarded and issued a `client_id`. `client_secret` is not applicable. |
 | **eSignet well-known endpoint access** | `/.well-known/jwks.json` and `/.well-known/openid-configuration` |
-| **Client Authentication Method** | Only **private_key_jwt** is supported for token endpoint client authentication. Access to **RSA/EC Private Key** used by RP to sign the JWT during token request. Note: Should be securely stored and rotated periodically. |
+| **Client Authentication Method** | Only **private_key_jwt** is supported for token endpoint client authentication. Access to **RSA/EC Private Key** used by RP to sign the JWT during token request. Note: Should be securely stored and rotated periodically. The private key must remain on the RP **backend** — frontend or native apps must not hold an extractable client private key. Client assertion signing and token exchange must be performed server-side. |
 | **Registered Redirect URI** | Must be pre-configured with eSignet (during onboarding). It may be a frontend page, a mobile app deeplink/custom scheme, or a backend endpoint. |
 | **Scopes/Claims required by RP** | `openid` is mandatory. Optional scopes: `profile`, `email`, `phone`, or custom scopes if supported. Check `/.well-known/openid-configuration` for supported scopes and claims. |
 | **Choose libraries for JWT Creation, Signing & OIDC Integration** | Since **private_key_jwt** authentication requires the RP to generate a signed JWT for token requests, use well-supported cryptographic and OIDC client libraries. Reference: https://openid.net/developers/certified-openid-connect-implementations/ |
 
 > Always fetch the authorize, PAR, token, userinfo endpoint URL dynamically from `.well-known/openid-configuration`. This ensures your integration remains compatible even if environments or endpoints change.
 
-### Step-by-Step Implementation
+## Step-by-Step Implementation
 
 #### Step 1: Redirect User to eSignet Authorization Endpoint
 
 Add a **Sign-in with eSignet** button to your login page that links to the authorize URL. A lightweight JavaScript plugin is available from eSignet to render this button automatically. By default, the plugin can be loaded from:
 
-```
+```text
 https://<eSignet-domain>/plugins/sign-in-button-plugin.js
 ```
 
@@ -131,11 +131,11 @@ paths:
           description: 'Requested Authentication Context Class Reference values. Space-separated string that specifies the acr values that the Authorization Server is being requested to use for processing this Authentication Request, with the values appearing in order of preference. Unknown ACR values are ignored. If none of the provided acr values match registered values, all registered ACRs are considered.'
           schema:
             type: string
-            enum:
-              - 'mosip:idp:acr:password'
+            examples:
               - 'mosip:idp:acr:generated-code'
-              - 'mosip:idp:acr:biometrics'
-              - 'mosip:idp:acr:knowledge'
+              - 'mosip:idp:acr:password'
+              - 'mosip:idp:acr:password mosip:idp:acr:biometrics'
+              - 'mosip:idp:acr:generated-code mosip:idp:acr:knowledge'
         - name: claims_locales
           in: query
           description: 'End-User''s preferred languages and scripts for Claims being returned, represented as a space-separated list of BCP47 [RFC5646] language tag values, ordered by preference.'
@@ -157,6 +157,7 @@ paths:
           schema:
             const: S256
             type: string
+          x-note: 'When a client is registered with require_pkce: true in additionalConfig, code_challenge and code_challenge_method=S256 are mandatory in the authorization request, and code_verifier is mandatory in the token request.'
         - name: id_token_hint
           in: query
           description: ID Token previously issued by the Authorization Server being passed as a hint about the End-User's current or past authenticated session with the Client.
@@ -194,8 +195,9 @@ Supported `acr_values`:
 - `mosip:idp:acr:knowledge` — Knowledge-Based Identity (full name + date of birth)
 
 Notes:
-- The `redirect_uri` provided must be an absolute, fully qualified URL. Matching against registered URIs may use wildcards/patterns.
+- The `redirect_uri` provided must be an absolute, fully qualified URL. The registered URI may use `*` or `**` as standalone path-segment wildcards; wildcards in the scheme, host, or partial path segments are not supported.
 - `prompt=consent` forces a consent screen on every auth flow; without it, consent is shown only on first authorization or after the granted consent expires.
+- **Per-client PKCE**: when a client is registered with `require_pkce: true` in `additionalConfig`, `code_challenge` and `code_challenge_method=S256` are mandatory in every authorization request, and `code_verifier` must be included in the subsequent token request.
 
 #### PAR Support in Authorization Request
 
@@ -330,7 +332,10 @@ paths:
                   description: Type of the client assertion part of this request.
                 client_assertion:
                   type: string
-                  description: 'A single JWT signed with the client''s private key (private_key_jwt). See Token Endpoint for the required JWT payload claims.'
+                  description: |-
+                    A single JWT signed with the client's private key (private_key_jwt). Required claims: iss (client_id), sub (client_id), exp, iat, jti, and aud.
+                    aud value: use the PAR endpoint URL (e.g. https://esignet.example.org/v1/esignet/oauth2/par) for standard profiles.
+                    For FAPI 2.0 strict mode (client_auth_assertion_audience: strict_audience_check), use the server's issuer URL from /.well-known/openid-configuration as the single aud value — the server rejects endpoint-specific audience values in this mode.
                 dpop_jkt:
                   type: string
                   description: 'The value of the dpop_jkt authorization request parameter is the JWK Thumbprint [RFC7638] of the proof-of-possession public key using the SHA-256 hash function. Binds this PAR request to a specific DPoP key before token exchange.'
@@ -399,14 +404,22 @@ paths:
                       - invalid_prompt
                   error_description:
                     type: string
-      security: []
+      security:
+        - PrivateKeyJWT: []
+components:
+  securitySchemes:
+    PrivateKeyJWT:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Client authentication via private_key_jwt. Include client_assertion (a JWT signed with the client private key) and client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer in the x-www-form-urlencoded request body.'
 ```
 
 Not supported: client authentication in PAR request header, JAR (RFC 9101) `request` parameter, non-registered redirect URIs.
 
 After receiving the `request_uri`, redirect the user's browser to:
 
-```
+```text
 GET /oauth2/authorize?client_id=<client_id>&request_uri=<request_uri>
 ```
 
@@ -430,6 +443,9 @@ A DPoP proof is a JWT [RFC 7519] signed (using JWS [RFC 7515]) with a private ke
 | Payload | `htu` | Endpoint URI without query string or fragment |
 | Payload | `iat` | Current Unix time — must be within ±60 s of server time; an additional 10 s clock-skew leeway is applied |
 | Payload | `nonce` | Server-supplied nonce, if previously returned via `DPoP-Nonce` response header |
+| Payload | `ath` | Base64url-encoded SHA-256 hash of the ASCII access token — **required** when the proof accompanies an access token (i.e. on userinfo requests) |
+
+> **DPoP key reuse requirement**: Generate **one** DPoP key pair before the PAR request. Reuse the same private key for all subsequent proofs (PAR, token, and userinfo). Do not generate a new key pair between requests — a different key at the token endpoint will not match the `dpop_jkt` binding from PAR and will cause token exchange failure. Generate a fresh proof (new `jti` and current `iat`) for each individual request.
 
 Send the DPoP proof in the `DPoP` HTTP header on:
 - `POST /oauth2/par` (when using PAR with a DPoP-bound client)
@@ -442,9 +458,9 @@ Send the DPoP proof in the `DPoP` HTTP header on:
 >
 > - `scope` defines what user attributes the RP can request.
 > - `claims` enables the RP to decide which user attributes are optional and which are mandatory.
-> - Always generate a fresh `state` and `nonce` on every authorization request to prevent replay attacks and CSRF.
+> - Always generate a fresh `state` and `nonce` on every authorization request to prevent replay attacks and CSRF. Store the generated `state` value before redirecting. When the authorization response arrives at the callback, compare the returned `state` to the stored value — reject any response where `state` is absent or does not match before proceeding to token exchange.
 > - `acr_values` defines authentication method options. The RP must choose based on the required assurance level.
-> - The `redirect_uri` provided must be an absolute, fully qualified URL (without any wildcard or regex). This URI is then matched against the redirect URIs stored in the eSignet database for the same Client ID. Since the stored URIs may include wildcards or patterns, the matching process allows partial or regex-based checks rather than requiring an exact match.
+> - The `redirect_uri` provided must be an absolute, fully qualified URL. Registered URIs may use `*` or `**` as standalone path-segment wildcards (e.g. `https://example.com/callback/*`). Wildcards embedded in the scheme, host, or partial path segments are rejected.
 > - The `prompt=consent` parameter should be used if the Relying Party (RP) requires eSignet to present a consent screen to the user during every authentication flow. If this parameter is omitted, consent is shown only during the first authorization request, and will be shown again only when the previously granted consent expires (expiry duration is configured per client).
 
 #### Step 2: User Authenticates and Consents on eSignet Screen
@@ -500,7 +516,7 @@ paths:
         **iss*** (Issuer): This MUST contain the client_id of the OAuth Client.
         **sub*** (Subject): This MUST contain the client_id of the OAuth Client.
         **aud*** (Audience): Value that identifies the authorization server as an intended audience.
-        **exp*** (Expiration): Time on or after which the ID token MUST NOT be accepted for processing.
+        **exp*** (Expiration): Time on or after which the client assertion MUST NOT be accepted for processing.
         **iat***: Time at which the JWT was issued.
         **jti*** (JWT ID): This MUST be unique for each client assertion generated.
 
@@ -634,7 +650,15 @@ paths:
                   error_description:
                     type: string
                     description: Optional text providing additional information about the error.
-      security: []
+      security:
+        - PrivateKeyJWT: []
+components:
+  securitySchemes:
+    PrivateKeyJWT:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Client authentication via private_key_jwt. Include client_assertion (a JWT signed with the client private key) and client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer in the x-www-form-urlencoded request body.'
 ```
 
 Only supported client authentication method: **private_key_jwt**
@@ -642,7 +666,7 @@ Only supported client authentication method: **private_key_jwt**
 Required `client_assertion` JWT claims:
 - `iss` — must be `client_id`
 - `sub` — must be `client_id`
-- `aud` — authorization server's token endpoint URL
+- `aud` — token endpoint URL (e.g. `https://esignet.example.org/v1/esignet/oauth2/token`). For FAPI 2.0 strict mode (`client_auth_assertion_audience: strict_audience_check`), use the server's issuer URL from `/.well-known/openid-configuration` instead.
 - `exp`, `iat`, `jti` — expiry, issued-at, and unique JWT ID
 
 Request body (form-encoded) required fields: `grant_type` (= `authorization_code`), `code`, `client_assertion_type`, `client_assertion`, `redirect_uri`
@@ -665,7 +689,7 @@ Successful response (HTTP 200):
 
 `token_type` is `"DPoP"` instead of `"Bearer"` when the client is DPoP-bound. `id_token` is present only in OIDC flows (when `openid` scope was included).
 
-Error codes (HTTP 400): `invalid_transaction`, `invalid_assertion`, `invalid_redirect_uri`, `invalid_input`, `unknown_error`, `invalid_request`, `invalid_assertion_type`, `invalid_pkce_code_verifier`, `unsupported_pkce_challenge_method`, `pkce_failed`, `invalid_dpop_proof`, `use_dpop_nonce`
+Error codes (HTTP 400): `invalid_transaction`, `invalid_assertion`, `invalid_redirect_uri`, `invalid_input`, `unknown_error`, `invalid_request`, `invalid_grant`, `invalid_assertion_type`, `invalid_pkce_code_verifier`, `unsupported_pkce_challenge_method`, `pkce_failed`, `invalid_dpop_proof`, `use_dpop_nonce`
 
 > **Note:** No refresh tokens are issued by default (`renew_on_grant: false`). Token revocation is also disabled by default. RPs must re-initiate the authorization flow when the access token expires.
 
@@ -710,11 +734,47 @@ paths:
                         - kid
                         - use
                         - kty
-                        - e
-                        - 'n'
                         - x5t#S256
                         - x5c
                         - exp
+                      oneOf:
+                        - title: RSA key
+                          required:
+                            - e
+                            - 'n'
+                          properties:
+                            e:
+                              type: string
+                              description: RSA exponent (base64url).
+                            'n':
+                              type: string
+                              description: RSA modulus (base64url).
+                        - title: EC key
+                          required:
+                            - crv
+                            - x
+                            - y
+                          properties:
+                            crv:
+                              type: string
+                              description: 'Curve name (e.g. P-256, P-384).'
+                            x:
+                              type: string
+                              description: Public key x-coordinate (base64url).
+                            y:
+                              type: string
+                              description: Public key y-coordinate (base64url).
+                        - title: OKP key
+                          required:
+                            - crv
+                            - x
+                          properties:
+                            crv:
+                              type: string
+                              description: 'Curve name (e.g. Ed25519).'
+                            x:
+                              type: string
+                              description: Public key (base64url).
                       properties:
                         kid:
                           type: string
@@ -725,21 +785,6 @@ paths:
                         kty:
                           type: string
                           description: 'Cryptographic algorithm family for the key pair. RSA (default), EC, or OKP depending on the configured signing key.'
-                        e:
-                          type: string
-                          description: 'RSA Key value (exponent) for Key blinding. Present on RSA keys.'
-                        'n':
-                          type: string
-                          description: 'RSA modulus value. Present on RSA keys.'
-                        crv:
-                          type: string
-                          description: 'Curve name. Present on EC keys (e.g. P-256, P-384) and OKP keys (e.g. Ed25519).'
-                        x:
-                          type: string
-                          description: 'EC/OKP public key x-coordinate (base64url). Present on EC and OKP keys.'
-                        y:
-                          type: string
-                          description: 'EC public key y-coordinate (base64url). Present on EC keys.'
                         x5t#S256:
                           type: string
                           description: SHA-256 thumbprint of the certificate.
@@ -781,6 +826,11 @@ Validate `aud` in both tokens — note that the expected value differs:
 Additionally validate `auth_time`, `nonce`, `acr`, `at_hash` in the ID token.
 
 Default signing algorithm: **PS256** (RSASSA-PSS with SHA-256). Supported signing algorithms: PS256, ES256, ES256K, EdDSA. Always check the token's `alg` header and reject tokens signed with an algorithm outside this set.
+
+**ID token JWE (opt-in)**: when a client is registered with `id_token_response_type: JWE` in `additionalConfig`, the token endpoint returns the `id_token` as a nested JWT. Process it as follows:
+1. Decrypt the outer JWE using the RP's encryption private key (key algorithm from the registered `encPublicKey` JWK `alg` field, e.g. `RSA-OAEP-256`; content encryption is always `A256GCM`).
+2. The decrypted payload is a JWS-signed JWT — validate its signature using eSignet's public keys from `/.well-known/jwks.json`.
+3. Proceed with standard ID token claim validation on the inner JWT.
 
 ID token claims:
 
@@ -875,7 +925,7 @@ paths:
 
         **Supported User Info Claims**
         - sub — Partner Specific User Token (PSUT)
-        - name, address, gender, birthdate, profile photo, email, phone_number, locale
+        - name, address, gender, birthdate, picture, email, phone_number, locale
         - Custom: individual_id (UIN, perceptual VID, or temporary VID)
       operationId: get-userinfo
       responses:
@@ -896,18 +946,30 @@ paths:
         '401':
           description: Unauthorized
           headers:
-            WWW-AUTHENTICATE:
+            WWW-Authenticate:
               schema:
                 type: string
-                enum:
-                  - invalid_token
-                  - unknown_error
-                  - invalid_dpop_proof
-                  - use_dpop_nonce
-              description: 'Bearer error=invalid_token, error_description=A user info request was made with an access token that was not recognized.'
+                examples:
+                  - 'Bearer error="invalid_token", error_description="The access token was not recognized."'
+                  - 'Bearer error="unknown_error"'
+                  - 'DPoP error="invalid_dpop_proof", error_description="Invalid DPoP proof."'
+                  - 'Bearer error="use_dpop_nonce", error_description="Server requires DPoP nonce."'
+              description: 'RFC 6750/RFC 9449 challenge header indicating the reason for rejection.'
       security:
         - Authorization-Bearer: []
         - Authorization-DPoP: []
+components:
+  securitySchemes:
+    Authorization-Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Bearer access token issued by the token endpoint. Use as Authorization: Bearer <access_token>.
+    Authorization-DPoP:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'DPoP-bound access token. Use as Authorization: DPoP <access_token> along with a DPoP proof in the DPoP request header (proof must include ath = base64url(SHA-256(ASCII(access_token)))).'
 ```
 
 Authentication: Bearer (access token) or DPoP-bound access token.
@@ -917,11 +979,11 @@ Authentication: Bearer (access token) or DPoP-bound access token.
 
 Response (HTTP 200): `application/jwt` — a signed JWS JWT by default; a nested JWT (signed with JWS, then encrypted with JWE) when the client is registered with `userinfo_response_type: JWE`.
 
-Error (HTTP 401): `WWW-AUTHENTICATE` header with values `invalid_token`, `unknown_error`, `invalid_dpop_proof`, `use_dpop_nonce`.
+Error (HTTP 401): `WWW-Authenticate` response header (RFC 6750 Bearer challenge format), error codes: `invalid_token`, `unknown_error`, `invalid_dpop_proof`, `use_dpop_nonce`.
 
 Supported claims in userinfo JWT:
 - `sub` (Partner Specific User Token — PSUT)
-- `name`, `address`, `gender`, `birthdate`, `profile photo`, `email`, `phone_number`, `locale`
+- `name`, `address`, `gender`, `birthdate`, `picture`, `email`, `phone_number`, `locale`
 - Custom: `individual_id` (UIN, perceptual VID, or temporary VID)
 
 Sample userinfo JWT payload:
