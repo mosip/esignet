@@ -54,7 +54,8 @@ eSignet is built using the below tools and technologies.
 | GET | `/metrics` | Prometheus metrics endpoint. |
 | POST | `/client-mgmt/client` | Create an OIDC client. |
 | GET, PUT, PATCH | `/client-mgmt/client/{client_id}` | Fetch, fully update, or partially update an OIDC client. |
-| POST, PUT | `/client-mgmt/oidc-client`, `/client-mgmt/oauth-client` | Legacy client-management endpoints, kept for backward compatibility. |
+| POST | `/client-mgmt/oidc-client`, `/client-mgmt/oauth-client` | Legacy client-creation endpoints, kept for backward compatibility. |
+| PUT | `/client-mgmt/oidc-client/{client_id}`, `/client-mgmt/oauth-client/{client_id}` | Legacy client-update endpoints, kept for backward compatibility. |
 | GET | `/system-info/certificate` | Fetch a certificate or CSR for a given application/reference id. |
 | POST | `/system-info/uploadCertificate` | Upload/replace a certificate for a given application/reference id. |
 | POST | `/oauth2/par` | Pushed Authorization Request endpoint (RFC 9126). |
