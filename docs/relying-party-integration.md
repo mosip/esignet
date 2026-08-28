@@ -21,7 +21,7 @@ Before integrating your Relying Party application with eSignet, ensure the follo
 
 ## Step-by-Step Implementation
 
-#### Step 1: Redirect User to eSignet Authorization Endpoint
+### Step 1: Redirect User to eSignet Authorization Endpoint
 
 Add a **Sign-in with eSignet** button to your login page that links to the authorize URL. A lightweight JavaScript plugin is available from eSignet to render this button automatically. By default, the plugin can be loaded from:
 
@@ -404,15 +404,8 @@ paths:
                       - invalid_prompt
                   error_description:
                     type: string
-      security:
-        - PrivateKeyJWT: []
-components:
-  securitySchemes:
-    PrivateKeyJWT:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: 'Client authentication via private_key_jwt. Include client_assertion (a JWT signed with the client private key) and client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer in the x-www-form-urlencoded request body.'
+      security: []
+      x-client-authentication: 'private_key_jwt — include client_assertion (JWT signed with the client private key) and client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer in the x-www-form-urlencoded request body.'
 ```
 
 Not supported: client authentication in PAR request header, JAR (RFC 9101) `request` parameter, non-registered redirect URIs.
@@ -458,7 +451,7 @@ Send the DPoP proof in the `DPoP` HTTP header on:
 >
 > - `scope` defines what user attributes the RP can request.
 > - `claims` enables the RP to decide which user attributes are optional and which are mandatory.
-> - Always generate a fresh `state` and `nonce` on every authorization request to prevent replay attacks and CSRF. Store the generated `state` value before redirecting. When the authorization response arrives at the callback, compare the returned `state` to the stored value — reject any response where `state` is absent or does not match before proceeding to token exchange.
+> - Always generate a fresh `state` and `nonce` on every authorization request to prevent replay attacks and CSRF. Persist both values in the browser session before redirecting. When the authorization response arrives at the callback, compare the returned `state` to the stored value — reject any response where `state` is absent or does not match before proceeding to token exchange. After token exchange, extract the `nonce` claim from the ID Token and compare it to the stored nonce value — reject the authentication result if the `nonce` is absent or does not match.
 > - `acr_values` defines authentication method options. The RP must choose based on the required assurance level.
 > - The `redirect_uri` provided must be an absolute, fully qualified URL. Registered URIs may use `*` or `**` as standalone path-segment wildcards (e.g. `https://example.com/callback/*`). Wildcards embedded in the scheme, host, or partial path segments are rejected.
 > - The `prompt=consent` parameter should be used if the Relying Party (RP) requires eSignet to present a consent screen to the user during every authentication flow. If this parameter is omitted, consent is shown only during the first authorization request, and will be shown again only when the previously granted consent expires (expiry duration is configured per client).
@@ -650,15 +643,8 @@ paths:
                   error_description:
                     type: string
                     description: Optional text providing additional information about the error.
-      security:
-        - PrivateKeyJWT: []
-components:
-  securitySchemes:
-    PrivateKeyJWT:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: 'Client authentication via private_key_jwt. Include client_assertion (a JWT signed with the client private key) and client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer in the x-www-form-urlencoded request body.'
+      security: []
+      x-client-authentication: 'private_key_jwt — include client_assertion (JWT signed with the client private key) and client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer in the x-www-form-urlencoded request body.'
 ```
 
 Only supported client authentication method: **private_key_jwt**
@@ -959,7 +945,7 @@ paths:
                   - 'Bearer error="invalid_token", error_description="The access token was not recognized."'
                   - 'Bearer error="unknown_error"'
                   - 'DPoP error="invalid_dpop_proof", error_description="Invalid DPoP proof."'
-                  - 'Bearer error="use_dpop_nonce", error_description="Server requires DPoP nonce."'
+                  - 'DPoP error="use_dpop_nonce", error_description="Server requires DPoP nonce."'
               description: 'RFC 6750/RFC 9449 challenge header indicating the reason for rejection.'
       security:
         - Authorization-Bearer: []
@@ -973,8 +959,7 @@ components:
       description: Bearer access token issued by the token endpoint. Use as Authorization: Bearer <access_token>.
     Authorization-DPoP:
       type: http
-      scheme: bearer
-      bearerFormat: JWT
+      scheme: DPoP
       description: 'DPoP-bound access token. Use as Authorization: DPoP <access_token> along with a DPoP proof in the DPoP request header (proof must include ath = base64url(SHA-256(ASCII(access_token)))).'
 ```
 
