@@ -272,7 +272,7 @@ The easiest way to walk through the full OIDC flow is via the included Postman c
 
 A full end-to-end demo also involves a Mock Relying Party — a sample web application that acts as the OIDC client, initiates the authorization flow, and receives tokens. Its compose setup lives in a separate MOSIP repository:
 
-[mosip/esignet-mock-services — docker-compose setup](https://github.com/mosip/esignet-mock-services/blob/release-0.14.x/docker-compose/README.md)
+[mosip/esignet-mock-services — docker-compose setup](https://github.com/mosip/esignet-mock-services/blob/release-0.14.x-beta.1/docker-compose/README.md)
 
 Follow that guide to bring up the Mock Relying Party Portal alongside this stack. Until then, use the Postman collection above to exercise the full flow.
 
