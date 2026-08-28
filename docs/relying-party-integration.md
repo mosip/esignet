@@ -739,22 +739,22 @@ paths:
                         - exp
                       oneOf:
                         - title: RSA key
-                          required:
-                            - e
-                            - 'n'
                           properties:
+                            kty:
+                              const: RSA
                             e:
                               type: string
                               description: RSA exponent (base64url).
                             'n':
                               type: string
                               description: RSA modulus (base64url).
-                        - title: EC key
                           required:
-                            - crv
-                            - x
-                            - y
+                            - e
+                            - 'n'
+                        - title: EC key
                           properties:
+                            kty:
+                              const: EC
                             crv:
                               type: string
                               description: 'Curve name (e.g. P-256, P-384).'
@@ -764,17 +764,23 @@ paths:
                             y:
                               type: string
                               description: Public key y-coordinate (base64url).
-                        - title: OKP key
                           required:
                             - crv
                             - x
+                            - y
+                        - title: OKP key
                           properties:
+                            kty:
+                              const: OKP
                             crv:
                               type: string
                               description: 'Curve name (e.g. Ed25519).'
                             x:
                               type: string
                               description: Public key (base64url).
+                          required:
+                            - crv
+                            - x
                       properties:
                         kid:
                           type: string
@@ -784,7 +790,7 @@ paths:
                           description: 'How the Key is used. Valid value: sig'
                         kty:
                           type: string
-                          description: 'Cryptographic algorithm family for the key pair. RSA (default), EC, or OKP depending on the configured signing key.'
+                          description: 'Cryptographic algorithm family for the key pair: RSA (default), EC, or OKP.'
                         x5t#S256:
                           type: string
                           description: SHA-256 thumbprint of the certificate.
