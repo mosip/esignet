@@ -2152,41 +2152,49 @@ Package: com.aventstack:extentreports
 Version: 5.1.2
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
+Used by: ui-test
 
 Package: com.browserstack:browserstack-java-sdk
 Version: 1.30.9
 License: Apache-2.0 AND BSD-3-Clause AND LicenseRef-scancode-warranty-disclaimer
 Homepage: N/A
+Used by: ui-test
 
 Package: com.fasterxml.jackson.core:jackson-annotations
 Version: 2.15.0
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
+Used by: ui-test
 
 Package: com.fasterxml.jackson.core:jackson-core
 Version: 2.15.0
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
+Used by: ui-test
 
 Package: com.fasterxml.jackson.core:jackson-databind
 Version: 2.15.0
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
+Used by: ui-test
 
 Package: com.fasterxml.jackson.datatype:jackson-datatype-jsr310
 Version: 2.15.0
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
+Used by: ui-test
 
 Package: com.fasterxml.jackson.module:jackson-module-afterburner
 Version: 2.15.0
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
+Used by: ui-test
 
 Package: com.google.guava:guava
 Version: 32.0.0-jre
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
+Used by: ui-test
 
 Package: combined-stream
 Version: 1.0.8
@@ -2217,11 +2225,13 @@ Package: commons-codec:commons-codec
 Version: 1.15
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
+Used by: ui-test
 
 Package: commons-validator:commons-validator
 Version: 1.7
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
+Used by: ui-test
 
 Package: compressible
 Version: 2.0.18
@@ -3467,36 +3477,43 @@ Package: io.cucumber:cucumber-java
 Version: 7.21.1
 License: MIT
 Homepage: https://opensource.org/licenses/MIT
+Used by: ui-test
 
 Package: io.cucumber:cucumber-junit
 Version: 7.21.1
 License: MIT
 Homepage: https://opensource.org/licenses/MIT
+Used by: ui-test
 
 Package: io.cucumber:cucumber-picocontainer
 Version: 7.21.1
 License: MIT
 Homepage: https://opensource.org/licenses/MIT
+Used by: ui-test
 
 Package: io.cucumber:cucumber-testng
 Version: 7.21.1
 License: MIT
 Homepage: https://opensource.org/licenses/MIT
+Used by: ui-test
 
 Package: io.cucumber:gherkin
 Version: 32.0.1
 License: UNKNOWN
 Homepage: N/A
+Used by: ui-test
 
 Package: io.cucumber:messages
 Version: 27.2.0
 License: MIT
 Homepage: https://opensource.org/licenses/MIT
+Used by: ui-test
 
 Package: io.github.bonigarcia:webdrivermanager
 Version: 6.0.1
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
+Used by: ui-test
 
 Package: ipaddr.js
 Version: 1.9.1
@@ -4382,86 +4399,78 @@ Package: org.apache.commons:commons-lang3
 Version: N/A
 License: UNKNOWN
 Homepage: N/A
+Used by: ui-test
 
-Package: org.apache.maven.plugins:maven-antrun-plugin
-Version: 3.0.0
-License: Apache-2.0
-Homepage: https://www.apache.org/licenses/LICENSE-2.0
 
 Package: org.apache.maven.plugins:maven-compiler-plugin
 Version: 3.8.0
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
+Used by: ui-test
 
 Package: org.apache.maven.plugins:maven-dependency-plugin
 Version: 3.3.0
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
+Used by: ui-test
 
 Package: org.apache.maven.plugins:maven-gpg-plugin
 Version: 1.5
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
+Used by: ui-test
 
-Package: org.apache.maven.plugins:maven-jar-plugin
-Version: 3.0.2
-License: Apache-2.0
-Homepage: https://www.apache.org/licenses/LICENSE-2.0
 
-Package: org.apache.maven.plugins:maven-javadoc-plugin
-Version: N/A
-License: UNKNOWN
-Homepage: N/A
 
 Package: org.apache.maven.plugins:maven-shade-plugin
 Version: 3.2.4
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
+Used by: ui-test
 
-Package: org.apache.maven.plugins:maven-source-plugin
-Version: 2.2.1
-License: Apache-2.0
-Homepage: https://www.apache.org/licenses/LICENSE-2.0
 
 Package: org.apache.maven.plugins:maven-surefire-plugin
 Version: 2.22.0
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
+Used by: ui-test
 
-Package: org.apache.maven.plugins:maven-war-plugin
-Version: 3.1.0
-License: Apache-2.0
-Homepage: https://www.apache.org/licenses/LICENSE-2.0
 
 Package: org.apache.pdfbox:pdfbox
 Version: 2.0.31
 License: UNKNOWN
 Homepage: N/A
+Used by: ui-test
 
 Package: org.json:json
 Version: 20240303
 License: LicenseRef-scancode-public-domain
 Homepage: N/A
+Used by: ui-test
 
 Package: org.projectlombok:lombok
 Version: 1.18.30
 License: MIT
 Homepage: https://opensource.org/licenses/MIT
+Used by: ui-test
 
 Package: org.seleniumhq.selenium:selenium-devtools-v134
 Version: 4.31.0
 License: UNKNOWN
 Homepage: N/A
+Used by: ui-test
 
 Package: org.seleniumhq.selenium:selenium-java
 Version: 4.14.1
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
+Used by: ui-test
 
 Package: org.testng:testng
 Version: 7.7.1
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
+Used by: ui-test
 
 Package: own-keys
 Version: 1.0.1
@@ -5762,6 +5771,7 @@ Package: tech.grasshopper:extentreports-cucumber7-adapter
 Version: 1.14.0
 License: Apache-2.0 AND MIT
 Homepage: N/A
+Used by: ui-test
 
 Package: temp-dir
 Version: 2.0.0
