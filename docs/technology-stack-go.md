@@ -12,13 +12,14 @@ eSignet is built using the below tools and technologies.
 | [log/slog](https://pkg.go.dev/log/slog) | Go 1.26 stdlib | log/slog is Go's standard library package for structured, leveled logging; eSignet emits structured JSON logs through it. | [BSD-3-Clause](https://github.com/golang/go/blob/master/LICENSE) |
 | [Keymanager](../esignet-service/internal/keymanager/README.md) (embedded) | part of `esignet-service` | Keymanager provides secure storage, provisioning, and management of cryptographic keys, including encryption/decryption and digital signature/verification operations. | [Mozilla Public License 2.0](../LICENSE) |
 | [React JS](https://react.dev/) | 19 | React lets you build user interfaces out of individual pieces called components; it powers eSignet's login/consent UI. | [MIT License](https://github.com/facebook/react/blob/main/LICENSE) |
+| [@thunderid/react](https://github.com/thunder-id/javascript-sdks/tree/main/packages/react) | 0.11.2 | ThunderID's React SDK supplies the actual login/OTP/biometric/KBI/consent screen rendering, OAuth state/PKCE handling, and i18n context that oidc-ui themes and embeds — the frontend counterpart to the backend's ThunderID engine. | [Apache License 2.0](https://github.com/thunder-id/javascript-sdks/blob/main/LICENSE) |
 
 ## Storage
 
 | Tool/Technology | Version | Description | License |
 |---|---|---|---|
 | [Postgres](https://www.postgresql.org/) | 15 | PostgreSQL, also known as Postgres, is a free and open-source relational database management system (RDBMS) emphasizing extensibility and SQL compliance. eSignet uses it for OIDC client management and for the keymanager's key/certificate store. | [PostgreSQL License](https://opensource.org/license/postgresql/) |
-| [Redis](https://redis.io/) | 6.0 and above (requires `KEEPTTL` support) | Redis is an open source, in-memory data store used as a database, cache, streaming engine, and message broker. eSignet uses it to hold runtime flow, session, and pushed-authorization-request state. | [BSD License](https://redis.io/docs/about/license/) |
+| [Redis](https://redis.io/) | 6.2 and above (requires `GETDEL`, used to atomically fetch-and-delete authorization codes on redemption) | Redis is an open source, in-memory data store used as a database, cache, streaming engine, and message broker. eSignet uses it to hold runtime flow, session, and pushed-authorization-request state. | [BSD License](https://redis.io/docs/about/license/) |
 
 ## Deployment
 
@@ -34,8 +35,8 @@ eSignet is built using the below tools and technologies.
 
 | Tool/Technology | Version | Description | License |
 |---|---|---|---|
-| [Go testing](https://pkg.go.dev/testing) / [testify](https://github.com/stretchr/testify) | Go 1.26 stdlib / v1.11.1 | Go's built-in `testing` package, together with the testify toolkit (assertions and suite-based test structure), is used to write and run unit tests, invoked via `go test`. | [BSD-3-Clause](https://github.com/golang/go/blob/master/LICENSE) / [MIT License](https://github.com/stretchr/testify/blob/master/LICENSE) |
-| [Newman](https://learning.postman.com/docs/collections/using-newman-cli/command-line-integration-with-newman/) | — | Newman is a command-line tool that runs Postman collections and automates API tests; it is used for CI/CD-integrated API testing. | [Apache License 2.0](https://apache.org/licenses/LICENSE-2.0) |
+| [Go testing](https://pkg.go.dev/testing) / [testify](https://github.com/stretchr/testify) | Go 1.26 stdlib / v1.11.1 | Go's built-in `testing` package, together with the testify toolkit (assertions and suite-based test structure), is used to write and run unit tests, invoked via `go test`. Used throughout `esignet-service` (e.g. `internal/engine/mock/authenticator_test.go`) via the `testify/suite` pattern described in `esignet-service/AGENTS.md`. | [BSD-3-Clause](https://github.com/golang/go/blob/master/LICENSE) / [MIT License](https://github.com/stretchr/testify/blob/master/LICENSE) |
+| [Postman](https://www.postman.com/) | — | Postman is an API platform used to design, share, and run API requests and collections. `postman-collection/` ships a collection + environment for manually exercising `esignet-service`'s client-management and OAuth flows; there is no CI automation (e.g. Newman) wired up against it in this repo. | [Apache License 2.0](https://apache.org/licenses/LICENSE-2.0) |
 
 ## Services
 
