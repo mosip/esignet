@@ -374,20 +374,4 @@ docker compose -f dependent-docker-compose.yaml down -v --rmi all
 
 ---
 
-## Further Reading
 
-| Resource | Location |
-|---|---|
-| eSignet end-user guide (login flow walkthrough) | [docs.esignet.io/test/end-user-guide](https://docs.esignet.io/test/end-user-guide) |
-| Relying party integration (authorize URL, client onboarding) | [docs.esignet.io/integration/relying-party](https://docs.esignet.io/integration/relying-party) |
-| Mock Relying Party compose setup | [mosip/esignet-mock-services](https://github.com/mosip/esignet-mock-services/blob/release-0.14.x/docker-compose/README.md) |
-| Architecture overview (backend + frontend components, flow engine, data model) | [`docs/architecture.md`](../docs/architecture.md) |
-| OpenAPI spec (all REST endpoints with request/response schemas) | [`docs/esignet-openapi.yaml`](../docs/esignet-openapi.yaml) |
-| Resource servers and OAuth permission scopes | [`docs/resource-servers-and-permissions.md`](../docs/resource-servers-and-permissions.md) |
-| eSignet service — env vars, build, run from source | [`esignet-service/README.md`](../esignet-service/README.md) |
-| OIDC UI — build, theming, runtime config | [`oidc-ui/README.md`](../oidc-ui/README.md) |
-| Postman collection for API exploration | [`postman-collection/`](../postman-collection/) |
-| Kubernetes / production deployment | [`deploy/README.md`](../deploy/README.md) |
-| Helm charts | [`helm/`](../helm/) |
-| API test harness (conformance suite + godog) | [`api-test/README.md`](../api-test/README.md) |
-| Database schema scripts | [`db_scripts/`](../db_scripts/) |
