@@ -8,6 +8,7 @@ Open ID Connect based identity provider for large-scale authentication, from [MO
 |------|---------|
 | [`esignet-service/`](esignet-service/README.md) | Go service embedding the ThunderID authorization engine — PostgreSQL-backed client management, Redis-backed session/flow storage, pluggable authentication (mock, MOSIP IDA, SunbirdRC KBI). The core of this repo. |
 | [`oidc-ui/`](oidc-ui/README.md) | React + TypeScript + Vite UI for the OIDC login/consent screens. |
+| [`docs/`](docs/architecture.md) | Architecture, [configuration reference](docs/configuration.md), and resource-server/permission-scope docs. |
 | [`postman-collection/`](postman-collection/README.md) | Postman collection + environment for manual/scripted checks against `esignet-service`. |
 | [`docker-compose/`](docker-compose/docker-compose.yaml) | Local Postgres + Redis for `esignet-service` development. |
 | [`deploy/`](deploy/README.md) | Kubernetes deployment guide and scripts. |
