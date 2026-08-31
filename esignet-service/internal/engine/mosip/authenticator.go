@@ -50,6 +50,9 @@ const (
 	mosipEnvStaging           = "Staging" // default MOSIP_ENV; see config.LoadMosipAuthn
 	runtimeKeyClientID        = "initiator_query_client_id"
 
+	// idaIDTypeHandle is IDA's individualIdType for handle-based identifiers.
+	idaIDTypeHandle = "HANDLE"
+
 	// idaMPACertMismatchCode and idaMPACertExpiredCode are the IDA error
 	// codes indicating the cached IDA partner certificate is no longer
 	// valid for a KYC auth request (wrong/stale cert vs. an expired one).
@@ -125,11 +128,19 @@ func NewMosipAuthnProvider(cfg *config.AppConfig, clientSvc *clientmgmt.Service,
 	return provider, nil
 }
 
+// individualIDTypes maps a login ID key to IDA's individualIdType. The UIN screen accepts
+// both a UIN and a VID, so that key is left unmapped and IDA resolves the identifier itself.
+var individualIDTypes = map[string]string{
+	shared.LoginIDPhone: idaIDTypeHandle,
+	shared.LoginIDEmail: idaIDTypeHandle,
+	shared.LoginIDNRC:   idaIDTypeHandle,
+}
+
 func (p *mosipAuthnProvider) Authenticate(ctx context.Context, identifiers, credentials map[string]interface{},
 	metadata *providers.AuthnMetadata) (*providers.AuthnResult, *common.ServiceError) {
 
-	individualID, ok := identifiers["username"].(string)
-	if !ok || individualID == "" {
+	individualID, loginIDKey, ok := shared.ResolveIndividualID(identifiers)
+	if !ok {
 		return nil, shared.InvalidIndividualIDError
 	}
 
@@ -184,6 +195,7 @@ func (p *mosipAuthnProvider) Authenticate(ctx context.Context, identifiers, cred
 		Env:                    p.cfg.Env,
 		ConsentObtained:        true,
 		IndividualID:           individualID,
+		IndividualIDType:       individualIDTypes[loginIDKey],
 		TransactionID:          transactionID,
 		ClaimsMetadataRequired: &claimsMetadataRequired,
 	}
@@ -400,17 +412,18 @@ func (p *mosipAuthnProvider) SendOTP(ctx context.Context, identifiers map[string
 	if err != nil {
 		return nil, shared.InvalidRequestError
 	}
-	individualID, ok := identifiers["username"].(string)
-	if !ok || individualID == "" {
+	individualID, loginIDKey, ok := shared.ResolveIndividualID(identifiers)
+	if !ok {
 		return nil, shared.InvalidRequestError
 	}
 	req := IdaSendOtpRequest{
-		ID:            mosipSendOtpRequestID,
-		Version:       mosipRequestVersion,
-		IndividualID:  individualID,
-		TransactionID: transactionID,
-		RequestTime:   GetUTCDateTime(),
-		OtpChannel:    []string{"phone", "email"},
+		ID:               mosipSendOtpRequestID,
+		Version:          mosipRequestVersion,
+		IndividualID:     individualID,
+		IndividualIDType: individualIDTypes[loginIDKey],
+		TransactionID:    transactionID,
+		RequestTime:      GetUTCDateTime(),
+		OtpChannel:       []string{"phone", "email"},
 	}
 
 	otpRequestBytes, err := json.Marshal(req)
