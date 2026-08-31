@@ -287,6 +287,7 @@ at `http://host.docker.internal:8080` for one running on your own machine.
 | `CONFIG_FILE` | Which plugin config is mounted (default `data/config/config.mock.json`) |
 | `MOSIP_ESIGNET_BASE_URL` | The deployment under test |
 | `KEYCLOAK_TOKEN_URL`, `KEYCLOAK_CLIENT_SECRET` | Admin credentials |
+| `ADMIN_TOKEN` | Skips the Keycloak round-trip above, for a target that does not enforce scope (no `ISSUER_URL`/`JWKS_URL`) — a locally started `esignet-service`, typically. Explicit opt-in, not a fallback |
 | `INDIVIDUAL_ID`, `FLOW_CLIENT_ID` | Test identity and the pre-registered client for authorize validation |
 | `SURFACES`, `TEST_PROFILE` | Narrow the run without editing a config |
 | `ESIGNET_TLS_VERIFY`, `API_TLS_VERIFY` | Certificate verification for the deployment under test — on unless set `false` |
