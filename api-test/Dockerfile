@@ -65,7 +65,12 @@ COPY --from=builder /out/bin/ ./bin/
 # a mounted config.local.json, both of which override these.
 COPY data ./data
 COPY run-all.sh ./
-RUN chmod +x run-all.sh && mkdir -p out && chown -R apitest:apitest /app
+# A Windows checkout leaves CRLF line endings, which make the shebang line
+# unresolvable — the container then exits with a bare "no such file or
+# directory" naming a script that plainly exists. Normalising here keeps the
+# image buildable from any checkout; a repo-wide .gitattributes would be the
+# permanent fix.
+RUN sed -i 's/\r$//' run-all.sh && chmod +x run-all.sh && mkdir -p out && chown -R apitest:apitest /app
 
 ENV BIN_DIR=/app/bin
 # The prebuilt api.test runs from /app rather than from the module directory it
