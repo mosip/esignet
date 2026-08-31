@@ -217,7 +217,6 @@
       "auth_factor": "kbi",
       "scopes": ["openid", "profile"],
       "expect_present": ["sub"],
-      "known_issue": "eSignet reports a freshly issued id_token as active=false at /oauth2/introspect, though the documented contract accepts an id_token and defines the id_token token_type_hint",
       "introspect": [
         {
           "name": "id token with hint",
