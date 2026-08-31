@@ -116,7 +116,7 @@ Once the onboarder job completes, a detailed HTML report is generated and stored
 1. **KER-ATH-401: Authentication Failed**
    Resolution: Provide the correct secret key for `mosip-deployment-client`.
 
-2. **Certificate dates are not valid**
+2. **KER-KMS-021: The PARTNER Certificate validity is less than required minimum validity**
    Resolution: Check with the admin about adding a grace period in configuration.
 
 3. **Upload of certificate will not be allowed to update other domain certificate**
