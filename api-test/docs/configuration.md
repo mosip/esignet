@@ -143,6 +143,7 @@ These are not config overrides — they point the harness at files, or turn on o
 | `SUITE_WAIT_SECONDS` | How long `run-all.sh` polls the suite's readiness endpoint (default 90; 0 disables) |
 | `ESIGNET_DEBUG` | Stream each `/flow/execute` request and response to stderr |
 | `WSOTP_DEBUG` | Print the first few raw OTP WebSocket frames |
+| `ADMIN_TOKEN` | Supplies the admin bearer directly, skipping the Keycloak client-credentials call in `api`'s `@client-mgmt` steps and in `e2e`'s pre-registration. Only meaningful against a target that does not enforce scope — `esignet-service` installs no scope middleware unless both `ISSUER_URL` and `JWKS_URL` are set, so such a target never inspects the value. Explicit opt-in, not a fallback: `keycloak.*` is still required whenever this is unset |
 
 ### Plan-config path variables
 
