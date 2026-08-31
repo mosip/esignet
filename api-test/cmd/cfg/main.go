@@ -190,7 +190,11 @@ func printCheck(c *config.Config, path string) {
 	if c.HasSurface(config.SurfaceAPI) {
 		fmt.Printf("\napi\n")
 		fmt.Printf("  tags        %s\n", orDefault(c.API.Tags, "(auto — chosen from configured credentials)"))
-		fmt.Printf("  client-mgmt %s\n", readiness(c.Keycloak.ClientSecret != "", "ENV_NOT_READY: no keycloak.client_secret"))
+		// ADMIN_TOKEN stands in for the Keycloak round-trip against a target that
+		// does not enforce scope, so it counts as admin auth here too — otherwise
+		// --check would report client-mgmt gated out on a run where it executes.
+		adminAuth := c.Keycloak.ClientSecret != "" || os.Getenv("ADMIN_TOKEN") != ""
+		fmt.Printf("  client-mgmt %s\n", readiness(adminAuth, "ENV_NOT_READY: no keycloak.client_secret and no ADMIN_TOKEN"))
 		fmt.Printf("  authz-neg   %s\n", readiness(c.API.FlowClientID != "", "ENV_NOT_READY: no api.flow_client_id"))
 	}
 

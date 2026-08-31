@@ -251,11 +251,25 @@ func (s *state) record(label, method, u string, reqH http.Header, reqBody string
 
 func iAuthenticateAsAdmin(ctx context.Context) error {
 	s := getState(ctx)
+	// A target that does not enforce scope never inspects this token: scope
+	// middleware is only installed when both ISSUER_URL and JWKS_URL are set
+	// (cmd/esignet/main.go), so a locally started server accepts client-mgmt
+	// calls with any bearer, or none. Requiring a real Keycloak round-trip there
+	// means a deployed IAM credential decides whether the local client-mgmt
+	// scenarios run at all, to obtain a value the server then ignores.
+	//
+	// Deliberately an explicit opt-in rather than a fallback when Keycloak
+	// fails: falling back silently would turn a genuine auth regression on a
+	// real deployment into a green run.
+	if tok := os.Getenv("ADMIN_TOKEN"); tok != "" {
+		s.adminToken = tok
+		return nil
+	}
 	tokenURL := os.Getenv("KEYCLOAK_TOKEN_URL")
 	clientID := os.Getenv("KEYCLOAK_CLIENT_ID")
 	secret := os.Getenv("KEYCLOAK_CLIENT_SECRET")
 	if tokenURL == "" || clientID == "" || secret == "" {
-		return fmt.Errorf("ENV_NOT_READY: KEYCLOAK_TOKEN_URL/CLIENT_ID/CLIENT_SECRET not set for admin auth")
+		return fmt.Errorf("ENV_NOT_READY: KEYCLOAK_TOKEN_URL/CLIENT_ID/CLIENT_SECRET not set for admin auth (or set ADMIN_TOKEN for a target that does not enforce scope)")
 	}
 	form := url.Values{
 		"grant_type":    {"client_credentials"},
