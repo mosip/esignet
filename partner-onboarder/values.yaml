@@ -16,8 +16,7 @@ onboarding:
     - name: esignet
       enabled: true
 
-  # If custom values are required for MISP partner onboarding, use the block
-  # below and update the required values as needed.
+  # This onboarding request is for eSignet integrated with MOSIP using the mosip-identity-plugin (not the mock plugin); if custom values are required for MISP partner onboarding, use the block below and update the required values as needed.
   propertiesOverride:
     esignet:
       POLICY_NAME: mpolicy-default-esignet
