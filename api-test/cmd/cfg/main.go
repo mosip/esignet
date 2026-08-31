@@ -193,8 +193,12 @@ func printCheck(c *config.Config, path string) {
 		// ADMIN_TOKEN stands in for the Keycloak round-trip against a target that
 		// does not enforce scope, so it counts as admin auth here too — otherwise
 		// --check would report client-mgmt gated out on a run where it executes.
-		adminAuth := c.Keycloak.ClientSecret != "" || os.Getenv("ADMIN_TOKEN") != ""
-		fmt.Printf("  client-mgmt %s\n", readiness(adminAuth, "ENV_NOT_READY: no keycloak.client_secret and no ADMIN_TOKEN"))
+		// All three Keycloak fields are required together: iAuthenticateAsAdmin
+		// needs all three, so accepting just the secret would report "will run"
+		// for a config that fails every scenario on a missing token_url/client_id.
+		adminAuth := os.Getenv("ADMIN_TOKEN") != "" ||
+			(c.Keycloak.TokenURL != "" && c.Keycloak.ClientID != "" && c.Keycloak.ClientSecret != "")
+		fmt.Printf("  client-mgmt %s\n", readiness(adminAuth, "ENV_NOT_READY: no keycloak.token_url/client_id/client_secret and no ADMIN_TOKEN"))
 		fmt.Printf("  authz-neg   %s\n", readiness(c.API.FlowClientID != "", "ENV_NOT_READY: no api.flow_client_id"))
 	}
 
