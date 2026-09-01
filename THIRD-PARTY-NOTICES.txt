@@ -3510,7 +3510,7 @@ Homepage: https://opensource.org/licenses/MIT
 Used by: ui-test
 
 Package: io.github.bonigarcia:webdrivermanager
-Version: 6.0.1
+Version: 6.1.0
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
 Used by: ui-test
