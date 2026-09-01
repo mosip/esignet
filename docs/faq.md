@@ -155,7 +155,7 @@ Yes. Per-client JWE ([RFC 7516](https://www.rfc-editor.org/rfc/rfc7516)) encrypt
 
 **How is the Go-based eSignet structured?**
 
-```
+```text
 esignet-service/
   cmd/esignet/main.go    # Entrypoint: wires all providers and starts the HTTP server
   internal/
@@ -250,7 +250,7 @@ eSignet has been integrated or is in active integration across several domains:
 
 **Which version of eSignet should I use?**
 
-The current Go-based implementation is pinned against [ThunderID](https://github.com/thunder-id/thunderid) `v0.0.0-20260822180739`. Please refer to the `go.mod` file and the [GitHub releases page](https://github.com/mosip/esignet/releases) for the latest versioned release.
+The current Go-based implementation is pinned against [ThunderID](https://github.com/thunder-id/thunderid) `v0.0.0-20260822180739-64f1aa911649`. Please refer to the `go.mod` file and the [GitHub releases page](https://github.com/mosip/esignet/releases) for the latest versioned release.
 
 ---
 
@@ -294,7 +294,7 @@ redis:
   port: "${REDIS_PORT}"
 ```
 
-For local development you can override any value by setting the corresponding environment variable before running the binary.
+Environment variable overrides apply only to values declared with `${ENV_VAR_NAME}` placeholders in the YAML (e.g. `host: "${REDIS_HOST}"`). Literal values such as `server.port`, `issuer`, and token expiries must be changed directly in the YAML file or via a Helm values override.
 
 ---
 
@@ -348,7 +348,7 @@ Rebuild and redeploy the `oidc-ui` container for the change to take effect in pr
 
 Wallet configuration in the Go version is provided as environment variables consumed by the React `oidc-ui` at build time. Set the following in the `oidc-ui` `.env` file or as container environment variables:
 
-```
+```dotenv
 VITE_WALLET_NAME=Inji
 VITE_WALLET_LOGO_URL=inji_logo.png
 VITE_WALLET_DOWNLOAD_URI=https://example.org/inji
@@ -363,7 +363,7 @@ Multiple wallets can be configured by adding additional numbered environment var
 
 These are React `oidc-ui` build-time environment variables. Set them in `oidc-ui/.env` or pass them as container environment variables:
 
-```
+```dotenv
 # Quality score thresholds (0–100)
 VITE_SBI_FACE_CAPTURE_SCORE=70
 VITE_SBI_FINGER_CAPTURE_SCORE=70
@@ -414,7 +414,7 @@ redis:
   port: "${REDIS_PORT}"
   password: "${REDIS_PASSWORD}"
   db: 0
-  tlsEnabled: false
+  tls: true   # set to false only for isolated local development; always true for production
 ```
 
 For single-instance development setups, Redis can be replaced with the in-memory runtime store by setting `runtimeStore.type: memory` in `deployment.yaml`. This setting is not suitable for production as state is lost on restart.
@@ -455,7 +455,7 @@ On first startup, the key hierarchy (`ROOT`, `OIDC_SERVICE`, `OIDC_PARTNER`) is 
 
 In order to utilize eSignet for authenticating users and obtaining their information, relying parties are required to:
 
-1. Register as a client in the eSignet system via the `/client-mgmt/oidc-client` API. The API is secured with a bearer token scoped to `client_management`. A client registration payload specifies the client name, redirect URIs, allowed scopes, grant types, token endpoint authentication method (`private_key_jwt` recommended), and any ACR values required. Refer to the [eSignet documentation](https://docs.esignet.io) for full payload details.
+1. Register as a client in the eSignet system via the `/client-mgmt/oidc-client` API. The API is secured with a **bearer token** scoped to `client_management` (passed as `Authorization: Bearer <token>`). The partner certificate is not used to authenticate this API call; it is used during MOSIP partner onboarding to establish partner identity on the PMS portal. A client registration payload specifies the client name, redirect URIs, allowed scopes, grant types, token endpoint authentication method (`private_key_jwt` recommended), and any ACR values required. Refer to the [eSignet documentation](https://docs.esignet.io) for full payload details.
 2. Integrate with eSignet APIs, following the guidelines provided by [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html), on their web or mobile applications.
 
 For MOSIP-integrated environments, relying parties are Auth partners and must complete partner onboarding on the [MOSIP PMS portal](https://docs.mosip.io) before calling the client management API.
@@ -469,7 +469,7 @@ Relying parties are considered Auth partners in MOSIP and must complete [authent
 - **Self Onboarding:** Partners register directly on the [MOSIP PMS portal](https://docs.mosip.io).
 - **Assisted Onboarding:** Partners fill out the onboarding form; credentials are sent via email.
 
-Once onboarded, partners call the `/client-mgmt/oidc-client` API with their partner certificate to register an OIDC client.
+Once onboarded, partners call the `/client-mgmt/oidc-client` API with a bearer token (scoped to `client_management`) to register an OIDC client. The partner certificate obtained during PMS onboarding is used to authenticate with the MOSIP Auth service, not directly on this API.
 
 ---
 
@@ -506,7 +506,7 @@ Note: Verifiable Credentials Issuance (VCI) in production environments is now re
 
 The Go binary exposes a [Prometheus](https://prometheus.io/)-compatible metrics endpoint. By default it is available at:
 
-```
+```http
 GET /metrics
 ```
 
