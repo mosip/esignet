@@ -24,3 +24,25 @@ jobs:
       NPM_SERVICE_LOCATION: 'oidc-ui'
       NPM_COVERAGE_COMMAND: 'npx vitest run --coverage'
     secrets: inherit
+
+  # Checks only newly added dependencies in go.mod/go.sum/package-lock.json.
+  # Blocks the PR if any new dep carries a GPL-3.0/AGPL-3.0 licence (incompatible
+  # with eSignet's MPL-2.0) or a high/critical CVE. Posts a summary comment on
+  # the PR. Action refs are
+  # pinned to commit SHAs (not mutable tags) to prevent supply-chain attacks.
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write  # required by comment-summary-in-pr: always to post PR summaries
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48 # v4
+        with:
+          fail-on-severity: high
+          fail-on-scopes: runtime, development, unknown
+          deny-licenses: GPL-3.0-only,GPL-3.0-or-later,AGPL-3.0-only,AGPL-3.0-or-later
+          comment-summary-in-pr: always

@@ -2152,56 +2152,49 @@ Package: com.aventstack:extentreports
 Version: 5.1.2
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
+Used by: ui-test
 
 Package: com.browserstack:browserstack-java-sdk
 Version: 1.30.9
 License: Apache-2.0 AND BSD-3-Clause AND LicenseRef-scancode-warranty-disclaimer
 Homepage: N/A
+Used by: ui-test
 
 Package: com.fasterxml.jackson.core:jackson-annotations
 Version: 2.15.0
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
+Used by: ui-test
 
 Package: com.fasterxml.jackson.core:jackson-core
 Version: 2.15.0
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
+Used by: ui-test
 
 Package: com.fasterxml.jackson.core:jackson-databind
 Version: 2.15.0
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
+Used by: ui-test
 
 Package: com.fasterxml.jackson.datatype:jackson-datatype-jsr310
 Version: 2.15.0
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
+Used by: ui-test
 
 Package: com.fasterxml.jackson.module:jackson-module-afterburner
 Version: 2.15.0
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
-
-Package: com.github.rajapandi1234/esignet
-Version: develop
-License: UNKNOWN
-Homepage: N/A
+Used by: ui-test
 
 Package: com.google.guava:guava
 Version: 32.0.0-jre
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
-
-Package: com.h2database:h2
-Version: 2.2.220
-License: MPL-2.0 OR EPL-1.0
-Homepage: N/A
-
-Package: com.networknt:json-schema-validator
-Version: 1.5.1
-License: Apache-2.0
-Homepage: https://www.apache.org/licenses/LICENSE-2.0
+Used by: ui-test
 
 Package: combined-stream
 Version: 1.0.8
@@ -2232,11 +2225,13 @@ Package: commons-codec:commons-codec
 Version: 1.15
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
+Used by: ui-test
 
 Package: commons-validator:commons-validator
 Version: 1.7
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
+Used by: ui-test
 
 Package: compressible
 Version: 2.0.18
@@ -3482,41 +3477,43 @@ Package: io.cucumber:cucumber-java
 Version: 7.21.1
 License: MIT
 Homepage: https://opensource.org/licenses/MIT
+Used by: ui-test
 
 Package: io.cucumber:cucumber-junit
 Version: 7.21.1
 License: MIT
 Homepage: https://opensource.org/licenses/MIT
+Used by: ui-test
 
 Package: io.cucumber:cucumber-picocontainer
 Version: 7.21.1
 License: MIT
 Homepage: https://opensource.org/licenses/MIT
+Used by: ui-test
 
 Package: io.cucumber:cucumber-testng
 Version: 7.21.1
 License: MIT
 Homepage: https://opensource.org/licenses/MIT
+Used by: ui-test
 
 Package: io.cucumber:gherkin
 Version: 32.0.1
 License: UNKNOWN
 Homepage: N/A
+Used by: ui-test
 
 Package: io.cucumber:messages
 Version: 27.2.0
 License: MIT
 Homepage: https://opensource.org/licenses/MIT
+Used by: ui-test
 
 Package: io.github.bonigarcia:webdrivermanager
-Version: 6.0.1
+Version: 6.1.0
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
-
-Package: io.micrometer:micrometer-registry-prometheus
-Version: N/A
-License: UNKNOWN
-Homepage: N/A
+Used by: ui-test
 
 Package: ipaddr.js
 Version: 1.9.1
@@ -3767,11 +3764,6 @@ Package: jake
 Version: 10.8.5
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
-
-Package: javax.xml.bind:jaxb-api
-Version: N/A
-License: UNKNOWN
-Homepage: N/A
 
 Package: jest
 Version: 27.5.1
@@ -4407,136 +4399,78 @@ Package: org.apache.commons:commons-lang3
 Version: N/A
 License: UNKNOWN
 Homepage: N/A
+Used by: ui-test
 
-Package: org.apache.maven.plugins:maven-antrun-plugin
-Version: 3.0.0
-License: Apache-2.0
-Homepage: https://www.apache.org/licenses/LICENSE-2.0
 
 Package: org.apache.maven.plugins:maven-compiler-plugin
 Version: 3.8.0
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
+Used by: ui-test
 
 Package: org.apache.maven.plugins:maven-dependency-plugin
 Version: 3.3.0
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
+Used by: ui-test
 
 Package: org.apache.maven.plugins:maven-gpg-plugin
 Version: 1.5
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
+Used by: ui-test
 
-Package: org.apache.maven.plugins:maven-jar-plugin
-Version: 3.0.2
-License: Apache-2.0
-Homepage: https://www.apache.org/licenses/LICENSE-2.0
 
-Package: org.apache.maven.plugins:maven-javadoc-plugin
-Version: N/A
-License: UNKNOWN
-Homepage: N/A
 
 Package: org.apache.maven.plugins:maven-shade-plugin
 Version: 3.2.4
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
+Used by: ui-test
 
-Package: org.apache.maven.plugins:maven-source-plugin
-Version: 2.2.1
-License: Apache-2.0
-Homepage: https://www.apache.org/licenses/LICENSE-2.0
 
 Package: org.apache.maven.plugins:maven-surefire-plugin
 Version: 2.22.0
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
+Used by: ui-test
 
-Package: org.apache.maven.plugins:maven-war-plugin
-Version: 3.1.0
-License: Apache-2.0
-Homepage: https://www.apache.org/licenses/LICENSE-2.0
 
 Package: org.apache.pdfbox:pdfbox
 Version: 2.0.31
 License: UNKNOWN
 Homepage: N/A
-
-Package: org.apache.tomcat.embed:tomcat-embed-core
-Version: 9.0.105
-License: Apache-2.0
-Homepage: https://www.apache.org/licenses/LICENSE-2.0
-
-Package: org.jacoco:jacoco-maven-plugin
-Version: 0.8.5
-License: EPL-2.0
-Homepage: https://www.eclipse.org/legal/epl-2.0/
-
-Package: org.javassist:javassist
-Version: 3.27.0-GA
-License: Apache-2.0 OR LGPL-2.1-or-later OR MPL-1.1
-Homepage: N/A
+Used by: ui-test
 
 Package: org.json:json
 Version: 20240303
 License: LicenseRef-scancode-public-domain
 Homepage: N/A
-
-Package: org.mapstruct:mapstruct
-Version: 1.5.5
-License: UNKNOWN
-Homepage: N/A
-
-Package: org.mockito:mockito-core
-Version: 2.22.0
-License: MIT
-Homepage: https://opensource.org/licenses/MIT
-
-Package: org.postgresql:postgresql
-Version: 42.7.5
-License: BSD-2-Clause
-Homepage: https://opensource.org/licenses/BSD-2-Clause
+Used by: ui-test
 
 Package: org.projectlombok:lombok
 Version: 1.18.30
 License: MIT
 Homepage: https://opensource.org/licenses/MIT
+Used by: ui-test
 
 Package: org.seleniumhq.selenium:selenium-devtools-v134
 Version: 4.31.0
 License: UNKNOWN
 Homepage: N/A
+Used by: ui-test
 
 Package: org.seleniumhq.selenium:selenium-java
 Version: 4.14.1
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
-
-Package: org.sonatype.central:central-publishing-maven-plugin
-Version: 0.7.0
-License: Apache-2.0
-Homepage: https://www.apache.org/licenses/LICENSE-2.0
-
-Package: org.springdoc:springdoc-openapi-maven-plugin
-Version: 0.2
-License: Apache-2.0
-Homepage: https://www.apache.org/licenses/LICENSE-2.0
-
-Package: org.springdoc:springdoc-openapi-ui
-Version: 1.8.0
-License: Apache-2.0
-Homepage: https://www.apache.org/licenses/LICENSE-2.0
-
-Package: org.springframework.boot:spring-boot-maven-plugin
-Version: 2.3.6.RELEASE
-License: Apache-2.0
-Homepage: https://www.apache.org/licenses/LICENSE-2.0
+Used by: ui-test
 
 Package: org.testng:testng
 Version: 7.7.1
 License: Apache-2.0
 Homepage: https://www.apache.org/licenses/LICENSE-2.0
+Used by: ui-test
 
 Package: own-keys
 Version: 1.0.1
@@ -5837,6 +5771,7 @@ Package: tech.grasshopper:extentreports-cucumber7-adapter
 Version: 1.14.0
 License: Apache-2.0 AND MIT
 Homepage: N/A
+Used by: ui-test
 
 Package: temp-dir
 Version: 2.0.0
@@ -6369,4 +6304,549 @@ License: MIT
 Homepage: https://opensource.org/licenses/MIT
 
 
-Full license texts and additional details for each of the above packages are available in the license/ directory of this repository. Please refer to those files or the original source of each package for complete legal terms and conditions.
+===========================================
+Go Packages — esignet-service
+===========================================
+
+Package: filippo.io/edwards25519
+Version: v1.1.0
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: github.com/DATA-DOG/go-sqlmock
+Version: v1.5.2
+License: BSD-2-Clause
+Homepage: https://opensource.org/licenses/BSD-2-Clause
+
+Package: github.com/beorn7/perks
+Version: v1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: github.com/bsm/ginkgo/v2
+Version: v2.12.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: github.com/bsm/gomega
+Version: v1.27.10
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: github.com/btcsuite/btcd/btcec/v2
+Version: v2.5.0
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: github.com/cenkalti/backoff/v5
+Version: v5.0.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: github.com/cespare/xxhash/v2
+Version: v2.3.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: github.com/cloudflare/circl
+Version: v1.6.4
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: github.com/davecgh/go-spew
+Version: v1.1.2-0.20180830191138-d8f796af33cc
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: github.com/decred/dcrd/dcrec/secp256k1/v4
+Version: v4.4.0
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+Package: github.com/dgryski/go-rendezvous
+Version: v0.0.0-20200823014737-9f7001d12a5f
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: github.com/dustin/go-humanize
+Version: v1.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: github.com/fxamacker/cbor/v2
+Version: v2.9.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: github.com/go-jose/go-jose/v4
+Version: v4.1.4
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: github.com/go-logr/logr
+Version: v1.4.3
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: github.com/go-logr/stdr
+Version: v1.2.2
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: github.com/go-sql-driver/mysql
+Version: v1.8.1
+License: MPL-2.0
+Homepage: https://www.mozilla.org/en-US/MPL/2.0/
+
+Package: github.com/go-viper/mapstructure/v2
+Version: v2.5.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: github.com/go-webauthn/webauthn
+Version: v0.17.4
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: github.com/go-webauthn/x
+Version: v0.2.6
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: github.com/golang-jwt/jwt/v5
+Version: v5.3.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: github.com/google/go-cmp
+Version: v0.7.0
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: github.com/google/go-tpm
+Version: v0.9.8
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: github.com/google/go-tpm-tools
+Version: v0.3.13-0.20230620182252-4639ecce2aba
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: github.com/google/jsonschema-go
+Version: v0.4.3
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: github.com/google/pprof
+Version: v0.0.0-20250317173921-a4b03ec1a45e
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: github.com/google/uuid
+Version: v1.6.0
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: github.com/grpc-ecosystem/grpc-gateway/v2
+Version: v2.29.0
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: github.com/hashicorp/golang-lru/v2
+Version: v2.0.7
+License: MPL-2.0
+Homepage: https://www.mozilla.org/en-US/MPL/2.0/
+
+Package: github.com/jackc/pgpassfile
+Version: v1.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: github.com/jackc/pgservicefile
+Version: v0.0.0-20240606120523-5a60cdf6a761
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: github.com/jackc/pgx/v5
+Version: v5.10.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: github.com/jackc/puddle/v2
+Version: v2.2.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: github.com/jmoiron/sqlx
+Version: v1.4.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: github.com/klauspost/compress
+Version: v1.19.1
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: github.com/klauspost/cpuid/v2
+Version: v2.0.9
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: github.com/kr/pretty
+Version: v0.3.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: github.com/kr/text
+Version: v0.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: github.com/kylelemons/godebug
+Version: v1.1.0
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: github.com/lib/pq
+Version: v1.10.9
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: github.com/mattn/go-isatty
+Version: v0.0.20
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: github.com/mattn/go-sqlite3
+Version: v1.14.22
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: github.com/miekg/pkcs11
+Version: v1.1.2
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: github.com/modelcontextprotocol/go-sdk
+Version: v1.6.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: github.com/munnerz/goautoneg
+Version: v0.0.0-20191010083416-a7dc8b61c822
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: github.com/ncruces/go-strftime
+Version: v1.0.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: github.com/philhofer/fwd
+Version: v1.2.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: github.com/pmezard/go-difflib
+Version: v1.0.1-0.20181226105442-5d4384ee4fb2
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: github.com/prometheus/client_golang
+Version: v1.24.1
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: github.com/prometheus/client_model
+Version: v0.6.2
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: github.com/prometheus/common
+Version: v0.70.1
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: github.com/prometheus/procfs
+Version: v0.21.1
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: github.com/redis/go-redis/v9
+Version: v9.18.0
+License: BSD-2-Clause
+Homepage: https://opensource.org/licenses/BSD-2-Clause
+
+Package: github.com/remyoudompheng/bigfft
+Version: v0.0.0-20230129092748-24d4a6f8daec
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: github.com/rogpeppe/go-internal
+Version: v1.14.1
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: github.com/segmentio/asm
+Version: v1.1.3
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: github.com/segmentio/encoding
+Version: v0.5.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: github.com/stretchr/objx
+Version: v0.5.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: github.com/stretchr/testify
+Version: v1.11.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: github.com/thunder-id/thunderid/backend
+Version: v0.0.0-20260822180739-64f1aa911649
+License: MPL-2.0
+Homepage: https://www.mozilla.org/en-US/MPL/2.0/
+
+Package: github.com/tinylib/msgp
+Version: v1.6.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: github.com/x448/float16
+Version: v0.8.4
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: github.com/yosida95/uritemplate/v3
+Version: v3.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: github.com/zeebo/xxh3
+Version: v1.0.2
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: go.mozilla.org/pkcs7
+Version: v0.9.0
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: go.opentelemetry.io/auto/sdk
+Version: v1.2.1
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: go.opentelemetry.io/otel
+Version: v1.44.0
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: go.opentelemetry.io/otel/exporters/otlp/otlptrace
+Version: v1.44.0
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc
+Version: v1.44.0
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: go.opentelemetry.io/otel/exporters/stdout/stdouttrace
+Version: v1.44.0
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: go.opentelemetry.io/otel/metric
+Version: v1.44.0
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: go.opentelemetry.io/otel/sdk
+Version: v1.44.0
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: go.opentelemetry.io/otel/trace
+Version: v1.44.0
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: go.opentelemetry.io/proto/otlp
+Version: v1.10.0
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: go.uber.org/atomic
+Version: v1.11.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: go.uber.org/goleak
+Version: v1.3.0
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: go.uber.org/mock
+Version: v0.6.0
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: go.yaml.in/yaml/v2
+Version: v2.4.4
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: golang.org/x/crypto
+Version: v0.54.0
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: golang.org/x/mod
+Version: v0.37.0
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: golang.org/x/net
+Version: v0.57.0
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: golang.org/x/oauth2
+Version: v0.36.0
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: golang.org/x/sync
+Version: v0.22.0
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: golang.org/x/sys
+Version: v0.47.0
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: golang.org/x/text
+Version: v0.40.0
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: golang.org/x/tools
+Version: v0.47.0
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: google.golang.org/genproto/googleapis/api
+Version: v0.0.0-20260630182238-925bb5da69e7
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: google.golang.org/genproto/googleapis/rpc
+Version: v0.0.0-20260630182238-925bb5da69e7
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: google.golang.org/grpc
+Version: v1.82.1
+License: Apache-2.0
+Homepage: https://www.apache.org/licenses/LICENSE-2.0
+
+Package: google.golang.org/protobuf
+Version: v1.36.11
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: gopkg.in/check.v1
+Version: v1.0.0-20201130134442-10cb98267c6c
+License: BSD-2-Clause
+Homepage: https://opensource.org/licenses/BSD-2-Clause
+
+Package: gopkg.in/yaml.v3
+Version: v3.0.1
+License: MIT
+Homepage: https://opensource.org/licenses/MIT
+
+Package: modernc.org/cc/v4
+Version: v4.28.4
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: modernc.org/ccgo/v4
+Version: v4.34.4
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: modernc.org/fileutil
+Version: v1.4.0
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: modernc.org/gc/v2
+Version: v2.6.5
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: modernc.org/gc/v3
+Version: v3.1.3
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: modernc.org/goabi0
+Version: v0.2.0
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: modernc.org/libc
+Version: v1.73.4
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: modernc.org/mathutil
+Version: v1.7.1
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: modernc.org/memory
+Version: v1.11.0
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: modernc.org/opt
+Version: v0.2.0
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: modernc.org/sortutil
+Version: v1.2.1
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: modernc.org/sqlite
+Version: v1.53.0
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: modernc.org/strutil
+Version: v1.2.1
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: modernc.org/token
+Version: v1.1.0
+License: BSD-3-Clause
+Homepage: https://opensource.org/licenses/BSD-3-Clause
+
+Package: software.sslmate.com/src/go-pkcs12
+Version: v0.7.3
+License: ISC
+Homepage: https://opensource.org/licenses/ISC
+
+
+Full license texts and additional details for each of the above packages are available at the homepage URL listed for each package, or at the package's source repository. Please refer to the original source of each package for complete legal terms and conditions.
