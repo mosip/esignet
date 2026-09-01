@@ -47,3 +47,7 @@ out/
 /consolidate.exe
 /cfg
 /cfg.exe
+
+# Postman: the filled environment carries the Keycloak secret; the example is tracked.
+postman/*.postman_environment.json
+!postman/*.postman_environment.example.json

@@ -123,6 +123,10 @@ func (o *Orchestrator) Run(ctx context.Context) (*RunResult, error) {
 	preferred := append(esignet.AuthFactorTokens(o.cfg.Esignet.AuthFactor), esignet.IDTypeTokens(o.cfg.Esignet.Identity.IDType)...)
 	// esignet.tls_verify, not conformance.tls_verify: this driver talks to the real deployment.
 	driver := esignet.New(answers, preferred, o.cfg.Esignet.TLSVerify, time.Duration(o.cfg.Run.TimeoutSeconds)*time.Second)
+	// Also passed separately: the id-type is matched against an action's nextNode,
+	// which is the only thing distinguishing the login-id tabs (they all submit
+	// under the same ref), and `preferred` above cannot be used for that.
+	driver.UseIDType(esignet.IDTypeTokens(o.cfg.Esignet.Identity.IDType))
 
 	// Dynamic OTP: connect the mock-SMTP listener once and share it across all modules.
 	if o.cfg.Esignet.OTP.Source == "dynamic" {

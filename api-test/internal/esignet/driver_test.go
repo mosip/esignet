@@ -12,30 +12,70 @@ func TestSelectAction(t *testing.T) {
 	cases := []struct {
 		name      string
 		in        []string
+		nodes     map[string]string // action ref -> nextNode, for the login-id-tab cases
+		idTokens  []string
 		preferred []string
 		want      string
 		wantErr   bool
 	}{
-		{"single", []string{"login"}, nil, "login", false},
-		{"exclude-cancel", []string{"cancel", "login"}, nil, "login", false},
-		{"only-excluded", []string{"cancel", "reject", "deny"}, nil, "", true},
-		{"empty-ok", nil, nil, "", false},
-		{"prefer-login", []string{"otp-login", "consent"}, nil, "otp-login", false},
-		{"ambiguous", []string{"foo", "bar"}, nil, "", true},
-		{"send-otp", []string{"send-otp"}, nil, "send-otp", false},
-		{"acr-otp", []string{"acr_otp", "acr_password", "acr_bio", "acr_kbi"}, []string{"otp", "generated-code"}, "acr_otp", false},
-		{"acr-kbi", []string{"acr_otp", "acr_password", "acr_bio", "acr_kbi"}, []string{"kbi", "knowledge"}, "acr_kbi", false},
-		{"submit-over-tab-switch", []string{"submit_uin", "login_id_mobile", "login_id_email", "login_id_nrc", "BACK_BUTTON"}, []string{"otp", "generated-code", "mobile", "phone"}, "submit_uin", false},
-		{"proceed-over-resend", []string{"resend_otp", "action_proceed_kbi"}, nil, "action_proceed_kbi", false},
+		{name: "single", in: []string{"login"}, want: "login"},
+		{name: "exclude-cancel", in: []string{"cancel", "login"}, want: "login"},
+		{name: "only-excluded", in: []string{"cancel", "reject", "deny"}, wantErr: true},
+		{name: "empty-ok", in: nil, want: ""},
+		{name: "prefer-login", in: []string{"otp-login", "consent"}, want: "otp-login"},
+		{name: "ambiguous", in: []string{"foo", "bar"}, wantErr: true},
+		{name: "send-otp", in: []string{"send-otp"}, want: "send-otp"},
+		{name: "acr-otp", in: []string{"acr_otp", "acr_password", "acr_bio", "acr_kbi"},
+			preferred: []string{"otp", "generated-code"}, want: "acr_otp"},
+		{name: "acr-kbi", in: []string{"acr_otp", "acr_password", "acr_bio", "acr_kbi"},
+			preferred: []string{"kbi", "knowledge"}, want: "acr_kbi"},
+		{name: "submit-over-tab-switch", in: []string{"submit_uin", "login_id_mobile", "login_id_email", "login_id_nrc", "BACK_BUTTON"},
+			preferred: []string{"otp", "generated-code", "mobile", "phone"}, want: "submit_uin"},
+		{name: "proceed-over-resend", in: []string{"resend_otp", "action_proceed_kbi"}, want: "action_proceed_kbi"},
 		// Stage 5: a step offering only tab switches is progressable, so the
 		// first navigation action is taken rather than aborting as ambiguous.
-		{"nav-only-fallback", []string{"login_id_mobile", "login_id_email"}, nil, "login_id_mobile", false},
+		{name: "nav-only-fallback", in: []string{"login_id_mobile", "login_id_email"}, want: "login_id_mobile"},
 		// Stage 5 must honour the caller's IDTypeTokens preference among navigation-only candidates.
-		{"nav-honours-preference", []string{"login_id_mobile", "login_id_email"}, []string{"otp", "email"}, "login_id_email", false},
+		{name: "nav-honours-preference", in: []string{"login_id_mobile", "login_id_email"},
+			preferred: []string{"otp", "email"}, want: "login_id_email"},
+
+		// Stage 0, the login-id tab correction. Every tab submits under the ref
+		// "submit_uin"; only nextNode says which identifier kind goes out, so the
+		// default UIN tab looks like a valid submit even when the identity is a
+		// phone. With id_type set, switch tabs first.
+		{name: "id-tab-switch-to-mobile",
+			in:       []string{"submit_uin", "login_id_mobile", "login_id_email", "login_id_nrc", "BACK_BUTTON"},
+			nodes:    map[string]string{"submit_uin": "send_mosip_otp_uin", "login_id_mobile": "prompt_mobile_otp", "login_id_email": "prompt_email_otp", "login_id_nrc": "prompt_nrc_otp", "BACK_BUTTON": "prompt_acr"},
+			idTokens: []string{"mobile", "phone"}, preferred: []string{"otp", "generated-code"},
+			want: "login_id_mobile"},
+		// Already on the mobile tab: its submit targets the right node, so the
+		// correction must NOT fire again — that would loop between tabs.
+		{name: "id-tab-already-correct-submits",
+			in:       []string{"submit_uin", "login_id_email", "BACK_BUTTON"},
+			nodes:    map[string]string{"submit_uin": "send_mosip_otp_mobile", "login_id_email": "prompt_email_otp", "BACK_BUTTON": "prompt_acr"},
+			idTokens: []string{"mobile", "phone"}, preferred: []string{"otp", "generated-code"},
+			want: "submit_uin"},
+		// id_type=uin on the UIN tab: no switch, submit straight away.
+		{name: "id-tab-uin-stays",
+			in:       []string{"submit_uin", "login_id_mobile", "BACK_BUTTON"},
+			nodes:    map[string]string{"submit_uin": "send_mosip_otp_uin", "login_id_mobile": "prompt_mobile_otp", "BACK_BUTTON": "prompt_acr"},
+			idTokens: []string{"uin"}, preferred: []string{"otp"},
+			want: "submit_uin"},
+		// No tab matches the id_type (a flow without that identifier): fall
+		// through to the ordinary submit rather than picking an arbitrary tab.
+		{name: "id-tab-no-match-falls-through",
+			in:       []string{"submit_uin", "login_id_email", "BACK_BUTTON"},
+			nodes:    map[string]string{"submit_uin": "send_mosip_otp_uin", "login_id_email": "prompt_email_otp", "BACK_BUTTON": "prompt_acr"},
+			idTokens: []string{"mobile", "phone"}, preferred: []string{"otp"},
+			want: "submit_uin"},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			got, errMsg := selectAction(c.in, c.preferred)
+			var actions []flowAction
+			for _, ref := range c.in {
+				actions = append(actions, flowAction{Ref: ref, NextNode: c.nodes[ref]})
+			}
+			got, errMsg := selectAction(actions, c.preferred, c.idTokens)
 			if c.wantErr && errMsg == "" {
 				t.Fatalf("want error, got action %q", got)
 			}

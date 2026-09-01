@@ -189,7 +189,17 @@ func (s *state) doClient(ctx context.Context, client *http.Client, label, method
 		req.Header.Set(k, v)
 	}
 	if s.adminToken != "" {
-		req.Header.Set("Authorization", "Bearer "+s.adminToken)
+		// The admin token reaches PMS and eSignet by different transports. MOSIP
+		// kernel services — PMS among them — read it from a cookie named
+		// Authorization and answer the Bearer header with KER-ATH-401, while
+		// eSignet's own client-mgmt wants the Bearer header. So the transport is
+		// chosen per target rather than switched globally: a scenario that mixes
+		// {{pms_base}} and eSignet paths gets the right one on each call.
+		if pms := s.stash["pms_base"]; pms != "" && strings.HasPrefix(fullURL, pms) {
+			req.AddCookie(&http.Cookie{Name: "Authorization", Value: s.adminToken})
+		} else {
+			req.Header.Set("Authorization", "Bearer "+s.adminToken)
+		}
 	}
 
 	resp, err := client.Do(req)
@@ -438,6 +448,29 @@ func theJSONPathShouldExist(ctx context.Context, path string) error {
 }
 
 // theJSONPathShouldBeNull asserts an explicit JSON null.
+// theJSONPathShouldBeEmpty passes when a path carries no entries: absent, null,
+// [] or {}. MOSIP's two response wrappers disagree about how "no errors" looks —
+// eSignet sends "errors": null while PMS /oauth/client sends "errors": [] — so a
+// scenario spanning both needs an assertion that accepts either without going as
+// weak as "should exist".
+func theJSONPathShouldBeEmpty(ctx context.Context, path string) error {
+	s := getState(ctx)
+	v := gjson.GetBytes(s.lastBody, path)
+	empty := !v.Exists() || v.Type == gjson.Null
+	if v.Exists() && (v.IsArray() || v.IsObject()) {
+		empty = len(v.Array()) == 0 && len(v.Map()) == 0
+	}
+	actual := v.Raw
+	if !v.Exists() {
+		actual = "absent"
+	}
+	s.recordAssertion("JSON "+path, "empty", actual, empty)
+	if !empty {
+		return fmt.Errorf("json path %q is not empty (got %s): %s", path, actual, snippet(s.lastBody))
+	}
+	return nil
+}
+
 func theJSONPathShouldBeNull(ctx context.Context, path string) error {
 	s := getState(ctx)
 	v := gjson.GetBytes(s.lastBody, path)
@@ -550,6 +583,7 @@ func InitScenario(sc *godog.ScenarioContext, coll *Collector) {
 	sc.Step(`^the JSON value at "([^"]*)" should be "([^"]*)"$`, theJSONValueAtShouldBe)
 	sc.Step(`^the JSON path "([^"]*)" should exist$`, theJSONPathShouldExist)
 	sc.Step(`^the JSON path "([^"]*)" should be null$`, theJSONPathShouldBeNull)
+	sc.Step(`^the JSON path "([^"]*)" should be empty$`, theJSONPathShouldBeEmpty)
 }
 
 // surfaceFromTags maps a scenario's tags to a report surface.

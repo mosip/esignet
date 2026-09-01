@@ -22,6 +22,14 @@ type mailMessage struct {
 	Text    string `json:"text"`
 	HTML    string `json:"html"`
 	Subject string `json:"subject"`
+	// Date is when the deployment sent the message, as opposed to when this
+	// listener happened to read it. The mock-SMTP server replays its recent
+	// history to every client that connects, so a batch of old messages arrives
+	// the moment the listener starts; timing them by arrival would make all of
+	// them look newer than the flow that is waiting, and a stale code would be
+	// handed to the OTP step as if it were live. Absent or unparseable, the
+	// arrival time is used instead.
+	Date string `json:"date"`
 	To      struct {
 		Text  string `json:"text"`
 		Value []struct {
@@ -146,9 +154,24 @@ func (l *Listener) ingest(data []byte, at time.Time) {
 		return
 	}
 	l.mu.Lock()
-	l.records = append(l.records, record{at: at, otp: otp, dest: recipients(m)})
+	l.records = append(l.records, record{at: sentAt(m, at), otp: otp, dest: recipients(m)})
 	l.pruneLocked(at)
 	l.mu.Unlock()
+}
+
+// sentAt is when the deployment sent the message, falling back to when this
+// listener read it. See mailMessage.Date for why the distinction matters.
+func sentAt(m mailMessage, fallback time.Time) time.Time {
+	d := strings.TrimSpace(m.Date)
+	if d == "" {
+		return fallback
+	}
+	for _, layout := range []string{time.RFC3339Nano, time.RFC3339, time.RFC1123Z, time.RFC1123} {
+		if t, err := time.Parse(layout, d); err == nil {
+			return t
+		}
+	}
+	return fallback
 }
 
 // retention bounds the buffer. One listener serves every module for the whole

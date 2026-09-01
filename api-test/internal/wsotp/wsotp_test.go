@@ -391,3 +391,31 @@ func TestIngestPrunesRecordsPastRetention(t *testing.T) {
 		t.Errorf("match = %q, want 222222", got)
 	}
 }
+
+// The mock-SMTP server replays its recent history to every client that
+// connects, so a batch of already-delivered messages lands the instant the
+// listener starts. Timing them by arrival would make each look newer than the
+// flow waiting on an OTP, and a stale code would be returned as if it were live.
+func TestIngestUsesMessageDateNotArrival(t *testing.T) {
+	l := &Listener{}
+	now := time.Now()
+	// Replayed on connect: sent 8 minutes ago, read just now.
+	l.ingest([]byte(`{"type":"SMS","date":"`+now.Add(-8*time.Minute).UTC().Format(time.RFC3339Nano)+
+		`","text":"OTP is 111111","to":{"text":"3449351160"}}`), now)
+	flowStart := now.Add(-1 * time.Minute)
+	if got := l.match("", flowStart); got != "" {
+		t.Fatalf("replayed message matched as fresh: got OTP %q, want none", got)
+	}
+	// A genuinely live message, sent after the flow began.
+	l.ingest([]byte(`{"type":"SMS","date":"`+now.UTC().Format(time.RFC3339Nano)+
+		`","text":"OTP is 222222","to":{"text":"3449351160"}}`), now)
+	if got := l.match("", flowStart); got != "222222" {
+		t.Fatalf("live message: got %q, want 222222", got)
+	}
+	// No date at all: fall back to arrival time so behaviour is unchanged.
+	l2 := &Listener{}
+	l2.ingest([]byte(`{"text":"OTP is 333333","to":{"text":"x"}}`), now)
+	if got := l2.match("", flowStart); got != "333333" {
+		t.Fatalf("dateless message: got %q, want 333333 via arrival-time fallback", got)
+	}
+}
