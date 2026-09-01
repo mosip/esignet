@@ -82,19 +82,6 @@ DPoP enforcement is **per-client**: when a client is registered with `dpop_bound
 
 A DPoP proof is a JWT [RFC 7519] signed (using JWS [RFC 7515]) with a private key chosen by the client. For more details refer to [RFC 9449 §4.2](https://datatracker.ietf.org/doc/html/rfc9449#section-4.2).
 
-**DPoP proof JWT structure:**
-
-| Part | Field | Value |
-|---|---|---|
-| Header | `typ` | `dpop+jwt` |
-| Header | `alg` | One of: ES256, PS256, ES384, ES512, EdDSA, RS256 |
-| Header | `jwk` | Public key JWK (must not include a `kid`) |
-| Payload | `jti` | Unique string per request — prevents replay |
-| Payload | `htm` | HTTP method in uppercase (e.g. `POST`) |
-| Payload | `htu` | Endpoint URI without query string or fragment |
-| Payload | `iat` | Current Unix time — must be within ±60 s of server time; an additional 10 s clock-skew leeway is applied |
-| Payload | `nonce` | Server-supplied nonce, if previously returned via `DPoP-Nonce` response header |
-| Payload | `ath` | Base64url-encoded SHA-256 hash of the ASCII access token — **required** when the proof accompanies an access token (i.e. on userinfo requests) |
 
 > **DPoP key reuse requirement**: Generate **one** DPoP key pair before the PAR request. Reuse the same private key for all subsequent proofs (PAR, token, and userinfo). Do not generate a new key pair between requests — a different key at the token endpoint will not match the `dpop_jkt` binding from PAR and will cause token exchange failure. Generate a fresh proof (new `jti` and current `iat`) for each individual request.
 
@@ -227,7 +214,7 @@ Access token claims (RFC 9068):
 > - The `sub` claim in the ID token and access token is a **pairwise pseudonymous identifier** (PSUT — Partner Specific User Token).
 > - Avoid storing ID Tokens or Access Tokens in browser `localStorage` or `sessionStorage`. If an attacker gains access to the browser context, they can extract the tokens and impersonate the user.
 > - All RP communication must use **HTTPS**. Never send authorization codes, tokens, or assertions over plain HTTP.
-> - Instead, it is recommended to perform the token exchange and validation on the RP backend and maintain a secure server-side session. The user's browser should only store a short-lived, **HTTP-only, Secure, SameSite** cookie that maps to this session for a stronger protection model.
+> - Instead, it is recommended to perform the token exchange and validation on the RP backend and maintain a secure server-side session. The user's browser should only store a short-lived, **`HttpOnly`; `Secure`; `SameSite=Lax`** session cookie that maps to this session. `SameSite=Lax` prevents the cookie from being sent on cross-site sub-resource requests while still allowing it on top-level navigations (e.g., the redirect back from eSignet). If your deployment requires `SameSite=None` (cross-origin iframes), you must implement an equivalent server-side `state` validation or CSRF token to protect the callback.
 
 #### Step 5: Get Consented User Claims Using Access Token
 
@@ -316,9 +303,5 @@ The following documents what changed, what is new, and what is confirmed unchang
 | JWKS endpoint path | `/.well-known/jwks.json` | `/oauth2/jwks` — also accessible at `/.well-known/jwks.json` via reverse proxy in production |
 | PAR endpoint path | `/oauth/par` | `/oauth2/par` |
 | Default token signing algorithm | RS256 (typical Java default) | **PS256** (RSASSA-PSS with SHA-256). Supported set: PS256, ES256, ES256K, EdDSA. RS256 is available in the underlying library but excluded from the server's default supported signing algorithms. |
-| Userinfo response format | Always a signed JWS wrapped in JWE (nested JWT — sign-then-encrypt) | **JWS only** by default (signed, not encrypted). JWE is opt-in per-client: set `userinfo_response_type: JWE` in the client's `additionalConfig`. Encryption algorithm from the client's `encPublicKey` JWK `alg` field; content encryption is always `A256GCM`. |
-| PAR `expires_in` | 10 seconds (in the published example) | Default **3600 seconds** (configurable via `MOSIP_ESIGNET_OAUTH_PAR_EXPIRY_SECONDS`) |
-| PAR enforcement | Described as a general option any RP can use | Per-client: set `require_pushed_authorization_requests: true` in `additionalConfig` to require PAR for that client. Other clients may use PAR optionally. |
-| DPoP enforcement | Described as a general option | Per-client: set `dpop_bound_access_tokens: true` in `additionalConfig`. Server-wide default is DPoP not required. |
 | Supported ACR values | 7 values including `static-code`, `linked-wallet`, `id-token` | 4 values active in the default flow: `generated-code`, `password`, `biometrics`, `knowledge` |
 | `phone` claim name | `phone` | `phone_number` (corrected to the OIDC standard claim name) |
