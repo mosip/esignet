@@ -57,7 +57,7 @@
     "auth_factor": "otp",
     "identity": {
       "individual_id": "8267411574",
-      "id_type": "phone"
+      "id_type": "uin"
     },
     "credentials": {
       "username": "decl-user-1",
