@@ -61,6 +61,11 @@ PAR enforcement is **per-client**: when a client is registered with `require_pus
 
 **eSignet PAR Endpoint Specification**: see [`POST /oauth2/par`](./esignet-openapi.yaml) in the eSignet OpenAPI specification.
 
+**PAR client authentication** uses `private_key_jwt` via form-body parameters (header-based authentication is not supported):
+- `client_assertion_type` (required) — must be `urn:ietf:params:oauth:client-assertion-type:jwt-bearer`
+- `client_assertion` (required) — JWT signed with the client's private key. Required claims: `iss` and `sub` (= `client_id`), `exp`, `iat`, `jti`, and `aud`.
+  - `aud` must be the **PAR endpoint URL** (e.g. `https://esignet.example.org/v1/esignet/oauth2/par`). This is distinct from the token endpoint audience used in Step 3. For FAPI 2.0 strict mode (`client_auth_assertion_audience: strict_audience_check`), use the issuer URL from `/.well-known/openid-configuration` for both.
+
 Not supported: client authentication in PAR request header, JAR (RFC 9101) `request` parameter, non-registered redirect URIs.
 
 After receiving the `request_uri`, redirect the user's browser to:
@@ -141,13 +146,16 @@ Required `client_assertion` JWT claims:
 - `aud` — token endpoint URL (e.g. `https://esignet.example.org/v1/esignet/oauth2/token`). For FAPI 2.0 strict mode (`client_auth_assertion_audience: strict_audience_check`), use the server's issuer URL from `/.well-known/openid-configuration` instead.
 - `exp`, `iat`, `jti` — expiry, issued-at, and unique JWT ID
 
-Request body (form-encoded) required fields: `grant_type` (= `authorization_code`), `code`, `client_assertion_type`, `client_assertion`, `redirect_uri`
+Request body (form-encoded) required fields: `grant_type` (= `authorization_code`), `code`, `client_assertion_type` (= `urn:ietf:params:oauth:client-assertion-type:jwt-bearer`), `client_assertion`, `redirect_uri`
 
-Optional: `client_id`, `code_verifier`
+Optional: `client_id`
+
+`code_verifier` — required when the client is registered with `require_pkce: true` in `additionalConfig`; omit otherwise.
 
 DPoP header: `DPoP` — proof JWT per RFC 9449. Required when the client is registered with `dpop_bound_access_tokens: true`.
 
 Successful response (HTTP 200):
+
 ```json
 {
   "token_type": "Bearer",
@@ -218,7 +226,8 @@ Access token claims (RFC 9068):
 > - eSignet does **not** support user claims in the ID token.
 > - The `sub` claim in the ID token and access token is a **pairwise pseudonymous identifier** (PSUT — Partner Specific User Token).
 > - Avoid storing ID Tokens or Access Tokens in browser `localStorage` or `sessionStorage`. If an attacker gains access to the browser context, they can extract the tokens and impersonate the user.
-> - Instead, it is recommended to perform the token exchange and validation on the RP backend and maintain a secure server-side session. The user's browser should only store a short-lived, HTTP-only, SameSite cookie that maps to this session for a stronger protection model.
+> - All RP communication must use **HTTPS**. Never send authorization codes, tokens, or assertions over plain HTTP.
+> - Instead, it is recommended to perform the token exchange and validation on the RP backend and maintain a secure server-side session. The user's browser should only store a short-lived, **HTTP-only, Secure, SameSite** cookie that maps to this session for a stronger protection model.
 
 #### Step 5: Get Consented User Claims Using Access Token
 
@@ -246,7 +255,9 @@ Authentication: Bearer (access token) or DPoP-bound access token.
 
 Response (HTTP 200): `application/jwt` — a signed JWS JWT by default; a nested JWT (signed with JWS, then encrypted with JWE) when the client is registered with `userinfo_response_type: JWE`.
 
-Error (HTTP 401): `WWW-Authenticate` response header (RFC 6750 Bearer challenge format), error codes: `invalid_token`, `unknown_error`, `invalid_dpop_proof`, `use_dpop_nonce`.
+Error (HTTP 401): `WWW-Authenticate` response header, challenge scheme depends on the token type used:
+- **Bearer-token requests**: `Bearer` challenge — e.g. `Bearer error="invalid_token"` or `Bearer error="unknown_error"`
+- **DPoP-bound requests**: `DPoP` challenge — e.g. `DPoP error="invalid_dpop_proof"` or `DPoP error="use_dpop_nonce"` (the latter also returns a `DPoP-Nonce` response header; include its value in the `nonce` claim of the next DPoP proof and retry)
 
 Supported claims in userinfo JWT:
 - `sub` (Partner Specific User Token — PSUT)
@@ -254,6 +265,7 @@ Supported claims in userinfo JWT:
 - Custom: `individual_id` (UIN, perceptual VID, or temporary VID)
 
 Sample userinfo JWT payload:
+
 ```json
 {
   "sub": "63EBC25D699305A26EE740A955852EAB2E6527BFF2F5E9E5562B502DACECD020",
@@ -272,6 +284,7 @@ Sample userinfo JWT payload:
 ```
 
 Sample userinfo JWT payload (with bilingual claims):
+
 ```json
 {
   "sub": "63EBC25D699305A26EE740A955852EAB2E6527BFF2F5E9E5562B502DACECD020",
