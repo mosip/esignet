@@ -63,7 +63,8 @@ func (p ConsentPolicy) denies(name string) bool {
 
 type Driver struct {
 	answers      map[string]string // normalized identifier -> value
-	preferred    []string          // preferred action tokens for ACR / login-id selection
+	preferred    []string          // preferred action tokens for the ACR (auth-factor) selection
+	idTokens     []string          // login-id-type tokens, matched against an action's nextNode (see selectAction)
 	tlsVerify    bool
 	timeout      time.Duration
 	maxHops      int
@@ -95,6 +96,12 @@ func (d *Driver) SetConsentPolicy(p ConsentPolicy) { d.consent = p }
 // SetFollowRejection controls whether a flow ending in ERROR with an
 // errorAssertion is carried through to the client redirect (see followRejection).
 func (d *Driver) SetFollowRejection(v bool) { d.followRejection = v }
+
+// UseIDType sets the login-id-type preference (see IDTypeTokens). Without it the
+// driver stays on whichever login-id tab the flow opens on — the UIN tab, by
+// default — and submits a phone or email there as if it were a UIN, which the
+// ID system rejects (IDA-MLC-009) well after the point the mistake was made.
+func (d *Driver) UseIDType(tokens []string) { d.idTokens = tokens }
 
 func New(answers map[string]string, preferred []string, tlsVerify bool, timeout time.Duration) *Driver {
 	return &Driver{
@@ -158,8 +165,13 @@ type flowResp struct {
 		Inputs []struct {
 			Identifier string `json:"identifier"`
 		} `json:"inputs"`
+		// NextNode is what distinguishes the login-id tabs: every tab's submit
+		// action is named "submit_uin", and only the node it advances to says
+		// which identifier it actually sends (send_mosip_otp_uin vs
+		// send_mosip_otp_mobile). selectAction needs it to honour id_type.
 		Actions []struct {
-			Ref string `json:"ref"`
+			Ref      string `json:"ref"`
+			NextNode string `json:"nextNode"`
 		} `json:"actions"`
 		// AdditionalData.ConsentPrompt is a JSON *string* holding the purposes the
 		// consent step is asking about. It only appears on the consent prompt.
@@ -438,6 +450,9 @@ func (d *Driver) completeLogin(ctx context.Context, s *session, base, authID, ex
 	payload := map[string]any{"executionId": executionID}
 	// Freshness boundary: an OTP delivered before login started belongs to a previous flow.
 	flowStart := time.Now()
+	// Every input answered so far in this flow. Re-sent in full on each step, the
+	// way the browser does — see where it is populated below.
+	carriedInputs := map[string]string{}
 
 	for step := 0; step < d.maxFlowSteps; step++ {
 		pj, err := json.Marshal(payload)
@@ -473,9 +488,11 @@ func (d *Driver) completeLogin(ctx context.Context, s *session, base, authID, ex
 			}
 		}
 		var actionRefs []string
+		var actions []flowAction
 		for _, a := range r.Data.Actions {
 			if a.Ref != "" {
 				actionRefs = append(actionRefs, a.Ref)
+				actions = append(actions, flowAction{Ref: a.Ref, NextNode: a.NextNode})
 			}
 		}
 
@@ -504,7 +521,7 @@ func (d *Driver) completeLogin(ctx context.Context, s *session, base, authID, ex
 			return fr
 		}
 
-		action, aerr := selectAction(actionRefs, d.preferred)
+		action, aerr := selectAction(actions, d.preferred, d.idTokens)
 		if aerr != "" {
 			fr.Steps = append(fr.Steps, result.FlowStep{FlowStatus: flowStatus, Inputs: inputIDs, Action: strings.Join(actionRefs, ",")})
 			fr.Error = aerr
@@ -518,6 +535,16 @@ func (d *Driver) completeLogin(ctx context.Context, s *session, base, authID, ex
 			return fr
 		}
 
+		// Inputs accumulate across the whole flow, and every step re-sends all of
+		// them — that is what the browser does, and eSignet depends on it. Each
+		// view declares only the field it has just added, so the OTP step declares
+		// `otp` alone; submitting only that leaves basic_auth with no username to
+		// verify the code against, and it answers FET-1005 "Invalid credentials
+		// provided" as though the OTP itself were wrong. This also covers a
+		// login-id tab switch, whose destination view declares no inputs at all.
+		for k, v := range inputs {
+			carriedInputs[k] = v
+		}
 		fr.Steps = append(fr.Steps, result.FlowStep{FlowStatus: flowStatus, Inputs: inputIDs, Action: action})
 
 		next := map[string]any{"executionId": executionID}
@@ -527,8 +554,14 @@ func (d *Driver) completeLogin(ctx context.Context, s *session, base, authID, ex
 		if action != "" {
 			next["action"] = action
 		}
-		if len(inputs) > 0 {
-			next["inputs"] = inputs
+		if len(carriedInputs) > 0 {
+			// Copied, not aliased: carriedInputs keeps growing after this payload is
+			// built but before it is marshalled at the top of the next iteration.
+			send := make(map[string]string, len(carriedInputs))
+			for k, v := range carriedInputs {
+				send[k] = v
+			}
+			next["inputs"] = send
 		}
 		payload = next
 	}
@@ -613,24 +646,63 @@ func (d *Driver) resolveInputs(identifiers []string, since time.Time, consentPro
 	return out, ""
 }
 
-// selectAction picks the happy-path action.
-func selectAction(actions, preferred []string) (string, string) {
+// flowAction is one selectable action of a flow view: its ref, and the node it
+// advances to. Both matter — the login-id tabs all submit under the same ref.
+type flowAction struct {
+	Ref      string
+	NextNode string
+}
+
+// selectAction picks the happy-path action. idTokens are the login-id-type
+// preference (IDTypeTokens); they are kept apart from preferred because they are
+// matched against nextNode rather than the ref, and because preferred also
+// carries auth-factor tokens like "otp" that appear in every id tab's node name.
+func selectAction(actions []flowAction, preferred, idTokens []string) (string, string) {
 	if len(actions) == 0 {
 		return "", ""
 	}
-	var candidates []string
+	var candidates []flowAction
 	for _, a := range actions {
-		if !containsAny(strings.ToLower(a), excludeActions) {
+		if !containsAny(strings.ToLower(a.Ref), excludeActions) {
 			candidates = append(candidates, a)
 		}
 	}
 	if len(candidates) == 0 {
-		return "", fmt.Sprintf("AMBIGUOUS_FLOW_ACTION: only excluded actions available=%v", actions)
+		return "", fmt.Sprintf("AMBIGUOUS_FLOW_ACTION: only excluded actions available=%v", refsOf(actions))
 	}
 	if len(candidates) == 1 {
-		return candidates[0], ""
+		return candidates[0].Ref, ""
 	}
 	isNav := func(c string) bool { return containsAny(strings.ToLower(c), navHints) }
+
+	// 0. login-id tab correction, ahead of everything else. Every tab submits
+	// under the ref "submit_uin"; only nextNode says which identifier kind goes
+	// out (send_mosip_otp_uin vs send_mosip_otp_mobile). Landing on the default
+	// UIN tab with a phone in hand therefore looks like a perfectly good submit
+	// and IDA rejects the value (IDA-MLC-009). So when an id_type is configured
+	// and this view's submit would send the wrong kind, switch tabs first.
+	//
+	// This cannot loop: the tab it switches to has a submit whose nextNode does
+	// match, so the next pass falls straight through to the submit below.
+	if len(idTokens) > 0 {
+		submitMatches, navToIDType := false, ""
+		for _, c := range candidates {
+			node := strings.ToLower(c.NextNode)
+			if node == "" || !containsAny(node, idTokens) {
+				continue
+			}
+			if isNav(c.Ref) {
+				if navToIDType == "" {
+					navToIDType = c.Ref
+				}
+			} else {
+				submitMatches = true
+			}
+		}
+		if !submitMatches && navToIDType != "" {
+			return navToIDType, ""
+		}
+	}
 
 	// 1. caller preference (skip navigation).
 	for _, pref := range preferred {
@@ -639,36 +711,36 @@ func selectAction(actions, preferred []string) (string, string) {
 			continue
 		}
 		for _, c := range candidates {
-			if !isNav(c) && strings.Contains(strings.ToLower(c), pref) {
-				return c, ""
+			if !isNav(c.Ref) && strings.Contains(strings.ToLower(c.Ref), pref) {
+				return c.Ref, ""
 			}
 		}
 	}
 	// 2. submit-like actions advance the flow, skipping navigation so a resend cannot beat the real submit.
 	for _, hint := range submitHints {
 		for _, c := range candidates {
-			if !isNav(c) && strings.Contains(strings.ToLower(c), hint) {
-				return c, ""
+			if !isNav(c.Ref) && strings.Contains(strings.ToLower(c.Ref), hint) {
+				return c.Ref, ""
 			}
 		}
 	}
 	// 3. generic happy-path (skip navigation).
 	for _, pref := range actionPreference {
 		for _, c := range candidates {
-			if !isNav(c) && strings.Contains(strings.ToLower(c), pref) {
-				return c, ""
+			if !isNav(c.Ref) && strings.Contains(strings.ToLower(c.Ref), pref) {
+				return c.Ref, ""
 			}
 		}
 	}
 	// 4. any non-navigation candidate.
-	var nonNav []string
+	var nonNav []flowAction
 	for _, c := range candidates {
-		if !isNav(c) {
+		if !isNav(c.Ref) {
 			nonNav = append(nonNav, c)
 		}
 	}
 	if len(nonNav) == 1 {
-		return nonNav[0], ""
+		return nonNav[0].Ref, ""
 	}
 	// 5. navigation tabs as a last resort, honouring the caller's IDTypeTokens preference first.
 	if len(nonNav) == 0 && len(candidates) > 0 {
@@ -678,14 +750,23 @@ func selectAction(actions, preferred []string) (string, string) {
 				continue
 			}
 			for _, c := range candidates {
-				if strings.Contains(strings.ToLower(c), pref) {
-					return c, ""
+				if strings.Contains(strings.ToLower(c.Ref), pref) {
+					return c.Ref, ""
 				}
 			}
 		}
-		return candidates[0], ""
+		return candidates[0].Ref, ""
 	}
-	return "", fmt.Sprintf("AMBIGUOUS_FLOW_ACTION: %d non-navigation actions available=%v (set esignet.auth_factor to disambiguate)", len(nonNav), candidates)
+	return "", fmt.Sprintf("AMBIGUOUS_FLOW_ACTION: %d non-navigation actions available=%v (set esignet.auth_factor to disambiguate)", len(nonNav), refsOf(candidates))
+}
+
+// refsOf renders actions for an error message.
+func refsOf(actions []flowAction) []string {
+	out := make([]string, 0, len(actions))
+	for _, a := range actions {
+		out = append(out, a.Ref)
+	}
+	return out
 }
 
 // ----- utils -----

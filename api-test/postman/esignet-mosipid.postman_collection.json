@@ -1,0 +1,450 @@
+{
+  "info": {
+    "_postman_id": "b7e1c4a2-9f3d-4c58-a1e6-mosipid00002",
+    "name": "eSignet mosipid - PMS client + e2e login",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Drives by hand the same path the api-test e2e surface drives: get an admin token, register an OIDC client through PMS, then run authorize -> flow/execute -> OTP -> consent against eSignet.\n\nRun the requests in order. Each stores what the next needs (admin_token, client_id, execution_id, challenge_token), so after the first pass you can re-run folder 2 alone to repeat a login.\n\nREAD FIRST - a client you have just created will NOT work. IDA does not recognise a new OIDC client for somewhere between 20 minutes and 3 hours; until then every login dies at 'Send OTP' with IDA-MLC-007. Register a client once, leave it alone, and reuse its clientId from then on. The environment ships with an already-aged client so folder 2 works immediately.\n\nThe OTP is not automatable here: read it from the deployment's mock SMTP (https://smtp.<env>.mosip.net) and put it in the `otp` variable before running 2.5."
+  },
+  "item": [
+    {
+      "name": "0 - Setup",
+      "item": [
+        {
+          "name": "Get admin token (Keycloak)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const b = pm.response.json();",
+                  "pm.test('token issued', () => pm.expect(b.access_token).to.be.a('string'));",
+                  "pm.collectionVariables.set('admin_token', b.access_token);",
+                  "",
+                  "// AUTH_PARTNER gates PMS /oidc-clients. Without it that call returns KER-ATH-403.",
+                  "try {",
+                  "  const c = JSON.parse(atob(b.access_token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));",
+                  "  const roles = (c.realm_access && c.realm_access.roles) || [];",
+                  "  console.log('realm roles: ' + roles.join(', '));",
+                  "  if (roles.indexOf('AUTH_PARTNER') === -1) {",
+                  "    console.warn('No AUTH_PARTNER role - PMS /oidc-clients will return KER-ATH-403. Use /oauth/client instead, or grant the role.');",
+                  "  }",
+                  "} catch (e) { console.log('could not decode token claims'); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "grant_type", "value": "client_credentials" },
+                { "key": "client_id", "value": "{{keycloak_client_id}}" },
+                { "key": "client_secret", "value": "{{keycloak_client_secret}}" }
+              ]
+            },
+            "url": {
+              "raw": "{{keycloak_token_url}}",
+              "host": ["{{keycloak_token_url}}"]
+            },
+            "description": "Client-credentials grant. The token goes to PMS as a COOKIE named Authorization, not a Bearer header - MOSIP kernel services answer KER-ATH-401 to the header form."
+          }
+        }
+      ]
+    },
+    {
+      "name": "1 - Client registration (PMS)",
+      "item": [
+        {
+          "name": "Create OIDC client",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const b = pm.response.json();",
+                  "if (b.errors && b.errors.length) {",
+                  "  const code = b.errors[0].errorCode;",
+                  "  console.error('PMS rejected: ' + code + ' - ' + b.errors[0].message);",
+                  "  if (code === 'KER-ATH-403') console.error('The token lacks the AUTH_PARTNER realm role.');",
+                  "  if (code === 'PMS_ESI_001') console.error('That public key is already registered - put a NEW modulus in client_public_key_n.');",
+                  "  pm.test('client created', () => pm.expect.fail(code));",
+                  "} else {",
+                  "  const id = b.response.clientId;",
+                  "  pm.collectionVariables.set('new_client_id', id);",
+                  "  pm.test('client created', () => pm.expect(id).to.be.a('string'));",
+                  "  console.warn('Created ' + id + '. IDA will NOT accept it for 20 min to 3 h. Leave it, then set client_id to it.');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Cookie", "value": "Authorization={{admin_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"id\": \"mosip.pms.create.oidc.client.post\",\n  \"version\": \"1.0\",\n  \"requestTime\": \"{{$isoTimestamp}}\",\n  \"metadata\": {},\n  \"request\": {\n    \"name\": \"postman manual test\",\n    \"policyId\": \"{{policy_id}}\",\n    \"authPartnerId\": \"{{auth_partner_id}}\",\n    \"publicKey\": {\n      \"kty\": \"RSA\",\n      \"e\": \"AQAB\",\n      \"use\": \"sig\",\n      \"alg\": \"RS256\",\n      \"n\": \"{{client_public_key_n}}\"\n    },\n    \"logoUri\": \"https://example.org/logo.png\",\n    \"redirectUris\": [\"{{redirect_uri}}\"],\n    \"grantTypes\": [\"authorization_code\"],\n    \"clientAuthMethods\": [\"private_key_jwt\"],\n    \"clientNameLangMap\": { \"eng\": \"postman manual test\" }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{pms_base}}/oidc-clients",
+              "host": ["{{pms_base}}"],
+              "path": ["oidc-clients"]
+            },
+            "description": "Registers a client bound to an onboarded partner and a published policy - the binding IDA requires.\n\nEvery client needs its OWN public key; reusing one gives PMS_ESI_001 'Client public key already exists'. Generate a fresh modulus:\n\n  openssl genrsa -out k.pem 2048\n  openssl rsa -in k.pem -noout -modulus | sed 's/Modulus=//' | xxd -r -p | base64 -w0 | tr '+/' '-_' | tr -d '='\n\nand paste it into client_public_key_n.\n\nThe private half is never sent here. You need it only to sign a private_key_jwt assertion at the token endpoint - the login flow in folder 2 does not, so a manual OTP test works without it.\n\n/oauth/client is an alternative endpoint needing no AUTH_PARTNER role. Both produce clients IDA accepts once propagated."
+          }
+        },
+        {
+          "name": "Get client (PMS)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Cookie", "value": "Authorization={{admin_token}}" }],
+            "url": {
+              "raw": "{{pms_base}}/oauth/client/{{client_id}}",
+              "host": ["{{pms_base}}"],
+              "path": ["oauth", "client", "{{client_id}}"]
+            },
+            "description": "Shows relyingPartyId, policyId, status, claims and acrValues.\n\nBeware: two clients can look identical here and still behave differently at IDA, purely because one is older. This view cannot tell you whether IDA has picked a client up."
+          }
+        },
+        {
+          "name": "Get client (eSignet)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{esignet_base}}/client-mgmt/client/{{client_id}}",
+              "host": ["{{esignet_base}}"],
+              "path": ["client-mgmt", "client", "{{client_id}}"]
+            },
+            "description": "Confirms PMS pushed the client through to eSignet. Returns clientId and status only - and status here does NOT predict whether IDA will authenticate it."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2 - e2e login flow",
+      "item": [
+        {
+          "name": "2.1 Authorize",
+          "protocolProfileBehavior": { "followRedirects": false },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const loc = pm.response.headers.get('Location') || '';",
+                  "console.log('Location: ' + loc);",
+                  "if (/error=/.test(loc)) {",
+                  "  pm.test('authorize accepted', () => pm.expect.fail(decodeURIComponent(loc)));",
+                  "} else {",
+                  "  const m = loc.match(/executionId=([^&]+)/);",
+                  "  pm.test('got executionId', () => pm.expect(m, 'no executionId in Location').to.not.be.null);",
+                  "  if (m) pm.collectionVariables.set('execution_id', m[1]);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{esignet_base}}/oauth2/authorize?client_id={{client_id}}&redirect_uri={{redirect_uri}}&response_type=code&scope=openid&state=pm-state&nonce=pm-nonce&acr_values=mosip:idp:acr:generated-code",
+              "host": ["{{esignet_base}}"],
+              "path": ["oauth2", "authorize"],
+              "query": [
+                { "key": "client_id", "value": "{{client_id}}" },
+                { "key": "redirect_uri", "value": "{{redirect_uri}}" },
+                { "key": "response_type", "value": "code" },
+                { "key": "scope", "value": "openid" },
+                { "key": "state", "value": "pm-state" },
+                { "key": "nonce", "value": "pm-nonce" },
+                { "key": "acr_values", "value": "mosip:idp:acr:generated-code" }
+              ]
+            },
+            "description": "Redirects are deliberately NOT followed - the executionId lives in the Location header.\n\nredirect_uri must exactly match one registered for the client, or eSignet answers 'Invalid redirect URI' before the flow starts."
+          }
+        },
+        {
+          "name": "2.2 Start flow",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set('challenge_token', b.challengeToken);",
+                  "console.log('actions: ' + (b.data.actions || []).map(a => a.ref + ' -> ' + a.nextNode).join(' | '));",
+                  "pm.test('flow started', () => pm.expect(b.flowStatus).to.eql('INCOMPLETE'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"executionId\": \"{{execution_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{esignet_base}}/flow/execute",
+              "host": ["{{esignet_base}}"],
+              "path": ["flow", "execute"]
+            },
+            "description": "First view: pick an authentication factor. Offers acr_otp and acr_bio."
+          }
+        },
+        {
+          "name": "2.3 Choose OTP factor",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const b = pm.response.json();",
+                  "pm.collectionVariables.set('challenge_token', b.challengeToken);",
+                  "console.log('inputs : ' + (b.data.inputs || []).map(i => i.identifier).join(', '));",
+                  "console.log('actions: ' + (b.data.actions || []).map(a => a.ref + ' -> ' + a.nextNode).join(' | '));",
+                  "pm.test('login-id view reached', () => pm.expect(b.flowStatus).to.eql('INCOMPLETE'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"action\": \"acr_otp\",\n  \"challengeToken\": \"{{challenge_token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{esignet_base}}/flow/execute",
+              "host": ["{{esignet_base}}"],
+              "path": ["flow", "execute"]
+            },
+            "description": "Lands on the UIN login-id tab by default.\n\nFor a phone or email identity, first POST action 'login_id_mobile' (or login_id_email) to switch tabs. Every tab's submit action is named submit_uin - only nextNode (send_mosip_otp_uin vs send_mosip_otp_mobile) says which identifier kind it actually sends, so submitting a phone on the UIN tab silently sends it as a UIN and IDA rejects it."
+          }
+        },
+        {
+          "name": "2.4 Send OTP",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const b = pm.response.json();",
+                  "if (b.challengeToken) pm.collectionVariables.set('challenge_token', b.challengeToken);",
+                  "if (b.error && b.error.code) {",
+                  "  const c = b.error.code;",
+                  "  console.error('rejected: ' + c + ' - ' + (b.error.message && b.error.message.defaultValue));",
+                  "  if (c === 'IDA-MLC-007') console.error('Usually a client IDA does not know yet - a newly created client needs 20 min to 3 h. Can also be the OTP request rate limit.');",
+                  "  if (c === 'IDA-MLC-009') console.error('IDA could not send to that identifier - try the UIN rather than phone or email.');",
+                  "  pm.test('OTP sent', () => pm.expect.fail(c));",
+                  "} else {",
+                  "  pm.test('OTP prompt reached', () => pm.expect((b.data.inputs || []).map(i => i.identifier)).to.include('otp'));",
+                  "  console.log('OTP sent - read it from the mock SMTP, put it in the otp variable, then run 2.5');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"action\": \"submit_uin\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"inputs\": {\n    \"username\": \"{{individual_id}}\",\n    \"captcha_token\": \"{{captcha_token}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{esignet_base}}/flow/execute",
+              "host": ["{{esignet_base}}"],
+              "path": ["flow", "execute"]
+            },
+            "description": "Submits the identifier, which makes IDA send the OTP.\n\ncaptcha_token can be any non-empty placeholder while the deployment has no captcha validator configured (MOSIP_ESIGNET_CAPTCHA_VALIDATOR_URL unset). With a validator on, only a real reCAPTCHA token passes and this step fails with 'The captcha token could not be verified'.\n\nNote MOSIP_ESIGNET_CAPTCHA_SITE_KEY and _SITE_PROVIDER must stay SET even when the validator is off - the flow definition substitutes them, and unsetting them makes every authorize fail with server_error."
+          }
+        },
+        {
+          "name": "2.5 Submit OTP",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const b = pm.response.json();",
+                  "if (b.challengeToken) pm.collectionVariables.set('challenge_token', b.challengeToken);",
+                  "if (b.error && b.error.code) {",
+                  "  console.error('rejected: ' + b.error.code + ' - ' + (b.error.message && b.error.message.defaultValue));",
+                  "  console.error('FET-1005 means IDA refused the credentials: a wrong or expired OTP, or a client IDA has not picked up yet.');",
+                  "  pm.test('OTP accepted', () => pm.expect.fail(b.error.code));",
+                  "} else if (b.flowStatus === 'COMPLETE') {",
+                  "  pm.collectionVariables.set('assertion', b.assertion);",
+                  "  pm.test('login complete', () => pm.expect(b.assertion).to.be.a('string'));",
+                  "  console.log('COMPLETE - consent was already stored for this client, so no prompt.');",
+                  "} else {",
+                  "  const prompt = b.data && b.data.additionalData && b.data.additionalData.consentPrompt;",
+                  "  if (prompt) { pm.collectionVariables.set('consent_prompt', prompt); console.log('consent prompt stored - run 2.6'); }",
+                  "  pm.test('OTP accepted', () => pm.expect(b.flowStatus).to.eql('INCOMPLETE'));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"action\": \"action_submit_otp\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"inputs\": {\n    \"username\": \"{{individual_id}}\",\n    \"captcha_token\": \"{{captcha_token}}\",\n    \"otp\": \"{{otp}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{esignet_base}}/flow/execute",
+              "host": ["{{esignet_base}}"],
+              "path": ["flow", "execute"]
+            },
+            "description": "Set the `otp` variable first - 3 minute validity.\n\nNote username and captcha_token are sent AGAIN alongside otp. Inputs accumulate across the whole flow and every step re-sends all of them. The OTP view declares only `otp`, but submitting just that leaves the auth node with no identity to verify against, and it answers FET-1005 'Invalid credentials provided' as though the code itself were wrong."
+          }
+        },
+        {
+          "name": "2.6 Approve consent",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Build an approve-everything decision from the prompt stored by 2.5.",
+                  "const raw = pm.collectionVariables.get('consent_prompt');",
+                  "if (!raw) {",
+                  "  pm.collectionVariables.set('consent_decisions', '');",
+                  "} else {",
+                  "  const purposes = JSON.parse(raw).map(p => ({",
+                  "    approved: true,",
+                  "    purposeName: p.purposeName,",
+                  "    elements: [].concat(p.essential || [], p.optional || []).map(e => ({ name: e.name, approved: true }))",
+                  "  }));",
+                  "  pm.collectionVariables.set('consent_decisions', JSON.stringify({ approved: true, purposes: purposes }));",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const b = pm.response.json();",
+                  "if (b.flowStatus === 'COMPLETE') {",
+                  "  pm.collectionVariables.set('assertion', b.assertion);",
+                  "  pm.test('login complete', () => pm.expect(b.assertion).to.be.a('string'));",
+                  "  console.log('COMPLETE. The assertion is what the RP posts to /oauth2/auth/callback to obtain its code.');",
+                  "} else {",
+                  "  console.error('flowStatus: ' + b.flowStatus + ' ' + JSON.stringify(b.error || {}));",
+                  "  pm.test('login complete', () => pm.expect.fail(b.flowStatus));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"action\": \"action_allow\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"inputs\": {\n    \"username\": \"{{individual_id}}\",\n    \"captcha_token\": \"{{captcha_token}}\",\n    \"otp\": \"{{otp}}\",\n    \"consent_decisions\": \"{{consent_decisions}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{esignet_base}}/flow/execute",
+              "host": ["{{esignet_base}}"],
+              "path": ["flow", "execute"]
+            },
+            "description": "Only needed when 2.5 returned a consent prompt; a client whose consent is already stored goes straight to COMPLETE.\n\nThe pre-request script builds consent_decisions from the stored prompt, approving every essential and optional claim. consent_decisions is a JSON *string*, not a nested object - that is what the executor expects.\n\nTo test denial, edit the script to set approved:false on the elements you want withheld."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3 - Diagnostics",
+      "item": [
+        {
+          "name": "eSignet discovery",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{esignet_base}}/.well-known/openid-configuration",
+              "host": ["{{esignet_base}}"],
+              "path": [".well-known", "openid-configuration"]
+            },
+            "description": "Confirms the base URL is right, and shows supported auth methods and signing algorithms."
+          }
+        },
+        {
+          "name": "eSignet health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{esignet_base}}/health",
+              "host": ["{{esignet_base}}"],
+              "path": ["health"]
+            }
+          }
+        },
+        {
+          "name": "Partner details (PMS)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Cookie", "value": "Authorization={{admin_token}}" }],
+            "url": {
+              "raw": "{{pms_base}}/partners/{{auth_partner_id}}",
+              "host": ["{{pms_base}}"],
+              "path": ["partners", "{{auth_partner_id}}"]
+            },
+            "description": "Confirms the partner exists and is active."
+          }
+        },
+        {
+          "name": "Policy details",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Cookie", "value": "Authorization={{admin_token}}" }],
+            "url": {
+              "raw": "{{policy_base}}/policies/{{policy_id}}",
+              "host": ["{{policy_base}}"],
+              "path": ["policies", "{{policy_id}}"]
+            },
+            "description": "Check status is PUBLISHED and allowedAuthTypes includes otp and otp-request, or the OTP flow cannot work."
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "admin_token", "value": "" },
+    { "key": "execution_id", "value": "" },
+    { "key": "challenge_token", "value": "" },
+    { "key": "consent_prompt", "value": "" },
+    { "key": "consent_decisions", "value": "" },
+    { "key": "assertion", "value": "" },
+    { "key": "new_client_id", "value": "" }
+  ]
+}

@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/rsa"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"maps"
@@ -299,10 +300,23 @@ func (r *Runner) doWithHeaders(ctx context.Context, calls *[]result.HTTPCall, la
 	return resp.StatusCode, rb, resp.Header, nil
 }
 
+// sensitiveHeaders carry credentials; reports are archived as CI artifacts, so
+// their values must never reach the envelope. Cookie is on the list because the
+// PMS admin token travels there (see createClientViaPMS) — redacting only
+// Authorization would publish it in full.
+var sensitiveHeaders = []string{"Authorization", "Proxy-Authorization", "Cookie", "Set-Cookie"}
+
 func redactHeaders(h http.Header) map[string][]string {
 	out := map[string][]string{}
 	for k, v := range h {
-		if strings.EqualFold(k, "Authorization") {
+		redacted := false
+		for _, s := range sensitiveHeaders {
+			if strings.EqualFold(k, s) {
+				redacted = true
+				break
+			}
+		}
+		if redacted {
 			out[k] = []string{"***redacted***"}
 			continue
 		}
@@ -484,7 +498,12 @@ func (r *Runner) registrationFailureRows(spec Spec, calls []result.HTTPCall, err
 		row.Calls = calls
 		return []result.ModuleResult{row}
 	}
-	envNotReady := r.Plugin == "mosip" && (r.PMSBaseURL == "" || r.AuthPartnerID == "" || r.PolicyID == "")
+	// A missing PMS setting and a bearer without the role PMS demands are the same
+	// kind of thing: the environment is not ready, and no scenario got the chance
+	// to exercise eSignet. Both report NOT_RUN rather than 30 red rows that look
+	// like product failures.
+	envNotReady := r.Plugin == "mosip" &&
+		(r.PMSBaseURL == "" || r.AuthPartnerID == "" || r.PolicyID == "" || errors.Is(err, errPMSForbidden))
 	out := make([]result.ModuleResult, 0, len(spec.Scenarios))
 	for i, sc := range spec.Scenarios {
 		row := result.ModuleResult{Surface: result.SurfaceE2E, Plugin: r.Plugin, Module: sc.Name}
@@ -610,7 +629,24 @@ func (r *Runner) createClientViaClientMgmt(ctx context.Context, calls *[]result.
 	return clientID, nil
 }
 
-// createClientViaPMS registers the test client through partner-management-service /oauth/client (v2).
+// errPMSForbidden marks the one registration failure that is an environment gap
+// rather than a defect: PMS refused the bearer for lack of a role. Scenarios
+// report NOT_RUN for it instead of failing.
+var errPMSForbidden = errors.New("PMS create client forbidden (KER-ATH-403)")
+
+// createClientViaPMS registers the test client through partner-management-service
+// /oidc-clients.
+//
+// NOT /oauth/client, which also creates a client PMS and eSignet both accept —
+// and which IDA then refuses to authenticate. A client made there fails at
+// send-OTP with IDA-MLC-007 or at kyc-auth with FET-1005 depending on the
+// partner, while one made here, with the same partner, policy, claims and ACR
+// values, completes the flow. The two records are indistinguishable through the
+// PMS read API, so this is only visible by driving a login.
+//
+// The cost is the bearer: /oidc-clients requires the AUTH_PARTNER realm role,
+// which a client_credentials service account does not carry (KER-ATH-403) —
+// keycloak.client_id must name a client that has it.
 func (r *Runner) createClientViaPMS(ctx context.Context, calls *[]result.HTTPCall, cl *testClient, spec Spec) (string, error) {
 	if r.PMSBaseURL == "" || r.AuthPartnerID == "" || r.PolicyID == "" {
 		return "", fmt.Errorf("mosip client registration needs PMS_BASE_URL, AUTH_PARTNER_ID and AUTH_POLICY_ID")
@@ -635,20 +671,37 @@ func (r *Runner) createClientViaPMS(ctx context.Context, calls *[]result.HTTPCal
 		request["additionalConfig"] = ac
 	}
 	reqBody := map[string]any{
+		// id and version are part of this endpoint's request wrapper, unlike
+		// /oauth/client which accepts requestTime alone.
+		"id":          "mosip.pms.create.oidc.client.post",
+		"version":     "1.0",
 		"requestTime": time.Now().UTC().Format("2006-01-02T15:04:05.000Z"),
+		"metadata":    map[string]any{},
 		"request":     request,
 	}
 	body, err := json.Marshal(reqBody)
 	if err != nil {
 		return "", fmt.Errorf("marshal PMS request: %w", err)
 	}
-	url := strings.TrimRight(r.PMSBaseURL, "/") + "/oauth/client"
+	url := strings.TrimRight(r.PMSBaseURL, "/") + "/oidc-clients"
+	// PMS is a MOSIP kernel service: it reads the admin token from a cookie named
+	// Authorization and rejects the Bearer header with KER-ATH-401. eSignet's own
+	// client-mgmt (createClientViaClientMgmt above) wants the Bearer header, so
+	// the two registration paths deliberately differ here.
 	status, rb, err := r.do(ctx, calls, "create client (PMS)", http.MethodPost, url,
-		map[string]string{"Content-Type": "application/json", "Authorization": "Bearer " + r.AdminToken}, string(body))
+		map[string]string{"Content-Type": "application/json", "Cookie": "Authorization=" + r.AdminToken}, string(body))
 	if err != nil {
 		return "", fmt.Errorf("create client via PMS: %w", err)
 	}
 	if code := firstErrorCode(rb); code != "" {
+		// The one rejection worth naming: /oidc-clients is gated on the
+		// AUTH_PARTNER realm role, so a service-account bearer is refused here
+		// while sailing through every other PMS call the harness makes.
+		if code == "KER-ATH-403" {
+			return "", fmt.Errorf("%w: %s needs the AUTH_PARTNER realm role, "+
+				"which the client_credentials grant for keycloak.client_id does not carry — grant it that role, "+
+				"or point keycloak.client_id at a client that has it", errPMSForbidden, url)
+		}
 		return "", fmt.Errorf("PMS create client rejected (HTTP %d): %s", status, code)
 	}
 	if status < 200 || status > 299 {
@@ -766,6 +819,10 @@ func (r *Runner) runScenario(ctx context.Context, cl *testClient, redirectURI st
 
 	// login via the shared driver (authorize -> flow/execute -> auth/callback)
 	driver := esignet.New(answers, preferred, r.TLSVerify, r.Timeout)
+	// Kept apart from `preferred`: the id-type is matched against an action's
+	// nextNode, and `preferred` also carries auth-factor tokens like "otp" that
+	// every id tab's node name contains.
+	driver.UseIDType(esignet.IDTypeTokens(r.IDType))
 	if r.OTP != nil {
 		driver.SetOTPProvider(r.OTP)
 	}
