@@ -37,33 +37,3 @@ eSignet is built using the below tools and technologies.
 |---|---|---|---|
 | [Go testing](https://pkg.go.dev/testing) / [testify](https://github.com/stretchr/testify) | Go 1.26 stdlib / v1.11.1 | Go's built-in `testing` package, together with the testify toolkit (assertions and suite-based test structure), is used to write and run unit tests, invoked via `go test`. Used throughout `esignet-service` (e.g. `internal/engine/mock/authenticator_test.go`) via the `testify/suite` pattern described in `esignet-service/AGENTS.md`. | [BSD-3-Clause](https://github.com/golang/go/blob/master/LICENSE) / [MIT License](https://github.com/stretchr/testify/blob/master/LICENSE) |
 | [Postman](https://www.postman.com/) | — | Postman is an API platform used to design, share, and run API requests and collections. `postman-collection/` ships a collection + environment for manually exercising `esignet-service`'s client-management and OAuth flows; there is no CI automation (e.g. Newman) wired up against it in this repo. | [Apache License 2.0](https://apache.org/licenses/LICENSE-2.0) |
-
-## Services
-
-| Service | Purpose |
-|---|---|
-| esignet-service | The OIDC/OAuth2 provider itself — a single Go binary embedding the ThunderID authorization engine, OIDC client management, and key lifecycle management (key generation, certificates, rotation, cryptographic operations). |
-| oidc-ui | The React-based login and consent user interface that the OIDC/OAuth2 provider redirects end users to during an authorization request. |
-| esignet-mock-services | A mock identity system used during local development and testing to simulate identity verification, OTP, and KYC without a live identity provider. |
-| partner-onboarder | A utility that exchanges certificates to onboard eSignet as a MISP partner. |
-
-## Endpoints
-
-| Method(s) | Path | Purpose |
-|---|---|---|
-| GET | `/health` | Liveness check. |
-| GET | `/metrics` | Prometheus metrics endpoint. |
-| POST | `/client-mgmt/client` | Create an OIDC client. |
-| GET, PUT, PATCH | `/client-mgmt/client/{client_id}` | Fetch, fully update, or partially update an OIDC client. |
-| POST | `/client-mgmt/oidc-client`, `/client-mgmt/oauth-client` | Legacy client-creation endpoints, kept for backward compatibility. |
-| PUT | `/client-mgmt/oidc-client/{client_id}`, `/client-mgmt/oauth-client/{client_id}` | Legacy client-update endpoints, kept for backward compatibility. |
-| GET | `/system-info/certificate` | Fetch a certificate or CSR for a given application/reference id. |
-| POST | `/system-info/uploadCertificate` | Upload/replace a certificate for a given application/reference id. |
-| POST | `/oauth2/par` | Pushed Authorization Request endpoint (RFC 9126). |
-| GET | `/oauth2/authorize` | OAuth2/OIDC authorization endpoint. |
-| GET, POST | `/flow/meta`, `/flow/execute` | Declarative authentication-flow metadata and execution endpoints. |
-| GET | `/oauth2/auth/callback` | Authorization callback endpoint. |
-| POST | `/oauth2/token` | Token endpoint. |
-| GET | `/oauth2/userinfo` | UserInfo endpoint. |
-| GET | `/oauth2/jwks` | JSON Web Key Set endpoint. |
-| POST | `/oauth2/introspect` | Token introspection endpoint. |
