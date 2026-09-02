@@ -96,25 +96,41 @@ type Redis struct {
 // comment above).
 func loadRedis(yamlRedis Redis) Redis {
 	// These fields are never read from yaml (yaml:"-", see the Redis doc
-	// comment above), so fromYAML is always 0 — envIntOrConfigOrDefault
-	// collapses to "env wins if positive, else the compiled default".
-	poolSize := envIntOrConfigOrDefault("REDIS_POOL_SIZE", 0, defaultRedisPoolSize)
-	minIdle := envIntOrConfigOrDefault("REDIS_MIN_IDLE_CONNS", 0, defaultRedisMinIdleConns)
-	idleTime := time.Duration(envIntOrConfigOrDefault("REDIS_CONN_MAX_IDLE_TIME_SECS", 0, defaultRedisConnMaxIdleTime)) * time.Second
+	// comment above), so fromYAML is always 0 — envIntOrConfigOrDefaultSourced
+	// collapses to "env wins if positive, else the compiled default", and the
+	// reported source is therefore only ever env or default, never yaml.
+	poolSize, poolSizeSrc := envIntOrConfigOrDefaultSourced("REDIS_POOL_SIZE", 0, defaultRedisPoolSize)
+	minIdle, minIdleSrc := envIntOrConfigOrDefaultSourced("REDIS_MIN_IDLE_CONNS", 0, defaultRedisMinIdleConns)
+	idleTimeSecs, idleTimeSrc := envIntOrConfigOrDefaultSourced("REDIS_CONN_MAX_IDLE_TIME_SECS", 0, defaultRedisConnMaxIdleTime)
+	idleTime := time.Duration(idleTimeSecs) * time.Second
 
 	// Unlike the fields above, lifetimeSecs has a "0 = no limit" opt-out, so
-	// it can't use envIntOrConfigOrDefault (which treats <=0 at every tier as
-	// "not set") — an explicit env var of "0" must be honored as-is.
-	lifetimeSecs := envIntOrDefault("REDIS_CONN_MAX_LIFETIME_SECS", defaultRedisConnMaxLifetimeSecs)
-	if lifetimeSecs < 0 {
-		lifetimeSecs = defaultRedisConnMaxLifetimeSecs
-	}
+	// it needs the AllowEnvZero variant (the plain one treats <=0 at every
+	// tier as "not set") — an explicit env var of "0" must be honored as-is,
+	// while a negative value stays invalid and falls back to the default.
+	lifetimeSecs, lifetimeSrc := envIntOrConfigOrDefaultAllowEnvZeroSourced("REDIS_CONN_MAX_LIFETIME_SECS", 0, defaultRedisConnMaxLifetimeSecs)
 	lifetime := time.Duration(lifetimeSecs) * time.Second // 0 = no limit
 
-	dialTimeout := time.Duration(envIntOrConfigOrDefault("REDIS_DIAL_TIMEOUT_SECS", 0, defaultRedisDialTimeoutSecs)) * time.Second
-	readTimeout := time.Duration(envIntOrConfigOrDefault("REDIS_READ_TIMEOUT_SECS", 0, defaultRedisReadTimeoutSecs)) * time.Second
-	writeTimeout := time.Duration(envIntOrConfigOrDefault("REDIS_WRITE_TIMEOUT_SECS", 0, defaultRedisWriteTimeoutSecs)) * time.Second
-	poolTimeout := time.Duration(envIntOrConfigOrDefault("REDIS_POOL_TIMEOUT_SECS", 0, defaultRedisPoolTimeoutSecs)) * time.Second
+	dialTimeoutSecs, dialTimeoutSrc := envIntOrConfigOrDefaultSourced("REDIS_DIAL_TIMEOUT_SECS", 0, defaultRedisDialTimeoutSecs)
+	readTimeoutSecs, readTimeoutSrc := envIntOrConfigOrDefaultSourced("REDIS_READ_TIMEOUT_SECS", 0, defaultRedisReadTimeoutSecs)
+	writeTimeoutSecs, writeTimeoutSrc := envIntOrConfigOrDefaultSourced("REDIS_WRITE_TIMEOUT_SECS", 0, defaultRedisWriteTimeoutSecs)
+	poolTimeoutSecs, poolTimeoutSrc := envIntOrConfigOrDefaultSourced("REDIS_POOL_TIMEOUT_SECS", 0, defaultRedisPoolTimeoutSecs)
+	dialTimeout := time.Duration(dialTimeoutSecs) * time.Second
+	readTimeout := time.Duration(readTimeoutSecs) * time.Second
+	writeTimeout := time.Duration(writeTimeoutSecs) * time.Second
+	poolTimeout := time.Duration(poolTimeoutSecs) * time.Second
+
+	// See the matching "db pool config resolved" line in db.go: report which
+	// tier supplied each value, not just the value.
+	logResolvedSettings("redis pool config resolved",
+		resolvedSetting{"poolSize", poolSize, poolSizeSrc},
+		resolvedSetting{"minIdleConns", minIdle, minIdleSrc},
+		resolvedSetting{"connMaxIdleTimeSecs", idleTimeSecs, idleTimeSrc},
+		resolvedSetting{"connMaxLifetimeSecs", lifetimeSecs, lifetimeSrc},
+		resolvedSetting{"dialTimeoutSecs", dialTimeoutSecs, dialTimeoutSrc},
+		resolvedSetting{"readTimeoutSecs", readTimeoutSecs, readTimeoutSrc},
+		resolvedSetting{"writeTimeoutSecs", writeTimeoutSecs, writeTimeoutSrc},
+		resolvedSetting{"poolTimeoutSecs", poolTimeoutSecs, poolTimeoutSrc})
 
 	keyPrefix := envOrConfigOrDefault("REDIS_KEY_PREFIX", yamlRedis.KeyPrefix, defaultRedisKeyPrefix)
 

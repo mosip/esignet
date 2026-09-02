@@ -9,6 +9,9 @@
 # read from this file; they're documented here for operators anyway.
 identifier: "${NAMESPACE}"
 port: 8080
+# Private Prometheus scrape port, not routed through the public ingress.
+# Override with METRICS_PORT (env wins over this value).
+metrics_port: 9090
 issuer: "${MOSIP_ESIGNET_HOST}"
 data_dir: "${DATA_DIR}"
 
@@ -45,6 +48,13 @@ redis:
   # REDIS_DIAL_TIMEOUT_SECS, REDIS_READ_TIMEOUT_SECS, REDIS_WRITE_TIMEOUT_SECS,
   # REDIS_POOL_TIMEOUT_SECS) is env-var-driven only and cannot be set here —
   # see the Redis doc comment in internal/config/redis.go.
+  #
+  # At startup the service logs one "redis pool config resolved" INFO line
+  # giving each setting's effective value and a "<name>Source" field naming
+  # where it came from (env / default). An env var that is set but unusable
+  # (unparseable, or non-positive where a positive value is required) is
+  # reported as an "ignoring invalid config env var" WARN naming the rejected
+  # value and the value actually used — it is never discarded silently.
 
 db:
   dsn: "${DATABASE_URL}"
@@ -52,7 +62,17 @@ db:
   # DB_CONN_MAX_LIFETIME_SECS, DB_CONN_MAX_IDLE_TIME_SECS) > these values >
   # compiled-in default (see loadDB in internal/config/db.go). Only an env
   # var of "0" opts *_lifetime_secs out to "no limit"; 0 here is treated as
-  # "not set".
+  # "not set", and a negative env var is rejected as invalid.
+  #
+  # The env var always wins over the values below — it is never silently
+  # shadowed by them. At startup the service logs one "db pool config
+  # resolved" INFO line giving each setting's effective value and a
+  # "<name>Source" field naming where it came from (env / yaml / default), so
+  # "did my env var take effect?" is answered by the log rather than by
+  # guesswork. An env var that is set but unusable (unparseable, or
+  # non-positive where a positive value is required) is reported as an
+  # "ignoring invalid config env var" WARN naming the rejected value and the
+  # value actually used — it is never discarded silently.
   pool:
     max_open_conns: 25
     max_idle_conns: 5       # kept well below max_open_conns: pgxpool eagerly
