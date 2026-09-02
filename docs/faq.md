@@ -122,11 +122,21 @@ eSignet acts as a MOSIP-specific embedder: it injects MOSIP-aware providers (ide
 
 **Does eSignet support FAPI 2.0?**
 
-Yes. The Go implementation supports the [FAPI 2.0 Security Profile](https://openid.net/specs/fapi-security-profile-2_0.html). Clients can be configured to require:
+Yes. The Go implementation supports the [FAPI 2.0 Security Profile](https://openid.net/specs/fapi-security-profile-2_0.html). FAPI 2.0 requirements are enforced per-client via the `additionalConfig` object in the `POST /client-mgmt/client` registration payload:
 
-1. **PAR** (Pushed Authorization Requests) — the client POSTs authorization parameters to `/oauth2/par` and receives a `request_uri` before redirecting the user.
-2. **DPoP** — access tokens are bound to the client's private key, preventing token theft.
-3. **`private_key_jwt`** client authentication — the client proves identity with a signed JWT rather than a shared secret.
+```json
+{
+  "additionalConfig": {
+    "require_pushed_authorization_requests": true,
+    "dpop_bound_access_tokens": true,
+    "require_pkce": true
+  }
+}
+```
+
+- `require_pushed_authorization_requests: true` — forces the client to POST authorization parameters to `POST /oauth2/par` first and use the returned `request_uri` in the subsequent `GET /oauth2/authorize` redirect.
+- `dpop_bound_access_tokens: true` — rejects any token request from this client that does not include a valid `DPoP` proof header.
+- `clientAuthMethods: ["private_key_jwt"]` — the client authenticates at the token endpoint using a signed JWT rather than a shared secret.
 
 Refer to the [Postman collection](https://github.com/mosip/esignet/tree/main/postman-collection) (folder "FAPI 2.0") in the repository for a working example.
 
@@ -134,7 +144,22 @@ Refer to the [Postman collection](https://github.com/mosip/esignet/tree/main/pos
 
 **Does eSignet support JWE-encrypted token responses?**
 
-Yes. Per-client JWE ([RFC 7516](https://www.rfc-editor.org/rfc/rfc7516)) encryption of the `id_token` and userinfo response can be enabled via the `additionalConfig` field in the client registration payload. When configured, the RP must possess the corresponding private key to decrypt the response.
+Yes. Per-client JWE ([RFC 7516](https://www.rfc-editor.org/rfc/rfc7516)) encryption is configured in two steps:
+
+1. **Set the response type** in the `additionalConfig` object when registering via `POST /client-mgmt/client`:
+
+```json
+{
+  "additionalConfig": {
+    "userinfo_response_type": "JWE",
+    "id_token_response_type": "JWE"
+  }
+}
+```
+
+2. **Register the encryption public key** via `PATCH /client-mgmt/client/{client_id}` using the `encPublicKey` field. Both RSA (`RSA-OAEP-256`, `RSA-OAEP`) and EC (`ECDH-ES`, `ECDH-ES+A128KW`, etc.) keys are supported. Setting `encPublicKey` to `null` clears the key. The signing public key (`publicKey`) set at registration cannot be changed; if it is compromised, create a new client.
+
+When JWE is active, the RP must possess the corresponding private key to decrypt the `id_token` and userinfo response.
 
 ---
 
@@ -425,8 +450,23 @@ On first startup, the key hierarchy (`ROOT`, `OIDC_SERVICE`, `OIDC_PARTNER`) is 
 
 In order to utilize eSignet for authenticating users and obtaining their information, relying parties are required to:
 
-1. Register as a client in the eSignet system via the `/client-mgmt/oidc-client` API. The API is secured with a **bearer token** scoped to `client_management` (passed as `Authorization: Bearer <token>`). The partner certificate is not used to authenticate this API call; it is used during MOSIP partner onboarding to establish partner identity on the PMS portal. A client registration payload specifies the client name, redirect URIs, allowed scopes, grant types, token endpoint authentication method (`private_key_jwt` recommended), and any ACR values required. Refer to the [eSignet documentation](https://docs.esignet.io) for full payload details.
+1. Register as a client in the eSignet system using one of the client management endpoints below. All endpoints require a bearer token (`Authorization: Bearer <token>`) carrying the appropriate scope.
 2. Integrate with eSignet APIs, following the guidelines provided by [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html), on their web or mobile applications.
+
+The Go implementation exposes three registration profiles:
+
+| Method | Endpoint | Profile | Scope required |
+|---|---|---|---|
+| `POST` | `/client-mgmt/client` | Generic — **recommended for new integrations** | `client_mgmt_write` |
+| `PUT` | `/client-mgmt/client/{client_id}` | Generic — full update | `client_mgmt_write` |
+| `PATCH` | `/client-mgmt/client/{client_id}` | Generic — partial update | `client_mgmt_write` |
+| `GET` | `/client-mgmt/client/{client_id}` | Generic — fetch | `client_mgmt_read` |
+| `POST` | `/client-mgmt/oidc-client` | OIDC profile (legacy compat) | `client_mgmt_write` |
+| `PUT` | `/client-mgmt/oidc-client/{client_id}` | OIDC profile — full update | `client_mgmt_write` |
+| `POST` | `/client-mgmt/oauth-client` | OAuth profile | `client_mgmt_write` |
+| `PUT` | `/client-mgmt/oauth-client/{client_id}` | OAuth profile — full update | `client_mgmt_write` |
+
+Use `/client-mgmt/client` for all new integrations. The `/client-mgmt/oidc-client` endpoint is retained for backward compatibility with existing Java-era integrations. Refer to the [eSignet documentation](https://docs.esignet.io) for the full registration payload schema.
 
 For MOSIP-integrated environments, relying parties are Auth partners and must complete partner onboarding on the [MOSIP PMS portal](https://docs.mosip.io) before calling the client management API.
 
@@ -439,7 +479,7 @@ Relying parties are considered Auth partners in MOSIP and must complete [authent
 - **Self Onboarding:** Partners register directly on the [MOSIP PMS portal](https://docs.mosip.io).
 - **Assisted Onboarding:** Partners fill out the onboarding form; credentials are sent via email.
 
-Once onboarded, partners call the `/client-mgmt/oidc-client` API with a bearer token (scoped to `client_management`) to register an OIDC client. The partner certificate obtained during PMS onboarding is used to authenticate with the MOSIP Auth service, not directly on this API.
+Once onboarded, partners call the `/client-mgmt/client` API (or the profile-specific `/client-mgmt/oidc-client` for backward compatibility) with a bearer token scoped to `client_mgmt_write` to register a client.
 
 ---
 
