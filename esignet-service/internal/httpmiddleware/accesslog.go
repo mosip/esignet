@@ -25,10 +25,17 @@ type accessLogOptions struct {
 type Option func(*accessLogOptions)
 
 // WithSkipPrefixes instructs AccessLog to skip logging for any request whose
-// URL path starts with one of the given prefixes (e.g. "/health").
+// URL path starts with one of the given prefixes (e.g. "/health"). Trailing
+// slashes are stripped on storage so "/health/" and "/health" behave
+// identically; the root "/" is preserved and suppresses every path.
 func WithSkipPrefixes(prefixes ...string) Option {
 	return func(o *accessLogOptions) {
-		o.skipPrefixes = append(o.skipPrefixes, prefixes...)
+		for _, p := range prefixes {
+			if p != "/" {
+				p = strings.TrimRight(p, "/")
+			}
+			o.skipPrefixes = append(o.skipPrefixes, p)
+		}
 	}
 }
 
@@ -49,7 +56,7 @@ func AccessLog(next http.Handler, opts ...Option) http.Handler {
 
 		for _, prefix := range o.skipPrefixes {
 			p := r.URL.Path
-			if p == prefix || strings.HasPrefix(p, prefix+"/") {
+			if prefix == "/" || p == prefix || strings.HasPrefix(p, prefix+"/") {
 				return
 			}
 		}
