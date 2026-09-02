@@ -322,7 +322,6 @@ input[type="password"]::-ms-clear {
   padding: 16px !important;
   border-top-left-radius: var(--thunderid-border-radius-large) !important;
   border-top-right-radius: var(--thunderid-border-radius-large) !important;
-
   font-weight: 500 !important;
   font-size: 14px !important;
   line-height: 100% !important;
