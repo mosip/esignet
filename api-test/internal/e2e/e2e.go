@@ -135,6 +135,11 @@ type Scenario struct {
 	// demands — which is what a positive combination case wants.
 	Flow *FlowSpec `json:"flow"`
 
+	// ClientLifecycle deactivates (and optionally reactivates) the scenario's
+	// own client partway through the flow, to assert what a client whose status
+	// is INACTIVE is still able to do.
+	ClientLifecycle *ClientLifecycle `json:"client_lifecycle"`
+
 	// Introspect asks the scenario to submit the tokens the flow obtained to
 	// /oauth2/introspect once the flow has completed, one request per case.
 	// Only meaningful on a scenario that expects the flow to succeed: a
@@ -363,7 +368,13 @@ func (r *Runner) Run(ctx context.Context, spec Spec) []result.ModuleResult {
 		if sc.ClientConfig != nil {
 			cfg = *sc.ClientConfig
 		}
-		cl, cerr := pool.get(ctx, &setupCalls, cfg)
+		// A scenario that changes its client's status gets one of its own —
+		// see clientPool.dedicated.
+		get := pool.get
+		if sc.ClientLifecycle != nil {
+			get = pool.dedicated
+		}
+		cl, cerr := get(ctx, &setupCalls, cfg)
 		if cerr != nil {
 			// One combination's client failing to register must not stop the
 			// rest of the run: report this scenario and carry on.
@@ -390,6 +401,9 @@ func (r *Runner) Run(ctx context.Context, spec Spec) []result.ModuleResult {
 			// Name the protocol combination in the row, so a failure reads as
 			// "this combination was rejected" rather than a bare login failure.
 			loginField = fmt.Sprintf("flow (acr=%s, client=%s)", sc.AuthFactor, cfg.label())
+		}
+		if sc.ClientLifecycle != nil {
+			loginField = fmt.Sprintf("flow (acr=%s, client %s)", sc.AuthFactor, sc.ClientLifecycle.label())
 		}
 		switch {
 		case ferr != nil && sc.ExpectLoginFailure:
@@ -557,6 +571,28 @@ func (p *clientPool) get(ctx context.Context, calls *[]result.HTTPCall, cfg Clie
 	if cl, ok := p.clients[cfg.key()]; ok {
 		return cl, nil
 	}
+	cl, err := p.register(ctx, calls, cfg)
+	if err != nil {
+		return nil, err
+	}
+	if p.clients == nil {
+		p.clients = map[string]*testClient{}
+	}
+	p.clients[cfg.key()] = cl
+	return cl, nil
+}
+
+// dedicated registers a client for one scenario's exclusive use and never
+// caches it. Scenarios that change their client's status take this path: a
+// deactivation applied to a pooled client would break every later scenario
+// sharing it, and would do so silently — they would simply stop being able to
+// log in, for a reason none of them names.
+func (p *clientPool) dedicated(ctx context.Context, calls *[]result.HTTPCall, cfg ClientConfig) (*testClient, error) {
+	return p.register(ctx, calls, cfg)
+}
+
+// register mints a key and registers one new client for cfg.
+func (p *clientPool) register(ctx context.Context, calls *[]result.HTTPCall, cfg ClientConfig) (*testClient, error) {
 	r := p.runner
 	priv, err := generateRSA()
 	if err != nil {
@@ -570,10 +606,6 @@ func (p *clientPool) get(ctx context.Context, calls *[]result.HTTPCall, cfg Clie
 	if err != nil {
 		return nil, err
 	}
-	if p.clients == nil {
-		p.clients = map[string]*testClient{}
-	}
-	p.clients[cfg.key()] = cl
 	if r.Logf != nil {
 		r.Logf("e2e: registered client %s (config: %s)", cl.clientID, cfg.label())
 	}
@@ -734,6 +766,9 @@ func scenarioConfigError(sc Scenario) string {
 	if len(sc.Introspect) > 0 && sc.ExpectLoginFailure {
 		return "introspect and expect_login_failure are mutually exclusive — a rejected flow issues no token to introspect"
 	}
+	if msg := sc.ClientLifecycle.validate(); msg != "" {
+		return msg
+	}
 	return ""
 }
 
@@ -801,6 +836,14 @@ func (r *Runner) runScenario(ctx context.Context, cl *testClient, redirectURI st
 		q.Set("claims", string(cj))
 	}
 
+	// Status changes are applied here, between building the request and
+	// sending it, so the stage name in the spec is literally where it happens.
+	lcAsserts, lcErr := r.applyAt(ctx, &calls, cl, sc.ClientLifecycle, stageBeforeAuthorize)
+	proto = append(proto, lcAsserts...)
+	if lcErr != nil {
+		return nil, calls, consentObservation{}, proto, lcErr
+	}
+
 	// Push the request first when the plan calls for it. RFC 9126: the
 	// authorize URL then carries only client_id and the returned request_uri,
 	// and every other parameter comes from what the server stored.
@@ -844,6 +887,12 @@ func (r *Runner) runScenario(ctx context.Context, cl *testClient, redirectURI st
 	code, err := codeFromRedirect(fr.RedirectURI, state)
 	if err != nil {
 		return nil, calls, consentSeen, proto, err
+	}
+
+	lcAsserts, lcErr = r.applyAt(ctx, &calls, cl, sc.ClientLifecycle, stageAfterAuthorize)
+	proto = append(proto, lcAsserts...)
+	if lcErr != nil {
+		return nil, calls, consentSeen, proto, lcErr
 	}
 
 	// token exchange (private_key_jwt + PKCE): aud is the ISSUER, which is what eSignet validates against.
@@ -934,6 +983,12 @@ func (r *Runner) runScenario(ctx context.Context, cl *testClient, redirectURI st
 			Field: "id_token nonce echo", Expected: nonce, Actual: firstNonEmpty(got, "(absent)"),
 			Passed: got == nonce,
 		})
+	}
+
+	lcAsserts, lcErr = r.applyAt(ctx, &calls, cl, sc.ClientLifecycle, stageAfterToken)
+	proto = append(proto, lcAsserts...)
+	if lcErr != nil {
+		return nil, calls, consentSeen, proto, lcErr
 	}
 
 	// userinfo — presented with the DPoP scheme and a proof carrying ath when

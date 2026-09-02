@@ -61,6 +61,7 @@ one authentication factor against it.
 | `expect_values` | Exact claim values that must match |
 | `introspect` | Introspection cases to run once the flow has completed — see [Introspection](#introspection-coverage) |
 | `consent` | How to answer the consent step and what to assert — see below |
+| `client_lifecycle` | Deactivates the scenario's client partway through the flow — see [Client status](#client-status-coverage) |
 | `known_issue` | A reason string for an already-tracked environment gap. A **claim-assertion** failure then lands in the **Known** bucket with that reason instead of Failed, leaving the exit code alone; the failing check is still shown. It does not cover login failures, and a scenario that starts passing is still reported as passed |
 
 > **Scenarios for unavailable factors are kept and reported failed, deliberately.** An ACR with no
@@ -252,6 +253,52 @@ The `consent` block on an e2e scenario:
 
 Consent-record **expiry** re-prompting is not covered: it needs control over the deployment's
 consent validity period, which the harness does not have.
+
+---
+
+## Client status coverage
+
+A client's status is the operator's kill switch: `INACTIVE` is how a relying party that has been
+retired, compromised or offboarded is taken out of service without deleting its record. That the
+switch can be *thrown* is the api surface's business (`client-mgmt/client-status.feature`); whether
+eSignet then *acts* on it is this surface's, because it takes a real client through real endpoints.
+
+```jsonc
+"client_lifecycle": {
+  "deactivate": "before_authorize",  // before_authorize | after_authorize | after_token
+  "reactivate": false                // set back to ACTIVE right after, before the flow continues
+}
+```
+
+The stage names the door the client is standing at when the switch is flipped, and each asks a
+different question:
+
+| Stage | Question | Rejection expected at |
+|---|---|---|
+| `before_authorize` | May a deactivated client start an authorization at all? | `authorize`, or `par` for a PAR-required client |
+| `after_authorize` | May a code issued while the client was active still be redeemed? | `token` |
+| `after_token` | May a token issued while the client was active still be spent? | `userinfo` |
+
+They are separate scenarios rather than one switch because they fail differently — the first is a
+check on a request, the last two are checks on credentials already issued — and a deployment could
+plausibly have one without the others. Pair each with `expect_error_contains` (`"login flow
+failed"`, `"par failed"`, `"token exchange failed"`, `"userinfo request failed"`) so a case meant to
+prove one endpoint enforces the status cannot pass by being rejected at an earlier one.
+
+`reactivate` is the **positive control**: the same status writes run, the client ends up `ACTIVE`
+again, and the flow must complete. A negative is only meaningful next to it — without the control,
+a rejection could be the deactivation plumbing or the client itself rather than enforcement.
+
+Two mechanics are worth knowing:
+
+- **The client is dedicated, never pooled.** A scenario carrying `client_lifecycle` registers a
+  client of its own. Deactivating a shared client would break every later scenario using that
+  config, and would do so silently — they would simply stop being able to log in, for a reason none
+  of them names.
+- **Each status write is read back** from `GET /client-mgmt/client/{id}` and asserted, for every
+  plugin including `mosip` (whose clients are registered through PMS, but whose eSignet record is
+  what the engine actually resolves). A patch response that echoed `INACTIVE` over a record that
+  stayed `ACTIVE` would otherwise leave every assertion below it testing an active client.
 
 ---
 

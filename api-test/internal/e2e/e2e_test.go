@@ -336,11 +336,22 @@ func TestShippedSpecsParseAndAreConsistent(t *testing.T) {
 				if sc.AuthFactor == "" {
 					t.Errorf("scenario %q has no auth_factor", sc.Name)
 				}
+				if msg := sc.ClientLifecycle.validate(); msg != "" {
+					t.Errorf("scenario %q: %s", sc.Name, msg)
+				}
 				cfg := ClientConfig{}
 				if sc.ClientConfig != nil {
 					cfg = *sc.ClientConfig
 				}
 				key := cfg.key() + "|" + strings.Join(sc.Scopes, " ") + "|" + fmt.Sprint(sc.UserinfoClaims)
+				// A scenario that changes its client's status is registered a
+				// client of its own, so its consent record is stored against a
+				// client nothing else touches: it can neither suppress another
+				// scenario's prompt nor lean on another scenario's consent.
+				// Keying it by name keeps it out of everyone else's bookkeeping.
+				if sc.ClientLifecycle != nil {
+					key += "|dedicated:" + sc.Name
+				}
 
 				if sc.Consent != nil {
 					sawConsent = true

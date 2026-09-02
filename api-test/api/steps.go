@@ -592,7 +592,7 @@ func surfaceFromTags(scn *godog.Scenario) string {
 		switch strings.TrimPrefix(t.Name, "@") {
 		case "client-mgmt", "client-mgmt-pms":
 			return "client-mgmt"
-		case "flow-execute", "flow-authz-neg":
+		case "flow-execute", "flow-authz-neg", "inactive-client":
 			return "flow-execute"
 		}
 	}
