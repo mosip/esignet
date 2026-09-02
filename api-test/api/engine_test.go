@@ -10,14 +10,7 @@ import (
 	"github.com/cucumber/godog"
 )
 
-// adminAuthAvailable reports whether the client-mgmt scenarios have a way to
-// present an admin bearer: either all three Keycloak client-credentials
-// fields to mint one (iAuthenticateAsAdmin in steps.go requires the same
-// three, so checking fewer here would tag @client-mgmt in only to fail every
-// scenario on that missing field), or an ADMIN_TOKEN supplied directly for a
-// target that does not enforce scope (a locally started server installs no
-// scope middleware). Without either, the scenarios would fail on auth rather
-// than on anything they are meant to test, so they are gated out.
+// adminAuthAvailable reports whether client-mgmt scenarios have a usable admin bearer, so they're gated out on auth rather than failing on it.
 func adminAuthAvailable() bool {
 	return os.Getenv("ADMIN_TOKEN") != "" ||
 		(os.Getenv("KEYCLOAK_TOKEN_URL") != "" &&
@@ -54,10 +47,7 @@ func TestFeatures(t *testing.T) {
 		}
 		if adminAuthAvailable() {
 			tags += ",@client-mgmt" // godog: comma = OR
-			// Enforcement of a client's INACTIVE status at the authorize
-			// endpoint. Grouped with admin auth rather than with FLOW_CLIENT_ID
-			// above: the scenarios deactivate the client they drive, so they
-			// register one of their own instead of using the shared id.
+			// @inactive-client deactivates its own client rather than reusing FLOW_CLIENT_ID, so gate on admin auth instead.
 			tags += ",@inactive-client"
 			// The PMS-backed client-mgmt feature is mosipid-only: it needs an onboarded partner and policy.
 			if strings.EqualFold(os.Getenv("MOSIP_ESIGNET_AUTHN_PROVIDER"), "mosip") && os.Getenv("PMS_BASE_URL") != "" {

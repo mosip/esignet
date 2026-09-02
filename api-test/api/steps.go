@@ -189,12 +189,7 @@ func (s *state) doClient(ctx context.Context, client *http.Client, label, method
 		req.Header.Set(k, v)
 	}
 	if s.adminToken != "" {
-		// The admin token reaches PMS and eSignet by different transports. MOSIP
-		// kernel services — PMS among them — read it from a cookie named
-		// Authorization and answer the Bearer header with KER-ATH-401, while
-		// eSignet's own client-mgmt wants the Bearer header. So the transport is
-		// chosen per target rather than switched globally: a scenario that mixes
-		// {{pms_base}} and eSignet paths gets the right one on each call.
+		// MOSIP kernel services (PMS) want the admin token as an Authorization cookie, not a Bearer header.
 		if pms := s.stash["pms_base"]; pms != "" && strings.HasPrefix(fullURL, pms) {
 			req.AddCookie(&http.Cookie{Name: "Authorization", Value: s.adminToken})
 		} else {
@@ -261,16 +256,7 @@ func (s *state) record(label, method, u string, reqH http.Header, reqBody string
 
 func iAuthenticateAsAdmin(ctx context.Context) error {
 	s := getState(ctx)
-	// A target that does not enforce scope never inspects this token: scope
-	// middleware is only installed when both ISSUER_URL and JWKS_URL are set
-	// (cmd/esignet/main.go), so a locally started server accepts client-mgmt
-	// calls with any bearer, or none. Requiring a real Keycloak round-trip there
-	// means a deployed IAM credential decides whether the local client-mgmt
-	// scenarios run at all, to obtain a value the server then ignores.
-	//
-	// Deliberately an explicit opt-in rather than a fallback when Keycloak
-	// fails: falling back silently would turn a genuine auth regression on a
-	// real deployment into a green run.
+	// ADMIN_TOKEN is an explicit opt-in for targets that don't enforce scope, not a fallback from failed Keycloak auth — a silent fallback would mask a real auth regression as a green run.
 	if tok := os.Getenv("ADMIN_TOKEN"); tok != "" {
 		s.adminToken = tok
 		return nil
@@ -448,11 +434,7 @@ func theJSONPathShouldExist(ctx context.Context, path string) error {
 }
 
 // theJSONPathShouldBeNull asserts an explicit JSON null.
-// theJSONPathShouldBeEmpty passes when a path carries no entries: absent, null,
-// [] or {}. MOSIP's two response wrappers disagree about how "no errors" looks —
-// eSignet sends "errors": null while PMS /oauth/client sends "errors": [] — so a
-// scenario spanning both needs an assertion that accepts either without going as
-// weak as "should exist".
+// theJSONPathShouldBeEmpty passes when a path is absent, null, [], or {} — eSignet and PMS disagree on how "no errors" looks.
 func theJSONPathShouldBeEmpty(ctx context.Context, path string) error {
 	s := getState(ctx)
 	v := gjson.GetBytes(s.lastBody, path)

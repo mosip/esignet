@@ -109,8 +109,7 @@ func TestWriteRendersReport(t *testing.T) {
 		}
 	}
 	// The unique filename names the surfaces and encodes the counts, and a matching .json sidecar exists.
-	// f is every module that did not pass, so the errored one is counted there
-	// rather than going unnamed: 1 passed + 2 not passed + 1 skipped + 1 known = 5.
+	// f counts the errored module too: 1 passed + 2 not passed + 1 skipped + 1 known = 5.
 	if base := filepath.Base(path); !strings.HasPrefix(base, "conformance_mosip_") || !strings.Contains(base, "t-5_p-1_f-2_sk-1_ki-1") {
 		t.Errorf("filename = %s, want conformance_mosip_<ts>_t-5_p-1_f-2_sk-1_ki-1", base)
 	}
@@ -409,9 +408,7 @@ func TestSummarize(t *testing.T) {
 	if !s.HasFailures() {
 		t.Errorf("expected HasFailures = true")
 	}
-	// NotPassed folds in errored, warning and review — the four numbers the
-	// report filename carries must account for every module, or a reader is left
-	// hunting for the difference.
+	// NotPassed folds in errored, warning and review, so the filename's four numbers account for every module.
 	if got := s.NotPassed(); got != 4 {
 		t.Errorf("NotPassed() = %d, want 4 (failed + warning + review + errored)", got)
 	}
@@ -420,8 +417,7 @@ func TestSummarize(t *testing.T) {
 	}
 }
 
-// The filename invariant has to hold for any mix of outcomes, not just the one
-// the fixture above happens to use.
+// The filename invariant has to hold for any mix of outcomes, not just the fixture above.
 func TestNotPassedAlwaysAccountsForTheTotal(t *testing.T) {
 	for _, rs := range [][]result.ModuleResult{
 		{},

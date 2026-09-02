@@ -5,33 +5,21 @@ import (
 	"strings"
 )
 
-// Per-client protocol hardening, and what the relying party does about it.
-//
-// eSignet exposes three switches in a client's additionalConfig — PKCE, pushed
-// authorization requests, and DPoP-bound access tokens. They are enforced by
-// the engine at authorize, /oauth2/par, token and userinfo respectively, so
-// covering them end to end means registering a client with a given combination
-// and then driving the flow that combination demands.
+// Per-client protocol hardening (PKCE, PAR, DPoP) is enforced at authorize, /oauth2/par, token, and userinfo respectively.
 
-// ClientConfig is the additionalConfig block a scenario's client is registered
-// with. The zero value is an unhardened client, which is what every scenario
-// that predates these fields gets.
+// ClientConfig is the additionalConfig block a scenario's client is registered with; the zero value is unhardened.
 type ClientConfig struct {
 	RequirePKCE bool `json:"require_pkce"`
 	RequirePAR  bool `json:"require_pushed_authorization_requests"`
 	DPoPBound   bool `json:"dpop_bound_access_tokens"`
 }
 
-// additionalConfig renders the block for a client-registration request, or nil
-// when nothing is switched on — an unhardened client is registered exactly as
-// it was before, with no additionalConfig member at all.
+// additionalConfig renders the block for a client-registration request, or nil when nothing is switched on.
 func (c ClientConfig) additionalConfig() map[string]any {
 	if c == (ClientConfig{}) {
 		return nil
 	}
-	// Every switch is sent explicitly, including the false ones: it makes the
-	// registration call in the report say what the client is, rather than
-	// leaving the reader to infer it from an absence.
+	// Every switch is sent explicitly, including false ones, so the report shows what the client is rather than an absence.
 	return map[string]any{
 		"require_pkce":                          c.RequirePKCE,
 		"require_pushed_authorization_requests": c.RequirePAR,
@@ -39,10 +27,7 @@ func (c ClientConfig) additionalConfig() map[string]any {
 	}
 }
 
-// key identifies the registered client this config needs. Scenarios sharing a
-// key share a client, so the default (all-off) scenarios keep running against
-// one client exactly as they did before — which the order-dependent consent
-// cases rely on.
+// key identifies the registered client this config needs; scenarios sharing a key share a client, which the order-dependent consent cases rely on.
 func (c ClientConfig) key() string {
 	return fmt.Sprintf("pkce=%t/par=%t/dpop=%t", c.RequirePKCE, c.RequirePAR, c.DPoPBound)
 }
@@ -72,28 +57,21 @@ const (
 	pkceNone  = "none"
 )
 
-// FlowSpec overrides what the relying party actually sends. Left unset, the RP
-// follows the client config. Setting a field against the client config is how a
-// negative case is written: a client that requires PAR, driven by an RP that
-// skips it, must be rejected.
+// FlowSpec overrides what the relying party sends; unset fields follow the client config, letting a field be set against it for a negative case.
 type FlowSpec struct {
-	// UsePAR pushes the authorization request to /oauth2/par first and drives
-	// authorize with the returned request_uri.
+	// UsePAR pushes the authorization request to /oauth2/par first and drives authorize with the returned request_uri.
 	UsePAR *bool `json:"use_par"`
 
-	// UseDPoP sends a DPoP proof at PAR, token and userinfo, and presents the
-	// access token with the DPoP scheme instead of Bearer.
+	// UseDPoP sends a DPoP proof at PAR, token and userinfo, and presents the access token with the DPoP scheme instead of Bearer.
 	UseDPoP *bool `json:"use_dpop"`
 
 	// PKCE is S256 (default), plain, or none.
 	PKCE string `json:"pkce"`
 
-	// DPoPKeyMismatch mints a second proof key for the token call, so the code
-	// bound at authorize cannot be redeemed. Only meaningful with DPoP on.
+	// DPoPKeyMismatch mints a second proof key for the token call so the code bound at authorize cannot be redeemed; only meaningful with DPoP on.
 	DPoPKeyMismatch bool `json:"dpop_key_mismatch"`
 
-	// BearerAtUserinfo presents a DPoP-bound token with the Bearer scheme,
-	// which a resource endpoint honouring the binding must refuse.
+	// BearerAtUserinfo presents a DPoP-bound token with the Bearer scheme, which a resource endpoint honouring the binding must refuse.
 	BearerAtUserinfo bool `json:"bearer_at_userinfo"`
 }
 
@@ -106,11 +84,9 @@ type flowPlan struct {
 	bearerAtUserinfo bool
 }
 
-// resolveFlow derives what the RP does from the client config, then applies the
-// scenario's explicit overrides.
+// resolveFlow derives what the RP does from the client config, then applies the scenario's explicit overrides.
 func resolveFlow(cfg ClientConfig, f *FlowSpec) (flowPlan, error) {
-	// PKCE defaults to on regardless of require_pkce: the harness has always
-	// sent S256, and a client that does not require it still accepts it.
+	// PKCE defaults to on regardless of require_pkce: an unhardened client still accepts the S256 the harness always sends.
 	plan := flowPlan{usePAR: cfg.RequirePAR, useDPoP: cfg.DPoPBound, pkce: pkceS256}
 	if f == nil {
 		return plan, nil
@@ -138,8 +114,7 @@ func resolveFlow(cfg ClientConfig, f *FlowSpec) (flowPlan, error) {
 	return plan, nil
 }
 
-// label describes the plan for the report, so a row says what was actually
-// driven rather than only what the client required.
+// label describes the plan for the report, so a row says what was actually driven rather than only what the client required.
 func (p flowPlan) label() string {
 	parts := []string{"pkce=" + p.pkce}
 	if p.usePAR {

@@ -73,12 +73,7 @@ type Driver struct {
 	otp          OTPProvider   // dynamic OTP source; nil for static OTP
 	consent      ConsentPolicy // how to answer the consent step; zero value approves all
 
-	// followRejection makes a flow that ends in ERROR with an errorAssertion
-	// post that assertion to /oauth2/auth/callback, so the resulting
-	// error=access_denied redirect can be handed back to the caller instead of
-	// the flow simply being reported as failed. Off by default: the e2e surface
-	// asserts a denied consent is *rejected*, and following through to the
-	// redirect would change what that assertion means.
+	// followRejection carries an ERROR flow's errorAssertion through to the client redirect; off by default since e2e asserts denied consent is rejected, not redirected.
 	followRejection bool
 
 	// Per-Run observations, reset at the top of Run because the conformance
@@ -93,14 +88,10 @@ func (d *Driver) SetOTPProvider(p OTPProvider) { d.otp = p }
 // SetConsentPolicy installs a non-default consent answer.
 func (d *Driver) SetConsentPolicy(p ConsentPolicy) { d.consent = p }
 
-// SetFollowRejection controls whether a flow ending in ERROR with an
-// errorAssertion is carried through to the client redirect (see followRejection).
+// SetFollowRejection controls whether a rejected flow is carried through to the client redirect (see followRejection).
 func (d *Driver) SetFollowRejection(v bool) { d.followRejection = v }
 
-// UseIDType sets the login-id-type preference (see IDTypeTokens). Without it the
-// driver stays on whichever login-id tab the flow opens on — the UIN tab, by
-// default — and submits a phone or email there as if it were a UIN, which the
-// ID system rejects (IDA-MLC-009) well after the point the mistake was made.
+// UseIDType sets the login-id-type preference; without it the driver submits on whichever tab it opens on, which the ID system rejects if that's the wrong id kind (IDA-MLC-009).
 func (d *Driver) UseIDType(tokens []string) { d.idTokens = tokens }
 
 func New(answers map[string]string, preferred []string, tlsVerify bool, timeout time.Duration) *Driver {
@@ -128,13 +119,9 @@ type FlowResult struct {
 	// ConsentDenied lists the element names the driver withheld approval from,
 	// for the report's evidence trail.
 	ConsentDenied []string
-	// AuthorizeErrorCode is the errorCode eSignet put on its /error page when it
-	// rejected the authorize request, so the report names the server's reason
-	// rather than just recording that no redirect arrived.
+	// AuthorizeErrorCode is the errorCode eSignet put on its /error page when it rejected the authorize request.
 	AuthorizeErrorCode string
-	// LoginReached reports that the authorize chain arrived at the login page.
-	// Only meaningful for RunToLogin, where it is the success signal: that call
-	// deliberately produces no RedirectURI, so OK() cannot be used.
+	// LoginReached is the success signal for RunToLogin, which deliberately produces no RedirectURI.
 	LoginReached bool
 }
 
@@ -144,17 +131,9 @@ type flowResp struct {
 	FlowStatus     string `json:"flowStatus"`
 	ChallengeToken string `json:"challengeToken"`
 	Assertion      string `json:"assertion"`
-	// ErrorAssertion is the signed assertion eSignet returns when a flow ends in
-	// ERROR (the user denied consent, say). Posting it to /oauth2/auth/callback
-	// in place of Assertion makes eSignet redirect back to the RP carrying an
-	// OAuth error — access_denied for an end-user rejection, which is what the
-	// conformance suite's user-rejects-authentication module waits for.
+	// ErrorAssertion is the signed assertion eSignet returns when a flow ends in ERROR; posting it to /oauth2/auth/callback yields an access_denied redirect.
 	ErrorAssertion string `json:"errorAssertion"`
-	// Error is the per-step rejection eSignet reports while the flow is still
-	// INCOMPLETE (FET-1005 "Invalid credentials provided", say). Without it the
-	// driver cannot tell a rejected step from an unchanged view, so it re-submits
-	// the same step until maxFlowSteps runs out — which on the OTP path spends a
-	// real OTP attempt per retry and can trip the deployment's max-attempts lockout.
+	// Error is the per-step rejection while the flow is still INCOMPLETE; without it a rejected OTP step gets re-submitted until it trips the deployment's lockout.
 	Error *struct {
 		Code    string `json:"code"`
 		Message struct {
@@ -165,10 +144,7 @@ type flowResp struct {
 		Inputs []struct {
 			Identifier string `json:"identifier"`
 		} `json:"inputs"`
-		// NextNode is what distinguishes the login-id tabs: every tab's submit
-		// action is named "submit_uin", and only the node it advances to says
-		// which identifier it actually sends (send_mosip_otp_uin vs
-		// send_mosip_otp_mobile). selectAction needs it to honour id_type.
+		// NextNode distinguishes the login-id tabs: every tab's submit ref is "submit_uin", only nextNode says which identifier it sends.
 		Actions []struct {
 			Ref      string `json:"ref"`
 			NextNode string `json:"nextNode"`
@@ -196,10 +172,7 @@ type consentElement struct {
 }
 
 // consentDecision is the reply shape the ConsentExecutor expects, sent as a JSON-encoded string.
-//
-// Approved is the overall verdict and must be sent explicitly: the executor reads
-// an absent field as false and rejects the whole decision with FET-1066
-// ("User denied consent"), however many per-element approvals it carries.
+// Approved must be sent explicitly: an absent field reads as false and the executor rejects the whole decision with FET-1066.
 type consentDecision struct {
 	Approved bool                     `json:"approved"`
 	Purposes []consentPurposeDecision `json:"purposes"`
@@ -369,12 +342,7 @@ func (d *Driver) Run(ctx context.Context, base, authorizeURL string) FlowResult 
 	return d.runFlow(ctx, base, authorizeURL, false)
 }
 
-// RunToLogin follows the authorize chain until the login page is reached and
-// stops, without submitting a credential — the flow is left un-authenticated on
-// purpose. The conformance suite's par-ensure-reused-request-uri module requires
-// exactly this: the first visit to a request_uri must NOT authenticate, so that
-// the second visit can prove the request_uri survived being reused. Success is
-// LoginReached, not OK(): no redirect is produced.
+// RunToLogin stops at the login page without authenticating, so par-ensure-reused-request-uri can prove a request_uri survives being revisited unauthenticated.
 func (d *Driver) RunToLogin(ctx context.Context, base, authorizeURL string) FlowResult {
 	return d.runFlow(ctx, base, authorizeURL, true)
 }
@@ -422,13 +390,7 @@ func (d *Driver) run(ctx context.Context, s *session, base, authorizeURL string,
 				fr.RedirectURI = target
 				return fr
 			}
-			// eSignet sends the browser to its own /error page (an HTML SPA
-			// route, not a redirect back to the RP) when it rejects the
-			// authorize request. Report the errorCode it carries: following the
-			// hop would just fetch the HTML and fail with an unhelpful
-			// "expected redirect, got <!doctype html>".
-			// Phrased to keep the "authorize returned" prefix the e2e protocol
-			// negatives assert on (expect_error_contains); only the tail is new.
+			// eSignet's /error page is an HTML SPA route, not an RP redirect; report the errorCode instead of following the hop and failing on the HTML.
 			if code := q.Get("errorCode"); code != "" {
 				fr.AuthorizeErrorCode = code
 				fr.Error = fmt.Sprintf("authorize returned eSignet's error page: %s (%s)",
@@ -450,8 +412,7 @@ func (d *Driver) completeLogin(ctx context.Context, s *session, base, authID, ex
 	payload := map[string]any{"executionId": executionID}
 	// Freshness boundary: an OTP delivered before login started belongs to a previous flow.
 	flowStart := time.Now()
-	// Every input answered so far in this flow. Re-sent in full on each step, the
-	// way the browser does — see where it is populated below.
+	// Every input answered so far in this flow, re-sent in full on each step the way the browser does.
 	carriedInputs := map[string]string{}
 
 	for step := 0; step < d.maxFlowSteps; step++ {
@@ -503,8 +464,7 @@ func (d *Driver) completeLogin(ctx context.Context, s *session, base, authID, ex
 		}
 		if flowStatus != "" && flowStatus != "INCOMPLETE" {
 			fr.Steps = append(fr.Steps, result.FlowStep{FlowStatus: flowStatus, Inputs: inputIDs})
-			// A rejected flow still has something to hand the RP: the signed
-			// errorAssertion turns into an error=access_denied redirect.
+			// A rejected flow's signed errorAssertion turns into an error=access_denied redirect.
 			if d.followRejection && r.ErrorAssertion != "" {
 				return d.deliverAssertion(ctx, s, base, authID, r.ErrorAssertion, fr)
 			}
@@ -512,9 +472,7 @@ func (d *Driver) completeLogin(ctx context.Context, s *session, base, authID, ex
 			return fr
 		}
 
-		// The step was rejected but the flow is still INCOMPLETE, so the response
-		// is the same view again. Re-submitting it cannot succeed — report what
-		// eSignet said rather than looping to maxFlowSteps.
+		// The step was rejected but the flow is still INCOMPLETE; report it rather than looping to maxFlowSteps re-submitting the same view.
 		if r.Error != nil && r.Error.Code != "" {
 			fr.Steps = append(fr.Steps, result.FlowStep{FlowStatus: flowStatus, Inputs: inputIDs})
 			fr.Error = fmt.Sprintf("flow step rejected: %s (%s)", r.Error.Code, r.Error.Message.DefaultValue)
@@ -535,13 +493,7 @@ func (d *Driver) completeLogin(ctx context.Context, s *session, base, authID, ex
 			return fr
 		}
 
-		// Inputs accumulate across the whole flow, and every step re-sends all of
-		// them — that is what the browser does, and eSignet depends on it. Each
-		// view declares only the field it has just added, so the OTP step declares
-		// `otp` alone; submitting only that leaves basic_auth with no username to
-		// verify the code against, and it answers FET-1005 "Invalid credentials
-		// provided" as though the OTP itself were wrong. This also covers a
-		// login-id tab switch, whose destination view declares no inputs at all.
+		// Every step re-sends all inputs accumulated so far, not just this view's — sending only `otp` leaves basic_auth with no username and misreports FET-1005 as a bad OTP.
 		for k, v := range inputs {
 			carriedInputs[k] = v
 		}
@@ -555,8 +507,7 @@ func (d *Driver) completeLogin(ctx context.Context, s *session, base, authID, ex
 			next["action"] = action
 		}
 		if len(carriedInputs) > 0 {
-			// Copied, not aliased: carriedInputs keeps growing after this payload is
-			// built but before it is marshalled at the top of the next iteration.
+			// Copied, not aliased: carriedInputs keeps growing before this payload is marshalled next iteration.
 			send := make(map[string]string, len(carriedInputs))
 			for k, v := range carriedInputs {
 				send[k] = v
@@ -576,11 +527,7 @@ func (d *Driver) completeLogin(ctx context.Context, s *session, base, authID, ex
 	return d.deliverAssertion(ctx, s, base, authID, assertion, fr)
 }
 
-// deliverAssertion posts a flow assertion to /oauth2/auth/callback and records
-// the client redirect it returns. eSignet routes on the assertion's claims, so
-// the same call serves both a successful login (a code lands on the redirect)
-// and a rejected one (an errorAssertion yields error=access_denied) — see
-// handleFailedCallback in the engine's authz service.
+// deliverAssertion posts a flow assertion to /oauth2/auth/callback; eSignet routes on its claims to serve both a successful login and a rejected one (access_denied).
 func (d *Driver) deliverAssertion(ctx context.Context, s *session, base, authID, assertion string, fr FlowResult) FlowResult {
 	cbBody, cbStatus, _, err := s.do(ctx, "oauth2/auth/callback", http.MethodPost, base+"/oauth2/auth/callback", mustJSON(map[string]any{
 		"authId": authID, "assertion": assertion,
@@ -646,17 +593,13 @@ func (d *Driver) resolveInputs(identifiers []string, since time.Time, consentPro
 	return out, ""
 }
 
-// flowAction is one selectable action of a flow view: its ref, and the node it
-// advances to. Both matter — the login-id tabs all submit under the same ref.
+// flowAction is one selectable action of a flow view: its ref and the node it advances to (login-id tabs all submit under the same ref).
 type flowAction struct {
 	Ref      string
 	NextNode string
 }
 
-// selectAction picks the happy-path action. idTokens are the login-id-type
-// preference (IDTypeTokens); they are kept apart from preferred because they are
-// matched against nextNode rather than the ref, and because preferred also
-// carries auth-factor tokens like "otp" that appear in every id tab's node name.
+// selectAction picks the happy-path action; idTokens is kept apart from preferred because it matches nextNode, not ref.
 func selectAction(actions []flowAction, preferred, idTokens []string) (string, string) {
 	if len(actions) == 0 {
 		return "", ""
@@ -675,15 +618,7 @@ func selectAction(actions []flowAction, preferred, idTokens []string) (string, s
 	}
 	isNav := func(c string) bool { return containsAny(strings.ToLower(c), navHints) }
 
-	// 0. login-id tab correction, ahead of everything else. Every tab submits
-	// under the ref "submit_uin"; only nextNode says which identifier kind goes
-	// out (send_mosip_otp_uin vs send_mosip_otp_mobile). Landing on the default
-	// UIN tab with a phone in hand therefore looks like a perfectly good submit
-	// and IDA rejects the value (IDA-MLC-009). So when an id_type is configured
-	// and this view's submit would send the wrong kind, switch tabs first.
-	//
-	// This cannot loop: the tab it switches to has a submit whose nextNode does
-	// match, so the next pass falls straight through to the submit below.
+	// 0. login-id tab correction: switch tabs first if this view's submit would send the wrong id kind (IDA-MLC-009).
 	if len(idTokens) > 0 {
 		submitMatches, navToIDType := false, ""
 		for _, c := range candidates {

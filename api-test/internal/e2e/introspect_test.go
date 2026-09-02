@@ -110,8 +110,7 @@ func TestIntrospectValueRendersWholeNumbersAsIntegers(t *testing.T) {
 	}
 }
 
-// introspectForm is where a negative case is actually expressed, so each mode
-// has to produce a materially different request.
+// introspectForm is where a negative case is actually expressed, so each mode has to produce a materially different request.
 func TestIntrospectFormPerClientAuthMode(t *testing.T) {
 	priv, err := generateRSA()
 	if err != nil {
@@ -166,8 +165,7 @@ func TestIntrospectFormPerClientAuthMode(t *testing.T) {
 		t.Errorf("no_assertion case sent client_id=%q assertion=%q", noAssertion.Get("client_id"), noAssertion.Get("client_assertion"))
 	}
 
-	// Signed by a key the client never registered: well-formed, right audience,
-	// unverifiable. It must not accidentally be the registered key.
+	// Signed by a key the client never registered: well-formed, right audience, unverifiable; must not accidentally be the registered key.
 	wrongKey := mustForm(IntrospectCase{ClientAuth: introspectAuthWrongKey})
 	if wrongKey.Get("client_assertion") == good.Get("client_assertion") {
 		t.Error("wrong_key reused the registered key's assertion")
@@ -180,8 +178,7 @@ func TestIntrospectFormPerClientAuthMode(t *testing.T) {
 		t.Errorf("wrong_audience assertion aud = %q, want %q", aud, wrongAudience)
 	}
 
-	// A case asking for an id_token the flow never returned is a spec error, not
-	// a silent introspection of nothing.
+	// A case asking for an id_token the flow never returned is a spec error, not a silent introspection of nothing.
 	rc, _ := IntrospectCase{Token: introspectIDToken}.resolve()
 	if _, err := r.introspectForm(cl, rc, tokenSet{accessToken: "at-1"}); err == nil {
 		t.Error("id_token case with no id_token was accepted")
@@ -198,8 +195,7 @@ func audienceOf(t *testing.T, assertion string) string {
 	return aud
 }
 
-// A deployment that advertises no introspection_endpoint must produce a failed
-// assertion naming that, rather than a silent pass or a nil-URL request.
+// A deployment that advertises no introspection_endpoint must produce a failed assertion naming that, rather than a silent pass or a nil-URL request.
 func TestIntrospectWithoutEndpointFailsExplicitly(t *testing.T) {
 	r := &Runner{}
 	got := r.introspect(context.Background(), &[]result.HTTPCall{}, &testClient{}, []IntrospectCase{{}}, tokenSet{})
@@ -257,9 +253,7 @@ func TestIntrospectOneAssertsAgainstTheResponse(t *testing.T) {
 		t.Error("no exp assertion was produced for an active token")
 	}
 
-	// RFC 7662 s4: an inactive answer must not leak metadata. The stub sends
-	// nothing but "active" for a token it did not issue, so this is the
-	// passing direction; the failing one is exercised below.
+	// RFC 7662 s4: an inactive answer must not leak metadata; this is the passing direction, the failing one is exercised below.
 	inactive := run(IntrospectCase{
 		Name: "unissued", Token: introspectUnissued, ExpectActive: boolPtr(false),
 		ExpectAbsent: []string{"sub"},
@@ -281,9 +275,7 @@ func TestIntrospectOneAssertsAgainstTheResponse(t *testing.T) {
 	if !anyFailed(run(IntrospectCase{Name: "absent-member", ExpectPresent: []string{"username"}})) {
 		t.Error("expect_present passed for a member the response omits")
 	}
-	// The other direction for expect_absent: the active response does carry
-	// sub, so a case demanding its absence has to fail. Without this an
-	// expect_absent that always passed would keep the s4 leak check green.
+	// The other direction for expect_absent: the active response does carry sub, so a case demanding its absence has to fail.
 	if !anyFailed(run(IntrospectCase{Name: "leaked-member", ExpectAbsent: []string{"sub"}})) {
 		t.Error("expect_absent passed for a member the response returns")
 	}
@@ -307,9 +299,7 @@ func anyFailed(as []result.Assertion) bool {
 	return false
 }
 
-// A scenario that both expects rejection and asks for introspection would be
-// reported PASSED on the expected-rejection branch, having introspected
-// nothing — so it has to be refused as a config error instead.
+// A scenario that both expects rejection and asks for introspection would be reported PASSED having introspected nothing, so it must be a config error.
 func TestScenarioConfigErrorCatchesUnreachableIntrospection(t *testing.T) {
 	ok := Scenario{AuthFactor: "otp", Introspect: []IntrospectCase{{}}}
 	if msg := scenarioConfigError(ok); msg != "" {

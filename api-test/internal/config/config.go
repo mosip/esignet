@@ -403,15 +403,7 @@ func (c *Config) ValidateSurface(name string) error {
 		}
 		// Unlike api, e2e cannot degrade: it registers a throwaway OIDC client
 		// before it can drive anything, and that needs the admin grant.
-		//
-		// ADMIN_TOKEN satisfies that too. A target that does not enforce scope
-		// never inspects the bearer — scope middleware is only installed when
-		// both ISSUER_URL and JWKS_URL are set — so against such a server the
-		// Keycloak round-trip would exist only to obtain a value the server
-		// ignores, and a deployed IAM credential would decide whether the
-		// surface runs at all. Checked here as well as at the call site so the
-		// failure names the missing setting instead of surfacing as a 401 after
-		// the run has started.
+		// ADMIN_TOKEN also satisfies this; checked here too so a missing setting fails with a clear message instead of a 401 mid-run.
 		if os.Getenv("ADMIN_TOKEN") == "" &&
 			(c.Keycloak.TokenURL == "" || c.Keycloak.ClientID == "" || c.Keycloak.ClientSecret == "") {
 			return fmt.Errorf("keycloak.token_url/client_id/client_secret (KEYCLOAK_*) are required for the e2e surface — it registers a test client before running (or set ADMIN_TOKEN for a target that does not enforce scope)")
