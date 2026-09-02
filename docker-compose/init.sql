@@ -65,7 +65,7 @@ create table esignet.consent_history (
     cr_dtimes TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     expire_dtimes TIMESTAMP,
     signature VARCHAR(1024),
-    hash VARCHAR(1024),
+    hash VARCHAR(100),
     accepted_claims VARCHAR(1024),
     permitted_scopes VARCHAR(1024),
     PRIMARY KEY (id)
