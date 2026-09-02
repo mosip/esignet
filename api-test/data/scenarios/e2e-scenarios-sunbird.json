@@ -284,6 +284,51 @@
           "expect_values": { "client_id": "{{client_id}}", "cnf.jkt": "{{dpop_jkt}}" }
         }
       ]
+    },
+    {
+      "_comment": "Deactivating a client is the operator's kill switch for a relying party that has been retired, compromised or offboarded. The api surface proves the switch can be thrown and that eSignet stores and returns INACTIVE; these ask whether eSignet then acts on it, at each of the three doors a client passes through once it has been flipped. The stages are separate cases because they fail differently: refusing to start an authorization is a check on a request, while refusing to redeem a code and refusing to spend a token are checks on credentials already issued, and a deployment could plausibly have one without the others. The reactivate case is the control for all of them -- same client, same plumbing, same flow, status restored -- so a negative that fails cannot be blamed on the deactivation machinery itself.",
+      "name": "inactive client negative: a deactivated client cannot start the flow",
+      "auth_factor": "kbi",
+      "scopes": ["openid"],
+      "client_lifecycle": { "deactivate": "before_authorize" },
+      "expect_login_failure": true,
+      "expect_error_contains": "login flow failed"
+    },
+    {
+      "_comment": "The same question at the pushed-authorization endpoint, which unlike authorize authenticates the client with a signed assertion. A deployment that checks status only on the unauthenticated path would pass the case above and fail this one.",
+      "name": "inactive client negative: a deactivated client cannot push an authorization request",
+      "auth_factor": "kbi",
+      "client_config": { "require_pushed_authorization_requests": true },
+      "scopes": ["openid"],
+      "client_lifecycle": { "deactivate": "before_authorize" },
+      "expect_login_failure": true,
+      "expect_error_contains": "par failed"
+    },
+    {
+      "_comment": "Deactivation partway through: the code was issued while the client was still active, and is redeemed after the switch was flipped. Taking a client out of service has to invalidate what it already holds, or an offboarded relying party keeps a working code for as long as the code lives.",
+      "name": "inactive client negative: a code issued before deactivation cannot be redeemed",
+      "auth_factor": "kbi",
+      "scopes": ["openid"],
+      "client_lifecycle": { "deactivate": "after_authorize" },
+      "expect_login_failure": true,
+      "expect_error_contains": "token exchange failed"
+    },
+    {
+      "_comment": "The last door, and the longest-lived credential: an access token issued while the client was active, spent at userinfo after it was deactivated. A token that outlives its client is the difference between a kill switch and a request to stop.",
+      "name": "inactive client negative: a token issued before deactivation cannot be spent at userinfo",
+      "auth_factor": "kbi",
+      "scopes": ["openid"],
+      "client_lifecycle": { "deactivate": "after_token" },
+      "expect_login_failure": true,
+      "expect_error_contains": "userinfo request failed"
+    },
+    {
+      "_comment": "The control for the four negatives above. The same status writes are made and the client ends up ACTIVE again, so the whole flow must complete. A failure here is the harness's deactivation plumbing or the client itself, not enforcement -- which is exactly what it exists to tell apart.",
+      "name": "inactive client positive: reactivating restores the whole flow",
+      "auth_factor": "kbi",
+      "scopes": ["openid"],
+      "client_lifecycle": { "deactivate": "before_authorize", "reactivate": true },
+      "expect_present": ["sub"]
     }
   ]
 }

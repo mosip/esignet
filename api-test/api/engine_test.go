@@ -54,6 +54,11 @@ func TestFeatures(t *testing.T) {
 		}
 		if adminAuthAvailable() {
 			tags += ",@client-mgmt" // godog: comma = OR
+			// Enforcement of a client's INACTIVE status at the authorize
+			// endpoint. Grouped with admin auth rather than with FLOW_CLIENT_ID
+			// above: the scenarios deactivate the client they drive, so they
+			// register one of their own instead of using the shared id.
+			tags += ",@inactive-client"
 			// The PMS-backed client-mgmt feature is mosipid-only: it needs an onboarded partner and policy.
 			if strings.EqualFold(os.Getenv("MOSIP_ESIGNET_AUTHN_PROVIDER"), "mosip") && os.Getenv("PMS_BASE_URL") != "" {
 				tags += ",@client-mgmt-pms"
@@ -94,6 +99,15 @@ func TestFeatures(t *testing.T) {
 				Module:         "authorize-negative (not run)",
 				HarnessOutcome: "ENV_NOT_READY",
 				OutcomeDetail:  "FLOW_CLIENT_ID not set — authorize-endpoint negatives need a pre-registered client",
+			})
+		}
+		if !adminAuthAvailable() {
+			rows = append(rows, Envelope{
+				Surface:        "flow-execute",
+				Plugin:         plugin,
+				Module:         "inactive-client (not run)",
+				HarnessOutcome: "ENV_NOT_READY",
+				OutcomeDetail:  "no admin auth — deactivating a client to drive authorize with it needs client-mgmt write access",
 			})
 		}
 		// Either half missing hides this surface: the tag is only added inside the
