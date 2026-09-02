@@ -114,6 +114,60 @@ func TestStatusRecorder_Hijack_NotSupported(t *testing.T) {
 	assert.Error(t, err)
 }
 
+func TestAccessLog_SkipsLoggingForExcludedPaths(t *testing.T) {
+	// A handler that always writes 200 so the recorder has a valid response.
+	next := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
+	skippedPaths := []string{"/health", "/health/live", "/health/ready", "/metrics"}
+	for _, path := range skippedPaths {
+		t.Run(path, func(t *testing.T) {
+			rr := httptest.NewRecorder()
+			req := httptest.NewRequest(http.MethodGet, path, nil)
+			// AccessLog with /health skip must not panic and must still pass
+			// the request through to the inner handler.
+			CorrelationID(AccessLog(next, WithSkipPrefixes("/health", "/metrics"))).ServeHTTP(rr, req)
+			assert.Equal(t, http.StatusOK, rr.Code)
+		})
+	}
+}
+
+func TestAccessLog_LogsNonSkippedPaths(t *testing.T) {
+	// Paths that must NOT be suppressed even though they share a prefix with "/health".
+	paths := []string{"/oauth2/token", "/healthcheck", "/health-status"}
+	for _, path := range paths {
+		t.Run(path, func(t *testing.T) {
+			called := false
+			next := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+				called = true
+				w.WriteHeader(http.StatusOK)
+			})
+			rr := httptest.NewRecorder()
+			req := httptest.NewRequest(http.MethodGet, path, nil)
+			CorrelationID(AccessLog(next, WithSkipPrefixes("/health", "/metrics"))).ServeHTTP(rr, req)
+			assert.True(t, called, "inner handler must be called for %s", path)
+			assert.Equal(t, http.StatusOK, rr.Code)
+		})
+	}
+}
+
+func TestAccessLog_NoOptionsLogsAllPaths(t *testing.T) {
+	called := false
+	next := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		called = true
+		w.WriteHeader(http.StatusOK)
+	})
+
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/health", nil)
+	// Without WithSkipPrefixes the health path is logged like any other request.
+	CorrelationID(AccessLog(next)).ServeHTTP(rr, req)
+
+	assert.True(t, called)
+	assert.Equal(t, http.StatusOK, rr.Code)
+}
+
 func TestOrDash(t *testing.T) {
 	assert.Equal(t, "-", orDash(""))
 	assert.Equal(t, "val", orDash("val"))
