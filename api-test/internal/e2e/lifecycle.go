@@ -23,37 +23,19 @@ const (
 	statusInactive = "INACTIVE"
 )
 
-// The points in the flow at which a scenario may flip its client's status.
-// Each one asks a different question, so they are separate stages rather than
-// one "deactivate the client" switch:
-//
-//	before_authorize — may a deactivated client start an authorization at all?
-//	after_authorize  — may a code issued while active still be redeemed once the
-//	                   client is deactivated? (the client cache is invalidated on
-//	                   the status write, so a stale cache and a missing check
-//	                   look different here)
-//	after_token      — may a token issued while active still be spent at
-//	                   userinfo once the client behind it is deactivated?
+// The points in the flow at which a scenario may flip its client's status; after_authorize also exercises the client-cache invalidation the status write triggers.
 const (
 	stageBeforeAuthorize = "before_authorize"
 	stageAfterAuthorize  = "after_authorize"
 	stageAfterToken      = "after_token"
 )
 
-// ClientLifecycle drives the registered client's status mid-scenario, so a
-// scenario can assert what a deactivated client is still able to do.
-//
-// A scenario carrying one is registered its OWN client rather than drawing from
-// the pool: deactivating a shared client would silently break every later
-// scenario that config serves.
+// ClientLifecycle drives the registered client's status mid-scenario; a scenario carrying one gets its OWN client, since deactivating a shared one would silently break every other scenario using it.
 type ClientLifecycle struct {
 	// Deactivate names the stage at which the client is set INACTIVE.
 	Deactivate string `json:"deactivate"`
 
-	// Reactivate sets the client back to ACTIVE immediately after the
-	// deactivation, before the flow continues. It is the positive control for
-	// the negatives: the same plumbing runs, the client ends up usable, and a
-	// scenario that then fails anyway is failing for some other reason.
+	// Reactivate sets the client back to ACTIVE before the flow continues; it is the positive control proving the same plumbing leaves the client usable.
 	Reactivate bool `json:"reactivate"`
 }
 
@@ -93,10 +75,7 @@ func (l *ClientLifecycle) label() string {
 	return "deactivated " + l.stage()
 }
 
-// applyAt performs the lifecycle's status writes if stage is the one it names,
-// and returns the assertions evidencing that eSignet accepted and stored them.
-// A write eSignet refuses is an error: the scenario's premise never held, so
-// reporting the flow's outcome would be reporting nothing.
+// applyAt performs the lifecycle's status writes if stage is the one it names; a write eSignet refuses is an error, since the scenario's premise never held.
 func (r *Runner) applyAt(ctx context.Context, calls *[]result.HTTPCall, cl *testClient, l *ClientLifecycle, stage string) ([]result.Assertion, error) {
 	if l == nil || l.stage() != stage {
 		return nil, nil
@@ -117,13 +96,7 @@ func (r *Runner) applyAt(ctx context.Context, calls *[]result.HTTPCall, cl *test
 	return out, nil
 }
 
-// setClientStatus patches clientID to want and reads it back.
-//
-// eSignet's own client-mgmt, for every plugin — including mosip, whose clients
-// are registered through PMS. eSignet's client_detail row is what the engine
-// reads when it resolves a client, so that is the record whose status the
-// enforcement question is about; and PMS refuses reactivation outright
-// (PMS_ESI_008), which would make the reactivate control unrunnable there.
+// setClientStatus patches clientID to want and reads it back, always via eSignet's own client-mgmt (even for mosip) since PMS refuses reactivation (PMS_ESI_008).
 func (r *Runner) setClientStatus(ctx context.Context, calls *[]result.HTTPCall, clientID, want string) ([]result.Assertion, error) {
 	body, err := json.Marshal(map[string]any{
 		"requestTime": time.Now().UTC().Format("2006-01-02T15:04:05.000Z"),
@@ -145,10 +118,7 @@ func (r *Runner) setClientStatus(ctx context.Context, calls *[]result.HTTPCall, 
 		return nil, fmt.Errorf("%s failed (HTTP %d): %s", label, status, snippet(rb))
 	}
 
-	// Read it back rather than trusting the patch response's echo: the engine
-	// resolves clients through a cache the write is supposed to invalidate, and
-	// a status that is only true in the response body would leave every
-	// assertion below it meaningless.
+	// Read it back rather than trusting the patch response's echo, since the engine resolves clients through a cache the write is supposed to invalidate.
 	got, err := r.readClientStatus(ctx, calls, clientID)
 	if err != nil {
 		return nil, err

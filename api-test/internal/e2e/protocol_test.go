@@ -17,8 +17,7 @@ import (
 func boolPtr(b bool) *bool { return &b }
 
 func TestClientConfigAdditionalConfig(t *testing.T) {
-	// An unhardened client must register exactly as it did before these fields
-	// existed — no additionalConfig member at all.
+	// An unhardened client must register with no additionalConfig member at all.
 	if got := (ClientConfig{}).additionalConfig(); got != nil {
 		t.Errorf("zero config produced additionalConfig %v, want nil", got)
 	}
@@ -55,8 +54,7 @@ func TestClientConfigKeyDistinguishesEveryCombination(t *testing.T) {
 	if len(seen) != 8 {
 		t.Errorf("got %d distinct keys, want 8", len(seen))
 	}
-	// A nil client_config must land on the same key as an explicit all-off one,
-	// so the consent scenarios keep sharing one client with the plain ones.
+	// A nil client_config must land on the same key as an explicit all-off one, so consent scenarios share a client with the plain ones.
 	if (ClientConfig{}).key() != (ClientConfig{RequirePKCE: false}).key() {
 		t.Error("zero and explicitly-false configs must share a key")
 	}
@@ -71,8 +69,7 @@ func TestResolveFlowFollowsClientConfigByDefault(t *testing.T) {
 	if !plan.usePAR || !plan.useDPoP {
 		t.Errorf("plan = %+v, want PAR and DPoP on to match the client config", plan)
 	}
-	// PKCE is always sent, whether or not the client demands it: the harness
-	// has always sent S256 and an unhardened client still accepts it.
+	// PKCE is always sent, whether or not the client demands it: an unhardened client still accepts S256.
 	if plan.pkce != pkceS256 {
 		t.Errorf("pkce = %q, want %q", plan.pkce, pkceS256)
 	}
@@ -84,8 +81,7 @@ func TestResolveFlowOverridesAgainstClientConfig(t *testing.T) {
 	if err != nil {
 		t.Fatalf("resolveFlow: %v", err)
 	}
-	// This disagreement is the whole point of a negative case: the client
-	// requires both, the RP sends neither, and the server must refuse.
+	// This disagreement is the point of the negative case: the client requires both, the RP sends neither, and the server must refuse.
 	if plan.usePAR || plan.useDPoP {
 		t.Errorf("plan = %+v, want both overridden off", plan)
 	}
@@ -107,8 +103,7 @@ func TestResolveFlowPKCEModes(t *testing.T) {
 			t.Errorf("pkce %q -> %q, want %q", tc.in, plan.pkce, tc.want)
 		}
 	}
-	// A typo must not silently fall back to S256 and turn a negative case into
-	// a vacuous positive.
+	// A typo must not silently fall back to S256 and turn a negative case into a vacuous positive.
 	if _, err := resolveFlow(ClientConfig{}, &FlowSpec{PKCE: "S512"}); err == nil {
 		t.Error("resolveFlow accepted an unknown pkce mode")
 	}
@@ -124,9 +119,7 @@ func TestChooseDPoPAlg(t *testing.T) {
 		{"falls back to RS256 when it is all that is offered", []string{"RS256"}, "RS256"},
 		{"ignores algs the harness cannot produce", []string{"ES256", "EdDSA", "RS256"}, "RS256"},
 		{"case insensitive", []string{"ps256"}, "PS256"},
-		// Neither an empty advertisement nor an all-unsupported one is fatal:
-		// sending a proof produces a real server error to read, which is more
-		// useful than a harness-side guess about what would have happened.
+		// Neither an empty nor an all-unsupported advertisement is fatal: sending a proof produces a real server error to read.
 		{"empty advertisement falls back", nil, defaultDPoPAlg},
 		{"no producible alg falls back", []string{"ES512"}, defaultDPoPAlg},
 	} {
@@ -138,8 +131,7 @@ func TestChooseDPoPAlg(t *testing.T) {
 	}
 }
 
-// RFC 7638 section 3.1's worked example, which pins both the member ordering
-// and the absence of whitespace in the hashed form.
+// RFC 7638 section 3.1's worked example, pinning member ordering and the absence of whitespace in the hashed form.
 func TestJWKThumbprintMatchesRFC7638Example(t *testing.T) {
 	jwk := map[string]any{
 		"kty": "RSA",
@@ -169,9 +161,7 @@ func TestNewDPoPSignerProofShape(t *testing.T) {
 	if err != nil {
 		t.Fatalf("newDPoPSigner: %v", err)
 	}
-	// The header jwk carries only the thumbprint members, so the embedded key
-	// and the advertised jkt cannot drift apart — and so no private member can
-	// leak into a proof, which the server rejects outright.
+	// The header jwk carries only the thumbprint members, so no private member can leak into a proof, which the server rejects outright.
 	if len(d.jwk) != 3 {
 		t.Errorf("proof jwk has %d members (%v), want exactly kty/n/e", len(d.jwk), d.jwk)
 	}
@@ -209,8 +199,7 @@ func TestNewDPoPSignerProofShape(t *testing.T) {
 	if claims["htm"] != "POST" {
 		t.Errorf("htm = %v, want POST", claims["htm"])
 	}
-	// The query string must not appear in htu: the server canonicalises it away
-	// before comparing, so including it would never match.
+	// The query string must not appear in htu: the server canonicalises it away before comparing.
 	if claims["htu"] != "https://esignet.example.org/oauth2/token" {
 		t.Errorf("htu = %v, want the query stripped", claims["htu"])
 	}
@@ -235,8 +224,7 @@ func TestDPoPProofBindsAccessTokenWithATH(t *testing.T) {
 	if err != nil {
 		t.Fatalf("decode payload: %v", err)
 	}
-	// Without ath, a proof minted for the token endpoint could be replayed
-	// against userinfo with a different token.
+	// Without ath, a proof minted for the token endpoint could be replayed against userinfo with a different token.
 	ath, _ := claims["ath"].(string)
 	if ath == "" {
 		t.Fatal("no ath on a resource-endpoint proof")
@@ -256,8 +244,7 @@ func TestDPoPProofJTIIsUnique(t *testing.T) {
 	if err != nil {
 		t.Fatalf("newDPoPSigner: %v", err)
 	}
-	// The server records each jti to reject replays, so a repeated one would
-	// make the second call of any two-call flow fail.
+	// The server records each jti to reject replays, so a repeated one would fail the second call of any two-call flow.
 	seen := map[string]bool{}
 	for i := 0; i < 10; i++ {
 		proof, err := d.proof(http.MethodPost, "https://esignet.example.org/oauth2/token", "")
@@ -290,8 +277,7 @@ func TestDPoPNonceHandshake(t *testing.T) {
 	if !d.dpopNonceFrom(h) {
 		t.Fatal("a fresh nonce was not taken")
 	}
-	// Re-taking the same nonce would loop the retry forever against a server
-	// that keeps rejecting for some other reason.
+	// Re-taking the same nonce would loop the retry forever against a server that keeps rejecting for some other reason.
 	if d.dpopNonceFrom(h) {
 		t.Error("the same nonce was taken twice")
 	}
@@ -305,8 +291,7 @@ func TestDPoPNonceHandshake(t *testing.T) {
 	}
 }
 
-// PS256 is the alg the FAPI2-configured deployments advertise, so a proof
-// signed with it has to verify as RSA-PSS rather than PKCS#1 v1.5.
+// PS256 is the alg FAPI2-configured deployments advertise, so it has to verify as RSA-PSS rather than PKCS#1 v1.5.
 func TestSignJWSPS256VerifiesAsPSS(t *testing.T) {
 	priv, err := generateRSA()
 	if err != nil {
@@ -331,10 +316,7 @@ func TestSignJWSPS256VerifiesAsPSS(t *testing.T) {
 	}
 }
 
-// verifyJWS must hold a PS256 signature to the salt length RFC 7518 fixes it
-// at. Auto-detecting the salt would verify the maximal-salt signature below,
-// which no conforming JWS producer emits — and a harness that exists to surface
-// target-side deviations must not be the thing that hides one.
+// verifyJWS must hold a PS256 signature to the salt length RFC 7518 fixes it at, not auto-detect it and accept a non-conforming salt.
 func TestVerifyJWSRejectsANonStandardPS256Salt(t *testing.T) {
 	priv, err := generateRSA()
 	if err != nil {
@@ -365,8 +347,7 @@ func TestVerifyJWSRejectsANonStandardPS256Salt(t *testing.T) {
 		return hdr + "." + pl + "." + b64(sig)
 	}
 
-	// The conforming signature is the control: if this does not verify, the
-	// rejection below proves nothing.
+	// The conforming signature is the control: if this does not verify, the rejection below proves nothing.
 	if err := verifyJWS(context.Background(), signWithSalt(rsa.PSSSaltLengthEqualsHash), srv.URL, true); err != nil {
 		t.Fatalf("a hash-length-salt PS256 JWS failed to verify: %v", err)
 	}
@@ -390,8 +371,7 @@ func TestSignJWSAlgHeaderAlwaysMatchesTheScheme(t *testing.T) {
 	if err != nil {
 		t.Fatalf("keygen: %v", err)
 	}
-	// A caller-supplied alg must not survive: header and signature scheme
-	// disagreeing is exactly what a verifier rejects.
+	// A caller-supplied alg must not survive: header and signature scheme disagreeing is exactly what a verifier rejects.
 	token, err := signJWS(priv, "PS256", map[string]any{"alg": "RS256"}, map[string]any{})
 	if err != nil {
 		t.Fatalf("signJWS: %v", err)
@@ -437,8 +417,7 @@ func TestClientConfigLabel(t *testing.T) {
 	}
 }
 
-// Guards the assumption publicJWK and the DPoP jwk both rely on: a big.Int
-// round-trip of the RSA exponent.
+// Guards the assumption publicJWK and the DPoP jwk both rely on: a big.Int round-trip of the RSA exponent.
 func TestDPoPJWKExponentRoundTrips(t *testing.T) {
 	d, err := newDPoPSigner("RS256")
 	if err != nil {

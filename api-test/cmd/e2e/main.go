@@ -157,14 +157,11 @@ type discovery struct {
 	UserinfoEndpoint      string `json:"userinfo_endpoint"`
 	JWKSURI               string `json:"jwks_uri"`
 
-	// PAR and DPoP support, for the scenarios that register clients requiring
-	// them. Both are optional: a deployment advertising neither still runs
-	// every scenario that does not ask for them.
+	// PAR and DPoP support; both optional, for scenarios that register clients requiring them.
 	PAREndpoint string   `json:"pushed_authorization_request_endpoint"`
 	DPoPAlgs    []string `json:"dpop_signing_alg_values_supported"`
 
-	// IntrospectionEndpoint is RFC 7662 token introspection, likewise optional:
-	// only the introspection scenarios need it.
+	// IntrospectionEndpoint is RFC 7662 token introspection, optional and needed only by the introspection scenarios.
 	IntrospectionEndpoint string `json:"introspection_endpoint"`
 }
 
@@ -219,14 +216,7 @@ func sameOrigin(ref string, others ...string) error {
 }
 
 func keycloakToken(ctx context.Context, kc config.Keycloak, tlsVerify bool) (string, error) {
-	// A target that does not enforce scope never inspects this token: scope
-	// middleware is only installed when both ISSUER_URL and JWKS_URL are set, so
-	// a locally started server accepts client registration with any bearer, or
-	// none. Requiring a real Keycloak round-trip there means a deployed IAM
-	// credential decides whether the e2e surface runs at all — and this call is
-	// fatal, so a 401 costs every scenario. Mirrors the ADMIN_TOKEN opt-in in
-	// api/steps.go; deliberately explicit rather than a fallback on Keycloak
-	// failure, so a real deployment cannot go green on a broken IAM.
+	// Mirrors the ADMIN_TOKEN opt-in in api/steps.go: explicit, not a fallback on Keycloak failure, so a broken IAM can't go green.
 	if tok := os.Getenv("ADMIN_TOKEN"); tok != "" {
 		return tok, nil
 	}

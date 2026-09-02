@@ -12,8 +12,7 @@ import (
 	"github.com/mosip/esignet/api-test/internal/result"
 )
 
-// clientMgmtStub serves just enough of /client-mgmt/client/{id} to record the
-// status writes a lifecycle makes and answer the read-backs consistently.
+// clientMgmtStub serves just enough of /client-mgmt/client/{id} to record status writes and answer read-backs consistently.
 type clientMgmtStub struct {
 	status  string
 	patches []string
@@ -69,9 +68,7 @@ func TestLifecycleValidate(t *testing.T) {
 	}
 }
 
-// A mistyped stage must be caught as a spec error rather than silently doing
-// nothing — a lifecycle that never fires would let an inactive-client negative
-// pass while the client stayed active the whole time.
+// A mistyped stage must be caught as a spec error, or a lifecycle that never fires would let an inactive-client negative pass with the client still active.
 func TestScenarioConfigRejectsUnknownLifecycleStage(t *testing.T) {
 	sc := Scenario{AuthFactor: "otp", ClientLifecycle: &ClientLifecycle{Deactivate: "whenever"}}
 	msg := scenarioConfigError(sc)
@@ -109,9 +106,7 @@ func TestApplyAtOnlyFiresAtItsOwnStage(t *testing.T) {
 	}
 }
 
-// The read-back is the point of the assertion: a patch response echoing
-// INACTIVE while the stored record stays ACTIVE must fail the scenario, not
-// pass it. Otherwise every negative below would be testing an active client.
+// The read-back is the point of the assertion: a patch response echoing INACTIVE while the stored record stays ACTIVE must fail the scenario, not pass it.
 func TestSetClientStatusFailsWhenTheStoredStatusDisagrees(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -163,8 +158,7 @@ func TestReactivateRestoresTheClient(t *testing.T) {
 	}
 }
 
-// A refused status write means the scenario's premise never held. Reporting the
-// flow's outcome afterwards would report a client whose status is unknown.
+// A refused status write means the scenario's premise never held, so reporting the flow's outcome afterwards would report a client whose status is unknown.
 func TestApplyAtErrorsWhenESignetRefusesTheWrite(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

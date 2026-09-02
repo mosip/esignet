@@ -22,15 +22,9 @@ type mailMessage struct {
 	Text    string `json:"text"`
 	HTML    string `json:"html"`
 	Subject string `json:"subject"`
-	// Date is when the deployment sent the message, as opposed to when this
-	// listener happened to read it. The mock-SMTP server replays its recent
-	// history to every client that connects, so a batch of old messages arrives
-	// the moment the listener starts; timing them by arrival would make all of
-	// them look newer than the flow that is waiting, and a stale code would be
-	// handed to the OTP step as if it were live. Absent or unparseable, the
-	// arrival time is used instead.
+	// Date is send time, not arrival: the mock-SMTP server replays recent history on connect, so timing by arrival would hand a stale OTP to the flow as if it were live.
 	Date string `json:"date"`
-	To      struct {
+	To   struct {
 		Text  string `json:"text"`
 		Value []struct {
 			Address string `json:"address"`
@@ -159,8 +153,7 @@ func (l *Listener) ingest(data []byte, at time.Time) {
 	l.mu.Unlock()
 }
 
-// sentAt is when the deployment sent the message, falling back to when this
-// listener read it. See mailMessage.Date for why the distinction matters.
+// sentAt is when the deployment sent the message, falling back to arrival time (see mailMessage.Date).
 func sentAt(m mailMessage, fallback time.Time) time.Time {
 	d := strings.TrimSpace(m.Date)
 	if d == "" {

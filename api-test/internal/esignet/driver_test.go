@@ -39,17 +39,13 @@ func TestSelectAction(t *testing.T) {
 		{name: "nav-honours-preference", in: []string{"login_id_mobile", "login_id_email"},
 			preferred: []string{"otp", "email"}, want: "login_id_email"},
 
-		// Stage 0, the login-id tab correction. Every tab submits under the ref
-		// "submit_uin"; only nextNode says which identifier kind goes out, so the
-		// default UIN tab looks like a valid submit even when the identity is a
-		// phone. With id_type set, switch tabs first.
+		// Stage 0, the login-id tab correction: with id_type set, switch tabs first if the default tab's submit sends the wrong kind.
 		{name: "id-tab-switch-to-mobile",
 			in:       []string{"submit_uin", "login_id_mobile", "login_id_email", "login_id_nrc", "BACK_BUTTON"},
 			nodes:    map[string]string{"submit_uin": "send_mosip_otp_uin", "login_id_mobile": "prompt_mobile_otp", "login_id_email": "prompt_email_otp", "login_id_nrc": "prompt_nrc_otp", "BACK_BUTTON": "prompt_acr"},
 			idTokens: []string{"mobile", "phone"}, preferred: []string{"otp", "generated-code"},
 			want: "login_id_mobile"},
-		// Already on the mobile tab: its submit targets the right node, so the
-		// correction must NOT fire again — that would loop between tabs.
+		// Already on the mobile tab: the correction must NOT fire again, or it would loop between tabs.
 		{name: "id-tab-already-correct-submits",
 			in:       []string{"submit_uin", "login_id_email", "BACK_BUTTON"},
 			nodes:    map[string]string{"submit_uin": "send_mosip_otp_mobile", "login_id_email": "prompt_email_otp", "BACK_BUTTON": "prompt_acr"},
@@ -61,8 +57,7 @@ func TestSelectAction(t *testing.T) {
 			nodes:    map[string]string{"submit_uin": "send_mosip_otp_uin", "login_id_mobile": "prompt_mobile_otp", "BACK_BUTTON": "prompt_acr"},
 			idTokens: []string{"uin"}, preferred: []string{"otp"},
 			want: "submit_uin"},
-		// No tab matches the id_type (a flow without that identifier): fall
-		// through to the ordinary submit rather than picking an arbitrary tab.
+		// No tab matches the id_type: fall through to the ordinary submit rather than picking an arbitrary tab.
 		{name: "id-tab-no-match-falls-through",
 			in:       []string{"submit_uin", "login_id_email", "BACK_BUTTON"},
 			nodes:    map[string]string{"submit_uin": "send_mosip_otp_uin", "login_id_email": "prompt_email_otp", "BACK_BUTTON": "prompt_acr"},

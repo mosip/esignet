@@ -190,12 +190,7 @@ func printCheck(c *config.Config, path string) {
 	if c.HasSurface(config.SurfaceAPI) {
 		fmt.Printf("\napi\n")
 		fmt.Printf("  tags        %s\n", orDefault(c.API.Tags, "(auto — chosen from configured credentials)"))
-		// ADMIN_TOKEN stands in for the Keycloak round-trip against a target that
-		// does not enforce scope, so it counts as admin auth here too — otherwise
-		// --check would report client-mgmt gated out on a run where it executes.
-		// All three Keycloak fields are required together: iAuthenticateAsAdmin
-		// needs all three, so accepting just the secret would report "will run"
-		// for a config that fails every scenario on a missing token_url/client_id.
+		// ADMIN_TOKEN counts as admin auth too, and all three Keycloak fields are required together (matches iAuthenticateAsAdmin).
 		adminAuth := os.Getenv("ADMIN_TOKEN") != "" ||
 			(c.Keycloak.TokenURL != "" && c.Keycloak.ClientID != "" && c.Keycloak.ClientSecret != "")
 		fmt.Printf("  client-mgmt %s\n", readiness(adminAuth, "ENV_NOT_READY: no keycloak.token_url/client_id/client_secret and no ADMIN_TOKEN"))

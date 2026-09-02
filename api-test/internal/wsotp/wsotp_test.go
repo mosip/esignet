@@ -392,10 +392,7 @@ func TestIngestPrunesRecordsPastRetention(t *testing.T) {
 	}
 }
 
-// The mock-SMTP server replays its recent history to every client that
-// connects, so a batch of already-delivered messages lands the instant the
-// listener starts. Timing them by arrival would make each look newer than the
-// flow waiting on an OTP, and a stale code would be returned as if it were live.
+// The mock-SMTP server replays recent history on connect, so timing by arrival would return a stale OTP as if it were live.
 func TestIngestUsesMessageDateNotArrival(t *testing.T) {
 	l := &Listener{}
 	now := time.Now()

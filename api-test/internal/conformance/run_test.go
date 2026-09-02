@@ -39,8 +39,7 @@ func TestEsignetBase(t *testing.T) {
 			want:       "https://esignet.example/v1/esignet",
 		},
 		{
-			// The regression: a prefix test accepted this and then returned the
-			// SHORT value, silently driving the flow at https://esignet.example/v1.
+			// The regression: a prefix test accepted this and returned the SHORT value, silently driving the flow at https://esignet.example/v1.
 			name:       "configured base shorter than derived is rejected",
 			configured: "https://esignet.example/v1",
 			wantErr:    true,
@@ -86,8 +85,7 @@ func TestEsignetBaseRejectsNonAuthorizeURL(t *testing.T) {
 	}
 }
 
-// form_post is not a module name: the suite runs the ordinary modules and puts
-// the mode in the plan variant, so only the variant can reveal it.
+// form_post is not a module name: the suite puts the mode in the plan variant, so only the variant can reveal it.
 func TestUnsupportedReasonReadsTheResponseModeVariant(t *testing.T) {
 	if got := unsupportedReason("oidcc-server", map[string]any{"response_mode": "form_post"}); got != "form_post" {
 		t.Errorf("unsupportedReason(form_post variant) = %q, want form_post", got)
@@ -104,9 +102,7 @@ func TestUnsupportedReasonReadsTheResponseModeVariant(t *testing.T) {
 	}
 }
 
-// The visit budget defaults to 1, which must reproduce the original
-// "drive each browser URL once" behaviour exactly: a URL already driven, or one
-// the suite has marked visited, is not returned again.
+// The visit budget defaults to 1: a URL already driven, or one the suite has marked visited, is not returned again.
 func TestPendingURLsDefaultBudgetDrivesEachURLOnce(t *testing.T) {
 	b := Browser{URLs: []string{"https://a/authorize", "https://b/authorize"}}
 	visits := map[string]int{}
@@ -129,9 +125,7 @@ func TestPendingURLsDefaultBudgetDrivesEachURLOnce(t *testing.T) {
 	}
 }
 
-// A budget above 1 is what par-ensure-reused-request-uri needs: the same
-// authorize URL has to be drivable a second time, because the first visit
-// deliberately does not authenticate.
+// A budget above 1 is what par-ensure-reused-request-uri needs: the same authorize URL has to be drivable a second time, since the first visit doesn't authenticate.
 func TestPendingURLsBudgetAllowsASecondVisit(t *testing.T) {
 	b := Browser{URLs: []string{"https://a/authorize"}}
 	visits := map[string]int{"https://a/authorize": 1}
@@ -145,11 +139,9 @@ func TestPendingURLsBudgetAllowsASecondVisit(t *testing.T) {
 	}
 }
 
-// Only the two modules that need special driving get it; everything else must
-// keep the zero value, or a stray DenyAll would deny consent across the run.
+// Only the two modules that need special driving get it; everything else must keep the zero value, or a stray DenyAll would deny consent across the run.
 func TestBehaviorForLeavesOtherModulesOnTheDefault(t *testing.T) {
-	// moduleBehavior holds a ConsentPolicy (which carries a slice), so it is not
-	// comparable with ==; check the fields that change driving instead.
+	// moduleBehavior holds a ConsentPolicy (a slice), so it is not comparable with ==; check the fields that change driving instead.
 	if b := behaviorFor("fapi2-security-profile-final-happy-flow"); b.consent.DenyAll ||
 		len(b.consent.Deny) != 0 || b.followRejection || b.loadOnlyVisits != 0 || b.visitBudget() != 1 {
 		t.Errorf("happy-flow behaviour = %+v, want the default driving", b)

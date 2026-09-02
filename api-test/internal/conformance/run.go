@@ -20,8 +20,7 @@ import (
 	"github.com/mosip/esignet/api-test/internal/wsotp"
 )
 
-// unsupportedModuleHints flag modules the harness can't drive in v1 (they need
-// browser-fragment / QR / logout / reject handling). Matched as substrings.
+// unsupportedModuleHints flag modules the harness can't drive in v1 (browser-fragment / QR / logout / reject handling), matched as substrings.
 var unsupportedModuleHints = map[string]string{
 	"logout":       "logout",
 	"rp-initiated": "logout",
@@ -30,37 +29,26 @@ var unsupportedModuleHints = map[string]string{
 	"ciba":         "ciba",
 }
 
-// moduleBehavior describes the non-default driving a particular module needs.
-// The zero value is the ordinary happy path: approve consent, authenticate on
-// the first visit, drive each browser URL once.
+// moduleBehavior describes the non-default driving a module needs; the zero value is the ordinary happy path.
 type moduleBehavior struct {
 	// consent answers the consent step; the zero value approves everything.
 	consent esignet.ConsentPolicy
-	// followRejection posts the flow's errorAssertion so the RP receives the
-	// error redirect instead of the flow being reported as merely failed.
+	// followRejection posts the flow's errorAssertion so the RP receives the error redirect instead of the flow being reported as merely failed.
 	followRejection bool
-	// loadOnlyVisits is how many leading browser visits load the login page
-	// without authenticating.
+	// loadOnlyVisits is how many leading browser visits load the login page without authenticating.
 	loadOnlyVisits int
 	// maxVisits is how many times the same browser URL may be driven; 0 means 1.
 	maxVisits int
 }
 
-// moduleBehaviors maps a module-name substring to the behaviour it needs,
-// matched the same way as unsupportedModuleHints.
+// moduleBehaviors maps a module-name substring to the behaviour it needs, matched the same way as unsupportedModuleHints.
 var moduleBehaviors = map[string]moduleBehavior{
-	// The suite waits for error=access_denied at the RP: "the tester MUST press
-	// 'cancel' on the login screen or deny consent". Denying every consent
-	// element ends the flow in ERROR with an errorAssertion, and following that
-	// through to the callback is what turns it into the redirect the suite wants.
+	// The suite requires "the tester MUST press 'cancel' ... or deny consent"; denying every element ends the flow in the ERROR redirect it wants.
 	"user-rejects-authentication": {
 		consent:         esignet.ConsentPolicy{DenyAll: true},
 		followRejection: true,
 	},
-	// Proves a request_uri can be reused before authentication completes. The
-	// first visit must reach the login page and stop — authenticating there makes
-	// the suite abort with "The user was authenticated on the initial visit to
-	// login page" — and the second visit completes the login.
+	// The first visit must reach the login page and stop, or the suite aborts with "authenticated on the initial visit"; the second visit completes the login.
 	"par-ensure-reused-request-uri-prior-to-auth-completion-succeeds": {
 		loadOnlyVisits: 1,
 		maxVisits:      2,
@@ -99,8 +87,7 @@ func New(cfg *config.Config, logf func(string, ...any)) *Orchestrator {
 	}
 }
 
-// RunResult bundles the per-module results. Suite plumbing calls (available,
-// create-plan, polls, deliver) are not reported — use the harness logs.
+// RunResult bundles the per-module results; suite plumbing calls (available, create-plan, polls, deliver) are not reported — use the harness logs.
 type RunResult struct {
 	Modules []result.ModuleResult
 }
@@ -118,14 +105,11 @@ func (o *Orchestrator) Run(ctx context.Context) (*RunResult, error) {
 	o.client.TakeCalls() // discard the availability call
 
 	answers := esignet.BuildAnswers(o.cfg.Esignet)
-	// Preferred actions: the auth-factor (ACR) choice AND the login-ID-type
-	// choice (uin/vid/phone), since eSignet asks for both in the OTP flow.
+	// Preferred actions: the auth-factor (ACR) choice AND the login-ID-type choice, since eSignet asks for both in the OTP flow.
 	preferred := append(esignet.AuthFactorTokens(o.cfg.Esignet.AuthFactor), esignet.IDTypeTokens(o.cfg.Esignet.Identity.IDType)...)
 	// esignet.tls_verify, not conformance.tls_verify: this driver talks to the real deployment.
 	driver := esignet.New(answers, preferred, o.cfg.Esignet.TLSVerify, time.Duration(o.cfg.Run.TimeoutSeconds)*time.Second)
-	// Also passed separately: the id-type is matched against an action's nextNode,
-	// which is the only thing distinguishing the login-id tabs (they all submit
-	// under the same ref), and `preferred` above cannot be used for that.
+	// Also passed separately: the id-type is matched against an action's nextNode, the only thing distinguishing login-id tabs that submit under the same ref.
 	driver.UseIDType(esignet.IDTypeTokens(o.cfg.Esignet.Identity.IDType))
 
 	// Dynamic OTP: connect the mock-SMTP listener once and share it across all modules.
@@ -186,8 +170,7 @@ func (o *Orchestrator) runPlan(ctx context.Context, p config.Plan, driver *esign
 	}
 	o.logf("selected %d module(s) for profile=%q filter=%q", len(selected), sel.Profile, sel.Filter)
 
-	// known_issues and skip modules are separated out before execution: they are
-	// not run, they just get a report row in the Known / Skipped bucket.
+	// known_issues and skip modules are separated out before execution: not run, just a report row in the Known / Skipped bucket.
 	known := knownMap(sel.KnownIssues)
 	skip := nameSet(sel.Skip)
 
@@ -229,8 +212,7 @@ func planErrorResult(planName, provider string, err error) result.ModuleResult {
 	}
 }
 
-// gatedResult builds a not-run report row for a module excluded by config
-// (known_issues -> Known bucket, skip -> Skipped bucket).
+// gatedResult builds a not-run report row for a module excluded by config (known_issues -> Known bucket, skip -> Skipped bucket).
 func gatedResult(plan, provider string, m Module, outcome, detail string) result.ModuleResult {
 	return result.ModuleResult{
 		Surface:        result.SurfaceConformance,
@@ -303,14 +285,11 @@ func (o *Orchestrator) runModule(ctx context.Context, plan *PlanResponse, m Modu
 
 	deadline := time.Now().Add(time.Duration(o.cfg.Run.TimeoutSeconds) * time.Second)
 	poll := time.Duration(o.cfg.Run.PollIntervalSeconds) * time.Second
-	// A zero interval would turn the wait below into a hot loop that hammers the
-	// suite for the whole timeout window (wsotp.WaitOTP applies the same floor).
+	// A zero interval would turn the wait below into a hot loop hammering the suite for the whole timeout window (wsotp.WaitOTP applies the same floor).
 	if poll <= 0 {
 		poll = time.Second
 	}
-	// Per-module driving. One Driver is shared across every module, so both
-	// switches are restored before returning — leaving DenyAll on would silently
-	// deny consent for every module that follows.
+	// One Driver is shared across every module, so both switches are restored before returning, or a stray DenyAll would deny consent for later modules.
 	behavior := behaviorFor(m.TestModule)
 	driver.SetConsentPolicy(behavior.consent)
 	driver.SetFollowRejection(behavior.followRejection)
@@ -367,8 +346,7 @@ func (o *Orchestrator) runModule(ctx context.Context, plan *PlanResponse, m Modu
 
 	// Final verdict: re-fetch in case the loop exited before reaching a terminal status.
 	if info, err := o.client.GetInfo(ctx, test.ID); err == nil {
-		// Only overwrite with a populated field: a transient/partial payload
-		// would otherwise blank an already-captured verdict into a report dash.
+		// Only overwrite with a populated field, or a transient/partial payload would blank an already-captured verdict into a report dash.
 		if info.Status != "" {
 			res.Status = info.Status
 		}
@@ -378,15 +356,13 @@ func (o *Orchestrator) runModule(ctx context.Context, plan *PlanResponse, m Modu
 	} else if res.HarnessError == "" {
 		res.HarnessError = fmt.Sprintf("final GetInfo: %v", err)
 	}
-	// Full condition log (best effort): rendered UI-style in the report, and
-	// distilled into the FAILURE/WARNING summary.
+	// Full condition log (best effort): rendered UI-style in the report, and distilled into the FAILURE/WARNING summary.
 	if raw, err := o.client.GetRawLog(ctx, test.ID); err == nil {
 		res.LogItems = buildLogItems(raw)
 		res.FailedConditions = failedFromItems(res.LogItems)
 	}
 
-	// The report shows only eSignet-thunder traffic; discard the suite plumbing
-	// calls (create_test, polls, info, log, deliver) captured on the client.
+	// The report shows only eSignet-thunder traffic; discard suite plumbing calls (create_test, polls, info, log, deliver) captured on the client.
 	o.client.TakeCalls()
 	res.Calls = result.CollapseCalls(res.Calls)
 	return res
@@ -401,8 +377,7 @@ func (o *Orchestrator) driveOne(ctx context.Context, driver *esignet.Driver, aut
 		return
 	}
 
-	// A load-only visit stops at the login page on purpose, so there is no
-	// assertion and no redirect to deliver — the suite drives the next visit.
+	// A load-only visit stops at the login page on purpose, so there is no assertion and no redirect to deliver — the suite drives the next visit.
 	if loadOnly {
 		flow := driver.RunToLogin(ctx, base, authorizeURL)
 		res.FlowTrace.AuthorizeStatus = flow.AuthorizeStatus
@@ -517,8 +492,7 @@ type smokeFile struct {
 	Modules      []string `json:"modules"`
 }
 
-// loadSmokeProfile reads the smoke module list for one plan. The file is keyed
-// by plan name, so a multi-plan run needs one per plan that uses profile=smoke.
+// loadSmokeProfile reads the smoke module list for one plan; the file is keyed by plan name, so a multi-plan run needs one per plan using profile=smoke.
 func loadSmokeProfile(planName string) ([]string, error) {
 	path := filepath.Join("data", "conformance", planName+".smoke.json")
 	data, err := os.ReadFile(path)
@@ -536,10 +510,7 @@ func loadSmokeProfile(planName string) ([]string, error) {
 }
 
 func unsupportedReason(module string, variant map[string]any) string {
-	// form_post is not a module name: the suite runs the ordinary modules and
-	// carries the mode in the plan variant, so a name-substring hint would never
-	// fire. The harness reads the code from the redirect query, which a form-post
-	// response body does not have.
+	// form_post is not a module name; it carries in the plan variant, and the harness reads the code from the redirect query, which a form-post body lacks.
 	if mode, ok := variant["response_mode"].(string); ok && strings.EqualFold(mode, "form_post") {
 		return "form_post"
 	}
@@ -552,12 +523,7 @@ func unsupportedReason(module string, variant map[string]any) string {
 	return ""
 }
 
-// pendingURLs returns the browser URLs still to be driven. visits counts how
-// many times this run has already driven each URL and budget caps that count —
-// with the default budget of 1 this is the original "drive each URL once"
-// behaviour. A budget above 1 lets a module be sent to the same authorize URL
-// again, which par-ensure-reused-request-uri needs: its first visit deliberately
-// does not authenticate, so the same request_uri must be drivable a second time.
+// pendingURLs returns the browser URLs still to be driven, capped per-URL by budget; a budget above the default of 1 lets a URL be redriven, which par-ensure-reused-request-uri needs since its first visit deliberately does not authenticate.
 func pendingURLs(b Browser, visits map[string]int, budget int) []string {
 	if budget < 1 {
 		budget = 1
@@ -575,16 +541,14 @@ func pendingURLs(b Browser, visits map[string]int, budget int) []string {
 	return out
 }
 
-// primaryLogKeys are the log-entry fields rendered as columns (or dropped as
-// internal noise); everything else becomes an expandable detail row.
+// primaryLogKeys are the log-entry fields rendered as columns (or dropped as internal noise); everything else becomes an expandable detail row.
 var primaryLogKeys = map[string]bool{
 	"time": true, "src": true, "msg": true, "result": true, "requirements": true,
 	"_id": true, "testId": true, "testOwner": true, "seq": true,
 	"blockId": true, "startBlock": true, // internal block markers
 }
 
-// detailOrder ranks the common HTTP detail fields so the report shows them in
-// the same order as the suite UI (status, headers, body) rather than alphabetically.
+// detailOrder ranks the common HTTP detail fields so the report shows them in suite-UI order (status, headers, body) rather than alphabetically.
 var detailOrder = map[string]int{
 	"http": 0, "request_method": 1, "request_url": 2, "request_headers": 3, "request_body": 4,
 	"response_status_code": 5, "response_status_text": 6, "response_headers": 7, "response_body": 8,
@@ -645,8 +609,7 @@ func prettyValue(v any) string {
 	}
 }
 
-// prettyJSONString parses a JSON string, redacts private JWK material, and
-// re-indents it. Returns ok=false when s is not a JSON object/array.
+// prettyJSONString parses a JSON string, redacts private JWK material, and re-indents it; returns ok=false when s is not a JSON object/array.
 func prettyJSONString(s string) (string, bool) {
 	s = strings.TrimSpace(s)
 	if s == "" || (s[0] != '{' && s[0] != '[') || !json.Valid([]byte(s)) {
@@ -681,8 +644,7 @@ func failedFromItems(items []result.LogItem) []result.Condition {
 	return out
 }
 
-// logKind derives the badge label: the condition result if present, else the
-// HTTP direction (REQUEST/RESPONSE), else INFO.
+// logKind derives the badge label: the condition result if present, else the HTTP direction (REQUEST/RESPONSE), else INFO.
 func logKind(e map[string]any) string {
 	if r := strings.ToUpper(asString(e["result"])); r != "" {
 		return r

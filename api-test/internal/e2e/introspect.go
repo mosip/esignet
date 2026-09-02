@@ -16,20 +16,7 @@ import (
 	"github.com/mosip/esignet/api-test/internal/result"
 )
 
-// RFC 7662 token introspection, as eSignet exposes it at /oauth2/introspect.
-//
-// The endpoint is client-authenticated with private_key_jwt exactly like token,
-// takes the token to inspect as a form parameter, and answers 200 with an
-// "active" member either way: a token it never issued is reported inactive
-// rather than as an error (RFC 7662 s2.2), and an inactive answer carries no
-// other metadata (s4, so introspection is not an oracle for guessed tokens).
-// Errors are reserved for a malformed request (400) and a failed client
-// authentication (401).
-//
-// A case therefore has two independent axes — which token is submitted, and how
-// the call authenticates — and the negatives are written by pointing one axis
-// away from the positive: a well-formed request whose assertion is signed with
-// an unregistered key must be refused before the token is ever looked at.
+// RFC 7662 token introspection at /oauth2/introspect: an unrecognised token answers 200 with active=false (s2.2), never an error, and an inactive answer carries no other metadata (s4).
 
 // Token selectors: what a case submits in the "token" parameter.
 const (
@@ -47,42 +34,30 @@ const (
 	introspectAuthWrongAudience = "wrong_audience"
 )
 
-// wrongAudience is an issuer this deployment is not, for the assertion whose
-// audience is deliberately somebody else's.
+// wrongAudience is an issuer this deployment is not, for an assertion whose audience is deliberately somebody else's.
 const wrongAudience = "https://not-this-issuer.example.org"
 
 // IntrospectCase is one introspection request and what is expected back.
 type IntrospectCase struct {
-	// Name labels the case in the report, so a scenario running several of them
-	// says which one failed rather than only that introspection failed.
+	// Name labels the case in the report, so a scenario running several says which one failed.
 	Name string `json:"name"`
 
-	// Token selects what is submitted: access_token (default), id_token,
-	// unissued (a token this deployment never minted), or none (the parameter
-	// is left out entirely).
+	// Token selects what is submitted: access_token (default), id_token, unissued (never minted), or none (omitted entirely).
 	Token string `json:"token"`
 
-	// Hint sets token_type_hint. Omitted when empty, which a case uses to prove
-	// the endpoint resolves the token without being told its type.
+	// Hint sets token_type_hint; omitted when empty, to prove the endpoint resolves the token without being told its type.
 	Hint string `json:"hint"`
 
-	// ClientAuth is how the call authenticates: private_key_jwt (default),
-	// no_assertion (client_id alone), wrong_key (an assertion signed with a key
-	// the client never registered), or wrong_audience (a correctly signed
-	// assertion made out to somebody else).
+	// ClientAuth is how the call authenticates: private_key_jwt (default), no_assertion, wrong_key, or wrong_audience.
 	ClientAuth string `json:"client_auth"`
 
 	// ExpectStatus is the HTTP status the call must answer with. Defaults to 200.
 	ExpectStatus int `json:"expect_status"`
 
-	// ExpectActive asserts the "active" member. Left unset, nothing is asserted
-	// about it — which is what an error case wants, since a 400/401 body has none.
+	// ExpectActive asserts the "active" member; left unset, nothing is asserted, which is what an error case wants.
 	ExpectActive *bool `json:"expect_active"`
 
-	// ExpectPresent, ExpectValues and ExpectAbsent are checked against the
-	// response members. Names may be dotted paths ("cnf.jkt"), and an expected
-	// value may be one of the {{client_id}}, {{issuer}}, {{sub}} or
-	// {{dpop_jkt}} placeholders, which a spec file cannot know ahead of the run.
+	// ExpectPresent, ExpectValues and ExpectAbsent check response members; names may be dotted paths, values may use {{client_id}}/{{issuer}}/{{sub}}/{{dpop_jkt}} placeholders.
 	ExpectPresent []string          `json:"expect_present"`
 	ExpectValues  map[string]string `json:"expect_values"`
 	ExpectAbsent  []string          `json:"expect_absent"`
@@ -127,8 +102,7 @@ func (c IntrospectCase) resolve() (IntrospectCase, error) {
 	return out, nil
 }
 
-// resolveIntrospect validates every case up front, so a mistyped selector fails
-// the scenario before a login flow is driven for it.
+// resolveIntrospect validates every case up front, so a mistyped selector fails the scenario before a login flow is driven for it.
 func resolveIntrospect(cases []IntrospectCase) ([]IntrospectCase, error) {
 	out := make([]IntrospectCase, 0, len(cases))
 	for i, c := range cases {
@@ -141,8 +115,7 @@ func resolveIntrospect(cases []IntrospectCase) ([]IntrospectCase, error) {
 	return out, nil
 }
 
-// tokenSet is what a completed flow obtained, and the values an introspection
-// response is cross-checked against.
+// tokenSet is what a completed flow obtained, and the values an introspection response is cross-checked against.
 type tokenSet struct {
 	accessToken string
 	idToken     string
@@ -150,10 +123,7 @@ type tokenSet struct {
 	dpopJKT     string // thumbprint the access token is bound to; "" when unbound
 }
 
-// introspect runs every case against the introspection endpoint and returns the
-// assertions they produced. It never returns an error: a transport failure or a
-// missing endpoint is itself a failed assertion, so the row still reports that
-// the login succeeded and names introspection as the part that did not.
+// introspect runs every case and returns the assertions they produced; it never returns an error, since a transport failure is itself a failed assertion.
 func (r *Runner) introspect(ctx context.Context, calls *[]result.HTTPCall, cl *testClient, cases []IntrospectCase, tk tokenSet) []result.Assertion {
 	if r.IntrospectEndpoint == "" {
 		return []result.Assertion{{
@@ -232,9 +202,7 @@ func (r *Runner) introspectOne(ctx context.Context, calls *[]result.HTTPCall, cl
 		})
 	}
 
-	// An active token must not already be expired: introspection reporting
-	// active=true alongside a past exp would let a resource server accept a
-	// token the authorization server itself considers dead.
+	// An active token must not already be expired, or a resource server could accept a token the authorization server itself considers dead.
 	if c.ExpectActive != nil && *c.ExpectActive {
 		if exp, ok := lookupMember(body, "exp"); ok {
 			if secs, isNum := exp.(float64); isNum {
@@ -269,8 +237,7 @@ func (r *Runner) introspectForm(cl *testClient, c IntrospectCase, tk tokenSet) (
 		form.Set("token_type_hint", c.Hint)
 	}
 
-	// aud is the issuer, matching what the token call sends and what eSignet
-	// validates a client assertion against.
+	// aud is the issuer, matching what the token call sends and what eSignet validates a client assertion against.
 	aud := r.Issuer
 	if aud == "" {
 		aud = r.IntrospectEndpoint
@@ -289,8 +256,7 @@ func (r *Runner) introspectForm(cl *testClient, c IntrospectCase, tk tokenSet) (
 		}
 		setClientAuth(form, cl.clientID, assertion)
 	case introspectAuthWrongKey:
-		// A key the client never registered: correctly formed, correctly
-		// audienced, and unverifiable against the registered JWK.
+		// A key the client never registered: correctly formed and audienced, but unverifiable against the registered JWK.
 		other, err := generateRSA()
 		if err != nil {
 			return nil, err
@@ -311,17 +277,14 @@ func setClientAuth(form url.Values, clientID, assertion string) {
 	form.Set("client_assertion", assertion)
 }
 
-// unissuedToken is a random opaque value this deployment cannot have minted.
-// Opaque rather than a forged JWT on purpose: RFC 7662 s2.2 requires
-// "active": false for any token the server does not recognise, whatever its shape.
+// unissuedToken is a random opaque value this deployment cannot have minted; opaque on purpose, since RFC 7662 s2.2 requires active:false whatever the shape.
 func unissuedToken() string {
 	raw := make([]byte, 32)
 	_, _ = rand.Read(raw)
 	return "unissued-" + b64(raw)
 }
 
-// introspectPlaceholders are the run-time values a spec file cannot know, so a
-// case can assert "client_id is this flow's client" without naming a generated id.
+// introspectPlaceholders are the run-time values a spec file cannot know ahead of the run.
 func introspectPlaceholders(r *Runner, cl *testClient, tk tokenSet) map[string]string {
 	return map[string]string{
 		"{{client_id}}": cl.clientID,
@@ -354,8 +317,7 @@ func lookupMember(m map[string]any, path string) (any, bool) {
 	return cur, true
 }
 
-// memberString renders a member for the report, or "(absent)" when the path
-// resolves to nothing.
+// memberString renders a member for the report, or "(absent)" when the path resolves to nothing.
 func memberString(m map[string]any, path string) string {
 	v, ok := lookupMember(m, path)
 	if !ok {
@@ -364,9 +326,7 @@ func memberString(m map[string]any, path string) string {
 	return introspectValue(v)
 }
 
-// matchesMember compares a response member against an expected string. An array
-// matches when any element does, because RFC 7662 lets aud be either a single
-// string or a list and a case should not have to know which one it gets.
+// matchesMember compares a response member against an expected string; an array matches when any element does, since RFC 7662 lets aud be a string or a list.
 func matchesMember(v any, expected string) bool {
 	if arr, ok := v.([]any); ok {
 		for _, e := range arr {
@@ -379,8 +339,7 @@ func matchesMember(v any, expected string) bool {
 	return introspectValue(v) == expected
 }
 
-// introspectValue renders a JSON member for the report. Numbers are printed as
-// integers when they are whole, so an exp reads 1735689600 rather than 1.7356896e+09.
+// introspectValue renders a JSON member for the report; whole numbers print as integers, so an exp reads 1735689600 rather than 1.7356896e+09.
 func introspectValue(v any) string {
 	switch t := v.(type) {
 	case nil:
@@ -403,8 +362,7 @@ func introspectValue(v any) string {
 	}
 }
 
-// sortedKeys orders a map's keys, so the assertion trace comes out in the same
-// sequence on every run rather than in Go's randomized map order.
+// sortedKeys orders a map's keys, so the assertion trace comes out in the same sequence every run rather than Go's randomized map order.
 func sortedKeys(m map[string]string) []string {
 	keys := make([]string, 0, len(m))
 	for k := range m {
