@@ -339,7 +339,7 @@ func applyDefaults(cfg *AppConfig) {
 	cfg.JWT.ValidityPeriod = int64(envIntOrConfigOrDefault("MOSIP_ESIGNET_JWT_VALIDITY_PERIOD", int(cfg.JWT.ValidityPeriod), 120))
 	cfg.JWT.Leeway = int64(envIntOrConfigOrDefault("MOSIP_ESIGNET_JWT_LEEWAY", int(cfg.JWT.Leeway), 10))
 
-	cfg.Observability.Enabled = true
+	cfg.Observability.Enabled = envBoolOrConfig("MOSIP_ESIGNET_OBSERVABILITY_ENABLED", cfg.Observability.Enabled)
 
 	// GateClient env overrides (MOSIP_ESIGNET_OIDC_UI_*) are applied afterwards
 	// by ApplyEnvOverrides, so only the yaml-value/compiled-default fallback is

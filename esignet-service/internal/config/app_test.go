@@ -63,6 +63,7 @@ func (ts *AppConfigTestSuite) SetupTest() {
 		"MOSIP_ESIGNET_JWT_VALIDITY_PERIOD",
 		"MOSIP_ESIGNET_JWT_LEEWAY",
 		"MOSIP_ESIGNET_DPOP_LEEWAY",
+		"MOSIP_ESIGNET_OBSERVABILITY_ENABLED",
 	} {
 		t.Setenv(key, "")
 	}
@@ -536,6 +537,54 @@ func (ts *AppConfigTestSuite) TestApplyDefaultsAllowedOriginRegex() {
 		cfg := &AppConfig{AllowedOriginRegex: `^https://yaml\.example\.com$`}
 		applyDefaults(cfg)
 		require.Equal(t, `^https://env\.example\.com$`, cfg.AllowedOriginRegex)
+	})
+}
+
+// TestApplyDefaultsObservabilityEnabled covers the observability toggle, which
+// applyDefaults previously hard-set to true and so silently discarded whatever
+// deployment.yaml asked for. Note that the embedded engine does not currently
+// read this field (and no OTel SDK/OTLP exporter is linked into the binary), so
+// these cases pin the config resolution rather than any tracing behavior — see
+// performance-test/README.md.
+func (ts *AppConfigTestSuite) TestApplyDefaultsObservabilityEnabled() {
+	t := ts.T()
+
+	t.Run("yaml false is respected", func(t *testing.T) {
+		cfg := &AppConfig{}
+		cfg.Observability.Enabled = false
+		applyDefaults(cfg)
+		require.False(t, cfg.Observability.Enabled)
+	})
+
+	t.Run("yaml true is respected", func(t *testing.T) {
+		cfg := &AppConfig{}
+		cfg.Observability.Enabled = true
+		applyDefaults(cfg)
+		require.True(t, cfg.Observability.Enabled)
+	})
+
+	t.Run("env var disables when yaml enables", func(t *testing.T) {
+		t.Setenv("MOSIP_ESIGNET_OBSERVABILITY_ENABLED", "false")
+		cfg := &AppConfig{}
+		cfg.Observability.Enabled = true
+		applyDefaults(cfg)
+		require.False(t, cfg.Observability.Enabled)
+	})
+
+	t.Run("env var enables when yaml disables", func(t *testing.T) {
+		t.Setenv("MOSIP_ESIGNET_OBSERVABILITY_ENABLED", "true")
+		cfg := &AppConfig{}
+		cfg.Observability.Enabled = false
+		applyDefaults(cfg)
+		require.True(t, cfg.Observability.Enabled)
+	})
+
+	t.Run("unrecognized env value keeps the yaml value", func(t *testing.T) {
+		t.Setenv("MOSIP_ESIGNET_OBSERVABILITY_ENABLED", "garbage")
+		cfg := &AppConfig{}
+		cfg.Observability.Enabled = true
+		applyDefaults(cfg)
+		require.True(t, cfg.Observability.Enabled)
 	})
 }
 
