@@ -281,9 +281,20 @@ different question:
 
 They are separate scenarios rather than one switch because they fail differently — the first is a
 check on a request, the last two are checks on credentials already issued — and a deployment could
-plausibly have one without the others. Pair each with `expect_error_contains` (`"login flow
-failed"`, `"par failed"`, `"token exchange failed"`, `"userinfo request failed"`) so a case meant to
-prove one endpoint enforces the status cannot pass by being rejected at an earlier one.
+plausibly have one without the others. Pair each with `expect_error_contains` naming the specific
+call that must be the one to refuse: `"par failed"`, `"token exchange failed"` and `"userinfo
+request failed"` can only be raised by that call itself, so their presence already proves rejection
+happened at that door and nowhere earlier.
+
+`before_authorize` has no such call of its own — the whole `authorize → flow/execute → callback`
+journey is one opaque `driver.Run`, and *any* failure inside it — a bad OTP, an unavailable
+authentication factor, a transport error — surfaces as the same generic `"login flow failed: ..."`.
+Asserting on that prefix alone proves nothing: a client wrongly let past authorize can still fail
+the login for an unrelated reason and the scenario passes anyway, crediting enforcement that never
+happened. Assert on `"login flow failed: authorize returned eSignet's error page"` instead — the
+driver only produces that text when eSignet bounced the authorize hop to its own `/error` route
+before login was ever reached (see `AuthorizeErrorCode` in `internal/esignet/driver.go`), so its
+presence is what actually proves the rejection happened here and not somewhere downstream.
 
 `reactivate` is the **positive control**: the same status writes run, the client ends up `ACTIVE`
 again, and the flow must complete. A negative is only meaningful next to it — without the control,

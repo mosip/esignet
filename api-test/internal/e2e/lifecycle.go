@@ -169,6 +169,9 @@ func (r *Runner) readClientStatus(ctx context.Context, calls *[]result.HTTPCall,
 	if code := firstErrorCode(rb); code != "" {
 		return "", fmt.Errorf("read client status rejected (HTTP %d): %s", status, code)
 	}
+	if status < 200 || status > 299 {
+		return "", fmt.Errorf("read client status failed (HTTP %d): %s", status, snippet(rb))
+	}
 	var resp struct {
 		Response struct {
 			Status string `json:"status"`

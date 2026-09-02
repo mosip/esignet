@@ -448,3 +448,28 @@ func TestRSAPubFromJWKRejectsDegenerateKeys(t *testing.T) {
 		})
 	}
 }
+
+// requireHTTPS is the last line of defense against sending AdminToken in
+// cleartext (an http:// base, a typo, or a same-host scheme-downgrade
+// redirect the shared client's default redirect policy would otherwise
+// follow silently). It must accept exactly absolute https URLs.
+func TestRequireHTTPSAcceptsAbsoluteHTTPS(t *testing.T) {
+	if err := requireHTTPS("esignet base URL", "https://esignet.example.org/v1/esignet"); err != nil {
+		t.Fatalf("requireHTTPS rejected a valid https URL: %v", err)
+	}
+}
+
+func TestRequireHTTPSRejectsNonHTTPS(t *testing.T) {
+	for _, tc := range []struct{ name, raw string }{
+		{"http scheme", "http://esignet.example.org/v1/esignet"},
+		{"empty", ""},
+		{"scheme only, no host", "https://"},
+		{"no scheme", "esignet.example.org/v1/esignet"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if err := requireHTTPS("esignet base URL", tc.raw); err == nil {
+				t.Fatalf("requireHTTPS accepted %q", tc.raw)
+			}
+		})
+	}
+}

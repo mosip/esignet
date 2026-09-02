@@ -3,7 +3,7 @@
     "_postman_id": "b7e1c4a2-9f3d-4c58-a1e6-mosipid00002",
     "name": "eSignet mosipid - PMS client + e2e login",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "description": "Drives by hand the same path the api-test e2e surface drives: get an admin token, register an OIDC client through PMS, then run authorize -> flow/execute -> OTP -> consent against eSignet.\n\nRun the requests in order. Each stores what the next needs (admin_token, client_id, execution_id, challenge_token), so after the first pass you can re-run folder 2 alone to repeat a login.\n\nREAD FIRST - a client you have just created will NOT work. IDA does not recognise a new OIDC client for somewhere between 20 minutes and 3 hours; until then every login dies at 'Send OTP' with IDA-MLC-007. Register a client once, leave it alone, and reuse its clientId from then on. The environment ships with an already-aged client so folder 2 works immediately.\n\nThe OTP is not automatable here: read it from the deployment's mock SMTP (https://smtp.<env>.mosip.net) and put it in the `otp` variable before running 2.5."
+    "description": "Drives by hand the same path the api-test e2e surface drives: get an admin token, register an OIDC client through PMS, then run authorize -> flow/execute -> OTP -> consent against eSignet.\n\nRun the requests in order. Each stores what the next needs (admin_token, client_id, execution_id, challenge_token), so after the first pass you can re-run folder 2 alone to repeat a login.\n\nREAD FIRST - if EVERY login dies at 'Send OTP' with IDA-MLC-007, suspect the PMS->IDA websub delivery, not client age. PMS registers a client and returns ACTIVE, but IDA only learns about it via a websub event; if that delivery is down the event is LOST rather than queued, so the client is permanently unusable for auth while still looking healthy in PMS. Diagnose by registering a fresh throwaway client and driving 'Send OTP': a NEW client that works while an OLDER one still fails is the signature of a past outage on OLDER clients, not a timer - waiting does not help them. Register a fresh client once websub is healthy, and reuse its clientId from then on. The environment ships with a known-good client so folder 2 works immediately, but check it still sends OTP before relying on it.\n\nThe OTP is not automatable here: read it from the deployment's mock SMTP (https://smtp.<env>.mosip.net) and put it in the `otp` variable before running 2.5."
   },
   "item": [
     {
@@ -19,7 +19,7 @@
                 "exec": [
                   "const b = pm.response.json();",
                   "pm.test('token issued', () => pm.expect(b.access_token).to.be.a('string'));",
-                  "pm.collectionVariables.set('admin_token', b.access_token);",
+                  "await pm.vault.set('admin_token', b.access_token);",
                   "",
                   "// AUTH_PARTNER gates PMS /oidc-clients. Without it that call returns KER-ATH-403.",
                   "try {",
@@ -86,7 +86,7 @@
             "method": "POST",
             "header": [
               { "key": "Content-Type", "value": "application/json" },
-              { "key": "Cookie", "value": "Authorization={{admin_token}}" }
+              { "key": "Cookie", "value": "Authorization={{vault:admin_token}}" }
             ],
             "body": {
               "mode": "raw",
@@ -105,7 +105,7 @@
           "name": "Get client (PMS)",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Cookie", "value": "Authorization={{admin_token}}" }],
+            "header": [{ "key": "Cookie", "value": "Authorization={{vault:admin_token}}" }],
             "url": {
               "raw": "{{pms_base}}/oauth/client/{{client_id}}",
               "host": ["{{pms_base}}"],
@@ -333,14 +333,14 @@
                   "// Build an approve-everything decision from the prompt stored by 2.5.",
                   "const raw = pm.collectionVariables.get('consent_prompt');",
                   "if (!raw) {",
-                  "  pm.collectionVariables.set('consent_decisions', '');",
+                  "  pm.collectionVariables.set('consent_decisions', JSON.stringify(''));",
                   "} else {",
                   "  const purposes = JSON.parse(raw).map(p => ({",
                   "    approved: true,",
                   "    purposeName: p.purposeName,",
                   "    elements: [].concat(p.essential || [], p.optional || []).map(e => ({ name: e.name, approved: true }))",
                   "  }));",
-                  "  pm.collectionVariables.set('consent_decisions', JSON.stringify({ approved: true, purposes: purposes }));",
+                  "  pm.collectionVariables.set('consent_decisions', JSON.stringify(JSON.stringify({ approved: true, purposes: purposes })));",
                   "}"
                 ]
               }
@@ -369,14 +369,14 @@
             "body": {
               "mode": "raw",
               "options": { "raw": { "language": "json" } },
-              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"action\": \"action_allow\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"inputs\": {\n    \"username\": \"{{individual_id}}\",\n    \"captcha_token\": \"{{captcha_token}}\",\n    \"otp\": \"{{otp}}\",\n    \"consent_decisions\": \"{{consent_decisions}}\"\n  }\n}"
+              "raw": "{\n  \"executionId\": \"{{execution_id}}\",\n  \"action\": \"action_allow\",\n  \"challengeToken\": \"{{challenge_token}}\",\n  \"inputs\": {\n    \"username\": \"{{individual_id}}\",\n    \"captcha_token\": \"{{captcha_token}}\",\n    \"otp\": \"{{otp}}\",\n    \"consent_decisions\": {{consent_decisions}}\n  }\n}"
             },
             "url": {
               "raw": "{{esignet_base}}/flow/execute",
               "host": ["{{esignet_base}}"],
               "path": ["flow", "execute"]
             },
-            "description": "Only needed when 2.5 returned a consent prompt; a client whose consent is already stored goes straight to COMPLETE.\n\nThe pre-request script builds consent_decisions from the stored prompt, approving every essential and optional claim. consent_decisions is a JSON *string*, not a nested object - that is what the executor expects.\n\nTo test denial, edit the script to set approved:false on the elements you want withheld."
+            "description": "Only needed when 2.5 returned a consent prompt; a client whose consent is already stored goes straight to COMPLETE.\n\nThe pre-request script builds consent_decisions from the stored prompt, approving every essential and optional claim. consent_decisions is a JSON *string*, not a nested object - that is what the executor expects. The variable itself is stored double-JSON-encoded (JSON.stringify twice) so its raw substitution into the request body is already a valid quoted-and-escaped JSON string literal - the body template does not add its own quotes around {{consent_decisions}}.\n\nTo test denial, edit the script to set approved:false on the elements you want withheld."
           }
         }
       ]
@@ -413,7 +413,7 @@
           "name": "Partner details (PMS)",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Cookie", "value": "Authorization={{admin_token}}" }],
+            "header": [{ "key": "Cookie", "value": "Authorization={{vault:admin_token}}" }],
             "url": {
               "raw": "{{pms_base}}/partners/{{auth_partner_id}}",
               "host": ["{{pms_base}}"],
@@ -426,7 +426,7 @@
           "name": "Policy details",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Cookie", "value": "Authorization={{admin_token}}" }],
+            "header": [{ "key": "Cookie", "value": "Authorization={{vault:admin_token}}" }],
             "url": {
               "raw": "{{policy_base}}/policies/{{policy_id}}",
               "host": ["{{policy_base}}"],
@@ -439,7 +439,6 @@
     }
   ],
   "variable": [
-    { "key": "admin_token", "value": "" },
     { "key": "execution_id", "value": "" },
     { "key": "challenge_token", "value": "" },
     { "key": "consent_prompt", "value": "" },
