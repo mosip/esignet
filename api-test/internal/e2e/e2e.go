@@ -703,13 +703,13 @@ func (r *Runner) createClientViaPMS(ctx context.Context, calls *[]result.HTTPCal
 	}
 	if ac != nil {
 		if err := r.patchAdditionalConfig(ctx, calls, resp.Response.ClientID, ac); err != nil {
-			return "", fmt.Errorf("PMS created client %s but additionalConfig did not land: %w", resp.Response.ClientID, err)
+			return "", fmt.Errorf("PMS created client %s but the eSignet additionalConfig patch failed: %w", resp.Response.ClientID, err)
 		}
 	}
 	return resp.Response.ClientID, nil
 }
 
-// patchAdditionalConfig sets additionalConfig through eSignet's own client-mgmt PATCH, which the engine actually reads for enforcement, and reads it back rather than trusting the echo — PMS's own registration endpoint accepts the same field and silently discards it, so an echo alone proves nothing here.
+// patchAdditionalConfig sets additionalConfig through eSignet's own client-mgmt PATCH, which the engine actually reads for enforcement. No read-back is possible: ClientResponse.APIResponse() (esignet-service/internal/clientmgmt/model.go) strips every field but clientId and status from every client-mgmt response, additionalConfig included, on create/update/patch/get alike — confirmed live against esdev, not inferred. The protocol scenario this client is registered for is therefore the only real proof the patch took; a 2xx with no error code here is as far as this call itself can verify.
 func (r *Runner) patchAdditionalConfig(ctx context.Context, calls *[]result.HTTPCall, clientID string, ac map[string]any) error {
 	body, err := json.Marshal(map[string]any{
 		"requestTime": time.Now().UTC().Format("2006-01-02T15:04:05.000Z"),
@@ -729,37 +729,7 @@ func (r *Runner) patchAdditionalConfig(ctx context.Context, calls *[]result.HTTP
 	if status < 200 || status > 299 {
 		return fmt.Errorf("patch additionalConfig failed (HTTP %d): %s", status, snippet(rb))
 	}
-	got, err := r.readAdditionalConfig(ctx, calls, clientID)
-	if err != nil {
-		return err
-	}
-	for k, want := range ac {
-		if have, ok := got[k]; !ok || have != want {
-			return fmt.Errorf("additionalConfig[%q] = %v after patch, want %v (full record: %v)", k, have, want, got)
-		}
-	}
 	return nil
-}
-
-// readAdditionalConfig GETs the client and returns its stored additionalConfig.
-func (r *Runner) readAdditionalConfig(ctx context.Context, calls *[]result.HTTPCall, clientID string) (map[string]any, error) {
-	status, rb, err := r.do(ctx, calls, "read additionalConfig", http.MethodGet, r.Base+"/client-mgmt/client/"+clientID,
-		map[string]string{"Authorization": "Bearer " + r.AdminToken}, "")
-	if err != nil {
-		return nil, fmt.Errorf("read additionalConfig: %w", err)
-	}
-	if code := firstErrorCode(rb); code != "" {
-		return nil, fmt.Errorf("read additionalConfig rejected (HTTP %d): %s", status, code)
-	}
-	var resp struct {
-		Response struct {
-			AdditionalConfig map[string]any `json:"additionalConfig"`
-		} `json:"response"`
-	}
-	if err := json.Unmarshal(rb, &resp); err != nil {
-		return nil, fmt.Errorf("read additionalConfig: parse response (HTTP %d): %w", status, err)
-	}
-	return resp.Response.AdditionalConfig, nil
 }
 
 // scenarioConfigError reports why a scenario cannot be run at all, or "" when it is well formed; these are spec-file mistakes, caught before driving the flow.
