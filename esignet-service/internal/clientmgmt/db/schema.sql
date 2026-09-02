@@ -15,8 +15,8 @@ CREATE TABLE client_detail (
 	auth_methods        varchar(512)  NOT NULL,
 	status              varchar(20)   NOT NULL,
 	additional_config   varchar(2048),
-	cr_dtimes           timestamptz   NOT NULL,
-	upd_dtimes          timestamptz,
+	cr_dtimes           timestamp     NOT NULL,
+	upd_dtimes          timestamp,
 	CONSTRAINT pk_clntdtl_id          PRIMARY KEY (id),
 	CONSTRAINT uk_clntdtl_public_key_hash UNIQUE (public_key_hash)
 );
