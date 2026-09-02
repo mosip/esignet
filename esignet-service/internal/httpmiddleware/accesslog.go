@@ -11,21 +11,55 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"strings"
 	"time"
 
 	applog "github.com/mosip/esignet/internal/log"
 )
 
+type accessLogOptions struct {
+	skipPrefixes []string
+}
+
+// Option configures AccessLog behaviour.
+type Option func(*accessLogOptions)
+
+// WithSkipPrefixes instructs AccessLog to skip logging for any request whose
+// URL path starts with one of the given prefixes (e.g. "/health"). Trailing
+// slashes are stripped on storage so "/health/" and "/health" behave
+// identically; the root "/" is preserved and suppresses every path.
+func WithSkipPrefixes(prefixes ...string) Option {
+	return func(o *accessLogOptions) {
+		for _, p := range prefixes {
+			if p != "/" {
+				p = strings.TrimRight(p, "/")
+			}
+			o.skipPrefixes = append(o.skipPrefixes, p)
+		}
+	}
+}
+
 // AccessLog records one Logger.Access entry per request: status code, bytes
 // sent, duration, and request metadata, mirroring the Tomcat access log
 // format emitted by MOSIP's Java services. Must be nested inside
 // CorrelationID so the trace ID is already present in the request context.
-func AccessLog(next http.Handler) http.Handler {
+func AccessLog(next http.Handler, opts ...Option) http.Handler {
+	o := &accessLogOptions{}
+	for _, opt := range opts {
+		opt(o)
+	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		rec := &statusRecorder{ResponseWriter: w, statusCode: http.StatusOK}
 
 		next.ServeHTTP(rec, r)
+
+		for _, prefix := range o.skipPrefixes {
+			p := r.URL.Path
+			if prefix == "/" || p == prefix || strings.HasPrefix(p, prefix+"/") {
+				return
+			}
+		}
 
 		applog.GetLogger().Access(
 			r.Context(),

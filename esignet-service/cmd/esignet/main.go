@@ -178,7 +178,7 @@ func main() {
 	)
 
 	addr := fmt.Sprintf(":%d", appCfg.Port)
-	handler := httpmiddleware.CorrelationID(httpmiddleware.AccessLog(mux))
+	handler := httpmiddleware.CorrelationID(httpmiddleware.AccessLog(mux, httpmiddleware.WithSkipPrefixes("/health", "/metrics")))
 	srv := &http.Server{
 		Addr:              addr,
 		Handler:           handler,
