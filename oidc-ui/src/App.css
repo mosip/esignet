@@ -280,3 +280,52 @@ input[type="password"]::-ms-clear {
 .thunderid-signin.thunderid-card {
   overflow: visible !important;
 }
+
+.font-weight-700 {
+  font-weight: 700 !important;
+}
+
+/* consent block css */
+.consent-block {
+  line-height: 100% !important;
+  letter-spacing: 0% !important;
+
+  /* for claims title i.e Essential & Voluntary */
+  & .thunderid-typography.thunderid-typography__subtitle2 {
+    font-weight: 700 !important;
+    font-size: 15px !important;
+  }
+
+  /* info icon of claims */
+  & .thunderid-tooltip__container {
+    color: #b9b9b9 !important;
+  }
+
+  /* claims list */
+  & .thunderid-consent-checkbox-list__label-container {
+    & > .thunderid-consent-checkbox-list__bullet,
+    & > .thunderid-consent-checkbox-list__typography {
+      color: #01070dd5 !important;
+    }
+  }
+
+  /* for required of essential claims */
+  & .thunderid-consent-checkbox-list__row > p.thunderid-typography__body2 {
+    color: #707070 !important;
+  }
+}
+
+/* consent timer */
+.consent-timer {
+  margin: -16px -32px 0px !important;
+  background: #fff9f0 !important;
+  padding: 16px !important;
+  border-top-left-radius: var(--thunderid-border-radius-large) !important;
+  border-top-right-radius: var(--thunderid-border-radius-large) !important;
+
+  font-weight: 500 !important;
+  font-size: 14px !important;
+  line-height: 100% !important;
+  letter-spacing: 0% !important;
+  color: #4e4e4e !important;
+}
