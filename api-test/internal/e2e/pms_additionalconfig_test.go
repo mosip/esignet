@@ -114,9 +114,7 @@ func TestCreateClientViaPMS_UnhardenedClientSkipsThePatchEntirely(t *testing.T) 
 }
 
 func TestCreateClientViaPMS_FailsLoudlyWhenTheReadbackStillDisagrees(t *testing.T) {
-	// A PATCH that eSignet accepts but silently fails to persist (mirroring the
-	// exact failure mode this fix exists to catch) must fail registration, not
-	// succeed unhardened.
+	// A PATCH eSignet accepts but silently fails to persist must fail registration, not succeed unhardened.
 	mux := http.NewServeMux()
 	mux.HandleFunc("/oidc-clients", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
