@@ -269,6 +269,19 @@ func (r *Runner) httpClient() *http.Client {
 	return r.client
 }
 
+// requireHTTPS rejects a base URL that would send AdminToken in cleartext.
+// httpx.NewClient keeps the default redirect policy, which follows a same-host
+// scheme downgrade without stripping Authorization/Cookie, so an http:// base
+// (typo or a later-compromised target) or such a redirect can leak the token;
+// checking the scheme up front is cheaper than trying to catch it in transit.
+func requireHTTPS(label, raw string) error {
+	u, err := url.Parse(raw)
+	if err != nil || u.Scheme != "https" || u.Host == "" {
+		return fmt.Errorf("%s must be an absolute https URL, got %q", label, raw)
+	}
+	return nil
+}
+
 // do performs an HTTP call and records it (Authorization redacted) into calls.
 func (r *Runner) do(ctx context.Context, calls *[]result.HTTPCall, label, method, u string, headers map[string]string, body string) (int, []byte, error) {
 	status, rb, _, err := r.doWithHeaders(ctx, calls, label, method, u, headers, body)
@@ -339,6 +352,17 @@ func (r *Runner) Run(ctx context.Context, spec Spec) []result.ModuleResult {
 	}
 	var out []result.ModuleResult
 	r.acr = spec.Acr
+
+	if r.AdminToken != "" {
+		if err := requireHTTPS("esignet base URL", r.Base); err != nil {
+			return r.registrationFailureRows(spec, nil, err)
+		}
+		if r.PMSBaseURL != "" {
+			if err := requireHTTPS("PMS base URL", r.PMSBaseURL); err != nil {
+				return r.registrationFailureRows(spec, nil, err)
+			}
+		}
+	}
 
 	// 1. Register the clients the scenarios ask for. Scenarios sharing a client
 	// config share a client, registered on first use — so a spec that names no

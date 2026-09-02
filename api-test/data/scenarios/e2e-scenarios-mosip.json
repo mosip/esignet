@@ -317,7 +317,7 @@
       "scopes": ["openid"],
       "client_lifecycle": { "deactivate": "before_authorize" },
       "expect_login_failure": true,
-      "expect_error_contains": "login flow failed"
+      "expect_error_contains": "login flow failed: authorize returned eSignet's error page"
     },
     {
       "_comment": "The same question at the pushed-authorization endpoint, which unlike authorize authenticates the client with a signed assertion. A deployment that checks status only on the unauthenticated path would pass the case above and fail this one.",
