@@ -107,7 +107,6 @@ eSignet implements the following standards:
 - **[FAPI 2.0](https://openid.net/specs/fapi-security-profile-2_0.html)** (Financial-grade API Security Profile)
 - **[RFC 9126](https://www.rfc-editor.org/rfc/rfc9126)** — Pushed Authorization Requests (PAR)
 - **[RFC 9449](https://www.rfc-editor.org/rfc/rfc9449)** — DPoP (Demonstrating Proof of Possession)
-- **[RFC 7009](https://www.rfc-editor.org/rfc/rfc7009)** — Token Revocation
 - **Secure Biometric Interface (SBI)** for biometric device compatibility
 - **[JWE](https://www.rfc-editor.org/rfc/rfc7516) / [JWS](https://www.rfc-editor.org/rfc/rfc7515)** (RFC 7516, 7515) for encrypted and signed token responses
 
@@ -130,18 +129,6 @@ Yes. The Go implementation supports the [FAPI 2.0 Security Profile](https://open
 3. **`private_key_jwt`** client authentication — the client proves identity with a signed JWT rather than a shared secret.
 
 Refer to the [Postman collection](https://github.com/mosip/esignet/tree/main/postman-collection) (folder "FAPI 2.0") in the repository for a working example.
-
----
-
-**What is a Pushed Authorization Request (PAR)?**
-
-PAR ([RFC 9126](https://www.rfc-editor.org/rfc/rfc9126)) is a mechanism that improves the security of the authorization code flow. Instead of passing authorization parameters as query strings in the browser redirect (which are visible in browser history and server logs), the client first POSTs them directly to the `/oauth2/par` endpoint. The server returns a short-lived `request_uri` that the client then uses in the standard `/oauth2/authorize` redirect. This prevents parameter tampering and is required for FAPI 2.0 compliance.
-
----
-
-**What is DPoP?**
-
-DPoP (Demonstrating Proof of Possession, [RFC 9449](https://www.rfc-editor.org/rfc/rfc9449)) is a mechanism that binds an access token to a specific client key pair. The client attaches a signed DPoP proof header to each request. The server verifies that the proof was signed by the same key that was used when the token was issued, making stolen tokens unusable by a third party. DPoP support is built into the [ThunderID](https://github.com/thunder-id/thunderid) engine embedded in eSignet.
 
 ---
 
@@ -191,8 +178,6 @@ The [ThunderID](https://github.com/thunder-id/thunderid) engine is embedded as a
 | Configuration | `application.properties` / Spring Config | `data/deployment.yaml` + environment variables |
 | Authentication flow | Hard-coded Java controllers | Declarative YAML flow graphs |
 | Database access | Spring Data JPA / Hibernate | Raw SQL via `pgx/v5` + `sqlc` |
-| FAPI 2.0 / PAR / DPoP | Partial / experimental | Built into ThunderID engine |
-| CAPTCHA providers | Single provider | Google reCAPTCHA, Cloudflare Turnstile, hCaptcha |
 | Metrics | Spring Actuator / Micrometer | [Prometheus](https://prometheus.io/) endpoint |
 | Session store | Spring Session / Redis | Redis via `go-redis/v9` or in-memory |
 
@@ -250,7 +235,7 @@ eSignet has been integrated or is in active integration across several domains:
 
 **Which version of eSignet should I use?**
 
-The current Go-based implementation is pinned against [ThunderID](https://github.com/thunder-id/thunderid) `v0.0.0-20260822180739-64f1aa911649`. Please refer to the `go.mod` file and the [GitHub releases page](https://github.com/mosip/esignet/releases) for the latest versioned release.
+Always use the latest GA (Generally Available) release of eSignet for the best security, features, and performance. Refer to the [GitHub releases page](https://github.com/mosip/esignet/releases) for the latest versioned release. If you are an existing eSignet user, use the upgrade scripts provided in the repository to migrate to a newer version.
 
 ---
 
@@ -341,21 +326,6 @@ For production, update the same files in your i18n bundle artifact and redeploy 
 2. Remove its entry from `default.json`.
 
 Rebuild and redeploy the `oidc-ui` container for the change to take effect in production.
-
----
-
-**How to integrate wallets with eSignet?**
-
-Wallet configuration in the Go version is provided as environment variables consumed by the React `oidc-ui` at build time. Set the following in the `oidc-ui` `.env` file or as container environment variables:
-
-```dotenv
-VITE_WALLET_NAME=Inji
-VITE_WALLET_LOGO_URL=inji_logo.png
-VITE_WALLET_DOWNLOAD_URI=https://example.org/inji
-VITE_WALLET_DEEP_LINK_URI=inji://landing-page?linkCode=LINK_CODE&linkExpireDateTime=LINK_EXPIRE_DT
-```
-
-Multiple wallets can be configured by adding additional numbered environment variable sets. Rebuild the `oidc-ui` container after making changes. For wallet integration using the Inji wallet, refer to the [Inji documentation](https://docs.inji.io) for the deep-link URI format.
 
 ---
 
