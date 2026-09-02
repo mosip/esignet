@@ -364,10 +364,25 @@ extraEnvVarsCM:
 ##
 extraEnvVarsSecret: []
 ## Extra volumes to add to the deployment
+## Use this together with extraVolumeMounts below when you need to mount a file-based
+## secret into the container — e.g. a PKCS12 keystore file for
+## KEYMANAGER_KEYSTORE_TYPE: PKCS12 (see the commented PKCS12 block above).
+## Example:
+## extraVolumes:
+##   - name: esignet-keystore
+##     secret:
+##       secretName: esignet-keystore
+##       items:
+##         - key: esignet.pfx
+##           path: esignet.pfx
 ##
 extraVolumes: []
 
 ## Extra volume mounts to add to the container
+## Example:
+## extraVolumeMounts:
+##   - name: esignet-keystore
+##     mountPath: /home/mosip/keys/secret
 ##
 extraVolumeMounts: []
 
