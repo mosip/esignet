@@ -11,12 +11,11 @@ import (
 	"github.com/mosip/esignet/api-test/internal/result"
 )
 
-// pmsStub serves just enough of PMS's /oidc-clients and eSignet's /client-mgmt/client/{id} to prove additionalConfig is patched onto eSignet directly, since PMS drops it silently on registration.
+// pmsStub serves just enough of PMS's /oidc-clients and eSignet's /client-mgmt/client/{id} to prove additionalConfig is patched onto eSignet directly, since PMS drops it silently on registration. eSignet's client-mgmt responses never echo additionalConfig back (see patchAdditionalConfig), so unlike lifecycle_test.go's clientMgmtStub this one has no read-back to serve.
 type pmsStub struct {
 	dropOnRegister bool // mirrors PMS's real behaviour: additionalConfig sent to /oidc-clients never lands
 	stored         map[string]any
 	patches        int
-	reads          int
 }
 
 func newPMSStub(t *testing.T, dropOnRegister bool) (*pmsStub, *Runner, func()) {
@@ -39,25 +38,21 @@ func newPMSStub(t *testing.T, dropOnRegister bool) (*pmsStub, *Runner, func()) {
 	})
 	mux.HandleFunc("/client-mgmt/client/pms-cid-1", func(w http.ResponseWriter, req *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		switch req.Method {
-		case http.MethodPatch:
-			st.patches++
-			var wrapper struct {
-				Request struct {
-					AdditionalConfig map[string]any `json:"additionalConfig"`
-				} `json:"request"`
-			}
-			body, _ := io.ReadAll(req.Body)
-			_ = json.Unmarshal(body, &wrapper)
-			st.stored = wrapper.Request.AdditionalConfig
-			_, _ = io.WriteString(w, `{"response":{"clientId":"pms-cid-1"}}`)
-		case http.MethodGet:
-			st.reads++
-			b, _ := json.Marshal(map[string]any{"response": map[string]any{"clientId": "pms-cid-1", "additionalConfig": st.stored}})
-			_, _ = w.Write(b)
-		default:
+		if req.Method != http.MethodPatch {
 			w.WriteHeader(http.StatusMethodNotAllowed)
+			return
 		}
+		st.patches++
+		var wrapper struct {
+			Request struct {
+				AdditionalConfig map[string]any `json:"additionalConfig"`
+			} `json:"request"`
+		}
+		body, _ := io.ReadAll(req.Body)
+		_ = json.Unmarshal(body, &wrapper)
+		st.stored = wrapper.Request.AdditionalConfig
+		// Real eSignet echoes only clientId+status here, additionalConfig included, so the stub matches that shape rather than the more helpful one it could serve.
+		_, _ = io.WriteString(w, `{"response":{"clientId":"pms-cid-1","status":"ACTIVE"}}`)
 	})
 	srv := httptest.NewServer(mux)
 	r := &Runner{Base: srv.URL, PMSBaseURL: srv.URL, AuthPartnerID: "p1", PolicyID: "pol1", AdminToken: "t"}
@@ -88,11 +83,8 @@ func TestCreateClientViaPMS_PatchesAdditionalConfigAfterPMSDropsIt(t *testing.T)
 	if st.patches != 1 {
 		t.Fatalf("patches = %d, want 1 — additionalConfig must be patched onto eSignet directly since PMS dropped it", st.patches)
 	}
-	if st.reads != 1 {
-		t.Fatalf("reads = %d, want 1 — the patch must be read back, not trusted from its echo", st.reads)
-	}
 	if got := st.stored["require_pkce"]; got != true {
-		t.Errorf("stored require_pkce = %v, want true", got)
+		t.Errorf("patched require_pkce = %v, want true", got)
 	}
 }
 
@@ -110,34 +102,6 @@ func TestCreateClientViaPMS_UnhardenedClientSkipsThePatchEntirely(t *testing.T) 
 	}
 	if st.patches != 0 {
 		t.Errorf("patches = %d, want 0 — nothing to harden means no patch call at all", st.patches)
-	}
-}
-
-func TestCreateClientViaPMS_FailsLoudlyWhenTheReadbackStillDisagrees(t *testing.T) {
-	// A PATCH eSignet accepts but silently fails to persist must fail registration, not succeed unhardened.
-	mux := http.NewServeMux()
-	mux.HandleFunc("/oidc-clients", func(w http.ResponseWriter, _ *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		_, _ = io.WriteString(w, `{"response":{"clientId":"pms-cid-2"}}`)
-	})
-	mux.HandleFunc("/client-mgmt/client/pms-cid-2", func(w http.ResponseWriter, req *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		switch req.Method {
-		case http.MethodPatch:
-			_, _ = io.WriteString(w, `{"response":{"clientId":"pms-cid-2"}}`)
-		case http.MethodGet:
-			// Always reports unhardened, as if the patch never took.
-			_, _ = io.WriteString(w, `{"response":{"clientId":"pms-cid-2","additionalConfig":{"require_pkce":false,"require_pushed_authorization_requests":false,"dpop_bound_access_tokens":false}}}`)
-		}
-	})
-	srv := httptest.NewServer(mux)
-	defer srv.Close()
-	r := &Runner{Base: srv.URL, PMSBaseURL: srv.URL, AuthPartnerID: "p1", PolicyID: "pol1", AdminToken: "t"}
-
-	cl := newPKCEClient(t)
-	_, err := r.createClientViaPMS(context.Background(), &[]result.HTTPCall{}, cl, Spec{RedirectURI: "https://example.org/callback"})
-	if err == nil {
-		t.Fatal("createClientViaPMS: want an error when the readback disagrees with what was patched, got nil")
 	}
 }
 
