@@ -3,17 +3,22 @@ package pages;
 import java.time.Duration;
 import java.util.List;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import base.BasePage;
 import utils.EsignetConfigManager;
 
 public class SignUpPage extends BasePage {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(SignUpPage.class);
 
 	public SignUpPage(WebDriver driver) {
 		super(driver);
@@ -25,10 +30,10 @@ public class SignUpPage extends BasePage {
 	@FindBy(id = "register-button")
 	WebElement registerButton;
 
-	@FindBy(id = "phone_input")
+	@FindBy(id = "phone")
 	WebElement enterMobileNumberField;
 
-	@FindBy(id = "continue-button")
+	@FindBy(id = "form-submit-button")
 	WebElement continueButton;
 
 	@FindBy(xpath = "//div[@class='pincode-input-container']/input")
@@ -50,7 +55,12 @@ public class SignUpPage extends BasePage {
 	WebElement setupContinueButton;
 
 	@FindBy(xpath = "//div[@class='text-center text-lg font-semibold']")
-	WebElement accountCreatedSuccessfullyMessage;
+	WebElement resultScreenHeading;
+
+	@FindBy(xpath = "//p[@class='text-center text-gray-500']")
+	WebElement resultScreenSubtext;
+
+	private static final String SIGNUP_FAILED_HEADING = "Sign-Up Failed!";
 
 	public void clickOnSignUp() {
 		clickOnElement(signUp,"Clicked on signup button");
@@ -68,11 +78,16 @@ public class SignUpPage extends BasePage {
 		enterText(enterMobileNumberField, number,"Entered the mobile number");
 	}
 
+	public boolean isMobileNumberFieldDisplayed() {
+		return isElementVisible(enterMobileNumberField, "Verified registration mobile number field is visible");
+	}
+
 	public void clickOnContinueButton() {
 		clickOnElement(continueButton,"Clicked on continue button");
 	}
 
 	public void enterOtp(String otp) {
+		waitForElementVisible(By.xpath("//div[@class='pincode-input-container']/input"));
 		if (otp.length() > otpInputFields.size()) {
 			throw new IllegalArgumentException("OTP length exceeds available input fields");
 		}
@@ -106,8 +121,24 @@ public class SignUpPage extends BasePage {
 
 	public boolean isAccountCreatedSuccessfullyMessageDisplayed() {
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(50));
-		wait.until(ExpectedConditions.visibilityOf(accountCreatedSuccessfullyMessage));
-		return isElementVisible(accountCreatedSuccessfullyMessage,"Verified account created successfully message displayed");
+		wait.until(ExpectedConditions.visibilityOf(resultScreenHeading));
+
+		String headingText = resultScreenHeading.getText().trim();
+		String currentLang = System.getProperty("currentRunLanguage", "eng");
+		if (!"eng".equalsIgnoreCase(currentLang)) {
+
+			LOGGER.warn("SIGNUP_FAILED_HEADING has no verified localized text for '" + currentLang
+					+ "' - a signup failure on this run may be misreported as success.");
+		}
+		boolean failureHeadingMatched = "eng".equalsIgnoreCase(currentLang)
+				&& SIGNUP_FAILED_HEADING.equalsIgnoreCase(headingText);
+		if (failureHeadingMatched) {
+			String reason = isElementDisplayed(resultScreenSubtext) ? resultScreenSubtext.getText().trim()
+					: "no reason given by the signup service";
+			throw new AssertionError("Sign-up failed: " + reason);
+		}
+
+		return isElementVisible(resultScreenHeading, "Verified account created successfully message displayed");
 	}
 
 }

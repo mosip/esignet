@@ -1,0 +1,16 @@
+{
+    "policyNumber": "{{policyNumber}}",
+    "policyName": "{{policyName}}",
+    "policyExpiresOn": "{{policyExpiresOn}}",
+    "policyIssuedOn": "{{policyIssuedOn}}",
+    "fullName": "{{fullName}}",
+    "dob": "{{dob}}",
+	"benefits": [
+      {{#each benefits}}
+            "{{benefits}}"{{#unless @last}},{{/unless}}
+      	{{/each}}
+  	],
+    "gender": "{{gender}}",
+    "mobile": "{{mobile}}",
+    "email": "{{email}}"
+}

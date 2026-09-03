@@ -2,6 +2,7 @@ package pages;
 
 import java.time.Duration;
 
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -16,14 +17,11 @@ public class InvalidUrlPage extends BasePage {
 		super(driver);
 	}
 
-	@FindBy(xpath = "//div[@class='p-2 mt-1 mb-1 w-full text-center text-sm rounded-lg text-red-700 bg-red-100 undefined']")
+	@FindBy(xpath = "//div[@class='error-page-detail']")
 	WebElement unableToProcessErrorMsg;
 
 	@FindBy(id = "language_dropdown")
 	WebElement languageDropdownInErrorPage;
-
-	@FindBy(id = "signup-url-button")
-	WebElement signupUrlButton;
 
 	@FindBy(xpath = "//div[@class='error-page-header']")
 	WebElement pageDoesNotExistErrorMsg;
@@ -57,13 +55,80 @@ public class InvalidUrlPage extends BasePage {
 		return unableToProcessErrorMsg.getText().contains(text);
 	}
 
+	/**
+	 * True when the login UI is showing after a URL change that should not error (e.g. nonce/state
+	 * removed). Thunder uses {@code #language_selection} / {@code acr_*} / {@code #username_input};
+	 * classic eSignet used {@code nav button[aria-haspopup='listbox']}. Waiting only on the classic
+	 * locator times out on this UI with "Element details unavailable" even when login is on screen.
+	 */
 	public boolean isEsignetPageRetained() {
-		return isElementVisible(signupUrlButton, "Verified esignet page is retained");
+		try {
+			new WebDriverWait(driver, Duration.ofSeconds(20)).until(driverInstance -> {
+				try {
+					return isLoginUiVisibleNow(driverInstance) && !isAuthorizeErrorLanding(driverInstance);
+				} catch (Exception ignored) {
+					return false;
+				}
+			});
+			utils.ExtentReportManager.getTest().log(com.aventstack.extentreports.Status.INFO,
+					"Verified esignet page is retained - Verified visibility");
+			return true;
+		} catch (org.openqa.selenium.TimeoutException e) {
+			utils.ExtentReportManager.getTest().log(com.aventstack.extentreports.Status.INFO,
+					"Element not visible: login page after URL change (landed on " + driver.getCurrentUrl() + ")");
+			return false;
+		}
 	}
 
+	private boolean isLoginUiVisibleNow(WebDriver webDriver) {
+		return !webDriver.findElements(By.id("language_selection")).isEmpty()
+				|| !webDriver.findElements(By.cssSelector("[id^='acr_']")).isEmpty()
+				|| !webDriver.findElements(By.id("username_input")).isEmpty()
+				|| !webDriver.findElements(By.cssSelector("nav button[aria-haspopup='listbox']")).isEmpty();
+	}
+
+	private boolean isAuthorizeErrorLanding(WebDriver webDriver) {
+		String url = webDriver.getCurrentUrl();
+		if (url != null && url.contains("error=invalid_request")) {
+			return true;
+		}
+		return !webDriver.findElements(By.className("error-page-header")).isEmpty()
+				|| !webDriver.findElements(By.xpath("//*[contains(text(),'Something went wrong')]")).isEmpty();
+	}
+
+	/**
+	 * Classic eSignet SPA 404 uses {@code div.error-page-header}. Thunder/esignet-go returns a
+	 * plain HTTP 404 body ({@code 404 page not found}) for unknown OAuth paths such as
+	 * {@code /v1/esignet/oauth2/invalid}.
+	 */
 	public boolean isPageDoesNotExistErrorMsgDisplayed() {
-		return isElementVisible(pageDoesNotExistErrorMsg,
-				"Verified page looking for does not exist error is displayed");
+		try {
+			new WebDriverWait(driver, Duration.ofSeconds(15)).until(d -> isPageNotFoundVisibleNow(d));
+			utils.ExtentReportManager.getTest().log(com.aventstack.extentreports.Status.INFO,
+					"Verified page looking for does not exist error is displayed - Verified visibility");
+			return true;
+		} catch (org.openqa.selenium.TimeoutException e) {
+			utils.ExtentReportManager.getTest().log(com.aventstack.extentreports.Status.INFO,
+					"Page-not-found not visible (landed on " + driver.getCurrentUrl() + ")");
+			return isPageNotFoundVisibleNow(driver);
+		}
+	}
+
+	private boolean isPageNotFoundVisibleNow(WebDriver webDriver) {
+		if (!webDriver.findElements(By.className("error-page-header")).isEmpty()) {
+			return true;
+		}
+		if (!webDriver.findElements(By.xpath("//h1[@class='text-center text-2xl']")).isEmpty()) {
+			return true;
+		}
+		try {
+			String body = webDriver.findElement(By.tagName("body")).getText().toLowerCase();
+			String source = webDriver.getPageSource().toLowerCase();
+			return body.contains("page not found") || body.contains("does not exist")
+					|| source.contains("404 page not found");
+		} catch (Exception ignored) {
+			return false;
+		}
 	}
 
 	public boolean isPageNotExistErrorScreenDisplayed() {
@@ -86,8 +151,64 @@ public class InvalidUrlPage extends BasePage {
 		return isElementVisible(somethingWentWrongErrorMsg, "Verified something went wrong error screen is displayed");
 	}
 
+	public boolean isUnauthorizedErrorDisplayed() {
+		try {
+			new WebDriverWait(driver, Duration.ofSeconds(15))
+					.pollingEvery(Duration.ofMillis(500))
+					.until(driverInstance -> isUnauthorizedErrorVisibleNow());
+			return true;
+		} catch (org.openqa.selenium.TimeoutException e) {
+			return isUnauthorizedErrorVisibleNow();
+		}
+	}
+
+	private boolean isUnauthorizedErrorVisibleNow() {
+		if (isPageNotFoundVisibleNow(driver)) {
+			return true;
+		}
+		if (isSomethingWentWrongErrorDisplayed()) {
+			return true;
+		}
+		if (isUnableToProcessErrorDisplayed()) {
+			return true;
+		}
+		String pageText = driver.findElement(By.tagName("body")).getText().toLowerCase();
+		return pageText.contains("unauthorized") || pageText.contains("something went wrong")
+				|| pageText.contains("unable to process");
+	}
+
+	/**
+	 * Thunder has no separate attention interstitial: OTP success lands on the Allow/Deny consent
+	 * screen ({@code #action_allow} / {@code #block_consent}). Checking {@code #action_allow} once
+	 * and then waiting only on classic {@code #proceed-button} times out while consent is on screen.
+	 */
 	public boolean isAttentionScreenDisplayed() {
-		return isElementVisible(proceedButtonAttentionScreen, "Verified attention screen is displayed");
+		try {
+			new WebDriverWait(driver, Duration.ofSeconds(30)).until(this::isAttentionOrConsentVisibleNow);
+			utils.ExtentReportManager.getTest().log(com.aventstack.extentreports.Status.INFO,
+					"Verified attention screen is displayed - Verified visibility");
+			return true;
+		} catch (org.openqa.selenium.TimeoutException e) {
+			utils.ExtentReportManager.getTest().log(com.aventstack.extentreports.Status.INFO,
+					"Attention/consent screen not visible (landed on " + driver.getCurrentUrl() + ")");
+			return isAttentionOrConsentVisibleNow(driver);
+		}
+	}
+
+	private boolean isAttentionOrConsentVisibleNow(WebDriver webDriver) {
+		return isDisplayedNow(webDriver, By.id("action_allow"))
+				|| isDisplayedNow(webDriver, By.id("block_consent"))
+				|| isDisplayedNow(webDriver, By.id("text_consent_title"))
+				|| isDisplayedNow(webDriver, By.id("proceed-button"));
+	}
+
+	private boolean isDisplayedNow(WebDriver webDriver, By locator) {
+		try {
+			java.util.List<WebElement> found = webDriver.findElements(locator);
+			return !found.isEmpty() && found.get(0).isDisplayed();
+		} catch (Exception ignored) {
+			return false;
+		}
 	}
 
 }

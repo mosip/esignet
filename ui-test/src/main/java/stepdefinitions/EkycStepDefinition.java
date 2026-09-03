@@ -3,22 +3,23 @@ package stepdefinitions;
 import org.testng.Assert;
 
 import org.openqa.selenium.WebDriver;
-import org.apache.log4j.Logger;
 
 import base.BaseTest;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import pages.EkycPage;
+import pages.LoginOptionsPage;
 
 public class EkycStepDefinition {
 
 	public WebDriver driver;
-	private static final Logger logger = Logger.getLogger(EkycStepDefinition.class);
 	EkycPage ekycPage;
+	LoginOptionsPage loginOptionsPage;
 
 	public EkycStepDefinition(BaseTest baseTest) {
 		this.driver = baseTest.getDriver();
 		ekycPage = new EkycPage(driver);
+		loginOptionsPage = new LoginOptionsPage(driver);
 	}
 
 	@Then("verify user navigate to eKYC process steps screen")
@@ -146,6 +147,10 @@ public class EkycStepDefinition {
 
 	@Then("user verify user is redirected to relying party login page")
 	public void userVerifyRedirectedToLoginPage() {
+		if (ekycPage.isAlreadyOnRelyingParty()) {
+			Assert.assertTrue(ekycPage.isLoginPageDisplayed(), "User is not redirected to relying party login page");
+			return;
+		}
 		Assert.assertTrue(ekycPage.isLoginPageDisplayed(), "User is not redirected to relying party login page");
 	}
 
@@ -352,6 +357,58 @@ public class EkycStepDefinition {
 	public void verifyUserIsRedirectedBackToTermsAndConditionScreen() {
 		Assert.assertTrue(ekycPage.isEkycTermsAndConditionScreenVisible(),
 				"User is not redirected back to eKYC terms and condition screen");
+	}
+
+	@When("user navigates back in the browser from eKYC process steps screen and a leave site prompt should appear")
+	public void userNavigatesBackFromEkycProcessStepsScreenAndLeaveSitePromptShouldAppear() {
+		driver.navigate().back();
+		Assert.assertTrue(ekycPage.isLeaveSitePromptDisplayed(10),
+				"The 'Leave site?' prompt did not appear after navigating back from the eKYC process steps screen");
+	}
+
+	@When("user cancels the leave site prompt in eKYC process steps screen")
+	public void userCancelsLeaveSitePromptInEkycProcessStepsScreen() {
+		ekycPage.dismissAlert();
+	}
+
+	@Then("verify user is retained on eKYC process steps screen")
+	public void verifyUserIsRetainedOnEkycProcessStepsScreen() {
+		Assert.assertTrue(ekycPage.isEkycProcessStepsScreenLabelDisplayed(),
+				"User is not retained on eKYC process steps screen");
+	}
+
+	@When("user refreshes the browser from eKYC process steps screen and a leave site prompt should appear")
+	public void userRefreshesBrowserFromEkycProcessStepsScreenAndLeaveSitePromptShouldAppear() {
+		driver.navigate().refresh();
+		Assert.assertTrue(ekycPage.isLeaveSitePromptDisplayed(10),
+				"The 'Leave site?' prompt did not appear after refreshing the browser from the eKYC process steps screen");
+	}
+
+	@When("user confirms the leave site prompt in eKYC process steps screen")
+	public void userConfirmsLeaveSitePromptInEkycProcessStepsScreen() {
+		ekycPage.acceptAlert();
+	}
+
+	@Then("verify user is no longer on eKYC process steps screen")
+	public void verifyUserIsNoLongerOnEkycProcessStepsScreen() {
+		Assert.assertFalse(ekycPage.isEkyScreenVisible(), "User is still on the eKYC process steps screen");
+	}
+
+	@Then("verify user is redirected to the relying party with the consent not shared error")
+	public void verifyUserIsRedirectedToRelyingPartyWithConsentNotSharedError() {
+		Assert.assertTrue(loginOptionsPage.waitForRedirectToRelyingPartyWithError("consent_not_shared"),
+				"User was not redirected to the relying party with the consent_not_shared error");
+	}
+
+	@Then("verify the authorization failed popup is displayed")
+	public void verifyAuthorizationFailedPopupIsDisplayed() {
+		Assert.assertTrue(ekycPage.isAuthorizationFailedPopupDisplayed(),
+				"The authorization failed popup is not displayed");
+	}
+
+	@When("user clicks Okay on the authorization failed popup")
+	public void userClicksOkayOnAuthorizationFailedPopup() {
+		ekycPage.clickOkayOnAuthorizationFailedPopup();
 	}
 
 }

@@ -1,6 +1,5 @@
 package io.mosip.testrig.apirig.esignetUI.testscripts;
 
-import java.lang.reflect.Field;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
@@ -13,12 +12,11 @@ import org.testng.ITest;
 import org.testng.ITestContext;
 import org.testng.ITestResult;
 import org.testng.Reporter;
+import org.testng.SkipException;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.testng.internal.BaseTestMethod;
-import org.testng.internal.TestResult;
 
 import constants.ESignetConstants;
 import io.mosip.testrig.apirig.dto.OutputValidationDto;
@@ -29,6 +27,7 @@ import io.mosip.testrig.apirig.utils.GlobalConstants;
 import io.mosip.testrig.apirig.utils.OutputValidationUtil;
 import io.mosip.testrig.apirig.utils.ReportUtil;
 import io.mosip.testrig.apirig.utils.SecurityXSSException;
+import io.mosip.testrig.apirig.testrunner.HealthChecker;
 import io.restassured.response.Response;
 import utils.EsignetConfigManager;
 import utils.EsignetUtil;
@@ -41,6 +40,9 @@ public class SimplePostForAutoGenId extends EsignetUtil implements ITest {
 	public boolean sendEsignetToken = false;
 	public boolean auditLogCheck = false;
 
+	private static final int SUNBIRD_CREATE_MAX_RETRIES = 10;
+	private static final long SUNBIRD_CREATE_RETRY_BACKOFF_MS = 500;
+
 	@BeforeClass
 	public static void setLogLevel() {
 		if (EsignetConfigManager.IsDebugEnabled())
@@ -49,19 +51,11 @@ public class SimplePostForAutoGenId extends EsignetUtil implements ITest {
 			logger.setLevel(Level.ERROR);
 	}
 
-	/**
-	 * get current testcaseName
-	 */
 	@Override
 	public String getTestName() {
 		return testCaseName;
 	}
 
-	/**
-	 * Data provider class provides test case list
-	 * 
-	 * @return object of data provider
-	 */
 	@DataProvider(name = "testcaselist")
 	public Object[] getTestCaseList(ITestContext context) {
 		String ymlFile = context.getCurrentXmlTest().getLocalParameters().get("ymlFile");
@@ -71,36 +65,115 @@ public class SimplePostForAutoGenId extends EsignetUtil implements ITest {
 		return getYmlTestData(ymlFile);
 	}
 
-	/**
-	 * Test method for OTP Generation execution
-	 * 
-	 * @param objTestParameters
-	 * @param testScenario
-	 * @param testcaseName
-	 * @throws AuthenticationTestException
-	 * @throws AdminTestException
-	 * @throws NoSuchAlgorithmException
-	 */
 	@Test(dataProvider = "testcaselist")
 	public void test(TestCaseDTO testCaseDTO)
 			throws AuthenticationTestException, AdminTestException, NoSuchAlgorithmException, SecurityXSSException {
 		testCaseName = testCaseDTO.getTestCaseName();
 		testCaseName = EsignetUtil.isTestCaseValidForExecution(testCaseDTO);
 
+		if (HealthChecker.signalTerminateExecution) {
+			throw new SkipException(
+					GlobalConstants.TARGET_ENV_HEALTH_CHECK_FAILED + HealthChecker.healthCheckFailureMapS);
+		}
+
+		if ("VID".equals(idKeyName)) {
+			writeConfigValueAndSkipIfProvided("vid", testCaseName, idKeyName);
+		}
+
+		if ("clientId".equals(idKeyName) && testCaseDTO.getEndPoint().contains("/v1/esignet/client-mgmt/client")) {
+			boolean isSunbirdClientVariant = testCaseDTO.getInputTemplate().contains("SunBird");
+			boolean sunbirdActive = EsignetUtil.isSunbirdAuthenticatorActive();
+
+			if (isSunbirdClientVariant && !sunbirdActive) {
+				throw new SkipException("Skipped: " + testCaseName + " is only needed on a Sunbird RC-backed server");
+			}
+			if (!isSunbirdClientVariant && (sunbirdActive || !"mock".equalsIgnoreCase(getPluginName()))) {
+				throw new SkipException("Skipped: " + testCaseName + " is only needed for the non-Sunbird mock plugin");
+			}
+		}
+
+		if ("clientId".equals(idKeyName) && testCaseName.contains("CreateOIDCClient_all_Valid_Smoke_sid")) {
+			writeConfigValueAndSkipIfProvided("oidcClientId", testCaseName, idKeyName);
+		}
+
+		if ("clientId".equals(idKeyName) && testCaseName.contains("CreateOIDCClient_secondary_Smoke_sid")) {
+			writeSecondaryConfigValueAndSkipIfProvided("oidcClientId", testCaseName, idKeyName);
+		}
+
 		String inputJson = getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate());
 
 		if (testCaseName.contains(ESignetConstants.ESIGNET_STRING)) {
+			if (EsignetConfigManager.isInServiceNotDeployedList(GlobalConstants.ESIGNET)) {
+				throw new SkipException("esignet is not deployed hence skipping the testcase");
+			}
 			String tempUrl = null;
 			tempUrl = EsignetConfigManager.getEsignetBaseUrl();
+
+			boolean isSunbirdPolicy = testCaseDTO.getEndPoint().startsWith("$SUNBIRDBASEURL$");
+			if (isSunbirdPolicy) {
+				if (!EsignetUtil.isSunbirdAuthenticatorActive()) {
+					throw new SkipException(
+							"Skipped: " + testCaseName + " requires the Sunbird RC authenticator to be active on the server");
+				}
+				tempUrl = EsignetConfigManager.getSunBirdBaseURL();
+				testCaseDTO.setEndPoint(testCaseDTO.getEndPoint().replace("$SUNBIRDBASEURL$", ""));
+			}
+
 			inputJson = EsignetUtil.inputstringKeyWordHandler(inputJson, testCaseName);
-			if (getPluginName().equals("mock") == true) {
-				inputJson = inputJsonKeyWordHandeler(inputJson, testCaseName);
-				response = EsignetUtil.postWithBodyAndBearerToken(tempUrl + testCaseDTO.getEndPoint(), inputJson,
-						COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), idKeyName);
-				if (testCaseName.toLowerCase().contains("_sid")) {
+			if (isSunbirdPolicy || getPluginName().equals("mock") == true) {
+				if (!isSunbirdPolicy) {
+					inputJson = inputJsonKeyWordHandeler(inputJson, testCaseName);
+				}
+				if (isSunbirdPolicy) {
+
+					int currLoopCount = 0;
+					do {
+						response = EsignetUtil.postWithBodyAndBearerToken(tempUrl + testCaseDTO.getEndPoint(), inputJson,
+								COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), idKeyName);
+						if (response != null && !response.asString().contains("UNSUCCESSFUL")) {
+							break;
+						}
+
+						if (response == null) {
+							logger.error(testCaseName + ": Sunbird RC create returned no response - the policy may or "
+									+ "may not exist. Not retrying, to avoid an undeletable duplicate record. "
+									+ "Verify the registry manually.");
+							break;
+						}
+						currLoopCount++;
+						if (currLoopCount < SUNBIRD_CREATE_MAX_RETRIES) {
+							try {
+								Thread.sleep(Math.min(currLoopCount, 5) * SUNBIRD_CREATE_RETRY_BACKOFF_MS);
+							} catch (InterruptedException e) {
+								Thread.currentThread().interrupt();
+								break;
+							}
+						}
+					} while (currLoopCount < SUNBIRD_CREATE_MAX_RETRIES);
+				} else {
+					response = EsignetUtil.postWithBodyAndBearerToken(tempUrl + testCaseDTO.getEndPoint(), inputJson,
+							COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), idKeyName);
+				}
+
+				boolean isSuccessResponse = response != null && response.getStatusCode() >= 200
+						&& response.getStatusCode() < 300;
+				if (isSunbirdPolicy) {
+					if (isSuccessResponse) {
+						String osid = extractSunbirdOsid(new JSONObject(response.getBody().asString()));
+
+						if (osid == null || osid.isBlank()) {
+							throw new AdminTestException(
+									"Sunbird RC create succeeded but the response carried no osid: " + response.asString());
+						}
+						writeAutoGeneratedId(testCaseName, idKeyName, osid);
+					}
+				} else if (testCaseName.toLowerCase().contains("_sid") && isSuccessResponse) {
 					writeAutoGeneratedId(testCaseName, idKeyName, new JSONObject(response.getBody().asString())
 							.getJSONObject(GlobalConstants.RESPONSE).getString(idKeyName).toString());
 				}
+			} else {
+				response = postWithBodyAndBearerTokenForAutoGeneratedId(tempUrl + testCaseDTO.getEndPoint(), inputJson,
+						COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), idKeyName);
 			}
 
 		} else {
@@ -108,6 +181,10 @@ public class SimplePostForAutoGenId extends EsignetUtil implements ITest {
 			response = postWithBodyAndCookieForAutoGeneratedId(ApplnURI + testCaseDTO.getEndPoint(), inputJson,
 					auditLogCheck, COOKIENAME, testCaseDTO.getRole(), testCaseDTO.getTestCaseName(), idKeyName,
 					sendEsignetToken);
+		}
+
+		if (response == null) {
+			throw new AdminTestException(testCaseName + ": request failed with no response after all attempts");
 		}
 
 		Map<String, List<OutputValidationDto>> outputValid = null;
@@ -129,23 +206,22 @@ public class SimplePostForAutoGenId extends EsignetUtil implements ITest {
 
 	}
 
-	/**
-	 * The method ser current test name to result
-	 * 
-	 * @param result
-	 */
+	private String extractSunbirdOsid(JSONObject responseJson) {
+		JSONObject result = responseJson.optJSONObject("result");
+		if (result == null) {
+			return null;
+		}
+		for (String key : result.keySet()) {
+			JSONObject entity = result.optJSONObject(key);
+			if (entity != null && entity.has("osid")) {
+				return entity.optString("osid", null);
+			}
+		}
+		return null;
+	}
+
 	@AfterMethod(alwaysRun = true)
 	public void setResultTestName(ITestResult result) {
-		try {
-			Field method = TestResult.class.getDeclaredField("m_method");
-			method.setAccessible(true);
-			method.set(result, result.getMethod().clone());
-			BaseTestMethod baseTestMethod = (BaseTestMethod) result.getMethod();
-			Field f = baseTestMethod.getClass().getSuperclass().getDeclaredField("m_methodName");
-			f.setAccessible(true);
-			f.set(baseTestMethod, testCaseName);
-		} catch (Exception e) {
-			Reporter.log("Exception : " + e.getMessage());
-		}
+		result.setTestName(testCaseName);
 	}
 }

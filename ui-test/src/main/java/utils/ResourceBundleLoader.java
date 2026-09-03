@@ -3,6 +3,8 @@ package utils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,16 +26,23 @@ public class ResourceBundleLoader {
 		if (!loaded || !currentLang.equalsIgnoreCase(loadedLanguage)) {
 			synchronized (ResourceBundleLoader.class) {
 				if (!loaded || !currentLang.equalsIgnoreCase(loadedLanguage)) {
-					loadResourceBundleJson(currentLang);
-					loaded = true;
-					loadedLanguage = currentLang;
+
+					if (loadResourceBundleJson(currentLang)) {
+						loaded = true;
+						loadedLanguage = currentLang;
+					}
 				}
 			}
 		}
 		return resourceBundleMap.getOrDefault(key, "!!MISSING_KEY: " + key + "!!");
 	}
 
-	private static void loadResourceBundleJson(String currentLang) {
+	public static String getByIsoCode(String isoCode, String key) {
+		Map<String, String> bundle = loadResourceBundleForIsoCode(isoCode);
+		return bundle.getOrDefault(key, "!!MISSING_KEY: " + key + "!!");
+	}
+
+	private static boolean loadResourceBundleJson(String currentLang) {
 		try {
 			resourceBundleMap.clear();
 			String twoLetterCode = LanguageUtil.getIsoLanguageCode(currentLang);
@@ -41,23 +50,59 @@ public class ResourceBundleLoader {
 				logger.warn("No ISO mapping found for language: " + currentLang + ", falling back to: " + currentLang);
 				twoLetterCode = currentLang;
 			}
-			String url = EsignetConfigManager.getproperty("baseurl") + "/locales/" + twoLetterCode + ".json";
-
-			String jsonContent = downloadJson(url);
-			Map<String, Object> nestedMap = new ObjectMapper().readValue(jsonContent, new TypeReference<>() {
-			});
-			flatten(nestedMap, "", resourceBundleMap);
-
+			Map<String, String> bundle = loadResourceBundleForIsoCode(twoLetterCode);
+			if (bundle.isEmpty()) {
+				logger.warn("Resource bundle for language: " + currentLang + " loaded empty - not caching as loaded");
+				return false;
+			}
+			resourceBundleMap.putAll(bundle);
 			logger.info("Loaded resource bundle for language: " + currentLang);
-
+			return true;
 		} catch (Exception e) {
 			logger.error("Error loading resource bundle JSON for lang: " + currentLang, e);
+			return false;
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private static Map<String, String> loadResourceBundleForIsoCode(String isoCode) {
+		Map<String, String> bundle = new HashMap<>();
+		try {
+
+			// oidcClientId may be "primary,secondary". flow/meta takes one client id; a comma-list 500s
+			// (FM-5001) and leaves the catalog empty, so purpose-type label assertions fail.
+			String clientId = EsignetUtil.getPreconfiguredPrimaryOidcClientId();
+			if (clientId == null || clientId.isBlank()) {
+				logger.warn("No primary oidcClientId configured; skipping flow/meta i18n fetch for language '"
+						+ isoCode + "'");
+				return bundle;
+			}
+			String url = EsignetConfigManager.getproperty("eSignetbaseurl")
+					+ "/v1/esignet/flow/meta?id=" + URLEncoder.encode(clientId, StandardCharsets.UTF_8)
+					+ "&type=APP&language=" + isoCode;
+			String jsonContent = downloadJson(url);
+			Map<String, Object> response = new ObjectMapper().readValue(jsonContent, new TypeReference<>() {
+			});
+			Object i18n = response.get("i18n");
+			Object translations = i18n instanceof Map ? ((Map<String, Object>) i18n).get("translations") : null;
+			if (translations instanceof Map) {
+				flatten((Map<String, Object>) translations, "", bundle);
+			} else {
+				logger.warn("flow/meta response for language '" + isoCode + "' had no i18n.translations object");
+			}
+			logger.info("Loaded resource bundle for ISO code: " + isoCode);
+		} catch (Exception e) {
+			logger.error("Error loading resource bundle JSON for ISO code: " + isoCode, e);
+		}
+		return bundle;
 	}
 
 	private static String downloadJson(String url) throws IOException {
 		URI uri = URI.create(url);
-		try (InputStream in = uri.toURL().openStream()) {
+		URLConnection connection = uri.toURL().openConnection();
+		connection.setConnectTimeout(10_000);
+		connection.setReadTimeout(10_000);
+		try (InputStream in = connection.getInputStream()) {
 			return new String(in.readAllBytes(), StandardCharsets.UTF_8);
 		}
 	}
@@ -73,5 +118,13 @@ public class ResourceBundleLoader {
 				target.put(key, value.toString());
 			}
 		}
+	}
+
+	public static String getPrefixText(String key) {
+		String value = get(key);
+		if (value != null && value.startsWith("!!MISSING_KEY:")) {
+			throw new IllegalStateException("Resource bundle missing key: " + key);
+		}
+		return value.split("\\{\\{currentID\\}\\}")[0].trim();
 	}
 }

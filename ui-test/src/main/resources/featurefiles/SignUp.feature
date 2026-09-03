@@ -1,9 +1,9 @@
 @smokeAndRegression
 Feature: Esignet Signup page
 
-  @smoke @signUpPageVerification
-  Scenario: Verify the Esignet Signup page
-    #When click on signup link
-    #Then validate that the logo is displayed
-    #And click on ble tab
-    #And verify information message on ble verification
+  # Not in Go — mark NA
+  # @smoke @signUpPageVerification @requiresSignupService
+  # Scenario: Verify the Esignet Signup page
+  #   Given user directly navigates to sign-up portal URL
+  #   And user clicks on Register button
+  #   Then the registration form fields should be displayed

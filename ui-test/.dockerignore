@@ -1,0 +1,15 @@
+.git
+.gitignore
+test-output
+screenshots
+reports
+testng-report
+target/classes
+target/test-classes
+target/generated-sources
+target/maven-status
+target/maven-archiver
+k8s
+*.iml
+.idea
+.vscode
