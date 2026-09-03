@@ -22,7 +22,7 @@ fi
 
 NS=esignet
 ESIGNET_SERVICE_NAME=esignet
-CHART_VERSION=1.3.0-beta.2-develop
+CHART_VERSION=0.0.1-develop
 
 echo Create $NS namespace
 kubectl create ns $NS || true
@@ -57,7 +57,9 @@ function installing_onboarder() {
           echo "S3 access key not provided; EXITING;"
           exit 1;
         fi
-        read -p "Please provide S3 secret key: " s3_secret_key
+        echo "Please provide S3 secret key"
+        read -s -p "" s3_secret_key
+        echo
         if [[ -z $s3_secret_key ]]; then
           echo "S3 secret key not provided; EXITING;"
           exit 1;
@@ -172,7 +174,11 @@ function installing_onboarder() {
     echo "Partner onboarder executed and reports are moved to S3 or NFS please check the same to make sure partner was onboarded sucessfully."
     kubectl rollout restart deployment $ESIGNET_SERVICE_NAME -n $NS
     echo eSignet MISP License Key updated successfully to eSignet.
-    return 0
+
+    echo "Cleaning up configmap created for this run..."
+    kubectl -n $NS delete configmap esignet-onboarder-config --ignore-not-found=true
+    kubectl -n $NS delete configmap esignet-misp-onboarder-partner-onboarder-esignet-properties-esignet-misp-onboarder --ignore-not-found=true
+   return 0
   fi
 }
 

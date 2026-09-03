@@ -16,6 +16,20 @@ onboarding:
     - name: esignet
       enabled: true
 
+  # This onboarding request is for eSignet integrated with MOSIP using the mosip-identity-plugin (not the mock plugin); if custom values are required for MISP partner onboarding, use the block below and update the required values as needed.
+  propertiesOverride:
+    esignet:
+      POLICY_NAME: mpolicy-default-esignet
+      POLICY_GROUP_NAME: mpolicygroup-default-esignet
+      PARTNER_KC_USERNAME: mpartner-default-esignet
+      PARTNER_ORGANIZATION_NAME: IIITB
+      PARTNER_TYPE: Misp_Partner
+      PARTNER_DOMAIN: MISP
+      PARTNER_MANAGER_USERNAME: esignet-kc-mockusername
+      PARTNER_MANAGER_PASSWORD: esignet-kc-mockpassword
+      # Provide the eSignet URL below.
+      EXTERNAL_URL: https://esignet.sandbox.mosip.net
+
   # If you want to override configmaps or secrets, uncomment and modify.
   # configmaps:
   #   s3:
@@ -32,18 +46,18 @@ onboarding:
   #   s3:
   #     s3-user-secret: 'password'
 
-  #volumes:
-  #  reports:
-  #    name: onboarder-reports
-  #    storageClass: nfs-csi
-  #    accessModes:
-  #      - ReadWriteMany
-  #    size: 10Mi
-  #    existingClaim: ""
-  #    mountDir: /home/mosip/reports
-  #    nfs:
-  #      path: /srv/nfs/mosip/<sandbox>/onboarder
-  #      server: <nfs host>
+  # volumes:
+  #   reports:
+  #     name: onboarder-reports
+  #     storageClass: nfs-csi
+  #     accessModes:
+  #       - ReadWriteMany
+  #     size: 10Mi
+  #     existingClaim: ""
+  #     mountDir: /home/mosip/reports
+  #     nfs:
+  #       path: /srv/nfs/mosip/<sandbox>/onboarder
+  #       server: <nfs host>
 
 extraEnvVarsCM: []
 extraEnvVarsSecret: []
