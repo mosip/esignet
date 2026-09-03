@@ -33,6 +33,7 @@
     {
       "name": "bio positive: login succeeds with biometric capture",
       "auth_factor": "bio",
+      "known_issue": "out of scope for this release: no mock MDS (biometric device service) is provisioned on the mosip target, so a real biometric capture cannot be supplied — tracked as mosip/esignet#2528",
       "scopes": ["openid"],
       "expect_present": ["sub"]
     },

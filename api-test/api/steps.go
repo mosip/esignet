@@ -32,7 +32,7 @@ type Envelope struct {
 	Plugin           string
 	Module           string
 	Result           string // PASSED | FAILED
-	HarnessOutcome   string // OK | ENV_NOT_READY
+	HarnessOutcome   string // OK | ENV_NOT_READY | KNOWN_ISSUE
 	OutcomeDetail    string
 	DurationMs       int64
 	FailedConditions []Condition
@@ -544,6 +544,10 @@ func InitScenario(sc *godog.ScenarioContext, coll *Collector) {
 			env.Result = "FAILED"
 			env.HarnessOutcome = "OK"
 			env.FailedConditions = []Condition{{Src: "godog", Result: "FAILURE", Msg: firstLine(scenErr.Error())}}
+			if reason, ok := knownIssueReason(scn); ok {
+				env.HarnessOutcome = "KNOWN_ISSUE"
+				env.OutcomeDetail = reason
+			}
 		}
 		coll.Add(env)
 		return ctx, nil
@@ -579,6 +583,31 @@ func surfaceFromTags(scn *godog.Scenario) string {
 		}
 	}
 	return "flow-execute"
+}
+
+// apiKnownIssueReasons names the scenarios tagged @known_issue and why: a
+// scenario runs and asserts the correct (currently failing) behavior same as
+// any other, but a failure is reported as KNOWN_ISSUE instead of FAILED so it
+// doesn't block the run, and goes green on its own once the tracked bug is
+// fixed.
+var apiKnownIssueReasons = map[string]string{
+	"Uploading certificateData that is not a certificate is rejected as an invalid certificate": "esignet-service returns HTTP 500 server_error instead of invalid_certificate for a malformed certificate — tracked as mosip/esignet#2527",
+}
+
+// knownIssueReason reports the reason a failed, @known_issue-tagged scenario
+// is known to fail, or false if scn isn't tagged (or has no reason on file,
+// which is a spec mistake worth surfacing rather than silently swallowing).
+func knownIssueReason(scn *godog.Scenario) (string, bool) {
+	for _, t := range scn.Tags {
+		if strings.TrimPrefix(t.Name, "@") == "known_issue" {
+			reason, ok := apiKnownIssueReasons[scn.Name]
+			if !ok {
+				return fmt.Sprintf("scenario tagged @known_issue but apiKnownIssueReasons has no entry for %q", scn.Name), true
+			}
+			return reason, true
+		}
+	}
+	return "", false
 }
 
 func firstLine(s string) string {
