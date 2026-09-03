@@ -37,6 +37,10 @@ var ErrClientConflict = errors.New("client was modified concurrently")
 // clientCacheNamespace isolates cached client rows in the shared runtime store.
 const clientCacheNamespace providers.RuntimeStoreNamespace = "client:detail"
 
+// statusActive is the canonical status of a client that may be used by the
+// authentication engine. It matches the value stored by normalizeStatus.
+const statusActive = "ACTIVE"
+
 // Service handles client management business logic.
 type Service struct {
 	q                db.Querier
@@ -326,6 +330,30 @@ func (s *Service) GetClient(ctx context.Context, clientID string) (ClientRespons
 			return ClientResponse{}, ErrClientNotFound
 		}
 		return ClientResponse{}, fmt.Errorf("get client: %w", err)
+	}
+	s.cacheRow(ctx, clientID, row)
+	return toResponse(row)
+}
+
+// GetActiveClient retrieves a client by ID only when its status is ACTIVE,
+// serving from cache when possible. The authentication engine (actor, consent
+// and i18n providers, executors, and authenticators) must never operate on a
+// deactivated client, so a missing row and a non-ACTIVE row are both reported
+// as ErrClientNotFound.
+func (s *Service) GetActiveClient(ctx context.Context, clientID string) (ClientResponse, error) {
+	if row, ok := s.getCachedRow(ctx, clientID); ok {
+		if row.Status != statusActive {
+			return ClientResponse{}, ErrClientNotFound
+		}
+		return toResponse(row)
+	}
+
+	row, err := s.q.GetActiveClient(ctx, clientID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ClientResponse{}, ErrClientNotFound
+		}
+		return ClientResponse{}, fmt.Errorf("get active client: %w", err)
 	}
 	s.cacheRow(ctx, clientID, row)
 	return toResponse(row)

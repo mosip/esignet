@@ -42,6 +42,13 @@ func (s *stubQuerier) GetClient(_ context.Context, id string) (db.ClientDetail, 
 	return s.client, nil
 }
 
+func (s *stubQuerier) GetActiveClient(_ context.Context, id string) (db.ClientDetail, error) {
+	if !s.found || id != s.client.ID || s.client.Status != "ACTIVE" {
+		return db.ClientDetail{}, sql.ErrNoRows
+	}
+	return s.client, nil
+}
+
 func testClientRow() db.ClientDetail {
 	return db.ClientDetail{
 		ID:           "client-1",

@@ -33,6 +33,9 @@ type fakeQuerier struct {
 	getRow db.ClientDetail
 	getErr error
 
+	getActiveRow db.ClientDetail
+	getActiveErr error
+
 	updateRow    db.ClientDetail
 	updateErr    error
 	updateParams db.UpdateClientParams
@@ -51,6 +54,10 @@ func (f *fakeQuerier) CreateClient(_ context.Context, arg db.CreateClientParams)
 
 func (f *fakeQuerier) GetClient(_ context.Context, _ string) (db.ClientDetail, error) {
 	return f.getRow, f.getErr
+}
+
+func (f *fakeQuerier) GetActiveClient(_ context.Context, _ string) (db.ClientDetail, error) {
+	return f.getActiveRow, f.getActiveErr
 }
 
 func (f *fakeQuerier) UpdateClient(_ context.Context, arg db.UpdateClientParams) (db.ClientDetail, error) {
@@ -431,6 +438,73 @@ func (ts *ServiceTestSuite) TestGetClient() {
 		resp, err := s.GetClient(context.Background(), "client-1")
 		require.NoError(t, err)
 		require.Equal(t, "client-1", resp.ClientID)
+	})
+}
+
+func (ts *ServiceTestSuite) TestGetActiveClient() {
+	t := ts.T()
+
+	t.Run("no cache configured queries db", func(t *testing.T) {
+		q := &fakeQuerier{getActiveRow: existingClientRow()}
+		s := NewServiceWithQuerier(q, nil, 0, nil)
+		resp, err := s.GetActiveClient(context.Background(), "client-1")
+		require.NoError(t, err)
+		require.Equal(t, "client-1", resp.ClientID)
+	})
+
+	t.Run("inactive or missing client is not found", func(t *testing.T) {
+		q := &fakeQuerier{getActiveErr: sql.ErrNoRows}
+		s := NewServiceWithQuerier(q, nil, 0, nil)
+		_, err := s.GetActiveClient(context.Background(), "inactive")
+		require.ErrorIs(t, err, ErrClientNotFound)
+	})
+
+	t.Run("generic db error", func(t *testing.T) {
+		q := &fakeQuerier{getActiveErr: errors.New("boom")}
+		s := NewServiceWithQuerier(q, nil, 0, nil)
+		_, err := s.GetActiveClient(context.Background(), "client-1")
+		require.Error(t, err)
+		require.False(t, errors.Is(err, ErrClientNotFound))
+	})
+
+	t.Run("cache hit for inactive client is not found", func(t *testing.T) {
+		cache := inmemory.Initialize("test")
+		row := existingClientRow()
+		row.Status = "INACTIVE"
+		data, err := json.Marshal(row)
+		require.NoError(t, err)
+		require.NoError(t, cache.Put(context.Background(), clientCacheNamespace, "client-1", data, 60))
+
+		q := &fakeQuerier{getActiveErr: errors.New("db should not be called")}
+		s := NewServiceWithQuerier(q, cache, 60, nil)
+		_, err = s.GetActiveClient(context.Background(), "client-1")
+		require.ErrorIs(t, err, ErrClientNotFound)
+	})
+
+	t.Run("cache hit for active client avoids db call", func(t *testing.T) {
+		cache := inmemory.Initialize("test")
+		data, err := json.Marshal(existingClientRow())
+		require.NoError(t, err)
+		require.NoError(t, cache.Put(context.Background(), clientCacheNamespace, "client-1", data, 60))
+
+		q := &fakeQuerier{getActiveErr: errors.New("db should not be called")}
+		s := NewServiceWithQuerier(q, cache, 60, nil)
+		resp, err := s.GetActiveClient(context.Background(), "client-1")
+		require.NoError(t, err)
+		require.Equal(t, "client-1", resp.ClientID)
+	})
+
+	t.Run("cache miss populates cache", func(t *testing.T) {
+		cache := inmemory.Initialize("test")
+		q := &fakeQuerier{getActiveRow: existingClientRow()}
+		s := NewServiceWithQuerier(q, cache, 60, nil)
+		resp, err := s.GetActiveClient(context.Background(), "client-1")
+		require.NoError(t, err)
+		require.Equal(t, "client-1", resp.ClientID)
+
+		cached, err := cache.Get(context.Background(), clientCacheNamespace, "client-1")
+		require.NoError(t, err)
+		require.NotNil(t, cached)
 	})
 }
 
