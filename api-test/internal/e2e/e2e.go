@@ -111,6 +111,12 @@ type Scenario struct {
 	// Credentials overrides the plugin's base identity answers for just this scenario.
 	Credentials map[string]string `json:"credentials"`
 
+	// OmitCredentials removes these keys (after Credentials overrides are
+	// merged in) from just this scenario's answers, so a negative case can
+	// submit no value at all rather than an empty one — the two are not
+	// equivalent when the target accepts any non-empty value as valid.
+	OmitCredentials []string `json:"omit_credentials"`
+
 	// ExpectLoginFailure marks a negative case: the flow is expected to be rejected anywhere in the chain, not only at login.
 	ExpectLoginFailure bool `json:"expect_login_failure"`
 
@@ -139,6 +145,12 @@ type Scenario struct {
 	ExpectAbsent   []string          `json:"expect_absent"`
 	// KnownIssue marks the scenario as a tracked environment gap, reported in the Known bucket.
 	KnownIssue string `json:"known_issue"`
+
+	// RequiresCredential names a key (as merged into this scenario's answers,
+	// e.g. "password") that must be non-empty for the scenario to run at all.
+	// Left unconfigured on this deployment, the scenario is reported in the
+	// Skipped bucket instead of attempting a login that has no credential to use.
+	RequiresCredential string `json:"requires_credential"`
 }
 
 // ConsentSpec is a scenario's consent behaviour and expectations.
@@ -383,6 +395,20 @@ func (r *Runner) Run(ctx context.Context, spec Spec) []result.ModuleResult {
 		}
 
 		answers := mergeAnswers(r.Answers, sc.Credentials)
+		for _, k := range sc.OmitCredentials {
+			delete(answers, esignet.Normalize(k))
+		}
+
+		if sc.RequiresCredential != "" && answers[esignet.Normalize(sc.RequiresCredential)] == "" {
+			row.Result = "SKIPPED"
+			row.HarnessOutcome = result.OutcomeSkippedByHarness
+			row.OutcomeDetail = fmt.Sprintf("%s not configured for this deployment", sc.RequiresCredential)
+			row.DurationMs = time.Since(start).Milliseconds()
+			logf("e2e: %-55s -> SKIPPED (%s not configured)", sc.Name, sc.RequiresCredential)
+			out = append(out, row)
+			continue
+		}
+
 		preferred := append(esignet.AuthFactorTokens(sc.AuthFactor), esignet.IDTypeTokens(r.IDType)...)
 
 		claims, calls, consentSeen, protoAsserts, ferr := r.runScenario(ctx, cl, spec.RedirectURI, sc, answers, preferred)
@@ -432,7 +458,18 @@ func (r *Runner) Run(ctx context.Context, spec Spec) []result.ModuleResult {
 			row.Assertions = append(row.Assertions, protoAsserts...)
 			row.Result = "FAILED"
 			row.FailedConditions = []result.Condition{{Src: "e2e", Result: "FAILURE", Msg: ferr.Error()}}
-			logf("e2e: %-55s -> FAILED (login: %v)", sc.Name, ferr)
+			// A declared environment gap reports as KNOWN_ISSUE here too, not
+			// only on the claim-assertion path below: a scenario whose gap
+			// prevents login from completing at all (no mock MDS to answer a
+			// biometric capture, say) would otherwise be the one case the
+			// known_issue marker could not cover, and would block the run.
+			if sc.KnownIssue != "" {
+				row.HarnessOutcome = result.OutcomeKnownIssue
+				row.OutcomeDetail = sc.KnownIssue
+				logf("e2e: %-55s -> KNOWN ISSUE (login: %v: %s)", sc.Name, ferr, sc.KnownIssue)
+			} else {
+				logf("e2e: %-55s -> FAILED (login: %v)", sc.Name, ferr)
+			}
 			out = append(out, row)
 			continue
 		case ferr == nil && sc.ExpectLoginFailure:

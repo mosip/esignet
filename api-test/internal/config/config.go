@@ -143,6 +143,9 @@ type Identity struct {
 type Credentials struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
+	// Biometric is the value submitted as a biometric capture. Only mock
+	// validates it, and accepts any non-empty value as a successful capture.
+	Biometric string `json:"biometric"`
 }
 
 type Knowledge struct {
@@ -464,6 +467,7 @@ func (c *Config) applyEnv() (int, error) {
 	envStr(&c.Esignet.Identity.IDType, "ID_TYPE", &n)
 	envStr(&c.Esignet.Credentials.Username, "TEST_USERNAME", &n)
 	envStr(&c.Esignet.Credentials.Password, "TEST_PASSWORD", &n)
+	envStr(&c.Esignet.Credentials.Biometric, "TEST_BIOMETRIC", &n)
 	envStr(&c.Esignet.Knowledge.FullName, "KBI_FULL_NAME", &n)
 	envStr(&c.Esignet.Knowledge.DOB, "KBI_DOB", &n)
 	envStr(&c.Esignet.OTP.Source, "OTP_SOURCE", &n)
@@ -767,6 +771,7 @@ func (c *Config) Redacted() string {
 	// The username is a login identifier on every plugin but mock, and the wire trace already masks it.
 	clone.Esignet.Credentials.Username = mask(clone.Esignet.Credentials.Username)
 	clone.Esignet.Credentials.Password = mask(clone.Esignet.Credentials.Password)
+	clone.Esignet.Credentials.Biometric = mask(clone.Esignet.Credentials.Biometric)
 	// Authenticator + personal data: reports are archived as CI artifacts.
 	clone.Esignet.OTP.Value = mask(clone.Esignet.OTP.Value)
 	clone.Esignet.OTP.RecipientEmail = mask(clone.Esignet.OTP.RecipientEmail)

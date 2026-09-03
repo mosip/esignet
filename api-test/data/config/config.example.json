@@ -126,7 +126,11 @@
     "              separate from conformance.tls_verify, which is false only",
     "              for the suite's self-signed localhost cert. Set false only",
     "              for a deployment with a self-signed cert of its own.",
-    "                                             (env ESIGNET_TLS_VERIFY)"
+    "                                             (env ESIGNET_TLS_VERIFY)",
+    "  credentials.biometric  value submitted as a biometric capture for the",
+    "              bio auth factor. Only mock validates it, and accepts any",
+    "              non-empty value — leave unset elsewhere.",
+    "                                             (env TEST_BIOMETRIC)"
   ],
   "esignet": {
     "base_url": "",
@@ -134,7 +138,7 @@
     "auth_factor": "otp",
     "tls_verify": true,
     "identity": { "individual_id": "", "id_type": "uin" },
-    "credentials": { "username": "", "password": "" },
+    "credentials": { "username": "", "password": "", "biometric": "" },
     "knowledge": { "full_name": "", "dob": "" },
     "otp": { "source": "static", "value": "111111", "ws_url": "", "recipient_email": "" },
     "pms": { "base_url": "", "auth_partner_id": "", "policy_id": "" }

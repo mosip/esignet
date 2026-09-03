@@ -61,7 +61,8 @@
     },
     "credentials": {
       "username": "decl-user-1",
-      "password": "Mosip@123"
+      "password": "Mosip@123",
+      "biometric": "mock-biometric-capture-e2e"
     },
     "otp": {
       "source": "static",
