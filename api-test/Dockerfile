@@ -2,7 +2,18 @@
 #
 # api-test harness image — runs the conformance/api/e2e surfaces + consolidate
 # via run-all.sh (see #2209; design: mosip/esignet#2120). Build
-# from api-test/: docker build -t apitest-esignet:latest .
+# from api-test/: docker build --target runtime -t apitest-esignet:latest .
+#
+# --target runtime is required, not optional: this file's LAST stage is
+# `coverage` (below), and a plain `docker build` with no --target builds
+# whatever stage is last — silently producing the multi-GB coverage image
+# (full Go toolchain) under the apitest-esignet:latest tag instead of this
+# slim one. Confirmed live 2026-09-03: an untargeted build came out 1.35GB
+# with `go` on PATH, vs. ~249MB for a correctly `--target runtime` build.
+# CI's build_dockers_apitest job (push-trigger.yml) also builds with no
+# --target, so the Docker Hub-published apitest-esignet image is exposed to
+# the same risk unless that job (or a reusable workflow it calls) already
+# targets `runtime` explicitly.
 #
 # One builder stage compiles everything ahead of time so the runtime image needs
 # no Go toolchain. It spans two Go modules — the stdlib-only parent (conformance,
@@ -40,7 +51,7 @@ RUN mkdir -p /out/bin && \
 WORKDIR /src/api
 RUN go test -c -trimpath -o /out/bin/api.test .
 
-FROM debian:bookworm-slim
+FROM debian:bookworm-slim AS runtime
 
 ARG SOURCE
 ARG COMMIT_HASH

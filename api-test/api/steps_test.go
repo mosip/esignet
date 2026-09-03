@@ -3,6 +3,9 @@ package api
 import (
 	"strings"
 	"testing"
+
+	"github.com/cucumber/godog"
+	messages "github.com/cucumber/messages/go/v21"
 )
 
 // snippet feeds every step error, and the After hook archives those in the
@@ -51,5 +54,47 @@ func TestSnippetTruncatesAfterRedaction(t *testing.T) {
 	}
 	if len(got) > 400+len("…") {
 		t.Errorf("snippet length = %d, want it capped at 400 runes plus the ellipsis", len(got))
+	}
+}
+
+// A scenario without @known_issue must never be silently reclassified — the
+// tag is what makes a FAILED->KNOWN_ISSUE swap deliberate rather than a bug
+// hiding itself.
+func TestKnownIssueReasonUntaggedScenarioIsNotKnown(t *testing.T) {
+	scn := &godog.Scenario{Name: "some ordinary scenario"}
+	if _, ok := knownIssueReason(scn); ok {
+		t.Error("knownIssueReason: untagged scenario reported as known, want false")
+	}
+}
+
+// The tagged, tracked scenario must resolve to its recorded reason.
+func TestKnownIssueReasonReturnsTheRecordedReason(t *testing.T) {
+	scn := &godog.Scenario{
+		Name: "Uploading certificateData that is not a certificate is rejected as an invalid certificate",
+		Tags: []*messages.PickleTag{{Name: "@known_issue"}},
+	}
+	reason, ok := knownIssueReason(scn)
+	if !ok {
+		t.Fatal("knownIssueReason: tagged scenario reported as not known, want true")
+	}
+	if !strings.Contains(reason, "mosip/esignet#2527") {
+		t.Errorf("reason = %q, want it to name the tracked issue", reason)
+	}
+}
+
+// A scenario tagged @known_issue but missing from apiKnownIssueReasons is a
+// spec mistake — someone added the tag without recording why — and must
+// surface as such rather than silently reporting no reason at all.
+func TestKnownIssueReasonFlagsAMissingEntry(t *testing.T) {
+	scn := &godog.Scenario{
+		Name: "a scenario someone tagged but forgot to record",
+		Tags: []*messages.PickleTag{{Name: "@known_issue"}},
+	}
+	reason, ok := knownIssueReason(scn)
+	if !ok {
+		t.Fatal("knownIssueReason: tagged scenario reported as not known, want true")
+	}
+	if !strings.Contains(reason, "no entry") {
+		t.Errorf("reason = %q, want it to flag the missing apiKnownIssueReasons entry", reason)
 	}
 }
