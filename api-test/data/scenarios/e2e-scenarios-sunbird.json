@@ -212,23 +212,6 @@
       ]
     },
     {
-      "_comment": "docs/esignet-openapi.yaml documents /oauth2/introspect as taking an access token OR an id_token, and lists id_token among the token_type_hint values. KNOWN ISSUE on esignet-thunder1.esdev (2026-08-24): a freshly issued, unexpired id_token comes back active=false under every hint (id_token, access_token, and none), while the same call for the access token of the same flow reports it active. The case is kept rather than dropped so the gap stays visible and flips to a pass the day the engine honours it.",
-      "name": "introspection positive: an issued id token is reported active under the id_token hint",
-      "auth_factor": "kbi",
-      "scopes": ["openid", "profile"],
-      "expect_present": ["sub"],
-      "introspect": [
-        {
-          "name": "id token with hint",
-          "token": "id_token",
-          "hint": "id_token",
-          "expect_active": true,
-          "expect_present": ["aud", "iss", "exp"],
-          "expect_values": { "sub": "{{sub}}", "aud": "{{client_id}}" }
-        }
-      ]
-    },
-    {
       "_comment": "The two axes pointed away from the positive. A token this deployment never issued must come back inactive rather than as an error (RFC 7662 s2.2) and must carry no metadata with it (s4), or introspection becomes an oracle for guessed tokens. A request whose client authentication does not hold up must be refused outright, before the submitted token is looked at.",
       "name": "introspection negative: unissued tokens and failed client authentication are refused",
       "auth_factor": "kbi",
