@@ -200,9 +200,6 @@ public class BasePage {
 			throw new IllegalStateException("No fresh stored authorize URL is available for navigation");
 		}
 		driver.get(authorizeUrl);
-		// Previously ignored this return value, so a stale/already-consumed authorize URL (e.g. replayed
-		// after a Deny+Discontinue) that lands on the 401 error screen was reported as a successful
-		// landing to every caller - confirmed live. Surface the real outcome instead.
 		if (!waitForEsignetLoginLanding(30)) {
 			throw new IllegalStateException("Stored authorize URL did not land on a real login page: " + authorizeUrl);
 		}
@@ -213,12 +210,7 @@ public class BasePage {
 	}
 
 	protected boolean isOnEsignetLoginPage(WebDriver webDriver) {
-		// esignet-go serves its error screen ("Something went wrong (401)") client-side at the same
-		// /authorize URL it failed on (e.g. replaying an already-consumed/discontinued transaction's
-		// stored authorize URL) - the URL-only check below used to treat that as a real login landing.
-		// Confirmed live: this false positive is what let clickSignInWithEsignetOnRelyingPartyPortal()
-		// silently "succeed" onto a 401 page after a Deny+Discontinue re-login, cascading into every
-		// later step in that scenario becoming a no-op against a dead page.
+		// esignet-go serves its error screen ("Something went wrong (401)") at the same /authorize URL.
 		if (!webDriver.findElements(By.xpath("//*[contains(text(),'Something went wrong')]")).isEmpty()) {
 			return false;
 		}
@@ -258,11 +250,8 @@ public class BasePage {
 		if (isOnEsignetLoginPage()) {
 			return;
 		}
-		// Try the relying party's own button first when one is actually on the current page - it drives
-		// a fresh OIDC flow through the RP's own client library (fresh state/nonce/PKCE) rather than
-		// replaying the stored hand-built authorize URL, which can be a dead/already-consumed transaction
-		// (e.g. right after a Deny+Discontinue) - confirmed live: eagerly navigating to that stale URL
-		// here first (previously) burned the current page before a real button could ever be searched for.
+		// Prefer the relying party's own button so it starts a fresh OIDC flow (state/nonce/PKCE)
+		// instead of replaying a stored authorize URL that may already be consumed.
 		By[] locators = {
 				By.cssSelector("#sign-in-with-esignet button"),
 				By.cssSelector("#sign-in-with-esignet a"),
@@ -277,11 +266,6 @@ public class BasePage {
 		Set<String> windowsBeforeClick = driver.getWindowHandles();
 		Exception lastError = null;
 		for (By locator : locators) {
-			// An instant, zero-wait findElements() check here (previously) skipped every locator outright
-			// when called right as the RP page was still mid-render (e.g. right after bouncing back from
-			// a rejected authorize request, still showing its own "Invalid Request" toast) - confirmed
-			// live: the button was clearly present moments later in the failure screenshot, but by then
-			// every locator had already been given up on and this whole method had thrown.
 			try {
 				quickWait.until(ExpectedConditions.presenceOfElementLocated(locator));
 			} catch (TimeoutException e) {
@@ -302,12 +286,7 @@ public class BasePage {
 		if (tryNavigateToStoredAuthorizeUrl()) {
 			return;
 		}
-		// Last resort: the current page may have no "Sign In with eSignet" button at all because we're
-		// already logged into the RP from an earlier successful flow in this scenario (e.g. its profile
-		// page) - confirmed live (run #4, 2026-09-03): the current-URL diagnostic below showed a bare
-		// error page with no login form, reached only via the now-stale stored authorize URL, which this
-		// PKCE-requiring client always rejects. A plain visit to the RP's own base URL resets to its
-		// standalone login page, which does have the button, without needing PKCE at all.
+		// If the RP is already on a logged-in/error page with no Sign in button, reset to its base URL.
 		String rpBaseUrl = EsignetConfigManager.getproperty("baseurl");
 		if (rpBaseUrl != null && !rpBaseUrl.isBlank()) {
 			driver.get(rpBaseUrl);
@@ -324,12 +303,8 @@ public class BasePage {
 				}
 			}
 		}
-		// Diagnostic only: run #3 (2026-09-03) showed this exception even though the failure screenshot
-		// (captured moments later by @After) clearly showed the button rendered - the current URL here
-		// tells us whether the page was still mid-navigation/on a different URL during the search, since
-		// that's not otherwise visible once the exception has already propagated up.
-		throw new IllegalStateException("Sign in with eSignet button was not found on the relying party portal "
-				+ "(current URL: " + driver.getCurrentUrl() + ")", lastError);
+		throw new IllegalStateException("Sign in with eSignet button was not found on the relying party portal",
+				lastError);
 	}
 
 	public boolean isAlreadyOnRelyingParty() {

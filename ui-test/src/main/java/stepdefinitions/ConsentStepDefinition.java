@@ -201,10 +201,6 @@ public class ConsentStepDefinition {
 					+ driver.getCurrentUrl();
 			logger.info("Not clicking (this step only, not the scenario) - " + reason);
 			ExtentReportManager.notApplicable(reason);
-			// Diagnostic only - this path degrades gracefully instead of failing, so no screenshot would
-			// otherwise be captured. Attach one here so the next report shows what page is actually
-			// reached instead of only the URL, to root-cause why recovery keeps failing.
-			utils.ScreenshotUtil.attachScreenshot(driver, "reLoginUnreachable");
 		}
 	}
 

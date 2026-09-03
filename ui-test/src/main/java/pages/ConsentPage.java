@@ -257,12 +257,9 @@ public class ConsentPage extends BasePage {
 		if (!landmarkReached) {
 			return false;
 		}
-		// When only one auth factor is negotiated, esignet-go skips the acr_* chooser screen entirely
-		// and renders that factor's own ID-entry screen directly (e.g. #username_input for a
-		// UIN/VID-only transaction) - confirmed live earlier this session. On a repeat login within
-		// the same scenario (re-using the same authorize URL/session context) that single-factor
-		// skip can kick in even where the first login showed the full acr_otp chooser, so there's
-		// nothing to click here - the id-entry screen is already showing.
+		// When only one auth factor is negotiated, esignet-go skips the acr_* chooser and renders
+		// that factor's ID-entry screen directly. On a repeat login in the same scenario the
+		// chooser can be skipped even if the first login showed it.
 		if (driver.findElements(By.id("acr_otp")).isEmpty() && !driver.findElements(By.id("username_input")).isEmpty()) {
 			LOGGER.info("Login-with-Otp chooser not present but username_input already is - "
 					+ "single-factor screen, nothing to click, proceeding directly.");
