@@ -318,11 +318,6 @@ public class BaseTestUtil {
 		return threadLocalLanguage.get();
 	}
 
-	/**
-	 * oidc-ui discovers Mock MDS with MOSIPDISC against http://127.0.0.1:4501-4510
-	 * from an HTTPS login page. Chrome/Edge Local Network Access blocks that unless
-	 * these flags (and the local-network-access content setting) are set.
-	 */
 	private static void applyLocalSbiAccessFlags(ChromeOptions chromeOptions, Map<String, Object> prefs) {
 		if (!MockMdsManager.isEnabled()) {
 			return;

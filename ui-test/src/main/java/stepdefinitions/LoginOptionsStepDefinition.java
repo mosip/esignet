@@ -61,29 +61,16 @@ public class LoginOptionsStepDefinition {
 
 	@Given("user captures the authorize url")
 	public void userCapturesAuhtorizeUrl() throws Exception {
-		// esignet-go stays on /signin - no #<payload> fragment to wait for. Wait for the login-method
-		// buttons to render instead, matching how auth factors are now read (see verifyMultipleLoginOptions).
-		// When the client only negotiates a single auth factor, esignet-go skips the acr_* chooser
-		// screen entirely and renders that factor's own ID-entry screen (e.g. #username_input for OTP)
-		// directly, so either signal means the page has finished loading its post-navigation state.
-		// 25s, not a few seconds - scenarios that just created a fresh dynamic OIDC client (see
-		// "user creates the client with purpose type ...") can hit this page before that client's
-		// config has fully propagated, delaying the initial render well past a short default wait
-		// (observed live: still loading past 10s).
+
 		new WebDriverWait(driver, Duration.ofSeconds(25)).until(ExpectedConditions.or(
 				ExpectedConditions.presenceOfElementLocated(org.openqa.selenium.By.cssSelector("[id^='acr_']")),
 				ExpectedConditions.presenceOfElementLocated(org.openqa.selenium.By.id("username_input"))));
-		// Snapshot the rendered auth factors now, while the acr_ chooser (or its single-factor skip) is
-		// still visible - later steps that need this after the user has picked a factor and moved on
-		// (e.g. "select preferred ID text ...") read the cached snapshot instead.
+
 		ClaimsUtil.captureRenderedAuthFactors(driver);
 		String currentUrl = driver.getCurrentUrl();
 		this.authorizeUrl = currentUrl;
 		loginOptionsPage.setAuthorizeUrl(currentUrl);
-		// Login heading is present as soon as the authorize URL has rendered; several scenarios
-		// used to skip this and go straight to language/OTP. Skip @AuthorizeScopeOnly: that
-		// scenario leaves DEFAULT_LANG in place (no ui_locales), so the English "Login" text
-		// is not a valid expectation.
+
 		if (!BasePage.authorizeScopeOnlyScenario) {
 			consentPage.assertDefaultLoginTitleAndSubtitleIfEnglish();
 		}
@@ -689,10 +676,6 @@ public class LoginOptionsStepDefinition {
 		}
 	}
 
-	/**
-	 * Long biometric flows run many negative attempts on one OAuth session; refresh only for the
-	 * final valid VID success attempt after optional wrong-match steps were skipped or executed.
-	 */
 	private boolean shouldRefreshBiometricSessionBeforeSuccessAttempt() {
 		return System.currentTimeMillis() - BasePage.authorizeSessionStartedAt > 120_000L;
 	}
@@ -831,16 +814,6 @@ public class LoginOptionsStepDefinition {
 	public void userEntersInvalidMobileNumberIntoMobileNumberField() {
 		loginOptionsPage.enterInvalidMobileNumber("12345");
 	}
-
-	// @Then("verify forgot password according to environment")
-	// public void verifyForgotPasswordAccordingToEnvironment() {
-	// 	if (loginOptionsPage.isForgotPasswordLinkDisplayed()) {
-	// 		Assert.assertTrue(loginOptionsPage.isForgotPasswordLinkDisplayed(),
-	// 				"Forgot password link should be visible when configured");
-	// 	} else {
-	// 		ExtentReportManager.notApplicable("Forgot password is not offered in this environment");
-	// 	}
-	// }
 
 	@When("user completes second factor otp if prompted")
 	public void userCompletesSecondFactorOtpIfPrompted() {

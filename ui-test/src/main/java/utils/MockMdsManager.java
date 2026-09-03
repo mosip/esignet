@@ -23,10 +23,6 @@ import io.mosip.testrig.apirig.dataprovider.BiometricDataProvider;
 import io.mosip.testrig.apirig.dataprovider.mds.MDSClient;
 import io.mosip.testrig.apirig.testrunner.BaseTestCase;
 
-/**
- * Starts and stops embedded Mock SBI (Mock MDS) for browser-based biometric login tests.
- * Uses the same device certificates and Default profile as {@link BiometricDataProvider}.
- */
 public final class MockMdsManager {
 
 	private static final Logger LOGGER = Logger.getLogger(MockMdsManager.class.getName());
@@ -56,14 +52,11 @@ public final class MockMdsManager {
 		startForAuth(false);
 	}
 
-	/**
-	 * Starts Mock MDS mid-scenario (e.g. after an initial device-not-found scan).
-	 */
 	public static void startForBiometricScan() throws Exception {
 		if (!isEnabled()) {
 			throw new IllegalStateException("useMockMds must be true to start Mock MDS for biometric scan");
 		}
-		// Mid-scenario start: ensure no Registration SBI from prerequisites is still listening.
+
 		stopAll();
 		resetMockSbiPropertyCache();
 		startForAuth(true);
@@ -124,9 +117,6 @@ public final class MockMdsManager {
 		}
 	}
 
-	/**
-	 * Pre-loads IDA FIR cert on the test JVM classpath so Auth CAPTURE encryption does not hang.
-	 */
 	public static void warmIdaFirCertificate() {
 		try {
 			org.biometric.provider.JwtUtility.clearIdaCertificateCache();
@@ -156,10 +146,6 @@ public final class MockMdsManager {
 		}
 	}
 
-	/**
-	 * Stops every embedded SBI instance (including Registration SBI left running after mosipid
-	 * prerequisites) so the browser's first biometric scan sees no local device.
-	 */
 	public static void stopAll() {
 		synchronized (LOCK) {
 			try {
@@ -172,28 +158,14 @@ public final class MockMdsManager {
 		}
 	}
 
-	/**
-	 * Auth capture reads ISO files from Profile/Default/Auth; registration prerequisites use
-	 * Profile/Default/Registration. Copy registration profile data so auth captures match IDA.
-	 */
 	private static void ensureAuthProfileFromRegistration() throws IOException {
-		// "../" variants cover running from ui-test/target (AGENTS.md "cd target && java -jar") - same
-		// CWD mismatch as findBundledDevicePartnerP12()'s "../certs" candidate below.
+
 		copyProfileBetweenPurposes(Paths.get("Profile", "Default"));
 		copyProfileBetweenPurposes(Paths.get("resource", "Profile", "Default"));
 		copyProfileBetweenPurposes(Paths.get("..", "Profile", "Default"));
 		copyProfileBetweenPurposes(Paths.get("..", "resource", "Profile", "Default"));
 	}
 
-	/**
-	 * io.mosip.mock.sbi reads device JSON files at paths hardcoded in application.properties (e.g.
-	 * "mosip.mock.sbi.file.finger.slap.digitalid.json=/Biometric Devices/Finger/Slap/DigitalId.json"),
-	 * resolved relative to the JVM's working directory with no override - unlike this module's own
-	 * candidate-list lookups (below), it can't be pointed at "../Biometric Devices". Confirmed live:
-	 * FileNotFoundException for "target/Biometric Devices/..." when running from ui-test/target
-	 * (AGENTS.md "cd target && java -jar"), since that directory only ever exists at the repo root.
-	 * Self-heals by copying the whole tree (24 small files, ~200KB) into the working directory.
-	 */
 	private static void ensureBiometricDevicesDirectoryAvailable() {
 		Path target = Paths.get(System.getProperty("user.dir"), "Biometric Devices");
 		if (Files.isDirectory(target)) {
@@ -223,13 +195,9 @@ public final class MockMdsManager {
 		}
 	}
 
-	/**
-	 * oidc-ui accepts only L1 Auth Ready devices; apitest resources ship with L0 metadata.
-	 */
 	private static void ensureL1AuthDeviceMetadata() throws IOException {
 		ensureBiometricDevicesDirectoryAvailable();
-		// "../Biometric Devices" covers running from ui-test/target (AGENTS.md "cd target && java
-		// -jar") - same CWD mismatch as findBundledDevicePartnerP12()'s "../certs" candidate below.
+
 		for (String rootDir : new String[] { "Biometric Devices", "resource/Biometric Devices",
 				"../Biometric Devices", "../resource/Biometric Devices" }) {
 			Path biometricDevicesDir = Paths.get(System.getProperty("user.dir"), rootDir);
@@ -292,18 +260,6 @@ public final class MockMdsManager {
 		}
 	}
 
-	/**
-	 * io.mosip.mock.sbi's ApplicationPropertyHelper reads "application.properties" via a plain
-	 * relative FileInputStream (not classpath-aware), so it needs a real file at the JVM's working
-	 * directory - confirmed live via FileNotFoundException when running from ui-test/target as
-	 * documented (AGENTS.md "cd target && java -jar"), since the module's own application.properties
-	 * only ever gets copied to target/classes (on the classpath) and into the shaded jar, never to
-	 * target/ itself. Self-heals by extracting the classpath copy on first use.
-	 */
-	/**
-	 * Mock SBI reads application.properties, Biometric Devices, Profile, and
-	 * device-dsk-partner.p12 from the JVM working directory (not the classpath).
-	 */
 	private static void ensureMockMdsRuntimeLayout() {
 		ensureApplicationPropertiesAvailable();
 		ensureDevicePartnerP12AtWorkingDirectory();
@@ -350,11 +306,6 @@ public final class MockMdsManager {
 		}
 	}
 
-	/**
-	 * mock-mds capture reads ISO files from resource/Profile/Default/Auth. Those
-	 * files are not packaged in the mock-mds jar; materialize them from the same
-	 * bioValue.properties apitest-commons uses for biometric fixtures.
-	 */
 	private static void ensureAuthProfileFromBioValues() throws IOException {
 		Properties bioValues = loadBioValueProperties();
 		if (bioValues.isEmpty()) {
@@ -507,10 +458,6 @@ public final class MockMdsManager {
 				|| Files.isRegularFile(Paths.get(System.getProperty("user.dir"), "device-dsk-partner.p12"));
 	}
 
-	/**
-	 * Copies bundled {@code device-dsk-partner.p12} into the AUTHCERTS directory used by Registration
-	 * prerequisites and Mock SBI when partner device generation was skipped or failed.
-	 */
 	public static void ensureDevicePartnerP12Available() {
 		Path projectP12 = findBundledDevicePartnerP12();
 		if (projectP12 == null) {
@@ -534,9 +481,6 @@ public final class MockMdsManager {
 		}
 	}
 
-	/**
-	 * Waits until MOSIPDISC and MOSIPDINFO succeed with L1 + Auth + Ready, matching oidc-ui validation.
-	 */
 	public static void waitUntilBrowserDiscoveryReady() throws InterruptedException {
 		int timeoutSeconds = parseIntProperty("biometricDeviceDiscoveryTimeoutSeconds", 30);
 		long deadline = System.currentTimeMillis() + timeoutSeconds * 1000L;
@@ -551,9 +495,6 @@ public final class MockMdsManager {
 				+ timeoutSeconds + "s");
 	}
 
-	/**
-	 * Probes localhost SBI with MOSIPDISC (same host/port scan the browser widget uses).
-	 */
 	public static boolean verifyDeviceDiscoveryOnLocalhost() {
 		if (!running || activePort == 0) {
 			return false;
@@ -653,9 +594,6 @@ public final class MockMdsManager {
 		}
 	}
 
-	/**
-	 * Builds browser localStorage entries matching oidc-ui sbiService cache shape for the active port.
-	 */
 	public static java.util.Map<String, String> buildBrowserSbiCacheEntries(int port) {
 		java.util.Map<String, String> entries = new java.util.HashMap<>();
 		if (port <= 0) {

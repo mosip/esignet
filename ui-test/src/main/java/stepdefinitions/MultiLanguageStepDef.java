@@ -21,7 +21,6 @@ import utils.ExtentReportManager;
 import utils.LanguageUtil;
 import utils.ResourceBundleLoader;
 
-
 public class MultiLanguageStepDef {
 
     private String languageCookieValue;
@@ -149,9 +148,7 @@ public class MultiLanguageStepDef {
 
     @Then("verify IDP UI uses default language configured in env-config")
     public void verifyIdpUiUsesDefaultLanguageConfiguredInEnvConfig() throws Exception {
-        // PKCE-mandated clients bounce a hand-built /authorize URL with invalid_request; the RP
-        // "Sign in with eSignet" recovery already landed us on a usable login page. Refreshing
-        // here re-triggers that bounce, injects ui_locales, and races the chooser render.
+
         if (!isOnUsableLoginPage()) {
             EsignetUtil.refreshOAuthAuthorizeSession(driver);
         }
@@ -162,8 +159,7 @@ public class MultiLanguageStepDef {
         String expectedDisplayName = LanguageUtil.getDisplayNameFromIso(expectedIsoCode);
 
         String currentUrl = driver.getCurrentUrl();
-        // Reloading /signin without ui_locales 401s on this client. Keep the live login session
-        // and still verify DEFAULT_LANG rendering (DEFAULT_LANG is en; RP also injects en).
+
         if (currentUrl != null && currentUrl.contains("ui_locales=")) {
             logger.info("Skipping MOSIP-24002 no-ui_locales URL assertion; RP recovery injected ui_locales: "
                     + currentUrl);
@@ -202,8 +198,7 @@ public class MultiLanguageStepDef {
             logger.info("OTP login button not on this screen; skipping DEFAULT_LANG OTP label check");
             return;
         }
-        // signInOption.login_with_id/OTP don't exist in the real catalog (verified: 1261 keys via
-        // /v1/esignet/flow/meta) - button.login_otp is the real key for this exact button's label.
+
         String expectedOtpText = ResourceBundleLoader.getByIsoCode(expectedIsoCode, "button.login_otp");
         if (expectedOtpText != null && expectedOtpText.startsWith("!!MISSING_KEY:")) {
             logger.info("Skipping OTP label DEFAULT_LANG check; resource key not in catalog: " + expectedOtpText);

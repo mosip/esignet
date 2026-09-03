@@ -181,11 +181,7 @@ public class ConsentStepDefinition {
 			ExtentReportManager.notApplicable(reason);
 			return;
 		}
-		// getCurrentLanguage() reads the nav language-dropdown button, which - like the login button
-		// clickOnLoginWithOtp() itself resiliently waits for - can be genuinely absent when the
-		// mock-plugin re-login/discontinue flow leaves the browser on neither a real esignet login
-		// screen nor the relying party's page. Treat that failure the same as clickOnLoginWithOtp()
-		// returning false, instead of letting it crash the scenario outright.
+
 		boolean reachedLoginScreen;
 		try {
 			expectedDefaultLang = consentPage.getCurrentLanguage();
@@ -215,10 +211,7 @@ public class ConsentStepDefinition {
 		}
 		Assert.assertTrue(registeredNumber != null && !registeredNumber.isBlank(),
 				"No registered phone - set uinPhoneNumber in config.properties or run AddIdentity prerequisite");
-		// clickOnLoginWithOtp() succeeding doesn't guarantee the mobile-number field it navigates to
-		// renders reliably right after - the mock-plugin re-login/discontinue flow can still leave the
-		// browser mid-transition here (same underlying flakiness clickOnLoginWithOtp() itself guards
-		// against). Treat that the same way instead of crashing the scenario outright.
+
 		try {
 			consentPage.enterRegisteredMobileNumber(registeredNumber.trim());
 		} catch (org.openqa.selenium.TimeoutException | org.openqa.selenium.NoSuchElementException e) {
@@ -327,12 +320,6 @@ public class ConsentStepDefinition {
 		consentPage.waitUntilLivenessCheckCompletes();
 	}
 
-	// The consent screen with essential/voluntary claim toggles and Allow/Deny (id="action_allow" /
-	// "action_deny") IS real and renders directly after the attention screen's Allow click for any
-	// authorize request that includes claims - confirmed live (screenshot + full DOM capture). It does
-	// NOT require going through the classic eKYC provider-selection/terms/camera-preview/liveness
-	// sequence first (that sequence genuinely doesn't exist here - see the notApplicableUnderMockPlugin
-	// guards a few steps up). Everything from here on checks/interacts with that real screen for real.
 	@Then("verify user is navigated to consent screen")
 	public void verifyUserIsOnConsentScreen() {
 		Assert.assertTrue(consentPage.isConsentScreenVisible(), "User didn't navigated to consent screen");
@@ -413,12 +400,6 @@ public class ConsentStepDefinition {
 		}
 		Assert.assertEquals(notSelected, 1, "Exactly one voluntary claim should be deselected at this point");
 
-		// The step's own wording ("stays selected") assumed the master toggle stays on as long as at
-		// least one sub-toggle remains on - confirmed live that's wrong: this master toggle is a plain
-		// "are all selected" reflection (AND semantics), consistent with every other check in this
-		// scenario (enabling only one leaves master off; enabling all turns master on automatically).
-		// Deselecting even one of the (here: two - "name" and "picture", confirmed live) voluntary
-		// claims correctly turns master off too.
 		Assert.assertFalse(consentPage.isVoluntaryClaimsMasterToggleSelected(),
 				"Master toggle should be off once any voluntary claim is deselected");
 	}
@@ -479,9 +460,7 @@ public class ConsentStepDefinition {
 	@Then("verify the timer starts from 120sec in the consent page via Otp login")
 	public void verifyConsentPageTimer() {
 		int seconds = consentPage.getConsentTimerSeconds();
-		// Confirmed live (raw text "Please take appropriate action in 1:59"): the timer starts at
-		// 120 seconds, not 55 - 120 is a hard ceiling; the floor absorbs step-execution overhead
-		// between navigating to the consent screen and this read.
+
 		Assert.assertTrue(seconds >= 110 && seconds <= 120, "Timer should start around 120 seconds, but was: " + seconds);
 	}
 
@@ -510,11 +489,7 @@ public class ConsentStepDefinition {
 
 	@Then("verify the otp verification button is disabled on the verification screen")
 	public void verifyOtpVerificationButtonIsDisabled() {
-		// Same finding as the Get OTP button (see LoginOptionsStepDefinition.
-		// verifyGetOtpButtonDisabledInAuthenticationScreen): this environment has no client-side
-		// disabled-until-valid-input gating on the OTP verify button either - verified live, submission
-		// validation happens server-side instead. Not a locator bug, the real button's real state is
-		// being read correctly, it's just always enabled here.
+
 		if (EsignetUtil.isMockPlugin() && consentPage.isVerifyOtpButtonEnabled()) {
 			String reason = "this environment's OTP verify button has no client-side "
 					+ "disabled-until-valid-input gating - verified live.";
@@ -532,27 +507,25 @@ public class ConsentStepDefinition {
 
 	@When("user creates the client with purpose type login")
 	public void userCreateClientIdPurposeLogin() {
-		// Purpose is already handled via scenario tags in BaseTest
+
 	}
 
 	@Then("all auth factors should start with login")
 	public void verifyLoginPurposeReflectedInUI() {
-		// esignet-go's translation catalog (verified: 1261 keys via /v1/esignet/flow/meta) has only
-		// "button.login_otp" = "Login with OTP" - no "Link using"/"Verify with" variants exist for any
-		// purpose, so the new UI always renders the "login" wording regardless of client purpose.
+
 		String expectedText = ResourceBundleLoader.getPrefixText("button.login_otp");
 		Assert.assertTrue(consentPage.isLoginWithOtpDisplayed(expectedText),
 				"Expected text not displayed: " + expectedText);
 	}
-	
+
 	@When("user creates the client without purpose field")
 	public void userCreateClientIdWithoutPurpose() {
-		// Purpose is already handled via scenario tags in BaseTest
+
 	}
 
 	@When("user creates the client with purpose type link")
 	public void userCreateClientIdPurposeLink() {
-		// Purpose is already handled via scenario tags in BaseTest
+
 	}
 
 	@Then("all auth factors should start with link")
@@ -564,7 +537,7 @@ public class ConsentStepDefinition {
 
 	@When("user creates the client with purpose type verify")
 	public void userCreateClientIdPurposeVerify() {
-		// Purpose is already handled via scenario tags in BaseTest
+
 	}
 
 	@Then("all auth factors should start with verify")
@@ -576,18 +549,9 @@ public class ConsentStepDefinition {
 
 	@When("user creates the client with purpose type none")
 	public void userCreateClientIdPurposeNone() {
-		// Purpose is already handled via scenario tags in BaseTest
+
 	}
 
-	// esignet-go doesn't render per-client custom purpose_title/purpose_subTitle at all - verified live
-	// against a client explicitly created with purpose_type=verify and purpose_title="Verify using
-	// eSignet": the screen still showed the plain generic "Login" heading and "...is requesting
-	// authentication for login" subtitle regardless. So "no title/subtitle displayed" and "title/
-	// subtitle as configured" both collapse to the same real behavior here: the generic default text
-	// always renders, and no custom override is ever reflected in it. Confirmed again live 2026-08-21:
-	// switching this to assert absence (per a CodeRabbit suggestion going purely off the Gherkin step's
-	// wording) broke 3 previously-passing scenarios with "Login title was displayed" - the title is
-	// never actually absent on this deployment.
 	@Then("verify no title or subtitle should be displayed")
 	public void verifyTitleNotDisplayed() {
 		verifyDefaultLoginTitleAndSubtitle();
@@ -603,12 +567,12 @@ public class ConsentStepDefinition {
 
 	@When("user creates the client with null title and subtitle values")
 	public void userCreateClientIdWithNullTitle() {
-		// Title is already handled via scenario tags in BaseTest
+
 	}
 
 	@When("user creates the client with empty title and subtitle values")
 	public void userCreateClientIdWithEmptyTitle() {
-		// Title is already handled via scenario tags in BaseTest
+
 	}
 
 	@Then("verify select preferred mode text is displayed")
@@ -629,7 +593,7 @@ public class ConsentStepDefinition {
 
 	@When("user creates the client with single auth factor")
 	public void userCreateClientIdWithSingleAuthFactor() {
-		// It is already handled via scenario tags in BaseTest
+
 	}
 
 	@Then("verify select ID type text based on purpose type when one auth factor is displayed")
@@ -647,7 +611,7 @@ public class ConsentStepDefinition {
 		String expectedText = ResourceBundleLoader.get("header.select_login_id");
 		Assert.assertEquals(consentPage.getSelectPreferredIdHeaderText(), expectedText, "Expected text mismatch");
 	}
-	
+
 	@Then("verify user is navigated to consent to profile update screen")
 	public void verifyNavigatedToConsentProfileUpdateScreen() {
 		if (notApplicableForDeniedProfileUpdateUnderMockPlugin(
@@ -696,10 +660,7 @@ public class ConsentStepDefinition {
 
 	@Then("verify cancel button is visible in consent to update profile screen")
 	public void verifyCancelBtnInConsentProfileUpdateScreenDisplayed() {
-		// Verified live (full-page DOM capture): this heavier, claims-based consent screen does have
-		// a real cancel/deny button - id="action_deny" (text "Deny"), a sibling of action_allow. An
-		// earlier, simpler (no-claims) consent screen genuinely had none; that finding didn't
-		// generalize to this screen.
+
 		Assert.assertTrue(consentPage.isCancelButtonInConsentUpdateProfileScreenVisible(),
 				"Cancel in consent to profile update screen is not displayed");
 	}
@@ -736,7 +697,7 @@ public class ConsentStepDefinition {
 	public void userClickOnVoluntaryInfoIcon() {
 		consentPage.clickOnVoluntaryInfoIcon();
 	}
-	
+
 	@Then("verify the voluntary claim information displayed on clicking the info icon")
 	public void verifyVoluntaryClaimInfoInConsentProfileUpdateScreenDisplayed() {
 		Assert.assertTrue(consentPage.isVoluntaryClaimInformationDisplayed(),
@@ -745,10 +706,7 @@ public class ConsentStepDefinition {
 
 	@Then("verify the message click on proceed to begin with the verification process is displayed below")
 	public void verifyMessageInConsentProfileUpdateScreenDisplayed() {
-		// esignet-go's consent-to-profile-update screen has no message text between the claims list
-		// and the Allow button at all - confirmed via a full-page DOM capture (id="action_allow"
-		// follows the last claim toggle directly, no <p>/message element in between). Not a dead
-		// locator to fix - there's genuinely no message here to find.
+
 		boolean visible = consentPage.isMessageAboveProceedButtonDisplayed();
 		if (!visible) {
 			String reason = "esignet-go's consent-to-profile-update screen has no message above the "
@@ -1011,12 +969,7 @@ public class ConsentStepDefinition {
 		BasePage.authorizeUrl = authorizeUrl;
 		driver.get(authorizeUrl);
 		logger.info("Navigated to repeat authorize URL without consent prompt: " + authorizeUrl);
-		// Same PKCE requirement as every other hand-built direct authorize URL in this suite (see
-		// BaseTest's initial navigation) - this client always rejects it with invalid_request. Retrying
-		// through the relying party's own button still exercises what this step actually tests (no
-		// consent re-prompt for an already-authenticated session): same browser, same eSignet session
-		// cookie, so a properly-PKCE'd request still gets fast-tracked past login by SSO - confirmed live
-		// this is the only way this step can ever reach the server at all under this client's PKCE policy.
+
 		String landedUrl = driver.getCurrentUrl();
 		if (landedUrl != null && landedUrl.contains("error=invalid_request")) {
 			logger.warn("Repeat authorize URL redirected to invalid_request (" + landedUrl
@@ -1034,9 +987,7 @@ public class ConsentStepDefinition {
 	public void userReachesConsentScreenThroughEkycAfterAuthentication() {
 		Assert.assertTrue(consentPage.isOnAttentionScreen(),
 				"Consent was not requested for the second client - attention/consent screen missing");
-		// On Thunder/esignet-go the attention Allow button IS consent (no separate claims page).
-		// After Allow the redirect may land on the RP with session_expired because this hand-built
-		// second-client authorize URL is not the RP's own client - consent was still requested.
+
 		consentPage.completeConsentFlowThroughEkyc();
 	}
 

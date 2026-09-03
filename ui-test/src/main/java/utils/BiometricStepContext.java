@@ -1,8 +1,5 @@
 package utils;
 
-/**
- * Tracks optional biometric steps that depend on env-specific config values.
- */
 public final class BiometricStepContext {
 
 	private static final ThreadLocal<Boolean> OPTIONAL_STEP_SKIPPED = ThreadLocal.withInitial(() -> false);

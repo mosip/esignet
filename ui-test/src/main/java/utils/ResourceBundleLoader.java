@@ -69,8 +69,6 @@ public class ResourceBundleLoader {
 		Map<String, String> bundle = new HashMap<>();
 		try {
 
-			// oidcClientId may be "primary,secondary". flow/meta takes one client id; a comma-list 500s
-			// (FM-5001) and leaves the catalog empty, so purpose-type label assertions fail.
 			String clientId = EsignetUtil.getPreconfiguredPrimaryOidcClientId();
 			if (clientId == null || clientId.isBlank()) {
 				logger.warn("No primary oidcClientId configured; skipping flow/meta i18n fetch for language '"

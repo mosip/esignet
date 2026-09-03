@@ -210,7 +210,7 @@ public class BasePage {
 	}
 
 	protected boolean isOnEsignetLoginPage(WebDriver webDriver) {
-		// esignet-go serves its error screen ("Something went wrong (401)") at the same /authorize URL.
+
 		if (!webDriver.findElements(By.xpath("//*[contains(text(),'Something went wrong')]")).isEmpty()) {
 			return false;
 		}
@@ -250,8 +250,7 @@ public class BasePage {
 		if (isOnEsignetLoginPage()) {
 			return;
 		}
-		// Prefer the relying party's own button so it starts a fresh OIDC flow (state/nonce/PKCE)
-		// instead of replaying a stored authorize URL that may already be consumed.
+
 		By[] locators = {
 				By.cssSelector("#sign-in-with-esignet button"),
 				By.cssSelector("#sign-in-with-esignet a"),
@@ -286,7 +285,7 @@ public class BasePage {
 		if (tryNavigateToStoredAuthorizeUrl()) {
 			return;
 		}
-		// If the RP is already on a logged-in/error page with no Sign in button, reset to its base URL.
+
 		String rpBaseUrl = EsignetConfigManager.getproperty("baseurl");
 		if (rpBaseUrl != null && !rpBaseUrl.isBlank()) {
 			driver.get(rpBaseUrl);
@@ -372,7 +371,7 @@ public class BasePage {
 				return isAlreadyOnRelyingParty() || !webDriver.findElements(elementLocator).isEmpty();
 			});
 		} catch (TimeoutException ignored) {
-			// ignored
+
 		}
 		return isAlreadyOnRelyingParty();
 	}

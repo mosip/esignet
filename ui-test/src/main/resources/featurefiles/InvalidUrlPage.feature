@@ -52,10 +52,6 @@ Examples:
    When user enters the correct otp
    And click on verify Otp button
    Then verify consent should ask user to proceed in attention page
-   # esignet-go/Thunder has no separate attention/eKYC screens: OTP success lands on the
-   # Allow/Deny consent screen, and action_allow is that screen's Allow button. Clicking it
-   # here grants consent and leaves the page, so the next step times out looking for it.
-   # Same pattern as @InvalidConsentPage — stay on the screen and assert it.
    And verify user is navigated to consent screen
    When user modify the identity verification value in esignet url
    Then verify error screen along with reset password button and register button is displayed

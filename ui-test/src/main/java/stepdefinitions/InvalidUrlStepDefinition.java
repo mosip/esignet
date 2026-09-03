@@ -162,12 +162,6 @@ public class InvalidUrlStepDefinition extends AdminTestUtil {
 		driver.get(modifiedUrl);
 	}
 
-	/**
-	 * "Given user captures the authorize url" overwrites {@link BasePage#authorizeUrl} with the
-	 * post-redirect {@code /signin} URL, which has no OIDC query params and no PKCE. Tampering
-	 * nonce/state against that URL is a no-op and then reloading {@code /signin} without a
-	 * transaction 404s. Rebuild a PKCE authorize URL when the stored one cannot be tampered.
-	 */
 	private String authorizeUrlUsableForOidcTamper() throws SecurityXSSException, JsonProcessingException {
 		String url = BasePage.authorizeUrl;
 		if (url != null && url.contains("client_id=") && url.contains("code_challenge=")) {

@@ -19,7 +19,6 @@ public class ClaimsUtil {
 	private static JSONObject root;
 	private static final Logger logger = Logger.getLogger(ClaimsUtil.class);
 
-	// Decode and parse the base64 part from the URL (after #)
 	public static void parseFromUrl(String url) {
 		try {
 			if (url == null || !url.contains("#")) {
@@ -99,13 +98,6 @@ public class ClaimsUtil {
 		return normalized;
 	}
 
-	// esignet-go's login page no longer redirects to /login#<base64 JSON> carrying the transaction
-	// (authFactors/claims/configs) - it stays on /signin and the equivalent data lives behind a
-	// challengeToken-protected /v1/esignet/flow/execute call this suite can't currently replicate.
-	// The login-method buttons the page actually renders (id="acr_<factor>") are themselves the
-	// ground truth for which auth factors are offered, so derive from the DOM instead of the URL for
-	// that one piece of information. Verified ids: acr_otp, acr_password, acr_bio. Others
-	// (kbi/wallet/pin) are inferred from the same naming pattern but not yet confirmed live.
 	private static final Map<String, String> ACR_BUTTON_SUFFIX_TO_FACTOR = Map.of(
 			"otp", "OTP",
 			"password", "PWD",
@@ -128,9 +120,7 @@ public class ClaimsUtil {
 				factors.add(factor);
 			}
 		}
-		// A single negotiated auth factor makes esignet-go skip the acr_* chooser screen entirely and
-		// render that factor's own ID-entry screen (#username_input) directly - verified live - so no
-		// acr_ buttons is itself evidence of exactly one factor, not zero.
+
 		if (factors.isEmpty() && !driver.findElements(By.id("username_input")).isEmpty()) {
 			factors.add("SINGLE_FACTOR");
 		}
@@ -139,11 +129,6 @@ public class ClaimsUtil {
 
 	private static List<String> cachedRenderedAuthFactors = null;
 
-	// The acr_* chooser (or its single-factor skip) only exists for a brief window right after
-	// navigating to the authorize URL - once a factor is picked (e.g. clicking "Login with OTP"), the
-	// page moves to that factor's own screen and getRenderedAuthFactors() can no longer see anything.
-	// Steps that need the auth-factor count/list *after* that point (e.g. "select preferred ID text ...")
-	// have to read a snapshot taken while it was still visible instead of re-deriving it too late.
 	public static void captureRenderedAuthFactors(WebDriver driver) {
 		cachedRenderedAuthFactors = getRenderedAuthFactors(driver);
 	}
@@ -174,7 +159,6 @@ public class ClaimsUtil {
 		return factors;
 	}
 
-	/** The 'configs' object from the currently parsed transaction, or null. */
 	public static JSONObject getConfigs() {
 		return root != null ? root.optJSONObject("configs") : null;
 	}

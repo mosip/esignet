@@ -53,7 +53,7 @@ import utils.LanguageUtil;
 @RunWith(Cucumber.class)
 @CucumberOptions(
 		features = {
-//				"classpath:featurefiles/ConsentPage.feature"
+
 				"classpath:featurefiles"
 		},
 		glue = {"stepdefinitions", "base"},
@@ -62,7 +62,7 @@ import utils.LanguageUtil;
                 "html:reports",
                 "html:target/cucumber.html", "json:target/cucumber.json",
                 "summary", "com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:"}
-//      tags = "@smoke"
+
 )
 public class Runner extends AbstractTestNGCucumberTests {
 	private static final Logger LOGGER = Logger.getLogger(BaseTestUtil.class.getName());

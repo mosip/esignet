@@ -88,8 +88,7 @@ public class KbiPage extends BasePage {
 		if (!els.isEmpty()) {
 			return els.get(0);
 		}
-		// name/id on the hidden real-date-input doesn't always match the visible masked field's own
-		// id/name - fall back to any real-date-input inside the same field container.
+
 		List<WebElement> visible = driver.findElements(fieldInputLocator(fieldId));
 		if (visible.isEmpty()) {
 			return null;

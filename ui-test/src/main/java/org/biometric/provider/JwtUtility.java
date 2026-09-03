@@ -352,12 +352,6 @@ public class JwtUtility {
 		return null;
 	}
 
-	/**
-	 * Thunder/eSignet-go and mock-identity-system have no classic IDA
-	 * {@code /idauthentication/v1/internal/getCertificate} endpoint. Mock BIO auth
-	 * only requires a non-empty encrypted capture payload, so a local cert is enough
-	 * for Mock MDS Auth CAPTURE to succeed.
-	 */
 	private String loadLocalFallbackCertificate() {
 		String configured = null;
 		try {

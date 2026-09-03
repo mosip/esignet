@@ -1,4 +1,3 @@
-#@smokeAndRegression
 Feature: ES-3 Consent Registry
   Automates Consent Registry test cases TC_02, TC_07, TC_08, TC_11, and TC_12.
   Consent storage/lookup works under mock plugin too on this Thunder/esignet-go deployment - confirmed

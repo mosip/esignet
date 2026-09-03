@@ -1,41 +1,5 @@
-#@smokeAndRegression
 Feature: Esignet Consent Page
   This feature file is for verifying the Consent page
-
- # Not in Go — mark NA
- # @smoke @registrationProcess
- # Scenario: Verify user completes registration process
- #   Given user captures the authorize url
- #   And user directly navigates to sign-up portal URL
- #   And user clicks on Register button
- #   Then user enters mobile_number in the mobile number field
- #   Then mark otp request timestamp
- #   And user clicks on the Continue button
- #   When user enters the OTP
- #   Then remove otp request timestamp
- #   And user clicks on the Verify OTP button
- #   Then user click on Continue button in Success Screen
- #   And user fills the signup form using UI specification
- #   And user clicks on Continue button in Setup Account Page
- #   And verify that success screen is displayed
- #
- #   Given user relaunches esignet url
- #   And user click on Login with Otp
- #   Then user enters the newly registered mobile number into the mobile number field
- #   And user click on get otp button
- #   When user enters the correct otp
- #   And click on verify Otp button
- #
- #   Then verify consent should ask user to proceed in attention page
- #   And clicks on proceed button in attention page
- #   And clicks on proceed button in next page
- #   Then select the e-kyc verification provider
- #   And clicks on proceed button in e-kyc verification provider page
- #   And user select the check box in terms and condition page
- #   And user clicks on proceed button in terms and condition page
- #   And user clicks on proceed button in camera preview page
- #   And user is navigated to consent screen once liveness check completes
- #   And verify user is navigated to consent screen
 
   @smoke @ToggleButtonInConsentPage
   Scenario: Verifying Toggle button in consent screen
@@ -68,9 +32,6 @@ Feature: Esignet Consent Page
    Then verify if user enables Master toggle,all sub-toggles should be enabled
    And if user deselect one of the Voluntary Claims
    Then verify remaining Voluntary Claims stays selected along with master toggle
-   # Master toggle is a plain "are all selected" reflection (AND semantics, confirmed live) - it went
-   # off the moment one sub-toggle was deselected above, so re-enable it (turning every sub-toggle back
-   # on) before testing that disabling it actually cascades back off to every sub-toggle.
    Then verify if user enables Master toggle,all sub-toggles should be enabled
    And if user disables Master toggle,all sub-toggles should be disabled
 
@@ -206,8 +167,6 @@ Feature: Esignet Consent Page
    When user enters the correct otp
    And click on verify Otp button
    And clicks on proceed button in attention page
-   # esignet-go/Thunder has no eKYC process steps screen (see EkycPage.feature) - Allow on the
-   # attention screen returns straight to this same consent-to-profile-update screen, confirmed live.
    Then verify user is navigated to consent to profile update screen
 
   @smoke @AuthorizeScopeOnly @TC06

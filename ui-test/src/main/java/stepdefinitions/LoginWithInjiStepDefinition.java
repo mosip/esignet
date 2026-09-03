@@ -53,9 +53,7 @@ public class LoginWithInjiStepDefinition {
 
 	@Then("Click on Login with Inji")
 	public void clickOnLoginWithInji() {
-		// Confirmed live: this environment's default client (Test-postman-client15) only ever
-		// renders Login with OTP / Password / Biometrics - no wallet/Inji option, regardless of
-		// mosip:idp:acr:linked-wallet being in the default requested acr_values.
+
 		if (!loginOptionsPage.isLoginWithInjiDisplayed()) {
 			injiApplicable = false;
 			String reason = "Login with Inji is not offered by this environment's default client/policy - "

@@ -55,12 +55,6 @@ public class InvalidUrlPage extends BasePage {
 		return unableToProcessErrorMsg.getText().contains(text);
 	}
 
-	/**
-	 * True when the login UI is showing after a URL change that should not error (e.g. nonce/state
-	 * removed). Thunder uses {@code #language_selection} / {@code acr_*} / {@code #username_input};
-	 * classic eSignet used {@code nav button[aria-haspopup='listbox']}. Waiting only on the classic
-	 * locator times out on this UI with "Element details unavailable" even when login is on screen.
-	 */
 	public boolean isEsignetPageRetained() {
 		try {
 			new WebDriverWait(driver, Duration.ofSeconds(20)).until(driverInstance -> {
@@ -96,11 +90,6 @@ public class InvalidUrlPage extends BasePage {
 				|| !webDriver.findElements(By.xpath("//*[contains(text(),'Something went wrong')]")).isEmpty();
 	}
 
-	/**
-	 * Classic eSignet SPA 404 uses {@code div.error-page-header}. Thunder/esignet-go returns a
-	 * plain HTTP 404 body ({@code 404 page not found}) for unknown OAuth paths such as
-	 * {@code /v1/esignet/oauth2/invalid}.
-	 */
 	public boolean isPageDoesNotExistErrorMsgDisplayed() {
 		try {
 			new WebDriverWait(driver, Duration.ofSeconds(15)).until(d -> isPageNotFoundVisibleNow(d));
@@ -177,11 +166,6 @@ public class InvalidUrlPage extends BasePage {
 				|| pageText.contains("unable to process");
 	}
 
-	/**
-	 * Thunder has no separate attention interstitial: OTP success lands on the Allow/Deny consent
-	 * screen ({@code #action_allow} / {@code #block_consent}). Checking {@code #action_allow} once
-	 * and then waiting only on classic {@code #proceed-button} times out while consent is on screen.
-	 */
 	public boolean isAttentionScreenDisplayed() {
 		try {
 			new WebDriverWait(driver, Duration.ofSeconds(30)).until(this::isAttentionOrConsentVisibleNow);

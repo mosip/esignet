@@ -1,9 +1,5 @@
 package utils;
 
-/**
- * Optional biometric test identities for negative biometric flows.
- * When not configured, related steps log a skip and pass (data is env-specific).
- */
 public final class BiometricTestDataUtil {
 
 	private static final String DEFAULT_INVALID_ID = "8957093658024750";

@@ -45,9 +45,6 @@ public class LoginOptionsPage extends BasePage {
 		super(driver);
 	}
 
-	// Verified live (matches ConsentPage.loginTitle): the login-screen title renders as h3#text_heading.
-	// "signup-url-button" doesn't exist on this deployment - there's no signup service, and this was
-	// never actually a button, just a dead id historically used to read the page's title text.
 	@FindBy(id = "text_heading")
 	WebElement loginButton;
 
@@ -57,20 +54,12 @@ public class LoginOptionsPage extends BasePage {
 	@FindBy(id = "login_with_walletname")
 	WebElement loginWithInji;
 
-	// Thunder/esignet-go uses #language_selection (radix dropdown or react-select). Classic eSignet
-	// used nav button[aria-haspopup='listbox']. Prefer Thunder ids first.
 	@FindBy(css = "#language_selection, #language_dropdown, nav button[aria-haspopup='listbox']")
 	WebElement languageDropdown;
 
 	@FindBy(xpath = "//button[@role='option' and normalize-space()='हिन्दी']")
 	WebElement hindiLanguage;
 
-	// Rewritten against the current "ThunderID" component library used by esignet-go (esqa) - the
-	// classic eSignet UI's login_with_* ids no longer exist. Verified by rendering the live login
-	// page in a real browser (2026-08-19): the auth-method-selection screen renders acr_otp/
-	// acr_password/acr_bio buttons; login_with_pin/login_with_kbi/login_with_walletname weren't
-	// observed on that render (client had no PIN/KBI/wallet auth factors registered) and are left
-	// as-is pending verification against a client that does.
 	@FindBy(id = "acr_otp")
 	WebElement loginWithOtpBtn;
 
@@ -92,14 +81,12 @@ public class LoginOptionsPage extends BasePage {
 	@FindBy(id = "show-more-options")
 	List<WebElement> moreWaysToSignIn;
 
-	// Same ThunderID rewrite as above, verified by rendering the live ID-type/OTP-request screen.
 	@FindBy(id = "login_id_mobile")
 	WebElement mobileNumberOption;
 
 	@FindBy(id = "login_id_nrc")
 	WebElement nrcIdOption;
 
-	// "vid" is now a combined UIN/VID button/field - login_id_uin (Thunder also exposes login_id_vid).
 	@FindBy(id = "login_id_uin")
 	WebElement vidOption;
 
@@ -127,26 +114,15 @@ public class LoginOptionsPage extends BasePage {
 	@FindBy(xpath = "//button[@id='login_id_mobile' and contains(@class,'login-id-button--active')]")
 	WebElement mobileSelected;
 
-	// Verified live: this is a plain native HTML <select> (no id), not a custom JS dropdown with
-	// separately clickable/id'd options - "Otp_login_dropdown_button"/"KHM"/"IND" never existed on
-	// this deployment. Its two <option>s carry the country calling codes as their value attribute:
-	// value="+91" (India) and value="+855" (Cambodia/KHM) - confirmed via live DOM capture of the
-	// mobile-number entry screen. Interact with it via Selenium's Select wrapper, not clickOnElement.
 	@FindBy(css = "select.thunderid-affixed-field__prefix-select")
 	WebElement prefixNumberField;
 
-	// OTP entry is now 6 separate single-digit boxes (no shared id), not one field - verified by
-	// rendering the live OTP screen. Each is aria-labelled "... digit N"; the container carries this
-	// class regardless of language.
 	@FindBy(css = "input.thunderid-otp-field__input")
 	List<WebElement> otpInputFields;
 
 	@FindBy(id = "action_submit_otp")
 	WebElement submitOtpButton;
 
-	// Verified live (matches ConsentPage's own attention/consent screen check): the single merged
-	// attention/consent screen's real, only interactive element is id="action_allow" - not
-	// div.header.my-2, which doesn't exist here.
 	@FindBy(id = "action_allow")
 	WebElement attentionScreen;
 
@@ -156,8 +132,6 @@ public class LoginOptionsPage extends BasePage {
 	@FindBy(id = "discontinue-button")
 	WebElement attentionDiscontinueButton;
 
-	// The ID-type buttons (login_id_uin/login_id_mobile/login_id_email/login_id_nrc) now share a
-	// single input field regardless of which type is selected, instead of one field per type.
 	@FindBy(id = "username_input")
 	WebElement idInputField;
 
@@ -166,9 +140,6 @@ public class LoginOptionsPage extends BasePage {
 
 	@FindBy(id = "password_authenticate")
 	WebElement passwordAuthenticateButton;
-
-	// @FindBy(id = "forgot-password-hyperlink")
-	// WebElement forgotPasswordLink;
 
 	@FindBy(id = "error-banner-message")
 	WebElement invalidIndividualIdErrorMessage;
@@ -196,10 +167,7 @@ public class LoginOptionsPage extends BasePage {
 			if (hashIndex >= 0 && hashIndex < url.length() - 10) {
 				return true;
 			}
-			// Thunder/esignet-go stays on /signin (no #<payload>) and renders acr_* chooser buttons
-			// plus #language_selection. Check these BEFORE the classic wallet-button lookup: that
-			// lookup hits a PageFactory #login_with_walletname proxy which throws NoSuchElement
-			// and aborts the rest of this lambda, so the wait never sees the real chooser.
+
 			if (!webDriver.findElements(By.cssSelector("[id^='acr_']")).isEmpty()) {
 				return true;
 			}
@@ -268,7 +236,7 @@ public class LoginOptionsPage extends BasePage {
 					return loginWithInjiBtn;
 				}
 			} catch (NoSuchElementException | StaleElementReferenceException ignored) {
-				// Thunder does not render #login_with_walletname on the acr chooser.
+
 			}
 		}
 		return null;
@@ -651,8 +619,6 @@ public class LoginOptionsPage extends BasePage {
 		return isElementDisplayed(loginWithKbiBtn);
 	}
 
-	// KBI can sit behind the "more ways to sign in" expander when the client offers more than a few
-	// auth factors; reveal it first so clickOnLoginWithKbi() finds the button.
 	public void revealMoreOptionsIfPresent() {
 		if (!isElementDisplayed(loginWithKbiBtn) && isMoreWaysToSignInOptionDisplayed()) {
 			clickOnElement(moreWaysToSignIn.get(0), "Clicked on more ways to sign in");
@@ -681,7 +647,7 @@ public class LoginOptionsPage extends BasePage {
 					return candidate;
 				}
 			} catch (StaleElementReferenceException ignored) {
-				// Chooser re-rendered; fall through to the PageFactory mapping.
+
 			}
 		}
 		return fallback;
@@ -693,10 +659,7 @@ public class LoginOptionsPage extends BasePage {
 			throw new TimeoutException("Language option not found: " + language);
 		}
 		clickOnElement(langOption, "Selected language option: " + language);
-		// Selecting a language triggers an async re-fetch/re-render of the whole page (new /flow/meta
-		// call for the chosen language, nav bar re-render, etc.) - wait for the dropdown trigger itself
-		// to reflect the new selection before returning. Thunder may show the native name ("हिन्दी")
-		// or the ISO code ("hi") on the trigger.
+
 		new WebDriverWait(driver, Duration.ofSeconds(EsignetConfigManager.getTimeout())).until(d -> {
 			WebElement trigger = findLanguageDropdownTrigger();
 			if (trigger == null) {
@@ -737,8 +700,6 @@ public class LoginOptionsPage extends BasePage {
 		}
 	}
 
-	/** Opens the dropdown and switches the UI to the given 3-letter language code's display name;
-	 *  no-ops if unmapped or already selected (e.g. authorize URL already has ui_locales=en). */
 	public void selectLanguageByCode(String languageCode) {
 		String displayName = utils.LanguageUtil.getDisplayName(languageCode);
 		if (displayName == null || displayName.equals(languageCode)) {
@@ -755,7 +716,7 @@ public class LoginOptionsPage extends BasePage {
 		} else if (getVisiblePageText().contains(normalizeMessage(displayName))
 				|| driver.getCurrentUrl().toLowerCase().contains("ui_locales=en")
 						&& "eng".equalsIgnoreCase(languageCode.trim())) {
-			// Language control not found but page/URL already matches the requested language.
+
 			return;
 		}
 		clickOnLanguageDropdown();
@@ -772,11 +733,6 @@ public class LoginOptionsPage extends BasePage {
 		}
 	}
 
-	/**
-	 * Thunder's acr-chooser heading is h5#acr_text_heading; the ID-entry screen uses h3#text_heading.
-	 * Waiting only on #text_heading times out on the login-options page even when Hindi "लॉगिन" is
-	 * clearly rendered in the chooser heading / body.
-	 */
 	private boolean pageContainsLanguageText(String text) {
 		if (text == null || text.isBlank()) {
 			return false;
@@ -788,7 +744,7 @@ public class LoginOptionsPage extends BasePage {
 						return true;
 					}
 				} catch (StaleElementReferenceException ignored) {
-					// Language switch re-renders the heading; retry on the next poll.
+
 				}
 			}
 		}
@@ -884,7 +840,7 @@ public class LoginOptionsPage extends BasePage {
 				return true;
 			}
 		}
-		// Do NOT match authorize URLs that merely contain "biometrics" in acr_values.
+
 		String url = driver.getCurrentUrl();
 		if (url == null) {
 			return false;
@@ -1057,9 +1013,7 @@ public class LoginOptionsPage extends BasePage {
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
 		wait.pollingEvery(Duration.ofMillis(300));
 		wait.ignoring(StaleElementReferenceException.class);
-		// Do not call isAttentionScreenIsDisplayed()/isOtpInputFieldIsDisplayed() here:
-		// those use explicitWaitTimeout (~20s) internally, so the first poll never
-		// reaches the error-banner/page-text checks before this wait expires.
+
 		wait.until(webDriver -> isAttentionScreenDisplayedNow()
 				|| isOtpInputDisplayedNow()
 				|| isLoginValidationErrorDisplayedNow());
@@ -1110,7 +1064,7 @@ public class LoginOptionsPage extends BasePage {
 					return true;
 				}
 			} catch (StaleElementReferenceException ignored) {
-				// Field re-rendered while polling.
+
 			}
 		}
 		return false;
@@ -1174,15 +1128,6 @@ public class LoginOptionsPage extends BasePage {
 		return false;
 	}
 
-	// public boolean isForgotPasswordLinkDisplayed() {
-	// 	for (WebElement link : driver.findElements(By.id("forgot-password-hyperlink"))) {
-	// 		if (link.isDisplayed()) {
-	// 			return true;
-	// 		}
-	// 	}
-	// 	return false;
-	// }
-
 	public void enterInvalidMobileNumber(String mobileNumber) {
 		if (!isMobileNumberSelected()) {
 			clickOnMobileNumberOption();
@@ -1207,10 +1152,6 @@ public class LoginOptionsPage extends BasePage {
 		return selected;
 	}
 
-	// "Displayed" for a native <select>'s <option> doesn't mean visually rendered (that's the
-	// browser/OS's own dropdown chrome, invisible to WebDriver until opened) - it means the option
-	// genuinely exists as a selectable choice. Checking via Select.getOptions() is the correct way
-	// to interact with a native select in Selenium.
 	public boolean isKhmCountryCodePrefixDisplayed() {
 		waitForElementVisible(prefixNumberField);
 		return new Select(prefixNumberField).getOptions().stream()
@@ -1225,8 +1166,7 @@ public class LoginOptionsPage extends BasePage {
 
 	public void clickOnPrefixNumberFieldButton() {
 		waitForElementVisible(prefixNumberField);
-		// Native <select>: a real click opens OS dropdown chrome that intercepts later
-		// field/button clicks. Options are verified via Select.getOptions() instead.
+
 		ExtentReportManager.getTest().log(Status.INFO, "Clicked on Prefix Number select field");
 	}
 
@@ -1241,9 +1181,7 @@ public class LoginOptionsPage extends BasePage {
 	}
 
 	public boolean isOtpInputFieldIsDisplayed() {
-		// otpInputFields.isEmpty() has no wait built in - called right after clicking Get OTP, it can
-		// race the page transition and see the list still empty even though the OTP screen is about to
-		// render. Poll for at least one box to show up first instead of checking once immediately.
+
 		try {
 			new WebDriverWait(driver, Duration.ofSeconds(EsignetConfigManager.getTimeout()))
 					.until(d -> !otpInputFields.isEmpty());
@@ -1253,7 +1191,6 @@ public class LoginOptionsPage extends BasePage {
 		return isElementVisible(otpInputFields.get(0), "Verified otp input field is displayed");
 	}
 
-	/** Types one OTP digit per box, in order - the OTP field is 6 separate single-character inputs. */
 	public void enterOtp(String otp) {
 		enterOtpDigits(otpInputFields, otp,
 				(field, digit) -> enterText(field, String.valueOf(digit), "Entered OTP digit"));
@@ -1320,7 +1257,7 @@ public class LoginOptionsPage extends BasePage {
 					return chip;
 				}
 			} catch (StaleElementReferenceException ignored) {
-				// Chip re-rendered while scanning.
+
 			}
 		}
 		return null;
@@ -1527,7 +1464,7 @@ public class LoginOptionsPage extends BasePage {
 	private void setLoginIdFieldValue(WebElement field, String value) {
 		clearField(field);
 		if (value == null || value.isBlank()) {
-			// Thunder email/mobile inputs trim whitespace; an empty field is the intended state.
+
 			return;
 		}
 		enterText(field, value, "Entered individual ID");
@@ -1613,10 +1550,6 @@ public class LoginOptionsPage extends BasePage {
 		return null;
 	}
 
-	/**
-	 * Thunder biometric flow: select UIN/VID (or mobile/email) → enter value → Continue → scanning page.
-	 * Classic SBI may scan on the same page after ID entry without a Continue button.
-	 */
 	public void ensureBiometricScanPrerequisiteIdEntered() {
 		if (isScanningDevicesMessageVisible() || isDeviceNotFoundMessageVisible()
 				|| isBiometricDeviceDiscovered()) {
@@ -1662,10 +1595,6 @@ public class LoginOptionsPage extends BasePage {
 		return (uin == null || uin.isBlank()) ? null : uin.trim();
 	}
 
-	/**
-	 * Thunder ID-entry screen uses an orange Continue button (same role as Get OTP on OTP flow).
-	 * No-op on classic SBI (sbi_vid present) or when already on the scanning page.
-	 */
 	public void clickContinueOnBiometricLoginIdScreen() {
 		if (isScanningDevicesMessageVisible() || isDeviceNotFoundMessageVisible()
 				|| isBiometricDeviceDiscovered()) {
@@ -1697,7 +1626,7 @@ public class LoginOptionsPage extends BasePage {
 					}
 				}
 			} catch (StaleElementReferenceException ignored) {
-				// Retry next locator.
+
 			}
 		}
 		return null;
@@ -1712,7 +1641,7 @@ public class LoginOptionsPage extends BasePage {
 							|| isBiometricDeviceDiscovered()
 							|| isBiometricIntegrationContainerVisibleNow());
 		} catch (TimeoutException ignored) {
-			// Caller assertions surface missing scan state.
+
 		}
 	}
 
@@ -1745,9 +1674,6 @@ public class LoginOptionsPage extends BasePage {
 		selectBiometricUinVidLoginIdType();
 	}
 
-	/**
-	 * SBI widget re-renders after Mock MDS retry can hide the UIN/VID input until the tab is selected again.
-	 */
 	public void ensureBiometricVidFieldVisible() {
 		if (isScanningDevicesMessageVisible() || isDeviceNotFoundMessageVisible()
 				|| isBiometricDeviceDiscovered()) {
@@ -1935,10 +1861,6 @@ public class LoginOptionsPage extends BasePage {
 				|| getVisiblePageText().contains("provide your biometrics");
 	}
 
-	/**
-	 * When Mock MDS starts after the widget already scanned with no device, going back and re-opening
-	 * biometric login forces a fresh SBI discovery pass (more reliable than retry alone).
-	 */
 	public void reenterBiometricLoginAfterMockMdsStart() {
 		if (!MockMdsManager.isRunning()) {
 			return;
@@ -2007,7 +1929,7 @@ public class LoginOptionsPage extends BasePage {
 					cacheEntries);
 			rescanActivitySeen = true;
 		} catch (Exception ignored) {
-			// Best-effort cache seed before widget rescan.
+
 		}
 	}
 
@@ -2071,7 +1993,7 @@ public class LoginOptionsPage extends BasePage {
 							+ "});");
 			rescanActivitySeen = true;
 		} catch (Exception ignored) {
-			// Browser async discovery is best-effort; widget retry paths still run.
+
 		}
 	}
 
@@ -2084,7 +2006,7 @@ public class LoginOptionsPage extends BasePage {
 							+ "localStorage.removeItem('deviceInfos');"
 							+ "} catch (e) {}");
 		} catch (Exception ignored) {
-			// Best-effort cache reset before rescan.
+
 		}
 	}
 
@@ -2149,7 +2071,7 @@ public class LoginOptionsPage extends BasePage {
 					}
 				}
 			} catch (StaleElementReferenceException ignored) {
-				// SBI widget re-renders during scan; retry on next poll.
+
 			}
 		}
 		return null;
@@ -2176,7 +2098,7 @@ public class LoginOptionsPage extends BasePage {
 					|| title.contains("refresh")) {
 				return true;
 			}
-			// Thunder SBI: icon-only circular refresh next to the empty "Select a device" dropdown.
+
 			if ("button".equalsIgnoreCase(tagName) && (label.isBlank() || label.length() <= 2)) {
 				if (isAdjacentToDeviceDropdown(element)) {
 					return true;
@@ -2218,7 +2140,7 @@ public class LoginOptionsPage extends BasePage {
 		} else {
 			WebElement field = findVisibleLoginIdInput();
 			setLoginIdFieldValue(field, vid);
-			// Thunder: scanning starts only after Continue - do not sync SBI on the ID-entry screen.
+
 		}
 	}
 
@@ -2251,11 +2173,11 @@ public class LoginOptionsPage extends BasePage {
 						return disabled == null || "false".equalsIgnoreCase(disabled);
 					}
 				} catch (StaleElementReferenceException ignored) {
-					// SBI widget re-renders during scan; retry on next poll.
+
 				}
 			}
 		} catch (StaleElementReferenceException ignored) {
-			// SBI widget re-renders during scan; retry on next poll.
+
 		}
 		return false;
 	}
@@ -2332,7 +2254,7 @@ public class LoginOptionsPage extends BasePage {
 				try {
 					button.click();
 				} catch (Exception ignored) {
-					// Expected when the SBI widget keeps the button disabled.
+
 				}
 				return;
 			}
@@ -2443,7 +2365,7 @@ public class LoginOptionsPage extends BasePage {
 					return button;
 				}
 			} catch (StaleElementReferenceException ignored) {
-				// Widget re-renders while devices are discovered.
+
 			}
 		}
 		return findScanAndVerifyButtonViaJs();
@@ -2475,7 +2397,7 @@ public class LoginOptionsPage extends BasePage {
 				return (WebElement) result;
 			}
 		} catch (Exception ignored) {
-			// Best-effort lookup when the SBI widget is not a native <button>.
+
 		}
 		return null;
 	}
@@ -2684,7 +2606,7 @@ public class LoginOptionsPage extends BasePage {
 				}
 			}
 		} catch (StaleElementReferenceException ignored) {
-			// DOM is still updating while SBI scans for devices; retry on next wait poll.
+
 		}
 
 		String expectedMessage = ResourceBundleLoader.get("errors.no_devices_found_msg");
@@ -2771,7 +2693,6 @@ public class LoginOptionsPage extends BasePage {
 		return hasDiscoveredBiometricDevice();
 	}
 
-	/** Public wrapper for step definitions that need discovery status after Mock MDS retry. */
 	public boolean isBiometricDeviceDiscoveredPublic() {
 		return isBiometricDeviceDiscovered();
 	}
@@ -2789,10 +2710,6 @@ public class LoginOptionsPage extends BasePage {
 		}
 	}
 
-	/**
-	 * True only when the SBI widget lists a real device. Thunder always renders the
-	 * "Select a device" dropdown with "No Options" when discovery fails — that is not a device.
-	 */
 	private boolean hasDiscoveredBiometricDevice() {
 		String combined = getSbiVisibleText();
 		if (containsDeviceNotFoundCopy(combined)) {
@@ -2819,7 +2736,7 @@ public class LoginOptionsPage extends BasePage {
 						return true;
 					}
 				} catch (StaleElementReferenceException ignored) {
-					// Widget re-renders while devices are discovered.
+
 				}
 			}
 		}

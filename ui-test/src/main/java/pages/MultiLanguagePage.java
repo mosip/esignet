@@ -21,17 +21,12 @@ public class MultiLanguagePage extends BasePage {
         super(driver);
     }
 
-    // Thunder: #language_selection; classic: nav button[aria-haspopup='listbox']
     @FindBy(css = "#language_selection, #language_dropdown, nav button[aria-haspopup='listbox']")
     WebElement languageSelection;
 
     private static final By LANGUAGE_TRIGGER = By.cssSelector(
             "#language_selection, #language_dropdown, nav button[aria-haspopup='listbox']");
 
-    /**
-     * @return false if a real esignet page genuinely isn't reachable (caller should treat as not
-     *         applicable and skip); true otherwise.
-     */
     public boolean clickOnLanguageSelection() {
         if (!ensureFreshEsignetLoginPage(LANGUAGE_TRIGGER) && findLanguageDropdownTrigger() == null) {
             return false;
@@ -53,7 +48,7 @@ public class MultiLanguagePage extends BasePage {
         if (trigger != null) {
             String current = safeNormalize(trigger.getText());
             if (current.contains(safeNormalize(displayName))) {
-                // Re-select the current language so Thunder writes thunderid-i18n-language.
+
                 clickOnElement(trigger, "Opened language dropdown to persist current language");
                 WebElement alreadySelected = findLanguageOption(displayName);
                 if (alreadySelected != null) {
@@ -68,7 +63,7 @@ public class MultiLanguagePage extends BasePage {
             language = findLanguageOption(displayName);
         }
         if (language == null) {
-            // Authorize URL already has ui_locales; continue when page is already English.
+
             if ("English".equalsIgnoreCase(displayName)
                     || (driver.getCurrentUrl() != null
                             && driver.getCurrentUrl().toLowerCase().contains("ui_locales=en"))) {
@@ -117,8 +112,6 @@ public class MultiLanguagePage extends BasePage {
         return value == null ? "" : value.replaceAll("\\s+", " ").trim().toLowerCase();
     }
 
-    // Verified live: esignet-go persists the chosen language in cookie "thunderid-i18n-language"
-    // (2-letter code). Falls back to classic "i18nextLng", then local/session storage.
     public String getLanguageFromCookie() {
         for (String name : java.util.List.of("thunderid-i18n-language", "i18nextLng")) {
             org.openqa.selenium.Cookie cookie = driver.manage().getCookieNamed(name);
@@ -156,7 +149,7 @@ public class MultiLanguagePage extends BasePage {
         try {
             new WebDriverWait(driver, Duration.ofSeconds(10)).until(d -> findLanguageDropdownTrigger() != null);
         } catch (TimeoutException ignored) {
-            // Fall through to PageFactory element below.
+
         }
         WebElement trigger = findLanguageDropdownTrigger();
         if (trigger == null) {
