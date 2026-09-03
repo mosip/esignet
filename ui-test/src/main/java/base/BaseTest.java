@@ -357,11 +357,6 @@ public class BaseTest extends AdminTestUtil {
 		}
 	}
 
-	@After("@BiometricLogin")
-	public void stopMockMdsAfterBiometricLogin(Scenario scenario) {
-		MockMdsManager.stopAll();
-	}
-
 	@Before("@BiometricDeviceNotDetected or @BiometricDeviceDetectedOnRetry or @BiometricAuthenticationFlow")
 	public void ensureMockMdsStoppedBeforeDeviceNotFoundScan(Scenario scenario) {
 		if (!MockMdsManager.isEnabled()) {
@@ -384,23 +379,8 @@ public class BaseTest extends AdminTestUtil {
 		MockMdsManager.startForAuth();
 	}
 
-	@After("@BiometricDeviceNotDetected or @BiometricDeviceDetectedOnRetry or @BiometricLogin or @BiometricAuthenticationFlow")
-	public void stopMockMdsAfterBiometricScenarios(Scenario scenario) {
-		MockMdsManager.stopAll();
-	}
-
-	@After("@RequiresMockMds")
+	@After("@RequiresMockMds or @BiometricDeviceNotDetected or @BiometricDeviceDetectedOnRetry or @BiometricLogin or @BiometricAuthenticationFlow")
 	public void stopMockMds(Scenario scenario) {
-		MockMdsManager.stopAll();
-	}
-
-	@After("@BiometricDeviceDetectedOnRetry")
-	public void stopMockMdsAfterRetryScenario(Scenario scenario) {
-		MockMdsManager.stopAll();
-	}
-
-	@After("@BiometricAuthenticationFlow")
-	public void stopMockMdsAfterBiometricAuthenticationFlow(Scenario scenario) {
 		MockMdsManager.stopAll();
 	}
 
