@@ -106,6 +106,37 @@ func (q *Queries) CreateClient(ctx context.Context, arg CreateClientParams) (Cli
 	return i, err
 }
 
+const getActiveClient = `-- name: GetActiveClient :one
+SELECT id, name, rp_id, logo_uri, redirect_uris, claims, acr_values, public_key, public_key_hash, enc_public_key, enc_public_key_hash, enc_public_key_cert, grant_types, auth_methods, status, additional_config, cr_dtimes, upd_dtimes FROM client_detail
+WHERE id = $1 AND status = 'ACTIVE' LIMIT 1
+`
+
+func (q *Queries) GetActiveClient(ctx context.Context, id string) (ClientDetail, error) {
+	row := q.db.QueryRowContext(ctx, getActiveClient, id)
+	var i ClientDetail
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.RpID,
+		&i.LogoUri,
+		&i.RedirectUris,
+		&i.Claims,
+		&i.AcrValues,
+		&i.PublicKey,
+		&i.PublicKeyHash,
+		&i.EncPublicKey,
+		&i.EncPublicKeyHash,
+		&i.EncPublicKeyCert,
+		&i.GrantTypes,
+		&i.AuthMethods,
+		&i.Status,
+		&i.AdditionalConfig,
+		&i.CrDtimes,
+		&i.UpdDtimes,
+	)
+	return i, err
+}
+
 const getClient = `-- name: GetClient :one
 SELECT id, name, rp_id, logo_uri, redirect_uris, claims, acr_values, public_key, public_key_hash, enc_public_key, enc_public_key_hash, enc_public_key_cert, grant_types, auth_methods, status, additional_config, cr_dtimes, upd_dtimes FROM client_detail
 WHERE id = $1 LIMIT 1

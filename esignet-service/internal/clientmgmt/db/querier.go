@@ -16,6 +16,7 @@ import (
 
 type Querier interface {
 	CreateClient(ctx context.Context, arg CreateClientParams) (ClientDetail, error)
+	GetActiveClient(ctx context.Context, id string) (ClientDetail, error)
 	GetClient(ctx context.Context, id string) (ClientDetail, error)
 	PatchClient(ctx context.Context, arg PatchClientParams) (ClientDetail, error)
 	UpdateClient(ctx context.Context, arg UpdateClientParams) (ClientDetail, error)
