@@ -57,7 +57,7 @@ func NewActorProvider(clientSvc *clientmgmt.Service, config *config.AppConfig) p
 func (p *actorProvider) GetOAuthClientByClientID(
 	ctx context.Context, clientID string,
 ) (*providers.OAuthClient, *common.ServiceError) {
-	client, err := p.clientSvc.GetClient(ctx, clientID)
+	client, err := p.clientSvc.GetActiveClient(ctx, clientID)
 	if err != nil {
 		if errors.Is(err, clientmgmt.ErrClientNotFound) {
 			return nil, nil
@@ -113,7 +113,7 @@ func (p *actorProvider) GetOAuthClientByClientID(
 func (p *actorProvider) GetOAuthProfileByID(
 	ctx context.Context, id string,
 ) (*providers.OAuthProfile, *common.ServiceError) {
-	client, err := p.clientSvc.GetClient(ctx, id)
+	client, err := p.clientSvc.GetActiveClient(ctx, id)
 	if err != nil {
 		if errors.Is(err, clientmgmt.ErrClientNotFound) {
 			return nil, shared.ClientNotFoundError
@@ -165,7 +165,7 @@ func (p *actorProvider) GetOAuthProfileByID(
 func (p *actorProvider) GetInboundClientByID(
 	ctx context.Context, id string,
 ) (*providers.InboundClient, *common.ServiceError) {
-	client, err := p.clientSvc.GetClient(ctx, id)
+	client, err := p.clientSvc.GetActiveClient(ctx, id)
 	if err != nil {
 		if errors.Is(err, clientmgmt.ErrClientNotFound) {
 			return nil, shared.ClientNotFoundError
@@ -205,7 +205,7 @@ func (p *actorProvider) AuthenticateActor(
 }
 
 func (p *actorProvider) GetActor(id string) (*providers.Entity, *common.ServiceError) {
-	client, err := p.clientSvc.GetClient(context.Background(), id)
+	client, err := p.clientSvc.GetActiveClient(context.Background(), id)
 	if err != nil {
 		if errors.Is(err, clientmgmt.ErrClientNotFound) {
 			return nil, shared.ClientNotFoundError
