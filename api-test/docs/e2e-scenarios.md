@@ -50,7 +50,8 @@ one authentication factor against it.
 |---|---|
 | `name` | Shown in the report; also what `include`/`exclude` match against |
 | `auth_factor` | **Required.** `otp` \| `password` \| `bio` \| `kbi` — selects the ACR at the login step |
-| `credentials` | Overrides the base identity answers for this scenario only. Keys: `username`, `password`, `otp`, `fullName`, `dob`, `captchaToken` |
+| `credentials` | Overrides the base identity answers for this scenario only. Keys: `username`, `password`, `biometric`, `otp`, `fullName`, `dob`, `captchaToken` |
+| `omit_credentials` | Removes these keys (after `credentials` overrides are applied) from this scenario's answers, so no value at all is submitted. Not the same as overriding to `""` — a target that accepts any non-empty value would accept an empty string too |
 | `expect_login_failure` | Negative case: **passes when the flow is correctly rejected**, fails if a bad credential or an unhardened request is wrongly accepted. Rejection anywhere in the chain counts, not only at login. Omitted means positive — the flow must complete |
 | `expect_error_contains` | On a negative case, additionally requires the rejection message to contain this substring, so the case cannot pass on an unrelated failure. Ignored without `expect_login_failure` |
 | `client_config` | The `additionalConfig` protocol switches the scenario's client is registered with — see [Protocol combinations](#protocol-combinations) |
@@ -62,12 +63,16 @@ one authentication factor against it.
 | `introspect` | Introspection cases to run once the flow has completed — see [Introspection](#introspection-coverage) |
 | `consent` | How to answer the consent step and what to assert — see below |
 | `client_lifecycle` | Deactivates the scenario's client partway through the flow — see [Client status](#client-status-coverage) |
-| `known_issue` | A reason string for an already-tracked environment gap. A **claim-assertion** failure then lands in the **Known** bucket with that reason instead of Failed, leaving the exit code alone; the failing check is still shown. It does not cover login failures, and a scenario that starts passing is still reported as passed |
+| `known_issue` | A reason string for an already-tracked environment gap. A **claim-assertion** failure or a **login** failure then lands in the **Known** bucket with that reason instead of Failed, leaving the exit code alone; the failing check is still shown. A scenario that starts passing is still reported as passed |
+| `requires_credential` | Names an answer key (e.g. `password`) that must be non-empty, after `credentials` overrides are merged in, for the scenario to run at all. Left unconfigured on this deployment, the scenario is reported **SKIPPED** instead of attempting a login with no credential to use |
 
-> **Scenarios for unavailable factors are kept and reported failed, deliberately.** An ACR with no
-> working credential on the target (`bio`, say, or `password` where the user is not seeded) stays in
-> the file and is reported **FAILED** with a clear reason rather than quietly omitted. It goes green
-> once real credentials exist, and stays visible until then.
+> **Scenarios for unavailable factors are kept and reported failed, deliberately** — unless marked
+> otherwise. An ACR with no working credential on the target (`bio`, say, or `password` where the
+> user is not seeded) stays in the file and is reported **FAILED** with a clear reason rather than
+> quietly omitted, and goes green once real credentials exist. The two deliberate exceptions are
+> `known_issue`, for a gap that is out of scope for now (kept visible in the Known bucket rather than
+> Failed), and `requires_credential`, for a factor that legitimately varies by deployment (kept out of
+> the Failed count as SKIPPED rather than failing every run that hasn't seeded it).
 
 ---
 

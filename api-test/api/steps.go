@@ -544,8 +544,12 @@ func InitScenario(sc *godog.ScenarioContext, coll *Collector) {
 			env.Result = "FAILED"
 			env.HarnessOutcome = "OK"
 			env.FailedConditions = []Condition{{Src: "godog", Result: "FAILURE", Msg: firstLine(scenErr.Error())}}
-			if reason, ok := knownIssueReason(scn); ok {
+			if reason, known := knownIssueReason(scn); known {
 				env.HarnessOutcome = "KNOWN_ISSUE"
+				env.OutcomeDetail = reason
+			} else if reason != "" {
+				// Tagged but unregistered: stays FAILED (HarnessOutcome already
+				// OK), and says why the tag did not take.
 				env.OutcomeDetail = reason
 			}
 		}
@@ -594,15 +598,22 @@ var apiKnownIssueReasons = map[string]string{
 	"Uploading certificateData that is not a certificate is rejected as an invalid certificate": "esignet-service returns HTTP 500 server_error instead of invalid_certificate for a malformed certificate — tracked as mosip/esignet#2527",
 }
 
-// knownIssueReason reports the reason a failed, @known_issue-tagged scenario
-// is known to fail, or false if scn isn't tagged (or has no reason on file,
-// which is a spec mistake worth surfacing rather than silently swallowing).
+// knownIssueReason reports the reason a failed, @known_issue-tagged scenario is
+// known to fail. The bool is what reclassifies FAILED into KNOWN_ISSUE, so it is
+// true ONLY for a tag backed by an entry in apiKnownIssueReasons.
+//
+// A tag with no entry — a scenario renamed without updating the map, or a tag
+// added without review — returns a diagnostic with false: the scenario stays a
+// normal FAILURE. Reclassifying it would let a typo pull a real regression out
+// of the failure bucket, which is the one thing this mechanism must never do.
+// The diagnostic still reaches the report via the envelope's OutcomeDetail, so
+// the unregistered tag is visible rather than merely ignored.
 func knownIssueReason(scn *godog.Scenario) (string, bool) {
 	for _, t := range scn.Tags {
 		if strings.TrimPrefix(t.Name, "@") == "known_issue" {
 			reason, ok := apiKnownIssueReasons[scn.Name]
 			if !ok {
-				return fmt.Sprintf("scenario tagged @known_issue but apiKnownIssueReasons has no entry for %q", scn.Name), true
+				return fmt.Sprintf("scenario tagged @known_issue but apiKnownIssueReasons has no entry for %q — reported as a normal failure", scn.Name), false
 			}
 			return reason, true
 		}

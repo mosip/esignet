@@ -27,6 +27,7 @@ func BuildAnswers(c config.Esignet) map[string]string {
 		put("otp", c.OTP.Value)
 	}
 	put("password", c.Credentials.Password)
+	put("biometric", c.Credentials.Biometric)
 	put("fullName", c.Knowledge.FullName)
 	put("name", c.Knowledge.FullName)
 	put("dob", c.Knowledge.DOB)

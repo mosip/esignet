@@ -83,16 +83,19 @@ func TestKnownIssueReasonReturnsTheRecordedReason(t *testing.T) {
 }
 
 // A scenario tagged @known_issue but missing from apiKnownIssueReasons is a
-// spec mistake — someone added the tag without recording why — and must
-// surface as such rather than silently reporting no reason at all.
+// spec mistake — someone added the tag without recording why. It must NOT be
+// reclassified as known: a renamed scenario or an unreviewed tag would then
+// pull a real regression out of the failure bucket, which is exactly what this
+// mechanism exists to prevent. It stays a normal failure, and the returned
+// diagnostic explains why the tag did not take.
 func TestKnownIssueReasonFlagsAMissingEntry(t *testing.T) {
 	scn := &godog.Scenario{
 		Name: "a scenario someone tagged but forgot to record",
 		Tags: []*messages.PickleTag{{Name: "@known_issue"}},
 	}
-	reason, ok := knownIssueReason(scn)
-	if !ok {
-		t.Fatal("knownIssueReason: tagged scenario reported as not known, want true")
+	reason, known := knownIssueReason(scn)
+	if known {
+		t.Error("knownIssueReason: unregistered tag reported as known — a typo would hide a regression")
 	}
 	if !strings.Contains(reason, "no entry") {
 		t.Errorf("reason = %q, want it to flag the missing apiKnownIssueReasons entry", reason)

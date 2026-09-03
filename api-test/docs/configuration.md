@@ -53,6 +53,7 @@ what "passing" means.
 | `identity.individual_id` | The test identity. Required for every provider except `mock`. |
 | `identity.id_type` | `uin` \| `vid` \| `phone` \| `email` — selects the matching login-id tab |
 | `credentials.username` / `.password` | For the password factor |
+| `credentials.biometric` | For the bio factor. Only `mock` validates it, and accepts any non-empty value |
 | `knowledge.full_name` / `.dob` | For the knowledge-based factor |
 | `otp.*` | Static or dynamic OTP retrieval — see [MOSIP ID](mosip-id.md#dynamic-otp-retrieval) |
 | `pms.*` | MOSIP-ID-only partner binding — see [MOSIP ID](mosip-id.md#partner-registration-via-pms) |
