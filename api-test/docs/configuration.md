@@ -114,7 +114,7 @@ override**, so a container needing to change those must mount the config file it
 | `AUTH_FACTOR` | `esignet.auth_factor` | | `KEYCLOAK_CLIENT_SECRET` | `keycloak.client_secret` |
 | `ESIGNET_TLS_VERIFY` | `esignet.tls_verify` | | | |
 | `INDIVIDUAL_ID` / `ID_TYPE` | `esignet.identity.*` | | `GODOG_TAGS` | `api.tags` |
-| `TEST_USERNAME` / `TEST_PASSWORD` | `esignet.credentials.*` | | `FLOW_CLIENT_ID` | `api.flow_client_id` |
+| `TEST_USERNAME` / `TEST_PASSWORD` / `TEST_BIOMETRIC` | `esignet.credentials.*` | | `FLOW_CLIENT_ID` | `api.flow_client_id` |
 | `KBI_FULL_NAME` / `KBI_DOB` | `esignet.knowledge.*` | | `API_TLS_VERIFY` | `api.tls_verify` |
 | `OTP_SOURCE` / `TEST_OTP` | `esignet.otp.*` | | `E2E_SPEC` | `e2e.spec` |
 | `OTP_WS_URL` / `OTP_RECIPIENT_EMAIL` | `esignet.otp.*` | | `E2E_AUTH_FACTORS` | `e2e.auth_factors` |

@@ -399,14 +399,28 @@ func (r *Runner) Run(ctx context.Context, spec Spec) []result.ModuleResult {
 			delete(answers, esignet.Normalize(k))
 		}
 
-		if sc.RequiresCredential != "" && answers[esignet.Normalize(sc.RequiresCredential)] == "" {
-			row.Result = "SKIPPED"
-			row.HarnessOutcome = result.OutcomeSkippedByHarness
-			row.OutcomeDetail = fmt.Sprintf("%s not configured for this deployment", sc.RequiresCredential)
-			row.DurationMs = time.Since(start).Milliseconds()
-			logf("e2e: %-55s -> SKIPPED (%s not configured)", sc.Name, sc.RequiresCredential)
-			out = append(out, row)
-			continue
+		if sc.RequiresCredential != "" {
+			// An unrecognised name is a typo in the spec, not an unconfigured
+			// deployment. Skipping it would take the scenario out of the
+			// failure signal on a mistake — exactly what the skip must never
+			// be able to do — so it fails loudly instead.
+			if !esignet.KnownAnswerKey(sc.RequiresCredential) {
+				row.Result = "FAILED"
+				row.FailedConditions = []result.Condition{{Src: "e2e", Result: "FAILURE", Msg: fmt.Sprintf("scenario spec error: requires_credential %q is not a known answer key", sc.RequiresCredential)}}
+				row.DurationMs = time.Since(start).Milliseconds()
+				logf("e2e: %-55s -> FAILED (requires_credential %q is not a known answer key)", sc.Name, sc.RequiresCredential)
+				out = append(out, row)
+				continue
+			}
+			if answers[esignet.Normalize(sc.RequiresCredential)] == "" {
+				row.Result = "SKIPPED"
+				row.HarnessOutcome = result.OutcomeSkippedByHarness
+				row.OutcomeDetail = fmt.Sprintf("%s not configured for this deployment", sc.RequiresCredential)
+				row.DurationMs = time.Since(start).Milliseconds()
+				logf("e2e: %-55s -> SKIPPED (%s not configured)", sc.Name, sc.RequiresCredential)
+				out = append(out, row)
+				continue
+			}
 		}
 
 		preferred := append(esignet.AuthFactorTokens(sc.AuthFactor), esignet.IDTypeTokens(r.IDType)...)
