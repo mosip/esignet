@@ -324,6 +324,12 @@ func (r *Runner) Run(ctx context.Context, spec Spec) []result.ModuleResult {
 	r.acr = spec.Acr
 
 	if r.AdminToken != "" {
+		// An https URL is worthless cover for the token if the client doesn't
+		// actually validate the certificate on the other end of it.
+		if !r.TLSVerify {
+			return r.registrationFailureRows(spec, nil,
+				errors.New("TLS verification must be enabled when ADMIN_TOKEN is set"))
+		}
 		if err := requireHTTPS("esignet base URL", r.Base); err != nil {
 			return r.registrationFailureRows(spec, nil, err)
 		}
@@ -765,8 +771,12 @@ func (r *Runner) runScenario(ctx context.Context, cl *testClient, redirectURI st
 	// One DPoP key for the whole flow: the proof at token must present the same thumbprint the PAR proof bound the auth code to.
 	var dp *dpopSigner
 	if plan.useDPoP {
+		alg, aerr := chooseDPoPAlg(r.DPoPAlgs)
+		if aerr != nil {
+			return nil, nil, consentObservation{}, proto, aerr
+		}
 		var derr error
-		if dp, derr = newDPoPSigner(chooseDPoPAlg(r.DPoPAlgs)); derr != nil {
+		if dp, derr = newDPoPSigner(alg); derr != nil {
 			return nil, nil, consentObservation{}, proto, derr
 		}
 	}

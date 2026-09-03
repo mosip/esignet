@@ -119,15 +119,35 @@ func TestChooseDPoPAlg(t *testing.T) {
 		{"falls back to RS256 when it is all that is offered", []string{"RS256"}, "RS256"},
 		{"ignores algs the harness cannot produce", []string{"ES256", "EdDSA", "RS256"}, "RS256"},
 		{"case insensitive", []string{"ps256"}, "PS256"},
-		// Neither an empty nor an all-unsupported advertisement is fatal: sending a proof produces a real server error to read.
+		// An empty advertisement means discovery doesn't publish the field at
+		// all, not that it excludes every alg -- defaultDPoPAlg is the right
+		// assumption there, and sending it is not fatal.
 		{"empty advertisement falls back", nil, defaultDPoPAlg},
-		{"no producible alg falls back", []string{"ES512"}, defaultDPoPAlg},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			if got := chooseDPoPAlg(tc.supported); got != tc.want {
+			got, err := chooseDPoPAlg(tc.supported)
+			if err != nil {
+				t.Fatalf("chooseDPoPAlg(%v) returned an error: %v", tc.supported, err)
+			}
+			if got != tc.want {
 				t.Errorf("chooseDPoPAlg(%v) = %q, want %q", tc.supported, got, tc.want)
 			}
 		})
+	}
+}
+
+// An advertisement that names algorithms but none this harness can produce is
+// a real capability gap, not the "field absent" case above: falling back to
+// defaultDPoPAlg here would send a proof the server correctly rejects, and a
+// DPoP scenario would then blame the deployment for a rejection the harness
+// caused.
+func TestChooseDPoPAlgErrorsWhenNoAdvertisedAlgIsProducible(t *testing.T) {
+	_, err := chooseDPoPAlg([]string{"ES512"})
+	if err == nil {
+		t.Fatal("chooseDPoPAlg([ES512]) = nil error, want one naming the capability gap")
+	}
+	if !strings.Contains(err.Error(), "ES512") {
+		t.Errorf("error = %q, want it to name the unsupported advertisement", err)
 	}
 }
 
