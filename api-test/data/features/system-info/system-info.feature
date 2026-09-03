@@ -4,11 +4,16 @@ Feature: /health and /system-info — liveness and the certificate endpoints
   touches: the liveness probe, and the pair of /system-info endpoints that read
   and replace the service's signing certificates.
 
-  Tagged @flow-execute rather than a tag of its own on purpose. These endpoints
-  need neither admin credentials nor a registered client, which is exactly the
-  precondition @flow-execute already stands for — and it is the tag the harness
-  always runs. A dedicated @system-info tag would need adding to the default set
-  in engine_test.go before it ever executed.
+  Tagged @flow-execute rather than a tag of its own on purpose — it is the tag
+  the harness always runs. A dedicated @system-info tag would need adding to
+  the default set in engine_test.go before it ever executed.
+
+  /health needs no admin credentials or registered client. Every
+  /system-info/* endpoint DOES require an authenticated admin bearer token —
+  a deployed target 401s "missing Authorization header" otherwise — so each
+  of those scenarios opens with "Given I authenticate as admin" and is
+  ENV_NOT_READY (not a hard failure) when KEYCLOAK_* isn't configured, same
+  as client-mgmt.
 
   # Unlike client-mgmt, these endpoints answer with errorCode "invalid_request"
   # (not "invalid_input") and "invalid_certificate". Both still come back as
@@ -30,6 +35,7 @@ Feature: /health and /system-info — liveness and the certificate endpoints
   # the certificate the service provisioned at boot, so this also proves the key
   # hierarchy came up rather than the server merely accepting connections.
   Scenario: Read the ROOT certificate
+    Given I authenticate as admin
     When I send a "GET" request to "/system-info/certificate?applicationId=ROOT"
     Then the response status should be 200
     And the JSON path "response.certificate" should exist
@@ -37,6 +43,7 @@ Feature: /health and /system-info — liveness and the certificate endpoints
   # ------------------------------------------------- certificate — negative --
 
   Scenario: Reading a certificate without an applicationId is rejected
+    Given I authenticate as admin
     When I send a "GET" request to "/system-info/certificate"
     Then the response status should be 200
     And the JSON value at "errors.0.errorCode" should be "invalid_request"
@@ -44,6 +51,7 @@ Feature: /health and /system-info — liveness and the certificate endpoints
   # The length ceiling is checked before the allow-list, so an over-long id is
   # rejected for its length even when it would also have failed as not permitted.
   Scenario: A referenceId beyond the length ceiling is rejected
+    Given I authenticate as admin
     When I send a "GET" request to "/system-info/certificate?applicationId=ROOT&referenceId=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
     Then the response status should be 200
     And the JSON value at "errors.0.errorCode" should be "invalid_request"
@@ -54,6 +62,7 @@ Feature: /health and /system-info — liveness and the certificate endpoints
   # Only the fixed hierarchy tiers (blank, RSA_2048, the three signing refs) are
   # exempt without configuration.
   Scenario: A referenceId outside the configured allow-list is refused
+    Given I authenticate as admin
     When I send a "GET" request to "/system-info/certificate?applicationId=ROOT&referenceId=ANY_ENCRYPTION_KEY"
     Then the response status should be 200
     And the JSON value at "errors.0.errorCode" should be "invalid_request"
@@ -67,6 +76,7 @@ Feature: /health and /system-info — liveness and the certificate endpoints
   # path is covered by the package's unit tests.
 
   Scenario: Uploading a certificate with a malformed body is rejected
+    Given I authenticate as admin
     When I send a "POST" request to "/system-info/uploadCertificate" with body:
       """
       { "requestTime": "{{now}}", "request": { "applicationId": }
@@ -75,7 +85,8 @@ Feature: /health and /system-info — liveness and the certificate endpoints
     And the JSON value at "errors.0.errorCode" should be "invalid_request"
 
   Scenario: Uploading a certificate without an applicationId is rejected
-    Given a fresh request timestamp
+    Given I authenticate as admin
+    And a fresh request timestamp
     When I send a "POST" request to "/system-info/uploadCertificate" with body:
       """
       {
@@ -89,7 +100,8 @@ Feature: /health and /system-info — liveness and the certificate endpoints
     And the JSON value at "errors.0.errorCode" should be "invalid_request"
 
   Scenario: Uploading a certificate without certificateData is rejected
-    Given a fresh request timestamp
+    Given I authenticate as admin
+    And a fresh request timestamp
     When I send a "POST" request to "/system-info/uploadCertificate" with body:
       """
       {
@@ -133,7 +145,8 @@ Feature: /health and /system-info — liveness and the certificate endpoints
   # make for any plugin.
   @known_issue
   Scenario: Uploading certificateData that is not a certificate is rejected as an invalid certificate
-    Given a fresh request timestamp
+    Given I authenticate as admin
+    And a fresh request timestamp
     When I send a "POST" request to "/system-info/uploadCertificate" with body:
       """
       {
