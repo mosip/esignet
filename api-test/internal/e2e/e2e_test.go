@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -454,5 +455,48 @@ func TestRequireHTTPSRejectsNonHTTPS(t *testing.T) {
 				t.Fatalf("requireHTTPS accepted %q", tc.raw)
 			}
 		})
+	}
+}
+
+// An https base URL is worthless cover for AdminToken if the client isn't
+// actually validating the certificate on the other end of it -- TLSVerify:false
+// sets InsecureSkipVerify, which accepts any certificate a man-in-the-middle
+// presents. Run must refuse this combination before any request is sent,
+// the same way it already refuses a non-https base URL.
+func TestRunRejectsAdminTokenWithDisabledTLSVerify(t *testing.T) {
+	r := &Runner{Base: "https://esignet.example.org/v1/esignet", AdminToken: "t", TLSVerify: false}
+	rows := r.Run(context.Background(), specWith("otp positive"))
+
+	if len(rows) != 1 {
+		t.Fatalf("got %d rows, want 1", len(rows))
+	}
+	if rows[0].Result != "FAILED" {
+		t.Errorf("Result = %q, want FAILED", rows[0].Result)
+	}
+	found := false
+	for _, c := range rows[0].FailedConditions {
+		if strings.Contains(c.Msg, "TLS verification") {
+			found = true
+		}
+	}
+	if !found {
+		t.Errorf("FailedConditions = %+v, want one naming TLS verification", rows[0].FailedConditions)
+	}
+}
+
+// TLSVerify:true with AdminToken set must reach the ordinary https-URL check
+// (and fail there, since the test doesn't stand up a real server) rather than
+// being rejected for the TLS setting itself.
+func TestRunAllowsAdminTokenWithTLSVerifyEnabled(t *testing.T) {
+	r := &Runner{Base: "not-a-url", AdminToken: "t", TLSVerify: true}
+	rows := r.Run(context.Background(), specWith("otp positive"))
+
+	if len(rows) != 1 {
+		t.Fatalf("got %d rows, want 1", len(rows))
+	}
+	for _, c := range rows[0].FailedConditions {
+		if strings.Contains(c.Msg, "TLS verification") {
+			t.Errorf("rejected for TLS verification with TLSVerify:true: %+v", rows[0].FailedConditions)
+		}
 	}
 }

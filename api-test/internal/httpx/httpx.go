@@ -3,6 +3,7 @@ package httpx
 
 import (
 	"crypto/tls"
+	"fmt"
 	"net/http"
 	"time"
 )
@@ -20,6 +21,17 @@ func NewClient(tlsVerify bool, timeout time.Duration) *http.Client {
 				//nolint:gosec // operator-controlled: only the suite's self-signed localhost cert is exempted via tlsVerify.
 				InsecureSkipVerify: !tlsVerify,
 			},
+		},
+		// Every caller of this client sends AdminToken or another bearer
+		// credential via the Authorization header. Refusing a redirect to a
+		// non-https target is defense in depth against a compromised or
+		// misconfigured server sending that header in cleartext, on top of
+		// (not instead of) requireHTTPS validating the request's own base URL.
+		CheckRedirect: func(req *http.Request, _ []*http.Request) error {
+			if req.URL.Scheme != "https" {
+				return fmt.Errorf("refusing redirect to non-https URL: %s", req.URL)
+			}
+			return nil
 		},
 		Timeout: timeout,
 	}

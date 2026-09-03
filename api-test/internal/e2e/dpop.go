@@ -21,16 +21,26 @@ const defaultDPoPAlg = "RS256"
 // dpopAlgs are the algs this harness can produce, in preference order; both sign with the same RSA key, so picking between them costs nothing.
 var dpopAlgs = []string{"PS256", "RS256"}
 
-// chooseDPoPAlg picks the first alg the harness can produce that the deployment also advertises, falling back to defaultDPoPAlg rather than failing.
-func chooseDPoPAlg(supported []string) string {
+// chooseDPoPAlg picks the first alg the harness can produce that the
+// deployment also advertises. An empty supported list means discovery simply
+// doesn't publish dpop_signing_alg_values_supported, so defaultDPoPAlg (in
+// every shipped deployment.yaml allow-list) is assumed. A non-empty list with
+// no PS256/RS256 match is a real harness capability gap, not that case:
+// falling back to defaultDPoPAlg there would send a proof the server
+// correctly rejects, and the scenario would report that rejection as a
+// deployment failure instead of naming the actual limit.
+func chooseDPoPAlg(supported []string) (string, error) {
+	if len(supported) == 0 {
+		return defaultDPoPAlg, nil
+	}
 	for _, want := range dpopAlgs {
 		for _, got := range supported {
 			if strings.EqualFold(want, got) {
-				return want
+				return want, nil
 			}
 		}
 	}
-	return defaultDPoPAlg
+	return "", fmt.Errorf("dpop_signing_alg_values_supported %v has no algorithm this harness can produce (%v)", supported, dpopAlgs)
 }
 
 // dpopSigner mints the DPoP proofs for one scenario's flow, shared across PAR, token and userinfo so the shared jkt is the binding the server enforces.
