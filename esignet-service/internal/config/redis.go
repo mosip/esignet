@@ -19,8 +19,9 @@ import (
 const (
 	defaultRedisHost                = "localhost"
 	defaultRedisPort                = "6379"
-	defaultRedisPoolSize            = 10
-	defaultRedisMinIdleConns        = 2
+	defaultRedisPoolSize            = 100
+	defaultRedisMaxActiveConns      = 100
+	defaultRedisMinIdleConns        = 10
 	defaultRedisConnMaxIdleTime     = 300
 	defaultRedisDialTimeoutSecs     = 5
 	defaultRedisReadTimeoutSecs     = 3
@@ -56,8 +57,11 @@ const (
 // db.go, deployment.yaml documents these but they are never read from YAML,
 // keeping a single source of truth for pool sizing):
 //
-//	REDIS_POOL_SIZE             — default 10
-//	REDIS_MIN_IDLE_CONNS        — default 2
+//	REDIS_POOL_SIZE             — default 100
+//	REDIS_MAX_ACTIVE_CONNS      — default 100; hard ceiling on connections
+//	                              allocated by the pool at any given time
+//	                              (0 = no limit)
+//	REDIS_MIN_IDLE_CONNS        — default 10
 //	REDIS_CONN_MAX_IDLE_TIME_SECS — default 300
 //	REDIS_CONN_MAX_LIFETIME_SECS  — default 1800 (0 = no limit, explicit opt-out)
 //	REDIS_DIAL_TIMEOUT_SECS     — default 5
@@ -76,6 +80,7 @@ type Redis struct {
 	TLS      bool   `yaml:"tls"`
 
 	PoolSize        int           `yaml:"-"`
+	MaxActiveConns  int           `yaml:"-"`
 	MinIdleConns    int           `yaml:"-"`
 	ConnMaxIdleTime time.Duration `yaml:"-"`
 	ConnMaxLifetime time.Duration `yaml:"-"`
@@ -99,6 +104,7 @@ func loadRedis(yamlRedis Redis) Redis {
 	// comment above), so fromYAML is always 0 — envIntOrConfigOrDefault
 	// collapses to "env wins if positive, else the compiled default".
 	poolSize := envIntOrConfigOrDefault("REDIS_POOL_SIZE", 0, defaultRedisPoolSize)
+	maxActiveConns := envIntOrConfigOrDefault("REDIS_MAX_ACTIVE_CONNS", 0, defaultRedisMaxActiveConns)
 	minIdle := envIntOrConfigOrDefault("REDIS_MIN_IDLE_CONNS", 0, defaultRedisMinIdleConns)
 	idleTime := time.Duration(envIntOrConfigOrDefault("REDIS_CONN_MAX_IDLE_TIME_SECS", 0, defaultRedisConnMaxIdleTime)) * time.Second
 
@@ -139,6 +145,7 @@ func loadRedis(yamlRedis Redis) Redis {
 		DB:              envIntOrConfigOrDefault("REDIS_DB", yamlRedis.DB, defaultRedisDB),
 		TLS:             envBoolOrConfig("REDIS_TLS_ENABLED", yamlRedis.TLS),
 		PoolSize:        poolSize,
+		MaxActiveConns:  maxActiveConns,
 		MinIdleConns:    minIdle,
 		ConnMaxIdleTime: idleTime,
 		ConnMaxLifetime: lifetime,
@@ -191,6 +198,7 @@ func (r Redis) newClient() (*redis.Client, error) {
 			Password:        r.Password,
 			DB:              r.DB,
 			PoolSize:        r.PoolSize,
+			MaxActiveConns:  r.MaxActiveConns,
 			MinIdleConns:    r.MinIdleConns,
 			ConnMaxIdleTime: r.ConnMaxIdleTime,
 			ConnMaxLifetime: r.ConnMaxLifetime,
@@ -211,6 +219,7 @@ func (r Redis) newClient() (*redis.Client, error) {
 		Password:        r.Password,
 		DB:              r.DB,
 		PoolSize:        r.PoolSize,
+		MaxActiveConns:  r.MaxActiveConns,
 		MinIdleConns:    r.MinIdleConns,
 		ConnMaxIdleTime: r.ConnMaxIdleTime,
 		ConnMaxLifetime: r.ConnMaxLifetime,
@@ -229,6 +238,7 @@ func (r Redis) newClient() (*redis.Client, error) {
 // The DSN may not encode pool parameters so we always override with explicit config.
 func (r Redis) applyPool(opts *redis.Options) {
 	opts.PoolSize = r.PoolSize
+	opts.MaxActiveConns = r.MaxActiveConns
 	opts.MinIdleConns = r.MinIdleConns
 	opts.ConnMaxIdleTime = r.ConnMaxIdleTime
 	opts.ConnMaxLifetime = r.ConnMaxLifetime

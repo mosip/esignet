@@ -26,7 +26,7 @@ const (
 	defaultDBPort         = "5455"
 	defaultDBName         = "mosip_esignet"
 	defaultDBUser         = "postgres"
-	defaultDBMaxOpenConns = 25
+	defaultDBMaxOpenConns = 50
 	// defaultDBMaxIdleConns is intentionally well below defaultDBMaxOpenConns.
 	// Unlike database/sql's MaxIdleConns (a passive ceiling), pgxpool.Config's
 	// MinConns — which this feeds, see buildPoolConfig — is an eagerly
@@ -36,7 +36,7 @@ const (
 	// any traffic arrives, multiplying baseline Postgres load by replica
 	// count; keeping it low preserves warm-connection reuse under steady
 	// traffic while letting the pool grow lazily under load.
-	defaultDBMaxIdleConns        = 5
+	defaultDBMaxIdleConns        = 25
 	defaultDBConnMaxLifetimeSecs = 1800
 	defaultDBConnMaxIdleTimeSecs = 300
 	dbPingTimeout                = 5 * time.Second
@@ -138,8 +138,8 @@ func resolveDBDSN(yamlDSN string) string {
 //
 // Pool tuning (all optional):
 //
-//	DB_MAX_OPEN_CONNS         — default 25
-//	DB_MAX_IDLE_CONNS         — default 5
+//	DB_MAX_OPEN_CONNS         — default 50
+//	DB_MAX_IDLE_CONNS         — default 25
 //	DB_CONN_MAX_LIFETIME_SECS — default 1800 (0 = no limit, explicit env-var-only opt-out)
 //	DB_CONN_MAX_IDLE_TIME_SECS — default 300
 func loadDB(yamlDB DB) DB {

@@ -54,8 +54,8 @@ db:
   # var of "0" opts *_lifetime_secs out to "no limit"; 0 here is treated as
   # "not set".
   pool:
-    max_open_conns: 25
-    max_idle_conns: 5       # kept well below max_open_conns: pgxpool eagerly
+    max_open_conns: 50
+    max_idle_conns: 25       # kept well below max_open_conns: pgxpool eagerly
                              # opens this many connections at startup (unlike
                              # database/sql's lazy MaxIdleConns), so a value
                              # equal to max_open_conns would force every
@@ -76,15 +76,15 @@ db:
 # write_timeout_secs under inbound_http_server must exceed the combined
 # timeout_secs of both clients below (see warnIfWriteTimeoutTooLow).
 outbound_idsystem_http_client:
-  timeout_secs: 30
+  timeout_secs: 25
   dial_timeout_secs: 5
   dial_keep_alive_secs: 30
   tls_handshake_timeout_secs: 10
   response_header_timeout_secs: 10
   idle_conn_timeout_secs: 90
-  max_conns_per_host: 500
-  max_idle_conns: 500
-  max_idle_conns_per_host: 200
+  max_conns_per_host: 1200
+  max_idle_conns: 1200
+  max_idle_conns_per_host: 800
 
 outbound_http_client:
   timeout_secs: 30
