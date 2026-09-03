@@ -10,9 +10,11 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,6 +22,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.devtools.DevTools;
+import org.openqa.selenium.devtools.HasDevTools;
+import org.openqa.selenium.devtools.v134.network.Network;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -90,8 +95,9 @@ public class BaseTestUtil {
 
 			if (browser.equalsIgnoreCase("chrome")) {
 				ChromeOptions chromeOptions = new ChromeOptions();
-				chromeOptions.addArguments("--use-fake-ui-for-media-stream"); // auto allow camera
+				chromeOptions.addArguments("--use-fake-ui-for-media-stream");
 				chromeOptions.addArguments("--use-fake-device-for-media-stream");
+				applyBrowserLocale(chromeOptions, null, null);
 
 				caps.setCapability(ChromeOptions.CAPABILITY, chromeOptions);
 			}
@@ -100,6 +106,7 @@ public class BaseTestUtil {
 				FirefoxOptions firefoxOptions = new FirefoxOptions();
 				firefoxOptions.addPreference("media.navigator.streams.fake", true);
 				firefoxOptions.addPreference("media.navigator.permission.disabled", true);
+				applyBrowserLocale(null, firefoxOptions, null);
 				caps.setCapability(FirefoxOptions.FIREFOX_OPTIONS, firefoxOptions);
 			}
 
@@ -107,6 +114,7 @@ public class BaseTestUtil {
 				EdgeOptions edgeOptions = new EdgeOptions();
 				edgeOptions.addArguments("--use-fake-ui-for-media-stream");
 				edgeOptions.addArguments("--use-fake-device-for-media-stream");
+				applyBrowserLocale(null, null, edgeOptions);
 				caps.setCapability(EdgeOptions.CAPABILITY, edgeOptions);
 			}
 
@@ -124,15 +132,46 @@ public class BaseTestUtil {
 		List<DesiredCapabilities> allCaps = getAllCapabilities();
 		DesiredCapabilities caps = allCaps.stream()
 				.filter(c -> c.getCapability("browserName").toString().equalsIgnoreCase(browserName)).findFirst()
-				.orElse(allCaps.get(0)); // fallback
+				.orElse(allCaps.get(0));
 
 		LOGGER.info("Running on BrowserStack with browser: " + browserName);
 		LOGGER.info("Running with capabilities: " + caps.toString());
 		return new RemoteWebDriver(remoteUrl, caps);
 	}
 
+	private static final Map<String, Object[]> MOBILE_DEVICE_PROFILES = new HashMap<>();
+	static {
+		MOBILE_DEVICE_PROFILES.put("pixel 5", new Object[] { 393, 851, 2.75,
+				"Mozilla/5.0 (Linux; Android 11; Pixel 5) AppleWebKit/537.36 (KHTML, like Gecko) "
+						+ "Chrome/126.0.0.0 Mobile Safari/537.36" });
+	}
+
+	private static Map<String, Object> buildMobileEmulationSettings(String deviceName) {
+		Object[] profile = MOBILE_DEVICE_PROFILES.get(deviceName == null ? "" : deviceName.trim().toLowerCase());
+		if (profile == null) {
+			LOGGER.warning("No deviceMetrics profile for mobileDevice='" + deviceName
+					+ "' - falling back to the Pixel 5 profile. Add an entry to MOBILE_DEVICE_PROFILES for it.");
+			profile = MOBILE_DEVICE_PROFILES.get("pixel 5");
+		}
+
+		Map<String, Object> deviceMetrics = new HashMap<>();
+		deviceMetrics.put("width", profile[0]);
+		deviceMetrics.put("height", profile[1]);
+		deviceMetrics.put("pixelRatio", profile[2]);
+
+		Map<String, Object> mobileEmulation = new HashMap<>();
+		mobileEmulation.put("deviceMetrics", deviceMetrics);
+		mobileEmulation.put("userAgent", profile[3]);
+		return mobileEmulation;
+	}
+
 	public static WebDriver getLocalWebDriverInstance(String browser, boolean isMobile, String deviceName)
 			throws IOException {
+		return getLocalWebDriverInstance(browser, isMobile, deviceName, false);
+	}
+
+	public static WebDriver getLocalWebDriverInstance(String browser, boolean isMobile, String deviceName,
+			boolean ignoreUnhandledPrompts) throws IOException {
 		browser = browser.toLowerCase();
 		boolean isHeadless = Boolean.parseBoolean(EsignetConfigManager.getproperty("headless"));
 		WebDriver driver;
@@ -161,9 +200,22 @@ public class BaseTestUtil {
 			logPrefs.enable(LogType.PERFORMANCE, Level.ALL);
 			chromeOptions.setCapability("goog:loggingPrefs", logPrefs);
 
-			chromeOptions.addArguments("--use-fake-ui-for-media-stream"); // auto-allow camera
+			String chromeBinary = firstExistingPath(EsignetConfigManager.getProperty("chromeBinaryPath", ""),
+					System.getenv("CHROME_BIN"), "/usr/bin/google-chrome", "/usr/bin/google-chrome-stable",
+					"/usr/bin/chromium", "/usr/bin/chromium-browser");
+			if (chromeBinary != null) {
+				chromeOptions.setBinary(chromeBinary);
+				LOGGER.info("Using Chrome binary: " + chromeBinary);
+			}
+
+			chromeOptions.addArguments("--use-fake-ui-for-media-stream");
 			chromeOptions.addArguments("--use-fake-device-for-media-stream");
 			chromeOptions.addArguments("--enable-media-stream");
+			applyBrowserLocale(chromeOptions, null, null);
+
+			if (ignoreUnhandledPrompts) {
+				chromeOptions.setUnhandledPromptBehaviour(org.openqa.selenium.UnexpectedAlertBehaviour.IGNORE);
+			}
 
 			Map<String, Object> prefs = new HashMap<>();
 			Map<String, Object> profile = new HashMap<>();
@@ -171,16 +223,13 @@ public class BaseTestUtil {
 			contentSettings.put("media_stream_camera", 1);
 			profile.put("managed_default_content_settings", contentSettings);
 			prefs.put("profile", profile);
+			applyLocalSbiAccessFlags(chromeOptions, prefs);
 			chromeOptions.setExperimentalOption("prefs", prefs);
 
-			// Enable mobile emulation if requested
 			if (isMobile) {
-				Map<String, String> mobileEmulation = new HashMap<>();
-				mobileEmulation.put("deviceName", deviceName);
-				chromeOptions.setExperimentalOption("mobileEmulation", mobileEmulation);
+				chromeOptions.setExperimentalOption("mobileEmulation", buildMobileEmulationSettings(deviceName));
 			}
 
-			// Always set headless flags if needed
 			if (isHeadless) {
 				LOGGER.info("Running in headless mode");
 				chromeOptions.addArguments("--headless=new");
@@ -188,11 +237,9 @@ public class BaseTestUtil {
 				chromeOptions.addArguments("--window-size=1920x1080");
 			}
 
-			// Always add these for Docker safety
 			chromeOptions.addArguments("--no-sandbox");
 			chromeOptions.addArguments("--disable-dev-shm-usage");
 
-			// Optional: allow Chrome to open a debugging port (harmless)
 			chromeOptions.addArguments("--remote-debugging-port=0");
 
 			LOGGER.info("Chrome args: " + chromeOptions);
@@ -204,6 +251,7 @@ public class BaseTestUtil {
 			FirefoxOptions firefoxOptions = new FirefoxOptions();
 			firefoxOptions.addPreference("media.navigator.streams.fake", true);
 			firefoxOptions.addPreference("media.navigator.permission.disabled", true);
+			applyBrowserLocale(null, firefoxOptions, null);
 
 			if (isHeadless)
 				firefoxOptions.addArguments("--headless");
@@ -217,6 +265,8 @@ public class BaseTestUtil {
 			edgeOptions.addArguments("--use-fake-ui-for-media-stream");
 			edgeOptions.addArguments("--use-fake-device-for-media-stream");
 			edgeOptions.addArguments("--enable-media-stream");
+			applyBrowserLocale(null, null, edgeOptions);
+			applyLocalSbiAccessFlags(edgeOptions);
 
 			if (isHeadless)
 				edgeOptions.addArguments("--headless=new");
@@ -266,6 +316,133 @@ public class BaseTestUtil {
 
 	public static String getThreadLocalLanguage() {
 		return threadLocalLanguage.get();
+	}
+
+	private static void applyLocalSbiAccessFlags(ChromeOptions chromeOptions, Map<String, Object> prefs) {
+		if (!MockMdsManager.isEnabled()) {
+			return;
+		}
+		chromeOptions.addArguments("--allow-insecure-localhost");
+		chromeOptions.addArguments("--unsafely-treat-insecure-origin-as-secure=http://127.0.0.1,http://localhost");
+		chromeOptions.addArguments("--disable-features=LocalNetworkAccessChecks,BlockInsecurePrivateNetworkRequests,"
+				+ "PrivateNetworkAccessSendPreflights,PrivateNetworkAccessRespectPreflightResults");
+		prefs.put("profile.default_content_setting_values.local_network_access", 1);
+		prefs.put("profile.default_content_setting_values.mixed_script", 1);
+	}
+
+	private static void applyLocalSbiAccessFlags(EdgeOptions edgeOptions) {
+		if (!MockMdsManager.isEnabled()) {
+			return;
+		}
+		edgeOptions.addArguments("--allow-insecure-localhost");
+		edgeOptions.addArguments("--unsafely-treat-insecure-origin-as-secure=http://127.0.0.1,http://localhost");
+		edgeOptions.addArguments("--disable-features=LocalNetworkAccessChecks,BlockInsecurePrivateNetworkRequests,"
+				+ "PrivateNetworkAccessSendPreflights,PrivateNetworkAccessRespectPreflightResults");
+	}
+
+	private static void applyBrowserLocale(ChromeOptions chromeOptions, FirefoxOptions firefoxOptions,
+			EdgeOptions edgeOptions) {
+
+		if (firefoxOptions != null) {
+			String locale = LanguageUtil.getNeutralBrowserLocale();
+			if (locale != null && !locale.isBlank()) {
+				firefoxOptions.addPreference("intl.accept_languages", locale);
+				LOGGER.info("Browser locale configured to: " + locale);
+			}
+		}
+	}
+
+	public static void applyLocaleOverrideViaCdp(WebDriver driver) {
+		String locale = LanguageUtil.getNeutralBrowserLocale();
+		if (locale == null || locale.isBlank() || driver == null) {
+			return;
+		}
+		String escaped = locale.replace("\\", "\\\\").replace("'", "\\'");
+		String script = "Object.defineProperty(navigator, 'language', {get: function() { return '"
+				+ escaped + "'; }});"
+				+ "Object.defineProperty(navigator, 'languages', {get: function() { return ['" + escaped + "']; }});";
+		try {
+			if (driver instanceof ChromeDriver chromeDriver) {
+				Map<String, Object> params = new HashMap<>();
+				params.put("source", script);
+				chromeDriver.executeCdpCommand("Page.addScriptToEvaluateOnNewDocument", params);
+				LOGGER.info("Chrome navigator.language spoof applied: " + locale);
+			} else if (driver instanceof EdgeDriver edgeDriver) {
+				Map<String, Object> params = new HashMap<>();
+				params.put("source", script);
+				edgeDriver.executeCdpCommand("Page.addScriptToEvaluateOnNewDocument", params);
+				LOGGER.info("Edge navigator.language spoof applied: " + locale);
+			}
+		} catch (Exception e) {
+			LOGGER.warning("Could not apply navigator.language spoof: " + e.getMessage());
+		}
+	}
+
+	public static void setCameraPermissionAtRuntime(WebDriver driver, String setting) {
+		if (!(driver instanceof ChromeDriver)) {
+			LOGGER.warning("CDP permission override skipped: not a ChromeDriver session");
+			return;
+		}
+		Map<String, Object> permission = new HashMap<>();
+		permission.put("name", "camera");
+
+		URI currentUri = URI.create(driver.getCurrentUrl());
+		String origin = currentUri.getScheme() + "://" + currentUri.getAuthority();
+
+		Map<String, Object> params = new HashMap<>();
+		params.put("permission", permission);
+		params.put("setting", setting);
+		params.put("origin", origin);
+
+		((ChromeDriver) driver).executeCdpCommand("Browser.setPermission", params);
+	}
+
+	public static void setNetworkOffline(WebDriver driver, boolean offline) {
+		if (!(driver instanceof ChromeDriver)) {
+			LOGGER.warning("CDP network override skipped: not a ChromeDriver session");
+			return;
+		}
+		Map<String, Object> params = new HashMap<>();
+		params.put("offline", offline);
+		params.put("latency", 0);
+		params.put("downloadThroughput", offline ? 0 : -1);
+		params.put("uploadThroughput", offline ? 0 : -1);
+
+		((ChromeDriver) driver).executeCdpCommand("Network.emulateNetworkConditions", params);
+	}
+
+	public static List<Long> captureRequestTimestamps(WebDriver driver, String urlSubstring) {
+		List<Long> timestamps = Collections.synchronizedList(new ArrayList<>());
+		if (!(driver instanceof HasDevTools)) {
+			LOGGER.warning("Network request capture skipped: driver does not support DevTools");
+			return timestamps;
+		}
+		DevTools devTools = ((HasDevTools) driver).getDevTools();
+		devTools.createSession();
+		devTools.send(Network.enable(Optional.empty(), Optional.empty(), Optional.empty()));
+		devTools.addListener(Network.requestWillBeSent(), request -> {
+			if (request.getRequest().getUrl().contains(urlSubstring)) {
+				timestamps.add(System.currentTimeMillis());
+				LOGGER.info("Captured request to " + urlSubstring + " at " + System.currentTimeMillis());
+			}
+		});
+		return timestamps;
+	}
+
+	private static String firstExistingPath(String... candidates) {
+		if (candidates == null) {
+			return null;
+		}
+		for (String candidate : candidates) {
+			if (candidate == null || candidate.isBlank()) {
+				continue;
+			}
+			File file = new File(candidate);
+			if (file.isFile() && file.canExecute()) {
+				return file.getAbsolutePath();
+			}
+		}
+		return null;
 	}
 
 }

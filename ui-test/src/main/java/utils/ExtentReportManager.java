@@ -84,7 +84,7 @@ public class ExtentReportManager {
 
 	private static void getGitDetails() {
 		try {
-			// Try Git CLI first
+
 			gitBranch = runCommand("git", "rev-parse", "--abbrev-ref", "HEAD");
 			gitCommitId = runCommand("git", "rev-parse", "--short", "HEAD");
 			LOGGER.info("Fetched Git details using CLI: Branch={}, Commit={}", gitBranch, gitCommitId);
@@ -120,19 +120,16 @@ public class ExtentReportManager {
 
 		try {
 			URL parsedUrl = new URL(url);
-			String host = parsedUrl.getHost(); // e.g., api-internal.qa-esignet.mosip.net
+			String host = parsedUrl.getHost();
 
-			// Remove known prefix if present
 			host = host.replaceFirst("^api-internal\\.", "");
 
-			// Remove suffix
 			host = host.replaceFirst("\\.mosip\\.net$", "");
 
 			return host;
 
 		} catch (MalformedURLException e) {
-			LOGGER.error("Error getting env name: {}", e.getMessage());
-			e.printStackTrace();
+			LOGGER.error("Error getting env name: {}", url, e);
 			return "unknown";
 		}
 	}
@@ -183,6 +180,10 @@ public class ExtentReportManager {
 		} else {
 			LOGGER.warn("logStep called but no test is active: {}", message);
 		}
+	}
+
+	public static void notApplicable(String reason) {
+		LOGGER.info("Not applicable (omitted from report): {}", reason);
 	}
 
 	public static void flushReport() {

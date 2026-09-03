@@ -12,7 +12,11 @@ import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.Base64;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.json.JSONObject;
 import org.openqa.selenium.JavascriptExecutor;
@@ -39,11 +43,13 @@ import io.mosip.testrig.apirig.utils.AdminTestUtil;
 import io.mosip.testrig.apirig.utils.S3Adapter;
 import models.Uin;
 import models.Vid;
+import pages.LoginOptionsPage;
 import utils.BaseTestUtil;
 import utils.BrowserStackLocalManager;
 import utils.EsignetConfigManager;
 import utils.EsignetUtil;
 import utils.ExtentReportManager;
+import utils.MockMdsManager;
 import utils.ScreenshotUtil;
 import utils.UINManager;
 import utils.VIDManager;
@@ -79,30 +85,94 @@ public class BaseTest extends AdminTestUtil {
 		}
 	}
 
+	private static final String PAR_TAG = "@PAR";
+
+	private static final String AUTHORIZE_SCOPE_ONLY_TAG = "@AuthorizeScopeOnly";
+
+	private static final Map<String, String[]> CLIENT_CONFIG_MAP = new HashMap<>();
+
+	static {
+		CLIENT_CONFIG_MAP.put("@PurposeLogin",
+				new String[] { "$ID:CreateOIDCClient_with_purpose_type_login_Smoke_sid_clientId$",
+						"$CLIENT_ASSERTION_PAR_JWT_PURPOSE_LOGIN$" });
+
+		CLIENT_CONFIG_MAP.put("@PurposeLink",
+				new String[] { "$ID:CreateOIDCClient_with_purpose_type_link_Smoke_sid_clientId$",
+						"$CLIENT_ASSERTION_PAR_JWT_PURPOSE_LINK$" });
+
+		CLIENT_CONFIG_MAP.put("@PurposeVerify",
+				new String[] { "$ID:CreateOIDCClient_with_purpose_type_verify_Smoke_sid_clientId$",
+						"$CLIENT_ASSERTION_PAR_JWT_PURPOSE_VERIFY$" });
+
+		CLIENT_CONFIG_MAP.put("@PurposeNone",
+				new String[] { "$ID:CreateOIDCClient_with_purpose_type_none_Smoke_sid_clientId$",
+						"$CLIENT_ASSERTION_PAR_JWT_PURPOSE_NONE$" });
+
+		CLIENT_CONFIG_MAP.put("@NoPurpose", new String[] { "$ID:CreateOIDCClient_with_no_purpose_Smoke_sid_clientId$",
+				"$CLIENT_ASSERTION_PAR_JWT_NO_PURPOSE$" });
+
+		CLIENT_CONFIG_MAP.put("@NoTitleAndSubTitle",
+				new String[] { "$ID:CreateOIDCClient_with_purpose_title_and_subtitle_null_Smoke_sid_clientId$",
+						"$CLIENT_ASSERTION_PAR_JWT_NO_TITLE$" });
+
+		CLIENT_CONFIG_MAP.put("@EmptyTitleAndSubTitle",
+				new String[] { "$ID:CreateOIDCClient_with_purpose_title_and_subtitle_empty_Smoke_sid_clientId$",
+						"$CLIENT_ASSERTION_PAR_JWT_EMPTY_TITLE$" });
+
+		CLIENT_CONFIG_MAP.put("@SingleAuthFactor",
+				new String[] { "$ID:CreateOIDCClient_with_single_auth_factor_Smoke_sid_clientId$",
+						"$CLIENT_ASSERTION_PAR_JWT_SINGLE_ACR_VALUE$" });
+
+		CLIENT_CONFIG_MAP.put(PAR_TAG, new String[] { "$ID:CreateOIDCClient_par_required_Smoke_sid_clientId$",
+				"$CLIENT_ASSERTION_PAR_JWT_PAR_REQUIRED$" });
+	}
+
+	@Before(order = 0)
+	public void createExtentTestForScenario(Scenario scenario) {
+		pages.ConsentPage.refreshAfterAttentionProceed = false;
+		utils.ClaimsUtil.clearCachedRenderedAuthFactors();
+		String browser = BaseTestUtil.getBrowserForScenario(scenario);
+		String lang = BaseTestUtil.getThreadLocalLanguage();
+		ExtentReportManager.createTest(scenario.getName() + " [" + browser + " | " + lang + "]");
+		ExtentReportManager
+				.logStep("Scenario Started: " + scenario.getName() + " | Browser: " + browser + " | Language: " + lang);
+	}
+
 	@Before(order = 2)
 	public void beforeAll(Scenario scenario) {
 		if (isMobileMode.get() == null) {
 			isMobileMode.set(false);
 		}
+
 		LOGGER.info("Initializing WebDriver...");
 
 		if (runners.Runner.knownIssues.containsKey(scenario.getName())) {
 			String bugId = runners.Runner.knownIssues.get(scenario.getName());
-			String browser = BaseTestUtil.getBrowserForScenario(scenario);
-			String lang = BaseTestUtil.getThreadLocalLanguage();
-			ExtentReportManager.createTest(scenario.getName() + " [" + browser + " | " + lang + "]");
 			LOGGER.info("Skipping Known Issue Scenario: " + scenario.getName() + " | Bug: " + bugId);
 			isKnownIssueScenario.set(true);
-			throw new SkipException("Known Issue - Skipped: " + scenario.getName() + " | " + bugId);
+			skipWithReason("Known Issue - Skipped: " + scenario.getName() + " | " + bugId);
 		}
 		isKnownIssueScenario.set(false);
 
+		String pluginName = EsignetUtil.getPluginName();
+
+		if (scenario.getSourceTagNames().contains("@kbi") && !EsignetUtil.isKbiSupportedPlugin()) {
+			skipWithReason("KBI is only supported under the mock and sunbird plugins, not '" + pluginName + "'");
+		}
+
+		if ("mosipid".equalsIgnoreCase(pluginName)) {
+			Set<String> skipTags = new HashSet<>(CLIENT_CONFIG_MAP.keySet());
+
+			for (String tag : scenario.getSourceTagNames()) {
+				if (skipTags.contains(tag)) {
+
+					skipWithReason("Skipped for mosipid: scenario is tagged " + tag
+							+ ", which requires a mock-identity client not created under the mosipid plugin");
+				}
+			}
+		}
+
 		totalCount++;
-		String browser = BaseTestUtil.getBrowserForScenario(scenario); // Start logging for the scenario
-		String lang = BaseTestUtil.getThreadLocalLanguage();
-		ExtentReportManager.createTest(scenario.getName() + " [" + browser + " | " + lang + "]");
-		ExtentReportManager
-				.logStep("Scenario Started: " + scenario.getName() + " | Browser: " + browser + " | Language: " + lang);
 
 		try {
 			String scenarioBrowser = BaseTestUtil.getBrowserForScenario(scenario);
@@ -120,34 +190,139 @@ public class BaseTest extends AdminTestUtil {
 
 			driverThreadLocal.set(driver);
 			jseThreadLocal.set((JavascriptExecutor) driver);
+			BaseTestUtil.applyLocaleOverrideViaCdp(driver);
 
-			// Browser settings
 			driver.manage().window().maximize();
-			driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10)); // Configurable if needed
 			driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));
 
 			String baseUrl = EsignetConfigManager.getproperty("eSignetbaseurl");
 			String template = EsignetConfigManager.getproperty("authorizeUrlTemplate");
 
-			String requestUri = EsignetUtil.generateParRequestUri();
+			if (AdminTestUtil.currentTestCaseName == null) {
+				AdminTestUtil.currentTestCaseName = scenario.getName();
+			}
 
-			String updatedTemplate = template.replace("$REQUEST_URI$", requestUri);
+			String clientIdKey = "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$";
+			String clientAssertion = "$CLIENT_ASSERTION_PAR_JWT$";
+			boolean isParScenario = scenario.getSourceTagNames().contains(PAR_TAG);
+			boolean isAuthorizeScopeOnly = scenario.getSourceTagNames().contains(AUTHORIZE_SCOPE_ONLY_TAG);
+			String preconfiguredClientId = EsignetUtil.getPreconfiguredPrimaryOidcClientId();
 
-			updatedTemplate = AdminTestUtil.replaceIdWithAutogeneratedId(updatedTemplate, "$ID:");
+			for (String tag : scenario.getSourceTagNames()) {
+				if (CLIENT_CONFIG_MAP.containsKey(tag)) {
 
-			String authorizeUrl = baseUrl + updatedTemplate;
+					if (preconfiguredClientId == null || PAR_TAG.equals(tag)) {
+						String[] values = CLIENT_CONFIG_MAP.get(tag);
+						clientIdKey = values[0];
+						clientAssertion = values[1];
+					}
+					break;
+				}
+			}
 
+			if (isParScenario && !EsignetUtil.isParSupported()) {
+				skipWithReason("Skipped: PAR is not supported in this environment");
+			}
+
+			boolean isKbiScenario = scenario.getSourceTagNames().contains("@kbi");
+			boolean isSingleAuthFactor = scenario.getSourceTagNames().contains("@SingleAuthFactor");
+			String clientId = EsignetUtil.resolveClientId(clientIdKey);
+
+			String acrValues;
+			if (isKbiScenario) {
+				acrValues = EsignetUtil.DEFAULT_ACR_VALUES + " " + EsignetUtil.KBI_ACR_VALUE;
+			} else if (isSingleAuthFactor && EsignetUtil.isPreconfiguredPrimaryOidcClient(clientId)) {
+				acrValues = EsignetUtil.SINGLE_AUTH_FACTOR_ACR_VALUE;
+			} else {
+				acrValues = EsignetUtil.DEFAULT_ACR_VALUES;
+			}
+
+			String lang = BaseTestUtil.getThreadLocalLanguage();
+			String iso = lang != null ? utils.LanguageUtil.getIsoLanguageCode(lang) : null;
+			String uiLocales = iso != null ? iso : "en";
+
+			String authorizeUrl;
+			if (isParScenario || EsignetUtil.isParRequired()) {
+				String requestUri = EsignetUtil.generateParRequestUri(clientIdKey, clientAssertion, acrValues, uiLocales);
+				String updatedTemplate = template.replace("$REQUEST_URI$", requestUri).replace("$CLIENT_ID$", clientId);
+				authorizeUrl = baseUrl + updatedTemplate;
+			} else {
+				if (isAuthorizeScopeOnly) {
+					authorizeUrl = EsignetUtil.generateDirectAuthorizeUrlWithoutClaims(clientId,
+							EsignetUtil.AUTHORIZE_SCOPE_ONLY);
+				} else if (isSingleAuthFactor) {
+
+					authorizeUrl = EsignetUtil.generateDirectAuthorizeUrlWithPkce(clientId, acrValues, uiLocales);
+				} else {
+					authorizeUrl = EsignetUtil.generateDirectAuthorizeUrl(clientId, acrValues, uiLocales);
+				}
+			}
+
+			BasePage.authorizeUrl = authorizeUrl;
+			BasePage.authorizeClientIdKey = clientIdKey;
+			BasePage.authorizeClientAssertion = clientAssertion;
+			BasePage.authorizeScopeOnlyScenario = isAuthorizeScopeOnly;
+			BasePage.authorizeAcrValues = acrValues;
+			BasePage.authorizeUiLocales = uiLocales;
+			BasePage.authorizeRequiresPkce = isSingleAuthFactor || isAuthorizeScopeOnly;
+			BasePage.parScenario = isParScenario || EsignetUtil.isParRequired();
+			BasePage.authorizeUrlTampered = false;
 			LOGGER.info("Authorize URL: " + authorizeUrl);
 
-			driver.get(authorizeUrl);
+			JavascriptExecutor jse = (JavascriptExecutor) driver;
+			driver.get(baseUrl);
 			driver.manage().deleteAllCookies();
+			jse.executeScript("window.localStorage.clear(); window.sessionStorage.clear();");
 
+			driver.get(authorizeUrl);
+
+			String landedUrl = driver.getCurrentUrl();
+			if (landedUrl != null && landedUrl.contains("error=invalid_request")) {
+				if (isAuthorizeScopeOnly) {
+					throw new IllegalStateException(
+							"Authorize-scope-only URL was rejected with invalid_request. Falling back to the "
+									+ "relying party's Sign in with eSignet button would drop scope=Manage-VID and "
+									+ "re-add claims, which is exactly what this scenario must not do. Landed: "
+									+ landedUrl);
+				}
+				if (isSingleAuthFactor) {
+					throw new IllegalStateException(
+							"Single-auth-factor URL was rejected with invalid_request. Falling back to the "
+									+ "relying party's Sign in with eSignet button would replace the single ACR with "
+									+ "the RP's default multi-factor request. Landed: " + landedUrl);
+				}
+				LOGGER.warn("Authorize URL redirected to invalid_request ({}) - retrying via 'Sign In with eSignet' "
+						+ "on the relying party", landedUrl);
+				String savedAuthorizeUrl = BasePage.authorizeUrl;
+				BasePage.authorizeUrl = null;
+				try {
+					new BasePage(driver).clickSignInWithEsignetOnRelyingPartyPortal();
+				} finally {
+					BasePage.authorizeUrl = savedAuthorizeUrl;
+				}
+			}
+
+			BasePage.markAuthorizeSessionFresh();
 			LOGGER.info("Navigated to URL: " + authorizeUrl);
 
+			if (!isAuthorizeScopeOnly) {
+				String currentLanguage = System.getProperty("currentRunLanguage", "eng");
+				try {
+					new LoginOptionsPage(driver).selectLanguageByCode(currentLanguage);
+				} catch (Exception e) {
+
+					LOGGER.warn("UI language switch to '{}' skipped/failed (continuing): {}",
+							currentLanguage, e.getMessage());
+				}
+			}
+
+		} catch (SkipException e) {
+
+			throw e;
 		} catch (Exception e) {
 			LOGGER.error("Failed to initialize WebDriver: " + e.getMessage());
 			ExtentReportManager.getTest().fail("❌ WebDriver setup failed: " + e.getMessage());
-			ExtentReportManager.flushReport(); // Flush immediately to ensure it's written
+			ExtentReportManager.flushReport();
 			throw new RuntimeException(e);
 		}
 	}
@@ -160,8 +335,53 @@ public class BaseTest extends AdminTestUtil {
 
 	@Before("@NeedsVID")
 	public void handleVID(Scenario scenario) throws InterruptedException {
+		if (!VIDManager.hasAvailableVid()) {
+			skipWithReason("No VID available - enable CreateVID prerequisite or set vid in config.properties");
+		}
 		Vid vidDetails = VIDManager.acquireVID();
 		threadVid.set(vidDetails);
+	}
+
+	@Before(order = 20, value = "@BiometricLogin")
+	public void startMockMdsForBiometricLogin(Scenario scenario) throws Exception {
+		if (!MockMdsManager.isEnabled()) {
+			throw new SkipException("useMockMds=false - enable useMockMds for @BiometricLogin scenarios");
+		}
+		if (Boolean.parseBoolean(EsignetConfigManager.getproperty("runOnBrowserStack"))) {
+			throw new SkipException("Mock MDS requires local browser (localhost SBI ports)");
+		}
+		MockMdsManager.ensureDevicePartnerP12Available();
+		MockMdsManager.startForBiometricScan();
+		if (!MockMdsManager.verifyDeviceDiscoveryOnLocalhost()) {
+			throw new SkipException("Mock MDS localhost L1/Auth/Ready probe failed");
+		}
+	}
+
+	@Before("@BiometricDeviceNotDetected or @BiometricDeviceDetectedOnRetry or @BiometricAuthenticationFlow")
+	public void ensureMockMdsStoppedBeforeDeviceNotFoundScan(Scenario scenario) {
+		if (!MockMdsManager.isEnabled()) {
+			return;
+		}
+		if (Boolean.parseBoolean(EsignetConfigManager.getproperty("runOnBrowserStack"))) {
+			return;
+		}
+		MockMdsManager.stopAll();
+	}
+
+	@Before("@RequiresMockMds")
+	public void startMockMds(Scenario scenario) throws Exception {
+		if (!MockMdsManager.isEnabled()) {
+			throw new SkipException("useMockMds is not enabled in config.properties");
+		}
+		if (Boolean.parseBoolean(EsignetConfigManager.getproperty("runOnBrowserStack"))) {
+			throw new SkipException("Mock MDS requires a local browser that can reach localhost SBI ports");
+		}
+		MockMdsManager.startForAuth();
+	}
+
+	@After("@RequiresMockMds or @BiometricDeviceNotDetected or @BiometricDeviceDetectedOnRetry or @BiometricLogin or @BiometricAuthenticationFlow")
+	public void stopMockMds(Scenario scenario) {
+		MockMdsManager.stopAll();
 	}
 
 	@BeforeStep
@@ -183,7 +403,6 @@ public class BaseTest extends AdminTestUtil {
 		String publicUrl = null;
 		String videoUrl = null;
 
-		// Fetch BrowserStack URLs only if running on BrowserStack
 		boolean runOnBrowserStack = Boolean.parseBoolean(EsignetConfigManager.getproperty("runOnBrowserStack"));
 
 		if (runOnBrowserStack && driver instanceof RemoteWebDriver) {
@@ -217,7 +436,6 @@ public class BaseTest extends AdminTestUtil {
 					publicUrl = session.getString("public_url");
 					videoUrl = session.getString("video_url");
 
-					// Attach links to Extent report (only once)
 					if (publicUrl != null) {
 						ExtentReportManager.getTest()
 								.info("<a href='" + publicUrl + "' target='_blank'>View on BrowserStack</a>");
@@ -244,17 +462,7 @@ public class BaseTest extends AdminTestUtil {
 
 				failedCount++;
 				ExtentReportManager.incrementFailed();
-
-				// Use scenario name + failed step (fallback to scenario name if step unknown)
-				String failedStepName = scenario.getName().replaceAll("[^a-zA-Z0-9]", "_");
-
-				// Attach single screenshot when a driver exists
-				if (driver != null) {
-					ScreenshotUtil.attachScreenshot(driver, failedStepName);
-				} else {
-					ExtentReportManager.getTest().warning("Screenshot skipped because WebDriver was not initialized.");
-				}
-
+				attachScenarioScreenshot(driver, scenario);
 				ExtentReportManager.getTest().fail("❌ Scenario Failed: " + scenario.getName());
 
 			} else if (scenario.getStatus().toString().equalsIgnoreCase("SKIPPED")
@@ -264,12 +472,14 @@ public class BaseTest extends AdminTestUtil {
 				String bugUrl = "https://mosip.atlassian.net/browse/" + bugId;
 
 				ExtentReportManager.incrementKnownIssue();
+				attachScenarioScreenshot(driver, scenario);
 				ExtentReportManager.getTest().skip(
 						"🟠 Skipped due to Known Issue → <a href='" + bugUrl + "' target='_blank'>" + bugId + "</a>");
 
 			} else if (scenario.getStatus().toString().equalsIgnoreCase("SKIPPED")) {
 
 				ExtentReportManager.incrementSkipped();
+				attachScenarioScreenshot(driver, scenario);
 				ExtentReportManager.getTest().skip("⚠️ Scenario Skipped: " + scenario.getName());
 
 			} else {
@@ -280,7 +490,7 @@ public class BaseTest extends AdminTestUtil {
 
 			ExtentReportManager.flushReport();
 		} finally {
-			// Close driver and cleanup ThreadLocal
+
 			if (driver != null) {
 				try {
 					LOGGER.info("Closing WebDriver session...");
@@ -307,6 +517,31 @@ public class BaseTest extends AdminTestUtil {
 				LOGGER.error("Error stopping BrowserStack Local", e);
 			}
 		}
+	}
+
+	@Before(value = "@registrationProcess", order = 1)
+	public void skipRegistrationIfSignupServiceNotDeployed(Scenario scenario) {
+		if (!EsignetUtil.isSignupServiceDeployed()) {
+			skipWithReason("Signup service is not deployed in this environment - skipping end-to-end registration flow");
+		}
+	}
+
+	private void attachScenarioScreenshot(WebDriver driver, Scenario scenario) {
+		if (driver == null) {
+			ExtentReportManager.getTest().warning("Screenshot skipped because WebDriver was not initialized.");
+			return;
+		}
+		try {
+			String screenshotName = scenario.getName().replaceAll("[^a-zA-Z0-9]", "_");
+			ScreenshotUtil.attachScreenshot(driver, screenshotName);
+		} catch (Exception e) {
+			ExtentReportManager.getTest().warning("Failed to capture screenshot: " + e.getMessage());
+		}
+	}
+
+	private void skipWithReason(String reason) {
+		ExtentReportManager.getTest().warning(reason);
+		throw new SkipException(reason);
 	}
 
 	@Before(value = "@mobile", order = 1)
@@ -367,11 +602,6 @@ public class BaseTest extends AdminTestUtil {
 	}
 
 	public static void pushReportsToS3(String lang) {
-		// executeLsCommand(System.getProperty("user.dir") +
-		// "/test-output/ExtentReport.html");
-		// executeLsCommand(System.getProperty("user.dir") + "/screenshots/");
-
-		// executeLsCommand(System.getProperty("user.dir") + "/test-output/");
 		String timestamp = new SimpleDateFormat("yyyy-MM-dd-HH-mm").format(new Date());
 		String name = getEnvName() + "-" + lang + "-" + timestamp + "-T-" + ExtentReportManager.getTotalCount() + "-P-"
 				+ ExtentReportManager.getPassedCount() + "-F-" + ExtentReportManager.getFailedCount() + "-S-"
@@ -380,14 +610,11 @@ public class BaseTest extends AdminTestUtil {
 		File originalReportFile = new File(System.getProperty("user.dir") + "/test-output/ExtentReport.html");
 		File newReportFile = new File(System.getProperty("user.dir") + "/test-output/" + newFileName);
 
-		// Rename the file
 		if (originalReportFile.renameTo(newReportFile)) {
 			LOGGER.info("Report renamed to: " + newFileName);
 		} else {
 			LOGGER.error("Failed to rename the report file.");
 		}
-
-		// executeLsCommand(newReportFile.getAbsolutePath());
 
 		if (EsignetConfigManager.getPushReportsToS3().equalsIgnoreCase("yes")) {
 			S3Adapter s3Adapter = new S3Adapter();
@@ -402,45 +629,6 @@ public class BaseTest extends AdminTestUtil {
 			}
 		}
 	}
-
-//  This is not required so commented it for now will remove this once tested in Rancher
-
-//	private static void executeLsCommand(String directoryPath) {
-//		try {
-//			String os = System.getProperty("os.name").toLowerCase();
-//			Process process;
-//
-//			if (os.contains("win")) {
-//				// Windows command (show all files including hidden)
-//				String windowsDirectoryPath = directoryPath.replace("/", File.separator);
-//				process = Runtime.getRuntime().exec(new String[] { "cmd.exe", "/c", "dir /a " + windowsDirectoryPath });
-//			} else {
-//				// Unix-like command (show all files including hidden)
-//				process = Runtime.getRuntime().exec(new String[] { "/bin/sh", "-c", "ls -al " + directoryPath });
-//			}
-//
-//			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-//			String line;
-//			LOGGER.info("--- Directory listing for " + directoryPath + " ---");
-//			while ((line = reader.readLine()) != null) {
-//				LOGGER.info(line);
-//			}
-//
-//			int exitCode = process.waitFor();
-//			if (exitCode != 0) {
-//				BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-//				String errorLine;
-//				LOGGER.info("--- Directory listing error ---");
-//				while ((errorLine = errorReader.readLine()) != null) {
-//					System.err.println(errorLine);
-//				}
-//			}
-//			LOGGER.info("--- End directory listing ---");
-//
-//		} catch (IOException | InterruptedException e) {
-//			System.err.println("Error executing directory listing command: " + e.getMessage());
-//		}
-//	}
 
 	public static String getEnvName() {
 		String baseUrl = EsignetConfigManager.getproperty("baseurl");
