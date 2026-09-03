@@ -32,7 +32,7 @@ No external script or manually-generated key is needed: **Create client**'s pre-
 - `additionalConfig`: `require_pushed_authorization_requests: true` and `dpop_bound_access_tokens: true` — required for the FAPI2.0 flow folder.
 - `authContextRefs` defaults to `["mosip:idp:acr:generated-code", "mosip:idp:acr:password", "mosip:idp:acr:biometrics"]` (OTP + password branches). To exercise the Sunbird KBI branch, add `"mosip:idp:acr:knowledge"`.
 
-If scope enforcement is enabled server-side (see `esignet-service`'s `security_config`), set `client_mgmt_token` to a valid Bearer JWT first; otherwise leave it empty.
+If scope enforcement is enabled server-side (see `esignet-service`'s `security_config`), set `client_mgmt_token` to a valid Bearer JWT first; otherwise leave it empty. **Get Auth token** fetches one for you: it posts a `client_credentials` grant to `{{iam_url}}/auth/realms/mosip/protocol/openid-connect/token` and stores the `access_token` in `client_mgmt_token`. Set `iam_url` in the environment and fill in `client_id` / `client_secret` in that request's body — they ship blank.
 
 ### User Mgmt
 
@@ -97,7 +97,8 @@ Both are stored as **collection variables** (not environment) and regenerated on
 | `audience`, `par_audience`, `userinfo_audience` | FAPI2.0 flow | Client-assertion `aud` + DPoP `htu` — see [Audiences](#audiences-editable-from-the-environment) |
 | `scope`, `redirect_uri` | FAPI2.0 flow | OAuth parameters |
 | `relying_party_id` | Client Management | Relying party id for client-mgmt create |
-| `client_mgmt_token` | Client Management | Bearer JWT (only needed if scope enforcement is enabled; leave empty otherwise) |
+| `iam_url` | Client Management (`Get Auth token`) | IAM (Keycloak) base URL; the request appends `/auth/realms/mosip/protocol/openid-connect/token` |
+| `client_mgmt_token` | Client Management | Bearer JWT (only needed if scope enforcement is enabled; leave empty otherwise). Set by **Get Auth token** |
 | `client_id`, `client_private_key`, `client_public_key` | All | Generated automatically by **Create client**; every request signs with these |
 | `individual_id` | FAPI2.0 flow (`Flow execute — enter uin`), User Mgmt | MOSIP UIN; OTP and password branches only. Defaulted (random) by **User Mgmt → Mock → Create User** if empty |
 | `otp` | FAPI2.0 flow (`Flow execute — enter OTP`) | OTP value; OTP branch only |
