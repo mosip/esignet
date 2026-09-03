@@ -6,6 +6,29 @@ import (
 	"github.com/mosip/esignet/api-test/internal/config"
 )
 
+// answerKeys are every key BuildAnswers can put into the answers map. It has to
+// be listed separately because put() drops empty values, so an unconfigured
+// credential is simply absent — indistinguishable by lookup from a key that
+// was never a credential at all.
+var answerKeys = []string{
+	"username", "individualId", "otp", "password", "biometric",
+	"fullName", "name", "dob", "captchaToken",
+}
+
+// KnownAnswerKey reports whether k names an answer BuildAnswers can supply.
+// A scenario naming anything else has a typo in its spec rather than an
+// unconfigured credential, and the difference matters: the first must be a
+// loud failure, while the second is a legitimate skip.
+func KnownAnswerKey(k string) bool {
+	n := Normalize(k)
+	for _, key := range answerKeys {
+		if Normalize(key) == n {
+			return true
+		}
+	}
+	return false
+}
+
 // BuildAnswers turns the eSignet login config into the driver's answers map.
 func BuildAnswers(c config.Esignet) map[string]string {
 	// The flow's username_input is the subject identifier, not a console login.
