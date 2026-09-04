@@ -99,7 +99,7 @@ func (o *Orchestrator) Run(ctx context.Context) (*RunResult, error) {
 	// Preflight: suite reachable.
 	if err := o.client.Available(ctx); err != nil {
 		o.client.TakeCalls()
-		return out, fmt.Errorf("ENV_NOT_READY: %w", err)
+		return out, o.envNotReady(out, err)
 	}
 	o.logf("suite is available")
 	o.client.TakeCalls() // discard the availability call
@@ -116,7 +116,7 @@ func (o *Orchestrator) Run(ctx context.Context) (*RunResult, error) {
 	if o.cfg.Esignet.OTP.Source == "dynamic" {
 		lst := wsotp.NewListener(o.cfg.Esignet.OTP.WSURL, o.cfg.Esignet.TLSVerify)
 		if err := lst.Start(ctx); err != nil {
-			return out, fmt.Errorf("ENV_NOT_READY: %w", err)
+			return out, o.envNotReady(out, err)
 		}
 		defer lst.Close()
 		timeout := time.Duration(o.cfg.Run.TimeoutSeconds) * time.Second
@@ -197,6 +197,37 @@ func (o *Orchestrator) runPlan(ctx context.Context, p config.Plan, driver *esign
 		}
 	}
 	return false, nil
+}
+
+// envNotReady records a surface-wide precondition failure as one report row per
+// configured plan and returns the error to abort on.
+//
+// Returning the bare error is not enough: cmd/conformance only writes a partial
+// report when the run produced at least one module, so a precondition that fails
+// before any plan is created (an unreachable suite, most often) left the surface
+// with no report at all — and run-all.sh could then say only that it "crashed
+// before writing one", with the actual cause visible nowhere but the container
+// log. Every other surface degrades to a visible ENV_NOT_READY row; this one now
+// does too.
+func (o *Orchestrator) envNotReady(out *RunResult, err error) error {
+	names := o.cfg.PlanNames()
+	// A config with no plans cannot reach here today (ValidateSurface rejects it),
+	// but a row with no plan name still beats silently reporting nothing.
+	if len(names) == 0 {
+		names = []string{""}
+	}
+	for _, name := range names {
+		out.Modules = append(out.Modules, result.ModuleResult{
+			Surface:        result.SurfaceConformance,
+			Plugin:         o.cfg.Esignet.Provider,
+			Plan:           name,
+			Module:         "(surface not run)",
+			HarnessOutcome: result.OutcomeEnvNotReady,
+			OutcomeDetail:  err.Error(),
+			Status:         "NOT_RUN",
+		})
+	}
+	return fmt.Errorf("ENV_NOT_READY: %w", err)
 }
 
 // planErrorResult is the report row for a plan that never got as far as running a module.
