@@ -66,6 +66,13 @@ func main() {
 				logger.Printf("partial report error: %v", werr)
 			} else {
 				logger.Printf("partial report: %s", p)
+				// run-all.sh learns the report path by reading "report: " off
+				// STDOUT, so the log line above is invisible to it. Without this
+				// the partial report is written and then dropped: the surface is
+				// declared to have "produced no report" and consolidate is left
+				// with nothing to fold in — which is exactly the hole the
+				// ENV_NOT_READY rows exist to fill.
+				fmt.Printf("report: %s\n", p)
 			}
 		}
 		os.Exit(2)
