@@ -3,7 +3,8 @@
 Every field the harness reads, where it belongs, and how to override it. For the layering model and
 the handful of values a first run needs, see the [README](../README.md#configuration).
 
-**Contents:** [Layering](#layering) · [Config blocks](#config-blocks) · [Selecting what runs](#selecting-what-runs) ·
+**Contents:** [Layering](#layering) · [Config blocks](#config-blocks) · [Common vs per-plugin](#common-vs-per-plugin) ·
+[Selecting what runs](#selecting-what-runs) ·
 [Environment overrides](#environment-overrides) · [TLS verification](#tls-verification)
 
 ---
@@ -66,6 +67,39 @@ missing `conformance.base_url`.
 
 ---
 
+## Common vs per-plugin
+
+Almost everything on this page is the same whichever plugin the deployment runs. Passing
+`-c data/config/config.<plugin>.json` sets `esignet.provider`, and that single field changes a
+short, enumerable list of things — worth knowing before you template a deployment, because it is
+exactly the part one shared config block cannot carry.
+
+**Identical for every plugin:** the target (`esignet.base_url`, `esignet.tls_verify`), the admin
+grant (`keycloak.token_url` / `client_id` / `client_secret`, or `ADMIN_TOKEN`), all of `run`, all of
+`conformance` and `plans[]`, and `api.tags` / `api.flow_client_id` / `api.tls_verify`. Template that
+once and vary only the table below.
+
+| | `mock` | `mosip` | `sunbird` |
+|---|---|---|---|
+| Default `auth_factor` | `otp` | `otp` | `kbi` — defaulted from the provider |
+| `identity.individual_id` | **not needed**: the tracked config ships a synthetic seed identity | **required** for `conformance` and `e2e` | **required** for `conformance` and `e2e` |
+| `otp.source` | `static` | **`dynamic`** — and `otp.ws_url` is then required | `static`, unused at `kbi` |
+| `credentials.username` / `.password` | ship in the tracked config | yours; unset skips the one `requires_credential` scenario rather than failing it | — its spec has no password scenarios |
+| `credentials.biometric` | the only plugin that validates it, and any non-empty value passes | leave unset — bio is a tracked known issue | — |
+| `knowledge.full_name` / `.dob` | — | — | **required** |
+| `pms.*` | — | **required** — see [MOSIP ID](mosip-id.md#partner-registration-via-pms) | — |
+| e2e client registration | eSignet `/client-mgmt/client` | **PMS** `/oauth/client` | eSignet `/client-mgmt/client` |
+| Default `e2e.spec` | `data/scenarios/e2e-scenarios.json` | `…-mosip.json` | `…-sunbird.json` |
+| Factors its spec covers | `otp`, `password`, `bio` | `otp`, `password`, `bio` | `kbi` only |
+| `@client-mgmt-pms` in `api` | not selected | selected once `pms.base_url` **and** admin auth are both present | not selected |
+| Prerequisites the harness cannot create | none beyond eSignet + Keycloak | an onboarded auth partner, a published policy, an identity with a live OTP channel, reachable mock-SMTP | a seeded registry with the KBI flow enabled |
+
+Two asymmetries that have caught people out: the config field is `pms.policy_id` but its
+environment override is **`AUTH_POLICY_ID`**; and `provider` is **never auto-detected** — pointing a
+`mock` config at a `mosip` deployment is a silently wrong run, not an error.
+
+---
+
 ## Selecting what runs
 
 All of it lives in the config; `--check` shows the resolved result before anything executes.
@@ -76,7 +110,7 @@ All of it lives in the config; `--check` shows the resolved result before anythi
 | Which surfaces | `run.surfaces` (`conformance`, `api`, `e2e`), or `-s` for one run |
 | Which auth factor (conformance) | `esignet.auth_factor` |
 | Which conformance modules | `run.profile` (`full` by default, or `smoke`) → `run.filter` (regex) → `run.modules` (exact list, overrides the profile) |
-| Which endpoints (`api`) | `api.tags` — `@client-mgmt`, `@client-mgmt-pms`, `@flow-execute`, `@flow-authz-neg` (comma = OR) |
+| Which endpoints (`api`) | `api.tags` — `@client-mgmt`, `@client-mgmt-pms`, `@flow-execute`, `@flow-authz-neg`, `@inactive-client` (comma = OR) |
 | Which e2e scenarios | `e2e.auth_factors`, plus `e2e.include` / `e2e.exclude` (regex on scenario name) |
 
 `run.skip` moves modules to a **Skipped** bucket and `run.known_issues` to a **Known** bucket with a
