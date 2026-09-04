@@ -196,8 +196,12 @@ type E2E struct {
 type Run struct {
 	// Surfaces selects which test surfaces this run executes: any of
 	// conformance, api, e2e. Defaults to all three.
-	Surfaces            []string     `json:"surfaces"`
-	Modules             []string     `json:"modules"`
+	Surfaces []string `json:"surfaces"`
+	Modules  []string `json:"modules"`
+	// Profile selects how many conformance modules run: full (every module the
+	// plan declares) or smoke (the curated list in
+	// data/conformance/<plan>.smoke.json). Defaults to full — narrowing the run
+	// is a deliberate act, because a partial run still reports as "conformance".
 	Profile             string       `json:"profile"`
 	Filter              string       `json:"filter"`
 	Skip                []string     `json:"skip"`         // modules to not run at all -> Skipped bucket
@@ -637,8 +641,13 @@ func (c *Config) defaults() {
 	if c.Esignet.OTP.Value == "" {
 		c.Esignet.OTP.Value = "111111"
 	}
+	// full, not smoke: a run that silently grades a curated subset and reports
+	// it as "conformance" overstates what was checked. Only oidcc-test-plan
+	// ships a smoke list, so smoke was never a usable default for the FAPI plan
+	// anyway — every shipped config already had to override it back to full.
+	// Narrow deliberately with run.profile or plans[].profile.
 	if c.Run.Profile == "" {
-		c.Run.Profile = "smoke"
+		c.Run.Profile = "full"
 	}
 	if c.Run.PollIntervalSeconds == 0 {
 		c.Run.PollIntervalSeconds = 2

@@ -103,7 +103,7 @@ api-test/
 
 | Surface | Tests defined in | Selected by |
 |---|---|---|
-| `conformance` | `data/conformance/<plan>.smoke.json` (curated module list) | `run.profile`, `run.modules`, `plans[]` |
+| `conformance` | every module the plan declares (`profile: full`) | `run.profile`, `run.modules`, `plans[]` |
 | `api` | `data/features/**/*.feature` | `api.tags` (Gherkin tags) |
 | `e2e` | `data/scenarios/e2e-scenarios[-<plugin>].json` | `e2e.auth_factors`, `e2e.include`, `e2e.exclude` |
 
