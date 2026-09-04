@@ -282,14 +282,24 @@ different question:
 |---|---|---|
 | `before_authorize` | May a deactivated client start an authorization at all? | `authorize`, or `par` for a PAR-required client |
 | `after_authorize` | May a code issued while the client was active still be redeemed? | `token` |
-| `after_token` | May a token issued while the client was active still be spent? | `userinfo` |
+| `after_token` | Does anything still consult client status once a token is issued? | nothing — see below |
 
 They are separate scenarios rather than one switch because they fail differently — the first is a
-check on a request, the last two are checks on credentials already issued — and a deployment could
-plausibly have one without the others. Pair each with `expect_error_contains` naming the specific
-call that must be the one to refuse: `"par failed"`, `"token exchange failed"` and `"userinfo
-request failed"` can only be raised by that call itself, so their presence already proves rejection
-happened at that door and nowhere earlier.
+check on a request, the second a check on a credential already issued — and a deployment could
+plausibly have one without the other. Pair each with `expect_error_contains` naming the specific
+call that must be the one to refuse: `"par failed"` and `"token exchange failed"` can only be
+raised by that call itself, so their presence already proves rejection happened at that door and
+nowhere earlier.
+
+> **`after_token` ships with no scenario, on purpose.** The two stages above are enforceable because
+> both `authorize` and `token` authenticate the *client* — deactivation is visible to them. `userinfo`
+> authenticates only the bearer token and never looks at the client, so there is no point in that
+> request at which an `INACTIVE` status could be noticed. Expecting a rejection there asserts
+> something OAuth does not promise: an issued access token stays valid until it expires or is
+> explicitly revoked (RFC 7009), and deactivating its client is neither. A scenario asserting
+> otherwise was removed for that reason — it was reporting a spec-conformant response as a defect.
+> The stage remains available for a deployment that has *chosen* to enforce status at userinfo and
+> wants to prove it, which is a local policy claim rather than a protocol one.
 
 `before_authorize` has no such call of its own — the whole `authorize → flow/execute → callback`
 journey is one opaque `driver.Run`, and *any* failure inside it — a bad OTP, an unavailable
