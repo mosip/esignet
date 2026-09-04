@@ -1,10 +1,12 @@
 package conformance
 
 import (
+	"errors"
 	"strings"
 	"testing"
 
 	"github.com/mosip/esignet/api-test/internal/config"
+	"github.com/mosip/esignet/api-test/internal/result"
 )
 
 func newTestOrchestrator(base string) *Orchestrator {
@@ -155,5 +157,51 @@ func TestBehaviorForLeavesOtherModulesOnTheDefault(t *testing.T) {
 	}
 	if got := (moduleBehavior{}).visitBudget(); got != 1 {
 		t.Errorf("default visitBudget() = %d, want 1", got)
+	}
+}
+
+// An unreachable suite must still reach the report. Before this, the surface returned
+// an error carrying zero modules, cmd/conformance wrote nothing, and run-all.sh could
+// only report that the surface "crashed before writing one".
+func TestEnvNotReadyProducesOneRowPerPlan(t *testing.T) {
+	o := newTestOrchestrator("https://esignet.example/v1/esignet")
+	o.cfg.Esignet.Provider = "mosip"
+	o.cfg.Plans = []config.Plan{{Name: "oidcc-test-plan"}, {Name: "fapi2-security-profile-final-test-plan"}}
+
+	out := &RunResult{}
+	err := o.envNotReady(out, errors.New("suite /api/runner/available: connection refused"))
+
+	if err == nil || !strings.Contains(err.Error(), "ENV_NOT_READY") {
+		t.Fatalf("err = %v, want one wrapping ENV_NOT_READY", err)
+	}
+	if len(out.Modules) != 2 {
+		t.Fatalf("got %d rows, want one per plan", len(out.Modules))
+	}
+	for i, want := range []string{"oidcc-test-plan", "fapi2-security-profile-final-test-plan"} {
+		got := out.Modules[i]
+		if got.Plan != want {
+			t.Errorf("row %d Plan = %q, want %q", i, got.Plan, want)
+		}
+		if got.HarnessOutcome != result.OutcomeEnvNotReady {
+			t.Errorf("row %d HarnessOutcome = %q, want %q", i, got.HarnessOutcome, result.OutcomeEnvNotReady)
+		}
+		// The row must carry the cause: the operator reads the report, not the container log.
+		if !strings.Contains(got.OutcomeDetail, "connection refused") {
+			t.Errorf("row %d OutcomeDetail = %q, want the underlying error", i, got.OutcomeDetail)
+		}
+		// ENV_NOT_READY is a not-run row, never a failure — it must not land in the Failed bucket.
+		if got.Result == "FAILED" {
+			t.Errorf("row %d Result = FAILED, want an unset result", i)
+		}
+	}
+}
+
+// A plan-less config cannot reach envNotReady today, but it must not silently report nothing if it ever does.
+func TestEnvNotReadyWithNoPlansStillReportsARow(t *testing.T) {
+	o := newTestOrchestrator("https://esignet.example/v1/esignet")
+	out := &RunResult{}
+	_ = o.envNotReady(out, errors.New("boom"))
+	if len(out.Modules) != 1 {
+		t.Fatalf("got %d rows, want 1", len(out.Modules))
 	}
 }
