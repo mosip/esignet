@@ -22,7 +22,9 @@ type mailMessage struct {
 	Text    string `json:"text"`
 	HTML    string `json:"html"`
 	Subject string `json:"subject"`
-	To      struct {
+	// Date is send time, not arrival: the mock-SMTP server replays recent history on connect, so timing by arrival would hand a stale OTP to the flow as if it were live.
+	Date string `json:"date"`
+	To   struct {
 		Text  string `json:"text"`
 		Value []struct {
 			Address string `json:"address"`
@@ -146,9 +148,23 @@ func (l *Listener) ingest(data []byte, at time.Time) {
 		return
 	}
 	l.mu.Lock()
-	l.records = append(l.records, record{at: at, otp: otp, dest: recipients(m)})
+	l.records = append(l.records, record{at: sentAt(m, at), otp: otp, dest: recipients(m)})
 	l.pruneLocked(at)
 	l.mu.Unlock()
+}
+
+// sentAt is when the deployment sent the message, falling back to arrival time (see mailMessage.Date).
+func sentAt(m mailMessage, fallback time.Time) time.Time {
+	d := strings.TrimSpace(m.Date)
+	if d == "" {
+		return fallback
+	}
+	for _, layout := range []string{time.RFC3339Nano, time.RFC3339, time.RFC1123Z, time.RFC1123} {
+		if t, err := time.Parse(layout, d); err == nil {
+			return t
+		}
+	}
+	return fallback
 }
 
 // retention bounds the buffer. One listener serves every module for the whole

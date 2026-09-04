@@ -1,10 +1,12 @@
 package conformance
 
 import (
+	"errors"
 	"strings"
 	"testing"
 
 	"github.com/mosip/esignet/api-test/internal/config"
+	"github.com/mosip/esignet/api-test/internal/result"
 )
 
 func newTestOrchestrator(base string) *Orchestrator {
@@ -39,8 +41,7 @@ func TestEsignetBase(t *testing.T) {
 			want:       "https://esignet.example/v1/esignet",
 		},
 		{
-			// The regression: a prefix test accepted this and then returned the
-			// SHORT value, silently driving the flow at https://esignet.example/v1.
+			// The regression: a prefix test accepted this and returned the SHORT value, silently driving the flow at https://esignet.example/v1.
 			name:       "configured base shorter than derived is rejected",
 			configured: "https://esignet.example/v1",
 			wantErr:    true,
@@ -86,8 +87,7 @@ func TestEsignetBaseRejectsNonAuthorizeURL(t *testing.T) {
 	}
 }
 
-// form_post is not a module name: the suite runs the ordinary modules and puts
-// the mode in the plan variant, so only the variant can reveal it.
+// form_post is not a module name: the suite puts the mode in the plan variant, so only the variant can reveal it.
 func TestUnsupportedReasonReadsTheResponseModeVariant(t *testing.T) {
 	if got := unsupportedReason("oidcc-server", map[string]any{"response_mode": "form_post"}); got != "form_post" {
 		t.Errorf("unsupportedReason(form_post variant) = %q, want form_post", got)
@@ -101,5 +101,107 @@ func TestUnsupportedReasonReadsTheResponseModeVariant(t *testing.T) {
 	// The name-substring hints still apply.
 	if got := unsupportedReason("oidcc-rp-initiated-logout", nil); got != "logout" {
 		t.Errorf("unsupportedReason(logout module) = %q, want logout", got)
+	}
+}
+
+// The visit budget defaults to 1: a URL already driven, or one the suite has marked visited, is not returned again.
+func TestPendingURLsDefaultBudgetDrivesEachURLOnce(t *testing.T) {
+	b := Browser{URLs: []string{"https://a/authorize", "https://b/authorize"}}
+	visits := map[string]int{}
+
+	got := pendingURLs(b, visits, 1)
+	if len(got) != 2 {
+		t.Fatalf("first pass = %v, want both URLs", got)
+	}
+	for _, u := range got {
+		visits[u]++
+	}
+	if got := pendingURLs(b, visits, 1); got != nil {
+		t.Errorf("second pass = %v, want none (budget of 1 already spent)", got)
+	}
+
+	// A URL the suite reports as visited is never offered, budget notwithstanding.
+	b2 := Browser{URLs: []string{"https://a/authorize"}, Visited: []string{"https://a/authorize"}}
+	if got := pendingURLs(b2, map[string]int{}, 1); got != nil {
+		t.Errorf("suite-visited URL = %v, want none", got)
+	}
+}
+
+// A budget above 1 is what par-ensure-reused-request-uri needs: the same authorize URL has to be drivable a second time, since the first visit doesn't authenticate.
+func TestPendingURLsBudgetAllowsASecondVisit(t *testing.T) {
+	b := Browser{URLs: []string{"https://a/authorize"}}
+	visits := map[string]int{"https://a/authorize": 1}
+
+	if got := pendingURLs(b, visits, 2); len(got) != 1 {
+		t.Errorf("budget 2 after 1 visit = %v, want the URL again", got)
+	}
+	visits["https://a/authorize"]++
+	if got := pendingURLs(b, visits, 2); got != nil {
+		t.Errorf("budget 2 after 2 visits = %v, want none", got)
+	}
+}
+
+// Only the two modules that need special driving get it; everything else must keep the zero value, or a stray DenyAll would deny consent across the run.
+func TestBehaviorForLeavesOtherModulesOnTheDefault(t *testing.T) {
+	// moduleBehavior holds a ConsentPolicy (a slice), so it is not comparable with ==; check the fields that change driving instead.
+	if b := behaviorFor("fapi2-security-profile-final-happy-flow"); b.consent.DenyAll ||
+		len(b.consent.Deny) != 0 || b.followRejection || b.loadOnlyVisits != 0 || b.visitBudget() != 1 {
+		t.Errorf("happy-flow behaviour = %+v, want the default driving", b)
+	}
+	if b := behaviorFor("fapi2-security-profile-final-user-rejects-authentication"); !b.consent.DenyAll || !b.followRejection {
+		t.Errorf("user-rejects behaviour = %+v, want DenyAll + followRejection", b)
+	}
+	reuse := behaviorFor("fapi2-security-profile-final-par-ensure-reused-request-uri-prior-to-auth-completion-succeeds")
+	if reuse.loadOnlyVisits != 1 || reuse.visitBudget() != 2 {
+		t.Errorf("par-reuse behaviour = %+v, want 1 load-only visit and a budget of 2", reuse)
+	}
+	if got := (moduleBehavior{}).visitBudget(); got != 1 {
+		t.Errorf("default visitBudget() = %d, want 1", got)
+	}
+}
+
+// An unreachable suite must still reach the report. Before this, the surface returned
+// an error carrying zero modules, cmd/conformance wrote nothing, and run-all.sh could
+// only report that the surface "crashed before writing one".
+func TestEnvNotReadyProducesOneRowPerPlan(t *testing.T) {
+	o := newTestOrchestrator("https://esignet.example/v1/esignet")
+	o.cfg.Esignet.Provider = "mosip"
+	o.cfg.Plans = []config.Plan{{Name: "oidcc-test-plan"}, {Name: "fapi2-security-profile-final-test-plan"}}
+
+	out := &RunResult{}
+	err := o.envNotReady(out, errors.New("suite /api/runner/available: connection refused"))
+
+	if err == nil || !strings.Contains(err.Error(), "ENV_NOT_READY") {
+		t.Fatalf("err = %v, want one wrapping ENV_NOT_READY", err)
+	}
+	if len(out.Modules) != 2 {
+		t.Fatalf("got %d rows, want one per plan", len(out.Modules))
+	}
+	for i, want := range []string{"oidcc-test-plan", "fapi2-security-profile-final-test-plan"} {
+		got := out.Modules[i]
+		if got.Plan != want {
+			t.Errorf("row %d Plan = %q, want %q", i, got.Plan, want)
+		}
+		if got.HarnessOutcome != result.OutcomeEnvNotReady {
+			t.Errorf("row %d HarnessOutcome = %q, want %q", i, got.HarnessOutcome, result.OutcomeEnvNotReady)
+		}
+		// The row must carry the cause: the operator reads the report, not the container log.
+		if !strings.Contains(got.OutcomeDetail, "connection refused") {
+			t.Errorf("row %d OutcomeDetail = %q, want the underlying error", i, got.OutcomeDetail)
+		}
+		// ENV_NOT_READY is a not-run row, never a failure — it must not land in the Failed bucket.
+		if got.Result == "FAILED" {
+			t.Errorf("row %d Result = FAILED, want an unset result", i)
+		}
+	}
+}
+
+// A plan-less config cannot reach envNotReady today, but it must not silently report nothing if it ever does.
+func TestEnvNotReadyWithNoPlansStillReportsARow(t *testing.T) {
+	o := newTestOrchestrator("https://esignet.example/v1/esignet")
+	out := &RunResult{}
+	_ = o.envNotReady(out, errors.New("boom"))
+	if len(out.Modules) != 1 {
+		t.Fatalf("got %d rows, want 1", len(out.Modules))
 	}
 }

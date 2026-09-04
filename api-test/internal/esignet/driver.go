@@ -63,7 +63,8 @@ func (p ConsentPolicy) denies(name string) bool {
 
 type Driver struct {
 	answers      map[string]string // normalized identifier -> value
-	preferred    []string          // preferred action tokens for ACR / login-id selection
+	preferred    []string          // preferred action tokens for the ACR (auth-factor) selection
+	idTokens     []string          // login-id-type tokens, matched against an action's nextNode (see selectAction)
 	tlsVerify    bool
 	timeout      time.Duration
 	maxHops      int
@@ -71,6 +72,9 @@ type Driver struct {
 	debug        bool
 	otp          OTPProvider   // dynamic OTP source; nil for static OTP
 	consent      ConsentPolicy // how to answer the consent step; zero value approves all
+
+	// followRejection carries an ERROR flow's errorAssertion through to the client redirect; off by default since e2e asserts denied consent is rejected, not redirected.
+	followRejection bool
 
 	// Per-Run observations, reset at the top of Run because the conformance
 	// orchestrator reuses one Driver across every module.
@@ -83,6 +87,12 @@ func (d *Driver) SetOTPProvider(p OTPProvider) { d.otp = p }
 
 // SetConsentPolicy installs a non-default consent answer.
 func (d *Driver) SetConsentPolicy(p ConsentPolicy) { d.consent = p }
+
+// SetFollowRejection controls whether a rejected flow is carried through to the client redirect (see followRejection).
+func (d *Driver) SetFollowRejection(v bool) { d.followRejection = v }
+
+// UseIDType sets the login-id-type preference; without it the driver submits on whichever tab it opens on, which the ID system rejects if that's the wrong id kind (IDA-MLC-009).
+func (d *Driver) UseIDType(tokens []string) { d.idTokens = tokens }
 
 func New(answers map[string]string, preferred []string, tlsVerify bool, timeout time.Duration) *Driver {
 	return &Driver{
@@ -109,6 +119,10 @@ type FlowResult struct {
 	// ConsentDenied lists the element names the driver withheld approval from,
 	// for the report's evidence trail.
 	ConsentDenied []string
+	// AuthorizeErrorCode is the errorCode eSignet put on its /error page when it rejected the authorize request.
+	AuthorizeErrorCode string
+	// LoginReached is the success signal for RunToLogin, which deliberately produces no RedirectURI.
+	LoginReached bool
 }
 
 func (r FlowResult) OK() bool { return r.RedirectURI != "" && r.Error == "" }
@@ -117,12 +131,23 @@ type flowResp struct {
 	FlowStatus     string `json:"flowStatus"`
 	ChallengeToken string `json:"challengeToken"`
 	Assertion      string `json:"assertion"`
-	Data           struct {
+	// ErrorAssertion is the signed assertion eSignet returns when a flow ends in ERROR; posting it to /oauth2/auth/callback yields an access_denied redirect.
+	ErrorAssertion string `json:"errorAssertion"`
+	// Error is the per-step rejection while the flow is still INCOMPLETE; without it a rejected OTP step gets re-submitted until it trips the deployment's lockout.
+	Error *struct {
+		Code    string `json:"code"`
+		Message struct {
+			DefaultValue string `json:"defaultValue"`
+		} `json:"message"`
+	} `json:"error"`
+	Data struct {
 		Inputs []struct {
 			Identifier string `json:"identifier"`
 		} `json:"inputs"`
+		// NextNode distinguishes the login-id tabs: every tab's submit ref is "submit_uin", only nextNode says which identifier it sends.
 		Actions []struct {
-			Ref string `json:"ref"`
+			Ref      string `json:"ref"`
+			NextNode string `json:"nextNode"`
 		} `json:"actions"`
 		// AdditionalData.ConsentPrompt is a JSON *string* holding the purposes the
 		// consent step is asking about. It only appears on the consent prompt.
@@ -147,7 +172,9 @@ type consentElement struct {
 }
 
 // consentDecision is the reply shape the ConsentExecutor expects, sent as a JSON-encoded string.
+// Approved must be sent explicitly: an absent field reads as false and the executor rejects the whole decision with FET-1066.
 type consentDecision struct {
+	Approved bool                     `json:"approved"`
 	Purposes []consentPurposeDecision `json:"purposes"`
 }
 
@@ -195,6 +222,9 @@ func buildConsentDecision(prompt string, policy ConsentPolicy) (string, []string
 		// A purpose with every element withheld is itself not approved.
 		if policy.DenyAll || (len(d.Elements) > 0 && !anyApproved) {
 			d.Approved = false
+		}
+		if d.Approved {
+			out.Approved = true
 		}
 		out.Purposes = append(out.Purposes, d)
 	}
@@ -309,18 +339,27 @@ func (s *session) do(ctx context.Context, label, method, u string, body []byte, 
 
 // Run drives one authorization request to a redirect_uri.
 func (d *Driver) Run(ctx context.Context, base, authorizeURL string) FlowResult {
+	return d.runFlow(ctx, base, authorizeURL, false)
+}
+
+// RunToLogin stops at the login page without authenticating, so par-ensure-reused-request-uri can prove a request_uri survives being revisited unauthenticated.
+func (d *Driver) RunToLogin(ctx context.Context, base, authorizeURL string) FlowResult {
+	return d.runFlow(ctx, base, authorizeURL, true)
+}
+
+func (d *Driver) runFlow(ctx context.Context, base, authorizeURL string, stopAtLogin bool) FlowResult {
 	// One Driver is reused for every module, so per-flow consent observations must start clean.
 	d.consentPrompted, d.consentDenied = false, nil
 
 	s := d.newSession()
-	fr := d.run(ctx, s, base, authorizeURL)
+	fr := d.run(ctx, s, base, authorizeURL, stopAtLogin)
 	fr.Calls = s.calls
 	fr.ConsentPrompted = d.consentPrompted
 	fr.ConsentDenied = d.consentDenied
 	return fr
 }
 
-func (d *Driver) run(ctx context.Context, s *session, base, authorizeURL string) FlowResult {
+func (d *Driver) run(ctx context.Context, s *session, base, authorizeURL string, stopAtLogin bool) FlowResult {
 	var fr FlowResult
 
 	current := authorizeURL
@@ -341,10 +380,21 @@ func (d *Driver) run(ctx context.Context, s *session, base, authorizeURL string)
 			target := resolve(current, loc)
 			q := queryOf(target)
 			if q.Get("authId") != "" && q.Get("executionId") != "" {
+				fr.LoginReached = true
+				if stopAtLogin {
+					return fr
+				}
 				return d.completeLogin(ctx, s, base, q.Get("authId"), q.Get("executionId"), fr)
 			}
 			if q.Get("code") != "" || q.Get("error") != "" {
 				fr.RedirectURI = target
+				return fr
+			}
+			// eSignet's /error page is an HTML SPA route, not an RP redirect; report the errorCode instead of following the hop and failing on the HTML.
+			if code := q.Get("errorCode"); code != "" {
+				fr.AuthorizeErrorCode = code
+				fr.Error = fmt.Sprintf("authorize returned eSignet's error page: %s (%s)",
+					code, q.Get("errorMessage"))
 				return fr
 			}
 			current = target
@@ -362,6 +412,8 @@ func (d *Driver) completeLogin(ctx context.Context, s *session, base, authID, ex
 	payload := map[string]any{"executionId": executionID}
 	// Freshness boundary: an OTP delivered before login started belongs to a previous flow.
 	flowStart := time.Now()
+	// Every input answered so far in this flow, re-sent in full on each step the way the browser does.
+	carriedInputs := map[string]string{}
 
 	for step := 0; step < d.maxFlowSteps; step++ {
 		pj, err := json.Marshal(payload)
@@ -397,9 +449,11 @@ func (d *Driver) completeLogin(ctx context.Context, s *session, base, authID, ex
 			}
 		}
 		var actionRefs []string
+		var actions []flowAction
 		for _, a := range r.Data.Actions {
 			if a.Ref != "" {
 				actionRefs = append(actionRefs, a.Ref)
+				actions = append(actions, flowAction{Ref: a.Ref, NextNode: a.NextNode})
 			}
 		}
 
@@ -410,11 +464,22 @@ func (d *Driver) completeLogin(ctx context.Context, s *session, base, authID, ex
 		}
 		if flowStatus != "" && flowStatus != "INCOMPLETE" {
 			fr.Steps = append(fr.Steps, result.FlowStep{FlowStatus: flowStatus, Inputs: inputIDs})
+			// A rejected flow's signed errorAssertion turns into an error=access_denied redirect.
+			if d.followRejection && r.ErrorAssertion != "" {
+				return d.deliverAssertion(ctx, s, base, authID, r.ErrorAssertion, fr)
+			}
 			fr.Error = fmt.Sprintf("flow terminated with status %q", flowStatus)
 			return fr
 		}
 
-		action, aerr := selectAction(actionRefs, d.preferred)
+		// The step was rejected but the flow is still INCOMPLETE; report it rather than looping to maxFlowSteps re-submitting the same view.
+		if r.Error != nil && r.Error.Code != "" {
+			fr.Steps = append(fr.Steps, result.FlowStep{FlowStatus: flowStatus, Inputs: inputIDs})
+			fr.Error = fmt.Sprintf("flow step rejected: %s (%s)", r.Error.Code, r.Error.Message.DefaultValue)
+			return fr
+		}
+
+		action, aerr := selectAction(actions, d.preferred, d.idTokens)
 		if aerr != "" {
 			fr.Steps = append(fr.Steps, result.FlowStep{FlowStatus: flowStatus, Inputs: inputIDs, Action: strings.Join(actionRefs, ",")})
 			fr.Error = aerr
@@ -428,6 +493,10 @@ func (d *Driver) completeLogin(ctx context.Context, s *session, base, authID, ex
 			return fr
 		}
 
+		// Every step re-sends all inputs accumulated so far, not just this view's — sending only `otp` leaves basic_auth with no username and misreports FET-1005 as a bad OTP.
+		for k, v := range inputs {
+			carriedInputs[k] = v
+		}
 		fr.Steps = append(fr.Steps, result.FlowStep{FlowStatus: flowStatus, Inputs: inputIDs, Action: action})
 
 		next := map[string]any{"executionId": executionID}
@@ -437,8 +506,13 @@ func (d *Driver) completeLogin(ctx context.Context, s *session, base, authID, ex
 		if action != "" {
 			next["action"] = action
 		}
-		if len(inputs) > 0 {
-			next["inputs"] = inputs
+		if len(carriedInputs) > 0 {
+			// Copied, not aliased: carriedInputs keeps growing before this payload is marshalled next iteration.
+			send := make(map[string]string, len(carriedInputs))
+			for k, v := range carriedInputs {
+				send[k] = v
+			}
+			next["inputs"] = send
 		}
 		payload = next
 	}
@@ -450,6 +524,11 @@ func (d *Driver) completeLogin(ctx context.Context, s *session, base, authID, ex
 		return fr
 	}
 
+	return d.deliverAssertion(ctx, s, base, authID, assertion, fr)
+}
+
+// deliverAssertion posts a flow assertion to /oauth2/auth/callback; eSignet routes on its claims to serve both a successful login and a rejected one (access_denied).
+func (d *Driver) deliverAssertion(ctx context.Context, s *session, base, authID, assertion string, fr FlowResult) FlowResult {
 	cbBody, cbStatus, _, err := s.do(ctx, "oauth2/auth/callback", http.MethodPost, base+"/oauth2/auth/callback", mustJSON(map[string]any{
 		"authId": authID, "assertion": assertion,
 	}), "application/json", true)
@@ -514,24 +593,51 @@ func (d *Driver) resolveInputs(identifiers []string, since time.Time, consentPro
 	return out, ""
 }
 
-// selectAction picks the happy-path action.
-func selectAction(actions, preferred []string) (string, string) {
+// flowAction is one selectable action of a flow view: its ref and the node it advances to (login-id tabs all submit under the same ref).
+type flowAction struct {
+	Ref      string
+	NextNode string
+}
+
+// selectAction picks the happy-path action; idTokens is kept apart from preferred because it matches nextNode, not ref.
+func selectAction(actions []flowAction, preferred, idTokens []string) (string, string) {
 	if len(actions) == 0 {
 		return "", ""
 	}
-	var candidates []string
+	var candidates []flowAction
 	for _, a := range actions {
-		if !containsAny(strings.ToLower(a), excludeActions) {
+		if !containsAny(strings.ToLower(a.Ref), excludeActions) {
 			candidates = append(candidates, a)
 		}
 	}
 	if len(candidates) == 0 {
-		return "", fmt.Sprintf("AMBIGUOUS_FLOW_ACTION: only excluded actions available=%v", actions)
+		return "", fmt.Sprintf("AMBIGUOUS_FLOW_ACTION: only excluded actions available=%v", refsOf(actions))
 	}
 	if len(candidates) == 1 {
-		return candidates[0], ""
+		return candidates[0].Ref, ""
 	}
 	isNav := func(c string) bool { return containsAny(strings.ToLower(c), navHints) }
+
+	// 0. login-id tab correction: switch tabs first if this view's submit would send the wrong id kind (IDA-MLC-009).
+	if len(idTokens) > 0 {
+		submitMatches, navToIDType := false, ""
+		for _, c := range candidates {
+			node := strings.ToLower(c.NextNode)
+			if node == "" || !containsAny(node, idTokens) {
+				continue
+			}
+			if isNav(c.Ref) {
+				if navToIDType == "" {
+					navToIDType = c.Ref
+				}
+			} else {
+				submitMatches = true
+			}
+		}
+		if !submitMatches && navToIDType != "" {
+			return navToIDType, ""
+		}
+	}
 
 	// 1. caller preference (skip navigation).
 	for _, pref := range preferred {
@@ -540,36 +646,36 @@ func selectAction(actions, preferred []string) (string, string) {
 			continue
 		}
 		for _, c := range candidates {
-			if !isNav(c) && strings.Contains(strings.ToLower(c), pref) {
-				return c, ""
+			if !isNav(c.Ref) && strings.Contains(strings.ToLower(c.Ref), pref) {
+				return c.Ref, ""
 			}
 		}
 	}
 	// 2. submit-like actions advance the flow, skipping navigation so a resend cannot beat the real submit.
 	for _, hint := range submitHints {
 		for _, c := range candidates {
-			if !isNav(c) && strings.Contains(strings.ToLower(c), hint) {
-				return c, ""
+			if !isNav(c.Ref) && strings.Contains(strings.ToLower(c.Ref), hint) {
+				return c.Ref, ""
 			}
 		}
 	}
 	// 3. generic happy-path (skip navigation).
 	for _, pref := range actionPreference {
 		for _, c := range candidates {
-			if !isNav(c) && strings.Contains(strings.ToLower(c), pref) {
-				return c, ""
+			if !isNav(c.Ref) && strings.Contains(strings.ToLower(c.Ref), pref) {
+				return c.Ref, ""
 			}
 		}
 	}
 	// 4. any non-navigation candidate.
-	var nonNav []string
+	var nonNav []flowAction
 	for _, c := range candidates {
-		if !isNav(c) {
+		if !isNav(c.Ref) {
 			nonNav = append(nonNav, c)
 		}
 	}
 	if len(nonNav) == 1 {
-		return nonNav[0], ""
+		return nonNav[0].Ref, ""
 	}
 	// 5. navigation tabs as a last resort, honouring the caller's IDTypeTokens preference first.
 	if len(nonNav) == 0 && len(candidates) > 0 {
@@ -579,14 +685,23 @@ func selectAction(actions, preferred []string) (string, string) {
 				continue
 			}
 			for _, c := range candidates {
-				if strings.Contains(strings.ToLower(c), pref) {
-					return c, ""
+				if strings.Contains(strings.ToLower(c.Ref), pref) {
+					return c.Ref, ""
 				}
 			}
 		}
-		return candidates[0], ""
+		return candidates[0].Ref, ""
 	}
-	return "", fmt.Sprintf("AMBIGUOUS_FLOW_ACTION: %d non-navigation actions available=%v (set esignet.auth_factor to disambiguate)", len(nonNav), candidates)
+	return "", fmt.Sprintf("AMBIGUOUS_FLOW_ACTION: %d non-navigation actions available=%v (set esignet.auth_factor to disambiguate)", len(nonNav), refsOf(candidates))
+}
+
+// refsOf renders actions for an error message.
+func refsOf(actions []flowAction) []string {
+	out := make([]string, 0, len(actions))
+	for _, a := range actions {
+		out = append(out, a.Ref)
+	}
+	return out
 }
 
 // ----- utils -----

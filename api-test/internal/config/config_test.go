@@ -694,3 +694,46 @@ func TestLoadAcceptsAPIBlock(t *testing.T) {
 		t.Errorf("api block not applied: flow_client_id=%q tls_verify=%v", c.API.FlowClientID, c.API.TLSVerify)
 	}
 }
+
+// A conformance run that is not told otherwise must grade every module the plan
+// declares. The default was smoke, which quietly reported a curated subset as
+// "conformance" — and which only oidcc-test-plan even had a list for.
+func TestProfileDefaultsToFull(t *testing.T) {
+	cfg := writeLayers(t,
+		`{"conformance":{"base_url":"https://suite.example"},
+		  "plan":{"config_file":$PLAN},
+		  "esignet":{"provider":"mosip","auth_factor":"otp",
+		             "identity":{"individual_id":"x","id_type":"uin"}},
+		  "run":{"surfaces":["conformance"]}}`, "")
+
+	c, err := load(t, cfg)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if c.Run.Profile != "full" {
+		t.Errorf("run.profile = %q, want full", c.Run.Profile)
+	}
+	// A plan that names no profile of its own inherits it, so the default has to
+	// reach the selection the conformance surface actually runs from.
+	if got := c.Selection(c.Plans[0]).Profile; got != "full" {
+		t.Errorf("selection profile = %q, want full", got)
+	}
+}
+
+// Narrowing stays available: an explicit smoke must still win over the default.
+func TestProfileSmokeStillOverrides(t *testing.T) {
+	cfg := writeLayers(t,
+		`{"conformance":{"base_url":"https://suite.example"},
+		  "plan":{"config_file":$PLAN},
+		  "esignet":{"provider":"mosip","auth_factor":"otp",
+		             "identity":{"individual_id":"x","id_type":"uin"}},
+		  "run":{"surfaces":["conformance"],"profile":"smoke"}}`, "")
+
+	c, err := load(t, cfg)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if c.Run.Profile != "smoke" {
+		t.Errorf("run.profile = %q, want smoke", c.Run.Profile)
+	}
+}

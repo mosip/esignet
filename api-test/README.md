@@ -29,8 +29,8 @@ single report.
 | Surface | What it verifies | Needs |
 |---|---|---|
 | **`conformance`** | Formal OpenID Connect compliance. Drives the [OpenID Conformance Suite](https://gitlab.com/openid/conformance-suite), which acts as the OAuth client and grades the result; the harness plays browser-and-user, walking `authorize → /flow/execute → callback`. | A running suite + a plan config ([setup](docs/conformance-suite.md)) |
-| **`api`** | eSignet's REST endpoints directly, one endpoint at a time: client management (`/client-mgmt/client` create/get/update, consent configuration) and the flow entry points (`/flow/meta`, `/flow/execute`, `/oauth2/authorize` validation). Success *and* rejection cases for each. Written in Gherkin, run by [godog](https://github.com/cucumber/godog). | A reachable eSignet; Keycloak admin credentials for the client-management endpoints |
-| **`e2e`** | A complete relying-party journey. The harness registers a throwaway OIDC client, then runs `authorize` (PKCE) → login → `token` (`private_key_jwt`) → `userinfo` and asserts the claims that come back. Covers each authentication factor (OTP, password, biometrics, knowledge-based), positive and negative, plus consent and captcha behaviour. | A reachable eSignet + Keycloak admin credentials + a test identity |
+| **`api`** | eSignet's REST endpoints directly, one endpoint at a time: client management (`/client-mgmt/client` create/get/update, the ACTIVE/INACTIVE status lifecycle, consent and protocol `additionalConfig` validation) and the flow entry points (`/flow/meta`, `/flow/execute`, `/oauth2/authorize` and `/oauth2/introspect` validation). Success *and* rejection cases for each. Written in Gherkin, run by [godog](https://github.com/cucumber/godog). | A reachable eSignet; Keycloak admin credentials or `ADMIN_TOKEN` for a target that does not enforce scope |
+| **`e2e`** | A complete relying-party journey. The harness registers throwaway OIDC clients, then runs `authorize` (PKCE) → login → `token` (`private_key_jwt`) → `userinfo` and asserts the claims that come back. Covers each authentication factor (OTP, password, biometrics, knowledge-based), positive and negative, plus consent, captcha, token introspection (RFC 7662), whether deactivating a client actually stops it (at authorize, at token and at userinfo), and the per-client protocol switches — PKCE, PAR and DPoP — in combination. | A reachable eSignet + Keycloak admin credentials or `ADMIN_TOKEN` + a test identity |
 
 Three identity plugins are supported — **`mock`**, **`sunbird`** and **`mosip`** — selected per run
 by the config file you pass. `mock` needs no identity of your own and is the right starting point.
@@ -103,7 +103,7 @@ api-test/
 
 | Surface | Tests defined in | Selected by |
 |---|---|---|
-| `conformance` | `data/conformance/<plan>.smoke.json` (curated module list) | `run.profile`, `run.modules`, `plans[]` |
+| `conformance` | every module the plan declares (`profile: full`) | `run.profile`, `run.modules`, `plans[]` |
 | `api` | `data/features/**/*.feature` | `api.tags` (Gherkin tags) |
 | `e2e` | `data/scenarios/e2e-scenarios[-<plugin>].json` | `e2e.auth_factors`, `e2e.include`, `e2e.exclude` |
 
@@ -225,9 +225,9 @@ To narrow the `api` surface to particular endpoints, set `api.tags` in the confi
 
 | Tag | Covers |
 |---|---|
-| `@flow-execute` | `/flow/meta`, `/flow/execute` |
+| `@flow-execute` | `/flow/meta`, `/flow/execute`, `/oauth2/introspect` request and client-authentication validation |
 | `@flow-authz-neg` | `/oauth2/authorize` request validation |
-| `@client-mgmt` | client create / get / update, consent configuration |
+| `@client-mgmt` | client create / get / update, consent configuration, protocol `additionalConfig` validation (PKCE, PAR, DPoP) |
 | `@client-mgmt-pms` | client registration via PMS ([MOSIP ID only](docs/mosip-id.md)) |
 
 Leaving `api.tags` empty runs whatever your configured credentials can actually drive; anything
@@ -287,6 +287,7 @@ at `http://host.docker.internal:8080` for one running on your own machine.
 | `CONFIG_FILE` | Which plugin config is mounted (default `data/config/config.mock.json`) |
 | `MOSIP_ESIGNET_BASE_URL` | The deployment under test |
 | `KEYCLOAK_TOKEN_URL`, `KEYCLOAK_CLIENT_SECRET` | Admin credentials |
+| `ADMIN_TOKEN` | Skips the Keycloak round-trip above, for a target that does not enforce scope (no `ISSUER_URL`/`JWKS_URL`) — a locally started `esignet-service`, typically. Explicit opt-in, not a fallback |
 | `INDIVIDUAL_ID`, `FLOW_CLIENT_ID` | Test identity and the pre-registered client for authorize validation |
 | `SURFACES`, `TEST_PROFILE` | Narrow the run without editing a config |
 | `ESIGNET_TLS_VERIFY`, `API_TLS_VERIFY` | Certificate verification for the deployment under test — on unless set `false` |

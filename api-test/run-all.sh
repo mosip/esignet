@@ -179,7 +179,10 @@ wait_for_suite() {
   local deadline=$((SECONDS + wait_s))
   until curl "${curl_opts[@]}" "$base/api/runner/available" 2>/dev/null; do
     if (( SECONDS >= deadline )); then
-      echo "(conformance suite not reachable at $base after ${wait_s}s — proceeding anyway)" >&2
+      # Proceeding is deliberate, not a shrug: the surface's own preflight turns an
+      # unreachable suite into an ENV_NOT_READY row per plan, so the report says why
+      # it did not run. Bailing here would leave the api/e2e surfaces unrun as well.
+      echo "(conformance suite not reachable at $base after ${wait_s}s — running anyway; the surface will report ENV_NOT_READY)" >&2
       return 0
     fi
     sleep 2

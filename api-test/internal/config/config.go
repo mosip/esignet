@@ -143,6 +143,9 @@ type Identity struct {
 type Credentials struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
+	// Biometric is the value submitted as a biometric capture. Only mock
+	// validates it, and accepts any non-empty value as a successful capture.
+	Biometric string `json:"biometric"`
 }
 
 type Knowledge struct {
@@ -193,8 +196,12 @@ type E2E struct {
 type Run struct {
 	// Surfaces selects which test surfaces this run executes: any of
 	// conformance, api, e2e. Defaults to all three.
-	Surfaces            []string     `json:"surfaces"`
-	Modules             []string     `json:"modules"`
+	Surfaces []string `json:"surfaces"`
+	Modules  []string `json:"modules"`
+	// Profile selects how many conformance modules run: full (every module the
+	// plan declares) or smoke (the curated list in
+	// data/conformance/<plan>.smoke.json). Defaults to full — narrowing the run
+	// is a deliberate act, because a partial run still reports as "conformance".
 	Profile             string       `json:"profile"`
 	Filter              string       `json:"filter"`
 	Skip                []string     `json:"skip"`         // modules to not run at all -> Skipped bucket
@@ -403,8 +410,10 @@ func (c *Config) ValidateSurface(name string) error {
 		}
 		// Unlike api, e2e cannot degrade: it registers a throwaway OIDC client
 		// before it can drive anything, and that needs the admin grant.
-		if c.Keycloak.TokenURL == "" || c.Keycloak.ClientID == "" || c.Keycloak.ClientSecret == "" {
-			return fmt.Errorf("keycloak.token_url/client_id/client_secret (KEYCLOAK_*) are required for the e2e surface — it registers a test client before running")
+		// ADMIN_TOKEN also satisfies this; checked here too so a missing setting fails with a clear message instead of a 401 mid-run.
+		if os.Getenv("ADMIN_TOKEN") == "" &&
+			(c.Keycloak.TokenURL == "" || c.Keycloak.ClientID == "" || c.Keycloak.ClientSecret == "") {
+			return fmt.Errorf("keycloak.token_url/client_id/client_secret (KEYCLOAK_*) are required for the e2e surface — it registers a test client before running (or set ADMIN_TOKEN for a target that does not enforce scope)")
 		}
 		if c.E2E.Spec == "" {
 			return fmt.Errorf("e2e.spec (E2E_SPEC) is required for the e2e surface — no default known for provider %q", c.Esignet.Provider)
@@ -462,6 +471,7 @@ func (c *Config) applyEnv() (int, error) {
 	envStr(&c.Esignet.Identity.IDType, "ID_TYPE", &n)
 	envStr(&c.Esignet.Credentials.Username, "TEST_USERNAME", &n)
 	envStr(&c.Esignet.Credentials.Password, "TEST_PASSWORD", &n)
+	envStr(&c.Esignet.Credentials.Biometric, "TEST_BIOMETRIC", &n)
 	envStr(&c.Esignet.Knowledge.FullName, "KBI_FULL_NAME", &n)
 	envStr(&c.Esignet.Knowledge.DOB, "KBI_DOB", &n)
 	envStr(&c.Esignet.OTP.Source, "OTP_SOURCE", &n)
@@ -631,8 +641,13 @@ func (c *Config) defaults() {
 	if c.Esignet.OTP.Value == "" {
 		c.Esignet.OTP.Value = "111111"
 	}
+	// full, not smoke: a run that silently grades a curated subset and reports
+	// it as "conformance" overstates what was checked. Only oidcc-test-plan
+	// ships a smoke list, so smoke was never a usable default for the FAPI plan
+	// anyway — every shipped config already had to override it back to full.
+	// Narrow deliberately with run.profile or plans[].profile.
 	if c.Run.Profile == "" {
-		c.Run.Profile = "smoke"
+		c.Run.Profile = "full"
 	}
 	if c.Run.PollIntervalSeconds == 0 {
 		c.Run.PollIntervalSeconds = 2
@@ -765,6 +780,7 @@ func (c *Config) Redacted() string {
 	// The username is a login identifier on every plugin but mock, and the wire trace already masks it.
 	clone.Esignet.Credentials.Username = mask(clone.Esignet.Credentials.Username)
 	clone.Esignet.Credentials.Password = mask(clone.Esignet.Credentials.Password)
+	clone.Esignet.Credentials.Biometric = mask(clone.Esignet.Credentials.Biometric)
 	// Authenticator + personal data: reports are archived as CI artifacts.
 	clone.Esignet.OTP.Value = mask(clone.Esignet.OTP.Value)
 	clone.Esignet.OTP.RecipientEmail = mask(clone.Esignet.OTP.RecipientEmail)

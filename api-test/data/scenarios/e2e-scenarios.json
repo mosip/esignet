@@ -1,5 +1,5 @@
 {
-  "_comment": "End-to-end scenarios for MOSIP_ESIGNET_AUTHN_PROVIDER=mock. Each scenario declares auth_factor (otp|password|bio) and drives the full authorize -> login -> token(private_key_jwt) -> userinfo chain. Positive scenarios expect login to succeed; negative scenarios (expect_login_failure=true) expect it to be rejected. password/bio have no working credential confirmed on this deployment yet -- their positive scenarios are kept in place and will FAIL until real credentials/config exist (per instruction: let it fail, don't omit the testcase). Their negative scenarios still meaningfully assert rejection: for password a deliberately wrong value is submitted; for bio there is no way to submit any credential at all, so rejection is structural (no configured answer) rather than a value mismatch -- also acceptable per instruction. TRIED (2026-07-21) for password ACR: username=decl-user-1 with password='Mosip@123' and, separately, the Postman-documented 'TempPassword123!' -- both submit successfully (flow accepts the inputs, no config error) but the flow loops indefinitely re-requesting username+password (INCOMPLETE) rather than ever completing or returning an explicit rejection, for both passwords. This means neither credential authenticates against this environment's mock-identity-system as currently seeded; the actual valid password (if this user exists here at all) is still unconfirmed. CONSENT/CAPTCHA CASES (appended): the consent cases are ORDER-DEPENDENT and share one registered client per run -- 'stored consent is reused' asserts NO prompt, which only holds because the identical-scope case ran immediately before it and saved a consent record for (client,user). Each other consent case deliberately uses a DISTINCT scope set so its request hash differs and the server re-prompts; reordering them, or narrowing the run with e2e.include so the approve-all case is skipped, will make the reuse case fail. Captcha: an empty token is rejected by the server before the validator-configured check, so that negative is portable to any deployment; a non-empty token is accepted when no MOSIP_ESIGNET_CAPTCHA_VALIDATOR_URL is configured (the dev/test default) and validated for real when one is.",
+  "_comment": "End-to-end scenarios for MOSIP_ESIGNET_AUTHN_PROVIDER=mock. Each scenario declares auth_factor (otp|password|bio) and drives the full authorize -> login -> token(private_key_jwt) -> userinfo chain. Positive scenarios expect login to succeed; negative scenarios (expect_login_failure=true) expect it to be rejected. bio is now driven by esignet.credentials.biometric (mock accepts any non-empty value, including one that isn't real biometric data, as a successful capture); its negative case uses omit_credentials to submit no value at all, since mock accepts an empty string too. password has no working credential confirmed on this deployment yet -- its positive scenario is kept in place and will FAIL until real credentials/config exist (per instruction: let it fail, don't omit the testcase). Their negative scenarios still meaningfully assert rejection: for password a deliberately wrong value is submitted; for bio there is no way to submit any credential at all, so rejection is structural (no configured answer) rather than a value mismatch -- also acceptable per instruction. TRIED (2026-07-21) for password ACR: username=decl-user-1 with password='Mosip@123' and, separately, the Postman-documented 'TempPassword123!' -- both submit successfully (flow accepts the inputs, no config error) but the flow loops indefinitely re-requesting username+password (INCOMPLETE) rather than ever completing or returning an explicit rejection, for both passwords. This means neither credential authenticates against this environment's mock-identity-system as currently seeded; the actual valid password (if this user exists here at all) is still unconfirmed. CONSENT/CAPTCHA CASES (appended): the consent cases are ORDER-DEPENDENT and share one registered client per run -- 'stored consent is reused' asserts NO prompt, which only holds because the identical-scope case ran immediately before it and saved a consent record for (client,user). Each other consent case deliberately uses a DISTINCT scope set so its request hash differs and the server re-prompts; reordering them, or narrowing the run with e2e.include so the approve-all case is skipped, will make the reuse case fail. Captcha: an empty token is rejected by the server before the validator-configured check, so that negative is portable to any deployment; a non-empty token is accepted when no MOSIP_ESIGNET_CAPTCHA_VALIDATOR_URL is configured (the dev/test default) and validated for real when one is.",
   "redirect_uri": "https://api-e2e.example.org/callback",
   "user_claims": ["name", "email", "phone_number", "gender", "birthdate"],
   "acr": ["mosip:idp:acr:generated-code", "mosip:idp:acr:password", "mosip:idp:acr:biometrics"],
@@ -63,6 +63,7 @@
     {
       "name": "bio positive: login succeeds with biometric capture",
       "auth_factor": "bio",
+      "_comment": "No credentials override: the value comes from esignet.credentials.biometric. Mock accepts any non-empty value as a successful capture.",
       "scopes": ["openid"],
       "expect_present": ["sub"]
     },
@@ -70,6 +71,8 @@
       "name": "bio negative: no biometric capture is rejected",
       "auth_factor": "bio",
       "expect_login_failure": true,
+      "_comment": "omit_credentials, not an empty override: mock treats an empty string as a valid (if odd) capture and accepts it, so the negative must submit no value at all.",
+      "omit_credentials": ["biometric"],
       "scopes": ["openid"]
     },
 
@@ -125,6 +128,243 @@
       "scopes": ["openid"],
       "userinfo_claims": { "name": { "essential": true } },
       "consent": { "expect_prompt": "yes", "deny": ["name"] }
+    },
+
+    {
+      "_comment": "PROTOCOL COMBINATIONS. Each client_config registers its own client (clients are pooled by config, so a config appearing twice is registered once) with the additionalConfig switches eSignet enforces at authorize, /oauth2/par, token and userinfo. The positives below drive the flow those switches demand, all the way to userinfo; the negatives drive it wrong on purpose and expect rejection. Scenarios with no client_config keep sharing the single unhardened client, which is what the consent cases above depend on. These cases are protocol-level and plugin-independent: the same block appears in the sunbird and mosip specs with that plugin's auth_factor. Requires a deployment whose discovery advertises pushed_authorization_request_endpoint (PAR cases) and dpop_signing_alg_values_supported (DPoP cases); without them those scenarios fail with an explicit message rather than being skipped.",
+
+      "name": "protocol positive: require_pkce completes to userinfo",
+      "auth_factor": "otp",
+      "client_config": { "require_pkce": true },
+      "scopes": ["openid"],
+      "expect_present": ["sub"]
+    },
+    {
+      "name": "protocol positive: PAR-required client completes to userinfo",
+      "auth_factor": "otp",
+      "client_config": { "require_pushed_authorization_requests": true },
+      "scopes": ["openid"],
+      "expect_present": ["sub"]
+    },
+    {
+      "name": "protocol positive: DPoP-bound client completes to userinfo",
+      "auth_factor": "otp",
+      "client_config": { "dpop_bound_access_tokens": true },
+      "scopes": ["openid"],
+      "expect_present": ["sub"]
+    },
+    {
+      "name": "protocol positive: PKCE + PAR completes to userinfo",
+      "auth_factor": "otp",
+      "client_config": { "require_pkce": true, "require_pushed_authorization_requests": true },
+      "scopes": ["openid"],
+      "expect_present": ["sub"]
+    },
+    {
+      "name": "protocol positive: PKCE + DPoP completes to userinfo",
+      "auth_factor": "otp",
+      "client_config": { "require_pkce": true, "dpop_bound_access_tokens": true },
+      "scopes": ["openid"],
+      "expect_present": ["sub"]
+    },
+    {
+      "name": "protocol positive: PAR + DPoP completes to userinfo (proof at PAR binds the code)",
+      "auth_factor": "otp",
+      "client_config": { "require_pushed_authorization_requests": true, "dpop_bound_access_tokens": true },
+      "scopes": ["openid"],
+      "expect_present": ["sub"]
+    },
+    {
+      "_comment": "The full FAPI2-shaped combination, and the one the conformance surface's FAPI2 plan exercises from the other side. Scopes go wider here so the run proves claim release still works with every switch on.",
+      "name": "protocol positive: PKCE + PAR + DPoP completes to userinfo",
+      "auth_factor": "otp",
+      "client_config": {
+        "require_pkce": true,
+        "require_pushed_authorization_requests": true,
+        "dpop_bound_access_tokens": true
+      },
+      "scopes": ["openid", "profile", "email"],
+      "expect_present": ["sub", "name", "email"]
+    },
+
+    {
+      "_comment": "NEGATIVES. Each reuses a client registered above, so no extra registration happens; only the RP's behaviour changes. expect_error_contains is asserted only on messages the harness itself produces, so these do not depend on a particular server error string.",
+      "name": "protocol negative: require_pkce rejects an authorize with no code_challenge",
+      "auth_factor": "otp",
+      "client_config": { "require_pkce": true },
+      "flow": { "pkce": "none" },
+      "expect_login_failure": true,
+      "expect_error_contains": "authorize returned error=invalid_request",
+      "scopes": ["openid"]
+    },
+    {
+      "name": "protocol negative: require_pkce rejects the plain challenge method",
+      "auth_factor": "otp",
+      "client_config": { "require_pkce": true },
+      "flow": { "pkce": "plain" },
+      "expect_login_failure": true,
+      "expect_error_contains": "authorize returned error=invalid_request",
+      "scopes": ["openid"]
+    },
+    {
+      "name": "protocol negative: PAR-required client rejects a direct authorize",
+      "auth_factor": "otp",
+      "client_config": { "require_pushed_authorization_requests": true },
+      "flow": { "use_par": false },
+      "expect_login_failure": true,
+      "expect_error_contains": "authorize returned",
+      "scopes": ["openid"]
+    },
+    {
+      "name": "protocol negative: DPoP-bound client rejects a token call with no proof",
+      "auth_factor": "otp",
+      "client_config": { "dpop_bound_access_tokens": true },
+      "flow": { "use_dpop": false },
+      "expect_login_failure": true,
+      "expect_error_contains": "token exchange failed",
+      "scopes": ["openid"]
+    },
+    {
+      "_comment": "The code is bound to the key that proved possession at PAR, so redeeming it with a different key must fail even though that proof is itself valid.",
+      "name": "protocol negative: a DPoP proof from a different key cannot redeem the code",
+      "auth_factor": "otp",
+      "client_config": { "require_pushed_authorization_requests": true, "dpop_bound_access_tokens": true },
+      "flow": { "dpop_key_mismatch": true },
+      "expect_login_failure": true,
+      "expect_error_contains": "token exchange failed",
+      "scopes": ["openid"]
+    },
+    {
+      "name": "protocol negative: a DPoP-bound token is refused at userinfo with the Bearer scheme",
+      "auth_factor": "otp",
+      "client_config": { "dpop_bound_access_tokens": true },
+      "flow": { "bearer_at_userinfo": true },
+      "expect_login_failure": true,
+      "expect_error_contains": "userinfo request failed",
+      "scopes": ["openid"]
+    },
+    {
+      "_comment": "RFC 7662 token introspection. The cases run after the flow has completed, against tokens it has just proven usable at userinfo, so a failure here belongs to the introspection endpoint rather than to a stale or never-valid token. Each case is one POST to /oauth2/introspect and prefixes its own assertions, so a row says which case failed. {{client_id}}, {{sub}} and {{dpop_jkt}} are substituted with what this run actually obtained. The mismatched-hint case is not a mistake: RFC 7662 s2.1 makes token_type_hint an optimization the server may ignore, so a wrong hint must not stop it finding the token.",
+      "name": "introspection positive: an issued access token is reported active with its client, subject and scope",
+      "auth_factor": "otp",
+      "scopes": ["openid", "profile"],
+      "expect_present": ["sub"],
+      "introspect": [
+        {
+          "name": "access token with hint",
+          "token": "access_token",
+          "hint": "access_token",
+          "expect_active": true,
+          "expect_present": ["client_id", "sub", "scope", "iss", "exp", "iat"],
+          "expect_values": { "client_id": "{{client_id}}", "sub": "{{sub}}", "scope": "openid profile" }
+        },
+        {
+          "name": "access token without a hint",
+          "token": "access_token",
+          "expect_active": true,
+          "expect_values": { "client_id": "{{client_id}}", "sub": "{{sub}}" }
+        },
+        {
+          "name": "access token under a mismatched hint",
+          "token": "access_token",
+          "hint": "id_token",
+          "expect_active": true,
+          "expect_values": { "client_id": "{{client_id}}", "sub": "{{sub}}" }
+        }
+      ]
+    },
+    {
+      "_comment": "The two axes pointed away from the positive. A token this deployment never issued must come back inactive rather than as an error (RFC 7662 s2.2) and must carry no metadata with it (s4), or introspection becomes an oracle for guessed tokens. A request whose client authentication does not hold up must be refused outright, before the submitted token is looked at.",
+      "name": "introspection negative: unissued tokens and failed client authentication are refused",
+      "auth_factor": "otp",
+      "scopes": ["openid"],
+      "expect_present": ["sub"],
+      "introspect": [
+        {
+          "name": "a token this deployment never issued",
+          "token": "unissued",
+          "expect_status": 200,
+          "expect_active": false,
+          "expect_absent": ["sub", "client_id", "scope", "exp", "iat", "iss"]
+        },
+        {
+          "name": "no token parameter",
+          "token": "none",
+          "expect_status": 400,
+          "expect_error": "invalid_request"
+        },
+        {
+          "name": "client id with no assertion",
+          "client_auth": "no_assertion",
+          "expect_status": 401,
+          "expect_error": "invalid_client"
+        },
+        {
+          "name": "assertion signed with an unregistered key",
+          "client_auth": "wrong_key",
+          "expect_status": 401,
+          "expect_error": "invalid_client"
+        },
+        {
+          "name": "assertion issued for another audience",
+          "client_auth": "wrong_audience",
+          "expect_status": 401,
+          "expect_error": "invalid_client"
+        }
+      ]
+    },
+    {
+      "_comment": "A DPoP-bound access token carries its binding as cnf.jkt. Introspection has to report the same thumbprint, otherwise a resource server that consults introspection instead of reading the token would have no way to know a proof of possession is required at all.",
+      "name": "introspection positive: a DPoP-bound access token reports its cnf.jkt binding",
+      "auth_factor": "otp",
+      "client_config": { "dpop_bound_access_tokens": true },
+      "scopes": ["openid"],
+      "expect_present": ["sub"],
+      "introspect": [
+        {
+          "name": "dpop-bound access token",
+          "token": "access_token",
+          "hint": "access_token",
+          "expect_active": true,
+          "expect_values": { "client_id": "{{client_id}}", "cnf.jkt": "{{dpop_jkt}}" }
+        }
+      ]
+    },
+    {
+      "_comment": "Deactivating a client is the operator's kill switch for a relying party that has been retired, compromised or offboarded. The api surface proves the switch can be thrown and that eSignet stores and returns INACTIVE; these ask whether eSignet then acts on it, at each of the three doors a client passes through once it has been flipped. The stages are separate cases because they fail differently: refusing to start an authorization is a check on a request, while refusing to redeem a code and refusing to spend a token are checks on credentials already issued, and a deployment could plausibly have one without the others. The reactivate case is the control for all of them -- same client, same plumbing, same flow, status restored -- so a negative that fails cannot be blamed on the deactivation machinery itself.",
+      "name": "inactive client negative: a deactivated client cannot start the flow",
+      "auth_factor": "otp",
+      "scopes": ["openid"],
+      "client_lifecycle": { "deactivate": "before_authorize" },
+      "expect_login_failure": true,
+      "expect_error_contains": "login flow failed: authorize returned eSignet's error page"
+    },
+    {
+      "_comment": "The same question at the pushed-authorization endpoint, which unlike authorize authenticates the client with a signed assertion. A deployment that checks status only on the unauthenticated path would pass the case above and fail this one.",
+      "name": "inactive client negative: a deactivated client cannot push an authorization request",
+      "auth_factor": "otp",
+      "client_config": { "require_pushed_authorization_requests": true },
+      "scopes": ["openid"],
+      "client_lifecycle": { "deactivate": "before_authorize" },
+      "expect_login_failure": true,
+      "expect_error_contains": "par failed"
+    },
+    {
+      "_comment": "Deactivation partway through: the code was issued while the client was still active, and is redeemed after the switch was flipped. Taking a client out of service has to invalidate what it already holds, or an offboarded relying party keeps a working code for as long as the code lives.",
+      "name": "inactive client negative: a code issued before deactivation cannot be redeemed",
+      "auth_factor": "otp",
+      "scopes": ["openid"],
+      "client_lifecycle": { "deactivate": "after_authorize" },
+      "expect_login_failure": true,
+      "expect_error_contains": "token exchange failed"
+    },
+    {
+      "_comment": "The control for the three negatives above. The same status writes are made and the client ends up ACTIVE again, so the whole flow must complete. A failure here is the harness's deactivation plumbing or the client itself, not enforcement -- which is exactly what it exists to tell apart.",
+      "name": "inactive client positive: reactivating restores the whole flow",
+      "auth_factor": "otp",
+      "scopes": ["openid"],
+      "client_lifecycle": { "deactivate": "before_authorize", "reactivate": true },
+      "expect_present": ["sub"]
     }
   ]
 }

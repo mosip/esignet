@@ -94,6 +94,12 @@ services:
       - MOSIP_ESIGNET_BASE_URL
       - KEYCLOAK_TOKEN_URL
       - KEYCLOAK_CLIENT_SECRET
+      # Stands in for the whole Keycloak round-trip above, for a target that does
+      # not enforce scope (no ISSUER_URL/JWKS_URL — a locally started
+      # esignet-service, typically). Explicit opt-in, not a fallback: a real
+      # deployment must still supply KEYCLOAK_* and cannot go green on a broken
+      # IAM just because this happens to be set.
+      - ADMIN_TOKEN
       - INDIVIDUAL_ID
       - ID_TYPE
       - FLOW_CLIENT_ID

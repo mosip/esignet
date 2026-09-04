@@ -179,6 +179,9 @@ func Summarize(rs []ModuleResult) Summary {
 // any harness error.
 func (s Summary) HasFailures() bool { return s.Failed > 0 || s.Errored > 0 }
 
+// NotPassed folds in Errored, Warning and Review, computed as Total-Passed-Skipped-Known so the report filename's counts can never silently drop errored modules like it used to.
+func (s Summary) NotPassed() int { return s.Total - s.Passed - s.Skipped - s.Known }
+
 // SurfaceGroup is the rows of one surface plus that surface's own tile counts.
 type SurfaceGroup struct {
 	Surface string

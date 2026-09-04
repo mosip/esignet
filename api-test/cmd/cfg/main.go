@@ -190,7 +190,10 @@ func printCheck(c *config.Config, path string) {
 	if c.HasSurface(config.SurfaceAPI) {
 		fmt.Printf("\napi\n")
 		fmt.Printf("  tags        %s\n", orDefault(c.API.Tags, "(auto — chosen from configured credentials)"))
-		fmt.Printf("  client-mgmt %s\n", readiness(c.Keycloak.ClientSecret != "", "ENV_NOT_READY: no keycloak.client_secret"))
+		// ADMIN_TOKEN counts as admin auth too, and all three Keycloak fields are required together (matches iAuthenticateAsAdmin).
+		adminAuth := os.Getenv("ADMIN_TOKEN") != "" ||
+			(c.Keycloak.TokenURL != "" && c.Keycloak.ClientID != "" && c.Keycloak.ClientSecret != "")
+		fmt.Printf("  client-mgmt %s\n", readiness(adminAuth, "ENV_NOT_READY: no keycloak.token_url/client_id/client_secret and no ADMIN_TOKEN"))
 		fmt.Printf("  authz-neg   %s\n", readiness(c.API.FlowClientID != "", "ENV_NOT_READY: no api.flow_client_id"))
 	}
 

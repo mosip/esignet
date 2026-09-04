@@ -245,9 +245,11 @@ once, and every plan's modules land in the same report under a section of its ow
 ```
 
 - `profile`, `modules`, `filter`, `skip` and `known_issues` are per plan and fall back to `run.*`.
-- `profile: "smoke"` reads `data/conformance/<plan name>.smoke.json`. Only
-  `oidcc-test-plan.smoke.json` ships, so any other plan needs `"profile": "full"` — otherwise it
-  looks for a curated list that is not there and becomes one errored `(plan setup)` row.
+- **`profile` defaults to `full`** — every module the plan declares. Narrowing is deliberate,
+  because a partial run still reports as "conformance". `profile: "smoke"` reads
+  `data/conformance/<plan name>.smoke.json`, and only `oidcc-test-plan.smoke.json` ships: point any
+  other plan at `smoke` and it looks for a curated list that is not there, becoming one errored
+  `(plan setup)` row. The shipped configs pin the FAPI plan to `full` for exactly that reason.
 - Plan names must be unique: they key the report sections and the profile files.
 - A plan the suite refuses to create becomes one errored row and the next plan still runs, so a
   broken FAPI variant does not throw away the oidcc results.
