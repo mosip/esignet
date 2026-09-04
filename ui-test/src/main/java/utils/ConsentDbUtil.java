@@ -11,12 +11,10 @@ import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.testng.SkipException;
 
-import io.mosip.testrig.apirig.utils.ConfigManager;
-
 public final class ConsentDbUtil {
 
 	private static final Logger logger = Logger.getLogger(ConsentDbUtil.class);
-	private static final String DEFAULT_DB_NAME = "mosip_esignet";
+	private static final String DEFAULT_DB_NAME = "mosip_esignet_go";
 	private static final String DEFAULT_SCHEMA = "esignet";
 	private static final String DEFAULT_PORT = "5432";
 
@@ -31,8 +29,8 @@ public final class ConsentDbUtil {
 
 	public static void requireDbConfigured() {
 		if (!isDbConfigured()) {
-			String reason = "Consent DB verification skipped - configure esignetDbUrl/esignetDbPassword "
-					+ "(or database-host/database-name/database-username + postgres-password) in config.properties";
+			String reason = "Consent DB verification skipped - configure esignetDbHost and esignetDbPassword "
+					+ "in config.properties";
 			ExtentReportManager.logStep("⚠️ " + reason);
 			throw new SkipException(reason);
 		}
@@ -104,21 +102,15 @@ public final class ConsentDbUtil {
 		if (override != null) {
 			return withJdbcDefaults(override);
 		}
-		String server = firstConfigured("esignetDbHost", "database-host", "db-server");
-		if (server == null) {
-			server = blankToNull(ConfigManager.getDbServer());
-		}
+		String server = firstConfigured("esignetDbHost");
 		if (server == null) {
 			return null;
 		}
-		String port = firstConfigured("esignetDbPort", "database-port", "db-port");
-		if (port == null) {
-			port = blankToNull(ConfigManager.getDbPort());
-		}
+		String port = firstConfigured("esignetDbPort");
 		if (port == null) {
 			port = DEFAULT_PORT;
 		}
-		String dbName = firstConfigured("esignetDbName", "database-name");
+		String dbName = firstConfigured("esignetDbName");
 		if (dbName == null) {
 			dbName = DEFAULT_DB_NAME;
 		}
@@ -126,20 +118,11 @@ public final class ConsentDbUtil {
 	}
 
 	private static String resolveDbUsername() {
-		String user = firstConfigured("esignetDbUsername", "database-username", "db-su-user");
-		if (user != null) {
-			return user;
-		}
-		user = blankToNull(ConfigManager.getproperty("db-su-user"));
-		return user != null ? user : "postgres";
+		return firstConfigured("esignetDbUsername");
 	}
 
 	private static String resolveDbPassword() {
-		String password = firstConfigured("esignetDbPassword", "postgres-password");
-		if (password != null) {
-			return password;
-		}
-		return blankToNull(ConfigManager.getproperty("postgres-password"));
+		return firstConfigured("esignetDbPassword");
 	}
 
 	private static Connection openConnection() throws SQLException {
