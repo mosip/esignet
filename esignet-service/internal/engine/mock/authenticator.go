@@ -386,7 +386,7 @@ func (p *mockAuthnProvider) getApplicationAndClientID(ctx context.Context, runti
 	if len(values) == 0 {
 		return clientmgmt.ClientResponse{}, errors.New("missing client_id in runtime metadata")
 	}
-	client, err := p.clientSvc.GetClient(ctx, values[0])
+	client, err := p.clientSvc.GetActiveClient(ctx, values[0])
 	if err != nil {
 		return clientmgmt.ClientResponse{}, fmt.Errorf("failed to resolve client %q: %w", values[0], err)
 	}
