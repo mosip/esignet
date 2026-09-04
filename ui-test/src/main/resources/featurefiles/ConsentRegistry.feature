@@ -3,7 +3,7 @@ Feature: ES-3 Consent Registry
   Consent storage/lookup works under mock plugin too on this Thunder/esignet-go deployment - confirmed
   live. TC_07 uses oidcClientId=primary,secondary when set; otherwise it reuses the existing primary
   oidcClientId. The DB-assertion steps (TC_02/TC_12) self-skip when esignetDbHost/esignetDbPassword
-  (or database-host/postgres-password) in config.properties isn't configured.
+  in config.properties isn't configured.
 
   @smoke @ConsentRegistry @TC02
   Scenario: TC_02 Verify stored consent in Consent table via OTP login
