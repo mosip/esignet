@@ -125,7 +125,7 @@ func (p *i18nProvider) injectClientName(ctx context.Context, raw map[string]map[
 		return
 	}
 
-	client, err := p.clientSvc.GetClient(ctx, namespace)
+	client, err := p.clientSvc.GetActiveClient(ctx, namespace)
 	if err != nil || len(client.ClientNameLangMap) == 0 {
 		return
 	}

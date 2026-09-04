@@ -26,6 +26,10 @@ RETURNING *;
 SELECT * FROM client_detail
 WHERE id = $1 LIMIT 1;
 
+-- name: GetActiveClient :one
+SELECT * FROM client_detail
+WHERE id = $1 AND status = 'ACTIVE' LIMIT 1;
+
 -- name: UpdateClient :one
 UPDATE client_detail SET
 	name                = $2,
