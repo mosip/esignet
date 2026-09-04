@@ -75,7 +75,7 @@ All of it lives in the config; `--check` shows the resolved result before anythi
 | Which plugin | The config file you pass to `-c` |
 | Which surfaces | `run.surfaces` (`conformance`, `api`, `e2e`), or `-s` for one run |
 | Which auth factor (conformance) | `esignet.auth_factor` |
-| Which conformance modules | `run.profile` (`smoke`/`full`) → `run.filter` (regex) → `run.modules` (exact list, overrides the profile) |
+| Which conformance modules | `run.profile` (`full` by default, or `smoke`) → `run.filter` (regex) → `run.modules` (exact list, overrides the profile) |
 | Which endpoints (`api`) | `api.tags` — `@client-mgmt`, `@client-mgmt-pms`, `@flow-execute`, `@flow-authz-neg` (comma = OR) |
 | Which e2e scenarios | `e2e.auth_factors`, plus `e2e.include` / `e2e.exclude` (regex on scenario name) |
 
