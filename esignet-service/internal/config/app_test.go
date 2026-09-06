@@ -934,3 +934,125 @@ func (ts *AppConfigTestSuite) TestEnvBool() {
 		})
 	}
 }
+
+// The env > yaml > default chain is the tuning surface operators actually
+// use, so these lock down both the value it resolves to and the source it
+// reports — the source is what the startup "… pool config resolved" log line
+// turns into an answer for "did my env var take effect?" (issue #2498).
+func TestEnvIntOrConfigOrDefaultSourced(t *testing.T) {
+	const key = "ESIGNET_TEST_SOURCED_INT"
+
+	cases := []struct {
+		name     string
+		env      string
+		fromYAML int
+		fallback int
+		wantVal  int
+		wantSrc  configSource
+	}{
+		{"env wins over yaml and default", "50", 15, 25, 50, sourceEnv},
+		{"env wins with surrounding whitespace", "  50  ", 15, 25, 50, sourceEnv},
+		{"yaml wins when env unset", "", 15, 25, 15, sourceYAML},
+		{"default when neither set", "", 0, 25, 25, sourceDefault},
+		// The "dead config" trap from issue #2498: each of these is an env var
+		// the operator believes they set. It must resolve to the lower tier
+		// *and report that tier*, never masquerade as an env-sourced value.
+		{"unparseable env falls back to yaml", "abc", 15, 25, 15, sourceYAML},
+		{"unparseable env falls back to default", "abc", 0, 25, 25, sourceDefault},
+		{"zero env falls back to yaml", "0", 15, 25, 15, sourceYAML},
+		{"negative env falls back to yaml", "-5", 15, 25, 15, sourceYAML},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Setenv(key, tc.env)
+
+			gotVal, gotSrc := envIntOrConfigOrDefaultSourced(key, tc.fromYAML, tc.fallback)
+
+			require.Equal(t, tc.wantVal, gotVal)
+			require.Equal(t, tc.wantSrc, gotSrc)
+			// The source-less wrapper must stay in lockstep; ~40 existing call
+			// sites still go through it.
+			require.Equal(t, tc.wantVal, envIntOrConfigOrDefault(key, tc.fromYAML, tc.fallback))
+		})
+	}
+}
+
+func TestEnvIntOrConfigOrDefaultAllowEnvZeroSourced(t *testing.T) {
+	const key = "ESIGNET_TEST_SOURCED_INT_ZERO"
+
+	cases := []struct {
+		name     string
+		env      string
+		fromYAML int
+		fallback int
+		wantVal  int
+		wantSrc  configSource
+	}{
+		// Unlike the variant above, an explicit "0" is a documented opt-out
+		// ("no limit"), not a "not set" signal.
+		{"explicit zero env is honored", "0", 1800, 1800, 0, sourceEnv},
+		{"positive env wins", "600", 1800, 1800, 600, sourceEnv},
+		{"yaml wins when env unset", "", 900, 1800, 900, sourceYAML},
+		{"default when neither set", "", 0, 1800, 1800, sourceDefault},
+		{"unparseable env falls back to yaml", "abc", 900, 1800, 900, sourceYAML},
+		{"negative env falls back to default", "-5", 0, 1800, 1800, sourceDefault},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Setenv(key, tc.env)
+
+			gotVal, gotSrc := envIntOrConfigOrDefaultAllowEnvZeroSourced(key, tc.fromYAML, tc.fallback)
+
+			require.Equal(t, tc.wantVal, gotVal)
+			require.Equal(t, tc.wantSrc, gotSrc)
+			require.Equal(t, tc.wantVal, envIntOrConfigOrDefaultAllowEnvZero(key, tc.fromYAML, tc.fallback))
+		})
+	}
+}
+
+func TestConfigOrDefaultSourced(t *testing.T) {
+	v, src := configOrDefaultSourced(15, 25)
+	require.Equal(t, 15, v)
+	require.Equal(t, sourceYAML, src)
+
+	v, src = configOrDefaultSourced(0, 25)
+	require.Equal(t, 25, v)
+	require.Equal(t, sourceDefault, src)
+
+	// A yaml 0 is indistinguishable from an omitted field, so it can never be
+	// an opt-out the way an explicit env "0" can.
+	require.Equal(t, 25, configOrDefault(0, 25))
+	require.Equal(t, 15, configOrDefault(15, 25))
+}
+
+// metrics_port is a yaml-decodable field (AppConfig.MetricsPort), and
+// KnownFields(true) means setting it in deployment.yaml parses cleanly — so a
+// value set there must actually take effect. Sibling `port` on the line above
+// honors yaml via envIntOrConfigOrDefault; metrics_port must not silently
+// diverge from it (issue #2498, acceptance criterion 4).
+func TestApplyDefaults_MetricsPortHonorsYAML(t *testing.T) {
+	t.Setenv("METRICS_PORT", "")
+
+	cfg := &AppConfig{MetricsPort: 9091}
+	applyDefaults(cfg)
+
+	require.Equal(t, 9091, cfg.MetricsPort)
+}
+
+func TestApplyDefaults_MetricsPortEnvWinsOverYAML(t *testing.T) {
+	t.Setenv("METRICS_PORT", "9099")
+
+	cfg := &AppConfig{MetricsPort: 9091}
+	applyDefaults(cfg)
+
+	require.Equal(t, 9099, cfg.MetricsPort)
+}
+
+func TestApplyDefaults_MetricsPortFallsBackToDefault(t *testing.T) {
+	t.Setenv("METRICS_PORT", "")
+
+	cfg := &AppConfig{}
+	applyDefaults(cfg)
+
+	require.Equal(t, defaultMetricsPort, cfg.MetricsPort)
+}

@@ -227,3 +227,49 @@ func TestEffectiveMaxConnLifetime(t *testing.T) {
 	require.Equal(t, dbUnlimitedConnLifetime, effectiveMaxConnLifetime(-time.Second))
 	require.Equal(t, 30*time.Minute, effectiveMaxConnLifetime(30*time.Minute))
 }
+
+// Regression lock for issue #2498: the shipped data/deployment.yaml ships a
+// populated db.pool block, so every deployment has yaml values sitting ready
+// to shadow an operator's env var. They must not win.
+func TestLoadDB_EnvWinsOverPopulatedYAMLPool(t *testing.T) {
+	t.Setenv("DB_MAX_OPEN_CONNS", "50")
+	t.Setenv("DB_MAX_IDLE_CONNS", "9")
+	t.Setenv("DB_CONN_MAX_LIFETIME_SECS", "600")
+	t.Setenv("DB_CONN_MAX_IDLE_TIME_SECS", "120")
+
+	// Mirrors the values shipped in data/deployment.yaml.
+	db := loadDB(DB{Pool: DBPool{
+		MaxOpenConns:        25,
+		MaxIdleConns:        5,
+		ConnMaxLifetimeSecs: 1800,
+		ConnMaxIdleTimeSecs: 300,
+	}})
+
+	require.Equal(t, 50, db.Pool.MaxOpenConns)
+	require.Equal(t, 9, db.Pool.MaxIdleConns)
+	require.Equal(t, 600, db.Pool.ConnMaxLifetimeSecs)
+	require.Equal(t, 120, db.Pool.ConnMaxIdleTimeSecs)
+}
+
+// An env var that is set but unusable falls back to yaml rather than taking
+// effect — and, unlike before, says so via a WARN (see warnIgnoredEnvVar).
+func TestLoadDB_InvalidEnvFallsBackToYAML(t *testing.T) {
+	t.Setenv("DB_MAX_OPEN_CONNS", "abc")
+	t.Setenv("DB_CONN_MAX_LIFETIME_SECS", "not-a-number")
+
+	db := loadDB(DB{Pool: DBPool{MaxOpenConns: 15, ConnMaxLifetimeSecs: 900}})
+
+	require.Equal(t, 15, db.Pool.MaxOpenConns)
+	require.Equal(t, 900, db.Pool.ConnMaxLifetimeSecs)
+}
+
+// A negative lifetime is not a second, undocumented route to "no limit" — only
+// an explicit "0" opts out. This matches loadRedis, which already rejected
+// negatives.
+func TestLoadDB_NegativeLifetimeFallsBackToDefault(t *testing.T) {
+	t.Setenv("DB_CONN_MAX_LIFETIME_SECS", "-5")
+
+	db := loadDB(DB{})
+
+	require.Equal(t, defaultDBConnMaxLifetimeSecs, db.Pool.ConnMaxLifetimeSecs)
+}

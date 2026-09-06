@@ -299,7 +299,12 @@ func applyDefaults(cfg *AppConfig) {
 	cfg.Port = envIntOrConfigOrDefault("PORT", cfg.Port, defaultPort)
 	cfg.Issuer = envOrConfigOrDefault("MOSIP_ESIGNET_HOST", cfg.Issuer, fmt.Sprintf("http://localhost:%d", cfg.Port))
 	cfg.DataDir = envOrConfigOrDefault("DATA_DIR", cfg.DataDir, defaultDataDir)
-	cfg.MetricsPort = envIntOrDefault("METRICS_PORT", defaultMetricsPort)
+	// Threads cfg.MetricsPort (the decoded `metrics_port:` value) through like
+	// cfg.Port above. Previously this read only the env var and the compiled
+	// default, so a metrics_port set in deployment.yaml parsed cleanly and was
+	// then silently discarded — the mirror image of the yaml-shadows-env trap
+	// in issue #2498, and the same "dead config" surprise for an operator.
+	cfg.MetricsPort = envIntOrConfigOrDefault("METRICS_PORT", cfg.MetricsPort, defaultMetricsPort)
 	cfg.DB = loadDB(cfg.DB)
 
 	cfg.PProfConfig = PProfConfig{
@@ -685,41 +690,122 @@ func envOrConfigOrDefault(key, fromYAML, fallback string) string {
 	return fallback
 }
 
-// configOrDefault is the shared yaml/fallback tail for envIntOrConfigOrDefault
-// and envIntOrConfigOrDefaultAllowEnvZero: fromYAML wins if positive,
-// otherwise fallback. A yaml value of 0 (or an omitted field, which decodes
-// to the same zero value) can't be distinguished from "not configured", so
-// neither variant can honor an explicit yaml 0 the way they can an explicit
-// env var 0.
-func configOrDefault(fromYAML, fallback int) int {
+// configSource identifies which tier of the env > yaml > default precedence
+// chain supplied a resolved setting's effective value. Reported alongside the
+// value at startup so an operator can tell "my env var took effect" apart
+// from "my env var was ignored and yaml won" without reading source.
+type configSource string
+
+const (
+	sourceEnv     configSource = "env"
+	sourceYAML    configSource = "yaml"
+	sourceDefault configSource = "default"
+)
+
+// warnIgnoredEnvVar reports an env var that was set but could not be used,
+// naming the rejected value alongside the value and source actually taking
+// effect — so "why didn't my env var change anything" is answered by the log
+// rather than by reading source. Mirrors envPositiveInt's existing warning.
+func warnIgnoredEnvVar(key, raw string, using int, src configSource) {
+	applog.GetLogger().Warn(context.Background(),
+		"ignoring invalid config env var; falling back to lower-precedence value",
+		applog.String("key", key),
+		applog.String("value", raw),
+		applog.Int("usingValue", using),
+		applog.String("usingSource", string(src)))
+}
+
+// resolvedSetting pairs a setting's effective value with the tier that
+// supplied it, for reporting via logResolvedSettings.
+type resolvedSetting struct {
+	name  string
+	value int
+	src   configSource
+}
+
+// logResolvedSettings emits one INFO line reporting each setting's effective
+// value alongside a "<name>Source" field naming the tier it came from. The
+// suffix convention lives here rather than at each call site so a dozen
+// settings across db.go and redis.go can't drift apart.
+func logResolvedSettings(msg string, settings ...resolvedSetting) {
+	fields := make([]applog.Field, 0, len(settings)*2)
+	for _, s := range settings {
+		fields = append(fields,
+			applog.Int(s.name, s.value),
+			applog.String(s.name+"Source", string(s.src)))
+	}
+	applog.GetLogger().Info(context.Background(), msg, fields...)
+}
+
+// configOrDefaultSourced is the shared yaml/fallback tail for the resolvers
+// below: fromYAML wins if positive, otherwise fallback. A yaml value of 0 (or
+// an omitted field, which decodes to the same zero value) can't be
+// distinguished from "not configured", so no variant can honor an explicit
+// yaml 0 the way they can an explicit env var 0.
+func configOrDefaultSourced(fromYAML, fallback int) (int, configSource) {
 	if fromYAML > 0 {
-		return fromYAML
+		return fromYAML, sourceYAML
 	}
-	return fallback
+	return fallback, sourceDefault
 }
 
-// envIntOrConfigOrDefault is envOrConfigOrDefault for int settings. A
-// zero/negative value at any tier is treated as "not set" and falls through
-// to the next tier — this deliberately can't express an env-var-only "0 =
-// no limit" opt-out; use envIntOrConfigOrDefaultAllowEnvZero for those.
+// configOrDefault is configOrDefaultSourced without the source.
+func configOrDefault(fromYAML, fallback int) int {
+	v, _ := configOrDefaultSourced(fromYAML, fallback)
+	return v
+}
+
+// envIntOrConfigOrDefaultSourced is envOrConfigOrDefault for int settings,
+// additionally reporting which tier supplied the value. A zero/negative value
+// at any tier is treated as "not set" and falls through to the next tier —
+// this deliberately can't express an env-var-only "0 = no limit" opt-out; use
+// envIntOrConfigOrDefaultAllowEnvZeroSourced for those.
+//
+// An env var that is set but unusable (unparseable, or non-positive where
+// positive is required) is warned about rather than silently discarded: that
+// silence is the "dead config" trap this variant exists to close.
+func envIntOrConfigOrDefaultSourced(key string, fromYAML, fallback int) (int, configSource) {
+	raw := strings.TrimSpace(os.Getenv(key))
+	if raw == "" {
+		return configOrDefaultSourced(fromYAML, fallback)
+	}
+	if n, err := strconv.Atoi(raw); err == nil && n > 0 {
+		return n, sourceEnv
+	}
+	v, src := configOrDefaultSourced(fromYAML, fallback)
+	warnIgnoredEnvVar(key, raw, v, src)
+	return v, src
+}
+
+// envIntOrConfigOrDefault is envIntOrConfigOrDefaultSourced without the source.
 func envIntOrConfigOrDefault(key string, fromYAML, fallback int) int {
-	if v := envIntOrDefault(key, 0); v > 0 {
-		return v
-	}
-	return configOrDefault(fromYAML, fallback)
+	v, _ := envIntOrConfigOrDefaultSourced(key, fromYAML, fallback)
+	return v
 }
 
-// envIntOrConfigOrDefaultAllowEnvZero is like envIntOrConfigOrDefault, but an
-// explicitly-set env var of "0" is honored as-is rather than treated as
-// "not set". Used for settings where 0 is a documented env-var-only opt-out
-// (e.g. "0 = no limit" for a connection lifetime).
-func envIntOrConfigOrDefaultAllowEnvZero(key string, fromYAML, fallback int) int {
-	if raw := os.Getenv(key); raw != "" {
-		if n, err := strconv.Atoi(raw); err == nil {
-			return n
-		}
+// envIntOrConfigOrDefaultAllowEnvZeroSourced is like
+// envIntOrConfigOrDefaultSourced, but an explicitly-set env var of "0" is
+// honored as-is rather than treated as "not set". Used for settings where 0
+// is a documented env-var-only opt-out (e.g. "0 = no limit" for a connection
+// lifetime). Negative values remain invalid and are warned about.
+func envIntOrConfigOrDefaultAllowEnvZeroSourced(key string, fromYAML, fallback int) (int, configSource) {
+	raw := strings.TrimSpace(os.Getenv(key))
+	if raw == "" {
+		return configOrDefaultSourced(fromYAML, fallback)
 	}
-	return configOrDefault(fromYAML, fallback)
+	if n, err := strconv.Atoi(raw); err == nil && n >= 0 {
+		return n, sourceEnv
+	}
+	v, src := configOrDefaultSourced(fromYAML, fallback)
+	warnIgnoredEnvVar(key, raw, v, src)
+	return v, src
+}
+
+// envIntOrConfigOrDefaultAllowEnvZero is
+// envIntOrConfigOrDefaultAllowEnvZeroSourced without the source.
+func envIntOrConfigOrDefaultAllowEnvZero(key string, fromYAML, fallback int) int {
+	v, _ := envIntOrConfigOrDefaultAllowEnvZeroSourced(key, fromYAML, fallback)
+	return v
 }
 
 func envBool(key string) bool {
