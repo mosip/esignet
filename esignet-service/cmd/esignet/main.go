@@ -300,7 +300,7 @@ func getSecurityMiddleware(appCfg *config.AppConfig, commonHTTPClient *http.Clie
 			applog.String("issuer", appCfg.SecurityConfig.IssuerURL),
 		)
 		jwksCache := security.NewJWKSCache(appCfg.SecurityConfig.JwksURL,
-			time.Duration(appCfg.SecurityConfig.JwksCacheTTL), commonHTTPClient)
+			time.Duration(appCfg.SecurityConfig.JwksCacheTTL)*time.Second, commonHTTPClient)
 		scopeMW = security.ScopeMiddleware(jwksCache, appCfg.SecurityConfig)
 	} else {
 		logger.Warn(context.Background(), "Scope enforcement disabled; set ISSUER_URL and JWKS_URL in security_config to enable")
