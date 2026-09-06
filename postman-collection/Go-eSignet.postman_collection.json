@@ -11,6 +11,65 @@
       "name": "Client Management",
       "item": [
         {
+          "name": "Get Auth token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('IAM token HTTP 200', () => pm.response.to.have.status(200));",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('access_token present', () => pm.expect(jsonData.access_token).to.be.a('string'));",
+                  "pm.environment.set('client_mgmt_token', jsonData.access_token);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "client_secret",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "client_id",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "grant_type",
+                  "value": "client_credentials",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{iam_url}}/auth/realms/mosip/protocol/openid-connect/token",
+              "host": [
+                "{{iam_url}}"
+              ],
+              "path": [
+                "auth",
+                "realms",
+                "mosip",
+                "protocol",
+                "openid-connect",
+                "token"
+              ]
+            },
+            "description": "Fetches an IAM (Keycloak) service-account access token via the `client_credentials` grant and stores it in the `client_mgmt_token` environment variable.\n\nSet `iam_url` in the environment, and fill in `client_id` and `client_secret` in this request's body — they ship blank and are not read from the environment."
+          },
+          "response": []
+        },
+        {
           "name": "Create client",
           "event": [
             {
