@@ -44,6 +44,10 @@ public class EsignetConfigManager extends io.mosip.testrig.apirig.utils.ConfigMa
 			LOGGER.error(e.getMessage());
 		}
 
+		if (System.getProperty("env.endpoint") == null) {
+			System.setProperty("env.endpoint", "");
+		}
+
 		init(moduleSpecificPropertiesMap);
 	}
 

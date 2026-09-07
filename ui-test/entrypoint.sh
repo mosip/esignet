@@ -29,18 +29,17 @@ if [[ -z "${JAR}" ]]; then
 fi
 
 # JVM -D flags must precede -jar. RUN_DOCKER tells BaseTestUtil to use the image's ChromeDriver.
-# ENV_ENDPOINT is optional: this suite keeps runPrerequisiteSuite=false and reads
-# hosts/identities from config.properties, so testriq can start without it.
+# Always pass -Denv.endpoint (empty is fine). apitest-commons ConfigManager calls
+# System.getProperty("env.endpoint").replace(...) for blank signup/inji URLs and NPEs if the
+# property is missing.
 JAVA_ARGS=(
+  -Denv.endpoint="${ENV_ENDPOINT:-}"
   -Denv.user="${ENV_USER:-api-internal.esqa}"
   -Dmodules="${MODULES:-esignet}"
   -Denv.testLevel="${ENV_TESTLEVEL:-smokeAndRegression}"
   -DrunDocker=yes
   -Dheadless=true
 )
-if [[ -n "${ENV_ENDPOINT:-}" ]]; then
-  JAVA_ARGS+=(-Denv.endpoint="${ENV_ENDPOINT}")
-fi
 
 if [[ -n "${CUCUMBER_FILTER_TAGS:-}" ]]; then
   JAVA_ARGS+=(-Dcucumber.filter.tags="${CUCUMBER_FILTER_TAGS}")

@@ -246,27 +246,36 @@ public class Runner extends AbstractTestNGCucumberTests {
 
 			EsignetUtil.getSupportedLanguage();
 
-			if (EsignetUtil.getPluginName().equals("mosipid")) {
-				try {
-					KeycloakUserManager.removeUser();
-					KeycloakUserManager.createUsers();
-					KeycloakUserManager.closeKeycloakInstance();
-					AdminTestUtil.getRequiredField();
+			boolean runPrerequisiteSuite = Boolean
+					.parseBoolean(EsignetConfigManager.getProperty("runPrerequisiteSuite", "true"));
 
-					PartnerRegistration.deleteCertificates();
-					AdminTestUtil.createAndPublishPolicy();
-					AdminTestUtil.createEditAndPublishPolicy();
+			if (EsignetUtil.getPluginName().equals("mosipid")) {
+				if (!runPrerequisiteSuite) {
+					LOGGER.info("Skipping Keycloak/PMS provisioning because runPrerequisiteSuite=false");
+				} else {
 					try {
-						PartnerRegistration.deviceGeneration();
-					} catch (Exception e) {
-						LOGGER.warning("Device partner registration skipped (may already exist): " + e.getMessage());
+						KeycloakUserManager.removeUser();
+						KeycloakUserManager.createUsers();
+						KeycloakUserManager.closeKeycloakInstance();
+						AdminTestUtil.getRequiredField();
+
+						PartnerRegistration.deleteCertificates();
+						AdminTestUtil.createAndPublishPolicy();
+						AdminTestUtil.createEditAndPublishPolicy();
+						try {
+							PartnerRegistration.deviceGeneration();
+						} catch (Exception e) {
+							LOGGER.warning(
+									"Device partner registration skipped (may already exist): " + e.getMessage());
+						}
+					} catch (Exception keycloakOrPmsSetupEx) {
+						if (!EsignetUtil.canRunMosipidUiWithPreconfiguredIdentity()) {
+							throw keycloakOrPmsSetupEx;
+						}
+						LOGGER.warning(
+								"Keycloak/PMS setup failed; continuing with preconfigured uin/vid/phone from "
+										+ "config.properties: " + keycloakOrPmsSetupEx.getMessage());
 					}
-				} catch (Exception keycloakOrPmsSetupEx) {
-					if (!EsignetUtil.canRunMosipidUiWithPreconfiguredIdentity()) {
-						throw keycloakOrPmsSetupEx;
-					}
-					LOGGER.warning("Keycloak/PMS setup failed; continuing with preconfigured uin/vid/phone from "
-							+ "config.properties: " + keycloakOrPmsSetupEx.getMessage());
 				}
 				utils.MockMdsManager.ensureDevicePartnerP12Available();
 
@@ -315,7 +324,9 @@ public class Runner extends AbstractTestNGCucumberTests {
 		} finally {
 			otpListener.bTerminate = true;
 			try {
-				if (EsignetUtil.getPluginName().equals("mosipid")) {
+				boolean runPrerequisiteSuite = Boolean
+						.parseBoolean(EsignetConfigManager.getProperty("runPrerequisiteSuite", "true"));
+				if (runPrerequisiteSuite && EsignetUtil.getPluginName().equals("mosipid")) {
 					KeycloakUserManager.removeUser();
 				}
 			} catch (Exception cleanupEx) {
