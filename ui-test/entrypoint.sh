@@ -18,11 +18,6 @@ echo "ENV_USER=${ENV_USER:-}"
 echo "ENV_TESTLEVEL=${ENV_TESTLEVEL:-smokeAndRegression}"
 echo "MODULES=${MODULES:-esignet}"
 
-if [[ -z "${ENV_ENDPOINT:-}" ]]; then
-  echo "ENV_ENDPOINT is required (e.g. https://api-internal.esqa.mosip.net)" >&2
-  exit 1
-fi
-
 JAR=$(ls -1 uitest-esignet-*-jar-with-dependencies.jar 2>/dev/null | head -1)
 if [[ -z "${JAR}" ]]; then
   JAR=$(ls -1 uitest-esignet-*.jar 2>/dev/null | head -1)
@@ -34,14 +29,18 @@ if [[ -z "${JAR}" ]]; then
 fi
 
 # JVM -D flags must precede -jar. RUN_DOCKER tells BaseTestUtil to use the image's ChromeDriver.
+# ENV_ENDPOINT is optional: this suite keeps runPrerequisiteSuite=false and reads
+# hosts/identities from config.properties, so testriq can start without it.
 JAVA_ARGS=(
-  -Denv.endpoint="${ENV_ENDPOINT}"
   -Denv.user="${ENV_USER:-api-internal.esqa}"
   -Dmodules="${MODULES:-esignet}"
   -Denv.testLevel="${ENV_TESTLEVEL:-smokeAndRegression}"
   -DrunDocker=yes
   -Dheadless=true
 )
+if [[ -n "${ENV_ENDPOINT:-}" ]]; then
+  JAVA_ARGS+=(-Denv.endpoint="${ENV_ENDPOINT}")
+fi
 
 if [[ -n "${CUCUMBER_FILTER_TAGS:-}" ]]; then
   JAVA_ARGS+=(-Dcucumber.filter.tags="${CUCUMBER_FILTER_TAGS}")
