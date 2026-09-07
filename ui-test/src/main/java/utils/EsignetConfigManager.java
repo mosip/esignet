@@ -65,16 +65,28 @@ public class EsignetConfigManager extends io.mosip.testrig.apirig.utils.ConfigMa
 		return getProperty("signupUrl", "");
 	}
 
+	/**
+	 * Runtime {@code -DrunDocker} / {@code RUN_DOCKER} wins over config.properties.
+	 * Testriq images bake {@code runDocker=no} for local IDE runs; if that value is
+	 * preferred over the container env, WebDriverManager fetches a ChromeDriver that
+	 * does not match the image browser and every scenario dies at session start.
+	 */
 	public static String getDocker() {
-		String fromConfig = getProperty("runDocker", "");
-		if (!fromConfig.isBlank()) {
-			return fromConfig;
-		}
 		String fromSys = System.getProperty("runDocker", "");
 		if (fromSys != null && !fromSys.isBlank()) {
 			return fromSys;
 		}
 		String fromEnv = System.getenv("RUN_DOCKER");
-		return fromEnv == null ? "" : fromEnv;
+		if (fromEnv != null && !fromEnv.isBlank()) {
+			return fromEnv;
+		}
+		return getProperty("runDocker", "");
+	}
+
+	public static boolean isDockerRuntime() {
+		if ("yes".equalsIgnoreCase(getDocker())) {
+			return true;
+		}
+		return new java.io.File("/.dockerenv").exists();
 	}
 }

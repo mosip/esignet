@@ -4,11 +4,8 @@ test-output
 screenshots
 reports
 testng-report
-target/classes
-target/test-classes
-target/generated-sources
-target/maven-status
-target/maven-archiver
+target/
+!target/uitest-esignet-*-jar-with-dependencies.jar
 k8s
 *.iml
 .idea

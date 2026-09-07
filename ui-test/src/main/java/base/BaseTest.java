@@ -320,8 +320,9 @@ public class BaseTest extends AdminTestUtil {
 
 			throw e;
 		} catch (Exception e) {
-			LOGGER.error("Failed to initialize WebDriver: " + e.getMessage());
-			ExtentReportManager.getTest().fail("❌ WebDriver setup failed: " + e.getMessage());
+			String detail = describeException(e);
+			LOGGER.error("Failed to initialize WebDriver: " + detail);
+			ExtentReportManager.getTest().fail("❌ WebDriver setup failed: " + detail);
 			ExtentReportManager.flushReport();
 			throw new RuntimeException(e);
 		}
@@ -660,6 +661,22 @@ public class BaseTest extends AdminTestUtil {
 
 	public String getVid() {
 		return getVidDetails() != null ? getVidDetails().getVid() : null;
+	}
+
+	private static String describeException(Throwable error) {
+		StringBuilder detail = new StringBuilder();
+		Throwable current = error;
+		while (current != null) {
+			if (detail.length() > 0) {
+				detail.append(" | caused by: ");
+			}
+			detail.append(current.getClass().getSimpleName());
+			if (current.getMessage() != null && !current.getMessage().isBlank()) {
+				detail.append(": ").append(current.getMessage());
+			}
+			current = current.getCause();
+		}
+		return detail.toString();
 	}
 
 }
