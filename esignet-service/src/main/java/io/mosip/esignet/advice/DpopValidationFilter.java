@@ -315,7 +315,18 @@ public class DpopValidationFilter extends OncePerRequestFilter {
             log.error("Missing jti claim");
             throw new InvalidDpopHeaderException();
         }
-        if (cacheUtilService.checkAndMarkJti(jti)) {
+        Date iatDate = claims.getIssueTime();
+        Date expDate = claims.getExpirationTime();
+        long iat = iatDate.toInstant().getEpochSecond();
+        long acceptanceCloseSec = iat + maxDPOPIatAgeSeconds + maxClockSkewSeconds;
+
+        if (expDate != null) {
+            long exp = expDate.toInstant().getEpochSecond();
+            acceptanceCloseSec = Math.min(acceptanceCloseSec, exp + maxClockSkewSeconds);
+        }
+        long dpopJtiTtlSeconds = Math.max(1L, acceptanceCloseSec - Instant.now().getEpochSecond());
+
+        if (cacheUtilService.checkAndMarkJti(jti, dpopJtiTtlSeconds)) {
             log.error("Replay detected for jti: {}", jti);
             throw new InvalidDpopHeaderException();
         }
