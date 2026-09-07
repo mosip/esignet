@@ -117,7 +117,7 @@ type CertificateData struct {
 }
 ```
 
-`identifiers` and `credentials` (the two `map[string]interface{}` arguments to `Authenticate`/`SendOTP`) split the login form's inputs, but not strictly by "sensitive vs. not" — the actual split, per the flow executor that builds these maps, is: a UIN/username lands in `identifiers`; OTP and password land in `credentials` (they arrive as sensitive `OTP_INPUT`/`PASSWORD_INPUT` flow inputs); PIN and biometric payloads land in `identifiers`, not `credentials`; and an arbitrary KBI challenge (no fixed field set) is read from whatever remains in `credentials`. See [`internal/engine/mock/authenticator.go`](../esignet-service/internal/engine/mock/authenticator.go)'s `setChallenge` function for the exact per-factor mapping.
+`identifiers` and `credentials` are `map[string]interface{}` arguments — `Authenticate` receives both; `SendOTP` receives only `identifiers` (plus `metadata`, in both cases). They split the login form's inputs, but not strictly by "sensitive vs. not" — the actual split, per the flow executor that builds these maps, is: a UIN/username lands in `identifiers`; OTP and password land in `credentials` (they arrive as sensitive `OTP_INPUT`/`PASSWORD_INPUT` flow inputs); PIN and biometric payloads land in `identifiers`, not `credentials`; and an arbitrary KBI challenge (no fixed field set) is read from whatever remains in `credentials`. See [`internal/engine/mock/authenticator.go`](../esignet-service/internal/engine/mock/authenticator.go)'s `setChallenge` function for the exact per-factor mapping.
 
 ### Errors
 
@@ -136,7 +136,7 @@ type ServiceError struct {
 
 ## Lifecycle — call order during a login
 
-There is no dynamic plugin loading (no `.so` files, no registry). A provider is a compile-time Go package, and the engine invokes its methods directly during flow execution. For eSignet's shipped OTP/password/biometric/KBI flow (`esignet-service/data/flows/flow-esignet.yaml`), the calls happen in this order:
+There is no dynamic plugin loading (no `.so` files, no registry). A provider is a compile-time Go package, and the engine invokes its methods directly during flow execution. For eSignet's shipped OTP/password/biometric/KBI flow (`esignet-service/data/flows/flow-esignet.yaml`), the calls happen in this order at most — `SendOTP` only fires for OTP-based factors, and each `Get*` call only fires when its corresponding token is non-nil (see below):
 
 ```text
 SendOTP           →  Authenticate        →  GetEntityReference   →  GetAttributes
@@ -188,5 +188,5 @@ Three providers ship in this repository, each a complete worked example:
 | Provider | Package | Auth factors | Notes |
 |---|---|---|---|
 | Mock | [`esignet-service/internal/engine/mock`](../esignet-service/internal/engine/mock) | OTP, password, PIN, biometrics, arbitrary KBI | Talks to a mock identity system over HTTP; defaults to a plain-HTTP local address (`MOSIP_ESIGNET_MOCK_DOMAIN_URL`, configurable to HTTPS) for local development and testing, with no cryptographic envelope on the payload itself. |
-| MOSIP IDA | [`esignet-service/internal/engine/mosip`](../esignet-service/internal/engine/mosip) | OTP, password, biometrics | Requests are AES-256-GCM encrypted, key-wrapped with RSA-OAEP against the IDA partner certificate, and signed as a JWT using a key from the embedded keymanager. Also ships the audit plugin — see [Audit Plugin Integration](audit-plugin-integration.md). |
+| MOSIP IDA | [`esignet-service/internal/engine/mosip`](../esignet-service/internal/engine/mosip) | OTP, password, biometrics | Requests are AES-256-GCM encrypted, key-wrapped with RSA-OAEP against the IDA partner certificate, and signed as a JWT using a key from the embedded keymanager. The package also ships the audit plugin — see [Audit Plugin Integration](audit-plugin-integration.md). |
 | SunbirdRC | [`esignet-service/internal/engine/sunbird`](../esignet-service/internal/engine/sunbird) | Knowledge-based identity (KBI) only | Exact-match search against a Sunbird Registered Claims registry; authentication succeeds only when exactly one entity matches; claims are released only via an explicit field-mapping allow-list. |
