@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -23,8 +24,7 @@ func specWith(names ...string) Spec {
 }
 
 func TestRegistrationFailureRows_EnvNotReadyWhenPartnerMissing(t *testing.T) {
-	// mosip with no PMS config -> every scenario reported ENV_NOT_READY (not run),
-	// so the testcases stay visible in the report while onboarding is pending.
+	// mosip with no PMS config -> every scenario reported ENV_NOT_READY (not run), staying visible while onboarding is pending.
 	r := &Runner{Plugin: "mosip"} // PMSBaseURL/AuthPartnerID/PolicyID all empty
 	spec := specWith("otp positive", "otp negative", "password positive")
 	rows := r.registrationFailureRows(spec, nil, errors.New("needs AUTH_PARTNER_ID"))
@@ -88,8 +88,7 @@ func TestAttachSetupCalls(t *testing.T) {
 	if out[0].Calls[0].Label != "create client" || out[0].Calls[1].Label != "flow/execute" {
 		t.Errorf("Calls not in chronological order: %+v", out[0].Calls)
 	}
-	// CollapseCalls renumbers on its own axis (chronological), which must not
-	// collide: both inputs numbered their own Seq from 1 independently.
+	// CollapseCalls renumbers chronologically, since both inputs numbered their own Seq from 1 independently.
 	if out[0].Calls[0].Seq != 1 || out[0].Calls[1].Seq != 2 {
 		t.Errorf("Calls not renumbered: %+v", out[0].Calls)
 	}
@@ -145,8 +144,7 @@ func TestAssertClaimsFailsOnUnverifiedJWS(t *testing.T) {
 	}
 }
 
-// mixedSpec mirrors a real spec file: several ACRs, positive and negative cases,
-// plus client-registration fields that must survive filtering.
+// mixedSpec mirrors a real spec file: several ACRs, positive/negative cases, plus client-registration fields that must survive filtering.
 func mixedSpec() Spec {
 	return Spec{
 		RedirectURI: "https://rp.example/cb",
@@ -254,8 +252,7 @@ func TestSelectRejectsBadRegex(t *testing.T) {
 
 // --- consent assertions -----------------------------------------------------
 
-// A scenario with no consent block must assert nothing about consent, so every
-// pre-existing scenario keeps its current pass/fail semantics.
+// A scenario with no consent block must assert nothing about consent, so every pre-existing scenario keeps its current pass/fail semantics.
 func TestAssertConsentNoSpecAssertsNothing(t *testing.T) {
 	if got := assertConsent(Scenario{Name: "x"}, consentObservation{prompted: true}); got != nil {
 		t.Fatalf("assertConsent with no spec produced %d assertion(s), want none", len(got))
@@ -288,8 +285,7 @@ func TestAssertConsentExpectPrompt(t *testing.T) {
 	}
 }
 
-// An empty ExpectPrompt asserts nothing about prompting — used by deny-only
-// scenarios that don't care whether this was a first or repeat authorization.
+// An empty ExpectPrompt asserts nothing about prompting — used by deny-only scenarios that don't care whether this was a first or repeat authorization.
 func TestAssertConsentEmptyExpectPromptSkipsThatCheck(t *testing.T) {
 	sc := Scenario{Consent: &ConsentSpec{}}
 	if got := assertConsent(sc, consentObservation{prompted: true}); len(got) != 0 {
@@ -297,8 +293,7 @@ func TestAssertConsentEmptyExpectPromptSkipsThatCheck(t *testing.T) {
 	}
 }
 
-// A deny that never took effect must FAIL: the scenario's claim assertions would
-// otherwise pass or fail for reasons unrelated to consent.
+// A deny that never took effect must FAIL, or the scenario's claim assertions would pass/fail for reasons unrelated to consent.
 func TestAssertConsentDenyRequiresSomethingWithheld(t *testing.T) {
 	sc := Scenario{Consent: &ConsentSpec{Deny: []string{"name"}}}
 
@@ -326,14 +321,25 @@ func TestShippedSpecsParseAndAreConsistent(t *testing.T) {
 				t.Fatalf("parse: %v", err)
 			}
 
-			// Every successful login stores a consent record keyed by its scopes+claims hash for the shared client.
+			// Every successful login stores a consent record keyed by scopes+claims hash and client config, since a differently-configured client is a different client.
 			var sawConsent, sawReuse bool
 			consented := map[string]string{}
 			for _, sc := range spec.Scenarios {
 				if sc.AuthFactor == "" {
 					t.Errorf("scenario %q has no auth_factor", sc.Name)
 				}
-				key := strings.Join(sc.Scopes, " ") + "|" + fmt.Sprint(sc.UserinfoClaims)
+				if msg := sc.ClientLifecycle.validate(); msg != "" {
+					t.Errorf("scenario %q: %s", sc.Name, msg)
+				}
+				cfg := ClientConfig{}
+				if sc.ClientConfig != nil {
+					cfg = *sc.ClientConfig
+				}
+				key := cfg.key() + "|" + strings.Join(sc.Scopes, " ") + "|" + fmt.Sprint(sc.UserinfoClaims)
+				// A scenario that changes its client's status gets a client of its own, so keying by name keeps it out of everyone else's consent bookkeeping.
+				if sc.ClientLifecycle != nil {
+					key += "|dedicated:" + sc.Name
+				}
 
 				if sc.Consent != nil {
 					sawConsent = true
@@ -345,8 +351,7 @@ func TestShippedSpecsParseAndAreConsistent(t *testing.T) {
 
 					switch strings.ToLower(sc.Consent.ExpectPrompt) {
 					case "no":
-						// Must repeat an earlier succeeding scenario's exact request, or
-						// the hash differs and the server re-prompts.
+						// Must repeat an earlier succeeding scenario's exact request, or the hash differs and the server re-prompts.
 						sawReuse = true
 						if _, ok := consented[key]; !ok {
 							t.Errorf("scenario %q expects NO prompt but no earlier succeeding scenario requested the same scopes/claims (%s)", sc.Name, key)
@@ -428,5 +433,70 @@ func TestRSAPubFromJWKRejectsDegenerateKeys(t *testing.T) {
 				t.Fatalf("rsaPubFromJWK accepted %s", tc.name)
 			}
 		})
+	}
+}
+
+// requireHTTPS is the last line of defense against sending AdminToken in cleartext; it must accept exactly absolute https URLs.
+func TestRequireHTTPSAcceptsAbsoluteHTTPS(t *testing.T) {
+	if err := requireHTTPS("esignet base URL", "https://esignet.example.org/v1/esignet"); err != nil {
+		t.Fatalf("requireHTTPS rejected a valid https URL: %v", err)
+	}
+}
+
+func TestRequireHTTPSRejectsNonHTTPS(t *testing.T) {
+	for _, tc := range []struct{ name, raw string }{
+		{"http scheme", "http://esignet.example.org/v1/esignet"},
+		{"empty", ""},
+		{"scheme only, no host", "https://"},
+		{"no scheme", "esignet.example.org/v1/esignet"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if err := requireHTTPS("esignet base URL", tc.raw); err == nil {
+				t.Fatalf("requireHTTPS accepted %q", tc.raw)
+			}
+		})
+	}
+}
+
+// An https base URL is worthless cover for AdminToken if the client isn't
+// actually validating the certificate on the other end of it -- TLSVerify:false
+// sets InsecureSkipVerify, which accepts any certificate a man-in-the-middle
+// presents. Run must refuse this combination before any request is sent,
+// the same way it already refuses a non-https base URL.
+func TestRunRejectsAdminTokenWithDisabledTLSVerify(t *testing.T) {
+	r := &Runner{Base: "https://esignet.example.org/v1/esignet", AdminToken: "t", TLSVerify: false}
+	rows := r.Run(context.Background(), specWith("otp positive"))
+
+	if len(rows) != 1 {
+		t.Fatalf("got %d rows, want 1", len(rows))
+	}
+	if rows[0].Result != "FAILED" {
+		t.Errorf("Result = %q, want FAILED", rows[0].Result)
+	}
+	found := false
+	for _, c := range rows[0].FailedConditions {
+		if strings.Contains(c.Msg, "TLS verification") {
+			found = true
+		}
+	}
+	if !found {
+		t.Errorf("FailedConditions = %+v, want one naming TLS verification", rows[0].FailedConditions)
+	}
+}
+
+// TLSVerify:true with AdminToken set must reach the ordinary https-URL check
+// (and fail there, since the test doesn't stand up a real server) rather than
+// being rejected for the TLS setting itself.
+func TestRunAllowsAdminTokenWithTLSVerifyEnabled(t *testing.T) {
+	r := &Runner{Base: "not-a-url", AdminToken: "t", TLSVerify: true}
+	rows := r.Run(context.Background(), specWith("otp positive"))
+
+	if len(rows) != 1 {
+		t.Fatalf("got %d rows, want 1", len(rows))
+	}
+	for _, c := range rows[0].FailedConditions {
+		if strings.Contains(c.Msg, "TLS verification") {
+			t.Errorf("rejected for TLS verification with TLSVerify:true: %+v", rows[0].FailedConditions)
+		}
 	}
 }

@@ -32,7 +32,7 @@ type Envelope struct {
 	Plugin           string
 	Module           string
 	Result           string // PASSED | FAILED
-	HarnessOutcome   string // OK | ENV_NOT_READY
+	HarnessOutcome   string // OK | ENV_NOT_READY | KNOWN_ISSUE
 	OutcomeDetail    string
 	DurationMs       int64
 	FailedConditions []Condition
@@ -189,7 +189,12 @@ func (s *state) doClient(ctx context.Context, client *http.Client, label, method
 		req.Header.Set(k, v)
 	}
 	if s.adminToken != "" {
-		req.Header.Set("Authorization", "Bearer "+s.adminToken)
+		// MOSIP kernel services (PMS) want the admin token as an Authorization cookie, not a Bearer header.
+		if pms := s.stash["pms_base"]; pms != "" && strings.HasPrefix(fullURL, pms) {
+			req.AddCookie(&http.Cookie{Name: "Authorization", Value: s.adminToken})
+		} else {
+			req.Header.Set("Authorization", "Bearer "+s.adminToken)
+		}
 	}
 
 	resp, err := client.Do(req)
@@ -251,11 +256,16 @@ func (s *state) record(label, method, u string, reqH http.Header, reqBody string
 
 func iAuthenticateAsAdmin(ctx context.Context) error {
 	s := getState(ctx)
+	// ADMIN_TOKEN is an explicit opt-in for targets that don't enforce scope, not a fallback from failed Keycloak auth — a silent fallback would mask a real auth regression as a green run.
+	if tok := os.Getenv("ADMIN_TOKEN"); tok != "" {
+		s.adminToken = tok
+		return nil
+	}
 	tokenURL := os.Getenv("KEYCLOAK_TOKEN_URL")
 	clientID := os.Getenv("KEYCLOAK_CLIENT_ID")
 	secret := os.Getenv("KEYCLOAK_CLIENT_SECRET")
 	if tokenURL == "" || clientID == "" || secret == "" {
-		return fmt.Errorf("ENV_NOT_READY: KEYCLOAK_TOKEN_URL/CLIENT_ID/CLIENT_SECRET not set for admin auth")
+		return fmt.Errorf("ENV_NOT_READY: KEYCLOAK_TOKEN_URL/CLIENT_ID/CLIENT_SECRET not set for admin auth (or set ADMIN_TOKEN for a target that does not enforce scope)")
 	}
 	form := url.Values{
 		"grant_type":    {"client_credentials"},
@@ -424,6 +434,25 @@ func theJSONPathShouldExist(ctx context.Context, path string) error {
 }
 
 // theJSONPathShouldBeNull asserts an explicit JSON null.
+// theJSONPathShouldBeEmpty passes when a path is absent, null, [], or {} — eSignet and PMS disagree on how "no errors" looks.
+func theJSONPathShouldBeEmpty(ctx context.Context, path string) error {
+	s := getState(ctx)
+	v := gjson.GetBytes(s.lastBody, path)
+	empty := !v.Exists() || v.Type == gjson.Null
+	if v.Exists() && (v.IsArray() || v.IsObject()) {
+		empty = len(v.Array()) == 0 && len(v.Map()) == 0
+	}
+	actual := v.Raw
+	if !v.Exists() {
+		actual = "absent"
+	}
+	s.recordAssertion("JSON "+path, "empty", actual, empty)
+	if !empty {
+		return fmt.Errorf("json path %q is not empty (got %s): %s", path, actual, snippet(s.lastBody))
+	}
+	return nil
+}
+
 func theJSONPathShouldBeNull(ctx context.Context, path string) error {
 	s := getState(ctx)
 	v := gjson.GetBytes(s.lastBody, path)
@@ -515,6 +544,14 @@ func InitScenario(sc *godog.ScenarioContext, coll *Collector) {
 			env.Result = "FAILED"
 			env.HarnessOutcome = "OK"
 			env.FailedConditions = []Condition{{Src: "godog", Result: "FAILURE", Msg: firstLine(scenErr.Error())}}
+			if reason, known := knownIssueReason(scn); known {
+				env.HarnessOutcome = "KNOWN_ISSUE"
+				env.OutcomeDetail = reason
+			} else if reason != "" {
+				// Tagged but unregistered: stays FAILED (HarnessOutcome already
+				// OK), and says why the tag did not take.
+				env.OutcomeDetail = reason
+			}
 		}
 		coll.Add(env)
 		return ctx, nil
@@ -536,6 +573,7 @@ func InitScenario(sc *godog.ScenarioContext, coll *Collector) {
 	sc.Step(`^the JSON value at "([^"]*)" should be "([^"]*)"$`, theJSONValueAtShouldBe)
 	sc.Step(`^the JSON path "([^"]*)" should exist$`, theJSONPathShouldExist)
 	sc.Step(`^the JSON path "([^"]*)" should be null$`, theJSONPathShouldBeNull)
+	sc.Step(`^the JSON path "([^"]*)" should be empty$`, theJSONPathShouldBeEmpty)
 }
 
 // surfaceFromTags maps a scenario's tags to a report surface.
@@ -544,11 +582,43 @@ func surfaceFromTags(scn *godog.Scenario) string {
 		switch strings.TrimPrefix(t.Name, "@") {
 		case "client-mgmt", "client-mgmt-pms":
 			return "client-mgmt"
-		case "flow-execute", "flow-authz-neg":
+		case "flow-execute", "flow-authz-neg", "inactive-client":
 			return "flow-execute"
 		}
 	}
 	return "flow-execute"
+}
+
+// apiKnownIssueReasons names the scenarios tagged @known_issue and why: a
+// scenario runs and asserts the correct (currently failing) behavior same as
+// any other, but a failure is reported as KNOWN_ISSUE instead of FAILED so it
+// doesn't block the run, and goes green on its own once the tracked bug is
+// fixed.
+var apiKnownIssueReasons = map[string]string{
+	"Uploading certificateData that is not a certificate is rejected as an invalid certificate": "esignet-service returns HTTP 500 server_error instead of invalid_certificate for a malformed certificate — tracked as mosip/esignet#2527",
+}
+
+// knownIssueReason reports the reason a failed, @known_issue-tagged scenario is
+// known to fail. The bool is what reclassifies FAILED into KNOWN_ISSUE, so it is
+// true ONLY for a tag backed by an entry in apiKnownIssueReasons.
+//
+// A tag with no entry — a scenario renamed without updating the map, or a tag
+// added without review — returns a diagnostic with false: the scenario stays a
+// normal FAILURE. Reclassifying it would let a typo pull a real regression out
+// of the failure bucket, which is the one thing this mechanism must never do.
+// The diagnostic still reaches the report via the envelope's OutcomeDetail, so
+// the unregistered tag is visible rather than merely ignored.
+func knownIssueReason(scn *godog.Scenario) (string, bool) {
+	for _, t := range scn.Tags {
+		if strings.TrimPrefix(t.Name, "@") == "known_issue" {
+			reason, ok := apiKnownIssueReasons[scn.Name]
+			if !ok {
+				return fmt.Sprintf("scenario tagged @known_issue but apiKnownIssueReasons has no entry for %q — reported as a normal failure", scn.Name), false
+			}
+			return reason, true
+		}
+	}
+	return "", false
 }
 
 func firstLine(s string) string {
