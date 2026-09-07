@@ -179,22 +179,22 @@ public class BaseTestUtil {
 
 		switch (browser) {
 		case "chrome":
-			boolean linuxDocker = System.getProperty("os.name").equalsIgnoreCase("Linux")
-					&& EsignetConfigManager.isDockerRuntime();
-			if (linuxDocker) {
-				String chromedriverPath = firstExistingPath(
-						EsignetConfigManager.getProperty("chromeDriverPath", ""),
-						System.getenv("CHROMEDRIVER_PATH"), "/usr/bin/chromedriver",
-						"/usr/lib/chromium/chromedriver", "/usr/lib/chromium-browser/chromedriver");
-				if (chromedriverPath == null) {
-					LOGGER.warning("No system ChromeDriver found in the container; falling back to WebDriverManager");
-					WebDriverManager.chromedriver().setup();
-				} else {
-					System.setProperty("webdriver.chrome.driver", chromedriverPath);
-					LOGGER.info("Using container ChromeDriver: " + chromedriverPath);
-				}
+			// Testriq images are Alpine (musl). WebDriverManager downloads the glibc
+			// chrome-for-testing binary, which fails with:
+			//   SessionNotCreatedException ... caused by Exec failed, error: 2
+			// Use the image's /usr/bin/chromedriver whenever it exists on Linux.
+			String systemChromeDriver = firstExistingPath(
+					EsignetConfigManager.getProperty("chromeDriverPath", ""),
+					System.getenv("CHROMEDRIVER_PATH"), "/usr/bin/chromedriver",
+					"/usr/lib/chromium/chromedriver", "/usr/lib/chromium-browser/chromedriver");
+			boolean linuxHost = System.getProperty("os.name", "").toLowerCase().contains("linux");
+			if (linuxHost && systemChromeDriver != null) {
+				System.setProperty("webdriver.chrome.driver", systemChromeDriver);
+				LOGGER.info("Using system ChromeDriver: " + systemChromeDriver);
 			} else {
 				WebDriverManager.chromedriver().setup();
+				LOGGER.info("Using WebDriverManager ChromeDriver: "
+						+ System.getProperty("webdriver.chrome.driver"));
 			}
 
 			ChromeOptions chromeOptions = new ChromeOptions();
@@ -249,10 +249,15 @@ public class BaseTestUtil {
 			try {
 				driver = new ChromeDriver(chromeOptions);
 			} catch (Exception e) {
-				LOGGER.warning("ChromeDriver session failed (" + e.getMessage()
-						+ "); retrying with WebDriverManager-matched driver");
-				WebDriverManager.chromedriver().setup();
-				driver = new ChromeDriver(chromeOptions);
+				String currentDriver = System.getProperty("webdriver.chrome.driver");
+				if (systemChromeDriver != null && !systemChromeDriver.equals(currentDriver)) {
+					LOGGER.warning("ChromeDriver session failed with " + currentDriver + " (" + e.getMessage()
+							+ "); retrying with system ChromeDriver " + systemChromeDriver);
+					System.setProperty("webdriver.chrome.driver", systemChromeDriver);
+					driver = new ChromeDriver(chromeOptions);
+				} else {
+					throw e;
+				}
 			}
 			break;
 
