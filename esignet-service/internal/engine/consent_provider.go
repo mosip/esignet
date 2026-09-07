@@ -98,7 +98,7 @@ func (p *consentProvider) ResolveConsent(ctx context.Context, _, appID string, _
 			authorizedPermissions, []string{}), nil
 	}
 
-	client, err := p.clientSvc.GetClient(ctx, clientID)
+	client, err := p.clientSvc.GetActiveClient(ctx, clientID)
 	if err != nil {
 		p.logger.Error(ctx, "Failed to read client record", applog.Error(err))
 		return nil, clientError("consent_fetch_failed", err)
@@ -144,7 +144,7 @@ func (p *consentProvider) RecordConsent(ctx context.Context, _, appID, userID st
 		}
 	}
 
-	client, err := p.clientSvc.GetClient(ctx, clientID)
+	client, err := p.clientSvc.GetActiveClient(ctx, clientID)
 	if err != nil {
 		p.logger.Error(ctx, "Failed to read client record", applog.Error(err))
 		return nil, clientError("consent_record_failed", err)

@@ -37,12 +37,23 @@ func (s *stubQuerier) GetClient(_ context.Context, id string) (db.ClientDetail, 
 	return s.client, nil
 }
 
+func (s *stubQuerier) GetActiveClient(_ context.Context, id string) (db.ClientDetail, error) {
+	if !s.found || id != s.client.ID || s.client.Status != "ACTIVE" {
+		return db.ClientDetail{}, sql.ErrNoRows
+	}
+	return s.client, nil
+}
+
 // dbErrorQuerier simulates an infrastructure failure (e.g. connection refused).
 type dbErrorQuerier struct {
 	db.Querier
 }
 
 func (q *dbErrorQuerier) GetClient(_ context.Context, _ string) (db.ClientDetail, error) {
+	return db.ClientDetail{}, errors.New("connection refused")
+}
+
+func (q *dbErrorQuerier) GetActiveClient(_ context.Context, _ string) (db.ClientDetail, error) {
 	return db.ClientDetail{}, errors.New("connection refused")
 }
 

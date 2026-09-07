@@ -86,7 +86,7 @@ func (e *authorizationExecutor) Execute(ctx *providers.NodeContext) (*providers.
 	}
 
 	clientID := ctx.RuntimeData[clientIDRuntimeKey]
-	client, err := e.clientSvc.GetClient(ctx.Context, clientID)
+	client, err := e.clientSvc.GetActiveClient(ctx.Context, clientID)
 	if err != nil {
 		applog.GetLogger().Error(ctx.Context, "authorization: client lookup failed",
 			applog.String("clientId", clientID), applog.Error(err))

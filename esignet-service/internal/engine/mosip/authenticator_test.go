@@ -67,6 +67,10 @@ func (f *fakeQuerier) GetClient(context.Context, string) (db.ClientDetail, error
 	return f.row, f.err
 }
 
+func (f *fakeQuerier) GetActiveClient(context.Context, string) (db.ClientDetail, error) {
+	return f.row, f.err
+}
+
 func (f *fakeQuerier) PatchClient(context.Context, db.PatchClientParams) (db.ClientDetail, error) {
 	return db.ClientDetail{}, errors.New("not implemented in test fake")
 }

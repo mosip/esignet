@@ -78,11 +78,22 @@ func (s *stubClientQuerier) GetClient(_ context.Context, id string) (db.ClientDe
 	return s.client, nil
 }
 
+func (s *stubClientQuerier) GetActiveClient(_ context.Context, id string) (db.ClientDetail, error) {
+	if !s.found || id != s.client.ID || s.client.Status != "ACTIVE" {
+		return db.ClientDetail{}, sql.ErrNoRows
+	}
+	return s.client, nil
+}
+
 type errorClientQuerier struct {
 	db.Querier
 }
 
 func (errorClientQuerier) GetClient(_ context.Context, _ string) (db.ClientDetail, error) {
+	return db.ClientDetail{}, errors.New("connection refused")
+}
+
+func (errorClientQuerier) GetActiveClient(_ context.Context, _ string) (db.ClientDetail, error) {
 	return db.ClientDetail{}, errors.New("connection refused")
 }
 

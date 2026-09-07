@@ -64,6 +64,10 @@ func (q *clientStubQuerier) GetClient(_ context.Context, _ string) (clientdb.Cli
 	return q.getRow, q.getErr
 }
 
+func (q *clientStubQuerier) GetActiveClient(_ context.Context, _ string) (clientdb.ClientDetail, error) {
+	return q.getRow, q.getErr
+}
+
 // registeredClientRow builds a minimal, otherwise-empty client row whose Claims list is the
 // given registered claims, for consentProvider tests that only care about claim filtering.
 func registeredClientRow(claims []string) clientdb.ClientDetail {
