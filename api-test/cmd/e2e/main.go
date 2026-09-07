@@ -114,23 +114,26 @@ func main() {
 	}
 
 	runner := &e2e.Runner{
-		Base:             base,
-		Issuer:           disco.Issuer,
-		AuthEndpoint:     disco.AuthorizationEndpoint,
-		TokenEndpoint:    disco.TokenEndpoint,
-		UserinfoEndpoint: disco.UserinfoEndpoint,
-		JWKSURI:          disco.JWKSURI,
-		AdminToken:       adminTok,
-		Plugin:           es.Provider,
-		Answers:          esignet.BuildAnswers(es),
-		IDType:           es.Identity.IDType,
-		TLSVerify:        tlsVerify,
-		Timeout:          timeout,
-		Logf:             logger.Printf,
-		OTP:              otpProvider,
-		PMSBaseURL:       es.PMS.BaseURL,
-		AuthPartnerID:    es.PMS.AuthPartnerID,
-		PolicyID:         es.PMS.PolicyID,
+		Base:               base,
+		Issuer:             disco.Issuer,
+		AuthEndpoint:       disco.AuthorizationEndpoint,
+		TokenEndpoint:      disco.TokenEndpoint,
+		UserinfoEndpoint:   disco.UserinfoEndpoint,
+		JWKSURI:            disco.JWKSURI,
+		PAREndpoint:        disco.PAREndpoint,
+		IntrospectEndpoint: disco.IntrospectionEndpoint,
+		DPoPAlgs:           disco.DPoPAlgs,
+		AdminToken:         adminTok,
+		Plugin:             es.Provider,
+		Answers:            esignet.BuildAnswers(es),
+		IDType:             es.Identity.IDType,
+		TLSVerify:          tlsVerify,
+		Timeout:            timeout,
+		Logf:               logger.Printf,
+		OTP:                otpProvider,
+		PMSBaseURL:         es.PMS.BaseURL,
+		AuthPartnerID:      es.PMS.AuthPartnerID,
+		PolicyID:           es.PMS.PolicyID,
 	}
 
 	rows := runner.Run(ctx, spec)
@@ -153,6 +156,13 @@ type discovery struct {
 	TokenEndpoint         string `json:"token_endpoint"`
 	UserinfoEndpoint      string `json:"userinfo_endpoint"`
 	JWKSURI               string `json:"jwks_uri"`
+
+	// PAR and DPoP support; both optional, for scenarios that register clients requiring them.
+	PAREndpoint string   `json:"pushed_authorization_request_endpoint"`
+	DPoPAlgs    []string `json:"dpop_signing_alg_values_supported"`
+
+	// IntrospectionEndpoint is RFC 7662 token introspection, optional and needed only by the introspection scenarios.
+	IntrospectionEndpoint string `json:"introspection_endpoint"`
 }
 
 func fetchDiscovery(ctx context.Context, url string, tlsVerify bool) (*discovery, error) {
@@ -175,7 +185,7 @@ func fetchDiscovery(ctx context.Context, url string, tlsVerify bool) (*discovery
 	if d.Issuer == "" {
 		return nil, fmt.Errorf("discovery %s: no issuer", url)
 	}
-	if err := sameOrigin(url, d.Issuer, d.AuthorizationEndpoint, d.TokenEndpoint, d.UserinfoEndpoint, d.JWKSURI); err != nil {
+	if err := sameOrigin(url, d.Issuer, d.AuthorizationEndpoint, d.TokenEndpoint, d.UserinfoEndpoint, d.JWKSURI, d.PAREndpoint, d.IntrospectionEndpoint); err != nil {
 		return nil, fmt.Errorf("discovery %s: %w", url, err)
 	}
 	return &d, nil
@@ -206,9 +216,13 @@ func sameOrigin(ref string, others ...string) error {
 }
 
 func keycloakToken(ctx context.Context, kc config.Keycloak, tlsVerify bool) (string, error) {
+	// Mirrors the ADMIN_TOKEN opt-in in api/steps.go: explicit, not a fallback on Keycloak failure, so a broken IAM can't go green.
+	if tok := os.Getenv("ADMIN_TOKEN"); tok != "" {
+		return tok, nil
+	}
 	tokenURL := kc.TokenURL
 	if tokenURL == "" || kc.ClientID == "" || kc.ClientSecret == "" {
-		return "", fmt.Errorf("keycloak.token_url/client_id/client_secret (KEYCLOAK_*) required")
+		return "", fmt.Errorf("keycloak.token_url/client_id/client_secret (KEYCLOAK_*) required (or set ADMIN_TOKEN for a target that does not enforce scope)")
 	}
 	form := url.Values{"grant_type": {"client_credentials"}, "client_id": {kc.ClientID}, "client_secret": {kc.ClientSecret}}
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, tokenURL, strings.NewReader(form.Encode()))

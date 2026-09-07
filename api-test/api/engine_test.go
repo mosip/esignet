@@ -10,6 +10,14 @@ import (
 	"github.com/cucumber/godog"
 )
 
+// adminAuthAvailable reports whether client-mgmt scenarios have a usable admin bearer, so they're gated out on auth rather than failing on it.
+func adminAuthAvailable() bool {
+	return os.Getenv("ADMIN_TOKEN") != "" ||
+		(os.Getenv("KEYCLOAK_TOKEN_URL") != "" &&
+			os.Getenv("KEYCLOAK_CLIENT_ID") != "" &&
+			os.Getenv("KEYCLOAK_CLIENT_SECRET") != "")
+}
+
 // TestFeatures is the godog entry point.
 func TestFeatures(t *testing.T) {
 	base := os.Getenv("MOSIP_ESIGNET_BASE_URL")
@@ -37,8 +45,10 @@ func TestFeatures(t *testing.T) {
 		if os.Getenv("FLOW_CLIENT_ID") != "" {
 			tags += ",@flow-authz-neg"
 		}
-		if os.Getenv("KEYCLOAK_CLIENT_SECRET") != "" {
+		if adminAuthAvailable() {
 			tags += ",@client-mgmt" // godog: comma = OR
+			// @inactive-client deactivates its own client rather than reusing FLOW_CLIENT_ID, so gate on admin auth instead.
+			tags += ",@inactive-client"
 			// The PMS-backed client-mgmt feature is mosipid-only: it needs an onboarded partner and policy.
 			if strings.EqualFold(os.Getenv("MOSIP_ESIGNET_AUTHN_PROVIDER"), "mosip") && os.Getenv("PMS_BASE_URL") != "" {
 				tags += ",@client-mgmt-pms"
@@ -63,13 +73,13 @@ func TestFeatures(t *testing.T) {
 		if plugin == "" {
 			plugin = "mock"
 		}
-		if os.Getenv("KEYCLOAK_CLIENT_SECRET") == "" {
+		if !adminAuthAvailable() {
 			rows = append(rows, Envelope{
 				Surface:        "client-mgmt",
 				Plugin:         plugin,
 				Module:         "client-mgmt (not run)",
 				HarnessOutcome: "ENV_NOT_READY",
-				OutcomeDetail:  "KEYCLOAK_TOKEN_URL/CLIENT_ID/CLIENT_SECRET not set — admin auth unavailable",
+				OutcomeDetail:  "KEYCLOAK_TOKEN_URL/CLIENT_ID/CLIENT_SECRET not set and no ADMIN_TOKEN — admin auth unavailable",
 			})
 		}
 		if os.Getenv("FLOW_CLIENT_ID") == "" {
@@ -81,11 +91,20 @@ func TestFeatures(t *testing.T) {
 				OutcomeDetail:  "FLOW_CLIENT_ID not set — authorize-endpoint negatives need a pre-registered client",
 			})
 		}
+		if !adminAuthAvailable() {
+			rows = append(rows, Envelope{
+				Surface:        "flow-execute",
+				Plugin:         plugin,
+				Module:         "inactive-client (not run)",
+				HarnessOutcome: "ENV_NOT_READY",
+				OutcomeDetail:  "no admin auth — deactivating a client to drive authorize with it needs client-mgmt write access",
+			})
+		}
 		// Either half missing hides this surface: the tag is only added inside the
-		// KEYCLOAK_CLIENT_SECRET branch above, so an empty secret drops it just as
+		// admin-auth branch above, so missing admin auth drops it just as
 		// silently as an unset PMS_BASE_URL would.
 		if strings.EqualFold(plugin, "mosip") &&
-			(os.Getenv("PMS_BASE_URL") == "" || os.Getenv("KEYCLOAK_CLIENT_SECRET") == "") {
+			(os.Getenv("PMS_BASE_URL") == "" || !adminAuthAvailable()) {
 			rows = append(rows, Envelope{
 				Surface:        "client-mgmt",
 				Plugin:         plugin,
