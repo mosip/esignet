@@ -822,10 +822,38 @@ public class ConsentStepDefinition {
 	}
 
 	@Then("verify user is navigated to user profile page")
-	public void verifyUserIsNavigatedToUserProfilePage() {
+	public void verifyUserIsNavigatedToUserProfilePage() throws Exception {
+		try {
+			assertUserProfilePageReached();
+		} catch (IllegalStateException e) {
+			// @AuthorizeScopeOnly hand-builds a no-claims/Manage-VID URL; after Allow the RP can
+			// land with error=session_expired. Retry once with a fresh authorize session (do not
+			// fall back to RP "Sign in with eSignet" — that would drop Manage-VID).
+			if (!isOAuthSessionExpiredError(e) || !BasePage.authorizeScopeOnlyScenario) {
+				throw e;
+			}
+			logger.warn("OAuth session expired after Allow on @AuthorizeScopeOnly; retrying with a fresh "
+					+ "no-claims/Manage-VID authorize URL (not RP Sign in with eSignet)");
+			retryAuthorizeScopeOnlyConsentAndProfile();
+		}
+	}
+
+	private void assertUserProfilePageReached() {
 		consentPage.waitUntilUserProfilePage();
 		Assert.assertTrue(consentPage.isUserProfilePageDisplayed(),
 				"User was not redirected to the Health Service user profile page with an authorization code");
+	}
+
+	private void retryAuthorizeScopeOnlyConsentAndProfile() throws Exception {
+		reauthenticateWithOtpFromFreshAuthorize();
+		if (consentPage.isAlreadyOnRelyingParty()) {
+			assertUserProfilePageReached();
+			return;
+		}
+		consentPage.waitUntilConsentScreenAfterAuthentication();
+		consentPage.toggleAuthorizeScope("Manage-VID", true);
+		consentPage.clickOnAllowBtnInConsentScreen();
+		assertUserProfilePageReached();
 	}
 
 	@Then("user completes consent flow through eKYC and returns to relying party")
