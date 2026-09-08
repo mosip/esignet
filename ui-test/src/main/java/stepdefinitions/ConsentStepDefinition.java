@@ -818,66 +818,30 @@ public class ConsentStepDefinition {
 
 	@When("user clicks on allow button in consent screen")
 	public void userClicksAllowButtonInConsentScreen() {
+		if (BasePage.authorizeScopeOnlyScenario) {
+			// Hand-built no-claims/Manage-VID URL: RP will show session_expired after callback because
+			// it did not start this OAuth session. Confirm eSignet issued code= instead.
+			consentPage.clickAllowAndConfirmAuthorizeScopeOnlyAuthCode();
+			return;
+		}
 		consentPage.clickOnAllowBtnInConsentScreen();
 	}
 
 	@Then("verify user is navigated to user profile page")
 	public void verifyUserIsNavigatedToUserProfilePage() throws Exception {
-		try {
-			assertUserProfilePageReached();
-		} catch (RuntimeException e) {
-			// @AuthorizeScopeOnly hand-builds a no-claims/Manage-VID URL; after Allow the RP can
-			// land with error=session_expired. Retry once with a fresh authorize session (do not
-			// fall back to RP "Sign in with eSignet" — that would drop Manage-VID).
-			if (!BasePage.authorizeScopeOnlyScenario || !isAuthorizeScopeOnlySessionExpired(e)) {
-				throw e;
-			}
-			logger.warn("OAuth session expired after Allow on @AuthorizeScopeOnly; retrying with a fresh "
-					+ "no-claims/Manage-VID authorize URL (not RP Sign in with eSignet). Cause: "
-					+ e.getMessage());
-			ExtentReportManager.getTest().warning(
-					"TC_06 session_expired after Allow — retrying with fresh no-claims/Manage-VID authorize URL");
-			retryAuthorizeScopeOnlyConsentAndProfile();
+		if (BasePage.authorizeScopeOnlyScenario) {
+			Assert.assertTrue(consentPage.wasAuthorizeScopeOnlyAuthCodeDelivered(),
+					"Authorize-scope-only Allow did not deliver an authorization code to the RP callback "
+							+ "(userprofile?code=...). RP session_expired alone is expected for this hand-built URL "
+							+ "and is not sufficient.");
+			ExtentReportManager.logStep(
+					"TC_06 verified: auth code delivered for no-claims/Manage-VID authorize URL "
+							+ "(RP may still show session_expired for foreign OAuth state/PKCE)");
+			return;
 		}
-	}
-
-	private void assertUserProfilePageReached() {
 		consentPage.waitUntilUserProfilePage();
 		Assert.assertTrue(consentPage.isUserProfilePageDisplayed(),
 				"User was not redirected to the Health Service user profile page with an authorization code");
-	}
-
-	private void retryAuthorizeScopeOnlyConsentAndProfile() throws Exception {
-		reauthenticateWithOtpFromFreshAuthorize();
-		if (consentPage.isAlreadyOnRelyingParty() && consentPage.isUserProfilePageDisplayed()) {
-			return;
-		}
-		if (consentPage.isAlreadyOnRelyingParty()) {
-			assertUserProfilePageReached();
-			return;
-		}
-		consentPage.waitUntilConsentScreenAfterAuthentication();
-		consentPage.toggleAuthorizeScope("Manage-VID", true);
-		consentPage.clickOnAllowBtnInConsentScreen();
-		assertUserProfilePageReached();
-	}
-
-	private boolean isAuthorizeScopeOnlySessionExpired(Throwable e) {
-		if (isOAuthSessionExpiredError(e)) {
-			return true;
-		}
-		String url = driver != null ? driver.getCurrentUrl() : null;
-		return url != null && url.contains("error=session_expired");
-	}
-
-	private boolean isOAuthSessionExpiredError(Throwable e) {
-		for (Throwable t = e; t != null; t = t.getCause()) {
-			String message = t.getMessage();
-			if (message != null && message.contains("session_expired")) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	@Then("user completes consent flow through eKYC and returns to relying party")
@@ -936,6 +900,16 @@ public class ConsentStepDefinition {
 		consentPage.clickOnGetOtp();
 		consentPage.enterOtp(BasePage.getOtp());
 		consentPage.clickOnVerifyButton();
+	}
+
+	private boolean isOAuthSessionExpiredError(Throwable e) {
+		for (Throwable t = e; t != null; t = t.getCause()) {
+			String message = t.getMessage();
+			if (message != null && message.contains("session_expired")) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Then("verify consent is not requested after authentication")
