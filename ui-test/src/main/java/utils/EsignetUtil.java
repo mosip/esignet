@@ -2011,7 +2011,11 @@ public class EsignetUtil extends AdminTestUtil {
 		}
 		String esignetBase = EsignetConfigManager.getproperty("eSignetbaseurl");
 		String current = driver.getCurrentUrl();
-		if (current == null || esignetBase == null || !current.startsWith(esignetBase)) {
+		boolean onEsignet = current != null && esignetBase != null && current.startsWith(esignetBase);
+		boolean rpSessionExpired = current != null && current.contains("error=session_expired");
+		// After Allow on @AuthorizeScopeOnly the RP can already show session_expired; still rebuild
+		// the same no-claims/Manage-VID authorize URL instead of no-op'ing because we left eSignet.
+		if (!onEsignet && !rpSessionExpired) {
 			return;
 		}
 
@@ -2032,7 +2036,10 @@ public class EsignetUtil extends AdminTestUtil {
 
 		}
 		String afterNav = driver.getCurrentUrl();
-		if (afterNav != null && (afterNav.contains("error=invalid_request") || afterNav.contains("userprofile"))) {
+		// @AuthorizeScopeOnly must keep the no-claims/Manage-VID URL; RP Sign in would replace it
+		// with the RP's default claims flow and stop testing TC_06.
+		if (!BasePage.authorizeScopeOnlyScenario && afterNav != null
+				&& (afterNav.contains("error=invalid_request") || afterNav.contains("userprofile"))) {
 
 			try {
 				WebElement signIn = new WebDriverWait(driver, Duration.ofSeconds(10))

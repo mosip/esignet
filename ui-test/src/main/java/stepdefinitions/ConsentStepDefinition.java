@@ -825,15 +825,18 @@ public class ConsentStepDefinition {
 	public void verifyUserIsNavigatedToUserProfilePage() throws Exception {
 		try {
 			assertUserProfilePageReached();
-		} catch (IllegalStateException e) {
+		} catch (RuntimeException e) {
 			// @AuthorizeScopeOnly hand-builds a no-claims/Manage-VID URL; after Allow the RP can
 			// land with error=session_expired. Retry once with a fresh authorize session (do not
 			// fall back to RP "Sign in with eSignet" — that would drop Manage-VID).
-			if (!isOAuthSessionExpiredError(e) || !BasePage.authorizeScopeOnlyScenario) {
+			if (!BasePage.authorizeScopeOnlyScenario || !isAuthorizeScopeOnlySessionExpired(e)) {
 				throw e;
 			}
 			logger.warn("OAuth session expired after Allow on @AuthorizeScopeOnly; retrying with a fresh "
-					+ "no-claims/Manage-VID authorize URL (not RP Sign in with eSignet)");
+					+ "no-claims/Manage-VID authorize URL (not RP Sign in with eSignet). Cause: "
+					+ e.getMessage());
+			ExtentReportManager.getTest().warning(
+					"TC_06 session_expired after Allow — retrying with fresh no-claims/Manage-VID authorize URL");
 			retryAuthorizeScopeOnlyConsentAndProfile();
 		}
 	}
@@ -846,6 +849,9 @@ public class ConsentStepDefinition {
 
 	private void retryAuthorizeScopeOnlyConsentAndProfile() throws Exception {
 		reauthenticateWithOtpFromFreshAuthorize();
+		if (consentPage.isAlreadyOnRelyingParty() && consentPage.isUserProfilePageDisplayed()) {
+			return;
+		}
 		if (consentPage.isAlreadyOnRelyingParty()) {
 			assertUserProfilePageReached();
 			return;
@@ -854,6 +860,24 @@ public class ConsentStepDefinition {
 		consentPage.toggleAuthorizeScope("Manage-VID", true);
 		consentPage.clickOnAllowBtnInConsentScreen();
 		assertUserProfilePageReached();
+	}
+
+	private boolean isAuthorizeScopeOnlySessionExpired(Throwable e) {
+		if (isOAuthSessionExpiredError(e)) {
+			return true;
+		}
+		String url = driver != null ? driver.getCurrentUrl() : null;
+		return url != null && url.contains("error=session_expired");
+	}
+
+	private boolean isOAuthSessionExpiredError(Throwable e) {
+		for (Throwable t = e; t != null; t = t.getCause()) {
+			String message = t.getMessage();
+			if (message != null && message.contains("session_expired")) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Then("user completes consent flow through eKYC and returns to relying party")
@@ -912,11 +936,6 @@ public class ConsentStepDefinition {
 		consentPage.clickOnGetOtp();
 		consentPage.enterOtp(BasePage.getOtp());
 		consentPage.clickOnVerifyButton();
-	}
-
-	private boolean isOAuthSessionExpiredError(IllegalStateException e) {
-		String message = e.getMessage();
-		return message != null && message.contains("session_expired");
 	}
 
 	@Then("verify consent is not requested after authentication")
