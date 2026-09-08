@@ -52,7 +52,14 @@ public class ExtentReportManager {
 	}
 
 	public static synchronized ExtentTest createTest(String testName) {
+		return createTest(testName, (String[]) null);
+	}
+
+	public static synchronized ExtentTest createTest(String testName, String... categories) {
 		ExtentTest test = extent.createTest(testName);
+		if (categories != null && categories.length > 0) {
+			test.assignCategory(categories);
+		}
 		testThread.set(test);
 		return test;
 	}
