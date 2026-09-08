@@ -716,7 +716,8 @@ public class ConsentPage extends BasePage {
 			return false;
 		}
 		String callbackPrefix = expectedAuthorizeScopeOnlyCallbackPrefix();
-		if (callbackPrefix == null || !url.startsWith(callbackPrefix)) {
+		// Require "?..." so prefixes like /userprofile-preview cannot match /userprofile.
+		if (callbackPrefix == null || !url.startsWith(callbackPrefix + "?")) {
 			return false;
 		}
 		try {

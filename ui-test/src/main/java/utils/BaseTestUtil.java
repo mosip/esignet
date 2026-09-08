@@ -188,7 +188,9 @@ public class BaseTestUtil {
 					System.getenv("CHROMEDRIVER_PATH"), "/usr/bin/chromedriver",
 					"/usr/lib/chromium/chromedriver", "/usr/lib/chromium-browser/chromedriver");
 			boolean linuxHost = System.getProperty("os.name", "").toLowerCase().contains("linux");
-			if (linuxHost && systemChromeDriver != null) {
+			boolean dockerRuntime = EsignetConfigManager.isDockerRuntime();
+			// Prefer image chromedriver only in Docker (Alpine/musl). Local Linux uses WDM.
+			if (linuxHost && dockerRuntime && systemChromeDriver != null) {
 				System.setProperty("webdriver.chrome.driver", systemChromeDriver);
 				LOGGER.info("Using system ChromeDriver: " + systemChromeDriver);
 			} else {
@@ -252,7 +254,8 @@ public class BaseTestUtil {
 				driver = new ChromeDriver(chromeOptions);
 			} catch (Exception e) {
 				String currentDriver = System.getProperty("webdriver.chrome.driver");
-				if (systemChromeDriver != null && !systemChromeDriver.equals(currentDriver)) {
+				if (dockerRuntime && systemChromeDriver != null
+						&& !systemChromeDriver.equals(currentDriver)) {
 					LOGGER.warning("ChromeDriver session failed with " + currentDriver + " (" + e.getMessage()
 							+ "); retrying with system ChromeDriver " + systemChromeDriver);
 					System.setProperty("webdriver.chrome.driver", systemChromeDriver);
