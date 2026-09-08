@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-cd /home/mosip
+cd "${work_dir:?work_dir must be set}"
 
 # Cucumber's html:reports plugin writes a FILE named "reports". The image used to mkdir that
 # path as a directory, which makes TestNGCucumberRunner.setUpClass fail with FileNotFoundException.

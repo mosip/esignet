@@ -692,7 +692,8 @@ public class ConsentPage extends BasePage {
 		} finally {
 			try {
 				capture.close();
-			} catch (Exception ignored) {
+			} catch (Exception e) {
+				LOGGER.warn("Failed to close authorize-scope-only auth-code capture: {}", e.getMessage());
 			}
 		}
 	}
@@ -710,8 +711,40 @@ public class ConsentPage extends BasePage {
 		ExtentReportManager.logStep("TC_06 auth code delivered to RP callback (" + source + ")");
 	}
 
-	private static boolean containsOAuthAuthCode(String url) {
-		return url != null && url.contains("code=") && !url.contains("error=");
+	private boolean containsOAuthAuthCode(String url) {
+		if (url == null || url.isBlank() || url.contains("error=")) {
+			return false;
+		}
+		String callbackPrefix = expectedAuthorizeScopeOnlyCallbackPrefix();
+		if (callbackPrefix == null || !url.startsWith(callbackPrefix)) {
+			return false;
+		}
+		try {
+			java.net.URI uri = java.net.URI.create(url);
+			String query = uri.getRawQuery();
+			if (query == null || query.isBlank()) {
+				return false;
+			}
+			for (String pair : query.split("&")) {
+				int eq = pair.indexOf('=');
+				String name = eq >= 0 ? pair.substring(0, eq) : pair;
+				String value = eq >= 0 ? pair.substring(eq + 1) : "";
+				if ("code".equals(name) && !value.isBlank()) {
+					return true;
+				}
+			}
+			return false;
+		} catch (IllegalArgumentException e) {
+			return false;
+		}
+	}
+
+	private String expectedAuthorizeScopeOnlyCallbackPrefix() {
+		String relyingPartyBase = EsignetConfigManager.getproperty("baseurl");
+		if (relyingPartyBase == null || relyingPartyBase.isBlank()) {
+			return null;
+		}
+		return relyingPartyBase.replaceAll("/+$", "") + "/userprofile";
 	}
 
 	private AutoCloseable startAuthorizeScopeOnlyAuthCodeCapture() {

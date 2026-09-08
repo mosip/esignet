@@ -233,6 +233,8 @@ public class BaseTestUtil {
 				chromeOptions.setExperimentalOption("mobileEmulation", buildMobileEmulationSettings(deviceName));
 			}
 
+			// Required in Docker/K8s (non-root UID 1001, no user namespace for Chrome sandbox).
+			// Do not remove for container runs; local non-Docker can still use these safely.
 			chromeOptions.addArguments("--no-sandbox");
 			chromeOptions.addArguments("--disable-dev-shm-usage");
 			chromeOptions.addArguments("--disable-gpu");
@@ -469,7 +471,10 @@ public class BaseTestUtil {
 				LOGGER.warning("Skipping snap-wrapped browser binary: " + file);
 				return false;
 			}
-		} catch (IOException ignored) {
+		} catch (IOException e) {
+			LOGGER.warning("Rejecting browser binary; canonical path inspection failed for " + file + ": "
+					+ e.getMessage());
+			return false;
 		}
 		if (file.isFile() && looksLikeSnapStub(file)) {
 			LOGGER.warning("Skipping snap stub browser binary: " + file);
@@ -486,7 +491,9 @@ public class BaseTestUtil {
 			String text = Files.readString(file.toPath());
 			return text.contains("/snap/") || text.contains("snap run");
 		} catch (Exception e) {
-			return false;
+			LOGGER.warning("Rejecting browser binary; snap-stub inspection failed for " + file + ": "
+					+ e.getMessage());
+			return true;
 		}
 	}
 

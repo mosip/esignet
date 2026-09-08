@@ -4,7 +4,7 @@ test-output
 screenshots
 reports
 testng-report
-target/
+target/*
 !target/uitest-esignet-*-jar-with-dependencies.jar
 k8s
 *.iml

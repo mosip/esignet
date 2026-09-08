@@ -63,7 +63,7 @@ COPY --chown=${container_user}:${container_user} ./src/main/resources/extent.pro
 COPY --chown=${container_user}:${container_user} ./testNgXmlFiles/ ${work_dir}/testNgXmlFiles/
 COPY --chown=${container_user}:${container_user} ./application.properties ${work_dir}/application.properties
 COPY --chown=${container_user}:${container_user} ./browserstack.yml ${work_dir}/browserstack.yml
-COPY --chown=${container_user}:${container_user} ["./Biometric Devices", "/home/mosip/Biometric Devices"]
+COPY --chown=${container_user}:${container_user} ["./Biometric Devices", "${work_dir}/Biometric Devices"]
 COPY --chown=${container_user}:${container_user} ./certs/ ${work_dir}/certs/
 
 RUN chmod +x ${work_dir}/entrypoint.sh \

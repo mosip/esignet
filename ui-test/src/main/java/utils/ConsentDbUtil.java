@@ -136,8 +136,14 @@ public final class ConsentDbUtil {
 
 	private static String withJdbcDefaults(String url) {
 		String jdbcUrl = url.trim();
+		// Default disable matches internal esqa/postgres ClusterIP access without a client CA.
+		// Override with esignetDbSslMode=verify-full (and trust store) when the DB requires TLS.
+		String sslMode = firstConfigured("esignetDbSslMode");
+		if (sslMode == null) {
+			sslMode = "disable";
+		}
 		if (!jdbcUrl.contains("sslmode=")) {
-			jdbcUrl += jdbcUrl.contains("?") ? "&sslmode=disable" : "?sslmode=disable";
+			jdbcUrl += jdbcUrl.contains("?") ? "&sslmode=" + sslMode : "?sslmode=" + sslMode;
 		}
 		if (!jdbcUrl.toLowerCase().contains("currentschema=")) {
 			jdbcUrl += "&currentSchema=" + getSchema();
