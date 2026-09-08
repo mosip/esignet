@@ -40,6 +40,12 @@ public class EsignetConfigManager extends io.mosip.testrig.apirig.utils.ConfigMa
 			for (String key : configProps.stringPropertyNames()) {
 				moduleSpecificPropertiesMap.put(key, configProps.getProperty(key));
 			}
+
+			// JVM -D from Docker entrypoint / IDE run configs wins over classpath defaults.
+			overlaySystemProperty(moduleSpecificPropertiesMap, "useMockMds");
+			overlaySystemProperty(moduleSpecificPropertiesMap, "runOnBrowserStack");
+			overlaySystemProperty(moduleSpecificPropertiesMap, "headless");
+			overlaySystemProperty(moduleSpecificPropertiesMap, "runDocker");
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 		}
@@ -49,6 +55,14 @@ public class EsignetConfigManager extends io.mosip.testrig.apirig.utils.ConfigMa
 		}
 
 		init(moduleSpecificPropertiesMap);
+	}
+
+	private static void overlaySystemProperty(Map<String, Object> target, String key) {
+		String fromSys = System.getProperty(key);
+		if (fromSys != null && !fromSys.isBlank()) {
+			target.put(key, fromSys.trim());
+			LOGGER.info("Using -D" + key + "=" + fromSys.trim() + " (overrides config.properties)");
+		}
 	}
 
 	public static String getProperty(String key, String defaultValue) {

@@ -346,15 +346,15 @@ public class BaseTest extends AdminTestUtil {
 	@Before(order = 20, value = "@BiometricLogin")
 	public void startMockMdsForBiometricLogin(Scenario scenario) throws Exception {
 		if (!MockMdsManager.isEnabled()) {
-			throw new SkipException("useMockMds=false - enable useMockMds for @BiometricLogin scenarios");
+			skipWithReason("useMockMds=false - enable useMockMds for @BiometricLogin scenarios");
 		}
 		if (Boolean.parseBoolean(EsignetConfigManager.getproperty("runOnBrowserStack"))) {
-			throw new SkipException("Mock MDS requires local browser (localhost SBI ports)");
+			skipWithReason("Mock MDS requires local browser (localhost SBI ports)");
 		}
 		MockMdsManager.ensureDevicePartnerP12Available();
 		MockMdsManager.startForBiometricScan();
 		if (!MockMdsManager.verifyDeviceDiscoveryOnLocalhost()) {
-			throw new SkipException("Mock MDS localhost L1/Auth/Ready probe failed");
+			skipWithReason("Mock MDS localhost L1/Auth/Ready probe failed");
 		}
 	}
 
@@ -372,10 +372,10 @@ public class BaseTest extends AdminTestUtil {
 	@Before("@RequiresMockMds")
 	public void startMockMds(Scenario scenario) throws Exception {
 		if (!MockMdsManager.isEnabled()) {
-			throw new SkipException("useMockMds is not enabled in config.properties");
+			skipWithReason("useMockMds is not enabled in config.properties");
 		}
 		if (Boolean.parseBoolean(EsignetConfigManager.getproperty("runOnBrowserStack"))) {
-			throw new SkipException("Mock MDS requires a local browser that can reach localhost SBI ports");
+			skipWithReason("Mock MDS requires a local browser that can reach localhost SBI ports");
 		}
 		MockMdsManager.startForAuth();
 	}

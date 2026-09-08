@@ -36,6 +36,10 @@ public final class MockMdsManager {
 	}
 
 	public static boolean isEnabled() {
+		String fromSys = System.getProperty("useMockMds");
+		if (fromSys != null && !fromSys.isBlank()) {
+			return Boolean.parseBoolean(fromSys.trim());
+		}
 		String value = EsignetConfigManager.getproperty("useMockMds");
 		return value != null && Boolean.parseBoolean(value.trim());
 	}

@@ -489,9 +489,14 @@ public class LoginOptionsStepDefinition {
 	@When("mock mds is started for biometric device scan")
 	public void mockMdsIsStartedForBiometricDeviceScan() throws Exception {
 		if (!MockMdsManager.isEnabled()) {
-			throw new SkipException("useMockMds=false in config.properties - enable useMockMds for biometric scan tests");
+			ExtentReportManager.getTest().warning(
+					"useMockMds=false in config.properties - enable useMockMds for biometric scan tests");
+			throw new SkipException(
+					"useMockMds=false in config.properties - enable useMockMds for biometric scan tests");
 		}
 		if (Boolean.parseBoolean(EsignetConfigManager.getproperty("runOnBrowserStack"))) {
+			ExtentReportManager.getTest().warning(
+					"Mock MDS requires local browser (localhost SBI ports 4501-4510)");
 			throw new SkipException("Mock MDS requires local browser (localhost SBI ports 4501-4510)");
 		}
 		MockMdsManager.ensureDevicePartnerP12Available();
