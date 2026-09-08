@@ -1,4 +1,4 @@
-\c mosip_esignet
+\c :mosipdbname
 
 --adding new column thumbprint to public_key_registry
 ALTER TABLE public_key_registry
