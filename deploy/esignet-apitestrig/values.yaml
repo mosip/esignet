@@ -1,40 +1,95 @@
-modules:
-  esignet:
+# Secrets (KEYCLOAK_CLIENT_SECRET, the test identity, S3 keys) do NOT belong
+# in this file -- it's tracked in git. Put those in values.secret.yaml
+# instead (gitignored; copy values.secret.yaml.example to get started).
+
+image:
+  repository: mosipdev/apitest-esignet
+  tag: develop-go
+  pullPolicy: Always
+
+triggerKind: cronjob
+crontime: "0 8 * * *"   # hour 0-23, matches the old "time" prompt
+
+apitestrig:
+  # The image ships data/config/config.{mock,mosip,sunbird}.json baked in.
+  # This deploy wrapper runs the harness against a real MOSIP-flavoured
+  # eSignet, hence config.mosip.json. Switch to config.mock.json if you're
+  # pointing this at a mock-plugin eSignet instead.
+  configFile: /app/data/config/config.mosip.json
+
+  # "api,e2e" or "conformance,api,e2e". config.mosip.json's own run.surfaces
+  # defaults to ["conformance","api","e2e"], and conformance needs a private
+  # plan config (conformancePlanConfig below) plus a reachable
+  # CONFORMANCE_BASE_URL -- see https://github.com/mosip/esignet/issues/2434
+  # §5a/§6ii. Both are wired up below (conformancePlanConfig.existingSecret +
+  # conformanceSuite.enabled) so this works by default -- if either isn't
+  # actually set up yet in your namespace, drop back to "api,e2e" until it is.
+  surfaces: "conformance,api,e2e"
+
+  extraEnvVars:
+    # --- Keycloak ---
+    KEYCLOAK_TOKEN_URL: "https://iam.sandbox.mosip.net/auth/realms/mosip/protocol/openid-connect/token"   # UPDATE 'sandbox' to your environment
+    KEYCLOAK_CLIENT_ID: "mosip-pms-client"   # blank = config file's own default
+
+    # --- TLS ---
+    # Self-signed/internal certs? Set both to "false" (was the y/N prompt).
+    ESIGNET_TLS_VERIFY: "false"
+    API_TLS_VERIFY: "false"
+    CONFORMANCE_TLS_VERIFY: "false"
+
+    # --- Test identity (non-secret half; ID_TYPE only) ---
+    ID_TYPE: "uin"   # uin | vid | phone | email
+
+    # --- OTP / PMS -- required by config.mosip.json, shipped blank there ---
+    # (see the config file's own _comment block and issue #2434 §4)
+    OTP_WS_URL: "https://smtp.sandbox.mosip.net"   # UPDATE 'sandbox' to your environment
+    OTP_RECIPIENT_EMAIL: "provide phone number or email for fetching OTP"   # UPDATE with your test identity's contact
+    PMS_BASE_URL: "https://api-internal.sandbox.mosip.net/v1/partnermanager"   # UPDATE 'sandbox' to your environment
+    AUTH_PARTNER_ID: "auth partner ID to create client ID"   # UPDATE with your auth partner ID
+    AUTH_POLICY_ID: "policy ID to create client ID"   # UPDATE with your policy ID
+
+    # --- Conformance (only used if apitestrig.surfaces includes it) ---
+    # https://localhost.emobix.co.uk:8443 resolves to 127.0.0.1 via public
+    # DNS -- with apitestrig.conformanceSuite.enabled below (in-pod suite),
+    # that's what makes it reachable at all. Must match whatever your plan
+    # file's client_ids were registered against in eSignet if you change it.
+    CONFORMANCE_BASE_URL: "https://localhost.emobix.co.uk:8443"
+
+  # See helm/esignet-apitestrig/README.md "Conformance plan config". The actual
+  # plan JSON content lives in values.secret.yaml (it's private-key
+  # material) -- existingSecret stays blank so Helm renders it from
+  # apitestrig.conformancePlanConfig.files there. Without that filled in,
+  # this surface fails with a "config_file ... not readable" error.
+  conformancePlanConfig:
     enabled: true
-    image:
-      repository: mosipdev/apitest-esignet
-      tag: develop
-      pullPolicy: Always
+    existingSecret: ""
 
-extraEnvVarsCM:
-  - esignet-global
-  - s3
-  - keycloak-host
-  - db
-  - apitestrig
-
-extraEnvVarsSecret:
-  - apitestrig-esignet-apitestrig
-  - s3-esignet-apitestrig
-  - keycloak-client-secrets
-  - postgres-postgresql
+  # See helm/esignet-apitestrig/README.md "Running the conformance suite itself" --
+  # runs mongodb+server+nginx as extra containers in this pod so
+  # CONFORMANCE_BASE_URL=https://localhost.emobix.co.uk:8443 just works.
+  # No K8s version requirement (regular containers + shareProcessNamespace +
+  # a reaper container, not native sidecars).
+  conformanceSuite:
+    enabled: true
 
 resources:
   limits:
-    cpu: 300m
-    memory: 500Mi
+    cpu: "1"
+    memory: 1Gi
   requests:
-    cpu: 300m
-    memory: 500Mi
+    cpu: 200m
+    memory: 512Mi
 
-apitestrig:
-  configmaps:
-    apitestrig:
-      # Wait time (in milliseconds) after UIN generation in IDREPO before proceeding
-      uinGenerationProcessingDelayTimeInMilliSeconds: "90000"
+reports:
+  # Set persistence.enabled: false if you only want S3 (below), no local PVC.
+  persistence:
+    enabled: false
+    storageClass: ""
+    existingClaim: ""
 
-      # Wait time (in milliseconds) after VID generation in Resident before proceeding
-      vidGenerationProcessingDelayTimeInMilliSeconds: "90000"
-
-      # Maximum number of retry attempts for UIN availability check during OTP generation
-      uinGenMaxLoopCount: "20"
+  s3:
+    enabled: true
+    endpoint: "your s3 url"   # UPDATE with your S3/MinIO endpoint
+    bucket: "your bucket name"   # UPDATE with your bucket name
+    pathPrefix: "go"
+    insecure: true   # self-signed cert or plain http

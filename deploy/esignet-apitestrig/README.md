@@ -1,77 +1,113 @@
-# APITESTRIG
+# eSignet API Test Rig (Go)
 
 ## Introduction
-ApiTestRig will test the working of APIs of the esignet modules.
+Runs the Go-based [`api-test`](../../api-test) harness against the eSignet
+deployment in this cluster, via the
+[`../../helm/esignet-apitestrig`](../../helm/esignet-apitestrig) chart.
+
+`install.sh` mirrors [`../esignet/install.sh`](../esignet/install.sh)'s own
+pattern: `helm repo add`/`helm repo update` against the published
+[`mosip-helm`](https://mosip.github.io/mosip-helm) repo, then
+`helm upgrade --install` by chart name and `CHART_VERSION`, not a local
+path. **This only works once `helm/esignet-apitestrig` has merged upstream
+and MOSIP's CI has published it** — until then, `helm install` fails with
+"chart not found", which is expected while this lives on a feature branch.
+Bump `install.sh`'s `CHART_VERSION` alongside `helm/esignet-apitestrig/Chart.yaml`'s
+own `version` whenever either changes.
+
+`install.sh` only asks two questions:
+1. the eSignet base URL (the one thing that realistically changes every run)
+2. whether you've actually reviewed/updated `values.yaml`
+
+Everything else that used to be an interactive prompt — Keycloak, TLS
+verification, the test identity, OTP/PMS settings, surfaces, report storage,
+conformance suite/plan config, cron schedule — is now a value in one of two
+files you edit directly beforehand.
+
+## Setup
+
+1. **`values.yaml`** (tracked in git) — non-secret settings. Open it and
+   fill in your environment's Keycloak token URL, OTP/PMS values, surfaces,
+   report storage, etc. Defaults are pre-filled from a known-working
+   configuration as a starting point — check every value, don't assume they
+   fit your environment.
+
+2. **`values.secret.yaml`** (gitignored) — secrets. Copy the example and
+   fill in real values:
+   ```bash
+   cp values.secret.yaml.example values.secret.yaml
+   ```
+   Holds `KEYCLOAK_CLIENT_SECRET`, the test identity (`INDIVIDUAL_ID` —
+   PII, kept out of `values.yaml`/git deliberately), and S3 access/secret
+   keys. `install.sh` refuses to run without this file present.
+
+3. **Conformance plan config** — `values.yaml` defaults to running
+   `conformance,api,e2e` with the in-pod suite
+   (`apitestrig.conformanceSuite.enabled: true`), which needs a private plan
+   config (a JWKS). Paste your real plan JSON into
+   `apitestrig.conformancePlanConfig.files` in `values.secret.yaml`
+   (placeholders are there by default in `values.secret.yaml.example`) —
+   `helm upgrade` renders it into a Secret itself as part of `./install.sh`,
+   no separate `kubectl` step needed. Filenames must match
+   `plans[].config_file`'s basename exactly (see `config.mosip.json`'s own
+   `_comment` block) — typically `esignet-config.json` and
+   `esignet-fapi2-config.json`.
+
+   (If you'd rather manage this Secret yourself outside of Helm — sealed-secrets,
+   external-secrets, etc. — set `apitestrig.conformancePlanConfig.existingSecret`
+   to that Secret's name in `values.yaml` instead, and leave `files` out of
+   `values.secret.yaml`.)
+
+   Without a filled-in plan, the run fails with a `config_file ... not
+   readable` error. If you don't have these plan files yet, set
+   `apitestrig.surfaces: "api,e2e"` in `values.yaml` until you do — see
+   "Conformance surface" below for
+   details.
+
 ## Install
-There are two ways to store reports:
-
-S3 Storage – Run the install script directly and provide the required S3 configuration values.
-
-NFS Storage – Create the necessary directory on the NFS server and then proceed with the installation.
-
-* Create a directory for apitestrig on the NFS server at `/srv/nfs/mosip/<sandbox>/apitestrig/`:
-```
-mkdir -p /srv/nfs/mosip/<sandbox>/apitestrig/
-```
-* Ensure the directory has 777 permissions:
-```
-chmod 777 /srv/nfs/mosip/<sandbox>/apitestrig
-```
-* Add the following entry to the /etc/exports file:
-```
-/srv/nfs/mosip/<sandbox>/apitestrig *(rw,sync,no_root_squash,no_all_squash,insecure,subtree_check)
-```
-* Apply export command
-```
-sudo exportfs -rav
-```
-* Restart the nfs-server
-```
-sudo systemctl restart nfs-kernel-server
-```
-* Once the nfs-kernel-server is up, log out from the NFS server and continue the deployment from your local machine.
-
-* Review `values.yaml` and, Make sure to enable required modules for apitestrig operation.
-```
-NOTE: Uncomment and configure the 'mosip_components_base_urls' section in 'values.yaml' if the eSignet and Signup services,
-are deployed on a separate cluster and rely on platform modules from another cluster.
-```
-* run `./install.sh`.
-```
+```bash
 ./install.sh
 ```
-
-* During the execution of the `install.sh` script, a prompt appears requesting information regarding the presence of a public domain and a valid SSL certificate on the server.
-* If the server lacks a public domain and a valid SSL certificate, it is advisable to select the `n` option. Opting it will enable the `init-container` with an `emptyDir` volume and include it in the deployment process.
-* The init-container will proceed to download the server's self-signed SSL certificate and mount it to the specified location within the container's Java keystore (i.e., `cacerts`) file.
-* This particular functionality caters to scenarios where the script needs to be employed on a server utilizing self-signed SSL certificates.
-* If the report is stored in NFS, use the scp command to copy the reports to your local machine.
+You'll be prompted for the eSignet base URL, then asked to confirm
+`values.yaml` is ready. Everything else comes from the two files above.
 
 ## Uninstall
-* To uninstall ApiTestRig, run `delete.sh` script.
-```sh
-./delete.sh 
+```bash
+./delete.sh
 ```
 
-## Run apitestrig manually
+## Conformance surface
+Set `apitestrig.surfaces: "conformance,api,e2e"` in `values.yaml`, plus:
+- `apitestrig.conformancePlanConfig.enabled: true`, plus either the plan JSON
+  in `values.secret.yaml`'s `conformancePlanConfig.files` (the default here) or
+  `existingSecret` pointing at a Secret you manage yourself — see
+  [`helm/esignet-apitestrig/README.md`](../../helm/esignet-apitestrig/README.md#conformance-plan-config).
+- Either `apitestrig.conformanceSuite.enabled: true` to run the suite
+  in-pod (no separate deployment, no Kubernetes version requirement — see
+  that same README's "Running the conformance suite itself" section), or
+  point `apitestrig.extraEnvVars.CONFORMANCE_BASE_URL` at a suite you're
+  running elsewhere.
+
+Without the plan config Secret, the conformance surface fails with a
+`config_file ... not readable` error — see
+[mosip/esignet#2434](https://github.com/mosip/esignet/issues/2434) §5a/§6ii
+for background.
+
+## Run manually
 
 #### Rancher UI
-* Run apitestrig manually via Rancher UI.
-  ![apitestrig-2.png](../../docs/apitestrig-2.png)
-* There are two modes of apitestrig `smoke` & `smokeAndRegression`.
-* By default, apitestrig will execute with `smokeAndRegression`. <br>
-  If you want to run apitestrig with only `smoke`. <br>
-  You have to update the `apitestrig` configmap and rerun the specific apitestrig job.
+Trigger the CronJob's job manually from the Rancher UI, same as any other
+CronJob.
 
 #### CLI
-* Download Kubernetes cluster `kubeconfig` file from `rancher dashboard` to your local.
-  ![apitestrig-1.png](../../docs/apitestrig-1.png)
-* Install `kubectl` package to your local machine.
-* Run apitestrig manually via CLI by creating a new job from an existing k8s cronjob.
-  ```
-  kubectl --kubeconfig=<k8s-config-file> -n apitestrig create job --from=cronjob/<cronjob-name> <job-name>
-  ```
-  example:
-  ```
-  kubectl --kubeconfig=/home/xxx/Downloads/qa4.config -n apitestrig create job --from=cronjob/cronjob-apitestrig-masterdata cronjob-apitestrig-masterdata
-  ```
+```sh
+kubectl --kubeconfig=<k8s-config-file> -n esignet create job \
+  --from=cronjob/esignet-apitestrig <job-name>
+```
+
+Reports land wherever `values.yaml`'s `reports.*` settings point — a PVC at
+`/app/out` inside the pod (`reports.persistence.enabled: true`), and/or
+S3/MinIO (`reports.s3.enabled: true`). For the PVC case:
+```sh
+kubectl -n esignet cp <pod-name>:/app/out ./out
+```

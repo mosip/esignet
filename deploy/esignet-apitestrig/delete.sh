@@ -1,30 +1,29 @@
 #!/bin/bash
-# Uninstalls apitestrig
+# Uninstalls the eSignet api-test rig (Go harness).
 ## Usage: ./delete.sh [kubeconfig]
 
 if [ $# -ge 1 ] ; then
   export KUBECONFIG=$1
 fi
 
+NS=esignet
+RELEASE_NAME=esignet-apitestrig
+
 function deleting_apitestrig() {
-  NS=esignet
-  while true; do
-      read -p "Are you sure you want to delete apitestrig helm charts?(Y/n) " yn
-      if [ $yn = "Y" ]
-        then
-          helm -n $NS delete esignet-apitestrig
-          break
-        else
-          break
-      fi
-  done
+  read -rp "Are you sure you want to delete $RELEASE_NAME in namespace $NS? (Y/n) " yn
+  if [[ "$yn" == "Y" || "$yn" == "y" ]]; then
+    helm -n "$NS" delete "$RELEASE_NAME"
+
+    echo ""
+    echo "NOTE: reports remain in the configured S3 bucket after 'helm delete'."
+    echo "Reports contain the test identity (PII). Apply the bucket retention"
+    echo "policy or delete the report objects when they are no longer needed."
+  fi
   return 0
 }
 
-# set commands for error handling.
-set -e
-set -o errexit   ## set -e : exit the script if any statement returns a non-true return value
-set -o nounset   ## set -u : exit the script if you try to use an uninitialised variable
-set -o errtrace  # trace ERR through 'time command' and other functions
-set -o pipefail  # trace ERR through pipes
-deleting_apitestrig   # calling function
+set -o errexit
+set -o nounset
+set -o errtrace
+set -o pipefail
+deleting_apitestrig

@@ -1,0 +1,21 @@
+{{- if eq .Values.triggerKind "job" }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  ## Suffixed with the revision so `helm upgrade`/CI re-runs don't collide
+  ## with the previous run's immutable Job name.
+  name: {{ include "common.names.fullname" . }}-{{ .Release.Revision }}
+  namespace: {{ .Release.Namespace }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  backoffLimit: {{ .Values.backoffLimit }}
+  activeDeadlineSeconds: {{ .Values.activeDeadlineSeconds }}
+  template:
+    {{- include "apitestrig.podTemplate" . | nindent 4 }}
+{{- end }}
