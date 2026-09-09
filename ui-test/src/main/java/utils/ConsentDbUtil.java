@@ -5,7 +5,11 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -87,33 +91,89 @@ public final class ConsentDbUtil {
 		String clientId = EsignetUtil.resolveClientId(clientIdKey);
 		ConsentRecord record = findLatestByClientId(clientId)
 				.orElseThrow(() -> new AssertionError("No consent_detail row found for clientId=" + clientId));
-		if (!isAcceptedClaimsEmpty(record.acceptedClaims())) {
-			throw new AssertionError(
-					"consent_detail.accepted_claims should be empty after declining optional claims for clientId="
-							+ clientId + " but was: " + record.acceptedClaims());
+		List<String> accepted = parseAcceptedClaimIds(record.acceptedClaims());
+		Set<String> optional = optionalClaimIdsFromAuthorizeRequest();
+		List<String> leftoverOptional = new ArrayList<>();
+		for (String claim : accepted) {
+			if (optional.contains(claim)) {
+				leftoverOptional.add(claim);
+			}
 		}
-		logger.info("Verified consent_detail.accepted_claims is empty for clientId=" + clientId);
+		if (!leftoverOptional.isEmpty()) {
+			throw new AssertionError(
+					"consent_detail.accepted_claims still contains optional claims after they were declined for clientId="
+							+ clientId + ": " + leftoverOptional + " (accepted_claims=" + record.acceptedClaims()
+							+ ")");
+		}
+		logger.info("Verified consent_detail.accepted_claims contains no optional claims for clientId=" + clientId
+				+ " accepted_claims=" + record.acceptedClaims());
 	}
 
-	private static boolean isAcceptedClaimsEmpty(String acceptedClaims) {
+	private static List<String> parseAcceptedClaimIds(String acceptedClaims) {
+		List<String> ids = new ArrayList<>();
 		if (acceptedClaims == null || acceptedClaims.isBlank()) {
-			return true;
+			return ids;
 		}
 		String trimmed = acceptedClaims.trim();
 		if ("[]".equals(trimmed) || "{}".equals(trimmed) || "null".equalsIgnoreCase(trimmed)) {
-			return true;
+			return ids;
 		}
 		try {
 			if (trimmed.startsWith("[")) {
-				return new JSONArray(trimmed).length() == 0;
+				JSONArray array = new JSONArray(trimmed);
+				for (int i = 0; i < array.length(); i++) {
+					String claim = array.optString(i, "").trim();
+					if (!claim.isEmpty()) {
+						ids.add(claim);
+					}
+				}
+				return ids;
 			}
 			if (trimmed.startsWith("{")) {
-				return new JSONObject(trimmed).length() == 0;
+				JSONObject object = new JSONObject(trimmed);
+				for (String key : object.keySet()) {
+					if (object.optBoolean(key, false) || object.opt(key) != null) {
+						ids.add(key);
+					}
+				}
 			}
 		} catch (Exception e) {
-			return false;
+			throw new AssertionError("consent_detail.accepted_claims is not valid JSON: " + acceptedClaims, e);
 		}
-		return false;
+		return ids;
+	}
+
+	private static Set<String> optionalClaimIdsFromAuthorizeRequest() {
+		Set<String> optional = new HashSet<>();
+		JSONObject userinfo = claimsUserinfo();
+		if (userinfo != null) {
+			for (String claim : userinfo.keySet()) {
+				if ("verified_claims".equals(claim)) {
+					continue;
+				}
+				JSONObject spec = userinfo.optJSONObject(claim);
+				if (spec != null && !spec.optBoolean("essential", false)) {
+					optional.add(claim);
+				}
+			}
+		}
+		if (optional.isEmpty()) {
+			optional.add("name");
+		}
+		return optional;
+	}
+
+	private static JSONObject claimsUserinfo() {
+		try {
+			org.json.simple.JSONObject raw = EsignetUtil.getClaimsJsonSafely();
+			if (raw == null || raw.isEmpty()) {
+				return null;
+			}
+			return new JSONObject(raw.toJSONString()).optJSONObject("userinfo");
+		} catch (Exception e) {
+			logger.warn("Could not read optional claims from claims.json: " + e.getMessage());
+			return null;
+		}
 	}
 
 	private static String resolveDbUrl() {

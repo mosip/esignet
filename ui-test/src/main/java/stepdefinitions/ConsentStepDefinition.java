@@ -920,8 +920,8 @@ public class ConsentStepDefinition {
 		ConsentDbUtil.assertConsentStoredWithPsuToken(ConsentDbUtil.PRIMARY_CLIENT_ID_KEY);
 	}
 
-	@Then("verify accepted claims are empty in consent table")
-	public void verifyAcceptedClaimsAreEmptyInConsentTable() {
+	@Then("verify accepted claims contain no optional claims in consent table")
+	public void verifyAcceptedClaimsContainNoOptionalClaimsInConsentTable() {
 		ConsentDbUtil.assertAcceptedClaimsEmpty(ConsentDbUtil.PRIMARY_CLIENT_ID_KEY);
 	}
 
