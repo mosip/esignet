@@ -279,22 +279,29 @@ public class BaseTest extends AdminTestUtil {
 			driver.get(authorizeUrl);
 
 			String landedUrl = driver.getCurrentUrl();
+			if (isAuthorizeInvalidClientLanding(landedUrl)) {
+				throw new IllegalStateException(
+						"Authorize URL was rejected with invalid_client. The provisioned client is misconfigured; "
+								+ "falling back to the relying party would hide that failure. Landed: "
+								+ maskSensitiveUrlParams(landedUrl));
+			}
 			if (isAuthorizeInvalidRequestLanding(landedUrl)) {
 				if (isAuthorizeScopeOnly) {
 					throw new IllegalStateException(
 							"Authorize-scope-only URL was rejected with invalid_request. Falling back to the "
 									+ "relying party's Sign in with eSignet button would drop scope=Manage-VID and "
 									+ "re-add claims, which is exactly what this scenario must not do. Landed: "
-									+ landedUrl);
+									+ maskSensitiveUrlParams(landedUrl));
 				}
 				if (isSingleAuthFactor) {
 					throw new IllegalStateException(
 							"Single-auth-factor URL was rejected with invalid_request. Falling back to the "
 									+ "relying party's Sign in with eSignet button would replace the single ACR with "
-									+ "the RP's default multi-factor request. Landed: " + landedUrl);
+									+ "the RP's default multi-factor request. Landed: "
+									+ maskSensitiveUrlParams(landedUrl));
 				}
 				LOGGER.warn("Authorize URL redirected to invalid_request ({}) - retrying via 'Sign In with eSignet' "
-						+ "on the relying party", landedUrl);
+						+ "on the relying party", maskSensitiveUrlParams(landedUrl));
 				String savedAuthorizeUrl = BasePage.authorizeUrl;
 				BasePage.authorizeUrl = null;
 				try {
@@ -305,8 +312,9 @@ public class BaseTest extends AdminTestUtil {
 			}
 
 			BasePage.markAuthorizeSessionFresh();
-			LOGGER.info("Navigated to URL: " + driver.getCurrentUrl());
-			utils.ClaimsUtil.parseFromUrl(driver.getCurrentUrl());
+			String effectiveUrl = driver.getCurrentUrl();
+			LOGGER.info("Navigated to URL: " + maskSensitiveUrlParams(effectiveUrl));
+			utils.ClaimsUtil.parseFromUrl(effectiveUrl);
 
 			if (!isAuthorizeScopeOnly) {
 				String currentLanguage = System.getProperty("currentRunLanguage", "eng");
@@ -546,13 +554,34 @@ public class BaseTest extends AdminTestUtil {
 		}
 	}
 
+	private boolean isAuthorizeInvalidClientLanding(String landedUrl) {
+		if (landedUrl == null || landedUrl.isBlank()) {
+			return false;
+		}
+		String lower = landedUrl.toLowerCase();
+		return lower.contains("error=invalid_client") || lower.contains("errorcode=invalid_client");
+	}
+
 	private boolean isAuthorizeInvalidRequestLanding(String landedUrl) {
 		if (landedUrl == null || landedUrl.isBlank()) {
 			return false;
 		}
 		String lower = landedUrl.toLowerCase();
 		return lower.contains("error=invalid_request") || lower.contains("errorcode=invalid_request")
-				|| lower.contains("invalid+client_id") || lower.contains("invalid_client");
+				|| lower.contains("error=invalid+client_id") || lower.contains("errorcode=invalid+client_id");
+	}
+
+	private static String maskSensitiveUrlParams(String url) {
+		if (url == null || url.isBlank()) {
+			return url;
+		}
+		String masked = url.replaceAll(
+				"(?i)([?&](?:code|access_token|id_token|refresh_token|client_secret|assertion)=)[^&#]*", "$1***");
+		int hash = masked.indexOf('#');
+		if (hash >= 0 && hash < masked.length() - 1) {
+			masked = masked.substring(0, hash + 1) + "***";
+		}
+		return masked;
 	}
 
 	private void skipInapplicableKbiOnlyScenario(Scenario scenario) {

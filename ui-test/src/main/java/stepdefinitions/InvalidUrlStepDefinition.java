@@ -60,22 +60,18 @@ public class InvalidUrlStepDefinition extends AdminTestUtil {
 
 	private boolean isUnreachableHostException(Throwable e) {
 		String msg = e.getMessage() == null ? "" : e.getMessage();
-		String lower = msg.toLowerCase();
 		return msg.contains("ERR_NAME_NOT_RESOLVED") || msg.contains("ERR_INTERNET_DISCONNECTED")
-				|| msg.contains("DNS_PROBE_FINISHED_NXDOMAIN") || msg.contains("net::ERR_")
-				|| lower.contains("timed out") || lower.contains("timeout")
-				|| e instanceof org.openqa.selenium.TimeoutException;
+				|| msg.contains("DNS_PROBE_FINISHED_NXDOMAIN") || msg.contains("net::ERR_");
 	}
 
 	private boolean isChromeUnreachablePageVisible() {
 		try {
 			String url = driver.getCurrentUrl();
-			if (url != null && (url.contains(UNREACHABLE_HOST) || url.contains("invalid.mosip.net")
-					|| url.startsWith("chrome-error://") || url.contains("chromewebdata"))) {
+			if (url != null && (url.startsWith("chrome-error://") || url.contains("chromewebdata"))) {
 				return true;
 			}
-		} catch (Exception ignored) {
-			// driver may be on an error document that rejects getCurrentUrl briefly
+		} catch (Exception e) {
+			logger.info("getCurrentUrl failed on the error document: " + e.getMessage());
 		}
 		try {
 			String pageSource = driver.getPageSource();
@@ -88,6 +84,7 @@ public class InvalidUrlStepDefinition extends AdminTestUtil {
 					|| pageSource.contains("This site can't be reached")
 					|| pageSource.contains("took too long to respond");
 		} catch (Exception e) {
+			logger.warn("Could not read page source while checking for the Chrome error page", e);
 			return false;
 		}
 	}

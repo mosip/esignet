@@ -162,7 +162,8 @@ public class KbiPage extends BasePage {
 			return null;
 		}
 		for (DateTimeFormatter formatter : List.of(DateTimeFormatter.ISO_LOCAL_DATE,
-				DateTimeFormatter.ofPattern("dd-MM-yyyy"), DateTimeFormatter.ofPattern("dd/MM/yyyy"))) {
+				DateTimeFormatter.ofPattern("dd-MM-yyyy"), DateTimeFormatter.ofPattern("dd/MM/yyyy"),
+				DateTimeFormatter.ofPattern("yyyy/MM/dd"))) {
 			try {
 				return LocalDate.parse(value.trim(), formatter);
 			} catch (DateTimeParseException ignored) {

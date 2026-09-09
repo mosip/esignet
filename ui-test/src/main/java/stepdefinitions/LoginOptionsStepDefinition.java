@@ -64,7 +64,9 @@ public class LoginOptionsStepDefinition {
 
 		new WebDriverWait(driver, Duration.ofSeconds(25)).until(ExpectedConditions.or(
 				ExpectedConditions.presenceOfElementLocated(org.openqa.selenium.By.cssSelector("[id^='acr_']")),
-				ExpectedConditions.presenceOfElementLocated(org.openqa.selenium.By.id("username_input"))));
+				ExpectedConditions.presenceOfElementLocated(org.openqa.selenium.By.id("username_input")),
+				ExpectedConditions.presenceOfElementLocated(org.openqa.selenium.By.cssSelector(
+						"#policyNumber, #fullName, #dob, [name='policyNumber'], [name='fullName'], [name='dob']"))));
 
 		ClaimsUtil.captureRenderedAuthFactors(driver);
 		String currentUrl = driver.getCurrentUrl();

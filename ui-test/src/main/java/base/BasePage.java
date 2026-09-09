@@ -233,10 +233,11 @@ public class BasePage {
 		if (!EsignetUtil.isKbiOnlyLogin()) {
 			return false;
 		}
-		return (url != null && url.contains("/signin"))
+		By kbiFieldSelector = By.cssSelector(
+				"#policyNumber, #fullName, #dob, [name='policyNumber'], [name='fullName'], [name='dob']");
+		return (url != null && url.contains("/signin") && !webDriver.findElements(kbiFieldSelector).isEmpty())
 				|| !webDriver.findElements(By.id("form-submit-button")).isEmpty()
-				|| !webDriver.findElements(By.cssSelector("#policyNumber, #fullName, #dob, [name='policyNumber']"))
-						.isEmpty();
+				|| !webDriver.findElements(kbiFieldSelector).isEmpty();
 	}
 
 	protected boolean waitForEsignetLoginLanding(int timeoutSeconds) {

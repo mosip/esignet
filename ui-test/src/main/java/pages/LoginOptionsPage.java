@@ -1667,7 +1667,7 @@ public class LoginOptionsPage extends BasePage {
 							+ " div[role=\"alert\"], .sbd-dropdown__container, .sbd-dropdown_container,"
 							+ " button, select, input'));");
 			return Boolean.TRUE.equals(result);
-		} catch (Exception e) {
+		} catch (org.openqa.selenium.WebDriverException e) {
 			return false;
 		}
 	}
@@ -1811,7 +1811,7 @@ public class LoginOptionsPage extends BasePage {
 							+ "  return label.includes('cancel') && !label.includes('scan and verify');"
 							+ "});");
 			return Boolean.TRUE.equals(result);
-		} catch (Exception e) {
+		} catch (org.openqa.selenium.WebDriverException e) {
 			return false;
 		}
 	}
@@ -2700,7 +2700,7 @@ public class LoginOptionsPage extends BasePage {
 							+ "const dropdown = root.querySelector('.sbd-dropdown__container, .sbd-dropdown_container');"
 							+ "return !!(retry && dropdown);");
 			return Boolean.TRUE.equals(result);
-		} catch (Exception e) {
+		} catch (org.openqa.selenium.WebDriverException e) {
 			return false;
 		}
 	}
@@ -2747,7 +2747,7 @@ public class LoginOptionsPage extends BasePage {
 							+ "if (!root) { return ''; }"
 							+ "return (root.innerText || root.textContent || '');");
 			return normalizeMessage(text == null ? "" : text.toString());
-		} catch (Exception e) {
+		} catch (org.openqa.selenium.WebDriverException e) {
 			try {
 				List<WebElement> containers = driver.findElements(By.id("secure-biometric-interface-integration"));
 				if (containers.isEmpty()) {

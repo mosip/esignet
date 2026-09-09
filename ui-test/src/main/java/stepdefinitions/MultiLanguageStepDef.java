@@ -118,7 +118,7 @@ public class MultiLanguageStepDef {
             Assert.assertFalse(registeredNumber.isBlank(), "No registered mobile number available for OTP authentication");
             consentPage.enterRegisteredMobileNumber(registeredNumber.trim());
             consentPage.clickOnGetOtp();
-            consentPage.enterOtp(BasePage.getOtp());
+            consentPage.enterOtp(BasePage.getOtp(registeredNumber.trim()));
             consentPage.clickOnVerifyButton();
         }
         Assert.assertTrue(consentPage.isOnAttentionScreen(),

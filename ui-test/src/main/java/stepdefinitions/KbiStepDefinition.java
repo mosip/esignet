@@ -847,6 +847,7 @@ public class KbiStepDefinition {
 				reloaded = loginOptionsPage.isLoginWithKbiDisplayed();
 			}
 		} catch (Exception e) {
+			logger.warn("Login flow did not reload after Try Again: " + e.getMessage(), e);
 			reloaded = false;
 		}
 		Assert.assertTrue(reloaded,
