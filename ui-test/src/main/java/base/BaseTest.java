@@ -133,7 +133,15 @@ public class BaseTest extends AdminTestUtil {
 		utils.ClaimsUtil.clearCachedRenderedAuthFactors();
 		String browser = BaseTestUtil.getBrowserForScenario(scenario);
 		String lang = BaseTestUtil.getThreadLocalLanguage();
-		ExtentReportManager.createTest(scenario.getName() + " [" + browser + " | " + lang + "]");
+		String testName = scenario.getName() + " [" + browser + " | " + lang + "]";
+		String bugId = runners.Runner.getKnownIssueBugId(scenario.getName());
+		if (bugId != null) {
+			String displayId = runners.Runner.formatBugDisplayId(bugId);
+			testName += " | Known Issue " + displayId;
+			ExtentReportManager.createTest(testName, "Known Issues", displayId);
+		} else {
+			ExtentReportManager.createTest(testName);
+		}
 		ExtentReportManager
 				.logStep("Scenario Started: " + scenario.getName() + " | Browser: " + browser + " | Language: " + lang);
 	}
@@ -146,11 +154,13 @@ public class BaseTest extends AdminTestUtil {
 
 		LOGGER.info("Initializing WebDriver...");
 
-		if (runners.Runner.knownIssues.containsKey(scenario.getName())) {
-			String bugId = runners.Runner.knownIssues.get(scenario.getName());
-			LOGGER.info("Skipping Known Issue Scenario: " + scenario.getName() + " | Bug: " + bugId);
+		String knownIssueBugId = runners.Runner.getKnownIssueBugId(scenario.getName());
+		if (knownIssueBugId != null) {
+			String displayId = runners.Runner.formatBugDisplayId(knownIssueBugId);
+			String bugUrl = runners.Runner.getKnownIssueUrl(knownIssueBugId);
+			LOGGER.info("Skipping Known Issue Scenario: " + scenario.getName() + " | Bug: " + displayId);
 			isKnownIssueScenario.set(true);
-			skipWithReason("Known Issue - Skipped: " + scenario.getName() + " | " + bugId);
+			skipKnownIssue(scenario.getName(), displayId, bugUrl);
 		}
 		isKnownIssueScenario.set(false);
 
@@ -466,15 +476,18 @@ public class BaseTest extends AdminTestUtil {
 				ExtentReportManager.getTest().fail("❌ Scenario Failed: " + scenario.getName());
 
 			} else if (scenario.getStatus().toString().equalsIgnoreCase("SKIPPED")
-					&& runners.Runner.knownIssues.containsKey(scenario.getName())) {
+					&& runners.Runner.isKnownIssue(scenario.getName())) {
 
-				String bugId = runners.Runner.knownIssues.get(scenario.getName());
-				String bugUrl = "https://mosip.atlassian.net/browse/" + bugId;
+				String bugId = runners.Runner.getKnownIssueBugId(scenario.getName());
+				String displayId = runners.Runner.formatBugDisplayId(bugId);
+				String bugUrl = runners.Runner.getKnownIssueUrl(bugId);
 
 				ExtentReportManager.incrementKnownIssue();
-				attachScenarioScreenshot(driver, scenario);
-				ExtentReportManager.getTest().skip(
-						"🟠 Skipped due to Known Issue → <a href='" + bugUrl + "' target='_blank'>" + bugId + "</a>");
+				if (driver != null) {
+					attachScenarioScreenshot(driver, scenario);
+				}
+				ExtentReportManager.getTest().skip("🟠 Known Issue " + displayId
+						+ " → <a href='" + bugUrl + "' target='_blank'>" + bugUrl + "</a>");
 
 			} else if (scenario.getStatus().toString().equalsIgnoreCase("SKIPPED")) {
 
@@ -542,6 +555,12 @@ public class BaseTest extends AdminTestUtil {
 	private void skipWithReason(String reason) {
 		ExtentReportManager.getTest().warning(reason);
 		throw new SkipException(reason);
+	}
+
+	private void skipKnownIssue(String scenarioName, String displayId, String bugUrl) {
+		ExtentReportManager.getTest().skip("🟠 Known Issue " + displayId
+				+ " → <a href='" + bugUrl + "' target='_blank'>" + bugUrl + "</a>");
+		throw new SkipException("Known Issue - Skipped: " + scenarioName + " | " + displayId);
 	}
 
 	@Before(value = "@mobile", order = 1)
