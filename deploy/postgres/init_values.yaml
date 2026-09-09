@@ -17,4 +17,4 @@ databases:
         key: postgres-password
     dml: 1
     repoUrl: https://github.com/mosip/esignet.git
-    branch: develop-go
+    branch: release-2.0.x
