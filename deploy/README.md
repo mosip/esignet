@@ -71,9 +71,9 @@ Plugins 2 and 3 also ask which HSM to use — pick SoftHSM unless you have real 
 When deploying multiple plugins within the same cluster using separate namespaces, certain manual configuration changes are required in the deployment setup.
 - Create a new database for the plugin from the [`db_scripts`](../db_scripts/) directory:
     - Update **dbName**, **dbUser**, **host**, and **port** in [`init_values.yaml`](../db_scripts/init_values.yaml) according to the plugin being deployed.
-    - Postgres is a shared prerequisite — you don't copy any secret for it. Just read the existing `db-common-secret` value from the `postgres` namespace and paste it into `init_values.yaml`'s `dbUserPasswords.dbuserPassword` field:
+    - Postgres is a shared prerequisite — you don't copy any secret for it. Just read the existing `db-common-secrets` value from the `postgres` namespace and paste it into `init_values.yaml`'s `dbUserPasswords.dbuserPassword` field:
 ```
-      kubectl get secret db-common-secret -n postgres -o jsonpath="{.data.db-common-password}" | base64 --decode
+  kubectl get secret db-common-secrets -n postgres -o jsonpath="{.data.db-dbuser-password}" | base64 --decode
 ```
           - Run the `init_db.sh` script from the `db_scripts` directory to create the database.
 ```
