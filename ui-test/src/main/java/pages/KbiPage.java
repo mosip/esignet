@@ -1,8 +1,12 @@
 package pages;
 
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -16,6 +20,8 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import base.BasePage;
+import utils.EsignetUtil;
+import utils.ExtentReportManager;
 
 public class KbiPage extends BasePage {
 
@@ -26,6 +32,45 @@ public class KbiPage extends BasePage {
 	private By fieldInputLocator(String fieldId) {
 		return By.xpath("//*[self::input or self::select or self::textarea][@id='" + fieldId + "' or @name='" + fieldId
 				+ "' or @data-field-id='" + fieldId + "']");
+	}
+
+	public boolean isOnKbiForm() {
+		if (!driver.findElements(By.cssSelector("#policyNumber, #fullName, #dob, [name='policyNumber'], [name='fullName'], [name='dob']"))
+				.isEmpty()) {
+			return true;
+		}
+		List<WebElement> headings = driver.findElements(By.xpath(
+				"//*[contains(translate(normalize-space(.),'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ'),'LOGIN WITH KBI')]"));
+		if (!headings.isEmpty()) {
+			return true;
+		}
+		List<WebElement> loginButtons = driver.findElements(LOGIN_BUTTON);
+		return !loginButtons.isEmpty() && !getVisibleFieldIds().isEmpty()
+				&& driver.findElements(By.cssSelector("[id^='acr_']")).isEmpty()
+				&& driver.findElements(By.id("username_input")).isEmpty();
+	}
+
+	public void loginWithConfiguredIdentity() {
+		List<String> fieldIds = getVisibleFieldIds();
+		if (fieldIds.isEmpty()) {
+			waitForKbiForm(List.of("policyNumber", "fullName", "dob"));
+			fieldIds = getVisibleFieldIds();
+		}
+		if (!fieldIds.isEmpty()) {
+			waitForKbiForm(fieldIds);
+		}
+		for (String fieldId : fieldIds) {
+			String label = getFieldLabel(fieldId);
+			String value = EsignetUtil.resolveKbiFieldValue(fieldId, label);
+			if (value == null || value.isBlank()) {
+				continue;
+			}
+			enterFieldValue(fieldId, value);
+			blurField(fieldId);
+		}
+		solveRecaptchaIfPresent();
+		clickLoginButton();
+		ExtentReportManager.logStep("Submitted KBI login with configured identity");
 	}
 
 	public void waitForKbiForm(List<String> fieldIds) {
@@ -72,14 +117,58 @@ public class KbiPage extends BasePage {
 
 		WebElement dateInput = findRealDateInput(fieldId);
 		if (dateInput != null) {
-			setNativeInputValue(dateInput, value);
+			setNativeInputValue(dateInput, EsignetUtil.isKbiOnlyLogin() ? toIsoDateIfPossible(value) : value);
 			return;
 		}
 		WebElement el = driver.findElement(fieldInputLocator(fieldId));
+		if (EsignetUtil.isKbiOnlyLogin()) {
+			String type = el.getAttribute("type");
+			if ("date".equalsIgnoreCase(type)) {
+				setNativeInputValue(el, toIsoDateIfPossible(value));
+				return;
+			}
+			clearField(el);
+			if (!value.isEmpty()) {
+				el.sendKeys(formatValueForInput(el, value));
+			}
+			return;
+		}
 		clearField(el);
 		if (!value.isEmpty()) {
 			el.sendKeys(value);
 		}
+	}
+
+	private String formatValueForInput(WebElement el, String value) {
+		String placeholder = el.getAttribute("placeholder");
+		if (placeholder != null && placeholder.toLowerCase(Locale.ROOT).contains("dd-mm-yyyy")) {
+			return toDayMonthYear(value);
+		}
+		return value;
+	}
+
+	private String toIsoDateIfPossible(String value) {
+		LocalDate date = parseFlexibleDate(value);
+		return date != null ? date.format(DateTimeFormatter.ISO_LOCAL_DATE) : value;
+	}
+
+	private String toDayMonthYear(String value) {
+		LocalDate date = parseFlexibleDate(value);
+		return date != null ? date.format(DateTimeFormatter.ofPattern("dd-MM-yyyy")) : value;
+	}
+
+	private LocalDate parseFlexibleDate(String value) {
+		if (value == null || value.isBlank()) {
+			return null;
+		}
+		for (DateTimeFormatter formatter : List.of(DateTimeFormatter.ISO_LOCAL_DATE,
+				DateTimeFormatter.ofPattern("dd-MM-yyyy"), DateTimeFormatter.ofPattern("dd/MM/yyyy"))) {
+			try {
+				return LocalDate.parse(value.trim(), formatter);
+			} catch (DateTimeParseException ignored) {
+			}
+		}
+		return null;
 	}
 
 	private WebElement findRealDateInput(String fieldId) {

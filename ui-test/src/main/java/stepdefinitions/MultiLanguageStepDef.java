@@ -106,19 +106,23 @@ public class MultiLanguageStepDef {
             ExtentReportManager.logStep("Language not reflected - authentication skipped");
             return;
         }
-        ExtentReportManager.logStep("Language is reflected - proceeding with OTP authentication");
+        ExtentReportManager.logStep("Language is reflected - proceeding with authentication");
 
-        Assert.assertTrue(consentPage.clickOnLoginWithOtp(),
-                "Login with OTP was not available after the selected language was reflected");
-        String registeredNumber = EsignetUtil.getPrerequisiteRegisteredPhoneNumber();
-        Assert.assertNotNull(registeredNumber, "No registered mobile number available for OTP authentication");
-        Assert.assertFalse(registeredNumber.isBlank(), "No registered mobile number available for OTP authentication");
-        consentPage.enterRegisteredMobileNumber(registeredNumber.trim());
-        consentPage.clickOnGetOtp();
-        consentPage.enterOtp(BasePage.getOtp());
-        consentPage.clickOnVerifyButton();
+        if (EsignetUtil.isKbiOnlyLogin()) {
+            new pages.KbiPage(driver).loginWithConfiguredIdentity();
+        } else {
+            Assert.assertTrue(consentPage.clickOnLoginWithOtp(),
+                    "Login with OTP was not available after the selected language was reflected");
+            String registeredNumber = EsignetUtil.getPrerequisiteRegisteredPhoneNumber();
+            Assert.assertNotNull(registeredNumber, "No registered mobile number available for OTP authentication");
+            Assert.assertFalse(registeredNumber.isBlank(), "No registered mobile number available for OTP authentication");
+            consentPage.enterRegisteredMobileNumber(registeredNumber.trim());
+            consentPage.clickOnGetOtp();
+            consentPage.enterOtp(BasePage.getOtp());
+            consentPage.clickOnVerifyButton();
+        }
         Assert.assertTrue(consentPage.isOnAttentionScreen(),
-                "OTP authentication did not reach the consent/attention screen");
+                "Authentication did not reach the consent/attention screen");
 
         languageCookieValue = multiLanguagePage.getLanguageFromCookie();
         validateTheLanguageInCookie();

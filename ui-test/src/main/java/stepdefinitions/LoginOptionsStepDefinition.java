@@ -84,12 +84,22 @@ public class LoginOptionsStepDefinition {
 
 	@Then("verify multiple options for login is available")
 	public void verifyMultipleLoginOptions() {
+		if (EsignetUtil.isKbiOnlyLogin()) {
+			ExtentReportManager.notApplicable(
+					"multiple login options are not offered on KBI-only login");
+			return;
+		}
 		List<String> authFactors = ClaimsUtil.getRenderedAuthFactors(driver);
 		Assert.assertTrue(authFactors.size() > 1, "Expected multiple login options, but found: " + authFactors.size());
 	}
 
 	@Then("verify more ways to signIn option is available")
 	public void verifyMoreWaysToSignInOption() {
+		if (EsignetUtil.isKbiOnlyLogin()) {
+			ExtentReportManager.notApplicable(
+					"more ways to sign in is not offered on KBI-only login");
+			return;
+		}
 		List<String> authFactors = ClaimsUtil.getRenderedAuthFactors(driver);
 		Assert.assertFalse(authFactors.isEmpty(), "No auth factors were rendered on the login page");
 		boolean isMoreOptionsDisplayed = loginOptionsPage.isMoreWaysToSignInOptionDisplayed();
@@ -115,6 +125,11 @@ public class LoginOptionsStepDefinition {
 
 	@Then("authentication screen should show login options based on acr_values from url")
 	public void authenticationScreenShouldShowLoginOptionsBasedOnAuthFactorsFromUrl() throws Exception {
+		if (EsignetUtil.isKbiOnlyLogin()) {
+			ExtentReportManager.notApplicable(
+					"login-option ACR buttons are not offered on KBI-only login");
+			return;
+		}
 		List<String> authFactors = ClaimsUtil.getRenderedAuthFactors(driver);
 		Map<String, WebElement> factorMap = loginOptionsPage.getAcrToElementMap();
 

@@ -93,15 +93,137 @@ public class EsignetUtil extends AdminTestUtil {
 	private static final String sunBirdRPolicyNumber = String.valueOf(100000000 + new Random().nextInt(900000000));
 
 	public static String getSunBirdRFullName() {
+		if (isKbiOnlyLogin()) {
+			String configured = getKbiConfiguredValue("fullName", "fullname", "name");
+			if (configured != null) {
+				return configured;
+			}
+		}
 		return sunBirdRFullName;
 	}
 
 	public static String getSunBirdRDob() {
+		if (isKbiOnlyLogin()) {
+			String configured = getKbiConfiguredValue("dob", "dateOfBirth", "dateofbirth");
+			if (configured != null) {
+				return configured;
+			}
+		}
 		return sunBirdRDob;
 	}
 
 	public static String getSunBirdRPolicyNumber() {
+		if (isKbiOnlyLogin()) {
+			String configured = getKbiConfiguredValue("policyNumber", "policynumber");
+			if (configured != null) {
+				return configured;
+			}
+		}
 		return sunBirdRPolicyNumber;
+	}
+
+	public static boolean isKbiOnlyLogin() {
+		return isSunbirdAuthenticatorActive();
+	}
+
+	public static String getDefaultAcrValues() {
+		if (isKbiOnlyLogin()) {
+			return KBI_ACR_VALUE;
+		}
+		return DEFAULT_ACR_VALUES;
+	}
+
+	public static Map<String, String> getKbiLoginValuesMap() {
+		Map<String, String> values = new LinkedHashMap<>();
+		String raw = EsignetConfigManager.getProperty("kbiLoginValues", "");
+		if (raw == null || raw.isBlank()) {
+			return values;
+		}
+		for (String pair : raw.split(";")) {
+			String trimmed = pair.trim();
+			int eq = trimmed.indexOf('=');
+			if (eq <= 0) {
+				continue;
+			}
+			String key = trimmed.substring(0, eq).trim();
+			String value = trimmed.substring(eq + 1).trim();
+			if (!key.isEmpty() && !value.isEmpty()) {
+				values.put(key, value);
+			}
+		}
+		return values;
+	}
+
+	public static String getKbiConfiguredValue(String... fieldIds) {
+		Map<String, String> configured = getKbiLoginValuesMap();
+		for (String fieldId : fieldIds) {
+			if (fieldId == null || fieldId.isBlank()) {
+				continue;
+			}
+			String direct = configured.get(fieldId);
+			if (direct != null && !direct.isBlank()) {
+				return direct;
+			}
+			String normalized = normalizeKbiFieldId(fieldId);
+			for (Map.Entry<String, String> entry : configured.entrySet()) {
+				if (normalizeKbiFieldId(entry.getKey()).equals(normalized)) {
+					return entry.getValue();
+				}
+			}
+		}
+		return null;
+	}
+
+	public static String resolveKbiFieldValue(String fieldId, String label) {
+		String configured = getKbiConfiguredValue(fieldId);
+		if (configured != null) {
+			return configured;
+		}
+		String normalized = normalizeKbiFieldId(fieldId);
+		if (fieldId != null && fieldId.equals(getKbiIndividualIdField())) {
+			return getSunBirdRPolicyNumber();
+		}
+		switch (normalized) {
+		case "policynumber":
+			return getSunBirdRPolicyNumber();
+		case "policyname":
+			return getSunBirdRPolicyName();
+		case "fullname":
+		case "name":
+			return getSunBirdRFullName();
+		case "dob":
+		case "dateofbirth":
+			return getSunBirdRDob();
+		case "mobile":
+		case "phone":
+			return getSunBirdRMobile();
+		case "email":
+			return getSunBirdREmail();
+		case "gender":
+			return getSunBirdRGender();
+		default:
+			break;
+		}
+		if (label != null) {
+			String lower = label.toLowerCase(Locale.ROOT);
+			if (lower.contains("policy") && lower.contains("number")) {
+				return getSunBirdRPolicyNumber();
+			}
+			if (lower.contains("birth") || lower.contains("dob")) {
+				return getSunBirdRDob();
+			}
+			if (lower.contains("name")) {
+				return getSunBirdRFullName();
+			}
+		}
+		return null;
+	}
+
+	public static String normalizeKbiFieldId(String fieldId) {
+		if (fieldId == null) {
+			return "";
+		}
+		return fieldId.toLowerCase(Locale.ROOT).replace("_", "").replace("-", "");
 	}
 
 	private static final String SUNBIRD_R_MOBILE = "0123456789";
@@ -1907,7 +2029,7 @@ public class EsignetUtil extends AdminTestUtil {
 
 	public static String generateParRequestUri(String clientIdKey, String clientAssertionPlaceholder)
 			throws SecurityXSSException, JsonProcessingException {
-		return generateParRequestUri(clientIdKey, clientAssertionPlaceholder, DEFAULT_ACR_VALUES);
+		return generateParRequestUri(clientIdKey, clientAssertionPlaceholder, getDefaultAcrValues());
 	}
 
 	public static String generateParRequestUri(String clientIdKey, String clientAssertionPlaceholder, String acrValues)
@@ -1968,11 +2090,11 @@ public class EsignetUtil extends AdminTestUtil {
 	public static final String KBI_ACR_VALUE = "mosip:idp:acr:knowledge";
 
 	public static String generateDirectAuthorizeUrl(String clientId) throws SecurityXSSException {
-		return generateDirectAuthorizeUrl(clientId, DEFAULT_ACR_VALUES, null);
+		return generateDirectAuthorizeUrl(clientId, getDefaultAcrValues(), null);
 	}
 
 	public static String generateDirectAuthorizeUrlWithPkce(String clientId) throws SecurityXSSException {
-		return generateDirectAuthorizeUrlWithPkce(clientId, DEFAULT_ACR_VALUES, null);
+		return generateDirectAuthorizeUrlWithPkce(clientId, getDefaultAcrValues(), null);
 	}
 
 	public static String generateDirectAuthorizeUrlWithPkce(String clientId, String acrValues, String uiLocales)
@@ -2011,7 +2133,7 @@ public class EsignetUtil extends AdminTestUtil {
 		String lang = BaseTestUtil.getThreadLocalLanguage();
 		String iso = lang != null ? LanguageUtil.getIsoLanguageCode(lang) : null;
 		String uiLocales = iso != null ? iso : "en";
-		return generateDirectAuthorizeUrlWithPkce(clientId, DEFAULT_ACR_VALUES, uiLocales);
+		return generateDirectAuthorizeUrlWithPkce(clientId, getDefaultAcrValues(), uiLocales);
 	}
 
 	private static String resolveClientAssertionPlaceholder(String clientIdKey) {
@@ -2110,7 +2232,7 @@ public class EsignetUtil extends AdminTestUtil {
 		if (BasePage.authorizeScopeOnlyScenario) {
 			return generateDirectAuthorizeUrlWithoutClaims(clientId, AUTHORIZE_SCOPE_ONLY);
 		}
-		String acrValues = BasePage.authorizeAcrValues != null ? BasePage.authorizeAcrValues : DEFAULT_ACR_VALUES;
+		String acrValues = BasePage.authorizeAcrValues != null ? BasePage.authorizeAcrValues : getDefaultAcrValues();
 		String uiLocales = BasePage.authorizeUiLocales;
 		if (BasePage.authorizeRequiresPkce) {
 			return generateDirectAuthorizeUrlWithPkce(clientId, acrValues, uiLocales);
@@ -2121,7 +2243,7 @@ public class EsignetUtil extends AdminTestUtil {
 	public static String generateDirectAuthorizeUrlWithoutClaims(String clientId, String customScope)
 			throws SecurityXSSException {
 
-		return buildDirectAuthorizeUrl(clientId, customScope, false, DEFAULT_ACR_VALUES, null, true);
+		return buildDirectAuthorizeUrl(clientId, customScope, false, getDefaultAcrValues(), null, true);
 	}
 
 	private static String buildDirectAuthorizeUrl(String clientId, String requestedScope, boolean includeClaims,

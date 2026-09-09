@@ -19,6 +19,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import pages.ConsentPage;
+import pages.KbiPage;
 import pages.LoginOptionsPage;
 import pages.SignUpPage;
 import pages.SignupFormDynamicFiller;
@@ -38,6 +39,8 @@ public class ConsentStepDefinition {
 	SignUpPage signUpPage;
 	SignupFormDynamicFiller formFiller;
 	ConsentPage consentPage;
+	KbiPage kbiPage;
+	private boolean kbiLoginCompleted;
 
 	public ConsentStepDefinition(BaseTest baseTest) {
 		this.driver = baseTest.getDriver();
@@ -45,6 +48,7 @@ public class ConsentStepDefinition {
 		signUpPage = new SignUpPage(driver);
 		formFiller = new SignupFormDynamicFiller(driver);
 		consentPage = new ConsentPage(driver);
+		kbiPage = new KbiPage(driver);
 	}
 
 	private boolean reLoginPageUnreachableUnderMockPlugin;
@@ -157,8 +161,31 @@ public class ConsentStepDefinition {
 
 	private String expectedDefaultLang;
 
+	private boolean skipOtpLoginStepsWhenKbiOnly(String description) {
+		if (!EsignetUtil.isKbiOnlyLogin()) {
+			return false;
+		}
+		logger.info("Skipping OTP step on KBI-only login: " + description);
+		ExtentReportManager.notApplicable(description + " is not used on KBI-only login");
+		return true;
+	}
+
+	private void loginWithKbiIfNeeded() {
+		if (kbiLoginCompleted || consentPage.isOnAttentionScreen()) {
+			kbiLoginCompleted = true;
+			return;
+		}
+		kbiPage.loginWithConfiguredIdentity();
+		consentPage.isOnAttentionScreen(30);
+		kbiLoginCompleted = true;
+	}
+
 	@Then("user click on Login with Otp")
 	public void clickOnLoginWithOtp() {
+		if (EsignetUtil.isKbiOnlyLogin()) {
+			loginWithKbiIfNeeded();
+			return;
+		}
 		if (notApplicableForReLoginUnderMockPlugin()) {
 			return;
 		}
@@ -190,6 +217,9 @@ public class ConsentStepDefinition {
 
 	@Then("user enters Registered mobile number into the mobile number field")
 	public void userEntersRegisteredMobileNumber() {
+		if (skipOtpLoginStepsWhenKbiOnly("entering registered mobile number")) {
+			return;
+		}
 		if (notApplicableForReLoginUnderMockPlugin()) {
 			return;
 		}
@@ -235,6 +265,9 @@ public class ConsentStepDefinition {
 
 	@Then("user click on get otp button")
 	public void userClickOnGetOtpBtn() {
+		if (skipOtpLoginStepsWhenKbiOnly("clicking get OTP")) {
+			return;
+		}
 		if (notApplicableForReLoginUnderMockPlugin()) {
 			return;
 		}
@@ -243,6 +276,9 @@ public class ConsentStepDefinition {
 
 	@Then("user enters the correct otp")
 	public void userEnterCorrectOtp() {
+		if (skipOtpLoginStepsWhenKbiOnly("entering OTP")) {
+			return;
+		}
 		if (notApplicableForReLoginUnderMockPlugin()) {
 			return;
 		}
@@ -251,6 +287,9 @@ public class ConsentStepDefinition {
 
 	@Then("click on verify Otp button")
 	public void userClickOnVerifyOtpBtn() {
+		if (skipOtpLoginStepsWhenKbiOnly("verifying OTP")) {
+			return;
+		}
 		if (notApplicableForReLoginUnderMockPlugin()) {
 			return;
 		}

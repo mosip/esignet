@@ -224,9 +224,19 @@ public class BasePage {
 		if (url != null && (url.contains("authorize") || (url.contains("/login") && url.contains("esignet")))) {
 			return true;
 		}
-		return !webDriver.findElements(By.cssSelector("[id^='acr_']")).isEmpty()
+		boolean landed = !webDriver.findElements(By.cssSelector("[id^='acr_']")).isEmpty()
 				|| !webDriver.findElements(By.id("login_id_uin")).isEmpty()
 				|| !webDriver.findElements(By.id("login_id_mobile")).isEmpty();
+		if (landed) {
+			return true;
+		}
+		if (!EsignetUtil.isKbiOnlyLogin()) {
+			return false;
+		}
+		return (url != null && url.contains("/signin"))
+				|| !webDriver.findElements(By.id("form-submit-button")).isEmpty()
+				|| !webDriver.findElements(By.cssSelector("#policyNumber, #fullName, #dob, [name='policyNumber']"))
+						.isEmpty();
 	}
 
 	protected boolean waitForEsignetLoginLanding(int timeoutSeconds) {

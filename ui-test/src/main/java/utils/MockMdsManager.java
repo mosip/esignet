@@ -63,7 +63,17 @@ public final class MockMdsManager {
 			throw new IllegalStateException("useMockMds must be true to start Mock MDS for biometric scan");
 		}
 
+		if (running && verifyDeviceDiscoveryOnLocalhost()) {
+			LOGGER.info("Reusing Mock MDS already running on port " + activePort);
+			return;
+		}
+
 		stopAll();
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
 		resetMockSbiPropertyCache();
 		startForAuth(true);
 	}

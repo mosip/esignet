@@ -124,6 +124,9 @@ public class ClaimsUtil {
 		if (factors.isEmpty() && !driver.findElements(By.id("username_input")).isEmpty()) {
 			factors.add("SINGLE_FACTOR");
 		}
+		if (factors.isEmpty() && EsignetUtil.isKbiOnlyLogin()) {
+			factors.add("KBI");
+		}
 		return factors;
 	}
 
