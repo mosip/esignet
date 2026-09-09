@@ -15,6 +15,10 @@ The Authn Provider is the bridge between eSignet and an identity system. It auth
 - Fetch verified user attributes (KYC) for the claims the user consented to
 - Return data to eSignet in the agreed structure below
 
+The two main calls the engine makes into an Authn Provider — **KYC Auth** (`Authenticate`) and **KYC Exchange** (`GetAttributes`) — are depicted below, end to end from the individual's credentials through to the relying party receiving tokens and claims:
+
+![Authn Provider KYC Auth / KYC Exchange sequence](diagrams/authn-provider-sequence.png)
+
 ## Who should implement this interface
 
 Any organization — public or private — that wants to connect its own identity system to eSignet implements this interface. The identity system behind it can be anything from a single database table to a full national identity registry; eSignet only depends on the Go interface, not on how the identity system itself is built.
@@ -56,7 +60,7 @@ type AuthnProviderInterface interface {
 }
 ```
 
-So a full implementation has eight methods: `SendOTP`, `Authenticate`, `GetEntityReference`, `GetAttributes`, `GetSigningCertificates`, plus `InitiateAuthentication`, `InitiateEnrollment`, and `Enroll` (see [Passkey/WebAuthn-only methods](#passkeywebauthn-only-methods) — these last three can be safely stubbed out for OTP/password/biometric/KBI-style identity systems).
+So a full implementation has eight methods: `SendOTP`, `Authenticate`, `GetEntityReference`, `GetAttributes`, `GetSigningCertificates`, plus `InitiateAuthentication`, `InitiateEnrollment`, and `Enroll`. Those last three exist only for the engine's built-in passkey/WebAuthn executor, which none of eSignet's shipped flows use — all three built-in providers implement them as no-ops (see [`internal/engine/mock/authenticator.go`](../esignet-service/internal/engine/mock/authenticator.go), lines 176-189), so you can safely stub them out too unless you add a flow that exercises that path.
 
 ### Supporting types
 
@@ -150,10 +154,6 @@ SendOTP           →  Authenticate        →  GetEntityReference   →  GetAtt
 2. **`Authenticate`** — called once the user submits their credential. Verify it against the identity system and return an `AuthnResult`. For each of the entity reference and the attributes, `AuthnResult` accepts *either* an opaque token (`EntityReferenceToken`/`AttributeToken` — a session ID, a KYC token, anything only your provider needs to understand) *or* the resolved value directly (`EntityReference`/`Attributes`) — the two are mutually exclusive per field.
 3. **`GetEntityReference`** — the engine calls this **only if** you returned `EntityReferenceToken` (non-nil) from `Authenticate`, passing that token back to resolve the stable identifier used as the OIDC `sub` claim. If you returned `EntityReference` directly instead, the engine skips calling this method entirely and passes your value through as-is.
 4. **`GetAttributes`** — likewise, the engine calls this **only if** you returned `AttributeToken` (non-nil); it's called after the user has given consent, with that token and the `RequestedAttributes` the user actually consented to (a subset of what the relying party asked for). Fetch and return those claims via `AttributesResponse.Attributes`; if your identity system also supports verified/attested claims, honor `RequestedAttributes.Verifications` and populate `AttributesResponse.Verifications` to match. If you returned `Attributes` directly from `Authenticate` instead of a token, the engine skips this call and passes that value through unchanged.
-
-### Passkey/WebAuthn-only methods
-
-`InitiateAuthentication`, `InitiateEnrollment`, and `Enroll` exist for the engine's built-in passkey/WebAuthn executor. None of eSignet's shipped flows use them — all three built-in providers implement them as three-line no-ops returning `nil, nil` (see [`internal/engine/mock/authenticator.go`](../esignet-service/internal/engine/mock/authenticator.go), lines 176-189, for the exact shape). Implement them for real only if you add a flow that exercises the engine's passkey/WebAuthn path.
 
 ## Configuration
 

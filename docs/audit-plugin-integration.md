@@ -76,42 +76,7 @@ return authnProvider, shared.NewNoopAuditor(), nil
 
 ### MOSIP audit-manager auditor
 
-`mosip.NewAuditor(...)` ([`internal/engine/mosip/auditor.go`](../esignet-service/internal/engine/mosip/auditor.go)) is the reference implementation of a real external sink — it maps each `Event` onto a MOSIP `mosip-audit-manager` record (`AuditRequest`, defined in [`internal/engine/mosip/model.go`](../esignet-service/internal/engine/mosip/model.go)) and posts it over HTTP. Used only when `MOSIP_ESIGNET_AUTHN_PROVIDER=mosip`.
-
-**Event → audit record mapping** (see `AuditRequest` in `model.go` for the exact field/JSON-tag list):
-
-| `AuditRequest` field | Derived from |
-|---|---|
-| `EventID`, `EventName` | `evt.Type` |
-| `EventType` | `"SUCCESS"` / `"ERROR"` / `strings.ToUpper(evt.Status)` |
-| `ActionTimeStamp` | `evt.Timestamp`, UTC, `2006-01-02T15:04:05.000Z` |
-| `HostName`, `HostIP` | `os.Hostname()` (falls back to `"localhost"`) |
-| `ApplicationID`, `ApplicationName` | fixed `"eSignet"` |
-| `SessionUserID`, `SessionUserName` | `evt.Data["user_id"]` or `["username"]`, else `"no-user"` |
-| `ID` | `evt.Data["execution_id"]` |
-| `ModuleName`, `ModuleID` | `evt.Component` |
-| `Description` | JSON of a fixed subset of `evt.Data`: `client_id`, `flow_type`, `app_id`, `error`, `duration_ms`, `redirect_to`, `failed_step`, `node_id` |
-
-**Publishing behavior:**
-
-- `PublishEvent` is fire-and-forget: it launches a goroutine per event, derived from `context.Background()` (not the triggering request's context, since the audit post must outlive that request) with a 15-second timeout, and carries the original trace ID forward so log lines still correlate.
-- The record is POSTed to the configured audit-manager URL as `{"id": "ida", "requesttime": "<UTC ISO-8601>", "request": <AuditRequest>}` (the lowercase `requesttime` key is the actual wire format — see `AuditRequestWrapper` in `model.go`), with an `Authorization` cookie carrying a token obtained from MOSIP's authmanager (client-credentials style: client ID + secret + app ID) — see [`internal/engine/mosip/utils.go`](../esignet-service/internal/engine/mosip/utils.go) for the token-caching `tokenProvider`.
-- On a `401`/`403` response the cached auth token is purged and the post is retried once with a freshly fetched token.
-- Any other non-2xx response, or a transport failure, is logged and otherwise swallowed — a failed audit post never fails the authentication flow that triggered it.
-- The shared `*http.Client` (`config.NewHTTPClient`) sets no `CheckRedirect`, so it follows redirects with Go's default policy: sensitive headers are stripped when the redirect target's *host* differs from the original, but that check is host-only — a same-host `https://` → `http://` redirect would still carry the `Authorization` cookie onto a cleartext connection. This is only reachable if the configured audit-manager URL is compromised or intentionally set up with such a redirect, but it means the URL scheme has to be trusted, not just the hostname.
-
-**Environment variables** (read by `mosip.LoadConfig()`, `esignet-service/internal/engine/mosip/config.go`):
-
-| Variable | Default | Purpose |
-|---|---|---|
-| `MOSIP_ESIGNET_AUTHENTICATOR_IDA_AUDIT_MANAGER_URL` | `<MOSIP_API_INTERNAL_HOST>/v1/auditmanager/audits` | Audit-manager ingestion endpoint |
-| `MOSIP_ESIGNET_AUTHENTICATOR_IDA_AUTH_TOKEN_URL` | `<MOSIP_API_INTERNAL_HOST>/v1/authmanager/authenticate/clientidsecretkey` | authmanager token endpoint |
-| `MOSIP_ESIGNET_AUTHENTICATOR_IDA_CLIENT_ID` | `mosip-ida-client` | authmanager client id |
-| `MOSIP_IDA_CLIENT_SECRET` | *(required, no default)* | authmanager client secret |
-| `MOSIP_ESIGNET_AUTHENTICATOR_IDA_APP_ID` | `ida` | authmanager app id |
-| `MOSIP_API_INTERNAL_HOST` | *(required, no default)* | Base URL the defaults above derive from |
-
-`mosip.LoadConfig()` does not validate the URL scheme of `AUTH_TOKEN_URL` or `AUDIT_MANAGER_URL` — both requests carry credentials (the client secret, and the resulting `Authorization` cookie), so deployments must set these to `https://` endpoints with certificate verification themselves; a misconfigured `http://` value will not be rejected.
+`mosip.NewAuditor(...)` ([`internal/engine/mosip/auditor.go`](../esignet-service/internal/engine/mosip/auditor.go)) is the reference implementation of a real external sink — it maps each `Event` onto a MOSIP `mosip-audit-manager` record (`AuditRequest`, defined in [`internal/engine/mosip/model.go`](../esignet-service/internal/engine/mosip/model.go)) and posts it asynchronously over HTTP, authenticating against MOSIP's authmanager. Used only when `MOSIP_ESIGNET_AUTHN_PROVIDER=mosip`, and configured via `mosip.LoadConfig()` ([`internal/engine/mosip/config.go`](../esignet-service/internal/engine/mosip/config.go)). See those two files' doc comments for the exact event-to-record field mapping, retry/error handling, and environment variables — details here would drift out of sync with the code.
 
 ## How to implement your own audit plugin
 
