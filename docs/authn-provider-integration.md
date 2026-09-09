@@ -15,7 +15,7 @@ The Authn Provider is the bridge between eSignet and an identity system. It auth
 - Fetch verified user attributes (KYC) for the claims the user consented to
 - Return data to eSignet in the agreed structure below
 
-The two main calls the engine makes into an Authn Provider — **KYC Auth** (`Authenticate`) and **KYC Exchange** (`GetAttributes`) — are depicted below, end to end from the individual's credentials through to the relying party receiving tokens and claims:
+The two main calls the engine makes into an Authn Provider — **KYC Auth** (`Authenticate`, followed by `GetEntityReference` if you returned a token rather than the resolved value directly) and **KYC Exchange** (`GetAttributes`) — are depicted below, end to end from the individual's credentials through to the relying party receiving tokens and claims:
 
 ![Authn Provider KYC Auth / KYC Exchange sequence](diagrams/authn-provider-sequence.png)
 
