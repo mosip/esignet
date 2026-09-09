@@ -10,9 +10,12 @@ A Go service that embeds the ThunderID authorization engine with PostgreSQL-back
 - Bash (Git Bash on Windows) to run `make.sh`
 - OpenSSL (for local TLS signing-key generation; bundled with Git Bash)
 - PostgreSQL 14+ (client management persistence, and keymanager's key/certificate store)
-- Redis 6.0+ (runtime / session store; requires `KEEPTTL` support)
+- Redis 6.2+ (runtime / session store; requires `GETDEL` and `KEEPTTL` support)
 - A C toolchain (gcc) for `CGO_ENABLED=1` builds — required for the PKCS#11 (HSM/SoftHSM2) keymanager keystore backend; the default `CGO_ENABLED=0` local build only supports the PKCS#12 backend (see [Key management](#key-management-keymanager))
 - Network access to fetch the Thunder backend module (see `go.mod` `replace` directive)
+
+The runtime store's `Take` operation uses [`GETDEL`](https://redis.io/docs/latest/commands/getdel/)
+to retrieve and delete an entry atomically. This command requires Redis 6.2.0 or later.
 
 ## Repository layout
 
@@ -460,7 +463,7 @@ The collection lives in [`postman-collection/`](../postman-collection/README.md)
 3. Run **Client Management → Create client** — its pre-request script generates a fresh RSA key and `clientId` entirely inside Postman, no external tooling needed.
 4. Run one of the numbered OAuth flow folders (1 — MOSIP OTP, 2 — MOSIP Credentials, 3 — MOSIP FAPI2) top to bottom.
 
-Folders 1 and 2 require `MOSIP_ESIGNET_AUTHN_PROVIDER=mosip` and MOSIP variables (see `.env.example`); folder 3 additionally requires Redis 6.0+ (PAR storage) and a client registered with `require_pushed_authorization_requests`/`dpop_bound_access_tokens`. See the [collection README](../postman-collection/README.md) for the full per-folder breakdown.
+Folders 1 and 2 require `MOSIP_ESIGNET_AUTHN_PROVIDER=mosip` and MOSIP variables (see `.env.example`); folder 3 additionally requires Redis 6.2+ (PAR storage) and a client registered with `require_pushed_authorization_requests`/`dpop_bound_access_tokens`. See the [collection README](../postman-collection/README.md) for the full per-folder breakdown.
 
 ## OAuth
 
