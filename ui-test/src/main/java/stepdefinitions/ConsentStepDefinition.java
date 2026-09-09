@@ -18,7 +18,6 @@ import base.BaseTest;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import io.mosip.testrig.apirig.utils.NotificationListener;
 import pages.ConsentPage;
 import pages.LoginOptionsPage;
 import pages.SignUpPage;
@@ -127,16 +126,6 @@ public class ConsentStepDefinition {
 	@When("user enters the OTP")
 	public void userEnterOtp() {
 		signUpPage.enterOtp(BasePage.getOtp(RegisteredDetails.getMobileNumber()));
-	}
-
-	@Then("mark otp request timestamp")
-	public void markOtpRequestTimestamp() {
-		NotificationListener.markRequestStart();
-	}
-
-	@Then("remove otp request timestamp")
-	public void removeOtpRequestTimestamp() {
-		NotificationListener.markRequestRemove();
 	}
 
 	@Then("user clicks on the Verify OTP button")
@@ -929,6 +918,11 @@ public class ConsentStepDefinition {
 	@Then("verify consent is stored in consent table with psu token and json consent")
 	public void verifyConsentIsStoredInConsentTableWithPsuTokenAndJsonConsent() {
 		ConsentDbUtil.assertConsentStoredWithPsuToken(ConsentDbUtil.PRIMARY_CLIENT_ID_KEY);
+	}
+
+	@Then("verify accepted claims are empty in consent table")
+	public void verifyAcceptedClaimsAreEmptyInConsentTable() {
+		ConsentDbUtil.assertAcceptedClaimsEmpty(ConsentDbUtil.PRIMARY_CLIENT_ID_KEY);
 	}
 
 	@When("user relaunches esignet authorize url for secondary portal")

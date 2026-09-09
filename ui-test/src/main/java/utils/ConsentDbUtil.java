@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.Optional;
 
 import org.apache.log4j.Logger;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.testng.SkipException;
 
@@ -80,6 +81,40 @@ public final class ConsentDbUtil {
 					"consent_detail.claims is not valid JSON for clientId=" + clientId + ": " + record.claims(), e);
 		}
 		logger.info("Verified consent_detail row for clientId=" + clientId + " with psu_token present and claims JSON");
+	}
+
+	public static void assertAcceptedClaimsEmpty(String clientIdKey) {
+		requireDbConfigured();
+		String clientId = EsignetUtil.resolveClientId(clientIdKey);
+		ConsentRecord record = findLatestByClientId(clientId)
+				.orElseThrow(() -> new AssertionError("No consent_detail row found for clientId=" + clientId));
+		if (!isAcceptedClaimsEmpty(record.acceptedClaims())) {
+			throw new AssertionError(
+					"consent_detail.accepted_claims should be empty after declining optional claims for clientId="
+							+ clientId + " but was: " + record.acceptedClaims());
+		}
+		logger.info("Verified consent_detail.accepted_claims is empty for clientId=" + clientId);
+	}
+
+	private static boolean isAcceptedClaimsEmpty(String acceptedClaims) {
+		if (acceptedClaims == null || acceptedClaims.isBlank()) {
+			return true;
+		}
+		String trimmed = acceptedClaims.trim();
+		if ("[]".equals(trimmed) || "{}".equals(trimmed) || "null".equalsIgnoreCase(trimmed)) {
+			return true;
+		}
+		try {
+			if (trimmed.startsWith("[")) {
+				return new JSONArray(trimmed).length() == 0;
+			}
+			if (trimmed.startsWith("{")) {
+				return new JSONObject(trimmed).length() == 0;
+			}
+		} catch (Exception e) {
+			return false;
+		}
+		return false;
 	}
 
 	private static String resolveDbUrl() {

@@ -8,7 +8,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -415,23 +417,24 @@ public final class MockMdsManager {
 	}
 
 	private static String bundledDevicePartnerP12Name() {
-		return "mosipid".equalsIgnoreCase(EsignetUtil.getPluginName())
-				? "device-dsk-partner-mosipid.p12"
-				: "device-dsk-partner.p12";
+		return "device-dsk-partner.p12";
 	}
 
 	private static Path findBundledDevicePartnerP12() {
-		String fileName = bundledDevicePartnerP12Name();
-		String[] relativePaths = {
-				"certs/" + fileName,
-				"../certs/" + fileName,
-				fileName
-		};
+		List<String> fileNames = new ArrayList<>();
+		if ("mosipid".equalsIgnoreCase(EsignetUtil.getPluginName())) {
+			// Optional local/secret-store overlay; not tracked in git.
+			fileNames.add("device-dsk-partner-mosipid.p12");
+		}
+		fileNames.add("device-dsk-partner.p12");
+		String[] relativeDirs = { "certs/", "../certs/", "" };
 		Path cwd = Paths.get(System.getProperty("user.dir"));
-		for (String relative : relativePaths) {
-			Path candidate = cwd.resolve(relative).normalize();
-			if (Files.isRegularFile(candidate)) {
-				return candidate;
+		for (String fileName : fileNames) {
+			for (String relativeDir : relativeDirs) {
+				Path candidate = cwd.resolve(relativeDir + fileName).normalize();
+				if (Files.isRegularFile(candidate)) {
+					return candidate;
+				}
 			}
 		}
 		return null;

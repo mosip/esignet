@@ -221,7 +221,6 @@
 				<targetPath>certs</targetPath>
 				<includes>
 					<include>device-dsk-partner.p12</include>
-					<include>device-dsk-partner-mosipid.p12</include>
 				</includes>
 			</resource>
 			<resource>

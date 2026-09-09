@@ -59,4 +59,4 @@ fi
 EXTRA=( ${JAVA_EXTRA_OPTS:-} )
 
 echo "Starting ${JAR}"
-exec java "${EXTRA[@]}" "${JAVA_ARGS[@]}" -jar "${JAR}"
+exec java "${JAVA_ARGS[@]}" "${EXTRA[@]}" -jar "${JAR}"

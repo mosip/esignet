@@ -76,7 +76,6 @@ public class Runner extends AbstractTestNGCucumberTests {
 	public Object[][] scenarios() {
 		int threadCount = Integer.parseInt(EsignetConfigManager.getproperty("threadCount"));
 
-		System.out.println("Executing with thread count: " + threadCount);
 		LOGGER.info("Executing DataProvider with thread count: " + threadCount);
 
 		System.setProperty("dataproviderthreadcount", String.valueOf(threadCount));
@@ -368,7 +367,7 @@ public class Runner extends AbstractTestNGCucumberTests {
 
 		if (suitesToRun.isEmpty()) {
 			LOGGER.severe("No TestNG suite files found in directory: " + homeDir);
-			return;
+			throw new IllegalStateException("No TestNG suite files found in directory: " + homeDir);
 		}
 
 		for (File file : suitesToRun) {

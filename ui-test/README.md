@@ -101,7 +101,7 @@ The plugin is **auto-detected** from the eSignet server's actuator (`EsignetUtil
 
 Prerequisites specific to one plugin are skipped for the others automatically (`EsignetUtil.isTestCaseValidForExecution`), so the same `esignetPrerequisiteSuite.xml` runs unmodified regardless of which plugin the server turns out to be.
 
-Mock MDS biometric login uses `certs/device-dsk-partner.p12` under `mock` and `certs/device-dsk-partner-mosipid.p12` under `mosipid`. Both are copied at runtime to `device-dsk-partner.p12` because Mock SBI expects that filename.
+Mock MDS biometric login uses the tracked Mock SBI fixture `certs/device-dsk-partner.p12` (copied at runtime to `device-dsk-partner.p12` because Mock SBI expects that filename). For mosipid, supply a deployment-specific keystore outside git via `mdsP12Path` or a local `certs/device-dsk-partner-mosipid.p12`; otherwise the same fixture is used.
 
 ## 🪪 Login identity sourcing
 

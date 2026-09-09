@@ -1452,7 +1452,7 @@ public class EsignetUtil extends AdminTestUtil {
 		try {
 			Response response = RestClient.getRequest(url, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
 			esignetDiscoveryDocument = new JSONObject(response.getBody().asString());
-		} catch (Throwable e) {
+		} catch (Exception e) {
 			logger.warn("Could not fetch/parse the eSignet discovery document from " + url
 					+ " - assuming PAR is not supported/required. Check esignetWellKnownEndPoint in config. "
 					+ "Cause: " + e.getMessage());

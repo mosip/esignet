@@ -634,7 +634,7 @@ public class BasePage {
 
 	public List<String> getClaims(String type) {
 		if (authorizeUrl == null) {
-			System.out.println("Authorize URL not set.");
+			LOGGER.warn("Authorize URL not set.");
 			return Collections.emptyList();
 		}
 
@@ -731,17 +731,18 @@ public class BasePage {
 			throw new IllegalStateException(
 					"Cannot fetch OTP from SMTP: set emailLoginId or uinPhoneNumber in config.properties");
 		}
+		String recipientType = address.contains("@") ? "email" : "phone";
 		try {
-			LOGGER.info("Fetching OTP from SMTP for recipient {}", address);
+			LOGGER.info("Fetching OTP from SMTP for recipient type {}", recipientType);
 			try {
-				ExtentReportManager.getTest().log(Status.INFO, "Fetching OTP from SMTP for recipient " + address);
-			} catch (Exception ignored) {
-				// Report may not be initialized outside a scenario.
+				ExtentReportManager.getTest().log(Status.INFO,
+						"Fetching OTP from SMTP for recipient type " + recipientType);
+			} catch (Exception e) {
+				LOGGER.debug("Could not write OTP message to the Extent report", e);
 			}
 			String otp = NotificationListener.getOtp(address);
 			if (otp == null || otp.isBlank()) {
-				throw new IllegalStateException("No OTP received from SMTP ("
-						+ EsignetConfigManager.getproperty("smtpURL") + ") for recipient " + address);
+				throw new IllegalStateException("No OTP received from SMTP for recipient type " + recipientType);
 			}
 			return otp;
 		} finally {
@@ -753,8 +754,8 @@ public class BasePage {
 		LOGGER.info("Using hardcoded mock-plugin OTP {}", MOCK_PLUGIN_OTP);
 		try {
 			ExtentReportManager.getTest().log(Status.INFO, "Using hardcoded mock-plugin OTP " + MOCK_PLUGIN_OTP);
-		} catch (Exception ignored) {
-			// Report may not be initialized outside a scenario.
+		} catch (Exception e) {
+			LOGGER.debug("Could not write OTP message to the Extent report", e);
 		}
 		return MOCK_PLUGIN_OTP;
 	}
