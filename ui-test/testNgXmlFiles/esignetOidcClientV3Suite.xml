@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+
+<suite name="Esignet OIDC Client V3">
+
+	<test name="OIDCClientV3MOCK">
+		<parameter name="ymlFile"
+				value="esignetUI/CreateClientMock/CreateOIDCClient.yml" />
+		<parameter name="idKeyName" value="clientId" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignetUI.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+
+</suite>

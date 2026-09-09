@@ -295,16 +295,13 @@ public final class MockMdsManager {
 
 	private static void ensureDevicePartnerP12AtWorkingDirectory() {
 		Path cwdP12 = Paths.get(System.getProperty("user.dir"), "device-dsk-partner.p12");
-		if (Files.isRegularFile(cwdP12)) {
-			return;
-		}
 		Path bundled = findBundledDevicePartnerP12();
 		if (bundled == null) {
 			return;
 		}
 		try {
 			Files.copy(bundled, cwdP12, StandardCopyOption.REPLACE_EXISTING);
-			LOGGER.info("Copied device-dsk-partner.p12 to " + cwdP12);
+			LOGGER.info("Copied " + bundled.getFileName() + " to " + cwdP12);
 		} catch (IOException e) {
 			LOGGER.warning("Could not copy device-dsk-partner.p12 to working directory: " + e.getMessage());
 		}
@@ -417,11 +414,18 @@ public final class MockMdsManager {
 		}
 	}
 
+	private static String bundledDevicePartnerP12Name() {
+		return "mosipid".equalsIgnoreCase(EsignetUtil.getPluginName())
+				? "device-dsk-partner-mosipid.p12"
+				: "device-dsk-partner.p12";
+	}
+
 	private static Path findBundledDevicePartnerP12() {
+		String fileName = bundledDevicePartnerP12Name();
 		String[] relativePaths = {
-				"certs/device-dsk-partner.p12",
-				"../certs/device-dsk-partner.p12",
-				"device-dsk-partner.p12"
+				"certs/" + fileName,
+				"../certs/" + fileName,
+				fileName
 		};
 		Path cwd = Paths.get(System.getProperty("user.dir"));
 		for (String relative : relativePaths) {
@@ -468,7 +472,8 @@ public final class MockMdsManager {
 			projectP12 = Paths.get(System.getProperty("user.dir"), "device-dsk-partner.p12");
 		}
 		if (!Files.isRegularFile(projectP12)) {
-			LOGGER.warning("device-dsk-partner.p12 not found under ui-test/certs or " + System.getProperty("user.dir"));
+			LOGGER.warning(bundledDevicePartnerP12Name() + " not found under ui-test/certs or "
+					+ System.getProperty("user.dir"));
 			return;
 		}
 		try {
@@ -476,10 +481,8 @@ public final class MockMdsManager {
 			Path targetDir = Paths.get(keysDir);
 			Files.createDirectories(targetDir);
 			Path targetP12 = targetDir.resolve("device-dsk-partner.p12");
-			if (!Files.isRegularFile(targetP12)) {
-				Files.copy(projectP12, targetP12, StandardCopyOption.REPLACE_EXISTING);
-				LOGGER.info("Copied device-dsk-partner.p12 to " + targetP12);
-			}
+			Files.copy(projectP12, targetP12, StandardCopyOption.REPLACE_EXISTING);
+			LOGGER.info("Copied " + projectP12.getFileName() + " to " + targetP12);
 		} catch (Exception e) {
 			LOGGER.warning("Could not copy device-dsk-partner.p12 to AUTHCERTS: " + e.getMessage());
 		}

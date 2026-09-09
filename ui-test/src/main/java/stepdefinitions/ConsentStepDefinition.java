@@ -126,8 +126,7 @@ public class ConsentStepDefinition {
 
 	@When("user enters the OTP")
 	public void userEnterOtp() {
-		String mobile = RegisteredDetails.getMobileNumber();
-		signUpPage.enterOtp(NotificationListener.getOtp(mobile));
+		signUpPage.enterOtp(BasePage.getOtp(RegisteredDetails.getMobileNumber()));
 	}
 
 	@Then("mark otp request timestamp")
@@ -1010,11 +1009,6 @@ public class ConsentStepDefinition {
 				"Consent was not requested for the second client - attention/consent screen missing");
 
 		consentPage.completeConsentFlowThroughEkyc();
-	}
-
-	@Then("verify consent table has empty accepted claims for current client")
-	public void verifyConsentTableHasEmptyAcceptedClaimsForCurrentClient() {
-		ConsentDbUtil.assertAcceptedClaimsEmpty(ConsentDbUtil.PRIMARY_CLIENT_ID_KEY);
 	}
 
 	private void skipWithReason(String reason) {

@@ -968,6 +968,7 @@ public class LoginOptionsPage extends BasePage {
 	public void clickOnPasswordLoginButton() {
 		syncPasswordLoginFieldsBeforeSubmit();
 		solveRecaptchaIfPresent();
+		markOtpRequestStart();
 		clickOnElement(findPasswordLoginButton(), "Clicked on password login button");
 		try {
 			waitForPasswordAuthenticationOutcome();

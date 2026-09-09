@@ -31,14 +31,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.aventstack.extentreports.Status;
+
+import io.mosip.testrig.apirig.utils.AdminTestUtil;
+import io.mosip.testrig.apirig.utils.NotificationListener;
 import utils.ClaimsUtil;
 import utils.EsignetConfigManager;
+import utils.EsignetUtil;
 import utils.ExtentReportManager;
 import utils.WaitUtil;
 
 public class BasePage {
 	protected WebDriver driver;
 	private static final Logger LOGGER = LoggerFactory.getLogger(BasePage.class);
+	/** Mock-identity-system always issues this OTP; not configurable. */
+	private static final String MOCK_PLUGIN_OTP = "111111";
 
 	public BasePage(WebDriver driver) {
 		this.driver = driver;
@@ -698,9 +704,78 @@ public class BasePage {
 		}
 	}
 
+	/** Watermark SMTP messages from this moment so {@link #getOtp()} ignores older OTPs. */
+	public static void markOtpRequestStart() {
+		NotificationListener.markRequestStart();
+	}
+
+	/**
+	 * Under {@code pluginToExecute=mock} (or actuator-detected mock), always
+	 * {@value #MOCK_PLUGIN_OTP} — independent of {@code usePreConfiguredOtp} /
+	 * {@code preconfiguredOtp}. Otherwise OTP is taken from mock SMTP
+	 * ({@code smtpURL}), keyed by {@link EsignetUtil#getOtpNotificationAddress()}.
+	 */
 	public static String getOtp() {
-		String otp = "111111";
-		return otp;
+		if (EsignetUtil.isMockPlugin()) {
+			return mockPluginOtp();
+		}
+		return getOtp(EsignetUtil.getOtpNotificationAddress());
+	}
+
+	public static String getOtp(String address) {
+		if (EsignetUtil.isMockPlugin()) {
+			return mockPluginOtp();
+		}
+		ensureSmtpOtpPollTimeout();
+		if (address == null || address.isBlank()) {
+			throw new IllegalStateException(
+					"Cannot fetch OTP from SMTP: set emailLoginId or uinPhoneNumber in config.properties");
+		}
+		try {
+			LOGGER.info("Fetching OTP from SMTP for recipient {}", address);
+			try {
+				ExtentReportManager.getTest().log(Status.INFO, "Fetching OTP from SMTP for recipient " + address);
+			} catch (Exception ignored) {
+				// Report may not be initialized outside a scenario.
+			}
+			String otp = NotificationListener.getOtp(address);
+			if (otp == null || otp.isBlank()) {
+				throw new IllegalStateException("No OTP received from SMTP ("
+						+ EsignetConfigManager.getproperty("smtpURL") + ") for recipient " + address);
+			}
+			return otp;
+		} finally {
+			NotificationListener.markRequestRemove();
+		}
+	}
+
+	private static String mockPluginOtp() {
+		LOGGER.info("Using hardcoded mock-plugin OTP {}", MOCK_PLUGIN_OTP);
+		try {
+			ExtentReportManager.getTest().log(Status.INFO, "Using hardcoded mock-plugin OTP " + MOCK_PLUGIN_OTP);
+		} catch (Exception ignored) {
+			// Report may not be initialized outside a scenario.
+		}
+		return MOCK_PLUGIN_OTP;
+	}
+
+	/**
+	 * {@code NotificationListener} waits {@link AdminTestUtil#getOtpExpTimeFromActuator()}
+	 * seconds, which {@code Integer.parseInt}s an empty string when IDA actuator is
+	 * down (Thunder). Seed the timeout from {@code otpExpirySeconds} first.
+	 */
+	private static void ensureSmtpOtpPollTimeout() {
+		String configured = EsignetConfigManager.getProperty("otpExpirySeconds", "120");
+		try {
+			java.lang.reflect.Field field = AdminTestUtil.class.getDeclaredField("otpExpTime");
+			field.setAccessible(true);
+			Object current = field.get(null);
+			if (current == null || current.toString().isBlank()) {
+				field.set(null, configured);
+			}
+		} catch (ReflectiveOperationException e) {
+			LOGGER.warn("Could not seed SMTP OTP poll timeout: {}", e.getMessage());
+		}
 	}
 
 }

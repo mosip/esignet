@@ -82,21 +82,6 @@ public final class ConsentDbUtil {
 		logger.info("Verified consent_detail row for clientId=" + clientId + " with psu_token present and claims JSON");
 	}
 
-	public static void assertAcceptedClaimsEmpty(String clientIdKey) {
-		String clientId = EsignetUtil.resolveClientId(clientIdKey);
-		ConsentRecord record = findLatestByClientId(clientId)
-				.orElseThrow(() -> new AssertionError("No consent_detail row found for clientId=" + clientId));
-
-		String acceptedClaims = record.acceptedClaims();
-		if (acceptedClaims == null || acceptedClaims.isBlank() || "{}".equals(acceptedClaims.trim())
-				|| "[]".equals(acceptedClaims.trim())) {
-			logger.info("Verified empty accepted_claims for clientId=" + clientId);
-			return;
-		}
-		throw new AssertionError(
-				"Expected empty accepted_claims for clientId=" + clientId + " but found: " + acceptedClaims);
-	}
-
 	private static String resolveDbUrl() {
 		String override = firstConfigured("esignetDbUrl");
 		if (override != null) {

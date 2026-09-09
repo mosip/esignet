@@ -13,10 +13,8 @@ import java.time.Duration;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.json.JSONObject;
 import org.openqa.selenium.JavascriptExecutor;
@@ -160,18 +158,6 @@ public class BaseTest extends AdminTestUtil {
 			skipWithReason("KBI is only supported under the mock and sunbird plugins, not '" + pluginName + "'");
 		}
 
-		if ("mosipid".equalsIgnoreCase(pluginName)) {
-			Set<String> skipTags = new HashSet<>(CLIENT_CONFIG_MAP.keySet());
-
-			for (String tag : scenario.getSourceTagNames()) {
-				if (skipTags.contains(tag)) {
-
-					skipWithReason("Skipped for mosipid: scenario is tagged " + tag
-							+ ", which requires a mock-identity client not created under the mosipid plugin");
-				}
-			}
-		}
-
 		totalCount++;
 
 		try {
@@ -206,16 +192,12 @@ public class BaseTest extends AdminTestUtil {
 			String clientAssertion = "$CLIENT_ASSERTION_PAR_JWT$";
 			boolean isParScenario = scenario.getSourceTagNames().contains(PAR_TAG);
 			boolean isAuthorizeScopeOnly = scenario.getSourceTagNames().contains(AUTHORIZE_SCOPE_ONLY_TAG);
-			String preconfiguredClientId = EsignetUtil.getPreconfiguredPrimaryOidcClientId();
 
 			for (String tag : scenario.getSourceTagNames()) {
 				if (CLIENT_CONFIG_MAP.containsKey(tag)) {
-
-					if (preconfiguredClientId == null || PAR_TAG.equals(tag)) {
-						String[] values = CLIENT_CONFIG_MAP.get(tag);
-						clientIdKey = values[0];
-						clientAssertion = values[1];
-					}
+					String[] values = CLIENT_CONFIG_MAP.get(tag);
+					clientIdKey = values[0];
+					clientAssertion = values[1];
 					break;
 				}
 			}

@@ -244,6 +244,7 @@ public class ConsentPage extends BasePage {
 		assertLoginIdFieldPopulatedBeforeGetOtp();
 		logLoginIdStateBeforeGetOtp();
 		solveRecaptchaIfPresent();
+		markOtpRequestStart();
 		clickOnElement(getOtpButton, "Clicked on get otp button");
 		waitForOtpSendOutcome();
 	}
