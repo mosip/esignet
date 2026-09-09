@@ -230,6 +230,8 @@ public class BasePage {
 		if (landed) {
 			return true;
 		}
+		// Sunbird KBI-only: bare /signin is not enough — require a KBI form landmark.
+		// mosipid/mock never enter this branch (isKbiOnlyLogin() is false for them).
 		if (!EsignetUtil.isKbiOnlyLogin()) {
 			return false;
 		}

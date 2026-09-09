@@ -559,7 +559,9 @@ public class BaseTest extends AdminTestUtil {
 			return false;
 		}
 		String lower = landedUrl.toLowerCase();
-		return lower.contains("error=invalid_client") || lower.contains("errorcode=invalid_client");
+		// OAuth client auth failure only — do not treat this as recoverable for any plugin.
+		return containsQueryParam(lower, "error", "invalid_client")
+				|| containsQueryParam(lower, "errorcode", "invalid_client");
 	}
 
 	private boolean isAuthorizeInvalidRequestLanding(String landedUrl) {
@@ -567,8 +569,17 @@ public class BaseTest extends AdminTestUtil {
 			return false;
 		}
 		String lower = landedUrl.toLowerCase();
-		return lower.contains("error=invalid_request") || lower.contains("errorcode=invalid_request")
-				|| lower.contains("error=invalid+client_id") || lower.contains("errorcode=invalid+client_id");
+		// Malformed authorize URL only. Shared recovery path for mosipid/mock/sunbird.
+		return containsQueryParam(lower, "error", "invalid_request")
+				|| containsQueryParam(lower, "errorcode", "invalid_request")
+				|| containsQueryParam(lower, "error", "invalid+client_id")
+				|| containsQueryParam(lower, "errorcode", "invalid+client_id")
+				|| containsQueryParam(lower, "error", "invalid_client_id")
+				|| containsQueryParam(lower, "errorcode", "invalid_client_id");
+	}
+
+	private static boolean containsQueryParam(String lowerUrl, String name, String value) {
+		return lowerUrl.contains(name + "=" + value);
 	}
 
 	private static String maskSensitiveUrlParams(String url) {

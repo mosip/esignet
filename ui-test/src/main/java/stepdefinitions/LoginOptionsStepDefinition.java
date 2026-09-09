@@ -62,11 +62,17 @@ public class LoginOptionsStepDefinition {
 	@Given("user captures the authorize url")
 	public void userCapturesAuhtorizeUrl() throws Exception {
 
-		new WebDriverWait(driver, Duration.ofSeconds(25)).until(ExpectedConditions.or(
-				ExpectedConditions.presenceOfElementLocated(org.openqa.selenium.By.cssSelector("[id^='acr_']")),
-				ExpectedConditions.presenceOfElementLocated(org.openqa.selenium.By.id("username_input")),
-				ExpectedConditions.presenceOfElementLocated(org.openqa.selenium.By.cssSelector(
-						"#policyNumber, #fullName, #dob, [name='policyNumber'], [name='fullName'], [name='dob']"))));
+		// Keep mosipid/mock readiness on ACR / username; KBI landmarks are sunbird-only.
+		if (EsignetUtil.isKbiOnlyLogin()) {
+			new WebDriverWait(driver, Duration.ofSeconds(25)).until(ExpectedConditions.or(
+					ExpectedConditions.presenceOfElementLocated(org.openqa.selenium.By.id("form-submit-button")),
+					ExpectedConditions.presenceOfElementLocated(org.openqa.selenium.By.cssSelector(
+							"#policyNumber, #fullName, #dob, [name='policyNumber'], [name='fullName'], [name='dob']"))));
+		} else {
+			new WebDriverWait(driver, Duration.ofSeconds(25)).until(ExpectedConditions.or(
+					ExpectedConditions.presenceOfElementLocated(org.openqa.selenium.By.cssSelector("[id^='acr_']")),
+					ExpectedConditions.presenceOfElementLocated(org.openqa.selenium.By.id("username_input"))));
+		}
 
 		ClaimsUtil.captureRenderedAuthFactors(driver);
 		String currentUrl = driver.getCurrentUrl();
