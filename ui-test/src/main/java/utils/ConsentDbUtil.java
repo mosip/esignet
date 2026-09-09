@@ -15,7 +15,6 @@ import org.testng.SkipException;
 public final class ConsentDbUtil {
 
 	private static final Logger logger = Logger.getLogger(ConsentDbUtil.class);
-	private static final String DEFAULT_DB_NAME = "mosip_esignet_go";
 	private static final String DEFAULT_SCHEMA = "esignet";
 	private static final String DEFAULT_PORT = "5432";
 
@@ -30,8 +29,8 @@ public final class ConsentDbUtil {
 
 	public static void requireDbConfigured() {
 		if (!isDbConfigured()) {
-			String reason = "Consent DB verification skipped - configure esignetDbHost and esignetDbPassword "
-					+ "in config.properties";
+			String reason = "Consent DB verification skipped - configure esignetDbHost, esignetDbName and "
+					+ "esignetDbPassword in config.properties";
 			ExtentReportManager.logStep("⚠️ " + reason);
 			throw new SkipException(reason);
 		}
@@ -132,7 +131,7 @@ public final class ConsentDbUtil {
 		}
 		String dbName = firstConfigured("esignetDbName");
 		if (dbName == null) {
-			dbName = DEFAULT_DB_NAME;
+			return null;
 		}
 		return withJdbcDefaults("jdbc:postgresql://" + server + ":" + port + "/" + dbName);
 	}
