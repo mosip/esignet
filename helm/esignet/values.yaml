@@ -333,15 +333,7 @@ extraVolumes: []
 ##
 extraVolumeMounts: []
 
-## Add init containers to the  pods.
-## Example:
-## initContainers:
-##   - name: your-image-name
-##     image: your-image
-##     imagePullPolicy: Always
-##     ports:
-##       - name: portname
-##         containerPort: 1234
+## Init container used when enable_insecure=true (development/self-signed only).
 ##
 initContainers:
   - command:
@@ -375,6 +367,10 @@ initContainers:
     volumeMounts:
       - mountPath: /cacerts
         name: cacerts
+
+## Additional init containers appended after built-in truststore init containers.
+##
+extraInitContainers: []
 
 ## Add sidecars to the  pods.
 ## Example:
@@ -527,6 +523,31 @@ istio:
     - istio-system/public
     - istio-system/internal
   prefix: /v1/esignet/
+
+## Trust a company-internal CA for outbound HTTPS calls from the Java service.
+## Create a Secret or ConfigMap with PEM-encoded root/intermediate certificate(s)
+## before enabling this option. Recommended for on-prem deployments using internal PKI.
+##
+customCA:
+  enabled: false
+  ## Use an existing Secret that contains PEM-encoded CA certificate(s).
+  secretName: ""
+  secretKey: ca.crt
+  ## Alternatively, use a ConfigMap instead of a Secret.
+  configMapName: ""
+  configMapKey: ca.crt
+  ## Path where the CA bundle is mounted inside the init container.
+  mountPath: /etc/ssl/certs/company-ca
+  ## Prefix used for keytool aliases when importing certificates.
+  aliasPrefix: company-ca
+  ## Must match the Java installation path in the main application container image.
+  javaHome: /usr/local/openjdk-11
+  keystorePassword: changeit
+  initContainerImage:
+    registry: docker.io
+    repository: openjdk
+    tag: 11-jre
+    pullPolicy: Always
 
 enable_insecure: false
 springConfigNameEnv:

@@ -48,20 +48,8 @@ function installing_esignet_with_plugins() {
     fi
   done
 
-  echo "Do you have public domain & valid SSL? (Y/n) "
-  echo "Y: if you have public domain & valid ssl certificate"
-  echo "n: If you don't have a public domain and a valid SSL certificate. Note: It is recommended to use this option only in development environments."
-  read -p "" flag
-
-  if [ -z "$flag" ]; then
-    echo "'flag' was not provided; EXITING;"
-    exit 1;
-  fi
-
-  ENABLE_INSECURE=''
-  if [ "$flag" = "n" ]; then
-    ENABLE_INSECURE='--set enable_insecure=true';
-  fi
+  source ../configure_tls_trust.sh
+  configure_tls_trust "$NS"
 
   while true; do
     read -p "For PKCS12 mounted keys, opt 'y' to enable volume (y/n) [ default: n ]: " enable_volume
@@ -227,7 +215,7 @@ EOF
 
   echo Installing esignet-with-plugins
   helm -n $NS install $ESIGNET_SERVICE_NAME mosip/esignet --version $CHART_VERSION  \
-    $ENABLE_INSECURE $plugin_option \
+    $TRUST_HELM_ARGS $plugin_option \
     $ESIGNET_HELM_ARGS \
     $extra_env_vars_cm_set \
     --set metrics.serviceMonitor.enabled=$servicemonitorflag -f values.yaml --wait
