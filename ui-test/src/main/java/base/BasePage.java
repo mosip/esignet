@@ -722,6 +722,11 @@ public class BasePage {
 		NotificationListener.markRequestStart();
 	}
 
+	/** Clear the SMTP OTP watermark after {@link #getOtp()} finishes (success or failure). */
+	public static void markOtpRequestRemove() {
+		NotificationListener.markRequestRemove();
+	}
+
 	/**
 	 * Under {@code pluginToExecute=mock} (or actuator-detected mock), always
 	 * {@value #MOCK_PLUGIN_OTP} — independent of {@code usePreConfiguredOtp} /
@@ -759,7 +764,7 @@ public class BasePage {
 			}
 			return otp;
 		} finally {
-			NotificationListener.markRequestRemove();
+			markOtpRequestRemove();
 		}
 	}
 
