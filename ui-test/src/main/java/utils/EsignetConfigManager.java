@@ -41,16 +41,11 @@ public class EsignetConfigManager extends io.mosip.testrig.apirig.utils.ConfigMa
 				moduleSpecificPropertiesMap.put(key, configProps.getProperty(key));
 			}
 
-			// JVM -D from Docker entrypoint / IDE / Rancher JAVA_EXTRA_OPTS wins over classpath defaults.
+			// JVM -D from Docker entrypoint / IDE run configs wins over classpath defaults.
 			overlaySystemProperty(moduleSpecificPropertiesMap, "useMockMds");
 			overlaySystemProperty(moduleSpecificPropertiesMap, "runOnBrowserStack");
 			overlaySystemProperty(moduleSpecificPropertiesMap, "headless");
 			overlaySystemProperty(moduleSpecificPropertiesMap, "runDocker");
-			overlaySystemProperty(moduleSpecificPropertiesMap, "pluginToExecute");
-			overlaySystemProperty(moduleSpecificPropertiesMap, "sunbirdAuthenticatorActive");
-			overlaySystemProperty(moduleSpecificPropertiesMap, "esignetActuatorEnabled");
-			overlaySystemProperty(moduleSpecificPropertiesMap, "mdsP12Path");
-			overlaySystemProperty(moduleSpecificPropertiesMap, "idaFirCertificate");
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 		}
