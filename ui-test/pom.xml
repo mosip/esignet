@@ -180,7 +180,7 @@
 		<dependency>
 			<groupId>io.mosip.testrig.apitest.commons</groupId>
 			<artifactId>apitest-commons</artifactId>
-			<version>1.7.0-SNAPSHOT</version>
+			<version>1.6.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>
@@ -221,6 +221,8 @@
 				<targetPath>certs</targetPath>
 				<includes>
 					<include>device-dsk-partner.p12</include>
+					<include>device-dsk-partner-mosipid.p12</include>
+					<include>ida-fir-released.cer</include>
 				</includes>
 			</resource>
 			<resource>
