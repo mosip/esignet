@@ -74,6 +74,10 @@ public class EsignetConfigManager extends io.mosip.testrig.apirig.utils.ConfigMa
 		return (value != null && !value.trim().isEmpty()) ? value : defaultValue;
 	}
 
+	public static void setRuntimeProperty(String key, String value) {
+		propertiesMap.put(key, value);
+	}
+
 	public static int getTimeout() {
 		try {
 			return Integer.parseInt(getProperty("explicitWaitTimeout", "10"));

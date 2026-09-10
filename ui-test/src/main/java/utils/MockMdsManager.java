@@ -539,6 +539,7 @@ public final class MockMdsManager {
 	}
 
 	private static String resolveP12Directory() {
+		ensureDevicePartnerP12Available();
 		try {
 			String prerequisitePath = BiometricDataProvider.getKeysDirPath("", BaseTestCase.certsForModule);
 			if (Files.isRegularFile(Paths.get(prerequisitePath, "device-dsk-partner.p12"))) {
@@ -578,15 +579,43 @@ public final class MockMdsManager {
 			return;
 		}
 		try {
+			ensureWritableCertsRoot();
 			String keysDir = BiometricDataProvider.getKeysDirPath("", BaseTestCase.certsForModule);
 			Path targetDir = Paths.get(keysDir);
 			Files.createDirectories(targetDir);
 			Path targetP12 = targetDir.resolve("device-dsk-partner.p12");
 			Files.copy(projectP12, targetP12, StandardCopyOption.REPLACE_EXISTING);
-			LOGGER.info("Copied " + projectP12.getFileName() + " to " + targetP12);
+			LOGGER.info("Staged " + projectP12.getFileName() + " as " + targetP12 + " for embedded SBI");
 		} catch (Exception e) {
-			LOGGER.warning("Could not copy device-dsk-partner.p12 to AUTHCERTS: " + e.getMessage());
+			LOGGER.warning("Could not stage device partner p12 for embedded SBI: " + e.getMessage());
 		}
+	}
+
+	/**
+	 * apitest-commons {@code BiometricDataProvider.getKeysDirPath()} returns
+	 * {@code ConfigManager.getauthCertsPath()} verbatim on Linux with no fallback, so a blank
+	 * {@code authCertsPath} resolves the embedded-SBI keystore to an unusable root
+	 * ("/<module>-IDA-<domain>"). Point it at a writable directory so this class and
+	 * apitest-commons' {@code regenBiometricViaMDS} both resolve the same staged
+	 * {@code device-dsk-partner.p12}.
+	 */
+	private static void ensureWritableCertsRoot() {
+		String configured = EsignetConfigManager.getproperty("authCertsPath");
+		Path root = (configured != null && !configured.isBlank())
+				? Paths.get(configured.trim())
+				: Paths.get(System.getProperty("java.io.tmpdir"), "AUTHCERTS");
+		try {
+			Files.createDirectories(root);
+		} catch (IOException e) {
+			root = Paths.get(System.getProperty("user.dir"), "AUTHCERTS");
+			try {
+				Files.createDirectories(root);
+			} catch (IOException ex) {
+				LOGGER.warning("Could not create a writable AUTHCERTS root: " + ex.getMessage());
+				return;
+			}
+		}
+		EsignetConfigManager.setRuntimeProperty("authCertsPath", root.toString());
 	}
 
 	public static void waitUntilBrowserDiscoveryReady() throws InterruptedException {
