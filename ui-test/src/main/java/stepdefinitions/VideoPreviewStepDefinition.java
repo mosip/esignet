@@ -2,21 +2,23 @@ package stepdefinitions;
 
 import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
-import org.apache.log4j.Logger;
 
 import base.BaseTest;
 import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+import pages.MultiLanguagePage;
 import pages.VideoPreviewPage;
 
 public class VideoPreviewStepDefinition {
 
 	public WebDriver driver;
-	private static final Logger logger = Logger.getLogger(VideoPreviewStepDefinition.class);
 	VideoPreviewPage videoPreviewPage;
+	MultiLanguagePage multiLanguagePage;
 
 	public VideoPreviewStepDefinition(BaseTest baseTest) {
 		this.driver = baseTest.getDriver();
 		videoPreviewPage = new VideoPreviewPage(driver);
+		multiLanguagePage = new MultiLanguagePage(driver);
 	}
 
 	@Then("verify user should be navigated to video preview screen page")
@@ -91,6 +93,69 @@ public class VideoPreviewStepDefinition {
 	public void verifyListOfInstructionsDisplayedInVideoPreviewScreen() {
 		Assert.assertTrue(videoPreviewPage.isListOfInstructionsDisplayed(),
 				"The list of instructions not displayed in video preview screen page");
+	}
+
+	@Then("verify camera permission state is {string}")
+	public void verifyCameraPermissionState(String expectedState) {
+		Assert.assertEquals(videoPreviewPage.getCameraPermissionState(), expectedState,
+				"Camera permission state did not match");
+	}
+
+	@Then("verify camera access disabled message is displayed")
+	public void verifyCameraAccessDisabledMessageIsDisplayed() {
+		Assert.assertTrue(videoPreviewPage.isCameraAccessDisabledHeaderDisplayed(),
+				"Camera access disabled message is not displayed in video preview screen page");
+	}
+
+	@Then("verify camera access disabled subtitle is displayed")
+	public void verifyCameraAccessDisabledSubtitleIsDisplayed() {
+		Assert.assertTrue(videoPreviewPage.isCameraAccessDisabledSubHeaderDisplayed(),
+				"Camera access disabled subtitle is not displayed in video preview screen page");
+	}
+
+	@Then("verify proceed button is disabled in video preview screen page")
+	public void verifyProceedButtonIsDisabledInVideoPreviewScreenPage() {
+		Assert.assertTrue(videoPreviewPage.isProceedButtonDisabled(),
+				"Proceed button is not disabled in video preview screen page");
+	}
+
+	@Then("user grants camera access from browser settings")
+	public void userGrantsCameraAccessFromBrowserSettings() {
+		videoPreviewPage.grantCameraAccessAtRuntime();
+	}
+
+	@Then("user refreshes the browser")
+	public void userRefreshesTheBrowser() {
+		videoPreviewPage.refreshBrowser();
+	}
+
+	@When("user navigates back in the browser and a leave site prompt should appear")
+	public void userNavigatesBackAndLeaveSitePromptShouldAppear() {
+		driver.navigate().back();
+		Assert.assertTrue(videoPreviewPage.isLeaveSitePromptDisplayed(10),
+				"The 'Leave site?' prompt did not appear after navigating back from the video preview screen");
+	}
+
+	@Then("verify user is no longer on the video preview screen")
+	public void verifyUserIsNoLongerOnTheVideoPreviewScreen() {
+		Assert.assertFalse(videoPreviewPage.isVideoPreviewScreenDisplayed(),
+				"User is still on the video preview screen");
+	}
+
+	@When("select the khmer language")
+	public void selectTheKhmerLanguage() {
+		multiLanguagePage.clickOnLanguage(utils.LanguageUtil.getDisplayName("khm"));
+	}
+
+	@When("select the english language")
+	public void selectTheEnglishLanguage() {
+		multiLanguagePage.clickOnLanguage(utils.LanguageUtil.getDisplayName("eng"));
+	}
+
+	@Then("verify video preview screen content is displayed in khmer language")
+	public void verifyVideoPreviewScreenContentDisplayedInKhmer() {
+		Assert.assertTrue(videoPreviewPage.isDisplayedInLanguage("khm"),
+				"Video preview screen content is not displayed in Khmer language");
 	}
 
 }

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+
+<suite name="Esignet Post-requisite API Test">
+
+	<test name="DeletePolicySunBirdR">
+		<parameter name="ymlFile"
+			value="esignetUI/SunBirdR/DeletePolicySunBirdR/DeletePolicySunBirdR.yml" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignetUI.testscripts.DeleteWithParam" />
+		</classes>
+	</test>
+
+</suite>

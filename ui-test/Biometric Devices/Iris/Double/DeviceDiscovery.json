@@ -1,7 +1,7 @@
 {
 	"deviceId":"1",
    	"deviceStatus":"Ready",
-   	"certification":"L0",
+   	"certification": "L1",
    	"serviceVersion":"0.9.5",
    	"deviceSubId":[
    		"1", "2", "3"
@@ -12,6 +12,6 @@
    	"specVersion":[
    		"0.9.5"
 	],
-   	"purpose":"", 
+   	"purpose": "Auth", 
    	"error":null
 }

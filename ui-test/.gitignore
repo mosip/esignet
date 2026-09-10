@@ -36,6 +36,10 @@ src/logs/mosip-api-test.log
 target/
 test-output/
 testng-report/
+screenshots/
 /reg
 ./reg
 reports
+/resource/Profile/
+/Profile/
+/device-dsk-partner.p12

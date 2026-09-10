@@ -8,7 +8,9 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
@@ -18,6 +20,7 @@ import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
@@ -28,14 +31,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.aventstack.extentreports.Status;
+
+import io.mosip.testrig.apirig.utils.AdminTestUtil;
+import io.mosip.testrig.apirig.utils.NotificationListener;
 import utils.ClaimsUtil;
 import utils.EsignetConfigManager;
+import utils.EsignetUtil;
 import utils.ExtentReportManager;
 import utils.WaitUtil;
 
 public class BasePage {
 	protected WebDriver driver;
 	private static final Logger LOGGER = LoggerFactory.getLogger(BasePage.class);
+	/** Mock-identity-system always issues this OTP; not configurable. */
+	private static final String MOCK_PLUGIN_OTP = "111111";
 
 	public BasePage(WebDriver driver) {
 		this.driver = driver;
@@ -73,7 +82,7 @@ public class BasePage {
 			} else if (text != null && !text.isEmpty()) {
 				return "\"" + text + "\"";
 			} else if (id != null && !id.isEmpty()) {
-				return "\"" + id.substring(id.lastIndexOf("/") + 1) + "\""; // just the id name
+				return "\"" + id.substring(id.lastIndexOf("/") + 1) + "\"";
 			} else {
 				return "[Unnamed element]";
 			}
@@ -86,11 +95,27 @@ public class BasePage {
 		WaitUtil.waitForVisibility(driver, element);
 	}
 
+	public WebElement waitForElementVisible(By locator) {
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(EsignetConfigManager.getTimeout()));
+		return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+	}
+
 	public void clickOnElement(WebElement element, String stepDesc) {
 		try {
-			waitForElementVisible(element);
+			try {
+				waitForElementVisible(element);
+			} catch (org.openqa.selenium.StaleElementReferenceException stale) {
 
-			element.click();
+				waitForElementVisible(element);
+			}
+
+			try {
+				clickWithJsFallback(element);
+			} catch (org.openqa.selenium.StaleElementReferenceException stale) {
+
+				waitForElementVisible(element);
+				clickWithJsFallback(element);
+			}
 			logStep(stepDesc, element);
 			LOGGER.info("Clicking on element: {}", element);
 		} catch (Exception e) {
@@ -100,14 +125,284 @@ public class BasePage {
 		}
 	}
 
+	private void clickWithJsFallback(WebElement element) {
+		try {
+			element.click();
+		} catch (org.openqa.selenium.ElementClickInterceptedException intercepted) {
+
+			((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+		}
+	}
+
+	protected static String toXpathLiteral(String value) {
+		if (!value.contains("'")) {
+			return "'" + value + "'";
+		}
+		if (!value.contains("\"")) {
+			return "\"" + value + "\"";
+		}
+		String[] parts = value.split("'", -1);
+		StringBuilder concatExpr = new StringBuilder("concat('");
+		for (int i = 0; i < parts.length; i++) {
+			concatExpr.append(parts[i]);
+			if (i < parts.length - 1) {
+				concatExpr.append("', \"'\", '");
+			}
+		}
+		concatExpr.append("')");
+		return concatExpr.toString();
+	}
+
+	protected void enterOtpDigits(List<WebElement> otpInputFields, String otp,
+			java.util.function.BiConsumer<WebElement, Character> digitEntry) {
+		if (otp.length() > otpInputFields.size()) {
+			throw new IllegalArgumentException(
+					"OTP length " + otp.length() + " exceeds rendered inputs " + otpInputFields.size());
+		}
+		for (int i = 0; i < otp.length(); i++) {
+			digitEntry.accept(otpInputFields.get(i), otp.charAt(i));
+		}
+	}
+
+	public void clickWhenClickable(WebElement element) {
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+		WebElement stableElement = wait
+				.until(ExpectedConditions.refreshed(ExpectedConditions.elementToBeClickable(element)));
+		stableElement.click();
+	}
+
+	public void solveRecaptchaIfPresent() {
+		List<WebElement> frames = driver.findElements(
+				By.cssSelector("iframe[title*='captcha' i], iframe[src*='hcaptcha'], iframe[src*='recaptcha']"));
+		if (frames.isEmpty()) {
+			return;
+		}
+		try {
+			driver.switchTo().frame(frames.get(0));
+			WebElement checkbox = new WebDriverWait(driver, Duration.ofSeconds(EsignetConfigManager.getTimeout()))
+					.until(ExpectedConditions.elementToBeClickable(By.cssSelector("#recaptcha-anchor, #checkbox")));
+			checkbox.click();
+		} catch (Exception e) {
+			LOGGER.warn("Could not click the captcha checkbox - proceeding anyway since submission isn't "
+					+ "gated on it: {}", e.getMessage());
+		} finally {
+			driver.switchTo().defaultContent();
+		}
+		try {
+			new WebDriverWait(driver, Duration.ofSeconds(10)).until(webDriver -> {
+				Object tokenLength = ((JavascriptExecutor) webDriver).executeScript(
+						"var el = document.querySelector('[name=g-recaptcha-response], [name=h-captcha-response]');"
+								+ " return el ? el.value.length : 0;");
+				return tokenLength instanceof Long && (Long) tokenLength > 0;
+			});
+		} catch (TimeoutException e) {
+			LOGGER.warn("No captcha token obtained within 10s - proceeding anyway since submission isn't "
+					+ "gated on it.");
+		}
+	}
+
+	public void navigateToStoredAuthorizeUrl() {
+		if (authorizeUrl == null || authorizeUrl.isBlank() || authorizeUrlTampered) {
+			throw new IllegalStateException("No fresh stored authorize URL is available for navigation");
+		}
+		driver.get(authorizeUrl);
+		if (!waitForEsignetLoginLanding(30)) {
+			throw new IllegalStateException("Stored authorize URL did not land on a real login page: " + authorizeUrl);
+		}
+	}
+
+	protected boolean isOnEsignetLoginPage() {
+		return isOnEsignetLoginPage(driver);
+	}
+
+	protected boolean isOnEsignetLoginPage(WebDriver webDriver) {
+
+		if (!webDriver.findElements(By.xpath("//*[contains(text(),'Something went wrong')]")).isEmpty()) {
+			return false;
+		}
+		String url = webDriver.getCurrentUrl();
+		if (url != null && (url.contains("authorize") || (url.contains("/login") && url.contains("esignet")))) {
+			return true;
+		}
+		boolean landed = !webDriver.findElements(By.cssSelector("[id^='acr_']")).isEmpty()
+				|| !webDriver.findElements(By.id("login_id_uin")).isEmpty()
+				|| !webDriver.findElements(By.id("login_id_mobile")).isEmpty();
+		if (landed) {
+			return true;
+		}
+		// Sunbird KBI-only: bare /signin is not enough — require a KBI form landmark.
+		// mosipid/mock never enter this branch (isKbiOnlyLogin() is false for them).
+		if (!EsignetUtil.isKbiOnlyLogin()) {
+			return false;
+		}
+		By kbiFieldSelector = By.cssSelector(
+				"#policyNumber, #fullName, #dob, [name='policyNumber'], [name='fullName'], [name='dob']");
+		return (url != null && url.contains("/signin") && !webDriver.findElements(kbiFieldSelector).isEmpty())
+				|| !webDriver.findElements(By.id("form-submit-button")).isEmpty()
+				|| !webDriver.findElements(kbiFieldSelector).isEmpty();
+	}
+
+	protected boolean waitForEsignetLoginLanding(int timeoutSeconds) {
+		try {
+			new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds))
+					.until(driverInstance -> isOnEsignetLoginPage(driverInstance));
+			return true;
+		} catch (TimeoutException e) {
+			return false;
+		}
+	}
+
+	protected boolean tryNavigateToStoredAuthorizeUrl() {
+		if (authorizeUrl == null || authorizeUrl.isBlank() || authorizeUrlTampered) {
+			return false;
+		}
+		try {
+			navigateToStoredAuthorizeUrl();
+			return true;
+		} catch (Exception e) {
+			LOGGER.warn("Stored authorize URL navigation failed: {}", e.getMessage());
+			return false;
+		}
+	}
+
+	public void clickSignInWithEsignetOnRelyingPartyPortal() {
+		if (isOnEsignetLoginPage()) {
+			return;
+		}
+
+		By[] locators = {
+				By.cssSelector("#sign-in-with-esignet button"),
+				By.cssSelector("#sign-in-with-esignet a"),
+				By.id("sign-in-with-esignet"),
+				By.cssSelector("[class*='sign-in'] button, button[class*='sign-in']"),
+				By.xpath("//*[self::button or self::a][contains(.,'eSignet') or contains(.,'e-Signet')]"),
+				By.xpath(
+						"//*[self::button or self::a][contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'sign in')]")
+		};
+		WebDriverWait quickWait = new WebDriverWait(driver, Duration.ofSeconds(5));
+		String originalWindow = driver.getWindowHandle();
+		Set<String> windowsBeforeClick = driver.getWindowHandles();
+		Exception lastError = null;
+		for (By locator : locators) {
+			try {
+				quickWait.until(ExpectedConditions.presenceOfElementLocated(locator));
+			} catch (TimeoutException e) {
+				continue;
+			}
+			try {
+				WebElement button = quickWait.until(ExpectedConditions.elementToBeClickable(locator));
+				clickOnElement(button, "Clicked Sign in with eSignet on the relying party");
+				switchToNewWindowIfOpened(originalWindow, windowsBeforeClick);
+				if (waitForEsignetLoginLanding(20)) {
+					return;
+				}
+				lastError = new TimeoutException("Authorize/login page did not load after clicking Sign in with eSignet");
+			} catch (Exception e) {
+				lastError = e;
+			}
+		}
+		if (tryNavigateToStoredAuthorizeUrl()) {
+			return;
+		}
+
+		String rpBaseUrl = EsignetConfigManager.getproperty("baseurl");
+		if (rpBaseUrl != null && !rpBaseUrl.isBlank()) {
+			driver.get(rpBaseUrl);
+			for (By locator : locators) {
+				try {
+					WebElement button = quickWait.until(ExpectedConditions.elementToBeClickable(locator));
+					clickOnElement(button, "Clicked Sign in with eSignet on the relying party (after RP base URL reset)");
+					switchToNewWindowIfOpened(originalWindow, windowsBeforeClick);
+					if (waitForEsignetLoginLanding(20)) {
+						return;
+					}
+				} catch (Exception e) {
+					lastError = e;
+				}
+			}
+		}
+		throw new IllegalStateException("Sign in with eSignet button was not found on the relying party portal",
+				lastError);
+	}
+
+	public boolean isAlreadyOnRelyingParty() {
+		String currentUrl = driver.getCurrentUrl();
+		String eSignetBaseUrl = EsignetConfigManager.getproperty("eSignetbaseurl");
+		if (currentUrl == null || eSignetBaseUrl == null || eSignetBaseUrl.isBlank()) {
+			return false;
+		}
+		try {
+			String currentHost = URI.create(currentUrl).getHost();
+			String eSignetHost = URI.create(eSignetBaseUrl).getHost();
+			return currentHost != null && eSignetHost != null && !currentHost.equalsIgnoreCase(eSignetHost)
+					&& !currentUrl.contains("/authorize");
+		} catch (IllegalArgumentException e) {
+			return false;
+		}
+	}
+
+	public boolean ensureFreshEsignetLoginPage(By landmark) {
+		boolean landmarkPresent;
+		try {
+			new WebDriverWait(driver, Duration.ofSeconds(3))
+					.until(ExpectedConditions.presenceOfElementLocated(landmark));
+			landmarkPresent = true;
+		} catch (TimeoutException e) {
+			landmarkPresent = false;
+		}
+		if (landmarkPresent) {
+			return true;
+		}
+		if (authorizeUrl == null) {
+			return false;
+		}
+		String freshUrl = authorizeUrl.replaceFirst("nonce=[^&]*", "nonce=" + System.currentTimeMillis());
+
+		driver.get(freshUrl);
+		driver.manage().deleteAllCookies();
+		driver.navigate().refresh();
+
+		try {
+			new WebDriverWait(driver, Duration.ofSeconds(EsignetConfigManager.getTimeout()))
+					.until(ExpectedConditions.presenceOfElementLocated(landmark));
+			return true;
+		} catch (TimeoutException e) {
+			LOGGER.warn("Fresh esignet login page navigation to {} did not surface landmark {} within {} seconds",
+					freshUrl, landmark, EsignetConfigManager.getTimeout());
+			return false;
+		}
+	}
+
+	public boolean waitForRelyingPartyRedirectQuietly() {
+		try {
+			new WebDriverWait(driver, Duration.ofSeconds(45)).until(webDriver -> {
+				return isAlreadyOnRelyingParty();
+			});
+			return true;
+		} catch (TimeoutException e) {
+			return false;
+		}
+	}
+
+	public boolean waitForRelyingPartyRedirectOrElement(By elementLocator, int timeoutSeconds) {
+		try {
+			new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds)).until(webDriver -> {
+				return isAlreadyOnRelyingParty() || !webDriver.findElements(elementLocator).isEmpty();
+			});
+		} catch (TimeoutException ignored) {
+
+		}
+		return isAlreadyOnRelyingParty();
+	}
+
 	public boolean isElementVisible(WebElement element, String stepDesc) {
 		try {
 			waitForElementVisible(element);
 			logStep(stepDesc + " - Verified visibility", element);
 			return element.isDisplayed();
-		} catch (NoSuchElementException e) {
+		} catch (NoSuchElementException | TimeoutException e) {
 			LOGGER.warn("Element not visible: {}", element);
-			ExtentReportManager.getTest().log(Status.WARNING, "Element not visible: " + describeElement(element));
+			ExtentReportManager.getTest().log(Status.INFO, "Element not visible: " + describeElement(element));
 			return false;
 		}
 	}
@@ -127,9 +422,9 @@ public class BasePage {
 			logStep(stepDesc + " - Verified Button", element);
 			LOGGER.info("Button enabled status: {}", enabled);
 			return enabled;
-		} catch (NoSuchElementException e) {
+		} catch (NoSuchElementException | TimeoutException e) {
 			LOGGER.warn("Element not visible: {}", element);
-			ExtentReportManager.getTest().log(Status.WARNING, "Element not visible: " + describeElement(element));
+			ExtentReportManager.getTest().log(Status.INFO, "Element not visible: " + describeElement(element));
 			return false;
 		}
 	}
@@ -150,7 +445,7 @@ public class BasePage {
 			ExtentReportManager.getTest().log(Status.INFO, stepDesc);
 		} catch (Exception e) {
 			LOGGER.error("Failed to refresh browser", e);
-			ExtentReportManager.getTest().log(Status.WARNING,
+			ExtentReportManager.getTest().log(Status.FAIL,
 					stepDesc + " - Failed to refresh browser: " + e.getMessage());
 			throw e;
 		}
@@ -163,7 +458,7 @@ public class BasePage {
 			ExtentReportManager.getTest().log(Status.INFO, stepDesc);
 		} catch (Exception e) {
 			LOGGER.error("Failed to navigate back", e);
-			ExtentReportManager.getTest().log(Status.WARNING,
+			ExtentReportManager.getTest().log(Status.FAIL,
 					stepDesc + " - Failed to navigate back: " + e.getMessage());
 			throw e;
 		}
@@ -209,7 +504,7 @@ public class BasePage {
 			Alert alert = wait.until(ExpectedConditions.alertIsPresent());
 			LOGGER.info("Accepting alert: {}", alert.getText());
 			alert.accept();
-		} catch (NoAlertPresentException e) {
+		} catch (NoAlertPresentException | TimeoutException e) {
 			LOGGER.warn("No alert found to accept.");
 		}
 	}
@@ -220,7 +515,7 @@ public class BasePage {
 			Alert alert = wait.until(ExpectedConditions.alertIsPresent());
 			LOGGER.info("Dismissing alert: {}", alert.getText());
 			alert.dismiss();
-		} catch (NoAlertPresentException e) {
+		} catch (NoAlertPresentException | TimeoutException e) {
 			LOGGER.warn("No alert found to dismiss.");
 		}
 	}
@@ -319,6 +614,24 @@ public class BasePage {
 
 	public static String authorizeUrl;
 
+	public static String authorizeClientIdKey = "$ID:CreateOIDCClient_all_Valid_Smoke_sid_clientId$";
+
+	public static String authorizeClientAssertion = "$CLIENT_ASSERTION_PAR_JWT$";
+
+	public static boolean authorizeScopeOnlyScenario;
+
+	public static String authorizeAcrValues;
+
+	public static String authorizeUiLocales;
+
+	public static boolean authorizeRequiresPkce;
+
+	public static boolean parScenario;
+
+	public static boolean authorizeUrlTampered;
+
+	public static long authorizeSessionStartedAt;
+
 	public String getAuthorizeUrl() {
 		return authorizeUrl;
 	}
@@ -328,9 +641,13 @@ public class BasePage {
 		ClaimsUtil.parseFromUrl(url);
 	}
 
+	public static void markAuthorizeSessionFresh() {
+		authorizeSessionStartedAt = System.currentTimeMillis();
+	}
+
 	public List<String> getClaims(String type) {
 		if (authorizeUrl == null) {
-			System.out.println("Authorize URL not set.");
+			LOGGER.warn("Authorize URL not set.");
 			return Collections.emptyList();
 		}
 
@@ -355,13 +672,129 @@ public class BasePage {
 		WebElement icon = wait.until(ExpectedConditions.visibilityOfElementLocated(iconLocator));
 		new Actions(driver).moveToElement(icon).perform();
 
-		WebElement tooltip = wait.until(ExpectedConditions.visibilityOfElementLocated(tooltipLocator));
-		return tooltip.getText();
+		String dispatchScript = "var el = arguments[0]; el.focus();"
+				+ "el.dispatchEvent(new MouseEvent('mouseover', {bubbles:true}));"
+				+ "el.dispatchEvent(new MouseEvent('mouseenter', {bubbles:true}));"
+				+ "el.dispatchEvent(new FocusEvent('focus', {bubbles:true}));";
+		((JavascriptExecutor) driver).executeScript(dispatchScript, icon);
+
+		WebElement tooltip;
+		try {
+			tooltip = wait.until(ExpectedConditions.visibilityOfElementLocated(tooltipLocator));
+		} catch (org.openqa.selenium.TimeoutException firstTimeout) {
+
+			icon = wait.until(ExpectedConditions.visibilityOfElementLocated(iconLocator));
+			((JavascriptExecutor) driver).executeScript(dispatchScript, icon);
+			tooltip = wait.until(ExpectedConditions.visibilityOfElementLocated(tooltipLocator));
+		}
+		try {
+			return tooltip.getText();
+		} catch (org.openqa.selenium.StaleElementReferenceException stale) {
+
+			tooltip = wait.until(ExpectedConditions.visibilityOfElementLocated(tooltipLocator));
+			return tooltip.getText();
+		}
 	}
 
+	protected void switchToNewWindowIfOpened(String originalWindow, Set<String> windowsBeforeClick) {
+		switchToNewWindowIfOpened(driver, originalWindow, windowsBeforeClick);
+	}
+
+	public static void switchToNewWindowIfOpened(WebDriver driver, String originalWindow,
+			Set<String> windowsBeforeClick) {
+		try {
+			new WebDriverWait(driver, Duration.ofSeconds(5))
+					.until(driverInstance -> driverInstance.getWindowHandles().size() > windowsBeforeClick.size());
+		} catch (org.openqa.selenium.TimeoutException ignored) {
+			driver.switchTo().window(originalWindow);
+			return;
+		}
+		for (String handle : driver.getWindowHandles()) {
+			if (!windowsBeforeClick.contains(handle)) {
+				driver.switchTo().window(handle);
+				return;
+			}
+		}
+	}
+
+	/** Watermark SMTP messages from this moment so {@link #getOtp()} ignores older OTPs. */
+	public static void markOtpRequestStart() {
+		NotificationListener.markRequestStart();
+	}
+
+	/** Clear the SMTP OTP watermark after {@link #getOtp()} finishes (success or failure). */
+	public static void markOtpRequestRemove() {
+		NotificationListener.markRequestRemove();
+	}
+
+	/**
+	 * Under {@code pluginToExecute=mock} (or actuator-detected mock), always
+	 * {@value #MOCK_PLUGIN_OTP} — independent of {@code usePreConfiguredOtp} /
+	 * {@code preconfiguredOtp}. Otherwise OTP is taken from mock SMTP
+	 * ({@code smtpURL}), keyed by {@link EsignetUtil#getOtpNotificationAddress()}.
+	 */
 	public static String getOtp() {
-		String otp = "111111";
-		return otp;
+		if (EsignetUtil.isMockPlugin()) {
+			return mockPluginOtp();
+		}
+		return getOtp(EsignetUtil.getOtpNotificationAddress());
+	}
+
+	public static String getOtp(String address) {
+		if (EsignetUtil.isMockPlugin()) {
+			return mockPluginOtp();
+		}
+		ensureSmtpOtpPollTimeout();
+		if (address == null || address.isBlank()) {
+			throw new IllegalStateException(
+					"Cannot fetch OTP from SMTP: set emailLoginId or uinPhoneNumber in config.properties");
+		}
+		String recipientType = address.contains("@") ? "email" : "phone";
+		try {
+			LOGGER.info("Fetching OTP from SMTP for recipient type {}", recipientType);
+			try {
+				ExtentReportManager.getTest().log(Status.INFO,
+						"Fetching OTP from SMTP for recipient type " + recipientType);
+			} catch (Exception e) {
+				LOGGER.debug("Could not write OTP message to the Extent report", e);
+			}
+			String otp = NotificationListener.getOtp(address);
+			if (otp == null || otp.isBlank()) {
+				throw new IllegalStateException("No OTP received from SMTP for recipient type " + recipientType);
+			}
+			return otp;
+		} finally {
+			markOtpRequestRemove();
+		}
+	}
+
+	private static String mockPluginOtp() {
+		LOGGER.info("Using hardcoded mock-plugin OTP {}", MOCK_PLUGIN_OTP);
+		try {
+			ExtentReportManager.getTest().log(Status.INFO, "Using hardcoded mock-plugin OTP " + MOCK_PLUGIN_OTP);
+		} catch (Exception e) {
+			LOGGER.debug("Could not write OTP message to the Extent report", e);
+		}
+		return MOCK_PLUGIN_OTP;
+	}
+
+	/**
+	 * {@code NotificationListener} waits {@link AdminTestUtil#getOtpExpTimeFromActuator()}
+	 * seconds, which {@code Integer.parseInt}s an empty string when IDA actuator is
+	 * down (Thunder). Seed the timeout from {@code otpExpirySeconds} first.
+	 */
+	private static void ensureSmtpOtpPollTimeout() {
+		String configured = EsignetConfigManager.getProperty("otpExpirySeconds", "120");
+		try {
+			java.lang.reflect.Field field = AdminTestUtil.class.getDeclaredField("otpExpTime");
+			field.setAccessible(true);
+			Object current = field.get(null);
+			if (current == null || current.toString().isBlank()) {
+				field.set(null, configured);
+			}
+		} catch (ReflectiveOperationException e) {
+			LOGGER.warn("Could not seed SMTP OTP poll timeout: {}", e.getMessage());
+		}
 	}
 
 }

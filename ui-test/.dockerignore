@@ -1,0 +1,12 @@
+.git
+.gitignore
+test-output
+screenshots
+reports
+testng-report
+target/*
+!target/uitest-esignet-*-jar-with-dependencies.jar
+k8s
+*.iml
+.idea
+.vscode
