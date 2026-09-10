@@ -114,6 +114,18 @@ gate_client:
   login_path: /signin
   error_path: /error
 
+# Toggles the ThunderID observability event pipeline.
+# Override with MOSIP_ESIGNET_OBSERVABILITY_ENABLED.
+# NOTE: as of this engine version the embedded engine does not read this
+# setting (it never reaches the engine's runtime config), and the OpenTelemetry
+# SDK and OTLP exporter are not linked into the esignet binary at all, so no
+# traces are exported regardless of this value. Kept explicit so the toggle
+# already exists if the engine starts honoring it, and so load runs have a
+# documented place to turn the pipeline off. See performance-test/README.md.
+# An omitted block is indistinguishable from `false`, so keep this explicit.
+observability:
+  enabled: true
+
 jwt:
   preferred_key_id: "${MOSIP_ESIGNET_SIGNING_KEY_REF_ID}"
   validity_period: 120  # override via MOSIP_ESIGNET_JWT_VALIDITY_PERIOD
