@@ -10,6 +10,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"strings"
 	"time"
 
 	applog "github.com/mosip/esignet/internal/log"
@@ -21,6 +22,11 @@ const MOSIPTimeLayout = "2006-01-02T15:04:05.000Z"
 // GetResponseTime to get datetime in MOSIP followed format
 func GetResponseTime() string {
 	return time.Now().UTC().Format(MOSIPTimeLayout)
+}
+
+// IsBlank reports whether s is empty or contains only whitespace.
+func IsBlank(s string) bool {
+	return strings.TrimSpace(s) == ""
 }
 
 // WriteError Method write any error
