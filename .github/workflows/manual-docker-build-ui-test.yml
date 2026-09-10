@@ -65,6 +65,9 @@ jobs:
       SERVICE_LOCATION: ${{ matrix.SERVICE_LOCATION }}
       SERVICE_NAME: ${{ matrix.SERVICE_NAME }}
       BUILD_ARTIFACT: ${{ matrix.BUILD_ARTIFACT }}
+      # The Dockerfile installs google-chrome-stable_current_amd64.deb, an
+      # amd64-only package, so it can't build under arm64 (QEMU) emulation.
+      PLATFORMS: 'linux/amd64'
     secrets:
       DEV_NAMESPACE_DOCKER_HUB: ${{ secrets.DEV_NAMESPACE_DOCKER_HUB }}
       ACTOR_DOCKER_HUB: ${{ secrets.ACTOR_DOCKER_HUB }}
