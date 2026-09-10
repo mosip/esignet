@@ -22,6 +22,7 @@ on:
       - develop
       - develop-go
       - release*
+      - pr-ui-test-release-2.0.x
 
 jobs:
   build_go_esignet:
