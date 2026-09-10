@@ -1,0 +1,26 @@
+CreatePolicySunBirdR:
+   ESignetUI_SunBirdR_CreatePolicy_NOAUTH_Valid_Smoke_sid:
+      endPoint: $SUNBIRDBASEURL$/api/v1/Insurance
+      uniqueIdentifier: TC_ESignetUI_SunBirdR_CreatePolicy_01
+      description: Create a Sunbird RC policy used as KBI credentials
+      role: resident
+      restMethod: post
+      checkErrorsOnlyInResponse: true
+      validityCheckRequired: true
+      inputTemplate: esignetUI/SunBirdR/CreatePolicySunBirdR/CreatePolicySunBirdR
+      outputTemplate: esignetUI/SunBirdR/CreatePolicySunBirdR/CreatePolicySunBirdRResult
+      input: '{
+        "policyNumber": "$POLICYNUMBERFORSUNBIRDRC$",
+      	"policyName": "Start Insurance Gold Premium",
+      	"policyExpiresOn": "2033-04-20T20:48:17.684Z",
+      	"policyIssuedOn": "$TIMESTAMP$",
+      	"fullName" : "$FULLNAMEFORSUNBIRDRC$",
+      	"dob" : "$DOBFORSUNBIRDRC$",
+      	"benefits": [{"benefits": "Critical Surgery"}, {"benefits": "Full body checkup"}],
+      	"gender": "Male",
+      	"mobile": "0123456789",
+      	"email": "esignetui.sunbird@example.com"
+    }'
+      output: '{
+	"status": "SUCCESSFUL"
+}'

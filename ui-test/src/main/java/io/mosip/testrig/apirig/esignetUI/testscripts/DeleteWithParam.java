@@ -1,0 +1,107 @@
+package io.mosip.testrig.apirig.esignetUI.testscripts;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.ws.rs.core.MediaType;
+
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.json.JSONObject;
+import org.testng.ITest;
+import org.testng.ITestContext;
+import org.testng.ITestResult;
+import org.testng.Reporter;
+import org.testng.SkipException;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
+import io.mosip.testrig.apirig.dto.OutputValidationDto;
+import io.mosip.testrig.apirig.dto.TestCaseDTO;
+import io.mosip.testrig.apirig.utils.AdminTestException;
+import io.mosip.testrig.apirig.utils.AuthenticationTestException;
+import io.mosip.testrig.apirig.utils.OutputValidationUtil;
+import io.mosip.testrig.apirig.utils.ReportUtil;
+import io.mosip.testrig.apirig.utils.RestClient;
+import io.mosip.testrig.apirig.utils.SecurityXSSException;
+import io.restassured.response.Response;
+import utils.EsignetConfigManager;
+import utils.EsignetUtil;
+
+public class DeleteWithParam extends EsignetUtil implements ITest {
+	private static final Logger logger = Logger.getLogger(DeleteWithParam.class);
+	protected String testCaseName = "";
+	public Response response = null;
+
+	@BeforeClass
+	public static void setLogLevel() {
+		if (EsignetConfigManager.IsDebugEnabled())
+			logger.setLevel(Level.ALL);
+		else
+			logger.setLevel(Level.ERROR);
+	}
+
+	@Override
+	public String getTestName() {
+		return testCaseName;
+	}
+
+	@DataProvider(name = "testcaselist")
+	public Object[] getTestCaseList(ITestContext context) {
+		String ymlFile = context.getCurrentXmlTest().getLocalParameters().get("ymlFile");
+		logger.info("Started executing yml: " + ymlFile);
+		return getYmlTestData(ymlFile);
+	}
+
+	@Test(dataProvider = "testcaselist")
+	public void test(TestCaseDTO testCaseDTO) throws AuthenticationTestException, AdminTestException, SecurityXSSException {
+		testCaseName = testCaseDTO.getTestCaseName();
+		testCaseName = EsignetUtil.isTestCaseValidForExecution(testCaseDTO);
+
+		String tempUrl = EsignetConfigManager.getEsignetBaseUrl();
+		boolean isSunbirdPolicy = testCaseDTO.getEndPoint().startsWith("$SUNBIRDBASEURL$");
+		if (isSunbirdPolicy) {
+			if (!EsignetUtil.isSunbirdAuthenticatorActive()) {
+				throw new SkipException(
+						"Skipped: " + testCaseName + " requires the Sunbird RC authenticator to be active on the server");
+			}
+			tempUrl = EsignetConfigManager.getSunBirdBaseURL();
+			if (tempUrl == null || tempUrl.isBlank()) {
+				throw new SkipException(
+						"Skipped: " + testCaseName + " - sunBirdBaseURL is not configured");
+			}
+			testCaseDTO.setEndPoint(testCaseDTO.getEndPoint().replace("$SUNBIRDBASEURL$", ""));
+		}
+
+		String inputJson = getJsonFromTemplate(testCaseDTO.getInput(), testCaseDTO.getInputTemplate());
+		inputJson = EsignetUtil.inputstringKeyWordHandler(inputJson, testCaseName);
+
+		if (isSunbirdPolicy) {
+
+			String insuranceId = new JSONObject(inputJson).optString("insuranceid", null);
+			if (insuranceId == null || insuranceId.isBlank()) {
+				throw new SkipException(
+						"Skipped: " + testCaseName + " - no insuranceid available (CreatePolicySunBirdR likely didn't run)");
+			}
+			String url = tempUrl + testCaseDTO.getEndPoint().replace("{insuranceid}", insuranceId);
+			response = RestClient.deleteRequest(url, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON);
+		} else {
+			response = deleteWithPathParamAndCookie(tempUrl + testCaseDTO.getEndPoint(), inputJson, COOKIENAME,
+					testCaseDTO.getRole(), testCaseDTO.getTestCaseName());
+		}
+
+		Map<String, List<OutputValidationDto>> outputValid = OutputValidationUtil.doJsonOutputValidation(
+				response.asString(), getJsonFromTemplate(testCaseDTO.getOutput(), testCaseDTO.getOutputTemplate()),
+				testCaseDTO, response.getStatusCode());
+		Reporter.log(ReportUtil.getOutputValidationReport(outputValid));
+		if (!OutputValidationUtil.publishOutputResult(outputValid))
+			throw new AdminTestException("Failed at output validation");
+	}
+
+	@AfterMethod(alwaysRun = true)
+	public void setResultTestName(ITestResult result) {
+		result.setAttribute("TestCaseName", testCaseName);
+	}
+}

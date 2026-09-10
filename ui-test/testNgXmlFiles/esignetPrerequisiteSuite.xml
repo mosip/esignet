@@ -117,6 +117,26 @@
 				name="io.mosip.testrig.apirig.esignetUI.testscripts.SimplePostForAutoGenId" />
 		</classes>
 	</test>
+
+	<test name="OIDCClientV2SunBird">
+		<parameter name="ymlFile"
+				value="esignetUI/CreateClientMock/CreateOIDCClientV2SunBird/CreateOIDCClientV2SunBird.yml" />
+		<parameter name="idKeyName" value="clientId" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignetUI.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
+
+	<test name="CreatePolicySunBirdR">
+		<parameter name="ymlFile"
+				value="esignetUI/SunBirdR/CreatePolicySunBirdR/CreatePolicySunBirdR.yml" />
+		<parameter name="idKeyName" value="osid" />
+		<classes>
+			<class
+				name="io.mosip.testrig.apirig.esignetUI.testscripts.SimplePostForAutoGenId" />
+		</classes>
+	</test>
 	
 	<test name="CreateVID">
 		<parameter name="ymlFile" value="esignetUI/CreateVID/CreateVid.yml" />

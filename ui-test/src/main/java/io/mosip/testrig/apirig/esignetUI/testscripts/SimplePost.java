@@ -46,19 +46,11 @@ public class SimplePost extends EsignetUtil implements ITest {
 			logger.setLevel(Level.ERROR);
 	}
 
-	/**
-	 * get current testcaseName
-	 */
 	@Override
 	public String getTestName() {
 		return testCaseName;
 	}
 
-	/**
-	 * Data provider class provides test case list
-	 * 
-	 * @return object of data provider
-	 */
 	@DataProvider(name = "testcaselist")
 	public Object[] getTestCaseList(ITestContext context) {
 		String ymlFile = context.getCurrentXmlTest().getLocalParameters().get("ymlFile");
@@ -67,15 +59,6 @@ public class SimplePost extends EsignetUtil implements ITest {
 		return getYmlTestData(ymlFile);
 	}
 
-	/**
-	 * Test method for OTP Generation execution
-	 * 
-	 * @param objTestParameters
-	 * @param testScenario
-	 * @param testcaseName
-	 * @throws AuthenticationTestException
-	 * @throws AdminTestException
-	 */
 	@Test(dataProvider = "testcaselist")
 	public void test(TestCaseDTO testCaseDTO)
 			throws AuthenticationTestException, AdminTestException, SecurityXSSException {
@@ -120,11 +103,6 @@ public class SimplePost extends EsignetUtil implements ITest {
 
 	}
 
-	/**
-	 * The method ser current test name to result
-	 * 
-	 * @param result
-	 */
 	@AfterMethod(alwaysRun = true)
 	public void setResultTestName(ITestResult result) {
 		try {

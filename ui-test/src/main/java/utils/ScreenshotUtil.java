@@ -40,10 +40,10 @@ public class ScreenshotUtil {
 				ExtentReportManager.getTest().info("Screenshot Captured", MediaEntityBuilder
 						.createScreenCaptureFromBase64String(encodeFileToBase64Binary(screenshotPath)).build());
 			} else {
-				ExtentReportManager.getTest().warning("Screenshot file not found: " + screenshotPath);
+				ExtentReportManager.getTest().info("Screenshot file not found: " + screenshotPath);
 			}
-		} catch (IOException e) {
-			ExtentReportManager.getTest().warning("Failed to attach screenshot to report: " + e.getMessage());
+		} catch (Exception e) {
+			ExtentReportManager.getTest().info("Failed to attach screenshot to report: " + e.getMessage());
 		}
 	}
 
