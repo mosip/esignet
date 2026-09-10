@@ -1,0 +1,81 @@
+# Values for ../../helm/esignet-uitestrig. Secrets (DB password, keycloak
+# admin password, test identities -- PII, etc.) do NOT belong in this file
+# -- it's tracked in git. Put those in values.secret.yaml instead
+# (gitignored; copy values.secret.yaml.example to get started).
+#
+# Installs into its OWN "esignet-uitestrig" namespace, separate from
+# esignet-apitestrig's "esignet" namespace -- see install.sh's header
+# comment for why a shared namespace would actually be safe with this
+# chart too (unlike the generic mosip/uitestrig chart it replaces), if you
+# ever want to consolidate them.
+
+# Uses the chart's own default image (helm/esignet-uitestrig/values.yaml)
+# unless uncommented here. Uncomment and edit if you need a different
+# repository/tag for this environment.
+# image:
+#   repository: mosipdev/uitest-esignet
+#   tag: develop
+#   pullPolicy: Always
+
+triggerKind: cronjob
+crontime: "0 3 * * *"   # hour 0-23
+
+uitestrig:
+  extraEnvVars:
+    # Filled in by install.sh from esignet-global (same derivation as
+    # esignet-apitestrig's install.sh), not set directly here.
+    ENV_ENDPOINT: ""
+    ENV_USER: ""
+    MODULES: "esignet"
+    ENV_TESTLEVEL: "smokeAndRegression"   # smoke | smokeAndRegression
+    # Chrome + the JVM in one cgroup -- keep well under resources.limits.memory.
+    JAVA_EXTRA_OPTS: "-Xmx2g"
+
+  configMap:
+    # Relying-party (health-services) origin. OIDC redirect_uris must be
+    # exactly this + "userprofile".
+    baseurl: "https://healthservices-go.sandbox.mosip.net/"   # UPDATE 'sandbox' to your environment
+    # Blank = same as eSignetbaseurl at install time (install.sh fills this
+    # in for you if left blank here).
+    localeUrl: ""
+    eSignetbaseurl: "https://esignet-go.sandbox.mosip.net"   # UPDATE 'sandbox' to your environment
+    pluginToExecute: "mock"
+    runLanguage: "eng"
+    runOnBrowserStack: "false"   # see uitestrig.browserstack below to switch this
+    esignetDbHost: "postgres-postgresql.postgres"   # UPDATE with your consent DB host
+    esignetDbPort: "5432"
+    push-reports-to-s3: "yes"   # also fill in s3-* below and s3-user-key/secret in values.secret.yaml
+    s3-host: ""   # UPDATE with your S3/MinIO endpoint
+    s3-region: ""   # UPDATE with your S3 region (MinIO: any non-empty value, e.g. "us-east-1")
+    s3-account: "uitestrig"
+
+  browserstack:
+    enabled: false
+
+  # Self-signed/internal certs? See helm/esignet-uitestrig/README.md
+  # "Self-signed TLS" -- unverified against a live cluster, test before
+  # relying on it.
+  enableInsecure: false
+  tls:
+    # Required if enableInsecure above is true -- the eSignet host's CA
+    # cert (PEM), obtained through a trusted channel (e.g. copied directly
+    # from the ingress/load balancer's TLS config), not fetched live.
+    caCert: ""   # UPDATE if enableInsecure is true
+
+resources:
+  limits:
+    cpu: "2"
+    memory: 4Gi
+  requests:
+    cpu: 500m
+    memory: 2Gi
+
+reports:
+  # "yes" above under push-reports-to-s3 is the recommended path (no PVC
+  # needed at all -- the JAR pushes its own report to S3 in-process). Only
+  # enable this if you're leaving push-reports-to-s3 at "no".
+  persistence:
+    enabled: false
+    storageClass: ""
+    size: 1Gi
+    existingClaim: ""

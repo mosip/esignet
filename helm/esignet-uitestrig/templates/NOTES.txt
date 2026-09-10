@@ -1,0 +1,32 @@
+eSignet UI test rig ({{ .Values.triggerKind }}) has been deployed.
+
+Reports mount    : {{ .Values.reports.mountPath }}
+Screenshots mount: {{ .Values.reports.screenshotsMountPath }}
+{{- if eq (index .Values.uitestrig.configMap "push-reports-to-s3") "yes" }}
+Report storage   : in-process S3 push (BaseTest.pushReportsToS3)
+{{- else if .Values.reports.persistence.enabled }}
+Report storage   : PVC ({{ include "uitestrig.reportsClaimName" . }})
+{{- else }}
+Report storage   : none configured -- reports only exist in the pod until
+                    it's garbage-collected. Set uitestrig.configMap's
+                    push-reports-to-s3=yes, or reports.persistence.enabled=true.
+{{- end }}
+Browser          : {{ if .Values.uitestrig.browserstack.enabled }}BrowserStack{{ else }}in-cluster Chromium{{ end }}
+
+{{- if eq .Values.triggerKind "cronjob" }}
+
+Scheduled: {{ .Values.crontime }}
+To trigger a run right now:
+  kubectl create job --from=cronjob/{{ include "common.names.fullname" . }} \
+    -n {{ .Release.Namespace }} {{ include "common.names.fullname" . }}-manual-$(date +%s)
+{{- else }}
+
+Follow this run:
+  kubectl logs -n {{ .Release.Namespace }} -l app.kubernetes.io/instance={{ .Release.Name }} -f
+{{- end }}
+
+{{- if .Values.reports.persistence.enabled }}
+
+To pull the report out of the reports volume:
+  kubectl cp -n {{ .Release.Namespace }} <pod-name>:{{ .Values.reports.mountPath }} ./test-output
+{{- end }}
