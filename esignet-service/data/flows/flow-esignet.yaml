@@ -1151,11 +1151,17 @@ nodes:
     type: PROMPT
     meta:
       components:
-        - id: timer_consent
-          type: TIMER
-          category: DISPLAY
+        - id: block_consent_timer
+          type: BLOCK
+          category: BLOCK
           resourceType: ELEMENT
-          label: "{{t(consent:timer_label)}} {time}"
+          classes: consent-timer
+          components:
+            - id: timer_consent
+              type: TIMER
+              category: DISPLAY
+              resourceType: ELEMENT
+              label: "{{t(consent:timer_label)}} {time}"
         - id: text_consent_title
           type: TEXT
           label: "{{meta(application.name)}} {{t(consent:title)}}"
@@ -1163,10 +1169,12 @@ nodes:
           category: DISPLAY
           resourceType: ELEMENT
           align: center
+          classes: font-weight-700
         - id: block_consent
           type: BLOCK
           category: BLOCK
           resourceType: ELEMENT
+          classes: consent-block
           components:
             - id: input_consent
               type: CONSENT
