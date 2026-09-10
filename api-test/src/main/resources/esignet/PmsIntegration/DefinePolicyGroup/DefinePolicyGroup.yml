@@ -65,3 +65,19 @@ definePolicyGroup:
       output: ' {
         "is_Active": true
     }'
+   Esignet_DefinePolicyGroup_For_DataShare_Policy_Sid:
+      endPoint: /v1/policymanager/policies/group/new
+      uniqueIdentifier: Dependent_Idrepo_definePolicyGroup_05
+      description: Define policy group with valid details
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/DefinePolicyGroup/definePolicyGroup
+      outputTemplate: esignet/PmsIntegration/DefinePolicyGroup/definePolicyGroupResult
+      input: '{
+    "desc": "$DATASHAREPOLICYGROUPDESC$",
+    "name": "$DATASHAREPOLICYGROUPNAME$",
+    "requesttime": "$TIMESTAMP$"
+  }'
+      output: ' {
+        "is_Active": true
+    }'

@@ -162,3 +162,103 @@ createPublishPolicy:
         "is_Active": "true",
         "authType": "bio"
 }'
+
+   Esignet_PublishPolicy_DataShare_Valid_Smoke:
+      endPoint: /v1/policymanager/policies/{policyId}/group/{policygroupId}/publish
+      uniqueIdentifier: Dependent_Idrepo_createPublishPolicy_09
+      description: Publish policy DataShare with all valid details
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/PublishPolicy/publishPolicy
+      outputTemplate: esignet/PmsIntegration/PublishPolicy/publishPolicyMispResult
+      input: '{
+		"policygroupId": "$ID:DefinePolicyGroup_For_DataShare_Policy_Sid_id$",
+		"policyId": "$ID:DefinePolicy_For_DataShare_sid_id$",
+		"requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+        "policyGroupStatus": "true",
+        "policyType": "DataShare",
+        "status": "PUBLISHED",
+        "is_Active": "true"
+}'
+
+   Esignet_PublishPolicy_For_AuthPartner_Smoke:
+      endPoint: /v1/policymanager/policies/{policyId}/group/{policygroupId}/publish
+      uniqueIdentifier: Dependent_Idrepo_createPublishPolicy_10
+      description: Publish policy Auth with all valid details
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/PublishPolicy/publishPolicy
+      outputTemplate: esignet/PmsIntegration/PublishPolicy/publishPolicyMispResult
+      input: '{
+		"policygroupId": "$ID:DefinePolicyGroup_All_Valid_Smoke_sid_id$",
+		"policyId": "$ID:DefinePolicy_For_AuthPartner_sid_id$",
+		"requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+        "policyGroupStatus": "true",
+        "policyType": "Auth",
+        "status": "PUBLISHED",
+        "is_Active": "true"
+}'
+
+   Esignet_PublishPolicy_For_Policy_WithOut_AllowedAuthTypes_Smoke:
+      endPoint: /v1/policymanager/policies/{policyId}/group/{policygroupId}/publish
+      uniqueIdentifier: Dependent_Idrepo_createPublishPolicy_11
+      description: Publish policy Auth with all valid details
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/PublishPolicy/publishPolicy
+      outputTemplate: esignet/PmsIntegration/PublishPolicy/publishPolicyMispResult
+      input: '{
+		"policygroupId": "$ID:DefinePolicyGroup_All_Valid_Smoke_sid_id$",
+		"policyId": "$ID:DefinePolicy_WithOut_AllowedAuthTypes_sid_id$",
+		"requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+        "policyGroupStatus": "true",
+        "policyType": "Auth",
+        "status": "PUBLISHED",
+        "is_Active": "true"
+}'
+
+   Esignet_PublishPolicy_For_Policy_WithOut_AllowedKycAttributes_Smoke:
+      endPoint: /v1/policymanager/policies/{policyId}/group/{policygroupId}/publish
+      uniqueIdentifier: Dependent_Idrepo_createPublishPolicy_12
+      description: Publish policy Auth with all valid details
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/PublishPolicy/publishPolicy
+      outputTemplate: esignet/PmsIntegration/PublishPolicy/publishPolicyMispResult
+      input: '{
+		"policygroupId": "$ID:DefinePolicyGroup_All_Valid_Smoke_sid_id$",
+		"policyId": "$ID:DefinePolicy_WithOut_AllowedKycAttributes_sid_id$",
+		"requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+        "policyGroupStatus": "true",
+        "policyType": "Auth",
+        "status": "PUBLISHED",
+        "is_Active": "true"
+}'
+
+   Esignet_PublishPolicy_For_Policy_WithOut_FullName_Email_Gender_Smoke:
+      endPoint: /v1/policymanager/policies/{policyId}/group/{policygroupId}/publish
+      uniqueIdentifier: Dependent_Idrepo_createPublishPolicy_13
+      description: Publish policy Auth with all valid details
+      role: partner
+      restMethod: post
+      inputTemplate: esignet/PmsIntegration/PublishPolicy/publishPolicy
+      outputTemplate: esignet/PmsIntegration/PublishPolicy/publishPolicyMispResult
+      input: '{
+		"policygroupId": "$ID:DefinePolicyGroup_All_Valid_Smoke_sid_id$",
+		"policyId": "$ID:DefinePolicy_WithOut_FullName_Email_Gender_sid_id$",
+		"requesttime": "$TIMESTAMP$"
+}'
+      output: '{
+        "policyGroupStatus": "true",
+        "policyType": "Auth",
+        "status": "PUBLISHED",
+        "is_Active": "true"
+}'
