@@ -339,9 +339,6 @@ public class BaseTestUtil {
 	}
 
 	private static void applyLocalSbiAccessFlags(ChromeOptions chromeOptions, Map<String, Object> prefs) {
-		if (!MockMdsManager.isEnabled()) {
-			return;
-		}
 		chromeOptions.addArguments("--allow-insecure-localhost");
 		chromeOptions.addArguments("--unsafely-treat-insecure-origin-as-secure=http://127.0.0.1,http://localhost");
 		chromeOptions.addArguments("--disable-features=LocalNetworkAccessChecks,BlockInsecurePrivateNetworkRequests,"
@@ -351,9 +348,6 @@ public class BaseTestUtil {
 	}
 
 	private static void applyLocalSbiAccessFlags(EdgeOptions edgeOptions) {
-		if (!MockMdsManager.isEnabled()) {
-			return;
-		}
 		edgeOptions.addArguments("--allow-insecure-localhost");
 		edgeOptions.addArguments("--unsafely-treat-insecure-origin-as-secure=http://127.0.0.1,http://localhost");
 		edgeOptions.addArguments("--disable-features=LocalNetworkAccessChecks,BlockInsecurePrivateNetworkRequests,"

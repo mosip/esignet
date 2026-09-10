@@ -42,7 +42,6 @@ public class EsignetConfigManager extends io.mosip.testrig.apirig.utils.ConfigMa
 			}
 
 			// JVM -D from Docker entrypoint / IDE run configs wins over classpath defaults.
-			overlaySystemProperty(moduleSpecificPropertiesMap, "useMockMds");
 			overlaySystemProperty(moduleSpecificPropertiesMap, "runOnBrowserStack");
 			overlaySystemProperty(moduleSpecificPropertiesMap, "headless");
 			overlaySystemProperty(moduleSpecificPropertiesMap, "runDocker");

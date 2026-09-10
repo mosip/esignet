@@ -282,7 +282,7 @@ public class Runner extends AbstractTestNGCucumberTests {
 					BiometricDataProvider.generateBiometricTestData("Registration");
 				} catch (Exception biometricSetupEx) {
 					LOGGER.warning("Biometric test-data generation via embedded SBI skipped (Mock MDS handles UI "
-							+ "biometrics when useMockMds=true): " + biometricSetupEx.getMessage());
+							+ "biometrics for @BiometricLogin/@RequiresMockMds scenarios): " + biometricSetupEx.getMessage());
 				}
 				utils.MockMdsManager.stopAll();
 			}

@@ -41,7 +41,6 @@ JAVA_ARGS=(
   -Dheadless=true
   # Same-container Chrome + Mock SBI; BrowserStack cannot reach localhost:4501-4510.
   -DrunOnBrowserStack=false
-  -DuseMockMds=true
 )
 
 if [[ -n "${CUCUMBER_FILTER_TAGS:-}" ]]; then

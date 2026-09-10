@@ -37,15 +37,6 @@ public final class MockMdsManager {
 	private MockMdsManager() {
 	}
 
-	public static boolean isEnabled() {
-		String fromSys = System.getProperty("useMockMds");
-		if (fromSys != null && !fromSys.isBlank()) {
-			return Boolean.parseBoolean(fromSys.trim());
-		}
-		String value = EsignetConfigManager.getproperty("useMockMds");
-		return value != null && Boolean.parseBoolean(value.trim());
-	}
-
 	public static boolean isRunning() {
 		return running;
 	}
@@ -59,20 +50,12 @@ public final class MockMdsManager {
 	}
 
 	public static void startForBiometricScan() throws Exception {
-		if (!isEnabled()) {
-			throw new IllegalStateException("useMockMds must be true to start Mock MDS for biometric scan");
-		}
-
 		stopAll();
 		resetMockSbiPropertyCache();
 		startForAuth(true);
 	}
 
 	public static void startForAuth(boolean force) throws Exception {
-		if (!force && !isEnabled()) {
-			return;
-		}
-
 		synchronized (LOCK) {
 			if (running && !force) {
 				return;

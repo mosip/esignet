@@ -361,9 +361,6 @@ public class BaseTest extends AdminTestUtil {
 
 	@Before(order = 20, value = "@BiometricLogin")
 	public void startMockMdsForBiometricLogin(Scenario scenario) throws Exception {
-		if (!MockMdsManager.isEnabled()) {
-			skipWithReason("useMockMds=false - enable useMockMds for @BiometricLogin scenarios");
-		}
 		if (Boolean.parseBoolean(EsignetConfigManager.getproperty("runOnBrowserStack"))) {
 			skipWithReason("Mock MDS requires local browser (localhost SBI ports)");
 		}
@@ -376,9 +373,6 @@ public class BaseTest extends AdminTestUtil {
 
 	@Before("@BiometricDeviceNotDetected or @BiometricDeviceDetectedOnRetry or @BiometricAuthenticationFlow")
 	public void ensureMockMdsStoppedBeforeDeviceNotFoundScan(Scenario scenario) {
-		if (!MockMdsManager.isEnabled()) {
-			return;
-		}
 		if (Boolean.parseBoolean(EsignetConfigManager.getproperty("runOnBrowserStack"))) {
 			return;
 		}
@@ -387,9 +381,6 @@ public class BaseTest extends AdminTestUtil {
 
 	@Before("@RequiresMockMds")
 	public void startMockMds(Scenario scenario) throws Exception {
-		if (!MockMdsManager.isEnabled()) {
-			skipWithReason("useMockMds is not enabled in config.properties");
-		}
 		if (Boolean.parseBoolean(EsignetConfigManager.getproperty("runOnBrowserStack"))) {
 			skipWithReason("Mock MDS requires a local browser that can reach localhost SBI ports");
 		}
