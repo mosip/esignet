@@ -36,7 +36,7 @@ This guide brings up a fully functional eSignet environment on your local machin
 | Free RAM | 4 GB minimum, 8 GB recommended |
 | Free disk | ~2 GB for pulled images |
 | Free ports | **5455**, **8082**, **8080**, **3000** — must not be in use before starting |
-| `curl` | For health checks from the terminal |
+| `curl` | For health checks from the terminal (optional) |
 | Browser | For the OIDC UI flow |
 
 ---
@@ -52,9 +52,9 @@ Brings up **all four services**. Use this for demos, hackathons, or evaluating e
 | Service | Image | Host Port | Role |
 |---|---|---|---|
 | `database` | `postgres:bookworm` | **5455** | PostgreSQL — two databases: `mosip_esignet` and `mosip_mockidentitysystem`, schemas and seed data created automatically via `init.sql` |
-| `mock-identity-system` | `mosipdev/mock-identity-system:release-0.14.x` | **8082** | Mock identity backend — simulates a national ID system; supports OTP, PIN, and password auth |
-| `esignet` | `mosipdev/esignet:develop-go` | **8080** | eSignet OIDC/OAuth2 service — the core authorization server |
-| `esignet-ui` | `mosipdev/oidc-ui:develop-go` | **3000** | OIDC login UI — nginx-served React app; proxies API calls to the `esignet` service |
+| `mock-identity-system` | `mosipid/mock-identity-system:**` | **8082** | Mock identity backend — simulates a national ID system; supports OTP, PIN, and password auth |
+| `esignet` | `mosipid/esignet:**` | **8080** | eSignet OIDC/OAuth2 service — the core authorization server |
+| `esignet-ui` | `mosipid/oidc-ui:**` | **3000** | OIDC login UI — nginx-served React app; proxies API calls to the `esignet` service |
 
 Startup order enforced by `depends_on`:
 `database` (healthy) → `mock-identity-system` → `esignet` → `esignet-ui`
@@ -66,7 +66,7 @@ Brings up **only the infrastructure services** (PostgreSQL + Mock Identity Syste
 | Service | Image | Host Port | Role |
 |---|---|---|---|
 | `database` | `postgres:bookworm` | **5455** | PostgreSQL (same init.sql as above) |
-| `mock-identity-system` | `mosipdev/mock-identity-system:release-0.14.x` | **8082** | Mock identity backend |
+| `mock-identity-system` | `mosipid/mock-identity-system:**` | **8082** | Mock identity backend |
 
 ---
 
@@ -131,7 +131,7 @@ curl http://localhost:8082/v1/mock-identity-system/actuator/health
 
 If `esignet` takes longer to start (it waits for `mock-identity-system`), wait 30–60 seconds and retry.
 
-### 3. Verify database initialization
+### 3. Verify database initialization (optional)
 
 Confirm both databases and schemas were created by `init.sql`:
 
@@ -239,11 +239,11 @@ The easiest way to walk through the full OIDC flow is via the included Postman c
 
 ```
 1. Register an OIDC client
-   POST http://localhost:8080/client-mgmt/oidc-client
+   POST http://localhost:8080/client-mgmt/client
    (see Postman collection for the request body)
 
 2. Initiate authorization (browser)
-   http://localhost:3000/signin?applicationId=<client_id>&authId=<state>
+   http://localhost:8080/oauth2/authorize?client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&prompt=consent&response_type=code&scope=openid%20email%20profile&claims={CLAIMS}&state={STATE}&code_challenge={CODE_CHALLENGE}&code_challenge_method=S256
    The OIDC UI login screen appears.
 
 3. Authenticate
@@ -272,7 +272,7 @@ The easiest way to walk through the full OIDC flow is via the included Postman c
 
 A full end-to-end demo also involves a Mock Relying Party — a sample web application that acts as the OIDC client, initiates the authorization flow, and receives tokens. Its compose setup lives in a separate MOSIP repository:
 
-[mosip/esignet-mock-services — docker-compose setup](https://github.com/mosip/esignet-mock-services/blob/release-0.14.x-beta.1/docker-compose/README.md)
+[mosip/esignet-mock-services — docker-compose setup](https://github.com/mosip/esignet-mock-services/blob/master/docker-compose/README.md)
 
 Follow that guide to bring up the Mock Relying Party Portal alongside this stack. Until then, use the Postman collection above to exercise the full flow.
 
@@ -324,9 +324,11 @@ Common causes:
 **Images not found / pull errors**
 
 ```bash
-docker pull mosipdev/esignet:develop-go
-docker pull mosipdev/oidc-ui:develop-go
+docker pull mosipid/esignet:**
+docker pull mosipid/oidc-ui:**
 ```
+
+Note: Can use "latest" tag or released version tag.
 
 Check your internet connection or Docker Hub rate limits.
 
