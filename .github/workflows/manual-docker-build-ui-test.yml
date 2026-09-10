@@ -9,6 +9,13 @@ on:
         default: 'Triggered for Updates'
         type: string
 
+  push:
+    branches:
+      - release*
+    paths:
+      - 'ui-test/**'
+      - '.github/workflows/manual-docker-build-ui-test.yml'
+
 jobs:
 
   build_maven_ui_test:
@@ -25,7 +32,6 @@ jobs:
 
   build_docker_ui_test:
     needs: build_maven_ui_test
-    if: ${{ github.event_name == 'workflow_dispatch' }}
     strategy:
       matrix:
         include:
