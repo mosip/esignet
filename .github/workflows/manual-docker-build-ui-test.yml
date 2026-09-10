@@ -19,7 +19,7 @@ on:
 jobs:
 
   build_maven_ui_test:
-    uses: mosip/kattu/.github/workflows/maven-build.yml@master
+    uses: mosip/kattu/.github/workflows/maven-build.yml@master-java21
     with:
       SERVICE_LOCATION: ./ui-test
       BUILD_ARTIFACT: uitest-esignet
